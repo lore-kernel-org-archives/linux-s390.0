@@ -1,243 +1,91 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH] sysfs and driver core: add callback helper, used by SCSI
- and S390
-Date: Thu, 15 Mar 2007 15:50:34 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.0703151546190.2482-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.64.0703150944250.3816@woody.linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0703150944250.3816@woody.linux-foundation.org>
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Hugh Dickins <hugh@veritas.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Oliver Neukum <oneukum@suse.de>, Maneesh Soni <maneesh@in.ibm.com>, gregkh@suse.de, Richard Purdie <rpurdie@rpsys.net>, James Bottomley <James.Bottomley@SteelEye.com>, SCSI development list <linux-scsi@vger.kernel.org>, linux-s390@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965848AbXCLNsf@vger.kernel.org>
+Date: Mon, 12 Mar 2007 14:48:39 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [S390] cio: qdio slsb setup
+Message-ID: <20070312134839.GA10204@skybase>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: braunu@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch (as868) adds a helper routine for device drivers that need
-to set up a callback to perform some action in a different process's
-context.  This is intended for use by attribute methods that want to
-unregister themselves or their parent device.  Attribute method calls
-are mutually exclusive with unregistration, so such actions cannot be
-taken directly.
+From: Ursula Braun <braunu@de.ibm.com>
 
-Two attribute methods are converted to use the new helper routine: one
-for SCSI device deletion and one for System/390 ccwgroup devices.
+[S390] cio: qdio slsb setup
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Make sure set_slsb problems are handled correctly in
+qdio_do_qdio_fill_input() and qdio_do_qdio_fill_output.
 
+Signed-off-by: Ursula Braun <braunu@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
-Index: 2.6.21-rc3-git9/include/linux/sysfs.h
-===================================================================
---- 2.6.21-rc3-git9.orig/include/linux/sysfs.h
-+++ 2.6.21-rc3-git9/include/linux/sysfs.h
-@@ -78,6 +78,9 @@ struct sysfs_ops {
- 
- #ifdef CONFIG_SYSFS
- 
-+extern int sysfs_schedule_callback(struct kobject *kobj,
-+		void (*func)(void *), void *data);
-+
- extern int __must_check
- sysfs_create_dir(struct kobject *, struct dentry *);
- 
-@@ -132,6 +135,12 @@ extern int __must_check sysfs_init(void)
- 
- #else /* CONFIG_SYSFS */
- 
-+static inline int sysfs_schedule_callback(struct kobject *kobj,
-+		void (*func)(void *), void *data)
-+{
-+	return -ENOSYS;
-+}
-+
- static inline int sysfs_create_dir(struct kobject * k, struct dentry *shadow)
+ drivers/s390/cio/qdio.c |   26 ++++++++++++++++++--------
+ 1 files changed, 18 insertions(+), 8 deletions(-)
+
+diff -urpN linux-2.6/drivers/s390/cio/qdio.c linux-2.6-patched/drivers/s390/cio/qdio.c
+--- linux-2.6/drivers/s390/cio/qdio.c	2007-03-12 13:52:36.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/qdio.c	2007-03-12 13:52:56.000000000 +0100
+@@ -210,9 +210,11 @@ again:
+ 		goto again;
+ 	}
+ 	if (rc < 0) {
+-                QDIO_DBF_TEXT3(1,trace,"sqberr");
+-                sprintf(dbf_text,"%2x,%2x,%d,%d",tmp_cnt,*cnt,ccq,q_no);
+-                QDIO_DBF_TEXT3(1,trace,dbf_text);
++		QDIO_DBF_TEXT3(1,trace,"sqberr");
++		sprintf(dbf_text,"%2x,%2x",tmp_cnt,*cnt);
++		QDIO_DBF_TEXT3(1,trace,dbf_text);
++		sprintf(dbf_text,"%d,%d",ccq,q_no);
++		QDIO_DBF_TEXT3(1,trace,dbf_text);
+ 		q->handler(q->cdev,QDIO_STATUS_ACTIVATE_CHECK_CONDITION|
+ 				QDIO_STATUS_LOOK_FOR_ERROR,
+ 				0, 0, 0, -1, -1, q->int_parm);
+@@ -1250,7 +1252,6 @@ qdio_is_inbound_q_done(struct qdio_q *q)
+ 	if (!no_used) {
+ 		QDIO_DBF_TEXT4(0,trace,"inqisdnA");
+ 		QDIO_DBF_HEX4(0,trace,&q,sizeof(void*));
+-		QDIO_DBF_TEXT4(0,trace,dbf_text);
+ 		return 1;
+ 	}
+ 	if (irq->is_qebsm) {
+@@ -3371,10 +3372,15 @@ qdio_do_qdio_fill_input(struct qdio_q *q
+ 			unsigned int count, struct qdio_buffer *buffers)
  {
- 	return 0;
-Index: 2.6.21-rc3-git9/fs/sysfs/file.c
-===================================================================
---- 2.6.21-rc3-git9.orig/fs/sysfs/file.c
-+++ 2.6.21-rc3-git9/fs/sysfs/file.c
-@@ -629,6 +629,60 @@ void sysfs_remove_file_from_group(struct
- }
- EXPORT_SYMBOL_GPL(sysfs_remove_file_from_group);
- 
-+struct sysfs_schedule_callback_struct {
-+	struct kobject 		*kobj;
-+	void			(*func)(void *);
-+	void			*data;
-+	struct work_struct	work;
-+};
+ 	struct qdio_irq *irq = (struct qdio_irq *) q->irq_ptr;
++	int tmp = 0;
 +
-+static void sysfs_schedule_callback_work(struct work_struct *work)
-+{
-+	struct sysfs_schedule_callback_struct *ss = container_of(work,
-+			struct sysfs_schedule_callback_struct, work);
-+
-+	(ss->func)(ss->data);
-+	kobject_put(ss->kobj);
-+	kfree(ss);
-+}
-+
-+/**
-+ * sysfs_schedule_callback - helper to schedule a callback for a kobject
-+ * @kobj: object we're acting for.
-+ * @func: callback function to invoke later.
-+ * @data: argument to pass to @func.
-+ *
-+ * sysfs attribute methods must not unregister themselves or their parent
-+ * kobject (which would amount to the same thing).  Attempts to do so will
-+ * deadlock, since unregistration is mutually exclusive with driver
-+ * callbacks.
-+ *
-+ * Instead methods can call this routine, which will attempt to allocate
-+ * and schedule a workqueue request to call back @func with @data as its
-+ * argument in the workqueue's process context.  @kobj will be pinned
-+ * until @func returns.
-+ *
-+ * Returns 0 if the request was submitted, -ENOMEM if storage could not
-+ * be allocated.
-+ */
-+int sysfs_schedule_callback(struct kobject *kobj, void (*func)(void *),
-+		void *data)
-+{
-+	struct sysfs_schedule_callback_struct *ss;
-+
-+	ss = kmalloc(sizeof(*ss), GFP_KERNEL);
-+	if (!ss)
-+		return -ENOMEM;
-+	kobject_get(kobj);
-+	ss->kobj = kobj;
-+	ss->func = func;
-+	ss->data = data;
-+	INIT_WORK(&ss->work, sysfs_schedule_callback_work);
-+	schedule_work(&ss->work);
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(sysfs_schedule_callback);
-+
- 
- EXPORT_SYMBOL_GPL(sysfs_create_file);
- EXPORT_SYMBOL_GPL(sysfs_remove_file);
-Index: 2.6.21-rc3-git9/include/linux/device.h
-===================================================================
---- 2.6.21-rc3-git9.orig/include/linux/device.h
-+++ 2.6.21-rc3-git9/include/linux/device.h
-@@ -353,6 +353,8 @@ extern int __must_check device_create_bi
- 					       struct bin_attribute *attr);
- extern void device_remove_bin_file(struct device *dev,
- 				   struct bin_attribute *attr);
-+extern int device_schedule_callback(struct device *dev,
-+		void (*func)(struct device *));
- 
- /* device resource management */
- typedef void (*dr_release_t)(struct device *dev, void *res);
-Index: 2.6.21-rc3-git9/drivers/base/core.c
-===================================================================
---- 2.6.21-rc3-git9.orig/drivers/base/core.c
-+++ 2.6.21-rc3-git9/drivers/base/core.c
-@@ -407,6 +407,35 @@ void device_remove_bin_file(struct devic
- }
- EXPORT_SYMBOL_GPL(device_remove_bin_file);
- 
-+/**
-+ * device_schedule_callback - helper to schedule a callback for a device
-+ * @dev: device.
-+ * @func: callback function to invoke later.
-+ *
-+ * Attribute methods must not unregister themselves or their parent device
-+ * (which would amount to the same thing).  Attempts to do so will deadlock,
-+ * since unregistration is mutually exclusive with driver callbacks.
-+ *
-+ * Instead methods can call this routine, which will attempt to allocate
-+ * and schedule a workqueue request to call back @func with @dev as its
-+ * argument in the workqueue's process context.  @dev will be pinned until
-+ * @func returns.
-+ *
-+ * Returns 0 if the request was submitted, -ENOMEM if storage could not
-+ * be allocated.
-+ *
-+ * NOTE: This routine won't work if CONFIG_SYSFS isn't set!  It uses an
-+ * underlying sysfs routine (since it is intended for use by attribute
-+ * methods), and if sysfs isn't available you'll get nothing but -ENOSYS.
-+ */
-+int device_schedule_callback(struct device *dev,
-+		void (*func)(struct device *))
-+{
-+	return sysfs_schedule_callback(&dev->kobj,
-+			(void (*)(void *)) func, dev);
-+}
-+EXPORT_SYMBOL_GPL(device_schedule_callback);
-+
- static void klist_children_get(struct klist_node *n)
+ 	qidx &= (QDIO_MAX_BUFFERS_PER_Q - 1);
+ 	if (irq->is_qebsm) {
+-		while (count)
+-			set_slsb(q, &qidx, SLSB_CU_INPUT_EMPTY, &count);
++		while (count) {
++			tmp = set_slsb(q, &qidx, SLSB_CU_INPUT_EMPTY, &count);
++			if (!tmp)
++				return;
++		}
+ 		return;
+ 	}
+ 	for (;;) {
+@@ -3390,11 +3396,15 @@ qdio_do_qdio_fill_output(struct qdio_q *
+ 			 unsigned int count, struct qdio_buffer *buffers)
  {
- 	struct device *dev = container_of(n, struct device, knode_parent);
-Index: 2.6.21-rc3-git9/drivers/scsi/scsi_sysfs.c
-===================================================================
---- 2.6.21-rc3-git9.orig/drivers/scsi/scsi_sysfs.c
-+++ 2.6.21-rc3-git9/drivers/scsi/scsi_sysfs.c
-@@ -452,10 +452,22 @@ store_rescan_field (struct device *dev, 
- }
- static DEVICE_ATTR(rescan, S_IWUSR, NULL, store_rescan_field);
+ 	struct qdio_irq *irq = (struct qdio_irq *) q->irq_ptr;
++	int tmp = 0;
  
-+static void sdev_store_delete_callback(struct device *dev)
-+{
-+	scsi_remove_device(to_scsi_device(dev));
-+}
-+
- static ssize_t sdev_store_delete(struct device *dev, struct device_attribute *attr, const char *buf,
- 				 size_t count)
- {
--	scsi_remove_device(to_scsi_device(dev));
-+	int rc;
-+
-+	/* An attribute cannot be unregistered by one of its own methods,
-+	 * so we have to use this roundabout approach.
-+	 */
-+	rc = device_schedule_callback(dev, sdev_store_delete_callback);
-+	if (rc)
-+		count = rc;
- 	return count;
- };
- static DEVICE_ATTR(delete, S_IWUSR, NULL, sdev_store_delete);
-Index: 2.6.21-rc3-git9/drivers/s390/cio/ccwgroup.c
-===================================================================
---- 2.6.21-rc3-git9.orig/drivers/s390/cio/ccwgroup.c
-+++ 2.6.21-rc3-git9/drivers/s390/cio/ccwgroup.c
-@@ -71,19 +71,31 @@ __ccwgroup_remove_symlinks(struct ccwgro
-  * Provide an 'ungroup' attribute so the user can remove group devices no
-  * longer needed or accidentially created. Saves memory :)
-  */
-+static void ccwgroup_ungroup_callback(struct device *dev)
-+{
-+	struct ccwgroup_device *gdev = to_ccwgroupdev(dev);
-+
-+	__ccwgroup_remove_symlinks(gdev);
-+	device_unregister(dev);
-+}
-+
- static ssize_t
- ccwgroup_ungroup_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
- {
- 	struct ccwgroup_device *gdev;
-+	int rc;
- 
- 	gdev = to_ccwgroupdev(dev);
- 
- 	if (gdev->state != CCWGROUP_OFFLINE)
- 		return -EINVAL;
- 
--	__ccwgroup_remove_symlinks(gdev);
--	device_unregister(dev);
--
-+	/* Note that we cannot unregister the device from one of its
-+	 * attribute methods, so we have to use this roundabout approach.
-+	 */
-+	rc = device_schedule_callback(dev, ccwgroup_ungroup_callback);
-+	if (rc)
-+		count = rc;
- 	return count;
- }
+ 	qidx &= (QDIO_MAX_BUFFERS_PER_Q - 1);
+ 	if (irq->is_qebsm) {
+-		while (count)
+-			set_slsb(q, &qidx, SLSB_CU_OUTPUT_PRIMED, &count);
++		while (count) {
++			tmp = set_slsb(q, &qidx, SLSB_CU_OUTPUT_PRIMED, &count);
++			if (!tmp)
++				return;
++		}
+ 		return;
+ 	}
  
