@@ -1,229 +1,268 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965657AbXCPQ5b@vger.kernel.org>
-Subject: [Patch] simplify statistics' debugfs write function
-From: Martin Peschke <mp3@de.ibm.com>
-Content-Type: text/plain
-Date: Fri, 16 Mar 2007 17:57:26 +0100
-Message-Id: <1174064247.6068.16.camel@dix>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
+From: <gregkh@suse.de>
+Subject: patch sysfs-and-driver-core-add-callback-helper-used-by-scsi-and-s390.patch added to gregkh-2.6 tree
+Date: Thu, 15 Mar 2007 15:47:38 -0700
+Message-ID: <1HRyjT-3wT-00@press.kroah.org>
+References: <Pine.LNX.4.44L0.0703151546190.2482-100000@iolanthe.rowland.org>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0703151546190.2482-100000@iolanthe.rowland.org>
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: stern@rowland.harvard.edu, cornelia.huck@de.ibm.com, dmitry.torokhov@gmail.com, gregkh@suse.de, greg@kroah.com, hugh@veritas.com, James.Bottomley@SteelEye.com, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, maneesh@in.ibm.com, oneukum@suse.de, rpurdie@rpsys.net, torvalds@linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The old code was unnecessarily complex and hard to maintain.
 
-This rewrite disposes of an issue in the old code (probably an
-off-by-one bug), seen with the readahead statistics prototype patch
-reported by Fengguang Wu.
+This is a note to let you know that I've just added the patch titled
 
-Patch is against 2.6.21-rc3-mm2.
+     Subject: sysfs and driver core: add callback helper, used by SCSI and S390
 
-# uname -a
-Linux intel 2.6.21-rc3-mm2 #3 SMP Thu Mar 8 23:28:58 CST 2007 x86_64 GNU/Linux
-# echo state=on > /debug/statistics/readahead/definition
-[  694.286926] Unable to handle kernel paging request at ffff80ffa7457a5a RIP:
-[  694.287378]  [<ffffffff8115228c>] strnchr+0x2c/0x40
-[  694.287946] PGD 0
-[  694.288117] Oops: 0000 [1] SMP
-[  694.288345] last sysfs file: block/hda/dev
-[  694.288624] CPU 0
-[  694.288785] Modules linked in:
-[  694.289026] Pid: 1051, comm: zsh Not tainted 2.6.21-rc3-mm2 #3
-[  694.289367] RIP: 0010:[<ffffffff8115228c>]  [<ffffffff8115228c>] strnchr+0x2c/0x40
-[  694.289835] RSP: 0018:ffff810002669e28  EFLAGS: 00000217
-[  694.290147] RAX: ffff81000260bca8 RBX: ffff81000260bca8 RCX: 000000005aa5a5ae
-[  694.290456] RDX: 000000000000000a RSI: 000000005aa5a5af RDI: ffff80ffa7457a5a
-[  694.290784] RBP: ffff810002669e28 R08: 0000000000000001 R09: 0000000000000000
-[  694.291107] R10: ffff81000260bca8 R11: 0000000000000020 R12: 0000000000000008
-[  694.291452] R13: 00000000a55a5a5a R14: ffff81000260bd18 R15: ffff810002669e68
-[  694.291791] FS:  00002b33b4955e90(0000) GS:ffffffff81420000(0000) knlGS:0000000000000000
-[  694.292156] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-[  694.292420] CR2: ffff80ffa7457a5a CR3: 00000000026b6000 CR4: 00000000000006e0
-[  694.292768] Process zsh (pid: 1051, threadinfo ffff810002668000, task ffff81000262a100)
-[  694.293123] Stack:  ffff810002669ea8 ffffffff8116561c 0000000000000009 ffff8100026bbe58
-[  694.293576]  ffff810001ee37f8 ffff810002674e60 ffffffff813eb280 0000000000000000
-[  694.293972]  ffff810002669e68 ffff810002669e68 0000000800000000 0000000000000008
-[  694.294341] Call Trace:
-[  694.294495]  [<ffffffff8116561c>] statistic_def_close+0x9c/0x180
-[  694.294793]  [<ffffffff81013582>] __fput+0xd2/0x1b0
-[  694.295026]  [<ffffffff8102fdd4>] fput+0x14/0x20
-[  694.295253]  [<ffffffff81025ca3>] filp_close+0x73/0x90
-[  694.295498]  [<ffffffff8104baf8>] sys_dup2+0x148/0x190
-[  694.295752]  [<ffffffff8106411e>] system_call+0x7e/0x83
+to my gregkh-2.6 tree.  Its filename is
 
-Signed-off-by: Martin Peschke <mp3@de.ibm.com>
----
+     sysfs-and-driver-core-add-callback-helper-used-by-scsi-and-s390.patch
 
- statistic.c |  111 ++++++++++++++----------------------------------------------
- 1 file changed, 26 insertions(+), 85 deletions(-)
+This tree can be found at 
+    http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/
 
-Index: linux/lib/statistic.c
-===================================================================
---- linux.orig/lib/statistic.c
-+++ linux/lib/statistic.c
-@@ -64,8 +64,8 @@
+
+From stern@rowland.harvard.edu  Thu Mar 15 15:35:00 2007
+Date: Thu, 15 Mar 2007 15:50:34 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Hugh Dickins <hugh@veritas.com>, <greg@kroah.com>,
+	Cornelia Huck <cornelia.huck@de.ibm.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Oliver Neukum <oneukum@suse.de>, Maneesh Soni <maneesh@in.ibm.com>,
+	<gregkh@suse.de>, Richard Purdie <rpurdie@rpsys.net>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	SCSI development list <linux-scsi@vger.kernel.org>,
+	<linux-s390@vger.kernel.org>
+Subject: sysfs and driver core: add callback helper, used by SCSI and S390
+Message-ID: <Pine.LNX.4.44L0.0703151546190.2482-100000@iolanthe.rowland.org>
+
+This patch (as868) adds a helper routine for device drivers that need
+to set up a callback to perform some action in a different process's
+context.  This is intended for use by attribute methods that want to
+unregister themselves or their parent device.  Attribute method calls
+are mutually exclusive with unregistration, so such actions cannot be
+taken directly.
+
+Two attribute methods are converted to use the new helper routine: one
+for SCSI device deletion and one for System/390 ccwgroup devices.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+--- 2.6.21-rc3-git9.orig/include/linux/sysfs.h
++++ 2.6.21-rc3-git9/include/linux/sysfs.h
+@@ -78,6 +78,9 @@ struct sysfs_ops {
  
- struct statistic_file_private {
- 	struct list_head read_seg_lh;
--	struct list_head write_seg_lh;
--	size_t write_seg_total_size;
-+	size_t w_offset;
-+	char *w_buf;
- };
+ #ifdef CONFIG_SYSFS
  
- struct statistic_merge_private {
-@@ -576,30 +576,6 @@ static void statistic_parse_line(struct 
- 	kfree(name);
- }
- 
--static void statistic_parse(struct statistic_interface *interface,
--			    struct list_head *line_lh, size_t line_size)
--{
--	struct sgrb_seg *seg, *tmp;
--	char *buf;
--	int offset = 0;
--
--	if (unlikely(!line_size))
--		return;
--	buf = kmalloc(line_size + 2, GFP_KERNEL);
--	if (unlikely(!buf))
--		return;
--	buf[line_size] = ' ';
--	buf[line_size + 1] = '\0';
--	list_for_each_entry_safe(seg, tmp, line_lh, list) {
--		memcpy(buf + offset, seg->address, seg->size);
--		offset += seg->size;
--		list_del(&seg->list);
--		kfree(seg);
--	}
--	statistic_parse_line(interface, buf);
--	kfree(buf);
--}
--
- /* sequential files comprising user interface */
- 
- static int statistic_generic_open(struct inode *inode,
-@@ -612,7 +588,6 @@ static int statistic_generic_open(struct
- 	if (unlikely(!*private))
- 		return -ENOMEM;
- 	INIT_LIST_HEAD(&(*private)->read_seg_lh);
--	INIT_LIST_HEAD(&(*private)->write_seg_lh);
- 	file->private_data = *private;
- 	return 0;
- }
-@@ -622,7 +597,6 @@ static int statistic_generic_close(struc
- 	struct statistic_file_private *private = file->private_data;
- 	BUG_ON(!private);
- 	sgrb_seg_release_all(&private->read_seg_lh);
--	sgrb_seg_release_all(&private->write_seg_lh);
- 	kfree(private);
- 	return 0;
- }
-@@ -658,72 +632,39 @@ static ssize_t statistic_generic_read(st
- 	return transfered;
- }
- 
--static ssize_t statistic_generic_write(struct file *file,
--			const char __user *buf, size_t len, loff_t *offset)
-+static ssize_t statistic_def_write(struct file *file, const char __user *buf,
-+				   size_t len, loff_t *offset)
- {
- 	struct statistic_file_private *private = file->private_data;
--	struct sgrb_seg *seg;
--	size_t seg_residual, seg_transfer;
--	size_t transfered = 0;
-+	char *larger;
- 
--	BUG_ON(!private);
--	if (unlikely(*offset != private->write_seg_total_size))
-+	if (unlikely(*offset != private->w_offset))
- 		return -EPIPE;
--	while (len) {
--		seg = sgrb_seg_find(&private->write_seg_lh, 1);
--		if (unlikely(!seg))
--			return -ENOMEM;
--		seg_residual = seg->size - seg->offset;
--		seg_transfer = min(len, seg_residual);
--		if (unlikely(copy_from_user(seg->address + seg->offset,
--					    buf + transfered, seg_transfer)))
--			return -EFAULT;
--		private->write_seg_total_size += seg_transfer;
--		seg->offset += seg_transfer;
--		transfered += seg_transfer;
--		*offset += seg_transfer;
--		len -= seg_transfer;
--	}
--	return transfered;
-+	if (*offset + len > 16 * PAGE_SIZE)
-+		return -ENOMEM;
-+	larger = kmalloc(*offset + len, GFP_KERNEL);
-+	if (!larger)
-+		return -ENOMEM;
-+	memcpy(larger, private->w_buf, *offset);
-+	if (copy_from_user(larger + *offset, buf, len))
-+		return -EFAULT;
-+	*offset += len;
-+	kfree(private->w_buf);
-+	private->w_buf = larger;
-+	private->w_offset = *offset;
-+	return len;
- }
- 
- static int statistic_def_close(struct inode *inode, struct file *file)
- {
- 	struct statistic_interface *interface = inode->i_private;
- 	struct statistic_file_private *private = file->private_data;
--	struct sgrb_seg *seg, *seg_nl;
--	int offset;
--	LIST_HEAD(line_lh);
--	char *nl;
--	size_t line_size = 0;
--
--	list_for_each_entry(seg, &private->write_seg_lh, list) {
--		for (offset = 0; offset < seg->offset; offset += seg_nl->size) {
--			seg_nl = kmalloc(sizeof(struct sgrb_seg), GFP_KERNEL);
--			if (unlikely(!seg_nl))
--				goto out;
--			seg_nl->address = seg->address + offset;
--			nl = strnchr(seg_nl->address,
--				     seg->offset - offset, '\n');
--			if (nl) {
--				seg_nl->offset = nl - seg_nl->address;
--				if (seg_nl->offset)
--					seg_nl->offset--;
--			} else
--				seg_nl->offset = seg->offset - offset;
--			seg_nl->size = seg_nl->offset + 1;
--			line_size += seg_nl->size;
--			list_add_tail(&seg_nl->list, &line_lh);
--			if (nl) {
--				statistic_parse(interface, &line_lh, line_size);
--				line_size = 0;
--			}
--		}
--	}
--out:
--	if (!list_empty(&line_lh))
--		statistic_parse(interface, &line_lh, line_size);
--	return statistic_generic_close(inode, file);
-+	char *p, *q = private->w_buf;
++extern int sysfs_schedule_callback(struct kobject *kobj,
++		void (*func)(void *), void *data);
 +
-+	while ((p = strsep(&q, "\n")))
-+		statistic_parse_line(interface, p);
-+	kfree(private->w_buf);
+ extern int __must_check
+ sysfs_create_dir(struct kobject *, struct dentry *);
+ 
+@@ -132,6 +135,12 @@ extern int __must_check sysfs_init(void)
+ 
+ #else /* CONFIG_SYSFS */
+ 
++static inline int sysfs_schedule_callback(struct kobject *kobj,
++		void (*func)(void *), void *data)
++{
++	return -ENOSYS;
++}
++
+ static inline int sysfs_create_dir(struct kobject * k, struct dentry *shadow)
+ {
+ 	return 0;
+Index: 2.6.21-rc3-git9/fs/sysfs/file.c
+===================================================================
+--- 2.6.21-rc3-git9.orig/fs/sysfs/file.c
++++ 2.6.21-rc3-git9/fs/sysfs/file.c
+@@ -629,6 +629,60 @@ void sysfs_remove_file_from_group(struct
+ }
+ EXPORT_SYMBOL_GPL(sysfs_remove_file_from_group);
+ 
++struct sysfs_schedule_callback_struct {
++	struct kobject 		*kobj;
++	void			(*func)(void *);
++	void			*data;
++	struct work_struct	work;
++};
++
++static void sysfs_schedule_callback_work(struct work_struct *work)
++{
++	struct sysfs_schedule_callback_struct *ss = container_of(work,
++			struct sysfs_schedule_callback_struct, work);
++
++	(ss->func)(ss->data);
++	kobject_put(ss->kobj);
++	kfree(ss);
++}
++
++/**
++ * sysfs_schedule_callback - helper to schedule a callback for a kobject
++ * @kobj: object we're acting for.
++ * @func: callback function to invoke later.
++ * @data: argument to pass to @func.
++ *
++ * sysfs attribute methods must not unregister themselves or their parent
++ * kobject (which would amount to the same thing).  Attempts to do so will
++ * deadlock, since unregistration is mutually exclusive with driver
++ * callbacks.
++ *
++ * Instead methods can call this routine, which will attempt to allocate
++ * and schedule a workqueue request to call back @func with @data as its
++ * argument in the workqueue's process context.  @kobj will be pinned
++ * until @func returns.
++ *
++ * Returns 0 if the request was submitted, -ENOMEM if storage could not
++ * be allocated.
++ */
++int sysfs_schedule_callback(struct kobject *kobj, void (*func)(void *),
++		void *data)
++{
++	struct sysfs_schedule_callback_struct *ss;
++
++	ss = kmalloc(sizeof(*ss), GFP_KERNEL);
++	if (!ss)
++		return -ENOMEM;
++	kobject_get(kobj);
++	ss->kobj = kobj;
++	ss->func = func;
++	ss->data = data;
++	INIT_WORK(&ss->work, sysfs_schedule_callback_work);
++	schedule_work(&ss->work);
 +	return 0;
++}
++EXPORT_SYMBOL_GPL(sysfs_schedule_callback);
++
+ 
+ EXPORT_SYMBOL_GPL(sysfs_create_file);
+ EXPORT_SYMBOL_GPL(sysfs_remove_file);
+Index: 2.6.21-rc3-git9/include/linux/device.h
+===================================================================
+--- 2.6.21-rc3-git9.orig/include/linux/device.h
++++ 2.6.21-rc3-git9/include/linux/device.h
+@@ -353,6 +353,8 @@ extern int __must_check device_create_bi
+ 					       struct bin_attribute *attr);
+ extern void device_remove_bin_file(struct device *dev,
+ 				   struct bin_attribute *attr);
++extern int device_schedule_callback(struct device *dev,
++		void (*func)(struct device *));
+ 
+ /* device resource management */
+ typedef void (*dr_release_t)(struct device *dev, void *res);
+Index: 2.6.21-rc3-git9/drivers/base/core.c
+===================================================================
+--- 2.6.21-rc3-git9.orig/drivers/base/core.c
++++ 2.6.21-rc3-git9/drivers/base/core.c
+@@ -407,6 +407,35 @@ void device_remove_bin_file(struct devic
+ }
+ EXPORT_SYMBOL_GPL(device_remove_bin_file);
+ 
++/**
++ * device_schedule_callback - helper to schedule a callback for a device
++ * @dev: device.
++ * @func: callback function to invoke later.
++ *
++ * Attribute methods must not unregister themselves or their parent device
++ * (which would amount to the same thing).  Attempts to do so will deadlock,
++ * since unregistration is mutually exclusive with driver callbacks.
++ *
++ * Instead methods can call this routine, which will attempt to allocate
++ * and schedule a workqueue request to call back @func with @dev as its
++ * argument in the workqueue's process context.  @dev will be pinned until
++ * @func returns.
++ *
++ * Returns 0 if the request was submitted, -ENOMEM if storage could not
++ * be allocated.
++ *
++ * NOTE: This routine won't work if CONFIG_SYSFS isn't set!  It uses an
++ * underlying sysfs routine (since it is intended for use by attribute
++ * methods), and if sysfs isn't available you'll get nothing but -ENOSYS.
++ */
++int device_schedule_callback(struct device *dev,
++		void (*func)(struct device *))
++{
++	return sysfs_schedule_callback(&dev->kobj,
++			(void (*)(void *)) func, dev);
++}
++EXPORT_SYMBOL_GPL(device_schedule_callback);
++
+ static void klist_children_get(struct klist_node *n)
+ {
+ 	struct device *dev = container_of(n, struct device, knode_parent);
+Index: 2.6.21-rc3-git9/drivers/scsi/scsi_sysfs.c
+===================================================================
+--- 2.6.21-rc3-git9.orig/drivers/scsi/scsi_sysfs.c
++++ 2.6.21-rc3-git9/drivers/scsi/scsi_sysfs.c
+@@ -452,10 +452,22 @@ store_rescan_field (struct device *dev, 
+ }
+ static DEVICE_ATTR(rescan, S_IWUSR, NULL, store_rescan_field);
+ 
++static void sdev_store_delete_callback(struct device *dev)
++{
++	scsi_remove_device(to_scsi_device(dev));
++}
++
+ static ssize_t sdev_store_delete(struct device *dev, struct device_attribute *attr, const char *buf,
+ 				 size_t count)
+ {
+-	scsi_remove_device(to_scsi_device(dev));
++	int rc;
++
++	/* An attribute cannot be unregistered by one of its own methods,
++	 * so we have to use this roundabout approach.
++	 */
++	rc = device_schedule_callback(dev, sdev_store_delete_callback);
++	if (rc)
++		count = rc;
+ 	return count;
+ };
+ static DEVICE_ATTR(delete, S_IWUSR, NULL, sdev_store_delete);
+Index: 2.6.21-rc3-git9/drivers/s390/cio/ccwgroup.c
+===================================================================
+--- 2.6.21-rc3-git9.orig/drivers/s390/cio/ccwgroup.c
++++ 2.6.21-rc3-git9/drivers/s390/cio/ccwgroup.c
+@@ -71,19 +71,31 @@ __ccwgroup_remove_symlinks(struct ccwgro
+  * Provide an 'ungroup' attribute so the user can remove group devices no
+  * longer needed or accidentially created. Saves memory :)
+  */
++static void ccwgroup_ungroup_callback(struct device *dev)
++{
++	struct ccwgroup_device *gdev = to_ccwgroupdev(dev);
++
++	__ccwgroup_remove_symlinks(gdev);
++	device_unregister(dev);
++}
++
+ static ssize_t
+ ccwgroup_ungroup_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+ {
+ 	struct ccwgroup_device *gdev;
++	int rc;
+ 
+ 	gdev = to_ccwgroupdev(dev);
+ 
+ 	if (gdev->state != CCWGROUP_OFFLINE)
+ 		return -EINVAL;
+ 
+-	__ccwgroup_remove_symlinks(gdev);
+-	device_unregister(dev);
+-
++	/* Note that we cannot unregister the device from one of its
++	 * attribute methods, so we have to use this roundabout approach.
++	 */
++	rc = device_schedule_callback(dev, ccwgroup_ungroup_callback);
++	if (rc)
++		count = rc;
+ 	return count;
  }
  
- static int statistic_def_open(struct inode *inode, struct file *file)
-@@ -771,7 +712,7 @@ static int statistic_data_open(struct in
- static struct file_operations statistic_def_fops = {
- 	.owner		= THIS_MODULE,
- 	.read		= statistic_generic_read,
--	.write		= statistic_generic_write,
-+	.write		= statistic_def_write,
- 	.open		= statistic_def_open,
- 	.release	= statistic_def_close,
- };
+
+
+
+Patches currently in gregkh-2.6 which might be from stern@rowland.harvard.edu are
