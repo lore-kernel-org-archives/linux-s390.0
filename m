@@ -1,43 +1,19 @@
-From: <gregkh@suse.de>
-Subject: patch sysfs-and-driver-core-add-callback-helper-used-by-scsi-and-s390.patch added to gregkh-2.6 tree
-Date: Thu, 15 Mar 2007 15:47:38 -0700
-Message-ID: <1HRyjT-3wT-00@press.kroah.org>
-References: <Pine.LNX.4.44L0.0703151546190.2482-100000@iolanthe.rowland.org>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH] sysfs and driver core: add callback helper, used by SCSI
+ and S390
+Date: Thu, 15 Mar 2007 15:50:34 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.0703151546190.2482-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.64.0703150944250.3816@woody.linux-foundation.org>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0703151546190.2482-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.64.0703150944250.3816@woody.linux-foundation.org>
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: stern@rowland.harvard.edu, cornelia.huck@de.ibm.com, dmitry.torokhov@gmail.com, gregkh@suse.de, greg@kroah.com, hugh@veritas.com, James.Bottomley@SteelEye.com, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, maneesh@in.ibm.com, oneukum@suse.de, rpurdie@rpsys.net, torvalds@linux-foundation.org
-List-ID: <linux-s390.vger.kernel.org>
-
-
-This is a note to let you know that I've just added the patch titled
-
-     Subject: sysfs and driver core: add callback helper, used by SCSI and S390
-
-to my gregkh-2.6 tree.  Its filename is
-
-     sysfs-and-driver-core-add-callback-helper-used-by-scsi-and-s390.patch
-
-This tree can be found at 
-    http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/
-
-
-From stern@rowland.harvard.edu  Thu Mar 15 15:35:00 2007
-Date: Thu, 15 Mar 2007 15:50:34 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
 To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Hugh Dickins <hugh@veritas.com>, <greg@kroah.com>,
-	Cornelia Huck <cornelia.huck@de.ibm.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Oliver Neukum <oneukum@suse.de>, Maneesh Soni <maneesh@in.ibm.com>,
-	<gregkh@suse.de>, Richard Purdie <rpurdie@rpsys.net>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	SCSI development list <linux-scsi@vger.kernel.org>,
-	<linux-s390@vger.kernel.org>
-Subject: sysfs and driver core: add callback helper, used by SCSI and S390
-Message-ID: <Pine.LNX.4.44L0.0703151546190.2482-100000@iolanthe.rowland.org>
+Cc: Hugh Dickins <hugh@veritas.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Oliver Neukum <oneukum@suse.de>, Maneesh Soni <maneesh@in.ibm.com>, gregkh@suse.de, Richard Purdie <rpurdie@rpsys.net>, James Bottomley <James.Bottomley@SteelEye.com>, SCSI development list <linux-scsi@vger.kernel.org>, linux-s390@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>
+List-ID: <linux-s390.vger.kernel.org>
 
 This patch (as868) adds a helper routine for device drivers that need
 to set up a callback to perform some action in a different process's
@@ -50,8 +26,11 @@ Two attribute methods are converted to use the new helper routine: one
 for SCSI device deletion and one for System/390 ccwgroup devices.
 
 Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
+---
+
+Index: 2.6.21-rc3-git9/include/linux/sysfs.h
+===================================================================
 --- 2.6.21-rc3-git9.orig/include/linux/sysfs.h
 +++ 2.6.21-rc3-git9/include/linux/sysfs.h
 @@ -78,6 +78,9 @@ struct sysfs_ops {
@@ -262,7 +241,3 @@ Index: 2.6.21-rc3-git9/drivers/s390/cio/ccwgroup.c
  	return count;
  }
  
-
-
-
-Patches currently in gregkh-2.6 which might be from stern@rowland.harvard.edu are
