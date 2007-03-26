@@ -1,38 +1,63 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Mon, 19 Mar 2007 13:31:49 +0000
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [S390] minor fault path optimization.
-Message-ID: <20070319133149.GA5781@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20070319130206.GC1292@skybase>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753131AbXCZUwx@vger.kernel.org>
+Message-Id: <20070326205248.338724078@de.ibm.com>
+References: <20070326205225.438154546@de.ibm.com>
+Date: Mon, 26 Mar 2007 22:52:26 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [patch 1/6] dasd: Work around gcc bug.
+Content-Disposition: inline; filename=001-dasd-gcc-bug.diff
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Mar 19, 2007 at 02:02:06PM +0100, Martin Schwidefsky wrote:
-> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> 
-> [S390] minor fault path optimization.
-> 
-> The minor fault path has grown a lot in terms of cycles. In particular
-> the kprobes hook is very costly. Optimize the path to save a couple of
-> cycles. If kprobes is enabled more than 300 cycles can be avoided if 
-> kprobes_running() is false.
+From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 
-Actually there is a lot more fishy here.  This code is duplicated over
-every single architecture.  It uses a notifier chain that only ever has
-one actual uaesr.  It exports interfaces that are potential harmful.
+gcc incorrectly removes initialization of register 0 in dasd diag
+inline assembly. Use different register to work around this compiler
+bug.
 
-Please do the right thing to optimize this instead and rip out the brandead
-notifier chain mechanisms and directly call into the krobes handler if
-kprobes are active, in particular the DIE_PAGE_FAULT: case of 
-kprobe_exceptions_notify.  That allows you to optimize the path both
-if kprobes are active, and even further if they're not.
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
 
-The same should be done for all other architectures, and the other
-(ab-)uses of  the kprobes notifiers.
+ drivers/s390/block/dasd_diag.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+Index: linux-2.6/drivers/s390/block/dasd_diag.c
+===================================================================
+--- linux-2.6.orig/drivers/s390/block/dasd_diag.c
++++ linux-2.6/drivers/s390/block/dasd_diag.c
+@@ -65,7 +65,7 @@ static const u8 DASD_DIAG_CMS1[] = { 0xc
+  * resulting condition code and DIAG return code. */
+ static inline int dia250(void *iob, int cmd)
+ {
+-	register unsigned long reg0 asm ("0") = (unsigned long) iob;
++	register unsigned long reg2 asm ("2") = (unsigned long) iob;
+ 	typedef union {
+ 		struct dasd_diag_init_io init_io;
+ 		struct dasd_diag_rw_io rw_io;
+@@ -74,15 +74,15 @@ static inline int dia250(void *iob, int 
+ 
+ 	rc = 3;
+ 	asm volatile(
+-		"	diag	0,%2,0x250\n"
++		"	diag	2,%2,0x250\n"
+ 		"0:	ipm	%0\n"
+ 		"	srl	%0,28\n"
+-		"	or	%0,1\n"
++		"	or	%0,3\n"
+ 		"1:\n"
+ 		EX_TABLE(0b,1b)
+ 		: "+d" (rc), "=m" (*(addr_type *) iob)
+-		: "d" (cmd), "d" (reg0), "m" (*(addr_type *) iob)
+-		: "1", "cc");
++		: "d" (cmd), "d" (reg2), "m" (*(addr_type *) iob)
++		: "3", "cc");
+ 	return rc;
+ }
+ 
+
+-- 
