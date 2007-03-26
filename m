@@ -1,125 +1,158 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932469AbXCZV0l@vger.kernel.org>
-Message-Id: <20070326212634.931820139@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932334AbXCZV1J@vger.kernel.org>
+Message-Id: <20070326212638.056145964@de.ibm.com>
 References: <20070326212459.711271424@de.ibm.com>
-Date: Mon, 26 Mar 2007 23:25:00 +0200
+Date: Mon, 26 Mar 2007 23:25:03 +0200
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [patch 1/8] Processor degredation support.
-Content-Disposition: inline; filename=109-cpu-degradation.diff
+Subject: [patch 4/8] cio: Clean up online_store.
+Content-Disposition: inline; filename=112-cio-cleanup-online.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Emit a warning if cpu capability changes e.g. because the cpus are
-overheating. The new cpu capability can be read via /proc/sysinfo.
+Detangle the online_store code and make it more readable.
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
 
- drivers/s390/char/Makefile       |    2 -
- drivers/s390/char/sclp.h         |    2 +
- drivers/s390/char/sclp_confmgm.c |   57 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 60 insertions(+), 1 deletion(-)
+ drivers/s390/cio/device.c |  109 ++++++++++++++++++++++++++--------------------
+ 1 files changed, 62 insertions(+), 47 deletions(-)
 
-Index: linux-2.6/drivers/s390/char/Makefile
+Index: linux-2.6/drivers/s390/cio/device.c
 ===================================================================
---- linux-2.6.orig/drivers/s390/char/Makefile
-+++ linux-2.6/drivers/s390/char/Makefile
-@@ -3,7 +3,7 @@
- #
+--- linux-2.6.orig/drivers/s390/cio/device.c
++++ linux-2.6/drivers/s390/cio/device.c
+@@ -413,11 +413,60 @@ ccw_device_set_online(struct ccw_device 
+ 	return (ret == 0) ? -ENODEV : ret;
+ }
  
- obj-y += ctrlchar.o keyboard.o defkeymap.o sclp.o sclp_rw.o sclp_quiesce.o \
--	 sclp_info.o
-+	 sclp_info.o sclp_confmgm.o
- 
- obj-$(CONFIG_TN3270) += raw3270.o
- obj-$(CONFIG_TN3270_CONSOLE) += con3270.o
-Index: linux-2.6/drivers/s390/char/sclp_confmgm.c
-===================================================================
---- /dev/null
-+++ linux-2.6/drivers/s390/char/sclp_confmgm.c
-@@ -0,0 +1,57 @@
-+/*
-+ *  drivers/s390/char/sclp_confmgm.c
-+ *
-+ *    Copyright IBM Corp. 2007
-+ *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+#include "sclp.h"
-+
-+#define SCLP_CONFMGM_PRINT_HEADER	"sclp_confmgm: "
-+
-+struct conf_mgm_data {
-+	u8 reserved;
-+	u8 ev_qualifier;
-+} __attribute__((packed));
-+
-+#define EV_QUAL_CAP_CHANGE	3
-+
-+static void sclp_conf_receiver_fn(struct evbuf_header *evbuf)
+-static ssize_t
+-online_store (struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
++static void online_store_handle_offline(struct ccw_device *cdev)
 +{
-+	struct conf_mgm_data *cdata;
-+
-+	cdata = (struct conf_mgm_data *)(evbuf + 1);
-+	if (cdata->ev_qualifier == EV_QUAL_CAP_CHANGE)
-+		/* Will be parsed. Don't change. */
-+		printk(KERN_WARNING "sclp: CPU capability changed.\n");
++	if (cdev->private->state == DEV_STATE_DISCONNECTED)
++		ccw_device_remove_disconnected(cdev);
++	else if (cdev->drv && cdev->drv->set_offline)
++		ccw_device_set_offline(cdev);
 +}
 +
-+static struct sclp_register sclp_conf_register =
++static int online_store_recog_and_online(struct ccw_device *cdev)
 +{
-+	.receive_mask = EvTyp_ConfMgmData_Mask,
-+	.receiver_fn  = sclp_conf_receiver_fn,
-+};
++	int ret;
 +
-+static int __init sclp_conf_init(void)
++	/* Do device recognition, if needed. */
++	if (cdev->id.cu_type == 0) {
++		ret = ccw_device_recognition(cdev);
++		if (ret) {
++			printk(KERN_WARNING"Couldn't start recognition "
++			       "for device %s (ret=%d)\n",
++			       cdev->dev.bus_id, ret);
++			return ret;
++		}
++		wait_event(cdev->private->wait_q,
++			   cdev->private->flags.recog_done);
++	}
++	if (cdev->drv && cdev->drv->set_online)
++		ccw_device_set_online(cdev);
++	return 0;
++}
++static void online_store_handle_online(struct ccw_device *cdev, int force)
 +{
-+	int rc;
++	int ret;
 +
-+	rc = sclp_register(&sclp_conf_register);
-+	if (rc) {
-+		printk(KERN_ERR SCLP_CONFMGM_PRINT_HEADER
-+		       "failed to register (%d).\n", rc);
-+		return rc;
++	ret = online_store_recog_and_online(cdev);
++	if (ret)
++		return;
++	if (force && cdev->private->state == DEV_STATE_BOXED) {
++		ret = ccw_device_stlck(cdev);
++		if (ret) {
++			printk(KERN_WARNING"ccw_device_stlck for device %s "
++			       "returned %d!\n", cdev->dev.bus_id, ret);
++			return;
++		}
++		if (cdev->id.cu_type == 0)
++			cdev->private->state = DEV_STATE_NOT_OPER;
++		online_store_recog_and_online(cdev);
 +	}
 +
-+	if (!(sclp_conf_register.sclp_receive_mask & EvTyp_ConfMgmData_Mask)) {
-+		printk(KERN_WARNING SCLP_CONFMGM_PRINT_HEADER
-+		       "no configuration management.\n");
-+		sclp_unregister(&sclp_conf_register);
-+		rc = -ENOSYS;
-+	}
-+	return rc;
 +}
 +
-+__initcall(sclp_conf_init);
-Index: linux-2.6/drivers/s390/char/sclp.h
-===================================================================
---- linux-2.6.orig/drivers/s390/char/sclp.h
-+++ linux-2.6/drivers/s390/char/sclp.h
-@@ -27,6 +27,7 @@
- #define EvTyp_CntlProgIdent	0x0B
- #define EvTyp_SigQuiesce	0x1D
- #define EvTyp_VT220Msg		0x1A
-+#define EvTyp_ConfMgmData	0x04
++static ssize_t online_store (struct device *dev, struct device_attribute *attr,
++			     const char *buf, size_t count)
+ {
+ 	struct ccw_device *cdev = to_ccwdev(dev);
+-	int i, force, ret;
++	int i, force;
+ 	char *tmp;
  
- #define EvTyp_OpCmd_Mask	0x80000000
- #define EvTyp_Msg_Mask		0x40000000
-@@ -36,6 +37,7 @@
- #define EvTyp_CtlProgIdent_Mask	0x00200000
- #define EvTyp_SigQuiesce_Mask	0x00000008
- #define EvTyp_VT220Msg_Mask	0x00000040
-+#define EvTyp_ConfMgmData_Mask	0x10000000
- 
- #define GnrlMsgFlgs_DOM		0x8000
- #define GnrlMsgFlgs_SndAlrm	0x4000
+ 	if (atomic_cmpxchg(&cdev->private->onoff, 0, 1) != 0)
+@@ -434,51 +483,17 @@ online_store (struct device *dev, struct
+ 		force = 0;
+ 		i = simple_strtoul(buf, &tmp, 16);
+ 	}
+-	if (i == 1) {
+-		/* Do device recognition, if needed. */
+-		if (cdev->id.cu_type == 0) {
+-			ret = ccw_device_recognition(cdev);
+-			if (ret) {
+-				printk(KERN_WARNING"Couldn't start recognition "
+-				       "for device %s (ret=%d)\n",
+-				       cdev->dev.bus_id, ret);
+-				goto out;
+-			}
+-			wait_event(cdev->private->wait_q,
+-				   cdev->private->flags.recog_done);
+-		}
+-		if (cdev->drv && cdev->drv->set_online)
+-			ccw_device_set_online(cdev);
+-	} else if (i == 0) {
+-		if (cdev->private->state == DEV_STATE_DISCONNECTED)
+-			ccw_device_remove_disconnected(cdev);
+-		else if (cdev->drv && cdev->drv->set_offline)
+-			ccw_device_set_offline(cdev);
+-	}
+-	if (force && cdev->private->state == DEV_STATE_BOXED) {
+-		ret = ccw_device_stlck(cdev);
+-		if (ret) {
+-			printk(KERN_WARNING"ccw_device_stlck for device %s "
+-			       "returned %d!\n", cdev->dev.bus_id, ret);
+-			goto out;
+-		}
+-		/* Do device recognition, if needed. */
+-		if (cdev->id.cu_type == 0) {
+-			cdev->private->state = DEV_STATE_NOT_OPER;
+-			ret = ccw_device_recognition(cdev);
+-			if (ret) {
+-				printk(KERN_WARNING"Couldn't start recognition "
+-				       "for device %s (ret=%d)\n",
+-				       cdev->dev.bus_id, ret);
+-				goto out;
+-			}
+-			wait_event(cdev->private->wait_q,
+-				   cdev->private->flags.recog_done);
+-		}
+-		if (cdev->drv && cdev->drv->set_online)
+-			ccw_device_set_online(cdev);
++
++	switch (i) {
++	case 0:
++		online_store_handle_offline(cdev);
++		break;
++	case 1:
++		online_store_handle_online(cdev, force);
++		break;
++	default:
++		count = -EINVAL;
+ 	}
+-	out:
+ 	if (cdev->drv)
+ 		module_put(cdev->drv->owner);
+ 	atomic_set(&cdev->private->onoff, 0);
 
 -- 
