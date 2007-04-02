@@ -1,174 +1,282 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965539AbXD1IeR@vger.kernel.org>
-Date: Sat, 28 Apr 2007 09:34:09 +0100
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [patch 20/38] Minor fault path optimization.
-Message-ID: <20070428083409.GA22156@infradead.org>
-References: <20070427140503.087958775@de.ibm.com> <20070427140516.523272684@de.ibm.com> <17970.53875.506097.699517@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965691AbXDBSw7@vger.kernel.org>
+Date: Mon, 2 Apr 2007 20:52:52 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [patch 1/8] Processor degredation support.
+Message-ID: <20070402185252.GA9338@osiris.ibm.com>
+References: <20070326212459.711271424@de.ibm.com> <20070326212634.931820139@de.ibm.com> <20070327213529.GB5842@ucw.cz> <20070328065443.GA8146@osiris.boeblingen.de.ibm.com> <20070328084145.GA3988@ucw.cz>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17970.53875.506097.699517@cargo.ozlabs.ibm.com>
+In-Reply-To: <20070328084145.GA3988@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, Apr 28, 2007 at 02:49:55PM +1000, Paul Mackerras wrote:
-> Martin Schwidefsky writes:
+On Wed, Mar 28, 2007 at 08:41:45AM +0000, Pavel Machek wrote:
+> On Wed 2007-03-28 08:54:43, Heiko Carstens wrote:
+> > > > +++ linux-2.6/drivers/s390/char/sclp_confmgm.c
+> > > 
+> > > Can we get less cyptic name?
+> > 
+> > Would you like to see sclp_configuration_management.c?
 > 
-> > The minor fault path has grown a lot in terms of cycles. In particular
-> > the kprobes hook is very costly. Optimize the path to save a couple of
-> > cycles. If kprobes is enabled more than 300 cycles can be avoided if 
-> > kprobes_running() is false.
+> No, but maybe sclp_manager.c or sclp_config.c?
 > 
-> There's no good reason to use a notifier for page faults, since
-> there's only one external piece of code that wants to know about
-> them...
+> 
+> > > > +static void sclp_conf_receiver_fn(struct evbuf_header *evbuf)
+> > > > +{
+> > > > +	struct conf_mgm_data *cdata;
+> > > > +
+> > > > +	cdata = (struct conf_mgm_data *)(evbuf + 1);
+> > > > +	if (cdata->ev_qualifier == EV_QUAL_CAP_CHANGE)
+> > > > +		/* Will be parsed. Don't change. */
+> > > > +		printk(KERN_WARNING "sclp: CPU capability changed.\n");
+> > > > +}
+> > > 
+> > > What's that? I do not think printk provides guaranteed delivery.
+> > 
+> > True. But which generic interface is currently used to notify user space
+> > of state changes? Maybe a uevent for the cpu device..
+> 
+> Maybe.
 
-Well, here's my powerpc patch to do the direct call that I sent out
-a few weeks ago.  It not just speed up the pagefault path a lot, 
-but also is a major code cleanup.  Andi and Anton didn't like it
-because they have ambition for murky debugger code to possibly
-use it one day..
+Thanks for reviewing and your comments!
+So how about the patch below? I think it addresses all your objections.
 
-Index: linux-2.6.20/arch/powerpc/mm/fault.c
-===================================================================
---- linux-2.6.20.orig/arch/powerpc/mm/fault.c	2007-03-19 14:50:41.000000000 +0100
-+++ linux-2.6.20/arch/powerpc/mm/fault.c	2007-03-19 15:00:00.000000000 +0100
-@@ -39,37 +39,26 @@
- #include <asm/kdebug.h>
- #include <asm/siginfo.h>
+Subject: [PATCH] Processor degredation support.
+
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+
+Generate uevents for all cpus if cpu capability changes. This can
+happen e.g. because the cpus are overheating. The cpu capability can
+be read via /sys/devices/system/cpu/cpuN/capability.
+
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+
+ arch/s390/kernel/smp.c          |   48 +++++++++++++++++++++++--
+ drivers/s390/char/Makefile      |    2 -
+ drivers/s390/char/sclp.h        |    2 +
+ drivers/s390/char/sclp_config.c |   74 ++++++++++++++++++++++++++++++++++++++++
+ drivers/s390/sysinfo.c          |   18 +++++++++
+ include/asm-s390/processor.h    |    1 
+ 6 files changed, 139 insertions(+), 6 deletions(-)
+
+diff -urpN linux-2.6/arch/s390/kernel/smp.c linux-2.6-patched/arch/s390/kernel/smp.c
+--- linux-2.6/arch/s390/kernel/smp.c	2007-04-02 18:11:11.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/smp.c	2007-04-02 18:11:20.000000000 +0200
+@@ -821,19 +821,57 @@ int setup_profiling_timer(unsigned int m
  
--#ifdef CONFIG_KPROBES
--ATOMIC_NOTIFIER_HEAD(notify_page_fault_chain);
+ static DEFINE_PER_CPU(struct cpu, cpu_devices);
  
--/* Hook to register for page fault notifications */
--int register_page_fault_notifier(struct notifier_block *nb)
-+#ifdef CONFIG_KPROBES
-+static inline int notify_page_fault(struct pt_regs *regs)
- {
--	return atomic_notifier_chain_register(&notify_page_fault_chain, nb);
--}
-+	int ret = 0;
- 
--int unregister_page_fault_notifier(struct notifier_block *nb)
--{
--	return atomic_notifier_chain_unregister(&notify_page_fault_chain, nb);
--}
-+	/* kprobe_running() needs smp_processor_id() */
-+	if (!user_mode(regs)) {
-+		preempt_disable();
-+		if (kprobe_running() && kprobe_fault_handler(regs, 11))
-+			ret = 1;
-+		preempt_enable();
-+	}
- 
--static inline int notify_page_fault(enum die_val val, const char *str,
--			struct pt_regs *regs, long err, int trap, int sig)
--{
--	struct die_args args = {
--		.regs = regs,
--		.str = str,
--		.err = err,
--		.trapnr = trap,
--		.signr = sig
--	};
--	return atomic_notifier_call_chain(&notify_page_fault_chain, val, &args);
-+	return ret;
- }
- #else
--static inline int notify_page_fault(enum die_val val, const char *str,
--			struct pt_regs *regs, long err, int trap, int sig)
-+static inline int notify_page_fault(struct pt_regs *regs)
- {
--	return NOTIFY_DONE;
-+	return 0;
- }
- #endif
- 
-@@ -175,8 +164,7 @@ int __kprobes do_page_fault(struct pt_re
- 	is_write = error_code & ESR_DST;
- #endif /* CONFIG_4xx || CONFIG_BOOKE */
- 
--	if (notify_page_fault(DIE_PAGE_FAULT, "page_fault", regs, error_code,
--				11, SIGSEGV) == NOTIFY_STOP)
-+	if (notify_page_fault(regs))
- 		return 0;
- 
- 	if (trap == 0x300) {
-Index: linux-2.6.20/arch/powerpc/kernel/kprobes.c
-===================================================================
---- linux-2.6.20.orig/arch/powerpc/kernel/kprobes.c	2007-03-19 14:53:01.000000000 +0100
-+++ linux-2.6.20/arch/powerpc/kernel/kprobes.c	2007-03-19 15:03:41.000000000 +0100
-@@ -376,7 +376,7 @@ out:
- 	return 1;
- }
- 
--static int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
-+int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
- {
- 	struct kprobe *cur = kprobe_running();
- 	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
-@@ -461,14 +461,6 @@ int __kprobes kprobe_exceptions_notify(s
- 		if (post_kprobe_handler(args->regs))
- 			ret = NOTIFY_STOP;
- 		break;
--	case DIE_PAGE_FAULT:
--		/* kprobe_running() needs smp_processor_id() */
--		preempt_disable();
--		if (kprobe_running() &&
--		    kprobe_fault_handler(args->regs, args->trapnr))
--			ret = NOTIFY_STOP;
--		preempt_enable();
--		break;
- 	default:
- 		break;
- 	}
-Index: linux-2.6.20/include/asm-powerpc/kdebug.h
-===================================================================
---- linux-2.6.20.orig/include/asm-powerpc/kdebug.h	2007-03-19 14:55:13.000000000 +0100
-+++ linux-2.6.20/include/asm-powerpc/kdebug.h	2007-03-19 15:03:27.000000000 +0100
-@@ -18,8 +18,20 @@ struct die_args {
- 
- extern int register_die_notifier(struct notifier_block *);
- extern int unregister_die_notifier(struct notifier_block *);
--extern int register_page_fault_notifier(struct notifier_block *);
--extern int unregister_page_fault_notifier(struct notifier_block *);
++static ssize_t show_capability(struct sys_device *dev, char *buf)
++{
++	unsigned int capability;
++	int rc;
 +
++	rc = get_cpu_capability(&capability);
++	if (rc)
++		return rc;
++	return sprintf(buf, "%u\n", capability);
++}
++static SYSDEV_ATTR(capability, 0444, show_capability, NULL);
++
++static int __cpuinit smp_cpu_notify(struct notifier_block *self,
++				    unsigned long action, void *hcpu)
++{
++	unsigned int cpu = (unsigned int)(long)hcpu;
++	struct cpu *c = &per_cpu(cpu_devices, cpu);
++	struct sys_device *s = &c->sysdev;
++
++	switch (action) {
++	case CPU_ONLINE:
++		if (sysdev_create_file(s, &attr_capability))
++			return NOTIFY_BAD;
++		break;
++	case CPU_DEAD:
++		sysdev_remove_file(s, &attr_capability);
++		break;
++	}
++	return NOTIFY_OK;
++}
++
++static struct notifier_block __cpuinitdata smp_cpu_nb = {
++	.notifier_call	= smp_cpu_notify,
++};
++
+ static int __init topology_init(void)
+ {
+ 	int cpu;
+-	int ret;
++
++	register_cpu_notifier(&smp_cpu_nb);
+ 
+ 	for_each_possible_cpu(cpu) {
+ 		struct cpu *c = &per_cpu(cpu_devices, cpu);
++		struct sys_device *s = &c->sysdev;
+ 
+ 		c->hotpluggable = 1;
+-		ret = register_cpu(c, cpu);
+-		if (ret)
+-			printk(KERN_WARNING "topology_init: register_cpu %d "
+-			       "failed (%d)\n", cpu, ret);
++		register_cpu(c, cpu);
++		if (!cpu_online(cpu))
++			continue;
++		s = &c->sysdev;
++		sysdev_create_file(s, &attr_capability);
+ 	}
+ 	return 0;
+ }
+diff -urpN linux-2.6/drivers/s390/char/Makefile linux-2.6-patched/drivers/s390/char/Makefile
+--- linux-2.6/drivers/s390/char/Makefile	2007-04-02 18:11:11.000000000 +0200
++++ linux-2.6-patched/drivers/s390/char/Makefile	2007-04-02 18:11:20.000000000 +0200
+@@ -3,7 +3,7 @@
+ #
+ 
+ obj-y += ctrlchar.o keyboard.o defkeymap.o sclp.o sclp_rw.o sclp_quiesce.o \
+-	 sclp_info.o sclp_chp.o
++	 sclp_info.o sclp_config.o sclp_chp.o
+ 
+ obj-$(CONFIG_TN3270) += raw3270.o
+ obj-$(CONFIG_TN3270_CONSOLE) += con3270.o
+diff -urpN linux-2.6/drivers/s390/char/sclp_config.c linux-2.6-patched/drivers/s390/char/sclp_config.c
+--- linux-2.6/drivers/s390/char/sclp_config.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/sclp_config.c	2007-04-02 18:11:20.000000000 +0200
+@@ -0,0 +1,74 @@
 +/*
-+ * These are only here because kprobes.c wants them to implement a
-+ * blatant layer violation.  Will hopefully go away soon once all
-+ * architectures are updated.
++ *  drivers/s390/char/sclp_config.c
++ *
++ *    Copyright IBM Corp. 2007
++ *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
 + */
-+static inline int register_page_fault_notifier(struct notifier_block *nb)
++
++#include <linux/init.h>
++#include <linux/errno.h>
++#include <linux/cpu.h>
++#include <linux/sysdev.h>
++#include <linux/workqueue.h>
++#include "sclp.h"
++
++#define TAG	"sclp_config: "
++
++struct conf_mgm_data {
++	u8 reserved;
++	u8 ev_qualifier;
++} __attribute__((packed));
++
++#define EV_QUAL_CAP_CHANGE	3
++
++static struct work_struct sclp_cpu_capability_work;
++
++static void sclp_cpu_capability_notify(struct work_struct *work)
 +{
-+	return 0;
++	int cpu;
++	struct sys_device *sysdev;
++
++	lock_cpu_hotplug();
++	for_each_online_cpu(cpu) {
++		sysdev = get_cpu_sysdev(cpu);
++		kobject_uevent(&sysdev->kobj, KOBJ_CHANGE);
++	}
++	unlock_cpu_hotplug();
 +}
-+static inline int unregister_page_fault_notifier(struct notifier_block *nb)
++
++static void sclp_conf_receiver_fn(struct evbuf_header *evbuf)
 +{
-+	return 0;
++	struct conf_mgm_data *cdata;
++
++	cdata = (struct conf_mgm_data *)(evbuf + 1);
++	if (cdata->ev_qualifier == EV_QUAL_CAP_CHANGE)
++		schedule_work(&sclp_cpu_capability_work);
 +}
- extern struct atomic_notifier_head powerpc_die_chain;
++
++static struct sclp_register sclp_conf_register =
++{
++	.receive_mask = EVTYP_CONFMGMDATA_MASK,
++	.receiver_fn  = sclp_conf_receiver_fn,
++};
++
++static int __init sclp_conf_init(void)
++{
++	int rc;
++
++	INIT_WORK(&sclp_cpu_capability_work, sclp_cpu_capability_notify);
++
++	rc = sclp_register(&sclp_conf_register);
++	if (rc) {
++		printk(KERN_ERR TAG "failed to register (%d).\n", rc);
++		return rc;
++	}
++
++	if (!(sclp_conf_register.sclp_receive_mask & EVTYP_CONFMGMDATA_MASK)) {
++		printk(KERN_WARNING TAG "no configuration management.\n");
++		sclp_unregister(&sclp_conf_register);
++		rc = -ENOSYS;
++	}
++	return rc;
++}
++
++__initcall(sclp_conf_init);
+diff -urpN linux-2.6/drivers/s390/char/sclp.h linux-2.6-patched/drivers/s390/char/sclp.h
+--- linux-2.6/drivers/s390/char/sclp.h	2007-04-02 18:11:17.000000000 +0200
++++ linux-2.6-patched/drivers/s390/char/sclp.h	2007-04-02 18:11:20.000000000 +0200
+@@ -27,6 +27,7 @@
+ #define EVTYP_CNTLPROGIDENT	0x0B
+ #define EVTYP_SIGQUIESCE	0x1D
+ #define EVTYP_VT220MSG		0x1A
++#define EVTYP_CONFMGMDATA	0x04
+ #define EVTYP_SDIAS		0x1C
  
- /* Grossly misnamed. */
-@@ -29,7 +41,6 @@ enum die_val {
- 	DIE_DABR_MATCH,
- 	DIE_BPT,
- 	DIE_SSTEP,
--	DIE_PAGE_FAULT,
- };
+ #define EVTYP_OPCMD_MASK	0x80000000
+@@ -37,6 +38,7 @@
+ #define EVTYP_CTLPROGIDENT_MASK	0x00200000
+ #define EVTYP_SIGQUIESCE_MASK	0x00000008
+ #define EVTYP_VT220MSG_MASK	0x00000040
++#define EVTYP_CONFMGMDATA_MASK	0x10000000
+ #define EVTYP_SDIAS_MASK	0x00000010
  
- static inline int notify_die(enum die_val val,char *str,struct pt_regs *regs,long err,int trap, int sig)
-Index: linux-2.6.20/include/asm-powerpc/kprobes.h
-===================================================================
---- linux-2.6.20.orig/include/asm-powerpc/kprobes.h	2007-03-19 15:01:14.000000000 +0100
-+++ linux-2.6.20/include/asm-powerpc/kprobes.h	2007-03-19 15:01:55.000000000 +0100
-@@ -100,5 +100,6 @@ struct kprobe_ctlblk {
+ #define GNRLMSGFLGS_DOM		0x8000
+diff -urpN linux-2.6/drivers/s390/sysinfo.c linux-2.6-patched/drivers/s390/sysinfo.c
+--- linux-2.6/drivers/s390/sysinfo.c	2007-04-02 18:10:40.000000000 +0200
++++ linux-2.6-patched/drivers/s390/sysinfo.c	2007-04-02 18:11:20.000000000 +0200
+@@ -357,6 +357,24 @@ static __init int create_proc_sysinfo(vo
  
- extern int kprobe_exceptions_notify(struct notifier_block *self,
- 					unsigned long val, void *data);
-+extern int kprobe_fault_handler(struct pt_regs *regs, int trapnr);
- #endif /* __KERNEL__ */
- #endif	/* _ASM_POWERPC_KPROBES_H */
+ __initcall(create_proc_sysinfo);
+ 
++int get_cpu_capability(unsigned int *capability)
++{
++	struct sysinfo_1_2_2 *info;
++	int rc;
++
++	info = (void *) get_zeroed_page(GFP_KERNEL);
++	if (!info)
++		return -ENOMEM;
++	rc = stsi(info, 1, 2, 2);
++	if (rc == -ENOSYS)
++		goto out;
++	rc = 0;
++	*capability = info->capability;
++out:
++	free_page((unsigned long) info);
++	return rc;
++}
++
+ /*
+  * CPU capability might have changed. Therefore recalculate loops_per_jiffy.
+  */
+diff -urpN linux-2.6/include/asm-s390/processor.h linux-2.6-patched/include/asm-s390/processor.h
+--- linux-2.6/include/asm-s390/processor.h	2007-04-02 18:10:54.000000000 +0200
++++ linux-2.6-patched/include/asm-s390/processor.h	2007-04-02 18:11:20.000000000 +0200
+@@ -57,6 +57,7 @@ struct cpuinfo_S390
+ 
+ extern void s390_adjust_jiffies(void);
+ extern void print_cpu_info(struct cpuinfo_S390 *);
++extern int get_cpu_capability(unsigned int *);
+ 
+ /* Lazy FPU handling on uni-processor */
+ extern struct task_struct *last_task_used_math;
