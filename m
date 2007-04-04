@@ -1,87 +1,90 @@
-Subject: Re: [S390] page_mkclean data corruption.
+Subject: [S390] page_mkclean data corruption.
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Reply-To: schwidefsky@de.ibm.com
-In-Reply-To: <Pine.LNX.4.64.0704041003560.6730@woody.linux-foundation.org>
-References: <1175704624.31111.3.camel@localhost>
-	 <Pine.LNX.4.64.0704041003560.6730@woody.linux-foundation.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Wed, 04 Apr 2007 19:35:32 +0200
-Message-Id: <1175708132.31111.23.camel@localhost>
+Content-Type: text/plain
+Date: Wed, 04 Apr 2007 18:37:04 +0200
+Message-Id: <1175704624.31111.3.camel@localhost>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-mm@kvack.org
 Return-Path: <owner-linux-mm@kvack.org>
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org
+To: torvalds@linux-foundation.org, gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2007-04-04 at 10:10 -0700, Linus Torvalds wrote:
-> Ok. I'm a bit worried about something like this, this late in the release 
-> cycle, but since I guess page_test_and_clear_dirty() is always 0 for any 
-> architecture but S390, I guess there are no possible downsides except for 
-> that architecture.
+Linus, Greg,
+the attached patch fixes a data corruption problem that has been
+introduced with the page_mkclean/clear_page_dirty_for_io change
+(the "Yes, Virginia, this is indeed insane." problem :-/)
 
-Yes, the change can only affect s390 since for all other architectures
-page_test_and_clear_dirty is a nop.
+In essence the fact that clear_page_dirty_for_io is called for
+not-uptodate pages causes data corruption for architectures that use
+page_test_and_clear_dirty (which is s390 only).
 
-> So I'll apply it, but:
-> 
-> > The effect of the two changes is that for every call to
-> > clear_page_dirty_for_io a page_test_and_clear_dirty is done. If
-> > the per page dirty bit is set set_page_dirty is called. Strangly
-> > clear_page_dirty_for_io is called for not-uptodate pages, e.g.
-> > over this call-chain:
-> > 
-> >  [<000000000007c0f2>] clear_page_dirty_for_io+0x12a/0x130
-> >  [<000000000007c494>] generic_writepages+0x258/0x3e0 
-> >  [<000000000007c692>] do_writepages+0x76/0x7c 
-> >  [<00000000000c7a26>] __writeback_single_inode+0xba/0x3e4
-> >  [<00000000000c831a>] sync_sb_inodes+0x23e/0x398 
-> >  [<00000000000c8802>] writeback_inodes+0x12e/0x140 
-> >  [<000000000007b9ee>] wb_kupdate+0xd2/0x178 
-> >  [<000000000007cca2>] pdflush+0x162/0x23c 
-> > 
-> > The bad news now is that page_test_and_clear_dirty might claim
-> > that a not-uptodate page is dirty since SetPageUptodate which
-> > resets the per page dirty bit has not yet been called. The page
-> > writeback that follows clobbers the data on disk.
-> 
-> Wouldn't it be best if S390 tried to avoid this by clearing the dirty bit 
-> whenever a new page is allocated? 
+This should go into 2.6.21-rc and 2.6.20-stable.
+Please pull message from git390 will follow.
 
-We would love to but we cannot. The point is that I/O makes a page
-dirty. We could clear the dirty bit on allocation time but the page-in
-operation would make it dirty again and we'd have to make it clean AGAIN
-in SetPageUptodate. The iske + sske instructions are in the range of
-several 100 cycles, so they are quite expensive.
+blue skies,
+  Martin.
 
-> Anyway, I'll apply the patch, since for 2.6.21 this is clearly the 
-> simplest solution, but 
->  (a) I think it might be ugly
-> and
->  (b) are you sure that it doesn't introduce a new bug on S390, where some 
->      page has been *removed* from the mappings, and should still trigger 
->      the "page_test_and_clear_dirty()" test, but now, because it's done 
->      inside the "if (page_mapped())" case, we miss it?
+--
+Subject: [S390] page_mkclean data corruption.
 
-No, I'm very sure that this won't be the case. The per page dirty bit on
-s390 is used as a replacement for the per pte dirty bits. We check a
-single time after all the pte operations instead of doing it for every
-pte. As long as there is a page_test_and_clear_dirty after the last pte
-related to a page has been modified in page_mkclean or removed in
-page_remove_rmap we are fine.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
--- 
-blue skies,              IBM Deutschland Entwicklung GmbH
-   Martin                Vorsitzender des Aufsichtsrats: Johann Weihen
-                         Geschaftsfuhrung: Herbert Kircher
-Martin Schwidefsky       Sitz der Gesellschaft: Boblingen
-Linux on zSeries         Registergericht: Amtsgericht Stuttgart,
-   Development           HRB 243294
+The git commit c2fda5fed81eea077363b285b66eafce20dfd45a which
+added the page_test_and_clear_dirty call to page_mkclean and the
+git commit 7658cc289288b8ae7dd2c2224549a048431222b3 which fixes
+the "nasty and subtle race in shared mmap'ed page writeback"
+problem in clear_page_dirty_for_io cause data corruption on s390.
 
-"Reality continues to ruin my life." - Calvin.
+The effect of the two changes is that for every call to
+clear_page_dirty_for_io a page_test_and_clear_dirty is done. If
+the per page dirty bit is set set_page_dirty is called. Strangly
+clear_page_dirty_for_io is called for not-uptodate pages, e.g.
+over this call-chain:
+
+ [<000000000007c0f2>] clear_page_dirty_for_io+0x12a/0x130
+ [<000000000007c494>] generic_writepages+0x258/0x3e0 
+ [<000000000007c692>] do_writepages+0x76/0x7c 
+ [<00000000000c7a26>] __writeback_single_inode+0xba/0x3e4
+ [<00000000000c831a>] sync_sb_inodes+0x23e/0x398 
+ [<00000000000c8802>] writeback_inodes+0x12e/0x140 
+ [<000000000007b9ee>] wb_kupdate+0xd2/0x178 
+ [<000000000007cca2>] pdflush+0x162/0x23c 
+
+The bad news now is that page_test_and_clear_dirty might claim
+that a not-uptodate page is dirty since SetPageUptodate which
+resets the per page dirty bit has not yet been called. The page
+writeback that follows clobbers the data on disk.
+
+The simplest solution to this problem is to move the call to
+page_test_and_clear_dirty under the "if (page_mapped(page))".
+If a file backed page is mapped it is uptodate.
+
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+
+ mm/rmap.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -urpN linux-2.6/mm/rmap.c linux-2.6-patched/mm/rmap.c
+--- linux-2.6/mm/rmap.c	2007-04-04 14:23:22.000000000 +0200
++++ linux-2.6-patched/mm/rmap.c	2007-04-04 14:23:35.000000000 +0200
+@@ -498,9 +498,9 @@ int page_mkclean(struct page *page)
+ 		struct address_space *mapping = page_mapping(page);
+ 		if (mapping)
+ 			ret = page_mkclean_file(mapping, page);
++		if (page_test_and_clear_dirty(page))
++			ret = 1;
+ 	}
+-	if (page_test_and_clear_dirty(page))
+-		ret = 1;
+ 
+ 	return ret;
+ }
 
 
 --
