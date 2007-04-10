@@ -1,9 +1,9 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1030914AbXDJPvg@vger.kernel.org>
-Subject: [Patch] statistics: small cleanup in debugfs write function
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030933AbXDJPzE@vger.kernel.org>
+Subject: [Patch] statistics: fix cpu hot unplug related memory leak
 From: Martin Peschke <mp3@de.ibm.com>
 Content-Type: text/plain
-Date: Tue, 10 Apr 2007 17:51:33 +0200
-Message-Id: <1176220293.5572.16.camel@dix>
+Date: Tue, 10 Apr 2007 17:54:59 +0200
+Message-Id: <1176220499.5572.19.camel@dix>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -13,38 +13,27 @@ To: Andrew Morton <akpm@linux-foundation.org>
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Code looks more sane with this little cleanup, although both memcpy()
-and kfree() are supposed to cope with NULL pointer or zero length
-respectively.
-
-(Patch cleans up
-statistics-infrastructure-simplify-statistics-debugfs-write-function.patch)
+In case of CPU hotunplug statistics might have leaked some memory
+(lists of struct statistic_entry_sparse, about 32 byte each, freed
+by statistic_sparse_reset()).
 
 Patch is against 2.6.21-rc6-mm1.
 
 Signed-off-by: Martin Peschke <mp3@de.ibm.com>
 ---
 
- statistic.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ statistic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 Index: linux/lib/statistic.c
 ===================================================================
 --- linux.orig/lib/statistic.c
 +++ linux/lib/statistic.c
-@@ -631,11 +631,13 @@ static ssize_t statistic_write_def(struc
- 	if (!larger)
- 		return -ENOMEM;
- 	larger[*offset + len] = '\0';
--	memcpy(larger, seq_priv->w_buf, *offset);
-+	if (seq_priv->w_buf) {
-+		memcpy(larger, seq_priv->w_buf, *offset);
-+		kfree(seq_priv->w_buf);
-+	}
- 	if (copy_from_user(larger + *offset, buf, len))
- 		return -EFAULT;
- 	*offset += len;
--	kfree(seq_priv->w_buf);
- 	seq_priv->w_buf = larger;
- 	seq_priv->w_offset = *offset;
- 	return len;
+@@ -308,6 +308,7 @@ static int _statistic_hotcpu(struct stat
+ 		src = percpu_ptr(stat->data, cpu);
+ 		disc->merge(stat, dst, src);
+ 		local_irq_restore(flags);
++		disc->reset(stat, src);
+ 		percpu_depopulate(stat->data, cpu);
+ 		break;
+ 	}
