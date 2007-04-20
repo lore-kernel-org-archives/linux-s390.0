@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S2992996AbXDTLfM@vger.kernel.org>
-Date: Fri, 20 Apr 2007 13:35:24 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [PATCH 8/8] Kconfig: broadcom 4400 dependency.
-Message-ID: <20070420113524.GI3738@skybase>
-MIME-Version: 1.0
+Return-Path: <linux-kernel-owner+w=401wt.eu-S2992792AbXDTNFg@vger.kernel.org>
+Date: Fri, 20 Apr 2007 18:39:08 +0530
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+Subject: Re: [S390] add arch_trampoline_kprobe.
+Message-ID: <20070420130908.GA17273@in.ibm.com>
+Reply-To: ananth@in.ibm.com
+References: <20070420110842.GA17147@skybase>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20070420110842.GA17147@skybase>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: akpm@linux-foundation.org, mb@bu3sch.de, linville@tuxdriver.com
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, akpm@linux-foundation.org, srinivasa@in.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+On Fri, Apr 20, 2007 at 01:08:42PM +0200, Martin Schwidefsky wrote:
+> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> 
+> Add the missing arch_trampoline_kprobe function for s390 required by
+> kprobes-the-on-off-knob-thru-debugfs-updated.patch.
 
-Make the broadcom 4400 driver dependent on SSB. With the select statement
-for SSB the config option for the driver is always present even if the
-target of selection (SSB) is not available. 
-Goes on top of git-wireless.patch.
+Martin,
 
-Cc: Michael Buesch <mb@bu3sch.de>
-Cc: John W. Linville <linville@tuxdriver.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+Cornelia provided this patch sometime earlier
+(http://marc.info/?l=linux-kernel&m=117620748921086&w=2). Andrew has
+picked it up into -mm.
 
- drivers/net/Kconfig |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Ananth
 
-diff -urpN linux-2.6/drivers/net/Kconfig linux-2.6-patched/drivers/net/Kconfig
---- linux-2.6/drivers/net/Kconfig	2007-04-19 16:19:36.000000000 +0200
-+++ linux-2.6-patched/drivers/net/Kconfig	2007-04-19 16:20:01.000000000 +0200
-@@ -1432,7 +1432,7 @@ config APRICOT
- 
- config B44
- 	tristate "Broadcom 4400 ethernet support"
--	select SSB
-+	depends on SSB
- 	select MII
- 	help
- 	  If you have a network (Ethernet) controller of this type, say Y and
+> 
+> Cc: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+> Cc: Srinivasa DS <srinivasa@in.ibm.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> ---
+> 
+>  arch/s390/kernel/kprobes.c |    7 +++++++
+>  1 files changed, 7 insertions(+)
+> 
+> diff -urpN linux-2.6/arch/s390/kernel/kprobes.c linux-2.6-patched/arch/s390/kernel/kprobes.c
+> --- linux-2.6/arch/s390/kernel/kprobes.c	2007-04-19 17:12:40.000000000 +0200
+> +++ linux-2.6-patched/arch/s390/kernel/kprobes.c	2007-04-19 17:12:09.000000000 +0200
+> @@ -658,6 +658,13 @@ static struct kprobe trampoline_p = {
+>  	.pre_handler = trampoline_probe_handler
+>  };
+> 
+> +int __kprobes arch_trampoline_kprobe(struct kprobe *p)
+> +{
+> +	if (p->addr == (kprobe_opcode_t *)&kretprobe_trampoline)
+> +		return 1;
+> +	return 0;
+> +}
+> +
+>  int __init arch_init_kprobes(void)
+>  {
+>  	return register_kprobe(&trampoline_p);
