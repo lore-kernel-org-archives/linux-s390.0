@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965483AbXDNKJv@vger.kernel.org>
-Subject: [RFC] [Patch 0/4] timer_stats slimmed down
-From: Martin Peschke <mp3@de.ibm.com>
-Content-Type: text/plain
-Date: Sat, 14 Apr 2007 12:09:47 +0200
-Message-Id: <1176545387.5462.108.camel@dix>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965509AbXDVIB1@vger.kernel.org>
+Subject: Re: [PATCH 3/8] Kconfig: unwanted config options for s390.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+In-Reply-To: <200704220115.01532.arnd@arndb.de>
+References: <20070420113310.GD3738@skybase>
+	 <200704220115.01532.arnd@arndb.de>
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Sun, 22 Apr 2007 10:01:41 +0200
+Message-Id: <1177228901.8046.13.camel@localhost>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-s390@vger.kernel.org, tglx@timesys.com, d.pensator@gmail.com, mingo@redhat.com
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, akpm@linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-2.6.21-rc* kernels come with a feature that adds timer statistics
-to /proc/timer_stats (CONFIG_TIMER_STATS). This patch set makes it use
-the proposed statistics infrastructure (-mm tree), and adds prequisite
-functions to the statistics code.
+On Sun, 2007-04-22 at 01:15 +0200, Arnd Bergmann wrote:
+> > @@ -81,6 +82,7 @@ config VT_HW_CONSOLE_BINDING
+> > =20
+> >  config SERIAL_NONSTANDARD
+> >  	bool "Non-standard serial port support"
+> > +	depends on !S390
+> >  	---help---
+> >  	  Say Y here if you have any non-standard serial boards -- boards
+> >  	  which aren't supported using the standard "dumb" serial driver.
+>=20
+> depends on MMIO
 
-The result are noticeable lines of code savings.
-kernel/time/timer_stats.c which comes with several functions which can
-be made redundant by using corresponding functions of lib/statistic.c,
-that is:
+Depends on HAS_IOMEM.
 
-- accounting
-- printing output in sequential files
-- user interface for switching accounting on/off, reset etc.
-- measuring the accounting time
-- per-cpu optimisations
+> > @@ -822,7 +824,7 @@ config SGI_IP27_RTC
+> > =20
+> >  config GEN_RTC
+> >  	tristate "Generic /dev/rtc emulation"
+> > -	depends on RTC!=3Dy && !IA64 && !ARM && !M32R && !SPARC && !FRV
+> > +	depends on RTC!=3Dy && !IA64 && !ARM && !M32R && !SPARC && !FRV && !S=
+390
+> >  	---help---
+> >  	  If you say Y here and create a character special file /dev/rtc with
+> >  	  major number 10 and minor number 135 using mknod ("man mknod"), you
+>=20
+> ok.
+>=20
+> this one is bad in general and should probably be a select from the archi=
+tecture,
+> but that should not stop you from adding another architecture...
 
-Function that were missing in lib/statistics, and which are added by
-this patch set, are:
+The disable extension would help here, but I never got anywhere with it.
 
-- allow arbitrary keys for statistics entries (e.g. structures)
-- allow client to label output of statistics entries (e.g. using keys)
+> > @@ -878,6 +880,7 @@ config DTLK
+> > =20
+> >  config R3964
+> >  	tristate "Siemens R3964 line discipline"
+> > +	depends on !S390
+> >  	---help---
+> >  	  This driver allows synchronous communication with devices using the
+> >  	  Siemens R3964 packet protocol. Unless you are dealing with special
+>=20
+> Does it build? I don't see a point disabling this one just because there =
+are
+> no users. Most architectures also don't have users for this one, but it
+> doesn't hurt be able to build it using allyesconfig.
 
-A secondary effect of the patch set is that we won't add another entry
-to good old /proc. The statistics infrastructure uses debugfs.
+I'll try to build it.
 
-This patch set is a prototype that works for me, but which might allow
-for optimisations. Suggestions are welcome.
+--=20
+blue skies,              IBM Deutschland Entwicklung GmbH
+   Martin                Vorsitzender des Aufsichtsrats: Johann Weihen
+                         Gesch=E4ftsf=FChrung: Herbert Kircher
+Martin Schwidefsky       Sitz der Gesellschaft: B=F6blingen
+Linux on zSeries         Registergericht: Amtsgericht Stuttgart,
+   Development           HRB 243294
 
-[Patch 1/4] timer_stats slimmed down: statistics prereq, cleanup
-[Patch 2/4] timer_stats slimmed down: statistics prereq, labels
-[Patch 3/4] timer_stats slimmed down: statistics prereq, keys
-[Patch 4/4] timer_stats slimmed down: using statistics infrastucture
-
-Patch set is against 2.6.21-rc6-mm1 and additionaly requires
-"[Patch] statistics: fix sorted list" posted this morning.
-
-Signed-off-by: Martin Peschke <mp3@de.ibm.com>
+"Reality continues to ruin my life." - Calvin.
