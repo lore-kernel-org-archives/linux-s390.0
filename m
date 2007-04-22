@@ -1,14 +1,13 @@
-Return-Path: <linas@austin.ibm.com>
-Date: Tue, 24 Apr 2007 12:35:42 -0500
+Return-Path: <SRS0+69c4ad7734d58a9362c9+1337+infradead.org+hch@pentafluge.srs.infradead.org>
+Date: Sun, 22 Apr 2007 13:31:55 +0100
+From: Christoph Hellwig <hch@infradead.org>
 Subject: Re: [PATCH] powerpc pseries eeh: Convert to kthread API
-Message-ID: <20070424173542.GY31947@austin.ibm.com>
+Message-ID: <20070422123155.GF20763@infradead.org>
 References: <m1slawn9eb.fsf@ebiederm.dsl.xmission.com>
 	<11769695763104-git-send-email-ebiederm@xmission.com>
-	<20070422123155.GF20763@infradead.org>
-MIME-Version: 1.0
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20070422123155.GF20763@infradead.org>
-From: linas@austin.ibm.com (Linas Vepstas)
+In-Reply-To: <11769695763104-git-send-email-ebiederm@xmission.com>
 List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
 List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
@@ -18,7 +17,8 @@ List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
 List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-To: Christoph Hellwig <hch@infradead.org>, "Eric W. Biederman" <ebiederm@xmission.com>, "<Andrew Morton" <akpm@osdl.org>, containers@lists.osdl.org, Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>, linux-s390@vger.kernel.org, linuxppc-dev@ozlabs.org
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "<Andrew Morton" <akpm@osdl.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>, containers@lists.osdl.org, Oleg Nesterov <oleg@tv-sign.ru>
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thu, Apr 19, 2007 at 01:58:45AM -0600, Eric W. Biederman wrote:
@@ -28,21 +28,16 @@ On Thu, Apr 19, 2007 at 01:58:45AM -0600, Eric W. Biederman wrote:
 > not a combination of kernel_thread and daemonize.  Making
 > the code slightly simpler and more maintainable.
 
-For the patch that touched arch/powerpc/platforms/pseries/eeh_event.c,
-I ran a variety of tests, and couldn't see/find/evoke any adverse
-effects, so ..
+This one has the same scheme as the various s390 drivers where a thread
+is spawned using a workqueue on demand.  I think we should not blindly
+convert it but think a litte more about it.
 
-Acked-by: Linas Vepstas <linas@austin.ibm.com>
+The first question is obviously, is this really something we want?
+spawning kernel thread on demand without reaping them properly seems
+quite dangerous.
 
-> The second question is whether this is the right implementation.
-> kthread_create already works by using a workqueue to create the thread
-> and then waits for it.  If we really want to support creating threads
-> asynchronously on demand we should have a proper API in kthread.c for
-> this instead of spreading workqueues.
-
-Yes, exactly; all I really want is to start a thread from an
-interrupt context, and pass a structure to it.  This is pretty much
-all that arch/powerpc/platforms/pseries/eeh_event.c is trying to do,
-and little else.
-
---linas
+The second question is whether this is the right implementation.
+kthread_create already works by using a workqueue to create the thread
+and then waits for it.  If we really want to support creating threads
+asynchronously on demand we should have a proper API in kthread.c for
+this instead of spreading workqueues.
