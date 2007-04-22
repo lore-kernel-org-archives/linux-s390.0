@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753831AbXDUXUO@vger.kernel.org>
-From: Arnd Bergmann <arnd@arndb.de>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965494AbXDVHxa@vger.kernel.org>
 Subject: Re: [PATCH 7/8] Kconfig: silicon backplane dependency.
-Date: Sun, 22 Apr 2007 01:19:32 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+In-Reply-To: <200704220119.32729.arnd@arndb.de>
 References: <20070420113505.GH3738@skybase>
-In-Reply-To: <20070420113505.GH3738@skybase>
-MIME-Version: 1.0
+	 <200704220119.32729.arnd@arndb.de>
 Content-Type: text/plain; charset="iso-8859-1"
+Date: Sun, 22 Apr 2007 09:53:43 +0200
+Message-Id: <1177228423.8046.5.camel@localhost>
+Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-Message-Id: <200704220119.32729.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Arnd Bergmann <arnd@arndb.de>
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, akpm@linux-foundation.org, mb@bu3sch.de, linville@tuxdriver.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Friday 20 April 2007, Martin Schwidefsky wrote:
+On Sun, 2007-04-22 at 01:19 +0200, Arnd Bergmann wrote:
+> > diff -urpN linux-2.6/drivers/ssb/Kconfig linux-2.6-patched/drivers/ssb/=
+Kconfig
+> > --- linux-2.6/drivers/ssb/Kconfig       2007-04-19 15:24:40.000000000 +=
+0200
+> > +++ linux-2.6-patched/drivers/ssb/Kconfig       2007-04-19 15:55:44.000=
+000000 +0200
+> > @@ -1,4 +1,5 @@
+> >  menu "Sonics Silicon Backplane"
+> > +       depends on PCI || PCMCIA
 >=20
-> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
->=20
-> Make the "Sonics Silicon Backplane" menu dependent on the two buses
-> it can be found on.
-> Goes on top of git-wireless.patch.
->=20
-> Cc: Michael Buesch <mb@bu3sch.de>
-> Cc: John W. Linville <linville@tuxdriver.com>
-> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> ---
->=20
-> =A0drivers/ssb/Kconfig | =A0 =A01 +
-> =A01 files changed, 1 insertion(+)
->=20
-> diff -urpN linux-2.6/drivers/ssb/Kconfig linux-2.6-patched/drivers/ssb/Kc=
-onfig
-> --- linux-2.6/drivers/ssb/Kconfig=A0=A0=A0=A0=A0=A0=A02007-04-19 15:24:40=
-.000000000 +0200
-> +++ linux-2.6-patched/drivers/ssb/Kconfig=A0=A0=A0=A0=A0=A0=A02007-04-19 =
-15:55:44.000000000 +0200
-> @@ -1,4 +1,5 @@
-> =A0menu "Sonics Silicon Backplane"
-> +=A0=A0=A0=A0=A0=A0=A0depends on PCI || PCMCIA
+> No, this doesn't look right. There are other devices that come with
+> SiliconBackplane but are not PCI or PCMCIA style devices.
 
-No, this doesn't look right. There are other devices that come with
-SiliconBackplane but are not PCI or PCMCIA style devices.
+Yes, Michael already told me about that. The current solution is to use
+!S390, could we use HAS_IOMEM instead ?
 
-I'd make this 'depends on MMIO' as well if you add that option.
+--=20
+blue skies,              IBM Deutschland Entwicklung GmbH
+   Martin                Vorsitzender des Aufsichtsrats: Johann Weihen
+                         Gesch=E4ftsf=FChrung: Herbert Kircher
+Martin Schwidefsky       Sitz der Gesellschaft: B=F6blingen
+Linux on zSeries         Registergericht: Amtsgericht Stuttgart,
+   Development           HRB 243294
 
-	Arnd <><
+"Reality continues to ruin my life." - Calvin.
