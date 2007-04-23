@@ -1,52 +1,32 @@
-Return-Path: <cornelia.huck@de.ibm.com>
-Date: Tue, 24 Apr 2007 09:46:48 +0200
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH] powerpc pseries eeh: Convert to kthread API
-Message-ID: <20070424094648.43d2b9b4@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <1177390842.14873.94.camel@localhost.localdomain>
-References: <m1slawn9eb.fsf@ebiederm.dsl.xmission.com>
-	<11769695763104-git-send-email-ebiederm@xmission.com>
-	<20070422123155.GF20763@infradead.org>
-	<20070423205020.GR31947@austin.ibm.com>
-	<1177378733.14873.52.camel@localhost.localdomain>
-	<m1ejmav80l.fsf@ebiederm.dsl.xmission.com>
-	<1177382544.14873.57.camel@localhost.localdomain>
-	<m1abwyv4oq.fsf@ebiederm.dsl.xmission.com>
-	<1177390842.14873.94.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: "<Andrew Morton" <akpm@osdl.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>, "Eric W. Biederman" <ebiederm@xmission.com>, containers@lists.osdl.org, Oleg Nesterov <oleg@tv-sign.ru>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753928AbXDWOLJ@vger.kernel.org>
+Date: Mon, 23 Apr 2007 16:11:23 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [PATCH 0/9] Kconfig: cleanup s390 v2.
+Message-ID: <20070423141123.GA21174@skybase>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: akpm@linux-foundation.org, mb@bu3sch.de, linville@tuxdriver.com, arnd@arndb.de, maxextreme@gmail.com, gregkh@suse.de
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 24 Apr 2007 15:00:42 +1000,
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Greetings,
+I've added the results of the review to the Kconfig cleanup patches
+for s390. Patch #2 has been split, one half has all the HAS_IOMEM
+depends lines the other the remaining !S390 depends lines.
 
-> Like anything else, modules should have separated the entrypoints for
-> 
->  - Initiating a removal request
->  - Releasing the module
-> 
-> The former is use did "rmmod", can unregister things from subsystems,
-> etc... (and can file if the driver decides to refuse removal requests
-> when it's busy doing things or whatever policy that module wants to
-> implement).
-> 
-> The later is called when all references to the modules have been
-> dropped, it's a bit like the kref "release" (and could be implemented as
-> one).
+Andrew: I plan to add patches 1-5 to the for-andrew branch of the
+git390 repository if that is fine with you. The only thing that will
+be missing in the tree is the patch that disables wireless for s390.
+The code does compile but without hardware it is mute to have the
+config options. I'll wait until the git-wireless.patch is upstream.
+Patches 7-9 depend on patches found in -mm.
 
-That sounds quite similar to the problems we have with kobject
-refcounting vs. module unloading. The patchset I posted at
-http://marc.info/?l=linux-kernel&m=117679014404994&w=2 exposes the
-refcount of the kobject embedded in the module. Maybe the kthread code
-could use that reference as well?
+-- 
+blue skies,
+  Martin.
+
+"Reality continues to ruin my life." - Calvin.
