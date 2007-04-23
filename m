@@ -1,8 +1,8 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754479AbXDTLI2@vger.kernel.org>
-Date: Fri, 20 Apr 2007 13:08:42 +0200
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751149AbXDWOLi@vger.kernel.org>
+Date: Mon, 23 Apr 2007 16:11:52 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [S390] add arch_trampoline_kprobe.
-Message-ID: <20070420110842.GA17147@skybase>
+Subject: [PATCH 1/9] Kconfig: refine depends statements.
+Message-ID: <20070423141152.GB21174@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -10,37 +10,94 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: akpm@linux-foundation.org, srinivasa@in.ibm.com, ananth@in.ibm.com
+Cc: akpm@linux-foundation.org, mb@bu3sch.de, linville@tuxdriver.com, arnd@arndb.de, maxextreme@gmail.com, gregkh@suse.de
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Add the missing arch_trampoline_kprobe function for s390 required by
-kprobes-the-on-off-knob-thru-debugfs-updated.patch.
+Refine some depends statements to limit their visibility to the
+environments that are actually supported.
 
-Cc: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-Cc: Srinivasa DS <srinivasa@in.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/kprobes.c |    7 +++++++
- 1 files changed, 7 insertions(+)
+ drivers/auxdisplay/Kconfig     |    1 +
+ drivers/char/Kconfig           |    2 ++
+ drivers/ieee1394/Kconfig       |    1 +
+ drivers/kvm/Kconfig            |    1 +
+ drivers/message/fusion/Kconfig |    1 +
+ drivers/message/i2o/Kconfig    |    1 +
+ 6 files changed, 7 insertions(+)
 
-diff -urpN linux-2.6/arch/s390/kernel/kprobes.c linux-2.6-patched/arch/s390/kernel/kprobes.c
---- linux-2.6/arch/s390/kernel/kprobes.c	2007-04-19 17:12:40.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/kprobes.c	2007-04-19 17:12:09.000000000 +0200
-@@ -658,6 +658,13 @@ static struct kprobe trampoline_p = {
- 	.pre_handler = trampoline_probe_handler
- };
+diff -urpN linux-2.6/drivers/auxdisplay/Kconfig linux-2.6-patched/drivers/auxdisplay/Kconfig
+--- linux-2.6/drivers/auxdisplay/Kconfig	2007-04-23 15:50:41.000000000 +0200
++++ linux-2.6-patched/drivers/auxdisplay/Kconfig	2007-04-23 15:52:59.000000000 +0200
+@@ -6,6 +6,7 @@
+ #
  
-+int __kprobes arch_trampoline_kprobe(struct kprobe *p)
-+{
-+	if (p->addr == (kprobe_opcode_t *)&kretprobe_trampoline)
-+		return 1;
-+	return 0;
-+}
-+
- int __init arch_init_kprobes(void)
- {
- 	return register_kprobe(&trampoline_p);
+ menu "Auxiliary Display support"
++	depends on PARPORT
+ 
+ config KS0108
+ 	tristate "KS0108 LCD Controller"
+diff -urpN linux-2.6/drivers/char/Kconfig linux-2.6-patched/drivers/char/Kconfig
+--- linux-2.6/drivers/char/Kconfig	2007-04-23 15:51:30.000000000 +0200
++++ linux-2.6-patched/drivers/char/Kconfig	2007-04-23 15:52:59.000000000 +0200
+@@ -81,6 +81,7 @@ config VT_HW_CONSOLE_BINDING
+ 
+ config SERIAL_NONSTANDARD
+ 	bool "Non-standard serial port support"
++	depends on HAS_IOMEM
+ 	---help---
+ 	  Say Y here if you have any non-standard serial boards -- boards
+ 	  which aren't supported using the standard "dumb" serial driver.
+@@ -867,6 +868,7 @@ config COBALT_LCD
+ 
+ config DTLK
+ 	tristate "Double Talk PC internal speech card support"
++	depends on ISA
+ 	help
+ 	  This driver is for the DoubleTalk PC, a speech synthesizer
+ 	  manufactured by RC Systems (<http://www.rcsys.com/>).  It is also
+diff -urpN linux-2.6/drivers/ieee1394/Kconfig linux-2.6-patched/drivers/ieee1394/Kconfig
+--- linux-2.6/drivers/ieee1394/Kconfig	2007-04-23 15:51:33.000000000 +0200
++++ linux-2.6-patched/drivers/ieee1394/Kconfig	2007-04-23 15:52:59.000000000 +0200
+@@ -1,6 +1,7 @@
+ # -*- shell-script -*-
+ 
+ menu "IEEE 1394 (FireWire) support"
++	depends on PCI || BROKEN
+ 
+ source "drivers/firewire/Kconfig"
+ 
+diff -urpN linux-2.6/drivers/kvm/Kconfig linux-2.6-patched/drivers/kvm/Kconfig
+--- linux-2.6/drivers/kvm/Kconfig	2007-02-04 19:44:54.000000000 +0100
++++ linux-2.6-patched/drivers/kvm/Kconfig	2007-04-23 15:52:59.000000000 +0200
+@@ -2,6 +2,7 @@
+ # KVM configuration
+ #
+ menu "Virtualization"
++	depends on X86
+ 
+ config KVM
+ 	tristate "Kernel-based Virtual Machine (KVM) support"
+diff -urpN linux-2.6/drivers/message/fusion/Kconfig linux-2.6-patched/drivers/message/fusion/Kconfig
+--- linux-2.6/drivers/message/fusion/Kconfig	2007-04-23 15:50:43.000000000 +0200
++++ linux-2.6-patched/drivers/message/fusion/Kconfig	2007-04-23 15:52:59.000000000 +0200
+@@ -1,5 +1,6 @@
+ 
+ menu "Fusion MPT device support"
++	depends on PCI
+ 
+ config FUSION
+ 	bool
+diff -urpN linux-2.6/drivers/message/i2o/Kconfig linux-2.6-patched/drivers/message/i2o/Kconfig
+--- linux-2.6/drivers/message/i2o/Kconfig	2007-02-04 19:44:54.000000000 +0100
++++ linux-2.6-patched/drivers/message/i2o/Kconfig	2007-04-23 15:52:59.000000000 +0200
+@@ -1,5 +1,6 @@
+ 
+ menu "I2O device support"
++	depends on PCI
+ 
+ config I2O
+ 	tristate "I2O support"
