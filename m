@@ -1,8 +1,8 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932409AbXDWOMh@vger.kernel.org>
-Date: Mon, 23 Apr 2007 16:12:51 +0200
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754059AbXDWOMz@vger.kernel.org>
+Date: Mon, 23 Apr 2007 16:13:09 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [PATCH 3/9] Kconfig: unwanted menus for s390.
-Message-ID: <20070423141251.GD21174@skybase>
+Subject: [PATCH 4/9] Kconfig: common config options for s390.
+Message-ID: <20070423141309.GE21174@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -15,110 +15,50 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Disable some more menus in the configuration files that are of no
-interest to a s390 machine.
+Disable some configuration options in the common Kconfig files that
+are of no interest to a s390 machine. Enable hangcheck timer.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/dma/Kconfig     |    1 +
- drivers/input/Kconfig   |    1 +
- drivers/isdn/Kconfig    |    1 +
- drivers/net/phy/Kconfig |    1 +
- drivers/rtc/Kconfig     |    1 +
- net/ax25/Kconfig        |    2 +-
- net/bluetooth/Kconfig   |    2 +-
- net/irda/Kconfig        |    2 +-
- 8 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/char/Kconfig |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
 
-diff -urpN linux-2.6/drivers/dma/Kconfig linux-2.6-patched/drivers/dma/Kconfig
---- linux-2.6/drivers/dma/Kconfig	2007-04-23 15:51:31.000000000 +0200
-+++ linux-2.6-patched/drivers/dma/Kconfig	2007-04-23 15:53:07.000000000 +0200
-@@ -3,6 +3,7 @@
- #
+diff -urpN linux-2.6/drivers/char/Kconfig linux-2.6-patched/drivers/char/Kconfig
+--- linux-2.6/drivers/char/Kconfig	2007-04-23 15:53:01.000000000 +0200
++++ linux-2.6-patched/drivers/char/Kconfig	2007-04-23 15:53:09.000000000 +0200
+@@ -6,6 +6,7 @@ menu "Character devices"
  
- menu "DMA Engine support"
+ config VT
+ 	bool "Virtual terminal" if EMBEDDED
 +	depends on !S390
- 
- config DMA_ENGINE
- 	bool "Support for DMA engines"
-diff -urpN linux-2.6/drivers/input/Kconfig linux-2.6-patched/drivers/input/Kconfig
---- linux-2.6/drivers/input/Kconfig	2007-02-04 19:44:54.000000000 +0100
-+++ linux-2.6-patched/drivers/input/Kconfig	2007-04-23 15:53:07.000000000 +0200
-@@ -3,6 +3,7 @@
- #
- 
- menu "Input device support"
-+	depends on !S390
- 
- config INPUT
- 	tristate "Generic input layer (needed for keyboard, mouse, ...)" if EMBEDDED
-diff -urpN linux-2.6/drivers/isdn/Kconfig linux-2.6-patched/drivers/isdn/Kconfig
---- linux-2.6/drivers/isdn/Kconfig	2007-02-04 19:44:54.000000000 +0100
-+++ linux-2.6-patched/drivers/isdn/Kconfig	2007-04-23 15:53:07.000000000 +0200
-@@ -3,6 +3,7 @@
- #
- 
- menu "ISDN subsystem"
-+	depends on !S390
- 
- config ISDN
- 	tristate "ISDN support"
-diff -urpN linux-2.6/drivers/net/phy/Kconfig linux-2.6-patched/drivers/net/phy/Kconfig
---- linux-2.6/drivers/net/phy/Kconfig	2007-02-04 19:44:54.000000000 +0100
-+++ linux-2.6-patched/drivers/net/phy/Kconfig	2007-04-23 15:53:07.000000000 +0200
-@@ -3,6 +3,7 @@
- #
- 
- menu "PHY device support"
-+	depends on !S390
- 
- config PHYLIB
- 	tristate "PHY Device support and infrastructure"
-diff -urpN linux-2.6/drivers/rtc/Kconfig linux-2.6-patched/drivers/rtc/Kconfig
---- linux-2.6/drivers/rtc/Kconfig	2007-04-23 15:51:51.000000000 +0200
-+++ linux-2.6-patched/drivers/rtc/Kconfig	2007-04-23 15:53:07.000000000 +0200
-@@ -3,6 +3,7 @@
- #
- 
- menu "Real Time Clock"
-+	depends on !S390
- 
- config RTC_LIB
- 	tristate
-diff -urpN linux-2.6/net/ax25/Kconfig linux-2.6-patched/net/ax25/Kconfig
---- linux-2.6/net/ax25/Kconfig	2007-04-23 15:50:54.000000000 +0200
-+++ linux-2.6-patched/net/ax25/Kconfig	2007-04-23 15:53:07.000000000 +0200
-@@ -3,7 +3,7 @@
- #
- 
- menuconfig HAMRADIO
--	depends on NET
-+	depends on NET && !S390
- 	bool "Amateur Radio support"
- 	help
- 	  If you want to connect your Linux box to an amateur radio, answer Y
-diff -urpN linux-2.6/net/bluetooth/Kconfig linux-2.6-patched/net/bluetooth/Kconfig
---- linux-2.6/net/bluetooth/Kconfig	2007-02-04 19:44:54.000000000 +0100
-+++ linux-2.6-patched/net/bluetooth/Kconfig	2007-04-23 15:53:08.000000000 +0200
-@@ -3,7 +3,7 @@
- #
- 
- menuconfig BT
--	depends on NET
-+	depends on NET && !S390
- 	tristate "Bluetooth subsystem support"
- 	help
- 	  Bluetooth is low-cost, low-power, short-range wireless technology.
-diff -urpN linux-2.6/net/irda/Kconfig linux-2.6-patched/net/irda/Kconfig
---- linux-2.6/net/irda/Kconfig	2007-02-04 19:44:54.000000000 +0100
-+++ linux-2.6-patched/net/irda/Kconfig	2007-04-23 15:53:08.000000000 +0200
-@@ -3,7 +3,7 @@
- #
- 
- menuconfig IRDA
--	depends on NET
-+	depends on NET && !S390
- 	tristate "IrDA (infrared) subsystem support"
- 	select CRC_CCITT
+ 	select INPUT
+ 	default y if !VIOCONS
  	---help---
+@@ -775,7 +776,7 @@ config NVRAM
+ 
+ config RTC
+ 	tristate "Enhanced Real Time Clock Support"
+-	depends on !PPC && !PARISC && !IA64 && !M68K && (!SPARC || PCI) && !FRV && !ARM && !SUPERH
++	depends on !PPC && !PARISC && !IA64 && !M68K && (!SPARC || PCI) && !FRV && !ARM && !SUPERH && !S390
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you
+@@ -823,7 +824,7 @@ config SGI_IP27_RTC
+ 
+ config GEN_RTC
+ 	tristate "Generic /dev/rtc emulation"
+-	depends on RTC!=y && !IA64 && !ARM && !M32R && !SPARC && !FRV
++	depends on RTC!=y && !IA64 && !ARM && !M32R && !SPARC && !FRV && !S390
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you
+@@ -1054,7 +1055,7 @@ config HPET_MMAP
+ 
+ config HANGCHECK_TIMER
+ 	tristate "Hangcheck timer"
+-	depends on X86 || IA64 || PPC64
++	depends on X86 || IA64 || PPC64 || S390
+ 	help
+ 	  The hangcheck-timer module detects when the system has gone
+ 	  out to lunch past a certain margin.  It can reboot the system
