@@ -1,15 +1,13 @@
 Return-Path: <linas@austin.ibm.com>
-Date: Tue, 24 Apr 2007 12:24:48 -0500
+Date: Tue, 24 Apr 2007 12:35:42 -0500
 Subject: Re: [PATCH] powerpc pseries eeh: Convert to kthread API
-Message-ID: <20070424172448.GX31947@austin.ibm.com>
+Message-ID: <20070424173542.GY31947@austin.ibm.com>
 References: <m1slawn9eb.fsf@ebiederm.dsl.xmission.com>
 	<11769695763104-git-send-email-ebiederm@xmission.com>
 	<20070422123155.GF20763@infradead.org>
-	<20070423205020.GR31947@austin.ibm.com>
-	<1177378733.14873.52.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1177378733.14873.52.camel@localhost.localdomain>
+In-Reply-To: <20070422123155.GF20763@infradead.org>
 From: linas@austin.ibm.com (Linas Vepstas)
 List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
@@ -20,44 +18,31 @@ List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
 List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: "<Andrew Morton" <akpm@osdl.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>, "Eric W. Biederman" <ebiederm@xmission.com>, containers@lists.osdl.org, Oleg Nesterov <oleg@tv-sign.ru>
+To: Christoph Hellwig <hch@infradead.org>, "Eric W. Biederman" <ebiederm@xmission.com>, "<Andrew Morton" <akpm@osdl.org>, containers@lists.osdl.org, Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>, linux-s390@vger.kernel.org, linuxppc-dev@ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Apr 24, 2007 at 11:38:53AM +1000, Benjamin Herrenschmidt wrote:
-> > The only reason for using threads here is to get the error recovery
-> > out of an interrupt context (where errors may be detected), and then,
-> > an hour later, decrement a counter (which is how we limit these to 
-> > 6 per hour). Thread reaping is "trivial", the thread just exits
-> > after an hour.
+On Thu, Apr 19, 2007 at 01:58:45AM -0600, Eric W. Biederman wrote:
+> From: Eric W. Biederman <ebiederm@xmission.com>
 > 
-> In addition, it should be a thread and not done from within keventd
-> because :
-> 
->  - It can take a long time (well, relatively but still too long for a
-> work queue)
+> This patch modifies the startup of eehd to use kthread_run
+> not a combination of kernel_thread and daemonize.  Making
+> the code slightly simpler and more maintainable.
 
-Uhh, 15 or 20 seconds even. That's a long time by any kernel standard.
+For the patch that touched arch/powerpc/platforms/pseries/eeh_event.c,
+I ran a variety of tests, and couldn't see/find/evoke any adverse
+effects, so ..
 
->  - The driver callbacks might need to use keventd or do flush_workqueue
-> to synchronize with their own workqueues when doing an internal
-> recovery.
-> 
-> > Since these are events rare, I've no particular concern about
-> > performance or resource consumption. The current code seems 
-> > to work just fine. :-)
-> 
-> I think moving to kthread's is cleaner (just a wrapper around kernel
-> threads that simplify dealing with reaping them out mostly) and I agree
-> with Christoph that it would be nice to be able to "fire off" kthreads
-> from interrupt context.. in many cases, we abuse work queues for things
-> that should really done from kthreads instead (basically anything that
-> takes more than a couple hundred microsecs or so).
+Acked-by: Linas Vepstas <linas@austin.ibm.com>
 
-It would be nice to have threads that can be "fired off" from an
-interrupt context.  That would simplify the EEH code slightly 
-(removing a few dozen lines of code that do this bounce).
+> The second question is whether this is the right implementation.
+> kthread_create already works by using a workqueue to create the thread
+> and then waits for it.  If we really want to support creating threads
+> asynchronously on demand we should have a proper API in kthread.c for
+> this instead of spreading workqueues.
 
-I presume that various device drivers might find this useful as well.
+Yes, exactly; all I really want is to start a thread from an
+interrupt context, and pass a structure to it.  This is pretty much
+all that arch/powerpc/platforms/pseries/eeh_event.c is trying to do,
+and little else.
 
 --linas
