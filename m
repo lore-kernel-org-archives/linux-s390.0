@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932344AbXDZBoA@vger.kernel.org>
-Date: Thu, 26 Apr 2007 05:39:16 +0400
-From: Anton Vorontsov <cbou@mail.ru>
-Subject: Re: [PATCH 0/9] Kconfig: cleanup s390 v2.
-Message-ID: <20070426013916.GA8219@zarina>
-Reply-To: cbou@mail.ru
-References: <20070423141123.GA21174@skybase> <20070425143011.57247c1d.akpm@linux-foundation.org> <20070425172447.1576c399.akpm@linux-foundation.org> <200704260232.06909.arnd@arndb.de>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754112AbXDZCh6@vger.kernel.org>
+Message-ID: <4630109F.6090002@oracle.com>
+Date: Wed, 25 Apr 2007 19:38:23 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="koi8-r"
-Content-Disposition: inline
-Content-Transfer-Encoding: base64
-In-Reply-To: <200704260232.06909.arnd@arndb.de>
+Subject: Re: [PATCH 0/9] Kconfig: cleanup s390 v2.
+References: <20070423141123.GA21174@skybase> <20070423104534.51bac974.akpm@linux-foundation.org> <20070425112133.4ae86399.randy.dunlap@oracle.com> <20070425143011.57247c1d.akpm@linux-foundation.org> <20070425172447.1576c399.akpm@linux-foundation.org> <20070426003911.GA19383@redhat.com>
+In-Reply-To: <20070426003911.GA19383@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Randy Dunlap <randy.dunlap@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, mb@bu3sch.de, linville@tuxdriver.com, maxextreme@gmail.com, gregkh@suse.de, jschopp@austin.ibm.com
+To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Randy Dunlap <randy.dunlap@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, mb@bu3sch.de, linville@tuxdriver.com, arnd@arndb.de, maxextreme@gmail.com, gregkh@suse.de
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gVGh1LCBBcHIgMjYsIDIwMDcgYXQgMDI6MzI6MDZBTSArMDIwMCwgQXJuZCBCZXJnbWFubiB3
-cm90ZToKPiBPbiBUaHVyc2RheSAyNiBBcHJpbCAyMDA3LCBBbmRyZXcgTW9ydG9uIHdyb3RlOgo+
-ID4gSXQgd291bGQgYmUgbmVhdCBpZiBzb21lb25lIGNvdWxkIGNyZWF0ZSBhbmQgbWFpbnRhaW4g
-YSBuZXcKPiA+IHNjcmlwdHMvc3BvdC1jb21tb24tbWlzdGFrZXMuIJpGZWVkIGl0IGEgdW5pZmll
-ZCBkaWZmIGFuZCBpdCB3b3VsZCBjb21wbGFpbgo+ID4gYWJvdXQgbmV3bHktYWRkZWQgY29kZSAo
-YW5kIG9ubHkgbmV3bHktYWRkZWQgY29kZSkgd2hpY2ggaGFzIGJ1c3RlZAo+ID4gd2hpdGVzcGFj
-ZSwgYWRkcyBuZXcgc2VtYXBob3JlcywgYWRkcyBuZXcga2VybmVsX3RocmVhZCBjYWxscywgZXRj
-LCBldGMuCj4gCj4gaHR0cDovL3BhdGNoc3R5bGVjaGVjay5nb29nbGVjb2RlLmNvbS9zdm4vdHJ1
-bmsvcGF0Y2hzdHlsZWNoZWNrZW1haWwucGwKPiBNaWdodCBzZXJ2ZSBhcyBhIHN0YXJ0aW5nIHBv
-aW50IGZvciB0aGlzLiBJdCBkb2Vzbid0IGhhdmUgYW55IHNlbWFudGljCj4gY2hlY2tzIHJpZ2h0
-IG5vdywgYnV0IEkgZ3Vlc3MgdGhleSBjYW4gYmUgYWRkZWQuCgpIYWQgcnVuIHRoaXMgdXRpbGl0
-eSBhZ2FpbnN0IG15IGJhdHRlcnkgcGF0Y2hlcywgYW5kIGNhdWdodApidW5jaCBvZiBmYWxzZSBw
-b3NpdGl2ZXMgKEkgYmVsaWV2ZSkuCgoKKyNkZWZpbmUgQkFUVEVSWV9QUk9QKGJhdCwgcHJvcCkg
-KHsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCisJdm9pZCAqdmFsdWUgPSBiYXQt
-PmdldF9wcm9wZXJ0eShiYXQsIEJBVFRFUllfUFJPUF8jI3Byb3ApOyBcCisJdmFsdWUgPyAqKGlu
-dCopdmFsdWUgOiAwOyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCit9KQoKR290
-OiAiTWFjcm9zIHdpdGggbXVsdGlwbGUgc3RhdGVtZW50cyBzaG91bGQgYmUgZW5jbG9zZWQgaW4g
-YSBkbyAtIHdoaWxlCmxvb3AiCgpJIGJlbGlldmVkICh7fSkgaXMgZXF1aXZhbGVudCBmb3IgImRv
-IC0gd2hpbGUiLCBpdCdzIHdpZGVseSB1c2VkIGluCmtlcm5lbC4KCgorCXN3aXRjaCAoYnApIHsK
-KwlkZWZhdWx0OiBicmVhazsKKwl9OwoKR290ICJHb3RvcyBzaG91bGQgbm90IGJlIGluZGVudGVk
-IiwgYXQgImRlZmF1bHQ6IGJyZWFrOyIKCgorc3RhdGljIGludCBiaW5kX3BzdF90b19wc3koc3Ry
-dWN0IHBvd2VyX3N1cHBsaWNhbnQgKnBzdCwKKyAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0
-cnVjdCBwb3dlcl9zdXBwbHkgKnBzeSkKK3sKCkdvdCAidXNlIHRhYnMgbm90IHNwYWNlcyIuIEhl
-cmUgc3BhY2VzIGludGVudGlvbmFsbHkgdXNlZCBmb3IKZm9ybWF0dGluZyBwdXJwb3NlLCBub3Qg
-Zm9yIHRoZSBpbmRlbnRpbmcuCg==
+Dave Jones wrote:
+> On Wed, Apr 25, 2007 at 05:24:47PM -0700, Andrew Morton wrote:
+> 
+>  > It would be neat if someone could create and maintain a new
+>  > scripts/spot-common-mistakes.  Feed it a unified diff and it would complain
+>  > about newly-added code (and only newly-added code) which has busted
+>  > whitespace, adds new semaphores, adds new kernel_thread calls, etc, etc.
+> 
+> years and years ago, when the dinosaurs roamed the land, I hacked up..
+> http://janitor.kernelnewbies.org/scripts/  and then left it by the wayside.
+> Some of the checks it did are actually bogus, but I'm happy to pick that
+> up again if there's interest in it being a useful tool.
+> 
+> In fact, I should probably munge it together with a similar thing
+> I wrote at http://www.codemonkey.org.uk/projects/findbugs/
+> (Warning: scary regexps)
+> 
+>  > It would need to be fairly simple and easily-extensible, as I can
+>  > imagine quite a few things getting added to it.
+>  > 
+>  > (Imagines a procmail rule which just bounces the email if
+>  > spot-common-mistakes failed)
+> 
+> or a git checkin rule that refuses to commit if it fails ;-)
+
+Yep, I was going to mention your scripts but you beat me to it.
+
+I'll be glad to help maintain such animals if wanted.
+
+-- 
+~Randy
+*** Remember to use Documentation/SubmitChecklist when testing your code ***
