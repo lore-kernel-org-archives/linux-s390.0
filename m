@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754435AbXDZBHi@vger.kernel.org>
-Date: Wed, 25 Apr 2007 18:06:11 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932344AbXDZBoA@vger.kernel.org>
+Date: Thu, 26 Apr 2007 05:39:16 +0400
+From: Anton Vorontsov <cbou@mail.ru>
 Subject: Re: [PATCH 0/9] Kconfig: cleanup s390 v2.
-Message-Id: <20070425180611.25c563d4.akpm@linux-foundation.org>
+Message-ID: <20070426013916.GA8219@zarina>
+Reply-To: cbou@mail.ru
+References: <20070423141123.GA21174@skybase> <20070425143011.57247c1d.akpm@linux-foundation.org> <20070425172447.1576c399.akpm@linux-foundation.org> <200704260232.06909.arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="koi8-r"
+Content-Disposition: inline
+Content-Transfer-Encoding: base64
 In-Reply-To: <200704260232.06909.arnd@arndb.de>
-References: <20070423141123.GA21174@skybase>
-	<20070425143011.57247c1d.akpm@linux-foundation.org>
-	<20070425172447.1576c399.akpm@linux-foundation.org>
-	<200704260232.06909.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, mb@bu3sch.de, linville@tuxdriver.com, maxextreme@gmail.com, gregkh@suse.de
+Cc: Andrew Morton <akpm@linux-foundation.org>, Randy Dunlap <randy.dunlap@oracle.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, mb@bu3sch.de, linville@tuxdriver.com, maxextreme@gmail.com, gregkh@suse.de, jschopp@austin.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 26 Apr 2007 02:32:06 +0200 Arnd Bergmann <arnd@arndb.de> wrote:
-
-> On Thursday 26 April 2007, Andrew Morton wrote:
-> > It would be neat if someone could create and maintain a new
-> > scripts/spot-common-mistakes. =A0Feed it a unified diff and it would co=
-mplain
-> > about newly-added code (and only newly-added code) which has busted
-> > whitespace, adds new semaphores, adds new kernel_thread calls, etc, etc.
->=20
-> http://patchstylecheck.googlecode.com/svn/trunk/patchstylecheckemail.pl
-> Might serve as a starting point for this. It doesn't have any semantic
-> checks right now, but I guess they can be added.
->=20
-
-	print "Your patch is now worthy to be reviewed by a real person\n";
-
-heh.  Yes, that looks like an ideal starting point.
-
-Methinks it should do `exit 1' if anything was detected.
+T24gVGh1LCBBcHIgMjYsIDIwMDcgYXQgMDI6MzI6MDZBTSArMDIwMCwgQXJuZCBCZXJnbWFubiB3
+cm90ZToKPiBPbiBUaHVyc2RheSAyNiBBcHJpbCAyMDA3LCBBbmRyZXcgTW9ydG9uIHdyb3RlOgo+
+ID4gSXQgd291bGQgYmUgbmVhdCBpZiBzb21lb25lIGNvdWxkIGNyZWF0ZSBhbmQgbWFpbnRhaW4g
+YSBuZXcKPiA+IHNjcmlwdHMvc3BvdC1jb21tb24tbWlzdGFrZXMuIJpGZWVkIGl0IGEgdW5pZmll
+ZCBkaWZmIGFuZCBpdCB3b3VsZCBjb21wbGFpbgo+ID4gYWJvdXQgbmV3bHktYWRkZWQgY29kZSAo
+YW5kIG9ubHkgbmV3bHktYWRkZWQgY29kZSkgd2hpY2ggaGFzIGJ1c3RlZAo+ID4gd2hpdGVzcGFj
+ZSwgYWRkcyBuZXcgc2VtYXBob3JlcywgYWRkcyBuZXcga2VybmVsX3RocmVhZCBjYWxscywgZXRj
+LCBldGMuCj4gCj4gaHR0cDovL3BhdGNoc3R5bGVjaGVjay5nb29nbGVjb2RlLmNvbS9zdm4vdHJ1
+bmsvcGF0Y2hzdHlsZWNoZWNrZW1haWwucGwKPiBNaWdodCBzZXJ2ZSBhcyBhIHN0YXJ0aW5nIHBv
+aW50IGZvciB0aGlzLiBJdCBkb2Vzbid0IGhhdmUgYW55IHNlbWFudGljCj4gY2hlY2tzIHJpZ2h0
+IG5vdywgYnV0IEkgZ3Vlc3MgdGhleSBjYW4gYmUgYWRkZWQuCgpIYWQgcnVuIHRoaXMgdXRpbGl0
+eSBhZ2FpbnN0IG15IGJhdHRlcnkgcGF0Y2hlcywgYW5kIGNhdWdodApidW5jaCBvZiBmYWxzZSBw
+b3NpdGl2ZXMgKEkgYmVsaWV2ZSkuCgoKKyNkZWZpbmUgQkFUVEVSWV9QUk9QKGJhdCwgcHJvcCkg
+KHsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCisJdm9pZCAqdmFsdWUgPSBiYXQt
+PmdldF9wcm9wZXJ0eShiYXQsIEJBVFRFUllfUFJPUF8jI3Byb3ApOyBcCisJdmFsdWUgPyAqKGlu
+dCopdmFsdWUgOiAwOyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCit9KQoKR290
+OiAiTWFjcm9zIHdpdGggbXVsdGlwbGUgc3RhdGVtZW50cyBzaG91bGQgYmUgZW5jbG9zZWQgaW4g
+YSBkbyAtIHdoaWxlCmxvb3AiCgpJIGJlbGlldmVkICh7fSkgaXMgZXF1aXZhbGVudCBmb3IgImRv
+IC0gd2hpbGUiLCBpdCdzIHdpZGVseSB1c2VkIGluCmtlcm5lbC4KCgorCXN3aXRjaCAoYnApIHsK
+KwlkZWZhdWx0OiBicmVhazsKKwl9OwoKR290ICJHb3RvcyBzaG91bGQgbm90IGJlIGluZGVudGVk
+IiwgYXQgImRlZmF1bHQ6IGJyZWFrOyIKCgorc3RhdGljIGludCBiaW5kX3BzdF90b19wc3koc3Ry
+dWN0IHBvd2VyX3N1cHBsaWNhbnQgKnBzdCwKKyAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0
+cnVjdCBwb3dlcl9zdXBwbHkgKnBzeSkKK3sKCkdvdCAidXNlIHRhYnMgbm90IHNwYWNlcyIuIEhl
+cmUgc3BhY2VzIGludGVudGlvbmFsbHkgdXNlZCBmb3IKZm9ybWF0dGluZyBwdXJwb3NlLCBub3Qg
+Zm9yIHRoZSBpbmRlbnRpbmcuCg==
