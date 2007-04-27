@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755859AbXD0OPy@vger.kernel.org>
-Message-Id: <20070427140513.365580530@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755860AbXD0OPy@vger.kernel.org>
+Message-Id: <20070427140513.857001722@de.ibm.com>
 References: <20070427140503.087958775@de.ibm.com>
-Date: Fri, 27 Apr 2007 16:05:10 +0200
+Date: Fri, 27 Apr 2007 16:05:12 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 07/38] cio: Clean up online_store.
-Content-Disposition: inline; filename=105-cio-cleanup-online.diff
+Subject: [patch 09/38] cio: Use add_uevent_var.
+Content-Disposition: inline; filename=107-cio-adduevent.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,146 +14,122 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Detangle the online_store code and make it more readable.
+Convert ccw_uevent to use add_uevent_var and adapt snprint_alias.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/device.c |  109 ++++++++++++++++++++++++++--------------------
- 1 files changed, 62 insertions(+), 47 deletions(-)
+ drivers/s390/cio/device.c |   66 ++++++++++++++++++----------------------------
+ 1 files changed, 26 insertions(+), 40 deletions(-)
 
 Index: quilt-2.6/drivers/s390/cio/device.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device.c	2007-04-27 16:01:49.000000000 +0200
-+++ quilt-2.6/drivers/s390/cio/device.c	2007-04-27 16:04:53.000000000 +0200
-@@ -413,11 +413,60 @@
- 	return (ret == 0) ? -ENODEV : ret;
+--- quilt-2.6.orig/drivers/s390/cio/device.c	2007-04-27 16:04:53.000000000 +0200
++++ quilt-2.6/drivers/s390/cio/device.c	2007-04-27 16:04:54.000000000 +0200
+@@ -56,13 +56,12 @@
+ /* Store modalias string delimited by prefix/suffix string into buffer with
+  * specified size. Return length of resulting string (excluding trailing '\0')
+  * even if string doesn't fit buffer (snprintf semantics). */
+-static int snprint_alias(char *buf, size_t size, const char *prefix,
++static int snprint_alias(char *buf, size_t size,
+ 			 struct ccw_device_id *id, const char *suffix)
+ {
+ 	int len;
+ 
+-	len = snprintf(buf, size, "%sccw:t%04Xm%02X", prefix, id->cu_type,
+-		       id->cu_model);
++	len = snprintf(buf, size, "ccw:t%04Xm%02X", id->cu_type, id->cu_model);
+ 	if (len > size)
+ 		return len;
+ 	buf += len;
+@@ -85,53 +84,40 @@
+ 	struct ccw_device *cdev = to_ccwdev(dev);
+ 	struct ccw_device_id *id = &(cdev->id);
+ 	int i = 0;
+-	int len;
++	int len = 0;
++	int ret;
++	char modalias_buf[30];
+ 
+ 	/* CU_TYPE= */
+-	len = snprintf(buffer, buffer_size, "CU_TYPE=%04X", id->cu_type) + 1;
+-	if (len > buffer_size || i >= num_envp)
+-		return -ENOMEM;
+-	envp[i++] = buffer;
+-	buffer += len;
+-	buffer_size -= len;
++	ret = add_uevent_var(envp, num_envp, &i, buffer, buffer_size, &len,
++			     "CU_TYPE=%04X", id->cu_type);
++	if (ret)
++		return ret;
+ 
+ 	/* CU_MODEL= */
+-	len = snprintf(buffer, buffer_size, "CU_MODEL=%02X", id->cu_model) + 1;
+-	if (len > buffer_size || i >= num_envp)
+-		return -ENOMEM;
+-	envp[i++] = buffer;
+-	buffer += len;
+-	buffer_size -= len;
++	ret = add_uevent_var(envp, num_envp, &i, buffer, buffer_size, &len,
++			     "CU_MODEL=%02X", id->cu_model);
++	if (ret)
++		return ret;
+ 
+ 	/* The next two can be zero, that's ok for us */
+ 	/* DEV_TYPE= */
+-	len = snprintf(buffer, buffer_size, "DEV_TYPE=%04X", id->dev_type) + 1;
+-	if (len > buffer_size || i >= num_envp)
+-		return -ENOMEM;
+-	envp[i++] = buffer;
+-	buffer += len;
+-	buffer_size -= len;
++	ret = add_uevent_var(envp, num_envp, &i, buffer, buffer_size, &len,
++			     "DEV_TYPE=%04X", id->dev_type);
++	if (ret)
++		return ret;
+ 
+ 	/* DEV_MODEL= */
+-	len = snprintf(buffer, buffer_size, "DEV_MODEL=%02X",
+-			(unsigned char) id->dev_model) + 1;
+-	if (len > buffer_size || i >= num_envp)
+-		return -ENOMEM;
+-	envp[i++] = buffer;
+-	buffer += len;
+-	buffer_size -= len;
++	ret = add_uevent_var(envp, num_envp, &i, buffer, buffer_size, &len,
++			     "DEV_MODEL=%02X", id->dev_model);
++	if (ret)
++		return ret;
+ 
+ 	/* MODALIAS=  */
+-	len = snprint_alias(buffer, buffer_size, "MODALIAS=", id, "") + 1;
+-	if (len > buffer_size || i >= num_envp)
+-		return -ENOMEM;
+-	envp[i++] = buffer;
+-	buffer += len;
+-	buffer_size -= len;
+-
+-	envp[i] = NULL;
+-
+-	return 0;
++	snprint_alias(modalias_buf, sizeof(modalias_buf), id, "");
++	ret = add_uevent_var(envp, num_envp, &i, buffer, buffer_size, &len,
++			     "MODALIAS=%s", modalias_buf);
++	return ret;
  }
  
--static ssize_t
--online_store (struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
-+static void online_store_handle_offline(struct ccw_device *cdev)
-+{
-+	if (cdev->private->state == DEV_STATE_DISCONNECTED)
-+		ccw_device_remove_disconnected(cdev);
-+	else if (cdev->drv && cdev->drv->set_offline)
-+		ccw_device_set_offline(cdev);
-+}
-+
-+static int online_store_recog_and_online(struct ccw_device *cdev)
-+{
-+	int ret;
-+
-+	/* Do device recognition, if needed. */
-+	if (cdev->id.cu_type == 0) {
-+		ret = ccw_device_recognition(cdev);
-+		if (ret) {
-+			printk(KERN_WARNING"Couldn't start recognition "
-+			       "for device %s (ret=%d)\n",
-+			       cdev->dev.bus_id, ret);
-+			return ret;
-+		}
-+		wait_event(cdev->private->wait_q,
-+			   cdev->private->flags.recog_done);
-+	}
-+	if (cdev->drv && cdev->drv->set_online)
-+		ccw_device_set_online(cdev);
-+	return 0;
-+}
-+static void online_store_handle_online(struct ccw_device *cdev, int force)
-+{
-+	int ret;
-+
-+	ret = online_store_recog_and_online(cdev);
-+	if (ret)
-+		return;
-+	if (force && cdev->private->state == DEV_STATE_BOXED) {
-+		ret = ccw_device_stlck(cdev);
-+		if (ret) {
-+			printk(KERN_WARNING"ccw_device_stlck for device %s "
-+			       "returned %d!\n", cdev->dev.bus_id, ret);
-+			return;
-+		}
-+		if (cdev->id.cu_type == 0)
-+			cdev->private->state = DEV_STATE_NOT_OPER;
-+		online_store_recog_and_online(cdev);
-+	}
-+
-+}
-+
-+static ssize_t online_store (struct device *dev, struct device_attribute *attr,
-+			     const char *buf, size_t count)
- {
- 	struct ccw_device *cdev = to_ccwdev(dev);
--	int i, force, ret;
-+	int i, force;
- 	char *tmp;
+ struct bus_type ccw_bus_type;
+@@ -280,7 +266,7 @@
+ 	struct ccw_device_id *id = &(cdev->id);
+ 	int len;
  
- 	if (atomic_cmpxchg(&cdev->private->onoff, 0, 1) != 0)
-@@ -434,51 +483,17 @@
- 		force = 0;
- 		i = simple_strtoul(buf, &tmp, 16);
- 	}
--	if (i == 1) {
--		/* Do device recognition, if needed. */
--		if (cdev->id.cu_type == 0) {
--			ret = ccw_device_recognition(cdev);
--			if (ret) {
--				printk(KERN_WARNING"Couldn't start recognition "
--				       "for device %s (ret=%d)\n",
--				       cdev->dev.bus_id, ret);
--				goto out;
--			}
--			wait_event(cdev->private->wait_q,
--				   cdev->private->flags.recog_done);
--		}
--		if (cdev->drv && cdev->drv->set_online)
--			ccw_device_set_online(cdev);
--	} else if (i == 0) {
--		if (cdev->private->state == DEV_STATE_DISCONNECTED)
--			ccw_device_remove_disconnected(cdev);
--		else if (cdev->drv && cdev->drv->set_offline)
--			ccw_device_set_offline(cdev);
--	}
--	if (force && cdev->private->state == DEV_STATE_BOXED) {
--		ret = ccw_device_stlck(cdev);
--		if (ret) {
--			printk(KERN_WARNING"ccw_device_stlck for device %s "
--			       "returned %d!\n", cdev->dev.bus_id, ret);
--			goto out;
--		}
--		/* Do device recognition, if needed. */
--		if (cdev->id.cu_type == 0) {
--			cdev->private->state = DEV_STATE_NOT_OPER;
--			ret = ccw_device_recognition(cdev);
--			if (ret) {
--				printk(KERN_WARNING"Couldn't start recognition "
--				       "for device %s (ret=%d)\n",
--				       cdev->dev.bus_id, ret);
--				goto out;
--			}
--			wait_event(cdev->private->wait_q,
--				   cdev->private->flags.recog_done);
--		}
--		if (cdev->drv && cdev->drv->set_online)
--			ccw_device_set_online(cdev);
-+
-+	switch (i) {
-+	case 0:
-+		online_store_handle_offline(cdev);
-+		break;
-+	case 1:
-+		online_store_handle_online(cdev, force);
-+		break;
-+	default:
-+		count = -EINVAL;
- 	}
--	out:
- 	if (cdev->drv)
- 		module_put(cdev->drv->owner);
- 	atomic_set(&cdev->private->onoff, 0);
+-	len = snprint_alias(buf, PAGE_SIZE, "", id, "\n") + 1;
++	len = snprint_alias(buf, PAGE_SIZE, id, "\n") + 1;
+ 
+ 	return len > PAGE_SIZE ? PAGE_SIZE : len;
+ }
 
 -- 
 blue skies,
