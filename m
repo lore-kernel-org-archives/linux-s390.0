@@ -1,651 +1,957 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755871AbXD0OPt@vger.kernel.org>
-Message-Id: <20070427140515.761777028@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755869AbXD0OPu@vger.kernel.org>
+Message-Id: <20070427140514.324680493@de.ibm.com>
 References: <20070427140503.087958775@de.ibm.com>
-Date: Fri, 27 Apr 2007 16:05:20 +0200
+Date: Fri, 27 Apr 2007 16:05:14 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 17/38] System call cleanup.
-Content-Disposition: inline; filename=120-svc-glue.diff
+Subject: [patch 11/38] cio: replace subchannel evaluation queue with bitmap
+Content-Disposition: inline; filename=109-cio-idset.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Oberparleiter <peter.oberparleiter@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 
-Remove system call glue for sys_clone, sys_fork, sys_vfork, sys_execve,
-sys_sigreturn, sys_rt_sigreturn and sys_sigaltstack. Call do_execve from
-kernel_execve directly, move pt_regs to the right place and branch to
-sysc_return to start the user space program. This removes the last
-in-kernel system call.
+Use a bitmap for indicating which subchannels require evaluation
+instead of allocating memory for each evaluation request. This
+approach reduces memory consumption during recovery in case of
+massive evaluation request occurrence and removes the need for
+memory allocation failure handling.
 
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
 
- arch/s390/kernel/compat_linux.c  |   62 +++++++++++++-----------
- arch/s390/kernel/compat_signal.c |   14 +++--
- arch/s390/kernel/entry.S         |   87 ++++++++++++---------------------
- arch/s390/kernel/entry64.S       |  100 ++++++++++-----------------------------
- arch/s390/kernel/process.c       |   82 ++++++++++++++++++-------------
- arch/s390/kernel/signal.c        |   10 ++-
- arch/s390/kernel/sys_s390.c      |   20 -------
- arch/s390/kernel/syscalls.S      |   14 ++---
- 8 files changed, 163 insertions(+), 226 deletions(-)
+ drivers/s390/cio/Makefile     |    2 
+ drivers/s390/cio/chp.c        |    8 --
+ drivers/s390/cio/chp.h        |    2 
+ drivers/s390/cio/chsc.c       |  130 +++++++++---------------------------
+ drivers/s390/cio/chsc.h       |    4 -
+ drivers/s390/cio/css.c        |  148 +++++++++++++-----------------------------
+ drivers/s390/cio/css.h        |   10 --
+ drivers/s390/cio/device_fsm.c |    6 -
+ drivers/s390/cio/idset.c      |  112 +++++++++++++++++++++++++++++++
+ drivers/s390/cio/idset.h      |   25 +++++++
+ drivers/s390/s390mach.c       |   24 +-----
+ 11 files changed, 235 insertions(+), 236 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/compat_linux.c
+Index: quilt-2.6/drivers/s390/cio/chp.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/compat_linux.c	2007-04-27 16:01:49.000000000 +0200
-+++ quilt-2.6/arch/s390/kernel/compat_linux.c	2007-04-27 16:04:56.000000000 +0200
-@@ -495,29 +495,34 @@
-  * sys32_execve() executes a new program after the asm stub has set
-  * things up for us.  This should basically do what I want it to.
+--- quilt-2.6.orig/drivers/s390/cio/chp.c	2007-04-27 16:04:54.000000000 +0200
++++ quilt-2.6/drivers/s390/cio/chp.c	2007-04-27 16:04:54.000000000 +0200
+@@ -491,7 +491,7 @@
+  * Handle channel-report-words indicating that the status of a channel-path
+  * has changed.
   */
--asmlinkage long
--sys32_execve(struct pt_regs regs)
-+asmlinkage long sys32_execve(void)
+-int chp_process_crw(int id, int status)
++void chp_process_crw(int id, int status)
  {
--        int error;
--        char * filename;
--
--        filename = getname(compat_ptr(regs.orig_gpr2));
--        error = PTR_ERR(filename);
--        if (IS_ERR(filename))
-+	struct pt_regs *regs = task_pt_regs(current);
-+	char *filename;
-+	unsigned long result;
-+	int rc;
-+
-+	filename = getname(compat_ptr(regs->orig_gpr2));
-+	if (IS_ERR(filename)) {
-+		result = PTR_ERR(filename);
-                 goto out;
--        error = compat_do_execve(filename, compat_ptr(regs.gprs[3]),
--				 compat_ptr(regs.gprs[4]), &regs);
--	if (error == 0)
--	{
--		task_lock(current);
--		current->ptrace &= ~PT_DTRACE;
--		task_unlock(current);
--		current->thread.fp_regs.fpc=0;
--		asm volatile("sfpc %0,0" : : "d" (0));
+ 	struct chp_id chpid;
+ 
+@@ -500,11 +500,9 @@
+ 	if (status) {
+ 		if (!chp_is_registered(chpid))
+ 			chp_new(chpid);
+-		return chsc_chp_online(chpid);
+-	} else {
++		chsc_chp_online(chpid);
++	} else
+ 		chsc_chp_offline(chpid);
+-		return 0;
+-	}
+ }
+ 
+ static inline int info_bit_num(struct chp_id id)
+Index: quilt-2.6/drivers/s390/cio/chp.h
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/chp.h	2007-04-27 16:04:54.000000000 +0200
++++ quilt-2.6/drivers/s390/cio/chp.h	2007-04-27 16:04:54.000000000 +0200
+@@ -42,7 +42,7 @@
+ u8 chp_get_sch_opm(struct subchannel *sch);
+ int chp_is_registered(struct chp_id chpid);
+ void *chp_get_chp_desc(struct chp_id chpid);
+-int chp_process_crw(int id, int available);
++void chp_process_crw(int id, int available);
+ void chp_remove_cmg_attr(struct channel_path *chp);
+ int chp_add_cmg_attr(struct channel_path *chp);
+ int chp_new(struct chp_id chpid);
+Index: quilt-2.6/drivers/s390/cio/chsc.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/chsc.c	2007-04-27 16:04:54.000000000 +0200
++++ quilt-2.6/drivers/s390/cio/chsc.c	2007-04-27 16:04:54.000000000 +0200
+@@ -195,12 +195,8 @@
+ 	if (cio_clear(sch)) {
+ 		/* Recheck device in case clear failed. */
+ 		sch->lpm = 0;
+-		if (device_trigger_verify(sch) != 0) {
+-			if(css_enqueue_subchannel_slow(sch->schid)) {
+-				css_clear_subchannel_slow_list();
+-				need_rescan = 1;
+-			}
+-		}
++		if (device_trigger_verify(sch) != 0)
++			css_schedule_eval(sch->schid);
+ 		return;
  	}
-+	rc = compat_do_execve(filename, compat_ptr(regs->gprs[3]),
-+			      compat_ptr(regs->gprs[4]), regs);
-+	if (rc) {
-+		result = rc;
-+		goto out_putname;
+ 	/* Request retry of internal operation. */
+@@ -262,11 +258,8 @@
+ 
+ out_unreg:
+ 	sch->lpm = 0;
+-	if (css_enqueue_subchannel_slow(sch->schid)) {
+-		css_clear_subchannel_slow_list();
+-		need_rescan = 1;
+-	}
+ 	spin_unlock_irq(sch->lock);
++	css_schedule_eval(sch->schid);
+ 	return 0;
+ }
+ 
+@@ -281,9 +274,6 @@
+ 		return;
+ 	bus_for_each_dev(&css_bus_type, NULL, &chpid,
+ 			 s390_subchannel_remove_chpid);
+-
+-	if (need_rescan || css_slow_subchannels_exist())
+-		queue_work(slow_path_wq, &slow_path_work);
+ }
+ 
+ struct res_acc_data {
+@@ -331,7 +321,6 @@
+ s390_process_res_acc_new_sch(struct subchannel_id schid)
+ {
+ 	struct schib schib;
+-	int ret;
+ 	/*
+ 	 * We don't know the device yet, but since a path
+ 	 * may be available now to the device we'll have
+@@ -342,15 +331,10 @@
+ 	 */
+ 	if (stsch_err(schid, &schib))
+ 		/* We're through */
+-		return need_rescan ? -EAGAIN : -ENXIO;
++		return -ENXIO;
+ 
+ 	/* Put it on the slow path. */
+-	ret = css_enqueue_subchannel_slow(schid);
+-	if (ret) {
+-		css_clear_subchannel_slow_list();
+-		need_rescan = 1;
+-		return -EAGAIN;
+-	}
++	css_schedule_eval(schid);
+ 	return 0;
+ }
+ 
+@@ -392,10 +376,8 @@
+ }
+ 
+ 
+-static int
+-s390_process_res_acc (struct res_acc_data *res_data)
++static void s390_process_res_acc (struct res_acc_data *res_data)
+ {
+-	int rc;
+ 	char dbf_txt[15];
+ 
+ 	sprintf(dbf_txt, "accpr%x.%02x", res_data->chpid.cssid,
+@@ -413,12 +395,7 @@
+ 	 * The more information we have (info), the less scanning
+ 	 * will we have to do.
+ 	 */
+-	rc = for_each_subchannel(__s390_process_res_acc, res_data);
+-	if (css_slow_subchannels_exist())
+-		rc = -EAGAIN;
+-	else if (rc != -EAGAIN)
+-		rc = 0;
+-	return rc;
++	for_each_subchannel(__s390_process_res_acc, res_data);
+ }
+ 
+ static int
+@@ -470,7 +447,7 @@
+ 	/* ccdf has to be big enough for a link-incident record */
+ } __attribute__ ((packed));
+ 
+-static int chsc_process_sei_link_incident(struct chsc_sei_area *sei_area)
++static void chsc_process_sei_link_incident(struct chsc_sei_area *sei_area)
+ {
+ 	struct chp_id chpid;
+ 	int id;
+@@ -478,7 +455,7 @@
+ 	CIO_CRW_EVENT(4, "chsc: link incident (rs=%02x, rs_id=%04x)\n",
+ 		      sei_area->rs, sei_area->rsid);
+ 	if (sei_area->rs != 4)
+-		return 0;
++		return;
+ 	id = __get_chpid_from_lir(sei_area->ccdf);
+ 	if (id < 0)
+ 		CIO_CRW_EVENT(4, "chsc: link incident - invalid LIR\n");
+@@ -487,21 +464,18 @@
+ 		chpid.id = id;
+ 		chsc_chp_offline(chpid);
+ 	}
+-
+-	return 0;
+ }
+ 
+-static int chsc_process_sei_res_acc(struct chsc_sei_area *sei_area)
++static void chsc_process_sei_res_acc(struct chsc_sei_area *sei_area)
+ {
+ 	struct res_acc_data res_data;
+ 	struct chp_id chpid;
+ 	int status;
+-	int rc;
+ 
+ 	CIO_CRW_EVENT(4, "chsc: resource accessibility event (rs=%02x, "
+ 		      "rs_id=%04x)\n", sei_area->rs, sei_area->rsid);
+ 	if (sei_area->rs != 4)
+-		return 0;
++		return;
+ 	chp_id_init(&chpid);
+ 	chpid.id = sei_area->rsid;
+ 	/* allocate a new channel path structure, if needed */
+@@ -509,7 +483,7 @@
+ 	if (status < 0)
+ 		chp_new(chpid);
+ 	else if (!status)
+-		return 0;
++		return;
+ 	memset(&res_data, 0, sizeof(struct res_acc_data));
+ 	res_data.chpid = chpid;
+ 	if ((sei_area->vf & 0xc0) != 0) {
+@@ -521,9 +495,7 @@
+ 			/* link address */
+ 			res_data.fla_mask = 0xff00;
+ 	}
+-	rc = s390_process_res_acc(&res_data);
+-
+-	return rc;
++	s390_process_res_acc(&res_data);
+ }
+ 
+ struct chp_config_data {
+@@ -532,7 +504,7 @@
+ 	u8 pc;
+ };
+ 
+-static int chsc_process_sei_chp_config(struct chsc_sei_area *sei_area)
++static void chsc_process_sei_chp_config(struct chsc_sei_area *sei_area)
+ {
+ 	struct chp_config_data *data;
+ 	struct chp_id chpid;
+@@ -540,7 +512,7 @@
+ 
+ 	CIO_CRW_EVENT(4, "chsc: channel-path-configuration notification\n");
+ 	if (sei_area->rs != 0)
+-		return 0;
++		return;
+ 	data = (struct chp_config_data *) &(sei_area->ccdf);
+ 	chp_id_init(&chpid);
+ 	for (num = 0; num <= __MAX_CHPID; num++) {
+@@ -561,52 +533,44 @@
+ 			break;
+ 		}
+ 	}
+-
+-	return 0;
+ }
+ 
+-static int chsc_process_sei(struct chsc_sei_area *sei_area)
++static void chsc_process_sei(struct chsc_sei_area *sei_area)
+ {
+-	int rc;
+-
+ 	/* Check if we might have lost some information. */
+-	if (sei_area->flags & 0x40)
++	if (sei_area->flags & 0x40) {
+ 		CIO_CRW_EVENT(2, "chsc: event overflow\n");
++		css_schedule_eval_all();
 +	}
-+	task_lock(current);
-+	current->ptrace &= ~PT_DTRACE;
-+	task_unlock(current);
-+	current->thread.fp_regs.fpc=0;
-+	asm volatile("sfpc %0,0" : : "d" (0));
-+	result = regs->gprs[2];
-+out_putname:
-         putname(filename);
- out:
--        return error;
-+	return result;
+ 	/* which kind of information was stored? */
+-	rc = 0;
+ 	switch (sei_area->cc) {
+ 	case 1: /* link incident*/
+-		rc = chsc_process_sei_link_incident(sei_area);
++		chsc_process_sei_link_incident(sei_area);
+ 		break;
+ 	case 2: /* i/o resource accessibiliy */
+-		rc = chsc_process_sei_res_acc(sei_area);
++		chsc_process_sei_res_acc(sei_area);
+ 		break;
+ 	case 8: /* channel-path-configuration notification */
+-		rc = chsc_process_sei_chp_config(sei_area);
++		chsc_process_sei_chp_config(sei_area);
+ 		break;
+ 	default: /* other stuff */
+ 		CIO_CRW_EVENT(4, "chsc: unhandled sei content code %d\n",
+ 			      sei_area->cc);
+ 		break;
+ 	}
+-
+-	return rc;
  }
  
- 
-@@ -918,19 +923,20 @@
- 	return sys_write(fd, buf, count);
- }
- 
--asmlinkage long sys32_clone(struct pt_regs regs)
-+asmlinkage long sys32_clone(void)
+-int chsc_process_crw(void)
++void chsc_process_crw(void)
  {
--        unsigned long clone_flags;
--        unsigned long newsp;
-+	struct pt_regs *regs = task_pt_regs(current);
-+	unsigned long clone_flags;
-+	unsigned long newsp;
- 	int __user *parent_tidptr, *child_tidptr;
+ 	struct chsc_sei_area *sei_area;
+-	int ret;
+-	int rc;
  
--        clone_flags = regs.gprs[3] & 0xffffffffUL;
--        newsp = regs.orig_gpr2 & 0x7fffffffUL;
--	parent_tidptr = compat_ptr(regs.gprs[4]);
--	child_tidptr = compat_ptr(regs.gprs[5]);
--        if (!newsp)
--                newsp = regs.gprs[15];
--        return do_fork(clone_flags, newsp, &regs, 0,
-+	clone_flags = regs->gprs[3] & 0xffffffffUL;
-+	newsp = regs->orig_gpr2 & 0x7fffffffUL;
-+	parent_tidptr = compat_ptr(regs->gprs[4]);
-+	child_tidptr = compat_ptr(regs->gprs[5]);
-+	if (!newsp)
-+		newsp = regs->gprs[15];
-+	return do_fork(clone_flags, newsp, regs, 0,
- 		       parent_tidptr, child_tidptr);
+ 	if (!sei_page)
+-		return 0;
++		return;
+ 	/* Access to sei_page is serialized through machine check handler
+ 	 * thread, so no need for locking. */
+ 	sei_area = sei_page;
+ 
+ 	CIO_TRACE_EVENT( 2, "prcss");
+-	ret = 0;
+ 	do {
+ 		memset(sei_area, 0, sizeof(*sei_area));
+ 		sei_area->request.length = 0x0010;
+@@ -616,37 +580,26 @@
+ 
+ 		if (sei_area->response.code == 0x0001) {
+ 			CIO_CRW_EVENT(4, "chsc: sei successful\n");
+-			rc = chsc_process_sei(sei_area);
+-			if (rc)
+-				ret = rc;
++			chsc_process_sei(sei_area);
+ 		} else {
+ 			CIO_CRW_EVENT(2, "chsc: sei failed (rc=%04x)\n",
+ 				      sei_area->response.code);
+-			ret = 0;
+ 			break;
+ 		}
+ 	} while (sei_area->flags & 0x80);
+-
+-	return ret;
  }
  
-Index: quilt-2.6/arch/s390/kernel/compat_signal.c
+ static int
+ __chp_add_new_sch(struct subchannel_id schid)
+ {
+ 	struct schib schib;
+-	int ret;
+ 
+ 	if (stsch_err(schid, &schib))
+ 		/* We're through */
+-		return need_rescan ? -EAGAIN : -ENXIO;
++		return -ENXIO;
+ 
+ 	/* Put it on the slow path. */
+-	ret = css_enqueue_subchannel_slow(schid);
+-	if (ret) {
+-		css_clear_subchannel_slow_list();
+-		need_rescan = 1;
+-		return -EAGAIN;
+-	}
++	css_schedule_eval(schid);
+ 	return 0;
+ }
+ 
+@@ -693,22 +646,15 @@
+ 	return 0;
+ }
+ 
+-int chsc_chp_online(struct chp_id chpid)
++void chsc_chp_online(struct chp_id chpid)
+ {
+-	int rc;
+ 	char dbf_txt[15];
+ 
+ 	sprintf(dbf_txt, "cadd%x.%02x", chpid.cssid, chpid.id);
+ 	CIO_TRACE_EVENT(2, dbf_txt);
+ 
+-	if (chp_get_status(chpid) == 0)
+-		return 0;
+-	rc = for_each_subchannel(__chp_add, &chpid);
+-	if (css_slow_subchannels_exist())
+-		rc = -EAGAIN;
+-	if (rc != -EAGAIN)
+-		rc = 0;
+-	return rc;
++	if (chp_get_status(chpid) != 0)
++		for_each_subchannel(__chp_add, &chpid);
+ }
+ 
+ static void __s390_subchannel_vary_chpid(struct subchannel *sch,
+@@ -749,12 +695,8 @@
+ 					sch->driver->verify(&sch->dev);
+ 			}
+ 		} else if (!sch->lpm) {
+-			if (device_trigger_verify(sch) != 0) {
+-				if (css_enqueue_subchannel_slow(sch->schid)) {
+-					css_clear_subchannel_slow_list();
+-					need_rescan = 1;
+-				}
+-			}
++			if (device_trigger_verify(sch) != 0)
++				css_schedule_eval(sch->schid);
+ 		} else if (sch->driver && sch->driver->verify)
+ 			sch->driver->verify(&sch->dev);
+ 		break;
+@@ -801,11 +743,7 @@
+ 		/* We're through */
+ 		return -ENXIO;
+ 	/* Put it on the slow path. */
+-	if (css_enqueue_subchannel_slow(schid)) {
+-		css_clear_subchannel_slow_list();
+-		need_rescan = 1;
+-		return -EAGAIN;
+-	}
++	css_schedule_eval(schid);
+ 	return 0;
+ }
+ 
+@@ -826,8 +764,6 @@
+ 	if (on)
+ 		/* Scan for new devices on varied on path. */
+ 		for_each_subchannel(__s390_vary_chpid_on, NULL);
+-	if (need_rescan || css_slow_subchannels_exist())
+-		queue_work(slow_path_wq, &slow_path_work);
+ 	return 0;
+ }
+ 
+Index: quilt-2.6/drivers/s390/cio/chsc.h
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/compat_signal.c	2007-04-27 16:01:49.000000000 +0200
-+++ quilt-2.6/arch/s390/kernel/compat_signal.c	2007-04-27 16:04:56.000000000 +0200
-@@ -255,9 +255,9 @@
+--- quilt-2.6.orig/drivers/s390/cio/chsc.h	2007-04-27 16:04:54.000000000 +0200
++++ quilt-2.6/drivers/s390/cio/chsc.h	2007-04-27 16:04:54.000000000 +0200
+@@ -36,7 +36,7 @@
+ struct channel_path;
+ 
+ extern int css_get_ssd_info(struct subchannel *);
+-extern int chsc_process_crw(void);
++extern void chsc_process_crw(void);
+ 
+ struct css_general_char {
+ 	u64 : 41;
+@@ -79,7 +79,7 @@
+ int chsc_chp_vary(struct chp_id chpid, int on);
+ int chsc_determine_channel_path_description(struct chp_id chpid,
+ 					    struct channel_path_desc *desc);
+-int chsc_chp_online(struct chp_id chpid);
++void chsc_chp_online(struct chp_id chpid);
+ void chsc_chp_offline(struct chp_id chpid);
+ int chsc_get_channel_measurement_chars(struct channel_path *chp);
+ 
+Index: quilt-2.6/drivers/s390/cio/css.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/css.c	2007-04-27 16:01:49.000000000 +0200
++++ quilt-2.6/drivers/s390/cio/css.c	2007-04-27 16:04:54.000000000 +0200
+@@ -20,8 +20,8 @@
+ #include "ioasm.h"
+ #include "chsc.h"
+ #include "device.h"
++#include "idset.h"
+ 
+-int need_rescan = 0;
+ int css_init_done = 0;
+ static int need_reprobe = 0;
+ static int max_ssid = 0;
+@@ -306,7 +306,7 @@
+ 	return css_probe_device(schid);
  }
  
- asmlinkage long
--sys32_sigaltstack(const stack_t32 __user *uss, stack_t32 __user *uoss,
--							struct pt_regs *regs)
-+sys32_sigaltstack(const stack_t32 __user *uss, stack_t32 __user *uoss)
+-static int css_evaluate_subchannel(struct subchannel_id schid, int slow)
++static void css_evaluate_subchannel(struct subchannel_id schid, int slow)
  {
-+	struct pt_regs *regs = task_pt_regs(current);
- 	stack_t kss, koss;
- 	unsigned long ss_sp;
- 	int ret, err = 0;
-@@ -344,8 +344,9 @@
- 	return 0;
+ 	struct subchannel *sch;
+ 	int ret;
+@@ -317,53 +317,66 @@
+ 		put_device(&sch->dev);
+ 	} else
+ 		ret = css_evaluate_new_subchannel(schid, slow);
+-
+-	return ret;
++	if (ret == -EAGAIN)
++		css_schedule_eval(schid);
  }
  
--asmlinkage long sys32_sigreturn(struct pt_regs *regs)
-+asmlinkage long sys32_sigreturn(void)
+-static int
+-css_rescan_devices(struct subchannel_id schid, void *data)
++static struct idset *slow_subchannel_set;
++static spinlock_t slow_subchannel_lock;
++
++static int __init slow_subchannel_init(void)
  {
-+	struct pt_regs *regs = task_pt_regs(current);
- 	sigframe32 __user *frame = (sigframe32 __user *)regs->gprs[15];
- 	sigset_t set;
- 
-@@ -370,8 +371,9 @@
- 	return 0;
- }
- 
--asmlinkage long sys32_rt_sigreturn(struct pt_regs *regs)
-+asmlinkage long sys32_rt_sigreturn(void)
- {
-+	struct pt_regs *regs = task_pt_regs(current);
- 	rt_sigframe32 __user *frame = (rt_sigframe32 __user *)regs->gprs[15];
- 	sigset_t set;
- 	stack_t st;
-@@ -407,8 +409,8 @@
- 	return regs->gprs[2];
- 
- badframe:
--        force_sig(SIGSEGV, current);
--        return 0;
-+	force_sig(SIGSEGV, current);
+-	return css_evaluate_subchannel(schid, 1);
++	spin_lock_init(&slow_subchannel_lock);
++	slow_subchannel_set = idset_sch_new();
++	if (!slow_subchannel_set) {
++		printk(KERN_WARNING "cio: could not allocate slow subchannel "
++		       "set\n");
++		return -ENOMEM;
++	}
 +	return 0;
- }	
- 
- /*
-Index: quilt-2.6/arch/s390/kernel/entry64.S
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/entry64.S	2007-04-27 16:01:49.000000000 +0200
-+++ quilt-2.6/arch/s390/kernel/entry64.S	2007-04-27 16:04:56.000000000 +0200
-@@ -244,8 +244,6 @@
- 	jnz	sysc_tracesys
- 	basr	%r14,%r8	# call sys_xxxx
- 	stg	%r2,SP_R2(%r15) # store return value (change R2 on stack)
--				# ATTENTION: check sys_execve_glue before
--				# changing anything here !!
- 
- sysc_return:
- 	tm	SP_PSW+1(%r15),0x01	# returning to user ?
-@@ -371,77 +369,35 @@
- 	j	sysc_return
- 
- #
--# clone, fork, vfork, exec and sigreturn need glue,
--# because they all expect pt_regs as parameter,
--# but are called with different parameter.
--# return-address is set up above
-+# kernel_execve function needs to deal with pt_regs that is not
-+# at the usual place
- #
--sys_clone_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs
--	jg	sys_clone		# branch to sys_clone
--
--#ifdef CONFIG_COMPAT
--sys32_clone_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs
--	jg	sys32_clone		# branch to sys32_clone
--#endif
--
--sys_fork_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs
--	jg	sys_fork		# branch to sys_fork
--
--sys_vfork_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs
--	jg	sys_vfork		# branch to sys_vfork
--
--sys_execve_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs
--	lgr	%r12,%r14		# save return address
--	brasl	%r14,sys_execve 	# call sys_execve
--	ltgr	%r2,%r2 		# check if execve failed
--	bnz	0(%r12) 		# it did fail -> store result in gpr2
--	b	6(%r12) 		# SKIP STG 2,SP_R2(15) in
--					# system_call/sysc_tracesys
--#ifdef CONFIG_COMPAT
--sys32_execve_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs
--	lgr	%r12,%r14		# save return address
--	brasl	%r14,sys32_execve	# call sys32_execve
--	ltgr	%r2,%r2 		# check if execve failed
--	bnz	0(%r12) 		# it did fail -> store result in gpr2
--	b	6(%r12) 		# SKIP STG 2,SP_R2(15) in
--					# system_call/sysc_tracesys
--#endif
--
--sys_sigreturn_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs as parameter
--	jg	sys_sigreturn		# branch to sys_sigreturn
--
--#ifdef CONFIG_COMPAT
--sys32_sigreturn_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs as parameter
--	jg	sys32_sigreturn 	# branch to sys32_sigreturn
--#endif
--
--sys_rt_sigreturn_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs as parameter
--	jg	sys_rt_sigreturn	# branch to sys_sigreturn
--
--#ifdef CONFIG_COMPAT
--sys32_rt_sigreturn_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs as parameter
--	jg	sys32_rt_sigreturn	# branch to sys32_sigreturn
--#endif
--
--sys_sigaltstack_glue:
--	la	%r4,SP_PTREGS(%r15)	# load pt_regs as parameter
--	jg	sys_sigaltstack 	# branch to sys_sigreturn
--
--#ifdef CONFIG_COMPAT
--sys32_sigaltstack_glue:
--	la	%r4,SP_PTREGS(%r15)	# load pt_regs as parameter
--	jg	sys32_sigaltstack_wrapper # branch to sys_sigreturn
--#endif
-+	.globl	kernel_execve
-+kernel_execve:
-+	stmg	%r12,%r15,96(%r15)
-+	lgr	%r14,%r15
-+	aghi	%r15,-SP_SIZE
-+	stg	%r14,__SF_BACKCHAIN(%r15)
-+	la	%r12,SP_PTREGS(%r15)
-+	xc	0(__PT_SIZE,%r12),0(%r12)
-+	lgr	%r5,%r12
-+	brasl	%r14,do_execve
-+	ltgfr	%r2,%r2
-+	je	0f
-+	aghi	%r15,SP_SIZE
-+	lmg	%r12,%r15,96(%r15)
-+	br	%r14
-+	# execve succeeded.
-+0:	stnsm	__SF_EMPTY(%r15),0xfc	# disable interrupts
-+	lg	%r15,__LC_KERNEL_STACK	# load ksp
-+	aghi	%r15,-SP_SIZE		# make room for registers & psw
-+	lg	%r13,__LC_SVC_NEW_PSW+8
-+	lg	%r9,__LC_THREAD_INFO
-+	mvc	SP_PTREGS(__PT_SIZE,%r15),0(%r12)	# copy pt_regs
-+	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
-+	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
-+	brasl	%r14,execve_tail
-+	j	sysc_return
- 
- /*
-  * Program check handler routine
-Index: quilt-2.6/arch/s390/kernel/entry.S
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/entry.S	2007-04-27 16:01:49.000000000 +0200
-+++ quilt-2.6/arch/s390/kernel/entry.S	2007-04-27 16:04:56.000000000 +0200
-@@ -249,8 +249,6 @@
- 	bnz	BASED(sysc_tracesys)
- 	basr	%r14,%r8	  # call sys_xxxx
- 	st	%r2,SP_R2(%r15)   # store return value (change R2 on stack)
--				  # ATTENTION: check sys_execve_glue before
--				  # changing anything here !!
- 
- sysc_return:
- 	tm	SP_PSW+1(%r15),0x01	# returning to user ?
-@@ -381,50 +379,37 @@
- 	b	BASED(sysc_return)
- 
- #
--# clone, fork, vfork, exec and sigreturn need glue,
--# because they all expect pt_regs as parameter,
--# but are called with different parameter.
--# return-address is set up above
-+# kernel_execve function needs to deal with pt_regs that is not
-+# at the usual place
- #
--sys_clone_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs
--	l	%r1,BASED(.Lclone)
--	br	%r1			# branch to sys_clone
--
--sys_fork_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs
--	l	%r1,BASED(.Lfork)
--	br	%r1			# branch to sys_fork
--
--sys_vfork_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs
--	l	%r1,BASED(.Lvfork)
--	br	%r1			# branch to sys_vfork
--
--sys_execve_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs
--	l	%r1,BASED(.Lexecve)
--	lr	%r12,%r14		# save return address
--	basr	%r14,%r1		# call sys_execve
--	ltr	%r2,%r2			# check if execve failed
--	bnz	0(%r12)			# it did fail -> store result in gpr2
--	b	4(%r12)			# SKIP ST 2,SP_R2(15) after BASR 14,8
--					# in system_call/sysc_tracesys
--
--sys_sigreturn_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs as parameter
--	l	%r1,BASED(.Lsigreturn)
--	br	%r1			# branch to sys_sigreturn
--
--sys_rt_sigreturn_glue:
--	la	%r2,SP_PTREGS(%r15)	# load pt_regs as parameter
--	l	%r1,BASED(.Lrt_sigreturn)
--	br	%r1			# branch to sys_sigreturn
--
--sys_sigaltstack_glue:
--	la	%r4,SP_PTREGS(%r15)	# load pt_regs as parameter
--	l	%r1,BASED(.Lsigaltstack)
--	br	%r1			# branch to sys_sigreturn
-+	.globl	kernel_execve
-+kernel_execve:
-+	stm	%r12,%r15,48(%r15)
-+	lr	%r14,%r15
-+	l	%r13,__LC_SVC_NEW_PSW+4
-+	s	%r15,BASED(.Lc_spsize)
-+	st	%r14,__SF_BACKCHAIN(%r15)
-+	la	%r12,SP_PTREGS(%r15)
-+	xc	0(__PT_SIZE,%r12),0(%r12)
-+	l	%r1,BASED(.Ldo_execve)
-+	lr	%r5,%r12
-+	basr	%r14,%r1
-+	ltr	%r2,%r2
-+	be	BASED(0f)
-+	a	%r15,BASED(.Lc_spsize)
-+	lm	%r12,%r15,48(%r15)
-+	br	%r14
-+	# execve succeeded.
-+0:	stnsm	__SF_EMPTY(%r15),0xfc	# disable interrupts
-+	l	%r15,__LC_KERNEL_STACK	# load ksp
-+	s	%r15,BASED(.Lc_spsize)	# make room for registers & psw
-+	l	%r9,__LC_THREAD_INFO
-+	mvc	SP_PTREGS(__PT_SIZE,%r15),0(%r12)	# copy pt_regs
-+	xc	__SF_BACKCHAIN(4,%r15),__SF_BACKCHAIN(%r15)
-+	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
-+	l	%r1,BASED(.Lexecve_tail)
-+	basr	%r14,%r1
-+	b	BASED(sysc_return)
- 
- /*
-  * Program check handler routine
-@@ -1031,19 +1016,11 @@
- .Ldo_extint:	.long	do_extint
- .Ldo_signal:	.long	do_signal
- .Lhandle_per:	.long	do_single_step
-+.Ldo_execve:	.long	do_execve
-+.Lexecve_tail:	.long	execve_tail
- .Ljump_table:	.long	pgm_check_table
- .Lschedule:	.long	schedule
--.Lclone:	.long	sys_clone
--.Lexecve:	.long	sys_execve
--.Lfork: 	.long	sys_fork
--.Lrt_sigreturn: .long	sys_rt_sigreturn
--.Lrt_sigsuspend:
--		.long	sys_rt_sigsuspend
--.Lsigreturn:	.long	sys_sigreturn
--.Lsigsuspend:	.long	sys_sigsuspend
--.Lsigaltstack:	.long	sys_sigaltstack
- .Ltrace:	.long	syscall_trace
--.Lvfork:	.long	sys_vfork
- .Lschedtail:	.long	schedule_tail
- .Lsysc_table:	.long	sys_call_table
- #ifdef CONFIG_TRACE_IRQFLAGS
-Index: quilt-2.6/arch/s390/kernel/process.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/process.c	2007-04-27 16:01:49.000000000 +0200
-+++ quilt-2.6/arch/s390/kernel/process.c	2007-04-27 16:04:56.000000000 +0200
-@@ -280,24 +280,26 @@
-         return 0;
  }
  
--asmlinkage long sys_fork(struct pt_regs regs)
-+asmlinkage long sys_fork(void)
+-struct slow_subchannel {
+-	struct list_head slow_list;
+-	struct subchannel_id schid;
+-};
+-
+-static LIST_HEAD(slow_subchannels_head);
+-static DEFINE_SPINLOCK(slow_subchannel_lock);
++subsys_initcall(slow_subchannel_init);
+ 
+-static void
+-css_trigger_slow_path(struct work_struct *unused)
++static void css_slow_path_func(struct work_struct *unused)
  {
--	return do_fork(SIGCHLD, regs.gprs[15], &regs, 0, NULL, NULL);
-+	struct pt_regs *regs = task_pt_regs(current);
-+	return do_fork(SIGCHLD, regs->gprs[15], regs, 0, NULL, NULL);
+-	CIO_TRACE_EVENT(4, "slowpath");
+-
+-	if (need_rescan) {
+-		need_rescan = 0;
+-		for_each_subchannel(css_rescan_devices, NULL);
+-		return;
+-	}
++	struct subchannel_id schid;
+ 
++	CIO_TRACE_EVENT(4, "slowpath");
+ 	spin_lock_irq(&slow_subchannel_lock);
+-	while (!list_empty(&slow_subchannels_head)) {
+-		struct slow_subchannel *slow_sch =
+-			list_entry(slow_subchannels_head.next,
+-				   struct slow_subchannel, slow_list);
+-
+-		list_del_init(slow_subchannels_head.next);
++	init_subchannel_id(&schid);
++	while (idset_sch_get_first(slow_subchannel_set, &schid)) {
++		idset_sch_del(slow_subchannel_set, schid);
+ 		spin_unlock_irq(&slow_subchannel_lock);
+-		css_evaluate_subchannel(slow_sch->schid, 1);
++		css_evaluate_subchannel(schid, 1);
+ 		spin_lock_irq(&slow_subchannel_lock);
+-		kfree(slow_sch);
+ 	}
+ 	spin_unlock_irq(&slow_subchannel_lock);
  }
  
--asmlinkage long sys_clone(struct pt_regs regs)
-+asmlinkage long sys_clone(void)
- {
--        unsigned long clone_flags;
--        unsigned long newsp;
-+	struct pt_regs *regs = task_pt_regs(current);
-+	unsigned long clone_flags;
-+	unsigned long newsp;
- 	int __user *parent_tidptr, *child_tidptr;
+-DECLARE_WORK(slow_path_work, css_trigger_slow_path);
++static DECLARE_WORK(slow_path_work, css_slow_path_func);
+ struct workqueue_struct *slow_path_wq;
  
--        clone_flags = regs.gprs[3];
--        newsp = regs.orig_gpr2;
--	parent_tidptr = (int __user *) regs.gprs[4];
--	child_tidptr = (int __user *) regs.gprs[5];
--        if (!newsp)
--                newsp = regs.gprs[15];
--        return do_fork(clone_flags, newsp, &regs, 0,
-+	clone_flags = regs->gprs[3];
-+	newsp = regs->orig_gpr2;
-+	parent_tidptr = (int __user *) regs->gprs[4];
-+	child_tidptr = (int __user *) regs->gprs[5];
-+	if (!newsp)
-+		newsp = regs->gprs[15];
-+	return do_fork(clone_flags, newsp, regs, 0,
- 		       parent_tidptr, child_tidptr);
- }
- 
-@@ -311,40 +313,52 @@
-  * do not have enough call-clobbered registers to hold all
-  * the information you need.
-  */
--asmlinkage long sys_vfork(struct pt_regs regs)
-+asmlinkage long sys_vfork(void)
- {
-+	struct pt_regs *regs = task_pt_regs(current);
- 	return do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD,
--		       regs.gprs[15], &regs, 0, NULL, NULL);
-+		       regs->gprs[15], regs, 0, NULL, NULL);
++void css_schedule_eval(struct subchannel_id schid)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&slow_subchannel_lock, flags);
++	idset_sch_add(slow_subchannel_set, schid);
++	queue_work(slow_path_wq, &slow_path_work);
++	spin_unlock_irqrestore(&slow_subchannel_lock, flags);
 +}
 +
-+asmlinkage void execve_tail(void)
++void css_schedule_eval_all(void)
 +{
-+	task_lock(current);
-+	current->ptrace &= ~PT_DTRACE;
-+	task_unlock(current);
-+	current->thread.fp_regs.fpc = 0;
-+	if (MACHINE_HAS_IEEE)
-+		asm volatile("sfpc %0,%0" : : "d" (0));
- }
- 
- /*
-  * sys_execve() executes a new program.
-  */
--asmlinkage long sys_execve(struct pt_regs regs)
-+asmlinkage long sys_execve(void)
- {
--        int error;
--        char * filename;
--
--        filename = getname((char __user *) regs.orig_gpr2);
--        error = PTR_ERR(filename);
--        if (IS_ERR(filename))
--                goto out;
--        error = do_execve(filename, (char __user * __user *) regs.gprs[3],
--			  (char __user * __user *) regs.gprs[4], &regs);
--	if (error == 0) {
--		task_lock(current);
--		current->ptrace &= ~PT_DTRACE;
--		task_unlock(current);
--		current->thread.fp_regs.fpc = 0;
--		if (MACHINE_HAS_IEEE)
--			asm volatile("sfpc %0,%0" : : "d" (0));
-+	struct pt_regs *regs = task_pt_regs(current);
-+	char *filename;
-+	unsigned long result;
-+	int rc;
++	unsigned long flags;
 +
-+	filename = getname((char __user *) regs->orig_gpr2);
-+	if (IS_ERR(filename)) {
-+		result = PTR_ERR(filename);
-+		goto out;
-+	}
-+	rc = do_execve(filename, (char __user * __user *) regs->gprs[3],
-+		       (char __user * __user *) regs->gprs[4], regs);
-+	if (rc) {
-+		result = rc;
-+		goto out_putname;
- 	}
--        putname(filename);
-+	execve_tail();
-+	result = regs->gprs[2];
-+out_putname:
-+	putname(filename);
- out:
--        return error;
-+	return result;
- }
++	spin_lock_irqsave(&slow_subchannel_lock, flags);
++	idset_fill(slow_subchannel_set);
++	queue_work(slow_path_wq, &slow_path_work);
++	spin_unlock_irqrestore(&slow_subchannel_lock, flags);
++}
++
+ /* Reprobe subchannel if unregistered. */
+ static int reprobe_subchannel(struct subchannel_id schid, void *data)
+ {
+@@ -426,33 +439,14 @@
+ EXPORT_SYMBOL_GPL(css_schedule_reprobe);
  
--
  /*
-  * fill in the FPU structure for a core dump.
-  */
-Index: quilt-2.6/arch/s390/kernel/signal.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/signal.c	2007-04-27 16:01:49.000000000 +0200
-+++ quilt-2.6/arch/s390/kernel/signal.c	2007-04-27 16:04:56.000000000 +0200
-@@ -102,9 +102,9 @@
- }
- 
- asmlinkage long
--sys_sigaltstack(const stack_t __user *uss, stack_t __user *uoss,
--					struct pt_regs *regs)
-+sys_sigaltstack(const stack_t __user *uss, stack_t __user *uoss)
- {
-+	struct pt_regs *regs = task_pt_regs(current);
- 	return do_sigaltstack(uss, uoss, regs->gprs[15]);
- }
- 
-@@ -163,8 +163,9 @@
- 	return 0;
- }
- 
--asmlinkage long sys_sigreturn(struct pt_regs *regs)
-+asmlinkage long sys_sigreturn(void)
- {
-+	struct pt_regs *regs = task_pt_regs(current);
- 	sigframe __user *frame = (sigframe __user *)regs->gprs[15];
- 	sigset_t set;
- 
-@@ -189,8 +190,9 @@
- 	return 0;
- }
- 
--asmlinkage long sys_rt_sigreturn(struct pt_regs *regs)
-+asmlinkage long sys_rt_sigreturn(void)
- {
-+	struct pt_regs *regs = task_pt_regs(current);
- 	rt_sigframe __user *frame = (rt_sigframe __user *)regs->gprs[15];
- 	sigset_t set;
- 
-Index: quilt-2.6/arch/s390/kernel/syscalls.S
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/syscalls.S	2007-04-27 16:01:49.000000000 +0200
-+++ quilt-2.6/arch/s390/kernel/syscalls.S	2007-04-27 16:04:56.000000000 +0200
-@@ -10,7 +10,7 @@
- 
- NI_SYSCALL							/* 0 */
- SYSCALL(sys_exit,sys_exit,sys32_exit_wrapper)
--SYSCALL(sys_fork_glue,sys_fork_glue,sys_fork_glue)
-+SYSCALL(sys_fork,sys_fork,sys_fork)
- SYSCALL(sys_read,sys_read,sys32_read_wrapper)
- SYSCALL(sys_write,sys_write,sys32_write_wrapper)
- SYSCALL(sys_open,sys_open,sys32_open_wrapper)			/* 5 */
-@@ -19,7 +19,7 @@
- SYSCALL(sys_creat,sys_creat,sys32_creat_wrapper)
- SYSCALL(sys_link,sys_link,sys32_link_wrapper)
- SYSCALL(sys_unlink,sys_unlink,sys32_unlink_wrapper)		/* 10 */
--SYSCALL(sys_execve_glue,sys_execve_glue,sys32_execve_glue)
-+SYSCALL(sys_execve,sys_execve,sys32_execve)
- SYSCALL(sys_chdir,sys_chdir,sys32_chdir_wrapper)
- SYSCALL(sys_time,sys_ni_syscall,sys32_time_wrapper)		/* old time syscall */
- SYSCALL(sys_mknod,sys_mknod,sys32_mknod_wrapper)
-@@ -127,8 +127,8 @@
- SYSCALL(sys_sysinfo,sys_sysinfo,compat_sys_sysinfo_wrapper)
- SYSCALL(sys_ipc,sys_ipc,sys32_ipc_wrapper)
- SYSCALL(sys_fsync,sys_fsync,sys32_fsync_wrapper)
--SYSCALL(sys_sigreturn_glue,sys_sigreturn_glue,sys32_sigreturn_glue)
--SYSCALL(sys_clone_glue,sys_clone_glue,sys32_clone_glue)		/* 120 */
-+SYSCALL(sys_sigreturn,sys_sigreturn,sys32_sigreturn)
-+SYSCALL(sys_clone,sys_clone,sys32_clone)			/* 120 */
- SYSCALL(sys_setdomainname,sys_setdomainname,sys32_setdomainname_wrapper)
- SYSCALL(sys_newuname,s390x_newuname,sys32_newuname_wrapper)
- NI_SYSCALL							/* modify_ldt for i386 */
-@@ -181,7 +181,7 @@
- SYSCALL(sys_setresgid16,sys_ni_syscall,sys32_setresgid16_wrapper)	/* 170 old setresgid16 syscall */
- SYSCALL(sys_getresgid16,sys_ni_syscall,sys32_getresgid16_wrapper)	/* old getresgid16 syscall */
- SYSCALL(sys_prctl,sys_prctl,sys32_prctl_wrapper)
--SYSCALL(sys_rt_sigreturn_glue,sys_rt_sigreturn_glue,sys32_rt_sigreturn_glue)
-+SYSCALL(sys_rt_sigreturn,sys_rt_sigreturn,sys32_rt_sigreturn)
- SYSCALL(sys_rt_sigaction,sys_rt_sigaction,sys32_rt_sigaction_wrapper)
- SYSCALL(sys_rt_sigprocmask,sys_rt_sigprocmask,sys32_rt_sigprocmask_wrapper)	/* 175 */
- SYSCALL(sys_rt_sigpending,sys_rt_sigpending,sys32_rt_sigpending_wrapper)
-@@ -194,11 +194,11 @@
- SYSCALL(sys_getcwd,sys_getcwd,sys32_getcwd_wrapper)
- SYSCALL(sys_capget,sys_capget,sys32_capget_wrapper)
- SYSCALL(sys_capset,sys_capset,sys32_capset_wrapper)		/* 185 */
--SYSCALL(sys_sigaltstack_glue,sys_sigaltstack_glue,sys32_sigaltstack_glue)
-+SYSCALL(sys_sigaltstack,sys_sigaltstack,sys32_sigaltstack)
- SYSCALL(sys_sendfile,sys_sendfile64,sys32_sendfile_wrapper)
- NI_SYSCALL							/* streams1 */
- NI_SYSCALL							/* streams2 */
--SYSCALL(sys_vfork_glue,sys_vfork_glue,sys_vfork_glue)		/* 190 */
-+SYSCALL(sys_vfork,sys_vfork,sys_vfork)				/* 190 */
- SYSCALL(sys_getrlimit,sys_getrlimit,compat_sys_getrlimit_wrapper)
- SYSCALL(sys_mmap2,sys_mmap2,sys32_mmap2_wrapper)
- SYSCALL(sys_truncate64,sys_ni_syscall,sys32_truncate64_wrapper)
-Index: quilt-2.6/arch/s390/kernel/sys_s390.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/sys_s390.c	2007-04-27 16:01:49.000000000 +0200
-+++ quilt-2.6/arch/s390/kernel/sys_s390.c	2007-04-27 16:04:56.000000000 +0200
-@@ -266,23 +266,3 @@
- 		return -EFAULT;
- 	return sys_fadvise64_64(a.fd, a.offset, a.len, a.advice);
- }
+- * Rescan for new devices. FIXME: This is slow.
+- * This function is called when we have lost CRWs due to overflows and we have
+- * to do subchannel housekeeping.
+- */
+-void
+-css_reiterate_subchannels(void)
+-{
+-	css_clear_subchannel_slow_list();
+-	need_rescan = 1;
+-}
 -
 -/*
-- * Do a system call from kernel instead of calling sys_execve so we
-- * end up with proper pt_regs.
-- */
--int kernel_execve(const char *filename, char *const argv[], char *const envp[])
+  * Called from the machine check handler for subchannel report words.
+  */
+-int
+-css_process_crw(int rsid1, int rsid2)
++void css_process_crw(int rsid1, int rsid2)
+ {
+-	int ret;
+ 	struct subchannel_id mchk_schid;
+ 
+ 	CIO_CRW_EVENT(2, "source is subchannel %04X, subsystem id %x\n",
+ 		      rsid1, rsid2);
+-
+-	if (need_rescan)
+-		/* We need to iterate all subchannels anyway. */
+-		return -EAGAIN;
+-
+ 	init_subchannel_id(&mchk_schid);
+ 	mchk_schid.sch_no = rsid1;
+ 	if (rsid2 != 0)
+@@ -463,14 +457,7 @@
+ 	 * use stsch() to find out if the subchannel in question has come
+ 	 * or gone.
+ 	 */
+-	ret = css_evaluate_subchannel(mchk_schid, 0);
+-	if (ret == -EAGAIN) {
+-		if (css_enqueue_subchannel_slow(mchk_schid)) {
+-			css_clear_subchannel_slow_list();
+-			need_rescan = 1;
+-		}
+-	}
+-	return ret;
++	css_evaluate_subchannel(mchk_schid, 0);
+ }
+ 
+ static int __init
+@@ -745,47 +732,6 @@
+ 
+ subsys_initcall(init_channel_subsystem);
+ 
+-int
+-css_enqueue_subchannel_slow(struct subchannel_id schid)
 -{
--	register const char *__arg1 asm("2") = filename;
--	register char *const*__arg2 asm("3") = argv;
--	register char *const*__arg3 asm("4") = envp;
--	register long __svcres asm("2");
--	asm volatile(
--		"svc %b1"
--		: "=d" (__svcres)
--		: "i" (__NR_execve),
--		  "0" (__arg1),
--		  "d" (__arg2),
--		  "d" (__arg3) : "memory");
--	return __svcres;
+-	struct slow_subchannel *new_slow_sch;
+-	unsigned long flags;
+-
+-	new_slow_sch = kzalloc(sizeof(struct slow_subchannel), GFP_ATOMIC);
+-	if (!new_slow_sch)
+-		return -ENOMEM;
+-	new_slow_sch->schid = schid;
+-	spin_lock_irqsave(&slow_subchannel_lock, flags);
+-	list_add_tail(&new_slow_sch->slow_list, &slow_subchannels_head);
+-	spin_unlock_irqrestore(&slow_subchannel_lock, flags);
+-	return 0;
 -}
+-
+-void
+-css_clear_subchannel_slow_list(void)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&slow_subchannel_lock, flags);
+-	while (!list_empty(&slow_subchannels_head)) {
+-		struct slow_subchannel *slow_sch =
+-			list_entry(slow_subchannels_head.next,
+-				   struct slow_subchannel, slow_list);
+-
+-		list_del_init(slow_subchannels_head.next);
+-		kfree(slow_sch);
+-	}
+-	spin_unlock_irqrestore(&slow_subchannel_lock, flags);
+-}
+-
+-
+-
+-int
+-css_slow_subchannels_exist(void)
+-{
+-	return (!list_empty(&slow_subchannels_head));
+-}
+-
+ MODULE_LICENSE("GPL");
+ EXPORT_SYMBOL(css_bus_type);
+ EXPORT_SYMBOL_GPL(css_characteristics_avail);
+Index: quilt-2.6/drivers/s390/cio/css.h
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/css.h	2007-04-27 16:04:54.000000000 +0200
++++ quilt-2.6/drivers/s390/cio/css.h	2007-04-27 16:04:54.000000000 +0200
+@@ -146,7 +146,7 @@
+ extern struct subchannel * get_subchannel_by_schid(struct subchannel_id);
+ extern int css_init_done;
+ extern int for_each_subchannel(int(*fn)(struct subchannel_id, void *), void *);
+-extern int css_process_crw(int, int);
++extern void css_process_crw(int, int);
+ extern void css_reiterate_subchannels(void);
+ 
+ #define __MAX_SUBCHANNEL 65535
+@@ -186,16 +186,12 @@
+ void device_kill_pending_timer(struct subchannel *);
+ 
+ /* Helper functions to build lists for the slow path. */
+-extern int css_enqueue_subchannel_slow(struct subchannel_id schid);
+-void css_walk_subchannel_slow_list(void (*fn)(unsigned long));
+-void css_clear_subchannel_slow_list(void);
+-int css_slow_subchannels_exist(void);
+-extern int need_rescan;
++void css_schedule_eval(struct subchannel_id schid);
++void css_schedule_eval_all(void);
+ 
+ int sch_is_pseudo_sch(struct subchannel *);
+ 
+ extern struct workqueue_struct *slow_path_wq;
+-extern struct work_struct slow_path_work;
+ 
+ int subchannel_add_files (struct device *);
+ extern struct attribute_group *subch_attr_groups[];
+Index: quilt-2.6/drivers/s390/cio/device_fsm.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/device_fsm.c	2007-04-27 16:04:54.000000000 +0200
++++ quilt-2.6/drivers/s390/cio/device_fsm.c	2007-04-27 16:04:54.000000000 +0200
+@@ -222,10 +222,8 @@
+ 		if (old_lpm & mask)
+ 			continue;
+ 		chpid.id = sch->schib.pmcw.chpid[i];
+-		if (!chp_is_registered(chpid)) {
+-			need_rescan = 1;
+-			queue_work(slow_path_wq, &slow_path_work);
+-		}
++		if (!chp_is_registered(chpid))
++			css_schedule_eval_all();
+ 	}
+ }
+ 
+Index: quilt-2.6/drivers/s390/cio/idset.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ quilt-2.6/drivers/s390/cio/idset.c	2007-04-27 16:04:54.000000000 +0200
+@@ -0,0 +1,112 @@
++/*
++ *  drivers/s390/cio/idset.c
++ *
++ *    Copyright IBM Corp. 2007
++ *    Author(s): Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
++ */
++
++#include <linux/slab.h>
++#include <asm/bitops.h>
++#include "idset.h"
++#include "css.h"
++
++struct idset {
++	int num_ssid;
++	int num_id;
++	unsigned long bitmap[0];
++};
++
++static inline unsigned long bitmap_size(int num_ssid, int num_id)
++{
++	return __BITOPS_WORDS(num_ssid * num_id) * sizeof(unsigned long);
++}
++
++static struct idset *idset_new(int num_ssid, int num_id)
++{
++	struct idset *set;
++
++	set = kzalloc(sizeof(struct idset) + bitmap_size(num_ssid, num_id),
++		      GFP_KERNEL);
++	if (set) {
++		set->num_ssid = num_ssid;
++		set->num_id = num_id;
++	}
++	return set;
++}
++
++void idset_free(struct idset *set)
++{
++	kfree(set);
++}
++
++void idset_clear(struct idset *set)
++{
++	memset(set->bitmap, 0, bitmap_size(set->num_ssid, set->num_id));
++}
++
++void idset_fill(struct idset *set)
++{
++	memset(set->bitmap, 0xff, bitmap_size(set->num_ssid, set->num_id));
++}
++
++static inline void idset_add(struct idset *set, int ssid, int id)
++{
++	set_bit(ssid * set->num_id + id, set->bitmap);
++}
++
++static inline void idset_del(struct idset *set, int ssid, int id)
++{
++	clear_bit(ssid * set->num_id + id, set->bitmap);
++}
++
++static inline int idset_contains(struct idset *set, int ssid, int id)
++{
++	return test_bit(ssid * set->num_id + id, set->bitmap);
++}
++
++static inline int idset_get_first(struct idset *set, int *ssid, int *id)
++{
++	int bitnum;
++
++	bitnum = find_first_bit(set->bitmap, set->num_ssid * set->num_id);
++	if (bitnum >= set->num_ssid * set->num_id)
++		return 0;
++	*ssid = bitnum / set->num_id;
++	*id = bitnum % set->num_id;
++	return 1;
++}
++
++struct idset *idset_sch_new(void)
++{
++	return idset_new(__MAX_SSID + 1, __MAX_SUBCHANNEL + 1);
++}
++
++void idset_sch_add(struct idset *set, struct subchannel_id schid)
++{
++	idset_add(set, schid.ssid, schid.sch_no);
++}
++
++void idset_sch_del(struct idset *set, struct subchannel_id schid)
++{
++	idset_del(set, schid.ssid, schid.sch_no);
++}
++
++int idset_sch_contains(struct idset *set, struct subchannel_id schid)
++{
++	return idset_contains(set, schid.ssid, schid.sch_no);
++}
++
++int idset_sch_get_first(struct idset *set, struct subchannel_id *schid)
++{
++	int ssid = 0;
++	int id = 0;
++	int rc;
++
++	rc = idset_get_first(set, &ssid, &id);
++	if (rc) {
++		init_subchannel_id(schid);
++		schid->ssid = ssid;
++		schid->sch_no = id;
++	}
++	return rc;
++}
+Index: quilt-2.6/drivers/s390/cio/idset.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ quilt-2.6/drivers/s390/cio/idset.h	2007-04-27 16:04:54.000000000 +0200
+@@ -0,0 +1,25 @@
++/*
++ *  drivers/s390/cio/idset.h
++ *
++ *    Copyright IBM Corp. 2007
++ *    Author(s): Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
++ */
++
++#ifndef S390_IDSET_H
++#define S390_IDSET_H S390_IDSET_H
++
++#include "schid.h"
++
++struct idset;
++
++void idset_free(struct idset *set);
++void idset_clear(struct idset *set);
++void idset_fill(struct idset *set);
++
++struct idset *idset_sch_new(void);
++void idset_sch_add(struct idset *set, struct subchannel_id id);
++void idset_sch_del(struct idset *set, struct subchannel_id id);
++int idset_sch_contains(struct idset *set, struct subchannel_id id);
++int idset_sch_get_first(struct idset *set, struct subchannel_id *id);
++
++#endif /* S390_IDSET_H */
+Index: quilt-2.6/drivers/s390/cio/Makefile
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/Makefile	2007-04-27 16:04:53.000000000 +0200
++++ quilt-2.6/drivers/s390/cio/Makefile	2007-04-27 16:04:54.000000000 +0200
+@@ -2,7 +2,7 @@
+ # Makefile for the S/390 common i/o drivers
+ #
+ 
+-obj-y += airq.o blacklist.o chsc.o cio.o css.o chp.o
++obj-y += airq.o blacklist.o chsc.o cio.o css.o chp.o idset.o
+ ccw_device-objs += device.o device_fsm.o device_ops.o
+ ccw_device-objs += device_id.o device_pgid.o device_status.o
+ obj-y += ccw_device.o cmf.o
+Index: quilt-2.6/drivers/s390/s390mach.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/s390mach.c	2007-04-27 16:04:53.000000000 +0200
++++ quilt-2.6/drivers/s390/s390mach.c	2007-04-27 16:04:54.000000000 +0200
+@@ -45,14 +45,13 @@
+ s390_collect_crw_info(void *param)
+ {
+ 	struct crw crw[2];
+-	int ccode, ret, slow;
++	int ccode;
+ 	struct semaphore *sem;
+ 	unsigned int chain;
+ 
+ 	sem = (struct semaphore *)param;
+ repeat:
+ 	down_interruptible(sem);
+-	slow = 0;
+ 	chain = 0;
+ 	while (1) {
+ 		if (unlikely(chain > 1)) {
+@@ -85,9 +84,8 @@
+ 		/* Check for overflows. */
+ 		if (crw[chain].oflw) {
+ 			pr_debug("%s: crw overflow detected!\n", __FUNCTION__);
+-			css_reiterate_subchannels();
++			css_schedule_eval_all();
+ 			chain = 0;
+-			slow = 1;
+ 			continue;
+ 		}
+ 		switch (crw[chain].rsc) {
+@@ -95,10 +93,7 @@
+ 			if (crw[0].chn && !chain)
+ 				break;
+ 			pr_debug("source is subchannel %04X\n", crw[0].rsid);
+-			ret = css_process_crw (crw[0].rsid,
+-					       chain ? crw[1].rsid : 0);
+-			if (ret == -EAGAIN)
+-				slow = 1;
++			css_process_crw(crw[0].rsid, chain ? crw[1].rsid : 0);
+ 			break;
+ 		case CRW_RSC_MONITOR:
+ 			pr_debug("source is monitoring facility\n");
+@@ -117,28 +112,23 @@
+ 			}
+ 			switch (crw[0].erc) {
+ 			case CRW_ERC_IPARM: /* Path has come. */
+-				ret = chp_process_crw(crw[0].rsid, 1);
++				chp_process_crw(crw[0].rsid, 1);
+ 				break;
+ 			case CRW_ERC_PERRI: /* Path has gone. */
+ 			case CRW_ERC_PERRN:
+-				ret = chp_process_crw(crw[0].rsid, 0);
++				chp_process_crw(crw[0].rsid, 0);
+ 				break;
+ 			default:
+ 				pr_debug("Don't know how to handle erc=%x\n",
+ 					 crw[0].erc);
+-				ret = 0;
+ 			}
+-			if (ret == -EAGAIN)
+-				slow = 1;
+ 			break;
+ 		case CRW_RSC_CONFIG:
+ 			pr_debug("source is configuration-alert facility\n");
+ 			break;
+ 		case CRW_RSC_CSS:
+ 			pr_debug("source is channel subsystem\n");
+-			ret = chsc_process_crw();
+-			if (ret == -EAGAIN)
+-				slow = 1;
++			chsc_process_crw();
+ 			break;
+ 		default:
+ 			pr_debug("unknown source\n");
+@@ -147,8 +137,6 @@
+ 		/* chain is always 0 or 1 here. */
+ 		chain = crw[chain].chn ? chain + 1 : 0;
+ 	}
+-	if (slow)
+-		queue_work(slow_path_wq, &slow_path_work);
+ 	goto repeat;
+ 	return 0;
+ }
 
 -- 
 blue skies,
