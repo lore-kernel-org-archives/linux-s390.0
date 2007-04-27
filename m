@@ -1,162 +1,161 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932318AbXD3K4x@vger.kernel.org>
-Date: Mon, 30 Apr 2007 11:56:46 +0100
-From: Christoph Hellwig <hch@infradead.org>
-Subject: [PATCH] powerpc: minor fault path optimization
-Message-ID: <20070430105646.GA15919@infradead.org>
-References: <20070427140503.087958775@de.ibm.com> <20070427140516.523272684@de.ibm.com> <17970.53875.506097.699517@cargo.ozlabs.ibm.com> <20070428083409.GA22156@infradead.org> <17973.16109.113219.634346@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17973.16109.113219.634346@cargo.ozlabs.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755898AbXD0OFq@vger.kernel.org>
+Message-Id: <20070427140512.162418645@de.ibm.com>
+References: <20070427140503.087958775@de.ibm.com>
+Date: Fri, 27 Apr 2007 16:05:05 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 02/38] cio/ipl: Clean interface between cio and ipl code.
+Content-Disposition: inline; filename=100-cio-ipl.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Call the kprobes pagefault handler directly instead of going through
-the complex notifier chain.
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
+Clean interface between cio and ipl code, so Peter stops complaining.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
 
-Index: linux-2.6/arch/powerpc/mm/fault.c
+ arch/s390/kernel/ipl.c |   23 ++++++++++++++++++++++-
+ drivers/s390/cio/cio.c |   38 ++++++++++----------------------------
+ include/asm-s390/cio.h |    7 +++++++
+ include/asm-s390/ipl.h |    3 +--
+ 4 files changed, 40 insertions(+), 31 deletions(-)
+
+Index: quilt-2.6/arch/s390/kernel/ipl.c
 ===================================================================
---- linux-2.6.orig/arch/powerpc/mm/fault.c	2007-03-23 20:07:28.000000000 +0100
-+++ linux-2.6/arch/powerpc/mm/fault.c	2007-04-30 11:33:36.000000000 +0200
-@@ -39,37 +39,26 @@
- #include <asm/kdebug.h>
- #include <asm/siginfo.h>
+--- quilt-2.6.orig/arch/s390/kernel/ipl.c	2007-04-27 16:01:49.000000000 +0200
++++ quilt-2.6/arch/s390/kernel/ipl.c	2007-04-27 16:04:52.000000000 +0200
+@@ -47,7 +47,7 @@
+  * Must be in data section since the bss section
+  * is not cleared when these are accessed.
+  */
+-u16 ipl_devno __attribute__((__section__(".data"))) = 0;
++static u16 ipl_devno __attribute__((__section__(".data"))) = 0;
+ u32 ipl_flags __attribute__((__section__(".data"))) = 0;
  
--#ifdef CONFIG_KPROBES
--ATOMIC_NOTIFIER_HEAD(notify_page_fault_chain);
+ static char *ipl_type_str(enum ipl_type type)
+@@ -1038,6 +1038,27 @@
  
--/* Hook to register for page fault notifications */
--int register_page_fault_notifier(struct notifier_block *nb)
-+#ifdef CONFIG_KPROBES
-+static inline int notify_page_fault(struct pt_regs *regs)
- {
--	return atomic_notifier_chain_register(&notify_page_fault_chain, nb);
--}
-+	int ret = 0;
+ __initcall(s390_ipl_init);
  
--int unregister_page_fault_notifier(struct notifier_block *nb)
--{
--	return atomic_notifier_chain_unregister(&notify_page_fault_chain, nb);
--}
-+	/* kprobe_running() needs smp_processor_id() */
-+	if (!user_mode(regs)) {
-+		preempt_disable();
-+		if (kprobe_running() && kprobe_fault_handler(regs, 11))
-+			ret = 1;
-+		preempt_enable();
-+	}
++void __init ipl_save_parameters(void)
++{
++	struct cio_iplinfo iplinfo;
++	unsigned int *ipl_ptr;
++	void *src, *dst;
++
++	if (cio_get_iplinfo(&iplinfo))
++		return;
++
++	ipl_devno = iplinfo.devno;
++	ipl_flags |= IPL_DEVNO_VALID;
++	if (!iplinfo.is_qdio)
++		return;
++	ipl_flags |= IPL_PARMBLOCK_VALID;
++	ipl_ptr = (unsigned int *)__LC_IPL_PARMBLOCK_PTR;
++	src = (void *)(unsigned long)*ipl_ptr;
++	dst = (void *)IPL_PARMBLOCK_ORIGIN;
++	memmove(dst, src, PAGE_SIZE);
++	*ipl_ptr = IPL_PARMBLOCK_ORIGIN;
++}
++
+ static LIST_HEAD(rcall);
+ static DEFINE_MUTEX(rcall_mutex);
  
--static inline int notify_page_fault(enum die_val val, const char *str,
--			struct pt_regs *regs, long err, int trap, int sig)
--{
--	struct die_args args = {
--		.regs = regs,
--		.str = str,
--		.err = err,
--		.trapnr = trap,
--		.signr = sig
--	};
--	return atomic_notifier_call_chain(&notify_page_fault_chain, val, &args);
-+	return ret;
+Index: quilt-2.6/drivers/s390/cio/cio.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/cio.c	2007-04-27 16:01:49.000000000 +0200
++++ quilt-2.6/drivers/s390/cio/cio.c	2007-04-27 16:04:52.000000000 +0200
+@@ -1048,37 +1048,19 @@
+ 	do_reipl_asm(*((__u32*)&schid));
  }
- #else
--static inline int notify_page_fault(enum die_val val, const char *str,
--			struct pt_regs *regs, long err, int trap, int sig)
-+static inline int notify_page_fault(struct pt_regs *regs)
+ 
+-static struct schib __initdata ipl_schib;
+-
+-/*
+- * ipl_save_parameters gets called very early. It is not allowed to access
+- * anything in the bss section at all. The bss section is not cleared yet,
+- * but may contain some ipl parameters written by the firmware.
+- * These parameters (if present) are copied to 0x2000.
+- * To avoid corruption of the ipl parameters, all variables used by this
+- * function must reside on the stack or in the data section.
+- */
+-void ipl_save_parameters(void)
++int __init cio_get_iplinfo(struct cio_iplinfo *iplinfo)
  {
--	return NOTIFY_DONE;
+ 	struct subchannel_id schid;
+-	unsigned int *ipl_ptr;
+-	void *src, *dst;
++	struct schib schib;
+ 
+ 	schid = *(struct subchannel_id *)__LC_SUBCHANNEL_ID;
+ 	if (!schid.one)
+-		return;
+-	if (stsch(schid, &ipl_schib))
+-		return;
+-	if (!ipl_schib.pmcw.dnv)
+-		return;
+-	ipl_devno = ipl_schib.pmcw.dev;
+-	ipl_flags |= IPL_DEVNO_VALID;
+-	if (!ipl_schib.pmcw.qf)
+-		return;
+-	ipl_flags |= IPL_PARMBLOCK_VALID;
+-	ipl_ptr = (unsigned int *)__LC_IPL_PARMBLOCK_PTR;
+-	src = (void *)(unsigned long)*ipl_ptr;
+-	dst = (void *)IPL_PARMBLOCK_ORIGIN;
+-	memmove(dst, src, PAGE_SIZE);
+-	*ipl_ptr = IPL_PARMBLOCK_ORIGIN;
++		return -ENODEV;
++	if (stsch(schid, &schib))
++		return -ENODEV;
++	if (!schib.pmcw.dnv)
++		return -ENODEV;
++	iplinfo->devno = schib.pmcw.dev;
++	iplinfo->is_qdio = schib.pmcw.qf;
 +	return 0;
  }
+Index: quilt-2.6/include/asm-s390/cio.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/cio.h	2007-04-27 16:01:49.000000000 +0200
++++ quilt-2.6/include/asm-s390/cio.h	2007-04-27 16:04:52.000000000 +0200
+@@ -292,6 +292,13 @@
+ 
+ extern void reipl_ccw_dev(struct ccw_dev_id *id);
+ 
++struct cio_iplinfo {
++	u16 devno;
++	int is_qdio;
++};
++
++extern int cio_get_iplinfo(struct cio_iplinfo *iplinfo);
++
  #endif
  
-@@ -175,8 +164,7 @@ int __kprobes do_page_fault(struct pt_re
- 	is_write = error_code & ESR_DST;
- #endif /* CONFIG_4xx || CONFIG_BOOKE */
- 
--	if (notify_page_fault(DIE_PAGE_FAULT, "page_fault", regs, error_code,
--				11, SIGSEGV) == NOTIFY_STOP)
-+	if (notify_page_fault(regs))
- 		return 0;
- 
- 	if (trap == 0x300) {
-Index: linux-2.6/arch/powerpc/kernel/kprobes.c
+ #endif
+Index: quilt-2.6/include/asm-s390/ipl.h
 ===================================================================
---- linux-2.6.orig/arch/powerpc/kernel/kprobes.c	2007-04-02 20:18:18.000000000 +0200
-+++ linux-2.6/arch/powerpc/kernel/kprobes.c	2007-04-30 11:33:36.000000000 +0200
-@@ -376,7 +376,7 @@ out:
- 	return 1;
- }
+--- quilt-2.6.orig/include/asm-s390/ipl.h	2007-04-27 16:01:49.000000000 +0200
++++ quilt-2.6/include/asm-s390/ipl.h	2007-04-27 16:04:52.000000000 +0200
+@@ -74,10 +74,9 @@
+ } __attribute__((packed));
  
--static int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
-+int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
- {
- 	struct kprobe *cur = kprobe_running();
- 	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
-@@ -461,14 +461,6 @@ int __kprobes kprobe_exceptions_notify(s
- 		if (post_kprobe_handler(args->regs))
- 			ret = NOTIFY_STOP;
- 		break;
--	case DIE_PAGE_FAULT:
--		/* kprobe_running() needs smp_processor_id() */
--		preempt_disable();
--		if (kprobe_running() &&
--		    kprobe_fault_handler(args->regs, args->trapnr))
--			ret = NOTIFY_STOP;
--		preempt_enable();
--		break;
- 	default:
- 		break;
- 	}
-Index: linux-2.6/include/asm-powerpc/kdebug.h
-===================================================================
---- linux-2.6.orig/include/asm-powerpc/kdebug.h	2007-03-23 20:07:29.000000000 +0100
-+++ linux-2.6/include/asm-powerpc/kdebug.h	2007-04-30 11:51:04.000000000 +0200
-@@ -18,8 +18,20 @@ struct die_args {
+ /*
+- * IPL validity flags and parameters as detected in head.S
++ * IPL validity flags
+  */
+ extern u32 ipl_flags;
+-extern u16 ipl_devno;
  
- extern int register_die_notifier(struct notifier_block *);
- extern int unregister_die_notifier(struct notifier_block *);
--extern int register_page_fault_notifier(struct notifier_block *);
--extern int unregister_page_fault_notifier(struct notifier_block *);
-+
-+/*
-+ * These are only here because kprobes.c wants them to implement a
-+ * blatant layering violation.  Will hopefully go away soon once all
-+ * architectures are updated.
-+ */
-+static inline int register_page_fault_notifier(struct notifier_block *nb)
-+{
-+	return 0;
-+}
-+static inline int unregister_page_fault_notifier(struct notifier_block *nb)
-+{
-+	return 0;
-+}
- extern struct atomic_notifier_head powerpc_die_chain;
- 
- /* Grossly misnamed. */
-@@ -29,7 +41,6 @@ enum die_val {
- 	DIE_DABR_MATCH,
- 	DIE_BPT,
- 	DIE_SSTEP,
--	DIE_PAGE_FAULT,
- };
- 
- static inline int notify_die(enum die_val val,char *str,struct pt_regs *regs,long err,int trap, int sig)
-Index: linux-2.6/include/asm-powerpc/kprobes.h
-===================================================================
---- linux-2.6.orig/include/asm-powerpc/kprobes.h	2007-02-11 08:17:32.000000000 +0100
-+++ linux-2.6/include/asm-powerpc/kprobes.h	2007-04-30 11:33:36.000000000 +0200
-@@ -105,5 +105,6 @@ struct kprobe_ctlblk {
- 
- extern int kprobe_exceptions_notify(struct notifier_block *self,
- 					unsigned long val, void *data);
-+extern int kprobe_fault_handler(struct pt_regs *regs, int trapnr);
- #endif /* __KERNEL__ */
- #endif	/* _ASM_POWERPC_KPROBES_H */
+ extern u32 dump_prefix_page;
+ extern void do_reipl(void);
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
