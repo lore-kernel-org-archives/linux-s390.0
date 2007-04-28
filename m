@@ -1,36 +1,31 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757308AbXD0VKz@vger.kernel.org>
-Message-ID: <463266D3.8080607@redhat.com>
-Date: Fri, 27 Apr 2007 17:10:43 -0400
-From: Chuck Ebbert <cebbert@redhat.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1030787AbXD1Ezr@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [patch 18/38] Improved oops output.
-References: <20070427140503.087958775@de.ibm.com>	 <20070427140516.013904506@de.ibm.com>  <p733b2l3ct2.fsf@bingen.suse.de> <1177707409.7451.4.camel@localhost>
-In-Reply-To: <1177707409.7451.4.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17970.53875.506097.699517@cargo.ozlabs.ibm.com>
+Date: Sat, 28 Apr 2007 14:49:55 +1000
+From: Paul Mackerras <paulus@samba.org>
+Subject: Re: [patch 20/38] Minor fault path optimization.
+In-Reply-To: <20070427140516.523272684@de.ibm.com>
+References: <20070427140503.087958775@de.ibm.com>
+	<20070427140516.523272684@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: schwidefsky@de.ibm.com
-Cc: Andi Kleen <andi@firstfloor.org>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Martin Schwidefsky wrote:
-> On Fri, 2007-04-27 at 20:14 +0200, Andi Kleen wrote:
->> Martin Schwidefsky <schwidefsky@de.ibm.com> writes:
->>
->>> Second a disassembler is added that decodes the instructions surrounding
->>> the faulting PSW. 
->> Is that really needed? I use a simple wrapper around as/objdump for this
->> and it works great.
->>
->> (ftp://ftp.firstfloor.org/pub/ak/shell/decodecode) 
-> 
-> It is not absolutly needed but it is damn convenient. Usually I can
-> immediatly see the reason for the oops. And the size is only 8KB which
-> is next to nothing.
-> 
+Martin Schwidefsky writes:
 
-Yeah, well your instruction set is really simple anyway. :)
+> The minor fault path has grown a lot in terms of cycles. In particular
+> the kprobes hook is very costly. Optimize the path to save a couple of
+> cycles. If kprobes is enabled more than 300 cycles can be avoided if 
+> kprobes_running() is false.
 
-I wonder how big the x86 disassembler is...
+There's no good reason to use a notifier for page faults, since
+there's only one external piece of code that wants to know about
+them...
+
+Regards,
+Paul.
