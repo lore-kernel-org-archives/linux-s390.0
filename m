@@ -1,50 +1,42 @@
-From: Swen Schillig <swen@vnet.ibm.com>
-Subject: [PATCH 3/3] zfcp: Don't report device as LUN 0 to SCSI stack
-Date: Tue, 29 May 2007 15:29:54 +0200
-Message-ID: <200705291529.54785.swen@vnet.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S2993045AbXEBKoq@vger.kernel.org>
+Subject: Re: [patch 20/38] Minor fault path optimization.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+In-Reply-To: <20070428083409.GA22156@infradead.org>
+References: <20070427140503.087958775@de.ibm.com>
+	 <20070427140516.523272684@de.ibm.com>
+	 <17970.53875.506097.699517@cargo.ozlabs.ibm.com>
+	 <20070428083409.GA22156@infradead.org>
+Content-Type: text/plain
+Date: Wed, 02 May 2007 12:45:06 +0200
+Message-Id: <1178102706.2440.9.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schmichr@de.ibm.com
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christof Schmitt <schmichr@de.ibm.com>
+On Sat, 2007-04-28 at 09:34 +0100, Christoph Hellwig wrote:
+> Well, here's my powerpc patch to do the direct call that I sent out
+> a few weeks ago.  It not just speed up the pagefault path a lot, 
+> but also is a major code cleanup.  Andi and Anton didn't like it
+> because they have ambition for murky debugger code to possibly
+> use it one day..
 
-zfcp reported units to the SCSI stack starting
-with number 0. LUN 0 reported to the SCSI stack is usually 
-not the FCP LUN 0. When scanning for devices, 
-the SCSI stack tried to issue a REPORT LUN command to LUN 0. 
-The current design for zfcp does not want the SCSI stack to scan
-for devices, since they are configured explicitly via sysfs.
-This patch changes the numbering to always start with LUN 1 and therefore
-prevent the SCSI stack sending REPORT LUN command.
+I thought about using a direct call for s390 as well. The advantage of a
+direct call is that it avoids the overhead of a notifier call even if
+kprobes is running. The disadvantage is that there cannot be a second
+consumer of the fault notifications. I choose the middle way: avoid the
+overhead if kprobes is not active and use the full notifier if kprobes
+is running. It should not hurt the performance too badly since
+kprobe_running is only true if the cpu gets a page fault while executing
+a kprobe.
 
-Signed-off-by: Christof Schmitt <schmichr@de.ibm.com>
-Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
+-- 
+blue skies,
+  Martin.
 
----
-
- drivers/s390/scsi/zfcp_aux.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-Index: linux_jb_patched/drivers/s390/scsi/zfcp_aux.c
-===================================================================
---- linux_jb_patched.orig/drivers/s390/scsi/zfcp_aux.c
-+++ linux_jb_patched/drivers/s390/scsi/zfcp_aux.c
-@@ -864,7 +864,8 @@ zfcp_unit_enqueue(struct zfcp_port *port
- 
- 	zfcp_unit_get(unit);
- 
--	scsi_lun = 0;
-+	/* Don't report LUN 0 to prevent the REPORT LUNS command from SCSI. */
-+	scsi_lun = 1;
- 	found = 0;
- 	write_lock_irq(&zfcp_data.config_lock);
- 	list_for_each_entry(tmp_unit, &port->unit_list_head, list) {
+"Reality continues to ruin my life." - Calvin.
