@@ -1,180 +1,222 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1031399AbXEDQwU@vger.kernel.org>
-Message-Id: <20070504165241.217510982@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1031412AbXEDQwq@vger.kernel.org>
+Message-Id: <20070504165242.293966755@de.ibm.com>
 References: <20070504165016.908033855@de.ibm.com>
-Date: Fri, 04 May 2007 18:50:17 +0200
+Date: Fri, 04 May 2007 18:50:22 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 1/9] get rid of kprobes notifier call chain.
-Content-Disposition: inline; filename=001-kprobes-chain.diff
+Subject: [patch 6/9] dasd: New read device characteristics and read configuration data.
+Content-Disposition: inline; filename=011-cio-deprecate2.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christoph Hellwig <hch@lst.de>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-And here's a port of the powerpc patch to get rid of the notifier
-chain completely to s390.  It's ontop of Martins patch as that one
-is in mainline already.
+Instead of the deprecated read_dev_chars() and read_conf_data_lpm(),
+implement dasd_generic_read_dev_chars() and dasd_eckd_read_conf_lpm().
+These should even recover better from error than the original cio
+functions.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/kprobes.c |    3 +--
- arch/s390/mm/fault.c       |   38 ++++++++++++--------------------------
- include/asm-s390/kdebug.h  |   18 +++++++++++++++---
- include/asm-s390/kprobes.h |   16 ++++------------
- 4 files changed, 32 insertions(+), 43 deletions(-)
+ drivers/s390/block/dasd.c      |   45 ++++++++++++++++++++++
+ drivers/s390/block/dasd_eckd.c |   81 +++++++++++++++++++++++++++++++++++++++--
+ drivers/s390/block/dasd_fba.c  |    2 -
+ drivers/s390/block/dasd_int.h  |    2 +
+ 4 files changed, 126 insertions(+), 4 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/kprobes.c
+Index: quilt-2.6/drivers/s390/block/dasd.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/kprobes.c	2007-05-04 18:48:36.000000000 +0200
-+++ quilt-2.6/arch/s390/kernel/kprobes.c	2007-05-04 18:50:14.000000000 +0200
-@@ -516,7 +516,7 @@
- 	return 1;
+--- quilt-2.6.orig/drivers/s390/block/dasd.c	2007-05-04 18:48:36.000000000 +0200
++++ quilt-2.6/drivers/s390/block/dasd.c	2007-05-04 18:50:15.000000000 +0200
+@@ -2174,6 +2174,51 @@
+ 	return ret;
  }
  
--static int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
-+int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
- {
- 	struct kprobe *cur = kprobe_running();
- 	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
-@@ -603,7 +603,6 @@
- 			ret = NOTIFY_STOP;
- 		break;
- 	case DIE_TRAP:
--	case DIE_PAGE_FAULT:
- 		/* kprobe_running() needs smp_processor_id() */
- 		preempt_disable();
- 		if (kprobe_running() &&
-Index: quilt-2.6/arch/s390/mm/fault.c
-===================================================================
---- quilt-2.6.orig/arch/s390/mm/fault.c	2007-05-04 18:48:36.000000000 +0200
-+++ quilt-2.6/arch/s390/mm/fault.c	2007-05-04 18:50:14.000000000 +0200
-@@ -52,38 +52,24 @@
- extern void die(const char *,struct pt_regs *,long);
- 
- #ifdef CONFIG_KPROBES
--static ATOMIC_NOTIFIER_HEAD(notify_page_fault_chain);
--int register_page_fault_notifier(struct notifier_block *nb)
--{
--	return atomic_notifier_chain_register(&notify_page_fault_chain, nb);
--}
--
--int unregister_page_fault_notifier(struct notifier_block *nb)
-+static inline int notify_page_fault(struct pt_regs *regs, long err)
- {
--	return atomic_notifier_chain_unregister(&notify_page_fault_chain, nb);
--}
-+	int ret = 0;
- 
--static int __kprobes __notify_page_fault(struct pt_regs *regs, long err)
--{
--	struct die_args args = { .str = "page fault",
--				 .trapnr = 14,
--				 .signr = SIGSEGV };
--	args.regs = regs;
--	args.err = err;
--	return atomic_notifier_call_chain(&notify_page_fault_chain,
--					  DIE_PAGE_FAULT, &args);
--}
-+	/* kprobe_running() needs smp_processor_id() */
-+	if (!user_mode(regs)) {
-+		preempt_disable();
-+		if (kprobe_running() && kprobe_fault_handler(regs, 14))
-+			ret = 1;
-+		preempt_enable();
++struct dasd_ccw_req * dasd_generic_build_rdc(struct dasd_device *device,
++					     void *rdc_buffer,
++					     int rdc_buffer_size, char *magic)
++{
++	struct dasd_ccw_req *cqr;
++	struct ccw1 *ccw;
++
++	cqr = dasd_smalloc_request(magic, 1 /* RDC */, rdc_buffer_size, device);
++
++	if (IS_ERR(cqr)) {
++		DEV_MESSAGE(KERN_WARNING, device, "%s",
++			    "Could not allocate RDC request");
++		return cqr;
 +	}
- 
--static inline int notify_page_fault(struct pt_regs *regs, long err)
--{
--	if (unlikely(kprobe_running()))
--		return __notify_page_fault(regs, err);
--	return NOTIFY_DONE;
++
++	ccw = cqr->cpaddr;
++	ccw->cmd_code = CCW_CMD_RDC;
++	ccw->cda = (__u32)(addr_t)rdc_buffer;
++	ccw->count = rdc_buffer_size;
++
++	cqr->device = device;
++	cqr->expires = 10*HZ;
++	clear_bit(DASD_CQR_FLAGS_USE_ERP, &cqr->flags);
++	cqr->retries = 2;
++	cqr->buildclk = get_clock();
++	cqr->status = DASD_CQR_FILLED;
++	return cqr;
++}
++
++
++int dasd_generic_read_dev_chars(struct dasd_device *device, char *magic,
++				void **rdc_buffer, int rdc_buffer_size)
++{
++	int ret;
++	struct dasd_ccw_req *cqr;
++
++	cqr = dasd_generic_build_rdc(device, *rdc_buffer, rdc_buffer_size,
++				     magic);
++	if (IS_ERR(cqr))
++		return PTR_ERR(cqr);
++
++	ret = dasd_sleep_on(cqr);
++	dasd_sfree_request(cqr, cqr->device);
 +	return ret;
++}
+ 
+ static int __init
+ dasd_init(void)
+Index: quilt-2.6/drivers/s390/block/dasd_eckd.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/block/dasd_eckd.c	2007-05-04 18:48:36.000000000 +0200
++++ quilt-2.6/drivers/s390/block/dasd_eckd.c	2007-05-04 18:50:15.000000000 +0200
+@@ -450,6 +450,81 @@
+ 	return 0;
  }
- #else
- static inline int notify_page_fault(struct pt_regs *regs, long err)
+ 
++struct dasd_ccw_req * dasd_eckd_build_rcd_lpm(struct dasd_device *device,
++					      void *rcd_buffer,
++					      struct ciw *ciw, __u8 lpm)
++{
++	struct dasd_ccw_req *cqr;
++	struct ccw1 *ccw;
++
++	cqr = dasd_smalloc_request("ECKD", 1 /* RCD */, ciw->count, device);
++
++	if (IS_ERR(cqr)) {
++		DEV_MESSAGE(KERN_WARNING, device, "%s",
++			    "Could not allocate RCD request");
++		return cqr;
++	}
++
++	ccw = cqr->cpaddr;
++	ccw->cmd_code = ciw->cmd;
++	ccw->cda = (__u32)(addr_t)rcd_buffer;
++	ccw->count = ciw->count;
++
++	cqr->device = device;
++	cqr->expires = 10*HZ;
++	cqr->lpm = lpm;
++	clear_bit(DASD_CQR_FLAGS_USE_ERP, &cqr->flags);
++	cqr->retries = 2;
++	cqr->buildclk = get_clock();
++	cqr->status = DASD_CQR_FILLED;
++	return cqr;
++}
++
++static int dasd_eckd_read_conf_lpm(struct dasd_device *device,
++				   void **rcd_buffer,
++				   int *rcd_buffer_size, __u8 lpm)
++{
++	struct ciw *ciw;
++	char *rcd_buf = NULL;
++	int ret;
++	struct dasd_ccw_req *cqr;
++
++	/*
++	 * scan for RCD command in extended SenseID data
++	 */
++	ciw = ccw_device_get_ciw(device->cdev, CIW_TYPE_RCD);
++	if (!ciw || ciw->cmd == 0) {
++		ret = -EOPNOTSUPP;
++		goto out_error;
++	}
++	rcd_buf = kzalloc(ciw->count, GFP_KERNEL | GFP_DMA);
++	if (!rcd_buf) {
++		ret = -ENOMEM;
++		goto out_error;
++	}
++	cqr = dasd_eckd_build_rcd_lpm(device, rcd_buf, ciw, lpm);
++	if (IS_ERR(cqr)) {
++		ret =  PTR_ERR(cqr);
++		goto out_error;
++	}
++	ret = dasd_sleep_on(cqr);
++	/*
++	 * on success we update the user input parms
++	 */
++	dasd_sfree_request(cqr, cqr->device);
++	if (ret)
++		goto out_error;
++
++	*rcd_buffer_size = ciw->count;
++	*rcd_buffer = rcd_buf;
++	return 0;
++out_error:
++	kfree(rcd_buf);
++	*rcd_buffer = NULL;
++	*rcd_buffer_size = 0;
++	return ret;
++}
++
+ static int
+ dasd_eckd_read_conf(struct dasd_device *device)
  {
--	return NOTIFY_DONE;
-+	return 0;
- }
- #endif
- 
-@@ -319,7 +305,7 @@
- 	int space;
- 	int si_code;
- 
--	if (notify_page_fault(regs, error_code) == NOTIFY_STOP)
-+	if (notify_page_fault(regs, error_code))
- 		return;
- 
- 	tsk = current;
-Index: quilt-2.6/include/asm-s390/kdebug.h
+@@ -469,8 +544,8 @@
+ 	/* get configuration data per operational path */
+ 	for (lpm = 0x80; lpm; lpm>>= 1) {
+ 		if (lpm & path_data->opm){
+-			rc = read_conf_data_lpm(device->cdev, &conf_data,
+-						&conf_len, lpm);
++			rc = dasd_eckd_read_conf_lpm(device, &conf_data,
++						     &conf_len, lpm);
+ 			if (rc && rc != -EOPNOTSUPP) {	/* -EOPNOTSUPP is ok */
+ 				MESSAGE(KERN_WARNING,
+ 					"Read configuration data returned "
+@@ -639,7 +714,7 @@
+ 	/* Read Device Characteristics */
+ 	rdc_data = (void *) &(private->rdc_data);
+ 	memset(rdc_data, 0, sizeof(rdc_data));
+-	rc = read_dev_chars(device->cdev, &rdc_data, 64);
++	rc = dasd_generic_read_dev_chars(device, "ECKD", &rdc_data, 64);
+ 	if (rc)
+ 		DEV_MESSAGE(KERN_WARNING, device,
+ 			    "Read device characteristics returned "
+Index: quilt-2.6/drivers/s390/block/dasd_fba.c
 ===================================================================
---- quilt-2.6.orig/include/asm-s390/kdebug.h	2007-05-04 18:48:36.000000000 +0200
-+++ quilt-2.6/include/asm-s390/kdebug.h	2007-05-04 18:50:14.000000000 +0200
-@@ -22,8 +22,21 @@
-  */
- extern int register_die_notifier(struct notifier_block *);
- extern int unregister_die_notifier(struct notifier_block *);
--extern int register_page_fault_notifier(struct notifier_block *);
--extern int unregister_page_fault_notifier(struct notifier_block *);
-+
-+/*
-+ * These are only here because kprobes.c wants them to implement a
-+ * blatant layering violation. Will hopefully go away soon once all
-+ * architectures are updated.
-+ */
-+static inline int register_page_fault_notifier(struct notifier_block *nb)
-+{
-+	return 0;
-+}
-+static inline int unregister_page_fault_notifier(struct notifier_block *nb)
-+{
-+	return 0;
-+}
-+
- extern struct atomic_notifier_head s390die_chain;
- 
- enum die_val {
-@@ -39,7 +52,6 @@
- 	DIE_GPF,
- 	DIE_CALL,
- 	DIE_NMI_IPI,
--	DIE_PAGE_FAULT,
- };
- 
- static inline int notify_die(enum die_val val, const char *str,
-Index: quilt-2.6/include/asm-s390/kprobes.h
+--- quilt-2.6.orig/drivers/s390/block/dasd_fba.c	2007-05-04 18:48:36.000000000 +0200
++++ quilt-2.6/drivers/s390/block/dasd_fba.c	2007-05-04 18:50:15.000000000 +0200
+@@ -135,7 +135,7 @@
+ 	}
+ 	/* Read Device Characteristics */
+ 	rdc_data = (void *) &(private->rdc_data);
+-	rc = read_dev_chars(device->cdev, &rdc_data, 32);
++	rc = dasd_generic_read_dev_chars(device, "FBA ", &rdc_data, 32);
+ 	if (rc) {
+ 		DEV_MESSAGE(KERN_WARNING, device,
+ 			    "Read device characteristics returned error %d",
+Index: quilt-2.6/drivers/s390/block/dasd_int.h
 ===================================================================
---- quilt-2.6.orig/include/asm-s390/kprobes.h	2007-05-04 18:48:36.000000000 +0200
-+++ quilt-2.6/include/asm-s390/kprobes.h	2007-05-04 18:50:14.000000000 +0200
-@@ -97,18 +97,10 @@
- int  is_prohibited_opcode(kprobe_opcode_t *instruction);
- void get_instruction_type(struct arch_specific_insn *ainsn);
+--- quilt-2.6.orig/drivers/s390/block/dasd_int.h	2007-05-04 18:48:36.000000000 +0200
++++ quilt-2.6/drivers/s390/block/dasd_int.h	2007-05-04 18:50:15.000000000 +0200
+@@ -509,6 +509,8 @@
+ int dasd_generic_set_offline (struct ccw_device *cdev);
+ int dasd_generic_notify(struct ccw_device *, int);
  
-+int kprobe_fault_handler(struct pt_regs *regs, int trapnr);
-+int kprobe_exceptions_notify(struct notifier_block *self,
-+	unsigned long val, void *data);
++int dasd_generic_read_dev_chars(struct dasd_device *, char *, void **, int);
 +
- #define flush_insn_slot(p)	do { } while (0)
- 
- #endif	/* _ASM_S390_KPROBES_H */
--
--#ifdef CONFIG_KPROBES
--
--extern int kprobe_exceptions_notify(struct notifier_block *self,
--					unsigned long val, void *data);
--#else	/* !CONFIG_KPROBES */
--static inline int kprobe_exceptions_notify(struct notifier_block *self,
--						unsigned long val, void *data)
--{
--	return 0;
--}
--#endif
+ /* externals in dasd_devmap.c */
+ extern int dasd_max_devindex;
+ extern int dasd_probeonly;
 
 -- 
 blue skies,
