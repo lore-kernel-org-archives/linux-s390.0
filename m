@@ -1,50 +1,106 @@
-From: "Julian Calaby" <julian.calaby@gmail.com>
-Subject: Re: [PATCH] zfcp: Stop system after memory corruption
-Date: Tue, 8 May 2007 23:24:01 +1000
-Message-ID: <646765f40705080624s1c0ac0ddt15d3c4ac5b3246b4@mail.gmail.com>
-References: <200705071635.04585.swen.schillig@freenet.de>
-	 <646765f40705070856y28d958f8xe2e286ab347d63a5@mail.gmail.com>
-	 <20070508125824.GA14085@schmichrtp>
+From: Swen Schillig <swen.schillig@freenet.de>
+Subject: [PATCH] zfcp: Stop system after memory corruption
+Date: Mon, 7 May 2007 16:35:04 +0200
+Message-ID: <200705071635.04585.swen.schillig@freenet.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <20070508125824.GA14085@schmichrtp>
 Content-Disposition: inline
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Christof Schmitt <christof.schmitt@de.ibm.com>
-Cc: Swen Schillig <swen.schillig@freenet.de>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: James Bottomley <James.Bottomley@steeleye.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 5/8/07, Christof Schmitt <christof.schmitt@de.ibm.com> wrote:
-> On Tue, May 08, 2007 at 01:56:07AM +1000, Julian Calaby wrote:
-> > >From: Christof Schmitt <christof.schmitt@de.ibm.com>
-> > [snip]
-> > >-                               ZFCP_LOG_NORMAL("bug: unexpected inbound "
-> > >-                                               "packet on adapter %s "
-> > >-                                               "(reqid=0x%lx, "
-> > >-                                               "first_element=%d, "
-> > >-                                               "elements_processed=%d)\n",
-> [...]
-> > As a minor quibble, may I suggest that these lines belong just above
-> > the panic introduced above? I assume that they'd be useful for
-> > debugging should this situation occur.
->
-> If this problem occurs, the administrator of the Linux system will be
-> advised to dump the Linux system and to also capture the logs from the
-> FCP adapter. The memory dump already contains the information about the
-> unexpected packet and also information about the last requests
-> sent to the FCP adapter. So, the messages do not provide additional
-> debug data, and i removed them to simplify the code.
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-Ah!
+For each request that is sent to the FCP adapter, zfcp allocates
+memory. Status information and data that is being read from the
+device is written to this memory by the hardware. After that,
+the hardware signals this via the response queue and zfcp
+continues processing.
 
-Thanks,
+Now, if zfcp detects that there is a signal for an incoming
+response from the hardware, but there is no outstanding request
+for that request id, then some memory that can be in use anywhere
+in the system has just been overwritten. This should never happen,
+but if it does, stop the system with a panic.
 
--- 
 
-Julian Calaby
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
+---
 
-Email: julian.calaby@gmail.com
+ drivers/s390/scsi/zfcp_qdio.c |   32 +++++---------------------------
+ 1 files changed, 5 insertions(+), 27 deletions(-)
+
+diff -urpN linux-2.6/drivers/s390/scsi/zfcp_qdio.c linux-2.6-patched/drivers/s390/scsi/zfcp_qdio.c
+--- linux-2.6/drivers/s390/scsi/zfcp_qdio.c	2007-05-07 12:47:16.000000000 +0200
++++ linux-2.6-patched/drivers/s390/scsi/zfcp_qdio.c	2007-05-07 12:47:26.000000000 +0200
+@@ -285,8 +285,8 @@ zfcp_qdio_request_handler(struct ccw_dev
+ /**
+  * zfcp_qdio_reqid_check - checks for valid reqids or unsolicited status
+  */
+-static int zfcp_qdio_reqid_check(struct zfcp_adapter *adapter, 
+-				 unsigned long req_id)
++static void zfcp_qdio_reqid_check(struct zfcp_adapter *adapter, 
++				  unsigned long req_id)
+ {
+ 	struct zfcp_fsf_req *fsf_req;
+ 	unsigned long flags;
+@@ -298,9 +298,7 @@ static int zfcp_qdio_reqid_check(struct 
+
+ 	if (!fsf_req) {
+ 		spin_unlock_irqrestore(&adapter->req_list_lock, flags);
+-		ZFCP_LOG_NORMAL("error: unknown request id (%ld).\n", req_id);
+-		zfcp_erp_adapter_reopen(adapter, 0);
+-		return -EINVAL;
++		panic("error: unknown request id (%ld).\n", req_id);
+ 	}
+
+ 	zfcp_reqlist_remove(adapter, req_id);
+@@ -309,8 +307,6 @@ static int zfcp_qdio_reqid_check(struct 
+
+ 	/* finish the FSF request */
+ 	zfcp_fsf_req_complete(fsf_req);
+-
+-	return 0;
+ }
+
+ /*
+@@ -374,27 +370,9 @@ zfcp_qdio_response_handler(struct ccw_de
+
+ 			/* look for QDIO request identifiers in SB */
+ 			buffere = &buffer->element[buffere_index];
+-			retval = zfcp_qdio_reqid_check(adapter,
+-					(unsigned long) buffere->addr);
++			zfcp_qdio_reqid_check(adapter,
++					      (unsigned long) buffere->addr);
+
+-			if (retval) {
+-				ZFCP_LOG_NORMAL("bug: unexpected inbound "
+-						"packet on adapter %s "
+-						"(reqid=0x%lx, "
+-						"first_element=%d, "
+-						"elements_processed=%d)\n",
+-						zfcp_get_busid_by_adapter(adapter),
+-						(unsigned long) buffere->addr,
+-						first_element,
+-						elements_processed);
+-				ZFCP_LOG_NORMAL("hex dump of inbound buffer "
+-						"at address %p "
+-						"(buffer_index=%d, "
+-						"buffere_index=%d)\n", buffer,
+-						buffer_index, buffere_index);
+-				ZFCP_HEX_DUMP(ZFCP_LOG_LEVEL_NORMAL,
+-					      (char *) buffer, SBAL_SIZE);
+-			}
+ 			/*
+ 			 * A single used SBALE per inbound SBALE has been
+ 			 * implemented by QDIO so far. Hope they will
+
+
+-------------------------------------------------------
