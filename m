@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760116AbXEaPgb@vger.kernel.org>
-Message-Id: <20070531153438.092445204@de.ibm.com>
-References: <20070531142024.011160634@de.ibm.com>
-Date: Thu, 31 May 2007 16:20:31 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 7/7] cio: deregister ccw device when pgid disband failed
-Content-Disposition: inline; filename=007-cio-pgid.diff
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933662AbXEGMoP@vger.kernel.org>
+Message-ID: <463F1F11.8060508@de.ibm.com>
+Date: Mon, 07 May 2007 14:44:01 +0200
+From: Martin Peschke <mp3@de.ibm.com>
+MIME-Version: 1.0
+Subject: Re: [RFC] [Patch 3/3] readahead statistics slimmed down
+References: <1178214999.5639.79.camel@dix> <f6b15c890705050255l7ab6fb42y93714a6da8b3d2b5@mail.gmail.com>
+In-Reply-To: <f6b15c890705050255l7ab6fb42y93714a6da8b3d2b5@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Fengguang Wu <fengguang.wu@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Fengguang Wu <wfg@mail.ustc.edu.cn>, swen@vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+Fengguang Wu wrote:
+> 2007/5/3, Martin Peschke <mp3@de.ibm.com>:
+>>
+>> This patch implements the bulk of the existing the adaptive readahead
+>> statistics with lib/statistics.c.
+>>
+>> The output format differs somewhat as the the statistics code just emits
+>> lists of items and doesn't do tables. It is feasible to leave
+>> reformating and beautification to some user scripts, if needed. This
+>> patch omits some summary data, most of which can be done in user space
+>> as well.
+>>
+>> Sample output (from dd'ing a disk):
+>>
+>> cache_miss.total 0 0
+>> cache_miss.initial 0 0
+>> cache_miss.clock 10 10
+>> cache_miss.context 0 0
+> 
+> 
+> Martin,
+> 
+> The new form of readahead statistics is appreciated. The code is much
+> simpler and the output is suitable for scripting. Thank you for doing the
+> conversion.
+> 
+> Me too have trimmed out the original ra_events_show() stuff based on your
+> patches. However, later on it becomes obvious that the current adaptive
+> readahead patch needs non-trivial rework. So the accounting patches were 
+> put
+> off. Expect to see them in the adaptive readahead kernel module ;-)
+> 
+> Thank you,
+> Fengguang Wu
 
-Deregister ccw device when device failure is detected during offline-
-processing (e.g. when no last-path-gone indication was presented by
-the hardware) to prevent the device from entering a non-recoverable
-not-operational state.
+I have been wondering whether this one might be worth staging in -mm along with 
+the other readahead patches. It would be work be work in progress like the other 
+readahead patches. But I leave this decision to you and Andrew.
 
-Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+THanks for the positive feedback.
 
- drivers/s390/cio/device_fsm.c |    6 ++++++
- 1 file changed, 6 insertions(+)
-
-Index: quilt-2.6/drivers/s390/cio/device_fsm.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_fsm.c
-+++ quilt-2.6/drivers/s390/cio/device_fsm.c
-@@ -688,6 +688,12 @@ ccw_device_disband_done(struct ccw_devic
- 		ccw_device_done(cdev, DEV_STATE_BOXED);
- 		break;
- 	default:
-+		cdev->private->flags.donotify = 0;
-+		if (get_device(&cdev->dev)) {
-+			PREPARE_WORK(&cdev->private->kick_work,
-+				     ccw_device_call_sch_unregister);
-+			queue_work(ccw_device_work, &cdev->private->kick_work);
-+		}
- 		ccw_device_done(cdev, DEV_STATE_NOT_OPER);
- 		break;
- 	}
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Martin
