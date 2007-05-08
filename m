@@ -1,144 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1161670AbXEEPiW@vger.kernel.org>
-Date: Sat, 5 May 2007 15:19:31 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [patch] s390: fix subsystem removal fallout.
-Message-ID: <20070505131931.GB13660@osiris.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Swen Schillig <swen@vnet.ibm.com>
+Subject: [PATCH 1/5] zfcp: Locking for req_no and req_seq_no
+Date: Tue, 8 May 2007 11:15:48 +0200
+Message-ID: <200705081115.48290.swen@vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-scsi-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Greg KH <gregkh@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-[patch] s390: fix subsystem removal fallout.
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+There is a possible race condition while generating the unique
+request ids and sequence numbers. Both might be read at the
+same time and have the same value. Fix this by serializing the
+access through the queue lock of the adapter: First call
+zfcp_fsf_req_sbal_get that acquires the lock, then read and
+increment the unique ids.
 
-This patch fixes compilation on s390.
-
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Greg KH <gregkh@suse.de>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
 ---
- arch/s390/hypfs/inode.c |    2 +-
- arch/s390/kernel/ipl.c  |   26 +++++++++++++-------------
- 2 files changed, 14 insertions(+), 14 deletions(-)
+ drivers/s390/scsi/zfcp_fsf.c |   17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-Index: linux-2.6/arch/s390/hypfs/inode.c
-===================================================================
---- linux-2.6.orig/arch/s390/hypfs/inode.c
-+++ linux-2.6/arch/s390/hypfs/inode.c
-@@ -477,7 +477,7 @@ static int __init hypfs_init(void)
- 			goto fail_diag;
- 		}
- 	}
--	kset_set_kset_s(&s390_subsys, hypervisor_subsys);
-+	kobj_set_kset_s(&s390_subsys, hypervisor_subsys);
- 	rc = subsystem_register(&s390_subsys);
- 	if (rc)
- 		goto fail_sysfs;
-Index: linux-2.6/arch/s390/kernel/ipl.c
-===================================================================
---- linux-2.6.orig/arch/s390/kernel/ipl.c
-+++ linux-2.6/arch/s390/kernel/ipl.c
-@@ -816,23 +816,23 @@ static int __init ipl_register_fcp_files
- {
- 	int rc;
- 
--	rc = sysfs_create_group(&ipl_subsys.kset.kobj,
-+	rc = sysfs_create_group(&ipl_subsys.kobj,
- 				&ipl_fcp_attr_group);
- 	if (rc)
- 		goto out;
--	rc = sysfs_create_bin_file(&ipl_subsys.kset.kobj,
-+	rc = sysfs_create_bin_file(&ipl_subsys.kobj,
- 				   &ipl_parameter_attr);
- 	if (rc)
- 		goto out_ipl_parm;
--	rc = sysfs_create_bin_file(&ipl_subsys.kset.kobj,
-+	rc = sysfs_create_bin_file(&ipl_subsys.kobj,
- 				   &ipl_scp_data_attr);
- 	if (!rc)
- 		goto out;
- 
--	sysfs_remove_bin_file(&ipl_subsys.kset.kobj, &ipl_parameter_attr);
-+	sysfs_remove_bin_file(&ipl_subsys.kobj, &ipl_parameter_attr);
- 
- out_ipl_parm:
--	sysfs_remove_group(&ipl_subsys.kset.kobj, &ipl_fcp_attr_group);
-+	sysfs_remove_group(&ipl_subsys.kobj, &ipl_fcp_attr_group);
- out:
- 	return rc;
- }
-@@ -846,7 +846,7 @@ static int __init ipl_init(void)
- 		return rc;
- 	switch (ipl_info.type) {
- 	case IPL_TYPE_CCW:
--		rc = sysfs_create_group(&ipl_subsys.kset.kobj,
-+		rc = sysfs_create_group(&ipl_subsys.kobj,
- 					&ipl_ccw_attr_group);
- 		break;
- 	case IPL_TYPE_FCP:
-@@ -854,11 +854,11 @@ static int __init ipl_init(void)
- 		rc = ipl_register_fcp_files();
- 		break;
- 	case IPL_TYPE_NSS:
--		rc = sysfs_create_group(&ipl_subsys.kset.kobj,
-+		rc = sysfs_create_group(&ipl_subsys.kobj,
- 					&ipl_nss_attr_group);
- 		break;
- 	default:
--		rc = sysfs_create_group(&ipl_subsys.kset.kobj,
-+		rc = sysfs_create_group(&ipl_subsys.kobj,
- 					&ipl_unknown_attr_group);
- 		break;
- 	}
-@@ -885,7 +885,7 @@ static int __init reipl_nss_init(void)
- 
- 	if (!MACHINE_IS_VM)
- 		return 0;
--	rc = sysfs_create_group(&reipl_subsys.kset.kobj, &reipl_nss_attr_group);
-+	rc = sysfs_create_group(&reipl_subsys.kobj, &reipl_nss_attr_group);
- 	if (rc)
- 		return rc;
- 	strncpy(reipl_nss_name, kernel_nss_name, NSS_NAME_SIZE + 1);
-@@ -900,7 +900,7 @@ static int __init reipl_ccw_init(void)
- 	reipl_block_ccw = (void *) get_zeroed_page(GFP_KERNEL);
- 	if (!reipl_block_ccw)
- 		return -ENOMEM;
--	rc = sysfs_create_group(&reipl_subsys.kset.kobj, &reipl_ccw_attr_group);
-+	rc = sysfs_create_group(&reipl_subsys.kobj, &reipl_ccw_attr_group);
- 	if (rc) {
- 		free_page((unsigned long)reipl_block_ccw);
- 		return rc;
-@@ -938,7 +938,7 @@ static int __init reipl_fcp_init(void)
- 	reipl_block_fcp = (void *) get_zeroed_page(GFP_KERNEL);
- 	if (!reipl_block_fcp)
- 		return -ENOMEM;
--	rc = sysfs_create_group(&reipl_subsys.kset.kobj, &reipl_fcp_attr_group);
-+	rc = sysfs_create_group(&reipl_subsys.kobj, &reipl_fcp_attr_group);
- 	if (rc) {
- 		free_page((unsigned long)reipl_block_fcp);
- 		return rc;
-@@ -990,7 +990,7 @@ static int __init dump_ccw_init(void)
- 	dump_block_ccw = (void *) get_zeroed_page(GFP_KERNEL);
- 	if (!dump_block_ccw)
- 		return -ENOMEM;
--	rc = sysfs_create_group(&dump_subsys.kset.kobj, &dump_ccw_attr_group);
-+	rc = sysfs_create_group(&dump_subsys.kobj, &dump_ccw_attr_group);
- 	if (rc) {
- 		free_page((unsigned long)dump_block_ccw);
- 		return rc;
-@@ -1014,7 +1014,7 @@ static int __init dump_fcp_init(void)
- 	dump_block_fcp = (void *) get_zeroed_page(GFP_KERNEL);
- 	if (!dump_block_fcp)
- 		return -ENOMEM;
--	rc = sysfs_create_group(&dump_subsys.kset.kobj, &dump_fcp_attr_group);
-+	rc = sysfs_create_group(&dump_subsys.kobj, &dump_fcp_attr_group);
- 	if (rc) {
- 		free_page((unsigned long)dump_block_fcp);
- 		return rc;
+--- linux-2.6.orig/drivers/s390/scsi/zfcp_fsf.c	2007-05-07 13:56:57.000000000 +0200
++++ linux-2.6/drivers/s390/scsi/zfcp_fsf.c	2007-05-07 13:57:34.000000000 +0200
+@@ -4645,23 +4645,22 @@
+ 	fsf_req->adapter = adapter;
+ 	fsf_req->fsf_command = fsf_cmd;
+ 	INIT_LIST_HEAD(&fsf_req->list);
+-	
+-	/* this is serialized (we are holding req_queue-lock of adapter */
+-	if (adapter->req_no == 0)
+-		adapter->req_no++;
+-	fsf_req->req_id = adapter->req_no++;
+-
+ 	init_timer(&fsf_req->timer);
+-	zfcp_fsf_req_qtcb_init(fsf_req);
+
+ 	/* initialize waitqueue which may be used to wait on 
+ 	   this request completion */
+ 	init_waitqueue_head(&fsf_req->completion_wq);
+
+         ret = zfcp_fsf_req_sbal_get(adapter, req_flags, lock_flags);
+-        if(ret < 0) {
++        if (ret < 0)
+                 goto failed_sbals;
+-	}
++
++	/* this is serialized (we are holding req_queue-lock of adapter) */
++	if (adapter->req_no == 0)
++		adapter->req_no++;
++	fsf_req->req_id = adapter->req_no++;
++
++	zfcp_fsf_req_qtcb_init(fsf_req);
+
+ 	/*
+ 	 * We hold queue_lock here. Check if QDIOUP is set and let request fail
+
+
+-------------------------------------------------------
