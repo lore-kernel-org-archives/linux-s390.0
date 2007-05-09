@@ -1,42 +1,95 @@
 From: Swen Schillig <swen@vnet.ibm.com>
-Subject: [PATCH 5/5] zfcp: clear boxed flag on unit reopen.
-Date: Tue, 8 May 2007 11:19:57 +0200
-Message-ID: <200705081119.57569.swen@vnet.ibm.com>
+Subject: [PATCH 1/2] zfcp: avoid clutter in erp_dbf
+Date: Wed, 9 May 2007 11:01:20 +0200
+Message-ID: <200705091101.20870.swen@vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-scsi-owner@vger.kernel.org>
 Content-Disposition: inline
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, mp3@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From Martin Peschke <mp3@de.ibm.com>
 
-The boxed flag for units was never cleared. This doesn't hurt, but on
-ACL updates the error recovery could reopen more units than needed.
+avoid clutter in erp_dbf
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+cleanup zfcp_fsf_req_dismiss functions:
+- avoid clutter in erp_dbf (reqs_active is always 0)
+- fold called three-line function into calling function
+- add meaningful comment
+- coding style
+
+Signed-off-by: Martin Peschke <mp3@de.ibm.com>
 Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
+
 ---
-
- drivers/s390/scsi/zfcp_fsf.c |    1 +
- 1 files changed, 1 insertion(+)
-
---- linux-2.6.orig/drivers/s390/scsi/zfcp_fsf.c	2007-05-07 16:26:34.000000000 +0200
-+++ linux-2.6/drivers/s390/scsi/zfcp_fsf.c	2007-05-07 16:34:16.000000000 +0200
-@@ -3043,6 +3043,7 @@
- 	queue_designator = &header->fsf_status_qual.fsf_queue_designator;
-
- 	atomic_clear_mask(ZFCP_STATUS_COMMON_ACCESS_DENIED |
-+			  ZFCP_STATUS_COMMON_ACCESS_BOXED |
- 			  ZFCP_STATUS_UNIT_SHARED |
- 			  ZFCP_STATUS_UNIT_READONLY,
- 			  &unit->status);
+ drivers/s390/scsi/zfcp_fsf.c |   40 +++++++++++++---------------------------
+ 1 file changed, 13 insertions(+), 27 deletions(-)
 
 
--------------------------------------------------------
+--- linux_jb_patched.orig/drivers/s390/scsi/zfcp_fsf.c	2007-05-08 14:47:17.000000000 +0200
++++ linux_jb_patched/drivers/s390/scsi/zfcp_fsf.c	2007-05-08 14:48:08.000000000 +0200
+@@ -156,44 +156,30 @@ zfcp_fsf_req_free(struct zfcp_fsf_req *f
+ 	kfree(fsf_req);
+ }
+ 
+-/**
+- * zfcp_fsf_req_dismiss - dismiss a single fsf request
+- */
+-static void zfcp_fsf_req_dismiss(struct zfcp_adapter *adapter,
+-				 struct zfcp_fsf_req *fsf_req,
+-				 unsigned int counter)
+-{
+-	u64 dbg_tmp[2];
+-
+-	dbg_tmp[0] = (u64) atomic_read(&adapter->reqs_active);
+-	dbg_tmp[1] = (u64) counter;
+-	debug_event(adapter->erp_dbf, 4, (void *) dbg_tmp, 16);
+-	list_del(&fsf_req->list);
+-	fsf_req->status |= ZFCP_STATUS_FSFREQ_DISMISSED;
+-	zfcp_fsf_req_complete(fsf_req);
+-}
+-
+-/**
+- * zfcp_fsf_req_dismiss_all - dismiss all remaining fsf requests
++/*
++ * Never ever call this without shutting down the adapter first.
++ * Otherwise the adapter would continue using and corrupting s390 storage.
++ * Included BUG_ON() call to ensure this is done.
++ * ERP is supposed to be the only user of this function.
+  */
+ void zfcp_fsf_req_dismiss_all(struct zfcp_adapter *adapter)
+ {
+-	struct zfcp_fsf_req *request, *tmp;
++	struct zfcp_fsf_req *fsf_req, *tmp;
+ 	unsigned long flags;
+ 	LIST_HEAD(remove_queue);
+-	unsigned int i, counter;
++	unsigned int i;
+ 
++	BUG_ON(atomic_test_mask(ZFCP_STATUS_ADAPTER_QDIOUP, &adapter->status));
+ 	spin_lock_irqsave(&adapter->req_list_lock, flags);
+ 	atomic_set(&adapter->reqs_active, 0);
+-	for (i=0; i<REQUEST_LIST_SIZE; i++)
++	for (i = 0; i < REQUEST_LIST_SIZE; i++)
+ 		list_splice_init(&adapter->req_list[i], &remove_queue);
+-
+ 	spin_unlock_irqrestore(&adapter->req_list_lock, flags);
+ 
+-	counter = 0;
+-	list_for_each_entry_safe(request, tmp, &remove_queue, list) {
+-		zfcp_fsf_req_dismiss(adapter, request, counter);
+-		counter++;
++	list_for_each_entry_safe(fsf_req, tmp, &remove_queue, list) {
++		list_del(&fsf_req->list);
++		fsf_req->status |= ZFCP_STATUS_FSFREQ_DISMISSED;
++		zfcp_fsf_req_complete(fsf_req);
+ 	}
+ }
+ 
