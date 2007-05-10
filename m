@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762830AbXEJOAt@vger.kernel.org>
-Message-Id: <20070510135645.698308626@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762603AbXEJOBH@vger.kernel.org>
+Message-Id: <20070510135645.185110826@de.ibm.com>
 References: <20070510135152.178104939@de.ibm.com>
-Date: Thu, 10 May 2007 15:52:04 +0200
+Date: Thu, 10 May 2007 15:52:02 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 12/15] Kconfig: common config options for s390.
-Content-Disposition: inline; filename=103-kconfig-option-s390.diff
+Subject: [patch 10/15] Kconfig: menus with depends on HAS_IOMEM.
+Content-Disposition: inline; filename=101-kconfig-menu-iomem.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,54 +14,296 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Disable some configuration options in the common Kconfig files that
-are of no interest to a s390 machine. Enable hangcheck timer.
+Add "depends on HAS_IOMEM" to a number of menus to make them
+disappear for s390 which does not have I/O memory.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/char/Kconfig |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/ata/Kconfig        |    1 +
+ drivers/char/ipmi/Kconfig  |    2 ++
+ drivers/char/tpm/Kconfig   |    1 +
+ drivers/edac/Kconfig       |    1 +
+ drivers/hwmon/Kconfig      |    1 +
+ drivers/i2c/Kconfig        |    1 +
+ drivers/ide/Kconfig        |    1 +
+ drivers/infiniband/Kconfig |    1 +
+ drivers/leds/Kconfig       |    1 +
+ drivers/media/Kconfig      |    1 +
+ drivers/mfd/Kconfig        |    1 +
+ drivers/mmc/Kconfig        |    1 +
+ drivers/mtd/Kconfig        |    1 +
+ drivers/parport/Kconfig    |    1 +
+ drivers/pnp/Kconfig        |    1 +
+ drivers/serial/Kconfig     |    1 +
+ drivers/spi/Kconfig        |    1 +
+ drivers/telephony/Kconfig  |    1 +
+ drivers/usb/Kconfig        |    1 +
+ drivers/video/Kconfig      |    1 +
+ drivers/w1/Kconfig         |    1 +
+ sound/Kconfig              |    1 +
+ 22 files changed, 23 insertions(+)
 
-Index: quilt-2.6/drivers/char/Kconfig
+Index: quilt-2.6/drivers/ata/Kconfig
 ===================================================================
---- quilt-2.6.orig/drivers/char/Kconfig
-+++ quilt-2.6/drivers/char/Kconfig
-@@ -6,6 +6,7 @@ menu "Character devices"
+--- quilt-2.6.orig/drivers/ata/Kconfig
++++ quilt-2.6/drivers/ata/Kconfig
+@@ -3,6 +3,7 @@
+ #
  
- config VT
- 	bool "Virtual terminal" if EMBEDDED
-+	depends on !S390
- 	select INPUT
- 	default y if !VIOCONS
- 	---help---
-@@ -766,7 +767,7 @@ config NVRAM
+ menu "Serial ATA (prod) and Parallel ATA (experimental) drivers"
++	depends on HAS_IOMEM
  
- config RTC
- 	tristate "Enhanced Real Time Clock Support"
--	depends on !PPC && !PARISC && !IA64 && !M68K && (!SPARC || PCI) && !FRV && !ARM && !SUPERH
-+	depends on !PPC && !PARISC && !IA64 && !M68K && (!SPARC || PCI) && !FRV && !ARM && !SUPERH && !S390
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
-@@ -814,7 +815,7 @@ config SGI_IP27_RTC
+ config ATA
+ 	tristate "ATA device support"
+Index: quilt-2.6/drivers/char/ipmi/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/char/ipmi/Kconfig
++++ quilt-2.6/drivers/char/ipmi/Kconfig
+@@ -3,6 +3,8 @@
+ #
  
- config GEN_RTC
- 	tristate "Generic /dev/rtc emulation"
--	depends on RTC!=y && !IA64 && !ARM && !M32R && !SPARC && !FRV
-+	depends on RTC!=y && !IA64 && !ARM && !M32R && !SPARC && !FRV && !S390
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
-@@ -1045,7 +1046,7 @@ config HPET_MMAP
+ menu "IPMI"
++	depends on HAS_IOMEM
++
+ config IPMI_HANDLER
+        tristate 'IPMI top-level message handler'
+        help
+Index: quilt-2.6/drivers/char/tpm/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/char/tpm/Kconfig
++++ quilt-2.6/drivers/char/tpm/Kconfig
+@@ -3,6 +3,7 @@
+ #
  
- config HANGCHECK_TIMER
- 	tristate "Hangcheck timer"
--	depends on X86 || IA64 || PPC64
-+	depends on X86 || IA64 || PPC64 || S390
+ menu "TPM devices"
++	depends on HAS_IOMEM
+ 
+ config TCG_TPM
+ 	tristate "TPM Hardware Support"
+Index: quilt-2.6/drivers/edac/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/edac/Kconfig
++++ quilt-2.6/drivers/edac/Kconfig
+@@ -7,6 +7,7 @@
+ #
+ 
+ menu 'EDAC - error detection and reporting (RAS) (EXPERIMENTAL)'
++	depends on HAS_IOMEM
+ 
+ config EDAC
+ 	tristate "EDAC core system error reporting (EXPERIMENTAL)"
+Index: quilt-2.6/drivers/hwmon/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/hwmon/Kconfig
++++ quilt-2.6/drivers/hwmon/Kconfig
+@@ -4,6 +4,7 @@
+ 
+ menuconfig HWMON
+ 	tristate "Hardware Monitoring support"
++	depends on HAS_IOMEM
+ 	default y
  	help
- 	  The hangcheck-timer module detects when the system has gone
- 	  out to lunch past a certain margin.  It can reboot the system
+ 	  Hardware monitoring devices let you monitor the hardware health
+Index: quilt-2.6/drivers/i2c/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/i2c/Kconfig
++++ quilt-2.6/drivers/i2c/Kconfig
+@@ -4,6 +4,7 @@
+ 
+ menuconfig I2C
+ 	tristate "I2C support"
++	depends on HAS_IOMEM
+ 	---help---
+ 	  I2C (pronounce: I-square-C) is a slow serial bus protocol used in
+ 	  many micro controller applications and developed by Philips.  SMBus,
+Index: quilt-2.6/drivers/ide/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/ide/Kconfig
++++ quilt-2.6/drivers/ide/Kconfig
+@@ -7,6 +7,7 @@
+ if BLOCK
+ 
+ menu "ATA/ATAPI/MFM/RLL support"
++	depends on HAS_IOMEM
+ 
+ config IDE
+ 	tristate "ATA/ATAPI/MFM/RLL support"
+Index: quilt-2.6/drivers/infiniband/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/infiniband/Kconfig
++++ quilt-2.6/drivers/infiniband/Kconfig
+@@ -1,4 +1,5 @@
+ menu "InfiniBand support"
++	depends on HAS_IOMEM
+ 
+ config INFINIBAND
+ 	depends on PCI || BROKEN
+Index: quilt-2.6/drivers/leds/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/leds/Kconfig
++++ quilt-2.6/drivers/leds/Kconfig
+@@ -1,5 +1,6 @@
+ 
+ menu "LED devices"
++	depends on HAS_IOMEM
+ 
+ config NEW_LEDS
+ 	bool "LED Support"
+Index: quilt-2.6/drivers/media/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/media/Kconfig
++++ quilt-2.6/drivers/media/Kconfig
+@@ -3,6 +3,7 @@
+ #
+ 
+ menu "Multimedia devices"
++	depends on HAS_IOMEM
+ 
+ config VIDEO_DEV
+ 	tristate "Video For Linux"
+Index: quilt-2.6/drivers/mfd/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/mfd/Kconfig
++++ quilt-2.6/drivers/mfd/Kconfig
+@@ -3,6 +3,7 @@
+ #
+ 
+ menu "Multifunction device drivers"
++	depends on HAS_IOMEM
+ 
+ config MFD_SM501
+ 	tristate "Support for Silicon Motion SM501"
+Index: quilt-2.6/drivers/mmc/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/mmc/Kconfig
++++ quilt-2.6/drivers/mmc/Kconfig
+@@ -4,6 +4,7 @@
+ 
+ menuconfig MMC
+ 	tristate "MMC/SD card support"
++	depends on HAS_IOMEM
+ 	help
+ 	  MMC is the "multi-media card" bus protocol.
+ 
+Index: quilt-2.6/drivers/mtd/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/mtd/Kconfig
++++ quilt-2.6/drivers/mtd/Kconfig
+@@ -2,6 +2,7 @@
+ 
+ menuconfig MTD
+ 	tristate "Memory Technology Device (MTD) support"
++	depends on HAS_IOMEM
+ 	help
+ 	  Memory Technology Devices are flash, RAM and similar chips, often
+ 	  used for solid state file systems on embedded devices. This option
+Index: quilt-2.6/drivers/parport/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/parport/Kconfig
++++ quilt-2.6/drivers/parport/Kconfig
+@@ -6,6 +6,7 @@
+ #
+ 
+ menu "Parallel port support"
++	depends on HAS_IOMEM
+ 
+ config PARPORT
+ 	tristate "Parallel port support"
+Index: quilt-2.6/drivers/pnp/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/pnp/Kconfig
++++ quilt-2.6/drivers/pnp/Kconfig
+@@ -3,6 +3,7 @@
+ #
+ 
+ menu "Plug and Play support"
++	depends on HAS_IOMEM
+ 
+ config PNP
+ 	bool "Plug and Play support"
+Index: quilt-2.6/drivers/serial/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/serial/Kconfig
++++ quilt-2.6/drivers/serial/Kconfig
+@@ -5,6 +5,7 @@
+ #
+ 
+ menu "Serial drivers"
++	depends on HAS_IOMEM
+ 
+ #
+ # The new 8250/16550 serial drivers
+Index: quilt-2.6/drivers/spi/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/spi/Kconfig
++++ quilt-2.6/drivers/spi/Kconfig
+@@ -6,6 +6,7 @@
+ # fully appropriate there, so it'd need some thought to do well.
+ #
+ menu "SPI support"
++	depends on HAS_IOMEM
+ 
+ config SPI
+ 	bool "SPI support"
+Index: quilt-2.6/drivers/telephony/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/telephony/Kconfig
++++ quilt-2.6/drivers/telephony/Kconfig
+@@ -3,6 +3,7 @@
+ #
+ 
+ menu "Telephony Support"
++	depends on HAS_IOMEM
+ 
+ config PHONE
+ 	tristate "Linux telephony support"
+Index: quilt-2.6/drivers/usb/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/usb/Kconfig
++++ quilt-2.6/drivers/usb/Kconfig
+@@ -3,6 +3,7 @@
+ #
+ 
+ menu "USB support"
++	depends on HAS_IOMEM
+ 
+ # Host-side USB depends on having a host controller
+ # NOTE:  dummy_hcd is always an option, but it's ignored here ...
+Index: quilt-2.6/drivers/video/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/video/Kconfig
++++ quilt-2.6/drivers/video/Kconfig
+@@ -3,6 +3,7 @@
+ #
+ 
+ menu "Graphics support"
++	depends on HAS_IOMEM
+ 
+ source "drivers/video/backlight/Kconfig"
+ source "drivers/video/display/Kconfig"
+Index: quilt-2.6/drivers/w1/Kconfig
+===================================================================
+--- quilt-2.6.orig/drivers/w1/Kconfig
++++ quilt-2.6/drivers/w1/Kconfig
+@@ -1,4 +1,5 @@
+ menu "Dallas's 1-wire bus"
++	depends on HAS_IOMEM
+ 
+ config W1
+ 	tristate "Dallas's 1-wire support"
+Index: quilt-2.6/sound/Kconfig
+===================================================================
+--- quilt-2.6.orig/sound/Kconfig
++++ quilt-2.6/sound/Kconfig
+@@ -2,6 +2,7 @@
+ #
+ 
+ menu "Sound"
++	depends on HAS_IOMEM
+ 
+ config SOUND
+ 	tristate "Sound card support"
 
 -- 
 blue skies,
