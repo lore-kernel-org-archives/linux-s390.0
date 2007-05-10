@@ -1,93 +1,156 @@
-From: Swen Schillig <swen@vnet.ibm.com>
-Subject: [PATCH 2/2] zfcp: IO stall after deleting and path checker changes after reenabling zfcp devices
-Date: Wed, 9 May 2007 11:01:24 +0200
-Message-ID: <200705091101.24917.swen@vnet.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 2/5] zfcp: Fix deadlock between zfcp ERP and SCSI
+Date: Thu, 10 May 2007 09:49:02 +0200
+Message-ID: <20070510074902.GA7893@osiris.boeblingen.de.ibm.com>
+References: <200705081116.53021.swen@vnet.ibm.com> <4640907B.3080409@emulex.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-scsi-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <4640907B.3080409@emulex.com>
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, mloehr2@linux.vnet.ibm.com
+To: James Smart <James.Smart@Emulex.Com>
+Cc: Swen Schillig <swen@vnet.ibm.com>, James Bottomley <James.Bottomley@steeleye.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Loehr <mloehr2@linux.vnet.ibm.com>
+On Tue, May 08, 2007 at 11:00:11AM -0400, James Smart wrote:
+> Curious why you are calling scsi_scan_target() or
+> scsi_target_block()/scsi_target_unblock() directly. I would have
+> thought the add/remove rport code would have done this for you,
+> and it deals with all the flush conditions, etc.
+> 
+> -- james
+> 
+> Swen Schillig wrote:
+> >From: Christof Schmitt <christof.schmitt@de.ibm.com>
+> >The SCSI stack requires low level drivers to register and
+> >unregister devices. For zfcp this leads to the situation where
+> >zfcp calls the SCSI stack, the SCSI tries to scan the new device
+> >and the scan SCSI command fails. This would require the zfcp erp,
+> >but the erp thread is already blocked in the register call.
+> >The fix is to make sure that the calls from the ERP thread to
+> >the SCSI stack do not block the ERP thread. In detail:
+> >1) Use a workqueue to avoid blocking of the scsi_scan_target calls.
+> >2) When removing a unit make sure that no scsi_scan_target call is
+> >   pending.
+> >3) Replace scsi_flush_work with scsi_target_unblock. This avoids
+> >   blocking and has the same result.
 
-IO stall after deleting and path checker changes after reenabling zfcp device
+Reading the patch again, I think there is still a race:
 
-Setting one zfcp device offline using chccwdev in a multipath
-environment and waiting will lead to IO stall on all paths.
-After setting the zfcp device back online using chccwdev,
-the devices with io stall will have a different path checker.
-Devices corresponding to the deleted units are never freed. 
-This has the effect that 'slave_destroy' is never called and zfcp
-still thinks that this unit is registered
-(ZFCP_STATUS_UNIT_REGISTERED is still set). Hence the erp
-routine is not called correctly and the unit is not enabled properly.
+> >+static void zfcp_erp_scsi_scan(struct work_struct *work)
+> >+{
+> >+	struct zfcp_erp_add_work *p =
+> >+		container_of(work, struct zfcp_erp_add_work, work);
+> >+	struct zfcp_unit *unit = p->unit;
+> >+	struct fc_rport *rport = unit->port->rport;
+> >+	scsi_scan_target(&rport->dev, 0, rport->scsi_target_id,
+> >+			 unit->scsi_lun, 0);
+> >+	atomic_clear_mask(ZFCP_STATUS_UNIT_SCSI_WORK_PENDING, &unit->status);
+> >+	wake_up(&unit->scsi_scan_wq);
+> >+	zfcp_unit_put(unit);
+> >+	kfree(p);
 
-Do not delete rport and the sdev. Just set the host to block on
-'offline'. Setting host online again will then remove the blocked status
-and everything is fine again.
+This function gets executed via schedule_work() and therefore there is
+nothing that prevents the rport to go. E.g. the following might happen:
+function gets enqueued for execution via schedule_work(), adapter gets
+shut down, call to fc_remort_port_delete(), port->rport gets deleted,
+then zfcp_erp_scsi_scan() gets called and tries to derefence port->rport
+which is NULL. Addressing exception is the result.
 
-Signed-off-by: Michael Loehr <mloehr2@linux.vnet.ibm.com>
-Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
-h
+The patch below should fix that, but it changes the call from
+scsi_scan_target() to scsi_add_device(). I think that should be ok.
+
+Not-yet-signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
- drivers/s390/scsi/zfcp_aux.c  |    1 +
- drivers/s390/scsi/zfcp_ccw.c  |    5 +----
- drivers/s390/scsi/zfcp_scsi.c |    3 +++
- 3 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/s390/scsi/zfcp_def.h |    1 +
+ drivers/s390/scsi/zfcp_erp.c |   37 +++++++++++++++++++------------------
+ 2 files changed, 20 insertions(+), 18 deletions(-)
 
-Index: linux_jb_patched/drivers/s390/scsi/zfcp_aux.c
+Index: linux-2.6/drivers/s390/scsi/zfcp_def.h
 ===================================================================
---- linux_jb_patched.orig/drivers/s390/scsi/zfcp_aux.c
-+++ linux_jb_patched/drivers/s390/scsi/zfcp_aux.c
-@@ -1129,6 +1129,7 @@ zfcp_adapter_dequeue(struct zfcp_adapter
- 	int retval = 0;
- 	unsigned long flags;
+--- linux-2.6.orig/drivers/s390/scsi/zfcp_def.h
++++ linux-2.6/drivers/s390/scsi/zfcp_def.h
+@@ -961,6 +961,7 @@ struct zfcp_port {
+         atomic_t               erp_counter;
+ 	u32                    maxframe_size;
+ 	u32                    supported_classes;
++	unsigned int	       scsi_target_id;
+ };
  
-+	zfcp_adapter_scsi_unregister(adapter);
- 	device_unregister(&adapter->generic_services);
- 	zfcp_sysfs_adapter_remove_files(&adapter->ccw_device->dev);
- 	dev_set_drvdata(&adapter->ccw_device->dev, NULL);
-Index: linux_jb_patched/drivers/s390/scsi/zfcp_ccw.c
+ /* the struct device sysfs_device must be at the beginning of this structure.
+Index: linux-2.6/drivers/s390/scsi/zfcp_erp.c
 ===================================================================
---- linux_jb_patched.orig/drivers/s390/scsi/zfcp_ccw.c
-+++ linux_jb_patched/drivers/s390/scsi/zfcp_ccw.c
-@@ -189,9 +189,7 @@ zfcp_ccw_set_online(struct ccw_device *c
-  * @ccw_device: pointer to belonging ccw device
-  *
-  * This function gets called by the common i/o layer and sets an adapter
-- * into state offline. Setting an fcp device offline means that it will be
-- * unregistered from the SCSI stack and that the adapter will be shut down
-- * asynchronously.
-+ * into state offline.
+--- linux-2.6.orig/drivers/s390/scsi/zfcp_erp.c
++++ linux-2.6/drivers/s390/scsi/zfcp_erp.c
+@@ -1591,7 +1591,7 @@ zfcp_erp_strategy_check_adapter(struct z
+ }
+ 
+ struct zfcp_erp_add_work {
+-	struct zfcp_unit  *unit;
++	struct zfcp_unit *unit;
+ 	struct work_struct work;
+ };
+ 
+@@ -1603,15 +1603,14 @@ struct zfcp_erp_add_work {
   */
- static int
- zfcp_ccw_set_offline(struct ccw_device *ccw_device)
-@@ -202,7 +200,6 @@ zfcp_ccw_set_offline(struct ccw_device *
- 	adapter = dev_get_drvdata(&ccw_device->dev);
- 	zfcp_erp_adapter_shutdown(adapter, 0);
- 	zfcp_erp_wait(adapter);
--	zfcp_adapter_scsi_unregister(adapter);
- 	zfcp_erp_thread_kill(adapter);
- 	zfcp_adapter_debug_unregister(adapter);
- 	up(&zfcp_data.config_sema);
-Index: linux_jb_patched/drivers/s390/scsi/zfcp_scsi.c
-===================================================================
---- linux_jb_patched.orig/drivers/s390/scsi/zfcp_scsi.c
-+++ linux_jb_patched/drivers/s390/scsi/zfcp_scsi.c
-@@ -569,6 +569,9 @@ zfcp_adapter_scsi_register(struct zfcp_a
- 	int retval = 0;
- 	static unsigned int unique_id = 0;
- 
-+	if (adapter->scsi_host)
-+		goto out;
+ static void zfcp_erp_scsi_scan(struct work_struct *work)
+ {
+-	struct zfcp_erp_add_work *p =
+-		container_of(work, struct zfcp_erp_add_work, work);
+-	struct zfcp_unit *unit = p->unit;
+-	struct fc_rport *rport = unit->port->rport;
+-	scsi_scan_target(&rport->dev, 0, rport->scsi_target_id,
+-			 unit->scsi_lun, 0);
+-	atomic_clear_mask(ZFCP_STATUS_UNIT_SCSI_WORK_PENDING, &unit->status);
+-	wake_up(&unit->scsi_scan_wq);
+-	zfcp_unit_put(unit);
++	struct zfcp_erp_add_work *p;
 +
- 	/* register adapter as SCSI host with mid layer of SCSI stack */
- 	adapter->scsi_host = scsi_host_alloc(&zfcp_data.scsi_host_template,
- 					     sizeof (struct zfcp_adapter *));
++	p = container_of(work, struct zfcp_erp_add_work, work);
++	scsi_add_device(p->unit->port->adapter->scsi_host, 0,
++			p->unit->port->scsi_target_id, p->unit->scsi_lun);
++	atomic_clear_mask(ZFCP_STATUS_UNIT_SCSI_WORK_PENDING, &p->unit->status);
++	wake_up(&p->unit->scsi_scan_wq);
++	zfcp_unit_put(p->unit);
+ 	kfree(p);
+ }
+ 
+@@ -3161,25 +3160,27 @@ zfcp_erp_action_cleanup(int action, stru
+ 			break;
+ 		}
+ 
+-		if ((result == ZFCP_ERP_SUCCEEDED)
+-		    && !port->rport) {
++		if ((result == ZFCP_ERP_SUCCEEDED) && !port->rport) {
+ 			struct fc_rport_identifiers ids;
++			struct fc_rport *rport;
++
+ 			ids.node_name = port->wwnn;
+ 			ids.port_name = port->wwpn;
+ 			ids.port_id = port->d_id;
+ 			ids.roles = FC_RPORT_ROLE_FCP_TARGET;
+-			port->rport =
+-				fc_remote_port_add(adapter->scsi_host, 0, &ids);
+-			if (!port->rport)
++			rport = fc_remote_port_add(adapter->scsi_host, 0, &ids);
++			if (!rport)
+ 				ZFCP_LOG_NORMAL("failed registration of rport"
+ 						"(adapter %s, wwpn=0x%016Lx)\n",
+ 						zfcp_get_busid_by_port(port),
+ 						port->wwpn);
+ 			else {
+-				scsi_target_unblock(&port->rport->dev);
+-				port->rport->maxframe_size = port->maxframe_size;
+-				port->rport->supported_classes =
++				port->rport = rport;
++				port->scsi_target_id = rport->scsi_target_id;
++				rport->maxframe_size = port->maxframe_size;
++				rport->supported_classes =
+ 					port->supported_classes;
++				scsi_target_unblock(&port->rport->dev);
+ 			}
+ 		}
+ 		if ((result != ZFCP_ERP_SUCCEEDED) && port->rport) {
