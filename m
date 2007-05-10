@@ -1,35 +1,22 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: Re: [PATCH 2/5] zfcp: Fix deadlock between zfcp ERP and SCSI
-Date: Tue, 8 May 2007 17:32:54 +0200
-Message-ID: <20070508153254.GA20009@schmichrtp>
-References: <200705081116.53021.swen@vnet.ibm.com> <4640907B.3080409@emulex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4640907B.3080409@emulex.com>
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Smart <James.Smart@Emulex.Com>
-Cc: Swen Schillig <swen@vnet.ibm.com>, James Bottomley <James.Bottomley@steeleye.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760991AbXEJN4h@vger.kernel.org>
+Message-Id: <20070510135152.178104939@de.ibm.com>
+Date: Thu, 10 May 2007 15:51:52 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 00/15] s390 patches for 2.6.22
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, May 08, 2007 at 11:00:11AM -0400, James Smart wrote:
-> Curious why you are calling scsi_scan_target() or
-> scsi_target_block()/scsi_target_unblock() directly. I would have
-> thought the add/remove rport code would have done this for you,
-> and it deals with all the flush conditions, etc.
+A few fixes, some compiler warnings and the Kconfig cleanup.
+s390 now uses the common drivers/Kconfig file instead of the
+home-brewn drivers/s390/Kconfig. There are some more config
+options for s390 now, not all of them make sense but as long
+as the code compiles no harm is done.
 
-fc_remote_port_add issues a scsi_scan_target with SCAN_WILD_CARD. This tries to
-get all LUNs for the target via REPORT LUNS for LUN 0. The current design for
-zfcp is to prevent the wildcard scan from the SCSI layer by not allocating a
-device for LUN 0. When a FCP adapter does not support NPIV, the adapter can
-still be shared among multiple Linux systems. Each Linux system can access
-different LUNs, that are activated manually via sysfs. So, the wildcard scan
-from the FC transport class does nothing and zfcp activates the LUNs it wants
-to use via direct calls to scsi_scan_target. If every adapter would support
-NPIV, zfcp could rely on the scan by the FC transport class, unfortunately,
-this is not the case.
+-- 
+blue skies,
+   Martin.
 
-Christof Schmitt
+"Reality continues to ruin my life." - Calvin.
