@@ -1,34 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760426AbXEUMAh@vger.kernel.org>
-Date: Mon, 21 May 2007 14:00:25 +0200
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759497AbXEYGDD@vger.kernel.org>
+Date: Fri, 25 May 2007 08:02:51 +0200
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [patch 1/5] cio: Update documentation.
-Message-ID: <20070521140025.7b9344a5@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <20070521115322.GB15143@infradead.org>
-References: <20070521105118.955425052@de.ibm.com>
-	<20070521110108.214724333@de.ibm.com>
-	<20070521115322.GB15143@infradead.org>
+Subject: Re: 2.6.22-rc1-mm1 - s390 vs. md
+Message-ID: <20070525080251.1bca37ee@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <0C7297FA1D2D244A9C7F6959C0BF1E5201E703A5@azsmsx413.amr.corp.intel.com>
+References: <20070523104639.6bc0650e@gondolin.boeblingen.de.ibm.com>
+	<0C7297FA1D2D244A9C7F6959C0BF1E5201E703A5@azsmsx413.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: "Williams, Dan J" <dan.j.williams@intel.com>
+Cc: schwidefsky@de.ibm.com, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, NeilBrown <neilb@suse.de>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 21 May 2007 12:53:22 +0100,
-Christoph Hellwig <hch@infradead.org> wrote:
+On Thu, 24 May 2007 15:11:08 -0700,
+"Williams, Dan J" <dan.j.williams@intel.com> wrote:
 
-> On Mon, May 21, 2007 at 12:51:19PM +0200, Martin Schwidefsky wrote:
-> > From: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > 
-> > - read_dev_chars()/read_conf_data() are deprecated. Don't document them, but
-> >   advise to issue the channel program from the driver itself.
-> 
-> What's the reason these function aren't just removed?  They're just unused
-> bloat right now.
 
-They had been a documented and exported interface for ages, and I
-didn't feel like breaking external modules without some warning
-beforehand.
+> --- a/async_tx/async_memcpy.c
+> +++ b/async_tx/async_memcpy.c
+> @@ -56,6 +56,7 @@ async_memcpy(struct page *dest, struct page *src,
+> unsigned int dest_offset,
+>  		int_en) : NULL;
+>  
+>  	if (tx) { /* run the memcpy asynchronously */
+> +		#ifdef CONFIG_HAS_DMA
+>  		dma_addr_t dma_addr;
+>  		enum dma_data_direction dir;
+
+Can you factor out the async stuff into a function so you can use the
+#ifdefs to define different functions rather than put them in the middle
+of a complex function?
+
+(Maybe you should rather use #ifdef CONFIG_DMA_ENGINE, since the async
+part is not needed for !DMA_ENGINE either.)
