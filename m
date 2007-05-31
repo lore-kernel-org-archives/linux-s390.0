@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759355AbXEaPfA@vger.kernel.org>
-Message-Id: <20070531153437.206191827@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758612AbXEaPf3@vger.kernel.org>
+Message-Id: <20070531153437.419319599@de.ibm.com>
 References: <20070531142024.011160634@de.ibm.com>
-Date: Thu, 31 May 2007 16:20:27 +0200
+Date: Thu, 31 May 2007 16:20:28 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 3/7] arch/s390/kernel/debug.c: use mutex instead of semaphore
-Content-Disposition: inline; filename=003-debug-mutex.diff
+Subject: [patch 4/7] raw3270: use mutex instead of semaphore
+Content-Disposition: inline; filename=004-3270-mutex.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -18,102 +18,58 @@ Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/debug.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/s390/char/raw3270.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/debug.c
+Index: quilt-2.6/drivers/s390/char/raw3270.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/debug.c
-+++ quilt-2.6/arch/s390/kernel/debug.c
-@@ -163,7 +163,7 @@ unsigned int debug_feature_version = __D
+--- quilt-2.6.orig/drivers/s390/char/raw3270.c
++++ quilt-2.6/drivers/s390/char/raw3270.c
+@@ -487,7 +487,7 @@ struct raw3270_ua {	/* Query Reply struc
+ } __attribute__ ((packed));
  
- static debug_info_t *debug_area_first = NULL;
- static debug_info_t *debug_area_last = NULL;
--static DECLARE_MUTEX(debug_lock);
-+static DEFINE_MUTEX(debug_mutex);
+ static struct diag210 raw3270_init_diag210;
+-static DECLARE_MUTEX(raw3270_init_sem);
++static DEFINE_MUTEX(raw3270_init_mutex);
  
- static int initialized;
- 
-@@ -576,7 +576,7 @@ debug_input(struct file *file, const cha
- 	int rc = 0;
- 	file_private_info_t *p_info;
- 
--	down(&debug_lock);
-+	mutex_lock(&debug_mutex);
- 	p_info = ((file_private_info_t *) file->private_data);
- 	if (p_info->view->input_proc)
- 		rc = p_info->view->input_proc(p_info->debug_info_org,
-@@ -584,7 +584,7 @@ debug_input(struct file *file, const cha
- 					      length, offset);
- 	else
- 		rc = -EPERM;
--	up(&debug_lock);
-+	mutex_unlock(&debug_mutex);
- 	return rc;		/* number of input characters */
- }
- 
-@@ -602,7 +602,7 @@ debug_open(struct inode *inode, struct f
- 	file_private_info_t *p_info;
- 	debug_info_t *debug_info, *debug_info_snapshot;
- 
--	down(&debug_lock);
-+	mutex_lock(&debug_mutex);
- 	debug_info = file->f_path.dentry->d_inode->i_private;
- 	/* find debug view */
- 	for (i = 0; i < DEBUG_MAX_VIEWS; i++) {
-@@ -653,7 +653,7 @@ found:
- 	file->private_data = p_info;
- 	debug_info_get(debug_info);
- out:
--	up(&debug_lock);
-+	mutex_unlock(&debug_mutex);
- 	return rc;
- }
- 
-@@ -688,7 +688,7 @@ debug_register (char *name, int pages_pe
- 
- 	if (!initialized)
- 		BUG();
--	down(&debug_lock);
-+	mutex_lock(&debug_mutex);
- 
-         /* create new debug_info */
- 
-@@ -702,7 +702,7 @@ out:
-         if (!rc){
- 		printk(KERN_ERR "debug: debug_register failed for %s\n",name);
-         }
--	up(&debug_lock);
-+	mutex_unlock(&debug_mutex);
- 	return rc;
- }
- 
-@@ -716,9 +716,9 @@ debug_unregister(debug_info_t * id)
+ static int
+ raw3270_init_irq(struct raw3270_view *view, struct raw3270_request *rq,
+@@ -713,7 +713,7 @@ raw3270_size_device(struct raw3270 *rp)
  {
- 	if (!id)
- 		goto out;
--	down(&debug_lock);
-+	mutex_lock(&debug_mutex);
- 	debug_info_put(id);
--	up(&debug_lock);
-+	mutex_unlock(&debug_mutex);
+ 	int rc;
  
- out:
- 	return;
-@@ -1054,11 +1054,11 @@ __init debug_init(void)
- 	int rc = 0;
+-	down(&raw3270_init_sem);
++	mutex_lock(&raw3270_init_mutex);
+ 	rp->view = &raw3270_init_view;
+ 	raw3270_init_view.dev = rp;
+ 	if (MACHINE_IS_VM)
+@@ -722,7 +722,7 @@ raw3270_size_device(struct raw3270 *rp)
+ 		rc = __raw3270_size_device(rp);
+ 	raw3270_init_view.dev = NULL;
+ 	rp->view = NULL;
+-	up(&raw3270_init_sem);
++	mutex_unlock(&raw3270_init_mutex);
+ 	if (rc == 0) {	/* Found something. */
+ 		/* Try to find a model. */
+ 		rp->model = 0;
+@@ -749,7 +749,7 @@ raw3270_reset_device(struct raw3270 *rp)
+ {
+ 	int rc;
  
- 	s390dbf_sysctl_header = register_sysctl_table(s390dbf_dir_table);
--	down(&debug_lock);
-+	mutex_lock(&debug_mutex);
- 	debug_debugfs_root_entry = debugfs_create_dir(DEBUG_DIR_ROOT,NULL);
- 	printk(KERN_INFO "debug: Initialization complete\n");
- 	initialized = 1;
--	up(&debug_lock);
-+	mutex_unlock(&debug_mutex);
- 
+-	down(&raw3270_init_sem);
++	mutex_lock(&raw3270_init_mutex);
+ 	memset(&rp->init_request, 0, sizeof(rp->init_request));
+ 	memset(&rp->init_data, 0, sizeof(rp->init_data));
+ 	/* Store reset data stream to init_data/init_request */
+@@ -764,7 +764,7 @@ raw3270_reset_device(struct raw3270 *rp)
+ 	rc = raw3270_start_init(rp, &raw3270_init_view, &rp->init_request);
+ 	raw3270_init_view.dev = NULL;
+ 	rp->view = NULL;
+-	up(&raw3270_init_sem);
++	mutex_unlock(&raw3270_init_mutex);
  	return rc;
  }
+ 
 
 -- 
 blue skies,
