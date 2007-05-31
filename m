@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758983AbXEaPeo@vger.kernel.org>
-Message-Id: <20070531153436.973849599@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759355AbXEaPfA@vger.kernel.org>
+Message-Id: <20070531153437.206191827@de.ibm.com>
 References: <20070531142024.011160634@de.ibm.com>
-Date: Thu, 31 May 2007 16:20:26 +0200
+Date: Thu, 31 May 2007 16:20:27 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 2/7] dasd_eer: use mutex instead of semaphore
-Content-Disposition: inline; filename=002-dasd-mutex.diff
+Subject: [patch 3/7] arch/s390/kernel/debug.c: use mutex instead of semaphore
+Content-Disposition: inline; filename=003-debug-mutex.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -18,83 +18,102 @@ Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/dasd_eer.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/s390/kernel/debug.c |   22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-Index: quilt-2.6/drivers/s390/block/dasd_eer.c
+Index: quilt-2.6/arch/s390/kernel/debug.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd_eer.c
-+++ quilt-2.6/drivers/s390/block/dasd_eer.c
-@@ -14,9 +14,9 @@
- #include <linux/moduleparam.h>
- #include <linux/device.h>
- #include <linux/poll.h>
-+#include <linux/mutex.h>
+--- quilt-2.6.orig/arch/s390/kernel/debug.c
++++ quilt-2.6/arch/s390/kernel/debug.c
+@@ -163,7 +163,7 @@ unsigned int debug_feature_version = __D
  
- #include <asm/uaccess.h>
--#include <asm/semaphore.h>
- #include <asm/atomic.h>
- #include <asm/ebcdic.h>
+ static debug_info_t *debug_area_first = NULL;
+ static debug_info_t *debug_area_last = NULL;
+-static DECLARE_MUTEX(debug_lock);
++static DEFINE_MUTEX(debug_mutex);
  
-@@ -514,7 +514,7 @@ void dasd_eer_disable(struct dasd_device
-  * to transfer in a readbuffer, which is protected by the readbuffer_mutex.
-  */
- static char readbuffer[PAGE_SIZE];
--static DECLARE_MUTEX(readbuffer_mutex);
-+static DEFINE_MUTEX(readbuffer_mutex);
+ static int initialized;
  
- static int dasd_eer_open(struct inode *inp, struct file *filp)
- {
-@@ -579,7 +579,7 @@ static ssize_t dasd_eer_read(struct file
- 	struct eerbuffer *eerb;
+@@ -576,7 +576,7 @@ debug_input(struct file *file, const cha
+ 	int rc = 0;
+ 	file_private_info_t *p_info;
  
- 	eerb = (struct eerbuffer *) filp->private_data;
--	if (down_interruptible(&readbuffer_mutex))
-+	if (mutex_lock_interruptible(&readbuffer_mutex))
- 		return -ERESTARTSYS;
- 
- 	spin_lock_irqsave(&bufferlock, flags);
-@@ -588,7 +588,7 @@ static ssize_t dasd_eer_read(struct file
- 		                  /* has been deleted             */
- 		eerb->residual = 0;
- 		spin_unlock_irqrestore(&bufferlock, flags);
--		up(&readbuffer_mutex);
-+		mutex_unlock(&readbuffer_mutex);
- 		return -EIO;
- 	} else if (eerb->residual > 0) {
- 		/* OK we still have a second half of a record to deliver */
-@@ -602,7 +602,7 @@ static ssize_t dasd_eer_read(struct file
- 			if (!tc) {
- 				/* no data available */
- 				spin_unlock_irqrestore(&bufferlock, flags);
--				up(&readbuffer_mutex);
-+				mutex_unlock(&readbuffer_mutex);
- 				if (filp->f_flags & O_NONBLOCK)
- 					return -EAGAIN;
- 				rc = wait_event_interruptible(
-@@ -610,7 +610,7 @@ static ssize_t dasd_eer_read(struct file
- 					eerb->head != eerb->tail);
- 				if (rc)
- 					return rc;
--				if (down_interruptible(&readbuffer_mutex))
-+				if (mutex_lock_interruptible(&readbuffer_mutex))
- 					return -ERESTARTSYS;
- 				spin_lock_irqsave(&bufferlock, flags);
- 			}
-@@ -626,11 +626,11 @@ static ssize_t dasd_eer_read(struct file
- 	spin_unlock_irqrestore(&bufferlock, flags);
- 
- 	if (copy_to_user(buf, readbuffer, effective_count)) {
--		up(&readbuffer_mutex);
-+		mutex_unlock(&readbuffer_mutex);
- 		return -EFAULT;
- 	}
- 
--	up(&readbuffer_mutex);
-+	mutex_unlock(&readbuffer_mutex);
- 	return effective_count;
+-	down(&debug_lock);
++	mutex_lock(&debug_mutex);
+ 	p_info = ((file_private_info_t *) file->private_data);
+ 	if (p_info->view->input_proc)
+ 		rc = p_info->view->input_proc(p_info->debug_info_org,
+@@ -584,7 +584,7 @@ debug_input(struct file *file, const cha
+ 					      length, offset);
+ 	else
+ 		rc = -EPERM;
+-	up(&debug_lock);
++	mutex_unlock(&debug_mutex);
+ 	return rc;		/* number of input characters */
  }
  
+@@ -602,7 +602,7 @@ debug_open(struct inode *inode, struct f
+ 	file_private_info_t *p_info;
+ 	debug_info_t *debug_info, *debug_info_snapshot;
+ 
+-	down(&debug_lock);
++	mutex_lock(&debug_mutex);
+ 	debug_info = file->f_path.dentry->d_inode->i_private;
+ 	/* find debug view */
+ 	for (i = 0; i < DEBUG_MAX_VIEWS; i++) {
+@@ -653,7 +653,7 @@ found:
+ 	file->private_data = p_info;
+ 	debug_info_get(debug_info);
+ out:
+-	up(&debug_lock);
++	mutex_unlock(&debug_mutex);
+ 	return rc;
+ }
+ 
+@@ -688,7 +688,7 @@ debug_register (char *name, int pages_pe
+ 
+ 	if (!initialized)
+ 		BUG();
+-	down(&debug_lock);
++	mutex_lock(&debug_mutex);
+ 
+         /* create new debug_info */
+ 
+@@ -702,7 +702,7 @@ out:
+         if (!rc){
+ 		printk(KERN_ERR "debug: debug_register failed for %s\n",name);
+         }
+-	up(&debug_lock);
++	mutex_unlock(&debug_mutex);
+ 	return rc;
+ }
+ 
+@@ -716,9 +716,9 @@ debug_unregister(debug_info_t * id)
+ {
+ 	if (!id)
+ 		goto out;
+-	down(&debug_lock);
++	mutex_lock(&debug_mutex);
+ 	debug_info_put(id);
+-	up(&debug_lock);
++	mutex_unlock(&debug_mutex);
+ 
+ out:
+ 	return;
+@@ -1054,11 +1054,11 @@ __init debug_init(void)
+ 	int rc = 0;
+ 
+ 	s390dbf_sysctl_header = register_sysctl_table(s390dbf_dir_table);
+-	down(&debug_lock);
++	mutex_lock(&debug_mutex);
+ 	debug_debugfs_root_entry = debugfs_create_dir(DEBUG_DIR_ROOT,NULL);
+ 	printk(KERN_INFO "debug: Initialization complete\n");
+ 	initialized = 1;
+-	up(&debug_lock);
++	mutex_unlock(&debug_mutex);
+ 
+ 	return rc;
+ }
 
 -- 
 blue skies,
