@@ -1,73 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759583AbXFGIRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761267AbXFGI5i@vger.kernel.org>
+Date: Thu, 7 Jun 2007 01:56:45 -0700
 Subject: Re: [RFC] [Patch 4/4] lock contention tracking slimmed down
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-In-Reply-To: <1181165656.7133.23.camel@dix>
-References: <1181165656.7133.23.camel@dix>
-Content-Type: text/plain
-Date: Thu, 07 Jun 2007 10:17:01 +0200
-Message-Id: <1181204221.7348.238.camel@twins>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Message-ID: <20070607085645.GA29054@gnuppy.monkey.org>
+References: <1181165656.7133.23.camel@dix> <20070606230641.GA11592@elte.hu> <46674EA9.9090601@de.ibm.com> <20070607044017.GA3828@gnuppy.monkey.org> <4667ADDA.2070202@de.ibm.com> <20070607073021.GA21139@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070607073021.GA21139@elte.hu>
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, jbaron@redhat.com, rostedt@goodmis.org, billh@gnuppy.monkey.org, mingo@elte.hu, linux-s390@vger.kernel.org
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Martin Peschke <mp3@de.ibm.com>, linux-kernel@vger.kernel.org, a.p.zijlstra@chello.nl, jbaron@redhat.com, rostedt@goodmis.org, linux-s390@vger.kernel.org, "Bill Huey (hui)" <billh@gnuppy.monkey.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2007-06-06 at 23:34 +0200, Martin Peschke wrote:
+On Thu, Jun 07, 2007 at 09:30:21AM +0200, Ingo Molnar wrote:
+> * Martin Peschke <mp3@de.ibm.com> wrote:
+> > Do mean I might submit this stuff for -rt?
+> 
+> Firstly, submit cleanup patches that _do not change the output_. If you 
+> have any output changes, do it as a separate patch, ontop of the cleanup 
+> patch. Mixing material changes and cleanups into a single patch is a 
+> basic patch submission mistake that will only earn you NACKs.
 
-> +#ifdef CONFIG_LOCK_STAT
-> +enum lock_stat_enum {
-> +	LOCK_STAT_CONT,
-> +	LOCK_STAT_WAIT_READ,
-> +	LOCK_STAT_WAIT_WRITE,
-> +	LOCK_STAT_HOLD_READ,
-> +	LOCK_STAT_HOLD_WRITE,
-> +	_LOCK_STAT_NUMBER
-> +};
-> +#endif
-> +
->  /*
->   * The lock-class itself:
->   */
-> @@ -117,30 +129,11 @@ struct lock_class {
->  	int				name_version;
->  
->  #ifdef CONFIG_LOCK_STAT
-> -	unsigned long			contention_point[4];
-> +	struct statistic		stat[_LOCK_STAT_NUMBER];
-> +	struct statistic_coll		stat_coll;
->  #endif
->  };
+Martin,
 
+First of all I agree with Ingo in that this needs to be seperated from
+the rest of the clean ups. However, I don't understand why all of this
+is so heavy weight when the current measurements that Peter makes is
+completely sufficient for any reasonable purpose I can think of at the
+moment. What's this stuff with labels about ?
 
-sizeof(struct statistic_coll) = 16+64+8+8+4+8+8 = 116
-sizeof(struct statistic) = 4+4+8+8+8+8+8+4+8+4+4 = 68
-                         + 8*NR_CPUS
-			 + kmalloc_size(obj)*nr_cpu_ids
+It's important to get the points of contention so that the greater
+kernel group can fix this issues and not log statistics for the purpose
+of logging it. The original purpose should not be ignore when working
+on this stuff.
 
+By the way, what's the purpose of all of this stuff ? like what do you
+intend to do with it over the long haul ?
 
-4 objs with size 40, gives 4*64 = 256 * nr_cpu_ids
-1 obj with size 32 + more
-
-
-for 2048 total classes this gives:
-
-2048 * (116+68) = 376832
-
-for each active class this adds per cpu:
-
-  8+256+32+some = 296+
-
-we have around 1400 locks in the kernel, this would give 414400 per cpu.
-
-vs the old code:
-
-2048*(4*8) = 65536
-+
-2048*(4*4*8 + 4*8) = 327680 per cpu
-
-worst case
-
-I'm not convinced 300 lines less code is worth that extra bloat.
+bill
