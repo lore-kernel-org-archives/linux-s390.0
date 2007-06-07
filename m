@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965706AbXFGAWR@vger.kernel.org>
-Message-ID: <46674FA6.8060904@de.ibm.com>
-Date: Thu, 07 Jun 2007 02:21:58 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-MIME-Version: 1.0
+Return-Path: <linux-kernel-owner+w=401wt.eu-S935682AbXFGEkx@vger.kernel.org>
+Date: Wed, 6 Jun 2007 21:40:17 -0700
 Subject: Re: [RFC] [Patch 4/4] lock contention tracking slimmed down
-References: <1181165656.7133.23.camel@dix> <20070606231041.GB11592@elte.hu>
-In-Reply-To: <20070606231041.GB11592@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20070607044017.GA3828@gnuppy.monkey.org>
+References: <1181165656.7133.23.camel@dix> <20070606230641.GA11592@elte.hu> <46674EA9.9090601@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <46674EA9.9090601@de.ibm.com>
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, a.p.zijlstra@chello.nl, jbaron@redhat.com, rostedt@goodmis.org, linux-s390@vger.kernel.org
+To: Martin Peschke <mp3@de.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org, a.p.zijlstra@chello.nl, jbaron@redhat.com, rostedt@goodmis.org, linux-s390@vger.kernel.org, "Bill Huey (hui)" <billh@gnuppy.monkey.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Ingo Molnar wrote:
-> * Martin Peschke <mp3@de.ibm.com> wrote:
+On Thu, Jun 07, 2007 at 02:17:45AM +0200, Martin Peschke wrote:
+> Ingo Molnar wrote:
+> >, quite some work went into it - NACK :-(
 > 
->> - lock_time_inc() vs. statistic_add_util()
+> Considering the amount of code.. ;-)    I am sorry.
 > 
-> please fix the coding style in lib/statistic.c. It's full of:
-> 
-> {
->         unsigned long long i;
->         if (value <= stat->u.histogram.range_min)
->                 return 0;
-> 
-> put a newline after variable sections.
-> 
-> and:
-> 
->         on_each_cpu(_statistic_barrier, NULL, 0, 1);
->         return 0;
-> 
-> preferably use a newline before 'return' statements as well. (this is 
-> not always necessary, but in the above case it looks better)
+> But seriously, did you consider using some user space tool or script to
+> format this stuff the way you like it - similar to the way the powertop tool
+> reshuffles timer_stats data found in a proc file, for example?
 
-Will do (in my local tree, for the time being).
+When I was doing my stuff, I intended for it to be parsed by a script or
+simple command line tools like sort/grep piped through less. I also though
+it might be interesting to output the text into either a python or ruby
+syntax collect so that it can go through a more extensive sorting using
+those languages.
 
-Good points. Thnaks for reviewing.
+There are roughly about 400 locks in a normal kernel for a desktop. The
+list is rather cumbersome anyways so, IMO, it really should be handled
+by parsing tools, etc... There could be more properties attached to each
+lock especially if you intend to get this to work on -rt which need more
+things reported.
 
-
-	Martin
+bill
