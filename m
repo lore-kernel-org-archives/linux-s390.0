@@ -1,34 +1,29 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S970654AbXFHQ11@vger.kernel.org>
-Message-ID: <46698358.2030407@de.ibm.com>
-Date: Fri, 08 Jun 2007 18:27:04 +0200
+Return-Path: <linux-kernel-owner+w=401wt.eu-S970047AbXFHRAb@vger.kernel.org>
+Message-ID: <46698B1D.3000806@de.ibm.com>
+Date: Fri, 08 Jun 2007 19:00:13 +0200
 From: Martin Peschke <mp3@de.ibm.com>
 MIME-Version: 1.0
 Subject: Re: [RFC] [Patch 4/4] lock contention tracking slimmed down
-References: <1181165656.7133.23.camel@dix> <20070606230641.GA11592@elte.hu> <46674EA9.9090601@de.ibm.com> <20070607044017.GA3828@gnuppy.monkey.org> <4667ADDA.2070202@de.ibm.com> <20070607073021.GA21139@elte.hu>
-In-Reply-To: <20070607073021.GA21139@elte.hu>
+References: <1181165656.7133.23.camel@dix> <1181202258.7348.217.camel@twins>
+In-Reply-To: <1181202258.7348.217.camel@twins>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Bill Huey (hui)" <billh@gnuppy.monkey.org>, linux-kernel@vger.kernel.org, a.p.zijlstra@chello.nl, jbaron@redhat.com, rostedt@goodmis.org, linux-s390@vger.kernel.org
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: linux-kernel@vger.kernel.org, jbaron@redhat.com, rostedt@goodmis.org, billh@gnuppy.monkey.org, mingo@elte.hu, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Ingo Molnar wrote:
- > Firstly, submit cleanup patches that _do not change the output_. If you
- > have any output changes, do it as a separate patch, ontop of the cleanup
- > patch. Mixing material changes and cleanups into a single patch is a
- > basic patch submission mistake that will only earn you NACKs.
+Peter Zijlstra wrote:
+> I'm confused as to where the class->stat objects are initialised? Is
+> that done in lock_stat_init()? If so, then you have a bug.
 
-Let's put this straight: it has not been my primary goal to clean it up.
-I have posted an alternative implementation. One of the good things about the
-alternative implementation is lines-of-savings through code sharing.
+static struct lock_class lock_classes[MAX_LOCKDEP_KEYS];
 
-Don't hear me say my code is perfect. As anybody else here I am relying on
-reviews and feedback in order to make it good enough.
-
-I think there has been enough duplication to consider a component
-that statistics data is handed over to.
+I assume this gets us class structures containing all zeros, doesn't it?
+Then class->stat is zeros as well, which is handled by lib/statistics.
+(In this case, data gathering hasn't been turned on yet, and statistic_inc()
+and similar functions don't access other areas of struct statistic.)
 
 Martin
