@@ -1,34 +1,39 @@
-From: Frans Pop <elendil@planet.nl>
-Date: Mon, 11 Jun 2007 04:58:12 +0000
-Subject: Re: 2.6.21.3 - exceptions & kernel panic when booting Debian Installer
-Message-Id: <200706110658.12846.elendil@planet.nl>
-In-Reply-To: <20070606114132.GA14756@osiris.boeblingen.de.ibm.com>
-References: <20070606114132.GA14756@osiris.boeblingen.de.ibm.com>
+From: vignesh babu <vignesh.babu@wipro.com>
+Date: Tue, 12 Jun 2007 05:36:32 +0000
+Subject: [PATCH]is_power_of_2-s390/block/dasd_int.h
+Message-Id: <1181625872.11780.23.camel@merlin.linuxcoe.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wednesday 06 June 2007 13:41, Heiko Carstens wrote:
-> The new exceptions you are seeing are from directed yield (diag 9c),
-> hypfs (diag 224), new ipl/reipl code (diag 308) and new etr code
-> (opcode b216). All of them have proper exception handling. That is not
-> what is causing problems.
 
-Thanks for the explanation. Not very pretty, but at least I now know they 
-can be safely ignored :-)
+Replacing (n & (n-1)) in the context of power of 2 checks
+with is_power_of_2
 
-> Looks like your init process is doing something wrong, so it terminates
-> too early (or gets terminated). Can't tell from the output you posted.
+Signed-off-by: vignesh babu <vignesh.babu@wipro.com>
+--- 
+diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
+index 241294c..5c28cb4 100644
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -53,6 +53,7 @@
+ #include <linux/genhd.h>
+ #include <linux/hdreg.h>
+ #include <linux/interrupt.h>
++#include <linux/log2.h>
+ #include <asm/ccwdev.h>
+ #include <linux/workqueue.h>
+ #include <asm/debug.h>
+@@ -456,7 +457,7 @@ dasd_free_chunk(struct list_head *chunk_list, void *mem)
+ static inline int
+ dasd_check_blocksize(int bsize)
+ {
+-	if (bsize < 512 || bsize > 4096 || (bsize & (bsize - 1)) != 0)
++	if (bsize < 512 || bsize > 4096 || !is_power_of_2(bsize))
+ 		return -EMEDIUMTYPE;
+ 	return 0;
+ }
 
-Yes, you are right. The issue is caused by the library reduction we do to 
-to keep the size of installer initrds as small as possible. If I build 
-the initrd without library reduction, the installer boots fine.
-
-With the recent libc updates and some changes in the way library reduction 
-is being done we're seeing issues on several architectures, but I failed 
-to consider that as the most likely option because of the earlier kernel 
-problems on hercules.
-
-Now to narrow this down further...
-
-Thanks again,
-FJP
+-- 
+Vignesh Babu BM 
+_____________________________________________________________ 
+"Why is it that every time I'm with you, makes me believe in magic?"
