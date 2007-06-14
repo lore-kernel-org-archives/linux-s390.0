@@ -1,26 +1,48 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] zfcp: Report FCP LUN to SCSI midlayer
-Date: Tue, 19 Jun 2007 18:12:17 +0100
-Message-ID: <20070619171217.GA30099@infradead.org>
-References: <200706191025.30986.swen@vnet.ibm.com>
+From: Swen Schillig <swen@vnet.ibm.com>
+Subject: [PATCH] zfcp: Replace kmalloc/memset with kzalloc
+Date: Thu, 14 Jun 2007 12:15:26 +0200
+Message-ID: <200706141215.26997.swen@vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-scsi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <200706191025.30986.swen@vnet.ibm.com>
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Swen Schillig <swen@vnet.ibm.com>
-Cc: James Bottomley <James.Bottomley@steeleye.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, christof.schmitt@de.ibm.com
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jun 19, 2007 at 10:25:30AM +0200, Swen Schillig wrote:
-> +	unit->scsi_lun = scsilun_to_int((struct scsi_lun *)&unit->fcp_lun);
-> +	
+From: Swen Schillig <swen@vnet.ibm.com>
 
-fcp_lun is an unsigned long long (and should be a __be64), so casting
-this to a struct type is not very nice.  Care to add a version that takes
-a __be64 intead?  In fact using that variant in scsi_scan.c might be
-benefical aswell, so you could aswell just convert over the existing
-scsilun_to_int.
+Memory allocated with kmalloc is always initialzed to 0 with memset.
+Replace the two calls with kzalloc, that already does both steps.
+
+Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
+---
+
+ drivers/s390/scsi/zfcp_erp.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+
+diff -urpN linux-2.6/drivers/s390/scsi/zfcp_erp.c linux-2.6-patched/drivers/s390/scsi/zfcp_erp.c
+--- linux-2.6/drivers/s390/scsi/zfcp_erp.c	2007-06-14 10:32:45.000000000 +0200
++++ linux-2.6-patched/drivers/s390/scsi/zfcp_erp.c	2007-06-14 10:33:29.000000000 +0200
+@@ -1626,7 +1626,7 @@ zfcp_erp_schedule_work(struct zfcp_unit 
+ {
+ 	struct zfcp_erp_add_work *p;
+ 
+-	p = kmalloc(sizeof(*p), GFP_KERNEL);
++	p = kzalloc(sizeof(*p), GFP_KERNEL);
+ 	if (!p) {
+ 		ZFCP_LOG_NORMAL("error: Out of resources. Could not register "
+ 				"the FCP-LUN 0x%Lx connected to "
+@@ -1639,7 +1639,6 @@ zfcp_erp_schedule_work(struct zfcp_unit 
+ 	}
+ 
+ 	zfcp_unit_get(unit);
+-	memset(p, 0, sizeof(*p));
+ 	atomic_set_mask(ZFCP_STATUS_UNIT_SCSI_WORK_PENDING, &unit->status);
+ 	INIT_WORK(&p->work, zfcp_erp_scsi_scan);
+ 	p->unit = unit;
