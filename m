@@ -1,48 +1,31 @@
-From: Swen Schillig <swen@vnet.ibm.com>
-Subject: [PATCH] zfcp: Replace kmalloc/memset with kzalloc
-Date: Thu, 14 Jun 2007 12:15:26 +0200
-Message-ID: <200706141215.26997.swen@vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-scsi-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757343AbXFRIYM@vger.kernel.org>
+Date: Mon, 18 Jun 2007 10:23:43 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [patch] use __asm__ rather than asm in asm-s390/ptrace.h
+Message-ID: <20070618082343.GB3580@osiris.boeblingen.de.ibm.com>
+References: <200706180223.07122.vapier@gentoo.org> <20070618073605.GA3580@osiris.boeblingen.de.ibm.com> <1182154518.3335.4.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+In-Reply-To: <1182154518.3335.4.camel@localhost>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Mike Frysinger <vapier@gentoo.org>, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Swen Schillig <swen@vnet.ibm.com>
+On Mon, Jun 18, 2007 at 10:15:18AM +0200, Martin Schwidefsky wrote:
+> On Mon, 2007-06-18 at 09:36 +0200, Heiko Carstens wrote:
+> > Hmm.. spka is a sort of priviledged instruction and shouldn't be
+> > user space visible.
+> > I will move it so it's under #ifdef __KERNEL__.
+> 
+> Yes, I think this is better. On a side node, why did we add psw_set_key
+> to ptrace.h? processor.h would have made more sense, no? It sets the key
+> in the psw, it is not usable in userspace and ptrace doesn't provide an
+> interface for reading/writing to the psw key. So a patch that moves the
+> inline to processor.h alongside __load_psw and __load_psw_mask would be
+> my solution.
 
-Memory allocated with kmalloc is always initialzed to 0 with memset.
-Replace the two calls with kzalloc, that already does both steps.
-
-Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
----
-
- drivers/s390/scsi/zfcp_erp.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
-
-diff -urpN linux-2.6/drivers/s390/scsi/zfcp_erp.c linux-2.6-patched/drivers/s390/scsi/zfcp_erp.c
---- linux-2.6/drivers/s390/scsi/zfcp_erp.c	2007-06-14 10:32:45.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/scsi/zfcp_erp.c	2007-06-14 10:33:29.000000000 +0200
-@@ -1626,7 +1626,7 @@ zfcp_erp_schedule_work(struct zfcp_unit 
- {
- 	struct zfcp_erp_add_work *p;
- 
--	p = kmalloc(sizeof(*p), GFP_KERNEL);
-+	p = kzalloc(sizeof(*p), GFP_KERNEL);
- 	if (!p) {
- 		ZFCP_LOG_NORMAL("error: Out of resources. Could not register "
- 				"the FCP-LUN 0x%Lx connected to "
-@@ -1639,7 +1639,6 @@ zfcp_erp_schedule_work(struct zfcp_unit 
- 	}
- 
- 	zfcp_unit_get(unit);
--	memset(p, 0, sizeof(*p));
- 	atomic_set_mask(ZFCP_STATUS_UNIT_SCSI_WORK_PENDING, &unit->status);
- 	INIT_WORK(&p->work, zfcp_erp_scsi_scan);
- 	p->unit = unit;
+Yes. Moved it to processor.h instead :)
