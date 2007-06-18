@@ -1,8 +1,8 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1765428AbXFRSjm@vger.kernel.org>
-Date: Mon, 18 Jun 2007 19:39:30 +0100
-From: Christoph Hellwig <hch@infradead.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1766003AbXFRS7Y@vger.kernel.org>
+Date: Mon, 18 Jun 2007 21:00:09 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
 Subject: Re: [patch] use __asm__ and __volatile__ in i386/arm/s390 byteorder.h
-Message-ID: <20070618183930.GA17479@infradead.org>
+Message-ID: <20070618190009.GB25340@uranus.ravnborg.org>
 References: <200706171833.29046.vapier@gentoo.org> <20070618183450.GA17112@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,6 +22,9 @@ On Mon, Jun 18, 2007 at 07:34:50PM +0100, Christoph Hellwig wrote:
 > We should not allow inline assemly in the exported part of userspace headers
 > at all.  These headers must only include defintions for the kernel <-> user
 > ABI, and should not include code at all.
+Do you imply that if we see asm or __asm__ in user space headers we ougth
+to warn about it?
+Seems at least sensible to me but if we introduce such a check we should
+kill all offenders first - which Mike's patches seems to trigger for some part.
 
-this should have been a reply to the hdrcheck thread, but given the
-cc list of this one is a superset of that I hope everyone can find it anyway.
+	Sam
