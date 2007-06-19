@@ -1,40 +1,26 @@
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+From: Christoph Hellwig <hch@infradead.org>
 Subject: Re: [PATCH] zfcp: Report FCP LUN to SCSI midlayer
-Date: Tue, 19 Jun 2007 14:19:15 +0200
-Message-ID: <4677C9C3.6040609@s5r6.in-berlin.de>
+Date: Tue, 19 Jun 2007 18:12:17 +0100
+Message-ID: <20070619171217.GA30099@infradead.org>
 References: <200706191025.30986.swen@vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <200706191025.30986.swen@vnet.ibm.com>
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Swen Schillig <swen@vnet.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, christof.schmitt@de.ibm.com
+To: Swen Schillig <swen@vnet.ibm.com>
+Cc: James Bottomley <James.Bottomley@steeleye.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, christof.schmitt@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Swen Schillig wrote:
-> --- a/drivers/scsi/scsi_scan.c
-> +++ b/drivers/scsi/scsi_scan.c
-> @@ -1213,7 +1213,7 @@ static void scsi_sequential_lun_scan(struct scsi_target *starget,
->   *     Given a struct scsi_lun of: 0a 04 0b 03 00 00 00 00, this function returns
->   *     the integer: 0x0b030a04
->   **/
-> -static int scsilun_to_int(struct scsi_lun *scsilun)
-> +int scsilun_to_int(struct scsi_lun *scsilun)
->  {
->  	int i;
->  	unsigned int lun;
-> @@ -1224,6 +1224,7 @@ static int scsilun_to_int(struct scsi_lun *scsilun)
->  			      scsilun->scsi_lun[i + 1]) << (i * 8));
->  	return lun;
->  }
-> +EXPORT_SYMBOL(scsilun_to_int);
+On Tue, Jun 19, 2007 at 10:25:30AM +0200, Swen Schillig wrote:
+> +	unit->scsi_lun = scsilun_to_int((struct scsi_lun *)&unit->fcp_lun);
+> +	
 
-This export will be useful for fw-sbp2 too.
--- 
-Stefan Richter
--=====-=-=== -==- =--==
-http://arcgraph.de/sr/
+fcp_lun is an unsigned long long (and should be a __be64), so casting
+this to a struct type is not very nice.  Care to add a version that takes
+a __be64 intead?  In fact using that variant in scsi_scan.c might be
+benefical aswell, so you could aswell just convert over the existing
+scsilun_to_int.
