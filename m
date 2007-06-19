@@ -1,36 +1,107 @@
-From: James Bottomley <James.Bottomley@SteelEye.com>
-Subject: Re: [PATCH] zfcp: Report FCP LUN to SCSI midlayer
-Date: Tue, 19 Jun 2007 19:46:26 -0700
-Message-ID: <1182307586.10507.7.camel@mulgrave.il.steeleye.com>
-References: <200706191025.30986.swen@vnet.ibm.com>
-	 <20070619171217.GA30099@infradead.org>
+From: Swen Schillig <swen@vnet.ibm.com>
+Subject: [PATCH] zfcp: Report FCP LUN to SCSI midlayer
+Date: Tue, 19 Jun 2007 10:25:30 +0200
+Message-ID: <200706191025.30986.swen@vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <20070619171217.GA30099@infradead.org>
+Content-Disposition: inline
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Swen Schillig <swen@vnet.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, christof.schmitt@de.ibm.com
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, christof.schmitt@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 2007-06-19 at 18:12 +0100, Christoph Hellwig wrote:
-> fcp_lun is an unsigned long long (and should be a __be64), so casting
-> this to a struct type is not very nice.  Care to add a version that
-> takes
-> a __be64 intead?  In fact using that variant in scsi_scan.c might be
-> benefical aswell, so you could aswell just convert over the existing
-> scsilun_to_int. 
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-Actually, I don't think this is necessary for zfcp: all of these lun
-values are input by a user and translated using a strtoull() so it's
-going to get highly confusing trying to keep the be64 label [whether
-it's desirable for s390 people to be entering BE LUN values is another
-matter].  I'd really rather not encourage the use of __be64 u64 for SCSI
-luns because it's asking for alignment issues ... instead, the internal
-struct scsi_lun contains all the necessary information, and is a stream
-of u8 in bus order.
+When reporting SCSI devices to the SCSI midlayer, use the FCP LUN as
+LUN reported to the SCSI layer. With this approach, zfcp does not have
+to create unique LUNS, and this code can be removed.
 
-James
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
+
+---
+
+ drivers/s390/scsi/zfcp_aux.c |   22 ++++------------------
+ drivers/scsi/scsi_scan.c     |    3 ++-
+ include/scsi/scsi_device.h   |    1 +
+ 3 files changed, 7 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
+index 821cde6..c631cf7 100644
+--- a/drivers/s390/scsi/zfcp_aux.c
++++ b/drivers/s390/scsi/zfcp_aux.c
+@@ -815,9 +815,7 @@ zfcp_get_adapter_by_busid(char *bus_id)
+ struct zfcp_unit *
+ zfcp_unit_enqueue(struct zfcp_port *port, fcp_lun_t fcp_lun)
+ {
+-	struct zfcp_unit *unit, *tmp_unit;
+-	unsigned int scsi_lun;
+-	int found;
++	struct zfcp_unit *unit;
+
+ 	/*
+ 	 * check that there is no unit with this FCP_LUN already in list
+@@ -863,22 +861,10 @@ zfcp_unit_enqueue(struct zfcp_port *port, fcp_lun_t fcp_lun)
+ 	}
+
+ 	zfcp_unit_get(unit);
+-
+-	scsi_lun = 0;
+-	found = 0;
++	unit->scsi_lun = scsilun_to_int((struct scsi_lun *)&unit->fcp_lun);
++	
+ 	write_lock_irq(&zfcp_data.config_lock);
+-	list_for_each_entry(tmp_unit, &port->unit_list_head, list) {
+-		if (tmp_unit->scsi_lun != scsi_lun) {
+-			found = 1;
+-			break;
+-		}
+-		scsi_lun++;
+-	}
+-	unit->scsi_lun = scsi_lun;
+-	if (found)
+-		list_add_tail(&unit->list, &tmp_unit->list);
+-	else
+-		list_add_tail(&unit->list, &port->unit_list_head);
++	list_add_tail(&unit->list, &port->unit_list_head);
+ 	atomic_clear_mask(ZFCP_STATUS_COMMON_REMOVE, &unit->status);
+ 	atomic_set_mask(ZFCP_STATUS_COMMON_RUNNING, &unit->status);
+ 	write_unlock_irq(&zfcp_data.config_lock);
+diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
+index 662577f..cf95ad9 100644
+--- a/drivers/scsi/scsi_scan.c
++++ b/drivers/scsi/scsi_scan.c
+@@ -1213,7 +1213,7 @@ static void scsi_sequential_lun_scan(struct scsi_target *starget,
+  *     Given a struct scsi_lun of: 0a 04 0b 03 00 00 00 00, this function returns
+  *     the integer: 0x0b030a04
+  **/
+-static int scsilun_to_int(struct scsi_lun *scsilun)
++int scsilun_to_int(struct scsi_lun *scsilun)
+ {
+ 	int i;
+ 	unsigned int lun;
+@@ -1224,6 +1224,7 @@ static int scsilun_to_int(struct scsi_lun *scsilun)
+ 			      scsilun->scsi_lun[i + 1]) << (i * 8));
+ 	return lun;
+ }
++EXPORT_SYMBOL(scsilun_to_int);
+
+ /**
+  * int_to_scsilun: reverts an int into a scsi_lun
+diff --git a/include/scsi/scsi_device.h b/include/scsi/scsi_device.h
+index 2f3c5b8..6fe1cf6 100644
+--- a/include/scsi/scsi_device.h
++++ b/include/scsi/scsi_device.h
+@@ -287,6 +287,7 @@ extern void scsi_target_block(struct device *);
+ extern void scsi_target_unblock(struct device *);
+ extern void scsi_remove_target(struct device *);
+ extern void int_to_scsilun(unsigned int, struct scsi_lun *);
++extern int scsilun_to_int(struct scsi_lun *);
+ extern const char *scsi_device_state_name(enum scsi_device_state);
+ extern int scsi_is_sdev_device(const struct device *);
+ extern int scsi_is_target_device(const struct device *);
