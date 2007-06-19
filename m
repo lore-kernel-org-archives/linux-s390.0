@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754657AbXFSIpo@vger.kernel.org>
-Message-Id: <20070619084641.148707835@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757358AbXFSIp6@vger.kernel.org>
+Message-Id: <20070619084641.563238581@de.ibm.com>
 References: <20070619084516.457715754@de.ibm.com>
-Date: Tue, 19 Jun 2007 10:45:17 +0200
+Date: Tue, 19 Jun 2007 10:45:18 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 1/6] Missing blank when appending cio_ignore kernel parameter
-Content-Disposition: inline; filename=001-dumper.diff
+Subject: [patch 2/6] Fix zfcpdump header
+Content-Disposition: inline; filename=002-zfcp-dumphdr.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,29 +14,37 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michael Holzheu <holzheu@de.ibm.com>
 
-When appending the 'cio_ignore' kernel parameter to the command line, a blank
-has to be inserted in order to separate 'cio_ignore' from the preceding kernel
-parameters.
+Added members for volume number and real memory size to header information.
 
 Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/setup.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/char/zcore.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-Index: quilt-2.6/arch/s390/kernel/setup.c
+Index: quilt-2.6/drivers/s390/char/zcore.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/setup.c
-+++ quilt-2.6/arch/s390/kernel/setup.c
-@@ -300,6 +300,7 @@ static void __init setup_zfcpdump(unsign
+--- quilt-2.6.orig/drivers/s390/char/zcore.c
++++ quilt-2.6/drivers/s390/char/zcore.c
+@@ -267,7 +267,9 @@ struct zcore_header {
+ 	u64 tod;
+ 	cpuid_t cpu_id;
+ 	u32 arch_id;
++	u32 volnr;
+ 	u32 build_arch;
++	u64 rmem_size;
+ 	char pad2[4016];
+ } __attribute__((packed,__aligned__(16)));
+ 
+@@ -559,6 +561,7 @@ static void __init zcore_header_init(int
  	else
- 		sprintf(str, "cio_ignore=all,!0.0.%04x",
- 			ipl_info.data.fcp.dev_id.devno);
-+	strcat(COMMAND_LINE, " ");
- 	strcat(COMMAND_LINE, str);
- 	console_loglevel = 2;
- }
+ 		hdr->arch_id = DUMP_ARCH_S390;
+ 	hdr->mem_size = sys_info.mem_size;
++	hdr->rmem_size = sys_info.mem_size;
+ 	hdr->mem_end = sys_info.mem_size;
+ 	hdr->num_pages = sys_info.mem_size / PAGE_SIZE;
+ 	hdr->tod = get_clock();
 
 -- 
 blue skies,
