@@ -1,36 +1,26 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760245AbXFRIOL@vger.kernel.org>
-Subject: Re: [patch] use __asm__ rather than asm in asm-s390/ptrace.h
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-In-Reply-To: <20070618073605.GA3580@osiris.boeblingen.de.ibm.com>
-References: <200706180223.07122.vapier@gentoo.org>
-	 <20070618073605.GA3580@osiris.boeblingen.de.ibm.com>
-Content-Type: text/plain
-Date: Mon, 18 Jun 2007 10:15:18 +0200
-Message-Id: <1182154518.3335.4.camel@localhost>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754076AbXFSEUI@vger.kernel.org>
+Date: Tue, 19 Jun 2007 05:15:27 +0100
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [patch] use __asm__ and __volatile__ in i386/arm/s390 byteorder.h
+Message-ID: <20070619041527.GA7224@infradead.org>
+References: <200706171833.29046.vapier@gentoo.org> <20070618183450.GA17112@infradead.org> <20070618190009.GB25340@uranus.ravnborg.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20070618190009.GB25340@uranus.ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Mike Frysinger <vapier@gentoo.org>, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Mike Frysinger <vapier@gentoo.org>, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, rmk@arm.linux.org.uk
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 2007-06-18 at 09:36 +0200, Heiko Carstens wrote:
-> Hmm.. spka is a sort of priviledged instruction and shouldn't be
-> user space visible.
-> I will move it so it's under #ifdef __KERNEL__.
+On Mon, Jun 18, 2007 at 09:00:09PM +0200, Sam Ravnborg wrote:
+> Do you imply that if we see asm or __asm__ in user space headers we ougth
+> to warn about it?
+> Seems at least sensible to me but if we introduce such a check we should
+> kill all offenders first - which Mike's patches seems to trigger for some part.
 
-Yes, I think this is better. On a side node, why did we add psw_set_key
-to ptrace.h? processor.h would have made more sense, no? It sets the key
-in the psw, it is not usable in userspace and ptrace doesn't provide an
-interface for reading/writing to the psw key. So a patch that moves the
-inline to processor.h alongside __load_psw and __load_psw_mask would be
-my solution.
-
--- 
-blue skies,
-  Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Yes, we should kill the offenders first.  Some of Mike's patches are moving
+nicely in that directions.  The biggest problem from my POV is byteawap.h
+that gets dragged in in various places right now and needs to be sorted out.
