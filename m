@@ -1,29 +1,36 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756767AbXFSJoq@vger.kernel.org>
-Date: Tue, 19 Jun 2007 11:12:00 +0200
-From: Bastian Blank <bastian@waldi.eu.org>
-Subject: Re: [patch 5/6] Move psw_set_key.
-Message-ID: <20070619091200.GA1277@wavehammer.waldi.eu.org>
-References: <20070619084516.457715754@de.ibm.com> <20070619084642.673859525@de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20070619084642.673859525@de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+From: James Bottomley <James.Bottomley@SteelEye.com>
+Subject: Re: [PATCH] zfcp: Report FCP LUN to SCSI midlayer
+Date: Tue, 19 Jun 2007 19:46:26 -0700
+Message-ID: <1182307586.10507.7.camel@mulgrave.il.steeleye.com>
+References: <200706191025.30986.swen@vnet.ibm.com>
+	 <20070619171217.GA30099@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-scsi-owner@vger.kernel.org>
+In-Reply-To: <20070619171217.GA30099@infradead.org>
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Swen Schillig <swen@vnet.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, christof.schmitt@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jun 19, 2007 at 10:45:21AM +0200, Martin Schwidefsky wrote:
-> Move psw_set_key() from ptrace.h to processor.h which is a more
-> suitable place for it. In addition the moves makes the function
-> invisible to user space.
+On Tue, 2007-06-19 at 18:12 +0100, Christoph Hellwig wrote:
+> fcp_lun is an unsigned long long (and should be a __be64), so casting
+> this to a struct type is not very nice.  Care to add a version that
+> takes
+> a __be64 intead?  In fact using that variant in scsi_scan.c might be
+> benefical aswell, so you could aswell just convert over the existing
+> scsilun_to_int. 
 
-Hmm, this does not really describe the changes.
+Actually, I don't think this is necessary for zfcp: all of these lun
+values are input by a user and translated using a strtoull() so it's
+going to get highly confusing trying to keep the be64 label [whether
+it's desirable for s390 people to be entering BE LUN values is another
+matter].  I'd really rather not encourage the use of __be64 u64 for SCSI
+luns because it's asking for alignment issues ... instead, the internal
+struct scsi_lun contains all the necessary information, and is a stream
+of u8 in bus order.
 
-Bastian
-
--- 
-Violence in reality is quite different from theory.
-		-- Spock, "The Cloud Minders", stardate 5818.4
+James
