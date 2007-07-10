@@ -1,141 +1,92 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1764541AbXGJJav@vger.kernel.org>
-Message-Id: <20070710093112.332755494@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1764553AbXGJJbO@vger.kernel.org>
+Message-Id: <20070710093117.082040828@de.ibm.com>
 References: <20070710092935.896013926@de.ibm.com>
-Date: Tue, 10 Jul 2007 11:29:42 +0200
+Date: Tue, 10 Jul 2007 11:29:43 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 07/16] smp: Merge smp_count_cpus() and smp_get_save_areas().
-Content-Disposition: inline; filename=007-smp-cleanup.diff
+Subject: [patch 08/16] Bogomips calculation for 64 bit.
+Content-Disposition: inline; filename=008-bogomips.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Merge smp_count_cpus() and smp_get_save_areas() so we save a loop over
-all potentially present cpus.
+The bogomips calculation triggered via reading from /proc/cpuinfo
+can return incorrect values if the qrnnd assembly is called with a
+pointer in %r2 with any of the upper 32 bits set.
+Fix this by using 64 bit division / remainder operation provided by
+gcc instead of calling the assembly.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/smp.c |   63 ++++++++++++++++---------------------------------
- 1 file changed, 21 insertions(+), 42 deletions(-)
+ arch/s390/lib/Makefile         |    4 ++--
+ include/asm-s390/sfp-machine.h |    6 +++---
+ include/asm-s390/sfp-util.h    |   11 +++++++++++
+ 3 files changed, 16 insertions(+), 5 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/smp.c
+Index: quilt-2.6/arch/s390/lib/Makefile
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/smp.c
-+++ quilt-2.6/arch/s390/kernel/smp.c
-@@ -410,58 +410,40 @@ EXPORT_SYMBOL(smp_ctl_clear_bit);
- unsigned int zfcpdump_prefix_array[NR_CPUS + 1] \
- 	__attribute__((__section__(".data")));
+--- quilt-2.6.orig/arch/s390/lib/Makefile
++++ quilt-2.6/arch/s390/lib/Makefile
+@@ -4,7 +4,7 @@
  
--static void __init smp_get_save_areas(void)
-+static void __init smp_get_save_area(unsigned int cpu, unsigned int phy_cpu)
- {
--	unsigned int cpu, cpu_num, rc;
--	__u16 boot_cpu_addr;
--
- 	if (ipl_info.type != IPL_TYPE_FCP_DUMP)
- 		return;
--	boot_cpu_addr = S390_lowcore.cpu_data.cpu_addr;
--	cpu_num = 1;
--	for (cpu = 0; cpu <= 65535; cpu++) {
--		if ((u16) cpu == boot_cpu_addr)
--			continue;
--		__cpu_logical_map[1] = (__u16) cpu;
--		if (signal_processor(1, sigp_sense) == sigp_not_operational)
--			continue;
--		if (cpu_num >= NR_CPUS) {
--			printk("WARNING: Registers for cpu %i are not "
--			       "saved, since dump kernel was compiled with"
--			       "NR_CPUS=%i!\n", cpu_num, NR_CPUS);
--			continue;
--		}
--		zfcpdump_save_areas[cpu_num] =
--			alloc_bootmem(sizeof(union save_area));
--		while (1) {
--			rc = signal_processor(1, sigp_stop_and_store_status);
--			if (rc != sigp_busy)
--				break;
--			cpu_relax();
--		}
--		memcpy(zfcpdump_save_areas[cpu_num],
--		       (void *)(unsigned long) store_prefix() +
--		       SAVE_AREA_BASE, SAVE_AREA_SIZE);
--#ifdef __s390x__
--		/* copy original prefix register */
--		zfcpdump_save_areas[cpu_num]->s390x.pref_reg =
--			zfcpdump_prefix_array[cpu_num];
--#endif
--		cpu_num++;
-+	if (cpu >= NR_CPUS) {
-+		printk(KERN_WARNING "Registers for cpu %i not saved since dump "
-+		       "kernel was compiled with NR_CPUS=%i\n", cpu, NR_CPUS);
-+		return;
- 	}
-+	zfcpdump_save_areas[cpu] = alloc_bootmem(sizeof(union save_area));
-+	__cpu_logical_map[1] = (__u16) phy_cpu;
-+	while (signal_processor(1, sigp_stop_and_store_status) == sigp_busy)
-+		cpu_relax();
-+	memcpy(zfcpdump_save_areas[cpu],
-+	       (void *)(unsigned long) store_prefix() + SAVE_AREA_BASE,
-+	       SAVE_AREA_SIZE);
-+#ifdef CONFIG_64BIT
-+	/* copy original prefix register */
-+	zfcpdump_save_areas[cpu]->s390x.pref_reg = zfcpdump_prefix_array[cpu];
+ EXTRA_AFLAGS := -traditional
+ 
+-lib-y += delay.o string.o uaccess_std.o uaccess_pt.o qrnnd.o
+-obj-$(CONFIG_32BIT) += div64.o
++lib-y += delay.o string.o uaccess_std.o uaccess_pt.o
++obj-$(CONFIG_32BIT) += div64.o qrnnd.o
+ lib-$(CONFIG_64BIT) += uaccess_mvcos.o
+ lib-$(CONFIG_SMP) += spinlock.o
+Index: quilt-2.6/include/asm-s390/sfp-machine.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/sfp-machine.h
++++ quilt-2.6/include/asm-s390/sfp-machine.h
+@@ -27,9 +27,9 @@
+    
+ 
+ #define _FP_W_TYPE_SIZE		32
+-#define _FP_W_TYPE		unsigned long
+-#define _FP_WS_TYPE		signed long
+-#define _FP_I_TYPE		long
++#define _FP_W_TYPE		unsigned int
++#define _FP_WS_TYPE		signed int
++#define _FP_I_TYPE		int
+ 
+ #define _FP_MUL_MEAT_S(R,X,Y)					\
+   _FP_MUL_MEAT_1_wide(_FP_WFRACBITS_S,R,X,Y,umul_ppmm)
+Index: quilt-2.6/include/asm-s390/sfp-util.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/sfp-util.h
++++ quilt-2.6/include/asm-s390/sfp-util.h
+@@ -51,6 +51,16 @@
+ 	wl = __wl;					\
+ })
+ 
++#ifdef __s390x__
++#define udiv_qrnnd(q, r, n1, n0, d)			\
++  do { unsigned long __n;				\
++       unsigned int __r, __d;				\
++    __n = ((unsigned long)(n1) << 32) + n0;		\
++    __d = (d);						\
++    (q) = __n / __d;					\
++    (r) = __n % __d;					\
++  } while (0)
++#else
+ #define udiv_qrnnd(q, r, n1, n0, d)			\
+   do { unsigned int __r;				\
+     (q) = __udiv_qrnnd (&__r, (n1), (n0), (d));		\
+@@ -58,6 +68,7 @@
+   } while (0)
+ extern unsigned long __udiv_qrnnd (unsigned int *, unsigned int,
+ 				   unsigned int , unsigned int);
 +#endif
- }
  
- union save_area *zfcpdump_save_areas[NR_CPUS + 1];
- EXPORT_SYMBOL_GPL(zfcpdump_save_areas);
- 
- #else
--#define smp_get_save_areas() do { } while (0)
--#endif
-+
-+static inline void smp_get_save_area(unsigned int cpu, unsigned int phy_cpu) { }
-+
-+#endif /* CONFIG_ZFCPDUMP || CONFIG_ZFCPDUMP_MODULE */
- 
- /*
-  * Lets check how many CPUs we have.
-  */
--
- static unsigned int __init smp_count_cpus(void)
- {
- 	unsigned int cpu, num_cpus;
-@@ -470,7 +452,6 @@ static unsigned int __init smp_count_cpu
- 	/*
- 	 * cpu 0 is the boot cpu. See smp_prepare_boot_cpu.
- 	 */
--
- 	boot_cpu_addr = S390_lowcore.cpu_data.cpu_addr;
- 	current_thread_info()->cpu = 0;
- 	num_cpus = 1;
-@@ -480,12 +461,11 @@ static unsigned int __init smp_count_cpu
- 		__cpu_logical_map[1] = (__u16) cpu;
- 		if (signal_processor(1, sigp_sense) == sigp_not_operational)
- 			continue;
-+		smp_get_save_area(num_cpus, cpu);
- 		num_cpus++;
- 	}
--
- 	printk("Detected %d CPU's\n", (int) num_cpus);
- 	printk("Boot cpu address %2X\n", boot_cpu_addr);
--
- 	return num_cpus;
- }
- 
-@@ -606,7 +586,6 @@ void __init smp_setup_cpu_possible_map(v
- {
- 	unsigned int phy_cpus, pos_cpus, cpu;
- 
--	smp_get_save_areas();
- 	phy_cpus = smp_count_cpus();
- 	pos_cpus = min(phy_cpus + additional_cpus, (unsigned int) NR_CPUS);
+ #define UDIV_NEEDS_NORMALIZATION 0
  
 
 -- 
