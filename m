@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932936AbXGKTDR@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-Subject: [PATCH 5/7] s390: Put allocated ELF notes in read-only data segment
-Message-Id: <20070711190259.D8B884D0555@magilla.localdomain>
-Date: Wed, 11 Jul 2007 12:02:59 -0700 (PDT)
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+From: Ursula Braun <braunu@de.ibm.com>
+Subject: [patch 2/2] s390: add barriers to qeth driver
+Date: Thu, 12 Jul 2007 12:51:35 +0200
+Message-ID: <20070712105450.780847000@linux.vnet.ibm.com>
+References: <20070712105133.165267000@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=703-qeth-barriers.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Frank Blaschka <frank.blaschka@de.ibm.com>, Frank Pavlic <fpavlic@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-This changes the s390 linker script to use the asm-generic NOTES macro so
-that ELF note sections with SHF_ALLOC set are linked into the kernel image
-along with other read-only data.  The PT_NOTE also points to their location.
+Add barrier to loop where atomic variable is evaluated.
 
-This paves the way for putting useful build-time information into ELF notes
-that can be found easily later in a kernel memory dump.
-
-Signed-off-by: Roland McGrath <roland@redhat.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+Signed-off-by: Ursula Braun <braunu@de.ibm.com>
+Signed-off-by: Frank Pavlic <fpavlic@de.ibm.com>
 ---
- arch/s390/kernel/vmlinux.lds.S |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index 7158a80..cd8fd89 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -45,6 +45,8 @@ SECTIONS
-   __ex_table : { *(__ex_table) }
-   __stop___ex_table = .;
- 
-+  NOTES
-+
-   BUG_TABLE
- 
-   .data : {			/* Data */
+ drivers/s390/net/qeth_main.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+Index: linux-2.6-uschi/drivers/s390/net/qeth_main.c
+===================================================================
+--- linux-2.6-uschi.orig/drivers/s390/net/qeth_main.c
++++ linux-2.6-uschi/drivers/s390/net/qeth_main.c
+@@ -1935,6 +1935,7 @@ qeth_send_control_data(struct qeth_card 
+ 			atomic_inc(&reply->received);
+ 			wake_up(&reply->wait_q);
+ 		}
++		cpu_relax();
+ 	};
+ 	rc = reply->rc;
+ 	qeth_put_reply(reply);
+
+-- 
