@@ -1,37 +1,101 @@
-From: Jeff Garzik <jeff@garzik.org>
-Subject: Re: [patch 1/2] s390: scatter-gather for inbound traffic in qeth
- driver
-Date: Mon, 16 Jul 2007 18:29:29 -0400
-Message-ID: <469BF149.3060901@garzik.org>
-References: <20070712105133.165267000@linux.vnet.ibm.com> <20070712105450.168931000@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Ursula Braun <braunu@de.ibm.com>
+Subject: [patch 3/3] s390: af_iucv: add lock when updating accept_q
+Date: Fri, 13 Jul 2007 10:50:56 +0200
+Message-ID: <20070713085246.022609000@linux.vnet.ibm.com>
+References: <20070713085053.530802000@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20070712105450.168931000@linux.vnet.ibm.com>
+Content-Disposition: inline; filename=202-iucv-locking.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: Ursula Braun <braunu@de.ibm.com>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Frank Blaschka <frank.blaschka@de.ibm.com>, Frank Pavlic <fpavlic@de.ibm.com>
+To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Frank Pavlic <fpavlic@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Ursula Braun wrote:
-> From: Frank Blaschka <frank.blaschka@de.ibm.com>
-> 
-> For large incoming packets > PAGE_SIZE/2 qeth creates a fragmented skb
-> by adding pointers to qdio pages to the fragment list of the skb.
-> This avoids allocating big chunks of consecutive memory. Also copying
-> data from the qdio buffer to the skb is economized.
-> 
-> Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
-> Signed-off-by: Ursula Braun <braunu@de.ibm.com>
-> Signed-off-by: Frank Pavlic <fpavlic@de.ibm.com>
-> ---
-> 
->  drivers/s390/net/qeth.h      |    9 ++
->  drivers/s390/net/qeth_main.c |  182 +++++++++++++++++++++++++++++++++++--------
->  drivers/s390/net/qeth_proc.c |    6 +
->  3 files changed, 165 insertions(+), 32 deletions(-)
+From: Ursula Braun <braunu@de.ibm.com>
 
-applied 1-2
+The accept_queue of an af_iucv socket will be corrupted, if
+adding and deleting of entries in this queue occurs at the
+same time (connect request from one client, while accept call
+is processed for another client).
+Solution: add locking when updating accept_q
+
+Signed-off-by: Ursula Braun <braunu@de.ibm.com>
+Acked-by: Frank Pavlic <fpavlic@de.ibm.com>
+---
+
+ include/net/iucv/af_iucv.h |    1 +
+ net/iucv/af_iucv.c         |   16 ++++++++++++++--
+ 2 files changed, 15 insertions(+), 2 deletions(-)
+
+Index: net-2.6-uschi/include/net/iucv/af_iucv.h
+===================================================================
+--- net-2.6-uschi.orig/include/net/iucv/af_iucv.h
++++ net-2.6-uschi/include/net/iucv/af_iucv.h
+@@ -60,6 +60,7 @@ struct iucv_sock {
+ 	char			dst_user_id[8];
+ 	char			dst_name[8];
+ 	struct list_head	accept_q;
++	spinlock_t		accept_q_lock;
+ 	struct sock		*parent;
+ 	struct iucv_path	*path;
+ 	struct sk_buff_head	send_skb_q;
+Index: net-2.6-uschi/net/iucv/af_iucv.c
+===================================================================
+--- net-2.6-uschi.orig/net/iucv/af_iucv.c
++++ net-2.6-uschi/net/iucv/af_iucv.c
+@@ -219,6 +219,7 @@ static struct sock *iucv_sock_alloc(stru
+ 
+ 	sock_init_data(sock, sk);
+ 	INIT_LIST_HEAD(&iucv_sk(sk)->accept_q);
++	spin_lock_init(&iucv_sk(sk)->accept_q_lock);
+ 	skb_queue_head_init(&iucv_sk(sk)->send_skb_q);
+ 	skb_queue_head_init(&iucv_sk(sk)->backlog_skb_q);
+ 	iucv_sk(sk)->send_tag = 0;
+@@ -274,15 +275,25 @@ void iucv_sock_unlink(struct iucv_sock_l
+ 
+ void iucv_accept_enqueue(struct sock *parent, struct sock *sk)
+ {
++	unsigned long flags;
++	struct iucv_sock *par = iucv_sk(parent);
++
+ 	sock_hold(sk);
+-	list_add_tail(&iucv_sk(sk)->accept_q, &iucv_sk(parent)->accept_q);
++	spin_lock_irqsave(&par->accept_q_lock, flags);
++	list_add_tail(&iucv_sk(sk)->accept_q, &par->accept_q);
++	spin_unlock_irqrestore(&par->accept_q_lock, flags);
+ 	iucv_sk(sk)->parent = parent;
+ 	parent->sk_ack_backlog++;
+ }
+ 
+ void iucv_accept_unlink(struct sock *sk)
+ {
++	unsigned long flags;
++	struct iucv_sock *par = iucv_sk(iucv_sk(sk)->parent);
++
++	spin_lock_irqsave(&par->accept_q_lock, flags);
+ 	list_del_init(&iucv_sk(sk)->accept_q);
++	spin_unlock_irqrestore(&par->accept_q_lock, flags);
+ 	iucv_sk(sk)->parent->sk_ack_backlog--;
+ 	iucv_sk(sk)->parent = NULL;
+ 	sock_put(sk);
+@@ -298,8 +309,8 @@ struct sock *iucv_accept_dequeue(struct 
+ 		lock_sock(sk);
+ 
+ 		if (sk->sk_state == IUCV_CLOSED) {
+-			release_sock(sk);
+ 			iucv_accept_unlink(sk);
++			release_sock(sk);
+ 			continue;
+ 		}
+ 
+@@ -879,6 +890,7 @@ static int iucv_callback_connreq(struct 
+ 	/* Find out if this path belongs to af_iucv. */
+ 	read_lock(&iucv_sk_list.lock);
+ 	iucv = NULL;
++	sk = NULL;
+ 	sk_for_each(sk, node, &iucv_sk_list.head)
+ 		if (sk->sk_state == IUCV_LISTEN &&
+ 		    !memcmp(&iucv_sk(sk)->src_name, src_name, 8)) {
+
+-- 
