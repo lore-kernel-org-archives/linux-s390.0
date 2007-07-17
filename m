@@ -1,43 +1,23 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 3/3] s390: af_iucv: add lock when updating accept_q
-Date: Sat, 14 Jul 2007 19:05:25 -0700 (PDT)
-Message-ID: <20070714.190525.102575313.davem@davemloft.net>
-References: <20070713085053.530802000@linux.vnet.ibm.com>
-	<20070713085246.022609000@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20070713085246.022609000@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: braunu@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, fpavlic@de.ibm.com
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756295AbXGQMTw@vger.kernel.org>
+Message-Id: <20070717121747.591687140@de.ibm.com>
+Date: Tue, 17 Jul 2007 14:17:47 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 0/8] s390 update.
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <braunu@de.ibm.com>
-Date: Fri, 13 Jul 2007 10:50:56 +0200
+The second s390 patchset for 2.6.23. This one contains bug fixes as
+usual and one new feature: the z/VM unit record device driver (vmur).
+This driver allows to access the virtual reader, punch and printer
+when running under z/VM. This is useful, e.g. to access the spool
+file containing a dump of the system generated with vmdump, or to
+set up a bootable system in the reader.
 
-> From: Ursula Braun <braunu@de.ibm.com>
-> 
-> The accept_queue of an af_iucv socket will be corrupted, if
-> adding and deleting of entries in this queue occurs at the
-> same time (connect request from one client, while accept call
-> is processed for another client).
-> Solution: add locking when updating accept_q
-> 
-> Signed-off-by: Ursula Braun <braunu@de.ibm.com>
-> Acked-by: Frank Pavlic <fpavlic@de.ibm.com>
+-- 
+blue skies,
+   Martin.
 
-Also applied, thanks.
-
-In the future please us consistent formatting of your
-changelog header lines.  I have to edit them by hand
-and I'd like to stop having to do that.
-
-Use something like:
-
-[AF_IUCV]: Blah blah blah.
-
-Thanks :)
+"Reality continues to ruin my life." - Calvin.
