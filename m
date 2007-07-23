@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1765818AbXGWIze@vger.kernel.org>
-Message-Id: <20070723085652.753447559@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1764736AbXGWIzx@vger.kernel.org>
+Message-Id: <20070723085656.011043552@de.ibm.com>
 References: <20070723084548.394178614@de.ibm.com>
-Date: Mon, 23 Jul 2007 10:45:52 +0200
+Date: Mon, 23 Jul 2007 10:45:53 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 4/9] cio: Remove remains of _ccw_device_get_device_number().
-Content-Disposition: inline; filename=004-cio-devno.diff
+Subject: [patch 5/9] sclp: kill unused SCLP config option.
+Content-Disposition: inline; filename=005-sclp-kconfig.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+sclp is always compiled in.
+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/device_ops.c |    7 -------
- 1 file changed, 7 deletions(-)
+ drivers/s390/char/Kconfig |   12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/device_ops.c
+Index: quilt-2.6/drivers/s390/char/Kconfig
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_ops.c
-+++ quilt-2.6/drivers/s390/cio/device_ops.c
-@@ -635,12 +635,6 @@ _ccw_device_get_subchannel_number(struct
- 	return cdev->private->schid.sch_no;
- }
+--- quilt-2.6.orig/drivers/s390/char/Kconfig
++++ quilt-2.6/drivers/s390/char/Kconfig
+@@ -44,15 +44,9 @@ config CCW_CONSOLE
+ 	depends on TN3215_CONSOLE || TN3270_CONSOLE
+ 	default y
  
--int
--_ccw_device_get_device_number(struct ccw_device *cdev)
--{
--	return cdev->private->dev_id.devno;
--}
+-config SCLP
+-	bool "Support for SCLP"
+-	depends on S390
+-	help
+-	  Include support for the SCLP interface to the service element.
 -
+ config SCLP_TTY
+ 	bool "Support for SCLP line mode terminal"
+-	depends on SCLP
++	depends on S390
+ 	help
+ 	  Include support for IBM SCLP line-mode terminals.
  
- MODULE_LICENSE("GPL");
- EXPORT_SYMBOL(ccw_device_set_options_mask);
-@@ -658,6 +652,5 @@ EXPORT_SYMBOL(ccw_device_get_path_mask);
- EXPORT_SYMBOL(read_conf_data);
- EXPORT_SYMBOL(read_dev_chars);
- EXPORT_SYMBOL(_ccw_device_get_subchannel_number);
--EXPORT_SYMBOL(_ccw_device_get_device_number);
- EXPORT_SYMBOL_GPL(ccw_device_get_chp_desc);
- EXPORT_SYMBOL_GPL(read_conf_data_lpm);
+@@ -65,7 +59,7 @@ config SCLP_CONSOLE
+ 
+ config SCLP_VT220_TTY
+ 	bool "Support for SCLP VT220-compatible terminal"
+-	depends on SCLP
++	depends on S390
+ 	help
+ 	  Include support for an IBM SCLP VT220-compatible terminal.
+ 
+@@ -78,7 +72,7 @@ config SCLP_VT220_CONSOLE
+ 
+ config SCLP_CPI
+ 	tristate "Control-Program Identification"
+-	depends on SCLP
++	depends on S390
+ 	help
+ 	  This option enables the hardware console interface for system
+ 	  identification. This is commonly used for workload management and
 
 -- 
 blue skies,
