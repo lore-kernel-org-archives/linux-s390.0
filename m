@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932151AbXGWIzB@vger.kernel.org>
-Message-Id: <20070723085646.444431221@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1765818AbXGWIze@vger.kernel.org>
+Message-Id: <20070723085652.753447559@de.ibm.com>
 References: <20070723084548.394178614@de.ibm.com>
-Date: Mon, 23 Jul 2007 10:45:51 +0200
+Date: Mon, 23 Jul 2007 10:45:52 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 3/9] cio: css_sch_device_register() can be made static.
-Content-Disposition: inline; filename=003-cio-static.diff
+Subject: [patch 4/9] cio: Remove remains of _ccw_device_get_device_number().
+Content-Disposition: inline; filename=004-cio-devno.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -18,35 +18,33 @@ Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/css.c |    2 +-
- drivers/s390/cio/css.h |    1 -
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ drivers/s390/cio/device_ops.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/css.c
+Index: quilt-2.6/drivers/s390/cio/device_ops.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/css.c
-+++ quilt-2.6/drivers/s390/cio/css.c
-@@ -109,7 +109,7 @@ css_subchannel_release(struct device *de
- 	}
+--- quilt-2.6.orig/drivers/s390/cio/device_ops.c
++++ quilt-2.6/drivers/s390/cio/device_ops.c
+@@ -635,12 +635,6 @@ _ccw_device_get_subchannel_number(struct
+ 	return cdev->private->schid.sch_no;
  }
  
--int css_sch_device_register(struct subchannel *sch)
-+static int css_sch_device_register(struct subchannel *sch)
- {
- 	int ret;
+-int
+-_ccw_device_get_device_number(struct ccw_device *cdev)
+-{
+-	return cdev->private->dev_id.devno;
+-}
+-
  
-Index: quilt-2.6/drivers/s390/cio/css.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/css.h
-+++ quilt-2.6/drivers/s390/cio/css.h
-@@ -139,7 +139,6 @@ struct css_driver {
-  */
- extern struct bus_type css_bus_type;
- 
--extern int css_sch_device_register(struct subchannel *);
- extern void css_sch_device_unregister(struct subchannel *);
- extern struct subchannel * get_subchannel_by_schid(struct subchannel_id);
- extern int css_init_done;
+ MODULE_LICENSE("GPL");
+ EXPORT_SYMBOL(ccw_device_set_options_mask);
+@@ -658,6 +652,5 @@ EXPORT_SYMBOL(ccw_device_get_path_mask);
+ EXPORT_SYMBOL(read_conf_data);
+ EXPORT_SYMBOL(read_dev_chars);
+ EXPORT_SYMBOL(_ccw_device_get_subchannel_number);
+-EXPORT_SYMBOL(_ccw_device_get_device_number);
+ EXPORT_SYMBOL_GPL(ccw_device_get_chp_desc);
+ EXPORT_SYMBOL_GPL(read_conf_data_lpm);
 
 -- 
 blue skies,
