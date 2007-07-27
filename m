@@ -1,125 +1,155 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933022AbXG0LfT@vger.kernel.org>
-Message-Id: <20070727113618.958661048@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964900AbXG0Lfo@vger.kernel.org>
+Message-Id: <20070727113627.488693533@de.ibm.com>
 References: <20070727113348.413110503@de.ibm.com>
-Date: Fri, 27 Jul 2007 13:33:53 +0200
+Date: Fri, 27 Jul 2007 13:33:54 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 5/6] cio: Reorganize initialization.
-Content-Disposition: inline; filename=014-cio-init.diff
+Subject: [patch 6/6] Fix sclp_vt220 error handling.
+Content-Disposition: inline; filename=015-sclp-vt220.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-- Localize more of the init calls in init_channel_subsystem().
-- Print a warning if init_channel_subsystem() failed.
+Also convert to slab_is_available() as an indicator if
+get_zeroed_page() will work or not.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/chsc.c |   10 ++++++----
- drivers/s390/cio/chsc.h |    2 ++
- drivers/s390/cio/css.c  |   19 ++++++++++++++++---
- 3 files changed, 24 insertions(+), 7 deletions(-)
+ drivers/s390/char/sclp_vt220.c |   61 ++++++++++++++++++++++++++---------------
+ 1 file changed, 40 insertions(+), 21 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/chsc.c
+Index: quilt-2.6/drivers/s390/char/sclp_vt220.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/chsc.c
-+++ quilt-2.6/drivers/s390/cio/chsc.c
-@@ -990,8 +990,7 @@ out:
- 	return ret;
- }
- 
--static int __init
--chsc_alloc_sei_area(void)
-+int __init chsc_alloc_sei_area(void)
- {
- 	sei_page = (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
- 	if (!sei_page)
-@@ -1000,6 +999,11 @@ chsc_alloc_sei_area(void)
- 	return (sei_page ? 0 : -ENOMEM);
- }
- 
-+void __init chsc_free_sei_area(void)
+--- quilt-2.6.orig/drivers/s390/char/sclp_vt220.c
++++ quilt-2.6/drivers/s390/char/sclp_vt220.c
+@@ -621,10 +621,24 @@ sclp_vt220_flush_buffer(struct tty_struc
+ /*
+  * Initialize all relevant components and register driver with system.
+  */
+-static int __init_refok __sclp_vt220_init(int early)
++static void __init __sclp_vt220_cleanup(void)
 +{
-+	kfree(sei_page);
++	struct list_head *page, *p;
++
++	list_for_each_safe(page, p, &sclp_vt220_empty) {
++		list_del(page);
++		if (slab_is_available())
++			free_page((unsigned long) page);
++		else
++			free_bootmem((unsigned long) page, PAGE_SIZE);
++	}
 +}
 +
- int __init
- chsc_enable_facility(int operation_code)
++static int __init __sclp_vt220_init(void)
  {
-@@ -1051,8 +1055,6 @@ chsc_enable_facility(int operation_code)
- 	return ret;
- }
+ 	void *page;
+ 	int i;
++	int num_pages;
  
--subsys_initcall(chsc_alloc_sei_area);
--
- struct css_general_char css_general_characteristics;
- struct css_chsc_char css_chsc_characteristics;
+ 	if (sclp_vt220_initialized)
+ 		return 0;
+@@ -641,13 +655,16 @@ static int __init_refok __sclp_vt220_ini
+ 	sclp_vt220_flush_later = 0;
  
-Index: quilt-2.6/drivers/s390/cio/chsc.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/chsc.h
-+++ quilt-2.6/drivers/s390/cio/chsc.h
-@@ -79,6 +79,8 @@ extern int chsc_get_ssd_info(struct subc
- 			     struct chsc_ssd_info *ssd);
- extern int chsc_determine_css_characteristics(void);
- extern int css_characteristics_avail;
-+extern int chsc_alloc_sei_area(void);
-+extern void chsc_free_sei_area(void);
- 
- extern int chsc_enable_facility(int);
- struct channel_subsystem;
-Index: quilt-2.6/drivers/s390/cio/css.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/css.c
-+++ quilt-2.6/drivers/s390/cio/css.c
-@@ -377,8 +377,6 @@ static int __init slow_subchannel_init(v
+ 	/* Allocate pages for output buffering */
+-	for (i = 0; i < (early ? MAX_CONSOLE_PAGES : MAX_KMEM_PAGES); i++) {
+-		if (early)
+-			page = alloc_bootmem_low_pages(PAGE_SIZE);
+-		else
++	num_pages = slab_is_available() ? MAX_KMEM_PAGES : MAX_CONSOLE_PAGES;
++	for (i = 0; i < num_pages; i++) {
++		if (slab_is_available())
+ 			page = (void *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
+-		if (!page)
++		else
++			page = alloc_bootmem_low_pages(PAGE_SIZE);
++		if (!page) {
++			__sclp_vt220_cleanup();
+ 			return -ENOMEM;
++		}
+ 		list_add_tail((struct list_head *) page, &sclp_vt220_empty);
+ 	}
  	return 0;
- }
+@@ -661,14 +678,13 @@ static const struct tty_operations sclp_
+ 	.flush_chars = sclp_vt220_flush_chars,
+ 	.write_room = sclp_vt220_write_room,
+ 	.chars_in_buffer = sclp_vt220_chars_in_buffer,
+-	.flush_buffer = sclp_vt220_flush_buffer
++	.flush_buffer = sclp_vt220_flush_buffer,
+ };
  
--subsys_initcall(slow_subchannel_init);
--
- static void css_slow_path_func(struct work_struct *unused)
+ /*
+  * Register driver with SCLP and Linux and initialize internal tty structures.
+  */
+-static int __init
+-sclp_vt220_tty_init(void)
++static int __init sclp_vt220_tty_init(void)
  {
- 	struct subchannel_id schid;
-@@ -641,9 +639,20 @@ init_channel_subsystem (void)
- {
- 	int ret, i;
+ 	struct tty_driver *driver;
+ 	int rc;
+@@ -678,18 +694,15 @@ sclp_vt220_tty_init(void)
+ 	driver = alloc_tty_driver(1);
+ 	if (!driver)
+ 		return -ENOMEM;
+-	rc = __sclp_vt220_init(0);
+-	if (rc) {
+-		put_tty_driver(driver);
+-		return rc;
+-	}
++	rc = __sclp_vt220_init();
++	if (rc)
++		goto out_driver;
+ 	rc = sclp_register(&sclp_vt220_register);
+ 	if (rc) {
+ 		printk(KERN_ERR SCLP_VT220_PRINT_HEADER
+ 		       "could not register tty - "
+ 		       "sclp_register returned %d\n", rc);
+-		put_tty_driver(driver);
+-		return rc;
++		goto out_init;
+ 	}
  
--	if (chsc_determine_css_characteristics() == 0)
-+	ret = chsc_determine_css_characteristics();
-+	if (ret == -ENOMEM)
-+		goto out; /* No need to continue. */
-+	if (ret == 0)
- 		css_characteristics_avail = 1;
+ 	driver->owner = THIS_MODULE;
+@@ -708,14 +721,20 @@ sclp_vt220_tty_init(void)
+ 		printk(KERN_ERR SCLP_VT220_PRINT_HEADER
+ 		       "could not register tty - "
+ 		       "tty_register_driver returned %d\n", rc);
+-		put_tty_driver(driver);
+-		return rc;
++		goto out_sclp;
+ 	}
+ 	sclp_vt220_driver = driver;
+ 	return 0;
+-}
  
-+	ret = chsc_alloc_sei_area();
-+	if (ret)
-+		goto out;
-+
-+	ret = slow_subchannel_init();
-+	if (ret)
-+		goto out;
-+
- 	if ((ret = bus_register(&css_bus_type)))
- 		goto out;
+-module_init(sclp_vt220_tty_init);
++out_sclp:
++	sclp_unregister(&sclp_vt220_register);
++out_init:
++	__sclp_vt220_cleanup();
++out_driver:
++	put_tty_driver(driver);
++	return rc;
++}
++__initcall(sclp_vt220_tty_init);
  
-@@ -709,6 +718,10 @@ out_unregister:
- out_bus:
- 	bus_unregister(&css_bus_type);
- out:
-+	chsc_free_sei_area();
-+	kfree(slow_subchannel_set);
-+	printk(KERN_WARNING"cio: failed to initialize css driver (%d)!\n",
-+	       ret);
- 	return ret;
- }
+ #ifdef CONFIG_SCLP_VT220_CONSOLE
  
+@@ -761,7 +780,7 @@ sclp_vt220_con_init(void)
+ 
+ 	if (!CONSOLE_IS_SCLP)
+ 		return 0;
+-	rc = __sclp_vt220_init(1);
++	rc = __sclp_vt220_init();
+ 	if (rc)
+ 		return rc;
+ 	/* Attach linux console */
 
 -- 
 blue skies,
