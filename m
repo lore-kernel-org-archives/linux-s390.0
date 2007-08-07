@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933825AbXHGLTg@vger.kernel.org>
-Message-Id: <20070807111848.045877999@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933450AbXHGLT4@vger.kernel.org>
+Message-Id: <20070807111848.499998485@de.ibm.com>
 References: <20070807111519.972871123@de.ibm.com>
-Date: Tue, 07 Aug 2007 13:15:34 +0200
+Date: Tue, 07 Aug 2007 13:15:36 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 14/18] cio: Kerneldoc comments for cmf.
-Content-Disposition: inline; filename=103-cio-cmfdoc.diff
+Subject: [patch 16/18] cio: Add s390-drivers book.
+Content-Disposition: inline; filename=105-cio-s390book.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,279 +14,184 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-- Fix existing kerneldoc-style comments.
-- Move descriptions of functions from cmb.h to cmf.c.
+s390-drivers is generated using the docbook comments. It should
+eventually supersede Documentation/s390/cds.txt.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/cmf.c |   87 +++++++++++++++++++++++++++++++++++++++++--------
- include/asm-s390/cmb.h |   65 ++++++++----------------------------
- 2 files changed, 89 insertions(+), 63 deletions(-)
+ Documentation/DocBook/Makefile          |    2 
+ Documentation/DocBook/s390-drivers.tmpl |  149 ++++++++++++++++++++++++++++++++
+ 2 files changed, 150 insertions(+), 1 deletion(-)
 
-Index: quilt-2.6/drivers/s390/cio/cmf.c
+Index: quilt-2.6/Documentation/DocBook/Makefile
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cmf.c
-+++ quilt-2.6/drivers/s390/cio/cmf.c
-@@ -74,19 +74,20 @@ enum cmb_index {
-  * enum cmb_format - types of supported measurement block formats
-  *
-  * @CMF_BASIC:      traditional channel measurement blocks supported
-- * 		    by all machines that we run on
-+ *		    by all machines that we run on
-  * @CMF_EXTENDED:   improved format that was introduced with the z990
-- * 		    machine
-- * @CMF_AUTODETECT: default: use extended format when running on a z990
-- *                  or later machine, otherwise fall back to basic format
-- **/
-+ *		    machine
-+ * @CMF_AUTODETECT: default: use extended format when running on a machine
-+ *		    supporting extended format, otherwise fall back to
-+ *		    basic format
-+ */
- enum cmb_format {
- 	CMF_BASIC,
- 	CMF_EXTENDED,
- 	CMF_AUTODETECT = -1,
- };
+--- quilt-2.6.orig/Documentation/DocBook/Makefile
++++ quilt-2.6/Documentation/DocBook/Makefile
+@@ -11,7 +11,7 @@ DOCBOOKS := wanbook.xml z8530book.xml mc
+ 	    procfs-guide.xml writing_usb_driver.xml \
+ 	    kernel-api.xml filesystems.xml lsm.xml usb.xml \
+ 	    gadget.xml libata.xml mtdnand.xml librs.xml rapidio.xml \
+-	    genericirq.xml
++	    genericirq.xml s390-drivers.xml
  
--/**
-+/*
-  * format - actual format for all measurement blocks
-  *
-  * The format module parameter can be set to a value of 0 (zero)
-@@ -107,6 +108,7 @@ module_param(format, bool, 0444);
-  *		either with the help of a special pool or with kmalloc
-  * @free:	free memory allocated with @alloc
-  * @set:	enable or disable measurement
-+ * @read:	read a measurement entry at an index
-  * @readall:	read a measurement block in a common format
-  * @reset:	clear the data in the associated measurement block and
-  *		reset its time stamp
-@@ -120,7 +122,7 @@ struct cmb_operations {
- 	int  (*readall)(struct ccw_device *, struct cmbdata *);
- 	void (*reset)  (struct ccw_device *);
- 	void *(*align) (void *);
--
-+/* private: */
- 	struct attribute_group *attr_group;
- };
- static struct cmb_operations *cmbops;
-@@ -471,6 +473,7 @@ static void cmf_generic_reset(struct ccw
-  *
-  * @mem:	pointer to CMBs (only in basic measurement mode)
-  * @list:	contains a linked list of all subchannels
-+ * @num_channels: number of channels to be measured
-  * @lock:	protect concurrent access to @mem and @list
-  */
- struct cmb_area {
-@@ -503,10 +506,20 @@ module_param_named(maxchannels, cmb_area
- 
- /**
-  * struct cmb - basic channel measurement block
-+ * @ssch_rsch_count: number of ssch and rsch
-+ * @sample_count: number of samples
-+ * @device_connect_time: time of device connect
-+ * @function_pending_time: time of function pending
-+ * @device_disconnect_time: time of device disconnect
-+ * @control_unit_queuing_time: time of control unit queuing
-+ * @device_active_only_time: time of device active only
-+ * @reserved: unused in basic measurement mode
-+ *
-+ * The measurement block as used by the hardware. The fields are described
-+ * further in z/Architecture Principles of Operation, chapter 17.
-  *
-- * cmb as used by the hardware the fields are described in z/Architecture
-- * Principles of Operation, chapter 17.
-- * The area to be a contiguous array and may not be reallocated or freed.
-+ * The cmb area made up from these blocks must be a contiguous array and may
-+ * not be reallocated or freed.
-  * Only one cmb area can be present in the system.
-  */
- struct cmb {
-@@ -801,9 +814,20 @@ static struct cmb_operations cmbops_basi
- 
- /**
-  * struct cmbe - extended channel measurement block
-+ * @ssch_rsch_count: number of ssch and rsch
-+ * @sample_count: number of samples
-+ * @device_connect_time: time of device connect
-+ * @function_pending_time: time of function pending
-+ * @device_disconnect_time: time of device disconnect
-+ * @control_unit_queuing_time: time of control unit queuing
-+ * @device_active_only_time: time of device active only
-+ * @device_busy_time: time of device busy
-+ * @initial_command_response_time: initial command response time
-+ * @reserved: unused
-  *
-- * cmb as used by the hardware, may be in any 64 bit physical location,
-- * the fields are described in z/Architecture Principles of Operation,
-+ * The measurement block as used by the hardware. May be in any 64 bit physical
-+ * location.
-+ * The fields are described further in z/Architecture Principles of Operation,
-  * third edition, chapter 17.
-  */
- struct cmbe {
-@@ -1215,7 +1239,15 @@ static ssize_t cmb_enable_store(struct d
- 
- DEVICE_ATTR(cmb_enable, 0644, cmb_enable_show, cmb_enable_store);
- 
--/* enable_cmf/disable_cmf: module interface for cmf (de)activation */
-+/**
-+ * enable_cmf() - switch on the channel measurement for a specific device
-+ *  @cdev:	The ccw device to be enabled
-+ *
-+ *  Returns %0 for success or a negative error value.
-+ *
-+ *  Context:
-+ *    non-atomic
-+ */
- int enable_cmf(struct ccw_device *cdev)
- {
- 	int ret;
-@@ -1237,6 +1269,15 @@ int enable_cmf(struct ccw_device *cdev)
- 	return ret;
- }
- 
-+/**
-+ * disable_cmf() - switch off the channel measurement for a specific device
-+ *  @cdev:	The ccw device to be disabled
-+ *
-+ *  Returns %0 for success or a negative error value.
-+ *
-+ *  Context:
-+ *    non-atomic
-+ */
- int disable_cmf(struct ccw_device *cdev)
- {
- 	int ret;
-@@ -1249,11 +1290,31 @@ int disable_cmf(struct ccw_device *cdev)
- 	return ret;
- }
- 
-+/**
-+ * cmf_read() - read one value from the current channel measurement block
-+ * @cdev:	the channel to be read
-+ * @index:	the index of the value to be read
-+ *
-+ * Returns the value read or %0 if the value cannot be read.
-+ *
-+ *  Context:
-+ *    any
-+ */
- u64 cmf_read(struct ccw_device *cdev, int index)
- {
- 	return cmbops->read(cdev, index);
- }
- 
-+/**
-+ * cmf_readall() - read the current channel measurement block
-+ * @cdev:	the channel to be read
-+ * @data:	a pointer to a data block that will be filled
-+ *
-+ * Returns %0 on success, a negative error value otherwise.
-+ *
-+ *  Context:
-+ *    any
-+ */
- int cmf_readall(struct ccw_device *cdev, struct cmbdata *data)
- {
- 	return cmbops->readall(cdev, data);
-Index: quilt-2.6/include/asm-s390/cmb.h
+ ###
+ # The build process is as follows (targets):
+Index: quilt-2.6/Documentation/DocBook/s390-drivers.tmpl
 ===================================================================
---- quilt-2.6.orig/include/asm-s390/cmb.h
-+++ quilt-2.6/include/asm-s390/cmb.h
-@@ -1,29 +1,29 @@
- #ifndef S390_CMB_H
- #define S390_CMB_H
- /**
-- * struct cmbdata -- channel measurement block data for user space
-+ * struct cmbdata - channel measurement block data for user space
-+ * @size: size of the stored data
-+ * @elapsed_time: time since last sampling
-+ * @ssch_rsch_count: number of ssch and rsch
-+ * @sample_count: number of samples
-+ * @device_connect_time: time of device connect
-+ * @function_pending_time: time of function pending
-+ * @device_disconnect_time: time of device disconnect
-+ * @control_unit_queuing_time: time of control unit queuing
-+ * @device_active_only_time: time of device active only
-+ * @device_busy_time: time of device busy (ext. format)
-+ * @initial_command_response_time: initial command response time (ext. format)
-  *
-- * @size:	size of the stored data
-- * @ssch_rsch_count: XXX
-- * @sample_count:
-- * @device_connect_time:
-- * @function_pending_time:
-- * @device_disconnect_time:
-- * @control_unit_queuing_time:
-- * @device_active_only_time:
-- * @device_busy_time:
-- * @initial_command_response_time:
-- *
-- * all values are stored as 64 bit for simplicity, especially
-+ * All values are stored as 64 bit for simplicity, especially
-  * in 32 bit emulation mode. All time values are normalized to
-  * nanoseconds.
-  * Currently, two formats are known, which differ by the size of
-  * this structure, i.e. the last two members are only set when
-  * the extended channel measurement facility (first shipped in
-  * z990 machines) is activated.
-- * Potentially, more fields could be added, which results in a
-+ * Potentially, more fields could be added, which would result in a
-  * new ioctl number.
-- **/
-+ */
- struct cmbdata {
- 	__u64 size;
- 	__u64 elapsed_time;
-@@ -49,44 +49,9 @@ struct cmbdata {
- 
- #ifdef __KERNEL__
- struct ccw_device;
--/**
-- * enable_cmf() - switch on the channel measurement for a specific device
-- *  @cdev:	The ccw device to be enabled
-- *  returns 0 for success or a negative error value.
-- *
-- *  Context:
-- *    non-atomic
-- **/
- extern int enable_cmf(struct ccw_device *cdev);
--
--/**
-- * disable_cmf() - switch off the channel measurement for a specific device
-- *  @cdev:	The ccw device to be disabled
-- *  returns 0 for success or a negative error value.
-- *
-- *  Context:
-- *    non-atomic
-- **/
- extern int disable_cmf(struct ccw_device *cdev);
--
--/**
-- * cmf_read() - read one value from the current channel measurement block
-- * @cmf:	the channel to be read
-- * @index:	the name of the value that is read
-- *
-- *  Context:
-- *    any
-- **/
--
- extern u64 cmf_read(struct ccw_device *cdev, int index);
--/**
-- * cmf_readall() - read one value from the current channel measurement block
-- * @cmf:	the channel to be read
-- * @data:	a pointer to a data block that will be filled
-- *
-- *  Context:
-- *    any
-- **/
- extern int cmf_readall(struct ccw_device *cdev, struct cmbdata *data);
- 
- #endif /* __KERNEL__ */
+--- /dev/null
++++ quilt-2.6/Documentation/DocBook/s390-drivers.tmpl
+@@ -0,0 +1,149 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
++	"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" []>
++
++<book id="s390drivers">
++ <bookinfo>
++  <title>Writing s390 channel device drivers</title>
++
++  <authorgroup>
++   <author>
++    <firstname>Cornelia</firstname>
++    <surname>Huck</surname>
++    <affiliation>
++     <address>
++       <email>cornelia.huck@de.ibm.com</email>
++     </address>
++    </affiliation>
++   </author>
++  </authorgroup>
++
++  <copyright>
++   <year>2007</year>
++   <holder>IBM Corp.</holder>
++  </copyright>
++
++  <legalnotice>
++   <para>
++     This documentation is free software; you can redistribute
++     it and/or modify it under the terms of the GNU General Public
++     License as published by the Free Software Foundation; either
++     version 2 of the License, or (at your option) any later
++     version.
++   </para>
++
++   <para>
++     This program is distributed in the hope that it will be
++     useful, but WITHOUT ANY WARRANTY; without even the implied
++     warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++     See the GNU General Public License for more details.
++   </para>
++
++   <para>
++     You should have received a copy of the GNU General Public
++     License along with this program; if not, write to the Free
++     Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
++     MA 02111-1307 USA
++   </para>
++
++   <para>
++     For more details see the file COPYING in the source
++     distribution of Linux.
++   </para>
++  </legalnotice>
++ </bookinfo>
++
++<toc></toc>
++
++  <chapter id="intro">
++   <title>Introduction</title>
++  <para>
++    This document describes the interfaces available for device drivers that
++    drive s390 based channel attached devices. This includes interfaces for
++    interaction with the hardware and interfaces for interacting with the
++    common driver core. Those interfaces are provided by the s390 common I/O
++    layer.
++  </para>
++  <para>
++    The document assumes a familarity with the technical terms associated
++    with the s390 channel I/O architecture. For a description of this
++    architecture, please refer to the "z/Architecture: Principles of
++    Operation", IBM publication no. SA22-7832.
++  </para>
++  <para>
++    While most I/O devices on a s390 system are typically driven through the
++    channel I/O mechanism described here, there are various other methods
++    (like the diag interface). These are out of the scope of this document.
++  </para>
++  <para>
++    Some additional information can also be found in the kernel source
++    under Documentation/s390/driver-model.txt.
++  </para>
++  </chapter>
++  <chapter id="ccw">
++   <title>The ccw bus</title>
++  <para>
++	The ccw bus typically contains the majority of devices available to
++	a s390 system. Named after the channel command word (ccw), the basic
++	command structure used to address its devices, the ccw bus contains
++	so-called channel attached devices. They are addressed via subchannels,
++	visible on the css bus. A device driver, however, will never interact
++	with the subchannel directly, but only via the device on the ccw bus,
++	the ccw device.
++  </para>
++    <sect1 id="channelIO">
++     <title>I/O functions for channel-attached devices</title>
++    <para>
++      Some hardware structures have been translated into C structures for use
++      by the common I/O layer and device drivers. For more information on
++      the hardware structures represented here, please consult the Principles
++      of Operation.
++    </para>
++!Iinclude/asm-s390/cio.h
++    </sect1>
++    <sect1 id="ccwdev">
++     <title>ccw devices</title>
++    <para>
++      Devices that want to initiate channel I/O need to attach to the ccw bus.
++      Interaction with the driver core is done via the common I/O layer, which
++      provides the abstractions of ccw devices and ccw device drivers.
++    </para>
++    <para>
++      The functions that initiate or terminate channel I/O all act upon a
++      ccw device structure. Device drivers must not bypass those functions
++      or strange side effects may happen.
++    </para>
++!Iinclude/asm-s390/ccwdev.h
++!Edrivers/s390/cio/device.c
++!Edrivers/s390/cio/device_ops.c
++    </sect1>
++    <sect1 id="cmf">
++     <title>The channel-measurement facility</title>
++  <para>
++	The channel-measurement facility provides a means to collect
++	measurement data which is made available by the channel subsystem
++	for each channel attached device.
++  </para>
++!Iinclude/asm-s390/cmb.h
++!Edrivers/s390/cio/cmf.c
++    </sect1>
++  </chapter>
++
++  <chapter id="ccwgroup">
++   <title>The ccwgroup bus</title>
++  <para>
++	The ccwgroup bus only contains artificial devices, created by the user.
++	Many networking devices (e.g. qeth) are in fact composed of several
++	ccw devices (like read, write and data channel for qeth). The
++	ccwgroup bus provides a mechanism to create a meta-device which
++	contains those ccw devices as slave devices and can be associated
++	with the netdevice.
++  </para>
++   <sect1 id="ccwgroupdevices">
++    <title>ccw group devices</title>
++!Iinclude/asm-s390/ccwgroup.h
++!Edrivers/s390/cio/ccwgroup.c
++   </sect1>
++  </chapter>
++
++</book>
 
 -- 
 blue skies,
