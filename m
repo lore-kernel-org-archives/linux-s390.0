@@ -1,41 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760965AbXHGLQL@vger.kernel.org>
-Message-Id: <20070807111844.909113621@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760580AbXHGLQc@vger.kernel.org>
+Message-Id: <20070807111847.096356469@de.ibm.com>
 References: <20070807111519.972871123@de.ibm.com>
-Date: Tue, 07 Aug 2007 13:15:21 +0200
+Date: Tue, 07 Aug 2007 13:15:30 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 01/18] cio: avoid memory leak on error in css_alloc_subchannel().
-Content-Disposition: inline; filename=001-cio-leak.diff
+Subject: [patch 10/18] monwriter: Serialization bug for multithreaded applications.
+Content-Disposition: inline; filename=010-monwriter.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Melissa Howland <melissah@us.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Melissa Howland <melissah@us.ibm.com>
 
-sch->lock has been allocated in cio_validate_subchannel(), it must be
-freed if cio_modify() fails.
+Locking added so that multithreaded applications can now do writes 
+from different threads without the risk of storage corruption.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Melissa Howland <melissah@us.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/css.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/char/monwriter.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Index: quilt-2.6/drivers/s390/cio/css.c
+Index: quilt-2.6/drivers/s390/char/monwriter.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/css.c
-+++ quilt-2.6/drivers/s390/cio/css.c
-@@ -79,6 +79,7 @@ css_alloc_subchannel(struct subchannel_i
- 	sch->schib.pmcw.intparm = (__u32)(unsigned long)sch;
- 	ret = cio_modify(sch);
- 	if (ret) {
-+		kfree(sch->lock);
- 		kfree(sch);
- 		return ERR_PTR(ret);
+--- quilt-2.6.orig/drivers/s390/char/monwriter.c
++++ quilt-2.6/drivers/s390/char/monwriter.c
+@@ -17,6 +17,7 @@
+ #include <linux/miscdevice.h>
+ #include <linux/ctype.h>
+ #include <linux/poll.h>
++#include <linux/mutex.h>
+ #include <asm/uaccess.h>
+ #include <asm/ebcdic.h>
+ #include <asm/io.h>
+@@ -41,6 +42,7 @@ struct mon_private {
+ 	size_t hdr_to_read;
+ 	size_t data_to_read;
+ 	struct mon_buf *current_buf;
++	struct mutex thread_mutex;
+ };
+ 
+ /*
+@@ -179,6 +181,7 @@ static int monwrite_open(struct inode *i
+ 		return -ENOMEM;
+ 	INIT_LIST_HEAD(&monpriv->list);
+ 	monpriv->hdr_to_read = sizeof(monpriv->hdr);
++	mutex_init(&monpriv->thread_mutex);
+ 	filp->private_data = monpriv;
+ 	return nonseekable_open(inode, filp);
+ }
+@@ -209,6 +212,7 @@ static ssize_t monwrite_write(struct fil
+ 	void *to;
+ 	int rc;
+ 
++	mutex_lock(&monpriv->thread_mutex);
+ 	for (written = 0; written < count; ) {
+ 		if (monpriv->hdr_to_read) {
+ 			len = min(count - written, monpriv->hdr_to_read);
+@@ -247,11 +251,13 @@ static ssize_t monwrite_write(struct fil
+ 		}
+ 		monpriv->hdr_to_read = sizeof(monpriv->hdr);
  	}
++	mutex_unlock(&monpriv->thread_mutex);
+ 	return written;
+ 
+ out_error:
+ 	monpriv->data_to_read = 0;
+ 	monpriv->hdr_to_read = sizeof(struct monwrite_hdr);
++	mutex_unlock(&monpriv->thread_mutex);
+ 	return rc;
+ }
+ 
 
 -- 
 blue skies,
