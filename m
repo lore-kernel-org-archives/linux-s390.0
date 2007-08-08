@@ -1,7 +1,7 @@
 From: Swen Schillig <swen@vnet.ibm.com>
-Subject: [PATCH 2/4] zfcp: allocate gid_pn_data objects from gid_pn_cache
-Date: Wed, 8 Aug 2007 10:47:10 +0200
-Message-ID: <200708081047.10872.swen@vnet.ibm.com>
+Subject: [PATCH 4/4] zfcp: fix the data buffer accessor patch
+Date: Wed, 8 Aug 2007 10:47:26 +0200
+Message-ID: <200708081047.26905.swen@vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
@@ -12,42 +12,40 @@ Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-allocate gid_pn_data objects from gid_pn_cache.
+Fix the data buffer accessor patch.
 
-Allocate gid_pn_data objects from the corresponding cache which ensures
-proper alignment.
+For request without a data buffer nothing was written into
+a SBALE.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
 ---
+ drivers/s390/scsi/zfcp_qdio.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
- drivers/s390/scsi/zfcp_aux.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff -urpN linux-2.6/drivers/s390/scsi/zfcp_aux.c linux-2.6-patched/drivers/s390/scsi/zfcp_aux.c
---- linux-2.6/drivers/s390/scsi/zfcp_aux.c	2007-08-08 10:13:39.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/scsi/zfcp_aux.c	2007-08-08 10:14:02.000000000 +0200
-@@ -1503,7 +1503,7 @@ zfcp_gid_pn_buffers_alloc(struct zfcp_gi
- 			data->ct.pool = pool;
- 		}
- 	} else {
--		data = kmalloc(sizeof(struct zfcp_gid_pn_data), GFP_ATOMIC);
-+		data = kmem_cache_alloc(zfcp_data.gid_pn_cache, GFP_ATOMIC);
- 	}
- 
-         if (NULL == data)
-@@ -1531,7 +1531,7 @@ static void zfcp_gid_pn_buffers_free(str
- 	if (gid_pn->ct.pool)
- 		mempool_free(gid_pn, gid_pn->ct.pool);
- 	else
--		kfree(gid_pn);
-+		kmem_cache_free(zfcp_data.gid_pn_cache, gid_pn);
+Index: linux_jb/drivers/s390/scsi/zfcp_qdio.c
+===================================================================
+--- linux_jb.orig/drivers/s390/scsi/zfcp_qdio.c
++++ linux_jb/drivers/s390/scsi/zfcp_qdio.c
+@@ -640,13 +640,9 @@ int
+ zfcp_qdio_sbals_from_scsicmnd(struct zfcp_fsf_req *fsf_req,
+ 			      unsigned long sbtype, struct scsi_cmnd *scsi_cmnd)
+ {
+-	if (scsi_sg_count(scsi_cmnd))
+-		return zfcp_qdio_sbals_from_sg(fsf_req,	sbtype,
+-					       scsi_sglist(scsi_cmnd),
+-					       scsi_sg_count(scsi_cmnd),
+-					       ZFCP_MAX_SBALS_PER_REQ);
+-	else
+-		return 0;
++	return zfcp_qdio_sbals_from_sg(fsf_req,	sbtype, scsi_sglist(scsi_cmnd),
++				       scsi_sg_count(scsi_cmnd),
++				       ZFCP_MAX_SBALS_PER_REQ);
  }
  
  /**
