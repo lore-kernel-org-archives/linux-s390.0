@@ -1,31 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S938845AbXHMK0t@vger.kernel.org>
-Date: Sun, 12 Aug 2007 23:35:07 -0700
-From: joe@perches.com
-Subject: [PATCH] [414/2many] MAINTAINERS - S390 ZFCP DRIVER
-Message-ID: <46bffb9b.o95rnmgi2XCBv8aA%joe@perches.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: torvalds@linux-foundation.org, swen@vnet.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Wed, 15 Aug 2007 10:10:25 +0000
+Subject: Re: [kj] is_power_of_2 in drivers/s390/block/dasd_int.h
+Message-Id: <20070815101025.GB16551@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <1187009639.7273.6.camel@merlin.linuxcoe.com>
+References: <1187009639.7273.6.camel@merlin.linuxcoe.com>
+To: linux-s390@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Add file pattern to MAINTAINER entry
+On Mon, Aug 13, 2007 at 06:23:59PM +0530, vignesh babu wrote:
+> Replacing n & (n - 1) for power of 2 check by is_power_of_2(n)
+> 
+> Signed-off-by: vignesh babu <vignesh.babu@wipro.com>
+> ---
+> diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
+> index aeda526..d427dae 100644
+> --- a/drivers/s390/block/dasd_int.h
+> +++ b/drivers/s390/block/dasd_int.h
+> @@ -53,6 +53,7 @@
+>  #include <linux/genhd.h>
+>  #include <linux/hdreg.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/log2.h>
+>  #include <asm/ccwdev.h>
+>  #include <linux/workqueue.h>
+>  #include <asm/debug.h>
+> @@ -456,7 +457,7 @@ dasd_free_chunk(struct list_head *chunk_list, void *mem)
+>  static inline int
+>  dasd_check_blocksize(int bsize)
+>  {
+> -	if (bsize < 512 || bsize > 4096 || (bsize & (bsize - 1)) != 0)
+> +	if (bsize < 512 || bsize > 4096 || !is_power_of_2(bsize))
+>  		return -EMEDIUMTYPE;
+>  	return 0;
+>  }
 
-Signed-off-by: Joe Perches <joe@perches.com>
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 8589439..02a59dc 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3948,6 +3948,8 @@ M:	linux390@de.ibm.com
- L:	linux-s390@vger.kernel.org
- W:	http://www.ibm.com/developerworks/linux/linux390/
- S:	Supported
-+F:	Documentation/s390/zfcpdump.txt
-+F:	drivers/s390/scsi/zfcp_*
- 
- SAA7146 VIDEO4LINUX-2 DRIVER
- P:	Michael Hunold
+Added to our patch queue. Thanks.
