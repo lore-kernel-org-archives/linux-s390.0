@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759693AbXHPM3S@vger.kernel.org>
-Date: Thu, 16 Aug 2007 18:11:17 +0530 (IST)
-From: Satyam Sharma <satyam@infradead.org>
-Subject: Re: drivers/infiniband/mlx/mad.c misplaced ;
-In-Reply-To: <Pine.LNX.4.64.0708161248050.22579@kivilampi-30.cs.helsinki.fi>
-Message-ID: <alpine.LFD.0.999.0708161801530.25951@enigma.security.iitk.ac.in>
-References: <20070815235825.GB17004@redhat.com> <1187224811.5906.55.camel@localhost>
- <20070816084635.GA15985@osiris.boeblingen.de.ibm.com>
- <Pine.LNX.4.64.0708161248050.22579@kivilampi-30.cs.helsinki.fi>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761495AbXHPOHk@vger.kernel.org>
+Message-ID: <46C45996.6060802@shadowen.org>
+Date: Thu, 16 Aug 2007 15:05:10 +0100
+From: Andy Whitcroft <apw@shadowen.org>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="464262402-1168800151-1187268086=:25951"
+Subject: Re: drivers/infiniband/mlx/mad.c misplaced ;
+References: <20070815235825.GB17004@redhat.com> <1187224811.5906.55.camel@localhost> <46C3B428.4000003@intel.com>
+In-Reply-To: <46C3B428.4000003@intel.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: =?iso-8859-15?Q?Ilpo_J=E4rvinen?= <ilpo.jarvinen@helsinki.fi>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Joe Perches <joe@perches.com>, Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>, rolandd@cisco.com, Chas Williams <chas@cmf.nrl.navy.mil>, Paul Mundt <lethal@linux-sh.org>, isdn4linux@listserv.isdn4linux.de, mikep@linuxtr.net, Netdev <netdev@vger.kernel.org>, swen@vnet.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, jdike@karaya.com, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, netfilter-devel@lists.netfilter.org, coreteam@netfilter.org
+To: "Kok, Auke" <auke-jan.h.kok@intel.com>
+Cc: Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>, Joel Schopp <jschopp@austin.ibm.com>, Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>, rolandd@cisco.com, Chas Williams <chas@cmf.nrl.navy.mil>, Paul Mundt <lethal@linux-sh.org>, isdn4linux@listserv.isdn4linux.de, mikep@linuxtr.net, netdev@vger.kernel.org, swen@vnet.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, jdike@karaya.com, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, netfilter-devel@lists.netfilter.org, coreteam@netfilter.org
 List-ID: <linux-s390.vger.kernel.org>
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Kok, Auke wrote:
+> Joe Perches wrote:
+>> On Wed, 2007-08-15 at 19:58 -0400, Dave Jones wrote:
+>>> Signed-off-by: Dave Jones <davej@redhat.com>
+>>>
+>>> diff --git a/drivers/infiniband/hw/mlx4/mad.c
+>>> b/drivers/infiniband/hw/mlx4/mad.c
+>>> index 3330917..0ed02b7 100644
+>>> --- a/drivers/infiniband/hw/mlx4/mad.c
+>>> +++ b/drivers/infiniband/hw/mlx4/mad.c
+>>> @@ -109,7 +109,7 @@ int mlx4_MAD_IFC(struct mlx4_ib_dev *dev, int
+>>> ignore_mkey, int ignore_bkey,
+>>>                 in_modifier, op_modifier,
+>>>                 MLX4_CMD_MAD_IFC, MLX4_CMD_TIME_CLASS_C);
+>>>  
+>>> -    if (!err);
+>>> +    if (!err)
+>>
+>> There's more than a few of these (not inspected).
+>>
+>> $ egrep -r --include=*.c "\bif[[:space:]]*\([^\)]*\)[[:space:]]*\;" *
+>> arch/sh/boards/se/7343/io.c:    if (0) ;
+>> drivers/atm/iphase.c:     if (!desc1) ;
+>> drivers/infiniband/hw/mlx4/mad.c:       if (!err);
+>> drivers/isdn/capi/capiutil.c:   else if (c <= 0x0f);
+>> drivers/net/tokenring/ibmtr.c:  else if (ti->shared_ram_paging ==
+>> 0xf);  /* No paging in adapter */
+>> drivers/s390/scsi/zfcp_erp.c:           if (status ==
+>> ZFCP_ERP_SUCCEEDED) ;     /* no further action */
+>> fs/hostfs/hostfs_user.c:        if(attrs->ia_valid & HOSTFS_ATTR_CTIME) ;
+>> net/netfilter/xt_u32.c:         if (skb->len < 4 || pos > skb->len - 4);
+>> sound/pci/au88x0/au88x0_synth.c:                                if
+>> (eax == 0) ;
+> 
+> sounds like an excellent candidate check for checkpatch.pl !!!
 
---464262402-1168800151-1187268086=:25951
-Content-Type: TEXT/PLAIN; charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
+Yep.  My scan of 2.6.23-rc3 with a checkpatch with this new test added,
+found 6 which seemed wrong.
 
-Hi Ilpo,
-
-
-On Thu, 16 Aug 2007, Ilpo J=E4rvinen wrote:
-
->=20
-> ...I guess those guys hunting for broken busyloops in the other thread=20
-> could also benefit from similar searching commands introduced in this=20
-> thread... ...Ccing Satyam to caught their attention too.
->=20
->=20
-> > On Wed, Aug 15, 2007 at 05:40:11PM -0700, Joe Perches wrote:
-> > >=20
-> > > There's more than a few of these (not inspected).
-> > >=20
-> > > $ egrep -r --include=3D*.c "\bif[[:space:]]*\([^\)]*\)[[:space:]]*\;"=
- *=20
->=20
-> ...Hmm, I plugged in "a preprocessor" too to manage with non compliant=20
-> coding styles :-). Please understand that the line numbers are not an=20
-> exact match due to preprocessor changes:
->=20
-> $ for i in `find . -name '*.[ch]'`; do echo $i; indent -npro -kr -i8 -ts8=
-=20
-> -sob -l8000 -ss -ncs -cp1 -nhnl -st $i | egrep -n "[[:space:]]if [(].*[)]=
- ;$";
-> done | grep -B1 "^[^.]"
-
-Thanks, looks useful, will check with this.
-
-
-Satyam
---464262402-1168800151-1187268086=:25951--
+-apw
