@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755930AbXHRPVB@vger.kernel.org>
-In-Reply-To: <20070816110116.GA8100@pingi.kke.suse.de>
-References: <20070815235825.GB17004@redhat.com> <1187224811.5906.55.camel@localhost> <20070816084635.GA15985@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.64.0708161248050.22579@kivilampi-30.cs.helsinki.fi> <20070816110116.GA8100@pingi.kke.suse.de>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset="iso-8859-1"; delsp="yes"; format="flowed"
-Message-Id: <28AF5775-A29A-4BB8-83DA-2CAEAEDA164E@mac.com>
-Content-Transfer-Encoding: quoted-printable
-From: Daniel Schaffrath <danielschaffrath@mac.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937533AbXHPAmA@vger.kernel.org>
 Subject: Re: drivers/infiniband/mlx/mad.c misplaced ;
-Date: Sat, 18 Aug 2007 17:14:00 +0200
+From: Joe Perches <joe@perches.com>
+In-Reply-To: <20070815235825.GB17004@redhat.com>
+References: <20070815235825.GB17004@redhat.com>
+Content-Type: text/plain
+Date: Wed, 15 Aug 2007 17:40:11 -0700
+Message-Id: <1187224811.5906.55.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Karsten Keil <kkeil@suse.de>
-Cc: =?ISO-8859-1?Q?Ilpo_J=E4rvinen?= <ilpo.jarvinen@helsinki.fi>, Heiko Carstens <heiko.carstens@de.ibm.com>, Joe Perches <joe@perches.com>, Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>, rolandd@cisco.com, Chas Williams <chas@cmf.nrl.navy.mil>, Paul Mundt <lethal@linux-sh.org>, isdn4linux@listserv.isdn4linux.de, mikep@linuxtr.net, Netdev <netdev@vger.kernel.org>, swen@vnet.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, jdike@karaya.com, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, netfilter-devel@lists.netfilter.org, coreteam@netfilter.org, Satyam Sharma <satyam@infradead.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, rolandd@cisco.com, Chas Williams <chas@cmf.nrl.navy.mil>, Paul Mundt <lethal@linux-sh.org>, isdn4linux@listserv.isdn4linux.de, mikep@linuxtr.net, netdev@vger.kernel.org, swen@vnet.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, jdike@karaya.com, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, netfilter-devel@lists.netfilter.org, coreteam@netfilter.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Wed, 2007-08-15 at 19:58 -0400, Dave Jones wrote:
+> Signed-off-by: Dave Jones <davej@redhat.com>
+> 
+> diff --git a/drivers/infiniband/hw/mlx4/mad.c b/drivers/infiniband/hw/mlx4/mad.c
+> index 3330917..0ed02b7 100644
+> --- a/drivers/infiniband/hw/mlx4/mad.c
+> +++ b/drivers/infiniband/hw/mlx4/mad.c
+> @@ -109,7 +109,7 @@ int mlx4_MAD_IFC(struct mlx4_ib_dev *dev, int ignore_mkey, int ignore_bkey,
+>  			   in_modifier, op_modifier,
+>  			   MLX4_CMD_MAD_IFC, MLX4_CMD_TIME_CLASS_C);
+>  
+> -	if (!err);
+> +	if (!err)
 
-On 2007/08/16  , at 13:01, Karsten Keil wrote:
+There's more than a few of these (not inspected).
 
-> On Thu, Aug 16, 2007 at 01:22:04PM +0300, Ilpo J=E4rvinen wrote:
->>
->> ...I guess those guys hunting for broken busyloops in the other =20
->> thread
->> could also benefit from similar searching commands introduced in this
->> thread... ...Ccing Satyam to caught their attention too.
->>
->>
->> ./drivers/isdn/hisax/hfc_pci.c
->> 125:	if (Read_hfc(cs, HFCPCI_INT_S1)) ;
->> 155:	if (Read_hfc(cs, HFCPCI_INT_S1)) ;
->> 1483:					if (Read_hfc(cs, HFCPCI_INT_S1)) ;
->> --
->> ./drivers/isdn/hisax/hfc_sx.c
->> 377:	if (Read_hfc(cs, HFCSX_INT_S1)) ;
->> 407:	if (Read_hfc(cs, HFCSX_INT_S2)) ;
->> 1246:					if (Read_hfc(cs, HFCSX_INT_S1)) ;
->> --
->
-> These are workaround to not get compiler warnings about ignored return
-> values I got some time ago under some architecture.
-Maybe '(void) Read_hfc(cs, HFCSX_INT_S1)' is a better option to get =20
-rid of the warnings.
+$ egrep -r --include=*.c "\bif[[:space:]]*\([^\)]*\)[[:space:]]*\;" * 
+arch/sh/boards/se/7343/io.c:    if (0) ;
+drivers/atm/iphase.c:     if (!desc1) ;
+drivers/infiniband/hw/mlx4/mad.c:       if (!err);
+drivers/isdn/capi/capiutil.c:   else if (c <= 0x0f);
+drivers/net/tokenring/ibmtr.c:  else if (ti->shared_ram_paging == 0xf);  /* No paging in adapter */
+drivers/s390/scsi/zfcp_erp.c:           if (status == ZFCP_ERP_SUCCEEDED) ;     /* no further action */
+fs/hostfs/hostfs_user.c:        if(attrs->ia_valid & HOSTFS_ATTR_CTIME) ;
+net/netfilter/xt_u32.c:         if (skb->len < 4 || pos > skb->len - 4);
+sound/pci/au88x0/au88x0_synth.c:                                if (eax == 0) ;
