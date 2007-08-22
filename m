@@ -1,59 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S934316AbXHJP5W@vger.kernel.org>
-Date: Fri, 10 Aug 2007 17:56:56 +0200
-From: Adrian Bunk <bunk@kernel.org>
-Subject: 2.6.23-rc2-mm2: drivers/s390/char/keyboard.c compile error
-Message-ID: <20070810155656.GH18938@stusta.de>
-References: <20070809224254.11f42716.akpm@linux-foundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20070809224254.11f42716.akpm@linux-foundation.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761188AbXHVMdP@vger.kernel.org>
+Message-Id: <20070822123603.501231302@de.ibm.com>
+Date: Wed, 22 Aug 2007 14:36:03 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 00/10] s390 patches for 2.6.23-rc3
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Samuel Thibault <samuel.thibault@ens-lyon.org>, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Aug 09, 2007 at 10:42:54PM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.23-rc1-mm2:
->...
-> +unicode-diacritics-support.patch
->...
->  misc
->...
+10 patches for s390. The new vmur driver still has some rough edges
+but we are getting there. Patch #10 is our solution to the atomic_t
+vs. volatile problem. As prediced by Linus adding a barrier to
+atomic_read/atomic_set has close to zero impact to the generated
+code and adding the barrier to atomic_read/atomic_set forces the
+compiler to read/write the value to/from memory. This seems to be
+the most convenient way to solve this problem.
 
-The change to drivers/s390/char/keyboard.c doesn't compile:
+--
+blue skies,
+   Martin.
 
-<--  snip  -->
-
-...
-  LD      .tmp_vmlinux1
-drivers/s390/built-in.o: In function `kbd_ioctl':
-(.text+0x2d666): undefined reference to `conv_uni_to_8bit'
-drivers/s390/built-in.o: In function `kbd_ioctl':
-(.text+0x2d67c): undefined reference to `conv_uni_to_8bit'
-drivers/s390/built-in.o: In function `kbd_ioctl':
-(.text+0x2d692): undefined reference to `conv_uni_to_8bit'
-drivers/s390/built-in.o: In function `kbd_ioctl':
-(.text+0x2d906): undefined reference to `conv_8bit_to_uni'
-drivers/s390/built-in.o: In function `kbd_ioctl':
-(.text+0x2d920): undefined reference to `conv_8bit_to_uni'
-drivers/s390/built-in.o: In function `kbd_ioctl':
-(.text+0x2d93a): undefined reference to `conv_8bit_to_uni'
-make[1]: *** [.tmp_vmlinux1] Error 1
-make: *** [_all] Error 2
-
-<--  snip  -->
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+"Reality continues to ruin my life." - Calvin.
