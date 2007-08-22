@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762066AbXHVMdv@vger.kernel.org>
-Message-Id: <20070822123642.278525659@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762234AbXHVMeP@vger.kernel.org>
+Message-Id: <20070822123642.514416081@de.ibm.com>
 References: <20070822123603.501231302@de.ibm.com>
-Date: Wed, 22 Aug 2007 14:36:05 +0200
+Date: Wed, 22 Aug 2007 14:36:06 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 02/10] cio: change confusing message in cmf.
-Content-Disposition: inline; filename=002-cio-cmf.diff
+Subject: [patch 03/10] qdio: fix EQBS handling on CCQ96
+Content-Disposition: inline; filename=003-qdio-eqbs.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: "Klaus D. Wacker" <kdwacker@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Klaus D. Wacker <kdwacker@de.ibm.com>
 
-cmf currently prints a message that more than 4096 channels are not
-allowed in basic mode - however, this can only be enforced if cmf was
-a module (which is no longer possible). It makes much more sense to
-not check the specified number of channels and just print a message if
-the block for basic mode could not be allocated (which may happen for
-any number of specified channels).
+QDIO returned from EQBS instruction in any case after return code
+CCQ=96 was issued regardless whether buffer states for at least one
+buffer were extracted or not.
+This caused FCP devices to hang when running under z/VM and having
+QIOASSASIST=ON and having high I/O rates.
+In order to fix this qdio return code processing of EQBS instruction
+after CCQ=96 is changed that buffers are returned and if no buffers
+where extracted the instruction is repeated at once.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Klaus D. Wacker <kdwacker@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
 
- drivers/s390/cio/cmf.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/s390/cio/qdio.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-Index: quilt-2.6/drivers/s390/cio/cmf.c
+Index: quilt-2.6/drivers/s390/cio/qdio.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cmf.c
-+++ quilt-2.6/drivers/s390/cio/cmf.c
-@@ -594,6 +594,9 @@ alloc_cmb (struct ccw_device *cdev)
- 			free_pages((unsigned long)mem, get_order(size));
- 		} else if (!mem) {
- 			/* no luck */
-+			printk(KERN_WARNING "cio: failed to allocate area "
-+			       "for measuring %d subchannels\n",
-+			       cmb_area.num_channels);
- 			ret = -ENOMEM;
- 			goto out;
- 		} else {
-@@ -1279,13 +1282,6 @@ init_cmf(void)
- 	case CMF_BASIC:
- 		format_string = "basic";
- 		cmbops = &cmbops_basic;
--		if (cmb_area.num_channels > 4096 || cmb_area.num_channels < 1) {
--			printk(KERN_ERR "cio: Basic channel measurement "
--			       "facility can only use 1 to 4096 devices\n"
--			       KERN_ERR "when the cmf driver is built"
--			       " as a loadable module\n");
--			return 1;
--		}
- 		break;
- 	case CMF_EXTENDED:
-  		format_string = "extended";
+--- quilt-2.6.orig/drivers/s390/cio/qdio.c
++++ quilt-2.6/drivers/s390/cio/qdio.c
+@@ -195,6 +195,8 @@ qdio_do_eqbs(struct qdio_q *q, unsigned 
+ again:
+ 	ccq = do_eqbs(irq->sch_token, state, q_no, start, cnt);
+ 	rc = qdio_check_ccq(q, ccq);
++	if ((ccq == 96) && (tmp_cnt != *cnt))
++		rc = 0;
+ 	if (rc == 1) {
+ 		QDIO_DBF_TEXT5(1,trace,"eqAGAIN");
+ 		goto again;
 
 -- 
 blue skies,
