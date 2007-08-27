@@ -1,171 +1,80 @@
 From: Ursula Braun <braunu@de.ibm.com>
-Date: Mon, 27 Aug 2007 17:27:35 +0000
-Subject: [patch 4/7] qeth: Announce tx checksumming for qeth devices in TSO/EDDP mode
-Message-Id: <20070827173101.134919000@linux.vnet.ibm.com>
+Date: Mon, 27 Aug 2007 17:27:36 +0000
+Subject: [patch 5/7] qeth: crash during reboot after failing online setting
+Message-Id: <20070827173101.806811000@linux.vnet.ibm.com>
 To: linux-s390@vger.kernel.org, linux-netdev@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Frank Blaschka <frank.blaschka@de.ibm.com>
+From: Ursula Braun <braunu@de.ibm.com>
 
-TSO requires tx checksumming. For non GSO frames in TSO/EDDP mode we
-have to manually calculate the checksum. 
+Online setting of a qeth device may fail for instance because of:
+- out-of-memory condition when allocating qdio queues
+- IDX ACTIVATE problem
+- ...
+Such a device is still returned in a driver_for_each_device loop
+processed in qeth_reboot_event(), which calls
+qeth_clear_qdio_buffers(). Make sure qeth_clear_output_buffer() is
+called only, if the qdio queues have been successfully allocated
+during initialization of a qeth device.
 
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 Signed-off-by: Ursula Braun <braunu@de.ibm.com>
 ---
 
-
-Subject: [patch 4/7] [PATCH] qeth: Announce tx checksumming for qeth devices in TSO/EDDP mode
-
-From: Frank Blaschka <frank.blaschka@de.ibm.com>
-
-TSO requires tx checksumming. For non GSO frames in TSO/EDDP mode we
-have to manually calculate the checksum. 
-
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
-Signed-off-by: Ursula Braun <braunu@de.ibm.com>
----
-
- drivers/s390/net/qeth_main.c |   82 +++++++++++++++++++++++++++++++++++--------
- 1 file changed, 68 insertions(+), 14 deletions(-)
+ drivers/s390/net/qeth_main.c |   20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
 Index: linux-2.6-uschi/drivers/s390/net/qeth_main.c
 ===================================================================
 --- linux-2.6-uschi.orig/drivers/s390/net/qeth_main.c
 +++ linux-2.6-uschi/drivers/s390/net/qeth_main.c
-@@ -4555,6 +4555,53 @@ qeth_get_elements_no(struct qeth_card *c
-         return elements_needed;
- }
- 
-+static void qeth_tx_csum(struct sk_buff *skb)
-+{
-+	int tlen;
-+
-+	if (skb->protocol == htons(ETH_P_IP)) {
-+		tlen = ntohs(ip_hdr(skb)->tot_len) - (ip_hdr(skb)->ihl << 2);
-+		switch (ip_hdr(skb)->protocol) {
-+		case IPPROTO_TCP:
-+			tcp_hdr(skb)->check = 0;
-+			tcp_hdr(skb)->check = csum_tcpudp_magic(
-+				ip_hdr(skb)->saddr, ip_hdr(skb)->daddr,
-+				tlen, ip_hdr(skb)->protocol,
-+				skb_checksum(skb, skb_transport_offset(skb),
-+					tlen, 0));
-+			break;
-+		case IPPROTO_UDP:
-+			udp_hdr(skb)->check = 0;
-+			udp_hdr(skb)->check = csum_tcpudp_magic(
-+				ip_hdr(skb)->saddr, ip_hdr(skb)->daddr,
-+				tlen, ip_hdr(skb)->protocol,
-+				skb_checksum(skb, skb_transport_offset(skb),
-+					tlen, 0));
-+			break;
+@@ -3356,10 +3356,12 @@ out_freeoutq:
+ 	while (i > 0)
+ 		kfree(card->qdio.out_qs[--i]);
+ 	kfree(card->qdio.out_qs);
++	card->qdio.out_qs = NULL;
+ out_freepool:
+ 	qeth_free_buffer_pool(card);
+ out_freeinq:
+ 	kfree(card->qdio.in_q);
++	card->qdio.in_q = NULL;
+ out_nomem:
+ 	atomic_set(&card->qdio.state, QETH_QDIO_UNINITIALIZED);
+ 	return -ENOMEM;
+@@ -3375,16 +3377,20 @@ qeth_free_qdio_buffers(struct qeth_card 
+ 		QETH_QDIO_UNINITIALIZED)
+ 		return;
+ 	kfree(card->qdio.in_q);
++	card->qdio.in_q = NULL;
+ 	/* inbound buffer pool */
+ 	qeth_free_buffer_pool(card);
+ 	/* free outbound qdio_qs */
+-	for (i = 0; i < card->qdio.no_out_queues; ++i){
+-		for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j)
+-			qeth_clear_output_buffer(card->qdio.out_qs[i],
+-					&card->qdio.out_qs[i]->bufs[j]);
+-		kfree(card->qdio.out_qs[i]);
++	if (card->qdio.out_qs) {
++		for (i = 0; i < card->qdio.no_out_queues; ++i) {
++			for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j)
++				qeth_clear_output_buffer(card->qdio.out_qs[i],
++						&card->qdio.out_qs[i]->bufs[j]);
++			kfree(card->qdio.out_qs[i]);
 +		}
-+	} else if (skb->protocol == htons(ETH_P_IPV6)) {
-+		switch (ipv6_hdr(skb)->nexthdr) {
-+		case IPPROTO_TCP:
-+			tcp_hdr(skb)->check = 0;
-+			tcp_hdr(skb)->check = csum_ipv6_magic(
-+				&ipv6_hdr(skb)->saddr, &ipv6_hdr(skb)->daddr,
-+				ipv6_hdr(skb)->payload_len,
-+				ipv6_hdr(skb)->nexthdr,
-+				skb_checksum(skb, skb_transport_offset(skb),
-+					ipv6_hdr(skb)->payload_len, 0));
-+			break;
-+		case IPPROTO_UDP:
-+			udp_hdr(skb)->check = 0;
-+			udp_hdr(skb)->check = csum_ipv6_magic(
-+				&ipv6_hdr(skb)->saddr, &ipv6_hdr(skb)->daddr,
-+				ipv6_hdr(skb)->payload_len,
-+				ipv6_hdr(skb)->nexthdr,
-+				skb_checksum(skb, skb_transport_offset(skb),
-+					ipv6_hdr(skb)->payload_len, 0));
-+			break;
-+		}
-+	}
-+}
- 
- static int
- qeth_send_packet(struct qeth_card *card, struct sk_buff *skb)
-@@ -4640,6 +4687,10 @@ qeth_send_packet(struct qeth_card *card,
- 		elements_needed += elems;
++		kfree(card->qdio.out_qs);
++		card->qdio.out_qs = NULL;
  	}
- 
-+	if ((large_send == QETH_LARGE_SEND_NO) &&
-+	    (skb->ip_summed == CHECKSUM_PARTIAL))
-+		qeth_tx_csum(new_skb);
-+
- 	if (card->info.type != QETH_CARD_TYPE_IQD)
- 		rc = qeth_do_send_packet(card, queue, new_skb, hdr,
- 					 elements_needed, ctx);
-@@ -6387,20 +6438,18 @@ qeth_deregister_addr_entry(struct qeth_c
- static u32
- qeth_ethtool_get_tx_csum(struct net_device *dev)
- {
--	/* We may need to say that we support tx csum offload if
--	 * we do EDDP or TSO. There are discussions going on to
--	 * enforce rules in the stack and in ethtool that make
--	 * SG and TSO depend on HW_CSUM. At the moment there are
--	 * no such rules....
--	 * If we say yes here, we have to checksum outbound packets
--	 * any time. */
--	return 0;
-+	return (dev->features & NETIF_F_HW_CSUM) != 0;
+-	kfree(card->qdio.out_qs);
  }
  
- static int
- qeth_ethtool_set_tx_csum(struct net_device *dev, u32 data)
- {
--	return -EINVAL;
-+	if (data)
-+		dev->features |= NETIF_F_HW_CSUM;
-+	else
-+		dev->features &= ~NETIF_F_HW_CSUM;
-+
-+	return 0;
- }
- 
- static u32
-@@ -7414,7 +7463,8 @@ qeth_start_ipa_tso(struct qeth_card *car
- 	}
- 	if (rc && (card->options.large_send == QETH_LARGE_SEND_TSO)){
- 		card->options.large_send = QETH_LARGE_SEND_NO;
--		card->dev->features &= ~ (NETIF_F_TSO | NETIF_F_SG);
-+		card->dev->features &= ~(NETIF_F_TSO | NETIF_F_SG |
-+						NETIF_F_HW_CSUM);
- 	}
- 	return rc;
- }
-@@ -7554,22 +7604,26 @@ qeth_set_large_send(struct qeth_card *ca
- 	card->options.large_send = type;
- 	switch (card->options.large_send) {
- 	case QETH_LARGE_SEND_EDDP:
--		card->dev->features |= NETIF_F_TSO | NETIF_F_SG;
-+		card->dev->features |= NETIF_F_TSO | NETIF_F_SG |
-+					NETIF_F_HW_CSUM;
- 		break;
- 	case QETH_LARGE_SEND_TSO:
- 		if (qeth_is_supported(card, IPA_OUTBOUND_TSO)){
--			card->dev->features |= NETIF_F_TSO | NETIF_F_SG;
-+			card->dev->features |= NETIF_F_TSO | NETIF_F_SG |
-+						NETIF_F_HW_CSUM;
- 		} else {
- 			PRINT_WARN("TSO not supported on %s. "
- 				   "large_send set to 'no'.\n",
- 				   card->dev->name);
--			card->dev->features &= ~(NETIF_F_TSO | NETIF_F_SG);
-+			card->dev->features &= ~(NETIF_F_TSO | NETIF_F_SG |
-+						NETIF_F_HW_CSUM);
- 			card->options.large_send = QETH_LARGE_SEND_NO;
- 			rc = -EOPNOTSUPP;
- 		}
- 		break;
- 	default: /* includes QETH_LARGE_SEND_NO */
--		card->dev->features &= ~(NETIF_F_TSO | NETIF_F_SG);
-+		card->dev->features &= ~(NETIF_F_TSO | NETIF_F_SG |
-+					NETIF_F_HW_CSUM);
- 		break;
- 	}
- 	if (card->state == CARD_STATE_UP)
+ static void
+@@ -3395,7 +3401,7 @@ qeth_clear_qdio_buffers(struct qeth_card
+ 	QETH_DBF_TEXT(trace, 2, "clearqdbf");
+ 	/* clear outbound buffers to free skbs */
+ 	for (i = 0; i < card->qdio.no_out_queues; ++i)
+-		if (card->qdio.out_qs[i]){
++		if (card->qdio.out_qs && card->qdio.out_qs[i]) {
+ 			for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j)
+ 				qeth_clear_output_buffer(card->qdio.out_qs[i],
+ 						&card->qdio.out_qs[i]->bufs[j]);
 
 -- 
