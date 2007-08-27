@@ -1,122 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763341AbXHVMgf@vger.kernel.org>
-Message-Id: <20070822123643.731305505@de.ibm.com>
-References: <20070822123603.501231302@de.ibm.com>
-Date: Wed, 22 Aug 2007 14:36:11 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 08/10] hypfs: inode corruption due to missing locking
-Content-Disposition: inline; filename=008-hypfs.diff
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Michael Holzheu <holzheu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Ursula Braun <braunu@de.ibm.com>
+Subject: [patch 1/7] qeth: ungrouping a device must not be interruptible
+Date: Mon, 27 Aug 2007 19:27:32 +0200
+Message-ID: <20070827173059.153822000@linux.vnet.ibm.com>
+References: <20070827172731.370533000@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=703-qeth-ungroup.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: frank.blaschka@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Holzheu <holzheu@de.ibm.com>
+From: Ursula Braun <braunu@de.ibm.com>
 
-hypfs removes the whole hypfs directory tree and creates a new one, when a
-process triggers an update by writing to the "update" attribute. When removing
-and creating files, it is necessary to lock the inode of the parent directory
-where the files live. Currently hypfs does not lock the parent inode, which
-can lead to inode corruption. This patch:
- * Introduces correct locking
- * Fixes i_nlink reference counting for inodes, when creating directories
- * Adds info printk, when hypfs filesystem has been mounted
+Problem:
+A recovery thread must not be active when device is removed.
+In qeth_remove_device() an interruptible wait operation is used
+to wait until a qeth recovery thread is finished. If a user really
+interrupts the ungroup operation of a qeth device while a recovery
+is running, cio and qeth are out of sync (device already removed
+from cio, but kept in qeth). A following module unload of qeth
+results in a kernel OOPS here.
 
-Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Solution:
+Do not allow interruption of ungroup operation to guarantee
+finishing of a potentially running qeth recovery thread.
+
+Signed-off-by: Ursula Braun <braunu@de.ibm.com>
 ---
 
- arch/s390/hypfs/inode.c |   33 +++++++++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 8 deletions(-)
+ drivers/s390/net/qeth_main.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Index: quilt-2.6/arch/s390/hypfs/inode.c
+Index: linux-2.6-uschi/drivers/s390/net/qeth_main.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/hypfs/inode.c
-+++ quilt-2.6/arch/s390/hypfs/inode.c
-@@ -60,17 +60,28 @@ static void hypfs_add_dentry(struct dent
- 	hypfs_last_dentry = dentry;
+--- linux-2.6-uschi.orig/drivers/s390/net/qeth_main.c
++++ linux-2.6-uschi/drivers/s390/net/qeth_main.c
+@@ -561,7 +561,7 @@ qeth_set_offline(struct ccwgroup_device 
  }
  
-+static inline int hypfs_positive(struct dentry *dentry)
-+{
-+	return dentry->d_inode && !d_unhashed(dentry);
-+}
-+
- static void hypfs_remove(struct dentry *dentry)
- {
- 	struct dentry *parent;
+ static int
+-qeth_wait_for_threads(struct qeth_card *card, unsigned long threads);
++qeth_threads_running(struct qeth_card *card, unsigned long threads);
  
- 	parent = dentry->d_parent;
--	if (S_ISDIR(dentry->d_inode->i_mode))
--		simple_rmdir(parent->d_inode, dentry);
--	else
--		simple_unlink(parent->d_inode, dentry);
-+	if (!parent || !parent->d_inode)
-+		return;
-+	mutex_lock(&parent->d_inode->i_mutex);
-+	if (hypfs_positive(dentry)) {
-+		if (S_ISDIR(dentry->d_inode->i_mode))
-+			simple_rmdir(parent->d_inode, dentry);
-+		else
-+			simple_unlink(parent->d_inode, dentry);
-+	}
- 	d_delete(dentry);
- 	dput(dentry);
-+	mutex_unlock(&parent->d_inode->i_mutex);
- }
  
- static void hypfs_delete_tree(struct dentry *root)
-@@ -315,6 +326,7 @@ static int hypfs_fill_super(struct super
- 	}
- 	hypfs_update_update(sb);
- 	sb->s_root = root_dentry;
-+	printk(KERN_INFO "hypfs: Hypervisor filesystem mounted\n");
- 	return 0;
+ static void
+@@ -576,8 +576,7 @@ qeth_remove_device(struct ccwgroup_devic
+ 	if (!card)
+ 		return;
  
- err_tree:
-@@ -356,13 +368,17 @@ static struct dentry *hypfs_create_file(
- 	qname.name = name;
- 	qname.len = strlen(name);
- 	qname.hash = full_name_hash(name, qname.len);
-+	mutex_lock(&parent->d_inode->i_mutex);
- 	dentry = lookup_one_len(name, parent, strlen(name));
--	if (IS_ERR(dentry))
--		return ERR_PTR(-ENOMEM);
-+	if (IS_ERR(dentry)) {
-+		dentry = ERR_PTR(-ENOMEM);
-+		goto fail;
-+	}
- 	inode = hypfs_make_inode(sb, mode);
- 	if (!inode) {
- 		dput(dentry);
--		return ERR_PTR(-ENOMEM);
-+		dentry = ERR_PTR(-ENOMEM);
-+		goto fail;
- 	}
- 	if (mode & S_IFREG) {
- 		inode->i_fop = &hypfs_file_ops;
-@@ -379,6 +395,8 @@ static struct dentry *hypfs_create_file(
- 	inode->i_private = data;
- 	d_instantiate(dentry, inode);
- 	dget(dentry);
-+fail:
-+	mutex_unlock(&parent->d_inode->i_mutex);
- 	return dentry;
- }
+-	if (qeth_wait_for_threads(card, 0xffffffff))
+-		return;
++	wait_event(card->wait_q, qeth_threads_running(card, 0xffffffff) == 0);
  
-@@ -391,7 +409,6 @@ struct dentry *hypfs_mkdir(struct super_
- 	if (IS_ERR(dentry))
- 		return dentry;
- 	hypfs_add_dentry(dentry);
--	parent->d_inode->i_nlink++;
- 	return dentry;
- }
- 
+ 	if (cgdev->state == CCWGROUP_ONLINE){
+ 		card->use_hard_stop = 1;
 
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
