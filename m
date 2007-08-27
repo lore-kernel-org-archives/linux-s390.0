@@ -1,94 +1,56 @@
 From: Ursula Braun <braunu@de.ibm.com>
-Date: Mon, 27 Aug 2007 17:27:37 +0000
-Subject: [patch 6/7] qeth: provide specific message for OSA-adapters exclusively used
-Message-Id: <20070827173102.462675000@linux.vnet.ibm.com>
+Date: Mon, 27 Aug 2007 17:27:38 +0000
+Subject: [patch 7/7] qeth: Drop ARP packages on HiperSockets interface with NOARP attribute.
+Message-Id: <20070827173103.124025000@linux.vnet.ibm.com>
 To: linux-s390@vger.kernel.org, linux-netdev@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <braunu@de.ibm.com>
+From: Klaus D. Wacker <kdwacker@de.ibm.com>
 
-Exclusive usage of OSA-cards has been introduced. Even though Linux
-does not make use of it, qeth should be prepared to receive a bad RC
-for some initialization steps. A meaningful message is now given,
-if an OSA-device is set online, even though the OSA-adapter is already
-exclusively used by another host.
+A network interface can get ARP packets even when the interface has
+NOARP specified. In a HiperSockets environment this disturbs receiving
+systems when packets are sent on the multicast queue. (E.g. TCP/IP on
+z/VM issues messages reporting invalid data on the HiperSockets
+interface.)
+Qeth will no longer send ARP packets on HiperSockets interface when
+interface has the NOARP attribute.
 
+Signed-off-by: Klaus D. Wacker <kdwacker@de.ibm.com>
 Signed-off-by: Ursula Braun <braunu@de.ibm.com>
 ---
 
- drivers/s390/net/qeth_main.c |   28 +++++++++++++++++++---------
- drivers/s390/net/qeth_mpc.h  |    1 +
- 2 files changed, 20 insertions(+), 9 deletions(-)
+ drivers/s390/net/qeth_main.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
 Index: linux-2.6-uschi/drivers/s390/net/qeth_main.c
 ===================================================================
 --- linux-2.6-uschi.orig/drivers/s390/net/qeth_main.c
 +++ linux-2.6-uschi/drivers/s390/net/qeth_main.c
-@@ -1541,16 +1541,21 @@ qeth_idx_write_cb(struct qeth_channel *c
- 	card = CARD_FROM_CDEV(channel->ccwdev);
+@@ -2505,7 +2505,7 @@ qeth_rebuild_skb_fake_ll_tr(struct qeth_
+ 	struct iphdr *ip_hdr;
  
- 	if (!(QETH_IS_IDX_ACT_POS_REPLY(iob->data))) {
--		PRINT_ERR("IDX_ACTIVATE on write channel device %s: negative "
--			  "reply\n", CARD_WDEV_ID(card));
-+		if (QETH_IDX_ACT_CAUSE_CODE(iob->data) == 0x19)
-+			PRINT_ERR("IDX_ACTIVATE on write channel device %s: "
-+				"adapter exclusively used by another host\n",
-+				CARD_WDEV_ID(card));
-+		else
-+			PRINT_ERR("IDX_ACTIVATE on write channel device %s: "
-+				"negative reply\n", CARD_WDEV_ID(card));
- 		goto out;
- 	}
- 	memcpy(&temp, QETH_IDX_ACT_FUNC_LEVEL(iob->data), 2);
- 	if ((temp & ~0x0100) != qeth_peer_func_level(card->info.func_level)) {
- 		PRINT_WARN("IDX_ACTIVATE on write channel device %s: "
--			   "function level mismatch "
--			   "(sent: 0x%x, received: 0x%x)\n",
--			   CARD_WDEV_ID(card), card->info.func_level, temp);
-+			"function level mismatch "
-+			"(sent: 0x%x, received: 0x%x)\n",
-+			CARD_WDEV_ID(card), card->info.func_level, temp);
- 		goto out;
- 	}
- 	channel->state = CH_STATE_UP;
-@@ -1596,8 +1601,13 @@ qeth_idx_read_cb(struct qeth_channel *ch
- 			goto out;
- 	}
- 	if (!(QETH_IS_IDX_ACT_POS_REPLY(iob->data))) {
--		PRINT_ERR("IDX_ACTIVATE on read channel device %s: negative "
--			  "reply\n", CARD_RDEV_ID(card));
-+		if (QETH_IDX_ACT_CAUSE_CODE(iob->data) == 0x19)
-+			PRINT_ERR("IDX_ACTIVATE on read channel device %s: "
-+				"adapter exclusively used by another host\n",
-+				CARD_RDEV_ID(card));
-+		else
-+			PRINT_ERR("IDX_ACTIVATE on read channel device %s: "
-+				"negative reply\n", CARD_RDEV_ID(card));
- 		goto out;
- 	}
+ 	QETH_DBF_TEXT(trace,5,"skbfktr");
+-	skb_set_mac_header(skb, -QETH_FAKE_LL_LEN_TR);
++	skb_set_mac_header(skb, (int)-QETH_FAKE_LL_LEN_TR);
+ 	/* this is a fake ethernet header */
+ 	fake_hdr = tr_hdr(skb);
  
-@@ -1612,8 +1622,8 @@ qeth_idx_read_cb(struct qeth_channel *ch
- 	memcpy(&temp, QETH_IDX_ACT_FUNC_LEVEL(iob->data), 2);
- 	if (temp != qeth_peer_func_level(card->info.func_level)) {
- 		PRINT_WARN("IDX_ACTIVATE on read channel device %s: function "
--			   "level mismatch (sent: 0x%x, received: 0x%x)\n",
--			   CARD_RDEV_ID(card), card->info.func_level, temp);
-+			"level mismatch (sent: 0x%x, received: 0x%x)\n",
-+			CARD_RDEV_ID(card), card->info.func_level, temp);
- 		goto out;
- 	}
- 	memcpy(&card->token.issuer_rm_r,
-Index: linux-2.6-uschi/drivers/s390/net/qeth_mpc.h
-===================================================================
---- linux-2.6-uschi.orig/drivers/s390/net/qeth_mpc.h
-+++ linux-2.6-uschi/drivers/s390/net/qeth_mpc.h
-@@ -565,6 +565,7 @@ extern unsigned char IDX_ACTIVATE_WRITE[
- #define QETH_IDX_ACT_QDIO_DEV_REALADDR(buffer) (buffer+0x20)
- #define QETH_IS_IDX_ACT_POS_REPLY(buffer) (((buffer)[0x08]&3)==2)
- #define QETH_IDX_REPLY_LEVEL(buffer) (buffer+0x12)
-+#define QETH_IDX_ACT_CAUSE_CODE(buffer) (buffer)[0x09]
- 
- #define PDU_ENCAPSULATION(buffer) \
- 	(buffer + *(buffer + (*(buffer+0x0b)) + \
+@@ -4710,9 +4710,15 @@ qeth_send_packet(struct qeth_card *card,
+ 	if (card->info.type != QETH_CARD_TYPE_IQD)
+ 		rc = qeth_do_send_packet(card, queue, new_skb, hdr,
+ 					 elements_needed, ctx);
+-	else
++	else {
++		if ((skb->protocol == htons(ETH_P_ARP)) &&
++		    (card->dev->flags & IFF_NOARP)) {
++			__qeth_free_new_skb(skb, new_skb);
++			return -EPERM;
++		}
+ 		rc = qeth_do_send_packet_fast(card, queue, new_skb, hdr,
+ 					      elements_needed, ctx);
++	}
+ 	if (!rc) {
+ 		card->stats.tx_packets++;
+ 		card->stats.tx_bytes += tx_bytes;
 
 -- 
