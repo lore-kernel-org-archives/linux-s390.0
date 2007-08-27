@@ -1,80 +1,94 @@
 From: Ursula Braun <braunu@de.ibm.com>
-Date: Mon, 27 Aug 2007 17:27:36 +0000
-Subject: [patch 5/7] qeth: crash during reboot after failing online setting
-Message-Id: <20070827173101.806811000@linux.vnet.ibm.com>
+Date: Mon, 27 Aug 2007 17:27:37 +0000
+Subject: [patch 6/7] qeth: provide specific message for OSA-adapters exclusively used
+Message-Id: <20070827173102.462675000@linux.vnet.ibm.com>
 To: linux-s390@vger.kernel.org, linux-netdev@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Ursula Braun <braunu@de.ibm.com>
 
-Online setting of a qeth device may fail for instance because of:
-- out-of-memory condition when allocating qdio queues
-- IDX ACTIVATE problem
-- ...
-Such a device is still returned in a driver_for_each_device loop
-processed in qeth_reboot_event(), which calls
-qeth_clear_qdio_buffers(). Make sure qeth_clear_output_buffer() is
-called only, if the qdio queues have been successfully allocated
-during initialization of a qeth device.
+Exclusive usage of OSA-cards has been introduced. Even though Linux
+does not make use of it, qeth should be prepared to receive a bad RC
+for some initialization steps. A meaningful message is now given,
+if an OSA-device is set online, even though the OSA-adapter is already
+exclusively used by another host.
 
 Signed-off-by: Ursula Braun <braunu@de.ibm.com>
 ---
 
- drivers/s390/net/qeth_main.c |   20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/s390/net/qeth_main.c |   28 +++++++++++++++++++---------
+ drivers/s390/net/qeth_mpc.h  |    1 +
+ 2 files changed, 20 insertions(+), 9 deletions(-)
 
 Index: linux-2.6-uschi/drivers/s390/net/qeth_main.c
 ===================================================================
 --- linux-2.6-uschi.orig/drivers/s390/net/qeth_main.c
 +++ linux-2.6-uschi/drivers/s390/net/qeth_main.c
-@@ -3356,10 +3356,12 @@ out_freeoutq:
- 	while (i > 0)
- 		kfree(card->qdio.out_qs[--i]);
- 	kfree(card->qdio.out_qs);
-+	card->qdio.out_qs = NULL;
- out_freepool:
- 	qeth_free_buffer_pool(card);
- out_freeinq:
- 	kfree(card->qdio.in_q);
-+	card->qdio.in_q = NULL;
- out_nomem:
- 	atomic_set(&card->qdio.state, QETH_QDIO_UNINITIALIZED);
- 	return -ENOMEM;
-@@ -3375,16 +3377,20 @@ qeth_free_qdio_buffers(struct qeth_card 
- 		QETH_QDIO_UNINITIALIZED)
- 		return;
- 	kfree(card->qdio.in_q);
-+	card->qdio.in_q = NULL;
- 	/* inbound buffer pool */
- 	qeth_free_buffer_pool(card);
- 	/* free outbound qdio_qs */
--	for (i = 0; i < card->qdio.no_out_queues; ++i){
--		for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j)
--			qeth_clear_output_buffer(card->qdio.out_qs[i],
--					&card->qdio.out_qs[i]->bufs[j]);
--		kfree(card->qdio.out_qs[i]);
-+	if (card->qdio.out_qs) {
-+		for (i = 0; i < card->qdio.no_out_queues; ++i) {
-+			for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j)
-+				qeth_clear_output_buffer(card->qdio.out_qs[i],
-+						&card->qdio.out_qs[i]->bufs[j]);
-+			kfree(card->qdio.out_qs[i]);
-+		}
-+		kfree(card->qdio.out_qs);
-+		card->qdio.out_qs = NULL;
- 	}
--	kfree(card->qdio.out_qs);
- }
+@@ -1541,16 +1541,21 @@ qeth_idx_write_cb(struct qeth_channel *c
+ 	card = CARD_FROM_CDEV(channel->ccwdev);
  
- static void
-@@ -3395,7 +3401,7 @@ qeth_clear_qdio_buffers(struct qeth_card
- 	QETH_DBF_TEXT(trace, 2, "clearqdbf");
- 	/* clear outbound buffers to free skbs */
- 	for (i = 0; i < card->qdio.no_out_queues; ++i)
--		if (card->qdio.out_qs[i]){
-+		if (card->qdio.out_qs && card->qdio.out_qs[i]) {
- 			for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j)
- 				qeth_clear_output_buffer(card->qdio.out_qs[i],
- 						&card->qdio.out_qs[i]->bufs[j]);
+ 	if (!(QETH_IS_IDX_ACT_POS_REPLY(iob->data))) {
+-		PRINT_ERR("IDX_ACTIVATE on write channel device %s: negative "
+-			  "reply\n", CARD_WDEV_ID(card));
++		if (QETH_IDX_ACT_CAUSE_CODE(iob->data) == 0x19)
++			PRINT_ERR("IDX_ACTIVATE on write channel device %s: "
++				"adapter exclusively used by another host\n",
++				CARD_WDEV_ID(card));
++		else
++			PRINT_ERR("IDX_ACTIVATE on write channel device %s: "
++				"negative reply\n", CARD_WDEV_ID(card));
+ 		goto out;
+ 	}
+ 	memcpy(&temp, QETH_IDX_ACT_FUNC_LEVEL(iob->data), 2);
+ 	if ((temp & ~0x0100) != qeth_peer_func_level(card->info.func_level)) {
+ 		PRINT_WARN("IDX_ACTIVATE on write channel device %s: "
+-			   "function level mismatch "
+-			   "(sent: 0x%x, received: 0x%x)\n",
+-			   CARD_WDEV_ID(card), card->info.func_level, temp);
++			"function level mismatch "
++			"(sent: 0x%x, received: 0x%x)\n",
++			CARD_WDEV_ID(card), card->info.func_level, temp);
+ 		goto out;
+ 	}
+ 	channel->state = CH_STATE_UP;
+@@ -1596,8 +1601,13 @@ qeth_idx_read_cb(struct qeth_channel *ch
+ 			goto out;
+ 	}
+ 	if (!(QETH_IS_IDX_ACT_POS_REPLY(iob->data))) {
+-		PRINT_ERR("IDX_ACTIVATE on read channel device %s: negative "
+-			  "reply\n", CARD_RDEV_ID(card));
++		if (QETH_IDX_ACT_CAUSE_CODE(iob->data) == 0x19)
++			PRINT_ERR("IDX_ACTIVATE on read channel device %s: "
++				"adapter exclusively used by another host\n",
++				CARD_RDEV_ID(card));
++		else
++			PRINT_ERR("IDX_ACTIVATE on read channel device %s: "
++				"negative reply\n", CARD_RDEV_ID(card));
+ 		goto out;
+ 	}
+ 
+@@ -1612,8 +1622,8 @@ qeth_idx_read_cb(struct qeth_channel *ch
+ 	memcpy(&temp, QETH_IDX_ACT_FUNC_LEVEL(iob->data), 2);
+ 	if (temp != qeth_peer_func_level(card->info.func_level)) {
+ 		PRINT_WARN("IDX_ACTIVATE on read channel device %s: function "
+-			   "level mismatch (sent: 0x%x, received: 0x%x)\n",
+-			   CARD_RDEV_ID(card), card->info.func_level, temp);
++			"level mismatch (sent: 0x%x, received: 0x%x)\n",
++			CARD_RDEV_ID(card), card->info.func_level, temp);
+ 		goto out;
+ 	}
+ 	memcpy(&card->token.issuer_rm_r,
+Index: linux-2.6-uschi/drivers/s390/net/qeth_mpc.h
+===================================================================
+--- linux-2.6-uschi.orig/drivers/s390/net/qeth_mpc.h
++++ linux-2.6-uschi/drivers/s390/net/qeth_mpc.h
+@@ -565,6 +565,7 @@ extern unsigned char IDX_ACTIVATE_WRITE[
+ #define QETH_IDX_ACT_QDIO_DEV_REALADDR(buffer) (buffer+0x20)
+ #define QETH_IS_IDX_ACT_POS_REPLY(buffer) (((buffer)[0x08]&3)==2)
+ #define QETH_IDX_REPLY_LEVEL(buffer) (buffer+0x12)
++#define QETH_IDX_ACT_CAUSE_CODE(buffer) (buffer)[0x09]
+ 
+ #define PDU_ENCAPSULATION(buffer) \
+ 	(buffer + *(buffer + (*(buffer+0x0b)) + \
 
 -- 
