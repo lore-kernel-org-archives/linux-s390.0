@@ -1,61 +1,29 @@
 From: Ursula Braun <braunu@de.ibm.com>
-Subject: [patch 3/7] qeth: dont return the return values of void functions.
-Date: Mon, 27 Aug 2007 19:27:34 +0200
-Message-ID: <20070827173100.459007000@linux.vnet.ibm.com>
-References: <20070827172731.370533000@linux.vnet.ibm.com>
+Subject: [patch 0/7] s390 - qeth patches for 2.6.23-rc3 (resend)
+Date: Wed, 29 Aug 2007 11:26:51 +0200
+Message-ID: <20070829092651.411517000@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=705-qeth-return.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: frank.blaschka@de.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: frank.blaschka@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Ursula Braun <braunu@de.ibm.com>
----
-
- drivers/s390/net/qeth.h     |    4 ++--
- drivers/s390/net/qeth_sys.c |    8 ++++----
- 2 files changed, 6 insertions(+), 6 deletions(-)
-
-Index: linux-2.6-uschi/drivers/s390/net/qeth.h
-===================================================================
---- linux-2.6-uschi.orig/drivers/s390/net/qeth.h
-+++ linux-2.6-uschi/drivers/s390/net/qeth.h
-@@ -1178,9 +1178,9 @@ qeth_ipaddr_to_string(enum qeth_prot_ver
- 		      char *buf)
- {
- 	if (proto == QETH_PROT_IPV4)
--		return qeth_ipaddr4_to_string(addr, buf);
-+		qeth_ipaddr4_to_string(addr, buf);
- 	else if (proto == QETH_PROT_IPV6)
--		return qeth_ipaddr6_to_string(addr, buf);
-+		qeth_ipaddr6_to_string(addr, buf);
- }
- 
- static inline int
-Index: linux-2.6-uschi/drivers/s390/net/qeth_sys.c
-===================================================================
---- linux-2.6-uschi.orig/drivers/s390/net/qeth_sys.c
-+++ linux-2.6-uschi/drivers/s390/net/qeth_sys.c
-@@ -1760,10 +1760,10 @@ qeth_remove_device_attributes(struct dev
- {
- 	struct qeth_card *card = dev->driver_data;
- 
--	if (card->info.type == QETH_CARD_TYPE_OSN)
--		return sysfs_remove_group(&dev->kobj,
--					  &qeth_osn_device_attr_group);
--
-+	if (card->info.type == QETH_CARD_TYPE_OSN) {
-+		sysfs_remove_group(&dev->kobj, &qeth_osn_device_attr_group);
-+		return;
-+	}
- 	sysfs_remove_group(&dev->kobj, &qeth_device_attr_group);
- 	sysfs_remove_group(&dev->kobj, &qeth_device_ipato_group);
- 	sysfs_remove_group(&dev->kobj, &qeth_device_vipa_group);
-
 -- 
+Jeff,
+
+this is a resend of the s390 / qeth patches sent on monday.
+This time I have changed the wrong Subject line prefix of the patches
+from "qeth" to "s390". Sorry!
+
+qeth patches for 2.6.23-rc3:
+- do not allow interruption of "ungroup"
+- scatter gather mode: enforce rate limit
+- don't return void function return values
+- add tx checkumming for TSO/EDDP mode
+- invoke qeth_clear_output_buffer only for allocated qdio queues.
+- add specific message for exclusively used OSA-adapters
+- drop ARP packets on HiperSockets
+
+Regards,   Ursula Braun
