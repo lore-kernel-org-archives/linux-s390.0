@@ -1,65 +1,55 @@
-From: James Smart <James.Smart@Emulex.Com>
-Date: Tue, 28 Aug 2007 11:14:42 +0000
-Subject: Re: [PATCH 8/10] Introduce disable_target_scan flag in FC transport
-Message-Id: <46D403A2.70706@emulex.com>
-In-Reply-To: <200708280931.21488.swen@vnet.ibm.com>
-References: <200708280931.21488.swen@vnet.ibm.com>
-To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
+From: Swen Schillig <swen@vnet.ibm.com>
+Subject: Re: [RFC] zfcp: add statistics and other zfcp related information to sysfs
+Date: Wed, 5 Sep 2007 12:33:11 +0200
+Message-ID: <200709051233.11335.swen@vnet.ibm.com>
+References: <200709031416.21901.swen@vnet.ibm.com> <20070903124059.GP14130@parisc-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-scsi-owner@vger.kernel.org>
+In-Reply-To: <20070903124059.GP14130@parisc-linux.org>
+Content-Disposition: inline
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: James Bottomley <James.Bottomley@steeleye.com>, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-ACK
+On Monday 03 September 2007 14:40, Matthew Wilcox wrote:
+> On Mon, Sep 03, 2007 at 02:16:21PM +0200, Swen Schillig wrote:
+> > /sys/bus/ccw/drivers/zfcp/0.0.1707 
+> > /* information for the virtual adapter */
+> > 	statistic_services/ 	
+> > 		requests	
+> > 		megabytes
+> > 		utilization
+> > 		seconds_active
+> > /* LUN specific info for channel- and fabric-latency */
+> > 	0x500507630300c562/0x401040a600000000/  
+> > 		read_latency
+> > 		write_latency
+> > 		cmd_latency
+> > 
+> > Please comment if this would be an acceptable way to publish 
+> > the additional information.
+> 
+> This seems like it might be information that other adapters could,
+> in theory, also provide.  Maybe the first set of stats should
+> be added to /sys/class/scsi_host/hostN/ and the second set to
+> /sys/class/scsi_device/H:C:T:L/ ?  The names of the individual files
+> make sense to me.
+> 
 
-In the future, if the patch has already been pushed upstream independently
-I would not embed it again in a set of zfcp patches- I would simply reference it.
+Matthew, thanks for your feedback. 
+In the past we were trying a centralized and common approach a couple of times,
+with no success.
+Since we really need to have our data available soon, 
+I'd prefer to start off with the "proprietary" location and make this data available 
+to our customers.
 
--- james s
+Anybody else some comments ?
+Otherwise I'll post the patch.
 
-Swen Schillig wrote:
-> From: Christof Schmitt <christof.schmitt@de.ibm.com>
-> 
-> This change has already been discussed on linux-scsi:
-> http://marc.info/?t=118771096400003
-> http://marc.info/?t=118760913100005
-> 
-> Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
-> Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
-> ---
-> 
->  drivers/scsi/scsi_transport_fc.c |    4 +++-
->  include/scsi/scsi_transport_fc.h |    2 ++
->  2 files changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff -urpN linux-2.6/drivers/scsi/scsi_transport_fc.c linux-2.6-patched/drivers/scsi/scsi_transport_fc.c
-> --- linux-2.6/drivers/scsi/scsi_transport_fc.c	2007-08-27 13:21:50.000000000 +0200
-> +++ linux-2.6-patched/drivers/scsi/scsi_transport_fc.c	2007-08-27 13:22:22.000000000 +0200
-> @@ -2988,10 +2988,12 @@ fc_scsi_scan_rport(struct work_struct *w
->  	struct fc_rport *rport =
->  		container_of(work, struct fc_rport, scan_work);
->  	struct Scsi_Host *shost = rport_to_shost(rport);
-> +	struct fc_internal *i = to_fc_internal(shost->transportt);
->  	unsigned long flags;
->  
->  	if ((rport->port_state == FC_PORTSTATE_ONLINE) &&
-> -	    (rport->roles & FC_PORT_ROLE_FCP_TARGET)) {
-> +	    (rport->roles & FC_PORT_ROLE_FCP_TARGET) &&
-> +	    !(i->f->disable_target_scan)) {
->  		scsi_scan_target(&rport->dev, rport->channel,
->  			rport->scsi_target_id, SCAN_WILD_CARD, 1);
->  	}
-> diff -urpN linux-2.6/include/scsi/scsi_transport_fc.h linux-2.6-patched/include/scsi/scsi_transport_fc.h
-> --- linux-2.6/include/scsi/scsi_transport_fc.h	2007-08-27 13:21:52.000000000 +0200
-> +++ linux-2.6-patched/include/scsi/scsi_transport_fc.h	2007-08-27 13:22:22.000000000 +0200
-> @@ -632,6 +632,8 @@ struct fc_function_template {
->  	unsigned long	show_host_fabric_name:1;
->  	unsigned long	show_host_symbolic_name:1;
->  	unsigned long	show_host_system_hostname:1;
-> +
-> +	unsigned long	disable_target_scan:1;
->  };
->  
->  
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Cheers Swen
