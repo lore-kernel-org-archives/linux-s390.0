@@ -1,15 +1,18 @@
-From: Ursula Braun <braunu@de.ibm.com>
-Subject: [patch 0/1] s390 maintainer change
-Date: Wed, 19 Sep 2007 13:09:01 +0200
-Message-ID: <20070919110901.080242000@linux.vnet.ibm.com>
+From: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [patch 1/1] From: Ursula Braun <braunu@de.ibm.com>
+Date: Thu, 20 Sep 2007 00:18:31 -0400
+Message-ID: <46F1F497.5050101@pobox.com>
+References: <20070919110901.080242000@linux.vnet.ibm.com> <20070919111027.298899000@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20070919111027.298899000@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net, jgarzik@pobox.com, akpm@linux-foundation.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: Ursula Braun <braunu@de.ibm.com>
+Cc: davem@davemloft.net, akpm@linux-foundation.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
--- 
-Please update MAINTAINERS file because of changes in the s390 networking team
-
-Regards, Ursula Braun
+applied
