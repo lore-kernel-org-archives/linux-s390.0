@@ -1,118 +1,118 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758757AbXJDLlR@vger.kernel.org>
-Message-Id: <20071004112828.689566148@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761967AbXJDLll@vger.kernel.org>
+Message-Id: <20071004112827.021050079@de.ibm.com>
 References: <20071004112706.574737175@de.ibm.com>
-Date: Thu, 04 Oct 2007 13:27:21 +0200
+Date: Thu, 04 Oct 2007 13:27:15 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 15/34] zcrypt: remove duplicated struct CPRBX definition
-Content-Disposition: inline; filename=015-zcrypt-dup.diff
+Subject: [patch 09/34] cio: Introduce ccw_bus_type.shutdown.
+Content-Disposition: inline; filename=009-cio-shutdown.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Ralph Wuerthner <rwuerthn@de.ibm.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ralph Wuerthner <rwuerthn@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Signed-off-by: Ralph Wuerthner <rwuerthn@de.ibm.com>
+Introduce a shutdown method for the ccw bus that calls the driver
+specific shutdown method in struct ccw_driver.
+Switch zfcp to the new ccw_driver shutdown method.
+
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/crypto/zcrypt_pcixcc.c |    2 -
- drivers/s390/crypto/zcrypt_pcixcc.h |   45 ------------------------------------
- include/asm-s390/zcrypt.h           |    4 +--
- 3 files changed, 3 insertions(+), 48 deletions(-)
+ drivers/s390/cio/device.c    |   10 ++++++++++
+ drivers/s390/scsi/zfcp_ccw.c |   10 ++++------
+ include/asm-s390/ccwdev.h    |    2 ++
+ 3 files changed, 16 insertions(+), 6 deletions(-)
 
-Index: quilt-2.6/drivers/s390/crypto/zcrypt_pcixcc.c
+Index: quilt-2.6/drivers/s390/cio/device.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/crypto/zcrypt_pcixcc.c
-+++ quilt-2.6/drivers/s390/crypto/zcrypt_pcixcc.c
-@@ -277,7 +277,7 @@ static int XCRB_msg_to_type6CPRB_msgX(st
- 	};
- 	struct {
- 		struct type6_hdr hdr;
--		struct ica_CPRBX cprbx;
-+		struct CPRBX cprbx;
- 	} __attribute__((packed)) *msg = ap_msg->message;
+--- quilt-2.6.orig/drivers/s390/cio/device.c
++++ quilt-2.6/drivers/s390/cio/device.c
+@@ -1433,12 +1433,22 @@ ccw_device_remove (struct device *dev)
+ 	return 0;
+ }
  
- 	int rcblen = CEIL4(xcRB->request_control_blk_length);
-Index: quilt-2.6/drivers/s390/crypto/zcrypt_pcixcc.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/crypto/zcrypt_pcixcc.h
-+++ quilt-2.6/drivers/s390/crypto/zcrypt_pcixcc.h
-@@ -28,51 +28,6 @@
- #ifndef _ZCRYPT_PCIXCC_H_
- #define _ZCRYPT_PCIXCC_H_
- 
--/**
-- * CPRBX
-- *	  Note that all shorts and ints are big-endian.
-- *	  All pointer fields are 16 bytes long, and mean nothing.
-- *
-- *	  A request CPRB is followed by a request_parameter_block.
-- *
-- *	  The request (or reply) parameter block is organized thus:
-- *	    function code
-- *	    VUD block
-- *	    key block
-- */
--struct CPRBX {
--	unsigned short cprb_len;	/* CPRB length	      220	 */
--	unsigned char  cprb_ver_id;	/* CPRB version id.   0x02	 */
--	unsigned char  pad_000[3];	/* Alignment pad bytes		 */
--	unsigned char  func_id[2];	/* function id	      0x5432	 */
--	unsigned char  cprb_flags[4];	/* Flags			 */
--	unsigned int   req_parml;	/* request parameter buffer len	 */
--	unsigned int   req_datal;	/* request data buffer		 */
--	unsigned int   rpl_msgbl;	/* reply  message block length	 */
--	unsigned int   rpld_parml;	/* replied parameter block len	 */
--	unsigned int   rpl_datal;	/* reply data block len		 */
--	unsigned int   rpld_datal;	/* replied data block len	 */
--	unsigned int   req_extbl;	/* request extension block len	 */
--	unsigned char  pad_001[4];	/* reserved			 */
--	unsigned int   rpld_extbl;	/* replied extension block len	 */
--	unsigned char  req_parmb[16];	/* request parm block 'address'	 */
--	unsigned char  req_datab[16];	/* request data block 'address'	 */
--	unsigned char  rpl_parmb[16];	/* reply parm block 'address'	 */
--	unsigned char  rpl_datab[16];	/* reply data block 'address'	 */
--	unsigned char  req_extb[16];	/* request extension block 'addr'*/
--	unsigned char  rpl_extb[16];	/* reply extension block 'addres'*/
--	unsigned short ccp_rtcode;	/* server return code		 */
--	unsigned short ccp_rscode;	/* server reason code		 */
--	unsigned int   mac_data_len;	/* Mac Data Length		 */
--	unsigned char  logon_id[8];	/* Logon Identifier		 */
--	unsigned char  mac_value[8];	/* Mac Value			 */
--	unsigned char  mac_content_flgs;/* Mac content flag byte	 */
--	unsigned char  pad_002;		/* Alignment			 */
--	unsigned short domain;		/* Domain			 */
--	unsigned char  pad_003[12];	/* Domain masks			 */
--	unsigned char  pad_004[36];	/* reserved			 */
--} __attribute__((packed));
--
- int zcrypt_pcixcc_init(void);
- void zcrypt_pcixcc_exit(void);
- 
-Index: quilt-2.6/include/asm-s390/zcrypt.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/zcrypt.h
-+++ quilt-2.6/include/asm-s390/zcrypt.h
-@@ -91,7 +91,7 @@ struct ica_rsa_modexpo_crt {
-  *	    VUD block
-  *	    key block
-  */
--struct ica_CPRBX {
-+struct CPRBX {
- 	unsigned short	cprb_len;	/* CPRB length	      220	 */
- 	unsigned char	cprb_ver_id;	/* CPRB version id.   0x02	 */
- 	unsigned char	pad_000[3];	/* Alignment pad bytes		 */
-@@ -130,7 +130,7 @@ struct ica_CPRBX {
- 	unsigned char	cntrl_domain[4];/* Control domain		 */
- 	unsigned char	S390enf_mask[4];/* S/390 enforcement mask	 */
- 	unsigned char	pad_004[36];	/* reserved			 */
--};
-+} __attribute__((packed));
++static void ccw_device_shutdown(struct device *dev)
++{
++	struct ccw_device *cdev;
++
++	cdev = to_ccwdev(dev);
++	if (cdev->drv && cdev->drv->shutdown)
++		cdev->drv->shutdown(cdev);
++}
++
+ struct bus_type ccw_bus_type = {
+ 	.name   = "ccw",
+ 	.match  = ccw_bus_match,
+ 	.uevent = ccw_uevent,
+ 	.probe  = ccw_device_probe,
+ 	.remove = ccw_device_remove,
++	.shutdown = ccw_device_shutdown,
+ };
  
  /**
-  * xcRB
+Index: quilt-2.6/drivers/s390/scsi/zfcp_ccw.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/scsi/zfcp_ccw.c
++++ quilt-2.6/drivers/s390/scsi/zfcp_ccw.c
+@@ -28,7 +28,7 @@ static void zfcp_ccw_remove(struct ccw_d
+ static int zfcp_ccw_set_online(struct ccw_device *);
+ static int zfcp_ccw_set_offline(struct ccw_device *);
+ static int zfcp_ccw_notify(struct ccw_device *, int);
+-static void zfcp_ccw_shutdown(struct device *);
++static void zfcp_ccw_shutdown(struct ccw_device *);
+ 
+ static struct ccw_device_id zfcp_ccw_device_id[] = {
+ 	{CCW_DEVICE_DEVTYPE(ZFCP_CONTROL_UNIT_TYPE,
+@@ -51,9 +51,7 @@ static struct ccw_driver zfcp_ccw_driver
+ 	.set_online  = zfcp_ccw_set_online,
+ 	.set_offline = zfcp_ccw_set_offline,
+ 	.notify      = zfcp_ccw_notify,
+-	.driver      = {
+-		.shutdown = zfcp_ccw_shutdown,
+-	},
++	.shutdown    = zfcp_ccw_shutdown,
+ };
+ 
+ MODULE_DEVICE_TABLE(ccw, zfcp_ccw_device_id);
+@@ -277,12 +275,12 @@ zfcp_ccw_register(void)
+  * Makes sure that QDIO queues are down when the system gets stopped.
+  */
+ static void
+-zfcp_ccw_shutdown(struct device *dev)
++zfcp_ccw_shutdown(struct ccw_device *cdev)
+ {
+ 	struct zfcp_adapter *adapter;
+ 
+ 	down(&zfcp_data.config_sema);
+-	adapter = dev_get_drvdata(dev);
++	adapter = dev_get_drvdata(&cdev->dev);
+ 	zfcp_erp_adapter_shutdown(adapter, 0);
+ 	zfcp_erp_wait(adapter);
+ 	up(&zfcp_data.config_sema);
+Index: quilt-2.6/include/asm-s390/ccwdev.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/ccwdev.h
++++ quilt-2.6/include/asm-s390/ccwdev.h
+@@ -102,6 +102,7 @@ struct ccw_device {
+  * @set_online: called when setting device online
+  * @set_offline: called when setting device offline
+  * @notify: notify driver of device state changes
++ * @shutdown: called at device shutdown
+  * @driver: embedded device driver structure
+  * @name: device driver name
+  */
+@@ -113,6 +114,7 @@ struct ccw_driver {
+ 	int (*set_online) (struct ccw_device *);
+ 	int (*set_offline) (struct ccw_device *);
+ 	int (*notify) (struct ccw_device *, int);
++	void (*shutdown) (struct ccw_device *);
+ 	struct device_driver driver;
+ 	char *name;
+ };
 
 -- 
 blue skies,
