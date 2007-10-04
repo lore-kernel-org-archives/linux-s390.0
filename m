@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760952AbXJDLkW@vger.kernel.org>
-Message-Id: <20071004112830.024915273@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761816AbXJDLku@vger.kernel.org>
+Message-Id: <20071004112828.970680427@de.ibm.com>
 References: <20071004112706.574737175@de.ibm.com>
-Date: Thu, 04 Oct 2007 13:27:26 +0200
+Date: Thu, 04 Oct 2007 13:27:22 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 20/34] disassembler: Remove redundant variable assignment
-Content-Disposition: inline; filename=020-dis-assign.diff
+Subject: [patch 16/34] zcrypt: fix ap_reset_domain()
+Content-Disposition: inline; filename=016-zcrypt-reset.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Ralph Wuerthner <rwuerthn@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Ralph Wuerthner <rwuerthn@de.ibm.com>
 
-There is no need to assign "0" to "hops" twice. Remove one assigment.
+Resetting of a all queues within a domain requires that a domain must 
+be selected first.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Ralph Wuerthner <rwuerthn@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/dis.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/s390/crypto/ap_bus.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/dis.c
+Index: quilt-2.6/drivers/s390/crypto/ap_bus.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/dis.c
-+++ quilt-2.6/arch/s390/kernel/dis.c
-@@ -1243,7 +1243,6 @@ void show_code(struct pt_regs *regs)
- 	}
- 	/* Find a starting point for the disassembly. */
- 	while (start < 32) {
--		hops = 0;
- 		for (i = 0, hops = 0; start + i < 32 && hops < 3; hops++) {
- 			if (!find_insn(code + start + i))
- 				break;
+--- quilt-2.6.orig/drivers/s390/crypto/ap_bus.c
++++ quilt-2.6/drivers/s390/crypto/ap_bus.c
+@@ -1231,8 +1231,9 @@ static void ap_reset_domain(void)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < AP_DEVICES; i++)
+-		ap_reset_queue(AP_MKQID(i, ap_domain_index));
++	if (ap_domain_index != -1)
++		for (i = 0; i < AP_DEVICES; i++)
++			ap_reset_queue(AP_MKQID(i, ap_domain_index));
+ }
+ 
+ static void ap_reset_all(void)
 
 -- 
 blue skies,
