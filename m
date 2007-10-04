@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760614AbXJDLdN@vger.kernel.org>
-Message-Id: <20071004112829.773479156@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760706AbXJDLdf@vger.kernel.org>
+Message-Id: <20071004112830.596222209@de.ibm.com>
 References: <20071004112706.574737175@de.ibm.com>
-Date: Thu, 04 Oct 2007 13:27:25 +0200
+Date: Thu, 04 Oct 2007 13:27:28 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 19/34] disassembler: fix output for insns with 6 operands.
-Content-Disposition: inline; filename=019-dis-bug.diff
+Subject: [patch 22/34] remove packed attribute from ext_int_info_t.
+Content-Disposition: inline; filename=022-ext-info.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-The termination condition of the loop that prints the operands of
-an instruction doesn't stop after the maximum of 6 operands.
-It continues with the operands of the next instruction format
-instead which create really long lines.
+ext_int_info_t is no longer used in entry(64).S Instead do_extint is a C
+function that handles the hash search.
+As the structure is handled in C code, we can also remove the packed
+attribute to avoid alignment issues. (Currently there is no alignment
+problem in ext_int_info_t, even if packet)
 
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
 
- arch/s390/kernel/dis.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/asm-s390/s390_ext.h |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/dis.c
+Index: quilt-2.6/include/asm-s390/s390_ext.h
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/dis.c
-+++ quilt-2.6/arch/s390/kernel/dis.c
-@@ -1162,6 +1162,7 @@ static int print_insn(char *buffer, unsi
- 	unsigned int value;
- 	char separator;
- 	char *ptr;
-+	int i;
+--- quilt-2.6.orig/include/asm-s390/s390_ext.h
++++ quilt-2.6/include/asm-s390/s390_ext.h
+@@ -5,7 +5,7 @@
+  *  include/asm-s390/s390_ext.h
+  *
+  *  S390 version
+- *    Copyright (C) 1999,2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ *    Copyright IBM Corp. 1999,2007
+  *    Author(s): Holger Smolinski (Holger.Smolinski@de.ibm.com),
+  *               Martin Schwidefsky (schwidefsky@de.ibm.com)
+  */
+@@ -14,15 +14,11 @@
  
- 	ptr = buffer;
- 	insn = find_insn(code);
-@@ -1169,7 +1170,8 @@ static int print_insn(char *buffer, unsi
- 		ptr += sprintf(ptr, "%.5s\t", insn->name);
- 		/* Extract the operands. */
- 		separator = 0;
--		for (ops = formats[insn->format] + 1; *ops != 0; ops++) {
-+		for (ops = formats[insn->format] + 1, i = 0;
-+		     *ops != 0 && i < 6; ops++, i++) {
- 			operand = operands + *ops;
- 			value = extract_operand(code, operand);
- 			if ((operand->flags & OPERAND_INDEX)  && value == 0)
+ typedef void (*ext_int_handler_t)(__u16 code);
+ 
+-/*
+- * Warning: if you change ext_int_info_t you have to change the
+- * external interrupt handler in entry.S too.
+- */ 
+ typedef struct ext_int_info_t {
+ 	struct ext_int_info_t *next;
+ 	ext_int_handler_t handler;
+ 	__u16 code;
+-} __attribute__ ((packed)) ext_int_info_t;
++} ext_int_info_t;
+ 
+ extern ext_int_info_t *ext_int_hash[];
+ 
 
 -- 
 blue skies,
