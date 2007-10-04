@@ -1,96 +1,36 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760699AbXJDLm3@vger.kernel.org>
-Message-Id: <20071004112826.700814369@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758868AbXJDTJH@vger.kernel.org>
+Date: Thu, 4 Oct 2007 21:10:15 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [patch 00/34] s390 patches for 2.6.24
+Message-ID: <20071004191015.GA23211@uranus.ravnborg.org>
 References: <20071004112706.574737175@de.ibm.com>
-Date: Thu, 04 Oct 2007 13:27:14 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 08/34] cio: Disable channel path measurements on shutdown/reboot.
-Content-Disposition: inline; filename=008-cio-cmf.diff
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20071004112706.574737175@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Hi Martin.
+On Thu, Oct 04, 2007 at 01:27:06PM +0200, Martin Schwidefsky wrote:
+> The current set of s390 patches ready to be pushed once 2.6.23
+> has hit the streets.
 
-Make sure channel path measurements are disabled via a reboot notifier
-since we cannot rely on userspace to disable it again after enabling
-it. This is 1. clean and 2. makes sure that channel path measurements
-do not stay enabled after a reboot not involving a subsystem reset
-(which would lead to the channel subsystem scribbling onto random
-memory).
+I noticed that I had not yet beautified the vmlinux.lds file of s390.
+Please consider the next two patches for 2.6.24.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+The first patch refactor vmlinux.lds to a consistent (and more readable)
+style that is being gradually introduced for all archs.
+Rationale behind a consistent style is to make across-all-archs
+changes less error prone and to better recongnize similar patterns.
+The patch moves a few labels so they get the correct value even if
+ld decide to align the section a few bytes.
 
- drivers/s390/cio/css.c |   29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+The second patch introduce use of PAGE_SIZE as replacemnt of the
+hardcoded value 4096 and convert a few decimal numbers to hex.
 
-Index: quilt-2.6/drivers/s390/cio/css.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/css.c
-+++ quilt-2.6/drivers/s390/cio/css.c
-@@ -13,6 +13,7 @@
- #include <linux/slab.h>
- #include <linux/errno.h>
- #include <linux/list.h>
-+#include <linux/reboot.h>
- 
- #include "css.h"
- #include "cio.h"
-@@ -632,6 +633,29 @@ static int __init setup_css(int nr)
- 	return 0;
- }
- 
-+static int css_reboot_event(struct notifier_block *this,
-+			    unsigned long event,
-+			    void *ptr)
-+{
-+	int ret, i;
-+
-+	ret = NOTIFY_DONE;
-+	for (i = 0; i <= __MAX_CSSID; i++) {
-+		struct channel_subsystem *css;
-+
-+		css = channel_subsystems[i];
-+		if (css->cm_enabled)
-+			if (chsc_secm(css, 0))
-+				ret = NOTIFY_BAD;
-+	}
-+
-+	return ret;
-+}
-+
-+static struct notifier_block css_reboot_notifier = {
-+	.notifier_call = css_reboot_event,
-+};
-+
- /*
-  * Now that the driver core is running, we can setup our channel subsystem.
-  * The struct subchannel's are created during probing (except for the
-@@ -697,12 +721,17 @@ init_channel_subsystem (void)
- 		if (ret)
- 			goto out_file;
- 	}
-+	ret = register_reboot_notifier(&css_reboot_notifier);
-+	if (ret)
-+		goto out_pseudo;
- 	css_init_done = 1;
- 
- 	ctl_set_bit(6, 28);
- 
- 	for_each_subchannel(__init_channel_subsystem, NULL);
- 	return 0;
-+out_pseudo:
-+	device_unregister(&channel_subsystems[i]->pseudo_subchannel->dev);
- out_file:
- 	device_remove_file(&channel_subsystems[i]->device,
- 			   &dev_attr_cm_enable);
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+	Sam
