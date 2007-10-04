@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759067AbXJDLbX@vger.kernel.org>
-Message-Id: <20071004112827.886347767@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759993AbXJDLbk@vger.kernel.org>
+Message-Id: <20071004112827.288713172@de.ibm.com>
 References: <20071004112706.574737175@de.ibm.com>
-Date: Thu, 04 Oct 2007 13:27:18 +0200
+Date: Thu, 04 Oct 2007 13:27:16 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 12/34] Add Documentation/s390/00-INDEX.
-Content-Disposition: inline; filename=012-cio-docu-index.diff
+Subject: [patch 10/34] cio: Disable channel measurements (cmf) on shutdown/reboot.
+Content-Disposition: inline; filename=010-cio-cmf-disable.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,44 +14,54 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
+Disable channel measurements for all ccw devices via the ccw bus's
+shutdown method. Clear residual cmf related information that may be
+in the schib when setting up a new subchannel.
+
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- Documentation/s390/00-INDEX |   26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ drivers/s390/cio/cio.c    |    5 +++++
+ drivers/s390/cio/device.c |    2 ++
+ 2 files changed, 7 insertions(+)
 
-Index: quilt-2.6/Documentation/s390/00-INDEX
+Index: quilt-2.6/drivers/s390/cio/cio.c
 ===================================================================
---- /dev/null
-+++ quilt-2.6/Documentation/s390/00-INDEX
-@@ -0,0 +1,26 @@
-+00-INDEX
-+	- this file.
-+3270.ChangeLog
-+	- ChangeLog for the UTS Global 3270-support patch (outdated).
-+3270.txt
-+	- how to use the IBM 3270 display system support.
-+cds.txt
-+	- s390 common device support (common I/O layer).
-+CommonIO
-+	- common I/O layer command line parameters and /proc entries
-+config3270.sh
-+	- example configuration for 3270 devices.
-+DASD
-+	- information on the DASD disk device driver.
-+Debugging390.txt
-+	- hints for debugging on s390 systems.
-+driver-model.txt
-+	- information on s390 devices and the driver model.
-+monreader.txt
-+	- information on accessing the z/VM monitor stream from Linux.
-+s390dbf.txt
-+	- information on using the s390 debug feature.
-+TAPE
-+	- information on the driver for channel-attached tapes.
-+zfcpdump
-+	- information on the s390 SCSI dump tool.
+--- quilt-2.6.orig/drivers/s390/cio/cio.c
++++ quilt-2.6/drivers/s390/cio/cio.c
+@@ -619,6 +619,11 @@ cio_validate_subchannel (struct subchann
+ 	sch->schib.pmcw.ena = 0;
+ 	if ((sch->lpm & (sch->lpm - 1)) != 0)
+ 		sch->schib.pmcw.mp = 1;	/* multipath mode */
++	/* clean up possible residual cmf stuff */
++	sch->schib.pmcw.mme = 0;
++	sch->schib.pmcw.mbfc = 0;
++	sch->schib.pmcw.mbi = 0;
++	sch->schib.mba = 0;
+ 	return 0;
+ out:
+ 	if (!cio_is_console(schid))
+Index: quilt-2.6/drivers/s390/cio/device.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/device.c
++++ quilt-2.6/drivers/s390/cio/device.c
+@@ -21,6 +21,7 @@
+ #include <asm/ccwdev.h>
+ #include <asm/cio.h>
+ #include <asm/param.h>		/* HZ */
++#include <asm/cmb.h>
+ 
+ #include "cio.h"
+ #include "cio_debug.h"
+@@ -1440,6 +1441,7 @@ static void ccw_device_shutdown(struct d
+ 	cdev = to_ccwdev(dev);
+ 	if (cdev->drv && cdev->drv->shutdown)
+ 		cdev->drv->shutdown(cdev);
++	disable_cmf(cdev);
+ }
+ 
+ struct bus_type ccw_bus_type = {
 
 -- 
 blue skies,
