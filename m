@@ -1,51 +1,19 @@
-From: Ursula Braun1 <BRAUNU@de.ibm.com>
-Subject: Re: [patch 0/5] s390: qeth and lcs patches for 2.6.24 - RESEND
-Date: Fri, 5 Oct 2007 17:35:46 +0200
-Message-ID: <OF9987F97E.0F7C9504-ONC125736B.0055700B-C125736B.0055AC3E@de.ibm.com>
-References: <47065321.9080403@garzik.org>
+From: Jeff Garzik <jeff@garzik.org>
+Subject: Re: [patch 1/5] qeth: HiperSockets layer-3 interface drop non IPv4
+ or non IPv6 packets
+Date: Fri, 05 Oct 2007 13:55:50 -0400
+Message-ID: <47067AA6.60802@garzik.org>
+References: <20071005144543.448852000@linux.vnet.ibm.com> <20071005144822.229143000@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <47065321.9080403@garzik.org>
+In-Reply-To: <20071005144822.229143000@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: Ursula Braun <braunu@de.ibm.com>
+Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, "Klaus D. Wacker" <kdwacker@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Jeff,
-
-patches have not changed on resend, just the header part of [patch 5/5].
-
-Ursula
-
-
-
-                                                                           
-             Jeff Garzik                                                   
-             <jeff@garzik.org>                                             
-             Sent by:                                                   To 
-             linux-s390-owner@         Ursula Braun1/Germany/IBM@IBMDE     
-             vger.kernel.org                                            cc 
-                                       davem@davemloft.net,                
-                                       netdev@vger.kernel.org,             
-             05.10.2007 17:07          linux-s390@vger.kernel.org          
-                                                                   Subject 
-                                       Re: [patch 0/5] s390: qeth and lcs  
-                                       patches for 2.6.24 - RESEND         
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-
-
-
-
-Did these patches change on resend?  Or just addressees?
-
-             Jeff
-
-
+applied 1-5
