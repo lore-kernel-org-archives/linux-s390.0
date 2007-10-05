@@ -1,10 +1,10 @@
 From: Ursula Braun <braunu@de.ibm.com>
-Subject: [patch 4/5] lcs: Channel errors drive lcs_recovery which leads to kernel panic.
-Date: Fri, 05 Oct 2007 09:38:20 +0200
-Message-ID: <20071005074044.684025000@linux.vnet.ibm.com>
+Subject: [patch 1/5] qeth: HiperSockets layer-3 interface drop non IPv4 or non IPv6 packets
+Date: Fri, 05 Oct 2007 09:38:17 +0200
+Message-ID: <20071005074042.481388000@linux.vnet.ibm.com>
 References: <20071005073816.996932000@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=710-lcs-panic.diff
+Content-Disposition: inline; filename=705-qeth-pktdrop.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -14,62 +14,34 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Klaus D. Wacker <kdwacker@de.ibm.com>
 
-When the lcs irq routine detects channel failures it drives device recovery.
-After this event the device is no longer usable for shutdown requests,
-because the lcs_irq routine may get wrong channel status information.
-In such a case the lcs_irq routine marks the channel in 'error' state.
-The channel state comes back to 'running' after restarting the channels.
+HiperSockets infrastructure (layer-3 mode) supports only IPv4 or
+IPv6 packets. Sending other packet types disturbs TCP/IP on z/VM,
+which issues messages about invalid packets.
+Qeth send routine will detect packet type on sending over a 
+HiperSockets interface (in layer-3 mode) and drop non IP packets.
+The error and drop count of the interface is incremented.
 
 Signed-off-by: Klaus D. Wacker <kdwacker@de.ibm.com>
 Signed-off-by: Ursula Braun <braunu@de.ibm.com>
 ---
 
- drivers/s390/net/lcs.c |   11 ++++++++---
- drivers/s390/net/lcs.h |    1 +
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ drivers/s390/net/qeth_main.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Index: linux-2.6-uschi/drivers/s390/net/lcs.c
+Index: linux-2.6-uschi/drivers/s390/net/qeth_main.c
 ===================================================================
---- linux-2.6-uschi.orig/drivers/s390/net/lcs.c
-+++ linux-2.6-uschi/drivers/s390/net/lcs.c
-@@ -1400,11 +1400,14 @@ lcs_irq(struct ccw_device *cdev, unsigne
- 		PRINT_WARN("check on device %s, dstat=0x%X, cstat=0x%X \n",
- 			    cdev->dev.bus_id, dstat, cstat);
- 		if (rc) {
--			lcs_schedule_recovery(card);
--			wake_up(&card->wait_q);
--			return;
-+			channel->state = LCS_CH_STATE_ERROR;
+--- linux-2.6-uschi.orig/drivers/s390/net/qeth_main.c
++++ linux-2.6-uschi/drivers/s390/net/qeth_main.c
+@@ -4711,8 +4711,8 @@ qeth_send_packet(struct qeth_card *card,
+ 		rc = qeth_do_send_packet(card, queue, new_skb, hdr,
+ 					 elements_needed, ctx);
+ 	else {
+-		if ((skb->protocol == htons(ETH_P_ARP)) &&
+-		    (card->dev->flags & IFF_NOARP)) {
++		if ((!card->options.layer2) &&
++		    (ipv == 0)) {
+ 			__qeth_free_new_skb(skb, new_skb);
+ 			return -EPERM;
  		}
- 	}
-+	if (channel->state == LCS_CH_STATE_ERROR) {
-+		lcs_schedule_recovery(card);
-+		wake_up(&card->wait_q);
-+		return;
-+	}
- 	/* How far in the ccw chain have we processed? */
- 	if ((channel->state != LCS_CH_STATE_INIT) &&
- 	    (irb->scsw.fctl & SCSW_FCTL_START_FUNC)) {
-@@ -1708,6 +1711,8 @@ lcs_stopcard(struct lcs_card *card)
- 
- 	if (card->read.state != LCS_CH_STATE_STOPPED &&
- 	    card->write.state != LCS_CH_STATE_STOPPED &&
-+	    card->read.state != LCS_CH_STATE_ERROR &&
-+	    card->write.state != LCS_CH_STATE_ERROR &&
- 	    card->state == DEV_STATE_UP) {
- 		lcs_clear_multicast_list(card);
- 		rc = lcs_send_stoplan(card,LCS_INITIATOR_TCPIP);
-Index: linux-2.6-uschi/drivers/s390/net/lcs.h
-===================================================================
---- linux-2.6-uschi.orig/drivers/s390/net/lcs.h
-+++ linux-2.6-uschi/drivers/s390/net/lcs.h
-@@ -138,6 +138,7 @@ enum lcs_channel_states {
- 	LCS_CH_STATE_RUNNING,
- 	LCS_CH_STATE_SUSPENDED,
- 	LCS_CH_STATE_CLEARED,
-+	LCS_CH_STATE_ERROR,
- };
- 
- /**
 
 -- 
