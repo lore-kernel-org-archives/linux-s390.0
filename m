@@ -1,71 +1,48 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Subject: Re: [patch 2/6] CONFIG_HIGHPTE vs. sub-page page tables.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-In-Reply-To: <1193345221.7018.18.camel@pasglop>
-References: <20071025181520.880272069@de.ibm.com>
-	 <20071025181901.212545095@de.ibm.com>  <1193345221.7018.18.camel@pasglop>
-Content-Type: text/plain
-Date: Fri, 26 Oct 2007 10:06:31 +0200
-Message-Id: <1193385991.31831.11.camel@localhost>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: benh@kernel.crashing.org
-Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com
+From: Ursula Braun <braunu@de.ibm.com>
+Subject: [patch 5/5] From: Ursula Braun <braunu@de.ibm.com>
+Date: Fri, 05 Oct 2007 09:38:21 +0200
+Message-ID: <20071005074045.557807000@linux.vnet.ibm.com>
+References: <20071005073816.996932000@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=qeth-inbound.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-> @@ -107,20 +107,21 @@ __init_refok pte_t *pte_alloc_one_kernel
->  	return pte;
->  }
->  
-> -struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
-> +pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long address)
->  {
->  	struct page *ptepage;
->  
->  #ifdef CONFIG_HIGHPTE
-> -	gfp_t flags = GFP_KERNEL | __GFP_HIGHMEM | __GFP_REPEAT;
-> +	gfp_t flags = GFP_KERNEL | __GFP_HIGHMEM | __GFP_REPEAT | __GFP_ZERO;
->  #else
-> -	gfp_t flags = GFP_KERNEL | __GFP_REPEAT;
-> +	gfp_t flags = GFP_KERNEL | __GFP_REPEAT | __GFP_ZERO;
->  #endif
->  
->  	ptepage = alloc_pages(flags, 0);
-> -	if (ptepage)
-> -		clear_highpage(ptepage);
-> -	return ptepage;
-> +	if (!ptepage)
-> +		return NULL;
-> +	pgtable_page_ctor(ptepage);
-> +	return page_address(ptepage);
->  }
->  
-> void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+qeth: discard inbound packets with unknown header id
 
-Hmpf, where is my brown paper bag? The pte_alloc_one function for 32 bit
-powerpc should better return a struct page pointer .. fix below.
+Signed-off-by: Ursula Braun <braunu@de.ibm.com>
 
--- 
-blue skies,
-  Martin.
-
-"Reality continues to ruin my life." - Calvin.
-
+Debugging statements are added for inbound packets with unknown
+header id. Those packets are discarded and no longer processed as
+osn-packets.
 ---
 
-diff -urpN linux-2.6/arch/powerpc/mm/pgtable_32.c linux-2.6-patched/arch/powerpc/mm/pgtable_32.c
---- linux-2.6/arch/powerpc/mm/pgtable_32.c	2007-10-26 09:38:30.000000000 +0200
-+++ linux-2.6-patched/arch/powerpc/mm/pgtable_32.c	2007-10-26 10:01:10.000000000 +0200
-@@ -121,7 +121,7 @@ pgtable_t pte_alloc_one(struct mm_struct
- 	if (!ptepage)
- 		return NULL;
- 	pgtable_page_ctor(ptepage);
--	return page_address(ptepage);
-+	return ptepage;
- }
- 
- void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+ drivers/s390/net/qeth_main.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+Index: linux-2.6-uschi/drivers/s390/net/qeth_main.c
+===================================================================
+--- linux-2.6-uschi.orig/drivers/s390/net/qeth_main.c
++++ linux-2.6-uschi/drivers/s390/net/qeth_main.c
+@@ -2699,10 +2699,15 @@ qeth_process_inbound_buffer(struct qeth_
+ 			qeth_layer2_rebuild_skb(card, skb, hdr);
+ 		else if (hdr->hdr.l3.id == QETH_HEADER_TYPE_LAYER3)
+ 			vlan_tag = qeth_rebuild_skb(card, skb, hdr);
+-		else { /*in case of OSN*/
++		else if (hdr->hdr.osn.id == QETH_HEADER_TYPE_OSN) {
+ 			skb_push(skb, sizeof(struct qeth_hdr));
+ 			skb_copy_to_linear_data(skb, hdr,
+ 						sizeof(struct qeth_hdr));
++		} else { /* unknown header type */
++			dev_kfree_skb_any(skb);
++			QETH_DBF_TEXT(trace, 3, "inbunkno");
++			QETH_DBF_HEX(control, 3, hdr, QETH_DBF_CONTROL_LEN);
++			continue;
+ 		}
+ 		/* is device UP ? */
+ 		if (!(card->dev->flags & IFF_UP)){
+
+-- 
