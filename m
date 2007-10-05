@@ -1,14 +1,14 @@
 From: Ursula Braun <braunu@de.ibm.com>
 Subject: [patch 2/5] qeth: EDDP does not work on large MTUs
-Date: Fri, 05 Oct 2007 09:38:18 +0200
-Message-ID: <20071005074043.214434000@linux.vnet.ibm.com>
-References: <20071005073816.996932000@linux.vnet.ibm.com>
+Date: Fri, 05 Oct 2007 16:45:45 +0200
+Message-ID: <20071005144822.884499000@linux.vnet.ibm.com>
+References: <20071005144543.448852000@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline; filename=708-qeth-eddp.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 Cc: Frank Blaschka <frank.blaschka@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
