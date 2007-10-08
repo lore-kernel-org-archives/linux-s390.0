@@ -1,79 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757943AbXJZL4d@vger.kernel.org>
-Date: Fri, 26 Oct 2007 13:54:30 +0200
-From: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: S390 change in sg_set_page() cause build failure
-Message-ID: <20071026115429.GH5155@kernel.dk>
-References: <20071026111945.GB21274@linux.vnet.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20071026111945.GB21274@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, akpm@linux-foundation.org, linux-s390@vger.kernel.org
+From: Frans Pop <elendil@planet.nl>
+Date: Mon, 08 Oct 2007 15:12:37 +0000
+Subject: Re: fsck during system boot fails with separate /boot partition
+Message-Id: <200710081712.38052.elendil@planet.nl>
+In-Reply-To: <OF0D3D6394.7CCE4101-ONC125736E.004510FE-C125736E.0045C5C6@de.ibm.com>
+References: <OF0D3D6394.7CCE4101-ONC125736E.004510FE-C125736E.0045C5C6@de.ibm.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Oct 26 2007, Kamalesh Babulal wrote:
-> Hi Jens,
-> 
-> The change in the sg_set_page() for the S390, cause the build failure
-> 
-> drivers/s390/scsi/zfcp_aux.c: In function `zfcp_sg_list_alloc':
-> drivers/s390/scsi/zfcp_aux.c:572: error: too many arguments to function `zfcp_address_to_sg'
-> drivers/s390/scsi/zfcp_aux.c: In function `zfcp_gid_pn_buffers_alloc':
-> drivers/s390/scsi/zfcp_aux.c:1524: error: too many arguments to function `zfcp_address_to_sg'
-> drivers/s390/scsi/zfcp_aux.c:1525: error: too many arguments to function `zfcp_address_to_sg'
-> make[2]: *** [drivers/s390/scsi/zfcp_aux.o] Error 1
-> make[1]: *** [drivers/s390/scsi] Error 2
-> make: *** [drivers/s390] Error 2
-> 
-> The commit 642f149031d70415d9318b919d50b71e4724adbd causes this build
-> failure, in the drivers/s390/scsi/zfcp_def.h include file, the function
-> zfcp_address_to_sg the len of the scatterlist missing.
-> 
-> Signed-off-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-> --
-> diff --git a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
-> index 0754542..acf2d22 100644
-> --- a/drivers/s390/scsi/zfcp_def.h
-> +++ b/drivers/s390/scsi/zfcp_def.h
-> @@ -70,9 +70,11 @@ zfcp_sg_to_address(struct scatterlist *list)
->   * zfcp_address_to_sg - set up struct scatterlist from kernel address
->   * @address: kernel address
->   * @list: struct scatterlist
-> + * @list_size: size of the list - used for compatibility 
->   */
->  static inline void
-> -zfcp_address_to_sg(void *address, struct scatterlist *list)
-> +zfcp_address_to_sg(void *address, struct scatterlist *list,
-> +                   unsigned int list_size)
->  {
->  	sg_set_buf(list, address, 0);
->  }
+On Monday 08 October 2007, Peter 1 Oberparleiter wrote:
+> This might indicate a timing problem - the init script tries to mount a
+> DASD that has not yet been fully initialized by the kernel (the return
+> code -EBUSY that triggers the "already mounted" message may indicate
+> different problems). Try to add a sleep 5 into the init script just
+> before the mount command that fails to check if this is the case.
 
-That's not quite right, it should be:
+I've found the root of the problem. It's a configuration problem after all.
 
-diff --git a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
-index 0754542..e268f79 100644
---- a/drivers/s390/scsi/zfcp_def.h
-+++ b/drivers/s390/scsi/zfcp_def.h
-@@ -70,11 +70,12 @@ zfcp_sg_to_address(struct scatterlist *list)
-  * zfcp_address_to_sg - set up struct scatterlist from kernel address
-  * @address: kernel address
-  * @list: struct scatterlist
-+ * @size: buffer size
-  */
- static inline void
--zfcp_address_to_sg(void *address, struct scatterlist *list)
-+zfcp_address_to_sg(void *address, struct scatterlist *list, unsigned int size)
- {
--	sg_set_buf(list, address, 0);
-+	sg_set_buf(list, address, size);
- }
- 
- #define REQUEST_LIST_SIZE 128
+We currently do not add the 'dasd=' parameter to the kernel boot arguments. 
+Instead, we let udev assign device names.
 
--- 
-Jens Axboe
+Because of the 'root=' parameter (in which we use a by-path device name), 
+the first dasd that is detected in my test is 0123, which ends up as dasda 
+and thus 0122 ends up as dasdb, effectively swapping the two dasds. And as 
+we still use the classic device names in /etc/fstab, the result is chaos.
+
+The confusion came from the fact that mount still lists / mounted as
+/dev/dasd_b_1, even if it is actually mounted as /dev/dasd_a_1.
+So, fsck is completely correct in reporting /dev/dasda1 as already mounted.
+It also means that when /boot is mounted later, it's not actually the boot 
+partition that is mounted, but it is the root partition that is mounted 
+(for a second time) on /boot.
+
+Adding the dasd= boot parameter did not help - it seems to be ignored in our 
+initrds; changing /etc/fstab to use /dev/disk/by-path devices consistently 
+does result in a correct boot.
+I'll consult with other Debian people how we want to resolve this.
+
+Thanks very much for your replies, which did help in straightening this out 
+for me.
+
+Cheers,
+Frans Pop
