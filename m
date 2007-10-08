@@ -1,53 +1,30 @@
-From: Ursula Braun <braunu@de.ibm.com>
-Subject: [patch 3/5] qeth: avoid duplicate deletion of multicast addresses
-Date: Fri, 05 Oct 2007 16:45:46 +0200
-Message-ID: <20071005144823.506771000@linux.vnet.ibm.com>
-References: <20071005144543.448852000@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/2] [AF_IUCV] fixes for net-2.6.24 - cleanup resend
+Date: Mon, 08 Oct 2007 02:03:51 -0700 (PDT)
+Message-ID: <20071008.020351.69386126.davem@davemloft.net>
+References: <20071008085119.805528000@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=709-qeth-multicast.diff
+In-Reply-To: <20071008085119.805528000@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: braunu@de.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heicars2@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Ursula Braun <braunu@de.ibm.com>
+Date: Mon, 08 Oct 2007 10:51:19 +0200
 
-if qeth_set_multicast_list() is performed on 2 CPUs in parallel,
-card->ip_list may end corrupted.
-Solution: In function __qeth_delete_all_mc()
-          remove card->ip_list entry before invoking 
-          qeth_deregister_addr_entry(). Thus a 2nd invocation of
-          qeth_set_multicast_list() cannot try to remove the
-          same entry twice.
+> -- 
+> Dave,
+> 
+> this is the resend of my patches from last week built against net-2.6.24.
+> 
+> > the following 2 patches are intended for 2.6.24 and contain:
+> > - removal of static declarations in af_iucv header file
+> > - postpone receival of inbound packets in af_iucv
 
-Signed-off-by Ursula Braun <braunu@de.ibm.com>
----
-
- drivers/s390/net/qeth_main.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-Index: linux-2.6-uschi/drivers/s390/net/qeth_main.c
-===================================================================
---- linux-2.6-uschi.orig/drivers/s390/net/qeth_main.c
-+++ linux-2.6-uschi/drivers/s390/net/qeth_main.c
-@@ -820,14 +820,15 @@ __qeth_delete_all_mc(struct qeth_card *c
- again:
- 	list_for_each_entry_safe(addr, tmp, &card->ip_list, entry) {
- 		if (addr->is_multicast) {
-+			list_del(&addr->entry);
- 			spin_unlock_irqrestore(&card->ip_lock, *flags);
- 			rc = qeth_deregister_addr_entry(card, addr);
- 			spin_lock_irqsave(&card->ip_lock, *flags);
- 			if (!rc) {
--				list_del(&addr->entry);
- 				kfree(addr);
- 				goto again;
--			}
-+			} else
-+				list_add(&addr->entry, &card->ip_list);
- 		}
- 	}
- }
-
--- 
+All applied, thanks!
