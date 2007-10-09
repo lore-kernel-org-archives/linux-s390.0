@@ -1,42 +1,32 @@
-From: Ursula Braun <braunu@de.ibm.com>
-Subject: [patch 1/1] 8021q: transfer dev_id from real device
-Date: Mon, 08 Oct 2007 17:05:05 +0200
-Message-ID: <20071008150820.837583000@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 1/1] 8021q: transfer dev_id from real device
+Date: Mon, 08 Oct 2007 20:29:09 -0700 (PDT)
+Message-ID: <20071008.202909.110522892.davem@davemloft.net>
 References: <20071008150504.855164000@linux.vnet.ibm.com>
+	<20071008150820.837583000@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=8021q-vlan.diff
+In-Reply-To: <20071008150820.837583000@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: braunu@de.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Ursula Braun <braunu@de.ibm.com>
+Date: Mon, 08 Oct 2007 17:05:05 +0200
 
-A net_device struct provides field dev_id. It is used for
-unique ipv6 generation in case of shared network cards
-(as for the OSA network cards of IBM System z). 
-If VLAN devices are built on top of such shared network cards,
-this dev_id information needs to be transferred to the VLAN device.
+> From: Ursula Braun <braunu@de.ibm.com>
+> 
+> A net_device struct provides field dev_id. It is used for
+> unique ipv6 generation in case of shared network cards
+> (as for the OSA network cards of IBM System z). 
+> If VLAN devices are built on top of such shared network cards,
+> this dev_id information needs to be transferred to the VLAN device.
+> 
+> Signed-off-by: Ursula Braun <braunu@de.ibm.com>
 
-Signed-off-by: Ursula Braun <braunu@de.ibm.com>
----
- net/8021q/vlan.c |    3 +++
- 1 file changed, 3 insertions(+)
-
-Index: net-2.6.24-uschi/net/8021q/vlan.c
-===================================================================
---- net-2.6.24-uschi.orig/net/8021q/vlan.c
-+++ net-2.6.24-uschi/net/8021q/vlan.c
-@@ -331,6 +331,9 @@ static int vlan_dev_init(struct net_devi
- 					  (1<<__LINK_STATE_DORMANT))) |
- 		      (1<<__LINK_STATE_PRESENT);
- 
-+	/* ipv6 shared card related stuff */
-+	dev->dev_id = real_dev->dev_id;
-+
- 	if (is_zero_ether_addr(dev->dev_addr))
- 		memcpy(dev->dev_addr, real_dev->dev_addr, dev->addr_len);
- 	if (is_zero_ether_addr(dev->broadcast))
-
--- 
+Patch applied, thanks!
