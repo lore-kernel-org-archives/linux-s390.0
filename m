@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763421AbXJRJo0@vger.kernel.org>
-Message-ID: <47172AD5.2030009@trash.net>
-Date: Thu, 18 Oct 2007 11:43:49 +0200
-From: Patrick McHardy <kaber@trash.net>
-MIME-Version: 1.0
-Subject: Re: s390x: getting ipv6 bugs on mainline since 2.6.23-git3
-References: <20071018093556.GT21136@shadowen.org>
-In-Reply-To: <20071018093556.GT21136@shadowen.org>
-Content-Type: text/plain; charset="iso-8859-15"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753441AbXJVKyb@vger.kernel.org>
+Subject: Please pull git390 'for-linus' branch
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+Content-Type: text/plain
+Date: Mon, 22 Oct 2007 12:54:19 +0200
+Message-Id: <1193050460.22719.7.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: linux390@de.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+To: torvalds@linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Andy Whitcroft wrote:
-> Seems we are getting some kind of bug out of our s390x partition (lnxabat=
-1)
-> when booting latest mainline releases, specifically since 2.6.23-git3.
->=20
-> Kernel BUG at 0000000000000002 =DDverbose debug info unavailable?
-> illegal operation: 0001 =DD#1?
-> Modules linked in: dm_mod sit tunnel4 ipv6 qeth ccwgroup qdio dasd_fba_mo=
-d dasd_
-> eckd_mod dasd_mod
-> CPU:    0    Not tainted
-> Process ip (pid: 2614, task: 000000003f42f680, ksp: 000000003cf2feb8)
-> Krnl PSW : 0704200180000000 0000000000000002 (0x2)
->            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:0 CC:2 PM:0 EA:3
-> Krnl GPRS: 0000000000000000 0000000000000000 000000003e6d5d00 000000003e0=
-1f000
->            00000000000086dd 000000003cdac144 0000000000000000 00000000000=
-00010
->            000000003e01f000 000000003d97e3c0 0000000100eaaa00 000000003cd=
-ac100
->            000000003e6d5d00 00000001018fb1d0 0000000000286da8 000000003cf=
-2f5e8
-> Krnl Code:>0000000000000002: 0000               unknown
->            0000000000000004: 0000               unknown
->            0000000000000006: 0000               unknown
->            0000000000000008: 0000               unknown
->            000000000000000a: 0000               unknown
->            000000000000000c: 0000               unknown
->            000000000000000e: 0000               unknown
->            0000000000000010: 0000               unknown
-> Call Trace:
-> (=DD<0000000000286d60>? neigh_connected_output+0x68/0xfc)
+Please pull from 'for-linus' branch of
 
+	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
 
-Which network driver are you using? Please post the output of
-"ip link list <dev>".
+to receive the following updates:
+
+ arch/s390/defconfig            |  131 ++++++++-----
+ arch/s390/kernel/ipl.c         |    2 +
+ arch/s390/kernel/process.c     |   18 ++-
+ arch/s390/kernel/smp.c         |   65 ++++++-
+ arch/s390/lib/uaccess_pt.c     |   90 +++------
+ arch/s390/mm/Makefile          |    2 +-
+ arch/s390/mm/init.c            |   32 ++--
+ arch/s390/mm/pgtable.c         |   94 +++++++++
+ arch/s390/mm/vmem.c            |   53 ++++--
+ drivers/s390/char/raw3270.c    |   26 +--
+ drivers/s390/char/tape_class.c |   19 +--
+ drivers/s390/char/tape_class.h |    4 +-
+ drivers/s390/char/vmlogrdr.c   |   15 +-
+ drivers/s390/cio/chp.c         |   12 +-
+ drivers/s390/cio/css.c         |    9 +
+ include/asm-s390/cpu.h         |   25 +++
+ include/asm-s390/mmu_context.h |   50 +++---
+ include/asm-s390/page.h        |    4 +
+ include/asm-s390/pgalloc.h     |  250 ++++++++---------------
+ include/asm-s390/pgtable.h     |  429 +++++++++++++++++++++-------------------
+ include/asm-s390/processor.h   |   20 +--
+ include/asm-s390/tlb.h         |  129 +++++++++++-
+ include/asm-s390/tlbflush.h    |  152 ++++++---------
+ 23 files changed, 918 insertions(+), 713 deletions(-)
+ create mode 100644 arch/s390/mm/pgtable.c
+ create mode 100644 include/asm-s390/cpu.h
+
+Cornelia Huck (3):
+      [S390] cio: Use to_channelpath() for device to channel path conversion.
+      [S390] cio: Fix incomplete commit for uevent suppression.
+      [S390] struct class_device -> struct device conversion.
+
+Heiko Carstens (1):
+      [S390] Add per-cpu idle time / idle count sysfs attributes.
+
+Martin Schwidefsky (6):
+      [S390] Update default configuration.
+      [S390] tlb flush fix.
+      [S390] Remove unused user_seg from thread structure.
+      [S390] Introduce follow_table in uaccess_pt.c
+      [S390] Cleanup page table definitions.
+      [S390] 4level-fixup cleanup
+
+Michael Holzheu (1):
+      [S390] kernel: Fix dump on panic for DASDs under LPAR.
