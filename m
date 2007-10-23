@@ -1,67 +1,88 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753441AbXJVKyb@vger.kernel.org>
-Subject: Please pull git390 'for-linus' branch
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752914AbXJWNW4@vger.kernel.org>
+Subject: Re: [PATCH] Bug fix for the s390 dcssblk driver
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+In-Reply-To: <20071022133723.089b84db@gondolin.boeblingen.de.ibm.com>
+References: <200710201451.57138.elendil@planet.nl>
+	 <471A39D2.1070303@gmail.com> <20071021100926.GA4420@osiris.ibm.com>
+	 <471C1D29.5020403@gmail.com>
+	 <20071022133723.089b84db@gondolin.boeblingen.de.ibm.com>
 Content-Type: text/plain
-Date: Mon, 22 Oct 2007 12:54:19 +0200
-Message-Id: <1193050460.22719.7.camel@localhost>
+Date: Tue, 23 Oct 2007 15:22:54 +0200
+Message-Id: <1193145774.5325.27.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: torvalds@linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: emist <emistz@gmail.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Linux <linux-kernel@vger.kernel.org>, geraldsc@de.ibm.com, cotte@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, Tejun Heo <htejun@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Please pull from 'for-linus' branch of
+On Mon, 2007-10-22 at 13:37 +0200, Cornelia Huck wrote:
+> On Sun, 21 Oct 2007 23:46:49 -0400,
+> emist <emistz@gmail.com> wrote:
+> 
+> > # This patch fixes a memory corruption bug in the s390 dcssblk driver.
+> > # The bug occurs when an attempt to change the type of a segment
+> > # returns an error. At this point the driver tries to remove the segment in
+> > # question while some of the device's attributes are in use. This causes the
+> > # driver to hang.
+> 
+> Hm, seems we missed another of those device attributes exhibiting
+> suicidal tendencies...
+> 
+> Tejun has a patchset allowing device attributes to commit suicide (see
+> http://marc.info/?l=linux-kernel&m=119027371416452&w=2), although I'm
+> not sure what its current status is. Until then, you would need to use
+> device_schedule_callback() to commit suicide.
+> 
+> This all of course only applies if killing the segment is better than
+> leaving it in its current state, but others can make a better judgement
+> on that :)
 
-	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
+Hi,
 
-to receive the following updates:
+thanks for reporting this bug, seems like we forgot to consider the
+suicidal behavior of this driver when the device_unregister() stuff was
+changed.
 
- arch/s390/defconfig            |  131 ++++++++-----
- arch/s390/kernel/ipl.c         |    2 +
- arch/s390/kernel/process.c     |   18 ++-
- arch/s390/kernel/smp.c         |   65 ++++++-
- arch/s390/lib/uaccess_pt.c     |   90 +++------
- arch/s390/mm/Makefile          |    2 +-
- arch/s390/mm/init.c            |   32 ++--
- arch/s390/mm/pgtable.c         |   94 +++++++++
- arch/s390/mm/vmem.c            |   53 ++++--
- drivers/s390/char/raw3270.c    |   26 +--
- drivers/s390/char/tape_class.c |   19 +--
- drivers/s390/char/tape_class.h |    4 +-
- drivers/s390/char/vmlogrdr.c   |   15 +-
- drivers/s390/cio/chp.c         |   12 +-
- drivers/s390/cio/css.c         |    9 +
- include/asm-s390/cpu.h         |   25 +++
- include/asm-s390/mmu_context.h |   50 +++---
- include/asm-s390/page.h        |    4 +
- include/asm-s390/pgalloc.h     |  250 ++++++++---------------
- include/asm-s390/pgtable.h     |  429 +++++++++++++++++++++-------------------
- include/asm-s390/processor.h   |   20 +--
- include/asm-s390/tlb.h         |  129 +++++++++++-
- include/asm-s390/tlbflush.h    |  152 ++++++---------
- 23 files changed, 918 insertions(+), 713 deletions(-)
- create mode 100644 arch/s390/mm/pgtable.c
- create mode 100644 include/asm-s390/cpu.h
+The best solution for now would be to use the scheduled callback
+function, like Cornelia described. If segment_modify_shared() should
+fail, the DCSS segment will be unloaded. Calling the function again
+with the old "shared" flag will not help because it will not reload
+the segment. So we need to remove/unregister the device in this error
+path, and for now this should be done with device_schedule_callback().
 
-Cornelia Huck (3):
-      [S390] cio: Use to_channelpath() for device to channel path conversion.
-      [S390] cio: Fix incomplete commit for uevent suppression.
-      [S390] struct class_device -> struct device conversion.
+Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+---
 
-Heiko Carstens (1):
-      [S390] Add per-cpu idle time / idle count sysfs attributes.
+ dcssblk.c |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
 
-Martin Schwidefsky (6):
-      [S390] Update default configuration.
-      [S390] tlb flush fix.
-      [S390] Remove unused user_seg from thread structure.
-      [S390] Introduce follow_table in uaccess_pt.c
-      [S390] Cleanup page table definitions.
-      [S390] 4level-fixup cleanup
+Index: linux-2.6.23/drivers/s390/block/dcssblk.c
+===================================================================
+--- linux-2.6.23.orig/drivers/s390/block/dcssblk.c
++++ linux-2.6.23/drivers/s390/block/dcssblk.c
+@@ -193,6 +193,12 @@ dcssblk_segment_warn(int rc, char* seg_n
+        }
+ }
 
-Michael Holzheu (1):
-      [S390] kernel: Fix dump on panic for DASDs under LPAR.
++static void dcssblk_unregister_callback(struct device *dev)
++{
++       device_unregister(dev);
++       put_device(dev);
++}
++
+ /*
+  * device attribute for switching shared/nonshared (exclusive)
+  * operation (show + store)
+@@ -276,8 +282,7 @@ removeseg:
+        blk_cleanup_queue(dev_info->dcssblk_queue);
+        dev_info->gd->queue = NULL;
+        put_disk(dev_info->gd);
+-       device_unregister(dev);
+-       put_device(dev);
++       rc = device_schedule_callback(dev, dcssblk_unregister_callback);
+ out:
+        up_write(&dcssblk_devices_sem);
+        return rc;
