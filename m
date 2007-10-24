@@ -1,52 +1,38 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756662AbXJXF3R@vger.kernel.org>
-Date: Wed, 24 Oct 2007 07:29:00 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH] sg: add missing sg_init_table calls to zfcp
-Message-ID: <20071024052900.GB12335@osiris.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Christoph Schmitt <schmichr@de.ibm.com>, Swen Schillig <swen@vnet.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Return-Path: <akpm@linux-foundation.org>
+Date: Wed, 24 Oct 2007 16:33:05 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] taskstats scaled time cleanup
+Message-Id: <20071024163305.14b9bfba.akpm@linux-foundation.org>
+In-Reply-To: <8789.1193208897@neuling.org>
+References: <8789.1193208897@neuling.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+To: Michael Neuling <mikey@neuling.org>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, paulus@samba.org, linux390@de.ibm.com, balbir@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+On Wed, 24 Oct 2007 16:54:57 +1000
+Michael Neuling <mikey@neuling.org> wrote:
 
-CONFIG_DEBUG_SG reveals two missing sg_init_table calls. Add them.
+> +/* Estimate the scaled cputime by scaling the real cputime based on
+> + * the last scaled to real ratio */
+> +static inline cputime_t cputime_to_scaled(const cputime_t ct)
+> +{
+> +	if (cpu_has_feature(CPU_FTR_SPURR) &&
+> +	    per_cpu(cputime_last_delta, smp_processor_id()))
+> +		return ct *
+> +			per_cpu(cputime_scaled_last_delta, smp_processor_id())/
+> +			per_cpu(cputime_last_delta, smp_processor_id());
+> +	return ct;
+> +}
 
-kernel BUG at include/linux/scatterlist.h:50!
-illegal operation: 0001 [#1]
-[...]
-Call Trace:
-([<000000000026f184>] zfcp_ns_gid_pn_request+0x4c/0x2a0)
- [<0000000000276dd4>] zfcp_erp_strategy_do_action+0x1410/0x1938
- [<0000000000278412>] zfcp_erp_thread+0x4fa/0x1430
- [<000000000001990a>] kernel_thread_starter+0x6/0xc
- [<0000000000019904>] kernel_thread_starter+0x0/0xc
-
-Cc: Swen Schillig <swen@vnet.ibm.com>
-Cc: Christof Schmitt <christof.schmitt@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
-
-Jens, could you please push this one via your tree? Thanks!
-
- drivers/s390/scsi/zfcp_aux.c |    2 ++
- 1 file changed, 2 insertions(+)
-
-Index: linux-2.6/drivers/s390/scsi/zfcp_aux.c
-===================================================================
---- linux-2.6.orig/drivers/s390/scsi/zfcp_aux.c
-+++ linux-2.6/drivers/s390/scsi/zfcp_aux.c
-@@ -1518,6 +1518,8 @@ zfcp_gid_pn_buffers_alloc(struct zfcp_gi
-                 return -ENOMEM;
- 
- 	memset(data, 0, sizeof(*data));
-+	sg_init_table(&data->req , 1);
-+	sg_init_table(&data->resp , 1);
-         data->ct.req = &data->req;
-         data->ct.resp = &data->resp;
- 	data->ct.req_count = data->ct.resp_count = 1;
+This looks far too large to be inlined.
