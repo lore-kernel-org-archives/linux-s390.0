@@ -1,61 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752895AbXJWFN1@vger.kernel.org>
-Date: Tue, 23 Oct 2007 07:13:16 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH 02/10] [SG] Update block layer to use sg helpers
-Message-ID: <20071023051316.GB10055@osiris.boeblingen.de.ibm.com>
-References: <1193076664-13652-1-git-send-email-jens.axboe@oracle.com> <1193076664-13652-3-git-send-email-jens.axboe@oracle.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754509AbXJXGqc@vger.kernel.org>
+Date: Wed, 24 Oct 2007 08:46:16 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: [PATCH] sg: add missing sg_init_table calls to zfcp
+Message-ID: <20071024064616.GT14671@kernel.dk>
+References: <20071024052900.GB12335@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1193076664-13652-3-git-send-email-jens.axboe@oracle.com>
+In-Reply-To: <20071024052900.GB12335@osiris.boeblingen.de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, mingo@elte.hu, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Christoph Schmitt <schmichr@de.ibm.com>, Swen Schillig <swen@vnet.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Oct 22, 2007 at 08:10:56PM +0200, Jens Axboe wrote:
-> Signed-off-by: Jens Axboe <jens.axboe@oracle.com>
+On Wed, Oct 24 2007, Heiko Carstens wrote:
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> 
+> CONFIG_DEBUG_SG reveals two missing sg_init_table calls. Add them.
+> 
+> kernel BUG at include/linux/scatterlist.h:50!
+> illegal operation: 0001 [#1]
+> [...]
+> Call Trace:
+> ([<000000000026f184>] zfcp_ns_gid_pn_request+0x4c/0x2a0)
+>  [<0000000000276dd4>] zfcp_erp_strategy_do_action+0x1410/0x1938
+>  [<0000000000278412>] zfcp_erp_thread+0x4fa/0x1430
+>  [<000000000001990a>] kernel_thread_starter+0x6/0xc
+>  [<0000000000019904>] kernel_thread_starter+0x0/0xc
+> 
+> Cc: Swen Schillig <swen@vnet.ibm.com>
+> Cc: Christof Schmitt <christof.schmitt@de.ibm.com>
+> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 > ---
->  block/ll_rw_blk.c |    8 ++++++--
->  1 files changed, 6 insertions(+), 2 deletions(-)
 > 
-> diff --git a/block/ll_rw_blk.c b/block/ll_rw_blk.c
-> index 8025d64..61c2e39 100644
-> --- a/block/ll_rw_blk.c
-> +++ b/block/ll_rw_blk.c
-> @@ -1354,8 +1354,9 @@ new_segment:
->  			else
->  				sg = sg_next(sg);
-> 
-> -			memset(sg, 0, sizeof(*sg));
-> -			sg->page = bvec->bv_page;
-> +			sg_dma_len(sg) = 0;
-> +			sg_dma_address(sg) = 0;
-> +			sg_set_page(sg, bvec->bv_page);
->  			sg->length = nbytes;
->  			sg->offset = bvec->bv_offset;
->  			nsegs++;
-> @@ -1363,6 +1364,9 @@ new_segment:
->  		bvprv = bvec;
->  	} /* segments in rq */
-> 
-> +	if (sg)
-> +		__sg_mark_end(sg);
-> +
->  	return nsegs;
->  }
+> Jens, could you please push this one via your tree? Thanks!
 
-Hmm.... this breaks s390:
+You bet, thanks!
 
-  CC      block/ll_rw_blk.o
-block/ll_rw_blk.c: In function 'blk_rq_map_sg':
-block/ll_rw_blk.c:1357: error: implicit declaration of function 'sg_dma_len'
-block/ll_rw_blk.c:1357: error: lvalue required as left operand of assignment
-block/ll_rw_blk.c:1358: error: implicit declaration of function 'sg_dma_address'
-block/ll_rw_blk.c:1358: error: lvalue required as left operand of assignment
-make[1]: *** [block/ll_rw_blk.o] Error 1
-
-Missing macros and no appropriate members in struct scatterlist since we
-don't have DMA. How to fix?
+-- 
+Jens Axboe
