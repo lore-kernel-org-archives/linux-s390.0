@@ -1,10 +1,10 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Message-Id: <20071025181901.212545095@de.ibm.com>
+Message-Id: <20071025181900.837019250@de.ibm.com>
 References: <20071025181520.880272069@de.ibm.com>
-Date: Thu, 25 Oct 2007 20:15:22 +0200
+Date: Thu, 25 Oct 2007 20:15:21 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 2/6] CONFIG_HIGHPTE vs. sub-page page tables.
-Content-Disposition: inline; filename=002-mm-pgtable.diff
+Subject: [patch 1/6] add mm argument to pte/pmd/pud/pgd_free.
+Content-Disposition: inline; filename=001-mm-pxdfree.diff
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
@@ -12,1744 +12,1399 @@ To: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org
 Cc: borntraeger@de.ibm.com, benh@kernel.crashing.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Background: I've implemented 1K/2K page tables for s390. These sub-page
-page tables are required to properly support the s390 virtualization
-instruction with KVM. The SIE instruction requires that the page tables
-have 256 page table entries (pte) followed by 256 page status table
-entries (pgste). The pgstes are only required if the process is using
-the SIE instruction. The pgstes are updated by the hardware and by the
-hypervisor for a number of reasons, one of them is dirty and reference
-bit tracking. To avoid wasting memory the standard pte table allocation
-should return 1K/2K (31/64 bit) and 2K/4K if the process is using SIE.
+The pgd/pud/pmd/pte page table allocation functions get a mm_struct
+pointer as first argument. The free functions do not get the mm_struct
+argument. This is 1) asymmetrical and 2) to do mm related page table
+allocations the mm argument is needed on the free function as well.
 
-Problem: Page size on s390 is 4K, page table size is 1K or 2K. That
-means the s390 version for pte_alloc_one cannot return a pointer to
-a struct page. Trouble is that with the CONFIG_HIGHPTE feature on x86
-pte_alloc_one cannot return a pointer to a pte either, since that would
-require more than 32 bit for the return value of pte_alloc_one (and the
-pte * would not be accessible since its not kmapped).
-
-Solution: The only solution I found to this dilemma is a new typedef:
-a pgtable_t. For s390 pgtable_t will be a (pte *) - to be introduced
-with a later patch. For everybody else it will be a (struct page *).
-The additional problem with the initialization of the ptl lock and the
-NR_PAGETABLE accounting is solved with a constructor pgtable_page_ctor
-and a destructor pgtable_page_dtor. The page table allocation and free
-functions need to call these two whenever a page table page is allocated
-or freed. pmd_populate will get a pgtable_t instead of a struct page
-pointer. To get the pgtable_t back from a pmd entry that has been
-installed with pmd_populate a new function pmd_pgtable is added. It
-replaces the pmd_page call in free_pte_range and apply_to_pte_range.
-
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/frv/mm/pgalloc.c               |    8 +++++---
- arch/powerpc/mm/pgtable_32.c        |   16 +++++++++-------
- arch/ppc/mm/pgtable.c               |    9 ++++++---
- arch/s390/mm/pgtable.c              |    2 ++
- arch/sparc/mm/srmmu.c               |   10 +++++++---
- arch/sparc/mm/sun4c.c               |   14 ++++++++++----
- arch/um/kernel/mem.c                |    4 +++-
- arch/x86/mm/pgtable_32.c            |    4 +++-
- include/asm-alpha/page.h            |    2 ++
- include/asm-alpha/pgalloc.h         |   22 ++++++++++++++--------
- include/asm-arm/page.h              |    2 ++
- include/asm-arm/pgalloc.h           |    9 ++++++---
- include/asm-avr32/page.h            |    1 +
- include/asm-avr32/pgalloc.h         |   16 ++++++++++++----
- include/asm-cris/page.h             |    1 +
- include/asm-cris/pgalloc.h          |   14 ++++++++++----
- include/asm-frv/page.h              |    1 +
- include/asm-frv/pgalloc.h           |   12 +++++++++---
- include/asm-ia64/page.h             |    2 ++
- include/asm-ia64/pgalloc.h          |   20 ++++++++++++++------
- include/asm-m32r/page.h             |    1 +
- include/asm-m32r/pgalloc.h          |   10 ++++++----
- include/asm-m68k/motorola_pgalloc.h |   14 ++++++++------
- include/asm-m68k/page.h             |    1 +
- include/asm-m68k/sun3_pgalloc.h     |   17 ++++++++++++-----
- include/asm-mips/page.h             |    1 +
- include/asm-mips/pgalloc.h          |    5 +++--
- include/asm-parisc/page.h           |    1 +
- include/asm-parisc/pgalloc.h        |   11 +++++++++--
- include/asm-powerpc/page.h          |    2 ++
- include/asm-powerpc/pgalloc-32.h    |    6 ++++--
- include/asm-powerpc/pgalloc-64.h    |   26 +++++++++++++++++++-------
- include/asm-ppc/pgalloc.h           |    6 ++++--
- include/asm-s390/page.h             |    2 ++
- include/asm-s390/pgalloc.h          |    3 ++-
- include/asm-s390/tlb.h              |    2 +-
- include/asm-sh/page.h               |    2 ++
- include/asm-sh/pgalloc.h            |   27 ++++++++++++++++++++-------
- include/asm-sh64/page.h             |    2 ++
- include/asm-sh64/pgalloc.h          |   27 ++++++++++++++++++++-------
- include/asm-sparc/page.h            |    2 ++
- include/asm-sparc/pgalloc.h         |    5 +++--
- include/asm-sparc64/page.h          |    2 ++
- include/asm-sparc64/pgalloc.h       |   19 ++++++++++++++-----
- include/asm-um/page.h               |    2 ++
- include/asm-um/pgalloc.h            |   12 +++++++++---
- include/asm-x86/page_32.h           |    2 ++
- include/asm-x86/page_64.h           |    2 ++
- include/asm-x86/pgalloc_32.h        |    7 +++++--
- include/asm-x86/pgalloc_64.h        |   22 +++++++++++++++++-----
- include/asm-xtensa/page.h           |    1 +
- include/asm-xtensa/pgalloc.h        |   17 ++++++++++++-----
- include/linux/mm.h                  |   14 +++++++++++++-
- mm/memory.c                         |   32 +++++++++++++++-----------------
- mm/vmalloc.c                        |    2 +-
- 55 files changed, 339 insertions(+), 137 deletions(-)
+ arch/arm/kernel/smp.c               |    2 +-
+ arch/arm/mm/ioremap.c               |    2 +-
+ arch/arm/mm/pgd.c                   |    8 ++++----
+ arch/frv/mm/pgalloc.c               |    2 +-
+ arch/powerpc/mm/pgtable_32.c        |    6 +++---
+ arch/ppc/mm/pgtable.c               |    6 +++---
+ arch/um/kernel/mem.c                |    2 +-
+ arch/um/kernel/skas/mmu.c           |    8 ++++----
+ arch/x86/mm/pgtable_32.c            |    2 +-
+ include/asm-alpha/pgalloc.h         |    8 ++++----
+ include/asm-alpha/tlb.h             |    4 ++--
+ include/asm-arm/pgalloc.h           |   10 +++++-----
+ include/asm-arm/tlb.h               |    4 ++--
+ include/asm-avr32/pgalloc.h         |    6 +++---
+ include/asm-cris/pgalloc.h          |    6 +++---
+ include/asm-frv/pgalloc.h           |    8 ++++----
+ include/asm-frv/pgtable.h           |    2 +-
+ include/asm-generic/4level-fixup.h  |    2 +-
+ include/asm-generic/pgtable-nopmd.h |    2 +-
+ include/asm-generic/pgtable-nopud.h |    2 +-
+ include/asm-ia64/pgalloc.h          |   16 ++++++++--------
+ include/asm-m32r/pgalloc.h          |   10 +++++-----
+ include/asm-m68k/motorola_pgalloc.h |   10 +++++-----
+ include/asm-m68k/sun3_pgalloc.h     |    8 ++++----
+ include/asm-mips/pgalloc.h          |   12 ++++++------
+ include/asm-parisc/pgalloc.h        |   10 +++++-----
+ include/asm-parisc/tlb.h            |    4 ++--
+ include/asm-powerpc/pgalloc-32.h    |   10 +++++-----
+ include/asm-powerpc/pgalloc-64.h    |   10 +++++-----
+ include/asm-ppc/pgalloc.h           |   10 +++++-----
+ include/asm-s390/pgalloc.h          |   14 +++++++-------
+ include/asm-s390/tlb.h              |    8 ++++----
+ include/asm-sh/pgalloc.h            |    8 ++++----
+ include/asm-sh64/pgalloc.h          |   12 ++++++------
+ include/asm-sparc/pgalloc.h         |   12 ++++++------
+ include/asm-sparc64/pgalloc.h       |    8 ++++----
+ include/asm-sparc64/tlb.h           |    4 ++--
+ include/asm-um/pgalloc.h            |    8 ++++----
+ include/asm-x86/pgalloc_32.h        |    8 ++++----
+ include/asm-x86/pgalloc_64.h        |   10 +++++-----
+ include/asm-xtensa/pgalloc.h        |    6 +++---
+ include/asm-xtensa/tlb.h            |    2 +-
+ kernel/fork.c                       |    2 +-
+ mm/memory.c                         |   10 +++++-----
+ 44 files changed, 152 insertions(+), 152 deletions(-)
 
+Index: quilt-2.6/arch/arm/kernel/smp.c
+===================================================================
+--- quilt-2.6.orig/arch/arm/kernel/smp.c
++++ quilt-2.6/arch/arm/kernel/smp.c
+@@ -150,7 +150,7 @@ int __cpuinit __cpu_up(unsigned int cpu)
+ 	secondary_data.pgdir = 0;
+ 
+ 	*pmd_offset(pgd, PHYS_OFFSET) = __pmd(0);
+-	pgd_free(pgd);
++	pgd_free(&init_mm, pgd);
+ 
+ 	if (ret) {
+ 		printk(KERN_CRIT "CPU%u: processor failed to boot\n", cpu);
+Index: quilt-2.6/arch/arm/mm/ioremap.c
+===================================================================
+--- quilt-2.6.orig/arch/arm/mm/ioremap.c
++++ quilt-2.6/arch/arm/mm/ioremap.c
+@@ -162,7 +162,7 @@ static void unmap_area_sections(unsigned
+ 			 * Free the page table, if there was one.
+ 			 */
+ 			if ((pmd_val(pmd) & PMD_TYPE_MASK) == PMD_TYPE_TABLE)
+-				pte_free_kernel(pmd_page_vaddr(pmd));
++				pte_free_kernel(&init_mm, pmd_page_vaddr(pmd));
+ 		}
+ 
+ 		addr += PGDIR_SIZE;
+Index: quilt-2.6/arch/arm/mm/pgd.c
+===================================================================
+--- quilt-2.6.orig/arch/arm/mm/pgd.c
++++ quilt-2.6/arch/arm/mm/pgd.c
+@@ -65,14 +65,14 @@ pgd_t *get_pgd_slow(struct mm_struct *mm
+ 	return new_pgd;
+ 
+ no_pte:
+-	pmd_free(new_pmd);
++	pmd_free(mm, new_pmd);
+ no_pmd:
+ 	free_pages((unsigned long)new_pgd, 2);
+ no_pgd:
+ 	return NULL;
+ }
+ 
+-void free_pgd_slow(pgd_t *pgd)
++void free_pgd_slow(struct mm_struct *mm, pgd_t *pgd)
+ {
+ 	pmd_t *pmd;
+ 	struct page *pte;
+@@ -94,8 +94,8 @@ void free_pgd_slow(pgd_t *pgd)
+ 	pmd_clear(pmd);
+ 	dec_zone_page_state(virt_to_page((unsigned long *)pgd), NR_PAGETABLE);
+ 	pte_lock_deinit(pte);
+-	pte_free(pte);
+-	pmd_free(pmd);
++	pte_free(mm, pte);
++	pmd_free(mm, pmd);
+ free:
+ 	free_pages((unsigned long) pgd, 2);
+ }
 Index: quilt-2.6/arch/frv/mm/pgalloc.c
 ===================================================================
 --- quilt-2.6.orig/arch/frv/mm/pgalloc.c
 +++ quilt-2.6/arch/frv/mm/pgalloc.c
-@@ -28,7 +28,7 @@ pte_t *pte_alloc_one_kernel(struct mm_st
- 	return pte;
+@@ -140,7 +140,7 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
+ 	return pgd;
  }
  
--struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
-+pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long address)
+-void pgd_free(pgd_t *pgd)
++void pgd_free(struct mm_struct *mm, pgd_t *pgd)
  {
- 	struct page *page;
- 
-@@ -37,9 +37,11 @@ struct page *pte_alloc_one(struct mm_str
- #else
- 	page = alloc_pages(GFP_KERNEL|__GFP_REPEAT, 0);
- #endif
--	if (page)
-+	if (page) {
- 		clear_highpage(page);
--	flush_dcache_page(page);
-+		pgtable_page_ctor(page);
-+		flush_dcache_page(page);
-+	}
- 	return page;
- }
- 
+ 	/* in the non-PAE case, clear_page_tables() clears user pgd entries */
+  	quicklist_free(0, pgd_dtor, pgd);
 Index: quilt-2.6/arch/powerpc/mm/pgtable_32.c
 ===================================================================
 --- quilt-2.6.orig/arch/powerpc/mm/pgtable_32.c
 +++ quilt-2.6/arch/powerpc/mm/pgtable_32.c
-@@ -107,20 +107,21 @@ __init_refok pte_t *pte_alloc_one_kernel
- 	return pte;
+@@ -86,7 +86,7 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
+ 	return ret;
  }
  
--struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
-+pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long address)
+-void pgd_free(pgd_t *pgd)
++void pgd_free(struct mm_struct *mm, pgd_t *pgd)
  {
- 	struct page *ptepage;
- 
- #ifdef CONFIG_HIGHPTE
--	gfp_t flags = GFP_KERNEL | __GFP_HIGHMEM | __GFP_REPEAT;
-+	gfp_t flags = GFP_KERNEL | __GFP_HIGHMEM | __GFP_REPEAT | __GFP_ZERO;
- #else
--	gfp_t flags = GFP_KERNEL | __GFP_REPEAT;
-+	gfp_t flags = GFP_KERNEL | __GFP_REPEAT | __GFP_ZERO;
- #endif
- 
- 	ptepage = alloc_pages(flags, 0);
--	if (ptepage)
--		clear_highpage(ptepage);
--	return ptepage;
-+	if (!ptepage)
-+		return NULL;
-+	pgtable_page_ctor(ptepage);
-+	return page_address(ptepage);
+ 	free_pages((unsigned long)pgd, PGDIR_ORDER);
+ }
+@@ -123,7 +123,7 @@ struct page *pte_alloc_one(struct mm_str
+ 	return ptepage;
  }
  
- void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
-@@ -131,11 +132,12 @@ void pte_free_kernel(struct mm_struct *m
- 	free_page((unsigned long)pte);
- }
- 
--void pte_free(struct mm_struct *mm, struct page *ptepage)
-+void pte_free(struct mm_struct *mm, pgtable_t ptepage)
+-void pte_free_kernel(pte_t *pte)
++void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
  {
  #ifdef CONFIG_SMP
  	hash_page_sync();
- #endif
-+	pgtable_page_dtor(ptepage);
- 	__free_page(ptepage);
+@@ -131,7 +131,7 @@ void pte_free_kernel(pte_t *pte)
+ 	free_page((unsigned long)pte);
  }
  
+-void pte_free(struct page *ptepage)
++void pte_free(struct mm_struct *mm, struct page *ptepage)
+ {
+ #ifdef CONFIG_SMP
+ 	hash_page_sync();
 Index: quilt-2.6/arch/ppc/mm/pgtable.c
 ===================================================================
 --- quilt-2.6.orig/arch/ppc/mm/pgtable.c
 +++ quilt-2.6/arch/ppc/mm/pgtable.c
-@@ -108,7 +108,7 @@ __init_refok pte_t *pte_alloc_one_kernel
- 	return pte;
+@@ -87,7 +87,7 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
+ 	return ret;
  }
  
--struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
-+pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long address)
+-void pgd_free(pgd_t *pgd)
++void pgd_free(struct mm_struct *mm, pgd_t *pgd)
  {
- 	struct page *ptepage;
- 
-@@ -119,8 +119,10 @@ struct page *pte_alloc_one(struct mm_str
- #endif
- 
- 	ptepage = alloc_pages(flags, 0);
--	if (ptepage)
-+	if (ptepage) {
- 		clear_highpage(ptepage);
-+		pgtable_page_ctor(ptepage);
-+	}
+ 	free_pages((unsigned long)pgd, PGDIR_ORDER);
+ }
+@@ -124,7 +124,7 @@ struct page *pte_alloc_one(struct mm_str
  	return ptepage;
  }
  
-@@ -132,11 +134,12 @@ void pte_free_kernel(struct mm_struct *m
- 	free_page((unsigned long)pte);
- }
- 
--void pte_free(struct mm_struct *mm, struct page *ptepage)
-+void pte_free(struct mm_struct *mm, pgtable_t ptepage)
+-void pte_free_kernel(pte_t *pte)
++void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
  {
  #ifdef CONFIG_SMP
  	hash_page_sync();
- #endif
-+	pgtable_page_dtor(ptepage);
- 	__free_page(ptepage);
+@@ -132,7 +132,7 @@ void pte_free_kernel(pte_t *pte)
+ 	free_page((unsigned long)pte);
  }
  
-Index: quilt-2.6/arch/s390/mm/pgtable.c
-===================================================================
---- quilt-2.6.orig/arch/s390/mm/pgtable.c
-+++ quilt-2.6/arch/s390/mm/pgtable.c
-@@ -78,6 +78,7 @@ unsigned long *page_table_alloc(int noex
- 		clear_table(table, _PAGE_TYPE_EMPTY, PAGE_SIZE);
- 		page->index = (addr_t) table;
- 	}
-+	pgtable_page_ctor(page);
- 	table = (unsigned long *) page_to_phys(page);
- 	clear_table(table, _PAGE_TYPE_EMPTY, PAGE_SIZE);
- 	return table;
-@@ -87,6 +88,7 @@ void page_table_free(unsigned long *tabl
+-void pte_free(struct page *ptepage)
++void pte_free(struct mm_struct *mm, struct page *ptepage)
  {
- 	unsigned long *shadow = get_shadow_pte(table);
- 
-+	pgtable_page_dtor(virt_to_page(table));
- 	if (shadow)
- 		free_page((unsigned long) shadow);
- 	free_page((unsigned long) table);
-Index: quilt-2.6/arch/sparc/mm/srmmu.c
-===================================================================
---- quilt-2.6.orig/arch/sparc/mm/srmmu.c
-+++ quilt-2.6/arch/sparc/mm/srmmu.c
-@@ -490,14 +490,17 @@ srmmu_pte_alloc_one_kernel(struct mm_str
- 	return (pte_t *)srmmu_get_nocache(PTE_SIZE, PTE_SIZE);
- }
- 
--static struct page *
-+static pgtable_t
- srmmu_pte_alloc_one(struct mm_struct *mm, unsigned long address)
- {
- 	unsigned long pte;
-+	struct page *page;
- 
- 	if ((pte = (unsigned long)srmmu_pte_alloc_one_kernel(mm, address)) == 0)
- 		return NULL;
--	return pfn_to_page( __nocache_pa(pte) >> PAGE_SHIFT );
-+	page = pfn_to_page( __nocache_pa(pte) >> PAGE_SHIFT );
-+	pgtable_page_ctor(page);
-+	return page;
- }
- 
- static void srmmu_free_pte_fast(pte_t *pte)
-@@ -505,10 +508,11 @@ static void srmmu_free_pte_fast(pte_t *p
- 	srmmu_free_nocache((unsigned long)pte, PTE_SIZE);
- }
- 
--static void srmmu_pte_free(struct page *pte)
-+static void srmmu_pte_free(pgtable_t pte)
- {
- 	unsigned long p;
- 
-+	pgtable_page_dtor(pte);
- 	p = (unsigned long)page_address(pte);	/* Cached address (for test) */
- 	if (p == 0)
- 		BUG();
-Index: quilt-2.6/arch/sparc/mm/sun4c.c
-===================================================================
---- quilt-2.6.orig/arch/sparc/mm/sun4c.c
-+++ quilt-2.6/arch/sparc/mm/sun4c.c
-@@ -1948,12 +1948,17 @@ static pte_t *sun4c_pte_alloc_one_kernel
- 	return pte;
- }
- 
--static struct page *sun4c_pte_alloc_one(struct mm_struct *mm, unsigned long address)
-+static pgtable_t sun4c_pte_alloc_one(struct mm_struct *mm, unsigned long address)
- {
--	pte_t *pte = sun4c_pte_alloc_one_kernel(mm, address);
-+	pte_t *pte;
-+	struct page *page;
-+
-+	pte = sun4c_pte_alloc_one_kernel(mm, address);
- 	if (pte == NULL)
- 		return NULL;
--	return virt_to_page(pte);
-+	page = virt_to_page(pte);
-+	pgtable_page_ctor(page);
-+	return page;
- }
- 
- static __inline__ void sun4c_free_pte_fast(pte_t *pte)
-@@ -1963,8 +1968,9 @@ static __inline__ void sun4c_free_pte_fa
- 	pgtable_cache_size++;
- }
- 
--static void sun4c_pte_free(struct page *pte)
-+static void sun4c_pte_free(pgtable_t pte)
- {
-+	pgtable_page_dtor(pte);
- 	sun4c_free_pte_fast(page_address(pte));
- }
- 
+ #ifdef CONFIG_SMP
+ 	hash_page_sync();
 Index: quilt-2.6/arch/um/kernel/mem.c
 ===================================================================
 --- quilt-2.6.orig/arch/um/kernel/mem.c
 +++ quilt-2.6/arch/um/kernel/mem.c
-@@ -361,10 +361,12 @@ pte_t *pte_alloc_one_kernel(struct mm_st
- 	return pte;
+@@ -348,7 +348,7 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
+ 	return pgd;
  }
  
--struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
-+pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long address)
+-void pgd_free(pgd_t *pgd)
++void pgd_free(struct mm_struct *mm, pgd_t *pgd)
  {
- 	struct page *pte;
- 
- 	pte = alloc_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
-+	if (pte)
-+		pgtable_page_ctor(pte);
- 	return pte;
+ 	free_page((unsigned long) pgd);
  }
+Index: quilt-2.6/arch/um/kernel/skas/mmu.c
+===================================================================
+--- quilt-2.6.orig/arch/um/kernel/skas/mmu.c
++++ quilt-2.6/arch/um/kernel/skas/mmu.c
+@@ -58,9 +58,9 @@ static int init_stub_pte(struct mm_struc
+ 	return 0;
+ 
+  out_pmd:
+-	pud_free(pud);
++	pud_free(mm, pud);
+  out_pte:
+-	pmd_free(pmd);
++	pmd_free(mm, pmd);
+  out:
+ 	return -ENOMEM;
+ }
+@@ -144,10 +144,10 @@ void destroy_context(struct mm_struct *m
+ 	if (!proc_mm || !ptrace_faultinfo) {
+ 		free_page(mmu->id.stack);
+ 		pte_lock_deinit(virt_to_page(mmu->last_page_table));
+-		pte_free_kernel((pte_t *) mmu->last_page_table);
++		pte_free_kernel(mm, (pte_t *) mmu->last_page_table);
+ 		dec_zone_page_state(virt_to_page(mmu->last_page_table), NR_PAGETABLE);
+ #ifdef CONFIG_3_LEVEL_PGTABLES
+-		pmd_free((pmd_t *) mmu->last_pmd);
++		pmd_free(mm, (pmd_t *) mmu->last_pmd);
+ #endif
+ 	}
+ 
 Index: quilt-2.6/arch/x86/mm/pgtable_32.c
 ===================================================================
 --- quilt-2.6.orig/arch/x86/mm/pgtable_32.c
 +++ quilt-2.6/arch/x86/mm/pgtable_32.c
-@@ -183,7 +183,7 @@ pte_t *pte_alloc_one_kernel(struct mm_st
- 	return (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
+@@ -352,7 +352,7 @@ out_oom:
+ 	return NULL;
  }
  
--struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
-+pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long address)
+-void pgd_free(pgd_t *pgd)
++void pgd_free(struct mm_struct *mm, pgd_t *pgd)
  {
- 	struct page *pte;
+ 	int i;
  
-@@ -192,6 +192,8 @@ struct page *pte_alloc_one(struct mm_str
- #else
- 	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
- #endif
-+	if (pte)
-+		pgtable_page_ctor(pte);
- 	return pte;
- }
- 
-Index: quilt-2.6/include/asm-alpha/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-alpha/page.h
-+++ quilt-2.6/include/asm-alpha/page.h
-@@ -64,6 +64,8 @@ typedef unsigned long pgprot_t;
- 
- #endif /* STRICT_MM_TYPECHECKS */
- 
-+typedef struct page *pgtable_t;
-+
- #ifdef USE_48_BIT_KSEG
- #define PAGE_OFFSET		0xffff800000000000UL
- #else
 Index: quilt-2.6/include/asm-alpha/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-alpha/pgalloc.h
 +++ quilt-2.6/include/asm-alpha/pgalloc.h
-@@ -11,10 +11,11 @@
-  */
+@@ -31,7 +31,7 @@ pgd_populate(struct mm_struct *mm, pgd_t
+ extern pgd_t *pgd_alloc(struct mm_struct *mm);
  
  static inline void
--pmd_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
-+pmd_populate(struct mm_struct *mm, pmd_t *pmd, pgtable_t pte)
+-pgd_free(pgd_t *pgd)
++pgd_free(struct mm_struct *mm, pgd_t *pgd)
  {
- 	pmd_set(pmd, (pte_t *)(page_to_pa(pte) + PAGE_OFFSET));
+ 	free_page((unsigned long)pgd);
  }
-+#define pmd_pgtable(pmd) pmd_page(pmd)
+@@ -44,7 +44,7 @@ pmd_alloc_one(struct mm_struct *mm, unsi
+ }
  
  static inline void
- pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd, pte_t *pte)
-@@ -57,18 +58,23 @@ pte_free_kernel(struct mm_struct *mm, pt
+-pmd_free(pmd_t *pmd)
++pmd_free(struct mm_struct *mm, pmd_t *pmd)
+ {
+ 	free_page((unsigned long)pmd);
+ }
+@@ -52,7 +52,7 @@ pmd_free(pmd_t *pmd)
+ extern pte_t *pte_alloc_one_kernel(struct mm_struct *mm, unsigned long addr);
+ 
+ static inline void
+-pte_free_kernel(pte_t *pte)
++pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+ {
  	free_page((unsigned long)pte);
  }
- 
--static inline struct page *
--pte_alloc_one(struct mm_struct *mm, unsigned long addr)
-+static inline pgtable_t
-+pte_alloc_one(struct mm_struct *mm, unsigned long address)
- {
--	pte_t *pte = pte_alloc_one_kernel(mm, addr);
--	if (pte)
--		return virt_to_page(pte);
--	return NULL;
-+	pte_t *pte = pte_alloc_one_kernel(mm, address);
-+	struct page *page;
-+
-+	if (!pte)
-+		return NULL;
-+	page = virt_to_page(pte);
-+	pgtable_page_ctor(page);
-+	return page;
+@@ -67,7 +67,7 @@ pte_alloc_one(struct mm_struct *mm, unsi
  }
  
  static inline void
--pte_free(struct mm_struct *mm, struct page *page)
-+pte_free(struct mm_struct *mm, pgtable_t page)
+-pte_free(struct page *page)
++pte_free(struct mm_struct *mm, struct page *page)
  {
-+	pgtable_page_dtor(page);
  	__free_page(page);
  }
- 
-Index: quilt-2.6/include/asm-arm/page.h
+Index: quilt-2.6/include/asm-alpha/tlb.h
 ===================================================================
---- quilt-2.6.orig/include/asm-arm/page.h
-+++ quilt-2.6/include/asm-arm/page.h
-@@ -174,6 +174,8 @@ typedef unsigned long pgprot_t;
+--- quilt-2.6.orig/include/asm-alpha/tlb.h
++++ quilt-2.6/include/asm-alpha/tlb.h
+@@ -9,7 +9,7 @@
  
- #endif /* STRICT_MM_TYPECHECKS */
+ #include <asm-generic/tlb.h>
  
-+typedef struct page *pgtable_t;
-+
- #endif /* CONFIG_MMU */
- 
- #include <asm/memory.h>
+-#define __pte_free_tlb(tlb,pte)			pte_free(pte)
+-#define __pmd_free_tlb(tlb,pmd)			pmd_free(pmd)
++#define __pte_free_tlb(tlb,pte)			pte_free((tlb)->mm, pte)
++#define __pmd_free_tlb(tlb,pmd)			pmd_free((tlb)->mm, pmd)
+  
+ #endif
 Index: quilt-2.6/include/asm-arm/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-arm/pgalloc.h
 +++ quilt-2.6/include/asm-arm/pgalloc.h
-@@ -66,7 +66,7 @@ pte_alloc_one_kernel(struct mm_struct *m
- 	return pte;
- }
+@@ -27,14 +27,14 @@
+  * Since we have only two-level page tables, these are trivial
+  */
+ #define pmd_alloc_one(mm,addr)		({ BUG(); ((pmd_t *)2); })
+-#define pmd_free(pmd)			do { } while (0)
++#define pmd_free(mm,pmd)		do { } while (0)
+ #define pgd_populate(mm,pmd,pte)	BUG()
  
--static inline struct page *
-+static inline pgtable_t
- pte_alloc_one(struct mm_struct *mm, unsigned long addr)
+ extern pgd_t *get_pgd_slow(struct mm_struct *mm);
+-extern void free_pgd_slow(pgd_t *pgd);
++extern void free_pgd_slow(struct mm_struct *mm, pgd_t *pgd);
+ 
+ #define pgd_alloc(mm)			get_pgd_slow(mm)
+-#define pgd_free(pgd)			free_pgd_slow(pgd)
++#define pgd_free(mm, pgd)		free_pgd_slow(mm, pgd)
+ 
+ /*
+  * Allocate one PTE table.
+@@ -83,7 +83,7 @@ pte_alloc_one(struct mm_struct *mm, unsi
+ /*
+  * Free one PTE table.
+  */
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
  {
- 	struct page *pte;
-@@ -75,6 +75,7 @@ pte_alloc_one(struct mm_struct *mm, unsi
  	if (pte) {
- 		void *page = page_address(pte);
- 		clean_dcache_area(page, sizeof(pte_t) * PTRS_PER_PTE);
-+		pgtable_page_ctor(pte);
- 	}
- 
- 	return pte;
-@@ -91,8 +92,9 @@ static inline void pte_free_kernel(struc
+ 		pte -= PTRS_PER_PTE;
+@@ -91,7 +91,7 @@ static inline void pte_free_kernel(pte_t
  	}
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *pte)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
+-static inline void pte_free(struct page *pte)
++static inline void pte_free(struct mm_struct *mm, struct page *pte)
  {
-+	pgtable_page_dtor(pte);
  	__free_page(pte);
  }
- 
-@@ -123,10 +125,11 @@ pmd_populate_kernel(struct mm_struct *mm
- }
- 
- static inline void
--pmd_populate(struct mm_struct *mm, pmd_t *pmdp, struct page *ptep)
-+pmd_populate(struct mm_struct *mm, pmd_t *pmdp, pgtable_t ptep)
- {
- 	__pmd_populate(pmdp, page_to_pfn(ptep) << PAGE_SHIFT | _PAGE_USER_TABLE);
- }
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- 
- #endif /* CONFIG_MMU */
- 
-Index: quilt-2.6/include/asm-avr32/page.h
+Index: quilt-2.6/include/asm-arm/tlb.h
 ===================================================================
---- quilt-2.6.orig/include/asm-avr32/page.h
-+++ quilt-2.6/include/asm-avr32/page.h
-@@ -36,6 +36,7 @@ extern void copy_page(void *to, void *fr
- typedef struct { unsigned long pte; } pte_t;
- typedef struct { unsigned long pgd; } pgd_t;
- typedef struct { unsigned long pgprot; } pgprot_t;
-+typedef struct page *pgtable_t;
+--- quilt-2.6.orig/include/asm-arm/tlb.h
++++ quilt-2.6/include/asm-arm/tlb.h
+@@ -85,8 +85,8 @@ tlb_end_vma(struct mmu_gather *tlb, stru
+ }
  
- #define pte_val(x)		((x).pte)
- #define pgd_val(x)		((x).pgd)
+ #define tlb_remove_page(tlb,page)	free_page_and_swap_cache(page)
+-#define pte_free_tlb(tlb,ptep)		pte_free(ptep)
+-#define pmd_free_tlb(tlb,pmdp)		pmd_free(pmdp)
++#define pte_free_tlb(tlb,ptep)		pte_free((tlb)->mm, ptep)
++#define pmd_free_tlb(tlb,pmdp)		pmd_free((tlb)->mm, pmdp)
+ 
+ #define tlb_migrate_finish(mm)		do { } while (0)
+ 
 Index: quilt-2.6/include/asm-avr32/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-avr32/pgalloc.h
 +++ quilt-2.6/include/asm-avr32/pgalloc.h
-@@ -17,10 +17,11 @@
- 	set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(pte)))
- 
- static __inline__ void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
--				    struct page *pte)
-+				    pgtable_t pte)
- {
- 	set_pmd(pmd, __pmd(_PAGE_TABLE + page_to_phys(pte)));
+@@ -30,7 +30,7 @@ static __inline__ pgd_t *pgd_alloc(struc
+ 	return kcalloc(USER_PTRS_PER_PGD, sizeof(pgd_t), GFP_KERNEL);
  }
-+#define pmd_pgtable(pmd) pmd_page(pmd)
  
- /*
-  * Allocate and free page tables
-@@ -51,7 +52,9 @@ static inline struct page *pte_alloc_one
- 	struct page *pte;
- 
- 	pte = alloc_page(GFP_KERNEL | __GFP_REPEAT | __GFP_ZERO);
--
-+	if (!page)
-+		return NULL;
-+	pgtable_page_ctor(page);
+-static inline void pgd_free(pgd_t *pgd)
++static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
+ {
+ 	kfree(pgd);
+ }
+@@ -55,12 +55,12 @@ static inline struct page *pte_alloc_one
  	return pte;
  }
  
-@@ -60,12 +63,17 @@ static inline void pte_free_kernel(struc
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+ {
  	free_page((unsigned long)pte);
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *pte)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
+-static inline void pte_free(struct page *pte)
++static inline void pte_free(struct mm_struct *mm, struct page *pte)
  {
-+	pgtable_page_dtor(pte);
  	__free_page(pte);
  }
- 
--#define __pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
-+#define __pte_free_tlb(tlb,pte)				\
-+do {							\
-+	pgtable_page_dtor(pte);				\
-+	tlb_remove_page((tlb), pte);			\
-+} while (0)
- 
- #define check_pgt_cache() do { } while(0)
- 
-Index: quilt-2.6/include/asm-cris/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-cris/page.h
-+++ quilt-2.6/include/asm-cris/page.h
-@@ -31,6 +31,7 @@
- typedef struct { unsigned long pte; } pte_t;
- typedef struct { unsigned long pgd; } pgd_t;
- typedef struct { unsigned long pgprot; } pgprot_t;
-+typedef struct page *pgtable_t;
- #endif
- 
- #define pte_val(x)	((x).pte)
 Index: quilt-2.6/include/asm-cris/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-cris/pgalloc.h
 +++ quilt-2.6/include/asm-cris/pgalloc.h
-@@ -6,6 +6,7 @@
- 
- #define pmd_populate_kernel(mm, pmd, pte) pmd_set(pmd, pte)
- #define pmd_populate(mm, pmd, pte) pmd_set(pmd, page_address(pte))
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- 
- /*
-  * Allocate and free page tables.
-@@ -27,10 +28,11 @@ static inline pte_t *pte_alloc_one_kerne
-  	return pte;
+@@ -16,7 +16,7 @@ static inline pgd_t *pgd_alloc (struct m
+ 	return (pgd_t *)get_zeroed_page(GFP_KERNEL);
  }
  
--static inline struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
-+static inline pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long address)
+-static inline void pgd_free (pgd_t *pgd)
++static inline void pgd_free (struct mm_struct *mm, pgd_t *pgd)
  {
- 	struct page *pte;
- 	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
-+	pgtable_page_ctor(pte);
+ 	free_page((unsigned long)pgd);
+ }
+@@ -34,12 +34,12 @@ static inline struct page *pte_alloc_one
  	return pte;
  }
  
-@@ -39,13 +41,17 @@ static inline void pte_free_kernel(struc
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+ {
  	free_page((unsigned long)pte);
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *pte)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
+-static inline void pte_free(struct page *pte)
++static inline void pte_free(struct mm_struct *mm, struct page *pte)
  {
-+	pgtable_page_dtor(pte);
  	__free_page(pte);
  }
- 
--
--#define __pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
-+#define __pte_free_tlb(tlb,pte)				\
-+do {							\
-+	pgtable_page_dtor(pte);				\
-+	tlb_remove_page((tlb), pte);			\
-+} while (0)
- 
- #define check_pgt_cache()          do { } while (0)
- 
-Index: quilt-2.6/include/asm-frv/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-frv/page.h
-+++ quilt-2.6/include/asm-frv/page.h
-@@ -27,6 +27,7 @@ typedef struct { unsigned long	ste[64];}
- typedef struct { pmd_t		pue[1]; } pud_t;
- typedef struct { pud_t		pge[1];	} pgd_t;
- typedef struct { unsigned long	pgprot;	} pgprot_t;
-+typedef struct page *pgtable_t;
- 
- #define pte_val(x)	((x).pte)
- #define pmd_val(x)	((x).ste[0])
 Index: quilt-2.6/include/asm-frv/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-frv/pgalloc.h
 +++ quilt-2.6/include/asm-frv/pgalloc.h
-@@ -25,6 +25,7 @@
- do {										\
- 	__set_pmd((PMD), page_to_pfn(PAGE) << PAGE_SHIFT | _PAGE_TABLE);	\
- } while(0)
-+#define pmd_pgtable(pmd) pmd_page(pmd)
+@@ -31,18 +31,18 @@ do {										\
+  */
  
- /*
-  * Allocate and free page tables.
-@@ -35,19 +36,24 @@ extern void pgd_free(struct mm_struct *m
+ extern pgd_t *pgd_alloc(struct mm_struct *);
+-extern void pgd_free(pgd_t *);
++extern void pgd_free(struct mm_struct *mm, pgd_t *);
  
  extern pte_t *pte_alloc_one_kernel(struct mm_struct *, unsigned long);
  
--extern struct page *pte_alloc_one(struct mm_struct *, unsigned long);
-+extern pgtable_t pte_alloc_one(struct mm_struct *, unsigned long);
+ extern struct page *pte_alloc_one(struct mm_struct *, unsigned long);
  
- static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
  {
  	free_page((unsigned long)pte);
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *pte)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
+-static inline void pte_free(struct page *pte)
++static inline void pte_free(struct mm_struct *mm, struct page *pte)
  {
-+	pgtable_page_dtor(pte);
  	__free_page(pte);
  }
+@@ -55,7 +55,7 @@ static inline void pte_free(struct page 
+  * (In the PAE case we free the pmds as part of the pgd.)
+  */
+ #define pmd_alloc_one(mm, addr)		({ BUG(); ((pmd_t *) 2); })
+-#define pmd_free(x)			do { } while (0)
++#define pmd_free(mm, x)			do { } while (0)
+ #define __pmd_free_tlb(tlb,x)		do { } while (0)
  
--#define __pte_free_tlb(tlb,pte)		tlb_remove_page((tlb),(pte))
-+#define __pte_free_tlb(tlb,pte)				\
-+do {							\
-+	pgtable_page_dtor(pte);				\
-+	tlb_remove_page((tlb),(pte));			\
-+} while (0)
+ #endif /* CONFIG_MMU */
+Index: quilt-2.6/include/asm-frv/pgtable.h
+===================================================================
+--- quilt-2.6.orig/include/asm-frv/pgtable.h
++++ quilt-2.6/include/asm-frv/pgtable.h
+@@ -226,7 +226,7 @@ static inline pud_t *pud_offset(pgd_t *p
+  * inside the pgd, so has no extra memory associated with it.
+  */
+ #define pud_alloc_one(mm, address)		NULL
+-#define pud_free(x)				do { } while (0)
++#define pud_free(mm, x)				do { } while (0)
+ #define __pud_free_tlb(tlb, x)			do { } while (0)
  
  /*
-  * allocating and freeing a pmd is trivial: the 1-entry pmd is
-Index: quilt-2.6/include/asm-ia64/page.h
+Index: quilt-2.6/include/asm-generic/4level-fixup.h
 ===================================================================
---- quilt-2.6.orig/include/asm-ia64/page.h
-+++ quilt-2.6/include/asm-ia64/page.h
-@@ -187,6 +187,7 @@ get_order (unsigned long size)
- #endif
-   typedef struct { unsigned long pgd; } pgd_t;
-   typedef struct { unsigned long pgprot; } pgprot_t;
-+  typedef struct page *pgtable_t;
+--- quilt-2.6.orig/include/asm-generic/4level-fixup.h
++++ quilt-2.6/include/asm-generic/4level-fixup.h
+@@ -28,7 +28,7 @@
  
- # define pte_val(x)	((x).pte)
- # define pmd_val(x)	((x).pmd)
-@@ -208,6 +209,7 @@ get_order (unsigned long size)
-     typedef unsigned long pmd_t;
-     typedef unsigned long pgd_t;
-     typedef unsigned long pgprot_t;
-+    typedef struct page *pgtable_t;
- # endif
+ #undef pud_free_tlb
+ #define pud_free_tlb(tlb, x)            do { } while (0)
+-#define pud_free(x)			do { } while (0)
++#define pud_free(mm, x)			do { } while (0)
+ #define __pud_free_tlb(tlb, x)		do { } while (0)
  
- # define pte_val(x)	(x)
+ #undef  pud_addr_end
+Index: quilt-2.6/include/asm-generic/pgtable-nopmd.h
+===================================================================
+--- quilt-2.6.orig/include/asm-generic/pgtable-nopmd.h
++++ quilt-2.6/include/asm-generic/pgtable-nopmd.h
+@@ -54,7 +54,7 @@ static inline pmd_t * pmd_offset(pud_t *
+  * inside the pud, so has no extra memory associated with it.
+  */
+ #define pmd_alloc_one(mm, address)		NULL
+-#define pmd_free(x)				do { } while (0)
++#define pmd_free(mm, x)				do { } while (0)
+ #define __pmd_free_tlb(tlb, x)			do { } while (0)
+ 
+ #undef  pmd_addr_end
+Index: quilt-2.6/include/asm-generic/pgtable-nopud.h
+===================================================================
+--- quilt-2.6.orig/include/asm-generic/pgtable-nopud.h
++++ quilt-2.6/include/asm-generic/pgtable-nopud.h
+@@ -51,7 +51,7 @@ static inline pud_t * pud_offset(pgd_t *
+  * inside the pgd, so has no extra memory associated with it.
+  */
+ #define pud_alloc_one(mm, address)		NULL
+-#define pud_free(x)				do { } while (0)
++#define pud_free(mm, x)				do { } while (0)
+ #define __pud_free_tlb(tlb, x)			do { } while (0)
+ 
+ #undef  pud_addr_end
 Index: quilt-2.6/include/asm-ia64/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-ia64/pgalloc.h
 +++ quilt-2.6/include/asm-ia64/pgalloc.h
-@@ -70,10 +70,11 @@ static inline void pmd_free(struct mm_st
- #define __pmd_free_tlb(tlb, pmd)	pmd_free((tlb)->mm, pmd)
- 
- static inline void
--pmd_populate(struct mm_struct *mm, pmd_t * pmd_entry, struct page *pte)
-+pmd_populate(struct mm_struct *mm, pmd_t * pmd_entry, pgtable_t pte)
- {
- 	pmd_val(*pmd_entry) = page_to_phys(pte);
- }
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- 
- static inline void
- pmd_populate_kernel(struct mm_struct *mm, pmd_t * pmd_entry, pte_t * pte)
-@@ -81,11 +82,17 @@ pmd_populate_kernel(struct mm_struct *mm
- 	pmd_val(*pmd_entry) = __pa(pte);
- }
- 
--static inline struct page *pte_alloc_one(struct mm_struct *mm,
--					 unsigned long addr)
-+static inline pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long addr)
- {
--	void *pg = quicklist_alloc(0, GFP_KERNEL, NULL);
--	return pg ? virt_to_page(pg) : NULL;
-+	struct page *page;
-+	void *pg;
-+
-+	pg = quicklist_alloc(0, GFP_KERNEL, NULL);
-+	if (!pg)
-+		return NULL;
-+	page = virt_to_page(pg);
-+	pgtable_page_ctor(page);
-+	return page;
- }
- 
- static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
-@@ -94,8 +101,9 @@ static inline pte_t *pte_alloc_one_kerne
+@@ -27,7 +27,7 @@ static inline pgd_t *pgd_alloc(struct mm
  	return quicklist_alloc(0, GFP_KERNEL, NULL);
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *pte)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
+-static inline void pgd_free(pgd_t * pgd)
++static inline void pgd_free(struct mm_struct *mm, pgd_t * pgd)
  {
-+	pgtable_page_dtor(pte);
+ 	quicklist_free(0, NULL, pgd);
+ }
+@@ -44,11 +44,11 @@ static inline pud_t *pud_alloc_one(struc
+ 	return quicklist_alloc(0, GFP_KERNEL, NULL);
+ }
+ 
+-static inline void pud_free(pud_t * pud)
++static inline void pud_free(struct mm_struct *mm, pud_t * pud)
+ {
+ 	quicklist_free(0, NULL, pud);
+ }
+-#define __pud_free_tlb(tlb, pud)	pud_free(pud)
++#define __pud_free_tlb(tlb, pud)	pud_free((tlb)->mm, pud)
+ #endif /* CONFIG_PGTABLE_4 */
+ 
+ static inline void
+@@ -62,12 +62,12 @@ static inline pmd_t *pmd_alloc_one(struc
+ 	return quicklist_alloc(0, GFP_KERNEL, NULL);
+ }
+ 
+-static inline void pmd_free(pmd_t * pmd)
++static inline void pmd_free(struct mm_struct *mm, pmd_t * pmd)
+ {
+ 	quicklist_free(0, NULL, pmd);
+ }
+ 
+-#define __pmd_free_tlb(tlb, pmd)	pmd_free(pmd)
++#define __pmd_free_tlb(tlb, pmd)	pmd_free((tlb)->mm, pmd)
+ 
+ static inline void
+ pmd_populate(struct mm_struct *mm, pmd_t * pmd_entry, struct page *pte)
+@@ -94,12 +94,12 @@ static inline pte_t *pte_alloc_one_kerne
+ 	return quicklist_alloc(0, GFP_KERNEL, NULL);
+ }
+ 
+-static inline void pte_free(struct page *pte)
++static inline void pte_free(struct mm_struct *mm, struct page *pte)
+ {
  	quicklist_free_page(0, NULL, pte);
  }
  
-Index: quilt-2.6/include/asm-m32r/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-m32r/page.h
-+++ quilt-2.6/include/asm-m32r/page.h
-@@ -29,6 +29,7 @@ typedef struct { unsigned long pgd; } pg
- #define PTE_MASK	PAGE_MASK
+-static inline void pte_free_kernel(pte_t * pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t * pte)
+ {
+ 	quicklist_free(0, NULL, pte);
+ }
+@@ -109,6 +109,6 @@ static inline void check_pgt_cache(void)
+ 	quicklist_trim(0, NULL, 25, 16);
+ }
  
- typedef struct { unsigned long pgprot; } pgprot_t;
-+typedef struct page *pgtable_t;
+-#define __pte_free_tlb(tlb, pte)	pte_free(pte)
++#define __pte_free_tlb(tlb, pte)	pte_free((tlb)->mm, pte)
  
- #define pmd_val(x)	((x).pmd)
- #define pgd_val(x)	((x).pgd)
+ #endif				/* _ASM_IA64_PGALLOC_H */
 Index: quilt-2.6/include/asm-m32r/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-m32r/pgalloc.h
 +++ quilt-2.6/include/asm-m32r/pgalloc.h
-@@ -9,10 +9,11 @@
- 	set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(pte)))
- 
- static __inline__ void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
--	struct page *pte)
-+	pgtable_t pte)
- {
- 	set_pmd(pmd, __pmd(_PAGE_TABLE + page_to_phys(pte)));
+@@ -24,7 +24,7 @@ static __inline__ pgd_t *pgd_alloc(struc
+ 	return pgd;
  }
-+#define pmd_pgtable(pmd) pmd_page(pmd)
  
- /*
-  * Allocate and free page tables.
-@@ -37,12 +38,12 @@ static __inline__ pte_t *pte_alloc_one_k
+-static __inline__ void pgd_free(pgd_t *pgd)
++static __inline__ void pgd_free(struct mm_struct *mm, pgd_t *pgd)
+ {
+ 	free_page((unsigned long)pgd);
+ }
+@@ -46,17 +46,17 @@ static __inline__ struct page *pte_alloc
  	return pte;
  }
  
--static __inline__ struct page *pte_alloc_one(struct mm_struct *mm,
-+static __inline__ pgtable_t pte_alloc_one(struct mm_struct *mm,
- 	unsigned long address)
+-static __inline__ void pte_free_kernel(pte_t *pte)
++static __inline__ void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
  {
- 	struct page *pte = alloc_page(GFP_KERNEL|__GFP_ZERO);
- 
--
-+	pgtable_page_ctor(pte);
- 	return pte;
- }
- 
-@@ -51,8 +52,9 @@ static __inline__ void pte_free_kernel(s
  	free_page((unsigned long)pte);
  }
  
--static __inline__ void pte_free(struct mm_struct *mm, struct page *pte)
-+static __inline__ void pte_free(struct mm_struct *mm, pgtable_t pte)
+-static __inline__ void pte_free(struct page *pte)
++static __inline__ void pte_free(struct mm_struct *mm, struct page *pte)
  {
-+	pgtable_page_dtor(pte);
  	__free_page(pte);
  }
+ 
+-#define __pte_free_tlb(tlb, pte)	pte_free((pte))
++#define __pte_free_tlb(tlb, pte)	pte_free((tlb)->mm, (pte))
+ 
+ /*
+  * allocating and freeing a pmd is trivial: the 1-entry pmd is
+@@ -65,7 +65,7 @@ static __inline__ void pte_free(struct p
+  */
+ 
+ #define pmd_alloc_one(mm, addr)		({ BUG(); ((pmd_t *)2); })
+-#define pmd_free(x)			do { } while (0)
++#define pmd_free(mm, x)			do { } while (0)
+ #define __pmd_free_tlb(tlb, x)		do { } while (0)
+ #define pgd_populate(mm, pmd, pte)	BUG()
  
 Index: quilt-2.6/include/asm-m68k/motorola_pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-m68k/motorola_pgalloc.h
 +++ quilt-2.6/include/asm-m68k/motorola_pgalloc.h
-@@ -7,7 +7,6 @@
- extern pmd_t *get_pointer_table(void);
- extern int free_pointer_table(pmd_t *);
- 
--
- static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm, unsigned long address)
- {
- 	pte_t *pte;
-@@ -28,7 +27,7 @@ static inline void pte_free_kernel(struc
- 	free_page((unsigned long) pte);
+@@ -22,7 +22,7 @@ static inline pte_t *pte_alloc_one_kerne
+ 	return pte;
  }
  
--static inline struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
-+static inline pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long address)
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
  {
- 	struct page *page = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
- 	pte_t *pte;
-@@ -43,19 +42,21 @@ static inline struct page *pte_alloc_one
- 		nocache_page(pte);
- 	}
- 	kunmap(pte);
--
-+	pgtable_page_ctor(page);
+ 	cache_page(pte);
+ 	free_page((unsigned long) pte);
+@@ -47,7 +47,7 @@ static inline struct page *pte_alloc_one
  	return page;
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *page)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t page)
+-static inline void pte_free(struct page *page)
++static inline void pte_free(struct mm_struct *mm, struct page *page)
  {
-+	pgtable_page_dtor(page);
  	cache_page(kmap(page));
  	kunmap(page);
- 	__free_page(page);
+@@ -67,7 +67,7 @@ static inline pmd_t *pmd_alloc_one(struc
+ 	return get_pointer_table();
  }
  
--static inline void __pte_free_tlb(struct mmu_gather *tlb, struct page *page)
-+static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t page)
+-static inline int pmd_free(pmd_t *pmd)
++static inline int pmd_free(struct mm_struct *mm, pmd_t *pmd)
  {
-+	pgtable_page_dtor(page);
- 	cache_page(kmap(page));
- 	kunmap(page);
- 	__free_page(page);
-@@ -94,10 +95,11 @@ static inline void pmd_populate_kernel(s
- 	pmd_set(pmd, pte);
+ 	return free_pointer_table(pmd);
+ }
+@@ -78,9 +78,9 @@ static inline int __pmd_free_tlb(struct 
  }
  
--static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd, struct page *page)
-+static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd, pgtable_t page)
+ 
+-static inline void pgd_free(pgd_t *pgd)
++static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
  {
- 	pmd_set(pmd, page_address(page));
+-	pmd_free((pmd_t *)pgd);
++	pmd_free(mm, (pmd_t *)pgd);
  }
-+#define pmd_pgtable(pmd) pmd_page(pmd)
  
- static inline void pgd_populate(struct mm_struct *mm, pgd_t *pgd, pmd_t *pmd)
- {
-Index: quilt-2.6/include/asm-m68k/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-m68k/page.h
-+++ quilt-2.6/include/asm-m68k/page.h
-@@ -94,6 +94,7 @@ typedef struct { unsigned long pte; } pt
- typedef struct { unsigned long pmd[16]; } pmd_t;
- typedef struct { unsigned long pgd; } pgd_t;
- typedef struct { unsigned long pgprot; } pgprot_t;
-+typedef struct page *pgtable_t;
- 
- #define pte_val(x)	((x).pte)
- #define pmd_val(x)	((&x)->pmd[0])
+ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
 Index: quilt-2.6/include/asm-m68k/sun3_pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-m68k/sun3_pgalloc.h
 +++ quilt-2.6/include/asm-m68k/sun3_pgalloc.h
-@@ -26,12 +26,17 @@ static inline void pte_free_kernel(struc
+@@ -21,12 +21,12 @@ extern const char bad_pmd_string[];
+ #define pmd_alloc_one(mm,address)       ({ BUG(); ((pmd_t *)2); })
+ 
+ 
+-static inline void pte_free_kernel(pte_t * pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t * pte)
+ {
          free_page((unsigned long) pte);
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *page)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t page)
+-static inline void pte_free(struct page *page)
++static inline void pte_free(struct mm_struct *mm, struct page *page)
  {
-+	pgtable_page_dtor(page);
          __free_page(page);
  }
- 
--#define __pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
-+#define __pte_free_tlb(tlb,pte)				\
-+do {							\
-+	pgtable_page_dtor(pte);				\
-+	tlb_remove_page((tlb), pte);			\
-+} while (0)
- 
- static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
- 					  unsigned long address)
-@@ -45,8 +50,8 @@ static inline pte_t *pte_alloc_one_kerne
- 	return (pte_t *) (page);
- }
- 
--static inline struct page *pte_alloc_one(struct mm_struct *mm,
--					 unsigned long address)
-+static inline pgtable_t pte_alloc_one(struct mm_struct *mm,
-+					unsigned long address)
- {
-         struct page *page = alloc_pages(GFP_KERNEL|__GFP_REPEAT, 0);
- 
-@@ -54,6 +59,7 @@ static inline struct page *pte_alloc_one
- 		return NULL;
- 
- 	clear_highpage(page);
-+	pgtable_page_ctor(page);
- 	return page;
- 
- }
-@@ -63,10 +69,11 @@ static inline void pmd_populate_kernel(s
- 	pmd_val(*pmd) = __pa((unsigned long)pte);
- }
- 
--static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd, struct page *page)
-+static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd, pgtable_t page)
- {
- 	pmd_val(*pmd) = __pa((unsigned long)page_address(page));
- }
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- 
- /*
+@@ -72,10 +72,10 @@ static inline void pmd_populate(struct m
   * allocating and freeing a pmd is trivial: the 1-entry pmd is
-Index: quilt-2.6/include/asm-mips/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-mips/page.h
-+++ quilt-2.6/include/asm-mips/page.h
-@@ -93,6 +93,7 @@ typedef struct { unsigned long pte; } pt
- #define pte_val(x)	((x).pte)
- #define __pte(x)	((pte_t) { (x) } )
- #endif
-+typedef struct page *pgtable_t;
+  * inside the pgd, so has no extra memory associated with it.
+  */
+-#define pmd_free(x)			do { } while (0)
++#define pmd_free(mm, x)			do { } while (0)
+ #define __pmd_free_tlb(tlb, x)		do { } while (0)
  
- /*
-  * For 3-level pagetables we defines these ourselves, for 2-level the
+-static inline void pgd_free(pgd_t * pgd)
++static inline void pgd_free(struct mm_struct *mm, pgd_t * pgd)
+ {
+         free_page((unsigned long) pgd);
+ }
 Index: quilt-2.6/include/asm-mips/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-mips/pgalloc.h
 +++ quilt-2.6/include/asm-mips/pgalloc.h
-@@ -20,10 +20,11 @@ static inline void pmd_populate_kernel(s
+@@ -58,7 +58,7 @@ static inline pgd_t *pgd_alloc(struct mm
+ 	return ret;
  }
  
- static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
--	struct page *pte)
-+	pgtable_t pte)
+-static inline void pgd_free(pgd_t *pgd)
++static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
  {
- 	set_pmd(pmd, __pmd((unsigned long)page_address(pte)));
+ 	free_pages((unsigned long)pgd, PGD_ORDER);
  }
-+#define pmd_pgtable(pmd) pmd_page(pmd)
+@@ -85,12 +85,12 @@ static inline struct page *pte_alloc_one
+ 	return pte;
+ }
  
- /*
-  * Initialize a new pmd table with invalid pointers.
-@@ -90,7 +91,7 @@ static inline void pte_free_kernel(struc
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+ {
  	free_pages((unsigned long)pte, PTE_ORDER);
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *pte)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
+-static inline void pte_free(struct page *pte)
++static inline void pte_free(struct mm_struct *mm, struct page *pte)
  {
  	__free_pages(pte, PTE_ORDER);
  }
-Index: quilt-2.6/include/asm-parisc/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-parisc/page.h
-+++ quilt-2.6/include/asm-parisc/page.h
-@@ -93,6 +93,7 @@ typedef unsigned long pgprot_t;
+@@ -103,7 +103,7 @@ static inline void pte_free(struct page 
+  * allocating and freeing a pmd is trivial: the 1-entry pmd is
+  * inside the pgd, so has no extra memory associated with it.
+  */
+-#define pmd_free(x)			do { } while (0)
++#define pmd_free(mm, x)			do { } while (0)
+ #define __pmd_free_tlb(tlb, x)		do { } while (0)
  
- #endif /* STRICT_MM_TYPECHECKS */
+ #endif
+@@ -120,12 +120,12 @@ static inline pmd_t *pmd_alloc_one(struc
+ 	return pmd;
+ }
  
-+typedef struct page *pgtable_t;
+-static inline void pmd_free(pmd_t *pmd)
++static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
+ {
+ 	free_pages((unsigned long)pmd, PMD_ORDER);
+ }
  
- typedef struct __physmem_range {
- 	unsigned long start_pfn;
+-#define __pmd_free_tlb(tlb, x)	pmd_free(x)
++#define __pmd_free_tlb(tlb, x)	pmd_free((tlb)->mm, x)
+ 
+ #endif
+ 
 Index: quilt-2.6/include/asm-parisc/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-parisc/pgalloc.h
 +++ quilt-2.6/include/asm-parisc/pgalloc.h
-@@ -115,11 +115,14 @@ pmd_populate_kernel(struct mm_struct *mm
- 
- #define pmd_populate(mm, pmd, pte_page) \
- 	pmd_populate_kernel(mm, pmd, page_address(pte_page))
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- 
--static inline struct page *
-+static inline pgtable_t
- pte_alloc_one(struct mm_struct *mm, unsigned long address)
- {
- 	struct page *page = alloc_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
-+	if (page)
-+		pgtable_page_ctor(page);
- 	return page;
+@@ -43,7 +43,7 @@ static inline pgd_t *pgd_alloc(struct mm
+ 	return actual_pgd;
  }
  
-@@ -135,7 +138,11 @@ static inline void pte_free_kernel(struc
+-static inline void pgd_free(pgd_t *pgd)
++static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
+ {
+ #ifdef CONFIG_64BIT
+ 	pgd -= PTRS_PER_PGD;
+@@ -70,7 +70,7 @@ static inline pmd_t *pmd_alloc_one(struc
+ 	return pmd;
+ }
+ 
+-static inline void pmd_free(pmd_t *pmd)
++static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
+ {
+ #ifdef CONFIG_64BIT
+ 	if(pmd_flag(*pmd) & PxD_FLAG_ATTACHED)
+@@ -91,7 +91,7 @@ static inline void pmd_free(pmd_t *pmd)
+  */
+ 
+ #define pmd_alloc_one(mm, addr)		({ BUG(); ((pmd_t *)2); })
+-#define pmd_free(x)			do { } while (0)
++#define pmd_free(mm, x)			do { } while (0)
+ #define pgd_populate(mm, pmd, pte)	BUG()
+ 
+ #endif
+@@ -130,12 +130,12 @@ pte_alloc_one_kernel(struct mm_struct *m
+ 	return pte;
+ }
+ 
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+ {
  	free_page((unsigned long)pte);
  }
  
--#define pte_free(mm, page) pte_free_kernel(page_address(page))
-+static inline void pte_free_kernel(struct mm_struct *mm, struct page *pte)
-+{
-+	pgtable_page_dtor(pte);
-+	pte_free_kernel(page_address((pte));
-+}
+-#define pte_free(page)	pte_free_kernel(page_address(page))
++#define pte_free(mm, page) pte_free_kernel(page_address(page))
  
  #define check_pgt_cache()	do { } while (0)
  
-Index: quilt-2.6/include/asm-powerpc/page.h
+Index: quilt-2.6/include/asm-parisc/tlb.h
 ===================================================================
---- quilt-2.6.orig/include/asm-powerpc/page.h
-+++ quilt-2.6/include/asm-powerpc/page.h
-@@ -191,6 +191,8 @@ extern int page_is_ram(unsigned long pfn
+--- quilt-2.6.orig/include/asm-parisc/tlb.h
++++ quilt-2.6/include/asm-parisc/tlb.h
+@@ -21,7 +21,7 @@ do {	if (!(tlb)->fullmm)	\
  
- struct vm_area_struct;
+ #include <asm-generic/tlb.h>
  
-+typedef struct page *pgtable_t;
-+
- #include <asm-generic/memory_model.h>
- #endif /* __ASSEMBLY__ */
+-#define __pmd_free_tlb(tlb, pmd)	pmd_free(pmd)
+-#define __pte_free_tlb(tlb, pte)	pte_free(pte)
++#define __pmd_free_tlb(tlb, pmd)	pmd_free((tlb)->mm, pmd)
++#define __pte_free_tlb(tlb, pte)	pte_free((tlb)->mm, pte)
  
+ #endif
 Index: quilt-2.6/include/asm-powerpc/pgalloc-32.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-powerpc/pgalloc-32.h
 +++ quilt-2.6/include/asm-powerpc/pgalloc-32.h
-@@ -22,17 +22,19 @@ extern void pgd_free(struct mm_struct *m
- 		(pmd_val(*(pmd)) = __pa(pte) | _PMD_PRESENT)
- #define pmd_populate(mm, pmd, pte)	\
- 		(pmd_val(*(pmd)) = (page_to_pfn(pte) << PAGE_SHIFT) | _PMD_PRESENT)
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- #else
- #define pmd_populate_kernel(mm, pmd, pte)	\
- 		(pmd_val(*(pmd)) = (unsigned long)pte | _PMD_PRESENT)
- #define pmd_populate(mm, pmd, pte)	\
- 		(pmd_val(*(pmd)) = (unsigned long)lowmem_page_address(pte) | _PMD_PRESENT)
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- #endif
+@@ -6,14 +6,14 @@
+ extern void __bad_pte(pmd_t *pmd);
+ 
+ extern pgd_t *pgd_alloc(struct mm_struct *mm);
+-extern void pgd_free(pgd_t *pgd);
++extern void pgd_free(struct mm_struct *mm, pgd_t *pgd);
+ 
+ /*
+  * We don't have any real pmd's, and this code never triggers because
+  * the pgd will always be present..
+  */
+ /* #define pmd_alloc_one(mm,address)       ({ BUG(); ((pmd_t *)2); }) */
+-#define pmd_free(x)                     do { } while (0)
++#define pmd_free(mm, x) 		do { } while (0)
+ #define __pmd_free_tlb(tlb,x)		do { } while (0)
+ /* #define pgd_populate(mm, pmd, pte)      BUG() */
+ 
+@@ -31,10 +31,10 @@ extern void pgd_free(pgd_t *pgd);
  
  extern pte_t *pte_alloc_one_kernel(struct mm_struct *mm, unsigned long addr);
--extern struct page *pte_alloc_one(struct mm_struct *mm, unsigned long addr);
-+extern pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long addr);
- extern void pte_free_kernel(struct mm_struct *mm, pte_t *pte);
--extern void pte_free(struct mm_struct *mm, struct page *pte);
-+extern void pte_free(struct mm_struct *mm, pgtable_t pte);
+ extern struct page *pte_alloc_one(struct mm_struct *mm, unsigned long addr);
+-extern void pte_free_kernel(pte_t *pte);
+-extern void pte_free(struct page *pte);
++extern void pte_free_kernel(struct mm_struct *mm, pte_t *pte);
++extern void pte_free(struct mm_struct *mm, struct page *pte);
  
- #define __pte_free_tlb(tlb, pte)	pte_free((tlb)->mm, (pte))
+-#define __pte_free_tlb(tlb, pte)	pte_free((pte))
++#define __pte_free_tlb(tlb, pte)	pte_free((tlb)->mm, (pte))
+ 
+ #define check_pgt_cache()	do { } while (0)
  
 Index: quilt-2.6/include/asm-powerpc/pgalloc-64.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-powerpc/pgalloc-64.h
 +++ quilt-2.6/include/asm-powerpc/pgalloc-64.h
-@@ -53,6 +53,7 @@ static inline void pud_populate(struct m
- #define pmd_populate(mm, pmd, pte_page) \
- 	pmd_populate_kernel(mm, pmd, page_address(pte_page))
- #define pmd_populate_kernel(mm, pmd, pte) pmd_set(pmd, (unsigned long)(pte))
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- 
- 
- #else /* CONFIG_PPC_64K_PAGES */
-@@ -87,11 +88,18 @@ static inline pte_t *pte_alloc_one_kerne
-         return (pte_t *)__get_free_page(GFP_KERNEL | __GFP_REPEAT | __GFP_ZERO);
+@@ -25,7 +25,7 @@ static inline pgd_t *pgd_alloc(struct mm
+ 	return kmem_cache_alloc(pgtable_cache[PGD_CACHE_NUM], GFP_KERNEL);
  }
  
--static inline struct page *pte_alloc_one(struct mm_struct *mm,
--					 unsigned long address)
-+static inline pgtable_t pte_alloc_one(struct mm_struct *mm,
-+					unsigned long address)
+-static inline void pgd_free(pgd_t *pgd)
++static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
  {
--	pte_t *pte = pte_alloc_one_kernel(mm, address);
--	return pte ? virt_to_page(pte) : NULL;
-+	struct page *page;
-+	pte_t *pte;
-+
-+	pte = pte_alloc_one_kernel(mm, address);
-+	if (!pte)
-+		return NULL;
-+	page = virt_to_page(pte);
-+	pgtable_page_ctor(page);
-+	return page;
+ 	kmem_cache_free(pgtable_cache[PGD_CACHE_NUM], pgd);
+ }
+@@ -40,7 +40,7 @@ static inline pud_t *pud_alloc_one(struc
+ 				GFP_KERNEL|__GFP_REPEAT);
  }
  
- static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
-@@ -99,8 +107,9 @@ static inline void pte_free_kernel(struc
+-static inline void pud_free(pud_t *pud)
++static inline void pud_free(struct mm_struct *mm, pud_t *pud)
+ {
+ 	kmem_cache_free(pgtable_cache[PUD_CACHE_NUM], pud);
+ }
+@@ -76,7 +76,7 @@ static inline pmd_t *pmd_alloc_one(struc
+ 				GFP_KERNEL|__GFP_REPEAT);
+ }
+ 
+-static inline void pmd_free(pmd_t *pmd)
++static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
+ {
+ 	kmem_cache_free(pgtable_cache[PMD_CACHE_NUM], pmd);
+ }
+@@ -94,12 +94,12 @@ static inline struct page *pte_alloc_one
+ 	return pte ? virt_to_page(pte) : NULL;
+ }
+ 
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+ {
  	free_page((unsigned long)pte);
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *ptepage)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t ptepage)
+-static inline void pte_free(struct page *ptepage)
++static inline void pte_free(struct mm_struct *mm, struct page *ptepage)
  {
-+	pgtable_page_dtor(ptepage);
  	__free_page(ptepage);
  }
- 
-@@ -131,9 +140,12 @@ static inline void pgtable_free(pgtable_
- 
- extern void pgtable_free_tlb(struct mmu_gather *tlb, pgtable_free_t pgf);
- 
--#define __pte_free_tlb(tlb, ptepage)	\
-+#define __pte_free_tlb(tlb,ptepage)	\
-+do { \
-+	pgtable_page_dtor(ptepage); \
- 	pgtable_free_tlb(tlb, pgtable_free_cache(page_address(ptepage), \
--		PTE_NONCACHE_NUM, PTE_TABLE_SIZE-1))
-+		PTE_NONCACHE_NUM, PTE_TABLE_SIZE-1)); \
-+} while (0)
- #define __pmd_free_tlb(tlb, pmd) 	\
- 	pgtable_free_tlb(tlb, pgtable_free_cache(pmd, \
- 		PMD_CACHE_NUM, PMD_TABLE_SIZE-1))
 Index: quilt-2.6/include/asm-ppc/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-ppc/pgalloc.h
 +++ quilt-2.6/include/asm-ppc/pgalloc.h
-@@ -23,17 +23,19 @@ extern void pgd_free(struct mm_struct *m
- 		(pmd_val(*(pmd)) = __pa(pte) | _PMD_PRESENT)
- #define pmd_populate(mm, pmd, pte)	\
- 		(pmd_val(*(pmd)) = (page_to_pfn(pte) << PAGE_SHIFT) | _PMD_PRESENT)
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- #else
- #define pmd_populate_kernel(mm, pmd, pte)	\
- 		(pmd_val(*(pmd)) = (unsigned long)pte | _PMD_PRESENT)
- #define pmd_populate(mm, pmd, pte)	\
- 		(pmd_val(*(pmd)) = (unsigned long)lowmem_page_address(pte) | _PMD_PRESENT)
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- #endif
+@@ -7,14 +7,14 @@
+ extern void __bad_pte(pmd_t *pmd);
+ 
+ extern pgd_t *pgd_alloc(struct mm_struct *mm);
+-extern void pgd_free(pgd_t *pgd);
++extern void pgd_free(struct mm_struct *mm, pgd_t *pgd);
+ 
+ /*
+  * We don't have any real pmd's, and this code never triggers because
+  * the pgd will always be present..
+  */
+ #define pmd_alloc_one(mm,address)       ({ BUG(); ((pmd_t *)2); })
+-#define pmd_free(x)                     do { } while (0)
++#define pmd_free(mm, x) 		do { } while (0)
+ #define __pmd_free_tlb(tlb,x)		do { } while (0)
+ #define pgd_populate(mm, pmd, pte)      BUG()
+ 
+@@ -32,10 +32,10 @@ extern void pgd_free(pgd_t *pgd);
  
  extern pte_t *pte_alloc_one_kernel(struct mm_struct *mm, unsigned long addr);
--extern struct page *pte_alloc_one(struct mm_struct *mm, unsigned long addr);
-+extern pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long addr);
- extern void pte_free_kernel(struct mm_struct *mm, pte_t *pte);
--extern void pte_free(struct mm_struct *mm, struct page *pte);
-+extern void pte_free(struct mm_struct *mm, pgtable_t pte);
+ extern struct page *pte_alloc_one(struct mm_struct *mm, unsigned long addr);
+-extern void pte_free_kernel(pte_t *pte);
+-extern void pte_free(struct page *pte);
++extern void pte_free_kernel(struct mm_struct *mm, pte_t *pte);
++extern void pte_free(struct mm_struct *mm, struct page *pte);
  
- #define __pte_free_tlb(tlb, pte)	pte_free((tlb)->mm, (pte))
+-#define __pte_free_tlb(tlb, pte)	pte_free((pte))
++#define __pte_free_tlb(tlb, pte)	pte_free((tlb)->mm, (pte))
  
-Index: quilt-2.6/include/asm-s390/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/page.h
-+++ quilt-2.6/include/asm-s390/page.h
-@@ -110,6 +110,8 @@ typedef struct { unsigned long pgd; } pg
+ #define check_pgt_cache()	do { } while (0)
  
- #endif /* __s390x__ */
- 
-+typedef struct page *pgtable_t;
-+
- #define __pte(x)        ((pte_t) { (x) } )
- #define __pmd(x)        ((pmd_t) { (x) } )
- #define __pgd(x)        ((pgd_t) { (x) } )
 Index: quilt-2.6/include/asm-s390/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-s390/pgalloc.h
 +++ quilt-2.6/include/asm-s390/pgalloc.h
-@@ -132,7 +132,7 @@ pmd_populate_kernel(struct mm_struct *mm
+@@ -57,10 +57,10 @@ static inline unsigned long pgd_entry_ty
  }
  
- static inline void
--pmd_populate(struct mm_struct *mm, pmd_t *pmd, struct page *page)
-+pmd_populate(struct mm_struct *mm, pmd_t *pmd, pgtable_t page)
+ #define pud_alloc_one(mm,address)		({ BUG(); ((pud_t *)2); })
+-#define pud_free(x)				do { } while (0)
++#define pud_free(mm, x)				do { } while (0)
+ 
+ #define pmd_alloc_one(mm,address)		({ BUG(); ((pmd_t *)2); })
+-#define pmd_free(x)				do { } while (0)
++#define pmd_free(mm, x)				do { } while (0)
+ 
+ #define pgd_populate(mm, pgd, pud)		BUG()
+ #define pgd_populate_kernel(mm, pgd, pud)	BUG()
+@@ -76,7 +76,7 @@ static inline unsigned long pgd_entry_ty
+ }
+ 
+ #define pud_alloc_one(mm,address)		({ BUG(); ((pud_t *)2); })
+-#define pud_free(x)				do { } while (0)
++#define pud_free(mm, x)				do { } while (0)
+ 
+ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
  {
- 	pte_t *pte = (pte_t *)page_to_phys(page);
- 	pmd_t *shadow_pmd = get_shadow_table(pmd);
-@@ -142,6 +142,7 @@ pmd_populate(struct mm_struct *mm, pmd_t
- 	if (shadow_pmd && shadow_pte)
- 		pmd_populate_kernel(mm, shadow_pmd, shadow_pte);
+@@ -85,7 +85,7 @@ static inline pmd_t *pmd_alloc_one(struc
+ 		crst_table_init(crst, _SEGMENT_ENTRY_EMPTY);
+ 	return (pmd_t *) crst;
  }
-+#define pmd_pgtable(pmd) pmd_page(pmd)
+-#define pmd_free(pmd) crst_table_free((unsigned long *) pmd)
++#define pmd_free(mm, pmd) crst_table_free((unsigned long *) pmd)
  
- /*
-  * page table entry allocation/free routines.
+ #define pgd_populate(mm, pgd, pud)		BUG()
+ #define pgd_populate_kernel(mm, pgd, pud)	BUG()
+@@ -115,7 +115,7 @@ static inline pgd_t *pgd_alloc(struct mm
+ 		crst_table_init(crst, pgd_entry_type(mm));
+ 	return (pgd_t *) crst;
+ }
+-#define pgd_free(pgd) crst_table_free((unsigned long *) pgd)
++#define pgd_free(mm, pgd) crst_table_free((unsigned long *) pgd)
+ 
+ static inline void 
+ pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd, pte_t *pte)
+@@ -151,9 +151,9 @@ pmd_populate(struct mm_struct *mm, pmd_t
+ #define pte_alloc_one(mm, vmaddr) \
+ 	virt_to_page(page_table_alloc(s390_noexec))
+ 
+-#define pte_free_kernel(pte) \
++#define pte_free_kernel(mm, pte) \
+ 	page_table_free((unsigned long *) pte)
+-#define pte_free(pte) \
++#define pte_free(mm, pte) \
+ 	page_table_free((unsigned long *) page_to_phys((struct page *) pte))
+ 
+ #endif /* _S390_PGALLOC_H */
 Index: quilt-2.6/include/asm-s390/tlb.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-s390/tlb.h
 +++ quilt-2.6/include/asm-s390/tlb.h
-@@ -95,7 +95,7 @@ static inline void tlb_remove_page(struc
-  * pte_free_tlb frees a pte table and clears the CRSTE for the
-  * page table from the tlb.
-  */
--static inline void pte_free_tlb(struct mmu_gather *tlb, struct page *page)
-+static inline void pte_free_tlb(struct mmu_gather *tlb, pgtable_t page)
- {
- 	if (!tlb->fullmm) {
- 		tlb->array[tlb->nr_ptes++] = page;
-Index: quilt-2.6/include/asm-sh/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-sh/page.h
-+++ quilt-2.6/include/asm-sh/page.h
-@@ -107,6 +107,8 @@ typedef struct { unsigned long pgd; } pg
- #define __pgd(x) ((pgd_t) { (x) } )
- #define __pgprot(x)	((pgprot_t) { (x) } )
+@@ -65,9 +65,9 @@ static inline void tlb_flush_mmu(struct 
+ 	if (!tlb->fullmm && (tlb->nr_ptes > 0 || tlb->nr_pmds < TLB_NR_PTRS))
+ 		__tlb_flush_mm(tlb->mm);
+ 	while (tlb->nr_ptes > 0)
+-		pte_free(tlb->array[--tlb->nr_ptes]);
++		pte_free(tlb->mm, tlb->array[--tlb->nr_ptes]);
+ 	while (tlb->nr_pmds < TLB_NR_PTRS)
+-		pmd_free((pmd_t *) tlb->array[tlb->nr_pmds++]);
++		pmd_free(tlb->mm, (pmd_t *) tlb->array[tlb->nr_pmds++]);
+ }
  
-+typedef struct page *pgtable_t;
-+
- #endif /* !__ASSEMBLY__ */
+ static inline void tlb_finish_mmu(struct mmu_gather *tlb,
+@@ -102,7 +102,7 @@ static inline void pte_free_tlb(struct m
+ 		if (tlb->nr_ptes >= tlb->nr_pmds)
+ 			tlb_flush_mmu(tlb, 0, 0);
+ 	} else
+-		pte_free(page);
++		pte_free(tlb->mm, page);
+ }
  
- /* to align the pointer to the (next) page boundary */
+ /*
+@@ -117,7 +117,7 @@ static inline void pmd_free_tlb(struct m
+ 		if (tlb->nr_ptes >= tlb->nr_pmds)
+ 			tlb_flush_mmu(tlb, 0, 0);
+ 	} else
+-		pmd_free(pmd);
++		pmd_free(tlb->mm, pmd);
+ #endif
+ }
+ 
 Index: quilt-2.6/include/asm-sh/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-sh/pgalloc.h
 +++ quilt-2.6/include/asm-sh/pgalloc.h
-@@ -14,10 +14,11 @@ static inline void pmd_populate_kernel(s
+@@ -36,7 +36,7 @@ static inline pgd_t *pgd_alloc(struct mm
+ 	return quicklist_alloc(QUICK_PGD, GFP_KERNEL | __GFP_REPEAT, pgd_ctor);
  }
  
- static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
--				struct page *pte)
-+				pgtable_t pte)
+-static inline void pgd_free(pgd_t *pgd)
++static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
  {
- 	set_pmd(pmd, __pmd((unsigned long)page_address(pte)));
+ 	quicklist_free(QUICK_PGD, NULL, pgd);
  }
-+#define pmd_pgtable(pmd) pmd_page(pmd)
+@@ -54,12 +54,12 @@ static inline struct page *pte_alloc_one
+ 	return pg ? virt_to_page(pg) : NULL;
+ }
  
- static inline void pgd_ctor(void *x)
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
  {
-@@ -47,11 +48,18 @@ static inline pte_t *pte_alloc_one_kerne
- 	return quicklist_alloc(QUICK_PT, GFP_KERNEL | __GFP_REPEAT, NULL);
- }
- 
--static inline struct page *pte_alloc_one(struct mm_struct *mm,
--					 unsigned long address)
-+static inline pgtable_t pte_alloc_one(struct mm_struct *mm,
-+					unsigned long address)
- {
--	void *pg = quicklist_alloc(QUICK_PT, GFP_KERNEL | __GFP_REPEAT, NULL);
--	return pg ? virt_to_page(pg) : NULL;
-+	struct page *page;
-+	void *pg;
-+
-+	pg = quicklist_alloc(QUICK_PT, GFP_KERNEL | __GFP_REPEAT, NULL);
-+	if (!pg)
-+		return NULL;
-+	page = virt_to_page(pg);
-+	pgtable_page_ctor(page);
-+	return page;
- }
- 
- static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
-@@ -59,12 +67,17 @@ static inline void pte_free_kernel(struc
  	quicklist_free(QUICK_PT, NULL, pte);
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *pte)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
+-static inline void pte_free(struct page *pte)
++static inline void pte_free(struct mm_struct *mm, struct page *pte)
  {
-+	pgtable_page_dtor(pte);
  	quicklist_free_page(QUICK_PT, NULL, pte);
  }
+@@ -71,7 +71,7 @@ static inline void pte_free(struct page 
+  * inside the pgd, so has no extra memory associated with it.
+  */
  
--#define __pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
-+#define __pte_free_tlb(tlb,pte)				\
-+do {							\
-+	pgtable_page_dtor(pte);				\
-+	tlb_remove_page((tlb), (pte));			\
-+} while (0)
+-#define pmd_free(x)			do { } while (0)
++#define pmd_free(mm, x)			do { } while (0)
+ #define __pmd_free_tlb(tlb,x)		do { } while (0)
  
- /*
-  * allocating and freeing a pmd is trivial: the 1-entry pmd is
-Index: quilt-2.6/include/asm-sh64/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-sh64/page.h
-+++ quilt-2.6/include/asm-sh64/page.h
-@@ -83,6 +83,8 @@ typedef struct { unsigned long pgprot; }
- #define __pgd(x) ((pgd_t) { (x) } )
- #define __pgprot(x)	((pgprot_t) { (x) } )
- 
-+typedef struct page *pgtable_t;
-+
- #endif /* !__ASSEMBLY__ */
- 
- /* to align the pointer to the (next) page boundary */
+ static inline void check_pgt_cache(void)
 Index: quilt-2.6/include/asm-sh64/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-sh64/pgalloc.h
 +++ quilt-2.6/include/asm-sh64/pgalloc.h
-@@ -51,11 +51,18 @@ static inline void pgd_free(struct mm_st
- 	quicklist_free(0, NULL, pgd);
- }
- 
--static inline struct page *pte_alloc_one(struct mm_struct *mm,
--					 unsigned long address)
-+static inline pgtable_t pte_alloc_one(struct mm_struct *mm,
-+					unsigned long address)
- {
--	void *pg = quicklist_alloc(0, GFP_KERNEL, NULL);
--	return pg ? virt_to_page(pg) : NULL;
-+	struct page *page;
-+	void *pg;
-+
-+	pg = quicklist_alloc(0, GFP_KERNEL, NULL);
-+	if (!pg)
-+		return NULL;
-+	page = virt_to_page(pg);
-+	pgtable_page_ctor(page);
-+	return page;
- }
- 
- static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
-@@ -63,8 +70,9 @@ static inline void pte_free_kernel(struc
- 	quicklist_free(0, NULL, pte);
- }
- 
--static inline void pte_free(struct mm_struct *mm, struct page *pte)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
- {
-+	pgtable_page_dtor(pte);
- 	quicklist_free_page(0, NULL, pte);
- }
- 
-@@ -74,7 +82,11 @@ static inline pte_t *pte_alloc_one_kerne
+@@ -46,7 +46,7 @@ static inline pgd_t *pgd_alloc(struct mm
  	return quicklist_alloc(0, GFP_KERNEL, NULL);
  }
  
--#define __pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
-+#define __pte_free_tlb(tlb,pte)				\
-+do {							\
-+	pgtable_page_dtor(pte);				\
-+	tlb_remove_page((tlb),(pte));			\
-+} while (0)
- 
- /*
-  * allocating and freeing a pmd is trivial: the 1-entry pmd is
-@@ -112,10 +124,11 @@ static inline void pmd_free(struct mm_st
- 	set_pmd(pmd, __pmd(_PAGE_TABLE + (unsigned long) (pte)))
- 
- static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
--				struct page *pte)
-+				pgtable_t pte)
+-static inline void pgd_free(pgd_t *pgd)
++static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
  {
- 	set_pmd(pmd, __pmd(_PAGE_TABLE + (unsigned long) page_address (pte)));
+ 	quicklist_free(0, NULL, pgd);
  }
-+#define pmd_pgtable(pmd) pmd_page(pmd)
+@@ -58,12 +58,12 @@ static inline struct page *pte_alloc_one
+ 	return pg ? virt_to_page(pg) : NULL;
+ }
  
- static inline void check_pgt_cache(void)
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
  {
-Index: quilt-2.6/include/asm-sparc/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-sparc/page.h
-+++ quilt-2.6/include/asm-sparc/page.h
-@@ -125,6 +125,8 @@ typedef unsigned long iopgprot_t;
+ 	quicklist_free(0, NULL, pte);
+ }
  
- #endif
+-static inline void pte_free(struct page *pte)
++static inline void pte_free(struct mm_struct *mm, struct page *pte)
+ {
+ 	quicklist_free_page(0, NULL, pte);
+ }
+@@ -84,7 +84,7 @@ static inline pte_t *pte_alloc_one_kerne
+ #if defined(CONFIG_SH64_PGTABLE_2_LEVEL)
  
-+typedef struct page *pgtable_t;
-+
- extern unsigned long sparc_unmapped_base;
+ #define pmd_alloc_one(mm, addr)		({ BUG(); ((pmd_t *)2); })
+-#define pmd_free(x)			do { } while (0)
++#define pmd_free(mm, x)			do { } while (0)
+ #define pgd_populate(mm, pmd, pte)	BUG()
+ #define __pte_free_tlb(tlb,pte)		tlb_remove_page((tlb),(pte))
+ #define __pmd_free_tlb(tlb,pmd)		do { } while (0)
+@@ -96,13 +96,13 @@ static inline pmd_t *pmd_alloc_one(struc
+ 	return quicklist_alloc(0, GFP_KERNEL, NULL);
+ }
  
- BTFIXUPDEF_SETHI(sparc_unmapped_base)
+-static inline void pmd_free(pmd_t *pmd)
++static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
+ {
+ 	quicklist_free(0, NULL, pmd);
+ }
+ 
+ #define pgd_populate(mm, pgd, pmd)	pgd_set(pgd, pmd)
+-#define __pmd_free_tlb(tlb,pmd)		pmd_free(pmd)
++#define __pmd_free_tlb(tlb,pmd)		pmd_free((tlb)->mm, pmd)
+ 
+ #else
+ #error "No defined page table size"
 Index: quilt-2.6/include/asm-sparc/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-sparc/pgalloc.h
 +++ quilt-2.6/include/asm-sparc/pgalloc.h
-@@ -50,10 +50,11 @@ BTFIXUPDEF_CALL(void, free_pmd_fast, pmd
+@@ -32,7 +32,7 @@ BTFIXUPDEF_CALL(pgd_t *, get_pgd_fast, v
+ BTFIXUPDEF_CALL(void, free_pgd_fast, pgd_t *)
+ #define free_pgd_fast(pgd)	BTFIXUP_CALL(free_pgd_fast)(pgd)
+ 
+-#define pgd_free(pgd)	free_pgd_fast(pgd)
++#define pgd_free(mm,pgd)	free_pgd_fast(pgd)
+ #define pgd_alloc(mm)	get_pgd_fast()
+ 
+ BTFIXUPDEF_CALL(void, pgd_set, pgd_t *, pmd_t *)
+@@ -45,8 +45,8 @@ BTFIXUPDEF_CALL(pmd_t *, pmd_alloc_one, 
+ BTFIXUPDEF_CALL(void, free_pmd_fast, pmd_t *)
+ #define free_pmd_fast(pmd)	BTFIXUP_CALL(free_pmd_fast)(pmd)
+ 
+-#define pmd_free(pmd)           free_pmd_fast(pmd)
+-#define __pmd_free_tlb(tlb, pmd) pmd_free(pmd)
++#define pmd_free(mm, pmd)	free_pmd_fast(pmd)
++#define __pmd_free_tlb(tlb, pmd) pmd_free((tlb)->mm, pmd)
  
  BTFIXUPDEF_CALL(void, pmd_populate, pmd_t *, struct page *)
  #define pmd_populate(MM, PMD, PTE)        BTFIXUP_CALL(pmd_populate)(PMD, PTE)
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- BTFIXUPDEF_CALL(void, pmd_set, pmd_t *, pte_t *)
- #define pmd_populate_kernel(MM, PMD, PTE) BTFIXUP_CALL(pmd_set)(PMD, PTE)
- 
--BTFIXUPDEF_CALL(struct page *, pte_alloc_one, struct mm_struct *, unsigned long)
-+BTFIXUPDEF_CALL(pgtable_t , pte_alloc_one, struct mm_struct *, unsigned long)
- #define pte_alloc_one(mm, address)	BTFIXUP_CALL(pte_alloc_one)(mm, address)
- BTFIXUPDEF_CALL(pte_t *, pte_alloc_one_kernel, struct mm_struct *, unsigned long)
+@@ -59,10 +59,10 @@ BTFIXUPDEF_CALL(pte_t *, pte_alloc_one_k
  #define pte_alloc_one_kernel(mm, addr)	BTFIXUP_CALL(pte_alloc_one_kernel)(mm, addr)
-@@ -61,7 +62,7 @@ BTFIXUPDEF_CALL(pte_t *, pte_alloc_one_k
+ 
  BTFIXUPDEF_CALL(void, free_pte_fast, pte_t *)
- #define pte_free_kernel(mm,pte)	BTFIXUP_CALL(free_pte_fast)(pte)
+-#define pte_free_kernel(pte)	BTFIXUP_CALL(free_pte_fast)(pte)
++#define pte_free_kernel(mm,pte)	BTFIXUP_CALL(free_pte_fast)(pte)
  
--BTFIXUPDEF_CALL(void, pte_free, struct page *)
-+BTFIXUPDEF_CALL(void, pte_free, pgtable_t )
- #define pte_free(mm,pte)	BTFIXUP_CALL(pte_free)(pte)
- #define __pte_free_tlb(tlb, pte)	pte_free((tlb)->mm, pte)
+ BTFIXUPDEF_CALL(void, pte_free, struct page *)
+-#define pte_free(pte)		BTFIXUP_CALL(pte_free)(pte)
+-#define __pte_free_tlb(tlb, pte)	pte_free(pte)
++#define pte_free(mm,pte)	BTFIXUP_CALL(pte_free)(pte)
++#define __pte_free_tlb(tlb, pte)	pte_free((tlb)->mm, pte)
  
-Index: quilt-2.6/include/asm-sparc64/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-sparc64/page.h
-+++ quilt-2.6/include/asm-sparc64/page.h
-@@ -106,6 +106,8 @@ typedef unsigned long pgprot_t;
- 
- #endif /* (STRICT_MM_TYPECHECKS) */
- 
-+typedef struct page *pgtable_t;
-+
- #define TASK_UNMAPPED_BASE	(test_thread_flag(TIF_32BIT) ? \
- 				 (_AC(0x0000000070000000,UL)) : \
- 				 (_AC(0xfffff80000000000,UL) + (1UL << 32UL)))
+ #endif /* _SPARC_PGALLOC_H */
 Index: quilt-2.6/include/asm-sparc64/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-sparc64/pgalloc.h
 +++ quilt-2.6/include/asm-sparc64/pgalloc.h
-@@ -43,11 +43,18 @@ static inline pte_t *pte_alloc_one_kerne
+@@ -20,7 +20,7 @@ static inline pgd_t *pgd_alloc(struct mm
  	return quicklist_alloc(0, GFP_KERNEL, NULL);
  }
  
--static inline struct page *pte_alloc_one(struct mm_struct *mm,
--					 unsigned long address)
-+static inline pgtable_t pte_alloc_one(struct mm_struct *mm,
-+					unsigned long address)
+-static inline void pgd_free(pgd_t *pgd)
++static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
  {
--	void *pg = quicklist_alloc(0, GFP_KERNEL, NULL);
--	return pg ? virt_to_page(pg) : NULL;
-+	struct page *page;
-+	void *pg;
-+
-+	pg = quicklist_alloc(0, GFP_KERNEL, NULL);
-+	if (!pg)
-+		return NULL;
-+	page = virt_to_page(pg);
-+	pgtable_page_ctor(page);
-+	return page;
+ 	quicklist_free(0, NULL, pgd);
+ }
+@@ -32,7 +32,7 @@ static inline pmd_t *pmd_alloc_one(struc
+ 	return quicklist_alloc(0, GFP_KERNEL, NULL);
+ }
+ 
+-static inline void pmd_free(pmd_t *pmd)
++static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
+ {
+ 	quicklist_free(0, NULL, pmd);
+ }
+@@ -50,12 +50,12 @@ static inline struct page *pte_alloc_one
+ 	return pg ? virt_to_page(pg) : NULL;
  }
  		
- static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
-@@ -55,8 +62,9 @@ static inline void pte_free_kernel(struc
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+ {
  	quicklist_free(0, NULL, pte);
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *ptepage)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t ptepage)
+-static inline void pte_free(struct page *ptepage)
++static inline void pte_free(struct mm_struct *mm, struct page *ptepage)
  {
-+	pgtable_page_dtor(ptepage);
  	quicklist_free_page(0, NULL, ptepage);
  }
- 
-@@ -64,6 +72,7 @@ static inline void pte_free(struct mm_st
- #define pmd_populate_kernel(MM, PMD, PTE)	pmd_set(PMD, PTE)
- #define pmd_populate(MM,PMD,PTE_PAGE)		\
- 	pmd_populate_kernel(MM,PMD,page_address(PTE_PAGE))
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- 
- static inline void check_pgt_cache(void)
- {
-Index: quilt-2.6/include/asm-um/page.h
+Index: quilt-2.6/include/asm-sparc64/tlb.h
 ===================================================================
---- quilt-2.6.orig/include/asm-um/page.h
-+++ quilt-2.6/include/asm-um/page.h
-@@ -79,6 +79,8 @@ typedef unsigned long phys_t;
+--- quilt-2.6.orig/include/asm-sparc64/tlb.h
++++ quilt-2.6/include/asm-sparc64/tlb.h
+@@ -100,8 +100,8 @@ static inline void tlb_remove_page(struc
+ }
  
- typedef struct { unsigned long pgprot; } pgprot_t;
+ #define tlb_remove_tlb_entry(mp,ptep,addr) do { } while (0)
+-#define pte_free_tlb(mp,ptepage) pte_free(ptepage)
+-#define pmd_free_tlb(mp,pmdp) pmd_free(pmdp)
++#define pte_free_tlb(mp,ptepage) pte_free((mp)->mm, ptepage)
++#define pmd_free_tlb(mp,pmdp) pmd_free((mp)->mm, pmdp)
+ #define pud_free_tlb(tlb,pudp) __pud_free_tlb(tlb,pudp)
  
-+typedef struct page *pgtable_t;
-+
- #define pgd_val(x)	((x).pgd)
- #define pgprot_val(x)	((x).pgprot)
- 
+ #define tlb_migrate_finish(mm)	do { } while (0)
 Index: quilt-2.6/include/asm-um/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-um/pgalloc.h
 +++ quilt-2.6/include/asm-um/pgalloc.h
-@@ -18,6 +18,7 @@
- 	set_pmd(pmd, __pmd(_PAGE_TABLE +			\
- 		((unsigned long long)page_to_pfn(pte) <<	\
- 			(unsigned long long) PAGE_SHIFT)))
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- 
- /*
+@@ -23,17 +23,17 @@
   * Allocate and free page tables.
-@@ -26,19 +27,24 @@ extern pgd_t *pgd_alloc(struct mm_struct
- extern void pgd_free(struct mm_struct *mm, pgd_t *pgd);
+  */
+ extern pgd_t *pgd_alloc(struct mm_struct *);
+-extern void pgd_free(pgd_t *pgd);
++extern void pgd_free(struct mm_struct *mm, pgd_t *pgd);
  
  extern pte_t *pte_alloc_one_kernel(struct mm_struct *, unsigned long);
--extern struct page *pte_alloc_one(struct mm_struct *, unsigned long);
-+extern pgtable_t pte_alloc_one(struct mm_struct *, unsigned long);
+ extern struct page *pte_alloc_one(struct mm_struct *, unsigned long);
  
- static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
  {
  	free_page((unsigned long) pte);
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *pte)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
+-static inline void pte_free(struct page *pte)
++static inline void pte_free(struct mm_struct *mm, struct page *pte)
  {
-+	pgtable_page_dtor(pte);
  	__free_page(pte);
  }
- 
--#define __pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
-+#define __pte_free_tlb(tlb,pte)				\
-+do {							\
-+	pgtable_page_dtor(pte);				\
-+	tlb_remove_page((tlb),(pte));			\
-+} while (0)
+@@ -42,7 +42,7 @@ static inline void pte_free(struct page 
  
  #ifdef CONFIG_3_LEVEL_PGTABLES
  
-Index: quilt-2.6/include/asm-x86/page_32.h
-===================================================================
---- quilt-2.6.orig/include/asm-x86/page_32.h
-+++ quilt-2.6/include/asm-x86/page_32.h
-@@ -116,6 +116,8 @@ static inline pte_t native_make_pte(unsi
- #include <asm-generic/pgtable-nopmd.h>
- #endif	/* CONFIG_X86_PAE */
- 
-+typedef struct page *pgtable_t;
-+
- #define PTE_MASK	PAGE_MASK
- 
- #ifdef CONFIG_HUGETLB_PAGE
-Index: quilt-2.6/include/asm-x86/page_64.h
-===================================================================
---- quilt-2.6.orig/include/asm-x86/page_64.h
-+++ quilt-2.6/include/asm-x86/page_64.h
-@@ -62,6 +62,8 @@ typedef struct { unsigned long pgd; } pg
- 
- typedef struct { unsigned long pgprot; } pgprot_t;
- 
-+typedef struct page *pgtable_t;
-+
- extern unsigned long phys_base;
- 
- #define pte_val(x)	((x).pte)
+-static inline void pmd_free(pmd_t *pmd)
++static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
+ {
+ 	free_page((unsigned long)pmd);
+ }
 Index: quilt-2.6/include/asm-x86/pgalloc_32.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-x86/pgalloc_32.h
 +++ quilt-2.6/include/asm-x86/pgalloc_32.h
-@@ -28,6 +28,7 @@ do {								\
- 		((unsigned long long)page_to_pfn(pte) <<	\
- 			(unsigned long long) PAGE_SHIFT)));	\
- } while (0)
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- 
- /*
+@@ -33,17 +33,17 @@ do {								\
   * Allocate and free page tables.
-@@ -36,21 +37,23 @@ extern pgd_t *pgd_alloc(struct mm_struct
- extern void pgd_free(struct mm_struct *mm, pgd_t *pgd);
+  */
+ extern pgd_t *pgd_alloc(struct mm_struct *);
+-extern void pgd_free(pgd_t *pgd);
++extern void pgd_free(struct mm_struct *mm, pgd_t *pgd);
  
  extern pte_t *pte_alloc_one_kernel(struct mm_struct *, unsigned long);
--extern struct page *pte_alloc_one(struct mm_struct *, unsigned long);
-+extern pgtable_t pte_alloc_one(struct mm_struct *, unsigned long);
+ extern struct page *pte_alloc_one(struct mm_struct *, unsigned long);
  
- static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
  {
  	free_page((unsigned long)pte);
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *pte)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
+-static inline void pte_free(struct page *pte)
++static inline void pte_free(struct mm_struct *mm, struct page *pte)
  {
-+	pgtable_page_dtor(pte);
  	__free_page(pte);
  }
- 
- 
- #define __pte_free_tlb(tlb,pte) 					\
- do {									\
-+	pgtable_page_dtor(pte);						\
- 	paravirt_release_pt(page_to_pfn(pte));				\
- 	tlb_remove_page((tlb),(pte));					\
- } while (0)
+@@ -60,7 +60,7 @@ do {									\
+  * In the PAE case we free the pmds as part of the pgd.
+  */
+ #define pmd_alloc_one(mm, addr)		({ BUG(); ((pmd_t *)2); })
+-#define pmd_free(x)			do { } while (0)
++#define pmd_free(mm, x)			do { } while (0)
+ #define __pmd_free_tlb(tlb,x)		do { } while (0)
+ #define pud_populate(mm, pmd, pte)	BUG()
+ #endif
 Index: quilt-2.6/include/asm-x86/pgalloc_64.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-x86/pgalloc_64.h
 +++ quilt-2.6/include/asm-x86/pgalloc_64.h
-@@ -12,6 +12,8 @@
- #define pgd_populate(mm, pgd, pud) \
- 		set_pgd(pgd, __pgd(_PAGE_TABLE | __pa(pud)))
- 
-+#define pmd_pgtable(pmd) pmd_page(pmd)
-+
- static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
- {
+@@ -17,7 +17,7 @@ static inline void pmd_populate(struct m
  	set_pmd(pmd, __pmd(_PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)));
-@@ -89,12 +91,17 @@ static inline pte_t *pte_alloc_one_kerne
- 	return (pte_t *)get_zeroed_page(GFP_KERNEL|__GFP_REPEAT);
  }
  
--static inline struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
-+static inline pgtable_t pte_alloc_one(struct mm_struct *mm, unsigned long address)
+-static inline void pmd_free(pmd_t *pmd)
++static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
  {
--	void *p = (void *)get_zeroed_page(GFP_KERNEL|__GFP_REPEAT);
-+	struct page *page;
-+	void *p;
-+
-+	p = (void *)get_zeroed_page(GFP_KERNEL|__GFP_REPEAT);
- 	if (!p)
- 		return NULL;
--	return virt_to_page(p);
-+	page = virt_to_page(p);
-+	pgtable_page_ctor(page);
-+	return page;
+ 	BUG_ON((unsigned long)pmd & (PAGE_SIZE-1));
+ 	free_page((unsigned long)pmd);
+@@ -33,7 +33,7 @@ static inline pud_t *pud_alloc_one(struc
+ 	return (pud_t *)get_zeroed_page(GFP_KERNEL|__GFP_REPEAT);
  }
  
+-static inline void pud_free (pud_t *pud)
++static inline void pud_free (struct mm_struct *mm, pud_t *pud)
+ {
+ 	BUG_ON((unsigned long)pud & (PAGE_SIZE-1));
+ 	free_page((unsigned long)pud);
+@@ -77,7 +77,7 @@ static inline pgd_t *pgd_alloc(struct mm
+ 	return pgd;
+ }
+ 
+-static inline void pgd_free(pgd_t *pgd)
++static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
+ {
+ 	BUG_ON((unsigned long)pgd & (PAGE_SIZE-1));
+ 	pgd_list_del(pgd);
+@@ -100,13 +100,13 @@ static inline struct page *pte_alloc_one
  /* Should really implement gc for free page table pages. This could be
-@@ -106,12 +113,17 @@ static inline void pte_free_kernel(struc
+    done with a reference count in struct page. */
+ 
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+ {
+ 	BUG_ON((unsigned long)pte & (PAGE_SIZE-1));
  	free_page((unsigned long)pte); 
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *pte)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
+-static inline void pte_free(struct page *pte)
++static inline void pte_free(struct mm_struct *mm, struct page *pte)
  {
-+	pgtable_page_dtor(pte);
  	__free_page(pte);
  } 
- 
--#define __pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
-+#define __pte_free_tlb(tlb,pte)				\
-+do {							\
-+	pgtable_page_dtor((pte));				\
-+	tlb_remove_page((tlb), (pte));			\
-+} while (0)
- 
- #define __pmd_free_tlb(tlb,x)   tlb_remove_page((tlb),virt_to_page(x))
- #define __pud_free_tlb(tlb,x)   tlb_remove_page((tlb),virt_to_page(x))
-Index: quilt-2.6/include/asm-xtensa/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-xtensa/page.h
-+++ quilt-2.6/include/asm-xtensa/page.h
-@@ -100,6 +100,7 @@
- typedef struct { unsigned long pte; } pte_t;		/* page table entry */
- typedef struct { unsigned long pgd; } pgd_t;		/* PGD table entry */
- typedef struct { unsigned long pgprot; } pgprot_t;
-+typedef struct page *pgtable_t;
- 
- #define pte_val(x)	((x).pte)
- #define pgd_val(x)	((x).pgd)
 Index: quilt-2.6/include/asm-xtensa/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-xtensa/pgalloc.h
 +++ quilt-2.6/include/asm-xtensa/pgalloc.h
-@@ -24,6 +24,7 @@
- 	(pmd_val(*(pmdp)) = ((unsigned long)ptep))
- #define pmd_populate(mm, pmdp, page)					     \
- 	(pmd_val(*(pmdp)) = ((unsigned long)page_to_virt(page)))
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- 
- static inline pgd_t*
- pgd_alloc(struct mm_struct *mm)
-@@ -46,10 +47,14 @@ static inline pte_t *pte_alloc_one_kerne
- 	return kmem_cache_alloc(pgtable_cache, GFP_KERNEL|__GFP_REPEAT);
+@@ -31,7 +31,7 @@ pgd_alloc(struct mm_struct *mm)
+ 	return (pgd_t*) __get_free_pages(GFP_KERNEL | __GFP_ZERO, PGD_ORDER);
  }
  
--static inline struct page *pte_alloc_one(struct mm_struct *mm, 
--					 unsigned long addr)
-+static inline pte_token_t pte_alloc_one(struct mm_struct *mm,
-+					unsigned long addr)
+-static inline void pgd_free(pgd_t *pgd)
++static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
  {
--	return virt_to_page(pte_alloc_one_kernel(mm, addr));
-+	struct page *page;
-+
-+	page = virt_to_page(pte_alloc_one_kernel(mm, addr));
-+	pgtable_page_ctor(page);
-+	return page;
+ 	free_page((unsigned long)pgd);
+ }
+@@ -52,12 +52,12 @@ static inline struct page *pte_alloc_one
+ 	return virt_to_page(pte_alloc_one_kernel(mm, addr));
  }
  
- static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
-@@ -57,10 +62,12 @@ static inline void pte_free_kernel(struc
+-static inline void pte_free_kernel(pte_t *pte)
++static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+ {
  	kmem_cache_free(pgtable_cache, pte);
  }
  
--static inline void pte_free(struct mm_struct *mm, struct page *page)
-+static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
+-static inline void pte_free(struct page *page)
++static inline void pte_free(struct mm_struct *mm, struct page *page)
  {
--	kmem_cache_free(pgtable_cache, page_address(page));
-+	pgtable_page_dtor(pte);
-+	kmem_cache_free(pgtable_cache, page_address(pte));
+ 	kmem_cache_free(pgtable_cache, page_address(page));
  }
-+#define pmd_pgtable(pmd) pmd_page(pmd)
- 
- #endif /* __KERNEL__ */
- #endif /* _XTENSA_PGALLOC_H */
-Index: quilt-2.6/include/linux/mm.h
+Index: quilt-2.6/include/asm-xtensa/tlb.h
 ===================================================================
---- quilt-2.6.orig/include/linux/mm.h
-+++ quilt-2.6/include/linux/mm.h
-@@ -843,6 +843,18 @@ static inline pmd_t *pmd_alloc(struct mm
- #define pte_lockptr(mm, pmd)	({(void)(pmd); &(mm)->page_table_lock;})
- #endif /* NR_CPUS < CONFIG_SPLIT_PTLOCK_CPUS */
+--- quilt-2.6.orig/include/asm-xtensa/tlb.h
++++ quilt-2.6/include/asm-xtensa/tlb.h
+@@ -42,6 +42,6 @@
  
-+static inline void pgtable_page_ctor(struct page *page)
-+{
-+	pte_lock_init(page);
-+	inc_zone_page_state(page, NR_PAGETABLE);
-+}
-+
-+static inline void pgtable_page_dtor(struct page *page)
-+{
-+	pte_lock_deinit(page);
-+	dec_zone_page_state(page, NR_PAGETABLE);
-+}
-+
- #define pte_offset_map_lock(mm, pmd, address, ptlp)	\
- ({							\
- 	spinlock_t *__ptl = pte_lockptr(mm, pmd);	\
-@@ -1087,7 +1099,7 @@ struct page *follow_page(struct vm_area_
- #define FOLL_GET	0x04	/* do get_page on page */
- #define FOLL_ANON	0x08	/* give ZERO_PAGE if no pgtable */
+ #include <asm-generic/tlb.h>
  
--typedef int (*pte_fn_t)(pte_t *pte, struct page *pmd_page, unsigned long addr,
-+typedef int (*pte_fn_t)(pte_t *pte, pgtable_t token, unsigned long addr,
- 			void *data);
- extern int apply_to_page_range(struct mm_struct *mm, unsigned long address,
- 			       unsigned long size, pte_fn_t fn, void *data);
+-#define __pte_free_tlb(tlb,pte)			pte_free(pte)
++#define __pte_free_tlb(tlb,pte)			pte_free((tlb)->mm, pte)
+ 
+ #endif	/* _XTENSA_TLB_H */
+Index: quilt-2.6/kernel/fork.c
+===================================================================
+--- quilt-2.6.orig/kernel/fork.c
++++ quilt-2.6/kernel/fork.c
+@@ -324,7 +324,7 @@ static inline int mm_alloc_pgd(struct mm
+ 
+ static inline void mm_free_pgd(struct mm_struct * mm)
+ {
+-	pgd_free(mm->pgd);
++	pgd_free(mm, mm->pgd);
+ }
+ #else
+ #define dup_mmap(mm, oldmm)	(0)
 Index: quilt-2.6/mm/memory.c
 ===================================================================
 --- quilt-2.6.orig/mm/memory.c
 +++ quilt-2.6/mm/memory.c
-@@ -122,11 +122,9 @@ void pmd_clear_bad(pmd_t *pmd)
-  */
- static void free_pte_range(struct mmu_gather *tlb, pmd_t *pmd)
- {
--	struct page *page = pmd_page(*pmd);
-+	pgtable_t token = pmd_pgtable(*pmd);
- 	pmd_clear(pmd);
--	pte_lock_deinit(page);
--	pte_free_tlb(tlb, page);
--	dec_zone_page_state(page, NR_PAGETABLE);
-+	pte_free_tlb(tlb, token);
- 	tlb->mm->nr_ptes--;
- }
- 
-@@ -297,21 +295,19 @@ void free_pgtables(struct mmu_gather **t
- 
- int __pte_alloc(struct mm_struct *mm, pmd_t *pmd, unsigned long address)
- {
--	struct page *new = pte_alloc_one(mm, address);
-+	pgtable_t new = pte_alloc_one(mm, address);
- 	if (!new)
- 		return -ENOMEM;
- 
--	pte_lock_init(new);
+@@ -305,7 +305,7 @@ int __pte_alloc(struct mm_struct *mm, pm
  	spin_lock(&mm->page_table_lock);
--	if (pmd_present(*pmd)) {	/* Another has populated it */
--		pte_lock_deinit(new);
--		pte_free(mm, new);
--	} else {
-+	if (!pmd_present(*pmd)) {	/* Has another populated it ? */
- 		mm->nr_ptes++;
--		inc_zone_page_state(new, NR_PAGETABLE);
- 		pmd_populate(mm, pmd, new);
-+		new = NULL;
- 	}
- 	spin_unlock(&mm->page_table_lock);
-+	if (new)
+ 	if (pmd_present(*pmd)) {	/* Another has populated it */
+ 		pte_lock_deinit(new);
+-		pte_free(new);
 +		pte_free(mm, new);
- 	return 0;
- }
- 
-@@ -322,11 +318,13 @@ int __pte_alloc_kernel(pmd_t *pmd, unsig
- 		return -ENOMEM;
+ 	} else {
+ 		mm->nr_ptes++;
+ 		inc_zone_page_state(new, NR_PAGETABLE);
+@@ -323,7 +323,7 @@ int __pte_alloc_kernel(pmd_t *pmd, unsig
  
  	spin_lock(&init_mm.page_table_lock);
--	if (pmd_present(*pmd))		/* Another has populated it */
--		pte_free_kernel(&init_mm, new);
--	else
-+	if (!pmd_present(*pmd)) {	/* Has another populated it ? */
- 		pmd_populate_kernel(&init_mm, pmd, new);
-+		new = NULL;
-+	}
- 	spin_unlock(&init_mm.page_table_lock);
-+	if (new)
+ 	if (pmd_present(*pmd))		/* Another has populated it */
+-		pte_free_kernel(new);
 +		pte_free_kernel(&init_mm, new);
- 	return 0;
- }
+ 	else
+ 		pmd_populate_kernel(&init_mm, pmd, new);
+ 	spin_unlock(&init_mm.page_table_lock);
+@@ -2557,7 +2557,7 @@ int __pud_alloc(struct mm_struct *mm, pg
  
-@@ -1368,7 +1366,7 @@ static int apply_to_pte_range(struct mm_
- {
- 	pte_t *pte;
- 	int err;
--	struct page *pmd_page;
-+	pgtable_t token;
- 	spinlock_t *uninitialized_var(ptl);
- 
- 	pte = (mm == &init_mm) ?
-@@ -1379,10 +1377,10 @@ static int apply_to_pte_range(struct mm_
- 
- 	BUG_ON(pmd_huge(*pmd));
- 
--	pmd_page = pmd_page(*pmd);
-+	token = pmd_pgtable(*pmd);
- 
- 	do {
--		err = fn(pte, pmd_page, addr, data);
-+		err = fn(pte, token, addr, data);
- 		if (err)
- 			break;
- 	} while (pte++, addr += PAGE_SIZE, addr != end);
-Index: quilt-2.6/mm/vmalloc.c
-===================================================================
---- quilt-2.6.orig/mm/vmalloc.c
-+++ quilt-2.6/mm/vmalloc.c
-@@ -772,7 +772,7 @@ void  __attribute__((weak)) vmalloc_sync
- }
- 
- 
--static int f(pte_t *pte, struct page *pmd_page, unsigned long addr, void *data)
-+static int f(pte_t *pte, pgtable_t table, unsigned long addr, void *data)
- {
- 	/* apply_to_page_range() does all the hard work. */
- 	return 0;
+ 	spin_lock(&mm->page_table_lock);
+ 	if (pgd_present(*pgd))		/* Another has populated it */
+-		pud_free(new);
++		pud_free(mm, new);
+ 	else
+ 		pgd_populate(mm, pgd, new);
+ 	spin_unlock(&mm->page_table_lock);
+@@ -2579,12 +2579,12 @@ int __pmd_alloc(struct mm_struct *mm, pu
+ 	spin_lock(&mm->page_table_lock);
+ #ifndef __ARCH_HAS_4LEVEL_HACK
+ 	if (pud_present(*pud))		/* Another has populated it */
+-		pmd_free(new);
++		pmd_free(mm, new);
+ 	else
+ 		pud_populate(mm, pud, new);
+ #else
+ 	if (pgd_present(*pud))		/* Another has populated it */
+-		pmd_free(new);
++		pmd_free(mm, new);
+ 	else
+ 		pgd_populate(mm, pud, new);
+ #endif /* __ARCH_HAS_4LEVEL_HACK */
 
 -- 
 blue skies,
