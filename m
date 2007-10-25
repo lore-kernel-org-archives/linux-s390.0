@@ -1,10 +1,10 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Message-Id: <20071025181901.988317307@de.ibm.com>
+Message-Id: <20071025181902.293056406@de.ibm.com>
 References: <20071025181520.880272069@de.ibm.com>
-Date: Thu, 25 Oct 2007 20:15:24 +0200
+Date: Thu, 25 Oct 2007 20:15:25 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 4/6] s390: 1K/2K page table pages.
-Content-Disposition: inline; filename=004-mm-1k2k.diff
+Subject: [patch 5/6] s390: Add four level page tables for CONFIG_64BIT=y.
+Content-Disposition: inline; filename=005-mm-pud.diff
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
@@ -14,727 +14,390 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-This patch implements 1K/2K page table pages for s390.
-
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/mm/pgtable.c         |  100 ++++++++++++++++++++++++++++++---------
- arch/s390/mm/vmem.c            |   10 +++
- include/asm-s390/elf.h         |   12 ++++
- include/asm-s390/mmu.h         |    7 +-
- include/asm-s390/mmu_context.h |   16 +++---
- include/asm-s390/page.h        |   37 +-------------
- include/asm-s390/pgalloc.h     |   79 ++++++++++++++----------------
- include/asm-s390/pgtable.h     |  105 ++++++++++++++---------------------------
- include/asm-s390/tlb.h         |    6 +-
- include/asm-s390/tlbflush.h    |    6 --
- 10 files changed, 197 insertions(+), 181 deletions(-)
+ arch/s390/mm/init.c            |    4 +-
+ arch/s390/mm/vmem.c            |   16 ++++++++++-
+ include/asm-s390/a.out.h       |    9 +++++-
+ include/asm-s390/elf.h         |    9 ------
+ include/asm-s390/mmu_context.h |    2 -
+ include/asm-s390/pgalloc.h     |   29 +++++++++++++++++---
+ include/asm-s390/pgtable.h     |   57 ++++++++++++++++++++++++++++++++---------
+ include/asm-s390/processor.h   |   11 ++-----
+ include/asm-s390/tlb.h         |   33 +++++++++++++++++------
+ 9 files changed, 122 insertions(+), 48 deletions(-)
 
-Index: quilt-2.6/arch/s390/mm/pgtable.c
+Index: quilt-2.6/arch/s390/mm/init.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/mm/pgtable.c
-+++ quilt-2.6/arch/s390/mm/pgtable.c
-@@ -26,8 +26,12 @@
- 
- #ifndef CONFIG_64BIT
- #define ALLOC_ORDER	1
-+#define TABLES_PER_PAGE	4
-+#define SECOND_HALVES	10
+--- quilt-2.6.orig/arch/s390/mm/init.c
++++ quilt-2.6/arch/s390/mm/init.c
+@@ -112,8 +112,8 @@ void __init paging_init(void)
+ 	init_mm.pgd = swapper_pg_dir;
+ 	S390_lowcore.kernel_asce = __pa(init_mm.pgd) & PAGE_MASK;
+ #ifdef CONFIG_64BIT
+-	S390_lowcore.kernel_asce |= _ASCE_TYPE_REGION3 | _ASCE_TABLE_LENGTH;
+-	pgd_type = _REGION3_ENTRY_EMPTY;
++	S390_lowcore.kernel_asce |= _ASCE_TYPE_REGION2 | _ASCE_TABLE_LENGTH;
++	pgd_type = _REGION2_ENTRY_EMPTY;
  #else
- #define ALLOC_ORDER	2
-+#define TABLES_PER_PAGE	2
-+#define SECOND_HALVES	2
- #endif
- 
- unsigned long *crst_table_alloc(struct mm_struct *mm, int noexec)
-@@ -45,13 +49,20 @@ unsigned long *crst_table_alloc(struct m
- 		}
- 		page->index = page_to_phys(shadow);
- 	}
-+	spin_lock(&mm->page_table_lock);
-+	list_add(&page->lru, &mm->context.crst_list);
-+	spin_unlock(&mm->page_table_lock);
- 	return (unsigned long *) page_to_phys(page);
- }
- 
--void crst_table_free(unsigned long *table)
-+void crst_table_free(struct mm_struct *mm, unsigned long *table)
- {
- 	unsigned long *shadow = get_shadow_table(table);
-+	struct page *page = virt_to_page(table);
- 
-+	spin_lock(&mm->page_table_lock);
-+	list_del(&page->lru);
-+	spin_unlock(&mm->page_table_lock);
- 	if (shadow)
- 		free_pages((unsigned long) shadow, ALLOC_ORDER);
- 	free_pages((unsigned long) table, ALLOC_ORDER);
-@@ -60,37 +71,84 @@ void crst_table_free(unsigned long *tabl
- /*
-  * page table entry allocation/free routines.
-  */
--unsigned long *page_table_alloc(int noexec)
-+unsigned long *page_table_alloc(struct mm_struct *mm)
- {
--	struct page *page = alloc_page(GFP_KERNEL);
-+	struct page *page;
- 	unsigned long *table;
-+	unsigned long bits;
- 
--	if (!page)
--		return NULL;
--	page->index = 0;
--	if (noexec) {
--		struct page *shadow = alloc_page(GFP_KERNEL);
--		if (!shadow) {
--			__free_page(page);
-+	bits = mm->context.noexec ? 3UL : 1UL;
-+	spin_lock(&mm->page_table_lock);
-+	page = NULL;
-+	if (!list_empty(&mm->context.pgtable_list)) {
-+		page = list_first_entry(&mm->context.pgtable_list,
-+					struct page, lru);
-+		if (page->flags == ((1UL << TABLES_PER_PAGE) - 1))
-+			page = NULL;
-+	}
-+	if (!page) {
-+		spin_unlock(&mm->page_table_lock);
-+		page = alloc_page(GFP_KERNEL|__GFP_REPEAT);
-+		if (!page)
- 			return NULL;
--		}
--		table = (unsigned long *) page_to_phys(shadow);
-+		pgtable_page_ctor(page);
-+		page->flags = 0;
-+		table = (unsigned long *) page_to_phys(page);
- 		clear_table(table, _PAGE_TYPE_EMPTY, PAGE_SIZE);
--		page->index = (addr_t) table;
-+		spin_lock(&mm->page_table_lock);
-+		list_add(&page->lru, &mm->context.pgtable_list);
- 	}
--	pgtable_page_ctor(page);
- 	table = (unsigned long *) page_to_phys(page);
--	clear_table(table, _PAGE_TYPE_EMPTY, PAGE_SIZE);
-+	while (page->flags & bits) {
-+		table += 256;
-+		bits <<= 1;
-+	}
-+	page->flags |= bits;
-+	if (page->flags == ((1UL << TABLES_PER_PAGE) - 1))
-+		list_move_tail(&page->lru, &mm->context.pgtable_list);
-+	spin_unlock(&mm->page_table_lock);
- 	return table;
- }
- 
--void page_table_free(unsigned long *table)
-+void page_table_free(struct mm_struct *mm, unsigned long *table)
- {
--	unsigned long *shadow = get_shadow_pte(table);
-+	struct page *page;
-+	unsigned long bits;
- 
--	pgtable_page_dtor(virt_to_page(table));
--	if (shadow)
--		free_page((unsigned long) shadow);
--	free_page((unsigned long) table);
-+	bits = mm->context.noexec ? 3UL : 1UL;
-+	bits <<= (__pa(table) & (PAGE_SIZE - 1)) / 256 / sizeof(unsigned long);
-+	page = pfn_to_page(__pa(table) >> PAGE_SHIFT);
-+	spin_lock(&mm->page_table_lock);
-+	page->flags ^= bits;
-+	if (page->flags) {
-+		/* Page now has some free pgtable fragments. */
-+		list_move(&page->lru, &mm->context.pgtable_list);
-+		page = NULL;
-+	} else
-+		/* All fragments of the 4K page have been freed. */
-+		list_del(&page->lru);
-+	spin_unlock(&mm->page_table_lock);
-+	if (page) {
-+		pgtable_page_dtor(page);
-+		__free_page(page);
-+	}
-+}
- 
-+void disable_noexec(struct mm_struct *mm, struct task_struct *tsk)
-+{
-+	struct page *page;
-+
-+	spin_lock(&mm->page_table_lock);
-+	/* Free shadow region and segment tables. */
-+	list_for_each_entry(page, &mm->context.crst_list, lru)
-+		if (page->index) {
-+			free_pages((unsigned long) page->index, ALLOC_ORDER);
-+			page->index = 0;
-+		}
-+	/* "Free" second halves of page tables. */
-+	list_for_each_entry(page, &mm->context.pgtable_list, lru)
-+		page->flags &= ~SECOND_HALVES;
-+	spin_unlock(&mm->page_table_lock);
-+	mm->context.noexec = 0;
-+	update_mm(mm, tsk);
- }
+ 	S390_lowcore.kernel_asce |= _ASCE_TABLE_LENGTH;
+ 	pgd_type = _SEGMENT_ENTRY_EMPTY;
 Index: quilt-2.6/arch/s390/mm/vmem.c
 ===================================================================
 --- quilt-2.6.orig/arch/s390/mm/vmem.c
 +++ quilt-2.6/arch/s390/mm/vmem.c
-@@ -75,6 +75,13 @@ static void __init_refok *vmem_alloc_pag
+@@ -73,8 +73,6 @@ static void __init_refok *vmem_alloc_pag
+ 	return alloc_bootmem_pages((1 << order) * PAGE_SIZE);
+ }
  
- #define vmem_pud_alloc()	({ BUG(); ((pud_t *) NULL); })
+-#define vmem_pud_alloc()	({ BUG(); ((pud_t *) NULL); })
+-
+ static inline void *vmem_alloc_slab(size_t size)
+ {
+ 	if (slab_is_available())
+@@ -82,6 +80,20 @@ static inline void *vmem_alloc_slab(size
+ 	return alloc_bootmem(size);
+ }
  
-+static inline void *vmem_alloc_slab(size_t size)
++static inline pud_t *vmem_pud_alloc(void)
 +{
-+	if (slab_is_available())
-+		return (void *) kmalloc(size, GFP_KERNEL);
-+	return alloc_bootmem(size);
++	pud_t *pud = NULL;
++
++#ifdef CONFIG_64BIT
++	pud = vmem_alloc_pages(2);
++	if (!pud)
++		return NULL;
++	pud_val(*pud) = _REGION3_ENTRY_EMPTY;
++	memcpy(pud + 1, pud, (PTRS_PER_PUD - 1)*sizeof(pud_t));
++#endif
++	return pud;
 +}
 +
  static inline pmd_t *vmem_pmd_alloc(void)
  {
  	pmd_t *pmd = NULL;
-@@ -363,6 +370,9 @@ void __init vmem_map_init(void)
- 	unsigned long map_size;
- 	int i;
+Index: quilt-2.6/include/asm-s390/a.out.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/a.out.h
++++ quilt-2.6/include/asm-s390/a.out.h
+@@ -31,8 +31,13 @@ struct exec
  
-+	INIT_LIST_HEAD(&init_mm.context.crst_list);
-+	INIT_LIST_HEAD(&init_mm.context.pgtable_list);
-+	init_mm.context.noexec = 0;
- 	map_size = ALIGN(max_low_pfn, MAX_ORDER_NR_PAGES) * sizeof(struct page);
- 	vmalloc_end = PFN_ALIGN(VMALLOC_END_INIT) - PFN_ALIGN(map_size);
- 	vmem_map = (struct page *) vmalloc_end;
+ #ifdef __KERNEL__
+ 
+-#define STACK_TOP	TASK_SIZE
+-#define STACK_TOP_MAX	DEFAULT_TASK_SIZE
++#ifndef __s390x__
++#define STACK_TOP		(1UL << 31)
++#else /* __s390x__ */
++#define STACK_TOP		(1UL << (test_thread_flag(TIF_31BIT) ? 31:53))
++#endif /* __s390x__ */
++
++#define STACK_TOP_MAX		STACK_TOP
+ 
+ #endif
+ 
 Index: quilt-2.6/include/asm-s390/elf.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-s390/elf.h
 +++ quilt-2.6/include/asm-s390/elf.h
-@@ -116,6 +116,7 @@ typedef s390_regs elf_gregset_t;
- #ifdef __KERNEL__
- #include <linux/sched.h>	/* for task_struct */
- #include <asm/system.h>		/* for save_access_regs */
-+#include <asm/mmu_context.h>
+@@ -139,14 +139,7 @@ typedef s390_regs elf_gregset_t;
+    use of this is to invoke "./ld.so someprog" to test out a new version of
+    the loader.  We need to make sure that it is out of the way of the program
+    that it will "exec", and that there is sufficient room for the brk.  */
+-
+-#ifndef __s390x__
+-#define ELF_ET_DYN_BASE         ((TASK_SIZE & 0x80000000) \
+-                                ? TASK_SIZE / 3 * 2 \
+-                                : 2 * TASK_SIZE / 3)
+-#else /* __s390x__ */
+-#define ELF_ET_DYN_BASE         (TASK_SIZE / 3 * 2)
+-#endif /* __s390x__ */
++#define ELF_ET_DYN_BASE		(TASK_SIZE / 3 * 2)
  
- /*
-  * This is used to ensure we don't load something for the wrong architecture.
-@@ -214,6 +215,17 @@ do {							\
- 	clear_thread_flag(TIF_31BIT);			\
- } while (0)
- #endif /* __s390x__ */
-+/*
-+ * An executable for which elf_read_implies_exec() returns TRUE will
-+ * have the READ_IMPLIES_EXEC personality flag set automatically.
-+ */
-+#define elf_read_implies_exec(ex, executable_stack)	\
-+({							\
-+	if (current->mm->context.noexec &&		\
-+	    executable_stack != EXSTACK_DISABLE_X)	\
-+		disable_noexec(current->mm, current);	\
-+	current->mm->context.noexec == 0;		\
-+})
- #endif
+ /* Wow, the "main" arch needs arch dependent functions too.. :) */
  
- #endif
 Index: quilt-2.6/include/asm-s390/mmu_context.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-s390/mmu_context.h
 +++ quilt-2.6/include/asm-s390/mmu_context.h
-@@ -10,13 +10,15 @@
- #define __S390_MMU_CONTEXT_H
- 
- #include <asm/pgalloc.h>
-+#include <asm/uaccess.h>
- #include <asm-generic/mm_hooks.h>
- 
--/*
-- * get a new mmu context.. S390 don't know about contexts.
-- */
--#define init_new_context(tsk,mm)        0
--
-+static inline int init_new_context(struct task_struct *tsk,
-+				   struct mm_struct *mm)
-+{
-+	mm->context.noexec = s390_noexec;
-+	return(0);
-+}
- #define destroy_context(mm)             do { } while (0)
- 
- #ifndef __s390x__
-@@ -38,8 +40,8 @@ static inline void update_mm(struct mm_s
+@@ -35,7 +35,7 @@ static inline void update_mm(struct mm_s
+ 	/* Calculate asce bits from the first pgd table entry. */
+ 	asce_bits = _ASCE_TABLE_LENGTH | _ASCE_USER_BITS;
+ #ifdef CONFIG_64BIT
+-	asce_bits |= _ASCE_TYPE_REGION3;
++	asce_bits |= _ASCE_TYPE_REGION2;
+ #endif
  	S390_lowcore.user_asce = asce_bits | __pa(pgd);
  	if (switch_amode) {
- 		/* Load primary space page table origin. */
--		pgd_t *shadow_pgd = get_shadow_table(pgd) ? : pgd;
--		S390_lowcore.user_exec_asce = asce_bits | __pa(shadow_pgd);
-+		pgd = mm->context.noexec ? get_shadow_table(pgd) : pgd;
-+		S390_lowcore.user_exec_asce = asce_bits | __pa(pgd);
- 		asm volatile(LCTL_OPCODE" 1,1,%0\n"
- 			     : : "m" (S390_lowcore.user_exec_asce) );
- 	} else
-Index: quilt-2.6/include/asm-s390/mmu.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/mmu.h
-+++ quilt-2.6/include/asm-s390/mmu.h
-@@ -1,7 +1,10 @@
- #ifndef __MMU_H
- #define __MMU_H
- 
--/* Default "unsigned long" context */
--typedef unsigned long mm_context_t;
-+typedef struct {
-+	struct list_head crst_list;
-+	struct list_head pgtable_list;
-+	int noexec;
-+} mm_context_t;
- 
- #endif
-Index: quilt-2.6/include/asm-s390/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/page.h
-+++ quilt-2.6/include/asm-s390/page.h
-@@ -75,43 +75,17 @@ static inline void copy_page(void *to, v
- 
- typedef struct { unsigned long pgprot; } pgprot_t;
- typedef struct { unsigned long pte; } pte_t;
--
--#define pte_val(x)      ((x).pte)
--#define pgprot_val(x)   ((x).pgprot)
--
--#ifndef __s390x__
--
- typedef struct { unsigned long pmd; } pmd_t;
- typedef struct { unsigned long pud; } pud_t;
--typedef struct {
--        unsigned long pgd0;
--        unsigned long pgd1;
--        unsigned long pgd2;
--        unsigned long pgd3;
--        } pgd_t;
--
--#define pmd_val(x)      ((x).pmd)
--#define pud_val(x)	((x).pud)
--#define pgd_val(x)      ((x).pgd0)
--
--#else /* __s390x__ */
--
--typedef struct { 
--        unsigned long pmd0;
--        unsigned long pmd1; 
--        } pmd_t;
--typedef struct { unsigned long pud; } pud_t;
- typedef struct { unsigned long pgd; } pgd_t;
-+typedef pte_t *pgtable_t;
- 
--#define pmd_val(x)      ((x).pmd0)
--#define pmd_val1(x)     ((x).pmd1)
-+#define pgprot_val(x)	((x).pgprot)
-+#define pte_val(x)	((x).pte)
-+#define pmd_val(x)	((x).pmd)
- #define pud_val(x)	((x).pud)
- #define pgd_val(x)      ((x).pgd)
- 
--#endif /* __s390x__ */
--
--typedef struct page *pgtable_t;
--
- #define __pte(x)        ((pte_t) { (x) } )
- #define __pmd(x)        ((pmd_t) { (x) } )
- #define __pgd(x)        ((pgd_t) { (x) } )
-@@ -168,8 +142,7 @@ static inline int pfn_valid(unsigned lon
- #define page_to_phys(page)	(page_to_pfn(page) << PAGE_SHIFT)
- #define virt_addr_valid(kaddr)	pfn_valid(__pa(kaddr) >> PAGE_SHIFT)
- 
--#define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
--				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
-+#define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_MAYREAD | VM_MAYWRITE )
- 
- #include <asm-generic/memory_model.h>
- #include <asm-generic/page.h>
 Index: quilt-2.6/include/asm-s390/pgalloc.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-s390/pgalloc.h
 +++ quilt-2.6/include/asm-s390/pgalloc.h
-@@ -20,10 +20,11 @@
- #define check_pgt_cache()	do {} while (0)
+@@ -73,11 +73,17 @@ static inline unsigned long pgd_entry_ty
  
- unsigned long *crst_table_alloc(struct mm_struct *, int);
--void crst_table_free(unsigned long *);
-+void crst_table_free(struct mm_struct *, unsigned long *);
- 
--unsigned long *page_table_alloc(int);
--void page_table_free(unsigned long *);
-+unsigned long *page_table_alloc(struct mm_struct *);
-+void page_table_free(struct mm_struct *, unsigned long *);
-+void disable_noexec(struct mm_struct *, struct task_struct *);
- 
- static inline void clear_table(unsigned long *s, unsigned long val, size_t n)
+ static inline unsigned long pgd_entry_type(struct mm_struct *mm)
  {
-@@ -80,12 +81,12 @@ static inline unsigned long pgd_entry_ty
+-	return _REGION3_ENTRY_EMPTY;
++	return _REGION2_ENTRY_EMPTY;
+ }
+ 
+-#define pud_alloc_one(mm,address)		({ BUG(); ((pud_t *)2); })
+-#define pud_free(mm, x)				do { } while (0)
++static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
++{
++	unsigned long *table = crst_table_alloc(mm, mm->context.noexec);
++	if (table)
++		crst_table_init(table, _REGION3_ENTRY_EMPTY);
++	return (pud_t *) table;
++}
++#define pud_free(mm, pud) crst_table_free(mm, (unsigned long *) pud)
  
  static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
  {
--	unsigned long *crst = crst_table_alloc(mm, s390_noexec);
--	if (crst)
--		crst_table_init(crst, _SEGMENT_ENTRY_EMPTY);
--	return (pmd_t *) crst;
-+	unsigned long *table = crst_table_alloc(mm, mm->context.noexec);
-+	if (table)
-+		crst_table_init(table, _SEGMENT_ENTRY_EMPTY);
-+	return (pmd_t *) table;
+@@ -88,8 +94,21 @@ static inline pmd_t *pmd_alloc_one(struc
  }
--#define pmd_free(mm, pmd) crst_table_free((unsigned long *) pmd)
-+#define pmd_free(mm, pmd) crst_table_free(mm, (unsigned long *) pmd)
+ #define pmd_free(mm, pmd) crst_table_free(mm, (unsigned long *) pmd)
  
- #define pgd_populate(mm, pgd, pud)		BUG()
- #define pgd_populate_kernel(mm, pgd, pud)	BUG()
-@@ -98,63 +99,55 @@ static inline void pud_populate_kernel(s
- 
- static inline void pud_populate(struct mm_struct *mm, pud_t *pud, pmd_t *pmd)
- {
--	pud_t *shadow_pud = get_shadow_table(pud);
--	pmd_t *shadow_pmd = get_shadow_table(pmd);
--
--	if (shadow_pud && shadow_pmd)
--		pud_populate_kernel(mm, shadow_pud, shadow_pmd);
- 	pud_populate_kernel(mm, pud, pmd);
-+	if (mm->context.noexec) {
-+		pud = get_shadow_table(pud);
-+		pmd = get_shadow_table(pmd);
-+		pud_populate_kernel(mm, pud, pmd);
-+	}
- }
- 
- #endif /* __s390x__ */
- 
- static inline pgd_t *pgd_alloc(struct mm_struct *mm)
- {
--	unsigned long *crst = crst_table_alloc(mm, s390_noexec);
-+	unsigned long *crst;
+-#define pgd_populate(mm, pgd, pud)		BUG()
+-#define pgd_populate_kernel(mm, pgd, pud)	BUG()
++static inline void pgd_populate_kernel(struct mm_struct *mm,
++				       pgd_t *pgd, pud_t *pud)
++{
++	pgd_val(*pgd) = _REGION2_ENTRY | __pa(pud);
++}
 +
-+	INIT_LIST_HEAD(&mm->context.crst_list);
-+	INIT_LIST_HEAD(&mm->context.pgtable_list);
-+	crst = crst_table_alloc(mm, s390_noexec);
- 	if (crst)
- 		crst_table_init(crst, pgd_entry_type(mm));
- 	return (pgd_t *) crst;
- }
--#define pgd_free(mm, pgd) crst_table_free((unsigned long *) pgd)
-+#define pgd_free(mm, pgd) crst_table_free(mm, (unsigned long *) pgd)
- 
--static inline void 
--pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd, pte_t *pte)
-+static inline void pmd_populate_kernel(struct mm_struct *mm,
-+				       pmd_t *pmd, pte_t *pte)
- {
--#ifndef __s390x__
--	pmd_val(pmd[0]) = _SEGMENT_ENTRY + __pa(pte);
--	pmd_val(pmd[1]) = _SEGMENT_ENTRY + __pa(pte+256);
--	pmd_val(pmd[2]) = _SEGMENT_ENTRY + __pa(pte+512);
--	pmd_val(pmd[3]) = _SEGMENT_ENTRY + __pa(pte+768);
--#else /* __s390x__ */
- 	pmd_val(*pmd) = _SEGMENT_ENTRY + __pa(pte);
--	pmd_val1(*pmd) = _SEGMENT_ENTRY + __pa(pte+256);
--#endif /* __s390x__ */
- }
- 
--static inline void
--pmd_populate(struct mm_struct *mm, pmd_t *pmd, pgtable_t page)
-+static inline void pmd_populate(struct mm_struct *mm,
-+				pmd_t *pmd, pgtable_t pte)
- {
--	pte_t *pte = (pte_t *)page_to_phys(page);
--	pmd_t *shadow_pmd = get_shadow_table(pmd);
--	pte_t *shadow_pte = get_shadow_pte(pte);
--
- 	pmd_populate_kernel(mm, pmd, pte);
--	if (shadow_pmd && shadow_pte)
--		pmd_populate_kernel(mm, shadow_pmd, shadow_pte);
-+	if (mm->context.noexec) {
-+		pmd = get_shadow_table(pmd);
-+		pmd_populate_kernel(mm, pmd, pte + PTRS_PER_PTE);
-+	}
- }
--#define pmd_pgtable(pmd) pmd_page(pmd)
++static inline void pgd_populate(struct mm_struct *mm, pgd_t *pgd, pud_t *pud)
++{
++	pgd_t *shadow_pgd = get_shadow_table(pgd);
++	pud_t *shadow_pud = get_shadow_table(pud);
 +
-+#define pmd_pgtable(pmd) \
-+	(pgtable_t)(pmd_val(pmd) & -sizeof(pte_t)*PTRS_PER_PTE)
++	if (shadow_pgd && shadow_pud)
++		pgd_populate_kernel(mm, shadow_pgd, shadow_pud);
++	pgd_populate_kernel(mm, pgd, pud);
++}
  
- /*
-  * page table entry allocation/free routines.
-  */
--#define pte_alloc_one_kernel(mm, vmaddr) \
--	((pte_t *) page_table_alloc(s390_noexec))
--#define pte_alloc_one(mm, vmaddr) \
--	virt_to_page(page_table_alloc(s390_noexec))
--
--#define pte_free_kernel(mm, pte) \
--	page_table_free((unsigned long *) pte)
--#define pte_free(mm, pte) \
--	page_table_free((unsigned long *) page_to_phys((struct page *) pte))
-+#define pte_alloc_one_kernel(mm, vmaddr) ((pte_t *) page_table_alloc(mm))
-+#define pte_alloc_one(mm, vmaddr) ((pte_t *) page_table_alloc(mm))
-+
-+#define pte_free_kernel(mm, pte) page_table_free(mm, (unsigned long *) pte)
-+#define pte_free(mm, pte) page_table_free(mm, (unsigned long *) pte)
- 
- #endif /* _S390_PGALLOC_H */
+ static inline void pud_populate_kernel(struct mm_struct *mm,
+ 				       pud_t *pud, pmd_t *pmd)
 Index: quilt-2.6/include/asm-s390/pgtable.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-s390/pgtable.h
 +++ quilt-2.6/include/asm-s390/pgtable.h
-@@ -57,11 +57,11 @@ extern char empty_zero_page[PAGE_SIZE];
-  * PGDIR_SHIFT determines what a third-level page table entry can map
-  */
- #ifndef __s390x__
--# define PMD_SHIFT	22
--# define PUD_SHIFT	22
--# define PGDIR_SHIFT	22
-+# define PMD_SHIFT	20
-+# define PUD_SHIFT	20
-+# define PGDIR_SHIFT	20
+@@ -63,15 +63,15 @@ extern char empty_zero_page[PAGE_SIZE];
  #else /* __s390x__ */
--# define PMD_SHIFT	21
-+# define PMD_SHIFT	20
+ # define PMD_SHIFT	20
  # define PUD_SHIFT	31
- # define PGDIR_SHIFT	31
+-# define PGDIR_SHIFT	31
++# define PGDIR_SHIFT	42
  #endif /* __s390x__ */
-@@ -79,17 +79,14 @@ extern char empty_zero_page[PAGE_SIZE];
-  * for S390 segment-table entries are combined to one PGD
-  * that leads to 1024 pte per pgd
-  */
-+#define PTRS_PER_PTE	256
+ 
+ #define PMD_SIZE        (1UL << PMD_SHIFT)
+ #define PMD_MASK        (~(PMD_SIZE-1))
+ #define PUD_SIZE	(1UL << PUD_SHIFT)
+ #define PUD_MASK	(~(PUD_SIZE-1))
+-#define PGDIR_SIZE      (1UL << PGDIR_SHIFT)
+-#define PGDIR_MASK      (~(PGDIR_SIZE-1))
++#define PGDIR_SIZE	(1UL << PGDIR_SHIFT)
++#define PGDIR_MASK	(~(PGDIR_SIZE-1))
+ 
+ /*
+  * entries per page directory level: the S390 is two-level, so
+@@ -82,10 +82,11 @@ extern char empty_zero_page[PAGE_SIZE];
+ #define PTRS_PER_PTE	256
  #ifndef __s390x__
--# define PTRS_PER_PTE    1024
--# define PTRS_PER_PMD    1
--# define PTRS_PER_PUD	1
--# define PTRS_PER_PGD    512
-+#define PTRS_PER_PMD	1
- #else /* __s390x__ */
--# define PTRS_PER_PTE    512
--# define PTRS_PER_PMD    1024
--# define PTRS_PER_PUD	1
--# define PTRS_PER_PGD    2048
-+#define PTRS_PER_PMD	2048
- #endif /* __s390x__ */
+ #define PTRS_PER_PMD	1
 +#define PTRS_PER_PUD	1
-+#define PTRS_PER_PGD	2048
+ #else /* __s390x__ */
+ #define PTRS_PER_PMD	2048
++#define PTRS_PER_PUD	2048
+ #endif /* __s390x__ */
+-#define PTRS_PER_PUD	1
+ #define PTRS_PER_PGD	2048
  
  #define FIRST_USER_ADDRESS  0
+@@ -425,9 +426,23 @@ static inline int pud_bad(pud_t pud)	 { 
  
-@@ -383,24 +380,6 @@ extern unsigned long vmalloc_end;
- # define PxD_SHADOW_SHIFT	2
- #endif /* __s390x__ */
- 
--static inline struct page *get_shadow_page(struct page *page)
--{
--	if (s390_noexec && page->index)
--		return virt_to_page((void *)(addr_t) page->index);
--	return NULL;
--}
--
--static inline void *get_shadow_pte(void *table)
--{
--	unsigned long addr, offset;
--	struct page *page;
--
--	addr = (unsigned long) table;
--	offset = addr & (PAGE_SIZE - 1);
--	page = virt_to_page((void *)(addr ^ offset));
--	return (void *)(addr_t)(page->index ? (page->index | offset) : 0UL);
--}
--
- static inline void *get_shadow_table(void *table)
- {
- 	unsigned long addr, offset;
-@@ -418,17 +397,16 @@ static inline void *get_shadow_table(voi
-  * hook is made available.
-  */
- static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
--			      pte_t *pteptr, pte_t pteval)
-+			      pte_t *ptep, pte_t entry)
- {
--	pte_t *shadow_pte = get_shadow_pte(pteptr);
--
--	*pteptr = pteval;
--	if (shadow_pte) {
--		if (!(pte_val(pteval) & _PAGE_INVALID) &&
--		    (pte_val(pteval) & _PAGE_SWX))
--			pte_val(*shadow_pte) = pte_val(pteval) | _PAGE_RO;
-+	*ptep = entry;
-+	if (mm->context.noexec) {
-+		if (!(pte_val(entry) & _PAGE_INVALID) &&
-+		    (pte_val(entry) & _PAGE_SWX))
-+			pte_val(entry) |= _PAGE_RO;
- 		else
--			pte_val(*shadow_pte) = _PAGE_TYPE_EMPTY;
-+			pte_val(entry) = _PAGE_TYPE_EMPTY;
-+		ptep[PTRS_PER_PTE] = entry;
- 	}
- }
- 
-@@ -543,14 +521,6 @@ static inline int pte_young(pte_t pte)
- #define pgd_clear(pgd)		do { } while (0)
- #define pud_clear(pud)		do { } while (0)
- 
--static inline void pmd_clear_kernel(pmd_t * pmdp)
--{
--	pmd_val(pmdp[0]) = _SEGMENT_ENTRY_EMPTY;
--	pmd_val(pmdp[1]) = _SEGMENT_ENTRY_EMPTY;
--	pmd_val(pmdp[2]) = _SEGMENT_ENTRY_EMPTY;
--	pmd_val(pmdp[3]) = _SEGMENT_ENTRY_EMPTY;
--}
--
  #else /* __s390x__ */
  
- #define pgd_clear(pgd)		do { } while (0)
-@@ -569,30 +539,27 @@ static inline void pud_clear(pud_t * pud
- 		pud_clear_kernel(shadow);
- }
- 
-+#endif /* __s390x__ */
+-static inline int pgd_present(pgd_t pgd) { return 1; }
+-static inline int pgd_none(pgd_t pgd)	 { return 0; }
+-static inline int pgd_bad(pgd_t pgd)	 { return 0; }
++static inline int pgd_present(pgd_t pgd)
++{
++	return pgd_val(pgd) & _REGION_ENTRY_ORIGIN;
++}
 +
- static inline void pmd_clear_kernel(pmd_t * pmdp)
++static inline int pgd_none(pgd_t pgd)
++{
++	return pgd_val(pgd) & _REGION_ENTRY_INV;
++}
++
++static inline int pgd_bad(pgd_t pgd)
++{
++	unsigned long mask =
++		~_REGION_ENTRY_ORIGIN & ~_REGION_ENTRY_INV &
++		~_REGION_ENTRY_TYPE_MASK & ~_REGION_ENTRY_LENGTH;
++	return (pgd_val(pgd) & mask) != 0;
++}
+ 
+ static inline int pud_present(pud_t pud)
  {
- 	pmd_val(*pmdp) = _SEGMENT_ENTRY_EMPTY;
--	pmd_val1(*pmdp) = _SEGMENT_ENTRY_EMPTY;
+@@ -441,8 +456,10 @@ static inline int pud_none(pud_t pud)
+ 
+ static inline int pud_bad(pud_t pud)
+ {
+-	unsigned long mask = ~_REGION_ENTRY_ORIGIN & ~_REGION_ENTRY_INV;
+-	return (pud_val(pud) & mask) != _REGION3_ENTRY;
++	unsigned long mask =
++		~_REGION_ENTRY_ORIGIN & ~_REGION_ENTRY_INV &
++		~_REGION_ENTRY_TYPE_MASK & ~_REGION_ENTRY_LENGTH;
++	return (pud_val(pud) & mask) != 0;
  }
  
--#endif /* __s390x__ */
--
--static inline void pmd_clear(pmd_t * pmdp)
-+static inline void pmd_clear(pmd_t *pmd)
- {
--	pmd_t *shadow_pmd = get_shadow_table(pmdp);
-+	pmd_t *shadow = get_shadow_table(pmd);
+ #endif /* __s390x__ */
+@@ -523,7 +540,19 @@ static inline int pte_young(pte_t pte)
  
--	pmd_clear_kernel(pmdp);
--	if (shadow_pmd)
--		pmd_clear_kernel(shadow_pmd);
-+	pmd_clear_kernel(pmd);
+ #else /* __s390x__ */
+ 
+-#define pgd_clear(pgd)		do { } while (0)
++static inline void pgd_clear_kernel(pgd_t * pgd)
++{
++	pgd_val(*pgd) = _REGION2_ENTRY_EMPTY;
++}
++
++static inline void pgd_clear(pgd_t * pgd)
++{
++	pgd_t *shadow = get_shadow_table(pgd);
++
++	pgd_clear_kernel(pgd);
 +	if (shadow)
-+		pmd_clear_kernel(shadow);
- }
++		pgd_clear_kernel(shadow);
++}
  
- static inline void pte_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
+ static inline void pud_clear_kernel(pud_t *pud)
  {
--	pte_t *shadow_pte = get_shadow_pte(ptep);
--
- 	pte_val(*ptep) = _PAGE_TYPE_EMPTY;
--	if (shadow_pte)
--		pte_val(*shadow_pte) = _PAGE_TYPE_EMPTY;
-+	if (mm->context.noexec)
-+		pte_val(ptep[PTRS_PER_PTE]) = _PAGE_TYPE_EMPTY;
- }
+@@ -815,9 +844,13 @@ static inline pte_t mk_pte(struct page *
  
- /*
-@@ -673,7 +640,7 @@ static inline void __ptep_ipte(unsigned 
+ #define pmd_deref(pmd) (pmd_val(pmd) & _SEGMENT_ENTRY_ORIGIN)
+ #define pud_deref(pud) (pud_val(pud) & _REGION_ENTRY_ORIGIN)
+-#define pgd_deref(pgd) ({ BUG(); 0UL; })
++#define pgd_deref(pgd) (pgd_val(pgd) & _REGION_ENTRY_ORIGIN)
+ 
+-#define pud_offset(pgd, address) ((pud_t *) pgd)
++static inline pud_t *pud_offset(pgd_t *pgd, unsigned long address)
++{
++	pud_t *pud = (pud_t *) pgd_deref(*pgd);
++	return pud  + pud_index(address);
++}
+ 
+ static inline pmd_t *pmd_offset(pud_t *pud, unsigned long address)
  {
- 	if (!(pte_val(*ptep) & _PAGE_INVALID)) {
- #ifndef __s390x__
--		/* S390 has 1mb segments, we are emulating 4MB segments */
-+		/* pto must point to the start of the segment table */
- 		pte_t *pto = (pte_t *) (((unsigned long) ptep) & 0x7ffffc00);
- #else
- 		/* ipte in zarch mode can do the math */
-@@ -687,12 +654,12 @@ static inline void __ptep_ipte(unsigned 
- 	pte_val(*ptep) = _PAGE_TYPE_EMPTY;
- }
- 
--static inline void ptep_invalidate(unsigned long address, pte_t *ptep)
-+static inline void ptep_invalidate(struct mm_struct *mm,
-+				   unsigned long address, pte_t *ptep)
- {
- 	__ptep_ipte(address, ptep);
--	ptep = get_shadow_pte(ptep);
--	if (ptep)
--		__ptep_ipte(address, ptep);
-+	if (mm->context.noexec)
-+		__ptep_ipte(address, ptep + PTRS_PER_PTE);
- }
- 
- /*
-@@ -714,7 +681,7 @@ static inline void ptep_invalidate(unsig
- 	pte_t __pte = *(__ptep);					\
- 	if (atomic_read(&(__mm)->mm_users) > 1 ||			\
- 	    (__mm) != current->active_mm)				\
--		ptep_invalidate(__address, __ptep);			\
-+		ptep_invalidate(__mm, __address, __ptep);		\
- 	else								\
- 		pte_clear((__mm), (__address), (__ptep));		\
- 	__pte;								\
-@@ -725,7 +692,7 @@ static inline pte_t ptep_clear_flush(str
- 				     unsigned long address, pte_t *ptep)
- {
- 	pte_t pte = *ptep;
--	ptep_invalidate(address, ptep);
-+	ptep_invalidate(vma->vm_mm, address, ptep);
- 	return pte;
- }
- 
-@@ -746,7 +713,7 @@ static inline pte_t ptep_get_and_clear_f
- 	if (full)
- 		pte_clear(mm, addr, ptep);
- 	else
--		ptep_invalidate(addr, ptep);
-+		ptep_invalidate(mm, addr, ptep);
- 	return pte;
- }
- 
-@@ -757,7 +724,7 @@ static inline pte_t ptep_get_and_clear_f
- 	if (pte_write(__pte)) {						\
- 		if (atomic_read(&(__mm)->mm_users) > 1 ||		\
- 		    (__mm) != current->active_mm)			\
--			ptep_invalidate(__addr, __ptep);		\
-+			ptep_invalidate(__mm, __addr, __ptep);		\
- 		set_pte_at(__mm, __addr, __ptep, pte_wrprotect(__pte));	\
- 	}								\
- })
-@@ -767,7 +734,7 @@ static inline pte_t ptep_get_and_clear_f
- ({									\
- 	int __changed = !pte_same(*(__ptep), __entry);			\
- 	if (__changed) {						\
--		ptep_invalidate(__addr, __ptep);			\
-+		ptep_invalidate((__vma)->vm_mm, __addr, __ptep);	\
- 		set_pte_at((__vma)->vm_mm, __addr, __ptep, __entry);	\
- 	}								\
- 	__changed;							\
-Index: quilt-2.6/include/asm-s390/tlbflush.h
+Index: quilt-2.6/include/asm-s390/processor.h
 ===================================================================
---- quilt-2.6.orig/include/asm-s390/tlbflush.h
-+++ quilt-2.6/include/asm-s390/tlbflush.h
-@@ -61,10 +61,8 @@ static inline void __tlb_flush_mm(struct
- 	 * only ran on the local cpu.
- 	 */
- 	if (MACHINE_HAS_IDTE) {
--		pgd_t *shadow_pgd = get_shadow_table(mm->pgd);
--
--		if (shadow_pgd)
--			__tlb_flush_idte(shadow_pgd);
-+		if (mm->context.noexec)
-+			__tlb_flush_idte(get_shadow_table(mm->pgd));
- 		__tlb_flush_idte(mm->pgd);
- 		return;
- 	}
+--- quilt-2.6.orig/include/asm-s390/processor.h
++++ quilt-2.6/include/asm-s390/processor.h
+@@ -67,16 +67,13 @@ extern struct task_struct *last_task_use
+  */
+ #ifndef __s390x__
+ 
+-# define TASK_SIZE		(0x80000000UL)
+-# define TASK_UNMAPPED_BASE	(TASK_SIZE / 2)
+-# define DEFAULT_TASK_SIZE	(0x80000000UL)
++#define TASK_SIZE		(1UL << 31)
++#define TASK_UNMAPPED_BASE	(1UL << 30)
+ 
+ #else /* __s390x__ */
+ 
+-# define TASK_SIZE		(test_thread_flag(TIF_31BIT) ? \
+-					(0x80000000UL) : (0x40000000000UL))
+-# define TASK_UNMAPPED_BASE	(TASK_SIZE / 2)
+-# define DEFAULT_TASK_SIZE	(0x40000000000UL)
++#define TASK_SIZE		(1UL << (test_thread_flag(TIF_31BIT) ? 31:53))
++#define TASK_UNMAPPED_BASE	(1UL << (test_thread_flag(TIF_31BIT) ? 30:41))
+ 
+ #endif /* __s390x__ */
+ 
 Index: quilt-2.6/include/asm-s390/tlb.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-s390/tlb.h
 +++ quilt-2.6/include/asm-s390/tlb.h
-@@ -95,14 +95,14 @@ static inline void tlb_remove_page(struc
-  * pte_free_tlb frees a pte table and clears the CRSTE for the
-  * page table from the tlb.
-  */
--static inline void pte_free_tlb(struct mmu_gather *tlb, pgtable_t page)
-+static inline void pte_free_tlb(struct mmu_gather *tlb, pgtable_t pte)
+@@ -38,7 +38,7 @@ struct mmu_gather {
+ 	struct mm_struct *mm;
+ 	unsigned int fullmm;
+ 	unsigned int nr_ptes;
+-	unsigned int nr_pmds;
++	unsigned int nr_pxds;
+ 	void *array[TLB_NR_PTRS];
+ };
+ 
+@@ -53,7 +53,7 @@ static inline struct mmu_gather *tlb_gat
+ 	tlb->fullmm = full_mm_flush || (num_online_cpus() == 1) ||
+ 		(atomic_read(&mm->mm_users) <= 1 && mm == current->active_mm);
+ 	tlb->nr_ptes = 0;
+-	tlb->nr_pmds = TLB_NR_PTRS;
++	tlb->nr_pxds = TLB_NR_PTRS;
+ 	if (tlb->fullmm)
+ 		__tlb_flush_mm(mm);
+ 	return tlb;
+@@ -62,12 +62,13 @@ static inline struct mmu_gather *tlb_gat
+ static inline void tlb_flush_mmu(struct mmu_gather *tlb,
+ 				 unsigned long start, unsigned long end)
  {
- 	if (!tlb->fullmm) {
--		tlb->array[tlb->nr_ptes++] = page;
-+		tlb->array[tlb->nr_ptes++] = pte;
- 		if (tlb->nr_ptes >= tlb->nr_pmds)
- 			tlb_flush_mmu(tlb, 0, 0);
- 	} else
--		pte_free(tlb->mm, page);
-+		pte_free(tlb->mm, pte);
+-	if (!tlb->fullmm && (tlb->nr_ptes > 0 || tlb->nr_pmds < TLB_NR_PTRS))
++	if (!tlb->fullmm && (tlb->nr_ptes > 0 || tlb->nr_pxds < TLB_NR_PTRS))
+ 		__tlb_flush_mm(tlb->mm);
+ 	while (tlb->nr_ptes > 0)
+ 		pte_free(tlb->mm, tlb->array[--tlb->nr_ptes]);
+-	while (tlb->nr_pmds < TLB_NR_PTRS)
+-		pmd_free(tlb->mm, (pmd_t *) tlb->array[tlb->nr_pmds++]);
++	while (tlb->nr_pxds < TLB_NR_PTRS)
++		/* pgd_free frees the pointer as region or segment table */
++		pgd_free(tlb->mm, tlb->array[tlb->nr_pxds++]);
  }
  
- /*
+ static inline void tlb_finish_mmu(struct mmu_gather *tlb,
+@@ -99,7 +100,7 @@ static inline void pte_free_tlb(struct m
+ {
+ 	if (!tlb->fullmm) {
+ 		tlb->array[tlb->nr_ptes++] = pte;
+-		if (tlb->nr_ptes >= tlb->nr_pmds)
++		if (tlb->nr_ptes >= tlb->nr_pxds)
+ 			tlb_flush_mmu(tlb, 0, 0);
+ 	} else
+ 		pte_free(tlb->mm, pte);
+@@ -113,15 +114,29 @@ static inline void pmd_free_tlb(struct m
+ {
+ #ifdef __s390x__
+ 	if (!tlb->fullmm) {
+-		tlb->array[--tlb->nr_pmds] = (struct page *) pmd;
+-		if (tlb->nr_ptes >= tlb->nr_pmds)
++		tlb->array[--tlb->nr_pxds] = pmd;
++		if (tlb->nr_ptes >= tlb->nr_pxds)
+ 			tlb_flush_mmu(tlb, 0, 0);
+ 	} else
+ 		pmd_free(tlb->mm, pmd);
+ #endif
+ }
+ 
+-#define pud_free_tlb(tlb, pud)			do { } while (0)
++/*
++ * pud_free_tlb frees a pud table and clears the CRSTE for the
++ * region third table entry from the tlb.
++ */
++static inline void pud_free_tlb(struct mmu_gather *tlb, pud_t *pud)
++{
++#ifdef __s390x__
++	if (!tlb->fullmm) {
++		tlb->array[--tlb->nr_pxds] = pud;
++		if (tlb->nr_ptes >= tlb->nr_pxds)
++			tlb_flush_mmu(tlb, 0, 0);
++	} else
++		pud_free(tlb->mm, pud);
++#endif
++}
+ 
+ #define tlb_start_vma(tlb, vma)			do { } while (0)
+ #define tlb_end_vma(tlb, vma)			do { } while (0)
 
 -- 
 blue skies,
