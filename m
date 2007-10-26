@@ -1,14 +1,14 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Subject: Re: [patch 2/6] CONFIG_HIGHPTE vs. sub-page page tables.
+Subject: Re: [patch 3/6] arch_update_pgd call
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Reply-To: schwidefsky@de.ibm.com
-In-Reply-To: <1193385617.13638.3.camel@pasglop>
+In-Reply-To: <1193385543.13638.0.camel@pasglop>
 References: <20071025181520.880272069@de.ibm.com>
-	 <20071025181901.212545095@de.ibm.com>  <1193345221.7018.18.camel@pasglop>
-	 <1193384578.31831.6.camel@localhost>  <1193385617.13638.3.camel@pasglop>
+	 <20071025181901.591007141@de.ibm.com>  <1193345285.7018.21.camel@pasglop>
+	 <1193384437.31831.3.camel@localhost>  <1193385543.13638.0.camel@pasglop>
 Content-Type: text/plain
-Date: Fri, 26 Oct 2007 10:08:20 +0200
-Message-Id: <1193386100.31831.13.camel@localhost>
+Date: Fri, 26 Oct 2007 10:22:50 +0200
+Message-Id: <1193386970.31831.20.camel@localhost>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-arch-owner@vger.kernel.org
@@ -18,20 +18,26 @@ To: benh@kernel.crashing.org
 Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 2007-10-26 at 18:00 +1000, Benjamin Herrenschmidt wrote:
-> > > Interesting. That means I don't need to have a PTE page to be a struct
-> > > page anymore ? I can have good use for that on powerpc as well... 
+On Fri, 2007-10-26 at 17:59 +1000, Benjamin Herrenschmidt wrote:
+> > > I'm not at all fan of the hook there and it's name...
+> > > 
+> > > Any reason why you can't do that in your arch gua ?
+> > > 
+> > > If not, then why can't you call it something nicer, like
+> > > arch_rebalance_pgtables() ?
 > > 
-> > That would be good news. I'm curious, can you elaborate on what the use
-> > case is?
+> > The name can be changed in no time. I've tried to use one of the
+> > existing arch calls like arch_mmap_check or arch_get_unmapped_area but
+> > it didn't work out. I really need the final address to make the call to
+> > extend the page tables. 
 > 
-> When using 64K pages, we use 32K of PTEs and 32K of "extension". The
-> extension thing is used when using HW 4K pages, to keep track of the
-> subpages. On setups where that isn't needed, we can save memory by
-> allocating half pages...
+> You arch get_unmapped_area() has it...
 
-Ahh, that is exactly the same reason as for s390. Page tables with a
-size that is sub-page.
+Hmm, I got worried about the file->f_op->get_unmapped_area indirection.
+At least the get_unmapped_area_mem function in drivers/char/mem.c does
+not call the standard get_unmapped_area function again like ipc/shm.c
+does. As I see it is not guaranteed that the architecture version of
+arch_get_unmapped_area gets control. Want to play safe there.
 
 -- 
 blue skies,
