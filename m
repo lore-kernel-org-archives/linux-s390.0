@@ -1,92 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754414AbXJ2LhU@vger.kernel.org>
-Date: Mon, 29 Oct 2007 12:34:43 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: [PATCH-RESEND] Re: S390 change in sg_set_page() cause build
-	failure
-Message-ID: <20071029113443.GC5001@kernel.dk>
-References: <20071026111945.GB21274@linux.vnet.ibm.com> <20071026115429.GH5155@kernel.dk> <20071029112228.GA29163@linux.vnet.ibm.com> <20071029112617.GB5001@kernel.dk> <4725C516.2000004@linux.vnet.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755451AbXJZLT7@vger.kernel.org>
+Date: Fri, 26 Oct 2007 16:49:45 +0530
+From: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Subject: S390 change in sg_set_page() cause build failure
+Message-ID: <20071026111945.GB21274@linux.vnet.ibm.com>
+Reply-To: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4725C516.2000004@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+To: jens.axboe@oracle.com
 Cc: linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, akpm@linux-foundation.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Oct 29 2007, Kamalesh Babulal wrote:
-> Jens Axboe wrote:
-> > On Mon, Oct 29 2007, Kamalesh Babulal wrote:
-> >> On Fri, Oct 26, 2007 at 01:54:30PM +0200, Jens Axboe wrote:
-> >>> On Fri, Oct 26 2007, Kamalesh Babulal wrote:
-> >>>> Hi Jens,
-> >>>>
-> >>>>  	sg_set_buf(list, address, 0);
-> >> <snip>
-> >>>>  }
-> >>> That's not quite right, it should be:
-> >>>
-> >>> diff --git a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
-> >>> index 0754542..e268f79 100644
-> >>> --- a/drivers/s390/scsi/zfcp_def.h
-> >>> +++ b/drivers/s390/scsi/zfcp_def.h
-> >>> @@ -70,11 +70,12 @@ zfcp_sg_to_address(struct scatterlist *list)
-> >>>   * zfcp_address_to_sg - set up struct scatterlist from kernel address
-> >>>   * @address: kernel address
-> >>>   * @list: struct scatterlist
-> >>> + * @size: buffer size
-> >>>   */
-> >>>  static inline void
-> >>> -zfcp_address_to_sg(void *address, struct scatterlist *list)
-> >>> +zfcp_address_to_sg(void *address, struct scatterlist *list, unsigned int size)
-> >>>  {
-> >>> -	sg_set_buf(list, address, 0);
-> >>> +	sg_set_buf(list, address, size);
-> >>>  }
-> >>>
-> >>>  #define REQUEST_LIST_SIZE 128
-> >>>
-> >>> -- 
-> >>> Jens Axboe
-> >> Hi Jens,
-> >>
-> >> Resending the patch with the changes pointed by you in the patch.
-> >>
-> >> [jens.axboe@oracle.com: size parameter fix]
-> >> Signed-off-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-> >> --
-> >> diff --git a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
-> >> index 0754542..f747e86 100644
-> >> --- a/drivers/s390/scsi/zfcp_def.h
-> >> +++ b/drivers/s390/scsi/zfcp_def.h
-> >> @@ -70,11 +70,12 @@ zfcp_sg_to_address(struct scatterlist *list)
-> >>   * zfcp_address_to_sg - set up struct scatterlist from kernel address
-> >>   * @address: kernel address
-> >>   * @list: struct scatterlist
-> >> + * @size: buffer size 
-> >>   */
-> >>  static inline void
-> >> -zfcp_address_to_sg(void *address, struct scatterlist *list)
-> >> +zfcp_address_to_sg(void *address, struct scatterlist *list, unsigned int size)
-> >>  {
-> >> -	sg_set_buf(list, address, 0);
-> >> +	sg_set_buf(list, address, size);
-> >>  }
-> >>  
-> >>  #define REQUEST_LIST_SIZE 128
-> > 
-> > Thanks Kamalesh, but I already merged a fixed up version on friday:
-> > 
-> > http://git.kernel.dk/?p=linux-2.6-block.git;a=commit;h=9335432959111c982c74177521305e6a3fb600a3
-> > 
-> Hi Jens,
-> 
-> Thanks !! I resend because, this was seen till todays 2.6.24-rc1-git5.
+Hi Jens,
 
-I've sent the pull request to Linus this morning, so hopefully it should
-be fixed in tomrrows snapshot.
+The change in the sg_set_page() for the S390, cause the build failure
 
--- 
-Jens Axboe
+drivers/s390/scsi/zfcp_aux.c: In function `zfcp_sg_list_alloc':
+drivers/s390/scsi/zfcp_aux.c:572: error: too many arguments to function `zfcp_address_to_sg'
+drivers/s390/scsi/zfcp_aux.c: In function `zfcp_gid_pn_buffers_alloc':
+drivers/s390/scsi/zfcp_aux.c:1524: error: too many arguments to function `zfcp_address_to_sg'
+drivers/s390/scsi/zfcp_aux.c:1525: error: too many arguments to function `zfcp_address_to_sg'
+make[2]: *** [drivers/s390/scsi/zfcp_aux.o] Error 1
+make[1]: *** [drivers/s390/scsi] Error 2
+make: *** [drivers/s390] Error 2
+
+The commit 642f149031d70415d9318b919d50b71e4724adbd causes this build
+failure, in the drivers/s390/scsi/zfcp_def.h include file, the function
+zfcp_address_to_sg the len of the scatterlist missing.
+
+Signed-off-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+--
+diff --git a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
+index 0754542..acf2d22 100644
+--- a/drivers/s390/scsi/zfcp_def.h
++++ b/drivers/s390/scsi/zfcp_def.h
+@@ -70,9 +70,11 @@ zfcp_sg_to_address(struct scatterlist *list)
+  * zfcp_address_to_sg - set up struct scatterlist from kernel address
+  * @address: kernel address
+  * @list: struct scatterlist
++ * @list_size: size of the list - used for compatibility 
+  */
+ static inline void
+-zfcp_address_to_sg(void *address, struct scatterlist *list)
++zfcp_address_to_sg(void *address, struct scatterlist *list,
++                   unsigned int list_size)
+ {
+ 	sg_set_buf(list, address, 0);
+ }
+--
+Thanks & Regards,
+Kamalesh Babulal,
+Linux Technology Center,
+IBM,ISTL.
