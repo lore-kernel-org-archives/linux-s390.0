@@ -1,68 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756221AbXJXFGs@vger.kernel.org>
-Date: Wed, 24 Oct 2007 07:06:33 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [BUG] 2.6.23-git19 - S390x: Kernel panic while bringing up the
-	network interface
-Message-ID: <20071024050633.GA12335@osiris.boeblingen.de.ibm.com>
-References: <471EBC02.5000907@linux.vnet.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1763347AbXJZPhY@vger.kernel.org>
+Message-ID: <4721FB30.1050601@linux.vnet.ibm.com>
+Date: Fri, 26 Oct 2007 20:05:28 +0530
+From: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <471EBC02.5000907@linux.vnet.ibm.com>
+Subject: Re: S390 change in sg_set_page() cause build failure
+References: <20071026111945.GB21274@linux.vnet.ibm.com> <20071026115429.GH5155@kernel.dk>
+In-Reply-To: <20071026115429.GH5155@kernel.dk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Cc: linux390@de.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, akpm@linux-foundation.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Oct 24, 2007 at 08:59:06AM +0530, Kamalesh Babulal wrote:
-> Hi,
->=20
-> Kernel panic's while bringing up the network interface with the 2.6.23-gi=
-t19
->=20
-> Setting network parameters:  =DD  OK  =A8
-> Bringing up loopback interface:  =DD  OK  =A8
-> Bringing up interface eth0:
->  =DD<00000000002e2f72>=A8 inet_ioctl+0xd6/0x110
->  =DD<000000000027cae2>=A8 sock_ioctl+0x26e/0x2a0
->  =DD<00000000000b4c52>=A8 do_ioctl+0x4a/0xac
->  =DD<00000000000b5076>=A8 vfs_ioctl+0x3c2/0x3d8
->  =DD<00000000000b50ec>=A8 sys_ioctl+0x60/0x88
->  =DD<0000000000021b7e>=A8 sysc_noemu+0x10/0x16
->  =DD<00000200001201ca>=A8 0x200001201ca
->=20
->  <0>Kernel panic - not syncing: Fatal exception in interrupt
-> 00: HCPGSP2629I The virtual machine is placed in CP mode due to a SIGP st=
-op from
->  CPU 01.
-> 02: HCPGSP2629I The virtual machine is placed in CP mode due to a SIGP st=
-op from
->  CPU 01.
-> 03: HCPGSP2629I The virtual machine is placed in CP mode due to a SIGP st=
-op from
->  CPU 01.
-> 01: HCPGIR450W CP entered; disabled wait PSW 00020001 80000000 00000000 0=
-00164DE
+Jens Axboe wrote:
+> On Fri, Oct 26 2007, Kamalesh Babulal wrote:
+>> Hi Jens,
+>>
+>> The change in the sg_set_page() for the S390, cause the build failure
+>>
+>> drivers/s390/scsi/zfcp_aux.c: In function `zfcp_sg_list_alloc':
+>> drivers/s390/scsi/zfcp_aux.c:572: error: too many arguments to function `zfcp_address_to_sg'
+>> drivers/s390/scsi/zfcp_aux.c: In function `zfcp_gid_pn_buffers_alloc':
+>> drivers/s390/scsi/zfcp_aux.c:1524: error: too many arguments to function `zfcp_address_to_sg'
+>> drivers/s390/scsi/zfcp_aux.c:1525: error: too many arguments to function `zfcp_address_to_sg'
+>> make[2]: *** [drivers/s390/scsi/zfcp_aux.o] Error 1
+>> make[1]: *** [drivers/s390/scsi] Error 2
+>> make: *** [drivers/s390] Error 2
+>>
+>> The commit 642f149031d70415d9318b919d50b71e4724adbd causes this build
+>> failure, in the drivers/s390/scsi/zfcp_def.h include file, the function
+>> zfcp_address_to_sg the len of the scatterlist missing.
+>>
+>> Signed-off-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+>> --
+>> diff --git a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
+>> index 0754542..acf2d22 100644
+>> --- a/drivers/s390/scsi/zfcp_def.h
+>> +++ b/drivers/s390/scsi/zfcp_def.h
+>> @@ -70,9 +70,11 @@ zfcp_sg_to_address(struct scatterlist *list)
+>>   * zfcp_address_to_sg - set up struct scatterlist from kernel address
+>>   * @address: kernel address
+>>   * @list: struct scatterlist
+>> + * @list_size: size of the list - used for compatibility 
+>>   */
+>>  static inline void
+>> -zfcp_address_to_sg(void *address, struct scatterlist *list)
+>> +zfcp_address_to_sg(void *address, struct scatterlist *list,
+>> +                   unsigned int list_size)
+>>  {
+>>  	sg_set_buf(list, address, 0);
+>>  }
+> 
+> That's not quite right, it should be:
+> 
+> diff --git a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
+> index 0754542..e268f79 100644
+> --- a/drivers/s390/scsi/zfcp_def.h
+> +++ b/drivers/s390/scsi/zfcp_def.h
+> @@ -70,11 +70,12 @@ zfcp_sg_to_address(struct scatterlist *list)
+>   * zfcp_address_to_sg - set up struct scatterlist from kernel address
+>   * @address: kernel address
+>   * @list: struct scatterlist
+> + * @size: buffer size
+>   */
+>  static inline void
+> -zfcp_address_to_sg(void *address, struct scatterlist *list)
+> +zfcp_address_to_sg(void *address, struct scatterlist *list, unsigned int size)
+>  {
+> -	sg_set_buf(list, address, 0);
+> +	sg_set_buf(list, address, size);
+>  }
+> 
+>  #define REQUEST_LIST_SIZE 128
+> 
+Hi Jens,
 
-That should be fixed with this one:
+Thanks for fixing it.
 
-commit f1ecfd5d3b69d98b814435758c485e6fd0e112de
-Author: Ursula Braun <braunu@de.ibm.com>
-Date:   Mon Oct 22 16:16:14 2007 +0200
-
-    remove header_ops bug in qeth driver
-   =20
-    Remove qeth bug caused by commit:
-    [NET]: Move hardware header operations out of netdevice.
-   =20
-    This is the second part of the qeth header_ops patch, since
-    first patch sent 10/19 has been insufficient.
-    Nevertheless first patch is still valid and should be kept.
-   =20
-    Signed-off-by: Ursula Braun <braunu@de.ibm.com>
-    Signed-off-by: Jeff Garzik <jeff@garzik.org>
-
-Patch is in -rc1. Could you please pull and try again? Thanks.
+-- 
+Thanks & Regards,
+Kamalesh Babulal,
+Linux Technology Center,
+IBM, ISTL.
