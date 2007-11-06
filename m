@@ -1,35 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753696AbXKFQmb@vger.kernel.org>
-Date: Tue, 6 Nov 2007 17:42:08 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: mm snapshot broken-out-2007-11-06-02-32.tar.gz uploaded - S390x
- build fails
-Message-ID: <20071106174208.3b01e68f@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <20071106162939.41c4bd36@gondolin.boeblingen.de.ibm.com>
-References: <200711061033.lA6AXrhT018804@imap1.linux-foundation.org>
-	<473083CA.9060607@linux.vnet.ibm.com>
-	<20071106162939.41c4bd36@gondolin.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755219AbXKFUCh@vger.kernel.org>
+Date: Wed, 7 Nov 2007 01:28:48 +0530
+From: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Subject: Re: mm snapshot broken-out-2007-11-06-02-32.tar.gz uploaded - S390x build fails
+Message-ID: <20071106195848.GB13674@linux.vnet.ibm.com>
+Reply-To: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+References: <200711061033.lA6AXrhT018804@imap1.linux-foundation.org> <473083CA.9060607@linux.vnet.ibm.com> <20071106162939.41c4bd36@gondolin.boeblingen.de.ibm.com> <20071106174208.3b01e68f@gondolin.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20071106174208.3b01e68f@gondolin.boeblingen.de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: akpm@linux-foundation.org
-Cc: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, mm-commits@vger.kernel.org, linux-kernel@vger.kernel.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>, Greg K-H <greg@kroah.com>, Michael Ernst <mernst@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: akpm@linux-foundation.org, mm-commits@vger.kernel.org, linux-kernel@vger.kernel.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>, Greg K-H <greg@kroah.com>, Michael Ernst <mernst@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 6 Nov 2007 16:29:39 +0100,
-Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
-
-> That's a clash between git-s390 and the recent kset cleanup.
+On Tue, Nov 06, 2007 at 05:42:08PM +0100, Cornelia Huck wrote:
+> On Tue, 6 Nov 2007 16:29:39 +0100,
+> Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
 > 
-> sclp_cpi_sys.c needs to be converted from firmware_register() to the
-> new dynamic kset allocation (kset_create_and_register()) and the
-> subsys_attributes to kobj_attributes (I may look at it later if I find
-> some time).
+> > That's a clash between git-s390 and the recent kset cleanup.
+> > 
+> > sclp_cpi_sys.c needs to be converted from firmware_register() to the
+> > new dynamic kset allocation (kset_create_and_register()) and the
+> > subsys_attributes to kobj_attributes (I may look at it later if I find
+> > some time).
+> 
+> Adapt sclp_cpi_sys.c to the dynamic kset changes.
 
-Adapt sclp_cpi_sys.c to the dynamic kset changes.
+Hi Cornelia,
 
+Thanks, the patch fixes the build failure.
+
+Tested-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
 ---
