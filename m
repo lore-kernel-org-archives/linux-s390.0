@@ -1,111 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933721AbXKPO0B@vger.kernel.org>
-Message-Id: <20071116142525.884966146@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933881AbXKPO00@vger.kernel.org>
+Message-Id: <20071116142526.155411036@de.ibm.com>
 References: <20071116142441.484714036@de.ibm.com>
-Date: Fri, 16 Nov 2007 15:24:42 +0100
+Date: Fri, 16 Nov 2007 15:24:43 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 01/10] cio: change device sense procedure to work with pav aliases
-Content-Disposition: inline; filename=001-cio-sense.diff
+Subject: [patch 02/10] magic sysrq: check for in_atomic before doing an console_unblank
+Content-Disposition: inline; filename=002-console-unblank.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-Modify the sense id channel program to allow device sensing of pav
-alias devices which belong to a base device with ungrouped paths.
+When doing an magic sysrq reboot on s390 the following bug message
+appears:
 
-Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+SysRq : Resetting
+BUG: sleeping function called from invalid context at include/asm/semaphore.h:61
+
+in_atomic():1, irqs_disabled():0
+07000000004002a8 000000000fe6bc48 0000000000000002 0000000000000000
+       000000000fe6bce8 000000000fe6bc60 000000000fe6bc60 000000000012a79a
+       0000000000000000 07000000004002a8 0000000000000006 0000000000000000
+       0000000000000000 000000000fe6bc48 000000000000000d 000000000fe6bcb8
+       00000000004000c8 0000000000103234 000000000fe6bc48 000000000fe6bc90
+Call Trace:
+(��<00000000001031b2>| show_trace+0x12e/0x148)
+ ��<000000000011ffca>| __might_sleep+0x10a/0x118
+ ��<0000000000129fba>| acquire_console_sem+0x92/0xf4
+ ��<000000000012a2ca>| console_unblank+0xc2/0xc8
+ ��<0000000000107bb4>| machine_restart+0x54/0x6c
+ ��<000000000028e806>| sysrq_handle_reboot+0x26/0x30
+ ��<000000000028e52a>| __handle_sysrq+0xa6/0x180
+ ��<0000000000140134>| run_workqueue+0xcc/0x18c
+ ��<000000000014029a>| worker_thread+0xa6/0x108
+ ��<00000000001458e4>| kthread+0x64/0x9c
+ ��<0000000000106f0e>| kernel_thread_starter+0x6/0xc
+ ��<0000000000106f08>| kernel_thread_starter+0x0/0xc
+
+The only reason for doing a console_unblank on s390 is to flush the
+log buffer. We have to check for in_atomic before doing a
+console_unblank as the console is otherwise filled with an unrelated
+bug message.
+
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/device_id.c |   45 ++++++++-----------------------------------
- 1 file changed, 9 insertions(+), 36 deletions(-)
+ arch/s390/kernel/setup.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff -urpN linux-2.6/drivers/s390/cio/device_id.c linux-2.6-patched/drivers/s390/cio/device_id.c
---- linux-2.6/drivers/s390/cio/device_id.c	2007-10-09 22:31:38.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/cio/device_id.c	2007-11-16 14:27:37.000000000 +0100
-@@ -113,19 +113,10 @@ __ccw_device_sense_id_start(struct ccw_d
+diff -urpN linux-2.6/arch/s390/kernel/setup.c linux-2.6-patched/arch/s390/kernel/setup.c
+--- linux-2.6/arch/s390/kernel/setup.c	2007-10-09 22:31:38.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/setup.c	2007-11-16 14:27:37.000000000 +0100
+@@ -347,7 +347,7 @@ void (*_machine_power_off)(void) = do_ma
+ 
+ void machine_restart(char *command)
  {
- 	struct subchannel *sch;
- 	struct ccw1 *ccw;
--	int ret;
- 
- 	sch = to_subchannel(cdev->dev.parent);
- 	/* Setup sense channel program. */
- 	ccw = cdev->private->iccws;
--	if (sch->schib.pmcw.pim != 0x80) {
--		/* more than one path installed. */
--		ccw->cmd_code = CCW_CMD_SUSPEND_RECONN;
--		ccw->cda = 0;
--		ccw->count = 0;
--		ccw->flags = CCW_FLAG_SLI | CCW_FLAG_CC;
--		ccw++;
--	}
- 	ccw->cmd_code = CCW_CMD_SENSE_ID;
- 	ccw->cda = (__u32) __pa (&cdev->private->senseid);
- 	ccw->count = sizeof (struct senseid);
-@@ -133,25 +124,9 @@ __ccw_device_sense_id_start(struct ccw_d
- 
- 	/* Reset device status. */
- 	memset(&cdev->private->irb, 0, sizeof(struct irb));
-+	cdev->private->flags.intretry = 0;
- 
--	/* Try on every path. */
--	ret = -ENODEV;
--	while (cdev->private->imask != 0) {
--		if ((sch->opm & cdev->private->imask) != 0 &&
--		    cdev->private->iretry > 0) {
--			cdev->private->iretry--;
--			/* Reset internal retry indication. */
--			cdev->private->flags.intretry = 0;
--			ret = cio_start (sch, cdev->private->iccws,
--					 cdev->private->imask);
--			/* ret is 0, -EBUSY, -EACCES or -ENODEV */
--			if (ret != -EACCES)
--				return ret;
--		}
--		cdev->private->imask >>= 1;
--		cdev->private->iretry = 5;
--	}
--	return ret;
-+	return cio_start(sch, ccw, LPM_ANYPATH);
- }
- 
- void
-@@ -161,8 +136,7 @@ ccw_device_sense_id_start(struct ccw_dev
- 
- 	memset (&cdev->private->senseid, 0, sizeof (struct senseid));
- 	cdev->private->senseid.cu_type = 0xFFFF;
--	cdev->private->imask = 0x80;
--	cdev->private->iretry = 5;
-+	cdev->private->iretry = 3;
- 	ret = __ccw_device_sense_id_start(cdev);
- 	if (ret && ret != -EBUSY)
- 		ccw_device_sense_id_done(cdev, ret);
-@@ -278,14 +252,13 @@ ccw_device_sense_id_irq(struct ccw_devic
- 		ccw_device_sense_id_done(cdev, ret);
- 		break;
- 	case -EACCES:		/* channel is not operational. */
--		sch->lpm &= ~cdev->private->imask;
--		cdev->private->imask >>= 1;
--		cdev->private->iretry = 5;
--		/* fall through. */
- 	case -EAGAIN:		/* try again. */
--		ret = __ccw_device_sense_id_start(cdev);
--		if (ret == 0 || ret == -EBUSY)
--			break;
-+		cdev->private->iretry--;
-+		if (cdev->private->iretry > 0) {
-+			ret = __ccw_device_sense_id_start(cdev);
-+			if (ret == 0 || ret == -EBUSY)
-+				break;
-+		}
- 		/* fall through. */
- 	default:		/* Sense ID failed. Try asking VM. */
- 		if (MACHINE_IS_VM) {
+-	if (!in_interrupt() || oops_in_progress)
++	if ((!in_interrupt() && !in_atomic()) || oops_in_progress)
+ 		/*
+ 		 * Only unblank the console if we are called in enabled
+ 		 * context or a bust_spinlocks cleared the way for us.
 
 -- 
 blue skies,
