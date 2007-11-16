@@ -1,1121 +1,1275 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756635AbXKPOgW@vger.kernel.org>
-Message-Id: <20071116143321.735302368@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S934863AbXKPOgq@vger.kernel.org>
+Message-Id: <20071116143322.198591347@de.ibm.com>
 References: <20071116142942.978412023@de.ibm.com>
-Date: Fri, 16 Nov 2007 15:29:46 +0100
+Date: Fri, 16 Nov 2007 15:29:48 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 4/6] Standby cpu activation/deactivation.
-Content-Disposition: inline; filename=103-sclp-cpu.diff
+Subject: [patch 6/6] kernel: Shutdown Actions Interface
+Content-Disposition: inline; filename=105-shutdown-actions.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Michael Holzheu <holzheu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Michael Holzheu <holzheu@de.ibm.com>
 
-Use the sclp interface so that also standby cpus can be activated and
-deactivated. CPUs that are brought offline will be automatically put
-in standby state.
-If a logical cpu is brought online the first cpu in stopped state will
-be used. If none is available the first standby cpu will be used.
-On IPL only configured cpus will be used. And on reboot/shutdown all
-cpus will remain in their current state (configured/standby).
+In case of a kernel panic it is currently possible to specify that a dump
+should be created, the system should be rebooted or stopped. Virtual sysfs
+files under the directory /sys/firmware/ are used for that configuration.
+In addition to that, there are kernel parameters 'vmhalt', 'vmpoff'
+and 'vmpanic', which can be used to specify z/VM commands, which are
+automatically executed in case of halt, power off or a kernel panic.
+This patch combines both functionalities and allows to specify the z/VM CP
+commands also via sysfs attributes. In addition to that, it enhances the
+existing handling of shutdown triggers (e.g. halt or panic) and associated
+shutdown actions (e.g. dump or reipl) and makes it more flexible.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/early.c      |    3 
- arch/s390/kernel/setup.c      |    2 
- arch/s390/kernel/smp.c        |  401 ++++++++++++++++++++++++++++++++++--------
- drivers/s390/char/Makefile    |    2 
- drivers/s390/char/sclp.h      |    4 
- drivers/s390/char/sclp_cmd.c  |  319 +++++++++++++++++++++++++++++++++
- drivers/s390/char/sclp_info.c |  116 ------------
- include/asm-s390/sclp.h       |   21 ++
- 8 files changed, 675 insertions(+), 193 deletions(-)
+ arch/s390/kernel/ipl.c   |  923 ++++++++++++++++++++++++++++++-----------------
+ arch/s390/kernel/setup.c |  103 -----
+ arch/s390/kernel/smp.c   |   27 -
+ include/asm-s390/ipl.h   |    4 
+ 4 files changed, 595 insertions(+), 462 deletions(-)
 
-diff -urpN linux-2.6/arch/s390/kernel/early.c linux-2.6-patched/arch/s390/kernel/early.c
---- linux-2.6/arch/s390/kernel/early.c	2007-11-16 14:27:46.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/early.c	2007-11-16 14:27:48.000000000 +0100
-@@ -276,8 +276,9 @@ void __init startup_init(void)
- 	create_kernel_nss();
- 	sort_main_extable();
- 	setup_lowcore_early();
--	sclp_readinfo_early();
-+	sclp_read_info_early();
- 	sclp_facilities_detect();
-+	sclp_read_cpu_info_early();
- 	memsize = sclp_memory_detect();
- #ifndef CONFIG_64BIT
- 	/*
-diff -urpN linux-2.6/arch/s390/kernel/setup.c linux-2.6-patched/arch/s390/kernel/setup.c
---- linux-2.6/arch/s390/kernel/setup.c	2007-11-16 14:27:41.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/setup.c	2007-11-16 14:27:48.000000000 +0100
-@@ -922,7 +922,7 @@ setup_arch(char **cmdline_p)
+diff -urpN linux-2.6/arch/s390/kernel/ipl.c linux-2.6-patched/arch/s390/kernel/ipl.c
+--- linux-2.6/arch/s390/kernel/ipl.c	2007-11-16 14:27:30.000000000 +0100
++++ linux-2.6-patched/arch/s390/kernel/ipl.c	2007-11-16 14:27:50.000000000 +0100
+@@ -2,7 +2,7 @@
+  *  arch/s390/kernel/ipl.c
+  *    ipl/reipl/dump support for Linux on s390.
+  *
+- *    Copyright (C) IBM Corp. 2005,2006
++ *    Copyright IBM Corp. 2005,2007
+  *    Author(s): Michael Holzheu <holzheu@de.ibm.com>
+  *		 Heiko Carstens <heiko.carstens@de.ibm.com>
+  *		 Volker Sameske <sameske@de.ibm.com>
+@@ -31,6 +31,43 @@
+ #define IPL_FCP_DUMP_STR	"fcp_dump"
+ #define IPL_NSS_STR		"nss"
  
- void __cpuinit print_cpu_info(struct cpuinfo_S390 *cpuinfo)
- {
--   printk("cpu %d "
-+   printk(KERN_INFO "cpu %d "
- #ifdef CONFIG_SMP
-            "phys_idx=%d "
- #endif
-diff -urpN linux-2.6/arch/s390/kernel/smp.c linux-2.6-patched/arch/s390/kernel/smp.c
---- linux-2.6/arch/s390/kernel/smp.c	2007-11-16 14:27:44.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/smp.c	2007-11-16 14:27:48.000000000 +0100
-@@ -42,6 +42,7 @@
- #include <asm/tlbflush.h>
- #include <asm/timer.h>
- #include <asm/lowcore.h>
-+#include <asm/sclp.h>
- #include <asm/cpu.h>
- 
- /*
-@@ -58,6 +59,22 @@ EXPORT_SYMBOL(cpu_possible_map);
- 
- static struct task_struct *current_set[NR_CPUS];
- 
-+static u8 smp_cpu_type;
-+static int smp_use_sigp_detection;
++#define DUMP_CCW_STR		"ccw"
++#define DUMP_FCP_STR		"fcp"
++#define DUMP_NONE_STR		"none"
 +
-+enum s390_cpu_state {
-+	CPU_STATE_STANDBY,
-+	CPU_STATE_CONFIGURED,
++/*
++ * Four shutdown trigger types are supported:
++ * - panic
++ * - halt
++ * - power off
++ * - reipl
++ */
++#define ON_PANIC_STR		"on_panic"
++#define ON_HALT_STR		"on_halt"
++#define ON_POFF_STR		"on_poff"
++#define ON_REIPL_STR		"on_reboot"
++
++struct shutdown_action;
++struct shutdown_trigger {
++	char *name;
++	struct shutdown_action *action;
 +};
 +
-+#ifdef CONFIG_HOTPLUG_CPU
-+static DEFINE_MUTEX(smp_cpu_state_mutex);
-+#endif
-+static int smp_cpu_state[NR_CPUS];
-+
-+static DEFINE_PER_CPU(struct cpu, cpu_devices);
-+DEFINE_PER_CPU(struct s390_idle_data, s390_idle);
-+
- static void smp_ext_bitcall(int, ec_bit_sig);
- 
- /*
-@@ -355,6 +372,13 @@ void smp_ctl_clear_bit(int cr, int bit)
- }
- EXPORT_SYMBOL(smp_ctl_clear_bit);
- 
 +/*
-+ * In early ipl state a temp. logically cpu number is needed, so the sigp
-+ * functions can be used to sense other cpus. Since NR_CPUS is >= 2 on
-+ * CONFIG_SMP and the ipl cpu is logical cpu 0, it must be 1.
++ * Five shutdown action types are supported:
 + */
-+#define CPU_INIT_NO	1
++#define SHUTDOWN_ACTION_IPL_STR		"ipl"
++#define SHUTDOWN_ACTION_REIPL_STR	"reipl"
++#define SHUTDOWN_ACTION_DUMP_STR	"dump"
++#define SHUTDOWN_ACTION_VMCMD_STR	"vmcmd"
++#define SHUTDOWN_ACTION_STOP_STR	"stop"
 +
- #if defined(CONFIG_ZFCPDUMP) || defined(CONFIG_ZFCPDUMP_MODULE)
- 
- /*
-@@ -376,8 +400,9 @@ static void __init smp_get_save_area(uns
- 		return;
- 	}
- 	zfcpdump_save_areas[cpu] = alloc_bootmem(sizeof(union save_area));
--	__cpu_logical_map[1] = (__u16) phy_cpu;
--	while (signal_processor(1, sigp_stop_and_store_status) == sigp_busy)
-+	__cpu_logical_map[CPU_INIT_NO] = (__u16) phy_cpu;
-+	while (signal_processor(CPU_INIT_NO, sigp_stop_and_store_status) ==
-+	       sigp_busy)
- 		cpu_relax();
- 	memcpy(zfcpdump_save_areas[cpu],
- 	       (void *)(unsigned long) store_prefix() + SAVE_AREA_BASE,
-@@ -397,32 +422,166 @@ static inline void smp_get_save_area(uns
- 
- #endif /* CONFIG_ZFCPDUMP || CONFIG_ZFCPDUMP_MODULE */
- 
-+static int cpu_stopped(int cpu)
-+{
-+	__u32 status;
++struct shutdown_action {
++	char *name;
++	void (*fn) (struct shutdown_trigger *trigger);
++	int (*init) (void);
++};
 +
-+	/* Check for stopped state */
-+	if (signal_processor_ps(&status, 0, cpu, sigp_sense) ==
-+	    sigp_status_stored) {
-+		if (status & 0x40)
-+			return 1;
-+	}
-+	return 0;
-+}
-+
- /*
-  * Lets check how many CPUs we have.
-  */
--static unsigned int __init smp_count_cpus(void)
-+static void __init smp_count_cpus(unsigned int *configured_cpus,
-+				  unsigned int *standby_cpus)
+ static char *ipl_type_str(enum ipl_type type)
  {
--	unsigned int cpu, num_cpus;
--	__u16 boot_cpu_addr;
-+	unsigned int cpu;
-+	struct sclp_cpu_info *info;
-+	u16 boot_cpu_addr, cpu_addr;
+ 	switch (type) {
+@@ -54,10 +91,6 @@ enum dump_type {
+ 	DUMP_TYPE_FCP	= 4,
+ };
  
--	/*
--	 * cpu 0 is the boot cpu. See smp_prepare_boot_cpu.
--	 */
- 	boot_cpu_addr = S390_lowcore.cpu_data.cpu_addr;
- 	current_thread_info()->cpu = 0;
--	num_cpus = 1;
--	for (cpu = 0; cpu <= 65535; cpu++) {
--		if ((__u16) cpu == boot_cpu_addr)
-+	*configured_cpus = 1;
-+	*standby_cpus = 0;
-+
-+	info = alloc_bootmem_pages(sizeof(*info));
-+	if (!info)
-+		disabled_wait((unsigned long) __builtin_return_address(0));
-+
-+	/* Use sigp detection algorithm if sclp doesn't work. */
-+	if (sclp_get_cpu_info(info)) {
-+		smp_use_sigp_detection = 1;
-+		for (cpu = 0; cpu <= 65535; cpu++) {
-+			if (cpu == boot_cpu_addr)
-+				continue;
-+			__cpu_logical_map[CPU_INIT_NO] = cpu;
-+			if (cpu_stopped(CPU_INIT_NO))
-+				(*configured_cpus)++;
-+		}
-+		goto out;
-+	}
-+
-+	if (info->has_cpu_type) {
-+		for (cpu = 0; cpu < info->combined; cpu++) {
-+			if (info->cpu[cpu].address == boot_cpu_addr) {
-+				smp_cpu_type = info->cpu[cpu].type;
-+				break;
-+			}
-+		}
-+	}
-+	/* Count cpus. */
-+	for (cpu = 0; cpu < info->combined; cpu++) {
-+		if (info->has_cpu_type && info->cpu[cpu].type != smp_cpu_type)
- 			continue;
--		__cpu_logical_map[1] = (__u16) cpu;
--		if (signal_processor(1, sigp_sense) == sigp_not_operational)
-+		cpu_addr = info->cpu[cpu].address;
-+		if (cpu_addr == boot_cpu_addr)
- 			continue;
--		smp_get_save_area(num_cpus, cpu);
--		num_cpus++;
-+		__cpu_logical_map[CPU_INIT_NO] = cpu_addr;
-+		if (!cpu_stopped(CPU_INIT_NO)) {
-+			(*standby_cpus)++;
-+			continue;
-+		}
-+		smp_get_save_area(*configured_cpus, cpu_addr);
-+		(*configured_cpus)++;
- 	}
--	printk("Detected %d CPU's\n", (int) num_cpus);
--	printk("Boot cpu address %2X\n", boot_cpu_addr);
--	return num_cpus;
-+out:
-+	printk(KERN_INFO "CPUs: %d configured, %d standby\n",
-+	       *configured_cpus, *standby_cpus);
-+	free_bootmem((unsigned long) info, sizeof(*info));
-+}
-+
-+static int cpu_known(int cpu_id)
+-#define DUMP_NONE_STR	 "none"
+-#define DUMP_CCW_STR	 "ccw"
+-#define DUMP_FCP_STR	 "fcp"
+-
+ static char *dump_type_str(enum dump_type type)
+ {
+ 	switch (type) {
+@@ -99,30 +132,6 @@ enum dump_method {
+ 	DUMP_METHOD_FCP_DIAG,
+ };
+ 
+-enum shutdown_action {
+-	SHUTDOWN_REIPL,
+-	SHUTDOWN_DUMP,
+-	SHUTDOWN_STOP,
+-};
+-
+-#define SHUTDOWN_REIPL_STR "reipl"
+-#define SHUTDOWN_DUMP_STR  "dump"
+-#define SHUTDOWN_STOP_STR  "stop"
+-
+-static char *shutdown_action_str(enum shutdown_action action)
+-{
+-	switch (action) {
+-	case SHUTDOWN_REIPL:
+-		return SHUTDOWN_REIPL_STR;
+-	case SHUTDOWN_DUMP:
+-		return SHUTDOWN_DUMP_STR;
+-	case SHUTDOWN_STOP:
+-		return SHUTDOWN_STOP_STR;
+-	default:
+-		return NULL;
+-	}
+-}
+-
+ static int diag308_set_works = 0;
+ 
+ static int reipl_capabilities = IPL_TYPE_UNKNOWN;
+@@ -140,8 +149,6 @@ static enum dump_method dump_method = DU
+ static struct ipl_parameter_block *dump_block_fcp;
+ static struct ipl_parameter_block *dump_block_ccw;
+ 
+-static enum shutdown_action on_panic_action = SHUTDOWN_STOP;
+-
+ static struct sclp_ipl_info sclp_ipl_info;
+ 
+ int diag308(unsigned long subcode, void *addr)
+@@ -200,8 +207,8 @@ static ssize_t sys_##_prefix##_##_name##
+ static ssize_t sys_##_prefix##_##_name##_store(struct kset *kset,	\
+ 		const char *buf, size_t len)				\
+ {									\
+-	if (sscanf(buf, _fmt_in, _value) != 1)				\
+-		return -EINVAL;						\
++	strncpy(_value, buf, sizeof(_value) - 1);			\
++	strstrip(_value);						\
+ 	return len;							\
+ }									\
+ static struct subsys_attribute sys_##_prefix##_##_name##_attr =		\
+@@ -240,33 +247,6 @@ static __init enum ipl_type get_ipl_type
+ 	return IPL_TYPE_FCP;
+ }
+ 
+-void __init setup_ipl_info(void)
+-{
+-	ipl_info.type = get_ipl_type();
+-	switch (ipl_info.type) {
+-	case IPL_TYPE_CCW:
+-		ipl_info.data.ccw.dev_id.devno = ipl_devno;
+-		ipl_info.data.ccw.dev_id.ssid = 0;
+-		break;
+-	case IPL_TYPE_FCP:
+-	case IPL_TYPE_FCP_DUMP:
+-		ipl_info.data.fcp.dev_id.devno =
+-			IPL_PARMBLOCK_START->ipl_info.fcp.devno;
+-		ipl_info.data.fcp.dev_id.ssid = 0;
+-		ipl_info.data.fcp.wwpn = IPL_PARMBLOCK_START->ipl_info.fcp.wwpn;
+-		ipl_info.data.fcp.lun = IPL_PARMBLOCK_START->ipl_info.fcp.lun;
+-		break;
+-	case IPL_TYPE_NSS:
+-		strncpy(ipl_info.data.nss.name, kernel_nss_name,
+-			sizeof(ipl_info.data.nss.name));
+-		break;
+-	case IPL_TYPE_UNKNOWN:
+-	default:
+-		/* We have no info to copy */
+-		break;
+-	}
+-}
+-
+ struct ipl_info ipl_info;
+ EXPORT_SYMBOL_GPL(ipl_info);
+ 
+@@ -420,8 +400,77 @@ static struct attribute_group ipl_unknow
+ 
+ static decl_subsys(ipl, NULL, NULL);
+ 
++static int __init ipl_register_fcp_files(void)
 +{
-+	int cpu;
-+
-+	for_each_present_cpu(cpu) {
-+		if (__cpu_logical_map[cpu] == cpu_id)
-+			return 1;
-+	}
-+	return 0;
-+}
-+
-+static int smp_rescan_cpus_sigp(cpumask_t avail)
-+{
-+	int cpu_id, logical_cpu;
-+
-+	logical_cpu = first_cpu(avail);
-+	if (logical_cpu == NR_CPUS)
-+		return 0;
-+	for (cpu_id = 0; cpu_id <= 65535; cpu_id++) {
-+		if (cpu_known(cpu_id))
-+			continue;
-+		__cpu_logical_map[logical_cpu] = cpu_id;
-+		if (!cpu_stopped(logical_cpu))
-+			continue;
-+		cpu_set(logical_cpu, cpu_present_map);
-+		smp_cpu_state[logical_cpu] = CPU_STATE_CONFIGURED;
-+		logical_cpu = next_cpu(logical_cpu, avail);
-+		if (logical_cpu == NR_CPUS)
-+			break;
-+	}
-+	return 0;
-+}
-+
-+static int __init_refok smp_rescan_cpus_sclp(cpumask_t avail)
-+{
-+	struct sclp_cpu_info *info;
-+	int cpu_id, logical_cpu, cpu;
 +	int rc;
 +
-+	logical_cpu = first_cpu(avail);
-+	if (logical_cpu == NR_CPUS)
-+		return 0;
-+	if (slab_is_available())
-+		info = kmalloc(sizeof(*info), GFP_KERNEL);
-+	else
-+		info = alloc_bootmem(sizeof(*info));
-+	if (!info)
-+		return -ENOMEM;
-+	rc = sclp_get_cpu_info(info);
++	rc = sysfs_create_group(&ipl_subsys.kobj,
++				&ipl_fcp_attr_group);
 +	if (rc)
 +		goto out;
-+	for (cpu = 0; cpu < info->combined; cpu++) {
-+		if (info->has_cpu_type && info->cpu[cpu].type != smp_cpu_type)
-+			continue;
-+		cpu_id = info->cpu[cpu].address;
-+		if (cpu_known(cpu_id))
-+			continue;
-+		__cpu_logical_map[logical_cpu] = cpu_id;
-+		cpu_set(logical_cpu, cpu_present_map);
-+		if (cpu >= info->configured)
-+			smp_cpu_state[logical_cpu] = CPU_STATE_STANDBY;
-+		else
-+			smp_cpu_state[logical_cpu] = CPU_STATE_CONFIGURED;
-+		logical_cpu = next_cpu(logical_cpu, avail);
-+		if (logical_cpu == NR_CPUS)
-+			break;
-+	}
++	rc = sysfs_create_bin_file(&ipl_subsys.kobj,
++				   &ipl_parameter_attr);
++	if (rc)
++		goto out_ipl_parm;
++	rc = sysfs_create_bin_file(&ipl_subsys.kobj,
++				   &ipl_scp_data_attr);
++	if (!rc)
++		goto out;
++
++	sysfs_remove_bin_file(&ipl_subsys.kobj, &ipl_parameter_attr);
++
++out_ipl_parm:
++	sysfs_remove_group(&ipl_subsys.kobj, &ipl_fcp_attr_group);
 +out:
-+	if (slab_is_available())
-+		kfree(info);
-+	else
-+		free_bootmem((unsigned long) info, sizeof(*info));
 +	return rc;
 +}
 +
-+static int smp_rescan_cpus(void)
++static void ipl_run(struct shutdown_trigger *trigger)
 +{
-+	cpumask_t avail;
++	diag308(DIAG308_IPL, NULL);
++	if (MACHINE_IS_VM)
++		__cpcmd("IPL", NULL, 0, NULL);
++	else if (ipl_info.type == IPL_TYPE_CCW)
++		reipl_ccw_dev(&ipl_info.data.ccw.dev_id);
++}
 +
-+	cpus_setall(avail);
-+	cpus_and(avail, avail, cpu_possible_map);
-+	cpus_andnot(avail, avail, cpu_present_map);
-+	if (smp_use_sigp_detection)
-+		return smp_rescan_cpus_sigp(avail);
-+	else
-+		return smp_rescan_cpus_sclp(avail);
- }
- 
++static int ipl_init(void)
++{
++	int rc;
++
++	rc = firmware_register(&ipl_subsys);
++	if (rc)
++		goto out;
++	switch (ipl_info.type) {
++	case IPL_TYPE_CCW:
++		rc = sysfs_create_group(&ipl_subsys.kobj,
++					&ipl_ccw_attr_group);
++		break;
++	case IPL_TYPE_FCP:
++	case IPL_TYPE_FCP_DUMP:
++		rc = ipl_register_fcp_files();
++		break;
++	case IPL_TYPE_NSS:
++		rc = sysfs_create_group(&ipl_subsys.kobj,
++					&ipl_nss_attr_group);
++		break;
++	default:
++		rc = sysfs_create_group(&ipl_subsys.kobj,
++					&ipl_unknown_attr_group);
++		break;
++	}
++out:
++	if (rc)
++		panic("ipl_init failed: rc = %i\n", rc);
++
++	return 0;
++}
++
++static struct shutdown_action ipl_action = {SHUTDOWN_ACTION_IPL_STR, ipl_run,
++					    ipl_init};
++
  /*
-@@ -453,8 +612,6 @@ int __cpuinit start_secondary(void *cpuv
- 	return 0;
- }
+- * reipl section
++ * reipl shutdown action: Reboot Linux on shutdown.
+  */
  
--DEFINE_PER_CPU(struct s390_idle_data, s390_idle);
+ /* FCP reipl device attributes */
+@@ -592,135 +641,7 @@ static struct subsys_attribute reipl_typ
+ 
+ static decl_subsys(reipl, NULL, NULL);
+ 
+-/*
+- * dump section
+- */
 -
- static void __init smp_create_idle(unsigned int cpu)
- {
- 	struct task_struct *p;
-@@ -470,37 +627,16 @@ static void __init smp_create_idle(unsig
- 	spin_lock_init(&(&per_cpu(s390_idle, cpu))->lock);
- }
- 
--static int cpu_stopped(int cpu)
+-/* FCP dump device attributes */
+-
+-DEFINE_IPL_ATTR_RW(dump_fcp, wwpn, "0x%016llx\n", "%016llx\n",
+-		   dump_block_fcp->ipl_info.fcp.wwpn);
+-DEFINE_IPL_ATTR_RW(dump_fcp, lun, "0x%016llx\n", "%016llx\n",
+-		   dump_block_fcp->ipl_info.fcp.lun);
+-DEFINE_IPL_ATTR_RW(dump_fcp, bootprog, "%lld\n", "%lld\n",
+-		   dump_block_fcp->ipl_info.fcp.bootprog);
+-DEFINE_IPL_ATTR_RW(dump_fcp, br_lba, "%lld\n", "%lld\n",
+-		   dump_block_fcp->ipl_info.fcp.br_lba);
+-DEFINE_IPL_ATTR_RW(dump_fcp, device, "0.0.%04llx\n", "0.0.%llx\n",
+-		   dump_block_fcp->ipl_info.fcp.devno);
+-
+-static struct attribute *dump_fcp_attrs[] = {
+-	&sys_dump_fcp_device_attr.attr,
+-	&sys_dump_fcp_wwpn_attr.attr,
+-	&sys_dump_fcp_lun_attr.attr,
+-	&sys_dump_fcp_bootprog_attr.attr,
+-	&sys_dump_fcp_br_lba_attr.attr,
+-	NULL,
+-};
+-
+-static struct attribute_group dump_fcp_attr_group = {
+-	.name  = IPL_FCP_STR,
+-	.attrs = dump_fcp_attrs,
+-};
+-
+-/* CCW dump device attributes */
+-
+-DEFINE_IPL_ATTR_RW(dump_ccw, device, "0.0.%04llx\n", "0.0.%llx\n",
+-		   dump_block_ccw->ipl_info.ccw.devno);
+-
+-static struct attribute *dump_ccw_attrs[] = {
+-	&sys_dump_ccw_device_attr.attr,
+-	NULL,
+-};
+-
+-static struct attribute_group dump_ccw_attr_group = {
+-	.name  = IPL_CCW_STR,
+-	.attrs = dump_ccw_attrs,
+-};
+-
+-/* dump type */
+-
+-static int dump_set_type(enum dump_type type)
 -{
--	__u32 status;
--
--	/* Check for stopped state */
--	if (signal_processor_ps(&status, 0, cpu, sigp_sense) ==
--	    sigp_status_stored) {
--		if (status & 0x40)
--			return 1;
+-	if (!(dump_capabilities & type))
+-		return -EINVAL;
+-	switch(type) {
+-	case DUMP_TYPE_CCW:
+-		if (MACHINE_IS_VM)
+-			dump_method = DUMP_METHOD_CCW_VM;
+-		else if (diag308_set_works)
+-			dump_method = DUMP_METHOD_CCW_DIAG;
+-		else
+-			dump_method = DUMP_METHOD_CCW_CIO;
+-		break;
+-	case DUMP_TYPE_FCP:
+-		dump_method = DUMP_METHOD_FCP_DIAG;
+-		break;
+-	default:
+-		dump_method = DUMP_METHOD_NONE;
 -	}
+-	dump_type = type;
 -	return 0;
 -}
 -
- /* Upping and downing of CPUs */
+-static ssize_t dump_type_show(struct kset *kset, char *page)
+-{
+-	return sprintf(page, "%s\n", dump_type_str(dump_type));
+-}
 -
- int __cpu_up(unsigned int cpu)
+-static ssize_t dump_type_store(struct kset *kset, const char *buf,
+-			       size_t len)
+-{
+-	int rc = -EINVAL;
+-
+-	if (strncmp(buf, DUMP_NONE_STR, strlen(DUMP_NONE_STR)) == 0)
+-		rc = dump_set_type(DUMP_TYPE_NONE);
+-	else if (strncmp(buf, DUMP_CCW_STR, strlen(DUMP_CCW_STR)) == 0)
+-		rc = dump_set_type(DUMP_TYPE_CCW);
+-	else if (strncmp(buf, DUMP_FCP_STR, strlen(DUMP_FCP_STR)) == 0)
+-		rc = dump_set_type(DUMP_TYPE_FCP);
+-	return (rc != 0) ? rc : len;
+-}
+-
+-static struct subsys_attribute dump_type_attr =
+-		__ATTR(dump_type, 0644, dump_type_show, dump_type_store);
+-
+-static decl_subsys(dump, NULL, NULL);
+-
+-/*
+- * Shutdown actions section
+- */
+-
+-static decl_subsys(shutdown_actions, NULL, NULL);
+-
+-/* on panic */
+-
+-static ssize_t on_panic_show(struct kset *kset, char *page)
+-{
+-	return sprintf(page, "%s\n", shutdown_action_str(on_panic_action));
+-}
+-
+-static ssize_t on_panic_store(struct kset *kset, const char *buf,
+-			      size_t len)
+-{
+-	if (strncmp(buf, SHUTDOWN_REIPL_STR, strlen(SHUTDOWN_REIPL_STR)) == 0)
+-		on_panic_action = SHUTDOWN_REIPL;
+-	else if (strncmp(buf, SHUTDOWN_DUMP_STR,
+-			 strlen(SHUTDOWN_DUMP_STR)) == 0)
+-		on_panic_action = SHUTDOWN_DUMP;
+-	else if (strncmp(buf, SHUTDOWN_STOP_STR,
+-			 strlen(SHUTDOWN_STOP_STR)) == 0)
+-		on_panic_action = SHUTDOWN_STOP;
+-	else
+-		return -EINVAL;
+-
+-	return len;
+-}
+-
+-static struct subsys_attribute on_panic_attr =
+-		__ATTR(on_panic, 0644, on_panic_show, on_panic_store);
+-
+-void do_reipl(void)
++void reipl_run(struct shutdown_trigger *trigger)
  {
- 	struct task_struct *idle;
- 	struct _lowcore *cpu_lowcore;
- 	struct stack_frame *sf;
- 	sigp_ccode ccode;
--	int curr_cpu;
+ 	struct ccw_dev_id devid;
+ 	static char buf[100];
+@@ -771,110 +692,18 @@ void do_reipl(void)
+ 	default:
+ 		break;
+ 	}
+-	signal_processor(smp_processor_id(), sigp_stop_and_store_status);
+ }
  
--	for (curr_cpu = 0; curr_cpu <= 65535; curr_cpu++) {
--		__cpu_logical_map[cpu] = (__u16) curr_cpu;
--		if (cpu_stopped(cpu))
--			break;
+-static void do_dump(void)
++static void __init reipl_probe(void)
+ {
+-	struct ccw_dev_id devid;
+-	static char buf[100];
++	void *buffer;
+ 
+-	switch (dump_method) {
+-	case DUMP_METHOD_CCW_CIO:
+-		smp_send_stop();
+-		devid.devno = dump_block_ccw->ipl_info.ccw.devno;
+-		devid.ssid  = 0;
+-		reipl_ccw_dev(&devid);
+-		break;
+-	case DUMP_METHOD_CCW_VM:
+-		smp_send_stop();
+-		sprintf(buf, "STORE STATUS");
+-		__cpcmd(buf, NULL, 0, NULL);
+-		sprintf(buf, "IPL %X", dump_block_ccw->ipl_info.ccw.devno);
+-		__cpcmd(buf, NULL, 0, NULL);
+-		break;
+-	case DUMP_METHOD_CCW_DIAG:
+-		diag308(DIAG308_SET, dump_block_ccw);
+-		diag308(DIAG308_DUMP, NULL);
+-		break;
+-	case DUMP_METHOD_FCP_DIAG:
+-		diag308(DIAG308_SET, dump_block_fcp);
+-		diag308(DIAG308_DUMP, NULL);
+-		break;
+-	case DUMP_METHOD_NONE:
+-	default:
++	buffer = (void *) get_zeroed_page(GFP_KERNEL);
++	if (!buffer)
+ 		return;
 -	}
+-	printk(KERN_EMERG "Dump failed!\n");
+-}
 -
--	if (!cpu_stopped(cpu))
--		return -ENODEV;
-+	if (smp_cpu_state[cpu] != CPU_STATE_CONFIGURED)
-+		return -EIO;
- 
- 	ccode = signal_processor_p((__u32)(unsigned long)(lowcore_ptr[cpu]),
- 				   cpu, sigp_set_prefix);
-@@ -543,21 +679,18 @@ static unsigned int __initdata possible_
- 
- void __init smp_setup_cpu_possible_map(void)
- {
--	unsigned int phy_cpus, pos_cpus, cpu;
+-/* init functions */
 -
--	phy_cpus = smp_count_cpus();
--	pos_cpus = min(phy_cpus + additional_cpus, (unsigned int) NR_CPUS);
-+	unsigned int pos_cpus, cpu;
-+	unsigned int configured_cpus, standby_cpus;
- 
-+	smp_count_cpus(&configured_cpus, &standby_cpus);
-+	pos_cpus = min(configured_cpus + standby_cpus + additional_cpus,
-+		       (unsigned int) NR_CPUS);
- 	if (possible_cpus)
- 		pos_cpus = min(possible_cpus, (unsigned int) NR_CPUS);
+-static int __init ipl_register_fcp_files(void)
+-{
+-	int rc;
 -
- 	for (cpu = 0; cpu < pos_cpus; cpu++)
- 		cpu_set(cpu, cpu_possible_map);
+-	rc = sysfs_create_group(&ipl_subsys.kobj,
+-				&ipl_fcp_attr_group);
+-	if (rc)
+-		goto out;
+-	rc = sysfs_create_bin_file(&ipl_subsys.kobj,
+-				   &ipl_parameter_attr);
+-	if (rc)
+-		goto out_ipl_parm;
+-	rc = sysfs_create_bin_file(&ipl_subsys.kobj,
+-				   &ipl_scp_data_attr);
+-	if (!rc)
+-		goto out;
 -
--	phy_cpus = min(phy_cpus, pos_cpus);
+-	sysfs_remove_bin_file(&ipl_subsys.kobj, &ipl_parameter_attr);
 -
--	for (cpu = 0; cpu < phy_cpus; cpu++)
--		cpu_set(cpu, cpu_present_map);
-+	cpu_present_map = cpumask_of_cpu(0);
-+	smp_rescan_cpus();
+-out_ipl_parm:
+-	sysfs_remove_group(&ipl_subsys.kobj, &ipl_fcp_attr_group);
+-out:
+-	return rc;
+-}
+-
+-static int __init ipl_init(void)
+-{
+-	int rc;
+-
+-	rc = firmware_register(&ipl_subsys);
+-	if (rc)
+-		return rc;
+-	switch (ipl_info.type) {
+-	case IPL_TYPE_CCW:
+-		rc = sysfs_create_group(&ipl_subsys.kobj,
+-					&ipl_ccw_attr_group);
+-		break;
+-	case IPL_TYPE_FCP:
+-	case IPL_TYPE_FCP_DUMP:
+-		rc = ipl_register_fcp_files();
+-		break;
+-	case IPL_TYPE_NSS:
+-		rc = sysfs_create_group(&ipl_subsys.kobj,
+-					&ipl_nss_attr_group);
+-		break;
+-	default:
+-		rc = sysfs_create_group(&ipl_subsys.kobj,
+-					&ipl_unknown_attr_group);
+-		break;
+-	}
+-	if (rc)
+-		firmware_unregister(&ipl_subsys);
+-	return rc;
+-}
+-
+-static void __init reipl_probe(void)
+-{
+-	void *buffer;
+-
+-	buffer = (void *) get_zeroed_page(GFP_KERNEL);
+-	if (!buffer)
+-		return;
+-	if (diag308(DIAG308_STORE, buffer) == DIAG308_RC_OK)
+-		diag308_set_works = 1;
+-	free_page((unsigned long)buffer);
++	if (diag308(DIAG308_STORE, buffer) == DIAG308_RC_OK)
++		diag308_set_works = 1;
++	free_page((unsigned long)buffer);
  }
  
- #ifdef CONFIG_HOTPLUG_CPU
-@@ -612,7 +745,7 @@ void __cpu_die(unsigned int cpu)
- 	/* Wait until target cpu is down */
- 	while (!smp_cpu_not_running(cpu))
- 		cpu_relax();
--	printk("Processor %d spun down\n", cpu);
-+	printk(KERN_INFO "Processor %d spun down\n", cpu);
- }
- 
- void cpu_die(void)
-@@ -686,12 +819,12 @@ void __init smp_prepare_boot_cpu(void)
- 	cpu_set(0, cpu_online_map);
- 	S390_lowcore.percpu_offset = __per_cpu_offset[0];
- 	current_set[0] = current;
-+	smp_cpu_state[0] = CPU_STATE_CONFIGURED;
- 	spin_lock_init(&(&__get_cpu_var(s390_idle))->lock);
- }
- 
- void __init smp_cpus_done(unsigned int max_cpus)
- {
--	cpu_present_map = cpu_possible_map;
- }
- 
- /*
-@@ -705,7 +838,79 @@ int setup_profiling_timer(unsigned int m
+ static int __init reipl_nss_init(void)
+@@ -954,7 +783,7 @@ static int __init reipl_fcp_init(void)
  	return 0;
  }
  
--static DEFINE_PER_CPU(struct cpu, cpu_devices);
-+#ifdef CONFIG_HOTPLUG_CPU
-+static ssize_t cpu_configure_show(struct sys_device *dev, char *buf)
-+{
-+	ssize_t count;
+-static int __init reipl_init(void)
++static int reipl_init(void)
+ {
+ 	int rc;
+ 
+@@ -981,6 +810,136 @@ static int __init reipl_init(void)
+ 	return 0;
+ }
+ 
++static struct shutdown_action reipl_action = {SHUTDOWN_ACTION_REIPL_STR,
++					      reipl_run, reipl_init};
 +
-+	mutex_lock(&smp_cpu_state_mutex);
-+	count = sprintf(buf, "%d\n", smp_cpu_state[dev->id]);
-+	mutex_unlock(&smp_cpu_state_mutex);
-+	return count;
-+}
++/*
++ * dump shutdown action: Dump Linux on shutdown.
++ */
 +
-+static ssize_t cpu_configure_store(struct sys_device *dev, const char *buf,
-+				   size_t count)
-+{
-+	int cpu = dev->id;
-+	int val, rc;
-+	char delim;
++/* FCP dump device attributes */
 +
-+	if (sscanf(buf, "%d %c", &val, &delim) != 1)
-+		return -EINVAL;
-+	if (val != 0 && val != 1)
-+		return -EINVAL;
++DEFINE_IPL_ATTR_RW(dump_fcp, wwpn, "0x%016llx\n", "%016llx\n",
++		   dump_block_fcp->ipl_info.fcp.wwpn);
++DEFINE_IPL_ATTR_RW(dump_fcp, lun, "0x%016llx\n", "%016llx\n",
++		   dump_block_fcp->ipl_info.fcp.lun);
++DEFINE_IPL_ATTR_RW(dump_fcp, bootprog, "%lld\n", "%lld\n",
++		   dump_block_fcp->ipl_info.fcp.bootprog);
++DEFINE_IPL_ATTR_RW(dump_fcp, br_lba, "%lld\n", "%lld\n",
++		   dump_block_fcp->ipl_info.fcp.br_lba);
++DEFINE_IPL_ATTR_RW(dump_fcp, device, "0.0.%04llx\n", "0.0.%llx\n",
++		   dump_block_fcp->ipl_info.fcp.devno);
 +
-+	mutex_lock(&smp_cpu_state_mutex);
-+	lock_cpu_hotplug();
-+	rc = -EBUSY;
-+	if (cpu_online(cpu))
-+		goto out;
-+	rc = 0;
-+	switch (val) {
-+	case 0:
-+		if (smp_cpu_state[cpu] == CPU_STATE_CONFIGURED) {
-+			rc = sclp_cpu_deconfigure(__cpu_logical_map[cpu]);
-+			if (!rc)
-+				smp_cpu_state[cpu] = CPU_STATE_STANDBY;
-+		}
-+		break;
-+	case 1:
-+		if (smp_cpu_state[cpu] == CPU_STATE_STANDBY) {
-+			rc = sclp_cpu_configure(__cpu_logical_map[cpu]);
-+			if (!rc)
-+				smp_cpu_state[cpu] = CPU_STATE_CONFIGURED;
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+out:
-+	unlock_cpu_hotplug();
-+	mutex_unlock(&smp_cpu_state_mutex);
-+	return rc ? rc : count;
-+}
-+static SYSDEV_ATTR(configure, 0644, cpu_configure_show, cpu_configure_store);
-+#endif /* CONFIG_HOTPLUG_CPU */
-+
-+static ssize_t show_cpu_address(struct sys_device *dev, char *buf)
-+{
-+	return sprintf(buf, "%d\n", __cpu_logical_map[dev->id]);
-+}
-+static SYSDEV_ATTR(address, 0444, show_cpu_address, NULL);
-+
-+
-+static struct attribute *cpu_common_attrs[] = {
-+#ifdef CONFIG_HOTPLUG_CPU
-+	&attr_configure.attr,
-+#endif
-+	&attr_address.attr,
++static struct attribute *dump_fcp_attrs[] = {
++	&sys_dump_fcp_device_attr.attr,
++	&sys_dump_fcp_wwpn_attr.attr,
++	&sys_dump_fcp_lun_attr.attr,
++	&sys_dump_fcp_bootprog_attr.attr,
++	&sys_dump_fcp_br_lba_attr.attr,
 +	NULL,
 +};
 +
-+static struct attribute_group cpu_common_attr_group = {
-+	.attrs = cpu_common_attrs,
++static struct attribute_group dump_fcp_attr_group = {
++	.name  = IPL_FCP_STR,
++	.attrs = dump_fcp_attrs,
 +};
- 
- static ssize_t show_capability(struct sys_device *dev, char *buf)
- {
-@@ -750,15 +955,15 @@ static ssize_t show_idle_time(struct sys
- }
- static SYSDEV_ATTR(idle_time_us, 0444, show_idle_time, NULL);
- 
--static struct attribute *cpu_attrs[] = {
-+static struct attribute *cpu_online_attrs[] = {
- 	&attr_capability.attr,
- 	&attr_idle_count.attr,
- 	&attr_idle_time_us.attr,
- 	NULL,
- };
- 
--static struct attribute_group cpu_attr_group = {
--	.attrs = cpu_attrs,
-+static struct attribute_group cpu_online_attr_group = {
-+	.attrs = cpu_online_attrs,
- };
- 
- static int __cpuinit smp_cpu_notify(struct notifier_block *self,
-@@ -778,12 +983,12 @@ static int __cpuinit smp_cpu_notify(stru
- 		idle->idle_time = 0;
- 		idle->idle_count = 0;
- 		spin_unlock_irq(&idle->lock);
--		if (sysfs_create_group(&s->kobj, &cpu_attr_group))
-+		if (sysfs_create_group(&s->kobj, &cpu_online_attr_group))
- 			return NOTIFY_BAD;
- 		break;
- 	case CPU_DEAD:
- 	case CPU_DEAD_FROZEN:
--		sysfs_remove_group(&s->kobj, &cpu_attr_group);
-+		sysfs_remove_group(&s->kobj, &cpu_online_attr_group);
- 		break;
- 	}
- 	return NOTIFY_OK;
-@@ -793,6 +998,62 @@ static struct notifier_block __cpuinitda
- 	.notifier_call = smp_cpu_notify,
- };
- 
-+static int smp_add_present_cpu(int cpu)
++
++/* CCW dump device attributes */
++
++DEFINE_IPL_ATTR_RW(dump_ccw, device, "0.0.%04llx\n", "0.0.%llx\n",
++		   dump_block_ccw->ipl_info.ccw.devno);
++
++static struct attribute *dump_ccw_attrs[] = {
++	&sys_dump_ccw_device_attr.attr,
++	NULL,
++};
++
++static struct attribute_group dump_ccw_attr_group = {
++	.name  = IPL_CCW_STR,
++	.attrs = dump_ccw_attrs,
++};
++
++/* dump type */
++
++static int dump_set_type(enum dump_type type)
 +{
-+	struct cpu *c = &per_cpu(cpu_devices, cpu);
-+	struct sys_device *s = &c->sysdev;
-+	int rc;
-+
-+	c->hotpluggable = 1;
-+	rc = register_cpu(c, cpu);
-+	if (rc)
-+		goto out;
-+	rc = sysfs_create_group(&s->kobj, &cpu_common_attr_group);
-+	if (rc)
-+		goto out_cpu;
-+	if (!cpu_online(cpu))
-+		goto out;
-+	rc = sysfs_create_group(&s->kobj, &cpu_online_attr_group);
-+	if (!rc)
-+		return 0;
-+	sysfs_remove_group(&s->kobj, &cpu_common_attr_group);
-+out_cpu:
-+#ifdef CONFIG_HOTPLUG_CPU
-+	unregister_cpu(c);
-+#endif
-+out:
-+	return rc;
-+}
-+
-+#ifdef CONFIG_HOTPLUG_CPU
-+static ssize_t rescan_store(struct sys_device *dev, const char *buf,
-+			    size_t count)
-+{
-+	cpumask_t newcpus;
-+	int cpu;
-+	int rc;
-+
-+	mutex_lock(&smp_cpu_state_mutex);
-+	lock_cpu_hotplug();
-+	newcpus = cpu_present_map;
-+	rc = smp_rescan_cpus();
-+	if (rc)
-+		goto out;
-+	cpus_andnot(newcpus, cpu_present_map, newcpus);
-+	for_each_cpu_mask(cpu, newcpus) {
-+		rc = smp_add_present_cpu(cpu);
-+		if (rc)
-+			cpu_clear(cpu, cpu_present_map);
++	if (!(dump_capabilities & type))
++		return -EINVAL;
++	switch (type) {
++	case DUMP_TYPE_CCW:
++		if (MACHINE_IS_VM)
++			dump_method = DUMP_METHOD_CCW_VM;
++		else
++			dump_method = DUMP_METHOD_CCW_CIO;
++		break;
++	case DUMP_TYPE_FCP:
++		dump_method = DUMP_METHOD_FCP_DIAG;
++		break;
++	default:
++		dump_method = DUMP_METHOD_NONE;
 +	}
-+	rc = 0;
-+out:
-+	unlock_cpu_hotplug();
-+	mutex_unlock(&smp_cpu_state_mutex);
-+	return rc ? rc : count;
-+}
-+static SYSDEV_ATTR(rescan, 0200, NULL, rescan_store);
-+#endif /* CONFIG_HOTPLUG_CPU */
-+
- static int __init topology_init(void)
- {
- 	int cpu;
-@@ -800,16 +1061,14 @@ static int __init topology_init(void)
- 
- 	register_cpu_notifier(&smp_cpu_nb);
- 
--	for_each_possible_cpu(cpu) {
--		struct cpu *c = &per_cpu(cpu_devices, cpu);
--		struct sys_device *s = &c->sysdev;
--
--		c->hotpluggable = 1;
--		register_cpu(c, cpu);
--		if (!cpu_online(cpu))
--			continue;
--		s = &c->sysdev;
--		rc = sysfs_create_group(&s->kobj, &cpu_attr_group);
-+#ifdef CONFIG_HOTPLUG_CPU
-+	rc = sysfs_create_file(&cpu_sysdev_class.kset.kobj,
-+			       &attr_rescan.attr);
-+	if (rc)
-+		return rc;
-+#endif
-+	for_each_present_cpu(cpu) {
-+		rc = smp_add_present_cpu(cpu);
- 		if (rc)
- 			return rc;
- 	}
-diff -urpN linux-2.6/drivers/s390/char/Makefile linux-2.6-patched/drivers/s390/char/Makefile
---- linux-2.6/drivers/s390/char/Makefile	2007-11-16 14:27:46.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/char/Makefile	2007-11-16 14:27:48.000000000 +0100
-@@ -3,7 +3,7 @@
- #
- 
- obj-y += ctrlchar.o keyboard.o defkeymap.o sclp.o sclp_rw.o sclp_quiesce.o \
--	 sclp_info.o sclp_config.o sclp_chp.o sclp_cpi_sys.o
-+	 sclp_cmd.o sclp_config.o sclp_chp.o sclp_cpi_sys.o
- 
- obj-$(CONFIG_TN3270) += raw3270.o
- obj-$(CONFIG_TN3270_CONSOLE) += con3270.o
-diff -urpN linux-2.6/drivers/s390/char/sclp_cmd.c linux-2.6-patched/drivers/s390/char/sclp_cmd.c
---- linux-2.6/drivers/s390/char/sclp_cmd.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/char/sclp_cmd.c	2007-11-16 14:27:48.000000000 +0100
-@@ -0,0 +1,319 @@
-+/*
-+ *  drivers/s390/char/sclp_cmd.c
-+ *
-+ *    Copyright IBM Corp. 2007
-+ *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
-+ */
-+
-+#include <linux/completion.h>
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+#include <linux/slab.h>
-+#include <linux/string.h>
-+#include <asm/sclp.h>
-+#include "sclp.h"
-+
-+#define TAG	"sclp_cmd: "
-+
-+#define SCLP_CMDW_READ_SCP_INFO		0x00020001
-+#define SCLP_CMDW_READ_SCP_INFO_FORCED	0x00120001
-+
-+struct read_info_sccb {
-+	struct	sccb_header header;	/* 0-7 */
-+	u16	rnmax;			/* 8-9 */
-+	u8	rnsize;			/* 10 */
-+	u8	_reserved0[24 - 11];	/* 11-15 */
-+	u8	loadparm[8];		/* 24-31 */
-+	u8	_reserved1[48 - 32];	/* 32-47 */
-+	u64	facilities;		/* 48-55 */
-+	u8	_reserved2[84 - 56];	/* 56-83 */
-+	u8	fac84;			/* 84 */
-+	u8	_reserved3[91 - 85];	/* 85-90 */
-+	u8	flags;			/* 91 */
-+	u8	_reserved4[100 - 92];	/* 92-99 */
-+	u32	rnsize2;		/* 100-103 */
-+	u64	rnmax2;			/* 104-111 */
-+	u8	_reserved5[4096 - 112];	/* 112-4095 */
-+} __attribute__((packed, aligned(PAGE_SIZE)));
-+
-+static struct read_info_sccb __initdata early_read_info_sccb;
-+static int __initdata early_read_info_sccb_valid;
-+
-+u64 sclp_facilities;
-+static u8 sclp_fac84;
-+
-+static int __init sclp_cmd_sync_early(sclp_cmdw_t cmd, void *sccb)
-+{
-+	int rc;
-+
-+	__ctl_set_bit(0, 9);
-+	rc = sclp_service_call(cmd, sccb);
-+	if (rc)
-+		goto out;
-+	__load_psw_mask(PSW_BASE_BITS | PSW_MASK_EXT |
-+			PSW_MASK_WAIT | PSW_DEFAULT_KEY);
-+	local_irq_disable();
-+out:
-+	/* Contents of the sccb might have changed. */
-+	barrier();
-+	__ctl_clear_bit(0, 9);
-+	return rc;
-+}
-+
-+void __init sclp_read_info_early(void)
-+{
-+	int rc;
-+	int i;
-+	struct read_info_sccb *sccb;
-+	sclp_cmdw_t commands[] = {SCLP_CMDW_READ_SCP_INFO_FORCED,
-+				  SCLP_CMDW_READ_SCP_INFO};
-+
-+	sccb = &early_read_info_sccb;
-+	for (i = 0; i < ARRAY_SIZE(commands); i++) {
-+		do {
-+			memset(sccb, 0, sizeof(*sccb));
-+			sccb->header.length = sizeof(*sccb);
-+			sccb->header.control_mask[2] = 0x80;
-+			rc = sclp_cmd_sync_early(commands[i], sccb);
-+		} while (rc == -EBUSY);
-+
-+		if (rc)
-+			break;
-+		if (sccb->header.response_code == 0x10) {
-+			early_read_info_sccb_valid = 1;
-+			break;
-+		}
-+		if (sccb->header.response_code != 0x1f0)
-+			break;
-+	}
-+}
-+
-+void __init sclp_facilities_detect(void)
-+{
-+	if (!early_read_info_sccb_valid)
-+		return;
-+	sclp_facilities = early_read_info_sccb.facilities;
-+	sclp_fac84 = early_read_info_sccb.fac84;
-+}
-+
-+unsigned long long __init sclp_memory_detect(void)
-+{
-+	unsigned long long memsize;
-+	struct read_info_sccb *sccb;
-+
-+	if (!early_read_info_sccb_valid)
-+		return 0;
-+	sccb = &early_read_info_sccb;
-+	if (sccb->rnsize)
-+		memsize = sccb->rnsize << 20;
-+	else
-+		memsize = sccb->rnsize2 << 20;
-+	if (sccb->rnmax)
-+		memsize *= sccb->rnmax;
-+	else
-+		memsize *= sccb->rnmax2;
-+	return memsize;
-+}
-+
-+/*
-+ * This function will be called after sclp_memory_detect(), which gets called
-+ * early from early.c code. Therefore the sccb should have valid contents.
-+ */
-+void __init sclp_get_ipl_info(struct sclp_ipl_info *info)
-+{
-+	struct read_info_sccb *sccb;
-+
-+	if (!early_read_info_sccb_valid)
-+		return;
-+	sccb = &early_read_info_sccb;
-+	info->is_valid = 1;
-+	if (sccb->flags & 0x2)
-+		info->has_dump = 1;
-+	memcpy(&info->loadparm, &sccb->loadparm, LOADPARM_LEN);
-+}
-+
-+static void sclp_sync_callback(struct sclp_req *req, void *data)
-+{
-+	struct completion *completion = data;
-+
-+	complete(completion);
-+}
-+
-+static int do_sync_request(sclp_cmdw_t cmd, void *sccb)
-+{
-+	struct completion completion;
-+	struct sclp_req *request;
-+	int rc;
-+
-+	request = kzalloc(sizeof(*request), GFP_KERNEL);
-+	if (!request)
-+		return -ENOMEM;
-+	request->command = cmd;
-+	request->sccb = sccb;
-+	request->status = SCLP_REQ_FILLED;
-+	request->callback = sclp_sync_callback;
-+	request->callback_data = &completion;
-+	init_completion(&completion);
-+
-+	/* Perform sclp request. */
-+	rc = sclp_add_request(request);
-+	if (rc)
-+		goto out;
-+	wait_for_completion(&completion);
-+
-+	/* Check response. */
-+	if (request->status != SCLP_REQ_DONE) {
-+		printk(KERN_WARNING TAG "sync request failed "
-+		       "(cmd=0x%08x, status=0x%02x)\n", cmd, request->status);
-+		rc = -EIO;
-+	}
-+out:
-+	kfree(request);
-+	return rc;
-+}
-+
-+/*
-+ * CPU configuration related functions.
-+ */
-+
-+#define SCLP_CMDW_READ_CPU_INFO		0x00010001
-+#define SCLP_CMDW_CONFIGURE_CPU		0x00110001
-+#define SCLP_CMDW_DECONFIGURE_CPU	0x00100001
-+
-+struct read_cpu_info_sccb {
-+	struct	sccb_header header;
-+	u16	nr_configured;
-+	u16	offset_configured;
-+	u16	nr_standby;
-+	u16	offset_standby;
-+	u8	reserved[4096 - 16];
-+} __attribute__((packed, aligned(PAGE_SIZE)));
-+
-+static struct read_cpu_info_sccb __initdata early_read_cpu_info_sccb;
-+static struct sclp_cpu_info __initdata sclp_cpu_info;
-+
-+static void sclp_fill_cpu_info(struct sclp_cpu_info *info,
-+			       struct read_cpu_info_sccb *sccb)
-+{
-+	char *page = (char *) sccb;
-+
-+	memset(info, 0, sizeof(*info));
-+	info->configured = sccb->nr_configured;
-+	info->standby = sccb->nr_standby;
-+	info->combined = sccb->nr_configured + sccb->nr_standby;
-+	info->has_cpu_type = sclp_fac84 & 0x1;
-+	memcpy(&info->cpu, page + sccb->offset_configured,
-+	       info->combined * sizeof(struct sclp_cpu_entry));
-+}
-+
-+void __init sclp_read_cpu_info_early(void)
-+{
-+	int rc;
-+	struct read_cpu_info_sccb *sccb;
-+
-+	if (!SCLP_HAS_CPU_INFO)
-+		return;
-+
-+	sccb = &early_read_cpu_info_sccb;
-+	do {
-+		memset(sccb, 0, sizeof(*sccb));
-+		sccb->header.length = sizeof(*sccb);
-+		rc = sclp_cmd_sync_early(SCLP_CMDW_READ_CPU_INFO, sccb);
-+	} while (rc == -EBUSY);
-+
-+	if (rc)
-+		return;
-+	if (sccb->header.response_code != 0x10)
-+		return;
-+	sclp_fill_cpu_info(&sclp_cpu_info, sccb);
-+}
-+
-+static int __init sclp_get_cpu_info_early(struct sclp_cpu_info *info)
-+{
-+	if (!SCLP_HAS_CPU_INFO)
-+		return -EOPNOTSUPP;
-+	*info = sclp_cpu_info;
++	dump_type = type;
 +	return 0;
 +}
 +
-+static int sclp_get_cpu_info_late(struct sclp_cpu_info *info)
++static ssize_t dump_type_show(struct kset *kset, char *page)
 +{
-+	int rc;
-+	struct read_cpu_info_sccb *sccb;
-+
-+	if (!SCLP_HAS_CPU_INFO)
-+		return -EOPNOTSUPP;
-+	sccb = (struct read_cpu_info_sccb *)  __get_free_page(GFP_KERNEL
-+							      | GFP_DMA);
-+	if (!sccb)
-+		return -ENOMEM;
-+	memset(sccb, 0, sizeof(*sccb));
-+	sccb->header.length = sizeof(*sccb);
-+	rc = do_sync_request(SCLP_CMDW_READ_CPU_INFO, sccb);
-+	if (rc)
-+		goto out;
-+	if (sccb->header.response_code != 0x0010) {
-+		printk(KERN_WARNING TAG "readcpuinfo failed "
-+		       "(response=0x%04x)\n", sccb->header.response_code);
-+		rc = -EIO;
-+		goto out;
-+	}
-+	sclp_fill_cpu_info(info, sccb);
-+out:
-+	free_page((unsigned long) sccb);
-+	return rc;
++	return sprintf(page, "%s\n", dump_type_str(dump_type));
 +}
 +
-+int __init_refok sclp_get_cpu_info(struct sclp_cpu_info *info)
++static ssize_t dump_type_store(struct kset *kset, const char *buf,
++			       size_t len)
 +{
-+	if (slab_is_available())
-+		return sclp_get_cpu_info_late(info);
-+	return sclp_get_cpu_info_early(info);
++	int rc = -EINVAL;
++
++	if (strncmp(buf, DUMP_NONE_STR, strlen(DUMP_NONE_STR)) == 0)
++		rc = dump_set_type(DUMP_TYPE_NONE);
++	else if (strncmp(buf, DUMP_CCW_STR, strlen(DUMP_CCW_STR)) == 0)
++		rc = dump_set_type(DUMP_TYPE_CCW);
++	else if (strncmp(buf, DUMP_FCP_STR, strlen(DUMP_FCP_STR)) == 0)
++		rc = dump_set_type(DUMP_TYPE_FCP);
++	return (rc != 0) ? rc : len;
 +}
 +
-+struct cpu_configure_sccb {
-+	struct sccb_header header;
-+} __attribute__((packed, aligned(8)));
++static struct subsys_attribute dump_type_attr =
++		__ATTR(dump_type, 0644, dump_type_show, dump_type_store);
 +
-+static int do_cpu_configure(sclp_cmdw_t cmd)
++static decl_subsys(dump, NULL, NULL);
++
++static void dump_run(struct shutdown_trigger *trigger)
 +{
-+	struct cpu_configure_sccb *sccb;
-+	int rc;
++	struct ccw_dev_id devid;
++	static char buf[100];
 +
-+	if (!SCLP_HAS_CPU_RECONFIG)
-+		return -EOPNOTSUPP;
-+	/*
-+	 * This is not going to cross a page boundary since we force
-+	 * kmalloc to have a minimum alignment of 8 bytes on s390.
-+	 */
-+	sccb = kzalloc(sizeof(*sccb), GFP_KERNEL | GFP_DMA);
-+	if (!sccb)
-+		return -ENOMEM;
-+	sccb->header.length = sizeof(*sccb);
-+	rc = do_sync_request(cmd, sccb);
-+	if (rc)
-+		goto out;
-+	switch (sccb->header.response_code) {
-+	case 0x0020:
-+	case 0x0120:
++	switch (dump_method) {
++	case DUMP_METHOD_CCW_CIO:
++		smp_send_stop();
++		devid.devno = dump_block_ccw->ipl_info.ccw.devno;
++		devid.ssid  = 0;
++		reipl_ccw_dev(&devid);
 +		break;
++	case DUMP_METHOD_CCW_VM:
++		smp_send_stop();
++		sprintf(buf, "STORE STATUS");
++		__cpcmd(buf, NULL, 0, NULL);
++		sprintf(buf, "IPL %X", dump_block_ccw->ipl_info.ccw.devno);
++		__cpcmd(buf, NULL, 0, NULL);
++		break;
++	case DUMP_METHOD_CCW_DIAG:
++		diag308(DIAG308_SET, dump_block_ccw);
++		diag308(DIAG308_DUMP, NULL);
++		break;
++	case DUMP_METHOD_FCP_DIAG:
++		diag308(DIAG308_SET, dump_block_fcp);
++		diag308(DIAG308_DUMP, NULL);
++		break;
++	case DUMP_METHOD_NONE:
 +	default:
-+		printk(KERN_WARNING TAG "configure cpu failed (cmd=0x%08x, "
-+		       "response=0x%04x)\n", cmd, sccb->header.response_code);
-+		rc = -EIO;
-+		break;
++		return;
 +	}
-+out:
-+	kfree(sccb);
-+	return rc;
++	printk(KERN_EMERG "Dump failed!\n");
 +}
 +
-+int sclp_cpu_configure(u8 cpu)
-+{
-+	return do_cpu_configure(SCLP_CMDW_CONFIGURE_CPU | cpu << 8);
-+}
+ static int __init dump_ccw_init(void)
+ {
+ 	int rc;
+@@ -1026,24 +985,7 @@ static int __init dump_fcp_init(void)
+ 	return 0;
+ }
+ 
+-#define SHUTDOWN_ON_PANIC_PRIO 0
+-
+-static int shutdown_on_panic_notify(struct notifier_block *self,
+-				    unsigned long event, void *data)
+-{
+-	if (on_panic_action == SHUTDOWN_DUMP)
+-		do_dump();
+-	else if (on_panic_action == SHUTDOWN_REIPL)
+-		do_reipl();
+-	return NOTIFY_OK;
+-}
+-
+-static struct notifier_block shutdown_on_panic_nb = {
+-	.notifier_call = shutdown_on_panic_notify,
+-	.priority = SHUTDOWN_ON_PANIC_PRIO
+-};
+-
+-static int __init dump_init(void)
++static int dump_init(void)
+ {
+ 	int rc;
+ 
+@@ -1065,46 +1007,362 @@ static int __init dump_init(void)
+ 	return 0;
+ }
+ 
+-static int __init shutdown_actions_init(void)
++static struct shutdown_action dump_action = {SHUTDOWN_ACTION_DUMP_STR,
++					     dump_run, dump_init};
 +
-+int sclp_cpu_deconfigure(u8 cpu)
-+{
-+	return do_cpu_configure(SCLP_CMDW_DECONFIGURE_CPU | cpu << 8);
-+}
-diff -urpN linux-2.6/drivers/s390/char/sclp.h linux-2.6-patched/drivers/s390/char/sclp.h
---- linux-2.6/drivers/s390/char/sclp.h	2007-10-09 22:31:38.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/char/sclp.h	2007-11-16 14:27:48.000000000 +0100
-@@ -56,8 +56,6 @@ typedef unsigned int sclp_cmdw_t;
- #define SCLP_CMDW_READ_EVENT_DATA	0x00770005
- #define SCLP_CMDW_WRITE_EVENT_DATA	0x00760005
- #define SCLP_CMDW_WRITE_EVENT_MASK	0x00780005
--#define SCLP_CMDW_READ_SCP_INFO		0x00020001
--#define SCLP_CMDW_READ_SCP_INFO_FORCED	0x00120001
- 
- #define GDS_ID_MDSMU		0x1310
- #define GDS_ID_MDSROUTEINFO	0x1311
-@@ -83,6 +81,8 @@ extern u64 sclp_facilities;
- 
- #define SCLP_HAS_CHP_INFO	(sclp_facilities & 0x8000000000000000ULL)
- #define SCLP_HAS_CHP_RECONFIG	(sclp_facilities & 0x2000000000000000ULL)
-+#define SCLP_HAS_CPU_INFO	(sclp_facilities & 0x0800000000000000ULL)
-+#define SCLP_HAS_CPU_RECONFIG	(sclp_facilities & 0x0400000000000000ULL)
- 
- struct gds_subvector {
- 	u8	length;
-diff -urpN linux-2.6/drivers/s390/char/sclp_info.c linux-2.6-patched/drivers/s390/char/sclp_info.c
---- linux-2.6/drivers/s390/char/sclp_info.c	2007-10-09 22:31:38.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/char/sclp_info.c	1970-01-01 01:00:00.000000000 +0100
-@@ -1,116 +0,0 @@
--/*
-- *  drivers/s390/char/sclp_info.c
-- *
-- *    Copyright IBM Corp. 2007
-- *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
-- */
--
--#include <linux/init.h>
--#include <linux/errno.h>
--#include <linux/string.h>
--#include <asm/sclp.h>
--#include "sclp.h"
--
--struct sclp_readinfo_sccb {
--	struct	sccb_header header;	/* 0-7 */
--	u16	rnmax;			/* 8-9 */
--	u8	rnsize;			/* 10 */
--	u8	_reserved0[24 - 11];	/* 11-23 */
--	u8	loadparm[8];		/* 24-31 */
--	u8	_reserved1[48 - 32];	/* 32-47 */
--	u64	facilities;		/* 48-55 */
--	u8	_reserved2[91 - 56];	/* 56-90 */
--	u8	flags;			/* 91 */
--	u8	_reserved3[100 - 92];	/* 92-99 */
--	u32	rnsize2;		/* 100-103 */
--	u64	rnmax2;			/* 104-111 */
--	u8	_reserved4[4096 - 112];	/* 112-4095 */
--} __attribute__((packed, aligned(4096)));
--
--static struct sclp_readinfo_sccb __initdata early_readinfo_sccb;
--static int __initdata early_readinfo_sccb_valid;
--
--u64 sclp_facilities;
--
--void __init sclp_readinfo_early(void)
--{
--	int ret;
--	int i;
--	struct sclp_readinfo_sccb *sccb;
--	sclp_cmdw_t commands[] = {SCLP_CMDW_READ_SCP_INFO_FORCED,
--				  SCLP_CMDW_READ_SCP_INFO};
--
--	/* Enable service signal subclass mask. */
--	__ctl_set_bit(0, 9);
--	sccb = &early_readinfo_sccb;
--	for (i = 0; i < ARRAY_SIZE(commands); i++) {
--		do {
--			memset(sccb, 0, sizeof(*sccb));
--			sccb->header.length = sizeof(*sccb);
--			sccb->header.control_mask[2] = 0x80;
--			ret = sclp_service_call(commands[i], sccb);
--		} while (ret == -EBUSY);
--
--		if (ret)
--			break;
--		__load_psw_mask(PSW_BASE_BITS | PSW_MASK_EXT |
--				PSW_MASK_WAIT | PSW_DEFAULT_KEY);
--		local_irq_disable();
--		/*
--		 * Contents of the sccb might have changed
--		 * therefore a barrier is needed.
--		 */
--		barrier();
--		if (sccb->header.response_code == 0x10) {
--			early_readinfo_sccb_valid = 1;
--			break;
--		}
--		if (sccb->header.response_code != 0x1f0)
--			break;
--	}
--	/* Disable service signal subclass mask again. */
--	__ctl_clear_bit(0, 9);
--}
--
--void __init sclp_facilities_detect(void)
--{
--	if (!early_readinfo_sccb_valid)
--		return;
--	sclp_facilities = early_readinfo_sccb.facilities;
--}
--
--unsigned long long __init sclp_memory_detect(void)
--{
--	unsigned long long memsize;
--	struct sclp_readinfo_sccb *sccb;
--
--	if (!early_readinfo_sccb_valid)
--		return 0;
--	sccb = &early_readinfo_sccb;
--	if (sccb->rnsize)
--		memsize = sccb->rnsize << 20;
--	else
--		memsize = sccb->rnsize2 << 20;
--	if (sccb->rnmax)
--		memsize *= sccb->rnmax;
--	else
--		memsize *= sccb->rnmax2;
--	return memsize;
--}
--
--/*
-- * This function will be called after sclp_memory_detect(), which gets called
-- * early from early.c code. Therefore the sccb should have valid contents.
-- */
--void __init sclp_get_ipl_info(struct sclp_ipl_info *info)
--{
--	struct sclp_readinfo_sccb *sccb;
--
--	if (!early_readinfo_sccb_valid)
--		return;
--	sccb = &early_readinfo_sccb;
--	info->is_valid = 1;
--	if (sccb->flags & 0x2)
--		info->has_dump = 1;
--	memcpy(&info->loadparm, &sccb->loadparm, LOADPARM_LEN);
--}
-diff -urpN linux-2.6/include/asm-s390/sclp.h linux-2.6-patched/include/asm-s390/sclp.h
---- linux-2.6/include/asm-s390/sclp.h	2007-10-09 22:31:38.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/sclp.h	2007-11-16 14:27:48.000000000 +0100
-@@ -27,7 +27,26 @@ struct sclp_ipl_info {
- 	char loadparm[LOADPARM_LEN];
- };
- 
--void sclp_readinfo_early(void);
-+struct sclp_cpu_entry {
-+	u8 address;
-+	u8 reserved0[13];
-+	u8 type;
-+	u8 reserved1;
-+} __attribute__((packed));
++/*
++ * vmcmd shutdown action: Trigger vm command on shutdown.
++ */
 +
-+struct sclp_cpu_info {
-+	unsigned int configured;
-+	unsigned int standby;
-+	unsigned int combined;
-+	int has_cpu_type;
-+	struct sclp_cpu_entry cpu[255];
++static char vmcmd_on_reboot[128];
++static char vmcmd_on_panic[128];
++static char vmcmd_on_halt[128];
++static char vmcmd_on_poff[128];
++
++DEFINE_IPL_ATTR_STR_RW(vmcmd, on_reboot, "%s\n", "%s\n", vmcmd_on_reboot);
++DEFINE_IPL_ATTR_STR_RW(vmcmd, on_panic, "%s\n", "%s\n", vmcmd_on_panic);
++DEFINE_IPL_ATTR_STR_RW(vmcmd, on_halt, "%s\n", "%s\n", vmcmd_on_halt);
++DEFINE_IPL_ATTR_STR_RW(vmcmd, on_poff, "%s\n", "%s\n", vmcmd_on_poff);
++
++static struct attribute *vmcmd_attrs[] = {
++	&sys_vmcmd_on_reboot_attr.attr,
++	&sys_vmcmd_on_panic_attr.attr,
++	&sys_vmcmd_on_halt_attr.attr,
++	&sys_vmcmd_on_poff_attr.attr,
++	NULL,
 +};
 +
-+int sclp_get_cpu_info(struct sclp_cpu_info *info);
-+int sclp_cpu_configure(u8 cpu);
-+int sclp_cpu_deconfigure(u8 cpu);
-+void sclp_read_info_early(void);
-+void sclp_read_cpu_info_early(void);
- void sclp_facilities_detect(void);
- unsigned long long sclp_memory_detect(void);
- int sclp_sdias_blk_count(void);
++static struct attribute_group vmcmd_attr_group = {
++	.attrs = vmcmd_attrs,
++};
++
++static decl_subsys(vmcmd, NULL, NULL);
++
++static void vmcmd_run(struct shutdown_trigger *trigger)
++{
++	char *cmd, *next_cmd;
++
++	if (strcmp(trigger->name, ON_REIPL_STR) == 0)
++		cmd = vmcmd_on_reboot;
++	else if (strcmp(trigger->name, ON_PANIC_STR) == 0)
++		cmd = vmcmd_on_panic;
++	else if (strcmp(trigger->name, ON_HALT_STR) == 0)
++		cmd = vmcmd_on_halt;
++	else if (strcmp(trigger->name, ON_POFF_STR) == 0)
++		cmd = vmcmd_on_poff;
++	else
++		return;
++
++	if (strlen(cmd) == 0)
++		return;
++	do {
++		next_cmd = strchr(cmd, '\n');
++		if (next_cmd) {
++			next_cmd[0] = 0;
++			next_cmd += 1;
++		}
++		__cpcmd(cmd, NULL, 0, NULL);
++		cmd = next_cmd;
++	} while (cmd != NULL);
++}
++
++static int vmcmd_init(void)
+ {
+ 	int rc;
+ 
+-	rc = firmware_register(&shutdown_actions_subsys);
++	if (!MACHINE_IS_VM)
++		return -ENOTSUPP;
++	rc = firmware_register(&vmcmd_subsys);
+ 	if (rc)
+ 		return rc;
+-	rc = subsys_create_file(&shutdown_actions_subsys, &on_panic_attr);
+-	if (rc) {
+-		firmware_unregister(&shutdown_actions_subsys);
+-		return rc;
++	return sysfs_create_group(&vmcmd_subsys.kobj, &vmcmd_attr_group);
++}
++
++static struct shutdown_action vmcmd_action = {SHUTDOWN_ACTION_VMCMD_STR,
++					      vmcmd_run, vmcmd_init};
++
++/*
++ * stop shutdown action: Stop Linux on shutdown.
++ */
++
++static void stop_run(struct shutdown_trigger *trigger)
++{
++	signal_processor(smp_processor_id(), sigp_stop_and_store_status);
++	for (;;);
++}
++
++static struct shutdown_action stop_action = {SHUTDOWN_ACTION_STOP_STR,
++					     stop_run, NULL};
++
++/* action list */
++
++static struct shutdown_action *shutdown_actions_list[] = {
++	&ipl_action, &reipl_action, &dump_action, &vmcmd_action, &stop_action};
++#define SHUTDOWN_ACTIONS_COUNT (sizeof(shutdown_actions_list) / sizeof(void *))
++
++/*
++ * Trigger section
++ */
++
++static decl_subsys(shutdown_actions, NULL, NULL);
++
++static int set_trigger(const char *buf, struct shutdown_trigger *trigger,
++		       size_t len)
++{
++	int i;
++
++	for (i = 0; i < SHUTDOWN_ACTIONS_COUNT; i++) {
++		if (!shutdown_actions_list[i])
++			continue;
++		if (strncmp(buf, shutdown_actions_list[i]->name,
++			    strlen(shutdown_actions_list[i]->name)) == 0) {
++			trigger->action = shutdown_actions_list[i];
++			return len;
++		}
+ 	}
+-	atomic_notifier_chain_register(&panic_notifier_list,
+-				       &shutdown_on_panic_nb);
+-	return 0;
++	return -EINVAL;
+ }
+ 
+-static int __init s390_ipl_init(void)
++/* on reipl */
++
++static struct shutdown_trigger on_reboot_trigger = {ON_REIPL_STR,
++						    &reipl_action};
++
++static ssize_t on_reboot_show(struct kset *kset, char *page)
+ {
+-	int rc;
++	return sprintf(page, "%s\n", on_reboot_trigger.action->name);
++}
++
++static ssize_t on_reboot_store(struct kset *kset, const char *buf, size_t len)
++{
++	return set_trigger(buf, &on_reboot_trigger, len);
++}
++
++static struct subsys_attribute on_reboot_attr =
++		__ATTR(on_reboot, 0644, on_reboot_show, on_reboot_store);
++
++static void do_machine_restart(char *__unused)
++{
++	smp_send_stop();
++	on_reboot_trigger.action->fn(&on_reboot_trigger);
++	reipl_run(NULL);
++}
++void (*_machine_restart)(char *command) = do_machine_restart;
++
++/* on panic */
++
++static struct shutdown_trigger on_panic_trigger = {ON_PANIC_STR, &stop_action};
++
++static ssize_t on_panic_show(struct kset *kset, char *page)
++{
++	return sprintf(page, "%s\n", on_panic_trigger.action->name);
++}
++
++static ssize_t on_panic_store(struct kset *kset, const char *buf,
++			      size_t len)
++{
++	return set_trigger(buf, &on_panic_trigger, len);
++}
++
++static struct subsys_attribute on_panic_attr =
++		__ATTR(on_panic, 0644, on_panic_show, on_panic_store);
++
++static void do_panic(void)
++{
++	on_panic_trigger.action->fn(&on_panic_trigger);
++	stop_run(&on_panic_trigger);
++}
++
++/* on halt */
++
++static struct shutdown_trigger on_halt_trigger = {ON_HALT_STR, &stop_action};
++
++static ssize_t on_halt_show(struct kset *kset, char *page)
++{
++	return sprintf(page, "%s\n", on_halt_trigger.action->name);
++}
++
++static ssize_t on_halt_store(struct kset *kset, const char *buf, size_t len)
++{
++	return set_trigger(buf, &on_halt_trigger, len);
++}
++
++static struct subsys_attribute on_halt_attr =
++		__ATTR(on_halt, 0644, on_halt_show, on_halt_store);
+ 
+-	sclp_get_ipl_info(&sclp_ipl_info);
++
++static void do_machine_halt(void)
++{
++	smp_send_stop();
++	on_halt_trigger.action->fn(&on_halt_trigger);
++	stop_run(&on_halt_trigger);
++}
++void (*_machine_halt)(void) = do_machine_halt;
++
++/* on power off */
++
++static struct shutdown_trigger on_poff_trigger = {ON_POFF_STR, &stop_action};
++
++static ssize_t on_poff_show(struct kset *kset, char *page)
++{
++	return sprintf(page, "%s\n", on_poff_trigger.action->name);
++}
++
++static ssize_t on_poff_store(struct kset *kset, const char *buf, size_t len)
++{
++	return set_trigger(buf, &on_poff_trigger, len);
++}
++
++static struct subsys_attribute on_poff_attr =
++		__ATTR(on_poff, 0644, on_poff_show, on_poff_store);
++
++
++static void do_machine_power_off(void)
++{
++	smp_send_stop();
++	on_poff_trigger.action->fn(&on_poff_trigger);
++	stop_run(&on_poff_trigger);
++}
++void (*_machine_power_off)(void) = do_machine_power_off;
++
++static void __init shutdown_triggers_init(void)
++{
++	if (firmware_register(&shutdown_actions_subsys))
++		goto fail;
++	if (subsys_create_file(&shutdown_actions_subsys, &on_reboot_attr))
++		goto fail;
++	if (subsys_create_file(&shutdown_actions_subsys, &on_panic_attr))
++		goto fail;
++	if (subsys_create_file(&shutdown_actions_subsys, &on_halt_attr))
++		goto fail;
++	if (subsys_create_file(&shutdown_actions_subsys, &on_poff_attr))
++		goto fail;
++
++	return;
++fail:
++	panic("shutdown_triggers_init failed\n");
++}
++
++static void __init shutdown_actions_init(void)
++{
++	int i;
++
++	for (i = 0; i < SHUTDOWN_ACTIONS_COUNT; i++) {
++		if (!shutdown_actions_list[i]->init)
++			continue;
++		if (shutdown_actions_list[i]->init())
++			shutdown_actions_list[i] = NULL;
++	}
++}
++
++static int __init s390_ipl_init(void)
++{
+ 	reipl_probe();
+-	rc = ipl_init();
+-	if (rc)
+-		return rc;
+-	rc = reipl_init();
+-	if (rc)
+-		return rc;
+-	rc = dump_init();
+-	if (rc)
+-		return rc;
+-	rc = shutdown_actions_init();
+-	if (rc)
+-		return rc;
++	shutdown_actions_init();
++	shutdown_triggers_init();
+ 	return 0;
+ }
+ 
+ __initcall(s390_ipl_init);
+ 
++static void __init strncpy_skip_quote(char *dst, char *src, int n)
++{
++	int sx, dx;
++
++	dx = 0;
++	for (sx = 0; src[sx] != 0; sx++) {
++		if (src[sx] == '"')
++			continue;
++		dst[dx++] = src[sx];
++		if (dx >= n)
++			break;
++	}
++}
++
++static int __init vmcmd_on_reboot_setup(char *str)
++{
++	if (!MACHINE_IS_VM)
++		return 1;
++	strncpy_skip_quote(vmcmd_on_reboot, str, 127);
++	vmcmd_on_reboot[127] = 0;
++	on_panic_trigger.action = &vmcmd_action;
++	return 1;
++}
++__setup("vmreboot=", vmcmd_on_reboot_setup);
++
++static int __init vmcmd_on_panic_setup(char *str)
++{
++	if (!MACHINE_IS_VM)
++		return 1;
++	strncpy_skip_quote(vmcmd_on_panic, str, 127);
++	vmcmd_on_panic[127] = 0;
++	on_panic_trigger.action = &vmcmd_action;
++	return 1;
++}
++__setup("vmpanic=", vmcmd_on_panic_setup);
++
++static int __init vmcmd_on_halt_setup(char *str)
++{
++	if (!MACHINE_IS_VM)
++		return 1;
++	strncpy_skip_quote(vmcmd_on_halt, str, 127);
++	vmcmd_on_halt[127] = 0;
++	on_halt_trigger.action = &vmcmd_action;
++	return 1;
++}
++__setup("vmhalt=", vmcmd_on_halt_setup);
++
++static int __init vmcmd_on_poff_setup(char *str)
++{
++	if (!MACHINE_IS_VM)
++		return 1;
++	strncpy_skip_quote(vmcmd_on_poff, str, 127);
++	vmcmd_on_poff[127] = 0;
++	on_poff_trigger.action = &vmcmd_action;
++	return 1;
++}
++__setup("vmpoff=", vmcmd_on_poff_setup);
++
++static int on_panic_notify(struct notifier_block *self,
++			   unsigned long event, void *data)
++{
++	do_panic();
++	return NOTIFY_OK;
++}
++
++static struct notifier_block on_panic_nb = {
++	.notifier_call = on_panic_notify,
++	.priority = 0,
++};
++
++void __init setup_ipl(void)
++{
++	ipl_info.type = get_ipl_type();
++	switch (ipl_info.type) {
++	case IPL_TYPE_CCW:
++		ipl_info.data.ccw.dev_id.devno = ipl_devno;
++		ipl_info.data.ccw.dev_id.ssid = 0;
++		break;
++	case IPL_TYPE_FCP:
++	case IPL_TYPE_FCP_DUMP:
++		ipl_info.data.fcp.dev_id.devno =
++			IPL_PARMBLOCK_START->ipl_info.fcp.devno;
++		ipl_info.data.fcp.dev_id.ssid = 0;
++		ipl_info.data.fcp.wwpn = IPL_PARMBLOCK_START->ipl_info.fcp.wwpn;
++		ipl_info.data.fcp.lun = IPL_PARMBLOCK_START->ipl_info.fcp.lun;
++		break;
++	case IPL_TYPE_NSS:
++		strncpy(ipl_info.data.nss.name, kernel_nss_name,
++			sizeof(ipl_info.data.nss.name));
++		break;
++	case IPL_TYPE_UNKNOWN:
++	default:
++		/* We have no info to copy */
++		break;
++	}
++	atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb);
++}
++
+ void __init ipl_save_parameters(void)
+ {
+ 	struct cio_iplinfo iplinfo;
+@@ -1185,3 +1443,4 @@ void s390_reset_system(void)
+ 
+ 	do_reset_calls();
+ }
++
+diff -urpN linux-2.6/arch/s390/kernel/setup.c linux-2.6-patched/arch/s390/kernel/setup.c
+--- linux-2.6/arch/s390/kernel/setup.c	2007-11-16 14:27:49.000000000 +0100
++++ linux-2.6-patched/arch/s390/kernel/setup.c	2007-11-16 14:27:50.000000000 +0100
+@@ -126,75 +126,6 @@ void __cpuinit cpu_init(void)
+ }
+ 
+ /*
+- * VM halt and poweroff setup routines
+- */
+-char vmhalt_cmd[128] = "";
+-char vmpoff_cmd[128] = "";
+-static char vmpanic_cmd[128] = "";
+-
+-static void strncpy_skip_quote(char *dst, char *src, int n)
+-{
+-        int sx, dx;
+-
+-        dx = 0;
+-        for (sx = 0; src[sx] != 0; sx++) {
+-                if (src[sx] == '"') continue;
+-                dst[dx++] = src[sx];
+-                if (dx >= n) break;
+-        }
+-}
+-
+-static int __init vmhalt_setup(char *str)
+-{
+-        strncpy_skip_quote(vmhalt_cmd, str, 127);
+-        vmhalt_cmd[127] = 0;
+-        return 1;
+-}
+-
+-__setup("vmhalt=", vmhalt_setup);
+-
+-static int __init vmpoff_setup(char *str)
+-{
+-        strncpy_skip_quote(vmpoff_cmd, str, 127);
+-        vmpoff_cmd[127] = 0;
+-        return 1;
+-}
+-
+-__setup("vmpoff=", vmpoff_setup);
+-
+-static int vmpanic_notify(struct notifier_block *self, unsigned long event,
+-			  void *data)
+-{
+-	if (MACHINE_IS_VM && strlen(vmpanic_cmd) > 0)
+-		cpcmd(vmpanic_cmd, NULL, 0, NULL);
+-
+-	return NOTIFY_OK;
+-}
+-
+-#define PANIC_PRI_VMPANIC	0
+-
+-static struct notifier_block vmpanic_nb = {
+-	.notifier_call = vmpanic_notify,
+-	.priority = PANIC_PRI_VMPANIC
+-};
+-
+-static int __init vmpanic_setup(char *str)
+-{
+-	static int register_done __initdata = 0;
+-
+-	strncpy_skip_quote(vmpanic_cmd, str, 127);
+-	vmpanic_cmd[127] = 0;
+-	if (!register_done) {
+-		register_done = 1;
+-		atomic_notifier_chain_register(&panic_notifier_list,
+-					       &vmpanic_nb);
+-	}
+-	return 1;
+-}
+-
+-__setup("vmpanic=", vmpanic_setup);
+-
+-/*
+  * condev= and conmode= setup parameter.
+  */
+ 
+@@ -308,38 +239,6 @@ static void __init setup_zfcpdump(unsign
+ static inline void setup_zfcpdump(unsigned int console_devno) {}
+ #endif /* CONFIG_ZFCPDUMP */
+ 
+-#ifdef CONFIG_SMP
+-void (*_machine_restart)(char *command) = machine_restart_smp;
+-void (*_machine_halt)(void) = machine_halt_smp;
+-void (*_machine_power_off)(void) = machine_power_off_smp;
+-#else
+-/*
+- * Reboot, halt and power_off routines for non SMP.
+- */
+-static void do_machine_restart_nonsmp(char * __unused)
+-{
+-	do_reipl();
+-}
+-
+-static void do_machine_halt_nonsmp(void)
+-{
+-        if (MACHINE_IS_VM && strlen(vmhalt_cmd) > 0)
+-		__cpcmd(vmhalt_cmd, NULL, 0, NULL);
+-        signal_processor(smp_processor_id(), sigp_stop_and_store_status);
+-}
+-
+-static void do_machine_power_off_nonsmp(void)
+-{
+-        if (MACHINE_IS_VM && strlen(vmpoff_cmd) > 0)
+-		__cpcmd(vmpoff_cmd, NULL, 0, NULL);
+-        signal_processor(smp_processor_id(), sigp_stop_and_store_status);
+-}
+-
+-void (*_machine_restart)(char *command) = do_machine_restart_nonsmp;
+-void (*_machine_halt)(void) = do_machine_halt_nonsmp;
+-void (*_machine_power_off)(void) = do_machine_power_off_nonsmp;
+-#endif
+-
+  /*
+  * Reboot, halt and power_off stubs. They just call _machine_restart,
+  * _machine_halt or _machine_power_off. 
+@@ -892,7 +791,7 @@ setup_arch(char **cmdline_p)
+ 
+ 	parse_early_param();
+ 
+-	setup_ipl_info();
++	setup_ipl();
+ 	setup_memory_end();
+ 	setup_addressing_mode();
+ 	setup_memory();
+diff -urpN linux-2.6/arch/s390/kernel/smp.c linux-2.6-patched/arch/s390/kernel/smp.c
+--- linux-2.6/arch/s390/kernel/smp.c	2007-11-16 14:27:49.000000000 +0100
++++ linux-2.6-patched/arch/s390/kernel/smp.c	2007-11-16 14:27:50.000000000 +0100
+@@ -234,33 +234,6 @@ void smp_send_stop(void)
+ }
+ 
+ /*
+- * Reboot, halt and power_off routines for SMP.
+- */
+-void machine_restart_smp(char *__unused)
+-{
+-	smp_send_stop();
+-	do_reipl();
+-}
+-
+-void machine_halt_smp(void)
+-{
+-	smp_send_stop();
+-	if (MACHINE_IS_VM && strlen(vmhalt_cmd) > 0)
+-		__cpcmd(vmhalt_cmd, NULL, 0, NULL);
+-	signal_processor(smp_processor_id(), sigp_stop_and_store_status);
+-	for (;;);
+-}
+-
+-void machine_power_off_smp(void)
+-{
+-	smp_send_stop();
+-	if (MACHINE_IS_VM && strlen(vmpoff_cmd) > 0)
+-		__cpcmd(vmpoff_cmd, NULL, 0, NULL);
+-	signal_processor(smp_processor_id(), sigp_stop_and_store_status);
+-	for (;;);
+-}
+-
+-/*
+  * This is the main routine where commands issued by other
+  * cpus are handled.
+  */
+diff -urpN linux-2.6/include/asm-s390/ipl.h linux-2.6-patched/include/asm-s390/ipl.h
+--- linux-2.6/include/asm-s390/ipl.h	2007-10-09 22:31:38.000000000 +0200
++++ linux-2.6-patched/include/asm-s390/ipl.h	2007-11-16 14:27:50.000000000 +0100
+@@ -83,6 +83,8 @@ extern u32 dump_prefix_page;
+ extern unsigned int zfcpdump_prefix_array[];
+ 
+ extern void do_reipl(void);
++extern void do_halt(void);
++extern void do_poff(void);
+ extern void ipl_save_parameters(void);
+ 
+ enum {
+@@ -118,7 +120,7 @@ struct ipl_info
+ };
+ 
+ extern struct ipl_info ipl_info;
+-extern void setup_ipl_info(void);
++extern void setup_ipl(void);
+ 
+ /*
+  * DIAG 308 support
 
 -- 
 blue skies,
