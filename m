@@ -1,73 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757447AbXKFVew@vger.kernel.org>
-Date: Tue, 6 Nov 2007 14:33:44 -0800
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: mm snapshot broken-out-2007-11-06-02-32.tar.gz uploaded - S390x
- build fails
-Message-Id: <20071106143344.b9e5ba09.akpm@linux-foundation.org>
-In-Reply-To: <20071106211345.GB5993@kroah.com>
-References: <200711061033.lA6AXrhT018804@imap1.linux-foundation.org>
-	<473083CA.9060607@linux.vnet.ibm.com>
-	<20071106131037.ea014b48.akpm@linux-foundation.org>
-	<20071106211345.GB5993@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933473AbXKPOZo@vger.kernel.org>
+Message-Id: <20071116142441.484714036@de.ibm.com>
+Date: Fri, 16 Nov 2007 15:24:41 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 00/10] 2.6.24-rc s390 patch queue
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Greg KH <greg@kroah.com>
-Cc: kamalesh@linux.vnet.ibm.com, linux-kernel@vger.kernel.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, apw@shadowen.org
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-> On Tue, 6 Nov 2007 13:13:45 -0800 Greg KH <greg@kroah.com> wrote:
-> On Tue, Nov 06, 2007 at 01:10:37PM -0800, Andrew Morton wrote:
-> > > On Tue, 06 Nov 2007 20:40:02 +0530 Kamalesh Babulal <kamalesh@linux.vnet.ibm.com> wrote:
-> > > drivers/s390/char/sclp_cpi_sys.c:242: error: storage size of `system_name_attr' isn't known
-> > > drivers/s390/char/sclp_cpi_sys.c:264: error: storage size of `sysplex_name_attr' isn't known
-> > > drivers/s390/char/sclp_cpi_sys.c:287: error: storage size of `system_type_attr' isn't known
-> > > drivers/s390/char/sclp_cpi_sys.c:317: error: storage size of `system_level_attr' isn't known
-> > > drivers/s390/char/sclp_cpi_sys.c:333: error: storage size of `set_attr' isn't known
-> > > make[2]: *** [drivers/s390/char/sclp_cpi_sys.o] Error 1
-> > > make[1]: *** [drivers/s390/char] Error 2
-> > > make: *** [drivers/s390] Error 2
-> > > 
-> > > The patch git-s390.patch is causing this failure.
-> > 
-> > git-s390 newly adds that file.  I suspect that this code works OK for the
-> > s390 guys (they're using Linux).  But Greg's driver tree basically ports
-> > their driver to Gregnux, in which nothing works any more.
-> > 
-> > Greg, this is turning into a bit of a trainwreck.  Can you please have a
-> > think about how we can provide a bit of back-compatibility to ease this
-> > transition rather than just trashing everything?
-> 
-> It's _always_ a trainwreck when I touch anything in the driver core,
-> look at how many individual patches it took to do a lot of this work
-> (50+ and still growing).  My method is to introduce the new api, convert
-> everyone over to it, and then remove the old crappy one.
-> 
-> Now for dealing with external trees, I have _no_ visiblity into them for
-> the most part.  I can't build s390 stuff (no cross compiler), so I can't
-> even test their changes.
-> 
-> But, there really should not be that many places that are touching these
-> types of things that I am currently changing (ksets and ktypes and
-> subsystems.)
-> 
-> So, how do I do this?  Do I just not let my changes trickle into your
-> tree, and hold off until I merge them with Linus, hoping that me and Kay
-> have tested everything good enough?  That way, no build ever should
-> break, but functionality might not be all working as well as it could
-> be.
-> 
-> Or we live with some breakage as you pull my stuff into your tree.
-> 
-> Either way, I'm glad to help fix the broken stuff, and I'm also glad to
-> take the responsibility for getting this all right the first time it
-> goes to Linus.
-> 
-> What do you think is best to do?
-> 
+These are the s390 patches in the queue for 2.6.24-rc. I plan to send
+a please pull sometime next week. The shortlog:
 
-Leave the old interfaces in place, deprecate them, remove them later.  If
-at all possible.
+Christian Borntraeger (2):
+      [S390] magic sysrq: check for in_atomic before doing an console_unblank
+      [S390] Optimize storage key handling for anonymous pages
+
+Christoph Lameter (1):
+      [S390] Explicitly code allocpercpu calls in iucv
+
+Heiko Carstens (6):
+      [S390] Fix irq tracing and lockdep_sys_exit calls.
+      [S390] cmm: remove unused binary sysctls.
+      [S390] appldata: remove unused binary sysctls.
+      [S390] Fix kernel preemption.
+      [S390] Dont overwrite lowcores on smp_send_stop().
+      [S390] Fix memory detection.
+
+Peter Oberparleiter (1):
+      [S390] cio: change device sense procedure to work with pav aliases
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
