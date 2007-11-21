@@ -1,60 +1,25 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756766AbXKTKM2@vger.kernel.org>
-Message-Id: <20071120101138.740825856@de.ibm.com>
-References: <20071120101046.904031933@de.ibm.com>
-Date: Tue, 20 Nov 2007 11:10:48 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 2/2] cio: Register/unregister subchannels only from kslowcrw.
-Content-Disposition: inline; filename=012-cio-kslowcrw.diff
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757515AbXKUGFg@vger.kernel.org>
+Date: Tue, 20 Nov 2007 22:04:55 -0800
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: 2.6.24-rc3-mm1 - Build Failure on S390x
+Message-Id: <20071120220455.d73c57e8.akpm@linux-foundation.org>
+In-Reply-To: <4743C8A3.60909@linux.vnet.ibm.com>
+References: <20071120204525.ff27ac98.akpm@linux-foundation.org>
+	<4743C8A3.60909@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, Andy Whitcroft <apw@shadowen.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+On Wed, 21 Nov 2007 11:26:51 +0530 Kamalesh Babulal <kamalesh@linux.vnet.ibm.com> wrote:
 
-Make sure all subchannel handling is done on the slow path workqueue
-so that we don't have races between an old subchannel unregistering
-and a new subchannel with the same name registering.
+> The kernel build fails on S390x, with
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
-
- drivers/s390/cio/css.c        |    2 +-
- drivers/s390/cio/device_fsm.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-Index: quilt-2.6/drivers/s390/cio/css.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/css.c
-+++ quilt-2.6/drivers/s390/cio/css.c
-@@ -483,7 +483,7 @@ static DECLARE_WORK(css_reprobe_work, re
- void css_schedule_reprobe(void)
- {
- 	need_reprobe = 1;
--	queue_work(ccw_device_work, &css_reprobe_work);
-+	queue_work(slow_path_wq, &css_reprobe_work);
- }
- 
- EXPORT_SYMBOL_GPL(css_schedule_reprobe);
-Index: quilt-2.6/drivers/s390/cio/device_fsm.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_fsm.c
-+++ quilt-2.6/drivers/s390/cio/device_fsm.c
-@@ -1034,7 +1034,7 @@ device_trigger_reprobe(struct subchannel
- 	if (sch->schib.pmcw.dev != cdev->private->dev_id.devno) {
- 		PREPARE_WORK(&cdev->private->kick_work,
- 			     ccw_device_move_to_orphanage);
--		queue_work(ccw_device_work, &cdev->private->kick_work);
-+		queue_work(slow_path_wq, &cdev->private->kick_work);
- 	} else
- 		ccw_device_start_id(cdev, 0);
- }
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Yes, sorry, I forgot to mention that.  I got a large patch reject
+between Greg's driver tree and the s390 tree and I couldn't be bothered
+fixing it.  s390 is busted in 2.6.24-rc3-mm1.
