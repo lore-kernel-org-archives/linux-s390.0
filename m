@@ -1,33 +1,24 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755777AbXK1R7g@vger.kernel.org>
-Date: Wed, 28 Nov 2007 18:30:36 +0100
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: Re: [s390] networking related oops during boot on Hercules (was:
- build failure)
-Message-ID: <AD9E4C189DF557AADA3F9A70@USCHI.boeblingen.de.ibm.com>
-In-Reply-To: <200711281718.48661.borntraeger@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757281AbXK1SKx@vger.kernel.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [s390] networking related oops during boot on Hercules (was: build failure)
 References: <200711281127.30051.elendil@planet.nl>
- <200711281151.58236.borntraeger@de.ibm.com>
- <200711281324.02748.elendil@planet.nl>
- <200711281718.48661.borntraeger@de.ibm.com>
+	<200711281151.58236.borntraeger@de.ibm.com>
+	<200711281324.02748.elendil@planet.nl>
+	<200711281718.48661.borntraeger@de.ibm.com>
+Date: Wed, 28 Nov 2007 10:26:36 -0700
+In-Reply-To: <200711281718.48661.borntraeger@de.ibm.com> (Christian
+	Borntraeger's message of "Wed, 28 Nov 2007 17:18:48 +0100")
+Message-ID: <m1mysye0xf.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Frans Pop <elendil@planet.nl>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Ursula Braun <braunu@de.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Peter Tiedemann <ptiedem@de.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Frans Pop <elendil@planet.nl>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Ursula Braun <braunu@de.ibm.com>, Peter Tiedemann <ptiedem@de.ibm.com>, netdev@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Frans,
-
-yes, we are aware of this problem. Our plan is to introduce alloc_netdev() 
-for ctc-devices as described in Documentation/networking/netdevices.txt.
-Thanks, Christian, for your interim solution.
-
---On Mittwoch, 28. November 2007 17:18 +0100 Christian Borntraeger 
-<borntraeger@de.ibm.com> wrote:
+Christian Borntraeger <borntraeger@de.ibm.com> writes:
 
 > Am Mittwoch, 28. November 2007 schrieb Frans Pop:
 > [...]
@@ -35,10 +26,11 @@ Thanks, Christian, for your interim solution.
 >> 2.6.22 runs fine on Hercules; I've not tried .23 on it.
 > [...]
 >> ------------  cut here !------------
->> kernel BUG at net/core/dev.c:852
->> + illegal operation: 0001  #1!
->> Modules linked in: ctc fsm tape_34xx cu3088 tape ccwgroup tape_class
->> dm_mirror d m_snapshot dm_mod dasd_eckd_mod dasd_mod
+>> kernel BUG at net/core/dev.c:852 +
+>> illegal operation: 0001  #1!
+>> Modules linked in: ctc fsm tape_34xx cu3088 tape ccwgroup tape_class dm_mirror
+> d
+>> m_snapshot dm_mod dasd_eckd_mod dasd_mod
 >> CPU:    1    Not tainted
 >> Process hwup (pid: 990, task: 0f034c00, ksp: 0f305be0)
 >> Krnl PSW : 070c0000 8019d0da (dev_alloc_name+0x1e/0x58)
@@ -50,7 +42,7 @@ Thanks, Christian, for your interim solution.
 >> Krnl Code: 8019d0cc: f000bf1f2460       srp     3871(1,%r11),1120(%r2),0
 >>            8019d0d2: a7740004           brc     7,8019d0da
 >>            8019d0d6: a7f40001           brc     15,8019d0d8
->>           > 8019d0da: 5810d04e           l       %r1,78(%r13)
+>>           >8019d0da: 5810d04e           l       %r1,78(%r13)
 >>            8019d0de: 41a0f060           la      %r10,96(%r15)
 >>            8019d0e2: 5820c460           l       %r2,1120(%r12)
 >>            8019d0e6: 184a               lr      %r4,%r10
@@ -61,16 +53,29 @@ Thanks, Christian, for your interim solution.
 >>   <00000000108a561e>! ctc_new_device+0x3ee/0x590  ctc!
 >>   <0000000010861398>! ccwgroup_online_store+0xb0/0x13c  ccwgroup!
 >>   <00000000000c962a>! sysfs_write_file+0xca/0x130
->>   <00000000000840e6>! vfs_write+0x92/0x128
->>   + <00000000000847e8>! sys_write+0x40/0x70
+>> <00000000000840e6>! vfs_write+0x92/0x128 +
+>>   <00000000000847e8>! sys_write+0x40/0x70
 >>   <000000000002098a>! sysc_do_restart+0x12/0x16
 >>   <0000000077f0abaa>! 0x77f0abaa
 >
 >
 > This seems to be related to the new network namespace code by Eric
-> Biederman (CCed). Can you try the following (untested) patch? I also
+> Biederman (CCed). Can you try the following (untested) patch? I also 
 > CCed Ursula and Peter as they know the ctc code better than me.
->
+
+Can you instead change the allocation to be alloc_netdev instead of
+just a plain old kzalloc.    That will fix the problem in a much
+more forward compatible way.  The current code is also going to
+have problems with dynamically sized array at the end of struct
+net_device.
+
+You ought to also be able to make the allocation unconditional
+as that function only has one caller and it does not pass in
+a struct net_device.
+
+Eric
+
+
 >
 > CC: Eric W. Biederman <ebiederm@xmission.com>
 > CC: Ursula Braun <braunu@de.ibm.com>
@@ -90,7 +95,7 @@ Thanks, Christian, for your interim solution.
 >  #include <linux/ctype.h>
 >  #include <net/dst.h>
 > +#include <net/net_namespace.h>
->
+>  
 >  #include <asm/io.h>
 >  #include <asm/ccwdev.h>
 > @@ -2823,6 +2824,7 @@ ctc_init_netdevice(struct net_device * d
@@ -100,9 +105,4 @@ Thanks, Christian, for your interim solution.
 > +	dev->nd_net = &init_net;
 >  	return dev;
 >  }
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>  
