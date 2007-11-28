@@ -1,1555 +1,942 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759213AbXKTLiX@vger.kernel.org>
-Subject: Please pull git390 'for-linus' branch
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-Content-Type: text/plain
-Date: Tue, 20 Nov 2007 12:38:07 +0100
-Message-Id: <1195558687.20237.1.camel@localhost>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760151AbXK1K1p@vger.kernel.org>
+From: Frans Pop <elendil@planet.nl>
+Subject: [s390] build failure
+Date: Wed, 28 Nov 2007 11:27:29 +0100
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_SKUTHVVi6nyqsCY"
+Message-Id: <200711281127.30051.elendil@planet.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: torvalds@linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Please pull from 'for-linus' branch of
+--Boundary-00=_SKUTHVVi6nyqsCY
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
+$ git describe
+v2.6.24-rc3-342-g8c27eba
 
-to receive the following updates:
+arch/s390/kernel/built-in.o: In function `cleanup_io_leave_insn':
+diag.c:(.text+0xc29a): undefined reference to `preempt_schedule_irq'
+make[2]: *** [.tmp_vmlinux1] Error 1
 
- arch/s390/appldata/appldata.h         |    1 -
- arch/s390/appldata/appldata_base.c    |   74 ++++----------------
- arch/s390/appldata/appldata_mem.c     |    1 -
- arch/s390/appldata/appldata_net_sum.c |    1 -
- arch/s390/appldata/appldata_os.c      |    1 -
- arch/s390/kernel/early.c              |    2 +-
- arch/s390/kernel/entry.S              |  120 +++++++++++++++++++++-----------
- arch/s390/kernel/entry64.S            |  114 ++++++++++++++++++++-----------
- arch/s390/kernel/setup.c              |    6 ++-
- arch/s390/kernel/smp.c                |   56 ++-------------
- arch/s390/kernel/traps.c              |    1 +
- arch/s390/mm/cmm.c                    |    3 -
- drivers/s390/cio/css.c                |    2 +-
- drivers/s390/cio/device_fsm.c         |    2 +-
- drivers/s390/cio/device_id.c          |   45 +++----------
- include/asm-s390/system.h             |    5 ++
- include/linux/sysctl.h                |    6 --
- kernel/sysctl_check.c                 |   14 ----
- mm/rmap.c                             |    9 ++-
- net/iucv/iucv.c                       |  107 +++++++++++++++++-------------
- 20 files changed, 263 insertions(+), 307 deletions(-)
 
-Christian Borntraeger (2):
-      [S390] magic sysrq: check for in_atomic before doing an console_unblank
-      [S390] Optimize storage key handling for anonymous pages
+--Boundary-00=_SKUTHVVi6nyqsCY
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="config-2.6.24_s390"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="config-2.6.24_s390"
 
-Christoph Lameter (1):
-      [S390] Explicitly code allocpercpu calls in iucv
+#
+# Automatically generated make config: don't edit
+# Linux kernel version: 2.6.24-rc3
+# Tue Nov 27 22:13:47 2007
+#
+CONFIG_MMU=y
+CONFIG_LOCKDEP_SUPPORT=y
+CONFIG_STACKTRACE_SUPPORT=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+# CONFIG_ARCH_HAS_ILOG2_U32 is not set
+# CONFIG_ARCH_HAS_ILOG2_U64 is not set
+CONFIG_GENERIC_HWEIGHT=y
+CONFIG_GENERIC_TIME=y
+CONFIG_GENERIC_BUG=y
+CONFIG_NO_IOMEM=y
+CONFIG_NO_DMA=y
+CONFIG_S390=y
+CONFIG_DEFCONFIG_LIST="/lib/modules/$UNAME_RELEASE/.config"
 
-Cornelia Huck (1):
-      [S390] cio: Register/unregister subchannels only from kslowcrw.
+#
+# General setup
+#
+CONFIG_EXPERIMENTAL=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+CONFIG_LOCALVERSION=""
+# CONFIG_LOCALVERSION_AUTO is not set
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSVIPC_SYSCTL=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_BSD_PROCESS_ACCT_V3=y
+# CONFIG_TASKSTATS is not set
+# CONFIG_USER_NS is not set
+# CONFIG_PID_NS is not set
+CONFIG_AUDIT=y
+# CONFIG_AUDITSYSCALL is not set
+# CONFIG_IKCONFIG is not set
+CONFIG_LOG_BUF_SHIFT=17
+# CONFIG_CGROUPS is not set
+CONFIG_FAIR_GROUP_SCHED=y
+CONFIG_FAIR_USER_SCHED=y
+# CONFIG_FAIR_CGROUP_SCHED is not set
+CONFIG_SYSFS_DEPRECATED=y
+# CONFIG_RELAY is not set
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+CONFIG_SYSCTL=y
+# CONFIG_EMBEDDED is not set
+CONFIG_UID16=y
+CONFIG_SYSCTL_SYSCALL=y
+CONFIG_KALLSYMS=y
+# CONFIG_KALLSYMS_EXTRA_PASS is not set
+CONFIG_HOTPLUG=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_ELF_CORE=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_ANON_INODES=y
+CONFIG_EPOLL=y
+CONFIG_SIGNALFD=y
+CONFIG_EVENTFD=y
+CONFIG_SHMEM=y
+CONFIG_VM_EVENT_COUNTERS=y
+CONFIG_SLAB=y
+# CONFIG_SLUB is not set
+# CONFIG_SLOB is not set
+CONFIG_RT_MUTEXES=y
+# CONFIG_TINY_SHMEM is not set
+CONFIG_BASE_SMALL=0
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_MODVERSIONS=y
+# CONFIG_MODULE_SRCVERSION_ALL is not set
+CONFIG_KMOD=y
+CONFIG_STOP_MACHINE=y
+CONFIG_BLOCK=y
+# CONFIG_LBD is not set
+# CONFIG_BLK_DEV_IO_TRACE is not set
+CONFIG_LSF=y
+# CONFIG_BLK_DEV_BSG is not set
 
-Heiko Carstens (7):
-      [S390] Fix irq tracing and lockdep_sys_exit calls.
-      [S390] cmm: remove unused binary sysctls.
-      [S390] appldata: remove unused binary sysctls.
-      [S390] Fix kernel preemption.
-      [S390] Dont overwrite lowcores on smp_send_stop().
-      [S390] Fix memory detection.
-      [S390] Add missing die_notifier() call to die().
+#
+# IO Schedulers
+#
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+# CONFIG_DEFAULT_AS is not set
+# CONFIG_DEFAULT_DEADLINE is not set
+CONFIG_DEFAULT_CFQ=y
+# CONFIG_DEFAULT_NOOP is not set
+CONFIG_DEFAULT_IOSCHED="cfq"
 
-Peter Oberparleiter (1):
-      [S390] cio: change device sense procedure to work with pav aliases
+#
+# Base setup
+#
 
-diff --git a/arch/s390/appldata/appldata.h b/arch/s390/appldata/appldata.h
-index 4069b81..db3ae85 100644
---- a/arch/s390/appldata/appldata.h
-+++ b/arch/s390/appldata/appldata.h
-@@ -45,7 +45,6 @@ struct appldata_ops {
- 	int    active;				/* monitoring status */
- 
- 	/* fill in from here */
--	unsigned int ctl_nr;			/* sysctl ID */
- 	char name[APPLDATA_PROC_NAME_LENGTH];	/* name of /proc fs node */
- 	unsigned char record_nr;		/* Record Nr. for Product ID */
- 	void (*callback)(void *data);		/* callback function */
-diff --git a/arch/s390/appldata/appldata_base.c b/arch/s390/appldata/appldata_base.c
-index ac61cf4..655d525 100644
---- a/arch/s390/appldata/appldata_base.c
-+++ b/arch/s390/appldata/appldata_base.c
-@@ -53,29 +53,26 @@ static int appldata_interval_handler(ctl_table *ctl, int write,
- static struct ctl_table_header *appldata_sysctl_header;
- static struct ctl_table appldata_table[] = {
- 	{
--		.ctl_name	= CTL_APPLDATA_TIMER,
- 		.procname	= "timer",
- 		.mode		= S_IRUGO | S_IWUSR,
- 		.proc_handler	= &appldata_timer_handler,
- 	},
- 	{
--		.ctl_name	= CTL_APPLDATA_INTERVAL,
- 		.procname	= "interval",
- 		.mode		= S_IRUGO | S_IWUSR,
- 		.proc_handler	= &appldata_interval_handler,
- 	},
--	{ .ctl_name = 0 }
-+	{ },
- };
- 
- static struct ctl_table appldata_dir_table[] = {
- 	{
--		.ctl_name	= CTL_APPLDATA,
- 		.procname	= appldata_proc_name,
- 		.maxlen		= 0,
- 		.mode		= S_IRUGO | S_IXUGO,
- 		.child		= appldata_table,
- 	},
--	{ .ctl_name = 0 }
-+	{ },
- };
- 
- /*
-@@ -441,75 +438,38 @@ out:
-  */
- int appldata_register_ops(struct appldata_ops *ops)
- {
--	struct list_head *lh;
--	struct appldata_ops *tmp_ops;
--	int i;
--
--	i = 0;
-+	if ((ops->size > APPLDATA_MAX_REC_SIZE) || (ops->size < 0))
-+		return -EINVAL;
- 
--	if ((ops->size > APPLDATA_MAX_REC_SIZE) ||
--		(ops->size < 0)){
--		P_ERROR("Invalid size of %s record = %i, maximum = %i!\n",
--			ops->name, ops->size, APPLDATA_MAX_REC_SIZE);
--		return -ENOMEM;
--	}
--	if ((ops->ctl_nr == CTL_APPLDATA) ||
--	    (ops->ctl_nr == CTL_APPLDATA_TIMER) ||
--	    (ops->ctl_nr == CTL_APPLDATA_INTERVAL)) {
--		P_ERROR("ctl_nr %i already in use!\n", ops->ctl_nr);
--		return -EBUSY;
--	}
--	ops->ctl_table = kzalloc(4*sizeof(struct ctl_table), GFP_KERNEL);
--	if (ops->ctl_table == NULL) {
--		P_ERROR("Not enough memory for %s ctl_table!\n", ops->name);
-+	ops->ctl_table = kzalloc(4 * sizeof(struct ctl_table), GFP_KERNEL);
-+	if (!ops->ctl_table)
- 		return -ENOMEM;
--	}
- 
- 	spin_lock(&appldata_ops_lock);
--	list_for_each(lh, &appldata_ops_list) {
--		tmp_ops = list_entry(lh, struct appldata_ops, list);
--		P_DEBUG("register_ops loop: %i) name = %s, ctl = %i\n",
--			++i, tmp_ops->name, tmp_ops->ctl_nr);
--		P_DEBUG("Comparing %s (ctl %i) with %s (ctl %i)\n",
--			tmp_ops->name, tmp_ops->ctl_nr, ops->name,
--			ops->ctl_nr);
--		if (strncmp(tmp_ops->name, ops->name,
--				APPLDATA_PROC_NAME_LENGTH) == 0) {
--			P_ERROR("Name \"%s\" already registered!\n", ops->name);
--			kfree(ops->ctl_table);
--			spin_unlock(&appldata_ops_lock);
--			return -EBUSY;
--		}
--		if (tmp_ops->ctl_nr == ops->ctl_nr) {
--			P_ERROR("ctl_nr %i already registered!\n", ops->ctl_nr);
--			kfree(ops->ctl_table);
--			spin_unlock(&appldata_ops_lock);
--			return -EBUSY;
--		}
--	}
- 	list_add(&ops->list, &appldata_ops_list);
- 	spin_unlock(&appldata_ops_lock);
- 
--	ops->ctl_table[0].ctl_name = CTL_APPLDATA;
- 	ops->ctl_table[0].procname = appldata_proc_name;
- 	ops->ctl_table[0].maxlen   = 0;
- 	ops->ctl_table[0].mode     = S_IRUGO | S_IXUGO;
- 	ops->ctl_table[0].child    = &ops->ctl_table[2];
- 
--	ops->ctl_table[1].ctl_name = 0;
--
--	ops->ctl_table[2].ctl_name = ops->ctl_nr;
- 	ops->ctl_table[2].procname = ops->name;
- 	ops->ctl_table[2].mode     = S_IRUGO | S_IWUSR;
- 	ops->ctl_table[2].proc_handler = appldata_generic_handler;
- 	ops->ctl_table[2].data = ops;
- 
--	ops->ctl_table[3].ctl_name = 0;
--
- 	ops->sysctl_header = register_sysctl_table(ops->ctl_table);
--
-+	if (!ops->sysctl_header)
-+		goto out;
- 	P_INFO("%s-ops registered!\n", ops->name);
- 	return 0;
-+out:
-+	spin_lock(&appldata_ops_lock);
-+	list_del(&ops->list);
-+	spin_unlock(&appldata_ops_lock);
-+	kfree(ops->ctl_table);
-+	return -ENOMEM;
- }
- 
- /*
-@@ -519,15 +479,11 @@ int appldata_register_ops(struct appldata_ops *ops)
-  */
- void appldata_unregister_ops(struct appldata_ops *ops)
- {
--	void *table;
- 	spin_lock(&appldata_ops_lock);
- 	list_del(&ops->list);
--	/* at that point any incoming access will fail */
--	table = ops->ctl_table;
--	ops->ctl_table = NULL;
- 	spin_unlock(&appldata_ops_lock);
- 	unregister_sysctl_table(ops->sysctl_header);
--	kfree(table);
-+	kfree(ops->ctl_table);
- 	P_INFO("%s-ops unregistered!\n", ops->name);
- }
- /********************** module-ops management <END> **************************/
-diff --git a/arch/s390/appldata/appldata_mem.c b/arch/s390/appldata/appldata_mem.c
-index 697eb30..51181cc 100644
---- a/arch/s390/appldata/appldata_mem.c
-+++ b/arch/s390/appldata/appldata_mem.c
-@@ -147,7 +147,6 @@ static void appldata_get_mem_data(void *data)
- 
- 
- static struct appldata_ops ops = {
--	.ctl_nr    = CTL_APPLDATA_MEM,
- 	.name      = "mem",
- 	.record_nr = APPLDATA_RECORD_MEM_ID,
- 	.size	   = sizeof(struct appldata_mem_data),
-diff --git a/arch/s390/appldata/appldata_net_sum.c b/arch/s390/appldata/appldata_net_sum.c
-index 6c1815a..4d83443 100644
---- a/arch/s390/appldata/appldata_net_sum.c
-+++ b/arch/s390/appldata/appldata_net_sum.c
-@@ -142,7 +142,6 @@ static void appldata_get_net_sum_data(void *data)
- 
- 
- static struct appldata_ops ops = {
--	.ctl_nr    = CTL_APPLDATA_NET_SUM,
- 	.name	   = "net_sum",
- 	.record_nr = APPLDATA_RECORD_NET_SUM_ID,
- 	.size	   = sizeof(struct appldata_net_sum_data),
-diff --git a/arch/s390/appldata/appldata_os.c b/arch/s390/appldata/appldata_os.c
-index 76a1552..6b3eafe 100644
---- a/arch/s390/appldata/appldata_os.c
-+++ b/arch/s390/appldata/appldata_os.c
-@@ -82,7 +82,6 @@ struct appldata_os_data {
- static struct appldata_os_data *appldata_os_data;
- 
- static struct appldata_ops ops = {
--	.ctl_nr    = CTL_APPLDATA_OS,
- 	.name	   = "os",
- 	.record_nr = APPLDATA_RECORD_OS_ID,
- 	.owner	   = THIS_MODULE,
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index 8bf4ae1..1b3af7d 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -200,7 +200,7 @@ static noinline __init void find_memory_chunks(unsigned long memsize)
- 		cc = __tprot(addr);
- 		while (cc == old_cc) {
- 			addr += CHUNK_INCR;
--			if (addr >= memsize)
-+			if (memsize && addr >= memsize)
- 				break;
- #ifndef CONFIG_64BIT
- 			if (addr == ADDR2G)
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 139ca15..b2b2edc 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -69,13 +69,31 @@ STACK_SIZE  = 1 << STACK_SHIFT
- 	basr	%r14,%r1
- 	.endm
- 
--	.macro	LOCKDEP_SYS_EXIT
--	l	%r1,BASED(.Llockdep_sys_exit)
-+	.macro	TRACE_IRQS_CHECK
-+	tm	SP_PSW(%r15),0x03	# irqs enabled?
-+	jz	0f
-+	l	%r1,BASED(.Ltrace_irq_on)
- 	basr	%r14,%r1
-+	j	1f
-+0:	l	%r1,BASED(.Ltrace_irq_off)
-+	basr	%r14,%r1
-+1:
- 	.endm
- #else
- #define TRACE_IRQS_ON
- #define TRACE_IRQS_OFF
-+#define TRACE_IRQS_CHECK
-+#endif
-+
-+#ifdef CONFIG_LOCKDEP
-+	.macro	LOCKDEP_SYS_EXIT
-+	tm	SP_PSW+1(%r15),0x01	# returning to user ?
-+	jz	0f
-+	l	%r1,BASED(.Llockdep_sys_exit)
-+	basr	%r14,%r1
-+0:
-+	.endm
-+#else
- #define LOCKDEP_SYS_EXIT
- #endif
- 
-@@ -234,8 +252,6 @@ sysc_saveall:
- 	lh	%r7,0x8a	  # get svc number from lowcore
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- sysc_vtime:
--	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
--	bz	BASED(sysc_do_svc)
- 	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
- sysc_stime:
- 	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
-@@ -263,19 +279,34 @@ sysc_do_restart:
- 
- sysc_return:
- 	tm	SP_PSW+1(%r15),0x01	# returning to user ?
--	bno	BASED(sysc_leave)
-+	bno	BASED(sysc_restore)
- 	tm	__TI_flags+3(%r9),_TIF_WORK_SVC
- 	bnz	BASED(sysc_work)  # there is work to do (signals etc.)
-+sysc_restore:
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	la	%r1,BASED(sysc_restore_trace_psw)
-+	lpsw	0(%r1)
-+sysc_restore_trace:
-+	TRACE_IRQS_CHECK
- 	LOCKDEP_SYS_EXIT
-+#endif
- sysc_leave:
- 	RESTORE_ALL __LC_RETURN_PSW,1
-+sysc_done:
-+
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	.align	8
-+	.globl	sysc_restore_trace_psw
-+sysc_restore_trace_psw:
-+	.long	0, sysc_restore_trace + 0x80000000
-+#endif
- 
- #
- # recheck if there is more work to do
- #
- sysc_work_loop:
- 	tm	__TI_flags+3(%r9),_TIF_WORK_SVC
--	bz	BASED(sysc_leave)	# there is no work to do
-+	bz	BASED(sysc_restore)	# there is no work to do
- #
- # One of the work bits is on. Find out which one.
- #
-@@ -290,8 +321,8 @@ sysc_work:
- 	bo	BASED(sysc_restart)
- 	tm	__TI_flags+3(%r9),_TIF_SINGLE_STEP
- 	bo	BASED(sysc_singlestep)
--	LOCKDEP_SYS_EXIT
--	b	BASED(sysc_leave)
-+	b	BASED(sysc_restore)
-+sysc_work_done:
- 
- #
- # _TIF_NEED_RESCHED is set, call schedule
-@@ -458,6 +489,7 @@ pgm_check_handler:
- pgm_no_vtime:
- #endif
- 	l	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
-+	TRACE_IRQS_OFF
- 	l	%r3,__LC_PGM_ILC	# load program interruption code
- 	la	%r8,0x7f
- 	nr	%r8,%r3
-@@ -497,6 +529,7 @@ pgm_per_std:
- pgm_no_vtime2:
- #endif
- 	l	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
-+	TRACE_IRQS_OFF
- 	l	%r1,__TI_task(%r9)
- 	mvc	__THREAD_per+__PER_atmid(2,%r1),__LC_PER_ATMID
- 	mvc	__THREAD_per+__PER_address(4,%r1),__LC_PER_ADDRESS
-@@ -517,15 +550,13 @@ pgm_svcper:
- 	SAVE_ALL_SYNC __LC_SVC_OLD_PSW,__LC_SAVE_AREA
- 	CREATE_STACK_FRAME __LC_SVC_OLD_PSW,__LC_SAVE_AREA
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
--	bz	BASED(pgm_no_vtime3)
- 	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
- 	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
- 	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
--pgm_no_vtime3:
- #endif
- 	lh	%r7,0x8a		# get svc number from lowcore
- 	l	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
-+	TRACE_IRQS_OFF
- 	l	%r1,__TI_task(%r9)
- 	mvc	__THREAD_per+__PER_atmid(2,%r1),__LC_PER_ATMID
- 	mvc	__THREAD_per+__PER_address(4,%r1),__LC_PER_ADDRESS
-@@ -542,7 +573,7 @@ kernel_per:
- 	mvi	SP_TRAP+1(%r15),0x28	# set trap indication to pgm check
- 	la	%r2,SP_PTREGS(%r15)	# address of register-save area
- 	l	%r1,BASED(.Lhandle_per)	# load adr. of per handler
--	la	%r14,BASED(sysc_leave)	# load adr. of system return
-+	la	%r14,BASED(sysc_restore)# load adr. of system return
- 	br	%r1			# branch to do_single_step
- 
- /*
-@@ -569,26 +600,38 @@ io_no_vtime:
- 	l	%r1,BASED(.Ldo_IRQ)	# load address of do_IRQ
- 	la	%r2,SP_PTREGS(%r15)	# address of register-save area
- 	basr	%r14,%r1		# branch to standard irq handler
--	TRACE_IRQS_ON
--
- io_return:
- 	tm	SP_PSW+1(%r15),0x01	# returning to user ?
- #ifdef CONFIG_PREEMPT
- 	bno	BASED(io_preempt)	# no -> check for preemptive scheduling
- #else
--	bno	BASED(io_leave) 	# no-> skip resched & signal
-+	bno	BASED(io_restore)	# no-> skip resched & signal
- #endif
- 	tm	__TI_flags+3(%r9),_TIF_WORK_INT
- 	bnz	BASED(io_work)		# there is work to do (signals etc.)
-+io_restore:
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	la	%r1,BASED(io_restore_trace_psw)
-+	lpsw	0(%r1)
-+io_restore_trace:
-+	TRACE_IRQS_CHECK
- 	LOCKDEP_SYS_EXIT
-+#endif
- io_leave:
- 	RESTORE_ALL __LC_RETURN_PSW,0
- io_done:
- 
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	.align	8
-+	.globl	io_restore_trace_psw
-+io_restore_trace_psw:
-+	.long	0, io_restore_trace + 0x80000000
-+#endif
-+
- #ifdef CONFIG_PREEMPT
- io_preempt:
- 	icm	%r0,15,__TI_precount(%r9)
--	bnz	BASED(io_leave)
-+	bnz	BASED(io_restore)
- 	l	%r1,SP_R15(%r15)
- 	s	%r1,BASED(.Lc_spsize)
- 	mvc	SP_PTREGS(__PT_SIZE,%r1),SP_PTREGS(%r15)
-@@ -596,14 +639,10 @@ io_preempt:
- 	lr	%r15,%r1
- io_resume_loop:
- 	tm	__TI_flags+3(%r9),_TIF_NEED_RESCHED
--	bno	BASED(io_leave)
--	mvc	__TI_precount(4,%r9),BASED(.Lc_pactive)
--	stosm	__SF_EMPTY(%r15),0x03  # reenable interrupts
--	l	%r1,BASED(.Lschedule)
--	basr	%r14,%r1	       # call schedule
--	stnsm	__SF_EMPTY(%r15),0xfc  # disable I/O and ext. interrupts
--	xc	__TI_precount(4,%r9),__TI_precount(%r9)
--	b	BASED(io_resume_loop)
-+	bno	BASED(io_restore)
-+	l	%r1,BASED(.Lpreempt_schedule_irq)
-+	la	%r14,BASED(io_resume_loop)
-+	br	%r1			# call schedule
- #endif
- 
- #
-@@ -627,40 +666,42 @@ io_work_loop:
- 	bo	BASED(io_reschedule)
- 	tm	__TI_flags+3(%r9),(_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK)
- 	bnz	BASED(io_sigpending)
--	LOCKDEP_SYS_EXIT
--	b	BASED(io_leave)
-+	b	BASED(io_restore)
-+io_work_done:
- 
- #
- # _TIF_MCCK_PENDING is set, call handler
- #
- io_mcck_pending:
--	TRACE_IRQS_OFF
- 	l	%r1,BASED(.Ls390_handle_mcck)
- 	basr	%r14,%r1		# TIF bit will be cleared by handler
--	TRACE_IRQS_ON
- 	b	BASED(io_work_loop)
- 
- #
- # _TIF_NEED_RESCHED is set, call schedule
- #
- io_reschedule:
-+	TRACE_IRQS_ON
- 	l	%r1,BASED(.Lschedule)
- 	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
- 	basr	%r14,%r1		# call scheduler
- 	stnsm	__SF_EMPTY(%r15),0xfc	# disable I/O and ext. interrupts
-+	TRACE_IRQS_OFF
- 	tm	__TI_flags+3(%r9),_TIF_WORK_INT
--	bz	BASED(io_leave) 	# there is no work to do
-+	bz	BASED(io_restore)	# there is no work to do
- 	b	BASED(io_work_loop)
- 
- #
- # _TIF_SIGPENDING or _TIF_RESTORE_SIGMASK is set, call do_signal
- #
- io_sigpending:
-+	TRACE_IRQS_ON
- 	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
- 	la	%r2,SP_PTREGS(%r15)	# load pt_regs
- 	l	%r1,BASED(.Ldo_signal)
- 	basr	%r14,%r1		# call do_signal
- 	stnsm	__SF_EMPTY(%r15),0xfc	# disable I/O and ext. interrupts
-+	TRACE_IRQS_OFF
- 	b	BASED(io_work_loop)
- 
- /*
-@@ -688,7 +729,6 @@ ext_no_vtime:
- 	lh	%r3,__LC_EXT_INT_CODE	# get interruption code
- 	l	%r1,BASED(.Ldo_extint)
- 	basr	%r14,%r1
--	TRACE_IRQS_ON
- 	b	BASED(io_return)
- 
- __critical_end:
-@@ -853,15 +893,15 @@ cleanup_table_system_call:
- cleanup_table_sysc_return:
- 	.long	sysc_return + 0x80000000, sysc_leave + 0x80000000
- cleanup_table_sysc_leave:
--	.long	sysc_leave + 0x80000000, sysc_work_loop + 0x80000000
-+	.long	sysc_leave + 0x80000000, sysc_done + 0x80000000
- cleanup_table_sysc_work_loop:
--	.long	sysc_work_loop + 0x80000000, sysc_reschedule + 0x80000000
-+	.long	sysc_work_loop + 0x80000000, sysc_work_done + 0x80000000
- cleanup_table_io_return:
- 	.long	io_return + 0x80000000, io_leave + 0x80000000
- cleanup_table_io_leave:
- 	.long	io_leave + 0x80000000, io_done + 0x80000000
- cleanup_table_io_work_loop:
--	.long	io_work_loop + 0x80000000, io_mcck_pending + 0x80000000
-+	.long	io_work_loop + 0x80000000, io_work_done + 0x80000000
- 
- cleanup_critical:
- 	clc	4(4,%r12),BASED(cleanup_table_system_call)
-@@ -930,8 +970,6 @@ cleanup_system_call:
- cleanup_vtime:
- 	clc	__LC_RETURN_PSW+4(4),BASED(cleanup_system_call_insn+12)
- 	bhe	BASED(cleanup_stime)
--	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
--	bz	BASED(cleanup_novtime)
- 	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
- cleanup_stime:
- 	clc	__LC_RETURN_PSW+4(4),BASED(cleanup_system_call_insn+16)
-@@ -939,7 +977,6 @@ cleanup_stime:
- 	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
- cleanup_update:
- 	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
--cleanup_novtime:
- #endif
- 	mvc	__LC_RETURN_PSW+4(4),BASED(cleanup_table_system_call+4)
- 	la	%r12,__LC_RETURN_PSW
-@@ -978,10 +1015,10 @@ cleanup_sysc_leave:
- 2:	la	%r12,__LC_RETURN_PSW
- 	br	%r14
- cleanup_sysc_leave_insn:
-+	.long	sysc_done - 4 + 0x80000000
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	.long	sysc_leave + 14 + 0x80000000
-+	.long	sysc_done - 8 + 0x80000000
- #endif
--	.long	sysc_leave + 10 + 0x80000000
- 
- cleanup_io_return:
- 	mvc	__LC_RETURN_PSW(4),0(%r12)
-@@ -1008,10 +1045,10 @@ cleanup_io_leave:
- 2:	la	%r12,__LC_RETURN_PSW
- 	br	%r14
- cleanup_io_leave_insn:
-+	.long	io_done - 4 + 0x80000000
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	.long	io_leave + 18 + 0x80000000
-+	.long	io_done - 8 + 0x80000000
- #endif
--	.long	io_leave + 14 + 0x80000000
- 
- /*
-  * Integer constants
-@@ -1019,7 +1056,6 @@ cleanup_io_leave_insn:
- 		.align	4
- .Lc_spsize:	.long	SP_SIZE
- .Lc_overhead:	.long	STACK_FRAME_OVERHEAD
--.Lc_pactive:	.long	PREEMPT_ACTIVE
- .Lnr_syscalls:	.long	NR_syscalls
- .L0x018:	.short	0x018
- .L0x020:	.short	0x020
-@@ -1043,6 +1079,8 @@ cleanup_io_leave_insn:
- .Lexecve_tail:	.long	execve_tail
- .Ljump_table:	.long	pgm_check_table
- .Lschedule:	.long	schedule
-+.Lpreempt_schedule_irq:
-+		.long	preempt_schedule_irq
- .Ltrace:	.long	syscall_trace
- .Lschedtail:	.long	schedule_tail
- .Lsysc_table:	.long	sys_call_table
-diff --git a/arch/s390/kernel/entry64.S b/arch/s390/kernel/entry64.S
-index 05e26d1..a3e47b8 100644
---- a/arch/s390/kernel/entry64.S
-+++ b/arch/s390/kernel/entry64.S
-@@ -67,12 +67,28 @@ _TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK | _TIF_NEED_RESCHED | \
- 	 brasl	%r14,trace_hardirqs_off
- 	.endm
- 
--	.macro	LOCKDEP_SYS_EXIT
--	 brasl	%r14,lockdep_sys_exit
-+	.macro TRACE_IRQS_CHECK
-+	tm	SP_PSW(%r15),0x03	# irqs enabled?
-+	jz	0f
-+	brasl	%r14,trace_hardirqs_on
-+	j	1f
-+0:	brasl	%r14,trace_hardirqs_off
-+1:
- 	.endm
- #else
- #define TRACE_IRQS_ON
- #define TRACE_IRQS_OFF
-+#define TRACE_IRQS_CHECK
-+#endif
-+
-+#ifdef CONFIG_LOCKDEP
-+	.macro	LOCKDEP_SYS_EXIT
-+	tm	SP_PSW+1(%r15),0x01	# returning to user ?
-+	jz	0f
-+	brasl	%r14,lockdep_sys_exit
-+0:
-+	.endm
-+#else
- #define LOCKDEP_SYS_EXIT
- #endif
- 
-@@ -222,8 +238,6 @@ sysc_saveall:
- 	llgh	%r7,__LC_SVC_INT_CODE	# get svc number from lowcore
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
- sysc_vtime:
--	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
--	jz	sysc_do_svc
- 	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
- sysc_stime:
- 	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
-@@ -257,19 +271,34 @@ sysc_noemu:
- 
- sysc_return:
- 	tm	SP_PSW+1(%r15),0x01	# returning to user ?
--	jno	sysc_leave
-+	jno	sysc_restore
- 	tm	__TI_flags+7(%r9),_TIF_WORK_SVC
- 	jnz	sysc_work	# there is work to do (signals etc.)
-+sysc_restore:
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	larl	%r1,sysc_restore_trace_psw
-+	lpswe	0(%r1)
-+sysc_restore_trace:
-+	TRACE_IRQS_CHECK
- 	LOCKDEP_SYS_EXIT
-+#endif
- sysc_leave:
- 	RESTORE_ALL __LC_RETURN_PSW,1
-+sysc_done:
-+
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	.align	8
-+	.globl sysc_restore_trace_psw
-+sysc_restore_trace_psw:
-+	.quad	0, sysc_restore_trace
-+#endif
- 
- #
- # recheck if there is more work to do
- #
- sysc_work_loop:
- 	tm	__TI_flags+7(%r9),_TIF_WORK_SVC
--	jz	sysc_leave	  # there is no work to do
-+	jz	sysc_restore	  # there is no work to do
- #
- # One of the work bits is on. Find out which one.
- #
-@@ -284,8 +313,8 @@ sysc_work:
- 	jo	sysc_restart
- 	tm	__TI_flags+7(%r9),_TIF_SINGLE_STEP
- 	jo	sysc_singlestep
--	LOCKDEP_SYS_EXIT
--	j	sysc_leave
-+	j	sysc_restore
-+sysc_work_done:
- 
- #
- # _TIF_NEED_RESCHED is set, call schedule
-@@ -445,6 +474,7 @@ pgm_check_handler:
- pgm_no_vtime:
- #endif
- 	lg	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
-+	TRACE_IRQS_OFF
- 	lgf	%r3,__LC_PGM_ILC	# load program interruption code
- 	lghi	%r8,0x7f
- 	ngr	%r8,%r3
-@@ -484,6 +514,7 @@ pgm_per_std:
- pgm_no_vtime2:
- #endif
- 	lg	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
-+	TRACE_IRQS_OFF
- 	lg	%r1,__TI_task(%r9)
- 	tm	SP_PSW+1(%r15),0x01	# kernel per event ?
- 	jz	kernel_per
-@@ -504,12 +535,9 @@ pgm_svcper:
- 	SAVE_ALL_SYNC __LC_SVC_OLD_PSW,__LC_SAVE_AREA
- 	CREATE_STACK_FRAME __LC_SVC_OLD_PSW,__LC_SAVE_AREA
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
--	jz	pgm_no_vtime3
- 	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
- 	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
- 	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
--pgm_no_vtime3:
- #endif
- 	llgh	%r7,__LC_SVC_INT_CODE	# get svc number from lowcore
- 	lg	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
-@@ -529,7 +557,7 @@ kernel_per:
- 	lhi	%r0,__LC_PGM_OLD_PSW
- 	sth	%r0,SP_TRAP(%r15)	# set trap indication to pgm check
- 	la	%r2,SP_PTREGS(%r15)	# address of register-save area
--	larl	%r14,sysc_leave		# load adr. of system ret, no work
-+	larl	%r14,sysc_restore	# load adr. of system ret, no work
- 	jg	do_single_step		# branch to do_single_step
- 
- /*
-@@ -554,26 +582,38 @@ io_no_vtime:
- 	TRACE_IRQS_OFF
- 	la	%r2,SP_PTREGS(%r15)	# address of register-save area
- 	brasl	%r14,do_IRQ		# call standard irq handler
--	TRACE_IRQS_ON
--
- io_return:
- 	tm	SP_PSW+1(%r15),0x01	# returning to user ?
- #ifdef CONFIG_PREEMPT
- 	jno	io_preempt		# no -> check for preemptive scheduling
- #else
--	jno	io_leave		# no-> skip resched & signal
-+	jno	io_restore		# no-> skip resched & signal
- #endif
- 	tm	__TI_flags+7(%r9),_TIF_WORK_INT
- 	jnz	io_work 		# there is work to do (signals etc.)
-+io_restore:
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	larl	%r1,io_restore_trace_psw
-+	lpswe	0(%r1)
-+io_restore_trace:
-+	TRACE_IRQS_CHECK
- 	LOCKDEP_SYS_EXIT
-+#endif
- io_leave:
- 	RESTORE_ALL __LC_RETURN_PSW,0
- io_done:
- 
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	.align	8
-+	.globl io_restore_trace_psw
-+io_restore_trace_psw:
-+	.quad	0, io_restore_trace
-+#endif
-+
- #ifdef CONFIG_PREEMPT
- io_preempt:
- 	icm	%r0,15,__TI_precount(%r9)
--	jnz	io_leave
-+	jnz	io_restore
- 	# switch to kernel stack
- 	lg	%r1,SP_R15(%r15)
- 	aghi	%r1,-SP_SIZE
-@@ -582,14 +622,9 @@ io_preempt:
- 	lgr	%r15,%r1
- io_resume_loop:
- 	tm	__TI_flags+7(%r9),_TIF_NEED_RESCHED
--	jno	io_leave
--	larl	%r1,.Lc_pactive
--	mvc	__TI_precount(4,%r9),0(%r1)
--	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
--	brasl	%r14,schedule		# call schedule
--	stnsm	__SF_EMPTY(%r15),0xfc	# disable I/O and ext. interrupts
--	xc	__TI_precount(4,%r9),__TI_precount(%r9)
--	j	io_resume_loop
-+	jno	io_restore
-+	larl	%r14,io_resume_loop
-+	jg	preempt_schedule_irq
- #endif
- 
- #
-@@ -613,37 +648,39 @@ io_work_loop:
- 	jo	io_reschedule
- 	tm	__TI_flags+7(%r9),(_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK)
- 	jnz	io_sigpending
--	LOCKDEP_SYS_EXIT
--	j	io_leave
-+	j	io_restore
-+io_work_done:
- 
- #
- # _TIF_MCCK_PENDING is set, call handler
- #
- io_mcck_pending:
--	TRACE_IRQS_OFF
- 	brasl	%r14,s390_handle_mcck	# TIF bit will be cleared by handler
--	TRACE_IRQS_ON
- 	j	io_work_loop
- 
- #
- # _TIF_NEED_RESCHED is set, call schedule
- #
- io_reschedule:
-+	TRACE_IRQS_ON
- 	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
- 	brasl	%r14,schedule		# call scheduler
- 	stnsm	__SF_EMPTY(%r15),0xfc	# disable I/O and ext. interrupts
-+	TRACE_IRQS_OFF
- 	tm	__TI_flags+7(%r9),_TIF_WORK_INT
--	jz	io_leave		# there is no work to do
-+	jz	io_restore		# there is no work to do
- 	j	io_work_loop
- 
- #
- # _TIF_SIGPENDING or _TIF_RESTORE_SIGMASK is set, call do_signal
- #
- io_sigpending:
-+	TRACE_IRQS_ON
- 	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
- 	la	%r2,SP_PTREGS(%r15)	# load pt_regs
- 	brasl	%r14,do_signal		# call do_signal
- 	stnsm	__SF_EMPTY(%r15),0xfc	# disable I/O and ext. interrupts
-+	TRACE_IRQS_OFF
- 	j	io_work_loop
- 
- /*
-@@ -669,7 +706,6 @@ ext_no_vtime:
- 	la	%r2,SP_PTREGS(%r15)	# address of register-save area
- 	llgh	%r3,__LC_EXT_INT_CODE	# get interruption code
- 	brasl	%r14,do_extint
--	TRACE_IRQS_ON
- 	j	io_return
- 
- __critical_end:
-@@ -824,15 +860,15 @@ cleanup_table_system_call:
- cleanup_table_sysc_return:
- 	.quad	sysc_return, sysc_leave
- cleanup_table_sysc_leave:
--	.quad	sysc_leave, sysc_work_loop
-+	.quad	sysc_leave, sysc_done
- cleanup_table_sysc_work_loop:
--	.quad	sysc_work_loop, sysc_reschedule
-+	.quad	sysc_work_loop, sysc_work_done
- cleanup_table_io_return:
- 	.quad	io_return, io_leave
- cleanup_table_io_leave:
- 	.quad	io_leave, io_done
- cleanup_table_io_work_loop:
--	.quad	io_work_loop, io_mcck_pending
-+	.quad	io_work_loop, io_work_done
- 
- cleanup_critical:
- 	clc	8(8,%r12),BASED(cleanup_table_system_call)
-@@ -901,8 +937,6 @@ cleanup_system_call:
- cleanup_vtime:
- 	clc	__LC_RETURN_PSW+8(8),BASED(cleanup_system_call_insn+24)
- 	jhe	cleanup_stime
--	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
--	jz	cleanup_novtime
- 	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
- cleanup_stime:
- 	clc	__LC_RETURN_PSW+8(8),BASED(cleanup_system_call_insn+32)
-@@ -910,7 +944,6 @@ cleanup_stime:
- 	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
- cleanup_update:
- 	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
--cleanup_novtime:
- #endif
- 	mvc	__LC_RETURN_PSW+8(8),BASED(cleanup_table_system_call+8)
- 	la	%r12,__LC_RETURN_PSW
-@@ -949,10 +982,10 @@ cleanup_sysc_leave:
- 2:	la	%r12,__LC_RETURN_PSW
- 	br	%r14
- cleanup_sysc_leave_insn:
-+	.quad	sysc_done - 4
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	.quad	sysc_leave + 16
-+	.quad	sysc_done - 8
- #endif
--	.quad	sysc_leave + 12
- 
- cleanup_io_return:
- 	mvc	__LC_RETURN_PSW(8),0(%r12)
-@@ -979,17 +1012,16 @@ cleanup_io_leave:
- 2:	la	%r12,__LC_RETURN_PSW
- 	br	%r14
- cleanup_io_leave_insn:
-+	.quad	io_done - 4
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	.quad	io_leave + 20
-+	.quad	io_done - 8
- #endif
--	.quad	io_leave + 16
- 
- /*
-  * Integer constants
-  */
- 		.align	4
- .Lconst:
--.Lc_pactive:	.long	PREEMPT_ACTIVE
- .Lnr_syscalls:	.long	NR_syscalls
- .L0x0130:	.short	0x130
- .L0x0140:	.short	0x140
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 7e1bfb9..50f8f1e 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -347,7 +347,7 @@ void (*_machine_power_off)(void) = do_machine_power_off_nonsmp;
- 
- void machine_restart(char *command)
- {
--	if (!in_interrupt() || oops_in_progress)
-+	if ((!in_interrupt() && !in_atomic()) || oops_in_progress)
- 		/*
- 		 * Only unblank the console if we are called in enabled
- 		 * context or a bust_spinlocks cleared the way for us.
-@@ -492,6 +492,10 @@ static void setup_addressing_mode(void)
- 		printk("S390 address spaces switched, ");
- 		set_amode_and_uaccess(PSW_ASC_PRIMARY, PSW32_ASC_PRIMARY);
- 	}
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	sysc_restore_trace_psw.mask = psw_kernel_bits & ~PSW_MASK_MCHECK;
-+	io_restore_trace_psw.mask = psw_kernel_bits & ~PSW_MASK_MCHECK;
-+#endif
- }
- 
- static void __init
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index b05ae85..264ea90 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -193,72 +193,30 @@ int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
- }
- EXPORT_SYMBOL(smp_call_function_single);
- 
--static void do_send_stop(void)
-+void smp_send_stop(void)
- {
- 	int cpu, rc;
- 
--	/* stop all processors */
--	for_each_online_cpu(cpu) {
--		if (cpu == smp_processor_id())
--			continue;
--		do {
--			rc = signal_processor(cpu, sigp_stop);
--		} while (rc == sigp_busy);
--	}
--}
-+	/* Disable all interrupts/machine checks */
-+	__load_psw_mask(psw_kernel_bits & ~PSW_MASK_MCHECK);
- 
--static void do_store_status(void)
--{
--	int cpu, rc;
-+	/* write magic number to zero page (absolute 0) */
-+	lowcore_ptr[smp_processor_id()]->panic_magic = __PANIC_MAGIC;
- 
--	/* store status of all processors in their lowcores (real 0) */
-+	/* stop all processors */
- 	for_each_online_cpu(cpu) {
- 		if (cpu == smp_processor_id())
- 			continue;
- 		do {
--			rc = signal_processor_p(
--				(__u32)(unsigned long) lowcore_ptr[cpu], cpu,
--				sigp_store_status_at_address);
-+			rc = signal_processor(cpu, sigp_stop);
- 		} while (rc == sigp_busy);
--	}
--}
- 
--static void do_wait_for_stop(void)
--{
--	int cpu;
--
--	/* Wait for all other cpus to enter stopped state */
--	for_each_online_cpu(cpu) {
--		if (cpu == smp_processor_id())
--			continue;
- 		while (!smp_cpu_not_running(cpu))
- 			cpu_relax();
- 	}
- }
- 
- /*
-- * this function sends a 'stop' sigp to all other CPUs in the system.
-- * it goes straight through.
-- */
--void smp_send_stop(void)
--{
--	/* Disable all interrupts/machine checks */
--	__load_psw_mask(psw_kernel_bits & ~PSW_MASK_MCHECK);
--
--	/* write magic number to zero page (absolute 0) */
--	lowcore_ptr[smp_processor_id()]->panic_magic = __PANIC_MAGIC;
--
--	/* stop other processors. */
--	do_send_stop();
--
--	/* wait until other processors are stopped */
--	do_wait_for_stop();
--
--	/* store status of other processors. */
--	do_store_status();
--}
--
--/*
-  * Reboot, halt and power_off routines for SMP.
-  */
- void machine_restart_smp(char *__unused)
-diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
-index 8ec9def..8ed16a8 100644
---- a/arch/s390/kernel/traps.c
-+++ b/arch/s390/kernel/traps.c
-@@ -260,6 +260,7 @@ void die(const char * str, struct pt_regs * regs, long err)
- 	bust_spinlocks(1);
- 	printk("%s: %04lx [#%d]\n", str, err & 0xffff, ++die_counter);
- 	print_modules();
-+	notify_die(DIE_OOPS, str, regs, err, current->thread.trap_no, SIGSEGV);
- 	show_regs(regs);
- 	bust_spinlocks(0);
- 	add_taint(TAINT_DIE);
-diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
-index d4ed93d..413c240 100644
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -341,19 +341,16 @@ cmm_timeout_handler(ctl_table *ctl, int write, struct file *filp,
- 
- static struct ctl_table cmm_table[] = {
- 	{
--		.ctl_name	= VM_CMM_PAGES,
- 		.procname	= "cmm_pages",
- 		.mode		= 0644,
- 		.proc_handler	= &cmm_pages_handler,
- 	},
- 	{
--		.ctl_name	= VM_CMM_TIMED_PAGES,
- 		.procname	= "cmm_timed_pages",
- 		.mode		= 0644,
- 		.proc_handler	= &cmm_pages_handler,
- 	},
- 	{
--		.ctl_name	= VM_CMM_TIMEOUT,
- 		.procname	= "cmm_timeout",
- 		.mode		= 0644,
- 		.proc_handler	= &cmm_timeout_handler,
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 838f7ac..6db3108 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -483,7 +483,7 @@ static DECLARE_WORK(css_reprobe_work, reprobe_all);
- void css_schedule_reprobe(void)
- {
- 	need_reprobe = 1;
--	queue_work(ccw_device_work, &css_reprobe_work);
-+	queue_work(slow_path_wq, &css_reprobe_work);
- }
- 
- EXPORT_SYMBOL_GPL(css_schedule_reprobe);
-diff --git a/drivers/s390/cio/device_fsm.c b/drivers/s390/cio/device_fsm.c
-index 8867443..bfad421 100644
---- a/drivers/s390/cio/device_fsm.c
-+++ b/drivers/s390/cio/device_fsm.c
-@@ -1034,7 +1034,7 @@ device_trigger_reprobe(struct subchannel *sch)
- 	if (sch->schib.pmcw.dev != cdev->private->dev_id.devno) {
- 		PREPARE_WORK(&cdev->private->kick_work,
- 			     ccw_device_move_to_orphanage);
--		queue_work(ccw_device_work, &cdev->private->kick_work);
-+		queue_work(slow_path_wq, &cdev->private->kick_work);
- 	} else
- 		ccw_device_start_id(cdev, 0);
- }
-diff --git a/drivers/s390/cio/device_id.c b/drivers/s390/cio/device_id.c
-index f232832..2f6bf46 100644
---- a/drivers/s390/cio/device_id.c
-+++ b/drivers/s390/cio/device_id.c
-@@ -113,19 +113,10 @@ __ccw_device_sense_id_start(struct ccw_device *cdev)
- {
- 	struct subchannel *sch;
- 	struct ccw1 *ccw;
--	int ret;
- 
- 	sch = to_subchannel(cdev->dev.parent);
- 	/* Setup sense channel program. */
- 	ccw = cdev->private->iccws;
--	if (sch->schib.pmcw.pim != 0x80) {
--		/* more than one path installed. */
--		ccw->cmd_code = CCW_CMD_SUSPEND_RECONN;
--		ccw->cda = 0;
--		ccw->count = 0;
--		ccw->flags = CCW_FLAG_SLI | CCW_FLAG_CC;
--		ccw++;
--	}
- 	ccw->cmd_code = CCW_CMD_SENSE_ID;
- 	ccw->cda = (__u32) __pa (&cdev->private->senseid);
- 	ccw->count = sizeof (struct senseid);
-@@ -133,25 +124,9 @@ __ccw_device_sense_id_start(struct ccw_device *cdev)
- 
- 	/* Reset device status. */
- 	memset(&cdev->private->irb, 0, sizeof(struct irb));
-+	cdev->private->flags.intretry = 0;
- 
--	/* Try on every path. */
--	ret = -ENODEV;
--	while (cdev->private->imask != 0) {
--		if ((sch->opm & cdev->private->imask) != 0 &&
--		    cdev->private->iretry > 0) {
--			cdev->private->iretry--;
--			/* Reset internal retry indication. */
--			cdev->private->flags.intretry = 0;
--			ret = cio_start (sch, cdev->private->iccws,
--					 cdev->private->imask);
--			/* ret is 0, -EBUSY, -EACCES or -ENODEV */
--			if (ret != -EACCES)
--				return ret;
--		}
--		cdev->private->imask >>= 1;
--		cdev->private->iretry = 5;
--	}
--	return ret;
-+	return cio_start(sch, ccw, LPM_ANYPATH);
- }
- 
- void
-@@ -161,8 +136,7 @@ ccw_device_sense_id_start(struct ccw_device *cdev)
- 
- 	memset (&cdev->private->senseid, 0, sizeof (struct senseid));
- 	cdev->private->senseid.cu_type = 0xFFFF;
--	cdev->private->imask = 0x80;
--	cdev->private->iretry = 5;
-+	cdev->private->iretry = 3;
- 	ret = __ccw_device_sense_id_start(cdev);
- 	if (ret && ret != -EBUSY)
- 		ccw_device_sense_id_done(cdev, ret);
-@@ -278,14 +252,13 @@ ccw_device_sense_id_irq(struct ccw_device *cdev, enum dev_event dev_event)
- 		ccw_device_sense_id_done(cdev, ret);
- 		break;
- 	case -EACCES:		/* channel is not operational. */
--		sch->lpm &= ~cdev->private->imask;
--		cdev->private->imask >>= 1;
--		cdev->private->iretry = 5;
--		/* fall through. */
- 	case -EAGAIN:		/* try again. */
--		ret = __ccw_device_sense_id_start(cdev);
--		if (ret == 0 || ret == -EBUSY)
--			break;
-+		cdev->private->iretry--;
-+		if (cdev->private->iretry > 0) {
-+			ret = __ccw_device_sense_id_start(cdev);
-+			if (ret == 0 || ret == -EBUSY)
-+				break;
-+		}
- 		/* fall through. */
- 	default:		/* Sense ID failed. Try asking VM. */
- 		if (MACHINE_IS_VM) {
-diff --git a/include/asm-s390/system.h b/include/asm-s390/system.h
-index d866d33..44bda78 100644
---- a/include/asm-s390/system.h
-+++ b/include/asm-s390/system.h
-@@ -388,6 +388,11 @@ extern void (*_machine_power_off)(void);
- 
- #define arch_align_stack(x) (x)
- 
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+extern psw_t sysc_restore_trace_psw;
-+extern psw_t io_restore_trace_psw;
-+#endif
-+
- #endif /* __KERNEL__ */
- 
- #endif
-diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-index e99171f..4f5047d 100644
---- a/include/linux/sysctl.h
-+++ b/include/linux/sysctl.h
-@@ -70,7 +70,6 @@ enum
- 	CTL_ABI=9,		/* Binary emulation */
- 	CTL_CPU=10,		/* CPU stuff (speed scaling, etc) */
- 	CTL_ARLAN=254,		/* arlan wireless driver */
--	CTL_APPLDATA=2120,	/* s390 appldata */
- 	CTL_S390DBF=5677,	/* s390 debug */
- 	CTL_SUNRPC=7249,	/* sunrpc debug */
- 	CTL_PM=9899,		/* frv power management */
-@@ -207,11 +206,6 @@ enum
- 	VM_PANIC_ON_OOM=33,	/* panic at out-of-memory */
- 	VM_VDSO_ENABLED=34,	/* map VDSO into new processes? */
- 	VM_MIN_SLAB=35,		 /* Percent pages ignored by zone reclaim */
--
--	/* s390 vm cmm sysctls */
--	VM_CMM_PAGES=1111,
--	VM_CMM_TIMED_PAGES=1112,
--	VM_CMM_TIMEOUT=1113,
- };
- 
- 
-diff --git a/kernel/sysctl_check.c b/kernel/sysctl_check.c
-index 4abc6d2..8f5baac 100644
---- a/kernel/sysctl_check.c
-+++ b/kernel/sysctl_check.c
-@@ -140,9 +140,6 @@ static struct trans_ctl_table trans_vm_table[] = {
- 	{ VM_PANIC_ON_OOM,		"panic_on_oom" },
- 	{ VM_VDSO_ENABLED,		"vdso_enabled" },
- 	{ VM_MIN_SLAB,			"min_slab_ratio" },
--	{ VM_CMM_PAGES,			"cmm_pages" },
--	{ VM_CMM_TIMED_PAGES,		"cmm_timed_pages" },
--	{ VM_CMM_TIMEOUT,		"cmm_timeout" },
- 
- 	{}
- };
-@@ -1219,16 +1216,6 @@ static struct trans_ctl_table trans_arlan_table[] = {
- 	{}
- };
- 
--static struct trans_ctl_table trans_appldata_table[] = {
--	{ CTL_APPLDATA_TIMER,		"timer" },
--	{ CTL_APPLDATA_INTERVAL,	"interval" },
--	{ CTL_APPLDATA_OS,		"os" },
--	{ CTL_APPLDATA_NET_SUM,		"net_sum" },
--	{ CTL_APPLDATA_MEM,		"mem" },
--	{}
--
--};
--
- static struct trans_ctl_table trans_s390dbf_table[] = {
- 	{ 5678 /* CTL_S390DBF_STOPPABLE */,	"debug_stoppable" },
- 	{ 5679 /* CTL_S390DBF_ACTIVE */,	"debug_active" },
-@@ -1273,7 +1260,6 @@ static struct trans_ctl_table trans_root_table[] = {
- 	{ CTL_ABI,	"abi" },
- 	/* CTL_CPU not used */
- 	{ CTL_ARLAN,	"arlan",	trans_arlan_table },
--	{ CTL_APPLDATA,	"appldata",	trans_appldata_table },
- 	{ CTL_S390DBF,	"s390dbf",	trans_s390dbf_table },
- 	{ CTL_SUNRPC,	"sunrpc",	trans_sunrpc_table },
- 	{ CTL_PM,	"pm",		trans_pm_table },
-diff --git a/mm/rmap.c b/mm/rmap.c
-index dc3be5f..dbc2ca2 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -471,11 +471,12 @@ int page_mkclean(struct page *page)
- 
- 	if (page_mapped(page)) {
- 		struct address_space *mapping = page_mapping(page);
--		if (mapping)
-+		if (mapping) {
- 			ret = page_mkclean_file(mapping, page);
--		if (page_test_dirty(page)) {
--			page_clear_dirty(page);
--			ret = 1;
-+			if (page_test_dirty(page)) {
-+				page_clear_dirty(page);
-+				ret = 1;
-+			}
- 		}
- 	}
- 
-diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-index a2f5a6e..7698f6c 100644
---- a/net/iucv/iucv.c
-+++ b/net/iucv/iucv.c
-@@ -97,7 +97,7 @@ struct iucv_irq_list {
- 	struct iucv_irq_data data;
- };
- 
--static struct iucv_irq_data *iucv_irq_data;
-+static struct iucv_irq_data *iucv_irq_data[NR_CPUS];
- static cpumask_t iucv_buffer_cpumask = CPU_MASK_NONE;
- static cpumask_t iucv_irq_cpumask = CPU_MASK_NONE;
- 
-@@ -277,7 +277,7 @@ union iucv_param {
- /*
-  * Anchor for per-cpu IUCV command parameter block.
-  */
--static union iucv_param *iucv_param;
-+static union iucv_param *iucv_param[NR_CPUS];
- 
- /**
-  * iucv_call_b2f0
-@@ -356,7 +356,7 @@ static void iucv_allow_cpu(void *data)
- 	 *	0x10 - Flag to allow priority message completion interrupts
- 	 *	0x08 - Flag to allow IUCV control interrupts
- 	 */
--	parm = percpu_ptr(iucv_param, smp_processor_id());
-+	parm = iucv_param[cpu];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	parm->set_mask.ipmask = 0xf8;
- 	iucv_call_b2f0(IUCV_SETMASK, parm);
-@@ -377,7 +377,7 @@ static void iucv_block_cpu(void *data)
- 	union iucv_param *parm;
- 
- 	/* Disable all iucv interrupts. */
--	parm = percpu_ptr(iucv_param, smp_processor_id());
-+	parm = iucv_param[cpu];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	iucv_call_b2f0(IUCV_SETMASK, parm);
- 
-@@ -401,9 +401,9 @@ static void iucv_declare_cpu(void *data)
- 		return;
- 
- 	/* Declare interrupt buffer. */
--	parm = percpu_ptr(iucv_param, cpu);
-+	parm = iucv_param[cpu];
- 	memset(parm, 0, sizeof(union iucv_param));
--	parm->db.ipbfadr1 = virt_to_phys(percpu_ptr(iucv_irq_data, cpu));
-+	parm->db.ipbfadr1 = virt_to_phys(iucv_irq_data[cpu]);
- 	rc = iucv_call_b2f0(IUCV_DECLARE_BUFFER, parm);
- 	if (rc) {
- 		char *err = "Unknown";
-@@ -458,7 +458,7 @@ static void iucv_retrieve_cpu(void *data)
- 	iucv_block_cpu(NULL);
- 
- 	/* Retrieve interrupt buffer. */
--	parm = percpu_ptr(iucv_param, cpu);
-+	parm = iucv_param[cpu];
- 	iucv_call_b2f0(IUCV_RETRIEVE_BUFFER, parm);
- 
- 	/* Clear indication that an iucv buffer exists for this cpu. */
-@@ -558,22 +558,23 @@ static int __cpuinit iucv_cpu_notify(struct notifier_block *self,
- 	switch (action) {
- 	case CPU_UP_PREPARE:
- 	case CPU_UP_PREPARE_FROZEN:
--		if (!percpu_populate(iucv_irq_data,
--				     sizeof(struct iucv_irq_data),
--				     GFP_KERNEL|GFP_DMA, cpu))
-+		iucv_irq_data[cpu] = kmalloc_node(sizeof(struct iucv_irq_data),
-+					GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
-+		if (!iucv_irq_data[cpu])
- 			return NOTIFY_BAD;
--		if (!percpu_populate(iucv_param, sizeof(union iucv_param),
--				     GFP_KERNEL|GFP_DMA, cpu)) {
--			percpu_depopulate(iucv_irq_data, cpu);
-+		iucv_param[cpu] = kmalloc_node(sizeof(union iucv_param),
-+				     GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
-+		if (!iucv_param[cpu])
- 			return NOTIFY_BAD;
--		}
- 		break;
- 	case CPU_UP_CANCELED:
- 	case CPU_UP_CANCELED_FROZEN:
- 	case CPU_DEAD:
- 	case CPU_DEAD_FROZEN:
--		percpu_depopulate(iucv_param, cpu);
--		percpu_depopulate(iucv_irq_data, cpu);
-+		kfree(iucv_param[cpu]);
-+		iucv_param[cpu] = NULL;
-+		kfree(iucv_irq_data[cpu]);
-+		iucv_irq_data[cpu] = NULL;
- 		break;
- 	case CPU_ONLINE:
- 	case CPU_ONLINE_FROZEN:
-@@ -612,7 +613,7 @@ static int iucv_sever_pathid(u16 pathid, u8 userdata[16])
- {
- 	union iucv_param *parm;
- 
--	parm = percpu_ptr(iucv_param, smp_processor_id());
-+	parm = iucv_param[smp_processor_id()];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	if (userdata)
- 		memcpy(parm->ctrl.ipuser, userdata, sizeof(parm->ctrl.ipuser));
-@@ -755,7 +756,7 @@ int iucv_path_accept(struct iucv_path *path, struct iucv_handler *handler,
- 
- 	local_bh_disable();
- 	/* Prepare parameter block. */
--	parm = percpu_ptr(iucv_param, smp_processor_id());
-+	parm = iucv_param[smp_processor_id()];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	parm->ctrl.ippathid = path->pathid;
- 	parm->ctrl.ipmsglim = path->msglim;
-@@ -799,7 +800,7 @@ int iucv_path_connect(struct iucv_path *path, struct iucv_handler *handler,
- 	BUG_ON(in_atomic());
- 	spin_lock_bh(&iucv_table_lock);
- 	iucv_cleanup_queue();
--	parm = percpu_ptr(iucv_param, smp_processor_id());
-+	parm = iucv_param[smp_processor_id()];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	parm->ctrl.ipmsglim = path->msglim;
- 	parm->ctrl.ipflags1 = path->flags;
-@@ -854,7 +855,7 @@ int iucv_path_quiesce(struct iucv_path *path, u8 userdata[16])
- 	int rc;
- 
- 	local_bh_disable();
--	parm = percpu_ptr(iucv_param, smp_processor_id());
-+	parm = iucv_param[smp_processor_id()];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	if (userdata)
- 		memcpy(parm->ctrl.ipuser, userdata, sizeof(parm->ctrl.ipuser));
-@@ -881,7 +882,7 @@ int iucv_path_resume(struct iucv_path *path, u8 userdata[16])
- 	int rc;
- 
- 	local_bh_disable();
--	parm = percpu_ptr(iucv_param, smp_processor_id());
-+	parm = iucv_param[smp_processor_id()];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	if (userdata)
- 		memcpy(parm->ctrl.ipuser, userdata, sizeof(parm->ctrl.ipuser));
-@@ -936,7 +937,7 @@ int iucv_message_purge(struct iucv_path *path, struct iucv_message *msg,
- 	int rc;
- 
- 	local_bh_disable();
--	parm = percpu_ptr(iucv_param, smp_processor_id());
-+	parm = iucv_param[smp_processor_id()];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	parm->purge.ippathid = path->pathid;
- 	parm->purge.ipmsgid = msg->id;
-@@ -1003,7 +1004,7 @@ int iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
- 	}
- 
- 	local_bh_disable();
--	parm = percpu_ptr(iucv_param, smp_processor_id());
-+	parm = iucv_param[smp_processor_id()];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	parm->db.ipbfadr1 = (u32)(addr_t) buffer;
- 	parm->db.ipbfln1f = (u32) size;
-@@ -1040,7 +1041,7 @@ int iucv_message_reject(struct iucv_path *path, struct iucv_message *msg)
- 	int rc;
- 
- 	local_bh_disable();
--	parm = percpu_ptr(iucv_param, smp_processor_id());
-+	parm = iucv_param[smp_processor_id()];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	parm->db.ippathid = path->pathid;
- 	parm->db.ipmsgid = msg->id;
-@@ -1074,7 +1075,7 @@ int iucv_message_reply(struct iucv_path *path, struct iucv_message *msg,
- 	int rc;
- 
- 	local_bh_disable();
--	parm = percpu_ptr(iucv_param, smp_processor_id());
-+	parm = iucv_param[smp_processor_id()];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	if (flags & IUCV_IPRMDATA) {
- 		parm->dpl.ippathid = path->pathid;
-@@ -1118,7 +1119,7 @@ int iucv_message_send(struct iucv_path *path, struct iucv_message *msg,
- 	int rc;
- 
- 	local_bh_disable();
--	parm = percpu_ptr(iucv_param, smp_processor_id());
-+	parm = iucv_param[smp_processor_id()];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	if (flags & IUCV_IPRMDATA) {
- 		/* Message of 8 bytes can be placed into the parameter list. */
-@@ -1172,7 +1173,7 @@ int iucv_message_send2way(struct iucv_path *path, struct iucv_message *msg,
- 	int rc;
- 
- 	local_bh_disable();
--	parm = percpu_ptr(iucv_param, smp_processor_id());
-+	parm = iucv_param[smp_processor_id()];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	if (flags & IUCV_IPRMDATA) {
- 		parm->dpl.ippathid = path->pathid;
-@@ -1559,7 +1560,7 @@ static void iucv_external_interrupt(u16 code)
- 	struct iucv_irq_data *p;
- 	struct iucv_irq_list *work;
- 
--	p = percpu_ptr(iucv_irq_data, smp_processor_id());
-+	p = iucv_irq_data[smp_processor_id()];
- 	if (p->ippathid >= iucv_max_pathid) {
- 		printk(KERN_WARNING "iucv_do_int: Got interrupt with "
- 		       "pathid %d > max_connections (%ld)\n",
-@@ -1598,6 +1599,7 @@ static void iucv_external_interrupt(u16 code)
- static int __init iucv_init(void)
- {
- 	int rc;
-+	int cpu;
- 
- 	if (!MACHINE_IS_VM) {
- 		rc = -EPROTONOSUPPORT;
-@@ -1617,19 +1619,23 @@ static int __init iucv_init(void)
- 		rc = PTR_ERR(iucv_root);
- 		goto out_bus;
- 	}
--	/* Note: GFP_DMA used to get memory below 2G */
--	iucv_irq_data = percpu_alloc(sizeof(struct iucv_irq_data),
--				     GFP_KERNEL|GFP_DMA);
--	if (!iucv_irq_data) {
--		rc = -ENOMEM;
--		goto out_root;
--	}
--	/* Allocate parameter blocks. */
--	iucv_param = percpu_alloc(sizeof(union iucv_param),
--				  GFP_KERNEL|GFP_DMA);
--	if (!iucv_param) {
--		rc = -ENOMEM;
--		goto out_extint;
-+
-+	for_each_online_cpu(cpu) {
-+		/* Note: GFP_DMA used to get memory below 2G */
-+		iucv_irq_data[cpu] = kmalloc_node(sizeof(struct iucv_irq_data),
-+				     GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
-+		if (!iucv_irq_data[cpu]) {
-+			rc = -ENOMEM;
-+			goto out_free;
-+		}
-+
-+		/* Allocate parameter blocks. */
-+		iucv_param[cpu] = kmalloc_node(sizeof(union iucv_param),
-+				  GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
-+		if (!iucv_param[cpu]) {
-+			rc = -ENOMEM;
-+			goto out_free;
-+		}
- 	}
- 	register_hotcpu_notifier(&iucv_cpu_notifier);
- 	ASCEBC(iucv_error_no_listener, 16);
-@@ -1638,9 +1644,13 @@ static int __init iucv_init(void)
- 	iucv_available = 1;
- 	return 0;
- 
--out_extint:
--	percpu_free(iucv_irq_data);
--out_root:
-+out_free:
-+	for_each_possible_cpu(cpu) {
-+		kfree(iucv_param[cpu]);
-+		iucv_param[cpu] = NULL;
-+		kfree(iucv_irq_data[cpu]);
-+		iucv_irq_data[cpu] = NULL;
-+	}
- 	s390_root_dev_unregister(iucv_root);
- out_bus:
- 	bus_unregister(&iucv_bus);
-@@ -1658,6 +1668,7 @@ out:
- static void __exit iucv_exit(void)
- {
- 	struct iucv_irq_list *p, *n;
-+	int cpu;
- 
- 	spin_lock_irq(&iucv_queue_lock);
- 	list_for_each_entry_safe(p, n, &iucv_task_queue, list)
-@@ -1666,8 +1677,12 @@ static void __exit iucv_exit(void)
- 		kfree(p);
- 	spin_unlock_irq(&iucv_queue_lock);
- 	unregister_hotcpu_notifier(&iucv_cpu_notifier);
--	percpu_free(iucv_param);
--	percpu_free(iucv_irq_data);
-+	for_each_possible_cpu(cpu) {
-+		kfree(iucv_param[cpu]);
-+		iucv_param[cpu] = NULL;
-+		kfree(iucv_irq_data[cpu]);
-+		iucv_irq_data[cpu] = NULL;
-+	}
- 	s390_root_dev_unregister(iucv_root);
- 	bus_unregister(&iucv_bus);
- 	unregister_external_interrupt(0x4000, iucv_external_interrupt);
+#
+# Processor type and features
+#
+# CONFIG_64BIT is not set
+CONFIG_32BIT=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=32
+CONFIG_HOTPLUG_CPU=y
+CONFIG_MATHEMU=y
+CONFIG_AUDIT_ARCH=y
+# CONFIG_S390_SWITCH_AMODE is not set
+# CONFIG_S390_EXEC_PROTECT is not set
+
+#
+# Code generation options
+#
+CONFIG_MARCH_G5=y
+# CONFIG_MARCH_Z900 is not set
+# CONFIG_MARCH_Z990 is not set
+# CONFIG_MARCH_Z9_109 is not set
+# CONFIG_PACK_STACK is not set
+# CONFIG_CHECK_STACK is not set
+# CONFIG_WARN_STACK is not set
+CONFIG_ARCH_POPULATES_NODE_MAP=y
+
+#
+# Kernel preemption
+#
+CONFIG_PREEMPT_NONE=y
+# CONFIG_PREEMPT_VOLUNTARY is not set
+# CONFIG_PREEMPT is not set
+# CONFIG_PREEMPT_BKL is not set
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+# CONFIG_DISCONTIGMEM_MANUAL is not set
+# CONFIG_SPARSEMEM_MANUAL is not set
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+# CONFIG_SPARSEMEM_STATIC is not set
+# CONFIG_SPARSEMEM_VMEMMAP_ENABLE is not set
+CONFIG_SPLIT_PTLOCK_CPUS=4
+CONFIG_RESOURCES_64BIT=y
+CONFIG_ZONE_DMA_FLAG=0
+CONFIG_VIRT_TO_BUS=y
+CONFIG_HOLES_IN_ZONE=y
+
+#
+# I/O subsystem configuration
+#
+CONFIG_MACHCHK_WARNING=y
+CONFIG_QDIO=y
+# CONFIG_QDIO_DEBUG is not set
+
+#
+# Misc
+#
+CONFIG_IPL=y
+# CONFIG_IPL_TAPE is not set
+CONFIG_IPL_VM=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+# CONFIG_PROCESS_DEBUG is not set
+CONFIG_PFAULT=y
+# CONFIG_SHARED_KERNEL is not set
+CONFIG_CMM=y
+CONFIG_CMM_PROC=y
+CONFIG_VIRT_TIMER=y
+CONFIG_VIRT_CPU_ACCOUNTING=y
+CONFIG_APPLDATA_BASE=y
+CONFIG_APPLDATA_MEM=m
+CONFIG_APPLDATA_OS=m
+CONFIG_APPLDATA_NET_SUM=m
+# CONFIG_HZ_100 is not set
+CONFIG_HZ_250=y
+# CONFIG_HZ_300 is not set
+# CONFIG_HZ_1000 is not set
+CONFIG_HZ=250
+CONFIG_NO_IDLE_HZ=y
+CONFIG_NO_IDLE_HZ_INIT=y
+CONFIG_S390_HYPFS_FS=y
+CONFIG_KEXEC=y
+# CONFIG_ZFCPDUMP is not set
+
+#
+# Networking
+#
+CONFIG_NET=y
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=m
+# CONFIG_XFRM_SUB_POLICY is not set
+# CONFIG_XFRM_MIGRATE is not set
+CONFIG_NET_KEY=m
+# CONFIG_NET_KEY_MIGRATE is not set
+CONFIG_IUCV=m
+# CONFIG_AFIUCV is not set
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_ASK_IP_FIB_HASH=y
+# CONFIG_IP_FIB_TRIE is not set
+CONFIG_IP_FIB_HASH=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_VERBOSE=y
+# CONFIG_IP_PNP is not set
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+CONFIG_NET_IPGRE_BROADCAST=y
+CONFIG_IP_MROUTE=y
+CONFIG_IP_PIMSM_V1=y
+CONFIG_IP_PIMSM_V2=y
+# CONFIG_ARPD is not set
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_AH=m
+CONFIG_INET_ESP=m
+CONFIG_INET_IPCOMP=m
+CONFIG_INET_XFRM_TUNNEL=m
+CONFIG_INET_TUNNEL=m
+CONFIG_INET_XFRM_MODE_TRANSPORT=m
+CONFIG_INET_XFRM_MODE_TUNNEL=m
+CONFIG_INET_XFRM_MODE_BEET=m
+# CONFIG_INET_LRO is not set
+CONFIG_INET_DIAG=m
+CONFIG_INET_TCP_DIAG=m
+CONFIG_TCP_CONG_ADVANCED=y
+CONFIG_TCP_CONG_BIC=y
+CONFIG_TCP_CONG_CUBIC=m
+CONFIG_TCP_CONG_WESTWOOD=m
+CONFIG_TCP_CONG_HTCP=m
+CONFIG_TCP_CONG_HSTCP=m
+CONFIG_TCP_CONG_HYBLA=m
+CONFIG_TCP_CONG_VEGAS=m
+CONFIG_TCP_CONG_SCALABLE=m
+CONFIG_TCP_CONG_LP=m
+CONFIG_TCP_CONG_VENO=m
+CONFIG_TCP_CONG_YEAH=m
+CONFIG_TCP_CONG_ILLINOIS=m
+CONFIG_DEFAULT_BIC=y
+# CONFIG_DEFAULT_CUBIC is not set
+# CONFIG_DEFAULT_HTCP is not set
+# CONFIG_DEFAULT_VEGAS is not set
+# CONFIG_DEFAULT_WESTWOOD is not set
+# CONFIG_DEFAULT_RENO is not set
+CONFIG_DEFAULT_TCP_CONG="bic"
+# CONFIG_TCP_MD5SIG is not set
+CONFIG_IP_VS=m
+# CONFIG_IP_VS_DEBUG is not set
+CONFIG_IP_VS_TAB_BITS=12
+
+#
+# IPVS transport protocol load balancing support
+#
+CONFIG_IP_VS_PROTO_TCP=y
+CONFIG_IP_VS_PROTO_UDP=y
+CONFIG_IP_VS_PROTO_ESP=y
+CONFIG_IP_VS_PROTO_AH=y
+
+#
+# IPVS scheduler
+#
+CONFIG_IP_VS_RR=m
+CONFIG_IP_VS_WRR=m
+CONFIG_IP_VS_LC=m
+CONFIG_IP_VS_WLC=m
+CONFIG_IP_VS_LBLC=m
+CONFIG_IP_VS_LBLCR=m
+CONFIG_IP_VS_DH=m
+CONFIG_IP_VS_SH=m
+CONFIG_IP_VS_SED=m
+CONFIG_IP_VS_NQ=m
+
+#
+# IPVS application helper
+#
+CONFIG_IP_VS_FTP=m
+CONFIG_IPV6=y
+CONFIG_IPV6_PRIVACY=y
+# CONFIG_IPV6_ROUTER_PREF is not set
+# CONFIG_IPV6_OPTIMISTIC_DAD is not set
+CONFIG_INET6_AH=m
+CONFIG_INET6_ESP=m
+CONFIG_INET6_IPCOMP=m
+# CONFIG_IPV6_MIP6 is not set
+CONFIG_INET6_XFRM_TUNNEL=m
+CONFIG_INET6_TUNNEL=m
+CONFIG_INET6_XFRM_MODE_TRANSPORT=m
+CONFIG_INET6_XFRM_MODE_TUNNEL=m
+CONFIG_INET6_XFRM_MODE_BEET=m
+CONFIG_INET6_XFRM_MODE_ROUTEOPTIMIZATION=m
+CONFIG_IPV6_SIT=m
+CONFIG_IPV6_TUNNEL=m
+# CONFIG_IPV6_MULTIPLE_TABLES is not set
+# CONFIG_NETLABEL is not set
+CONFIG_NETWORK_SECMARK=y
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+
+#
+# Core Netfilter Configuration
+#
+CONFIG_NETFILTER_NETLINK=m
+CONFIG_NETFILTER_NETLINK_QUEUE=m
+CONFIG_NETFILTER_NETLINK_LOG=m
+CONFIG_NF_CONNTRACK_ENABLED=m
+CONFIG_NF_CONNTRACK=m
+CONFIG_NF_CT_ACCT=y
+CONFIG_NF_CONNTRACK_MARK=y
+CONFIG_NF_CONNTRACK_SECMARK=y
+CONFIG_NF_CONNTRACK_EVENTS=y
+CONFIG_NF_CT_PROTO_GRE=m
+CONFIG_NF_CT_PROTO_SCTP=m
+# CONFIG_NF_CT_PROTO_UDPLITE is not set
+CONFIG_NF_CONNTRACK_AMANDA=m
+CONFIG_NF_CONNTRACK_FTP=m
+CONFIG_NF_CONNTRACK_H323=m
+CONFIG_NF_CONNTRACK_IRC=m
+CONFIG_NF_CONNTRACK_NETBIOS_NS=m
+CONFIG_NF_CONNTRACK_PPTP=m
+CONFIG_NF_CONNTRACK_SANE=m
+CONFIG_NF_CONNTRACK_SIP=m
+CONFIG_NF_CONNTRACK_TFTP=m
+CONFIG_NF_CT_NETLINK=m
+CONFIG_NETFILTER_XTABLES=m
+CONFIG_NETFILTER_XT_TARGET_CLASSIFY=m
+CONFIG_NETFILTER_XT_TARGET_CONNMARK=m
+CONFIG_NETFILTER_XT_TARGET_DSCP=m
+CONFIG_NETFILTER_XT_TARGET_MARK=m
+CONFIG_NETFILTER_XT_TARGET_NFQUEUE=m
+CONFIG_NETFILTER_XT_TARGET_NFLOG=m
+CONFIG_NETFILTER_XT_TARGET_NOTRACK=m
+# CONFIG_NETFILTER_XT_TARGET_TRACE is not set
+CONFIG_NETFILTER_XT_TARGET_SECMARK=m
+CONFIG_NETFILTER_XT_TARGET_CONNSECMARK=m
+CONFIG_NETFILTER_XT_TARGET_TCPMSS=m
+CONFIG_NETFILTER_XT_MATCH_COMMENT=m
+CONFIG_NETFILTER_XT_MATCH_CONNBYTES=m
+# CONFIG_NETFILTER_XT_MATCH_CONNLIMIT is not set
+CONFIG_NETFILTER_XT_MATCH_CONNMARK=m
+CONFIG_NETFILTER_XT_MATCH_CONNTRACK=m
+CONFIG_NETFILTER_XT_MATCH_DCCP=m
+CONFIG_NETFILTER_XT_MATCH_DSCP=m
+CONFIG_NETFILTER_XT_MATCH_ESP=m
+CONFIG_NETFILTER_XT_MATCH_HELPER=m
+CONFIG_NETFILTER_XT_MATCH_LENGTH=m
+CONFIG_NETFILTER_XT_MATCH_LIMIT=m
+CONFIG_NETFILTER_XT_MATCH_MAC=m
+CONFIG_NETFILTER_XT_MATCH_MARK=m
+CONFIG_NETFILTER_XT_MATCH_POLICY=m
+CONFIG_NETFILTER_XT_MATCH_MULTIPORT=m
+CONFIG_NETFILTER_XT_MATCH_PKTTYPE=m
+CONFIG_NETFILTER_XT_MATCH_QUOTA=m
+CONFIG_NETFILTER_XT_MATCH_REALM=m
+CONFIG_NETFILTER_XT_MATCH_SCTP=m
+CONFIG_NETFILTER_XT_MATCH_STATE=m
+CONFIG_NETFILTER_XT_MATCH_STATISTIC=m
+CONFIG_NETFILTER_XT_MATCH_STRING=m
+CONFIG_NETFILTER_XT_MATCH_TCPMSS=m
+# CONFIG_NETFILTER_XT_MATCH_TIME is not set
+# CONFIG_NETFILTER_XT_MATCH_U32 is not set
+CONFIG_NETFILTER_XT_MATCH_HASHLIMIT=m
+
+#
+# IP: Netfilter Configuration
+#
+CONFIG_NF_CONNTRACK_IPV4=m
+CONFIG_NF_CONNTRACK_PROC_COMPAT=y
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_IPRANGE=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_RECENT=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_AH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_MATCH_ADDRTYPE=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_NF_NAT=m
+CONFIG_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_TARGET_NETMAP=m
+CONFIG_IP_NF_TARGET_SAME=m
+CONFIG_NF_NAT_SNMP_BASIC=m
+CONFIG_NF_NAT_PROTO_GRE=m
+CONFIG_NF_NAT_FTP=m
+CONFIG_NF_NAT_IRC=m
+CONFIG_NF_NAT_TFTP=m
+CONFIG_NF_NAT_AMANDA=m
+CONFIG_NF_NAT_PPTP=m
+CONFIG_NF_NAT_H323=m
+CONFIG_NF_NAT_SIP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_TTL=m
+CONFIG_IP_NF_TARGET_CLUSTERIP=m
+CONFIG_IP_NF_RAW=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IP_NF_ARP_MANGLE=m
+
+#
+# IPv6: Netfilter Configuration (EXPERIMENTAL)
+#
+CONFIG_NF_CONNTRACK_IPV6=m
+CONFIG_IP6_NF_QUEUE=m
+CONFIG_IP6_NF_IPTABLES=m
+CONFIG_IP6_NF_MATCH_RT=m
+CONFIG_IP6_NF_MATCH_OPTS=m
+CONFIG_IP6_NF_MATCH_FRAG=m
+CONFIG_IP6_NF_MATCH_HL=m
+CONFIG_IP6_NF_MATCH_OWNER=m
+CONFIG_IP6_NF_MATCH_IPV6HEADER=m
+CONFIG_IP6_NF_MATCH_AH=m
+CONFIG_IP6_NF_MATCH_MH=m
+CONFIG_IP6_NF_MATCH_EUI64=m
+CONFIG_IP6_NF_FILTER=m
+CONFIG_IP6_NF_TARGET_LOG=m
+CONFIG_IP6_NF_TARGET_REJECT=m
+CONFIG_IP6_NF_MANGLE=m
+CONFIG_IP6_NF_TARGET_HL=m
+CONFIG_IP6_NF_RAW=m
+CONFIG_IP_DCCP=m
+CONFIG_INET_DCCP_DIAG=m
+CONFIG_IP_DCCP_ACKVEC=y
+
+#
+# DCCP CCIDs Configuration (EXPERIMENTAL)
+#
+CONFIG_IP_DCCP_CCID2=m
+# CONFIG_IP_DCCP_CCID2_DEBUG is not set
+CONFIG_IP_DCCP_CCID3=m
+CONFIG_IP_DCCP_TFRC_LIB=m
+# CONFIG_IP_DCCP_CCID3_DEBUG is not set
+CONFIG_IP_DCCP_CCID3_RTO=100
+CONFIG_IP_SCTP=m
+# CONFIG_SCTP_DBG_MSG is not set
+# CONFIG_SCTP_DBG_OBJCNT is not set
+# CONFIG_SCTP_HMAC_NONE is not set
+# CONFIG_SCTP_HMAC_SHA1 is not set
+CONFIG_SCTP_HMAC_MD5=y
+CONFIG_TIPC=m
+CONFIG_TIPC_ADVANCED=y
+CONFIG_TIPC_ZONES=3
+CONFIG_TIPC_CLUSTERS=1
+CONFIG_TIPC_NODES=255
+CONFIG_TIPC_SLAVE_NODES=0
+CONFIG_TIPC_PORTS=8191
+CONFIG_TIPC_LOG=0
+# CONFIG_TIPC_DEBUG is not set
+# CONFIG_ATM is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_DECNET is not set
+# CONFIG_LLC2 is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_SCHED is not set
+CONFIG_NET_CLS_ROUTE=y
+
+#
+# Network testing
+#
+CONFIG_NET_PKTGEN=m
+# CONFIG_AF_RXRPC is not set
+CONFIG_FIB_RULES=y
+CONFIG_RFKILL=m
+# CONFIG_NET_9P is not set
+# CONFIG_PCMCIA is not set
+CONFIG_CCW=y
+
+#
+# Device Drivers
+#
+
+#
+# Generic Driver Options
+#
+CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=m
+CONFIG_SYS_HYPERVISOR=y
+CONFIG_CONNECTOR=m
+CONFIG_BLK_DEV=y
+# CONFIG_BLK_DEV_COW_COMMON is not set
+CONFIG_BLK_DEV_LOOP=m
+# CONFIG_BLK_DEV_CRYPTOLOOP is not set
+# CONFIG_BLK_DEV_NBD is not set
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_BLK_DEV_RAM_SIZE=24576
+CONFIG_BLK_DEV_RAM_BLOCKSIZE=1024
+# CONFIG_CDROM_PKTCDVD is not set
+# CONFIG_ATA_OVER_ETH is not set
+
+#
+# S/390 block device drivers
+#
+CONFIG_BLK_DEV_XPRAM=m
+CONFIG_DCSSBLK=m
+CONFIG_DASD=m
+# CONFIG_DASD_PROFILE is not set
+CONFIG_DASD_ECKD=m
+CONFIG_DASD_FBA=m
+CONFIG_DASD_DIAG=m
+# CONFIG_DASD_EER is not set
+# CONFIG_MISC_DEVICES is not set
+
+#
+# SCSI device support
+#
+# CONFIG_RAID_ATTRS is not set
+# CONFIG_SCSI is not set
+# CONFIG_SCSI_DMA is not set
+# CONFIG_SCSI_NETLINK is not set
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=m
+CONFIG_MD_LINEAR=m
+CONFIG_MD_RAID0=m
+CONFIG_MD_RAID1=m
+CONFIG_MD_RAID10=m
+CONFIG_MD_RAID456=m
+CONFIG_MD_RAID5_RESHAPE=y
+CONFIG_MD_MULTIPATH=m
+CONFIG_MD_FAULTY=m
+CONFIG_BLK_DEV_DM=m
+# CONFIG_DM_DEBUG is not set
+CONFIG_DM_CRYPT=m
+CONFIG_DM_SNAPSHOT=m
+CONFIG_DM_MIRROR=m
+CONFIG_DM_ZERO=m
+CONFIG_DM_MULTIPATH=m
+# CONFIG_DM_MULTIPATH_EMC is not set
+# CONFIG_DM_MULTIPATH_HP is not set
+CONFIG_DM_DELAY=m
+# CONFIG_DM_UEVENT is not set
+CONFIG_NETDEVICES=y
+# CONFIG_NETDEVICES_MULTIQUEUE is not set
+# CONFIG_DUMMY is not set
+CONFIG_BONDING=m
+# CONFIG_MACVLAN is not set
+CONFIG_EQUALIZER=m
+CONFIG_TUN=m
+# CONFIG_VETH is not set
+# CONFIG_NET_ETHERNET is not set
+# CONFIG_NETDEV_1000 is not set
+# CONFIG_NETDEV_10000 is not set
+# CONFIG_TR is not set
+# CONFIG_WAN is not set
+
+#
+# S/390 network device drivers
+#
+CONFIG_CTC=m
+CONFIG_NETIUCV=m
+CONFIG_SMSGIUCV=m
+# CONFIG_CLAW is not set
+# CONFIG_QETH is not set
+CONFIG_QETH_VLAN=y
+CONFIG_CCWGROUP=m
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+# CONFIG_SHAPER is not set
+# CONFIG_NETCONSOLE is not set
+# CONFIG_NETPOLL is not set
+# CONFIG_NET_POLL_CONTROLLER is not set
+
+#
+# Character devices
+#
+CONFIG_UNIX98_PTYS=y
+# CONFIG_LEGACY_PTYS is not set
+CONFIG_HW_RANDOM=y
+# CONFIG_R3964 is not set
+# CONFIG_RAW_DRIVER is not set
+# CONFIG_HANGCHECK_TIMER is not set
+
+#
+# S/390 character device drivers
+#
+CONFIG_TN3270=y
+# CONFIG_TN3270_TTY is not set
+# CONFIG_TN3270_FS is not set
+CONFIG_TN3215=y
+CONFIG_TN3215_CONSOLE=y
+CONFIG_CCW_CONSOLE=y
+CONFIG_SCLP_TTY=y
+CONFIG_SCLP_CONSOLE=y
+CONFIG_SCLP_VT220_TTY=y
+CONFIG_SCLP_VT220_CONSOLE=y
+# CONFIG_SCLP_CPI is not set
+CONFIG_S390_TAPE=m
+
+#
+# S/390 tape interface support
+#
+CONFIG_S390_TAPE_BLOCK=y
+
+#
+# S/390 tape hardware support
+#
+CONFIG_S390_TAPE_34XX=m
+CONFIG_S390_TAPE_3590=m
+CONFIG_VMLOGRDR=m
+CONFIG_VMCP=m
+CONFIG_MONREADER=m
+CONFIG_MONWRITER=m
+CONFIG_S390_VMUR=m
+# CONFIG_POWER_SUPPLY is not set
+# CONFIG_WATCHDOG is not set
+
+#
+# Sonics Silicon Backplane
+#
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT2_FS_SECURITY=y
+# CONFIG_EXT2_FS_XIP is not set
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_EXT3_FS_SECURITY=y
+# CONFIG_EXT4DEV_FS is not set
+CONFIG_JBD=y
+# CONFIG_JBD_DEBUG is not set
+CONFIG_FS_MBCACHE=y
+# CONFIG_REISERFS_FS is not set
+# CONFIG_JFS_FS is not set
+CONFIG_FS_POSIX_ACL=y
+# CONFIG_XFS_FS is not set
+# CONFIG_GFS2_FS is not set
+# CONFIG_OCFS2_FS is not set
+# CONFIG_MINIX_FS is not set
+CONFIG_ROMFS_FS=m
+CONFIG_INOTIFY=y
+CONFIG_INOTIFY_USER=y
+CONFIG_QUOTA=y
+# CONFIG_QUOTA_NETLINK_INTERFACE is not set
+CONFIG_PRINT_QUOTA_WARNING=y
+CONFIG_QFMT_V1=m
+CONFIG_QFMT_V2=m
+CONFIG_QUOTACTL=y
+CONFIG_DNOTIFY=y
+CONFIG_AUTOFS_FS=m
+CONFIG_AUTOFS4_FS=m
+CONFIG_FUSE_FS=m
+CONFIG_GENERIC_ACL=y
+
+#
+# CD-ROM/DVD Filesystems
+#
+# CONFIG_ISO9660_FS is not set
+# CONFIG_UDF_FS is not set
+
+#
+# DOS/FAT/NT Filesystems
+#
+# CONFIG_MSDOS_FS is not set
+# CONFIG_VFAT_FS is not set
+# CONFIG_NTFS_FS is not set
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_PROC_SYSCTL=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_TMPFS_POSIX_ACL=y
+# CONFIG_HUGETLB_PAGE is not set
+CONFIG_CONFIGFS_FS=m
+
+#
+# Miscellaneous filesystems
+#
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_ECRYPT_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_HFSPLUS_FS is not set
+# CONFIG_BEFS_FS is not set
+# CONFIG_BFS_FS is not set
+# CONFIG_EFS_FS is not set
+# CONFIG_CRAMFS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_HPFS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+CONFIG_NETWORK_FILESYSTEMS=y
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFS_V3_ACL=y
+CONFIG_NFS_V4=y
+CONFIG_NFS_DIRECTIO=y
+# CONFIG_NFSD is not set
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_NFS_ACL_SUPPORT=m
+CONFIG_NFS_COMMON=y
+CONFIG_SUNRPC=m
+CONFIG_SUNRPC_GSS=m
+CONFIG_SUNRPC_BIND34=y
+CONFIG_RPCSEC_GSS_KRB5=m
+# CONFIG_RPCSEC_GSS_SPKM3 is not set
+# CONFIG_SMB_FS is not set
+# CONFIG_CIFS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_CODA_FS is not set
+# CONFIG_AFS_FS is not set
+
+#
+# Partition Types
+#
+CONFIG_PARTITION_ADVANCED=y
+# CONFIG_ACORN_PARTITION is not set
+# CONFIG_OSF_PARTITION is not set
+# CONFIG_AMIGA_PARTITION is not set
+# CONFIG_ATARI_PARTITION is not set
+CONFIG_IBM_PARTITION=y
+# CONFIG_MAC_PARTITION is not set
+CONFIG_MSDOS_PARTITION=y
+CONFIG_BSD_DISKLABEL=y
+# CONFIG_MINIX_SUBPARTITION is not set
+# CONFIG_SOLARIS_X86_PARTITION is not set
+# CONFIG_UNIXWARE_DISKLABEL is not set
+# CONFIG_LDM_PARTITION is not set
+# CONFIG_SGI_PARTITION is not set
+# CONFIG_ULTRIX_PARTITION is not set
+# CONFIG_SUN_PARTITION is not set
+CONFIG_KARMA_PARTITION=y
+# CONFIG_EFI_PARTITION is not set
+# CONFIG_SYSV68_PARTITION is not set
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+CONFIG_NLS_CODEPAGE_850=m
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_CODEPAGE_1250 is not set
+# CONFIG_NLS_CODEPAGE_1251 is not set
+CONFIG_NLS_ASCII=m
+CONFIG_NLS_ISO8859_1=m
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_13 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+CONFIG_NLS_ISO8859_15=m
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_KOI8_U is not set
+CONFIG_NLS_UTF8=m
+CONFIG_DLM=m
+CONFIG_DLM_DEBUG=y
+CONFIG_INSTRUMENTATION=y
+# CONFIG_PROFILING is not set
+# CONFIG_KPROBES is not set
+# CONFIG_MARKERS is not set
+
+#
+# Kernel hacking
+#
+CONFIG_TRACE_IRQFLAGS_SUPPORT=y
+# CONFIG_PRINTK_TIME is not set
+CONFIG_ENABLE_WARN_DEPRECATED=y
+CONFIG_ENABLE_MUST_CHECK=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_UNUSED_SYMBOLS=y
+CONFIG_DEBUG_FS=y
+# CONFIG_HEADERS_CHECK is not set
+# CONFIG_DEBUG_KERNEL is not set
+CONFIG_DEBUG_BUGVERBOSE=y
+# CONFIG_SAMPLES is not set
+
+#
+# Security options
+#
+CONFIG_KEYS=y
+# CONFIG_KEYS_DEBUG_PROC_KEYS is not set
+CONFIG_SECURITY=y
+CONFIG_SECURITY_NETWORK=y
+CONFIG_SECURITY_NETWORK_XFRM=y
+CONFIG_SECURITY_CAPABILITIES=y
+# CONFIG_SECURITY_FILE_CAPABILITIES is not set
+CONFIG_SECURITY_SELINUX=y
+CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=0
+CONFIG_SECURITY_SELINUX_DISABLE=y
+CONFIG_SECURITY_SELINUX_DEVELOP=y
+CONFIG_SECURITY_SELINUX_AVC_STATS=y
+CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=1
+# CONFIG_SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT is not set
+# CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX is not set
+CONFIG_XOR_BLOCKS=m
+CONFIG_ASYNC_CORE=m
+CONFIG_ASYNC_MEMCPY=m
+CONFIG_ASYNC_XOR=m
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_ALGAPI=y
+CONFIG_CRYPTO_BLKCIPHER=m
+CONFIG_CRYPTO_HASH=y
+CONFIG_CRYPTO_MANAGER=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_XCBC=m
+CONFIG_CRYPTO_NULL=m
+CONFIG_CRYPTO_MD4=m
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=m
+CONFIG_CRYPTO_SHA256=m
+CONFIG_CRYPTO_SHA512=m
+CONFIG_CRYPTO_WP512=m
+CONFIG_CRYPTO_TGR192=m
+CONFIG_CRYPTO_GF128MUL=m
+CONFIG_CRYPTO_ECB=m
+CONFIG_CRYPTO_CBC=m
+CONFIG_CRYPTO_PCBC=m
+CONFIG_CRYPTO_LRW=m
+# CONFIG_CRYPTO_XTS is not set
+# CONFIG_CRYPTO_CRYPTD is not set
+CONFIG_CRYPTO_DES=m
+CONFIG_CRYPTO_FCRYPT=m
+CONFIG_CRYPTO_BLOWFISH=m
+CONFIG_CRYPTO_TWOFISH=m
+CONFIG_CRYPTO_TWOFISH_COMMON=m
+CONFIG_CRYPTO_SERPENT=m
+CONFIG_CRYPTO_AES=m
+CONFIG_CRYPTO_CAST5=m
+CONFIG_CRYPTO_CAST6=m
+CONFIG_CRYPTO_TEA=m
+CONFIG_CRYPTO_ARC4=m
+CONFIG_CRYPTO_KHAZAD=m
+CONFIG_CRYPTO_ANUBIS=m
+# CONFIG_CRYPTO_SEED is not set
+CONFIG_CRYPTO_DEFLATE=m
+CONFIG_CRYPTO_MICHAEL_MIC=m
+CONFIG_CRYPTO_CRC32C=m
+CONFIG_CRYPTO_CAMELLIA=m
+CONFIG_CRYPTO_TEST=m
+# CONFIG_CRYPTO_AUTHENC is not set
+# CONFIG_CRYPTO_HW is not set
+
+#
+# Library routines
+#
+CONFIG_BITREVERSE=m
+# CONFIG_CRC_CCITT is not set
+CONFIG_CRC16=m
+CONFIG_CRC_ITU_T=m
+CONFIG_CRC32=m
+# CONFIG_CRC7 is not set
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_TEXTSEARCH=y
+CONFIG_TEXTSEARCH_KMP=m
+CONFIG_TEXTSEARCH_BM=m
+CONFIG_TEXTSEARCH_FSM=m
+CONFIG_PLIST=y
+
+--Boundary-00=_SKUTHVVi6nyqsCY--
