@@ -1,52 +1,109 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759689AbXK0Qam@vger.kernel.org>
-Message-Id: <20071127162920.358220309@de.ibm.com>
-References: <20071127162210.262064983@de.ibm.com>
-Date: Tue, 27 Nov 2007 17:22:14 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 4/4] Fix compile error on 31bit without preemption
-Content-Disposition: inline; filename=004-non-preempt.diff
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Ursula Braun <braunu@de.ibm.com>
+Subject: [patch 1/1] ctc: make use of alloc_netdev()
+Date: Thu, 29 Nov 2007 17:36:27 +0100
+Message-ID: <20071129163934.296999000@linux.vnet.ibm.com>
+References: <20071129163626.573067000@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=ctc.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Peter Tiedemann <ptiedem@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Peter Tiedemann <ptiedem@de.ibm.com>
 
-Commit b8e7a54cd06b0b0174029ef3a7f5a1415a2c28f2 introduced a compile
-error if CONFIG_PREEMPT is not set:
+Currently ctc-device initialization is broken (kernel bug in
+ctc_new_device).
+The new network namespace code reveals a deficiency of the
+ctc driver. It should make use of alloc_netdev() as described
+in Documentation/networking/netdevices.txt.
 
-arch/s390/kernel/built-in.o: In function `cleanup_io_leave_insn':
-/space/kvm/arch/s390/kernel/entry.S:(.text+0xbfce): undefined reference to `preempt_schedule_irq'
-
-This patch hides preempt_schedule_irq if CONFIG_PREEMPT is not set.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Peter Tiedemann <ptiedem@de.ibm.com>
+Signed-off-by: Ursula Braun <braunu@de.ibm.com>
 ---
+ drivers/s390/net/ctcmain.c |   45 ++++++++++++++++-----------------------------
+ 1 file changed, 16 insertions(+), 29 deletions(-)
 
- arch/s390/kernel/entry.S |    2 ++
- 1 file changed, 2 insertions(+)
-
-Index: quilt-2.6/arch/s390/kernel/entry.S
+Index: linux-2.6-uschi/drivers/s390/net/ctcmain.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/entry.S
-+++ quilt-2.6/arch/s390/kernel/entry.S
-@@ -1079,8 +1079,10 @@ cleanup_io_leave_insn:
- .Lexecve_tail:	.long	execve_tail
- .Ljump_table:	.long	pgm_check_table
- .Lschedule:	.long	schedule
-+#ifdef CONFIG_PREEMPT
- .Lpreempt_schedule_irq:
- 		.long	preempt_schedule_irq
-+#endif
- .Ltrace:	.long	syscall_trace
- .Lschedtail:	.long	schedule_tail
- .Lsysc_table:	.long	sys_call_table
+--- linux-2.6-uschi.orig/drivers/s390/net/ctcmain.c
++++ linux-2.6-uschi/drivers/s390/net/ctcmain.c
+@@ -2782,35 +2782,14 @@ ctc_probe_device(struct ccwgroup_device 
+ }
+ 
+ /**
+- * Initialize everything of the net device except the name and the
+- * channel structs.
++ * Device setup function called by alloc_netdev().
++ *
++ * @param dev  Device to be setup.
+  */
+-static struct net_device *
+-ctc_init_netdevice(struct net_device * dev, int alloc_device,
+-		   struct ctc_priv *privptr)
++void ctc_init_netdevice(struct net_device * dev)
+ {
+-	if (!privptr)
+-		return NULL;
+-
+ 	DBF_TEXT(setup, 3, __FUNCTION__);
+ 
+-	if (alloc_device) {
+-		dev = kzalloc(sizeof(struct net_device), GFP_KERNEL);
+-		if (!dev)
+-			return NULL;
+-	}
+-
+-	dev->priv = privptr;
+-	privptr->fsm = init_fsm("ctcdev", dev_state_names,
+-				dev_event_names, CTC_NR_DEV_STATES, CTC_NR_DEV_EVENTS,
+-				dev_fsm, DEV_FSM_LEN, GFP_KERNEL);
+-	if (privptr->fsm == NULL) {
+-		if (alloc_device)
+-			kfree(dev);
+-		return NULL;
+-	}
+-	fsm_newstate(privptr->fsm, DEV_STATE_STOPPED);
+-	fsm_settimer(privptr->fsm, &privptr->restart_timer);
+ 	if (dev->mtu == 0)
+ 		dev->mtu = CTC_BUFSIZE_DEFAULT - LL_HEADER_LENGTH - 2;
+ 	dev->hard_start_xmit = ctc_tx;
+@@ -2823,7 +2802,7 @@ ctc_init_netdevice(struct net_device * d
+ 	dev->type = ARPHRD_SLIP;
+ 	dev->tx_queue_len = 100;
+ 	dev->flags = IFF_POINTOPOINT | IFF_NOARP;
+-	return dev;
++	SET_MODULE_OWNER(dev);
+ }
+ 
+ 
+@@ -2879,14 +2858,22 @@ ctc_new_device(struct ccwgroup_device *c
+ 		 	"ccw_device_set_online (cdev[1]) failed with ret = %d\n", ret);
+ 	}
+ 
+-	dev = ctc_init_netdevice(NULL, 1, privptr);
+-
++	dev = alloc_netdev(0, "ctc%d", ctc_init_netdevice);
+ 	if (!dev) {
+ 		ctc_pr_warn("ctc_init_netdevice failed\n");
+ 		goto out;
+ 	}
++	dev->priv = privptr;
+ 
+-	strlcpy(dev->name, "ctc%d", IFNAMSIZ);
++	privptr->fsm = init_fsm("ctcdev", dev_state_names,
++			dev_event_names, CTC_NR_DEV_STATES, CTC_NR_DEV_EVENTS,
++			dev_fsm, DEV_FSM_LEN, GFP_KERNEL);
++	if (privptr->fsm == NULL) {
++		free_netdev(dev);
++		goto out;
++	}
++	fsm_newstate(privptr->fsm, DEV_STATE_STOPPED);
++	fsm_settimer(privptr->fsm, &privptr->restart_timer);
+ 
+ 	for (direction = READ; direction <= WRITE; direction++) {
+ 		privptr->channel[direction] =
 
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
