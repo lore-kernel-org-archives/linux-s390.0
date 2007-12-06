@@ -1,30 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753460AbXLRKFO@vger.kernel.org>
-Subject: Re: [PATCH] arch/s390/: Spelling fixes
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-In-Reply-To: <5703e57f925f31fc0eb38873bd7f10fc44f99cb4.1197918890.git.joe@perches.com>
-References: <5703e57f925f31fc0eb38873bd7f10fc44f99cb4.1197918890.git.joe@perches.com>
-Content-Type: text/plain
-Date: Tue, 18 Dec 2007 11:04:58 +0100
-Message-Id: <1197972298.13237.5.camel@localhost>
+From: Swen Schillig <swen@vnet.ibm.com>
+Subject: Re: [PATCH] zfcp: add some internal zfcp adapter statistics
+Date: Thu, 6 Dec 2007 10:40:34 +0100
+Message-ID: <200712061040.35297.swen@vnet.ibm.com>
+References: <200710311133.52090.swen@vnet.ibm.com> <1195989419.3427.11.camel@localhost.localdomain> <200711261123.05253.swen@vnet.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Joe Perches <joe@perches.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux390@de.ibm.com
+Return-path: <linux-scsi-owner@vger.kernel.org>
+In-Reply-To: <200711261123.05253.swen@vnet.ibm.com>
+Content-Disposition: inline
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@hansenpartnership.com>
+Cc: Christof Schmitt <christof.schmitt@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Joe,
-I've added all three spelling fix patches to the git390. The patch for
-drivers lost one hunk because there is another patch in the git390 tree
-that removes the comment you are trying to fix. Your patches will be
-included in the big merge frenzy after 2.6.24 has been released.
-Thanks.
+On Monday 26 November 2007 11:23, Swen Schillig wrote:
+> On Sunday 25 November 2007 12:16, James Bottomley wrote:
+> > 
+> > On Wed, 2007-10-31 at 11:33 +0100, Swen Schillig wrote:
+> > > From: Swen Schillig <swen@vnet.ibm.com>
+> > > 
+> > > add some statistics provided by the zFCP adapter to the sysfs
+> > > 
+> > > The new zFCP adapter statistics provide a variety of information
+> > > about the virtual adapter (subchannel). In order to collect this information
+> > > the zFCP driver is extended on one side to query the adapter and
+> > > on the other side summarize certain values which can then be fetched on demand.
+> > > This information is made available via files(attributes) in the sysfs filesystem.
+> > > 
+> > > The information provided by the new zFCP adapter statistics can be fetched
+> > > by reading from the following files in the sysfs filesystem
+> > > 
+> > >  /sys/class/scsi_host/host<n>/seconds_active
+> > >  /sys/class/scsi_host/host<n>/requests
+> > >  /sys/class/scsi_host/host<n>/megabytes
+> > >  /sys/class/scsi_host/host<n>/utilization
+> > 
+> > This lot all look like they belong in the FC transport class statistics
+> > (some even already exist there).
+> 
+> They might look alike but they are not the same. The values provided through the FC transport
+> class always refer to the physical port whereas the new values here refer to a virtual adapter or subchannel.
+> The attributes provided here are all new and not covered or displayed anywhere else !
+> 
+> > 
+> > > These are the statistics on a virtual adapter (subchannel) level.
+> > > In addition latency information is provided on a SCSI device level (LUN) which
+> > > can be found at the following location
+> > > 
+> > >  /sys/class/scsi_device/<H:C:T:L>/device/cmd_latency
+> > >  /sys/class/scsi_device/<H:C:T:L>/device/read_latency
+> > >  /sys/class/scsi_device/<H:C:T:L>/device/write_latency
+> > 
+> > These look to duplicate to some degree the figures
+> > in /sys/block/<dev>/stat.  Isn't the block device the best place to
+> > gather these, if they're useful?  Since user latencies should probably
+> > include elevator times.
+> 
+> Actually no, the latencies covered here are channel- and fabric-latencies grouped by scsi-devices
+> and not device-, scsi- or block-latencies. In contrast to the stats provided by the block-layer structure,
+> tape devices will be covered here as well .
+> 
+> > 
+> > James
+> > 
+> > 
+> > 
+> 
+> Cheers Swen
+> 
 
--- 
-blue skies,
-  Martin.
+James
 
-"Reality continues to ruin my life." - Calvin.
+were my answers, comments sufficient enough to apply my patch
+or is there still something missing required ?
+
+Thanks
+
+Cheers Swen
