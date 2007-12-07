@@ -1,43 +1,34 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753320AbXLFDPx@vger.kernel.org>
-Message-ID: <47576959.4040706@linux.vnet.ibm.com>
-Date: Thu, 06 Dec 2007 08:45:37 +0530
-From: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752987AbXLGIT5@vger.kernel.org>
+Date: Fri, 7 Dec 2007 09:19:24 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 09/20] drivers/s390/: use LIST_HEAD instead of
+	LIST_HEAD_INIT
+Message-ID: <20071207081924.GB8081@osiris.boeblingen.de.ibm.com>
+References: <1196954381-5483-1-git-send-email-crquan@gmail.com>
 MIME-Version: 1.0
-Subject: Re: 2.6.24-rc4-mm1 Kernel build fails on S390x
-References: <20071204211701.994dfce6.akpm@linux-foundation.org>
-In-Reply-To: <20071204211701.994dfce6.akpm@linux-foundation.org>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1196954381-5483-1-git-send-email-crquan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux390@de.ibm.com, Andy Whitcroft <apw@shadowen.org>, Balbir Singh <balbir@linux.vnet.ibm.com>
+To: Denis Cheng <crquan@gmail.com>
+Cc: linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Andrew,
+On Thu, Dec 06, 2007 at 11:19:41PM +0800, Denis Cheng wrote:
+> single list_head variable initialized with LIST_HEAD_INIT could almost
+> always can be replaced with LIST_HEAD declaration, this shrinks the code
+> and looks better.
+> 
+> Signed-off-by: Denis Cheng <crquan@gmail.com>
+> ---
+>  drivers/s390/block/dcssblk.c  |    2 +-
+>  drivers/s390/char/raw3270.c   |    4 ++--
+>  drivers/s390/char/tape_core.c |    2 +-
+>  drivers/s390/net/netiucv.c    |    3 +--
+>  drivers/s390/net/smsgiucv.c   |    2 +-
+>  5 files changed, 6 insertions(+), 7 deletions(-)
 
-The 2.6.24-rc4-mm1 kernel build fails on s390x,
-
-  CC      arch/s390/kernel/traps.o
-In file included from include/asm/thread_info.h:39,
-                 from include/linux/thread_info.h:21,
-                 from include/linux/preempt.h:9,
-                 from include/linux/spinlock.h:49,
-                 from include/linux/seqlock.h:29,
-                 from include/linux/time.h:8,
-                 from include/linux/timex.h:57,
-                 from include/linux/sched.h:53,
-                 from arch/s390/kernel/traps.c:17:
-include/asm/processor.h:191: warning: "struct seq_file" declared inside parameter list
-include/asm/processor.h:191: warning: its scope is only this definition or declaration, which is probably not what you want
-arch/s390/kernel/traps.c: In function `task_show_regs':
-arch/s390/kernel/traps.c:226: error: implicit declaration of function `seq_printf'
-make[1]: *** [arch/s390/kernel/traps.o] Error 1
-make: *** [arch/s390/kernel] Error 2
-
--- 
-Thanks & Regards,
-Kamalesh Babulal,
-Linux Technology Center,
-IBM, ISTL.
+Thanks, applied. I added the possible change in arch/s390/mm/extmem.c
+to your patch.
