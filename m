@@ -1,62 +1,34 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932100AbXLQPmW@vger.kernel.org>
-Subject: Please pull git390 'for-linus' branch
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-Content-Type: text/plain
-Date: Mon, 17 Dec 2007 16:42:09 +0100
-Message-Id: <1197906130.7955.1.camel@localhost>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761744AbXLQThL@vger.kernel.org>
+From: Joe Perches <joe@perches.com>
+Subject: [PATCH] arch/s390/: Spelling fixes
+Date: Mon, 17 Dec 2007 11:30:16 -0800
+Message-Id: <1197919875-5288-17-git-send-email-joe@perches.com>
+Message-Id: <5703e57f925f31fc0eb38873bd7f10fc44f99cb4.1197918890.git.joe@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: torvalds@linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux390@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Please pull from 'for-linus' branch of
 
-	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
+Signed-off-by: Joe Perches <joe@perches.com>
+---
+ arch/s390/crypto/prng.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-to receive the following updates:
-
- include/asm-s390/pgtable.h |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
-Martin Schwidefsky (1):
-      [S390] pud_present/pmd_present bug.
-
-diff --git a/include/asm-s390/pgtable.h b/include/asm-s390/pgtable.h
-index f2cc25b..1f530f8 100644
---- a/include/asm-s390/pgtable.h
-+++ b/include/asm-s390/pgtable.h
-@@ -453,12 +453,12 @@ static inline int pgd_bad(pgd_t pgd)	 { return 0; }
+diff --git a/arch/s390/crypto/prng.c b/arch/s390/crypto/prng.c
+index 8eb3a1a..23ed094 100644
+--- a/arch/s390/crypto/prng.c
++++ b/arch/s390/crypto/prng.c
+@@ -90,7 +90,7 @@ static ssize_t prng_read(struct file *file, char __user *ubuf, size_t nbytes,
+ 	int ret = 0;
+ 	int tmp;
  
- static inline int pud_present(pud_t pud)
- {
--	return pud_val(pud) & _REGION_ENTRY_ORIGIN;
-+	return (pud_val(pud) & _REGION_ENTRY_ORIGIN) != 0UL;
- }
- 
- static inline int pud_none(pud_t pud)
- {
--	return pud_val(pud) & _REGION_ENTRY_INV;
-+	return (pud_val(pud) & _REGION_ENTRY_INV) != 0UL;
- }
- 
- static inline int pud_bad(pud_t pud)
-@@ -471,12 +471,12 @@ static inline int pud_bad(pud_t pud)
- 
- static inline int pmd_present(pmd_t pmd)
- {
--	return pmd_val(pmd) & _SEGMENT_ENTRY_ORIGIN;
-+	return (pmd_val(pmd) & _SEGMENT_ENTRY_ORIGIN) != 0UL;
- }
- 
- static inline int pmd_none(pmd_t pmd)
- {
--	return pmd_val(pmd) & _SEGMENT_ENTRY_INV;
-+	return (pmd_val(pmd) & _SEGMENT_ENTRY_INV) != 0UL;
- }
- 
- static inline int pmd_bad(pmd_t pmd)
+-	/* nbytes can be arbitrary long, we spilt it into chunks */
++	/* nbytes can be arbitrary length, we split it into chunks */
+ 	while (nbytes) {
+ 		/* same as in extract_entropy_user in random.c */
+ 		if (need_resched()) {
+-- 
+1.5.3.7.949.g2221a6
