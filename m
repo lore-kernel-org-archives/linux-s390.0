@@ -1,31 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753905AbXLDMER@vger.kernel.org>
-Subject: Re: [s390] build failure
-In-reply-To: <1196247798.15829.4.camel@localhost>
-References: <200711281127.30051.elendil@planet.nl> <1196247798.15829.4.camel@localhost>
-Message-Id: <E1IzWVI-0002zO-Ff@faramir.fjphome.nl>
-From: Frans Pop <elendil@planet.nl>
-Date: Tue, 04 Dec 2007 13:03:56 +0100
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932100AbXLQPmW@vger.kernel.org>
+Subject: Please pull git390 'for-linus' branch
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+Content-Type: text/plain
+Date: Mon, 17 Dec 2007 16:42:09 +0100
+Message-Id: <1197906130.7955.1.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: elendil@planet.nl, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: torvalds@linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Martin Schwidefsky wrote:
-> On Wed, 2007-11-28 at 11:27 +0100, Frans Pop wrote:
->> arch/s390/kernel/built-in.o: In function `cleanup_io_leave_insn':
->> diag.c:(.text+0xc29a): undefined reference to `preempt_schedule_irq'
->> make[2]: *** [.tmp_vmlinux1] Error 1
-> 
-> This is fixes by a patch from Christian:
->       [S390] Fix compile error on 31bit without preemption
-> 
-> You can get the latest s390 patches by pulling from
-> git://git390.osdl.marist.edu/pub/scm/linux-2.6.git fixes
- 
-Any reason this has not been pushed into mainline yet? The fix missed -rc4
-because of that...
+Please pull from 'for-linus' branch of
 
-Cheers,
-FJP
+	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
+
+to receive the following updates:
+
+ include/asm-s390/pgtable.h |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+Martin Schwidefsky (1):
+      [S390] pud_present/pmd_present bug.
+
+diff --git a/include/asm-s390/pgtable.h b/include/asm-s390/pgtable.h
+index f2cc25b..1f530f8 100644
+--- a/include/asm-s390/pgtable.h
++++ b/include/asm-s390/pgtable.h
+@@ -453,12 +453,12 @@ static inline int pgd_bad(pgd_t pgd)	 { return 0; }
+ 
+ static inline int pud_present(pud_t pud)
+ {
+-	return pud_val(pud) & _REGION_ENTRY_ORIGIN;
++	return (pud_val(pud) & _REGION_ENTRY_ORIGIN) != 0UL;
+ }
+ 
+ static inline int pud_none(pud_t pud)
+ {
+-	return pud_val(pud) & _REGION_ENTRY_INV;
++	return (pud_val(pud) & _REGION_ENTRY_INV) != 0UL;
+ }
+ 
+ static inline int pud_bad(pud_t pud)
+@@ -471,12 +471,12 @@ static inline int pud_bad(pud_t pud)
+ 
+ static inline int pmd_present(pmd_t pmd)
+ {
+-	return pmd_val(pmd) & _SEGMENT_ENTRY_ORIGIN;
++	return (pmd_val(pmd) & _SEGMENT_ENTRY_ORIGIN) != 0UL;
+ }
+ 
+ static inline int pmd_none(pmd_t pmd)
+ {
+-	return pmd_val(pmd) & _SEGMENT_ENTRY_INV;
++	return (pmd_val(pmd) & _SEGMENT_ENTRY_INV) != 0UL;
+ }
+ 
+ static inline int pmd_bad(pmd_t pmd)
