@@ -1,102 +1,128 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753975AbXLFPUe@vger.kernel.org>
-From: Denis Cheng <crquan@gmail.com>
-Subject: [PATCH 09/20] drivers/s390/: use LIST_HEAD instead of LIST_HEAD_INIT
-Date: Thu,  6 Dec 2007 23:19:41 +0800
-Message-Id: <1196954381-5483-1-git-send-email-crquan@gmail.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752788AbXLRIYk@vger.kernel.org>
+From: Swen Schillig <swen@vnet.ibm.com>
+Subject: Re: [PATCH] drivers/s390/: Spelling fixes
+Date: Tue, 18 Dec 2007 09:24:28 +0100
+References: <1197920439-5455-7-git-send-email-joe@perches.com>
+In-Reply-To: <1197920439-5455-7-git-send-email-joe@perches.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200712180924.29223.swen@vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-s390@vger.kernel.org, linux390@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-single list_head variable initialized with LIST_HEAD_INIT could almost
-always can be replaced with LIST_HEAD declaration, this shrinks the code
-and looks better.
+On Monday 17 December 2007 20:40, Joe Perches wrote:
+> 
+> Signed-off-by: Joe Perches <joe@perches.com>
+> ---
+>  drivers/s390/block/dasd_3990_erp.c |    2 +-
+>  drivers/s390/block/dasd_eckd.c     |    2 +-
+>  drivers/s390/char/sclp_rw.c        |    2 +-
+>  drivers/s390/char/tape_3590.c      |    2 +-
+>  drivers/s390/cio/airq.c            |    2 +-
+>  drivers/s390/scsi/zfcp_erp.c       |    2 +-
+>  drivers/s390/scsi/zfcp_qdio.c      |    2 +-
+>  7 files changed, 7 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/s390/block/dasd_3990_erp.c b/drivers/s390/block/dasd_3990_erp.c
+> index 5b7385e..c02f960 100644
+> --- a/drivers/s390/block/dasd_3990_erp.c
+> +++ b/drivers/s390/block/dasd_3990_erp.c
+> @@ -2620,7 +2620,7 @@ dasd_3990_erp_handle_match_erp(struct dasd_ccw_req *erp_head,
+>   * DASD_3990_ERP_ACTION
+>   *
+>   * DESCRIPTION
+> - *   controll routine for 3990 erp actions.
+> + *   control routine for 3990 erp actions.
+>   *   Has to be called with the queue lock (namely the s390_irq_lock) acquired.
+>   *
+>   * PARAMETER
+> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+> index 44adf84..6038d91 100644
+> --- a/drivers/s390/block/dasd_eckd.c
+> +++ b/drivers/s390/block/dasd_eckd.c
+> @@ -1542,7 +1542,7 @@ dasd_eckd_performance(struct dasd_device *device, void __user *argp)
+>  	prssdp = (struct dasd_psf_prssd_data *) cqr->data;
+>  	memset(prssdp, 0, sizeof (struct dasd_psf_prssd_data));
+>  	prssdp->order = PSF_ORDER_PRSSD;
+> -	prssdp->suborder = 0x01;	/* Perfomance Statistics */
+> +	prssdp->suborder = 0x01;	/* Performance Statistics */
+>  	prssdp->varies[1] = 0x01;	/* Perf Statistics for the Subsystem */
+> 
+>  	ccw = cqr->cpaddr;
+> diff --git a/drivers/s390/char/sclp_rw.c b/drivers/s390/char/sclp_rw.c
+> index d6b06ab..ad7195d 100644
+> --- a/drivers/s390/char/sclp_rw.c
+> +++ b/drivers/s390/char/sclp_rw.c
+> @@ -76,7 +76,7 @@ sclp_make_buffer(void *page, unsigned short columns, unsigned short htab)
+>  }
+> 
+>  /*
+> - * Return a pointer to the orignal page that has been used to create
+> + * Return a pointer to the original page that has been used to create
+>   * the buffer.
+>   */
+>  void *
+> diff --git a/drivers/s390/char/tape_3590.c b/drivers/s390/char/tape_3590.c
+> index da25f8e..8246ef3 100644
+> --- a/drivers/s390/char/tape_3590.c
+> +++ b/drivers/s390/char/tape_3590.c
+> @@ -1495,7 +1495,7 @@ tape_3590_unit_check(struct tape_device *device, struct tape_request *request,
+>  			   device->cdev->dev.bus_id);
+>  		return tape_3590_erp_basic(device, request, irb, -EPERM);
+>  	case 0x8013:
+> -		PRINT_WARN("(%s): Another host has priviliged access to the "
+> +		PRINT_WARN("(%s): Another host has privileged access to the "
+>  			   "tape device\n", device->cdev->dev.bus_id);
+>  		PRINT_WARN("(%s): To solve the problem unload the current "
+>  			   "cartridge!\n", device->cdev->dev.bus_id);
+> diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
+> index 5287631..5eada73 100644
+> --- a/drivers/s390/cio/airq.c
+> +++ b/drivers/s390/cio/airq.c
+> @@ -23,7 +23,7 @@ static adapter_int_handler_t adapter_handler;
+>   * register for adapter interrupts
+>   *
+>   * With HiperSockets the zSeries architecture provides for
+> - *  means of adapter interrups, pseudo I/O interrupts that are
+> + *  means of adapter interrupts, pseudo I/O interrupts that are
+>   *  not tied to an I/O subchannel, but to an adapter. However,
+>   *  it doesn't disclose the info how to enable/disable them, but
+>   *  to recognize them only. Perhaps we should consider them
+> diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+> index 07fa824..8925b3a 100644
+> --- a/drivers/s390/scsi/zfcp_erp.c
+> +++ b/drivers/s390/scsi/zfcp_erp.c
+> @@ -1285,7 +1285,7 @@ zfcp_erp_strategy_do_action(struct zfcp_erp_action *erp_action)
+>  	 * note: no lock in subsequent strategy routines
+>  	 * (this allows these routine to call schedule, e.g.
+>  	 * kmalloc with such flags or qdio_initialize & friends)
+> -	 * Note: in case of timeout, the seperate strategies will fail
+> +	 * Note: in case of timeout, the separate strategies will fail
+>  	 * anyhow. No need for a special action. Even worse, a nameserver
+>  	 * failure would not wake up waiting ports without the call.
+>  	 */
+> diff --git a/drivers/s390/scsi/zfcp_qdio.c b/drivers/s390/scsi/zfcp_qdio.c
+> index 51d92b1..22fdc17 100644
+> --- a/drivers/s390/scsi/zfcp_qdio.c
+> +++ b/drivers/s390/scsi/zfcp_qdio.c
+> @@ -529,7 +529,7 @@ zfcp_qdio_sbals_wipe(struct zfcp_fsf_req *fsf_req)
+> 
+> 
+>  /**
+> - * zfcp_qdio_sbale_fill - set address and lenght in current SBALE
+> + * zfcp_qdio_sbale_fill - set address and length in current SBALE
+>   *	on request_queue
+>   */
+>  static void
 
-Signed-off-by: Denis Cheng <crquan@gmail.com>
----
- drivers/s390/block/dcssblk.c  |    2 +-
- drivers/s390/char/raw3270.c   |    4 ++--
- drivers/s390/char/tape_core.c |    2 +-
- drivers/s390/net/netiucv.c    |    3 +--
- drivers/s390/net/smsgiucv.c   |    2 +-
- 5 files changed, 6 insertions(+), 7 deletions(-)
+ACK 
+for the zfcp bits.
 
-diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-index 15a5789..7779bfc 100644
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -82,7 +82,7 @@ struct dcssblk_dev_info {
- 	struct request_queue *dcssblk_queue;
- };
- 
--static struct list_head dcssblk_devices = LIST_HEAD_INIT(dcssblk_devices);
-+static LIST_HEAD(dcssblk_devices);
- static struct rw_semaphore dcssblk_devices_sem;
- 
- /*
-diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
-index 8d1c64a..0d98f1f 100644
---- a/drivers/s390/char/raw3270.c
-+++ b/drivers/s390/char/raw3270.c
-@@ -66,7 +66,7 @@ struct raw3270 {
- static DEFINE_MUTEX(raw3270_mutex);
- 
- /* List of 3270 devices. */
--static struct list_head raw3270_devices = LIST_HEAD_INIT(raw3270_devices);
-+static LIST_HEAD(raw3270_devices);
- 
- /*
-  * Flag to indicate if the driver has been registered. Some operations
-@@ -1210,7 +1210,7 @@ struct raw3270_notifier {
- 	void (*notifier)(int, int);
- };
- 
--static struct list_head raw3270_notifier = LIST_HEAD_INIT(raw3270_notifier);
-+static LIST_HEAD(raw3270_notifier);
- 
- int raw3270_register_notifier(void (*notifier)(int, int))
- {
-diff --git a/drivers/s390/char/tape_core.c b/drivers/s390/char/tape_core.c
-index 2fae633..7ad8cf1 100644
---- a/drivers/s390/char/tape_core.c
-+++ b/drivers/s390/char/tape_core.c
-@@ -37,7 +37,7 @@ static void tape_long_busy_timeout(unsigned long data);
-  * we can assign the devices to minor numbers of the same major
-  * The list is protected by the rwlock
-  */
--static struct list_head tape_device_list = LIST_HEAD_INIT(tape_device_list);
-+static LIST_HEAD(tape_device_list);
- static DEFINE_RWLOCK(tape_device_lock);
- 
- /*
-diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
-index 4d18d64..f385350 100644
---- a/drivers/s390/net/netiucv.c
-+++ b/drivers/s390/net/netiucv.c
-@@ -198,8 +198,7 @@ struct iucv_connection {
- /**
-  * Linked list of all connection structs.
-  */
--static struct list_head iucv_connection_list =
--	LIST_HEAD_INIT(iucv_connection_list);
-+static LIST_HEAD(iucv_connection_list);
- static DEFINE_RWLOCK(iucv_connection_rwlock);
- 
- /**
-diff --git a/drivers/s390/net/smsgiucv.c b/drivers/s390/net/smsgiucv.c
-index 47bb47b..8735a41 100644
---- a/drivers/s390/net/smsgiucv.c
-+++ b/drivers/s390/net/smsgiucv.c
-@@ -42,7 +42,7 @@ MODULE_DESCRIPTION ("Linux for S/390 IUCV special message driver");
- static struct iucv_path *smsg_path;
- 
- static DEFINE_SPINLOCK(smsg_list_lock);
--static struct list_head smsg_list = LIST_HEAD_INIT(smsg_list);
-+static LIST_HEAD(smsg_list);
- 
- static int smsg_path_pending(struct iucv_path *, u8 ipvmid[8], u8 ipuser[16]);
- static void smsg_message_pending(struct iucv_path *, struct iucv_message *);
--- 
-1.5.3.4
+Cheers Swen
