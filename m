@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936904AbXLTPil@vger.kernel.org>
-Message-Id: <20071220152108.951967398@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965933AbXLTPjD@vger.kernel.org>
+Message-Id: <20071220152106.694136433@de.ibm.com>
 References: <20071220151925.405881218@de.ibm.com>
-Date: Thu, 20 Dec 2007 16:19:52 +0100
+Date: Thu, 20 Dec 2007 16:19:42 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 27/47] Get rid of additional_cpus kernel parameter.
-Content-Disposition: inline; filename=126-additional-cpus.diff
+Subject: [patch 17/47] Standby cpu activation/deactivation.
+Content-Disposition: inline; filename=116-sclp-cpu.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,32 +14,50 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-It caused only a lot of confusion. From now on cpu hotplug of up to
-NR_CPUS will work by default. If somebody wants to limit that then
-the possible_cpus parameter can be used.
+Add a new interface so that cpus can be put into standby state and
+configured state.
+Only offline cpus can be put into standby state or configured state.
+For that the new percpu sysfs attribute "configure" must be used.
+To put a cpu in standby state a "0" must be written to the attribute.
+In order to switch it into configured state a "1" must be written to
+the attribute.
+Only cpus in configured state can be brought online.
+In addition this patch introduces a static mapping of physical to
+logical cpus. As a result only the sysfs directories of present cpus
+will be created. To scan for new cpus the new sysfs attribute "rescan"
+must be used.
+Writing to /sys/devices/system/cpu/rescan will trigger a rescan of
+cpus and will create directories for new cpus.
+
+On IPL only configured cpus will be used. And on reboot/shutdown all
+cpus will remain in their current state (configured/standby).
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- Documentation/cpu-hotplug.txt |    2 
- arch/s390/kernel/early.c      |    1 
- arch/s390/kernel/setup.c      |    1 
- arch/s390/kernel/smp.c        |  178 +++++++++++++++++-------------------------
- drivers/s390/char/sclp_cmd.c  |   46 ----------
- include/asm-s390/sclp.h       |    1 
- include/asm-s390/smp.h        |    3 
- 7 files changed, 78 insertions(+), 154 deletions(-)
+ arch/s390/kernel/early.c      |    3 
+ arch/s390/kernel/setup.c      |    2 
+ arch/s390/kernel/smp.c        |  401 ++++++++++++++++++++++++++++++++++--------
+ drivers/s390/char/Makefile    |    2 
+ drivers/s390/char/sclp.h      |    4 
+ drivers/s390/char/sclp_cmd.c  |  319 +++++++++++++++++++++++++++++++++
+ drivers/s390/char/sclp_info.c |  116 ------------
+ include/asm-s390/sclp.h       |   21 ++
+ 8 files changed, 675 insertions(+), 193 deletions(-)
 
 Index: quilt-2.6/arch/s390/kernel/early.c
 ===================================================================
 --- quilt-2.6.orig/arch/s390/kernel/early.c
 +++ quilt-2.6/arch/s390/kernel/early.c
-@@ -278,7 +278,6 @@ void __init startup_init(void)
+@@ -276,8 +276,9 @@ void __init startup_init(void)
+ 	create_kernel_nss();
+ 	sort_main_extable();
  	setup_lowcore_early();
- 	sclp_read_info_early();
+-	sclp_readinfo_early();
++	sclp_read_info_early();
  	sclp_facilities_detect();
--	sclp_read_cpu_info_early();
++	sclp_read_cpu_info_early();
  	memsize = sclp_memory_detect();
  #ifndef CONFIG_64BIT
  	/*
@@ -47,163 +65,121 @@ Index: quilt-2.6/arch/s390/kernel/setup.c
 ===================================================================
 --- quilt-2.6.orig/arch/s390/kernel/setup.c
 +++ quilt-2.6/arch/s390/kernel/setup.c
-@@ -922,7 +922,6 @@ setup_arch(char **cmdline_p)
+@@ -920,7 +920,7 @@ setup_arch(char **cmdline_p)
  
-         cpu_init();
-         __cpu_logical_map[0] = S390_lowcore.cpu_data.cpu_addr;
--	smp_setup_cpu_possible_map();
- 
- 	/*
- 	 * Setup capabilities (ELF_HWCAP & ELF_PLATFORM).
+ void __cpuinit print_cpu_info(struct cpuinfo_S390 *cpuinfo)
+ {
+-   printk("cpu %d "
++   printk(KERN_INFO "cpu %d "
+ #ifdef CONFIG_SMP
+            "phys_idx=%d "
+ #endif
 Index: quilt-2.6/arch/s390/kernel/smp.c
 ===================================================================
 --- quilt-2.6.orig/arch/s390/kernel/smp.c
 +++ quilt-2.6/arch/s390/kernel/smp.c
-@@ -54,7 +54,7 @@ EXPORT_SYMBOL(lowcore_ptr);
- cpumask_t cpu_online_map = CPU_MASK_NONE;
- EXPORT_SYMBOL(cpu_online_map);
+@@ -42,6 +42,7 @@
+ #include <asm/tlbflush.h>
+ #include <asm/timer.h>
+ #include <asm/lowcore.h>
++#include <asm/sclp.h>
+ #include <asm/cpu.h>
  
--cpumask_t cpu_possible_map = CPU_MASK_NONE;
-+cpumask_t cpu_possible_map = CPU_MASK_ALL;
- EXPORT_SYMBOL(cpu_possible_map);
+ /*
+@@ -58,6 +59,22 @@ EXPORT_SYMBOL(cpu_possible_map);
  
  static struct task_struct *current_set[NR_CPUS];
-@@ -399,7 +399,7 @@ static void __init smp_get_save_area(uns
- 		       "kernel was compiled with NR_CPUS=%i\n", cpu, NR_CPUS);
+ 
++static u8 smp_cpu_type;
++static int smp_use_sigp_detection;
++
++enum s390_cpu_state {
++	CPU_STATE_STANDBY,
++	CPU_STATE_CONFIGURED,
++};
++
++#ifdef CONFIG_HOTPLUG_CPU
++static DEFINE_MUTEX(smp_cpu_state_mutex);
++#endif
++static int smp_cpu_state[NR_CPUS];
++
++static DEFINE_PER_CPU(struct cpu, cpu_devices);
++DEFINE_PER_CPU(struct s390_idle_data, s390_idle);
++
+ static void smp_ext_bitcall(int, ec_bit_sig);
+ 
+ /*
+@@ -355,6 +372,13 @@ void smp_ctl_clear_bit(int cr, int bit)
+ }
+ EXPORT_SYMBOL(smp_ctl_clear_bit);
+ 
++/*
++ * In early ipl state a temp. logically cpu number is needed, so the sigp
++ * functions can be used to sense other cpus. Since NR_CPUS is >= 2 on
++ * CONFIG_SMP and the ipl cpu is logical cpu 0, it must be 1.
++ */
++#define CPU_INIT_NO	1
++
+ #if defined(CONFIG_ZFCPDUMP) || defined(CONFIG_ZFCPDUMP_MODULE)
+ 
+ /*
+@@ -376,8 +400,9 @@ static void __init smp_get_save_area(uns
  		return;
  	}
--	zfcpdump_save_areas[cpu] = alloc_bootmem(sizeof(union save_area));
-+	zfcpdump_save_areas[cpu] = kmalloc(sizeof(union save_area), GFP_KERNEL);
- 	__cpu_logical_map[CPU_INIT_NO] = (__u16) phy_cpu;
- 	while (signal_processor(CPU_INIT_NO, sigp_stop_and_store_status) ==
- 	       sigp_busy)
-@@ -435,67 +435,6 @@ static int cpu_stopped(int cpu)
- 	return 0;
- }
+ 	zfcpdump_save_areas[cpu] = alloc_bootmem(sizeof(union save_area));
+-	__cpu_logical_map[1] = (__u16) phy_cpu;
+-	while (signal_processor(1, sigp_stop_and_store_status) == sigp_busy)
++	__cpu_logical_map[CPU_INIT_NO] = (__u16) phy_cpu;
++	while (signal_processor(CPU_INIT_NO, sigp_stop_and_store_status) ==
++	       sigp_busy)
+ 		cpu_relax();
+ 	memcpy(zfcpdump_save_areas[cpu],
+ 	       (void *)(unsigned long) store_prefix() + SAVE_AREA_BASE,
+@@ -397,32 +422,166 @@ static inline void smp_get_save_area(uns
  
--/*
-- * Lets check how many CPUs we have.
-- */
--static void __init smp_count_cpus(unsigned int *configured_cpus,
--				  unsigned int *standby_cpus)
--{
--	unsigned int cpu;
--	struct sclp_cpu_info *info;
--	u16 boot_cpu_addr, cpu_addr;
--
--	boot_cpu_addr = S390_lowcore.cpu_data.cpu_addr;
--	current_thread_info()->cpu = 0;
--	*configured_cpus = 1;
--	*standby_cpus = 0;
--
--	info = alloc_bootmem_pages(sizeof(*info));
--	if (!info)
--		disabled_wait((unsigned long) __builtin_return_address(0));
--
--	/* Use sigp detection algorithm if sclp doesn't work. */
--	if (sclp_get_cpu_info(info)) {
--		smp_use_sigp_detection = 1;
--		for (cpu = 0; cpu <= 65535; cpu++) {
--			if (cpu == boot_cpu_addr)
--				continue;
--			__cpu_logical_map[CPU_INIT_NO] = cpu;
--			if (cpu_stopped(CPU_INIT_NO))
--				(*configured_cpus)++;
--		}
--		goto out;
--	}
--
--	if (info->has_cpu_type) {
--		for (cpu = 0; cpu < info->combined; cpu++) {
--			if (info->cpu[cpu].address == boot_cpu_addr) {
--				smp_cpu_type = info->cpu[cpu].type;
--				break;
--			}
--		}
--	}
--	/* Count cpus. */
--	for (cpu = 0; cpu < info->combined; cpu++) {
--		if (info->has_cpu_type && info->cpu[cpu].type != smp_cpu_type)
--			continue;
--		cpu_addr = info->cpu[cpu].address;
--		if (cpu_addr == boot_cpu_addr)
--			continue;
--		__cpu_logical_map[CPU_INIT_NO] = cpu_addr;
--		if (!cpu_stopped(CPU_INIT_NO)) {
--			(*standby_cpus)++;
--			continue;
--		}
--		smp_get_save_area(*configured_cpus, cpu_addr);
--		(*configured_cpus)++;
--	}
--out:
--	printk(KERN_INFO "CPUs: %d configured, %d standby\n",
--	       *configured_cpus, *standby_cpus);
--	free_bootmem((unsigned long) info, sizeof(*info));
--}
--
- static int cpu_known(int cpu_id)
- {
- 	int cpu;
-@@ -529,7 +468,7 @@ static int smp_rescan_cpus_sigp(cpumask_
- 	return 0;
- }
+ #endif /* CONFIG_ZFCPDUMP || CONFIG_ZFCPDUMP_MODULE */
  
--static int __init_refok smp_rescan_cpus_sclp(cpumask_t avail)
-+static int smp_rescan_cpus_sclp(cpumask_t avail)
- {
- 	struct sclp_cpu_info *info;
- 	int cpu_id, logical_cpu, cpu;
-@@ -538,10 +477,7 @@ static int __init_refok smp_rescan_cpus_
- 	logical_cpu = first_cpu(avail);
- 	if (logical_cpu == NR_CPUS)
- 		return 0;
--	if (slab_is_available())
--		info = kmalloc(sizeof(*info), GFP_KERNEL);
--	else
--		info = alloc_bootmem(sizeof(*info));
-+	info = kmalloc(sizeof(*info), GFP_KERNEL);
- 	if (!info)
- 		return -ENOMEM;
- 	rc = sclp_get_cpu_info(info);
-@@ -564,10 +500,7 @@ static int __init_refok smp_rescan_cpus_
- 			break;
- 	}
- out:
--	if (slab_is_available())
--		kfree(info);
--	else
--		free_bootmem((unsigned long) info, sizeof(*info));
-+	kfree(info);
- 	return rc;
- }
- 
-@@ -575,15 +508,71 @@ static int smp_rescan_cpus(void)
- {
- 	cpumask_t avail;
- 
--	cpus_setall(avail);
--	cpus_and(avail, avail, cpu_possible_map);
--	cpus_andnot(avail, avail, cpu_present_map);
-+	cpus_xor(avail, cpu_possible_map, cpu_present_map);
- 	if (smp_use_sigp_detection)
- 		return smp_rescan_cpus_sigp(avail);
- 	else
- 		return smp_rescan_cpus_sclp(avail);
- }
- 
-+static void __init smp_detect_cpus(void)
++static int cpu_stopped(int cpu)
 +{
-+	unsigned int cpu, c_cpus, s_cpus;
++	__u32 status;
++
++	/* Check for stopped state */
++	if (signal_processor_ps(&status, 0, cpu, sigp_sense) ==
++	    sigp_status_stored) {
++		if (status & 0x40)
++			return 1;
++	}
++	return 0;
++}
++
+ /*
+  * Lets check how many CPUs we have.
+  */
+-static unsigned int __init smp_count_cpus(void)
++static void __init smp_count_cpus(unsigned int *configured_cpus,
++				  unsigned int *standby_cpus)
+ {
+-	unsigned int cpu, num_cpus;
+-	__u16 boot_cpu_addr;
++	unsigned int cpu;
 +	struct sclp_cpu_info *info;
 +	u16 boot_cpu_addr, cpu_addr;
+ 
+-	/*
+-	 * cpu 0 is the boot cpu. See smp_prepare_boot_cpu.
+-	 */
+ 	boot_cpu_addr = S390_lowcore.cpu_data.cpu_addr;
+ 	current_thread_info()->cpu = 0;
+-	num_cpus = 1;
+-	for (cpu = 0; cpu <= 65535; cpu++) {
+-		if ((__u16) cpu == boot_cpu_addr)
++	*configured_cpus = 1;
++	*standby_cpus = 0;
 +
-+	c_cpus = 1;
-+	s_cpus = 0;
-+	boot_cpu_addr = S390_lowcore.cpu_data.cpu_addr;
-+	info = kmalloc(sizeof(*info), GFP_KERNEL);
++	info = alloc_bootmem_pages(sizeof(*info));
 +	if (!info)
-+		panic("smp_detect_cpus failed to allocate memory\n");
++		disabled_wait((unsigned long) __builtin_return_address(0));
++
 +	/* Use sigp detection algorithm if sclp doesn't work. */
 +	if (sclp_get_cpu_info(info)) {
 +		smp_use_sigp_detection = 1;
@@ -211,10 +187,8 @@ Index: quilt-2.6/arch/s390/kernel/smp.c
 +			if (cpu == boot_cpu_addr)
 +				continue;
 +			__cpu_logical_map[CPU_INIT_NO] = cpu;
-+			if (!cpu_stopped(CPU_INIT_NO))
-+				continue;
-+			smp_get_save_area(c_cpus, cpu);
-+			c_cpus++;
++			if (cpu_stopped(CPU_INIT_NO))
++				(*configured_cpus)++;
 +		}
 +		goto out;
 +	}
@@ -227,224 +201,939 @@ Index: quilt-2.6/arch/s390/kernel/smp.c
 +			}
 +		}
 +	}
++	/* Count cpus. */
++	for (cpu = 0; cpu < info->combined; cpu++) {
++		if (info->has_cpu_type && info->cpu[cpu].type != smp_cpu_type)
+ 			continue;
+-		__cpu_logical_map[1] = (__u16) cpu;
+-		if (signal_processor(1, sigp_sense) == sigp_not_operational)
++		cpu_addr = info->cpu[cpu].address;
++		if (cpu_addr == boot_cpu_addr)
+ 			continue;
+-		smp_get_save_area(num_cpus, cpu);
+-		num_cpus++;
++		__cpu_logical_map[CPU_INIT_NO] = cpu_addr;
++		if (!cpu_stopped(CPU_INIT_NO)) {
++			(*standby_cpus)++;
++			continue;
++		}
++		smp_get_save_area(*configured_cpus, cpu_addr);
++		(*configured_cpus)++;
+ 	}
+-	printk("Detected %d CPU's\n", (int) num_cpus);
+-	printk("Boot cpu address %2X\n", boot_cpu_addr);
+-	return num_cpus;
++out:
++	printk(KERN_INFO "CPUs: %d configured, %d standby\n",
++	       *configured_cpus, *standby_cpus);
++	free_bootmem((unsigned long) info, sizeof(*info));
++}
 +
++static int cpu_known(int cpu_id)
++{
++	int cpu;
++
++	for_each_present_cpu(cpu) {
++		if (__cpu_logical_map[cpu] == cpu_id)
++			return 1;
++	}
++	return 0;
++}
++
++static int smp_rescan_cpus_sigp(cpumask_t avail)
++{
++	int cpu_id, logical_cpu;
++
++	logical_cpu = first_cpu(avail);
++	if (logical_cpu == NR_CPUS)
++		return 0;
++	for (cpu_id = 0; cpu_id <= 65535; cpu_id++) {
++		if (cpu_known(cpu_id))
++			continue;
++		__cpu_logical_map[logical_cpu] = cpu_id;
++		if (!cpu_stopped(logical_cpu))
++			continue;
++		cpu_set(logical_cpu, cpu_present_map);
++		smp_cpu_state[logical_cpu] = CPU_STATE_CONFIGURED;
++		logical_cpu = next_cpu(logical_cpu, avail);
++		if (logical_cpu == NR_CPUS)
++			break;
++	}
++	return 0;
++}
++
++static int __init_refok smp_rescan_cpus_sclp(cpumask_t avail)
++{
++	struct sclp_cpu_info *info;
++	int cpu_id, logical_cpu, cpu;
++	int rc;
++
++	logical_cpu = first_cpu(avail);
++	if (logical_cpu == NR_CPUS)
++		return 0;
++	if (slab_is_available())
++		info = kmalloc(sizeof(*info), GFP_KERNEL);
++	else
++		info = alloc_bootmem(sizeof(*info));
++	if (!info)
++		return -ENOMEM;
++	rc = sclp_get_cpu_info(info);
++	if (rc)
++		goto out;
 +	for (cpu = 0; cpu < info->combined; cpu++) {
 +		if (info->has_cpu_type && info->cpu[cpu].type != smp_cpu_type)
 +			continue;
-+		cpu_addr = info->cpu[cpu].address;
-+		if (cpu_addr == boot_cpu_addr)
++		cpu_id = info->cpu[cpu].address;
++		if (cpu_known(cpu_id))
 +			continue;
-+		__cpu_logical_map[CPU_INIT_NO] = cpu_addr;
-+		if (!cpu_stopped(CPU_INIT_NO)) {
-+			s_cpus++;
-+			continue;
-+		}
-+		smp_get_save_area(c_cpus, cpu_addr);
-+		c_cpus++;
++		__cpu_logical_map[logical_cpu] = cpu_id;
++		cpu_set(logical_cpu, cpu_present_map);
++		if (cpu >= info->configured)
++			smp_cpu_state[logical_cpu] = CPU_STATE_STANDBY;
++		else
++			smp_cpu_state[logical_cpu] = CPU_STATE_CONFIGURED;
++		logical_cpu = next_cpu(logical_cpu, avail);
++		if (logical_cpu == NR_CPUS)
++			break;
 +	}
 +out:
-+	kfree(info);
-+	printk(KERN_INFO "CPUs: %d configured, %d standby\n", c_cpus, s_cpus);
-+	lock_cpu_hotplug();
-+	smp_rescan_cpus();
-+	unlock_cpu_hotplug();
++	if (slab_is_available())
++		kfree(info);
++	else
++		free_bootmem((unsigned long) info, sizeof(*info));
++	return rc;
 +}
 +
++static int smp_rescan_cpus(void)
++{
++	cpumask_t avail;
++
++	cpus_setall(avail);
++	cpus_and(avail, avail, cpu_possible_map);
++	cpus_andnot(avail, avail, cpu_present_map);
++	if (smp_use_sigp_detection)
++		return smp_rescan_cpus_sigp(avail);
++	else
++		return smp_rescan_cpus_sclp(avail);
+ }
+ 
  /*
-  *	Activate a secondary processor.
-  */
-@@ -674,41 +663,20 @@ int __cpu_up(unsigned int cpu)
+@@ -453,8 +612,6 @@ int __cpuinit start_secondary(void *cpuv
  	return 0;
  }
  
--static unsigned int __initdata additional_cpus;
--static unsigned int __initdata possible_cpus;
+-DEFINE_PER_CPU(struct s390_idle_data, s390_idle);
 -
--void __init smp_setup_cpu_possible_map(void)
-+static int __init setup_possible_cpus(char *s)
+ static void __init smp_create_idle(unsigned int cpu)
  {
--	unsigned int pos_cpus, cpu;
--	unsigned int configured_cpus, standby_cpus;
-+	int pcpus, cpu;
+ 	struct task_struct *p;
+@@ -470,37 +627,16 @@ static void __init smp_create_idle(unsig
+ 	spin_lock_init(&(&per_cpu(s390_idle, cpu))->lock);
+ }
  
--	smp_count_cpus(&configured_cpus, &standby_cpus);
--	pos_cpus = min(configured_cpus + standby_cpus + additional_cpus,
--		       (unsigned int) NR_CPUS);
--	if (possible_cpus)
--		pos_cpus = min(possible_cpus, (unsigned int) NR_CPUS);
--	for (cpu = 0; cpu < pos_cpus; cpu++)
-+	pcpus = simple_strtoul(s, NULL, 0);
-+	cpu_possible_map = cpumask_of_cpu(0);
-+	for (cpu = 1; cpu < pcpus && cpu < NR_CPUS; cpu++)
- 		cpu_set(cpu, cpu_possible_map);
--	cpu_present_map = cpumask_of_cpu(0);
--	smp_rescan_cpus();
--}
--
--#ifdef CONFIG_HOTPLUG_CPU
--
--static int __init setup_additional_cpus(char *s)
+-static int cpu_stopped(int cpu)
 -{
--	additional_cpus = simple_strtoul(s, NULL, 0);
+-	__u32 status;
+-
+-	/* Check for stopped state */
+-	if (signal_processor_ps(&status, 0, cpu, sigp_sense) ==
+-	    sigp_status_stored) {
+-		if (status & 0x40)
+-			return 1;
+-	}
 -	return 0;
 -}
--early_param("additional_cpus", setup_additional_cpus);
 -
--static int __init setup_possible_cpus(char *s)
--{
--	possible_cpus = simple_strtoul(s, NULL, 0);
- 	return 0;
+ /* Upping and downing of CPUs */
+-
+ int __cpu_up(unsigned int cpu)
+ {
+ 	struct task_struct *idle;
+ 	struct _lowcore *cpu_lowcore;
+ 	struct stack_frame *sf;
+ 	sigp_ccode ccode;
+-	int curr_cpu;
+ 
+-	for (curr_cpu = 0; curr_cpu <= 65535; curr_cpu++) {
+-		__cpu_logical_map[cpu] = (__u16) curr_cpu;
+-		if (cpu_stopped(cpu))
+-			break;
+-	}
+-
+-	if (!cpu_stopped(cpu))
+-		return -ENODEV;
++	if (smp_cpu_state[cpu] != CPU_STATE_CONFIGURED)
++		return -EIO;
+ 
+ 	ccode = signal_processor_p((__u32)(unsigned long)(lowcore_ptr[cpu]),
+ 				   cpu, sigp_set_prefix);
+@@ -543,21 +679,18 @@ static unsigned int __initdata possible_
+ 
+ void __init smp_setup_cpu_possible_map(void)
+ {
+-	unsigned int phy_cpus, pos_cpus, cpu;
+-
+-	phy_cpus = smp_count_cpus();
+-	pos_cpus = min(phy_cpus + additional_cpus, (unsigned int) NR_CPUS);
++	unsigned int pos_cpus, cpu;
++	unsigned int configured_cpus, standby_cpus;
+ 
++	smp_count_cpus(&configured_cpus, &standby_cpus);
++	pos_cpus = min(configured_cpus + standby_cpus + additional_cpus,
++		       (unsigned int) NR_CPUS);
+ 	if (possible_cpus)
+ 		pos_cpus = min(possible_cpus, (unsigned int) NR_CPUS);
+-
+ 	for (cpu = 0; cpu < pos_cpus; cpu++)
+ 		cpu_set(cpu, cpu_possible_map);
+-
+-	phy_cpus = min(phy_cpus, pos_cpus);
+-
+-	for (cpu = 0; cpu < phy_cpus; cpu++)
+-		cpu_set(cpu, cpu_present_map);
++	cpu_present_map = cpumask_of_cpu(0);
++	smp_rescan_cpus();
  }
- early_param("possible_cpus", setup_possible_cpus);
  
-+#ifdef CONFIG_HOTPLUG_CPU
-+
- int __cpu_disable(void)
- {
- 	struct ec_creg_mask_parms cr_parms;
-@@ -768,6 +736,8 @@ void __init smp_prepare_cpus(unsigned in
- 	unsigned int cpu;
- 	int i;
+ #ifdef CONFIG_HOTPLUG_CPU
+@@ -612,7 +745,7 @@ void __cpu_die(unsigned int cpu)
+ 	/* Wait until target cpu is down */
+ 	while (!smp_cpu_not_running(cpu))
+ 		cpu_relax();
+-	printk("Processor %d spun down\n", cpu);
++	printk(KERN_INFO "Processor %d spun down\n", cpu);
+ }
  
-+	smp_detect_cpus();
-+
- 	/* request the 0x1201 emergency signal external interrupt */
- 	if (register_external_interrupt(0x1201, do_ext_call_interrupt) != 0)
- 		panic("Couldn't request external interrupt 0x1201");
-@@ -816,6 +786,8 @@ void __init smp_prepare_boot_cpu(void)
- {
- 	BUG_ON(smp_processor_id() != 0);
- 
-+	current_thread_info()->cpu = 0;
-+	cpu_set(0, cpu_present_map);
+ void cpu_die(void)
+@@ -686,12 +819,12 @@ void __init smp_prepare_boot_cpu(void)
  	cpu_set(0, cpu_online_map);
  	S390_lowcore.percpu_offset = __per_cpu_offset[0];
  	current_set[0] = current;
-Index: quilt-2.6/Documentation/cpu-hotplug.txt
++	smp_cpu_state[0] = CPU_STATE_CONFIGURED;
+ 	spin_lock_init(&(&__get_cpu_var(s390_idle))->lock);
+ }
+ 
+ void __init smp_cpus_done(unsigned int max_cpus)
+ {
+-	cpu_present_map = cpu_possible_map;
+ }
+ 
+ /*
+@@ -705,7 +838,79 @@ int setup_profiling_timer(unsigned int m
+ 	return 0;
+ }
+ 
+-static DEFINE_PER_CPU(struct cpu, cpu_devices);
++#ifdef CONFIG_HOTPLUG_CPU
++static ssize_t cpu_configure_show(struct sys_device *dev, char *buf)
++{
++	ssize_t count;
++
++	mutex_lock(&smp_cpu_state_mutex);
++	count = sprintf(buf, "%d\n", smp_cpu_state[dev->id]);
++	mutex_unlock(&smp_cpu_state_mutex);
++	return count;
++}
++
++static ssize_t cpu_configure_store(struct sys_device *dev, const char *buf,
++				   size_t count)
++{
++	int cpu = dev->id;
++	int val, rc;
++	char delim;
++
++	if (sscanf(buf, "%d %c", &val, &delim) != 1)
++		return -EINVAL;
++	if (val != 0 && val != 1)
++		return -EINVAL;
++
++	mutex_lock(&smp_cpu_state_mutex);
++	lock_cpu_hotplug();
++	rc = -EBUSY;
++	if (cpu_online(cpu))
++		goto out;
++	rc = 0;
++	switch (val) {
++	case 0:
++		if (smp_cpu_state[cpu] == CPU_STATE_CONFIGURED) {
++			rc = sclp_cpu_deconfigure(__cpu_logical_map[cpu]);
++			if (!rc)
++				smp_cpu_state[cpu] = CPU_STATE_STANDBY;
++		}
++		break;
++	case 1:
++		if (smp_cpu_state[cpu] == CPU_STATE_STANDBY) {
++			rc = sclp_cpu_configure(__cpu_logical_map[cpu]);
++			if (!rc)
++				smp_cpu_state[cpu] = CPU_STATE_CONFIGURED;
++		}
++		break;
++	default:
++		break;
++	}
++out:
++	unlock_cpu_hotplug();
++	mutex_unlock(&smp_cpu_state_mutex);
++	return rc ? rc : count;
++}
++static SYSDEV_ATTR(configure, 0644, cpu_configure_show, cpu_configure_store);
++#endif /* CONFIG_HOTPLUG_CPU */
++
++static ssize_t show_cpu_address(struct sys_device *dev, char *buf)
++{
++	return sprintf(buf, "%d\n", __cpu_logical_map[dev->id]);
++}
++static SYSDEV_ATTR(address, 0444, show_cpu_address, NULL);
++
++
++static struct attribute *cpu_common_attrs[] = {
++#ifdef CONFIG_HOTPLUG_CPU
++	&attr_configure.attr,
++#endif
++	&attr_address.attr,
++	NULL,
++};
++
++static struct attribute_group cpu_common_attr_group = {
++	.attrs = cpu_common_attrs,
++};
+ 
+ static ssize_t show_capability(struct sys_device *dev, char *buf)
+ {
+@@ -750,15 +955,15 @@ static ssize_t show_idle_time(struct sys
+ }
+ static SYSDEV_ATTR(idle_time_us, 0444, show_idle_time, NULL);
+ 
+-static struct attribute *cpu_attrs[] = {
++static struct attribute *cpu_online_attrs[] = {
+ 	&attr_capability.attr,
+ 	&attr_idle_count.attr,
+ 	&attr_idle_time_us.attr,
+ 	NULL,
+ };
+ 
+-static struct attribute_group cpu_attr_group = {
+-	.attrs = cpu_attrs,
++static struct attribute_group cpu_online_attr_group = {
++	.attrs = cpu_online_attrs,
+ };
+ 
+ static int __cpuinit smp_cpu_notify(struct notifier_block *self,
+@@ -778,12 +983,12 @@ static int __cpuinit smp_cpu_notify(stru
+ 		idle->idle_time = 0;
+ 		idle->idle_count = 0;
+ 		spin_unlock_irq(&idle->lock);
+-		if (sysfs_create_group(&s->kobj, &cpu_attr_group))
++		if (sysfs_create_group(&s->kobj, &cpu_online_attr_group))
+ 			return NOTIFY_BAD;
+ 		break;
+ 	case CPU_DEAD:
+ 	case CPU_DEAD_FROZEN:
+-		sysfs_remove_group(&s->kobj, &cpu_attr_group);
++		sysfs_remove_group(&s->kobj, &cpu_online_attr_group);
+ 		break;
+ 	}
+ 	return NOTIFY_OK;
+@@ -793,6 +998,62 @@ static struct notifier_block __cpuinitda
+ 	.notifier_call = smp_cpu_notify,
+ };
+ 
++static int smp_add_present_cpu(int cpu)
++{
++	struct cpu *c = &per_cpu(cpu_devices, cpu);
++	struct sys_device *s = &c->sysdev;
++	int rc;
++
++	c->hotpluggable = 1;
++	rc = register_cpu(c, cpu);
++	if (rc)
++		goto out;
++	rc = sysfs_create_group(&s->kobj, &cpu_common_attr_group);
++	if (rc)
++		goto out_cpu;
++	if (!cpu_online(cpu))
++		goto out;
++	rc = sysfs_create_group(&s->kobj, &cpu_online_attr_group);
++	if (!rc)
++		return 0;
++	sysfs_remove_group(&s->kobj, &cpu_common_attr_group);
++out_cpu:
++#ifdef CONFIG_HOTPLUG_CPU
++	unregister_cpu(c);
++#endif
++out:
++	return rc;
++}
++
++#ifdef CONFIG_HOTPLUG_CPU
++static ssize_t rescan_store(struct sys_device *dev, const char *buf,
++			    size_t count)
++{
++	cpumask_t newcpus;
++	int cpu;
++	int rc;
++
++	mutex_lock(&smp_cpu_state_mutex);
++	lock_cpu_hotplug();
++	newcpus = cpu_present_map;
++	rc = smp_rescan_cpus();
++	if (rc)
++		goto out;
++	cpus_andnot(newcpus, cpu_present_map, newcpus);
++	for_each_cpu_mask(cpu, newcpus) {
++		rc = smp_add_present_cpu(cpu);
++		if (rc)
++			cpu_clear(cpu, cpu_present_map);
++	}
++	rc = 0;
++out:
++	unlock_cpu_hotplug();
++	mutex_unlock(&smp_cpu_state_mutex);
++	return rc ? rc : count;
++}
++static SYSDEV_ATTR(rescan, 0200, NULL, rescan_store);
++#endif /* CONFIG_HOTPLUG_CPU */
++
+ static int __init topology_init(void)
+ {
+ 	int cpu;
+@@ -800,16 +1061,14 @@ static int __init topology_init(void)
+ 
+ 	register_cpu_notifier(&smp_cpu_nb);
+ 
+-	for_each_possible_cpu(cpu) {
+-		struct cpu *c = &per_cpu(cpu_devices, cpu);
+-		struct sys_device *s = &c->sysdev;
+-
+-		c->hotpluggable = 1;
+-		register_cpu(c, cpu);
+-		if (!cpu_online(cpu))
+-			continue;
+-		s = &c->sysdev;
+-		rc = sysfs_create_group(&s->kobj, &cpu_attr_group);
++#ifdef CONFIG_HOTPLUG_CPU
++	rc = sysfs_create_file(&cpu_sysdev_class.kset.kobj,
++			       &attr_rescan.attr);
++	if (rc)
++		return rc;
++#endif
++	for_each_present_cpu(cpu) {
++		rc = smp_add_present_cpu(cpu);
+ 		if (rc)
+ 			return rc;
+ 	}
+Index: quilt-2.6/drivers/s390/char/Makefile
 ===================================================================
---- quilt-2.6.orig/Documentation/cpu-hotplug.txt
-+++ quilt-2.6/Documentation/cpu-hotplug.txt
-@@ -50,7 +50,7 @@ additional_cpus=n (*)	Use this to limit 
-   			cpu_possible_map = cpu_present_map + additional_cpus
+--- quilt-2.6.orig/drivers/s390/char/Makefile
++++ quilt-2.6/drivers/s390/char/Makefile
+@@ -3,7 +3,7 @@
+ #
  
- (*) Option valid only for following architectures
--- x86_64, ia64, s390
-+- x86_64, ia64
+ obj-y += ctrlchar.o keyboard.o defkeymap.o sclp.o sclp_rw.o sclp_quiesce.o \
+-	 sclp_info.o sclp_config.o sclp_chp.o sclp_cpi_sys.o
++	 sclp_cmd.o sclp_config.o sclp_chp.o sclp_cpi_sys.o
  
- ia64 and x86_64 use the number of disabled local apics in ACPI tables MADT
- to determine the number of potentially hot-pluggable cpus. The implementation
+ obj-$(CONFIG_TN3270) += raw3270.o
+ obj-$(CONFIG_TN3270_CONSOLE) += con3270.o
 Index: quilt-2.6/drivers/s390/char/sclp_cmd.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_cmd.c
+--- /dev/null
 +++ quilt-2.6/drivers/s390/char/sclp_cmd.c
-@@ -191,9 +191,6 @@ struct read_cpu_info_sccb {
- 	u8	reserved[4096 - 16];
- } __attribute__((packed, aligned(PAGE_SIZE)));
+@@ -0,0 +1,319 @@
++/*
++ *  drivers/s390/char/sclp_cmd.c
++ *
++ *    Copyright IBM Corp. 2007
++ *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
++ */
++
++#include <linux/completion.h>
++#include <linux/init.h>
++#include <linux/errno.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++#include <asm/sclp.h>
++#include "sclp.h"
++
++#define TAG	"sclp_cmd: "
++
++#define SCLP_CMDW_READ_SCP_INFO		0x00020001
++#define SCLP_CMDW_READ_SCP_INFO_FORCED	0x00120001
++
++struct read_info_sccb {
++	struct	sccb_header header;	/* 0-7 */
++	u16	rnmax;			/* 8-9 */
++	u8	rnsize;			/* 10 */
++	u8	_reserved0[24 - 11];	/* 11-15 */
++	u8	loadparm[8];		/* 24-31 */
++	u8	_reserved1[48 - 32];	/* 32-47 */
++	u64	facilities;		/* 48-55 */
++	u8	_reserved2[84 - 56];	/* 56-83 */
++	u8	fac84;			/* 84 */
++	u8	_reserved3[91 - 85];	/* 85-90 */
++	u8	flags;			/* 91 */
++	u8	_reserved4[100 - 92];	/* 92-99 */
++	u32	rnsize2;		/* 100-103 */
++	u64	rnmax2;			/* 104-111 */
++	u8	_reserved5[4096 - 112];	/* 112-4095 */
++} __attribute__((packed, aligned(PAGE_SIZE)));
++
++static struct read_info_sccb __initdata early_read_info_sccb;
++static int __initdata early_read_info_sccb_valid;
++
++u64 sclp_facilities;
++static u8 sclp_fac84;
++
++static int __init sclp_cmd_sync_early(sclp_cmdw_t cmd, void *sccb)
++{
++	int rc;
++
++	__ctl_set_bit(0, 9);
++	rc = sclp_service_call(cmd, sccb);
++	if (rc)
++		goto out;
++	__load_psw_mask(PSW_BASE_BITS | PSW_MASK_EXT |
++			PSW_MASK_WAIT | PSW_DEFAULT_KEY);
++	local_irq_disable();
++out:
++	/* Contents of the sccb might have changed. */
++	barrier();
++	__ctl_clear_bit(0, 9);
++	return rc;
++}
++
++void __init sclp_read_info_early(void)
++{
++	int rc;
++	int i;
++	struct read_info_sccb *sccb;
++	sclp_cmdw_t commands[] = {SCLP_CMDW_READ_SCP_INFO_FORCED,
++				  SCLP_CMDW_READ_SCP_INFO};
++
++	sccb = &early_read_info_sccb;
++	for (i = 0; i < ARRAY_SIZE(commands); i++) {
++		do {
++			memset(sccb, 0, sizeof(*sccb));
++			sccb->header.length = sizeof(*sccb);
++			sccb->header.control_mask[2] = 0x80;
++			rc = sclp_cmd_sync_early(commands[i], sccb);
++		} while (rc == -EBUSY);
++
++		if (rc)
++			break;
++		if (sccb->header.response_code == 0x10) {
++			early_read_info_sccb_valid = 1;
++			break;
++		}
++		if (sccb->header.response_code != 0x1f0)
++			break;
++	}
++}
++
++void __init sclp_facilities_detect(void)
++{
++	if (!early_read_info_sccb_valid)
++		return;
++	sclp_facilities = early_read_info_sccb.facilities;
++	sclp_fac84 = early_read_info_sccb.fac84;
++}
++
++unsigned long long __init sclp_memory_detect(void)
++{
++	unsigned long long memsize;
++	struct read_info_sccb *sccb;
++
++	if (!early_read_info_sccb_valid)
++		return 0;
++	sccb = &early_read_info_sccb;
++	if (sccb->rnsize)
++		memsize = sccb->rnsize << 20;
++	else
++		memsize = sccb->rnsize2 << 20;
++	if (sccb->rnmax)
++		memsize *= sccb->rnmax;
++	else
++		memsize *= sccb->rnmax2;
++	return memsize;
++}
++
++/*
++ * This function will be called after sclp_memory_detect(), which gets called
++ * early from early.c code. Therefore the sccb should have valid contents.
++ */
++void __init sclp_get_ipl_info(struct sclp_ipl_info *info)
++{
++	struct read_info_sccb *sccb;
++
++	if (!early_read_info_sccb_valid)
++		return;
++	sccb = &early_read_info_sccb;
++	info->is_valid = 1;
++	if (sccb->flags & 0x2)
++		info->has_dump = 1;
++	memcpy(&info->loadparm, &sccb->loadparm, LOADPARM_LEN);
++}
++
++static void sclp_sync_callback(struct sclp_req *req, void *data)
++{
++	struct completion *completion = data;
++
++	complete(completion);
++}
++
++static int do_sync_request(sclp_cmdw_t cmd, void *sccb)
++{
++	struct completion completion;
++	struct sclp_req *request;
++	int rc;
++
++	request = kzalloc(sizeof(*request), GFP_KERNEL);
++	if (!request)
++		return -ENOMEM;
++	request->command = cmd;
++	request->sccb = sccb;
++	request->status = SCLP_REQ_FILLED;
++	request->callback = sclp_sync_callback;
++	request->callback_data = &completion;
++	init_completion(&completion);
++
++	/* Perform sclp request. */
++	rc = sclp_add_request(request);
++	if (rc)
++		goto out;
++	wait_for_completion(&completion);
++
++	/* Check response. */
++	if (request->status != SCLP_REQ_DONE) {
++		printk(KERN_WARNING TAG "sync request failed "
++		       "(cmd=0x%08x, status=0x%02x)\n", cmd, request->status);
++		rc = -EIO;
++	}
++out:
++	kfree(request);
++	return rc;
++}
++
++/*
++ * CPU configuration related functions.
++ */
++
++#define SCLP_CMDW_READ_CPU_INFO		0x00010001
++#define SCLP_CMDW_CONFIGURE_CPU		0x00110001
++#define SCLP_CMDW_DECONFIGURE_CPU	0x00100001
++
++struct read_cpu_info_sccb {
++	struct	sccb_header header;
++	u16	nr_configured;
++	u16	offset_configured;
++	u16	nr_standby;
++	u16	offset_standby;
++	u8	reserved[4096 - 16];
++} __attribute__((packed, aligned(PAGE_SIZE)));
++
++static struct read_cpu_info_sccb __initdata early_read_cpu_info_sccb;
++static struct sclp_cpu_info __initdata sclp_cpu_info;
++
++static void sclp_fill_cpu_info(struct sclp_cpu_info *info,
++			       struct read_cpu_info_sccb *sccb)
++{
++	char *page = (char *) sccb;
++
++	memset(info, 0, sizeof(*info));
++	info->configured = sccb->nr_configured;
++	info->standby = sccb->nr_standby;
++	info->combined = sccb->nr_configured + sccb->nr_standby;
++	info->has_cpu_type = sclp_fac84 & 0x1;
++	memcpy(&info->cpu, page + sccb->offset_configured,
++	       info->combined * sizeof(struct sclp_cpu_entry));
++}
++
++void __init sclp_read_cpu_info_early(void)
++{
++	int rc;
++	struct read_cpu_info_sccb *sccb;
++
++	if (!SCLP_HAS_CPU_INFO)
++		return;
++
++	sccb = &early_read_cpu_info_sccb;
++	do {
++		memset(sccb, 0, sizeof(*sccb));
++		sccb->header.length = sizeof(*sccb);
++		rc = sclp_cmd_sync_early(SCLP_CMDW_READ_CPU_INFO, sccb);
++	} while (rc == -EBUSY);
++
++	if (rc)
++		return;
++	if (sccb->header.response_code != 0x10)
++		return;
++	sclp_fill_cpu_info(&sclp_cpu_info, sccb);
++}
++
++static int __init sclp_get_cpu_info_early(struct sclp_cpu_info *info)
++{
++	if (!SCLP_HAS_CPU_INFO)
++		return -EOPNOTSUPP;
++	*info = sclp_cpu_info;
++	return 0;
++}
++
++static int sclp_get_cpu_info_late(struct sclp_cpu_info *info)
++{
++	int rc;
++	struct read_cpu_info_sccb *sccb;
++
++	if (!SCLP_HAS_CPU_INFO)
++		return -EOPNOTSUPP;
++	sccb = (struct read_cpu_info_sccb *)  __get_free_page(GFP_KERNEL
++							      | GFP_DMA);
++	if (!sccb)
++		return -ENOMEM;
++	memset(sccb, 0, sizeof(*sccb));
++	sccb->header.length = sizeof(*sccb);
++	rc = do_sync_request(SCLP_CMDW_READ_CPU_INFO, sccb);
++	if (rc)
++		goto out;
++	if (sccb->header.response_code != 0x0010) {
++		printk(KERN_WARNING TAG "readcpuinfo failed "
++		       "(response=0x%04x)\n", sccb->header.response_code);
++		rc = -EIO;
++		goto out;
++	}
++	sclp_fill_cpu_info(info, sccb);
++out:
++	free_page((unsigned long) sccb);
++	return rc;
++}
++
++int __init_refok sclp_get_cpu_info(struct sclp_cpu_info *info)
++{
++	if (slab_is_available())
++		return sclp_get_cpu_info_late(info);
++	return sclp_get_cpu_info_early(info);
++}
++
++struct cpu_configure_sccb {
++	struct sccb_header header;
++} __attribute__((packed, aligned(8)));
++
++static int do_cpu_configure(sclp_cmdw_t cmd)
++{
++	struct cpu_configure_sccb *sccb;
++	int rc;
++
++	if (!SCLP_HAS_CPU_RECONFIG)
++		return -EOPNOTSUPP;
++	/*
++	 * This is not going to cross a page boundary since we force
++	 * kmalloc to have a minimum alignment of 8 bytes on s390.
++	 */
++	sccb = kzalloc(sizeof(*sccb), GFP_KERNEL | GFP_DMA);
++	if (!sccb)
++		return -ENOMEM;
++	sccb->header.length = sizeof(*sccb);
++	rc = do_sync_request(cmd, sccb);
++	if (rc)
++		goto out;
++	switch (sccb->header.response_code) {
++	case 0x0020:
++	case 0x0120:
++		break;
++	default:
++		printk(KERN_WARNING TAG "configure cpu failed (cmd=0x%08x, "
++		       "response=0x%04x)\n", cmd, sccb->header.response_code);
++		rc = -EIO;
++		break;
++	}
++out:
++	kfree(sccb);
++	return rc;
++}
++
++int sclp_cpu_configure(u8 cpu)
++{
++	return do_cpu_configure(SCLP_CMDW_CONFIGURE_CPU | cpu << 8);
++}
++
++int sclp_cpu_deconfigure(u8 cpu)
++{
++	return do_cpu_configure(SCLP_CMDW_DECONFIGURE_CPU | cpu << 8);
++}
+Index: quilt-2.6/drivers/s390/char/sclp.h
+===================================================================
+--- quilt-2.6.orig/drivers/s390/char/sclp.h
++++ quilt-2.6/drivers/s390/char/sclp.h
+@@ -56,8 +56,6 @@ typedef unsigned int sclp_cmdw_t;
+ #define SCLP_CMDW_READ_EVENT_DATA	0x00770005
+ #define SCLP_CMDW_WRITE_EVENT_DATA	0x00760005
+ #define SCLP_CMDW_WRITE_EVENT_MASK	0x00780005
+-#define SCLP_CMDW_READ_SCP_INFO		0x00020001
+-#define SCLP_CMDW_READ_SCP_INFO_FORCED	0x00120001
  
--static struct read_cpu_info_sccb __initdata early_read_cpu_info_sccb;
--static struct sclp_cpu_info __initdata sclp_cpu_info;
--
- static void sclp_fill_cpu_info(struct sclp_cpu_info *info,
- 			       struct read_cpu_info_sccb *sccb)
- {
-@@ -208,48 +205,16 @@ static void sclp_fill_cpu_info(struct sc
- 	       info->combined * sizeof(struct sclp_cpu_entry));
- }
+ #define GDS_ID_MDSMU		0x1310
+ #define GDS_ID_MDSROUTEINFO	0x1311
+@@ -83,6 +81,8 @@ extern u64 sclp_facilities;
  
--void __init sclp_read_cpu_info_early(void)
-+int sclp_get_cpu_info(struct sclp_cpu_info *info)
- {
- 	int rc;
- 	struct read_cpu_info_sccb *sccb;
+ #define SCLP_HAS_CHP_INFO	(sclp_facilities & 0x8000000000000000ULL)
+ #define SCLP_HAS_CHP_RECONFIG	(sclp_facilities & 0x2000000000000000ULL)
++#define SCLP_HAS_CPU_INFO	(sclp_facilities & 0x0800000000000000ULL)
++#define SCLP_HAS_CPU_RECONFIG	(sclp_facilities & 0x0400000000000000ULL)
  
- 	if (!SCLP_HAS_CPU_INFO)
--		return;
+ struct gds_subvector {
+ 	u8	length;
+Index: quilt-2.6/drivers/s390/char/sclp_info.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/char/sclp_info.c
++++ /dev/null
+@@ -1,116 +0,0 @@
+-/*
+- *  drivers/s390/char/sclp_info.c
+- *
+- *    Copyright IBM Corp. 2007
+- *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
+- */
 -
--	sccb = &early_read_cpu_info_sccb;
--	do {
--		memset(sccb, 0, sizeof(*sccb));
--		sccb->header.length = sizeof(*sccb);
--		rc = sclp_cmd_sync_early(SCLP_CMDW_READ_CPU_INFO, sccb);
--	} while (rc == -EBUSY);
+-#include <linux/init.h>
+-#include <linux/errno.h>
+-#include <linux/string.h>
+-#include <asm/sclp.h>
+-#include "sclp.h"
 -
--	if (rc)
--		return;
--	if (sccb->header.response_code != 0x10)
--		return;
--	sclp_fill_cpu_info(&sclp_cpu_info, sccb);
+-struct sclp_readinfo_sccb {
+-	struct	sccb_header header;	/* 0-7 */
+-	u16	rnmax;			/* 8-9 */
+-	u8	rnsize;			/* 10 */
+-	u8	_reserved0[24 - 11];	/* 11-23 */
+-	u8	loadparm[8];		/* 24-31 */
+-	u8	_reserved1[48 - 32];	/* 32-47 */
+-	u64	facilities;		/* 48-55 */
+-	u8	_reserved2[91 - 56];	/* 56-90 */
+-	u8	flags;			/* 91 */
+-	u8	_reserved3[100 - 92];	/* 92-99 */
+-	u32	rnsize2;		/* 100-103 */
+-	u64	rnmax2;			/* 104-111 */
+-	u8	_reserved4[4096 - 112];	/* 112-4095 */
+-} __attribute__((packed, aligned(4096)));
+-
+-static struct sclp_readinfo_sccb __initdata early_readinfo_sccb;
+-static int __initdata early_readinfo_sccb_valid;
+-
+-u64 sclp_facilities;
+-
+-void __init sclp_readinfo_early(void)
+-{
+-	int ret;
+-	int i;
+-	struct sclp_readinfo_sccb *sccb;
+-	sclp_cmdw_t commands[] = {SCLP_CMDW_READ_SCP_INFO_FORCED,
+-				  SCLP_CMDW_READ_SCP_INFO};
+-
+-	/* Enable service signal subclass mask. */
+-	__ctl_set_bit(0, 9);
+-	sccb = &early_readinfo_sccb;
+-	for (i = 0; i < ARRAY_SIZE(commands); i++) {
+-		do {
+-			memset(sccb, 0, sizeof(*sccb));
+-			sccb->header.length = sizeof(*sccb);
+-			sccb->header.control_mask[2] = 0x80;
+-			ret = sclp_service_call(commands[i], sccb);
+-		} while (ret == -EBUSY);
+-
+-		if (ret)
+-			break;
+-		__load_psw_mask(PSW_BASE_BITS | PSW_MASK_EXT |
+-				PSW_MASK_WAIT | PSW_DEFAULT_KEY);
+-		local_irq_disable();
+-		/*
+-		 * Contents of the sccb might have changed
+-		 * therefore a barrier is needed.
+-		 */
+-		barrier();
+-		if (sccb->header.response_code == 0x10) {
+-			early_readinfo_sccb_valid = 1;
+-			break;
+-		}
+-		if (sccb->header.response_code != 0x1f0)
+-			break;
+-	}
+-	/* Disable service signal subclass mask again. */
+-	__ctl_clear_bit(0, 9);
 -}
 -
--static int __init sclp_get_cpu_info_early(struct sclp_cpu_info *info)
+-void __init sclp_facilities_detect(void)
 -{
--	if (!SCLP_HAS_CPU_INFO)
- 		return -EOPNOTSUPP;
--	*info = sclp_cpu_info;
--	return 0;
+-	if (!early_readinfo_sccb_valid)
+-		return;
+-	sclp_facilities = early_readinfo_sccb.facilities;
 -}
 -
--static int sclp_get_cpu_info_late(struct sclp_cpu_info *info)
+-unsigned long long __init sclp_memory_detect(void)
 -{
--	int rc;
--	struct read_cpu_info_sccb *sccb;
+-	unsigned long long memsize;
+-	struct sclp_readinfo_sccb *sccb;
 -
--	if (!SCLP_HAS_CPU_INFO)
--		return -EOPNOTSUPP;
--	sccb = (struct read_cpu_info_sccb *)  __get_free_page(GFP_KERNEL
--							      | GFP_DMA);
-+	sccb = (void *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
- 	if (!sccb)
- 		return -ENOMEM;
--	memset(sccb, 0, sizeof(*sccb));
- 	sccb->header.length = sizeof(*sccb);
- 	rc = do_sync_request(SCLP_CMDW_READ_CPU_INFO, sccb);
- 	if (rc)
-@@ -266,13 +231,6 @@ out:
- 	return rc;
- }
- 
--int __init_refok sclp_get_cpu_info(struct sclp_cpu_info *info)
--{
--	if (slab_is_available())
--		return sclp_get_cpu_info_late(info);
--	return sclp_get_cpu_info_early(info);
+-	if (!early_readinfo_sccb_valid)
+-		return 0;
+-	sccb = &early_readinfo_sccb;
+-	if (sccb->rnsize)
+-		memsize = sccb->rnsize << 20;
+-	else
+-		memsize = sccb->rnsize2 << 20;
+-	if (sccb->rnmax)
+-		memsize *= sccb->rnmax;
+-	else
+-		memsize *= sccb->rnmax2;
+-	return memsize;
 -}
 -
- struct cpu_configure_sccb {
- 	struct sccb_header header;
- } __attribute__((packed, aligned(8)));
+-/*
+- * This function will be called after sclp_memory_detect(), which gets called
+- * early from early.c code. Therefore the sccb should have valid contents.
+- */
+-void __init sclp_get_ipl_info(struct sclp_ipl_info *info)
+-{
+-	struct sclp_readinfo_sccb *sccb;
+-
+-	if (!early_readinfo_sccb_valid)
+-		return;
+-	sccb = &early_readinfo_sccb;
+-	info->is_valid = 1;
+-	if (sccb->flags & 0x2)
+-		info->has_dump = 1;
+-	memcpy(&info->loadparm, &sccb->loadparm, LOADPARM_LEN);
+-}
 Index: quilt-2.6/include/asm-s390/sclp.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-s390/sclp.h
 +++ quilt-2.6/include/asm-s390/sclp.h
-@@ -46,7 +46,6 @@ int sclp_get_cpu_info(struct sclp_cpu_in
- int sclp_cpu_configure(u8 cpu);
- int sclp_cpu_deconfigure(u8 cpu);
- void sclp_read_info_early(void);
--void sclp_read_cpu_info_early(void);
+@@ -27,7 +27,26 @@ struct sclp_ipl_info {
+ 	char loadparm[LOADPARM_LEN];
+ };
+ 
+-void sclp_readinfo_early(void);
++struct sclp_cpu_entry {
++	u8 address;
++	u8 reserved0[13];
++	u8 type;
++	u8 reserved1;
++} __attribute__((packed));
++
++struct sclp_cpu_info {
++	unsigned int configured;
++	unsigned int standby;
++	unsigned int combined;
++	int has_cpu_type;
++	struct sclp_cpu_entry cpu[255];
++};
++
++int sclp_get_cpu_info(struct sclp_cpu_info *info);
++int sclp_cpu_configure(u8 cpu);
++int sclp_cpu_deconfigure(u8 cpu);
++void sclp_read_info_early(void);
++void sclp_read_cpu_info_early(void);
  void sclp_facilities_detect(void);
  unsigned long long sclp_memory_detect(void);
  int sclp_sdias_blk_count(void);
-Index: quilt-2.6/include/asm-s390/smp.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/smp.h
-+++ quilt-2.6/include/asm-s390/smp.h
-@@ -35,8 +35,6 @@ extern void machine_restart_smp(char *);
- extern void machine_halt_smp(void);
- extern void machine_power_off_smp(void);
- 
--extern void smp_setup_cpu_possible_map(void);
--
- #define NO_PROC_ID		0xFF		/* No processor magic marker */
- 
- /*
-@@ -103,7 +101,6 @@ static inline void smp_send_stop(void)
- 
- #define hard_smp_processor_id()		0
- #define smp_cpu_not_running(cpu)	1
--#define smp_setup_cpu_possible_map()	do { } while (0)
- #endif
- 
- extern union save_area *zfcpdump_save_areas[NR_CPUS + 1];
 
 -- 
 blue skies,
