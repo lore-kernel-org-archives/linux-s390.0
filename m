@@ -1,113 +1,129 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S966316AbXLTPk6@vger.kernel.org>
-Message-Id: <20071220152107.926027882@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S966389AbXLTPle@vger.kernel.org>
+Message-Id: <20071220152107.341575291@de.ibm.com>
 References: <20071220151925.405881218@de.ibm.com>
-Date: Thu, 20 Dec 2007 16:19:47 +0100
+Date: Thu, 20 Dec 2007 16:19:45 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 22/47] Print kernel version in dump_stack() and show_regs().
-Content-Disposition: inline; filename=121-version-printk.diff
+Subject: [patch 20/47] Fix tlb flushing with idte.
+Content-Disposition: inline; filename=119-mm-idte.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Also print PREEMPT and/or SMP if the kernel was configured that way.
-Makes s390 look a bit more like other architectures.
+The clear-by-asce operation of the idte instruction gets an asce
+(address-space-control-element) as argument to specify which TLBs
+need to get flushed. The current code passes a plain pointer to
+the start of the pgd without the additional bits which would make
+the pointer an asce. The current machines don't mind the difference
+but a future model might want to use the designation type control
+bits in the asce as a filter for the TLBs to flush.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/process.c |   18 ++++++++++--------
- arch/s390/kernel/traps.c   |   20 +++++++++++++++++---
- 2 files changed, 27 insertions(+), 11 deletions(-)
+ arch/s390/kernel/head64.S      |    2 +-
+ include/asm-s390/mmu_context.h |   27 ++++++++++++---------------
+ include/asm-s390/tlbflush.h    |   12 ++++++------
+ 3 files changed, 19 insertions(+), 22 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/process.c
+Index: quilt-2.6/arch/s390/kernel/head64.S
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/process.c
-+++ quilt-2.6/arch/s390/kernel/process.c
-@@ -36,7 +36,7 @@
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/notifier.h>
--
-+#include <linux/utsname.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/system.h>
-@@ -182,13 +182,15 @@ void cpu_idle(void)
+--- quilt-2.6.orig/arch/s390/kernel/head64.S
++++ quilt-2.6/arch/s390/kernel/head64.S
+@@ -157,7 +157,7 @@ startup_continue:
+ 	.long	0xb2b10000		# store facility list
+ 	tm	0xc8,0x08		# check bit for clearing-by-ASCE
+ 	bno	0f-.LPG1(%r13)
+-	lhi	%r1,2094
++	lhi	%r1,2048
+ 	lhi	%r2,0
+ 	.long	0xb98e2001
+ 	oi	7(%r12),0x80		# set IDTE flag
+Index: quilt-2.6/include/asm-s390/mmu_context.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/mmu_context.h
++++ quilt-2.6/include/asm-s390/mmu_context.h
+@@ -12,10 +12,15 @@
+ #include <asm/pgalloc.h>
+ #include <asm-generic/mm_hooks.h>
  
- void show_regs(struct pt_regs *regs)
+-/*
+- * get a new mmu context.. S390 don't know about contexts.
+- */
+-#define init_new_context(tsk,mm)        0
++static inline int init_new_context(struct task_struct *tsk,
++				   struct mm_struct *mm)
++{
++	mm->context = _ASCE_TABLE_LENGTH | _ASCE_USER_BITS;
++#ifdef CONFIG_64BIT
++	mm->context |= _ASCE_TYPE_REGION3;
++#endif
++	return 0;
++}
+ 
+ #define destroy_context(mm)             do { } while (0)
+ 
+@@ -27,19 +32,11 @@
+ 
+ static inline void update_mm(struct mm_struct *mm, struct task_struct *tsk)
  {
--	struct task_struct *tsk = current;
+-	pgd_t *pgd = mm->pgd;
+-	unsigned long asce_bits;
 -
--        printk("CPU:    %d    %s\n", task_thread_info(tsk)->cpu, print_tainted());
--        printk("Process %s (pid: %d, task: %p, ksp: %p)\n",
--	       current->comm, task_pid_nr(current), (void *) tsk,
--	       (void *) tsk->thread.ksp);
--
-+	print_modules();
-+	printk("CPU: %d %s %s %.*s\n",
-+	       task_thread_info(current)->cpu, print_tainted(),
-+	       init_utsname()->release,
-+	       (int)strcspn(init_utsname()->version, " "),
-+	       init_utsname()->version);
-+	printk("Process %s (pid: %d, task: %p, ksp: %p)\n",
-+	       current->comm, current->pid, current,
-+	       (void *) current->thread.ksp);
- 	show_registers(regs);
- 	/* Show stack backtrace if pt_regs is from kernel mode */
- 	if (!(regs->psw.mask & PSW_MASK_PSTATE))
-Index: quilt-2.6/arch/s390/kernel/traps.c
+-	/* Calculate asce bits from the first pgd table entry. */
+-	asce_bits = _ASCE_TABLE_LENGTH | _ASCE_USER_BITS;
+-#ifdef CONFIG_64BIT
+-	asce_bits |= _ASCE_TYPE_REGION3;
+-#endif
+-	S390_lowcore.user_asce = asce_bits | __pa(pgd);
++	S390_lowcore.user_asce = mm->context | __pa(mm->pgd);
+ 	if (switch_amode) {
+ 		/* Load primary space page table origin. */
+-		pgd_t *shadow_pgd = get_shadow_table(pgd) ? : pgd;
+-		S390_lowcore.user_exec_asce = asce_bits | __pa(shadow_pgd);
++		pgd_t *shadow_pgd = get_shadow_table(mm->pgd) ? : mm->pgd;
++		S390_lowcore.user_exec_asce = mm->context | __pa(shadow_pgd);
+ 		asm volatile(LCTL_OPCODE" 1,1,%0\n"
+ 			     : : "m" (S390_lowcore.user_exec_asce) );
+ 	} else
+Index: quilt-2.6/include/asm-s390/tlbflush.h
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/traps.c
-+++ quilt-2.6/arch/s390/kernel/traps.c
-@@ -31,6 +31,7 @@
- #include <linux/reboot.h>
- #include <linux/kprobes.h>
- #include <linux/bug.h>
-+#include <linux/utsname.h>
- #include <asm/system.h>
- #include <asm/uaccess.h>
- #include <asm/io.h>
-@@ -168,9 +169,16 @@ void show_stack(struct task_struct *task
+--- quilt-2.6.orig/include/asm-s390/tlbflush.h
++++ quilt-2.6/include/asm-s390/tlbflush.h
+@@ -42,11 +42,11 @@ static inline void __tlb_flush_global(vo
+ /*
+  * Flush all tlb entries of a page table on all cpus.
   */
- void dump_stack(void)
+-static inline void __tlb_flush_idte(pgd_t *pgd)
++static inline void __tlb_flush_idte(unsigned long asce)
  {
-+	printk("CPU: %d %s %s %.*s\n",
-+	       task_thread_info(current)->cpu, print_tainted(),
-+	       init_utsname()->release,
-+	       (int)strcspn(init_utsname()->version, " "),
-+	       init_utsname()->version);
-+	printk("Process %s (pid: %d, task: %p, ksp: %p)\n",
-+	       current->comm, current->pid, current,
-+	       (void *) current->thread.ksp);
- 	show_stack(NULL, NULL);
+ 	asm volatile(
+ 		"	.insn	rrf,0xb98e0000,0,%0,%1,0"
+-		: : "a" (2048), "a" (__pa(pgd) & PAGE_MASK) : "cc" );
++		: : "a" (2048), "a" (asce) : "cc" );
  }
--
- EXPORT_SYMBOL(dump_stack);
  
- static inline int mask_bits(struct pt_regs *regs, unsigned long bits)
-@@ -258,8 +266,14 @@ void die(const char * str, struct pt_reg
- 	console_verbose();
- 	spin_lock_irq(&die_lock);
- 	bust_spinlocks(1);
--	printk("%s: %04lx [#%d]\n", str, err & 0xffff, ++die_counter);
--	print_modules();
-+	printk("%s: %04lx [#%d] ", str, err & 0xffff, ++die_counter);
-+#ifdef CONFIG_PREEMPT
-+	printk("PREEMPT ");
-+#endif
-+#ifdef CONFIG_SMP
-+	printk("SMP");
-+#endif
-+	printk("\n");
- 	notify_die(DIE_OOPS, str, regs, err, current->thread.trap_no, SIGSEGV);
- 	show_regs(regs);
- 	bust_spinlocks(0);
+ static inline void __tlb_flush_mm(struct mm_struct * mm)
+@@ -61,11 +61,11 @@ static inline void __tlb_flush_mm(struct
+ 	 * only ran on the local cpu.
+ 	 */
+ 	if (MACHINE_HAS_IDTE) {
+-		pgd_t *shadow_pgd = get_shadow_table(mm->pgd);
++		pgd_t *shadow = get_shadow_table(mm->pgd);
+ 
+-		if (shadow_pgd)
+-			__tlb_flush_idte(shadow_pgd);
+-		__tlb_flush_idte(mm->pgd);
++		if (shadow)
++			__tlb_flush_idte((unsigned long) shadow | mm->context);
++		__tlb_flush_idte((unsigned long) mm->pgd | mm->context);
+ 		return;
+ 	}
+ 	preempt_disable();
 
 -- 
 blue skies,
