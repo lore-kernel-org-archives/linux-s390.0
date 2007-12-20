@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S937020AbXLTPna@vger.kernel.org>
-Message-Id: <20071220152106.252234639@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S937145AbXLTPnt@vger.kernel.org>
+Message-Id: <20071220152105.992479981@de.ibm.com>
 References: <20071220151925.405881218@de.ibm.com>
-Date: Thu, 20 Dec 2007 16:19:40 +0100
+Date: Thu, 20 Dec 2007 16:19:39 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 15/47] qdio: set QDIO_ACTIVATE_TIMEOUT to 5s
-Content-Disposition: inline; filename=114-qdio-timeout.diff
+Subject: [patch 14/47] qdio: Remove double checked value.
+Content-Disposition: inline; filename=113-qdio-doublecheck.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Ursula Braun <braunu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Sebastian Ott <sebott@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <braunu@de.ibm.com>
+From: Sebastian Ott <sebott@de.ibm.com>
 
-Current definition of QDIO_ACTIVATE_TIMEOUT results in value 0.
-Thus it may cause endless wait in function qdio_activate().
-
-Signed-off-by: Ursula Braun <braunu@de.ibm.com>
+Signed-off-by: Sebastian Ott <sebott@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/qdio.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/cio/qdio.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/qdio.h
+Index: quilt-2.6/drivers/s390/cio/qdio.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/qdio.h
-+++ quilt-2.6/drivers/s390/cio/qdio.h
-@@ -57,7 +57,7 @@
- 					    of the queue to 0 */
- 
- #define QDIO_ESTABLISH_TIMEOUT (1*HZ)
--#define QDIO_ACTIVATE_TIMEOUT ((5*HZ)>>10)
-+#define QDIO_ACTIVATE_TIMEOUT (5*HZ)
- #define QDIO_CLEANUP_CLEAR_TIMEOUT (20*HZ)
- #define QDIO_CLEANUP_HALT_TIMEOUT (10*HZ)
- #define QDIO_FORCE_CHECK_TIMEOUT (10*HZ)
+--- quilt-2.6.orig/drivers/s390/cio/qdio.c
++++ quilt-2.6/drivers/s390/cio/qdio.c
+@@ -1408,8 +1408,7 @@ __tiqdio_inbound_processing(struct qdio_
+ 	if (q->hydra_gives_outbound_pcis) {
+ 		if (!q->siga_sync_done_on_thinints) {
+ 			SYNC_MEMORY_ALL;
+-		} else if ((!q->siga_sync_done_on_outb_tis)&&
+-			 (q->hydra_gives_outbound_pcis)) {
++		} else if (!q->siga_sync_done_on_outb_tis) {
+ 			SYNC_MEMORY_ALL_OUTB;
+ 		}
+ 	} else {
 
 -- 
 blue skies,
