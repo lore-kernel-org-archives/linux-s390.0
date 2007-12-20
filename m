@@ -1,76 +1,55 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 6/6] zfcp: Hold queue lock when checking port/unit handle for task management cmd
-Date: Thu, 20 Dec 2007 12:30:27 +0100
-Message-ID: <20071220113235.684212000@de.ibm.com>
-References: <20071220113021.955597000@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=812-zfcp-lock4.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@hansenpartnership.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Christof Schmitt <christof.schmitt@de.ibm.com>, Martin Peschke <mp3@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933628AbXLTPV2@vger.kernel.org>
+Message-Id: <20071220152103.123287240@de.ibm.com>
+References: <20071220151925.405881218@de.ibm.com>
+Date: Thu, 20 Dec 2007 16:19:26 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 01/47] Cleanup in Documentation/kernel-parameters.txt.
+Content-Disposition: inline; filename=100-cio-docu.diff
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Sebastian Ott <sebott@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
+From: Sebastian Ott <sebott@de.ibm.com>
 
-We need to hold the queue-lock when checking whether we still have a valid
-unit/port handle for the task management command, i.e whether we can issue this
-request for this unit/port. If the error recovery is about to close this
-unit/port, then it competes for the queue-lock. If the close request issued by
-the error recovery wins, then it is guaranteed that this unit/port has been
-blocked for other requests.
-
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
-Signed-off-by: Martin Peschke <mp3@de.ibm.com>
+Signed-off-by: Sebastian Ott <sebott@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/scsi/zfcp_fsf.c |   26 +++++++++-----------------
- 1 file changed, 9 insertions(+), 17 deletions(-)
+ Documentation/kernel-parameters.txt |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/scsi/zfcp_fsf.c	2007-12-20 11:19:01.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_fsf.c	2007-12-20 11:19:19.000000000 +0100
-@@ -3774,6 +3774,10 @@ zfcp_fsf_send_fcp_command_task_managemen
- 		goto out;
- 	}
+Index: quilt-2.6/Documentation/kernel-parameters.txt
+===================================================================
+--- quilt-2.6.orig/Documentation/kernel-parameters.txt
++++ quilt-2.6/Documentation/kernel-parameters.txt
+@@ -369,8 +369,6 @@ and is between 256 and 4096 characters. 
+ 			configured.  Potentially dangerous and should only be
+ 			used if you are entirely sure of the consequences.
  
-+	if (unlikely(!atomic_test_mask(ZFCP_STATUS_COMMON_UNBLOCKED,
-+			&unit->status)))
-+		goto unit_blocked;
+-	chandev=	[HW,NET] Generic channel device initialisation
+-
+ 	checkreqprot	[SELINUX] Set initial checkreqprot flag value.
+ 			Format: { "0" | "1" }
+ 			See security/selinux/Kconfig help text.
+@@ -381,6 +379,12 @@ and is between 256 and 4096 characters. 
+ 			Value can be changed at runtime via
+ 				/selinux/checkreqprot.
+ 
++	cio_ignore=	[S390]
++			See Documentation/s390/CommonIO for details.
 +
- 	/*
- 	 * Used to decide on proper handler in the return path,
- 	 * could be either zfcp_fsf_send_fcp_command_task_handler or
-@@ -3807,25 +3811,13 @@ zfcp_fsf_send_fcp_command_task_managemen
- 
- 	zfcp_fsf_start_timer(fsf_req, ZFCP_SCSI_ER_TIMEOUT);
- 	retval = zfcp_fsf_req_send(fsf_req);
--	if (retval) {
--		ZFCP_LOG_INFO("error: Could not send an FCP-command (task "
--			      "management) on adapter %s, port 0x%016Lx for "
--			      "unit LUN 0x%016Lx\n",
--			      zfcp_get_busid_by_adapter(adapter),
--			      unit->port->wwpn,
--			      unit->fcp_lun);
--		zfcp_fsf_req_free(fsf_req);
--		fsf_req = NULL;
-+	if (!retval)
- 		goto out;
--	}
- 
--	ZFCP_LOG_TRACE("Send FCP Command (task management function) initiated "
--		       "(adapter %s, port 0x%016Lx, unit 0x%016Lx, "
--		       "tm_flags=0x%x)\n",
--		       zfcp_get_busid_by_adapter(adapter),
--		       unit->port->wwpn,
--		       unit->fcp_lun,
--		       tm_flags);
-+ unit_blocked:
-+	zfcp_fsf_req_free(fsf_req);
-+	fsf_req = NULL;
++	cio_msg=	[S390]
++			See Documentation/s390/CommonIO for details.
 +
-  out:
- 	write_unlock_irqrestore(&adapter->request_queue.queue_lock, lock_flags);
- 	return fsf_req;
+ 	clock=		[BUGS=X86-32, HW] gettimeofday clocksource override.
+ 			[Deprecated]
+ 			Forces specified clocksource (if available) to be used
 
 -- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
