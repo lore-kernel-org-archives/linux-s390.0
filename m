@@ -1,137 +1,290 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S934297AbXLTPXB@vger.kernel.org>
-Message-Id: <20071220152103.366033404@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S934456AbXLTPXe@vger.kernel.org>
+Message-Id: <20071220152103.789774292@de.ibm.com>
 References: <20071220151925.405881218@de.ibm.com>
-Date: Thu, 20 Dec 2007 16:19:27 +0100
+Date: Thu, 20 Dec 2007 16:19:29 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 02/47] cio: Dump ccw device information in case of timeout.
-Content-Disposition: inline; filename=101-cio-timeoutlog.diff
+Subject: [patch 04/47] cio: css_driver: Use consistent parameters.
+Content-Disposition: inline; filename=103-cio-callbacks.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Sebastian Ott <sebott@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Sebastian Ott <sebott@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Information about a ccw device will be dumped in
-case of a ccw timeout. This can be enabled with
-the kernel parameter ccw_timeout_log.
+Make all callbacks in css_driver take a struct subchannel (and not
+a struct device).
 
-Signed-off-by: Sebastian Ott <sebott@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- Documentation/kernel-parameters.txt |    3 ++
- Documentation/s390/CommonIO         |    5 +++
- drivers/s390/cio/device_fsm.c       |   50 ++++++++++++++++++++++++++++++++++++
- 3 files changed, 58 insertions(+)
+ drivers/s390/cio/chsc.c       |   16 ++++++++--------
+ drivers/s390/cio/cio.c        |    4 ++--
+ drivers/s390/cio/css.c        |    2 +-
+ drivers/s390/cio/css.h        |    8 ++++----
+ drivers/s390/cio/device.c     |   38 ++++++++++++++++++++++++--------------
+ drivers/s390/cio/device.h     |    1 -
+ drivers/s390/cio/device_fsm.c |   19 +------------------
+ 7 files changed, 40 insertions(+), 48 deletions(-)
 
-Index: quilt-2.6/Documentation/kernel-parameters.txt
+Index: quilt-2.6/drivers/s390/cio/chsc.c
 ===================================================================
---- quilt-2.6.orig/Documentation/kernel-parameters.txt
-+++ quilt-2.6/Documentation/kernel-parameters.txt
-@@ -369,6 +369,9 @@ and is between 256 and 4096 characters. 
- 			configured.  Potentially dangerous and should only be
- 			used if you are entirely sure of the consequences.
+--- quilt-2.6.orig/drivers/s390/cio/chsc.c
++++ quilt-2.6/drivers/s390/cio/chsc.c
+@@ -132,7 +132,7 @@ static void terminate_internal_io(struct
+ 	device_set_intretry(sch);
+ 	/* Call handler. */
+ 	if (sch->driver && sch->driver->termination)
+-		sch->driver->termination(&sch->dev);
++		sch->driver->termination(sch);
+ }
  
-+	ccw_timeout_log [S390]
-+			See Documentation/s390/CommonIO for details.
-+
- 	checkreqprot	[SELINUX] Set initial checkreqprot flag value.
- 			Format: { "0" | "1" }
- 			See security/selinux/Kconfig help text.
-Index: quilt-2.6/Documentation/s390/CommonIO
+ static int
+@@ -172,12 +172,12 @@ s390_subchannel_remove_chpid(struct devi
+ 			terminate_internal_io(sch);
+ 			/* Re-start path verification. */
+ 			if (sch->driver && sch->driver->verify)
+-				sch->driver->verify(&sch->dev);
++				sch->driver->verify(sch);
+ 		}
+ 	} else {
+ 		/* trigger path verification. */
+ 		if (sch->driver && sch->driver->verify)
+-			sch->driver->verify(&sch->dev);
++			sch->driver->verify(sch);
+ 		else if (sch->lpm == mask)
+ 			goto out_unreg;
+ 	}
+@@ -279,7 +279,7 @@ __s390_process_res_acc(struct subchannel
+ 	if (!old_lpm && sch->lpm)
+ 		device_trigger_reprobe(sch);
+ 	else if (sch->driver && sch->driver->verify)
+-		sch->driver->verify(&sch->dev);
++		sch->driver->verify(sch);
+ out:
+ 	spin_unlock_irq(sch->lock);
+ 	put_device(&sch->dev);
+@@ -549,7 +549,7 @@ __chp_add(struct subchannel_id schid, vo
+ 		    | mask) & sch->opm;
+ 
+ 	if (sch->driver && sch->driver->verify)
+-		sch->driver->verify(&sch->dev);
++		sch->driver->verify(sch);
+ 
+ 	spin_unlock_irq(sch->lock);
+ 	put_device(&sch->dev);
+@@ -589,7 +589,7 @@ static void __s390_subchannel_vary_chpid
+ 			if (!old_lpm)
+ 				device_trigger_reprobe(sch);
+ 			else if (sch->driver && sch->driver->verify)
+-				sch->driver->verify(&sch->dev);
++				sch->driver->verify(sch);
+ 			break;
+ 		}
+ 		sch->opm &= ~mask;
+@@ -603,13 +603,13 @@ static void __s390_subchannel_vary_chpid
+ 				terminate_internal_io(sch);
+ 				/* Re-start path verification. */
+ 				if (sch->driver && sch->driver->verify)
+-					sch->driver->verify(&sch->dev);
++					sch->driver->verify(sch);
+ 			}
+ 		} else if (!sch->lpm) {
+ 			if (device_trigger_verify(sch) != 0)
+ 				css_schedule_eval(sch->schid);
+ 		} else if (sch->driver && sch->driver->verify)
+-			sch->driver->verify(&sch->dev);
++			sch->driver->verify(sch);
+ 		break;
+ 	}
+ 	spin_unlock_irqrestore(sch->lock, flags);
+Index: quilt-2.6/drivers/s390/cio/cio.c
 ===================================================================
---- quilt-2.6.orig/Documentation/s390/CommonIO
-+++ quilt-2.6/Documentation/s390/CommonIO
-@@ -4,6 +4,11 @@ S/390 common I/O-Layer - command line pa
- Command line parameters
- -----------------------
+--- quilt-2.6.orig/drivers/s390/cio/cio.c
++++ quilt-2.6/drivers/s390/cio/cio.c
+@@ -147,7 +147,7 @@ cio_tpi(void)
+ 	spin_lock(sch->lock);
+ 	memcpy (&sch->schib.scsw, &irb->scsw, sizeof (struct scsw));
+ 	if (sch->driver && sch->driver->irq)
+-		sch->driver->irq(&sch->dev);
++		sch->driver->irq(sch);
+ 	spin_unlock(sch->lock);
+ 	irq_exit ();
+ 	_local_bh_enable();
+@@ -680,7 +680,7 @@ do_IRQ (struct pt_regs *regs)
+ 				sizeof (irb->scsw));
+ 			/* Call interrupt handler if there is one. */
+ 			if (sch->driver && sch->driver->irq)
+-				sch->driver->irq(&sch->dev);
++				sch->driver->irq(sch);
+ 		}
+ 		if (sch)
+ 			spin_unlock(sch->lock);
+Index: quilt-2.6/drivers/s390/cio/css.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/css.c
++++ quilt-2.6/drivers/s390/cio/css.c
+@@ -293,7 +293,7 @@ static int css_evaluate_known_subchannel
+ 		action = UNREGISTER;
+ 		if (sch->driver && sch->driver->notify) {
+ 			spin_unlock_irqrestore(sch->lock, flags);
+-			ret = sch->driver->notify(&sch->dev, event);
++			ret = sch->driver->notify(sch, event);
+ 			spin_lock_irqsave(sch->lock, flags);
+ 			if (ret)
+ 				action = NONE;
+Index: quilt-2.6/drivers/s390/cio/css.h
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/css.h
++++ quilt-2.6/drivers/s390/cio/css.h
+@@ -125,10 +125,10 @@ struct subchannel;
+ struct css_driver {
+ 	unsigned int subchannel_type;
+ 	struct device_driver drv;
+-	void (*irq)(struct device *);
+-	int (*notify)(struct device *, int);
+-	void (*verify)(struct device *);
+-	void (*termination)(struct device *);
++	void (*irq)(struct subchannel *);
++	int (*notify)(struct subchannel *, int);
++	void (*verify)(struct subchannel *);
++	void (*termination)(struct subchannel *);
+ 	int (*probe)(struct subchannel *);
+ 	int (*remove)(struct subchannel *);
+ 	void (*shutdown)(struct subchannel *);
+Index: quilt-2.6/drivers/s390/cio/device.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/device.c
++++ quilt-2.6/drivers/s390/cio/device.c
+@@ -115,11 +115,12 @@ static int ccw_uevent(struct device *dev
  
-+* ccw_timeout_log
+ struct bus_type ccw_bus_type;
+ 
+-static int io_subchannel_probe (struct subchannel *);
+-static int io_subchannel_remove (struct subchannel *);
+-static int io_subchannel_notify(struct device *, int);
+-static void io_subchannel_verify(struct device *);
+-static void io_subchannel_ioterm(struct device *);
++static void io_subchannel_irq(struct subchannel *);
++static int io_subchannel_probe(struct subchannel *);
++static int io_subchannel_remove(struct subchannel *);
++static int io_subchannel_notify(struct subchannel *, int);
++static void io_subchannel_verify(struct subchannel *);
++static void io_subchannel_ioterm(struct subchannel *);
+ static void io_subchannel_shutdown(struct subchannel *);
+ 
+ static struct css_driver io_subchannel_driver = {
+@@ -1096,6 +1097,18 @@ out:
+ 	put_device(&cdev->dev);
+ }
+ 
++static void io_subchannel_irq(struct subchannel *sch)
++{
++	struct ccw_device *cdev;
 +
-+  Enable logging of debug information in case of ccw device timeouts.
++	cdev = sch->dev.driver_data;
 +
++	CIO_TRACE_EVENT(3, "IRQ");
++	CIO_TRACE_EVENT(3, sch->dev.bus_id);
++	if (cdev)
++		dev_fsm_event(cdev, DEV_EVENT_INTERRUPT);
++}
 +
- * cio_msg = yes | no
-   
-   Determines whether information on found devices and sensed device 
+ static int
+ io_subchannel_probe (struct subchannel *sch)
+ {
+@@ -1183,12 +1196,11 @@ io_subchannel_remove (struct subchannel 
+ 	return 0;
+ }
+ 
+-static int
+-io_subchannel_notify(struct device *dev, int event)
++static int io_subchannel_notify(struct subchannel *sch, int event)
+ {
+ 	struct ccw_device *cdev;
+ 
+-	cdev = dev->driver_data;
++	cdev = sch->dev.driver_data;
+ 	if (!cdev)
+ 		return 0;
+ 	if (!cdev->drv)
+@@ -1198,22 +1210,20 @@ io_subchannel_notify(struct device *dev,
+ 	return cdev->drv->notify ? cdev->drv->notify(cdev, event) : 0;
+ }
+ 
+-static void
+-io_subchannel_verify(struct device *dev)
++static void io_subchannel_verify(struct subchannel *sch)
+ {
+ 	struct ccw_device *cdev;
+ 
+-	cdev = dev->driver_data;
++	cdev = sch->dev.driver_data;
+ 	if (cdev)
+ 		dev_fsm_event(cdev, DEV_EVENT_VERIFY);
+ }
+ 
+-static void
+-io_subchannel_ioterm(struct device *dev)
++static void io_subchannel_ioterm(struct subchannel *sch)
+ {
+ 	struct ccw_device *cdev;
+ 
+-	cdev = dev->driver_data;
++	cdev = sch->dev.driver_data;
+ 	if (!cdev)
+ 		return;
+ 	/* Internal I/O will be retried by the interrupt handler. */
 Index: quilt-2.6/drivers/s390/cio/device_fsm.c
 ===================================================================
 --- quilt-2.6.orig/drivers/s390/cio/device_fsm.c
 +++ quilt-2.6/drivers/s390/cio/device_fsm.c
-@@ -25,6 +25,8 @@
- #include "ioasm.h"
- #include "chp.h"
+@@ -399,7 +399,7 @@ ccw_device_oper_notify(struct work_struc
+ 	sch = to_subchannel(cdev->dev.parent);
+ 	if (sch->driver && sch->driver->notify) {
+ 		spin_unlock_irqrestore(cdev->ccwlock, flags);
+-		ret = sch->driver->notify(&sch->dev, CIO_OPER);
++		ret = sch->driver->notify(sch, CIO_OPER);
+ 		spin_lock_irqsave(cdev->ccwlock, flags);
+ 	} else
+ 		ret = 0;
+@@ -1273,21 +1273,4 @@ fsm_func_t *dev_jumptable[NR_DEV_STATES]
+ 	},
+ };
  
-+static int timeout_log_enabled;
-+
- int
- device_is_online(struct subchannel *sch)
- {
-@@ -82,6 +84,52 @@ int device_trigger_verify(struct subchan
- 	return 0;
- }
+-/*
+- * io_subchannel_irq is called for "real" interrupts or for status
+- * pending conditions on msch.
+- */
+-void
+-io_subchannel_irq (struct device *pdev)
+-{
+-	struct ccw_device *cdev;
+-
+-	cdev = to_subchannel(pdev)->dev.driver_data;
+-
+-	CIO_TRACE_EVENT (3, "IRQ");
+-	CIO_TRACE_EVENT (3, pdev->bus_id);
+-	if (cdev)
+-		dev_fsm_event(cdev, DEV_EVENT_INTERRUPT);
+-}
+-
+ EXPORT_SYMBOL_GPL(ccw_device_set_timeout);
+Index: quilt-2.6/drivers/s390/cio/device.h
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/device.h
++++ quilt-2.6/drivers/s390/cio/device.h
+@@ -74,7 +74,6 @@ extern struct workqueue_struct *ccw_devi
+ extern wait_queue_head_t ccw_device_init_wq;
+ extern atomic_t ccw_device_init_count;
  
-+static int __init ccw_timeout_log_setup(char *unused)
-+{
-+	timeout_log_enabled = 1;
-+	return 1;
-+}
-+
-+__setup("ccw_timeout_log", ccw_timeout_log_setup);
-+
-+static void ccw_timeout_log(struct ccw_device *cdev)
-+{
-+	struct schib schib;
-+	struct subchannel *sch;
-+	int cc;
-+
-+	sch = to_subchannel(cdev->dev.parent);
-+	cc = stsch(sch->schid, &schib);
-+
-+	printk(KERN_WARNING "cio: ccw device timeout occurred at %llx, "
-+	       "device information:\n", get_clock());
-+	printk(KERN_WARNING "cio: orb:\n");
-+	print_hex_dump(KERN_WARNING, "cio:  ", DUMP_PREFIX_NONE, 16, 1,
-+		       &sch->orb, sizeof(sch->orb), 0);
-+	printk(KERN_WARNING "cio: ccw device bus id: %s\n", cdev->dev.bus_id);
-+	printk(KERN_WARNING "cio: subchannel bus id: %s\n", sch->dev.bus_id);
-+	printk(KERN_WARNING "cio: subchannel lpm: %02x, opm: %02x, "
-+	       "vpm: %02x\n", sch->lpm, sch->opm, sch->vpm);
-+
-+	if ((void *)(addr_t)sch->orb.cpa == &sch->sense_ccw ||
-+	    (void *)(addr_t)sch->orb.cpa == cdev->private->iccws)
-+		printk(KERN_WARNING "cio: last channel program (intern):\n");
-+	else
-+		printk(KERN_WARNING "cio: last channel program:\n");
-+
-+	print_hex_dump(KERN_WARNING, "cio:  ", DUMP_PREFIX_NONE, 16, 1,
-+		       (void *)(addr_t)sch->orb.cpa, sizeof(struct ccw1), 0);
-+	printk(KERN_WARNING "cio: ccw device state: %d\n",
-+	       cdev->private->state);
-+	printk(KERN_WARNING "cio: store subchannel returned: cc=%d\n", cc);
-+	printk(KERN_WARNING "cio: schib:\n");
-+	print_hex_dump(KERN_WARNING, "cio:  ", DUMP_PREFIX_NONE, 16, 1,
-+		       &schib, sizeof(schib), 0);
-+	printk(KERN_WARNING "cio: ccw device flags:\n");
-+	print_hex_dump(KERN_WARNING, "cio:  ", DUMP_PREFIX_NONE, 16, 1,
-+		       &cdev->private->flags, sizeof(cdev->private->flags), 0);
-+}
-+
- /*
-  * Timeout function. It just triggers a DEV_EVENT_TIMEOUT.
-  */
-@@ -92,6 +140,8 @@ ccw_device_timeout(unsigned long data)
+-void io_subchannel_irq (struct device *pdev);
+ void io_subchannel_recog_done(struct ccw_device *cdev);
  
- 	cdev = (struct ccw_device *) data;
- 	spin_lock_irq(cdev->ccwlock);
-+	if (timeout_log_enabled)
-+		ccw_timeout_log(cdev);
- 	dev_fsm_event(cdev, DEV_EVENT_TIMEOUT);
- 	spin_unlock_irq(cdev->ccwlock);
- }
+ int ccw_device_cancel_halt_clear(struct ccw_device *);
 
 -- 
 blue skies,
