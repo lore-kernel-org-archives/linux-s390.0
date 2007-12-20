@@ -1,28 +1,27 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S966569AbXLTPme@vger.kernel.org>
-Message-Id: <20071220152106.470333140@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S966662AbXLTPmz@vger.kernel.org>
+Message-Id: <20071220152106.897342969@de.ibm.com>
 References: <20071220151925.405881218@de.ibm.com>
-Date: Thu, 20 Dec 2007 16:19:41 +0100
+Date: Thu, 20 Dec 2007 16:19:43 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 16/47] sclp: sysfs interface for SCLP cpi
-Content-Disposition: inline; filename=115-sclp-sysfs.diff
+Subject: [patch 18/47] sclp: convert channel path configure code to use sync interface.
+Content-Disposition: inline; filename=117-sclp-chpid.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Michael Ernst <mernst@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Ernst <mernst@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Signed-off-by: Michael Ernst <mernst@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/char/Makefile       |    2 
- drivers/s390/char/sclp_cpi.c     |  246 +-----------------------
- drivers/s390/char/sclp_cpi_sys.c |  390 +++++++++++++++++++++++++++++++++++++++
- drivers/s390/char/sclp_cpi_sys.h |   15 +
- 4 files changed, 422 insertions(+), 231 deletions(-)
+ drivers/s390/char/Makefile   |    2 
+ drivers/s390/char/sclp_chp.c |  200 -------------------------------------------
+ drivers/s390/char/sclp_cmd.c |  123 ++++++++++++++++++++++++++
+ 3 files changed, 123 insertions(+), 202 deletions(-)
 
 Index: quilt-2.6/drivers/s390/char/Makefile
 ===================================================================
@@ -32,702 +31,361 @@ Index: quilt-2.6/drivers/s390/char/Makefile
  #
  
  obj-y += ctrlchar.o keyboard.o defkeymap.o sclp.o sclp_rw.o sclp_quiesce.o \
--	 sclp_info.o sclp_config.o sclp_chp.o
-+	 sclp_info.o sclp_config.o sclp_chp.o sclp_cpi_sys.o
+-	 sclp_cmd.o sclp_config.o sclp_chp.o sclp_cpi_sys.o
++	 sclp_cmd.o sclp_config.o sclp_cpi_sys.o
  
  obj-$(CONFIG_TN3270) += raw3270.o
  obj-$(CONFIG_TN3270_CONSOLE) += con3270.o
-Index: quilt-2.6/drivers/s390/char/sclp_cpi.c
+Index: quilt-2.6/drivers/s390/char/sclp_chp.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_cpi.c
-+++ quilt-2.6/drivers/s390/char/sclp_cpi.c
-@@ -1,255 +1,41 @@
- /*
-- * Author: Martin Peschke <mpeschke@de.ibm.com>
-- * Copyright (C) 2001 IBM Entwicklung GmbH, IBM Corporation
-+ *  drivers/s390/char/sclp_cpi.c
-+ *    SCLP control programm identification
-  *
-- * SCLP Control-Program Identification.
-+ *    Copyright IBM Corp. 2001, 2007
-+ *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
-+ *		 Michael Ernst <mernst@de.ibm.com>
-  */
- 
--#include <linux/version.h>
- #include <linux/kmod.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
--#include <linux/init.h>
--#include <linux/timer.h>
--#include <linux/string.h>
--#include <linux/err.h>
--#include <linux/slab.h>
--#include <asm/ebcdic.h>
--#include <asm/semaphore.h>
+--- quilt-2.6.orig/drivers/s390/char/sclp_chp.c
++++ /dev/null
+@@ -1,200 +0,0 @@
+-/*
+- *  drivers/s390/char/sclp_chp.c
+- *
+- *    Copyright IBM Corp. 2007
+- *    Author(s): Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+- */
+-
+-#include <linux/types.h>
+-#include <linux/gfp.h>
+-#include <linux/errno.h>
+-#include <linux/completion.h>
+-#include <asm/sclp.h>
+-#include <asm/chpid.h>
 -
 -#include "sclp.h"
--#include "sclp_rw.h"
 -
--#define CPI_LENGTH_SYSTEM_TYPE	8
--#define CPI_LENGTH_SYSTEM_NAME	8
--#define CPI_LENGTH_SYSPLEX_NAME	8
+-#define TAG	"sclp_chp: "
 -
--struct cpi_evbuf {
--	struct evbuf_header header;
--	u8	id_format;
--	u8	reserved0;
--	u8	system_type[CPI_LENGTH_SYSTEM_TYPE];
--	u64	reserved1;
--	u8	system_name[CPI_LENGTH_SYSTEM_NAME];
--	u64	reserved2;
--	u64	system_level;
--	u64	reserved3;
--	u8	sysplex_name[CPI_LENGTH_SYSPLEX_NAME];
--	u8	reserved4[16];
--} __attribute__((packed));
+-#define SCLP_CMDW_CONFIGURE_CHANNEL_PATH	0x000f0001
+-#define SCLP_CMDW_DECONFIGURE_CHANNEL_PATH	0x000e0001
+-#define SCLP_CMDW_READ_CHANNEL_PATH_INFORMATION	0x00030001
 -
--struct cpi_sccb {
+-static inline sclp_cmdw_t get_configure_cmdw(struct chp_id chpid)
+-{
+-	return SCLP_CMDW_CONFIGURE_CHANNEL_PATH | chpid.id << 8;
+-}
+-
+-static inline sclp_cmdw_t get_deconfigure_cmdw(struct chp_id chpid)
+-{
+-	return SCLP_CMDW_DECONFIGURE_CHANNEL_PATH | chpid.id << 8;
+-}
+-
+-static void chp_callback(struct sclp_req *req, void *data)
+-{
+-	struct completion *completion = data;
+-
+-	complete(completion);
+-}
+-
+-struct chp_cfg_sccb {
 -	struct sccb_header header;
--	struct cpi_evbuf cpi_evbuf;
+-	u8 ccm;
+-	u8 reserved[6];
+-	u8 cssid;
 -} __attribute__((packed));
 -
--/* Event type structure for write message and write priority message */
--static struct sclp_register sclp_cpi_event =
+-struct chp_cfg_data {
+-	struct chp_cfg_sccb sccb;
+-	struct sclp_req req;
+-	struct completion completion;
+-} __attribute__((packed));
+-
+-static int do_configure(sclp_cmdw_t cmd)
 -{
--	.send_mask = EVTYP_CTLPROGIDENT_MASK
--};
-+#include <linux/version.h>
-+#include "sclp_cpi_sys.h"
- 
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Identify this operating system instance "
-+		   "to the System z hardware");
-+MODULE_AUTHOR("Martin Peschke <mpeschke@de.ibm.com>, "
-+	      "Michael Ernst <mernst@de.ibm.com>");
- 
--MODULE_AUTHOR(
--	"Martin Peschke, IBM Deutschland Entwicklung GmbH "
--	"<mpeschke@de.ibm.com>");
--
--MODULE_DESCRIPTION(
--	"identify this operating system instance to the S/390 "
--	"or zSeries hardware");
-+static char *system_name = "";
-+static char *sysplex_name = "";
- 
--static char *system_name = NULL;
- module_param(system_name, charp, 0);
- MODULE_PARM_DESC(system_name, "e.g. hostname - max. 8 characters");
--
--static char *sysplex_name = NULL;
--#ifdef ALLOW_SYSPLEX_NAME
- module_param(sysplex_name, charp, 0);
- MODULE_PARM_DESC(sysplex_name, "if applicable - max. 8 characters");
--#endif
--
--/* use default value for this field (as well as for system level) */
--static char *system_type = "LINUX";
--
--static int
--cpi_check_parms(void)
--{
--	/* reject if no system type specified */
--	if (!system_type) {
--		printk("cpi: bug: no system type specified\n");
--		return -EINVAL;
--	}
--
--	/* reject if system type larger than 8 characters */
--	if (strlen(system_type) > CPI_LENGTH_SYSTEM_NAME) {
--		printk("cpi: bug: system type has length of %li characters - "
--		       "only %i characters supported\n",
--		       strlen(system_type), CPI_LENGTH_SYSTEM_TYPE);
--		return -EINVAL;
--	}
--
--	/* reject if no system name specified */
--	if (!system_name) {
--		printk("cpi: no system name specified\n");
--		return -EINVAL;
--	}
--
--	/* reject if system name larger than 8 characters */
--	if (strlen(system_name) > CPI_LENGTH_SYSTEM_NAME) {
--		printk("cpi: system name has length of %li characters - "
--		       "only %i characters supported\n",
--		       strlen(system_name), CPI_LENGTH_SYSTEM_NAME);
--		return -EINVAL;
--	}
--
--	/* reject if specified sysplex name larger than 8 characters */
--	if (sysplex_name && strlen(sysplex_name) > CPI_LENGTH_SYSPLEX_NAME) {
--		printk("cpi: sysplex name has length of %li characters"
--		       " - only %i characters supported\n",
--		       strlen(sysplex_name), CPI_LENGTH_SYSPLEX_NAME);
--		return -EINVAL;
--	}
--	return 0;
--}
--
--static void
--cpi_callback(struct sclp_req *req, void *data)
--{
--	struct semaphore *sem;
--
--	sem = (struct semaphore *) data;
--	up(sem);
--}
--
--static struct sclp_req *
--cpi_prepare_req(void)
--{
--	struct sclp_req *req;
--	struct cpi_sccb *sccb;
--	struct cpi_evbuf *evb;
--
--	req = kmalloc(sizeof(struct sclp_req), GFP_KERNEL);
--	if (req == NULL)
--		return ERR_PTR(-ENOMEM);
--	sccb = (struct cpi_sccb *) __get_free_page(GFP_KERNEL | GFP_DMA);
--	if (sccb == NULL) {
--		kfree(req);
--		return ERR_PTR(-ENOMEM);
--	}
--	memset(sccb, 0, sizeof(struct cpi_sccb));
--
--	/* setup SCCB for Control-Program Identification */
--	sccb->header.length = sizeof(struct cpi_sccb);
--	sccb->cpi_evbuf.header.length = sizeof(struct cpi_evbuf);
--	sccb->cpi_evbuf.header.type = 0x0B;
--	evb = &sccb->cpi_evbuf;
--
--	/* set system type */
--	memset(evb->system_type, ' ', CPI_LENGTH_SYSTEM_TYPE);
--	memcpy(evb->system_type, system_type, strlen(system_type));
--	sclp_ascebc_str(evb->system_type, CPI_LENGTH_SYSTEM_TYPE);
--	EBC_TOUPPER(evb->system_type, CPI_LENGTH_SYSTEM_TYPE);
--
--	/* set system name */
--	memset(evb->system_name, ' ', CPI_LENGTH_SYSTEM_NAME);
--	memcpy(evb->system_name, system_name, strlen(system_name));
--	sclp_ascebc_str(evb->system_name, CPI_LENGTH_SYSTEM_NAME);
--	EBC_TOUPPER(evb->system_name, CPI_LENGTH_SYSTEM_NAME);
--
--	/* set system level */
--	evb->system_level = LINUX_VERSION_CODE;
--
--	/* set sysplex name */
--	if (sysplex_name) {
--		memset(evb->sysplex_name, ' ', CPI_LENGTH_SYSPLEX_NAME);
--		memcpy(evb->sysplex_name, sysplex_name, strlen(sysplex_name));
--		sclp_ascebc_str(evb->sysplex_name, CPI_LENGTH_SYSPLEX_NAME);
--		EBC_TOUPPER(evb->sysplex_name, CPI_LENGTH_SYSPLEX_NAME);
--	}
--
--	/* prepare request data structure presented to SCLP driver */
--	req->command = SCLP_CMDW_WRITE_EVENT_DATA;
--	req->sccb = sccb;
--	req->status = SCLP_REQ_FILLED;
--	req->callback = cpi_callback;
--	return req;
--}
--
--static void
--cpi_free_req(struct sclp_req *req)
--{
--	free_page((unsigned long) req->sccb);
--	kfree(req);
--}
- 
--static int __init
--cpi_module_init(void)
-+static int __init cpi_module_init(void)
- {
--	struct semaphore sem;
--	struct sclp_req *req;
+-	struct chp_cfg_data *data;
 -	int rc;
 -
--	rc = cpi_check_parms();
--	if (rc)
--		return rc;
--
--	rc = sclp_register(&sclp_cpi_event);
--	if (rc) {
--		/* could not register sclp event. Die. */
--		printk(KERN_WARNING "cpi: could not register to hardware "
--		       "console.\n");
--		return -EINVAL;
--	}
--	if (!(sclp_cpi_event.sclp_send_mask & EVTYP_CTLPROGIDENT_MASK)) {
--		printk(KERN_WARNING "cpi: no control program identification "
--		       "support\n");
--		sclp_unregister(&sclp_cpi_event);
+-	if (!SCLP_HAS_CHP_RECONFIG)
 -		return -EOPNOTSUPP;
+-	/* Prepare sccb. */
+-	data = (struct chp_cfg_data *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
+-	if (!data)
+-		return -ENOMEM;
+-	data->sccb.header.length = sizeof(struct chp_cfg_sccb);
+-	data->req.command = cmd;
+-	data->req.sccb = &(data->sccb);
+-	data->req.status = SCLP_REQ_FILLED;
+-	data->req.callback = chp_callback;
+-	data->req.callback_data = &(data->completion);
+-	init_completion(&data->completion);
+-
+-	/* Perform sclp request. */
+-	rc = sclp_add_request(&(data->req));
+-	if (rc)
+-		goto out;
+-	wait_for_completion(&data->completion);
+-
+-	/* Check response .*/
+-	if (data->req.status != SCLP_REQ_DONE) {
+-		printk(KERN_WARNING TAG "configure channel-path request failed "
+-		       "(status=0x%02x)\n", data->req.status);
+-		rc = -EIO;
+-		goto out;
 -	}
--
--	req = cpi_prepare_req();
--	if (IS_ERR(req)) {
--		printk(KERN_WARNING "cpi: couldn't allocate request\n");
--		sclp_unregister(&sclp_cpi_event);
--		return PTR_ERR(req);
+-	switch (data->sccb.header.response_code) {
+-	case 0x0020:
+-	case 0x0120:
+-	case 0x0440:
+-	case 0x0450:
+-		break;
+-	default:
+-		printk(KERN_WARNING TAG "configure channel-path failed "
+-		       "(cmd=0x%08x, response=0x%04x)\n", cmd,
+-		       data->sccb.header.response_code);
+-		rc = -EIO;
+-		break;
 -	}
--
--	/* Prepare semaphore */
--	sema_init(&sem, 0);
--	req->callback_data = &sem;
--	/* Add request to sclp queue */
--	rc = sclp_add_request(req);
--	if (rc) {
--		printk(KERN_WARNING "cpi: could not start request\n");
--		cpi_free_req(req);
--		sclp_unregister(&sclp_cpi_event);
--		return rc;
--	}
--	/* make "insmod" sleep until callback arrives */
--	down(&sem);
--
--	rc = ((struct cpi_sccb *) req->sccb)->header.response_code;
--	if (rc != 0x0020) {
--		printk(KERN_WARNING "cpi: failed with response code 0x%x\n",
--		       rc);
--		rc = -ECOMM;
--	} else
--		rc = 0;
--
--	cpi_free_req(req);
--	sclp_unregister(&sclp_cpi_event);
+-out:
+-	free_page((unsigned long) data);
 -
 -	return rc;
-+	return sclp_cpi_set_data(system_name, sysplex_name, "LINUX",
-+				 LINUX_VERSION_CODE);
- }
- 
+-}
 -
- static void __exit cpi_module_exit(void)
- {
- }
- 
+-/**
+- * sclp_chp_configure - perform configure channel-path sclp command
+- * @chpid: channel-path ID
+- *
+- * Perform configure channel-path command sclp command for specified chpid.
+- * Return 0 after command successfully finished, non-zero otherwise.
+- */
+-int sclp_chp_configure(struct chp_id chpid)
+-{
+-	return do_configure(get_configure_cmdw(chpid));
+-}
 -
--/* declare driver module init/cleanup functions */
- module_init(cpi_module_init);
- module_exit(cpi_module_exit);
+-/**
+- * sclp_chp_deconfigure - perform deconfigure channel-path sclp command
+- * @chpid: channel-path ID
+- *
+- * Perform deconfigure channel-path command sclp command for specified chpid
+- * and wait for completion. On success return 0. Return non-zero otherwise.
+- */
+-int sclp_chp_deconfigure(struct chp_id chpid)
+-{
+-	return do_configure(get_deconfigure_cmdw(chpid));
+-}
 -
-Index: quilt-2.6/drivers/s390/char/sclp_cpi_sys.c
+-struct chp_info_sccb {
+-	struct sccb_header header;
+-	u8 recognized[SCLP_CHP_INFO_MASK_SIZE];
+-	u8 standby[SCLP_CHP_INFO_MASK_SIZE];
+-	u8 configured[SCLP_CHP_INFO_MASK_SIZE];
+-	u8 ccm;
+-	u8 reserved[6];
+-	u8 cssid;
+-} __attribute__((packed));
+-
+-struct chp_info_data {
+-	struct chp_info_sccb sccb;
+-	struct sclp_req req;
+-	struct completion completion;
+-} __attribute__((packed));
+-
+-/**
+- * sclp_chp_read_info - perform read channel-path information sclp command
+- * @info: resulting channel-path information data
+- *
+- * Perform read channel-path information sclp command and wait for completion.
+- * On success, store channel-path information in @info and return 0. Return
+- * non-zero otherwise.
+- */
+-int sclp_chp_read_info(struct sclp_chp_info *info)
+-{
+-	struct chp_info_data *data;
+-	int rc;
+-
+-	if (!SCLP_HAS_CHP_INFO)
+-		return -EOPNOTSUPP;
+-	/* Prepare sccb. */
+-	data = (struct chp_info_data *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
+-	if (!data)
+-		return -ENOMEM;
+-	data->sccb.header.length = sizeof(struct chp_info_sccb);
+-	data->req.command = SCLP_CMDW_READ_CHANNEL_PATH_INFORMATION;
+-	data->req.sccb = &(data->sccb);
+-	data->req.status = SCLP_REQ_FILLED;
+-	data->req.callback = chp_callback;
+-	data->req.callback_data = &(data->completion);
+-	init_completion(&data->completion);
+-
+-	/* Perform sclp request. */
+-	rc = sclp_add_request(&(data->req));
+-	if (rc)
+-		goto out;
+-	wait_for_completion(&data->completion);
+-
+-	/* Check response .*/
+-	if (data->req.status != SCLP_REQ_DONE) {
+-		printk(KERN_WARNING TAG "read channel-path info request failed "
+-		       "(status=0x%02x)\n", data->req.status);
+-		rc = -EIO;
+-		goto out;
+-	}
+-	if (data->sccb.header.response_code != 0x0010) {
+-		printk(KERN_WARNING TAG "read channel-path info failed "
+-		       "(response=0x%04x)\n", data->sccb.header.response_code);
+-		rc = -EIO;
+-		goto out;
+-	}
+-	memcpy(info->recognized, data->sccb.recognized,
+-	       SCLP_CHP_INFO_MASK_SIZE);
+-	memcpy(info->standby, data->sccb.standby,
+-	       SCLP_CHP_INFO_MASK_SIZE);
+-	memcpy(info->configured, data->sccb.configured,
+-	       SCLP_CHP_INFO_MASK_SIZE);
+-out:
+-	free_page((unsigned long) data);
+-
+-	return rc;
+-}
+Index: quilt-2.6/drivers/s390/char/sclp_cmd.c
 ===================================================================
---- /dev/null
-+++ quilt-2.6/drivers/s390/char/sclp_cpi_sys.c
-@@ -0,0 +1,390 @@
+--- quilt-2.6.orig/drivers/s390/char/sclp_cmd.c
++++ quilt-2.6/drivers/s390/char/sclp_cmd.c
+@@ -2,7 +2,8 @@
+  *  drivers/s390/char/sclp_cmd.c
+  *
+  *    Copyright IBM Corp. 2007
+- *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
++ *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>,
++ *		 Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+  */
+ 
+ #include <linux/completion.h>
+@@ -10,6 +11,7 @@
+ #include <linux/errno.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
++#include <asm/chpid.h>
+ #include <asm/sclp.h>
+ #include "sclp.h"
+ 
+@@ -317,3 +319,122 @@ int sclp_cpu_deconfigure(u8 cpu)
+ {
+ 	return do_cpu_configure(SCLP_CMDW_DECONFIGURE_CPU | cpu << 8);
+ }
++
 +/*
-+ *  drivers/s390/char/sclp_cpi_sys.c
-+ *    SCLP control program identification sysfs interface
-+ *
-+ *    Copyright IBM Corp. 2001, 2007
-+ *    Author(s): Martin Peschke <mpeschke@de.ibm.com>
-+ *		 Michael Ernst <mernst@de.ibm.com>
++ * Channel path configuration related functions.
 + */
 +
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/stat.h>
-+#include <linux/device.h>
-+#include <linux/string.h>
-+#include <linux/ctype.h>
-+#include <linux/kmod.h>
-+#include <linux/timer.h>
-+#include <linux/err.h>
-+#include <linux/slab.h>
-+#include <linux/completion.h>
-+#include <asm/ebcdic.h>
-+#include <asm/sclp.h>
-+#include "sclp.h"
-+#include "sclp_rw.h"
-+#include "sclp_cpi_sys.h"
++#define SCLP_CMDW_CONFIGURE_CHPATH		0x000f0001
++#define SCLP_CMDW_DECONFIGURE_CHPATH		0x000e0001
++#define SCLP_CMDW_READ_CHPATH_INFORMATION	0x00030001
 +
-+#define CPI_LENGTH_NAME 8
-+#define CPI_LENGTH_LEVEL 16
-+
-+struct cpi_evbuf {
-+	struct evbuf_header header;
-+	u8	id_format;
-+	u8	reserved0;
-+	u8	system_type[CPI_LENGTH_NAME];
-+	u64	reserved1;
-+	u8	system_name[CPI_LENGTH_NAME];
-+	u64	reserved2;
-+	u64	system_level;
-+	u64	reserved3;
-+	u8	sysplex_name[CPI_LENGTH_NAME];
-+	u8	reserved4[16];
-+} __attribute__((packed));
-+
-+struct cpi_sccb {
++struct chp_cfg_sccb {
 +	struct sccb_header header;
-+	struct cpi_evbuf cpi_evbuf;
++	u8 ccm;
++	u8 reserved[6];
++	u8 cssid;
 +} __attribute__((packed));
 +
-+static struct sclp_register sclp_cpi_event = {
-+	.send_mask = EVTYP_CTLPROGIDENT_MASK,
-+};
-+
-+static char system_name[CPI_LENGTH_NAME + 1];
-+static char sysplex_name[CPI_LENGTH_NAME + 1];
-+static char system_type[CPI_LENGTH_NAME + 1];
-+static u64 system_level;
-+
-+static void set_data(char *field, char *data)
++static int do_chp_configure(sclp_cmdw_t cmd)
 +{
-+	memset(field, ' ', CPI_LENGTH_NAME);
-+	memcpy(field, data, strlen(data));
-+	sclp_ascebc_str(field, CPI_LENGTH_NAME);
-+}
-+
-+static void cpi_callback(struct sclp_req *req, void *data)
-+{
-+	struct completion *completion = data;
-+
-+	complete(completion);
-+}
-+
-+static struct sclp_req *cpi_prepare_req(void)
-+{
-+	struct sclp_req *req;
-+	struct cpi_sccb *sccb;
-+	struct cpi_evbuf *evb;
-+
-+	req = kzalloc(sizeof(struct sclp_req), GFP_KERNEL);
-+	if (!req)
-+		return ERR_PTR(-ENOMEM);
-+	sccb = (struct cpi_sccb *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+	if (!sccb) {
-+		kfree(req);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	/* setup SCCB for Control-Program Identification */
-+	sccb->header.length = sizeof(struct cpi_sccb);
-+	sccb->cpi_evbuf.header.length = sizeof(struct cpi_evbuf);
-+	sccb->cpi_evbuf.header.type = 0x0b;
-+	evb = &sccb->cpi_evbuf;
-+
-+	/* set system type */
-+	set_data(evb->system_type, system_type);
-+
-+	/* set system name */
-+	set_data(evb->system_name, system_name);
-+
-+	/* set sytem level */
-+	evb->system_level = system_level;
-+
-+	/* set sysplex name */
-+	set_data(evb->sysplex_name, sysplex_name);
-+
-+	/* prepare request data structure presented to SCLP driver */
-+	req->command = SCLP_CMDW_WRITE_EVENT_DATA;
-+	req->sccb = sccb;
-+	req->status = SCLP_REQ_FILLED;
-+	req->callback = cpi_callback;
-+	return req;
-+}
-+
-+static void cpi_free_req(struct sclp_req *req)
-+{
-+	free_page((unsigned long) req->sccb);
-+	kfree(req);
-+}
-+
-+static int cpi_req(void)
-+{
-+	struct completion completion;
-+	struct sclp_req *req;
++	struct chp_cfg_sccb *sccb;
 +	int rc;
-+	int response;
 +
-+	rc = sclp_register(&sclp_cpi_event);
-+	if (rc) {
-+		printk(KERN_WARNING "cpi: could not register "
-+			"to hardware console.\n");
++	if (!SCLP_HAS_CHP_RECONFIG)
++		return -EOPNOTSUPP;
++	/* Prepare sccb. */
++	sccb = (struct chp_cfg_sccb *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
++	if (!sccb)
++		return -ENOMEM;
++	sccb->header.length = sizeof(*sccb);
++	rc = do_sync_request(cmd, sccb);
++	if (rc)
++		goto out;
++	switch (sccb->header.response_code) {
++	case 0x0020:
++	case 0x0120:
++	case 0x0440:
++	case 0x0450:
++		break;
++	default:
++		printk(KERN_WARNING TAG "configure channel-path failed "
++		       "(cmd=0x%08x, response=0x%04x)\n", cmd,
++		       sccb->header.response_code);
++		rc = -EIO;
++		break;
++	}
++out:
++	free_page((unsigned long) sccb);
++	return rc;
++}
++
++/**
++ * sclp_chp_configure - perform configure channel-path sclp command
++ * @chpid: channel-path ID
++ *
++ * Perform configure channel-path command sclp command for specified chpid.
++ * Return 0 after command successfully finished, non-zero otherwise.
++ */
++int sclp_chp_configure(struct chp_id chpid)
++{
++	return do_chp_configure(SCLP_CMDW_CONFIGURE_CHPATH | chpid.id << 8);
++}
++
++/**
++ * sclp_chp_deconfigure - perform deconfigure channel-path sclp command
++ * @chpid: channel-path ID
++ *
++ * Perform deconfigure channel-path command sclp command for specified chpid
++ * and wait for completion. On success return 0. Return non-zero otherwise.
++ */
++int sclp_chp_deconfigure(struct chp_id chpid)
++{
++	return do_chp_configure(SCLP_CMDW_DECONFIGURE_CHPATH | chpid.id << 8);
++}
++
++struct chp_info_sccb {
++	struct sccb_header header;
++	u8 recognized[SCLP_CHP_INFO_MASK_SIZE];
++	u8 standby[SCLP_CHP_INFO_MASK_SIZE];
++	u8 configured[SCLP_CHP_INFO_MASK_SIZE];
++	u8 ccm;
++	u8 reserved[6];
++	u8 cssid;
++} __attribute__((packed));
++
++/**
++ * sclp_chp_read_info - perform read channel-path information sclp command
++ * @info: resulting channel-path information data
++ *
++ * Perform read channel-path information sclp command and wait for completion.
++ * On success, store channel-path information in @info and return 0. Return
++ * non-zero otherwise.
++ */
++int sclp_chp_read_info(struct sclp_chp_info *info)
++{
++	struct chp_info_sccb *sccb;
++	int rc;
++
++	if (!SCLP_HAS_CHP_INFO)
++		return -EOPNOTSUPP;
++	/* Prepare sccb. */
++	sccb = (struct chp_info_sccb *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
++	if (!sccb)
++		return -ENOMEM;
++	sccb->header.length = sizeof(*sccb);
++	rc = do_sync_request(SCLP_CMDW_READ_CHPATH_INFORMATION, sccb);
++	if (rc)
++		goto out;
++	if (sccb->header.response_code != 0x0010) {
++		printk(KERN_WARNING TAG "read channel-path info failed "
++		       "(response=0x%04x)\n", sccb->header.response_code);
++		rc = -EIO;
 +		goto out;
 +	}
-+	if (!(sclp_cpi_event.sclp_send_mask & EVTYP_CTLPROGIDENT_MASK)) {
-+		printk(KERN_WARNING "cpi: no control program "
-+			"identification support\n");
-+		rc = -EOPNOTSUPP;
-+		goto out_unregister;
-+	}
-+
-+	req = cpi_prepare_req();
-+	if (IS_ERR(req)) {
-+		printk(KERN_WARNING "cpi: could not allocate request\n");
-+		rc = PTR_ERR(req);
-+		goto out_unregister;
-+	}
-+
-+	init_completion(&completion);
-+	req->callback_data = &completion;
-+
-+	/* Add request to sclp queue */
-+	rc = sclp_add_request(req);
-+	if (rc) {
-+		printk(KERN_WARNING "cpi: could not start request\n");
-+		goto out_free_req;
-+	}
-+
-+	wait_for_completion(&completion);
-+
-+	if (req->status != SCLP_REQ_DONE) {
-+		printk(KERN_WARNING "cpi: request failed (status=0x%02x)\n",
-+			req->status);
-+		rc = -EIO;
-+		goto out_free_req;
-+	}
-+
-+	response = ((struct cpi_sccb *) req->sccb)->header.response_code;
-+	if (response != 0x0020) {
-+		printk(KERN_WARNING "cpi: failed with "
-+			"response code 0x%x\n", response);
-+		rc = -EIO;
-+	}
-+
-+out_free_req:
-+	cpi_free_req(req);
-+
-+out_unregister:
-+	sclp_unregister(&sclp_cpi_event);
-+
++	memcpy(info->recognized, sccb->recognized, SCLP_CHP_INFO_MASK_SIZE);
++	memcpy(info->standby, sccb->standby, SCLP_CHP_INFO_MASK_SIZE);
++	memcpy(info->configured, sccb->configured, SCLP_CHP_INFO_MASK_SIZE);
 +out:
++	free_page((unsigned long) sccb);
 +	return rc;
 +}
-+
-+static int check_string(const char *attr, const char *str)
-+{
-+	size_t len;
-+	size_t i;
-+
-+	len = strlen(str);
-+
-+	if ((len > 0) && (str[len - 1] == '\n'))
-+		len--;
-+
-+	if (len > CPI_LENGTH_NAME)
-+		return -EINVAL;
-+
-+	for (i = 0; i < len ; i++) {
-+		if (isalpha(str[i]) || isdigit(str[i]) ||
-+		    strchr("$@# ", str[i]))
-+			continue;
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static void set_string(char *attr, const char *value)
-+{
-+	size_t len;
-+	size_t i;
-+
-+	len = strlen(value);
-+
-+	if ((len > 0) && (value[len - 1] == '\n'))
-+		len--;
-+
-+	for (i = 0; i < CPI_LENGTH_NAME; i++) {
-+		if (i < len)
-+			attr[i] = toupper(value[i]);
-+		else
-+			attr[i] = ' ';
-+	}
-+}
-+
-+static ssize_t system_name_show(struct kset *kset, char *page)
-+{
-+	return snprintf(page, PAGE_SIZE, "%s\n", system_name);
-+}
-+
-+static ssize_t system_name_store(struct kset *kset, const char *buf,
-+	size_t len)
-+{
-+	int rc;
-+
-+	rc = check_string("system_name", buf);
-+	if (rc)
-+		return rc;
-+
-+	set_string(system_name, buf);
-+
-+	return len;
-+}
-+
-+static struct subsys_attribute system_name_attr =
-+	__ATTR(system_name, 0644, system_name_show, system_name_store);
-+
-+static ssize_t sysplex_name_show(struct kset *kset, char *page)
-+{
-+	return snprintf(page, PAGE_SIZE, "%s\n", sysplex_name);
-+}
-+
-+static ssize_t sysplex_name_store(struct kset *kset, const char *buf,
-+	size_t len)
-+{
-+	int rc;
-+
-+	rc = check_string("sysplex_name", buf);
-+	if (rc)
-+		return rc;
-+
-+	set_string(sysplex_name, buf);
-+
-+	return len;
-+}
-+
-+static struct subsys_attribute sysplex_name_attr =
-+	__ATTR(sysplex_name, 0644, sysplex_name_show,
-+	sysplex_name_store);
-+
-+static ssize_t system_type_show(struct kset *kset, char *page)
-+{
-+	return snprintf(page, PAGE_SIZE, "%s\n", system_type);
-+}
-+
-+static ssize_t system_type_store(struct kset *kset, const char *buf,
-+	size_t len)
-+{
-+	int rc;
-+
-+	rc = check_string("system_type", buf);
-+	if (rc)
-+		return rc;
-+
-+	set_string(system_type, buf);
-+
-+	return len;
-+}
-+
-+static struct subsys_attribute system_type_attr =
-+	__ATTR(system_type, 0644, system_type_show, system_type_store);
-+
-+static ssize_t system_level_show(struct kset *kset, char *page)
-+{
-+	unsigned long long level = system_level;
-+
-+	return snprintf(page, PAGE_SIZE, "%#018llx\n", level);
-+}
-+
-+static ssize_t system_level_store(struct kset *kset, const char *buf,
-+	size_t len)
-+{
-+	unsigned long long level;
-+	char *endp;
-+
-+	level = simple_strtoull(buf, &endp, 16);
-+
-+	if (endp == buf)
-+		return -EINVAL;
-+	if (*endp == '\n')
-+		endp++;
-+	if (*endp)
-+		return -EINVAL;
-+
-+	system_level = level;
-+
-+	return len;
-+}
-+
-+static struct subsys_attribute system_level_attr =
-+	__ATTR(system_level, 0644, system_level_show,
-+	system_level_store);
-+
-+static ssize_t set_store(struct kset *kset, const char *buf,
-+	size_t len)
-+{
-+	int rc;
-+
-+	rc = cpi_req();
-+	if (rc)
-+		return rc;
-+
-+	return len;
-+}
-+
-+static struct subsys_attribute set_attr =
-+	__ATTR(set, 0200, NULL, set_store);
-+
-+static struct attribute *cpi_attrs[] = {
-+	&system_name_attr.attr,
-+	&sysplex_name_attr.attr,
-+	&system_type_attr.attr,
-+	&system_level_attr.attr,
-+	&set_attr.attr,
-+	NULL,
-+};
-+
-+static struct attribute_group cpi_attr_group = {
-+	.attrs = cpi_attrs,
-+};
-+
-+static decl_subsys(cpi, NULL, NULL);
-+
-+int sclp_cpi_set_data(const char *system, const char *sysplex, const char *type,
-+		      const u64 level)
-+{
-+	int rc;
-+
-+	rc = check_string("system_name", system);
-+	if (rc)
-+		return rc;
-+	rc = check_string("sysplex_name", sysplex);
-+	if (rc)
-+		return rc;
-+	rc = check_string("system_type", type);
-+	if (rc)
-+		return rc;
-+
-+	set_string(system_name, system);
-+	set_string(sysplex_name, sysplex);
-+	set_string(system_type, type);
-+	system_level = level;
-+
-+	return cpi_req();
-+}
-+EXPORT_SYMBOL(sclp_cpi_set_data);
-+
-+static int __init cpi_init(void)
-+{
-+	int rc;
-+
-+	rc = firmware_register(&cpi_subsys);
-+	if (rc)
-+		return rc;
-+
-+	rc = sysfs_create_group(&cpi_subsys.kobj, &cpi_attr_group);
-+	if (rc)
-+		firmware_unregister(&cpi_subsys);
-+
-+	return rc;
-+}
-+
-+__initcall(cpi_init);
-Index: quilt-2.6/drivers/s390/char/sclp_cpi_sys.h
-===================================================================
---- /dev/null
-+++ quilt-2.6/drivers/s390/char/sclp_cpi_sys.h
-@@ -0,0 +1,15 @@
-+/*
-+ *  drivers/s390/char/sclp_cpi_sys.h
-+ *    SCLP control program identification sysfs interface
-+ *
-+ *    Copyright IBM Corp. 2007
-+ *    Author(s): Michael Ernst <mernst@de.ibm.com>
-+ */
-+
-+#ifndef __SCLP_CPI_SYS_H__
-+#define __SCLP_CPI_SYS_H__
-+
-+int sclp_cpi_set_data(const char *system, const char *sysplex,
-+		      const char *type, u64 level);
-+
-+#endif	 /* __SCLP_CPI_SYS_H__ */
 
 -- 
 blue skies,
