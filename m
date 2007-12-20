@@ -1,335 +1,426 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S964972AbXLTP0J@vger.kernel.org>
-Message-Id: <20071220152105.364996161@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S934871AbXLTP03@vger.kernel.org>
+Message-Id: <20071220152105.784390568@de.ibm.com>
 References: <20071220151925.405881218@de.ibm.com>
-Date: Thu, 20 Dec 2007 16:19:36 +0100
+Date: Thu, 20 Dec 2007 16:19:38 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 11/47] cio: Use dev_{g,s}et_drvdata().
-Content-Disposition: inline; filename=110-cio-drvdata.diff
+Subject: [patch 13/47] cio: reduce cpu utilization during device scan
+Content-Disposition: inline; filename=112-cio-scan.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 
-Also define helpers sch_{g,s}et_cdev() to make the intention more
-clear.
+Minimize calls to cpu intensive function get_subchannel_by_schid()
+by introducing function for_each_subchannel_staged() which
+temporarily caches the information about registered subchannels
+in a bitmap.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/ccwgroup.c   |   14 +++++++-------
- drivers/s390/cio/device.c     |   36 ++++++++++++++++++------------------
- drivers/s390/cio/device_fsm.c |   26 +++++++++++++-------------
- drivers/s390/cio/io_sch.h     |    2 ++
- 4 files changed, 40 insertions(+), 38 deletions(-)
+ drivers/s390/cio/chsc.c |   96 ++++++++++++--------------------------
+ drivers/s390/cio/css.c  |  120 ++++++++++++++++++++++++++++++++++++++++--------
+ drivers/s390/cio/css.h  |    3 +
+ 3 files changed, 136 insertions(+), 83 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/ccwgroup.c
+Index: quilt-2.6/drivers/s390/cio/chsc.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/ccwgroup.c
-+++ quilt-2.6/drivers/s390/cio/ccwgroup.c
-@@ -111,7 +111,7 @@ ccwgroup_release (struct device *dev)
- 	gdev = to_ccwgroupdev(dev);
+--- quilt-2.6.orig/drivers/s390/cio/chsc.c
++++ quilt-2.6/drivers/s390/cio/chsc.c
+@@ -136,17 +136,13 @@ static void terminate_internal_io(struct
+ 		sch->driver->termination(sch);
+ }
  
- 	for (i = 0; i < gdev->count; i++) {
--		gdev->cdev[i]->dev.driver_data = NULL;
-+		dev_set_drvdata(&gdev->cdev[i]->dev, NULL);
- 		put_device(&gdev->cdev[i]->dev);
- 	}
- 	kfree(gdev);
-@@ -196,11 +196,11 @@ int ccwgroup_create(struct device *root,
- 			goto error;
- 		}
- 		/* Don't allow a device to belong to more than one group. */
--		if (gdev->cdev[i]->dev.driver_data) {
-+		if (dev_get_drvdata(&gdev->cdev[i]->dev)) {
- 			rc = -EINVAL;
- 			goto error;
- 		}
--		gdev->cdev[i]->dev.driver_data = gdev;
-+		dev_set_drvdata(&gdev->cdev[i]->dev, gdev);
- 	}
- 
- 	gdev->creator_id = creator_id;
-@@ -234,8 +234,8 @@ int ccwgroup_create(struct device *root,
- error:
- 	for (i = 0; i < argc; i++)
- 		if (gdev->cdev[i]) {
--			if (gdev->cdev[i]->dev.driver_data == gdev)
--				gdev->cdev[i]->dev.driver_data = NULL;
-+			if (dev_get_drvdata(&gdev->cdev[i]->dev) == gdev)
-+				dev_set_drvdata(&gdev->cdev[i]->dev, NULL);
- 			put_device(&gdev->cdev[i]->dev);
- 		}
- 	mutex_unlock(&gdev->reg_mutex);
-@@ -463,8 +463,8 @@ __ccwgroup_get_gdev_by_cdev(struct ccw_d
+-static int
+-s390_subchannel_remove_chpid(struct device *dev, void *data)
++static int s390_subchannel_remove_chpid(struct subchannel *sch, void *data)
  {
- 	struct ccwgroup_device *gdev;
+ 	int j;
+ 	int mask;
+-	struct subchannel *sch;
+-	struct chp_id *chpid;
++	struct chp_id *chpid = data;
+ 	struct schib schib;
  
--	if (cdev->dev.driver_data) {
--		gdev = (struct ccwgroup_device *)cdev->dev.driver_data;
-+	gdev = dev_get_drvdata(&cdev->dev);
-+	if (gdev) {
- 		if (get_device(&gdev->dev)) {
- 			mutex_lock(&gdev->reg_mutex);
- 			if (device_is_registered(&gdev->dev))
-Index: quilt-2.6/drivers/s390/cio/device.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device.c
-+++ quilt-2.6/drivers/s390/cio/device.c
-@@ -773,7 +773,7 @@ static void sch_attach_device(struct sub
+-	sch = to_subchannel(dev);
+-	chpid = data;
+ 	for (j = 0; j < 8; j++) {
+ 		mask = 0x80 >> j;
+ 		if ((sch->schib.pmcw.pim & mask) &&
+@@ -202,12 +198,10 @@ void chsc_chp_offline(struct chp_id chpi
+ 
+ 	if (chp_get_status(chpid) <= 0)
+ 		return;
+-	bus_for_each_dev(&css_bus_type, NULL, &chpid,
+-			 s390_subchannel_remove_chpid);
++	for_each_subchannel_staged(s390_subchannel_remove_chpid, NULL, &chpid);
+ }
+ 
+-static int
+-s390_process_res_acc_new_sch(struct subchannel_id schid)
++static int s390_process_res_acc_new_sch(struct subchannel_id schid, void *data)
  {
- 	css_update_ssd_info(sch);
+ 	struct schib schib;
+ 	/*
+@@ -253,18 +247,10 @@ static int get_res_chpid_mask(struct chs
+ 	return 0;
+ }
+ 
+-static int
+-__s390_process_res_acc(struct subchannel_id schid, void *data)
++static int __s390_process_res_acc(struct subchannel *sch, void *data)
+ {
+ 	int chp_mask, old_lpm;
+-	struct res_acc_data *res_data;
+-	struct subchannel *sch;
+-
+-	res_data = data;
+-	sch = get_subchannel_by_schid(schid);
+-	if (!sch)
+-		/* Check if a subchannel is newly available. */
+-		return s390_process_res_acc_new_sch(schid);
++	struct res_acc_data *res_data = data;
+ 
  	spin_lock_irq(sch->lock);
--	sch->dev.driver_data = cdev;
-+	sch_set_cdev(sch, cdev);
- 	cdev->private->schid = sch->schid;
- 	cdev->ccwlock = sch->lock;
- 	device_trigger_reprobe(sch);
-@@ -795,7 +795,7 @@ static void sch_attach_disconnected_devi
- 		put_device(&other_sch->dev);
- 		return;
- 	}
--	other_sch->dev.driver_data = NULL;
-+	sch_set_cdev(other_sch, NULL);
- 	/* No need to keep a subchannel without ccw device around. */
- 	css_sch_device_unregister(other_sch);
- 	put_device(&other_sch->dev);
-@@ -831,12 +831,12 @@ static void sch_create_and_recog_new_dev
- 		return;
- 	}
- 	spin_lock_irq(sch->lock);
--	sch->dev.driver_data = cdev;
-+	sch_set_cdev(sch, cdev);
+ 	chp_mask = get_res_chpid_mask(&sch->ssd_info, res_data);
+@@ -283,7 +269,7 @@ __s390_process_res_acc(struct subchannel
+ 		sch->driver->verify(sch);
+ out:
  	spin_unlock_irq(sch->lock);
- 	/* Start recognition for the new ccw device. */
- 	if (io_subchannel_recog(cdev, sch)) {
- 		spin_lock_irq(sch->lock);
--		sch->dev.driver_data = NULL;
-+		sch_set_cdev(sch, NULL);
- 		spin_unlock_irq(sch->lock);
- 		if (cdev->dev.release)
- 			cdev->dev.release(&cdev->dev);
-@@ -940,7 +940,7 @@ io_subchannel_register(struct work_struc
- 			      cdev->private->dev_id.devno, ret);
- 		put_device(&cdev->dev);
- 		spin_lock_irqsave(sch->lock, flags);
--		sch->dev.driver_data = NULL;
-+		sch_set_cdev(sch, NULL);
- 		spin_unlock_irqrestore(sch->lock, flags);
- 		kfree (cdev->private);
- 		kfree (cdev);
-@@ -1022,7 +1022,7 @@ io_subchannel_recog(struct ccw_device *c
- 	int rc;
- 	struct ccw_device_private *priv;
+-	put_device(&sch->dev);
++
+ 	return 0;
+ }
  
--	sch->dev.driver_data = cdev;
-+	sch_set_cdev(sch, cdev);
- 	sch->driver = &io_subchannel_driver;
- 	cdev->ccwlock = sch->lock;
+@@ -306,7 +292,8 @@ static void s390_process_res_acc (struct
+ 	 * The more information we have (info), the less scanning
+ 	 * will we have to do.
+ 	 */
+-	for_each_subchannel(__s390_process_res_acc, res_data);
++	for_each_subchannel_staged(__s390_process_res_acc,
++				   s390_process_res_acc_new_sch, res_data);
+ }
  
-@@ -1082,7 +1082,7 @@ static void ccw_device_move_to_sch(struc
+ static int
+@@ -500,8 +487,7 @@ void chsc_process_crw(void)
+ 	} while (sei_area->flags & 0x80);
+ }
+ 
+-static int
+-__chp_add_new_sch(struct subchannel_id schid)
++static int __chp_add_new_sch(struct subchannel_id schid, void *data)
+ {
+ 	struct schib schib;
+ 
+@@ -515,35 +501,27 @@ __chp_add_new_sch(struct subchannel_id s
+ }
+ 
+ 
+-static int
+-__chp_add(struct subchannel_id schid, void *data)
++static int __chp_add(struct subchannel *sch, void *data)
+ {
+ 	int i, mask;
+-	struct chp_id *chpid;
+-	struct subchannel *sch;
++	struct chp_id *chpid = data;
+ 
+-	chpid = data;
+-	sch = get_subchannel_by_schid(schid);
+-	if (!sch)
+-		/* Check if the subchannel is now available. */
+-		return __chp_add_new_sch(schid);
+ 	spin_lock_irq(sch->lock);
+ 	for (i=0; i<8; i++) {
+ 		mask = 0x80 >> i;
+ 		if ((sch->schib.pmcw.pim & mask) &&
+-		    (sch->schib.pmcw.chpid[i] == chpid->id)) {
+-			if (stsch(sch->schid, &sch->schib) != 0) {
+-				/* Endgame. */
+-				spin_unlock_irq(sch->lock);
+-				return -ENXIO;
+-			}
++		    (sch->schib.pmcw.chpid[i] == chpid->id))
+ 			break;
+-		}
  	}
- 	if (former_parent) {
- 		spin_lock_irq(former_parent->lock);
--		former_parent->dev.driver_data = NULL;
-+		sch_set_cdev(former_parent, NULL);
- 		spin_unlock_irq(former_parent->lock);
- 		css_sch_device_unregister(former_parent);
- 		/* Reset intparm to zeroes. */
-@@ -1100,7 +1100,7 @@ static void io_subchannel_irq(struct sub
- {
- 	struct ccw_device *cdev;
- 
--	cdev = sch->dev.driver_data;
-+	cdev = sch_get_cdev(sch);
- 
- 	CIO_TRACE_EVENT(3, "IRQ");
- 	CIO_TRACE_EVENT(3, sch->dev.bus_id);
-@@ -1116,13 +1116,13 @@ io_subchannel_probe (struct subchannel *
- 	unsigned long flags;
- 	struct ccw_dev_id dev_id;
- 
--	if (sch->dev.driver_data) {
-+	cdev = sch_get_cdev(sch);
-+	if (cdev) {
- 		/*
- 		 * This subchannel already has an associated ccw_device.
- 		 * Register it and exit. This happens for all early
- 		 * device, e.g. the console.
- 		 */
--		cdev = sch->dev.driver_data;
- 		cdev->dev.groups = ccwdev_attr_groups;
- 		device_initialize(&cdev->dev);
- 		ccw_device_register(cdev);
-@@ -1173,7 +1173,7 @@ io_subchannel_probe (struct subchannel *
- 	rc = io_subchannel_recog(cdev, sch);
- 	if (rc) {
- 		spin_lock_irqsave(sch->lock, flags);
--		sch->dev.driver_data = NULL;
-+		sch_set_cdev(sch, NULL);
- 		spin_unlock_irqrestore(sch->lock, flags);
- 		if (cdev->dev.release)
- 			cdev->dev.release(&cdev->dev);
-@@ -1189,12 +1189,12 @@ io_subchannel_remove (struct subchannel 
- 	struct ccw_device *cdev;
- 	unsigned long flags;
- 
--	if (!sch->dev.driver_data)
-+	cdev = sch_get_cdev(sch);
-+	if (!cdev)
+ 	if (i==8) {
+ 		spin_unlock_irq(sch->lock);
  		return 0;
--	cdev = sch->dev.driver_data;
- 	/* Set ccw device to not operational and drop reference. */
- 	spin_lock_irqsave(cdev->ccwlock, flags);
--	sch->dev.driver_data = NULL;
-+	sch_set_cdev(sch, NULL);
- 	cdev->private->state = DEV_STATE_NOT_OPER;
- 	spin_unlock_irqrestore(cdev->ccwlock, flags);
- 	ccw_device_unregister(cdev);
-@@ -1207,7 +1207,7 @@ static int io_subchannel_notify(struct s
- {
- 	struct ccw_device *cdev;
+ 	}
++	if (stsch(sch->schid, &sch->schib)) {
++		spin_unlock_irq(sch->lock);
++		css_schedule_eval(sch->schid);
++		return 0;
++	}
+ 	sch->lpm = ((sch->schib.pmcw.pim &
+ 		     sch->schib.pmcw.pam &
+ 		     sch->schib.pmcw.pom)
+@@ -553,7 +531,7 @@ __chp_add(struct subchannel_id schid, vo
+ 		sch->driver->verify(sch);
  
--	cdev = sch->dev.driver_data;
-+	cdev = sch_get_cdev(sch);
- 	if (!cdev)
- 		return 0;
- 	if (!cdev->drv)
-@@ -1221,7 +1221,7 @@ static void io_subchannel_verify(struct 
- {
- 	struct ccw_device *cdev;
- 
--	cdev = sch->dev.driver_data;
-+	cdev = sch_get_cdev(sch);
- 	if (cdev)
- 		dev_fsm_event(cdev, DEV_EVENT_VERIFY);
+ 	spin_unlock_irq(sch->lock);
+-	put_device(&sch->dev);
++
+ 	return 0;
  }
-@@ -1230,7 +1230,7 @@ static void io_subchannel_ioterm(struct 
- {
- 	struct ccw_device *cdev;
  
--	cdev = sch->dev.driver_data;
-+	cdev = sch_get_cdev(sch);
- 	if (!cdev)
- 		return;
- 	/* Internal I/O will be retried by the interrupt handler. */
-@@ -1248,7 +1248,7 @@ io_subchannel_shutdown(struct subchannel
- 	struct ccw_device *cdev;
+@@ -565,7 +543,8 @@ void chsc_chp_online(struct chp_id chpid
+ 	CIO_TRACE_EVENT(2, dbf_txt);
+ 
+ 	if (chp_get_status(chpid) != 0)
+-		for_each_subchannel(__chp_add, &chpid);
++		for_each_subchannel_staged(__chp_add, __chp_add_new_sch,
++					   &chpid);
+ }
+ 
+ static void __s390_subchannel_vary_chpid(struct subchannel *sch,
+@@ -616,25 +595,17 @@ static void __s390_subchannel_vary_chpid
+ 	spin_unlock_irqrestore(sch->lock, flags);
+ }
+ 
+-static int s390_subchannel_vary_chpid_off(struct device *dev, void *data)
++static int s390_subchannel_vary_chpid_off(struct subchannel *sch, void *data)
+ {
+-	struct subchannel *sch;
+-	struct chp_id *chpid;
+-
+-	sch = to_subchannel(dev);
+-	chpid = data;
++	struct chp_id *chpid = data;
+ 
+ 	__s390_subchannel_vary_chpid(sch, *chpid, 0);
+ 	return 0;
+ }
+ 
+-static int s390_subchannel_vary_chpid_on(struct device *dev, void *data)
++static int s390_subchannel_vary_chpid_on(struct subchannel *sch, void *data)
+ {
+-	struct subchannel *sch;
+-	struct chp_id *chpid;
+-
+-	sch = to_subchannel(dev);
+-	chpid = data;
++	struct chp_id *chpid = data;
+ 
+ 	__s390_subchannel_vary_chpid(sch, *chpid, 1);
+ 	return 0;
+@@ -644,13 +615,7 @@ static int
+ __s390_vary_chpid_on(struct subchannel_id schid, void *data)
+ {
+ 	struct schib schib;
+-	struct subchannel *sch;
+ 
+-	sch = get_subchannel_by_schid(schid);
+-	if (sch) {
+-		put_device(&sch->dev);
+-		return 0;
+-	}
+ 	if (stsch_err(schid, &schib))
+ 		/* We're through */
+ 		return -ENXIO;
+@@ -670,12 +635,13 @@ int chsc_chp_vary(struct chp_id chpid, i
+ 	 * Redo PathVerification on the devices the chpid connects to
+ 	 */
+ 
+-	bus_for_each_dev(&css_bus_type, NULL, &chpid, on ?
+-			 s390_subchannel_vary_chpid_on :
+-			 s390_subchannel_vary_chpid_off);
+ 	if (on)
+-		/* Scan for new devices on varied on path. */
+-		for_each_subchannel(__s390_vary_chpid_on, NULL);
++		for_each_subchannel_staged(s390_subchannel_vary_chpid_on,
++					   __s390_vary_chpid_on, &chpid);
++	else
++		for_each_subchannel_staged(s390_subchannel_vary_chpid_off,
++					   NULL, &chpid);
++
+ 	return 0;
+ }
+ 
+Index: quilt-2.6/drivers/s390/cio/css.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/css.c
++++ quilt-2.6/drivers/s390/cio/css.c
+@@ -51,6 +51,62 @@ for_each_subchannel(int(*fn)(struct subc
+ 	return ret;
+ }
+ 
++struct cb_data {
++	void *data;
++	struct idset *set;
++	int (*fn_known_sch)(struct subchannel *, void *);
++	int (*fn_unknown_sch)(struct subchannel_id, void *);
++};
++
++static int call_fn_known_sch(struct device *dev, void *data)
++{
++	struct subchannel *sch = to_subchannel(dev);
++	struct cb_data *cb = data;
++	int rc = 0;
++
++	idset_sch_del(cb->set, sch->schid);
++	if (cb->fn_known_sch)
++		rc = cb->fn_known_sch(sch, cb->data);
++	return rc;
++}
++
++static int call_fn_unknown_sch(struct subchannel_id schid, void *data)
++{
++	struct cb_data *cb = data;
++	int rc = 0;
++
++	if (idset_sch_contains(cb->set, schid))
++		rc = cb->fn_unknown_sch(schid, cb->data);
++	return rc;
++}
++
++int for_each_subchannel_staged(int (*fn_known)(struct subchannel *, void *),
++			       int (*fn_unknown)(struct subchannel_id,
++			       void *), void *data)
++{
++	struct cb_data cb;
++	int rc;
++
++	cb.set = idset_sch_new();
++	if (!cb.set)
++		return -ENOMEM;
++	idset_fill(cb.set);
++	cb.data = data;
++	cb.fn_known_sch = fn_known;
++	cb.fn_unknown_sch = fn_unknown;
++	/* Process registered subchannels. */
++	rc = bus_for_each_dev(&css_bus_type, NULL, &cb, call_fn_known_sch);
++	if (rc)
++		goto out;
++	/* Process unregistered subchannels. */
++	if (fn_unknown)
++		rc = for_each_subchannel(call_fn_unknown_sch, &cb);
++out:
++	idset_free(cb.set);
++
++	return rc;
++}
++
+ static struct subchannel *
+ css_alloc_subchannel(struct subchannel_id schid)
+ {
+@@ -402,20 +458,56 @@ static int __init slow_subchannel_init(v
+ 	return 0;
+ }
+ 
+-static void css_slow_path_func(struct work_struct *unused)
++static int slow_eval_known_fn(struct subchannel *sch, void *data)
+ {
+-	struct subchannel_id schid;
++	int eval;
++	int rc;
+ 
+-	CIO_TRACE_EVENT(4, "slowpath");
+ 	spin_lock_irq(&slow_subchannel_lock);
+-	init_subchannel_id(&schid);
+-	while (idset_sch_get_first(slow_subchannel_set, &schid)) {
+-		idset_sch_del(slow_subchannel_set, schid);
+-		spin_unlock_irq(&slow_subchannel_lock);
+-		css_evaluate_subchannel(schid, 1);
+-		spin_lock_irq(&slow_subchannel_lock);
++	eval = idset_sch_contains(slow_subchannel_set, sch->schid);
++	idset_sch_del(slow_subchannel_set, sch->schid);
++	spin_unlock_irq(&slow_subchannel_lock);
++	if (eval) {
++		rc = css_evaluate_known_subchannel(sch, 1);
++		if (rc == -EAGAIN)
++			css_schedule_eval(sch->schid);
+ 	}
++	return 0;
++}
++
++static int slow_eval_unknown_fn(struct subchannel_id schid, void *data)
++{
++	int eval;
++	int rc = 0;
++
++	spin_lock_irq(&slow_subchannel_lock);
++	eval = idset_sch_contains(slow_subchannel_set, schid);
++	idset_sch_del(slow_subchannel_set, schid);
+ 	spin_unlock_irq(&slow_subchannel_lock);
++	if (eval) {
++		rc = css_evaluate_new_subchannel(schid, 1);
++		switch (rc) {
++		case -EAGAIN:
++			css_schedule_eval(schid);
++			rc = 0;
++			break;
++		case -ENXIO:
++		case -ENOMEM:
++		case -EIO:
++			/* These should abort looping */
++			break;
++		default:
++			rc = 0;
++		}
++	}
++	return rc;
++}
++
++static void css_slow_path_func(struct work_struct *unused)
++{
++	CIO_TRACE_EVENT(4, "slowpath");
++	for_each_subchannel_staged(slow_eval_known_fn, slow_eval_unknown_fn,
++				   NULL);
+ }
+ 
+ static DECLARE_WORK(slow_path_work, css_slow_path_func);
+@@ -444,7 +536,6 @@ void css_schedule_eval_all(void)
+ /* Reprobe subchannel if unregistered. */
+ static int reprobe_subchannel(struct subchannel_id schid, void *data)
+ {
+-	struct subchannel *sch;
  	int ret;
  
--	cdev = sch->dev.driver_data;
-+	cdev = sch_get_cdev(sch);
+ 	CIO_MSG_EVENT(6, "cio: reprobe 0.%x.%04x\n",
+@@ -452,13 +543,6 @@ static int reprobe_subchannel(struct sub
+ 	if (need_reprobe)
+ 		return -EAGAIN;
  
- 	if (cio_is_console(sch->schid))
- 		return;
-Index: quilt-2.6/drivers/s390/cio/device_fsm.c
+-	sch = get_subchannel_by_schid(schid);
+-	if (sch) {
+-		/* Already known. */
+-		put_device(&sch->dev);
+-		return 0;
+-	}
+-
+ 	ret = css_probe_device(schid);
+ 	switch (ret) {
+ 	case 0:
+@@ -486,7 +570,7 @@ static void reprobe_all(struct work_stru
+ 	/* Make sure initial subchannel scan is done. */
+ 	wait_event(ccw_device_init_wq,
+ 		   atomic_read(&ccw_device_init_count) == 0);
+-	ret = for_each_subchannel(reprobe_subchannel, NULL);
++	ret = for_each_subchannel_staged(NULL, reprobe_subchannel, NULL);
+ 
+ 	CIO_MSG_EVENT(2, "reprobe done (rc=%d, need_reprobe=%d)\n", ret,
+ 		      need_reprobe);
+Index: quilt-2.6/drivers/s390/cio/css.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_fsm.c
-+++ quilt-2.6/drivers/s390/cio/device_fsm.c
-@@ -32,9 +32,9 @@ device_is_online(struct subchannel *sch)
- {
- 	struct ccw_device *cdev;
- 
--	if (!sch->dev.driver_data)
-+	cdev = sch_get_cdev(sch);
-+	if (!cdev)
- 		return 0;
--	cdev = sch->dev.driver_data;
- 	return (cdev->private->state == DEV_STATE_ONLINE);
- }
- 
-@@ -43,9 +43,9 @@ device_is_disconnected(struct subchannel
- {
- 	struct ccw_device *cdev;
- 
--	if (!sch->dev.driver_data)
-+	cdev = sch_get_cdev(sch);
-+	if (!cdev)
- 		return 0;
--	cdev = sch->dev.driver_data;
- 	return (cdev->private->state == DEV_STATE_DISCONNECTED ||
- 		cdev->private->state == DEV_STATE_DISCONNECTED_SENSE_ID);
- }
-@@ -55,9 +55,9 @@ device_set_disconnected(struct subchanne
- {
- 	struct ccw_device *cdev;
- 
--	if (!sch->dev.driver_data)
-+	cdev = sch_get_cdev(sch);
-+	if (!cdev)
- 		return;
--	cdev = sch->dev.driver_data;
- 	ccw_device_set_timeout(cdev, 0);
- 	cdev->private->flags.fake_irb = 0;
- 	cdev->private->state = DEV_STATE_DISCONNECTED;
-@@ -67,7 +67,7 @@ void device_set_intretry(struct subchann
- {
- 	struct ccw_device *cdev;
- 
--	cdev = sch->dev.driver_data;
-+	cdev = sch_get_cdev(sch);
- 	if (!cdev)
- 		return;
- 	cdev->private->flags.intretry = 1;
-@@ -77,7 +77,7 @@ int device_trigger_verify(struct subchan
- {
- 	struct ccw_device *cdev;
- 
--	cdev = sch->dev.driver_data;
-+	cdev = sch_get_cdev(sch);
- 	if (!cdev || !cdev->online)
- 		return -EINVAL;
- 	dev_fsm_event(cdev, DEV_EVENT_VERIFY);
-@@ -175,9 +175,9 @@ device_kill_pending_timer(struct subchan
- {
- 	struct ccw_device *cdev;
- 
--	if (!sch->dev.driver_data)
-+	cdev = sch_get_cdev(sch);
-+	if (!cdev)
- 		return;
--	cdev = sch->dev.driver_data;
- 	ccw_device_set_timeout(cdev, 0);
- }
- 
-@@ -992,7 +992,7 @@ void device_kill_io(struct subchannel *s
- 	int ret;
- 	struct ccw_device *cdev;
- 
--	cdev = sch->dev.driver_data;
-+	cdev = sch_get_cdev(sch);
- 	ret = ccw_device_cancel_halt_clear(cdev);
- 	if (ret == -EBUSY) {
- 		ccw_device_set_timeout(cdev, 3*HZ);
-@@ -1062,9 +1062,9 @@ device_trigger_reprobe(struct subchannel
- {
- 	struct ccw_device *cdev;
- 
--	if (!sch->dev.driver_data)
-+	cdev = sch_get_cdev(sch);
-+	if (!cdev)
- 		return;
--	cdev = sch->dev.driver_data;
- 	if (cdev->private->state != DEV_STATE_DISCONNECTED)
- 		return;
- 
-Index: quilt-2.6/drivers/s390/cio/io_sch.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/io_sch.h
-+++ quilt-2.6/drivers/s390/cio/io_sch.h
-@@ -34,6 +34,8 @@ struct io_subchannel_private {
- } __attribute__ ((aligned(8)));
- 
- #define to_io_private(n) ((struct io_subchannel_private *)n->private)
-+#define sch_get_cdev(n) (dev_get_drvdata(&n->dev))
-+#define sch_set_cdev(n, c) (dev_set_drvdata(&n->dev, c))
- 
- #define MAX_CIWS 8
- 
+--- quilt-2.6.orig/drivers/s390/cio/css.h
++++ quilt-2.6/drivers/s390/cio/css.h
+@@ -91,6 +91,9 @@ extern void css_driver_unregister(struct
+ extern void css_sch_device_unregister(struct subchannel *);
+ extern struct subchannel * get_subchannel_by_schid(struct subchannel_id);
+ extern int css_init_done;
++int for_each_subchannel_staged(int (*fn_known)(struct subchannel *, void *),
++			       int (*fn_unknown)(struct subchannel_id,
++			       void *), void *data);
+ extern int for_each_subchannel(int(*fn)(struct subchannel_id, void *), void *);
+ extern void css_process_crw(int, int);
+ extern void css_reiterate_subchannels(void);
 
 -- 
 blue skies,
