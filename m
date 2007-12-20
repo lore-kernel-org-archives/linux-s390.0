@@ -1,106 +1,123 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S935773AbXLTPa7@vger.kernel.org>
-Message-Id: <20071220152111.582744811@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S935953AbXLTPbg@vger.kernel.org>
+Message-Id: <20071220152110.721489956@de.ibm.com>
 References: <20071220151925.405881218@de.ibm.com>
-Date: Thu, 20 Dec 2007 16:20:04 +0100
+Date: Thu, 20 Dec 2007 16:20:00 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 39/47] Use diag308 subcodes 3 and 6 for reboot and dump when possible.
-Content-Disposition: inline; filename=138-diag308.diff
+Subject: [patch 35/47] use LIST_HEAD instead of LIST_HEAD_INIT
+Content-Disposition: inline; filename=134-list-head.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Michael Holzheu <holzheu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Denis Cheng <crquan@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Holzheu <holzheu@de.ibm.com>
+From: Denis Cheng <crquan@gmail.com>
 
-This patch fixes a problem with the following scenario:
- 1. Linux booted from DASD "A"
- 2. Reboot from DASD "B" using "/sys/firmware/reipl/ccw/device"
- 3. Reboot DASD "B"
-Without this patch in step 3 on newer s390 systems under LPAR instead of
-DASD "B", DASD "A" will be booted. The reason is that in step 2 we use CCW
-reipl and in step 3 we use DIAG308 (subcode 3) reipl. DIAG308 does not
-notice the CCW reipl and still thinks that it has to reboot DASD "A".
-Before applying this fix, ensure to have MCF RJ9967101E or z9 GA3 base driver
-installed.
+single list_head variable initialized with LIST_HEAD_INIT could almost
+always can be replaced with LIST_HEAD declaration, this shrinks the code
+and looks better.
 
-Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
+Signed-off-by: Denis Cheng <crquan@gmail.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/ipl.c |   14 ++++++++------
- include/asm-s390/ipl.h |    4 ++++
- 2 files changed, 12 insertions(+), 6 deletions(-)
+ arch/s390/mm/extmem.c         |    2 +-
+ drivers/s390/block/dcssblk.c  |    2 +-
+ drivers/s390/char/raw3270.c   |    4 ++--
+ drivers/s390/char/tape_core.c |    2 +-
+ drivers/s390/net/netiucv.c    |    3 +--
+ drivers/s390/net/smsgiucv.c   |    2 +-
+ 6 files changed, 7 insertions(+), 8 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/ipl.c
+Index: quilt-2.6/arch/s390/mm/extmem.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/ipl.c
-+++ quilt-2.6/arch/s390/kernel/ipl.c
-@@ -588,7 +588,9 @@ static int reipl_set_type(enum ipl_type 
- 
- 	switch(type) {
- 	case IPL_TYPE_CCW:
--		if (MACHINE_IS_VM)
-+		if (diag308_set_works)
-+			reipl_method = REIPL_METHOD_CCW_DIAG;
-+		else if (MACHINE_IS_VM)
- 			reipl_method = REIPL_METHOD_CCW_VM;
- 		else
- 			reipl_method = REIPL_METHOD_CCW_CIO;
-@@ -650,8 +652,6 @@ void reipl_run(struct shutdown_trigger *
- 	switch (reipl_method) {
- 	case REIPL_METHOD_CCW_CIO:
- 		devid.devno = reipl_block_ccw->ipl_info.ccw.devno;
--		if (ipl_info.type == IPL_TYPE_CCW && devid.devno == ipl_devno)
--			diag308(DIAG308_IPL, NULL);
- 		devid.ssid  = 0;
- 		reipl_ccw_dev(&devid);
- 		break;
-@@ -736,6 +736,7 @@ static int __init reipl_ccw_init(void)
- 	reipl_block_ccw->hdr.version = IPL_PARM_BLOCK_VERSION;
- 	reipl_block_ccw->hdr.blk0_len = IPL_PARM_BLK0_CCW_LEN;
- 	reipl_block_ccw->hdr.pbt = DIAG308_IPL_TYPE_CCW;
-+	reipl_block_ccw->hdr.flags = DIAG308_FLAGS_LP_VALID;
- 	/* check if read scp info worked and set loadparm */
- 	if (sclp_ipl_info.is_valid)
- 		memcpy(reipl_block_ccw->ipl_info.ccw.load_param,
-@@ -744,8 +745,7 @@ static int __init reipl_ccw_init(void)
- 		/* read scp info failed: set empty loadparm (EBCDIC blanks) */
- 		memset(reipl_block_ccw->ipl_info.ccw.load_param, 0x40,
- 		       LOADPARM_LEN);
--	/* FIXME: check for diag308_set_works when enabling diag ccw reipl */
--	if (!MACHINE_IS_VM)
-+	if (!MACHINE_IS_VM && !diag308_set_works)
- 		sys_reipl_ccw_loadparm_attr.attr.mode = S_IRUGO;
- 	if (ipl_info.type == IPL_TYPE_CCW)
- 		reipl_block_ccw->ipl_info.ccw.devno = ipl_devno;
-@@ -867,7 +867,9 @@ static int dump_set_type(enum dump_type 
- 		return -EINVAL;
- 	switch (type) {
- 	case DUMP_TYPE_CCW:
--		if (MACHINE_IS_VM)
-+		if (diag308_set_works)
-+			dump_method = DUMP_METHOD_CCW_DIAG;
-+		else if (MACHINE_IS_VM)
- 			dump_method = DUMP_METHOD_CCW_VM;
- 		else
- 			dump_method = DUMP_METHOD_CCW_CIO;
-Index: quilt-2.6/include/asm-s390/ipl.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/ipl.h
-+++ quilt-2.6/include/asm-s390/ipl.h
-@@ -143,6 +143,10 @@ enum diag308_opt {
- 	DIAG308_IPL_OPT_DUMP	= 0x20,
+--- quilt-2.6.orig/arch/s390/mm/extmem.c
++++ quilt-2.6/arch/s390/mm/extmem.c
+@@ -83,7 +83,7 @@ struct dcss_segment {
  };
  
-+enum diag308_flags {
-+	DIAG308_FLAGS_LP_VALID	= 0x80,
-+};
-+
- enum diag308_rc {
- 	DIAG308_RC_OK	= 1,
+ static DEFINE_MUTEX(dcss_lock);
+-static struct list_head dcss_list = LIST_HEAD_INIT(dcss_list);
++static LIST_HEAD(dcss_list);
+ static char *segtype_string[] = { "SW", "EW", "SR", "ER", "SN", "EN", "SC",
+ 					"EW/EN-MIXED" };
+ 
+Index: quilt-2.6/drivers/s390/block/dcssblk.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/block/dcssblk.c
++++ quilt-2.6/drivers/s390/block/dcssblk.c
+@@ -82,7 +82,7 @@ struct dcssblk_dev_info {
+ 	struct request_queue *dcssblk_queue;
  };
+ 
+-static struct list_head dcssblk_devices = LIST_HEAD_INIT(dcssblk_devices);
++static LIST_HEAD(dcssblk_devices);
+ static struct rw_semaphore dcssblk_devices_sem;
+ 
+ /*
+Index: quilt-2.6/drivers/s390/char/raw3270.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/char/raw3270.c
++++ quilt-2.6/drivers/s390/char/raw3270.c
+@@ -66,7 +66,7 @@ struct raw3270 {
+ static DEFINE_MUTEX(raw3270_mutex);
+ 
+ /* List of 3270 devices. */
+-static struct list_head raw3270_devices = LIST_HEAD_INIT(raw3270_devices);
++static LIST_HEAD(raw3270_devices);
+ 
+ /*
+  * Flag to indicate if the driver has been registered. Some operations
+@@ -1210,7 +1210,7 @@ struct raw3270_notifier {
+ 	void (*notifier)(int, int);
+ };
+ 
+-static struct list_head raw3270_notifier = LIST_HEAD_INIT(raw3270_notifier);
++static LIST_HEAD(raw3270_notifier);
+ 
+ int raw3270_register_notifier(void (*notifier)(int, int))
+ {
+Index: quilt-2.6/drivers/s390/char/tape_core.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/char/tape_core.c
++++ quilt-2.6/drivers/s390/char/tape_core.c
+@@ -37,7 +37,7 @@ static void tape_long_busy_timeout(unsig
+  * we can assign the devices to minor numbers of the same major
+  * The list is protected by the rwlock
+  */
+-static struct list_head tape_device_list = LIST_HEAD_INIT(tape_device_list);
++static LIST_HEAD(tape_device_list);
+ static DEFINE_RWLOCK(tape_device_lock);
+ 
+ /*
+Index: quilt-2.6/drivers/s390/net/netiucv.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/net/netiucv.c
++++ quilt-2.6/drivers/s390/net/netiucv.c
+@@ -198,8 +198,7 @@ struct iucv_connection {
+ /**
+  * Linked list of all connection structs.
+  */
+-static struct list_head iucv_connection_list =
+-	LIST_HEAD_INIT(iucv_connection_list);
++static LIST_HEAD(iucv_connection_list);
+ static DEFINE_RWLOCK(iucv_connection_rwlock);
+ 
+ /**
+Index: quilt-2.6/drivers/s390/net/smsgiucv.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/net/smsgiucv.c
++++ quilt-2.6/drivers/s390/net/smsgiucv.c
+@@ -42,7 +42,7 @@ MODULE_DESCRIPTION ("Linux for S/390 IUC
+ static struct iucv_path *smsg_path;
+ 
+ static DEFINE_SPINLOCK(smsg_list_lock);
+-static struct list_head smsg_list = LIST_HEAD_INIT(smsg_list);
++static LIST_HEAD(smsg_list);
+ 
+ static int smsg_path_pending(struct iucv_path *, u8 ipvmid[8], u8 ipuser[16]);
+ static void smsg_message_pending(struct iucv_path *, struct iucv_message *);
 
 -- 
 blue skies,
