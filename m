@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S965285AbXLTP1R@vger.kernel.org>
-Message-Id: <20071220152108.530593357@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S965370AbXLTP1l@vger.kernel.org>
+Message-Id: <20071220152108.340182373@de.ibm.com>
 References: <20071220151925.405881218@de.ibm.com>
-Date: Thu, 20 Dec 2007 16:19:50 +0100
+Date: Thu, 20 Dec 2007 16:19:49 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 25/47] Remove owner_pc member from raw_spinlock_t.
-Content-Disposition: inline; filename=124-spinlock-owner.diff
+Subject: [patch 24/47] DEBUG_PAGEALLOC support for s390.
+Content-Disposition: inline; filename=123-debug-pagealloc.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,125 +14,113 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Used to contain the address of the holder of the lock. But since the
-spinlock code is not inlined anymore all locks contain the same address
-anyway. And since in addtition nobody complained about that for ages
-its obviously unused. So remove it.
-
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/lib/spinlock.c          |   12 ++++--------
- include/asm-s390/spinlock.h       |   19 ++++++-------------
- include/asm-s390/spinlock_types.h |    1 -
- 3 files changed, 10 insertions(+), 22 deletions(-)
+ arch/s390/Kconfig.debug       |    8 ++++++++
+ arch/s390/defconfig           |    1 +
+ arch/s390/kernel/traps.c      |    5 ++++-
+ arch/s390/mm/init.c           |   27 +++++++++++++++++++++++++++
+ include/asm-s390/cacheflush.h |    4 ++++
+ 5 files changed, 44 insertions(+), 1 deletion(-)
 
-Index: quilt-2.6/arch/s390/lib/spinlock.c
+Index: quilt-2.6/arch/s390/defconfig
 ===================================================================
---- quilt-2.6.orig/arch/s390/lib/spinlock.c
-+++ quilt-2.6/arch/s390/lib/spinlock.c
-@@ -39,7 +39,7 @@ static inline void _raw_yield_cpu(int cp
- 		_raw_yield();
- }
+--- quilt-2.6.orig/arch/s390/defconfig
++++ quilt-2.6/arch/s390/defconfig
+@@ -727,6 +727,7 @@ CONFIG_FORCED_INLINING=y
+ # CONFIG_LKDTM is not set
+ # CONFIG_FAULT_INJECTION is not set
+ CONFIG_SAMPLES=y
++# CONFIG_DEBUG_PAGEALLOC is not set
  
--void _raw_spin_lock_wait(raw_spinlock_t *lp, unsigned int pc)
-+void _raw_spin_lock_wait(raw_spinlock_t *lp)
- {
- 	int count = spin_retry;
- 	unsigned int cpu = ~smp_processor_id();
-@@ -53,15 +53,13 @@ void _raw_spin_lock_wait(raw_spinlock_t 
- 		}
- 		if (__raw_spin_is_locked(lp))
- 			continue;
--		if (_raw_compare_and_swap(&lp->owner_cpu, 0, cpu) == 0) {
--			lp->owner_pc = pc;
-+		if (_raw_compare_and_swap(&lp->owner_cpu, 0, cpu) == 0)
- 			return;
--		}
- 	}
- }
- EXPORT_SYMBOL(_raw_spin_lock_wait);
- 
--int _raw_spin_trylock_retry(raw_spinlock_t *lp, unsigned int pc)
-+int _raw_spin_trylock_retry(raw_spinlock_t *lp)
- {
- 	unsigned int cpu = ~smp_processor_id();
- 	int count;
-@@ -69,10 +67,8 @@ int _raw_spin_trylock_retry(raw_spinlock
- 	for (count = spin_retry; count > 0; count--) {
- 		if (__raw_spin_is_locked(lp))
- 			continue;
--		if (_raw_compare_and_swap(&lp->owner_cpu, 0, cpu) == 0) {
--			lp->owner_pc = pc;
-+		if (_raw_compare_and_swap(&lp->owner_cpu, 0, cpu) == 0)
- 			return 1;
--		}
- 	}
- 	return 0;
- }
-Index: quilt-2.6/include/asm-s390/spinlock.h
+ #
+ # Security options
+Index: quilt-2.6/arch/s390/Kconfig.debug
 ===================================================================
---- quilt-2.6.orig/include/asm-s390/spinlock.h
-+++ quilt-2.6/include/asm-s390/spinlock.h
-@@ -58,39 +58,32 @@ _raw_compare_and_swap(volatile unsigned 
- 	do { while (__raw_spin_is_locked(lock)) \
- 		 _raw_spin_relax(lock); } while (0)
+--- quilt-2.6.orig/arch/s390/Kconfig.debug
++++ quilt-2.6/arch/s390/Kconfig.debug
+@@ -6,4 +6,12 @@ config TRACE_IRQFLAGS_SUPPORT
  
--extern void _raw_spin_lock_wait(raw_spinlock_t *, unsigned int pc);
--extern int _raw_spin_trylock_retry(raw_spinlock_t *, unsigned int pc);
-+extern void _raw_spin_lock_wait(raw_spinlock_t *);
-+extern int _raw_spin_trylock_retry(raw_spinlock_t *);
- extern void _raw_spin_relax(raw_spinlock_t *lock);
+ source "lib/Kconfig.debug"
  
- static inline void __raw_spin_lock(raw_spinlock_t *lp)
- {
--	unsigned long pc = 1 | (unsigned long) __builtin_return_address(0);
- 	int old;
- 
- 	old = _raw_compare_and_swap(&lp->owner_cpu, 0, ~smp_processor_id());
--	if (likely(old == 0)) {
--		lp->owner_pc = pc;
-+	if (likely(old == 0))
- 		return;
--	}
--	_raw_spin_lock_wait(lp, pc);
-+	_raw_spin_lock_wait(lp);
- }
- 
- static inline int __raw_spin_trylock(raw_spinlock_t *lp)
- {
--	unsigned long pc = 1 | (unsigned long) __builtin_return_address(0);
- 	int old;
- 
- 	old = _raw_compare_and_swap(&lp->owner_cpu, 0, ~smp_processor_id());
--	if (likely(old == 0)) {
--		lp->owner_pc = pc;
-+	if (likely(old == 0))
- 		return 1;
--	}
--	return _raw_spin_trylock_retry(lp, pc);
-+	return _raw_spin_trylock_retry(lp);
- }
- 
- static inline void __raw_spin_unlock(raw_spinlock_t *lp)
- {
--	lp->owner_pc = 0;
- 	_raw_compare_and_swap(&lp->owner_cpu, lp->owner_cpu, 0);
- }
- 		
-Index: quilt-2.6/include/asm-s390/spinlock_types.h
++config DEBUG_PAGEALLOC
++	bool "Debug page memory allocations"
++	depends on DEBUG_KERNEL
++	help
++	  Unmap pages from the kernel linear mapping after free_pages().
++	  This results in a slowdown, but helps to find certain types of
++	  memory corruptions.
++
+ endmenu
+Index: quilt-2.6/arch/s390/kernel/traps.c
 ===================================================================
---- quilt-2.6.orig/include/asm-s390/spinlock_types.h
-+++ quilt-2.6/include/asm-s390/spinlock_types.h
-@@ -7,7 +7,6 @@
+--- quilt-2.6.orig/arch/s390/kernel/traps.c
++++ quilt-2.6/arch/s390/kernel/traps.c
+@@ -271,7 +271,10 @@ void die(const char * str, struct pt_reg
+ 	printk("PREEMPT ");
+ #endif
+ #ifdef CONFIG_SMP
+-	printk("SMP");
++	printk("SMP ");
++#endif
++#ifdef CONFIG_DEBUG_PAGEALLOC
++	printk("DEBUG_PAGEALLOC");
+ #endif
+ 	printk("\n");
+ 	notify_die(DIE_OOPS, str, regs, err, current->thread.trap_no, SIGSEGV);
+Index: quilt-2.6/arch/s390/mm/init.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/mm/init.c
++++ quilt-2.6/arch/s390/mm/init.c
+@@ -167,6 +167,33 @@ void __init mem_init(void)
+ 	       PFN_ALIGN((unsigned long)&_eshared) - 1);
+ }
  
- typedef struct {
- 	volatile unsigned int owner_cpu;
--	volatile unsigned int owner_pc;
- } __attribute__ ((aligned (4))) raw_spinlock_t;
++#ifdef CONFIG_DEBUG_PAGEALLOC
++void kernel_map_pages(struct page *page, int numpages, int enable)
++{
++	pgd_t *pgd;
++	pud_t *pud;
++	pmd_t *pmd;
++	pte_t *pte;
++	unsigned long address;
++	int i;
++
++	for (i = 0; i < numpages; i++) {
++		address = page_to_phys(page + i);
++		pgd = pgd_offset_k(address);
++		pud = pud_offset(pgd, address);
++		pmd = pmd_offset(pud, address);
++		pte = pte_offset_kernel(pmd, address);
++		if (!enable) {
++			ptep_invalidate(address, pte);
++			continue;
++		}
++		*pte = mk_pte_phys(address, __pgprot(_PAGE_TYPE_RW));
++		/* Flush cpu write queue. */
++		mb();
++	}
++}
++#endif
++
+ void free_initmem(void)
+ {
+         unsigned long addr;
+Index: quilt-2.6/include/asm-s390/cacheflush.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/cacheflush.h
++++ quilt-2.6/include/asm-s390/cacheflush.h
+@@ -24,4 +24,8 @@
+ #define copy_from_user_page(vma, page, vaddr, dst, src, len) \
+ 	memcpy(dst, src, len)
  
- #define __RAW_SPIN_LOCK_UNLOCKED	{ 0 }
++#ifdef CONFIG_DEBUG_PAGEALLOC
++void kernel_map_pages(struct page *page, int numpages, int enable);
++#endif
++
+ #endif /* _S390_CACHEFLUSH_H */
 
 -- 
 blue skies,
