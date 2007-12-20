@@ -1,118 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S936218AbXLQTyz@vger.kernel.org>
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH] drivers/s390/: Spelling fixes
-Date: Mon, 17 Dec 2007 11:40:13 -0800
-Message-Id: <1197920439-5455-7-git-send-email-joe@perches.com>
-Message-Id: <5703e57f925f31fc0eb38873bd7f10fc44f99cb4.1197918892.git.joe@perches.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>, Swen Schillig <swen@vnet.ibm.com>, linux-s390@vger.kernel.org, linux390@de.ibm.com
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 1/6] zfcp: fix use after free bug.
+Date: Thu, 20 Dec 2007 12:30:22 +0100
+Message-ID: <20071220113231.840700000@de.ibm.com>
+References: <20071220113021.955597000@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline; filename=807-zfcp-kfree.diff
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@hansenpartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Christof Schmitt <christof.schmitt@de.ibm.com>, Martin Peschke <mp3@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Signed-off-by: Joe Perches <joe@perches.com>
+zfcp_erp_strategy_check_fsfreq() checks if it is safe to access the
+fsf_req associated with the erp_action that gets passed. To test if
+it is safe it accesses the fsf_req in order to get its index into
+the hash list. This is broken since the fsf_req might be freed already
+and the read index has no meaning. It could lead to memory corruption.
+Fix this by introducing a new zfcp_reqlist_find_safe() method which
+just checks if addresses are equal. This is slower, but only gets
+called in case of error recovery.
+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+Signed-off-by: Martin Peschke <mp3@de.ibm.com>
 ---
- drivers/s390/block/dasd_3990_erp.c |    2 +-
- drivers/s390/block/dasd_eckd.c     |    2 +-
- drivers/s390/char/sclp_rw.c        |    2 +-
- drivers/s390/char/tape_3590.c      |    2 +-
- drivers/s390/cio/airq.c            |    2 +-
- drivers/s390/scsi/zfcp_erp.c       |    2 +-
- drivers/s390/scsi/zfcp_qdio.c      |    2 +-
- 7 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_3990_erp.c b/drivers/s390/block/dasd_3990_erp.c
-index 5b7385e..c02f960 100644
---- a/drivers/s390/block/dasd_3990_erp.c
-+++ b/drivers/s390/block/dasd_3990_erp.c
-@@ -2620,7 +2620,7 @@ dasd_3990_erp_handle_match_erp(struct dasd_ccw_req *erp_head,
-  * DASD_3990_ERP_ACTION
-  *
-  * DESCRIPTION
-- *   controll routine for 3990 erp actions.
-+ *   control routine for 3990 erp actions.
-  *   Has to be called with the queue lock (namely the s390_irq_lock) acquired.
-  *
-  * PARAMETER
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 44adf84..6038d91 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -1542,7 +1542,7 @@ dasd_eckd_performance(struct dasd_device *device, void __user *argp)
- 	prssdp = (struct dasd_psf_prssd_data *) cqr->data;
- 	memset(prssdp, 0, sizeof (struct dasd_psf_prssd_data));
- 	prssdp->order = PSF_ORDER_PRSSD;
--	prssdp->suborder = 0x01;	/* Perfomance Statistics */
-+	prssdp->suborder = 0x01;	/* Performance Statistics */
- 	prssdp->varies[1] = 0x01;	/* Perf Statistics for the Subsystem */
- 
- 	ccw = cqr->cpaddr;
-diff --git a/drivers/s390/char/sclp_rw.c b/drivers/s390/char/sclp_rw.c
-index d6b06ab..ad7195d 100644
---- a/drivers/s390/char/sclp_rw.c
-+++ b/drivers/s390/char/sclp_rw.c
-@@ -76,7 +76,7 @@ sclp_make_buffer(void *page, unsigned short columns, unsigned short htab)
+ drivers/s390/scsi/zfcp_def.h |   14 ++++++++++++++
+ drivers/s390/scsi/zfcp_erp.c |    3 ++-
+ 2 files changed, 16 insertions(+), 1 deletion(-)
+
+--- a/drivers/s390/scsi/zfcp_def.h	2007-12-20 11:15:10.000000000 +0100
++++ b/drivers/s390/scsi/zfcp_def.h	2007-12-20 11:17:46.000000000 +0100
+@@ -1123,6 +1123,20 @@ zfcp_reqlist_find(struct zfcp_adapter *a
+ 	return NULL;
  }
  
++static inline struct zfcp_fsf_req *
++zfcp_reqlist_find_safe(struct zfcp_adapter *adapter, struct zfcp_fsf_req *req)
++{
++	struct zfcp_fsf_req *request;
++	unsigned int idx;
++
++	for (idx = 0; idx < REQUEST_LIST_SIZE; idx++) {
++		list_for_each_entry(request, &adapter->req_list[idx], list)
++			if (request == req)
++				return request;
++	}
++	return NULL;
++}
++
  /*
-- * Return a pointer to the orignal page that has been used to create
-+ * Return a pointer to the original page that has been used to create
-  * the buffer.
+  *  functions needed for reference/usage counting
   */
- void *
-diff --git a/drivers/s390/char/tape_3590.c b/drivers/s390/char/tape_3590.c
-index da25f8e..8246ef3 100644
---- a/drivers/s390/char/tape_3590.c
-+++ b/drivers/s390/char/tape_3590.c
-@@ -1495,7 +1495,7 @@ tape_3590_unit_check(struct tape_device *device, struct tape_request *request,
- 			   device->cdev->dev.bus_id);
- 		return tape_3590_erp_basic(device, request, irb, -EPERM);
- 	case 0x8013:
--		PRINT_WARN("(%s): Another host has priviliged access to the "
-+		PRINT_WARN("(%s): Another host has privileged access to the "
- 			   "tape device\n", device->cdev->dev.bus_id);
- 		PRINT_WARN("(%s): To solve the problem unload the current "
- 			   "cartridge!\n", device->cdev->dev.bus_id);
-diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
-index 5287631..5eada73 100644
---- a/drivers/s390/cio/airq.c
-+++ b/drivers/s390/cio/airq.c
-@@ -23,7 +23,7 @@ static adapter_int_handler_t adapter_handler;
-  * register for adapter interrupts
-  *
-  * With HiperSockets the zSeries architecture provides for
-- *  means of adapter interrups, pseudo I/O interrupts that are
-+ *  means of adapter interrupts, pseudo I/O interrupts that are
-  *  not tied to an I/O subchannel, but to an adapter. However,
-  *  it doesn't disclose the info how to enable/disable them, but
-  *  to recognize them only. Perhaps we should consider them
-diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
-index 07fa824..8925b3a 100644
---- a/drivers/s390/scsi/zfcp_erp.c
-+++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -1285,7 +1285,7 @@ zfcp_erp_strategy_do_action(struct zfcp_erp_action *erp_action)
- 	 * note: no lock in subsequent strategy routines
- 	 * (this allows these routine to call schedule, e.g.
- 	 * kmalloc with such flags or qdio_initialize & friends)
--	 * Note: in case of timeout, the seperate strategies will fail
-+	 * Note: in case of timeout, the separate strategies will fail
- 	 * anyhow. No need for a special action. Even worse, a nameserver
- 	 * failure would not wake up waiting ports without the call.
- 	 */
-diff --git a/drivers/s390/scsi/zfcp_qdio.c b/drivers/s390/scsi/zfcp_qdio.c
-index 51d92b1..22fdc17 100644
---- a/drivers/s390/scsi/zfcp_qdio.c
-+++ b/drivers/s390/scsi/zfcp_qdio.c
-@@ -529,7 +529,7 @@ zfcp_qdio_sbals_wipe(struct zfcp_fsf_req *fsf_req)
- 
- 
- /**
-- * zfcp_qdio_sbale_fill - set address and lenght in current SBALE
-+ * zfcp_qdio_sbale_fill - set address and length in current SBALE
-  *	on request_queue
-  */
- static void
+--- a/drivers/s390/scsi/zfcp_erp.c	2007-12-20 11:15:10.000000000 +0100
++++ b/drivers/s390/scsi/zfcp_erp.c	2007-12-20 11:17:46.000000000 +0100
+@@ -846,7 +846,8 @@ zfcp_erp_strategy_check_fsfreq(struct zf
+ 	if (erp_action->fsf_req) {
+ 		/* take lock to ensure that request is not deleted meanwhile */
+ 		spin_lock(&adapter->req_list_lock);
+-		if (zfcp_reqlist_find(adapter, erp_action->fsf_req->req_id)) {
++		if (zfcp_reqlist_find_safe(adapter, erp_action->fsf_req) &&
++		    erp_action->fsf_req->erp_action == erp_action) {
+ 			/* fsf_req still exists */
+ 			debug_text_event(adapter->erp_dbf, 3, "a_ca_req");
+ 			debug_event(adapter->erp_dbf, 3, &erp_action->fsf_req,
+
 -- 
-1.5.3.7.949.g2221a6
