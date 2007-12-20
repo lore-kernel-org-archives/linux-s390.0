@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S934746AbXLTPYu@vger.kernel.org>
-Message-Id: <20071220152104.005982837@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S964892AbXLTPZe@vger.kernel.org>
+Message-Id: <20071220152105.572943094@de.ibm.com>
 References: <20071220151925.405881218@de.ibm.com>
-Date: Thu, 20 Dec 2007 16:19:30 +0100
+Date: Thu, 20 Dec 2007 16:19:37 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 05/47] cio: Reset sch->driver.
-Content-Disposition: inline; filename=104-cio-reset.diff
+Subject: [patch 12/47] cio: Set driver->owner on css, ccw and ccwgroup busses.
+Content-Disposition: inline; filename=111-cio-driver-owner.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,66 +14,75 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-sch->driver needs to be reset to NULL on failed probe and after
-remove. We also need to check for sch->driver on shutdown.
+Set the owner field in the embedded struct device_driver to the
+value provided in the {css,ccw,ccwgroup}_driver.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/css.c |   22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ drivers/s390/cio/ccwgroup.c |    1 +
+ drivers/s390/cio/css.c      |    1 +
+ drivers/s390/cio/css.h      |    1 +
+ drivers/s390/cio/device.c   |    2 ++
+ 4 files changed, 5 insertions(+)
 
+Index: quilt-2.6/drivers/s390/cio/ccwgroup.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/ccwgroup.c
++++ quilt-2.6/drivers/s390/cio/ccwgroup.c
+@@ -408,6 +408,7 @@ int ccwgroup_driver_register(struct ccwg
+ 	/* register our new driver with the core */
+ 	cdriver->driver.bus = &ccwgroup_bus_type;
+ 	cdriver->driver.name = cdriver->name;
++	cdriver->driver.owner = cdriver->owner;
+ 
+ 	return driver_register(&cdriver->driver);
+ }
 Index: quilt-2.6/drivers/s390/cio/css.c
 ===================================================================
 --- quilt-2.6.orig/drivers/s390/cio/css.c
 +++ quilt-2.6/drivers/s390/cio/css.c
-@@ -796,32 +796,36 @@ css_bus_match (struct device *dev, struc
- 	return 0;
- }
- 
--static int
--css_probe (struct device *dev)
-+static int css_probe(struct device *dev)
+@@ -862,6 +862,7 @@ int css_driver_register(struct css_drive
  {
- 	struct subchannel *sch;
-+	int ret;
- 
- 	sch = to_subchannel(dev);
- 	sch->driver = to_cssdriver(dev->driver);
--	return (sch->driver->probe ? sch->driver->probe(sch) : 0);
-+	ret = sch->driver->probe ? sch->driver->probe(sch) : 0;
-+	if (ret)
-+		sch->driver = NULL;
-+	return ret;
+ 	cdrv->drv.name = cdrv->name;
+ 	cdrv->drv.bus = &css_bus_type;
++	cdrv->drv.owner = cdrv->owner;
+ 	return driver_register(&cdrv->drv);
  }
+ EXPORT_SYMBOL_GPL(css_driver_register);
+Index: quilt-2.6/drivers/s390/cio/css.h
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/css.h
++++ quilt-2.6/drivers/s390/cio/css.h
+@@ -65,6 +65,7 @@ struct pgid {
+  */
+ struct subchannel;
+ struct css_driver {
++	struct module *owner;
+ 	unsigned int subchannel_type;
+ 	struct device_driver drv;
+ 	void (*irq)(struct subchannel *);
+Index: quilt-2.6/drivers/s390/cio/device.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/device.c
++++ quilt-2.6/drivers/s390/cio/device.c
+@@ -125,6 +125,7 @@ static void io_subchannel_ioterm(struct 
+ static void io_subchannel_shutdown(struct subchannel *);
  
--static int
--css_remove (struct device *dev)
-+static int css_remove(struct device *dev)
- {
- 	struct subchannel *sch;
-+	int ret;
+ static struct css_driver io_subchannel_driver = {
++	.owner = THIS_MODULE,
+ 	.subchannel_type = SUBCHANNEL_TYPE_IO,
+ 	.name = "io_subchannel",
+ 	.irq = io_subchannel_irq,
+@@ -1476,6 +1477,7 @@ int ccw_driver_register(struct ccw_drive
  
- 	sch = to_subchannel(dev);
--	return (sch->driver->remove ? sch->driver->remove(sch) : 0);
-+	ret = sch->driver->remove ? sch->driver->remove(sch) : 0;
-+	sch->driver = NULL;
-+	return ret;
+ 	drv->bus = &ccw_bus_type;
+ 	drv->name = cdriver->name;
++	drv->owner = cdriver->owner;
+ 
+ 	return driver_register(drv);
  }
- 
--static void
--css_shutdown (struct device *dev)
-+static void css_shutdown(struct device *dev)
- {
- 	struct subchannel *sch;
- 
- 	sch = to_subchannel(dev);
--	if (sch->driver->shutdown)
-+	if (sch->driver && sch->driver->shutdown)
- 		sch->driver->shutdown(sch);
- }
- 
 
 -- 
 blue skies,
