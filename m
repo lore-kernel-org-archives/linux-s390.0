@@ -1,153 +1,109 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1764184AbXLTP3Y@vger.kernel.org>
-Message-Id: <20071220152112.640894891@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1765214AbXLTP3o@vger.kernel.org>
+Message-Id: <20071220152112.244337812@de.ibm.com>
 References: <20071220151925.405881218@de.ibm.com>
-Date: Thu, 20 Dec 2007 16:20:09 +0100
+Date: Thu, 20 Dec 2007 16:20:07 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 44/47] single-step cleanup
-Content-Disposition: inline; filename=143-single-step.diff
+Subject: [patch 42/47] drivers/s390/: Spelling fixes
+Content-Disposition: inline; filename=141-spelling-drivers.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Roland McGrath <roland@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Joe Perches <joe@perches.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Roland McGrath <roland@redhat.com>
+From: Joe Perches <joe@perches.com>
 
-Signed-off-by: Roland McGrath <roland@redhat.com>
+Signed-off-by: Joe Perches <joe@perches.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/ptrace.c |   15 ++++++---------
- arch/s390/kernel/signal.c |   20 +++++++++++++-------
- include/asm-s390/ptrace.h |    8 ++++++++
- 3 files changed, 27 insertions(+), 16 deletions(-)
+ drivers/s390/block/dasd_3990_erp.c |    2 +-
+ drivers/s390/block/dasd_eckd.c     |    2 +-
+ drivers/s390/char/sclp_rw.c        |    2 +-
+ drivers/s390/char/tape_3590.c      |    2 +-
+ drivers/s390/scsi/zfcp_erp.c       |    2 +-
+ drivers/s390/scsi/zfcp_qdio.c      |    2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/ptrace.c
+Index: quilt-2.6/drivers/s390/block/dasd_3990_erp.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/ptrace.c
-+++ quilt-2.6/arch/s390/kernel/ptrace.c
-@@ -86,13 +86,13 @@ FixPerRegisters(struct task_struct *task
- 		per_info->control_regs.bits.storage_alt_space_ctl = 0;
+--- quilt-2.6.orig/drivers/s390/block/dasd_3990_erp.c
++++ quilt-2.6/drivers/s390/block/dasd_3990_erp.c
+@@ -2620,7 +2620,7 @@ dasd_3990_erp_handle_match_erp(struct da
+  * DASD_3990_ERP_ACTION
+  *
+  * DESCRIPTION
+- *   controll routine for 3990 erp actions.
++ *   control routine for 3990 erp actions.
+  *   Has to be called with the queue lock (namely the s390_irq_lock) acquired.
+  *
+  * PARAMETER
+Index: quilt-2.6/drivers/s390/block/dasd_eckd.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/block/dasd_eckd.c
++++ quilt-2.6/drivers/s390/block/dasd_eckd.c
+@@ -1542,7 +1542,7 @@ dasd_eckd_performance(struct dasd_device
+ 	prssdp = (struct dasd_psf_prssd_data *) cqr->data;
+ 	memset(prssdp, 0, sizeof (struct dasd_psf_prssd_data));
+ 	prssdp->order = PSF_ORDER_PRSSD;
+-	prssdp->suborder = 0x01;	/* Perfomance Statistics */
++	prssdp->suborder = 0x01;	/* Performance Statistics */
+ 	prssdp->varies[1] = 0x01;	/* Perf Statistics for the Subsystem */
+ 
+ 	ccw = cqr->cpaddr;
+Index: quilt-2.6/drivers/s390/char/sclp_rw.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/char/sclp_rw.c
++++ quilt-2.6/drivers/s390/char/sclp_rw.c
+@@ -76,7 +76,7 @@ sclp_make_buffer(void *page, unsigned sh
  }
  
--static void set_single_step(struct task_struct *task)
-+void user_enable_single_step(struct task_struct *task)
- {
- 	task->thread.per_info.single_step = 1;
- 	FixPerRegisters(task);
- }
- 
--static void clear_single_step(struct task_struct *task)
-+void user_disable_single_step(struct task_struct *task)
- {
- 	task->thread.per_info.single_step = 0;
- 	FixPerRegisters(task);
-@@ -107,7 +107,7 @@ void
- ptrace_disable(struct task_struct *child)
- {
- 	/* make sure the single step bit is not set. */
--	clear_single_step(child);
-+	user_disable_single_step(child);
- }
- 
- #ifndef CONFIG_64BIT
-@@ -651,7 +651,7 @@ do_ptrace(struct task_struct *child, lon
- 			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
- 		child->exit_code = data;
- 		/* make sure the single step bit is not set. */
--		clear_single_step(child);
-+		user_disable_single_step(child);
- 		wake_up_process(child);
- 		return 0;
- 
-@@ -665,7 +665,7 @@ do_ptrace(struct task_struct *child, lon
- 			return 0;
- 		child->exit_code = SIGKILL;
- 		/* make sure the single step bit is not set. */
--		clear_single_step(child);
-+		user_disable_single_step(child);
- 		wake_up_process(child);
- 		return 0;
- 
-@@ -675,10 +675,7 @@ do_ptrace(struct task_struct *child, lon
- 			return -EIO;
- 		clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
- 		child->exit_code = data;
--		if (data)
--			set_tsk_thread_flag(child, TIF_SINGLE_STEP);
--		else
--			set_single_step(child);
-+		user_enable_single_step(child);
- 		/* give it a chance to run. */
- 		wake_up_process(child);
- 		return 0;
-Index: quilt-2.6/arch/s390/kernel/signal.c
+ /*
+- * Return a pointer to the orignal page that has been used to create
++ * Return a pointer to the original page that has been used to create
+  * the buffer.
+  */
+ void *
+Index: quilt-2.6/drivers/s390/char/tape_3590.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/signal.c
-+++ quilt-2.6/arch/s390/kernel/signal.c
-@@ -471,6 +471,7 @@ void do_signal(struct pt_regs *regs)
- 
- 	if (signr > 0) {
- 		/* Whee!  Actually deliver the signal.  */
-+		int ret;
- #ifdef CONFIG_COMPAT
- 		if (test_thread_flag(TIF_31BIT)) {
- 			extern int handle_signal32(unsigned long sig,
-@@ -478,15 +479,12 @@ void do_signal(struct pt_regs *regs)
- 						   siginfo_t *info,
- 						   sigset_t *oldset,
- 						   struct pt_regs *regs);
--			if (handle_signal32(
--				    signr, &ka, &info, oldset, regs) == 0) {
--				if (test_thread_flag(TIF_RESTORE_SIGMASK))
--					clear_thread_flag(TIF_RESTORE_SIGMASK);
--			}
--			return;
-+			ret = handle_signal32(signr, &ka, &info, oldset, regs);
- 	        }
-+		else
- #endif
--		if (handle_signal(signr, &ka, &info, oldset, regs) == 0) {
-+			ret = handle_signal(signr, &ka, &info, oldset, regs);
-+		if (!ret) {
- 			/*
- 			 * A signal was successfully delivered; the saved
- 			 * sigmask will have been stored in the signal frame,
-@@ -495,6 +493,14 @@ void do_signal(struct pt_regs *regs)
- 			 */
- 			if (test_thread_flag(TIF_RESTORE_SIGMASK))
- 				clear_thread_flag(TIF_RESTORE_SIGMASK);
-+
-+			/*
-+			 * If we would have taken a single-step trap
-+			 * for a normal instruction, act like we took
-+			 * one for the handler setup.
-+			 */
-+			if (current->thread.per_info.single_step)
-+				set_thread_flag(TIF_SINGLE_STEP);
- 		}
- 		return;
- 	}
-Index: quilt-2.6/include/asm-s390/ptrace.h
+--- quilt-2.6.orig/drivers/s390/char/tape_3590.c
++++ quilt-2.6/drivers/s390/char/tape_3590.c
+@@ -1495,7 +1495,7 @@ tape_3590_unit_check(struct tape_device 
+ 			   device->cdev->dev.bus_id);
+ 		return tape_3590_erp_basic(device, request, irb, -EPERM);
+ 	case 0x8013:
+-		PRINT_WARN("(%s): Another host has priviliged access to the "
++		PRINT_WARN("(%s): Another host has privileged access to the "
+ 			   "tape device\n", device->cdev->dev.bus_id);
+ 		PRINT_WARN("(%s): To solve the problem unload the current "
+ 			   "cartridge!\n", device->cdev->dev.bus_id);
+Index: quilt-2.6/drivers/s390/scsi/zfcp_erp.c
 ===================================================================
---- quilt-2.6.orig/include/asm-s390/ptrace.h
-+++ quilt-2.6/include/asm-s390/ptrace.h
-@@ -465,6 +465,14 @@ struct user_regs_struct
- #ifdef __KERNEL__
- #define __ARCH_SYS_PTRACE	1
+--- quilt-2.6.orig/drivers/s390/scsi/zfcp_erp.c
++++ quilt-2.6/drivers/s390/scsi/zfcp_erp.c
+@@ -1285,7 +1285,7 @@ zfcp_erp_strategy_do_action(struct zfcp_
+ 	 * note: no lock in subsequent strategy routines
+ 	 * (this allows these routine to call schedule, e.g.
+ 	 * kmalloc with such flags or qdio_initialize & friends)
+-	 * Note: in case of timeout, the seperate strategies will fail
++	 * Note: in case of timeout, the separate strategies will fail
+ 	 * anyhow. No need for a special action. Even worse, a nameserver
+ 	 * failure would not wake up waiting ports without the call.
+ 	 */
+Index: quilt-2.6/drivers/s390/scsi/zfcp_qdio.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/scsi/zfcp_qdio.c
++++ quilt-2.6/drivers/s390/scsi/zfcp_qdio.c
+@@ -529,7 +529,7 @@ zfcp_qdio_sbals_wipe(struct zfcp_fsf_req
  
-+/*
-+ * These are defined as per linux/ptrace.h, which see.
-+ */
-+#define arch_has_single_step()	(1)
-+struct task_struct;
-+extern void user_enable_single_step(struct task_struct *);
-+extern void user_disable_single_step(struct task_struct *);
-+
- #define user_mode(regs) (((regs)->psw.mask & PSW_MASK_PSTATE) != 0)
- #define instruction_pointer(regs) ((regs)->psw.addr & PSW_ADDR_INSN)
- #define regs_return_value(regs)((regs)->gprs[2])
+ 
+ /**
+- * zfcp_qdio_sbale_fill - set address and lenght in current SBALE
++ * zfcp_qdio_sbale_fill - set address and length in current SBALE
+  *	on request_queue
+  */
+ static void
 
 -- 
 blue skies,
