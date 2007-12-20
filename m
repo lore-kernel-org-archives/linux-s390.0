@@ -1,101 +1,83 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S933981AbXLTPV7@vger.kernel.org>
-Message-Id: <20071220151925.405881218@de.ibm.com>
-Date: Thu, 20 Dec 2007 16:19:25 +0100
+Return-Path: <linux-kernel-owner+w=401wt.eu-S934167AbXLTPWe@vger.kernel.org>
+Message-Id: <20071220152103.587022017@de.ibm.com>
+References: <20071220151925.405881218@de.ibm.com>
+Date: Thu, 20 Dec 2007 16:19:28 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 00/47] s390 2.6.25 patch queue.
+Subject: [patch 03/47] cio: Use helpers instead of container_of().
+Content-Disposition: inline; filename=102-cio-helpers.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This is my set of patches in the queue for the next upstream merge
-window. Most of them are bug fixes and small changes. The last three
-patches are big and introduce an interesting new feature: hyper PAV.
-Similar to the existing PAV support in the dasd driver the new
-hyper PAV support allows to start multiple channel programs on a
-single dasd device. The major difference is that the old style PAV
-support uses static alias devices while the hyper PAV code uses
-dynamic alias devices. The shortlog:
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Christian Borntraeger (2):
-      [S390] Change vmalloc defintions
-      [S390] vmemmap: allocate struct pages before 1:1 mapping
+- Introduce to_cssdriver.
+- Use to_xxx instead of container_of where possible.
 
-Cornelia Huck (9):
-      [S390] cio: Use helpers instead of container_of().
-      [S390] cio: css_driver: Use consistent parameters.
-      [S390] cio: Reset sch->driver.
-      [S390] cio: Add css_driver_{register,unregister}.
-      [S390] cio: Cleanup debug feature usage.
-      [S390] cio: Introduce subchannel->private.
-      [S390] cio: I/O subchannel specific fields.
-      [S390] cio: Use dev_{g,s}et_drvdata().
-      [S390] cio: Set driver->owner on css, ccw and ccwgroup busses.
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
 
-Denis Cheng (1):
-      [S390] use LIST_HEAD instead of LIST_HEAD_INIT
+ drivers/s390/cio/ccwgroup.c |    4 ++--
+ drivers/s390/cio/css.c      |    6 +++---
+ drivers/s390/cio/css.h      |    2 ++
+ 3 files changed, 7 insertions(+), 5 deletions(-)
 
-Heiko Carstens (10):
-      [S390] Standby cpu activation/deactivation.
-      [S390] sclp: convert channel path configure code to use sync interface.
-      [S390] Print kernel version in dump_stack() and show_regs().
-      [S390] Get rid of HOLES_IN_ZONE requirement.
-      [S390] DEBUG_PAGEALLOC support for s390.
-      [S390] Remove owner_pc member from raw_spinlock_t.
-      [S390] Use new style spinlock initializer in __RWSEM_INITIALIZER.
-      [S390] Get rid of additional_cpus kernel parameter.
-      [S390] Remove appldata include from sysctl_check.c
-      [S390] Allocate and free cpu lowcores and stacks when needed/possible.
-
-Jan Glauber (1):
-      [S390] crypto: move s390 Kconfig options.
-
-Joe Perches (5):
-      [S390] arch/s390: Add missing "space"
-      [S390] drivers/s390: Add missing "space"
-      [S390] arch/s390/: Spelling fixes
-      [S390] include/asm-s390/: Spelling fixes
-      [S390] drivers/s390/: Spelling fixes
-
-Martin Schwidefsky (3):
-      [S390] Optimize reference bit handling.
-      [S390] Fix tlb flushing with idte.
-      [S390] Move NOTES and BUG_TABLE.
-
-Michael Ernst (1):
-      [S390] sclp: sysfs interface for SCLP cpi
-
-Michael Holzheu (4):
-      [S390] kernel: Shutdown Actions Interface
-      [S390] Load disabled wait psw instead of stopping cpu on halt.
-      [S390] Initialize sclp_ipl_info
-      [S390] Use diag308 subcodes 3 and 6 for reboot and dump when possible.
-
-Peter Oberparleiter (2):
-      [S390] cio: Extend adapter interrupt interface.
-      [S390] cio: reduce cpu utilization during device scan
-
-Roland McGrath (1):
-      [S390] single-step cleanup
-
-Sebastian Ott (3):
-      [S390] Cleanup in Documentation/kernel-parameters.txt.
-      [S390] cio: Dump ccw device information in case of timeout.
-      [S390] qdio: Remove double checked value.
-
-Stefan Haberland (1):
-      [S390] dasd: fix return value of dasd_generic_probe()
-
-Stefan Weinhuber (3):
-      [S390] dasd: add hyper PAV support to DASD device driver, part 1
-      [S390] dasd: add hyper PAV support to DASD device driver, part 2
-      [S390] dasd: add hyper PAV support to DASD device driver, part 3
-
-Ursula Braun (1):
-      [S390] qdio: set QDIO_ACTIVATE_TIMEOUT to 5s
-
-Have fun and merry xmas.
+Index: quilt-2.6/drivers/s390/cio/ccwgroup.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/ccwgroup.c
++++ quilt-2.6/drivers/s390/cio/ccwgroup.c
+@@ -35,8 +35,8 @@ ccwgroup_bus_match (struct device * dev,
+ 	struct ccwgroup_device *gdev;
+ 	struct ccwgroup_driver *gdrv;
+ 
+-	gdev = container_of(dev, struct ccwgroup_device, dev);
+-	gdrv = container_of(drv, struct ccwgroup_driver, driver);
++	gdev = to_ccwgroupdev(dev);
++	gdrv = to_ccwgroupdrv(drv);
+ 
+ 	if (gdev->creator_id == gdrv->driver_id)
+ 		return 1;
+Index: quilt-2.6/drivers/s390/cio/css.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/css.c
++++ quilt-2.6/drivers/s390/cio/css.c
+@@ -787,8 +787,8 @@ int sch_is_pseudo_sch(struct subchannel 
+ static int
+ css_bus_match (struct device *dev, struct device_driver *drv)
+ {
+-	struct subchannel *sch = container_of (dev, struct subchannel, dev);
+-	struct css_driver *driver = container_of (drv, struct css_driver, drv);
++	struct subchannel *sch = to_subchannel(dev);
++	struct css_driver *driver = to_cssdriver(drv);
+ 
+ 	if (sch->st == driver->subchannel_type)
+ 		return 1;
+@@ -802,7 +802,7 @@ css_probe (struct device *dev)
+ 	struct subchannel *sch;
+ 
+ 	sch = to_subchannel(dev);
+-	sch->driver = container_of (dev->driver, struct css_driver, drv);
++	sch->driver = to_cssdriver(dev->driver);
+ 	return (sch->driver->probe ? sch->driver->probe(sch) : 0);
+ }
+ 
+Index: quilt-2.6/drivers/s390/cio/css.h
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/css.h
++++ quilt-2.6/drivers/s390/cio/css.h
+@@ -134,6 +134,8 @@ struct css_driver {
+ 	void (*shutdown)(struct subchannel *);
+ };
+ 
++#define to_cssdriver(n) container_of(n, struct css_driver, drv)
++
+ /*
+  * all css_drivers have the css_bus_type
+  */
 
 -- 
 blue skies,
