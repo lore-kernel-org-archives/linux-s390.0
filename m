@@ -1,224 +1,183 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756511AbYBEPnF@vger.kernel.org>
-Message-Id: <20080205153912.819982302@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758756AbYBEPn3@vger.kernel.org>
+Message-Id: <20080205153914.927756387@de.ibm.com>
 References: <20080205153835.337897404@de.ibm.com>
-Date: Tue, 05 Feb 2008 16:38:43 +0100
+Date: Tue, 05 Feb 2008 16:38:49 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 08/18] Fix couple of section mismatches.
-Content-Disposition: inline; filename=008-section.diff
+Subject: [patch 14/18] dasd: add ifcc handling
+Content-Disposition: inline; filename=014-dasd-ifcc.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Michael Holzheu <holzheu@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Stefan Haberland <stefan.haberland@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Stefan Haberland <stefan.haberland@de.ibm.com>
 
-Fix couple of section mismatches. And since we touch the code
-anyway change the IPL code to use C99 initializers.
+Adding interface control check (ifcc) handling in error recovery.
+First retry up to 255 times and if all retries fail try an alternate
+path if possible.
 
-Cc: Michael Holzheu <holzheu@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Stefan Haberland <stefan.haberland@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/entry.S   |    7 ++-----
- arch/s390/kernel/entry64.S |    7 ++-----
- arch/s390/kernel/ipl.c     |   27 ++++++++++++++++++---------
- arch/s390/kernel/setup.c   |    2 +-
- arch/s390/kernel/smp.c     |    6 +++---
- arch/s390/mm/vmem.c        |    2 +-
- 6 files changed, 27 insertions(+), 24 deletions(-)
+ drivers/s390/block/dasd.c          |   17 +++-------
+ drivers/s390/block/dasd_3990_erp.c |   62 +++++++++++++++++++++++++++----------
+ 2 files changed, 52 insertions(+), 27 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/entry64.S
+Index: quilt-2.6/drivers/s390/block/dasd_3990_erp.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/entry64.S
-+++ quilt-2.6/arch/s390/kernel/entry64.S
-@@ -11,6 +11,7 @@
+--- quilt-2.6.orig/drivers/s390/block/dasd_3990_erp.c
++++ quilt-2.6/drivers/s390/block/dasd_3990_erp.c
+@@ -164,7 +164,7 @@ dasd_3990_erp_alternate_path(struct dasd
  
- #include <linux/sys.h>
- #include <linux/linkage.h>
-+#include <linux/init.h>
- #include <asm/cache.h>
- #include <asm/lowcore.h>
- #include <asm/errno.h>
-@@ -801,9 +802,7 @@ mcck_return:
-  * Restart interruption handler, kick starter for additional CPUs
+ 		/* reset status to submit the request again... */
+ 		erp->status = DASD_CQR_FILLED;
+-		erp->retries = 1;
++		erp->retries = 10;
+ 	} else {
+ 		DEV_MESSAGE(KERN_ERR, device,
+ 			    "No alternate channel path left (lpum=%x / "
+@@ -301,8 +301,7 @@ dasd_3990_erp_action_4(struct dasd_ccw_r
+ 		erp->function = dasd_3990_erp_action_4;
+ 
+ 	} else {
+-
+-		if (sense[25] == 0x1D) {	/* state change pending */
++		if (sense && (sense[25] == 0x1D)) { /* state change pending */
+ 
+ 			DEV_MESSAGE(KERN_INFO, device,
+ 				    "waiting for state change pending "
+@@ -311,7 +310,7 @@ dasd_3990_erp_action_4(struct dasd_ccw_r
+ 
+ 			dasd_3990_erp_block_queue(erp, 30*HZ);
+ 
+-                } else if (sense[25] == 0x1E) {	/* busy */
++		} else if (sense && (sense[25] == 0x1E)) {	/* busy */
+ 			DEV_MESSAGE(KERN_INFO, device,
+ 				    "busy - redriving request later, "
+ 				    "%d retries left",
+@@ -2120,6 +2119,34 @@ dasd_3990_erp_inspect_32(struct dasd_ccw
   */
- #ifdef CONFIG_SMP
--#ifndef CONFIG_HOTPLUG_CPU
--	.section .init.text,"ax"
--#endif
-+	__CPUINIT
- 	.globl restart_int_handler
- restart_int_handler:
- 	lg	%r15,__LC_SAVE_AREA+120 # load ksp
-@@ -814,9 +813,7 @@ restart_int_handler:
- 	lmg	%r6,%r15,__SF_GPRS(%r15) # load registers from clone
- 	stosm	__SF_EMPTY(%r15),0x04	# now we can turn dat on
- 	jg	start_secondary
--#ifndef CONFIG_HOTPLUG_CPU
- 	.previous
--#endif
- #else
- /*
-  * If we do not run with SMP enabled, let the new CPU crash ...
-Index: quilt-2.6/arch/s390/kernel/entry.S
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/entry.S
-+++ quilt-2.6/arch/s390/kernel/entry.S
-@@ -11,6 +11,7 @@
- 
- #include <linux/sys.h>
- #include <linux/linkage.h>
-+#include <linux/init.h>
- #include <asm/cache.h>
- #include <asm/lowcore.h>
- #include <asm/errno.h>
-@@ -830,9 +831,7 @@ mcck_return:
-  * Restart interruption handler, kick starter for additional CPUs
-  */
- #ifdef CONFIG_SMP
--#ifndef CONFIG_HOTPLUG_CPU
--	.section .init.text,"ax"
--#endif
-+	__CPUINIT
- 	.globl restart_int_handler
- restart_int_handler:
- 	l	%r15,__LC_SAVE_AREA+60	# load ksp
-@@ -845,9 +844,7 @@ restart_int_handler:
- 	br	%r14			# branch to start_secondary
- restart_addr:
- 	.long	start_secondary
--#ifndef CONFIG_HOTPLUG_CPU
- 	.previous
--#endif
- #else
- /*
-  * If we do not run with SMP enabled, let the new CPU crash ...
-Index: quilt-2.6/arch/s390/kernel/ipl.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/ipl.c
-+++ quilt-2.6/arch/s390/kernel/ipl.c
-@@ -439,7 +439,7 @@ static void ipl_run(struct shutdown_trig
- 		reipl_ccw_dev(&ipl_info.data.ccw.dev_id);
- }
- 
--static int ipl_init(void)
-+static int __init ipl_init(void)
- {
- 	int rc;
- 
-@@ -471,8 +471,11 @@ out:
- 	return 0;
- }
- 
--static struct shutdown_action ipl_action = {SHUTDOWN_ACTION_IPL_STR, ipl_run,
--					    ipl_init};
-+static struct shutdown_action __refdata ipl_action = {
-+	.name	= SHUTDOWN_ACTION_IPL_STR,
-+	.fn	= ipl_run,
-+	.init	= ipl_init,
-+};
  
  /*
-  * reipl shutdown action: Reboot Linux on shutdown.
-@@ -792,7 +795,7 @@ static int __init reipl_fcp_init(void)
- 	return 0;
- }
++ * DASD_3990_ERP_CONTROL_CHECK
++ *
++ * DESCRIPTION
++ *   Does a generic inspection if a control check occured and sets up
++ *   the related error recovery procedure
++ *
++ * PARAMETER
++ *   erp		pointer to the currently created default ERP
++ *
++ * RETURN VALUES
++ *   erp_filled		pointer to the erp
++ */
++
++static struct dasd_ccw_req *
++dasd_3990_erp_control_check(struct dasd_ccw_req *erp)
++{
++	struct dasd_device *device = erp->startdev;
++
++	if (erp->refers->irb.scsw.cstat & (SCHN_STAT_INTF_CTRL_CHK
++					   | SCHN_STAT_CHN_CTRL_CHK)) {
++		DEV_MESSAGE(KERN_DEBUG, device, "%s",
++			    "channel or interface control check");
++		erp = dasd_3990_erp_action_4(erp, NULL);
++	}
++	return erp;
++}
++
++/*
+  * DASD_3990_ERP_INSPECT
+  *
+  * DESCRIPTION
+@@ -2145,8 +2172,11 @@ dasd_3990_erp_inspect(struct dasd_ccw_re
+ 	if (erp_new)
+ 		return erp_new;
  
--static int reipl_init(void)
-+static int __init reipl_init(void)
- {
- 	int rc;
++	/* check if no concurrent sens is available */
++	if (!erp->refers->irb.esw.esw0.erw.cons)
++		erp_new = dasd_3990_erp_control_check(erp);
+ 	/* distinguish between 24 and 32 byte sense data */
+-	if (sense[27] & DASD_SENSE_BIT_0) {
++	else if (sense[27] & DASD_SENSE_BIT_0) {
  
-@@ -819,8 +822,11 @@ static int reipl_init(void)
- 	return 0;
- }
- 
--static struct shutdown_action reipl_action = {SHUTDOWN_ACTION_REIPL_STR,
--					      reipl_run, reipl_init};
-+static struct shutdown_action __refdata reipl_action = {
-+	.name	= SHUTDOWN_ACTION_REIPL_STR,
-+	.fn	= reipl_run,
-+	.init	= reipl_init,
-+};
- 
- /*
-  * dump shutdown action: Dump Linux on shutdown.
-@@ -998,7 +1004,7 @@ static int __init dump_fcp_init(void)
- 	return 0;
- }
- 
--static int dump_init(void)
-+static int __init dump_init(void)
- {
- 	int rc;
- 
-@@ -1020,8 +1026,11 @@ static int dump_init(void)
- 	return 0;
- }
- 
--static struct shutdown_action dump_action = {SHUTDOWN_ACTION_DUMP_STR,
--					     dump_run, dump_init};
-+static struct shutdown_action __refdata dump_action = {
-+	.name	= SHUTDOWN_ACTION_DUMP_STR,
-+	.fn	= dump_run,
-+	.init	= dump_init,
-+};
- 
- /*
-  * vmcmd shutdown action: Trigger vm command on shutdown.
-Index: quilt-2.6/arch/s390/kernel/setup.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/setup.c
-+++ quilt-2.6/arch/s390/kernel/setup.c
-@@ -77,7 +77,7 @@ unsigned long machine_flags = 0;
- unsigned long elf_hwcap = 0;
- char elf_platform[ELF_PLATFORM_SIZE];
- 
--struct mem_chunk __initdata memory_chunk[MEMORY_CHUNKS];
-+struct mem_chunk __meminitdata memory_chunk[MEMORY_CHUNKS];
- volatile int __cpu_logical_map[NR_CPUS]; /* logical cpu to cpu address */
- static unsigned long __initdata memory_end;
- 
-Index: quilt-2.6/arch/s390/kernel/smp.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/smp.c
-+++ quilt-2.6/arch/s390/kernel/smp.c
-@@ -1007,7 +1007,7 @@ static struct notifier_block __cpuinitda
- 	.notifier_call = smp_cpu_notify,
- };
- 
--static int smp_add_present_cpu(int cpu)
-+static int __devinit smp_add_present_cpu(int cpu)
- {
- 	struct cpu *c = &per_cpu(cpu_devices, cpu);
- 	struct sys_device *s = &c->sysdev;
-@@ -1035,8 +1035,8 @@ out:
- }
- 
- #ifdef CONFIG_HOTPLUG_CPU
--static ssize_t rescan_store(struct sys_device *dev, const char *buf,
--			    size_t count)
-+static ssize_t __ref rescan_store(struct sys_device *dev,
-+				  const char *buf, size_t count)
- {
- 	cpumask_t newcpus;
- 	int cpu;
-Index: quilt-2.6/arch/s390/mm/vmem.c
-===================================================================
---- quilt-2.6.orig/arch/s390/mm/vmem.c
-+++ quilt-2.6/arch/s390/mm/vmem.c
-@@ -62,7 +62,7 @@ void __meminit memmap_init(unsigned long
+ 		/* inspect the 24 byte sense data */
+ 		erp_new = dasd_3990_erp_inspect_24(erp, sense);
+@@ -2285,6 +2315,17 @@ dasd_3990_erp_error_match(struct dasd_cc
+ 		//	return 0;	/* CCW doesn't match */
  	}
- }
  
--static void __init_refok *vmem_alloc_pages(unsigned int order)
-+static void __ref *vmem_alloc_pages(unsigned int order)
- {
- 	if (slab_is_available())
- 		return (void *)__get_free_pages(GFP_KERNEL, order);
++	if (cqr1->irb.esw.esw0.erw.cons != cqr2->irb.esw.esw0.erw.cons)
++		return 0;
++
++	if ((cqr1->irb.esw.esw0.erw.cons == 0) &&
++	    (cqr2->irb.esw.esw0.erw.cons == 0))	{
++		if ((cqr1->irb.scsw.cstat & (SCHN_STAT_INTF_CTRL_CHK |
++					     SCHN_STAT_CHN_CTRL_CHK)) ==
++		    (cqr2->irb.scsw.cstat & (SCHN_STAT_INTF_CTRL_CHK |
++					     SCHN_STAT_CHN_CTRL_CHK)))
++			return 1; /* match with ifcc*/
++	}
+ 	/* check sense data; byte 0-2,25,27 */
+ 	if (!((memcmp (cqr1->irb.ecw, cqr2->irb.ecw, 3) == 0) &&
+ 	      (cqr1->irb.ecw[27] == cqr2->irb.ecw[27]) &&
+@@ -2560,17 +2601,6 @@ dasd_3990_erp_action(struct dasd_ccw_req
+ 
+ 		return cqr;
+ 	}
+-	/* check if sense data are available */
+-	if (!cqr->irb.ecw) {
+-		DEV_MESSAGE(KERN_DEBUG, device,
+-			    "ERP called witout sense data avail ..."
+-			    "request %p - NO ERP possible", cqr);
+-
+-		cqr->status = DASD_CQR_FAILED;
+-
+-		return cqr;
+-
+-	}
+ 
+ 	/* check if error happened before */
+ 	erp = dasd_3990_erp_in_erp(cqr);
+Index: quilt-2.6/drivers/s390/block/dasd.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/block/dasd.c
++++ quilt-2.6/drivers/s390/block/dasd.c
+@@ -1057,12 +1057,11 @@ void dasd_int_handler(struct ccw_device 
+ 		if (device->features & DASD_FEATURE_ERPLOG) {
+ 			dasd_log_sense(cqr, irb);
+ 		}
+-		/* If we have no sense data, or we just don't want complex ERP
+-		 * for this request, but if we have retries left, then just
+-		 * reset this request and retry it in the fastpath
++		/*
++		 * If we don't want complex ERP for this request, then just
++		 * reset this and retry it in the fastpath
+ 		 */
+-		if (!(cqr->irb.esw.esw0.erw.cons &&
+-		      test_bit(DASD_CQR_FLAGS_USE_ERP, &cqr->flags)) &&
++		if (!test_bit(DASD_CQR_FLAGS_USE_ERP, &cqr->flags) &&
+ 		    cqr->retries > 0) {
+ 			DEV_MESSAGE(KERN_DEBUG, device,
+ 				    "default ERP in fastpath (%i retries left)",
+@@ -1742,12 +1741,8 @@ restart:
+ 
+ 		/*  Process requests that may be recovered */
+ 		if (cqr->status == DASD_CQR_NEED_ERP) {
+-			if (cqr->irb.esw.esw0.erw.cons &&
+-			    test_bit(DASD_CQR_FLAGS_USE_ERP,
+-				     &cqr->flags)) {
+-				erp_fn = base->discipline->erp_action(cqr);
+-				erp_fn(cqr);
+-			}
++			erp_fn = base->discipline->erp_action(cqr);
++			erp_fn(cqr);
+ 			goto restart;
+ 		}
+ 
 
 -- 
 blue skies,
