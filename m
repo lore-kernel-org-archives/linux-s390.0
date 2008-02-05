@@ -1,96 +1,102 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758858AbYBEPns@vger.kernel.org>
-Message-Id: <20080205153916.234022436@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758979AbYBEPoF@vger.kernel.org>
+Message-Id: <20080205153915.892066661@de.ibm.com>
 References: <20080205153835.337897404@de.ibm.com>
-Date: Tue, 05 Feb 2008 16:38:53 +0100
+Date: Tue, 05 Feb 2008 16:38:52 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 18/18] dcss: Initialize workqueue before using it.
-Content-Disposition: inline; filename=018-dcss-workqueue.diff
+Subject: [patch 17/18] Remove BUILD_BUG_ON() in vmem code.
+Content-Disposition: inline; filename=017-vmem-bug.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Gerald Schaefer <geraldsc@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-In case a dcss segment cannot be loaded blk_cleanup_queue
-will be called before blk_queue_make_request, leaving the
-struct work unplug_work of the request queue uninitialized
-before it is used.
-That leads also to the lockdep message below.
-To avoid that call blk_queue_make_request right after the
-request_queue has been allocated. 
-This makes sure that the struct work is always initialized
-before it is used.
+Remove BUILD_BUG_ON() in vmem code since it causes build failures if
+the size of struct page increases. Instead calculate at compile time
+the address of the highest physical address that can be added to the
+1:1 mapping.
+This supposed to fix a build failure with the page owner tracking leak
+detector patches as reported by akpm.
 
-INFO: trying to register non-static key.
-the code is fine but needs lockdep annotation.
-turning off the locking correctness validator.
-CPU: 2 Not tainted 2.6.24 #6
-Process swapper (pid: 1, task: 000000000f854038, ksp: 000000000f85f980)
-040000000f85f860 000000000f85f880 0000000000000002 0000000000000000 
-       000000000f85f920 000000000f85f898 000000000f85f898 000000000001622e 
-       0000000000000000 000000000f85f980 0000000000000000 0000000000000000 
-       000000000f85f880 000000000000000c 000000000f85f880 000000000f85f8f0 
-       0000000000342908 000000000001622e 000000000f85f880 000000000f85f8d0 
-Call Trace:
-([<000000000001619e>] show_trace+0xda/0x104)
- [<0000000000016288>] show_stack+0xc0/0xf8
- [<00000000000163d0>] dump_stack+0xb0/0xc0
- [<000000000006e4ea>] __lock_acquire+0x47e/0x1160
- [<000000000006f27c>] lock_acquire+0xb0/0xd8
- [<000000000005a522>] __cancel_work_timer+0x9e/0x240
- [<000000000005a72e>] cancel_work_sync+0x2a/0x3c
- [<0000000000165c46>] kblockd_flush_work+0x26/0x34
- [<0000000000169034>] blk_sync_queue+0x38/0x48
- [<0000000000169080>] blk_release_queue+0x3c/0xa8
- [<000000000017bce8>] kobject_cleanup+0x58/0xac
- [<000000000017bd66>] kobject_release+0x2a/0x38
- [<000000000017d28e>] kref_put+0x6e/0x94
- [<000000000017bc80>] kobject_put+0x38/0x48
- [<00000000001653be>] blk_put_queue+0x2a/0x38
- [<0000000000168fee>] blk_cleanup_queue+0x82/0x90
- [<0000000000213e7e>] dcssblk_add_store+0x34e/0x700
- [<00000000005243b8>] dcssblk_init+0x1a0/0x308
- [<000000000050a3c2>] kernel_init+0x1b2/0x3a4
- [<000000000001ac82>] kernel_thread_starter+0x6/0xc
- [<000000000001ac7c>] kernel_thread_starter+0x0/0xc
+page-owner-tracking-leak-detector-broken-on-s390.patch can be removed
+from -mm again when this is merged.
 
-INFO: lockdep is turned off.
-
-Cc: Gerald Schaefer <geraldsc@de.ibm.com>
-Cc: Carsten Otte <cotte@de.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/dcssblk.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/s390/kernel/setup.c   |    2 +-
+ arch/s390/mm/vmem.c        |    3 +--
+ include/asm-s390/pgtable.h |   12 +++++++++---
+ 3 files changed, 11 insertions(+), 6 deletions(-)
 
-Index: quilt-2.6/drivers/s390/block/dcssblk.c
+Index: quilt-2.6/arch/s390/kernel/setup.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/block/dcssblk.c
-+++ quilt-2.6/drivers/s390/block/dcssblk.c
-@@ -415,6 +415,8 @@ dcssblk_add_store(struct device *dev, st
- 	dev_info->gd->queue = dev_info->dcssblk_queue;
- 	dev_info->gd->private_data = dev_info;
- 	dev_info->gd->driverfs_dev = &dev_info->dev;
-+	blk_queue_make_request(dev_info->dcssblk_queue, dcssblk_make_request);
-+	blk_queue_hardsect_size(dev_info->dcssblk_queue, 4096);
+--- quilt-2.6.orig/arch/s390/kernel/setup.c
++++ quilt-2.6/arch/s390/kernel/setup.c
+@@ -528,7 +528,7 @@ static void __init setup_memory_end(void
+ 	memory_size = 0;
+ 	memory_end &= PAGE_MASK;
+ 
+-	max_mem = memory_end ? min(VMALLOC_START, memory_end) : VMALLOC_START;
++	max_mem = memory_end ? min(VMEM_MAX_PHYS, memory_end) : VMEM_MAX_PHYS;
+ 	memory_end = min(max_mem, memory_end);
+ 
  	/*
- 	 * load the segment
- 	 */
-@@ -472,9 +474,6 @@ dcssblk_add_store(struct device *dev, st
- 	if (rc)
- 		goto unregister_dev;
+Index: quilt-2.6/arch/s390/mm/vmem.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/mm/vmem.c
++++ quilt-2.6/arch/s390/mm/vmem.c
+@@ -250,7 +250,7 @@ static int insert_memory_segment(struct 
+ {
+ 	struct memory_segment *tmp;
  
--	blk_queue_make_request(dev_info->dcssblk_queue, dcssblk_make_request);
--	blk_queue_hardsect_size(dev_info->dcssblk_queue, 4096);
--
- 	add_disk(dev_info->gd);
+-	if (seg->start + seg->size >= VMALLOC_START ||
++	if (seg->start + seg->size >= VMEM_MAX_PHYS ||
+ 	    seg->start + seg->size < seg->start)
+ 		return -ERANGE;
  
- 	switch (dev_info->segment_type) {
+@@ -360,7 +360,6 @@ void __init vmem_map_init(void)
+ {
+ 	int i;
+ 
+-	BUILD_BUG_ON((unsigned long)VMEM_MAP + VMEM_MAP_SIZE > VMEM_MAP_MAX);
+ 	NODE_DATA(0)->node_mem_map = VMEM_MAP;
+ 	for (i = 0; i < MEMORY_CHUNKS && memory_chunk[i].size > 0; i++)
+ 		vmem_add_mem(memory_chunk[i].addr, memory_chunk[i].size);
+Index: quilt-2.6/include/asm-s390/pgtable.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/pgtable.h
++++ quilt-2.6/include/asm-s390/pgtable.h
+@@ -115,15 +115,21 @@ extern char empty_zero_page[PAGE_SIZE];
+ #ifndef __s390x__
+ #define VMALLOC_START	0x78000000UL
+ #define VMALLOC_END	0x7e000000UL
+-#define VMEM_MAP_MAX	0x80000000UL
++#define VMEM_MAP_END	0x80000000UL
+ #else /* __s390x__ */
+ #define VMALLOC_START	0x3e000000000UL
+ #define VMALLOC_END	0x3e040000000UL
+-#define VMEM_MAP_MAX	0x40000000000UL
++#define VMEM_MAP_END	0x40000000000UL
+ #endif /* __s390x__ */
+ 
++/*
++ * VMEM_MAX_PHYS is the highest physical address that can be added to the 1:1
++ * mapping. This needs to be calculated at compile time since the size of the
++ * VMEM_MAP is static but the size of struct page can change.
++ */
++#define VMEM_MAX_PHYS	min(VMALLOC_START, ((VMEM_MAP_END - VMALLOC_END) / \
++			  sizeof(struct page) * PAGE_SIZE) & ~((16 << 20) - 1))
+ #define VMEM_MAP	((struct page *) VMALLOC_END)
+-#define VMEM_MAP_SIZE	((VMALLOC_START / PAGE_SIZE) * sizeof(struct page))
+ 
+ /*
+  * A 31 bit pagetable entry of S390 has following format:
 
 -- 
 blue skies,
