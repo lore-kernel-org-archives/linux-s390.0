@@ -1,102 +1,93 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758979AbYBEPoF@vger.kernel.org>
-Message-Id: <20080205153915.892066661@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759138AbYBEPo3@vger.kernel.org>
+Message-Id: <20080205153915.575520030@de.ibm.com>
 References: <20080205153835.337897404@de.ibm.com>
-Date: Tue, 05 Feb 2008 16:38:52 +0100
+Date: Tue, 05 Feb 2008 16:38:51 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 17/18] Remove BUILD_BUG_ON() in vmem code.
-Content-Disposition: inline; filename=017-vmem-bug.diff
+Subject: [patch 16/18] sclp_tty/sclp_vt220: Fix scheduling while atomic
+Content-Disposition: inline; filename=016-vt220-full.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-Remove BUILD_BUG_ON() in vmem code since it causes build failures if
-the size of struct page increases. Instead calculate at compile time
-the address of the highest physical address that can be added to the
-1:1 mapping.
-This supposed to fix a build failure with the page owner tracking leak
-detector patches as reported by akpm.
+Under load the following bug message appeared while using sysrq-t:
 
-page-owner-tracking-leak-detector-broken-on-s390.patch can be removed
-from -mm again when this is merged.
+BUG: scheduling while atomic: bash/3662/0x00000004
+0000000000105b74 000000003ba17740 0000000000000002 0000000000000000
+       000000003ba177e0 000000003ba17758 000000003ba17758 0000000000105bfe
+       0000000000817ba8 000000003f2a5350 0000000000000000 0000000000000000
+       000000003ba17740 000000000000000c 000000003ba17740 000000003ba177b0
+       0000000000568630 0000000000105bfe 000000003ba17740 000000003ba17790
+Call Trace:
+([<0000000000105b74>] show_trace+0x13c/0x158)
+ [<0000000000105c58>] show_stack+0xc8/0xfc
+ [<0000000000105cbc>] dump_stack+0x30/0x40
+ [<000000000012a0c8>] __schedule_bug+0x84/0x94
+ [<000000000056234e>] schedule+0x5ea/0x970
+ [<0000000000477cd2>] __sclp_vt220_write+0x1f6/0x3ec
+ [<0000000000477f00>] sclp_vt220_con_write+0x38/0x48
+ [<0000000000130b4a>] __call_console_drivers+0xbe/0xd8
+ [<0000000000130bf0>] _call_console_drivers+0x8c/0xd0
+ [<0000000000130eea>] release_console_sem+0x1a6/0x2fc
+ [<0000000000131786>] vprintk+0x262/0x480
+ [<00000000001319fa>] printk+0x56/0x68
+ [<0000000000125aaa>] print_cfs_rq+0x45e/0x4a4
+ [<000000000012614e>] sched_debug_show+0x65e/0xee8
+ [<000000000012a8fc>] show_state_filter+0x1cc/0x1f0
+ [<000000000044d39c>] sysrq_handle_showstate+0x2c/0x3c
+ [<000000000044d1fe>] __handle_sysrq+0xae/0x18c
+ [<00000000002001f2>] write_sysrq_trigger+0x8a/0x90
+ [<00000000001f7862>] proc_reg_write+0x9a/0xc4
+ [<00000000001a83d4>] vfs_write+0xb8/0x174
+ [<00000000001a8b88>] sys_write+0x58/0x8c
+ [<0000000000112e7c>] sysc_noemu+0x10/0x16
+ [<0000020000116f68>] 0x20000116f68
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+The problem seems to be, that with a full console buffer, release_console_sem
+disables interrupts with spin_lock_irqsave and then calls the console function
+without enabling interrupts. __sclp_vt220_write checks for in_interrupt, to
+decide if it can schedule. It should check for in_atomic instead.
+
+The same is true for sclp_tty.c.
+
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/setup.c   |    2 +-
- arch/s390/mm/vmem.c        |    3 +--
- include/asm-s390/pgtable.h |   12 +++++++++---
- 3 files changed, 11 insertions(+), 6 deletions(-)
+ drivers/s390/char/sclp_tty.c   |    2 +-
+ drivers/s390/char/sclp_vt220.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/setup.c
+Index: quilt-2.6/drivers/s390/char/sclp_tty.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/setup.c
-+++ quilt-2.6/arch/s390/kernel/setup.c
-@@ -528,7 +528,7 @@ static void __init setup_memory_end(void
- 	memory_size = 0;
- 	memory_end &= PAGE_MASK;
- 
--	max_mem = memory_end ? min(VMALLOC_START, memory_end) : VMALLOC_START;
-+	max_mem = memory_end ? min(VMEM_MAX_PHYS, memory_end) : VMEM_MAX_PHYS;
- 	memory_end = min(max_mem, memory_end);
- 
- 	/*
-Index: quilt-2.6/arch/s390/mm/vmem.c
+--- quilt-2.6.orig/drivers/s390/char/sclp_tty.c
++++ quilt-2.6/drivers/s390/char/sclp_tty.c
+@@ -332,7 +332,7 @@ sclp_tty_write_string(const unsigned cha
+ 		if (sclp_ttybuf == NULL) {
+ 			while (list_empty(&sclp_tty_pages)) {
+ 				spin_unlock_irqrestore(&sclp_tty_lock, flags);
+-				if (in_interrupt())
++				if (in_atomic())
+ 					sclp_sync_wait();
+ 				else
+ 					wait_event(sclp_tty_waitq,
+Index: quilt-2.6/drivers/s390/char/sclp_vt220.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/mm/vmem.c
-+++ quilt-2.6/arch/s390/mm/vmem.c
-@@ -250,7 +250,7 @@ static int insert_memory_segment(struct 
- {
- 	struct memory_segment *tmp;
- 
--	if (seg->start + seg->size >= VMALLOC_START ||
-+	if (seg->start + seg->size >= VMEM_MAX_PHYS ||
- 	    seg->start + seg->size < seg->start)
- 		return -ERANGE;
- 
-@@ -360,7 +360,6 @@ void __init vmem_map_init(void)
- {
- 	int i;
- 
--	BUILD_BUG_ON((unsigned long)VMEM_MAP + VMEM_MAP_SIZE > VMEM_MAP_MAX);
- 	NODE_DATA(0)->node_mem_map = VMEM_MAP;
- 	for (i = 0; i < MEMORY_CHUNKS && memory_chunk[i].size > 0; i++)
- 		vmem_add_mem(memory_chunk[i].addr, memory_chunk[i].size);
-Index: quilt-2.6/include/asm-s390/pgtable.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/pgtable.h
-+++ quilt-2.6/include/asm-s390/pgtable.h
-@@ -115,15 +115,21 @@ extern char empty_zero_page[PAGE_SIZE];
- #ifndef __s390x__
- #define VMALLOC_START	0x78000000UL
- #define VMALLOC_END	0x7e000000UL
--#define VMEM_MAP_MAX	0x80000000UL
-+#define VMEM_MAP_END	0x80000000UL
- #else /* __s390x__ */
- #define VMALLOC_START	0x3e000000000UL
- #define VMALLOC_END	0x3e040000000UL
--#define VMEM_MAP_MAX	0x40000000000UL
-+#define VMEM_MAP_END	0x40000000000UL
- #endif /* __s390x__ */
- 
-+/*
-+ * VMEM_MAX_PHYS is the highest physical address that can be added to the 1:1
-+ * mapping. This needs to be calculated at compile time since the size of the
-+ * VMEM_MAP is static but the size of struct page can change.
-+ */
-+#define VMEM_MAX_PHYS	min(VMALLOC_START, ((VMEM_MAP_END - VMALLOC_END) / \
-+			  sizeof(struct page) * PAGE_SIZE) & ~((16 << 20) - 1))
- #define VMEM_MAP	((struct page *) VMALLOC_END)
--#define VMEM_MAP_SIZE	((VMALLOC_START / PAGE_SIZE) * sizeof(struct page))
- 
- /*
-  * A 31 bit pagetable entry of S390 has following format:
+--- quilt-2.6.orig/drivers/s390/char/sclp_vt220.c
++++ quilt-2.6/drivers/s390/char/sclp_vt220.c
+@@ -400,7 +400,7 @@ __sclp_vt220_write(const unsigned char *
+ 			while (list_empty(&sclp_vt220_empty)) {
+ 				spin_unlock_irqrestore(&sclp_vt220_lock,
+ 						       flags);
+-				if (in_interrupt())
++				if (in_atomic())
+ 					sclp_sync_wait();
+ 				else
+ 					wait_event(sclp_vt220_waitq,
 
 -- 
 blue skies,
