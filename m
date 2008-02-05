@@ -1,183 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758756AbYBEPn3@vger.kernel.org>
-Message-Id: <20080205153914.927756387@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758858AbYBEPns@vger.kernel.org>
+Message-Id: <20080205153916.234022436@de.ibm.com>
 References: <20080205153835.337897404@de.ibm.com>
-Date: Tue, 05 Feb 2008 16:38:49 +0100
+Date: Tue, 05 Feb 2008 16:38:53 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 14/18] dasd: add ifcc handling
-Content-Disposition: inline; filename=014-dasd-ifcc.diff
+Subject: [patch 18/18] dcss: Initialize workqueue before using it.
+Content-Disposition: inline; filename=018-dcss-workqueue.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Stefan Haberland <stefan.haberland@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Gerald Schaefer <geraldsc@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Stefan Haberland <stefan.haberland@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Adding interface control check (ifcc) handling in error recovery.
-First retry up to 255 times and if all retries fail try an alternate
-path if possible.
+In case a dcss segment cannot be loaded blk_cleanup_queue
+will be called before blk_queue_make_request, leaving the
+struct work unplug_work of the request queue uninitialized
+before it is used.
+That leads also to the lockdep message below.
+To avoid that call blk_queue_make_request right after the
+request_queue has been allocated. 
+This makes sure that the struct work is always initialized
+before it is used.
 
-Signed-off-by: Stefan Haberland <stefan.haberland@de.ibm.com>
+INFO: trying to register non-static key.
+the code is fine but needs lockdep annotation.
+turning off the locking correctness validator.
+CPU: 2 Not tainted 2.6.24 #6
+Process swapper (pid: 1, task: 000000000f854038, ksp: 000000000f85f980)
+040000000f85f860 000000000f85f880 0000000000000002 0000000000000000 
+       000000000f85f920 000000000f85f898 000000000f85f898 000000000001622e 
+       0000000000000000 000000000f85f980 0000000000000000 0000000000000000 
+       000000000f85f880 000000000000000c 000000000f85f880 000000000f85f8f0 
+       0000000000342908 000000000001622e 000000000f85f880 000000000f85f8d0 
+Call Trace:
+([<000000000001619e>] show_trace+0xda/0x104)
+ [<0000000000016288>] show_stack+0xc0/0xf8
+ [<00000000000163d0>] dump_stack+0xb0/0xc0
+ [<000000000006e4ea>] __lock_acquire+0x47e/0x1160
+ [<000000000006f27c>] lock_acquire+0xb0/0xd8
+ [<000000000005a522>] __cancel_work_timer+0x9e/0x240
+ [<000000000005a72e>] cancel_work_sync+0x2a/0x3c
+ [<0000000000165c46>] kblockd_flush_work+0x26/0x34
+ [<0000000000169034>] blk_sync_queue+0x38/0x48
+ [<0000000000169080>] blk_release_queue+0x3c/0xa8
+ [<000000000017bce8>] kobject_cleanup+0x58/0xac
+ [<000000000017bd66>] kobject_release+0x2a/0x38
+ [<000000000017d28e>] kref_put+0x6e/0x94
+ [<000000000017bc80>] kobject_put+0x38/0x48
+ [<00000000001653be>] blk_put_queue+0x2a/0x38
+ [<0000000000168fee>] blk_cleanup_queue+0x82/0x90
+ [<0000000000213e7e>] dcssblk_add_store+0x34e/0x700
+ [<00000000005243b8>] dcssblk_init+0x1a0/0x308
+ [<000000000050a3c2>] kernel_init+0x1b2/0x3a4
+ [<000000000001ac82>] kernel_thread_starter+0x6/0xc
+ [<000000000001ac7c>] kernel_thread_starter+0x0/0xc
+
+INFO: lockdep is turned off.
+
+Cc: Gerald Schaefer <geraldsc@de.ibm.com>
+Cc: Carsten Otte <cotte@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/dasd.c          |   17 +++-------
- drivers/s390/block/dasd_3990_erp.c |   62 +++++++++++++++++++++++++++----------
- 2 files changed, 52 insertions(+), 27 deletions(-)
+ drivers/s390/block/dcssblk.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Index: quilt-2.6/drivers/s390/block/dasd_3990_erp.c
+Index: quilt-2.6/drivers/s390/block/dcssblk.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd_3990_erp.c
-+++ quilt-2.6/drivers/s390/block/dasd_3990_erp.c
-@@ -164,7 +164,7 @@ dasd_3990_erp_alternate_path(struct dasd
+--- quilt-2.6.orig/drivers/s390/block/dcssblk.c
++++ quilt-2.6/drivers/s390/block/dcssblk.c
+@@ -415,6 +415,8 @@ dcssblk_add_store(struct device *dev, st
+ 	dev_info->gd->queue = dev_info->dcssblk_queue;
+ 	dev_info->gd->private_data = dev_info;
+ 	dev_info->gd->driverfs_dev = &dev_info->dev;
++	blk_queue_make_request(dev_info->dcssblk_queue, dcssblk_make_request);
++	blk_queue_hardsect_size(dev_info->dcssblk_queue, 4096);
+ 	/*
+ 	 * load the segment
+ 	 */
+@@ -472,9 +474,6 @@ dcssblk_add_store(struct device *dev, st
+ 	if (rc)
+ 		goto unregister_dev;
  
- 		/* reset status to submit the request again... */
- 		erp->status = DASD_CQR_FILLED;
--		erp->retries = 1;
-+		erp->retries = 10;
- 	} else {
- 		DEV_MESSAGE(KERN_ERR, device,
- 			    "No alternate channel path left (lpum=%x / "
-@@ -301,8 +301,7 @@ dasd_3990_erp_action_4(struct dasd_ccw_r
- 		erp->function = dasd_3990_erp_action_4;
- 
- 	} else {
+-	blk_queue_make_request(dev_info->dcssblk_queue, dcssblk_make_request);
+-	blk_queue_hardsect_size(dev_info->dcssblk_queue, 4096);
 -
--		if (sense[25] == 0x1D) {	/* state change pending */
-+		if (sense && (sense[25] == 0x1D)) { /* state change pending */
+ 	add_disk(dev_info->gd);
  
- 			DEV_MESSAGE(KERN_INFO, device,
- 				    "waiting for state change pending "
-@@ -311,7 +310,7 @@ dasd_3990_erp_action_4(struct dasd_ccw_r
- 
- 			dasd_3990_erp_block_queue(erp, 30*HZ);
- 
--                } else if (sense[25] == 0x1E) {	/* busy */
-+		} else if (sense && (sense[25] == 0x1E)) {	/* busy */
- 			DEV_MESSAGE(KERN_INFO, device,
- 				    "busy - redriving request later, "
- 				    "%d retries left",
-@@ -2120,6 +2119,34 @@ dasd_3990_erp_inspect_32(struct dasd_ccw
-  */
- 
- /*
-+ * DASD_3990_ERP_CONTROL_CHECK
-+ *
-+ * DESCRIPTION
-+ *   Does a generic inspection if a control check occured and sets up
-+ *   the related error recovery procedure
-+ *
-+ * PARAMETER
-+ *   erp		pointer to the currently created default ERP
-+ *
-+ * RETURN VALUES
-+ *   erp_filled		pointer to the erp
-+ */
-+
-+static struct dasd_ccw_req *
-+dasd_3990_erp_control_check(struct dasd_ccw_req *erp)
-+{
-+	struct dasd_device *device = erp->startdev;
-+
-+	if (erp->refers->irb.scsw.cstat & (SCHN_STAT_INTF_CTRL_CHK
-+					   | SCHN_STAT_CHN_CTRL_CHK)) {
-+		DEV_MESSAGE(KERN_DEBUG, device, "%s",
-+			    "channel or interface control check");
-+		erp = dasd_3990_erp_action_4(erp, NULL);
-+	}
-+	return erp;
-+}
-+
-+/*
-  * DASD_3990_ERP_INSPECT
-  *
-  * DESCRIPTION
-@@ -2145,8 +2172,11 @@ dasd_3990_erp_inspect(struct dasd_ccw_re
- 	if (erp_new)
- 		return erp_new;
- 
-+	/* check if no concurrent sens is available */
-+	if (!erp->refers->irb.esw.esw0.erw.cons)
-+		erp_new = dasd_3990_erp_control_check(erp);
- 	/* distinguish between 24 and 32 byte sense data */
--	if (sense[27] & DASD_SENSE_BIT_0) {
-+	else if (sense[27] & DASD_SENSE_BIT_0) {
- 
- 		/* inspect the 24 byte sense data */
- 		erp_new = dasd_3990_erp_inspect_24(erp, sense);
-@@ -2285,6 +2315,17 @@ dasd_3990_erp_error_match(struct dasd_cc
- 		//	return 0;	/* CCW doesn't match */
- 	}
- 
-+	if (cqr1->irb.esw.esw0.erw.cons != cqr2->irb.esw.esw0.erw.cons)
-+		return 0;
-+
-+	if ((cqr1->irb.esw.esw0.erw.cons == 0) &&
-+	    (cqr2->irb.esw.esw0.erw.cons == 0))	{
-+		if ((cqr1->irb.scsw.cstat & (SCHN_STAT_INTF_CTRL_CHK |
-+					     SCHN_STAT_CHN_CTRL_CHK)) ==
-+		    (cqr2->irb.scsw.cstat & (SCHN_STAT_INTF_CTRL_CHK |
-+					     SCHN_STAT_CHN_CTRL_CHK)))
-+			return 1; /* match with ifcc*/
-+	}
- 	/* check sense data; byte 0-2,25,27 */
- 	if (!((memcmp (cqr1->irb.ecw, cqr2->irb.ecw, 3) == 0) &&
- 	      (cqr1->irb.ecw[27] == cqr2->irb.ecw[27]) &&
-@@ -2560,17 +2601,6 @@ dasd_3990_erp_action(struct dasd_ccw_req
- 
- 		return cqr;
- 	}
--	/* check if sense data are available */
--	if (!cqr->irb.ecw) {
--		DEV_MESSAGE(KERN_DEBUG, device,
--			    "ERP called witout sense data avail ..."
--			    "request %p - NO ERP possible", cqr);
--
--		cqr->status = DASD_CQR_FAILED;
--
--		return cqr;
--
--	}
- 
- 	/* check if error happened before */
- 	erp = dasd_3990_erp_in_erp(cqr);
-Index: quilt-2.6/drivers/s390/block/dasd.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd.c
-+++ quilt-2.6/drivers/s390/block/dasd.c
-@@ -1057,12 +1057,11 @@ void dasd_int_handler(struct ccw_device 
- 		if (device->features & DASD_FEATURE_ERPLOG) {
- 			dasd_log_sense(cqr, irb);
- 		}
--		/* If we have no sense data, or we just don't want complex ERP
--		 * for this request, but if we have retries left, then just
--		 * reset this request and retry it in the fastpath
-+		/*
-+		 * If we don't want complex ERP for this request, then just
-+		 * reset this and retry it in the fastpath
- 		 */
--		if (!(cqr->irb.esw.esw0.erw.cons &&
--		      test_bit(DASD_CQR_FLAGS_USE_ERP, &cqr->flags)) &&
-+		if (!test_bit(DASD_CQR_FLAGS_USE_ERP, &cqr->flags) &&
- 		    cqr->retries > 0) {
- 			DEV_MESSAGE(KERN_DEBUG, device,
- 				    "default ERP in fastpath (%i retries left)",
-@@ -1742,12 +1741,8 @@ restart:
- 
- 		/*  Process requests that may be recovered */
- 		if (cqr->status == DASD_CQR_NEED_ERP) {
--			if (cqr->irb.esw.esw0.erw.cons &&
--			    test_bit(DASD_CQR_FLAGS_USE_ERP,
--				     &cqr->flags)) {
--				erp_fn = base->discipline->erp_action(cqr);
--				erp_fn(cqr);
--			}
-+			erp_fn = base->discipline->erp_action(cqr);
-+			erp_fn(cqr);
- 			goto restart;
- 		}
- 
+ 	switch (dev_info->segment_type) {
 
 -- 
 blue skies,
