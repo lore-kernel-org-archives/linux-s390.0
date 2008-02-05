@@ -1,217 +1,260 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755862AbYBEPju@vger.kernel.org>
-Message-Id: <20080205153910.442155040@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756223AbYBEPkJ@vger.kernel.org>
+Message-Id: <20080205153910.840339871@de.ibm.com>
 References: <20080205153835.337897404@de.ibm.com>
-Date: Tue, 05 Feb 2008 16:38:36 +0100
+Date: Tue, 05 Feb 2008 16:38:37 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 01/18] cio: make sense id procedure work with partial hardware response
-Content-Disposition: inline; filename=001-cio-senseid.diff
+Subject: [patch 02/18] cio: Clean up chsc response code handling.
+Content-Disposition: inline; filename=002-cio-chsc-rc.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-In some cases the current sense id procedure trips over incomplete
-hardware responses. In these cases, checking against the preset value
-of 0xFFFF is not enough. More critically, the VM DIAG call will always be
-considered to have provided data after such an incident, even if it was not
-successful at all.
+This provides unified return codes for common response codes and
+also makes the debug feature messages more similar and informational.
 
-The solution is to always initialize the control unit data before doing a
-sense id call. Check the condition code before considering the control unit
-data. And initialize again, before evaluating the VM data.
-
-Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/device_id.c |  107 +++++++++++++++++++++++++------------------
- 1 file changed, 64 insertions(+), 43 deletions(-)
+ drivers/s390/cio/chsc.c |  147 +++++++++++++++++-------------------------------
+ 1 file changed, 55 insertions(+), 92 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/device_id.c
+Index: quilt-2.6/drivers/s390/cio/chsc.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_id.c
-+++ quilt-2.6/drivers/s390/cio/device_id.c
-@@ -26,17 +26,18 @@
- #include "ioasm.h"
- #include "io_sch.h"
+--- quilt-2.6.orig/drivers/s390/cio/chsc.c
++++ quilt-2.6/drivers/s390/cio/chsc.c
+@@ -26,6 +26,25 @@
  
--/*
-- * Input :
-- *   devno - device number
-- *   ps	   - pointer to sense ID data area
-- * Output : none
-+/**
-+ * vm_vdev_to_cu_type - Convert vm virtual device into control unit type
-+ *			for certain devices.
-+ * @class: virtual device class
-+ * @type: virtual device type
-+ *
-+ * Returns control unit type if a match was made or %0xffff otherwise.
-  */
--static void
--VM_virtual_device_info (__u16 devno, struct senseid *ps)
-+static int vm_vdev_to_cu_type(int class, int type)
- {
- 	static struct {
--		int vrdcvcla, vrdcvtyp, cu_type;
-+		int class, type, cu_type;
- 	} vm_devices[] = {
- 		{ 0x08, 0x01, 0x3480 },
- 		{ 0x08, 0x02, 0x3430 },
-@@ -68,8 +69,26 @@ VM_virtual_device_info (__u16 devno, str
- 		{ 0x40, 0xc0, 0x5080 },
- 		{ 0x80, 0x00, 0x3215 },
- 	};
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(vm_devices); i++)
-+		if (class == vm_devices[i].class && type == vm_devices[i].type)
-+			return vm_devices[i].cu_type;
-+
-+	return 0xffff;
+ static void *sei_page;
+ 
++static int chsc_error_from_response(int response)
++{
++	switch (response) {
++	case 0x0001:
++		return 0;
++	case 0x0002:
++	case 0x0003:
++	case 0x0006:
++	case 0x0007:
++	case 0x0008:
++	case 0x000a:
++		return -EINVAL;
++	case 0x0004:
++		return -EOPNOTSUPP;
++	default:
++		return -EIO;
++	}
 +}
 +
-+/**
-+ * diag_get_dev_info - retrieve device information via DIAG X'210'
-+ * @devno: device number
-+ * @ps: pointer to sense ID data area
-+ *
-+ * Returns zero on success, non-zero otherwise.
-+ */
-+static int diag_get_dev_info(u16 devno, struct senseid *ps)
-+{
- 	struct diag210 diag_data;
--	int ccode, i;
-+	int ccode;
+ struct chsc_ssd_area {
+ 	struct chsc_header request;
+ 	u16 :10;
+@@ -75,11 +94,11 @@ int chsc_get_ssd_info(struct subchannel_
+ 		ret = (ccode == 3) ? -ENODEV : -EBUSY;
+ 		goto out_free;
+ 	}
+-	if (ssd_area->response.code != 0x0001) {
++	ret = chsc_error_from_response(ssd_area->response.code);
++	if (ret != 0) {
+ 		CIO_MSG_EVENT(2, "chsc: ssd failed for 0.%x.%04x (rc=%04x)\n",
+ 			      schid.ssid, schid.sch_no,
+ 			      ssd_area->response.code);
+-		ret = -EIO;
+ 		goto out_free;
+ 	}
+ 	if (!ssd_area->sch_valid) {
+@@ -717,36 +736,15 @@ __chsc_do_secm(struct channel_subsystem 
+ 		return (ccode == 3) ? -ENODEV : -EBUSY;
  
- 	CIO_TRACE_EVENT (4, "VMvdinf");
+ 	switch (secm_area->response.code) {
+-	case 0x0001: /* Success. */
+-		ret = 0;
+-		break;
+-	case 0x0003: /* Invalid block. */
+-	case 0x0007: /* Invalid format. */
+-	case 0x0008: /* Other invalid block. */
+-		CIO_CRW_EVENT(2, "Error in chsc request block!\n");
+-		ret = -EINVAL;
+-		break;
+-	case 0x0004: /* Command not provided in model. */
+-		CIO_CRW_EVENT(2, "Model does not provide secm\n");
+-		ret = -EOPNOTSUPP;
+-		break;
+-	case 0x0102: /* cub adresses incorrect */
+-		CIO_CRW_EVENT(2, "Invalid addresses in chsc request block\n");
+-		ret = -EINVAL;
+-		break;
+-	case 0x0103: /* key error */
+-		CIO_CRW_EVENT(2, "Access key error in secm\n");
++	case 0x0102:
++	case 0x0103:
+ 		ret = -EINVAL;
+-		break;
+-	case 0x0105: /* error while starting */
+-		CIO_CRW_EVENT(2, "Error while starting channel measurement\n");
+-		ret = -EIO;
+-		break;
+ 	default:
+-		CIO_CRW_EVENT(2, "Unknown CHSC response %d\n",
+-			      secm_area->response.code);
+-		ret = -EIO;
++		ret = chsc_error_from_response(secm_area->response.code);
+ 	}
++	if (ret != 0)
++		CIO_CRW_EVENT(2, "chsc: secm failed (rc=%04x)\n",
++			      secm_area->response.code);
+ 	return ret;
+ }
  
-@@ -79,21 +98,21 @@ VM_virtual_device_info (__u16 devno, str
- 	};
+@@ -827,27 +825,14 @@ int chsc_determine_channel_path_descript
+ 		goto out;
+ 	}
  
- 	ccode = diag210 (&diag_data);
--	ps->reserved = 0xff;
-+	if ((ccode == 0) || (ccode == 2)) {
-+		ps->reserved = 0xff;
- 
--	/* Special case for bloody osa devices. */
--	if (diag_data.vrdcvcla == 0x02 &&
--	    diag_data.vrdcvtyp == 0x20) {
--		ps->cu_type = 0x3088;
--		ps->cu_model = 0x60;
--		return;
+-	switch (scpd_area->response.code) {
+-	case 0x0001: /* Success. */
++	ret = chsc_error_from_response(scpd_area->response.code);
++	if (ret == 0)
++		/* Success. */
+ 		memcpy(desc, &scpd_area->desc,
+ 		       sizeof(struct channel_path_desc));
+-		ret = 0;
+-		break;
+-	case 0x0003: /* Invalid block. */
+-	case 0x0007: /* Invalid format. */
+-	case 0x0008: /* Other invalid block. */
+-		CIO_CRW_EVENT(2, "Error in chsc request block!\n");
+-		ret = -EINVAL;
+-		break;
+-	case 0x0004: /* Command not provided in model. */
+-		CIO_CRW_EVENT(2, "Model does not provide scpd\n");
+-		ret = -EOPNOTSUPP;
+-		break;
+-	default:
+-		CIO_CRW_EVENT(2, "Unknown CHSC response %d\n",
++	else
++		CIO_CRW_EVENT(2, "chsc: scpd failed (rc=%04x)\n",
+ 			      scpd_area->response.code);
+-		ret = -EIO;
 -	}
--	for (i = 0; i < ARRAY_SIZE(vm_devices); i++)
--		if (diag_data.vrdcvcla == vm_devices[i].vrdcvcla &&
--		    diag_data.vrdcvtyp == vm_devices[i].vrdcvtyp) {
--			ps->cu_type = vm_devices[i].cu_type;
--			return;
-+		/* Special case for osa devices. */
-+		if (diag_data.vrdcvcla == 0x02 && diag_data.vrdcvtyp == 0x20) {
-+			ps->cu_type = 0x3088;
-+			ps->cu_model = 0x60;
-+			return 0;
+ out:
+ 	free_page((unsigned long)scpd_area);
+ 	return ret;
+@@ -923,8 +908,9 @@ int chsc_get_channel_measurement_chars(s
+ 		goto out;
+ 	}
+ 
+-	switch (scmc_area->response.code) {
+-	case 0x0001: /* Success. */
++	ret = chsc_error_from_response(scmc_area->response.code);
++	if (ret == 0) {
++		/* Success. */
+ 		if (!scmc_area->not_valid) {
+ 			chp->cmg = scmc_area->cmg;
+ 			chp->shared = scmc_area->shared;
+@@ -935,22 +921,9 @@ int chsc_get_channel_measurement_chars(s
+ 			chp->cmg = -1;
+ 			chp->shared = -1;
  		}
-+		ps->cu_type = vm_vdev_to_cu_type(diag_data.vrdcvcla,
-+						diag_data.vrdcvtyp);
-+		if (ps->cu_type != 0xffff)
-+			return 0;
-+	}
-+
- 	CIO_MSG_EVENT(0, "DIAG X'210' for device %04X returned (cc = %d):"
- 		      "vdev class : %02X, vdev type : %04X \n ...  "
- 		      "rdev class : %02X, rdev type : %04X, "
-@@ -102,6 +121,8 @@ VM_virtual_device_info (__u16 devno, str
- 		      diag_data.vrdcvcla, diag_data.vrdcvtyp,
- 		      diag_data.vrdcrccl, diag_data.vrdccrty,
- 		      diag_data.vrdccrmd);
-+
-+	return -ENODEV;
- }
- 
- /*
-@@ -130,6 +151,7 @@ __ccw_device_sense_id_start(struct ccw_d
- 	/* Try on every path. */
- 	ret = -ENODEV;
- 	while (cdev->private->imask != 0) {
-+		cdev->private->senseid.cu_type = 0xFFFF;
- 		if ((sch->opm & cdev->private->imask) != 0 &&
- 		    cdev->private->iretry > 0) {
- 			cdev->private->iretry--;
-@@ -153,7 +175,6 @@ ccw_device_sense_id_start(struct ccw_dev
- 	int ret;
- 
- 	memset (&cdev->private->senseid, 0, sizeof (struct senseid));
--	cdev->private->senseid.cu_type = 0xFFFF;
- 	cdev->private->imask = 0x80;
- 	cdev->private->iretry = 5;
- 	ret = __ccw_device_sense_id_start(cdev);
-@@ -173,13 +194,7 @@ ccw_device_check_sense_id(struct ccw_dev
- 
- 	sch = to_subchannel(cdev->dev.parent);
- 	irb = &cdev->private->irb;
--	/* Did we get a proper answer ? */
--	if (cdev->private->senseid.cu_type != 0xFFFF && 
--	    cdev->private->senseid.reserved == 0xFF) {
--		if (irb->scsw.count < sizeof (struct senseid) - 8)
--			cdev->private->flags.esid = 1;
--		return 0; /* Success */
--	}
-+
- 	/* Check the error cases. */
- 	if (irb->scsw.fctl & (SCSW_FCTL_HALT_FUNC | SCSW_FCTL_CLEAR_FUNC)) {
- 		/* Retry Sense ID if requested. */
-@@ -231,6 +246,15 @@ ccw_device_check_sense_id(struct ccw_dev
- 				      sch->schid.ssid, sch->schid.sch_no);
- 		return -EACCES;
+-		ret = 0;
+-		break;
+-	case 0x0003: /* Invalid block. */
+-	case 0x0007: /* Invalid format. */
+-	case 0x0008: /* Invalid bit combination. */
+-		CIO_CRW_EVENT(2, "Error in chsc request block!\n");
+-		ret = -EINVAL;
+-		break;
+-	case 0x0004: /* Command not provided. */
+-		CIO_CRW_EVENT(2, "Model does not provide scmc\n");
+-		ret = -EOPNOTSUPP;
+-		break;
+-	default:
+-		CIO_CRW_EVENT(2, "Unknown CHSC response %d\n",
++	} else {
++		CIO_CRW_EVENT(2, "chsc: scmc failed (rc=%04x)\n",
+ 			      scmc_area->response.code);
+-		ret = -EIO;
+ 	}
+ out:
+ 	free_page((unsigned long)scmc_area);
+@@ -1002,21 +975,17 @@ chsc_enable_facility(int operation_code)
+ 		ret = (ret == 3) ? -ENODEV : -EBUSY;
+ 		goto out;
  	}
 +
-+	/* Did we get a proper answer ? */
-+	if (irb->scsw.cc == 0 && cdev->private->senseid.cu_type != 0xFFFF &&
-+	    cdev->private->senseid.reserved == 0xFF) {
-+		if (irb->scsw.count < sizeof(struct senseid) - 8)
-+			cdev->private->flags.esid = 1;
-+		return 0; /* Success */
-+	}
-+
- 	/* Hmm, whatever happened, try again. */
- 	CIO_MSG_EVENT(2, "SenseID : start_IO() for device %04x on "
- 		      "subchannel 0.%x.%04x returns status %02X%02X\n",
-@@ -283,20 +307,17 @@ ccw_device_sense_id_irq(struct ccw_devic
- 			break;
- 		/* fall through. */
- 	default:		/* Sense ID failed. Try asking VM. */
--		if (MACHINE_IS_VM) {
--			VM_virtual_device_info (cdev->private->dev_id.devno,
-+		if (MACHINE_IS_VM)
-+			ret = diag_get_dev_info(cdev->private->dev_id.devno,
- 						&cdev->private->senseid);
--			if (cdev->private->senseid.cu_type != 0xFFFF) {
--				/* Got the device information from VM. */
--				ccw_device_sense_id_done(cdev, 0);
--				return;
--			}
--		}
--		/*
--		 * If we can't couldn't identify the device type we
--		 *  consider the device "not operational".
--		 */
--		ccw_device_sense_id_done(cdev, -ENODEV);
-+		else
-+			/*
-+			 * If we can't couldn't identify the device type we
-+			 *  consider the device "not operational".
-+			 */
-+			ret = -ENODEV;
-+
-+		ccw_device_sense_id_done(cdev, ret);
+ 	switch (sda_area->response.code) {
+-	case 0x0001: /* everything ok */
+-		ret = 0;
+-		break;
+-	case 0x0003: /* invalid request block */
+-	case 0x0007:
+-		ret = -EINVAL;
+-		break;
+-	case 0x0004: /* command not provided */
+-	case 0x0101: /* facility not provided */
++	case 0x0101:
+ 		ret = -EOPNOTSUPP;
  		break;
+-	default: /* something went wrong */
+-		ret = -EIO;
++	default:
++		ret = chsc_error_from_response(sda_area->response.code);
  	}
- }
++	if (ret != 0)
++		CIO_CRW_EVENT(2, "chsc: sda (oc=%x) failed (rc=%04x)\n",
++			      operation_code, sda_area->response.code);
+  out:
+ 	free_page((unsigned long)sda_area);
+ 	return ret;
+@@ -1041,33 +1010,27 @@ chsc_determine_css_characteristics(void)
+ 	} __attribute__ ((packed)) *scsc_area;
+ 
+ 	scsc_area = (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
+-	if (!scsc_area) {
+-		CIO_MSG_EVENT(0, "Was not able to determine available "
+-			      "CHSCs due to no memory.\n");
++	if (!scsc_area)
+ 		return -ENOMEM;
+-	}
+ 
+ 	scsc_area->request.length = 0x0010;
+ 	scsc_area->request.code = 0x0010;
+ 
+ 	result = chsc(scsc_area);
+ 	if (result) {
+-		CIO_MSG_EVENT(0, "Was not able to determine available CHSCs, "
+-			      "cc=%i.\n", result);
+-		result = -EIO;
++		result = (result == 3) ? -ENODEV : -EBUSY;
+ 		goto exit;
+ 	}
+ 
+-	if (scsc_area->response.code != 1) {
+-		CIO_MSG_EVENT(0, "Was not able to determine "
+-			      "available CHSCs.\n");
+-		result = -EIO;
+-		goto exit;
+-	}
+-	memcpy(&css_general_characteristics, scsc_area->general_char,
+-	       sizeof(css_general_characteristics));
+-	memcpy(&css_chsc_characteristics, scsc_area->chsc_char,
+-	       sizeof(css_chsc_characteristics));
++	result = chsc_error_from_response(scsc_area->response.code);
++	if (result == 0) {
++		memcpy(&css_general_characteristics, scsc_area->general_char,
++		       sizeof(css_general_characteristics));
++		memcpy(&css_chsc_characteristics, scsc_area->chsc_char,
++		       sizeof(css_chsc_characteristics));
++	} else
++		CIO_CRW_EVENT(2, "chsc: scsc failed (rc=%04x)\n",
++			      scsc_area->response.code);
+ exit:
+ 	free_page ((unsigned long) scsc_area);
+ 	return result;
 
 -- 
 blue skies,
