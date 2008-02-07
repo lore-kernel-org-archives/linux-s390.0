@@ -1,63 +1,111 @@
 From: Ursula Braun <braunu@de.ibm.com>
-Subject: [patch 2/3] af_iucv: broken send_skb_q results in endless loop
-Date: Thu, 07 Feb 2008 15:28:44 +0100
-Message-ID: <20080207143534.085581000@linux.vnet.ibm.com>
-References: <20080207142842.852003000@linux.vnet.ibm.com>
+Subject: [patch 1/3] drivers/s390/net: Kconfig brush up
+Date: Fri, 08 Feb 2008 00:03:48 +0100
+Message-ID: <20080207232607.192981000@linux.vnet.ibm.com>
+References: <20080207230347.075759000@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=713-afiucv.diff
+Content-Disposition: inline; filename=701-kconfig.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Peter Tiedemann <ptiedem@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Peter Tiedemann <ptiedem@de.ibm.com>
 From: Ursula Braun <braunu@de.ibm.com>
 
-A race has been detected in iucv_callback_txdone().
-skb_unlink has to be done inside the locked area.
+adapt drivers/s390/net/Kconfig to current IBM wording
+and further cosmetics
 
-In addition checkings for successful allocations are inserted.
-
+Signed-off-by: Peter Tiedemann <ptiedem@de.ibm.com>
 Signed-off-by: Ursula Braun <braunu@de.ibm.com>
+
 ---
+ drivers/s390/net/Kconfig |   43 ++++++++++++++++++++++---------------------
+ 1 file changed, 22 insertions(+), 21 deletions(-)
 
- net/iucv/af_iucv.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
-
-diff -urpN linux-2.6/net/iucv/af_iucv.c linux-2.6-patched/net/iucv/af_iucv.c
---- linux-2.6/net/iucv/af_iucv.c	2008-02-07 13:24:12.000000000 +0100
-+++ linux-2.6-patched/net/iucv/af_iucv.c	2008-02-07 13:24:38.000000000 +0100
-@@ -482,6 +482,10 @@ static int iucv_sock_connect(struct sock
- 	/* Create path. */
- 	iucv->path = iucv_path_alloc(IUCV_QUEUELEN_DEFAULT,
- 				     IPRMDATA, GFP_KERNEL);
-+	if (!iucv->path) {
-+		err = -ENOMEM;
-+		goto done;
-+	}
- 	err = iucv_path_connect(iucv->path, &af_iucv_handler,
- 				sa->siucv_user_id, NULL, user_data, sk);
- 	if (err) {
-@@ -1094,6 +1098,8 @@ static void iucv_callback_rx(struct iucv
+Index: linux-2.6-uschi/drivers/s390/net/Kconfig
+===================================================================
+--- linux-2.6-uschi.orig/drivers/s390/net/Kconfig
++++ linux-2.6-uschi/drivers/s390/net/Kconfig
+@@ -5,22 +5,23 @@ config LCS
+ 	tristate "Lan Channel Station Interface"
+ 	depends on CCW && NETDEVICES && (NET_ETHERNET || TR || FDDI)
+ 	help
+-	   Select this option if you want to use LCS networking  on IBM S/390
+-  	   or zSeries. This device driver supports Token Ring (IEEE 802.5),
+-  	   FDDI (IEEE 802.7) and Ethernet. 
+-	   This option is also available as a module which will be
+-	   called lcs.ko. If you do not know what it is, it's safe to say "Y".
++	   Select this option if you want to use LCS networking on IBM System z.
++	   This device driver supports Token Ring (IEEE 802.5),
++	   FDDI (IEEE 802.7) and Ethernet.
++	   To compile as a module, choose M. The module name is lcs.ko.
++	   If you do not know what it is, it's safe to choose Y.
  
- save_message:
- 	save_msg = kzalloc(sizeof(struct sock_msg_q), GFP_ATOMIC | GFP_DMA);
-+	if (!save_msg)
-+		return;
- 	save_msg->path = path;
- 	save_msg->msg = *msg;
+ config CTC
+ 	tristate "CTC device support"
+ 	depends on CCW && NETDEVICES
+ 	help
+-	  Select this option if you want to use channel-to-channel networking
+-	  on IBM S/390 or zSeries. This device driver supports real CTC
+-	  coupling using ESCON. It also supports virtual CTCs when running
+-	  under VM. It will use the channel device configuration if this is
+-	  available.  This option is also available as a module which will be
+-	  called ctc.ko.  If you do not know what it is, it's safe to say "Y".
++	  Select this option if you want to use channel-to-channel
++	  point-to-point networking on IBM System z.
++	  This device driver supports real CTC coupling using ESCON.
++	  It also supports virtual CTCs when running under VM.
++	  To compile as a module, choose M. The module name is ctc.ko.
++	  To compile into the kernel, choose Y.
++	  If you do not need any channel-to-channel connection, choose N.
  
-@@ -1118,10 +1124,10 @@ static void iucv_callback_txdone(struct 
- 			this = list_skb;
- 			list_skb = list_skb->next;
- 		} while (memcmp(&msg->tag, this->cb, 4) && list_skb);
-+		__skb_unlink(this, list);
+ config NETIUCV
+ 	tristate "IUCV network device support (VM only)"
+@@ -29,9 +30,9 @@ config NETIUCV
+ 	  Select this option if you want to use inter-user communication
+ 	  vehicle networking under VM or VIF. It enables a fast communication
+ 	  link between VM guests. Using ifconfig a point-to-point connection
+-	  can be established to the Linux for zSeries and S7390 system
+-	  running on the other VM guest. This option is also available
+-	  as a module which will be called netiucv.ko. If unsure, say "Y".
++	  can be established to the Linux on IBM System z
++	  running on the other VM guest. To compile as a module, choose M.
++	  The module name is netiucv.ko. If unsure, choose Y.
  
- 		spin_unlock_irqrestore(&list->lock, flags);
+ config SMSGIUCV
+ 	tristate "IUCV special message support (VM only)"
+@@ -47,22 +48,22 @@ config CLAW
+ 	  This driver supports channel attached CLAW devices.
+ 	  CLAW is Common Link Access for Workstation.  Common devices
+           that use CLAW are RS/6000s, Cisco Routers (CIP) and 3172 devices.
+-	  To compile as a module choose M here:  The module will be called
+-	  claw.ko to compile into the kernel choose Y
++	  To compile as a module, choose M. The module name is claw.ko.
++	  To compile into the kernel, choose Y.
  
--		skb_unlink(this, &iucv_sk(sk)->send_skb_q);
- 		kfree_skb(this);
- 	}
+ config QETH
+ 	tristate "Gigabit Ethernet device support"
+ 	depends on CCW && NETDEVICES && IP_MULTICAST && QDIO
+ 	help
+-	  This driver supports the IBM S/390 and zSeries OSA Express adapters
++	  This driver supports the IBM System z OSA Express adapters
+ 	  in QDIO mode (all media types), HiperSockets interfaces and VM GuestLAN
+ 	  interfaces in QDIO and HIPER mode.
+ 	
+-	  For details please refer to the documentation provided by IBM at   
+-	  <http://www10.software.ibm.com/developerworks/opensource/linux390>
++	  For details please refer to the documentation provided by IBM at
++	  <http://www.ibm.com/developerworks/linux/linux390>
  
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called qeth.ko.
++	  To compile this driver as a module, choose M.
++	  The module name is qeth.ko.
+ 
+ 
+ comment "Gigabit Ethernet default settings"
 
 -- 
