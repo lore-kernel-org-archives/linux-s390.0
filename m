@@ -1,44 +1,45 @@
-From: Rick Troth <rmt@casita.net>
-Subject: Re: [patch 3/4] ctcm: infrastructure for replaced ctc driver
-Date: Thu, 7 Feb 2008 06:52:06 -0500 (EST)
-Message-ID: <Pine.LNX.4.58.0802070648020.547@force5.casita.net>
-References: <20080206182723.103842000@linux.vnet.ibm.com>
- <20080206183023.042552000@linux.vnet.ibm.com> <20080207063534.GB27498@infradead.org>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Ursula Braun <braunu@de.ibm.com>
+Subject: [patch 1/3] iucv: wrong irq-disabling locking at module load time
+Date: Thu, 07 Feb 2008 15:28:43 +0100
+Message-ID: <20080207143533.294538000@linux.vnet.ibm.com>
+References: <20080207142842.852003000@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20080207063534.GB27498@infradead.org>
+Content-Disposition: inline; filename=707-iucv-irq.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Ursula Braun <braunu@de.ibm.com>, jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, Peter Tiedemann <ptiedem@de.ibm.com>
+To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 7 Feb 2008, Christoph Hellwig wrote:
- ...
-> > +/*
-> > + *	drivers/s390/net/ctcm_dbug.c
-> > + *
-> > + *	Copyright IBM Corp. 2001, 2007
-> > + *	Authors:	Peter Tiedemann (ptiedem@de.ibm.com)
-> > + *
-> > + */
->
-> Please don't mention filenames in the top of file comments.
-> On the other hand a little description of what this file
-> does would be quite useful.  (This comment applies to all
-> files in this patch)
+From: Ursula Braun <braunu@de.ibm.com>
 
-Better descriptions, yes.  Of course.
-But are you saying to NOT name the file in its comments?
-I am surprised.  If I am reading correctly, then I disagree.
+Linux may hang when running af_iucv socket programs concurrently
+with a load of module netiucv. iucv_register() tries to take the
+iucv_table_lock with spin_lock_irq. This conflicts with
+iucv_connect() which has a need for an smp_call_function while
+holding the iucv_table_lock.
+Solution: use bh-disabling locking in iucv_register()
 
-Is the exclusion of the name of the source file from its comments
-a stylistic decision the other kernel developers have agreed to?
-Or is it tied to automation?  Or have I (hopefully) misunderstood?
+Signed-off-by: Ursula Braun <braunu@de.ibm.com>
+---
 
--- R;   <><
+ net/iucv/iucv.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-()  ascii ribbon campaign - against html e-mail
-/\  www.asciiribbon.org   - against proprietary attachments
+diff -urpN linux-2.6/net/iucv/iucv.c linux-2.6-patched/net/iucv/iucv.c
+--- linux-2.6/net/iucv/iucv.c	2008-02-07 13:24:12.000000000 +0100
++++ linux-2.6-patched/net/iucv/iucv.c	2008-02-07 13:24:34.000000000 +0100
+@@ -693,9 +693,9 @@ int iucv_register(struct iucv_handler *h
+ 		iucv_setmask_up();
+ 	INIT_LIST_HEAD(&handler->paths);
+ 
+-	spin_lock_irq(&iucv_table_lock);
++	spin_lock_bh(&iucv_table_lock);
+ 	list_add_tail(&handler->list, &iucv_handler_list);
+-	spin_unlock_irq(&iucv_table_lock);
++	spin_unlock_bh(&iucv_table_lock);
+ 	rc = 0;
+ out_mutex:
+ 	mutex_unlock(&iucv_register_mutex);
+
+-- 
