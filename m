@@ -1,21 +1,39 @@
-From: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [patch 1/3] drivers/s390/net: Kconfig brush up
-Date: Mon, 11 Feb 2008 11:00:27 -0500
-Message-ID: <47B0711B.1040205@pobox.com>
-References: <20080207230347.075759000@linux.vnet.ibm.com> <20080207232607.192981000@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Ursula Braun <braunu@de.ibm.com>
+Subject: [patch 1/5] claw: removal of volatile variables
+Date: Fri, 08 Feb 2008 13:09:01 +0100
+Message-ID: <20080208121512.532071000@linux.vnet.ibm.com>
+References: <20080208120900.295604000@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20080207232607.192981000@linux.vnet.ibm.com>
+Content-Disposition: inline; filename=719-claw-volatile.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: Ursula Braun <braunu@de.ibm.com>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Peter Tiedemann <ptiedem@de.ibm.com>
+To: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-applied 1-3 to #upstream (2.6.26)
+From: Ursula Braun <braunu@de.ibm.com>
 
-Even the initial revision was outside the merge window, so it was never 
-going to make 2.6.25, thus I waited a bit for further comments and revisions
+Volatile variables queme_switch and pk_delay are not used anyway.
+They are just a left over from an unused timer based packing logic.
+
+Signed-off-by: Ursula Braun <braunu@de.ibm.com>
+---
+
+ drivers/s390/net/claw.h |    2 --
+ 1 file changed, 2 deletions(-)
+
+Index: linux-2.6-uschi/drivers/s390/net/claw.h
+===================================================================
+--- linux-2.6-uschi.orig/drivers/s390/net/claw.h
++++ linux-2.6-uschi/drivers/s390/net/claw.h
+@@ -278,8 +278,6 @@ struct claw_env {
+         __u16                   write_size;     /* write buffer size */
+         __u16                   dev_id;         /* device ident */
+ 	__u8			packing;	/* are we packing? */
+-	volatile __u8		queme_switch;   /* gate for imed packing  */
+-	volatile unsigned long	pk_delay;	/* Delay for adaptive packing */
+         __u8                    in_use;         /* device active flag */
+         struct net_device       *ndev;    	/* backward ptr to the net dev*/
+ };
+
+-- 
