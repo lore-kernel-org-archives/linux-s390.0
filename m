@@ -1,143 +1,88 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757847AbYBIMGQ@vger.kernel.org>
-Message-Id: <20080209120310.858243859@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759134AbYBIMGe@vger.kernel.org>
+Message-Id: <20080209120312.275984135@de.ibm.com>
 References: <20080209120157.885371603@de.ibm.com>
-Date: Sat, 09 Feb 2008 13:02:04 +0100
+Date: Sat, 09 Feb 2008 13:02:05 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 07/11] sclp_vt220: Fix vt220 initialization
-Content-Disposition: inline; filename=007-vt220.diff
+Subject: [patch 08/11] Remove a.out header file.
+Content-Disposition: inline; filename=008-aout.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-There are two problems in the vt220 intialization:
-
-o Currently the vt220 console looses early printk events until the
-  the vt220 tty is registered.
-o console should work if tty_register fails
-
-sclp_vt220_con_init calls __sclp_vt220_init and register_console.
-It does not register the driver with the sclp core code via
-sclp_register. That results in an sclp_send_mask=0. Therefore,
-__sclp_vt220_emit will reject buffers with EIO. Unfortunately
-register_console will cause the printk buffer to be sent to the
-console and, therefore, every early message gets dropped. The
-sclp_send_mask is set later during boot, when sclp_vt220_tty_init
-calls sclp_register.
-
-The solution is to move the sclp_register call from sclp_vt220_tty_init
-to __sclp_vt220_init. This makes sure that the console is properly
-registered with the sclp subsystem before the first log buffer messages
-are passed to the vt220 console.
-
-We also adopt the cleanup on error to keep the console alive if
-tty_register fails.
-
-Thanks to Peter Oberparleiter and Heiko Carstens for review and ideas
-for improvement.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/char/sclp_vt220.c |   31 ++++++++++++++++++-------------
- 1 file changed, 18 insertions(+), 13 deletions(-)
+ arch/s390/kernel/process.c |    1 -
+ arch/s390/kernel/setup.c   |    1 -
+ include/asm-s390/a.out.h   |   32 --------------------------------
+ 3 files changed, 34 deletions(-)
 
-Index: quilt-2.6/drivers/s390/char/sclp_vt220.c
+Index: quilt-2.6/arch/s390/kernel/process.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_vt220.c
-+++ quilt-2.6/drivers/s390/char/sclp_vt220.c
-@@ -3,7 +3,7 @@
-  *    SCLP VT220 terminal driver.
-  *
-  *  S390 version
-- *    Copyright (C) 2003 IBM Deutschland Entwicklung GmbH, IBM Corporation
-+ *    Copyright IBM Corp. 2003,2008
-  *    Author(s): Peter Oberparleiter <Peter.Oberparleiter@de.ibm.com>
-  */
- 
-@@ -632,6 +632,9 @@ static void __init __sclp_vt220_cleanup(
- 		else
- 			free_bootmem((unsigned long) page, PAGE_SIZE);
- 	}
-+	if (!list_empty(&sclp_vt220_register.list))
-+		sclp_unregister(&sclp_vt220_register);
-+	sclp_vt220_initialized = 0;
- }
- 
- static int __init __sclp_vt220_init(void)
-@@ -639,6 +642,7 @@ static int __init __sclp_vt220_init(void
- 	void *page;
- 	int i;
- 	int num_pages;
-+	int rc;
- 
- 	if (sclp_vt220_initialized)
- 		return 0;
-@@ -667,7 +671,14 @@ static int __init __sclp_vt220_init(void
- 		}
- 		list_add_tail((struct list_head *) page, &sclp_vt220_empty);
- 	}
--	return 0;
-+	rc = sclp_register(&sclp_vt220_register);
-+	if (rc) {
-+		printk(KERN_ERR SCLP_VT220_PRINT_HEADER
-+		       "could not register vt220 - "
-+		       "sclp_register returned %d\n", rc);
-+		__sclp_vt220_cleanup();
-+	}
-+	return rc;
- }
- 
- static const struct tty_operations sclp_vt220_ops = {
-@@ -688,22 +699,17 @@ static int __init sclp_vt220_tty_init(vo
- {
- 	struct tty_driver *driver;
- 	int rc;
-+	int cleanup;
- 
- 	/* Note: we're not testing for CONSOLE_IS_SCLP here to preserve
- 	 * symmetry between VM and LPAR systems regarding ttyS1. */
- 	driver = alloc_tty_driver(1);
- 	if (!driver)
- 		return -ENOMEM;
-+	cleanup = !sclp_vt220_initialized;
- 	rc = __sclp_vt220_init();
- 	if (rc)
- 		goto out_driver;
--	rc = sclp_register(&sclp_vt220_register);
--	if (rc) {
--		printk(KERN_ERR SCLP_VT220_PRINT_HEADER
--		       "could not register tty - "
--		       "sclp_register returned %d\n", rc);
--		goto out_init;
--	}
- 
- 	driver->owner = THIS_MODULE;
- 	driver->driver_name = SCLP_VT220_DRIVER_NAME;
-@@ -721,15 +727,14 @@ static int __init sclp_vt220_tty_init(vo
- 		printk(KERN_ERR SCLP_VT220_PRINT_HEADER
- 		       "could not register tty - "
- 		       "tty_register_driver returned %d\n", rc);
--		goto out_sclp;
-+		goto out_init;
- 	}
- 	sclp_vt220_driver = driver;
- 	return 0;
- 
--out_sclp:
--	sclp_unregister(&sclp_vt220_register);
- out_init:
--	__sclp_vt220_cleanup();
-+	if (cleanup)
-+		__sclp_vt220_cleanup();
- out_driver:
- 	put_tty_driver(driver);
- 	return rc;
+--- quilt-2.6.orig/arch/s390/kernel/process.c
++++ quilt-2.6/arch/s390/kernel/process.c
+@@ -29,7 +29,6 @@
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <linux/user.h>
+-#include <linux/a.out.h>
+ #include <linux/interrupt.h>
+ #include <linux/delay.h>
+ #include <linux/reboot.h>
+Index: quilt-2.6/arch/s390/kernel/setup.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/setup.c
++++ quilt-2.6/arch/s390/kernel/setup.c
+@@ -24,7 +24,6 @@
+ #include <linux/ptrace.h>
+ #include <linux/slab.h>
+ #include <linux/user.h>
+-#include <linux/a.out.h>
+ #include <linux/tty.h>
+ #include <linux/ioport.h>
+ #include <linux/delay.h>
+Index: quilt-2.6/include/asm-s390/a.out.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/a.out.h
++++ /dev/null
+@@ -1,32 +0,0 @@
+-/*
+- *  include/asm-s390/a.out.h
+- *
+- *  S390 version
+- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- *
+- *  Derived from "include/asm-i386/a.out.h"
+- *    Copyright (C) 1992, Linus Torvalds
+- *
+- * I don't think we'll ever need a.out ...
+- */
+-
+-#ifndef __S390_A_OUT_H__
+-#define __S390_A_OUT_H__
+-
+-struct exec
+-{
+-  unsigned long a_info;		/* Use macros N_MAGIC, etc for access */
+-  unsigned a_text;		/* length of text, in bytes */
+-  unsigned a_data;		/* length of data, in bytes */
+-  unsigned a_bss;		/* length of uninitialized data area for file, in bytes */
+-  unsigned a_syms;		/* length of symbol table data in file, in bytes */
+-  unsigned a_entry;		/* start address */
+-  unsigned a_trsize;		/* length of relocation info for text, in bytes */
+-  unsigned a_drsize;		/* length of relocation info for data, in bytes */
+-};
+-
+-#define N_TRSIZE(a)	((a).a_trsize)
+-#define N_DRSIZE(a)	((a).a_drsize)
+-#define N_SYMSIZE(a)	((a).a_syms)
+-
+-#endif /* __A_OUT_GNU_H__ */
 
 -- 
 blue skies,
