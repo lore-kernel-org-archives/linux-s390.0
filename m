@@ -1,57 +1,81 @@
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>
-Subject: Re: [PATCH] Fix ext4 bitops
-Date: Mon, 4 Feb 2008 14:59:34 +0530
-Message-ID: <20080204092934.GE7494@skywalker>
-References: <20080201200208.GA28274@wavehammer.waldi.eu.org> <20080201122257.9524c2bb.akpm@linux-foundation.org> <20080201210404.GA31271@wavehammer.waldi.eu.org> <20080203121238.GD18211@osiris.ibm.com> <Pine.LNX.4.64.0802031336240.28712@anakin> <20080204045025.GA7494@skywalker> <20080204092436.GB7530@osiris.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-ext4-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20080204092436.GB7530@osiris.boeblingen.de.ibm.com>
-Sender: linux-ext4-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-ext4/>
-List-Post: <mailto:linux-ext4@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Bastian Blank <bastian@waldi.eu.org>, Andrew Morton <akpm@linux-foundation.org>, linux-s390@vger.kernel.org, Linux Kernel Development <linux-kernel@vger.kernel.org>, Linux/PPC Development <linuxppc-dev@ozlabs.org>, linux-ext4@vger.kernel.org
+From: Ursula Braun1 <BRAUNU@de.ibm.com>
+Date: Tue, 12 Feb 2008 12:39:00 +0000
+Subject: Re: [PATCH] S390:  Use shorter form of "get_zeroed_page".
+Message-Id: <OFAD4FA371.7998893F-ONC12573ED.0045062F-C12573ED.00457D4B@de.ibm.com>
+In-Reply-To: <alpine.LFD.1.00.0802101552420.15476@localhost.localdomain>
+References: <alpine.LFD.1.00.0802101552420.15476@localhost.localdomain>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Feb 04, 2008 at 10:24:36AM +0100, Heiko Carstens wrote:
-> > > > > | fs/ext4/mballoc.c: In function 'ext4_mb_generate_buddy':
-> > > > > | fs/ext4/mballoc.c:954: error: implicit declaration of function 'generic_find_next_le_bit'
-> > > > > 
-> > > > > The s390 specific bitops uses parts of the generic implementation.
-> > > > > Include the correct header.
-> > > > 
-> > > > That doesn't work:
-> > > > 
-> > > > fs/built-in.o: In function `ext4_mb_release_inode_pa':
-> > > > mballoc.c:(.text+0x95a8a): undefined reference to `generic_find_next_le_bit'
-> > > > fs/built-in.o: In function `ext4_mb_init_cache':
-> > > > mballoc.c:(.text+0x967ea): undefined reference to `generic_find_next_le_bit'
-> > > > 
-> > > > This still needs generic_find_next_le_bit which comes
-> > > > from lib/find_next_bit.c. That one doesn't get built on s390 since we
-> > > > don't set GENERIC_FIND_NEXT_BIT.
-> > > > Currently we have the lengthly patch below queued.
-> > > 
-> > > Similar issue on m68k. As Bastian also saw it on powerpc, I'm getting the
-> > > impression the ext4 people don't (compile) test on big endian machines?
-> > > 
-> > > Gr{oetje,eeting}s,
-> > > 
-> > 
-> > I have sent this patches to linux-arch expecting a review from
-> > different arch people. It is true that the patches are tested only on
-> > powerpc, x86-64, x86. That's the primary reason of me sending the
-> > patches to linux-arch.
-> 
-> Is there anything special I need to do so the ext4 code actually uses
-> ext2_find_next_bit() ? Haven't looked at the ext4 code, but I'd like to
-> test if the s390 implementation is ok.
+Robert,
 
-With the latest linus kernel in git you can test it by mounting  ext4
+thanks for your qeth-patch. We have already included your patch into our
+local kernel repository. Since we are currently on the way to replace the
+current qeth-driver by a reworked qeth-driver, you will see your patch
+included once the reworked qeth driver is upstream.
 
-mount -t ext4dev <device> <mntpoint>
+Regards, Ursula Braun
+IBM Germany, Linux on System z Dev.
+
+IBM Deutschland Entwicklung GmbH
+Vorsitzender des Aufsichtsrats: Martin Jetter
+Gesch�ftsf�hrung: Herbert Kircher
+Sitz der Gesellschaft: B�blingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
 
 
--aneesh
+
+                                                                           
+             "Robert P. J.                                                 
+             Day"                                                          
+             <rpjday@crashcour                                          To 
+             se.ca>                    linux-s390@vger.kernel.org          
+             Sent by:                                                   cc 
+             linux-s390-owner@                                             
+             vger.kernel.org                                       Subject 
+                                       [PATCH] S390:  Use shorter form of  
+                                       "get_zeroed_page".                  
+             10.02.2008 21:53                                              
+                                                                           
+                                                                           
+                                                                           
+                                                                           
+                                                                           
+
+
+
+
+
+Signed-off-by: Robert P. J. Day <rpjday@crashcourse.ca>
+
+---
+
+diff --git a/drivers/s390/net/qeth_eddp.c b/drivers/s390/net/qeth_eddp.c
+index e3c268c..556e8ba 100644
+--- a/drivers/s390/net/qeth_eddp.c
++++ b/drivers/s390/net/qeth_eddp.c
+@@ -564,14 +564,13 @@ qeth_eddp_create_context_generic(struct qeth_card
+*card, struct sk_buff *skb,
+                         return NULL;
+             }
+             for (i = 0; i < ctx->num_pages; ++i){
+-                        addr = (u8 *)__get_free_page(GFP_ATOMIC);
++                        addr = (u8 *)get_zeroed_page(GFP_ATOMIC);
+                         if (addr == NULL){
+                                     QETH_DBF_TEXT(trace, 2, "ceddpcn3");
+                                     ctx->num_pages = i;
+                                     qeth_eddp_free_context(ctx);
+                                     return NULL;
+                         }
+-                        memset(addr, 0, PAGE_SIZE);
+                         ctx->pages[i] = addr;
+             }
+             ctx->elements = kcalloc(ctx->num_elements,
+========================================================================
+Robert P. J. Day
+Linux Consulting, Training and Annoying Kernel Pedantry
+Waterloo, Ontario, CANADA
+
+Home page:                                         http://crashcourse.ca
+Fedora Cookbook:    http://crashcourse.ca/wiki/index.php/Fedora_Cookbook
+========================================================================
