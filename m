@@ -1,72 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759652AbYBSOqt@vger.kernel.org>
-Message-Id: <20080219144503.680430685@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759975AbYBSOrM@vger.kernel.org>
+Message-Id: <20080219144503.894881790@de.ibm.com>
 References: <20080219144047.587547541@de.ibm.com>
-Date: Tue, 19 Feb 2008 15:40:51 +0100
+Date: Tue, 19 Feb 2008 15:40:52 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 04/13] Make sure enabled wait psw is loaded in default_idle.
-Content-Disposition: inline; filename=004-idle.diff
+Subject: [patch 05/13] dasd: fix locking in __dasd_device_process_final_queue
+Content-Disposition: inline; filename=005-dasd-locking.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Stefan Weinhuber <wein@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Stefan Weinhuber <wein@de.ibm.com>
 
-If both NO_IDLE_HZ and VIRT_TIMER are disabled default_idle won't load
-an enabled wait psw and busy loop instead. This is because the
-idle_chain is empty and the return value of atomic_notifier_call_chain
-will be NOTIFY_DONE, which causes default_idle to return instead of
-loading an enabled wait psw.
-Fix this by calling __atomic_notifier_call_chain instead and add proper
-return value handling.
+After setting the status of the cqr and releasing the lock for the
+block cqr queue, we call the cqr callback function, which will usually
+just trigger the dasd_block_tasklet. But when the tasklet is already
+running the cqr might be processed before we invoke the callback
+function. In rare cases the callback pointer may already be invalid
+by the time we want to call it, which will result in a panic.
+Solution: Call the callback function first and then release the lock.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Stefan Weinhuber <wein@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/process.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/s390/block/dasd.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/process.c
+Index: quilt-2.6/drivers/s390/block/dasd.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/process.c
-+++ quilt-2.6/arch/s390/kernel/process.c
-@@ -114,24 +114,27 @@ extern void s390_handle_mcck(void);
- static void default_idle(void)
+--- quilt-2.6.orig/drivers/s390/block/dasd.c
++++ quilt-2.6/drivers/s390/block/dasd.c
+@@ -1149,12 +1149,14 @@ static void __dasd_device_process_final_
  {
- 	int cpu, rc;
-+	int nr_calls = 0;
-+	void *hcpu;
- #ifdef CONFIG_SMP
- 	struct s390_idle_data *idle;
- #endif
+ 	struct list_head *l, *n;
+ 	struct dasd_ccw_req *cqr;
++	struct dasd_block *block;
  
- 	/* CPU is going idle. */
- 	cpu = smp_processor_id();
+ 	list_for_each_safe(l, n, final_queue) {
+ 		cqr = list_entry(l, struct dasd_ccw_req, devlist);
+ 		list_del_init(&cqr->devlist);
+-		if (cqr->block)
+-			spin_lock_bh(&cqr->block->queue_lock);
++		block = cqr->block;
++		if (block)
++			spin_lock_bh(&block->queue_lock);
+ 		switch (cqr->status) {
+ 		case DASD_CQR_SUCCESS:
+ 			cqr->status = DASD_CQR_DONE;
+@@ -1172,15 +1174,13 @@ static void __dasd_device_process_final_
+ 				    cqr, cqr->status);
+ 			BUG();
+ 		}
+-		if (cqr->block)
+-			spin_unlock_bh(&cqr->block->queue_lock);
+ 		if (cqr->callback != NULL)
+ 			(cqr->callback)(cqr, cqr->callback_data);
++		if (block)
++			spin_unlock_bh(&block->queue_lock);
+ 	}
+ }
+ 
 -
-+	hcpu = (void *)(long)cpu;
- 	local_irq_disable();
- 	if (need_resched()) {
- 		local_irq_enable();
- 		return;
- 	}
- 
--	rc = atomic_notifier_call_chain(&idle_chain,
--					S390_CPU_IDLE, (void *)(long) cpu);
--	if (rc != NOTIFY_OK && rc != NOTIFY_DONE)
--		BUG();
--	if (rc != NOTIFY_OK) {
-+	rc = __atomic_notifier_call_chain(&idle_chain, S390_CPU_IDLE, hcpu, -1,
-+					  &nr_calls);
-+	if (rc == NOTIFY_BAD) {
-+		nr_calls--;
-+		__atomic_notifier_call_chain(&idle_chain, S390_CPU_NOT_IDLE,
-+					     hcpu, nr_calls, NULL);
- 		local_irq_enable();
- 		return;
- 	}
+-
+ /*
+  * Take a look at the first request on the ccw queue and check
+  * if it reached its expire time. If so, terminate the IO.
 
 -- 
 blue skies,
