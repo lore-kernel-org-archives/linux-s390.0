@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754483AbYBSOpd@vger.kernel.org>
-Message-Id: <20080219144047.587547541@de.ibm.com>
-Date: Tue, 19 Feb 2008 15:40:47 +0100
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758691AbYBSOp4@vger.kernel.org>
+Message-Id: <20080219144502.901113484@de.ibm.com>
+References: <20080219144047.587547541@de.ibm.com>
+Date: Tue, 19 Feb 2008 15:40:48 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 00/13] s390 bux fixes for 2.6.25-rc2.
+Subject: [patch 01/13] cio: Remember to initialize recovery_lock.
+Content-Disposition: inline; filename=001-cio-lockinit.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Greetings,
-this and that for s390. The shortlog:
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Cornelia Huck (2):
-      [S390] cio: Remember to initialize recovery_lock.
-      [S390] cio: Do timed recovery on workqueue.
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
 
-Heiko Carstens (6):
-      [S390] Let NR_CPUS default to 32/64 on s390/s390x.
-      [S390] Make sure enabled wait psw is loaded in default_idle.
-      [S390] Initialize per cpu lowcores on cpu hotplug.
-      [S390] qdio: fix qdio_activate timeout handling.
-      [S390] etr: fix compile error on !SMP
-      [S390] Fix futex_atomic_cmpxchg_std inline assembly.
+ drivers/s390/cio/device.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Martin Schwidefsky (1):
-      [S390] find bit corner case.
-
-Peter Oberparleiter (1):
-      [S390] sclp: clean up send/receive naming scheme
-
-Roel Kluin (1):
-      [S390] dcss: Fix Unlikely(x) != y
-
-Stefan Weinhuber (1):
-      [S390] dasd: fix locking in __dasd_device_process_final_queue
-
-Ursula Braun (1):
-      [S390] qdio: FCP/SCSI write I/O stagnates on LPAR
+Index: quilt-2.6/drivers/s390/cio/device.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/device.c
++++ quilt-2.6/drivers/s390/cio/device.c
+@@ -32,7 +32,7 @@
+ #include "io_sch.h"
+ 
+ static struct timer_list recovery_timer;
+-static spinlock_t recovery_lock;
++static DEFINE_SPINLOCK(recovery_lock);
+ static int recovery_phase;
+ static const unsigned long recovery_delay[] = { 3, 30, 300 };
+ 
 
 -- 
 blue skies,
