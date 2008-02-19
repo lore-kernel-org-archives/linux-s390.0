@@ -1,47 +1,34 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759884AbYBSOt5@vger.kernel.org>
-Message-Id: <20080219144506.067881522@de.ibm.com>
-References: <20080219144047.587547541@de.ibm.com>
-Date: Tue, 19 Feb 2008 15:41:00 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 13/13] qdio: FCP/SCSI write I/O stagnates on LPAR
-Content-Disposition: inline; filename=013-qdio-stalls.diff
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758931AbYBSPOP@vger.kernel.org>
+Date: Tue, 19 Feb 2008 16:13:55 +0100
+From: Bastian Blank <bastian@waldi.eu.org>
+Subject: Re: [patch 07/13] Initialize per cpu lowcores on cpu hotplug.
+Message-ID: <20080219151355.GA24547@wavehammer.waldi.eu.org>
+References: <20080219144047.587547541@de.ibm.com> <20080219144504.392301782@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20080219144504.392301782@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Ursula Braun <braunu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <braunu@de.ibm.com>
+On Tue, Feb 19, 2008 at 03:40:54PM +0100, Martin Schwidefsky wrote:
+> +	/*
+> +	 * Only need to copy the first 512 bytes from address 0. But since
+> +	 * the compiler emits a warning if src == NULL for memcpy use copy_page
+> +	 * instead. Copies more than needed but this code is not performance
+> +	 * critical.
+> +	 */
+> +	copy_page(lowcore, &S390_lowcore);
 
-If running on LPAR, qdio might overlook an incoming buffer in certain
-scenarios. The patch makes sure that incoming buffers are detected
-immediately in all situations.
+Boah, workaround alert. Why do you not fix the compiler?
 
-Signed-off-by: Ursula Braun <braunu@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
-
- drivers/s390/cio/qdio.c |    3 ---
- 1 file changed, 3 deletions(-)
-
-Index: quilt-2.6/drivers/s390/cio/qdio.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/qdio.c
-+++ quilt-2.6/drivers/s390/cio/qdio.c
-@@ -1215,9 +1215,6 @@ tiqdio_is_inbound_q_done(struct qdio_q *
- 
- 	if (!no_used)
- 		return 1;
--	if (!q->siga_sync && !irq->is_qebsm)
--		/* we'll check for more primed buffers in qeth_stop_polling */
--		return 0;
- 	if (irq->is_qebsm) {
- 		count = 1;
- 		start_buf = q->first_to_check;
+Bastian
 
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+We fight only when there is no other choice.  We prefer the ways of
+peaceful contact.
+		-- Kirk, "Spectre of the Gun", stardate 4385.3
