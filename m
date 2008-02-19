@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759571AbYBSOtl@vger.kernel.org>
-Message-Id: <20080219144505.823632804@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759884AbYBSOt5@vger.kernel.org>
+Message-Id: <20080219144506.067881522@de.ibm.com>
 References: <20080219144047.587547541@de.ibm.com>
-Date: Tue, 19 Feb 2008 15:40:59 +0100
+Date: Tue, 19 Feb 2008 15:41:00 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 12/13] Fix futex_atomic_cmpxchg_std inline assembly.
-Content-Disposition: inline; filename=012-futex-extable.diff
+Subject: [patch 13/13] qdio: FCP/SCSI write I/O stagnates on LPAR
+Content-Disposition: inline; filename=013-qdio-stalls.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: stable <stable@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Ursula Braun <braunu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Ursula Braun <braunu@de.ibm.com>
 
-Add missing exception table entry so that the kernel can handle
-proctection exceptions as well on the cs instruction. Currently only
-specification exceptions are handled correctly.
-The missing entry allows user space to crash the kernel.
+If running on LPAR, qdio might overlook an incoming buffer in certain
+scenarios. The patch makes sure that incoming buffers are detected
+immediately in all situations.
 
-Cc: stable <stable@kernel.org>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Ursula Braun <braunu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/lib/uaccess_std.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/s390/cio/qdio.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-Index: quilt-2.6/arch/s390/lib/uaccess_std.c
+Index: quilt-2.6/drivers/s390/cio/qdio.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/lib/uaccess_std.c
-+++ quilt-2.6/arch/s390/lib/uaccess_std.c
-@@ -293,10 +293,10 @@ int futex_atomic_cmpxchg_std(int __user 
+--- quilt-2.6.orig/drivers/s390/cio/qdio.c
++++ quilt-2.6/drivers/s390/cio/qdio.c
+@@ -1215,9 +1215,6 @@ tiqdio_is_inbound_q_done(struct qdio_q *
  
- 	asm volatile(
- 		"   sacf 256\n"
--		"   cs   %1,%4,0(%5)\n"
--		"0: lr   %0,%1\n"
--		"1: sacf 0\n"
--		EX_TABLE(0b,1b)
-+		"0: cs   %1,%4,0(%5)\n"
-+		"1: lr   %0,%1\n"
-+		"2: sacf 0\n"
-+		EX_TABLE(0b,2b) EX_TABLE(1b,2b)
- 		: "=d" (ret), "+d" (oldval), "=m" (*uaddr)
- 		: "0" (-EFAULT), "d" (newval), "a" (uaddr), "m" (*uaddr)
- 		: "cc", "memory" );
+ 	if (!no_used)
+ 		return 1;
+-	if (!q->siga_sync && !irq->is_qebsm)
+-		/* we'll check for more primed buffers in qeth_stop_polling */
+-		return 0;
+ 	if (irq->is_qebsm) {
+ 		count = 1;
+ 		start_buf = q->first_to_check;
 
 -- 
 blue skies,
