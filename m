@@ -1,87 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760742AbYBSOsO@vger.kernel.org>
-Message-Id: <20080219144504.632335035@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760953AbYBSOsi@vger.kernel.org>
+Message-Id: <20080219144505.029121882@de.ibm.com>
 References: <20080219144047.587547541@de.ibm.com>
-Date: Tue, 19 Feb 2008 15:40:55 +0100
+Date: Tue, 19 Feb 2008 15:40:56 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 08/13] qdio: fix qdio_activate timeout handling.
-Content-Disposition: inline; filename=008-qdio-timeout.diff
+Subject: [patch 09/13] etr: fix compile error on !SMP
+Content-Disposition: inline; filename=009-etr-nonsmp.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Utz Bacher <utz.bacher@de.ibm.com>, Jan Glauber <jan.glauber@de.ibm.com>, Ursula Braun <braunu@de.ibm.com>, Martin Peschke <mp3@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Current code in qdio_activate waits for at least 5 seconds
-until it returns. It may return earlier if an error occurs,
-but not if everything is ok. This large timeout value
-became visible with commit dfa77f611ff295598e218aa0eb6efa73a5cf26d0
-"qdio: set QDIO_ACTIVATE_TIMEOUT to 5s", which intended to
-fix the timeout value which was zero. In turn setting an
-FCP adapter online took 5 seconds.
+Since a5fbb6d1064be885d2a6b82f625186753cf74848
+"KVM: fix !SMP build error" smp_call_function isn't a define anymore
+that folds into nothing but a define that calls up_smp_call_function
+with all parameters. Hence we cannot #ifdef out the unused code
+anymore...
+This seems to be the preferred method, so do this for s390 as well.
 
-In practice waiting for 5ms before continuing is sufficient
-as pointed out by Utz Bacher and Cornelia Huck.
+arch/s390/kernel/time.c: In function 'etr_sync_clock':
+arch/s390/kernel/time.c:825: error: 'clock_sync_cpu_start' undeclared
+arch/s390/kernel/time.c:862: error: 'clock_sync_cpu_end' undeclared
 
-Cc: Utz Bacher <utz.bacher@de.ibm.com>
-Cc: Jan Glauber <jan.glauber@de.ibm.com>
-Cc: Ursula Braun <braunu@de.ibm.com>
-Cc: Martin Peschke <mp3@de.ibm.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/qdio.c |   10 ++--------
- drivers/s390/cio/qdio.h |    2 +-
- 2 files changed, 3 insertions(+), 9 deletions(-)
+ arch/s390/kernel/time.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/qdio.c
+Index: quilt-2.6/arch/s390/kernel/time.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/qdio.c
-+++ quilt-2.6/drivers/s390/cio/qdio.c
-@@ -32,7 +32,7 @@
- 
- #include <linux/module.h>
- #include <linux/init.h>
--
-+#include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/kernel.h>
- #include <linux/proc_fs.h>
-@@ -3332,13 +3332,7 @@ qdio_activate(struct ccw_device *cdev, i
- 		}
+--- quilt-2.6.orig/arch/s390/kernel/time.c
++++ quilt-2.6/arch/s390/kernel/time.c
+@@ -744,7 +744,6 @@ static void etr_adjust_time(unsigned lon
  	}
+ }
  
--	wait_event_interruptible_timeout(cdev->private->wait_q,
--					 ((irq_ptr->state ==
--					  QDIO_IRQ_STATE_STOPPED) ||
--					  (irq_ptr->state ==
--					   QDIO_IRQ_STATE_ERR)),
--					 QDIO_ACTIVATE_TIMEOUT);
--
-+	msleep(QDIO_ACTIVATE_TIMEOUT);
- 	switch (irq_ptr->state) {
- 	case QDIO_IRQ_STATE_STOPPED:
- 	case QDIO_IRQ_STATE_ERR:
-Index: quilt-2.6/drivers/s390/cio/qdio.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/qdio.h
-+++ quilt-2.6/drivers/s390/cio/qdio.h
-@@ -57,10 +57,10 @@
- 					    of the queue to 0 */
+-#ifdef CONFIG_SMP
+ static void etr_sync_cpu_start(void *dummy)
+ {
+ 	int *in_sync = dummy;
+@@ -777,7 +776,6 @@ static void etr_sync_cpu_start(void *dum
+ static void etr_sync_cpu_end(void *dummy)
+ {
+ }
+-#endif /* CONFIG_SMP */
  
- #define QDIO_ESTABLISH_TIMEOUT (1*HZ)
--#define QDIO_ACTIVATE_TIMEOUT (5*HZ)
- #define QDIO_CLEANUP_CLEAR_TIMEOUT (20*HZ)
- #define QDIO_CLEANUP_HALT_TIMEOUT (10*HZ)
- #define QDIO_FORCE_CHECK_TIMEOUT (10*HZ)
-+#define QDIO_ACTIVATE_TIMEOUT (5) /* 5 ms */
- 
- enum qdio_irq_states {
- 	QDIO_IRQ_STATE_INACTIVE,
+ /*
+  * Sync the TOD clock using the port refered to by aibp. This port
 
 -- 
 blue skies,
