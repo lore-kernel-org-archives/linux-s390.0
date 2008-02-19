@@ -1,73 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759975AbYBSOrM@vger.kernel.org>
-Message-Id: <20080219144503.894881790@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760185AbYBSOre@vger.kernel.org>
+Message-Id: <20080219144504.185987495@de.ibm.com>
 References: <20080219144047.587547541@de.ibm.com>
-Date: Tue, 19 Feb 2008 15:40:52 +0100
+Date: Tue, 19 Feb 2008 15:40:53 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 05/13] dasd: fix locking in __dasd_device_process_final_queue
-Content-Disposition: inline; filename=005-dasd-locking.diff
+Subject: [patch 06/13] find bit corner case.
+Content-Disposition: inline; filename=006-bitops.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Stefan Weinhuber <wein@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Stefan Weinhuber <wein@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-After setting the status of the cqr and releasing the lock for the
-block cqr queue, we call the cqr callback function, which will usually
-just trigger the dasd_block_tasklet. But when the tasklet is already
-running the cqr might be processed before we invoke the callback
-function. In rare cases the callback pointer may already be invalid
-by the time we want to call it, which will result in a panic.
-Solution: Call the callback function first and then release the lock.
+Fix [ext2_]find_first_[zero_]bit for the corner case of an all clear
+or all set bit field by always handling that last word of the bit field
+with __ffz_word/__ffs_word.
 
-Signed-off-by: Stefan Weinhuber <wein@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/dasd.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ include/asm-s390/bitops.h |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-Index: quilt-2.6/drivers/s390/block/dasd.c
+Index: quilt-2.6/include/asm-s390/bitops.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd.c
-+++ quilt-2.6/drivers/s390/block/dasd.c
-@@ -1149,12 +1149,14 @@ static void __dasd_device_process_final_
- {
- 	struct list_head *l, *n;
- 	struct dasd_ccw_req *cqr;
-+	struct dasd_block *block;
+--- quilt-2.6.orig/include/asm-s390/bitops.h
++++ quilt-2.6/include/asm-s390/bitops.h
+@@ -456,16 +456,18 @@ static inline unsigned long __ffz_word_l
  
- 	list_for_each_safe(l, n, final_queue) {
- 		cqr = list_entry(l, struct dasd_ccw_req, devlist);
- 		list_del_init(&cqr->devlist);
--		if (cqr->block)
--			spin_lock_bh(&cqr->block->queue_lock);
-+		block = cqr->block;
-+		if (block)
-+			spin_lock_bh(&block->queue_lock);
- 		switch (cqr->status) {
- 		case DASD_CQR_SUCCESS:
- 			cqr->status = DASD_CQR_DONE;
-@@ -1172,15 +1174,13 @@ static void __dasd_device_process_final_
- 				    cqr, cqr->status);
- 			BUG();
- 		}
--		if (cqr->block)
--			spin_unlock_bh(&cqr->block->queue_lock);
- 		if (cqr->callback != NULL)
- 			(cqr->callback)(cqr, cqr->callback_data);
-+		if (block)
-+			spin_unlock_bh(&block->queue_lock);
- 	}
- }
+ 	asm volatile(
+ #ifndef __s390x__
+-		"	ahi	%1,31\n"
+-		"	srl	%1,5\n"
++		"	ahi	%1,-1\n"
++		"	sra	%1,5\n"
++		"	jz	1f\n"
+ 		"0:	c	%2,0(%0,%3)\n"
+ 		"	jne	1f\n"
+ 		"	la	%0,4(%0)\n"
+ 		"	brct	%1,0b\n"
+ 		"1:\n"
+ #else
+-		"	aghi	%1,63\n"
+-		"	srlg	%1,%1,6\n"
++		"	aghi	%1,-1\n"
++		"	srag	%1,%1,6\n"
++		"	jz	1f\n"
+ 		"0:	cg	%2,0(%0,%3)\n"
+ 		"	jne	1f\n"
+ 		"	la	%0,8(%0)\n"
+@@ -491,16 +493,18 @@ static inline unsigned long __ffs_word_l
  
--
--
- /*
-  * Take a look at the first request on the ccw queue and check
-  * if it reached its expire time. If so, terminate the IO.
+ 	asm volatile(
+ #ifndef __s390x__
+-		"	ahi	%1,31\n"
+-		"	srl	%1,5\n"
++		"	ahi	%1,-1\n"
++		"	sra	%1,5\n"
++		"	jz	1f\n"
+ 		"0:	c	%2,0(%0,%3)\n"
+ 		"	jne	1f\n"
+ 		"	la	%0,4(%0)\n"
+ 		"	brct	%1,0b\n"
+ 		"1:\n"
+ #else
+-		"	aghi	%1,63\n"
+-		"	srlg	%1,%1,6\n"
++		"	aghi	%1,-1\n"
++		"	srag	%1,%1,6\n"
++		"	jz	1f\n"
+ 		"0:	cg	%2,0(%0,%3)\n"
+ 		"	jne	1f\n"
+ 		"	la	%0,8(%0)\n"
 
 -- 
 blue skies,
