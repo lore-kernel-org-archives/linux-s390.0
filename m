@@ -1,65 +1,49 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Tue, 26 Feb 2008 09:20:12 +0000
-Subject: Re: BUG: soft lockup detected on CPU#0! Process swapper
-Message-Id: <20080226092012.GB7114@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <200802260854.53213.borntraeger@de.ibm.com>
-References: <200802260854.53213.borntraeger@de.ibm.com>
-To: linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756995AbYCAXK4@vger.kernel.org>
+From: "Josef 'Jeff' Sipek" <jeffpc@josefsipek.net>
+Subject: [PATCH 1/1] iucv: Fix compilation with !CONFIG_SMP
+Date: Fri, 29 Feb 2008 17:30:41 -0500
+Message-Id: <1204324241-2276-1-git-send-email-jeffpc@josefsipek.net>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Josef 'Jeff' Sipek <jeffpc@josefsipek.net>, ubraun@linux.vnet.ibm.com, blaschka@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Feb 25, 2008 at 03:52:32PM -0600, John Gnew wrote:
-> I copied this message from the dmesg listing. From time to time I have seen 
-> this BUG for swapper, events and kjournald. Now that I have some time, I 
-> thought I would attempt to see if there is a fix available or try to get 
-> some information that I can use to debug this.
->
-> Questions?
-> How do I determine is a fix has already addressed this issue.
-> If no fix is available, how do I get additional data and submit this as a 
-> bug?
->
-> John
->
-> -------------------------------------------------
->
-> The kernel is at 2.6.16.27
->
-> BUG: soft lockup detected on CPU#0!
-> CPU:    0    Not tainted
-> Process swapper (pid: 0, task: 004f6400, ksp: 00551e80)
-> [...]
+CC [M]  net/iucv/iucv.o
+net/iucv/iucv.c: In function `iucv_cleanup_queue':
+net/iucv/iucv.c:657: error: `__iucv_cleanup_queue' undeclared (first use in this function)
 
-This is not a bug as explained by others already. The patch below went into
-2.6.19 to address the issue of false positives.
+With !CONFIG_SMP the smp_call_function call turns into up_smp_call_function
+call which is just a return 0. Unfortunately, since up_smp_call_function is
+a static inline, the __iucv_cleanup_queue symbol is referenced.
 
-Adrian, would you please consider the patch below for your 2.6.16 stable
-series? Patch is for 2.6.16.60. Upstream commit id in Linus' tree is
-dea20a3fbdd08e5ae2a0b33d2577c794a3764a11 . Thanks!
-
-Subject: [PATCH] Disable DETECT_SOFTLOCKUP for s390
-    
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-
-We got several false bug reports because of enabled
-CONFIG_DETECT_SOFTLOCKUP.  Disable soft lockup detection on s390, since it
-doesn't work on a virtualized architecture.
-    
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: ubraun@linux.vnet.ibm.com
+Cc: blaschka@linux.vnet.ibm.com
+Signed-off-by: Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
 ---
+ net/iucv/iucv.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
- lib/Kconfig.debug |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-2.6.16.60/lib/Kconfig.debug
-===================================================================
---- linux-2.6.16.60.orig/lib/Kconfig.debug
-+++ linux-2.6.16.60/lib/Kconfig.debug
-@@ -48,7 +48,7 @@ config LOG_BUF_SHIFT
+diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
+index 2753b0c..d764f4c 100644
+--- a/net/iucv/iucv.c
++++ b/net/iucv/iucv.c
+@@ -621,7 +621,6 @@ static int iucv_sever_pathid(u16 pathid, u8 userdata[16])
+ 	return iucv_call_b2f0(IUCV_SEVER, parm);
+ }
  
- config DETECT_SOFTLOCKUP
- 	bool "Detect Soft Lockups"
--	depends on DEBUG_KERNEL
-+	depends on DEBUG_KERNEL && !S390
- 	default y
- 	help
- 	  Say Y here to enable the kernel to detect "soft lockups",
+-#ifdef CONFIG_SMP
+ /**
+  * __iucv_cleanup_queue
+  * @dummy: unused dummy argument
+@@ -632,7 +631,6 @@ static int iucv_sever_pathid(u16 pathid, u8 userdata[16])
+ static void __iucv_cleanup_queue(void *dummy)
+ {
+ }
+-#endif
+ 
+ /**
+  * iucv_cleanup_queue
+-- 
+1.5.4.2
