@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756995AbYCAXK4@vger.kernel.org>
-From: "Josef 'Jeff' Sipek" <jeffpc@josefsipek.net>
-Subject: [PATCH 1/1] iucv: Fix compilation with !CONFIG_SMP
-Date: Fri, 29 Feb 2008 17:30:41 -0500
-Message-Id: <1204324241-2276-1-git-send-email-jeffpc@josefsipek.net>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1764172AbYCDMJx@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.25-rc3-git5 Build fails on s390x
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+In-Reply-To: <20080304113806.GA27293@linux.vnet.ibm.com>
+References: <20080304113806.GA27293@linux.vnet.ibm.com>
+Content-Type: text/plain
+Date: Tue, 04 Mar 2008 13:09:35 +0100
+Message-Id: <1204632575.1278.19.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Josef 'Jeff' Sipek <jeffpc@josefsipek.net>, ubraun@linux.vnet.ibm.com, blaschka@linux.vnet.ibm.com
+To: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, apw@shadowen.org
 List-ID: <linux-s390.vger.kernel.org>
 
-CC [M]  net/iucv/iucv.o
-net/iucv/iucv.c: In function `iucv_cleanup_queue':
-net/iucv/iucv.c:657: error: `__iucv_cleanup_queue' undeclared (first use in this function)
+On Tue, 2008-03-04 at 17:08 +0530, Kamalesh Babulal wrote:
+> The 2.6.25-rc3-git5 kernel build fails on s390x with
+> 
+> drivers/s390/char/defkeymap.c:155: error: missing terminating ' character
+> drivers/s390/char/defkeymap.c:156: error: syntax error before ';' token
+> make[2]: *** [drivers/s390/char/defkeymap.o] Error 1
+> make[1]: *** [drivers/s390/char] Error 2
+> make: *** [drivers/s390] Error 2
+> 
+> I have tested the patch for build failure only.
+> 
+> Signed-off-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
 
-With !CONFIG_SMP the smp_call_function call turns into up_smp_call_function
-call which is just a return 0. Unfortunately, since up_smp_call_function is
-a static inline, the __iucv_cleanup_queue symbol is referenced.
+Added to the queue with a small change to the description.
 
-Cc: ubraun@linux.vnet.ibm.com
-Cc: blaschka@linux.vnet.ibm.com
-Signed-off-by: Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
----
- net/iucv/iucv.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
-
-diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-index 2753b0c..d764f4c 100644
---- a/net/iucv/iucv.c
-+++ b/net/iucv/iucv.c
-@@ -621,7 +621,6 @@ static int iucv_sever_pathid(u16 pathid, u8 userdata[16])
- 	return iucv_call_b2f0(IUCV_SEVER, parm);
- }
- 
--#ifdef CONFIG_SMP
- /**
-  * __iucv_cleanup_queue
-  * @dummy: unused dummy argument
-@@ -632,7 +631,6 @@ static int iucv_sever_pathid(u16 pathid, u8 userdata[16])
- static void __iucv_cleanup_queue(void *dummy)
- {
- }
--#endif
- 
- /**
-  * iucv_cleanup_queue
 -- 
-1.5.4.2
+blue skies,
+  Martin.
+
+"Reality continues to ruin my life." - Calvin.
