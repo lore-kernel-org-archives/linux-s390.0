@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1764780AbYCEMAo@vger.kernel.org>
-Message-Id: <20080305115714.239239647@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932647AbYCEMBT@vger.kernel.org>
+Message-Id: <20080305115714.926737514@de.ibm.com>
 References: <20080305115432.691030908@de.ibm.com>
-Date: Wed, 05 Mar 2008 12:54:38 +0100
+Date: Wed, 05 Mar 2008 12:54:41 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 06/10] sclp_vt220: speed up console output for interactive work
-Content-Disposition: inline; filename=006-vt220-speedup.diff
+Subject: [patch 09/10] Load disabled wait psw if reipl fails.
+Content-Disposition: inline; filename=009-reipl-fail.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Michael Holzheu <holzheu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Michael Holzheu <holzheu@de.ibm.com>
 
-Currently an output buffer can wait up to HZ/2 until the buffer is
-flushed. The wait time is noticeable in interactive tools like mc.
+Normally this should not happen, but it's cleaner to do it that way.
 
-Change the value to HZ/20, which seems enough for interactive work.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/char/sclp_vt220.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kernel/ipl.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-Index: quilt-2.6/drivers/s390/char/sclp_vt220.c
+Index: quilt-2.6/arch/s390/kernel/ipl.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_vt220.c
-+++ quilt-2.6/drivers/s390/char/sclp_vt220.c
-@@ -367,7 +367,7 @@ sclp_vt220_timeout(unsigned long data)
- 	sclp_vt220_emit_current();
+--- quilt-2.6.orig/arch/s390/kernel/ipl.c
++++ quilt-2.6/arch/s390/kernel/ipl.c
+@@ -704,6 +704,7 @@ void reipl_run(struct shutdown_trigger *
+ 	default:
+ 		break;
+ 	}
++	disabled_wait((unsigned long) __builtin_return_address(0));
  }
  
--#define BUFFER_MAX_DELAY	HZ/2
-+#define BUFFER_MAX_DELAY	HZ/20
- 
- /* 
-  * Internal implementation of the write function. Write COUNT bytes of data
+ static void __init reipl_probe(void)
 
 -- 
 blue skies,
