@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S934372AbYCEMC7@vger.kernel.org>
-Message-Id: <20080305115713.799161805@de.ibm.com>
-References: <20080305115432.691030908@de.ibm.com>
-Date: Wed, 05 Mar 2008 12:54:36 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 04/10] dasd: let dasd erp matching recognize alias recovery
-Content-Disposition: inline; filename=004-dasd-erp.diff
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Stefan Weinhuber <wein@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 2/2] zfcp: Fix handling for boxed port after physical close
+Date: Mon, 10 Mar 2008 16:18:54 +0100
+Message-ID: <20080310152329.345181000@de.ibm.com>
+References: <20080310151852.808020000@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline; filename=zfcp-phys-close-boxed.diff
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Christof Schmitt <christof.schmitt@de.ibm.com>, Martin Peschke <mp3@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Stefan Weinhuber <wein@de.ibm.com>
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-When a request fails that was started on an alias device then the
-first recovery step is to retry it on the base device. If the
-recovery request fails again with the same symptoms, the next step
-should not be a simple retry, but should be a proper recovery based
-on sense data, etc. To do so, the dasd recovery functions need to
-recognize the alias recovery step in the erp chain by comparing
-the start devices.
+When a FSF physical close returns the status boxed, this means that
+another system already closed the port. For our system this is the
+same status as in the good path, we have to send the normal close. So,
+set the status for the boxed response to the same as for the good
+status.
 
-Signed-off-by: Stefan Weinhuber <wein@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+Signed-off-by: Martin Peschke <mp3@de.ibm.com>
 ---
+ drivers/s390/scsi/zfcp_fsf.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
- drivers/s390/block/dasd_3990_erp.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-Index: quilt-2.6/drivers/s390/block/dasd_3990_erp.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd_3990_erp.c
-+++ quilt-2.6/drivers/s390/block/dasd_3990_erp.c
-@@ -2310,10 +2310,8 @@ static int
- dasd_3990_erp_error_match(struct dasd_ccw_req *cqr1, struct dasd_ccw_req *cqr2)
- {
+--- linux-2.6.git.orig/drivers/s390/scsi/zfcp_fsf.c
++++ linux-2.6.git/drivers/s390/scsi/zfcp_fsf.c
+@@ -2968,6 +2968,13 @@ zfcp_fsf_close_physical_port_handler(str
+ 		zfcp_erp_port_boxed(port);
+ 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR |
+ 			ZFCP_STATUS_FSFREQ_RETRY;
++
++		/* can't use generic zfcp_erp_modify_port_status because
++		 * ZFCP_STATUS_COMMON_OPEN must not be reset for the port */
++		atomic_clear_mask(ZFCP_STATUS_PORT_PHYS_OPEN, &port->status);
++		list_for_each_entry(unit, &port->unit_list_head, list)
++			atomic_clear_mask(ZFCP_STATUS_COMMON_OPEN,
++					  &unit->status);
+ 		break;
  
--	/* check failed CCW */
--	if (cqr1->irb.scsw.cpa != cqr2->irb.scsw.cpa) {
--		//	return 0;	/* CCW doesn't match */
--	}
-+	if (cqr1->startdev != cqr2->startdev)
-+		return 0;
- 
- 	if (cqr1->irb.esw.esw0.erw.cons != cqr2->irb.esw.esw0.erw.cons)
- 		return 0;
+ 	case FSF_ADAPTER_STATUS_AVAILABLE:
 
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
