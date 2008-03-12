@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754611AbYCLReO@vger.kernel.org>
-Message-Id: <20080312173217.505558934@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755303AbYCLRe3@vger.kernel.org>
+Message-Id: <20080312173217.724970802@de.ibm.com>
 References: <20080312173155.703966894@de.ibm.com>
-Date: Wed, 12 Mar 2008 18:32:01 +0100
+Date: Wed, 12 Mar 2008 18:32:02 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 06/10] cpu topology support for s390.
-Content-Disposition: inline; filename=106-nodes-support.diff
+Subject: [patch 07/10] Vertical cpu management.
+Content-Disposition: inline; filename=107-vertical-cpus.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,441 +14,344 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Add s390 backend so we can give the scheduler some hints about the
-cpu topology.
-
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/Kconfig           |    4 
- arch/s390/defconfig         |    1 
- arch/s390/kernel/Makefile   |    2 
- arch/s390/kernel/setup.c    |    2 
- arch/s390/kernel/smp.c      |    4 
- arch/s390/kernel/topology.c |  271 ++++++++++++++++++++++++++++++++++++++++++++
- drivers/s390/sysinfo.c      |    2 
- include/asm-s390/smp.h      |    2 
- include/asm-s390/system.h   |    1 
- include/asm-s390/topology.h |   16 ++
- 10 files changed, 300 insertions(+), 5 deletions(-)
+ arch/s390/kernel/smp.c      |   83 ++++++++++++++++++++++++++++++++++++++++++--
+ arch/s390/kernel/topology.c |   66 +++++++++++++++++++++++++++++-----
+ include/asm-s390/smp.h      |    1 
+ include/asm-s390/topology.h |    9 ++++
+ 4 files changed, 146 insertions(+), 13 deletions(-)
 
-Index: quilt-2.6/arch/s390/defconfig
-===================================================================
---- quilt-2.6.orig/arch/s390/defconfig
-+++ quilt-2.6/arch/s390/defconfig
-@@ -3,6 +3,7 @@
- # Linux kernel version: 2.6.25-rc5
- # Wed Mar 12 14:10:52 2008
- #
-+CONFIG_SCHED_MC=y
- CONFIG_MMU=y
- CONFIG_ZONE_DMA=y
- CONFIG_LOCKDEP_SUPPORT=y
-Index: quilt-2.6/arch/s390/Kconfig
-===================================================================
---- quilt-2.6.orig/arch/s390/Kconfig
-+++ quilt-2.6/arch/s390/Kconfig
-@@ -3,6 +3,10 @@
- # see Documentation/kbuild/kconfig-language.txt.
- #
- 
-+config SCHED_MC
-+	def_bool y
-+	depends on SMP
-+
- config MMU
- 	def_bool y
- 
-Index: quilt-2.6/arch/s390/kernel/Makefile
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/Makefile
-+++ quilt-2.6/arch/s390/kernel/Makefile
-@@ -19,7 +19,7 @@ obj-y	+= $(if $(CONFIG_64BIT),reipl64.o,
- extra-y				+= head.o init_task.o vmlinux.lds
- 
- obj-$(CONFIG_MODULES)		+= s390_ksyms.o module.o
--obj-$(CONFIG_SMP)		+= smp.o
-+obj-$(CONFIG_SMP)		+= smp.o topology.o
- 
- obj-$(CONFIG_AUDIT)		+= audit.o
- compat-obj-$(CONFIG_AUDIT)	+= compat_audit.o
-Index: quilt-2.6/arch/s390/kernel/setup.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/setup.c
-+++ quilt-2.6/arch/s390/kernel/setup.c
-@@ -39,6 +39,7 @@
- #include <linux/pfn.h>
- #include <linux/ctype.h>
- #include <linux/reboot.h>
-+#include <linux/topology.h>
- 
- #include <asm/ipl.h>
- #include <asm/uaccess.h>
-@@ -830,6 +831,7 @@ setup_arch(char **cmdline_p)
- 
-         cpu_init();
-         __cpu_logical_map[0] = S390_lowcore.cpu_data.cpu_addr;
-+	s390_init_cpu_topology();
- 
- 	/*
- 	 * Setup capabilities (ELF_HWCAP & ELF_PLATFORM).
 Index: quilt-2.6/arch/s390/kernel/smp.c
 ===================================================================
 --- quilt-2.6.orig/arch/s390/kernel/smp.c
 +++ quilt-2.6/arch/s390/kernel/smp.c
-@@ -67,9 +67,7 @@ enum s390_cpu_state {
- 	CPU_STATE_CONFIGURED,
+@@ -68,7 +68,9 @@ enum s390_cpu_state {
  };
  
--#ifdef CONFIG_HOTPLUG_CPU
--static DEFINE_MUTEX(smp_cpu_state_mutex);
--#endif
-+DEFINE_MUTEX(smp_cpu_state_mutex);
+ DEFINE_MUTEX(smp_cpu_state_mutex);
++int smp_cpu_polarization[NR_CPUS];
  static int smp_cpu_state[NR_CPUS];
++static int cpu_management;
  
  static DEFINE_PER_CPU(struct cpu, cpu_devices);
+ DEFINE_PER_CPU(struct s390_idle_data, s390_idle);
+@@ -454,6 +456,7 @@ static int smp_rescan_cpus_sigp(cpumask_
+ 		if (cpu_known(cpu_id))
+ 			continue;
+ 		__cpu_logical_map[logical_cpu] = cpu_id;
++		smp_cpu_polarization[logical_cpu] = POLARIZATION_UNKNWN;
+ 		if (!cpu_stopped(logical_cpu))
+ 			continue;
+ 		cpu_set(logical_cpu, cpu_present_map);
+@@ -487,6 +490,7 @@ static int smp_rescan_cpus_sclp(cpumask_
+ 		if (cpu_known(cpu_id))
+ 			continue;
+ 		__cpu_logical_map[logical_cpu] = cpu_id;
++		smp_cpu_polarization[logical_cpu] = POLARIZATION_UNKNWN;
+ 		cpu_set(logical_cpu, cpu_present_map);
+ 		if (cpu >= info->configured)
+ 			smp_cpu_state[logical_cpu] = CPU_STATE_STANDBY;
+@@ -844,6 +848,7 @@ void __init smp_prepare_boot_cpu(void)
+ 	S390_lowcore.percpu_offset = __per_cpu_offset[0];
+ 	current_set[0] = current;
+ 	smp_cpu_state[0] = CPU_STATE_CONFIGURED;
++	smp_cpu_polarization[0] = POLARIZATION_UNKNWN;
+ 	spin_lock_init(&(&__get_cpu_var(s390_idle))->lock);
+ }
+ 
+@@ -895,15 +900,19 @@ static ssize_t cpu_configure_store(struc
+ 	case 0:
+ 		if (smp_cpu_state[cpu] == CPU_STATE_CONFIGURED) {
+ 			rc = sclp_cpu_deconfigure(__cpu_logical_map[cpu]);
+-			if (!rc)
++			if (!rc) {
+ 				smp_cpu_state[cpu] = CPU_STATE_STANDBY;
++				smp_cpu_polarization[cpu] = POLARIZATION_UNKNWN;
++			}
+ 		}
+ 		break;
+ 	case 1:
+ 		if (smp_cpu_state[cpu] == CPU_STATE_STANDBY) {
+ 			rc = sclp_cpu_configure(__cpu_logical_map[cpu]);
+-			if (!rc)
++			if (!rc) {
+ 				smp_cpu_state[cpu] = CPU_STATE_CONFIGURED;
++				smp_cpu_polarization[cpu] = POLARIZATION_UNKNWN;
++			}
+ 		}
+ 		break;
+ 	default:
+@@ -917,6 +926,34 @@ out:
+ static SYSDEV_ATTR(configure, 0644, cpu_configure_show, cpu_configure_store);
+ #endif /* CONFIG_HOTPLUG_CPU */
+ 
++static ssize_t cpu_polarization_show(struct sys_device *dev, char *buf)
++{
++	int cpu = dev->id;
++	ssize_t count;
++
++	mutex_lock(&smp_cpu_state_mutex);
++	switch (smp_cpu_polarization[cpu]) {
++	case POLARIZATION_HRZ:
++		count = sprintf(buf, "horizontal\n");
++		break;
++	case POLARIZATION_VL:
++		count = sprintf(buf, "vertical:low\n");
++		break;
++	case POLARIZATION_VM:
++		count = sprintf(buf, "vertical:medium\n");
++		break;
++	case POLARIZATION_VH:
++		count = sprintf(buf, "vertical:high\n");
++		break;
++	default:
++		count = sprintf(buf, "unknown\n");
++		break;
++	}
++	mutex_unlock(&smp_cpu_state_mutex);
++	return count;
++}
++static SYSDEV_ATTR(polarization, 0444, cpu_polarization_show, NULL);
++
+ static ssize_t show_cpu_address(struct sys_device *dev, char *buf)
+ {
+ 	return sprintf(buf, "%d\n", __cpu_logical_map[dev->id]);
+@@ -929,6 +966,7 @@ static struct attribute *cpu_common_attr
+ 	&attr_configure.attr,
+ #endif
+ 	&attr_address.attr,
++	&attr_polarization.attr,
+ 	NULL,
+ };
+ 
+@@ -1073,11 +1111,48 @@ static ssize_t __ref rescan_store(struct
+ out:
+ 	put_online_cpus();
+ 	mutex_unlock(&smp_cpu_state_mutex);
++	if (!cpus_empty(newcpus))
++		topology_schedule_update();
+ 	return rc ? rc : count;
+ }
+ static SYSDEV_ATTR(rescan, 0200, NULL, rescan_store);
+ #endif /* CONFIG_HOTPLUG_CPU */
+ 
++static ssize_t dispatching_show(struct sys_device *dev, char *buf)
++{
++	ssize_t count;
++
++	mutex_lock(&smp_cpu_state_mutex);
++	count = sprintf(buf, "%d\n", cpu_management);
++	mutex_unlock(&smp_cpu_state_mutex);
++	return count;
++}
++
++static ssize_t dispatching_store(struct sys_device *dev, const char *buf,
++				 size_t count)
++{
++	int val, rc;
++	char delim;
++
++	if (sscanf(buf, "%d %c", &val, &delim) != 1)
++		return -EINVAL;
++	if (val != 0 && val != 1)
++		return -EINVAL;
++	rc = 0;
++	mutex_lock(&smp_cpu_state_mutex);
++	get_online_cpus();
++	if (cpu_management == val)
++		goto out;
++	rc = topology_set_cpu_management(val);
++	if (!rc)
++		cpu_management = val;
++out:
++	put_online_cpus();
++	mutex_unlock(&smp_cpu_state_mutex);
++	return rc ? rc : count;
++}
++static SYSDEV_ATTR(dispatching, 0644, dispatching_show, dispatching_store);
++
+ static int __init topology_init(void)
+ {
+ 	int cpu;
+@@ -1091,6 +1166,10 @@ static int __init topology_init(void)
+ 	if (rc)
+ 		return rc;
+ #endif
++	rc = sysfs_create_file(&cpu_sysdev_class.kset.kobj,
++			       &attr_dispatching.attr);
++	if (rc)
++		return rc;
+ 	for_each_present_cpu(cpu) {
+ 		rc = smp_add_present_cpu(cpu);
+ 		if (rc)
 Index: quilt-2.6/arch/s390/kernel/topology.c
 ===================================================================
---- /dev/null
+--- quilt-2.6.orig/arch/s390/kernel/topology.c
 +++ quilt-2.6/arch/s390/kernel/topology.c
-@@ -0,0 +1,271 @@
-+/*
-+ *  arch/s390/kernel/topology.c
-+ *
-+ *    Copyright IBM Corp. 2007
-+ *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/mm.h>
-+#include <linux/init.h>
-+#include <linux/device.h>
-+#include <linux/bootmem.h>
-+#include <linux/sched.h>
-+#include <linux/workqueue.h>
-+#include <linux/cpu.h>
-+#include <linux/smp.h>
-+#include <asm/delay.h>
-+#include <asm/s390_ext.h>
-+
-+#define CPU_BITS 64
-+
-+struct tl_cpu {
-+	unsigned char reserved[6];
-+	unsigned short origin;
-+	unsigned long mask[CPU_BITS / BITS_PER_LONG];
-+};
-+
-+struct tl_container {
-+	unsigned char reserved[8];
-+};
-+
-+union tl_entry {
-+	unsigned char nl;
-+	struct tl_cpu cpu;
-+	struct tl_container container;
-+};
-+
+@@ -18,9 +18,17 @@
+ #include <asm/s390_ext.h>
+ 
+ #define CPU_BITS 64
 +#define NR_MAG 6
 +
-+struct tl_info {
-+	unsigned char reserved0[2];
-+	unsigned short length;
-+	unsigned char mag[NR_MAG];
++#define PTF_HORIZONTAL	(0UL)
++#define PTF_VERTICAL	(1UL)
++#define PTF_CHECK	(2UL)
+ 
+ struct tl_cpu {
+-	unsigned char reserved[6];
++	unsigned char reserved0[4];
++	unsigned char :6;
++	unsigned char pp:2;
 +	unsigned char reserved1;
-+	unsigned char mnest;
-+	unsigned char reserved2[4];
-+	union tl_entry tle[0];
-+};
-+
-+struct core_info {
-+	struct core_info *next;
-+	cpumask_t mask;
-+};
-+
-+static void topology_work_fn(struct work_struct *work);
-+static struct tl_info *tl_info;
-+static struct core_info core_info;
-+static int machine_has_topology;
-+static int machine_has_topology_irq;
-+static struct timer_list topology_timer;
-+static void set_topology_timer(void);
-+static DECLARE_WORK(topology_work, topology_work_fn);
-+
-+cpumask_t cpu_coregroup_map(unsigned int cpu)
+ 	unsigned short origin;
+ 	unsigned long mask[CPU_BITS / BITS_PER_LONG];
+ };
+@@ -35,8 +43,6 @@ union tl_entry {
+ 	struct tl_container container;
+ };
+ 
+-#define NR_MAG 6
+-
+ struct tl_info {
+ 	unsigned char reserved0[2];
+ 	unsigned short length;
+@@ -95,8 +101,10 @@ static void add_cpus_to_core(struct tl_c
+ 
+ 		rcpu = CPU_BITS - 1 - cpu + tl_cpu->origin;
+ 		for_each_present_cpu(lcpu) {
+-			if (__cpu_logical_map[lcpu] == rcpu)
++			if (__cpu_logical_map[lcpu] == rcpu) {
+ 				cpu_set(lcpu, core->mask);
++				smp_cpu_polarization[lcpu] = tl_cpu->pp;
++			}
+ 		}
+ 	}
+ }
+@@ -151,7 +159,17 @@ static void tl_to_cores(struct tl_info *
+ 	mutex_unlock(&smp_cpu_state_mutex);
+ }
+ 
+-static int ptf(void)
++static void topology_update_polarization_simple(void)
 +{
-+	struct core_info *core = &core_info;
-+	cpumask_t mask;
-+
-+	cpus_clear(mask);
-+	if (!machine_has_topology)
-+		return cpu_present_map;
-+	mutex_lock(&smp_cpu_state_mutex);
-+	while (core) {
-+		if (cpu_isset(cpu, core->mask)) {
-+			mask = core->mask;
-+			break;
-+		}
-+		core = core->next;
-+	}
-+	mutex_unlock(&smp_cpu_state_mutex);
-+	if (cpus_empty(mask))
-+		mask = cpumask_of_cpu(cpu);
-+	return mask;
-+}
-+
-+static void add_cpus_to_core(struct tl_cpu *tl_cpu, struct core_info *core)
-+{
-+	unsigned int cpu;
-+
-+	for (cpu = find_first_bit(&tl_cpu->mask[0], CPU_BITS);
-+	     cpu < CPU_BITS;
-+	     cpu = find_next_bit(&tl_cpu->mask[0], CPU_BITS, cpu + 1))
-+	{
-+		unsigned int rcpu, lcpu;
-+
-+		rcpu = CPU_BITS - 1 - cpu + tl_cpu->origin;
-+		for_each_present_cpu(lcpu) {
-+			if (__cpu_logical_map[lcpu] == rcpu)
-+				cpu_set(lcpu, core->mask);
-+		}
-+	}
-+}
-+
-+static void clear_cores(void)
-+{
-+	struct core_info *core = &core_info;
-+
-+	while (core) {
-+		cpus_clear(core->mask);
-+		core = core->next;
-+	}
-+}
-+
-+static union tl_entry *next_tle(union tl_entry *tle)
-+{
-+	if (tle->nl)
-+		return (union tl_entry *)((struct tl_container *)tle + 1);
-+	else
-+		return (union tl_entry *)((struct tl_cpu *)tle + 1);
-+}
-+
-+static void tl_to_cores(struct tl_info *info)
-+{
-+	union tl_entry *tle, *end;
-+	struct core_info *core = &core_info;
++	int cpu;
 +
 +	mutex_lock(&smp_cpu_state_mutex);
-+	clear_cores();
-+	tle = (union tl_entry *)&info->tle;
-+	end = (union tl_entry *)((unsigned long)info + info->length);
-+	while (tle < end) {
-+		switch (tle->nl) {
-+		case 5:
-+		case 4:
-+		case 3:
-+		case 2:
-+			break;
-+		case 1:
-+			core = core->next;
-+			break;
-+		case 0:
-+			add_cpus_to_core(&tle->cpu, core);
-+			break;
-+		default:
-+			clear_cores();
-+			machine_has_topology = 0;
-+			return;
-+		}
-+		tle = next_tle(tle);
-+	}
++	for_each_present_cpu(cpu)
++		smp_cpu_polarization[cpu] = POLARIZATION_HRZ;
 +	mutex_unlock(&smp_cpu_state_mutex);
 +}
 +
-+static int ptf(void)
-+{
-+	int rc;
-+
-+	asm volatile(
-+		"	.insn	rre,0xb9a20000,%1,%1\n"
-+		"	ipm	%0\n"
-+		"	srl	%0,28\n"
-+		: "=d" (rc)
-+		: "d" (2UL)  : "cc");
++static int ptf(unsigned long fc)
+ {
+ 	int rc;
+ 
+@@ -160,7 +178,25 @@ static int ptf(void)
+ 		"	ipm	%0\n"
+ 		"	srl	%0,28\n"
+ 		: "=d" (rc)
+-		: "d" (2UL)  : "cc");
++		: "d" (fc)  : "cc");
 +	return rc;
 +}
 +
-+void arch_update_cpu_topology(void)
++int topology_set_cpu_management(int fc)
 +{
-+	struct tl_info *info = tl_info;
-+	struct sys_device *sysdev;
 +	int cpu;
++	int rc;
 +
 +	if (!machine_has_topology)
-+		return;
-+	ptf();
-+	stsi(info, 15, 1, 2);
-+	tl_to_cores(info);
-+	for_each_online_cpu(cpu) {
-+		sysdev = get_cpu_sysdev(cpu);
-+		kobject_uevent(&sysdev->kobj, KOBJ_CHANGE);
++		return -EOPNOTSUPP;
++	if (fc)
++		rc = ptf(PTF_VERTICAL);
++	else
++		rc = ptf(PTF_HORIZONTAL);
++	if (rc)
++		return -EBUSY;
++	for_each_present_cpu(cpu)
++		smp_cpu_polarization[cpu] = POLARIZATION_UNKNWN;
+ 	return rc;
+ }
+ 
+@@ -170,9 +206,10 @@ void arch_update_cpu_topology(void)
+ 	struct sys_device *sysdev;
+ 	int cpu;
+ 
+-	if (!machine_has_topology)
++	if (!machine_has_topology) {
++		topology_update_polarization_simple();
+ 		return;
+-	ptf();
 +	}
-+}
-+
-+static void topology_work_fn(struct work_struct *work)
-+{
-+	arch_reinit_sched_domains();
-+}
-+
-+static void topology_timer_fn(unsigned long ignored)
-+{
-+	if (ptf())
-+		schedule_work(&topology_work);
-+	set_topology_timer();
-+}
-+
-+static void set_topology_timer(void)
-+{
-+	topology_timer.function = topology_timer_fn;
-+	topology_timer.data = 0;
-+	topology_timer.expires = jiffies + 60 * HZ;
-+	add_timer(&topology_timer);
-+}
-+
-+static void topology_interrupt(__u16 code)
+ 	stsi(info, 15, 1, 2);
+ 	tl_to_cores(info);
+ 	for_each_online_cpu(cpu) {
+@@ -186,10 +223,15 @@ static void topology_work_fn(struct work
+ 	arch_reinit_sched_domains();
+ }
+ 
++void topology_schedule_update(void)
 +{
 +	schedule_work(&topology_work);
 +}
 +
-+static int __init init_topology_update(void)
-+{
-+	int rc;
-+
-+	if (!machine_has_topology)
-+		return 0;
-+	init_timer(&topology_timer);
-+	if (machine_has_topology_irq) {
-+		rc = register_external_interrupt(0x2005, topology_interrupt);
-+		if (rc)
-+			return rc;
-+		ctl_set_bit(0, 8);
-+	}
-+	else
-+		set_topology_timer();
-+	return 0;
-+}
-+__initcall(init_topology_update);
-+
-+void __init s390_init_cpu_topology(void)
-+{
-+	unsigned long long facility_bits;
-+	struct tl_info *info;
-+	struct core_info *core;
-+	int nr_cores;
-+	int i;
-+
-+	if (stfle(&facility_bits, 1) <= 0)
-+		return;
-+	if (!(facility_bits & (1ULL << 52)) || !(facility_bits & (1ULL << 61)))
-+		return;
-+	machine_has_topology = 1;
-+
-+	if (facility_bits & (1ULL << 51))
-+		machine_has_topology_irq = 1;
-+
-+	tl_info = alloc_bootmem_pages(PAGE_SIZE);
-+	if (!tl_info)
-+		goto error;
-+	info = tl_info;
-+	stsi(info, 15, 1, 2);
-+
-+	nr_cores = info->mag[NR_MAG - 2];
-+	for (i = 0; i < info->mnest - 2; i++)
-+		nr_cores *= info->mag[NR_MAG - 3 - i];
-+
-+	printk(KERN_INFO "CPU topology:");
-+	for (i = 0; i < NR_MAG; i++)
-+		printk(" %d", info->mag[i]);
-+	printk(" / %d\n", info->mnest);
-+
-+	core = &core_info;
-+	for (i = 0; i < nr_cores; i++) {
-+		core->next = alloc_bootmem(sizeof(struct core_info));
-+		core = core->next;
-+		if (!core)
-+			goto error;
-+	}
-+	return;
-+error:
-+	machine_has_topology = 0;
-+	machine_has_topology_irq = 0;
-+}
-Index: quilt-2.6/drivers/s390/sysinfo.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/sysinfo.c
-+++ quilt-2.6/drivers/s390/sysinfo.c
-@@ -105,7 +105,7 @@ struct sysinfo_3_2_2 {
- 	} vm[8];
- };
- 
--static inline int stsi(void *sysinfo, int fc, int sel1, int sel2)
-+int stsi(void *sysinfo, int fc, int sel1, int sel2)
+ static void topology_timer_fn(unsigned long ignored)
  {
- 	register int r0 asm("0") = (fc << 28) | sel1;
- 	register int r1 asm("1") = sel2;
+-	if (ptf())
+-		schedule_work(&topology_work);
++	if (ptf(PTF_CHECK))
++		topology_schedule_update();
+ 	set_topology_timer();
+ }
+ 
+@@ -210,8 +252,10 @@ static int __init init_topology_update(v
+ {
+ 	int rc;
+ 
+-	if (!machine_has_topology)
++	if (!machine_has_topology) {
++		topology_update_polarization_simple();
+ 		return 0;
++	}
+ 	init_timer(&topology_timer);
+ 	if (machine_has_topology_irq) {
+ 		rc = register_external_interrupt(0x2005, topology_interrupt);
 Index: quilt-2.6/include/asm-s390/smp.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-s390/smp.h
 +++ quilt-2.6/include/asm-s390/smp.h
-@@ -90,6 +90,8 @@ extern void __cpu_die (unsigned int cpu)
- extern void cpu_die (void) __attribute__ ((noreturn));
+@@ -91,6 +91,7 @@ extern void cpu_die (void) __attribute__
  extern int __cpu_up (unsigned int cpu);
  
-+extern struct mutex smp_cpu_state_mutex;
-+
+ extern struct mutex smp_cpu_state_mutex;
++extern int smp_cpu_polarization[];
+ 
  extern int smp_call_function_mask(cpumask_t mask, void (*func)(void *),
  	void *info, int wait);
- #endif
-Index: quilt-2.6/include/asm-s390/system.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/system.h
-+++ quilt-2.6/include/asm-s390/system.h
-@@ -406,6 +406,7 @@ __set_psw_mask(unsigned long mask)
- #define local_mcck_enable()  __set_psw_mask(psw_kernel_bits)
- #define local_mcck_disable() __set_psw_mask(psw_kernel_bits & ~PSW_MASK_MCHECK)
- 
-+int stsi(void *sysinfo, int fc, int sel1, int sel2);
- int stfle(unsigned long long *list, int doublewords);
- 
- #ifdef CONFIG_SMP
 Index: quilt-2.6/include/asm-s390/topology.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-s390/topology.h
 +++ quilt-2.6/include/asm-s390/topology.h
-@@ -1,6 +1,22 @@
- #ifndef _ASM_S390_TOPOLOGY_H
- #define _ASM_S390_TOPOLOGY_H
+@@ -9,6 +9,15 @@ cpumask_t cpu_coregroup_map(unsigned int
  
-+#include <linux/cpumask.h>
-+
-+#define mc_capable()	(1)
-+
-+cpumask_t cpu_coregroup_map(unsigned int cpu);
-+
-+#define topology_core_siblings(cpu)	(cpu_coregroup_map(cpu))
-+
-+#ifdef CONFIG_SMP
-+void s390_init_cpu_topology(void);
-+#else
-+static inline void s390_init_cpu_topology(void)
-+{
-+};
-+#endif
-+
- #include <asm-generic/topology.h>
+ #define topology_core_siblings(cpu)	(cpu_coregroup_map(cpu))
  
- #endif /* _ASM_S390_TOPOLOGY_H */
++int topology_set_cpu_management(int fc);
++void topology_schedule_update(void);
++
++#define POLARIZATION_UNKNWN	(-1)
++#define POLARIZATION_HRZ	(0)
++#define POLARIZATION_VL		(1)
++#define POLARIZATION_VM		(2)
++#define POLARIZATION_VH		(3)
++
+ #ifdef CONFIG_SMP
+ void s390_init_cpu_topology(void);
+ #else
 
 -- 
 blue skies,
