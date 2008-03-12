@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754784AbYCLRd1@vger.kernel.org>
-Message-Id: <20080312173216.861331041@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754888AbYCLRdi@vger.kernel.org>
+Message-Id: <20080312173217.078548501@de.ibm.com>
 References: <20080312173155.703966894@de.ibm.com>
-Date: Wed, 12 Mar 2008 18:31:58 +0100
+Date: Wed, 12 Mar 2008 18:31:59 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 03/10] sched: add exported arch_reinit_sched_domains() to header file.
-Content-Disposition: inline; filename=103-nodes-export.diff
+Subject: [patch 04/10] sched: Add arch_update_cpu_topology hook.
+Content-Disposition: inline; filename=104-nodes-hook.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,44 +14,53 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Needed so it can be called from outside of sched.c.
+Will be called each time the scheduling domains are rebuild.
+Needed for architectures that don't have a static cpu topology.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- include/linux/sched.h |    4 ++++
- kernel/sched.c        |    2 +-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ include/linux/topology.h |    2 ++
+ kernel/sched.c           |    5 +++++
+ 2 files changed, 7 insertions(+)
 
-Index: quilt-2.6/include/linux/sched.h
+Index: quilt-2.6/include/linux/topology.h
 ===================================================================
---- quilt-2.6.orig/include/linux/sched.h
-+++ quilt-2.6/include/linux/sched.h
-@@ -791,6 +791,10 @@ struct sched_domain {
+--- quilt-2.6.orig/include/linux/topology.h
++++ quilt-2.6/include/linux/topology.h
+@@ -50,6 +50,8 @@
+ 	for_each_online_node(node)						\
+ 		if (nr_cpus_node(node))
  
- extern void partition_sched_domains(int ndoms_new, cpumask_t *doms_new);
- 
-+#if defined(CONFIG_SCHED_MC) || defined(CONFIG_SCHED_SMT)
-+extern int arch_reinit_sched_domains(void);
-+#endif
++void arch_update_cpu_topology(void);
 +
- #endif	/* CONFIG_SMP */
- 
- /*
+ /* Conform to ACPI 2.0 SLIT distance definitions */
+ #define LOCAL_DISTANCE		10
+ #define REMOTE_DISTANCE		20
 Index: quilt-2.6/kernel/sched.c
 ===================================================================
 --- quilt-2.6.orig/kernel/sched.c
 +++ quilt-2.6/kernel/sched.c
-@@ -6917,7 +6917,7 @@ match2:
- }
+@@ -6804,6 +6804,10 @@ static int ndoms_cur;		/* number of sche
+  */
+ static cpumask_t fallback_doms;
  
- #if defined(CONFIG_SCHED_MC) || defined(CONFIG_SCHED_SMT)
--static int arch_reinit_sched_domains(void)
-+int arch_reinit_sched_domains(void)
++void __attribute__((weak)) arch_update_cpu_topology(void)
++{
++}
++
+ /*
+  * Set up scheduler domains and groups. Callers must hold the hotplug lock.
+  * For now this just excludes isolated cpus, but could be used to
+@@ -6813,6 +6817,7 @@ static int arch_init_sched_domains(const
  {
  	int err;
  
++	arch_update_cpu_topology();
+ 	ndoms_cur = 1;
+ 	doms_cur = kmalloc(sizeof(cpumask_t), GFP_KERNEL);
+ 	if (!doms_cur)
 
 -- 
 blue skies,
