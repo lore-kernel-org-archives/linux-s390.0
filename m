@@ -1,87 +1,72 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755748AbYCLXM1@vger.kernel.org>
-Date: Wed, 12 Mar 2008 16:11:37 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [patch 06/10] cpu topology support for s390.
-Message-Id: <20080312161137.63bdfa67.akpm@linux-foundation.org>
-In-Reply-To: <20080312173217.505558934@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756090AbYCLXRg@vger.kernel.org>
+Subject: Re: [patch 09/10] Hugetlb common code update for System z.
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Reply-To: gerald.schaefer@de.ibm.com
+In-Reply-To: <1205344286.9828.91.camel@nimitz.home.sr71.net>
 References: <20080312173155.703966894@de.ibm.com>
-	<20080312173217.505558934@de.ibm.com>
+	 <20080312173218.186436562@de.ibm.com>
+	 <1205344286.9828.91.camel@nimitz.home.sr71.net>
+Content-Type: text/plain
+Date: Thu, 13 Mar 2008 00:18:57 +0100
+Message-Id: <1205363937.5237.60.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 12 Mar 2008 18:32:01 +0100
-Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
-
-> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+On Wed, 2008-03-12 at 10:51 -0700, Dave Hansen wrote:
+> > +#ifndef ARCH_HAS_HUGE_PTE_TYPE
+> > +#define huge_pte_none(pte)                     pte_none(pte)
+> > +#define huge_pte_wrprotect(pte)                        pte_wrprotect(pte)
+> > +#define huge_ptep_set_wrprotect(mm, addr, ptep)        \
+> > +       ptep_set_wrprotect(mm, addr, ptep)
+> > +#define huge_ptep_set_access_flags(vma, addr, ptep, pte, dirty)        \
+> > +       ptep_set_access_flags(vma, addr, ptep, pte, dirty)
+> > +#define huge_ptep_get(ptep)                    (*ptep)
+> > +#endif
+> > +
+> > +#ifndef ARCH_HAS_PREPARE_HUGEPAGE
 > 
-> Add s390 backend so we can give the scheduler some hints about the
-> cpu topology.
+> Can you guys please do these defines in Kconfig instead of headers?  I
+> find them much easier to track down when I have one place to look,
+> rather than a mess of 14 other #includes in a arch-specific header. :)
+
+There are already several ARCH_HAS_xxx defines which are being used in
+inlude/linux/hugetlb.h. All of them are defined in
+include/asm-<arch>/page.h for every architecture that needs them (with
+the exception of powerpc, where it is include/asm-powerpc/page_64.h).
+So there is already one place to look for them, and so we put our
+defines into include/asm-s390/page.h.
+
+> I'm also a little concerned that you just #ifdef'd in about 44 new ptep
+> functions in here.  Have you carefully considered doing this in a way
+> that would fit in better with the other architectures?
+
+Other architectures should not be affected at all. Because of the
+#ifdef, the new ptep functions are either a nop for them or just the
+same as they were before our patch.
+
+> > Huge ptes have a special type on s390 and cannot be handled with the
+> > standard pte functions in certain cases.
 > 
-> ===================================================================
-> --- /dev/null
-> +++ quilt-2.6/arch/s390/kernel/topology.c
-> @@ -0,0 +1,271 @@
-> +/*
-> + *  arch/s390/kernel/topology.c
-> + *
-> + *    Copyright IBM Corp. 2007
-> + *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/mm.h>
-> +#include <linux/init.h>
-> +#include <linux/device.h>
-> +#include <linux/bootmem.h>
-> +#include <linux/sched.h>
-> +#include <linux/workqueue.h>
-> +#include <linux/cpu.h>
-> +#include <linux/smp.h>
-> +#include <asm/delay.h>
-> +#include <asm/s390_ext.h>
-> +
-> +#define CPU_BITS 64
-> +
-> +struct tl_cpu {
-> +	unsigned char reserved[6];
-> +	unsigned short origin;
-> +	unsigned long mask[CPU_BITS / BITS_PER_LONG];
-> +};
+> Can you elaborate a bit more on that?
 
-mask[] will be too small for CPU_BITS=65 ;)
+Large ptes are not really ptes but segment table entries (pmd entries),
+in our case. This is similar to other architectures with hardware large
+page support, because there simply is no page table level (and thus no
+ptes) anymore. Unfortunately, the hugetlbfs common code does not
+consider that discrepancy and just uses a standard pte_t and standard
+pte functions, probably because it did not really make a difference on
+other architectures.
 
-> ...
->
-> +static union tl_entry *next_tle(union tl_entry *tle)
-> +{
-> +	if (tle->nl)
-> +		return (union tl_entry *)((struct tl_container *)tle + 1);
-> +	else
-> +		return (union tl_entry *)((struct tl_cpu *)tle + 1);
-> +}
+On s390, a segment table entry (pmd) type is different from a pte type
+mainly in the location of its invalid bit. This means that we cannot
+use pte_none(), pte_wrprotect() and similar functions for large ptes,
+which was the reason for the new huge_pte functions that we introduced.
 
-omg.
-
-> +static void tl_to_cores(struct tl_info *info)
-> +{
-> +	union tl_entry *tle, *end;
-> +	struct core_info *core = &core_info;
-> +
-> +	mutex_lock(&smp_cpu_state_mutex);
-> +	clear_cores();
-> +	tle = (union tl_entry *)&info->tle;
-
-and this cast was unneeded!
-
-> +	end = (union tl_entry *)((unsigned long)info + info->length);
-
-I'd suggest that you take a look at all the pointer arith games which are
-being played in this code and see if it can be done better with a more
-appropriate use of the C type system.  Before someone dies.
+--
+Gerald Schaefer
