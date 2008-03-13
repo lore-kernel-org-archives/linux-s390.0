@@ -1,87 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754959AbYCMRX4@vger.kernel.org>
-Subject: Re: [patch 6/6] Guest page hinting: s390 support.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-In-Reply-To: <47D95EC7.7030204@goop.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755879AbYCMRkg@vger.kernel.org>
+Subject: Re: [patch 0/6] Guest page hinting version 6.
+From: Zachary Amsden <zach@vmware.com>
+In-Reply-To: <Pine.LNX.4.64.0803131627450.17244@blonde.site>
 References: <20080312132132.520833247@de.ibm.com>
-	 <20080312132704.474209626@de.ibm.com>	<47D802A2.1030406@goop.org>
-	 <1205339285.8851.13.camel@localhost>	<47D8085E.9030701@goop.org>
-	 <1205341164.8851.44.camel@localhost>	<47D81771.5070400@goop.org>
-	 <47D8373C.40105@codemonkey.ws>	<47D840E3.5090902@goop.org>
-	 <47D8436F.9080901@codemonkey.ws>  <47D84CEB.6050300@goop.org>
-	 <1205401508.26537.37.camel@localhost> <47D95134.6030503@goop.org>
-	 <47D953AB.1030901@goop.org> <1205427338.5920.12.camel@localhost>
-	 <47D95EC7.7030204@goop.org>
+	 <Pine.LNX.4.64.0803131627450.17244@blonde.site>
 Content-Type: text/plain
-Date: Thu, 13 Mar 2008 18:23:38 +0100
-Message-Id: <1205429018.5920.38.camel@localhost>
+Date: Thu, 13 Mar 2008 10:45:07 -0700
+Message-Id: <1205430307.18433.20.camel@bodhitayantram.eng.vmware.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: akpm@osdl.org, linux-s390@vger.kernel.org, frankeh@watson.ibm.com, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, Anthony Liguori <anthony@codemonkey.ws>, hugh@veritas.com
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.osdl.org, akpm@linux-foundation.org, nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, rusty@rustcorp.com.au, jeremy@goop.org, andrea@qumranet.com, clameter@sgi.com, a.p.zijlstra@chello.nl
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 2008-03-13 at 10:05 -0700, Jeremy Fitzhardinge wrote:
-> Martin Schwidefsky wrote:
-> > Vz is the page discarded state. The difference to Uz is slim, both
-> > states will cause a program check on access. Vz generates a discard
-> > fault, Uz generates an addressing exception which is nice for debugging.
-> >   
-> 
-> How do you handle these different cases in Linux?  Do you use Vr pages 
-> in the pagecache, and then shoot down the pagecache entry if the host 
-> steals the page?
 
-The environment where we currently run all this is z/VM as the host and
-Linux as the guest. We have two page tables on s390, a host page table
-and a guest page table. If the host discards a page it simple removes
-the entry for the page in the host page table. If the guest comes along
-and accesses the page the host gets the fault and generates the
-appropriate fault.
+On Thu, 2008-03-13 at 16:57 +0000, Hugh Dickins wrote:
+> Oh, that would be such a shame.  Your guest page hinting patches remind
+> me of that childhood thrill, when once a year the circus comes to town ;)
 
-> The Uz access exception presumably just generates a normal oops.
+I like the circus too.
 
-Yes, the handler for an addressing exception will call die() for a
-kernel check without a fixup.
+> But seriously, I'm ashamed to see my name in the Cc list: it would
+> be very unfair if your patches never made it in, just because I've
+> failed to find the time to wrap my own puny brain around them.
 
-> (I should probably make time to read the rest of the series.)
-> 
-> >> But given how you've described V-state pages, I really would expect 
-> >> writes to a Vz to work, or alternatively, all writes to V-state pages to 
-> >> be disallowed.  Are there any real uses for a writable Vr page?
-> >>     
-> >
-> > You mean in the section that speaks about the guests states S/U/V/P ?
-> > Always keep in mind that you can access a V/P page only until it gets
-> > discarded. Then the useful content of the page frame is lost and any
-> > read of write to the not Vz page will be answered with a discard fault.
-> >   
-> 
-> Presumably reads from a Vz page also generate a discard fault?
+Bah!  So modest.
 
-Yes.
+> It's very encouraging to see Jeremy and Rusty weighing in.  I hope
+> Zach will too, and I've added Andrea: their support would count a lot.
+> You have Nick on the list, good, I've added Christoph and Peter
+> (if you do resend, linux-mm might prove more useful than linux-kernel).
 
-> > A Vr page is read-only. If a page gets mapped for writing it needs to
-> > get into the Pr state. This is the hint for the host to look at the
-> > dirty bit before it discards a page.
-> > So yes, there is no use for a writable Vr page.
-> >   
-> 
-> OK, thanks, that clears things up.  I was assuming that Vr was 
-> technically writable but that writes could be discarded at any time (ie, 
-> allowing guests to merrily shoot themselves in the foot ;).  Making it 
-> forced RO is much more sensible.
+I agree the page hinting technique is generally useful, even
+cross-architecture.
 
-Well, technically you could write to a Vr page via the kernel address
-space. The thing is that the host can just discard the page although it
-is dirty. The Vr state is used for page cache pages which do not have
-any writable mapping.
+What doesn't appear to be useful however, is support for this under
+VMware.  It can be done, even without the writable pte support (yes,
+really).  But due to us exploiting optimizations at lower layers, it
+doesn't appear that it will gain us any performance - and we must
+already have the complex working set algorithms to support
+non-paravirtualized guests.
 
--- 
-blue skies,
-  Martin.
+> With support from rival virtualizers,
+> I do think you've a good chance of getting in.
 
-"Reality continues to ruin my life." - Calvin.
+I would say we support it, but I don't expect us to make use of the
+infrastructure anytime soon.  For us it would make more sense to use the
+swap-fault optimization, but this requires some significant design
+changes in our monitor.
+
+Either way, these are both great ideas and I would not want to be held
+responsible for blocking their upstream progress.  Someday, with the
+evolving x86 architecture (if we ever get per-page dirty bits), they
+might make sense for us to do as well.
+
+Zach
