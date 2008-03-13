@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754047AbYCLR6T@vger.kernel.org>
-Date: Wed, 12 Mar 2008 13:57:51 -0400
-From: "Josef 'Jeff' Sipek" <jeffpc@josefsipek.net>
-Subject: Re: [patch 01/10] Add new fields for System z10 to /proc/sysinfo
-Message-ID: <20080312175751.GB10653@josefsipek.net>
-References: <20080312173155.703966894@de.ibm.com> <20080312173216.213008370@de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20080312173216.213008370@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754377AbYCMJML@vger.kernel.org>
+Subject: Re: [patch 4/6] Guest page hinting: writable page table entries.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+In-Reply-To: <200803131035.11943.rusty@rustcorp.com.au>
+References: <20080312132132.520833247@de.ibm.com>
+	 <20080312132703.979194690@de.ibm.com>
+	 <200803131035.11943.rusty@rustcorp.com.au>
+Content-Type: text/plain
+Date: Thu, 13 Mar 2008 10:11:51 +0100
+Message-Id: <1205399511.26537.3.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, hugh@veritas.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Mar 12, 2008 at 06:31:56PM +0100, Martin Schwidefsky wrote:
-> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+On Thu, 2008-03-13 at 10:35 +1100, Rusty Russell wrote:
+> On Thursday 13 March 2008 00:21:36 Martin Schwidefsky wrote:
+> > Index: linux-2.6/fs/exec.c
+> > ===================================================================
+> > --- linux-2.6.orig/fs/exec.c
+> > +++ linux-2.6/fs/exec.c
+> > @@ -51,6 +51,7 @@
+> >  #include <linux/tsacct_kern.h>
+> >  #include <linux/cn_proc.h>
+> >  #include <linux/audit.h>
+> > +#include <linux/page-states.h>
+> >
+> >  #include <asm/uaccess.h>
+> >  #include <asm/mmu_context.h>
 > 
-> Add permanent and temporary model capacity and the corresponding
-> capacity value fields for the three capacity identifiers to the
-> output of /proc/sysinfo.
-> 
-> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> ---
-> 
->  drivers/s390/sysinfo.c |   21 +++++++++++++++++++--
->  1 file changed, 19 insertions(+), 2 deletions(-)
-> 
-> Index: quilt-2.6/drivers/s390/sysinfo.c
-> ===================================================================
-> --- quilt-2.6.orig/drivers/s390/sysinfo.c
-> +++ quilt-2.6/drivers/s390/sysinfo.c
-> @@ -26,6 +26,11 @@ struct sysinfo_1_1_1 {
->  	char sequence[16];
->  	char plant[4];
->  	char model[16];
-> +	char model_perm_cap[16];
-> +	char model_temp_cap[16];
-> +	char model_cap_rating[4];
-> +	char model_perm_cap_rating[4];
-> +	char model_temp_cap_rating[4];
->  };
+> I haven't compile-tested, but this seems unnecessary; it's the only change to 
+> this file.
 
-I'd try to be safer, and make the struct __attribute__((packed))...
+True. I removed the include.
 
-Josef 'Jeff' Sipek.
+> > +/**
+> > + * __page_reset_writable() - clear the PageWritable bit
+> > + *
+> > + * @page: the page
+> > + */
+> > +void __page_reset_writable(struct page *page)
+> > +{
+> > +	preempt_disable();
+> > +	if (!page_test_set_state_change(page)) {
+> > +		ClearPageWritable(page);
+> > +		page_clear_state_change(page);
+> > +	}
+> > +	preempt_enable();
+> > +}
+> > +EXPORT_SYMBOL(__page_reset_writable);
+> 
+> If I understand correctly, you don't bother resetting the writable bit if you 
+> don't get the state_change lock.  Is this best effort, or is there some 
+> correctness issue here?
+
+It is an error on the safe side. If the page writable bit is set then
+the page state has to indicate to the host that the page dirty bit needs
+to be checked. 
 
 -- 
-I'm somewhere between geek and normal.
-		- Linus Torvalds
+blue skies,
+  Martin.
+
+"Reality continues to ruin my life." - Calvin.
