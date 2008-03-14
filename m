@@ -1,110 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754005AbYCSVso@vger.kernel.org>
-Date: Wed, 19 Mar 2008 10:16:48 +0100
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755859AbYCNIn4@vger.kernel.org>
+Date: Fri, 14 Mar 2008 09:43:38 +0100
 From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: Re: blktrace/relay/s390: Oops in subbuf_splice_actor
-Message-ID: <20080319091647.GA11369@schmichrtp.de.ibm.com>
-References: <20080314084337.GA9436@schmichrtp.de.ibm.com> <20080314115802.GK17940@kernel.dk> <20080314130552.GA9352@schmichrtp.de.ibm.com> <20080314131007.GQ17940@kernel.dk> <20080314132238.GA9815@schmichrtp.de.ibm.com> <47DA97DF.6010008@us.ibm.com> <20080314162807.GA4488@schmichrtp.de.ibm.com> <20080317080836.GZ17940@kernel.dk> <20080317151915.GA19368@schmichrtp.de.ibm.com>
+Subject: blktrace/relay/s390: Oops in subbuf_splice_actor
+Message-ID: <20080314084337.GA9436@schmichrtp.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20080317151915.GA19368@schmichrtp.de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: David Wilder <dwilder@us.ibm.com>, linux-btrace@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.orgwilder@us.ibm.com
+To: linux-btrace@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Mar 17, 2008 at 04:19:16PM +0100, Christof Schmitt wrote:
-> On Mon, Mar 17, 2008 at 09:08:37AM +0100, Jens Axboe wrote:
-> > On Fri, Mar 14 2008, Christof Schmitt wrote:
-> > > On Fri, Mar 14, 2008 at 08:21:03AM -0700, David Wilder wrote:
-> > > > Christof Schmitt wrote:
-> > > > >On Fri, Mar 14, 2008 at 02:10:07PM +0100, Jens Axboe wrote:
-> > > > >>On Fri, Mar 14 2008, Christof Schmitt wrote:
-> > > > >>>On Fri, Mar 14, 2008 at 12:58:03PM +0100, Jens Axboe wrote:
-> > > > >>>>That is indeed a bug, does this work for you?
-> > > > >>>>
-> > > > >>>>diff --git a/kernel/relay.c b/kernel/relay.c
-> > > > >>>>index d080b9d..39d1fa8 100644
-> > > > >>>>--- a/kernel/relay.c
-> > > > >>>>+++ b/kernel/relay.c
-> > > > >>>>@@ -1066,7 +1066,7 @@ static int subbuf_splice_actor(struct file *in,
-> > > > >>>> 			       unsigned int flags,
-> > > > >>>> 			       int *nonpad_ret)
-> > > > >>>> {
-> > > > >>>>-	unsigned int pidx, poff, total_len, subbuf_pages, ret;
-> > > > >>>>+	unsigned int pidx, poff, total_len, subbuf_pages, nr_pages, ret;
-> > > > >>>> 	struct rchan_buf *rbuf = in->private_data;
-> > > > >>>> 	unsigned int subbuf_size = rbuf->chan->subbuf_size;
-> > > > >>>> 	uint64_t pos = (uint64_t) *ppos;
-> > > > >>>>@@ -1098,7 +1098,9 @@ static int subbuf_splice_actor(struct file *in,
-> > > > >>>> 	pidx = (read_start / PAGE_SIZE) % subbuf_pages;
-> > > > >>>> 	poff = read_start & ~PAGE_MASK;
-> > > > >>>>
-> > > > >>>>-	for (total_len = 0; spd.nr_pages < subbuf_pages; spd.nr_pages++) {
-> > > > >>>>+	nr_pages = min_t(unsigned int, subbuf_pages, PIPE_BUFFERS);
-> > > > >>>>+
-> > > > >>>>+	for (total_len = 0; spd.nr_pages < nr_pages; spd.nr_pages++) {
-> > > > >>>> 		unsigned int this_len, this_end, private;
-> > > > >>>> 		unsigned int cur_pos = read_start + total_len;
-> > > > >>>With the patch, i can run dd and 'blktrace -h traceserver' without the
-> > > > >>>oops. But the output from blktrace only contains only zeros and no
-> > > > >>>usable data for blkparse. Using blktrace to write the data directly to
-> > > > >>>disk, without using the blktrace server works. Is there anything i
-> > > > >>>should look for to help debugging the problem?
-> > > > >>We should probably get Tom in the loop, as he is the relay expert. I'll
-> > > > >>make sure the above patch gets into 2.6.25, as it is definitely a bug
-> > > > >>that needs fixing.
-> > > > >
-> > > > >http://relayfs.sourceforge.net/contact.html mentions Tom Zanussi, but
-> > > > >his email address seems to be no longer valid. I copy Dave Wilder
-> > > > >here, since he is mentioned as relay maintainer on the web page.
-> > > > >
-> > > > >Dave, can you have a look at this? I can easily reproduce the problem
-> > > > >on s390 Linux for testing and getting more debug information.
-> > > > >
-> > > > >Christof
-> > > > >--
-> > > > >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > > >the body of a message to majordomo@vger.kernel.org
-> > > > >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > > >Please read the FAQ at  http://www.tux.org/lkml/
-> > > > >
-> > > > 
-> > > > I will take a look at the problem.
-> > > > Any thing special about the test you are running I need to know?
-> > > 
-> > > The test is about using the blktrace network feature on a 64 bit s390
-> > > guest on z/VM. I don't know if 64 bit and z/VM are related to the
-> > > problem scenario, it is the only setup i tested. To reproduce, start
-> > > somewhere 'blktrace -l' as a server and issue 
-> > > blktrace -h tracehostname
-> > > dd if=/dev/sda of=/dev/null
-> > > to start blktrace and some I/O load.
-> > 
-> > If the problem is in the splice part of relay, then the problem will
-> > likely go away if you add the -s parameter to blktrace. Might be handy
-> > to know if you are experimenting.
-> 
-> I still have your patch applied. blktrace with -s returns the trace
-> data, as expected and blktrace without the -s returns data, but
-> nothing useful for blkparse.
+When i first setup blktrace on a s390 z/VM guest to trace to another
+system and then put some load on the disk traced, the system oopses in
+subbuf_splice_actor. The setup is as simple as
 
-Two issues i found: First, in subbuf_splice_actor the function pointer
-spd_release is not initialized, but later, splice_to_pipe calls
-	while (page_nr < spd_pages)
-		spd->spd_release(spd, page_nr++);
+# blktrace -h tracehost -d /dev/sda
+# dd if=/dev/sda of=/dev/null
 
-I would guess that the function pointer should point to
-spd_release_page or something similar.
+This is the stack trace from the current 2.6.25-rc5, i added
+noinline to subbuf_splice_actor, otherwise it will be inlined:
 
-The second one: It seems that the loop in splice_direct_to_actor first
-calls do_splice_to to get the trace data into the pipe and then
-actor, to move the data out to the network socket. With some debug
-printks, i see that splice_to_pipe waits on the call pipe_wait(pipe)
-until there is some free space again. But if the same process should
-loop through the read and write parts, the pipe_wait would deadlock
-the process, or am i missing something here?
+Unable to handle kernel pointer dereference at virtual kernel address 0000000000000000 
+Oops: 0004 [#1] PREEMPT SMP DEBUG_PAGEALLOC 
+Modules linked in: binfmt_misc vmur 
+CPU: 1 Not tainted 2.6.25-rc5 #10 
+Process blktrace (pid: 2655, task: 000000002bc38238, ksp: 000000002b0d79a8) 
+Krnl PSW : 0704100180000000 00000000000874e2 (subbuf_splice_actor+0x212/0x364) 
+           R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:0 CC:1 PM:0 EA:3 
+Krnl GPRS: 0a00000000000001 000000002b2bb000 0000000000001000 00000000000000c8 
+           0000000000001000 0000000000001000 0000000000000000 0000000000000200 
+           0000000000019000 0000000000000019 0000000000066fd8 000000002b0d79e8 
+           000003e040ed7938 0000000000000000 000000000008749e 000000002b0d79e8 
+Krnl Code: 00000000000874d4: e31050b00004       lg      %r1,176(%r5) 
+           00000000000874da: 1854               lr      %r5,%r4 
+           00000000000874dc: e3cc10000004       lg      %r12,0(%r12,%r1) 
+          >00000000000874e2: e3c320000024       stg    >%r12,0(%r3,%r2) 
+           00000000000874e8: e330b2700014       lgf     %r3,624(%r11) 
+           00000000000874ee: eb330004000d       sllg    %r3,%r3,4 
+           00000000000874f4: e320b2680004       lg      %r2,616(%r11) 
+           00000000000874fa: 1814               lr      %r1,%r4 
+Call Trace: 
+([<000000000008749e>] subbuf_splice_actor+0x1ce/0x364) 
+ [<00000000000876a2>] relay_file_splice_read+0x6e/0xfc 
+ [<00000000000e4f90>] do_splice_to+0x9c/0xb4 
+ [<00000000000e545c>] splice_direct_to_actor+0xd8/0x21c 
+ [<00000000000e55ec>] do_splice_direct+0x4c/0x70 
+ [<00000000000bc2be>] do_sendfile+0x1b6/0x228 
+ [<00000000000bc382>] sys_sendfile64+0x52/0xe4 
+ [<00000000000241c0>] sysc_noemu+0x10/0x16 
+ [<00000200001304da>] 0x200001304da 
+
+Some debug printks show that subbuf_pages in this case is 512 and the
+for loop goes until spd.nr_pages is 25, before hitting the problem. I
+am wondering if the numbers make sense here, since spd.pages has only
+16 pages allocated (with PIPE_BUFFERS). But i did not yet understand
+how much data this loop is supposed to assign.
+
+Does anybody have an idea what is happening here, or how to continue
+debugging this problem?
 
 Christof
