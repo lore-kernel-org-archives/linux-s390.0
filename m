@@ -1,49 +1,33 @@
-From: "Josef 'Jeff' Sipek" <jeffpc@josefsipek.net>
-Date: Mon, 10 Mar 2008 01:37:53 +0000
-Subject: Re: [PATCH 1/1] dasd: fix double elevator_exit call when deadline
-Message-Id: <20080310013753.GC6396@josefsipek.net>
-In-Reply-To: <1204884215.21438.3.camel@localhost>
-References: <1204884215.21438.3.camel@localhost>
+From: "Robert P. J. Day" <rpjday@crashcourse.ca>
+Date: Sat, 15 Mar 2008 18:27:33 +0000
+Subject: [PATCH] S390:  Use newer, non-deprecated __RW_LOCK_UNLOCKED macro.
+Message-Id: <alpine.LFD.1.00.0803151426350.25079@localhost.localdomain>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Mar 07, 2008 at 11:03:35AM +0100, Martin Schwidefsky wrote:
-> On Fri, 2008-03-07 at 10:28 +0100, Heiko Carstens wrote:
-> > On Fri, Mar 07, 2008 at 10:17:51AM +0100, Martin Schwidefsky wrote:
-> > > On Thu, 2008-03-06 at 21:08 +0100, Bastian Blank wrote:
-> > > > On Wed, Mar 05, 2008 at 06:02:03PM -0500, Josef 'Jeff' Sipek wrote:
-> > > > >  config DASD
-> > > > >  	tristate "Support for DASD devices"
-> > > > > -	depends on CCW && BLOCK
-> > > > > +	depends on CCW && IOSCHED_DEADLINE && BLOCK
-> > > > 
-> > > > select IOSCHED_DEADLINE?
-> > > 
-> > > Yes, this makes more sense.
-> > 
-> > Err... I made the "depends on" suggestion because of this from
-> > Documentation/kbuild/kconfig-language.txt :
-> > 
-> >   Note:
-> > 	select is evil.... select will by brute force set a symbol
-> > 	equal to 'y' without visiting the dependencies. So abusing
-> > 	select you are able to select a symbol FOO even if FOO depends
-> > 	on BAR that is not set. In general use select only for
-> > 	non-visible symbols (no promts anywhere) and for symbols with
-> > 	no dependencies. That will limit the usefulness but on the
-> > 	other hand avoid the illegal configurations all over. kconfig
-> > 	should one day warn about such things.
-> 
-> IOSCHED_DEADLINE depends only on BLOCK. Since the dasd driver itself
-> depends on BLOCK the select will always work. I think this is better
-> than a hidden dasd driver if IOSCHED_DEADLINE is not selected. 
 
-It gets more ugly if/when someone changes the IOSCHED_DEADLINE dependencies
-=> changes are that the DASD 'select' statement will not be updated.
+Signed-off-by: Robert P. J. Day <rpjday@crashcourse.ca>
 
-Josef 'Jeff' Sipek.
+---
 
--- 
-Mankind invented the atomic bomb, but no mouse would ever construct a
-mousetrap.
-		- Albert Einstein
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index fee22ca..7b0038f 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -53,7 +53,7 @@ static int iucv_callback_connreq(struct iucv_path *, u8 ipvmid[8],
+ static void iucv_callback_connrej(struct iucv_path *, u8 ipuser[16]);
+
+ static struct iucv_sock_list iucv_sk_list = {
+-	.lock = RW_LOCK_UNLOCKED,
++	.lock = __RW_LOCK_UNLOCKED(iucv_sk_list.lock),
+ 	.autobind_name = ATOMIC_INIT(0)
+ };
+
+
+========================================================================
+Robert P. J. Day
+Linux Consulting, Training and Annoying Kernel Pedantry:
+    Have classroom, will lecture.
+
+http://crashcourse.ca                          Waterloo, Ontario, CANADA
+========================================================================
