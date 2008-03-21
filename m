@@ -1,14 +1,13 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755623AbYCUMaQ@vger.kernel.org>
-Date: Fri, 21 Mar 2008 13:29:48 +0100
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756629AbYCUMbG@vger.kernel.org>
+Date: Fri, 21 Mar 2008 13:30:38 +0100
 From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch 03/10] sched: add exported arch_reinit_sched_domains()
-	to header file.
-Message-ID: <20080321122948.GA26733@elte.hu>
-References: <20080312173155.703966894@de.ibm.com> <20080312173216.861331041@de.ibm.com>
+Subject: Re: [patch 04/10] sched: Add arch_update_cpu_topology hook.
+Message-ID: <20080321123038.GI25225@elte.hu>
+References: <20080312173155.703966894@de.ibm.com> <20080312173217.078548501@de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20080312173216.861331041@de.ibm.com>
+In-Reply-To: <20080312173217.078548501@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -19,14 +18,9 @@ List-ID: <linux-s390.vger.kernel.org>
 
 * Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
 
-> Needed so it can be called from outside of sched.c.
+> Will be called each time the scheduling domains are rebuild. Needed 
+> for architectures that don't have a static cpu topology.
 
 thanks, applied.
-
-> +#if defined(CONFIG_SCHED_MC) || defined(CONFIG_SCHED_SMT)
-> +extern int arch_reinit_sched_domains(void);
-> +#endif
-
-i removed the #ifdefs around this.
 
 	Ingo
