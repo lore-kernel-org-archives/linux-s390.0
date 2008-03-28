@@ -1,7 +1,7 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754130AbYC1Obv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754861AbYC1PyR@vger.kernel.org>
 Subject: Re: [patch 09/10] Hugetlb common code update for System z.
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Reply-To: gerald.schaefer@de.ibm.com
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
 In-Reply-To: <20080328140634.GA29218@elte.hu>
 References: <20080312173155.703966894@de.ibm.com>
 	 <20080312173218.186436562@de.ibm.com>
@@ -11,15 +11,15 @@ References: <20080312173155.703966894@de.ibm.com>
 	 <1206713119.5186.52.camel@localhost.localdomain>
 	 <20080328140634.GA29218@elte.hu>
 Content-Type: text/plain
-Date: Fri, 28 Mar 2008 15:33:28 +0100
-Message-Id: <1206714808.5186.68.camel@localhost.localdomain>
+Date: Fri, 28 Mar 2008 16:53:19 +0100
+Message-Id: <1206719599.6592.10.camel@localhost>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@linux-foundation.org>, haveblue@us.ibm.com, schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Paul Mackerras <paulus@samba.org>, Thomas Gleixner <tglx@linutronix.de>, Paul Mundt <lethal@linux-sh.org>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, haveblue@us.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Paul Mackerras <paulus@samba.org>, Thomas Gleixner <tglx@linutronix.de>, Paul Mundt <lethal@linux-sh.org>
 List-ID: <linux-s390.vger.kernel.org>
 
 On Fri, 2008-03-28 at 15:06 +0100, Ingo Molnar wrote:
@@ -34,15 +34,23 @@ On Fri, 2008-03-28 at 15:06 +0100, Ingo Molnar wrote:
 > default behavior? It would probably reduce the linecount of your patch 
 > as well.
 
-Right, asm-generic was also suggested by Andrew as a first step, before
-getting rid of the ARCH_HAS_xxx stuff, and it would also reduce the loc.
-But it would make things complicated if one architecture later wants to
-take out some of the generic stuff to define it on their own, then they'd
-need to touch all architecture headers again.
+Well the hugetlbfs primitives are architecture specific, aren't they?
+Just like the other page table manipulation functions. I find the usual
+method to use asm-generic/<xxx> and a lot of defines and #ifdefs to pick
+up the correct definition from a generic header file rather hard to
+read. In the end each arch that wants to use hugetlbfs has to define
+each of the hugetlb primitives. Most of them are rather simple, e.g. the
+x86 set_huge_pte_at is just a set_pte_at. One line to define the
+primitive. Now we could have an #ifdef block around the default
+definition that maps set_huge_pte_at to set_pte_at in asm-generic and an
+ARCH_HAS_xx override for architecture that need to do something more
+complicated. Somehow that was where we started ..
+I think the best way to get rid of the ARCH_HAS_xxx fugliness is to let
+each architecture define their primitives, even if it looks like code
+duplication.
 
-So I thought I'd rather not introduce the asm-generic header at all but
-let all architectures have their own headers, risking code duplication
-but hopefully making future updates easier.
+-- 
+blue skies,
+  Martin.
 
---
-Gerald Schaefer
+"Reality continues to ruin my life." - Calvin.
