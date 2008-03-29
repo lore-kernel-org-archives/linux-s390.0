@@ -3,53 +3,68 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 From: Roland McGrath <roland@redhat.com>
-Subject: [PATCH 2/4] set_restore_sigmask TIF_SIGPENDING
+Subject: [PATCH 4/4] ia64 renumber TIF_RESTORE_SIGMASK
 In-Reply-To: Roland McGrath's message of  Friday, 28 March 2008 17:12:30 -0700 <20080329001230.D013726FA1D@magilla.localdomain>
 References: <20080329001230.D013726FA1D@magilla.localdomain>
-Message-ID: <20080329001341.7F93826FA1D@magilla.localdomain>
-Date: Fri, 28 Mar 2008 17:13:41 -0700 (PDT)
+Message-ID: <20080329001450.2B02D26FA1D@magilla.localdomain>
+Date: Fri, 28 Mar 2008 17:14:50 -0700 (PDT)
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20080329001341.63B6zGDV9_Cjes_q3Q9Fgl1cRBVrDYcR-6bhbc-Jwl0@z>
+Message-ID: <20080329001450._tWvBwdEIyvoc3BVVawQtxOinNDo6MjgaF5s2RPL8C0@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, tony.luck@intel.com, linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Set TIF_SIGPENDING in set_restore_sigmask.  This lets arch code take
-TIF_RESTORE_SIGMASK out of the set of bits that will be noticed on
-return to user mode.  On some machines those bits are scarce, and we
-can free this unneeded one up for other uses.
-
-It is probably the case that TIF_SIGPENDING is always set anyway
-everywhere set_restore_sigmask() is used.  But this is some cheap
-paranoia in case there is an arcane case where it might not be.
+TIF_RESTORE_SIGMASK no longer needs to be in the _TIF_WORK_* masks.
+Those low bits are scarce.  Renumber TIF_RESTORE_SIGMASK to free one up.
 
 Signed-off-by: Roland McGrath <roland@redhat.com>
 ---
- include/linux/thread_info.h |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletions(-)
+ arch/ia64/kernel/process.c     |    2 +-
+ include/asm-ia64/thread_info.h |    5 ++---
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/thread_info.h b/include/linux/thread_info.h
-index d82c073..4a89477 100644
---- a/include/linux/thread_info.h
-+++ b/include/linux/thread_info.h
-@@ -85,11 +85,17 @@ static inline int test_ti_thread_flag(struct thread_info *ti, int flag)
-  * set_restore_sigmask() - make sure saved_sigmask processing gets done
-  *
-  * This sets TIF_RESTORE_SIGMASK and ensures that the arch signal code
-- * will run before returning to user mode, to process the flag.
-+ * will run before returning to user mode, to process the flag.  For
-+ * all callers, TIF_SIGPENDING is already set or it's no harm to set
-+ * it.  TIF_RESTORE_SIGMASK need not be in the set of bits that the
-+ * arch code will notice on return to user mode, in case those bits
-+ * are scarce.  We set TIF_SIGPENDING here to ensure that the arch
-+ * signal code always gets run when TIF_RESTORE_SIGMASK is set.
-  */
- static inline void set_restore_sigmask(void)
- {
- 	set_thread_flag(TIF_RESTORE_SIGMASK);
-+	set_thread_flag(TIF_SIGPENDING);
- }
- #endif	/* TIF_RESTORE_SIGMASK */
+diff --git a/arch/ia64/kernel/process.c b/arch/ia64/kernel/process.c
+index 49937a3..2ef2794 100644
+--- a/arch/ia64/kernel/process.c
++++ b/arch/ia64/kernel/process.c
+@@ -183,7 +183,7 @@ do_notify_resume_user (sigset_t *unused, struct sigscratch *scr, long in_syscall
+ #endif
+ 
+ 	/* deal with pending signal delivery */
+-	if (test_thread_flag(TIF_SIGPENDING)||test_thread_flag(TIF_RESTORE_SIGMASK))
++	if (test_thread_flag(TIF_SIGPENDING))
+ 		ia64_do_signal(scr, in_syscall);
+ 
+ 	/* copy user rbs to kernel rbs */
+diff --git a/include/asm-ia64/thread_info.h b/include/asm-ia64/thread_info.h
+index 93d83cb..366e517 100644
+--- a/include/asm-ia64/thread_info.h
++++ b/include/asm-ia64/thread_info.h
+@@ -87,7 +87,6 @@ extern void tsk_clear_notify_resume(struct task_struct *tsk);
+ #define TIF_SYSCALL_TRACE	2	/* syscall trace active */
+ #define TIF_SYSCALL_AUDIT	3	/* syscall auditing active */
+ #define TIF_SINGLESTEP		4	/* restore singlestep on return to user mode */
+-#define TIF_RESTORE_SIGMASK	5	/* restore signal mask in do_signal() */
+ #define TIF_NOTIFY_RESUME	6	/* resumption notification requested */
+ #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
+ #define TIF_MEMDIE		17
+@@ -95,6 +94,7 @@ extern void tsk_clear_notify_resume(struct task_struct *tsk);
+ #define TIF_DB_DISABLED		19	/* debug trap disabled for fsyscall */
+ #define TIF_FREEZE		20	/* is freezing for suspend */
+ #define TIF_RESTORE_RSE		21	/* user RBS is newer than kernel RBS */
++#define TIF_RESTORE_SIGMASK	22	/* restore signal mask in do_signal() */
+ 
+ #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
+ #define _TIF_SYSCALL_AUDIT	(1 << TIF_SYSCALL_AUDIT)
+@@ -112,8 +112,7 @@ extern void tsk_clear_notify_resume(struct task_struct *tsk);
+ 
+ /* "work to do on user-return" bits */
+ #define TIF_ALLWORK_MASK	(_TIF_SIGPENDING|_TIF_NOTIFY_RESUME|_TIF_SYSCALL_AUDIT|\
+-				 _TIF_NEED_RESCHED| _TIF_SYSCALL_TRACE|\
+-				 _TIF_RESTORE_SIGMASK)
++				 _TIF_NEED_RESCHED|_TIF_SYSCALL_TRACE)
+ /* like TIF_ALLWORK_BITS but sans TIF_SYSCALL_TRACE or TIF_SYSCALL_AUDIT */
+ #define TIF_WORK_MASK		(TIF_ALLWORK_MASK&~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT))
  
