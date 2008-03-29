@@ -1,154 +1,162 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 From: Roland McGrath <roland@redhat.com>
-Subject: [PATCH 1/4] set_restore_sigmask
-Message-ID: <20080329001230.D013726FA1D@magilla.localdomain>
-Date: Fri, 28 Mar 2008 17:12:30 -0700 (PDT)
+Subject: [PATCH 3/4] s390 renumber TIF_RESTORE_SIGMASK
+In-Reply-To: Roland McGrath's message of  Friday, 28 March 2008 17:12:30 -0700 <20080329001230.D013726FA1D@magilla.localdomain>
+References: <20080329001230.D013726FA1D@magilla.localdomain>
+Message-ID: <20080329001418.D5F3526FA1D@magilla.localdomain>
+Date: Fri, 28 Mar 2008 17:14:18 -0700 (PDT)
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20080329001230.p4CffrHFYuNrjmfCWoaXaJLpIRZUxtvKbTAo9XdMCug@z>
+Message-ID: <20080329001418.GHQSHuzJ-Lu-KPpFsCSKBEIT0Tjy2DWI246-KVNtPS8@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, tony.luck@intel.com, linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This adds the set_restore_sigmask() inline in <linux/thread_info.h> and
-replaces every set_thread_flag(TIF_RESTORE_SIGMASK) with a call to it.
-No change, but abstracts the flag protocol details from all the calls.
+TIF_RESTORE_SIGMASK no longer needs to be in the _TIF_WORK_* masks.
+Those low bits are scarce, and are all used up now.
+Renumber TIF_RESTORE_SIGMASK to free one up.
 
 Signed-off-by: Roland McGrath <roland@redhat.com>
 ---
- fs/compat.c                 |    6 +++---
- fs/eventpoll.c              |    3 +--
- fs/select.c                 |    4 ++--
- include/linux/thread_info.h |   15 ++++++++++++++-
- kernel/compat.c             |    3 +--
- kernel/signal.c             |    2 +-
- 6 files changed, 22 insertions(+), 11 deletions(-)
+ arch/s390/kernel/entry.S       |   14 +++++++-------
+ arch/s390/kernel/entry64.S     |   12 ++++++------
+ include/asm-s390/thread_info.h |    2 +-
+ 3 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/fs/compat.c b/fs/compat.c
-index 2ce4456..9964d54 100644
---- a/fs/compat.c
-+++ b/fs/compat.c
-@@ -1720,7 +1720,7 @@ sticky:
- 		if (sigmask) {
- 			memcpy(&current->saved_sigmask, &sigsaved,
- 					sizeof(sigsaved));
--			set_thread_flag(TIF_RESTORE_SIGMASK);
-+			set_restore_sigmask();
- 		}
- 	} else if (sigmask)
- 		sigprocmask(SIG_SETMASK, &sigsaved, NULL);
-@@ -1791,7 +1791,7 @@ asmlinkage long compat_sys_ppoll(struct pollfd __user *ufds,
- 		if (sigmask) {
- 			memcpy(&current->saved_sigmask, &sigsaved,
- 				sizeof(sigsaved));
--			set_thread_flag(TIF_RESTORE_SIGMASK);
-+			set_restore_sigmask();
- 		}
- 		ret = -ERESTARTNOHAND;
- 	} else if (sigmask)
-@@ -2117,7 +2117,7 @@ asmlinkage long compat_sys_epoll_pwait(int epfd,
- 		if (err == -EINTR) {
- 			memcpy(&current->saved_sigmask, &sigsaved,
- 			       sizeof(sigsaved));
--			set_thread_flag(TIF_RESTORE_SIGMASK);
-+			set_restore_sigmask();
- 		} else
- 			sigprocmask(SIG_SETMASK, &sigsaved, NULL);
- 	}
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index a415f42..503ffa4 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -1300,7 +1300,7 @@ asmlinkage long sys_epoll_pwait(int epfd, struct epoll_event __user *events,
- 		if (error == -EINTR) {
- 			memcpy(&current->saved_sigmask, &sigsaved,
- 			       sizeof(sigsaved));
--			set_thread_flag(TIF_RESTORE_SIGMASK);
-+			set_restore_sigmask();
- 		} else
- 			sigprocmask(SIG_SETMASK, &sigsaved, NULL);
- 	}
-@@ -1330,4 +1330,3 @@ static int __init eventpoll_init(void)
- 	return 0;
- }
- fs_initcall(eventpoll_init);
--
-diff --git a/fs/select.c b/fs/select.c
-index 5633fe9..bbd351c 100644
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -498,7 +498,7 @@ sticky:
- 		if (sigmask) {
- 			memcpy(&current->saved_sigmask, &sigsaved,
- 					sizeof(sigsaved));
--			set_thread_flag(TIF_RESTORE_SIGMASK);
-+			set_restore_sigmask();
- 		}
- 	} else if (sigmask)
- 		sigprocmask(SIG_SETMASK, &sigsaved, NULL);
-@@ -805,7 +805,7 @@ asmlinkage long sys_ppoll(struct pollfd __user *ufds, unsigned int nfds,
- 		if (sigmask) {
- 			memcpy(&current->saved_sigmask, &sigsaved,
- 					sizeof(sigsaved));
--			set_thread_flag(TIF_RESTORE_SIGMASK);
-+			set_restore_sigmask();
- 		}
- 		ret = -ERESTARTNOHAND;
- 	} else if (sigmask)
-diff --git a/include/linux/thread_info.h b/include/linux/thread_info.h
-index 421323e..d82c073 100644
---- a/include/linux/thread_info.h
-+++ b/include/linux/thread_info.h
-@@ -80,6 +80,19 @@ static inline int test_ti_thread_flag(struct thread_info *ti, int flag)
- #define set_need_resched()	set_thread_flag(TIF_NEED_RESCHED)
- #define clear_need_resched()	clear_thread_flag(TIF_NEED_RESCHED)
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index 6766e37..bdbb3bc 100644
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -49,9 +49,9 @@ SP_ILC	     =	STACK_FRAME_OVERHEAD + __PT_ILC
+ SP_TRAP      =	STACK_FRAME_OVERHEAD + __PT_TRAP
+ SP_SIZE      =	STACK_FRAME_OVERHEAD + __PT_SIZE
  
--#endif
-+#ifdef TIF_RESTORE_SIGMASK
-+/**
-+ * set_restore_sigmask() - make sure saved_sigmask processing gets done
-+ *
-+ * This sets TIF_RESTORE_SIGMASK and ensures that the arch signal code
-+ * will run before returning to user mode, to process the flag.
-+ */
-+static inline void set_restore_sigmask(void)
-+{
-+	set_thread_flag(TIF_RESTORE_SIGMASK);
-+}
-+#endif	/* TIF_RESTORE_SIGMASK */
-+
-+#endif	/* __KERNEL__ */
+-_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK | _TIF_NEED_RESCHED | \
++_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
+ 		 _TIF_MCCK_PENDING | _TIF_RESTART_SVC | _TIF_SINGLE_STEP )
+-_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK | _TIF_NEED_RESCHED | \
++_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
+ 		 _TIF_MCCK_PENDING)
  
- #endif /* _LINUX_THREAD_INFO_H */
-diff --git a/kernel/compat.c b/kernel/compat.c
-index 5f0e201..a830c84 100644
---- a/kernel/compat.c
-+++ b/kernel/compat.c
-@@ -899,7 +899,7 @@ asmlinkage long compat_sys_rt_sigsuspend(compat_sigset_t __user *unewset, compat
+ STACK_SHIFT = PAGE_SHIFT + THREAD_ORDER
+@@ -316,7 +316,7 @@ sysc_work:
+ 	bo	BASED(sysc_mcck_pending)
+ 	tm	__TI_flags+3(%r9),_TIF_NEED_RESCHED
+ 	bo	BASED(sysc_reschedule)
+-	tm	__TI_flags+3(%r9),(_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK)
++	tm	__TI_flags+3(%r9),_TIF_SIGPENDING
+ 	bnz	BASED(sysc_sigpending)
+ 	tm	__TI_flags+3(%r9),_TIF_RESTART_SVC
+ 	bo	BASED(sysc_restart)
+@@ -342,7 +342,7 @@ sysc_mcck_pending:
+ 	br	%r1			# TIF bit will be cleared by handler
  
- 	current->state = TASK_INTERRUPTIBLE;
- 	schedule();
--	set_thread_flag(TIF_RESTORE_SIGMASK);
-+	set_restore_sigmask();
- 	return -ERESTARTNOHAND;
- }
- #endif /* __ARCH_WANT_COMPAT_SYS_RT_SIGSUSPEND */
-@@ -1081,4 +1081,3 @@ compat_sys_sysinfo(struct compat_sysinfo __user *info)
+ #
+-# _TIF_SIGPENDING or _TIF_RESTORE_SIGMASK is set, call do_signal
++# _TIF_SIGPENDING is set, call do_signal
+ #
+ sysc_sigpending:
+ 	ni	__TI_flags+3(%r9),255-_TIF_SINGLE_STEP # clear TIF_SINGLE_STEP
+@@ -657,7 +657,7 @@ io_work:
+ 	lr	%r15,%r1
+ #
+ # One of the work bits is on. Find out which one.
+-# Checked are: _TIF_SIGPENDING, _TIF_RESTORE_SIGMASK, _TIF_NEED_RESCHED
++# Checked are: _TIF_SIGPENDING, _TIF_NEED_RESCHED
+ #		and _TIF_MCCK_PENDING
+ #
+ io_work_loop:
+@@ -665,7 +665,7 @@ io_work_loop:
+ 	bo	BASED(io_mcck_pending)
+ 	tm	__TI_flags+3(%r9),_TIF_NEED_RESCHED
+ 	bo	BASED(io_reschedule)
+-	tm	__TI_flags+3(%r9),(_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK)
++	tm	__TI_flags+3(%r9),_TIF_SIGPENDING
+ 	bnz	BASED(io_sigpending)
+ 	b	BASED(io_restore)
+ io_work_done:
+@@ -693,7 +693,7 @@ io_reschedule:
+ 	b	BASED(io_work_loop)
  
- 	return 0;
- }
--
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 6af1210..977b3cd 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2610,7 +2610,7 @@ asmlinkage long sys_rt_sigsuspend(sigset_t __user *unewset, size_t sigsetsize)
+ #
+-# _TIF_SIGPENDING or _TIF_RESTORE_SIGMASK is set, call do_signal
++# _TIF_SIGPENDING is set, call do_signal
+ #
+ io_sigpending:
+ 	TRACE_IRQS_ON
+diff --git a/arch/s390/kernel/entry64.S b/arch/s390/kernel/entry64.S
+index efde6e1..0338579 100644
+--- a/arch/s390/kernel/entry64.S
++++ b/arch/s390/kernel/entry64.S
+@@ -52,9 +52,9 @@ SP_SIZE      =	STACK_FRAME_OVERHEAD + __PT_SIZE
+ STACK_SHIFT = PAGE_SHIFT + THREAD_ORDER
+ STACK_SIZE  = 1 << STACK_SHIFT
  
- 	current->state = TASK_INTERRUPTIBLE;
- 	schedule();
--	set_thread_flag(TIF_RESTORE_SIGMASK);
-+	set_restore_sigmask();
- 	return -ERESTARTNOHAND;
- }
- #endif /* __ARCH_WANT_SYS_RT_SIGSUSPEND */
+-_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK | _TIF_NEED_RESCHED | \
++_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
+ 		 _TIF_MCCK_PENDING | _TIF_RESTART_SVC | _TIF_SINGLE_STEP )
+-_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK | _TIF_NEED_RESCHED | \
++_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
+ 		 _TIF_MCCK_PENDING)
+ 
+ #define BASED(name) name-system_call(%r13)
+@@ -308,7 +308,7 @@ sysc_work:
+ 	jo	sysc_mcck_pending
+ 	tm	__TI_flags+7(%r9),_TIF_NEED_RESCHED
+ 	jo	sysc_reschedule
+-	tm	__TI_flags+7(%r9),(_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK)
++	tm	__TI_flags+7(%r9),_TIF_SIGPENDING
+ 	jnz	sysc_sigpending
+ 	tm	__TI_flags+7(%r9),_TIF_RESTART_SVC
+ 	jo	sysc_restart
+@@ -332,7 +332,7 @@ sysc_mcck_pending:
+ 	jg	s390_handle_mcck	# TIF bit will be cleared by handler
+ 
+ #
+-# _TIF_SIGPENDING or _TIF_RESTORE_SIGMASK is set, call do_signal
++# _TIF_SIGPENDING is set, call do_signal
+ #
+ sysc_sigpending:
+ 	ni	__TI_flags+7(%r9),255-_TIF_SINGLE_STEP # clear TIF_SINGLE_STEP
+@@ -647,7 +647,7 @@ io_work_loop:
+ 	jo	io_mcck_pending
+ 	tm	__TI_flags+7(%r9),_TIF_NEED_RESCHED
+ 	jo	io_reschedule
+-	tm	__TI_flags+7(%r9),(_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK)
++	tm	__TI_flags+7(%r9),_TIF_SIGPENDING
+ 	jnz	io_sigpending
+ 	j	io_restore
+ io_work_done:
+@@ -673,7 +673,7 @@ io_reschedule:
+ 	j	io_work_loop
+ 
+ #
+-# _TIF_SIGPENDING or _TIF_RESTORE_SIGMASK is set, call do_signal
++# _TIF_SIGPENDING or is set, call do_signal
+ #
+ io_sigpending:
+ 	TRACE_IRQS_ON
+diff --git a/include/asm-s390/thread_info.h b/include/asm-s390/thread_info.h
+index 0a51891..99bbed9 100644
+--- a/include/asm-s390/thread_info.h
++++ b/include/asm-s390/thread_info.h
+@@ -89,7 +89,6 @@ static inline struct thread_info *current_thread_info(void)
+  * thread information flags bit numbers
+  */
+ #define TIF_SYSCALL_TRACE	0	/* syscall trace active */
+-#define TIF_RESTORE_SIGMASK	1	/* restore signal mask in do_signal() */
+ #define TIF_SIGPENDING		2	/* signal pending */
+ #define TIF_NEED_RESCHED	3	/* rescheduling necessary */
+ #define TIF_RESTART_SVC		4	/* restart svc with new svc number */
+@@ -101,6 +100,7 @@ static inline struct thread_info *current_thread_info(void)
+ 					   TIF_NEED_RESCHED */
+ #define TIF_31BIT		18	/* 32bit process */ 
+ #define TIF_MEMDIE		19
++#define TIF_RESTORE_SIGMASK	20	/* restore signal mask in do_signal() */
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+ #define _TIF_RESTORE_SIGMASK	(1<<TIF_RESTORE_SIGMASK)
