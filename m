@@ -1,32 +1,41 @@
-From: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: [patch 2/2] zcrypt: add support for large random numbers
-Date: Mon, 17 Mar 2008 08:02:28 -0700
-Message-ID: <47DE8804.9010401@oracle.com>
-References: <20080314092523.147382820@de.ibm.com>	 <20080314093046.914555041@de.ibm.com>	 <20080314091402.fa409ac7.randy.dunlap@oracle.com> <1205747051.16137.21.camel@localhost>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [patch 1/2] hw_random: allow rng_dev_read() to return hardware errors.
+Date: Mon, 31 Mar 2008 22:19:43 +0800
+Message-ID: <20080331141943.GA14688@gondor.apana.org.au>
+References: <20080314092523.147382820@de.ibm.com> <20080314093046.656233449@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-crypto-owner@vger.kernel.org>
-In-Reply-To: <1205747051.16137.21.camel@localhost>
+Content-Disposition: inline
+In-Reply-To: <20080314093046.656233449@de.ibm.com>
 Sender: linux-crypto-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-crypto/>
 List-Post: <mailto:linux-crypto@vger.kernel.org>
-To: schwidefsky@de.ibm.com
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Ralph Wuerthner <rwuerthn@de.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Ralph Wuerthner <rwuerthn@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Martin Schwidefsky wrote:
-> On Fri, 2008-03-14 at 09:14 -0700, Randy Dunlap wrote:
->> Linux kernel uses "/**" to indicate the beginning of kernel-doc
->> notation, so when the comment block is not kernel-doc, please don't
->> use that /** to begin the comment block.
->> (multiple occurrences of this)
+On Fri, Mar 14, 2008 at 09:25:24AM +0000, Martin Schwidefsky wrote:
+> From: Ralph Wuerthner <rwuerthn@de.ibm.com>
 > 
-> True. This is done consistently wrong in the zcrypt driver. I would
-> prefer to do a separate kernel-doc cleanup patch and leave this patch as
-> it is. Ok ?
+> The api for hardware random number generators is currently limited to
+> devices that never fail. If the hardware is registered as a source for
+> random numbers it has to work. This prevents the use of i/o based
+> random number devices where the i/o might fail.
+> 
+> Add a check for errors after the read from a hardware random number device.
+> 
+> This patch is required to support large random numbers retrieved
+> from the CEX2C cards on System z.
+> 
+> Signed-off-by: Ralph Wuerthner <rwuerthn@de.ibm.com>
+> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Sure.  Thanks.
+Thanks for the patch.  I'll pick this up in cryptodev-2.6.
 
+Cheers,
 -- 
-~Randy
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
