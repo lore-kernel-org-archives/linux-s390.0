@@ -1,46 +1,50 @@
-From: Martin Peschke <mp3@de.ibm.com>
-Subject: Re: [patch 08/11] zfcp: Add traces for state changes.
-Date: Thu, 27 Mar 2008 15:31:55 +0100
-Message-ID: <47EBAFDB.8040101@de.ibm.com>
-References: <20080327132154.826339000@de.ibm.com> <20080327133028.840759000@de.ibm.com> <20080327142001.GA4122@osiris.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 3/9] zfcp: Remove obsolete output function from debug trace.
+Date: Mon, 31 Mar 2008 11:15:25 +0200
+Message-ID: <20080331091831.269784000@de.ibm.com>
+References: <20080331091522.688709000@de.ibm.com>
 Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <20080327142001.GA4122@osiris.boeblingen.de.ibm.com>
+Content-Disposition: inline; filename=zfcp_dbf_cleanup_rm_unused_view_function.diff
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Christof Schmitt <christof.schmitt@de.ibm.com>, James Bottomley <James.Bottomley@HansenPartnership.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Peschke <mp3@de.ibm.com>, Christof Schmitt <christof.schmitt@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Heiko Carstens schrieb:
->> -	zfcp_erp_modify_adapter_status(adapter,
->> +	zfcp_erp_modify_adapter_status(adapter, 24, 0,
->>  				       ZFCP_STATUS_COMMON_OPEN, ZFCP_CLEAR);
->>  }
->>
->> @@ -216,7 +216,7 @@ zfcp_erp_adapter_reopen_internal(struct 
->>  			       zfcp_get_busid_by_adapter(adapter));
->>  		debug_text_event(adapter->erp_dbf, 5, "a_ro_f");
->>  		/* ensure propagation of failed status to new devices */
->> -		zfcp_erp_adapter_failed(adapter);
->> +		zfcp_erp_adapter_failed(adapter, 13, 0);
-> 
-> 24, 13? I bet you made sure that these numbers fit the huge list.. and
-> hopefully nobody will ever add anything in between.
-> Why not just pass a string? This looks way too complicated and error-prone.
+From: Martin Peschke <mp3@de.ibm.com>
 
-Well, do you remember the scheme introduced by our (s390) kernel message 
-catalog? Same approach.
+Remove obsolete output function.
 
-I think numbers are superior. I won't store strings because I want to 
-keep trace entries as small as possible - 1 or 2 bytes for a number vs. 
-lots of bytes for a string ... for each event.
+Signed-off-by: Martin Peschke <mp3@de.ibm.com>
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+---
+ drivers/s390/scsi/zfcp_dbf.c |   15 ---------------
+ 1 file changed, 15 deletions(-)
 
-Yes, I did this carefully. The strings array helps to keep track of used 
-IDs.
+--- a/drivers/s390/scsi/zfcp_dbf.c	2008-03-27 14:58:34.000000000 +0100
++++ b/drivers/s390/scsi/zfcp_dbf.c	2008-03-27 14:58:47.000000000 +0100
+@@ -74,21 +74,6 @@ static int zfcp_dbf_tag(char *out_buf, c
+ 	return len;
+ }
+ 
+-static int
+-zfcp_dbf_view(char *out_buf, const char *label, const char *format, ...)
+-{
+-	va_list arg;
+-	int len = 0;
+-
+-	len += sprintf(out_buf + len, "%-24s", label);
+-	va_start(arg, format);
+-	len += vsprintf(out_buf + len, format, arg);
+-	va_end(arg);
+-	len += sprintf(out_buf + len, "\n");
+-
+-	return len;
+-}
+-
+ static void zfcp_dbf_outs(char **buf, const char *s1, const char *s2)
+ {
+ 	*buf += sprintf(*buf, "%-24s%s\n", s1, s2);
 
-Regards,
-Martin
+-- 
