@@ -1,31 +1,39 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 2/2] zcrypt: add support for large random numbers
+Date: Mon, 31 Mar 2008 16:39:23 +0200
+Message-ID: <1206974363.26149.2.camel@localhost>
+References: <20080314092523.147382820@de.ibm.com>
+	 <20080314093046.914555041@de.ibm.com>
+	 <20080331142111.GB14688@gondor.apana.org.au>
+Reply-To: schwidefsky@de.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <18415.28947.208842.304790@cargo.ozlabs.ibm.com>
-Date: Sun, 30 Mar 2008 21:53:07 +1100
-From: Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH 2/4] set_restore_sigmask TIF_SIGPENDING
-In-Reply-To: <alpine.LFD.1.00.0803281746480.14670@woody.linux-foundation.org>
-References: <20080329001230.D013726FA1D@magilla.localdomain>
-	<20080329001341.7F93826FA1D@magilla.localdomain>
-	<alpine.LFD.1.00.0803281746480.14670@woody.linux-foundation.org>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20080330105307.WAhl4OEbq41djUUqjHKfMXU3pygzbO6Ax0WKu8eqgnQ@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, tony.luck@intel.com, linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-crypto-owner@vger.kernel.org>
+In-Reply-To: <20080331142111.GB14688@gondor.apana.org.au>
+Sender: linux-crypto-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-crypto/>
+List-Post: <mailto:linux-crypto@vger.kernel.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Ralph Wuerthner <rwuerthn@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Linus Torvalds writes:
+On Mon, 2008-03-31 at 22:21 +0800, Herbert Xu wrote:
+> > This patch allows user space applications to access large amounts of 
+> > truly random data. The random data source is the build-in hardware 
+> > random number generator on the CEX2C cards.
+> > 
+> > Signed-off-by: Ralph Wuerthner <rwuerthn@de.ibm.com>
+> > Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> 
+> The patch looks OK.
+> 
+> Are you guys going to carry this patch in the s390 tree?
 
-> Of course, it may well not be worth it. Unlike the TIF flags, the TS flags 
-> have been architecture-specific and I don't think all architectures even 
-> do them (x86 uses them for FP state bits and stuff like that).
+Yes, this patch should go in over git390.
 
-Powerpc has a "local_flags" field.  I don't mind changing it if we are
-going to have a consistent name across architectures, but "status" (as
-x86 uses) seems a bit nondescript to me.
+-- 
+blue skies,
+  Martin.
 
-Paul.
+"Reality continues to ruin my life." - Calvin.
