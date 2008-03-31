@@ -1,41 +1,33 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756694AbYCTQNl@vger.kernel.org>
-Subject: Please pull git390 'for-linus' branch
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH 3/4] s390 renumber TIF_RESTORE_SIGMASK
+Date: Mon, 31 Mar 2008 09:53:26 +0200
+Message-ID: <1206950006.26149.0.camel@localhost>
+References: <20080329001230.D013726FA1D@magilla.localdomain>
+	 <20080329001418.D5F3526FA1D@magilla.localdomain>
 Reply-To: schwidefsky@de.ibm.com
-Content-Type: text/plain
-Date: Thu, 20 Mar 2008 17:13:04 +0100
-Message-Id: <1206029584.23671.14.camel@localhost>
 Mime-Version: 1.0
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: torvalds@linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Return-path: <linux-ia64-owner@vger.kernel.org>
+In-Reply-To: <20080329001418.D5F3526FA1D@magilla.localdomain>
+Sender: linux-ia64-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-s390@vger.kernel.org, tony.luck@intel.com, linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Please pull from 'for-linus' branch of
+On Fri, 2008-03-28 at 17:14 -0700, Roland McGrath wrote:
+> TIF_RESTORE_SIGMASK no longer needs to be in the _TIF_WORK_* masks.
+> Those low bits are scarce, and are all used up now.
+> Renumber TIF_RESTORE_SIGMASK to free one up.
+> 
+> Signed-off-by: Roland McGrath <roland@redhat.com>
 
-	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-to receive the following updates:
+-- 
+blue skies,
+  Martin.
 
- arch/s390/lib/uaccess_pt.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-Heiko Carstens (1):
-      [S390] futex: let futex_atomic_cmpxchg_pt survive early functional tests.
-
-diff --git a/arch/s390/lib/uaccess_pt.c b/arch/s390/lib/uaccess_pt.c
-index 7e8efaa..5efdfe9 100644
---- a/arch/s390/lib/uaccess_pt.c
-+++ b/arch/s390/lib/uaccess_pt.c
-@@ -406,6 +406,8 @@ int futex_atomic_cmpxchg_pt(int __user *uaddr, int oldval, int newval)
- {
- 	int ret;
- 
-+	if (!current->mm)
-+		return -EFAULT;
- 	spin_lock(&current->mm->page_table_lock);
- 	uaddr = (int __user *) __dat_user_addr((unsigned long) uaddr);
- 	if (!uaddr) {
+"Reality continues to ruin my life." - Calvin.
