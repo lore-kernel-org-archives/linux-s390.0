@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755431AbYDILhQ@vger.kernel.org>
-Subject: Re: [PATCH 1/3] hugetlbfs: architecture header cleanup
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-In-Reply-To: <20080407205906.25bd06c6.akpm@linux-foundation.org>
-References: <1207327534.4605.18.camel@localhost.localdomain>
-	 <1207327790.4605.21.camel@localhost.localdomain>
-	 <20080407205906.25bd06c6.akpm@linux-foundation.org>
-Content-Type: text/plain
-Date: Wed, 09 Apr 2008 13:35:55 +0200
-Message-Id: <1207740955.878.5.camel@localhost>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Tue, 8 Apr 2008 15:35:19 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [PATCH 2/4] set_restore_sigmask TIF_SIGPENDING
+Message-ID: <20080408113519.GA227@tv-sign.ru>
+References: <20080329001230.D013726FA1D@magilla.localdomain> <20080329001341.7F93826FA1D@magilla.localdomain> <alpine.LFD.1.00.0803281746480.14670@woody.linux-foundation.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Ingo Molnar <mingo@elte.hu>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Paul Mackerras <paulus@samba.org>, Thomas Gleixner <tglx@linutronix.de>, Paul Mundt <lethal@linux-sh.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.LFD.1.00.0803281746480.14670@woody.linux-foundation.org>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20080408113519.sNz9z38jcsuTxc5pwmEoky3gsEyqsQ4fGq_WmmEjf80@z>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, tony.luck@intel.com, linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 2008-04-07 at 20:59 -0700, Andrew Morton wrote: 
-> Seem that git-s390 is currently carrying the old versions of these patches.
+Roland, Linus, I'm sorry for being offtopic, but there is something
+I can't understand from the very beginning, when TIF_RESTORE_SIGMASK
+was introduced.
+
+On 03/28, Linus Torvalds wrote:
 > 
-> I'll drop git-s390.  Which will presumably kick off a cascade of droppages
-> due to git-s390 versus git-kvm damage control.  All of which will need to
-> be undropped in some fashion when those trees come to their senses.  Ho
-> hum.
+> On Fri, 28 Mar 2008, Roland McGrath wrote:
+> >
+> > Set TIF_SIGPENDING in set_restore_sigmask.  This lets arch code take
+> > TIF_RESTORE_SIGMASK out of the set of bits that will be noticed on
+> > return to user mode.  On some machines those bits are scarce, and we
+> > can free this unneeded one up for other uses.
+> 
+> Hmm. That probably means that TIF_RESTORE_SIGMASK shouldn't be a "TIF" 
+> flag at all,
 
-Yes, git-s390 wasn't updated for a few days. I've dropped all the
-hugetlbfs patches since the version we will push upstream depends on the
-cleanup which will go in over -mm. I keep the fingers crossed that the
-git-s390 now works again.
+Yes!
 
--- 
-blue skies,
-  Martin.
+> but a "TS" ("thread status") flag.
 
-"Reality continues to ruin my life." - Calvin.
+Why do we need any flag? It looks a bit ugly. Isn't it better to introduce
+the new magic ERESTART_XXX which means ERESTARTNOHAND + restore-sigmask ?
+
+We only need this flag as an implicit parameter to the arch dependent do_signal()
+which we can't call directly, and thus it must imply TIF_SIGPENDING, and it
+is not valid after do_signal() (should be cleared). This all looks like
+ERESTART_ magic, why should we add something else ?
+
+See also http://marc.info/?l=linux-kernel&m=113734458516136
+
+Of course, probably it is too late to change the implementation even if
+I am right, the question is: what I am missed?
+
+Oleg.
