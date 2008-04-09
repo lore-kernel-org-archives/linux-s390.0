@@ -1,37 +1,97 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
+Date: Wed, 9 Apr 2008 15:39:39 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
 Subject: Re: [PATCH 2/4] set_restore_sigmask TIF_SIGPENDING
-In-Reply-To: Oleg Nesterov's message of  Tuesday, 8 April 2008 15:35:19 +0400 <20080408113519.GA227@tv-sign.ru>
-References: <20080329001230.D013726FA1D@magilla.localdomain>
-	<20080329001341.7F93826FA1D@magilla.localdomain>
-	<alpine.LFD.1.00.0803281746480.14670@woody.linux-foundation.org>
-	<20080408113519.GA227@tv-sign.ru>
-Message-ID: <20080408195143.57F3326F992@magilla.localdomain>
-Date: Tue,  8 Apr 2008 12:51:43 -0700 (PDT)
+Message-ID: <20080409113939.GA99@tv-sign.ru>
+References: <20080329001230.D013726FA1D@magilla.localdomain> <20080329001341.7F93826FA1D@magilla.localdomain> <alpine.LFD.1.00.0803281746480.14670@woody.linux-foundation.org> <20080408113519.GA227@tv-sign.ru> <1207739787.27048.57.camel@shinybook.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1207739787.27048.57.camel@shinybook.infradead.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20080408195143.BM94clUJScfTSk_Z7yWdrQJLTV-f2W_dG_bKQ7Z2shw@z>
+Message-ID: <20080409113939.obw95NT2CmfoSYKU5TU2hzDhcFuiFp3_jJZgQvmcF3Q@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, tony.luck@intel.com, linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, tony.luck@intel.com, linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Off hand, I concur with you and Linus.  I wasn't involved in the
-introduction of TIF_RESTORE_SIGMASK and never thought too much about
-it before.  In my recent changes I only considered the issue of
-getting it out of _TIF_WORK_MASK et al to free up the low bit, and
-didn't contemplate the structure of the implementation beyond that.
+On 04/09, David Woodhouse wrote:
+>
+> On Tue, 2008-04-08 at 15:35 +0400, Oleg Nesterov wrote:
+> > Why do we need any flag? It looks a bit ugly. Isn't it better to introduce
+> > the new magic ERESTART_XXX which means ERESTARTNOHAND + restore-sigmask ?
+> > 
+> > We only need this flag as an implicit parameter to the arch dependent do_signal()
+> > which we can't call directly, and thus it must imply TIF_SIGPENDING, and it
+> > is not valid after do_signal() (should be cleared). This all looks like
+> > ERESTART_ magic, why should we add something else ?
+> > 
+> > See also http://marc.info/?l=linux-kernel&m=113734458516136
+> > 
+> > Of course, probably it is too late to change the implementation even if
+> > I am right, the question is: what I am missed?
+> 
+> Q: When ppoll() is interrupted by a signal, what signal mask should be
+> active when the signal handler is active?
+> 
+> I believe that the signal handler should run with the temporary sigmask
+> which was set by ppoll(), and the original sigmask should be restored
+> only when the handler completes -- and that's what we achieve with
+> TIF_RESTORE_SIGMASK.
 
-I don't think it's "too late" to change anything.  (It's never too
-late!  It just might take a while to make a change in a safe and
-orderly fashion for all the arch's.)  After my patch series, the
-details are fully in the arch's corner.  It should be straightforward
-to convert one at a time to use regs->return_register = -ERESTARTRESTOREMASK
-to implement set_restore_sigmask() if you want to tackle it.
+Yes sure.
 
+> So a signal which was originally enabled but is temporarily disabled by
+> the mask passed to ppoll() will not be able to interrupt the handler for
+> the signal which interrupted ppoll().
+> 
+> Your version will restore the original signal mask _before_ invoking the
+> signal handler which interrupted ppoll()
 
-Thanks,
-Roland
+Why do you think so?
+
+Please look at the "patch" below,
+
+	--- arch/x86/kernel/signal_32.c	2008-02-15 16:58:38.000000000 +0300
+	+++ -	2008-04-09 15:16:05.393510662 +0400
+	@@ -526,10 +526,14 @@ handle_signal(unsigned long sig, siginfo
+	 {
+		int ret;
+	 
+	+	oldset = &current->blocked;
+	+
+		/* Are we from a system call? */
+		if (regs->orig_ax >= 0) {
+			/* If so, check system call restarting.. */
+			switch (regs->ax) {
+	+			case -ERESTART_XXX:
+	+				oldset = &current->saved_sigmask;
+				case -ERESTART_RESTARTBLOCK:
+				case -ERESTARTNOHAND:
+					regs->ax = -EINTR;
+
+We also need a similar change in do_signal(). Now,
+
+	--- fs/select.c	2008-02-15 16:59:15.000000000 +0300
+	+++ -	2008-04-09 15:19:29.015991911 +0400
+	@@ -805,9 +805,8 @@ asmlinkage long sys_ppoll(struct pollfd 
+			if (sigmask) {
+				memcpy(&current->saved_sigmask, &sigsaved,
+						sizeof(sigsaved));
+	-			set_thread_flag(TIF_RESTORE_SIGMASK);
+			}
+	-		ret = -ERESTARTNOHAND;
+	+		ret = -ERESTART_XXX;
+		} else if (sigmask)
+			sigprocmask(SIG_SETMASK, &sigsaved, NULL);
+
+Perhaps I missed something else, though. Not that I really think it worth
+changing, but I'll try to make a proof of concept patch on Weekend, on top
+of Roland's cleanups.
+
+As I see it, the main disadvantage of ERESTART_ approach is that we need 2
+new ERESTART_ codes, one for ERESTARTNOHAND, another for ERESTART_RESTARTBLOCK.
+And yes, while I personally think this is "more clean", it is very subjective.
+
+Oleg.
