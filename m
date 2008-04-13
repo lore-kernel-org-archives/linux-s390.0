@@ -1,21 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762804AbYD3MEV@vger.kernel.org>
-Date: Wed, 30 Apr 2008 08:04:08 -0400
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [patch] s390: Remove self ptrace IEEE_IP hack.
-Message-ID: <20080430120408.GA28831@infradead.org>
-References: <1209546896.10954.28.camel@localhost> <20080430091900.GA13743@infradead.org> <1209555393.10954.32.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1209555393.10954.32.camel@localhost>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+From: Adrian Bunk <bunk@kernel.org>
+Date: Sun, 13 Apr 2008 18:15:15 +0000
+Subject: Re: BUG: soft lockup detected on CPU#0! Process swapper
+Message-Id: <20080413181515.GB2182@cs181133002.pp.htv.fi>
+In-Reply-To: <20080226092012.GB7114@osiris.boeblingen.de.ibm.com>
+References: <20080226092012.GB7114@osiris.boeblingen.de.ibm.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Apr 30, 2008 at 01:36:33PM +0200, Martin Schwidefsky wrote:
-> Here we go..
+On Tue, Feb 26, 2008 at 10:20:12AM +0100, Heiko Carstens wrote:
+>...
+> Adrian, would you please consider the patch below for your 2.6.16 stable
+> series? Patch is for 2.6.16.60. Upstream commit id in Linus' tree is
+> dea20a3fbdd08e5ae2a0b33d2577c794a3764a11 . Thanks!
 
-Looks good.
+Thanks, applied.
+
+> Subject: [PATCH] Disable DETECT_SOFTLOCKUP for s390
+>     
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> 
+> We got several false bug reports because of enabled
+> CONFIG_DETECT_SOFTLOCKUP.  Disable soft lockup detection on s390, since it
+> doesn't work on a virtualized architecture.
+>     
+> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> ---
+> 
+>  lib/Kconfig.debug |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: linux-2.6.16.60/lib/Kconfig.debug
+> ===================================================================
+> --- linux-2.6.16.60.orig/lib/Kconfig.debug
+> +++ linux-2.6.16.60/lib/Kconfig.debug
+> @@ -48,7 +48,7 @@ config LOG_BUF_SHIFT
+>  
+>  config DETECT_SOFTLOCKUP
+>  	bool "Detect Soft Lockups"
+> -	depends on DEBUG_KERNEL
+> +	depends on DEBUG_KERNEL && !S390
+>  	default y
+>  	help
+>  	  Say Y here to enable the kernel to detect "soft lockups",
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
