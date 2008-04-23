@@ -1,66 +1,52 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 2/3] zfcp: Remove zfcp_erp_wait from slave destory handler to fix deadlock
-Date: Fri, 18 Apr 2008 12:51:56 +0200
-Message-ID: <20080418105455.513195000@de.ibm.com>
-References: <20080418105154.135704000@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=zfcp-fix-60s-chpid-off-on.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Christof Schmitt <christof.schmitt@de.ibm.com>, Martin Peschke <mp3@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753097AbYDWH2f@vger.kernel.org>
+Date: Wed, 23 Apr 2008 09:28:21 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [RFC patch 7/9] S390 remove -traditional
+Message-ID: <20080423072821.GA15850@osiris.boeblingen.de.ibm.com>
+References: <20080422172404.502954084@polymtl.ca> <20080422172842.809030360@polymtl.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20080422172842.809030360@polymtl.ca>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+Cc: Sam Ravnborg <sam@ravnborg.org>, akpm@linux-foundation.org, Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
+On Tue, Apr 22, 2008 at 01:24:11PM -0400, Mathieu Desnoyers wrote:
+> Subject: [RFC patch 7/9] Re: [PATCH] Stringify support commas
+>  > This is a no-no for those archs that still use -traditional.
+>  > > I dunno if this is a problem for you at the moment and the
+>  > > right fix is anyway to nuke -traditional.
+>  > > 
+>  > >     Sam
+> 
+> (cross-compile test ok)
+> 
+> Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+> CC: Sam Ravnborg <sam@ravnborg.org>
+> CC: schwidefsky@de.ibm.com
+> CC: heiko.carstens@de.ibm.com
+> CC: linux390@de.ibm.com
+> CC: linux-s390@vger.kernel.org
+> ---
+>  arch/s390/kernel/Makefile   |    2 --
+>  arch/s390/lib/Makefile      |    2 --
+>  arch/s390/math-emu/Makefile |    1 -
+>  3 files changed, 5 deletions(-)
+> 
+> Index: linux-2.6-lttng/arch/s390/kernel/Makefile
+> ===================================================================
+> --- linux-2.6-lttng.orig/arch/s390/kernel/Makefile	2008-04-21 10:04:43.000000000 -0400
+> +++ linux-2.6-lttng/arch/s390/kernel/Makefile	2008-04-21 10:04:47.000000000 -0400
+> @@ -2,8 +2,6 @@
+>  # Makefile for the linux kernel.
+>  #
+> 
+> -EXTRA_AFLAGS	:= -traditional
+> -
 
-The testcase
-# chchp -v 0 0.da && sleep 59 && chchp -v 1 0.da
-results in this deadlock situation:
-
-STACK TRACE FOR TASK: 0x7e9a2048 (zfcperp0.0.c613)
-0 schedule+816 [0x356b3c]
-1 schedule_timeout+172 [0x357340]
-2 wait_for_common+192 [0x3565fc]
-3 flush_cpu_workqueue+116 [0x52af0]
-4 flush_workqueue+116 [0x533b8]
-5 fc_remote_port_add+64 [0x1c83ec]
-6 zfcp_erp_thread+4534 [0x26585a]
-7 kernel_thread_starter+6 [0x195d2]
-
-STACK TRACE FOR TASK: 0x7f8ec048 (fc_wq_0)
-0 schedule+816 [0x356b3c]
-1 zfcp_erp_wait+104 [0x264568]
-2 zfcp_scsi_slave_destroy+64 [0x261b24]
-3 __scsi_remove_device+154 [0x1c24ba]
-4 scsi_remove_device+62 [0x1c2512]
-5 __scsi_remove_target+198 [0x1c25ea]
-6 __remove_child+58 [0x1c26d6]
-7 device_for_each_child+66 [0x1ab566]
-8 scsi_remove_target+98 [0x1c268a]
-9 run_workqueue+200 [0x5272c]
-10 worker_thread+146 [0x52882]
-11 kthread+140 [0x58360]
-12 kernel_thread_starter+6 [0x195d2]
-
-Remove the zfcp_erp_wait call that is not required here to prevent the
-deadlock situation.
-
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
-Signed-off-by: Martin Peschke <mp3@de.ibm.com>
----
- drivers/s390/scsi/zfcp_scsi.c |    1 -
- 1 file changed, 1 deletion(-)
-
---- a/drivers/s390/scsi/zfcp_scsi.c	2008-04-18 12:43:05.000000000 +0200
-+++ b/drivers/s390/scsi/zfcp_scsi.c	2008-04-18 12:43:09.000000000 +0200
-@@ -181,7 +181,6 @@ static void zfcp_scsi_slave_destroy(stru
- 	struct zfcp_unit *unit = (struct zfcp_unit *) sdpnt->hostdata;
- 
- 	if (unit) {
--		zfcp_erp_wait(unit->port->adapter);
- 		atomic_clear_mask(ZFCP_STATUS_UNIT_REGISTERED, &unit->status);
- 		sdpnt->hostdata = NULL;
- 		unit->device = NULL;
-
--- 
+Thanks, applied. This did cause problems in late 2.6.25 and I think Martin
+had a similar patch ready.
