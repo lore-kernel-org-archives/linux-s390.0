@@ -1,19 +1,25 @@
-From: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [patch 01/11] lcs: CCL-sequ. numbers required for protocol 802.2
- only.
-Date: Tue, 29 Apr 2008 01:59:37 -0400
-Message-ID: <4816B949.5010601@pobox.com>
-References: <20080424081517.987104000@de.ibm.com> <20080424081901.730124000@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20080424081901.730124000@de.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, "Klaus D. Wacker" <kdwacker@de.ibm.com>
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 0/3] zfcp: Add sysfs attributes for polling adapter data
+Date: Thu, 24 Apr 2008 19:35:51 +0200
+Message-ID: <20080424173551.821393000@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-applied 1-11
+The FCP adapter on the System z platform provides some additional data
+that can be polled from device drivers. The first two patches in this
+series prepare the FSF command layer in zfcp for polling the
+additional data. The third patch implements the sysfs attributes that
+can be read to get the data.
+
+The patch series is a part of the previously send zfcp adapter
+statistics. We split old patch to make the change more transparent for
+reviewing.
+
+The patch series applies to current scsi-misc.
+
+Christof
