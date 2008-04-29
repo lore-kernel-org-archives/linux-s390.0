@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763670AbYD2OSp@vger.kernel.org>
-Message-Id: <20080429140251.497575262@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1764329AbYD2OTU@vger.kernel.org>
+Message-Id: <20080429140251.242590024@de.ibm.com>
 References: <20080429140117.631962807@de.ibm.com>
-Date: Tue, 29 Apr 2008 16:01:29 +0200
+Date: Tue, 29 Apr 2008 16:01:28 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 12/15] vmemmap: use clear_table to initialise page tables.
-Content-Disposition: inline; filename=012-clear_table.diff
+Subject: [patch 11/15] Move stfl to system.h and delete duplicated version.
+Content-Disposition: inline; filename=011-stfl.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,40 +14,87 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Always use clear_table to initialise page tables. The overlapping
-memcpy is just a leftover of a previous version that wasn't fully
-converted to clear_table.
-
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/mm/vmem.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/s390/kernel/setup.c  |    9 ---------
+ arch/s390/kvm/priv.c      |   11 +----------
+ include/asm-s390/system.h |   10 ++++++++++
+ 3 files changed, 11 insertions(+), 19 deletions(-)
 
-Index: quilt-2.6/arch/s390/mm/vmem.c
+Index: quilt-2.6/arch/s390/kernel/setup.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/mm/vmem.c
-+++ quilt-2.6/arch/s390/mm/vmem.c
-@@ -77,8 +77,7 @@ static inline pud_t *vmem_pud_alloc(void
- 	pud = vmem_alloc_pages(2);
- 	if (!pud)
- 		return NULL;
--	pud_val(*pud) = _REGION3_ENTRY_EMPTY;
--	memcpy(pud + 1, pud, (PTRS_PER_PUD - 1)*sizeof(pud_t));
-+	clear_table((unsigned long *) pud, _REGION3_ENTRY_EMPTY, PAGE_SIZE * 4);
+--- quilt-2.6.orig/arch/s390/kernel/setup.c
++++ quilt-2.6/arch/s390/kernel/setup.c
+@@ -683,15 +683,6 @@ setup_memory(void)
  #endif
- 	return pud;
  }
-@@ -91,7 +90,7 @@ static inline pmd_t *vmem_pmd_alloc(void
- 	pmd = vmem_alloc_pages(2);
- 	if (!pmd)
- 		return NULL;
--	clear_table((unsigned long *) pmd, _SEGMENT_ENTRY_EMPTY, PAGE_SIZE*4);
-+	clear_table((unsigned long *) pmd, _SEGMENT_ENTRY_EMPTY, PAGE_SIZE * 4);
- #endif
- 	return pmd;
+ 
+-static __init unsigned int stfl(void)
+-{
+-	asm volatile(
+-		"	.insn	s,0xb2b10000,0(0)\n" /* stfl */
+-		"0:\n"
+-		EX_TABLE(0b,0b));
+-	return S390_lowcore.stfl_fac_list;
+-}
+-
+ static int __init __stfle(unsigned long long *list, int doublewords)
+ {
+ 	typedef struct { unsigned long long _[doublewords]; } addrtype;
+Index: quilt-2.6/arch/s390/kvm/priv.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kvm/priv.c
++++ quilt-2.6/arch/s390/kvm/priv.c
+@@ -151,18 +151,9 @@ static int handle_chsc(struct kvm_vcpu *
+ 	return 0;
  }
+ 
+-static unsigned int kvm_stfl(void)
+-{
+-	asm volatile(
+-		"	.insn	s,0xb2b10000,0(0)\n" /* stfl */
+-		"0:\n"
+-		EX_TABLE(0b, 0b));
+-	return S390_lowcore.stfl_fac_list;
+-}
+-
+ static int handle_stfl(struct kvm_vcpu *vcpu)
+ {
+-	unsigned int facility_list = kvm_stfl();
++	unsigned int facility_list = stfl();
+ 	int rc;
+ 
+ 	vcpu->stat.instruction_stfl++;
+Index: quilt-2.6/include/asm-s390/system.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/system.h
++++ quilt-2.6/include/asm-s390/system.h
+@@ -16,6 +16,7 @@
+ #include <asm/ptrace.h>
+ #include <asm/setup.h>
+ #include <asm/processor.h>
++#include <asm/lowcore.h>
+ 
+ #ifdef __KERNEL__
+ 
+@@ -422,6 +423,15 @@ extern void smp_ctl_clear_bit(int cr, in
+ 
+ #endif /* CONFIG_SMP */
+ 
++static inline unsigned int stfl(void)
++{
++	asm volatile(
++		"	.insn	s,0xb2b10000,0(0)\n" /* stfl */
++		"0:\n"
++		EX_TABLE(0b,0b));
++	return S390_lowcore.stfl_fac_list;
++}
++
+ extern void (*_machine_restart)(char *command);
+ extern void (*_machine_halt)(void);
+ extern void (*_machine_power_off)(void);
 
 -- 
 blue skies,
