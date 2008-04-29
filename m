@@ -1,797 +1,444 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1764987AbYD2OUS@vger.kernel.org>
-Message-Id: <20080429140251.975867546@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1765511AbYD2OUk@vger.kernel.org>
+Message-Id: <20080429140251.724650722@de.ibm.com>
 References: <20080429140117.631962807@de.ibm.com>
-Date: Tue, 29 Apr 2008 16:01:31 +0200
+Date: Tue, 29 Apr 2008 16:01:30 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 14/15] System z large page support.
-Content-Disposition: inline; filename=014-large-page.diff
+Subject: [patch 13/15] Convert machine feature detection code to C.
+Content-Disposition: inline; filename=013-feature-detection.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Gerald Schaefer <geraldsc@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Gerald Schaefer <geraldsc@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Carsten Otte <cotte@de.ibm.com>
 
-This adds hugetlbfs support on System z, using both hardware large page
-support if available and software large page emulation on older hardware.
-Shared (large) page tables are implemented in software emulation mode,
-by using page->index of the first tail page from a compound large page
-to store page table information.
+This lets us use defines for the magic bits in machine flags instead
+of using plain numbers all over the place.
+In addition on newer machines features/facilities are indicated by the
+result of the stfl instruction. So we use these bits instead of trying
+to execute new instructions and check wether we get an exception or
+not.
+Also the mvpg instruction is always available when in zArch mode,
+whereas the idte instruction is only available in zArch mode. This
+results in some minor optimizations.
 
-Signed-off-by: Gerald Schaefer <geraldsc@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Carsten Otte <cotte@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/early.c    |   16 +++
- arch/s390/kernel/head64.S   |    2 
- arch/s390/kernel/setup.c    |   10 +-
- arch/s390/mm/Makefile       |    2 
- arch/s390/mm/fault.c        |    3 
- arch/s390/mm/hugetlbpage.c  |  134 ++++++++++++++++++++++++++++++++
- arch/s390/mm/init.c         |   23 -----
- arch/s390/mm/vmem.c         |   55 +++++++++++--
- fs/Kconfig                  |    3 
- include/asm-s390/hugetlb.h  |  183 ++++++++++++++++++++++++++++++++++++++++++++
- include/asm-s390/page.h     |   29 +++++-
- include/asm-s390/pgtable.h  |   12 ++
- include/asm-s390/setup.h    |    6 +
- include/asm-s390/tlbflush.h |    1 
- 14 files changed, 437 insertions(+), 42 deletions(-)
+ arch/s390/kernel/early.c  |  109 ++++++++++++++++++++++++++++++++++++++++++++--
+ arch/s390/kernel/head31.S |   61 -------------------------
+ arch/s390/kernel/head64.S |   62 --------------------------
+ arch/s390/kernel/setup.c  |    2 
+ include/asm-s390/setup.h  |   33 +++++++++----
+ include/asm-s390/smp.h    |    6 --
+ include/asm-s390/system.h |    8 +++
+ 7 files changed, 140 insertions(+), 141 deletions(-)
 
 Index: quilt-2.6/arch/s390/kernel/early.c
 ===================================================================
 --- quilt-2.6.orig/arch/s390/kernel/early.c
 +++ quilt-2.6/arch/s390/kernel/early.c
-@@ -268,6 +268,19 @@ static noinline __init void setup_lowcor
+@@ -139,15 +139,15 @@ static noinline __init void detect_machi
+ 
+ 	/* Running under z/VM ? */
+ 	if (cpuinfo->cpu_id.version == 0xff)
+-		machine_flags |= 1;
++		machine_flags |= MACHINE_FLAG_VM;
+ 
+ 	/* Running on a P/390 ? */
+ 	if (cpuinfo->cpu_id.machine == 0x7490)
+-		machine_flags |= 4;
++		machine_flags |= MACHINE_FLAG_P390;
+ 
+ 	/* Running under KVM ? */
+ 	if (cpuinfo->cpu_id.version == 0xfe)
+-		machine_flags |= 64;
++		machine_flags |= MACHINE_FLAG_KVM;
+ }
+ 
+ #ifdef CONFIG_64BIT
+@@ -268,6 +268,103 @@ static noinline __init void setup_lowcor
  	s390_base_pgm_handler_fn = early_pgm_check_handler;
  }
  
-+static noinline __init void setup_hpage(void)
++static __init void detect_mvpg(void)
 +{
-+#ifndef CONFIG_DEBUG_PAGEALLOC
-+	unsigned int facilities;
++#ifndef CONFIG_64BIT
++	int rc;
 +
-+	facilities = stfl();
-+	if (!(facilities & (1UL << 23)) || !(facilities & (1UL << 29)))
-+		return;
-+	machine_flags |= MACHINE_FLAG_HPAGE;
-+	__ctl_set_bit(0, 23);
++	asm volatile(
++		"	la	0,0\n"
++		"	mvpg	%2,%2\n"
++		"0:	la	%0,0\n"
++		"1:\n"
++		EX_TABLE(0b,1b)
++		: "=d" (rc) : "0" (-EOPNOTSUPP), "a" (0) : "memory", "cc", "0");
++	if (!rc)
++		machine_flags |= MACHINE_FLAG_MVPG;
 +#endif
 +}
 +
- static __init void detect_mvpg(void)
- {
- #ifndef CONFIG_64BIT
-@@ -360,6 +373,8 @@ static __init void detect_machine_facili
- 	facilities = stfl();
- 	if (facilities & (1 << 28))
- 		machine_flags |= MACHINE_FLAG_IDTE;
-+	if (facilities & (1 << 23))
-+		machine_flags |= MACHINE_FLAG_PFMF;
- 	if (facilities & (1 << 4))
- 		machine_flags |= MACHINE_FLAG_MVCOS;
- #endif
-@@ -388,6 +403,7 @@ void __init startup_init(void)
- 	detect_diag9c();
- 	detect_diag44();
- 	detect_machine_facilities();
-+	setup_hpage();
++static __init void detect_ieee(void)
++{
++#ifndef CONFIG_64BIT
++	int rc, tmp;
++
++	asm volatile(
++		"	efpc	%1,0\n"
++		"0:	la	%0,0\n"
++		"1:\n"
++		EX_TABLE(0b,1b)
++		: "=d" (rc), "=d" (tmp): "0" (-EOPNOTSUPP) : "cc");
++	if (!rc)
++		machine_flags |= MACHINE_FLAG_IEEE;
++#endif
++}
++
++static __init void detect_csp(void)
++{
++#ifndef CONFIG_64BIT
++	int rc;
++
++	asm volatile(
++		"	la	0,0\n"
++		"	la	1,0\n"
++		"	la	2,4\n"
++		"	csp	0,2\n"
++		"0:	la	%0,0\n"
++		"1:\n"
++		EX_TABLE(0b,1b)
++		: "=d" (rc) : "0" (-EOPNOTSUPP) : "cc", "0", "1", "2");
++	if (!rc)
++		machine_flags |= MACHINE_FLAG_CSP;
++#endif
++}
++
++static __init void detect_diag9c(void)
++{
++	unsigned int cpu_address;
++	int rc;
++
++	cpu_address = stap();
++	asm volatile(
++		"	diag	%2,0,0x9c\n"
++		"0:	la	%0,0\n"
++		"1:\n"
++		EX_TABLE(0b,1b)
++		: "=d" (rc) : "0" (-EOPNOTSUPP), "d" (cpu_address) : "cc");
++	if (!rc)
++		machine_flags |= MACHINE_FLAG_DIAG9C;
++}
++
++static __init void detect_diag44(void)
++{
++#ifdef CONFIG_64BIT
++	int rc;
++
++	asm volatile(
++		"	diag	0,0,0x44\n"
++		"0:	la	%0,0\n"
++		"1:\n"
++		EX_TABLE(0b,1b)
++		: "=d" (rc) : "0" (-EOPNOTSUPP) : "cc");
++	if (!rc)
++		machine_flags |= MACHINE_FLAG_DIAG44;
++#endif
++}
++
++static __init void detect_machine_facilities(void)
++{
++#ifdef CONFIG_64BIT
++	unsigned int facilities;
++
++	facilities = stfl();
++	if (facilities & (1 << 28))
++		machine_flags |= MACHINE_FLAG_IDTE;
++	if (facilities & (1 << 4))
++		machine_flags |= MACHINE_FLAG_MVCOS;
++#endif
++}
++
+ /*
+  * Save ipl parameters, clear bss memory, initialize storage keys
+  * and create a kernel NSS at startup if the SAVESYS= parm is defined
+@@ -285,6 +382,12 @@ void __init startup_init(void)
+ 	create_kernel_nss();
+ 	sort_main_extable();
+ 	setup_lowcore_early();
++	detect_mvpg();
++	detect_ieee();
++	detect_csp();
++	detect_diag9c();
++	detect_diag44();
++	detect_machine_facilities();
  	sclp_read_info_early();
  	sclp_facilities_detect();
  	memsize = sclp_memory_detect();
+Index: quilt-2.6/arch/s390/kernel/head31.S
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/head31.S
++++ quilt-2.6/arch/s390/kernel/head31.S
+@@ -57,61 +57,6 @@ startup_continue:
+ #
+ 	l	%r14,.Lstartup_init-.LPG1(%r13)
+ 	basr	%r14,%r14
+-
+-	l	%r12,.Lmflags-.LPG1(%r13) # get address of machine_flags
+-#
+-# find out if we have an IEEE fpu
+-#
+-	mvc	__LC_PGM_NEW_PSW(8),.Lpcfpu-.LPG1(%r13)
+-	efpc	%r0,0			# test IEEE extract fpc instruction
+-	oi	3(%r12),2		# set IEEE fpu flag
+-.Lchkfpu:
+-
+-#
+-# find out if we have the CSP instruction
+-#
+-       mvc	 __LC_PGM_NEW_PSW(8),.Lpccsp-.LPG1(%r13)
+-       la	 %r0,0
+-       lr	%r1,%r0
+-       la	%r2,4
+-       csp	%r0,%r2			# Test CSP instruction
+-       oi	3(%r12),8		# set CSP flag
+-.Lchkcsp:
+-
+-#
+-# find out if we have the MVPG instruction
+-#
+-       mvc	__LC_PGM_NEW_PSW(8),.Lpcmvpg-.LPG1(%r13)
+-       sr	%r0,%r0
+-       la	%r1,0
+-       la	%r2,0
+-       mvpg	%r1,%r2			# Test CSP instruction
+-       oi	3(%r12),16		# set MVPG flag
+-.Lchkmvpg:
+-
+-#
+-# find out if we have the IDTE instruction
+-#
+-	mvc	__LC_PGM_NEW_PSW(8),.Lpcidte-.LPG1(%r13)
+-	.long	0xb2b10000		# store facility list
+-	tm	0xc8,0x08		# check bit for clearing-by-ASCE
+-	bno	.Lchkidte-.LPG1(%r13)
+-	lhi	%r1,2094
+-	lhi	%r2,0
+-	.long	0xb98e2001
+-	oi	3(%r12),0x80		# set IDTE flag
+-.Lchkidte:
+-
+-#
+-# find out if the diag 0x9c is available
+-#
+-	mvc	__LC_PGM_NEW_PSW(8),.Lpcdiag9c-.LPG1(%r13)
+-	stap	__LC_CPUID+4		# store cpu address
+-	lh	%r1,__LC_CPUID+4
+-	diag	%r1,0,0x9c		# test diag 0x9c
+-	oi	2(%r12),1		# set diag9c flag
+-.Lchkdiag9c:
+-
+ 	lpsw  .Lentry-.LPG1(13)		# jump to _stext in primary-space,
+ 					# virtual and never return ...
+ 	.align	8
+@@ -132,13 +77,7 @@ startup_continue:
+ 	.long	0			# cr13: home space segment table
+ 	.long	0xc0000000		# cr14: machine check handling off
+ 	.long	0			# cr15: linkage stack operations
+-.Lpcfpu:.long	0x00080000,0x80000000 + .Lchkfpu
+-.Lpccsp:.long	0x00080000,0x80000000 + .Lchkcsp
+-.Lpcmvpg:.long	0x00080000,0x80000000 + .Lchkmvpg
+-.Lpcidte:.long	0x00080000,0x80000000 + .Lchkidte
+-.Lpcdiag9c:.long 0x00080000,0x80000000 + .Lchkdiag9c
+ .Lmchunk:.long	memory_chunk
+-.Lmflags:.long	machine_flags
+ .Lbss_bgn:  .long __bss_start
+ .Lbss_end:  .long _end
+ .Lparmaddr: .long PARMAREA
 Index: quilt-2.6/arch/s390/kernel/head64.S
 ===================================================================
 --- quilt-2.6.orig/arch/s390/kernel/head64.S
 +++ quilt-2.6/arch/s390/kernel/head64.S
-@@ -129,7 +129,7 @@ startup_continue:
+@@ -125,68 +125,6 @@ startup_continue:
+ # and create a kernel NSS if the SAVESYS= parm is defined
+ #
+ 	brasl	%r14,startup_init
+-					# set program check new psw mask
+-	mvc	__LC_PGM_NEW_PSW(8),.Lpcmsk-.LPG1(%r13)
+-	larl	%r12,machine_flags
+-#
+-# find out if we have the MVPG instruction
+-#
+-	la	%r1,0f-.LPG1(%r13)	# set program check address
+-	stg	%r1,__LC_PGM_NEW_PSW+8
+-	sgr	%r0,%r0
+-	lghi	%r1,0
+-	lghi	%r2,0
+-	mvpg	%r1,%r2 		# test MVPG instruction
+-	oi	7(%r12),16		# set MVPG flag
+-0:
+-
+-#
+-# find out if the diag 0x44 works in 64 bit mode
+-#
+-	la	%r1,0f-.LPG1(%r13)	# set program check address
+-	stg	%r1,__LC_PGM_NEW_PSW+8
+-	diag	0,0,0x44		# test diag 0x44
+-	oi	7(%r12),32		# set diag44 flag
+-0:
+-
+-#
+-# find out if we have the IDTE instruction
+-#
+-	la	%r1,0f-.LPG1(%r13)	# set program check address
+-	stg	%r1,__LC_PGM_NEW_PSW+8
+-	.long	0xb2b10000		# store facility list
+-	tm	0xc8,0x08		# check bit for clearing-by-ASCE
+-	bno	0f-.LPG1(%r13)
+-	lhi	%r1,2048
+-	lhi	%r2,0
+-	.long	0xb98e2001
+-	oi	7(%r12),0x80		# set IDTE flag
+-0:
+-
+-#
+-# find out if the diag 0x9c is available
+-#
+-	la	%r1,0f-.LPG1(%r13)	# set program check address
+-	stg	%r1,__LC_PGM_NEW_PSW+8
+-	stap	__LC_CPUID+4		# store cpu address
+-	lh	%r1,__LC_CPUID+4
+-	diag	%r1,0,0x9c		# test diag 0x9c
+-	oi	6(%r12),1		# set diag9c flag
+-0:
+-
+-#
+-# find out if we have the MVCOS instruction
+-#
+-	la	%r1,0f-.LPG1(%r13)	# set program check address
+-	stg	%r1,__LC_PGM_NEW_PSW+8
+-	.short	0xc800			# mvcos 0(%r0),0(%r0),%r0
+-	.short	0x0000
+-	.short	0x0000
+-0:	tm	0x8f,0x13		# special-operation exception?
+-	bno	1f-.LPG1(%r13)		# if yes, MVCOS is present
+-	oi	6(%r12),2		# set MVCOS flag
+-1:
+-
+ 	lpswe	.Lentry-.LPG1(13)	# jump to _stext in primary-space,
  					# virtual and never return ...
  	.align	16
- .Lentry:.quad	0x0000000180000000,_stext
--.Lctl:	.quad	0x04b50002		# cr0: various things
-+.Lctl:	.quad	0x04350002		# cr0: various things
- 	.quad	0			# cr1: primary space segment table
- 	.quad	.Lduct			# cr2: dispatchable unit control table
- 	.quad	0			# cr3: instruction authorization
 Index: quilt-2.6/arch/s390/kernel/setup.c
 ===================================================================
 --- quilt-2.6.orig/arch/s390/kernel/setup.c
 +++ quilt-2.6/arch/s390/kernel/setup.c
-@@ -749,6 +749,9 @@ static void __init setup_hwcaps(void)
- 			elf_hwcap |= 1UL << 6;
- 	}
+@@ -73,7 +73,7 @@ EXPORT_SYMBOL(uaccess);
+ unsigned int console_mode = 0;
+ unsigned int console_devno = -1;
+ unsigned int console_irq = -1;
+-unsigned long machine_flags = 0;
++unsigned long machine_flags;
+ unsigned long elf_hwcap = 0;
+ char elf_platform[ELF_PLATFORM_SIZE];
  
-+	if (MACHINE_HAS_HPAGE)
-+		elf_hwcap |= 1UL << 7;
-+
- 	switch (cpuinfo->cpu_id.machine) {
- 	case 0x9672:
- #if !defined(CONFIG_64BIT)
-@@ -872,8 +875,9 @@ void __cpuinit print_cpu_info(struct cpu
- 
- static int show_cpuinfo(struct seq_file *m, void *v)
- {
--	static const char *hwcap_str[7] = {
--		"esan3", "zarch", "stfle", "msa", "ldisp", "eimm", "dfp"
-+	static const char *hwcap_str[8] = {
-+		"esan3", "zarch", "stfle", "msa", "ldisp", "eimm", "dfp",
-+		"edat"
- 	};
-         struct cpuinfo_S390 *cpuinfo;
- 	unsigned long n = (unsigned long) v - 1;
-@@ -888,7 +892,7 @@ static int show_cpuinfo(struct seq_file 
- 			       num_online_cpus(), loops_per_jiffy/(500000/HZ),
- 			       (loops_per_jiffy/(5000/HZ))%100);
- 		seq_puts(m, "features\t: ");
--		for (i = 0; i < 7; i++)
-+		for (i = 0; i < 8; i++)
- 			if (hwcap_str[i] && (elf_hwcap & (1UL << i)))
- 				seq_printf(m, "%s ", hwcap_str[i]);
- 		seq_puts(m, "\n");
-Index: quilt-2.6/arch/s390/mm/fault.c
-===================================================================
---- quilt-2.6.orig/arch/s390/mm/fault.c
-+++ quilt-2.6/arch/s390/mm/fault.c
-@@ -28,6 +28,7 @@
- #include <linux/hardirq.h>
- #include <linux/kprobes.h>
- #include <linux/uaccess.h>
-+#include <linux/hugetlb.h>
- #include <asm/system.h>
- #include <asm/pgtable.h>
- #include <asm/s390_ext.h>
-@@ -367,6 +368,8 @@ good_area:
- 	}
- 
- survive:
-+	if (is_vm_hugetlb_page(vma))
-+		address &= HPAGE_MASK;
- 	/*
- 	 * If for any reason at all we couldn't handle the fault,
- 	 * make sure we exit gracefully rather than endlessly redo
-Index: quilt-2.6/arch/s390/mm/hugetlbpage.c
-===================================================================
---- /dev/null
-+++ quilt-2.6/arch/s390/mm/hugetlbpage.c
-@@ -0,0 +1,134 @@
-+/*
-+ *  IBM System z Huge TLB Page Support for Kernel.
-+ *
-+ *    Copyright 2007 IBM Corp.
-+ *    Author(s): Gerald Schaefer <gerald.schaefer@de.ibm.com>
-+ */
-+
-+#include <linux/mm.h>
-+#include <linux/hugetlb.h>
-+
-+
-+void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
-+				   pte_t *pteptr, pte_t pteval)
-+{
-+	pmd_t *pmdp = (pmd_t *) pteptr;
-+	pte_t shadow_pteval = pteval;
-+	unsigned long mask;
-+
-+	if (!MACHINE_HAS_HPAGE) {
-+		pteptr = (pte_t *) pte_page(pteval)[1].index;
-+		mask = pte_val(pteval) &
-+				(_SEGMENT_ENTRY_INV | _SEGMENT_ENTRY_RO);
-+		pte_val(pteval) = (_SEGMENT_ENTRY + __pa(pteptr)) | mask;
-+		if (mm->context.noexec) {
-+			pteptr += PTRS_PER_PTE;
-+			pte_val(shadow_pteval) =
-+					(_SEGMENT_ENTRY + __pa(pteptr)) | mask;
-+		}
-+	}
-+
-+	pmd_val(*pmdp) = pte_val(pteval);
-+	if (mm->context.noexec) {
-+		pmdp = get_shadow_table(pmdp);
-+		pmd_val(*pmdp) = pte_val(shadow_pteval);
-+	}
-+}
-+
-+int arch_prepare_hugepage(struct page *page)
-+{
-+	unsigned long addr = page_to_phys(page);
-+	pte_t pte;
-+	pte_t *ptep;
-+	int i;
-+
-+	if (MACHINE_HAS_HPAGE)
-+		return 0;
-+
-+	ptep = (pte_t *) pte_alloc_one(&init_mm, address);
-+	if (!ptep)
-+		return -ENOMEM;
-+
-+	pte = mk_pte(page, PAGE_RW);
-+	for (i = 0; i < PTRS_PER_PTE; i++) {
-+		set_pte_at(&init_mm, addr + i * PAGE_SIZE, ptep + i, pte);
-+		pte_val(pte) += PAGE_SIZE;
-+	}
-+	page[1].index = (unsigned long) ptep;
-+	return 0;
-+}
-+
-+void arch_release_hugepage(struct page *page)
-+{
-+	pte_t *ptep;
-+
-+	if (MACHINE_HAS_HPAGE)
-+		return;
-+
-+	ptep = (pte_t *) page[1].index;
-+	if (!ptep)
-+		return;
-+	pte_free(&init_mm, ptep);
-+	page[1].index = 0;
-+}
-+
-+pte_t *huge_pte_alloc(struct mm_struct *mm, unsigned long addr)
-+{
-+	pgd_t *pgdp;
-+	pud_t *pudp;
-+	pmd_t *pmdp = NULL;
-+
-+	pgdp = pgd_offset(mm, addr);
-+	pudp = pud_alloc(mm, pgdp, addr);
-+	if (pudp)
-+		pmdp = pmd_alloc(mm, pudp, addr);
-+	return (pte_t *) pmdp;
-+}
-+
-+pte_t *huge_pte_offset(struct mm_struct *mm, unsigned long addr)
-+{
-+	pgd_t *pgdp;
-+	pud_t *pudp;
-+	pmd_t *pmdp = NULL;
-+
-+	pgdp = pgd_offset(mm, addr);
-+	if (pgd_present(*pgdp)) {
-+		pudp = pud_offset(pgdp, addr);
-+		if (pud_present(*pudp))
-+			pmdp = pmd_offset(pudp, addr);
-+	}
-+	return (pte_t *) pmdp;
-+}
-+
-+int huge_pmd_unshare(struct mm_struct *mm, unsigned long *addr, pte_t *ptep)
-+{
-+	return 0;
-+}
-+
-+struct page *follow_huge_addr(struct mm_struct *mm, unsigned long address,
-+			      int write)
-+{
-+	return ERR_PTR(-EINVAL);
-+}
-+
-+int pmd_huge(pmd_t pmd)
-+{
-+	if (!MACHINE_HAS_HPAGE)
-+		return 0;
-+
-+	return !!(pmd_val(pmd) & _SEGMENT_ENTRY_LARGE);
-+}
-+
-+struct page *follow_huge_pmd(struct mm_struct *mm, unsigned long address,
-+			     pmd_t *pmdp, int write)
-+{
-+	struct page *page;
-+
-+	if (!MACHINE_HAS_HPAGE)
-+		return NULL;
-+
-+	page = pmd_page(*pmdp);
-+	if (page)
-+		page += ((address & ~HPAGE_MASK) >> PAGE_SHIFT);
-+	return page;
-+}
-Index: quilt-2.6/arch/s390/mm/init.c
-===================================================================
---- quilt-2.6.orig/arch/s390/mm/init.c
-+++ quilt-2.6/arch/s390/mm/init.c
-@@ -77,28 +77,6 @@ void show_mem(void)
- 	printk("%lu pages pagetables\n", global_page_state(NR_PAGETABLE));
- }
- 
--static void __init setup_ro_region(void)
--{
--	pgd_t *pgd;
--	pud_t *pud;
--	pmd_t *pmd;
--	pte_t *pte;
--	pte_t new_pte;
--	unsigned long address, end;
--
--	address = ((unsigned long)&_stext) & PAGE_MASK;
--	end = PFN_ALIGN((unsigned long)&_eshared);
--
--	for (; address < end; address += PAGE_SIZE) {
--		pgd = pgd_offset_k(address);
--		pud = pud_offset(pgd, address);
--		pmd = pmd_offset(pud, address);
--		pte = pte_offset_kernel(pmd, address);
--		new_pte = mk_pte_phys(address, __pgprot(_PAGE_RO));
--		*pte = new_pte;
--	}
--}
--
- /*
-  * paging_init() sets up the page tables
-  */
-@@ -121,7 +99,6 @@ void __init paging_init(void)
- 	clear_table((unsigned long *) init_mm.pgd, pgd_type,
- 		    sizeof(unsigned long)*2048);
- 	vmem_map_init();
--	setup_ro_region();
- 
-         /* enable virtual mapping in kernel mode */
- 	__ctl_load(S390_lowcore.kernel_asce, 1, 1);
-Index: quilt-2.6/arch/s390/mm/Makefile
-===================================================================
---- quilt-2.6.orig/arch/s390/mm/Makefile
-+++ quilt-2.6/arch/s390/mm/Makefile
-@@ -4,4 +4,4 @@
- 
- obj-y	 := init.o fault.o extmem.o mmap.o vmem.o pgtable.o
- obj-$(CONFIG_CMM) += cmm.o
--
-+obj-$(CONFIG_HUGETLB_PAGE) += hugetlbpage.o
-Index: quilt-2.6/arch/s390/mm/vmem.c
-===================================================================
---- quilt-2.6.orig/arch/s390/mm/vmem.c
-+++ quilt-2.6/arch/s390/mm/vmem.c
-@@ -10,10 +10,12 @@
- #include <linux/mm.h>
- #include <linux/module.h>
- #include <linux/list.h>
-+#include <linux/hugetlb.h>
- #include <asm/pgalloc.h>
- #include <asm/pgtable.h>
- #include <asm/setup.h>
- #include <asm/tlbflush.h>
-+#include <asm/sections.h>
- 
- static DEFINE_MUTEX(vmem_mutex);
- 
-@@ -113,7 +115,7 @@ static pte_t __init_refok *vmem_pte_allo
- /*
-  * Add a physical memory range to the 1:1 mapping.
-  */
--static int vmem_add_range(unsigned long start, unsigned long size)
-+static int vmem_add_range(unsigned long start, unsigned long size, int ro)
- {
- 	unsigned long address;
- 	pgd_t *pg_dir;
-@@ -140,7 +142,19 @@ static int vmem_add_range(unsigned long 
- 			pud_populate_kernel(&init_mm, pu_dir, pm_dir);
- 		}
- 
-+		pte = mk_pte_phys(address, __pgprot(ro ? _PAGE_RO : 0));
- 		pm_dir = pmd_offset(pu_dir, address);
-+
-+#ifdef __s390x__
-+		if (MACHINE_HAS_HPAGE && !(address & ~HPAGE_MASK) &&
-+		    (address + HPAGE_SIZE <= start + size) &&
-+		    (address >= HPAGE_SIZE)) {
-+			pte_val(pte) |= _SEGMENT_ENTRY_LARGE;
-+			pmd_val(*pm_dir) = pte_val(pte);
-+			address += HPAGE_SIZE - PAGE_SIZE;
-+			continue;
-+		}
-+#endif
- 		if (pmd_none(*pm_dir)) {
- 			pt_dir = vmem_pte_alloc();
- 			if (!pt_dir)
-@@ -149,7 +163,6 @@ static int vmem_add_range(unsigned long 
- 		}
- 
- 		pt_dir = pte_offset_kernel(pm_dir, address);
--		pte = pfn_pte(address >> PAGE_SHIFT, PAGE_KERNEL);
- 		*pt_dir = pte;
- 	}
- 	ret = 0;
-@@ -180,6 +193,13 @@ static void vmem_remove_range(unsigned l
- 		pm_dir = pmd_offset(pu_dir, address);
- 		if (pmd_none(*pm_dir))
- 			continue;
-+
-+		if (pmd_huge(*pm_dir)) {
-+			pmd_clear_kernel(pm_dir);
-+			address += HPAGE_SIZE - PAGE_SIZE;
-+			continue;
-+		}
-+
- 		pt_dir = pte_offset_kernel(pm_dir, address);
- 		*pt_dir = pte;
- 	}
-@@ -248,14 +268,14 @@ out:
- 	return ret;
- }
- 
--static int vmem_add_mem(unsigned long start, unsigned long size)
-+static int vmem_add_mem(unsigned long start, unsigned long size, int ro)
- {
- 	int ret;
- 
- 	ret = vmem_add_mem_map(start, size);
- 	if (ret)
- 		return ret;
--	return vmem_add_range(start, size);
-+	return vmem_add_range(start, size, ro);
- }
- 
- /*
-@@ -338,7 +358,7 @@ int add_shared_memory(unsigned long star
- 	if (ret)
- 		goto out_free;
- 
--	ret = vmem_add_mem(start, size);
-+	ret = vmem_add_mem(start, size, 0);
- 	if (ret)
- 		goto out_remove;
- 
-@@ -374,14 +394,35 @@ out:
-  */
- void __init vmem_map_init(void)
- {
-+	unsigned long ro_start, ro_end;
-+	unsigned long start, end;
- 	int i;
- 
- 	INIT_LIST_HEAD(&init_mm.context.crst_list);
- 	INIT_LIST_HEAD(&init_mm.context.pgtable_list);
- 	init_mm.context.noexec = 0;
- 	NODE_DATA(0)->node_mem_map = VMEM_MAP;
--	for (i = 0; i < MEMORY_CHUNKS && memory_chunk[i].size > 0; i++)
--		vmem_add_mem(memory_chunk[i].addr, memory_chunk[i].size);
-+	ro_start = ((unsigned long)&_stext) & PAGE_MASK;
-+	ro_end = PFN_ALIGN((unsigned long)&_eshared);
-+	for (i = 0; i < MEMORY_CHUNKS && memory_chunk[i].size > 0; i++) {
-+		start = memory_chunk[i].addr;
-+		end = memory_chunk[i].addr + memory_chunk[i].size;
-+		if (start >= ro_end || end <= ro_start)
-+			vmem_add_mem(start, end - start, 0);
-+		else if (start >= ro_start && end <= ro_end)
-+			vmem_add_mem(start, end - start, 1);
-+		else if (start >= ro_start) {
-+			vmem_add_mem(start, ro_end - start, 1);
-+			vmem_add_mem(ro_end, end - ro_end, 0);
-+		} else if (end < ro_end) {
-+			vmem_add_mem(start, ro_start - start, 0);
-+			vmem_add_mem(ro_start, end - ro_start, 1);
-+		} else {
-+			vmem_add_mem(start, ro_start - start, 0);
-+			vmem_add_mem(ro_start, ro_end - ro_start, 1);
-+			vmem_add_mem(ro_end, end - ro_end, 0);
-+		}
-+	}
- }
- 
- /*
-Index: quilt-2.6/fs/Kconfig
-===================================================================
---- quilt-2.6.orig/fs/Kconfig
-+++ quilt-2.6/fs/Kconfig
-@@ -1005,7 +1005,8 @@ config TMPFS_POSIX_ACL
- 
- config HUGETLBFS
- 	bool "HugeTLB file system support"
--	depends on X86 || IA64 || PPC64 || SPARC64 || (SUPERH && MMU) || BROKEN
-+	depends on X86 || IA64 || PPC64 || SPARC64 || (SUPERH && MMU) || \
-+		   (S390 && 64BIT) || BROKEN
- 	help
- 	  hugetlbfs is a filesystem backing for HugeTLB pages, based on
- 	  ramfs. For architectures that support it, say Y here and read
-Index: quilt-2.6/include/asm-s390/hugetlb.h
-===================================================================
---- /dev/null
-+++ quilt-2.6/include/asm-s390/hugetlb.h
-@@ -0,0 +1,183 @@
-+/*
-+ *  IBM System z Huge TLB Page Support for Kernel.
-+ *
-+ *    Copyright IBM Corp. 2008
-+ *    Author(s): Gerald Schaefer <gerald.schaefer@de.ibm.com>
-+ */
-+
-+#ifndef _ASM_S390_HUGETLB_H
-+#define _ASM_S390_HUGETLB_H
-+
-+#include <asm/page.h>
-+#include <asm/pgtable.h>
-+
-+
-+#define is_hugepage_only_range(mm, addr, len)	0
-+#define hugetlb_free_pgd_range			free_pgd_range
-+
-+void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
-+		     pte_t *ptep, pte_t pte);
-+
-+/*
-+ * If the arch doesn't supply something else, assume that hugepage
-+ * size aligned regions are ok without further preparation.
-+ */
-+static inline int prepare_hugepage_range(unsigned long addr, unsigned long len)
-+{
-+	if (len & ~HPAGE_MASK)
-+		return -EINVAL;
-+	if (addr & ~HPAGE_MASK)
-+		return -EINVAL;
-+	return 0;
-+}
-+
-+#define hugetlb_prefault_arch_hook(mm)		do { } while (0)
-+
-+int arch_prepare_hugepage(struct page *page);
-+void arch_release_hugepage(struct page *page);
-+
-+static inline pte_t pte_mkhuge(pte_t pte)
-+{
-+	/*
-+	 * PROT_NONE needs to be remapped from the pte type to the ste type.
-+	 * The HW invalid bit is also different for pte and ste. The pte
-+	 * invalid bit happens to be the same as the ste _SEGMENT_ENTRY_LARGE
-+	 * bit, so we don't have to clear it.
-+	 */
-+	if (pte_val(pte) & _PAGE_INVALID) {
-+		if (pte_val(pte) & _PAGE_SWT)
-+			pte_val(pte) |= _HPAGE_TYPE_NONE;
-+		pte_val(pte) |= _SEGMENT_ENTRY_INV;
-+	}
-+	/*
-+	 * Clear SW pte bits SWT and SWX, there are no SW bits in a segment
-+	 * table entry.
-+	 */
-+	pte_val(pte) &= ~(_PAGE_SWT | _PAGE_SWX);
-+	/*
-+	 * Also set the change-override bit because we don't need dirty bit
-+	 * tracking for hugetlbfs pages.
-+	 */
-+	pte_val(pte) |= (_SEGMENT_ENTRY_LARGE | _SEGMENT_ENTRY_CO);
-+	return pte;
-+}
-+
-+static inline pte_t huge_pte_wrprotect(pte_t pte)
-+{
-+	pte_val(pte) |= _PAGE_RO;
-+	return pte;
-+}
-+
-+static inline int huge_pte_none(pte_t pte)
-+{
-+	return (pte_val(pte) & _SEGMENT_ENTRY_INV) &&
-+		!(pte_val(pte) & _SEGMENT_ENTRY_RO);
-+}
-+
-+static inline pte_t huge_ptep_get(pte_t *ptep)
-+{
-+	pte_t pte = *ptep;
-+	unsigned long mask;
-+
-+	if (!MACHINE_HAS_HPAGE) {
-+		ptep = (pte_t *) (pte_val(pte) & _SEGMENT_ENTRY_ORIGIN);
-+		if (ptep) {
-+			mask = pte_val(pte) &
-+				(_SEGMENT_ENTRY_INV | _SEGMENT_ENTRY_RO);
-+			pte = pte_mkhuge(*ptep);
-+			pte_val(pte) |= mask;
-+		}
-+	}
-+	return pte;
-+}
-+
-+static inline pte_t huge_ptep_get_and_clear(struct mm_struct *mm,
-+					    unsigned long addr, pte_t *ptep)
-+{
-+	pte_t pte = huge_ptep_get(ptep);
-+
-+	pmd_clear((pmd_t *) ptep);
-+	return pte;
-+}
-+
-+static inline void __pmd_csp(pmd_t *pmdp)
-+{
-+	register unsigned long reg2 asm("2") = pmd_val(*pmdp);
-+	register unsigned long reg3 asm("3") = pmd_val(*pmdp) |
-+					       _SEGMENT_ENTRY_INV;
-+	register unsigned long reg4 asm("4") = ((unsigned long) pmdp) + 5;
-+
-+	asm volatile(
-+		"	csp %1,%3"
-+		: "=m" (*pmdp)
-+		: "d" (reg2), "d" (reg3), "d" (reg4), "m" (*pmdp) : "cc");
-+	pmd_val(*pmdp) = _SEGMENT_ENTRY_INV | _SEGMENT_ENTRY;
-+}
-+
-+static inline void __pmd_idte(unsigned long address, pmd_t *pmdp)
-+{
-+	unsigned long sto = (unsigned long) pmdp -
-+				pmd_index(address) * sizeof(pmd_t);
-+
-+	if (!(pmd_val(*pmdp) & _SEGMENT_ENTRY_INV)) {
-+		asm volatile(
-+			"	.insn	rrf,0xb98e0000,%2,%3,0,0"
-+			: "=m" (*pmdp)
-+			: "m" (*pmdp), "a" (sto),
-+			  "a" ((address & HPAGE_MASK))
-+		);
-+	}
-+	pmd_val(*pmdp) = _SEGMENT_ENTRY_INV | _SEGMENT_ENTRY;
-+}
-+
-+static inline void huge_ptep_invalidate(struct mm_struct *mm,
-+					unsigned long address, pte_t *ptep)
-+{
-+	pmd_t *pmdp = (pmd_t *) ptep;
-+
-+	if (!MACHINE_HAS_IDTE) {
-+		__pmd_csp(pmdp);
-+		if (mm->context.noexec) {
-+			pmdp = get_shadow_table(pmdp);
-+			__pmd_csp(pmdp);
-+		}
-+		return;
-+	}
-+
-+	__pmd_idte(address, pmdp);
-+	if (mm->context.noexec) {
-+		pmdp = get_shadow_table(pmdp);
-+		__pmd_idte(address, pmdp);
-+	}
-+	return;
-+}
-+
-+#define huge_ptep_set_access_flags(__vma, __addr, __ptep, __entry, __dirty) \
-+({									    \
-+	int __changed = !pte_same(huge_ptep_get(__ptep), __entry);	    \
-+	if (__changed) {						    \
-+		huge_ptep_invalidate((__vma)->vm_mm, __addr, __ptep);	    \
-+		set_huge_pte_at((__vma)->vm_mm, __addr, __ptep, __entry);   \
-+	}								    \
-+	__changed;							    \
-+})
-+
-+#define huge_ptep_set_wrprotect(__mm, __addr, __ptep)			\
-+({									\
-+	pte_t __pte = huge_ptep_get(__ptep);				\
-+	if (pte_write(__pte)) {						\
-+		if (atomic_read(&(__mm)->mm_users) > 1 ||		\
-+		    (__mm) != current->active_mm)			\
-+			huge_ptep_invalidate(__mm, __addr, __ptep);	\
-+		set_huge_pte_at(__mm, __addr, __ptep,			\
-+				huge_pte_wrprotect(__pte));		\
-+	}								\
-+})
-+
-+static inline void huge_ptep_clear_flush(struct vm_area_struct *vma,
-+					 unsigned long address, pte_t *ptep)
-+{
-+	huge_ptep_invalidate(vma->vm_mm, address, ptep);
-+}
-+
-+#endif /* _ASM_S390_HUGETLB_H */
-Index: quilt-2.6/include/asm-s390/page.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/page.h
-+++ quilt-2.6/include/asm-s390/page.h
-@@ -19,17 +19,34 @@
- #define PAGE_DEFAULT_ACC	0
- #define PAGE_DEFAULT_KEY	(PAGE_DEFAULT_ACC << 4)
- 
-+#define HPAGE_SHIFT	20
-+#define HPAGE_SIZE	(1UL << HPAGE_SHIFT)
-+#define HPAGE_MASK	(~(HPAGE_SIZE - 1))
-+#define HUGETLB_PAGE_ORDER	(HPAGE_SHIFT - PAGE_SHIFT)
-+
-+#define ARCH_HAS_SETCLEAR_HUGE_PTE
-+#define ARCH_HAS_HUGE_PTE_TYPE
-+#define ARCH_HAS_PREPARE_HUGEPAGE
-+#define ARCH_HAS_HUGEPAGE_CLEAR_FLUSH
-+
- #include <asm/setup.h>
- #ifndef __ASSEMBLY__
- 
- static inline void clear_page(void *page)
- {
--	register unsigned long reg1 asm ("1") = 0;
--	register void *reg2 asm ("2") = page;
--	register unsigned long reg3 asm ("3") = 4096;
--	asm volatile(
--		"	mvcl	2,0"
--		: "+d" (reg2), "+d" (reg3) : "d" (reg1) : "memory", "cc");
-+	if (MACHINE_HAS_PFMF) {
-+		asm volatile(
-+			"	.insn	rre,0xb9af0000,%0,%1"
-+			: : "d" (0x10000), "a" (page) : "memory", "cc");
-+	} else {
-+		register unsigned long reg1 asm ("1") = 0;
-+		register void *reg2 asm ("2") = page;
-+		register unsigned long reg3 asm ("3") = 4096;
-+		asm volatile(
-+			"	mvcl	2,0"
-+			: "+d" (reg2), "+d" (reg3) : "d" (reg1)
-+			: "memory", "cc");
-+	}
- }
- 
- static inline void copy_page(void *to, void *from)
-Index: quilt-2.6/include/asm-s390/pgtable.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/pgtable.h
-+++ quilt-2.6/include/asm-s390/pgtable.h
-@@ -234,6 +234,15 @@ extern char empty_zero_page[PAGE_SIZE];
- #define _PAGE_TYPE_EX_RW	0x002
- 
- /*
-+ * Only four types for huge pages, using the invalid bit and protection bit
-+ * of a segment table entry.
-+ */
-+#define _HPAGE_TYPE_EMPTY	0x020	/* _SEGMENT_ENTRY_INV */
-+#define _HPAGE_TYPE_NONE	0x220
-+#define _HPAGE_TYPE_RO		0x200	/* _SEGMENT_ENTRY_RO  */
-+#define _HPAGE_TYPE_RW		0x000
-+
-+/*
-  * PTE type bits are rather complicated. handle_pte_fault uses pte_present,
-  * pte_none and pte_file to find out the pte type WITHOUT holding the page
-  * table lock. ptep_clear_flush on the other hand uses ptep_clear_flush to
-@@ -325,6 +334,9 @@ extern char empty_zero_page[PAGE_SIZE];
- #define _SEGMENT_ENTRY		(0)
- #define _SEGMENT_ENTRY_EMPTY	(_SEGMENT_ENTRY_INV)
- 
-+#define _SEGMENT_ENTRY_LARGE	0x400	/* STE-format control, large page   */
-+#define _SEGMENT_ENTRY_CO	0x100	/* change-recording override   */
-+
- #endif /* __s390x__ */
- 
- /*
 Index: quilt-2.6/include/asm-s390/setup.h
 ===================================================================
 --- quilt-2.6.orig/include/asm-s390/setup.h
 +++ quilt-2.6/include/asm-s390/setup.h
-@@ -69,6 +69,8 @@ extern unsigned long machine_flags;
- #define MACHINE_FLAG_DIAG9C	(1UL << 7)
- #define MACHINE_FLAG_MVCOS	(1UL << 8)
- #define MACHINE_FLAG_KVM	(1UL << 9)
-+#define MACHINE_FLAG_HPAGE	(1UL << 10)
-+#define MACHINE_FLAG_PFMF	(1UL << 11)
+@@ -59,23 +59,36 @@ extern unsigned int s390_noexec;
+  */
+ extern unsigned long machine_flags;
  
- #define MACHINE_IS_VM		(machine_flags & MACHINE_FLAG_VM)
- #define MACHINE_IS_KVM		(machine_flags & MACHINE_FLAG_KVM)
-@@ -82,6 +84,8 @@ extern unsigned long machine_flags;
+-#define MACHINE_IS_VM		(machine_flags & 1)
+-#define MACHINE_IS_P390		(machine_flags & 4)
+-#define MACHINE_HAS_MVPG	(machine_flags & 16)
+-#define MACHINE_IS_KVM		(machine_flags & 64)
+-#define MACHINE_HAS_IDTE	(machine_flags & 128)
+-#define MACHINE_HAS_DIAG9C	(machine_flags & 256)
++#define MACHINE_FLAG_VM		(1UL << 0)
++#define MACHINE_FLAG_IEEE	(1UL << 1)
++#define MACHINE_FLAG_P390	(1UL << 2)
++#define MACHINE_FLAG_CSP	(1UL << 3)
++#define MACHINE_FLAG_MVPG	(1UL << 4)
++#define MACHINE_FLAG_DIAG44	(1UL << 5)
++#define MACHINE_FLAG_IDTE	(1UL << 6)
++#define MACHINE_FLAG_DIAG9C	(1UL << 7)
++#define MACHINE_FLAG_MVCOS	(1UL << 8)
++#define MACHINE_FLAG_KVM	(1UL << 9)
++
++#define MACHINE_IS_VM		(machine_flags & MACHINE_FLAG_VM)
++#define MACHINE_IS_KVM		(machine_flags & MACHINE_FLAG_KVM)
++#define MACHINE_IS_P390		(machine_flags & MACHINE_FLAG_P390)
++#define MACHINE_HAS_DIAG9C	(machine_flags & MACHINE_FLAG_DIAG9C)
+ 
+ #ifndef __s390x__
+-#define MACHINE_HAS_IEEE	(machine_flags & 2)
+-#define MACHINE_HAS_CSP		(machine_flags & 8)
++#define MACHINE_HAS_IEEE	(machine_flags & MACHINE_FLAG_IEEE)
++#define MACHINE_HAS_CSP		(machine_flags & MACHINE_FLAG_CSP)
++#define MACHINE_HAS_IDTE	(0)
  #define MACHINE_HAS_DIAG44	(1)
- #define MACHINE_HAS_MVPG	(machine_flags & MACHINE_FLAG_MVPG)
++#define MACHINE_HAS_MVPG	(machine_flags & MACHINE_FLAG_MVPG)
  #define MACHINE_HAS_MVCOS	(0)
-+#define MACHINE_HAS_HPAGE	(0)
-+#define MACHINE_HAS_PFMF	(0)
  #else /* __s390x__ */
  #define MACHINE_HAS_IEEE	(1)
  #define MACHINE_HAS_CSP		(1)
-@@ -89,6 +93,8 @@ extern unsigned long machine_flags;
- #define MACHINE_HAS_DIAG44	(machine_flags & MACHINE_FLAG_DIAG44)
- #define MACHINE_HAS_MVPG	(1)
- #define MACHINE_HAS_MVCOS	(machine_flags & MACHINE_FLAG_MVCOS)
-+#define MACHINE_HAS_HPAGE	(machine_flags & MACHINE_FLAG_HPAGE)
-+#define MACHINE_HAS_PFMF	(machine_flags & MACHINE_FLAG_PFMF)
+-#define MACHINE_HAS_DIAG44	(machine_flags & 32)
+-#define MACHINE_HAS_MVCOS	(machine_flags & 512)
++#define MACHINE_HAS_IDTE	(machine_flags & MACHINE_FLAG_IDTE)
++#define MACHINE_HAS_DIAG44	(machine_flags & MACHINE_FLAG_DIAG44)
++#define MACHINE_HAS_MVPG	(1)
++#define MACHINE_HAS_MVCOS	(machine_flags & MACHINE_FLAG_MVCOS)
  #endif /* __s390x__ */
  
  #define MACHINE_HAS_SCLP	(!MACHINE_IS_P390)
-Index: quilt-2.6/include/asm-s390/tlbflush.h
+Index: quilt-2.6/include/asm-s390/smp.h
 ===================================================================
---- quilt-2.6.orig/include/asm-s390/tlbflush.h
-+++ quilt-2.6/include/asm-s390/tlbflush.h
-@@ -2,6 +2,7 @@
- #define _S390_TLBFLUSH_H
+--- quilt-2.6.orig/include/asm-s390/smp.h
++++ quilt-2.6/include/asm-s390/smp.h
+@@ -19,6 +19,7 @@
+ #include <asm/lowcore.h>
+ #include <asm/sigp.h>
+ #include <asm/ptrace.h>
++#include <asm/system.h>
  
- #include <linux/mm.h>
-+#include <linux/sched.h>
- #include <asm/processor.h>
- #include <asm/pgalloc.h>
+ /*
+   s390 specific smp.c headers
+@@ -53,10 +54,7 @@ extern void machine_power_off_smp(void);
  
+ static inline __u16 hard_smp_processor_id(void)
+ {
+-        __u16 cpu_address;
+- 
+-	asm volatile("stap %0" : "=m" (cpu_address));
+-        return cpu_address;
++	return stap();
+ }
+ 
+ /*
+Index: quilt-2.6/include/asm-s390/system.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/system.h
++++ quilt-2.6/include/asm-s390/system.h
+@@ -432,6 +432,14 @@ static inline unsigned int stfl(void)
+ 	return S390_lowcore.stfl_fac_list;
+ }
+ 
++static inline unsigned short stap(void)
++{
++	unsigned short cpu_address;
++
++	asm volatile("stap %0" : "=m" (cpu_address));
++	return cpu_address;
++}
++
+ extern void (*_machine_restart)(char *command);
+ extern void (*_machine_halt)(void);
+ extern void (*_machine_power_off)(void);
 
 -- 
 blue skies,
