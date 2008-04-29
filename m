@@ -1,444 +1,416 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1765511AbYD2OUk@vger.kernel.org>
-Message-Id: <20080429140251.724650722@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1765711AbYD2OUz@vger.kernel.org>
+Message-Id: <20080429140252.231033301@de.ibm.com>
 References: <20080429140117.631962807@de.ibm.com>
-Date: Tue, 29 Apr 2008 16:01:30 +0200
+Date: Tue, 29 Apr 2008 16:01:32 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 13/15] Convert machine feature detection code to C.
-Content-Disposition: inline; filename=013-feature-detection.diff
+Subject: [patch 15/15] Convert to SPARSEMEM & SPARSEMEM_VMEMMAP
+Content-Disposition: inline; filename=015-sparsemem.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
-From: Carsten Otte <cotte@de.ibm.com>
 
-This lets us use defines for the magic bits in machine flags instead
-of using plain numbers all over the place.
-In addition on newer machines features/facilities are indicated by the
-result of the stfl instruction. So we use these bits instead of trying
-to execute new instructions and check wether we get an exception or
-not.
-Also the mvpg instruction is always available when in zArch mode,
-whereas the idte instruction is only available in zArch mode. This
-results in some minor optimizations.
+Convert s390 to SPARSEMEM and SPARSEMEM_VMEMMAP. We do a select
+of SPARSEMEM_VMEMMAP since it is configurable. This is because
+SPARSEMEM without SPARSEMEM_VMEMMAP gives us a hell of broken
+include dependencies that I don't want to fix.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Carsten Otte <cotte@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/early.c  |  109 ++++++++++++++++++++++++++++++++++++++++++++--
- arch/s390/kernel/head31.S |   61 -------------------------
- arch/s390/kernel/head64.S |   62 --------------------------
- arch/s390/kernel/setup.c  |    2 
- include/asm-s390/setup.h  |   33 +++++++++----
- include/asm-s390/smp.h    |    6 --
- include/asm-s390/system.h |    8 +++
- 7 files changed, 140 insertions(+), 141 deletions(-)
+ arch/s390/Kconfig             |    8 ++++
+ arch/s390/mm/extmem.c         |    8 ++--
+ arch/s390/mm/init.c           |    2 +
+ arch/s390/mm/vmem.c           |   81 +++---------------------------------------
+ drivers/s390/kvm/kvm_virtio.c |   23 ++++++-----
+ include/asm-s390/page.h       |   20 ----------
+ include/asm-s390/pgtable.h    |    9 +---
+ include/asm-s390/sparsemem.h  |   18 +++++++++
+ 8 files changed, 53 insertions(+), 116 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/early.c
+Index: quilt-2.6/arch/s390/Kconfig
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/early.c
-+++ quilt-2.6/arch/s390/kernel/early.c
-@@ -139,15 +139,15 @@ static noinline __init void detect_machi
+--- quilt-2.6.orig/arch/s390/Kconfig
++++ quilt-2.6/arch/s390/Kconfig
+@@ -300,6 +300,14 @@ comment "Kernel preemption"
  
- 	/* Running under z/VM ? */
- 	if (cpuinfo->cpu_id.version == 0xff)
--		machine_flags |= 1;
-+		machine_flags |= MACHINE_FLAG_VM;
+ source "kernel/Kconfig.preempt"
  
- 	/* Running on a P/390 ? */
- 	if (cpuinfo->cpu_id.machine == 0x7490)
--		machine_flags |= 4;
-+		machine_flags |= MACHINE_FLAG_P390;
++config ARCH_SPARSEMEM_ENABLE
++	def_bool y
++	select SPARSEMEM_VMEMMAP_ENABLE
++	select SPARSEMEM_VMEMMAP
++
++config ARCH_SPARSEMEM_DEFAULT
++	def_bool y
++
+ source "mm/Kconfig"
  
- 	/* Running under KVM ? */
- 	if (cpuinfo->cpu_id.version == 0xfe)
--		machine_flags |= 64;
-+		machine_flags |= MACHINE_FLAG_KVM;
- }
- 
- #ifdef CONFIG_64BIT
-@@ -268,6 +268,103 @@ static noinline __init void setup_lowcor
- 	s390_base_pgm_handler_fn = early_pgm_check_handler;
- }
- 
-+static __init void detect_mvpg(void)
-+{
-+#ifndef CONFIG_64BIT
-+	int rc;
-+
-+	asm volatile(
-+		"	la	0,0\n"
-+		"	mvpg	%2,%2\n"
-+		"0:	la	%0,0\n"
-+		"1:\n"
-+		EX_TABLE(0b,1b)
-+		: "=d" (rc) : "0" (-EOPNOTSUPP), "a" (0) : "memory", "cc", "0");
-+	if (!rc)
-+		machine_flags |= MACHINE_FLAG_MVPG;
-+#endif
-+}
-+
-+static __init void detect_ieee(void)
-+{
-+#ifndef CONFIG_64BIT
-+	int rc, tmp;
-+
-+	asm volatile(
-+		"	efpc	%1,0\n"
-+		"0:	la	%0,0\n"
-+		"1:\n"
-+		EX_TABLE(0b,1b)
-+		: "=d" (rc), "=d" (tmp): "0" (-EOPNOTSUPP) : "cc");
-+	if (!rc)
-+		machine_flags |= MACHINE_FLAG_IEEE;
-+#endif
-+}
-+
-+static __init void detect_csp(void)
-+{
-+#ifndef CONFIG_64BIT
-+	int rc;
-+
-+	asm volatile(
-+		"	la	0,0\n"
-+		"	la	1,0\n"
-+		"	la	2,4\n"
-+		"	csp	0,2\n"
-+		"0:	la	%0,0\n"
-+		"1:\n"
-+		EX_TABLE(0b,1b)
-+		: "=d" (rc) : "0" (-EOPNOTSUPP) : "cc", "0", "1", "2");
-+	if (!rc)
-+		machine_flags |= MACHINE_FLAG_CSP;
-+#endif
-+}
-+
-+static __init void detect_diag9c(void)
-+{
-+	unsigned int cpu_address;
-+	int rc;
-+
-+	cpu_address = stap();
-+	asm volatile(
-+		"	diag	%2,0,0x9c\n"
-+		"0:	la	%0,0\n"
-+		"1:\n"
-+		EX_TABLE(0b,1b)
-+		: "=d" (rc) : "0" (-EOPNOTSUPP), "d" (cpu_address) : "cc");
-+	if (!rc)
-+		machine_flags |= MACHINE_FLAG_DIAG9C;
-+}
-+
-+static __init void detect_diag44(void)
-+{
-+#ifdef CONFIG_64BIT
-+	int rc;
-+
-+	asm volatile(
-+		"	diag	0,0,0x44\n"
-+		"0:	la	%0,0\n"
-+		"1:\n"
-+		EX_TABLE(0b,1b)
-+		: "=d" (rc) : "0" (-EOPNOTSUPP) : "cc");
-+	if (!rc)
-+		machine_flags |= MACHINE_FLAG_DIAG44;
-+#endif
-+}
-+
-+static __init void detect_machine_facilities(void)
-+{
-+#ifdef CONFIG_64BIT
-+	unsigned int facilities;
-+
-+	facilities = stfl();
-+	if (facilities & (1 << 28))
-+		machine_flags |= MACHINE_FLAG_IDTE;
-+	if (facilities & (1 << 4))
-+		machine_flags |= MACHINE_FLAG_MVCOS;
-+#endif
-+}
-+
- /*
-  * Save ipl parameters, clear bss memory, initialize storage keys
-  * and create a kernel NSS at startup if the SAVESYS= parm is defined
-@@ -285,6 +382,12 @@ void __init startup_init(void)
- 	create_kernel_nss();
- 	sort_main_extable();
- 	setup_lowcore_early();
-+	detect_mvpg();
-+	detect_ieee();
-+	detect_csp();
-+	detect_diag9c();
-+	detect_diag44();
-+	detect_machine_facilities();
- 	sclp_read_info_early();
- 	sclp_facilities_detect();
- 	memsize = sclp_memory_detect();
-Index: quilt-2.6/arch/s390/kernel/head31.S
+ comment "I/O subsystem configuration"
+Index: quilt-2.6/arch/s390/mm/extmem.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/head31.S
-+++ quilt-2.6/arch/s390/kernel/head31.S
-@@ -57,61 +57,6 @@ startup_continue:
- #
- 	l	%r14,.Lstartup_init-.LPG1(%r13)
- 	basr	%r14,%r14
--
--	l	%r12,.Lmflags-.LPG1(%r13) # get address of machine_flags
--#
--# find out if we have an IEEE fpu
--#
--	mvc	__LC_PGM_NEW_PSW(8),.Lpcfpu-.LPG1(%r13)
--	efpc	%r0,0			# test IEEE extract fpc instruction
--	oi	3(%r12),2		# set IEEE fpu flag
--.Lchkfpu:
--
--#
--# find out if we have the CSP instruction
--#
--       mvc	 __LC_PGM_NEW_PSW(8),.Lpccsp-.LPG1(%r13)
--       la	 %r0,0
--       lr	%r1,%r0
--       la	%r2,4
--       csp	%r0,%r2			# Test CSP instruction
--       oi	3(%r12),8		# set CSP flag
--.Lchkcsp:
--
--#
--# find out if we have the MVPG instruction
--#
--       mvc	__LC_PGM_NEW_PSW(8),.Lpcmvpg-.LPG1(%r13)
--       sr	%r0,%r0
--       la	%r1,0
--       la	%r2,0
--       mvpg	%r1,%r2			# Test CSP instruction
--       oi	3(%r12),16		# set MVPG flag
--.Lchkmvpg:
--
--#
--# find out if we have the IDTE instruction
--#
--	mvc	__LC_PGM_NEW_PSW(8),.Lpcidte-.LPG1(%r13)
--	.long	0xb2b10000		# store facility list
--	tm	0xc8,0x08		# check bit for clearing-by-ASCE
--	bno	.Lchkidte-.LPG1(%r13)
--	lhi	%r1,2094
--	lhi	%r2,0
--	.long	0xb98e2001
--	oi	3(%r12),0x80		# set IDTE flag
--.Lchkidte:
--
--#
--# find out if the diag 0x9c is available
--#
--	mvc	__LC_PGM_NEW_PSW(8),.Lpcdiag9c-.LPG1(%r13)
--	stap	__LC_CPUID+4		# store cpu address
--	lh	%r1,__LC_CPUID+4
--	diag	%r1,0,0x9c		# test diag 0x9c
--	oi	2(%r12),1		# set diag9c flag
--.Lchkdiag9c:
--
- 	lpsw  .Lentry-.LPG1(13)		# jump to _stext in primary-space,
- 					# virtual and never return ...
- 	.align	8
-@@ -132,13 +77,7 @@ startup_continue:
- 	.long	0			# cr13: home space segment table
- 	.long	0xc0000000		# cr14: machine check handling off
- 	.long	0			# cr15: linkage stack operations
--.Lpcfpu:.long	0x00080000,0x80000000 + .Lchkfpu
--.Lpccsp:.long	0x00080000,0x80000000 + .Lchkcsp
--.Lpcmvpg:.long	0x00080000,0x80000000 + .Lchkmvpg
--.Lpcidte:.long	0x00080000,0x80000000 + .Lchkidte
--.Lpcdiag9c:.long 0x00080000,0x80000000 + .Lchkdiag9c
- .Lmchunk:.long	memory_chunk
--.Lmflags:.long	machine_flags
- .Lbss_bgn:  .long __bss_start
- .Lbss_end:  .long _end
- .Lparmaddr: .long PARMAREA
-Index: quilt-2.6/arch/s390/kernel/head64.S
+--- quilt-2.6.orig/arch/s390/mm/extmem.c
++++ quilt-2.6/arch/s390/mm/extmem.c
+@@ -287,7 +287,7 @@ __segment_load (char *name, int do_nonsh
+ 	if (rc < 0)
+ 		goto out_free;
+ 
+-	rc = add_shared_memory(seg->start_addr, seg->end - seg->start_addr + 1);
++	rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
+ 
+ 	if (rc)
+ 		goto out_free;
+@@ -351,7 +351,7 @@ __segment_load (char *name, int do_nonsh
+ 	release_resource(seg->res);
+ 	kfree(seg->res);
+  out_shared:
+-	remove_shared_memory(seg->start_addr, seg->end - seg->start_addr + 1);
++	vmem_remove_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
+  out_free:
+ 	kfree(seg);
+  out:
+@@ -474,7 +474,7 @@ segment_modify_shared (char *name, int d
+ 	rc = 0;
+ 	goto out_unlock;
+  out_del:
+-	remove_shared_memory(seg->start_addr, seg->end - seg->start_addr + 1);
++	vmem_remove_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
+ 	list_del(&seg->list);
+ 	dcss_diag(DCSS_PURGESEG, seg->dcss_name, &dummy, &dummy);
+ 	kfree(seg);
+@@ -508,7 +508,7 @@ segment_unload(char *name)
+ 		goto out_unlock;
+ 	release_resource(seg->res);
+ 	kfree(seg->res);
+-	remove_shared_memory(seg->start_addr, seg->end - seg->start_addr + 1);
++	vmem_remove_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
+ 	list_del(&seg->list);
+ 	dcss_diag(DCSS_PURGESEG, seg->dcss_name, &dummy, &dummy);
+ 	kfree(seg);
+Index: quilt-2.6/arch/s390/mm/init.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/head64.S
-+++ quilt-2.6/arch/s390/kernel/head64.S
-@@ -125,68 +125,6 @@ startup_continue:
- # and create a kernel NSS if the SAVESYS= parm is defined
- #
- 	brasl	%r14,startup_init
--					# set program check new psw mask
--	mvc	__LC_PGM_NEW_PSW(8),.Lpcmsk-.LPG1(%r13)
--	larl	%r12,machine_flags
--#
--# find out if we have the MVPG instruction
--#
--	la	%r1,0f-.LPG1(%r13)	# set program check address
--	stg	%r1,__LC_PGM_NEW_PSW+8
--	sgr	%r0,%r0
--	lghi	%r1,0
--	lghi	%r2,0
--	mvpg	%r1,%r2 		# test MVPG instruction
--	oi	7(%r12),16		# set MVPG flag
--0:
--
--#
--# find out if the diag 0x44 works in 64 bit mode
--#
--	la	%r1,0f-.LPG1(%r13)	# set program check address
--	stg	%r1,__LC_PGM_NEW_PSW+8
--	diag	0,0,0x44		# test diag 0x44
--	oi	7(%r12),32		# set diag44 flag
--0:
--
--#
--# find out if we have the IDTE instruction
--#
--	la	%r1,0f-.LPG1(%r13)	# set program check address
--	stg	%r1,__LC_PGM_NEW_PSW+8
--	.long	0xb2b10000		# store facility list
--	tm	0xc8,0x08		# check bit for clearing-by-ASCE
--	bno	0f-.LPG1(%r13)
--	lhi	%r1,2048
--	lhi	%r2,0
--	.long	0xb98e2001
--	oi	7(%r12),0x80		# set IDTE flag
--0:
--
--#
--# find out if the diag 0x9c is available
--#
--	la	%r1,0f-.LPG1(%r13)	# set program check address
--	stg	%r1,__LC_PGM_NEW_PSW+8
--	stap	__LC_CPUID+4		# store cpu address
--	lh	%r1,__LC_CPUID+4
--	diag	%r1,0,0x9c		# test diag 0x9c
--	oi	6(%r12),1		# set diag9c flag
--0:
--
--#
--# find out if we have the MVCOS instruction
--#
--	la	%r1,0f-.LPG1(%r13)	# set program check address
--	stg	%r1,__LC_PGM_NEW_PSW+8
--	.short	0xc800			# mvcos 0(%r0),0(%r0),%r0
--	.short	0x0000
--	.short	0x0000
--0:	tm	0x8f,0x13		# special-operation exception?
--	bno	1f-.LPG1(%r13)		# if yes, MVCOS is present
--	oi	6(%r12),2		# set MVCOS flag
--1:
--
- 	lpswe	.Lentry-.LPG1(13)	# jump to _stext in primary-space,
- 					# virtual and never return ...
- 	.align	16
-Index: quilt-2.6/arch/s390/kernel/setup.c
+--- quilt-2.6.orig/arch/s390/mm/init.c
++++ quilt-2.6/arch/s390/mm/init.c
+@@ -106,6 +106,8 @@ void __init paging_init(void)
+ 	__ctl_load(S390_lowcore.kernel_asce, 13, 13);
+ 	__raw_local_irq_ssm(ssm_mask);
+ 
++	sparse_memory_present_with_active_regions(MAX_NUMNODES);
++	sparse_init();
+ 	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
+ #ifdef CONFIG_ZONE_DMA
+ 	max_zone_pfns[ZONE_DMA] = PFN_DOWN(MAX_DMA_ADDRESS);
+Index: quilt-2.6/arch/s390/mm/vmem.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/setup.c
-+++ quilt-2.6/arch/s390/kernel/setup.c
-@@ -73,7 +73,7 @@ EXPORT_SYMBOL(uaccess);
- unsigned int console_mode = 0;
- unsigned int console_devno = -1;
- unsigned int console_irq = -1;
--unsigned long machine_flags = 0;
-+unsigned long machine_flags;
- unsigned long elf_hwcap = 0;
- char elf_platform[ELF_PLATFORM_SIZE];
+--- quilt-2.6.orig/arch/s390/mm/vmem.c
++++ quilt-2.6/arch/s390/mm/vmem.c
+@@ -27,43 +27,6 @@ struct memory_segment {
  
-Index: quilt-2.6/include/asm-s390/setup.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/setup.h
-+++ quilt-2.6/include/asm-s390/setup.h
-@@ -59,23 +59,36 @@ extern unsigned int s390_noexec;
-  */
- extern unsigned long machine_flags;
+ static LIST_HEAD(mem_segs);
  
--#define MACHINE_IS_VM		(machine_flags & 1)
--#define MACHINE_IS_P390		(machine_flags & 4)
--#define MACHINE_HAS_MVPG	(machine_flags & 16)
--#define MACHINE_IS_KVM		(machine_flags & 64)
--#define MACHINE_HAS_IDTE	(machine_flags & 128)
--#define MACHINE_HAS_DIAG9C	(machine_flags & 256)
-+#define MACHINE_FLAG_VM		(1UL << 0)
-+#define MACHINE_FLAG_IEEE	(1UL << 1)
-+#define MACHINE_FLAG_P390	(1UL << 2)
-+#define MACHINE_FLAG_CSP	(1UL << 3)
-+#define MACHINE_FLAG_MVPG	(1UL << 4)
-+#define MACHINE_FLAG_DIAG44	(1UL << 5)
-+#define MACHINE_FLAG_IDTE	(1UL << 6)
-+#define MACHINE_FLAG_DIAG9C	(1UL << 7)
-+#define MACHINE_FLAG_MVCOS	(1UL << 8)
-+#define MACHINE_FLAG_KVM	(1UL << 9)
-+
-+#define MACHINE_IS_VM		(machine_flags & MACHINE_FLAG_VM)
-+#define MACHINE_IS_KVM		(machine_flags & MACHINE_FLAG_KVM)
-+#define MACHINE_IS_P390		(machine_flags & MACHINE_FLAG_P390)
-+#define MACHINE_HAS_DIAG9C	(machine_flags & MACHINE_FLAG_DIAG9C)
- 
- #ifndef __s390x__
--#define MACHINE_HAS_IEEE	(machine_flags & 2)
--#define MACHINE_HAS_CSP		(machine_flags & 8)
-+#define MACHINE_HAS_IEEE	(machine_flags & MACHINE_FLAG_IEEE)
-+#define MACHINE_HAS_CSP		(machine_flags & MACHINE_FLAG_CSP)
-+#define MACHINE_HAS_IDTE	(0)
- #define MACHINE_HAS_DIAG44	(1)
-+#define MACHINE_HAS_MVPG	(machine_flags & MACHINE_FLAG_MVPG)
- #define MACHINE_HAS_MVCOS	(0)
- #else /* __s390x__ */
- #define MACHINE_HAS_IEEE	(1)
- #define MACHINE_HAS_CSP		(1)
--#define MACHINE_HAS_DIAG44	(machine_flags & 32)
--#define MACHINE_HAS_MVCOS	(machine_flags & 512)
-+#define MACHINE_HAS_IDTE	(machine_flags & MACHINE_FLAG_IDTE)
-+#define MACHINE_HAS_DIAG44	(machine_flags & MACHINE_FLAG_DIAG44)
-+#define MACHINE_HAS_MVPG	(1)
-+#define MACHINE_HAS_MVCOS	(machine_flags & MACHINE_FLAG_MVCOS)
- #endif /* __s390x__ */
- 
- #define MACHINE_HAS_SCLP	(!MACHINE_IS_P390)
-Index: quilt-2.6/include/asm-s390/smp.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/smp.h
-+++ quilt-2.6/include/asm-s390/smp.h
-@@ -19,6 +19,7 @@
- #include <asm/lowcore.h>
- #include <asm/sigp.h>
- #include <asm/ptrace.h>
-+#include <asm/system.h>
- 
- /*
-   s390 specific smp.c headers
-@@ -53,10 +54,7 @@ extern void machine_power_off_smp(void);
- 
- static inline __u16 hard_smp_processor_id(void)
+-void __meminit memmap_init(unsigned long size, int nid, unsigned long zone,
+-			   unsigned long start_pfn)
+-{
+-	struct page *start, *end;
+-	struct page *map_start, *map_end;
+-	int i;
+-
+-	start = pfn_to_page(start_pfn);
+-	end = start + size;
+-
+-	for (i = 0; i < MEMORY_CHUNKS && memory_chunk[i].size > 0; i++) {
+-		unsigned long cstart, cend;
+-
+-		cstart = PFN_DOWN(memory_chunk[i].addr);
+-		cend = cstart + PFN_DOWN(memory_chunk[i].size);
+-
+-		map_start = mem_map + cstart;
+-		map_end = mem_map + cend;
+-
+-		if (map_start < start)
+-			map_start = start;
+-		if (map_end > end)
+-			map_end = end;
+-
+-		map_start -= ((unsigned long) map_start & (PAGE_SIZE - 1))
+-			/ sizeof(struct page);
+-		map_end += ((PFN_ALIGN((unsigned long) map_end)
+-			     - (unsigned long) map_end)
+-			    / sizeof(struct page));
+-
+-		if (map_start < map_end)
+-			memmap_init_zone((unsigned long)(map_end - map_start),
+-					 nid, zone, page_to_pfn(map_start),
+-					 MEMMAP_EARLY);
+-	}
+-}
+-
+ static void __ref *vmem_alloc_pages(unsigned int order)
  {
--        __u16 cpu_address;
-- 
--	asm volatile("stap %0" : "=m" (cpu_address));
--        return cpu_address;
-+	return stap();
+ 	if (slab_is_available())
+@@ -115,7 +78,7 @@ static pte_t __init_refok *vmem_pte_allo
+ /*
+  * Add a physical memory range to the 1:1 mapping.
+  */
+-static int vmem_add_range(unsigned long start, unsigned long size, int ro)
++static int vmem_add_mem(unsigned long start, unsigned long size, int ro)
+ {
+ 	unsigned long address;
+ 	pgd_t *pg_dir;
+@@ -209,10 +172,9 @@ static void vmem_remove_range(unsigned l
+ /*
+  * Add a backed mem_map array to the virtual mem_map array.
+  */
+-static int vmem_add_mem_map(unsigned long start, unsigned long size)
++int __meminit vmemmap_populate(struct page *start, unsigned long nr, int node)
+ {
+ 	unsigned long address, start_addr, end_addr;
+-	struct page *map_start, *map_end;
+ 	pgd_t *pg_dir;
+ 	pud_t *pu_dir;
+ 	pmd_t *pm_dir;
+@@ -220,11 +182,8 @@ static int vmem_add_mem_map(unsigned lon
+ 	pte_t  pte;
+ 	int ret = -ENOMEM;
+ 
+-	map_start = VMEM_MAP + PFN_DOWN(start);
+-	map_end	= VMEM_MAP + PFN_DOWN(start + size);
+-
+-	start_addr = (unsigned long) map_start & PAGE_MASK;
+-	end_addr = PFN_ALIGN((unsigned long) map_end);
++	start_addr = (unsigned long) start;
++	end_addr = (unsigned long) (start + nr);
+ 
+ 	for (address = start_addr; address < end_addr; address += PAGE_SIZE) {
+ 		pg_dir = pgd_offset_k(address);
+@@ -268,16 +227,6 @@ out:
+ 	return ret;
+ }
+ 
+-static int vmem_add_mem(unsigned long start, unsigned long size, int ro)
+-{
+-	int ret;
+-
+-	ret = vmem_add_mem_map(start, size);
+-	if (ret)
+-		return ret;
+-	return vmem_add_range(start, size, ro);
+-}
+-
+ /*
+  * Add memory segment to the segment list if it doesn't overlap with
+  * an already present segment.
+@@ -315,7 +264,7 @@ static void __remove_shared_memory(struc
+ 	vmem_remove_range(seg->start, seg->size);
+ }
+ 
+-int remove_shared_memory(unsigned long start, unsigned long size)
++int vmem_remove_mapping(unsigned long start, unsigned long size)
+ {
+ 	struct memory_segment *seg;
+ 	int ret;
+@@ -339,11 +288,9 @@ out:
+ 	return ret;
+ }
+ 
+-int add_shared_memory(unsigned long start, unsigned long size)
++int vmem_add_mapping(unsigned long start, unsigned long size)
+ {
+ 	struct memory_segment *seg;
+-	struct page *page;
+-	unsigned long pfn, num_pfn, end_pfn;
+ 	int ret;
+ 
+ 	mutex_lock(&vmem_mutex);
+@@ -361,21 +308,6 @@ int add_shared_memory(unsigned long star
+ 	ret = vmem_add_mem(start, size, 0);
+ 	if (ret)
+ 		goto out_remove;
+-
+-	pfn = PFN_DOWN(start);
+-	num_pfn = PFN_DOWN(size);
+-	end_pfn = pfn + num_pfn;
+-
+-	page = pfn_to_page(pfn);
+-	memset(page, 0, num_pfn * sizeof(struct page));
+-
+-	for (; pfn < end_pfn; pfn++) {
+-		page = pfn_to_page(pfn);
+-		init_page_count(page);
+-		reset_page_mapcount(page);
+-		SetPageReserved(page);
+-		INIT_LIST_HEAD(&page->lru);
+-	}
+ 	goto out;
+ 
+ out_remove:
+@@ -401,7 +333,6 @@ void __init vmem_map_init(void)
+ 	INIT_LIST_HEAD(&init_mm.context.crst_list);
+ 	INIT_LIST_HEAD(&init_mm.context.pgtable_list);
+ 	init_mm.context.noexec = 0;
+-	NODE_DATA(0)->node_mem_map = VMEM_MAP;
+ 	ro_start = ((unsigned long)&_stext) & PAGE_MASK;
+ 	ro_end = PFN_ALIGN((unsigned long)&_eshared);
+ 	for (i = 0; i < MEMORY_CHUNKS && memory_chunk[i].size > 0; i++) {
+Index: quilt-2.6/drivers/s390/kvm/kvm_virtio.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/kvm/kvm_virtio.c
++++ quilt-2.6/drivers/s390/kvm/kvm_virtio.c
+@@ -17,6 +17,7 @@
+ #include <linux/virtio_config.h>
+ #include <linux/interrupt.h>
+ #include <linux/virtio_ring.h>
++#include <linux/pfn.h>
+ #include <asm/io.h>
+ #include <asm/kvm_para.h>
+ #include <asm/kvm_virtio.h>
+@@ -180,11 +181,10 @@ static struct virtqueue *kvm_find_vq(str
+ 
+ 	config = kvm_vq_config(kdev->desc)+index;
+ 
+-	if (add_shared_memory(config->address,
+-				vring_size(config->num, PAGE_SIZE))) {
+-		err = -ENOMEM;
++	err = vmem_add_mapping(config->address,
++			       vring_size(config->num, PAGE_SIZE));
++	if (err)
+ 		goto out;
+-	}
+ 
+ 	vq = vring_new_virtqueue(config->num, vdev, (void *) config->address,
+ 				 kvm_notify, callback);
+@@ -202,8 +202,8 @@ static struct virtqueue *kvm_find_vq(str
+ 	vq->priv = config;
+ 	return vq;
+ unmap:
+-	remove_shared_memory(config->address, vring_size(config->num,
+-			     PAGE_SIZE));
++	vmem_remove_mapping(config->address,
++			    vring_size(config->num, PAGE_SIZE));
+ out:
+ 	return ERR_PTR(err);
+ }
+@@ -213,8 +213,8 @@ static void kvm_del_vq(struct virtqueue 
+ 	struct kvm_vqconfig *config = vq->priv;
+ 
+ 	vring_del_virtqueue(vq);
+-	remove_shared_memory(config->address,
+-			     vring_size(config->num, PAGE_SIZE));
++	vmem_remove_mapping(config->address,
++			    vring_size(config->num, PAGE_SIZE));
  }
  
  /*
-Index: quilt-2.6/include/asm-s390/system.h
+@@ -318,12 +318,13 @@ static int __init kvm_devices_init(void)
+ 		return rc;
+ 	}
+ 
+-	if (add_shared_memory((max_pfn) << PAGE_SHIFT, PAGE_SIZE)) {
++	rc = vmem_add_mapping(PFN_PHYS(max_pfn), PAGE_SIZE);
++	if (rc) {
+ 		device_unregister(&kvm_root);
+-		return -ENOMEM;
++		return rc;
+ 	}
+ 
+-	kvm_devices  = (void *) (max_pfn << PAGE_SHIFT);
++	kvm_devices = (void *) PFN_PHYS(max_pfn);
+ 
+ 	ctl_set_bit(0, 9);
+ 	register_external_interrupt(0x2603, kvm_extint_handler);
+Index: quilt-2.6/include/asm-s390/page.h
 ===================================================================
---- quilt-2.6.orig/include/asm-s390/system.h
-+++ quilt-2.6/include/asm-s390/system.h
-@@ -432,6 +432,14 @@ static inline unsigned int stfl(void)
- 	return S390_lowcore.stfl_fac_list;
+--- quilt-2.6.orig/include/asm-s390/page.h
++++ quilt-2.6/include/asm-s390/page.h
+@@ -125,26 +125,6 @@ page_get_storage_key(unsigned long addr)
+ 	return skey;
  }
  
-+static inline unsigned short stap(void)
-+{
-+	unsigned short cpu_address;
+-extern unsigned long max_pfn;
+-
+-static inline int pfn_valid(unsigned long pfn)
+-{
+-	unsigned long dummy;
+-	int ccode;
+-
+-	if (pfn >= max_pfn)
+-		return 0;
+-
+-	asm volatile(
+-		"	lra	%0,0(%2)\n"
+-		"	ipm	%1\n"
+-		"	srl	%1,28\n"
+-		: "=d" (dummy), "=d" (ccode)
+-		: "a" (pfn << PAGE_SHIFT)
+-		: "cc");
+-	return !ccode;
+-}
+-
+ #endif /* !__ASSEMBLY__ */
+ 
+ /* to align the pointer to the (next) page boundary */
+Index: quilt-2.6/include/asm-s390/pgtable.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/pgtable.h
++++ quilt-2.6/include/asm-s390/pgtable.h
+@@ -129,7 +129,7 @@ extern char empty_zero_page[PAGE_SIZE];
+ #define VMEM_MAX_PAGES	((VMEM_MAP_END - VMALLOC_END) / sizeof(struct page))
+ #define VMEM_MAX_PFN	min(VMALLOC_START >> PAGE_SHIFT, VMEM_MAX_PAGES)
+ #define VMEM_MAX_PHYS	((VMEM_MAX_PFN << PAGE_SHIFT) & ~((16 << 20) - 1))
+-#define VMEM_MAP	((struct page *) VMALLOC_END)
++#define vmemmap		((struct page *) VMALLOC_END)
+ 
+ /*
+  * A 31 bit pagetable entry of S390 has following format:
+@@ -1075,8 +1075,8 @@ static inline pte_t mk_swap_pte(unsigned
+ 
+ #define kern_addr_valid(addr)   (1)
+ 
+-extern int add_shared_memory(unsigned long start, unsigned long size);
+-extern int remove_shared_memory(unsigned long start, unsigned long size);
++extern int vmem_add_mapping(unsigned long start, unsigned long size);
++extern int vmem_remove_mapping(unsigned long start, unsigned long size);
+ extern int s390_enable_sie(void);
+ 
+ /*
+@@ -1084,9 +1084,6 @@ extern int s390_enable_sie(void);
+  */
+ #define pgtable_cache_init()	do { } while (0)
+ 
+-#define __HAVE_ARCH_MEMMAP_INIT
+-extern void memmap_init(unsigned long, int, unsigned long, unsigned long);
+-
+ #include <asm-generic/pgtable.h>
+ 
+ #endif /* _S390_PAGE_H */
+Index: quilt-2.6/include/asm-s390/sparsemem.h
+===================================================================
+--- /dev/null
++++ quilt-2.6/include/asm-s390/sparsemem.h
+@@ -0,0 +1,18 @@
++#ifndef _ASM_S390_SPARSEMEM_H
++#define _ASM_S390_SPARSEMEM_H
 +
-+	asm volatile("stap %0" : "=m" (cpu_address));
-+	return cpu_address;
-+}
++#define SECTION_SIZE_BITS	25
 +
- extern void (*_machine_restart)(char *command);
- extern void (*_machine_halt)(void);
- extern void (*_machine_power_off)(void);
++#ifdef CONFIG_64BIT
++
++#define MAX_PHYSADDR_BITS	42
++#define MAX_PHYSMEM_BITS	42
++
++#else
++
++#define MAX_PHYSADDR_BITS	31
++#define MAX_PHYSMEM_BITS	31
++
++#endif /* CONFIG_64BIT */
++
++#endif /* _ASM_S390_SPARSEMEM_H */
 
 -- 
 blue skies,
