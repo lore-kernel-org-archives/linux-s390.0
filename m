@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762147AbYD2ORk@vger.kernel.org>
-Message-Id: <20080429140249.548985385@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1763670AbYD2OSp@vger.kernel.org>
+Message-Id: <20080429140251.497575262@de.ibm.com>
 References: <20080429140117.631962807@de.ibm.com>
-Date: Tue, 29 Apr 2008 16:01:21 +0200
+Date: Tue, 29 Apr 2008 16:01:29 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 04/15] smp: Fix locking order.
-Content-Disposition: inline; filename=004-smp-locking.diff
+Subject: [patch 12/15] vmemmap: use clear_table to initialise page tables.
+Content-Disposition: inline; filename=012-clear_table.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,82 +14,40 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-On some smp sysfs store attributes get_online_cpus() may block on
-cpu_hotplug.lock, but we hold already smp_cpu_state_mutex. Since the
-locking order on cpu hotplug via arch_update_cpu_topology is inverse
-this might lead to deadlocks.
-So make sure locking order is always the same.
+Always use clear_table to initialise page tables. The overlapping
+memcpy is just a leftover of a previous version that wasn't fully
+converted to clear_table.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/smp.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/s390/mm/vmem.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/smp.c
+Index: quilt-2.6/arch/s390/mm/vmem.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/smp.c
-+++ quilt-2.6/arch/s390/kernel/smp.c
-@@ -890,8 +890,8 @@ static ssize_t cpu_configure_store(struc
- 	if (val != 0 && val != 1)
- 		return -EINVAL;
- 
--	mutex_lock(&smp_cpu_state_mutex);
- 	get_online_cpus();
-+	mutex_lock(&smp_cpu_state_mutex);
- 	rc = -EBUSY;
- 	if (cpu_online(cpu))
- 		goto out;
-@@ -919,8 +919,8 @@ static ssize_t cpu_configure_store(struc
- 		break;
- 	}
- out:
--	put_online_cpus();
- 	mutex_unlock(&smp_cpu_state_mutex);
-+	put_online_cpus();
- 	return rc ? rc : count;
+--- quilt-2.6.orig/arch/s390/mm/vmem.c
++++ quilt-2.6/arch/s390/mm/vmem.c
+@@ -77,8 +77,7 @@ static inline pud_t *vmem_pud_alloc(void
+ 	pud = vmem_alloc_pages(2);
+ 	if (!pud)
+ 		return NULL;
+-	pud_val(*pud) = _REGION3_ENTRY_EMPTY;
+-	memcpy(pud + 1, pud, (PTRS_PER_PUD - 1)*sizeof(pud_t));
++	clear_table((unsigned long *) pud, _REGION3_ENTRY_EMPTY, PAGE_SIZE * 4);
+ #endif
+ 	return pud;
  }
- static SYSDEV_ATTR(configure, 0644, cpu_configure_show, cpu_configure_store);
-@@ -1095,8 +1095,8 @@ static ssize_t __ref rescan_store(struct
- 	int cpu;
- 	int rc;
- 
--	mutex_lock(&smp_cpu_state_mutex);
- 	get_online_cpus();
-+	mutex_lock(&smp_cpu_state_mutex);
- 	newcpus = cpu_present_map;
- 	rc = smp_rescan_cpus();
- 	if (rc)
-@@ -1109,8 +1109,8 @@ static ssize_t __ref rescan_store(struct
- 	}
- 	rc = 0;
- out:
--	put_online_cpus();
- 	mutex_unlock(&smp_cpu_state_mutex);
-+	put_online_cpus();
- 	if (!cpus_empty(newcpus))
- 		topology_schedule_update();
- 	return rc ? rc : count;
-@@ -1139,16 +1139,16 @@ static ssize_t dispatching_store(struct 
- 	if (val != 0 && val != 1)
- 		return -EINVAL;
- 	rc = 0;
--	mutex_lock(&smp_cpu_state_mutex);
- 	get_online_cpus();
-+	mutex_lock(&smp_cpu_state_mutex);
- 	if (cpu_management == val)
- 		goto out;
- 	rc = topology_set_cpu_management(val);
- 	if (!rc)
- 		cpu_management = val;
- out:
--	put_online_cpus();
- 	mutex_unlock(&smp_cpu_state_mutex);
-+	put_online_cpus();
- 	return rc ? rc : count;
+@@ -91,7 +90,7 @@ static inline pmd_t *vmem_pmd_alloc(void
+ 	pmd = vmem_alloc_pages(2);
+ 	if (!pmd)
+ 		return NULL;
+-	clear_table((unsigned long *) pmd, _SEGMENT_ENTRY_EMPTY, PAGE_SIZE*4);
++	clear_table((unsigned long *) pmd, _SEGMENT_ENTRY_EMPTY, PAGE_SIZE * 4);
+ #endif
+ 	return pmd;
  }
- static SYSDEV_ATTR(dispatching, 0644, dispatching_show, dispatching_store);
 
 -- 
 blue skies,
