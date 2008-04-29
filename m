@@ -1,188 +1,137 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760528AbYD2OQi@vger.kernel.org>
-Message-Id: <20080429140248.641638615@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761223AbYD2OQw@vger.kernel.org>
+Message-Id: <20080429140248.892514700@de.ibm.com>
 References: <20080429140117.631962807@de.ibm.com>
-Date: Tue, 29 Apr 2008 16:01:18 +0200
+Date: Tue, 29 Apr 2008 16:01:19 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 01/15] cio: Use strict_strtoul() for attributes.
-Content-Disposition: inline; filename=001-cio-strict_strtoul.diff
+Subject: [patch 02/15] Move show_regs to traps.c.
+Content-Disposition: inline; filename=002-showregs.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Make parsing of attribute writes handle incorrect input better.
+This is where it should be and we can get rid of some externs
+and a static inline function.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/ccwgroup.c |    7 +++++--
- drivers/s390/cio/cmf.c      |   11 ++++++++---
- drivers/s390/cio/css.c      |   10 +++++++---
- drivers/s390/cio/device.c   |   17 +++++++++++------
- drivers/s390/cio/qdio.c     |    8 ++++----
- 5 files changed, 35 insertions(+), 18 deletions(-)
+ arch/s390/kernel/process.c   |   18 ------------------
+ arch/s390/kernel/traps.c     |   26 ++++++++++++++++++++++----
+ include/asm-s390/processor.h |    9 ---------
+ 3 files changed, 22 insertions(+), 31 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/ccwgroup.c
+Index: quilt-2.6/arch/s390/kernel/process.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/ccwgroup.c
-+++ quilt-2.6/drivers/s390/cio/ccwgroup.c
-@@ -318,7 +318,7 @@ ccwgroup_online_store (struct device *de
- {
- 	struct ccwgroup_device *gdev;
- 	struct ccwgroup_driver *gdrv;
--	unsigned int value;
-+	unsigned long value;
- 	int ret;
- 
- 	gdev = to_ccwgroupdev(dev);
-@@ -329,7 +329,9 @@ ccwgroup_online_store (struct device *de
- 	if (!try_module_get(gdrv->owner))
- 		return -EINVAL;
- 
--	value = simple_strtoul(buf, NULL, 0);
-+	ret = strict_strtoul(buf, 0, &value);
-+	if (ret)
-+		goto out;
- 	ret = count;
- 	if (value == 1)
- 		ccwgroup_set_online(gdev);
-@@ -337,6 +339,7 @@ ccwgroup_online_store (struct device *de
- 		ccwgroup_set_offline(gdev);
- 	else
- 		ret = -EINVAL;
-+out:
- 	module_put(gdrv->owner);
- 	return ret;
- }
-Index: quilt-2.6/drivers/s390/cio/cmf.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cmf.c
-+++ quilt-2.6/drivers/s390/cio/cmf.c
-@@ -1219,16 +1219,21 @@ static ssize_t cmb_enable_store(struct d
- {
- 	struct ccw_device *cdev;
- 	int ret;
-+	unsigned long val;
-+
-+	ret = strict_strtoul(buf, 16, &val);
-+	if (ret)
-+		return ret;
- 
- 	cdev = to_ccwdev(dev);
- 
--	switch (buf[0]) {
--	case '0':
-+	switch (val) {
-+	case 0:
- 		ret = disable_cmf(cdev);
- 		if (ret)
- 			dev_info(&cdev->dev, "disable_cmf failed (%d)\n", ret);
- 		break;
--	case '1':
-+	case 1:
- 		ret = enable_cmf(cdev);
- 		if (ret && ret != -EBUSY)
- 			dev_info(&cdev->dev, "enable_cmf failed (%d)\n", ret);
-Index: quilt-2.6/drivers/s390/cio/css.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/css.c
-+++ quilt-2.6/drivers/s390/cio/css.c
-@@ -705,13 +705,17 @@ css_cm_enable_store(struct device *dev, 
- {
- 	struct channel_subsystem *css = to_css(dev);
- 	int ret;
-+	unsigned long val;
- 
-+	ret = strict_strtoul(buf, 16, &val);
-+	if (ret)
-+		return ret;
- 	mutex_lock(&css->mutex);
--	switch (buf[0]) {
--	case '0':
-+	switch (val) {
-+	case 0:
- 		ret = css->cm_enabled ? chsc_secm(css, 0) : 0;
- 		break;
--	case '1':
-+	case 1:
- 		ret = css->cm_enabled ? 0 : chsc_secm(css, 1);
- 		break;
- 	default:
-Index: quilt-2.6/drivers/s390/cio/device.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device.c
-+++ quilt-2.6/drivers/s390/cio/device.c
-@@ -512,8 +512,8 @@ static ssize_t online_store (struct devi
- 			     const char *buf, size_t count)
- {
- 	struct ccw_device *cdev = to_ccwdev(dev);
--	int i, force;
--	char *tmp;
-+	int force, ret;
-+	unsigned long i;
- 
- 	if (atomic_cmpxchg(&cdev->private->onoff, 0, 1) != 0)
- 		return -EAGAIN;
-@@ -525,25 +525,30 @@ static ssize_t online_store (struct devi
- 	if (!strncmp(buf, "force\n", count)) {
- 		force = 1;
- 		i = 1;
-+		ret = 0;
- 	} else {
- 		force = 0;
--		i = simple_strtoul(buf, &tmp, 16);
-+		ret = strict_strtoul(buf, 16, &i);
+--- quilt-2.6.orig/arch/s390/kernel/process.c
++++ quilt-2.6/arch/s390/kernel/process.c
+@@ -180,24 +180,6 @@ void cpu_idle(void)
  	}
+ }
+ 
+-void show_regs(struct pt_regs *regs)
+-{
+-	print_modules();
+-	printk("CPU: %d %s %s %.*s\n",
+-	       task_thread_info(current)->cpu, print_tainted(),
+-	       init_utsname()->release,
+-	       (int)strcspn(init_utsname()->version, " "),
+-	       init_utsname()->version);
+-	printk("Process %s (pid: %d, task: %p, ksp: %p)\n",
+-	       current->comm, current->pid, current,
+-	       (void *) current->thread.ksp);
+-	show_registers(regs);
+-	/* Show stack backtrace if pt_regs is from kernel mode */
+-	if (!(regs->psw.mask & PSW_MASK_PSTATE))
+-		show_trace(NULL, (unsigned long *) regs->gprs[15]);
+-	show_last_breaking_event(regs);
+-}
 -
-+	if (ret)
-+		goto out;
- 	switch (i) {
- 	case 0:
- 		online_store_handle_offline(cdev);
-+		ret = count;
- 		break;
- 	case 1:
- 		online_store_handle_online(cdev, force);
-+		ret = count;
- 		break;
- 	default:
--		count = -EINVAL;
-+		ret = -EINVAL;
+ extern void kernel_thread_starter(void);
+ 
+ asm(
+Index: quilt-2.6/arch/s390/kernel/traps.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/traps.c
++++ quilt-2.6/arch/s390/kernel/traps.c
+@@ -113,7 +113,7 @@ __show_trace(unsigned long sp, unsigned 
  	}
-+out:
- 	if (cdev->drv)
- 		module_put(cdev->drv->owner);
- 	atomic_set(&cdev->private->onoff, 0);
--	return count;
-+	return ret;
  }
  
- static ssize_t
-Index: quilt-2.6/drivers/s390/cio/qdio.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/qdio.c
-+++ quilt-2.6/drivers/s390/cio/qdio.c
-@@ -3663,11 +3663,11 @@ qdio_performance_stats_show(struct bus_t
- static ssize_t
- qdio_performance_stats_store(struct bus_type *bus, const char *buf, size_t count)
+-void show_trace(struct task_struct *task, unsigned long *stack)
++static void show_trace(struct task_struct *task, unsigned long *stack)
  {
--	char *tmp;
--	int i;
-+	unsigned long i;
-+	int ret;
+ 	register unsigned long __r15 asm ("15");
+ 	unsigned long sp;
+@@ -161,14 +161,14 @@ void show_stack(struct task_struct *task
+ 	show_trace(task, sp);
+ }
  
--	i = simple_strtoul(buf, &tmp, 16);
--	if ((i == 0) || (i == 1)) {
-+	ret = strict_strtoul(buf, 16, &i);
-+	if (!ret && ((i == 0) || (i == 1))) {
- 		if (i == qdio_performance_stats)
- 			return count;
- 		qdio_performance_stats = i;
+-#ifdef CONFIG_64BIT
+-void show_last_breaking_event(struct pt_regs *regs)
++static void show_last_breaking_event(struct pt_regs *regs)
+ {
++#ifdef CONFIG_64BIT
+ 	printk("Last Breaking-Event-Address:\n");
+ 	printk(" [<%016lx>] ", regs->args[0] & PSW_ADDR_INSN);
+ 	print_symbol("%s\n", regs->args[0] & PSW_ADDR_INSN);
+-}
+ #endif
++}
+ 
+ /*
+  * The architecture-independent dump_stack generator
+@@ -223,6 +223,24 @@ void show_registers(struct pt_regs *regs
+ 	show_code(regs);
+ }	
+ 
++void show_regs(struct pt_regs *regs)
++{
++	print_modules();
++	printk("CPU: %d %s %s %.*s\n",
++	       task_thread_info(current)->cpu, print_tainted(),
++	       init_utsname()->release,
++	       (int)strcspn(init_utsname()->version, " "),
++	       init_utsname()->version);
++	printk("Process %s (pid: %d, task: %p, ksp: %p)\n",
++	       current->comm, current->pid, current,
++	       (void *) current->thread.ksp);
++	show_registers(regs);
++	/* Show stack backtrace if pt_regs is from kernel mode */
++	if (!(regs->psw.mask & PSW_MASK_PSTATE))
++		show_trace(NULL, (unsigned long *) regs->gprs[15]);
++	show_last_breaking_event(regs);
++}
++
+ /* This is called from fs/proc/array.c */
+ void task_show_regs(struct seq_file *m, struct task_struct *task)
+ {
+Index: quilt-2.6/include/asm-s390/processor.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/processor.h
++++ quilt-2.6/include/asm-s390/processor.h
+@@ -172,16 +172,7 @@ extern unsigned long thread_saved_pc(str
+  */
+ extern void task_show_regs(struct seq_file *m, struct task_struct *task);
+ 
+-extern void show_registers(struct pt_regs *regs);
+ extern void show_code(struct pt_regs *regs);
+-extern void show_trace(struct task_struct *task, unsigned long *sp);
+-#ifdef CONFIG_64BIT
+-extern void show_last_breaking_event(struct pt_regs *regs);
+-#else
+-static inline void show_last_breaking_event(struct pt_regs *regs)
+-{
+-}
+-#endif
+ 
+ unsigned long get_wchan(struct task_struct *p);
+ #define task_pt_regs(tsk) ((struct pt_regs *) \
 
 -- 
 blue skies,
