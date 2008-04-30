@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762628AbYD3MPs@vger.kernel.org>
-Date: Wed, 30 Apr 2008 08:15:38 -0400
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [patch] s390: Remove self ptrace IEEE_IP hack.
-Message-ID: <20080430121538.GC28831@infradead.org>
-References: <1209546896.10954.28.camel@localhost> <20080430091900.GA13743@infradead.org> <1209555393.10954.32.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1209555393.10954.32.camel@localhost>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759978AbYD3JP1@vger.kernel.org>
+Subject: [patch] s390: Remove self ptrace IEEE_IP hack.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+Content-Type: text/plain
+Date: Wed, 30 Apr 2008 11:14:56 +0200
+Message-Id: <1209546896.10954.28.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osd.org
+Cc: Christoph Hellwig <hch@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-And now that the last architecture (s390) has been converted to the
-generic ptrace code the __ARCH_SYS_PTRACE ifdef can go away.  Once we've
-also converted all architectures to compat_sys_ptrace some more code can
-be made private to kernel/ptrace.c.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
+The self referential PT_IEEE_IP ptrace peek & poke calls have been
+broken for that last 6 years. For peek the code always returns 0
+instead of the last ieee fault and for poke the code does nothing.
+Since nobody noticed the code seems to be superfluous. So lets
+remove it.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Cc: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
 
-Index: linux-2.6/kernel/ptrace.c
-===================================================================
---- linux-2.6.orig/kernel/ptrace.c	2008-04-30 14:04:33.000000000 +0200
-+++ linux-2.6/kernel/ptrace.c	2008-04-30 14:10:46.000000000 +0200
-@@ -543,7 +543,6 @@ struct task_struct *ptrace_get_task_stru
- #define arch_ptrace_attach(child)	do { } while (0)
+ arch/s390/kernel/ptrace.c |   20 --------------------
+ 1 file changed, 20 deletions(-)
+
+diff -urpN linux-2.6/arch/s390/kernel/ptrace.c linux-2.6-patched/arch/s390/kernel/ptrace.c
+--- linux-2.6/arch/s390/kernel/ptrace.c	2008-04-30 11:10:46.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/ptrace.c	2008-04-30 11:11:02.000000000 +0200
+@@ -607,8 +607,6 @@ do_ptrace_emu31(struct task_struct *chil
+ }
  #endif
  
--#ifndef __ARCH_SYS_PTRACE
- asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
+-#define PT32_IEEE_IP 0x13c
+-
+ static int
+ do_ptrace(struct task_struct *child, long request, long addr, long data)
  {
- 	struct task_struct *child;
-@@ -591,7 +590,6 @@ asmlinkage long sys_ptrace(long request,
- 	unlock_kernel();
- 	return ret;
- }
--#endif /* __ARCH_SYS_PTRACE */
+@@ -617,24 +615,6 @@ do_ptrace(struct task_struct *child, lon
+ 	if (request == PTRACE_ATTACH)
+ 		return ptrace_attach(child);
  
- int generic_ptrace_peekdata(struct task_struct *tsk, long addr, long data)
- {
+-	/*
+-	 * Special cases to get/store the ieee instructions pointer.
+-	 */
+-	if (child == current) {
+-		if (request == PTRACE_PEEKUSR && addr == PT_IEEE_IP)
+-			return peek_user(child, addr, data);
+-		if (request == PTRACE_POKEUSR && addr == PT_IEEE_IP)
+-			return poke_user(child, addr, data);
+-#ifdef CONFIG_COMPAT
+-		if (request == PTRACE_PEEKUSR &&
+-		    addr == PT32_IEEE_IP && test_thread_flag(TIF_31BIT))
+-			return peek_user_emu31(child, addr, data);
+-		if (request == PTRACE_POKEUSR &&
+-		    addr == PT32_IEEE_IP && test_thread_flag(TIF_31BIT))
+-			return poke_user_emu31(child, addr, data);
+-#endif
+-	}
+-
+ 	ret = ptrace_check_attach(child, request == PTRACE_KILL);
+ 	if (ret < 0)
+ 		return ret;
