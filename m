@@ -1,116 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1764655AbYD2OTh@vger.kernel.org>
-Message-Id: <20080429140250.553361834@de.ibm.com>
-References: <20080429140117.631962807@de.ibm.com>
-Date: Tue, 29 Apr 2008 16:01:25 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 08/15] Add topology_core_siblings to topology.h
-Content-Disposition: inline; filename=008-nodes-s390-siblings.diff
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762628AbYD3MPs@vger.kernel.org>
+Date: Wed, 30 Apr 2008 08:15:38 -0400
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [patch] s390: Remove self ptrace IEEE_IP hack.
+Message-ID: <20080430121538.GC28831@infradead.org>
+References: <1209546896.10954.28.camel@localhost> <20080430091900.GA13743@infradead.org> <1209555393.10954.32.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1209555393.10954.32.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osd.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+And now that the last architecture (s390) has been converted to the
+generic ptrace code the __ARCH_SYS_PTRACE ifdef can go away.  Once we've
+also converted all architectures to compat_sys_ptrace some more code can
+be made private to kernel/ptrace.c.
 
-This exposes the core siblings to user space via sysfs.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 
----
-
- arch/s390/kernel/topology.c |   21 ++++++++++++++++++---
- include/asm-s390/topology.h |    4 ++++
- 2 files changed, 22 insertions(+), 3 deletions(-)
-
-Index: quilt-2.6/arch/s390/kernel/topology.c
+Index: linux-2.6/kernel/ptrace.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/topology.c
-+++ quilt-2.6/arch/s390/kernel/topology.c
-@@ -66,6 +66,8 @@ static struct timer_list topology_timer;
- static void set_topology_timer(void);
- static DECLARE_WORK(topology_work, topology_work_fn);
+--- linux-2.6.orig/kernel/ptrace.c	2008-04-30 14:04:33.000000000 +0200
++++ linux-2.6/kernel/ptrace.c	2008-04-30 14:10:46.000000000 +0200
+@@ -543,7 +543,6 @@ struct task_struct *ptrace_get_task_stru
+ #define arch_ptrace_attach(child)	do { } while (0)
+ #endif
  
-+cpumask_t cpu_core_map[NR_CPUS];
-+
- cpumask_t cpu_coregroup_map(unsigned int cpu)
+-#ifndef __ARCH_SYS_PTRACE
+ asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
  {
- 	struct core_info *core = &core_info;
-@@ -199,6 +201,14 @@ int topology_set_cpu_management(int fc)
- 	return rc;
+ 	struct task_struct *child;
+@@ -591,7 +590,6 @@ asmlinkage long sys_ptrace(long request,
+ 	unlock_kernel();
+ 	return ret;
  }
+-#endif /* __ARCH_SYS_PTRACE */
  
-+static void update_cpu_core_map(void)
-+{
-+	int cpu;
-+
-+	for_each_present_cpu(cpu)
-+		cpu_core_map[cpu] = cpu_coregroup_map(cpu);
-+}
-+
- void arch_update_cpu_topology(void)
+ int generic_ptrace_peekdata(struct task_struct *tsk, long addr, long data)
  {
- 	struct tl_info *info = tl_info;
-@@ -206,11 +216,13 @@ void arch_update_cpu_topology(void)
- 	int cpu;
- 
- 	if (!machine_has_topology) {
-+		update_cpu_core_map();
- 		topology_update_polarization_simple();
- 		return;
- 	}
- 	stsi(info, 15, 1, 2);
- 	tl_to_cores(info);
-+	update_cpu_core_map();
- 	for_each_online_cpu(cpu) {
- 		sysdev = get_cpu_sysdev(cpu);
- 		kobject_uevent(&sysdev->kobj, KOBJ_CHANGE);
-@@ -251,20 +263,23 @@ static int __init init_topology_update(v
- {
- 	int rc;
- 
-+	rc = 0;
- 	if (!machine_has_topology) {
- 		topology_update_polarization_simple();
--		return 0;
-+		goto out;
- 	}
- 	init_timer_deferrable(&topology_timer);
- 	if (machine_has_topology_irq) {
- 		rc = register_external_interrupt(0x2005, topology_interrupt);
- 		if (rc)
--			return rc;
-+			goto out;
- 		ctl_set_bit(0, 8);
- 	}
- 	else
- 		set_topology_timer();
--	return 0;
-+out:
-+	update_cpu_core_map();
-+	return rc;
- }
- __initcall(init_topology_update);
- 
-Index: quilt-2.6/include/asm-s390/topology.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/topology.h
-+++ quilt-2.6/include/asm-s390/topology.h
-@@ -7,6 +7,10 @@
- 
- cpumask_t cpu_coregroup_map(unsigned int cpu);
- 
-+extern cpumask_t cpu_core_map[NR_CPUS];
-+
-+#define topology_core_siblings(cpu)	(cpu_core_map[cpu])
-+
- int topology_set_cpu_management(int fc);
- void topology_schedule_update(void);
- 
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
