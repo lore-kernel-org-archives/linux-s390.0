@@ -1,14 +1,14 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: s390 kvm_virtio.c build error
-Date: Sun, 4 May 2008 21:25:37 +0200
-Message-ID: <20080504192537.GA5499@osiris.boeblingen.de.ibm.com>
+Date: Mon, 5 May 2008 10:19:01 +1000
+Message-ID: <200805051019.02289.rusty@rustcorp.com.au>
 References: <20080503174716.GM5838@cs181133002.pp.htv.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-devel-bounces@lists.sourceforge.net>
-Content-Disposition: inline
 In-Reply-To: <20080503174716.GM5838@cs181133002.pp.htv.fi>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
 	<mailto:kvm-devel-request@lists.sourceforge.net?subject=unsubscribe>
 List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
@@ -21,37 +21,31 @@ Errors-To: kvm-devel-bounces@lists.sourceforge.net
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Adrian Bunk <bunk@kernel.org>
-Cc: Carsten Otte <cotte@de.ibm.com>, linux-s390@vger.kernel.org, kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Avi Kivity <avi@qumranet.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Avi Kivity <avi@qumranet.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, May 03, 2008 at 08:47:17PM +0300, Adrian Bunk wrote:
+On Sunday 04 May 2008 03:47:17 Adrian Bunk wrote:
 > Commit c45a6816c19dee67b8f725e6646d428901a6dc24
 > (virtio: explicit advertisement of driver features)
 > and commit e976a2b997fc4ad70ccc53acfe62811c4aaec851
 > (s390: KVM guest: virtio device support, and kvm hypercalls)
 > don't like each other:
-> 
-> <--  snip  -->
-> 
-> ...
->   CC      drivers/s390/kvm/kvm_virtio.o
-> /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/s390/kvm/kvm_virtio.c:224: error: unknown field 'feature' specified in initializer
-> /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/s390/kvm/kvm_virtio.c:224: warning: initialization from incompatible pointer type
-> make[3]: *** [drivers/s390/kvm/kvm_virtio.o] Error 1
-> 
-> <--  snip  -->
 
-Hmm... this should help:
+Yep, I broke s390.  This was kind of expected, but I didn't want to try to
+fix it as I am unable to test.
 
----
- drivers/s390/kvm/kvm_virtio.c |   40 +++++++++++++++++++++++-----------------
- 1 file changed, 23 insertions(+), 17 deletions(-)
+It would look something like this:
 
-Index: linux-2.6/drivers/s390/kvm/kvm_virtio.c
-===================================================================
---- linux-2.6.orig/drivers/s390/kvm/kvm_virtio.c
-+++ linux-2.6/drivers/s390/kvm/kvm_virtio.c
-@@ -78,27 +78,32 @@ static unsigned desc_size(const struct k
+virtio: Attempt to fix kvm_virtio after feature management changes
+
+Very similar to lguest code: set and get feature are now separate callbacks.
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff -r 219d6c116996 drivers/s390/kvm/kvm_virtio.c
+--- a/drivers/s390/kvm/kvm_virtio.c	Mon May 05 10:03:16 2008 +1000
++++ b/drivers/s390/kvm/kvm_virtio.c	Mon May 05 10:17:25 2008 +1000
+@@ -78,27 +78,34 @@ static unsigned desc_size(const struct k
  		+ desc->config_len;
  }
  
@@ -70,21 +64,16 @@ Index: linux-2.6/drivers/s390/kvm/kvm_virtio.c
  
 -	if (fbit / 8 > desc->feature_len)
 -		return false;
++	/* We do this the slow but generic way. */
 +	for (i = 0; i < min(desc->feature_len * 8, 32); i++)
 +		if (in_features[i / 8] & (1 << (i % 8)))
 +			features |= (1 << i);
-+	return features;
-+}
  
 -	features = kvm_vq_features(desc);
 -	if (!(features[fbit / 8] & (1 << (fbit % 8))))
 -		return false;
-+static void kvm_set_features(struct virtio_device *vdev, u32 features)
-+{
-+	unsigned int i;
-+	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
-+	/* Second half of bitmap is features we accept. */
-+	u8 *out_features = kvm_vq_features(desc) + desc->feature_len;
++	return features;
++}
  
 -	/*
 -	 * We set the matching bit in the other half of the bitmap to tell the
@@ -92,6 +81,13 @@ Index: linux-2.6/drivers/s390/kvm/kvm_virtio.c
 -	 */
 -	features[desc->feature_len + fbit / 8] |= (1 << (fbit % 8));
 -	return true;
++static void kvm_set_features(struct virtio_device *vdev, u32 features)
++{
++	unsigned int i;
++	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
++	/* Second half of bitmap is features we accept. */
++	u8 *out_features = kvm_vq_features(desc) + desc->feature_len;
++
 +	memset(out_features, 0, desc->feature_len);
 +	for (i = 0; i < min(desc->feature_len * 8, 32); i++) {
 +		if (features & (1 << i))
@@ -100,7 +96,7 @@ Index: linux-2.6/drivers/s390/kvm/kvm_virtio.c
  }
  
  /*
-@@ -221,7 +226,8 @@ static void kvm_del_vq(struct virtqueue 
+@@ -221,7 +228,8 @@ static void kvm_del_vq(struct virtqueue 
   * The config ops structure as defined by virtio config
   */
  static struct virtio_config_ops kvm_vq_configspace_ops = {
