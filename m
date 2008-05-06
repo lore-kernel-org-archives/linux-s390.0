@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759194AbYE3GOY@vger.kernel.org>
-From: Johannes Weiner <hannes@saeurebad.de>
-Subject: Re: [patch 06/11] showmem: Only walk spanned pages.
-References: <20080529125501.196123527@de.ibm.com>
-	<20080529125729.607377419@de.ibm.com> <8763sxowli.fsf@saeurebad.de>
-	<20080530055049.GA6475@osiris.boeblingen.de.ibm.com>
-Date: Fri, 30 May 2008 08:13:41 +0200
-In-Reply-To: <20080530055049.GA6475@osiris.boeblingen.de.ibm.com> (Heiko
-	Carstens's message of "Fri, 30 May 2008 07:50:49 +0200")
-Message-ID: <87abi8nwtm.fsf@saeurebad.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+From: Avi Kivity <avi@qumranet.com>
+Subject: Re: s390 kvm_virtio.c build error
+Date: Tue, 06 May 2008 17:39:03 +0300
+Message-ID: <48206D87.7080609@qumranet.com>
+References: <20080503174716.GM5838@cs181133002.pp.htv.fi>	
+	<20080504192537.GA5499@osiris.boeblingen.de.ibm.com>	
+	<200805051429.47446.borntraeger@de.ibm.com>
+	<481F0504.3010503@qumranet.com>
+	<1209992810.7089.15.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-devel-bounces@lists.sourceforge.net>
+In-Reply-To: <1209992810.7089.15.camel@localhost>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kvm-devel>
+List-Post: <mailto:kvm-devel@lists.sourceforge.net>
+List-Help: <mailto:kvm-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kvm-devel>,
+	<mailto:kvm-devel-request@lists.sourceforge.net?subject=subscribe>
+Sender: kvm-devel-bounces@lists.sourceforge.net
+Errors-To: kvm-devel-bounces@lists.sourceforge.net
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: schwidefsky@de.ibm.com
+Cc: Carsten Otte <cotte@de.ibm.com>, Adrian Bunk <bunk@kernel.org>, linux-s390@vger.kernel.org, kvm-devel@lists.sourceforge.net, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
-
-Heiko Carstens <heiko.carstens@de.ibm.com> writes:
-
-> On Thu, May 29, 2008 at 07:20:57PM +0200, Johannes Weiner wrote:
->> >  	printk("%lu pages dirty\n", global_page_state(NR_FILE_DIRTY));
->> >  	printk("%lu pages writeback\n", global_page_state(NR_WRITEBACK));
->> >  	printk("%lu pages mapped\n", global_page_state(NR_FILE_MAPPED));
->> 
->> These are redundant, check show_free_areas().
+Martin Schwidefsky wrote:
+> I've added Heiko's patch to my patchqueue. But since this is
+> drivers/s390/kvm this should go in over the kvm.git. See patch below.
 >
-> Indeed. Removed them. Thanks!
->
-> Btw. what's up with your show_mem() cleanup patch series? I thought it
-> would be merged before 2.6.26 and now it isn't even in -mm?
+>   
 
-It interfered with my stupid `remove free swap space display' series
-which is not yet completely in mainline (and no more in -mm).  I wanted
-to wait until it trickled in but I think I will include the remaining
-patches into the generic show_mem series and send them out soon,
-obsoleting the old series...
+Thanks, I added this to my queue as well.
 
-Remaining unpatched show_mem()s in mainline are are um, sparc, sh, m32r,
-alpha, sparc64 and xtensa.
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-	Hannes
+
+-------------------------------------------------------------------------
+This SF.net email is sponsored by the 2008 JavaOne(SM) Conference 
+Don't miss this year's exciting event. There's still time to save $100. 
+Use priority code J8TL2D2. 
+http://ad.doubleclick.net/clk;198757673;13503038;p?http://java.sun.com/javaone
