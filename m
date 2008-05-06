@@ -1,32 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932901AbYEFTvN@vger.kernel.org>
-Date: Tue, 6 May 2008 15:47:58 -0400
-From: Rik van Riel <riel@redhat.com>
-Subject: Re: [patch 8/8] guest page hinting light
-Message-ID: <20080506154758.498b25b2@cuia.bos.redhat.com>
-In-Reply-To: <20080506155112.820321745@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1765287AbYEFQDS@vger.kernel.org>
+Message-Id: <20080506155111.984508377@de.ibm.com>
 References: <20080506155027.974409738@de.ibm.com>
-	<20080506155112.820321745@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Tue, 06 May 2008 17:50:32 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 5/8] s390mach compile warning
+Content-Disposition: inline; filename=005-cio-warning.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 06 May 2008 17:50:35 +0200
-Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> 
-> Use the existing arch_alloc_page/arch_free_page callbacks to do
-> the guest page state transitions between stable and unused.
-> 
-> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Fix the following compile warning:
 
-Acked-by: Rik van Riel <riel@redhat.com>
+drivers/s390/s390mach.c: In function 's390_collect_crw_info':
+drivers/s390/s390mach.c:77: warning: ignoring return value of 'down_interruptibl
+
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+
+ drivers/s390/s390mach.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+Index: quilt-2.6/drivers/s390/s390mach.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/s390mach.c
++++ quilt-2.6/drivers/s390/s390mach.c
+@@ -48,10 +48,11 @@ s390_collect_crw_info(void *param)
+ 	int ccode;
+ 	struct semaphore *sem;
+ 	unsigned int chain;
++	int ignore;
+ 
+ 	sem = (struct semaphore *)param;
+ repeat:
+-	down_interruptible(sem);
++	ignore = down_interruptible(sem);
+ 	chain = 0;
+ 	while (1) {
+ 		if (unlikely(chain > 1)) {
 
 -- 
-All Rights Reversed
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
