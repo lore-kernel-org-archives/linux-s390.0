@@ -1,24 +1,17 @@
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Tue, 06 May 2008 11:34:25 +0000
-Subject: Re: [PATCH] s390 ptrace cleanup
-Message-Id: <1210073665.31803.13.camel@localhost>
-In-Reply-To: <1210063997.31803.3.camel@localhost>
-References: <1210063997.31803.3.camel@localhost>
+Date: Tue, 13 May 2008 12:38:12 +0000
+Subject: Re: blacklist.c: removed duplicated include
+Message-Id: <1210682292.23992.17.camel@localhost>
+In-Reply-To: <20080511202049.E3A8.WEIYI.HUANG@gmail.com>
+References: <20080511202049.E3A8.WEIYI.HUANG@gmail.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Roland,
+On Sun, 2008-05-11 at 20:23 +0800, Huang Weiyi wrote:
+> Removed duplicated include <asm/cio.h>
+> in drivers/s390/cio/blacklist.c.
 
-On Tue, 2008-05-06 at 01:49 -0700, Roland McGrath wrote:
-> I have not tested this at all nor even compiled it.
-> But it's, you know, probably fine.  Season to taste.
-> Modulo anything broken so it won't compile, it probably
-> won't have any subtle problems.  (But someone who actually
-> hacks on s390 should verify that ptrace still works.)
-
-I fixed a few "cast to pointer from integer of different size" warnings
-but apart from that the patch works fine. I'll add it to the s390 patch
-queue. Many thanks, that removes a to-do from my list.
+Applied to git390. Thanks.
 
 -- 
 blue skies,
