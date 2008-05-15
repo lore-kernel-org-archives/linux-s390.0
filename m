@@ -1,105 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932423AbYEOPEY@vger.kernel.org>
-Message-Id: <20080515150009.109105428@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760201AbYEOPEo@vger.kernel.org>
+Message-Id: <20080515150009.353727628@de.ibm.com>
 References: <20080515145705.188435204@de.ibm.com>
-Date: Thu, 15 May 2008 16:57:12 +0200
+Date: Thu, 15 May 2008 16:57:13 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 07/11] s390dbf: Use const char * for dbf name.
-Content-Disposition: inline; filename=007-cio-s390dbf.diff
+Subject: [patch 08/11] dasd: fix timeout handling in interrupt handler
+Content-Disposition: inline; filename=008-dasd-timeout.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Stefan Weinhuber <wein@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Stefan Weinhuber <wein@de.ibm.com>
 
-We should use const char * for passing the name of the debug feature
-around since it will not be changed.
+When the dasd_int_handler is called with an error code instead of
+an irb, the associated request should be restarted. This handling
+was missing from the -ETIMEDOUT case. In fact it should be done in
+any case.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Stefan Weinhuber <wein@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/debug.c |   20 ++++++++++----------
- include/asm-s390/debug.h |    4 ++--
- 2 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/s390/block/dasd.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/debug.c
+Index: quilt-2.6/drivers/s390/block/dasd.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/debug.c
-+++ quilt-2.6/arch/s390/kernel/debug.c
-@@ -71,7 +71,7 @@ static ssize_t debug_input(struct file *
- 			size_t user_len, loff_t * offset);
- static int debug_open(struct inode *inode, struct file *file);
- static int debug_close(struct inode *inode, struct file *file);
--static debug_info_t*  debug_info_create(char *name, int pages_per_area,
-+static debug_info_t *debug_info_create(const char *name, int pages_per_area,
- 			int nr_areas, int buf_size, mode_t mode);
- static void debug_info_get(debug_info_t *);
- static void debug_info_put(debug_info_t *);
-@@ -234,8 +234,8 @@ fail_malloc_areas:
-  */
+--- quilt-2.6.orig/drivers/s390/block/dasd.c
++++ quilt-2.6/drivers/s390/block/dasd.c
+@@ -925,6 +925,8 @@ static void dasd_handle_killed_request(s
+ 	struct dasd_ccw_req *cqr;
+ 	struct dasd_device *device;
  
- static debug_info_t*
--debug_info_alloc(char *name, int pages_per_area, int nr_areas, int buf_size,
--		int level, int mode)
-+debug_info_alloc(const char *name, int pages_per_area, int nr_areas,
-+		 int buf_size, int level, int mode)
- {
- 	debug_info_t* rc;
- 
-@@ -326,8 +326,8 @@ debug_info_free(debug_info_t* db_info){
-  */
- 
- static debug_info_t*
--debug_info_create(char *name, int pages_per_area, int nr_areas, int buf_size,
--		  mode_t mode)
-+debug_info_create(const char *name, int pages_per_area, int nr_areas,
-+		  int buf_size, mode_t mode)
- {
- 	debug_info_t* rc;
- 
-@@ -684,9 +684,9 @@ debug_close(struct inode *inode, struct 
-  * - Returns handle for debug area
-  */
- 
--debug_info_t *debug_register_mode(char *name, int pages_per_area, int nr_areas,
--				  int buf_size, mode_t mode, uid_t uid,
--				  gid_t gid)
-+debug_info_t *debug_register_mode(const char *name, int pages_per_area,
-+				  int nr_areas, int buf_size, mode_t mode,
-+				  uid_t uid, gid_t gid)
- {
- 	debug_info_t *rc = NULL;
- 
-@@ -722,8 +722,8 @@ EXPORT_SYMBOL(debug_register_mode);
-  * - returns handle for debug area
-  */
- 
--debug_info_t *debug_register(char *name, int pages_per_area, int nr_areas,
--			     int buf_size)
-+debug_info_t *debug_register(const char *name, int pages_per_area,
-+			     int nr_areas, int buf_size)
- {
- 	return debug_register_mode(name, pages_per_area, nr_areas, buf_size,
- 				   S_IRUSR | S_IWUSR, 0, 0);
-Index: quilt-2.6/include/asm-s390/debug.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/debug.h
-+++ quilt-2.6/include/asm-s390/debug.h
-@@ -120,10 +120,10 @@ debug_entry_t* debug_exception_common(de
- 
- /* Debug Feature API: */
- 
--debug_info_t* debug_register(char* name, int pages, int nr_areas,
-+debug_info_t *debug_register(const char *name, int pages, int nr_areas,
-                              int buf_size);
- 
--debug_info_t *debug_register_mode(char *name, int pages, int nr_areas,
-+debug_info_t *debug_register_mode(const char *name, int pages, int nr_areas,
- 				  int buf_size, mode_t mode, uid_t uid,
- 				  gid_t gid);
++	if (!intparm)
++		return;
+ 	cqr = (struct dasd_ccw_req *) intparm;
+ 	if (cqr->status != DASD_CQR_IN_IO) {
+ 		MESSAGE(KERN_DEBUG,
+@@ -976,17 +978,16 @@ void dasd_int_handler(struct ccw_device 
+ 	if (IS_ERR(irb)) {
+ 		switch (PTR_ERR(irb)) {
+ 		case -EIO:
+-			dasd_handle_killed_request(cdev, intparm);
+ 			break;
+ 		case -ETIMEDOUT:
+ 			printk(KERN_WARNING"%s(%s): request timed out\n",
+ 			       __func__, cdev->dev.bus_id);
+-			//FIXME - dasd uses own timeout interface...
+ 			break;
+ 		default:
+ 			printk(KERN_WARNING"%s(%s): unknown error %ld\n",
+ 			       __func__, cdev->dev.bus_id, PTR_ERR(irb));
+ 		}
++		dasd_handle_killed_request(cdev, intparm);
+ 		return;
+ 	}
  
 
 -- 
