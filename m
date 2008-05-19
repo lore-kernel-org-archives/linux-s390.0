@@ -1,39 +1,22 @@
 From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 04/11] zfcp: Remove some sparse warnings
-Date: Mon, 19 May 2008 12:17:40 +0200
-Message-ID: <20080519101828.544246000@de.ibm.com>
-References: <20080519101736.590943000@de.ibm.com>
+Subject: [patch 00/11] zfcp fixes and improvements
+Date: Mon, 19 May 2008 12:17:36 +0200
+Message-ID: <20080519101736.590943000@de.ibm.com>
 Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=sparse-warnings.diff
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: James.Bottomley@HansenPartnership.com
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Christof Schmitt <christof.schmitt@de.ibm.com>, Martin Peschke <mp3@de.ibm.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
+James,
 
-Remove some sparse warnings by telling sparse that zfcp_req_create
-acquires the lock for the request queue.
+here is a series of small fixes and improvements for zfcp. The patches
+apply on current scsi-misc.
 
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
-Signed-off-by: Martin Peschke <mp3@de.ibm.com>
----
- drivers/s390/scsi/zfcp_ext.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+These patches were pending on the head of our internal patch queue. I
+hope that i can continue with the larger cleanup patches that are
+still pending during the next weeks.
 
---- a/drivers/s390/scsi/zfcp_ext.h	2008-05-19 11:28:32.000000000 +0200
-+++ b/drivers/s390/scsi/zfcp_ext.h	2008-05-19 11:33:24.000000000 +0200
-@@ -94,7 +94,8 @@ extern void zfcp_fsf_req_dismiss_all(str
- extern int  zfcp_fsf_status_read(struct zfcp_adapter *, int);
- extern int zfcp_status_read_refill(struct zfcp_adapter *adapter);
- extern int zfcp_fsf_req_create(struct zfcp_adapter *, u32, int, mempool_t *,
--			       unsigned long *, struct zfcp_fsf_req **);
-+			       unsigned long *, struct zfcp_fsf_req **)
-+	__acquires(adapter->request_queue.queue_lock);
- extern int zfcp_fsf_send_ct(struct zfcp_send_ct *, mempool_t *,
- 			    struct zfcp_erp_action *);
- extern int zfcp_fsf_send_els(struct zfcp_send_els *);
-
--- 
+Christof
