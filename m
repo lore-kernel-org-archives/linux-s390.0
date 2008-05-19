@@ -1,89 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932091AbYEOPHq@vger.kernel.org>
-Message-Id: <20080515150009.589155198@de.ibm.com>
-References: <20080515145705.188435204@de.ibm.com>
-Date: Thu, 15 May 2008 16:57:14 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 09/11] tape: Use ccw_dev_id to build cdev_id.
-Content-Disposition: inline; filename=009-tape-devid.diff
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 02/11] zfcp: Fix mempool pointer for GID_PN request allocation
+Date: Mon, 19 May 2008 12:17:38 +0200
+Message-ID: <20080519101827.011544000@de.ibm.com>
+References: <20080519101736.590943000@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline; filename=800-zfcp-mempool.diff
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James.Bottomley@HansenPartnership.com
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Christof Schmitt <christof.schmitt@de.ibm.com>, Martin Peschke <mp3@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-To construct the integer containing the information from the bus_id,
-it is easier to use the data from ccw_dev_id than to parse the bus_id.
+When allocating memory for GID_PN nameserver requests, the allocation
+function stores the pointer to the mempool, but then overwrites the
+pointer via memset. Later, the wrong function to free the memory will
+be called, since this is based on the stored pointer.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Fix this by first initializing the struct and then storing the pointer.
+
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+Signed-off-by: Martin Peschke <mp3@de.ibm.com>
 ---
 
- drivers/s390/char/tape_core.c |   31 +++++--------------------------
- 1 file changed, 5 insertions(+), 26 deletions(-)
+ drivers/s390/scsi/zfcp_aux.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-Index: quilt-2.6/drivers/s390/char/tape_core.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/char/tape_core.c
-+++ quilt-2.6/drivers/s390/char/tape_core.c
-@@ -76,32 +76,9 @@ const char *tape_op_verbose[TO_SIZE] =
- 	[TO_KEKL_QUERY] = "KLQ",[TO_RDC] = "RDC",
- };
- 
--static int
--busid_to_int(char *bus_id)
-+static int devid_to_int(struct ccw_dev_id *dev_id)
+--- a/drivers/s390/scsi/zfcp_aux.c	2008-05-19 11:28:32.000000000 +0200
++++ b/drivers/s390/scsi/zfcp_aux.c	2008-05-19 11:30:27.000000000 +0200
+@@ -1533,19 +1533,16 @@ zfcp_gid_pn_buffers_alloc(struct zfcp_gi
  {
--	int	dec;
--	int	d;
--	char *	s;
--
--	for(s = bus_id, d = 0; *s != '\0' && *s != '.'; s++)
--		d = (d * 10) + (*s - '0');
--	dec = d;
--	for(s++, d = 0; *s != '\0' && *s != '.'; s++)
--		d = (d * 10) + (*s - '0');
--	dec = (dec << 8) + d;
--
--	for(s++; *s != '\0'; s++) {
--		if (*s >= '0' && *s <= '9') {
--			d = *s - '0';
--		} else if (*s >= 'a' && *s <= 'f') {
--			d = *s - 'a' + 10;
--		} else {
--			d = *s - 'A' + 10;
+ 	struct zfcp_gid_pn_data *data;
+ 
+-	if (pool != NULL) {
++	if (pool)
+ 		data = mempool_alloc(pool, GFP_ATOMIC);
+-		if (likely(data != NULL)) {
+-			data->ct.pool = pool;
 -		}
--		dec = (dec << 4) + d;
+-	} else {
++	else
+ 		data = kmem_cache_alloc(zfcp_data.gid_pn_cache, GFP_ATOMIC);
 -	}
--
--	return dec;
-+	return dev_id->devno + (dev_id->ssid << 16);
- }
  
- /*
-@@ -551,6 +528,7 @@ tape_generic_probe(struct ccw_device *cd
- {
- 	struct tape_device *device;
- 	int ret;
-+	struct ccw_dev_id dev_id;
+         if (NULL == data)
+                 return -ENOMEM;
  
- 	device = tape_alloc_device();
- 	if (IS_ERR(device))
-@@ -565,7 +543,8 @@ tape_generic_probe(struct ccw_device *cd
- 	cdev->dev.driver_data = device;
- 	cdev->handler = __tape_do_irq;
- 	device->cdev = cdev;
--	device->cdev_id = busid_to_int(cdev->dev.bus_id);
-+	ccw_device_get_id(cdev, &dev_id);
-+	device->cdev_id = devid_to_int(&dev_id);
- 	PRINT_INFO("tape device %s found\n", cdev->dev.bus_id);
- 	return ret;
- }
+ 	memset(data, 0, sizeof(*data));
++	data->ct.pool = pool;
+ 	sg_init_table(&data->req , 1);
+ 	sg_init_table(&data->resp , 1);
+         data->ct.req = &data->req;
 
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
