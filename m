@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757362AbYFAX3w@vger.kernel.org>
-Message-Id: <20080601231520.950484943@gmail.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758215AbYFAXeX@vger.kernel.org>
+Message-Id: <20080601231638.355013541@gmail.com>
 References: <20080601231329.223608711@gmail.com>
-Date: Mon, 02 Jun 2008 08:13:36 +0900
+Date: Mon, 02 Jun 2008 08:13:49 +0900
 From: akinobu.mita@gmail.com
-Subject: [patch -v2 07/23] s390: use simple_read_from_buffer
-Content-Disposition: inline; filename=hypfs-use-simple-read-from-buffer.patch
+Subject: [patch -v2 20/23] s390/cio: use memory_read_from_buffer
+Content-Disposition: inline; filename=cio-use-memory-read-from-buffer.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -18,56 +18,44 @@ Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 Cc: linux390@de.ibm.com
 Cc: linux-s390@vger.kernel.org
 ---
- arch/s390/hypfs/inode.c |   29 ++++++++++-------------------
- 1 file changed, 10 insertions(+), 19 deletions(-)
+ drivers/s390/cio/chp.c |   12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-Index: 2.6-git/arch/s390/hypfs/inode.c
+Index: 2.6-git/drivers/s390/cio/chp.c
 ===================================================================
---- 2.6-git.orig/arch/s390/hypfs/inode.c
-+++ 2.6-git/arch/s390/hypfs/inode.c
-@@ -150,33 +150,24 @@ static ssize_t hypfs_aio_read(struct kio
- 			      unsigned long nr_segs, loff_t offset)
+--- 2.6-git.orig/drivers/s390/cio/chp.c
++++ 2.6-git/drivers/s390/cio/chp.c
+@@ -15,6 +15,7 @@
+ #include <linux/wait.h>
+ #include <linux/mutex.h>
+ #include <linux/errno.h>
++#include <linux/fs.h>
+ #include <asm/chpid.h>
+ #include <asm/sclp.h>
+ 
+@@ -141,21 +142,14 @@ static ssize_t chp_measurement_chars_rea
  {
- 	char *data;
--	size_t len;
-+	ssize_t ret;
- 	struct file *filp = iocb->ki_filp;
- 	/* XXX: temporary */
- 	char __user *buf = iov[0].iov_base;
- 	size_t count = iov[0].iov_len;
+ 	struct channel_path *chp;
+ 	struct device *device;
+-	unsigned int size;
  
--	if (nr_segs != 1) {
--		count = -EINVAL;
--		goto out;
--	}
-+	if (nr_segs != 1)
-+		return -EINVAL;
+ 	device = container_of(kobj, struct device, kobj);
+ 	chp = to_channelpath(device);
+ 	if (!chp->cmg_chars)
+ 		return 0;
  
- 	data = filp->private_data;
--	len = strlen(data);
--	if (offset > len) {
--		count = 0;
--		goto out;
--	}
--	if (count > len - offset)
--		count = len - offset;
--	if (copy_to_user(buf, data + offset, count)) {
--		count = -EFAULT;
--		goto out;
--	}
--	iocb->ki_pos += count;
-+	ret = simple_read_from_buffer(buf, count, &offset, data, strlen(data));
-+	if (ret <= 0)
-+		return ret;
-+
-+	iocb->ki_pos += ret;
- 	file_accessed(filp);
--out:
+-	size = sizeof(struct cmg_chars);
+-
+-	if (off > size)
+-		return 0;
+-	if (off + count > size)
+-		count = size - off;
+-	memcpy(buf, chp->cmg_chars + off, count);
 -	return count;
-+
-+	return ret;
++	return memory_read_from_buffer(buf, count, &off,
++				chp->cmg_chars, sizeof(struct cmg_chars));
  }
- static ssize_t hypfs_aio_write(struct kiocb *iocb, const struct iovec *iov,
- 			      unsigned long nr_segs, loff_t offset)
+ 
+ static struct bin_attribute chp_measurement_chars_attr = {
 
 -- 
