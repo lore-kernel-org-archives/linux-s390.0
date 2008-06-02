@@ -1,68 +1,72 @@
-From: "Robert P. J. Day" <rpjday@crashcourse.ca>
-Date: Wed, 14 May 2008 17:16:55 +0000
-Subject: Re: [PATCH] S390:  Replace deprecated "__initcall" with equivalent
-Message-Id: <alpine.LFD.1.10.0805141315490.21161@localhost.localdomain>
-In-Reply-To: <20080513103543.GA12339@osiris.boeblingen.de.ibm.com>
-References: <20080513103543.GA12339@osiris.boeblingen.de.ibm.com>
-To: linux-s390@vger.kernel.org
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH] Optimize page_remove_rmap for anon pages
+Date: Tue, 3 Jun 2008 09:57:48 +1000
+References: <1212069392.16984.25.camel@localhost>
+In-Reply-To: <1212069392.16984.25.camel@localhost>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200806030957.49069.nickpiggin@yahoo.com.au>
+Sender: owner-linux-mm@kvack.org
+Return-Path: <owner-linux-mm@kvack.org>
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: schwidefsky@de.ibm.com
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 13 May 2008, Heiko Carstens wrote:
+On Thursday 29 May 2008 23:56, Martin Schwidefsky wrote:
+> Greetings,
+> with a recent performance analysis we discovered something interesting
+> in regard to the physical dirty bits found on s390. The page_remove_rmap
+> function stands out when areas of anonymous memory gets unmapped. The
+> reason is the transfer of the dirty bit from the page storage key to the
+> struct page when the last mapper of a page is removed. For anonymous
+> pages that cease to exist this is superfluous. Without the storage key
+> operations process termination is noticable faster, e.g. for a gcc test
+> case we got a speedup of 2%.
+> To get this done page_remove_rmap needs to know if the page dirty bit
+> can be ignored. The page_test_dirty / page_clear_dirty call can only be
+> avoided if page_remove_rmap is called from zap_pte_range or do_wp_page.
+> If it is called from any other place - in particular try_to_unmap_one -
+> the page dirty bit may not be ignored.
+> The patch below introduces a new function to do that, in lack of a
+> better name I called it page_zap_rmap. Comments ?
 
-> On Tue, May 13, 2008 at 05:27:02AM -0400, Robert P. J. Day wrote:
-> > On Tue, 13 May 2008, Heiko Carstens wrote:
-> > > Since when and why is __initcall deprecated?
-> >
-> > this goes back several years:
-> >
-> >   http://www.cs.helsinki.fi/linux/linux-kernel/2002-23/1209.html
-> >
-> > given the several levels of "init" calls these days, what used to be a
-> > simple __initcall was redefined to represent device_initcall, as you
-> > can see in <linux/init.h>:
-> >
-> > #define core_initcall(fn)               __define_initcall("1",fn,1)
-> > #define core_initcall_sync(fn)          __define_initcall("1s",fn,1s)
-> > #define postcore_initcall(fn)           __define_initcall("2",fn,2)
-> > #define postcore_initcall_sync(fn)      __define_initcall("2s",fn,2s)
-> > #define arch_initcall(fn)               __define_initcall("3",fn,3)
-> > #define arch_initcall_sync(fn)          __define_initcall("3s",fn,3s)
-> > #define subsys_initcall(fn)             __define_initcall("4",fn,4)
-> > #define subsys_initcall_sync(fn)        __define_initcall("4s",fn,4s)
-> > #define fs_initcall(fn)                 __define_initcall("5",fn,5)
-> > #define fs_initcall_sync(fn)            __define_initcall("5s",fn,5s)
-> > #define rootfs_initcall(fn)             __define_initcall("rootfs",fn,rootfs)
-> > #define device_initcall(fn)             __define_initcall("6",fn,6)
-> > #define device_initcall_sync(fn)        __define_initcall("6s",fn,6s)
-> > #define late_initcall(fn)               __define_initcall("7",fn,7)
-> > #define late_initcall_sync(fn)          __define_initcall("7s",fn,7s)
-> >
-> > #define __initcall(fn) device_initcall(fn)
-> >
-> >   obviously, the effect will still be the same, but the initcall
-> > ordering will be more obvious when using the newer device_initcall.
->
-> I wouldn't say that any of the initcall names makes it obvious to
-> which level it corresponds... initcall6() would be much more
-> readable than device_initcall().
+I don't know if it is that simple, is it?
 
-> And even better would be if you could specify what your init
-> function actually depends on, and let the kernel build system figure
-> out the order of initcalls on its own.
+I don't know how you are guaranteeing the given page ceases to exist.
+Even checking for the last mapper of the page (which you don't appear
+to do anyway) isn't enough because there could be a swapcount, in which
+case you should still have to mark the page as dirty.
 
-i agree that that would be an even better situation, but i was just
-going by what the situation is at the moment.  given the current
-#define, obviously there's no actual need to change anything, so it's
-entirely a judgment call.
+For example (I think, unless s390 somehow propogates the dirty page
+bit some other way that I've missed), wouldn't the following break:
 
-rday
+process p1 allocates anonymous page A
+p1 dirties A
+p1 forks p2, A now has a mapcount of 2
+p2 VM_LOCKs A (something to prevent it being swapped)
+page reclaim unmaps p1's pte, fails on p2
+p2 exits, page_dirty does not get checked because of this patch
+page has mapcount 0, PG_dirty is clear
+Page reclaim can drop it without writing it to swap
+
+
+Or am I misunderstanding something?
+
+As far as the general idea goes, it might be possible to avoid the
+check somehow, but you'd want to be pretty sure of yourself before
+diverging the s390 path further from the common code base, no?
+
+The "easy" way to do it might be just unconditionally mark the page
+as dirty in this path (if the pte was writeable), so you can avoid
+the page_test_dirty check and be sure of not missing the dirty bit.
+
 --
-
-
-========================================================================
-Robert P. J. Day
-Linux Consulting, Training and Annoying Kernel Pedantry:
-    Have classroom, will lecture.
-
-http://crashcourse.ca                          Waterloo, Ontario, CANADA
-========================================================================
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
