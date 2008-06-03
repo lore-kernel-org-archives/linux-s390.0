@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757668AbYFCRIy@vger.kernel.org>
-Message-Id: <20080603170518.363409480@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755339AbYFCRIZ@vger.kernel.org>
+Message-Id: <20080603170518.866968150@de.ibm.com>
 References: <20080603165859.107949986@de.ibm.com>
-Date: Tue, 03 Jun 2008 18:59:00 +0200
+Date: Tue, 03 Jun 2008 18:59:01 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 01/14] cio: Register all subchannels.
-Content-Disposition: inline; filename=100-cio-all-subchannels.diff
+Subject: [patch 02/14] cio: Introduce modalias for css bus.
+Content-Disposition: inline; filename=101-cio-css-alias.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,344 +14,363 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Register all valid subchannels, not only I/O subchannels.
-Move I/O subchannel specific initialization to io_subchannel_probe().
+Add modalias and subchannel type attributes for all subchannels.
+I/O subchannel specific attributes are now created in
+io_subchannel_probe(). modalias and subchannel type are also
+added to the uevent for the css bus. Also make the css modalias
+known.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/chp.h    |    1 
- drivers/s390/cio/cio.c    |  124 ++++++++++++++++++----------------------------
- drivers/s390/cio/css.c    |   19 -------
- drivers/s390/cio/css.h    |    2 
- drivers/s390/cio/device.c |   38 ++++++++++++--
- 5 files changed, 85 insertions(+), 99 deletions(-)
+ Documentation/ABI/testing/sysfs-bus-css |   35 ++++++++++++++++
+ drivers/s390/cio/cio.h                  |    1 
+ drivers/s390/cio/css.c                  |   69 +++++++++++++++++++++++++++++---
+ drivers/s390/cio/css.h                  |    2 
+ drivers/s390/cio/device.c               |   47 ++++++++++++++-------
+ include/linux/mod_devicetable.h         |    9 ++++
+ scripts/mod/file2alias.c                |   12 +++++
+ 7 files changed, 151 insertions(+), 24 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/chp.h
+Index: quilt-2.6/Documentation/ABI/testing/sysfs-bus-css
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/chp.h
-+++ quilt-2.6/drivers/s390/cio/chp.h
-@@ -12,6 +12,7 @@
+--- /dev/null
++++ quilt-2.6/Documentation/ABI/testing/sysfs-bus-css
+@@ -0,0 +1,35 @@
++What:		/sys/bus/css/devices/.../type
++Date:		March 2008
++Contact:	Cornelia Huck <cornelia.huck@de.ibm.com>
++		linux-s390@vger.kernel.org
++Description:	Contains the subchannel type, as reported by the hardware.
++		This attribute is present for all subchannel types.
++
++What:		/sys/bus/css/devices/.../modalias
++Date:		March 2008
++Contact:	Cornelia Huck <cornelia.huck@de.ibm.com>
++		linux-s390@vger.kernel.org
++Description:	Contains the module alias as reported with uevents.
++		It is of the format css:t<type> and present for all
++		subchannel types.
++
++What:		/sys/bus/css/drivers/io_subchannel/.../chpids
++Date:		December 2002
++Contact:	Cornelia Huck <cornelia.huck@de.ibm.com>
++		linux-s390@vger.kernel.org
++Description:	Contains the ids of the channel paths used by this
++		subchannel, as reported by the channel subsystem
++		during subchannel recognition.
++		Note: This is an I/O-subchannel specific attribute.
++Users:		s390-tools, HAL
++
++What:		/sys/bus/css/drivers/io_subchannel/.../pimpampom
++Date:		December 2002
++Contact:	Cornelia Huck <cornelia.huck@de.ibm.com>
++		linux-s390@vger.kernel.org
++Description:	Contains the PIM/PAM/POM values, as reported by the
++		channel subsystem when last queried by the common I/O
++		layer (this implies that this attribute is not neccessarily
++		in sync with the values current in the channel subsystem).
++		Note: This is an I/O-subchannel specific attribute.
++Users:		s390-tools, HAL
+Index: quilt-2.6/drivers/s390/cio/cio.h
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/cio.h
++++ quilt-2.6/drivers/s390/cio/cio.h
+@@ -3,6 +3,7 @@
+ 
+ #include <linux/mutex.h>
  #include <linux/device.h>
++#include <linux/mod_devicetable.h>
  #include <asm/chpid.h>
  #include "chsc.h"
-+#include "css.h"
- 
- #define CHP_STATUS_STANDBY		0
- #define CHP_STATUS_CONFIGURED		1
-Index: quilt-2.6/drivers/s390/cio/cio.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cio.c
-+++ quilt-2.6/drivers/s390/cio/cio.c
-@@ -2,7 +2,7 @@
-  *  drivers/s390/cio/cio.c
-  *   S/390 common I/O routines -- low level i/o calls
-  *
-- *    Copyright (C) IBM Corp. 1999,2006
-+ *    Copyright IBM Corp. 1999,2008
-  *    Author(s): Ingo Adlung (adlung@de.ibm.com)
-  *		 Cornelia Huck (cornelia.huck@de.ibm.com)
-  *		 Arnd Bergmann (arndb@de.ibm.com)
-@@ -494,27 +494,46 @@ int cio_create_sch_lock(struct subchanne
- 	return 0;
- }
- 
--/*
-- * cio_validate_subchannel()
-+static int cio_validate_io_subchannel(struct subchannel *sch)
-+{
-+	/* Initialization for io subchannels. */
-+	if (!css_sch_is_valid(&sch->schib))
-+		return -ENODEV;
-+
-+	/* Devno is valid. */
-+	if (is_blacklisted(sch->schid.ssid, sch->schib.pmcw.dev)) {
-+		/*
-+		 * This device must not be known to Linux. So we simply
-+		 * say that there is no device and return ENODEV.
-+		 */
-+		CIO_MSG_EVENT(6, "Blacklisted device detected "
-+			      "at devno %04X, subchannel set %x\n",
-+			      sch->schib.pmcw.dev, sch->schid.ssid);
-+		return -ENODEV;
-+	}
-+	return 0;
-+}
-+
-+/**
-+ * cio_validate_subchannel - basic validation of subchannel
-+ * @sch: subchannel structure to be filled out
-+ * @schid: subchannel id
-  *
-  * Find out subchannel type and initialize struct subchannel.
-  * Return codes:
-- *   SUBCHANNEL_TYPE_IO for a normal io subchannel
-- *   SUBCHANNEL_TYPE_CHSC for a chsc subchannel
-- *   SUBCHANNEL_TYPE_MESSAGE for a messaging subchannel
-- *   SUBCHANNEL_TYPE_ADM for a adm(?) subchannel
-+ *   0 on success
-  *   -ENXIO for non-defined subchannels
-- *   -ENODEV for subchannels with invalid device number or blacklisted devices
-+ *   -ENODEV for invalid subchannels or blacklisted devices
-+ *   -EIO for subchannels in an invalid subchannel set
-  */
--int
--cio_validate_subchannel (struct subchannel *sch, struct subchannel_id schid)
-+int cio_validate_subchannel(struct subchannel *sch, struct subchannel_id schid)
- {
- 	char dbf_txt[15];
- 	int ccode;
- 	int err;
- 
--	sprintf (dbf_txt, "valsch%x", schid.sch_no);
--	CIO_TRACE_EVENT (4, dbf_txt);
-+	sprintf(dbf_txt, "valsch%x", schid.sch_no);
-+	CIO_TRACE_EVENT(4, dbf_txt);
- 
- 	/* Nuke all fields. */
- 	memset(sch, 0, sizeof(struct subchannel));
-@@ -545,66 +564,18 @@ cio_validate_subchannel (struct subchann
- 	}
- 	/* Copy subchannel type from path management control word. */
- 	sch->st = sch->schib.pmcw.st;
--
--	/*
--	 * ... just being curious we check for non I/O subchannels
--	 */
--	if (sch->st != 0) {
--		CIO_MSG_EVENT(4, "Subchannel 0.%x.%04x reports "
--			      "non-I/O subchannel type %04X\n",
--			      sch->schid.ssid, sch->schid.sch_no, sch->st);
--		/* We stop here for non-io subchannels. */
--		err = sch->st;
--		goto out;
--	}
--
--	/* Initialization for io subchannels. */
--	if (!css_sch_is_valid(&sch->schib)) {
--		err = -ENODEV;
--		goto out;
-+	switch (sch->st) {
-+	case SUBCHANNEL_TYPE_IO:
-+		err = cio_validate_io_subchannel(sch);
-+		break;
-+	default:
-+		err = 0;
- 	}
--
--	/* Devno is valid. */
--	if (is_blacklisted (sch->schid.ssid, sch->schib.pmcw.dev)) {
--		/*
--		 * This device must not be known to Linux. So we simply
--		 * say that there is no device and return ENODEV.
--		 */
--		CIO_MSG_EVENT(6, "Blacklisted device detected "
--			      "at devno %04X, subchannel set %x\n",
--			      sch->schib.pmcw.dev, sch->schid.ssid);
--		err = -ENODEV;
-+	if (err)
- 		goto out;
--	}
--	if (cio_is_console(sch->schid))
--		sch->opm = 0xff;
--	else
--		sch->opm = chp_get_sch_opm(sch);
--	sch->lpm = sch->schib.pmcw.pam & sch->opm;
--	sch->isc = 3;
--
--	CIO_MSG_EVENT(6, "Detected device %04x on subchannel 0.%x.%04X "
--		      "- PIM = %02X, PAM = %02X, POM = %02X\n",
--		      sch->schib.pmcw.dev, sch->schid.ssid,
--		      sch->schid.sch_no, sch->schib.pmcw.pim,
--		      sch->schib.pmcw.pam, sch->schib.pmcw.pom);
- 
--	/*
--	 * We now have to initially ...
--	 *  ... enable "concurrent sense"
--	 *  ... enable "multipath mode" if more than one
--	 *	  CHPID is available. This is done regardless
--	 *	  whether multiple paths are available for us.
--	 */
--	sch->schib.pmcw.csense = 1;	/* concurrent sense */
--	sch->schib.pmcw.ena = 0;
--	if ((sch->lpm & (sch->lpm - 1)) != 0)
--		sch->schib.pmcw.mp = 1;	/* multipath mode */
--	/* clean up possible residual cmf stuff */
--	sch->schib.pmcw.mme = 0;
--	sch->schib.pmcw.mbfc = 0;
--	sch->schib.pmcw.mbi = 0;
--	sch->schib.mba = 0;
-+	CIO_MSG_EVENT(4, "Subchannel 0.%x.%04x reports subchannel type %04X\n",
-+		      sch->schid.ssid, sch->schid.sch_no, sch->st);
- 	return 0;
- out:
- 	if (!cio_is_console(schid))
-@@ -791,7 +762,6 @@ cio_probe_console(void)
- 	 * enable console I/O-interrupt subclass 7
- 	 */
- 	ctl_set_bit(6, 24);
--	console_subchannel.isc = 7;
- 	console_subchannel.schib.pmcw.isc = 7;
- 	console_subchannel.schib.pmcw.intparm =
- 		(u32)(addr_t)&console_subchannel;
-@@ -862,7 +832,7 @@ static void udelay_reset(unsigned long u
- }
- 
- static int
--__clear_subchannel_easy(struct subchannel_id schid)
-+__clear_io_subchannel_easy(struct subchannel_id schid)
- {
- 	int retry;
- 
-@@ -919,11 +889,19 @@ static int __shutdown_subchannel_easy(st
- 	case -ENODEV:
- 		break;
- 	default: /* -EBUSY */
--		if (__clear_subchannel_easy(schid))
--			break; /* give up... */
-+		switch (schib.pmcw.st) {
-+		case SUBCHANNEL_TYPE_IO:
-+			if (__clear_io_subchannel_easy(schid))
-+				goto out; /* give up... */
-+			break;
-+		default:
-+			/* No default clear strategy */
-+			break;
-+		}
- 		stsch(schid, &schib);
- 		__disable_subchannel_easy(schid, &schib);
- 	}
-+out:
- 	return 0;
- }
- 
+ #include "schid.h"
 Index: quilt-2.6/drivers/s390/cio/css.c
 ===================================================================
 --- quilt-2.6.orig/drivers/s390/cio/css.c
 +++ quilt-2.6/drivers/s390/cio/css.c
-@@ -121,25 +121,6 @@ css_alloc_subchannel(struct subchannel_i
- 		kfree(sch);
- 		return ERR_PTR(ret);
+@@ -2,8 +2,7 @@
+  *  drivers/s390/cio/css.c
+  *  driver for channel subsystem
+  *
+- *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
+- *			 IBM Corporation
++ *    Copyright IBM Corp. 2002,2008
+  *    Author(s): Arnd Bergmann (arndb@de.ibm.com)
+  *		 Cornelia Huck (cornelia.huck@de.ibm.com)
+  */
+@@ -210,6 +209,41 @@ void css_update_ssd_info(struct subchann
  	}
--
--	if (sch->st != SUBCHANNEL_TYPE_IO) {
--		/* For now we ignore all non-io subchannels. */
--		kfree(sch);
--		return ERR_PTR(-EINVAL);
--	}
--
--	/* 
--	 * Set intparm to subchannel address.
--	 * This is fine even on 64bit since the subchannel is always located
--	 * under 2G.
--	 */
--	sch->schib.pmcw.intparm = (u32)(addr_t)sch;
--	ret = cio_modify(sch);
--	if (ret) {
--		kfree(sch->lock);
--		kfree(sch);
--		return ERR_PTR(ret);
--	}
- 	return sch;
  }
  
++static ssize_t type_show(struct device *dev, struct device_attribute *attr,
++			 char *buf)
++{
++	struct subchannel *sch = to_subchannel(dev);
++
++	return sprintf(buf, "%01x\n", sch->st);
++}
++
++static DEVICE_ATTR(type, 0444, type_show, NULL);
++
++static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
++			     char *buf)
++{
++	struct subchannel *sch = to_subchannel(dev);
++
++	return sprintf(buf, "css:t%01X\n", sch->st);
++}
++
++static DEVICE_ATTR(modalias, 0444, modalias_show, NULL);
++
++static struct attribute *subch_attrs[] = {
++	&dev_attr_type.attr,
++	&dev_attr_modalias.attr,
++	NULL,
++};
++
++static struct attribute_group subch_attr_group = {
++	.attrs = subch_attrs,
++};
++
++static struct attribute_group *default_subch_attr_groups[] = {
++	&subch_attr_group,
++	NULL,
++};
++
+ static int css_register_subchannel(struct subchannel *sch)
+ {
+ 	int ret;
+@@ -218,16 +252,17 @@ static int css_register_subchannel(struc
+ 	sch->dev.parent = &channel_subsystems[0]->device;
+ 	sch->dev.bus = &css_bus_type;
+ 	sch->dev.release = &css_subchannel_release;
+-	sch->dev.groups = subch_attr_groups;
++	sch->dev.groups = default_subch_attr_groups;
+ 	/*
+ 	 * We don't want to generate uevents for I/O subchannels that don't
+ 	 * have a working ccw device behind them since they will be
+ 	 * unregistered before they can be used anyway, so we delay the add
+ 	 * uevent until after device recognition was successful.
++	 * Note that we suppress the uevent for all subchannel types;
++	 * the subchannel driver can decide itself when it wants to inform
++	 * userspace of its existence.
+ 	 */
+-	if (!cio_is_console(sch->schid))
+-		/* Console is special, no need to suppress. */
+-		sch->dev.uevent_suppress = 1;
++	sch->dev.uevent_suppress = 1;
+ 	css_update_ssd_info(sch);
+ 	/* make it known to the system */
+ 	ret = css_sch_device_register(sch);
+@@ -236,6 +271,15 @@ static int css_register_subchannel(struc
+ 			      sch->schid.ssid, sch->schid.sch_no, ret);
+ 		return ret;
+ 	}
++	if (!sch->driver) {
++		/*
++		 * No driver matched. Generate the uevent now so that
++		 * a fitting driver module may be loaded based on the
++		 * modalias.
++		 */
++		sch->dev.uevent_suppress = 0;
++		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
++	}
+ 	return ret;
+ }
+ 
+@@ -926,12 +970,25 @@ static void css_shutdown(struct device *
+ 		sch->driver->shutdown(sch);
+ }
+ 
++static int css_uevent(struct device *dev, struct kobj_uevent_env *env)
++{
++	struct subchannel *sch = to_subchannel(dev);
++	int ret;
++
++	ret = add_uevent_var(env, "ST=%01X", sch->st);
++	if (ret)
++		return ret;
++	ret = add_uevent_var(env, "MODALIAS=css:t%01X", sch->st);
++	return ret;
++}
++
+ struct bus_type css_bus_type = {
+ 	.name     = "css",
+ 	.match    = css_bus_match,
+ 	.probe    = css_probe,
+ 	.remove   = css_remove,
+ 	.shutdown = css_shutdown,
++	.uevent   = css_uevent,
+ };
+ 
+ /**
 Index: quilt-2.6/drivers/s390/cio/css.h
 ===================================================================
 --- quilt-2.6.orig/drivers/s390/cio/css.h
 +++ quilt-2.6/drivers/s390/cio/css.h
-@@ -60,8 +60,6 @@ struct pgid {
+@@ -143,6 +143,4 @@ int css_sch_is_valid(struct schib *);
  
- /*
-  * A css driver handles all subchannels of one type.
-- * Currently, we only care about I/O subchannels (type 0), these
-- * have a ccw_device connected to them.
-  */
- struct subchannel;
- struct css_driver {
+ extern struct workqueue_struct *slow_path_wq;
+ void css_wait_for_slow_path(void);
+-
+-extern struct attribute_group *subch_attr_groups[];
+ #endif
 Index: quilt-2.6/drivers/s390/cio/device.c
 ===================================================================
 --- quilt-2.6.orig/drivers/s390/cio/device.c
 +++ quilt-2.6/drivers/s390/cio/device.c
-@@ -24,6 +24,7 @@
- #include <asm/param.h>		/* HZ */
- #include <asm/cmb.h>
+@@ -585,19 +585,14 @@ static DEVICE_ATTR(modalias, 0444, modal
+ static DEVICE_ATTR(online, 0644, online_show, online_store);
+ static DEVICE_ATTR(availability, 0444, available_show, NULL);
  
-+#include "chp.h"
- #include "cio.h"
- #include "cio_debug.h"
- #include "css.h"
-@@ -1037,7 +1038,6 @@ io_subchannel_recog(struct ccw_device *c
- 	struct ccw_device_private *priv;
+-static struct attribute * subch_attrs[] = {
++static struct attribute *io_subchannel_attrs[] = {
+ 	&dev_attr_chpids.attr,
+ 	&dev_attr_pimpampom.attr,
+ 	NULL,
+ };
  
- 	sch_set_cdev(sch, cdev);
--	sch->driver = &io_subchannel_driver;
- 	cdev->ccwlock = sch->lock;
+-static struct attribute_group subch_attr_group = {
+-	.attrs = subch_attrs,
+-};
+-
+-struct attribute_group *subch_attr_groups[] = {
+-	&subch_attr_group,
+-	NULL,
++static struct attribute_group io_subchannel_attr_group = {
++	.attrs = io_subchannel_attrs,
+ };
  
- 	/* Init private data. */
-@@ -1122,8 +1122,33 @@ static void io_subchannel_irq(struct sub
- 		dev_fsm_event(cdev, DEV_EVENT_INTERRUPT);
+ static struct attribute * ccwdev_attrs[] = {
+@@ -1157,11 +1152,21 @@ static int io_subchannel_probe(struct su
+ 
+ 	cdev = sch_get_cdev(sch);
+ 	if (cdev) {
++		rc = sysfs_create_group(&sch->dev.kobj,
++					&io_subchannel_attr_group);
++		if (rc)
++			CIO_MSG_EVENT(0, "Failed to create io subchannel "
++				      "attributes for subchannel "
++				      "0.%x.%04x (rc=%d)\n",
++				      sch->schid.ssid, sch->schid.sch_no, rc);
+ 		/*
+ 		 * This subchannel already has an associated ccw_device.
+-		 * Register it and exit. This happens for all early
+-		 * device, e.g. the console.
++		 * Throw the delayed uevent for the subchannel, register
++		 * the ccw_device and exit. This happens for all early
++		 * devices, e.g. the console.
+ 		 */
++		sch->dev.uevent_suppress = 0;
++		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
+ 		cdev->dev.groups = ccwdev_attr_groups;
+ 		device_initialize(&cdev->dev);
+ 		ccw_device_register(cdev);
+@@ -1184,11 +1189,17 @@ static int io_subchannel_probe(struct su
+ 	 */
+ 	dev_id.devno = sch->schib.pmcw.dev;
+ 	dev_id.ssid = sch->schid.ssid;
++	rc = sysfs_create_group(&sch->dev.kobj,
++				&io_subchannel_attr_group);
++	if (rc)
++		return rc;
+ 	/* Allocate I/O subchannel private data. */
+ 	sch->private = kzalloc(sizeof(struct io_subchannel_private),
+ 			       GFP_KERNEL | GFP_DMA);
+-	if (!sch->private)
+-		return -ENOMEM;
++	if (!sch->private) {
++		rc = -ENOMEM;
++		goto out_err;
++	}
+ 	cdev = get_disc_ccwdev_by_dev_id(&dev_id, NULL);
+ 	if (!cdev)
+ 		cdev = get_orphaned_ccwdev_by_dev_id(to_css(sch->dev.parent),
+@@ -1207,8 +1218,8 @@ static int io_subchannel_probe(struct su
+ 	}
+ 	cdev = io_subchannel_create_ccwdev(sch);
+ 	if (IS_ERR(cdev)) {
+-		kfree(sch->private);
+-		return PTR_ERR(cdev);
++		rc = PTR_ERR(cdev);
++		goto out_err;
+ 	}
+ 	rc = io_subchannel_recog(cdev, sch);
+ 	if (rc) {
+@@ -1217,9 +1228,12 @@ static int io_subchannel_probe(struct su
+ 		spin_unlock_irqrestore(sch->lock, flags);
+ 		if (cdev->dev.release)
+ 			cdev->dev.release(&cdev->dev);
+-		kfree(sch->private);
++		goto out_err;
+ 	}
+-
++	return 0;
++out_err:
++	kfree(sch->private);
++	sysfs_remove_group(&sch->dev.kobj, &io_subchannel_attr_group);
+ 	return rc;
  }
  
--static int
--io_subchannel_probe (struct subchannel *sch)
-+static void io_subchannel_init_fields(struct subchannel *sch)
-+{
-+	if (cio_is_console(sch->schid))
-+		sch->opm = 0xff;
-+	else
-+		sch->opm = chp_get_sch_opm(sch);
-+	sch->lpm = sch->schib.pmcw.pam & sch->opm;
-+	sch->isc = cio_is_console(sch->schid) ? 7 : 3;
+@@ -1240,6 +1254,7 @@ io_subchannel_remove (struct subchannel 
+ 	ccw_device_unregister(cdev);
+ 	put_device(&cdev->dev);
+ 	kfree(sch->private);
++	sysfs_remove_group(&sch->dev.kobj, &io_subchannel_attr_group);
+ 	return 0;
+ }
+ 
+Index: quilt-2.6/include/linux/mod_devicetable.h
+===================================================================
+--- quilt-2.6.orig/include/linux/mod_devicetable.h
++++ quilt-2.6/include/linux/mod_devicetable.h
+@@ -159,6 +159,15 @@ struct ap_device_id {
+ 
+ #define AP_DEVICE_ID_MATCH_DEVICE_TYPE		0x01
+ 
++/* s390 css bus devices (subchannels) */
++struct css_device_id {
++	__u8 type; /* subchannel type */
++	__u8 pad1;
++	__u16 pad2;
++	__u32 pad3;
++	kernel_ulong_t driver_data;
++};
 +
-+	CIO_MSG_EVENT(6, "Detected device %04x on subchannel 0.%x.%04X"
-+		      " - PIM = %02X, PAM = %02X, POM = %02X\n",
-+		      sch->schib.pmcw.dev, sch->schid.ssid,
-+		      sch->schid.sch_no, sch->schib.pmcw.pim,
-+		      sch->schib.pmcw.pam, sch->schib.pmcw.pom);
-+	/* Initially set up some fields in the pmcw. */
-+	sch->schib.pmcw.ena = 0;
-+	sch->schib.pmcw.csense = 1;	/* concurrent sense */
-+	if ((sch->lpm & (sch->lpm - 1)) != 0)
-+		sch->schib.pmcw.mp = 1; /* multipath mode */
-+	/* clean up possible residual cmf stuff */
-+	sch->schib.pmcw.mme = 0;
-+	sch->schib.pmcw.mbfc = 0;
-+	sch->schib.pmcw.mbi = 0;
-+	sch->schib.mba = 0;
+ #define ACPI_ID_LEN	16 /* only 9 bytes needed here, 16 bytes are used */
+ 			   /* to workaround crosscompile issues */
+ 
+Index: quilt-2.6/scripts/mod/file2alias.c
+===================================================================
+--- quilt-2.6.orig/scripts/mod/file2alias.c
++++ quilt-2.6/scripts/mod/file2alias.c
+@@ -304,6 +304,14 @@ static int do_ap_entry(const char *filen
+ 	return 1;
+ }
+ 
++/* looks like: "css:tN" */
++static int do_css_entry(const char *filename,
++			struct css_device_id *id, char *alias)
++{
++	sprintf(alias, "css:t%01X", id->type);
++	return 1;
 +}
 +
-+static int io_subchannel_probe(struct subchannel *sch)
- {
- 	struct ccw_device *cdev;
- 	int rc;
-@@ -1152,6 +1177,7 @@ io_subchannel_probe (struct subchannel *
- 			get_device(&cdev->dev);
- 		return 0;
- 	}
-+	io_subchannel_init_fields(sch);
- 	/*
- 	 * First check if a fitting device may be found amongst the
- 	 * disconnected devices or in the orphanage.
-@@ -1297,14 +1323,16 @@ spinlock_t * cio_get_console_lock(void)
- 	return &ccw_console_lock;
- }
- 
--static int
--ccw_device_console_enable (struct ccw_device *cdev, struct subchannel *sch)
-+static int ccw_device_console_enable(struct ccw_device *cdev,
-+				     struct subchannel *sch)
- {
- 	int rc;
- 
- 	/* Attach subchannel private data. */
- 	sch->private = cio_get_console_priv();
- 	memset(sch->private, 0, sizeof(struct io_subchannel_private));
-+	io_subchannel_init_fields(sch);
-+	sch->driver = &io_subchannel_driver;
- 	/* Initialize the ccw_device structure. */
- 	cdev->dev.parent= &sch->dev;
- 	rc = io_subchannel_recog(cdev, sch);
+ /* Looks like: "serio:tyNprNidNexN" */
+ static int do_serio_entry(const char *filename,
+ 			  struct serio_device_id *id, char *alias)
+@@ -680,6 +688,10 @@ void handle_moddevtable(struct module *m
+ 		do_table(symval, sym->st_size,
+ 			 sizeof(struct ap_device_id), "ap",
+ 			 do_ap_entry, mod);
++	else if (sym_is(symname, "__mod_css_device_table"))
++		do_table(symval, sym->st_size,
++			 sizeof(struct css_device_id), "css",
++			 do_css_entry, mod);
+ 	else if (sym_is(symname, "__mod_serio_device_table"))
+ 		do_table(symval, sym->st_size,
+ 			 sizeof(struct serio_device_id), "serio",
 
 -- 
 blue skies,
