@@ -1,1242 +1,946 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758387AbYFCRJj@vger.kernel.org>
-Message-Id: <20080603170519.092182269@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757912AbYFCRJ5@vger.kernel.org>
+Message-Id: <20080603170521.232745379@de.ibm.com>
 References: <20080603165859.107949986@de.ibm.com>
-Date: Tue, 03 Jun 2008 18:59:02 +0200
+Date: Tue, 03 Jun 2008 18:59:11 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 03/14] cio: Rework css driver.
-Content-Disposition: inline; filename=102-cio-css-rework.diff
+Subject: [patch 12/14] Introduce user_regset accessors for s390
+Content-Disposition: inline; filename=111-user-regset.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Rework the css driver methods to provide sane callbacks for
-subchannels of all types.
+Add the user_regset definitions for normal and compat processes, replace
+the dump_regs core dump cruft with the generic CORE_DUMP_USER_REGSET and
+replace binfmt_elf32.c with the generic compat_binfmt_elf.c implementation.
 
-As a bonus, this cleans up and simplyfies the machine check
-handling for I/O subchannels a lot.
-
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/chp.c        |   20 ++
- drivers/s390/cio/chp.h        |   13 +
- drivers/s390/cio/chsc.c       |  218 +------------------------
- drivers/s390/cio/cio.c        |    1 
- drivers/s390/cio/css.c        |  123 +-------------
- drivers/s390/cio/css.h        |   38 +---
- drivers/s390/cio/device.c     |  365 ++++++++++++++++++++++++++++++++----------
- drivers/s390/cio/device.h     |    7 
- drivers/s390/cio/device_fsm.c |  106 +-----------
- 9 files changed, 381 insertions(+), 510 deletions(-)
+ arch/s390/Kconfig                |    1 
+ arch/s390/kernel/Makefile        |    7 
+ arch/s390/kernel/binfmt_elf32.c  |  214 ----------------------
+ arch/s390/kernel/compat_ptrace.h |    4 
+ arch/s390/kernel/ptrace.c        |  363 ++++++++++++++++++++++++++++++++++-----
+ include/asm-s390/elf.h           |   51 +----
+ include/asm-s390/processor.h     |   14 +
+ include/asm-s390/ptrace.h        |   15 +
+ 8 files changed, 365 insertions(+), 304 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/chp.c
+Index: quilt-2.6/arch/s390/Kconfig
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/chp.c
-+++ quilt-2.6/drivers/s390/cio/chp.c
-@@ -496,6 +496,26 @@ void chp_process_crw(int id, int status)
- 		chsc_chp_offline(chpid);
- }
- 
-+int chp_ssd_get_mask(struct chsc_ssd_info *ssd, struct res_acc_data *data)
-+{
-+	int i;
-+	int mask;
-+
-+	for (i = 0; i < 8; i++) {
-+		mask = 0x80 >> i;
-+		if (!(ssd->path_mask & mask))
-+			continue;
-+		if (!chp_id_is_equal(&ssd->chpid[i], &data->chpid))
-+			continue;
-+		if ((ssd->fla_valid_mask & mask) &&
-+		    ((ssd->fla[i] & data->fla_mask) != data->fla))
-+			continue;
-+		return mask;
-+	}
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(chp_ssd_get_mask);
-+
- static inline int info_bit_num(struct chp_id id)
- {
- 	return id.id + id.cssid * (__MAX_CHPID + 1);
-Index: quilt-2.6/drivers/s390/cio/chp.h
+--- quilt-2.6.orig/arch/s390/Kconfig
++++ quilt-2.6/arch/s390/Kconfig
+@@ -146,6 +146,7 @@ config MATHEMU
+ config COMPAT
+ 	bool "Kernel support for 31 bit emulation"
+ 	depends on 64BIT
++	select COMPAT_BINFMT_ELF
+ 	help
+ 	  Select this option if you want to enable your system kernel to
+ 	  handle system-calls from ELF binaries for 31 bit ESA.  This option
+Index: quilt-2.6/arch/s390/kernel/binfmt_elf32.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/chp.h
-+++ quilt-2.6/drivers/s390/cio/chp.h
-@@ -19,6 +19,17 @@
- #define CHP_STATUS_RESERVED		2
- #define CHP_STATUS_NOT_RECOGNIZED	3
- 
-+#define CHP_ONLINE 0
-+#define CHP_OFFLINE 1
-+#define CHP_VARY_ON 2
-+#define CHP_VARY_OFF 3
-+
-+struct res_acc_data {
-+	struct chp_id chpid;
-+	u32 fla_mask;
-+	u16 fla;
-+};
-+
- static inline int chp_test_bit(u8 *bitmap, int num)
- {
- 	int byte = num >> 3;
-@@ -50,5 +61,5 @@ int chp_new(struct chp_id chpid);
- void chp_cfg_schedule(struct chp_id chpid, int configure);
- void chp_cfg_cancel_deconfigure(struct chp_id chpid);
- int chp_info_get_status(struct chp_id chpid);
+--- quilt-2.6.orig/arch/s390/kernel/binfmt_elf32.c
++++ /dev/null
+@@ -1,214 +0,0 @@
+-/*
+- * Support for 32-bit Linux for S390 ELF binaries.
+- *
+- * Copyright (C) 2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- * Author(s): Gerhard Tonn (ton@de.ibm.com)
+- *
+- * Heavily inspired by the 32-bit Sparc compat code which is
+- * Copyright (C) 1995, 1996, 1997, 1998 David S. Miller (davem@redhat.com)
+- * Copyright (C) 1995, 1996, 1997, 1998 Jakub Jelinek   (jj@ultra.linux.cz)
+- */
 -
-+int chp_ssd_get_mask(struct chsc_ssd_info *, struct res_acc_data *);
- #endif /* S390_CHP_H */
-Index: quilt-2.6/drivers/s390/cio/chsc.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/chsc.c
-+++ quilt-2.6/drivers/s390/cio/chsc.c
-@@ -2,8 +2,7 @@
-  *  drivers/s390/cio/chsc.c
-  *   S/390 common I/O routines -- channel subsystem call
-  *
-- *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
-- *			      IBM Corporation
-+ *    Copyright IBM Corp. 1999,2008
-  *    Author(s): Ingo Adlung (adlung@de.ibm.com)
-  *		 Cornelia Huck (cornelia.huck@de.ibm.com)
-  *		 Arnd Bergmann (arndb@de.ibm.com)
-@@ -127,77 +126,12 @@ out_free:
- 	return ret;
- }
- 
--static int check_for_io_on_path(struct subchannel *sch, int mask)
+-#define __ASMS390_ELF_H
+-
+-#include <linux/time.h>
+-
+-/*
+- * These are used to set parameters in the core dumps.
+- */
+-#define ELF_CLASS	ELFCLASS32
+-#define ELF_DATA	ELFDATA2MSB
+-#define ELF_ARCH	EM_S390
+-
+-/*
+- * This is used to ensure we don't load something for the wrong architecture.
+- */
+-#define elf_check_arch(x) \
+-	(((x)->e_machine == EM_S390 || (x)->e_machine == EM_S390_OLD) \
+-         && (x)->e_ident[EI_CLASS] == ELF_CLASS)
+-
+-/* ELF register definitions */
+-#define NUM_GPRS      16
+-#define NUM_FPRS      16
+-#define NUM_ACRS      16    
+-
+-/* For SVR4/S390 the function pointer to be registered with `atexit` is
+-   passed in R14. */
+-#define ELF_PLAT_INIT(_r, load_addr) \
+-	do { \
+-		_r->gprs[14] = 0; \
+-	} while(0)
+-
+-#define USE_ELF_CORE_DUMP
+-#define ELF_EXEC_PAGESIZE       4096
+-
+-/* This is the location that an ET_DYN program is loaded if exec'ed.  Typical
+-   use of this is to invoke "./ld.so someprog" to test out a new version of
+-   the loader.  We need to make sure that it is out of the way of the program
+-   that it will "exec", and that there is sufficient room for the brk.  */
+-
+-#define ELF_ET_DYN_BASE         (TASK_SIZE / 3 * 2)
+-
+-/* Wow, the "main" arch needs arch dependent functions too.. :) */
+-
+-/* regs is struct pt_regs, pr_reg is elf_gregset_t (which is
+-   now struct_user_regs, they are different) */
+-
+-#define ELF_CORE_COPY_REGS(pr_reg, regs) dump_regs32(regs, &pr_reg);
+-
+-#define ELF_CORE_COPY_TASK_REGS(tsk, regs) dump_task_regs32(tsk, regs)
+-
+-#define ELF_CORE_COPY_FPREGS(tsk, fpregs) dump_task_fpu(tsk, fpregs)
+-
+-/* This yields a mask that user programs can use to figure out what
+-   instruction set this CPU supports. */
+-
+-#define ELF_HWCAP (0)
+-
+-/* This yields a string that ld.so will use to load implementation
+-   specific libraries for optimization.  This is more specific in
+-   intent than poking at uname or /proc/cpuinfo.
+-
+-   For the moment, we have only optimizations for the Intel generations,
+-   but that could change... */
+-
+-#define ELF_PLATFORM (NULL)
+-
+-#define SET_PERSONALITY(ex, ibcs2)			\
+-do {							\
+-	if (ibcs2)                                      \
+-		set_personality(PER_SVR4);              \
+-	else if (current->personality != PER_LINUX32)   \
+-		set_personality(PER_LINUX);             \
+-	set_thread_flag(TIF_31BIT);			\
+-} while (0)
+-
+-#include "compat_linux.h"
+-
+-typedef _s390_fp_regs32 elf_fpregset_t;
+-
+-typedef struct
 -{
--	int cc;
+-	
+-	_psw_t32	psw;
+-	__u32		gprs[__NUM_GPRS]; 
+-	__u32		acrs[__NUM_ACRS]; 
+-	__u32		orig_gpr2;
+-} s390_regs32;
+-typedef s390_regs32 elf_gregset_t;
 -
--	cc = stsch(sch->schid, &sch->schib);
--	if (cc)
--		return 0;
--	if (sch->schib.scsw.actl && sch->schib.pmcw.lpum == mask)
--		return 1;
--	return 0;
--}
--
--static void terminate_internal_io(struct subchannel *sch)
--{
--	if (cio_clear(sch)) {
--		/* Recheck device in case clear failed. */
--		sch->lpm = 0;
--		if (device_trigger_verify(sch) != 0)
--			css_schedule_eval(sch->schid);
--		return;
--	}
--	/* Request retry of internal operation. */
--	device_set_intretry(sch);
--	/* Call handler. */
--	if (sch->driver && sch->driver->termination)
--		sch->driver->termination(sch);
--}
--
- static int s390_subchannel_remove_chpid(struct subchannel *sch, void *data)
- {
--	int j;
--	int mask;
--	struct chp_id *chpid = data;
--	struct schib schib;
--
--	for (j = 0; j < 8; j++) {
--		mask = 0x80 >> j;
--		if ((sch->schib.pmcw.pim & mask) &&
--		    (sch->schib.pmcw.chpid[j] == chpid->id))
--			break;
--	}
--	if (j >= 8)
--		return 0;
--
- 	spin_lock_irq(sch->lock);
--
--	stsch(sch->schid, &schib);
--	if (!css_sch_is_valid(&schib))
--		goto out_unreg;
--	memcpy(&sch->schib, &schib, sizeof(struct schib));
--	/* Check for single path devices. */
--	if (sch->schib.pmcw.pim == 0x80)
--		goto out_unreg;
--
--	if (check_for_io_on_path(sch, mask)) {
--		if (device_is_online(sch))
--			device_kill_io(sch);
--		else {
--			terminate_internal_io(sch);
--			/* Re-start path verification. */
--			if (sch->driver && sch->driver->verify)
--				sch->driver->verify(sch);
--		}
--	} else {
--		/* trigger path verification. */
--		if (sch->driver && sch->driver->verify)
--			sch->driver->verify(sch);
--		else if (sch->lpm == mask)
-+	if (sch->driver && sch->driver->chp_event)
-+		if (sch->driver->chp_event(sch, data, CHP_OFFLINE) != 0)
- 			goto out_unreg;
--	}
--
- 	spin_unlock_irq(sch->lock);
- 	return 0;
- 
-@@ -242,53 +176,11 @@ static int s390_process_res_acc_new_sch(
- 	return 0;
- }
- 
--struct res_acc_data {
--	struct chp_id chpid;
--	u32 fla_mask;
--	u16 fla;
--};
--
--static int get_res_chpid_mask(struct chsc_ssd_info *ssd,
--			      struct res_acc_data *data)
+-static inline int dump_regs32(struct pt_regs *ptregs, elf_gregset_t *regs)
 -{
 -	int i;
--	int mask;
 -
--	for (i = 0; i < 8; i++) {
--		mask = 0x80 >> i;
--		if (!(ssd->path_mask & mask))
--			continue;
--		if (!chp_id_is_equal(&ssd->chpid[i], &data->chpid))
--			continue;
--		if ((ssd->fla_valid_mask & mask) &&
--		    ((ssd->fla[i] & data->fla_mask) != data->fla))
--			continue;
--		return mask;
--	}
--	return 0;
+-	memcpy(&regs->psw.mask, &ptregs->psw.mask, 4);
+-	memcpy(&regs->psw.addr, (char *)&ptregs->psw.addr + 4, 4);
+-	for (i = 0; i < NUM_GPRS; i++)
+-		regs->gprs[i] = ptregs->gprs[i];
+-	save_access_regs(regs->acrs);
+-	regs->orig_gpr2 = ptregs->orig_gpr2;
+-	return 1;
 -}
 -
- static int __s390_process_res_acc(struct subchannel *sch, void *data)
- {
--	int chp_mask, old_lpm;
--	struct res_acc_data *res_data = data;
--
- 	spin_lock_irq(sch->lock);
--	chp_mask = get_res_chpid_mask(&sch->ssd_info, res_data);
--	if (chp_mask == 0)
--		goto out;
--	if (stsch(sch->schid, &sch->schib))
--		goto out;
--	old_lpm = sch->lpm;
--	sch->lpm = ((sch->schib.pmcw.pim &
--		     sch->schib.pmcw.pam &
--		     sch->schib.pmcw.pom)
--		    | chp_mask) & sch->opm;
--	if (!old_lpm && sch->lpm)
--		device_trigger_reprobe(sch);
--	else if (sch->driver && sch->driver->verify)
--		sch->driver->verify(sch);
--out:
-+	if (sch->driver && sch->driver->chp_event)
-+		sch->driver->chp_event(sch, data, CHP_ONLINE);
- 	spin_unlock_irq(sch->lock);
- 
- 	return 0;
-@@ -509,114 +401,36 @@ void chsc_process_crw(void)
- 	} while (sei_area->flags & 0x80);
- }
- 
--static int __chp_add_new_sch(struct subchannel_id schid, void *data)
+-static inline int dump_task_regs32(struct task_struct *tsk, elf_gregset_t *regs)
 -{
--	struct schib schib;
+-	struct pt_regs *ptregs = task_pt_regs(tsk);
+-	int i;
 -
--	if (stsch_err(schid, &schib))
--		/* We're through */
--		return -ENXIO;
--
--	/* Put it on the slow path. */
--	css_schedule_eval(schid);
--	return 0;
+-	memcpy(&regs->psw.mask, &ptregs->psw.mask, 4);
+-	memcpy(&regs->psw.addr, (char *)&ptregs->psw.addr + 4, 4);
+-	for (i = 0; i < NUM_GPRS; i++)
+-		regs->gprs[i] = ptregs->gprs[i];
+-	memcpy(regs->acrs, tsk->thread.acrs, sizeof(regs->acrs));
+-	regs->orig_gpr2 = ptregs->orig_gpr2;
+-	return 1;
 -}
 -
--
--static int __chp_add(struct subchannel *sch, void *data)
+-static inline int dump_task_fpu(struct task_struct *tsk, elf_fpregset_t *fpregs)
 -{
--	int i, mask;
--	struct chp_id *chpid = data;
--
--	spin_lock_irq(sch->lock);
--	for (i=0; i<8; i++) {
--		mask = 0x80 >> i;
--		if ((sch->schib.pmcw.pim & mask) &&
--		    (sch->schib.pmcw.chpid[i] == chpid->id))
--			break;
--	}
--	if (i==8) {
--		spin_unlock_irq(sch->lock);
--		return 0;
--	}
--	if (stsch(sch->schid, &sch->schib)) {
--		spin_unlock_irq(sch->lock);
--		css_schedule_eval(sch->schid);
--		return 0;
--	}
--	sch->lpm = ((sch->schib.pmcw.pim &
--		     sch->schib.pmcw.pam &
--		     sch->schib.pmcw.pom)
--		    | mask) & sch->opm;
--
--	if (sch->driver && sch->driver->verify)
--		sch->driver->verify(sch);
--
--	spin_unlock_irq(sch->lock);
--
--	return 0;
+-	if (tsk == current)
+-		save_fp_regs((s390_fp_regs *) fpregs);
+-	else
+-		memcpy(fpregs, &tsk->thread.fp_regs, sizeof(elf_fpregset_t));
+-	return 1;
 -}
 -
- void chsc_chp_online(struct chp_id chpid)
- {
- 	char dbf_txt[15];
-+	struct res_acc_data res_data;
- 
- 	sprintf(dbf_txt, "cadd%x.%02x", chpid.cssid, chpid.id);
- 	CIO_TRACE_EVENT(2, dbf_txt);
- 
- 	if (chp_get_status(chpid) != 0) {
-+		memset(&res_data, 0, sizeof(struct res_acc_data));
-+		res_data.chpid = chpid;
- 		/* Wait until previous actions have settled. */
- 		css_wait_for_slow_path();
--		for_each_subchannel_staged(__chp_add, __chp_add_new_sch,
--					   &chpid);
-+		for_each_subchannel_staged(__s390_process_res_acc, NULL,
-+					   &res_data);
- 	}
- }
- 
- static void __s390_subchannel_vary_chpid(struct subchannel *sch,
- 					 struct chp_id chpid, int on)
- {
--	int chp, old_lpm;
--	int mask;
- 	unsigned long flags;
-+	struct res_acc_data res_data;
- 
-+	memset(&res_data, 0, sizeof(struct res_acc_data));
-+	res_data.chpid = chpid;
- 	spin_lock_irqsave(sch->lock, flags);
--	old_lpm = sch->lpm;
--	for (chp = 0; chp < 8; chp++) {
--		mask = 0x80 >> chp;
--		if (!(sch->ssd_info.path_mask & mask))
--			continue;
--		if (!chp_id_is_equal(&sch->ssd_info.chpid[chp], &chpid))
--			continue;
+-#include <asm/processor.h>
+-#include <asm/pgalloc.h>
+-#include <linux/module.h>
+-#include <linux/elfcore.h>
+-#include <linux/binfmts.h>
+-#include <linux/compat.h>
 -
--		if (on) {
--			sch->opm |= mask;
--			sch->lpm |= mask;
--			if (!old_lpm)
--				device_trigger_reprobe(sch);
--			else if (sch->driver && sch->driver->verify)
--				sch->driver->verify(sch);
--			break;
--		}
--		sch->opm &= ~mask;
--		sch->lpm &= ~mask;
--		if (check_for_io_on_path(sch, mask)) {
--			if (device_is_online(sch))
--				/* Path verification is done after killing. */
--				device_kill_io(sch);
--			else {
--				/* Kill and retry internal I/O. */
--				terminate_internal_io(sch);
--				/* Re-start path verification. */
--				if (sch->driver && sch->driver->verify)
--					sch->driver->verify(sch);
--			}
--		} else if (!sch->lpm) {
--			if (device_trigger_verify(sch) != 0)
--				css_schedule_eval(sch->schid);
--		} else if (sch->driver && sch->driver->verify)
--			sch->driver->verify(sch);
--		break;
--	}
-+	if (sch->driver && sch->driver->chp_event)
-+		sch->driver->chp_event(sch, &res_data,
-+				       on ? CHP_VARY_ON : CHP_VARY_OFF);
- 	spin_unlock_irqrestore(sch->lock, flags);
- }
- 
-Index: quilt-2.6/drivers/s390/cio/cio.c
+-#define elf_prstatus elf_prstatus32
+-struct elf_prstatus32
+-{
+-	struct elf_siginfo pr_info;	/* Info associated with signal */
+-	short	pr_cursig;		/* Current signal */
+-	u32	pr_sigpend;	/* Set of pending signals */
+-	u32	pr_sighold;	/* Set of held signals */
+-	pid_t	pr_pid;
+-	pid_t	pr_ppid;
+-	pid_t	pr_pgrp;
+-	pid_t	pr_sid;
+-	struct compat_timeval pr_utime;	/* User time */
+-	struct compat_timeval pr_stime;	/* System time */
+-	struct compat_timeval pr_cutime;	/* Cumulative user time */
+-	struct compat_timeval pr_cstime;	/* Cumulative system time */
+-	elf_gregset_t pr_reg;	/* GP registers */
+-	int pr_fpvalid;		/* True if math co-processor being used.  */
+-};
+-
+-#define elf_prpsinfo elf_prpsinfo32
+-struct elf_prpsinfo32
+-{
+-	char	pr_state;	/* numeric process state */
+-	char	pr_sname;	/* char for pr_state */
+-	char	pr_zomb;	/* zombie */
+-	char	pr_nice;	/* nice val */
+-	u32	pr_flag;	/* flags */
+-	u16	pr_uid;
+-	u16	pr_gid;
+-	pid_t	pr_pid, pr_ppid, pr_pgrp, pr_sid;
+-	/* Lots missing */
+-	char	pr_fname[16];	/* filename of executable */
+-	char	pr_psargs[ELF_PRARGSZ];	/* initial part of arg list */
+-};
+-
+-#include <linux/highuid.h>
+-
+-/*
+-#define init_elf_binfmt init_elf32_binfmt
+-*/
+-
+-#undef start_thread
+-#define start_thread                    start_thread31 
+-
+-static inline void start_thread31(struct pt_regs *regs, unsigned long new_psw,
+-				  unsigned long new_stackp)
+-{
+-	set_fs(USER_DS);
+-	regs->psw.mask	= psw_user32_bits;
+-	regs->psw.addr	= new_psw;
+-	regs->gprs[15]	= new_stackp;
+-	crst_table_downgrade(current->mm, 1UL << 31);
+-}
+-
+-MODULE_DESCRIPTION("Binary format loader for compatibility with 32bit Linux for S390 binaries,"
+-                   " Copyright 2000 IBM Corporation"); 
+-MODULE_AUTHOR("Gerhard Tonn <ton@de.ibm.com>");
+-
+-#undef MODULE_DESCRIPTION
+-#undef MODULE_AUTHOR
+-
+-#undef cputime_to_timeval
+-#define cputime_to_timeval cputime_to_compat_timeval
+-static inline void
+-cputime_to_compat_timeval(const cputime_t cputime, struct compat_timeval *value)
+-{
+-	value->tv_usec = cputime % 1000000;
+-	value->tv_sec = cputime / 1000000;
+-}
+-
+-#include "../../../fs/binfmt_elf.c"
+-
+Index: quilt-2.6/arch/s390/kernel/compat_ptrace.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cio.c
-+++ quilt-2.6/drivers/s390/cio/cio.c
-@@ -564,6 +564,7 @@ int cio_validate_subchannel(struct subch
- 	}
- 	/* Copy subchannel type from path management control word. */
- 	sch->st = sch->schib.pmcw.st;
-+
- 	switch (sch->st) {
- 	case SUBCHANNEL_TYPE_IO:
- 		err = cio_validate_io_subchannel(sch);
-Index: quilt-2.6/drivers/s390/cio/css.c
+--- quilt-2.6.orig/arch/s390/kernel/compat_ptrace.h
++++ quilt-2.6/arch/s390/kernel/compat_ptrace.h
+@@ -1,7 +1,7 @@
+ #ifndef _PTRACE32_H
+ #define _PTRACE32_H
+ 
+-#include "compat_linux.h"  /* needed for _psw_t32 */
++#include "compat_linux.h"  /* needed for psw_compat_t */
+ 
+ typedef struct {
+ 	__u32 cr[3];
+@@ -38,7 +38,7 @@ typedef struct {
+ 
+ struct user_regs_struct32
+ {
+-	_psw_t32 psw;
++	psw_compat_t psw;
+ 	u32 gprs[NUM_GPRS];
+ 	u32 acrs[NUM_ACRS];
+ 	u32 orig_gpr2;
+Index: quilt-2.6/arch/s390/kernel/Makefile
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/css.c
-+++ quilt-2.6/drivers/s390/cio/css.c
-@@ -283,7 +283,7 @@ static int css_register_subchannel(struc
- 	return ret;
- }
+--- quilt-2.6.orig/arch/s390/kernel/Makefile
++++ quilt-2.6/arch/s390/kernel/Makefile
+@@ -7,6 +7,11 @@
+ #
+ CFLAGS_smp.o	:= -Wno-nonnull
  
--static int css_probe_device(struct subchannel_id schid)
-+int css_probe_device(struct subchannel_id schid)
- {
- 	int ret;
- 	struct subchannel *sch;
-@@ -330,112 +330,6 @@ int css_sch_is_valid(struct schib *schib
- }
- EXPORT_SYMBOL_GPL(css_sch_is_valid);
- 
--static int css_get_subchannel_status(struct subchannel *sch)
--{
--	struct schib schib;
--
--	if (stsch(sch->schid, &schib))
--		return CIO_GONE;
--	if (!css_sch_is_valid(&schib))
--		return CIO_GONE;
--	if (sch->schib.pmcw.dnv && (schib.pmcw.dev != sch->schib.pmcw.dev))
--		return CIO_REVALIDATE;
--	if (!sch->lpm)
--		return CIO_NO_PATH;
--	return CIO_OPER;
--}
--
--static int css_evaluate_known_subchannel(struct subchannel *sch, int slow)
--{
--	int event, ret, disc;
--	unsigned long flags;
--	enum { NONE, UNREGISTER, UNREGISTER_PROBE, REPROBE } action;
--
--	spin_lock_irqsave(sch->lock, flags);
--	disc = device_is_disconnected(sch);
--	if (disc && slow) {
--		/* Disconnected devices are evaluated directly only.*/
--		spin_unlock_irqrestore(sch->lock, flags);
--		return 0;
--	}
--	/* No interrupt after machine check - kill pending timers. */
--	device_kill_pending_timer(sch);
--	if (!disc && !slow) {
--		/* Non-disconnected devices are evaluated on the slow path. */
--		spin_unlock_irqrestore(sch->lock, flags);
--		return -EAGAIN;
--	}
--	event = css_get_subchannel_status(sch);
--	CIO_MSG_EVENT(4, "Evaluating schid 0.%x.%04x, event %d, %s, %s path.\n",
--		      sch->schid.ssid, sch->schid.sch_no, event,
--		      disc ? "disconnected" : "normal",
--		      slow ? "slow" : "fast");
--	/* Analyze subchannel status. */
--	action = NONE;
--	switch (event) {
--	case CIO_NO_PATH:
--		if (disc) {
--			/* Check if paths have become available. */
--			action = REPROBE;
--			break;
--		}
--		/* fall through */
--	case CIO_GONE:
--		/* Prevent unwanted effects when opening lock. */
--		cio_disable_subchannel(sch);
--		device_set_disconnected(sch);
--		/* Ask driver what to do with device. */
--		action = UNREGISTER;
--		if (sch->driver && sch->driver->notify) {
--			spin_unlock_irqrestore(sch->lock, flags);
--			ret = sch->driver->notify(sch, event);
--			spin_lock_irqsave(sch->lock, flags);
--			if (ret)
--				action = NONE;
--		}
--		break;
--	case CIO_REVALIDATE:
--		/* Device will be removed, so no notify necessary. */
--		if (disc)
--			/* Reprobe because immediate unregister might block. */
--			action = REPROBE;
--		else
--			action = UNREGISTER_PROBE;
--		break;
--	case CIO_OPER:
--		if (disc)
--			/* Get device operational again. */
--			action = REPROBE;
--		break;
--	}
--	/* Perform action. */
--	ret = 0;
--	switch (action) {
--	case UNREGISTER:
--	case UNREGISTER_PROBE:
--		/* Unregister device (will use subchannel lock). */
--		spin_unlock_irqrestore(sch->lock, flags);
--		css_sch_device_unregister(sch);
--		spin_lock_irqsave(sch->lock, flags);
--
--		/* Reset intparm to zeroes. */
--		sch->schib.pmcw.intparm = 0;
--		cio_modify(sch);
--		break;
--	case REPROBE:
--		device_trigger_reprobe(sch);
--		break;
--	default:
--		break;
--	}
--	spin_unlock_irqrestore(sch->lock, flags);
--	/* Probe if necessary. */
--	if (action == UNREGISTER_PROBE)
--		ret = css_probe_device(sch->schid);
--
--	return ret;
--}
--
- static int css_evaluate_new_subchannel(struct subchannel_id schid, int slow)
- {
- 	struct schib schib;
-@@ -454,6 +348,21 @@ static int css_evaluate_new_subchannel(s
- 	return css_probe_device(schid);
- }
- 
-+static int css_evaluate_known_subchannel(struct subchannel *sch, int slow)
-+{
-+	int ret = 0;
++#
++# Pass UTS_MACHINE for user_regset definition
++#
++CFLAGS_ptrace.o		+= -DUTS_MACHINE='"$(UTS_MACHINE)"'
 +
-+	if (sch->driver) {
-+		if (sch->driver->sch_event)
-+			ret = sch->driver->sch_event(sch, slow);
-+		else
-+			dev_dbg(&sch->dev,
-+				"Got subchannel machine check but "
-+				"no sch_event handler provided.\n");
-+	}
-+	return ret;
-+}
-+
- static void css_evaluate_subchannel(struct subchannel_id schid, int slow)
- {
- 	struct subchannel *sch;
-Index: quilt-2.6/drivers/s390/cio/css.h
+ obj-y	:=  bitmap.o traps.o time.o process.o base.o early.o \
+             setup.o sys_s390.o ptrace.o signal.o cpcmd.o ebcdic.o \
+ 	    s390_ext.o debug.o irq.o ipl.o dis.o diag.o
+@@ -23,7 +28,7 @@ obj-$(CONFIG_AUDIT)		+= audit.o
+ compat-obj-$(CONFIG_AUDIT)	+= compat_audit.o
+ obj-$(CONFIG_COMPAT)		+= compat_linux.o compat_signal.o \
+ 					compat_wrapper.o compat_exec_domain.o \
+-					binfmt_elf32.o $(compat-obj-y)
++					$(compat-obj-y)
+ 
+ obj-$(CONFIG_VIRT_TIMER)	+= vtime.o
+ obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
+Index: quilt-2.6/arch/s390/kernel/ptrace.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/css.h
-+++ quilt-2.6/drivers/s390/cio/css.h
-@@ -58,18 +58,27 @@ struct pgid {
- 	__u32 tod_high;		/* high word TOD clock */
- } __attribute__ ((packed));
+--- quilt-2.6.orig/arch/s390/kernel/ptrace.c
++++ quilt-2.6/arch/s390/kernel/ptrace.c
+@@ -33,6 +33,8 @@
+ #include <linux/security.h>
+ #include <linux/audit.h>
+ #include <linux/signal.h>
++#include <linux/elf.h>
++#include <linux/regset.h>
+ 
+ #include <asm/segment.h>
+ #include <asm/page.h>
+@@ -47,6 +49,11 @@
+ #include "compat_ptrace.h"
+ #endif
+ 
++enum s390_regset {
++	REGSET_GENERAL,
++	REGSET_FP,
++};
++
+ static void
+ FixPerRegisters(struct task_struct *task)
+ {
+@@ -126,24 +133,10 @@ ptrace_disable(struct task_struct *child
+  * struct user contain pad bytes that should be read as zeroes.
+  * Lovely...
+  */
+-static int
+-peek_user(struct task_struct *child, addr_t addr, addr_t data)
++static unsigned long __peek_user(struct task_struct *child, addr_t addr)
+ {
+ 	struct user *dummy = NULL;
+-	addr_t offset, tmp, mask;
+-
+-	/*
+-	 * Stupid gdb peeks/pokes the access registers in 64 bit with
+-	 * an alignment of 4. Programmers from hell...
+-	 */
+-	mask = __ADDR_MASK;
+-#ifdef CONFIG_64BIT
+-	if (addr >= (addr_t) &dummy->regs.acrs &&
+-	    addr < (addr_t) &dummy->regs.orig_gpr2)
+-		mask = 3;
+-#endif
+-	if ((addr & mask) || addr > sizeof(struct user) - __ADDR_MASK)
+-		return -EIO;
++	addr_t offset, tmp;
+ 
+ 	if (addr < (addr_t) &dummy->regs.acrs) {
+ 		/*
+@@ -197,24 +190,18 @@ peek_user(struct task_struct *child, add
+ 	} else
+ 		tmp = 0;
+ 
+-	return put_user(tmp, (addr_t __user *) data);
++	return tmp;
+ }
  
 -/*
-- * A css driver handles all subchannels of one type.
+- * Write a word to the user area of a process at location addr. This
+- * operation does have an additional problem compared to peek_user.
+- * Stores to the program status word and on the floating point
+- * control register needs to get checked for validity.
 - */
- struct subchannel;
-+/**
-+ * struct css_driver - device driver for subchannels
-+ * @owner: owning module
-+ * @subchannel_type: subchannel type supported by this driver
-+ * @drv: embedded device driver structure
-+ * @irq: called on interrupts
-+ * @chp_event: called for events affecting a channel path
-+ * @sch_event: called for events affecting the subchannel
-+ * @probe: function called on probe
-+ * @remove: function called on remove
-+ * @shutdown: called at device shutdown
-+ * @name: name of the device driver
+ static int
+-poke_user(struct task_struct *child, addr_t addr, addr_t data)
++peek_user(struct task_struct *child, addr_t addr, addr_t data)
+ {
+ 	struct user *dummy = NULL;
+-	addr_t offset, mask;
++	addr_t tmp, mask;
+ 
+ 	/*
+ 	 * Stupid gdb peeks/pokes the access registers in 64 bit with
+-	 * an alignment of 4. Programmers from hell indeed...
++	 * an alignment of 4. Programmers from hell...
+ 	 */
+ 	mask = __ADDR_MASK;
+ #ifdef CONFIG_64BIT
+@@ -225,6 +212,21 @@ poke_user(struct task_struct *child, add
+ 	if ((addr & mask) || addr > sizeof(struct user) - __ADDR_MASK)
+ 		return -EIO;
+ 
++	tmp = __peek_user(child, addr);
++	return put_user(tmp, (addr_t __user *) data);
++}
++
++/*
++ * Write a word to the user area of a process at location addr. This
++ * operation does have an additional problem compared to peek_user.
++ * Stores to the program status word and on the floating point
++ * control register needs to get checked for validity.
 + */
- struct css_driver {
- 	struct module *owner;
- 	unsigned int subchannel_type;
- 	struct device_driver drv;
- 	void (*irq)(struct subchannel *);
--	int (*notify)(struct subchannel *, int);
--	void (*verify)(struct subchannel *);
--	void (*termination)(struct subchannel *);
-+	int (*chp_event)(struct subchannel *, void *, int);
-+	int (*sch_event)(struct subchannel *, int);
- 	int (*probe)(struct subchannel *);
- 	int (*remove)(struct subchannel *);
- 	void (*shutdown)(struct subchannel *);
-@@ -87,7 +96,8 @@ extern int css_driver_register(struct cs
- extern void css_driver_unregister(struct css_driver *);
- 
- extern void css_sch_device_unregister(struct subchannel *);
--extern struct subchannel * get_subchannel_by_schid(struct subchannel_id);
-+extern int css_probe_device(struct subchannel_id);
-+extern struct subchannel *get_subchannel_by_schid(struct subchannel_id);
- extern int css_init_done;
- int for_each_subchannel_staged(int (*fn_known)(struct subchannel *, void *),
- 			       int (*fn_unknown)(struct subchannel_id,
-@@ -119,20 +129,6 @@ struct channel_subsystem {
- extern struct bus_type css_bus_type;
- extern struct channel_subsystem *channel_subsystems[];
- 
--/* Some helper functions for disconnected state. */
--int device_is_disconnected(struct subchannel *);
--void device_set_disconnected(struct subchannel *);
--void device_trigger_reprobe(struct subchannel *);
--
--/* Helper functions for vary on/off. */
--int device_is_online(struct subchannel *);
--void device_kill_io(struct subchannel *);
--void device_set_intretry(struct subchannel *sch);
--int device_trigger_verify(struct subchannel *sch);
--
--/* Machine check helper function. */
--void device_kill_pending_timer(struct subchannel *);
--
- /* Helper functions to build lists for the slow path. */
- void css_schedule_eval(struct subchannel_id schid);
- void css_schedule_eval_all(void);
-Index: quilt-2.6/drivers/s390/cio/device.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device.c
-+++ quilt-2.6/drivers/s390/cio/device.c
-@@ -2,8 +2,7 @@
-  *  drivers/s390/cio/device.c
-  *  bus driver for ccw devices
-  *
-- *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-- *			 IBM Corporation
-+ *    Copyright IBM Corp. 2002,2008
-  *    Author(s): Arnd Bergmann (arndb@de.ibm.com)
-  *		 Cornelia Huck (cornelia.huck@de.ibm.com)
-  *		 Martin Schwidefsky (schwidefsky@de.ibm.com)
-@@ -126,19 +125,17 @@ struct bus_type ccw_bus_type;
- static void io_subchannel_irq(struct subchannel *);
- static int io_subchannel_probe(struct subchannel *);
- static int io_subchannel_remove(struct subchannel *);
--static int io_subchannel_notify(struct subchannel *, int);
--static void io_subchannel_verify(struct subchannel *);
--static void io_subchannel_ioterm(struct subchannel *);
- static void io_subchannel_shutdown(struct subchannel *);
-+static int io_subchannel_sch_event(struct subchannel *, int);
-+static int io_subchannel_chp_event(struct subchannel *, void *, int);
- 
- static struct css_driver io_subchannel_driver = {
- 	.owner = THIS_MODULE,
- 	.subchannel_type = SUBCHANNEL_TYPE_IO,
- 	.name = "io_subchannel",
- 	.irq = io_subchannel_irq,
--	.notify = io_subchannel_notify,
--	.verify = io_subchannel_verify,
--	.termination = io_subchannel_ioterm,
-+	.sch_event = io_subchannel_sch_event,
-+	.chp_event = io_subchannel_chp_event,
- 	.probe = io_subchannel_probe,
- 	.remove = io_subchannel_remove,
- 	.shutdown = io_subchannel_shutdown,
-@@ -786,7 +783,7 @@ static void sch_attach_device(struct sub
- 	sch_set_cdev(sch, cdev);
- 	cdev->private->schid = sch->schid;
- 	cdev->ccwlock = sch->lock;
--	device_trigger_reprobe(sch);
-+	ccw_device_trigger_reprobe(cdev);
- 	spin_unlock_irq(sch->lock);
++static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
++{
++	struct user *dummy = NULL;
++	addr_t offset;
++
+ 	if (addr < (addr_t) &dummy->regs.acrs) {
+ 		/*
+ 		 * psw and gprs are stored on the stack
+@@ -292,6 +294,28 @@ poke_user(struct task_struct *child, add
+ 	return 0;
  }
  
-@@ -1265,11 +1262,7 @@ static int io_subchannel_notify(struct s
- 	cdev = sch_get_cdev(sch);
- 	if (!cdev)
- 		return 0;
--	if (!cdev->drv)
--		return 0;
--	if (!cdev->online)
--		return 0;
--	return cdev->drv->notify ? cdev->drv->notify(cdev, event) : 0;
-+	return ccw_device_notify(cdev, event);
- }
- 
- static void io_subchannel_verify(struct subchannel *sch)
-@@ -1281,22 +1274,98 @@ static void io_subchannel_verify(struct 
- 		dev_fsm_event(cdev, DEV_EVENT_VERIFY);
- }
- 
--static void io_subchannel_ioterm(struct subchannel *sch)
-+static int check_for_io_on_path(struct subchannel *sch, int mask)
- {
--	struct ccw_device *cdev;
-+	int cc;
- 
--	cdev = sch_get_cdev(sch);
--	if (!cdev)
--		return;
--	/* Internal I/O will be retried by the interrupt handler. */
--	if (cdev->private->flags.intretry)
-+	cc = stsch(sch->schid, &sch->schib);
-+	if (cc)
-+		return 0;
-+	if (sch->schib.scsw.actl && sch->schib.pmcw.lpum == mask)
-+		return 1;
-+	return 0;
-+}
-+
-+static void terminate_internal_io(struct subchannel *sch,
-+				  struct ccw_device *cdev)
++static int
++poke_user(struct task_struct *child, addr_t addr, addr_t data)
 +{
-+	if (cio_clear(sch)) {
-+		/* Recheck device in case clear failed. */
-+		sch->lpm = 0;
-+		if (cdev->online)
-+			dev_fsm_event(cdev, DEV_EVENT_VERIFY);
-+		else
-+			css_schedule_eval(sch->schid);
- 		return;
-+	}
- 	cdev->private->state = DEV_STATE_CLEAR_VERIFY;
-+	/* Request retry of internal operation. */
-+	cdev->private->flags.intretry = 1;
-+	/* Call handler. */
- 	if (cdev->handler)
- 		cdev->handler(cdev, cdev->private->intparm,
- 			      ERR_PTR(-EIO));
- }
- 
-+static void io_subchannel_terminate_path(struct subchannel *sch, u8 mask)
-+{
-+	struct ccw_device *cdev;
++	struct user *dummy = NULL;
++	addr_t mask;
 +
-+	cdev = sch_get_cdev(sch);
-+	if (!cdev)
-+		return;
-+	if (check_for_io_on_path(sch, mask)) {
-+		if (cdev->private->state == DEV_STATE_ONLINE)
-+			ccw_device_kill_io(cdev);
-+		else {
-+			terminate_internal_io(sch, cdev);
-+			/* Re-start path verification. */
-+			dev_fsm_event(cdev, DEV_EVENT_VERIFY);
-+		}
-+	} else
-+		/* trigger path verification. */
-+		dev_fsm_event(cdev, DEV_EVENT_VERIFY);
-+
-+}
-+
-+static int io_subchannel_chp_event(struct subchannel *sch, void *data,
-+				   int event)
-+{
-+	int mask;
-+	struct res_acc_data *res_data;
-+
-+	res_data = data;
-+	mask = chp_ssd_get_mask(&sch->ssd_info, res_data);
-+	if (!mask)
-+		return 0;
-+	switch (event) {
-+	case CHP_VARY_OFF:
-+		sch->opm &= ~mask;
-+		sch->lpm &= ~mask;
-+		io_subchannel_terminate_path(sch, mask);
-+		break;
-+	case CHP_VARY_ON:
-+		sch->opm |= mask;
-+		sch->lpm |= mask;
-+		io_subchannel_verify(sch);
-+		break;
-+	case CHP_OFFLINE:
-+		if (stsch(sch->schid, &sch->schib))
-+			return -ENXIO;
-+		if (!css_sch_is_valid(&sch->schib))
-+			return -ENODEV;
-+		io_subchannel_terminate_path(sch, mask);
-+		break;
-+	case CHP_ONLINE:
-+		if (stsch(sch->schid, &sch->schib))
-+			return -ENXIO;
-+		sch->lpm |= mask & sch->opm;
-+		io_subchannel_verify(sch);
-+		break;
-+	}
-+	return 0;
-+}
-+
- static void
- io_subchannel_shutdown(struct subchannel *sch)
- {
-@@ -1326,6 +1395,195 @@ io_subchannel_shutdown(struct subchannel
- 	cio_disable_subchannel(sch);
- }
- 
-+static int io_subchannel_get_status(struct subchannel *sch)
-+{
-+	struct schib schib;
-+
-+	if (stsch(sch->schid, &schib) || !schib.pmcw.dnv)
-+		return CIO_GONE;
-+	if (sch->schib.pmcw.dnv && (schib.pmcw.dev != sch->schib.pmcw.dev))
-+		return CIO_REVALIDATE;
-+	if (!sch->lpm)
-+		return CIO_NO_PATH;
-+	return CIO_OPER;
-+}
-+
-+static int device_is_disconnected(struct ccw_device *cdev)
-+{
-+	if (!cdev)
-+		return 0;
-+	return (cdev->private->state == DEV_STATE_DISCONNECTED ||
-+		cdev->private->state == DEV_STATE_DISCONNECTED_SENSE_ID);
-+}
-+
-+static int recovery_check(struct device *dev, void *data)
-+{
-+	struct ccw_device *cdev = to_ccwdev(dev);
-+	int *redo = data;
-+
-+	spin_lock_irq(cdev->ccwlock);
-+	switch (cdev->private->state) {
-+	case DEV_STATE_DISCONNECTED:
-+		CIO_MSG_EVENT(3, "recovery: trigger 0.%x.%04x\n",
-+			      cdev->private->dev_id.ssid,
-+			      cdev->private->dev_id.devno);
-+		dev_fsm_event(cdev, DEV_EVENT_VERIFY);
-+		*redo = 1;
-+		break;
-+	case DEV_STATE_DISCONNECTED_SENSE_ID:
-+		*redo = 1;
-+		break;
-+	}
-+	spin_unlock_irq(cdev->ccwlock);
-+
-+	return 0;
-+}
-+
-+static void recovery_work_func(struct work_struct *unused)
-+{
-+	int redo = 0;
-+
-+	bus_for_each_dev(&ccw_bus_type, NULL, &redo, recovery_check);
-+	if (redo) {
-+		spin_lock_irq(&recovery_lock);
-+		if (!timer_pending(&recovery_timer)) {
-+			if (recovery_phase < ARRAY_SIZE(recovery_delay) - 1)
-+				recovery_phase++;
-+			mod_timer(&recovery_timer, jiffies +
-+				  recovery_delay[recovery_phase] * HZ);
-+		}
-+		spin_unlock_irq(&recovery_lock);
-+	} else
-+		CIO_MSG_EVENT(4, "recovery: end\n");
-+}
-+
-+static DECLARE_WORK(recovery_work, recovery_work_func);
-+
-+static void recovery_func(unsigned long data)
-+{
 +	/*
-+	 * We can't do our recovery in softirq context and it's not
-+	 * performance critical, so we schedule it.
++	 * Stupid gdb peeks/pokes the access registers in 64 bit with
++	 * an alignment of 4. Programmers from hell indeed...
 +	 */
-+	schedule_work(&recovery_work);
++	mask = __ADDR_MASK;
++#ifdef CONFIG_64BIT
++	if (addr >= (addr_t) &dummy->regs.acrs &&
++	    addr < (addr_t) &dummy->regs.orig_gpr2)
++		mask = 3;
++#endif
++	if ((addr & mask) || addr > sizeof(struct user) - __ADDR_MASK)
++		return -EIO;
++
++	return __poke_user(child, addr, data);
 +}
 +
-+static void ccw_device_schedule_recovery(void)
-+{
-+	unsigned long flags;
-+
-+	CIO_MSG_EVENT(4, "recovery: schedule\n");
-+	spin_lock_irqsave(&recovery_lock, flags);
-+	if (!timer_pending(&recovery_timer) || (recovery_phase != 0)) {
-+		recovery_phase = 0;
-+		mod_timer(&recovery_timer, jiffies + recovery_delay[0] * HZ);
-+	}
-+	spin_unlock_irqrestore(&recovery_lock, flags);
-+}
-+
-+static void device_set_disconnected(struct ccw_device *cdev)
-+{
-+	if (!cdev)
-+		return;
-+	ccw_device_set_timeout(cdev, 0);
-+	cdev->private->flags.fake_irb = 0;
-+	cdev->private->state = DEV_STATE_DISCONNECTED;
-+	if (cdev->online)
-+		ccw_device_schedule_recovery();
-+}
-+
-+static int io_subchannel_sch_event(struct subchannel *sch, int slow)
-+{
-+	int event, ret, disc;
-+	unsigned long flags;
-+	enum { NONE, UNREGISTER, UNREGISTER_PROBE, REPROBE } action;
-+	struct ccw_device *cdev;
-+
-+	spin_lock_irqsave(sch->lock, flags);
-+	cdev = sch_get_cdev(sch);
-+	disc = device_is_disconnected(cdev);
-+	if (disc && slow) {
-+		/* Disconnected devices are evaluated directly only.*/
-+		spin_unlock_irqrestore(sch->lock, flags);
-+		return 0;
-+	}
-+	/* No interrupt after machine check - kill pending timers. */
-+	if (cdev)
-+		ccw_device_set_timeout(cdev, 0);
-+	if (!disc && !slow) {
-+		/* Non-disconnected devices are evaluated on the slow path. */
-+		spin_unlock_irqrestore(sch->lock, flags);
-+		return -EAGAIN;
-+	}
-+	event = io_subchannel_get_status(sch);
-+	CIO_MSG_EVENT(4, "Evaluating schid 0.%x.%04x, event %d, %s, %s path.\n",
-+		      sch->schid.ssid, sch->schid.sch_no, event,
-+		      disc ? "disconnected" : "normal",
-+		      slow ? "slow" : "fast");
-+	/* Analyze subchannel status. */
-+	action = NONE;
-+	switch (event) {
-+	case CIO_NO_PATH:
-+		if (disc) {
-+			/* Check if paths have become available. */
-+			action = REPROBE;
-+			break;
-+		}
-+		/* fall through */
-+	case CIO_GONE:
-+		/* Prevent unwanted effects when opening lock. */
-+		cio_disable_subchannel(sch);
-+		device_set_disconnected(cdev);
-+		/* Ask driver what to do with device. */
-+		action = UNREGISTER;
-+		spin_unlock_irqrestore(sch->lock, flags);
-+		ret = io_subchannel_notify(sch, event);
-+		spin_lock_irqsave(sch->lock, flags);
-+		if (ret)
-+			action = NONE;
-+		break;
-+	case CIO_REVALIDATE:
-+		/* Device will be removed, so no notify necessary. */
-+		if (disc)
-+			/* Reprobe because immediate unregister might block. */
-+			action = REPROBE;
-+		else
-+			action = UNREGISTER_PROBE;
-+		break;
-+	case CIO_OPER:
-+		if (disc)
-+			/* Get device operational again. */
-+			action = REPROBE;
-+		break;
-+	}
-+	/* Perform action. */
-+	ret = 0;
-+	switch (action) {
-+	case UNREGISTER:
-+	case UNREGISTER_PROBE:
-+		/* Unregister device (will use subchannel lock). */
-+		spin_unlock_irqrestore(sch->lock, flags);
-+		css_sch_device_unregister(sch);
-+		spin_lock_irqsave(sch->lock, flags);
-+
-+		/* Reset intparm to zeroes. */
-+		sch->schib.pmcw.intparm = 0;
-+		cio_modify(sch);
-+		break;
-+	case REPROBE:
-+		ccw_device_trigger_reprobe(cdev);
-+		break;
-+	default:
-+		break;
-+	}
-+	spin_unlock_irqrestore(sch->lock, flags);
-+	/* Probe if necessary. */
-+	if (action == UNREGISTER_PROBE)
-+		ret = css_probe_device(sch->schid);
-+
-+	return ret;
-+}
-+
- #ifdef CONFIG_CCW_CONSOLE
- static struct ccw_device console_cdev;
- static struct ccw_device_private console_private;
-@@ -1558,71 +1816,6 @@ ccw_device_get_subchannel_id(struct ccw_
- 	return sch->schid;
- }
- 
--static int recovery_check(struct device *dev, void *data)
--{
--	struct ccw_device *cdev = to_ccwdev(dev);
--	int *redo = data;
--
--	spin_lock_irq(cdev->ccwlock);
--	switch (cdev->private->state) {
--	case DEV_STATE_DISCONNECTED:
--		CIO_MSG_EVENT(4, "recovery: trigger 0.%x.%04x\n",
--			      cdev->private->dev_id.ssid,
--			      cdev->private->dev_id.devno);
--		dev_fsm_event(cdev, DEV_EVENT_VERIFY);
--		*redo = 1;
--		break;
--	case DEV_STATE_DISCONNECTED_SENSE_ID:
--		*redo = 1;
--		break;
--	}
--	spin_unlock_irq(cdev->ccwlock);
--
--	return 0;
--}
--
--static void recovery_work_func(struct work_struct *unused)
--{
--	int redo = 0;
--
--	bus_for_each_dev(&ccw_bus_type, NULL, &redo, recovery_check);
--	if (redo) {
--		spin_lock_irq(&recovery_lock);
--		if (!timer_pending(&recovery_timer)) {
--			if (recovery_phase < ARRAY_SIZE(recovery_delay) - 1)
--				recovery_phase++;
--			mod_timer(&recovery_timer, jiffies +
--				  recovery_delay[recovery_phase] * HZ);
--		}
--		spin_unlock_irq(&recovery_lock);
--	} else
--		CIO_MSG_EVENT(4, "recovery: end\n");
--}
--
--static DECLARE_WORK(recovery_work, recovery_work_func);
--
--static void recovery_func(unsigned long data)
--{
--	/*
--	 * We can't do our recovery in softirq context and it's not
--	 * performance critical, so we schedule it.
--	 */
--	schedule_work(&recovery_work);
--}
--
--void ccw_device_schedule_recovery(void)
--{
--	unsigned long flags;
--
--	CIO_MSG_EVENT(4, "recovery: schedule\n");
--	spin_lock_irqsave(&recovery_lock, flags);
--	if (!timer_pending(&recovery_timer) || (recovery_phase != 0)) {
--		recovery_phase = 0;
--		mod_timer(&recovery_timer, jiffies + recovery_delay[0] * HZ);
--	}
--	spin_unlock_irqrestore(&recovery_lock, flags);
--}
--
- MODULE_LICENSE("GPL");
- EXPORT_SYMBOL(ccw_device_set_online);
- EXPORT_SYMBOL(ccw_device_set_offline);
-Index: quilt-2.6/drivers/s390/cio/device_fsm.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_fsm.c
-+++ quilt-2.6/drivers/s390/cio/device_fsm.c
-@@ -2,8 +2,7 @@
-  * drivers/s390/cio/device_fsm.c
-  * finite state machine for device handling
-  *
-- *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-- *			 IBM Corporation
-+ *    Copyright IBM Corp. 2002,2008
-  *    Author(s): Cornelia Huck (cornelia.huck@de.ibm.com)
-  *		 Martin Schwidefsky (schwidefsky@de.ibm.com)
-  */
-@@ -27,65 +26,6 @@
- 
- static int timeout_log_enabled;
- 
--int
--device_is_online(struct subchannel *sch)
--{
--	struct ccw_device *cdev;
--
--	cdev = sch_get_cdev(sch);
--	if (!cdev)
--		return 0;
--	return (cdev->private->state == DEV_STATE_ONLINE);
--}
--
--int
--device_is_disconnected(struct subchannel *sch)
--{
--	struct ccw_device *cdev;
--
--	cdev = sch_get_cdev(sch);
--	if (!cdev)
--		return 0;
--	return (cdev->private->state == DEV_STATE_DISCONNECTED ||
--		cdev->private->state == DEV_STATE_DISCONNECTED_SENSE_ID);
--}
--
--void
--device_set_disconnected(struct subchannel *sch)
--{
--	struct ccw_device *cdev;
--
--	cdev = sch_get_cdev(sch);
--	if (!cdev)
--		return;
--	ccw_device_set_timeout(cdev, 0);
--	cdev->private->flags.fake_irb = 0;
--	cdev->private->state = DEV_STATE_DISCONNECTED;
--	if (cdev->online)
--		ccw_device_schedule_recovery();
--}
--
--void device_set_intretry(struct subchannel *sch)
--{
--	struct ccw_device *cdev;
--
--	cdev = sch_get_cdev(sch);
--	if (!cdev)
--		return;
--	cdev->private->flags.intretry = 1;
--}
--
--int device_trigger_verify(struct subchannel *sch)
--{
--	struct ccw_device *cdev;
--
--	cdev = sch_get_cdev(sch);
--	if (!cdev || !cdev->online)
--		return -EINVAL;
--	dev_fsm_event(cdev, DEV_EVENT_VERIFY);
--	return 0;
--}
--
- static int __init ccw_timeout_log_setup(char *unused)
+ long arch_ptrace(struct task_struct *child, long request, long addr, long data)
  {
- 	timeout_log_enabled = 1;
-@@ -171,18 +111,6 @@ ccw_device_set_timeout(struct ccw_device
- 	add_timer(&cdev->private->timer);
- }
- 
--/* Kill any pending timers after machine check. */
--void
--device_kill_pending_timer(struct subchannel *sch)
--{
--	struct ccw_device *cdev;
--
--	cdev = sch_get_cdev(sch);
--	if (!cdev)
--		return;
--	ccw_device_set_timeout(cdev, 0);
--}
--
+ 	ptrace_area parea; 
+@@ -367,18 +391,13 @@ long arch_ptrace(struct task_struct *chi
  /*
-  * Cancel running i/o. This is called repeatedly since halt/clear are
-  * asynchronous operations. We do one try with cio_cancel, two tries
-@@ -388,25 +316,27 @@ ccw_device_sense_id_done(struct ccw_devi
- 	}
- }
+  * Same as peek_user but for a 31 bit program.
+  */
+-static int
+-peek_user_emu31(struct task_struct *child, addr_t addr, addr_t data)
++static u32 __peek_user_compat(struct task_struct *child, addr_t addr)
+ {
+ 	struct user32 *dummy32 = NULL;
+ 	per_struct32 *dummy_per32 = NULL;
+ 	addr_t offset;
+ 	__u32 tmp;
  
-+int ccw_device_notify(struct ccw_device *cdev, int event)
-+{
-+	if (!cdev->drv)
-+		return 0;
-+	if (!cdev->online)
-+		return 0;
-+	return cdev->drv->notify ? cdev->drv->notify(cdev, event) : 0;
+-	if (!test_thread_flag(TIF_31BIT) ||
+-	    (addr & 3) || addr > sizeof(struct user) - 3)
+-		return -EIO;
+-
+ 	if (addr < (addr_t) &dummy32->regs.acrs) {
+ 		/*
+ 		 * psw and gprs are stored on the stack
+@@ -435,25 +454,32 @@ peek_user_emu31(struct task_struct *chil
+ 	} else
+ 		tmp = 0;
+ 
++	return tmp;
 +}
 +
- static void
- ccw_device_oper_notify(struct work_struct *work)
- {
- 	struct ccw_device_private *priv;
- 	struct ccw_device *cdev;
--	struct subchannel *sch;
- 	int ret;
- 	unsigned long flags;
- 
- 	priv = container_of(work, struct ccw_device_private, kick_work);
- 	cdev = priv->cdev;
-+	ret = ccw_device_notify(cdev, CIO_OPER);
- 	spin_lock_irqsave(cdev->ccwlock, flags);
--	sch = to_subchannel(cdev->dev.parent);
--	if (sch->driver && sch->driver->notify) {
--		spin_unlock_irqrestore(cdev->ccwlock, flags);
--		ret = sch->driver->notify(sch, CIO_OPER);
--		spin_lock_irqsave(cdev->ccwlock, flags);
--	} else
--		ret = 0;
- 	if (ret) {
- 		/* Reenable channel measurements, if needed. */
- 		spin_unlock_irqrestore(cdev->ccwlock, flags);
-@@ -986,12 +916,10 @@ ccw_device_killing_timeout(struct ccw_de
- 			      ERR_PTR(-EIO));
- }
- 
--void device_kill_io(struct subchannel *sch)
-+void ccw_device_kill_io(struct ccw_device *cdev)
- {
- 	int ret;
--	struct ccw_device *cdev;
- 
--	cdev = sch_get_cdev(sch);
- 	ret = ccw_device_cancel_halt_clear(cdev);
- 	if (ret == -EBUSY) {
- 		ccw_device_set_timeout(cdev, 3*HZ);
-@@ -1055,17 +983,14 @@ ccw_device_start_id(struct ccw_device *c
- 	ccw_device_sense_id_start(cdev);
- }
- 
--void
--device_trigger_reprobe(struct subchannel *sch)
-+void ccw_device_trigger_reprobe(struct ccw_device *cdev)
- {
--	struct ccw_device *cdev;
-+	struct subchannel *sch;
- 
--	cdev = sch_get_cdev(sch);
--	if (!cdev)
--		return;
- 	if (cdev->private->state != DEV_STATE_DISCONNECTED)
- 		return;
- 
-+	sch = to_subchannel(cdev->dev.parent);
- 	/* Update some values. */
- 	if (stsch(sch->schid, &sch->schib))
- 		return;
-@@ -1081,7 +1006,6 @@ device_trigger_reprobe(struct subchannel
- 	sch->schib.pmcw.ena = 0;
- 	if ((sch->lpm & (sch->lpm - 1)) != 0)
- 		sch->schib.pmcw.mp = 1;
--	sch->schib.pmcw.intparm = (u32)(addr_t)sch;
- 	/* We should also udate ssd info, but this has to wait. */
- 	/* Check if this is another device which appeared on the same sch. */
- 	if (sch->schib.pmcw.dev != cdev->private->dev_id.devno) {
-Index: quilt-2.6/drivers/s390/cio/device.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device.h
-+++ quilt-2.6/drivers/s390/cio/device.h
-@@ -88,8 +88,6 @@ int ccw_device_recognition(struct ccw_de
- int ccw_device_online(struct ccw_device *);
- int ccw_device_offline(struct ccw_device *);
- 
--void ccw_device_schedule_recovery(void);
--
- /* Function prototypes for device status and basic sense stuff. */
- void ccw_device_accumulate_irb(struct ccw_device *, struct irb *);
- void ccw_device_accumulate_basic_sense(struct ccw_device *, struct irb *);
-@@ -118,6 +116,11 @@ int ccw_device_call_handler(struct ccw_d
- 
- int ccw_device_stlck(struct ccw_device *);
- 
-+/* Helper function for machine check handling. */
-+void ccw_device_trigger_reprobe(struct ccw_device *);
-+void ccw_device_kill_io(struct ccw_device *);
-+int ccw_device_notify(struct ccw_device *, int);
++static int peek_user_compat(struct task_struct *child,
++			    addr_t addr, addr_t data)
++{
++	__u32 tmp;
 +
- /* qdio needs this. */
- void ccw_device_set_timeout(struct ccw_device *, int);
- extern struct subchannel_id ccw_device_get_subchannel_id(struct ccw_device *);
++	if (!test_thread_flag(TIF_31BIT) ||
++	    (addr & 3) || addr > sizeof(struct user) - 3)
++		return -EIO;
++
++	tmp = __peek_user_compat(child, addr);
+ 	return put_user(tmp, (__u32 __user *) data);
+ }
+ 
+ /*
+  * Same as poke_user but for a 31 bit program.
+  */
+-static int
+-poke_user_emu31(struct task_struct *child, addr_t addr, addr_t data)
++static int __poke_user_compat(struct task_struct *child,
++			      addr_t addr, addr_t data)
+ {
+ 	struct user32 *dummy32 = NULL;
+ 	per_struct32 *dummy_per32 = NULL;
++	__u32 tmp = (__u32) data;
+ 	addr_t offset;
+-	__u32 tmp;
+-
+-	if (!test_thread_flag(TIF_31BIT) ||
+-	    (addr & 3) || addr > sizeof(struct user32) - 3)
+-		return -EIO;
+-
+-	tmp = (__u32) data;
+ 
+ 	if (addr < (addr_t) &dummy32->regs.acrs) {
+ 		/*
+@@ -528,6 +554,16 @@ poke_user_emu31(struct task_struct *chil
+ 	return 0;
+ }
+ 
++static int poke_user_compat(struct task_struct *child,
++			    addr_t addr, addr_t data)
++{
++	if (!test_thread_flag(TIF_31BIT) ||
++	    (addr & 3) || addr > sizeof(struct user32) - 3)
++		return -EIO;
++
++	return __poke_user_compat(child, addr, data);
++}
++
+ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
+ 			compat_ulong_t caddr, compat_ulong_t cdata)
+ {
+@@ -539,11 +575,11 @@ long compat_arch_ptrace(struct task_stru
+ 	switch (request) {
+ 	case PTRACE_PEEKUSR:
+ 		/* read the word at location addr in the USER area. */
+-		return peek_user_emu31(child, addr, data);
++		return peek_user_compat(child, addr, data);
+ 
+ 	case PTRACE_POKEUSR:
+ 		/* write the word at location addr in the USER area */
+-		return poke_user_emu31(child, addr, data);
++		return poke_user_compat(child, addr, data);
+ 
+ 	case PTRACE_PEEKUSR_AREA:
+ 	case PTRACE_POKEUSR_AREA:
+@@ -555,13 +591,13 @@ long compat_arch_ptrace(struct task_stru
+ 		copied = 0;
+ 		while (copied < parea.len) {
+ 			if (request == PTRACE_PEEKUSR_AREA)
+-				ret = peek_user_emu31(child, addr, data);
++				ret = peek_user_compat(child, addr, data);
+ 			else {
+ 				__u32 utmp;
+ 				if (get_user(utmp,
+ 					     (__u32 __force __user *) data))
+ 					return -EFAULT;
+-				ret = poke_user_emu31(child, addr, utmp);
++				ret = poke_user_compat(child, addr, utmp);
+ 			}
+ 			if (ret)
+ 				return ret;
+@@ -610,3 +646,240 @@ syscall_trace(struct pt_regs *regs, int 
+ 				    regs->gprs[2], regs->orig_gpr2, regs->gprs[3],
+ 				    regs->gprs[4], regs->gprs[5]);
+ }
++
++/*
++ * user_regset definitions.
++ */
++
++static int s390_regs_get(struct task_struct *target,
++			 const struct user_regset *regset,
++			 unsigned int pos, unsigned int count,
++			 void *kbuf, void __user *ubuf)
++{
++	if (target == current)
++		save_access_regs(target->thread.acrs);
++
++	if (kbuf) {
++		unsigned long *k = kbuf;
++		while (count > 0) {
++			*k++ = __peek_user(target, pos);
++			count -= sizeof(*k);
++			pos += sizeof(*k);
++		}
++	} else {
++		unsigned long __user *u = ubuf;
++		while (count > 0) {
++			if (__put_user(__peek_user(target, pos), u++))
++				return -EFAULT;
++			count -= sizeof(*u);
++			pos += sizeof(*u);
++		}
++	}
++	return 0;
++}
++
++static int s390_regs_set(struct task_struct *target,
++			 const struct user_regset *regset,
++			 unsigned int pos, unsigned int count,
++			 const void *kbuf, const void __user *ubuf)
++{
++	int rc = 0;
++
++	if (target == current)
++		save_access_regs(target->thread.acrs);
++
++	if (kbuf) {
++		const unsigned long *k = kbuf;
++		while (count > 0 && !rc) {
++			rc = __poke_user(target, pos, *k++);
++			count -= sizeof(*k);
++			pos += sizeof(*k);
++		}
++	} else {
++		const unsigned long  __user *u = ubuf;
++		while (count > 0 && !rc) {
++			unsigned long word;
++			rc = __get_user(word, u++);
++			if (rc)
++				break;
++			rc = __poke_user(target, pos, word);
++			count -= sizeof(*u);
++			pos += sizeof(*u);
++		}
++	}
++
++	if (rc == 0 && target == current)
++		restore_access_regs(target->thread.acrs);
++
++	return rc;
++}
++
++static int s390_fpregs_get(struct task_struct *target,
++			   const struct user_regset *regset, unsigned int pos,
++			   unsigned int count, void *kbuf, void __user *ubuf)
++{
++	if (target == current)
++		save_fp_regs(&target->thread.fp_regs);
++
++	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
++				   &target->thread.fp_regs, 0, -1);
++}
++
++static int s390_fpregs_set(struct task_struct *target,
++			   const struct user_regset *regset, unsigned int pos,
++			   unsigned int count, const void *kbuf,
++			   const void __user *ubuf)
++{
++	int rc = 0;
++
++	if (target == current)
++		save_fp_regs(&target->thread.fp_regs);
++
++	/* If setting FPC, must validate it first. */
++	if (count > 0 && pos < offsetof(s390_fp_regs, fprs)) {
++		u32 fpc[2] = { target->thread.fp_regs.fpc, 0 };
++		rc = user_regset_copyin(&pos, &count, &kbuf, &ubuf, &fpc,
++					0, offsetof(s390_fp_regs, fprs));
++		if (rc)
++			return rc;
++		if ((fpc[0] & ~FPC_VALID_MASK) != 0 || fpc[1] != 0)
++			return -EINVAL;
++		target->thread.fp_regs.fpc = fpc[0];
++	}
++
++	if (rc == 0 && count > 0)
++		rc = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
++					target->thread.fp_regs.fprs,
++					offsetof(s390_fp_regs, fprs), -1);
++
++	if (rc == 0 && target == current)
++		restore_fp_regs(&target->thread.fp_regs);
++
++	return rc;
++}
++
++static const struct user_regset s390_regsets[] = {
++	[REGSET_GENERAL] = {
++		.core_note_type = NT_PRSTATUS,
++		.n = sizeof(s390_regs) / sizeof(long),
++		.size = sizeof(long),
++		.align = sizeof(long),
++		.get = s390_regs_get,
++		.set = s390_regs_set,
++	},
++	[REGSET_FP] = {
++		.core_note_type = NT_PRFPREG,
++		.n = sizeof(s390_fp_regs) / sizeof(long),
++		.size = sizeof(long),
++		.align = sizeof(long),
++		.get = s390_fpregs_get,
++		.set = s390_fpregs_set,
++	},
++};
++
++static const struct user_regset_view user_s390_view = {
++	.name = UTS_MACHINE,
++	.e_machine = EM_S390,
++	.regsets = s390_regsets,
++	.n = ARRAY_SIZE(s390_regsets)
++};
++
++#ifdef CONFIG_COMPAT
++static int s390_compat_regs_get(struct task_struct *target,
++				const struct user_regset *regset,
++				unsigned int pos, unsigned int count,
++				void *kbuf, void __user *ubuf)
++{
++	if (target == current)
++		save_access_regs(target->thread.acrs);
++
++	if (kbuf) {
++		compat_ulong_t *k = kbuf;
++		while (count > 0) {
++			*k++ = __peek_user_compat(target, pos);
++			count -= sizeof(*k);
++			pos += sizeof(*k);
++		}
++	} else {
++		compat_ulong_t __user *u = ubuf;
++		while (count > 0) {
++			if (__put_user(__peek_user_compat(target, pos), u++))
++				return -EFAULT;
++			count -= sizeof(*u);
++			pos += sizeof(*u);
++		}
++	}
++	return 0;
++}
++
++static int s390_compat_regs_set(struct task_struct *target,
++				const struct user_regset *regset,
++				unsigned int pos, unsigned int count,
++				const void *kbuf, const void __user *ubuf)
++{
++	int rc = 0;
++
++	if (target == current)
++		save_access_regs(target->thread.acrs);
++
++	if (kbuf) {
++		const compat_ulong_t *k = kbuf;
++		while (count > 0 && !rc) {
++			rc = __poke_user_compat(target, pos, *k++);
++			count -= sizeof(*k);
++			pos += sizeof(*k);
++		}
++	} else {
++		const compat_ulong_t  __user *u = ubuf;
++		while (count > 0 && !rc) {
++			compat_ulong_t word;
++			rc = __get_user(word, u++);
++			if (rc)
++				break;
++			rc = __poke_user_compat(target, pos, word);
++			count -= sizeof(*u);
++			pos += sizeof(*u);
++		}
++	}
++
++	if (rc == 0 && target == current)
++		restore_access_regs(target->thread.acrs);
++
++	return rc;
++}
++
++static const struct user_regset s390_compat_regsets[] = {
++	[REGSET_GENERAL] = {
++		.core_note_type = NT_PRSTATUS,
++		.n = sizeof(s390_compat_regs) / sizeof(compat_long_t),
++		.size = sizeof(compat_long_t),
++		.align = sizeof(compat_long_t),
++		.get = s390_compat_regs_get,
++		.set = s390_compat_regs_set,
++	},
++	[REGSET_FP] = {
++		.core_note_type = NT_PRFPREG,
++		.n = sizeof(s390_fp_regs) / sizeof(compat_long_t),
++		.size = sizeof(compat_long_t),
++		.align = sizeof(compat_long_t),
++		.get = s390_fpregs_get,
++		.set = s390_fpregs_set,
++	},
++};
++
++static const struct user_regset_view user_s390_compat_view = {
++	.name = "s390",
++	.e_machine = EM_S390,
++	.regsets = s390_compat_regsets,
++	.n = ARRAY_SIZE(s390_compat_regsets)
++};
++#endif
++
++const struct user_regset_view *task_user_regset_view(struct task_struct *task)
++{
++#ifdef CONFIG_COMPAT
++	if (test_tsk_thread_flag(task, TIF_31BIT))
++		return &user_s390_compat_view;
++#endif
++	return &user_s390_view;
++}
+Index: quilt-2.6/include/asm-s390/elf.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/elf.h
++++ quilt-2.6/include/asm-s390/elf.h
+@@ -113,6 +113,9 @@
+ typedef s390_fp_regs elf_fpregset_t;
+ typedef s390_regs elf_gregset_t;
+ 
++typedef s390_fp_regs compat_elf_fpregset_t;
++typedef s390_compat_regs compat_elf_gregset_t;
++
+ #include <linux/sched.h>	/* for task_struct */
+ #include <asm/system.h>		/* for save_access_regs */
+ #include <asm/mmu_context.h>
+@@ -123,6 +126,10 @@ typedef s390_regs elf_gregset_t;
+ #define elf_check_arch(x) \
+ 	(((x)->e_machine == EM_S390 || (x)->e_machine == EM_S390_OLD) \
+          && (x)->e_ident[EI_CLASS] == ELF_CLASS) 
++#define compat_elf_check_arch(x) \
++	(((x)->e_machine == EM_S390 || (x)->e_machine == EM_S390_OLD) \
++	 && (x)->e_ident[EI_CLASS] == ELF_CLASS)
++#define compat_start_thread	start_thread31
+ 
+ /* For SVR4/S390 the function pointer to be registered with `atexit` is
+    passed in R14. */
+@@ -131,6 +138,7 @@ typedef s390_regs elf_gregset_t;
+ 		_r->gprs[14] = 0; \
+ 	} while (0)
+ 
++#define CORE_DUMP_USE_REGSET
+ #define USE_ELF_CORE_DUMP
+ #define ELF_EXEC_PAGESIZE	4096
+ 
+@@ -140,44 +148,6 @@ typedef s390_regs elf_gregset_t;
+    that it will "exec", and that there is sufficient room for the brk.  */
+ #define ELF_ET_DYN_BASE		(STACK_TOP / 3 * 2)
+ 
+-/* Wow, the "main" arch needs arch dependent functions too.. :) */
+-
+-/* regs is struct pt_regs, pr_reg is elf_gregset_t (which is
+-   now struct_user_regs, they are different) */
+-
+-static inline int dump_regs(struct pt_regs *ptregs, elf_gregset_t *regs)
+-{
+-	memcpy(&regs->psw, &ptregs->psw, sizeof(regs->psw)+sizeof(regs->gprs));
+-	save_access_regs(regs->acrs);
+-	regs->orig_gpr2 = ptregs->orig_gpr2;
+-	return 1;
+-}
+-
+-#define ELF_CORE_COPY_REGS(pr_reg, regs) dump_regs(regs, &pr_reg);
+-
+-static inline int dump_task_regs(struct task_struct *tsk, elf_gregset_t *regs)
+-{
+-	struct pt_regs *ptregs = task_pt_regs(tsk);
+-	memcpy(&regs->psw, &ptregs->psw, sizeof(regs->psw)+sizeof(regs->gprs));
+-	memcpy(regs->acrs, tsk->thread.acrs, sizeof(regs->acrs));
+-	regs->orig_gpr2 = ptregs->orig_gpr2;
+-	return 1;
+-}
+-
+-#define ELF_CORE_COPY_TASK_REGS(tsk, regs) dump_task_regs(tsk, regs)
+-
+-static inline int dump_task_fpu(struct task_struct *tsk, elf_fpregset_t *fpregs)
+-{
+-	if (tsk == current)
+-		save_fp_regs(fpregs);
+-	else
+-		memcpy(fpregs, &tsk->thread.fp_regs, sizeof(elf_fpregset_t));
+-	return 1;
+-}
+-
+-#define ELF_CORE_COPY_FPREGS(tsk, fpregs) dump_task_fpu(tsk, fpregs)
+-
+-
+ /* This yields a mask that user programs can use to figure out what
+    instruction set this CPU supports. */
+ 
+@@ -204,7 +174,10 @@ do {							\
+ 		set_personality(PER_SVR4);		\
+ 	else if (current->personality != PER_LINUX32)	\
+ 		set_personality(PER_LINUX);		\
+-	clear_thread_flag(TIF_31BIT);			\
++	if ((ex).e_ident[EI_CLASS] == ELFCLASS32)	\
++		set_thread_flag(TIF_31BIT);		\
++	else						\
++		clear_thread_flag(TIF_31BIT);		\
+ } while (0)
+ #endif /* __s390x__ */
+ 
+Index: quilt-2.6/include/asm-s390/processor.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/processor.h
++++ quilt-2.6/include/asm-s390/processor.h
+@@ -143,11 +143,19 @@ struct stack_frame {
+ /*
+  * Do necessary setup to start up a new thread.
+  */
+-#define start_thread(regs, new_psw, new_stackp) do {            \
++#define start_thread(regs, new_psw, new_stackp) do {		\
+ 	set_fs(USER_DS);					\
+ 	regs->psw.mask	= psw_user_bits;			\
+-        regs->psw.addr  = new_psw | PSW_ADDR_AMODE;             \
+-        regs->gprs[15]  = new_stackp ;                          \
++	regs->psw.addr	= new_psw | PSW_ADDR_AMODE;		\
++	regs->gprs[15]	= new_stackp;				\
++} while (0)
++
++#define start_thread31(regs, new_psw, new_stackp) do {		\
++	set_fs(USER_DS);					\
++	regs->psw.mask	= psw_user32_bits;			\
++	regs->psw.addr	= new_psw | PSW_ADDR_AMODE;		\
++	regs->gprs[15]	= new_stackp;				\
++	crst_table_downgrade(current->mm, 1UL << 31);		\
+ } while (0)
+ 
+ /* Forward declaration, a strange C thing */
+Index: quilt-2.6/include/asm-s390/ptrace.h
+===================================================================
+--- quilt-2.6.orig/include/asm-s390/ptrace.h
++++ quilt-2.6/include/asm-s390/ptrace.h
+@@ -215,6 +215,12 @@ typedef struct 
+         unsigned long addr;
+ } __attribute__ ((aligned(8))) psw_t;
+ 
++typedef struct
++{
++	__u32	mask;
++	__u32	addr;
++} __attribute__ ((aligned(8))) psw_compat_t;
++
+ #ifndef __s390x__
+ 
+ #define PSW_MASK_PER		0x40000000UL
+@@ -292,6 +298,15 @@ typedef struct
+ 	unsigned long orig_gpr2;
+ } s390_regs;
+ 
++typedef struct
++{
++	psw_compat_t	psw;
++	__u32		gprs[NUM_GPRS];
++	__u32		acrs[NUM_ACRS];
++	__u32		orig_gpr2;
++} s390_compat_regs;
++
++
+ #ifdef __KERNEL__
+ #include <asm/setup.h>
+ #include <asm/page.h>
 
 -- 
 blue skies,
