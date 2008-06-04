@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1762690AbYFDMRS@vger.kernel.org>
-Message-Id: <20080604115839.844712587@gmail.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761677AbYFDMQx@vger.kernel.org>
+Message-Id: <20080604115844.881301782@gmail.com>
 References: <20080604115633.116832712@gmail.com>
-Date: Wed, 04 Jun 2008 20:56:52 +0900
+Date: Wed, 04 Jun 2008 20:56:53 +0900
 From: Akinobu Mita <akinobu.mita@gmail.com>
-Subject: [patch -v3 19/22] s390/cio: use memory_read_from_buffer
-Content-Disposition: inline; filename=cio-use-memory-read-from-buffer.patch
+Subject: [patch -v3 20/22] s390: use memory_read_from_buffer
+Content-Disposition: inline; filename=s390-ipl-use-memory-read-from-buffer.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -18,44 +18,51 @@ Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 Cc: linux390@de.ibm.com
 Cc: linux-s390@vger.kernel.org
 ---
- drivers/s390/cio/chp.c |   12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ arch/s390/kernel/ipl.c |   18 ++++--------------
+ 1 file changed, 4 insertions(+), 14 deletions(-)
 
-Index: 2.6-git/drivers/s390/cio/chp.c
+Index: 2.6-git/arch/s390/kernel/ipl.c
 ===================================================================
---- 2.6-git.orig/drivers/s390/cio/chp.c
-+++ 2.6-git/drivers/s390/cio/chp.c
-@@ -15,6 +15,7 @@
- #include <linux/wait.h>
- #include <linux/mutex.h>
- #include <linux/errno.h>
+--- 2.6-git.orig/arch/s390/kernel/ipl.c
++++ 2.6-git/arch/s390/kernel/ipl.c
+@@ -14,6 +14,7 @@
+ #include <linux/delay.h>
+ #include <linux/reboot.h>
+ #include <linux/ctype.h>
 +#include <linux/fs.h>
- #include <asm/chpid.h>
- #include <asm/sclp.h>
- 
-@@ -141,21 +142,14 @@ static ssize_t chp_measurement_chars_rea
+ #include <asm/ipl.h>
+ #include <asm/smp.h>
+ #include <asm/setup.h>
+@@ -285,14 +286,8 @@ static struct kobj_attribute sys_ipl_dev
+ static ssize_t ipl_parameter_read(struct kobject *kobj, struct bin_attribute *attr,
+ 				  char *buf, loff_t off, size_t count)
  {
- 	struct channel_path *chp;
- 	struct device *device;
--	unsigned int size;
- 
- 	device = container_of(kobj, struct device, kobj);
- 	chp = to_channelpath(device);
- 	if (!chp->cmg_chars)
- 		return 0;
- 
--	size = sizeof(struct cmg_chars);
+-	unsigned int size = IPL_PARMBLOCK_SIZE;
 -
 -	if (off > size)
 -		return 0;
 -	if (off + count > size)
 -		count = size - off;
--	memcpy(buf, chp->cmg_chars + off, count);
+-	memcpy(buf, (void *)IPL_PARMBLOCK_START + off, count);
 -	return count;
-+	return memory_read_from_buffer(buf, count, &off,
-+				chp->cmg_chars, sizeof(struct cmg_chars));
++	return memory_read_from_buffer(buf, count, &off, IPL_PARMBLOCK_START,
++					IPL_PARMBLOCK_SIZE);
  }
  
- static struct bin_attribute chp_measurement_chars_attr = {
+ static struct bin_attribute ipl_parameter_attr = {
+@@ -310,12 +305,7 @@ static ssize_t ipl_scp_data_read(struct 
+ 	unsigned int size = IPL_PARMBLOCK_START->ipl_info.fcp.scp_data_len;
+ 	void *scp_data = &IPL_PARMBLOCK_START->ipl_info.fcp.scp_data;
+ 
+-	if (off > size)
+-		return 0;
+-	if (off + count > size)
+-		count = size - off;
+-	memcpy(buf, scp_data + off, count);
+-	return count;
++	return memory_read_from_buffer(buf, count, &off, scp_data, size);
+ }
+ 
+ static struct bin_attribute ipl_scp_data_attr = {
 
 -- 
