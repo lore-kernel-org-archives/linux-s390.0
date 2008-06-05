@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761677AbYFDMQx@vger.kernel.org>
-Message-Id: <20080604115844.881301782@gmail.com>
-References: <20080604115633.116832712@gmail.com>
-Date: Wed, 04 Jun 2008 20:56:53 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-Subject: [patch -v3 20/22] s390: use memory_read_from_buffer
-Content-Disposition: inline; filename=s390-ipl-use-memory-read-from-buffer.patch
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, akpm@linux-foundation.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+From: Ursula Braun <braunu@de.ibm.com>
+Subject: [patch 1/3] iucv: fix section mismatch warning.
+Date: Thu, 05 Jun 2008 11:08:38 +0200
+Message-ID: <20080605091436.838486000@linux.vnet.ibm.com>
+References: <20080605090837.212105000@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=605-iucv-sections.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux390@de.ibm.com
-Cc: linux-s390@vger.kernel.org
----
- arch/s390/kernel/ipl.c |   18 ++++--------------
- 1 file changed, 4 insertions(+), 14 deletions(-)
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Index: 2.6-git/arch/s390/kernel/ipl.c
+WARNING: net/iucv/built-in.o(.exit.text+0x9c): Section mismatch in
+reference from the function iucv_exit() to the variable
+.cpuinit.data:iucv_cpu_notifier
+
+This warning is caused by a reference from unregister_hotcpu_notifier()
+from an exit function to a cpuinitdata annotated data structurre.
+This is a false positive warning since for the non CPU_HOTPLUG case
+unregister_hotcpu_notifier() is a nop.
+Use __refdata instead of __cpuinitdata to get rid of the warning.
+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Ursula Braun <braunu@de.ibm.com>
+---
+
+ net/iucv/iucv.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: net-2.6-uschi/net/iucv/iucv.c
 ===================================================================
---- 2.6-git.orig/arch/s390/kernel/ipl.c
-+++ 2.6-git/arch/s390/kernel/ipl.c
-@@ -14,6 +14,7 @@
- #include <linux/delay.h>
- #include <linux/reboot.h>
- #include <linux/ctype.h>
-+#include <linux/fs.h>
- #include <asm/ipl.h>
- #include <asm/smp.h>
- #include <asm/setup.h>
-@@ -285,14 +286,8 @@ static struct kobj_attribute sys_ipl_dev
- static ssize_t ipl_parameter_read(struct kobject *kobj, struct bin_attribute *attr,
- 				  char *buf, loff_t off, size_t count)
- {
--	unsigned int size = IPL_PARMBLOCK_SIZE;
--
--	if (off > size)
--		return 0;
--	if (off + count > size)
--		count = size - off;
--	memcpy(buf, (void *)IPL_PARMBLOCK_START + off, count);
--	return count;
-+	return memory_read_from_buffer(buf, count, &off, IPL_PARMBLOCK_START,
-+					IPL_PARMBLOCK_SIZE);
+--- net-2.6-uschi.orig/net/iucv/iucv.c
++++ net-2.6-uschi/net/iucv/iucv.c
+@@ -598,7 +598,7 @@ static int __cpuinit iucv_cpu_notify(str
+ 	return NOTIFY_OK;
  }
  
- static struct bin_attribute ipl_parameter_attr = {
-@@ -310,12 +305,7 @@ static ssize_t ipl_scp_data_read(struct 
- 	unsigned int size = IPL_PARMBLOCK_START->ipl_info.fcp.scp_data_len;
- 	void *scp_data = &IPL_PARMBLOCK_START->ipl_info.fcp.scp_data;
+-static struct notifier_block __cpuinitdata iucv_cpu_notifier = {
++static struct notifier_block __refdata iucv_cpu_notifier = {
+ 	.notifier_call = iucv_cpu_notify,
+ };
  
--	if (off > size)
--		return 0;
--	if (off + count > size)
--		count = size - off;
--	memcpy(buf, scp_data + off, count);
--	return count;
-+	return memory_read_from_buffer(buf, count, &off, scp_data, size);
- }
- 
- static struct bin_attribute ipl_scp_data_attr = {
 
 -- 
