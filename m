@@ -1,48 +1,28 @@
-From: Ursula Braun <braunu@de.ibm.com>
-Subject: [patch 1/3] iucv: fix section mismatch warning.
-Date: Thu, 05 Jun 2008 11:08:38 +0200
-Message-ID: <20080605091436.838486000@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/3] iucv / af_iucv patches for net-2.6.26
+Date: Mon, 09 Jun 2008 15:52:19 -0700 (PDT)
+Message-ID: <20080609.155219.105101380.davem@davemloft.net>
 References: <20080605090837.212105000@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=605-iucv-sections.diff
+In-Reply-To: <20080605090837.212105000@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: braunu@de.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Ursula Braun <braunu@de.ibm.com>
+Date: Thu, 05 Jun 2008 11:08:37 +0200
 
-WARNING: net/iucv/built-in.o(.exit.text+0x9c): Section mismatch in
-reference from the function iucv_exit() to the variable
-.cpuinit.data:iucv_cpu_notifier
+> the following 3 small patches are intended for 2.6.26.
+> They are built against git/davem/net-2.6.26
+> They contain:
+> iucv:    remove WARNING              (from Heiko Carstens)
+> iucv:    cpu hotplug fix             (from Heiko Carstens)
+> af_iucv: exploit message class field (from Ursula Braun)
 
-This warning is caused by a reference from unregister_hotcpu_notifier()
-from an exit function to a cpuinitdata annotated data structurre.
-This is a false positive warning since for the non CPU_HOTPLUG case
-unregister_hotcpu_notifier() is a nop.
-Use __refdata instead of __cpuinitdata to get rid of the warning.
-
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Ursula Braun <braunu@de.ibm.com>
----
-
- net/iucv/iucv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: net-2.6-uschi/net/iucv/iucv.c
-===================================================================
---- net-2.6-uschi.orig/net/iucv/iucv.c
-+++ net-2.6-uschi/net/iucv/iucv.c
-@@ -598,7 +598,7 @@ static int __cpuinit iucv_cpu_notify(str
- 	return NOTIFY_OK;
- }
- 
--static struct notifier_block __cpuinitdata iucv_cpu_notifier = {
-+static struct notifier_block __refdata iucv_cpu_notifier = {
- 	.notifier_call = iucv_cpu_notify,
- };
- 
-
--- 
+All applied and pushed out to net-2.6.26, thanks!
