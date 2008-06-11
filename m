@@ -1,31 +1,43 @@
-From: Bastian Blank <bastian@waldi.eu.org>
+From: Swen Schillig <swen@vnet.ibm.com>
 Subject: Re: [patch 7/8] zfcp: Automatically attach remote ports
-Date: Tue, 10 Jun 2008 21:36:45 +0200
-Message-ID: <20080610193645.GA25065@wavehammer.waldi.eu.org>
-References: <20080610162053.144590000@de.ibm.com> <20080610162518.530294000@de.ibm.com> <20080610193339.GA24771@wavehammer.waldi.eu.org>
+Date: Wed, 11 Jun 2008 09:41:11 +0200
+Message-ID: <200806110941.11769.swen@vnet.ibm.com>
+References: <20080610162053.144590000@de.ibm.com> <20080610193339.GA24771@wavehammer.waldi.eu.org> <20080610193645.GA25065@wavehammer.waldi.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-scsi-owner@vger.kernel.org>
+In-Reply-To: <20080610193645.GA25065@wavehammer.waldi.eu.org>
 Content-Disposition: inline
-In-Reply-To: <20080610193339.GA24771@wavehammer.waldi.eu.org>
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Christof Schmitt <christof.schmitt@de.ibm.com>, James Bottomley <James.Bottomley@HansenPartnership.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Swen Schillig <swen@vn>
+To: Bastian Blank <bastian@waldi.eu.org>
+Cc: Christof Schmitt <christof.schmitt@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jun 10, 2008 at 09:33:39PM +0200, Bastian Blank wrote:
-> On Tue, Jun 10, 2008 at 06:21:00PM +0200, Christof Schmitt wrote:
-> > Automatically attach the remote ports in zfcp when the adapter is set
-> > online.
-> What do you mean with "remote ports"?
+On Tuesday 10 June 2008 21:36, Bastian Blank wrote:
+> On Tue, Jun 10, 2008 at 09:33:39PM +0200, Bastian Blank wrote:
+> > On Tue, Jun 10, 2008 at 06:21:00PM +0200, Christof Schmitt wrote:
+> > > Automatically attach the remote ports in zfcp when the adapter is set
+> > > online.
+> > What do you mean with "remote ports"?
+> 
+> Ah, the part with the wwpn. Are you sure that this does not break on
+> z900? I'm not sure about ports, but it restricts each lun to exactly one
+> guest.
+> 
+> Bastian
+> 
+With remote ports I mean  "remote storage ports", so something like a DS8000.
+In a switched environment a single adapter can have access to multiple
+storage ports, accessing a bunch of drives (LUNs).
 
-Ah, the part with the wwpn. Are you sure that this does not break on
-z900? I'm not sure about ports, but it restricts each lun to exactly one
-guest.
+A port itself is not restricting anything and remote ports are not limited 
+to be used by only one adapter, that's the whole purpose of those setups.
 
-Bastian
+This feature has nothing to do with LUNs but only with ports, 
+so I don't really get what you wanted to say with your LUN restriction.
 
--- 
-To live is always desirable.
-		-- Eleen the Capellan, "Friday's Child", stardate 3498.9
+Swen
