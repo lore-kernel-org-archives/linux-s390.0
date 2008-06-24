@@ -1,76 +1,65 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [patch 07/11] zfcp: Cleanup of code in zfcp_aux.c
-Date: Tue, 1 Jul 2008 00:52:59 +0200
-Message-ID: <20080630225259.GB4727@osiris.boeblingen.de.ibm.com>
-References: <20080630105236.960064000@de.ibm.com> <20080630110059.364138000@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20080630110059.364138000@de.ibm.com>
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: christof.schmitt@de.ibm.com
-Cc: James Bottomley <James.Bottomley@HansenPartnership.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Swen Schillig <swen@vnet.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759097AbYFXIYq@vger.kernel.org>
+Date: Tue, 24 Jun 2008 10:24:24 +0200 (CEST)
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH 8/14] arch/s390: Eliminate NULL test and memset after
+ alloc_bootmem
+Message-ID: <Pine.LNX.4.64.0806241023580.26777@ask.diku.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: akinobu.mita@gmail.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-> +static int __init zfcp_device_setup(char *devstr)
->  {
-> -	char *tmp, *str;
-> -	size_t len;
-> +	char *token;
-> 
->  	if (!devstr)
->  		return 0;
-> 
-> -	len = strlen(devstr) + 1;
-> -	str = kmalloc(len, GFP_KERNEL);
-> -	if (!str) {
-> -		pr_err("zfcp: Could not allocate memory for "
-> -		       "device parameter string, device not attached.\n");
-> -		return 0;
-> -	}
-> -	memcpy(str, devstr, len);
-> -
-> -	tmp = strchr(str, ',');
-> -	if (!tmp)
-> +	token = strsep(&devstr, ",");
-> +	if (!token || strlen(token) >= BUS_ID_SIZE)
->  		goto err_out;
-> -	*tmp++ = '\0';
-> -	strncpy(zfcp_data.init_busid, str, BUS_ID_SIZE);
-> -	zfcp_data.init_busid[BUS_ID_SIZE-1] = '\0';
-> +	strncpy(zfcp_data.init_busid, token, BUS_ID_SIZE);
-> 
-> -	zfcp_data.init_wwpn = simple_strtoull(tmp, &tmp, 0);
-> -	if (*tmp++ != ',')
-> -		goto err_out;
-> -	if (*tmp == '\0')
-> +	token = strsep(&devstr, ",");
-> +	if (!token || strict_strtoull(token, 0, &zfcp_data.init_wwpn))
->  		goto err_out;
-> 
-> -	zfcp_data.init_fcp_lun = simple_strtoull(tmp, &tmp, 0);
-> -	if (*tmp != '\0')
-> +	token = strsep(&devstr, ",");
-> +	if (!token || strict_strtoull(token, 0, &zfcp_data.init_fcp_lun))
->  		goto err_out;
-> -	kfree(str);
->  	return 1;
-> 
->   err_out:
->  	pr_err("zfcp: Parse error for device parameter string %s, "
-> -	       "device not attached.\n", str);
-> -	kfree(str);
-> +	       "device not attached.\n", devstr);
->  	return 0;
->  }
+From: Julia Lawall <julia@diku.dk>
 
-Sorry, but this still seems to be incorrect. strsep modifies the string that
-gets passed to it. In this case you let it operate on the original module
-parameter string which is also exported via sysfs.
-So after parsing finished the exported string is much shorter than the
-original string. That was actually the whole point why the old code allocated
-memory and copied the string so the copy could be modified.
-A comment would have been good ;)
+As noted by Akinobu Mita in patch b1fceac2b9e04d278316b2faddf276015fc06e3b,
+alloc_bootmem and related functions never return NULL and always return a
+zeroed region of memory.  Thus a NULL test or memset after calls to these
+functions is unnecessary.
+
+ arch/s390/kernel/topology.c |    2 --
+ 1 file changed, 2 deletions(-)
+
+This was fixed using the following semantic patch.
+(http://www.emn.fr/x-info/coccinelle/)
+
+// <smpl>
+@@
+expression E;
+statement S;
+@@
+
+E = \(alloc_bootmem\|alloc_bootmem_low\|alloc_bootmem_pages\|alloc_bootmem_low_pages\)(...)
+... when != E
+(
+- BUG_ON (E == NULL);
+|
+- if (E == NULL) S
+)
+
+@@
+expression E,E1;
+@@
+
+E = \(alloc_bootmem\|alloc_bootmem_low\|alloc_bootmem_pages\|alloc_bootmem_low_pages\)(...)
+... when != E
+- memset(E,0,E1);
+// </smpl>
+
+Signed-off-by: Julia Lawall <julia@diku.dk>
+---
+
+diff -u -p a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
+--- a/arch/s390/kernel/topology.c
++++ b/arch/s390/kernel/topology.c
+@@ -313,8 +313,6 @@ void __init s390_init_cpu_topology(void)
+ 		machine_has_topology_irq = 1;
+ 
+ 	tl_info = alloc_bootmem_pages(PAGE_SIZE);
+-	if (!tl_info)
+-		goto error;
+ 	info = tl_info;
+ 	stsi(info, 15, 1, 2);
+ 
