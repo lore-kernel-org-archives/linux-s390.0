@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759023AbYFYOjw@vger.kernel.org>
-Message-Id: <20080625143613.141370129@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759525AbYFYOkn@vger.kernel.org>
+Message-Id: <20080625143615.498786512@de.ibm.com>
 References: <20080625143459.100139455@de.ibm.com>
-Date: Wed, 25 Jun 2008 16:35:06 +0200
+Date: Wed, 25 Jun 2008 16:35:15 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 07/21] Cleanup sclp printk messages.
-Content-Disposition: inline; filename=806-printk-sclp.diff
+Subject: [patch 16/21] Cleanup vmlogrdr printk messages.
+Content-Disposition: inline; filename=815-printk-vmlogrdr.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -12,215 +12,114 @@ To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+The message descriptions are still missing though ..
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/char/sclp.c         |    8 +++-----
- drivers/s390/char/sclp_con.c     |    2 --
- drivers/s390/char/sclp_config.c  |    4 +---
- drivers/s390/char/sclp_cpi_sys.c |   12 ++----------
- drivers/s390/char/sclp_quiesce.c |    8 +-------
- drivers/s390/char/sclp_rw.c      |    2 --
- drivers/s390/char/sclp_sdias.c   |    4 +---
- drivers/s390/char/sclp_tty.c     |    8 --------
- drivers/s390/char/sclp_vt220.c   |    7 +------
- 9 files changed, 9 insertions(+), 46 deletions(-)
+ drivers/s390/char/vmlogrdr.c |   29 +++--------------------------
+ 1 file changed, 3 insertions(+), 26 deletions(-)
 
-Index: quilt-2.6/drivers/s390/char/sclp.c
+Index: quilt-2.6/drivers/s390/char/vmlogrdr.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp.c
-+++ quilt-2.6/drivers/s390/char/sclp.c
-@@ -784,11 +784,9 @@ sclp_check_handler(__u16 code)
- 	/* Is this the interrupt we are waiting for? */
- 	if (finished_sccb == 0)
- 		return;
--	if (finished_sccb != (u32) (addr_t) sclp_init_sccb) {
--		printk(KERN_WARNING SCLP_HEADER "unsolicited interrupt "
--		       "for buffer at 0x%x\n", finished_sccb);
--		return;
--	}
-+	if (finished_sccb != (u32) (addr_t) sclp_init_sccb)
-+		panic("sclp: unsolicited interrupt for buffer at 0x%x\n",
-+		      finished_sccb);
- 	spin_lock(&sclp_lock);
- 	if (sclp_running_state == sclp_running_state_running) {
- 		sclp_init_req.status = SCLP_REQ_DONE;
-Index: quilt-2.6/drivers/s390/char/sclp_con.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_con.c
-+++ quilt-2.6/drivers/s390/char/sclp_con.c
-@@ -20,8 +20,6 @@
- #include "sclp_rw.h"
- #include "sclp_tty.h"
+--- quilt-2.6.orig/drivers/s390/char/vmlogrdr.c
++++ quilt-2.6/drivers/s390/char/vmlogrdr.c
+@@ -216,9 +216,7 @@ static int vmlogrdr_get_recording_class_
+ 	char *tail;
+ 	int len,i;
  
--#define SCLP_CON_PRINT_HEADER "sclp console driver: "
--
- #define sclp_console_major 4		/* TTYAUX_MAJOR */
- #define sclp_console_minor 64
- #define sclp_console_name  "ttyS"
-Index: quilt-2.6/drivers/s390/char/sclp_config.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_config.c
-+++ quilt-2.6/drivers/s390/char/sclp_config.c
-@@ -74,10 +74,8 @@ static int __init sclp_conf_init(void)
- 	INIT_WORK(&sclp_cpu_change_work, sclp_cpu_change_notify);
+-	printk (KERN_DEBUG "vmlogrdr: query command: %s\n", cp_command);
+ 	cpcmd(cp_command, cp_response, sizeof(cp_response), NULL);
+-	printk (KERN_DEBUG "vmlogrdr: response: %s", cp_response);
+ 	len = strnlen(cp_response,sizeof(cp_response));
+ 	// now the parsing
+ 	tail=strnchr(cp_response,len,'=');
+@@ -268,11 +266,7 @@ static int vmlogrdr_recording(struct vml
+ 			 logptr->recording_name,
+ 			 qid_string);
  
- 	rc = sclp_register(&sclp_conf_register);
--	if (rc) {
--		printk(KERN_ERR TAG "failed to register (%d).\n", rc);
-+	if (rc)
- 		return rc;
--	}
+-		printk (KERN_DEBUG "vmlogrdr: recording command: %s\n",
+-			cp_command);
+ 		cpcmd(cp_command, cp_response, sizeof(cp_response), NULL);
+-		printk (KERN_DEBUG "vmlogrdr: recording response: %s",
+-			cp_response);
+ 	}
  
- 	if (!(sclp_conf_register.sclp_send_mask & EVTYP_CONFMGMDATA_MASK)) {
- 		printk(KERN_WARNING TAG "no configuration management.\n");
-Index: quilt-2.6/drivers/s390/char/sclp_cpi_sys.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_cpi_sys.c
-+++ quilt-2.6/drivers/s390/char/sclp_cpi_sys.c
-@@ -126,21 +126,15 @@ static int cpi_req(void)
- 	int response;
+ 	memset(cp_command, 0x00, sizeof(cp_command));
+@@ -282,10 +276,7 @@ static int vmlogrdr_recording(struct vml
+ 		onoff,
+ 		qid_string);
  
- 	rc = sclp_register(&sclp_cpi_event);
--	if (rc) {
--		printk(KERN_WARNING "cpi: could not register "
--			"to hardware console.\n");
-+	if (rc)
+-	printk (KERN_DEBUG "vmlogrdr: recording command: %s\n", cp_command);
+ 	cpcmd(cp_command, cp_response, sizeof(cp_response), NULL);
+-	printk (KERN_DEBUG "vmlogrdr: recording response: %s",
+-		cp_response);
+ 	/* The recording command will usually answer with 'Command complete'
+ 	 * on success, but when the specific service was never connected
+ 	 * before then there might be an additional informational message
+@@ -567,10 +558,7 @@ static ssize_t vmlogrdr_purge_store(stru
+ 			 "RECORDING %s PURGE ",
+ 			 priv->recording_name);
+ 
+-	printk (KERN_DEBUG "vmlogrdr: recording command: %s\n", cp_command);
+ 	cpcmd(cp_command, cp_response, sizeof(cp_response), NULL);
+-	printk (KERN_DEBUG "vmlogrdr: recording response: %s",
+-		cp_response);
+ 
+ 	return count;
+ }
+@@ -682,28 +670,20 @@ static int vmlogrdr_register_driver(void
+ 
+ 	/* Register with iucv driver */
+ 	ret = iucv_register(&vmlogrdr_iucv_handler, 1);
+-	if (ret) {
+-		printk (KERN_ERR "vmlogrdr: failed to register with "
+-			"iucv driver\n");
++	if (ret)
  		goto out;
 -	}
- 	if (!(sclp_cpi_event.sclp_receive_mask & EVTYP_CTLPROGIDENT_MASK)) {
--		printk(KERN_WARNING "cpi: no control program "
--			"identification support\n");
- 		rc = -EOPNOTSUPP;
- 		goto out_unregister;
- 	}
  
- 	req = cpi_prepare_req();
- 	if (IS_ERR(req)) {
--		printk(KERN_WARNING "cpi: could not allocate request\n");
- 		rc = PTR_ERR(req);
- 		goto out_unregister;
- 	}
-@@ -150,10 +144,8 @@ static int cpi_req(void)
- 
- 	/* Add request to sclp queue */
- 	rc = sclp_add_request(req);
--	if (rc) {
--		printk(KERN_WARNING "cpi: could not start request\n");
-+	if (rc)
- 		goto out_free_req;
+ 	ret = driver_register(&vmlogrdr_driver);
+-	if (ret) {
+-		printk(KERN_ERR "vmlogrdr: failed to register driver.\n");
++	if (ret)
+ 		goto out_iucv;
 -	}
  
- 	wait_for_completion(&completion);
+ 	ret = driver_create_file(&vmlogrdr_driver,
+ 				 &driver_attr_recording_status);
+-	if (ret) {
+-		printk(KERN_ERR "vmlogrdr: failed to add driver attribute.\n");
++	if (ret)
+ 		goto out_driver;
+-	}
  
-Index: quilt-2.6/drivers/s390/char/sclp_quiesce.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_quiesce.c
-+++ quilt-2.6/drivers/s390/char/sclp_quiesce.c
-@@ -51,13 +51,7 @@ static struct sclp_register sclp_quiesce
- static int __init
- sclp_quiesce_init(void)
- {
--	int rc;
--
--	rc = sclp_register(&sclp_quiesce_event);
--	if (rc)
--		printk(KERN_WARNING "sclp: could not register quiesce handler "
--		       "(rc=%d)\n", rc);
--	return rc;
-+	return sclp_register(&sclp_quiesce_event);
+ 	vmlogrdr_class = class_create(THIS_MODULE, "vmlogrdr");
+ 	if (IS_ERR(vmlogrdr_class)) {
+-		printk(KERN_ERR "vmlogrdr: failed to create class.\n");
+ 		ret = PTR_ERR(vmlogrdr_class);
+ 		vmlogrdr_class = NULL;
+ 		goto out_attr;
+@@ -871,12 +851,10 @@ static int __init vmlogrdr_init(void)
+ 	rc = vmlogrdr_register_cdev(dev);
+ 	if (rc)
+ 		goto cleanup;
+-	printk (KERN_INFO "vmlogrdr: driver loaded\n");
+ 	return 0;
+ 
+ cleanup:
+ 	vmlogrdr_cleanup();
+-	printk (KERN_ERR "vmlogrdr: driver not loaded.\n");
+ 	return rc;
  }
  
- module_init(sclp_quiesce_init);
-Index: quilt-2.6/drivers/s390/char/sclp_rw.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_rw.c
-+++ quilt-2.6/drivers/s390/char/sclp_rw.c
-@@ -19,8 +19,6 @@
- #include "sclp.h"
- #include "sclp_rw.h"
- 
--#define SCLP_RW_PRINT_HEADER "sclp low level driver: "
--
- /*
-  * The room for the SCCB (only for writing) is not equal to a pages size
-  * (as it is specified as the maximum size in the SCLP documentation)
-Index: quilt-2.6/drivers/s390/char/sclp_sdias.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_sdias.c
-+++ quilt-2.6/drivers/s390/char/sclp_sdias.c
-@@ -239,10 +239,8 @@ int __init sclp_sdias_init(void)
- 	debug_register_view(sdias_dbf, &debug_sprintf_view);
- 	debug_set_level(sdias_dbf, 6);
- 	rc = sclp_register(&sclp_sdias_register);
--	if (rc) {
--		ERROR_MSG("sclp register failed\n");
-+	if (rc)
- 		return rc;
--	}
- 	init_waitqueue_head(&sdias_wq);
- 	TRACE("init done\n");
- 	return 0;
-Index: quilt-2.6/drivers/s390/char/sclp_tty.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_tty.c
-+++ quilt-2.6/drivers/s390/char/sclp_tty.c
-@@ -25,8 +25,6 @@
- #include "sclp_rw.h"
- #include "sclp_tty.h"
- 
--#define SCLP_TTY_PRINT_HEADER "sclp tty driver: "
--
- /*
-  * size of a buffer that collects single characters coming in
-  * via sclp_tty_put_char()
-@@ -736,9 +734,6 @@ sclp_tty_init(void)
- 
- 	rc = sclp_rw_init();
- 	if (rc) {
--		printk(KERN_ERR SCLP_TTY_PRINT_HEADER
--		       "could not register tty - "
--		       "sclp_rw_init returned %d\n", rc);
- 		put_tty_driver(driver);
- 		return rc;
- 	}
-@@ -792,9 +787,6 @@ sclp_tty_init(void)
- 	tty_set_operations(driver, &sclp_ops);
- 	rc = tty_register_driver(driver);
- 	if (rc) {
--		printk(KERN_ERR SCLP_TTY_PRINT_HEADER
--		       "could not register tty - "
--		       "tty_register_driver returned %d\n", rc);
- 		put_tty_driver(driver);
- 		return rc;
- 	}
-Index: quilt-2.6/drivers/s390/char/sclp_vt220.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_vt220.c
-+++ quilt-2.6/drivers/s390/char/sclp_vt220.c
-@@ -27,7 +27,6 @@
- #include <asm/uaccess.h>
- #include "sclp.h"
- 
--#define SCLP_VT220_PRINT_HEADER 	"sclp vt220 tty driver: "
- #define SCLP_VT220_MAJOR		TTY_MAJOR
- #define SCLP_VT220_MINOR		65
- #define SCLP_VT220_DRIVER_NAME		"sclp_vt220"
-@@ -716,12 +715,8 @@ static int __init sclp_vt220_tty_init(vo
- 	tty_set_operations(driver, &sclp_vt220_ops);
- 
- 	rc = tty_register_driver(driver);
--	if (rc) {
--		printk(KERN_ERR SCLP_VT220_PRINT_HEADER
--		       "could not register tty - "
--		       "tty_register_driver returned %d\n", rc);
-+	if (rc)
- 		goto out_init;
--	}
- 	sclp_vt220_driver = driver;
- 	return 0;
+@@ -884,7 +862,6 @@ cleanup:
+ static void __exit vmlogrdr_exit(void)
+ {
+ 	vmlogrdr_cleanup();
+-	printk (KERN_INFO "vmlogrdr: driver unloaded\n");
+ 	return;
+ }
  
 
 -- 
