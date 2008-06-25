@@ -1,375 +1,217 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758577AbYFYOhM@vger.kernel.org>
-Message-Id: <20080625143612.881444682@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756622AbYFYOh7@vger.kernel.org>
+Message-Id: <20080625143614.993434927@de.ibm.com>
 References: <20080625143459.100139455@de.ibm.com>
-Date: Wed, 25 Jun 2008 16:35:05 +0200
+Date: Wed, 25 Jun 2008 16:35:13 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 06/21] Cleanup zcrypt printk messages.
-Content-Disposition: inline; filename=805-printk-zcrypt.diff
+Subject: [patch 14/21] Cleanup monreader printk messages.
+Content-Disposition: inline; filename=813-printk-monreader.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Felix Beck <felix.beck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Felix Beck <felix.beck@de.ibm.com>
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-Signed-off-by: Felix Beck <felix.beck@de.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/crypto/zcrypt_api.c    |   24 ++----------
- drivers/s390/crypto/zcrypt_api.h    |   28 --------------
- drivers/s390/crypto/zcrypt_cex2a.c  |    3 -
- drivers/s390/crypto/zcrypt_error.h  |    6 ---
- drivers/s390/crypto/zcrypt_pcica.c  |    3 -
- drivers/s390/crypto/zcrypt_pcicc.c  |   15 +------
- drivers/s390/crypto/zcrypt_pcixcc.c |   68 +++++-------------------------------
- 7 files changed, 17 insertions(+), 130 deletions(-)
+ drivers/s390/char/monreader.c |   74 +++---------------------------------------
+ 1 file changed, 7 insertions(+), 67 deletions(-)
 
-Index: quilt-2.6/drivers/s390/crypto/zcrypt_api.c
+Index: quilt-2.6/drivers/s390/char/monreader.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/crypto/zcrypt_api.c
-+++ quilt-2.6/drivers/s390/crypto/zcrypt_api.c
-@@ -1068,10 +1068,8 @@ static int zcrypt_status_write(struct fi
- 
- #define LBUFSIZE 1200UL
- 	lbuf = kmalloc(LBUFSIZE, GFP_KERNEL);
--	if (!lbuf) {
--		PRINTK("kmalloc failed!\n");
-+	if (!lbuf)
- 		return 0;
--	}
- 
- 	local_count = min(LBUFSIZE - 1, count);
- 	if (copy_from_user(lbuf, buffer, local_count) != 0) {
-@@ -1081,23 +1079,15 @@ static int zcrypt_status_write(struct fi
- 	lbuf[local_count] = '\0';
- 
- 	ptr = strstr(lbuf, "Online devices");
--	if (!ptr) {
--		PRINTK("Unable to parse data (missing \"Online devices\")\n");
-+	if (!ptr)
- 		goto out;
--	}
- 	ptr = strstr(ptr, "\n");
--	if (!ptr) {
--		PRINTK("Unable to parse data (missing newline "
--		       "after \"Online devices\")\n");
-+	if (!ptr)
- 		goto out;
--	}
- 	ptr++;
- 
--	if (strstr(ptr, "Waiting work element counts") == NULL) {
--		PRINTK("Unable to parse data (missing "
--		       "\"Waiting work element counts\")\n");
-+	if (strstr(ptr, "Waiting work element counts") == NULL)
- 		goto out;
--	}
- 
- 	for (j = 0; j < 64 && *ptr; ptr++) {
- 		/*
-@@ -1197,16 +1187,12 @@ int __init zcrypt_api_init(void)
- 
- 	/* Register the request sprayer. */
- 	rc = misc_register(&zcrypt_misc_device);
--	if (rc < 0) {
--		PRINTKW(KERN_ERR "misc_register (minor %d) failed with %d\n",
--			zcrypt_misc_device.minor, rc);
-+	if (rc < 0)
- 		goto out;
--	}
- 
- 	/* Set up the proc file system */
- 	zcrypt_entry = create_proc_entry("driver/z90crypt", 0644, NULL);
- 	if (!zcrypt_entry) {
--		PRINTK("Couldn't create z90crypt proc entry\n");
- 		rc = -ENOMEM;
- 		goto out_misc;
- 	}
-Index: quilt-2.6/drivers/s390/crypto/zcrypt_api.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/crypto/zcrypt_api.h
-+++ quilt-2.6/drivers/s390/crypto/zcrypt_api.h
-@@ -30,34 +30,6 @@
- #ifndef _ZCRYPT_API_H_
- #define _ZCRYPT_API_H_
- 
--/**
-- * Macro definitions
+--- quilt-2.6.orig/drivers/s390/char/monreader.c
++++ quilt-2.6/drivers/s390/char/monreader.c
+@@ -3,9 +3,8 @@
+  *
+  * Character device driver for reading z/VM *MONITOR service records.
+  *
+- * Copyright 2004 IBM Corporation, IBM Deutschland Entwicklung GmbH.
 - *
-- * PDEBUG debugs in the form "zcrypt: function_name -> message"
-- *
-- * PRINTK is like PDEBUG, except that it is always enabled
-- * PRINTKN is like PRINTK, except that it does not include the function name
-- * PRINTKW is like PRINTK, except that it uses KERN_WARNING
-- * PRINTKC is like PRINTK, except that it uses KERN_CRIT
-- */
--#define DEV_NAME	"zcrypt"
+- * Author: Gerald Schaefer <geraldsc@de.ibm.com>
++ *   Copyright IBM Corp. 2004, 2008
++ *   Author: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+  */
+ 
+ #include <linux/module.h>
+@@ -18,12 +17,11 @@
+ #include <linux/ctype.h>
+ #include <linux/spinlock.h>
+ #include <linux/interrupt.h>
++#include <linux/poll.h>
++#include <net/iucv/iucv.h>
+ #include <asm/uaccess.h>
+ #include <asm/ebcdic.h>
+ #include <asm/extmem.h>
+-#include <linux/poll.h>
+-#include <net/iucv/iucv.h>
 -
--#define PRINTK(fmt, args...) \
--	printk(KERN_DEBUG DEV_NAME ": %s -> " fmt, __func__ , ## args)
--#define PRINTKN(fmt, args...) \
--	printk(KERN_DEBUG DEV_NAME ": " fmt, ## args)
--#define PRINTKW(fmt, args...) \
--	printk(KERN_WARNING DEV_NAME ": %s -> " fmt, __func__ , ## args)
--#define PRINTKC(fmt, args...) \
--	printk(KERN_CRIT DEV_NAME ": %s -> " fmt, __func__ , ## args)
--
--#ifdef ZCRYPT_DEBUG
--#define PDEBUG(fmt, args...) \
--	printk(KERN_DEBUG DEV_NAME ": %s -> " fmt, __func__ , ## args)
--#else
--#define PDEBUG(fmt, args...) do {} while (0)
--#endif
--
- #include "ap_bus.h"
- #include <asm/zcrypt.h>
  
-Index: quilt-2.6/drivers/s390/crypto/zcrypt_cex2a.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/crypto/zcrypt_cex2a.c
-+++ quilt-2.6/drivers/s390/crypto/zcrypt_cex2a.c
-@@ -242,9 +242,6 @@ static int convert_response(struct zcryp
- 		return convert_type80(zdev, reply,
- 				      outputdata, outputdatalength);
- 	default: /* Unknown response type, this should NEVER EVER happen */
--		PRINTK("Unrecognized Message Header: %08x%08x\n",
--		       *(unsigned int *) reply->message,
--		       *(unsigned int *) (reply->message+4));
- 		zdev->online = 0;
- 		return -EAGAIN;	/* repeat the request on a different device. */
- 	}
-Index: quilt-2.6/drivers/s390/crypto/zcrypt_error.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/crypto/zcrypt_error.h
-+++ quilt-2.6/drivers/s390/crypto/zcrypt_error.h
-@@ -92,10 +92,6 @@ static inline int convert_error(struct z
- {
- 	struct error_hdr *ehdr = reply->message;
+ //#define MON_DEBUG			/* Debug messages on/off */
  
--	PRINTK("Hardware error : Type %02x Message Header: %08x%08x\n",
--	       ehdr->type, *(unsigned int *) reply->message,
--	       *(unsigned int *) (reply->message + 4));
--
- 	switch (ehdr->reply_code) {
- 	case REP82_ERROR_OPERAND_INVALID:
- 	case REP82_ERROR_OPERAND_SIZE:
-@@ -123,8 +119,6 @@ static inline int convert_error(struct z
- 		zdev->online = 0;
- 		return -EAGAIN;
- 	default:
--		PRINTKW("unknown type %02x reply code = %d\n",
--			ehdr->type, ehdr->reply_code);
- 		zdev->online = 0;
- 		return -EAGAIN;	/* repeat the request on a different device. */
- 	}
-Index: quilt-2.6/drivers/s390/crypto/zcrypt_pcica.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/crypto/zcrypt_pcica.c
-+++ quilt-2.6/drivers/s390/crypto/zcrypt_pcica.c
-@@ -226,9 +226,6 @@ static int convert_response(struct zcryp
- 		return convert_type84(zdev, reply,
- 				      outputdata, outputdatalength);
- 	default: /* Unknown response type, this should NEVER EVER happen */
--		PRINTK("Unrecognized Message Header: %08x%08x\n",
--		       *(unsigned int *) reply->message,
--		       *(unsigned int *) (reply->message+4));
- 		zdev->online = 0;
- 		return -EAGAIN;	/* repeat the request on a different device. */
- 	}
-Index: quilt-2.6/drivers/s390/crypto/zcrypt_pcicc.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/crypto/zcrypt_pcicc.c
-+++ quilt-2.6/drivers/s390/crypto/zcrypt_pcicc.c
-@@ -361,26 +361,18 @@ static int convert_type86(struct zcrypt_
- 	service_rc = le16_to_cpu(msg->cprb.ccp_rtcode);
- 	if (unlikely(service_rc != 0)) {
- 		service_rs = le16_to_cpu(msg->cprb.ccp_rscode);
--		if (service_rc == 8 && service_rs == 66) {
--			PDEBUG("Bad block format on PCICC\n");
-+		if (service_rc == 8 && service_rs == 66)
- 			return -EINVAL;
--		}
--		if (service_rc == 8 && service_rs == 65) {
--			PDEBUG("Probably an even modulus on PCICC\n");
-+		if (service_rc == 8 && service_rs == 65)
- 			return -EINVAL;
--		}
- 		if (service_rc == 8 && service_rs == 770) {
--			PDEBUG("Invalid key length on PCICC\n");
- 			zdev->max_mod_size = PCICC_MAX_MOD_SIZE_OLD;
- 			return -EAGAIN;
- 		}
- 		if (service_rc == 8 && service_rs == 783) {
--			PDEBUG("Extended bitlengths not enabled on PCICC\n");
- 			zdev->max_mod_size = PCICC_MAX_MOD_SIZE_OLD;
- 			return -EAGAIN;
- 		}
--		PRINTK("Unknown service rc/rs (PCICC): %d/%d\n",
--		       service_rc, service_rs);
- 		zdev->online = 0;
- 		return -EAGAIN;	/* repeat the request on a different device. */
- 	}
-@@ -434,9 +426,6 @@ static int convert_response(struct zcryp
- 					      outputdata, outputdatalength);
- 		/* no break, incorrect cprb version is an unknown response */
- 	default: /* Unknown response type, this should NEVER EVER happen */
--		PRINTK("Unrecognized Message Header: %08x%08x\n",
--		       *(unsigned int *) reply->message,
--		       *(unsigned int *) (reply->message+4));
- 		zdev->online = 0;
- 		return -EAGAIN;	/* repeat the request on a different device. */
- 	}
-Index: quilt-2.6/drivers/s390/crypto/zcrypt_pcixcc.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/crypto/zcrypt_pcixcc.c
-+++ quilt-2.6/drivers/s390/crypto/zcrypt_pcixcc.c
-@@ -289,38 +289,19 @@ static int XCRB_msg_to_type6CPRB_msgX(st
- 	ap_msg->length = sizeof(struct type6_hdr) +
- 		CEIL4(xcRB->request_control_blk_length) +
- 		xcRB->request_data_length;
--	if (ap_msg->length > PCIXCC_MAX_XCRB_MESSAGE_SIZE) {
--		PRINTK("Combined message is too large (%ld/%d/%d).\n",
--		    sizeof(struct type6_hdr),
--		    xcRB->request_control_blk_length,
--		    xcRB->request_data_length);
-+	if (ap_msg->length > PCIXCC_MAX_XCRB_MESSAGE_SIZE)
- 		return -EFAULT;
--	}
--	if (CEIL4(xcRB->reply_control_blk_length) >
--	    PCIXCC_MAX_XCRB_REPLY_SIZE) {
--		PDEBUG("Reply CPRB length is too large (%d).\n",
--		    xcRB->request_control_blk_length);
-+	if (CEIL4(xcRB->reply_control_blk_length) > PCIXCC_MAX_XCRB_REPLY_SIZE)
- 		return -EFAULT;
--	}
--	if (CEIL4(xcRB->reply_data_length) > PCIXCC_MAX_XCRB_DATA_SIZE) {
--		PDEBUG("Reply data block length is too large (%d).\n",
--		    xcRB->reply_data_length);
-+	if (CEIL4(xcRB->reply_data_length) > PCIXCC_MAX_XCRB_DATA_SIZE)
- 		return -EFAULT;
--	}
- 	replylen = CEIL4(xcRB->reply_control_blk_length) +
- 		CEIL4(xcRB->reply_data_length) +
- 		sizeof(struct type86_fmt2_msg);
- 	if (replylen > PCIXCC_MAX_XCRB_RESPONSE_SIZE) {
--		PDEBUG("Reply CPRB + data block > PCIXCC_MAX_XCRB_RESPONSE_SIZE"
--		       " (%d/%d/%d).\n",
--		       sizeof(struct type86_fmt2_msg),
--		       xcRB->reply_control_blk_length,
--		       xcRB->reply_data_length);
- 		xcRB->reply_control_blk_length = PCIXCC_MAX_XCRB_RESPONSE_SIZE -
- 			(sizeof(struct type86_fmt2_msg) +
- 			    CEIL4(xcRB->reply_data_length));
--		PDEBUG("Capping Reply CPRB length at %d\n",
--		       xcRB->reply_control_blk_length);
- 	}
- 
- 	/* prepare type6 header */
-@@ -339,11 +320,8 @@ static int XCRB_msg_to_type6CPRB_msgX(st
- 		    xcRB->request_control_blk_length))
- 		return -EFAULT;
- 	if (msg->cprbx.cprb_len + sizeof(msg->hdr.function_code) >
--	    xcRB->request_control_blk_length) {
--		PDEBUG("cprb_len too large (%d/%d)\n", msg->cprbx.cprb_len,
--		    xcRB->request_control_blk_length);
-+	    xcRB->request_control_blk_length)
- 		return -EFAULT;
--	}
- 	function_code = ((unsigned char *)&msg->cprbx) + msg->cprbx.cprb_len;
- 	memcpy(msg->hdr.function_code, function_code, sizeof(msg->hdr.function_code));
- 
-@@ -471,29 +449,18 @@ static int convert_type86_ica(struct zcr
- 	service_rc = msg->cprbx.ccp_rtcode;
- 	if (unlikely(service_rc != 0)) {
- 		service_rs = msg->cprbx.ccp_rscode;
--		if (service_rc == 8 && service_rs == 66) {
--			PDEBUG("Bad block format on PCIXCC/CEX2C\n");
-+		if (service_rc == 8 && service_rs == 66)
- 			return -EINVAL;
--		}
--		if (service_rc == 8 && service_rs == 65) {
--			PDEBUG("Probably an even modulus on PCIXCC/CEX2C\n");
-+		if (service_rc == 8 && service_rs == 65)
- 			return -EINVAL;
--		}
--		if (service_rc == 8 && service_rs == 770) {
--			PDEBUG("Invalid key length on PCIXCC/CEX2C\n");
-+		if (service_rc == 8 && service_rs == 770)
- 			return -EINVAL;
--		}
- 		if (service_rc == 8 && service_rs == 783) {
--			PDEBUG("Extended bitlengths not enabled on PCIXCC/CEX2C\n");
- 			zdev->min_mod_size = PCIXCC_MIN_MOD_SIZE_OLD;
- 			return -EAGAIN;
- 		}
--		if (service_rc == 12 && service_rs == 769) {
--			PDEBUG("Invalid key on PCIXCC/CEX2C\n");
-+		if (service_rc == 12 && service_rs == 769)
- 			return -EINVAL;
--		}
--		PRINTK("Unknown service rc/rs (PCIXCC/CEX2C): %d/%d\n",
--		       service_rc, service_rs);
- 		zdev->online = 0;
- 		return -EAGAIN;	/* repeat the request on a different device. */
- 	}
-@@ -569,11 +536,8 @@ static int convert_type86_rng(struct zcr
- 	} __attribute__((packed)) *msg = reply->message;
- 	char *data = reply->message;
- 
--	if (msg->cprbx.ccp_rtcode != 0 || msg->cprbx.ccp_rscode != 0) {
--		PDEBUG("RNG response error on PCIXCC/CEX2C rc=%hu/rs=%hu\n",
--		       rc, rs);
-+	if (msg->cprbx.ccp_rtcode != 0 || msg->cprbx.ccp_rscode != 0)
+@@ -152,10 +150,7 @@ static int mon_check_mca(struct mon_msg 
+ 	    (mon_mca_end(monmsg) > mon_dcss_end) ||
+ 	    (mon_mca_start(monmsg) < mon_dcss_start) ||
+ 	    ((mon_mca_type(monmsg, 1) == 0) && (mon_mca_type(monmsg, 2) == 0)))
+-	{
+-		P_DEBUG("READ, IGNORED INVALID MCA\n\n");
  		return -EINVAL;
 -	}
- 	memcpy(buffer, data + msg->fmt2.offset2, msg->fmt2.count2);
- 	return msg->fmt2.count2;
+ 	return 0;
  }
-@@ -598,9 +562,6 @@ static int convert_response_ica(struct z
- 						  outputdata, outputdatalength);
- 		/* no break, incorrect cprb version is an unknown response */
- 	default: /* Unknown response type, this should NEVER EVER happen */
--		PRINTK("Unrecognized Message Header: %08x%08x\n",
--		       *(unsigned int *) reply->message,
--		       *(unsigned int *) (reply->message+4));
- 		zdev->online = 0;
- 		return -EAGAIN;	/* repeat the request on a different device. */
- 	}
-@@ -627,9 +588,6 @@ static int convert_response_xcrb(struct 
- 			return convert_type86_xcrb(zdev, reply, xcRB);
- 		/* no break, incorrect cprb version is an unknown response */
- 	default: /* Unknown response type, this should NEVER EVER happen */
--		PRINTK("Unrecognized Message Header: %08x%08x\n",
--		       *(unsigned int *) reply->message,
--		       *(unsigned int *) (reply->message+4));
- 		xcRB->status = 0x0008044DL; /* HDD_InvalidParm */
- 		zdev->online = 0;
- 		return -EAGAIN;	/* repeat the request on a different device. */
-@@ -653,9 +611,6 @@ static int convert_response_rng(struct z
- 			return convert_type86_rng(zdev, reply, data);
- 		/* no break, incorrect cprb version is an unknown response */
- 	default: /* Unknown response type, this should NEVER EVER happen */
--		PRINTK("Unrecognized Message Header: %08x%08x\n",
--		       *(unsigned int *) reply->message,
--		       *(unsigned int *) (reply->message+4));
- 		zdev->online = 0;
- 		return -EAGAIN;	/* repeat the request on a different device. */
- 	}
-@@ -700,10 +655,7 @@ static void zcrypt_pcixcc_receive(struct
- 			memcpy(msg->message, reply->message, length);
- 			break;
- 		default:
--			PRINTK("Invalid internal response type: %i\n",
--			    resp_type->type);
--			memcpy(msg->message, &error_reply,
--			    sizeof error_reply);
-+			memcpy(msg->message, &error_reply, sizeof error_reply);
+ 
+@@ -164,10 +159,6 @@ static int mon_send_reply(struct mon_msg
+ {
+ 	int rc;
+ 
+-	P_DEBUG("read, REPLY: pathid = 0x%04X, msgid = 0x%08X, trgcls = "
+-		"0x%08X\n\n",
+-		monpriv->path->pathid, monmsg->msg.id, monmsg->msg.class);
+-
+ 	rc = iucv_message_reply(monpriv->path, &monmsg->msg,
+ 				IUCV_IPRMDATA, NULL, 0);
+ 	atomic_dec(&monpriv->msglim_count);
+@@ -202,15 +193,12 @@ static struct mon_private *mon_alloc_mem
+ 	struct mon_private *monpriv;
+ 
+ 	monpriv = kzalloc(sizeof(struct mon_private), GFP_KERNEL);
+-	if (!monpriv) {
+-		P_ERROR("no memory for monpriv\n");
++	if (!monpriv)
+ 		return NULL;
+-	}
+ 	for (i = 0; i < MON_MSGLIM; i++) {
+ 		monpriv->msg_array[i] = kzalloc(sizeof(struct mon_msg),
+ 						    GFP_KERNEL);
+ 		if (!monpriv->msg_array[i]) {
+-			P_ERROR("open, no memory for msg_array\n");
+ 			mon_free_mem(monpriv);
+ 			return NULL;
  		}
- 	} else
- 		memcpy(msg->message, reply->message, sizeof error_reply);
+@@ -218,41 +206,10 @@ static struct mon_private *mon_alloc_mem
+ 	return monpriv;
+ }
+ 
+-static inline void mon_read_debug(struct mon_msg *monmsg,
+-				  struct mon_private *monpriv)
+-{
+-#ifdef MON_DEBUG
+-	u8 msg_type[2], mca_type;
+-	unsigned long records_len;
+-
+-	records_len = mon_rec_end(monmsg) - mon_rec_start(monmsg) + 1;
+-
+-	memcpy(msg_type, &monmsg->msg.class, 2);
+-	EBCASC(msg_type, 2);
+-	mca_type = mon_mca_type(monmsg, 0);
+-	EBCASC(&mca_type, 1);
+-
+-	P_DEBUG("read, mon_read_index = %i, mon_write_index = %i\n",
+-		monpriv->read_index, monpriv->write_index);
+-	P_DEBUG("read, pathid = 0x%04X, msgid = 0x%08X, trgcls = 0x%08X\n",
+-		monpriv->path->pathid, monmsg->msg.id, monmsg->msg.class);
+-	P_DEBUG("read, msg_type = '%c%c', mca_type = '%c' / 0x%X / 0x%X\n",
+-		msg_type[0], msg_type[1], mca_type ? mca_type : 'X',
+-		mon_mca_type(monmsg, 1), mon_mca_type(monmsg, 2));
+-	P_DEBUG("read, MCA: start = 0x%lX, end = 0x%lX\n",
+-		mon_mca_start(monmsg), mon_mca_end(monmsg));
+-	P_DEBUG("read, REC: start = 0x%X, end = 0x%X, len = %lu\n\n",
+-		mon_rec_start(monmsg), mon_rec_end(monmsg), records_len);
+-	if (mon_mca_size(monmsg) > 12)
+-		P_DEBUG("READ, MORE THAN ONE MCA\n\n");
+-#endif
+-}
+-
+ static inline void mon_next_mca(struct mon_msg *monmsg)
+ {
+ 	if (likely((mon_mca_size(monmsg) - monmsg->mca_offset) == 12))
+ 		return;
+-	P_DEBUG("READ, NEXT MCA\n\n");
+ 	monmsg->mca_offset += 12;
+ 	monmsg->pos = 0;
+ }
+@@ -269,7 +226,6 @@ static struct mon_msg *mon_next_message(
+ 		monmsg->msglim_reached = 0;
+ 		monmsg->pos = 0;
+ 		monmsg->mca_offset = 0;
+-		P_WARNING("read, message limit reached\n");
+ 		monpriv->read_index = (monpriv->read_index + 1) %
+ 				      MON_MSGLIM;
+ 		atomic_dec(&monpriv->read_ready);
+@@ -286,10 +242,6 @@ static void mon_iucv_path_complete(struc
+ {
+ 	struct mon_private *monpriv = path->private;
+ 
+-	P_DEBUG("IUCV connection completed\n");
+-	P_DEBUG("IUCV ACCEPT (from *MONITOR): Version = 0x%02X, Event = "
+-		"0x%02X, Sample = 0x%02X\n",
+-		ipuser[0], ipuser[1], ipuser[2]);
+ 	atomic_set(&monpriv->iucv_connected, 1);
+ 	wake_up(&mon_conn_wait_queue);
+ }
+@@ -310,7 +262,6 @@ static void mon_iucv_message_pending(str
+ {
+ 	struct mon_private *monpriv = path->private;
+ 
+-	P_DEBUG("IUCV message pending\n");
+ 	memcpy(&monpriv->msg_array[monpriv->write_index]->msg,
+ 	       msg, sizeof(*msg));
+ 	if (atomic_inc_return(&monpriv->msglim_count) == MON_MSGLIM) {
+@@ -375,7 +326,6 @@ static int mon_open(struct inode *inode,
+ 		rc = -EIO;
+ 		goto out_path;
+ 	}
+-	P_INFO("open, established connection to *MONITOR service\n\n");
+ 	filp->private_data = monpriv;
+ 	return nonseekable_open(inode, filp);
+ 
+@@ -400,8 +350,6 @@ static int mon_close(struct inode *inode
+ 	rc = iucv_path_sever(monpriv->path, user_data_sever);
+ 	if (rc)
+ 		P_ERROR("close, iucv_sever failed with rc = %i\n", rc);
+-	else
+-		P_INFO("close, terminated connection to *MONITOR service\n");
+ 
+ 	atomic_set(&monpriv->iucv_severed, 0);
+ 	atomic_set(&monpriv->iucv_connected, 0);
+@@ -442,10 +390,8 @@ static ssize_t mon_read(struct file *fil
+ 		monmsg = monpriv->msg_array[monpriv->read_index];
+ 	}
+ 
+-	if (!monmsg->pos) {
++	if (!monmsg->pos)
+ 		monmsg->pos = mon_mca_start(monmsg) + monmsg->mca_offset;
+-		mon_read_debug(monmsg, monpriv);
+-	}
+ 	if (mon_check_mca(monmsg))
+ 		goto reply;
+ 
+@@ -531,7 +477,6 @@ static int __init mon_init(void)
+ 		P_ERROR("failed to register with iucv driver\n");
+ 		return rc;
+ 	}
+-	P_INFO("open, registered with IUCV\n");
+ 
+ 	rc = segment_type(mon_dcss_name);
+ 	if (rc < 0) {
+@@ -555,13 +500,8 @@ static int __init mon_init(void)
+ 	dcss_mkname(mon_dcss_name, &user_data_connect[8]);
+ 
+ 	rc = misc_register(&mon_dev);
+-	if (rc < 0 ) {
+-		P_ERROR("misc_register failed, rc = %i\n", rc);
++	if (rc < 0 )
+ 		goto out;
+-	}
+-	P_INFO("Loaded segment %s from %p to %p, size = %lu Byte\n",
+-		mon_dcss_name, (void *) mon_dcss_start, (void *) mon_dcss_end,
+-		mon_dcss_end - mon_dcss_start + 1);
+ 	return 0;
+ 
+ out:
 
 -- 
 blue skies,
