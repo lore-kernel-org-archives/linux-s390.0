@@ -1,126 +1,90 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759786AbYFYOlX@vger.kernel.org>
-Message-Id: <20080625143613.404764058@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759645AbYFYOk5@vger.kernel.org>
+Message-Id: <20080625143615.981543822@de.ibm.com>
 References: <20080625143459.100139455@de.ibm.com>
-Date: Wed, 25 Jun 2008 16:35:07 +0200
+Date: Wed, 25 Jun 2008 16:35:17 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 08/21] Cleanup printk messages in dcssblk.
-Content-Disposition: inline; filename=807-printk-dcss.diff
+Subject: [patch 18/21] Cleanup iucv printk messages.
+Content-Disposition: inline; filename=817-printk-iucv.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Hongjie Yang <hongjie@us.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Ursula Braun <braunu@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hongjie Yang <hongjie@us.ibm.com>
+From: Ursula Braun <braunu@de.ibm.com>
 
-Signed-off-by: Hongjie Yang <hongjie@us.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ursula Braun <braunu@de.ibm.com>
 ---
 
- drivers/s390/block/dcssblk.c |   22 +++-------------------
- 1 file changed, 3 insertions(+), 19 deletions(-)
+ net/iucv/af_iucv.c |    8 ++------
+ net/iucv/iucv.c    |    9 ++-------
+ 2 files changed, 4 insertions(+), 13 deletions(-)
 
-Index: quilt-2.6/drivers/s390/block/dcssblk.c
+Index: quilt-2.6/net/iucv/af_iucv.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/block/dcssblk.c
-+++ quilt-2.6/drivers/s390/block/dcssblk.c
-@@ -167,10 +167,8 @@ dcssblk_shared_store(struct device *dev,
- 	struct dcssblk_dev_info *dev_info;
- 	int rc;
+--- quilt-2.6.orig/net/iucv/af_iucv.c
++++ quilt-2.6/net/iucv/af_iucv.c
+@@ -1135,8 +1135,7 @@ static void iucv_callback_txdone(struct 
+ 		if (this)
+ 			kfree_skb(this);
+ 	}
+-	if (!this)
+-		printk(KERN_ERR "AF_IUCV msg tag %u not found\n", msg->tag);
++	BUG_ON(!this);
  
--	if ((count > 1) && (inbuf[1] != '\n') && (inbuf[1] != '\0')) {
--		PRINT_WARN("Invalid value, must be 0 or 1\n");
-+	if ((count > 1) && (inbuf[1] != '\n') && (inbuf[1] != '\0'))
- 		return -EINVAL;
--	}
- 	down_write(&dcssblk_devices_sem);
- 	dev_info = container_of(dev, struct dcssblk_dev_info, dev);
- 	if (atomic_read(&dev_info->use_count)) {
-@@ -215,7 +213,6 @@ dcssblk_shared_store(struct device *dev,
- 			set_disk_ro(dev_info->gd, 0);
- 		}
- 	} else {
--		PRINT_WARN("Invalid value, must be 0 or 1\n");
- 		rc = -EINVAL;
+ 	if (sk->sk_state == IUCV_CLOSING) {
+ 		if (skb_queue_empty(&iucv_sk(sk)->send_skb_q)) {
+@@ -1196,7 +1195,7 @@ static int __init afiucv_init(void)
+ 	}
+ 	cpcmd("QUERY USERID", iucv_userid, sizeof(iucv_userid), &err);
+ 	if (unlikely(err)) {
+-		printk(KERN_ERR "AF_IUCV needs the VM userid\n");
++		WARN_ON(err);
+ 		err = -EPROTONOSUPPORT;
  		goto out;
  	}
-@@ -258,10 +255,8 @@ dcssblk_save_store(struct device *dev, s
- {
- 	struct dcssblk_dev_info *dev_info;
- 
--	if ((count > 1) && (inbuf[1] != '\n') && (inbuf[1] != '\0')) {
--		PRINT_WARN("Invalid value, must be 0 or 1\n");
-+	if ((count > 1) && (inbuf[1] != '\n') && (inbuf[1] != '\0'))
- 		return -EINVAL;
--	}
- 	dev_info = container_of(dev, struct dcssblk_dev_info, dev);
- 
- 	down_write(&dcssblk_devices_sem);
-@@ -289,7 +284,6 @@ dcssblk_save_store(struct device *dev, s
- 		}
- 	} else {
- 		up_write(&dcssblk_devices_sem);
--		PRINT_WARN("Invalid value, must be 0 or 1\n");
- 		return -EINVAL;
- 	}
- 	up_write(&dcssblk_devices_sem);
-@@ -441,7 +435,6 @@ dcssblk_add_store(struct device *dev, st
- 	goto out;
- 
- unregister_dev:
--	PRINT_ERR("device_create_file() failed!\n");
- 	list_del(&dev_info->lh);
- 	blk_cleanup_queue(dev_info->dcssblk_queue);
- 	dev_info->gd->queue = NULL;
-@@ -702,10 +695,8 @@ dcssblk_check_params(void)
- static void __exit
- dcssblk_exit(void)
- {
--	PRINT_DEBUG("DCSSBLOCK EXIT...\n");
- 	s390_root_dev_unregister(dcssblk_root_dev);
- 	unregister_blkdev(dcssblk_major, DCSSBLK_NAME);
--	PRINT_DEBUG("...finished!\n");
- }
- 
- static int __init
-@@ -713,27 +704,21 @@ dcssblk_init(void)
- {
- 	int rc;
- 
--	PRINT_DEBUG("DCSSBLOCK INIT...\n");
- 	dcssblk_root_dev = s390_root_dev_register("dcssblk");
--	if (IS_ERR(dcssblk_root_dev)) {
--		PRINT_ERR("device_register() failed!\n");
-+	if (IS_ERR(dcssblk_root_dev))
- 		return PTR_ERR(dcssblk_root_dev);
--	}
- 	rc = device_create_file(dcssblk_root_dev, &dev_attr_add);
- 	if (rc) {
--		PRINT_ERR("device_create_file(add) failed!\n");
- 		s390_root_dev_unregister(dcssblk_root_dev);
- 		return rc;
- 	}
- 	rc = device_create_file(dcssblk_root_dev, &dev_attr_remove);
- 	if (rc) {
--		PRINT_ERR("device_create_file(remove) failed!\n");
- 		s390_root_dev_unregister(dcssblk_root_dev);
- 		return rc;
- 	}
- 	rc = register_blkdev(0, DCSSBLK_NAME);
- 	if (rc < 0) {
--		PRINT_ERR("Can't get dynamic major!\n");
- 		s390_root_dev_unregister(dcssblk_root_dev);
- 		return rc;
- 	}
-@@ -742,7 +727,6 @@ dcssblk_init(void)
- 
- 	dcssblk_check_params();
- 
--	PRINT_DEBUG("...finished!\n");
+@@ -1210,7 +1209,6 @@ static int __init afiucv_init(void)
+ 	err = sock_register(&iucv_sock_family_ops);
+ 	if (err)
+ 		goto out_proto;
+-	printk(KERN_INFO "AF_IUCV lowlevel driver initialized\n");
  	return 0;
+ 
+ out_proto:
+@@ -1226,8 +1224,6 @@ static void __exit afiucv_exit(void)
+ 	sock_unregister(PF_IUCV);
+ 	proto_unregister(&iucv_proto);
+ 	iucv_unregister(&af_iucv_handler, 0);
+-
+-	printk(KERN_INFO "AF_IUCV lowlevel driver unloaded\n");
  }
  
+ module_init(afiucv_init);
+Index: quilt-2.6/net/iucv/iucv.c
+===================================================================
+--- quilt-2.6.orig/net/iucv/iucv.c
++++ quilt-2.6/net/iucv/iucv.c
+@@ -1559,16 +1559,11 @@ static void iucv_external_interrupt(u16 
+ 
+ 	p = iucv_irq_data[smp_processor_id()];
+ 	if (p->ippathid >= iucv_max_pathid) {
+-		printk(KERN_WARNING "iucv_do_int: Got interrupt with "
+-		       "pathid %d > max_connections (%ld)\n",
+-		       p->ippathid, iucv_max_pathid - 1);
++		WARN_ON(p->ippathid >= iucv_max_pathid);
+ 		iucv_sever_pathid(p->ippathid, iucv_error_no_listener);
+ 		return;
+ 	}
+-	if (p->iptype  < 0x01 || p->iptype > 0x09) {
+-		printk(KERN_ERR "iucv_do_int: unknown iucv interrupt\n");
+-		return;
+-	}
++	BUG_ON(p->iptype  < 0x01 || p->iptype > 0x09);
+ 	work = kmalloc(sizeof(struct iucv_irq_list), GFP_ATOMIC);
+ 	if (!work) {
+ 		printk(KERN_WARNING "iucv_external_interrupt: out of memory\n");
 
 -- 
 blue skies,
