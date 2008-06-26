@@ -1,36 +1,39 @@
-Subject: [RFC PATCH 0/2] Merge HUGETLB_PAGE and HUGETLBFS Kconfig options
-From: Adam Litke <agl@us.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756306AbYFZH0i@vger.kernel.org>
+Subject: Re: [patch 07/21] Cleanup sclp printk messages.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+In-Reply-To: <20080625151544.GA12945@wavehammer.waldi.eu.org>
+References: <20080625143459.100139455@de.ibm.com>
+	 <20080625143613.141370129@de.ibm.com>
+	 <20080625151544.GA12945@wavehammer.waldi.eu.org>
 Content-Type: text/plain
-Date: Thu, 12 Jun 2008 14:49:00 -0400
-Message-Id: <1213296540.17108.8.camel@localhost.localdomain>
+Date: Thu, 26 Jun 2008 09:26:16 +0200
+Message-Id: <1214465176.12809.2.camel@localhost>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-Path: <agl@us.ibm.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-To: linux-mm <linux-mm@kvack.org>
-Cc: agl@us.ibm.com, npiggin@suse.de, nacc@us.ibm.com, mel@csn.ul.ie, Eric B Munson <ebmunson@us.ibm.com>, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@ozlabs.org, sparclinux@vger.kernel.org, linux-sh@vger.kernel.org, linux-s390@vger.kernel.org, linux-mips@linux-mips.org
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Bastian Blank <bastian@waldi.eu.org>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-There are currently two global Kconfig options that enable/disable the
-hugetlb code: CONFIG_HUGETLB_PAGE and CONFIG_HUGETLBFS.  This may have
-made sense before hugetlbfs became ubiquitous but now the pair of
-options are redundant.  Merging these two options into one will simplify
-the code slightly and will, more importantly, avoid confusion and
-questions like: Which hugetlbfs CONFIG option should my code depend on?
+On Wed, 2008-06-25 at 17:15 +0200, Bastian Blank wrote:
+> On Wed, Jun 25, 2008 at 04:35:06PM +0200, Martin Schwidefsky wrote:
+> > +	if (finished_sccb != (u32) (addr_t) sclp_init_sccb)
+> > +		panic("sclp: unsolicited interrupt for buffer at 0x%x\n",
+> > +		      finished_sccb);
+> 
+> Does that really need to be a panic?
 
-CONFIG_HUGETLB_PAGE is aliased to the value of CONFIG_HUGETLBFS, so one
-option can be removed without any effect.  The first patch merges the
-two options into one option: CONFIG_HUGETLB.  The second patch updates
-the defconfigs to set the one new option appropriately.
-
-I have cross-compiled this on i386, x86_64, ia64, powerpc, sparc64 and
-sh with the option enabled and disabled.  This is completely mechanical
-but, due to the large number of files affected (especially defconfigs),
-could do well with a review from several sets of eyeballs.  Thanks.
+Yes, that should be a panic. The point is that we got an unsolicited
+interrupt from sclp at boot time. That means that there has been an sclp
+request around from the last incarnation of the system. An sclp request
+can do a lot of things, in particular it can change memory. Not a good
+start for the new system ..
 
 -- 
-Adam Litke - (agl at us.ibm.com)
-IBM Linux Technology Center
+blue skies,
+  Martin.
+
+"Reality continues to ruin my life." - Calvin.
