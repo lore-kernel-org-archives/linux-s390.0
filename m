@@ -1,43 +1,37 @@
-From: Swen Schillig <swen@vnet.ibm.com>
-Subject: Re: [patch 7/8] zfcp: Automatically attach remote ports
-Date: Wed, 11 Jun 2008 09:41:11 +0200
-Message-ID: <200806110941.11769.swen@vnet.ibm.com>
-References: <20080610162053.144590000@de.ibm.com> <20080610193339.GA24771@wavehammer.waldi.eu.org> <20080610193645.GA25065@wavehammer.waldi.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+From: christof.schmitt@de.ibm.com
+Subject: [patch 02/11] zfcp: Fix error checking for ELS ADISC requests
+Date: Mon, 30 Jun 2008 12:52:38 +0200
+Message-ID: <20080630110055.677053000@de.ibm.com>
+References: <20080630105236.960064000@de.ibm.com>
 Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <20080610193645.GA25065@wavehammer.waldi.eu.org>
-Content-Disposition: inline
+Content-Disposition: inline; filename=fix-els-adisc.diff
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Bastian Blank <bastian@waldi.eu.org>
-Cc: Christof Schmitt <christof.schmitt@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Christof Schmitt <christof.schmitt@de.ibm.com>, Swen Schillig <swen@vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tuesday 10 June 2008 21:36, Bastian Blank wrote:
-> On Tue, Jun 10, 2008 at 09:33:39PM +0200, Bastian Blank wrote:
-> > On Tue, Jun 10, 2008 at 06:21:00PM +0200, Christof Schmitt wrote:
-> > > Automatically attach the remote ports in zfcp when the adapter is set
-> > > online.
-> > What do you mean with "remote ports"?
-> 
-> Ah, the part with the wwpn. Are you sure that this does not break on
-> z900? I'm not sure about ports, but it restricts each lun to exactly one
-> guest.
-> 
-> Bastian
-> 
-With remote ports I mean  "remote storage ports", so something like a DS8000.
-In a switched environment a single adapter can have access to multiple
-storage ports, accessing a bunch of drives (LUNs).
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-A port itself is not restricting anything and remote ports are not limited 
-to be used by only one adapter, that's the whole purpose of those setups.
+Correctly check the status for ELS ADISC requests. 0 means success.
 
-This feature has nothing to do with LUNs but only with ports, 
-so I don't really get what you wanted to say with your LUN restriction.
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
+---
+ drivers/s390/scsi/zfcp_fc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Swen
+--- a/drivers/s390/scsi/zfcp_fc.c	2008-06-27 18:07:26.000000000 +0200
++++ b/drivers/s390/scsi/zfcp_fc.c	2008-06-27 18:07:43.000000000 +0200
+@@ -263,7 +263,7 @@ static void zfcp_fc_adisc_handler(unsign
+ 	struct zfcp_port *port = adisc->els.port;
+ 	struct zfcp_ls_adisc_acc *ls_adisc = &adisc->ls_adisc_acc;
+ 
+-	if (!adisc->els.status) {
++	if (adisc->els.status) {
+ 		/* request rejected or timed out */
+ 		zfcp_erp_port_forced_reopen(port, 0, 63, NULL);
+ 		goto out;
+
+-- 
