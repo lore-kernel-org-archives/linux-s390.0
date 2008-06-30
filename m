@@ -1,38 +1,76 @@
-From: christof.schmitt@de.ibm.com
-Subject: [patch 01/11] zfcp: wait until adapter is finished with ERP during auto-port
-Date: Mon, 30 Jun 2008 12:52:37 +0200
-Message-ID: <20080630110054.836603000@de.ibm.com>
-References: <20080630105236.960064000@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [patch 07/11] zfcp: Cleanup of code in zfcp_aux.c
+Date: Tue, 1 Jul 2008 00:52:59 +0200
+Message-ID: <20080630225259.GB4727@osiris.boeblingen.de.ibm.com>
+References: <20080630105236.960064000@de.ibm.com> <20080630110059.364138000@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=zfcp_auto_port_erp_race.diff
+Content-Disposition: inline
+In-Reply-To: <20080630110059.364138000@de.ibm.com>
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Swen Schillig <swen@vnet.ibm.com>, Christof Schmitt <christof.schmitt@de.ibm.com>
+To: christof.schmitt@de.ibm.com
+Cc: James Bottomley <James.Bottomley@HansenPartnership.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Swen Schillig <swen@vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Swen Schillig <swen@vnet.ibm.com>
+> +static int __init zfcp_device_setup(char *devstr)
+>  {
+> -	char *tmp, *str;
+> -	size_t len;
+> +	char *token;
+> 
+>  	if (!devstr)
+>  		return 0;
+> 
+> -	len = strlen(devstr) + 1;
+> -	str = kmalloc(len, GFP_KERNEL);
+> -	if (!str) {
+> -		pr_err("zfcp: Could not allocate memory for "
+> -		       "device parameter string, device not attached.\n");
+> -		return 0;
+> -	}
+> -	memcpy(str, devstr, len);
+> -
+> -	tmp = strchr(str, ',');
+> -	if (!tmp)
+> +	token = strsep(&devstr, ",");
+> +	if (!token || strlen(token) >= BUS_ID_SIZE)
+>  		goto err_out;
+> -	*tmp++ = '\0';
+> -	strncpy(zfcp_data.init_busid, str, BUS_ID_SIZE);
+> -	zfcp_data.init_busid[BUS_ID_SIZE-1] = '\0';
+> +	strncpy(zfcp_data.init_busid, token, BUS_ID_SIZE);
+> 
+> -	zfcp_data.init_wwpn = simple_strtoull(tmp, &tmp, 0);
+> -	if (*tmp++ != ',')
+> -		goto err_out;
+> -	if (*tmp == '\0')
+> +	token = strsep(&devstr, ",");
+> +	if (!token || strict_strtoull(token, 0, &zfcp_data.init_wwpn))
+>  		goto err_out;
+> 
+> -	zfcp_data.init_fcp_lun = simple_strtoull(tmp, &tmp, 0);
+> -	if (*tmp != '\0')
+> +	token = strsep(&devstr, ",");
+> +	if (!token || strict_strtoull(token, 0, &zfcp_data.init_fcp_lun))
+>  		goto err_out;
+> -	kfree(str);
+>  	return 1;
+> 
+>   err_out:
+>  	pr_err("zfcp: Parse error for device parameter string %s, "
+> -	       "device not attached.\n", str);
+> -	kfree(str);
+> +	       "device not attached.\n", devstr);
+>  	return 0;
+>  }
 
-In some situations the auto port attachment task is started
-before the ERP is finished. To prevent this unwanted situation
-we wait until the adapter is up and running before we start our work.
-
-Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
----
- drivers/s390/scsi/zfcp_fc.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/drivers/s390/scsi/zfcp_fc.c	2008-06-27 18:07:02.000000000 +0200
-+++ b/drivers/s390/scsi/zfcp_fc.c	2008-06-27 18:07:26.000000000 +0200
-@@ -520,6 +520,7 @@ int zfcp_scan_ports(struct zfcp_adapter 
- 	int ret, i;
- 	struct zfcp_gpn_ft *gpn_ft;
- 
-+	zfcp_erp_wait(adapter); /* wait until adapter is finished with ERP */
- 	if (fc_host_port_type(adapter->scsi_host) != FC_PORTTYPE_NPORT)
- 		return 0;
- 
-
--- 
+Sorry, but this still seems to be incorrect. strsep modifies the string that
+gets passed to it. In this case you let it operate on the original module
+parameter string which is also exported via sysfs.
+So after parsing finished the exported string is much shorter than the
+original string. That was actually the whole point why the old code allocated
+memory and copied the string so the copy could be modified.
+A comment would have been good ;)
