@@ -1,43 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756226AbYG2PBS@vger.kernel.org>
-Message-ID: <ef1cd66f0807290801q647d7efbn9f9058531bc6f32c@mail.gmail.com>
-Date: Tue, 29 Jul 2008 16:01:01 +0100
-From: "=?ISO-8859-1?Q?Jochen_Vo=DF?=" <jochen.voss@googlemail.com>
-Subject: Re: [patch 02/15] kmsg: Kernel message catalog script.
-In-Reply-To: <1217329750.10259.38.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Swen Schillig <swen@vnet.ibm.com>
+Subject: Re: [patch 07/11] zfcp: Cleanup of code in zfcp_aux.c
+Date: Tue, 1 Jul 2008 15:44:13 +0200
+Message-ID: <200807011544.14178.swen@vnet.ibm.com>
+References: <20080630105236.960064000@de.ibm.com> <20080630110059.364138000@de.ibm.com> <20080630225259.GB4727@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Return-path: <linux-scsi-owner@vger.kernel.org>
+In-Reply-To: <20080630225259.GB4727@osiris.boeblingen.de.ibm.com>
 Content-Disposition: inline
-References: <20080728175355.734299984@de.ibm.com>
-	 <20080728175511.260174666@de.ibm.com>
-	 <20080728192828.GA11431@uranus.ravnborg.org>
-	 <1217320950.10259.15.camel@localhost>
-	 <20080729084536.GA29659@uranus.ravnborg.org>
-	 <1217329750.10259.38.camel@localhost>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: schwidefsky@de.ibm.com
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Michael Holzheu <holzheu@de.ibm.com>
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: christof.schmitt@de.ibm.com, James Bottomley <James.Bottomley@hansenpartnership.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Martin,
+On Tuesday 01 July 2008 00:52, Heiko Carstens wrote:
+> > +static int __init zfcp_device_setup(char *devstr)
+> >  {
+> > -	char *tmp, *str;
+> > -	size_t len;
+> > +	char *token;
+> > 
+> >  	if (!devstr)
+> >  		return 0;
+> > 
+> > -	len = strlen(devstr) + 1;
+> > -	str = kmalloc(len, GFP_KERNEL);
+> > -	if (!str) {
+> > -		pr_err("zfcp: Could not allocate memory for "
+> > -		       "device parameter string, device not attached.\n");
+> > -		return 0;
+> > -	}
+> > -	memcpy(str, devstr, len);
+> > -
+> > -	tmp = strchr(str, ',');
+> > -	if (!tmp)
+> > +	token = strsep(&devstr, ",");
+> > +	if (!token || strlen(token) >= BUS_ID_SIZE)
+> >  		goto err_out;
+> > -	*tmp++ = '\0';
+> > -	strncpy(zfcp_data.init_busid, str, BUS_ID_SIZE);
+> > -	zfcp_data.init_busid[BUS_ID_SIZE-1] = '\0';
+> > +	strncpy(zfcp_data.init_busid, token, BUS_ID_SIZE);
+> > 
+> > -	zfcp_data.init_wwpn = simple_strtoull(tmp, &tmp, 0);
+> > -	if (*tmp++ != ',')
+> > -		goto err_out;
+> > -	if (*tmp == '\0')
+> > +	token = strsep(&devstr, ",");
+> > +	if (!token || strict_strtoull(token, 0, &zfcp_data.init_wwpn))
+> >  		goto err_out;
+> > 
+> > -	zfcp_data.init_fcp_lun = simple_strtoull(tmp, &tmp, 0);
+> > -	if (*tmp != '\0')
+> > +	token = strsep(&devstr, ",");
+> > +	if (!token || strict_strtoull(token, 0, &zfcp_data.init_fcp_lun))
+> >  		goto err_out;
+> > -	kfree(str);
+> >  	return 1;
+> > 
+> >   err_out:
+> >  	pr_err("zfcp: Parse error for device parameter string %s, "
+> > -	       "device not attached.\n", str);
+> > -	kfree(str);
+> > +	       "device not attached.\n", devstr);
+> >  	return 0;
+> >  }
+> 
+> Sorry, but this still seems to be incorrect. strsep modifies the string that
+> gets passed to it. In this case you let it operate on the original module
+> parameter string which is also exported via sysfs.
+> So after parsing finished the exported string is much shorter than the
+> original string. That was actually the whole point why the old code allocated
+> memory and copied the string so the copy could be modified.
+> A comment would have been good ;)
+> --
+Correct,
 
-I think the changelog needs fixing, too:
+I fixed the patch and Christof will send it soon to the list.
 
-2008/7/29 Martin Schwidefsky <schwidefsky@de.ibm.com>:
-> The kmsg check is invoked with "make K=1" and reads the source files for
-> all objects that are built by the current configuration and searches for
-> matching kmsg descriptions for the kmsg messages in the source which
-> have a messages id > 0. If a message description can not be found the
-> script prints a blueprint and causes a make error.
->
-> The kmsg man page creation is invoked with "make K=2" and reads the source
-> files for all built objects, looks up the message description and writes
-> a man page to $(objtree)/man.
-This should be "D=1" and "D=2" now, shouldn't it?
-
-I hope this helps,
-Jochen
--- 
-http://seehuhn.de/
+Cheers Swen
