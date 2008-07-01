@@ -1,142 +1,142 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757961AbYGAMxT@vger.kernel.org>
-Message-Id: <20080701124957.450356184@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758817AbYGAMxt@vger.kernel.org>
+Message-Id: <20080701124958.332464747@de.ibm.com>
 References: <20080701124809.319736054@de.ibm.com>
-Date: Tue, 01 Jul 2008 14:48:10 +0200
+Date: Tue, 01 Jul 2008 14:48:13 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 01/14] cio: Get rid of css_characteristics_avail.
-Content-Disposition: inline; filename=120-cio-css-validity.diff
+Subject: [patch 04/14] cio: introduce isc_(un)register functions.
+Content-Disposition: inline; filename=123-cio-isc-reg.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Sebastian Ott <sebott@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
 
-Checking for the validity of the css_*_characteristics is
-superfluous since they stay 0 for non-successful scsc.
+This interface makes it easy for drivers to register usage of different
+I/O interruption subclasses without needing to worry about possible
+other users of the same isc.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/chp.c  |    3 +--
- drivers/s390/cio/chsc.h |    1 -
- drivers/s390/cio/cmf.c  |    3 +--
- drivers/s390/cio/css.c  |   12 +++---------
- drivers/s390/cio/qdio.c |    3 ---
- 5 files changed, 5 insertions(+), 17 deletions(-)
+ drivers/s390/cio/Makefile |    4 +-
+ drivers/s390/cio/isc.c    |   68 ++++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-s390/isc.h    |    6 ++++
+ 3 files changed, 76 insertions(+), 2 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/chp.c
+Index: quilt-2.6/drivers/s390/cio/isc.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/chp.c
-+++ quilt-2.6/drivers/s390/cio/chp.c
-@@ -415,8 +415,7 @@ int chp_new(struct chp_id chpid)
- 		goto out_free;
- 	}
- 	/* Get channel-measurement characteristics. */
--	if (css_characteristics_avail && css_chsc_characteristics.scmc
--	    && css_chsc_characteristics.secm) {
-+	if (css_chsc_characteristics.scmc && css_chsc_characteristics.secm) {
- 		ret = chsc_get_channel_measurement_chars(chp);
- 		if (ret)
- 			goto out_free;
-Index: quilt-2.6/drivers/s390/cio/chsc.h
+--- /dev/null
++++ quilt-2.6/drivers/s390/cio/isc.c
+@@ -0,0 +1,68 @@
++/*
++ * Functions for registration of I/O interruption subclasses on s390.
++ *
++ * Copyright IBM Corp. 2008
++ * Authors: Sebastian Ott <sebott@linux.vnet.ibm.com>
++ */
++
++#include <linux/spinlock.h>
++#include <linux/module.h>
++#include <asm/isc.h>
++
++static unsigned int isc_refs[MAX_ISC + 1];
++static DEFINE_SPINLOCK(isc_ref_lock);
++
++
++/**
++ * isc_register - register an I/O interruption subclass.
++ * @isc: I/O interruption subclass to register
++ *
++ * The number of users for @isc is increased. If this is the first user to
++ * register @isc, the corresponding I/O interruption subclass mask is enabled.
++ *
++ * Context:
++ *   This function must not be called in interrupt context.
++ */
++void isc_register(unsigned int isc)
++{
++	if (isc > MAX_ISC) {
++		WARN_ON(1);
++		return;
++	}
++
++	spin_lock(&isc_ref_lock);
++	if (isc_refs[isc] == 0)
++		ctl_set_bit(6, 31 - isc);
++	isc_refs[isc]++;
++	spin_unlock(&isc_ref_lock);
++}
++EXPORT_SYMBOL_GPL(isc_register);
++
++/**
++ * isc_unregister - unregister an I/O interruption subclass.
++ * @isc: I/O interruption subclass to unregister
++ *
++ * The number of users for @isc is decreased. If this is the last user to
++ * unregister @isc, the corresponding I/O interruption subclass mask is
++ * disabled.
++ * Note: This function must not be called if isc_register() hasn't been called
++ * before by the driver for @isc.
++ *
++ * Context:
++ *   This function must not be called in interrupt context.
++ */
++void isc_unregister(unsigned int isc)
++{
++	spin_lock(&isc_ref_lock);
++	/* check for misuse */
++	if (isc > MAX_ISC || isc_refs[isc] == 0) {
++		WARN_ON(1);
++		goto out_unlock;
++	}
++	if (isc_refs[isc] == 1)
++		ctl_clear_bit(6, 31 - isc);
++	isc_refs[isc]--;
++out_unlock:
++	spin_unlock(&isc_ref_lock);
++}
++EXPORT_SYMBOL_GPL(isc_unregister);
+Index: quilt-2.6/drivers/s390/cio/Makefile
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/chsc.h
-+++ quilt-2.6/drivers/s390/cio/chsc.h
-@@ -78,7 +78,6 @@ struct chsc_ssd_info {
- extern int chsc_get_ssd_info(struct subchannel_id schid,
- 			     struct chsc_ssd_info *ssd);
- extern int chsc_determine_css_characteristics(void);
--extern int css_characteristics_avail;
- extern int chsc_alloc_sei_area(void);
- extern void chsc_free_sei_area(void);
+--- quilt-2.6.orig/drivers/s390/cio/Makefile
++++ quilt-2.6/drivers/s390/cio/Makefile
+@@ -2,8 +2,8 @@
+ # Makefile for the S/390 common i/o drivers
+ #
  
-Index: quilt-2.6/drivers/s390/cio/cmf.c
+-obj-y += airq.o blacklist.o chsc.o cio.o css.o chp.o idset.o scsw.o fcx.o \
+-	 itcw.o
++obj-y += airq.o blacklist.o chsc.o cio.o css.o chp.o idset.o isc.o scsw.o \
++	fcx.o itcw.o
+ ccw_device-objs += device.o device_fsm.o device_ops.o
+ ccw_device-objs += device_id.o device_pgid.o device_status.o
+ obj-y += ccw_device.o cmf.o
+Index: quilt-2.6/include/asm-s390/isc.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cmf.c
-+++ quilt-2.6/drivers/s390/cio/cmf.c
-@@ -1344,8 +1344,7 @@ static int __init init_cmf(void)
- 	 * to basic mode.
- 	 */
- 	if (format == CMF_AUTODETECT) {
--		if (!css_characteristics_avail ||
--		    !css_general_characteristics.ext_mb) {
-+		if (!css_general_characteristics.ext_mb) {
- 			format = CMF_BASIC;
- 		} else {
- 			format = CMF_EXTENDED;
-Index: quilt-2.6/drivers/s390/cio/css.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/css.c
-+++ quilt-2.6/drivers/s390/cio/css.c
-@@ -30,8 +30,6 @@ static int max_ssid = 0;
+--- quilt-2.6.orig/include/asm-s390/isc.h
++++ quilt-2.6/include/asm-s390/isc.h
+@@ -1,6 +1,8 @@
+ #ifndef _ASM_S390_ISC_H
+ #define _ASM_S390_ISC_H
  
- struct channel_subsystem *channel_subsystems[__MAX_CSSID + 1];
++#include <linux/types.h>
++
+ /*
+  * I/O interruption subclasses used by drivers.
+  * Please add all used iscs here so that it is possible to distribute
+@@ -15,4 +17,8 @@
+ /* Adapter interrupts. */
+ #define QDIO_AIRQ_ISC IO_SCH_ISC	/* I/O subchannel in qdio mode */
  
--int css_characteristics_avail = 0;
--
- int
- for_each_subchannel(int(*fn)(struct subchannel_id, void *), void *data)
- {
-@@ -611,7 +609,7 @@ __init_channel_subsystem(struct subchann
- static void __init
- css_generate_pgid(struct channel_subsystem *css, u32 tod_high)
- {
--	if (css_characteristics_avail && css_general_characteristics.mcss) {
-+	if (css_general_characteristics.mcss) {
- 		css->global_pgid.pgid_high.ext_cssid.version = 0x80;
- 		css->global_pgid.pgid_high.ext_cssid.cssid = css->cssid;
- 	} else {
-@@ -748,8 +746,6 @@ init_channel_subsystem (void)
- 	ret = chsc_determine_css_characteristics();
- 	if (ret == -ENOMEM)
- 		goto out; /* No need to continue. */
--	if (ret == 0)
--		css_characteristics_avail = 1;
- 
- 	ret = chsc_alloc_sei_area();
- 	if (ret)
-@@ -793,8 +789,7 @@ init_channel_subsystem (void)
- 		ret = device_register(&css->device);
- 		if (ret)
- 			goto out_free_all;
--		if (css_characteristics_avail &&
--		    css_chsc_characteristics.secm) {
-+		if (css_chsc_characteristics.secm) {
- 			ret = device_create_file(&css->device,
- 						 &dev_attr_cm_enable);
- 			if (ret)
-@@ -832,7 +827,7 @@ out_unregister:
- 		i--;
- 		css = channel_subsystems[i];
- 		device_unregister(&css->pseudo_subchannel->dev);
--		if (css_characteristics_avail && css_chsc_characteristics.secm)
-+		if (css_chsc_characteristics.secm)
- 			device_remove_file(&css->device,
- 					   &dev_attr_cm_enable);
- 		device_unregister(&css->device);
-@@ -956,4 +951,3 @@ subsys_initcall(init_channel_subsystem);
- 
- MODULE_LICENSE("GPL");
- EXPORT_SYMBOL(css_bus_type);
--EXPORT_SYMBOL_GPL(css_characteristics_avail);
-Index: quilt-2.6/drivers/s390/cio/qdio.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/qdio.c
-+++ quilt-2.6/drivers/s390/cio/qdio.c
-@@ -2354,9 +2354,6 @@ tiqdio_check_chsc_availability(void)
- {
- 	char dbf_text[15];
- 
--	if (!css_characteristics_avail)
--		return -EIO;
--
- 	/* Check for bit 41. */
- 	if (!css_general_characteristics.aif) {
- 		QDIO_PRINT_WARN("Adapter interruption facility not " \
++/* Functions for registration of I/O interruption subclasses */
++void isc_register(unsigned int isc);
++void isc_unregister(unsigned int isc);
++
+ #endif /* _ASM_S390_ISC_H */
 
 -- 
 blue skies,
