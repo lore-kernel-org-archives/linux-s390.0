@@ -1,8 +1,8 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757474AbYGBPzU@vger.kernel.org>
-Date: Wed, 2 Jul 2008 08:49:07 -0700
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760508AbYGBP4i@vger.kernel.org>
+Date: Wed, 2 Jul 2008 08:50:06 -0700
 From: Greg KH <greg@kroah.com>
-Subject: [PATCH 03/04] s390: more bus_id -> dev_name conversions
-Message-ID: <20080702154907.GC31083@kroah.com>
+Subject: [PATCH 04/04] s390: Use s390_root_dev_* in kvm_virtio.
+Message-ID: <20080702155006.GD31083@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -15,141 +15,68 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Some further bus_id -> dev_name() conversions in s390 code.
+No need to define a static device for the kvm_s390 root device,
+just use s390_root_dev_register().
 
+This is needed for the bus_id rework
+
+Acked-by: Carsten Otte <cotte@de.ibm.com>
 Cc: Kay Sievers <kay.sievers@vrfy.org>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- drivers/s390/char/raw3270.c  |    4 ++--
- drivers/s390/net/claw.c      |   20 +++++++++++---------
- drivers/s390/net/ctcm_main.c |    6 ++++--
- drivers/s390/scsi/zfcp_def.h |    2 +-
- 4 files changed, 18 insertions(+), 14 deletions(-)
+ drivers/s390/kvm/kvm_virtio.c |   15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
---- a/drivers/s390/char/raw3270.c
-+++ b/drivers/s390/char/raw3270.c
-@@ -1181,7 +1181,7 @@ static int raw3270_create_attributes(str
- 	rp->clttydev = device_create_drvdata(class3270, &rp->cdev->dev,
- 					     MKDEV(IBM_TTY3270_MAJOR, rp->minor),
- 					     NULL,
--					     "tty%s", rp->cdev->dev.bus_id);
-+					     "tty%s", dev_name(&rp->cdev->dev));
- 	if (IS_ERR(rp->clttydev)) {
- 		rc = PTR_ERR(rp->clttydev);
- 		goto out_ttydev;
-@@ -1190,7 +1190,7 @@ static int raw3270_create_attributes(str
- 	rp->cltubdev = device_create_drvdata(class3270, &rp->cdev->dev,
- 					     MKDEV(IBM_FS3270_MAJOR, rp->minor),
- 					     NULL,
--					     "tub%s", rp->cdev->dev.bus_id);
-+					     "tub%s", dev_name(&rp->cdev->dev));
- 	if (!IS_ERR(rp->cltubdev))
- 		goto out;
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -23,6 +23,7 @@
+ #include <asm/kvm_virtio.h>
+ #include <asm/setup.h>
+ #include <asm/s390_ext.h>
++#include <asm/s390_rdev.h>
  
---- a/drivers/s390/net/claw.c
-+++ b/drivers/s390/net/claw.c
-@@ -323,7 +323,7 @@ claw_probe(struct ccwgroup_device *cgdev
-                 probe_error(cgdev);
- 		put_device(&cgdev->dev);
- 		printk(KERN_WARNING "Out of memory %s %s Exit Line %d \n",
--			cgdev->cdev[0]->dev.bus_id,__func__,__LINE__);
-+		       dev_name(&cgdev->cdev[0]->dev),__func__,__LINE__);
- 		CLAW_DBF_TEXT_(2,setup,"probex%d",-ENOMEM);
-                 return -ENOMEM;
-         }
-@@ -340,11 +340,12 @@ claw_probe(struct ccwgroup_device *cgdev
- 		probe_error(cgdev);
- 		put_device(&cgdev->dev);
- 		printk(KERN_WARNING "add_files failed %s %s Exit Line %d \n",
--			cgdev->cdev[0]->dev.bus_id,__func__,__LINE__);
-+		       dev_name(&cgdev->cdev[0]->dev),__func__,__LINE__);
- 		CLAW_DBF_TEXT_(2,setup,"probex%d",rc);
- 		return rc;
- 	}
--	printk(KERN_INFO "claw: sysfs files added for %s\n",cgdev->cdev[0]->dev.bus_id);
-+	printk(KERN_INFO "claw: sysfs files added for %s\n",
-+	       dev_name(&cgdev->cdev[0]->dev));
- 	privptr->p_env->p_priv = privptr;
-         cgdev->cdev[0]->handler = claw_irq_handler;
- 	cgdev->cdev[1]->handler = claw_irq_handler;
-@@ -3953,7 +3954,8 @@ claw_new_device(struct ccwgroup_device *
- 	struct ccw_dev_id dev_id;
+ #define VIRTIO_SUBCODE_64 0x0D00
  
- 	pr_debug("%s() called\n", __func__);
--	printk(KERN_INFO "claw: add for %s\n",cgdev->cdev[READ]->dev.bus_id);
-+	printk(KERN_INFO "claw: add for %s\n",
-+	       dev_name(&cgdev->cdev[READ]->dev));
- 	CLAW_DBF_TEXT(2,setup,"new_dev");
- 	privptr = cgdev->dev.driver_data;
- 	cgdev->cdev[READ]->dev.driver_data = privptr;
-@@ -3978,14 +3980,14 @@ claw_new_device(struct ccwgroup_device *
- 	if (ret != 0) {
- 		printk(KERN_WARNING
- 		 "claw: ccw_device_set_online %s READ failed "
--			"with ret = %d\n",cgdev->cdev[READ]->dev.bus_id,ret);
-+		 "with ret = %d\n", dev_name(&cgdev->cdev[READ]->dev),ret);
- 		goto out;
- 	}
- 	ret = ccw_device_set_online(cgdev->cdev[WRITE]);
- 	if (ret != 0) {
- 		printk(KERN_WARNING
- 		 "claw: ccw_device_set_online %s WRITE failed "
--			"with ret = %d\n",cgdev->cdev[WRITE]->dev.bus_id, ret);
-+		  "with ret = %d\n", dev_name(&cgdev->cdev[WRITE]->dev), ret);
- 		goto out;
- 	}
- 	dev = alloc_netdev(0,"claw%d",claw_init_netdevice);
-@@ -4066,7 +4068,7 @@ claw_shutdown_device(struct ccwgroup_dev
- 	int	ret;
+@@ -236,10 +237,7 @@ static struct virtio_config_ops kvm_vq_c
+  * The root device for the kvm virtio devices.
+  * This makes them appear as /sys/devices/kvm_s390/0,1,2 not /sys/devices/0,1,2.
+  */
+-static struct device kvm_root = {
+-	.parent = NULL,
+-	.bus_id = "kvm_s390",
+-};
++static struct device *kvm_root;
  
- 	pr_debug("%s() called\n", __func__);
--	CLAW_DBF_TEXT_(2,setup,"%s",cgdev->dev.bus_id);
-+	CLAW_DBF_TEXT_(2,setup,"%s", dev_name(&cgdev->dev));
- 	priv = cgdev->dev.driver_data;
- 	if (!priv)
- 		return -ENODEV;
-@@ -4096,14 +4098,14 @@ claw_remove_device(struct ccwgroup_devic
- 	struct claw_privbk *priv;
- 
- 	pr_debug("%s() called\n", __func__);
--	CLAW_DBF_TEXT_(2,setup,"%s",cgdev->dev.bus_id);
-+	CLAW_DBF_TEXT_(2,setup,"%s", dev_name(&cgdev->dev));
- 	priv = cgdev->dev.driver_data;
- 	if (!priv) {
- 		printk(KERN_WARNING "claw: %s() no Priv exiting\n",__func__);
+ /*
+  * adds a new device and register it with virtio
+@@ -256,7 +254,7 @@ static void add_kvm_device(struct kvm_de
  		return;
  	}
- 	printk(KERN_INFO "claw: %s() called %s will be removed.\n",
--			__func__,cgdev->cdev[0]->dev.bus_id);
-+	       __func__, dev_name(&cgdev->cdev[0]->dev));
- 	if (cgdev->state == CCWGROUP_ONLINE)
- 		claw_shutdown_device(cgdev);
- 	claw_remove_files(&cgdev->dev);
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -1550,8 +1550,10 @@ static int ctcm_new_device(struct ccwgro
  
- 	type = get_channel_type(&cgdev->cdev[0]->id);
+-	kdev->vdev.dev.parent = &kvm_root;
++	kdev->vdev.dev.parent = kvm_root;
+ 	kdev->vdev.id.device = d->type;
+ 	kdev->vdev.config = &kvm_vq_configspace_ops;
+ 	kdev->desc = d;
+@@ -312,15 +310,16 @@ static int __init kvm_devices_init(void)
+ 	if (!MACHINE_IS_KVM)
+ 		return -ENODEV;
  
--	snprintf(read_id, CTCM_ID_SIZE, "ch-%s", cgdev->cdev[0]->dev.bus_id);
--	snprintf(write_id, CTCM_ID_SIZE, "ch-%s", cgdev->cdev[1]->dev.bus_id);
-+	snprintf(read_id, CTCM_ID_SIZE, "ch-%s",
-+		 dev_name(&cgdev->cdev[0]->dev));
-+	snprintf(write_id, CTCM_ID_SIZE, "ch-%s",
-+		 dev_name(&cgdev->cdev[1]->dev));
+-	rc = device_register(&kvm_root);
+-	if (rc) {
++	kvm_root = s390_root_dev_register("kvm_s390");
++	if (IS_ERR(kvm_root)) {
++		rc = PTR_ERR(kvm_root);
+ 		printk(KERN_ERR "Could not register kvm_s390 root device");
+ 		return rc;
+ 	}
  
- 	ret = add_channel(cgdev->cdev[0], type, priv);
- 	if (ret)
---- a/drivers/s390/scsi/zfcp_def.h
-+++ b/drivers/s390/scsi/zfcp_def.h
-@@ -922,7 +922,7 @@ extern void _zfcp_hex_dump(char *, int);
- 			_zfcp_hex_dump(addr, count); \
- 		}
- 
--#define zfcp_get_busid_by_adapter(adapter) (adapter->ccw_device->dev.bus_id)
-+#define zfcp_get_busid_by_adapter(adapter) (dev_name(&adapter->ccw_device->dev))
- #define zfcp_get_busid_by_port(port) (zfcp_get_busid_by_adapter(port->adapter))
- #define zfcp_get_busid_by_unit(unit) (zfcp_get_busid_by_port(unit->port))
+ 	rc = vmem_add_mapping(PFN_PHYS(max_pfn), PAGE_SIZE);
+ 	if (rc) {
+-		device_unregister(&kvm_root);
++		s390_root_dev_unregister(kvm_root);
+ 		return rc;
+ 	}
  
