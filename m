@@ -1,85 +1,34 @@
-From: Swen Schillig <swen@vnet.ibm.com>
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 Subject: Re: [patch 07/11] zfcp: Cleanup of code in zfcp_aux.c
-Date: Tue, 1 Jul 2008 15:44:13 +0200
-Message-ID: <200807011544.14178.swen@vnet.ibm.com>
-References: <20080630105236.960064000@de.ibm.com> <20080630110059.364138000@de.ibm.com> <20080630225259.GB4727@osiris.boeblingen.de.ibm.com>
+Date: Wed, 2 Jul 2008 09:03:58 +0200
+Message-ID: <20080702070357.GA16687@schmichrtp.de.ibm.com>
+References: <20080630105236.960064000@de.ibm.com> <20080630110059.364138000@de.ibm.com> <20080630225259.GB4727@osiris.boeblingen.de.ibm.com> <200807011544.14178.swen@vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <20080630225259.GB4727@osiris.boeblingen.de.ibm.com>
 Content-Disposition: inline
+In-Reply-To: <200807011544.14178.swen@vnet.ibm.com>
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: christof.schmitt@de.ibm.com, James Bottomley <James.Bottomley@hansenpartnership.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+To: Swen Schillig <swen@vnet.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, James Bottomley <James.Bottomley@hansenpartnership.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tuesday 01 July 2008 00:52, Heiko Carstens wrote:
-> > +static int __init zfcp_device_setup(char *devstr)
-> >  {
-> > -	char *tmp, *str;
-> > -	size_t len;
-> > +	char *token;
-> > 
-> >  	if (!devstr)
-> >  		return 0;
-> > 
-> > -	len = strlen(devstr) + 1;
-> > -	str = kmalloc(len, GFP_KERNEL);
-> > -	if (!str) {
-> > -		pr_err("zfcp: Could not allocate memory for "
-> > -		       "device parameter string, device not attached.\n");
-> > -		return 0;
-> > -	}
-> > -	memcpy(str, devstr, len);
-> > -
-> > -	tmp = strchr(str, ',');
-> > -	if (!tmp)
-> > +	token = strsep(&devstr, ",");
-> > +	if (!token || strlen(token) >= BUS_ID_SIZE)
-> >  		goto err_out;
-> > -	*tmp++ = '\0';
-> > -	strncpy(zfcp_data.init_busid, str, BUS_ID_SIZE);
-> > -	zfcp_data.init_busid[BUS_ID_SIZE-1] = '\0';
-> > +	strncpy(zfcp_data.init_busid, token, BUS_ID_SIZE);
-> > 
-> > -	zfcp_data.init_wwpn = simple_strtoull(tmp, &tmp, 0);
-> > -	if (*tmp++ != ',')
-> > -		goto err_out;
-> > -	if (*tmp == '\0')
-> > +	token = strsep(&devstr, ",");
-> > +	if (!token || strict_strtoull(token, 0, &zfcp_data.init_wwpn))
-> >  		goto err_out;
-> > 
-> > -	zfcp_data.init_fcp_lun = simple_strtoull(tmp, &tmp, 0);
-> > -	if (*tmp != '\0')
-> > +	token = strsep(&devstr, ",");
-> > +	if (!token || strict_strtoull(token, 0, &zfcp_data.init_fcp_lun))
-> >  		goto err_out;
-> > -	kfree(str);
-> >  	return 1;
-> > 
-> >   err_out:
-> >  	pr_err("zfcp: Parse error for device parameter string %s, "
-> > -	       "device not attached.\n", str);
-> > -	kfree(str);
-> > +	       "device not attached.\n", devstr);
-> >  	return 0;
-> >  }
+On Tue, Jul 01, 2008 at 03:44:13PM +0200, Swen Schillig wrote:
+> > Sorry, but this still seems to be incorrect. strsep modifies the string that
+> > gets passed to it. In this case you let it operate on the original module
+> > parameter string which is also exported via sysfs.
+> > So after parsing finished the exported string is much shorter than the
+> > original string. That was actually the whole point why the old code allocated
+> > memory and copied the string so the copy could be modified.
+> > A comment would have been good ;)
+> > --
+> Correct,
 > 
-> Sorry, but this still seems to be incorrect. strsep modifies the string that
-> gets passed to it. In this case you let it operate on the original module
-> parameter string which is also exported via sysfs.
-> So after parsing finished the exported string is much shorter than the
-> original string. That was actually the whole point why the old code allocated
-> memory and copied the string so the copy could be modified.
-> A comment would have been good ;)
-> --
-Correct,
+> I fixed the patch and Christof will send it soon to the list.
 
-I fixed the patch and Christof will send it soon to the list.
+While testing this, i also fixed one issue with the erp patch. To
+avoid confusion, i will resend the complete patch series later today.
 
-Cheers Swen
+Christof
