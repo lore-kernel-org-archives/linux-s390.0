@@ -1,83 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753737AbYGCATF@vger.kernel.org>
-Date: Thu, 3 Jul 2008 04:18:42 +0400
-From: Anton Vorontsov <cbouatmailru@gmail.com>
-Subject: Re: [PATCH 02/04] s390: bus_id -> dev_set_name() changes
-Message-ID: <20080703001842.GA12886@zarina>
-Reply-To: cbouatmailru@gmail.com
-References: <20080702154811.GB31083@kroah.com> <20080702221401.GA15142@zarina> <20080702230742.GA708@kroah.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753900AbYGCPTR@vger.kernel.org>
+Date: Thu, 3 Jul 2008 17:18:44 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 01/04] s390: bus_id -> dev_name conversions
+Message-ID: <20080703151844.GA2157@osiris.boeblingen.de.ibm.com>
+References: <20080702154630.GA31083@kroah.com> <20080702182832.1a087e8d@gondolin.boeblingen.de.ibm.com> <20080702184943.GA20938@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20080702230742.GA708@kroah.com>
+In-Reply-To: <20080702184943.GA20938@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Greg KH <greg@kroah.com>
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, Kay Sievers <kay.sievers@vrfy.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, schwidefsky@de.ibm.com, linux390@de.ibm.com, Kay Sievers <kay.sievers@vrfy.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jul 02, 2008 at 04:07:42PM -0700, Greg KH wrote:
-> On Thu, Jul 03, 2008 at 02:14:01AM +0400, Anton Vorontsov wrote:
-> > On Wed, Jul 02, 2008 at 08:48:11AM -0700, Greg KH wrote:
-> > > From: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > 
-> > > Convert most s390 users setting bus_id to dev_set_name().
-> > > css and ccw busses are deferred since they need some special
-> > > treatment.
-> > > 
-> > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > Cc: Kay Sievers <kay.sievers@vrfy.org>
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> > > 
-> > > ---
-> > >  drivers/s390/block/dcssblk.c |    2 +-
-> > >  drivers/s390/char/vmlogrdr.c |    3 +--
-> > >  drivers/s390/cio/ccwgroup.c  |    3 +--
-> > >  drivers/s390/cio/chp.c       |    3 +--
-> > >  drivers/s390/cio/css.c       |    4 ++--
-> > >  drivers/s390/crypto/ap_bus.c |    4 ++--
-> > >  drivers/s390/net/netiucv.c   |    2 +-
-> > >  drivers/s390/s390_rdev.c     |    2 +-
-> > >  drivers/s390/scsi/zfcp_aux.c |   23 ++++++++---------------
-> > >  9 files changed, 18 insertions(+), 28 deletions(-)
-> > > 
-> > > --- a/drivers/s390/block/dcssblk.c
-> > > +++ b/drivers/s390/block/dcssblk.c
-> > > @@ -349,7 +349,7 @@ dcssblk_add_store(struct device *dev, st
-> > >  	}
-> > >  
-> > >  	strcpy(dev_info->segment_name, local_buf);
-> > > -	strlcpy(dev_info->dev.bus_id, local_buf, BUS_ID_SIZE);
-> > > +	dev_set_name(&dev_info->dev, local_buf);
+On Wed, Jul 02, 2008 at 11:49:43AM -0700, Greg KH wrote:
+> On Wed, Jul 02, 2008 at 06:28:32PM +0200, Cornelia Huck wrote:
+> > On Wed, 2 Jul 2008 08:46:30 -0700,
+> > Greg KH <greg@kroah.com> wrote:
 > > 
-> > As I see it, dev_set_name accepts printf like string, so this
-> > dev_set_name is quite dangerous (since local_buf is formed
-> > by the module param), no?
+> > > @@ -529,7 +529,7 @@ cio_validate_subchannel (struct subchann
+> > >  	}
+> > >  	mutex_init(&sch->reg_mutex);
+> > >  	/* Set a name for the subchannel */
+> > > -	snprintf (sch->dev.bus_id, BUS_ID_SIZE, "0.%x.%04x", schid.ssid,
+> > > +	snprintf (dev_name(&sch->dev), BUS_ID_SIZE, "0.%x.%04x", schid.ssid,
+> > >  		  schid.sch_no);
+> > > 
+> > >  	/*
+> > 
+> > This hunk does not make much sense. Better just leave it alone until
+> > the dev_set_name()/init_name conversion later.
 > 
-> So you would rather see:
-> 	dev_set_name(&dev_info->dev, "%s", local_buf);
+> You are right.
 > 
-> instead?
+> 390 maintainers, can you drop this hunk, or do you want me to respin it
+> and the other 3 patches (if needed)?
 
-Yep.
+Please resend, since patch 2 needs to be changed as well, right?
 
-There is another occurrence of "feels dangerous" construction in this
-patch, namely
-
-> --- a/drivers/s390/char/vmlogrdr.c
-> +++ b/drivers/s390/char/vmlogrdr.c
-> @@ -738,8 +738,7 @@ static int vmlogrdr_register_device(stru
-> 
-> 	dev = kzalloc(sizeof(struct device), GFP_KERNEL);
-> 	if (dev) {
-> -		snprintf(dev->bus_id, BUS_ID_SIZE, "%s",
-> -			 priv->internal_name);
-> +		dev_set_name(dev, priv->internal_name);
-
-But in fact here it is safe, since the driver defines internal_name
-to be either "logrec", "account" or "symptom". No % symbols.
-
--- 
-Anton Vorontsov
-email: cbouatmailru@gmail.com
-irc://irc.freenode.net/bd2
+Thanks! :)
