@@ -1,82 +1,44 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760508AbYGBP4i@vger.kernel.org>
-Date: Wed, 2 Jul 2008 08:50:06 -0700
-From: Greg KH <greg@kroah.com>
-Subject: [PATCH 04/04] s390: Use s390_root_dev_* in kvm_virtio.
-Message-ID: <20080702155006.GD31083@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758237AbYGCIYp@vger.kernel.org>
+Date: Thu, 3 Jul 2008 09:07:22 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 02/04] s390: bus_id -> dev_set_name() changes
+Message-ID: <20080703090722.525b3930@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <20080702230742.GA708@kroah.com>
+References: <20080702154811.GB31083@kroah.com>
+	<20080702221401.GA15142@zarina>
+	<20080702230742.GA708@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: Anton Vorontsov <cbouatmailru@gmail.com>, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, Kay Sievers <kay.sievers@vrfy.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+On Wed, 2 Jul 2008 16:07:42 -0700,
+Greg KH <greg@kroah.com> wrote:
 
-No need to define a static device for the kvm_s390 root device,
-just use s390_root_dev_register().
+> On Thu, Jul 03, 2008 at 02:14:01AM +0400, Anton Vorontsov wrote:
+> > On Wed, Jul 02, 2008 at 08:48:11AM -0700, Greg KH wrote:
+> > > --- a/drivers/s390/block/dcssblk.c
+> > > +++ b/drivers/s390/block/dcssblk.c
+> > > @@ -349,7 +349,7 @@ dcssblk_add_store(struct device *dev, st
+> > >  	}
+> > >  
+> > >  	strcpy(dev_info->segment_name, local_buf);
+> > > -	strlcpy(dev_info->dev.bus_id, local_buf, BUS_ID_SIZE);
+> > > +	dev_set_name(&dev_info->dev, local_buf);
+> > 
+> > As I see it, dev_set_name accepts printf like string, so this
+> > dev_set_name is quite dangerous (since local_buf is formed
+> > by the module param), no?
+> 
+> So you would rather see:
+> 	dev_set_name(&dev_info->dev, "%s", local_buf);
+> 
+> instead?
 
-This is needed for the bus_id rework
-
-Acked-by: Carsten Otte <cotte@de.ibm.com>
-Cc: Kay Sievers <kay.sievers@vrfy.org>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- drivers/s390/kvm/kvm_virtio.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
-
---- a/drivers/s390/kvm/kvm_virtio.c
-+++ b/drivers/s390/kvm/kvm_virtio.c
-@@ -23,6 +23,7 @@
- #include <asm/kvm_virtio.h>
- #include <asm/setup.h>
- #include <asm/s390_ext.h>
-+#include <asm/s390_rdev.h>
- 
- #define VIRTIO_SUBCODE_64 0x0D00
- 
-@@ -236,10 +237,7 @@ static struct virtio_config_ops kvm_vq_c
-  * The root device for the kvm virtio devices.
-  * This makes them appear as /sys/devices/kvm_s390/0,1,2 not /sys/devices/0,1,2.
-  */
--static struct device kvm_root = {
--	.parent = NULL,
--	.bus_id = "kvm_s390",
--};
-+static struct device *kvm_root;
- 
- /*
-  * adds a new device and register it with virtio
-@@ -256,7 +254,7 @@ static void add_kvm_device(struct kvm_de
- 		return;
- 	}
- 
--	kdev->vdev.dev.parent = &kvm_root;
-+	kdev->vdev.dev.parent = kvm_root;
- 	kdev->vdev.id.device = d->type;
- 	kdev->vdev.config = &kvm_vq_configspace_ops;
- 	kdev->desc = d;
-@@ -312,15 +310,16 @@ static int __init kvm_devices_init(void)
- 	if (!MACHINE_IS_KVM)
- 		return -ENODEV;
- 
--	rc = device_register(&kvm_root);
--	if (rc) {
-+	kvm_root = s390_root_dev_register("kvm_s390");
-+	if (IS_ERR(kvm_root)) {
-+		rc = PTR_ERR(kvm_root);
- 		printk(KERN_ERR "Could not register kvm_s390 root device");
- 		return rc;
- 	}
- 
- 	rc = vmem_add_mapping(PFN_PHYS(max_pfn), PAGE_SIZE);
- 	if (rc) {
--		device_unregister(&kvm_root);
-+		s390_root_dev_unregister(kvm_root);
- 		return rc;
- 	}
- 
+Hm, I thought the string had already been sanitized at that time, but
+looking again it doesn't do many checks... so this looks better.
