@@ -1,54 +1,64 @@
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: [PATCH linux-next] fix s390 compile error due to
- smp_call_function
-Date: Thu, 10 Jul 2008 02:21:40 +1000
-Message-ID: <20080710022140.0eaf9f8d.sfr@canb.auug.org.au>
-References: <200807081625.50437.borntraeger@de.ibm.com>
-	<20080709143639.GB24152@osiris.boeblingen.de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH linux-next] fix s390 compile error due to smp_call_function
+Date: Tue, 8 Jul 2008 16:25:50 +0200
+Message-ID: <200807081625.50437.borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__10_Jul_2008_02_21_40_+1000_/MVl4LXmSvP.+Eil"
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <20080709143639.GB24152@osiris.boeblingen.de.ibm.com>
+Content-Disposition: inline
 Sender: linux-next-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-next/>
 List-Post: <mailto:linux-next@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Jens Axboe <jens.axboe@oracle.com>, linux-next@vger.kernel.org, linux-s390@vger.kernel.org
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
---Signature=_Thu__10_Jul_2008_02_21_40_+1000_/MVl4LXmSvP.+Eil
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hello Jens,
 
-Hi Heiko,
+the following patch in linux-next (v2.6.26-rc9-7220-g5e36ed1)
 
-On Wed, 9 Jul 2008 16:36:39 +0200 Heiko Carstens <heiko.carstens@de.ibm.com=
-> wrote:
->
-> Stephen, could you add this patch to your build fixes?
-> Currently it won't fit into git-s390 or Jens' smp_call_function
-> tree, since these two call sites are introduced with a new
-> patch in git-s390 (stp support).
+commit 8691e5a8f691cc2a4fda0651e8d307aaba0e7d68
+Author: Jens Axboe <jens.axboe@oracle.com>
+Date:   Fri Jun 6 11:18:06 2008 +0200
+smp_call_function: get rid of the unused nonatomic/retry argument
 
-Will do.
+causes a build error on s390.
+  CC      arch/s390/kernel/time.o
+arch/s390/kernel/time.c: In function 'stp_work_fn':
+arch/s390/kernel/time.c:1448: error: too many arguments to 
+function 'smp_call_function'
+arch/s390/kernel/time.c:1481: error: too many arguments to 
+function 'smp_call_function'
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+The fix is simple and obvious, remove the unneeded argument.
 
---Signature=_Thu__10_Jul_2008_02_21_40_+1000_/MVl4LXmSvP.+Eil
-Content-Type: application/pgp-signature
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+---
+ arch/s390/kernel/time.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-iEYEARECAAYFAkh05ZQACgkQjjKRsyhoI8zu1gCfStFgg1wc+BVbiyklOm1/c/uJ
-7nYAn1dgm8O/JhbRM3UCMLKq9sTRi9+H
-=pmN/
------END PGP SIGNATURE-----
-
---Signature=_Thu__10_Jul_2008_02_21_40_+1000_/MVl4LXmSvP.+Eil--
+Index: linux-next/arch/s390/kernel/time.c
+===================================================================
+--- linux-next.orig/arch/s390/kernel/time.c
++++ linux-next/arch/s390/kernel/time.c
+@@ -1445,7 +1445,7 @@ static void stp_work_fn(struct work_stru
+ 	 */
+ 	memset(&stp_sync, 0, sizeof(stp_sync));
+ 	preempt_disable();
+-	smp_call_function(clock_sync_cpu_start, &stp_sync, 0, 0);
++	smp_call_function(clock_sync_cpu_start, &stp_sync, 0);
+ 	local_irq_disable();
+ 	enable_sync_clock();
+ 
+@@ -1478,7 +1478,7 @@ static void stp_work_fn(struct work_stru
+ 		stp_sync.in_sync = 1;
+ 
+ 	local_irq_enable();
+-	smp_call_function(clock_sync_cpu_end, NULL, 0, 0);
++	smp_call_function(clock_sync_cpu_end, NULL, 0);
+ 	preempt_enable();
+ }
+ 
