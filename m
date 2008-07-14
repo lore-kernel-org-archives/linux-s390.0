@@ -1,429 +1,299 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 1/1] qeth: preallocated qeth header for hiper socket
-Date: Mon, 14 Jul 2008 10:16:01 +0200
-Message-ID: <20080714081641.883516000@de.ibm.com>
-References: <20080714081600.800572000@de.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=600-qeth-prealloc.diff
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: jgarzik@pobox.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756718AbYGNJAg@vger.kernel.org>
+Date: Mon, 14 Jul 2008 11:00:12 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [GIT PULL] s390 updates for 2.6.27
+Message-ID: <20080714090012.GA4787@osiris.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Frank Blaschka <frank.blaschka@de.ibm.com>
+Hi Linus,
 
-For hiper socket devices this patch will economize the reallocation
-of the tx skb data segment by allocating separate memory for the qdio
-transport information (qeth header).
+since Martin is on vacation the first s390 pull request for the 2.6.27
+merge window comes from me.
 
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+Please pull from 'for-linus' branch of
 
- drivers/s390/net/qeth_core.h      |    5 +--
- drivers/s390/net/qeth_core_main.c |   59 +++++++++++++++++++++++++++++---------
- drivers/s390/net/qeth_l2_main.c   |   50 +++++++++++++++++++++++++-------
- drivers/s390/net/qeth_l3_main.c   |   51 ++++++++++++++++++++++++--------
- 4 files changed, 126 insertions(+), 39 deletions(-)
+	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
 
-Index: git_linus/drivers/s390/net/qeth_core.h
-===================================================================
---- git_linus.orig/drivers/s390/net/qeth_core.h	2008-07-14 09:33:15.000000000 +0200
-+++ git_linus/drivers/s390/net/qeth_core.h	2008-07-14 09:51:18.000000000 +0200
-@@ -424,6 +424,7 @@
- 	int next_element_to_fill;
- 	struct sk_buff_head skb_list;
- 	struct list_head ctx_list;
-+	int is_header[16];
- };
- 
- struct qeth_card;
-@@ -790,7 +791,7 @@
- 
- /* exports for qeth discipline device drivers */
- extern struct qeth_card_list_struct qeth_core_card_list;
--
-+extern struct kmem_cache *qeth_core_header_cache;
- extern struct qeth_dbf_info qeth_dbf[QETH_DBF_INFOS];
- 
- void qeth_set_allowed_threads(struct qeth_card *, unsigned long , int);
-@@ -851,7 +852,7 @@
- int qeth_get_elements_no(struct qeth_card *, void *, struct sk_buff *, int);
- int qeth_do_send_packet_fast(struct qeth_card *, struct qeth_qdio_out_q *,
- 			struct sk_buff *, struct qeth_hdr *, int,
--			struct qeth_eddp_context *);
-+			struct qeth_eddp_context *, int, int);
- int qeth_do_send_packet(struct qeth_card *, struct qeth_qdio_out_q *,
- 		    struct sk_buff *, struct qeth_hdr *,
- 		    int, struct qeth_eddp_context *);
-Index: git_linus/drivers/s390/net/qeth_core_main.c
-===================================================================
---- git_linus.orig/drivers/s390/net/qeth_core_main.c	2008-07-14 09:33:15.000000000 +0200
-+++ git_linus/drivers/s390/net/qeth_core_main.c	2008-07-14 09:51:18.000000000 +0200
-@@ -48,6 +48,8 @@
- 
- struct qeth_card_list_struct qeth_core_card_list;
- EXPORT_SYMBOL_GPL(qeth_core_card_list);
-+struct kmem_cache *qeth_core_header_cache;
-+EXPORT_SYMBOL_GPL(qeth_core_header_cache);
- 
- static struct device *qeth_core_root_dev;
- static unsigned int known_devices[][10] = QETH_MODELLIST_ARRAY;
-@@ -933,6 +935,10 @@
- 	}
- 	qeth_eddp_buf_release_contexts(buf);
- 	for (i = 0; i < QETH_MAX_BUFFER_ELEMENTS(queue->card); ++i) {
-+		if (buf->buffer->element[i].addr && buf->is_header[i])
-+			kmem_cache_free(qeth_core_header_cache,
-+				buf->buffer->element[i].addr);
-+		buf->is_header[i] = 0;
- 		buf->buffer->element[i].length = 0;
- 		buf->buffer->element[i].addr = NULL;
- 		buf->buffer->element[i].flags = 0;
-@@ -3017,8 +3023,8 @@
- 	if (skb_shinfo(skb)->nr_frags > 0)
- 		elements_needed = (skb_shinfo(skb)->nr_frags + 1);
- 	if (elements_needed == 0)
--		elements_needed = 1 + (((((unsigned long) hdr) % PAGE_SIZE)
--			+ skb->len) >> PAGE_SHIFT);
-+		elements_needed = 1 + (((((unsigned long) skb->data) %
-+				PAGE_SIZE) + skb->len) >> PAGE_SHIFT);
- 	if ((elements_needed + elems) > QETH_MAX_BUFFER_ELEMENTS(card)) {
- 		QETH_DBF_MESSAGE(2, "Invalid size of IP packet "
- 			"(Number=%d / Length=%d). Discarded.\n",
-@@ -3030,7 +3036,8 @@
- EXPORT_SYMBOL_GPL(qeth_get_elements_no);
- 
- static inline void __qeth_fill_buffer(struct sk_buff *skb,
--	struct qdio_buffer *buffer, int is_tso, int *next_element_to_fill)
-+	struct qdio_buffer *buffer, int is_tso, int *next_element_to_fill,
-+	int offset)
- {
- 	int length = skb->len;
- 	int length_here;
-@@ -3042,6 +3049,11 @@
- 	data = skb->data;
- 	first_lap = (is_tso == 0 ? 1 : 0);
- 
-+	if (offset >= 0) {
-+		data = skb->data + offset;
-+		first_lap = 0;
-+	}
-+
- 	while (length > 0) {
- 		/* length_here is the remaining amount of data in this page */
- 		length_here = PAGE_SIZE - ((unsigned long) data % PAGE_SIZE);
-@@ -3073,22 +3085,22 @@
- }
- 
- static inline int qeth_fill_buffer(struct qeth_qdio_out_q *queue,
--		struct qeth_qdio_out_buffer *buf, struct sk_buff *skb)
-+		struct qeth_qdio_out_buffer *buf, struct sk_buff *skb,
-+		struct qeth_hdr *hdr, int offset, int hd_len)
- {
- 	struct qdio_buffer *buffer;
--	struct qeth_hdr_tso *hdr;
- 	int flush_cnt = 0, hdr_len, large_send = 0;
- 
- 	buffer = buf->buffer;
- 	atomic_inc(&skb->users);
- 	skb_queue_tail(&buf->skb_list, skb);
- 
--	hdr  = (struct qeth_hdr_tso *) skb->data;
- 	/*check first on TSO ....*/
--	if (hdr->hdr.hdr.l3.id == QETH_HEADER_TYPE_TSO) {
-+	if (hdr->hdr.l3.id == QETH_HEADER_TYPE_TSO) {
- 		int element = buf->next_element_to_fill;
- 
--		hdr_len = sizeof(struct qeth_hdr_tso) + hdr->ext.dg_hdr_len;
-+		hdr_len = sizeof(struct qeth_hdr_tso) +
-+			((struct qeth_hdr_tso *)hdr)->ext.dg_hdr_len;
- 		/*fill first buffer entry only with header information */
- 		buffer->element[element].addr = skb->data;
- 		buffer->element[element].length = hdr_len;
-@@ -3098,9 +3110,20 @@
- 		skb->len  -= hdr_len;
- 		large_send = 1;
- 	}
-+
-+	if (offset >= 0) {
-+		int element = buf->next_element_to_fill;
-+		buffer->element[element].addr = hdr;
-+		buffer->element[element].length = sizeof(struct qeth_hdr) +
-+							hd_len;
-+		buffer->element[element].flags = SBAL_FLAGS_FIRST_FRAG;
-+		buf->is_header[element] = 1;
-+		buf->next_element_to_fill++;
-+	}
-+
- 	if (skb_shinfo(skb)->nr_frags == 0)
- 		__qeth_fill_buffer(skb, buffer, large_send,
--				   (int *)&buf->next_element_to_fill);
-+				(int *)&buf->next_element_to_fill, offset);
- 	else
- 		__qeth_fill_buffer_frag(skb, buffer, large_send,
- 					(int *)&buf->next_element_to_fill);
-@@ -3130,7 +3153,7 @@
- int qeth_do_send_packet_fast(struct qeth_card *card,
- 		struct qeth_qdio_out_q *queue, struct sk_buff *skb,
- 		struct qeth_hdr *hdr, int elements_needed,
--		struct qeth_eddp_context *ctx)
-+		struct qeth_eddp_context *ctx, int offset, int hd_len)
- {
- 	struct qeth_qdio_out_buffer *buffer;
- 	int buffers_needed = 0;
-@@ -3163,7 +3186,7 @@
- 	}
- 	atomic_set(&queue->state, QETH_OUT_Q_UNLOCKED);
- 	if (ctx == NULL) {
--		qeth_fill_buffer(queue, buffer, skb);
-+		qeth_fill_buffer(queue, buffer, skb, hdr, offset, hd_len);
- 		qeth_flush_buffers(queue, 0, index, 1);
- 	} else {
- 		flush_cnt = qeth_eddp_fill_buffer(queue, ctx, index);
-@@ -3239,7 +3262,7 @@
- 		}
- 	}
- 	if (ctx == NULL)
--		tmp = qeth_fill_buffer(queue, buffer, skb);
-+		tmp = qeth_fill_buffer(queue, buffer, skb, hdr, -1, 0);
- 	else {
- 		tmp = qeth_eddp_fill_buffer(queue, ctx,
- 						queue->next_buf_to_fill);
-@@ -4459,8 +4482,17 @@
- 	rc = IS_ERR(qeth_core_root_dev) ? PTR_ERR(qeth_core_root_dev) : 0;
- 	if (rc)
- 		goto register_err;
--	return 0;
- 
-+	qeth_core_header_cache = kmem_cache_create("qeth_hdr",
-+			sizeof(struct qeth_hdr) + ETH_HLEN, 64, 0, NULL);
-+	if (!qeth_core_header_cache) {
-+		rc = -ENOMEM;
-+		goto slab_err;
-+	}
-+
-+	return 0;
-+slab_err:
-+	s390_root_dev_unregister(qeth_core_root_dev);
- register_err:
- 	driver_remove_file(&qeth_core_ccwgroup_driver.driver,
- 			   &driver_attr_group);
-@@ -4482,6 +4514,7 @@
- 			   &driver_attr_group);
- 	ccwgroup_driver_unregister(&qeth_core_ccwgroup_driver);
- 	ccw_driver_unregister(&qeth_ccw_driver);
-+	kmem_cache_destroy(qeth_core_header_cache);
- 	qeth_unregister_dbf_views();
- 	PRINT_INFO("core functions removed\n");
- }
-Index: git_linus/drivers/s390/net/qeth_l2_main.c
-===================================================================
---- git_linus.orig/drivers/s390/net/qeth_l2_main.c	2008-07-14 09:33:15.000000000 +0200
-+++ git_linus/drivers/s390/net/qeth_l2_main.c	2008-07-14 09:51:18.000000000 +0200
-@@ -243,8 +243,7 @@
- static void qeth_l2_fill_header(struct qeth_card *card, struct qeth_hdr *hdr,
- 			struct sk_buff *skb, int ipv, int cast_type)
- {
--	struct vlan_ethhdr *veth = (struct vlan_ethhdr *)((skb->data) +
--					QETH_HEADER_SIZE);
-+	struct vlan_ethhdr *veth = (struct vlan_ethhdr *)skb_mac_header(skb);
- 
- 	memset(hdr, 0, sizeof(struct qeth_hdr));
- 	hdr->hdr.l2.id = QETH_HEADER_TYPE_LAYER2;
-@@ -621,6 +620,9 @@
- 	int tx_bytes = skb->len;
- 	enum qeth_large_send_types large_send = QETH_LARGE_SEND_NO;
- 	struct qeth_eddp_context *ctx = NULL;
-+	int data_offset = -1;
-+	int elements_needed = 0;
-+	int hd_len = 0;
- 
- 	if ((card->state != CARD_STATE_UP) || !card->lan_online) {
- 		card->stats.tx_carrier_errors++;
-@@ -643,13 +645,32 @@
- 	if (card->info.type == QETH_CARD_TYPE_OSN)
- 		hdr = (struct qeth_hdr *)skb->data;
- 	else {
--		/* create a clone with writeable headroom */
--		new_skb = skb_realloc_headroom(skb, sizeof(struct qeth_hdr));
--		if (!new_skb)
--			goto tx_drop;
--		hdr = (struct qeth_hdr *)skb_push(new_skb,
-+		if ((card->info.type == QETH_CARD_TYPE_IQD) && (!large_send) &&
-+		    (skb_shinfo(skb)->nr_frags == 0)) {
-+			new_skb = skb;
-+			data_offset = ETH_HLEN;
-+			hd_len = ETH_HLEN;
-+			hdr = kmem_cache_alloc(qeth_core_header_cache,
-+						GFP_ATOMIC);
-+			if (!hdr)
-+				goto tx_drop;
-+			elements_needed++;
-+			skb_reset_mac_header(new_skb);
-+			qeth_l2_fill_header(card, hdr, new_skb, ipv, cast_type);
-+			hdr->hdr.l2.pkt_length = new_skb->len;
-+			memcpy(((char *)hdr) + sizeof(struct qeth_hdr),
-+				skb_mac_header(new_skb), ETH_HLEN);
-+		} else {
-+			/* create a clone with writeable headroom */
-+			new_skb = skb_realloc_headroom(skb,
-+						sizeof(struct qeth_hdr));
-+			if (!new_skb)
-+				goto tx_drop;
-+			hdr = (struct qeth_hdr *)skb_push(new_skb,
- 						sizeof(struct qeth_hdr));
--		qeth_l2_fill_header(card, hdr, new_skb, ipv, cast_type);
-+			skb_set_mac_header(new_skb, sizeof(struct qeth_hdr));
-+			qeth_l2_fill_header(card, hdr, new_skb, ipv, cast_type);
-+		}
- 	}
- 
- 	if (large_send == QETH_LARGE_SEND_EDDP) {
-@@ -660,9 +681,13 @@
- 			goto tx_drop;
- 		}
- 	} else {
--		elements = qeth_get_elements_no(card, (void *)hdr, new_skb, 0);
--		if (!elements)
-+		elements = qeth_get_elements_no(card, (void *)hdr, new_skb,
-+						elements_needed);
-+		if (!elements) {
-+			if (data_offset >= 0)
-+				kmem_cache_free(qeth_core_header_cache, hdr);
- 			goto tx_drop;
-+		}
- 	}
- 
- 	if ((large_send == QETH_LARGE_SEND_NO) &&
-@@ -674,7 +699,7 @@
- 					 elements, ctx);
- 	else
- 		rc = qeth_do_send_packet_fast(card, queue, new_skb, hdr,
--					      elements, ctx);
-+					elements, ctx, data_offset, hd_len);
- 	if (!rc) {
- 		card->stats.tx_packets++;
- 		card->stats.tx_bytes += tx_bytes;
-@@ -701,6 +726,9 @@
- 		if (ctx != NULL)
- 			qeth_eddp_put_context(ctx);
- 
-+		if (data_offset >= 0)
-+			kmem_cache_free(qeth_core_header_cache, hdr);
-+
- 		if (rc == -EBUSY) {
- 			if (new_skb != skb)
- 				dev_kfree_skb_any(new_skb);
-Index: git_linus/drivers/s390/net/qeth_l3_main.c
-===================================================================
---- git_linus.orig/drivers/s390/net/qeth_l3_main.c	2008-07-14 09:33:15.000000000 +0200
-+++ git_linus/drivers/s390/net/qeth_l3_main.c	2008-07-14 09:51:18.000000000 +0200
-@@ -2611,6 +2611,7 @@
- 	int tx_bytes = skb->len;
- 	enum qeth_large_send_types large_send = QETH_LARGE_SEND_NO;
- 	struct qeth_eddp_context *ctx = NULL;
-+	int data_offset = -1;
- 
- 	if ((card->info.type == QETH_CARD_TYPE_IQD) &&
- 	    (skb->protocol != htons(ETH_P_IPV6)) &&
-@@ -2631,14 +2632,28 @@
- 		card->perf_stats.outbound_start_time = qeth_get_micros();
- 	}
- 
--	/* create a clone with writeable headroom */
--	new_skb = skb_realloc_headroom(skb, sizeof(struct qeth_hdr_tso) +
--					VLAN_HLEN);
--	if (!new_skb)
--		goto tx_drop;
-+	if (skb_is_gso(skb))
-+		large_send = card->options.large_send;
-+
-+	if ((card->info.type == QETH_CARD_TYPE_IQD) && (!large_send) &&
-+	    (skb_shinfo(skb)->nr_frags == 0)) {
-+		new_skb = skb;
-+		data_offset = ETH_HLEN;
-+		hdr = kmem_cache_alloc(qeth_core_header_cache, GFP_ATOMIC);
-+		if (!hdr)
-+			goto tx_drop;
-+		elements_needed++;
-+	} else {
-+		/* create a clone with writeable headroom */
-+		new_skb = skb_realloc_headroom(skb, sizeof(struct qeth_hdr_tso)
-+					+ VLAN_HLEN);
-+		if (!new_skb)
-+			goto tx_drop;
-+	}
- 
- 	if (card->info.type == QETH_CARD_TYPE_IQD) {
--		skb_pull(new_skb, ETH_HLEN);
-+		if (data_offset < 0)
-+			skb_pull(new_skb, ETH_HLEN);
- 	} else {
- 		if (new_skb->protocol == htons(ETH_P_IP)) {
- 			if (card->dev->type == ARPHRD_IEEE802_TR)
-@@ -2664,9 +2679,6 @@
- 
- 	netif_stop_queue(dev);
- 
--	if (skb_is_gso(new_skb))
--		large_send = card->options.large_send;
--
- 	/* fix hardware limitation: as long as we do not have sbal
- 	 * chaining we can not send long frag lists so we temporary
- 	 * switch to EDDP
-@@ -2684,9 +2696,16 @@
- 		qeth_tso_fill_header(card, hdr, new_skb);
- 		elements_needed++;
- 	} else {
--		hdr = (struct qeth_hdr *)skb_push(new_skb,
-+		if (data_offset < 0) {
-+			hdr = (struct qeth_hdr *)skb_push(new_skb,
- 						sizeof(struct qeth_hdr));
--		qeth_l3_fill_header(card, hdr, new_skb, ipv, cast_type);
-+			qeth_l3_fill_header(card, hdr, new_skb, ipv,
-+						cast_type);
-+		} else {
-+			qeth_l3_fill_header(card, hdr, new_skb, ipv,
-+						cast_type);
-+			hdr->hdr.l3.length = new_skb->len - data_offset;
-+		}
- 	}
- 
- 	if (large_send == QETH_LARGE_SEND_EDDP) {
-@@ -2702,8 +2721,11 @@
- 	} else {
- 		int elems = qeth_get_elements_no(card, (void *)hdr, new_skb,
- 						 elements_needed);
--		if (!elems)
-+		if (!elems) {
-+			if (data_offset >= 0)
-+				kmem_cache_free(qeth_core_header_cache, hdr);
- 			goto tx_drop;
-+		}
- 		elements_needed += elems;
- 	}
- 
-@@ -2716,7 +2738,7 @@
- 					 elements_needed, ctx);
- 	else
- 		rc = qeth_do_send_packet_fast(card, queue, new_skb, hdr,
--					      elements_needed, ctx);
-+					elements_needed, ctx, data_offset, 0);
- 
- 	if (!rc) {
- 		card->stats.tx_packets++;
-@@ -2744,6 +2766,9 @@
- 		if (ctx != NULL)
- 			qeth_eddp_put_context(ctx);
- 
-+		if (data_offset >= 0)
-+			kmem_cache_free(qeth_core_header_cache, hdr);
-+
- 		if (rc == -EBUSY) {
- 			if (new_skb != skb)
- 				dev_kfree_skb_any(new_skb);
+Besides the usual cleanups and bugfixes it contains new features like
+clock synchronization with the server time protocol (stp);
+memory-add support (touches common code Kconfig file);
+a lot of new stuff in the s390 common I/O layer code which also
+touches a few common files for css bus modalias and documentation.
+The changes in net/iucv/ are just printk cleanups/removals for the
+s390 drivers.
 
--- 
+A few patches are currently missing: our new qdio driver depends on
+changes in the scsi and net trees and memory hot-remove support depends
+on a patch which is currently in -mm. These will follow with a later
+pull request.
+
+Thanks.
+
+Shortlog and diffstat:
+
+Akinobu Mita (4):
+      [S390] s390/vmcp: use simple_read_from_buffer()
+      [S390] s390/cio: use memory_read_from_buffer()
+      [S390] s390: use simple_read_from_buffer()
+      [S390] s390: use memory_read_from_buffer()
+
+Christian Borntraeger (1):
+      [S390] Cleanup vmcp printk messages.
+
+Cornelia Huck (14):
+      [S390] cio: Clear correct bit in cio_release_console().
+      [S390] cio: Register all subchannels.
+      [S390] cio: Introduce modalias for css bus.
+      [S390] cio: Rework css driver.
+      [S390] cio: Cleanup crw interface.
+      [S390] cio: Export some symbols for modular css drivers.
+      [S390] cio: Base message subchannel handling.
+      [S390] cio: Get rid of css_characteristics_avail.
+      [S390] cio: Introduce abstract isc definitions.
+      [S390] cio: Allow adapter interrupt handlers per isc.
+      [S390] cio: Use isc_{register,unregister}.
+      [S390] cio: Repair chpid event handling.
+      [S390] css: Use css_device_id for bus matching.
+      [S390] cio: Add chsc subchannel driver.
+
+Felix Beck (2):
+      [S390] ap: Use high-resolution timer for polling
+      [S390] Cleanup zcrypt printk messages.
+
+Frank Blaschka (1):
+      [S390] Cleanup qeth print messages.
+
+Gerald Schaefer (3):
+      [S390] make appldata compile w/o CONFIG_SWAP
+      [S390] Cleanup appldata printk messages.
+      [S390] Cleanup monreader printk messages.
+
+Heiko Carstens (12):
+      [S390] sclp: keep facility mask up to date.
+      [S390] sclp: fix possible deadlock on cpu rescan.
+      [S390] Remove ipldelay kernel parameter.
+      [S390] initrd vs bss section clearing.
+      [S390] idle: remove idle notifier chain.
+      [S390] Add sched.h include to asm-s390/pgtable.h.
+      [S390] Add support for memory hot-add.
+      [S390] Add support for memory hot-add via sclp.
+      [S390] Move memory detection code to own file.
+      [S390] Remove P390 support.
+      [S390] sclp_tty: remove ioctl interface.
+      [S390] sclp_tty: Fix scheduling while atomic bug.
+
+Hendrik Brueckner (1):
+      [S390] Extra Kernel Parameters via VMPARM
+
+Hongjie Yang (1):
+      [S390] Cleanup dcssblk printk messages.
+
+Jan Glauber (1):
+      [S390] Cleanup cpacf printk messages.
+
+Julia Lawall (2):
+      [S390] arch/s390: Eliminate NULL test and memset after alloc_bootmem
+      [S390] drivers/s390: Eliminate NULL test and memset after alloc_bootmem
+
+Klaus-D. Wacker (1):
+      [S390] Cleanup lcs printk messages.
+
+Martin Schwidefsky (11):
+      [S390] Introduce user_regset accessors for s390
+      [S390] stp support.
+      [S390] Cleanup vtime printk messages.
+      [S390] Cleanup xpram printk messages.
+      [S390] Cleanup 3270 printk messages.
+      [S390] Cleanup 3215 printk messages.
+      [S390] Cleanup sclp printk messages.
+      [S390] Cleanup smsgiucv printk messages.
+      [S390] Cleanup vmlogrdr printk messages.
+      [S390] Cleanup vmwatch printk messages.
+      [S390] Cleanup kprobes printk messages.
+
+Michael Ernst (2):
+      [S390] cio: Use locks when accessing /sys/firmware/cpi data.
+      [S390] Cleanup cio printk messages.
+
+Michael Holzheu (2):
+      [S390] Cleanup s390 debug feature print messages.
+      [S390] Cleanup zfcp dumper printk messages.
+
+Peter Oberparleiter (6):
+      [S390] cio: introduce fcx bit to chsc characteristics
+      [S390] cio: introduce fcx enabled scsw format
+      [S390] cio: provide functions for fcx enabled I/O
+      [S390] cio: provide helper functions for fcx enabled I/O
+      [S390] cio: suppress chpid event in case of configure error
+      [S390] sclp: simplify vt220 cleanup logic
+
+Ralph Wuerthner (1):
+      [S390] zcrypt: Add additional card IDs to CEX2C and CEX2A
+
+Sebastian Ott (3):
+      [S390] cio: remove lock from ccw_device_oper_notify.
+      [S390] cio: introduce isc_(un)register functions.
+      [S390] cio: fix double unregistering of subchannels
+
+Ursula Braun (3):
+      [S390] qdio: Repair timeout handling for qdio_shutdown
+      [S390] Cleanup iucv printk messages.
+      [S390] Cleanup netiucv printk messages.
+
+ Documentation/ABI/testing/sysfs-bus-css |   35 ++
+ Documentation/ioctl-number.txt          |    1 +
+ arch/s390/Kconfig                       |   21 +
+ arch/s390/appldata/appldata.h           |   10 +-
+ arch/s390/appldata/appldata_base.c      |   41 +--
+ arch/s390/appldata/appldata_mem.c       |   43 +--
+ arch/s390/appldata/appldata_net_sum.c   |   39 +--
+ arch/s390/appldata/appldata_os.c        |   57 +--
+ arch/s390/crypto/prng.c                 |    5 +-
+ arch/s390/hypfs/inode.c                 |   29 +-
+ arch/s390/kernel/Makefile               |    9 +-
+ arch/s390/kernel/binfmt_elf32.c         |  214 --------
+ arch/s390/kernel/compat_ptrace.h        |    4 +-
+ arch/s390/kernel/debug.c                |    9 -
+ arch/s390/kernel/early.c                |  211 ++++-----
+ arch/s390/kernel/ipl.c                  |  462 ++++++++++++++---
+ arch/s390/kernel/kprobes.c              |    4 +-
+ arch/s390/kernel/machine_kexec.c        |    1 -
+ arch/s390/kernel/mem_detect.c           |  100 ++++
+ arch/s390/kernel/process.c              |   32 +--
+ arch/s390/kernel/ptrace.c               |  363 ++++++++++++--
+ arch/s390/kernel/setup.c                |   51 +--
+ arch/s390/kernel/time.c                 |  634 ++++++++++++++++++------
+ arch/s390/kernel/topology.c             |    2 -
+ arch/s390/kernel/vtime.c                |   81 +---
+ arch/s390/mm/init.c                     |   19 +
+ drivers/s390/block/dasd.c               |   18 +-
+ drivers/s390/block/dasd_3990_erp.c      |   15 +-
+ drivers/s390/block/dasd_eckd.c          |   12 +-
+ drivers/s390/block/dasd_fba.c           |   12 +-
+ drivers/s390/block/dcssblk.c            |   22 +-
+ drivers/s390/block/xpram.c              |   18 +-
+ drivers/s390/char/con3215.c             |   38 +--
+ drivers/s390/char/con3270.c             |    6 +-
+ drivers/s390/char/fs3270.c              |   11 +-
+ drivers/s390/char/monreader.c           |   74 +---
+ drivers/s390/char/raw3270.c             |   28 +-
+ drivers/s390/char/sclp.c                |   12 +-
+ drivers/s390/char/sclp_cmd.c            |  343 ++++++++++++-
+ drivers/s390/char/sclp_con.c            |    5 +-
+ drivers/s390/char/sclp_config.c         |   17 +-
+ drivers/s390/char/sclp_cpi_sys.c        |   57 ++-
+ drivers/s390/char/sclp_quiesce.c        |    8 +-
+ drivers/s390/char/sclp_rw.c             |    2 -
+ drivers/s390/char/sclp_sdias.c          |    4 +-
+ drivers/s390/char/sclp_tty.c            |  261 ++--------
+ drivers/s390/char/sclp_tty.h            |   53 --
+ drivers/s390/char/sclp_vt220.c          |   62 +--
+ drivers/s390/char/tape_34xx.c           |   12 +-
+ drivers/s390/char/tape_3590.c           |   21 +-
+ drivers/s390/char/tape_core.c           |   15 +-
+ drivers/s390/char/tty3270.c             |    9 +-
+ drivers/s390/char/vmcp.c                |   37 +-
+ drivers/s390/char/vmlogrdr.c            |   29 +-
+ drivers/s390/char/vmur.c                |    5 +-
+ drivers/s390/char/vmwatchdog.c          |   16 +-
+ drivers/s390/char/zcore.c               |   31 +-
+ drivers/s390/cio/Makefile               |    4 +-
+ drivers/s390/cio/airq.c                 |   45 +-
+ drivers/s390/cio/chp.c                  |  116 ++++--
+ drivers/s390/cio/chp.h                  |   15 +-
+ drivers/s390/cio/chsc.c                 |  379 ++++++---------
+ drivers/s390/cio/chsc.h                 |   26 +-
+ drivers/s390/cio/chsc_sch.c             |  820 ++++++++++++++++++++++++++++++
+ drivers/s390/cio/chsc_sch.h             |   13 +
+ drivers/s390/cio/cio.c                  |  282 +++++++----
+ drivers/s390/cio/cio.h                  |   14 +-
+ drivers/s390/cio/cmf.c                  |   20 +-
+ drivers/s390/cio/css.c                  |  283 +++++------
+ drivers/s390/cio/css.h                  |   49 +-
+ drivers/s390/cio/device.c               |  476 +++++++++++++-----
+ drivers/s390/cio/device.h               |    7 +-
+ drivers/s390/cio/device_fsm.c           |  210 +++-----
+ drivers/s390/cio/device_id.c            |   16 +-
+ drivers/s390/cio/device_ops.c           |  134 +++++-
+ drivers/s390/cio/device_pgid.c          |   26 +-
+ drivers/s390/cio/device_status.c        |  133 +++---
+ drivers/s390/cio/fcx.c                  |  350 +++++++++++++
+ drivers/s390/cio/idset.h                |    2 +-
+ drivers/s390/cio/io_sch.h               |   48 ++-
+ drivers/s390/cio/ioasm.h                |    2 +-
+ drivers/s390/cio/isc.c                  |   68 +++
+ drivers/s390/cio/itcw.c                 |  327 ++++++++++++
+ drivers/s390/cio/qdio.c                 |   35 +-
+ drivers/s390/cio/qdio.h                 |    6 +-
+ drivers/s390/cio/schid.h                |   26 -
+ drivers/s390/cio/scsw.c                 |  843 +++++++++++++++++++++++++++++++
+ drivers/s390/crypto/ap_bus.c            |   63 ++-
+ drivers/s390/crypto/ap_bus.h            |    2 +
+ drivers/s390/crypto/zcrypt_api.c        |   24 +-
+ drivers/s390/crypto/zcrypt_api.h        |   28 -
+ drivers/s390/crypto/zcrypt_cex2a.c      |    4 +-
+ drivers/s390/crypto/zcrypt_error.h      |    6 -
+ drivers/s390/crypto/zcrypt_pcica.c      |    3 -
+ drivers/s390/crypto/zcrypt_pcicc.c      |   15 +-
+ drivers/s390/crypto/zcrypt_pcixcc.c     |   69 +---
+ drivers/s390/net/claw.c                 |   77 ++--
+ drivers/s390/net/ctcm_fsms.c            |   12 +-
+ drivers/s390/net/ctcm_main.c            |   28 +-
+ drivers/s390/net/cu3088.c               |    2 -
+ drivers/s390/net/cu3088.h               |    3 -
+ drivers/s390/net/lcs.c                  |   44 +-
+ drivers/s390/net/netiucv.c              |   61 +--
+ drivers/s390/net/qeth_core_main.c       |   15 +-
+ drivers/s390/net/qeth_l3_main.c         |    9 +-
+ drivers/s390/net/smsgiucv.c             |   10 +-
+ drivers/s390/s390mach.c                 |  106 ++--
+ drivers/s390/s390mach.h                 |   10 +
+ include/asm-s390/Kbuild                 |    3 +
+ include/asm-s390/airq.h                 |    4 +-
+ include/asm-s390/ccwdev.h               |   12 +
+ include/asm-s390/chpid.h                |    5 +-
+ include/asm-s390/chsc.h                 |  127 +++++
+ include/asm-s390/cio.h                  |  114 ++++-
+ include/asm-s390/elf.h                  |   51 +--
+ include/asm-s390/etr.h                  |   45 ++-
+ include/asm-s390/fcx.h                  |  311 ++++++++++++
+ include/asm-s390/ipl.h                  |   17 +-
+ include/asm-s390/isc.h                  |   25 +
+ include/asm-s390/itcw.h                 |   30 ++
+ include/asm-s390/pgtable.h              |    1 +
+ include/asm-s390/processor.h            |   24 +-
+ include/asm-s390/ptrace.h               |   15 +
+ include/asm-s390/schid.h                |   28 +
+ include/asm-s390/sclp.h                 |    4 +-
+ include/asm-s390/setup.h                |   12 +-
+ include/asm-s390/sparsemem.h            |    4 +-
+ include/asm-s390/timer.h                |   12 +
+ include/asm-s390/zcrypt.h               |    2 +-
+ include/linux/mod_devicetable.h         |    9 +
+ mm/Kconfig                              |    2 +-
+ net/iucv/af_iucv.c                      |    8 +-
+ net/iucv/iucv.c                         |    9 +-
+ scripts/mod/file2alias.c                |   12 +
+ 134 files changed, 6881 insertions(+), 3101 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-bus-css
+ delete mode 100644 arch/s390/kernel/binfmt_elf32.c
+ create mode 100644 arch/s390/kernel/mem_detect.c
+ create mode 100644 drivers/s390/cio/chsc_sch.c
+ create mode 100644 drivers/s390/cio/chsc_sch.h
+ create mode 100644 drivers/s390/cio/fcx.c
+ create mode 100644 drivers/s390/cio/isc.c
+ create mode 100644 drivers/s390/cio/itcw.c
+ create mode 100644 drivers/s390/cio/scsw.c
+ create mode 100644 include/asm-s390/chsc.h
+ create mode 100644 include/asm-s390/fcx.h
+ create mode 100644 include/asm-s390/isc.h
+ create mode 100644 include/asm-s390/itcw.h
+ rename {drivers/s390/cio => include/asm-s390}/schid.h (65%)
