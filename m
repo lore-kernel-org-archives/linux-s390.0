@@ -1,131 +1,88 @@
 From: Martin Peschke <mp3@de.ibm.com>
-Date: Wed, 16 Jul 2008 11:24:25 +0000
-Subject: [Patch] include blktrace_api.h in headers_install
-Message-Id: <1216207465.26621.80.camel@kitka.ibm.com>
+Date: Wed, 16 Jul 2008 11:25:29 +0000
+Subject: [Patch 1/3] driver data: add support to blktrace kernel code
+Message-Id: <1216207530.26621.83.camel@kitka.ibm.com>
 To: linux-s390@vger.kernel.org, linux-btrace@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Sven Schuetz <sven@linux.vnet.ibm.com>
+From: Stefan Raspl <raspl@linux.vnet.ibm.com>
 
-This header file is of interest for user space programming, i.e.
-for tools that process blktrace data.
+This patch adds the new api call blk_add_driver_data() to blktrace.
+It allows to trace device driver-specific binary data.
 
-We would like to use it for a tool on-top of blktrace which processes
-data provided by blktrace. For this purpose, it would be helpful
-if the blktrace API would make it to /usr/include/linux.
-
-The git tree for the blktrace tools comes with its own copy of this header
-file. I didn't manage to replace that copy with the file generated 
-by the patch below yet. A few more cleanups would be needed.
-For example, the blktrace ioctl numbers, which are currently defined in
-usr/include/fs.h, might need to be moved. Should be feasible, though.
-
-
-Signed-off-by: Sven Schuetz <sven@linux.vnet.ibm.com>
+Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
 Signed-off-by: Martin Peschke <mp3@de.ibm.com>
 
 ---
- include/linux/Kbuild         |    1 
- include/linux/blktrace_api.h |   58 +++++++++++++++++++++++--------------------
- 2 files changed, 33 insertions(+), 26 deletions(-)
+ include/linux/blktrace_api.h |   32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
---- a/include/linux/Kbuild
-+++ b/include/linux/Kbuild
-@@ -175,6 +175,7 @@ unifdef-y += audit.h
- unifdef-y += auto_fs.h
- unifdef-y += auxvec.h
- unifdef-y += binfmts.h
-+unifdef-y += blktrace_api.h
- unifdef-y += capability.h
- unifdef-y += capi.h
- unifdef-y += cciss_ioctl.h
 --- a/include/linux/blktrace_api.h
 +++ b/include/linux/blktrace_api.h
-@@ -1,8 +1,10 @@
- #ifndef BLKTRACE_H
- #define BLKTRACE_H
+@@ -23,6 +23,7 @@ enum blktrace_cat {
+ 	BLK_TC_NOTIFY	= 1 << 10,	/* special message */
+ 	BLK_TC_AHEAD	= 1 << 11,	/* readahead */
+ 	BLK_TC_META	= 1 << 12,	/* metadata */
++	BLK_TC_DRV_DATA	= 1 << 13,	/* binary per-driver data */
  
-+#ifdef __KERNEL__
- #include <linux/blkdev.h>
- #include <linux/relay.h>
-+#endif
- 
- /*
-  * Trace categories
-@@ -89,17 +91,17 @@ enum blktrace_notify {
-  * The trace itself
-  */
- struct blk_io_trace {
--	u32 magic;		/* MAGIC << 8 | version */
--	u32 sequence;		/* event number */
--	u64 time;		/* in microseconds */
--	u64 sector;		/* disk offset */
--	u32 bytes;		/* transfer length */
--	u32 action;		/* what happened */
--	u32 pid;		/* who did it */
--	u32 device;		/* device number */
--	u32 cpu;		/* on what cpu did it happen */
--	u16 error;		/* completion error */
--	u16 pdu_len;		/* length of data after this trace */
-+	__u32 magic;		/* MAGIC << 8 | version */
-+	__u32 sequence;		/* event number */
-+	__u64 time;		/* in microseconds */
-+	__u64 sector;		/* disk offset */
-+	__u32 bytes;		/* transfer length */
-+	__u32 action;		/* what happened */
-+	__u32 pid;		/* who did it */
-+	__u32 device;		/* device number */
-+	__u32 cpu;		/* on what cpu did it happen */
-+	__u16 error;		/* completion error */
-+	__u16 pdu_len;		/* length of data after this trace */
+ 	BLK_TC_END	= 1 << 15,	/* only 16-bits, reminder */
+ };
+@@ -49,6 +50,7 @@ enum blktrace_act {
+ 	__BLK_TA_SPLIT,			/* bio was split */
+ 	__BLK_TA_BOUNCE,		/* bio was bounced */
+ 	__BLK_TA_REMAP,			/* bio was remapped */
++	__BLK_TA_DRV_DATA,		/* driver-specific binary data */
  };
  
  /*
-@@ -117,6 +119,25 @@ enum {
- 	Blktrace_stopped,
- };
+@@ -79,6 +81,7 @@ enum blktrace_notify {
+ #define BLK_TA_SPLIT		(__BLK_TA_SPLIT)
+ #define BLK_TA_BOUNCE		(__BLK_TA_BOUNCE)
+ #define BLK_TA_REMAP		(__BLK_TA_REMAP | BLK_TC_ACT(BLK_TC_QUEUE))
++#define BLK_TA_DRV_DATA	(__BLK_TA_DRV_DATA | BLK_TC_ACT(BLK_TC_DRV_DATA))
  
-+/*
-+ * User setup structure passed with BLKTRACESTART
-+ */
-+struct blk_user_trace_setup {
-+#ifdef __KERNEL__
-+	char name[BDEVNAME_SIZE];	/* output */
-+#else
-+	char name[32];			/* output */
-+#endif
-+	__u16 act_mask;			/* input */
-+	__u32 buf_size;			/* input */
-+	__u32 buf_nr;			/* input */
-+	__u64 start_lba;
-+	__u64 end_lba;
-+	__u32 pid;
-+};
+ #define BLK_TN_PROCESS		(__BLK_TN_PROCESS | BLK_TC_ACT(BLK_TC_NOTIFY))
+ #define BLK_TN_TIMESTAMP	(__BLK_TN_TIMESTAMP | BLK_TC_ACT(BLK_TC_NOTIFY))
+@@ -312,6 +315,34 @@ static inline void blk_add_trace_remap(s
+ 	__blk_add_trace(bt, from, bio->bi_size, bio->bi_rw, BLK_TA_REMAP, !bio_flagged(bio, BIO_UPTODATE), sizeof(r), &r);
+ }
+ 
++/**
++ * blk_add_driver_data - Add binary message with driver-specific data
++ * @q:		queue the io is for
++ * @rq:		io request
++ * @data:	driver-specific data
++ * @len:	length of driver-specific data
++ *
++ * Description:
++ *     Some drivers might want to write driver-specific data per request.
++ *
++ **/
++static inline void blk_add_driver_data(struct request_queue *q,
++				       struct request *rq,
++				       void *data, size_t len)
++{
++	struct blk_trace *bt = q->blk_trace;
 +
-+#ifdef __KERNEL__
-+#if defined(CONFIG_BLK_DEV_IO_TRACE)
- struct blk_trace {
- 	int trace_state;
- 	struct rchan *rchan;
-@@ -132,21 +153,6 @@ struct blk_trace {
- 	atomic_t dropped;
- };
- 
--/*
-- * User setup structure passed with BLKTRACESTART
-- */
--struct blk_user_trace_setup {
--	char name[BDEVNAME_SIZE];	/* output */
--	u16 act_mask;			/* input */
--	u32 buf_size;			/* input */
--	u32 buf_nr;			/* input */
--	u64 start_lba;
--	u64 end_lba;
--	u32 pid;
--};
--
--#ifdef __KERNEL__
--#if defined(CONFIG_BLK_DEV_IO_TRACE)
- extern int blk_trace_ioctl(struct block_device *, unsigned, char __user *);
- extern void blk_trace_shutdown(struct request_queue *);
- extern void __blk_add_trace(struct blk_trace *, sector_t, int, int, u32, int, int, void *);
++	if (likely(!bt))
++		return;
++
++	if (blk_pc_request(rq))
++		__blk_add_trace(bt, 0, rq->data_len, 0, BLK_TA_DRV_DATA,
++				rq->errors, len, data);
++	else
++		__blk_add_trace(bt, rq->hard_sector, rq->hard_nr_sectors << 9,
++				0, BLK_TA_DRV_DATA, rq->errors, len, data);
++}
++
+ extern int blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
+ 			   char __user *arg);
+ extern int blk_trace_startstop(struct request_queue *q, int start);
+@@ -325,6 +356,7 @@ extern int blk_trace_remove(struct reque
+ #define blk_add_trace_generic(q, rq, rw, what)	do { } while (0)
+ #define blk_add_trace_pdu_int(q, what, bio, pdu)	do { } while (0)
+ #define blk_add_trace_remap(q, bio, dev, f, t)	do {} while (0)
++#define blk_add_driver_data(q, rq, data, len)	do {} while (0)
+ #define do_blk_trace_setup(q, name, dev, buts)	(-ENOTTY)
+ #define blk_trace_setup(q, name, dev, arg)	(-ENOTTY)
+ #define blk_trace_startstop(q, start)		(-ENOTTY)
