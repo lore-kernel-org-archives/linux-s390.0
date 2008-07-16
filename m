@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756504AbYGaMmZ@vger.kernel.org>
-Message-Id: <20080731123933.096225651@de.ibm.com>
-References: <20080731123004.868574766@de.ibm.com>
-Date: Thu, 31 Jul 2008 14:30:08 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 4/6] cio: Include linux/string.h in schid.h.
-Content-Disposition: inline; filename=103-cio-string.diff
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Martin Peschke <mp3@de.ibm.com>
+Date: Wed, 16 Jul 2008 11:22:54 +0000
+Subject: [Patch 1/2] blkiomon: blkparse option for binary output on stdout
+Message-Id: <1216207375.26621.76.camel@kitka.ibm.com>
+To: linux-s390@vger.kernel.org, linux-btrace@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+The option "-d -" makes blkparse dump traces as binary data to
+standard output. Blktrace provides a similar capability.
+This allows to pipe binary trace data from blkparse to another
+tool which does online processing, like I/O statistics.
 
-schid.h needs string.h for memset and memcmp.
-
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Martin Peschke <mp3@de.ibm.com>
 ---
+ blkparse.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
- include/asm-s390/schid.h |    1 +
- 1 file changed, 1 insertion(+)
-
-Index: quilt-2.6/include/asm-s390/schid.h
-===================================================================
---- quilt-2.6.orig/include/asm-s390/schid.h
-+++ quilt-2.6/include/asm-s390/schid.h
-@@ -11,6 +11,7 @@ struct subchannel_id {
- } __attribute__ ((packed, aligned(4)));
+--- a/blkparse.c
++++ b/blkparse.c
+@@ -274,6 +274,7 @@ int data_is_native = -1;
  
- #ifdef __KERNEL__
-+#include <linux/string.h>
+ static FILE *dump_fp;
+ static char *dump_binary;
++static int dump_binary_stdout = 0;
  
- /* Helper function for sane state of pre-allocated subchannel_id. */
- static inline void
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+ static unsigned int t_alloc_cache;
+ static unsigned int bit_alloc_cache;
+@@ -307,6 +308,8 @@ static void output_binary(void *buf, int
+ 			fclose(dump_fp);
+ 			dump_binary = NULL;
+ 		}
++		if (dump_binary_stdout)
++			fflush(dump_fp);
+ 	}
+ }
+ 
+@@ -2823,14 +2826,24 @@ int main(int argc, char *argv[])
+ 	}
+ 
+ 	if (dump_binary) {
+-		dump_fp = fopen(dump_binary, "w");
++		int mode, vbuf_size;
++		if (!strcmp(dump_binary, "-")) {
++			dump_fp = fdopen(STDOUT_FILENO, "w");
++			mode = _IOLBF;
++			vbuf_size = 4096;
++			dump_binary_stdout = 1;
++		} else	{
++			dump_fp = fopen(dump_binary, "w");
++			mode = _IOFBF;
++			vbuf_size = 128 * 1024;
++		}
+ 		if (!dump_fp) {
+ 			perror(dump_binary);
+ 			dump_binary = NULL;
+ 			return 1;
+ 		}
+ 		bin_ofp_buffer = malloc(128 * 1024);
+-		if (setvbuf(dump_fp, bin_ofp_buffer, _IOFBF, 128 * 1024)) {
++		if (setvbuf(dump_fp, bin_ofp_buffer, mode, vbuf_size)) {
+ 			perror("setvbuf binary");
+ 			return 1;
+ 		}
