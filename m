@@ -1,63 +1,131 @@
 From: Martin Peschke <mp3@de.ibm.com>
-Date: Wed, 16 Jul 2008 11:22:54 +0000
-Subject: [Patch 1/2] blkiomon: blkparse option for binary output on stdout
-Message-Id: <1216207375.26621.76.camel@kitka.ibm.com>
+Date: Wed, 16 Jul 2008 11:24:25 +0000
+Subject: [Patch] include blktrace_api.h in headers_install
+Message-Id: <1216207465.26621.80.camel@kitka.ibm.com>
 To: linux-s390@vger.kernel.org, linux-btrace@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The option "-d -" makes blkparse dump traces as binary data to
-standard output. Blktrace provides a similar capability.
-This allows to pipe binary trace data from blkparse to another
-tool which does online processing, like I/O statistics.
+From: Sven Schuetz <sven@linux.vnet.ibm.com>
 
+This header file is of interest for user space programming, i.e.
+for tools that process blktrace data.
+
+We would like to use it for a tool on-top of blktrace which processes
+data provided by blktrace. For this purpose, it would be helpful
+if the blktrace API would make it to /usr/include/linux.
+
+The git tree for the blktrace tools comes with its own copy of this header
+file. I didn't manage to replace that copy with the file generated 
+by the patch below yet. A few more cleanups would be needed.
+For example, the blktrace ioctl numbers, which are currently defined in
+usr/include/fs.h, might need to be moved. Should be feasible, though.
+
+
+Signed-off-by: Sven Schuetz <sven@linux.vnet.ibm.com>
 Signed-off-by: Martin Peschke <mp3@de.ibm.com>
----
- blkparse.c |   17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
 
---- a/blkparse.c
-+++ b/blkparse.c
-@@ -274,6 +274,7 @@ int data_is_native = -1;
+---
+ include/linux/Kbuild         |    1 
+ include/linux/blktrace_api.h |   58 +++++++++++++++++++++++--------------------
+ 2 files changed, 33 insertions(+), 26 deletions(-)
+
+--- a/include/linux/Kbuild
++++ b/include/linux/Kbuild
+@@ -175,6 +175,7 @@ unifdef-y += audit.h
+ unifdef-y += auto_fs.h
+ unifdef-y += auxvec.h
+ unifdef-y += binfmts.h
++unifdef-y += blktrace_api.h
+ unifdef-y += capability.h
+ unifdef-y += capi.h
+ unifdef-y += cciss_ioctl.h
+--- a/include/linux/blktrace_api.h
++++ b/include/linux/blktrace_api.h
+@@ -1,8 +1,10 @@
+ #ifndef BLKTRACE_H
+ #define BLKTRACE_H
  
- static FILE *dump_fp;
- static char *dump_binary;
-+static int dump_binary_stdout = 0;
++#ifdef __KERNEL__
+ #include <linux/blkdev.h>
+ #include <linux/relay.h>
++#endif
  
- static unsigned int t_alloc_cache;
- static unsigned int bit_alloc_cache;
-@@ -307,6 +308,8 @@ static void output_binary(void *buf, int
- 			fclose(dump_fp);
- 			dump_binary = NULL;
- 		}
-+		if (dump_binary_stdout)
-+			fflush(dump_fp);
- 	}
- }
+ /*
+  * Trace categories
+@@ -89,17 +91,17 @@ enum blktrace_notify {
+  * The trace itself
+  */
+ struct blk_io_trace {
+-	u32 magic;		/* MAGIC << 8 | version */
+-	u32 sequence;		/* event number */
+-	u64 time;		/* in microseconds */
+-	u64 sector;		/* disk offset */
+-	u32 bytes;		/* transfer length */
+-	u32 action;		/* what happened */
+-	u32 pid;		/* who did it */
+-	u32 device;		/* device number */
+-	u32 cpu;		/* on what cpu did it happen */
+-	u16 error;		/* completion error */
+-	u16 pdu_len;		/* length of data after this trace */
++	__u32 magic;		/* MAGIC << 8 | version */
++	__u32 sequence;		/* event number */
++	__u64 time;		/* in microseconds */
++	__u64 sector;		/* disk offset */
++	__u32 bytes;		/* transfer length */
++	__u32 action;		/* what happened */
++	__u32 pid;		/* who did it */
++	__u32 device;		/* device number */
++	__u32 cpu;		/* on what cpu did it happen */
++	__u16 error;		/* completion error */
++	__u16 pdu_len;		/* length of data after this trace */
+ };
  
-@@ -2823,14 +2826,24 @@ int main(int argc, char *argv[])
- 	}
+ /*
+@@ -117,6 +119,25 @@ enum {
+ 	Blktrace_stopped,
+ };
  
- 	if (dump_binary) {
--		dump_fp = fopen(dump_binary, "w");
-+		int mode, vbuf_size;
-+		if (!strcmp(dump_binary, "-")) {
-+			dump_fp = fdopen(STDOUT_FILENO, "w");
-+			mode = _IOLBF;
-+			vbuf_size = 4096;
-+			dump_binary_stdout = 1;
-+		} else	{
-+			dump_fp = fopen(dump_binary, "w");
-+			mode = _IOFBF;
-+			vbuf_size = 128 * 1024;
-+		}
- 		if (!dump_fp) {
- 			perror(dump_binary);
- 			dump_binary = NULL;
- 			return 1;
- 		}
- 		bin_ofp_buffer = malloc(128 * 1024);
--		if (setvbuf(dump_fp, bin_ofp_buffer, _IOFBF, 128 * 1024)) {
-+		if (setvbuf(dump_fp, bin_ofp_buffer, mode, vbuf_size)) {
- 			perror("setvbuf binary");
- 			return 1;
- 		}
++/*
++ * User setup structure passed with BLKTRACESTART
++ */
++struct blk_user_trace_setup {
++#ifdef __KERNEL__
++	char name[BDEVNAME_SIZE];	/* output */
++#else
++	char name[32];			/* output */
++#endif
++	__u16 act_mask;			/* input */
++	__u32 buf_size;			/* input */
++	__u32 buf_nr;			/* input */
++	__u64 start_lba;
++	__u64 end_lba;
++	__u32 pid;
++};
++
++#ifdef __KERNEL__
++#if defined(CONFIG_BLK_DEV_IO_TRACE)
+ struct blk_trace {
+ 	int trace_state;
+ 	struct rchan *rchan;
+@@ -132,21 +153,6 @@ struct blk_trace {
+ 	atomic_t dropped;
+ };
+ 
+-/*
+- * User setup structure passed with BLKTRACESTART
+- */
+-struct blk_user_trace_setup {
+-	char name[BDEVNAME_SIZE];	/* output */
+-	u16 act_mask;			/* input */
+-	u32 buf_size;			/* input */
+-	u32 buf_nr;			/* input */
+-	u64 start_lba;
+-	u64 end_lba;
+-	u32 pid;
+-};
+-
+-#ifdef __KERNEL__
+-#if defined(CONFIG_BLK_DEV_IO_TRACE)
+ extern int blk_trace_ioctl(struct block_device *, unsigned, char __user *);
+ extern void blk_trace_shutdown(struct request_queue *);
+ extern void __blk_add_trace(struct blk_trace *, sector_t, int, int, u32, int, int, void *);
