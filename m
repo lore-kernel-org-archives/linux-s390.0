@@ -1,125 +1,77 @@
 From: Martin Peschke <mp3@de.ibm.com>
-Date: Wed, 16 Jul 2008 11:25:57 +0000
-Subject: [Patch 2/3] driver data: pass zfcp data through blktrace
-Message-Id: <1216207558.26621.84.camel@kitka.ibm.com>
+Date: Wed, 16 Jul 2008 11:26:13 +0000
+Subject: [Patch 3/3] driver data: add support to blktrace user space code
+Message-Id: <1216207574.26621.85.camel@kitka.ibm.com>
 To: linux-s390@vger.kernel.org, linux-btrace@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Stefan Raspl <raspl@linux.vnet.ibm.com>
+Adds a new type of action 'drv_data' for blktrace to handle binary
+driver-specific data. Since the data is binary, blkparse will only put it in
+a binary file, not in the regular human-readable output.
 
-This patch writes the channel and fabric latencies in nanoseconds per
-request via blktrace for later analysis. The utilization of the inbound
-and outbound adapter queue is also reported.
 
 Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
 Signed-off-by: Martin Peschke <mp3@de.ibm.com>
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
 ---
- drivers/s390/scsi/zfcp_def.h  |    2 ++
- drivers/s390/scsi/zfcp_fsf.c  |   32 ++++++++++++++++++++++++++++++++
- drivers/s390/scsi/zfcp_fsf.h  |   12 ++++++++++++
- drivers/s390/scsi/zfcp_qdio.c |    1 +
- 4 files changed, 47 insertions(+)
+ act_mask.c     |    1 +
+ blkparse.c     |    3 +++
+ blktrace_api.h |    5 ++++-
+ 3 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -6,6 +6,7 @@
-  * Copyright IBM Corporation 2002, 2008
-  */
- 
-+#include <linux/blktrace_api.h>
- #include "zfcp_ext.h"
- 
- static void zfcp_fsf_request_timeout_handler(unsigned long data)
-@@ -844,6 +845,7 @@ static int zfcp_fsf_req_send(struct zfcp
- 	list_add_tail(&req->list, &adapter->req_list[idx]);
- 	spin_unlock(&adapter->req_list_lock);
- 
-+	req->qdio_outb_usage = atomic_read(&req_q->count);
- 	req->issued = get_clock();
- 	if (zfcp_qdio_send(req)) {
- 		/* Queues are down..... */
-@@ -2046,6 +2048,34 @@ static void zfcp_fsf_req_latency(struct 
- 	spin_unlock_irqrestore(&unit->latencies.lock, flags);
- }
- 
-+#ifdef CONFIG_BLK_DEV_IO_TRACE
-+static void zfcp_fsf_trace_latency(struct zfcp_fsf_req *fsf_req)
-+{
-+	struct fsf_qual_latency_info *lat_inf;
-+	struct scsi_cmnd *scsi_cmnd = (struct scsi_cmnd *)fsf_req->data;
-+	struct request *req = scsi_cmnd->request;
-+	struct zfcp_blk_drv_data trace;
-+	int ticks = fsf_req->adapter->timer_ticks;
-+
-+	trace.flags = 0;
-+	trace.magic = cpu_to_be32(ZFCP_BLK_DRV_DATA_MAGIC);
-+	if (fsf_req->adapter->adapter_features & FSF_FEATURE_MEASUREMENT_DATA) {
-+		trace.flags |= ZFCP_BLK_LAT_VALID;
-+		lat_inf = &fsf_req->qtcb->prefix.prot_status_qual.latency_info;
-+		trace.channel_lat = cpu_to_be64(lat_inf->channel_lat * ticks);
-+		trace.fabric_lat = cpu_to_be64(lat_inf->fabric_lat * ticks);
-+	}
-+	if (fsf_req->status & ZFCP_STATUS_FSFREQ_ERROR)
-+		trace.flags |= ZFCP_BLK_REQ_ERROR;
-+	trace.inb_usage = cpu_to_be16(fsf_req->qdio_inb_usage);
-+	trace.outb_usage = cpu_to_be16(fsf_req->qdio_outb_usage);
-+
-+	blk_add_driver_data(req->q, req, &trace, sizeof(trace));
-+}
-+#else
-+#define zfcp_fsf_trace_latency(fsf_req)	do { } while (0)
-+#endif
-+
- static void zfcp_fsf_send_fcp_command_task_handler(struct zfcp_fsf_req *req)
- {
- 	struct scsi_cmnd *scpnt = req->data;
-@@ -2078,6 +2108,8 @@ static void zfcp_fsf_send_fcp_command_ta
- 	if (req->adapter->adapter_features & FSF_FEATURE_MEASUREMENT_DATA)
- 		zfcp_fsf_req_latency(req);
- 
-+	zfcp_fsf_trace_latency(req);
-+
- 	if (unlikely(fcp_rsp_iu->validity.bits.fcp_rsp_len_valid)) {
- 		if (fcp_rsp_info[3] == RSP_CODE_GOOD)
- 			set_host_byte(scpnt, DID_OK);
---- a/drivers/s390/scsi/zfcp_def.h
-+++ b/drivers/s390/scsi/zfcp_def.h
-@@ -639,6 +639,8 @@ struct zfcp_fsf_req {
- 	unsigned long long     issued;         /* request sent time (STCK) */
- 	struct zfcp_unit       *unit;
- 	void			(*handler)(struct zfcp_fsf_req *);
-+	u16			qdio_outb_usage;/* usage of outbound queue */
-+	u16			qdio_inb_usage;	/* usage of inbound queue */
+--- a/act_mask.c
++++ b/act_mask.c
+@@ -25,6 +25,7 @@ static struct mask_map mask_maps[] = {
+ 	DECLARE_MASK_MAP(PC),
+ 	DECLARE_MASK_MAP(AHEAD),
+ 	DECLARE_MASK_MAP(META),
++	DECLARE_MASK_MAP(DRV_DATA),
  };
  
- /* driver data */
---- a/drivers/s390/scsi/zfcp_qdio.c
-+++ b/drivers/s390/scsi/zfcp_qdio.c
-@@ -117,6 +117,7 @@ static void zfcp_qdio_reqid_check(struct
- 	spin_unlock_irqrestore(&adapter->req_list_lock, flags);
+ int find_mask_map(char *string)
+--- a/blktrace_api.h
++++ b/blktrace_api.h
+@@ -7,7 +7,7 @@
+  * Trace categories
+  */
+ enum {
+-	BLK_TC_READ	= 1 << 0,	/* reads */
++	BLK_TC_READ 	= 1 << 0,	/* reads */
+ 	BLK_TC_WRITE	= 1 << 1,	/* writes */
+ 	BLK_TC_BARRIER	= 1 << 2,	/* barrier */
+ 	BLK_TC_SYNC	= 1 << 3,	/* sync */
+@@ -20,6 +20,7 @@ enum {
+ 	BLK_TC_NOTIFY	= 1 << 10,	/* special message */
+ 	BLK_TC_AHEAD	= 1 << 11,	/* readahead */
+ 	BLK_TC_META	= 1 << 12,	/* metadata */
++	BLK_TC_DRV_DATA	= 1 << 13,	/* binary driver data */
  
- 	fsf_req->sbal_response = sbal_idx;
-+	fsf_req->qdio_inb_usage = atomic_read(&adapter->resp_q.count);
- 	zfcp_fsf_req_complete(fsf_req);
- }
+ 	BLK_TC_END	= 1 << 15,	/* only 16-bits, reminder */
+ };
+@@ -46,6 +47,7 @@ enum {
+ 	__BLK_TA_SPLIT,			/* bio was split */
+ 	__BLK_TA_BOUNCE,		/* bio was bounced */
+ 	__BLK_TA_REMAP,			/* bio was remapped */
++	__BLK_TA_DRV_DATA,		/* binary driver data */
+ };
  
---- a/drivers/s390/scsi/zfcp_fsf.h
-+++ b/drivers/s390/scsi/zfcp_fsf.h
-@@ -514,4 +514,16 @@ struct fsf_qtcb {
- 	u8 log[FSF_QTCB_LOG_SIZE];
- } __attribute__ ((packed));
+ /*
+@@ -75,6 +77,7 @@ enum blktrace_notify {
+ #define BLK_TA_SPLIT		(__BLK_TA_SPLIT)
+ #define BLK_TA_BOUNCE		(__BLK_TA_BOUNCE)
+ #define BLK_TA_REMAP		(__BLK_TA_REMAP | BLK_TC_ACT(BLK_TC_QUEUE))
++#define BLK_TA_DRV_DATA	(__BLK_TA_DRV_DATA | BLK_TC_ACT(BLK_TC_DRV_DATA))
  
-+struct zfcp_blk_drv_data {
-+#define ZFCP_BLK_DRV_DATA_MAGIC			0x1
-+	u32 magic;
-+#define ZFCP_BLK_LAT_VALID			0x1
-+#define ZFCP_BLK_REQ_ERROR			0x2
-+	u16 flags;
-+	u8 inb_usage;
-+	u8 outb_usage;
-+	u64 channel_lat;
-+	u64 fabric_lat;
-+} __attribute__ ((packed));
-+
- #endif				/* FSF_H */
+ #define BLK_TN_PROCESS		(__BLK_TN_PROCESS | BLK_TC_ACT(BLK_TC_NOTIFY))
+ #define BLK_TN_TIMESTAMP	(__BLK_TN_TIMESTAMP | BLK_TC_ACT(BLK_TC_NOTIFY))
+--- a/blkparse.c
++++ b/blkparse.c
+@@ -1583,6 +1583,9 @@ static void dump_trace_fs(struct blk_io_
+ 		case __BLK_TA_REMAP:
+ 			log_generic(pci, t, "A");
+ 			break;
++		case __BLK_TA_DRV_DATA:
++			// dump to binary file only
++			break;
+ 		default:
+ 			fprintf(stderr, "Bad fs action %x\n", t->action);
+ 			break;
