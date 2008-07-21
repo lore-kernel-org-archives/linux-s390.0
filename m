@@ -1,30 +1,24 @@
-From: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [patch 1/3] Cleanup claw printk messages.
-Date: Tue, 22 Jul 2008 18:01:37 -0400
-Message-ID: <488658C1.4050706@pobox.com>
-References: <20080718132455.214854000@linux.vnet.ibm.com> <20080718133554.596094000@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: frank.blaschka@de.ibm.com
+Subject: [patch 0/1] s390: qeth build fix for 2.6.27
+Date: Mon, 21 Jul 2008 13:54:28 +0200
+Message-ID: <20080721115428.005485000@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20080718133554.596094000@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: Ursula Braun <ursula.braun@de.ibm.com>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefska@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andy Richter <richtera@us.ibm.com>
+To: jgarzik@pobox.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, bunk@kernel.org, kaber@trash.net
 List-ID: <linux-s390.vger.kernel.org>
 
-Ursula Braun wrote:
-> From: Andy Richter <richtera@us.ibm.com>
-> 
-> Cc: Martin Schwidefsky <schwidefska@de.ibm.com>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Signed-off-by: Andy Richter <richtera@us.ibm.com>
-> Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-> ---
-> 
->  drivers/s390/net/claw.c | 2141 +++++++++++-------------------------------------
->  1 file changed, 520 insertions(+), 1621 deletions(-)
+Hi Jeff,
 
-applied 1-3
+here is a patch to fix the broken s390 qeth build
+
+shortlog:
+Frank Blaschka (1)
+qeth: fix 2.6.27 build
+
+Thanks,
+        Frank
+
+-- 
