@@ -1,47 +1,23 @@
-From: "Alan D. Brunelle" <Alan.Brunelle@hp.com>
-Date: Mon, 21 Jul 2008 19:34:54 +0000
-Subject: Re: [Patch] blkiomon: repost with some fixes and improvements
-Message-Id: <4884E4DE.6010102@hp.com>
-In-Reply-To: <4884DD6B.6060709@gmail.com>
-References: <4884DD6B.6060709@gmail.com>
-To: linux-s390@vger.kernel.org, linux-btrace@vger.kernel.org
+From: Huang Weiyi <weiyi.huang@gmail.com>
+Date: Wed, 23 Jul 2008 22:10:42 +0000
+Subject: arch/s390/kernel/ipl.c: removed duplicated include
+Message-Id: <20080724061036.1B4D.WEIYI.HUANG@gmail.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-T�r�k Edwin wrote:
-> On 2008-07-21 21:56, T�r�k Edwin wrote:
->> On 2008-07-21 21:45, Alan D. Brunelle wrote:
->>   
->>> Hi Edwin -
->>>
->>> With the patches sent out today (kernel & application), you can then use
->>> the updated script attached here. It only asks for getrq & sleeprq
->>> traces - so it will cut down a lot, but most likely there will still be
->>> a lot of getrq's (in particular).
->>>
->>> Will now have some time to look at the more general issue concerning how
->>> to see the effects of the sleeprq's...
->>>   
->>>     
->>   
-> 
-> I think it would be useful to somehow "dump" the contents of both queues
-> when a sleep occurs, at least
-> the rw_flags, the pid, and the size of the operation.
-> Maybe that could be done somehow via blktrace on-demand? [it already has
-> all the relayfs communication ...]
-> 
-> P.S.: I tried to blktrace all queueing events and save that to the disk,
-> but no matter what buffer size I used,
-> it kept telling me it has dropped events :(
-> So the only way to know the contents of the queue is for the kernel to
-> give it to me on-demand.
+Removed duplicated include <asm/setup.h> in 
+arch/s390/kernel/ipl.c.
 
-Hi Edwin -
+Signed-off-by: Huang Weiyi <weiyi.huang@gmail.com>
 
-That's really strange: I very rarely have that problem - I find if I
-increase the number and size of buffers, those problems go away. (But, I
-tend to have a lot of memory to play with too...)
+diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
+index 54b2779..43aa9ef 100644
+--- a/arch/s390/kernel/ipl.c
++++ b/arch/s390/kernel/ipl.c
+@@ -23,7 +23,6 @@
+ #include <asm/ebcdic.h>
+ #include <asm/reset.h>
+ #include <asm/sclp.h>
+-#include <asm/setup.h>
 
-You are dumping to another disk (other than the one you are tracing), right?
-
-Alan
+ #define IPL_PARM_BLOCK_VERSION 0
