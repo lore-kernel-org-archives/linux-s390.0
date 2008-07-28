@@ -1,189 +1,124 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761103AbYG1R55@vger.kernel.org>
-Message-Id: <20080728175511.023246676@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760832AbYG1R6X@vger.kernel.org>
+Message-Id: <20080728175512.224375633@de.ibm.com>
 References: <20080728175355.734299984@de.ibm.com>
-Date: Mon, 28 Jul 2008 19:53:56 +0200
+Date: Mon, 28 Jul 2008 19:54:01 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 01/15] kmsg: Kernel message catalog macros.
-Content-Disposition: inline; filename=800-kmsg-macros.diff
+Subject: [patch 06/15] kmsg: convert vmur to kmsg api.
+Content-Disposition: inline; filename=805-kmsg-vmur.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Michael Holzheu <holzheu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Frank Munzert <munzert@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Holzheu <holzheu@de.ibm.com>
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Frank Munzert <munzert@de.ibm.com>
 
-Introduce a new family of printk macros which prefixes each kmsg message
-with a component name and allows to tag the printk with a message id.
-
-The kmsg component name is defined per source file with the KMSG_COMPONENT
-macro. The first argument of each kmsg printk is the message id. The
-message id "0" is special as it will suppress the message id prefix.
-
-If the message id will be printed to the console / syslog at all depends
-on CONFIG_MSG_IDS. If it is "n" then a kmsg_xxx call is just another
-printk wrapper. These macros are intended to be used uniformly in the
-s390 architecture and the s390 device drivers.
-
-Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
+Signed-off-by: Frank Munzert <munzert@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/Kconfig       |    9 +++
- include/asm-s390/kmsg.h |  124 ++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 133 insertions(+)
+ Documentation/s390/kmsg/vmur |   33 +++++++++++++++++++++++++++++++++
+ drivers/s390/char/vmur.c     |   13 ++++++++-----
+ 2 files changed, 41 insertions(+), 5 deletions(-)
 
-Index: quilt-2.6/arch/s390/Kconfig
-===================================================================
---- quilt-2.6.orig/arch/s390/Kconfig
-+++ quilt-2.6/arch/s390/Kconfig
-@@ -568,6 +568,15 @@ bool "s390 guest support (EXPERIMENTAL)"
- 	select VIRTIO_CONSOLE
- 	help
- 	  Select this option if you want to run the kernel under s390 linux
-+
-+config KMSG_IDS
-+	bool "Kernel message numbers"
-+	default y
-+	help
-+	  Select this option if you want to include a message number to the
-+	  prefix for kernel messages issued by the s390 architecture and
-+	  driver code. See "Documentation/s390/kmsg.txt" for more details.
-+
- endmenu
- 
- source "net/Kconfig"
-Index: quilt-2.6/include/asm-s390/kmsg.h
+Index: quilt-2.6/Documentation/s390/kmsg/vmur
 ===================================================================
 --- /dev/null
-+++ quilt-2.6/include/asm-s390/kmsg.h
-@@ -0,0 +1,124 @@
-+#ifndef _ASM_KMSG_H
-+#define _ASM_KMSG_H
++++ quilt-2.6/Documentation/s390/kmsg/vmur
+@@ -0,0 +1,33 @@
++/*?
++ * Tag: vmur.1
++ * Text: "The %s cannot be loaded without z/VM"
++ * Severity: Error
++ * Parameter:
++ *   @1: z/VM virtual unit record device driver
++ * Description:
++ * The z/VM virtual unit record device driver provides Linux with access to
++ * z/VM virtual unit record devices like punch card readers, card punches, and
++ * line printers. On Linux instances that run in environments other than the
++ * z/VM hypervisor, the device driver does not provide any useful function and
++ * the corresponding vmur module cannot be loaded.
++ * User action:
++ * Load the vmur module only on Linux instances that run as guest operating
++ * systems of the z/VM hypervisor. If the z/VM virtual unit record device
++ * has been compiled into the kernel, ignore this message.
++ */
 +
-+#ifndef __KMSG_CHECKER
-+#define __KMSG_CHECK(level, id) KERN_##level
-+#endif
-+
-+#if defined(__KMSG_CHECKER) || !defined(CONFIG_KMSG_IDS)
-+
-+#define kmsg_dev_alert(id, dev, format, arg...) \
-+	printk(__KMSG_CHECK(ALERT, id) KMSG_COMPONENT \
-+		": %s: " format, (dev)->bus_id , ## arg)
-+
-+#define kmsg_dev_err(id, dev, format, arg...) \
-+	printk(__KMSG_CHECK(ERR, id) KMSG_COMPONENT \
-+		": %s: " format, (dev)->bus_id , ## arg)
-+
-+#define kmsg_dev_warn(id, dev, format, arg...) \
-+	printk(__KMSG_CHECK(WARNING, id) KMSG_COMPONENT \
-+		": %s: " format, (dev)->bus_id , ## arg)
-+
-+#define kmsg_dev_info(id, dev, format, arg...) \
-+	printk(__KMSG_CHECK(INFO, id) KMSG_COMPONENT \
-+		": %s: " format, (dev)->bus_id , ## arg)
-+
-+#define kmsg_dev_notice(id, dev, format, arg...) \
-+	printk(__KMSG_CHECK(NOTICE, id) KMSG_COMPONENT \
-+		": %s: " format, (dev)->bus_id , ## arg)
-+
-+#define kmsg_alert(id, format, arg...) \
-+	printk(__KMSG_CHECK(ALERT, id) KMSG_COMPONENT \
-+		": " format, ## arg)
-+
-+#define kmsg_err(id, format, arg...) \
-+	printk(__KMSG_CHECK(ERR, id) KMSG_COMPONENT \
-+		": " format, ## arg)
-+
-+#define kmsg_warn(id, format, arg...) \
-+	printk(__KMSG_CHECK(WARNING, id) KMSG_COMPONENT \
-+		": " format, ## arg)
-+
-+#define kmsg_info(id, format, arg...) \
-+	printk(__KMSG_CHECK(INFO, id) KMSG_COMPONENT \
-+		": " format, ## arg)
-+
-+#define kmsg_notice(id, format, arg...) \
-+	printk(__KMSG_CHECK(NOTICE, id) KMSG_COMPONENT \
-+		": " format, ## arg)
-+
-+#else  /* __KMSG_CHECKER || !CONFIG_KMSG_IDS */
-+
-+#define kmsg_dev_alert(id, dev, format, arg...) \
-+	(__builtin_constant_p(id) && (id) > 0) ? \
-+		printk(__KMSG_CHECK(ALERT, id) KMSG_COMPONENT \
-+			"." #id ": %s: " format, (dev)->bus_id , ## arg) : \
-+		printk(__KMSG_CHECK(ALERT, id) KMSG_COMPONENT \
-+			": %s: " format, (dev)->bus_id , ## arg)
-+
-+#define kmsg_dev_err(id, dev, format, arg...) \
-+	(__builtin_constant_p(id) && (id) > 0) ? \
-+		printk(__KMSG_CHECK(ERR, id) KMSG_COMPONENT \
-+			"." #id ": %s: " format, (dev)->bus_id , ## arg) : \
-+		printk(__KMSG_CHECK(ERR, id) KMSG_COMPONENT \
-+			": %s: " format, (dev)->bus_id , ## arg)
-+
-+#define kmsg_dev_warn(id, dev, format, arg...) \
-+	(__builtin_constant_p(id) && (id) > 0) ? \
-+		printk(__KMSG_CHECK(WARNING, id) KMSG_COMPONENT \
-+			"." #id ": %s: " format, (dev)->bus_id , ## arg) : \
-+		printk(__KMSG_CHECK(WARNING, id) KMSG_COMPONENT \
-+			": %s: " format, (dev)->bus_id , ## arg)
-+
-+#define kmsg_dev_info(id, dev, format, arg...) \
-+	(__builtin_constant_p(id) && (id) > 0) ? \
-+		printk(__KMSG_CHECK(INFO, id) KMSG_COMPONENT \
-+			"." #id ": %s: " format, (dev)->bus_id , ## arg) : \
-+		printk(__KMSG_CHECK(INFO, id) KMSG_COMPONENT \
-+			": %s: " format, (dev)->bus_id , ## arg)
-+
-+#define kmsg_dev_notice(id, dev, format, arg...) \
-+	(__builtin_constant_p(id) && (id) > 0) ? \
-+		printk(__KMSG_CHECK(NOTICE, id) KMSG_COMPONENT \
-+			"." #id ": %s: " format, (dev)->bus_id , ## arg) : \
-+		printk(__KMSG_CHECK(NOTICE, id) KMSG_COMPONENT \
-+			": %s: " format, (dev)->bus_id , ## arg)
-+
-+#define kmsg_alert(id, format, arg...) \
-+	(__builtin_constant_p(id) && (id) > 0) ? \
-+		printk(__KMSG_CHECK(ALERT, id) KMSG_COMPONENT \
-+			"." #id ": " format, ## arg) : \
-+		printk(__KMSG_CHECK(ALERT, id) KMSG_COMPONENT \
-+			": " format, ## arg)
-+
-+#define kmsg_err(id, format, arg...) \
-+	(__builtin_constant_p(id) && (id) > 0) ? \
-+		printk(__KMSG_CHECK(ERR, id) KMSG_COMPONENT \
-+			"." #id ": " format, ## arg) : \
-+		printk(__KMSG_CHECK(ERR, id) KMSG_COMPONENT \
-+			": " format, ## arg)
-+
-+#define kmsg_warn(id, format, arg...) \
-+	(__builtin_constant_p(id) && (id) > 0) ? \
-+		printk(__KMSG_CHECK(WARNING, id) KMSG_COMPONENT \
-+			"." #id ": " format, ## arg) : \
-+		printk(__KMSG_CHECK(WARNING, id) KMSG_COMPONENT \
-+			": " format, ## arg)
-+
-+#define kmsg_info(id, format, arg...) \
-+	(__builtin_constant_p(id) && (id) > 0) ? \
-+		printk(__KMSG_CHECK(INFO, id) KMSG_COMPONENT \
-+			"." #id ": " format, ## arg) : \
-+		printk(__KMSG_CHECK(INFO, id) KMSG_COMPONENT \
-+			": " format, ## arg)
-+
-+#define kmsg_notice(id, format, arg...) \
-+	(__builtin_constant_p(id) && (id) > 0) ? \
-+		printk(__KMSG_CHECK(NOTICE, id) KMSG_COMPONENT \
-+			"." #id ": " format, ## arg) : \
-+		printk(__KMSG_CHECK(NOTICE, id) KMSG_COMPONENT \
-+			": " format, ## arg)
-+
-+#endif /* __KMSG_CHECKER || !CONFIG_KMSG_IDS */
-+
-+#endif /* _ASM_KMSG_H */
++/*?
++ * Tag: vmur.2
++ * Text: "Kernel function alloc_chrdev_region failed with error code %d"
++ * Severity: Error
++ * Parameter:
++ *   @1: error code according to errno definitions
++ * Description:
++ * The z/VM virtual unit record device driver (vmur) needs to register a range
++ * of character device minor numbers from 0x0000 to 0xffff.
++ * This registration failed, probably because of memory constraints.
++ * User action:
++ * Free some memory and reload the vmur module. If the z/VM virtual unit
++ * record device driver has been compiled into the kernel reboot Linux.
++ * Consider assigning more memory to your LPAR or z/VM guest virtual machine.
++ */
+Index: quilt-2.6/drivers/s390/char/vmur.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/char/vmur.c
++++ quilt-2.6/drivers/s390/char/vmur.c
+@@ -16,6 +16,7 @@
+ #include <asm/ccwdev.h>
+ #include <asm/debug.h>
+ #include <asm/diag.h>
++#include <asm/kmsg.h>
+ 
+ #include "vmur.h"
+ 
+@@ -40,7 +41,7 @@ MODULE_AUTHOR("IBM Corporation");
+ MODULE_DESCRIPTION("s390 z/VM virtual unit record device driver");
+ MODULE_LICENSE("GPL");
+ 
+-#define PRINTK_HEADER "vmur: "
++#define KMSG_COMPONENT "vmur"
+ 
+ static dev_t ur_first_dev_maj_min;
+ static struct class *vmur_class;
+@@ -988,7 +989,8 @@ static int __init ur_init(void)
+ 	dev_t dev;
+ 
+ 	if (!MACHINE_IS_VM) {
+-		PRINT_ERR("%s is only available under z/VM.\n", ur_banner);
++		kmsg_err(1, "The %s cannot be loaded without z/VM\n",
++			 ur_banner);
+ 		return -ENODEV;
+ 	}
+ 
+@@ -1007,7 +1009,8 @@ static int __init ur_init(void)
+ 
+ 	rc = alloc_chrdev_region(&dev, 0, NUM_MINORS, "vmur");
+ 	if (rc) {
+-		PRINT_ERR("alloc_chrdev_region failed: err = %d\n", rc);
++		kmsg_err(2, "Kernel function alloc_chrdev_region failed with "
++			 "error code %d\n", rc);
+ 		goto fail_unregister_driver;
+ 	}
+ 	ur_first_dev_maj_min = MKDEV(MAJOR(dev), 0);
+@@ -1017,7 +1020,7 @@ static int __init ur_init(void)
+ 		rc = PTR_ERR(vmur_class);
+ 		goto fail_unregister_region;
+ 	}
+-	PRINT_INFO("%s loaded.\n", ur_banner);
++	kmsg_info(0, "%s loaded.\n", ur_banner);
+ 	return 0;
+ 
+ fail_unregister_region:
+@@ -1035,7 +1038,7 @@ static void __exit ur_exit(void)
+ 	unregister_chrdev_region(ur_first_dev_maj_min, NUM_MINORS);
+ 	ccw_driver_unregister(&ur_driver);
+ 	debug_unregister(vmur_dbf);
+-	PRINT_INFO("%s unloaded.\n", ur_banner);
++	kmsg_info(0, "%s unloaded.\n", ur_banner);
+ }
+ 
+ module_init(ur_init);
 
 -- 
 blue skies,
