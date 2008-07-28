@@ -1,116 +1,189 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760685AbYG1R50@vger.kernel.org>
-Message-Id: <20080728175512.897614814@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761103AbYG1R55@vger.kernel.org>
+Message-Id: <20080728175511.023246676@de.ibm.com>
 References: <20080728175355.734299984@de.ibm.com>
-Date: Mon, 28 Jul 2008 19:54:04 +0200
+Date: Mon, 28 Jul 2008 19:53:56 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 09/15] kmsg: convert time printk messages to kmsg api.
-Content-Disposition: inline; filename=809-kmsg-time.diff
+Subject: [patch 01/15] kmsg: Kernel message catalog macros.
+Content-Disposition: inline; filename=800-kmsg-macros.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Michael Holzheu <holzheu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Michael Holzheu <holzheu@de.ibm.com>
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
+Introduce a new family of printk macros which prefixes each kmsg message
+with a component name and allows to tag the printk with a message id.
+
+The kmsg component name is defined per source file with the KMSG_COMPONENT
+macro. The first argument of each kmsg printk is the message id. The
+message id "0" is special as it will suppress the message id prefix.
+
+If the message id will be printed to the console / syslog at all depends
+on CONFIG_MSG_IDS. If it is "n" then a kmsg_xxx call is just another
+printk wrapper. These macros are intended to be used uniformly in the
+s390 architecture and the s390 device drivers.
+
+Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- Documentation/s390/kmsg/time |   39 +++++++++++++++++++++++++++++++++++++++
- arch/s390/kernel/time.c      |   14 +++++++++-----
- 2 files changed, 48 insertions(+), 5 deletions(-)
+ arch/s390/Kconfig       |    9 +++
+ include/asm-s390/kmsg.h |  124 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 133 insertions(+)
 
-Index: quilt-2.6/arch/s390/kernel/time.c
+Index: quilt-2.6/arch/s390/Kconfig
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/time.c
-+++ quilt-2.6/arch/s390/kernel/time.c
-@@ -41,6 +41,9 @@
- #include <asm/timer.h>
- #include <asm/etr.h>
- #include <asm/cio.h>
-+#include <asm/kmsg.h>
+--- quilt-2.6.orig/arch/s390/Kconfig
++++ quilt-2.6/arch/s390/Kconfig
+@@ -568,6 +568,15 @@ bool "s390 guest support (EXPERIMENTAL)"
+ 	select VIRTIO_CONSOLE
+ 	help
+ 	  Select this option if you want to run the kernel under s390 linux
 +
-+#define KMSG_COMPONENT "time"
++config KMSG_IDS
++	bool "Kernel message numbers"
++	default y
++	help
++	  Select this option if you want to include a message number to the
++	  prefix for kernel messages issued by the s390 architecture and
++	  driver code. See "Documentation/s390/kmsg.txt" for more details.
++
+ endmenu
  
- /* change this if you have some constant time drift */
- #define USECS_PER_JIFFY     ((unsigned long) 1000000/HZ)
-@@ -289,8 +292,8 @@ static unsigned long long adjust_time(un
- 	}
- 	jiffies_timer_cc += delta;
- 	if (adjust.offset != 0) {
--		printk(KERN_NOTICE "etr: time adjusted by %li micro-seconds\n",
--		       adjust.offset);
-+		kmsg_notice(1, "The ETR interface has adjusted the clock "
-+			    "by %li microseconds\n", adjust.offset);
- 		adjust.modes = ADJ_OFFSET_SINGLESHOT;
- 		do_adjtimex(&adjust);
- 	}
-@@ -441,8 +444,8 @@ static void etr_reset(void)
- 		etr_tolec = get_clock();
- 		set_bit(CLOCK_SYNC_HAS_ETR, &clock_sync_flags);
- 	} else if (etr_port0_online || etr_port1_online) {
--		printk(KERN_WARNING "Running on non ETR capable "
--		       "machine, only local mode available.\n");
-+		kmsg_warn(2, "The real or virtual hardware system does "
-+			  "not provide an ETR interface\n");
- 		etr_port0_online = etr_port1_online = 0;
- 	}
- }
-@@ -1357,7 +1360,8 @@ static void stp_reset(void)
- 	if (rc == 1)
- 		set_bit(CLOCK_SYNC_HAS_STP, &clock_sync_flags);
- 	else if (stp_online) {
--		printk(KERN_WARNING "Running on non STP capable machine.\n");
-+		kmsg_warn(3, "The real or virtual hardware system does "
-+			  "not provide an STP interface\n");
- 		free_bootmem((unsigned long) stp_page, PAGE_SIZE);
- 		stp_page = NULL;
- 		stp_online = 0;
-Index: quilt-2.6/Documentation/s390/kmsg/time
+ source "net/Kconfig"
+Index: quilt-2.6/include/asm-s390/kmsg.h
 ===================================================================
 --- /dev/null
-+++ quilt-2.6/Documentation/s390/kmsg/time
-@@ -0,0 +1,39 @@
-+/*?
-+ * Tag: time.1
-+ * Text: "The ETR interface has adjusted the clock by %li microseconds"
-+ * Severity: Notice
-+ * Parameter:
-+ *   @1: number of microseconds
-+ * Description:
-+ * The external time reference (ETR) interface has synchronized the system
-+ * clock  with the external reference and set it to a new value. The time
-+ * difference between the old and new clock value has been passed to the
-+ * network time protocol (NTP) as a single shot adjustment.
-+ * User action:
-+ * None.
-+ */
++++ quilt-2.6/include/asm-s390/kmsg.h
+@@ -0,0 +1,124 @@
++#ifndef _ASM_KMSG_H
++#define _ASM_KMSG_H
 +
-+/*?
-+ * Tag: time.2
-+ * Text: "The real or virtual hardware system does not provide an ETR interface"
-+ * Severity: Warning
-+ * Description:
-+ * The 'etr=' parameter has been passed on the kernel parameter line for
-+ * a Linux instance that does not have access to the external time reference
-+ * (ETR) facility.
-+ * User action:
-+ * To avoid this warning remove the 'etr=' kernel parameter.
-+ */
++#ifndef __KMSG_CHECKER
++#define __KMSG_CHECK(level, id) KERN_##level
++#endif
 +
-+/*?
-+ * Tag: time.3
-+ * Text: "The real or virtual hardware system does not provide an STP interface"
-+ * Severity: Warning
-+ * Description:
-+ * The 'stp=' parameter has been passed on the kernel parameter line for
-+ * a Linux instance that does not have access to the server time protocol
-+ * (STP) facility.
-+ * User action:
-+ * To avoid this warning remove the 'stp=' kernel parameter.
-+ */
++#if defined(__KMSG_CHECKER) || !defined(CONFIG_KMSG_IDS)
 +
++#define kmsg_dev_alert(id, dev, format, arg...) \
++	printk(__KMSG_CHECK(ALERT, id) KMSG_COMPONENT \
++		": %s: " format, (dev)->bus_id , ## arg)
++
++#define kmsg_dev_err(id, dev, format, arg...) \
++	printk(__KMSG_CHECK(ERR, id) KMSG_COMPONENT \
++		": %s: " format, (dev)->bus_id , ## arg)
++
++#define kmsg_dev_warn(id, dev, format, arg...) \
++	printk(__KMSG_CHECK(WARNING, id) KMSG_COMPONENT \
++		": %s: " format, (dev)->bus_id , ## arg)
++
++#define kmsg_dev_info(id, dev, format, arg...) \
++	printk(__KMSG_CHECK(INFO, id) KMSG_COMPONENT \
++		": %s: " format, (dev)->bus_id , ## arg)
++
++#define kmsg_dev_notice(id, dev, format, arg...) \
++	printk(__KMSG_CHECK(NOTICE, id) KMSG_COMPONENT \
++		": %s: " format, (dev)->bus_id , ## arg)
++
++#define kmsg_alert(id, format, arg...) \
++	printk(__KMSG_CHECK(ALERT, id) KMSG_COMPONENT \
++		": " format, ## arg)
++
++#define kmsg_err(id, format, arg...) \
++	printk(__KMSG_CHECK(ERR, id) KMSG_COMPONENT \
++		": " format, ## arg)
++
++#define kmsg_warn(id, format, arg...) \
++	printk(__KMSG_CHECK(WARNING, id) KMSG_COMPONENT \
++		": " format, ## arg)
++
++#define kmsg_info(id, format, arg...) \
++	printk(__KMSG_CHECK(INFO, id) KMSG_COMPONENT \
++		": " format, ## arg)
++
++#define kmsg_notice(id, format, arg...) \
++	printk(__KMSG_CHECK(NOTICE, id) KMSG_COMPONENT \
++		": " format, ## arg)
++
++#else  /* __KMSG_CHECKER || !CONFIG_KMSG_IDS */
++
++#define kmsg_dev_alert(id, dev, format, arg...) \
++	(__builtin_constant_p(id) && (id) > 0) ? \
++		printk(__KMSG_CHECK(ALERT, id) KMSG_COMPONENT \
++			"." #id ": %s: " format, (dev)->bus_id , ## arg) : \
++		printk(__KMSG_CHECK(ALERT, id) KMSG_COMPONENT \
++			": %s: " format, (dev)->bus_id , ## arg)
++
++#define kmsg_dev_err(id, dev, format, arg...) \
++	(__builtin_constant_p(id) && (id) > 0) ? \
++		printk(__KMSG_CHECK(ERR, id) KMSG_COMPONENT \
++			"." #id ": %s: " format, (dev)->bus_id , ## arg) : \
++		printk(__KMSG_CHECK(ERR, id) KMSG_COMPONENT \
++			": %s: " format, (dev)->bus_id , ## arg)
++
++#define kmsg_dev_warn(id, dev, format, arg...) \
++	(__builtin_constant_p(id) && (id) > 0) ? \
++		printk(__KMSG_CHECK(WARNING, id) KMSG_COMPONENT \
++			"." #id ": %s: " format, (dev)->bus_id , ## arg) : \
++		printk(__KMSG_CHECK(WARNING, id) KMSG_COMPONENT \
++			": %s: " format, (dev)->bus_id , ## arg)
++
++#define kmsg_dev_info(id, dev, format, arg...) \
++	(__builtin_constant_p(id) && (id) > 0) ? \
++		printk(__KMSG_CHECK(INFO, id) KMSG_COMPONENT \
++			"." #id ": %s: " format, (dev)->bus_id , ## arg) : \
++		printk(__KMSG_CHECK(INFO, id) KMSG_COMPONENT \
++			": %s: " format, (dev)->bus_id , ## arg)
++
++#define kmsg_dev_notice(id, dev, format, arg...) \
++	(__builtin_constant_p(id) && (id) > 0) ? \
++		printk(__KMSG_CHECK(NOTICE, id) KMSG_COMPONENT \
++			"." #id ": %s: " format, (dev)->bus_id , ## arg) : \
++		printk(__KMSG_CHECK(NOTICE, id) KMSG_COMPONENT \
++			": %s: " format, (dev)->bus_id , ## arg)
++
++#define kmsg_alert(id, format, arg...) \
++	(__builtin_constant_p(id) && (id) > 0) ? \
++		printk(__KMSG_CHECK(ALERT, id) KMSG_COMPONENT \
++			"." #id ": " format, ## arg) : \
++		printk(__KMSG_CHECK(ALERT, id) KMSG_COMPONENT \
++			": " format, ## arg)
++
++#define kmsg_err(id, format, arg...) \
++	(__builtin_constant_p(id) && (id) > 0) ? \
++		printk(__KMSG_CHECK(ERR, id) KMSG_COMPONENT \
++			"." #id ": " format, ## arg) : \
++		printk(__KMSG_CHECK(ERR, id) KMSG_COMPONENT \
++			": " format, ## arg)
++
++#define kmsg_warn(id, format, arg...) \
++	(__builtin_constant_p(id) && (id) > 0) ? \
++		printk(__KMSG_CHECK(WARNING, id) KMSG_COMPONENT \
++			"." #id ": " format, ## arg) : \
++		printk(__KMSG_CHECK(WARNING, id) KMSG_COMPONENT \
++			": " format, ## arg)
++
++#define kmsg_info(id, format, arg...) \
++	(__builtin_constant_p(id) && (id) > 0) ? \
++		printk(__KMSG_CHECK(INFO, id) KMSG_COMPONENT \
++			"." #id ": " format, ## arg) : \
++		printk(__KMSG_CHECK(INFO, id) KMSG_COMPONENT \
++			": " format, ## arg)
++
++#define kmsg_notice(id, format, arg...) \
++	(__builtin_constant_p(id) && (id) > 0) ? \
++		printk(__KMSG_CHECK(NOTICE, id) KMSG_COMPONENT \
++			"." #id ": " format, ## arg) : \
++		printk(__KMSG_CHECK(NOTICE, id) KMSG_COMPONENT \
++			": " format, ## arg)
++
++#endif /* __KMSG_CHECKER || !CONFIG_KMSG_IDS */
++
++#endif /* _ASM_KMSG_H */
 
 -- 
 blue skies,
