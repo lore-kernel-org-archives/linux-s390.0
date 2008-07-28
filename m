@@ -1,179 +1,228 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761483AbYG1SAG@vger.kernel.org>
-Message-Id: <20080728175512.449879016@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761506AbYG1SAe@vger.kernel.org>
+Message-Id: <20080728175514.161189822@de.ibm.com>
 References: <20080728175355.734299984@de.ibm.com>
-Date: Mon, 28 Jul 2008 19:54:02 +0200
+Date: Mon, 28 Jul 2008 19:54:09 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 07/15] kmsg: convert xpram messages to kmsg api.
-Content-Disposition: inline; filename=806-kmsg-xpram.diff
+Subject: [patch 14/15] kmsg: convert s390 debug feature to kmsg api
+Content-Disposition: inline; filename=814-kmsg-debug.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Michael Holzheu <holzheu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Michael Holzheu <holzheu@de.ibm.com>
 
+Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- Documentation/s390/kmsg/xpram |   54 ++++++++++++++++++++++++++++++++++++++++++
- drivers/s390/block/xpram.c    |   41 ++++++++++++++-----------------
- 2 files changed, 73 insertions(+), 22 deletions(-)
+ Documentation/s390/kmsg/s390dbf |   84 ++++++++++++++++++++++++++++++++++++++++
+ arch/s390/kernel/debug.c        |   37 +++++++++--------
+ 2 files changed, 103 insertions(+), 18 deletions(-)
 
-Index: quilt-2.6/Documentation/s390/kmsg/xpram
+Index: quilt-2.6/arch/s390/kernel/debug.c
 ===================================================================
---- /dev/null
-+++ quilt-2.6/Documentation/s390/kmsg/xpram
-@@ -0,0 +1,54 @@
-+/*?
-+ * Tag: xpram.1
-+ * Text: "%d is not a valid number of XPRAM devices"
-+ * Severity: Error
-+ * Parameter:
-+ *   @1: number of partitions
-+ * Description:
-+ * The number of XPRAM partitions specified for the 'devs' module parameter
-+ * or with the 'xpram.parts' kernel parameter must be an integer in the
-+ * range 1 to 32. The XPRAM device driver created a maximum of 32 partitions
-+ * that are probably not configured as intended.
-+ * User action:
-+ * If the XPRAM device driver has been complied as a separate module,
-+ * unload the module and load it again with a correct value for the
-+ * 'devs' module parameter. If the XPRAM device driver has been compiled
-+ * into the kernel, correct the 'xpram.parts' parameter in the kernel
-+ * parameter line and restart Linux.
-+ */
-+
-+/*?
-+ * Tag: xpram.2
-+ * Text: "Not enough expanded memory available"
-+ * Severity: Error
-+ * Description:
-+ * The amount of expanded memory required to set up your XPRAM partitions
-+ * depends on the 'sizes' parameter specified for the xpram module or on
-+ * the specifications for the 'xpram.parts' parameter if the XPRAM device
-+ * driver has been compiled into the kernel. Your
-+ * current specification exceed the amount of available expanded memory.
-+ * Your XPRAM partitions are probably not configured as intended.
-+ * User action:
-+ * If the XPRAM device driver has been complied as a separate module,
-+ * unload the xpram module and load it again with an appropriate value
-+ * for the 'sizes' module parameter. If the XPRAM device driver has been
-+ * compiled into the kernel, adjust the 'xpram.parts' parameter in the
-+ * kernel parameter line and restart Linux. If you need more than the
-+ * available expanded memory, increase the expanded memory allocation for
-+ * your virtual hardware or LPAR.
-+ */
-+
-+/*?
-+ * Tag: xpram.3
-+ * Text: "No expanded memory available"
-+ * Severity: Error
-+ * Description:
-+ * The XPRAM device driver has been loaded in a Linux instance that runs
-+ * in an LPAR or virtual hardware without expanded memory.
-+ * are created.
-+ * User action:
-+ * Allocate expanded memory for your LPAR or virtual hardware or do not
-+ * load the xpram module. You can ignore this message, if you do not want
-+ * to create XPRAM partitions.
-+ */
-+
-Index: quilt-2.6/drivers/s390/block/xpram.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/block/xpram.c
-+++ quilt-2.6/drivers/s390/block/xpram.c
-@@ -37,17 +37,14 @@
- #include <linux/sysdev.h>
- #include <linux/bio.h>
- #include <asm/uaccess.h>
+--- quilt-2.6.orig/arch/s390/kernel/debug.c
++++ quilt-2.6/arch/s390/kernel/debug.c
+@@ -23,6 +23,9 @@
+ #include <linux/debugfs.h>
+ 
+ #include <asm/debug.h>
 +#include <asm/kmsg.h>
 +
-+#define KMSG_COMPONENT "xpram"
++#define KMSG_COMPONENT "s390dbf"
  
- #define XPRAM_NAME	"xpram"
- #define XPRAM_DEVS	1	/* one partition */
- #define XPRAM_MAX_DEVS	32	/* maximal number of devices (partitions) */
+ #define DEBUG_PROLOG_ENTRY -1
  
--#define PRINT_DEBUG(x...)	printk(KERN_DEBUG XPRAM_NAME " debug:" x)
--#define PRINT_INFO(x...)	printk(KERN_INFO XPRAM_NAME " info:" x)
--#define PRINT_WARN(x...)	printk(KERN_WARNING XPRAM_NAME " warning:" x)
--#define PRINT_ERR(x...)		printk(KERN_ERR XPRAM_NAME " error:" x)
--
--
- typedef struct {
- 	unsigned int	size;		/* size of xpram segment in pages */
- 	unsigned int	offset;		/* start page of xpram segment */
-@@ -263,7 +260,7 @@ static int __init xpram_setup_sizes(unsi
- 
- 	/* Check number of devices. */
- 	if (devs <= 0 || devs > XPRAM_MAX_DEVS) {
--		PRINT_ERR("invalid number %d of devices\n",devs);
-+		kmsg_err(1, "%d is not a valid number of XPRAM devices\n",devs);
- 		return -EINVAL;
+@@ -693,8 +696,8 @@ debug_info_t *debug_register_mode(const 
+ 	/* Since debugfs currently does not support uid/gid other than root, */
+ 	/* we do not allow gid/uid != 0 until we get support for that. */
+ 	if ((uid != 0) || (gid != 0))
+-		printk(KERN_WARNING "debug: Warning - Currently only uid/gid "
+-		       "= 0 are supported. Using root as owner now!");
++		kmsg_warn(1, "Root becomes the owner of all s390dbf files "
++			  "in sysfs");
+ 	if (!initialized)
+ 		BUG();
+ 	mutex_lock(&debug_mutex);
+@@ -709,7 +712,7 @@ debug_info_t *debug_register_mode(const 
+ 	debug_register_view(rc, &debug_pages_view);
+ out:
+         if (!rc){
+-		printk(KERN_ERR "debug: debug_register failed for %s\n",name);
++		kmsg_err(2, "Registering debug feature %s failed\n", name);
+         }
+ 	mutex_unlock(&debug_mutex);
+ 	return rc;
+@@ -763,8 +766,8 @@ debug_set_size(debug_info_t* id, int nr_
+ 	if(pages_per_area > 0){
+ 		new_areas = debug_areas_alloc(pages_per_area, nr_areas);
+ 		if(!new_areas) {
+-			printk(KERN_WARNING "debug: could not allocate memory "\
+-					 "for pagenumber: %i\n",pages_per_area);
++			kmsg_info(6, "Allocating memory for %i pages failed",
++				  pages_per_area);
+ 			rc = -ENOMEM;
+ 			goto out;
+ 		}
+@@ -780,8 +783,7 @@ debug_set_size(debug_info_t* id, int nr_
+ 	memset(id->active_entries,0,sizeof(int)*id->nr_areas);
+ 	memset(id->active_pages, 0, sizeof(int)*id->nr_areas);
+ 	spin_unlock_irqrestore(&id->lock,flags);
+-	printk(KERN_INFO "debug: %s: set new size (%i pages)\n"\
+-			 ,id->name, pages_per_area);
++	kmsg_info(0, "%s: set new size (%i pages)\n" ,id->name, pages_per_area);
+ out:
+ 	return rc;
+ }
+@@ -800,10 +802,9 @@ debug_set_level(debug_info_t* id, int ne
+ 	spin_lock_irqsave(&id->lock,flags);
+         if(new_level == DEBUG_OFF_LEVEL){
+                 id->level = DEBUG_OFF_LEVEL;
+-                printk(KERN_INFO "debug: %s: switched off\n",id->name);
++                kmsg_info(0, "%s: switched off\n",id->name);
+         } else if ((new_level > DEBUG_MAX_LEVEL) || (new_level < 0)) {
+-                printk(KERN_INFO
+-                        "debug: %s: level %i is out of range (%i - %i)\n",
++                kmsg_info(0, "%s: level %i is out of range (%i - %i)\n",
+                         id->name, new_level, 0, DEBUG_MAX_LEVEL);
+         } else {
+                 id->level = new_level;
+@@ -1108,8 +1109,8 @@ debug_register_view(debug_info_t * id, s
+ 	pde = debugfs_create_file(view->name, mode, id->debugfs_root_entry,
+ 				id , &debug_file_ops);
+ 	if (!pde){
+-		printk(KERN_WARNING "debug: debugfs_create_file() failed!"\
+-			" Cannot register view %s/%s\n", id->name,view->name);
++		kmsg_err(0, "Registering view %s/%s failed due to out of "
++			 "memory", id->name,view->name);
+ 		rc = -1;
+ 		goto out;
  	}
- 	xpram_devs = devs;
-@@ -294,22 +291,22 @@ static int __init xpram_setup_sizes(unsi
- 			mem_auto_no++;
+@@ -1119,10 +1120,8 @@ debug_register_view(debug_info_t * id, s
+ 			break;
  	}
- 	
--	PRINT_INFO("  number of devices (partitions): %d \n", xpram_devs);
-+	kmsg_info(0, "  number of devices (partitions): %d \n", xpram_devs);
- 	for (i = 0; i < xpram_devs; i++) {
- 		if (xpram_sizes[i])
--			PRINT_INFO("  size of partition %d: %u kB\n",
--				   i, xpram_sizes[i]);
-+			kmsg_info(0, "  size of partition %d: %u kB\n",
-+				  i, xpram_sizes[i]);
- 		else
--			PRINT_INFO("  size of partition %d to be set "
--				   "automatically\n",i);
-+			kmsg_info(0, "  size of partition %d to be set "
-+				  "automatically\n",i);
+ 	if (i == DEBUG_MAX_VIEWS) {
+-		printk(KERN_WARNING "debug: cannot register view %s/%s\n",
+-			id->name,view->name);
+-		printk(KERN_WARNING 
+-			"debug: maximum number of views reached (%i)!\n", i);
++		kmsg_err(3, "Registering view %s/%s would exceed the maximum "
++			 "number of views %i", id->name, view->name, i);
+ 		debugfs_remove(pde);
+ 		rc = -1;
+ 	} else {
+@@ -1303,7 +1302,8 @@ debug_input_level_fn(debug_info_t * id, 
+ 		new_level = debug_get_uint(str);
  	}
--	PRINT_DEBUG("  memory needed (for sized partitions): %lu kB\n",
--		    mem_needed);
--	PRINT_DEBUG("  partitions to be sized automatically: %d\n",
--		    mem_auto_no);
-+	kmsg_info(0, "  memory needed (for sized partitions): %lu kB\n",
-+		  mem_needed);
-+	kmsg_info(0, "  partitions to be sized automatically: %d\n",
-+		  mem_auto_no);
+ 	if(new_level < 0) {
+-		printk(KERN_INFO "debug: level `%s` is not valid\n", str);
++		kmsg_warn(4, "%s is not a valid level for a debug "
++			  "feature\n", str);
+ 		rc = -EINVAL;
+ 	} else {
+ 		debug_set_level(id, new_level);
+@@ -1380,7 +1380,8 @@ debug_input_flush_fn(debug_info_t * id, 
+                 goto out;
+         }
  
- 	if (mem_needed > pages * 4) {
--		PRINT_ERR("Not enough expanded memory available\n");
-+		kmsg_err(2, "Not enough expanded memory available\n");
- 		return -EINVAL;
- 	}
+-        printk(KERN_INFO "debug: area `%c` is not valid\n", input_buf[0]);
++        kmsg_info(5, "Flushing debug data failed because %c is not a valid "
++		  "area\n", input_buf[0]);
  
-@@ -321,8 +318,8 @@ static int __init xpram_setup_sizes(unsi
- 	 */
- 	if (mem_auto_no) {
- 		mem_auto = ((pages - mem_needed / 4) / mem_auto_no) * 4;
--		PRINT_INFO("  automatically determined "
--			   "partition size: %lu kB\n", mem_auto);
-+		kmsg_info(0, "  automatically determined "
-+			  "partition size: %lu kB\n", mem_auto);
- 		for (i = 0; i < xpram_devs; i++)
- 			if (xpram_sizes[i] == 0)
- 				xpram_sizes[i] = mem_auto;
-@@ -412,12 +409,12 @@ static int __init xpram_init(void)
- 
- 	/* Find out size of expanded memory. */
- 	if (xpram_present() != 0) {
--		PRINT_WARN("No expanded memory available\n");
-+		kmsg_err(3, "No expanded memory available\n");
- 		return -ENODEV;
- 	}
- 	xpram_pages = xpram_highest_page_index() + 1;
--	PRINT_INFO("  %u pages expanded memory found (%lu KB).\n",
--		   xpram_pages, (unsigned long) xpram_pages*4);
-+	kmsg_info(0, "  %u pages expanded memory found (%lu KB).\n",
-+		  xpram_pages, (unsigned long) xpram_pages*4);
- 	rc = xpram_setup_sizes(xpram_pages);
- 	if (rc)
- 		return rc;
+ out:
+         *offset += user_len;
+Index: quilt-2.6/Documentation/s390/kmsg/s390dbf
+===================================================================
+--- /dev/null
++++ quilt-2.6/Documentation/s390/kmsg/s390dbf
+@@ -0,0 +1,84 @@
++/*?
++ * Tag: s390dbf.1
++ * Text: "Root becomes the owner of all s390dbf files in sysfs"
++ * Severity: Warning
++ * Description:
++ * The S/390 debug feature you are using only supports uid/gid = 0.
++ * User action:
++ * None.
++ */
++
++/*?
++ * Tag: s390dbf.2
++ * Text: "Registering debug feature %s failed"
++ * Severity: Error
++ * Parameter:
++ *   @1: feature name
++ * Description:
++ * The initialization of an S/390 debug feature failed. A likely cause of this
++ * problem is memory constraints. The system keeps running, but the debug
++ * data for this feature will not be available in sysfs.
++ * User action:
++ * Consider assigning more memory to your LPAR or z/VM guest virtual machine.
++ */
++
++/*?
++ * Tag: s390dbf.3
++ * Text: "Registering view %s/%s would exceed the maximum number of views %i"
++ * Severity: Error
++ * Parameter:
++ *   @1: feature name
++ *   @2: view name
++ *   @3: maximum
++ * Description:
++ * The maximum number of allowed debug feature views has been reached. The
++ * view has not been registered. The system keeps running but the new view
++ * will not be available in sysfs. This is a program error.
++ * User action:
++ * Report this problem to your support partner.
++ */
++
++/*?
++ * Tag: s390dbf.4
++ * Text: "%s is not a valid level for a debug feature"
++ * Severity: Warning
++ * Parameter:
++ *   @1: level
++ * Description:
++ * Setting a new level for a debug feature by using the 'level' sysfs attribute
++ * failed. Valid levels are the minus sign (-) and the integers in the
++ * range 0 to 6. The minus sign switches off the feature. The numbers switch
++ * the feature on, where higher numbers produce more debug output.
++ * User action:
++ * Write a valid value to the 'level' sysfs attribute.
++ */
++
++/*?
++ * Tag: s390dbf.5
++ * Text: "Flushing debug data failed because %c is not a valid area"
++ * Severity: Warning
++ * Parameter:
++ *   @1: debug area number
++ * Description:
++ * Flushing a debug area by using the 'flush' sysfs attribute failed. Valid
++ * values are the minus sign (-) for flushing all areas, or the number of the
++ * respective area for flushing a single area.
++ * User action:
++ * Write a valid area number or the minus sign (-) to the 'flush' sysfs
++ * attribute.
++ */
++
++/*?
++ * Tag: s390dbf.6
++ * Text: "Allocating memory for %i pages failed"
++ * Severity: Error
++ * Parameter:
++ *   @1: number of pages
++ * Description:
++ * Setting the debug feature size by using the 'page' sysfs attribute failed.
++ * Linux did not have enough memory for expanding the debug feature to the
++ * requested size.
++ * User action:
++ * Use a smaller number of pages for the debug feature or allocate more
++ * memory to your LPAR or z/VM guest virtual machine.
++ */
 
 -- 
 blue skies,
