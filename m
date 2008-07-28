@@ -1,314 +1,195 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758980AbYG1Rz2@vger.kernel.org>
-Message-Id: <20080728175511.495393312@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760245AbYG1Rzq@vger.kernel.org>
+Message-Id: <20080728175513.120180800@de.ibm.com>
 References: <20080728175355.734299984@de.ibm.com>
-Date: Mon, 28 Jul 2008 19:53:58 +0200
+Date: Mon, 28 Jul 2008 19:54:05 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 03/15] kmsg: convert cio message to kmsg api.
-Content-Disposition: inline; filename=802-kmsg-cio.diff
+Subject: [patch 10/15] kmsg: convert hypfs printk messages to kmsg api.
+Content-Disposition: inline; filename=810-kmsg-hypfs.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Michael Ernst <mernst@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Michael Holzheu <holzheu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Ernst <mernst@de.ibm.com>
+From: Michael Holzheu <holzheu@de.ibm.com>
 
-Signed-off-by: Michael Ernst <mernst@de.ibm.com>
+Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- Documentation/s390/kmsg/cio  |   97 +++++++++++++++++++++++++++++++++++++++++++
- drivers/s390/cio/blacklist.c |   14 +++---
- drivers/s390/cio/chsc.c      |    9 ++-
- drivers/s390/cio/cio.c       |    5 +-
- drivers/s390/cio/cmf.c       |    8 ++-
- drivers/s390/cio/css.c       |    7 ++-
- 6 files changed, 126 insertions(+), 14 deletions(-)
+ Documentation/s390/kmsg/hypfs |   60 ++++++++++++++++++++++++++++++++++++++++++
+ arch/s390/hypfs/hypfs_diag.c  |    9 ++++--
+ arch/s390/hypfs/inode.c       |   13 ++++-----
+ 3 files changed, 73 insertions(+), 9 deletions(-)
 
-Index: quilt-2.6/Documentation/s390/kmsg/cio
+Index: quilt-2.6/arch/s390/hypfs/hypfs_diag.c
 ===================================================================
---- /dev/null
-+++ quilt-2.6/Documentation/s390/kmsg/cio
-@@ -0,0 +1,97 @@
-+/*?
-+ * Tag: cio.1
-+ * Text: "%s is not a valid device for the cio_ignore kernel parameter"
-+ * Severity: Warning
-+ * Parameter:
-+ *   @1: device bus-ID
-+ * Description:
-+ * The device specification for the cio_ignore kernel parameter is
-+ * syntactically incorrect or specifies an unknown device. This device is not
-+ * excluded from being sensed and analyzed.
-+ * User action:
-+ * Correct your device specification in the kernel parameter line to have the
-+ * device excluded when you next reboot Linux. You can write the correct
-+ * device specification to /proc/cio_ignore to add the device to the list of
-+ * devices to be excluded. This does not immediately make the device
-+ * inaccessible but the device is ignored if it disappears and later reappears.
-+ */
-+
-+/*?
-+ * Tag: cio.2
-+ * Text: "0.%x.%04x to 0.%x.%04x is not a valid range for cio_ignore"
-+ * Severity: Warning
-+ * Parameter:
-+ *   @1: from subchannel set ID
-+ *   @2: from device number
-+ *   @3: to subchannel set ID
-+ *   @4: to device number
-+ * Description:
-+ * The device range specified for the cio_ignore kernel parameter is
-+ * syntactically incorrect. No devices specified with this range are
-+ * excluded from being sensed and analyzed.
-+ * User action:
-+ * Correct your range specification in the kernel parameter line to have the
-+ * range of devices  excluded when you next reboot Linux. You can write the
-+ * correct range specification to /proc/cio_ignore to add the range of devices
-+ * to the list of devices to be excluded. This does not immediately make the
-+ * devices in the range inaccessible but any of these devices are ignored if
-+ * they disappear and later reappear.
-+ */
-+
-+/*?
-+ * Tag: cio.3
-+ * Text: "Processing %s for channel path %x.%02x"
-+ * Severity: Notice
-+ * Parameter:
-+ *   @1: configuration change
-+ *   @2: channel subsystem ID
-+ *   @3: CHPID
-+ * Description:
-+ * A configuration change is in progress for the given channel path.
-+ * User action:
-+ * None.
-+ */
-+
-+/*?
-+ * Tag: cio.4
-+ * Text: "No CCW console was found"
-+ * Severity: Warning
-+ * Description:
-+ * Linux did not find the expected CCW console and tries to use an alternative
-+ * console. A possible reason why the console was not found is that the console
-+ * has been specified in the cio_ignore list.
-+ * User action:
-+ * None, if an appropriate alternative console has been found, and you want
-+ * to use this alternative console. If you want to use the CCW console, ensure
-+ * that is not specified in the cio_ignore list, explicitly specify the console
-+ * with the 'condev=' kernel parameter, and reboot Linux.
-+ */
-+
-+/*?
-+ * Tag: cio.5
-+ * Text: "Channel measurement facility initialized using format %s (mode %s)"
-+ * Severity: Informational
-+ * Parameter:
-+ *   @1: format
-+ *   @2: mode
-+ * Description:
-+ * The channel measurement facility has been initialized successfully. Format
-+ * 'extended' should be used for z990 and later mainframe systems. Format
-+ * 'basic' is intended for earlier mainframes. Mode 'autodetected' means that
-+ * the format has been set automatically. Mode 'parameter' means that the
-+ * format has been set according to the 'format=' kernel parameter.
-+ * User action:
-+ * None.
-+ */
-+
-+/*?
-+ * Tag: cio.6
-+ * Text: "The CSS device driver initialization failed with errno=%d"
-+ * Severity: Alert
-+ * Parameter:
-+ *   @1: Return code
-+ * Description:
-+ * The channel subsystem bus could not be established.
-+ * User action:
-+ * See the errno man page to find out what caused the problem.
-+ */
-Index: quilt-2.6/drivers/s390/cio/blacklist.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/blacklist.c
-+++ quilt-2.6/drivers/s390/cio/blacklist.c
-@@ -19,12 +19,15 @@
+--- quilt-2.6.orig/arch/s390/hypfs/hypfs_diag.c
++++ quilt-2.6/arch/s390/hypfs/hypfs_diag.c
+@@ -3,7 +3,7 @@
+  *    Hypervisor filesystem for Linux on s390. Diag 204 and 224
+  *    implementation.
+  *
+- *    Copyright (C) IBM Corp. 2006
++ *    Copyright IBM Corp. 2006, 2008
+  *    Author(s): Michael Holzheu <holzheu@de.ibm.com>
+  */
  
- #include <asm/cio.h>
- #include <asm/uaccess.h>
+@@ -12,8 +12,10 @@
+ #include <linux/string.h>
+ #include <linux/vmalloc.h>
+ #include <asm/ebcdic.h>
 +#include <asm/kmsg.h>
+ #include "hypfs.h"
  
- #include "blacklist.h"
- #include "cio.h"
- #include "cio_debug.h"
- #include "css.h"
++#define KMSG_COMPONENT "hypfs"
+ #define LPAR_NAME_LEN 8		/* lpar name len in diag 204 data */
+ #define CPU_NAME_LEN 16		/* type name len of cpus in diag224 name table */
+ #define TMP_SIZE 64		/* size of temporary buffers */
+@@ -527,13 +529,14 @@ __init int hypfs_diag_init(void)
+ 	int rc;
  
-+#define KMSG_COMPONENT "cio"
-+
- /*
-  * "Blacklisting" of certain devices:
-  * Device numbers given in the commandline as cio_ignore=... won't be known
-@@ -49,9 +52,10 @@ static int blacklist_range(range_action 
- {
- 	if ((from_ssid > to_ssid) || ((from_ssid == to_ssid) && (from > to))) {
- 		if (msgtrigger)
--			printk(KERN_WARNING "cio: Invalid cio_ignore range "
--			       "0.%x.%04x-0.%x.%04x\n", from_ssid, from,
--			       to_ssid, to);
-+			kmsg_warn(2, "0.%x.%04x to 0.%x.%04x is not a valid "
-+				  "range for cio_ignore\n", from_ssid, from,
-+				  to_ssid, to);
-+
- 		return 1;
+ 	if (diag204_probe()) {
+-		printk(KERN_ERR "hypfs: diag 204 not working.");
++		kmsg_err(1, "The hardware system does not support hypfs");
+ 		return -ENODATA;
  	}
- 
-@@ -139,8 +143,8 @@ static int parse_busid(char *str, unsign
- 	rc = 0;
- out:
- 	if (rc && msgtrigger)
--		printk(KERN_WARNING "cio: Invalid cio_ignore device '%s'\n",
--		       str);
-+		kmsg_warn(1, "%s is not a valid device for the cio_ignore "
-+			  "kernel parameter\n", str);
- 
+ 	rc = diag224_get_name_table();
+ 	if (rc) {
+ 		diag204_free_buffer();
+-		printk(KERN_ERR "hypfs: could not get name table.\n");
++		kmsg_err(2, "The hardware system does not provide all "
++			 "functions required by hypfs\n");
+ 	}
  	return rc;
  }
-Index: quilt-2.6/drivers/s390/cio/chsc.c
+Index: quilt-2.6/arch/s390/hypfs/inode.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/chsc.c
-+++ quilt-2.6/drivers/s390/cio/chsc.c
-@@ -16,7 +16,7 @@
- #include <asm/cio.h>
- #include <asm/chpid.h>
- #include <asm/chsc.h>
--
+--- quilt-2.6.orig/arch/s390/hypfs/inode.c
++++ quilt-2.6/arch/s390/hypfs/inode.c
+@@ -2,7 +2,7 @@
+  *  arch/s390/hypfs/inode.c
+  *    Hypervisor filesystem for Linux on s390.
+  *
+- *    Copyright (C) IBM Corp. 2006
++ *    Copyright IBM Corp. 2006, 2008
+  *    Author(s): Michael Holzheu <holzheu@de.ibm.com>
+  */
+ 
+@@ -20,8 +20,10 @@
+ #include <linux/seq_file.h>
+ #include <linux/mount.h>
+ #include <asm/ebcdic.h>
 +#include <asm/kmsg.h>
- #include "../s390mach.h"
- #include "css.h"
- #include "cio.h"
-@@ -25,6 +25,8 @@
- #include "chp.h"
- #include "chsc.h"
+ #include "hypfs.h"
  
-+#define KMSG_COMPONENT "cio"
-+
- static void *sei_page;
++#define KMSG_COMPONENT "hypfs"
+ #define HYPFS_MAGIC 0x687970	/* ASCII 'hyp' */
+ #define TMP_SIZE 64		/* size of temporary buffers */
  
- /**
-@@ -333,6 +335,7 @@ static void chsc_process_sei_chp_config(
- 	struct chp_config_data *data;
- 	struct chp_id chpid;
- 	int num;
-+	char *events[3] = {"configure", "deconfigure", "cancel deconfigure"};
- 
- 	CIO_CRW_EVENT(4, "chsc: channel-path-configuration notification\n");
- 	if (sei_area->rs != 0)
-@@ -343,8 +346,8 @@ static void chsc_process_sei_chp_config(
- 		if (!chp_test_bit(data->map, num))
- 			continue;
- 		chpid.id = num;
--		printk(KERN_WARNING "cio: processing configure event %d for "
--		       "chpid %x.%02x\n", data->op, chpid.cssid, chpid.id);
-+		kmsg_notice(3, "Processing %s for channel path %x.%02x\n",
-+			    events[data->op], chpid.cssid, chpid.id);
- 		switch (data->op) {
- 		case 0:
- 			chp_cfg_schedule(chpid, 1);
-Index: quilt-2.6/drivers/s390/cio/cio.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cio.c
-+++ quilt-2.6/drivers/s390/cio/cio.c
-@@ -27,6 +27,7 @@
- #include <asm/isc.h>
- #include <asm/cpu.h>
- #include <asm/fcx.h>
-+#include <asm/kmsg.h>
- #include "cio.h"
- #include "css.h"
- #include "chsc.h"
-@@ -37,6 +38,8 @@
- #include "chp.h"
- #include "../s390mach.h"
- 
-+#define KMSG_COMPONENT "cio"
-+
- debug_info_t *cio_debug_msg_id;
- debug_info_t *cio_debug_trace_id;
- debug_info_t *cio_debug_crw_id;
-@@ -770,7 +773,7 @@ cio_probe_console(void)
- 	sch_no = cio_get_console_sch_no();
- 	if (sch_no == -1) {
- 		console_subchannel_in_use = 0;
--		printk(KERN_WARNING "cio: No ccw console found!\n");
-+		kmsg_warn(4, "No CCW console was found\n");
- 		return ERR_PTR(-ENODEV);
+@@ -200,7 +202,7 @@ static ssize_t hypfs_aio_write(struct ki
+ 	else
+ 		rc = hypfs_diag_create_files(sb, sb->s_root);
+ 	if (rc) {
+-		printk(KERN_ERR "hypfs: Update failed\n");
++		kmsg_err(3, "Updating the hypfs tree failed\n");
+ 		hypfs_delete_tree(sb->s_root);
+ 		goto out;
  	}
- 	memset(&console_subchannel, 0, sizeof(struct subchannel));
-Index: quilt-2.6/drivers/s390/cio/cmf.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cmf.c
-+++ quilt-2.6/drivers/s390/cio/cmf.c
-@@ -38,6 +38,7 @@
- #include <asm/cio.h>
- #include <asm/cmb.h>
- #include <asm/div64.h>
-+#include <asm/kmsg.h>
- 
- #include "cio.h"
- #include "css.h"
-@@ -45,6 +46,8 @@
- #include "ioasm.h"
- #include "chsc.h"
- 
-+#define KMSG_COMPONENT "cio"
-+
- /*
-  * parameter to enable cmf during boot, possible uses are:
-  *  "s390cmf" -- enable cmf and allocate 2 MB of ram so measuring can be
-@@ -1359,9 +1362,8 @@ static int __init init_cmf(void)
- 	default:
- 		return 1;
+@@ -252,8 +254,7 @@ static int hypfs_parse_options(char *opt
+ 			break;
+ 		case opt_err:
+ 		default:
+-			printk(KERN_ERR "hypfs: Unrecognized mount option "
+-			       "\"%s\" or missing value\n", str);
++			kmsg_err(4, "%s is not a valid mount option", str);
+ 			return -EINVAL;
+ 		}
  	}
--
--	printk(KERN_INFO "cio: Channel measurement facility using %s "
--	       "format (%s)\n", format_string, detect_string);
-+	kmsg_info(5, "Channel measurement facility initialized using format "
-+		  "%s (mode %s)\n", format_string, detect_string);
+@@ -317,7 +318,7 @@ static int hypfs_fill_super(struct super
+ 	}
+ 	hypfs_update_update(sb);
+ 	sb->s_root = root_dentry;
+-	printk(KERN_INFO "hypfs: Hypervisor filesystem mounted\n");
++	kmsg_info(0, "Hypervisor filesystem mounted\n");
  	return 0;
+ 
+ err_tree:
+@@ -513,7 +514,7 @@ fail_sysfs:
+ 	if (!MACHINE_IS_VM)
+ 		hypfs_diag_exit();
+ fail_diag:
+-	printk(KERN_ERR "hypfs: Initialization failed with rc = %i.\n", rc);
++	kmsg_err(5, "Initialization of hypfs failed with rc=%i\n", rc);
+ 	return rc;
  }
  
-Index: quilt-2.6/drivers/s390/cio/css.c
+Index: quilt-2.6/Documentation/s390/kmsg/hypfs
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/css.c
-+++ quilt-2.6/drivers/s390/cio/css.c
-@@ -14,6 +14,7 @@
- #include <linux/list.h>
- #include <linux/reboot.h>
- #include <asm/isc.h>
-+#include <asm/kmsg.h>
- 
- #include "../s390mach.h"
- #include "css.h"
-@@ -25,6 +26,8 @@
- #include "idset.h"
- #include "chp.h"
- 
-+#define KMSG_COMPONENT "cio"
+--- /dev/null
++++ quilt-2.6/Documentation/s390/kmsg/hypfs
+@@ -0,0 +1,60 @@
++/*?
++ * Tag: hypfs.1
++ * Text: "The hardware system does not support hypfs"
++ * Severity: Error
++ * Description:
++ * hypfs requires DIAGNOSE Code X'204' but this diagnose code is not available
++ * on your hardware. You need more recent hardware to use hypfs.
++ * User action:
++ * None.
++ */
 +
- int css_init_done = 0;
- static int need_reprobe = 0;
- static int max_ssid = 0;
-@@ -841,8 +844,8 @@ out:
- 	s390_unregister_crw_handler(CRW_RSC_CSS);
- 	chsc_free_sei_area();
- 	kfree(slow_subchannel_set);
--	printk(KERN_WARNING"cio: failed to initialize css driver (%d)!\n",
--	       ret);
-+	kmsg_alert(6, "The CSS device driver initialization failed with "
-+		   "errno=%d\n", ret);
- 	return ret;
- }
- 
++/*?
++ * Tag: hypfs.2
++ * Text: "The hardware system does not provide all functions required by hypfs"
++ * Severity: Error
++ * Description:
++ * hypfs requires DIAGNOSE Code X'224' but this diagnode code is not available
++ * on your hardware. You need more recent hardware to use hypfs.
++ * User action:
++ * None.
++ */
++
++/*?
++ * Tag: hypfs.3
++ * Text: "Updating the hypfs tree failed"
++ * Severity: Error
++ * Description:
++ * There was not enough memory available to update the hypfs tree.
++ * User action:
++ * Free some memory and try again to update the hypfs tree. Consider assigning
++ * more memory to your LPAR or z/VM guest virtual machine.
++ */
++
++/*?
++ * Tag: hypfs.4
++ * Text: "%s is not a valid mount option"
++ * Severity: Error
++ * Parameter:
++ *   @1: mount option
++ * Description:
++ * hypfs has detected mount options that are not valid.
++ * User action:
++ * See "Device Drivers Features and Commands" for information about valid
++ * mount options for hypfs.
++ */
++
++/*?
++ * Tag: hypfs.5
++ * Text: "Initialization of hypfs failed with rc=%i"
++ * Severity: Error
++ * Parameter:
++ *   @1: error code
++ * Description:
++ * Initialization of hypfs failed because of resource or hardware constraints.
++ * Possible reasons for this problem are insufficient free memory or missing
++ * hardware interfaces.
++ * User action:
++ * See errno.h for information about the error codes.
++ */
++
 
 -- 
 blue skies,
