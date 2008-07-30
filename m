@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758848AbYG2PPq@vger.kernel.org>
-Subject: Re: [patch 02/15] kmsg: Kernel message catalog script.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-In-Reply-To: <ef1cd66f0807290801q647d7efbn9f9058531bc6f32c@mail.gmail.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757876AbYG3Idb@vger.kernel.org>
+Date: Wed, 30 Jul 2008 01:30:59 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [patch 01/15] kmsg: Kernel message catalog macros.
+Message-Id: <20080730013059.4d411750.akpm@linux-foundation.org>
+In-Reply-To: <20080728175511.023246676@de.ibm.com>
 References: <20080728175355.734299984@de.ibm.com>
-	 <20080728175511.260174666@de.ibm.com>
-	 <20080728192828.GA11431@uranus.ravnborg.org>
-	 <1217320950.10259.15.camel@localhost>
-	 <20080729084536.GA29659@uranus.ravnborg.org>
-	 <1217329750.10259.38.camel@localhost>
-	 <ef1cd66f0807290801q647d7efbn9f9058531bc6f32c@mail.gmail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Tue, 29 Jul 2008 17:15:29 +0200
-Message-Id: <1217344529.10259.51.camel@localhost>
+	<20080728175511.023246676@de.ibm.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jochen =?ISO-8859-1?Q?Vo=DF?= <jochen.voss@googlemail.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Michael Holzheu <holzheu@de.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Michael Holzheu <holzheu@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 2008-07-29 at 16:01 +0100, Jochen Vo=DF wrote:
-> Hi Martin,
->=20
-> I think the changelog needs fixing, too:
->=20
-> 2008/7/29 Martin Schwidefsky <schwidefsky@de.ibm.com>:
-> > The kmsg check is invoked with "make K=3D1" and reads the source files =
-for
-> > all objects that are built by the current configuration and searches for
-> > matching kmsg descriptions for the kmsg messages in the source which
-> > have a messages id > 0. If a message description can not be found the
-> > script prints a blueprint and causes a make error.
-> >
-> > The kmsg man page creation is invoked with "make K=3D2" and reads the s=
-ource
-> > files for all built objects, looks up the message description and writes
-> > a man page to $(objtree)/man.
-> This should be "D=3D1" and "D=3D2" now, shouldn't it?
+On Mon, 28 Jul 2008 19:53:56 +0200 Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
 
-Yes, indeed. Thanks.
+> Introduce a new family of printk macros which prefixes each kmsg message
+> with a component name and allows to tag the printk with a message id.
+> 
+> The kmsg component name is defined per source file with the KMSG_COMPONENT
+> macro. The first argument of each kmsg printk is the message id. The
+> message id "0" is special as it will suppress the message id prefix.
+> 
+> If the message id will be printed to the console / syslog at all depends
+> on CONFIG_MSG_IDS. If it is "n" then a kmsg_xxx call is just another
+> printk wrapper. These macros are intended to be used uniformly in the
+> s390 architecture and the s390 device drivers.
+> 
+> Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
+> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> ---
+> 
+>  arch/s390/Kconfig       |    9 +++
+>  include/asm-s390/kmsg.h |  124 ++++++++++++++++++++++++++++++++++++++++++++++++
 
---=20
-blue skies,
-  Martin.
+Numerous people want a facility like this for other-than-s390 use. 
+Progress has been intermittent and appears to have stopped.  The
+apparently-dead mailing list is archived here:
+https://lists.linux-foundation.org/pipermail/lf_kernel_messages/.
 
-"Reality continues to ruin my life." - Calvin.
+I don't know what the future holds for that development effort, but the
+requirement won't go away.  So one day someone is going to go and yank
+your implementation out of arch/s390 and into generic code.
+
+So I'd suggest that you start out that way.
