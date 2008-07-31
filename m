@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1751201AbYGaMjq@vger.kernel.org>
-Message-Id: <20080731123932.093946726@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1751834AbYGaMkF@vger.kernel.org>
+Message-Id: <20080731123933.615471169@de.ibm.com>
 References: <20080731123004.868574766@de.ibm.com>
-Date: Thu, 31 Jul 2008 14:30:05 +0200
+Date: Thu, 31 Jul 2008 14:30:10 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 1/6] Remove diag 0x260 call from memory detection.
-Content-Disposition: inline; filename=100-rm-diag260.diff
+Subject: [patch 6/6] dont use kthread for smp_rescan_cpus().
+Content-Disposition: inline; filename=105-sclp-kthread-remove.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,57 +14,51 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-The result of the diag 0x260 call is not always what one would expect.
-So just remove it.
+Since git commit 3da1c84c00c7e5fa8348336bd8c342f9128b0f14
+"workqueues: make get_online_cpus() useable for work->func()"
+it is safe to call get_online_cpus() from workqueue context.
+So remove the kthread workaround again.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/mem_detect.c |   23 -----------------------
- 1 file changed, 23 deletions(-)
+ drivers/s390/char/sclp_config.c |   13 +------------
+ 1 file changed, 1 insertion(+), 12 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/mem_detect.c
+Index: quilt-2.6/drivers/s390/char/sclp_config.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/mem_detect.c
-+++ quilt-2.6/arch/s390/kernel/mem_detect.c
-@@ -9,27 +9,6 @@
- #include <asm/sclp.h>
- #include <asm/setup.h>
+--- quilt-2.6.orig/drivers/s390/char/sclp_config.c
++++ quilt-2.6/drivers/s390/char/sclp_config.c
+@@ -8,7 +8,6 @@
+ #include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/cpu.h>
+-#include <linux/kthread.h>
+ #include <linux/sysdev.h>
+ #include <linux/workqueue.h>
+ #include <asm/smp.h>
+@@ -41,19 +40,9 @@ static void sclp_cpu_capability_notify(s
+ 	put_online_cpus();
+ }
  
--static int memory_fast_detect(struct mem_chunk *chunk)
+-static int sclp_cpu_kthread(void *data)
 -{
--	unsigned long val0 = 0;
--	unsigned long val1 = 0xc;
--	int rc = -EOPNOTSUPP;
--
--	if (ipl_flags & IPL_NSS_VALID)
--		return -EOPNOTSUPP;
--	asm volatile(
--		"	diag	%1,%2,0x260\n"
--		"0:	lhi	%0,0\n"
--		"1:\n"
--		EX_TABLE(0b,1b)
--		: "+d" (rc), "+d" (val0), "+d" (val1) : : "cc");
--
--	if (rc || val0 != val1)
--		return -EOPNOTSUPP;
--	chunk->size = val0 + 1;
+-	smp_rescan_cpus();
 -	return 0;
 -}
 -
- static inline int tprot(unsigned long addr)
+ static void __ref sclp_cpu_change_notify(struct work_struct *work)
  {
- 	int rc = -EFAULT;
-@@ -84,8 +63,6 @@ void detect_memory_layout(struct mem_chu
- 	unsigned long flags, cr0;
+-	/* Can't call smp_rescan_cpus() from  workqueue context since it may
+-	 * deadlock in case of cpu hotplug. So we have to create a kernel
+-	 * thread in order to call it.
+-	 */
+-	kthread_run(sclp_cpu_kthread, NULL, "cpu_rescan");
++	smp_rescan_cpus();
+ }
  
- 	memset(chunk, 0, MEMORY_CHUNKS * sizeof(struct mem_chunk));
--	if (memory_fast_detect(&chunk[0]) == 0)
--		return;
- 	/* Disable IRQs, DAT and low address protection so tprot does the
- 	 * right thing and we don't get scheduled away with low address
- 	 * protection disabled.
+ static void sclp_conf_receiver_fn(struct evbuf_header *evbuf)
 
 -- 
 blue skies,
