@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753938AbYHPRuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753278AbYHPSG6@vger.kernel.org>
 Subject: Re: [patch 1/3] kmsg: Kernel message catalog macros.
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Reply-To: schwidefsky@de.ibm.com
-In-Reply-To: <200808150922.23277.rusty@rustcorp.com.au>
+In-Reply-To: <b3ece790808151003o24e518a1ra217010f6658c2c6@mail.gmail.com>
 References: <20080730165656.118280544@de.ibm.com>
-	 <200808131433.02966.rusty@rustcorp.com.au>
-	 <1218733623.2651.14.camel@localhost>
-	 <200808150922.23277.rusty@rustcorp.com.au>
+	 <20080730171156.824640459@de.ibm.com>
+	 <b3ece790808121735t21b4a629iaf6a968b30332d74@mail.gmail.com>
+	 <1218733457.2651.11.camel@localhost>
+	 <b3ece790808141150s3770531bsc88ec387e0f840d3@mail.gmail.com>
+	 <1218769739.24527.76.camel@localhost> <20080815034419.GB803@suse.de>
+	 <b3ece790808142233y3150b4d1sfeaa0342dbac31a6@mail.gmail.com>
+	 <20080815160355.GD23720@suse.de>
+	 <b3ece790808151003o24e518a1ra217010f6658c2c6@mail.gmail.com>
 Content-Type: text/plain
-Date: Sat, 16 Aug 2008 19:49:45 +0200
-Message-Id: <1218908985.6037.12.camel@localhost>
+Date: Sat, 16 Aug 2008 20:06:30 +0200
+Message-Id: <1218909990.6037.28.camel@localhost>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, lf_kernel_messages@lists.linux-foundation.org, Andrew Morton <akpm@linux-foundation.org>, Michael Holzheu <holzheu@de.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>, Greg Kroah-Hartman <gregkh@suse.de>, Randy Dunlap <randy.dunlap@oracle.com>, Jan Kara <jack@suse.cz>, Pavel Machek <pavel@ucw.cz>, Sam Ravnborg <sam@ravnborg.org>, Joe Perches <joe@perches.com>, Jochen =?ISO-8859-1?Q?Vo=DF?= <jochen.voss@googlemail.com>, Kunai Takashi <kunai@linux-foundation.jp>, Tim Bird <tim.bird@am.sony.com>
+To: Tim Hockin <thockin@hockin.org>
+Cc: Greg KH <gregkh@suse.de>, Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, lf_kernel_messages@lists.linux-foundation.org, Andrew Morton <akpm@linux-foundation.org>, Michael Holzheu <holzheu@de.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>, Randy Dunlap <randy.dunlap@oracle.com>, Jan Kara <jack@suse.cz>, Pavel Machek <pavel@ucw.cz>, Sam Ravnborg <sam@ravnborg.org>, Jochen =?ISO-8859-1?Q?Vo=DF?= <jochen.voss@googlemail.com>, Kunai Takashi <kunai@linux-foundation.jp>, Tim Bird <tim.bird@am.sony.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 2008-08-15 at 09:22 +1000, Rusty Russell wrote:
-> On Friday 15 August 2008 03:07:03 Martin Schwidefsky wrote:
-> > On Wed, 2008-08-13 at 14:33 +1000, Rusty Russell wrote:
-> > > On Thursday 31 July 2008 02:56:57 Martin Schwidefsky wrote:
-> > > > From: Michael Holzheu <holzheu@de.ibm.com>
-> > > > From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> > > >
-> > > > Introduce a new family of printk macros which prefixes each kmsg
-> > > > message with a component name and allows to tag the printk with a
-> > > > message id.
-> > >
-> > > Can you hash the format string to generate the id?  6 hex digits should
-> > > be enough, and your tool can check for clashes.  As it's bad form to have
-> > > identical strings for different semantics anyway, this seems to make
-> > > sense.
+On Fri, 2008-08-15 at 10:03 -0700, Tim Hockin wrote:
+> On Fri, Aug 15, 2008 at 9:03 AM, Greg KH <gregkh@suse.de> wrote:
+> >> I'd like to be able to report something like an OOM kill in (roughly)
+> >> the same way as an ATA error, and I want (though could be talked out
+> >> of) a way to tell these "events" (for lack of a better word) apart
+> >> from plain-old-printk()s.
 > >
-> > First, how do you do that with the C preprocessor? Second the kmsg-doc
-> > script will check that the message format strings match if a kmsg with a
-> > specific id is used in multiple locations.
+> > That's great, then create something that can handle both!  Don't throw
+> > away some wonderful information that way over half the kernel has access
+> > to just because the minority doesn't.  That would mean that we would
+> > loose information in those drivers overall.
 > 
-> Well, why would you do it with the preprocessor?  It's simplest to spit it out 
-> at runtime.
+> Sorry, I never meant to imply that dev_printk() was to be ignored, my
+> examples was meant to be trivial to demonstrate :)  dev_printk() is
+> good.  We should keep it :)
 
-Ok, so  a specialized version of printk will do the work to calculate
-the hash. Only, what will we do if there ever is a conflict? The message
-tag has to be unique. The shorter the hash is, the more likely a
-collision gets. Don't know if 6 hash digits is enough to just ignore the
-problem. 
+The invention of dev_printk was a good thing. It adds structure to the
+messages if it is about a device. Before we had a simple printk that did
+or did not include information about the device driver and the device
+name. dev_printk makes sure that this information is always added.
+BUT, what dev_printk does not do is to make sure that the message can be
+uniquely identified so that the description of the message can be found
+in the message catalog. Our approach is to combine the driver name and a
+simple index into a message tag. The original dev_printk remains almost
+unchanged. A typical hunk in the code looks like this:
 
-> The (offline) catalogger will need to generate them, of course.
-> Rusty.
+@@ -24,8 +27,8 @@ static int zfcp_ccw_probe(struct ccw_dev
 
-Sounds doable to me.
+        down(&zfcp_data.config_sema);
+        if (zfcp_adapter_enqueue(ccw_device)) {
+-               dev_err(&ccw_device->dev,
+-                       "Setup of data structures failed.\n");
++               kmsg_dev_err(73, &ccw_device->dev,
++                            "Setup of data structures failed.\n");
+                retval = -EINVAL;
+        }
+        up(&zfcp_data.config_sema);
+
+The kmsg_dev_printk still has almost the same structure, only the
+message id is added. There is one real difference though:
+the driver name is specified with KMSG_COMPONENT and not via
+dev_driver_string(dev). We do that so that the kmsg-doc script can
+actually find the driver name. The dev_driver_string(dev) is dynamic and
+a static tool has a hard time to find the actual driver string.  
 
 -- 
 blue skies,
