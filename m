@@ -1,13 +1,12 @@
+Date: Mon, 18 Aug 2008 11:21:05 -0400
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 Subject: Re: [PATCH] Remove duplicated unlikely() in IS_ERR()
-From: Artem Bityutskiy <dedekind@infradead.org>
-In-Reply-To: <48A52D69.1040501@miraclelinux.com>
+Message-ID: <20080818152105.GA8883@schmichrtp.de.ibm.com>
 References: <48A52D69.1040501@miraclelinux.com>
-Content-Type: text/plain; charset=utf-8
-Date: Fri, 15 Aug 2008 15:16:07 +0300
-Message-Id: <1218802567.3095.1.camel@sauron>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Reply-To: dedekind@infradead.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <48A52D69.1040501@miraclelinux.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
 	<mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-mtd>
@@ -17,22 +16,31 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
 	<mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linux-mtd/>
 To: Hirofumi Nakagawa <hnakagawa@miraclelinux.com>
-Cc: yoshfuji@linux-ipv6.org, christof.schmitt@de.ibm.com, netdev@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+Cc: yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi
-
-On Fri, 2008-08-15 at 16:16 +0900, Hirofumi Nakagawa wrote:
+On Fri, Aug 15, 2008 at 04:16:57PM +0900, Hirofumi Nakagawa wrote:
 > Hi
 > Some drivers have duplicated unlikely() macros.
 > IS_ERR() already has unlikely() in itself.
 > This patch cleans up such pointless codes although there is no real
 > effect on the kernel's behaviour.
+> 
+> Thanks,
+> Hirofumi Nakagawa
+> 
+> Signed-off-by: Hirofumi Nakagawa <hnakagawa@miraclelinux.com>
+> ---
+>  drivers/s390/scsi/zfcp_fsf.c |   32 ++++++++++++++++----------------
+>  fs/ubifs/find.c              |    4 ++--
+>  fs/ubifs/gc.c                |    8 ++++----
+>  fs/ubifs/tnc.c               |    4 ++--
+>  fs/ubifs/xattr.c             |    2 +-
+>  net/ipv6/af_inet6.c          |    2 +-
+>  6 files changed, 26 insertions(+), 26 deletions(-)
 
-please, send an UBIFS-only patch and I'll put it to ubifs-2.6.git,
-thanks.
+Thanks for spotting and fixing this. Could you split the zfcp changes
+in a seperate patch? I will pick up the zfcp patch for a series of
+fixes that i have pending here.
 
---=20
-Best regards,
-Artem Bityutskiy (=D0=91=D0=B8=D1=82=D1=8E=D1=86=D0=BA=D0=B8=D0=B9 =D0=90=
-=D1=80=D1=82=D1=91=D0=BC)
+Christof
