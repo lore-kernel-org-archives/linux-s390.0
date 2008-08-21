@@ -1,65 +1,42 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 2/6] zfcp: Correctly query end flag in gpn_ft response
-Date: Thu, 21 Aug 2008 13:43:33 +0200
-Message-ID: <20080821114556.622855000@de.ibm.com>
-References: <20080821114331.148204000@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=702-zfcp-gpn_ft.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Christof Schmitt <christof.schmitt@de.ibm.com>, Martin Petermann <martin@linux.vnet.ibm.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
+Subject: [patch 4/4] LCS recovery dumps when cable reconnect
+Date: Thu, 21 Aug 2008 17:10:25 +0200
+Message-ID: <20080821151654.326848000@linux.vnet.ibm.com>
+References: <20080821151021.069615000@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=603-lcs-recovery.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: "Klaus-D. Wacker" <kdwacker@de.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
+From: Klaus-D. Wacker <kdwacker@de.ibm.com>
 
-When the last port entry in the gpn_ft response is already a known
-port, the eval function would skip the end flag and try to attach
-ports with wwpn 0. Fix this by checking the flag first.
+LCS recovery dumps in irq routine when CCW address in
+Subchannel Status Word (SCSW) is zero. This occurs
+when recovery is driven after cable reconnect.
 
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
-Signed-off-by: Martin Petermann <martin@linux.vnet.ibm.com>
+Signed-off-by: Klaus-D. Wacker <kdwacker@de.ibm.com>
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
 ---
 
- drivers/s390/scsi/zfcp_fc.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/s390/net/lcs.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff -urpN linux-2.6/drivers/s390/scsi/zfcp_fc.c linux-2.6-patched/drivers/s390/scsi/zfcp_fc.c
---- linux-2.6/drivers/s390/scsi/zfcp_fc.c	2008-08-20 14:41:08.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/scsi/zfcp_fc.c	2008-08-20 14:41:34.000000000 +0200
-@@ -475,7 +475,7 @@ static int zfcp_scan_eval_gpn_ft(struct 
- 	struct zfcp_adapter *adapter = ct->port->adapter;
- 	struct zfcp_port *port, *tmp;
- 	u32 d_id;
--	int ret = 0, x;
-+	int ret = 0, x, last = 0;
- 
- 	if (ct->status)
- 		return -EIO;
-@@ -492,12 +492,13 @@ static int zfcp_scan_eval_gpn_ft(struct 
- 	down(&zfcp_data.config_sema);
- 
- 	/* first entry is the header */
--	for (x = 1; x < ZFCP_GPN_FT_MAX_ENTRIES; x++) {
-+	for (x = 1; x < ZFCP_GPN_FT_MAX_ENTRIES && !last; x++) {
- 		if (x % (ZFCP_GPN_FT_ENTRIES + 1))
- 			acc++;
- 		else
- 			acc = sg_virt(++sg);
- 
-+		last = acc->control & 0x80;
- 		d_id = acc->port_id[0] << 16 | acc->port_id[1] << 8 |
- 		       acc->port_id[2];
- 
-@@ -513,8 +514,6 @@ static int zfcp_scan_eval_gpn_ft(struct 
- 			ret = PTR_ERR(port);
- 		else
- 			zfcp_erp_port_reopen(port, 0, 149, NULL);
--		if (acc->control & 0x80) /* last entry */
--			break;
+diff -urpN linux-2.6/drivers/s390/net/lcs.c linux-2.6-patched/drivers/s390/net/lcs.c
+--- linux-2.6/drivers/s390/net/lcs.c	2008-08-20 15:54:46.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/lcs.c	2008-08-20 15:55:15.000000000 +0200
+@@ -1412,7 +1412,8 @@ lcs_irq(struct ccw_device *cdev, unsigne
  	}
- 
- 	zfcp_erp_wait(adapter);
+ 	/* How far in the ccw chain have we processed? */
+ 	if ((channel->state != LCS_CH_STATE_INIT) &&
+-	    (irb->scsw.cmd.fctl & SCSW_FCTL_START_FUNC)) {
++	    (irb->scsw.cmd.fctl & SCSW_FCTL_START_FUNC) &&
++	    (irb->scsw.cmd.cpa != 0)) {
+ 		index = (struct ccw1 *) __va((addr_t) irb->scsw.cmd.cpa)
+ 			- channel->ccws;
+ 		if ((irb->scsw.cmd.actl & SCSW_ACTL_SUSPENDED) ||
 
 -- 
