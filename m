@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756185AbYH0Oaf@vger.kernel.org>
-Date: Wed, 27 Aug 2008 16:28:10 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [GIT PULL] 2.6.27-rc5 updates for s390
-Message-ID: <20080827142809.GA10087@osiris.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+From: Eric Sandeen <sandeen@redhat.com>
+Subject: [PATCH] s390: fix ext2_find_next_bit
+Date: Thu, 21 Aug 2008 01:18:45 -0500
+Message-ID: <48AD08C5.204@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-ext4-owner@vger.kernel.org>
+Sender: linux-ext4-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-ext4/>
+List-Post: <mailto:linux-ext4@vger.kernel.org>
+To: linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: ext4 development <linux-ext4@vger.kernel.org>, Jan Glauber <jglauber@redhat.com>, Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+(oops, left off the s390 list on the first send)
 
-please pull from 'for-linus' branch of
+The following changes get ext4 on s390 up and running for me.
 
-	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
+the switch from ffs to __ffs changes where we start counting
+(if the first bit is set, is that "0" or "1?"  ext2 wants to 
+start counting with "0") and the rest is, honestly, just lifted 
+from the stock find_next_bit() implementation.
 
-This contains just two s390 specific build fixes.
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+--
 
-Heiko Carstens (2):
-      [S390] Fix linker script.
-      [S390] dcss: fix build bug.
-
- arch/s390/kernel/vmlinux.lds.S |    2 +-
- drivers/s390/block/dcssblk.c   |    5 +++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index 76c1e60..607bd67 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -55,7 +55,7 @@ SECTIONS
- 		__start___ex_table = .;
- 		*(__ex_table)
- 		__stop___ex_table = .;
--	}
-+	} :data
- 
- 	.data : {		/* Data */
- 		DATA_DATA
-diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-index db85f1f..711b300 100644
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -384,9 +384,10 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char
- 	 * get minor, add to list
- 	 */
- 	down_write(&dcssblk_devices_sem);
--	if (dcssblk_get_segment_by_name(local_buf)) {
-+	if (dcssblk_get_device_by_name(local_buf)) {
-+		up_write(&dcssblk_devices_sem);
- 		rc = -EEXIST;
--		goto release_gd;
-+		goto unload_seg;
- 	}
- 	rc = dcssblk_assign_free_minor(dev_info);
- 	if (rc) {
+Index: linux-2.6/arch/s390/include/asm/bitops.h
+===================================================================
+--- linux-2.6.orig/arch/s390/include/asm/bitops.h	2008-08-11 16:23:58.000000000 -0500
++++ linux-2.6/arch/s390/include/asm/bitops.h	2008-08-21 00:49:40.950176518 -0500
+@@ -862,10 +862,10 @@ static inline int ext2_find_next_bit(voi
+ 	p = addr + offset / __BITOPS_WORDSIZE;
+ 	if (bit) {
+ 		/*
+-		 * s390 version of ffz returns __BITOPS_WORDSIZE
+-		 * if no zero bit is present in the word.
++		 * s390 version of ffs returns __BITOPS_WORDSIZE
++		 * if no set bit is present in the word.
+ 		 */
+-		set = ffs(__load_ulong_le(p, 0) >> bit) + bit;
++		set = __ffs(__load_ulong_le(p, 0) & (~0UL << bit));
+ 		if (set >= size)
+ 			return size + offset;
+ 		if (set < __BITOPS_WORDSIZE)
