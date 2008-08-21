@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756718AbYHMXI2@vger.kernel.org>
-From: Frans Pop <elendil@planet.nl>
-Subject: Fwd: [Patch 2.6] s390 - Allow ECKD devices to be used with older controllers and emulation
-Date: Thu, 14 Aug 2008 01:07:59 +0200
-References: <489C9494.9070504@vmfacility.fr>
-In-reply-To: <489C9494.9070504@vmfacility.fr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200808140108.00375.elendil@planet.nl>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: Ivan Warren <ivan@vmfacility.fr>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove duplicated unlikely() in IS_ERR()
+From: Artem Bityutskiy <dedekind@infradead.org>
+In-Reply-To: <48A52D69.1040501@miraclelinux.com>
+References: <48A52D69.1040501@miraclelinux.com>
+Content-Type: text/plain; charset=utf-8
+Date: Thu, 21 Aug 2008 15:39:30 +0300
+Message-Id: <1219322370.18027.71.camel@sauron>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Reply-To: dedekind@infradead.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
+	<mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-mtd>
+List-Post: <mailto:linux-mtd@lists.infradead.org>
+List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
+	<mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linux-mtd/>
+To: Hirofumi Nakagawa <hnakagawa@miraclelinux.com>
+Cc: yoshfuji@linux-ipv6.org, christof.schmitt@de.ibm.com, netdev@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Forwarding to s390 kernel list as there have been no replies so far.
+Hi,
 
-(Patch may have whitespace damage because of forward.)
+On Fri, 2008-08-15 at 16:16 +0900, Hirofumi Nakagawa wrote:
+> Hi
+> Some drivers have duplicated unlikely() macros.
+> IS_ERR() already has unlikely() in itself.
+> This patch cleans up such pointless codes although there is no real
+> effect on the kernel's behaviour.
 
-Ivan: You may want to read Documentation/SubmittingPatches in the kernel
-source tree.
+Your patch did not apply cleanly, but I've done all the manual work
+and pushed UBIFS-related part of it to ubifs-2.6.git. Thanks.
 
---------------------------- Forwarded message ---------------------------
-Crowd,
-
-Apologies if this is not formatted correctly, but I'm fairly new to this
-(submitting patches that is)..
-
-**************
-    s390 dasd ECKD drivers issues a Perform Subsystem Function / Prepare
-for Read SubSystem Data with a length of 16.
-    However, older hardware and documentation specifies a length of 12
-leading to a possible Incorrect Length indication.
-    This patch activates the SLI CCW flag in order to avoid reporting
-the Incorrect Length indication since it is possible that the DASD
-control unit may be expecting a length of 12, not 16.
-        -- Ivan Warren (ivan@vmfacility.fr)
-
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c index 773b3fe..c4e3935 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -810,6 +810,7 @@ static int dasd_eckd_read_features(struct dasd_device *device)
- 	ccw->cmd_code = DASD_ECKD_CCW_PSF;
- 	ccw->count = sizeof(struct dasd_psf_prssd_data);
- 	ccw->flags |= CCW_FLAG_CC;
-+	ccw->flags |= CCW_FLAG_SLI;
- 	ccw->cda = (__u32)(addr_t) prssdp;
- 
- 	/* Read Subsystem Data - feature codes */
-**************
-
---Ivan
+--=20
+Best regards,
+Artem Bityutskiy (=D0=91=D0=B8=D1=82=D1=8E=D1=86=D0=BA=D0=B8=D0=B9 =D0=90=
+=D1=80=D1=82=D1=91=D0=BC)
