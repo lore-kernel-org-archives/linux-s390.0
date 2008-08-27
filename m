@@ -1,27 +1,42 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 0/3] s390: qeth fixes for 2.6.27
-Date: Fri, 15 Aug 2008 08:02:57 +0200
-Message-ID: <20080815060257.501264000@de.ibm.com>
+From: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [patch 3/3] qeth: preallocated header account offset
+Date: Wed, 27 Aug 2008 05:56:18 -0400
+Message-ID: <48B524C2.6060900@pobox.com>
+References: <20080815060257.501264000@de.ibm.com> <20080815060352.948003000@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20080815060352.948003000@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: jgarzik@pobox.com
+To: frank.blaschka@de.ibm.com
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Jeff,
+frank.blaschka@de.ibm.com wrote:
+> From: Frank Blaschka <frank.blaschka@de.ibm.com>
+> 
+> When a preallocated header qdio buffer is filled we have to account
+> the offset for the data length.
+> 
+> Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+> ---
+> 
+>  drivers/s390/net/qeth_core_main.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: git_linus/drivers/s390/net/qeth_core_main.c
+> ===================================================================
+> --- git_linus.orig/drivers/s390/net/qeth_core_main.c	2008-08-15 07:51:59.000000000 +0200
+> +++ git_linus/drivers/s390/net/qeth_core_main.c	2008-08-15 07:52:18.000000000 +0200
+> @@ -3024,7 +3024,7 @@
+>  	struct qdio_buffer *buffer, int is_tso, int *next_element_to_fill,
+>  	int offset)
+>  {
+> -	int length = skb->len;
+> +	int length = skb->len - offset;
+>  	int length_here;
 
-here are some qeth fixes for 2.6.27
-
-shortlog:
-Ursula Braun (1)
-qeth: use -EOPNOTSUPP instead of -ENOTSUPP.
-
-Frank Blaschka (2)
-qeth: l2 write unicast list to hardware
-qeth: preallocated header account offset
-
-Thanks,
-        Frank
--- 
+applied 1-3
