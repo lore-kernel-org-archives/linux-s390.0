@@ -1,77 +1,44 @@
-From: Ursula Braun <ursula.braun@de.ibm.com>
-Subject: [patch 1/4] claw: fix memory leak in claw_probe.
-Date: Thu, 21 Aug 2008 17:10:22 +0200
-Message-ID: <20080821151652.052680000@linux.vnet.ibm.com>
-References: <20080821151021.069615000@linux.vnet.ibm.com>
+From: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [patch 4/4] LCS recovery dumps when cable reconnect
+Date: Wed, 27 Aug 2008 05:19:32 -0400
+Message-ID: <48B51C24.8050400@pobox.com>
+References: <20080821151021.069615000@linux.vnet.ibm.com> <20080821151654.326848000@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=606-claw-memleak.diff
+In-Reply-To: <20080821151654.326848000@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Daniel <danielm77@spray.se>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>
+To: Ursula Braun <ursula.braun@de.ibm.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, "Klaus-D. Wacker" <kdwacker@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Ursula Braun wrote:
+> From: Klaus-D. Wacker <kdwacker@de.ibm.com>
+> 
+> LCS recovery dumps in irq routine when CCW address in
+> Subchannel Status Word (SCSW) is zero. This occurs
+> when recovery is driven after cable reconnect.
+> 
+> Signed-off-by: Klaus-D. Wacker <kdwacker@de.ibm.com>
+> Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+> ---
+> 
+>  drivers/s390/net/lcs.c |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff -urpN linux-2.6/drivers/s390/net/lcs.c linux-2.6-patched/drivers/s390/net/lcs.c
+> --- linux-2.6/drivers/s390/net/lcs.c	2008-08-20 15:54:46.000000000 +0200
+> +++ linux-2.6-patched/drivers/s390/net/lcs.c	2008-08-20 15:55:15.000000000 +0200
+> @@ -1412,7 +1412,8 @@ lcs_irq(struct ccw_device *cdev, unsigne
+>  	}
+>  	/* How far in the ccw chain have we processed? */
+>  	if ((channel->state != LCS_CH_STATE_INIT) &&
+> -	    (irb->scsw.cmd.fctl & SCSW_FCTL_START_FUNC)) {
+> +	    (irb->scsw.cmd.fctl & SCSW_FCTL_START_FUNC) &&
+> +	    (irb->scsw.cmd.cpa != 0)) {
+>  		index = (struct ccw1 *) __va((addr_t) irb->scsw.cmd.cpa)
 
-probe_error() frees memory only, if cgdev->dev.driver_data refers
-to the claw_privbk structure. Move forward its setting in claw_probe()
-to ensure proper freeing of claw_privbk allocations.
-
-Cc: Daniel <danielm77@spray.se>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
----
-
- drivers/s390/net/claw.c |   19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
-
-Index: linux-2.6-uschi/drivers/s390/net/claw.c
-===================================================================
---- linux-2.6-uschi.orig/drivers/s390/net/claw.c
-+++ linux-2.6-uschi/drivers/s390/net/claw.c
-@@ -271,6 +271,7 @@ claw_probe(struct ccwgroup_device *cgdev
- 	if (!get_device(&cgdev->dev))
- 		return -ENODEV;
- 	privptr = kzalloc(sizeof(struct claw_privbk), GFP_KERNEL);
-+	cgdev->dev.driver_data = privptr;
- 	if (privptr == NULL) {
- 		probe_error(cgdev);
- 		put_device(&cgdev->dev);
-@@ -305,7 +306,6 @@ claw_probe(struct ccwgroup_device *cgdev
- 	privptr->p_env->p_priv = privptr;
-         cgdev->cdev[0]->handler = claw_irq_handler;
- 	cgdev->cdev[1]->handler = claw_irq_handler;
--	cgdev->dev.driver_data = privptr;
- 	CLAW_DBF_TEXT(2, setup, "prbext 0");
- 
-         return 0;
-@@ -1960,19 +1960,16 @@ init_ccw_bk(struct net_device *dev)
- static void
- probe_error( struct ccwgroup_device *cgdev)
- {
--  struct claw_privbk *privptr;
-+	struct claw_privbk *privptr;
- 
- 	CLAW_DBF_TEXT(4, trace, "proberr");
--        privptr=(struct claw_privbk *)cgdev->dev.driver_data;
--	if (privptr!=NULL) {
-+	privptr = (struct claw_privbk *) cgdev->dev.driver_data;
-+	if (privptr != NULL) {
-+		cgdev->dev.driver_data = NULL;
- 		kfree(privptr->p_env);
--		privptr->p_env=NULL;
--                kfree(privptr->p_mtc_envelope);
--               	privptr->p_mtc_envelope=NULL;
--                kfree(privptr);
--                privptr=NULL;
--        }
--        return;
-+		kfree(privptr->p_mtc_envelope);
-+		kfree(privptr);
-+	}
- }    /*    probe_error    */
- 
- /*-------------------------------------------------------------------*
-
--- 
+applied 1-4
