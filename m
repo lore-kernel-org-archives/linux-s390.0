@@ -1,68 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757130AbYIRSYP@vger.kernel.org>
-Subject: [GIT PULL] 2.6.27-rc6 updates for s390
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-Content-Type: text/plain
-Date: Thu, 18 Sep 2008 11:23:36 -0700
-Message-Id: <1221762216.20657.1.camel@skybook>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: + separate-atomic_t-declaration-from-asm-atomich-into-asm-atomic_defh.patch added to -mm tree
+Date: Mon, 1 Sep 2008 11:21:40 +0200
+Message-ID: <200809011121.40686.borntraeger@de.ibm.com>
+References: <200808222056.m7MKucHA016131@imap1.linux-foundation.org> <20080822213624.GX8318@parisc-linux.org>
 Mime-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <20080822213624.GX8318@parisc-linux.org>
+Content-Disposition: inline
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: akpm@linux-foundation.org, mm-commits@vger.kernel.org, ying.huang@intel.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+Am Freitag, 22. August 2008 schrieb Matthew Wilcox:
+> 
+> S390 has an __aligned__((4)) on theirs -- is this really necessary?
+> Doesn't s390 align ints to 4 bytes automatically?  If it doesn't, it
 
-please pull from 'for-linus' branch of
+Yes, the s390 abi requires a 4 byte alignment for int. The __aligned__((4))
+looks unnecessary. 
 
-	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
+> +++ include/linux/atomic_type.h
+> +typedef struct { volatile int counter; } atomic_t;
+> +#ifdef CONFIG_64BIT
+> +typedef struct { volatile long counter; } atomic64_t;
+> +#endif
 
-to receive the following bug fixes:
+Hmm, the current s390 version has no volatile. I can recall some very long 
+mail threads about this. What was the outcome?
 
-Cornelia Huck (1):
-      [S390] cio: Fix driver_data handling for ccwgroup devices.
-
-Stefan Weinhuber (1):
-      [S390] cio: fix orb initialization in cio_start_key
-
- drivers/s390/cio/ccwgroup.c |    4 +++-
- drivers/s390/cio/cio.c      |    1 +
- 2 files changed, 4 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/s390/cio/ccwgroup.c b/drivers/s390/cio/ccwgroup.c
-index e0ce65f..9a50f24 100644
---- a/drivers/s390/cio/ccwgroup.c
-+++ b/drivers/s390/cio/ccwgroup.c
-@@ -113,7 +113,8 @@ ccwgroup_release (struct device *dev)
- 
- 	for (i = 0; i < gdev->count; i++) {
- 		if (gdev->cdev[i]) {
--			dev_set_drvdata(&gdev->cdev[i]->dev, NULL);
-+			if (dev_get_drvdata(&gdev->cdev[i]->dev) == gdev)
-+				dev_set_drvdata(&gdev->cdev[i]->dev, NULL);
- 			put_device(&gdev->cdev[i]->dev);
- 		}
- 	}
-@@ -296,6 +297,7 @@ error:
- 			if (dev_get_drvdata(&gdev->cdev[i]->dev) == gdev)
- 				dev_set_drvdata(&gdev->cdev[i]->dev, NULL);
- 			put_device(&gdev->cdev[i]->dev);
-+			gdev->cdev[i] = NULL;
- 		}
- 	mutex_unlock(&gdev->reg_mutex);
- 	put_device(&gdev->dev);
-diff --git a/drivers/s390/cio/cio.c b/drivers/s390/cio/cio.c
-index 5954b90..326f4cc 100644
---- a/drivers/s390/cio/cio.c
-+++ b/drivers/s390/cio/cio.c
-@@ -174,6 +174,7 @@ cio_start_key (struct subchannel *sch,	/* subchannel structure */
- 	CIO_TRACE_EVENT(4, sch->dev.bus_id);
- 
- 	orb = &to_io_private(sch)->orb;
-+	memset(orb, 0, sizeof(union orb));
- 	/* sch is always under 2G. */
- 	orb->cmd.intparm = (u32)(addr_t)sch;
- 	orb->cmd.fmt = 1;
+Christian
