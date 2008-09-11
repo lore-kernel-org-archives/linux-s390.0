@@ -1,157 +1,96 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754066AbYIKNpc@vger.kernel.org>
-Message-Id: <20080911133813.858636188@de.ibm.com>
-References: <20080911133538.026764388@de.ibm.com>
-Date: Thu, 11 Sep 2008 15:35:39 +0200
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755512AbYIKNpq@vger.kernel.org>
+Message-Id: <20080911133538.026764388@de.ibm.com>
+Date: Thu, 11 Sep 2008 15:35:38 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 1/4] kmsg: Kernel message catalog macros.
-Content-Disposition: inline; filename=800-kmsg-macros.diff
+Subject: [patch 0/4] [RFC] kmsg macros, take x+2.
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, lf_kernel_messages@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>, Greg KH <gregkh@suse.de>, Kay Sievers <kay.sievers@vrfy.org>, Joe Perches <joe@perches.com>, Tim Hockin <thockin@hockin.org>, Andrew Morton <akpm@linux-foundation.org>, Michael Holzheu <holzheu@de.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>, Randy Dunlap <randy.dunlap@oracle.com>, Jan Kara <jack@suse.cz>, Pavel Machek <pavel@ucw.cz>, Sam Ravnborg <sam@ravnborg.org>, =?ISO-8859-15?q?Jochen=20Vo=DF?= <jochen.voss@googlemail.com>, Kunai Takashi <kunai@linux-foundation.jp>, Tim Bird <tim.bird@am.sony.com>, Jan Blunck <jblunck@suse.de>, Rick Troth <rmt@casita.net>, Utz Bacher <utz.bacher@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-From: Michael Holzheu <holzheu@de.ibm.com>
+Greetings,
+as requested this version of the kmsg patches uses a hash over the
+message text instead of a manually assigned message number. There is
+a new kernel function kmsg_printk which calculates the hash, prints
+the prefix together with the hash and then the message itself.
+Since it is impossible to add a parameter to a va_list kmsg_printk
+has to do two seperate printk calls.
 
-Introduce a new family of printk macros which prefixes each kmsg message
-with a component name and allows to tag the message with a 24 bit hash of
-the message text. The kmsg component name is defined per source file with
-the KMSG_COMPONENT macro.
+The kmsg tag now consists of the kmsg component and a 6 digit
+hexadecimal hash. The code uses the lower 24 bit of the Jenkins hash
+of the message text (there is a convenient inline implementation in
+include/linux/jhash.h). The likelyhood of a hash collision with 100
+messages per component is ~0.03%, with 1000 messages ~3% and with
+10000 messages ~95%. As an example the old xpam.3 message:
 
-If the message hash will be printed to the console / syslog at all depends
-on CONFIG_MSG_IDS. If it is "n" then a kmsg_xxx call is just another
-printk wrapper. These macros are intended to be used uniformly in the
-s390 architecture and the s390 device drivers.
+  xpram.3: No expanded memory available
 
-Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+now prints as:
 
- arch/s390/Kconfig    |    9 ++++++++
- include/linux/kmsg.h |   54 +++++++++++++++++++++++++++++++++++++++++++++++++++
- kernel/printk.c      |   24 ++++++++++++++++++++++
- 3 files changed, 87 insertions(+)
+  xpram.f6ae78: No expanded memory available
 
-Index: quilt-2.6/arch/s390/Kconfig
-===================================================================
---- quilt-2.6.orig/arch/s390/Kconfig
-+++ quilt-2.6/arch/s390/Kconfig
-@@ -571,6 +571,15 @@ bool "s390 guest support (EXPERIMENTAL)"
- 	select VIRTIO_CONSOLE
- 	help
- 	  Select this option if you want to run the kernel under s390 linux
-+
-+config KMSG_IDS
-+	bool "Kernel message numbers"
-+	default y
-+	help
-+	  Select this option if you want to include a message number to the
-+	  prefix for kernel messages issued by the s390 architecture and
-+	  driver code. See "Documentation/s390/kmsg.txt" for more details.
-+
- endmenu
- 
- source "net/Kconfig"
-Index: quilt-2.6/include/linux/kmsg.h
-===================================================================
---- /dev/null
-+++ quilt-2.6/include/linux/kmsg.h
-@@ -0,0 +1,54 @@
-+#ifndef _LINUX_KMSG_H
-+#define _LINUX_KMSG_H
-+
-+int kmsg_printk(char *prefix, char *fmt, ...);
-+
-+#if defined(__KMSG_CHECKER)
-+#define KMSG_ID KMSG_COMPONENT ".%06x"
-+#define KMSG_FMT(fmt) _$_(fmt)_$_
-+#define kmsg_printk __KMSG_CHECK
-+#elif defined(CONFIG_KMSG_IDS)
-+#define KMSG_ID KMSG_COMPONENT ".%06x"
-+#define KMSG_FMT(fmt) fmt
-+#else /* !defined(CONFIG_KMSG_IDS) */
-+#define KMSG_ID KMSG_COMPONENT
-+#define KMSG_FMT(fmt) fmt
-+#define kmsg_printk(prefix, fmt, ...) printk(prefix # fmt, ##__VA_ARGS__)
-+#endif
-+
-+#define kmsg_alert(fmt, ...) \
-+	kmsg_printk(KERN_ALERT KMSG_ID ": ", KMSG_FMT(fmt), ##__VA_ARGS__)
-+
-+#define kmsg_err(fmt, ...) \
-+	kmsg_printk(KERN_ERR KMSG_ID ": ", KMSG_FMT(fmt), ##__VA_ARGS__)
-+
-+#define kmsg_warn(fmt, ...) \
-+	kmsg_printk(KERN_WARNING KMSG_ID ": ", KMSG_FMT(fmt), ##__VA_ARGS__)
-+
-+#define kmsg_info(fmt, ...) \
-+	kmsg_printk(KERN_INFO KMSG_ID ": ", KMSG_FMT(fmt), ##__VA_ARGS__)
-+
-+#define kmsg_notice(fmt, ...) \
-+	kmsg_printk(KERN_NOTICE KMSG_ID ": ", KMSG_FMT(fmt), ##__VA_ARGS__)
-+
-+#define kmsg_dev_alert(dev, fmt, ...) \
-+	kmsg_printk(KERN_ALERT KMSG_ID ":%s: ", KMSG_FMT(fmt), \
-+		    dev_name(dev), ##__VA_ARGS__)
-+
-+#define kmsg_dev_err(dev, fmt, ...) \
-+	kmsg_printk(KERN_ERR KMSG_ID ":%s: ", KMSG_FMT(fmt), \
-+		    dev_name(dev), ##__VA_ARGS__)
-+
-+#define kmsg_dev_warn(dev, fmt, ...) \
-+	kmsg_printk(KERN_WARNING KMSG_ID ":%s: ", KMSG_FMT(fmt), \
-+		    dev_name(dev), ##__VA_ARGS__)
-+
-+#define kmsg_dev_info(dev, fmt, ...) \
-+	kmsg_printk(KERN_INFO KMSG_ID ":%s: ", KMSG_FMT(fmt), \
-+		    dev_name(dev), ##__VA_ARGS__)
-+
-+#define kmsg_dev_notice(dev, fmt, ...) \
-+	kmsg_printk(KERN_NOTICE KMSG_ID ":%s: ", KMSG_FMT(fmt), \
-+		    dev_name(dev), ##__VA_ARGS__)
-+
-+#endif /* _LINUX_KMSG_H */
-Index: quilt-2.6/kernel/printk.c
-===================================================================
---- quilt-2.6.orig/kernel/printk.c
-+++ quilt-2.6/kernel/printk.c
-@@ -32,6 +32,7 @@
- #include <linux/security.h>
- #include <linux/bootmem.h>
- #include <linux/syscalls.h>
-+#include <linux/jhash.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -1343,3 +1344,26 @@ bool printk_timed_ratelimit(unsigned lon
- }
- EXPORT_SYMBOL(printk_timed_ratelimit);
- #endif
-+
-+#if defined CONFIG_PRINTK && defined CONFIG_KMSG_IDS
-+
-+/**
-+ * kmsg_printk - print a kernel message with a message id
-+ * @fmt: format string
-+ * @hfmt: revelant part of the format string included in the hash
-+ */
-+asmlinkage int kmsg_printk(const char *prefix, const char *fmt, ...)
-+{
-+	va_list args;
-+	int r;
-+
-+	r = printk(prefix, jhash(fmt, strlen(fmt), 0) & 0xffffff);
-+	va_start(args, fmt);
-+	r += vprintk(fmt, args);
-+	va_end(args);
-+
-+	return r;
-+}
-+EXPORT_SYMBOL(kmsg_printk);
-+
-+#endif
+For translation purposes all messages need a unique id, that makes
+the special id 0 from the older kmsg patches rather useless. The
+replacement for id 0 are single line kmsg comments, e.g.
+
+/*? Tag: xpram.9a3d44 Text: "  size of partition %d: %u kB\n" */
+
+This makes the script to ignore the message, the check run will print
+no warning and no man pages will be generated.
+
+That leaves the question of dev_printk and friends. The dev_xxx macros
+prefix the message with the driver name and the device name. Both
+strings are dynamic, the perl script therefore can not find them which
+makes them unusable as part of the kmsg tag. Now there are some options
+how to deal with it:
+
+1) Keep the existing dev_xxx printks, do not include a kmsg component in
+   the printk prefix and print the hash seperately. With the hash at the
+   start of the string an example printk would look like this:
+
+   617579: qeth: 0.0.f5f0: unknown card type
+
+   The bad: the hash prefix is out of place. The large number of dev_xxx
+   printks makes a hash collision very likely. The only solution would be
+   to increase the number of hash digits. The message looks like crap.
+   The good: the message check/print script works and existing code needs
+   no change.
+
+2) Keep the exiting dev_xxx printks, do not include a kmsg component and
+   sneek in the hash right after the driver name. This would look like
+   this:
+
+   qeth.617579: 0.0.f5f0: unknown card type
+
+   The bad: the script has no chance to find the corresponding kmsg
+   description because the driver name is not known. Automatic message
+   checking and man page creation would be impossible.
+   The good: the messages look fine.
+
+3) Keep the existing dev_xxx printks, include a kmsg component and print
+   the hash with the component. The example from above would look like
+   this:
+
+   qeth.617579: qeth: 0.0.f5f0: unknown card type
+
+   The bad: the driver name gets repeated and that every file that uses
+   dev_xxx has to define a KMSG_COMPONENT. The message looks like crap.
+   The good: the script works.
+
+4) Define new kmsg_dev_xxx macros that are similar to dev_xxx, include
+   a kmsg component. These new macros do not print the dynamic driver
+   name, only the kmsg component. This is what is currently implemented.
+   The example from above looks like this:
+
+   qeth.617579: 0.0.f5f0: unknown card type
+
+   The bad: each driver that wants to use the kmsg_dev_xxx needs to be
+   changed. kmsg_dev_xxx in subsystems will have to do the print of the
+   driver name in each printk as it is not included automatically.
+   The good: the script works and the messages look fine.
+
+I still prefer option 4). Anyone with a clever idea ?
 
 -- 
 blue skies,
