@@ -1,145 +1,90 @@
-From: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [patch 2/2] qeth: avoid qeth recovery problems
-Date: Wed, 24 Sep 2008 20:52:09 -0400
-Message-ID: <48DAE0B9.9010701@pobox.com>
-References: <20080919105601.986966000@de.ibm.com> <20080919105703.089971000@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20080919105703.089971000@de.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755008AbYIYQpO@vger.kernel.org>
+Message-Id: <20080925163020.626315337@de.ibm.com>
+References: <20080925162827.818261893@de.ibm.com>
+Date: Thu, 25 Sep 2008 18:28:32 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 5/6] kmsg: convert vmcp to kmsg api.
+Content-Disposition: inline; filename=804-kmsg-vmcp.diff
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, lf_kernel_messages@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>, Greg KH <gregkh@suse.de>, Kay Sievers <kay.sievers@vrfy.org>, Joe Perches <joe@perches.com>, Tim Hockin <thockin@hockin.org>, Andrew Morton <akpm@linux-foundation.org>, Michael Holzheu <holzheu@de.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>, Randy Dunlap <randy.dunlap@oracle.com>, Jan Kara <jack@suse.cz>, Pavel Machek <pavel@ucw.cz>, Sam Ravnborg <sam@ravnborg.org>, =?ISO-8859-15?q?Jochen=20Vo=DF?= <jochen.voss@googlemail.com>, Kunai Takashi <kunai@linux-foundation.jp>, Tim Bird <tim.bird@am.sony.com>, Jan Blunck <jblunck@suse.de>, Rick Troth <rmt@casita.net>, Utz Bacher <utz.bacher@de.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-frank.blaschka@de.ibm.com wrote:
-> From: Ursula Braun <ursula.braun@de.ibm.com>
-> 
-> Do not touch IFF_UP flag during qeth recovery, but invoke dev_close()
-> in case of failing recovery.
-> Cancel outstanding control commands in case of Data Checks or
-> Channel Checks.
-> Do not invoke qeth_l2_del_all_mc() in case of a hard stop to speed up
-> removal of qeth devices.
-> 
-> Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-> Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
-> ---
-> 
->  drivers/s390/net/qeth_core_main.c |    4 +++-
->  drivers/s390/net/qeth_l2_main.c   |   11 +++++++----
->  drivers/s390/net/qeth_l3_main.c   |    8 +++++---
->  3 files changed, 15 insertions(+), 8 deletions(-)
-> 
-> Index: git_linus/drivers/s390/net/qeth_core_main.c
-> ===================================================================
-> --- git_linus.orig/drivers/s390/net/qeth_core_main.c	2008-09-17 13:46:00.000000000 +0200
-> +++ git_linus/drivers/s390/net/qeth_core_main.c	2008-09-19 11:08:55.000000000 +0200
-> @@ -760,7 +760,7 @@
->  		if (sense[SENSE_COMMAND_REJECT_BYTE] &
->  		    SENSE_COMMAND_REJECT_FLAG) {
->  			QETH_DBF_TEXT(TRACE, 2, "CMDREJi");
-> -			return 0;
-> +			return 1;
->  		}
->  		if ((sense[2] == 0xaf) && (sense[3] == 0xfe)) {
->  			QETH_DBF_TEXT(TRACE, 2, "AFFE");
-> @@ -884,6 +884,7 @@
->  		}
->  		rc = qeth_get_problem(cdev, irb);
->  		if (rc) {
-> +			qeth_clear_ipacmd_list(card);
->  			qeth_schedule_recovery(card);
->  			goto out;
->  		}
-> @@ -4147,6 +4148,7 @@
->  	unsigned long flags;
->  	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
->  
-> +	QETH_DBF_TEXT(SETUP, 2, "removedv");
->  	if (card->discipline.ccwgdriver) {
->  		card->discipline.ccwgdriver->remove(gdev);
->  		qeth_core_free_discipline(card);
-> Index: git_linus/drivers/s390/net/qeth_l2_main.c
-> ===================================================================
-> --- git_linus.orig/drivers/s390/net/qeth_l2_main.c	2008-09-19 11:08:36.000000000 +0200
-> +++ git_linus/drivers/s390/net/qeth_l2_main.c	2008-09-19 11:08:55.000000000 +0200
-> @@ -395,7 +395,8 @@
->  	}
->  	if (card->state == CARD_STATE_SOFTSETUP) {
->  		qeth_l2_process_vlans(card, 1);
-> -		qeth_l2_del_all_mc(card);
-> +		if (!card->use_hard_stop)
-> +			qeth_l2_del_all_mc(card);
->  		qeth_clear_ipacmd_list(card);
->  		card->state = CARD_STATE_HARDSETUP;
->  	}
-> @@ -826,7 +827,6 @@
->  	}
->  	card->data.state = CH_STATE_UP;
->  	card->state = CARD_STATE_UP;
-> -	card->dev->flags |= IFF_UP;
->  	netif_start_queue(dev);
->  
->  	if (!card->lan_online && netif_carrier_ok(dev))
-> @@ -841,7 +841,6 @@
->  
->  	QETH_DBF_TEXT(TRACE, 4, "qethstop");
->  	netif_tx_disable(dev);
-> -	card->dev->flags &= ~IFF_UP;
->  	if (card->state == CARD_STATE_UP)
->  		card->state = CARD_STATE_SOFTSETUP;
->  	return 0;
-> @@ -1138,9 +1137,13 @@
->  	if (!rc)
->  		PRINT_INFO("Device %s successfully recovered!\n",
->  			   CARD_BUS_ID(card));
-> -	else
-> +	else {
-> +		rtnl_lock();
-> +		dev_close(card->dev);
-> +		rtnl_unlock();
->  		PRINT_INFO("Device %s could not be recovered!\n",
->  			   CARD_BUS_ID(card));
-> +	}
->  	return 0;
->  }
->  
-> Index: git_linus/drivers/s390/net/qeth_l3_main.c
-> ===================================================================
-> --- git_linus.orig/drivers/s390/net/qeth_l3_main.c	2008-09-17 13:46:00.000000000 +0200
-> +++ git_linus/drivers/s390/net/qeth_l3_main.c	2008-09-19 11:08:55.000000000 +0200
-> @@ -2795,7 +2795,6 @@
->  		return -ENODEV;
->  	card->data.state = CH_STATE_UP;
->  	card->state = CARD_STATE_UP;
-> -	card->dev->flags |= IFF_UP;
->  	netif_start_queue(dev);
->  
->  	if (!card->lan_online && netif_carrier_ok(dev))
-> @@ -2809,7 +2808,6 @@
->  
->  	QETH_DBF_TEXT(TRACE, 4, "qethstop");
->  	netif_tx_disable(dev);
-> -	card->dev->flags &= ~IFF_UP;
->  	if (card->state == CARD_STATE_UP)
->  		card->state = CARD_STATE_SOFTSETUP;
->  	return 0;
-> @@ -3218,9 +3216,13 @@
->  	if (!rc)
->  		PRINT_INFO("Device %s successfully recovered!\n",
->  			   CARD_BUS_ID(card));
-> -	else
-> +	else {
-> +		rtnl_lock();
-> +		dev_close(card->dev);
-> +		rtnl_unlock();
->  		PRINT_INFO("Device %s could not be recovered!\n",
->  			   CARD_BUS_ID(card));
-> +	}
->  	return 0;
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-applied 1-2
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+
+ drivers/s390/char/vmcp.c |   23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
+
+Index: kmsg-2.6/drivers/s390/char/vmcp.c
+===================================================================
+--- kmsg-2.6.orig/drivers/s390/char/vmcp.c
++++ kmsg-2.6/drivers/s390/char/vmcp.c
+@@ -11,12 +11,15 @@
+  * The idea of this driver is based on cpint from Neale Ferguson and #CP in CMS
+  */
+ 
++#define KMSG_COMPONENT "vmcp"
++
+ #include <linux/fs.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/miscdevice.h>
+ #include <linux/module.h>
+ #include <linux/smp_lock.h>
++#include <linux/kmsg.h>
+ #include <asm/cpcmd.h>
+ #include <asm/debug.h>
+ #include <asm/uaccess.h>
+@@ -26,8 +29,6 @@ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Christian Borntraeger <borntraeger@de.ibm.com>");
+ MODULE_DESCRIPTION("z/VM CP interface");
+ 
+-#define PRINTK_HEADER "vmcp: "
+-
+ static debug_info_t *vmcp_debug;
+ 
+ static int vmcp_open(struct inode *inode, struct file *file)
+@@ -193,7 +194,8 @@ static int __init vmcp_init(void)
+ 	int ret;
+ 
+ 	if (!MACHINE_IS_VM) {
+-		PRINT_WARN("z/VM CP interface is only available under z/VM\n");
++		kmsg_warn("The z/VM CP interface device driver cannot be "
++			     "loaded without z/VM\n");
+ 		return -ENODEV;
+ 	}
+ 
+@@ -216,6 +218,21 @@ static int __init vmcp_init(void)
+ 	return 0;
+ }
+ 
++/*?
++ * Tag: vmcp.42661a
++ * Text: "The z/VM CP interface device driver cannot be loaded without z/VM\n"
++ * Severity: Warning
++ * Description:
++ * With the z/VM CP interface you can issue z/VM CP commands from a Linux
++ * terminal session. On Linux instances that run in environments other than
++ * the z/VM hypervisor, the z/VM CP interface does not provide any useful
++ * function and the corresponding vmcp device driver cannot be loaded.
++ * User action:
++ * Load the vmcp device driver only on Linux instances that run as guest
++ * operating systems of the z/VM hypervisor. If the device driver has been
++ * compiled into the kernel, ignore this message.
++ */
++
+ static void __exit vmcp_exit(void)
+ {
+ 	misc_deregister(&vmcp_dev);
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
