@@ -1,621 +1,455 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756016AbYIYQpg@vger.kernel.org>
-Message-Id: <20080925163020.021553473@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756236AbYIYQqM@vger.kernel.org>
+Message-Id: <20080925163020.899754085@de.ibm.com>
 References: <20080925162827.818261893@de.ibm.com>
-Date: Thu, 25 Sep 2008 18:28:30 +0200
+Date: Thu, 25 Sep 2008 18:28:33 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 3/6] kmsg: Kernel message catalog script.
-Content-Disposition: inline; filename=802-kmsg-script.diff
+Subject: [patch 6/6] kmsg: convert lcs printk messages to kmsg api.
+Content-Disposition: inline; filename=805-kmsg-lcs.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, lf_kernel_messages@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>, Greg KH <gregkh@suse.de>, Kay Sievers <kay.sievers@vrfy.org>, Joe Perches <joe@perches.com>, Tim Hockin <thockin@hockin.org>, Andrew Morton <akpm@linux-foundation.org>, Michael Holzheu <holzheu@de.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>, Randy Dunlap <randy.dunlap@oracle.com>, Jan Kara <jack@suse.cz>, Pavel Machek <pavel@ucw.cz>, Sam Ravnborg <sam@ravnborg.org>, =?ISO-8859-15?q?Jochen=20Vo=DF?= <jochen.voss@googlemail.com>, Kunai Takashi <kunai@linux-foundation.jp>, Tim Bird <tim.bird@am.sony.com>, Jan Blunck <jblunck@suse.de>, Rick Troth <rmt@casita.net>, Utz Bacher <utz.bacher@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: "Klaus-D. Wacker" <kdwacker@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-From: Michael Holzheu <holzheu@de.ibm.com>
+From Klaus-D. Wacker <kdwacker@de.ibm.com>
 
-Add a script and the calls to the make process that allows to check the
-kmsg_xxx and dev_xxx printk message and to format man pages from the
-message descriptions.
-
-The kmsg message description is a comment with the following format:
-
-/*?
- * Tag: <component>.<hash>
- * Text: "<kmsg message text>"
- * Severity: <severity>
- * Parameter:
- *   @1: <description of the first message parameter>
- *   @2: <description of the second message parameter>
- *   ...
- * Description:
- * <What is the kmsg message all about>
- * User action:
- * <What can the user do to fix the problem>
- */
-
-The following short form of a kmsg message can be used if the message does
-not have a full documentation:
-
-/*? Tag: <component>.<hash> Text: "<kmsg message text>" */
-
-No man page will be printed for these messages.
-
-The script looks for a kmsg comment for a tagged printk at three places,
-the source file where the kmsg_xxx / dev_xxx call is located, and in the
-files with the name <component> in the two directories Documentation/kmsg
-and Documentation/$ARCH/kmsg.
-
-The kmsg check is invoked with "make D=1". It will read the source files for
-all objects that are built by the current configuration and searches for
-matching kmsg descriptions for the tagged printk in the source. If a message
-description can not be found the script prints a blueprint and causes a make
-error.
-
-The kmsg man page creation is invoked with "make D=2" and reads the source
-files for all built objects, looks up the message description and writes
-a man page to $(objtree)/man.
-
-Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
+Signed-off-by: Klaus-D. Wacker <kdwacker@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- Makefile               |   16 +
- scripts/Makefile.build |   14 +
- scripts/kmsg-doc       |  466 +++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 496 insertions(+)
+ Documentation/kmsg/s390/lcs |  170 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/s390/net/lcs.c      |   78 +++++++++++---------
+ 2 files changed, 216 insertions(+), 32 deletions(-)
 
-Index: kmsg-2.6/Makefile
-===================================================================
---- kmsg-2.6.orig/Makefile
-+++ kmsg-2.6/Makefile
-@@ -63,6 +63,20 @@ ifndef KBUILD_CHECKSRC
-   KBUILD_CHECKSRC = 0
- endif
- 
-+# Call message checker as part of the C compilation
-+#
-+# Use 'make D=1' to enable checking
-+# Use 'make D=2' to create the message catalog
-+
-+ifdef D
-+  ifeq ("$(origin D)", "command line")
-+    KBUILD_KMSG_CHECK = $(D)
-+  endif
-+endif
-+ifndef KBUILD_KMSG_CHECK
-+  KBUILD_KMSG_CHECK = 0
-+endif
-+
- # Use make M=dir to specify directory of external module to build
- # Old syntax make ... SUBDIRS=$PWD is still supported
- # Setting the environment variable KBUILD_EXTMOD take precedence
-@@ -321,6 +335,7 @@ PERL		= perl
- CHECK		= sparse
- 
- CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ -Wbitwise $(CF)
-+KMSG_CHECK	= $(srctree)/scripts/kmsg-doc
- MODFLAGS	= -DMODULE
- CFLAGS_MODULE   = $(MODFLAGS)
- AFLAGS_MODULE   = $(MODFLAGS)
-@@ -355,6 +370,7 @@ export HOSTCXX HOSTCXXFLAGS LDFLAGS_MODU
- export KBUILD_CPPFLAGS NOSTDINC_FLAGS LINUXINCLUDE OBJCOPYFLAGS LDFLAGS
- export KBUILD_CFLAGS CFLAGS_KERNEL CFLAGS_MODULE
- export KBUILD_AFLAGS AFLAGS_KERNEL AFLAGS_MODULE
-+export KBUILD_KMSG_CHECK KMSG_CHECK
- 
- # When compiling out-of-tree modules, put MODVERDIR in the module
- # tree rather than in the kernel tree. The kernel tree might
-Index: kmsg-2.6/scripts/kmsg-doc
+Index: kmsg-2.6/Documentation/kmsg/s390/lcs
 ===================================================================
 --- /dev/null
-+++ kmsg-2.6/scripts/kmsg-doc
-@@ -0,0 +1,466 @@
-+#!/usr/bin/perl -w
-+#
-+# kmsg kernel messages check and print tool.
-+#
-+# To check the source code for missing messages the script is called
-+# with check, the name compiler and the compile parameters
-+#	kmsg-doc check $(CC) $(c_flags) $<
-+# To create man pages for the messages the script is called with
-+#	kmsg-doc print $(CC) $(c_flags) $<
-+#
-+# Copyright IBM Corp. 2008
-+# Author(s):  Martin Schwidefsky <schwidefsky@de.ibm.com>
-+#	      Michael Holzheu <holzheu@linux.vnet.ibm.com>
-+#
++++ kmsg-2.6/Documentation/kmsg/s390/lcs
+@@ -0,0 +1,170 @@
++/*?
++ * Tag: lcs.1666ed
++ * Text: "%s:  Allocating a socket buffer to interface %s failed\n"
++ * Severity: Error
++ * Parameter:
++ *   @1: bus ID of the LCS device
++ *   @2: network interface
++ * Description:
++ * LAN channel station (LCS) devices require a socket buffer (SKB) structure
++ * for storing incoming data. The LCS device driver failed to allocate an SKB
++ * structure to the LCS device. A likely cause of this problem is memory
++ * constraints.
++ * User action:
++ * Free some memory and repeat the failed operation.
++ */
 +
-+use Cwd;
-+use Switch;
++/*?
++ * Tag: lcs.fd3431
++ * Text: "%s:  Shutting down the LCS device failed\n "
++ * Severity: Error
++ * Parameter:
++ *   @1: bus ID of the LCS device
++ * Description:
++ * A request to shut down a LAN channel station (LCS) device resulted in an
++ * error. The error is logged in the LCS trace at trace level 4.
++ * User action:
++ * Try again to shut down the device. If the error persists, see the LCS trace
++ * to find out what causes the error.
++ */
 +
-+my $errors = 0;
-+my $warnings = 0;
-+my $srctree = "";
-+my $objtree = "";
-+my $kmsg_count = 0;
++/*?
++ * Tag: lcs.c4ca7a
++ * Text: "%s: Detecting a network adapter for LCS devices failed with rc=%d (0x%x)\n"
++ * Severity: Error
++ * Parameter:
++ *   @1: lcs_detect return code in decimal notation
++ *   @2: lcs_detect return code in hexadecimal notation
++ * Description:
++ * The LCS device driver could not initialize a network adapter.
++ * User action:
++ * Note the return codes from the error message and contact IBM support.
++ */
 +
-+sub remove_quotes($)
-+{
-+    my ($string) = @_;
-+    my $inside = 0;
-+    my $slash = 0;
-+    my $result = "";
++/*?
++ * Tag: lcs.abd525
++ * Text: "%s: A recovery process has been started for the LCS device\n"
++ * Severity: Warning
++ * Parameter:
++ *   @1: bus ID of the LCS device
++ * Description:
++ * The LAN channel station (LCS) device is shut down and restarted. The recovery
++ * process might have been initiated by a user or started automatically as a
++ * response to a device problem.
++ * User action:
++ * Wait until a message indicates the completion of the recovery process.
++ */
 +
-+    foreach my $str (split(/([\\"])/, $string)) {
-+        if ($inside && ($str ne "\"" || $slash)) {
-+            $result .= $str;
-+        }
-+        # Check for backslash before quote
-+        if ($str eq "\"") {
-+            if (!$slash) {
-+                $inside = !$inside;
-+            }
-+	     $slash = 0;
-+        } elsif ($str eq "\\") {
-+            $slash = !$slash;
-+        } elsif ($str ne "") {
-+            $slash = 0;
-+        }
-+    }
-+    return $result;
-+}
++/*?
++ * Tag: lcs.43b3aa
++ * Text: "%s: An I/O-error occurred on the LCS device\n"
++ * Severity: Warning
++ * Parameter:
++ *   @1: bus ID of the LCS device
++ * Description:
++ * The LAN channel station (LCS) device reported a problem that can be recovered
++ * by the LCS device driver. Repeated occurrences of this problem indicate a
++ * malfunctioning device.
++ * User action:
++ * If this problem occurs frequently, initiate a recovery process for the
++ * device, for example, by writing '1' to the 'recover' sysfs attribute of the
++ * device.
++ */
 +
-+sub string_to_bytes($)
-+{
-+    my ($string) = @_;
-+    my %is_escape = ('"', 0x22, '\'', 0x27, 'n', 0x0a, 'r', 0x0d, 'b', 0x08,
-+		     't', 0x09, 'f', 0x0c, 'a', 0x07, 'v', 0x0b, '?', 0x3f);
-+    my (@ar, $slash, $len);
++/*?
++ * Tag: lcs.d96565
++ * Text: "%s: A command timed out on the LCS device\n"
++ * Severity: Warning
++ * Parameter:
++ *   @1: bus ID of the LCS device
++ * Description:
++ * The LAN channel station (LCS) device reported a problem that can be recovered
++ * by the LCS device driver. Repeated occurrences of this problem indicate a
++ * malfunctioning device.
++ * User action:
++ * If this problem occurs frequently, initiate a recovery process for the
++ * device, for example, by writing '1' to the 'recover' sysfs attribute of the
++ * device.
++ */
 +
-+    # scan string, interpret backslash escapes and write bytes to @ar
-+    $len = 0;
-+    foreach my $ch (split(//, $string)) {
-+	if ($ch eq '\\') {
-+	    $slash = !$slash;
-+	    if (!$slash) {
-+		$ar[$len] = ord('\\');
-+		$len++;
-+	    }
-+	} elsif ($slash && defined $is_escape{$ch}) {
-+	    # C99 backslash escapes: \\ \" \' \n \r \b \t \f \a \v \?
-+	    $ar[$len] = $is_escape{$ch};
-+	    $len++;
-+	    $slash = 0;
-+	} elsif ($slash) {
-+	    # FIXME: C99 backslash escapes \nnn \xhh
-+	    die("Unknown backslash escape in message $string.");
-+	} else {
-+	    # normal character
-+	    $ar[$len] = ord($ch);
-+	    $len++;
-+	}
-+    }
-+    return @ar;
-+}
++/*?
++ * Tag: lcs.dae31d
++ * Text: "%s: An error occurred on the LCS device, rc=%ld\n"
++ * Severity: Warning
++ * Parameter:
++ *   @1: bus ID of the LCS device
++ *   @2: return code
++ * Description:
++ * The LAN channel station (LCS) device reported a problem that can be recovered
++ * by the LCS device driver. Repeated occurrences of this problem indicate a
++ * malfunctioning device.
++ * User action:
++ * If this problem occurs frequently, initiate a recovery process for the
++ * device, for example, by writing '1' to the 'recover' sysfs attribute of the
++ * device.
++ */
 +
-+sub calc_jhash($)
-+{
-+    my ($string) = @_;
-+    my @ar;
-+    my ($a, $b, $c, $i, $length, $len);
++/*?
++* Tag: lcs.45e59d
++ * Text: "%s: The LCS device stopped because of an error, dstat=0x%X, cstat=0x%X \n"
++ * Severity: Warning
++ * Parameter:
++ *   @1: bus ID of the LCS device
++ *   @2: device status
++ *   @3: subchannel status
++ * Description:
++ * The LAN channel station (LCS) device reported an error. The LCS device driver
++ * might start a device recovery process.
++ * User action:
++ * If the device driver does not start a recovery process, initiate a recovery
++ * process, for example, by writing '1' to the 'recover' sysfs attribute of the
++ * device. If the problem persists, note the status information provided with
++ * the message and contact IBM support.
++ */
 +
-+    @ar = string_to_bytes($string);
-+    $length = @ar;
-+    # add dummy elements to @ar to avoid if then else hell
-+    push @ar, (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-+    $a = 0x9e3779b9;
-+    $b = 0x9e3779b9;
-+    $c = 0;
-+    $i = 0;
-+    for ($len = $length + 12; $len >= 12; $len -= 12) {
-+	if ($len < 23) {
-+	    # add length for last round
-+	    $c += $length;
-+	}
-+	$a += $ar[$i] + ($ar[$i+1]<<8) + ($ar[$i+2]<<16) + ($ar[$i+3]<<24);
-+	$b += $ar[$i+4] + ($ar[$i+5]<<8) + ($ar[$i+6]<<16) + ($ar[$i+7]<<24);
-+	$c += $ar[$i+8] + ($ar[$i+9]<<8) + ($ar[$i+10]<<16) + ($ar[$i+11]<<24);
-+	$a &= 0xffffffff; $b &= 0xffffffff; $c &= 0xffffffff;
-+	$a -= $b; $a -= $c; $a ^= ($c >> 13); $a &= 0xffffffff;
-+	$b -= $c; $b -= $a; $b ^= ($a << 8); $b &= 0xffffffff;
-+	$c -= $a; $c -= $b; $c ^= ($b >> 13); $c &= 0xffffffff;
-+	$a -= $b; $a -= $c; $a ^= ($c >> 12); $a &= 0xffffffff;
-+	$b -= $c; $b -= $a; $b ^= ($a << 16); $b &= 0xffffffff;
-+	$c -= $a; $c -= $b; $c ^= ($b >> 5); $c &= 0xffffffff;
-+	$a -= $b; $a -= $c; $a ^= ($c >> 3); $a &= 0xffffffff;
-+	$b -= $c; $b -= $a; $b ^= ($a << 10); $b &= 0xffffffff;
-+	$c -= $a; $c -= $b; $c ^= ($b >> 15); $c &= 0xffffffff;
-+	$i += 12;
-+    }
-+    return $c;
-+}
++/*?
++ * Tag: lcs.c16f9f
++ * Text: "%s: Starting an LCS device resulted in an error, rc=%d!\n"
++ * Severity: Error
++ * Parameter:
++ *   @1: bus ID of the LCS device
++ *   @2: ccw_device_start return code in decimal notation
++ * Description:
++ * The LAN channel station (LCS) device driver failed to initialize an LCS
++ * device. The device is not operational.
++ * User action:
++ * Initiate a recovery process, for example, by writing '1' to the 'recover'
++ * sysfs attribute of the device. If the problem persists, contact IBM support.
++ */
 +
-+sub add_kmsg_desc($$$$$$)
-+{
-+    my ($tag, $text, $sev, $argv, $desc, $user) = @_;
++/*?
++ * Tag: lcs.c5d9db
++ * Text: "%s: Sending data from the LCS device to the LAN failed with rc=%d\n"
++ * Severity: Error
++ * Parameter:
++ *   @1: bus ID of the LCS device
++ *   @2: ccw_device_resume return code in decimal notation
++ * Description:
++ * The LAN channel station (LCS) device driver could not send data to the LAN
++ * using the LCS device. This might be a temporary problem. Operations continue
++ * on the LCS device.
++ * User action:
++ * If this problem occurs frequently, initiate a recovery process, for example,
++ * by writing '1' to the 'recover' sysfs attribute of the device. If the
++ * problem persists, contact IBM support.
++ */
 +
-+    if ($kmsg_desc{$tag}) {
-+	warn "Duplicate message with tag $tag\n";
-+	$errors++;
-+	return;
-+    }
-+    $text = remove_quotes($text);
-+    $kmsg_desc{$tag}->{'TEXT'} = $text;
-+    $kmsg_desc{$tag}->{'SEV'} = $sev;
-+    $kmsg_desc{$tag}->{'ARGV'} = $argv;
-+    $kmsg_desc{$tag}->{'DESC'} = $desc;
-+    $kmsg_desc{$tag}->{'USER'} = $user;
-+}
-+
-+sub add_kmsg_print($$$$$)
-+{
-+    my ($component, $sev, $prefix, $text, $argv) = @_;
-+    my ($hash, $tag, $count, $parm);
-+
-+    $text = remove_quotes($text);
-+    $hash = substr(sprintf("%08x", calc_jhash($text)), 2, 6);
-+    $tag = $component . "." . $hash;
-+    # Pretty print severity
-+    $sev =~ s/"<0>"/Emerg/;
-+    $sev =~ s/"<1>"/Alert/;
-+    $sev =~ s/"<2>"/Critical/;
-+    $sev =~ s/"<3>"/Error/;
-+    $sev =~ s/"<4>"/Warning/;
-+    $sev =~ s/"<5>"/Notice/;
-+    $sev =~ s/"<6>"/Informational/;
-+    $sev =~ s/"<7>"/Debug/;
-+    $kmsg_print{$kmsg_count}->{'TAG'} = $tag;
-+    $kmsg_print{$kmsg_count}->{'TEXT'} = $prefix . $text;
-+    $kmsg_print{$kmsg_count}->{'SEV'} = $sev;
-+    $kmsg_print{$kmsg_count}->{'ARGV'} = $argv;
-+    $kmsg_count += 1;
-+}
-+
-+sub process_source_file($)
-+{
-+    my $file = "@_";
-+    my $state;
-+    my $component = "";
-+    my ($tag, $text, $sev, $argv, $desc, $user);
-+
-+    if (!open(FD, "$file")) {
-+	return "";
-+    }
-+
-+    $state = 0;
-+    while (<FD>) {
-+	chomp;
-+	# kmsg message component: #define KMSG_COMPONENT "<component>"
-+	if (/^#define\s+KMSG_COMPONENT\s+\"(.*)\"[^\"]*$/o) {
-+	    $component = $1;
-+	}
-+	if ($state == 0) {
-+	    # single line kmsg for undocumented messages, format:
-+	    # /*? Tag: <component>.<hash> Text: "<message>" */
-+	    if (/^\s*\/\*\?\s*Tag:\s*(\S*)\s*Text:\s*(\".*\")\s*\*\/\s*$/o) {
-+		add_kmsg_desc($1, $2, "", "", "", "");
-+	    }
-+	    # kmsg message start: '/*?'
-+	    if (/^\s*\/\*\?\s*$/o) {
-+		$state = 1;
-+		($tag, $text, $sev, $argv, $desc, $user) = ( "", "", "", "", "", "" );
-+	    }
-+	} elsif ($state == 1) {
-+	    # kmsg message end: ' */'
-+	    if (/^\s*\*\/\s*/o) {
-+		add_kmsg_desc($tag, $text, $sev, $argv, $desc, $user);
-+		$state = 0;
-+	    }
-+	    # kmsg message tag: ' * Tag: <tag>'
-+	    elsif (/^\s*\*\s*Tag:\s*(\S*)\s*$/o) {
-+		$tag = $1;
-+	    }
-+	    # kmsg message text: ' * Text: "<message>"'
-+	    elsif (/^\s*\*\s*Text:\s*(\".*\")\s*$/o) {
-+		$text = $1;
-+	    }
-+	    # kmsg message severity: ' * Severity: <sev>'
-+	    elsif (/^\s*\*\s*Severity:\s*(\S*)\s*$/o) {
-+		$sev = $1;
-+	    }
-+	    # kmsg message parameter: ' * Parameter: <argv>'
-+	    elsif (/^\s*\*\s*Parameter:\s*(\S*)\s*$/o) {
-+		if (!defined($1)) {
-+		    $argv = "";
-+		} else {
-+		    $argv = $1;
-+		}
-+		$state = 2;
-+	    }
-+	    # kmsg message description start: ' * Description:'
-+	    elsif (/^\s*\*\s*Description:\s*(\S*)\s*$/o) {
-+		if (!defined($1)) {
-+		    $desc = "";
-+		} else {
-+		    $desc = $1;
-+		}
-+		$state = 3;
-+	    }
-+	    # kmsg has unrecognizable lines
-+	    else {
-+		warn "Warning(${file}:$.): Cannot understand $_";
-+		$warnings++;
-+		$state = 0;
-+	    }
-+	} elsif ($state == 2) {
-+	    # kmsg message end: ' */'
-+	    if (/^\s*\*\//o) {
-+		warn "Warning(${file}:$.): Missing description, skipping message";
-+		$warnings++;
-+		$state = 0;
-+	    }
-+	    # kmsg message description start: ' * Description:'
-+	    elsif (/^\s*\*\s*Description:\s*$/o) {
-+		$desc = $1;
-+		$state = 3;
-+	    }
-+	    # kmsg message parameter line: ' * <argv>'
-+	    elsif (/^\s*\*(.*)$/o) {
-+		$argv .= "\n" . $1;
-+	    } else {
-+		warn "Warning(${file}:$.): Cannot understand $_";
-+		$warnings++;
-+		$state = 0;
-+	    }
-+	} elsif ($state == 3) {
-+	    # kmsg message end: ' */'
-+	    if (/^\s*\*\/\s*/o) {
-+		add_kmsg_desc($tag, $text, $sev, $argv, $desc, $user);
-+		$state = 0;
-+	    }
-+	    # kmsg message description start: ' * User action:'
-+	    elsif (/^\s*\*\s*User action:\s*$/o) {
-+		$user = $1;
-+		$state = 4;
-+	    }
-+	    # kmsg message description line: ' * <text>'
-+	    elsif (/^\s*\*\s*(.*)$/o) {
-+		$desc .= "\n" . $1;
-+	    } else {
-+		warn "Warning(${file}:$.): Cannot understand $_";
-+		$warnings++;
-+		$state = 0;
-+	    }
-+	} elsif ($state == 4) {
-+	    # kmsg message end: ' */'
-+	    if (/^\s*\*\/\s*/o) {
-+		add_kmsg_desc($tag, $text, $sev, $argv, $desc, $user);
-+		$state = 0;
-+	    }
-+	    # kmsg message user action line: ' * <text>'
-+	    elsif (/^\s*\*\s*(.*)$/o) {
-+		$user .= "\n" . $1;
-+	    } else {
-+		warn "Warning(${file}:$.): Cannot understand $_";
-+		$warnings++;
-+		$state = 0;
-+	    }
-+	}
-+    }
-+    return $component;
-+}
-+
-+sub process_cpp_file($$$$)
-+{
-+    my ($cc, $options, $file, $component) = @_;
-+
-+    open(FD, "$cc $gcc_options|") or die ("Preprocessing failed.");
-+
-+    while (<FD>) {
-+	chomp;
-+	if (/.*__KMSG_PRINT\(\s*(\S*)\s*_FMT_(.*)_ARGS_\s*(.*)?_END_\s*\)/o) {
-+	    if ($component ne "") {
-+		add_kmsg_print($component, $1, "", $2, $3);
-+	    } else {
-+		warn "Error(${file}:$.): kmsg without component\n";
-+		$errors++;
-+	    }
-+	} elsif (/.*__KMSG_DEV\(\s*(\S*)\s*_FMT_(.*)_ARGS_\s*(.*)?_END_\*s\)/o) {
-+	    if ($component ne "") {
-+		add_kmsg_print($component, $1, "%s: ", $2, $3);
-+	    } else {
-+		warn "Error(${file}:$.): kmsg without component\n";
-+		$errors++;
-+	    }
-+	}
-+    }
-+}
-+
-+sub check_messages($)
-+{
-+    my $component = "@_";
-+    my $failed = 0;
-+
-+    for ($i = 0; $i < $kmsg_count; $i++) {
-+	$tag = $kmsg_print{$i}->{'TAG'};
-+	if (!defined($kmsg_desc{$tag})) {
-+	    add_kmsg_desc($tag,
-+			  "\"" . $kmsg_print{$i}->{'TEXT'} . "\"",
-+			  $kmsg_print{$i}->{'SEV'},
-+			  $kmsg_print{$i}->{'ARGV'},
-+			  "Please insert description here",
-+			  "What is the user supposed to do");
-+	    $kmsg_desc{$tag}->{'CHECK'} = 1;
-+	    $failed = 1;
-+	    warn "$component: Missing description for: $tag\n";
-+	    $errors++;
-+	    next;
-+	}
-+	if ($kmsg_print{$i}->{'TEXT'} ne $kmsg_desc{$tag}->{'TEXT'}) {
-+	    warn "$component: format string mismatch for: $tag\n";
-+	    warn "  --- $kmsg_print{$i}->{'TEXT'}\n";
-+	    warn "  +++ $kmsg_desc{$tag}->{'TEXT'}\n";
-+	    $errors++;
-+	}
-+    }
-+    return $failed;
-+}
-+
-+sub print_templates()
-+{
-+    print "Templates for missing messages:\n";
-+    foreach $tag ( sort { $kmsg_desc{$a} <=> $kmsg_desc{$b} } keys %kmsg_desc ) {
-+	if (!defined($kmsg_desc{$tag}->{'CHECK'})) {
-+	    next;
-+	}
-+	print "/*?\n";
-+	print " * Tag: $tag\n";
-+	print " * Text: \"$kmsg_desc{$tag}->{'TEXT'}\"\n";
-+	print " * Severity: $kmsg_desc{$tag}->{'SEV'}\n";
-+	$argv = $kmsg_desc{$tag}->{'ARGV'};
-+	if ($argv ne "") {
-+	    print " * Parameter:\n";
-+	    @parms = split(/\s*,\s*/,$kmsg_desc{$tag}->{'ARGV'});
-+	    $count = 0;
-+	    foreach $parm (@parms) {
-+		$count += 1;
-+		if (!($parm eq "")) {
-+		    print " *   \@$count: $parm\n";
-+		}
-+	    }
-+	}
-+	print " * Description:\n";
-+	print " * $kmsg_desc{$tag}->{'DESC'}\n";
-+	print " * User action:\n";
-+	print " * $kmsg_desc{$tag}->{'USER'}\n";
-+	print " */\n\n";
-+    }
-+}
-+
-+sub write_man_pages()
-+{
-+    my $file;
-+
-+    foreach $tag (keys(%kmsg_desc)) {
-+	if (defined($kmsg_desc{$tag}->{'CHECK'})) {
-+	    next;
-+	}
-+	if ($kmsg_desc{$tag}->{'DESC'} eq "") {
-+	    next;
-+	}
-+	$file = $objtree . "man/" . $tag . ".9";
-+	if (!open(WR, ">$file")) {
-+	    warn "Error: Cannot open file $file\n";
-+	    $errors++;
-+	    return;
-+	}
-+	print WR ".TH \"$tag\" 9 \"Linux Messages\" LINUX\n";
-+	print WR ".SH Message\n";
-+	print WR $tag . ": " . $kmsg_desc{$tag}->{'TEXT'} . "\n";
-+	print WR ".SH Severity\n";
-+	print WR "$kmsg_desc{$tag}->{'SEV'}\n";
-+	$argv = $kmsg_desc{$tag}->{'ARGV'};
-+	if ($argv ne "") {
-+	    print WR ".SH Parameters\n";
-+	    @parms = split(/\s*\n\s*/,$kmsg_desc{$tag}->{'ARGV'});
-+	    foreach $parm (@parms) {
-+		$parm =~ s/^\s*(.*)\s*$/$1/;
-+		if (!($parm eq "")) {
-+		    print WR "$parm\n\n";
-+		}
-+	    }
-+	}
-+	print WR ".SH Description";
-+	print WR "$kmsg_desc{$tag}->{'DESC'}\n";
-+	$user = $kmsg_desc{$tag}->{'USER'};
-+	if ($user ne "") {
-+	    print WR ".SH User action";
-+	    print WR "$user\n";
-+	}
-+    }
-+}
-+
-+if (defined($ENV{'srctree'})) {
-+    $srctree = "$ENV{'srctree'}" . "/";
-+} else {
-+    $srctree = getcwd;
-+}
-+
-+if (defined($ENV{'objtree'})) {
-+    $objtree = "$ENV{'objtree'}" . "/";
-+} else {
-+    $objtree = getcwd;
-+}
-+
-+if (defined($ENV{'SRCARCH'})) {
-+    $srcarch = "$ENV{'SRCARCH'}" . "/";
-+} else {
-+    print "kmsg-doc called without a valid \$SRCARCH\n";
-+    exit 1;
-+}
-+
-+$option = shift;
-+
-+$cc = shift;
-+$gcc_options = "-E -D __KMSG_CHECKER ";
-+foreach $tmp (@ARGV) {
-+    $tmp =~ s/\(/\\\(/;
-+    $tmp =~ s/\)/\\\)/;
-+    $gcc_options .= " $tmp";
-+    $filename = $tmp;
-+}
-+
-+$component = process_source_file($filename);
-+if ($component ne "") {
-+    process_source_file($srctree . "Documentation/kmsg/" . $srcarch . $component);
-+    process_source_file($srctree . "Documentation/kmsg/" . $component);
-+}
-+
-+if ($option eq "check") {
-+    process_cpp_file($cc, $gcc_options, $filename, $component);
-+    if (check_messages($component)) {
-+	print_templates();
-+    }
-+} elsif ($option eq "print") {
-+    write_man_pages();
-+}
-+
-+exit($errors);
-Index: kmsg-2.6/scripts/Makefile.build
++/*? Tag: lcs.1ba8a7 Text: "Query IPAssist failed. Assuming unsupported!\n" */
++/*? Tag: lcs.c4901b Text: "Stoplan for %s initiated by LGW.\n" */
++/*? Tag: lcs.0760e8 Text: "Not enough memory to add new multicast entry!\n" */
++/*? Tag: lcs.d6f064 Text: "Not enough memory for debug facility.\n" */
++/*? Tag: lcs.85e209 Text: "Adding multicast address failed. Table possibly full!\n" */
++/*? Tag: lcs.f3f857 Text: "Error in opening device!\n" */
++/*? Tag: lcs.0aabaa Text: "LCS device %s %s IPv6 support\n" */
++/*? Tag: lcs.453fea Text: "Device %s successfully recovered!\n" */
++/*? Tag: lcs.ea2a85 Text: "LCS device %s %s Multicast support\n" */
++/*? Tag: lcs.38cb90 Text: " Initialization failed\n" */
++/*? Tag: lcs.35862f Text: "Loading %s\n" */
++/*? Tag: lcs.f53f45 Text: "Initialization failed\n" */
++/*? Tag: lcs.c5a5fa Text: "Terminating lcs module.\n" */
++/*? Tag: lcs.535a08 Text: "Device %s could not be recovered!\n" */
+Index: kmsg-2.6/drivers/s390/net/lcs.c
 ===================================================================
---- kmsg-2.6.orig/scripts/Makefile.build
-+++ kmsg-2.6/scripts/Makefile.build
-@@ -211,12 +211,14 @@ endef
- # Built-in and composite module parts
- $(obj)/%.o: $(src)/%.c FORCE
- 	$(call cmd,force_checksrc)
-+	$(call cmd,force_check_kmsg)
- 	$(call if_changed_rule,cc_o_c)
+--- kmsg-2.6.orig/drivers/s390/net/lcs.c
++++ kmsg-2.6/drivers/s390/net/lcs.c
+@@ -26,6 +26,8 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
  
- # Single-part modules are special since we need to mark them in $(MODVERDIR)
++#define KMSG_COMPONENT		"lcs"
++
+ #include <linux/module.h>
+ #include <linux/if.h>
+ #include <linux/netdevice.h>
+@@ -36,6 +38,7 @@
+ #include <linux/in.h>
+ #include <linux/igmp.h>
+ #include <linux/delay.h>
++#include <linux/kmsg.h>
+ #include <net/arp.h>
+ #include <net/ip.h>
  
- $(single-used-m): $(obj)/%.o: $(src)/%.c FORCE
- 	$(call cmd,force_checksrc)
-+	$(call cmd,force_check_kmsg)
- 	$(call if_changed_rule,cc_o_c)
- 	@{ echo $(@:.o=.ko); echo $@; } > $(MODVERDIR)/$(@F:.o=.mod)
+@@ -54,8 +57,6 @@
+ #error Cannot compile lcs.c without some net devices switched on.
+ #endif
  
-@@ -339,6 +341,18 @@ $(multi-used-m) : %.o: $(multi-objs-m) F
+-#define PRINTK_HEADER		" lcs: "
+-
+ /**
+  * initialization string for output
+  */
+@@ -96,7 +97,7 @@ lcs_register_debug_facility(void)
+ 	lcs_dbf_setup = debug_register("lcs_setup", 2, 1, 8);
+ 	lcs_dbf_trace = debug_register("lcs_trace", 4, 1, 8);
+ 	if (lcs_dbf_setup == NULL || lcs_dbf_trace == NULL) {
+-		PRINT_ERR("Not enough memory for debug facility.\n");
++		kmsg_err("Not enough memory for debug facility.\n");
+ 		lcs_unregister_debug_facility();
+ 		return -ENOMEM;
+ 	}
+@@ -502,7 +503,9 @@ lcs_start_channel(struct lcs_channel *ch
+ 	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
+ 	if (rc) {
+ 		LCS_DBF_TEXT_(4,trace,"essh%s", channel->ccwdev->dev.bus_id);
+-		PRINT_ERR("Error in starting channel, rc=%d!\n", rc);
++		dev_err(&channel->ccwdev->dev,
++			"Starting an LCS device resulted in an error,"
++			" rc=%d!\n", rc);
+ 	}
+ 	return rc;
+ }
+@@ -636,7 +639,9 @@ __lcs_resume_channel(struct lcs_channel 
+ 	rc = ccw_device_resume(channel->ccwdev);
+ 	if (rc) {
+ 		LCS_DBF_TEXT_(4, trace, "ersc%s", channel->ccwdev->dev.bus_id);
+-		PRINT_ERR("Error in lcs_resume_channel: rc=%d\n",rc);
++		dev_warn(&channel->ccwdev->dev,
++			"Sending data from the LCS device to the LAN failed"
++			" with rc=%d\n",rc);
+ 	} else
+ 		channel->state = LCS_CH_STATE_RUNNING;
+ 	return rc;
+@@ -1082,7 +1087,7 @@ lcs_check_multicast_support(struct lcs_c
+ 	cmd->cmd.lcs_qipassist.num_ip_pairs = 1;
+ 	rc = lcs_send_lancmd(card, buffer, __lcs_check_multicast_cb);
+ 	if (rc != 0) {
+-		PRINT_ERR("Query IPAssist failed. Assuming unsupported!\n");
++		kmsg_err("Query IPAssist failed. Assuming unsupported!\n");
+ 		return -EOPNOTSUPP;
+ 	}
+ 	if (card->ip_assists_supported & LCS_IPASS_MULTICAST_SUPPORT)
+@@ -1115,8 +1120,8 @@ list_modified:
+ 			rc = lcs_send_setipm(card, ipm);
+ 			spin_lock_irqsave(&card->ipm_lock, flags);
+ 			if (rc) {
+-				PRINT_INFO("Adding multicast address failed. "
+-					   "Table possibly full!\n");
++				kmsg_info("Adding multicast address failed."
++					     " Table possibly full!\n");
+ 				/* store ipm in failed list -> will be added
+ 				 * to ipm_list again, so a retry will be done
+ 				 * during the next call of this function */
+@@ -1227,8 +1232,8 @@ lcs_set_mc_addresses(struct lcs_card *ca
+ 		ipm = (struct lcs_ipm_list *)
+ 			kzalloc(sizeof(struct lcs_ipm_list), GFP_ATOMIC);
+ 		if (ipm == NULL) {
+-			PRINT_INFO("Not enough memory to add "
+-				   "new multicast entry!\n");
++			kmsg_info("Not enough memory to add"
++				   " new multicast entry!\n");
+ 			break;
+ 		}
+ 		memcpy(&ipm->ipm.mac_addr, buf, LCS_MAC_LENGTH);
+@@ -1302,18 +1307,21 @@ lcs_check_irb_error(struct ccw_device *c
  
- targets += $(multi-used-y) $(multi-used-m)
+ 	switch (PTR_ERR(irb)) {
+ 	case -EIO:
+-		PRINT_WARN("i/o-error on device %s\n", cdev->dev.bus_id);
++		dev_warn(&cdev->dev,
++			"An I/O-error occurred on the LCS device\n");
+ 		LCS_DBF_TEXT(2, trace, "ckirberr");
+ 		LCS_DBF_TEXT_(2, trace, "  rc%d", -EIO);
+ 		break;
+ 	case -ETIMEDOUT:
+-		PRINT_WARN("timeout on device %s\n", cdev->dev.bus_id);
++		dev_warn(&cdev->dev,
++			"A command timed out on the LCS device\n");
+ 		LCS_DBF_TEXT(2, trace, "ckirberr");
+ 		LCS_DBF_TEXT_(2, trace, "  rc%d", -ETIMEDOUT);
+ 		break;
+ 	default:
+-		PRINT_WARN("unknown error %ld on device %s\n", PTR_ERR(irb),
+-			   cdev->dev.bus_id);
++		dev_warn(&cdev->dev,
++			"An error occurred on the LCS device, rc=%ld\n",
++			PTR_ERR(irb));
+ 		LCS_DBF_TEXT(2, trace, "ckirberr");
+ 		LCS_DBF_TEXT(2, trace, "  rc???");
+ 	}
+@@ -1399,8 +1407,10 @@ lcs_irq(struct ccw_device *cdev, unsigne
+ 	/* Check for channel and device errors presented */
+ 	rc = lcs_get_problem(cdev, irb);
+ 	if (rc || (dstat & DEV_STAT_UNIT_EXCEP)) {
+-		PRINT_WARN("check on device %s, dstat=0x%X, cstat=0x%X \n",
+-			    cdev->dev.bus_id, dstat, cstat);
++		dev_warn(&cdev->dev,
++			"The LCS device stopped because of an error,"
++			" dstat=0x%X, cstat=0x%X \n",
++			    dstat, cstat);
+ 		if (rc) {
+ 			channel->state = LCS_CH_STATE_ERROR;
+ 		}
+@@ -1757,7 +1767,7 @@ lcs_get_control(struct lcs_card *card, s
+ 			lcs_schedule_recovery(card);
+ 			break;
+ 		case LCS_CMD_STOPLAN:
+-			PRINT_WARN("Stoplan for %s initiated by LGW.\n",
++			kmsg_warn("Stoplan for %s initiated by LGW.\n",
+ 					card->dev->name);
+ 			if (card->dev)
+ 				netif_carrier_off(card->dev);
+@@ -1786,7 +1796,8 @@ lcs_get_skb(struct lcs_card *card, char 
  
-+# kmsg check tool
-+ifneq ($(KBUILD_KMSG_CHECK),0)
-+  ifeq ($(KBUILD_KMSG_CHECK),2)
-+    kmsg_cmd := print
-+    quiet_cmd_force_check_kmsg = KMSG_PRINT $<
-+    $(shell [ -d $(objtree)/man ] || mkdir -p $(objtree)/man)
-+  else
-+    kmsg_cmd := check
-+    quiet_cmd_force_check_kmsg = KMSG_CHECK $<
-+  endif
-+  cmd_force_check_kmsg = $(KMSG_CHECK) $(kmsg_cmd) $(CC) $(c_flags) $< ;
-+endif
+ 	skb = dev_alloc_skb(skb_len);
+ 	if (skb == NULL) {
+-		PRINT_ERR("LCS: alloc_skb failed for device=%s\n",
++		dev_err(&card->dev->dev,
++			" Allocating a socket buffer to interface %s failed\n",
+ 			  card->dev->name);
+ 		card->stats.rx_dropped++;
+ 		return;
+@@ -1882,7 +1893,8 @@ lcs_stop_device(struct net_device *dev)
+ 		(card->write.state != LCS_CH_STATE_RUNNING));
+ 	rc = lcs_stopcard(card);
+ 	if (rc)
+-		PRINT_ERR("Try it again!\n ");
++		dev_err(&card->dev->dev,
++			" Shutting down the LCS device failed\n ");
+ 	return rc;
+ }
  
- # Descending
- # ---------------------------------------------------------------------------
+@@ -1901,7 +1913,7 @@ lcs_open_device(struct net_device *dev)
+ 	/* initialize statistics */
+ 	rc = lcs_detect(card);
+ 	if (rc) {
+-		PRINT_ERR("LCS:Error in opening device!\n");
++		kmsg_err("Error in opening device!\n");
+ 
+ 	} else {
+ 		dev->flags |= IFF_UP;
+@@ -2109,8 +2121,9 @@ lcs_new_device(struct ccwgroup_device *c
+ 	rc = lcs_detect(card);
+ 	if (rc) {
+ 		LCS_DBF_TEXT(2, setup, "dtctfail");
+-		PRINT_WARN("Detection of LCS card failed with return code "
+-			   "%d (0x%x)\n", rc, rc);
++		dev_warn(&card->dev->dev,
++			"Detecting a network adapter for LCS devices"
++			" failed with rc=%d (0x%x)\n", rc, rc);
+ 		lcs_stopcard(card);
+ 		goto out;
+ 	}
+@@ -2140,7 +2153,7 @@ lcs_new_device(struct ccwgroup_device *c
+ #endif
+ 	default:
+ 		LCS_DBF_TEXT(3, setup, "errinit");
+-		PRINT_ERR("LCS: Initialization failed\n");
++		kmsg_err(" Initialization failed\n");
+ 		goto out;
+ 	}
+ 	if (!dev)
+@@ -2172,11 +2185,11 @@ netdev_out:
+ 		goto out;
+ 
+ 	/* Print out supported assists: IPv6 */
+-	PRINT_INFO("LCS device %s %s IPv6 support\n", card->dev->name,
++	kmsg_info("LCS device %s %s IPv6 support\n", card->dev->name,
+ 		   (card->ip_assists_supported & LCS_IPASS_IPV6_SUPPORT) ?
+ 		   "with" : "without");
+ 	/* Print out supported assist: Multicast */
+-	PRINT_INFO("LCS device %s %s Multicast support\n", card->dev->name,
++	kmsg_info("LCS device %s %s Multicast support\n", card->dev->name,
+ 		   (card->ip_assists_supported & LCS_IPASS_MULTICAST_SUPPORT) ?
+ 		   "with" : "without");
+ 	return 0;
+@@ -2244,14 +2257,15 @@ lcs_recovery(void *ptr)
+ 		return 0;
+ 	LCS_DBF_TEXT(4, trace, "recover2");
+ 	gdev = card->gdev;
+-	PRINT_WARN("Recovery of device %s started...\n", gdev->dev.bus_id);
++	dev_warn(&gdev->dev,
++		"A recovery process has been started for the LCS device\n");
+ 	rc = __lcs_shutdown_device(gdev, 1);
+ 	rc = lcs_new_device(gdev);
+ 	if (!rc)
+-		PRINT_INFO("Device %s successfully recovered!\n",
++		kmsg_info("Device %s successfully recovered!\n",
+ 				card->dev->name);
+ 	else
+-		PRINT_INFO("Device %s could not be recovered!\n",
++		kmsg_info("Device %s could not be recovered!\n",
+ 				card->dev->name);
+ 	lcs_clear_thread_running_bit(card, LCS_RECOVERY_THREAD);
+ 	return 0;
+@@ -2304,17 +2318,17 @@ __init lcs_init_module(void)
+ {
+ 	int rc;
+ 
+-	PRINT_INFO("Loading %s\n",version);
++	kmsg_info("Loading %s\n", version);
+ 	rc = lcs_register_debug_facility();
+ 	LCS_DBF_TEXT(0, setup, "lcsinit");
+ 	if (rc) {
+-		PRINT_ERR("Initialization failed\n");
++		kmsg_err("Initialization failed\n");
+ 		return rc;
+ 	}
+ 
+ 	rc = register_cu3088_discipline(&lcs_group_driver);
+ 	if (rc) {
+-		PRINT_ERR("Initialization failed\n");
++		kmsg_err("Initialization failed\n");
+ 		return rc;
+ 	}
+ 	return 0;
+@@ -2327,7 +2341,7 @@ __init lcs_init_module(void)
+ static void
+ __exit lcs_cleanup_module(void)
+ {
+-	PRINT_INFO("Terminating lcs module.\n");
++	kmsg_info("Terminating lcs module.\n");
+ 	LCS_DBF_TEXT(0, trace, "cleanup");
+ 	unregister_cu3088_discipline(&lcs_group_driver);
+ 	lcs_unregister_debug_facility();
 
 -- 
 blue skies,
