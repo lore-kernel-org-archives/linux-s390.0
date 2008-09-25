@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756572AbYIYQqn@vger.kernel.org>
-Message-Id: <20080925163019.750494793@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756675AbYIYQq4@vger.kernel.org>
+Message-Id: <20080925163020.344040426@de.ibm.com>
 References: <20080925162827.818261893@de.ibm.com>
-Date: Thu, 25 Sep 2008 18:28:29 +0200
+Date: Thu, 25 Sep 2008 18:28:31 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 2/6] kmsg: tagged device messages.
-Content-Disposition: inline; filename=801-kmsg-dev.diff
+Subject: [patch 4/6] kmsg: convert xpram messages to kmsg api.
+Content-Disposition: inline; filename=803-kmsg-xpram.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -13,146 +13,182 @@ Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-From: Michael Holzheu <holzheu@de.ibm.com>
 
-Add CONFIG_MSG_IDS support to the dev_xxx printk family. The message
-tag for a device printk consists of the driver name and the 24 bit
-hash over the message text. The hash is included in the printed line
-if the KMSG_COMPONENT macro is defined and CONFIG_MSG_IDS=y. For
-source files that do not define KMSG_COMPONENT or CONFIG_MSG_IDS=n
-the dev_xxx printks use the old-style format. 
-
-To make it possible for a script to extract the correct message tag
-for the dev_xxx printks the KMSG_COMPONENT and the driver name need to
-be identical for all dev_xxx printks in a source file. If a source file
-is supposed to be converted to use message tags and there are dev_xxx
-printks with driver names different to KMSG_COMPONENT these dev_xxx
-printks need to be replaced with kmsg_xxx printks. In praxis this
-should not be a problem since there are very few dev_xxx printks outside
-of driver code.
-
-In addition to the KMSG_COMPONENT changes in include/linux/device.h the
-dev_xxx macros with variable arguments are converted from the gcc specific
-'## arg' to the C99 variant '##__VA_ARGS__'.
-
-Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- include/linux/device.h |   57 ++++++++++++++++++++++++++++++-------------------
- kernel/printk.c        |   22 ++++++++++++++++++
- 2 files changed, 57 insertions(+), 22 deletions(-)
+ Documentation/kmsg/s390/xpram |   61 ++++++++++++++++++++++++++++++++++++++++++
+ drivers/s390/block/xpram.c    |   41 +++++++++++++---------------
+ 2 files changed, 80 insertions(+), 22 deletions(-)
 
-Index: kmsg-2.6/include/linux/device.h
+Index: kmsg-2.6/Documentation/kmsg/s390/xpram
 ===================================================================
---- kmsg-2.6.orig/include/linux/device.h
-+++ kmsg-2.6/include/linux/device.h
-@@ -520,39 +520,52 @@ extern void sysdev_shutdown(void);
- 
- /* debugging and troubleshooting/diagnostic helpers. */
- extern const char *dev_driver_string(const struct device *dev);
--#define dev_printk(level, dev, format, arg...)	\
-+#define dev_printk(level, dev, format, ...)	\
- 	printk(level "%s %s: " format , dev_driver_string(dev) , \
--	       dev_name(dev) , ## arg)
-+	       dev_name(dev) , ##__VA_ARGS__)
- 
--#define dev_emerg(dev, format, arg...)		\
--	dev_printk(KERN_EMERG , dev , format , ## arg)
--#define dev_alert(dev, format, arg...)		\
--	dev_printk(KERN_ALERT , dev , format , ## arg)
--#define dev_crit(dev, format, arg...)		\
--	dev_printk(KERN_CRIT , dev , format , ## arg)
--#define dev_err(dev, format, arg...)		\
--	dev_printk(KERN_ERR , dev , format , ## arg)
--#define dev_warn(dev, format, arg...)		\
--	dev_printk(KERN_WARNING , dev , format , ## arg)
--#define dev_notice(dev, format, arg...)		\
--	dev_printk(KERN_NOTICE , dev , format , ## arg)
--#define dev_info(dev, format, arg...)		\
--	dev_printk(KERN_INFO , dev , format , ## arg)
-+/* dev_printk_hash for message documentation */
-+#if defined(__KMSG_CHECKER) && defined(KMSG_COMPONENT)
-+/* generate magic string for scripts/kmsg-doc to parse */
-+#define dev_printk_hash(level, dev, format, ...) \
-+	__KMSG_DEV(level _FMT_ format _ARGS_ dev, ##__VA_ARGS__ _END_)
-+#elif defined(CONFIG_KMSG_IDS) && defined(KMSG_COMPONENT)
-+int printk_dev_hash(const char *, const struct device *, const char *, ...);
-+#define dev_printk_hash(level, dev, format, ...) \
-+	printk_dev_hash(level "%s.%06x: %s: ", dev, format, ##__VA_ARGS__)
-+#else /* !defined(CONFIG_KMSG_IDS) */
-+#define dev_printk_hash dev_printk
-+#endif
-+
-+#define dev_emerg(dev, format, ...)		\
-+	dev_printk_hash(KERN_EMERG , dev , format , ##__VA_ARGS__)
-+#define dev_alert(dev, format, ...)		\
-+	dev_printk_hash(KERN_ALERT , dev , format , ##__VA_ARGS__)
-+#define dev_crit(dev, format, ...)		\
-+	dev_printk_hash(KERN_CRIT , dev , format , ##__VA_ARGS__)
-+#define dev_err(dev, format, ...)		\
-+	dev_printk_hash(KERN_ERR , dev , format , ##__VA_ARGS__)
-+#define dev_warn(dev, format, ...)		\
-+	dev_printk_hash(KERN_WARNING , dev , format , ##__VA_ARGS__)
-+#define dev_notice(dev, format, ...)		\
-+	dev_printk_hash(KERN_NOTICE , dev , format , ##__VA_ARGS__)
-+#define dev_info(dev, format, ...)		\
-+	dev_printk_hash(KERN_INFO , dev , format , ##__VA_ARGS__)
- 
- #ifdef DEBUG
--#define dev_dbg(dev, format, arg...)		\
--	dev_printk(KERN_DEBUG , dev , format , ## arg)
-+#define dev_dbg(dev, format, ...)		\
-+	dev_printk(KERN_DEBUG , dev , format , ##__VA_ARGS__)
- #else
--#define dev_dbg(dev, format, arg...)		\
--	({ if (0) dev_printk(KERN_DEBUG, dev, format, ##arg); 0; })
-+#define dev_dbg(dev, format, ...)		\
-+	({ if (0) dev_printk(KERN_DEBUG, dev, format, ##__VA_ARGS__); 0; })
- #endif
- 
- #ifdef VERBOSE_DEBUG
- #define dev_vdbg	dev_dbg
- #else
- 
--#define dev_vdbg(dev, format, arg...)		\
--	({ if (0) dev_printk(KERN_DEBUG, dev, format, ##arg); 0; })
-+#define dev_vdbg(dev, format, ...)		\
-+	({ if (0) dev_printk(KERN_DEBUG, dev, format, ##__VA_ARGS__); 0; })
- #endif
- 
- /* Create alias, so I can be autoloaded. */
-Index: kmsg-2.6/kernel/printk.c
-===================================================================
---- kmsg-2.6.orig/kernel/printk.c
-+++ kmsg-2.6/kernel/printk.c
-@@ -1366,4 +1366,26 @@ asmlinkage int printk_hash(const char *p
- 	return r;
- }
- EXPORT_SYMBOL(printk_hash);
-+
-+/**
-+ * printk_dev_hash - print a kernel message include a hash over the message
-+ * @prefix: message prefix including the ".%06x" for the hash
-+ * @dev: device this printk is all about
-+ * @fmt: format string
+--- /dev/null
++++ kmsg-2.6/Documentation/kmsg/s390/xpram
+@@ -0,0 +1,61 @@
++/*?
++ * Tag: xpram.ab9aa4
++ * Text: "%d is not a valid number of XPRAM devices\n"
++ * Severity: Error
++ * Parameter:
++ *   @1: number of partitions
++ * Description:
++ * The number of XPRAM partitions specified for the 'devs' module parameter
++ * or with the 'xpram.parts' kernel parameter must be an integer in the
++ * range 1 to 32. The XPRAM device driver created a maximum of 32 partitions
++ * that are probably not configured as intended.
++ * User action:
++ * If the XPRAM device driver has been compiled as a separate module,
++ * unload the module and load it again with a correct value for the
++ * 'devs' module parameter. If the XPRAM device driver has been compiled
++ * into the kernel, correct the 'xpram.parts' parameter in the kernel
++ * command line and restart Linux.
 + */
-+asmlinkage int printk_dev_hash(const char *prefix, const struct device *dev,
-+			       const char *fmt, ...)
-+{
-+	va_list args;
-+	int r;
 +
-+	r = printk(prefix, dev_driver_string(dev),
-+		   jhash(fmt, strlen(fmt), 0) & 0xffffff, dev_name(dev));
-+	va_start(args, fmt);
-+	r += vprintk(fmt, args);
-+	va_end(args);
++/*?
++ * Tag: xpram.f004d1
++ * Text: "Not enough expanded memory available\n"
++ * Severity: Error
++ * Description:
++ * The amount of expanded memory required to set up your XPRAM partitions
++ * depends on the 'sizes' parameter specified for the xpram module or on
++ * the specifications for the 'xpram.parts' parameter if the XPRAM device
++ * driver has been compiled into the kernel. Your
++ * current specification exceed the amount of available expanded memory.
++ * Your XPRAM partitions are probably not configured as intended.
++ * User action:
++ * If the XPRAM device driver has been compiled as a separate module,
++ * unload the xpram module and load it again with an appropriate value
++ * for the 'sizes' module parameter. If the XPRAM device driver has been
++ * compiled into the kernel, adjust the 'xpram.parts' parameter in the
++ * kernel command line and restart Linux. If you need more than the
++ * available expanded memory, increase the expanded memory allocation for
++ * your virtual hardware or LPAR.
++ */
 +
-+	return r;
-+}
-+EXPORT_SYMBOL(printk_dev_hash);
- #endif
++/*?
++ * Tag: xpram.f6ae78
++ * Text: "No expanded memory available\n"
++ * Severity: Error
++ * Description:
++ * The XPRAM device driver has been loaded in a Linux instance that runs
++ * in an LPAR or virtual hardware without expanded memory.
++ * are created.
++ * User action:
++ * Allocate expanded memory for your LPAR or virtual hardware or do not
++ * load the xpram module. You can ignore this message, if you do not want
++ * to create XPRAM partitions.
++ */
++
++/*? Tag: xpram.fc5e30 Text: "  number of devices (partitions): %d \n" */
++/*? Tag: xpram.9a3d44 Text: "  size of partition %d: %u kB\n" */
++/*? Tag: xpram.d1b9da Text: "  size of partition %d to be set automatically\n" */
++/*? Tag: xpram.758fd6 Text: "  memory needed (for sized partitions): %lu kB\n" */
++/*? Tag: xpram.3fc92b Text: "  partitions to be sized automatically: %d\n" */
++/*? Tag: xpram.6cdcc1 Text: "  automatically determined partition size: %lu kB\n" */
++/*? Tag: xpram.546055 Text: "  %u pages expanded memory found (%lu KB).\n" */
+Index: kmsg-2.6/drivers/s390/block/xpram.c
+===================================================================
+--- kmsg-2.6.orig/drivers/s390/block/xpram.c
++++ kmsg-2.6/drivers/s390/block/xpram.c
+@@ -25,6 +25,8 @@
+  *   generic hard disk support to replace ad-hoc partitioning
+  */
+ 
++#define KMSG_COMPONENT "xpram"
++
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/ctype.h>  /* isdigit, isxdigit */
+@@ -36,18 +38,13 @@
+ #include <linux/hdreg.h>  /* HDIO_GETGEO */
+ #include <linux/sysdev.h>
+ #include <linux/bio.h>
++#include <linux/kmsg.h>
+ #include <asm/uaccess.h>
+ 
+ #define XPRAM_NAME	"xpram"
+ #define XPRAM_DEVS	1	/* one partition */
+ #define XPRAM_MAX_DEVS	32	/* maximal number of devices (partitions) */
+ 
+-#define PRINT_DEBUG(x...)	printk(KERN_DEBUG XPRAM_NAME " debug:" x)
+-#define PRINT_INFO(x...)	printk(KERN_INFO XPRAM_NAME " info:" x)
+-#define PRINT_WARN(x...)	printk(KERN_WARNING XPRAM_NAME " warning:" x)
+-#define PRINT_ERR(x...)		printk(KERN_ERR XPRAM_NAME " error:" x)
+-
+-
+ typedef struct {
+ 	unsigned int	size;		/* size of xpram segment in pages */
+ 	unsigned int	offset;		/* start page of xpram segment */
+@@ -263,7 +260,7 @@ static int __init xpram_setup_sizes(unsi
+ 
+ 	/* Check number of devices. */
+ 	if (devs <= 0 || devs > XPRAM_MAX_DEVS) {
+-		PRINT_ERR("invalid number %d of devices\n",devs);
++		kmsg_err("%d is not a valid number of XPRAM devices\n",devs);
+ 		return -EINVAL;
+ 	}
+ 	xpram_devs = devs;
+@@ -294,22 +291,22 @@ static int __init xpram_setup_sizes(unsi
+ 			mem_auto_no++;
+ 	}
+ 	
+-	PRINT_INFO("  number of devices (partitions): %d \n", xpram_devs);
++	kmsg_info("  number of devices (partitions): %d \n", xpram_devs);
+ 	for (i = 0; i < xpram_devs; i++) {
+ 		if (xpram_sizes[i])
+-			PRINT_INFO("  size of partition %d: %u kB\n",
+-				   i, xpram_sizes[i]);
++			kmsg_info("  size of partition %d: %u kB\n",
++				  i, xpram_sizes[i]);
+ 		else
+-			PRINT_INFO("  size of partition %d to be set "
+-				   "automatically\n",i);
++			kmsg_info("  size of partition %d to be set "
++				  "automatically\n",i);
+ 	}
+-	PRINT_DEBUG("  memory needed (for sized partitions): %lu kB\n",
+-		    mem_needed);
+-	PRINT_DEBUG("  partitions to be sized automatically: %d\n",
+-		    mem_auto_no);
++	kmsg_info("  memory needed (for sized partitions): %lu kB\n",
++		  mem_needed);
++	kmsg_info("  partitions to be sized automatically: %d\n",
++		  mem_auto_no);
+ 
+ 	if (mem_needed > pages * 4) {
+-		PRINT_ERR("Not enough expanded memory available\n");
++		kmsg_err("Not enough expanded memory available\n");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -321,8 +318,8 @@ static int __init xpram_setup_sizes(unsi
+ 	 */
+ 	if (mem_auto_no) {
+ 		mem_auto = ((pages - mem_needed / 4) / mem_auto_no) * 4;
+-		PRINT_INFO("  automatically determined "
+-			   "partition size: %lu kB\n", mem_auto);
++		kmsg_info("  automatically determined "
++			  "partition size: %lu kB\n", mem_auto);
+ 		for (i = 0; i < xpram_devs; i++)
+ 			if (xpram_sizes[i] == 0)
+ 				xpram_sizes[i] = mem_auto;
+@@ -412,12 +409,12 @@ static int __init xpram_init(void)
+ 
+ 	/* Find out size of expanded memory. */
+ 	if (xpram_present() != 0) {
+-		PRINT_WARN("No expanded memory available\n");
++		kmsg_err("No expanded memory available\n");
+ 		return -ENODEV;
+ 	}
+ 	xpram_pages = xpram_highest_page_index() + 1;
+-	PRINT_INFO("  %u pages expanded memory found (%lu KB).\n",
+-		   xpram_pages, (unsigned long) xpram_pages*4);
++	kmsg_info("  %u pages expanded memory found (%lu KB).\n",
++		  xpram_pages, (unsigned long) xpram_pages*4);
+ 	rc = xpram_setup_sizes(xpram_pages);
+ 	if (rc)
+ 		return rc;
 
 -- 
 blue skies,
