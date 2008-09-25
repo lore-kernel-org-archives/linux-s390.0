@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756442AbYIYQqa@vger.kernel.org>
-Message-Id: <20080925163019.210654702@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756572AbYIYQqn@vger.kernel.org>
+Message-Id: <20080925163019.750494793@de.ibm.com>
 References: <20080925162827.818261893@de.ibm.com>
-Date: Thu, 25 Sep 2008 18:28:28 +0200
+Date: Thu, 25 Sep 2008 18:28:29 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 1/6] kmsg: tagged kernel messages.
-Content-Disposition: inline; filename=800-kmsg-macros.diff
+Subject: [patch 2/6] kmsg: tagged device messages.
+Content-Disposition: inline; filename=801-kmsg-dev.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -15,132 +15,144 @@ List-ID: <linux-s390.vger.kernel.org>
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 From: Michael Holzheu <holzheu@de.ibm.com>
 
-Introduce a new family of printk macros which prefixes each kmsg message
-with a component name and allows to tag the message with a 24 bit hash of
-the message text. The kmsg component name is defined per source file with
-the KMSG_COMPONENT macro. In order to use the kmsg_xxx macros KMSG_COMPONENT
-has to be defined.
+Add CONFIG_MSG_IDS support to the dev_xxx printk family. The message
+tag for a device printk consists of the driver name and the 24 bit
+hash over the message text. The hash is included in the printed line
+if the KMSG_COMPONENT macro is defined and CONFIG_MSG_IDS=y. For
+source files that do not define KMSG_COMPONENT or CONFIG_MSG_IDS=n
+the dev_xxx printks use the old-style format. 
 
-If the message hash will be printed to the console / syslog at all depends
-on CONFIG_MSG_IDS. If it is "n" then a kmsg_xxx call is just another
-printk wrapper. These macros are intended to be used uniformly in the
-s390 architecture and the s390 device drivers.
+To make it possible for a script to extract the correct message tag
+for the dev_xxx printks the KMSG_COMPONENT and the driver name need to
+be identical for all dev_xxx printks in a source file. If a source file
+is supposed to be converted to use message tags and there are dev_xxx
+printks with driver names different to KMSG_COMPONENT these dev_xxx
+printks need to be replaced with kmsg_xxx printks. In praxis this
+should not be a problem since there are very few dev_xxx printks outside
+of driver code.
+
+In addition to the KMSG_COMPONENT changes in include/linux/device.h the
+dev_xxx macros with variable arguments are converted from the gcc specific
+'## arg' to the C99 variant '##__VA_ARGS__'.
 
 Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/Kconfig    |    9 +++++++++
- include/linux/kmsg.h |   42 ++++++++++++++++++++++++++++++++++++++++++
- kernel/printk.c      |   24 ++++++++++++++++++++++++
- 3 files changed, 75 insertions(+)
+ include/linux/device.h |   57 ++++++++++++++++++++++++++++++-------------------
+ kernel/printk.c        |   22 ++++++++++++++++++
+ 2 files changed, 57 insertions(+), 22 deletions(-)
 
-Index: kmsg-2.6/arch/s390/Kconfig
+Index: kmsg-2.6/include/linux/device.h
 ===================================================================
---- kmsg-2.6.orig/arch/s390/Kconfig
-+++ kmsg-2.6/arch/s390/Kconfig
-@@ -571,6 +571,15 @@ bool "s390 guest support (EXPERIMENTAL)"
- 	select VIRTIO_CONSOLE
- 	help
- 	  Select this option if you want to run the kernel under s390 linux
-+
-+config KMSG_IDS
-+	bool "Kernel message numbers"
-+	default y
-+	help
-+	  Select this option if you want to include a message number to the
-+	  prefix for kernel messages issued by the s390 architecture and
-+	  driver code. See "Documentation/s390/kmsg.txt" for more details.
-+
- endmenu
+--- kmsg-2.6.orig/include/linux/device.h
++++ kmsg-2.6/include/linux/device.h
+@@ -520,39 +520,52 @@ extern void sysdev_shutdown(void);
  
- source "net/Kconfig"
-Index: kmsg-2.6/include/linux/kmsg.h
-===================================================================
---- /dev/null
-+++ kmsg-2.6/include/linux/kmsg.h
-@@ -0,0 +1,42 @@
-+#ifndef _LINUX_KMSG_H
-+#define _LINUX_KMSG_H
-+
-+#define kmsg_printk(level, format, ...) \
-+	printk(level KMSG_COMPONENT  ": " format, ##__VA_ARGS__)
-+
-+#if defined(__KMSG_CHECKER)
+ /* debugging and troubleshooting/diagnostic helpers. */
+ extern const char *dev_driver_string(const struct device *dev);
+-#define dev_printk(level, dev, format, arg...)	\
++#define dev_printk(level, dev, format, ...)	\
+ 	printk(level "%s %s: " format , dev_driver_string(dev) , \
+-	       dev_name(dev) , ## arg)
++	       dev_name(dev) , ##__VA_ARGS__)
+ 
+-#define dev_emerg(dev, format, arg...)		\
+-	dev_printk(KERN_EMERG , dev , format , ## arg)
+-#define dev_alert(dev, format, arg...)		\
+-	dev_printk(KERN_ALERT , dev , format , ## arg)
+-#define dev_crit(dev, format, arg...)		\
+-	dev_printk(KERN_CRIT , dev , format , ## arg)
+-#define dev_err(dev, format, arg...)		\
+-	dev_printk(KERN_ERR , dev , format , ## arg)
+-#define dev_warn(dev, format, arg...)		\
+-	dev_printk(KERN_WARNING , dev , format , ## arg)
+-#define dev_notice(dev, format, arg...)		\
+-	dev_printk(KERN_NOTICE , dev , format , ## arg)
+-#define dev_info(dev, format, arg...)		\
+-	dev_printk(KERN_INFO , dev , format , ## arg)
++/* dev_printk_hash for message documentation */
++#if defined(__KMSG_CHECKER) && defined(KMSG_COMPONENT)
 +/* generate magic string for scripts/kmsg-doc to parse */
-+#define kmsg_printk_hash(level, format, ...) \
-+	__KMSG_PRINT(level _FMT_ format _ARGS_ ##__VA_ARGS__ _END_)
-+#elif defined(CONFIG_KMSG_IDS)
-+int printk_hash(const char *, const char *, ...);
-+#define kmsg_printk_hash(level, format, ...) \
-+	printk_hash(level KMSG_COMPONENT ".%06x" ": ", format, ##__VA_ARGS__)
++#define dev_printk_hash(level, dev, format, ...) \
++	__KMSG_DEV(level _FMT_ format _ARGS_ dev, ##__VA_ARGS__ _END_)
++#elif defined(CONFIG_KMSG_IDS) && defined(KMSG_COMPONENT)
++int printk_dev_hash(const char *, const struct device *, const char *, ...);
++#define dev_printk_hash(level, dev, format, ...) \
++	printk_dev_hash(level "%s.%06x: %s: ", dev, format, ##__VA_ARGS__)
 +#else /* !defined(CONFIG_KMSG_IDS) */
-+#define kmsg_printk_hash kmsg_printk
++#define dev_printk_hash dev_printk
 +#endif
 +
-+#define kmsg_emerg(fmt, ...) \
-+	kmsg_printk_hash(KERN_EMERG, fmt, ##__VA_ARGS__)
-+#define kmsg_alert(fmt, ...) \
-+	kmsg_printk_hash(KERN_ALERT, fmt, ##__VA_ARGS__)
-+#define kmsg_crit(fmt, ...) \
-+	kmsg_printk_hash(KERN_CRIT, fmt, ##__VA_ARGS__)
-+#define kmsg_err(fmt, ...) \
-+	kmsg_printk_hash(KERN_ERR, fmt, ##__VA_ARGS__)
-+#define kmsg_warn(fmt, ...) \
-+	kmsg_printk_hash(KERN_WARNING, fmt, ##__VA_ARGS__)
-+#define kmsg_notice(fmt, ...) \
-+	kmsg_printk_hash(KERN_NOTICE, fmt, ##__VA_ARGS__)
-+#define kmsg_info(fmt, ...) \
-+	kmsg_printk_hash(KERN_INFO, fmt, ##__VA_ARGS__)
-+
-+#ifdef DEBUG
-+#define kmsg_dbg(fmt, ...) \
-+	kmsg_printk(KERN_DEBUG, fmt, ##__VA_ARGS__)
-+#else
-+#define kmsg_dbg(fmt, ...) \
-+	({ if (0) kmsg_printk(KERN_DEBUG, fmt, ##__VA_ARGS__); 0; })
-+#endif
-+
-+#endif /* _LINUX_KMSG_H */
++#define dev_emerg(dev, format, ...)		\
++	dev_printk_hash(KERN_EMERG , dev , format , ##__VA_ARGS__)
++#define dev_alert(dev, format, ...)		\
++	dev_printk_hash(KERN_ALERT , dev , format , ##__VA_ARGS__)
++#define dev_crit(dev, format, ...)		\
++	dev_printk_hash(KERN_CRIT , dev , format , ##__VA_ARGS__)
++#define dev_err(dev, format, ...)		\
++	dev_printk_hash(KERN_ERR , dev , format , ##__VA_ARGS__)
++#define dev_warn(dev, format, ...)		\
++	dev_printk_hash(KERN_WARNING , dev , format , ##__VA_ARGS__)
++#define dev_notice(dev, format, ...)		\
++	dev_printk_hash(KERN_NOTICE , dev , format , ##__VA_ARGS__)
++#define dev_info(dev, format, ...)		\
++	dev_printk_hash(KERN_INFO , dev , format , ##__VA_ARGS__)
+ 
+ #ifdef DEBUG
+-#define dev_dbg(dev, format, arg...)		\
+-	dev_printk(KERN_DEBUG , dev , format , ## arg)
++#define dev_dbg(dev, format, ...)		\
++	dev_printk(KERN_DEBUG , dev , format , ##__VA_ARGS__)
+ #else
+-#define dev_dbg(dev, format, arg...)		\
+-	({ if (0) dev_printk(KERN_DEBUG, dev, format, ##arg); 0; })
++#define dev_dbg(dev, format, ...)		\
++	({ if (0) dev_printk(KERN_DEBUG, dev, format, ##__VA_ARGS__); 0; })
+ #endif
+ 
+ #ifdef VERBOSE_DEBUG
+ #define dev_vdbg	dev_dbg
+ #else
+ 
+-#define dev_vdbg(dev, format, arg...)		\
+-	({ if (0) dev_printk(KERN_DEBUG, dev, format, ##arg); 0; })
++#define dev_vdbg(dev, format, ...)		\
++	({ if (0) dev_printk(KERN_DEBUG, dev, format, ##__VA_ARGS__); 0; })
+ #endif
+ 
+ /* Create alias, so I can be autoloaded. */
 Index: kmsg-2.6/kernel/printk.c
 ===================================================================
 --- kmsg-2.6.orig/kernel/printk.c
 +++ kmsg-2.6/kernel/printk.c
-@@ -32,6 +32,8 @@
- #include <linux/security.h>
- #include <linux/bootmem.h>
- #include <linux/syscalls.h>
-+#include <linux/jhash.h>
-+#include <linux/device.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -1343,3 +1345,25 @@ bool printk_timed_ratelimit(unsigned lon
+@@ -1366,4 +1366,26 @@ asmlinkage int printk_hash(const char *p
+ 	return r;
  }
- EXPORT_SYMBOL(printk_timed_ratelimit);
- #endif
-+
-+#if defined CONFIG_PRINTK && defined CONFIG_KMSG_IDS
+ EXPORT_SYMBOL(printk_hash);
 +
 +/**
-+ * printk_hash - print a kernel message include a hash over the message
++ * printk_dev_hash - print a kernel message include a hash over the message
 + * @prefix: message prefix including the ".%06x" for the hash
++ * @dev: device this printk is all about
 + * @fmt: format string
 + */
-+asmlinkage int printk_hash(const char *prefix, const char *fmt, ...)
++asmlinkage int printk_dev_hash(const char *prefix, const struct device *dev,
++			       const char *fmt, ...)
 +{
 +	va_list args;
 +	int r;
 +
-+	r = printk(prefix, jhash(fmt, strlen(fmt), 0) & 0xffffff);
++	r = printk(prefix, dev_driver_string(dev),
++		   jhash(fmt, strlen(fmt), 0) & 0xffffff, dev_name(dev));
 +	va_start(args, fmt);
 +	r += vprintk(fmt, args);
 +	va_end(args);
 +
 +	return r;
 +}
-+EXPORT_SYMBOL(printk_hash);
-+#endif
++EXPORT_SYMBOL(printk_dev_hash);
+ #endif
 
 -- 
 blue skies,
