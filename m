@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754610AbYJAI6J@vger.kernel.org>
-Message-Id: <20081001083317.782967473@de.ibm.com>
-Date: Wed, 01 Oct 2008 10:33:17 +0200
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755014AbYJAI65@vger.kernel.org>
+Message-Id: <20081001084126.277407752@de.ibm.com>
+References: <20081001083317.782967473@de.ibm.com>
+Date: Wed, 01 Oct 2008 10:33:21 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 00/21] s390 patches for the 2.6.28 merge window
+Subject: [patch 04/21] cio: Update cio_ignore documentation.
+Content-Disposition: inline; filename=103-cio-docu.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Greetings,
-I have the following patches on the features branch of git390
-for the merge window of 2.6.28:
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Christoph Hellwig (1):
-      [S390] s390: use sys_pause for 31bit pause entry point
+Add documentation for the new "purge" cio_ignore parameter.
 
-Cornelia Huck (6):
-      [S390] cio: Update cio_ignore documentation.
-      [S390] cio: Exorcise cio_msg= from documentation.
-      [S390] bus_id -> dev_set_name() changes
-      [S390] more bus_id -> dev_name conversions
-      [S390] Use s390_root_dev_* in kvm_virtio.
-      [S390] bus_id -> dev_set_name() for css and ccw busses
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
 
-Heiko Carstens (2):
-      [S390] nohz: Fix __udelay.
-      [S390] Move private simple udelay function to arch/s390/lib/delay.c.
+ Documentation/s390/CommonIO |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-Hongjie Yang (1):
-      [S390] dcssblk: add >2G DCSSs support and stacked contiguous DCSSs support.
-
-Kay Sievers (1):
-      [S390] bus_id -> dev_name conversions
-
-Klaus-Dieter Wacker (1):
-      [S390] qdio enhanced SIGA (iqdio) support.
-
-Martin Schwidefsky (3):
-      [S390] bus_id ->dev_name() conversions in qdio
-      [S390] ptrace changes
-      [S390] xpram: per device block request queues.
-
-Nigel Hislop (1):
-      [S390] Add ioctl support for EMC Symmetrix Subsystem Control I/O
-
-Peter Oberparleiter (3):
-      [S390] cio: move device unregistration to dedicated work queue
-      [S390] cio: introduce purge function for /proc/cio_ignore
-      [S390] cio: inline assembly cleanup
-
-Stefan Haberland (1):
-      [S390] dasd: fix message flood for unsolicited interrupts
-
-Ursula Braun (1):
-      [S390] qdio: speed up multicast traffic on full HiperSocket queue
-
-Comments are as always welcome.
+Index: quilt-2.6/Documentation/s390/CommonIO
+===================================================================
+--- quilt-2.6.orig/Documentation/s390/CommonIO
++++ quilt-2.6/Documentation/s390/CommonIO
+@@ -70,13 +70,19 @@ Command line parameters
+ 
+   Note: While already known devices can be added to the list of devices to be
+         ignored, there will be no effect on then. However, if such a device
+-	disappears and then reappears, it will then be ignored.
++	disappears and then reappears, it will then be ignored. To make
++	known devices go away, you need the "purge" command (see below).
+ 
+   For example,
+ 	"echo add 0.0.a000-0.0.accc, 0.0.af00-0.0.afff > /proc/cio_ignore"
+   will add 0.0.a000-0.0.accc and 0.0.af00-0.0.afff to the list of ignored
+   devices.
+ 
++  You can remove already known but now ignored devices via
++	"echo purge > /proc/cio_ignore"
++  All devices ignored but still registered and not online (= not in use)
++  will be deregistered and thus removed from the system.
++
+   The devices can be specified either by bus id (0.x.abcd) or, for 2.4 backward
+   compatibility, by the device number in hexadecimal (0xabcd or abcd). Device
+   numbers given as 0xabcd will be interpreted as 0.0.abcd.
 
 -- 
 blue skies,
