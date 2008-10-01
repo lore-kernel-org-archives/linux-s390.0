@@ -1,177 +1,194 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753973AbYJAJAu@vger.kernel.org>
-Message-Id: <20081001084127.267390607@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755152AbYJAJBJ@vger.kernel.org>
+Message-Id: <20081001084130.599948666@de.ibm.com>
 References: <20081001083317.782967473@de.ibm.com>
-Date: Wed, 01 Oct 2008 10:33:25 +0200
+Date: Wed, 01 Oct 2008 10:33:38 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 08/21] more bus_id -> dev_name conversions
-Content-Disposition: inline; filename=107-cio-busid3.diff
+Subject: [patch 21/21] Add ioctl support for EMC Symmetrix Subsystem Control I/O
+Content-Disposition: inline; filename=120-dasd-emc.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Kay Sievers <kay.sievers@vrfy.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Greg Kroah-Hartman <gregkh@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Nigel Hislop <hislop_nigel@emc.com>, Hannes Reinecke <hare@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Nigel Hislop <hislop_nigel@emc.com>
 
-Some further bus_id -> dev_name() conversions in s390 code.
-
-Cc: Kay Sievers <kay.sievers@vrfy.org>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+EMC Symmetrix Subsystem Control I/O through CKD dasd requires a
+specific parameter list sent to the array via a Perform Subsystem
+Function CCW. The Symmetrix response is retrieved from the array
+via a Read Subsystem Data CCW.
+    
+Signed-off-by: Nigel Hislop <hislop_nigel@emc.com>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-
 ---
 
- drivers/s390/char/raw3270.c    |    4 ++--
- drivers/s390/cio/device.c      |    2 +-
- drivers/s390/net/claw.c        |   13 ++++++++-----
- drivers/s390/net/ctcm_main.c   |    4 ++--
- drivers/s390/scsi/zfcp_def.h   |    2 +-
- drivers/s390/scsi/zfcp_erp.c   |    2 +-
- drivers/s390/scsi/zfcp_sysfs.c |    2 +-
- 7 files changed, 16 insertions(+), 13 deletions(-)
+ arch/s390/include/asm/dasd.h   |   13 +++++
+ drivers/s390/block/dasd_eckd.c |   98 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 111 insertions(+)
 
-Index: quilt-2.6/drivers/s390/char/raw3270.c
+Index: quilt-2.6/arch/s390/include/asm/dasd.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/char/raw3270.c
-+++ quilt-2.6/drivers/s390/char/raw3270.c
-@@ -1171,7 +1171,7 @@ static int raw3270_create_attributes(str
- 	rp->clttydev = device_create_drvdata(class3270, &rp->cdev->dev,
- 					     MKDEV(IBM_TTY3270_MAJOR, rp->minor),
- 					     NULL,
--					     "tty%s", rp->cdev->dev.bus_id);
-+					     "tty%s", dev_name(&rp->cdev->dev));
- 	if (IS_ERR(rp->clttydev)) {
- 		rc = PTR_ERR(rp->clttydev);
- 		goto out_ttydev;
-@@ -1180,7 +1180,7 @@ static int raw3270_create_attributes(str
- 	rp->cltubdev = device_create_drvdata(class3270, &rp->cdev->dev,
- 					     MKDEV(IBM_FS3270_MAJOR, rp->minor),
- 					     NULL,
--					     "tub%s", rp->cdev->dev.bus_id);
-+					     "tub%s", dev_name(&rp->cdev->dev));
- 	if (!IS_ERR(rp->cltubdev))
- 		goto out;
+--- quilt-2.6.orig/arch/s390/include/asm/dasd.h
++++ quilt-2.6/arch/s390/include/asm/dasd.h
+@@ -3,6 +3,8 @@
+  * Author(s)......: Holger Smolinski <Holger.Smolinski@de.ibm.com>
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
++ * EMC Symmetrix ioctl Copyright EMC Corporation, 2008
++ * Author.........: Nigel Hislop <hislop_nigel@emc.com>
+  *
+  * This file is the interface of the DASD device driver, which is exported to user space
+  * any future changes wrt the API will result in a change of the APIVERSION reported
+@@ -202,6 +204,16 @@ typedef struct attrib_data_t {
+ #define DASD_SEQ_PRESTAGE  0x4
+ #define DASD_REC_ACCESS    0x5
  
-Index: quilt-2.6/drivers/s390/cio/device.c
++/*
++ * Perform EMC Symmetrix I/O
++ */
++typedef struct dasd_symmio_parms {
++	unsigned char reserved[8];	/* compat with older releases */
++	unsigned long long psf_data;	/* char * cast to u64 */
++	unsigned long long rssd_result; /* char * cast to u64 */
++	int psf_data_len;
++	int rssd_result_len;
++} __attribute__ ((packed)) dasd_symmio_parms_t;
+ 
+ /********************************************************************************
+  * SECTION: Definition of IOCTLs
+@@ -247,6 +259,7 @@ typedef struct attrib_data_t {
+ /* Set Attributes (cache operations) */
+ #define BIODASDSATTR   _IOW(DASD_IOCTL_LETTER,2,attrib_data_t) 
+ 
++#define BIODASDSYMMIO  _IOWR(DASD_IOCTL_LETTER, 240, dasd_symmio_parms_t)
+ 
+ #endif				/* DASD_H */
+ 
+Index: quilt-2.6/drivers/s390/block/dasd_eckd.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device.c
-+++ quilt-2.6/drivers/s390/cio/device.c
-@@ -1526,7 +1526,7 @@ void ccw_device_set_notoper(struct ccw_d
- 	struct subchannel *sch = to_subchannel(cdev->dev.parent);
+--- quilt-2.6.orig/drivers/s390/block/dasd_eckd.c
++++ quilt-2.6/drivers/s390/block/dasd_eckd.c
+@@ -6,6 +6,8 @@
+  *		    Martin Schwidefsky <schwidefsky@de.ibm.com>
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
++ * EMC Symmetrix ioctl Copyright EMC Corporation, 2008
++ * Author.........: Nigel Hislop <hislop_nigel@emc.com>
+  *
+  */
  
- 	CIO_TRACE_EVENT(2, "notoper");
--	CIO_TRACE_EVENT(2, sch->dev.bus_id);
-+	CIO_TRACE_EVENT(2, dev_name(&sch->dev));
- 	ccw_device_set_timeout(cdev, 0);
- 	cio_disable_subchannel(sch);
- 	cdev->private->state = DEV_STATE_NOT_OPER;
-Index: quilt-2.6/drivers/s390/net/claw.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/net/claw.c
-+++ quilt-2.6/drivers/s390/net/claw.c
-@@ -2880,7 +2880,8 @@ claw_new_device(struct ccwgroup_device *
- 	int ret;
- 	struct ccw_dev_id dev_id;
+@@ -2083,6 +2085,100 @@ dasd_eckd_set_attrib(struct dasd_device 
+ 	return 0;
+ }
  
--	printk(KERN_INFO "claw: add for %s\n",cgdev->cdev[READ]->dev.bus_id);
-+	printk(KERN_INFO "claw: add for %s\n",
-+	       dev_name(&cgdev->cdev[READ]->dev));
- 	CLAW_DBF_TEXT(2, setup, "new_dev");
- 	privptr = cgdev->dev.driver_data;
- 	cgdev->cdev[READ]->dev.driver_data = privptr;
-@@ -2904,14 +2905,16 @@ claw_new_device(struct ccwgroup_device *
- 	if (ret != 0) {
- 		printk(KERN_WARNING
- 			"claw: ccw_device_set_online %s READ failed "
--			"with ret = %d\n",cgdev->cdev[READ]->dev.bus_id,ret);
-+		       "with ret = %d\n", dev_name(&cgdev->cdev[READ]->dev),
-+		       ret);
- 		goto out;
++/*
++ * Issue syscall I/O to EMC Symmetrix array.
++ * CCWs are PSF and RSSD
++ */
++static int dasd_symm_io(struct dasd_device *device, void __user *argp)
++{
++	struct dasd_symmio_parms usrparm;
++	char *psf_data, *rssd_result;
++	struct dasd_ccw_req *cqr;
++	struct ccw1 *ccw;
++	int rc;
++
++	/* Copy parms from caller */
++	rc = copy_from_user(&usrparm, argp, sizeof(usrparm)) ? -EFAULT : 0;
++	if (rc)
++		goto out;
++#ifndef CONFIG_64BIT
++	/* Make sure pointers are sane even on 31 bit. */
++	if ((usrparm.psf_data >> 32) != 0 || (usrparm.rssd_result >> 32) != 0) {
++		rc = -EINVAL;
++		goto out;
++	}
++#endif
++	/* alloc I/O data area */
++	psf_data = kzalloc(usrparm.psf_data_len, GFP_KERNEL | GFP_DMA);
++	rssd_result = kzalloc(usrparm.rssd_result_len, GFP_KERNEL | GFP_DMA);
++	if (!psf_data || !rssd_result) {
++		rc = -ENOMEM;
++		goto out_free;
++	}
++
++	/* get syscall header from user space */
++	rc = copy_from_user(psf_data,
++			    (void __user *)(unsigned long) usrparm.psf_data,
++			    usrparm.psf_data_len) ? -EFAULT : 0;
++	if (rc)
++		goto out_free;
++
++	/* sanity check on syscall header */
++	if (psf_data[0] != 0x17 && psf_data[1] != 0xce) {
++		rc = -EINVAL;
++		goto out_free;
++	}
++
++	/* setup CCWs for PSF + RSSD */
++	cqr = dasd_smalloc_request("ECKD", 2 , 0, device);
++	if (IS_ERR(cqr)) {
++		DEV_MESSAGE(KERN_WARNING, device, "%s",
++			"Could not allocate initialization request");
++		rc = PTR_ERR(cqr);
++		goto out_free;
++	}
++
++	cqr->startdev = device;
++	cqr->memdev = device;
++	cqr->retries = 3;
++	cqr->expires = 10 * HZ;
++	cqr->buildclk = get_clock();
++	cqr->status = DASD_CQR_FILLED;
++
++	/* Build the ccws */
++	ccw = cqr->cpaddr;
++
++	/* PSF ccw */
++	ccw->cmd_code = DASD_ECKD_CCW_PSF;
++	ccw->count = usrparm.psf_data_len;
++	ccw->flags |= CCW_FLAG_CC;
++	ccw->cda = (__u32)(addr_t) psf_data;
++
++	ccw++;
++
++	/* RSSD ccw  */
++	ccw->cmd_code = DASD_ECKD_CCW_RSSD;
++	ccw->count = usrparm.rssd_result_len;
++	ccw->flags = CCW_FLAG_SLI ;
++	ccw->cda = (__u32)(addr_t) rssd_result;
++
++	rc = dasd_sleep_on(cqr);
++	if (rc)
++		goto out_sfree;
++
++	rc = copy_to_user((void __user *)(unsigned long) usrparm.rssd_result,
++			   rssd_result, usrparm.rssd_result_len) ? -EFAULT : 0;
++
++out_sfree:
++	dasd_sfree_request(cqr, cqr->memdev);
++out_free:
++	kfree(rssd_result);
++	kfree(psf_data);
++out:
++	DBF_DEV_EVENT(DBF_WARNING, device, "Symmetrix ioctl: rc=%d", rc);
++	return rc;
++}
++
+ static int
+ dasd_eckd_ioctl(struct dasd_block *block, unsigned int cmd, void __user *argp)
+ {
+@@ -2101,6 +2197,8 @@ dasd_eckd_ioctl(struct dasd_block *block
+ 		return dasd_eckd_reserve(device);
+ 	case BIODASDSLCK:
+ 		return dasd_eckd_steal_lock(device);
++	case BIODASDSYMMIO:
++		return dasd_symm_io(device, argp);
+ 	default:
+ 		return -ENOIOCTLCMD;
  	}
- 	ret = ccw_device_set_online(cgdev->cdev[WRITE]);
- 	if (ret != 0) {
- 		printk(KERN_WARNING
- 			"claw: ccw_device_set_online %s WRITE failed "
--			"with ret = %d\n",cgdev->cdev[WRITE]->dev.bus_id, ret);
-+		       "with ret = %d\n", dev_name(&cgdev->cdev[WRITE]->dev)
-+		       ret);
- 		goto out;
- 	}
- 	dev = alloc_netdev(0,"claw%d",claw_init_netdevice);
-@@ -2987,7 +2990,7 @@ claw_shutdown_device(struct ccwgroup_dev
- 	struct net_device *ndev;
- 	int	ret;
- 
--	CLAW_DBF_TEXT_(2, setup, "%s", cgdev->dev.bus_id);
-+	CLAW_DBF_TEXT_(2, setup, "%s", dev_name(&cgdev->dev));
- 	priv = cgdev->dev.driver_data;
- 	if (!priv)
- 		return -ENODEV;
-@@ -3017,7 +3020,7 @@ claw_remove_device(struct ccwgroup_devic
- 	struct claw_privbk *priv;
- 
- 	BUG_ON(!cgdev);
--	CLAW_DBF_TEXT_(2, setup, "%s", cgdev->dev.bus_id);
-+	CLAW_DBF_TEXT_(2, setup, "%s", dev_name(&cgdev->dev));
- 	priv = cgdev->dev.driver_data;
- 	BUG_ON(!priv);
- 	printk(KERN_INFO "claw: %s() called %s will be removed.\n",
-Index: quilt-2.6/drivers/s390/net/ctcm_main.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/net/ctcm_main.c
-+++ quilt-2.6/drivers/s390/net/ctcm_main.c
-@@ -1518,8 +1518,8 @@ static int ctcm_new_device(struct ccwgro
- 
- 	type = get_channel_type(&cdev0->id);
- 
--	snprintf(read_id, CTCM_ID_SIZE, "ch-%s", cdev0->dev.bus_id);
--	snprintf(write_id, CTCM_ID_SIZE, "ch-%s", cdev1->dev.bus_id);
-+	snprintf(read_id, CTCM_ID_SIZE, "ch-%s", dev_name(&cdev0->dev));
-+	snprintf(write_id, CTCM_ID_SIZE, "ch-%s", dev_name(&cdev1->dev));
- 
- 	ret = add_channel(cdev0, type, priv);
- 	if (ret)
-Index: quilt-2.6/drivers/s390/scsi/zfcp_def.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/scsi/zfcp_def.h
-+++ quilt-2.6/drivers/s390/scsi/zfcp_def.h
-@@ -682,7 +682,7 @@ struct zfcp_fsf_req_qtcb {
-            ((atomic_read(target) & mask) == mask)
- #endif
- 
--#define zfcp_get_busid_by_adapter(adapter) (adapter->ccw_device->dev.bus_id)
-+#define zfcp_get_busid_by_adapter(adapter) (dev_name(&adapter->ccw_device->dev))
- #define zfcp_get_busid_by_port(port) (zfcp_get_busid_by_adapter(port->adapter))
- #define zfcp_get_busid_by_unit(unit) (zfcp_get_busid_by_port(unit->port))
- 
-Index: quilt-2.6/drivers/s390/scsi/zfcp_erp.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/scsi/zfcp_erp.c
-+++ quilt-2.6/drivers/s390/scsi/zfcp_erp.c
-@@ -1439,7 +1439,7 @@ static int zfcp_erp_thread(void *data)
- 	struct zfcp_erp_action *act;
- 	unsigned long flags;
- 
--	daemonize("zfcperp%s", adapter->ccw_device->dev.bus_id);
-+	daemonize("zfcperp%s", dev_name(&adapter->ccw_device->dev));
- 	/* Block all signals */
- 	siginitsetinv(&current->blocked, 0);
- 	atomic_set_mask(ZFCP_STATUS_ADAPTER_ERP_THREAD_UP, &adapter->status);
-Index: quilt-2.6/drivers/s390/scsi/zfcp_sysfs.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/scsi/zfcp_sysfs.c
-+++ quilt-2.6/drivers/s390/scsi/zfcp_sysfs.c
-@@ -394,7 +394,7 @@ static ssize_t zfcp_sysfs_scsi_##_name##
- static DEVICE_ATTR(_name, S_IRUGO, zfcp_sysfs_scsi_##_name##_show, NULL);
- 
- ZFCP_DEFINE_SCSI_ATTR(hba_id, "%s\n",
--	unit->port->adapter->ccw_device->dev.bus_id);
-+		      dev_name(&unit->port->adapter->ccw_device->dev));
- ZFCP_DEFINE_SCSI_ATTR(wwpn, "0x%016llx\n", unit->port->wwpn);
- ZFCP_DEFINE_SCSI_ATTR(fcp_lun, "0x%016llx\n", unit->fcp_lun);
- 
 
 -- 
 blue skies,
