@@ -1,519 +1,1224 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755206AbYJAJCQ@vger.kernel.org>
-Message-Id: <20081001084129.042880937@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755705AbYJAJCf@vger.kernel.org>
+Message-Id: <20081001084129.307233986@de.ibm.com>
 References: <20081001083317.782967473@de.ibm.com>
-Date: Wed, 01 Oct 2008 10:33:32 +0200
+Date: Wed, 01 Oct 2008 10:33:33 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 15/21] ptrace changes
-Content-Disposition: inline; filename=114-utrace.diff
+Subject: [patch 16/21] dcssblk: add >2G DCSSs support and stacked contiguous DCSSs support.
+Content-Disposition: inline; filename=115-dcss-64.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Hongjie Yang <hongjie@us.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Hongjie Yang <hongjie@us.ibm.com>
 
-* System call parameter and result access functions
-* Add tracehook calls
-* Split syscall_trace into two functions do_syscall_trace_enter and
-  do_syscall_trace_exit
+The DCSS block device driver is modified to add >2G DCSSs support and
+allow a DCSS block device to map to a set of contiguous DCSSs.  The 
+extmem code is also modified to use new Diagnose x'64' subcodes for
+>2G DCSSs. 
 
+Signed-off-by: Hongjie Yang <hongjie@us.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/Kconfig                   |    1 
- arch/s390/include/asm/ptrace.h      |    1 
- arch/s390/include/asm/syscall.h     |   80 ++++++++++++++++++++++++++++++++++++
- arch/s390/include/asm/thread_info.h |    2 
- arch/s390/kernel/entry.S            |   50 ++++++++++++++++++----
- arch/s390/kernel/entry64.S          |   42 ++++++++++++++----
- arch/s390/kernel/ptrace.c           |   61 ++++++++++++++-------------
- arch/s390/kernel/signal.c           |   13 +++++
- 8 files changed, 202 insertions(+), 48 deletions(-)
+ arch/s390/mm/extmem.c        |  251 +++++++++++++++++---
+ drivers/s390/block/dcssblk.c |  515 ++++++++++++++++++++++++++++++++-----------
+ 2 files changed, 596 insertions(+), 170 deletions(-)
 
-Index: quilt-2.6/arch/s390/include/asm/ptrace.h
+Index: quilt-2.6/arch/s390/mm/extmem.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/ptrace.h
-+++ quilt-2.6/arch/s390/include/asm/ptrace.h
-@@ -490,6 +490,7 @@ extern void user_disable_single_step(str
+--- quilt-2.6.orig/arch/s390/mm/extmem.c
++++ quilt-2.6/arch/s390/mm/extmem.c
+@@ -43,20 +43,40 @@
+ #define DCSS_FINDSEG    0x0c
+ #define DCSS_LOADNOLY   0x10
+ #define DCSS_SEGEXT     0x18
++#define DCSS_LOADSHRX	0x20
++#define DCSS_LOADNSRX	0x24
++#define DCSS_FINDSEGX	0x2c
++#define DCSS_SEGEXTX	0x38
+ #define DCSS_FINDSEGA   0x0c
  
- #define user_mode(regs) (((regs)->psw.mask & PSW_MASK_PSTATE) != 0)
- #define instruction_pointer(regs) ((regs)->psw.addr & PSW_ADDR_INSN)
-+#define user_stack_pointer(regs)((regs)->gprs[15])
- #define regs_return_value(regs)((regs)->gprs[2])
- #define profile_pc(regs) instruction_pointer(regs)
- extern void show_regs(struct pt_regs * regs);
-Index: quilt-2.6/arch/s390/include/asm/syscall.h
-===================================================================
---- /dev/null
-+++ quilt-2.6/arch/s390/include/asm/syscall.h
-@@ -0,0 +1,80 @@
-+/*
-+ * Access to user system call parameters and results
-+ *
-+ *  Copyright IBM Corp. 2008
-+ *  Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License (version 2 only)
-+ * as published by the Free Software Foundation.
-+ */
+ struct qrange {
+-	unsigned int  start; // 3byte start address, 1 byte type
+-	unsigned int  end;   // 3byte end address, 1 byte reserved
++	unsigned long  start; /* last byte type */
++	unsigned long  end;   /* last byte reserved */
+ };
+ 
+ struct qout64 {
++	unsigned long segstart;
++	unsigned long segend;
++	int segcnt;
++	int segrcnt;
++	struct qrange range[6];
++};
 +
-+#ifndef _ASM_SYSCALL_H
-+#define _ASM_SYSCALL_H	1
++#ifdef CONFIG_64BIT
++struct qrange_old {
++	unsigned int start; /* last byte type */
++	unsigned int end;   /* last byte reserved */
++};
 +
-+#include <asm/ptrace.h>
++/* output area format for the Diag x'64' old subcode x'18' */
++struct qout64_old {
+ 	int segstart;
+ 	int segend;
+ 	int segcnt;
+ 	int segrcnt;
+-	struct qrange range[6];
++	struct qrange_old range[6];
+ };
++#endif
+ 
+ struct qin64 {
+ 	char qopcode;
+@@ -86,6 +106,55 @@ static DEFINE_MUTEX(dcss_lock);
+ static LIST_HEAD(dcss_list);
+ static char *segtype_string[] = { "SW", "EW", "SR", "ER", "SN", "EN", "SC",
+ 					"EW/EN-MIXED" };
++static int loadshr_scode, loadnsr_scode, findseg_scode;
++static int segext_scode, purgeseg_scode;
++static int scode_set;
 +
-+static inline long syscall_get_nr(struct task_struct *task,
-+				  struct pt_regs *regs)
++/* set correct Diag x'64' subcodes. */
++static int
++dcss_set_subcodes(void)
 +{
-+	if (regs->trap != __LC_SVC_OLD_PSW)
-+		return -1;
-+	return regs->gprs[2];
-+}
++#ifdef CONFIG_64BIT
++	char *name = kmalloc(8 * sizeof(char), GFP_DMA);
++	unsigned long rx, ry;
++	int rc;
 +
-+static inline void syscall_rollback(struct task_struct *task,
-+				    struct pt_regs *regs)
-+{
-+	regs->gprs[2] = regs->orig_gpr2;
-+}
++	if (name == NULL)
++		return -ENOMEM;
 +
-+static inline long syscall_get_error(struct task_struct *task,
-+				     struct pt_regs *regs)
-+{
-+	return (regs->gprs[2] >= -4096UL) ? -regs->gprs[2] : 0;
-+}
++	rx = (unsigned long) name;
++	ry = DCSS_FINDSEGX;
 +
-+static inline long syscall_get_return_value(struct task_struct *task,
-+					    struct pt_regs *regs)
-+{
-+	return regs->gprs[2];
-+}
++	strcpy(name, "dummy");
++	asm volatile(
++		"	diag	%0,%1,0x64\n"
++		"0:	ipm	%2\n"
++		"	srl	%2,28\n"
++		"	j	2f\n"
++		"1:	la	%2,3\n"
++		"2:\n"
++		EX_TABLE(0b, 1b)
++		: "+d" (rx), "+d" (ry), "=d" (rc) : : "cc");
 +
-+static inline void syscall_set_return_value(struct task_struct *task,
-+					    struct pt_regs *regs,
-+					    int error, long val)
-+{
-+	regs->gprs[2] = error ? -error : val;
-+}
-+
-+static inline void syscall_get_arguments(struct task_struct *task,
-+					 struct pt_regs *regs,
-+					 unsigned int i, unsigned int n,
-+					 unsigned long *args)
-+{
-+	BUG_ON(i + n > 6);
-+#ifdef CONFIG_COMPAT
-+	if (test_tsk_thread_flag(task, TIF_31BIT)) {
-+		if (i + n == 6)
-+			args[--n] = (u32) regs->args[0];
-+		while (n-- > 0)
-+			args[n] = (u32) regs->gprs[2 + i + n];
++	kfree(name);
++	/* Diag x'64' new subcodes are supported, set to new subcodes */
++	if (rc != 3) {
++		loadshr_scode = DCSS_LOADSHRX;
++		loadnsr_scode = DCSS_LOADNSRX;
++		purgeseg_scode = DCSS_PURGESEG;
++		findseg_scode = DCSS_FINDSEGX;
++		segext_scode = DCSS_SEGEXTX;
++		return 0;
 +	}
 +#endif
-+	if (i + n == 6)
-+		args[--n] = regs->args[0];
-+	memcpy(args, &regs->gprs[2 + i], n * sizeof(args[0]));
++	/* Diag x'64' new subcodes are not supported, set to old subcodes */
++	loadshr_scode = DCSS_LOADNOLY;
++	loadnsr_scode = DCSS_LOADNSR;
++	purgeseg_scode = DCSS_PURGESEG;
++	findseg_scode = DCSS_FINDSEG;
++	segext_scode = DCSS_SEGEXT;
++	return 0;
 +}
-+
-+static inline void syscall_set_arguments(struct task_struct *task,
-+					 struct pt_regs *regs,
-+					 unsigned int i, unsigned int n,
-+					 const unsigned long *args)
-+{
-+	BUG_ON(i + n > 6);
-+	if (i + n == 6)
-+		regs->args[0] = args[--n];
-+	memcpy(&regs->gprs[2 + i], args, n * sizeof(args[0]));
-+}
-+
-+#endif	/* _ASM_SYSCALL_H */
-Index: quilt-2.6/arch/s390/include/asm/thread_info.h
-===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/thread_info.h
-+++ quilt-2.6/arch/s390/include/asm/thread_info.h
-@@ -86,6 +86,7 @@ static inline struct thread_info *curren
-  * thread information flags bit numbers
-  */
- #define TIF_SYSCALL_TRACE	0	/* syscall trace active */
-+#define TIF_NOTIFY_RESUME	1	/* callback before returning to user */
- #define TIF_SIGPENDING		2	/* signal pending */
- #define TIF_NEED_RESCHED	3	/* rescheduling necessary */
- #define TIF_RESTART_SVC		4	/* restart svc with new svc number */
-@@ -100,6 +101,7 @@ static inline struct thread_info *curren
- #define TIF_RESTORE_SIGMASK	20	/* restore signal mask in do_signal() */
  
- #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
-+#define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
- #define _TIF_RESTORE_SIGMASK	(1<<TIF_RESTORE_SIGMASK)
- #define _TIF_SIGPENDING		(1<<TIF_SIGPENDING)
- #define _TIF_NEED_RESCHED	(1<<TIF_NEED_RESCHED)
-Index: quilt-2.6/arch/s390/Kconfig
-===================================================================
---- quilt-2.6.orig/arch/s390/Kconfig
-+++ quilt-2.6/arch/s390/Kconfig
-@@ -74,6 +74,7 @@ config S390
- 	select HAVE_KPROBES
- 	select HAVE_KRETPROBES
- 	select HAVE_KVM if 64BIT
-+	select HAVE_ARCH_TRACEHOOK
- 
- source "init/Kconfig"
- 
-Index: quilt-2.6/arch/s390/kernel/entry64.S
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/entry64.S
-+++ quilt-2.6/arch/s390/kernel/entry64.S
-@@ -52,9 +52,9 @@ SP_SIZE      =	STACK_FRAME_OVERHEAD + __
- STACK_SHIFT = PAGE_SHIFT + THREAD_ORDER
- STACK_SIZE  = 1 << STACK_SHIFT
- 
--_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
-+_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_NEED_RESCHED | \
- 		 _TIF_MCCK_PENDING | _TIF_RESTART_SVC | _TIF_SINGLE_STEP )
--_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
-+_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_NEED_RESCHED | \
- 		 _TIF_MCCK_PENDING)
- 
- #define BASED(name) name-system_call(%r13)
-@@ -310,6 +310,8 @@ sysc_work:
- 	jo	sysc_reschedule
- 	tm	__TI_flags+7(%r9),_TIF_SIGPENDING
- 	jnz	sysc_sigpending
-+	tm	__TI_flags+7(%r9),_TIF_NOTIFY_RESUME
-+	jnz	sysc_notify_resume
- 	tm	__TI_flags+7(%r9),_TIF_RESTART_SVC
- 	jo	sysc_restart
- 	tm	__TI_flags+7(%r9),_TIF_SINGLE_STEP
-@@ -345,6 +347,14 @@ sysc_sigpending:
- 	j	sysc_work_loop
- 
- #
-+# _TIF_NOTIFY_RESUME is set, call do_notify_resume
-+#
-+sysc_notify_resume:
-+	la	%r2,SP_PTREGS(%r15)	# load pt_regs
-+	larl	%r14,sysc_work_loop
-+	jg	do_notify_resume	# call do_notify_resume
-+
-+#
- # _TIF_RESTART_SVC is set, set up registers and restart svc
- #
- sysc_restart:
-@@ -367,20 +377,19 @@ sysc_singlestep:
- 	jg	do_single_step		# branch to do_sigtrap
- 
- #
--# call syscall_trace before and after system call
--# special linkage: %r12 contains the return address for trace_svc
-+# call tracehook_report_syscall_entry/tracehook_report_syscall_exit before
-+# and after the system call
- #
- sysc_tracesys:
- 	la	%r2,SP_PTREGS(%r15)	# load pt_regs
- 	la	%r3,0
- 	srl	%r7,2
- 	stg	%r7,SP_R2(%r15)
--	brasl	%r14,syscall_trace
-+	brasl	%r14,do_syscall_trace_enter
- 	lghi	%r0,NR_syscalls
--	clg	%r0,SP_R2(%r15)
-+	clgr	%r0,%r2
- 	jnh	sysc_tracenogo
--	lg	%r7,SP_R2(%r15)		# strace might have changed the
--	sll	%r7,2			# system call
-+	slag	%r7,%r2,2		# *4
- 	lgf	%r8,0(%r7,%r10)
- sysc_tracego:
- 	lmg	%r3,%r6,SP_R3(%r15)
-@@ -391,9 +400,8 @@ sysc_tracenogo:
- 	tm	__TI_flags+7(%r9),(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT)
- 	jz	sysc_return
- 	la	%r2,SP_PTREGS(%r15)	# load pt_regs
--	la	%r3,1
- 	larl	%r14,sysc_return	# return point is sysc_return
--	jg	syscall_trace
-+	jg	do_syscall_trace_exit
- 
- #
- # a new process exits the kernel with ret_from_fork
-@@ -672,6 +680,8 @@ io_work_loop:
- 	jo	io_reschedule
- 	tm	__TI_flags+7(%r9),_TIF_SIGPENDING
- 	jnz	io_sigpending
-+	tm	__TI_flags+7(%r9),_TIF_NOTIFY_RESUME
-+	jnz	io_notify_resume
- 	j	io_restore
- io_work_done:
- 
-@@ -712,6 +722,18 @@ io_sigpending:
- 	TRACE_IRQS_OFF
- 	j	io_work_loop
- 
-+#
-+# _TIF_NOTIFY_RESUME or is set, call do_notify_resume
-+#
-+io_notify_resume:
-+	TRACE_IRQS_ON
-+	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
-+	la	%r2,SP_PTREGS(%r15)	# load pt_regs
-+	brasl	%r14,do_notify_resume	# call do_notify_resume
-+	stnsm	__SF_EMPTY(%r15),0xfc	# disable I/O and ext. interrupts
-+	TRACE_IRQS_OFF
-+	j	io_work_loop
-+
  /*
-  * External interrupt handler routine
+  * Create the 8 bytes, ebcdic VM segment name from
+@@ -135,25 +204,45 @@ segment_by_name (char *name)
+  * Perform a function on a dcss segment.
   */
-Index: quilt-2.6/arch/s390/kernel/entry.S
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/entry.S
-+++ quilt-2.6/arch/s390/kernel/entry.S
-@@ -49,9 +49,9 @@ SP_ILC	     =	STACK_FRAME_OVERHEAD + __P
- SP_TRAP      =	STACK_FRAME_OVERHEAD + __PT_TRAP
- SP_SIZE      =	STACK_FRAME_OVERHEAD + __PT_SIZE
- 
--_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
-+_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_NEED_RESCHED | \
- 		 _TIF_MCCK_PENDING | _TIF_RESTART_SVC | _TIF_SINGLE_STEP )
--_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
-+_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_NEED_RESCHED | \
- 		 _TIF_MCCK_PENDING)
- 
- STACK_SHIFT = PAGE_SHIFT + THREAD_ORDER
-@@ -318,6 +318,8 @@ sysc_work:
- 	bo	BASED(sysc_reschedule)
- 	tm	__TI_flags+3(%r9),_TIF_SIGPENDING
- 	bnz	BASED(sysc_sigpending)
-+	tm	__TI_flags+3(%r9),_TIF_NOTIFY_RESUME
-+	bnz	BASED(sysc_notify_resume)
- 	tm	__TI_flags+3(%r9),_TIF_RESTART_SVC
- 	bo	BASED(sysc_restart)
- 	tm	__TI_flags+3(%r9),_TIF_SINGLE_STEP
-@@ -356,6 +358,16 @@ sysc_sigpending:
- 	b	BASED(sysc_work_loop)
- 
- #
-+# _TIF_NOTIFY_RESUME is set, call do_notify_resume
-+#
-+sysc_notify_resume:
-+	la	%r2,SP_PTREGS(%r15)	# load pt_regs
-+	l	%r1,BASED(.Ldo_notify_resume)
-+	la	%r14,BASED(sysc_work_loop)
-+	br	%r1			# call do_notify_resume
-+
-+
-+#
- # _TIF_RESTART_SVC is set, set up registers and restart svc
- #
- sysc_restart:
-@@ -378,20 +390,21 @@ sysc_singlestep:
- 	br	%r1			# branch to do_single_step
- 
- #
--# call trace before and after sys_call
-+# call tracehook_report_syscall_entry/tracehook_report_syscall_exit before
-+# and after the system call
- #
- sysc_tracesys:
--	l	%r1,BASED(.Ltrace)
-+	l	%r1,BASED(.Ltrace_entry)
- 	la	%r2,SP_PTREGS(%r15)	# load pt_regs
- 	la	%r3,0
- 	srl	%r7,2
- 	st	%r7,SP_R2(%r15)
- 	basr	%r14,%r1
--	clc	SP_R2(4,%r15),BASED(.Lnr_syscalls)
-+	cl	%r2,BASED(.Lnr_syscalls)
- 	bnl	BASED(sysc_tracenogo)
- 	l	%r8,BASED(.Lsysc_table)
--	l	%r7,SP_R2(%r15) 	# strace might have changed the
--	sll	%r7,2			#  system call
-+	lr	%r7,%r2
-+	sll	%r7,2			# *4
- 	l	%r8,0(%r7,%r8)
- sysc_tracego:
- 	lm	%r3,%r6,SP_R3(%r15)
-@@ -401,9 +414,8 @@ sysc_tracego:
- sysc_tracenogo:
- 	tm	__TI_flags+3(%r9),(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT)
- 	bz	BASED(sysc_return)
--	l	%r1,BASED(.Ltrace)
-+	l	%r1,BASED(.Ltrace_exit)
- 	la	%r2,SP_PTREGS(%r15)	# load pt_regs
--	la	%r3,1
- 	la	%r14,BASED(sysc_return)
- 	br	%r1
- 
-@@ -666,6 +678,8 @@ io_work_loop:
- 	bo	BASED(io_reschedule)
- 	tm	__TI_flags+3(%r9),_TIF_SIGPENDING
- 	bnz	BASED(io_sigpending)
-+	tm	__TI_flags+3(%r9),_TIF_NOTIFY_RESUME
-+	bnz	BASED(io_notify_resume)
- 	b	BASED(io_restore)
- io_work_done:
- 
-@@ -704,6 +718,19 @@ io_sigpending:
- 	TRACE_IRQS_OFF
- 	b	BASED(io_work_loop)
- 
-+#
-+# _TIF_SIGPENDING is set, call do_signal
-+#
-+io_notify_resume:
-+	TRACE_IRQS_ON
-+	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
-+	la	%r2,SP_PTREGS(%r15)	# load pt_regs
-+	l	%r1,BASED(.Ldo_notify_resume)
-+	basr	%r14,%r1		# call do_signal
-+	stnsm	__SF_EMPTY(%r15),0xfc	# disable I/O and ext. interrupts
-+	TRACE_IRQS_OFF
-+	b	BASED(io_work_loop)
-+
- /*
-  * External interrupt handler routine
-  */
-@@ -1070,6 +1097,8 @@ cleanup_io_leave_insn:
- .Ldo_IRQ:	.long	do_IRQ
- .Ldo_extint:	.long	do_extint
- .Ldo_signal:	.long	do_signal
-+.Ldo_notify_resume:
-+		.long	do_notify_resume
- .Lhandle_per:	.long	do_single_step
- .Ldo_execve:	.long	do_execve
- .Lexecve_tail:	.long	execve_tail
-@@ -1079,7 +1108,8 @@ cleanup_io_leave_insn:
- .Lpreempt_schedule_irq:
- 		.long	preempt_schedule_irq
- #endif
--.Ltrace:	.long	syscall_trace
-+.Ltrace_entry:	.long	do_syscall_trace_enter
-+.Ltrace_exit:	.long	do_syscall_trace_exit
- .Lschedtail:	.long	schedule_tail
- .Lsysc_table:	.long	sys_call_table
- #ifdef CONFIG_TRACE_IRQFLAGS
-Index: quilt-2.6/arch/s390/kernel/ptrace.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/ptrace.c
-+++ quilt-2.6/arch/s390/kernel/ptrace.c
-@@ -35,6 +35,7 @@
- #include <linux/signal.h>
- #include <linux/elf.h>
- #include <linux/regset.h>
-+#include <linux/tracehook.h>
- 
- #include <asm/segment.h>
- #include <asm/page.h>
-@@ -639,40 +640,44 @@ long compat_arch_ptrace(struct task_stru
- }
- #endif
- 
--asmlinkage void
--syscall_trace(struct pt_regs *regs, int entryexit)
-+asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
+ static inline int
+-dcss_diag (__u8 func, void *parameter,
++dcss_diag(int *func, void *parameter,
+            unsigned long *ret1, unsigned long *ret2)
  {
--	if (unlikely(current->audit_context) && entryexit)
--		audit_syscall_exit(AUDITSC_RESULT(regs->gprs[2]), regs->gprs[2]);
+ 	unsigned long rx, ry;
+ 	int rc;
+ 
++	if (scode_set == 0) {
++		rc = dcss_set_subcodes();
++		if (rc < 0)
++			return rc;
++		scode_set = 1;
++	}
+ 	rx = (unsigned long) parameter;
+-	ry = (unsigned long) func;
+-	asm volatile(
++	ry = (unsigned long) *func;
++
+ #ifdef CONFIG_64BIT
+-		"	sam31\n"
+-		"	diag	%0,%1,0x64\n"
+-		"	sam64\n"
++	/* 64-bit Diag x'64' new subcode, keep in 64-bit addressing mode */
++	if (*func > DCSS_SEGEXT)
++		asm volatile(
++			"	diag	%0,%1,0x64\n"
++			"	ipm	%2\n"
++			"	srl	%2,28\n"
++			: "+d" (rx), "+d" (ry), "=d" (rc) : : "cc");
++	/* 31-bit Diag x'64' old subcode, switch to 31-bit addressing mode */
++	else
++		asm volatile(
++			"	sam31\n"
++			"	diag	%0,%1,0x64\n"
++			"	sam64\n"
++			"	ipm	%2\n"
++			"	srl	%2,28\n"
++			: "+d" (rx), "+d" (ry), "=d" (rc) : : "cc");
+ #else
++	asm volatile(
+ 		"	diag	%0,%1,0x64\n"
+-#endif
+ 		"	ipm	%2\n"
+ 		"	srl	%2,28\n"
+ 		: "+d" (rx), "+d" (ry), "=d" (rc) : : "cc");
++#endif
+ 	*ret1 = rx;
+ 	*ret2 = ry;
+ 	return rc;
+@@ -190,14 +279,45 @@ query_segment_type (struct dcss_segment 
+ 	qin->qoutlen = sizeof(struct qout64);
+ 	memcpy (qin->qname, seg->dcss_name, 8);
+ 
+-	diag_cc = dcss_diag (DCSS_SEGEXT, qin, &dummy, &vmrc);
++	diag_cc = dcss_diag(&segext_scode, qin, &dummy, &vmrc);
+ 
++	if (diag_cc < 0) {
++		rc = diag_cc;
++		goto out_free;
++	}
+ 	if (diag_cc > 1) {
+ 		PRINT_WARN ("segment_type: diag returned error %ld\n", vmrc);
+ 		rc = dcss_diag_translate_rc (vmrc);
+ 		goto out_free;
+ 	}
+ 
++#ifdef CONFIG_64BIT
++	/* Only old format of output area of Diagnose x'64' is supported,
++	   copy data for the new format. */
++	if (segext_scode == DCSS_SEGEXT) {
++		struct qout64_old *qout_old;
++		qout_old = kzalloc(sizeof(struct qout64_old), GFP_DMA);
++		if (qout_old == NULL) {
++			rc = -ENOMEM;
++			goto out_free;
++		}
++		memcpy(qout_old, qout, sizeof(struct qout64_old));
++		qout->segstart = (unsigned long) qout_old->segstart;
++		qout->segend = (unsigned long) qout_old->segend;
++		qout->segcnt = qout_old->segcnt;
++		qout->segrcnt = qout_old->segrcnt;
++
++		if (qout->segcnt > 6)
++			qout->segrcnt = 6;
++		for (i = 0; i < qout->segrcnt; i++) {
++			qout->range[i].start =
++				(unsigned long) qout_old->range[i].start;
++			qout->range[i].end =
++				(unsigned long) qout_old->range[i].end;
++		}
++		kfree(qout_old);
++	}
++#endif
+ 	if (qout->segcnt > 6) {
+ 		rc = -ENOTSUPP;
+ 		goto out_free;
+@@ -269,6 +389,30 @@ segment_type (char* name)
+ }
+ 
+ /*
++ * check if segment collides with other segments that are currently loaded
++ * returns 1 if this is the case, 0 if no collision was found
++ */
++static int
++segment_overlaps_others (struct dcss_segment *seg)
++{
++	struct list_head *l;
++	struct dcss_segment *tmp;
++
++	BUG_ON(!mutex_is_locked(&dcss_lock));
++	list_for_each(l, &dcss_list) {
++		tmp = list_entry(l, struct dcss_segment, list);
++		if ((tmp->start_addr >> 20) > (seg->end >> 20))
++			continue;
++		if ((tmp->end >> 20) < (seg->start_addr >> 20))
++			continue;
++		if (seg == tmp)
++			continue;
++		return 1;
++	}
++	return 0;
++}
++
++/*
+  * real segment loading function, called from segment_load
+  */
+ static int
+@@ -276,7 +420,8 @@ __segment_load (char *name, int do_nonsh
+ {
+ 	struct dcss_segment *seg = kmalloc(sizeof(struct dcss_segment),
+ 			GFP_DMA);
+-	int dcss_command, rc, diag_cc;
++	int rc, diag_cc;
++	unsigned long start_addr, end_addr, dummy;
+ 
+ 	if (seg == NULL) {
+ 		rc = -ENOMEM;
+@@ -287,6 +432,13 @@ __segment_load (char *name, int do_nonsh
+ 	if (rc < 0)
+ 		goto out_free;
+ 
++	if (loadshr_scode == DCSS_LOADSHRX) {
++		if (segment_overlaps_others(seg)) {
++			rc = -EBUSY;
++			goto out_free;
++		}
++	}
++
+ 	rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
+ 
+ 	if (rc)
+@@ -316,20 +468,28 @@ __segment_load (char *name, int do_nonsh
+ 	}
+ 
+ 	if (do_nonshared)
+-		dcss_command = DCSS_LOADNSR;
++		diag_cc = dcss_diag(&loadnsr_scode, seg->dcss_name,
++				&start_addr, &end_addr);
+ 	else
+-		dcss_command = DCSS_LOADNOLY;
 -
--	if (!test_thread_flag(TIF_SYSCALL_TRACE))
+-	diag_cc = dcss_diag(dcss_command, seg->dcss_name,
+-			&seg->start_addr, &seg->end);
++		diag_cc = dcss_diag(&loadshr_scode, seg->dcss_name,
++				&start_addr, &end_addr);
++	if (diag_cc < 0) {
++		dcss_diag(&purgeseg_scode, seg->dcss_name,
++				&dummy, &dummy);
++		rc = diag_cc;
++		goto out_resource;
++	}
+ 	if (diag_cc > 1) {
+ 		PRINT_WARN ("segment_load: could not load segment %s - "
+-				"diag returned error (%ld)\n",name,seg->end);
+-		rc = dcss_diag_translate_rc (seg->end);
+-		dcss_diag(DCSS_PURGESEG, seg->dcss_name,
+-				&seg->start_addr, &seg->end);
++				"diag returned error (%ld)\n",
++				name, end_addr);
++		rc = dcss_diag_translate_rc(end_addr);
++		dcss_diag(&purgeseg_scode, seg->dcss_name,
++				&dummy, &dummy);
+ 		goto out_resource;
+ 	}
++	seg->start_addr = start_addr;
++	seg->end = end_addr;
+ 	seg->do_nonshared = do_nonshared;
+ 	atomic_set(&seg->ref_count, 1);
+ 	list_add(&seg->list, &dcss_list);
+@@ -423,8 +583,8 @@ int
+ segment_modify_shared (char *name, int do_nonshared)
+ {
+ 	struct dcss_segment *seg;
+-	unsigned long dummy;
+-	int dcss_command, rc, diag_cc;
++	unsigned long start_addr, end_addr, dummy;
++	int rc, diag_cc;
+ 
+ 	mutex_lock(&dcss_lock);
+ 	seg = segment_by_name (name);
+@@ -445,38 +605,51 @@ segment_modify_shared (char *name, int d
+ 		goto out_unlock;
+ 	}
+ 	release_resource(seg->res);
+-	if (do_nonshared) {
+-		dcss_command = DCSS_LOADNSR;
++	if (do_nonshared)
+ 		seg->res->flags &= ~IORESOURCE_READONLY;
+-	} else {
+-		dcss_command = DCSS_LOADNOLY;
++	else
+ 		if (seg->vm_segtype == SEG_TYPE_SR ||
+ 		    seg->vm_segtype == SEG_TYPE_ER)
+ 			seg->res->flags |= IORESOURCE_READONLY;
+-	}
++
+ 	if (request_resource(&iomem_resource, seg->res)) {
+ 		PRINT_WARN("segment_modify_shared: could not reload segment %s"
+ 			   " - overlapping resources\n", name);
+ 		rc = -EBUSY;
+ 		kfree(seg->res);
+-		goto out_del;
++		goto out_del_mem;
++	}
++
++	dcss_diag(&purgeseg_scode, seg->dcss_name, &dummy, &dummy);
++	if (do_nonshared)
++		diag_cc = dcss_diag(&loadnsr_scode, seg->dcss_name,
++				&start_addr, &end_addr);
++	else
++		diag_cc = dcss_diag(&loadshr_scode, seg->dcss_name,
++				&start_addr, &end_addr);
++	if (diag_cc < 0) {
++		rc = diag_cc;
++		goto out_del_res;
+ 	}
+-	dcss_diag(DCSS_PURGESEG, seg->dcss_name, &dummy, &dummy);
+-	diag_cc = dcss_diag(dcss_command, seg->dcss_name,
+-			&seg->start_addr, &seg->end);
+ 	if (diag_cc > 1) {
+ 		PRINT_WARN ("segment_modify_shared: could not reload segment %s"
+-				" - diag returned error (%ld)\n",name,seg->end);
+-		rc = dcss_diag_translate_rc (seg->end);
+-		goto out_del;
++				" - diag returned error (%ld)\n",
++				name, end_addr);
++		rc = dcss_diag_translate_rc(end_addr);
++		goto out_del_res;
+ 	}
++	seg->start_addr = start_addr;
++	seg->end = end_addr;
+ 	seg->do_nonshared = do_nonshared;
+ 	rc = 0;
+ 	goto out_unlock;
+- out_del:
++ out_del_res:
++	release_resource(seg->res);
++	kfree(seg->res);
++ out_del_mem:
+ 	vmem_remove_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
+ 	list_del(&seg->list);
+-	dcss_diag(DCSS_PURGESEG, seg->dcss_name, &dummy, &dummy);
++	dcss_diag(&purgeseg_scode, seg->dcss_name, &dummy, &dummy);
+ 	kfree(seg);
+  out_unlock:
+ 	mutex_unlock(&dcss_lock);
+@@ -510,7 +683,7 @@ segment_unload(char *name)
+ 	kfree(seg->res);
+ 	vmem_remove_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
+ 	list_del(&seg->list);
+-	dcss_diag(DCSS_PURGESEG, seg->dcss_name, &dummy, &dummy);
++	dcss_diag(&purgeseg_scode, seg->dcss_name, &dummy, &dummy);
+ 	kfree(seg);
+ out_unlock:
+ 	mutex_unlock(&dcss_lock);
+@@ -545,7 +718,7 @@ segment_save(char *name)
+ 	endpfn = (seg->end) >> PAGE_SHIFT;
+ 	sprintf(cmd1, "DEFSEG %s", name);
+ 	for (i=0; i<seg->segcnt; i++) {
+-		sprintf(cmd1+strlen(cmd1), " %X-%X %s",
++		sprintf(cmd1+strlen(cmd1), " %lX-%lX %s",
+ 			seg->range[i].start >> PAGE_SHIFT,
+ 			seg->range[i].end >> PAGE_SHIFT,
+ 			segtype_string[seg->range[i].start & 0xff]);
+Index: quilt-2.6/drivers/s390/block/dcssblk.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/block/dcssblk.c
++++ quilt-2.6/drivers/s390/block/dcssblk.c
+@@ -31,7 +31,6 @@
+ #define PRINT_WARN(x...)  printk(KERN_WARNING DCSSBLK_NAME " warning: " x)
+ #define PRINT_ERR(x...)	  printk(KERN_ERR DCSSBLK_NAME " error: " x)
+ 
+-
+ static int dcssblk_open(struct inode *inode, struct file *filp);
+ static int dcssblk_release(struct inode *inode, struct file *filp);
+ static int dcssblk_make_request(struct request_queue *q, struct bio *bio);
+@@ -48,6 +47,30 @@ static struct block_device_operations dc
+ 	.direct_access 	= dcssblk_direct_access,
+ };
+ 
++struct dcssblk_dev_info {
++	struct list_head lh;
++	struct device dev;
++	char segment_name[BUS_ID_SIZE];
++	atomic_t use_count;
++	struct gendisk *gd;
++	unsigned long start;
++	unsigned long end;
++	int segment_type;
++	unsigned char save_pending;
++	unsigned char is_shared;
++	struct request_queue *dcssblk_queue;
++	int num_of_segments;
++	struct list_head seg_list;
++};
++
++struct segment_info {
++	struct list_head lh;
++	char segment_name[BUS_ID_SIZE];
++	unsigned long start;
++	unsigned long end;
++	int segment_type;
++};
++
+ static ssize_t dcssblk_add_store(struct device * dev, struct device_attribute *attr, const char * buf,
+ 				  size_t count);
+ static ssize_t dcssblk_remove_store(struct device * dev, struct device_attribute *attr, const char * buf,
+@@ -58,30 +81,20 @@ static ssize_t dcssblk_save_show(struct 
+ static ssize_t dcssblk_shared_store(struct device * dev, struct device_attribute *attr, const char * buf,
+ 				  size_t count);
+ static ssize_t dcssblk_shared_show(struct device *dev, struct device_attribute *attr, char *buf);
++static ssize_t dcssblk_seglist_show(struct device *dev,
++				struct device_attribute *attr,
++				char *buf);
+ 
+ static DEVICE_ATTR(add, S_IWUSR, NULL, dcssblk_add_store);
+ static DEVICE_ATTR(remove, S_IWUSR, NULL, dcssblk_remove_store);
+-static DEVICE_ATTR(save, S_IWUSR | S_IRUGO, dcssblk_save_show,
++static DEVICE_ATTR(save, S_IWUSR | S_IRUSR, dcssblk_save_show,
+ 		   dcssblk_save_store);
+-static DEVICE_ATTR(shared, S_IWUSR | S_IRUGO, dcssblk_shared_show,
++static DEVICE_ATTR(shared, S_IWUSR | S_IRUSR, dcssblk_shared_show,
+ 		   dcssblk_shared_store);
++static DEVICE_ATTR(seglist, S_IRUSR, dcssblk_seglist_show, NULL);
+ 
+ static struct device *dcssblk_root_dev;
+ 
+-struct dcssblk_dev_info {
+-	struct list_head lh;
+-	struct device dev;
+-	char segment_name[BUS_ID_SIZE];
+-	atomic_t use_count;
+-	struct gendisk *gd;
+-	unsigned long start;
+-	unsigned long end;
+-	int segment_type;
+-	unsigned char save_pending;
+-	unsigned char is_shared;
+-	struct request_queue *dcssblk_queue;
+-};
+-
+ static LIST_HEAD(dcssblk_devices);
+ static struct rw_semaphore dcssblk_devices_sem;
+ 
+@@ -91,8 +104,15 @@ static struct rw_semaphore dcssblk_devic
+ static void
+ dcssblk_release_segment(struct device *dev)
+ {
+-	PRINT_DEBUG("segment release fn called for %s\n", dev_name(dev));
+-	kfree(container_of(dev, struct dcssblk_dev_info, dev));
++	struct dcssblk_dev_info *dev_info;
++	struct segment_info *entry, *temp;
++
++	dev_info = container_of(dev, struct dcssblk_dev_info, dev);
++	list_for_each_entry_safe(entry, temp, &dev_info->seg_list, lh) {
++		list_del(&entry->lh);
++		kfree(entry);
++	}
++	kfree(dev_info);
+ 	module_put(THIS_MODULE);
+ }
+ 
+@@ -142,6 +162,169 @@ dcssblk_get_device_by_name(char *name)
+ 	return NULL;
+ }
+ 
++/*
++ * get the struct segment_info from seg_list
++ * for the given name.
++ * down_read(&dcssblk_devices_sem) must be held.
++ */
++static struct segment_info *
++dcssblk_get_segment_by_name(char *name)
++{
++	struct dcssblk_dev_info *dev_info;
++	struct segment_info *entry;
++
++	list_for_each_entry(dev_info, &dcssblk_devices, lh) {
++		list_for_each_entry(entry, &dev_info->seg_list, lh) {
++			if (!strcmp(name, entry->segment_name))
++				return entry;
++		}
++	}
++	return NULL;
++}
++
++/*
++ * get the highest address of the multi-segment block.
++ */
++static unsigned long
++dcssblk_find_highest_addr(struct dcssblk_dev_info *dev_info)
++{
++	unsigned long highest_addr;
++	struct segment_info *entry;
++
++	highest_addr = 0;
++	list_for_each_entry(entry, &dev_info->seg_list, lh) {
++		if (highest_addr < entry->end)
++			highest_addr = entry->end;
++	}
++	return highest_addr;
++}
++
++/*
++ * get the lowest address of the multi-segment block.
++ */
++static unsigned long
++dcssblk_find_lowest_addr(struct dcssblk_dev_info *dev_info)
++{
++	int set_first;
++	unsigned long lowest_addr;
++	struct segment_info *entry;
++
++	set_first = 0;
++	lowest_addr = 0;
++	list_for_each_entry(entry, &dev_info->seg_list, lh) {
++		if (set_first == 0) {
++			lowest_addr = entry->start;
++			set_first = 1;
++		} else {
++			if (lowest_addr > entry->start)
++				lowest_addr = entry->start;
++		}
++	}
++	return lowest_addr;
++}
++
++/*
++ * Check continuity of segments.
++ */
++static int
++dcssblk_is_continuous(struct dcssblk_dev_info *dev_info)
++{
++	int i, j, rc;
++	struct segment_info *sort_list, *entry, temp;
++
++	if (dev_info->num_of_segments <= 1)
++		return 0;
++
++	sort_list = kzalloc(
++			sizeof(struct segment_info) * dev_info->num_of_segments,
++			GFP_KERNEL);
++	if (sort_list == NULL)
++		return -ENOMEM;
++	i = 0;
++	list_for_each_entry(entry, &dev_info->seg_list, lh) {
++		memcpy(&sort_list[i], entry, sizeof(struct segment_info));
++		i++;
++	}
++
++	/* sort segments */
++	for (i = 0; i < dev_info->num_of_segments; i++)
++		for (j = 0; j < dev_info->num_of_segments; j++)
++			if (sort_list[j].start > sort_list[i].start) {
++				memcpy(&temp, &sort_list[i],
++					sizeof(struct segment_info));
++				memcpy(&sort_list[i], &sort_list[j],
++					sizeof(struct segment_info));
++				memcpy(&sort_list[j], &temp,
++					sizeof(struct segment_info));
++			}
++
++	/* check continuity */
++	for (i = 0; i < dev_info->num_of_segments - 1; i++) {
++		if ((sort_list[i].end + 1) != sort_list[i+1].start) {
++			PRINT_ERR("Segment %s is not contiguous with "
++				"segment %s\n",
++				sort_list[i].segment_name,
++				sort_list[i+1].segment_name);
++			rc = -EINVAL;
++			goto out;
++		}
++		/* EN and EW are allowed in a block device */
++		if (sort_list[i].segment_type != sort_list[i+1].segment_type) {
++			if (!(sort_list[i].segment_type & SEGMENT_EXCLUSIVE) ||
++				(sort_list[i].segment_type == SEG_TYPE_ER) ||
++				!(sort_list[i+1].segment_type &
++				SEGMENT_EXCLUSIVE) ||
++				(sort_list[i+1].segment_type == SEG_TYPE_ER)) {
++				PRINT_ERR("Segment %s has different type from "
++					"segment %s\n",
++					sort_list[i].segment_name,
++					sort_list[i+1].segment_name);
++				rc = -EINVAL;
++				goto out;
++			}
++		}
++	}
++	rc = 0;
++out:
++	kfree(sort_list);
++	return rc;
++}
++
++/*
++ * Load a segment
++ */
++static int
++dcssblk_load_segment(char *name, struct segment_info **seg_info)
++{
++	int rc;
++
++	/* already loaded? */
++	down_read(&dcssblk_devices_sem);
++	*seg_info = dcssblk_get_segment_by_name(name);
++	up_read(&dcssblk_devices_sem);
++	if (*seg_info != NULL)
++		return -EEXIST;
++
++	/* get a struct segment_info */
++	*seg_info = kzalloc(sizeof(struct segment_info), GFP_KERNEL);
++	if (*seg_info == NULL)
++		return -ENOMEM;
++
++	strcpy((*seg_info)->segment_name, name);
++
++	/* load the segment */
++	rc = segment_load(name, SEGMENT_SHARED,
++			&(*seg_info)->start, &(*seg_info)->end);
++	if (rc < 0) {
++		segment_warning(rc, (*seg_info)->segment_name);
++		kfree(*seg_info);
++	} else {
++		INIT_LIST_HEAD(&(*seg_info)->lh);
++		(*seg_info)->segment_type = rc;
++	}
++	return rc;
++}
++
+ static void dcssblk_unregister_callback(struct device *dev)
+ {
+ 	device_unregister(dev);
+@@ -165,6 +348,7 @@ static ssize_t
+ dcssblk_shared_store(struct device *dev, struct device_attribute *attr, const char *inbuf, size_t count)
+ {
+ 	struct dcssblk_dev_info *dev_info;
++	struct segment_info *entry, *temp;
+ 	int rc;
+ 
+ 	if ((count > 1) && (inbuf[1] != '\n') && (inbuf[1] != '\0'))
+@@ -172,46 +356,46 @@ dcssblk_shared_store(struct device *dev,
+ 	down_write(&dcssblk_devices_sem);
+ 	dev_info = container_of(dev, struct dcssblk_dev_info, dev);
+ 	if (atomic_read(&dev_info->use_count)) {
+-		PRINT_ERR("share: segment %s is busy!\n",
+-			  dev_info->segment_name);
+ 		rc = -EBUSY;
+ 		goto out;
+ 	}
+ 	if (inbuf[0] == '1') {
+-		// reload segment in shared mode
+-		rc = segment_modify_shared(dev_info->segment_name,
+-					   SEGMENT_SHARED);
+-		if (rc < 0) {
+-			BUG_ON(rc == -EINVAL);
+-			if (rc != -EAGAIN)
+-				goto removeseg;
+-		} else {
+-			dev_info->is_shared = 1;
+-			switch (dev_info->segment_type) {
+-				case SEG_TYPE_SR:
+-				case SEG_TYPE_ER:
+-				case SEG_TYPE_SC:
+-					set_disk_ro(dev_info->gd,1);
++		/* reload segments in shared mode */
++		list_for_each_entry(entry, &dev_info->seg_list, lh) {
++			rc = segment_modify_shared(entry->segment_name,
++						SEGMENT_SHARED);
++			if (rc < 0) {
++				BUG_ON(rc == -EINVAL);
++				if (rc != -EAGAIN)
++					goto removeseg;
+ 			}
+ 		}
++		dev_info->is_shared = 1;
++		switch (dev_info->segment_type) {
++		case SEG_TYPE_SR:
++		case SEG_TYPE_ER:
++		case SEG_TYPE_SC:
++			set_disk_ro(dev_info->gd, 1);
++		}
+ 	} else if (inbuf[0] == '0') {
+-		// reload segment in exclusive mode
++		/* reload segments in exclusive mode */
+ 		if (dev_info->segment_type == SEG_TYPE_SC) {
+ 			PRINT_ERR("Segment type SC (%s) cannot be loaded in "
+-				  "non-shared mode\n", dev_info->segment_name);
++				"non-shared mode\n", dev_info->segment_name);
+ 			rc = -EINVAL;
+ 			goto out;
+ 		}
+-		rc = segment_modify_shared(dev_info->segment_name,
+-					   SEGMENT_EXCLUSIVE);
+-		if (rc < 0) {
+-			BUG_ON(rc == -EINVAL);
+-			if (rc != -EAGAIN)
+-				goto removeseg;
+-		} else {
+-			dev_info->is_shared = 0;
+-			set_disk_ro(dev_info->gd, 0);
++		list_for_each_entry(entry, &dev_info->seg_list, lh) {
++			rc = segment_modify_shared(entry->segment_name,
++						   SEGMENT_EXCLUSIVE);
++			if (rc < 0) {
++				BUG_ON(rc == -EINVAL);
++				if (rc != -EAGAIN)
++					goto removeseg;
++			}
+ 		}
++		dev_info->is_shared = 0;
++		set_disk_ro(dev_info->gd, 0);
+ 	} else {
+ 		rc = -EINVAL;
+ 		goto out;
+@@ -220,8 +404,14 @@ dcssblk_shared_store(struct device *dev,
+ 	goto out;
+ 
+ removeseg:
+-	PRINT_ERR("Could not reload segment %s, removing it now!\n",
+-			dev_info->segment_name);
++	PRINT_ERR("Could not reload segment(s) of the device %s, removing "
++		"segment(s) now!\n",
++		dev_info->segment_name);
++	temp = entry;
++	list_for_each_entry(entry, &dev_info->seg_list, lh) {
++		if (entry != temp)
++			segment_unload(entry->segment_name);
++	}
+ 	list_del(&dev_info->lh);
+ 
+ 	del_gendisk(dev_info->gd);
+@@ -254,6 +444,7 @@ static ssize_t
+ dcssblk_save_store(struct device *dev, struct device_attribute *attr, const char *inbuf, size_t count)
+ {
+ 	struct dcssblk_dev_info *dev_info;
++	struct segment_info *entry;
+ 
+ 	if ((count > 1) && (inbuf[1] != '\n') && (inbuf[1] != '\0'))
+ 		return -EINVAL;
+@@ -263,14 +454,16 @@ dcssblk_save_store(struct device *dev, s
+ 	if (inbuf[0] == '1') {
+ 		if (atomic_read(&dev_info->use_count) == 0) {
+ 			// device is idle => we save immediately
+-			PRINT_INFO("Saving segment %s\n",
++			PRINT_INFO("Saving segment(s) of the device %s\n",
+ 				   dev_info->segment_name);
+-			segment_save(dev_info->segment_name);
++			list_for_each_entry(entry, &dev_info->seg_list, lh) {
++				segment_save(entry->segment_name);
++			}
+ 		}  else {
+ 			// device is busy => we save it when it becomes
+ 			// idle in dcssblk_release
+-			PRINT_INFO("Segment %s is currently busy, it will "
+-				   "be saved when it becomes idle...\n",
++			PRINT_INFO("Device %s is currently busy, segment(s) "
++				   "will be saved when it becomes idle...\n",
+ 				   dev_info->segment_name);
+ 			dev_info->save_pending = 1;
+ 		}
+@@ -279,7 +472,8 @@ dcssblk_save_store(struct device *dev, s
+ 			// device is busy & the user wants to undo his save
+ 			// request
+ 			dev_info->save_pending = 0;
+-			PRINT_INFO("Pending save for segment %s deactivated\n",
++			PRINT_INFO("Pending save for segment(s) of the device "
++					"%s deactivated\n",
+ 					dev_info->segment_name);
+ 		}
+ 	} else {
+@@ -291,66 +485,123 @@ dcssblk_save_store(struct device *dev, s
+ }
+ 
+ /*
++ * device attribute for showing all segments in a device
++ */
++static ssize_t
++dcssblk_seglist_show(struct device *dev, struct device_attribute *attr,
++		char *buf)
++{
++	int i;
++
++	struct dcssblk_dev_info *dev_info;
++	struct segment_info *entry;
++
++	down_read(&dcssblk_devices_sem);
++	dev_info = container_of(dev, struct dcssblk_dev_info, dev);
++	i = 0;
++	buf[0] = '\0';
++	list_for_each_entry(entry, &dev_info->seg_list, lh) {
++		strcpy(&buf[i], entry->segment_name);
++		i += strlen(entry->segment_name);
++		buf[i] = '\n';
++		i++;
++	}
++	up_read(&dcssblk_devices_sem);
++	return i;
++}
++
++/*
+  * device attribute for adding devices
+  */
+ static ssize_t
+ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+ {
+-	int rc, i;
++	int rc, i, j, num_of_segments;
+ 	struct dcssblk_dev_info *dev_info;
++	struct segment_info *seg_info, *temp;
+ 	char *local_buf;
+ 	unsigned long seg_byte_size;
+ 
+ 	dev_info = NULL;
++	seg_info = NULL;
+ 	if (dev != dcssblk_root_dev) {
+ 		rc = -EINVAL;
+ 		goto out_nobuf;
+ 	}
++	if ((count < 1) || (buf[0] == '\0') || (buf[0] == '\n')) {
++		rc = -ENAMETOOLONG;
++		goto out_nobuf;
++	}
++
+ 	local_buf = kmalloc(count + 1, GFP_KERNEL);
+ 	if (local_buf == NULL) {
+ 		rc = -ENOMEM;
+ 		goto out_nobuf;
+ 	}
++
+ 	/*
+ 	 * parse input
+ 	 */
++	num_of_segments = 0;
+ 	for (i = 0; ((buf[i] != '\0') && (buf[i] != '\n') && i < count); i++) {
+-		local_buf[i] = toupper(buf[i]);
++		for (j = i; (buf[j] != ':') &&
++			(buf[j] != '\0') &&
++			(buf[j] != '\n') &&
++			j < count; j++) {
++			local_buf[j-i] = toupper(buf[j]);
++		}
++		local_buf[j-i] = '\0';
++		if (((j - i) == 0) || ((j - i) > 8)) {
++			rc = -ENAMETOOLONG;
++			goto seg_list_del;
++		}
++
++		rc = dcssblk_load_segment(local_buf, &seg_info);
++		if (rc < 0)
++			goto seg_list_del;
++		/*
++		 * get a struct dcssblk_dev_info
++		 */
++		if (num_of_segments == 0) {
++			dev_info = kzalloc(sizeof(struct dcssblk_dev_info),
++					GFP_KERNEL);
++			if (dev_info == NULL) {
++				rc = -ENOMEM;
++				goto out;
++			}
++			strcpy(dev_info->segment_name, local_buf);
++			dev_info->segment_type = seg_info->segment_type;
++			INIT_LIST_HEAD(&dev_info->seg_list);
++		}
++		list_add_tail(&seg_info->lh, &dev_info->seg_list);
++		num_of_segments++;
++		i = j;
++
++		if ((buf[j] == '\0') || (buf[j] == '\n'))
++			break;
+ 	}
+-	local_buf[i] = '\0';
+-	if ((i == 0) || (i > 8)) {
++
++	/* no trailing colon at the end of the input */
++	if ((i > 0) && (buf[i-1] == ':')) {
+ 		rc = -ENAMETOOLONG;
 -		goto out;
--	if (!(current->ptrace & PT_PTRACED))
+-	}
+-	/*
+-	 * already loaded?
+-	 */
+-	down_read(&dcssblk_devices_sem);
+-	dev_info = dcssblk_get_device_by_name(local_buf);
+-	up_read(&dcssblk_devices_sem);
+-	if (dev_info != NULL) {
+-		PRINT_WARN("Segment %s already loaded!\n", local_buf);
+-		rc = -EEXIST;
 -		goto out;
--	ptrace_notify(SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
--				 ? 0x80 : 0));
-+	long ret;
+-	}
+-	/*
+-	 * get a struct dcssblk_dev_info
+-	 */
+-	dev_info = kzalloc(sizeof(struct dcssblk_dev_info), GFP_KERNEL);
+-	if (dev_info == NULL) {
+-		rc = -ENOMEM;
+-		goto out;
++		goto seg_list_del;
+ 	}
++	strlcpy(local_buf, buf, i + 1);
++	dev_info->num_of_segments = num_of_segments;
++	rc = dcssblk_is_continuous(dev_info);
++	if (rc < 0)
++		goto seg_list_del;
+ 
+-	strcpy(dev_info->segment_name, local_buf);
+-	dev_set_name(&dev_info->dev, local_buf);
++	dev_info->start = dcssblk_find_lowest_addr(dev_info);
++	dev_info->end = dcssblk_find_highest_addr(dev_info);
++
++	dev_set_name(&dev_info->dev, dev_info->segment_name);
+ 	dev_info->dev.release = dcssblk_release_segment;
+ 	INIT_LIST_HEAD(&dev_info->lh);
+-
+ 	dev_info->gd = alloc_disk(DCSSBLK_MINORS_PER_DISK);
+ 	if (dev_info->gd == NULL) {
+ 		rc = -ENOMEM;
+-		goto free_dev_info;
++		goto seg_list_del;
+ 	}
+ 	dev_info->gd->major = dcssblk_major;
+ 	dev_info->gd->fops = &dcssblk_devops;
+@@ -360,59 +611,43 @@ dcssblk_add_store(struct device *dev, st
+ 	dev_info->gd->driverfs_dev = &dev_info->dev;
+ 	blk_queue_make_request(dev_info->dcssblk_queue, dcssblk_make_request);
+ 	blk_queue_hardsect_size(dev_info->dcssblk_queue, 4096);
+-	/*
+-	 * load the segment
+-	 */
+-	rc = segment_load(local_buf, SEGMENT_SHARED,
+-				&dev_info->start, &dev_info->end);
+-	if (rc < 0) {
+-		segment_warning(rc, dev_info->segment_name);
+-		goto dealloc_gendisk;
+-	}
++
+ 	seg_byte_size = (dev_info->end - dev_info->start + 1);
+ 	set_capacity(dev_info->gd, seg_byte_size >> 9); // size in sectors
+-	PRINT_INFO("Loaded segment %s, size = %lu Byte, "
++	PRINT_INFO("Loaded segment(s) %s, size = %lu Byte, "
+ 		   "capacity = %lu (512 Byte) sectors\n", local_buf,
+ 		   seg_byte_size, seg_byte_size >> 9);
+ 
+-	dev_info->segment_type = rc;
+ 	dev_info->save_pending = 0;
+ 	dev_info->is_shared = 1;
+ 	dev_info->dev.parent = dcssblk_root_dev;
  
  	/*
--	 * If the debuffer has set an invalid system call number,
--	 * we prepare to skip the system call restart handling.
-+	 * The sysc_tracesys code in entry.S stored the system
-+	 * call number to gprs[2].
+-	 * get minor, add to list
++	 *get minor, add to list
  	 */
--	if (!entryexit && regs->gprs[2] >= NR_syscalls)
-+	ret = regs->gprs[2];
-+	if (test_thread_flag(TIF_SYSCALL_TRACE) &&
-+	    (tracehook_report_syscall_entry(regs) ||
-+	     regs->gprs[2] >= NR_syscalls)) {
-+		/*
-+		 * Tracing decided this syscall should not happen or the
-+		 * debugger stored an invalid system call number. Skip
-+		 * the system call and the system call restart handling.
-+		 */
- 		regs->trap = -1;
-+		ret = -1;
-+	}
- 
--	/*
--	 * this isn't the same as continuing with a signal, but it will do
--	 * for normal use.  strace only continues with a signal if the
--	 * stopping signal is not SIGTRAP.  -brl
--	 */
--	if (current->exit_code) {
--		send_sig(current->exit_code, current, 1);
--		current->exit_code = 0;
+ 	down_write(&dcssblk_devices_sem);
+-	if (dcssblk_get_device_by_name(local_buf)) {
+-		up_write(&dcssblk_devices_sem);
++	if (dcssblk_get_segment_by_name(local_buf)) {
+ 		rc = -EEXIST;
+-		goto unload_seg;
++		goto release_gd;
+ 	}
+ 	rc = dcssblk_assign_free_minor(dev_info);
+-	if (rc) {
+-		up_write(&dcssblk_devices_sem);
+-		PRINT_ERR("No free minor number available! "
+-			  "Unloading segment...\n");
+-		goto unload_seg;
 -	}
-- out:
--	if (unlikely(current->audit_context) && !entryexit)
--		audit_syscall_entry(test_thread_flag(TIF_31BIT)?AUDIT_ARCH_S390:AUDIT_ARCH_S390X,
--				    regs->gprs[2], regs->orig_gpr2, regs->gprs[3],
--				    regs->gprs[4], regs->gprs[5]);
-+	if (unlikely(current->audit_context))
-+		audit_syscall_entry(test_thread_flag(TIF_31BIT) ?
-+					AUDIT_ARCH_S390 : AUDIT_ARCH_S390X,
-+				    regs->gprs[2], regs->orig_gpr2,
-+				    regs->gprs[3], regs->gprs[4],
-+				    regs->gprs[5]);
-+	return ret;
-+}
-+
-+asmlinkage void do_syscall_trace_exit(struct pt_regs *regs)
-+{
-+	if (unlikely(current->audit_context))
-+		audit_syscall_exit(AUDITSC_RESULT(regs->gprs[2]),
-+				   regs->gprs[2]);
-+
-+	if (test_thread_flag(TIF_SYSCALL_TRACE))
-+		tracehook_report_syscall_exit(regs, 0);
- }
++	if (rc)
++		goto release_gd;
+ 	sprintf(dev_info->gd->disk_name, "dcssblk%d",
+ 		dev_info->gd->first_minor);
+ 	list_add_tail(&dev_info->lh, &dcssblk_devices);
  
- /*
-Index: quilt-2.6/arch/s390/kernel/signal.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/signal.c
-+++ quilt-2.6/arch/s390/kernel/signal.c
-@@ -24,6 +24,7 @@
- #include <linux/tty.h>
- #include <linux/personality.h>
- #include <linux/binfmts.h>
-+#include <linux/tracehook.h>
- #include <asm/ucontext.h>
- #include <asm/uaccess.h>
- #include <asm/lowcore.h>
-@@ -507,6 +508,12 @@ void do_signal(struct pt_regs *regs)
- 			 */
- 			if (current->thread.per_info.single_step)
- 				set_thread_flag(TIF_SINGLE_STEP);
+ 	if (!try_module_get(THIS_MODULE)) {
+ 		rc = -ENODEV;
+-		goto list_del;
++		goto dev_list_del;
+ 	}
+ 	/*
+ 	 * register the device
+ 	 */
+ 	rc = device_register(&dev_info->dev);
+ 	if (rc) {
+-		PRINT_ERR("Segment %s could not be registered RC=%d\n",
+-				local_buf, rc);
+ 		module_put(THIS_MODULE);
+-		goto list_del;
++		goto dev_list_del;
+ 	}
+ 	get_device(&dev_info->dev);
+ 	rc = device_create_file(&dev_info->dev, &dev_attr_shared);
+@@ -421,6 +656,9 @@ dcssblk_add_store(struct device *dev, st
+ 	rc = device_create_file(&dev_info->dev, &dev_attr_save);
+ 	if (rc)
+ 		goto unregister_dev;
++	rc = device_create_file(&dev_info->dev, &dev_attr_seglist);
++	if (rc)
++		goto unregister_dev;
+ 
+ 	add_disk(dev_info->gd);
+ 
+@@ -434,7 +672,6 @@ dcssblk_add_store(struct device *dev, st
+ 			set_disk_ro(dev_info->gd,0);
+ 			break;
+ 	}
+-	PRINT_DEBUG("Segment %s loaded successfully\n", local_buf);
+ 	up_write(&dcssblk_devices_sem);
+ 	rc = count;
+ 	goto out;
+@@ -445,20 +682,27 @@ unregister_dev:
+ 	dev_info->gd->queue = NULL;
+ 	put_disk(dev_info->gd);
+ 	device_unregister(&dev_info->dev);
+-	segment_unload(dev_info->segment_name);
++	list_for_each_entry(seg_info, &dev_info->seg_list, lh) {
++		segment_unload(seg_info->segment_name);
++	}
+ 	put_device(&dev_info->dev);
+ 	up_write(&dcssblk_devices_sem);
+ 	goto out;
+-list_del:
++dev_list_del:
+ 	list_del(&dev_info->lh);
+-	up_write(&dcssblk_devices_sem);
+-unload_seg:
+-	segment_unload(local_buf);
+-dealloc_gendisk:
++release_gd:
+ 	blk_cleanup_queue(dev_info->dcssblk_queue);
+ 	dev_info->gd->queue = NULL;
+ 	put_disk(dev_info->gd);
+-free_dev_info:
++	up_write(&dcssblk_devices_sem);
++seg_list_del:
++	if (dev_info == NULL)
++		goto out;
++	list_for_each_entry_safe(seg_info, temp, &dev_info->seg_list, lh) {
++		list_del(&seg_info->lh);
++		segment_unload(seg_info->segment_name);
++		kfree(seg_info);
++	}
+ 	kfree(dev_info);
+ out:
+ 	kfree(local_buf);
+@@ -473,6 +717,7 @@ static ssize_t
+ dcssblk_remove_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+ {
+ 	struct dcssblk_dev_info *dev_info;
++	struct segment_info *entry;
+ 	int rc, i;
+ 	char *local_buf;
+ 
+@@ -499,26 +744,28 @@ dcssblk_remove_store(struct device *dev,
+ 	dev_info = dcssblk_get_device_by_name(local_buf);
+ 	if (dev_info == NULL) {
+ 		up_write(&dcssblk_devices_sem);
+-		PRINT_WARN("Segment %s is not loaded!\n", local_buf);
++		PRINT_WARN("Device %s is not loaded!\n", local_buf);
+ 		rc = -ENODEV;
+ 		goto out_buf;
+ 	}
+ 	if (atomic_read(&dev_info->use_count) != 0) {
+ 		up_write(&dcssblk_devices_sem);
+-		PRINT_WARN("Segment %s is in use!\n", local_buf);
++		PRINT_WARN("Device %s is in use!\n", local_buf);
+ 		rc = -EBUSY;
+ 		goto out_buf;
+ 	}
+-	list_del(&dev_info->lh);
+ 
++	list_del(&dev_info->lh);
+ 	del_gendisk(dev_info->gd);
+ 	blk_cleanup_queue(dev_info->dcssblk_queue);
+ 	dev_info->gd->queue = NULL;
+ 	put_disk(dev_info->gd);
+ 	device_unregister(&dev_info->dev);
+-	segment_unload(dev_info->segment_name);
+-	PRINT_DEBUG("Segment %s unloaded successfully\n",
+-			dev_info->segment_name);
 +
-+			/*
-+			 * Let tracing know that we've done the handler setup.
-+			 */
-+			tracehook_signal_handler(signr, &info, &ka, regs,
-+					 test_thread_flag(TIF_SINGLE_STEP));
++	/* unload all related segments */
++	list_for_each_entry(entry, &dev_info->seg_list, lh)
++		segment_unload(entry->segment_name);
++
+ 	put_device(&dev_info->dev);
+ 	up_write(&dcssblk_devices_sem);
+ 
+@@ -550,6 +797,7 @@ static int
+ dcssblk_release(struct inode *inode, struct file *filp)
+ {
+ 	struct dcssblk_dev_info *dev_info;
++	struct segment_info *entry;
+ 	int rc;
+ 
+ 	dev_info = inode->i_bdev->bd_disk->private_data;
+@@ -560,9 +808,11 @@ dcssblk_release(struct inode *inode, str
+ 	down_write(&dcssblk_devices_sem);
+ 	if (atomic_dec_and_test(&dev_info->use_count)
+ 	    && (dev_info->save_pending)) {
+-		PRINT_INFO("Segment %s became idle and is being saved now\n",
++		PRINT_INFO("Device %s became idle and is being saved now\n",
+ 			    dev_info->segment_name);
+-		segment_save(dev_info->segment_name);
++		list_for_each_entry(entry, &dev_info->seg_list, lh) {
++			segment_save(entry->segment_name);
++		}
+ 		dev_info->save_pending = 0;
+ 	}
+ 	up_write(&dcssblk_devices_sem);
+@@ -602,7 +852,7 @@ dcssblk_make_request(struct request_queu
+ 		case SEG_TYPE_SC:
+ 			/* cannot write to these segments */
+ 			if (bio_data_dir(bio) == WRITE) {
+-				PRINT_WARN("rejecting write to ro segment %s\n",
++				PRINT_WARN("rejecting write to ro device %s\n",
+ 					   dev_name(&dev_info->dev));
+ 				goto fail;
+ 			}
+@@ -658,7 +908,7 @@ static void
+ dcssblk_check_params(void)
+ {
+ 	int rc, i, j, k;
+-	char buf[9];
++	char buf[DCSSBLK_PARM_LEN + 1];
+ 	struct dcssblk_dev_info *dev_info;
+ 
+ 	for (i = 0; (i < DCSSBLK_PARM_LEN) && (dcssblk_segments[i] != '\0');
+@@ -666,15 +916,16 @@ dcssblk_check_params(void)
+ 		for (j = i; (dcssblk_segments[j] != ',')  &&
+ 			    (dcssblk_segments[j] != '\0') &&
+ 			    (dcssblk_segments[j] != '(')  &&
+-			    (j - i) < 8; j++)
++			    (j < DCSSBLK_PARM_LEN); j++)
+ 		{
+ 			buf[j-i] = dcssblk_segments[j];
  		}
- 		return;
- 	}
-@@ -526,3 +533,9 @@ void do_signal(struct pt_regs *regs)
- 		set_thread_flag(TIF_RESTART_SVC);
- 	}
- }
-+
-+void do_notify_resume(struct pt_regs *regs)
-+{
-+	clear_thread_flag(TIF_NOTIFY_RESUME);
-+	tracehook_notify_resume(regs);
-+}
+ 		buf[j-i] = '\0';
+ 		rc = dcssblk_add_store(dcssblk_root_dev, NULL, buf, j-i);
+ 		if ((rc >= 0) && (dcssblk_segments[j] == '(')) {
+-			for (k = 0; buf[k] != '\0'; k++)
++			for (k = 0; (buf[k] != ':') && (buf[k] != '\0'); k++)
+ 				buf[k] = toupper(buf[k]);
++			buf[k] = '\0';
+ 			if (!strncmp(&dcssblk_segments[j], "(local)", 7)) {
+ 				down_read(&dcssblk_devices_sem);
+ 				dev_info = dcssblk_get_device_by_name(buf);
+@@ -741,10 +992,12 @@ module_exit(dcssblk_exit);
+ 
+ module_param_string(segments, dcssblk_segments, DCSSBLK_PARM_LEN, 0444);
+ MODULE_PARM_DESC(segments, "Name of DCSS segment(s) to be loaded, "
+-		 "comma-separated list, each name max. 8 chars.\n"
+-		 "Adding \"(local)\" to segment name equals echoing 0 to "
+-		 "/sys/devices/dcssblk/<segment name>/shared after loading "
+-		 "the segment - \n"
+-		 "e.g. segments=\"mydcss1,mydcss2,mydcss3(local)\"");
++		 "comma-separated list, names in each set separated "
++		 "by commas are separated by colons, each set contains "
++		 "names of contiguous segments and each name max. 8 chars.\n"
++		 "Adding \"(local)\" to the end of each set equals echoing 0 "
++		 "to /sys/devices/dcssblk/<device name>/shared after loading "
++		 "the contiguous segments - \n"
++		 "e.g. segments=\"mydcss1,mydcss2:mydcss3,mydcss4(local)\"");
+ 
+ MODULE_LICENSE("GPL");
 
 -- 
 blue skies,
