@@ -1,131 +1,150 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754885AbYJAI6o@vger.kernel.org>
-Message-Id: <20081001084128.019670987@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754986AbYJAJAc@vger.kernel.org>
+Message-Id: <20081001084126.029527114@de.ibm.com>
 References: <20081001083317.782967473@de.ibm.com>
-Date: Wed, 01 Oct 2008 10:33:28 +0200
+Date: Wed, 01 Oct 2008 10:33:20 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 11/21] bus_id -> dev_set_name() for css and ccw busses
-Content-Disposition: inline; filename=110-cio-busid6.diff
+Subject: [patch 03/21] cio: introduce purge function for /proc/cio_ignore
+Content-Disposition: inline; filename=102-cio-purge.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Greg Kroah-Hartman <gregkh@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Oberparleiter <peter.oberparleiter@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 
-Convert remaining s390 users setting bus_id to dev_set_name()
-or init_name.
+Allow users to remove blacklisted ccw devices by using the
+/proc/cio_ignore interface:
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+  echo purge > /proc/cio_ignore
+
+will remove all devices which are offline and blacklisted.
+
+Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/cio.c    |   13 +++++++++++--
- drivers/s390/cio/cio.h    |    4 ++++
- drivers/s390/cio/device.c |   16 ++++++++++++++--
- 3 files changed, 29 insertions(+), 4 deletions(-)
+ drivers/s390/cio/blacklist.c |   11 +++++++----
+ drivers/s390/cio/device.c    |   40 ++++++++++++++++++++++++++++++++++++++++
+ drivers/s390/cio/device.h    |    1 +
+ 3 files changed, 48 insertions(+), 4 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/cio.c
+Index: quilt-2.6/drivers/s390/cio/blacklist.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cio.c
-+++ quilt-2.6/drivers/s390/cio/cio.c
-@@ -571,8 +571,10 @@ int cio_validate_subchannel(struct subch
+--- quilt-2.6.orig/drivers/s390/cio/blacklist.c
++++ quilt-2.6/drivers/s390/cio/blacklist.c
+@@ -24,6 +24,7 @@
+ #include "cio.h"
+ #include "cio_debug.h"
+ #include "css.h"
++#include "device.h"
+ 
+ /*
+  * "Blacklisting" of certain devices:
+@@ -191,9 +192,9 @@ static int blacklist_parse_parameters(ch
+ 			rc = blacklist_range(ra, from_ssid, to_ssid, from, to,
+ 					     msgtrigger);
+ 			if (rc)
+-				totalrc = 1;
++				totalrc = -EINVAL;
+ 		} else
+-			totalrc = 1;
++			totalrc = -EINVAL;
  	}
- 	mutex_init(&sch->reg_mutex);
- 	/* Set a name for the subchannel */
--	snprintf (sch->dev.bus_id, BUS_ID_SIZE, "0.%x.%04x", schid.ssid,
--		  schid.sch_no);
-+	if (cio_is_console(schid))
-+		sch->dev.init_name = cio_get_console_sch_name(schid);
-+	else
-+		dev_set_name(&sch->dev, "0.%x.%04x", schid.ssid, schid.sch_no);
  
- 	/*
- 	 * The first subchannel that is not-operational (ccode==3)
-@@ -677,6 +679,7 @@ do_IRQ (struct pt_regs *regs)
+ 	return totalrc;
+@@ -240,8 +241,10 @@ static int blacklist_parse_proc_paramete
+ 		rc = blacklist_parse_parameters(buf, free, 0);
+ 	else if (strcmp("add", parm) == 0)
+ 		rc = blacklist_parse_parameters(buf, add, 0);
++	else if (strcmp("purge", parm) == 0)
++		return ccw_purge_blacklisted();
+ 	else
+-		return 1;
++		return -EINVAL;
  
- #ifdef CONFIG_CCW_CONSOLE
- static struct subchannel console_subchannel;
-+static char console_sch_name[10] = "0.x.xxxx";
- static struct io_subchannel_private console_priv;
- static int console_subchannel_in_use;
+ 	css_schedule_reprobe();
  
-@@ -827,6 +830,12 @@ cio_get_console_subchannel(void)
- 	return &console_subchannel;
- }
+@@ -353,7 +356,7 @@ cio_ignore_write(struct file *file, cons
+ 	}
+ 	ret = blacklist_parse_proc_parameters(buf);
+ 	if (ret)
+-		rc = -EINVAL;
++		rc = ret;
+ 	else
+ 		rc = user_len;
  
-+const char *cio_get_console_sch_name(struct subchannel_id schid)
-+{
-+	snprintf(console_sch_name, 10, "0.%x.%04x", schid.ssid, schid.sch_no);
-+	return (const char *)console_sch_name;
-+}
-+
- #endif
- static int
- __disable_subchannel_easy(struct subchannel_id schid, struct schib *schib)
-Index: quilt-2.6/drivers/s390/cio/cio.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cio.h
-+++ quilt-2.6/drivers/s390/cio/cio.h
-@@ -117,11 +117,15 @@ extern int cio_is_console(struct subchan
- extern struct subchannel *cio_get_console_subchannel(void);
- extern spinlock_t * cio_get_console_lock(void);
- extern void *cio_get_console_priv(void);
-+extern const char *cio_get_console_sch_name(struct subchannel_id schid);
-+extern const char *cio_get_console_cdev_name(struct subchannel *sch);
- #else
- #define cio_is_console(schid) 0
- #define cio_get_console_subchannel() NULL
- #define cio_get_console_lock() NULL
- #define cio_get_console_priv() NULL
-+#define cio_get_console_sch_name(schid) NULL
-+#define cio_get_console_cdev_name(sch) NULL
- #endif
- 
- #endif
 Index: quilt-2.6/drivers/s390/cio/device.c
 ===================================================================
 --- quilt-2.6.orig/drivers/s390/cio/device.c
 +++ quilt-2.6/drivers/s390/cio/device.c
-@@ -1035,8 +1035,11 @@ io_subchannel_recog(struct ccw_device *c
- 	init_timer(&priv->timer);
+@@ -31,6 +31,7 @@
+ #include "device.h"
+ #include "ioasm.h"
+ #include "io_sch.h"
++#include "blacklist.h"
  
- 	/* Set an initial name for the device. */
--	snprintf (cdev->dev.bus_id, BUS_ID_SIZE, "0.%x.%04x",
--		  sch->schid.ssid, sch->schib.pmcw.dev);
-+	if (cio_is_console(sch->schid))
-+		cdev->dev.init_name = cio_get_console_cdev_name(sch);
-+	else
-+		dev_set_name(&cdev->dev, "0.%x.%04x",
-+			     sch->schid.ssid, sch->schib.pmcw.dev);
- 
- 	/* Increase counter of devices currently in recognition. */
- 	atomic_inc(&ccw_device_init_count);
-@@ -1625,6 +1628,7 @@ static int io_subchannel_sch_event(struc
- 
- #ifdef CONFIG_CCW_CONSOLE
- static struct ccw_device console_cdev;
-+static char console_cdev_name[10] = "0.x.xxxx";
- static struct ccw_device_private console_private;
- static int console_cdev_in_use;
- 
-@@ -1695,6 +1699,14 @@ ccw_device_probe_console(void)
- 	console_cdev.online = 1;
- 	return &console_cdev;
+ static struct timer_list recovery_timer;
+ static DEFINE_SPINLOCK(recovery_lock);
+@@ -1470,6 +1471,45 @@ static void ccw_device_schedule_recovery
+ 	spin_unlock_irqrestore(&recovery_lock, flags);
  }
-+
-+
-+const char *cio_get_console_cdev_name(struct subchannel *sch)
-+{
-+	snprintf(console_cdev_name, 10, "0.%x.%04x",
-+		 sch->schid.ssid, sch->schib.pmcw.dev);
-+	return (const char *)console_cdev_name;
-+}
- #endif
  
- /*
++static int purge_fn(struct device *dev, void *data)
++{
++	struct ccw_device *cdev = to_ccwdev(dev);
++	struct ccw_device_private *priv = cdev->private;
++	int unreg;
++
++	spin_lock_irq(cdev->ccwlock);
++	unreg = is_blacklisted(priv->dev_id.ssid, priv->dev_id.devno) &&
++		(priv->state == DEV_STATE_OFFLINE);
++	spin_unlock_irq(cdev->ccwlock);
++	if (!unreg)
++		goto out;
++	if (!get_device(&cdev->dev))
++		goto out;
++	CIO_MSG_EVENT(3, "ccw: purging 0.%x.%04x\n", priv->dev_id.ssid,
++		      priv->dev_id.devno);
++	PREPARE_WORK(&cdev->private->kick_work, ccw_device_call_sch_unregister);
++	queue_work(slow_path_wq, &cdev->private->kick_work);
++
++out:
++	/* Abort loop in case of pending signal. */
++	if (signal_pending(current))
++		return -EINTR;
++
++	return 0;
++}
++
++/**
++ * ccw_purge_blacklisted - purge unused, blacklisted devices
++ *
++ * Unregister all ccw devices that are offline and on the blacklist.
++ */
++int ccw_purge_blacklisted(void)
++{
++	CIO_MSG_EVENT(2, "ccw: purging blacklisted devices\n");
++	bus_for_each_dev(&ccw_bus_type, NULL, NULL, purge_fn);
++	return 0;
++}
++
+ static void device_set_disconnected(struct ccw_device *cdev)
+ {
+ 	if (!cdev)
+Index: quilt-2.6/drivers/s390/cio/device.h
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/device.h
++++ quilt-2.6/drivers/s390/cio/device.h
+@@ -86,6 +86,7 @@ int ccw_device_is_orphan(struct ccw_devi
+ int ccw_device_recognition(struct ccw_device *);
+ int ccw_device_online(struct ccw_device *);
+ int ccw_device_offline(struct ccw_device *);
++int ccw_purge_blacklisted(void);
+ 
+ /* Function prototypes for device status and basic sense stuff. */
+ void ccw_device_accumulate_irb(struct ccw_device *, struct irb *);
 
 -- 
 blue skies,
