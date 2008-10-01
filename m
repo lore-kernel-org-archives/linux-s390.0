@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755261AbYJAJBv@vger.kernel.org>
-Message-Id: <20081001084129.857963493@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755206AbYJAJCQ@vger.kernel.org>
+Message-Id: <20081001084129.042880937@de.ibm.com>
 References: <20081001083317.782967473@de.ibm.com>
-Date: Wed, 01 Oct 2008 10:33:35 +0200
+Date: Wed, 01 Oct 2008 10:33:32 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 18/21] Move private simple udelay function to arch/s390/lib/delay.c.
-Content-Disposition: inline; filename=117-udelay-simple.diff
+Subject: [patch 15/21] ptrace changes
+Content-Disposition: inline; filename=114-utrace.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -12,96 +12,508 @@ To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Move cio's private simple udelay function to lib/delay.c and turn it
-into something much more readable. So we have all implementations
-at one place.
+* System call parameter and result access functions
+* Add tracehook calls
+* Split syscall_trace into two functions do_syscall_trace_enter and
+  do_syscall_trace_exit
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/include/asm/delay.h |    1 +
- arch/s390/lib/delay.c         |   13 +++++++++++++
- drivers/s390/cio/cio.c        |   17 ++---------------
- 3 files changed, 16 insertions(+), 15 deletions(-)
+ arch/s390/Kconfig                   |    1 
+ arch/s390/include/asm/ptrace.h      |    1 
+ arch/s390/include/asm/syscall.h     |   80 ++++++++++++++++++++++++++++++++++++
+ arch/s390/include/asm/thread_info.h |    2 
+ arch/s390/kernel/entry.S            |   50 ++++++++++++++++++----
+ arch/s390/kernel/entry64.S          |   42 ++++++++++++++----
+ arch/s390/kernel/ptrace.c           |   61 ++++++++++++++-------------
+ arch/s390/kernel/signal.c           |   13 +++++
+ 8 files changed, 202 insertions(+), 48 deletions(-)
 
-Index: quilt-2.6/arch/s390/include/asm/delay.h
+Index: quilt-2.6/arch/s390/include/asm/ptrace.h
 ===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/delay.h
-+++ quilt-2.6/arch/s390/include/asm/delay.h
-@@ -15,6 +15,7 @@
- #define _S390_DELAY_H
+--- quilt-2.6.orig/arch/s390/include/asm/ptrace.h
++++ quilt-2.6/arch/s390/include/asm/ptrace.h
+@@ -490,6 +490,7 @@ extern void user_disable_single_step(str
  
- extern void __udelay(unsigned long usecs);
-+extern void udelay_simple(unsigned long usecs);
- extern void __delay(unsigned long loops);
- 
- #define udelay(n) __udelay(n)
-Index: quilt-2.6/arch/s390/lib/delay.c
+ #define user_mode(regs) (((regs)->psw.mask & PSW_MASK_PSTATE) != 0)
+ #define instruction_pointer(regs) ((regs)->psw.addr & PSW_ADDR_INSN)
++#define user_stack_pointer(regs)((regs)->gprs[15])
+ #define regs_return_value(regs)((regs)->gprs[2])
+ #define profile_pc(regs) instruction_pointer(regs)
+ extern void show_regs(struct pt_regs * regs);
+Index: quilt-2.6/arch/s390/include/asm/syscall.h
 ===================================================================
---- quilt-2.6.orig/arch/s390/lib/delay.c
-+++ quilt-2.6/arch/s390/lib/delay.c
-@@ -92,3 +92,16 @@ out:
- 	local_irq_restore(flags);
- 	preempt_enable();
- }
-+
+--- /dev/null
++++ quilt-2.6/arch/s390/include/asm/syscall.h
+@@ -0,0 +1,80 @@
 +/*
-+ * Simple udelay variant. To be used on startup and reboot
-+ * when the interrupt handler isn't working.
++ * Access to user system call parameters and results
++ *
++ *  Copyright IBM Corp. 2008
++ *  Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License (version 2 only)
++ * as published by the Free Software Foundation.
 + */
-+void udelay_simple(unsigned long usecs)
-+{
-+	u64 end;
 +
-+	end = get_clock() + ((u64) usecs << 12);
-+	while (get_clock() < end)
-+		cpu_relax();
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H	1
++
++#include <asm/ptrace.h>
++
++static inline long syscall_get_nr(struct task_struct *task,
++				  struct pt_regs *regs)
++{
++	if (regs->trap != __LC_SVC_OLD_PSW)
++		return -1;
++	return regs->gprs[2];
 +}
-Index: quilt-2.6/drivers/s390/cio/cio.c
++
++static inline void syscall_rollback(struct task_struct *task,
++				    struct pt_regs *regs)
++{
++	regs->gprs[2] = regs->orig_gpr2;
++}
++
++static inline long syscall_get_error(struct task_struct *task,
++				     struct pt_regs *regs)
++{
++	return (regs->gprs[2] >= -4096UL) ? -regs->gprs[2] : 0;
++}
++
++static inline long syscall_get_return_value(struct task_struct *task,
++					    struct pt_regs *regs)
++{
++	return regs->gprs[2];
++}
++
++static inline void syscall_set_return_value(struct task_struct *task,
++					    struct pt_regs *regs,
++					    int error, long val)
++{
++	regs->gprs[2] = error ? -error : val;
++}
++
++static inline void syscall_get_arguments(struct task_struct *task,
++					 struct pt_regs *regs,
++					 unsigned int i, unsigned int n,
++					 unsigned long *args)
++{
++	BUG_ON(i + n > 6);
++#ifdef CONFIG_COMPAT
++	if (test_tsk_thread_flag(task, TIF_31BIT)) {
++		if (i + n == 6)
++			args[--n] = (u32) regs->args[0];
++		while (n-- > 0)
++			args[n] = (u32) regs->gprs[2 + i + n];
++	}
++#endif
++	if (i + n == 6)
++		args[--n] = regs->args[0];
++	memcpy(args, &regs->gprs[2 + i], n * sizeof(args[0]));
++}
++
++static inline void syscall_set_arguments(struct task_struct *task,
++					 struct pt_regs *regs,
++					 unsigned int i, unsigned int n,
++					 const unsigned long *args)
++{
++	BUG_ON(i + n > 6);
++	if (i + n == 6)
++		regs->args[0] = args[--n];
++	memcpy(&regs->gprs[2 + i], args, n * sizeof(args[0]));
++}
++
++#endif	/* _ASM_SYSCALL_H */
+Index: quilt-2.6/arch/s390/include/asm/thread_info.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cio.c
-+++ quilt-2.6/drivers/s390/cio/cio.c
-@@ -855,19 +855,6 @@ __disable_subchannel_easy(struct subchan
- 	return -EBUSY; /* uhm... */
+--- quilt-2.6.orig/arch/s390/include/asm/thread_info.h
++++ quilt-2.6/arch/s390/include/asm/thread_info.h
+@@ -86,6 +86,7 @@ static inline struct thread_info *curren
+  * thread information flags bit numbers
+  */
+ #define TIF_SYSCALL_TRACE	0	/* syscall trace active */
++#define TIF_NOTIFY_RESUME	1	/* callback before returning to user */
+ #define TIF_SIGPENDING		2	/* signal pending */
+ #define TIF_NEED_RESCHED	3	/* rescheduling necessary */
+ #define TIF_RESTART_SVC		4	/* restart svc with new svc number */
+@@ -100,6 +101,7 @@ static inline struct thread_info *curren
+ #define TIF_RESTORE_SIGMASK	20	/* restore signal mask in do_signal() */
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
++#define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
+ #define _TIF_RESTORE_SIGMASK	(1<<TIF_RESTORE_SIGMASK)
+ #define _TIF_SIGPENDING		(1<<TIF_SIGPENDING)
+ #define _TIF_NEED_RESCHED	(1<<TIF_NEED_RESCHED)
+Index: quilt-2.6/arch/s390/Kconfig
+===================================================================
+--- quilt-2.6.orig/arch/s390/Kconfig
++++ quilt-2.6/arch/s390/Kconfig
+@@ -74,6 +74,7 @@ config S390
+ 	select HAVE_KPROBES
+ 	select HAVE_KRETPROBES
+ 	select HAVE_KVM if 64BIT
++	select HAVE_ARCH_TRACEHOOK
+ 
+ source "init/Kconfig"
+ 
+Index: quilt-2.6/arch/s390/kernel/entry64.S
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/entry64.S
++++ quilt-2.6/arch/s390/kernel/entry64.S
+@@ -52,9 +52,9 @@ SP_SIZE      =	STACK_FRAME_OVERHEAD + __
+ STACK_SHIFT = PAGE_SHIFT + THREAD_ORDER
+ STACK_SIZE  = 1 << STACK_SHIFT
+ 
+-_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
++_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_NEED_RESCHED | \
+ 		 _TIF_MCCK_PENDING | _TIF_RESTART_SVC | _TIF_SINGLE_STEP )
+-_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
++_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_NEED_RESCHED | \
+ 		 _TIF_MCCK_PENDING)
+ 
+ #define BASED(name) name-system_call(%r13)
+@@ -310,6 +310,8 @@ sysc_work:
+ 	jo	sysc_reschedule
+ 	tm	__TI_flags+7(%r9),_TIF_SIGPENDING
+ 	jnz	sysc_sigpending
++	tm	__TI_flags+7(%r9),_TIF_NOTIFY_RESUME
++	jnz	sysc_notify_resume
+ 	tm	__TI_flags+7(%r9),_TIF_RESTART_SVC
+ 	jo	sysc_restart
+ 	tm	__TI_flags+7(%r9),_TIF_SINGLE_STEP
+@@ -345,6 +347,14 @@ sysc_sigpending:
+ 	j	sysc_work_loop
+ 
+ #
++# _TIF_NOTIFY_RESUME is set, call do_notify_resume
++#
++sysc_notify_resume:
++	la	%r2,SP_PTREGS(%r15)	# load pt_regs
++	larl	%r14,sysc_work_loop
++	jg	do_notify_resume	# call do_notify_resume
++
++#
+ # _TIF_RESTART_SVC is set, set up registers and restart svc
+ #
+ sysc_restart:
+@@ -367,20 +377,19 @@ sysc_singlestep:
+ 	jg	do_single_step		# branch to do_sigtrap
+ 
+ #
+-# call syscall_trace before and after system call
+-# special linkage: %r12 contains the return address for trace_svc
++# call tracehook_report_syscall_entry/tracehook_report_syscall_exit before
++# and after the system call
+ #
+ sysc_tracesys:
+ 	la	%r2,SP_PTREGS(%r15)	# load pt_regs
+ 	la	%r3,0
+ 	srl	%r7,2
+ 	stg	%r7,SP_R2(%r15)
+-	brasl	%r14,syscall_trace
++	brasl	%r14,do_syscall_trace_enter
+ 	lghi	%r0,NR_syscalls
+-	clg	%r0,SP_R2(%r15)
++	clgr	%r0,%r2
+ 	jnh	sysc_tracenogo
+-	lg	%r7,SP_R2(%r15)		# strace might have changed the
+-	sll	%r7,2			# system call
++	slag	%r7,%r2,2		# *4
+ 	lgf	%r8,0(%r7,%r10)
+ sysc_tracego:
+ 	lmg	%r3,%r6,SP_R3(%r15)
+@@ -391,9 +400,8 @@ sysc_tracenogo:
+ 	tm	__TI_flags+7(%r9),(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT)
+ 	jz	sysc_return
+ 	la	%r2,SP_PTREGS(%r15)	# load pt_regs
+-	la	%r3,1
+ 	larl	%r14,sysc_return	# return point is sysc_return
+-	jg	syscall_trace
++	jg	do_syscall_trace_exit
+ 
+ #
+ # a new process exits the kernel with ret_from_fork
+@@ -672,6 +680,8 @@ io_work_loop:
+ 	jo	io_reschedule
+ 	tm	__TI_flags+7(%r9),_TIF_SIGPENDING
+ 	jnz	io_sigpending
++	tm	__TI_flags+7(%r9),_TIF_NOTIFY_RESUME
++	jnz	io_notify_resume
+ 	j	io_restore
+ io_work_done:
+ 
+@@ -712,6 +722,18 @@ io_sigpending:
+ 	TRACE_IRQS_OFF
+ 	j	io_work_loop
+ 
++#
++# _TIF_NOTIFY_RESUME or is set, call do_notify_resume
++#
++io_notify_resume:
++	TRACE_IRQS_ON
++	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
++	la	%r2,SP_PTREGS(%r15)	# load pt_regs
++	brasl	%r14,do_notify_resume	# call do_notify_resume
++	stnsm	__SF_EMPTY(%r15),0xfc	# disable I/O and ext. interrupts
++	TRACE_IRQS_OFF
++	j	io_work_loop
++
+ /*
+  * External interrupt handler routine
+  */
+Index: quilt-2.6/arch/s390/kernel/entry.S
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/entry.S
++++ quilt-2.6/arch/s390/kernel/entry.S
+@@ -49,9 +49,9 @@ SP_ILC	     =	STACK_FRAME_OVERHEAD + __P
+ SP_TRAP      =	STACK_FRAME_OVERHEAD + __PT_TRAP
+ SP_SIZE      =	STACK_FRAME_OVERHEAD + __PT_SIZE
+ 
+-_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
++_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_NEED_RESCHED | \
+ 		 _TIF_MCCK_PENDING | _TIF_RESTART_SVC | _TIF_SINGLE_STEP )
+-_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
++_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_NEED_RESCHED | \
+ 		 _TIF_MCCK_PENDING)
+ 
+ STACK_SHIFT = PAGE_SHIFT + THREAD_ORDER
+@@ -318,6 +318,8 @@ sysc_work:
+ 	bo	BASED(sysc_reschedule)
+ 	tm	__TI_flags+3(%r9),_TIF_SIGPENDING
+ 	bnz	BASED(sysc_sigpending)
++	tm	__TI_flags+3(%r9),_TIF_NOTIFY_RESUME
++	bnz	BASED(sysc_notify_resume)
+ 	tm	__TI_flags+3(%r9),_TIF_RESTART_SVC
+ 	bo	BASED(sysc_restart)
+ 	tm	__TI_flags+3(%r9),_TIF_SINGLE_STEP
+@@ -356,6 +358,16 @@ sysc_sigpending:
+ 	b	BASED(sysc_work_loop)
+ 
+ #
++# _TIF_NOTIFY_RESUME is set, call do_notify_resume
++#
++sysc_notify_resume:
++	la	%r2,SP_PTREGS(%r15)	# load pt_regs
++	l	%r1,BASED(.Ldo_notify_resume)
++	la	%r14,BASED(sysc_work_loop)
++	br	%r1			# call do_notify_resume
++
++
++#
+ # _TIF_RESTART_SVC is set, set up registers and restart svc
+ #
+ sysc_restart:
+@@ -378,20 +390,21 @@ sysc_singlestep:
+ 	br	%r1			# branch to do_single_step
+ 
+ #
+-# call trace before and after sys_call
++# call tracehook_report_syscall_entry/tracehook_report_syscall_exit before
++# and after the system call
+ #
+ sysc_tracesys:
+-	l	%r1,BASED(.Ltrace)
++	l	%r1,BASED(.Ltrace_entry)
+ 	la	%r2,SP_PTREGS(%r15)	# load pt_regs
+ 	la	%r3,0
+ 	srl	%r7,2
+ 	st	%r7,SP_R2(%r15)
+ 	basr	%r14,%r1
+-	clc	SP_R2(4,%r15),BASED(.Lnr_syscalls)
++	cl	%r2,BASED(.Lnr_syscalls)
+ 	bnl	BASED(sysc_tracenogo)
+ 	l	%r8,BASED(.Lsysc_table)
+-	l	%r7,SP_R2(%r15) 	# strace might have changed the
+-	sll	%r7,2			#  system call
++	lr	%r7,%r2
++	sll	%r7,2			# *4
+ 	l	%r8,0(%r7,%r8)
+ sysc_tracego:
+ 	lm	%r3,%r6,SP_R3(%r15)
+@@ -401,9 +414,8 @@ sysc_tracego:
+ sysc_tracenogo:
+ 	tm	__TI_flags+3(%r9),(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT)
+ 	bz	BASED(sysc_return)
+-	l	%r1,BASED(.Ltrace)
++	l	%r1,BASED(.Ltrace_exit)
+ 	la	%r2,SP_PTREGS(%r15)	# load pt_regs
+-	la	%r3,1
+ 	la	%r14,BASED(sysc_return)
+ 	br	%r1
+ 
+@@ -666,6 +678,8 @@ io_work_loop:
+ 	bo	BASED(io_reschedule)
+ 	tm	__TI_flags+3(%r9),_TIF_SIGPENDING
+ 	bnz	BASED(io_sigpending)
++	tm	__TI_flags+3(%r9),_TIF_NOTIFY_RESUME
++	bnz	BASED(io_notify_resume)
+ 	b	BASED(io_restore)
+ io_work_done:
+ 
+@@ -704,6 +718,19 @@ io_sigpending:
+ 	TRACE_IRQS_OFF
+ 	b	BASED(io_work_loop)
+ 
++#
++# _TIF_SIGPENDING is set, call do_signal
++#
++io_notify_resume:
++	TRACE_IRQS_ON
++	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
++	la	%r2,SP_PTREGS(%r15)	# load pt_regs
++	l	%r1,BASED(.Ldo_notify_resume)
++	basr	%r14,%r1		# call do_signal
++	stnsm	__SF_EMPTY(%r15),0xfc	# disable I/O and ext. interrupts
++	TRACE_IRQS_OFF
++	b	BASED(io_work_loop)
++
+ /*
+  * External interrupt handler routine
+  */
+@@ -1070,6 +1097,8 @@ cleanup_io_leave_insn:
+ .Ldo_IRQ:	.long	do_IRQ
+ .Ldo_extint:	.long	do_extint
+ .Ldo_signal:	.long	do_signal
++.Ldo_notify_resume:
++		.long	do_notify_resume
+ .Lhandle_per:	.long	do_single_step
+ .Ldo_execve:	.long	do_execve
+ .Lexecve_tail:	.long	execve_tail
+@@ -1079,7 +1108,8 @@ cleanup_io_leave_insn:
+ .Lpreempt_schedule_irq:
+ 		.long	preempt_schedule_irq
+ #endif
+-.Ltrace:	.long	syscall_trace
++.Ltrace_entry:	.long	do_syscall_trace_enter
++.Ltrace_exit:	.long	do_syscall_trace_exit
+ .Lschedtail:	.long	schedule_tail
+ .Lsysc_table:	.long	sys_call_table
+ #ifdef CONFIG_TRACE_IRQFLAGS
+Index: quilt-2.6/arch/s390/kernel/ptrace.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/ptrace.c
++++ quilt-2.6/arch/s390/kernel/ptrace.c
+@@ -35,6 +35,7 @@
+ #include <linux/signal.h>
+ #include <linux/elf.h>
+ #include <linux/regset.h>
++#include <linux/tracehook.h>
+ 
+ #include <asm/segment.h>
+ #include <asm/page.h>
+@@ -639,40 +640,44 @@ long compat_arch_ptrace(struct task_stru
+ }
+ #endif
+ 
+-asmlinkage void
+-syscall_trace(struct pt_regs *regs, int entryexit)
++asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
+ {
+-	if (unlikely(current->audit_context) && entryexit)
+-		audit_syscall_exit(AUDITSC_RESULT(regs->gprs[2]), regs->gprs[2]);
+-
+-	if (!test_thread_flag(TIF_SYSCALL_TRACE))
+-		goto out;
+-	if (!(current->ptrace & PT_PTRACED))
+-		goto out;
+-	ptrace_notify(SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
+-				 ? 0x80 : 0));
++	long ret;
+ 
+ 	/*
+-	 * If the debuffer has set an invalid system call number,
+-	 * we prepare to skip the system call restart handling.
++	 * The sysc_tracesys code in entry.S stored the system
++	 * call number to gprs[2].
+ 	 */
+-	if (!entryexit && regs->gprs[2] >= NR_syscalls)
++	ret = regs->gprs[2];
++	if (test_thread_flag(TIF_SYSCALL_TRACE) &&
++	    (tracehook_report_syscall_entry(regs) ||
++	     regs->gprs[2] >= NR_syscalls)) {
++		/*
++		 * Tracing decided this syscall should not happen or the
++		 * debugger stored an invalid system call number. Skip
++		 * the system call and the system call restart handling.
++		 */
+ 		regs->trap = -1;
++		ret = -1;
++	}
+ 
+-	/*
+-	 * this isn't the same as continuing with a signal, but it will do
+-	 * for normal use.  strace only continues with a signal if the
+-	 * stopping signal is not SIGTRAP.  -brl
+-	 */
+-	if (current->exit_code) {
+-		send_sig(current->exit_code, current, 1);
+-		current->exit_code = 0;
+-	}
+- out:
+-	if (unlikely(current->audit_context) && !entryexit)
+-		audit_syscall_entry(test_thread_flag(TIF_31BIT)?AUDIT_ARCH_S390:AUDIT_ARCH_S390X,
+-				    regs->gprs[2], regs->orig_gpr2, regs->gprs[3],
+-				    regs->gprs[4], regs->gprs[5]);
++	if (unlikely(current->audit_context))
++		audit_syscall_entry(test_thread_flag(TIF_31BIT) ?
++					AUDIT_ARCH_S390 : AUDIT_ARCH_S390X,
++				    regs->gprs[2], regs->orig_gpr2,
++				    regs->gprs[3], regs->gprs[4],
++				    regs->gprs[5]);
++	return ret;
++}
++
++asmlinkage void do_syscall_trace_exit(struct pt_regs *regs)
++{
++	if (unlikely(current->audit_context))
++		audit_syscall_exit(AUDITSC_RESULT(regs->gprs[2]),
++				   regs->gprs[2]);
++
++	if (test_thread_flag(TIF_SYSCALL_TRACE))
++		tracehook_report_syscall_exit(regs, 0);
  }
  
--/* we can't use the normal udelay here, since it enables external interrupts */
--
--static void udelay_reset(unsigned long usecs)
--{
--	uint64_t start_cc, end_cc;
--
--	asm volatile ("STCK %0" : "=m" (start_cc));
--	do {
--		cpu_relax();
--		asm volatile ("STCK %0" : "=m" (end_cc));
--	} while (((end_cc - start_cc)/4096) < usecs);
--}
--
- static int
- __clear_io_subchannel_easy(struct subchannel_id schid)
- {
-@@ -883,7 +870,7 @@ __clear_io_subchannel_easy(struct subcha
- 			if (schid_equal(&ti.schid, &schid))
- 				return 0;
+ /*
+Index: quilt-2.6/arch/s390/kernel/signal.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/signal.c
++++ quilt-2.6/arch/s390/kernel/signal.c
+@@ -24,6 +24,7 @@
+ #include <linux/tty.h>
+ #include <linux/personality.h>
+ #include <linux/binfmts.h>
++#include <linux/tracehook.h>
+ #include <asm/ucontext.h>
+ #include <asm/uaccess.h>
+ #include <asm/lowcore.h>
+@@ -507,6 +508,12 @@ void do_signal(struct pt_regs *regs)
+ 			 */
+ 			if (current->thread.per_info.single_step)
+ 				set_thread_flag(TIF_SINGLE_STEP);
++
++			/*
++			 * Let tracing know that we've done the handler setup.
++			 */
++			tracehook_signal_handler(signr, &info, &ka, regs,
++					 test_thread_flag(TIF_SINGLE_STEP));
  		}
--		udelay_reset(100);
-+		udelay_simple(100);
+ 		return;
  	}
- 	return -EBUSY;
+@@ -526,3 +533,9 @@ void do_signal(struct pt_regs *regs)
+ 		set_thread_flag(TIF_RESTART_SVC);
+ 	}
  }
-@@ -891,7 +878,7 @@ __clear_io_subchannel_easy(struct subcha
- static void __clear_chsc_subchannel_easy(void)
- {
- 	/* It seems we can only wait for a bit here :/ */
--	udelay_reset(100);
-+	udelay_simple(100);
- }
- 
- static int pgm_check_occured;
++
++void do_notify_resume(struct pt_regs *regs)
++{
++	clear_thread_flag(TIF_NOTIFY_RESUME);
++	tracehook_notify_resume(regs);
++}
 
 -- 
 blue skies,
