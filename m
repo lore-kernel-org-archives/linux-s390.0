@@ -1,83 +1,143 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753456AbYJALVc@vger.kernel.org>
-Subject: Re: [patch 21/21] Add ioctl support for EMC Symmetrix Subsystem
-	Control I/O
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-In-Reply-To: <20081001110301.GB6648@infradead.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754534AbYJAI53@vger.kernel.org>
+Message-Id: <20081001084125.761931444@de.ibm.com>
 References: <20081001083317.782967473@de.ibm.com>
-	 <20081001084130.599948666@de.ibm.com> <20081001110301.GB6648@infradead.org>
-Content-Type: text/plain
-Date: Wed, 01 Oct 2008 13:17:00 +0200
-Message-Id: <1222859820.32562.8.camel@localhost>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Date: Wed, 01 Oct 2008 10:33:19 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 02/21] cio: move device unregistration to dedicated work queue
+Content-Disposition: inline; filename=101-cio-unreg-work.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Nigel Hislop <hislop_nigel@emc.com>, Hannes Reinecke <hare@suse.de>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Oberparleiter <peter.oberparleiter@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2008-10-01 at 07:03 -0400, Christoph Hellwig wrote:
-> > +static int dasd_symm_io(struct dasd_device *device, void __user *argp)
-> > +{
-> > +	struct dasd_symmio_parms usrparm;
-> > +	char *psf_data, *rssd_result;
-> > +	struct dasd_ccw_req *cqr;
-> > +	struct ccw1 *ccw;
-> > +	int rc;
-> > +
-> > +	/* Copy parms from caller */
-> > +	rc = copy_from_user(&usrparm, argp, sizeof(usrparm)) ? -EFAULT : 0;
-> > +	if (rc)
-> > +		goto out;
-> 
-> That style is quite odd,  what about the more normal
-> 
-> 	rc = -EFAULT;
-> 	if (copy_from_user(&usrparm, argp, sizeof(usrparm)))
-> 		goto out;
-> 
-> instead?
+From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 
-Ok, I will change that.
+Use dedicated slow path work queue when unregistering a device due to
+a user action. This ensures serialialization of other register/
+unregister requests.
 
-> > +	/* alloc I/O data area */
-> > +	psf_data = kzalloc(usrparm.psf_data_len, GFP_KERNEL | GFP_DMA);
-> > +	rssd_result = kzalloc(usrparm.rssd_result_len, GFP_KERNEL | GFP_DMA);
-> > +	if (!psf_data || !rssd_result) {
-> > +		rc = -ENOMEM;
-> > +		goto out_free;
-> > +	}
-> 
-> just check each on individually and do individual unwinding.  Makes the
-> code a little more easily readable.
+Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
 
-Well, matter of taste I would say. Two kzallocs, one check for the
-results and just two kfrees if one of the kzallocs failed. I find this
-version to be a little more compact and therefore easier to read. If you
-insist I will change it ..
+ drivers/s390/cio/device.c |   56 ++++++++++++++++++++--------------------------
+ 1 file changed, 25 insertions(+), 31 deletions(-)
 
-> > +	/* get syscall header from user space */
-> > +	rc = copy_from_user(psf_data,
-> > +			    (void __user *)(unsigned long) usrparm.psf_data,
-> > +			    usrparm.psf_data_len) ? -EFAULT : 0;
-> > +	if (rc)
-> > +		goto out_free;
-> 
-> Same as the first copy_from_user
-
-Ok.
-
-> > +	rc = copy_to_user((void __user *)(unsigned long) usrparm.rssd_result,
-> > +			   rssd_result, usrparm.rssd_result_len) ? -EFAULT : 0;
-> 
-> And here again.
-
-Ok.
+Index: quilt-2.6/drivers/s390/cio/device.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/device.c
++++ quilt-2.6/drivers/s390/cio/device.c
+@@ -296,36 +296,33 @@ static void ccw_device_unregister(struct
+ 		device_del(&cdev->dev);
+ }
+ 
+-static void ccw_device_remove_orphan_cb(struct device *dev)
++static void ccw_device_remove_orphan_cb(struct work_struct *work)
+ {
+-	struct ccw_device *cdev = to_ccwdev(dev);
++	struct ccw_device_private *priv;
++	struct ccw_device *cdev;
+ 
++	priv = container_of(work, struct ccw_device_private, kick_work);
++	cdev = priv->cdev;
+ 	ccw_device_unregister(cdev);
+ 	put_device(&cdev->dev);
++	/* Release cdev reference for workqueue processing. */
++	put_device(&cdev->dev);
+ }
+ 
+-static void ccw_device_remove_sch_cb(struct device *dev)
+-{
+-	struct subchannel *sch;
+-
+-	sch = to_subchannel(dev);
+-	css_sch_device_unregister(sch);
+-	/* Reset intparm to zeroes. */
+-	sch->schib.pmcw.intparm = 0;
+-	cio_modify(sch);
+-	put_device(&sch->dev);
+-}
++static void ccw_device_call_sch_unregister(struct work_struct *work);
+ 
+ static void
+ ccw_device_remove_disconnected(struct ccw_device *cdev)
+ {
+ 	unsigned long flags;
+-	int rc;
+ 
+ 	/*
+ 	 * Forced offline in disconnected state means
+ 	 * 'throw away device'.
+ 	 */
++	/* Get cdev reference for workqueue processing. */
++	if (!get_device(&cdev->dev))
++		return;
+ 	if (ccw_device_is_orphan(cdev)) {
+ 		/*
+ 		 * Deregister ccw device.
+@@ -335,23 +332,13 @@ ccw_device_remove_disconnected(struct cc
+ 		spin_lock_irqsave(cdev->ccwlock, flags);
+ 		cdev->private->state = DEV_STATE_NOT_OPER;
+ 		spin_unlock_irqrestore(cdev->ccwlock, flags);
+-		rc = device_schedule_callback(&cdev->dev,
+-					      ccw_device_remove_orphan_cb);
+-		if (rc)
+-			CIO_MSG_EVENT(0, "Couldn't unregister orphan "
+-				      "0.%x.%04x\n",
+-				      cdev->private->dev_id.ssid,
+-				      cdev->private->dev_id.devno);
+-		return;
+-	}
+-	/* Deregister subchannel, which will kill the ccw device. */
+-	rc = device_schedule_callback(cdev->dev.parent,
+-				      ccw_device_remove_sch_cb);
+-	if (rc)
+-		CIO_MSG_EVENT(0, "Couldn't unregister disconnected device "
+-			      "0.%x.%04x\n",
+-			      cdev->private->dev_id.ssid,
+-			      cdev->private->dev_id.devno);
++		PREPARE_WORK(&cdev->private->kick_work,
++				ccw_device_remove_orphan_cb);
++	} else
++		/* Deregister subchannel, which will kill the ccw device. */
++		PREPARE_WORK(&cdev->private->kick_work,
++				ccw_device_call_sch_unregister);
++	queue_work(slow_path_wq, &cdev->private->kick_work);
+ }
+ 
+ /**
+@@ -970,12 +957,17 @@ static void ccw_device_call_sch_unregist
+ 
+ 	priv = container_of(work, struct ccw_device_private, kick_work);
+ 	cdev = priv->cdev;
++	/* Get subchannel reference for local processing. */
++	if (!get_device(cdev->dev.parent))
++		return;
+ 	sch = to_subchannel(cdev->dev.parent);
+ 	css_sch_device_unregister(sch);
+ 	/* Reset intparm to zeroes. */
+ 	sch->schib.pmcw.intparm = 0;
+ 	cio_modify(sch);
++	/* Release cdev reference for workqueue processing.*/
+ 	put_device(&cdev->dev);
++	/* Release subchannel reference for local processing. */
+ 	put_device(&sch->dev);
+ }
+ 
+@@ -1001,6 +993,8 @@ io_subchannel_recog_done(struct ccw_devi
+ 		PREPARE_WORK(&cdev->private->kick_work,
+ 			     ccw_device_call_sch_unregister);
+ 		queue_work(slow_path_wq, &cdev->private->kick_work);
++		/* Release subchannel reference for asynchronous recognition. */
++		put_device(&sch->dev);
+ 		if (atomic_dec_and_test(&ccw_device_init_count))
+ 			wake_up(&ccw_device_init_wq);
+ 		break;
 
 -- 
 blue skies,
-  Martin.
+   Martin.
 
 "Reality continues to ruin my life." - Calvin.
