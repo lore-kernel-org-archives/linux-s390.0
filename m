@@ -1,230 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755925AbYJAJDh@vger.kernel.org>
-Message-Id: <20081001084128.270168308@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755839AbYJAJCv@vger.kernel.org>
+Message-Id: <20081001084125.504618165@de.ibm.com>
 References: <20081001083317.782967473@de.ibm.com>
-Date: Wed, 01 Oct 2008 10:33:29 +0200
+Date: Wed, 01 Oct 2008 10:33:18 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 12/21] cio: inline assembly cleanup
-Content-Disposition: inline; filename=111-cio-inline.diff
+Subject: [patch 01/21] qdio: speed up multicast traffic on full HiperSocket queue
+Content-Disposition: inline; filename=100-qdio-perf.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Oberparleiter <peter.oberparleiter@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-Fix incorrect in- and output constraints, remove volatile declaration
-of inline assembly parameters and reformat constraint declarations to
-be more consistent.
+If an asynchronous HiperSockets queue runs full, no further packet
+can be sent. In this case the next initiative to give transmitted
+skbs back to the stack is triggered only by a 10-seconds qdio timer.
+This timer has been introduced for low multicast traffic scenarios
+to guarantee freeing of skbs in a limited amount of time. For high
+HiperSocket multicast traffic scenarios progress checking on the
+outbound queue should be enforced by tasklet rescheduling.
 
-Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/cio.c    |    2 -
- drivers/s390/cio/io_sch.h |   22 +++++++++++++++-----
- drivers/s390/cio/ioasm.h  |   49 ++++++++++++++++++++++++++--------------------
- 3 files changed, 45 insertions(+), 28 deletions(-)
+ drivers/s390/cio/qdio.h      |    8 ++++++++
+ drivers/s390/cio/qdio_main.c |    6 ++++++
+ 2 files changed, 14 insertions(+)
 
-Index: quilt-2.6/drivers/s390/cio/cio.c
+Index: quilt-2.6/drivers/s390/cio/qdio.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cio.c
-+++ quilt-2.6/drivers/s390/cio/cio.c
-@@ -901,7 +901,7 @@ static void cio_reset_pgm_check_handler(
- 	pgm_check_occured = 1;
- }
+--- quilt-2.6.orig/drivers/s390/cio/qdio.h
++++ quilt-2.6/drivers/s390/cio/qdio.h
+@@ -16,6 +16,14 @@
+ #define QDIO_BUSY_BIT_GIVE_UP		2000000	/* 2 seconds = eternity */
+ #define QDIO_INPUT_THRESHOLD		500	/* 500 microseconds */
  
--static int stsch_reset(struct subchannel_id schid, volatile struct schib *addr)
-+static int stsch_reset(struct subchannel_id schid, struct schib *addr)
- {
- 	int rc;
- 
-Index: quilt-2.6/drivers/s390/cio/ioasm.h
++/*
++ * if an asynchronous HiperSockets queue runs full, the 10 seconds timer wait
++ * till next initiative to give transmitted skbs back to the stack is too long.
++ * Therefore polling is started in case of multicast queue is filled more
++ * than 50 percent.
++ */
++#define QDIO_IQDIO_POLL_LVL		65	/* HS multicast queue */
++
+ enum qdio_irq_states {
+ 	QDIO_IRQ_STATE_INACTIVE,
+ 	QDIO_IRQ_STATE_ESTABLISHED,
+Index: quilt-2.6/drivers/s390/cio/qdio_main.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/ioasm.h
-+++ quilt-2.6/drivers/s390/cio/ioasm.h
-@@ -23,38 +23,39 @@ struct tpi_info {
-  * Some S390 specific IO instructions as inline
-  */
+--- quilt-2.6.orig/drivers/s390/cio/qdio_main.c
++++ quilt-2.6/drivers/s390/cio/qdio_main.c
+@@ -851,6 +851,12 @@ static void __qdio_outbound_processing(s
+ 	if (queue_type(q) == QDIO_IQDIO_QFMT && !multicast_outbound(q))
+ 		return;
  
--static inline int stsch(struct subchannel_id schid,
--			    volatile struct schib *addr)
-+static inline int stsch(struct subchannel_id schid, struct schib *addr)
- {
- 	register struct subchannel_id reg1 asm ("1") = schid;
- 	int ccode;
- 
- 	asm volatile(
--		"	stsch	0(%2)\n"
-+		"	stsch	0(%3)\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28"
--		: "=d" (ccode) : "d" (reg1), "a" (addr), "m" (*addr) : "cc");
-+		: "=d" (ccode), "=m" (*addr)
-+		: "d" (reg1), "a" (addr)
-+		: "cc");
- 	return ccode;
- }
- 
--static inline int stsch_err(struct subchannel_id schid,
--				volatile struct schib *addr)
-+static inline int stsch_err(struct subchannel_id schid, struct schib *addr)
- {
- 	register struct subchannel_id reg1 asm ("1") = schid;
- 	int ccode = -EIO;
- 
- 	asm volatile(
--		"	stsch	0(%2)\n"
-+		"	stsch	0(%3)\n"
- 		"0:	ipm	%0\n"
- 		"	srl	%0,28\n"
- 		"1:\n"
- 		EX_TABLE(0b,1b)
--		: "+d" (ccode) : "d" (reg1), "a" (addr), "m" (*addr) : "cc");
-+		: "+d" (ccode), "=m" (*addr)
-+		: "d" (reg1), "a" (addr)
-+		: "cc");
- 	return ccode;
- }
- 
--static inline int msch(struct subchannel_id schid,
--			   volatile struct schib *addr)
-+static inline int msch(struct subchannel_id schid, struct schib *addr)
- {
- 	register struct subchannel_id reg1 asm ("1") = schid;
- 	int ccode;
-@@ -63,12 +64,13 @@ static inline int msch(struct subchannel
- 		"	msch	0(%2)\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28"
--		: "=d" (ccode) : "d" (reg1), "a" (addr), "m" (*addr) : "cc");
-+		: "=d" (ccode)
-+		: "d" (reg1), "a" (addr), "m" (*addr)
-+		: "cc");
- 	return ccode;
- }
- 
--static inline int msch_err(struct subchannel_id schid,
--			       volatile struct schib *addr)
-+static inline int msch_err(struct subchannel_id schid, struct schib *addr)
- {
- 	register struct subchannel_id reg1 asm ("1") = schid;
- 	int ccode = -EIO;
-@@ -79,33 +81,38 @@ static inline int msch_err(struct subcha
- 		"	srl	%0,28\n"
- 		"1:\n"
- 		EX_TABLE(0b,1b)
--		: "+d" (ccode) : "d" (reg1), "a" (addr), "m" (*addr) : "cc");
-+		: "+d" (ccode)
-+		: "d" (reg1), "a" (addr), "m" (*addr)
-+		: "cc");
- 	return ccode;
- }
- 
--static inline int tsch(struct subchannel_id schid,
--			   volatile struct irb *addr)
-+static inline int tsch(struct subchannel_id schid, struct irb *addr)
- {
- 	register struct subchannel_id reg1 asm ("1") = schid;
- 	int ccode;
- 
- 	asm volatile(
--		"	tsch	0(%2)\n"
-+		"	tsch	0(%3)\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28"
--		: "=d" (ccode) : "d" (reg1), "a" (addr), "m" (*addr) : "cc");
-+		: "=d" (ccode), "=m" (*addr)
-+		: "d" (reg1), "a" (addr)
-+		: "cc");
- 	return ccode;
- }
- 
--static inline int tpi( volatile struct tpi_info *addr)
-+static inline int tpi(struct tpi_info *addr)
- {
- 	int ccode;
- 
- 	asm volatile(
--		"	tpi	0(%1)\n"
-+		"	tpi	0(%2)\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28"
--		: "=d" (ccode) : "a" (addr), "m" (*addr) : "cc");
-+		: "=d" (ccode), "=m" (*addr)
-+		: "a" (addr)
-+		: "cc");
- 	return ccode;
- }
- 
-Index: quilt-2.6/drivers/s390/cio/io_sch.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/io_sch.h
-+++ quilt-2.6/drivers/s390/cio/io_sch.h
-@@ -123,7 +123,7 @@ struct ccw_device_private {
- 	void *cmb_wait;			/* deferred cmb enable/disable */
- };
- 
--static inline int ssch(struct subchannel_id schid, volatile union orb *addr)
-+static inline int ssch(struct subchannel_id schid, union orb *addr)
- {
- 	register struct subchannel_id reg1 asm("1") = schid;
- 	int ccode = -EIO;
-@@ -134,7 +134,9 @@ static inline int ssch(struct subchannel
- 		"	srl	%0,28\n"
- 		"1:\n"
- 		EX_TABLE(0b, 1b)
--		: "+d" (ccode) : "d" (reg1), "a" (addr), "m" (*addr) : "cc");
-+		: "+d" (ccode)
-+		: "d" (reg1), "a" (addr), "m" (*addr)
-+		: "cc", "memory");
- 	return ccode;
- }
- 
-@@ -147,7 +149,9 @@ static inline int rsch(struct subchannel
- 		"	rsch\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28"
--		: "=d" (ccode) : "d" (reg1) : "cc");
-+		: "=d" (ccode)
-+		: "d" (reg1)
-+		: "cc", "memory");
- 	return ccode;
- }
- 
-@@ -160,7 +164,9 @@ static inline int csch(struct subchannel
- 		"	csch\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28"
--		: "=d" (ccode) : "d" (reg1) : "cc");
-+		: "=d" (ccode)
-+		: "d" (reg1)
-+		: "cc");
- 	return ccode;
- }
- 
-@@ -173,7 +179,9 @@ static inline int hsch(struct subchannel
- 		"	hsch\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28"
--		: "=d" (ccode) : "d" (reg1) : "cc");
-+		: "=d" (ccode)
-+		: "d" (reg1)
-+		: "cc");
- 	return ccode;
- }
- 
-@@ -186,7 +194,9 @@ static inline int xsch(struct subchannel
- 		"	.insn	rre,0xb2760000,%1,0\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28"
--		: "=d" (ccode) : "d" (reg1) : "cc");
-+		: "=d" (ccode)
-+		: "d" (reg1)
-+		: "cc");
- 	return ccode;
- }
++	if ((queue_type(q) == QDIO_IQDIO_QFMT) &&
++	    (atomic_read(&q->nr_buf_used)) > QDIO_IQDIO_POLL_LVL) {
++		tasklet_schedule(&q->tasklet);
++		return;
++	}
++
+ 	if (q->u.out.pci_out_enabled)
+ 		return;
  
 
 -- 
