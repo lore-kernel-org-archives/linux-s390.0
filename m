@@ -1,150 +1,177 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754986AbYJAJAc@vger.kernel.org>
-Message-Id: <20081001084126.029527114@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753973AbYJAJAu@vger.kernel.org>
+Message-Id: <20081001084127.267390607@de.ibm.com>
 References: <20081001083317.782967473@de.ibm.com>
-Date: Wed, 01 Oct 2008 10:33:20 +0200
+Date: Wed, 01 Oct 2008 10:33:25 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 03/21] cio: introduce purge function for /proc/cio_ignore
-Content-Disposition: inline; filename=102-cio-purge.diff
+Subject: [patch 08/21] more bus_id -> dev_name conversions
+Content-Disposition: inline; filename=107-cio-busid3.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Oberparleiter <peter.oberparleiter@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Kay Sievers <kay.sievers@vrfy.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Greg Kroah-Hartman <gregkh@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Allow users to remove blacklisted ccw devices by using the
-/proc/cio_ignore interface:
+Some further bus_id -> dev_name() conversions in s390 code.
 
-  echo purge > /proc/cio_ignore
-
-will remove all devices which are offline and blacklisted.
-
-Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+Cc: Kay Sievers <kay.sievers@vrfy.org>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+
 ---
 
- drivers/s390/cio/blacklist.c |   11 +++++++----
- drivers/s390/cio/device.c    |   40 ++++++++++++++++++++++++++++++++++++++++
- drivers/s390/cio/device.h    |    1 +
- 3 files changed, 48 insertions(+), 4 deletions(-)
+ drivers/s390/char/raw3270.c    |    4 ++--
+ drivers/s390/cio/device.c      |    2 +-
+ drivers/s390/net/claw.c        |   13 ++++++++-----
+ drivers/s390/net/ctcm_main.c   |    4 ++--
+ drivers/s390/scsi/zfcp_def.h   |    2 +-
+ drivers/s390/scsi/zfcp_erp.c   |    2 +-
+ drivers/s390/scsi/zfcp_sysfs.c |    2 +-
+ 7 files changed, 16 insertions(+), 13 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/blacklist.c
+Index: quilt-2.6/drivers/s390/char/raw3270.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/blacklist.c
-+++ quilt-2.6/drivers/s390/cio/blacklist.c
-@@ -24,6 +24,7 @@
- #include "cio.h"
- #include "cio_debug.h"
- #include "css.h"
-+#include "device.h"
- 
- /*
-  * "Blacklisting" of certain devices:
-@@ -191,9 +192,9 @@ static int blacklist_parse_parameters(ch
- 			rc = blacklist_range(ra, from_ssid, to_ssid, from, to,
- 					     msgtrigger);
- 			if (rc)
--				totalrc = 1;
-+				totalrc = -EINVAL;
- 		} else
--			totalrc = 1;
-+			totalrc = -EINVAL;
- 	}
- 
- 	return totalrc;
-@@ -240,8 +241,10 @@ static int blacklist_parse_proc_paramete
- 		rc = blacklist_parse_parameters(buf, free, 0);
- 	else if (strcmp("add", parm) == 0)
- 		rc = blacklist_parse_parameters(buf, add, 0);
-+	else if (strcmp("purge", parm) == 0)
-+		return ccw_purge_blacklisted();
- 	else
--		return 1;
-+		return -EINVAL;
- 
- 	css_schedule_reprobe();
- 
-@@ -353,7 +356,7 @@ cio_ignore_write(struct file *file, cons
- 	}
- 	ret = blacklist_parse_proc_parameters(buf);
- 	if (ret)
--		rc = -EINVAL;
-+		rc = ret;
- 	else
- 		rc = user_len;
+--- quilt-2.6.orig/drivers/s390/char/raw3270.c
++++ quilt-2.6/drivers/s390/char/raw3270.c
+@@ -1171,7 +1171,7 @@ static int raw3270_create_attributes(str
+ 	rp->clttydev = device_create_drvdata(class3270, &rp->cdev->dev,
+ 					     MKDEV(IBM_TTY3270_MAJOR, rp->minor),
+ 					     NULL,
+-					     "tty%s", rp->cdev->dev.bus_id);
++					     "tty%s", dev_name(&rp->cdev->dev));
+ 	if (IS_ERR(rp->clttydev)) {
+ 		rc = PTR_ERR(rp->clttydev);
+ 		goto out_ttydev;
+@@ -1180,7 +1180,7 @@ static int raw3270_create_attributes(str
+ 	rp->cltubdev = device_create_drvdata(class3270, &rp->cdev->dev,
+ 					     MKDEV(IBM_FS3270_MAJOR, rp->minor),
+ 					     NULL,
+-					     "tub%s", rp->cdev->dev.bus_id);
++					     "tub%s", dev_name(&rp->cdev->dev));
+ 	if (!IS_ERR(rp->cltubdev))
+ 		goto out;
  
 Index: quilt-2.6/drivers/s390/cio/device.c
 ===================================================================
 --- quilt-2.6.orig/drivers/s390/cio/device.c
 +++ quilt-2.6/drivers/s390/cio/device.c
-@@ -31,6 +31,7 @@
- #include "device.h"
- #include "ioasm.h"
- #include "io_sch.h"
-+#include "blacklist.h"
+@@ -1526,7 +1526,7 @@ void ccw_device_set_notoper(struct ccw_d
+ 	struct subchannel *sch = to_subchannel(cdev->dev.parent);
  
- static struct timer_list recovery_timer;
- static DEFINE_SPINLOCK(recovery_lock);
-@@ -1470,6 +1471,45 @@ static void ccw_device_schedule_recovery
- 	spin_unlock_irqrestore(&recovery_lock, flags);
- }
- 
-+static int purge_fn(struct device *dev, void *data)
-+{
-+	struct ccw_device *cdev = to_ccwdev(dev);
-+	struct ccw_device_private *priv = cdev->private;
-+	int unreg;
-+
-+	spin_lock_irq(cdev->ccwlock);
-+	unreg = is_blacklisted(priv->dev_id.ssid, priv->dev_id.devno) &&
-+		(priv->state == DEV_STATE_OFFLINE);
-+	spin_unlock_irq(cdev->ccwlock);
-+	if (!unreg)
-+		goto out;
-+	if (!get_device(&cdev->dev))
-+		goto out;
-+	CIO_MSG_EVENT(3, "ccw: purging 0.%x.%04x\n", priv->dev_id.ssid,
-+		      priv->dev_id.devno);
-+	PREPARE_WORK(&cdev->private->kick_work, ccw_device_call_sch_unregister);
-+	queue_work(slow_path_wq, &cdev->private->kick_work);
-+
-+out:
-+	/* Abort loop in case of pending signal. */
-+	if (signal_pending(current))
-+		return -EINTR;
-+
-+	return 0;
-+}
-+
-+/**
-+ * ccw_purge_blacklisted - purge unused, blacklisted devices
-+ *
-+ * Unregister all ccw devices that are offline and on the blacklist.
-+ */
-+int ccw_purge_blacklisted(void)
-+{
-+	CIO_MSG_EVENT(2, "ccw: purging blacklisted devices\n");
-+	bus_for_each_dev(&ccw_bus_type, NULL, NULL, purge_fn);
-+	return 0;
-+}
-+
- static void device_set_disconnected(struct ccw_device *cdev)
- {
- 	if (!cdev)
-Index: quilt-2.6/drivers/s390/cio/device.h
+ 	CIO_TRACE_EVENT(2, "notoper");
+-	CIO_TRACE_EVENT(2, sch->dev.bus_id);
++	CIO_TRACE_EVENT(2, dev_name(&sch->dev));
+ 	ccw_device_set_timeout(cdev, 0);
+ 	cio_disable_subchannel(sch);
+ 	cdev->private->state = DEV_STATE_NOT_OPER;
+Index: quilt-2.6/drivers/s390/net/claw.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device.h
-+++ quilt-2.6/drivers/s390/cio/device.h
-@@ -86,6 +86,7 @@ int ccw_device_is_orphan(struct ccw_devi
- int ccw_device_recognition(struct ccw_device *);
- int ccw_device_online(struct ccw_device *);
- int ccw_device_offline(struct ccw_device *);
-+int ccw_purge_blacklisted(void);
+--- quilt-2.6.orig/drivers/s390/net/claw.c
++++ quilt-2.6/drivers/s390/net/claw.c
+@@ -2880,7 +2880,8 @@ claw_new_device(struct ccwgroup_device *
+ 	int ret;
+ 	struct ccw_dev_id dev_id;
  
- /* Function prototypes for device status and basic sense stuff. */
- void ccw_device_accumulate_irb(struct ccw_device *, struct irb *);
+-	printk(KERN_INFO "claw: add for %s\n",cgdev->cdev[READ]->dev.bus_id);
++	printk(KERN_INFO "claw: add for %s\n",
++	       dev_name(&cgdev->cdev[READ]->dev));
+ 	CLAW_DBF_TEXT(2, setup, "new_dev");
+ 	privptr = cgdev->dev.driver_data;
+ 	cgdev->cdev[READ]->dev.driver_data = privptr;
+@@ -2904,14 +2905,16 @@ claw_new_device(struct ccwgroup_device *
+ 	if (ret != 0) {
+ 		printk(KERN_WARNING
+ 			"claw: ccw_device_set_online %s READ failed "
+-			"with ret = %d\n",cgdev->cdev[READ]->dev.bus_id,ret);
++		       "with ret = %d\n", dev_name(&cgdev->cdev[READ]->dev),
++		       ret);
+ 		goto out;
+ 	}
+ 	ret = ccw_device_set_online(cgdev->cdev[WRITE]);
+ 	if (ret != 0) {
+ 		printk(KERN_WARNING
+ 			"claw: ccw_device_set_online %s WRITE failed "
+-			"with ret = %d\n",cgdev->cdev[WRITE]->dev.bus_id, ret);
++		       "with ret = %d\n", dev_name(&cgdev->cdev[WRITE]->dev)
++		       ret);
+ 		goto out;
+ 	}
+ 	dev = alloc_netdev(0,"claw%d",claw_init_netdevice);
+@@ -2987,7 +2990,7 @@ claw_shutdown_device(struct ccwgroup_dev
+ 	struct net_device *ndev;
+ 	int	ret;
+ 
+-	CLAW_DBF_TEXT_(2, setup, "%s", cgdev->dev.bus_id);
++	CLAW_DBF_TEXT_(2, setup, "%s", dev_name(&cgdev->dev));
+ 	priv = cgdev->dev.driver_data;
+ 	if (!priv)
+ 		return -ENODEV;
+@@ -3017,7 +3020,7 @@ claw_remove_device(struct ccwgroup_devic
+ 	struct claw_privbk *priv;
+ 
+ 	BUG_ON(!cgdev);
+-	CLAW_DBF_TEXT_(2, setup, "%s", cgdev->dev.bus_id);
++	CLAW_DBF_TEXT_(2, setup, "%s", dev_name(&cgdev->dev));
+ 	priv = cgdev->dev.driver_data;
+ 	BUG_ON(!priv);
+ 	printk(KERN_INFO "claw: %s() called %s will be removed.\n",
+Index: quilt-2.6/drivers/s390/net/ctcm_main.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/net/ctcm_main.c
++++ quilt-2.6/drivers/s390/net/ctcm_main.c
+@@ -1518,8 +1518,8 @@ static int ctcm_new_device(struct ccwgro
+ 
+ 	type = get_channel_type(&cdev0->id);
+ 
+-	snprintf(read_id, CTCM_ID_SIZE, "ch-%s", cdev0->dev.bus_id);
+-	snprintf(write_id, CTCM_ID_SIZE, "ch-%s", cdev1->dev.bus_id);
++	snprintf(read_id, CTCM_ID_SIZE, "ch-%s", dev_name(&cdev0->dev));
++	snprintf(write_id, CTCM_ID_SIZE, "ch-%s", dev_name(&cdev1->dev));
+ 
+ 	ret = add_channel(cdev0, type, priv);
+ 	if (ret)
+Index: quilt-2.6/drivers/s390/scsi/zfcp_def.h
+===================================================================
+--- quilt-2.6.orig/drivers/s390/scsi/zfcp_def.h
++++ quilt-2.6/drivers/s390/scsi/zfcp_def.h
+@@ -682,7 +682,7 @@ struct zfcp_fsf_req_qtcb {
+            ((atomic_read(target) & mask) == mask)
+ #endif
+ 
+-#define zfcp_get_busid_by_adapter(adapter) (adapter->ccw_device->dev.bus_id)
++#define zfcp_get_busid_by_adapter(adapter) (dev_name(&adapter->ccw_device->dev))
+ #define zfcp_get_busid_by_port(port) (zfcp_get_busid_by_adapter(port->adapter))
+ #define zfcp_get_busid_by_unit(unit) (zfcp_get_busid_by_port(unit->port))
+ 
+Index: quilt-2.6/drivers/s390/scsi/zfcp_erp.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/scsi/zfcp_erp.c
++++ quilt-2.6/drivers/s390/scsi/zfcp_erp.c
+@@ -1439,7 +1439,7 @@ static int zfcp_erp_thread(void *data)
+ 	struct zfcp_erp_action *act;
+ 	unsigned long flags;
+ 
+-	daemonize("zfcperp%s", adapter->ccw_device->dev.bus_id);
++	daemonize("zfcperp%s", dev_name(&adapter->ccw_device->dev));
+ 	/* Block all signals */
+ 	siginitsetinv(&current->blocked, 0);
+ 	atomic_set_mask(ZFCP_STATUS_ADAPTER_ERP_THREAD_UP, &adapter->status);
+Index: quilt-2.6/drivers/s390/scsi/zfcp_sysfs.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/scsi/zfcp_sysfs.c
++++ quilt-2.6/drivers/s390/scsi/zfcp_sysfs.c
+@@ -394,7 +394,7 @@ static ssize_t zfcp_sysfs_scsi_##_name##
+ static DEVICE_ATTR(_name, S_IRUGO, zfcp_sysfs_scsi_##_name##_show, NULL);
+ 
+ ZFCP_DEFINE_SCSI_ATTR(hba_id, "%s\n",
+-	unit->port->adapter->ccw_device->dev.bus_id);
++		      dev_name(&unit->port->adapter->ccw_device->dev));
+ ZFCP_DEFINE_SCSI_ATTR(wwpn, "0x%016llx\n", unit->port->wwpn);
+ ZFCP_DEFINE_SCSI_ATTR(fcp_lun, "0x%016llx\n", unit->fcp_lun);
+ 
 
 -- 
 blue skies,
