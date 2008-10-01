@@ -1,132 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755187AbYJAI7o@vger.kernel.org>
-Message-Id: <20081001084130.353241644@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755246AbYJAJAE@vger.kernel.org>
+Message-Id: <20081001084127.513956461@de.ibm.com>
 References: <20081001083317.782967473@de.ibm.com>
-Date: Wed, 01 Oct 2008 10:33:37 +0200
+Date: Wed, 01 Oct 2008 10:33:26 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 20/21] xpram: per device block request queues.
-Content-Disposition: inline; filename=119-xpram-queues.diff
+Subject: [patch 09/21] Use s390_root_dev_* in kvm_virtio.
+Content-Disposition: inline; filename=108-cio-busid4.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Kay Sievers <kay.sievers@vrfy.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Greg Kroah-Hartman <gregkh@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-The xpram driver uses a single block device queue for all of its
-devices so far. With recent kernels removing xpram module fails to
-clean up all sysfs files. The next time the xpram module is loaded
-you'll get warnings:
+No need to define a static device for the kvm_s390 root device,
+just use s390_root_dev_register().
 
-  WARNING: at fs/sysfs/dir.c:463 sysfs_add_one+0x5e/0x64()
-  sysfs: duplicate filename '35:0' can not be created
-  Modules linked in: xpram(+) [last unloaded: xpram]
+This is needed for the bus_id rework
 
-Followed by the usual WARN_ON output, followed by an error message
-from kobject_add_internal, followed by a badness in genhd. Allocating
-a block queue per device fixes this.
-
+Acked-by: Carsten Otte <cotte@de.ibm.com>
+Cc: Kay Sievers <kay.sievers@vrfy.org>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/xpram.c |   37 +++++++++++++++----------------------
- 1 file changed, 15 insertions(+), 22 deletions(-)
+ drivers/s390/kvm/kvm_virtio.c |   15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-Index: quilt-2.6/drivers/s390/block/xpram.c
+Index: quilt-2.6/drivers/s390/kvm/kvm_virtio.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/block/xpram.c
-+++ quilt-2.6/drivers/s390/block/xpram.c
-@@ -56,6 +56,7 @@ typedef struct {
- static xpram_device_t xpram_devices[XPRAM_MAX_DEVS];
- static unsigned int xpram_sizes[XPRAM_MAX_DEVS];
- static struct gendisk *xpram_disks[XPRAM_MAX_DEVS];
-+static struct request_queue *xpram_queues[XPRAM_MAX_DEVS];
- static unsigned int xpram_pages;
- static int xpram_devs;
+--- quilt-2.6.orig/drivers/s390/kvm/kvm_virtio.c
++++ quilt-2.6/drivers/s390/kvm/kvm_virtio.c
+@@ -24,6 +24,7 @@
+ #include <asm/kvm_virtio.h>
+ #include <asm/setup.h>
+ #include <asm/s390_ext.h>
++#include <asm/s390_rdev.h>
  
-@@ -330,18 +331,22 @@ static int __init xpram_setup_sizes(unsi
- 	return 0;
- }
+ #define VIRTIO_SUBCODE_64 0x0D00
  
--static struct request_queue *xpram_queue;
--
- static int __init xpram_setup_blkdev(void)
- {
- 	unsigned long offset;
- 	int i, rc = -ENOMEM;
+@@ -241,10 +242,7 @@ static struct virtio_config_ops kvm_vq_c
+  * The root device for the kvm virtio devices.
+  * This makes them appear as /sys/devices/kvm_s390/0,1,2 not /sys/devices/0,1,2.
+  */
+-static struct device kvm_root = {
+-	.parent = NULL,
+-	.bus_id = "kvm_s390",
+-};
++static struct device *kvm_root;
  
- 	for (i = 0; i < xpram_devs; i++) {
--		struct gendisk *disk = alloc_disk(1);
--		if (!disk)
-+		xpram_disks[i] = alloc_disk(1);
-+		if (!xpram_disks[i])
-+			goto out;
-+		xpram_queues[i] = blk_alloc_queue(GFP_KERNEL);
-+		if (!xpram_queues[i]) {
-+			put_disk(xpram_disks[i]);
- 			goto out;
--		xpram_disks[i] = disk;
-+		}
-+		blk_queue_make_request(xpram_queues[i], xpram_make_request);
-+		blk_queue_hardsect_size(xpram_queues[i], 4096);
+ /*
+  * adds a new device and register it with virtio
+@@ -261,7 +259,7 @@ static void add_kvm_device(struct kvm_de
+ 		return;
  	}
  
- 	/*
-@@ -352,18 +357,6 @@ static int __init xpram_setup_blkdev(voi
- 		goto out;
+-	kdev->vdev.dev.parent = &kvm_root;
++	kdev->vdev.dev.parent = kvm_root;
+ 	kdev->vdev.id.device = d->type;
+ 	kdev->vdev.config = &kvm_vq_configspace_ops;
+ 	kdev->desc = d;
+@@ -317,15 +315,16 @@ static int __init kvm_devices_init(void)
+ 	if (!MACHINE_IS_KVM)
+ 		return -ENODEV;
  
- 	/*
--	 * Assign the other needed values: make request function, sizes and
--	 * hardsect size. All the minor devices feature the same value.
--	 */
--	xpram_queue = blk_alloc_queue(GFP_KERNEL);
--	if (!xpram_queue) {
--		rc = -ENOMEM;
--		goto out_unreg;
--	}
--	blk_queue_make_request(xpram_queue, xpram_make_request);
--	blk_queue_hardsect_size(xpram_queue, 4096);
--
--	/*
- 	 * Setup device structures.
- 	 */
- 	offset = 0;
-@@ -377,18 +370,18 @@ static int __init xpram_setup_blkdev(voi
- 		disk->first_minor = i;
- 		disk->fops = &xpram_devops;
- 		disk->private_data = &xpram_devices[i];
--		disk->queue = xpram_queue;
-+		disk->queue = xpram_queues[i];
- 		sprintf(disk->disk_name, "slram%d", i);
- 		set_capacity(disk, xpram_sizes[i] << 1);
- 		add_disk(disk);
+-	rc = device_register(&kvm_root);
+-	if (rc) {
++	kvm_root = s390_root_dev_register("kvm_s390");
++	if (IS_ERR(kvm_root)) {
++		rc = PTR_ERR(kvm_root);
+ 		printk(KERN_ERR "Could not register kvm_s390 root device");
+ 		return rc;
  	}
  
- 	return 0;
--out_unreg:
--	unregister_blkdev(XPRAM_MAJOR, XPRAM_NAME);
- out:
--	while (i--)
-+	while (i--) {
-+		blk_cleanup_queue(xpram_queues[i]);
- 		put_disk(xpram_disks[i]);
-+	}
- 	return rc;
- }
- 
-@@ -400,10 +393,10 @@ static void __exit xpram_exit(void)
- 	int i;
- 	for (i = 0; i < xpram_devs; i++) {
- 		del_gendisk(xpram_disks[i]);
-+		blk_cleanup_queue(xpram_queues[i]);
- 		put_disk(xpram_disks[i]);
+ 	rc = vmem_add_mapping(PFN_PHYS(max_pfn), PAGE_SIZE);
+ 	if (rc) {
+-		device_unregister(&kvm_root);
++		s390_root_dev_unregister(kvm_root);
+ 		return rc;
  	}
- 	unregister_blkdev(XPRAM_MAJOR, XPRAM_NAME);
--	blk_cleanup_queue(xpram_queue);
- }
  
- static int __init xpram_init(void)
 
 -- 
 blue skies,
