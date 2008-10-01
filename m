@@ -1,53 +1,132 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755014AbYJAI65@vger.kernel.org>
-Message-Id: <20081001084126.277407752@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755187AbYJAI7o@vger.kernel.org>
+Message-Id: <20081001084130.353241644@de.ibm.com>
 References: <20081001083317.782967473@de.ibm.com>
-Date: Wed, 01 Oct 2008 10:33:21 +0200
+Date: Wed, 01 Oct 2008 10:33:37 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 04/21] cio: Update cio_ignore documentation.
-Content-Disposition: inline; filename=103-cio-docu.diff
+Subject: [patch 20/21] xpram: per device block request queues.
+Content-Disposition: inline; filename=119-xpram-queues.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Add documentation for the new "purge" cio_ignore parameter.
+The xpram driver uses a single block device queue for all of its
+devices so far. With recent kernels removing xpram module fails to
+clean up all sysfs files. The next time the xpram module is loaded
+you'll get warnings:
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+  WARNING: at fs/sysfs/dir.c:463 sysfs_add_one+0x5e/0x64()
+  sysfs: duplicate filename '35:0' can not be created
+  Modules linked in: xpram(+) [last unloaded: xpram]
+
+Followed by the usual WARN_ON output, followed by an error message
+from kobject_add_internal, followed by a badness in genhd. Allocating
+a block queue per device fixes this.
+
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- Documentation/s390/CommonIO |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/s390/block/xpram.c |   37 +++++++++++++++----------------------
+ 1 file changed, 15 insertions(+), 22 deletions(-)
 
-Index: quilt-2.6/Documentation/s390/CommonIO
+Index: quilt-2.6/drivers/s390/block/xpram.c
 ===================================================================
---- quilt-2.6.orig/Documentation/s390/CommonIO
-+++ quilt-2.6/Documentation/s390/CommonIO
-@@ -70,13 +70,19 @@ Command line parameters
+--- quilt-2.6.orig/drivers/s390/block/xpram.c
++++ quilt-2.6/drivers/s390/block/xpram.c
+@@ -56,6 +56,7 @@ typedef struct {
+ static xpram_device_t xpram_devices[XPRAM_MAX_DEVS];
+ static unsigned int xpram_sizes[XPRAM_MAX_DEVS];
+ static struct gendisk *xpram_disks[XPRAM_MAX_DEVS];
++static struct request_queue *xpram_queues[XPRAM_MAX_DEVS];
+ static unsigned int xpram_pages;
+ static int xpram_devs;
  
-   Note: While already known devices can be added to the list of devices to be
-         ignored, there will be no effect on then. However, if such a device
--	disappears and then reappears, it will then be ignored.
-+	disappears and then reappears, it will then be ignored. To make
-+	known devices go away, you need the "purge" command (see below).
+@@ -330,18 +331,22 @@ static int __init xpram_setup_sizes(unsi
+ 	return 0;
+ }
  
-   For example,
- 	"echo add 0.0.a000-0.0.accc, 0.0.af00-0.0.afff > /proc/cio_ignore"
-   will add 0.0.a000-0.0.accc and 0.0.af00-0.0.afff to the list of ignored
-   devices.
+-static struct request_queue *xpram_queue;
+-
+ static int __init xpram_setup_blkdev(void)
+ {
+ 	unsigned long offset;
+ 	int i, rc = -ENOMEM;
  
-+  You can remove already known but now ignored devices via
-+	"echo purge > /proc/cio_ignore"
-+  All devices ignored but still registered and not online (= not in use)
-+  will be deregistered and thus removed from the system.
-+
-   The devices can be specified either by bus id (0.x.abcd) or, for 2.4 backward
-   compatibility, by the device number in hexadecimal (0xabcd or abcd). Device
-   numbers given as 0xabcd will be interpreted as 0.0.abcd.
+ 	for (i = 0; i < xpram_devs; i++) {
+-		struct gendisk *disk = alloc_disk(1);
+-		if (!disk)
++		xpram_disks[i] = alloc_disk(1);
++		if (!xpram_disks[i])
++			goto out;
++		xpram_queues[i] = blk_alloc_queue(GFP_KERNEL);
++		if (!xpram_queues[i]) {
++			put_disk(xpram_disks[i]);
+ 			goto out;
+-		xpram_disks[i] = disk;
++		}
++		blk_queue_make_request(xpram_queues[i], xpram_make_request);
++		blk_queue_hardsect_size(xpram_queues[i], 4096);
+ 	}
+ 
+ 	/*
+@@ -352,18 +357,6 @@ static int __init xpram_setup_blkdev(voi
+ 		goto out;
+ 
+ 	/*
+-	 * Assign the other needed values: make request function, sizes and
+-	 * hardsect size. All the minor devices feature the same value.
+-	 */
+-	xpram_queue = blk_alloc_queue(GFP_KERNEL);
+-	if (!xpram_queue) {
+-		rc = -ENOMEM;
+-		goto out_unreg;
+-	}
+-	blk_queue_make_request(xpram_queue, xpram_make_request);
+-	blk_queue_hardsect_size(xpram_queue, 4096);
+-
+-	/*
+ 	 * Setup device structures.
+ 	 */
+ 	offset = 0;
+@@ -377,18 +370,18 @@ static int __init xpram_setup_blkdev(voi
+ 		disk->first_minor = i;
+ 		disk->fops = &xpram_devops;
+ 		disk->private_data = &xpram_devices[i];
+-		disk->queue = xpram_queue;
++		disk->queue = xpram_queues[i];
+ 		sprintf(disk->disk_name, "slram%d", i);
+ 		set_capacity(disk, xpram_sizes[i] << 1);
+ 		add_disk(disk);
+ 	}
+ 
+ 	return 0;
+-out_unreg:
+-	unregister_blkdev(XPRAM_MAJOR, XPRAM_NAME);
+ out:
+-	while (i--)
++	while (i--) {
++		blk_cleanup_queue(xpram_queues[i]);
+ 		put_disk(xpram_disks[i]);
++	}
+ 	return rc;
+ }
+ 
+@@ -400,10 +393,10 @@ static void __exit xpram_exit(void)
+ 	int i;
+ 	for (i = 0; i < xpram_devs; i++) {
+ 		del_gendisk(xpram_disks[i]);
++		blk_cleanup_queue(xpram_queues[i]);
+ 		put_disk(xpram_disks[i]);
+ 	}
+ 	unregister_blkdev(XPRAM_MAJOR, XPRAM_NAME);
+-	blk_cleanup_queue(xpram_queue);
+ }
+ 
+ static int __init xpram_init(void)
 
 -- 
 blue skies,
