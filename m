@@ -1,44 +1,90 @@
 From: Martin Peschke <mpeschke@linux.vnet.ibm.com>
-Date: Sun, 05 Oct 2008 13:07:05 +0000
-Subject: [Patch 0/3] driver data: blktrace pass-through support for device
-Message-Id: <1223212025.4591.22.camel@kitka.ibm.com>
+Date: Sun, 05 Oct 2008 13:07:21 +0000
+Subject: [Patch 1/3] driver data: add support to blktrace kernel code
+Message-Id: <1223212041.4591.24.camel@kitka.ibm.com>
+In-Reply-To: <1216207530.26621.83.camel@kitka.ibm.com>
+References: <1216207530.26621.83.camel@kitka.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Jens,
-may I ask what you think about this approach? Would you consider
-including the following patch series in blktrace?
+From: Stefan Raspl <raspl@linux.vnet.ibm.com>
 
-Here is a discussion dating back to the first time I have posted these
-patches:
-http://marc.info/?l=linux-btrace&m=121620751101386&w=2
+This patch adds the new api call blk_add_driver_data() to blktrace.
+It allows to trace device driver-specific binary data.
 
+Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
+Signed-off-by: Martin Peschke <mp3@de.ibm.com>
 
-Thanks,
-Martin
+---
+ include/linux/blktrace_api.h |   32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
-
-
-
-Low-level device drivers might have additional data which complements
-blktrace data. For example, zfcp, a SCSI HBA driver, is capable of
-obtaining additional latency information per request from HBAs. Those
-latencies allow to further break down the overall D2C request latency
-provided by blktrace.
-
-We propose an additional trace for blktrace, called "driver data". It is
-a sort of small binary blob, which contains a low-level driver specific
-struct. Blktrace would be able to filter this trace (-a option) and
-include it within its binary output. A small device driver specific tool
-on top of blktrace would then analyze "driver data" traces.
-
-Patch 1/3 makes the blktrace kernel code provide blk_add_driver_data()
-for use by device drivers.
-
-Patch 2/3 adds support for driver data traces to blktrace tools.
-
-Patch 3/3 makes zfcp provide additional request latency and queue
-utilization data through blktrace.
-
-
-Patches are against scsi-misc and blktrace git.
+--- a/include/linux/blktrace_api.h
++++ b/include/linux/blktrace_api.h
+@@ -21,6 +21,7 @@ enum blktrace_cat {
+ 	BLK_TC_NOTIFY	= 1 << 10,	/* special message */
+ 	BLK_TC_AHEAD	= 1 << 11,	/* readahead */
+ 	BLK_TC_META	= 1 << 12,	/* metadata */
++	BLK_TC_DRV_DATA	= 1 << 13,	/* binary per-driver data */
+ 
+ 	BLK_TC_END	= 1 << 15,	/* only 16-bits, reminder */
+ };
+@@ -47,6 +48,7 @@ enum blktrace_act {
+ 	__BLK_TA_SPLIT,			/* bio was split */
+ 	__BLK_TA_BOUNCE,		/* bio was bounced */
+ 	__BLK_TA_REMAP,			/* bio was remapped */
++	__BLK_TA_DRV_DATA,		/* driver-specific binary data */
+ };
+ 
+ /*
+@@ -77,6 +79,7 @@ enum blktrace_notify {
+ #define BLK_TA_SPLIT		(__BLK_TA_SPLIT)
+ #define BLK_TA_BOUNCE		(__BLK_TA_BOUNCE)
+ #define BLK_TA_REMAP		(__BLK_TA_REMAP | BLK_TC_ACT(BLK_TC_QUEUE))
++#define BLK_TA_DRV_DATA	(__BLK_TA_DRV_DATA | BLK_TC_ACT(BLK_TC_DRV_DATA))
+ 
+ #define BLK_TN_PROCESS		(__BLK_TN_PROCESS | BLK_TC_ACT(BLK_TC_NOTIFY))
+ #define BLK_TN_TIMESTAMP	(__BLK_TN_TIMESTAMP | BLK_TC_ACT(BLK_TC_NOTIFY))
+@@ -307,6 +310,34 @@ static inline void blk_add_trace_remap(s
+ 	__blk_add_trace(bt, from, bio->bi_size, bio->bi_rw, BLK_TA_REMAP, !bio_flagged(bio, BIO_UPTODATE), sizeof(r), &r);
+ }
+ 
++/**
++ * blk_add_driver_data - Add binary message with driver-specific data
++ * @q:		queue the io is for
++ * @rq:		io request
++ * @data:	driver-specific data
++ * @len:	length of driver-specific data
++ *
++ * Description:
++ *     Some drivers might want to write driver-specific data per request.
++ *
++ **/
++static inline void blk_add_driver_data(struct request_queue *q,
++				       struct request *rq,
++				       void *data, size_t len)
++{
++	struct blk_trace *bt = q->blk_trace;
++
++	if (likely(!bt))
++		return;
++
++	if (blk_pc_request(rq))
++		__blk_add_trace(bt, 0, rq->data_len, 0, BLK_TA_DRV_DATA,
++				rq->errors, len, data);
++	else
++		__blk_add_trace(bt, rq->hard_sector, rq->hard_nr_sectors << 9,
++				0, BLK_TA_DRV_DATA, rq->errors, len, data);
++}
++
+ extern int blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
+ 			   char __user *arg);
+ extern int blk_trace_startstop(struct request_queue *q, int start);
+@@ -320,6 +351,7 @@ extern int blk_trace_remove(struct reque
+ #define blk_add_trace_generic(q, rq, rw, what)	do { } while (0)
+ #define blk_add_trace_pdu_int(q, what, bio, pdu)	do { } while (0)
+ #define blk_add_trace_remap(q, bio, dev, f, t)	do {} while (0)
++#define blk_add_driver_data(q, rq, data, len)	do {} while (0)
+ #define do_blk_trace_setup(q, name, dev, buts)	(-ENOTTY)
+ #define blk_trace_setup(q, name, dev, arg)	(-ENOTTY)
+ #define blk_trace_startstop(q, start)		(-ENOTTY)
