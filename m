@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753443AbYJFBZU@vger.kernel.org>
-Message-ID: <919fe2b30810051825l4f0907d1ucc9ffe9f201ddc4f@mail.gmail.com>
-Date: Sun, 5 Oct 2008 21:25:06 -0400
-From: "M. Asselstine" <asselsm@mcmaster.ca>
-Subject: Re: [PATCH 2/2] drivers/s390/cio/chsc_sch.c: Correct use of ! and &
-In-Reply-To: <Pine.LNX.4.64.0810042205090.19286@ask.diku.dk>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756911AbYJMIYv@vger.kernel.org>
+Date: Mon, 13 Oct 2008 10:23:22 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [PATCH] claw: fix compile bug.
+Message-ID: <20081013082322.GA17793@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0810042205090.19286@ask.diku.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Julia Lawall <julia@diku.dk>
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jeff Garzik <jeff@garzik.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, Oct 4, 2008 at 4:05 PM, Julia Lawall <julia@diku.dk> wrote:
-> From: Julia Lawall <julia@diku.dk>
->
-> In commit e6bafba5b4765a5a252f1b8d31cbf6d2459da337, a bug was fixed that
-> involved converting !x & y to !(x & y).  The code below shows the same
-> pattern, and thus should perhaps be fixed in the same way.  In particular,
-> the result of !scsw_stctl(&request->irb.scsw) & SCSW_STCTL_STATUS_PEND is
-> always just !scsw_stctl(&request->irb.scsw).
->
-> The semantic patch that makes this change is as follows:
-> (http://www.emn.fr/x-info/coccinelle/)
->
-> // <smpl>
-> @@ expression E; constant C; @@
-> (
->  !E & !C
-> |
-> - !E & C
-> + !(E & C)
-> )
-> // </smpl>
->
-> Signed-off-by: Julia Lawall <julia@diku.dk>
-Reviewed-by: Mark Asselstine <mark.asselstine@windriver.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
->
-> ---
->  drivers/s390/cio/chsc_sch.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff -u -p a/drivers/s390/cio/chsc_sch.c b/drivers/s390/cio/chsc_sch.c
-> --- a/drivers/s390/cio/chsc_sch.c
-> +++ b/drivers/s390/cio/chsc_sch.c
-> @@ -261,7 +261,7 @@ static int chsc_examine_irb(struct chsc_
->  {
->        int backed_up;
->
-> -       if (!scsw_stctl(&request->irb.scsw) & SCSW_STCTL_STATUS_PEND)
-> +       if (!(scsw_stctl(&request->irb.scsw) & SCSW_STCTL_STATUS_PEND))
->                return -EIO;
->        backed_up = scsw_cstat(&request->irb.scsw) & SCHN_STAT_CHAIN_CHECK;
->        request->irb.scsw.cmd.cstat &= ~SCHN_STAT_CHAIN_CHECK;
-> --
-> To unsubscribe from this list: send the line "unsubscribe kernel-janitors" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+git commit b9d3aed7e1e50183085fcd2af643bf42d6b4bd95
+"[S390] more bus_id -> dev_name conversions" introduced this compile bug:
+
+  CC      drivers/s390/net/claw.o
+drivers/s390/net/claw.c: In function 'claw_new_device':
+drivers/s390/net/claw.c:2917: error: expected ')' before 'ret'
+drivers/s390/net/claw.c:2917: warning: too few arguments for format
+make[2]: *** [drivers/s390/net/claw.o] Error 1
+make[1]: *** [drivers/s390/net] Error 2
+
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ drivers/s390/net/claw.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6/drivers/s390/net/claw.c
+===================================================================
+--- linux-2.6.orig/drivers/s390/net/claw.c
++++ linux-2.6/drivers/s390/net/claw.c
+@@ -2913,7 +2913,7 @@ claw_new_device(struct ccwgroup_device *
+ 	if (ret != 0) {
+ 		printk(KERN_WARNING
+ 			"claw: ccw_device_set_online %s WRITE failed "
+-		       "with ret = %d\n", dev_name(&cgdev->cdev[WRITE]->dev)
++		       "with ret = %d\n", dev_name(&cgdev->cdev[WRITE]->dev),
+ 		       ret);
+ 		goto out;
+ 	}
