@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757312AbYJMJE5@vger.kernel.org>
-Date: Mon, 13 Oct 2008 11:04:18 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH] dsa: fix compile bug on s390
-Message-ID: <20081013090418.GB17793@osiris.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755688AbYJORsX@vger.kernel.org>
+Message-Id: <20081015174413.781182094@de.ibm.com>
+References: <20081015174215.337001494@de.ibm.com>
+Date: Wed, 15 Oct 2008 19:42:17 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 2/5] qdio: remove incorrect memset
+Content-Disposition: inline; filename=002-qdio-strlen.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Jan Glauber <jang@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Jan Glauber <jang@linux.vnet.ibm.com>
 
-git commit 45cec1bac0719c904bb5f4405c2937f7e715888c
-"dsa: Need to select PHYLIB." causes this build bug on s390:
+Remove the memset since zeroing the string is not needed and use
+snprintf instead of sprintf.
 
-drivers/built-in.o: In function `phy_stop_interrupts':
-/home/heicarst/linux-2.6/drivers/net/phy/phy.c:631: undefined reference to `free_irq'
-/home/heicarst/linux-2.6/drivers/net/phy/phy.c:646: undefined reference to `enable_irq'
-drivers/built-in.o: In function `phy_start_interrupts':
-/home/heicarst/linux-2.6/drivers/net/phy/phy.c:601: undefined reference to `request_irq'
-drivers/built-in.o: In function `phy_interrupt':
-/home/heicarst/linux-2.6/drivers/net/phy/phy.c:528: undefined reference to `disable_irq_nosync'
-drivers/built-in.o: In function `phy_change':
-/home/heicarst/linux-2.6/drivers/net/phy/phy.c:674: undefined reference to `enable_irq'
-/home/heicarst/linux-2.6/drivers/net/phy/phy.c:692: undefined reference to `disable_irq'
-
-PHYLIB has alread a depend on !S390, however select PHYLIB at DSA overrides
-that unfortunately. So add a depend on !S390 to DSA as well.
-
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Jan Glauber <jang@linux.vnet.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- net/dsa/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/cio/qdio_debug.c |   19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
 
-Index: linux-2.6/net/dsa/Kconfig
+Index: quilt-2.6/drivers/s390/cio/qdio_debug.c
 ===================================================================
---- linux-2.6.orig/net/dsa/Kconfig
-+++ linux-2.6/net/dsa/Kconfig
-@@ -1,7 +1,7 @@
- menuconfig NET_DSA
- 	bool "Distributed Switch Architecture support"
- 	default n
--	depends on EXPERIMENTAL
-+	depends on EXPERIMENTAL && !S390
- 	select PHYLIB
- 	---help---
- 	  This allows you to use hardware switch chips that use
+--- quilt-2.6.orig/drivers/s390/cio/qdio_debug.c
++++ quilt-2.6/drivers/s390/cio/qdio_debug.c
+@@ -20,6 +20,7 @@ static struct dentry *debugfs_root;
+ #define MAX_DEBUGFS_QUEUES	32
+ static struct dentry *debugfs_queues[MAX_DEBUGFS_QUEUES] = { NULL };
+ static DEFINE_MUTEX(debugfs_mutex);
++#define QDIO_DEBUGFS_NAME_LEN	40
+ 
+ void qdio_allocate_do_dbf(struct qdio_initialize *init_data)
+ {
+@@ -152,17 +153,6 @@ static int qstat_seq_open(struct inode *
+ 			   filp->f_path.dentry->d_inode->i_private);
+ }
+ 
+-static void get_queue_name(struct qdio_q *q, struct ccw_device *cdev, char *name)
+-{
+-	memset(name, 0, sizeof(name));
+-	sprintf(name, "%s", dev_name(&cdev->dev));
+-	if (q->is_input_q)
+-		sprintf(name + strlen(name), "_input");
+-	else
+-		sprintf(name + strlen(name), "_output");
+-	sprintf(name + strlen(name), "_%d", q->nr);
+-}
+-
+ static void remove_debugfs_entry(struct qdio_q *q)
+ {
+ 	int i;
+@@ -189,14 +179,17 @@ static struct file_operations debugfs_fo
+ static void setup_debugfs_entry(struct qdio_q *q, struct ccw_device *cdev)
+ {
+ 	int i = 0;
+-	char name[40];
++	char name[QDIO_DEBUGFS_NAME_LEN];
+ 
+ 	while (debugfs_queues[i] != NULL) {
+ 		i++;
+ 		if (i >= MAX_DEBUGFS_QUEUES)
+ 			return;
+ 	}
+-	get_queue_name(q, cdev, name);
++	snprintf(name, QDIO_DEBUGFS_NAME_LEN, "%s_%s_%d",
++		 dev_name(&cdev->dev),
++		 q->is_input_q ? "input" : "output",
++		 q->nr);
+ 	debugfs_queues[i] = debugfs_create_file(name, S_IFREG | S_IRUGO | S_IWUSR,
+ 						debugfs_root, q, &debugfs_fops);
+ }
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
