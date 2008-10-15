@@ -1,79 +1,103 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755688AbYJORsX@vger.kernel.org>
-Message-Id: <20081015174413.781182094@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755579AbYJORsh@vger.kernel.org>
+Message-Id: <20081015174414.674150911@de.ibm.com>
 References: <20081015174215.337001494@de.ibm.com>
-Date: Wed, 15 Oct 2008 19:42:17 +0200
+Date: Wed, 15 Oct 2008 19:42:20 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 2/5] qdio: remove incorrect memset
-Content-Disposition: inline; filename=002-qdio-strlen.diff
+Subject: [patch 5/5] Fix sysdev class file creation.
+Content-Disposition: inline; filename=005-smp-sysdev.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Jan Glauber <jang@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, stable@kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Jan Glauber <jang@linux.vnet.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Remove the memset since zeroing the string is not needed and use
-snprintf instead of sprintf.
+Use sysdev_class_create_file() to create create sysdev class attributes
+instead of sysfs_create_file(). Using sysfs_create_file() wasn't a very
+good idea since the show and store functions have a different amount of
+parameters for sysfs files and sysdev class files.
+In particular the pointer to the buffer is the last argument and
+therefore accesses to random memory regions happened.
+Still worked surprisingly well until we got a kernel panic.
 
-Signed-off-by: Jan Glauber <jang@linux.vnet.ibm.com>
+Cc: stable@kernel.org
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/qdio_debug.c |   19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+ arch/s390/kernel/smp.c |   24 +++++++++---------------
+ 1 file changed, 9 insertions(+), 15 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/qdio_debug.c
+Index: quilt-2.6/arch/s390/kernel/smp.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/qdio_debug.c
-+++ quilt-2.6/drivers/s390/cio/qdio_debug.c
-@@ -20,6 +20,7 @@ static struct dentry *debugfs_root;
- #define MAX_DEBUGFS_QUEUES	32
- static struct dentry *debugfs_queues[MAX_DEBUGFS_QUEUES] = { NULL };
- static DEFINE_MUTEX(debugfs_mutex);
-+#define QDIO_DEBUGFS_NAME_LEN	40
- 
- void qdio_allocate_do_dbf(struct qdio_initialize *init_data)
- {
-@@ -152,17 +153,6 @@ static int qstat_seq_open(struct inode *
- 			   filp->f_path.dentry->d_inode->i_private);
+--- quilt-2.6.orig/arch/s390/kernel/smp.c
++++ quilt-2.6/arch/s390/kernel/smp.c
+@@ -1119,9 +1119,7 @@ out:
+ 	return rc;
  }
  
--static void get_queue_name(struct qdio_q *q, struct ccw_device *cdev, char *name)
--{
--	memset(name, 0, sizeof(name));
--	sprintf(name, "%s", dev_name(&cdev->dev));
--	if (q->is_input_q)
--		sprintf(name + strlen(name), "_input");
--	else
--		sprintf(name + strlen(name), "_output");
--	sprintf(name + strlen(name), "_%d", q->nr);
--}
--
- static void remove_debugfs_entry(struct qdio_q *q)
+-static ssize_t __ref rescan_store(struct sys_device *dev,
+-				  struct sysdev_attribute *attr,
+-				  const char *buf,
++static ssize_t __ref rescan_store(struct sysdev_class *class, const char *buf,
+ 				  size_t count)
  {
- 	int i;
-@@ -189,14 +179,17 @@ static struct file_operations debugfs_fo
- static void setup_debugfs_entry(struct qdio_q *q, struct ccw_device *cdev)
- {
- 	int i = 0;
--	char name[40];
-+	char name[QDIO_DEBUGFS_NAME_LEN];
- 
- 	while (debugfs_queues[i] != NULL) {
- 		i++;
- 		if (i >= MAX_DEBUGFS_QUEUES)
- 			return;
- 	}
--	get_queue_name(q, cdev, name);
-+	snprintf(name, QDIO_DEBUGFS_NAME_LEN, "%s_%s_%d",
-+		 dev_name(&cdev->dev),
-+		 q->is_input_q ? "input" : "output",
-+		 q->nr);
- 	debugfs_queues[i] = debugfs_create_file(name, S_IFREG | S_IRUGO | S_IWUSR,
- 						debugfs_root, q, &debugfs_fops);
+ 	int rc;
+@@ -1129,12 +1127,10 @@ static ssize_t __ref rescan_store(struct
+ 	rc = smp_rescan_cpus();
+ 	return rc ? rc : count;
  }
+-static SYSDEV_ATTR(rescan, 0200, NULL, rescan_store);
++static SYSDEV_CLASS_ATTR(rescan, 0200, NULL, rescan_store);
+ #endif /* CONFIG_HOTPLUG_CPU */
+ 
+-static ssize_t dispatching_show(struct sys_device *dev,
+-				struct sysdev_attribute *attr,
+-				char *buf)
++static ssize_t dispatching_show(struct sysdev_class *class, char *buf)
+ {
+ 	ssize_t count;
+ 
+@@ -1144,9 +1140,8 @@ static ssize_t dispatching_show(struct s
+ 	return count;
+ }
+ 
+-static ssize_t dispatching_store(struct sys_device *dev,
+-				 struct sysdev_attribute *attr,
+-				 const char *buf, size_t count)
++static ssize_t dispatching_store(struct sysdev_class *dev, const char *buf,
++				 size_t count)
+ {
+ 	int val, rc;
+ 	char delim;
+@@ -1168,7 +1163,8 @@ out:
+ 	put_online_cpus();
+ 	return rc ? rc : count;
+ }
+-static SYSDEV_ATTR(dispatching, 0644, dispatching_show, dispatching_store);
++static SYSDEV_CLASS_ATTR(dispatching, 0644, dispatching_show,
++			 dispatching_store);
+ 
+ static int __init topology_init(void)
+ {
+@@ -1178,13 +1174,11 @@ static int __init topology_init(void)
+ 	register_cpu_notifier(&smp_cpu_nb);
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+-	rc = sysfs_create_file(&cpu_sysdev_class.kset.kobj,
+-			       &attr_rescan.attr);
++	rc = sysdev_class_create_file(&cpu_sysdev_class, &attr_rescan);
+ 	if (rc)
+ 		return rc;
+ #endif
+-	rc = sysfs_create_file(&cpu_sysdev_class.kset.kobj,
+-			       &attr_dispatching.attr);
++	rc = sysdev_class_create_file(&cpu_sysdev_class, &attr_dispatching);
+ 	if (rc)
+ 		return rc;
+ 	for_each_present_cpu(cpu) {
 
 -- 
 blue skies,
