@@ -1,31 +1,31 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Wed, 15 Oct 2008 11:32:55 +0000
-Subject: Re: [PATCH] [S390] unsigned ops->size cannot be negative
-Message-Id: <20081015113255.GA6934@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <48F54009.6080605@gmail.com>
-References: <48F54009.6080605@gmail.com>
-To: linux-s390@vger.kernel.org
+From: Jens Axboe <jens.axboe@oracle.com>
+Date: Thu, 16 Oct 2008 08:53:17 +0000
+Subject: Re: [Patch 3/3] driver data: add support to blktrace user space code
+Message-Id: <20081016085317.GX19428@kernel.dk>
+In-Reply-To: <1224146144.8197.8.camel@kitka.ibm.com>
+References: <1224146144.8197.8.camel@kitka.ibm.com>
+To: linux-s390@vger.kernel.org, linux-btrace@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Oct 14, 2008 at 08:57:45PM -0400, roel kluin wrote:
-> unsigned ops->size cannot be negative
+On Thu, Oct 16 2008, Martin Peschke wrote:
+> 
+> On Thu, 2008-10-16 at 08:07 +0200, Jens Axboe wrote:
+> > On Sun, Oct 05 2008, Martin Peschke wrote:
+> > > From: Stefan Raspl <raspl@linux.vnet.ibm.com>
+> > > 
+> > > Adds a new type of action 'drv_data' for blktrace to handle binary
+> > > driver-specific data. Since the data is binary, blkparse will only put it in
+> > > a binary file, not in the regular human-readable output.
+> > 
+> > I wonder if that should display some kind of informational message on
+> > blkparse exit, if you are not dumping binary? Just to notify the user
+> > that there was extra data available, but that it wasn't dumped.
+> 
+> Don't know.
+> 
+> But I can volunteer to send a patch if you think so.
 
-True.
+I think it would be beneficial, so if you could that would be great ;)
 
-> N.B. It could be possible that a different fix is needed.
-
-Why fix? Does it fix a problem for you?
-To me it looks like you removed a pointless check. If this is supposed
-to fix any real problem then we need to take closer look.
-
-> diff --git a/arch/s390/appldata/appldata_base.c b/arch/s390/appldata/appldata_base.c
-> index a7f8979..a06a47c 100644
-> --- a/arch/s390/appldata/appldata_base.c
-> +++ b/arch/s390/appldata/appldata_base.c
-> @@ -424,7 +424,7 @@ out:
->   */
->  int appldata_register_ops(struct appldata_ops *ops)
->  {
-> -	if ((ops->size > APPLDATA_MAX_REC_SIZE) || (ops->size < 0))
-> +	if (ops->size > APPLDATA_MAX_REC_SIZE)
->  		return -EINVAL;
+-- 
+Jens Axboe
