@@ -1,32 +1,44 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 0/2] vdso support for s390
-Date: Wed, 15 Oct 2008 19:45:06 +0200
-Message-ID: <20081015174506.107691579@de.ibm.com>
+From: Bastian Blank <bastian@waldi.eu.org>
+Subject: Re: [patch 2/2] introduce vdso on s390
+Date: Fri, 17 Oct 2008 17:34:36 +0200
+Message-ID: <20081017153436.GA17116@wavehammer.waldi.eu.org>
+References: <20081015174506.107691579@de.ibm.com> <20081015175305.332585239@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20081015175305.332585239@de.ibm.com>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Greetings,
-the two patches in this series add a vdso to s390 for three system calls:
-1) gettimeofday
-2) clock_getres for CLOCK_REALTIME and CLOCK_MONOTONIC
-3) clock_gettime for CLOCK_REALTIME and CLOCK_MONOTONIC
-The vdso code for gettimeofday is about 4-5 times faster than the system
-call. Similar results for clock_gettime.
+On Wed, Oct 15, 2008 at 07:45:08PM +0200, Martin Schwidefsky wrote:
+> +void update_vsyscall(struct timespec *wall_time, struct clocksource *clock)
+> +{
+> +	if (clock != &clocksource_tod)
+> +		return;
+> +
+> +	/* Make userspace gettimeofday spin until we're done. */
+> +	++vdso_data->tb_update_count;
+> +	smp_mb();
+> +	vdso_data->xtime_tod_stamp = clock->cycle_last;
+> +	vdso_data->xtime_clock_sec = xtime.tv_sec;
+> +	vdso_data->xtime_clock_nsec = xtime.tv_nsec;
+> +	vdso_data->wtom_clock_sec = wall_to_monotonic.tv_sec;
+> +	vdso_data->wtom_clock_nsec = wall_to_monotonic.tv_nsec;
+> +	smp_wmb();
 
-The first of the two patches changes the arch_setup_additional_pages
-function. The second argument is unused and can be removed. For the
-s390 vdso I want to know if the elf executable is dynamically linked
-or not. Only if an interpreter is used the vdso is mapped. This adds
-a second argument to arch_setup_additional_pages again but with a
-different semantic.
+Different barriers?
+
+> +	++(vdso_data->tb_update_count);
+
+Why ++(...)?
+
+Bastian
 
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Either one of us, by himself, is expendable.  Both of us are not.
+		-- Kirk, "The Devil in the Dark", stardate 3196.1
