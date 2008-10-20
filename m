@@ -1,9 +1,10 @@
 Return-Path: <travis@sgi.com>
-Message-Id: <20081020170321.535939000@polaris-admin.engr.sgi.com>
+Message-Id: <20081020170322.363319000@polaris-admin.engr.sgi.com>
 References: <20081020170319.539427000@polaris-admin.engr.sgi.com>
-Date: Mon, 20 Oct 2008 10:03:33 -0700
+Date: Mon, 20 Oct 2008 10:03:39 -0700
 From: Mike Travis <travis@sgi.com>
-Subject: [PATCH 14/35] cpumask: make nr_cpu_ids valid in all configurations.
+Subject: [PATCH 20/35] cpumask: cpumask_of(): cpumask_of_cpu() which returns a
+	pointer.
 List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
 List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
@@ -17,74 +18,59 @@ To: Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>
 Cc: davej@codemonkey.org.uk, Jeremy Fitzhardinge <jeremy@goop.org>, Jes Sorensen <jes@sgi.com>, IA64 <linux-ia64@vger.kernel.org>, S390 <linux-s390@vger.kernel.org>, peterz@infradead.org, Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org, Eric Dumazet <dada1@cosmosbay.com>, PowerPC <linuxppc-dev@ozlabs.org>, Andi Kleen <andi@firstfloor.org>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yhlu.kernel@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, SPARC <sparclinux@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-nr_cpu_ids is the (badly named) runtime limit on possible CPU numbers;
-ie. the variable version of NR_CPUS.
-
-This makes is valid in all configs, including UP.
+This deprecates cpumask_of_cpu(), which returns a cpumask_t
+(cpumask_of() returns a const pointer, instead).
 
 From: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Mike Travis <travis@sgi.com>
 ---
- include/linux/cpumask.h |   10 ++++++++--
- init/main.c             |    7 +++++++
- 2 files changed, 15 insertions(+), 2 deletions(-)
+ include/linux/cpumask.h |   16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
---- test-compile.orig/include/linux/cpumask.h
-+++ test-compile/include/linux/cpumask.h
-@@ -195,6 +195,14 @@ extern cpumask_t _unused_cpumask_arg_;
- #define cpus_addr(src) ((src).bits)
+--- linux-2.6.28.orig/include/linux/cpumask.h
++++ linux-2.6.28/include/linux/cpumask.h
+@@ -52,8 +52,7 @@
+  * void cpumask_copy(dmask, smask)	dmask = smask
+  *
+  * size_t cpumask_size()		Length of cpumask in bytes.
+- * cpumask_t cpumask_of_cpu(cpu)	Return cpumask with bit 'cpu' set
+- *					(can be used as an lvalue)
++ * const struct cpumask *cpumask_of(cpu) Return cpumask with bit 'cpu' set
+  * CPU_MASK_ALL				Initializer - all bits set
+  * CPU_MASK_NONE			Initializer - no bits set
+  * unsigned long *cpumask_bits(mask)	Array of unsigned long's in mask
+@@ -176,6 +175,7 @@ extern cpumask_t _unused_cpumask_arg_;
+ #define next_cpu_nr(n, src)		next_cpu(n, src)
+ #define cpus_weight_nr(cpumask)		cpus_weight(cpumask)
+ #define for_each_cpu_mask_nr(cpu, mask)	for_each_cpu_mask(cpu, mask)
++#define cpumask_of_cpu(cpu) (*cpumask_of(cpu))
  /* End deprecated region. */
  
-+#if NR_CPUS <= BITS_PER_LONG
-+/* Constant is usually more efficient than a variable for small NR_CPUS */
-+#define nr_cpu_ids NR_CPUS
-+#else
-+/* Starts at NR_CPUS until we know better. */
-+extern int nr_cpu_ids;
-+#endif /* NR_CPUS > BITS_PER_LONG */
-+
- static inline void cpumask_set_cpu(int cpu, volatile struct cpumask *dstp)
+ #if NR_CPUS <= BITS_PER_LONG
+@@ -382,21 +382,13 @@ static inline void cpumask_copy(struct c
+ extern const unsigned long
+ 	cpu_bit_bitmap[BITS_PER_LONG+1][BITS_TO_LONGS(NR_CPUS)];
+ 
+-static inline const cpumask_t *get_cpu_mask(unsigned int cpu)
++static inline const struct cpumask *cpumask_of(unsigned int cpu)
  {
- 	set_bit(cpu, dstp->bits);
-@@ -434,7 +442,6 @@ extern cpumask_t cpu_mask_all;
- 
- #if NR_CPUS == 1
- 
--#define nr_cpu_ids			1
- #define first_cpu(src)			({ (void)(src); 0; })
- #define next_cpu(n, src)		({ (void)(src); 1; })
- #define cpumask_next_and(n, srcp, andp)	({ (void)(srcp), (void)(andp); 1; })
-@@ -447,7 +454,6 @@ extern cpumask_t cpu_mask_all;
- 
- #else /* NR_CPUS > 1 */
- 
--extern int nr_cpu_ids;
- int __first_cpu(const cpumask_t *srcp);
- int __next_cpu(int n, const cpumask_t *srcp);
- int cpumask_next_and(int n, const cpumask_t *srcp, const cpumask_t *andp);
---- test-compile.orig/init/main.c
-+++ test-compile/init/main.c
-@@ -373,6 +373,8 @@ EXPORT_SYMBOL(cpu_mask_all);
- #endif
- 
- /* Setup number of possible processor ids */
-+/* nr_cpu_ids is a real variable for large NR_CPUS. */
-+#ifndef nr_cpu_ids
- int nr_cpu_ids __read_mostly = NR_CPUS;
- EXPORT_SYMBOL(nr_cpu_ids);
- 
-@@ -386,6 +388,11 @@ void __init setup_nr_cpu_ids(void)
- 
- 	nr_cpu_ids = highest_cpu + 1;
+ 	const unsigned long *p = cpu_bit_bitmap[1 + cpu % BITS_PER_LONG];
+ 	p -= cpu / BITS_PER_LONG;
+-	return (const cpumask_t *)p;
++	return (const struct cpumask *)p;
  }
-+#else
-+void __init setup_nr_cpu_ids(void)
-+{
-+}
-+#endif /* ... nr_cpu_ids is a constant. */
  
- #ifndef CONFIG_HAVE_SETUP_PER_CPU_AREA
- unsigned long __per_cpu_offset[NR_CPUS] __read_mostly;
+-/*
+- * In cases where we take the address of the cpumask immediately,
+- * gcc optimizes it out (it's a constant) and there's no huge stack
+- * variable created:
+- */
+-#define cpumask_of_cpu(cpu) (*get_cpu_mask(cpu))
+-
+-
+ #define CPU_MASK_LAST_WORD BITMAP_LAST_WORD_MASK(NR_CPUS)
+ 
+ #if NR_CPUS <= BITS_PER_LONG
 
 -- 
