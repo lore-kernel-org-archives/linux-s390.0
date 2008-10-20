@@ -1,10 +1,9 @@
 Return-Path: <travis@sgi.com>
-Message-Id: <20081020170319.730428000@polaris-admin.engr.sgi.com>
+Message-Id: <20081020170320.007751000@polaris-admin.engr.sgi.com>
 References: <20081020170319.539427000@polaris-admin.engr.sgi.com>
-Date: Mon, 20 Oct 2008 10:03:20 -0700
+Date: Mon, 20 Oct 2008 10:03:22 -0700
 From: Mike Travis <travis@sgi.com>
-Subject: [PATCH 01/35] x86: clean up speedctep-centrino and reduce cpumask_t
-	usage
+Subject: [PATCH 03/35] cpumask: add for_each_cpu_mask_and function
 List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
 List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
@@ -18,130 +17,129 @@ To: Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>
 Cc: davej@codemonkey.org.uk, Jeremy Fitzhardinge <jeremy@goop.org>, Jes Sorensen <jes@sgi.com>, IA64 <linux-ia64@vger.kernel.org>, S390 <linux-s390@vger.kernel.org>, peterz@infradead.org, Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org, Eric Dumazet <dada1@cosmosbay.com>, PowerPC <linuxppc-dev@ozlabs.org>, Andi Kleen <andi@firstfloor.org>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yhlu.kernel@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, SPARC <sparclinux@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-1) The #ifdef CONFIG_HOTPLUG_CPU seems unnecessary these days.
-2) The loop can simply skip over offline cpus, rather than creating a tmp mask.
-3) set_mask is set to either a single cpu or all online cpus in a policy.
-   Since it's just used for set_cpus_allowed(), any offline cpus in a policy
-   don't matter, so we can just use cpumask_of_cpu() or the policy->cpus.
+Add for_each_cpu_mask_and() function to eliminate need for a common use
+of a temporary cpumask_t variable.  When the following procedure is being
+used:
 
-From: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+    funcproto(const cpumask_t *mask, ...)
+    {
+	cpumask_t temp;
+
+	cpus_and(temp, mask, cpu_online_map);
+	for_each_cpu_mask(cpu, temp)
+		...
+It then becomes:
+
+    funcproto(cpumask_t *mask, ...)
+    {
+	for_each_cpu_mask_and(cpu, *mask, cpu_online_map)
+		...
+
+... eliminating the need for the temp cpumask.
+
+
+Applies to linux-2.6.tip/master.
+
 Signed-off-by: Mike Travis <travis@sgi.com>
+Acked-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- arch/x86/kernel/cpu/cpufreq/speedstep-centrino.c |   51 ++++++++++-------------
- 1 file changed, 24 insertions(+), 27 deletions(-)
+ include/linux/cpumask.h |   33 ++++++++++++++++++++++++---------
+ lib/cpumask.c           |    9 +++++++++
+ 2 files changed, 33 insertions(+), 9 deletions(-)
 
---- linux-2.6.28.orig/arch/x86/kernel/cpu/cpufreq/speedstep-centrino.c
-+++ linux-2.6.28/arch/x86/kernel/cpu/cpufreq/speedstep-centrino.c
-@@ -552,9 +552,7 @@ static int centrino_verify (struct cpufr
-  * Sets a new CPUFreq policy.
-  */
- struct allmasks {
--	cpumask_t		online_policy_cpus;
- 	cpumask_t		saved_mask;
--	cpumask_t		set_mask;
- 	cpumask_t		covered_cpus;
- };
+--- test-compile.orig/include/linux/cpumask.h
++++ test-compile/include/linux/cpumask.h
+@@ -109,6 +109,7 @@
+  *
+  * for_each_cpu_mask(cpu, mask)		for-loop cpu over mask using NR_CPUS
+  * for_each_cpu_mask_nr(cpu, mask)	for-loop cpu over mask using nr_cpu_ids
++ * for_each_cpu_mask_and(cpu, mask, and) for-loop cpu over (mask & and).
+  *
+  * int num_online_cpus()		Number of online CPUs
+  * int num_possible_cpus()		Number of all possible CPUs
+@@ -400,29 +401,41 @@ static inline void __cpus_fold(cpumask_t
  
-@@ -568,9 +566,7 @@ static int centrino_target (struct cpufr
- 	int			retval = 0;
- 	unsigned int		j, k, first_cpu, tmp;
- 	CPUMASK_ALLOC(allmasks);
--	CPUMASK_PTR(online_policy_cpus, allmasks);
- 	CPUMASK_PTR(saved_mask, allmasks);
--	CPUMASK_PTR(set_mask, allmasks);
- 	CPUMASK_PTR(covered_cpus, allmasks);
+ #if NR_CPUS == 1
  
- 	if (unlikely(allmasks == NULL))
-@@ -590,30 +586,28 @@ static int centrino_target (struct cpufr
- 		goto out;
- 	}
- 
--#ifdef CONFIG_HOTPLUG_CPU
--	/* cpufreq holds the hotplug lock, so we are safe from here on */
--	cpus_and(*online_policy_cpus, cpu_online_map, policy->cpus);
--#else
--	*online_policy_cpus = policy->cpus;
--#endif
--
- 	*saved_mask = current->cpus_allowed;
- 	first_cpu = 1;
- 	cpus_clear(*covered_cpus);
--	for_each_cpu_mask_nr(j, *online_policy_cpus) {
-+	for_each_cpu_mask_nr(j, policy->cpus) {
-+		const cpumask_t *mask;
+-#define nr_cpu_ids		1
+-#define first_cpu(src)		({ (void)(src); 0; })
+-#define next_cpu(n, src)	({ (void)(src); 1; })
+-#define any_online_cpu(mask)	0
+-#define for_each_cpu_mask(cpu, mask)	\
++#define nr_cpu_ids			1
++#define first_cpu(src)			({ (void)(src); 0; })
++#define next_cpu(n, src)		({ (void)(src); 1; })
++#define cpumask_next_and(n, srcp, andp)	({ (void)(srcp), (void)(andp); 1; })
++#define any_online_cpu(mask)		0
 +
-+		/* cpufreq holds the hotplug lock, so we are safe here */
-+		if (!cpu_online(j))
-+			continue;
++#define for_each_cpu_mask(cpu, mask)		\
+ 	for ((cpu) = 0; (cpu) < 1; (cpu)++, (void)mask)
++#define for_each_cpu_mask_and(cpu, mask, and)	\
++	for ((cpu) = 0; (cpu) < 1; (cpu)++, (void)mask, (void)and)
+ 
+ #else /* NR_CPUS > 1 */
+ 
+ extern int nr_cpu_ids;
+ int __first_cpu(const cpumask_t *srcp);
+ int __next_cpu(int n, const cpumask_t *srcp);
++int cpumask_next_and(int n, const cpumask_t *srcp, const cpumask_t *andp);
+ int __any_online_cpu(const cpumask_t *mask);
+ 
+ #define first_cpu(src)		__first_cpu(&(src))
+ #define next_cpu(n, src)	__next_cpu((n), &(src))
+ #define any_online_cpu(mask) __any_online_cpu(&(mask))
 +
- 		/*
- 		 * Support for SMP systems.
- 		 * Make sure we are running on CPU that wants to change freq
- 		 */
--		cpus_clear(*set_mask);
- 		if (policy->shared_type == CPUFREQ_SHARED_TYPE_ANY)
--			cpus_or(*set_mask, *set_mask, *online_policy_cpus);
-+			mask = &policy->cpus;
- 		else
--			cpu_set(j, *set_mask);
-+			mask = &cpumask_of_cpu(j);
+ #define for_each_cpu_mask(cpu, mask)			\
+ 	for ((cpu) = -1;				\
+ 		(cpu) = next_cpu((cpu), (mask)),	\
+-		(cpu) < NR_CPUS; )
++		(cpu) < NR_CPUS;)
++#define for_each_cpu_mask_and(cpu, mask, and)				\
++	for ((cpu) = -1;						\
++		(cpu) = cpumask_next_and((cpu), &(mask), &(and)),	\
++		(cpu) < nr_cpu_ids;)
+ #endif
  
--		set_cpus_allowed_ptr(current, set_mask);
-+		set_cpus_allowed_ptr(current, mask);
- 		preempt_disable();
--		if (unlikely(!cpu_isset(smp_processor_id(), *set_mask))) {
-+		if (unlikely(!cpu_isset(smp_processor_id(), *mask))) {
- 			dprintk("couldn't limit to CPUs in this domain\n");
- 			retval = -EAGAIN;
- 			if (first_cpu) {
-@@ -641,7 +635,9 @@ static int centrino_target (struct cpufr
- 			dprintk("target=%dkHz old=%d new=%d msr=%04x\n",
- 				target_freq, freqs.old, freqs.new, msr);
++#define cpumask_first_and(mask, and) cpumask_next_and(-1, (mask), (and))
++
+ #if NR_CPUS <= 64
  
--			for_each_cpu_mask_nr(k, *online_policy_cpus) {
-+			for_each_cpu_mask_nr(k, policy->cpus) {
-+				if (!cpu_online(k))
-+					continue;
- 				freqs.cpu = k;
- 				cpufreq_notify_transition(&freqs,
- 					CPUFREQ_PRECHANGE);
-@@ -664,7 +660,9 @@ static int centrino_target (struct cpufr
- 		preempt_enable();
- 	}
+ #define next_cpu_nr(n, src)		next_cpu(n, src)
+@@ -432,12 +445,14 @@ int __any_online_cpu(const cpumask_t *ma
+ #else /* NR_CPUS > 64 */
  
--	for_each_cpu_mask_nr(k, *online_policy_cpus) {
-+	for_each_cpu_mask_nr(k, policy->cpus) {
-+		if (!cpu_online(k))
-+			continue;
- 		freqs.cpu = k;
- 		cpufreq_notify_transition(&freqs, CPUFREQ_POSTCHANGE);
- 	}
-@@ -677,18 +675,17 @@ static int centrino_target (struct cpufr
- 		 * Best effort undo..
- 		 */
+ int __next_cpu_nr(int n, const cpumask_t *srcp);
+-#define next_cpu_nr(n, src)	__next_cpu_nr((n), &(src))
+-#define cpus_weight_nr(cpumask)	__cpus_weight(&(cpumask), nr_cpu_ids)
++
++#define next_cpu_nr(n, src)		__next_cpu_nr((n), &(src))
++#define cpus_weight_nr(cpumask)		__cpus_weight(&(cpumask), nr_cpu_ids)
++
+ #define for_each_cpu_mask_nr(cpu, mask)			\
+ 	for ((cpu) = -1;				\
+ 		(cpu) = next_cpu_nr((cpu), (mask)),	\
+-		(cpu) < nr_cpu_ids; )
++		(cpu) < nr_cpu_ids;)
  
--		if (!cpus_empty(*covered_cpus))
--			for_each_cpu_mask_nr(j, *covered_cpus) {
--				set_cpus_allowed_ptr(current,
--						     &cpumask_of_cpu(j));
--				wrmsr(MSR_IA32_PERF_CTL, oldmsr, h);
--			}
-+		for_each_cpu_mask_nr(j, *covered_cpus) {
-+			set_cpus_allowed_ptr(current, &cpumask_of_cpu(j));
-+			wrmsr(MSR_IA32_PERF_CTL, oldmsr, h);
-+		}
+ #endif /* NR_CPUS > 64 */
  
- 		tmp = freqs.new;
- 		freqs.new = freqs.old;
- 		freqs.old = tmp;
--		for_each_cpu_mask_nr(j, *online_policy_cpus) {
--			freqs.cpu = j;
-+		for_each_cpu_mask_nr(j, policy->cpus) {
-+			if (!cpu_online(j))
-+				continue;
- 			cpufreq_notify_transition(&freqs, CPUFREQ_PRECHANGE);
- 			cpufreq_notify_transition(&freqs, CPUFREQ_POSTCHANGE);
- 		}
+--- test-compile.orig/lib/cpumask.c
++++ test-compile/lib/cpumask.c
+@@ -15,6 +15,15 @@ int __next_cpu(int n, const cpumask_t *s
+ }
+ EXPORT_SYMBOL(__next_cpu);
+ 
++int cpumask_next_and(int n, const cpumask_t *srcp, const cpumask_t *andp)
++{
++	while ((n = next_cpu_nr(n, *srcp)) < nr_cpu_ids)
++		if (cpu_isset(n, *andp))
++			break;
++	return n;
++}
++EXPORT_SYMBOL(cpumask_next_and);
++
+ #if NR_CPUS > 64
+ int __next_cpu_nr(int n, const cpumask_t *srcp)
+ {
 
 -- 
