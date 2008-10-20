@@ -1,9 +1,10 @@
 Return-Path: <travis@sgi.com>
-Message-Id: <20081020170320.288298000@polaris-admin.engr.sgi.com>
+Message-Id: <20081020170323.056637000@polaris-admin.engr.sgi.com>
 References: <20081020170319.539427000@polaris-admin.engr.sgi.com>
-Date: Mon, 20 Oct 2008 10:03:24 -0700
+Date: Mon, 20 Oct 2008 10:03:44 -0700
 From: Mike Travis <travis@sgi.com>
-Subject: [PATCH 05/35] sched: Reduce stack size requirements in kernel/sched.c
+Subject: [PATCH 25/35] cpumask: Deprecate CPUMASK_ALLOC etc in favor of
+	cpumask_var_t.
 List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
 List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
@@ -17,54 +18,83 @@ To: Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>
 Cc: davej@codemonkey.org.uk, Jeremy Fitzhardinge <jeremy@goop.org>, Jes Sorensen <jes@sgi.com>, IA64 <linux-ia64@vger.kernel.org>, S390 <linux-s390@vger.kernel.org>, peterz@infradead.org, Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org, Eric Dumazet <dada1@cosmosbay.com>, PowerPC <linuxppc-dev@ozlabs.org>, Andi Kleen <andi@firstfloor.org>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yhlu.kernel@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, SPARC <sparclinux@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-  * use node_to_cpumask_ptr in place of node_to_cpumask to reduce stack
-    requirements in sched.c
+Remove CPUMASK_ALLOC() in favor of alloc_cpumask_var().
 
-Applies to linux-2.6.tip/master.
-
+From: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Mike Travis <travis@sgi.com>
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- kernel/sched.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ include/linux/cpumask.h |   46 ++++++++--------------------------------------
+ 1 file changed, 8 insertions(+), 38 deletions(-)
 
---- linux-2.6.28.orig/kernel/sched.c
-+++ linux-2.6.28/kernel/sched.c
-@@ -6117,8 +6117,9 @@ static void move_task_off_dead_cpu(int d
+--- linux-2.6.28.orig/include/linux/cpumask.h
++++ linux-2.6.28/include/linux/cpumask.h
+@@ -57,35 +57,6 @@
+  * CPU_MASK_NONE			Initializer - no bits set
+  * unsigned long *cpumask_bits(mask)	Array of unsigned long's in mask
+  *
+- * CPUMASK_ALLOC kmalloc's a structure that is a composite of many cpumask_t
+- * variables, and CPUMASK_PTR provides pointers to each field.
+- *
+- * The structure should be defined something like this:
+- * struct my_cpumasks {
+- *	cpumask_t mask1;
+- *	cpumask_t mask2;
+- * };
+- *
+- * Usage is then:
+- *	CPUMASK_ALLOC(my_cpumasks);
+- *	CPUMASK_PTR(mask1, my_cpumasks);
+- *	CPUMASK_PTR(mask2, my_cpumasks);
+- *
+- *	--- DO NOT reference cpumask_t pointers until this check ---
+- *	if (my_cpumasks == NULL)
+- *		"kmalloc failed"...
+- *
+- * References are now pointers to the cpumask_t variables (*mask1, ...)
+- *
+- *if NR_CPUS > BITS_PER_LONG
+- *   CPUMASK_ALLOC(m)			Declares and allocates struct m *m =
+- *						kmalloc(sizeof(*m), GFP_KERNEL)
+- *   CPUMASK_FREE(m)			Macro for kfree(m)
+- *else
+- *   CPUMASK_ALLOC(m)			Declares struct m _m, *m = &_m
+- *   CPUMASK_FREE(m)			Nop
+- *endif
+- *   CPUMASK_PTR(v, m)			Declares cpumask_t *v = &(m->v)
+  * ------------------------------------------------------------------------
+  *
+  * int cpumask_scnprintf(buf, len, mask) Format cpumask for printing
+@@ -184,6 +155,14 @@ extern cpumask_t _unused_cpumask_arg_;
+ #define first_cpu(src)		cpumask_first(&(src))
+ #define next_cpu(n, src)	cpumask_next((n), &(src))
+ #define any_online_cpu(mask)	cpumask_any_and(&(mask), &cpu_online_map)
++#if NR_CPUS > BITS_PER_LONG
++#define	CPUMASK_ALLOC(m)	struct m *m = kmalloc(sizeof(*m), GFP_KERNEL)
++#define	CPUMASK_FREE(m)		kfree(m)
++#else
++#define	CPUMASK_ALLOC(m)	struct m _m, *m = &_m
++#define	CPUMASK_FREE(m)
++#endif
++#define	CPUMASK_PTR(v, m) 	cpumask_t *v = &(m->v)
+ /* End deprecated region. */
  
- 	do {
- 		/* On same node? */
--		mask = node_to_cpumask(cpu_to_node(dead_cpu));
--		cpus_and(mask, mask, p->cpus_allowed);
-+		node_to_cpumask_ptr(pnodemask, cpu_to_node(dead_cpu));
-+
-+		cpus_and(mask, *pnodemask, p->cpus_allowed);
- 		dest_cpu = any_online_cpu(mask);
+ #if NR_CPUS <= BITS_PER_LONG
+@@ -435,15 +414,6 @@ extern cpumask_t cpu_mask_all;
+ 	[0] =  1UL							\
+ } }
  
- 		/* On any allowed CPU? */
-@@ -7126,9 +7127,9 @@ static int cpu_to_allnodes_group(int cpu
- 				 struct sched_group **sg, cpumask_t *nodemask)
- {
- 	int group;
-+	node_to_cpumask_ptr(pnodemask, cpu_to_node(cpu));
+-#if NR_CPUS > BITS_PER_LONG
+-#define	CPUMASK_ALLOC(m)	struct m *m = kmalloc(sizeof(*m), GFP_KERNEL)
+-#define	CPUMASK_FREE(m)		kfree(m)
+-#else
+-#define	CPUMASK_ALLOC(m)	struct m _m, *m = &_m
+-#define	CPUMASK_FREE(m)
+-#endif
+-#define	CPUMASK_PTR(v, m) 	cpumask_t *v = &(m->v)
+-
+ #if NR_CPUS == 1
  
--	*nodemask = node_to_cpumask(cpu_to_node(cpu));
--	cpus_and(*nodemask, *nodemask, *cpu_map);
-+	cpus_and(*nodemask, *pnodemask, *cpu_map);
- 	group = first_cpu(*nodemask);
- 
- 	if (sg)
-@@ -7178,9 +7179,9 @@ static void free_sched_groups(const cpum
- 
- 		for (i = 0; i < nr_node_ids; i++) {
- 			struct sched_group *oldsg, *sg = sched_group_nodes[i];
-+			node_to_cpumask_ptr(pnodemask, i);
- 
--			*nodemask = node_to_cpumask(i);
--			cpus_and(*nodemask, *nodemask, *cpu_map);
-+			cpus_and(*nodemask, *pnodemask, *cpu_map);
- 			if (cpus_empty(*nodemask))
- 				continue;
- 
+ #define cpumask_first(src)	({ (void)(src); 0; })
 
 -- 
