@@ -1,9 +1,9 @@
 Return-Path: <travis@sgi.com>
-Message-Id: <20081020170324.009837000@polaris-admin.engr.sgi.com>
+Message-Id: <20081020170322.646161000@polaris-admin.engr.sgi.com>
 References: <20081020170319.539427000@polaris-admin.engr.sgi.com>
-Date: Mon, 20 Oct 2008 10:03:51 -0700
+Date: Mon, 20 Oct 2008 10:03:41 -0700
 From: Mike Travis <travis@sgi.com>
-Subject: [PATCH 32/35] cpumask: cpu_all_mask and cpu_none_mask.
+Subject: [PATCH 22/35] cpumask: cpumask_first/cpumask_next
 List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
 List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
@@ -17,150 +17,99 @@ To: Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>
 Cc: davej@codemonkey.org.uk, Jeremy Fitzhardinge <jeremy@goop.org>, Jes Sorensen <jes@sgi.com>, IA64 <linux-ia64@vger.kernel.org>, S390 <linux-s390@vger.kernel.org>, peterz@infradead.org, Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org, Eric Dumazet <dada1@cosmosbay.com>, PowerPC <linuxppc-dev@ozlabs.org>, Andi Kleen <andi@firstfloor.org>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yhlu.kernel@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, SPARC <sparclinux@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-Instead of CPU_MASK_ALL_PTR and the SMP-only cpu_mask_all, this makes
-cpu_all_mask and cpu_none_mask which are const cpumask pointers which
-always exist.
+Pointer-taking variants of first_cpu/next_cpu.
 
 From: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Mike Travis <travis@sgi.com>
 ---
- include/linux/cpumask.h |   16 ++++++++++------
- init/main.c             |    7 +------
- kernel/cpu.c            |    2 ++
- kernel/kmod.c           |    2 +-
- kernel/kthread.c        |    4 ++--
- kernel/sched.c          |    2 +-
- 6 files changed, 17 insertions(+), 16 deletions(-)
+ include/linux/cpumask.h |   18 +++++++++---------
+ lib/cpumask.c           |   10 +++++-----
+ 2 files changed, 14 insertions(+), 14 deletions(-)
 
---- linux-2.6.28.orig/include/linux/cpumask.h
-+++ linux-2.6.28/include/linux/cpumask.h
-@@ -117,6 +117,7 @@ struct cpumask
- typedef struct cpumask cpumask_t;
- extern cpumask_t _unused_cpumask_arg_;
- 
-+#define CPU_MASK_ALL_PTR	(cpu_all_mask)
- #define CPU_MASK_ALL		((cpumask_t){ CPU_BITS_ALL })
- #define CPU_MASK_NONE		((cpumask_t){ CPU_BITS_NONE })
- #define CPU_MASK_CPU0		((cpumask_t){ CPU_BITS_CPU0 })
-@@ -175,6 +176,7 @@ extern cpumask_t _unused_cpumask_arg_;
- #define cpu_online_map		(*(cpumask_t *)cpu_online_mask)
- #define cpu_present_map		(*(cpumask_t *)cpu_present_mask)
- #define cpu_active_map		(*(cpumask_t *)cpu_active_mask)
-+#define cpu_mask_all		(*(cpumask_t *)cpu_all_mask)
+--- test-compile.orig/include/linux/cpumask.h
++++ test-compile/include/linux/cpumask.h
+@@ -46,8 +46,8 @@
+  * void cpumask_shift_right(dst, src, n) Shift right
+  * void cpumask_shift_left(dst, src, n)	Shift left
+  *
+- * int first_cpu(mask)			Number lowest set bit or nr_cpumask_bits
+- * int next_cpu(cpu, mask)		Next cpu past 'cpu', or nr_cpumask_bits
++ * int cpumask_first(mask)		Number lowest set bit or nr_cpumask_bits
++ * int cpumask_next(cpu, mask)		Next cpu past 'cpu', or nr_cpumask_bits
+  *
+  * void cpumask_copy(dmask, smask)	dmask = smask
+  *
+@@ -200,6 +200,8 @@ extern cpumask_t _unused_cpumask_arg_;
+ #define for_each_cpu_mask(cpu, mask)	for_each_cpu(cpu, &(mask))
+ #define for_each_cpu_mask_and(cpu, mask, and)	\
+ 		for_each_cpu_and(cpu, &(mask), &(and))
++#define first_cpu(src)		cpumask_first(&(src))
++#define next_cpu(n, src)	cpumask_next((n), &(src))
  /* End deprecated region. */
  
- #if NR_CPUS <= BITS_PER_LONG
-@@ -411,8 +413,6 @@ static inline const struct cpumask *cpum
- 	[BITS_TO_LONGS(CONFIG_NR_CPUS)-1] = CPU_MASK_LAST_WORD	\
- }
+ static inline void cpumask_set_cpu(int cpu, volatile struct cpumask *dstp)
+@@ -448,8 +450,8 @@ extern cpumask_t cpu_mask_all;
  
--#define CPU_MASK_ALL_PTR	(&CPU_MASK_ALL)
--
- #else
+ #if NR_CPUS == 1
  
- #define CPU_BITS_ALL						\
-@@ -421,10 +421,6 @@ static inline const struct cpumask *cpum
- 	[BITS_TO_LONGS(CONFIG_NR_CPUS)-1] = CPU_MASK_LAST_WORD	\
- }
+-#define first_cpu(src)			({ (void)(src); 0; })
+-#define next_cpu(n, src)		({ (void)(src); 1; })
++#define cpumask_first(src)		({ (void)(src); 0; })
++#define cpumask_next(n, src)		({ (void)(src); 1; })
+ #define cpumask_next_and(n, srcp, andp)	({ (void)(srcp), (void)(andp); 1; })
+ #define any_online_cpu(mask)		0
  
--/* cpu_mask_all is in init/main.c */
--extern cpumask_t cpu_mask_all;
--#define CPU_MASK_ALL_PTR	(&cpu_mask_all)
--
- #endif
+@@ -460,18 +462,16 @@ extern cpumask_t cpu_mask_all;
  
- #define CPU_BITS_NONE						\
-@@ -578,6 +574,14 @@ extern const struct cpumask *const cpu_o
- extern const struct cpumask *const cpu_present_mask;
- extern const struct cpumask *const cpu_active_mask;
+ #else /* NR_CPUS > 1 */
  
-+/* It's common to want to use cpu_all_mask in struct member initializers,
-+ * so it has to refer to an address rather than a pointer. */
-+extern const DECLARE_BITMAP(cpu_all_bits, CONFIG_NR_CPUS);
-+#define cpu_all_mask to_cpumask(cpu_all_bits)
-+
-+/* First bits of cpu_bit_bitmap are in fact unset. */
-+#define cpu_none_mask to_cpumask(cpu_bit_bitmap[0])
-+
- #if NR_CPUS > 1
- #define num_online_cpus()	cpus_weight(cpu_online_map)
- #define num_possible_cpus()	cpus_weight(cpu_possible_map)
---- linux-2.6.28.orig/init/main.c
-+++ linux-2.6.28/init/main.c
-@@ -367,11 +367,6 @@ static inline void smp_prepare_cpus(unsi
+-int __first_cpu(const cpumask_t *srcp);
+-int __next_cpu(int n, const cpumask_t *srcp);
++int cpumask_first(const cpumask_t *srcp);
++int cpumask_next(int n, const cpumask_t *srcp);
+ int cpumask_next_and(int n, const cpumask_t *srcp, const cpumask_t *andp);
+ int __any_online_cpu(const cpumask_t *mask);
  
- #else
+-#define first_cpu(src)		__first_cpu(&(src))
+-#define next_cpu(n, src)	__next_cpu((n), &(src))
+ #define any_online_cpu(mask) __any_online_cpu(&(mask))
  
--#if NR_CPUS > BITS_PER_LONG
--cpumask_t cpu_mask_all __read_mostly = CPU_MASK_ALL;
--EXPORT_SYMBOL(cpu_mask_all);
--#endif
--
- /* Setup number of possible processor ids */
- /* nr_cpumask_bits is a real variable for large NR_CPUS. */
- #ifndef nr_cpumask_bits
-@@ -869,7 +864,7 @@ static int __init kernel_init(void * unu
- 	/*
- 	 * init can run on any cpu.
- 	 */
--	set_cpus_allowed_ptr(current, CPU_MASK_ALL_PTR);
-+	set_cpus_allowed_ptr(current, cpu_all_mask);
- 	/*
- 	 * Tell the world that we're going to be the grim
- 	 * reaper of innocent orphaned children.
---- linux-2.6.28.orig/kernel/cpu.c
-+++ linux-2.6.28/kernel/cpu.c
-@@ -489,6 +489,8 @@ EXPORT_SYMBOL(cpu_present_mask);
- static DECLARE_BITMAP(cpu_active_bits, CONFIG_NR_CPUS) __read_mostly;
- const struct cpumask *const cpu_active_mask = to_cpumask(cpu_active_bits);
- EXPORT_SYMBOL(cpu_active_mask);
-+const DECLARE_BITMAP(cpu_all_bits, CONFIG_NR_CPUS) = CPU_BITS_ALL;
-+EXPORT_SYMBOL(cpu_all_bits);
+ #define for_each_cpu(cpu, mask)				\
+ 	for ((cpu) = -1;				\
+-		(cpu) = __next_cpu((cpu), (mask)),	\
++		(cpu) = cpumask_next((cpu), (mask)),	\
+ 		(cpu) < nr_cpumask_bits;)
+ #define for_each_cpu_and(cpu, mask, and)			\
+ 	for ((cpu) = -1;					\
+--- test-compile.orig/lib/cpumask.c
++++ test-compile/lib/cpumask.c
+@@ -3,21 +3,21 @@
+ #include <linux/cpumask.h>
+ #include <linux/module.h>
  
- void set_cpu_possible(unsigned int cpu, bool possible)
+-int __first_cpu(const cpumask_t *srcp)
++int cpumask_first(const cpumask_t *srcp)
  {
---- linux-2.6.28.orig/kernel/kmod.c
-+++ linux-2.6.28/kernel/kmod.c
-@@ -166,7 +166,7 @@ static int ____call_usermodehelper(void 
- 	}
- 
- 	/* We can run anywhere, unlike our parent keventd(). */
--	set_cpus_allowed_ptr(current, CPU_MASK_ALL_PTR);
-+	set_cpus_allowed_ptr(current, cpu_all_mask);
- 
- 	/*
- 	 * Our parent is keventd, which runs with elevated scheduling priority.
---- linux-2.6.28.orig/kernel/kthread.c
-+++ linux-2.6.28/kernel/kthread.c
-@@ -107,7 +107,7 @@ static void create_kthread(struct kthrea
- 		 */
- 		sched_setscheduler(create->result, SCHED_NORMAL, &param);
- 		set_user_nice(create->result, KTHREAD_NICE_LEVEL);
--		set_cpus_allowed_ptr(create->result, CPU_MASK_ALL_PTR);
-+		set_cpus_allowed_ptr(create->result, cpu_all_mask);
- 	}
- 	complete(&create->done);
+ 	return find_first_bit(cpumask_bits(srcp), nr_cpumask_bits);
  }
-@@ -238,7 +238,7 @@ int kthreadd(void *unused)
- 	set_task_comm(tsk, "kthreadd");
- 	ignore_signals(tsk);
- 	set_user_nice(tsk, KTHREAD_NICE_LEVEL);
--	set_cpus_allowed_ptr(tsk, CPU_MASK_ALL_PTR);
-+	set_cpus_allowed_ptr(tsk, cpu_all_mask);
+-EXPORT_SYMBOL(__first_cpu);
++EXPORT_SYMBOL(cpumask_first);
  
- 	current->flags |= PF_NOFREEZE | PF_FREEZER_NOSIG;
- 
---- linux-2.6.28.orig/kernel/sched.c
-+++ linux-2.6.28/kernel/sched.c
-@@ -6166,7 +6166,7 @@ static void move_task_off_dead_cpu(int d
-  */
- static void migrate_nr_uninterruptible(struct rq *rq_src)
+-int __next_cpu(int n, const cpumask_t *srcp)
++int cpumask_next(int n, const cpumask_t *srcp)
  {
--	struct rq *rq_dest = cpu_rq(any_online_cpu(*CPU_MASK_ALL_PTR));
-+	struct rq *rq_dest = cpu_rq(cpumask_any(cpu_online_mask));
- 	unsigned long flags;
+ 	return find_next_bit(cpumask_bits(srcp), nr_cpumask_bits, n+1);
+ }
+-EXPORT_SYMBOL(__next_cpu);
++EXPORT_SYMBOL(cpumask_next);
  
- 	local_irq_save(flags);
+ int cpumask_next_and(int n, const cpumask_t *srcp, const cpumask_t *andp)
+ {
+-	while ((n = next_cpu(n, *srcp)) < nr_cpumask_bits)
++	while ((n = cpumask_next(n, srcp)) < nr_cpu_ids)
+ 		if (cpumask_test_cpu(n, andp))
+ 			break;
+ 	return n;
 
 -- 
