@@ -1,9 +1,9 @@
 Return-Path: <travis@sgi.com>
-Message-Id: <20081020170324.146129000@polaris-admin.engr.sgi.com>
+Message-Id: <20081020170324.280990000@polaris-admin.engr.sgi.com>
 References: <20081020170319.539427000@polaris-admin.engr.sgi.com>
-Date: Mon, 20 Oct 2008 10:03:52 -0700
+Date: Mon, 20 Oct 2008 10:03:53 -0700
 From: Mike Travis <travis@sgi.com>
-Subject: [PATCH 33/35] cpumask: reorder header to minimize separate #ifdefs
+Subject: [PATCH 34/35] cpumask: debug options for cpumasks
 List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
 List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
@@ -17,131 +17,97 @@ To: Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>
 Cc: davej@codemonkey.org.uk, Jeremy Fitzhardinge <jeremy@goop.org>, Jes Sorensen <jes@sgi.com>, IA64 <linux-ia64@vger.kernel.org>, S390 <linux-s390@vger.kernel.org>, peterz@infradead.org, Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org, Eric Dumazet <dada1@cosmosbay.com>, PowerPC <linuxppc-dev@ozlabs.org>, Andi Kleen <andi@firstfloor.org>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yhlu.kernel@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, SPARC <sparclinux@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-cpumask.h is pretty chaotic.  Now we've replaced most of it, let's
-group things together a bit better.
+It's useful to check that no one is accessing > nr_cpumask_bits for
+cpumasks.  This also allows you to turn on CONFIG_CPUMASKS_OFFSTACK
+even for smaller CONFIG_NR_CPUS.
 
 From: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Mike Travis <travis@sgi.com>
 ---
- include/linux/cpumask.h |   72 ++++++++++++++++++++++--------------------------
- 1 file changed, 34 insertions(+), 38 deletions(-)
+ include/linux/cpumask.h |   23 +++++++++++++++++------
+ lib/Kconfig.debug       |    6 ++++++
+ lib/cpumask.c           |    3 +++
+ 3 files changed, 26 insertions(+), 6 deletions(-)
 
 --- test-compile.orig/include/linux/cpumask.h
 +++ test-compile/include/linux/cpumask.h
-@@ -134,6 +134,8 @@ static inline ssize_t cpumask_size(void)
+@@ -217,23 +217,34 @@ extern cpumask_t _unused_cpumask_arg_;
  }
+ #endif /* CONFIG_NR_CPUS > BITS_PER_LONG */
  
- 
-+#define cpumask_size() (BITS_TO_LONGS(nr_cpumask_bits) * sizeof(long))
-+
- /* Deprecated. */
- typedef struct cpumask cpumask_t;
- extern cpumask_t _unused_cpumask_arg_;
-@@ -200,6 +202,22 @@ extern cpumask_t _unused_cpumask_arg_;
- #define cpu_mask_all		(*(cpumask_t *)cpu_all_mask)
- /* End deprecated region. */
- 
-+/* static cpumask initializers */
-+#define CPU_MASK_LAST_WORD BITMAP_LAST_WORD_MASK(CONFIG_NR_CPUS)
-+#if CONFIG_NR_CPUS <= BITS_PER_LONG
-+#define CPU_BITS_ALL						\
-+{								\
-+	[BITS_TO_LONGS(CONFIG_NR_CPUS)-1] = CPU_MASK_LAST_WORD	\
++/* verify cpu argument to cpumask_* operators */
++static inline unsigned int cpumask_check(unsigned int cpu)
++{
++#ifdef CONFIG_DEBUG_PER_CPU_MAPS
++	/* This breaks at runtime. */
++	BUG_ON(cpu >= nr_cpumask_bits);
++#endif /* CONFIG_DEBUG_PER_CPU_MAPS */
++	return cpu;
 +}
-+#else
-+#define CPU_BITS_ALL						\
-+{								\
-+	[0 ... BITS_TO_LONGS(CONFIG_NR_CPUS)-2] = ~0UL,		\
-+	[BITS_TO_LONGS(CONFIG_NR_CPUS)-1] = CPU_MASK_LAST_WORD	\
-+}
-+#endif /* CONFIG_NR_CPUS > BITS_PER_LONG */
 +
-+/* cpumask_* operators */
+ /* cpumask_* operators */
  static inline void cpumask_set_cpu(int cpu, volatile struct cpumask *dstp)
  {
- 	set_bit(cpu, cpumask_bits(dstp));
-@@ -414,25 +432,6 @@ static inline const struct cpumask *cpum
- 	return (const struct cpumask *)p;
+-	set_bit(cpu, cpumask_bits(dstp));
++	set_bit(cpumask_check(cpu), cpumask_bits(dstp));
  }
  
--#define CPU_MASK_LAST_WORD BITMAP_LAST_WORD_MASK(NR_CPUS)
--
--#if NR_CPUS <= BITS_PER_LONG
--
--#define CPU_BITS_ALL						\
--{								\
--	[BITS_TO_LONGS(CONFIG_NR_CPUS)-1] = CPU_MASK_LAST_WORD	\
--}
--
--#else
--
--#define CPU_BITS_ALL						\
--{								\
--	[0 ... BITS_TO_LONGS(CONFIG_NR_CPUS)-2] = ~0UL,		\
--	[BITS_TO_LONGS(CONFIG_NR_CPUS)-1] = CPU_MASK_LAST_WORD	\
--}
--
--#endif
--
- #define CPU_BITS_NONE						\
- {								\
- 	[0 ... BITS_TO_LONGS(CONFIG_NR_CPUS)-1] = 0UL		\
-@@ -455,6 +454,13 @@ static inline const struct cpumask *cpum
- #define for_each_cpu_and(cpu, mask, and)	\
- 	for ((cpu) = 0; (cpu) < 1; (cpu)++, (void)mask, (void)and)
+ static inline void cpumask_clear_cpu(int cpu, volatile struct cpumask *dstp)
+ {
+-	clear_bit(cpu, cpumask_bits(dstp));
++	clear_bit(cpumask_check(cpu), cpumask_bits(dstp));
+ }
  
-+#define num_online_cpus()	1
-+#define num_possible_cpus()	1
-+#define num_present_cpus()	1
-+#define cpu_online(cpu)		((cpu) == 0)
-+#define cpu_possible(cpu)	((cpu) == 0)
-+#define cpu_present(cpu)	((cpu) == 0)
-+#define cpu_active(cpu)		((cpu) == 0)
- #else /* NR_CPUS > 1 */
+ /* No static inline type checking - see Subtlety (1) above. */
+-#define cpumask_test_cpu(cpu, cpumask) test_bit((cpu), (cpumask)->bits)
++#define cpumask_test_cpu(cpu, cpumask) \
++	test_bit(cpumask_check(cpu), (cpumask)->bits)
  
- int cpumask_first(const cpumask_t *srcp);
-@@ -470,7 +476,15 @@ int cpumask_any_but(const struct cpumask
- 	for ((cpu) = -1;					\
- 		(cpu) = cpumask_next_and((cpu), (mask), (and)),	\
- 		(cpu) < nr_cpumask_bits;)
--#endif
+ static inline int cpumask_test_and_set_cpu(int cpu, struct cpumask *addr)
+ {
+-	return test_and_set_bit(cpu, cpumask_bits(addr));
++	return test_and_set_bit(cpumask_check(cpu), cpumask_bits(addr));
+ }
+ 
+ static inline void cpumask_setall(struct cpumask *dstp)
+@@ -367,8 +378,8 @@ static inline int cpumask_cpuremap(int o
+ 				   const struct cpumask *oldp,
+ 				   const struct cpumask *newp)
+ {
+-	return bitmap_bitremap(oldbit, cpumask_bits(oldp), cpumask_bits(newp),
+-							   nr_cpumask_bits);
++	return bitmap_bitremap(cpumask_check(oldbit), cpumask_bits(oldp),
++				cpumask_bits(newp), nr_cpumask_bits);
+ }
+ 
+ static inline void cpumask_remap(struct cpumask *dstp,
+--- test-compile.orig/lib/Kconfig.debug
++++ test-compile/lib/Kconfig.debug
+@@ -766,6 +766,12 @@ config SYSCTL_SYSCALL_CHECK
+ 	  to properly maintain and use. This enables checks that help
+ 	  you to keep things correct.
+ 
++config DEBUG_PER_CPU_MAPS
++	bool "Cpumask debug checks"
++	---help---
++	  Extra debugging for cpumasks.
++	  eg. to make sure accesses to cpumasks are < nr_cpu_ids.
 +
-+#define num_online_cpus()	cpus_weight(cpu_online_map)
-+#define num_possible_cpus()	cpus_weight(cpu_possible_map)
-+#define num_present_cpus()	cpus_weight(cpu_present_map)
-+#define cpu_online(cpu)		cpu_isset((cpu), cpu_online_map)
-+#define cpu_possible(cpu)	cpu_isset((cpu), cpu_possible_map)
-+#define cpu_present(cpu)	cpu_isset((cpu), cpu_present_map)
-+#define cpu_active(cpu)		cpu_isset((cpu), cpu_active_map)
-+#endif /* NR_CPUS */
+ source kernel/trace/Kconfig
  
- #define cpumask_first_and(mask, and) cpumask_next_and(-1, (mask), (and))
+ config PROVIDE_OHCI1394_DMA_INIT
+--- test-compile.orig/lib/cpumask.c
++++ test-compile/lib/cpumask.c
+@@ -11,6 +11,9 @@ EXPORT_SYMBOL(cpumask_first);
  
-@@ -563,24 +577,6 @@ extern const DECLARE_BITMAP(cpu_all_bits
- /* First bits of cpu_bit_bitmap are in fact unset. */
- #define cpu_none_mask to_cpumask(cpu_bit_bitmap[0])
- 
--#if NR_CPUS > 1
--#define num_online_cpus()	cpus_weight(cpu_online_map)
--#define num_possible_cpus()	cpus_weight(cpu_possible_map)
--#define num_present_cpus()	cpus_weight(cpu_present_map)
--#define cpu_online(cpu)		cpu_isset((cpu), cpu_online_map)
--#define cpu_possible(cpu)	cpu_isset((cpu), cpu_possible_map)
--#define cpu_present(cpu)	cpu_isset((cpu), cpu_present_map)
--#define cpu_active(cpu)		cpu_isset((cpu), cpu_active_map)
--#else
--#define num_online_cpus()	1
--#define num_possible_cpus()	1
--#define num_present_cpus()	1
--#define cpu_online(cpu)		((cpu) == 0)
--#define cpu_possible(cpu)	((cpu) == 0)
--#define cpu_present(cpu)	((cpu) == 0)
--#define cpu_active(cpu)		((cpu) == 0)
--#endif
--
- /* Wrappers to manipulate otherwise-constant masks. */
- void set_cpu_possible(unsigned int cpu, bool possible);
- void set_cpu_present(unsigned int cpu, bool present);
+ int cpumask_next(int n, const cpumask_t *srcp)
+ {
++	/* -1 is a legal arg here. */
++	if (n != -1)
++		cpumask_check(n);
+ 	return find_next_bit(cpumask_bits(srcp), nr_cpumask_bits, n+1);
+ }
+ EXPORT_SYMBOL(cpumask_next);
 
 -- 
