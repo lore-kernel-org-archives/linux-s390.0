@@ -1,110 +1,46 @@
-Return-Path: <travis@sgi.com>
-Message-ID: <48FDDEC0.9040903@sgi.com>
-Date: Tue, 21 Oct 2008 06:53:04 -0700
-From: Mike Travis <travis@sgi.com>
-MIME-Version: 1.0
-Subject: Re: [PATCH 18/35] cpumask: add nr_cpumask_bits
-References: <20081020170319.539427000@polaris-admin.engr.sgi.com>
-	<20081020170322.090531000@polaris-admin.engr.sgi.com>
-	<200810212326.10278.rusty@rustcorp.com.au>
-In-Reply-To: <200810212326.10278.rusty@rustcorp.com.au>
-Content-Type: text/plain; charset=ISO-8859-1
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: davej@codemonkey.org.uk, Jeremy Fitzhardinge <jeremy@goop.org>, Jes Sorensen <jes@sgi.com>, IA64 <linux-ia64@vger.kernel.org>, David Miller <davem@davemloft.net>, peterz@infradead.org, S390 <linux-s390@vger.kernel.org>, Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org, Eric Dumazet <dada1@cosmosbay.com>, PowerPC <linuxppc-dev@ozlabs.org>, Andi Kleen <andi@firstfloor.org>, Thomas Gleixner <tglx@linutronix.de>, Yinghai Lu <yhlu.kernel@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, SPARC <sparclinux@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753223AbYJUGQX@vger.kernel.org>
+Date: Tue, 21 Oct 2008 15:15:46 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [PATCH] Fix page_cgroup build breakage
+Message-Id: <20081021151546.fdbf5f9d.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20081021061219.GA4980@osiris.boeblingen.de.ibm.com>
+References: <20081021061219.GA4980@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Rusty Russell wrote:
-> On Tuesday 21 October 2008 04:03:37 Mike Travis wrote:
->> When nr_cpu_ids is set to CONFIG_NR_CPUS then references to nr_cpu_ids
->> will return the maximum index of the configured NR_CPUS (+1) instead
->> of the maximum index of the possible number of cpus (+1).  This results
->> in extra unused memory being allocated by functions that are setting up
->> arrays of structs to keep track of per cpu items.
+On Tue, 21 Oct 2008 08:12:19 +0200
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+
+> Subject: [PATCH] Fix page_cgroup build breakage
 > 
-> 1) I like the name in this context: it's a beacon of sanity after NR_CPUS and
->    nr_cpu_ids.  But it's not so clearly a win when general code uses it:
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
 > 
-> 	if (cpumask_first(mymask) == nr_cpumask_bits) ...
+> On s390 I get this:
 > 
->    vs:
->    
-> 	if (cpumask_first(mymask) == nr_cpu_ids) ...
+>   CC      mm/page_cgroup.o
+> mm/page_cgroup.c: In function 'init_section_page_cgroup':
+> mm/page_cgroup.c:111: error: implicit declaration of function 'vmalloc_node'
+> mm/page_cgroup.c:111: warning: assignment makes pointer from integer without a cast
+> mm/page_cgroup.c: In function '__free_page_cgroup':
+> mm/page_cgroup.c:140: error: implicit declaration of function 'vfree'
+> make[1]: *** [mm/page_cgroup.o] Error 1
+> make: *** [mm] Error 2
+> 
+> caused by 52d4b9ac0b985168009c2a57098324e67bae171f
+> ("memcg: allocate all page_cgroup at boot")
+> 
+Thank you and sorry.
 
-I think the correct use for iterators would be:
+Note: same as mm-page_cgroup-needs-linux-vmalloch-for-vmalloc_node-vfree.patch
+      in mm-stack.
 
-	if (cpumask_first(mymask) >= nr_cpu_ids)
 
-... since nr_cpu_ids is guaranteed to be <= nr_cpumask_bits.  And nr_cpumask_bits
-is not really meant to be used anywhere except in the bit operations supporting
-the cpumask_* operators.
-
-> 2) This breaks anyone who tests that the iterators etc. return == nr_cpu_ids.
-
-I think that's broken anyways... ;-)
-
->    One of the other patches tried to change them from NR_CPUS to nr_cpu_ids,
->    that should now be revisited & reaudited.
-
-The change from NR_CPUS to nr_cpu_ids is ok, but it should also be changed from:
-
-	(x == NR_CPUS)
-to:
-	(x <= nr_cpu_ids)
- 
-> 3) Noone should be naively allocating "* nr_cpu_ids" arrays, they should be
->    using per-cpu pointers.  Not doing so wastes memory on non-contiguous
->    processor systems.
-
-The problem often arises where an array is allocated that will use the
-cpu as an index into the array.  They can be changed eventually to use a
-percpu pointer, but in the interim keeping nr_cpu_ids intact maintains
-compatibility without allocating unused memory.
-
-> 4) It should be a constant not be dependent on CONFIG_CPUMASK_OFFSTACK, but
->    rather as it was on NR_CPUS > BITS_PER_LONG.  I think that's the sweet
->    spot, and should also make your 2MB "gain" vanish.
-
-I'll run the test again but most likely the result will be an extra 1Mb of
-unused memory instead. ;-)  One other note, that test compile used the default
-config [and NR_CPUS=128] which turns off a lot of functions.  A typical distro
-config will have many more options turned on.
-
-And the beauty of using a separate flag to enable variable length cpumasks,
-is there may be cases where an arch or specific system config wants a multiple
-word cpumask on the stack for performance reasons (like cache or node locality,
-avoidance of the kmalloc's, etc.)
-
-> That's why I suggested a max_possible_cpu() function, and using that for those 
-> who really want to do allocations, who should be audited anyway, see (3).  I 
-> don't want it as prominent as nr_cpu_ids, which is usually the Right Thing, 
-> and always safe.
-
-We could change all refs from nr_cpu_ids to max_possible_cpu but wouldn't
-we still be leaving a window open where it could be incorrectly used?
-So far all the cpumask conversions allow for "mixed-use" cpumask (i.e.,
-cpumask_t and struct cpumask *) by maintaining backwards compatility,
-until everything is eventually sorted out.  Keeping nr_cpu_ids representing
-the same value maintains this "compatibility bridge".
-
-The most correct way would be to use the (not yet implemented) zero
-based PERCPU allocator.  Slightly less efficient would be to allocate
-node local memory for each struct, in a loop using a per cpu pointer
-and "for_each_possible_cpu()".
-
-> Cheers,
-> Rusty.
-> PS.  I have part of a patch for this...
-
-But as I've said, it's not critical to the new functionality...
-
-Thanks!
-Mike
+Regards,
+-Kame
