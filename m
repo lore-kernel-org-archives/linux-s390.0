@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754854AbYJUGMs@vger.kernel.org>
-Date: Tue, 21 Oct 2008 08:12:19 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH] Fix page_cgroup build breakage
-Message-ID: <20081021061219.GA4980@osiris.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+From: frank.blaschka@de.ibm.com
+Subject: [patch 3/4] qeth: remove unnecessary support ckeck in sysfs route6
+Date: Fri, 24 Oct 2008 11:16:54 +0200
+Message-ID: <20081024091733.417039000@de.ibm.com>
+References: <20081024091651.603673000@de.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=604-qeth-ipv6check.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: jgarzik@pobox.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Subject: [PATCH] Fix page_cgroup build breakage
+From: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Removing this check improves usability because you do not have to
+set the device online to initially set ipv6 routing option.
 
-On s390 I get this:
-
-  CC      mm/page_cgroup.o
-mm/page_cgroup.c: In function 'init_section_page_cgroup':
-mm/page_cgroup.c:111: error: implicit declaration of function 'vmalloc_node'
-mm/page_cgroup.c:111: warning: assignment makes pointer from integer without a cast
-mm/page_cgroup.c: In function '__free_page_cgroup':
-mm/page_cgroup.c:140: error: implicit declaration of function 'vfree'
-make[1]: *** [mm/page_cgroup.o] Error 1
-make: *** [mm] Error 2
-
-caused by 52d4b9ac0b985168009c2a57098324e67bae171f
-("memcg: allocate all page_cgroup at boot")
-
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
- mm/page_cgroup.c |    1 +
- 1 file changed, 1 insertion(+)
 
-Index: linux-2.6/mm/page_cgroup.c
+ drivers/s390/net/qeth_l3_sys.c |    7 -------
+ 1 file changed, 7 deletions(-)
+
+Index: git_linus/drivers/s390/net/qeth_l3_sys.c
 ===================================================================
---- linux-2.6.orig/mm/page_cgroup.c
-+++ linux-2.6/mm/page_cgroup.c
-@@ -3,6 +3,7 @@
- #include <linux/bootmem.h>
- #include <linux/bit_spinlock.h>
- #include <linux/page_cgroup.h>
-+#include <linux/vmalloc.h>
- #include <linux/hash.h>
- #include <linux/memory.h>
+--- git_linus.orig/drivers/s390/net/qeth_l3_sys.c
++++ git_linus/drivers/s390/net/qeth_l3_sys.c
+@@ -121,9 +121,6 @@ static ssize_t qeth_l3_dev_route6_show(s
+ 	if (!card)
+ 		return -EINVAL;
  
+-	if (!qeth_is_supported(card, IPA_IPV6))
+-		return sprintf(buf, "%s\n", "n/a");
+-
+ 	return qeth_l3_dev_route_show(card, &card->options.route6, buf);
+ }
+ 
+@@ -135,10 +132,6 @@ static ssize_t qeth_l3_dev_route6_store(
+ 	if (!card)
+ 		return -EINVAL;
+ 
+-	if (!qeth_is_supported(card, IPA_IPV6)) {
+-		return -EOPNOTSUPP;
+-	}
+-
+ 	return qeth_l3_dev_route_store(card, &card->options.route6,
+ 				QETH_PROT_IPV6, buf, count);
+ }
+
+-- 
