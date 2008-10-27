@@ -1,48 +1,33 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 2/4] qeth: fix offset error in non prealloc header path
-Date: Fri, 24 Oct 2008 11:16:53 +0200
-Message-ID: <20081024091732.021609000@de.ibm.com>
-References: <20081024091651.603673000@de.ibm.com>
+From: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [patch 1/4] qeth: remove non-recover-thread checkings
+Date: Mon, 27 Oct 2008 14:52:10 -0400
+Message-ID: <49060DDA.2050308@pobox.com>
+References: <20081024091651.603673000@de.ibm.com> <20081024091730.972078000@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=603-qeth-offset.diff
+In-Reply-To: <20081024091730.972078000@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: jgarzik@pobox.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: frank.blaschka@de.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Frank Blaschka <frank.blaschka@de.ibm.com>
+frank.blaschka@de.ibm.com wrote:
+> From: Ursula Braun <ursula.braun@de.ibm.com>
+> 
+> IP-threads have been removed from the qeth driver. Only the
+> recover-thread is left over. This makes checkings for
+> non-recover threads superfluous.
+> 
+> Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+> Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+> ---
+> 
+>  drivers/s390/net/qeth_l2_main.c |   14 +-------------
+>  drivers/s390/net/qeth_l3_main.c |   13 +------------
+>  2 files changed, 2 insertions(+), 25 deletions(-)
 
-For the non preallocated qeth header code path we should not
-change the header length.
-
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
-
- drivers/s390/net/qeth_core_main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-Index: git_linus/drivers/s390/net/qeth_core_main.c
-===================================================================
---- git_linus.orig/drivers/s390/net/qeth_core_main.c
-+++ git_linus/drivers/s390/net/qeth_core_main.c
-@@ -3025,7 +3025,7 @@ static inline void __qeth_fill_buffer(st
- 	struct qdio_buffer *buffer, int is_tso, int *next_element_to_fill,
- 	int offset)
- {
--	int length = skb->len - offset;
-+	int length = skb->len;
- 	int length_here;
- 	int element;
- 	char *data;
-@@ -3037,6 +3037,7 @@ static inline void __qeth_fill_buffer(st
- 
- 	if (offset >= 0) {
- 		data = skb->data + offset;
-+		length -= offset;
- 		first_lap = 0;
- 	}
- 
-
--- 
+applied 1-4
