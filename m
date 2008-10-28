@@ -1,39 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753483AbYJ0Thx@vger.kernel.org>
-Date: Mon, 27 Oct 2008 15:36:53 -0400
-From: Theodore Tso <tytso@mit.edu>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753186AbYJ1I2t@vger.kernel.org>
 Subject: Re: [GIT PULL/RESEND] kernel message catalog patches
-Message-ID: <20081027193653.GC23111@mit.edu>
-References: <20081021092148.GB4980@osiris.boeblingen.de.ibm.com> <alpine.LFD.2.00.0810230835150.3287@nehalem.linux-foundation.org> <20081023210446.GA12003@osiris.boeblingen.de.ibm.com> <alpine.LFD.2.00.0810231433380.3287@nehalem.linux-foundation.org> <1225049195.14057.72.camel@localhost> <alpine.LFD.2.00.0810261212290.5200@nehalem.linux-foundation.org> <1225101688.15777.6.camel@localhost> <alpine.LFD.2.00.0810270750100.3386@nehalem.linux-foundation.org> <20081027160359.37db885c@lxorguk.ukuu.org.uk> <alpine.LFD.2.00.0810270906520.3386@nehalem.linux-foundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.00.0810270906520.3386@nehalem.linux-foundation.org>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+In-Reply-To: <20081027092739.04b89526.randy.dunlap@oracle.com>
+References: <1224230354.4631.1.camel@localhost>
+	 <20081021092148.GB4980@osiris.boeblingen.de.ibm.com>
+	 <alpine.LFD.2.00.0810230835150.3287@nehalem.linux-foundation.org>
+	 <20081023210446.GA12003@osiris.boeblingen.de.ibm.com>
+	 <alpine.LFD.2.00.0810231433380.3287@nehalem.linux-foundation.org>
+	 <1225049195.14057.72.camel@localhost>
+	 <alpine.LFD.2.00.0810261212290.5200@nehalem.linux-foundation.org>
+	 <1225101688.15777.6.camel@localhost>
+	 <alpine.LFD.2.00.0810270750100.3386@nehalem.linux-foundation.org>
+	 <1225122726.15777.42.camel@localhost> <20081027161923.GE10603@mit.edu>
+	 <20081027092739.04b89526.randy.dunlap@oracle.com>
+Content-Type: text/plain
+Date: Tue, 28 Oct 2008 09:25:56 +0100
+Message-Id: <1225182356.15745.2.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Theodore Tso <tytso@mit.edu>, Linus Torvalds <torvalds@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Oct 27, 2008 at 09:10:56AM -0700, Linus Torvalds wrote:
-> 
-> I do agree. Another issue is that quite often the actual line to be 
-> printed is likely fairly short, and often in an error path (so it's 
-> indented and in an inconvenient place), but the explanation - even for a 
-> _single_ language - may well be pretty involved and long.
+On Mon, 2008-10-27 at 09:27 -0700, Randy Dunlap wrote:
+> As I said a few months ago, please make it "almost kernel-doc style"
+> but something that can be distinguished from the current kernel-doc.
+> They aren't quite the same thing AFAICT.
 
-It's likely that the explanation would need to be just outside the
-containing function, and not in-line where it might need to be deeply
-indented. 
+The current format is this:
 
-And I think we do need separate out the question of multiple langauges
-from the explanation in a single canonical language (i.e., English).
-Does keeping the explanation just before the containing function mean
-that it's "so far away" that it might as well be kept completely
-outside of the kernel?  I don't think so, but it's probably not worth
-a huge amount of effort debating it; tools for keeping an external
-database in sync is a pain, but they've certainly been done before for
-related problems (especially in the case of translations, where they
-would have to be done that way anyway).
+/*?
+ * Tag: <component>.<hash>
+ * Text: "<kmsg message text>"
+ * Severity: <severity>
+ * Parameter:
+ *   @1: <description of the first message parameter>
+ *   @2: <description of the second message parameter>
+ *   ...
+ * Description:
+ * <What is the kmsg message all about>
+ * User action:
+ * <What can the user do to fix the problem>
+ */
 
-     	  	  	      	   	    - Ted
+See the "/*?" vs "/**" ? The kmsg comments are kernel-doc style but not
+the same as kernel-doc.
+
+-- 
+blue skies,
+  Martin.
+
+"Reality continues to ruin my life." - Calvin.
