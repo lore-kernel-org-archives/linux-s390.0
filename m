@@ -1,52 +1,36 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 5/8] zfcp: Fix cast warning
-Date: Tue, 04 Nov 2008 16:35:09 +0100
-Message-ID: <20081104153628.925145000@de.ibm.com>
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Subject: Re: [patch 3/8] zfcp: fix mempool usage for status_read requests
+Date: Wed, 05 Nov 2008 12:46:12 -0500
+Message-ID: <1225907172.4703.45.camel@localhost.localdomain>
 References: <20081104153504.606043000@de.ibm.com>
+	 <20081104153627.530433000@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=fix-cast.diff
+In-Reply-To: <20081104153627.530433000@de.ibm.com>
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
+To: Christof Schmitt <christof.schmitt@de.ibm.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Swen Schillig <swen@vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-=46rom: Christof Schmitt <christof.schmitt@de.ibm.com>
+On Tue, 2008-11-04 at 16:35 +0100, Christof Schmitt wrote:
+> plain text document attachment (fix-status-read-alloc.diff)
+> From: Christof Schmitt <christof.schmitt@de.ibm.com>
+> 
+> When allocating fsf requests without qtcb, store the pointer to the
+> mempool in the fsf requests for later call to mempool_free. This
+> codepath is only used by the status_read requests.
+> 
+> Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+> Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
 
-=46ix leftover from last typecast patch:
+I put this one in, but can you explain this last signoff better?  You
+sent me the patch, so your signoff should appear last.  If Swen altered
+the patch, his signoff should appear before yours (with a small
+explanation of the alteration in square brackets).  If he's just
+approving it, it should be Acked-by: not Signed-off-by:
 
-drivers/s390/scsi/zfcp_aux.c: In function =E2=80=98zfcp_port_enqueue=E2=
-=80=99:
-drivers/s390/scsi/zfcp_aux.c:629: warning: format =E2=80=98%016llx=E2=80=
-=99 expects
-type =E2=80=98long long unsigned int=E2=80=99, but argument 3 has type =
-=E2=80=98u64=E2=80=99
-
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
----
- drivers/s390/scsi/zfcp_aux.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---- a/drivers/s390/scsi/zfcp_aux.c	2008-11-04 14:44:04.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_aux.c	2008-11-04 14:44:24.000000000 +0100
-@@ -610,7 +610,8 @@ struct zfcp_port *zfcp_port_enqueue(stru
- 	atomic_set_mask(status | ZFCP_STATUS_COMMON_REMOVE, &port->status);
- 	atomic_set(&port->refcount, 0);
-=20
--	dev_set_name(&port->sysfs_device, "0x%016llx", wwpn);
-+	dev_set_name(&port->sysfs_device, "0x%016llx",
-+		     (unsigned long long)wwpn);
- 	port->sysfs_device.parent =3D &adapter->ccw_device->dev;
-=20
- 	port->sysfs_device.release =3D zfcp_sysfs_port_release;
-
---=20
---
-To unsubscribe from this list: send the line "unsubscribe linux-scsi" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+James
