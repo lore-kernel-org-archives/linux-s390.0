@@ -1,329 +1,313 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1752681AbYKGPlP@vger.kernel.org>
-Subject: Re: [patch 15/21] ptrace changes
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753513AbYKNR2f@vger.kernel.org>
+Subject: [GIT PULL] s390 patches for 2.6.28-rc4
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Reply-To: schwidefsky@de.ibm.com
-In-Reply-To: <49133665.8090701@redhat.com>
-References: <20081001083317.782967473@de.ibm.com>
-	 <20081001084129.042880937@de.ibm.com>  <490F317C.9040603@redhat.com>
-	 <1225885284.17430.7.camel@localhost>  <49133665.8090701@redhat.com>
 Content-Type: text/plain
-Date: Fri, 07 Nov 2008 16:32:33 +0100
-Message-Id: <1226071953.5830.33.camel@localhost>
+Date: Fri, 14 Nov 2008 18:27:17 +0100
+Message-Id: <1226683637.11775.3.camel@localhost>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: David Smith <dsmith@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 2008-11-06 at 12:24 -0600, David Smith wrote:
-> But, collect_syscall() also calls syscall_get_nr():
-> 
->         *callno = syscall_get_nr(target, regs);
->         if (*callno != -1L && maxargs > 0)
->                 syscall_get_arguments(target, regs, 0, maxargs, args);
-> 
-> Both syscall_get_nr() *and* syscall_get_arguments() returning gprs[2]
-> can't be right, can it?
+Hi Linus,
 
-Ok, I managed to get syscall_get_nr() independent from
-do_syscall_trace_enter. With the patch below syscall_get_nr() can now be
-called anytime for a speeling process.
+please pull from 'for-linus' branch of
 
--- 
-blue skies,
-  Martin.
+	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
 
-"Reality continues to ruin my life." - Calvin.
+to receive the following updates:
 
----
-Subject: [PATCH] fix syscall_get_nr.
+Christian Borntraeger (1):
+      [S390] kvm_s390: Fix oops in virtio device detection with "mem="
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cornelia Huck (1):
+      [S390] cio: Fix refcount after moving devices.
 
-syscall_get_nr() currently returns a valid result only if the call
-chain of the traced process includes do_syscall_trace_enter(). But
-collect_syscall() can be called for any sleeping task, the result of
-syscall_get_nr() in general is completely bogus.
+Gerald Schaefer (1):
+      [S390] Fix range for add_active_range() in setup_memory()
 
-To make syscall_get_nr() work for any sleeping task the traps field
-in pt_regs is replace with svcnr - the system call number the process
-is executing. If svcnr == 0 the process is not on a system call path.
+Heiko Carstens (5):
+      [S390] sclp: emit error message if assign storage fails
+      [S390] lockdep: fix compile bug
+      [S390] ftrace: disable tracing on idle psw
+      [S390] ftrace: fix kernel stack backchain walking
+      [S390] cpu topology: fix locking
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+Martin Schwidefsky (1):
+      [S390] fix s390x_newuname
 
- arch/s390/include/asm/ptrace.h   |    2 +-
- arch/s390/include/asm/syscall.h  |    4 +---
- arch/s390/kernel/asm-offsets.c   |    2 +-
- arch/s390/kernel/compat_signal.c |    2 +-
- arch/s390/kernel/entry.S         |   21 +++++++++++----------
- arch/s390/kernel/entry64.S       |   23 ++++++++++-------------
- arch/s390/kernel/ptrace.c        |    2 +-
- arch/s390/kernel/signal.c        |    6 +++---
- 8 files changed, 29 insertions(+), 33 deletions(-)
+Stefan Haberland (1):
+      [S390] dasd: log sense for fatal errors
 
-diff -urpN linux-2.6/arch/s390/include/asm/ptrace.h linux-2.6-patched/arch/s390/include/asm/ptrace.h
---- linux-2.6/arch/s390/include/asm/ptrace.h	2008-11-07 16:35:54.000000000 +0100
-+++ linux-2.6-patched/arch/s390/include/asm/ptrace.h	2008-11-07 16:36:20.000000000 +0100
-@@ -321,8 +321,8 @@ struct pt_regs 
- 	psw_t psw;
- 	unsigned long gprs[NUM_GPRS];
- 	unsigned long orig_gpr2;
-+	unsigned short svcnr;
- 	unsigned short ilc;
--	unsigned short trap;
- };
- #endif
+ arch/s390/kernel/entry.S      |   20 +++++++++++++-------
+ arch/s390/kernel/entry64.S    |   11 +++++++----
+ arch/s390/kernel/process.c    |    3 +++
+ arch/s390/kernel/setup.c      |    4 ++--
+ arch/s390/kernel/sys_s390.c   |    2 +-
+ arch/s390/kernel/topology.c   |   11 +++++++----
+ drivers/s390/block/dasd.c     |    5 +++++
+ drivers/s390/char/sclp_cmd.c  |    3 +++
+ drivers/s390/cio/device.c     |    4 ++++
+ drivers/s390/kvm/kvm_virtio.c |    4 ++--
+ 10 files changed, 47 insertions(+), 20 deletions(-)
+
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index ed500ef..08844fc 100644
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -61,22 +61,25 @@ STACK_SIZE  = 1 << STACK_SHIFT
  
-diff -urpN linux-2.6/arch/s390/include/asm/syscall.h linux-2.6-patched/arch/s390/include/asm/syscall.h
---- linux-2.6/arch/s390/include/asm/syscall.h	2008-11-07 16:35:54.000000000 +0100
-+++ linux-2.6-patched/arch/s390/include/asm/syscall.h	2008-11-07 16:36:20.000000000 +0100
-@@ -17,9 +17,7 @@
- static inline long syscall_get_nr(struct task_struct *task,
- 				  struct pt_regs *regs)
+ #ifdef CONFIG_TRACE_IRQFLAGS
+ 	.macro	TRACE_IRQS_ON
+-	l	%r1,BASED(.Ltrace_irq_on)
++	basr	%r2,%r0
++	l	%r1,BASED(.Ltrace_irq_on_caller)
+ 	basr	%r14,%r1
+ 	.endm
+ 
+ 	.macro	TRACE_IRQS_OFF
+-	l	%r1,BASED(.Ltrace_irq_off)
++	basr	%r2,%r0
++	l	%r1,BASED(.Ltrace_irq_off_caller)
+ 	basr	%r14,%r1
+ 	.endm
+ 
+ 	.macro	TRACE_IRQS_CHECK
++	basr	%r2,%r0
+ 	tm	SP_PSW(%r15),0x03	# irqs enabled?
+ 	jz	0f
+-	l	%r1,BASED(.Ltrace_irq_on)
++	l	%r1,BASED(.Ltrace_irq_on_caller)
+ 	basr	%r14,%r1
+ 	j	1f
+-0:	l	%r1,BASED(.Ltrace_irq_off)
++0:	l	%r1,BASED(.Ltrace_irq_off_caller)
+ 	basr	%r14,%r1
+ 1:
+ 	.endm
+@@ -1113,9 +1116,12 @@ cleanup_io_leave_insn:
+ .Lschedtail:	.long	schedule_tail
+ .Lsysc_table:	.long	sys_call_table
+ #ifdef CONFIG_TRACE_IRQFLAGS
+-.Ltrace_irq_on: .long	trace_hardirqs_on
+-.Ltrace_irq_off:
+-		.long	trace_hardirqs_off
++.Ltrace_irq_on_caller:
++		.long	trace_hardirqs_on_caller
++.Ltrace_irq_off_caller:
++		.long	trace_hardirqs_off_caller
++#endif
++#ifdef CONFIG_LOCKDEP
+ .Llockdep_sys_exit:
+ 		.long	lockdep_sys_exit
+ #endif
+diff --git a/arch/s390/kernel/entry64.S b/arch/s390/kernel/entry64.S
+index d7ce150..41aca06 100644
+--- a/arch/s390/kernel/entry64.S
++++ b/arch/s390/kernel/entry64.S
+@@ -61,19 +61,22 @@ _TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_NEED_RESCHED | \
+ 
+ #ifdef CONFIG_TRACE_IRQFLAGS
+ 	.macro	TRACE_IRQS_ON
+-	 brasl	%r14,trace_hardirqs_on
++	 basr	%r2,%r0
++	 brasl	%r14,trace_hardirqs_on_caller
+ 	.endm
+ 
+ 	.macro	TRACE_IRQS_OFF
+-	 brasl	%r14,trace_hardirqs_off
++	 basr	%r2,%r0
++	 brasl	%r14,trace_hardirqs_off_caller
+ 	.endm
+ 
+ 	.macro TRACE_IRQS_CHECK
++	basr	%r2,%r0
+ 	tm	SP_PSW(%r15),0x03	# irqs enabled?
+ 	jz	0f
+-	brasl	%r14,trace_hardirqs_on
++	brasl	%r14,trace_hardirqs_on_caller
+ 	j	1f
+-0:	brasl	%r14,trace_hardirqs_off
++0:	brasl	%r14,trace_hardirqs_off_caller
+ 1:
+ 	.endm
+ #else
+diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
+index 3e2c05c..04f8c67 100644
+--- a/arch/s390/kernel/process.c
++++ b/arch/s390/kernel/process.c
+@@ -136,9 +136,12 @@ static void default_idle(void)
+ 		return;
+ 	}
+ 	trace_hardirqs_on();
++	/* Don't trace preempt off for idle. */
++	stop_critical_timings();
+ 	/* Wait for external, I/O or machine check interrupt. */
+ 	__load_psw_mask(psw_kernel_bits | PSW_MASK_WAIT |
+ 			PSW_MASK_IO | PSW_MASK_EXT);
++	start_critical_timings();
+ }
+ 
+ void cpu_idle(void)
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 62122ba..400b040 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -604,13 +604,13 @@ setup_memory(void)
+ 		if (memory_chunk[i].type != CHUNK_READ_WRITE)
+ 			continue;
+ 		start_chunk = PFN_DOWN(memory_chunk[i].addr);
+-		end_chunk = start_chunk + PFN_DOWN(memory_chunk[i].size) - 1;
++		end_chunk = start_chunk + PFN_DOWN(memory_chunk[i].size);
+ 		end_chunk = min(end_chunk, end_pfn);
+ 		if (start_chunk >= end_chunk)
+ 			continue;
+ 		add_active_range(0, start_chunk, end_chunk);
+ 		pfn = max(start_chunk, start_pfn);
+-		for (; pfn <= end_chunk; pfn++)
++		for (; pfn < end_chunk; pfn++)
+ 			page_set_storage_key(PFN_PHYS(pfn), PAGE_DEFAULT_KEY);
+ 	}
+ 
+diff --git a/arch/s390/kernel/sys_s390.c b/arch/s390/kernel/sys_s390.c
+index 5fdb799..4fe952e 100644
+--- a/arch/s390/kernel/sys_s390.c
++++ b/arch/s390/kernel/sys_s390.c
+@@ -198,7 +198,7 @@ asmlinkage long s390x_newuname(struct new_utsname __user *name)
  {
--	if (regs->trap != __LC_SVC_OLD_PSW)
--		return -1;
--	return regs->gprs[2];
-+	return regs->svcnr ? regs->svcnr : -1;
- }
+ 	int ret = sys_newuname(name);
  
- static inline void syscall_rollback(struct task_struct *task,
-diff -urpN linux-2.6/arch/s390/kernel/asm-offsets.c linux-2.6-patched/arch/s390/kernel/asm-offsets.c
---- linux-2.6/arch/s390/kernel/asm-offsets.c	2008-11-07 16:36:07.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/asm-offsets.c	2008-11-07 16:36:20.000000000 +0100
-@@ -33,7 +33,7 @@ int main(void)
- 	DEFINE(__PT_GPRS, offsetof(struct pt_regs, gprs));
- 	DEFINE(__PT_ORIG_GPR2, offsetof(struct pt_regs, orig_gpr2));
- 	DEFINE(__PT_ILC, offsetof(struct pt_regs, ilc));
--	DEFINE(__PT_TRAP, offsetof(struct pt_regs, trap));
-+	DEFINE(__PT_SVCNR, offsetof(struct pt_regs, svcnr));
- 	DEFINE(__PT_SIZE, sizeof(struct pt_regs));
- 	BLANK();
- 	DEFINE(__SF_BACKCHAIN, offsetof(struct stack_frame, back_chain));
-diff -urpN linux-2.6/arch/s390/kernel/compat_signal.c linux-2.6-patched/arch/s390/kernel/compat_signal.c
---- linux-2.6/arch/s390/kernel/compat_signal.c	2008-10-10 00:13:53.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/compat_signal.c	2008-11-07 16:36:20.000000000 +0100
-@@ -340,7 +340,7 @@ static int restore_sigregs32(struct pt_r
- 		return err;
- 
- 	restore_fp_regs(&current->thread.fp_regs);
--	regs->trap = -1;	/* disable syscall checks */
-+	regs->svcnr = 0;	/* disable syscall checks */
- 	return 0;
- }
- 
-diff -urpN linux-2.6/arch/s390/kernel/entry64.S linux-2.6-patched/arch/s390/kernel/entry64.S
---- linux-2.6/arch/s390/kernel/entry64.S	2008-11-07 16:36:04.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/entry64.S	2008-11-07 16:36:20.000000000 +0100
-@@ -46,7 +46,7 @@ SP_R14	     =	STACK_FRAME_OVERHEAD + __P
- SP_R15	     =	STACK_FRAME_OVERHEAD + __PT_GPRS + 120
- SP_ORIG_R2   =	STACK_FRAME_OVERHEAD + __PT_ORIG_GPR2
- SP_ILC	     =	STACK_FRAME_OVERHEAD + __PT_ILC
--SP_TRAP      =	STACK_FRAME_OVERHEAD + __PT_TRAP
-+SP_SVCNR      =	STACK_FRAME_OVERHEAD + __PT_SVCNR
- SP_SIZE      =	STACK_FRAME_OVERHEAD + __PT_SIZE
- 
- STACK_SHIFT = PAGE_SHIFT + THREAD_ORDER
-@@ -171,11 +171,10 @@ _TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_
- 	.macro	CREATE_STACK_FRAME psworg,savearea
- 	aghi	%r15,-SP_SIZE		# make room for registers & psw
- 	mvc	SP_PSW(16,%r15),0(%r12)	# move user PSW to stack
--	la	%r12,\psworg
- 	stg	%r2,SP_ORIG_R2(%r15)	# store original content of gpr 2
--	icm	%r12,12,__LC_SVC_ILC
-+	icm	%r12,3,__LC_SVC_ILC
- 	stmg	%r0,%r11,SP_R0(%r15)	# store gprs %r0-%r11 to kernel stack
--	st	%r12,SP_ILC(%r15)
-+	st	%r12,SP_SVCNR(%r15)
- 	mvc	SP_R12(32,%r15),\savearea # move %r12-%r15 to stack
- 	la	%r12,0
- 	stg	%r12,__SF_BACKCHAIN(%r15)
-@@ -250,16 +249,17 @@ sysc_update:
- #endif
- sysc_do_svc:
- 	lg	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
--	slag	%r7,%r7,2	# *4 and test for svc 0
-+	ltgr	%r7,%r7		# test for svc 0
- 	jnz	sysc_nr_ok
- 	# svc 0: system call number in %r1
- 	cl	%r1,BASED(.Lnr_syscalls)
- 	jnl	sysc_nr_ok
- 	lgfr	%r7,%r1 	# clear high word in r1
--	slag	%r7,%r7,2	# svc 0: system call number in %r1
- sysc_nr_ok:
- 	mvc	SP_ARGS(8,%r15),SP_R7(%r15)
- sysc_do_restart:
-+	sth	%r7,SP_SVCNR(%r15)
-+	sllg	%r7,%r7,2	# svc number * 4
- 	larl	%r10,sys_call_table
- #ifdef CONFIG_COMPAT
- 	tm	__TI_flags+5(%r9),(_TIF_31BIT>>16)  # running in 31 bit mode ?
-@@ -363,7 +363,6 @@ sysc_notify_resume:
- sysc_restart:
- 	ni	__TI_flags+7(%r9),255-_TIF_RESTART_SVC # clear TIF_RESTART_SVC
- 	lg	%r7,SP_R2(%r15)		# load new svc number
--	slag	%r7,%r7,2		# *4
- 	mvc	SP_R2(8,%r15),SP_ORIG_R2(%r15) # restore first argument
- 	lmg	%r2,%r6,SP_R2(%r15)	# load svc arguments
- 	j	sysc_do_restart 	# restart svc
-@@ -372,9 +371,8 @@ sysc_restart:
- # _TIF_SINGLE_STEP is set, call do_single_step
- #
- sysc_singlestep:
--	ni	__TI_flags+7(%r9),255-_TIF_SINGLE_STEP # clear TIF_SINGLE_STEP
--	lhi	%r0,__LC_PGM_OLD_PSW
--	sth	%r0,SP_TRAP(%r15)	# set trap indication to pgm check
-+	ni	__TI_flags+7(%r9),255-_TIF_SINGLE_STEP	# clear TIF_SINGLE_STEP
-+	xc	SP_SVCNR(2,%r15),SP_SVCNR(%r15)		# clear svc number
- 	la	%r2,SP_PTREGS(%r15)	# address of register-save area
- 	larl	%r14,sysc_return	# load adr. of system return
- 	jg	do_single_step		# branch to do_sigtrap
-@@ -392,7 +390,7 @@ sysc_tracesys:
- 	lghi	%r0,NR_syscalls
- 	clgr	%r0,%r2
- 	jnh	sysc_tracenogo
--	slag	%r7,%r2,2		# *4
-+	sllg	%r7,%r2,2		# svc number *4
- 	lgf	%r8,0(%r7,%r10)
- sysc_tracego:
- 	lmg	%r3,%r6,SP_R3(%r15)
-@@ -567,8 +565,7 @@ pgm_svcper:
- # per was called from kernel, must be kprobes
- #
- kernel_per:
--	lhi	%r0,__LC_PGM_OLD_PSW
--	sth	%r0,SP_TRAP(%r15)	# set trap indication to pgm check
-+	xc	SP_SVCNR(2,%r15),SP_SVCNR(%r15)	# clear svc number
- 	la	%r2,SP_PTREGS(%r15)	# address of register-save area
- 	larl	%r14,sysc_restore	# load adr. of system ret, no work
- 	jg	do_single_step		# branch to do_single_step
-diff -urpN linux-2.6/arch/s390/kernel/entry.S linux-2.6-patched/arch/s390/kernel/entry.S
---- linux-2.6/arch/s390/kernel/entry.S	2008-11-07 16:36:04.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/entry.S	2008-11-07 16:36:20.000000000 +0100
-@@ -46,7 +46,7 @@ SP_R14	     =	STACK_FRAME_OVERHEAD + __P
- SP_R15	     =	STACK_FRAME_OVERHEAD + __PT_GPRS + 60
- SP_ORIG_R2   =	STACK_FRAME_OVERHEAD + __PT_ORIG_GPR2
- SP_ILC	     =	STACK_FRAME_OVERHEAD + __PT_ILC
--SP_TRAP      =	STACK_FRAME_OVERHEAD + __PT_TRAP
-+SP_SVCNR     =	STACK_FRAME_OVERHEAD + __PT_SVCNR
- SP_SIZE      =	STACK_FRAME_OVERHEAD + __PT_SIZE
- 
- _TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_NEED_RESCHED | \
-@@ -183,11 +183,10 @@ STACK_SIZE  = 1 << STACK_SHIFT
- 	.macro	CREATE_STACK_FRAME psworg,savearea
- 	s	%r15,BASED(.Lc_spsize)	# make room for registers & psw
- 	mvc	SP_PSW(8,%r15),0(%r12)	# move user PSW to stack
--	la	%r12,\psworg
- 	st	%r2,SP_ORIG_R2(%r15)	# store original content of gpr 2
--	icm	%r12,12,__LC_SVC_ILC
-+	icm	%r12,3,__LC_SVC_ILC
- 	stm	%r0,%r11,SP_R0(%r15)	# store gprs %r0-%r11 to kernel stack
--	st	%r12,SP_ILC(%r15)
-+	st	%r12,SP_SVCNR(%r15)
- 	mvc	SP_R12(16,%r15),\savearea # move %r12-%r15 to stack
- 	la	%r12,0
- 	st	%r12,__SF_BACKCHAIN(%r15)	# clear back chain
-@@ -264,16 +263,17 @@ sysc_update:
- #endif
- sysc_do_svc:
- 	l	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
--	sla	%r7,2			# *4 and test for svc 0
-+	ltr	%r7,%r7			# test for svc 0
- 	bnz	BASED(sysc_nr_ok)	# svc number > 0
- 	# svc 0: system call number in %r1
- 	cl	%r1,BASED(.Lnr_syscalls)
- 	bnl	BASED(sysc_nr_ok)
- 	lr	%r7,%r1 	  # copy svc number to %r7
--	sla	%r7,2		  # *4
- sysc_nr_ok:
- 	mvc	SP_ARGS(4,%r15),SP_R7(%r15)
- sysc_do_restart:
-+	sth	%r7,SP_SVCNR(%r15)
-+	sll	%r7,2		  # svc number *4
- 	l	%r8,BASED(.Lsysc_table)
- 	tm	__TI_flags+3(%r9),(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT)
- 	l	%r8,0(%r7,%r8)	  # get system call addr.
-@@ -376,7 +376,6 @@ sysc_notify_resume:
- sysc_restart:
- 	ni	__TI_flags+3(%r9),255-_TIF_RESTART_SVC # clear TIF_RESTART_SVC
- 	l	%r7,SP_R2(%r15) 	# load new svc number
--	sla	%r7,2
- 	mvc	SP_R2(4,%r15),SP_ORIG_R2(%r15) # restore first argument
- 	lm	%r2,%r6,SP_R2(%r15)	# load svc arguments
- 	b	BASED(sysc_do_restart)	# restart svc
-@@ -386,7 +385,8 @@ sysc_restart:
- #
- sysc_singlestep:
- 	ni	__TI_flags+3(%r9),255-_TIF_SINGLE_STEP # clear TIF_SINGLE_STEP
--	mvi	SP_TRAP+1(%r15),0x28	# set trap indication to pgm check
-+	mvi	SP_SVCNR(%r15),0xff	# set trap indication to pgm check
-+	mvi	SP_SVCNR+1(%r15),0xff
- 	la	%r2,SP_PTREGS(%r15)	# address of register-save area
- 	l	%r1,BASED(.Lhandle_per)	# load adr. of per handler
- 	la	%r14,BASED(sysc_return)	# load adr. of system return
-@@ -407,7 +407,7 @@ sysc_tracesys:
- 	bnl	BASED(sysc_tracenogo)
- 	l	%r8,BASED(.Lsysc_table)
- 	lr	%r7,%r2
--	sll	%r7,2			# *4
-+	sll	%r7,2			# svc number *4
- 	l	%r8,0(%r7,%r8)
- sysc_tracego:
- 	lm	%r3,%r6,SP_R3(%r15)
-@@ -586,7 +586,8 @@ pgm_svcper:
- # per was called from kernel, must be kprobes
- #
- kernel_per:
--	mvi	SP_TRAP+1(%r15),0x28	# set trap indication to pgm check
-+	mvi	SP_SVCNR(%r15),0xff	# set trap indication to pgm check
-+	mvi	SP_SVCNR+1(%r15),0xff
- 	la	%r2,SP_PTREGS(%r15)	# address of register-save area
- 	l	%r1,BASED(.Lhandle_per)	# load adr. of per handler
- 	la	%r14,BASED(sysc_restore)# load adr. of system return
-diff -urpN linux-2.6/arch/s390/kernel/ptrace.c linux-2.6-patched/arch/s390/kernel/ptrace.c
---- linux-2.6/arch/s390/kernel/ptrace.c	2008-11-07 16:36:18.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/ptrace.c	2008-11-07 16:36:20.000000000 +0100
-@@ -655,7 +655,7 @@ asmlinkage long do_syscall_trace_enter(s
- 		 * debugger stored an invalid system call number. Skip
- 		 * the system call and the system call restart handling.
- 		 */
--		regs->trap = -1;
-+		regs->svcnr = 0;
- 		ret = -1;
+-	if (current->personality == PER_LINUX32 && !ret) {
++	if (personality(current->personality) == PER_LINUX32 && !ret) {
+ 		ret = copy_to_user(name->machine, "s390\0\0\0\0", 8);
+ 		if (ret) ret = -EFAULT;
  	}
+diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
+index 632b13e..a947899 100644
+--- a/arch/s390/kernel/topology.c
++++ b/arch/s390/kernel/topology.c
+@@ -65,18 +65,21 @@ static int machine_has_topology_irq;
+ static struct timer_list topology_timer;
+ static void set_topology_timer(void);
+ static DECLARE_WORK(topology_work, topology_work_fn);
++/* topology_lock protects the core linked list */
++static DEFINE_SPINLOCK(topology_lock);
  
-diff -urpN linux-2.6/arch/s390/kernel/signal.c linux-2.6-patched/arch/s390/kernel/signal.c
---- linux-2.6/arch/s390/kernel/signal.c	2008-11-07 16:35:54.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/signal.c	2008-11-07 16:36:20.000000000 +0100
-@@ -160,7 +160,7 @@ static int restore_sigregs(struct pt_reg
- 	current->thread.fp_regs.fpc &= FPC_VALID_MASK;
+ cpumask_t cpu_core_map[NR_CPUS];
  
- 	restore_fp_regs(&current->thread.fp_regs);
--	regs->trap = -1;	/* disable syscall checks */
-+	regs->svcnr = 0;	/* disable syscall checks */
- 	return 0;
- }
+ cpumask_t cpu_coregroup_map(unsigned int cpu)
+ {
+ 	struct core_info *core = &core_info;
++	unsigned long flags;
+ 	cpumask_t mask;
  
-@@ -445,7 +445,7 @@ void do_signal(struct pt_regs *regs)
- 		oldset = &current->blocked;
- 
- 	/* Are we from a system call? */
--	if (regs->trap == __LC_SVC_OLD_PSW) {
-+	if (regs->svcnr) {
- 		continue_addr = regs->psw.addr;
- 		restart_addr = continue_addr - regs->ilc;
- 		retval = regs->gprs[2];
-@@ -462,7 +462,7 @@ void do_signal(struct pt_regs *regs)
- 		case -ERESTART_RESTARTBLOCK:
- 			regs->gprs[2] = -EINTR;
+ 	cpus_clear(mask);
+ 	if (!machine_has_topology)
+ 		return cpu_present_map;
+-	mutex_lock(&smp_cpu_state_mutex);
++	spin_lock_irqsave(&topology_lock, flags);
+ 	while (core) {
+ 		if (cpu_isset(cpu, core->mask)) {
+ 			mask = core->mask;
+@@ -84,7 +87,7 @@ cpumask_t cpu_coregroup_map(unsigned int cpu)
  		}
--		regs->trap = -1;	/* Don't deal with this again. */
-+		regs->svcnr = 0;	/* Don't deal with this again. */
+ 		core = core->next;
+ 	}
+-	mutex_unlock(&smp_cpu_state_mutex);
++	spin_unlock_irqrestore(&topology_lock, flags);
+ 	if (cpus_empty(mask))
+ 		mask = cpumask_of_cpu(cpu);
+ 	return mask;
+@@ -133,7 +136,7 @@ static void tl_to_cores(struct tl_info *info)
+ 	union tl_entry *tle, *end;
+ 	struct core_info *core = &core_info;
+ 
+-	mutex_lock(&smp_cpu_state_mutex);
++	spin_lock_irq(&topology_lock);
+ 	clear_cores();
+ 	tle = info->tle;
+ 	end = (union tl_entry *)((unsigned long)info + info->length);
+@@ -157,7 +160,7 @@ static void tl_to_cores(struct tl_info *info)
+ 		}
+ 		tle = next_tle(tle);
+ 	}
+-	mutex_unlock(&smp_cpu_state_mutex);
++	spin_unlock_irq(&topology_lock);
+ }
+ 
+ static void topology_update_polarization_simple(void)
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index 4b76fca..363bd13 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -1746,6 +1746,11 @@ restart:
+ 			goto restart;
+ 		}
+ 
++		/* log sense for fatal error */
++		if (cqr->status == DASD_CQR_FAILED) {
++			dasd_log_sense(cqr, &cqr->irb);
++		}
++
+ 		/* First of all call extended error reporting. */
+ 		if (dasd_eer_enabled(base) &&
+ 		    cqr->status == DASD_CQR_FAILED) {
+diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
+index eb5f1b8..ec9c0bc 100644
+--- a/drivers/s390/char/sclp_cmd.c
++++ b/drivers/s390/char/sclp_cmd.c
+@@ -324,6 +324,9 @@ static int do_assign_storage(sclp_cmdw_t cmd, u16 rn)
+ 	case 0x0120:
+ 		break;
+ 	default:
++		pr_warning("assign storage failed (cmd=0x%08x, "
++			   "response=0x%04x, rn=0x%04x)\n", cmd,
++			   sccb->header.response_code, rn);
+ 		rc = -EIO;
+ 		break;
+ 	}
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index 4e78c82..4e40083 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -874,11 +874,15 @@ void ccw_device_move_to_orphanage(struct work_struct *work)
+ 	replacing_cdev = get_disc_ccwdev_by_dev_id(&dev_id, cdev);
+ 	if (replacing_cdev) {
+ 		sch_attach_disconnected_device(sch, replacing_cdev);
++		/* Release reference from get_disc_ccwdev_by_dev_id() */
++		put_device(&cdev->dev);
+ 		return;
+ 	}
+ 	replacing_cdev = get_orphaned_ccwdev_by_dev_id(css, &dev_id);
+ 	if (replacing_cdev) {
+ 		sch_attach_orphaned_device(sch, replacing_cdev);
++		/* Release reference from get_orphaned_ccwdev_by_dev_id() */
++		put_device(&cdev->dev);
+ 		return;
+ 	}
+ 	sch_create_and_recog_new_device(sch);
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+index ff4a693..3d44244 100644
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -322,13 +322,13 @@ static int __init kvm_devices_init(void)
+ 		return rc;
  	}
  
- 	/* Get signal to deliver.  When running under ptrace, at this point
+-	rc = vmem_add_mapping(PFN_PHYS(max_pfn), PAGE_SIZE);
++	rc = vmem_add_mapping(real_memory_size, PAGE_SIZE);
+ 	if (rc) {
+ 		s390_root_dev_unregister(kvm_root);
+ 		return rc;
+ 	}
+ 
+-	kvm_devices = (void *) PFN_PHYS(max_pfn);
++	kvm_devices = (void *) real_memory_size;
+ 
+ 	ctl_set_bit(0, 9);
+ 	register_external_interrupt(0x2603, kvm_extint_handler);
