@@ -1,41 +1,21 @@
 From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 4/6] zfcp: verify for correct rport state before scanning for SCSI devs
-Date: Wed, 26 Nov 2008 18:07:38 +0100
-Message-ID: <20081126171020.354678000@de.ibm.com>
-References: <20081126170734.940419000@de.ibm.com>
+Subject: [patch 0/6] zfcp fixes for 2.6.28-rc6
+Date: Wed, 26 Nov 2008 18:07:34 +0100
+Message-ID: <20081126170734.940419000@de.ibm.com>
 Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=702-zfcp-rport.diff
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
 To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Swen Schillig <swen@vnet.ibm.com>, Christof Schmitt <christof.schmitt@de.ibm.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Swen Schillig <swen@vnet.ibm.com>
+Busy times...
 
-Prevent a SCSI target scan for a rport which have turned invalid
-in the meantime.
+During stress testing we found some more issues in the zfcp driver.
+The patches apply on top of the current linux-2.6 git tree, please
+apply.
 
-Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
----
+Thanks,
 
- drivers/s390/scsi/zfcp_erp.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
---- a/drivers/s390/scsi/zfcp_erp.c	2008-11-26 16:17:53.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_erp.c	2008-11-26 16:42:53.000000000 +0100
-@@ -1186,7 +1186,9 @@ static void zfcp_erp_scsi_scan(struct wo
- 		container_of(work, struct zfcp_erp_add_work, work);
- 	struct zfcp_unit *unit = p->unit;
- 	struct fc_rport *rport = unit->port->rport;
--	scsi_scan_target(&rport->dev, 0, rport->scsi_target_id,
-+
-+	if (rport && rport->port_state == FC_PORTSTATE_ONLINE)
-+		scsi_scan_target(&rport->dev, 0, rport->scsi_target_id,
- 			 scsilun_to_int((struct scsi_lun *)&unit->fcp_lun), 0);
- 	atomic_clear_mask(ZFCP_STATUS_UNIT_SCSI_WORK_PENDING, &unit->status);
- 	zfcp_unit_put(unit);
-
--- 
+Christof
