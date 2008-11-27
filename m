@@ -1,82 +1,57 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758072AbYK0Kxp@vger.kernel.org>
-Message-Id: <20081127103135.613738445@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756896AbYK0Kx3@vger.kernel.org>
+Message-Id: <20081127103136.171738662@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:30:48 +0100
+Date: Thu, 27 Nov 2008 11:30:50 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 28/60] sclp vt220: fix compile warning
-Content-Disposition: inline; filename=127-sclp-warnings.diff
+Subject: [patch 30/60] dasd: Use accessors instead of using driver_data directly.
+Content-Disposition: inline; filename=129-dasd-accessors.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-get rid of this one:
-
-  CC      drivers/s390/char/sclp_vt220.o
-drivers/s390/char/sclp_vt220.c:588: warning: '__sclp_vt220_flush_buffer' defined but not used
-
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/char/sclp_vt220.c |   33 ++++++++++++++++-----------------
- 1 file changed, 16 insertions(+), 17 deletions(-)
+ drivers/s390/block/dasd_devmap.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Index: quilt-2.6/drivers/s390/char/sclp_vt220.c
+Index: quilt-2.6/drivers/s390/block/dasd_devmap.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_vt220.c
-+++ quilt-2.6/drivers/s390/char/sclp_vt220.c
-@@ -583,23 +583,6 @@ sclp_vt220_chars_in_buffer(struct tty_st
- 	return count;
- }
+--- quilt-2.6.orig/drivers/s390/block/dasd_devmap.c
++++ quilt-2.6/drivers/s390/block/dasd_devmap.c
+@@ -562,7 +562,7 @@ dasd_create_device(struct ccw_device *cd
+ 	}
  
--static void
--__sclp_vt220_flush_buffer(void)
--{
--	unsigned long flags;
--
--	sclp_vt220_emit_current();
--	spin_lock_irqsave(&sclp_vt220_lock, flags);
--	if (timer_pending(&sclp_vt220_timer))
--		del_timer(&sclp_vt220_timer);
--	while (sclp_vt220_outqueue_count > 0) {
--		spin_unlock_irqrestore(&sclp_vt220_lock, flags);
--		sclp_sync_wait();
--		spin_lock_irqsave(&sclp_vt220_lock, flags);
--	}
--	spin_unlock_irqrestore(&sclp_vt220_lock, flags);
--}
--
- /*
-  * Pass on all buffers to the hardware. Return only when there are no more
-  * buffers pending.
-@@ -745,6 +728,22 @@ sclp_vt220_con_device(struct console *c,
- 	return sclp_vt220_driver;
- }
+ 	spin_lock_irqsave(get_ccwdev_lock(cdev), flags);
+-	cdev->dev.driver_data = device;
++	dev_set_drvdata(&cdev->dev, device);
+ 	spin_unlock_irqrestore(get_ccwdev_lock(cdev), flags);
  
-+static void __sclp_vt220_flush_buffer(void)
-+{
-+	unsigned long flags;
-+
-+	sclp_vt220_emit_current();
-+	spin_lock_irqsave(&sclp_vt220_lock, flags);
-+	if (timer_pending(&sclp_vt220_timer))
-+		del_timer(&sclp_vt220_timer);
-+	while (sclp_vt220_outqueue_count > 0) {
-+		spin_unlock_irqrestore(&sclp_vt220_lock, flags);
-+		sclp_sync_wait();
-+		spin_lock_irqsave(&sclp_vt220_lock, flags);
-+	}
-+	spin_unlock_irqrestore(&sclp_vt220_lock, flags);
-+}
-+
- static int
- sclp_vt220_notify(struct notifier_block *self,
- 			  unsigned long event, void *data)
+ 	return device;
+@@ -598,7 +598,7 @@ dasd_delete_device(struct dasd_device *d
+ 
+ 	/* Disconnect dasd_device structure from ccw_device structure. */
+ 	spin_lock_irqsave(get_ccwdev_lock(device->cdev), flags);
+-	device->cdev->dev.driver_data = NULL;
++	dev_set_drvdata(&device->cdev->dev, NULL);
+ 	spin_unlock_irqrestore(get_ccwdev_lock(device->cdev), flags);
+ 
+ 	/*
+@@ -639,7 +639,7 @@ dasd_put_device_wake(struct dasd_device 
+ struct dasd_device *
+ dasd_device_from_cdev_locked(struct ccw_device *cdev)
+ {
+-	struct dasd_device *device = cdev->dev.driver_data;
++	struct dasd_device *device = dev_get_drvdata(&cdev->dev);
+ 
+ 	if (!device)
+ 		return ERR_PTR(-ENODEV);
 
 -- 
 blue skies,
