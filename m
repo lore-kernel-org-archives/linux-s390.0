@@ -1,932 +1,399 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755419AbYK0KzS@vger.kernel.org>
-Message-Id: <20081127103133.649622807@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757773AbYK0Kzr@vger.kernel.org>
+Message-Id: <20081127103129.900466934@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:30:41 +0100
+Date: Thu, 27 Nov 2008 11:30:28 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 21/60] s390/hvc_console: z/VM IUCV hypervisor console support
-Content-Disposition: inline; filename=120-iucv-hvc.diff
+Subject: [patch 08/60] zcrypt: Use of Thin Interrupts
+Content-Disposition: inline; filename=107-ap-thinint.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Felix Beck <felix.beck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+From: Felix Beck <felix.beck@de.ibm.com>
 
-This patch introduces a new hypervisor console (HVC) back-end that provides
-terminal access over the z/VM inter-user communication vehicle (IUCV).
+When the machine supports AP adapter interrupts polling will be
+switched off at module initialization and the driver will work in
+interrupt mode. 
 
-The z/VM IUCV communication is independent of the regular tcp/ip network
-and allows access even if there is no network connection between two
-z/VM guest virtual machines.
-The z/VM IUCV hypervisor console back-end helps the user to access a
-z/VM guest virtual machine that lacks of network connectivity; and thus,
-provides a "full-screen" terminal alternative to 3215/3270 terminal sessions.
-
-Use the hvc_iucv=[0..8] kernel boot parameter to specify the number of
-HVC terminals using a z/VM IUCV back-end.
-
-A recent version of the s390-tools package is required to establish a
-terminal connection to a z/VM IUCV hypervisor console back-end.
-
-Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Signed-off-by: Felix Beck <felix.beck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/char/Kconfig    |   10 
- drivers/char/Makefile   |    1 
- drivers/char/hvc_iucv.c |  850 ++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 861 insertions(+)
+ arch/s390/include/asm/isc.h  |    1 
+ drivers/s390/crypto/ap_bus.c |  174 ++++++++++++++++++++++++++++++++++++++++++-
+ drivers/s390/crypto/ap_bus.h |    6 +
+ 3 files changed, 177 insertions(+), 4 deletions(-)
 
-Index: quilt-2.6/drivers/char/hvc_iucv.c
+Index: quilt-2.6/arch/s390/include/asm/isc.h
 ===================================================================
---- /dev/null
-+++ quilt-2.6/drivers/char/hvc_iucv.c
-@@ -0,0 +1,850 @@
-+/*
-+ * hvc_iucv.c - z/VM IUCV back-end for the Hypervisor Console (HVC)
-+ *
-+ * This back-end for HVC provides terminal access via
-+ * z/VM IUCV communication paths.
-+ *
-+ * Copyright IBM Corp. 2008.
-+ *
-+ * Author(s):	Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+--- quilt-2.6.orig/arch/s390/include/asm/isc.h
++++ quilt-2.6/arch/s390/include/asm/isc.h
+@@ -17,6 +17,7 @@
+ #define CHSC_SCH_ISC 7			/* CHSC subchannels */
+ /* Adapter interrupts. */
+ #define QDIO_AIRQ_ISC IO_SCH_ISC	/* I/O subchannel in qdio mode */
++#define AP_ISC 6			/* adjunct processor (crypto) devices */
+ 
+ /* Functions for registration of I/O interruption subclasses */
+ void isc_register(unsigned int isc);
+Index: quilt-2.6/drivers/s390/crypto/ap_bus.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/crypto/ap_bus.c
++++ quilt-2.6/drivers/s390/crypto/ap_bus.c
+@@ -5,6 +5,7 @@
+  * Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
+  *	      Martin Schwidefsky <schwidefsky@de.ibm.com>
+  *	      Ralph Wuerthner <rwuerthn@de.ibm.com>
++ *	      Felix Beck <felix.beck@de.ibm.com>
+  *
+  * Adjunct processor bus.
+  *
+@@ -34,6 +35,10 @@
+ #include <linux/mutex.h>
+ #include <asm/s390_rdev.h>
+ #include <asm/reset.h>
++#include <asm/airq.h>
++#include <asm/atomic.h>
++#include <asm/system.h>
++#include <asm/isc.h>
+ #include <linux/hrtimer.h>
+ #include <linux/ktime.h>
+ 
+@@ -46,6 +51,7 @@ static enum hrtimer_restart ap_poll_time
+ static int ap_poll_thread_start(void);
+ static void ap_poll_thread_stop(void);
+ static void ap_request_timeout(unsigned long);
++static inline void ap_schedule_poll_timer(void);
+ 
+ /*
+  * Module description.
+@@ -80,19 +86,29 @@ static int ap_config_time = AP_CONFIG_TI
+ static DECLARE_WORK(ap_config_work, ap_scan_bus);
+ 
+ /*
+- * Tasklet & timer for AP request polling.
++ * Tasklet & timer for AP request polling and interrupts
+  */
+ static DECLARE_TASKLET(ap_tasklet, ap_poll_all, 0);
+ static atomic_t ap_poll_requests = ATOMIC_INIT(0);
+ static DECLARE_WAIT_QUEUE_HEAD(ap_poll_wait);
+ static struct task_struct *ap_poll_kthread = NULL;
+ static DEFINE_MUTEX(ap_poll_thread_mutex);
++static void *ap_interrupt_indicator;
+ static struct hrtimer ap_poll_timer;
+ /* In LPAR poll with 4kHz frequency. Poll every 250000 nanoseconds.
+  * If z/VM change to 1500000 nanoseconds to adjust to z/VM polling.*/
+ static unsigned long long poll_timeout = 250000;
+ 
+ /**
++ * ap_using_interrupts() - Returns non-zero if interrupt support is
++ * available.
 + */
-+#define KMSG_COMPONENT		"hvc_iucv"
-+
-+#include <linux/types.h>
-+#include <asm/ebcdic.h>
-+#include <linux/mempool.h>
-+#include <linux/module.h>
-+#include <linux/tty.h>
-+#include <net/iucv/iucv.h>
-+
-+#include "hvc_console.h"
-+
-+
-+/* HVC backend for z/VM IUCV */
-+#define HVC_IUCV_MAGIC		0xc9e4c3e5
-+#define MAX_HVC_IUCV_LINES	HVC_ALLOC_TTY_ADAPTERS
-+#define MEMPOOL_MIN_NR		(PAGE_SIZE / sizeof(struct iucv_tty_buffer)/4)
-+
-+/* IUCV TTY message  */
-+#define MSG_VERSION		0x02	/* Message version */
-+#define MSG_TYPE_ERROR		0x01	/* Error message */
-+#define MSG_TYPE_TERMENV	0x02	/* Terminal environment variable */
-+#define MSG_TYPE_TERMIOS	0x04	/* Terminal IO struct update */
-+#define MSG_TYPE_WINSIZE	0x08	/* Terminal window size update */
-+#define MSG_TYPE_DATA		0x10	/* Terminal data */
-+
-+#define MSG_SIZE(s)		((s) + offsetof(struct iucv_tty_msg, data))
-+struct iucv_tty_msg {
-+	u8	version;		/* Message version */
-+	u8	type;			/* Message type */
-+#define MSG_MAX_DATALEN		(~(u16)0)
-+	u16	datalen;		/* Payload length */
-+	u8	data[];			/* Payload buffer */
-+} __attribute__((packed));
-+
-+enum iucv_state_t {
-+	IUCV_DISCONN	= 0,
-+	IUCV_CONNECTED	= 1,
-+	IUCV_SEVERED	= 2,
-+};
-+
-+enum tty_state_t {
-+	TTY_CLOSED	= 0,
-+	TTY_OPENED	= 1,
-+};
-+
-+struct hvc_iucv_private {
-+	struct hvc_struct	*hvc; /* HVC console struct reference */
-+	u8			srv_name[8];	/* IUCV service name (ebcdic) */
-+	enum iucv_state_t	iucv_state;	/* IUCV connection status */
-+	enum tty_state_t	tty_state;	/* TTY status */
-+	struct iucv_path	*path;		/* IUCV path pointer */
-+	spinlock_t		lock;		/* hvc_iucv_private lock */
-+	struct list_head	tty_outqueue;	/* outgoing IUCV messages */
-+	struct list_head	tty_inqueue;	/* incoming IUCV messages */
-+};
-+
-+struct iucv_tty_buffer {
-+	struct list_head	list;	/* list pointer */
-+	struct iucv_message	msg;	/* store an incoming IUCV message */
-+	size_t			offset;	/* data buffer offset */
-+	struct iucv_tty_msg	*mbuf;	/* buffer to store input/output data */
-+};
-+
-+/* IUCV callback handler */
-+static	int hvc_iucv_path_pending(struct iucv_path *, u8[8], u8[16]);
-+static void hvc_iucv_path_severed(struct iucv_path *, u8[16]);
-+static void hvc_iucv_msg_pending(struct iucv_path *, struct iucv_message *);
-+static void hvc_iucv_msg_complete(struct iucv_path *, struct iucv_message *);
-+
-+
-+/* Kernel module parameters */
-+static unsigned long hvc_iucv_devices;
-+
-+/* Array of allocated hvc iucv tty lines... */
-+static struct hvc_iucv_private *hvc_iucv_table[MAX_HVC_IUCV_LINES];
-+
-+/* Kmem cache and mempool for iucv_tty_buffer elements */
-+static struct kmem_cache *hvc_iucv_buffer_cache;
-+static mempool_t *hvc_iucv_mempool;
-+
-+/* IUCV handler callback functions */
-+static struct iucv_handler hvc_iucv_handler = {
-+	.path_pending  = hvc_iucv_path_pending,
-+	.path_severed  = hvc_iucv_path_severed,
-+	.message_complete = hvc_iucv_msg_complete,
-+	.message_pending  = hvc_iucv_msg_pending,
-+};
-+
-+
-+/**
-+ * hvc_iucv_get_private() - Return a struct hvc_iucv_private instance.
-+ * @num:	The HVC virtual terminal number (vtermno)
-+ *
-+ * This function returns the struct hvc_iucv_private instance that corresponds
-+ * to the HVC virtual terminal number specified as parameter @num.
-+ */
-+struct hvc_iucv_private *hvc_iucv_get_private(uint32_t num)
++static inline int ap_using_interrupts(void)
 +{
-+	if ((num < HVC_IUCV_MAGIC) || (num - HVC_IUCV_MAGIC > hvc_iucv_devices))
-+		return NULL;
-+	return hvc_iucv_table[num - HVC_IUCV_MAGIC];
++	return ap_interrupt_indicator != NULL;
 +}
 +
 +/**
-+ * alloc_tty_buffer() - Returns a new struct iucv_tty_buffer element.
-+ * @size:	Size of the internal buffer used to store data.
-+ * @flags:	Memory allocation flags passed to mempool.
+  * ap_intructions_available() - Test if AP instructions are available.
+  *
+  * Returns 0 if the AP instructions are installed.
+@@ -113,6 +129,23 @@ static inline int ap_instructions_availa
+ }
+ 
+ /**
++ * ap_interrupts_available(): Test if AP interrupts are available.
 + *
-+ * This function allocates a new struct iucv_tty_buffer element and, optionally,
-+ * allocates an internal data buffer with the specified size @size.
-+ * Note: The total message size arises from the internal buffer size and the
-+ *	 members of the iucv_tty_msg structure.
-+ *
-+ * The function returns NULL if memory allocation has failed.
++ * Returns 1 if AP interrupts are available.
 + */
-+static struct iucv_tty_buffer *alloc_tty_buffer(size_t size, gfp_t flags)
++static int ap_interrupts_available(void)
 +{
-+	struct iucv_tty_buffer *bufp;
++	unsigned long long facility_bits[2];
 +
-+	bufp = mempool_alloc(hvc_iucv_mempool, flags);
-+	if (!bufp)
-+		return NULL;
-+	memset(bufp, 0, sizeof(struct iucv_tty_buffer));
-+
-+	if (size > 0) {
-+		bufp->msg.length = MSG_SIZE(size);
-+		bufp->mbuf = kmalloc(bufp->msg.length, flags);
-+		if (!bufp->mbuf) {
-+			mempool_free(bufp, hvc_iucv_mempool);
-+			return NULL;
-+		}
-+		bufp->mbuf->version = MSG_VERSION;
-+		bufp->mbuf->type    = MSG_TYPE_DATA;
-+		bufp->mbuf->datalen = (u16) size;
-+	}
-+	return bufp;
-+}
-+
-+/**
-+ * destroy_tty_buffer() - destroy struct iucv_tty_buffer element.
-+ * @bufp:	Pointer to a struct iucv_tty_buffer element, SHALL NOT be NULL.
-+ *
-+ * The destroy_tty_buffer() function frees the internal data buffer and returns
-+ * the struct iucv_tty_buffer element back to the mempool for freeing.
-+ */
-+static void destroy_tty_buffer(struct iucv_tty_buffer *bufp)
-+{
-+	kfree(bufp->mbuf);
-+	mempool_free(bufp, hvc_iucv_mempool);
-+}
-+
-+/**
-+ * destroy_tty_buffer_list() - call destroy_tty_buffer() for each list element.
-+ * @list:	List head pointer to a list containing struct iucv_tty_buffer
-+ *		elements.
-+ *
-+ * Calls destroy_tty_buffer() for each struct iucv_tty_buffer element in the
-+ * list @list.
-+ */
-+static void destroy_tty_buffer_list(struct list_head *list)
-+{
-+	struct iucv_tty_buffer *ent, *next;
-+
-+	list_for_each_entry_safe(ent, next, list, list) {
-+		list_del(&ent->list);
-+		destroy_tty_buffer(ent);
-+	}
-+}
-+
-+/**
-+ * hvc_iucv_write() - Receive IUCV message write data to HVC console buffer.
-+ * @priv:		Pointer to hvc_iucv_private structure.
-+ * @buf:		HVC console buffer for writing received terminal data.
-+ * @count:		HVC console buffer size.
-+ * @has_more_data:	Pointer to an int variable.
-+ *
-+ * The function picks up pending messages from the input queue and receives
-+ * the message data that is then written to the specified buffer @buf.
-+ * If the buffer size @count is less than the data message size, then the
-+ * message is kept on the input queue and @has_more_data is set to 1.
-+ * If the message data has been entirely written, the message is removed from
-+ * the input queue.
-+ *
-+ * The function returns the number of bytes written to the terminal, zero if
-+ * there are no pending data messages available or if there is no established
-+ * IUCV path.
-+ * If the IUCV path has been severed, then -EPIPE is returned to cause a
-+ * hang up (that is issued by the HVC console layer).
-+ */
-+static int hvc_iucv_write(struct hvc_iucv_private *priv,
-+			  char *buf, int count, int *has_more_data)
-+{
-+	struct iucv_tty_buffer *rb;
-+	int written;
-+	int rc;
-+
-+	/* Immediately return if there is no IUCV connection */
-+	if (priv->iucv_state == IUCV_DISCONN)
++	if (stfle(facility_bits, 2) <= 1)
 +		return 0;
-+
-+	/* If the IUCV path has been severed, return -EPIPE to inform the
-+	 * hvc console layer to hang up the tty device. */
-+	if (priv->iucv_state == IUCV_SEVERED)
-+		return -EPIPE;
-+
-+	/* check if there are pending messages */
-+	if (list_empty(&priv->tty_inqueue))
++	if (!(facility_bits[0] & (1ULL << 61)) ||
++	    !(facility_bits[1] & (1ULL << 62)))
 +		return 0;
++	return 1;
++}
 +
-+	/* receive a iucv message and flip data to the tty (ldisc) */
-+	rb = list_first_entry(&priv->tty_inqueue, struct iucv_tty_buffer, list);
++/**
+  * ap_test_queue(): Test adjunct processor queue.
+  * @qid: The AP queue number
+  * @queue_depth: Pointer to queue depth value
+@@ -152,6 +185,80 @@ static inline struct ap_queue_status ap_
+ 	return reg1;
+ }
+ 
++#ifdef CONFIG_64BIT
++/**
++ * ap_queue_interruption_control(): Enable interruption for a specific AP.
++ * @qid: The AP queue number
++ * @ind: The notification indicator byte
++ *
++ * Returns AP queue status.
++ */
++static inline struct ap_queue_status
++ap_queue_interruption_control(ap_qid_t qid, void *ind)
++{
++	register unsigned long reg0 asm ("0") = qid | 0x03000000UL;
++	register unsigned long reg1_in asm ("1") = 0x0000800000000000UL | AP_ISC;
++	register struct ap_queue_status reg1_out asm ("1");
++	register void *reg2 asm ("2") = ind;
++	asm volatile(
++		".long 0xb2af0000"		/* PQAP(RAPQ) */
++		: "+d" (reg0), "+d" (reg1_in), "=d" (reg1_out), "+d" (reg2)
++		:
++		: "cc" );
++	return reg1_out;
++}
++#endif
 +
-+	written = 0;
-+	if (!rb->mbuf) { /* message not yet received ... */
-+		/* allocate mem to store msg data; if no memory is available
-+		 * then leave the buffer on the list and re-try later */
-+		rb->mbuf = kmalloc(rb->msg.length, GFP_ATOMIC);
-+		if (!rb->mbuf)
-+			return -ENOMEM;
++/**
++ * ap_queue_enable_interruption(): Enable interruption on an AP.
++ * @qid: The AP queue number
++ * @ind: the notification indicator byte
++ *
++ * Enables interruption on AP queue via ap_queue_interruption_control(). Based
++ * on the return value it waits a while and tests the AP queue if interrupts
++ * have been switched on using ap_test_queue().
++ */
++static int ap_queue_enable_interruption(ap_qid_t qid, void *ind)
++{
++#ifdef CONFIG_64BIT
++	struct ap_queue_status status;
++	int t_depth, t_device_type, rc, i;
 +
-+		rc = __iucv_message_receive(priv->path, &rb->msg, 0,
-+					    rb->mbuf, rb->msg.length, NULL);
-+		switch (rc) {
-+		case 0: /* Successful	    */
++	rc = -EBUSY;
++	status = ap_queue_interruption_control(qid, ind);
++
++	for (i = 0; i < AP_MAX_RESET; i++) {
++		switch (status.response_code) {
++		case AP_RESPONSE_NORMAL:
++			if (status.int_enabled)
++				return 0;
 +			break;
-+		case 2:	/* No message found */
-+		case 9: /* Message purged   */
++		case AP_RESPONSE_RESET_IN_PROGRESS:
++		case AP_RESPONSE_BUSY:
++			break;
++		case AP_RESPONSE_Q_NOT_AVAIL:
++		case AP_RESPONSE_DECONFIGURED:
++		case AP_RESPONSE_CHECKSTOPPED:
++		case AP_RESPONSE_INVALID_ADDRESS:
++			return -ENODEV;
++		case AP_RESPONSE_OTHERWISE_CHANGED:
++			if (status.int_enabled)
++				return 0;
 +			break;
 +		default:
-+			written = -EIO;
-+		}
-+		/* remove buffer if an error has occured or received data
-+		 * is not correct */
-+		if (rc || (rb->mbuf->version != MSG_VERSION) ||
-+			  (rb->msg.length    != MSG_SIZE(rb->mbuf->datalen)))
-+			goto out_remove_buffer;
-+	}
-+
-+	switch (rb->mbuf->type) {
-+	case MSG_TYPE_DATA:
-+		written = min_t(int, rb->mbuf->datalen - rb->offset, count);
-+		memcpy(buf, rb->mbuf->data + rb->offset, written);
-+		if (written < (rb->mbuf->datalen - rb->offset)) {
-+			rb->offset += written;
-+			*has_more_data = 1;
-+			goto out_written;
-+		}
-+		break;
-+
-+	case MSG_TYPE_WINSIZE:
-+		if (rb->mbuf->datalen != sizeof(struct winsize))
-+			break;
-+		hvc_resize(priv->hvc, *((struct winsize *)rb->mbuf->data));
-+		break;
-+
-+	case MSG_TYPE_ERROR:	/* ignored ... */
-+	case MSG_TYPE_TERMENV:	/* ignored ... */
-+	case MSG_TYPE_TERMIOS:	/* ignored ... */
-+		break;
-+	}
-+
-+out_remove_buffer:
-+	list_del(&rb->list);
-+	destroy_tty_buffer(rb);
-+	*has_more_data = !list_empty(&priv->tty_inqueue);
-+
-+out_written:
-+	return written;
-+}
-+
-+/**
-+ * hvc_iucv_get_chars() - HVC get_chars operation.
-+ * @vtermno:	HVC virtual terminal number.
-+ * @buf:	Pointer to a buffer to store data
-+ * @count:	Size of buffer available for writing
-+ *
-+ * The hvc_console thread calls this method to read characters from
-+ * the terminal backend. If an IUCV communication path has been established,
-+ * pending IUCV messages are received and data is copied into buffer @buf
-+ * up to @count bytes.
-+ *
-+ * Locking:	The routine gets called under an irqsave() spinlock; and
-+ *		the routine locks the struct hvc_iucv_private->lock to call
-+ *		helper functions.
-+ */
-+static int hvc_iucv_get_chars(uint32_t vtermno, char *buf, int count)
-+{
-+	struct hvc_iucv_private *priv = hvc_iucv_get_private(vtermno);
-+	int written;
-+	int has_more_data;
-+
-+	if (count <= 0)
-+		return 0;
-+
-+	if (!priv)
-+		return -ENODEV;
-+
-+	spin_lock(&priv->lock);
-+	has_more_data = 0;
-+	written = hvc_iucv_write(priv, buf, count, &has_more_data);
-+	spin_unlock(&priv->lock);
-+
-+	/* if there are still messages on the queue... schedule another run */
-+	if (has_more_data)
-+		hvc_kick();
-+
-+	return written;
-+}
-+
-+/**
-+ * hvc_iucv_send() - Send an IUCV message containing terminal data.
-+ * @priv:	Pointer to struct hvc_iucv_private instance.
-+ * @buf:	Buffer containing data to send.
-+ * @size:	Size of buffer and amount of data to send.
-+ *
-+ * If an IUCV communication path is established, the function copies the buffer
-+ * data to a newly allocated struct iucv_tty_buffer element, sends the data and
-+ * puts the element to the outqueue.
-+ *
-+ * If there is no IUCV communication path established, the function returns 0.
-+ * If an existing IUCV communicaton path has been severed, the function returns
-+ * -EPIPE (can be passed to HVC layer to cause a tty hangup).
-+ */
-+static int hvc_iucv_send(struct hvc_iucv_private *priv, const char *buf,
-+			 int count)
-+{
-+	struct iucv_tty_buffer *sb;
-+	int rc;
-+	u16 len;
-+
-+	if (priv->iucv_state == IUCV_SEVERED)
-+		return -EPIPE;
-+
-+	if (priv->iucv_state == IUCV_DISCONN)
-+		return 0;
-+
-+	len = min_t(u16, MSG_MAX_DATALEN, count);
-+
-+	/* allocate internal buffer to store msg data and also compute total
-+	 * message length */
-+	sb = alloc_tty_buffer(len, GFP_ATOMIC);
-+	if (!sb)
-+		return -ENOMEM;
-+
-+	sb->mbuf->datalen = len;
-+	memcpy(sb->mbuf->data, buf, len);
-+
-+	list_add_tail(&sb->list, &priv->tty_outqueue);
-+
-+	rc = __iucv_message_send(priv->path, &sb->msg, 0, 0,
-+				 (void *) sb->mbuf, sb->msg.length);
-+	if (rc) {
-+		list_del(&sb->list);
-+		destroy_tty_buffer(sb);
-+		len = 0;
-+	}
-+
-+	return len;
-+}
-+
-+/**
-+ * hvc_iucv_put_chars() - HVC put_chars operation.
-+ * @vtermno:	HVC virtual terminal number.
-+ * @buf:	Pointer to an buffer to read data from
-+ * @count:	Size of buffer available for reading
-+ *
-+ * The hvc_console thread calls this method to write characters from
-+ * to the terminal backend.
-+ * The function calls hvc_iucv_send() under the lock of the
-+ * struct hvc_iucv_private instance that corresponds to the tty @vtermno.
-+ *
-+ * Locking:	The method gets called under an irqsave() spinlock; and
-+ *		locks struct hvc_iucv_private->lock.
-+ */
-+static int hvc_iucv_put_chars(uint32_t vtermno, const char *buf, int count)
-+{
-+	struct hvc_iucv_private *priv = hvc_iucv_get_private(vtermno);
-+	int sent;
-+
-+	if (count <= 0)
-+		return 0;
-+
-+	if (!priv)
-+		return -ENODEV;
-+
-+	spin_lock(&priv->lock);
-+	sent = hvc_iucv_send(priv, buf, count);
-+	spin_unlock(&priv->lock);
-+
-+	return sent;
-+}
-+
-+/**
-+ * hvc_iucv_notifier_add() - HVC notifier for opening a TTY for the first time.
-+ * @hp:	Pointer to the HVC device (struct hvc_struct)
-+ * @id:	Additional data (originally passed to hvc_alloc): the index of an struct
-+ *	hvc_iucv_private instance.
-+ *
-+ * The function sets the tty state to TTY_OPEN for the struct hvc_iucv_private
-+ * instance that is derived from @id. Always returns 0.
-+ *
-+ * Locking:	struct hvc_iucv_private->lock, spin_lock_bh
-+ */
-+static int hvc_iucv_notifier_add(struct hvc_struct *hp, int id)
-+{
-+	struct hvc_iucv_private *priv;
-+
-+	priv = hvc_iucv_get_private(id);
-+	if (!priv)
-+		return 0;
-+
-+	spin_lock_bh(&priv->lock);
-+	priv->tty_state = TTY_OPENED;
-+	spin_unlock_bh(&priv->lock);
-+
-+	return 0;
-+}
-+
-+/**
-+ * hvc_iucv_cleanup() - Clean up function if the tty portion is finally closed.
-+ * @priv:	Pointer to the struct hvc_iucv_private instance.
-+ *
-+ * The functions severs the established IUCV communication path (if any), and
-+ * destroy struct iucv_tty_buffer elements from the in- and outqueue. Finally,
-+ * the functions resets the states to TTY_CLOSED and IUCV_DISCONN.
-+ */
-+static void hvc_iucv_cleanup(struct hvc_iucv_private *priv)
-+{
-+	destroy_tty_buffer_list(&priv->tty_outqueue);
-+	destroy_tty_buffer_list(&priv->tty_inqueue);
-+
-+	priv->tty_state = TTY_CLOSED;
-+	priv->iucv_state = IUCV_DISCONN;
-+}
-+
-+/**
-+ * hvc_iucv_notifier_hangup() - HVC notifier for tty hangups.
-+ * @hp: Pointer to the HVC device (struct hvc_struct)
-+ * @id: Additional data (originally passed to hvc_alloc): the index of an struct
-+ *	hvc_iucv_private instance.
-+ *
-+ * This routine notifies the HVC backend that a tty hangup (carrier loss,
-+ * virtual or otherwise) has occured.
-+ *
-+ * The HVC backend for z/VM IUCV ignores virtual hangups (vhangup()), to keep
-+ * an existing IUCV communication path established.
-+ * (Background: vhangup() is called from user space (by getty or login) to
-+ *		disable writing to the tty by other applications).
-+ *
-+ * If the tty has been opened (e.g. getty) and an established IUCV path has been
-+ * severed (we caused the tty hangup in that case), then the functions invokes
-+ * hvc_iucv_cleanup() to clean up.
-+ *
-+ * Locking:	struct hvc_iucv_private->lock
-+ */
-+static void hvc_iucv_notifier_hangup(struct hvc_struct *hp, int id)
-+{
-+	struct hvc_iucv_private *priv;
-+
-+	priv = hvc_iucv_get_private(id);
-+	if (!priv)
-+		return;
-+
-+	spin_lock_bh(&priv->lock);
-+	/* NOTE: If the hangup was scheduled by ourself (from the iucv
-+	 *	 path_servered callback [IUCV_SEVERED]), then we have to
-+	 *	 finally clean up the tty backend structure and set state to
-+	 *	 TTY_CLOSED.
-+	 *
-+	 *	 If the tty was hung up otherwise (e.g. vhangup()), then we
-+	 *	 ignore this hangup and keep an established IUCV path open...
-+	 *	 (...the reason is that we are not able to connect back to the
-+	 *	 client if we disconnect on hang up) */
-+	priv->tty_state = TTY_CLOSED;
-+
-+	if (priv->iucv_state == IUCV_SEVERED)
-+		hvc_iucv_cleanup(priv);
-+	spin_unlock_bh(&priv->lock);
-+}
-+
-+/**
-+ * hvc_iucv_notifier_del() - HVC notifier for closing a TTY for the last time.
-+ * @hp:		Pointer to the HVC device (struct hvc_struct)
-+ * @id:		Additional data (originally passed to hvc_alloc):
-+ *		the index of an struct hvc_iucv_private instance.
-+ *
-+ * This routine notifies the HVC backend that the last tty device file
-+ * descriptor has been closed.
-+ * The function calls hvc_iucv_cleanup() to clean up the struct hvc_iucv_private
-+ * instance.
-+ *
-+ * Locking:	struct hvc_iucv_private->lock
-+ */
-+static void hvc_iucv_notifier_del(struct hvc_struct *hp, int id)
-+{
-+	struct hvc_iucv_private *priv;
-+	struct iucv_path	*path;
-+
-+	priv = hvc_iucv_get_private(id);
-+	if (!priv)
-+		return;
-+
-+	spin_lock_bh(&priv->lock);
-+	path = priv->path;		/* save reference to IUCV path */
-+	priv->path = NULL;
-+	hvc_iucv_cleanup(priv);
-+	spin_unlock_bh(&priv->lock);
-+
-+	/* sever IUCV path outside of priv->lock due to lock ordering of:
-+	 * priv->lock <--> iucv_table_lock */
-+	if (path) {
-+		iucv_path_sever(path, NULL);
-+		iucv_path_free(path);
-+	}
-+}
-+
-+/**
-+ * hvc_iucv_path_pending() - IUCV handler to process a connection request.
-+ * @path:	Pending path (struct iucv_path)
-+ * @ipvmid:	Originator z/VM system identifier
-+ * @ipuser:	User specified data for this path
-+ *		(AF_IUCV: port/service name and originator port)
-+ *
-+ * The function uses the @ipuser data to check to determine if the pending
-+ * path belongs to a terminal managed by this HVC backend.
-+ * If the check is successful, then an additional check is done to ensure
-+ * that a terminal cannot be accessed multiple times (only one connection
-+ * to a terminal is allowed). In that particular case, the pending path is
-+ * severed. If it is the first connection, the pending path is accepted and
-+ * associated to the struct hvc_iucv_private. The iucv state is updated to
-+ * reflect that a communication path has been established.
-+ *
-+ * Returns 0 if the path belongs to a terminal managed by the this HVC backend;
-+ * otherwise returns -ENODEV in order to dispatch this path to other handlers.
-+ *
-+ * Locking:	struct hvc_iucv_private->lock
-+ */
-+static	int hvc_iucv_path_pending(struct iucv_path *path,
-+				  u8 ipvmid[8], u8 ipuser[16])
-+{
-+	struct hvc_iucv_private *priv;
-+	u8 nuser_data[16];
-+	int i, rc;
-+
-+	priv = NULL;
-+	for (i = 0; i < hvc_iucv_devices; i++)
-+		if (hvc_iucv_table[i] &&
-+		    (0 == memcmp(hvc_iucv_table[i]->srv_name, ipuser, 8))) {
-+			priv = hvc_iucv_table[i];
 +			break;
 +		}
-+
-+	if (!priv)
-+		return -ENODEV;
-+
-+	spin_lock(&priv->lock);
-+
-+	/* If the terminal is already connected or being severed, then sever
-+	 * this path to enforce that there is only ONE established communication
-+	 * path per terminal. */
-+	if (priv->iucv_state != IUCV_DISCONN) {
-+		iucv_path_sever(path, ipuser);
-+		iucv_path_free(path);
-+		goto out_path_handled;
-+	}
-+
-+	/* accept path */
-+	memcpy(nuser_data, ipuser + 8, 8);  /* remote service (for af_iucv) */
-+	memcpy(nuser_data + 8, ipuser, 8);  /* local service  (for af_iucv) */
-+	path->msglim = 0xffff;		    /* IUCV MSGLIMIT */
-+	path->flags &= ~IUCV_IPRMDATA;	    /* TODO: use IUCV_IPRMDATA */
-+	rc = iucv_path_accept(path, &hvc_iucv_handler, nuser_data, priv);
-+	if (rc) {
-+		iucv_path_sever(path, ipuser);
-+		iucv_path_free(path);
-+		goto out_path_handled;
-+	}
-+	priv->path = path;
-+	priv->iucv_state = IUCV_CONNECTED;
-+
-+out_path_handled:
-+	spin_unlock(&priv->lock);
-+	return 0;
-+}
-+
-+/**
-+ * hvc_iucv_path_severed() - IUCV handler to process a path sever.
-+ * @path:	Pending path (struct iucv_path)
-+ * @ipuser:	User specified data for this path
-+ *		(AF_IUCV: port/service name and originator port)
-+ *
-+ * The function also severs the path (as required by the IUCV protocol) and
-+ * sets the iucv state to IUCV_SEVERED for the associated struct
-+ * hvc_iucv_private instance. Later, the IUCV_SEVERED state triggers a tty
-+ * hangup (hvc_iucv_get_chars() / hvc_iucv_write()).
-+ *
-+ * If tty portion of the HVC is closed then clean up the outqueue in addition.
-+ *
-+ * Locking:	struct hvc_iucv_private->lock
-+ */
-+static void hvc_iucv_path_severed(struct iucv_path *path, u8 ipuser[16])
-+{
-+	struct hvc_iucv_private *priv = path->private;
-+
-+	spin_lock(&priv->lock);
-+	priv->iucv_state = IUCV_SEVERED;
-+
-+	/* NOTE: If the tty has not yet been opened by a getty program
-+	 *	 (e.g. to see console messages), then cleanup the
-+	 *	 hvc_iucv_private structure to allow re-connects.
-+	 *
-+	 *	 If the tty has been opened, the get_chars() callback returns
-+	 *	 -EPIPE to signal the hvc console layer to hang up the tty. */
-+	priv->path = NULL;
-+	if (priv->tty_state == TTY_CLOSED)
-+		hvc_iucv_cleanup(priv);
-+	spin_unlock(&priv->lock);
-+
-+	/* finally sever path (outside of priv->lock due to lock ordering) */
-+	iucv_path_sever(path, ipuser);
-+	iucv_path_free(path);
-+}
-+
-+/**
-+ * hvc_iucv_msg_pending() - IUCV handler to process an incoming IUCV message.
-+ * @path:	Pending path (struct iucv_path)
-+ * @msg:	Pointer to the IUCV message
-+ *
-+ * The function stores an incoming message on the input queue for later
-+ * processing (by hvc_iucv_get_chars() / hvc_iucv_write()).
-+ * However, if the tty has not yet been opened, the message is rejected.
-+ *
-+ * Locking:	struct hvc_iucv_private->lock
-+ */
-+static void hvc_iucv_msg_pending(struct iucv_path *path,
-+				 struct iucv_message *msg)
-+{
-+	struct hvc_iucv_private *priv = path->private;
-+	struct iucv_tty_buffer *rb;
-+
-+	spin_lock(&priv->lock);
-+
-+	/* reject messages if tty has not yet been opened */
-+	if (priv->tty_state == TTY_CLOSED) {
-+		iucv_message_reject(path, msg);
-+		goto unlock_return;
-+	}
-+
-+	/* allocate buffer an empty buffer element */
-+	rb = alloc_tty_buffer(0, GFP_ATOMIC);
-+	if (!rb) {
-+		iucv_message_reject(path, msg);
-+		goto unlock_return;	/* -ENOMEM */
-+	}
-+	rb->msg = *msg;
-+
-+	list_add_tail(&rb->list, &priv->tty_inqueue);
-+
-+	hvc_kick();	/* wakup hvc console thread */
-+
-+unlock_return:
-+	spin_unlock(&priv->lock);
-+}
-+
-+/**
-+ * hvc_iucv_msg_complete() - IUCV handler to process message completion
-+ * @path:	Pending path (struct iucv_path)
-+ * @msg:	Pointer to the IUCV message
-+ *
-+ * The function is called upon completion of message delivery and the
-+ * message is removed from the outqueue. Additional delivery information
-+ * can be found in msg->audit: rejected messages (0x040000 (IPADRJCT)) and
-+ * purged messages (0x010000 (IPADPGNR)).
-+ *
-+ * Locking:	struct hvc_iucv_private->lock
-+ */
-+static void hvc_iucv_msg_complete(struct iucv_path *path,
-+				  struct iucv_message *msg)
-+{
-+	struct hvc_iucv_private *priv = path->private;
-+	struct iucv_tty_buffer	*ent, *next;
-+	LIST_HEAD(list_remove);
-+
-+	spin_lock(&priv->lock);
-+	list_for_each_entry_safe(ent, next, &priv->tty_outqueue, list)
-+		if (ent->msg.id == msg->id) {
-+			list_move(&ent->list, &list_remove);
-+			break;
-+		}
-+	spin_unlock(&priv->lock);
-+	destroy_tty_buffer_list(&list_remove);
-+}
-+
-+
-+/* HVC operations */
-+static struct hv_ops hvc_iucv_ops = {
-+	.get_chars = hvc_iucv_get_chars,
-+	.put_chars = hvc_iucv_put_chars,
-+	.notifier_add = hvc_iucv_notifier_add,
-+	.notifier_del = hvc_iucv_notifier_del,
-+	.notifier_hangup = hvc_iucv_notifier_hangup,
-+};
-+
-+/**
-+ * hvc_iucv_alloc() - Allocates a new struct hvc_iucv_private instance
-+ * @id:	hvc_iucv_table index
-+ *
-+ * This function allocates a new hvc_iucv_private struct and put the
-+ * instance into hvc_iucv_table at index @id.
-+ * Returns 0 on success; otherwise non-zero.
-+ */
-+static int __init hvc_iucv_alloc(int id)
-+{
-+	struct hvc_iucv_private *priv;
-+	char name[9];
-+	int rc;
-+
-+	priv = kzalloc(sizeof(struct hvc_iucv_private), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	spin_lock_init(&priv->lock);
-+	INIT_LIST_HEAD(&priv->tty_outqueue);
-+	INIT_LIST_HEAD(&priv->tty_inqueue);
-+
-+	/* Finally allocate hvc */
-+	priv->hvc = hvc_alloc(HVC_IUCV_MAGIC + id,
-+			      HVC_IUCV_MAGIC + id, &hvc_iucv_ops, PAGE_SIZE);
-+	if (IS_ERR(priv->hvc)) {
-+		rc = PTR_ERR(priv->hvc);
-+		kfree(priv);
-+		return rc;
-+	}
-+
-+	/* setup iucv related information */
-+	snprintf(name, 9, "ihvc%-4d", id);
-+	memcpy(priv->srv_name, name, 8);
-+	ASCEBC(priv->srv_name, 8);
-+
-+	hvc_iucv_table[id] = priv;
-+	return 0;
-+}
-+
-+/**
-+ * hvc_iucv_init() - Initialization of HVC backend for z/VM IUCV
-+ */
-+static int __init hvc_iucv_init(void)
-+{
-+	int rc, i;
-+
-+	if (!MACHINE_IS_VM) {
-+		pr_warning("The z/VM IUCV Hypervisor console cannot be "
-+			   "used without z/VM.\n");
-+		return -ENODEV;
-+	}
-+
-+	if (!hvc_iucv_devices)
-+		return -ENODEV;
-+
-+	if (hvc_iucv_devices > MAX_HVC_IUCV_LINES)
-+		return -EINVAL;
-+
-+	hvc_iucv_buffer_cache = kmem_cache_create(KMSG_COMPONENT,
-+					   sizeof(struct iucv_tty_buffer),
-+					   0, 0, NULL);
-+	if (!hvc_iucv_buffer_cache) {
-+		pr_err("Not enough memory for driver initialization "
-+			"(rs=%d).\n", 1);
-+		return -ENOMEM;
-+	}
-+
-+	hvc_iucv_mempool = mempool_create_slab_pool(MEMPOOL_MIN_NR,
-+						    hvc_iucv_buffer_cache);
-+	if (!hvc_iucv_mempool) {
-+		pr_err("Not enough memory for driver initialization "
-+			"(rs=%d).\n", 2);
-+		kmem_cache_destroy(hvc_iucv_buffer_cache);
-+		return -ENOMEM;
-+	}
-+
-+	/* allocate hvc_iucv_private structs */
-+	for (i = 0; i < hvc_iucv_devices; i++) {
-+		rc = hvc_iucv_alloc(i);
-+		if (rc) {
-+			pr_err("Could not create new z/VM IUCV HVC backend "
-+				"rc=%d.\n", rc);
-+			goto out_error_hvc;
++		if (i < AP_MAX_RESET - 1) {
++			udelay(5);
++			status = ap_test_queue(qid, &t_depth, &t_device_type);
 +		}
 +	}
-+
-+	/* register IUCV callback handler */
-+	rc = iucv_register(&hvc_iucv_handler, 0);
-+	if (rc) {
-+		pr_err("Could not register iucv handler (rc=%d).\n", rc);
-+		goto out_error_iucv;
-+	}
-+
-+	return 0;
-+
-+out_error_iucv:
-+	iucv_unregister(&hvc_iucv_handler, 0);
-+out_error_hvc:
-+	for (i = 0; i < hvc_iucv_devices; i++)
-+		if (hvc_iucv_table[i]) {
-+			if (hvc_iucv_table[i]->hvc)
-+				hvc_remove(hvc_iucv_table[i]->hvc);
-+			kfree(hvc_iucv_table[i]);
-+		}
-+	mempool_destroy(hvc_iucv_mempool);
-+	kmem_cache_destroy(hvc_iucv_buffer_cache);
 +	return rc;
++#else
++	return -EINVAL;
++#endif
 +}
 +
-+/**
-+ * hvc_iucv_console_init() - Early console initialization
-+ */
-+static	int __init hvc_iucv_console_init(void)
-+{
-+	if (!MACHINE_IS_VM || !hvc_iucv_devices)
-+		return -ENODEV;
-+	return hvc_instantiate(HVC_IUCV_MAGIC, 0, &hvc_iucv_ops);
-+}
-+
-+/**
-+ * hvc_iucv_config() - Parsing of hvc_iucv=  kernel command line parameter
-+ * @val:	Parameter value (numeric)
-+ */
-+static	int __init hvc_iucv_config(char *val)
-+{
-+	 return strict_strtoul(val, 10, &hvc_iucv_devices);
-+}
-+
-+
-+module_init(hvc_iucv_init);
-+console_initcall(hvc_iucv_console_init);
-+__setup("hvc_iucv=", hvc_iucv_config);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("HVC back-end for z/VM IUCV.");
-+MODULE_AUTHOR("Hendrik Brueckner <brueckner@linux.vnet.ibm.com>");
-Index: quilt-2.6/drivers/char/Kconfig
-===================================================================
---- quilt-2.6.orig/drivers/char/Kconfig
-+++ quilt-2.6/drivers/char/Kconfig
-@@ -622,6 +622,16 @@ config HVC_BEAT
- 	help
- 	  Toshiba's Cell Reference Set Beat Console device driver
+ /**
+  * __ap_send(): Send message to adjunct processor queue.
+  * @qid: The AP queue number
+@@ -295,6 +402,11 @@ static int ap_query_queue(ap_qid_t qid, 
+ 		case AP_RESPONSE_CHECKSTOPPED:
+ 			rc = -ENODEV;
+ 			break;
++		case AP_RESPONSE_INVALID_ADDRESS:
++			rc = -ENODEV;
++			break;
++		case AP_RESPONSE_OTHERWISE_CHANGED:
++			break;
+ 		case AP_RESPONSE_BUSY:
+ 			break;
+ 		default:
+@@ -345,6 +457,15 @@ static int ap_init_queue(ap_qid_t qid)
+ 			status = ap_test_queue(qid, &dummy, &dummy);
+ 		}
+ 	}
++	if (rc == 0 && ap_using_interrupts()) {
++		rc = ap_queue_enable_interruption(qid, ap_interrupt_indicator);
++		/* If interruption mode is supported by the machine,
++		* but an AP can not be enabled for interruption then
++		* the AP will be discarded.    */
++		if (rc)
++			pr_err("Registering adapter interrupts for "
++			       "AP %d failed\n", AP_QID_DEVICE(qid));
++	}
+ 	return rc;
+ }
  
-+config HVC_IUCV
-+	bool "z/VM IUCV Hypervisor console support (VM only)"
-+	depends on S390
-+	select HVC_DRIVER
-+	select IUCV
-+	default y
-+	help
-+	  This driver provides a Hypervisor console (HVC) back-end to access
-+	  a Linux (console) terminal via a z/VM IUCV communication path.
+@@ -599,6 +720,14 @@ static ssize_t ap_config_time_show(struc
+ 	return snprintf(buf, PAGE_SIZE, "%d\n", ap_config_time);
+ }
+ 
++static ssize_t ap_interrupts_show(struct bus_type *bus, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n",
++			ap_using_interrupts() ? 1 : 0);
++}
 +
- config HVC_XEN
- 	bool "Xen Hypervisor Console support"
- 	depends on XEN
-Index: quilt-2.6/drivers/char/Makefile
++static BUS_ATTR(ap_interrupts, 0444, ap_interrupts_show, NULL);
++
+ static ssize_t ap_config_time_store(struct bus_type *bus,
+ 				    const char *buf, size_t count)
+ {
+@@ -653,7 +782,8 @@ static ssize_t poll_timeout_store(struct
+ 	ktime_t hr_time;
+ 
+ 	/* 120 seconds = maximum poll interval */
+-	if (sscanf(buf, "%llu\n", &time) != 1 || time < 1 || time > 120000000000)
++	if (sscanf(buf, "%llu\n", &time) != 1 || time < 1 ||
++	    time > 120000000000ULL)
+ 		return -EINVAL;
+ 	poll_timeout = time;
+ 	hr_time = ktime_set(0, poll_timeout);
+@@ -672,6 +802,7 @@ static struct bus_attribute *const ap_bu
+ 	&bus_attr_ap_domain,
+ 	&bus_attr_config_time,
+ 	&bus_attr_poll_thread,
++	&bus_attr_ap_interrupts,
+ 	&bus_attr_poll_timeout,
+ 	NULL,
+ };
+@@ -814,6 +945,11 @@ out:
+ 	return rc;
+ }
+ 
++static void ap_interrupt_handler(void *unused1, void *unused2)
++{
++	tasklet_schedule(&ap_tasklet);
++}
++
+ /**
+  * __ap_scan_bus(): Scan the AP bus.
+  * @dev: Pointer to device
+@@ -928,6 +1064,8 @@ ap_config_timeout(unsigned long ptr)
+  */
+ static inline void ap_schedule_poll_timer(void)
+ {
++	if (ap_using_interrupts())
++		return;
+ 	if (hrtimer_is_queued(&ap_poll_timer))
+ 		return;
+ 	hrtimer_start(&ap_poll_timer, ktime_set(0, poll_timeout),
+@@ -1207,6 +1345,12 @@ static void ap_poll_all(unsigned long du
+ 	unsigned long flags;
+ 	struct ap_device *ap_dev;
+ 
++	/* Reset the indicator if interrupts are used. Thus new interrupts can
++	 * be received. Doing it in the beginning of the tasklet is therefor
++	 * important that no requests on any AP get lost.
++	 */
++	if (ap_using_interrupts())
++		xchg((u8 *)ap_interrupt_indicator, 0);
+ 	do {
+ 		flags = 0;
+ 		spin_lock(&ap_device_lock);
+@@ -1268,6 +1412,8 @@ static int ap_poll_thread_start(void)
+ {
+ 	int rc;
+ 
++	if (ap_using_interrupts())
++		return 0;
+ 	mutex_lock(&ap_poll_thread_mutex);
+ 	if (!ap_poll_kthread) {
+ 		ap_poll_kthread = kthread_run(ap_poll_thread, NULL, "appoll");
+@@ -1301,8 +1447,12 @@ static void ap_request_timeout(unsigned 
+ {
+ 	struct ap_device *ap_dev = (struct ap_device *) data;
+ 
+-	if (ap_dev->reset == AP_RESET_ARMED)
++	if (ap_dev->reset == AP_RESET_ARMED) {
+ 		ap_dev->reset = AP_RESET_DO;
++
++		if (ap_using_interrupts())
++			tasklet_schedule(&ap_tasklet);
++	}
+ }
+ 
+ static void ap_reset_domain(void)
+@@ -1345,6 +1495,16 @@ int __init ap_module_init(void)
+ 		printk(KERN_WARNING "AP instructions not installed.\n");
+ 		return -ENODEV;
+ 	}
++	if (ap_interrupts_available()) {
++		isc_register(AP_ISC);
++		ap_interrupt_indicator = s390_register_adapter_interrupt(
++			&ap_interrupt_handler, NULL, AP_ISC);
++		if (IS_ERR(ap_interrupt_indicator)) {
++			ap_interrupt_indicator = NULL;
++			isc_unregister(AP_ISC);
++		}
++	}
++
+ 	register_reset_call(&ap_reset_call);
+ 
+ 	/* Create /sys/bus/ap. */
+@@ -1408,6 +1568,10 @@ out_bus:
+ 	bus_unregister(&ap_bus_type);
+ out:
+ 	unregister_reset_call(&ap_reset_call);
++	if (ap_using_interrupts()) {
++		s390_unregister_adapter_interrupt(ap_interrupt_indicator, AP_ISC);
++		isc_unregister(AP_ISC);
++	}
+ 	return rc;
+ }
+ 
+@@ -1443,6 +1607,10 @@ void ap_module_exit(void)
+ 		bus_remove_file(&ap_bus_type, ap_bus_attrs[i]);
+ 	bus_unregister(&ap_bus_type);
+ 	unregister_reset_call(&ap_reset_call);
++	if (ap_using_interrupts()) {
++		s390_unregister_adapter_interrupt(ap_interrupt_indicator, AP_ISC);
++		isc_unregister(AP_ISC);
++	}
+ }
+ 
+ #ifndef CONFIG_ZCRYPT_MONOLITHIC
+Index: quilt-2.6/drivers/s390/crypto/ap_bus.h
 ===================================================================
---- quilt-2.6.orig/drivers/char/Makefile
-+++ quilt-2.6/drivers/char/Makefile
-@@ -50,6 +50,7 @@ obj-$(CONFIG_HVC_BEAT)		+= hvc_beat.o
- obj-$(CONFIG_HVC_DRIVER)	+= hvc_console.o
- obj-$(CONFIG_HVC_IRQ)		+= hvc_irq.o
- obj-$(CONFIG_HVC_XEN)		+= hvc_xen.o
-+obj-$(CONFIG_HVC_IUCV)		+= hvc_iucv.o
- obj-$(CONFIG_VIRTIO_CONSOLE)	+= virtio_console.o
- obj-$(CONFIG_RAW_DRIVER)	+= raw.o
- obj-$(CONFIG_SGI_SNSC)		+= snsc.o snsc_event.o
+--- quilt-2.6.orig/drivers/s390/crypto/ap_bus.h
++++ quilt-2.6/drivers/s390/crypto/ap_bus.h
+@@ -5,6 +5,7 @@
+  * Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
+  *	      Martin Schwidefsky <schwidefsky@de.ibm.com>
+  *	      Ralph Wuerthner <rwuerthn@de.ibm.com>
++ *	      Felix Beck <felix.beck@de.ibm.com>
+  *
+  * Adjunct processor bus header file.
+  *
+@@ -67,7 +68,8 @@ struct ap_queue_status {
+ 	unsigned int queue_empty	: 1;
+ 	unsigned int replies_waiting	: 1;
+ 	unsigned int queue_full		: 1;
+-	unsigned int pad1		: 5;
++	unsigned int pad1		: 4;
++	unsigned int int_enabled	: 1;
+ 	unsigned int response_code	: 8;
+ 	unsigned int pad2		: 16;
+ };
+@@ -78,6 +80,8 @@ struct ap_queue_status {
+ #define AP_RESPONSE_DECONFIGURED	0x03
+ #define AP_RESPONSE_CHECKSTOPPED	0x04
+ #define AP_RESPONSE_BUSY		0x05
++#define AP_RESPONSE_INVALID_ADDRESS	0x06
++#define AP_RESPONSE_OTHERWISE_CHANGED	0x07
+ #define AP_RESPONSE_Q_FULL		0x10
+ #define AP_RESPONSE_NO_PENDING_REPLY	0x10
+ #define AP_RESPONSE_INDEX_TOO_BIG	0x11
 
 -- 
 blue skies,
