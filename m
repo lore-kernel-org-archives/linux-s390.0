@@ -1,57 +1,124 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756896AbYK0Kx3@vger.kernel.org>
-Message-Id: <20081127103136.171738662@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757098AbYK0KyL@vger.kernel.org>
+Message-Id: <20081127103134.797553323@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:30:50 +0100
+Date: Thu, 27 Nov 2008 11:30:45 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 30/60] dasd: Use accessors instead of using driver_data directly.
-Content-Disposition: inline; filename=129-dasd-accessors.diff
+Subject: [patch 25/60] cio: get rid of compile warning
+Content-Disposition: inline; filename=124-cio-warning.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Move cio_tpi() to the rest of the CONFIG_CCW_CONSOLE functions to
+get rid of this one:
+
+drivers/s390/cio/cio.c:115: warning: 'cio_tpi' defined but not used
+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/dasd_devmap.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/s390/cio/cio.c |   75 ++++++++++++++++++++++++-------------------------
+ 1 file changed, 37 insertions(+), 38 deletions(-)
 
-Index: quilt-2.6/drivers/s390/block/dasd_devmap.c
+Index: quilt-2.6/drivers/s390/cio/cio.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd_devmap.c
-+++ quilt-2.6/drivers/s390/block/dasd_devmap.c
-@@ -562,7 +562,7 @@ dasd_create_device(struct ccw_device *cd
- 	}
+--- quilt-2.6.orig/drivers/s390/cio/cio.c
++++ quilt-2.6/drivers/s390/cio/cio.c
+@@ -104,44 +104,6 @@ cio_get_options (struct subchannel *sch)
+        return flags;
+ }
  
- 	spin_lock_irqsave(get_ccwdev_lock(cdev), flags);
--	cdev->dev.driver_data = device;
-+	dev_set_drvdata(&cdev->dev, device);
- 	spin_unlock_irqrestore(get_ccwdev_lock(cdev), flags);
- 
- 	return device;
-@@ -598,7 +598,7 @@ dasd_delete_device(struct dasd_device *d
- 
- 	/* Disconnect dasd_device structure from ccw_device structure. */
- 	spin_lock_irqsave(get_ccwdev_lock(device->cdev), flags);
--	device->cdev->dev.driver_data = NULL;
-+	dev_set_drvdata(&device->cdev->dev, NULL);
- 	spin_unlock_irqrestore(get_ccwdev_lock(device->cdev), flags);
- 
- 	/*
-@@ -639,7 +639,7 @@ dasd_put_device_wake(struct dasd_device 
- struct dasd_device *
- dasd_device_from_cdev_locked(struct ccw_device *cdev)
+-/*
+- * Use tpi to get a pending interrupt, call the interrupt handler and
+- * return a pointer to the subchannel structure.
+- */
+-static int
+-cio_tpi(void)
+-{
+-	struct tpi_info *tpi_info;
+-	struct subchannel *sch;
+-	struct irb *irb;
+-	int irq_context;
+-
+-	tpi_info = (struct tpi_info *) __LC_SUBCHANNEL_ID;
+-	if (tpi (NULL) != 1)
+-		return 0;
+-	irb = (struct irb *) __LC_IRB;
+-	/* Store interrupt response block to lowcore. */
+-	if (tsch (tpi_info->schid, irb) != 0)
+-		/* Not status pending or not operational. */
+-		return 1;
+-	sch = (struct subchannel *)(unsigned long)tpi_info->intparm;
+-	if (!sch)
+-		return 1;
+-	irq_context = in_interrupt();
+-	if (!irq_context)
+-		local_bh_disable();
+-	irq_enter ();
+-	spin_lock(sch->lock);
+-	memcpy(&sch->schib.scsw, &irb->scsw, sizeof(union scsw));
+-	if (sch->driver && sch->driver->irq)
+-		sch->driver->irq(sch);
+-	spin_unlock(sch->lock);
+-	irq_exit ();
+-	if (!irq_context)
+-		_local_bh_enable();
+-	return 1;
+-}
+-
+ static int
+ cio_start_handle_notoper(struct subchannel *sch, __u8 lpm)
  {
--	struct dasd_device *device = cdev->dev.driver_data;
-+	struct dasd_device *device = dev_get_drvdata(&cdev->dev);
+@@ -687,6 +649,43 @@ static char console_sch_name[10] = "0.x.
+ static struct io_subchannel_private console_priv;
+ static int console_subchannel_in_use;
  
- 	if (!device)
- 		return ERR_PTR(-ENODEV);
++/*
++ * Use tpi to get a pending interrupt, call the interrupt handler and
++ * return a pointer to the subchannel structure.
++ */
++static int cio_tpi(void)
++{
++	struct tpi_info *tpi_info;
++	struct subchannel *sch;
++	struct irb *irb;
++	int irq_context;
++
++	tpi_info = (struct tpi_info *) __LC_SUBCHANNEL_ID;
++	if (tpi(NULL) != 1)
++		return 0;
++	irb = (struct irb *) __LC_IRB;
++	/* Store interrupt response block to lowcore. */
++	if (tsch(tpi_info->schid, irb) != 0)
++		/* Not status pending or not operational. */
++		return 1;
++	sch = (struct subchannel *)(unsigned long)tpi_info->intparm;
++	if (!sch)
++		return 1;
++	irq_context = in_interrupt();
++	if (!irq_context)
++		local_bh_disable();
++	irq_enter();
++	spin_lock(sch->lock);
++	memcpy(&sch->schib.scsw, &irb->scsw, sizeof(union scsw));
++	if (sch->driver && sch->driver->irq)
++		sch->driver->irq(sch);
++	spin_unlock(sch->lock);
++	irq_exit();
++	if (!irq_context)
++		_local_bh_enable();
++	return 1;
++}
++
+ void *cio_get_console_priv(void)
+ {
+ 	return &console_priv;
 
 -- 
 blue skies,
