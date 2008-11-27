@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753052AbYK0KeE@vger.kernel.org>
-Message-Id: <20081127103129.621856716@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755074AbYK0Ked@vger.kernel.org>
+Message-Id: <20081127103129.055639526@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:30:27 +0100
+Date: Thu, 27 Nov 2008 11:30:25 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 07/60] Move stfle to header file.
-Content-Disposition: inline; filename=106-stfle-mv.diff
+Subject: [patch 05/60] serialize stp/etr work
+Content-Disposition: inline; filename=104-stp-etr-work.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -12,92 +12,112 @@ To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-stfle will be needed by the ap_bus module to figure out wether the AP
-queue adapter interruption facility is installed.
+The work function dispatched with schedule_work() can be run twice
+on different cpus because run_workqueue clears the WORK_STRUCT_PENDING
+bit and then executes the function. Another cpu can call schedule_work()
+again and run the work function a second time before the first call
+is completed. This patch serialized the etr and stp work function with
+a mutex.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/include/asm/system.h |   20 ++++++++++++++++++--
- arch/s390/kernel/setup.c       |   17 -----------------
- 2 files changed, 18 insertions(+), 19 deletions(-)
+ arch/s390/kernel/time.c |   23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
-Index: quilt-2.6/arch/s390/include/asm/system.h
+Index: quilt-2.6/arch/s390/kernel/time.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/system.h
-+++ quilt-2.6/arch/s390/include/asm/system.h
-@@ -12,6 +12,7 @@
- #define __ASM_SYSTEM_H
+--- quilt-2.6.orig/arch/s390/kernel/time.c
++++ quilt-2.6/arch/s390/kernel/time.c
+@@ -467,6 +467,7 @@ static struct timer_list etr_timer;
  
- #include <linux/kernel.h>
-+#include <linux/errno.h>
- #include <asm/types.h>
- #include <asm/ptrace.h>
- #include <asm/setup.h>
-@@ -413,8 +414,6 @@ __set_psw_mask(unsigned long mask)
- #define local_mcck_enable()  __set_psw_mask(psw_kernel_bits)
- #define local_mcck_disable() __set_psw_mask(psw_kernel_bits & ~PSW_MASK_MCHECK)
+ static void etr_timeout(unsigned long dummy);
+ static void etr_work_fn(struct work_struct *work);
++static DEFINE_MUTEX(etr_work_mutex);
+ static DECLARE_WORK(etr_work, etr_work_fn);
  
--int stfle(unsigned long long *list, int doublewords);
--
- #ifdef CONFIG_SMP
- 
- extern void smp_ctl_set_bit(int cr, int bit);
-@@ -438,6 +437,23 @@ static inline unsigned int stfl(void)
- 	return S390_lowcore.stfl_fac_list;
- }
- 
-+static inline int __stfle(unsigned long long *list, int doublewords)
-+{
-+	typedef struct { unsigned long long _[doublewords]; } addrtype;
-+	register unsigned long __nr asm("0") = doublewords - 1;
-+
-+	asm volatile(".insn s,0xb2b00000,%0" /* stfle */
-+		     : "=m" (*(addrtype *) list), "+d" (__nr) : : "cc");
-+	return __nr + 1;
-+}
-+
-+static inline int stfle(unsigned long long *list, int doublewords)
-+{
-+	if (!(stfl() & (1UL << 24)))
-+		return -EOPNOTSUPP;
-+	return __stfle(list, doublewords);
-+}
-+
- static inline unsigned short stap(void)
- {
- 	unsigned short cpu_address;
-Index: quilt-2.6/arch/s390/kernel/setup.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/setup.c
-+++ quilt-2.6/arch/s390/kernel/setup.c
-@@ -651,23 +651,6 @@ setup_memory(void)
- #endif
- }
- 
--static int __init __stfle(unsigned long long *list, int doublewords)
--{
--	typedef struct { unsigned long long _[doublewords]; } addrtype;
--	register unsigned long __nr asm("0") = doublewords - 1;
--
--	asm volatile(".insn s,0xb2b00000,%0" /* stfle */
--		     : "=m" (*(addrtype *) list), "+d" (__nr) : : "cc");
--	return __nr + 1;
--}
--
--int __init stfle(unsigned long long *list, int doublewords)
--{
--	if (!(stfl() & (1UL << 24)))
--		return -EOPNOTSUPP;
--	return __stfle(list, doublewords);
--}
--
  /*
-  * Setup hardware capabilities.
-  */
+@@ -976,6 +977,9 @@ static void etr_work_fn(struct work_stru
+ 	struct etr_aib aib;
+ 	int sync_port;
+ 
++	/* prevent multiple execution. */
++	mutex_lock(&etr_work_mutex);
++
+ 	/* Create working copy of etr_eacr. */
+ 	eacr = etr_eacr;
+ 
+@@ -991,7 +995,7 @@ static void etr_work_fn(struct work_stru
+ 		del_timer_sync(&etr_timer);
+ 		etr_update_eacr(eacr);
+ 		clear_bit(CLOCK_SYNC_ETR, &clock_sync_flags);
+-		return;
++		goto out_unlock;
+ 	}
+ 
+ 	/* Store aib to get the current ETR status word. */
+@@ -1078,7 +1082,7 @@ static void etr_work_fn(struct work_stru
+ 	    eacr.es || sync_port < 0) {
+ 		etr_update_eacr(eacr);
+ 		etr_set_tolec_timeout(now);
+-		return;
++		goto out_unlock;
+ 	}
+ 
+ 	/*
+@@ -1106,6 +1110,8 @@ static void etr_work_fn(struct work_stru
+ 		etr_set_sync_timeout();
+ 	} else
+ 		etr_set_tolec_timeout(now);
++out_unlock:
++	mutex_unlock(&etr_work_mutex);
+ }
+ 
+ /*
+@@ -1394,6 +1400,7 @@ static struct stp_sstpi stp_info;
+ static void *stp_page;
+ 
+ static void stp_work_fn(struct work_struct *work);
++static DEFINE_MUTEX(stp_work_mutex);
+ static DECLARE_WORK(stp_work, stp_work_fn);
+ 
+ static int __init early_parse_stp(char *p)
+@@ -1542,24 +1549,30 @@ static void stp_work_fn(struct work_stru
+ 	struct clock_sync_data stp_sync;
+ 	int rc;
+ 
++	/* prevent multiple execution. */
++	mutex_lock(&stp_work_mutex);
++
+ 	if (!stp_online) {
+ 		chsc_sstpc(stp_page, STP_OP_CTRL, 0x0000);
+-		return;
++		goto out_unlock;
+ 	}
+ 
+ 	rc = chsc_sstpc(stp_page, STP_OP_CTRL, 0xb0e0);
+ 	if (rc)
+-		return;
++		goto out_unlock;
+ 
+ 	rc = chsc_sstpi(stp_page, &stp_info, sizeof(struct stp_sstpi));
+ 	if (rc || stp_info.c == 0)
+-		return;
++		goto out_unlock;
+ 
+ 	memset(&stp_sync, 0, sizeof(stp_sync));
+ 	get_online_cpus();
+ 	atomic_set(&stp_sync.cpus, num_online_cpus() - 1);
+ 	stop_machine(stp_sync_clock, &stp_sync, &cpu_online_map);
+ 	put_online_cpus();
++
++out_unlock:
++	mutex_unlock(&stp_work_mutex);
+ }
+ 
+ /*
 
 -- 
 blue skies,
