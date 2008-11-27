@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755801AbYK0Kuy@vger.kernel.org>
-Message-Id: <20081127103142.936494036@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757600AbYK0KvV@vger.kernel.org>
+Message-Id: <20081127103142.364476710@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:31:14 +0100
+Date: Thu, 27 Nov 2008 11:31:12 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 54/60] convert cpu related printks to pr_xxx macros.
-Content-Disposition: inline; filename=169-kmsg-cpu.diff
+Subject: [patch 52/60] convert sclp printks to pr_xxx macros.
+Content-Disposition: inline; filename=167-kmsg-sclp.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -17,314 +17,245 @@ From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/Makefile    |    4 -
- arch/s390/kernel/processor.c |   98 +++++++++++++++++++++++++++++++++++++++++++
- arch/s390/kernel/setup.c     |   88 --------------------------------------
- arch/s390/kernel/smp.c       |   17 +++----
- arch/s390/kernel/topology.c  |    5 +-
- 5 files changed, 112 insertions(+), 100 deletions(-)
+ drivers/s390/char/sclp_cmd.c     |   29 ++++++++++++++++-------------
+ drivers/s390/char/sclp_config.c  |   10 ++++++----
+ drivers/s390/char/sclp_cpi_sys.c |   12 ++++++++----
+ drivers/s390/char/sclp_sdias.c   |   18 +++++++++++-------
+ 4 files changed, 41 insertions(+), 28 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/Makefile
+Index: quilt-2.6/drivers/s390/char/sclp_cmd.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/Makefile
-+++ quilt-2.6/arch/s390/kernel/Makefile
-@@ -17,8 +17,8 @@ CFLAGS_smp.o	:= -Wno-nonnull
- #
- CFLAGS_ptrace.o		+= -DUTS_MACHINE='"$(UTS_MACHINE)"'
- 
--obj-y	:=  bitmap.o traps.o time.o process.o base.o early.o \
--            setup.o sys_s390.o ptrace.o signal.o cpcmd.o ebcdic.o \
-+obj-y	:=  bitmap.o traps.o time.o process.o base.o early.o setup.o \
-+	    processor.o sys_s390.o ptrace.o signal.o cpcmd.o ebcdic.o \
- 	    s390_ext.o debug.o irq.o ipl.o dis.o diag.o mem_detect.o \
- 	    vdso.o
- 
-Index: quilt-2.6/arch/s390/kernel/processor.c
-===================================================================
---- /dev/null
-+++ quilt-2.6/arch/s390/kernel/processor.c
-@@ -0,0 +1,98 @@
-+/*
-+ *  arch/s390/kernel/processor.c
-+ *
-+ *  Copyright IBM Corp. 2008
-+ *  Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
-+ */
-+
-+#define KMSG_COMPONENT "cpu"
-+#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
-+
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/smp.h>
-+#include <linux/seq_file.h>
-+#include <linux/delay.h>
-+
-+#include <asm/elf.h>
-+#include <asm/lowcore.h>
-+#include <asm/param.h>
-+
-+void __cpuinit print_cpu_info(struct cpuinfo_S390 *cpuinfo)
-+{
-+	pr_info("Processor %d started, address %d, identification %06X\n",
-+		cpuinfo->cpu_nr, cpuinfo->cpu_addr, cpuinfo->cpu_id.ident);
-+}
-+
-+/*
-+ * show_cpuinfo - Get information on one CPU for use by procfs.
-+ */
-+
-+static int show_cpuinfo(struct seq_file *m, void *v)
-+{
-+	static const char *hwcap_str[8] = {
-+		"esan3", "zarch", "stfle", "msa", "ldisp", "eimm", "dfp",
-+		"edat"
-+	};
-+       struct cpuinfo_S390 *cpuinfo;
-+       unsigned long n = (unsigned long) v - 1;
-+       int i;
-+
-+       s390_adjust_jiffies();
-+       preempt_disable();
-+       if (!n) {
-+	       seq_printf(m, "vendor_id       : IBM/S390\n"
-+			  "# processors    : %i\n"
-+			  "bogomips per cpu: %lu.%02lu\n",
-+			  num_online_cpus(), loops_per_jiffy/(500000/HZ),
-+			  (loops_per_jiffy/(5000/HZ))%100);
-+	       seq_puts(m, "features\t: ");
-+	       for (i = 0; i < 8; i++)
-+		       if (hwcap_str[i] && (elf_hwcap & (1UL << i)))
-+			       seq_printf(m, "%s ", hwcap_str[i]);
-+	       seq_puts(m, "\n");
-+       }
-+
-+       if (cpu_online(n)) {
-+#ifdef CONFIG_SMP
-+	       if (smp_processor_id() == n)
-+		       cpuinfo = &S390_lowcore.cpu_data;
-+	       else
-+		       cpuinfo = &lowcore_ptr[n]->cpu_data;
-+#else
-+	       cpuinfo = &S390_lowcore.cpu_data;
-+#endif
-+	       seq_printf(m, "processor %li: "
-+			  "version = %02X,  "
-+			  "identification = %06X,  "
-+			  "machine = %04X\n",
-+			  n, cpuinfo->cpu_id.version,
-+			  cpuinfo->cpu_id.ident,
-+			  cpuinfo->cpu_id.machine);
-+       }
-+       preempt_enable();
-+       return 0;
-+}
-+
-+static void *c_start(struct seq_file *m, loff_t *pos)
-+{
-+	return *pos < NR_CPUS ? (void *)((unsigned long) *pos + 1) : NULL;
-+}
-+
-+static void *c_next(struct seq_file *m, void *v, loff_t *pos)
-+{
-+	++*pos;
-+	return c_start(m, pos);
-+}
-+
-+static void c_stop(struct seq_file *m, void *v)
-+{
-+}
-+
-+const struct seq_operations cpuinfo_op = {
-+	.start	= c_start,
-+	.next	= c_next,
-+	.stop	= c_stop,
-+	.show	= show_cpuinfo,
-+};
-+
-Index: quilt-2.6/arch/s390/kernel/setup.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/setup.c
-+++ quilt-2.6/arch/s390/kernel/setup.c
-@@ -35,7 +35,6 @@
- #include <linux/bootmem.h>
- #include <linux/root_dev.h>
- #include <linux/console.h>
--#include <linux/seq_file.h>
- #include <linux/kernel_stat.h>
- #include <linux/device.h>
- #include <linux/notifier.h>
-@@ -826,90 +825,3 @@ setup_arch(char **cmdline_p)
- 	/* Setup zfcpdump support */
- 	setup_zfcpdump(console_devno);
- }
--
--void __cpuinit print_cpu_info(struct cpuinfo_S390 *cpuinfo)
--{
--   printk(KERN_INFO "cpu %d "
--#ifdef CONFIG_SMP
--           "phys_idx=%d "
--#endif
--           "vers=%02X ident=%06X machine=%04X unused=%04X\n",
--           cpuinfo->cpu_nr,
--#ifdef CONFIG_SMP
--           cpuinfo->cpu_addr,
--#endif
--           cpuinfo->cpu_id.version,
--           cpuinfo->cpu_id.ident,
--           cpuinfo->cpu_id.machine,
--           cpuinfo->cpu_id.unused);
--}
--
--/*
-- * show_cpuinfo - Get information on one CPU for use by procfs.
-- */
--
--static int show_cpuinfo(struct seq_file *m, void *v)
--{
--	static const char *hwcap_str[8] = {
--		"esan3", "zarch", "stfle", "msa", "ldisp", "eimm", "dfp",
--		"edat"
--	};
--        struct cpuinfo_S390 *cpuinfo;
--	unsigned long n = (unsigned long) v - 1;
--	int i;
--
--	s390_adjust_jiffies();
--	preempt_disable();
--	if (!n) {
--		seq_printf(m, "vendor_id       : IBM/S390\n"
--			       "# processors    : %i\n"
--			       "bogomips per cpu: %lu.%02lu\n",
--			       num_online_cpus(), loops_per_jiffy/(500000/HZ),
--			       (loops_per_jiffy/(5000/HZ))%100);
--		seq_puts(m, "features\t: ");
--		for (i = 0; i < 8; i++)
--			if (hwcap_str[i] && (elf_hwcap & (1UL << i)))
--				seq_printf(m, "%s ", hwcap_str[i]);
--		seq_puts(m, "\n");
--	}
--
--	if (cpu_online(n)) {
--#ifdef CONFIG_SMP
--		if (smp_processor_id() == n)
--			cpuinfo = &S390_lowcore.cpu_data;
--		else
--			cpuinfo = &lowcore_ptr[n]->cpu_data;
--#else
--		cpuinfo = &S390_lowcore.cpu_data;
--#endif
--		seq_printf(m, "processor %li: "
--			       "version = %02X,  "
--			       "identification = %06X,  "
--			       "machine = %04X\n",
--			       n, cpuinfo->cpu_id.version,
--			       cpuinfo->cpu_id.ident,
--			       cpuinfo->cpu_id.machine);
--	}
--	preempt_enable();
--        return 0;
--}
--
--static void *c_start(struct seq_file *m, loff_t *pos)
--{
--	return *pos < NR_CPUS ? (void *)((unsigned long) *pos + 1) : NULL;
--}
--static void *c_next(struct seq_file *m, void *v, loff_t *pos)
--{
--	++*pos;
--	return c_start(m, pos);
--}
--static void c_stop(struct seq_file *m, void *v)
--{
--}
--const struct seq_operations cpuinfo_op = {
--	.start	= c_start,
--	.next	= c_next,
--	.stop	= c_stop,
--	.show	= show_cpuinfo,
--};
--
-Index: quilt-2.6/arch/s390/kernel/smp.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/smp.c
-+++ quilt-2.6/arch/s390/kernel/smp.c
-@@ -20,6 +20,9 @@
-  * cpu_number_map in other architectures.
+--- quilt-2.6.orig/drivers/s390/char/sclp_cmd.c
++++ quilt-2.6/drivers/s390/char/sclp_cmd.c
+@@ -6,6 +6,9 @@
+  *		 Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
   */
  
-+#define KMSG_COMPONENT "cpu"
++#define KMSG_COMPONENT "sclp_cmd"
 +#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
 +
- #include <linux/module.h>
+ #include <linux/completion.h>
  #include <linux/init.h>
- #include <linux/mm.h>
-@@ -251,8 +254,8 @@ static void __init smp_get_save_area(uns
- 	if (ipl_info.type != IPL_TYPE_FCP_DUMP)
- 		return;
- 	if (cpu >= NR_CPUS) {
--		printk(KERN_WARNING "Registers for cpu %i not saved since dump "
--		       "kernel was compiled with NR_CPUS=%i\n", cpu, NR_CPUS);
-+		pr_warning("CPU %i exceeds the maximum %i and is excluded from "
-+			   "the dump\n", cpu, NR_CPUS - 1);
- 		return;
- 	}
- 	zfcpdump_save_areas[cpu] = kmalloc(sizeof(union save_area), GFP_KERNEL);
-@@ -425,7 +428,7 @@ static void __init smp_detect_cpus(void)
+ #include <linux/errno.h>
+@@ -16,9 +19,8 @@
+ #include <linux/memory.h>
+ #include <asm/chpid.h>
+ #include <asm/sclp.h>
+-#include "sclp.h"
+ 
+-#define TAG	"sclp_cmd: "
++#include "sclp.h"
+ 
+ #define SCLP_CMDW_READ_SCP_INFO		0x00020001
+ #define SCLP_CMDW_READ_SCP_INFO_FORCED	0x00120001
+@@ -169,8 +171,8 @@ static int do_sync_request(sclp_cmdw_t c
+ 
+ 	/* Check response. */
+ 	if (request->status != SCLP_REQ_DONE) {
+-		printk(KERN_WARNING TAG "sync request failed "
+-		       "(cmd=0x%08x, status=0x%02x)\n", cmd, request->status);
++		pr_warning("sync request failed (cmd=0x%08x, "
++			   "status=0x%02x)\n", cmd, request->status);
+ 		rc = -EIO;
  	}
  out:
- 	kfree(info);
--	printk(KERN_INFO "CPUs: %d configured, %d standby\n", c_cpus, s_cpus);
-+	pr_info("%d configured CPUs, %d standby CPUs\n", c_cpus, s_cpus);
- 	get_online_cpus();
- 	__smp_rescan_cpus();
- 	put_online_cpus();
-@@ -553,12 +556,8 @@ int __cpuinit __cpu_up(unsigned int cpu)
- 
- 	ccode = signal_processor_p((__u32)(unsigned long)(lowcore_ptr[cpu]),
- 				   cpu, sigp_set_prefix);
--	if (ccode) {
--		printk("sigp_set_prefix failed for cpu %d "
--		       "with condition code %d\n",
--		       (int) cpu, (int) ccode);
-+	if (ccode)
- 		return -EIO;
--	}
- 
- 	idle = current_set[cpu];
- 	cpu_lowcore = lowcore_ptr[cpu];
-@@ -641,7 +640,7 @@ void __cpu_die(unsigned int cpu)
- 	while (!smp_cpu_not_running(cpu))
- 		cpu_relax();
- 	smp_free_lowcore(cpu);
--	printk(KERN_INFO "Processor %d spun down\n", cpu);
-+	pr_info("Processor %d stopped\n", cpu);
- }
- 
- void cpu_die(void)
-Index: quilt-2.6/arch/s390/kernel/topology.c
+@@ -224,8 +226,8 @@ int sclp_get_cpu_info(struct sclp_cpu_in
+ 	if (rc)
+ 		goto out;
+ 	if (sccb->header.response_code != 0x0010) {
+-		printk(KERN_WARNING TAG "readcpuinfo failed "
+-		       "(response=0x%04x)\n", sccb->header.response_code);
++		pr_warning("readcpuinfo failed (response=0x%04x)\n",
++			   sccb->header.response_code);
+ 		rc = -EIO;
+ 		goto out;
+ 	}
+@@ -262,8 +264,9 @@ static int do_cpu_configure(sclp_cmdw_t 
+ 	case 0x0120:
+ 		break;
+ 	default:
+-		printk(KERN_WARNING TAG "configure cpu failed (cmd=0x%08x, "
+-		       "response=0x%04x)\n", cmd, sccb->header.response_code);
++		pr_warning("configure cpu failed (cmd=0x%08x, "
++			   "response=0x%04x)\n", cmd,
++			   sccb->header.response_code);
+ 		rc = -EIO;
+ 		break;
+ 	}
+@@ -626,9 +629,9 @@ static int do_chp_configure(sclp_cmdw_t 
+ 	case 0x0450:
+ 		break;
+ 	default:
+-		printk(KERN_WARNING TAG "configure channel-path failed "
+-		       "(cmd=0x%08x, response=0x%04x)\n", cmd,
+-		       sccb->header.response_code);
++		pr_warning("configure channel-path failed "
++			   "(cmd=0x%08x, response=0x%04x)\n", cmd,
++			   sccb->header.response_code);
+ 		rc = -EIO;
+ 		break;
+ 	}
+@@ -695,8 +698,8 @@ int sclp_chp_read_info(struct sclp_chp_i
+ 	if (rc)
+ 		goto out;
+ 	if (sccb->header.response_code != 0x0010) {
+-		printk(KERN_WARNING TAG "read channel-path info failed "
+-		       "(response=0x%04x)\n", sccb->header.response_code);
++		pr_warning("read channel-path info failed "
++			   "(response=0x%04x)\n", sccb->header.response_code);
+ 		rc = -EIO;
+ 		goto out;
+ 	}
+Index: quilt-2.6/drivers/s390/char/sclp_config.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/topology.c
-+++ quilt-2.6/arch/s390/kernel/topology.c
-@@ -3,6 +3,9 @@
+--- quilt-2.6.orig/drivers/s390/char/sclp_config.c
++++ quilt-2.6/drivers/s390/char/sclp_config.c
+@@ -5,15 +5,17 @@
   *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
   */
  
-+#define KMSG_COMPONENT "cpu"
++#define KMSG_COMPONENT "sclp_config"
++#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
++
+ #include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/cpu.h>
+ #include <linux/sysdev.h>
+ #include <linux/workqueue.h>
+ #include <asm/smp.h>
+-#include "sclp.h"
+ 
+-#define TAG	"sclp_config: "
++#include "sclp.h"
+ 
+ struct conf_mgm_data {
+ 	u8 reserved;
+@@ -31,7 +33,7 @@ static void sclp_cpu_capability_notify(s
+ 	int cpu;
+ 	struct sys_device *sysdev;
+ 
+-	printk(KERN_WARNING TAG "cpu capability changed.\n");
++	pr_warning("cpu capability changed.\n");
+ 	get_online_cpus();
+ 	for_each_online_cpu(cpu) {
+ 		sysdev = get_cpu_sysdev(cpu);
+@@ -78,7 +80,7 @@ static int __init sclp_conf_init(void)
+ 		return rc;
+ 
+ 	if (!(sclp_conf_register.sclp_send_mask & EVTYP_CONFMGMDATA_MASK)) {
+-		printk(KERN_WARNING TAG "no configuration management.\n");
++		pr_warning("no configuration management.\n");
+ 		sclp_unregister(&sclp_conf_register);
+ 		rc = -ENOSYS;
+ 	}
+Index: quilt-2.6/drivers/s390/char/sclp_cpi_sys.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/char/sclp_cpi_sys.c
++++ quilt-2.6/drivers/s390/char/sclp_cpi_sys.c
+@@ -7,6 +7,9 @@
+  *		 Michael Ernst <mernst@de.ibm.com>
+  */
+ 
++#define KMSG_COMPONENT "sclp_cpi"
 +#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
 +
  #include <linux/kernel.h>
- #include <linux/mm.h>
  #include <linux/init.h>
-@@ -311,7 +314,7 @@ void __init s390_init_cpu_topology(void)
- 	for (i = 0; i < info->mnest - 2; i++)
- 		nr_cores *= info->mag[NR_MAG - 3 - i];
+ #include <linux/stat.h>
+@@ -20,6 +23,7 @@
+ #include <linux/completion.h>
+ #include <asm/ebcdic.h>
+ #include <asm/sclp.h>
++
+ #include "sclp.h"
+ #include "sclp_rw.h"
+ #include "sclp_cpi_sys.h"
+@@ -150,16 +154,16 @@ static int cpi_req(void)
+ 	wait_for_completion(&completion);
  
--	printk(KERN_INFO "CPU topology:");
-+	pr_info("The CPU configuration topology of the machine is:");
- 	for (i = 0; i < NR_MAG; i++)
- 		printk(" %d", info->mag[i]);
- 	printk(" / %d\n", info->mnest);
+ 	if (req->status != SCLP_REQ_DONE) {
+-		printk(KERN_WARNING "cpi: request failed (status=0x%02x)\n",
+-			req->status);
++		pr_warning("request failed (status=0x%02x)\n",
++			   req->status);
+ 		rc = -EIO;
+ 		goto out_free_req;
+ 	}
+ 
+ 	response = ((struct cpi_sccb *) req->sccb)->header.response_code;
+ 	if (response != 0x0020) {
+-		printk(KERN_WARNING "cpi: failed with "
+-			"response code 0x%x\n", response);
++		pr_warning("request failed with response code 0x%x\n",
++			   response);
+ 		rc = -EIO;
+ 	}
+ 
+Index: quilt-2.6/drivers/s390/char/sclp_sdias.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/char/sclp_sdias.c
++++ quilt-2.6/drivers/s390/char/sclp_sdias.c
+@@ -5,15 +5,18 @@
+  * Author(s): Michael Holzheu
+  */
+ 
++#define KMSG_COMPONENT "sclp_sdias"
++#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
++
+ #include <linux/sched.h>
+ #include <asm/sclp.h>
+ #include <asm/debug.h>
+ #include <asm/ipl.h>
++
+ #include "sclp.h"
+ #include "sclp_rw.h"
+ 
+ #define TRACE(x...) debug_sprintf_event(sdias_dbf, 1, x)
+-#define ERROR_MSG(x...) printk ( KERN_ALERT "SDIAS: " x )
+ 
+ #define SDIAS_RETRIES 300
+ #define SDIAS_SLEEP_TICKS 50
+@@ -131,7 +134,7 @@ int sclp_sdias_blk_count(void)
+ 
+ 	rc = sdias_sclp_send(&request);
+ 	if (rc) {
+-		ERROR_MSG("sclp_send failed for get_nr_blocks\n");
++		pr_err("sclp_send failed for get_nr_blocks\n");
+ 		goto out;
+ 	}
+ 	if (sccb.hdr.response_code != 0x0020) {
+@@ -145,7 +148,8 @@ int sclp_sdias_blk_count(void)
+ 			rc = sccb.evbuf.blk_cnt;
+ 			break;
+ 		default:
+-			ERROR_MSG("SCLP error: %x\n", sccb.evbuf.event_status);
++			pr_err("SCLP error: %x\n",
++			       sccb.evbuf.event_status);
+ 			rc = -EIO;
+ 			goto out;
+ 	}
+@@ -201,7 +205,7 @@ int sclp_sdias_copy(void *dest, int star
+ 
+ 	rc = sdias_sclp_send(&request);
+ 	if (rc) {
+-		ERROR_MSG("sclp_send failed: %x\n", rc);
++		pr_err("sclp_send failed: %x\n", rc);
+ 		goto out;
+ 	}
+ 	if (sccb.hdr.response_code != 0x0020) {
+@@ -219,9 +223,9 @@ int sclp_sdias_copy(void *dest, int star
+ 		case EVSTATE_NO_DATA:
+ 			TRACE("no data\n");
+ 		default:
+-			ERROR_MSG("Error from SCLP while copying hsa. "
+-				  "Event status = %x\n",
+-				sccb.evbuf.event_status);
++			pr_err("Error from SCLP while copying hsa. "
++			       "Event status = %x\n",
++			       sccb.evbuf.event_status);
+ 			rc = -EIO;
+ 	}
+ out:
 
 -- 
 blue skies,
