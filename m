@@ -1,315 +1,104 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756251AbYK0Kkp@vger.kernel.org>
-Message-Id: <20081127103133.367502008@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754952AbYK0KlG@vger.kernel.org>
+Message-Id: <20081127103130.797148818@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:30:40 +0100
+Date: Thu, 27 Nov 2008 11:30:31 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 20/60] iucv: Locking free version of iucv_message_(receive|send)
-Content-Disposition: inline; filename=119-iucv-lockfree.diff
+Subject: [patch 11/60] qdio: add eqbs/sqbs instruction counters
+Content-Disposition: inline; filename=110-qdio-counters.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Jan Glauber <jang@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+From: Jan Glauber <jang@linux.vnet.ibm.com>
 
-Provide a locking free version of iucv_message_receive and iucv_message_send
-that do not call local_bh_enable in a spin_lock_(bh|irqsave)() context.
+Add counters for the eqbs and sqbs instructions that indicate how often
+we issued the instructions and how often the instructions returned with
+less buffers than specified.
 
-Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Signed-off-by: Jan Glauber <jang@linux.vnet.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- include/net/iucv/iucv.h |   45 ++++++++++++++
- net/iucv/iucv.c         |  152 ++++++++++++++++++++++++++++++++++++------------
- 2 files changed, 161 insertions(+), 36 deletions(-)
+ drivers/s390/cio/qdio_main.c |    7 ++++++-
+ drivers/s390/cio/qdio_perf.c |    6 ++++++
+ drivers/s390/cio/qdio_perf.h |    4 ++++
+ 3 files changed, 16 insertions(+), 1 deletion(-)
 
-Index: quilt-2.6/include/net/iucv/iucv.h
+Index: quilt-2.6/drivers/s390/cio/qdio_main.c
 ===================================================================
---- quilt-2.6.orig/include/net/iucv/iucv.h
-+++ quilt-2.6/include/net/iucv/iucv.h
-@@ -337,12 +337,35 @@ int iucv_message_purge(struct iucv_path 
-  * established paths. This function will deal with RMDATA messages
-  * embedded in struct iucv_message as well.
-  *
-+ * Locking:	local_bh_enable/local_bh_disable
-+ *
-  * Returns the result from the CP IUCV call.
-  */
- int iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
- 			 u8 flags, void *buffer, size_t size, size_t *residual);
+--- quilt-2.6.orig/drivers/s390/cio/qdio_main.c
++++ quilt-2.6/drivers/s390/cio/qdio_main.c
+@@ -129,6 +129,7 @@ static int qdio_do_eqbs(struct qdio_q *q
+ 	char dbf_text[15];
  
- /**
-+ * __iucv_message_receive
-+ * @path: address of iucv path structure
-+ * @msg: address of iucv msg structure
-+ * @flags: flags that affect how the message is received (IUCV_IPBUFLST)
-+ * @buffer: address of data buffer or address of struct iucv_array
-+ * @size: length of data buffer
-+ * @residual:
-+ *
-+ * This function receives messages that are being sent to you over
-+ * established paths. This function will deal with RMDATA messages
-+ * embedded in struct iucv_message as well.
-+ *
-+ * Locking:	no locking.
-+ *
-+ * Returns the result from the CP IUCV call.
-+ */
-+int __iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
-+			   u8 flags, void *buffer, size_t size,
-+			   size_t *residual);
-+
-+/**
-  * iucv_message_reject
-  * @path: address of iucv path structure
-  * @msg: address of iucv msg structure
-@@ -386,12 +409,34 @@ int iucv_message_reply(struct iucv_path 
-  * transmitted is in a buffer and this is a one-way message and the
-  * receiver will not reply to the message.
-  *
-+ * Locking:	local_bh_enable/local_bh_disable
-+ *
-  * Returns the result from the CP IUCV call.
-  */
- int iucv_message_send(struct iucv_path *path, struct iucv_message *msg,
- 		      u8 flags, u32 srccls, void *buffer, size_t size);
+ 	BUG_ON(!q->irq_ptr->sch_token);
++	qdio_perf_stat_inc(&perf_stats.debug_eqbs_all);
  
- /**
-+ * __iucv_message_send
-+ * @path: address of iucv path structure
-+ * @msg: address of iucv msg structure
-+ * @flags: how the message is sent (IUCV_IPRMDATA, IUCV_IPPRTY, IUCV_IPBUFLST)
-+ * @srccls: source class of message
-+ * @buffer: address of data buffer or address of struct iucv_array
-+ * @size: length of send buffer
-+ *
-+ * This function transmits data to another application. Data to be
-+ * transmitted is in a buffer and this is a one-way message and the
-+ * receiver will not reply to the message.
-+ *
-+ * Locking:	no locking.
-+ *
-+ * Returns the result from the CP IUCV call.
-+ */
-+int __iucv_message_send(struct iucv_path *path, struct iucv_message *msg,
-+			u8 flags, u32 srccls, void *buffer, size_t size);
-+
-+/**
-  * iucv_message_send2way
-  * @path: address of iucv path structure
-  * @msg: address of iucv msg structure
-Index: quilt-2.6/net/iucv/iucv.c
-===================================================================
---- quilt-2.6.orig/net/iucv/iucv.c
-+++ quilt-2.6/net/iucv/iucv.c
-@@ -957,7 +957,52 @@ int iucv_message_purge(struct iucv_path 
- EXPORT_SYMBOL(iucv_message_purge);
- 
- /**
-- * iucv_message_receive
-+ * iucv_message_receive_iprmdata
-+ * @path: address of iucv path structure
-+ * @msg: address of iucv msg structure
-+ * @flags: how the message is received (IUCV_IPBUFLST)
-+ * @buffer: address of data buffer or address of struct iucv_array
-+ * @size: length of data buffer
-+ * @residual:
-+ *
-+ * Internal function used by iucv_message_receive and __iucv_message_receive
-+ * to receive RMDATA data stored in struct iucv_message.
-+ */
-+static int iucv_message_receive_iprmdata(struct iucv_path *path,
-+					 struct iucv_message *msg,
-+					 u8 flags, void *buffer,
-+					 size_t size, size_t *residual)
-+{
-+	struct iucv_array *array;
-+	u8 *rmmsg;
-+	size_t copy;
-+
-+	/*
-+	 * Message is 8 bytes long and has been stored to the
-+	 * message descriptor itself.
-+	 */
-+	if (residual)
-+		*residual = abs(size - 8);
-+	rmmsg = msg->rmmsg;
-+	if (flags & IUCV_IPBUFLST) {
-+		/* Copy to struct iucv_array. */
-+		size = (size < 8) ? size : 8;
-+		for (array = buffer; size > 0; array++) {
-+			copy = min_t(size_t, size, array->length);
-+			memcpy((u8 *)(addr_t) array->address,
-+				rmmsg, copy);
-+			rmmsg += copy;
-+			size -= copy;
-+		}
-+	} else {
-+		/* Copy to direct buffer. */
-+		memcpy(buffer, rmmsg, min_t(size_t, size, 8));
+ 	if (!q->is_input_q)
+ 		nr += q->irq_ptr->nr_input_qs;
+@@ -139,8 +140,10 @@ again:
+ 	/* At least one buffer was processed, return and extract the remaining
+ 	 * buffers later.
+ 	 */
+-	if ((ccq == 96) && (count != tmp_count))
++	if ((ccq == 96) && (count != tmp_count)) {
++		qdio_perf_stat_inc(&perf_stats.debug_eqbs_incomplete);
+ 		return (count - tmp_count);
 +	}
-+	return 0;
-+}
-+
-+/**
-+ * __iucv_message_receive
-  * @path: address of iucv path structure
-  * @msg: address of iucv msg structure
-  * @flags: how the message is received (IUCV_IPBUFLST)
-@@ -969,44 +1014,19 @@ EXPORT_SYMBOL(iucv_message_purge);
-  * established paths. This function will deal with RMDATA messages
-  * embedded in struct iucv_message as well.
-  *
-+ * Locking:	no locking
-+ *
-  * Returns the result from the CP IUCV call.
-  */
--int iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
--			 u8 flags, void *buffer, size_t size, size_t *residual)
-+int __iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
-+			   u8 flags, void *buffer, size_t size, size_t *residual)
- {
- 	union iucv_param *parm;
--	struct iucv_array *array;
--	u8 *rmmsg;
--	size_t copy;
- 	int rc;
+ 	if (rc == 1) {
+ 		QDIO_DBF_TEXT5(1, trace, "eqAGAIN");
+ 		goto again;
+@@ -179,6 +182,7 @@ static int qdio_do_sqbs(struct qdio_q *q
+ 	char dbf_text[15];
  
--	if (msg->flags & IUCV_IPRMDATA) {
--		/*
--		 * Message is 8 bytes long and has been stored to the
--		 * message descriptor itself.
--		 */
--		rc = (size < 8) ? 5 : 0;
--		if (residual)
--			*residual = abs(size - 8);
--		rmmsg = msg->rmmsg;
--		if (flags & IUCV_IPBUFLST) {
--			/* Copy to struct iucv_array. */
--			size = (size < 8) ? size : 8;
--			for (array = buffer; size > 0; array++) {
--				copy = min_t(size_t, size, array->length);
--				memcpy((u8 *)(addr_t) array->address,
--				       rmmsg, copy);
--				rmmsg += copy;
--				size -= copy;
--			}
--		} else {
--			/* Copy to direct buffer. */
--			memcpy(buffer, rmmsg, min_t(size_t, size, 8));
--		}
--		return 0;
--	}
--
--	local_bh_disable();
-+	if (msg->flags & IUCV_IPRMDATA)
-+		return iucv_message_receive_iprmdata(path, msg, flags,
-+						     buffer, size, residual);
- 	parm = iucv_param[smp_processor_id()];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	parm->db.ipbfadr1 = (u32)(addr_t) buffer;
-@@ -1022,6 +1042,37 @@ int iucv_message_receive(struct iucv_pat
- 		if (residual)
- 			*residual = parm->db.ipbfln1f;
+ 	BUG_ON(!q->irq_ptr->sch_token);
++	qdio_perf_stat_inc(&perf_stats.debug_sqbs_all);
+ 
+ 	if (!q->is_input_q)
+ 		nr += q->irq_ptr->nr_input_qs;
+@@ -187,6 +191,7 @@ again:
+ 	rc = qdio_check_ccq(q, ccq);
+ 	if (rc == 1) {
+ 		QDIO_DBF_TEXT5(1, trace, "sqAGAIN");
++		qdio_perf_stat_inc(&perf_stats.debug_sqbs_incomplete);
+ 		goto again;
  	}
-+	return rc;
-+}
-+EXPORT_SYMBOL(__iucv_message_receive);
-+
-+/**
-+ * iucv_message_receive
-+ * @path: address of iucv path structure
-+ * @msg: address of iucv msg structure
-+ * @flags: how the message is received (IUCV_IPBUFLST)
-+ * @buffer: address of data buffer or address of struct iucv_array
-+ * @size: length of data buffer
-+ * @residual:
-+ *
-+ * This function receives messages that are being sent to you over
-+ * established paths. This function will deal with RMDATA messages
-+ * embedded in struct iucv_message as well.
-+ *
-+ * Locking:	local_bh_enable/local_bh_disable
-+ *
-+ * Returns the result from the CP IUCV call.
-+ */
-+int iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
-+			 u8 flags, void *buffer, size_t size, size_t *residual)
-+{
-+	int rc;
-+
-+	if (msg->flags & IUCV_IPRMDATA)
-+		return iucv_message_receive_iprmdata(path, msg, flags,
-+						     buffer, size, residual);
-+	local_bh_disable();
-+	rc = __iucv_message_receive(path, msg, flags, buffer, size, residual);
- 	local_bh_enable();
- 	return rc;
+ 	if (rc < 0) {
+Index: quilt-2.6/drivers/s390/cio/qdio_perf.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/qdio_perf.c
++++ quilt-2.6/drivers/s390/cio/qdio_perf.c
+@@ -80,6 +80,12 @@ static int qdio_perf_proc_show(struct se
+ 		   (long)atomic_long_read(&perf_stats.debug_stop_polling));
+ 	seq_printf(m, "AI inbound tasklet loops after stop polling\t: %li\n",
+ 		   (long)atomic_long_read(&perf_stats.thinint_inbound_loop2));
++	seq_printf(m, "QEBSM EQBS total/incomplete\t\t\t: %li/%li\n",
++		   (long)atomic_long_read(&perf_stats.debug_eqbs_all),
++		   (long)atomic_long_read(&perf_stats.debug_eqbs_incomplete));
++	seq_printf(m, "QEBSM SQBS total/incomplete\t\t\t: %li/%li\n",
++		   (long)atomic_long_read(&perf_stats.debug_sqbs_all),
++		   (long)atomic_long_read(&perf_stats.debug_sqbs_incomplete));
+ 	seq_printf(m, "\n");
+ 	return 0;
  }
-@@ -1101,7 +1152,7 @@ int iucv_message_reply(struct iucv_path 
- EXPORT_SYMBOL(iucv_message_reply);
+Index: quilt-2.6/drivers/s390/cio/qdio_perf.h
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/qdio_perf.h
++++ quilt-2.6/drivers/s390/cio/qdio_perf.h
+@@ -40,6 +40,10 @@ struct qdio_perf_stats {
+ 	/* for debugging */
+ 	atomic_long_t debug_tl_out_timer;
+ 	atomic_long_t debug_stop_polling;
++	atomic_long_t debug_eqbs_all;
++	atomic_long_t debug_eqbs_incomplete;
++	atomic_long_t debug_sqbs_all;
++	atomic_long_t debug_sqbs_incomplete;
+ };
  
- /**
-- * iucv_message_send
-+ * __iucv_message_send
-  * @path: address of iucv path structure
-  * @msg: address of iucv msg structure
-  * @flags: how the message is sent (IUCV_IPRMDATA, IUCV_IPPRTY, IUCV_IPBUFLST)
-@@ -1113,15 +1164,16 @@ EXPORT_SYMBOL(iucv_message_reply);
-  * transmitted is in a buffer and this is a one-way message and the
-  * receiver will not reply to the message.
-  *
-+ * Locking:	no locking
-+ *
-  * Returns the result from the CP IUCV call.
-  */
--int iucv_message_send(struct iucv_path *path, struct iucv_message *msg,
-+int __iucv_message_send(struct iucv_path *path, struct iucv_message *msg,
- 		      u8 flags, u32 srccls, void *buffer, size_t size)
- {
- 	union iucv_param *parm;
- 	int rc;
- 
--	local_bh_disable();
- 	parm = iucv_param[smp_processor_id()];
- 	memset(parm, 0, sizeof(union iucv_param));
- 	if (flags & IUCV_IPRMDATA) {
-@@ -1144,6 +1196,34 @@ int iucv_message_send(struct iucv_path *
- 	rc = iucv_call_b2f0(IUCV_SEND, parm);
- 	if (!rc)
- 		msg->id = parm->db.ipmsgid;
-+	return rc;
-+}
-+EXPORT_SYMBOL(__iucv_message_send);
-+
-+/**
-+ * iucv_message_send
-+ * @path: address of iucv path structure
-+ * @msg: address of iucv msg structure
-+ * @flags: how the message is sent (IUCV_IPRMDATA, IUCV_IPPRTY, IUCV_IPBUFLST)
-+ * @srccls: source class of message
-+ * @buffer: address of send buffer or address of struct iucv_array
-+ * @size: length of send buffer
-+ *
-+ * This function transmits data to another application. Data to be
-+ * transmitted is in a buffer and this is a one-way message and the
-+ * receiver will not reply to the message.
-+ *
-+ * Locking:	local_bh_enable/local_bh_disable
-+ *
-+ * Returns the result from the CP IUCV call.
-+ */
-+int iucv_message_send(struct iucv_path *path, struct iucv_message *msg,
-+		      u8 flags, u32 srccls, void *buffer, size_t size)
-+{
-+	int rc;
-+
-+	local_bh_disable();
-+	rc = __iucv_message_send(path, msg, flags, srccls, buffer, size);
- 	local_bh_enable();
- 	return rc;
- }
+ extern struct qdio_perf_stats perf_stats;
 
 -- 
 blue skies,
