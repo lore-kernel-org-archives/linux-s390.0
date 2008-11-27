@@ -1,104 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757455AbYK0KtU@vger.kernel.org>
-Message-Id: <20081127103143.501023076@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757518AbYK0Kti@vger.kernel.org>
+Message-Id: <20081127103143.214121077@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:31:16 +0100
+Date: Thu, 27 Nov 2008 11:31:15 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 56/60] convert vmlogrdr printks to pr_xxx macros.
-Content-Disposition: inline; filename=171-kmsg-vmlogrdr.diff
+Subject: [patch 55/60] convert zfcp dumper printks to pr_xxx macros.
+Content-Disposition: inline; filename=170-kmsg-zcore.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Michael Holzheu <holzheu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Michael Holzheu <holzheu@de.ibm.com>
 
+Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/char/vmlogrdr.c |   26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ drivers/s390/char/zcore.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-Index: quilt-2.6/drivers/s390/char/vmlogrdr.c
+Index: quilt-2.6/drivers/s390/char/zcore.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/char/vmlogrdr.c
-+++ quilt-2.6/drivers/s390/char/vmlogrdr.c
-@@ -10,6 +10,10 @@
-  *		   Stefan Weinhuber <wein@de.ibm.com>
-  *
+--- quilt-2.6.orig/drivers/s390/char/zcore.c
++++ quilt-2.6/drivers/s390/char/zcore.c
+@@ -9,6 +9,9 @@
+  * Author(s): Michael Holzheu
   */
-+
-+#define KMSG_COMPONENT "vmlogrdr"
+ 
++#define KMSG_COMPONENT "zdump"
 +#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
 +
- #include <linux/module.h>
  #include <linux/init.h>
- #include <linux/errno.h>
-@@ -28,8 +32,6 @@
- #include <linux/smp_lock.h>
- #include <linux/string.h>
+ #include <linux/miscdevice.h>
+ #include <linux/utsname.h>
+@@ -24,8 +27,6 @@
+ #include "sclp.h"
  
--
--
- MODULE_AUTHOR
- 	("(C) 2004 IBM Corporation by Xenia Tkatschow (xenia@us.ibm.com)\n"
- 	 "                            Stefan Weinhuber (wein@de.ibm.com)");
-@@ -174,8 +176,7 @@ static void vmlogrdr_iucv_path_severed(s
- 	struct vmlogrdr_priv_t * logptr = path->private;
- 	u8 reason = (u8) ipuser[8];
+ #define TRACE(x...) debug_sprintf_event(zcore_dbf, 1, x)
+-#define MSG(x...) printk( KERN_ALERT x )
+-#define ERROR_MSG(x...) printk ( KERN_ALERT "DUMP: " x )
  
--	printk (KERN_ERR "vmlogrdr: connection severed with"
--		" reason %i\n", reason);
-+	pr_err("vmlogrdr: connection severed with reason %i\n", reason);
+ #define TO_USER		0
+ #define TO_KERNEL	1
+@@ -563,19 +564,19 @@ static int __init sys_info_init(enum arc
  
- 	iucv_path_sever(path, NULL);
- 	kfree(path);
-@@ -333,8 +334,8 @@ static int vmlogrdr_open (struct inode *
- 	if (logptr->autorecording) {
- 		ret = vmlogrdr_recording(logptr,1,logptr->autopurge);
- 		if (ret)
--			printk (KERN_WARNING "vmlogrdr: failed to start "
--				"recording automatically\n");
-+			pr_warning("vmlogrdr: failed to start "
-+				   "recording automatically\n");
+ 	switch (arch) {
+ 	case ARCH_S390X:
+-		MSG("DETECTED 'S390X (64 bit) OS'\n");
++		pr_alert("DETECTED 'S390X (64 bit) OS'\n");
+ 		sys_info.sa_base = SAVE_AREA_BASE_S390X;
+ 		sys_info.sa_size = sizeof(struct save_area_s390x);
+ 		set_s390x_lc_mask(&sys_info.lc_mask);
+ 		break;
+ 	case ARCH_S390:
+-		MSG("DETECTED 'S390 (32 bit) OS'\n");
++		pr_alert("DETECTED 'S390 (32 bit) OS'\n");
+ 		sys_info.sa_base = SAVE_AREA_BASE_S390;
+ 		sys_info.sa_size = sizeof(struct save_area_s390);
+ 		set_s390_lc_mask(&sys_info.lc_mask);
+ 		break;
+ 	default:
+-		ERROR_MSG("unknown architecture 0x%x.\n",arch);
++		pr_alert("0x%x is an unknown architecture.\n",arch);
+ 		return -EINVAL;
  	}
+ 	sys_info.arch = arch;
+@@ -674,7 +675,8 @@ static int __init zcore_init(void)
  
- 	/* create connection to the system service */
-@@ -345,9 +346,9 @@ static int vmlogrdr_open (struct inode *
- 				       logptr->system_service, NULL, NULL,
- 				       logptr);
- 	if (connect_rc) {
--		printk (KERN_ERR "vmlogrdr: iucv connection to %s "
--			"failed with rc %i \n", logptr->system_service,
--			connect_rc);
-+		pr_err("vmlogrdr: iucv connection to %s "
-+		       "failed with rc %i \n",
-+		       logptr->system_service, connect_rc);
- 		goto out_path;
+ #ifndef __s390x__
+ 	if (arch == ARCH_S390X) {
+-		ERROR_MSG("32 bit dumper can't dump 64 bit system!\n");
++		pr_alert("The 32-bit dump tool cannot be used for a "
++			 "64-bit system\n");
+ 		rc = -EINVAL;
+ 		goto fail;
  	}
- 
-@@ -388,8 +389,8 @@ static int vmlogrdr_release (struct inod
- 	if (logptr->autorecording) {
- 		ret = vmlogrdr_recording(logptr,0,logptr->autopurge);
- 		if (ret)
--			printk (KERN_WARNING "vmlogrdr: failed to stop "
--				"recording automatically\n");
-+			pr_warning("vmlogrdr: failed to stop "
-+				   "recording automatically\n");
- 	}
- 	logptr->dev_in_use = 0;
- 
-@@ -823,8 +824,7 @@ static int __init vmlogrdr_init(void)
- 	dev_t dev;
- 
- 	if (! MACHINE_IS_VM) {
--		printk (KERN_ERR "vmlogrdr: not running under VM, "
--				"driver not loaded.\n");
-+		pr_err("not running under VM, driver not loaded.\n");
- 		return -ENODEV;
- 	}
- 
 
 -- 
 blue skies,
