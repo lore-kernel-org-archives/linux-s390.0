@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757123AbYK0Kpt@vger.kernel.org>
-Message-Id: <20081127103140.111751673@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755522AbYK0KqP@vger.kernel.org>
+Message-Id: <20081127103139.535319378@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:31:04 +0100
+Date: Thu, 27 Nov 2008 11:31:02 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 44/60] convert setup printks to pr_xxx macros.
-Content-Disposition: inline; filename=159-kmsg-setup.diff
+Subject: [patch 42/60] convert time printks to pr_xxx macros.
+Content-Disposition: inline; filename=157-kmsg-time.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -17,156 +17,55 @@ From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/setup.c |   72 ++++++++++++++++++++++++++++++-----------------
- 1 file changed, 46 insertions(+), 26 deletions(-)
+ arch/s390/kernel/time.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/setup.c
+Index: quilt-2.6/arch/s390/kernel/time.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/setup.c
-+++ quilt-2.6/arch/s390/kernel/setup.c
-@@ -14,6 +14,9 @@
-  * This file handles the architecture-dependent parts of initialization
+--- quilt-2.6.orig/arch/s390/kernel/time.c
++++ quilt-2.6/arch/s390/kernel/time.c
+@@ -12,6 +12,9 @@
+  *    Copyright (C) 1991, 1992, 1995  Linus Torvalds
   */
  
-+#define KMSG_COMPONENT "setup"
++#define KMSG_COMPONENT "time"
 +#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
 +
  #include <linux/errno.h>
  #include <linux/module.h>
  #include <linux/sched.h>
-@@ -291,8 +294,8 @@ unsigned int switch_amode = 0;
- #endif
- EXPORT_SYMBOL_GPL(switch_amode);
- 
--static void set_amode_and_uaccess(unsigned long user_amode,
--				  unsigned long user32_amode)
-+static int set_amode_and_uaccess(unsigned long user_amode,
-+				 unsigned long user32_amode)
- {
- 	psw_user_bits = PSW_BASE_BITS | PSW_MASK_DAT | user_amode |
- 			PSW_MASK_IO | PSW_MASK_EXT | PSW_MASK_MCHECK |
-@@ -309,11 +312,11 @@ static void set_amode_and_uaccess(unsign
- 			  PSW_MASK_MCHECK | PSW_DEFAULT_KEY;
- 
- 	if (MACHINE_HAS_MVCOS) {
--		printk("mvcos available.\n");
- 		memcpy(&uaccess, &uaccess_mvcos_switch, sizeof(uaccess));
-+		return 1;
- 	} else {
--		printk("mvcos not available.\n");
- 		memcpy(&uaccess, &uaccess_pt, sizeof(uaccess));
-+		return 0;
+@@ -321,8 +324,8 @@ static unsigned long long adjust_time(un
+ 	}
+ 	sched_clock_base_cc += delta;
+ 	if (adjust.offset != 0) {
+-		printk(KERN_NOTICE "etr: time adjusted by %li micro-seconds\n",
+-		       adjust.offset);
++		pr_notice("The ETR interface has adjusted the clock "
++			  "by %li microseconds\n", adjust.offset);
+ 		adjust.modes = ADJ_OFFSET_SINGLESHOT;
+ 		do_adjtimex(&adjust);
+ 	}
+@@ -483,8 +486,8 @@ static void etr_reset(void)
+ 		etr_tolec = get_clock();
+ 		set_bit(CLOCK_SYNC_HAS_ETR, &clock_sync_flags);
+ 	} else if (etr_port0_online || etr_port1_online) {
+-		printk(KERN_WARNING "Running on non ETR capable "
+-		       "machine, only local mode available.\n");
++		pr_warning("The real or virtual hardware system does "
++			   "not provide an ETR interface\n");
+ 		etr_port0_online = etr_port1_online = 0;
  	}
  }
- 
-@@ -328,9 +331,10 @@ static int __init early_parse_switch_amo
- early_param("switch_amode", early_parse_switch_amode);
- 
- #else /* CONFIG_S390_SWITCH_AMODE */
--static inline void set_amode_and_uaccess(unsigned long user_amode,
--					 unsigned long user32_amode)
-+static inline int set_amode_and_uaccess(unsigned long user_amode,
-+					unsigned long user32_amode)
- {
-+	return 0;
- }
- #endif /* CONFIG_S390_SWITCH_AMODE */
- 
-@@ -355,11 +359,20 @@ early_param("noexec", early_parse_noexec
- static void setup_addressing_mode(void)
- {
- 	if (s390_noexec) {
--		printk("S390 execute protection active, ");
--		set_amode_and_uaccess(PSW_ASC_SECONDARY, PSW32_ASC_SECONDARY);
-+		if (set_amode_and_uaccess(PSW_ASC_SECONDARY,
-+					  PSW32_ASC_SECONDARY))
-+			pr_info("Execute protection active, "
-+				"mvcos available\n");
-+		else
-+			pr_info("Execute protection active, "
-+				"mvcos not available\n");
- 	} else if (switch_amode) {
--		printk("S390 address spaces switched, ");
--		set_amode_and_uaccess(PSW_ASC_PRIMARY, PSW32_ASC_PRIMARY);
-+		if (set_amode_and_uaccess(PSW_ASC_PRIMARY, PSW32_ASC_PRIMARY))
-+			pr_info("Address spaces switched, "
-+				"mvcos available\n");
-+		else
-+			pr_info("Address spaces switched, "
-+				"mvcos not available\n");
- 	}
- #ifdef CONFIG_TRACE_IRQFLAGS
- 	sysc_restore_trace_psw.mask = psw_kernel_bits & ~PSW_MASK_MCHECK;
-@@ -572,15 +585,15 @@ setup_memory(void)
- 			start = PFN_PHYS(start_pfn) + bmap_size + PAGE_SIZE;
- 
- 			if (start + INITRD_SIZE > memory_end) {
--				printk("initrd extends beyond end of memory "
--				       "(0x%08lx > 0x%08lx)\n"
-+				pr_err("initrd extends beyond end of "
-+				       "memory (0x%08lx > 0x%08lx) "
- 				       "disabling initrd\n",
- 				       start + INITRD_SIZE, memory_end);
- 				INITRD_START = INITRD_SIZE = 0;
- 			} else {
--				printk("Moving initrd (0x%08lx -> 0x%08lx, "
--				       "size: %ld)\n",
--				       INITRD_START, start, INITRD_SIZE);
-+				pr_info("Moving initrd (0x%08lx -> "
-+					"0x%08lx, size: %ld)\n",
-+					INITRD_START, start, INITRD_SIZE);
- 				memmove((void *) start, (void *) INITRD_START,
- 					INITRD_SIZE);
- 				INITRD_START = start;
-@@ -642,8 +655,9 @@ setup_memory(void)
- 			initrd_start = INITRD_START;
- 			initrd_end = initrd_start + INITRD_SIZE;
- 		} else {
--			printk("initrd extends beyond end of memory "
--			       "(0x%08lx > 0x%08lx)\ndisabling initrd\n",
-+			pr_err("initrd extends beyond end of "
-+			       "memory (0x%08lx > 0x%08lx) "
-+			       "disabling initrd\n",
- 			       initrd_start + INITRD_SIZE, memory_end);
- 			initrd_start = initrd_end = 0;
- 		}
-@@ -744,21 +758,27 @@ setup_arch(char **cmdline_p)
-          * print what head.S has found out about the machine
-          */
- #ifndef CONFIG_64BIT
--	printk((MACHINE_IS_VM) ?
--	       "We are running under VM (31 bit mode)\n" :
--	       "We are running native (31 bit mode)\n");
--	printk((MACHINE_HAS_IEEE) ?
--	       "This machine has an IEEE fpu\n" :
--	       "This machine has no IEEE fpu\n");
-+	if (MACHINE_IS_VM)
-+		pr_info("Linux is running as a z/VM "
-+			"guest operating system in 31-bit mode\n");
-+	else
-+		pr_info("Linux is running natively in 31-bit mode\n");
-+	if (MACHINE_HAS_IEEE)
-+		pr_info("The hardware system has IEEE compatible "
-+			"floating point units\n");
-+	else
-+		pr_info("The hardware system has no IEEE compatible "
-+			"floating point units\n");
- #else /* CONFIG_64BIT */
- 	if (MACHINE_IS_VM)
--		printk("We are running under VM (64 bit mode)\n");
-+		pr_info("Linux is running as a z/VM "
-+			"guest operating system in 64-bit mode\n");
- 	else if (MACHINE_IS_KVM) {
--		printk("We are running under KVM (64 bit mode)\n");
-+		pr_info("Linux is running under KVM in 64-bit mode\n");
- 		add_preferred_console("hvc", 0, NULL);
- 		s390_virtio_console_init();
- 	} else
--		printk("We are running native (64 bit mode)\n");
-+		pr_info("Linux is running natively in 64-bit mode\n");
- #endif /* CONFIG_64BIT */
- 
- 	/* Have one command line that is parsed and saved in /proc/cmdline */
+@@ -1425,7 +1428,8 @@ static void __init stp_reset(void)
+ 	if (rc == 0)
+ 		set_bit(CLOCK_SYNC_HAS_STP, &clock_sync_flags);
+ 	else if (stp_online) {
+-		printk(KERN_WARNING "Running on non STP capable machine.\n");
++		pr_warning("The real or virtual hardware system does "
++			   "not provide an STP interface\n");
+ 		free_bootmem((unsigned long) stp_page, PAGE_SIZE);
+ 		stp_page = NULL;
+ 		stp_online = 0;
 
 -- 
 blue skies,
