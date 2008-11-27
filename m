@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757098AbYK0KyL@vger.kernel.org>
-Message-Id: <20081127103134.797553323@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757652AbYK0Kyd@vger.kernel.org>
+Message-Id: <20081127103135.884464875@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:30:45 +0100
+Date: Thu, 27 Nov 2008 11:30:49 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 25/60] cio: get rid of compile warning
-Content-Disposition: inline; filename=124-cio-warning.diff
+Subject: [patch 29/60] Add processor type march=z10 and a processor type safety check.
+Content-Disposition: inline; filename=128-cpu-type-check.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -12,113 +12,189 @@ To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Move cio_tpi() to the rest of the CONFIG_CCW_CONSOLE functions to
-get rid of this one:
+This patch adds the code generation option for IBM System z10 and
+adds a check in head[31,64].S to prevents the execution of a kernel
+compiled for a new processor type on an old machine.
 
-drivers/s390/cio/cio.c:115: warning: 'cio_tpi' defined but not used
-
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/cio.c |   75 ++++++++++++++++++++++++-------------------------
- 1 file changed, 37 insertions(+), 38 deletions(-)
+ arch/s390/Kconfig         |    8 +++++++
+ arch/s390/Makefile        |    1 
+ arch/s390/kernel/head.S   |   49 ++++++++++++++++++++++++++++++++++++++++++++++
+ arch/s390/kernel/head31.S |   27 ++-----------------------
+ arch/s390/kernel/head64.S |   23 ---------------------
+ 5 files changed, 61 insertions(+), 47 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/cio.c
+Index: quilt-2.6/arch/s390/Kconfig
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cio.c
-+++ quilt-2.6/drivers/s390/cio/cio.c
-@@ -104,44 +104,6 @@ cio_get_options (struct subchannel *sch)
-        return flags;
- }
+--- quilt-2.6.orig/arch/s390/Kconfig
++++ quilt-2.6/arch/s390/Kconfig
+@@ -230,6 +230,14 @@ config MARCH_Z9_109
+ 	  Class (z9 BC). The kernel will be slightly faster but will not
+ 	  work on older machines such as the z990, z890, z900, and z800.
  
--/*
-- * Use tpi to get a pending interrupt, call the interrupt handler and
-- * return a pointer to the subchannel structure.
-- */
--static int
--cio_tpi(void)
--{
--	struct tpi_info *tpi_info;
--	struct subchannel *sch;
--	struct irb *irb;
--	int irq_context;
--
--	tpi_info = (struct tpi_info *) __LC_SUBCHANNEL_ID;
--	if (tpi (NULL) != 1)
--		return 0;
--	irb = (struct irb *) __LC_IRB;
--	/* Store interrupt response block to lowcore. */
--	if (tsch (tpi_info->schid, irb) != 0)
--		/* Not status pending or not operational. */
--		return 1;
--	sch = (struct subchannel *)(unsigned long)tpi_info->intparm;
--	if (!sch)
--		return 1;
--	irq_context = in_interrupt();
--	if (!irq_context)
--		local_bh_disable();
--	irq_enter ();
--	spin_lock(sch->lock);
--	memcpy(&sch->schib.scsw, &irb->scsw, sizeof(union scsw));
--	if (sch->driver && sch->driver->irq)
--		sch->driver->irq(sch);
--	spin_unlock(sch->lock);
--	irq_exit ();
--	if (!irq_context)
--		_local_bh_enable();
--	return 1;
--}
--
- static int
- cio_start_handle_notoper(struct subchannel *sch, __u8 lpm)
- {
-@@ -687,6 +649,43 @@ static char console_sch_name[10] = "0.x.
- static struct io_subchannel_private console_priv;
- static int console_subchannel_in_use;
++config MARCH_Z10
++	bool "IBM System z10"
++	help
++	  Select this to enable optimizations for IBM System z10. The
++	  kernel will be slightly faster but will not work on older
++	  machines such as the z990, z890, z900, z800, z9-109, z9-ec
++	  and z9-bc.
++
+ endchoice
  
-+/*
-+ * Use tpi to get a pending interrupt, call the interrupt handler and
-+ * return a pointer to the subchannel structure.
-+ */
-+static int cio_tpi(void)
-+{
-+	struct tpi_info *tpi_info;
-+	struct subchannel *sch;
-+	struct irb *irb;
-+	int irq_context;
+ config PACK_STACK
+Index: quilt-2.6/arch/s390/kernel/head31.S
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/head31.S
++++ quilt-2.6/arch/s390/kernel/head31.S
+@@ -10,34 +10,13 @@
+  *
+  */
+ 
+-#
+-# startup-code at 0x10000, running in absolute addressing mode
+-# this is called either by the ipl loader or directly by PSW restart
+-# or linload or SALIPL
+-#
+-	.org	0x10000
+-startup:basr	%r13,0			# get base
+-.LPG0:	l	%r13,0f-.LPG0(%r13)
+-	b	0(%r13)
+-0:	.long	startup_continue
+-
+-#
+-# params at 10400 (setup.h)
+-#
+-	.org	PARMAREA
+-	.long	0,0			# IPL_DEVICE
+-	.long	0,0			# INITRD_START
+-	.long	0,0			# INITRD_SIZE
+-
+-	.org	COMMAND_LINE
+-	.byte	"root=/dev/ram0 ro"
+-	.byte	0
+-
+ 	.org	0x11000
+ 
+ startup_continue:
+ 	basr	%r13,0			# get base
+-.LPG1:	mvi	__LC_AR_MODE_ID,0	# set ESA flag (mode 0)
++.LPG1:
 +
-+	tpi_info = (struct tpi_info *) __LC_SUBCHANNEL_ID;
-+	if (tpi(NULL) != 1)
-+		return 0;
-+	irb = (struct irb *) __LC_IRB;
-+	/* Store interrupt response block to lowcore. */
-+	if (tsch(tpi_info->schid, irb) != 0)
-+		/* Not status pending or not operational. */
-+		return 1;
-+	sch = (struct subchannel *)(unsigned long)tpi_info->intparm;
-+	if (!sch)
-+		return 1;
-+	irq_context = in_interrupt();
-+	if (!irq_context)
-+		local_bh_disable();
-+	irq_enter();
-+	spin_lock(sch->lock);
-+	memcpy(&sch->schib.scsw, &irb->scsw, sizeof(union scsw));
-+	if (sch->driver && sch->driver->irq)
-+		sch->driver->irq(sch);
-+	spin_unlock(sch->lock);
-+	irq_exit();
-+	if (!irq_context)
-+		_local_bh_enable();
-+	return 1;
-+}
++	mvi	__LC_AR_MODE_ID,0	# set ESA flag (mode 0)
+ 	lctl	%c0,%c15,.Lctl-.LPG1(%r13) # load control registers
+ 	l	%r12,.Lparmaddr-.LPG1(%r13) # pointer to parameter area
+ 					# move IPL device to lowcore
+Index: quilt-2.6/arch/s390/kernel/head64.S
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/head64.S
++++ quilt-2.6/arch/s390/kernel/head64.S
+@@ -10,29 +10,6 @@
+  *
+  */
+ 
+-#
+-# startup-code at 0x10000, running in absolute addressing mode
+-# this is called either by the ipl loader or directly by PSW restart
+-# or linload or SALIPL
+-#
+-	.org	0x10000
+-startup:basr	%r13,0			# get base
+-.LPG0:	l	%r13,0f-.LPG0(%r13)
+-	b	0(%r13)
+-0:	.long	startup_continue
+-
+-#
+-# params at 10400 (setup.h)
+-#
+-	.org	PARMAREA
+-	.quad	0			# IPL_DEVICE
+-	.quad	0			# INITRD_START
+-	.quad	0			# INITRD_SIZE
+-
+-	.org	COMMAND_LINE
+-	.byte	"root=/dev/ram0 ro"
+-	.byte	0
+-
+ 	.org	0x11000
+ 
+ startup_continue:
+Index: quilt-2.6/arch/s390/kernel/head.S
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/head.S
++++ quilt-2.6/arch/s390/kernel/head.S
+@@ -461,6 +461,55 @@ start:
+ 	.byte 0xf0,0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7
+ 	.byte 0xf8,0xf9,0xfa,0xfb,0xfc,0xfd,0xfe,0xff
+ 
++#
++# startup-code at 0x10000, running in absolute addressing mode
++# this is called either by the ipl loader or directly by PSW restart
++# or linload or SALIPL
++#
++	.org	0x10000
++startup:basr	%r13,0			# get base
++.LPG0:
 +
- void *cio_get_console_priv(void)
- {
- 	return &console_priv;
++#ifndef CONFIG_MARCH_G5
++	# check processor version against MARCH_{G5,Z900,Z990,Z9_109,Z10}
++	stidp	__LC_CPUID		# store cpuid
++	lhi	%r0,(3f-2f) / 2
++	la	%r1,2f-.LPG0(%r13)
++0:	clc	__LC_CPUID+4(2),0(%r1)
++	jne	3f
++	lpsw	1f-.LPG0(13)		# machine type not good enough, crash
++	.align 16
++1:	.long	0x000a0000,0x00000000
++2:
++#if defined(CONFIG_MARCH_Z10)
++	.short 0x9672, 0x2064, 0x2066, 0x2084, 0x2086, 0x2094, 0x2096
++#elif defined(CONFIG_MARCH_Z9_109)
++	.short 0x9672, 0x2064, 0x2066, 0x2084, 0x2086
++#elif defined(CONFIG_MARCH_Z990)
++	.short 0x9672, 0x2064, 0x2066
++#elif defined(CONFIG_MARCH_Z900)
++	.short 0x9672
++#endif
++3:	la	%r1,2(%r1)
++	brct	%r0,0b
++#endif
++
++	l	%r13,0f-.LPG0(%r13)
++	b	0(%r13)
++0:	.long	startup_continue
++
++#
++# params at 10400 (setup.h)
++#
++	.org	PARMAREA
++	.long	0,0			# IPL_DEVICE
++	.long	0,0			# INITRD_START
++	.long	0,0			# INITRD_SIZE
++
++	.org	COMMAND_LINE
++	.byte	"root=/dev/ram0 ro"
++	.byte	0
++
+ #ifdef CONFIG_64BIT
+ #include "head64.S"
+ #else
+Index: quilt-2.6/arch/s390/Makefile
+===================================================================
+--- quilt-2.6.orig/arch/s390/Makefile
++++ quilt-2.6/arch/s390/Makefile
+@@ -34,6 +34,7 @@ cflags-$(CONFIG_MARCH_G5)   += $(call cc
+ cflags-$(CONFIG_MARCH_Z900) += $(call cc-option,-march=z900)
+ cflags-$(CONFIG_MARCH_Z990) += $(call cc-option,-march=z990)
+ cflags-$(CONFIG_MARCH_Z9_109) += $(call cc-option,-march=z9-109)
++cflags-$(CONFIG_MARCH_Z10) += $(call cc-option,-march=z10)
+ 
+ #KBUILD_IMAGE is necessary for make rpm
+ KBUILD_IMAGE	:=arch/s390/boot/image
 
 -- 
 blue skies,
