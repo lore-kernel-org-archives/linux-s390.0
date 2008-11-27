@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757548AbYK0KxH@vger.kernel.org>
-Message-Id: <20081127103136.719281319@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758072AbYK0Kxp@vger.kernel.org>
+Message-Id: <20081127103135.613738445@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:30:52 +0100
+Date: Thu, 27 Nov 2008 11:30:48 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 32/60] Remove initial kernel stack backchain initialization.
-Content-Disposition: inline; filename=131-clear-backchain.diff
+Subject: [patch 28/60] sclp vt220: fix compile warning
+Content-Disposition: inline; filename=127-sclp-warnings.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,42 +14,69 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Early init code clears the backchain of the initial kernel stack frame.
-This is not necessary since it is pre initialized with zeros. Plus it
-was broken on 64 bit since it cleared only four of eight bytes.
+get rid of this one:
+
+  CC      drivers/s390/char/sclp_vt220.o
+drivers/s390/char/sclp_vt220.c:588: warning: '__sclp_vt220_flush_buffer' defined but not used
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/head31.S |    1 -
- arch/s390/kernel/head64.S |    1 -
- 2 files changed, 2 deletions(-)
+ drivers/s390/char/sclp_vt220.c |   33 ++++++++++++++++-----------------
+ 1 file changed, 16 insertions(+), 17 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/head31.S
+Index: quilt-2.6/drivers/s390/char/sclp_vt220.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/head31.S
-+++ quilt-2.6/arch/s390/kernel/head31.S
-@@ -29,7 +29,6 @@ startup_continue:
- 	ahi	%r15,1<<(PAGE_SHIFT+THREAD_ORDER) # init_task_union+THREAD_SIZE
- 	st	%r15,__LC_KERNEL_STACK	# set end of kernel stack
- 	ahi	%r15,-96
--	xc	__SF_BACKCHAIN(4,%r15),__SF_BACKCHAIN(%r15) # clear backchain
- #
- # Save ipl parameters, clear bss memory, initialize storage key for kernel pages,
- # and create a kernel NSS if the SAVESYS= parm is defined
-Index: quilt-2.6/arch/s390/kernel/head64.S
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/head64.S
-+++ quilt-2.6/arch/s390/kernel/head64.S
-@@ -96,7 +96,6 @@ startup_continue:
- 	aghi	%r15,1<<(PAGE_SHIFT+THREAD_ORDER) # init_task_union + THREAD_SIZE
- 	stg	%r15,__LC_KERNEL_STACK	# set end of kernel stack
- 	aghi	%r15,-160
--	xc	__SF_BACKCHAIN(4,%r15),__SF_BACKCHAIN(%r15) # clear backchain
- #
- # Save ipl parameters, clear bss memory, initialize storage key for kernel pages,
- # and create a kernel NSS if the SAVESYS= parm is defined
+--- quilt-2.6.orig/drivers/s390/char/sclp_vt220.c
++++ quilt-2.6/drivers/s390/char/sclp_vt220.c
+@@ -583,23 +583,6 @@ sclp_vt220_chars_in_buffer(struct tty_st
+ 	return count;
+ }
+ 
+-static void
+-__sclp_vt220_flush_buffer(void)
+-{
+-	unsigned long flags;
+-
+-	sclp_vt220_emit_current();
+-	spin_lock_irqsave(&sclp_vt220_lock, flags);
+-	if (timer_pending(&sclp_vt220_timer))
+-		del_timer(&sclp_vt220_timer);
+-	while (sclp_vt220_outqueue_count > 0) {
+-		spin_unlock_irqrestore(&sclp_vt220_lock, flags);
+-		sclp_sync_wait();
+-		spin_lock_irqsave(&sclp_vt220_lock, flags);
+-	}
+-	spin_unlock_irqrestore(&sclp_vt220_lock, flags);
+-}
+-
+ /*
+  * Pass on all buffers to the hardware. Return only when there are no more
+  * buffers pending.
+@@ -745,6 +728,22 @@ sclp_vt220_con_device(struct console *c,
+ 	return sclp_vt220_driver;
+ }
+ 
++static void __sclp_vt220_flush_buffer(void)
++{
++	unsigned long flags;
++
++	sclp_vt220_emit_current();
++	spin_lock_irqsave(&sclp_vt220_lock, flags);
++	if (timer_pending(&sclp_vt220_timer))
++		del_timer(&sclp_vt220_timer);
++	while (sclp_vt220_outqueue_count > 0) {
++		spin_unlock_irqrestore(&sclp_vt220_lock, flags);
++		sclp_sync_wait();
++		spin_lock_irqsave(&sclp_vt220_lock, flags);
++	}
++	spin_unlock_irqrestore(&sclp_vt220_lock, flags);
++}
++
+ static int
+ sclp_vt220_notify(struct notifier_block *self,
+ 			  unsigned long event, void *data)
 
 -- 
 blue skies,
