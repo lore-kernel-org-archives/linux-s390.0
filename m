@@ -1,71 +1,141 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755522AbYK0KqP@vger.kernel.org>
-Message-Id: <20081127103139.535319378@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754692AbYK0Kqm@vger.kernel.org>
+Message-Id: <20081127103140.668360916@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:31:02 +0100
+Date: Thu, 27 Nov 2008 11:31:06 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 42/60] convert time printks to pr_xxx macros.
-Content-Disposition: inline; filename=157-kmsg-time.diff
+Subject: [patch 46/60] convert monreader printks to pr_xxx macros.
+Content-Disposition: inline; filename=161-kmsg-monreader.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
+Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/time.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/s390/char/monreader.c |   41 +++++++++++++++++------------------------
+ 1 file changed, 17 insertions(+), 24 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/time.c
+Index: quilt-2.6/drivers/s390/char/monreader.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/time.c
-+++ quilt-2.6/arch/s390/kernel/time.c
-@@ -12,6 +12,9 @@
-  *    Copyright (C) 1991, 1992, 1995  Linus Torvalds
+--- quilt-2.6.orig/drivers/s390/char/monreader.c
++++ quilt-2.6/drivers/s390/char/monreader.c
+@@ -7,6 +7,9 @@
+  *   Author: Gerald Schaefer <gerald.schaefer@de.ibm.com>
   */
  
-+#define KMSG_COMPONENT "time"
++#define KMSG_COMPONENT "monreader"
 +#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
 +
- #include <linux/errno.h>
  #include <linux/module.h>
- #include <linux/sched.h>
-@@ -321,8 +324,8 @@ static unsigned long long adjust_time(un
+ #include <linux/moduleparam.h>
+ #include <linux/init.h>
+@@ -24,19 +27,6 @@
+ #include <asm/ebcdic.h>
+ #include <asm/extmem.h>
+ 
+-//#define MON_DEBUG			/* Debug messages on/off */
+-
+-#define MON_NAME "monreader"
+-
+-#define P_INFO(x...)	printk(KERN_INFO MON_NAME " info: " x)
+-#define P_ERROR(x...)	printk(KERN_ERR MON_NAME " error: " x)
+-#define P_WARNING(x...)	printk(KERN_WARNING MON_NAME " warning: " x)
+-
+-#ifdef MON_DEBUG
+-#define P_DEBUG(x...)   printk(KERN_DEBUG MON_NAME " debug: " x)
+-#else
+-#define P_DEBUG(x...)   do {} while (0)
+-#endif
+ 
+ #define MON_COLLECT_SAMPLE 0x80
+ #define MON_COLLECT_EVENT  0x40
+@@ -172,7 +162,7 @@ static int mon_send_reply(struct mon_msg
+ 	} else
+ 		monmsg->replied_msglim = 1;
+ 	if (rc) {
+-		P_ERROR("read, IUCV reply failed with rc = %i\n\n", rc);
++		pr_err("Reading monitor data failed with rc=%i\n", rc);
+ 		return -EIO;
  	}
- 	sched_clock_base_cc += delta;
- 	if (adjust.offset != 0) {
--		printk(KERN_NOTICE "etr: time adjusted by %li micro-seconds\n",
--		       adjust.offset);
-+		pr_notice("The ETR interface has adjusted the clock "
-+			  "by %li microseconds\n", adjust.offset);
- 		adjust.modes = ADJ_OFFSET_SINGLESHOT;
- 		do_adjtimex(&adjust);
+ 	return 0;
+@@ -251,7 +241,8 @@ static void mon_iucv_path_severed(struct
+ {
+ 	struct mon_private *monpriv = path->private;
+ 
+-	P_ERROR("IUCV connection severed with rc = 0x%X\n", ipuser[0]);
++	pr_err("z/VM *MONITOR system service disconnected with rc=%i\n",
++	       ipuser[0]);
+ 	iucv_path_sever(path, NULL);
+ 	atomic_set(&monpriv->iucv_severed, 1);
+ 	wake_up(&mon_conn_wait_queue);
+@@ -266,8 +257,7 @@ static void mon_iucv_message_pending(str
+ 	memcpy(&monpriv->msg_array[monpriv->write_index]->msg,
+ 	       msg, sizeof(*msg));
+ 	if (atomic_inc_return(&monpriv->msglim_count) == MON_MSGLIM) {
+-		P_WARNING("IUCV message pending, message limit (%i) reached\n",
+-			  MON_MSGLIM);
++		pr_warning("The read queue for monitor data is full\n");
+ 		monpriv->msg_array[monpriv->write_index]->msglim_reached = 1;
  	}
-@@ -483,8 +486,8 @@ static void etr_reset(void)
- 		etr_tolec = get_clock();
- 		set_bit(CLOCK_SYNC_HAS_ETR, &clock_sync_flags);
- 	} else if (etr_port0_online || etr_port1_online) {
--		printk(KERN_WARNING "Running on non ETR capable "
--		       "machine, only local mode available.\n");
-+		pr_warning("The real or virtual hardware system does "
-+			   "not provide an ETR interface\n");
- 		etr_port0_online = etr_port1_online = 0;
+ 	monpriv->write_index = (monpriv->write_index + 1) % MON_MSGLIM;
+@@ -311,8 +301,8 @@ static int mon_open(struct inode *inode,
+ 	rc = iucv_path_connect(monpriv->path, &monreader_iucv_handler,
+ 			       MON_SERVICE, NULL, user_data_connect, monpriv);
+ 	if (rc) {
+-		P_ERROR("iucv connection to *MONITOR failed with "
+-			"IPUSER SEVER code = %i\n", rc);
++		pr_err("Connecting to the z/VM *MONITOR system service "
++		       "failed with rc=%i\n", rc);
+ 		rc = -EIO;
+ 		goto out_path;
  	}
- }
-@@ -1425,7 +1428,8 @@ static void __init stp_reset(void)
- 	if (rc == 0)
- 		set_bit(CLOCK_SYNC_HAS_STP, &clock_sync_flags);
- 	else if (stp_online) {
--		printk(KERN_WARNING "Running on non STP capable machine.\n");
-+		pr_warning("The real or virtual hardware system does "
-+			   "not provide an STP interface\n");
- 		free_bootmem((unsigned long) stp_page, PAGE_SIZE);
- 		stp_page = NULL;
- 		stp_online = 0;
+@@ -353,7 +343,8 @@ static int mon_close(struct inode *inode
+ 	 */
+ 	rc = iucv_path_sever(monpriv->path, user_data_sever);
+ 	if (rc)
+-		P_ERROR("close, iucv_sever failed with rc = %i\n", rc);
++		pr_warning("Disconnecting the z/VM *MONITOR system service "
++			   "failed with rc=%i\n", rc);
+ 
+ 	atomic_set(&monpriv->iucv_severed, 0);
+ 	atomic_set(&monpriv->iucv_connected, 0);
+@@ -469,7 +460,8 @@ static int __init mon_init(void)
+ 	int rc;
+ 
+ 	if (!MACHINE_IS_VM) {
+-		P_ERROR("not running under z/VM, driver not loaded\n");
++		pr_err("The z/VM *MONITOR record device driver cannot be "
++		       "loaded without z/VM\n");
+ 		return -ENODEV;
+ 	}
+ 
+@@ -478,7 +470,8 @@ static int __init mon_init(void)
+ 	 */
+ 	rc = iucv_register(&monreader_iucv_handler, 1);
+ 	if (rc) {
+-		P_ERROR("failed to register with iucv driver\n");
++		pr_err("The z/VM *MONITOR record device driver failed to "
++		       "register with IUCV\n");
+ 		return rc;
+ 	}
+ 
+@@ -488,8 +481,8 @@ static int __init mon_init(void)
+ 		goto out_iucv;
+ 	}
+ 	if (rc != SEG_TYPE_SC) {
+-		P_ERROR("segment %s has unsupported type, should be SC\n",
+-			mon_dcss_name);
++		pr_err("The specified *MONITOR DCSS %s does not have the "
++		       "required type SC\n", mon_dcss_name);
+ 		rc = -EINVAL;
+ 		goto out_iucv;
+ 	}
 
 -- 
 blue skies,
