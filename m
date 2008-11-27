@@ -1,261 +1,269 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757600AbYK0KvV@vger.kernel.org>
-Message-Id: <20081127103142.364476710@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757411AbYK0Kvk@vger.kernel.org>
+Message-Id: <20081127103142.083671467@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:31:12 +0100
+Date: Thu, 27 Nov 2008 11:31:11 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 52/60] convert sclp printks to pr_xxx macros.
-Content-Disposition: inline; filename=167-kmsg-sclp.diff
+Subject: [patch 51/60] convert iucv printks to dev_xxx and pr_xxx macros.
+Content-Disposition: inline; filename=166-kmsg-iucv.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <braunu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Ursula Braun <braunu@de.ibm.com>
 
+Signed-off-by: Ursula Braun <braunu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/char/sclp_cmd.c     |   29 ++++++++++++++++-------------
- drivers/s390/char/sclp_config.c  |   10 ++++++----
- drivers/s390/char/sclp_cpi_sys.c |   12 ++++++++----
- drivers/s390/char/sclp_sdias.c   |   18 +++++++++++-------
- 4 files changed, 41 insertions(+), 28 deletions(-)
+ drivers/s390/net/netiucv.c |   64 ++++++++++++++++++++++++++-------------------
+ net/iucv/af_iucv.c         |   19 +++++++++++--
+ net/iucv/iucv.c            |    9 ++++--
+ 3 files changed, 60 insertions(+), 32 deletions(-)
 
-Index: quilt-2.6/drivers/s390/char/sclp_cmd.c
+Index: quilt-2.6/drivers/s390/net/netiucv.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_cmd.c
-+++ quilt-2.6/drivers/s390/char/sclp_cmd.c
-@@ -6,6 +6,9 @@
-  *		 Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+--- quilt-2.6.orig/drivers/s390/net/netiucv.c
++++ quilt-2.6/drivers/s390/net/netiucv.c
+@@ -31,6 +31,9 @@
+  *
   */
  
-+#define KMSG_COMPONENT "sclp_cmd"
++#define KMSG_COMPONENT "netiucv"
 +#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
 +
- #include <linux/completion.h>
- #include <linux/init.h>
- #include <linux/errno.h>
-@@ -16,9 +19,8 @@
- #include <linux/memory.h>
- #include <asm/chpid.h>
- #include <asm/sclp.h>
--#include "sclp.h"
+ #undef DEBUG
  
--#define TAG	"sclp_cmd: "
-+#include "sclp.h"
+ #include <linux/module.h>
+@@ -846,7 +849,8 @@ static void conn_action_connsever(fsm_in
  
- #define SCLP_CMDW_READ_SCP_INFO		0x00020001
- #define SCLP_CMDW_READ_SCP_INFO_FORCED	0x00120001
-@@ -169,8 +171,8 @@ static int do_sync_request(sclp_cmdw_t c
+ 	fsm_deltimer(&conn->timer);
+ 	iucv_path_sever(conn->path, NULL);
+-	PRINT_INFO("%s: Remote dropped connection\n", netdev->name);
++	dev_info(privptr->dev, "The peer interface of the IUCV device"
++		" has closed the connection\n");
+ 	IUCV_DBF_TEXT(data, 2,
+ 		      "conn_action_connsever: Remote dropped connection\n");
+ 	fsm_newstate(fi, CONN_STATE_STARTWAIT);
+@@ -856,13 +860,15 @@ static void conn_action_connsever(fsm_in
+ static void conn_action_start(fsm_instance *fi, int event, void *arg)
+ {
+ 	struct iucv_connection *conn = arg;
++	struct net_device *netdev = conn->netdev;
++	struct netiucv_priv *privptr = netdev_priv(netdev);
+ 	int rc;
  
- 	/* Check response. */
- 	if (request->status != SCLP_REQ_DONE) {
--		printk(KERN_WARNING TAG "sync request failed "
--		       "(cmd=0x%08x, status=0x%02x)\n", cmd, request->status);
-+		pr_warning("sync request failed (cmd=0x%08x, "
-+			   "status=0x%02x)\n", cmd, request->status);
- 		rc = -EIO;
- 	}
- out:
-@@ -224,8 +226,8 @@ int sclp_get_cpu_info(struct sclp_cpu_in
- 	if (rc)
- 		goto out;
- 	if (sccb->header.response_code != 0x0010) {
--		printk(KERN_WARNING TAG "readcpuinfo failed "
--		       "(response=0x%04x)\n", sccb->header.response_code);
-+		pr_warning("readcpuinfo failed (response=0x%04x)\n",
-+			   sccb->header.response_code);
- 		rc = -EIO;
- 		goto out;
- 	}
-@@ -262,8 +264,9 @@ static int do_cpu_configure(sclp_cmdw_t 
- 	case 0x0120:
+ 	IUCV_DBF_TEXT(trace, 3, __func__);
+ 
+ 	fsm_newstate(fi, CONN_STATE_STARTWAIT);
+ 	IUCV_DBF_TEXT_(setup, 2, "%s('%s'): connecting ...\n",
+-		    conn->netdev->name, conn->userid);
++		netdev->name, conn->userid);
+ 
+ 	/*
+ 	 * We must set the state before calling iucv_connect because the
+@@ -876,41 +882,45 @@ static void conn_action_start(fsm_instan
+ 			       NULL, iucvMagic, conn);
+ 	switch (rc) {
+ 	case 0:
+-		conn->netdev->tx_queue_len = conn->path->msglim;
++		netdev->tx_queue_len = conn->path->msglim;
+ 		fsm_addtimer(&conn->timer, NETIUCV_TIMEOUT_5SEC,
+ 			     CONN_EVENT_TIMER, conn);
+ 		return;
+ 	case 11:
+-		PRINT_INFO("%s: User %s is currently not available.\n",
+-			   conn->netdev->name,
+-			   netiucv_printname(conn->userid));
++		dev_warn(privptr->dev,
++			"The IUCV device failed to connect to z/VM guest %s\n",
++			netiucv_printname(conn->userid));
+ 		fsm_newstate(fi, CONN_STATE_STARTWAIT);
+ 		break;
+ 	case 12:
+-		PRINT_INFO("%s: User %s is currently not ready.\n",
+-			   conn->netdev->name,
+-			   netiucv_printname(conn->userid));
++		dev_warn(privptr->dev,
++			"The IUCV device failed to connect to the peer on z/VM"
++			" guest %s\n", netiucv_printname(conn->userid));
+ 		fsm_newstate(fi, CONN_STATE_STARTWAIT);
+ 		break;
+ 	case 13:
+-		PRINT_WARN("%s: Too many IUCV connections.\n",
+-			   conn->netdev->name);
++		dev_err(privptr->dev,
++			"Connecting the IUCV device would exceed the maximum"
++			" number of IUCV connections\n");
+ 		fsm_newstate(fi, CONN_STATE_CONNERR);
+ 		break;
+ 	case 14:
+-		PRINT_WARN("%s: User %s has too many IUCV connections.\n",
+-			   conn->netdev->name,
+-			   netiucv_printname(conn->userid));
++		dev_err(privptr->dev,
++			"z/VM guest %s has too many IUCV connections"
++			" to connect with the IUCV device\n",
++			netiucv_printname(conn->userid));
+ 		fsm_newstate(fi, CONN_STATE_CONNERR);
+ 		break;
+ 	case 15:
+-		PRINT_WARN("%s: No IUCV authorization in CP directory.\n",
+-			   conn->netdev->name);
++		dev_err(privptr->dev,
++			"The IUCV device cannot connect to a z/VM guest with no"
++			" IUCV authorization\n");
+ 		fsm_newstate(fi, CONN_STATE_CONNERR);
  		break;
  	default:
--		printk(KERN_WARNING TAG "configure cpu failed (cmd=0x%08x, "
--		       "response=0x%04x)\n", cmd, sccb->header.response_code);
-+		pr_warning("configure cpu failed (cmd=0x%08x, "
-+			   "response=0x%04x)\n", cmd,
-+			   sccb->header.response_code);
- 		rc = -EIO;
+-		PRINT_WARN("%s: iucv_connect returned error %d\n",
+-			   conn->netdev->name, rc);
++		dev_err(privptr->dev,
++			"Connecting the IUCV device failed with error %d\n",
++			rc);
+ 		fsm_newstate(fi, CONN_STATE_CONNERR);
  		break;
  	}
-@@ -626,9 +629,9 @@ static int do_chp_configure(sclp_cmdw_t 
- 	case 0x0450:
- 		break;
- 	default:
--		printk(KERN_WARNING TAG "configure channel-path failed "
--		       "(cmd=0x%08x, response=0x%04x)\n", cmd,
--		       sccb->header.response_code);
-+		pr_warning("configure channel-path failed "
-+			   "(cmd=0x%08x, response=0x%04x)\n", cmd,
-+			   sccb->header.response_code);
- 		rc = -EIO;
- 		break;
- 	}
-@@ -695,8 +698,8 @@ int sclp_chp_read_info(struct sclp_chp_i
- 	if (rc)
- 		goto out;
- 	if (sccb->header.response_code != 0x0010) {
--		printk(KERN_WARNING TAG "read channel-path info failed "
--		       "(response=0x%04x)\n", sccb->header.response_code);
-+		pr_warning("read channel-path info failed "
-+			   "(response=0x%04x)\n", sccb->header.response_code);
- 		rc = -EIO;
- 		goto out;
- 	}
-Index: quilt-2.6/drivers/s390/char/sclp_config.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_config.c
-+++ quilt-2.6/drivers/s390/char/sclp_config.c
-@@ -5,15 +5,17 @@
-  *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
-  */
- 
-+#define KMSG_COMPONENT "sclp_config"
-+#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
-+
- #include <linux/init.h>
- #include <linux/errno.h>
- #include <linux/cpu.h>
- #include <linux/sysdev.h>
- #include <linux/workqueue.h>
- #include <asm/smp.h>
--#include "sclp.h"
- 
--#define TAG	"sclp_config: "
-+#include "sclp.h"
- 
- struct conf_mgm_data {
- 	u8 reserved;
-@@ -31,7 +33,7 @@ static void sclp_cpu_capability_notify(s
- 	int cpu;
- 	struct sys_device *sysdev;
- 
--	printk(KERN_WARNING TAG "cpu capability changed.\n");
-+	pr_warning("cpu capability changed.\n");
- 	get_online_cpus();
- 	for_each_online_cpu(cpu) {
- 		sysdev = get_cpu_sysdev(cpu);
-@@ -78,7 +80,7 @@ static int __init sclp_conf_init(void)
- 		return rc;
- 
- 	if (!(sclp_conf_register.sclp_send_mask & EVTYP_CONFMGMDATA_MASK)) {
--		printk(KERN_WARNING TAG "no configuration management.\n");
-+		pr_warning("no configuration management.\n");
- 		sclp_unregister(&sclp_conf_register);
- 		rc = -ENOSYS;
- 	}
-Index: quilt-2.6/drivers/s390/char/sclp_cpi_sys.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_cpi_sys.c
-+++ quilt-2.6/drivers/s390/char/sclp_cpi_sys.c
-@@ -7,6 +7,9 @@
-  *		 Michael Ernst <mernst@de.ibm.com>
-  */
- 
-+#define KMSG_COMPONENT "sclp_cpi"
-+#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
-+
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/stat.h>
-@@ -20,6 +23,7 @@
- #include <linux/completion.h>
- #include <asm/ebcdic.h>
- #include <asm/sclp.h>
-+
- #include "sclp.h"
- #include "sclp_rw.h"
- #include "sclp_cpi_sys.h"
-@@ -150,16 +154,16 @@ static int cpi_req(void)
- 	wait_for_completion(&completion);
- 
- 	if (req->status != SCLP_REQ_DONE) {
--		printk(KERN_WARNING "cpi: request failed (status=0x%02x)\n",
--			req->status);
-+		pr_warning("request failed (status=0x%02x)\n",
-+			   req->status);
- 		rc = -EIO;
- 		goto out_free_req;
- 	}
- 
- 	response = ((struct cpi_sccb *) req->sccb)->header.response_code;
- 	if (response != 0x0020) {
--		printk(KERN_WARNING "cpi: failed with "
--			"response code 0x%x\n", response);
-+		pr_warning("request failed with response code 0x%x\n",
-+			   response);
- 		rc = -EIO;
- 	}
- 
-Index: quilt-2.6/drivers/s390/char/sclp_sdias.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/char/sclp_sdias.c
-+++ quilt-2.6/drivers/s390/char/sclp_sdias.c
-@@ -5,15 +5,18 @@
-  * Author(s): Michael Holzheu
-  */
- 
-+#define KMSG_COMPONENT "sclp_sdias"
-+#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
-+
- #include <linux/sched.h>
- #include <asm/sclp.h>
- #include <asm/debug.h>
- #include <asm/ipl.h>
-+
- #include "sclp.h"
- #include "sclp_rw.h"
- 
- #define TRACE(x...) debug_sprintf_event(sdias_dbf, 1, x)
--#define ERROR_MSG(x...) printk ( KERN_ALERT "SDIAS: " x )
- 
- #define SDIAS_RETRIES 300
- #define SDIAS_SLEEP_TICKS 50
-@@ -131,7 +134,7 @@ int sclp_sdias_blk_count(void)
- 
- 	rc = sdias_sclp_send(&request);
- 	if (rc) {
--		ERROR_MSG("sclp_send failed for get_nr_blocks\n");
-+		pr_err("sclp_send failed for get_nr_blocks\n");
- 		goto out;
- 	}
- 	if (sccb.hdr.response_code != 0x0020) {
-@@ -145,7 +148,8 @@ int sclp_sdias_blk_count(void)
- 			rc = sccb.evbuf.blk_cnt;
+@@ -1059,8 +1069,9 @@ dev_action_connup(fsm_instance *fi, int 
+ 	switch (fsm_getstate(fi)) {
+ 		case DEV_STATE_STARTWAIT:
+ 			fsm_newstate(fi, DEV_STATE_RUNNING);
+-			PRINT_INFO("%s: connected with remote side %s\n",
+-			       dev->name, privptr->conn->userid);
++			dev_info(privptr->dev,
++				"The IUCV device has been connected"
++				" successfully to %s\n", privptr->conn->userid);
+ 			IUCV_DBF_TEXT(setup, 3,
+ 				"connection is up and running\n");
  			break;
- 		default:
--			ERROR_MSG("SCLP error: %x\n", sccb.evbuf.event_status);
-+			pr_err("SCLP error: %x\n",
-+			       sccb.evbuf.event_status);
- 			rc = -EIO;
- 			goto out;
- 	}
-@@ -201,7 +205,7 @@ int sclp_sdias_copy(void *dest, int star
+@@ -1982,6 +1993,8 @@ static ssize_t conn_write(struct device_
+ 	if (rc)
+ 		goto out_unreg;
  
- 	rc = sdias_sclp_send(&request);
- 	if (rc) {
--		ERROR_MSG("sclp_send failed: %x\n", rc);
-+		pr_err("sclp_send failed: %x\n", rc);
++	dev_info(priv->dev, "The IUCV interface to %s has been"
++		" established successfully\n", netiucv_printname(username));
+ 
+ 	return count;
+ 
+@@ -2027,10 +2040,9 @@ static ssize_t remove_write (struct devi
+ 			continue;
+ 		read_unlock_bh(&iucv_connection_rwlock);
+                 if (ndev->flags & (IFF_UP | IFF_RUNNING)) {
+-			PRINT_WARN("netiucv: net device %s active with peer "
+-				   "%s\n", ndev->name, priv->conn->userid);
+-                        PRINT_WARN("netiucv: %s cannot be removed\n",
+-				   ndev->name);
++			dev_warn(dev, "The IUCV device is connected"
++				" to %s and cannot be removed\n",
++				priv->conn->userid);
+ 			IUCV_DBF_TEXT(data, 2, "remove_write: still active\n");
+ 			return -EPERM;
+                 }
+@@ -2062,7 +2074,7 @@ static struct attribute_group *netiucv_d
+ 
+ static void netiucv_banner(void)
+ {
+-	PRINT_INFO("NETIUCV driver initialized\n");
++	pr_info("driver initialized\n");
+ }
+ 
+ static void __exit netiucv_exit(void)
+@@ -2088,7 +2100,7 @@ static void __exit netiucv_exit(void)
+ 	iucv_unregister(&netiucv_handler, 1);
+ 	iucv_unregister_dbf_views();
+ 
+-	PRINT_INFO("NETIUCV driver unloaded\n");
++	pr_info("driver unloaded\n");
+ 	return;
+ }
+ 
+Index: quilt-2.6/net/iucv/af_iucv.c
+===================================================================
+--- quilt-2.6.orig/net/iucv/af_iucv.c
++++ quilt-2.6/net/iucv/af_iucv.c
+@@ -8,6 +8,9 @@
+  *  Author(s):	Jennifer Hunt <jenhunt@us.ibm.com>
+  */
+ 
++#define KMSG_COMPONENT "af_iucv"
++#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
++
+ #include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/list.h>
+@@ -616,6 +619,8 @@ static int iucv_sock_sendmsg(struct kioc
+ 	struct iucv_sock *iucv = iucv_sk(sk);
+ 	struct sk_buff *skb;
+ 	struct iucv_message txmsg;
++	char user_id[9];
++	char appl_id[9];
+ 	int err;
+ 
+ 	err = sock_error(sk);
+@@ -651,8 +656,15 @@ static int iucv_sock_sendmsg(struct kioc
+ 		err = iucv_message_send(iucv->path, &txmsg, 0, 0,
+ 					(void *) skb->data, skb->len);
+ 		if (err) {
+-			if (err == 3)
+-				printk(KERN_ERR "AF_IUCV msg limit exceeded\n");
++			if (err == 3) {
++				user_id[8] = 0;
++				memcpy(user_id, iucv->dst_user_id, 8);
++				appl_id[8] = 0;
++				memcpy(appl_id, iucv->dst_name, 8);
++				pr_err("Application %s on z/VM guest %s"
++				       " exceeds message limit\n",
++				       user_id, appl_id);
++			}
+ 			skb_unlink(skb, &iucv->send_skb_q);
+ 			err = -EPIPE;
+ 			goto fail;
+@@ -1190,7 +1202,8 @@ static int __init afiucv_init(void)
+ 	int err;
+ 
+ 	if (!MACHINE_IS_VM) {
+-		printk(KERN_ERR "AF_IUCV connection needs VM as base\n");
++		pr_err("The af_iucv module cannot be loaded"
++		       " without z/VM\n");
+ 		err = -EPROTONOSUPPORT;
  		goto out;
  	}
- 	if (sccb.hdr.response_code != 0x0020) {
-@@ -219,9 +223,9 @@ int sclp_sdias_copy(void *dest, int star
- 		case EVSTATE_NO_DATA:
- 			TRACE("no data\n");
- 		default:
--			ERROR_MSG("Error from SCLP while copying hsa. "
--				  "Event status = %x\n",
--				sccb.evbuf.event_status);
-+			pr_err("Error from SCLP while copying hsa. "
-+			       "Event status = %x\n",
-+			       sccb.evbuf.event_status);
- 			rc = -EIO;
+Index: quilt-2.6/net/iucv/iucv.c
+===================================================================
+--- quilt-2.6.orig/net/iucv/iucv.c
++++ quilt-2.6/net/iucv/iucv.c
+@@ -30,6 +30,9 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
++#define KMSG_COMPONENT "iucv"
++#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
++
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/spinlock.h>
+@@ -424,8 +427,8 @@ static void iucv_declare_cpu(void *data)
+ 			err = "Paging or storage error";
+ 			break;
+ 		}
+-		printk(KERN_WARNING "iucv_register: iucv_declare_buffer "
+-		       "on cpu %i returned error 0x%02x (%s)\n", cpu, rc, err);
++		pr_warning("Defining an interrupt buffer on CPU %i"
++			   " failed with 0x%02x (%s)\n", cpu, rc, err);
+ 		return;
  	}
- out:
+ 
+@@ -1652,7 +1655,7 @@ static void iucv_external_interrupt(u16 
+ 	BUG_ON(p->iptype  < 0x01 || p->iptype > 0x09);
+ 	work = kmalloc(sizeof(struct iucv_irq_list), GFP_ATOMIC);
+ 	if (!work) {
+-		printk(KERN_WARNING "iucv_external_interrupt: out of memory\n");
++		pr_warning("iucv_external_interrupt: out of memory\n");
+ 		return;
+ 	}
+ 	memcpy(&work->data, p, sizeof(work->data));
 
 -- 
 blue skies,
