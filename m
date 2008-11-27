@@ -1,123 +1,124 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755074AbYK0Ked@vger.kernel.org>
-Message-Id: <20081127103129.055639526@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755263AbYK0Kev@vger.kernel.org>
+Message-Id: <20081127103130.192052605@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:30:25 +0100
+Date: Thu, 27 Nov 2008 11:30:29 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 05/60] serialize stp/etr work
-Content-Disposition: inline; filename=104-stp-etr-work.diff
+Subject: [patch 09/60] ap: Minor code beautification.
+Content-Disposition: inline; filename=108-ap-cleanup.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Maaser <cmaaser@de.ibm.com>, Felix Beck <beckf@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Christian Maaser <cmaaser@de.ibm.com>
 
-The work function dispatched with schedule_work() can be run twice
-on different cpus because run_workqueue clears the WORK_STRUCT_PENDING
-bit and then executes the function. Another cpu can call schedule_work()
-again and run the work function a second time before the first call
-is completed. This patch serialized the etr and stp work function with
-a mutex.
+Changed some symbol names for a better and clearer code.
 
+Signed-off-by: Christian Maaser <cmaaser@de.ibm.com>
+Signed-off-by: Felix Beck <beckf@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/time.c |   23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ drivers/s390/crypto/ap_bus.c |   28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/time.c
+Index: quilt-2.6/drivers/s390/crypto/ap_bus.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/time.c
-+++ quilt-2.6/arch/s390/kernel/time.c
-@@ -467,6 +467,7 @@ static struct timer_list etr_timer;
+--- quilt-2.6.orig/drivers/s390/crypto/ap_bus.c
++++ quilt-2.6/drivers/s390/crypto/ap_bus.c
+@@ -74,7 +74,7 @@ module_param_named(poll_thread, ap_threa
+ MODULE_PARM_DESC(poll_thread, "Turn on/off poll thread, default is 0 (off).");
  
- static void etr_timeout(unsigned long dummy);
- static void etr_work_fn(struct work_struct *work);
-+static DEFINE_MUTEX(etr_work_mutex);
- static DECLARE_WORK(etr_work, etr_work_fn);
+ static struct device *ap_root_device = NULL;
+-static DEFINE_SPINLOCK(ap_device_lock);
++static DEFINE_SPINLOCK(ap_device_list_lock);
+ static LIST_HEAD(ap_device_list);
  
  /*
-@@ -976,6 +977,9 @@ static void etr_work_fn(struct work_stru
- 	struct etr_aib aib;
- 	int sync_port;
+@@ -518,16 +518,16 @@ static ssize_t ap_hwtype_show(struct dev
+ 	struct ap_device *ap_dev = to_ap_dev(dev);
+ 	return snprintf(buf, PAGE_SIZE, "%d\n", ap_dev->device_type);
+ }
+-static DEVICE_ATTR(hwtype, 0444, ap_hwtype_show, NULL);
  
-+	/* prevent multiple execution. */
-+	mutex_lock(&etr_work_mutex);
-+
- 	/* Create working copy of etr_eacr. */
- 	eacr = etr_eacr;
++static DEVICE_ATTR(hwtype, 0444, ap_hwtype_show, NULL);
+ static ssize_t ap_depth_show(struct device *dev, struct device_attribute *attr,
+ 			     char *buf)
+ {
+ 	struct ap_device *ap_dev = to_ap_dev(dev);
+ 	return snprintf(buf, PAGE_SIZE, "%d\n", ap_dev->queue_depth);
+ }
+-static DEVICE_ATTR(depth, 0444, ap_depth_show, NULL);
  
-@@ -991,7 +995,7 @@ static void etr_work_fn(struct work_stru
- 		del_timer_sync(&etr_timer);
- 		etr_update_eacr(eacr);
- 		clear_bit(CLOCK_SYNC_ETR, &clock_sync_flags);
--		return;
-+		goto out_unlock;
++static DEVICE_ATTR(depth, 0444, ap_depth_show, NULL);
+ static ssize_t ap_request_count_show(struct device *dev,
+ 				     struct device_attribute *attr,
+ 				     char *buf)
+@@ -630,9 +630,9 @@ static int ap_device_probe(struct device
+ 	ap_dev->drv = ap_drv;
+ 	rc = ap_drv->probe ? ap_drv->probe(ap_dev) : -ENODEV;
+ 	if (!rc) {
+-		spin_lock_bh(&ap_device_lock);
++		spin_lock_bh(&ap_device_list_lock);
+ 		list_add(&ap_dev->list, &ap_device_list);
+-		spin_unlock_bh(&ap_device_lock);
++		spin_unlock_bh(&ap_device_list_lock);
  	}
+ 	return rc;
+ }
+@@ -674,9 +674,9 @@ static int ap_device_remove(struct devic
  
- 	/* Store aib to get the current ETR status word. */
-@@ -1078,7 +1082,7 @@ static void etr_work_fn(struct work_stru
- 	    eacr.es || sync_port < 0) {
- 		etr_update_eacr(eacr);
- 		etr_set_tolec_timeout(now);
--		return;
-+		goto out_unlock;
- 	}
- 
- 	/*
-@@ -1106,6 +1110,8 @@ static void etr_work_fn(struct work_stru
- 		etr_set_sync_timeout();
- 	} else
- 		etr_set_tolec_timeout(now);
-+out_unlock:
-+	mutex_unlock(&etr_work_mutex);
+ 	ap_flush_queue(ap_dev);
+ 	del_timer_sync(&ap_dev->timeout);
+-	spin_lock_bh(&ap_device_lock);
++	spin_lock_bh(&ap_device_list_lock);
+ 	list_del_init(&ap_dev->list);
+-	spin_unlock_bh(&ap_device_lock);
++	spin_unlock_bh(&ap_device_list_lock);
+ 	if (ap_drv->remove)
+ 		ap_drv->remove(ap_dev);
+ 	spin_lock_bh(&ap_dev->lock);
+@@ -1319,7 +1319,7 @@ static void ap_reset(struct ap_device *a
+ 		ap_dev->unregistered = 1;
  }
  
- /*
-@@ -1394,6 +1400,7 @@ static struct stp_sstpi stp_info;
- static void *stp_page;
+-static int __ap_poll_all(struct ap_device *ap_dev, unsigned long *flags)
++static int __ap_poll_device(struct ap_device *ap_dev, unsigned long *flags)
+ {
+ 	spin_lock(&ap_dev->lock);
+ 	if (!ap_dev->unregistered) {
+@@ -1353,11 +1353,11 @@ static void ap_poll_all(unsigned long du
+ 		xchg((u8 *)ap_interrupt_indicator, 0);
+ 	do {
+ 		flags = 0;
+-		spin_lock(&ap_device_lock);
++		spin_lock(&ap_device_list_lock);
+ 		list_for_each_entry(ap_dev, &ap_device_list, list) {
+-			__ap_poll_all(ap_dev, &flags);
++			__ap_poll_device(ap_dev, &flags);
+ 		}
+-		spin_unlock(&ap_device_lock);
++		spin_unlock(&ap_device_list_lock);
+ 	} while (flags & 1);
+ 	if (flags & 2)
+ 		ap_schedule_poll_timer();
+@@ -1397,11 +1397,11 @@ static int ap_poll_thread(void *data)
+ 		remove_wait_queue(&ap_poll_wait, &wait);
  
- static void stp_work_fn(struct work_struct *work);
-+static DEFINE_MUTEX(stp_work_mutex);
- static DECLARE_WORK(stp_work, stp_work_fn);
- 
- static int __init early_parse_stp(char *p)
-@@ -1542,24 +1549,30 @@ static void stp_work_fn(struct work_stru
- 	struct clock_sync_data stp_sync;
- 	int rc;
- 
-+	/* prevent multiple execution. */
-+	mutex_lock(&stp_work_mutex);
-+
- 	if (!stp_online) {
- 		chsc_sstpc(stp_page, STP_OP_CTRL, 0x0000);
--		return;
-+		goto out_unlock;
+ 		flags = 0;
+-		spin_lock_bh(&ap_device_lock);
++		spin_lock_bh(&ap_device_list_lock);
+ 		list_for_each_entry(ap_dev, &ap_device_list, list) {
+-			__ap_poll_all(ap_dev, &flags);
++			__ap_poll_device(ap_dev, &flags);
+ 		}
+-		spin_unlock_bh(&ap_device_lock);
++		spin_unlock_bh(&ap_device_list_lock);
  	}
- 
- 	rc = chsc_sstpc(stp_page, STP_OP_CTRL, 0xb0e0);
- 	if (rc)
--		return;
-+		goto out_unlock;
- 
- 	rc = chsc_sstpi(stp_page, &stp_info, sizeof(struct stp_sstpi));
- 	if (rc || stp_info.c == 0)
--		return;
-+		goto out_unlock;
- 
- 	memset(&stp_sync, 0, sizeof(stp_sync));
- 	get_online_cpus();
- 	atomic_set(&stp_sync.cpus, num_online_cpus() - 1);
- 	stop_machine(stp_sync_clock, &stp_sync, &cpu_online_map);
- 	put_online_cpus();
-+
-+out_unlock:
-+	mutex_unlock(&stp_work_mutex);
- }
- 
- /*
+ 	set_current_state(TASK_RUNNING);
+ 	remove_wait_queue(&ap_poll_wait, &wait);
 
 -- 
 blue skies,
