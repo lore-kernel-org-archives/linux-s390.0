@@ -1,163 +1,315 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755934AbYK0KkS@vger.kernel.org>
-Message-Id: <20081127103133.957555357@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756251AbYK0Kkp@vger.kernel.org>
+Message-Id: <20081127103133.367502008@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:30:42 +0100
+Date: Thu, 27 Nov 2008 11:30:40 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 22/60] ftrace: function tracer backend for s390
-Content-Disposition: inline; filename=121-func-tracer.diff
+Subject: [patch 20/60] iucv: Locking free version of iucv_message_(receive|send)
+Content-Disposition: inline; filename=119-iucv-lockfree.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 
-This implements just the basic function tracer (_mcount) backend for s390.
-The dynamic variant will come later.
+Provide a locking free version of iucv_message_receive and iucv_message_send
+that do not call local_bh_enable in a spin_lock_(bh|irqsave)() context.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 ---
 
- arch/s390/Kconfig              |    1 
- arch/s390/include/asm/ftrace.h |    8 +++++
- arch/s390/kernel/Makefile      |    6 ++++
- arch/s390/kernel/mcount.S      |   56 +++++++++++++++++++++++++++++++++++++++++
- arch/s390/kernel/s390_ksyms.c  |    5 +++
- 5 files changed, 76 insertions(+)
+ include/net/iucv/iucv.h |   45 ++++++++++++++
+ net/iucv/iucv.c         |  152 ++++++++++++++++++++++++++++++++++++------------
+ 2 files changed, 161 insertions(+), 36 deletions(-)
 
-Index: quilt-2.6/arch/s390/include/asm/ftrace.h
+Index: quilt-2.6/include/net/iucv/iucv.h
 ===================================================================
---- /dev/null
-+++ quilt-2.6/arch/s390/include/asm/ftrace.h
-@@ -0,0 +1,8 @@
-+#ifndef _ASM_S390_FTRACE_H
-+#define _ASM_S390_FTRACE_H
-+
-+#ifndef __ASSEMBLY__
-+extern void _mcount(void);
-+#endif
-+
-+#endif /* _ASM_S390_FTRACE_H */
-Index: quilt-2.6/arch/s390/Kconfig
-===================================================================
---- quilt-2.6.orig/arch/s390/Kconfig
-+++ quilt-2.6/arch/s390/Kconfig
-@@ -74,6 +74,7 @@ mainmenu "Linux Kernel Configuration"
- config S390
- 	def_bool y
- 	select USE_GENERIC_SMP_HELPERS if SMP
-+	select HAVE_FUNCTION_TRACER
- 	select HAVE_OPROFILE
- 	select HAVE_KPROBES
- 	select HAVE_KRETPROBES
-Index: quilt-2.6/arch/s390/kernel/Makefile
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/Makefile
-+++ quilt-2.6/arch/s390/kernel/Makefile
-@@ -2,6 +2,11 @@
- # Makefile for the linux kernel.
- #
- 
-+ifdef CONFIG_FUNCTION_TRACER
-+# Do not trace early boot code
-+CFLAGS_REMOVE_early.o = -pg
-+endif
-+
- #
- # Passing null pointers is ok for smp code, since we access the lowcore here.
- #
-@@ -34,6 +39,7 @@ obj-$(CONFIG_COMPAT)		+= compat_linux.o 
- obj-$(CONFIG_VIRT_TIMER)	+= vtime.o
- obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
- obj-$(CONFIG_KPROBES)		+= kprobes.o
-+obj-$(CONFIG_FUNCTION_TRACER)	+= mcount.o
- 
- # Kexec part
- S390_KEXEC_OBJS := machine_kexec.o crash.o
-Index: quilt-2.6/arch/s390/kernel/mcount.S
-===================================================================
---- /dev/null
-+++ quilt-2.6/arch/s390/kernel/mcount.S
-@@ -0,0 +1,56 @@
-+/*
-+ * Copyright IBM Corp. 2008
+--- quilt-2.6.orig/include/net/iucv/iucv.h
++++ quilt-2.6/include/net/iucv/iucv.h
+@@ -337,12 +337,35 @@ int iucv_message_purge(struct iucv_path 
+  * established paths. This function will deal with RMDATA messages
+  * embedded in struct iucv_message as well.
+  *
++ * Locking:	local_bh_enable/local_bh_disable
 + *
-+ *   Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>,
+  * Returns the result from the CP IUCV call.
+  */
+ int iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
+ 			 u8 flags, void *buffer, size_t size, size_t *residual);
+ 
+ /**
++ * __iucv_message_receive
++ * @path: address of iucv path structure
++ * @msg: address of iucv msg structure
++ * @flags: flags that affect how the message is received (IUCV_IPBUFLST)
++ * @buffer: address of data buffer or address of struct iucv_array
++ * @size: length of data buffer
++ * @residual:
 + *
++ * This function receives messages that are being sent to you over
++ * established paths. This function will deal with RMDATA messages
++ * embedded in struct iucv_message as well.
++ *
++ * Locking:	no locking.
++ *
++ * Returns the result from the CP IUCV call.
 + */
++int __iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
++			   u8 flags, void *buffer, size_t size,
++			   size_t *residual);
 +
-+#ifndef CONFIG_64BIT
-+.globl _mcount
-+_mcount:
-+	stm	%r0,%r5,8(%r15)
-+	st	%r14,56(%r15)
-+	lr	%r1,%r15
-+	ahi	%r15,-96
-+	l	%r3,100(%r15)
-+	la	%r2,0(%r14)
-+	st	%r1,0(%r15)
-+	la	%r3,0(%r3)
-+	bras	%r14,0f
-+	.long	ftrace_trace_function
-+0:	l	%r14,0(%r14)
-+	l	%r14,0(%r14)
-+	basr	%r14,%r14
-+	ahi	%r15,96
-+	lm	%r0,%r5,8(%r15)
-+	l	%r14,56(%r15)
-+	br	%r14
++/**
+  * iucv_message_reject
+  * @path: address of iucv path structure
+  * @msg: address of iucv msg structure
+@@ -386,12 +409,34 @@ int iucv_message_reply(struct iucv_path 
+  * transmitted is in a buffer and this is a one-way message and the
+  * receiver will not reply to the message.
+  *
++ * Locking:	local_bh_enable/local_bh_disable
++ *
+  * Returns the result from the CP IUCV call.
+  */
+ int iucv_message_send(struct iucv_path *path, struct iucv_message *msg,
+ 		      u8 flags, u32 srccls, void *buffer, size_t size);
+ 
+ /**
++ * __iucv_message_send
++ * @path: address of iucv path structure
++ * @msg: address of iucv msg structure
++ * @flags: how the message is sent (IUCV_IPRMDATA, IUCV_IPPRTY, IUCV_IPBUFLST)
++ * @srccls: source class of message
++ * @buffer: address of data buffer or address of struct iucv_array
++ * @size: length of send buffer
++ *
++ * This function transmits data to another application. Data to be
++ * transmitted is in a buffer and this is a one-way message and the
++ * receiver will not reply to the message.
++ *
++ * Locking:	no locking.
++ *
++ * Returns the result from the CP IUCV call.
++ */
++int __iucv_message_send(struct iucv_path *path, struct iucv_message *msg,
++			u8 flags, u32 srccls, void *buffer, size_t size);
 +
-+.globl ftrace_stub
-+ftrace_stub:
-+	br	%r14
-+
-+#else /* CONFIG_64BIT */
-+
-+.globl _mcount
-+_mcount:
-+	stmg	%r0,%r5,16(%r15)
-+	stg	%r14,112(%r15)
-+	lgr	%r1,%r15
-+	aghi	%r15,-160
-+	stg	%r1,0(%r15)
-+	lgr	%r2,%r14
-+	lg	%r3,168(%r15)
-+	larl	%r14,ftrace_trace_function
-+	lg	%r14,0(%r14)
-+	basr	%r14,%r14
-+	aghi	%r15,160
-+	lmg	%r0,%r5,16(%r15)
-+	lg	%r14,112(%r15)
-+	br	%r14
-+
-+.globl ftrace_stub
-+ftrace_stub:
-+	br	%r14
-+
-+#endif /* CONFIG_64BIT */
-Index: quilt-2.6/arch/s390/kernel/s390_ksyms.c
++/**
+  * iucv_message_send2way
+  * @path: address of iucv path structure
+  * @msg: address of iucv msg structure
+Index: quilt-2.6/net/iucv/iucv.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/s390_ksyms.c
-+++ quilt-2.6/arch/s390/kernel/s390_ksyms.c
-@@ -14,6 +14,7 @@
- #include <asm/delay.h>
- #include <asm/pgalloc.h>
- #include <asm/setup.h>
-+#include <asm/ftrace.h>
- #ifdef CONFIG_IP_MULTICAST
- #include <net/arp.h>
- #endif
-@@ -43,3 +44,7 @@ EXPORT_SYMBOL(csum_fold);
- EXPORT_SYMBOL(console_mode);
- EXPORT_SYMBOL(console_devno);
- EXPORT_SYMBOL(console_irq);
+--- quilt-2.6.orig/net/iucv/iucv.c
++++ quilt-2.6/net/iucv/iucv.c
+@@ -957,7 +957,52 @@ int iucv_message_purge(struct iucv_path 
+ EXPORT_SYMBOL(iucv_message_purge);
+ 
+ /**
+- * iucv_message_receive
++ * iucv_message_receive_iprmdata
++ * @path: address of iucv path structure
++ * @msg: address of iucv msg structure
++ * @flags: how the message is received (IUCV_IPBUFLST)
++ * @buffer: address of data buffer or address of struct iucv_array
++ * @size: length of data buffer
++ * @residual:
++ *
++ * Internal function used by iucv_message_receive and __iucv_message_receive
++ * to receive RMDATA data stored in struct iucv_message.
++ */
++static int iucv_message_receive_iprmdata(struct iucv_path *path,
++					 struct iucv_message *msg,
++					 u8 flags, void *buffer,
++					 size_t size, size_t *residual)
++{
++	struct iucv_array *array;
++	u8 *rmmsg;
++	size_t copy;
 +
-+#ifdef CONFIG_FUNCTION_TRACER
-+EXPORT_SYMBOL(_mcount);
-+#endif
++	/*
++	 * Message is 8 bytes long and has been stored to the
++	 * message descriptor itself.
++	 */
++	if (residual)
++		*residual = abs(size - 8);
++	rmmsg = msg->rmmsg;
++	if (flags & IUCV_IPBUFLST) {
++		/* Copy to struct iucv_array. */
++		size = (size < 8) ? size : 8;
++		for (array = buffer; size > 0; array++) {
++			copy = min_t(size_t, size, array->length);
++			memcpy((u8 *)(addr_t) array->address,
++				rmmsg, copy);
++			rmmsg += copy;
++			size -= copy;
++		}
++	} else {
++		/* Copy to direct buffer. */
++		memcpy(buffer, rmmsg, min_t(size_t, size, 8));
++	}
++	return 0;
++}
++
++/**
++ * __iucv_message_receive
+  * @path: address of iucv path structure
+  * @msg: address of iucv msg structure
+  * @flags: how the message is received (IUCV_IPBUFLST)
+@@ -969,44 +1014,19 @@ EXPORT_SYMBOL(iucv_message_purge);
+  * established paths. This function will deal with RMDATA messages
+  * embedded in struct iucv_message as well.
+  *
++ * Locking:	no locking
++ *
+  * Returns the result from the CP IUCV call.
+  */
+-int iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
+-			 u8 flags, void *buffer, size_t size, size_t *residual)
++int __iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
++			   u8 flags, void *buffer, size_t size, size_t *residual)
+ {
+ 	union iucv_param *parm;
+-	struct iucv_array *array;
+-	u8 *rmmsg;
+-	size_t copy;
+ 	int rc;
+ 
+-	if (msg->flags & IUCV_IPRMDATA) {
+-		/*
+-		 * Message is 8 bytes long and has been stored to the
+-		 * message descriptor itself.
+-		 */
+-		rc = (size < 8) ? 5 : 0;
+-		if (residual)
+-			*residual = abs(size - 8);
+-		rmmsg = msg->rmmsg;
+-		if (flags & IUCV_IPBUFLST) {
+-			/* Copy to struct iucv_array. */
+-			size = (size < 8) ? size : 8;
+-			for (array = buffer; size > 0; array++) {
+-				copy = min_t(size_t, size, array->length);
+-				memcpy((u8 *)(addr_t) array->address,
+-				       rmmsg, copy);
+-				rmmsg += copy;
+-				size -= copy;
+-			}
+-		} else {
+-			/* Copy to direct buffer. */
+-			memcpy(buffer, rmmsg, min_t(size_t, size, 8));
+-		}
+-		return 0;
+-	}
+-
+-	local_bh_disable();
++	if (msg->flags & IUCV_IPRMDATA)
++		return iucv_message_receive_iprmdata(path, msg, flags,
++						     buffer, size, residual);
+ 	parm = iucv_param[smp_processor_id()];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	parm->db.ipbfadr1 = (u32)(addr_t) buffer;
+@@ -1022,6 +1042,37 @@ int iucv_message_receive(struct iucv_pat
+ 		if (residual)
+ 			*residual = parm->db.ipbfln1f;
+ 	}
++	return rc;
++}
++EXPORT_SYMBOL(__iucv_message_receive);
++
++/**
++ * iucv_message_receive
++ * @path: address of iucv path structure
++ * @msg: address of iucv msg structure
++ * @flags: how the message is received (IUCV_IPBUFLST)
++ * @buffer: address of data buffer or address of struct iucv_array
++ * @size: length of data buffer
++ * @residual:
++ *
++ * This function receives messages that are being sent to you over
++ * established paths. This function will deal with RMDATA messages
++ * embedded in struct iucv_message as well.
++ *
++ * Locking:	local_bh_enable/local_bh_disable
++ *
++ * Returns the result from the CP IUCV call.
++ */
++int iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
++			 u8 flags, void *buffer, size_t size, size_t *residual)
++{
++	int rc;
++
++	if (msg->flags & IUCV_IPRMDATA)
++		return iucv_message_receive_iprmdata(path, msg, flags,
++						     buffer, size, residual);
++	local_bh_disable();
++	rc = __iucv_message_receive(path, msg, flags, buffer, size, residual);
+ 	local_bh_enable();
+ 	return rc;
+ }
+@@ -1101,7 +1152,7 @@ int iucv_message_reply(struct iucv_path 
+ EXPORT_SYMBOL(iucv_message_reply);
+ 
+ /**
+- * iucv_message_send
++ * __iucv_message_send
+  * @path: address of iucv path structure
+  * @msg: address of iucv msg structure
+  * @flags: how the message is sent (IUCV_IPRMDATA, IUCV_IPPRTY, IUCV_IPBUFLST)
+@@ -1113,15 +1164,16 @@ EXPORT_SYMBOL(iucv_message_reply);
+  * transmitted is in a buffer and this is a one-way message and the
+  * receiver will not reply to the message.
+  *
++ * Locking:	no locking
++ *
+  * Returns the result from the CP IUCV call.
+  */
+-int iucv_message_send(struct iucv_path *path, struct iucv_message *msg,
++int __iucv_message_send(struct iucv_path *path, struct iucv_message *msg,
+ 		      u8 flags, u32 srccls, void *buffer, size_t size)
+ {
+ 	union iucv_param *parm;
+ 	int rc;
+ 
+-	local_bh_disable();
+ 	parm = iucv_param[smp_processor_id()];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	if (flags & IUCV_IPRMDATA) {
+@@ -1144,6 +1196,34 @@ int iucv_message_send(struct iucv_path *
+ 	rc = iucv_call_b2f0(IUCV_SEND, parm);
+ 	if (!rc)
+ 		msg->id = parm->db.ipmsgid;
++	return rc;
++}
++EXPORT_SYMBOL(__iucv_message_send);
++
++/**
++ * iucv_message_send
++ * @path: address of iucv path structure
++ * @msg: address of iucv msg structure
++ * @flags: how the message is sent (IUCV_IPRMDATA, IUCV_IPPRTY, IUCV_IPBUFLST)
++ * @srccls: source class of message
++ * @buffer: address of send buffer or address of struct iucv_array
++ * @size: length of send buffer
++ *
++ * This function transmits data to another application. Data to be
++ * transmitted is in a buffer and this is a one-way message and the
++ * receiver will not reply to the message.
++ *
++ * Locking:	local_bh_enable/local_bh_disable
++ *
++ * Returns the result from the CP IUCV call.
++ */
++int iucv_message_send(struct iucv_path *path, struct iucv_message *msg,
++		      u8 flags, u32 srccls, void *buffer, size_t size)
++{
++	int rc;
++
++	local_bh_disable();
++	rc = __iucv_message_send(path, msg, flags, srccls, buffer, size);
+ 	local_bh_enable();
+ 	return rc;
+ }
 
 -- 
 blue skies,
