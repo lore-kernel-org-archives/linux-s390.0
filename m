@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757652AbYK0Kyd@vger.kernel.org>
-Message-Id: <20081127103135.884464875@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757654AbYK0Kyw@vger.kernel.org>
+Message-Id: <20081127103134.526648779@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:30:49 +0100
+Date: Thu, 27 Nov 2008 11:30:44 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 29/60] Add processor type march=z10 and a processor type safety check.
-Content-Disposition: inline; filename=128-cpu-type-check.diff
+Subject: [patch 24/60] remove ptrace warning on 31 bit.
+Content-Disposition: inline; filename=123-ptrace-warnings.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,187 +14,63 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-This patch adds the code generation option for IBM System z10 and
-adds a check in head[31,64].S to prevents the execution of a kernel
-compiled for a new processor type on an old machine.
+A kernel compile on 31 bit gives the following warnings in ptrace.c:
+
+arch/s390/kernel/ptrace.c: In function 'peek_user':
+arch/s390/kernel/ptrace.c:207: warning: unused variable 'dummy'
+arch/s390/kernel/ptrace.c: In function 'poke_user':
+arch/s390/kernel/ptrace.c:315: warning: unused variable 'dummy'
+
+Getting rid of the dummy variables removes the warnings.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/Kconfig         |    8 +++++++
- arch/s390/Makefile        |    1 
- arch/s390/kernel/head.S   |   49 ++++++++++++++++++++++++++++++++++++++++++++++
- arch/s390/kernel/head31.S |   27 ++-----------------------
- arch/s390/kernel/head64.S |   23 ---------------------
- 5 files changed, 61 insertions(+), 47 deletions(-)
+ arch/s390/kernel/ptrace.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-Index: quilt-2.6/arch/s390/Kconfig
+Index: quilt-2.6/arch/s390/kernel/ptrace.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/Kconfig
-+++ quilt-2.6/arch/s390/Kconfig
-@@ -230,6 +230,14 @@ config MARCH_Z9_109
- 	  Class (z9 BC). The kernel will be slightly faster but will not
- 	  work on older machines such as the z990, z890, z900, and z800.
+--- quilt-2.6.orig/arch/s390/kernel/ptrace.c
++++ quilt-2.6/arch/s390/kernel/ptrace.c
+@@ -204,7 +204,6 @@ static unsigned long __peek_user(struct 
+ static int
+ peek_user(struct task_struct *child, addr_t addr, addr_t data)
+ {
+-	struct user *dummy = NULL;
+ 	addr_t tmp, mask;
  
-+config MARCH_Z10
-+	bool "IBM System z10"
-+	help
-+	  Select this to enable optimizations for IBM System z10. The
-+	  kernel will be slightly faster but will not work on older
-+	  machines such as the z990, z890, z900, z800, z9-109, z9-ec
-+	  and z9-bc.
-+
- endchoice
- 
- config PACK_STACK
-Index: quilt-2.6/arch/s390/kernel/head31.S
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/head31.S
-+++ quilt-2.6/arch/s390/kernel/head31.S
-@@ -10,34 +10,13 @@
-  *
-  */
- 
--#
--# startup-code at 0x10000, running in absolute addressing mode
--# this is called either by the ipl loader or directly by PSW restart
--# or linload or SALIPL
--#
--	.org	0x10000
--startup:basr	%r13,0			# get base
--.LPG0:	l	%r13,0f-.LPG0(%r13)
--	b	0(%r13)
--0:	.long	startup_continue
--
--#
--# params at 10400 (setup.h)
--#
--	.org	PARMAREA
--	.long	0,0			# IPL_DEVICE
--	.long	0,0			# INITRD_START
--	.long	0,0			# INITRD_SIZE
--
--	.org	COMMAND_LINE
--	.byte	"root=/dev/ram0 ro"
--	.byte	0
--
- 	.org	0x11000
- 
- startup_continue:
- 	basr	%r13,0			# get base
--.LPG1:	mvi	__LC_AR_MODE_ID,0	# set ESA flag (mode 0)
-+.LPG1:
-+
-+	mvi	__LC_AR_MODE_ID,0	# set ESA flag (mode 0)
- 	lctl	%c0,%c15,.Lctl-.LPG1(%r13) # load control registers
- 	l	%r12,.Lparmaddr-.LPG1(%r13) # pointer to parameter area
- 					# move IPL device to lowcore
-Index: quilt-2.6/arch/s390/kernel/head64.S
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/head64.S
-+++ quilt-2.6/arch/s390/kernel/head64.S
-@@ -10,29 +10,6 @@
-  *
-  */
- 
--#
--# startup-code at 0x10000, running in absolute addressing mode
--# this is called either by the ipl loader or directly by PSW restart
--# or linload or SALIPL
--#
--	.org	0x10000
--startup:basr	%r13,0			# get base
--.LPG0:	l	%r13,0f-.LPG0(%r13)
--	b	0(%r13)
--0:	.long	startup_continue
--
--#
--# params at 10400 (setup.h)
--#
--	.org	PARMAREA
--	.quad	0			# IPL_DEVICE
--	.quad	0			# INITRD_START
--	.quad	0			# INITRD_SIZE
--
--	.org	COMMAND_LINE
--	.byte	"root=/dev/ram0 ro"
--	.byte	0
--
- 	.org	0x11000
- 
- startup_continue:
-Index: quilt-2.6/arch/s390/kernel/head.S
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/head.S
-+++ quilt-2.6/arch/s390/kernel/head.S
-@@ -461,6 +461,55 @@ start:
- 	.byte 0xf0,0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7
- 	.byte 0xf8,0xf9,0xfa,0xfb,0xfc,0xfd,0xfe,0xff
- 
-+#
-+# startup-code at 0x10000, running in absolute addressing mode
-+# this is called either by the ipl loader or directly by PSW restart
-+# or linload or SALIPL
-+#
-+	.org	0x10000
-+startup:basr	%r13,0			# get base
-+.LPG0:
-+
-+#ifndef CONFIG_MARCH_G5
-+	# check processor version against MARCH_{G5,Z900,Z990,Z9_109,Z10}
-+	stidp	__LC_CPUID		# store cpuid
-+	lhi	%r0,(3f-2f) / 2
-+	la	%r1,2f-.LPG0(%r13)
-+0:	clc	__LC_CPUID+4(2),0(%r1)
-+	jne	3f
-+	lpsw	1f-.LPG0(13)		# machine type not good enough, crash
-+	.align 16
-+1:	.long	0x000a0000,0x00000000
-+2:
-+#if defined(CONFIG_MARCH_Z10)
-+	.short 0x9672, 0x2064, 0x2066, 0x2084, 0x2086, 0x2094, 0x2096
-+#elif defined(CONFIG_MARCH_Z9_109)
-+	.short 0x9672, 0x2064, 0x2066, 0x2084, 0x2086
-+#elif defined(CONFIG_MARCH_Z990)
-+	.short 0x9672, 0x2064, 0x2066
-+#elif defined(CONFIG_MARCH_Z900)
-+	.short 0x9672
-+#endif
-+3:	la	%r1,2(%r1)
-+	brct	%r0,0b
-+#endif
-+
-+	l	%r13,0f-.LPG0(%r13)
-+	b	0(%r13)
-+0:	.long	startup_continue
-+
-+#
-+# params at 10400 (setup.h)
-+#
-+	.org	PARMAREA
-+	.long	0,0			# IPL_DEVICE
-+	.long	0,0			# INITRD_START
-+	.long	0,0			# INITRD_SIZE
-+
-+	.org	COMMAND_LINE
-+	.byte	"root=/dev/ram0 ro"
-+	.byte	0
-+
+ 	/*
+@@ -213,8 +212,8 @@ peek_user(struct task_struct *child, add
+ 	 */
+ 	mask = __ADDR_MASK;
  #ifdef CONFIG_64BIT
- #include "head64.S"
- #else
-Index: quilt-2.6/arch/s390/Makefile
-===================================================================
---- quilt-2.6.orig/arch/s390/Makefile
-+++ quilt-2.6/arch/s390/Makefile
-@@ -34,6 +34,7 @@ cflags-$(CONFIG_MARCH_G5)   += $(call cc
- cflags-$(CONFIG_MARCH_Z900) += $(call cc-option,-march=z900)
- cflags-$(CONFIG_MARCH_Z990) += $(call cc-option,-march=z990)
- cflags-$(CONFIG_MARCH_Z9_109) += $(call cc-option,-march=z9-109)
-+cflags-$(CONFIG_MARCH_Z10) += $(call cc-option,-march=z10)
+-	if (addr >= (addr_t) &dummy->regs.acrs &&
+-	    addr < (addr_t) &dummy->regs.orig_gpr2)
++	if (addr >= (addr_t) &((struct user *) NULL)->regs.acrs &&
++	    addr < (addr_t) &((struct user *) NULL)->regs.orig_gpr2)
+ 		mask = 3;
+ #endif
+ 	if ((addr & mask) || addr > sizeof(struct user) - __ADDR_MASK)
+@@ -312,7 +311,6 @@ static int __poke_user(struct task_struc
+ static int
+ poke_user(struct task_struct *child, addr_t addr, addr_t data)
+ {
+-	struct user *dummy = NULL;
+ 	addr_t mask;
  
- #KBUILD_IMAGE is necessary for make rpm
- KBUILD_IMAGE	:=arch/s390/boot/image
+ 	/*
+@@ -321,8 +319,8 @@ poke_user(struct task_struct *child, add
+ 	 */
+ 	mask = __ADDR_MASK;
+ #ifdef CONFIG_64BIT
+-	if (addr >= (addr_t) &dummy->regs.acrs &&
+-	    addr < (addr_t) &dummy->regs.orig_gpr2)
++	if (addr >= (addr_t) &((struct user *) NULL)->regs.acrs &&
++	    addr < (addr_t) &((struct user *) NULL)->regs.orig_gpr2)
+ 		mask = 3;
+ #endif
+ 	if ((addr & mask) || addr > sizeof(struct user) - __ADDR_MASK)
 
 -- 
 blue skies,
