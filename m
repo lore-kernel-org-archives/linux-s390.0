@@ -1,262 +1,511 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754513AbYK0Kg1@vger.kernel.org>
-Message-Id: <20081127103132.238008874@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755450AbYK0Kgm@vger.kernel.org>
+Message-Id: <20081127103131.961528548@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:30:36 +0100
+Date: Thu, 27 Nov 2008 11:30:35 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 16/60] service level interface.
-Content-Disposition: inline; filename=115-service-levels.diff
+Subject: [patch 15/60] qdio: improve inbound buffer acknowledgement
+Content-Disposition: inline; filename=114-qdio-inbuffer.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Jan Glauber <jang@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Jan Glauber <jang@linux.vnet.ibm.com>
 
-Add a new proc interface /proc/service_levels that allows any code
-to report a relevant service level, e.g. the microcode level of 
-devices, the service level of the hypervisor, etc.
+- Use automatic acknowledgement of incoming buffers in QEBSM mode
+- Move ACK for non-QEBSM mode always to the newest buffer to prevent
+  a race with qdio_stop_polling
+- Remove the polling spinlock, the upper layer drivers return new buffers
+  in the same code path and could not run in parallel
+- Don't flood the error log in case of no-target-buffer-empty
+- In handle_inbound we check if we would overwrite an ACK'ed buffer, if so
+  advance the pointer to the oldest ACK'ed buffer so we don't overwrite an
+  empty buffer in qdio_stop_polling
 
+Signed-off-by: Jan Glauber <jang@linux.vnet.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/include/asm/sysinfo.h   |   11 +++
- drivers/s390/net/qeth_core.h      |    2 
- drivers/s390/net/qeth_core_main.c |   11 +++
- drivers/s390/sysinfo.c            |  127 +++++++++++++++++++++++++++++++++++++-
- 4 files changed, 149 insertions(+), 2 deletions(-)
+ drivers/s390/cio/qdio.h         |   19 ++--
+ drivers/s390/cio/qdio_debug.c   |    7 +
+ drivers/s390/cio/qdio_main.c    |  181 ++++++++++++++++++++++++++--------------
+ drivers/s390/cio/qdio_perf.c    |    2 
+ drivers/s390/cio/qdio_perf.h    |    1 
+ drivers/s390/cio/qdio_setup.c   |    1 
+ drivers/s390/cio/qdio_thinint.c |    2 
+ 7 files changed, 139 insertions(+), 74 deletions(-)
 
-Index: quilt-2.6/arch/s390/include/asm/sysinfo.h
+Index: quilt-2.6/drivers/s390/cio/qdio_debug.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/sysinfo.h
-+++ quilt-2.6/arch/s390/include/asm/sysinfo.h
-@@ -118,4 +118,15 @@ static inline int stsi(void *sysinfo, in
- 	return r0;
- }
+--- quilt-2.6.orig/drivers/s390/cio/qdio_debug.c
++++ quilt-2.6/drivers/s390/cio/qdio_debug.c
+@@ -60,16 +60,18 @@ static int qstat_show(struct seq_file *m
+ 	if (!q)
+ 		return 0;
  
-+/*
-+ * Service level reporting interface.
-+ */
-+struct service_level {
-+	struct list_head list;
-+	void (*seq_print)(struct seq_file *, struct service_level *);
-+};
-+
-+int register_service_level(struct service_level *);
-+int unregister_service_level(struct service_level *);
-+
- #endif /* __ASM_S390_SYSINFO_H */
-Index: quilt-2.6/drivers/s390/net/qeth_core.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/net/qeth_core.h
-+++ quilt-2.6/drivers/s390/net/qeth_core.h
-@@ -31,6 +31,7 @@
- #include <asm/qdio.h>
- #include <asm/ccwdev.h>
- #include <asm/ccwgroup.h>
-+#include <asm/sysinfo.h>
+-	seq_printf(m, "device state indicator: %d\n", *q->irq_ptr->dsci);
++	seq_printf(m, "device state indicator: %d\n", *(u32 *)q->irq_ptr->dsci);
+ 	seq_printf(m, "nr_used: %d\n", atomic_read(&q->nr_buf_used));
+ 	seq_printf(m, "ftc: %d\n", q->first_to_check);
+ 	seq_printf(m, "last_move_ftc: %d\n", q->last_move_ftc);
+ 	seq_printf(m, "polling: %d\n", q->u.in.polling);
++	seq_printf(m, "ack count: %d\n", q->u.in.ack_count);
+ 	seq_printf(m, "slsb buffer states:\n");
++	seq_printf(m, "|0      |8      |16     |24     |32     |40     |48     |56  63|\n");
  
- #include "qeth_core_mpc.h"
- 
-@@ -733,6 +734,7 @@ struct qeth_card {
- 	struct qeth_osn_info osn_info;
- 	struct qeth_discipline discipline;
- 	atomic_t force_alloc_skb;
-+	struct service_level qeth_service_level;
- };
- 
- struct qeth_card_list_struct {
-Index: quilt-2.6/drivers/s390/net/qeth_core_main.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/net/qeth_core_main.c
-+++ quilt-2.6/drivers/s390/net/qeth_core_main.c
-@@ -1138,6 +1138,14 @@ static int qeth_setup_card(struct qeth_c
+ 	qdio_siga_sync_q(q);
+ 	for (i = 0; i < QDIO_MAX_BUFFERS_PER_Q; i++) {
+-		get_buf_state(q, i, &state);
++		get_buf_state(q, i, &state, 0);
+ 		switch (state) {
+ 		case SLSB_P_INPUT_NOT_INIT:
+ 		case SLSB_P_OUTPUT_NOT_INIT:
+@@ -101,6 +103,7 @@ static int qstat_show(struct seq_file *m
+ 			seq_printf(m, "\n");
+ 	}
+ 	seq_printf(m, "\n");
++	seq_printf(m, "|64     |72     |80     |88     |96     |104    |112    |   127|\n");
  	return 0;
  }
  
-+static void qeth_core_sl_print(struct seq_file *m, struct service_level *slr)
-+{
-+	struct qeth_card *card = container_of(slr, struct qeth_card,
-+					qeth_service_level);
-+	seq_printf(m, "qeth: %s firmware level %s\n", CARD_BUS_ID(card),
-+			card->info.mcl_level);
-+}
-+
- static struct qeth_card *qeth_alloc_card(void)
- {
- 	struct qeth_card *card;
-@@ -1157,6 +1165,8 @@ static struct qeth_card *qeth_alloc_card
- 		return NULL;
- 	}
- 	card->options.layer2 = -1;
-+	card->qeth_service_level.seq_print = qeth_core_sl_print;
-+	register_service_level(&card->qeth_service_level);
- 	return card;
- }
- 
-@@ -3730,6 +3740,7 @@ static void qeth_core_free_card(struct q
- 		free_netdev(card->dev);
- 	kfree(card->ip_tbd_list);
- 	qeth_free_qdio_buffers(card);
-+	unregister_service_level(&card->qeth_service_level);
- 	kfree(card);
- }
- 
-Index: quilt-2.6/drivers/s390/sysinfo.c
+Index: quilt-2.6/drivers/s390/cio/qdio.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/sysinfo.c
-+++ quilt-2.6/drivers/s390/sysinfo.c
-@@ -1,17 +1,21 @@
- /*
-  *  drivers/s390/sysinfo.c
-  *
-- *    Copyright (C) 2001 IBM Deutschland Entwicklung GmbH, IBM Corporation
-- *    Author(s): Ulrich Weigand (Ulrich.Weigand@de.ibm.com)
-+ *  Copyright IBM Corp. 2001, 2008
-+ *  Author(s): Ulrich Weigand (Ulrich.Weigand@de.ibm.com)
-+ *	       Martin Schwidefsky <schwidefsky@de.ibm.com>
-  */
+--- quilt-2.6.orig/drivers/s390/cio/qdio.h
++++ quilt-2.6/drivers/s390/cio/qdio.h
+@@ -112,12 +112,12 @@ static inline int do_sqbs(u64 token, uns
+ }
  
- #include <linux/kernel.h>
- #include <linux/mm.h>
- #include <linux/proc_fs.h>
-+#include <linux/seq_file.h>
- #include <linux/init.h>
- #include <linux/delay.h>
-+#include <linux/module.h>
- #include <asm/ebcdic.h>
- #include <asm/sysinfo.h>
-+#include <asm/cpcmd.h>
- 
- /* Sigh, math-emu. Don't ask. */
- #include <asm/sfp-util.h>
-@@ -271,6 +275,125 @@ static __init int create_proc_sysinfo(vo
- 
- __initcall(create_proc_sysinfo);
- 
-+/*
-+ * Service levels interface.
-+ */
-+
-+static DECLARE_RWSEM(service_level_sem);
-+static LIST_HEAD(service_level_list);
-+
-+int register_service_level(struct service_level *slr)
-+{
-+	struct service_level *ptr;
-+
-+	down_write(&service_level_sem);
-+	list_for_each_entry(ptr, &service_level_list, list)
-+		if (ptr == slr) {
-+			up_write(&service_level_sem);
-+			return -EEXIST;
-+		}
-+	list_add_tail(&slr->list, &service_level_list);
-+	up_write(&service_level_sem);
-+	return 0;
-+}
-+EXPORT_SYMBOL(register_service_level);
-+
-+int unregister_service_level(struct service_level *slr)
-+{
-+	struct service_level *ptr, *next;
-+	int rc = -ENOENT;
-+
-+	down_write(&service_level_sem);
-+	list_for_each_entry_safe(ptr, next, &service_level_list, list) {
-+		if (ptr != slr)
-+			continue;
-+		list_del(&ptr->list);
-+		rc = 0;
-+		break;
-+	}
-+	up_write(&service_level_sem);
-+	return rc;
-+}
-+EXPORT_SYMBOL(unregister_service_level);
-+
-+static void *service_level_start(struct seq_file *m, loff_t *pos)
-+{
-+	down_read(&service_level_sem);
-+	return seq_list_start(&service_level_list, *pos);
-+}
-+
-+static void *service_level_next(struct seq_file *m, void *p, loff_t *pos)
-+{
-+	return seq_list_next(p, &service_level_list, pos);
-+}
-+
-+static void service_level_stop(struct seq_file *m, void *p)
-+{
-+	up_read(&service_level_sem);
-+}
-+
-+static int service_level_show(struct seq_file *m, void *p)
-+{
-+	struct service_level *slr;
-+
-+	slr = list_entry(p, struct service_level, list);
-+	slr->seq_print(m, slr);
-+	return 0;
-+}
-+
-+static const struct seq_operations service_level_seq_ops = {
-+	.start		= service_level_start,
-+	.next		= service_level_next,
-+	.stop		= service_level_stop,
-+	.show		= service_level_show
-+};
-+
-+static int service_level_open(struct inode *inode, struct file *file)
-+{
-+	return seq_open(file, &service_level_seq_ops);
-+}
-+
-+static const struct file_operations service_level_ops = {
-+	.open		= service_level_open,
-+	.read		= seq_read,
-+	.llseek 	= seq_lseek,
-+	.release	= seq_release
-+};
-+
-+static void service_level_vm_print(struct seq_file *m,
-+				   struct service_level *slr)
-+{
-+	char *query_buffer, *str;
-+
-+	query_buffer = kmalloc(1024, GFP_KERNEL | GFP_DMA);
-+	if (!query_buffer)
-+		return;
-+	cpcmd("QUERY CPLEVEL", query_buffer, 1024, NULL);
-+	str = strchr(query_buffer, '\n');
-+	if (str)
-+		*str = 0;
-+	seq_printf(m, "VM: %s\n", query_buffer);
-+	kfree(query_buffer);
-+}
-+
-+static struct service_level service_level_vm = {
-+	.seq_print = service_level_vm_print
-+};
-+
-+static __init int create_proc_service_level(void)
-+{
-+	proc_create("service_levels", 0, NULL, &service_level_ops);
-+	if (MACHINE_IS_VM)
-+		register_service_level(&service_level_vm);
-+	return 0;
-+}
-+
-+subsys_initcall(create_proc_service_level);
-+
-+/*
-+ * Bogomips calculation based on cpu capability.
-+ */
-+
- int get_cpu_capability(unsigned int *capability)
+ static inline int do_eqbs(u64 token, unsigned char *state, int queue,
+-			  int *start, int *count)
++			  int *start, int *count, int ack)
  {
- 	struct sysinfo_1_2_2 *info;
+ 	register unsigned long _ccq asm ("0") = *count;
+ 	register unsigned long _token asm ("1") = token;
+ 	unsigned long _queuestart = ((unsigned long)queue << 32) | *start;
+-	unsigned long _state = 0;
++	unsigned long _state = (unsigned long)ack << 63;
+ 
+ 	asm volatile(
+ 		"	.insn	rrf,0xB99c0000,%1,%2,0,0"
+@@ -134,7 +134,7 @@ static inline int do_eqbs(u64 token, uns
+ static inline int do_sqbs(u64 token, unsigned char state, int queue,
+ 			  int *start, int *count) { return 0; }
+ static inline int do_eqbs(u64 token, unsigned char *state, int queue,
+-			  int *start, int *count) { return 0; }
++			  int *start, int *count, int ack) { return 0; }
+ #endif /* CONFIG_64BIT */
+ 
+ struct qdio_irq;
+@@ -187,11 +187,11 @@ struct qdio_input_q {
+ 	/* input buffer acknowledgement flag */
+ 	int polling;
+ 
++	/* how much sbals are acknowledged with qebsm */
++	int ack_count;
++
+ 	/* last time of noticing incoming data */
+ 	u64 timestamp;
+-
+-	/* lock for clearing the acknowledgement */
+-	spinlock_t lock;
+ };
+ 
+ struct qdio_output_q {
+@@ -351,10 +351,13 @@ static inline unsigned long long get_use
+ 	((bufnr + 1) & QDIO_MAX_BUFFERS_MASK)
+ #define add_buf(bufnr, inc) \
+ 	((bufnr + inc) & QDIO_MAX_BUFFERS_MASK)
++#define sub_buf(bufnr, dec) \
++	((bufnr - dec) & QDIO_MAX_BUFFERS_MASK)
+ 
+ /* prototypes for thin interrupt */
+ void qdio_sync_after_thinint(struct qdio_q *q);
+-int get_buf_state(struct qdio_q *q, unsigned int bufnr, unsigned char *state);
++int get_buf_state(struct qdio_q *q, unsigned int bufnr, unsigned char *state,
++		  int auto_ack);
+ void qdio_check_outbound_after_thinint(struct qdio_q *q);
+ int qdio_inbound_q_moved(struct qdio_q *q);
+ void qdio_kick_inbound_handler(struct qdio_q *q);
+@@ -388,6 +391,8 @@ int qdio_setup_irq(struct qdio_initializ
+ void qdio_print_subchannel_info(struct qdio_irq *irq_ptr,
+ 				struct ccw_device *cdev);
+ void qdio_release_memory(struct qdio_irq *irq_ptr);
++int qdio_setup_create_sysfs(struct ccw_device *cdev);
++void qdio_setup_destroy_sysfs(struct ccw_device *cdev);
+ int qdio_setup_init(void);
+ void qdio_setup_exit(void);
+ 
+Index: quilt-2.6/drivers/s390/cio/qdio_main.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/qdio_main.c
++++ quilt-2.6/drivers/s390/cio/qdio_main.c
+@@ -112,12 +112,13 @@ static inline int qdio_check_ccq(struct 
+  * @state: state of the extracted buffers
+  * @start: buffer number to start at
+  * @count: count of buffers to examine
++ * @auto_ack: automatically acknowledge buffers
+  *
+  * Returns the number of successfull extracted equal buffer states.
+  * Stops processing if a state is different from the last buffers state.
+  */
+ static int qdio_do_eqbs(struct qdio_q *q, unsigned char *state,
+-			int start, int count)
++			int start, int count, int auto_ack)
+ {
+ 	unsigned int ccq = 0;
+ 	int tmp_count = count, tmp_start = start;
+@@ -130,7 +131,8 @@ static int qdio_do_eqbs(struct qdio_q *q
+ 	if (!q->is_input_q)
+ 		nr += q->irq_ptr->nr_input_qs;
+ again:
+-	ccq = do_eqbs(q->irq_ptr->sch_token, state, nr, &tmp_start, &tmp_count);
++	ccq = do_eqbs(q->irq_ptr->sch_token, state, nr, &tmp_start, &tmp_count,
++		      auto_ack);
+ 	rc = qdio_check_ccq(q, ccq);
+ 
+ 	/* At least one buffer was processed, return and extract the remaining
+@@ -176,6 +178,9 @@ static int qdio_do_sqbs(struct qdio_q *q
+ 	int nr = q->nr;
+ 	int rc;
+ 
++	if (!count)
++		return 0;
++
+ 	BUG_ON(!q->irq_ptr->sch_token);
+ 	qdio_perf_stat_inc(&perf_stats.debug_sqbs_all);
+ 
+@@ -203,7 +208,8 @@ again:
+ 
+ /* returns number of examined buffers and their common state in *state */
+ static inline int get_buf_states(struct qdio_q *q, unsigned int bufnr,
+-				 unsigned char *state, unsigned int count)
++				 unsigned char *state, unsigned int count,
++				 int auto_ack)
+ {
+ 	unsigned char __state = 0;
+ 	int i;
+@@ -212,7 +218,7 @@ static inline int get_buf_states(struct 
+ 	BUG_ON(count > QDIO_MAX_BUFFERS_PER_Q);
+ 
+ 	if (is_qebsm(q))
+-		return qdio_do_eqbs(q, state, bufnr, count);
++		return qdio_do_eqbs(q, state, bufnr, count, auto_ack);
+ 
+ 	for (i = 0; i < count; i++) {
+ 		if (!__state)
+@@ -226,9 +232,9 @@ static inline int get_buf_states(struct 
+ }
+ 
+ inline int get_buf_state(struct qdio_q *q, unsigned int bufnr,
+-		  unsigned char *state)
++		  unsigned char *state, int auto_ack)
+ {
+-	return get_buf_states(q, bufnr, state, 1);
++	return get_buf_states(q, bufnr, state, 1, auto_ack);
+ }
+ 
+ /* wrap-around safe setting of slsb states, returns number of changed buffers */
+@@ -376,29 +382,91 @@ void qdio_sync_after_thinint(struct qdio
+ 
+ inline void qdio_stop_polling(struct qdio_q *q)
+ {
+-	spin_lock_bh(&q->u.in.lock);
+-	if (!q->u.in.polling) {
+-		spin_unlock_bh(&q->u.in.lock);
++	if (!q->u.in.polling)
+ 		return;
+-	}
++
+ 	q->u.in.polling = 0;
+ 	qdio_perf_stat_inc(&perf_stats.debug_stop_polling);
+ 
+ 	/* show the card that we are not polling anymore */
+-	set_buf_state(q, q->last_move_ftc, SLSB_P_INPUT_NOT_INIT);
+-	spin_unlock_bh(&q->u.in.lock);
++	if (is_qebsm(q)) {
++		set_buf_states(q, q->last_move_ftc, SLSB_P_INPUT_NOT_INIT,
++			       q->u.in.ack_count);
++		q->u.in.ack_count = 0;
++	} else
++		set_buf_state(q, q->last_move_ftc, SLSB_P_INPUT_NOT_INIT);
+ }
+ 
+-static void announce_buffer_error(struct qdio_q *q)
++static void announce_buffer_error(struct qdio_q *q, int count)
+ {
++	q->qdio_error = QDIO_ERROR_SLSB_STATE;
++
++	/* special handling for no target buffer empty */
++	if ((!q->is_input_q &&
++	    (q->sbal[q->first_to_check]->element[15].flags & 0xff) == 0x10)) {
++		qdio_perf_stat_inc(&perf_stats.outbound_target_full);
++		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "OUTFULL FTC:%3d",
++			      q->first_to_check);
++		return;
++	}
++
+ 	DBF_ERROR("%4x BUF ERROR", SCH_NO(q));
+ 	DBF_ERROR((q->is_input_q) ? "IN:%2d" : "OUT:%2d", q->nr);
+-	DBF_ERROR("FTC:%3d", q->first_to_check);
++	DBF_ERROR("FTC:%3d C:%3d", q->first_to_check, count);
+ 	DBF_ERROR("F14:%2x F15:%2x",
+ 		  q->sbal[q->first_to_check]->element[14].flags & 0xff,
+ 		  q->sbal[q->first_to_check]->element[15].flags & 0xff);
++}
+ 
+-	q->qdio_error = QDIO_ERROR_SLSB_STATE;
++static inline void inbound_primed(struct qdio_q *q, int count)
++{
++	int new;
++
++	DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "in prim: %3d", count);
++
++	/* for QEBSM the ACK was already set by EQBS */
++	if (is_qebsm(q)) {
++		if (!q->u.in.polling) {
++			q->u.in.polling = 1;
++			q->u.in.ack_count = count;
++			q->last_move_ftc = q->first_to_check;
++			return;
++		}
++
++		/* delete the previous ACK's */
++		set_buf_states(q, q->last_move_ftc, SLSB_P_INPUT_NOT_INIT,
++			       q->u.in.ack_count);
++		q->u.in.ack_count = count;
++		q->last_move_ftc = q->first_to_check;
++		return;
++	}
++
++	/*
++	 * ACK the newest buffer. The ACK will be removed in qdio_stop_polling
++	 * or by the next inbound run.
++	 */
++	new = add_buf(q->first_to_check, count - 1);
++	if (q->u.in.polling) {
++		/* reset the previous ACK but first set the new one */
++		set_buf_state(q, new, SLSB_P_INPUT_ACK);
++		set_buf_state(q, q->last_move_ftc, SLSB_P_INPUT_NOT_INIT);
++	}
++	else {
++		q->u.in.polling = 1;
++		set_buf_state(q, q->first_to_check, SLSB_P_INPUT_ACK);
++	}
++
++	q->last_move_ftc = new;
++	count--;
++	if (!count)
++		return;
++
++	/*
++	 * Need to change all PRIMED buffers to NOT_INIT, otherwise
++	 * we're loosing initiative in the thinint code.
++	 */
++	set_buf_states(q, next_buf(q->first_to_check), SLSB_P_INPUT_NOT_INIT,
++		       count);
+ }
+ 
+ static int get_inbound_buffer_frontier(struct qdio_q *q)
+@@ -407,13 +475,6 @@ static int get_inbound_buffer_frontier(s
+ 	unsigned char state;
+ 
+ 	/*
+-	 * If we still poll don't update last_move_ftc, keep the
+-	 * previously ACK buffer there.
+-	 */
+-	if (!q->u.in.polling)
+-		q->last_move_ftc = q->first_to_check;
+-
+-	/*
+ 	 * Don't check 128 buffers, as otherwise qdio_inbound_q_moved
+ 	 * would return 0.
+ 	 */
+@@ -433,34 +494,13 @@ check_next:
+ 	if (q->first_to_check == stop)
+ 		goto out;
+ 
+-	count = get_buf_states(q, q->first_to_check, &state, count);
++	count = get_buf_states(q, q->first_to_check, &state, count, 1);
+ 	if (!count)
+ 		goto out;
+ 
+ 	switch (state) {
+ 	case SLSB_P_INPUT_PRIMED:
+-		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "in prim: %3d", count);
+-
+-		/*
+-		 * Only ACK the first buffer. The ACK will be removed in
+-		 * qdio_stop_polling.
+-		 */
+-		if (q->u.in.polling)
+-			state = SLSB_P_INPUT_NOT_INIT;
+-		else {
+-			q->u.in.polling = 1;
+-			state = SLSB_P_INPUT_ACK;
+-		}
+-		set_buf_state(q, q->first_to_check, state);
+-
+-		/*
+-		 * Need to change all PRIMED buffers to NOT_INIT, otherwise
+-		 * we're loosing initiative in the thinint code.
+-		 */
+-		if (count > 1)
+-			set_buf_states(q, next_buf(q->first_to_check),
+-				       SLSB_P_INPUT_NOT_INIT, count - 1);
+-
++		inbound_primed(q, count);
+ 		/*
+ 		 * No siga-sync needed for non-qebsm here, as the inbound queue
+ 		 * will be synced on the next siga-r, resp.
+@@ -470,7 +510,7 @@ check_next:
+ 		atomic_sub(count, &q->nr_buf_used);
+ 		goto check_next;
+ 	case SLSB_P_INPUT_ERROR:
+-		announce_buffer_error(q);
++		announce_buffer_error(q, count);
+ 		/* process the buffer, the upper layer will take care of it */
+ 		q->first_to_check = add_buf(q->first_to_check, count);
+ 		atomic_sub(count, &q->nr_buf_used);
+@@ -519,7 +559,7 @@ static int qdio_inbound_q_done(struct qd
+ 	 */
+ 	qdio_siga_sync_q(q);
+ 
+-	get_buf_state(q, q->first_to_check, &state);
++	get_buf_state(q, q->first_to_check, &state, 0);
+ 	if (state == SLSB_P_INPUT_PRIMED)
+ 		/* we got something to do */
+ 		return 0;
+@@ -622,7 +662,7 @@ check_next:
+ 	if (q->first_to_check == stop)
+ 		return q->first_to_check;
+ 
+-	count = get_buf_states(q, q->first_to_check, &state, count);
++	count = get_buf_states(q, q->first_to_check, &state, count, 0);
+ 	if (!count)
+ 		return q->first_to_check;
+ 
+@@ -641,7 +681,7 @@ check_next:
+ 			break;
+ 		goto check_next;
+ 	case SLSB_P_OUTPUT_ERROR:
+-		announce_buffer_error(q);
++		announce_buffer_error(q, count);
+ 		/* process the buffer, the upper layer will take care of it */
+ 		q->first_to_check = add_buf(q->first_to_check, count);
+ 		atomic_sub(count, &q->nr_buf_used);
+@@ -1457,23 +1497,38 @@ static inline int buf_in_between(int buf
+ static void handle_inbound(struct qdio_q *q, unsigned int callflags,
+ 			   int bufnr, int count)
+ {
+-	unsigned long flags;
+-	int used, rc;
++	int used, rc, diff;
+ 
+-	/*
+-	 * do_QDIO could run in parallel with the queue tasklet so the
+-	 * upper-layer programm could empty the ACK'ed buffer here.
+-	 * If that happens we must clear the polling flag, otherwise
+-	 * qdio_stop_polling() could set the buffer to NOT_INIT after
+-	 * it was set to EMPTY which would kill us.
+-	 */
+-	spin_lock_irqsave(&q->u.in.lock, flags);
+-	if (q->u.in.polling)
+-		if (buf_in_between(q->last_move_ftc, bufnr, count))
++	if (!q->u.in.polling)
++		goto set;
++
++	/* protect against stop polling setting an ACK for an emptied slsb */
++	if (count == QDIO_MAX_BUFFERS_PER_Q) {
++		/* overwriting everything, just delete polling status */
++		q->u.in.polling = 0;
++		q->u.in.ack_count = 0;
++		goto set;
++	} else if (buf_in_between(q->last_move_ftc, bufnr, count)) {
++		if (is_qebsm(q)) {
++			/* partial overwrite, just update last_move_ftc */
++			diff = add_buf(bufnr, count);
++			diff = sub_buf(diff, q->last_move_ftc);
++			q->u.in.ack_count -= diff;
++			if (q->u.in.ack_count <= 0) {
++				q->u.in.polling = 0;
++				q->u.in.ack_count = 0;
++				/* TODO: must we set last_move_ftc to something meaningful? */
++				goto set;
++			}
++			q->last_move_ftc = add_buf(q->last_move_ftc, diff);
++		}
++		else
++			/* the only ACK will be deleted, so stop polling */
+ 			q->u.in.polling = 0;
++	}
+ 
++set:
+ 	count = set_buf_states(q, bufnr, SLSB_CU_INPUT_EMPTY, count);
+-	spin_unlock_irqrestore(&q->u.in.lock, flags);
+ 
+ 	used = atomic_add_return(count, &q->nr_buf_used) - count;
+ 	BUG_ON(used + count > QDIO_MAX_BUFFERS_PER_Q);
+@@ -1541,7 +1596,7 @@ static void handle_outbound(struct qdio_
+ 	}
+ 
+ 	/* try to fast requeue buffers */
+-	get_buf_state(q, prev_buf(bufnr), &state);
++	get_buf_state(q, prev_buf(bufnr), &state, 0);
+ 	if (state != SLSB_CU_OUTPUT_PRIMED)
+ 		qdio_kick_outbound_q(q);
+ 	else {
+Index: quilt-2.6/drivers/s390/cio/qdio_perf.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/qdio_perf.c
++++ quilt-2.6/drivers/s390/cio/qdio_perf.c
+@@ -74,6 +74,8 @@ static int qdio_perf_proc_show(struct se
+ 	seq_printf(m, "\n");
+ 	seq_printf(m, "Number of fast requeues (outg. SBAL w/o SIGA)\t: %li\n",
+ 		   (long)atomic_long_read(&perf_stats.fast_requeue));
++	seq_printf(m, "Number of outbound target full condition\t: %li\n",
++		   (long)atomic_long_read(&perf_stats.outbound_target_full));
+ 	seq_printf(m, "Number of outbound tasklet mod_timer calls\t: %li\n",
+ 		   (long)atomic_long_read(&perf_stats.debug_tl_out_timer));
+ 	seq_printf(m, "Number of stop polling calls\t\t\t: %li\n",
+Index: quilt-2.6/drivers/s390/cio/qdio_perf.h
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/qdio_perf.h
++++ quilt-2.6/drivers/s390/cio/qdio_perf.h
+@@ -36,6 +36,7 @@ struct qdio_perf_stats {
+ 	atomic_long_t inbound_handler;
+ 	atomic_long_t outbound_handler;
+ 	atomic_long_t fast_requeue;
++	atomic_long_t outbound_target_full;
+ 
+ 	/* for debugging */
+ 	atomic_long_t debug_tl_out_timer;
+Index: quilt-2.6/drivers/s390/cio/qdio_setup.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/qdio_setup.c
++++ quilt-2.6/drivers/s390/cio/qdio_setup.c
+@@ -167,7 +167,6 @@ static void setup_queues(struct qdio_irq
+ 		setup_queues_misc(q, irq_ptr, qdio_init->input_handler, i);
+ 
+ 		q->is_input_q = 1;
+-		spin_lock_init(&q->u.in.lock);
+ 		setup_storage_lists(q, irq_ptr, input_sbal_array, i);
+ 		input_sbal_array += QDIO_MAX_BUFFERS_PER_Q;
+ 
+Index: quilt-2.6/drivers/s390/cio/qdio_thinint.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/qdio_thinint.c
++++ quilt-2.6/drivers/s390/cio/qdio_thinint.c
+@@ -131,7 +131,7 @@ static inline int tiqdio_inbound_q_done(
+ 		return 1;
+ 
+ 	qdio_siga_sync_q(q);
+-	get_buf_state(q, q->first_to_check, &state);
++	get_buf_state(q, q->first_to_check, &state, 0);
+ 
+ 	if (state == SLSB_P_INPUT_PRIMED)
+ 		/* more work coming */
 
 -- 
 blue skies,
