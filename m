@@ -1,119 +1,172 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756713AbYK0KpZ@vger.kernel.org>
-Message-Id: <20081127103139.834503797@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757123AbYK0Kpt@vger.kernel.org>
+Message-Id: <20081127103140.111751673@de.ibm.com>
 References: <20081127103020.528516828@de.ibm.com>
-Date: Thu, 27 Nov 2008 11:31:03 +0100
+Date: Thu, 27 Nov 2008 11:31:04 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 43/60] convert hypfs printks to pr_xxx macros.
-Content-Disposition: inline; filename=158-kmsg-hypfs.diff
+Subject: [patch 44/60] convert setup printks to pr_xxx macros.
+Content-Disposition: inline; filename=159-kmsg-setup.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Michael Holzheu <holzheu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Holzheu <holzheu@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/hypfs/hypfs_diag.c |   10 +++++++---
- arch/s390/hypfs/inode.c      |   14 ++++++++------
- 2 files changed, 15 insertions(+), 9 deletions(-)
+ arch/s390/kernel/setup.c |   72 ++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 46 insertions(+), 26 deletions(-)
 
-Index: quilt-2.6/arch/s390/hypfs/hypfs_diag.c
+Index: quilt-2.6/arch/s390/kernel/setup.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/hypfs/hypfs_diag.c
-+++ quilt-2.6/arch/s390/hypfs/hypfs_diag.c
-@@ -3,10 +3,13 @@
-  *    Hypervisor filesystem for Linux on s390. Diag 204 and 224
-  *    implementation.
-  *
-- *    Copyright (C) IBM Corp. 2006
-+ *    Copyright IBM Corp. 2006, 2008
-  *    Author(s): Michael Holzheu <holzheu@de.ibm.com>
+--- quilt-2.6.orig/arch/s390/kernel/setup.c
++++ quilt-2.6/arch/s390/kernel/setup.c
+@@ -14,6 +14,9 @@
+  * This file handles the architecture-dependent parts of initialization
   */
  
-+#define KMSG_COMPONENT "hypfs"
++#define KMSG_COMPONENT "setup"
 +#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
 +
- #include <linux/types.h>
  #include <linux/errno.h>
- #include <linux/string.h>
-@@ -527,13 +530,14 @@ __init int hypfs_diag_init(void)
- 	int rc;
+ #include <linux/module.h>
+ #include <linux/sched.h>
+@@ -291,8 +294,8 @@ unsigned int switch_amode = 0;
+ #endif
+ EXPORT_SYMBOL_GPL(switch_amode);
  
- 	if (diag204_probe()) {
--		printk(KERN_ERR "hypfs: diag 204 not working.");
-+		pr_err("The hardware system does not support hypfs\n");
- 		return -ENODATA;
+-static void set_amode_and_uaccess(unsigned long user_amode,
+-				  unsigned long user32_amode)
++static int set_amode_and_uaccess(unsigned long user_amode,
++				 unsigned long user32_amode)
+ {
+ 	psw_user_bits = PSW_BASE_BITS | PSW_MASK_DAT | user_amode |
+ 			PSW_MASK_IO | PSW_MASK_EXT | PSW_MASK_MCHECK |
+@@ -309,11 +312,11 @@ static void set_amode_and_uaccess(unsign
+ 			  PSW_MASK_MCHECK | PSW_DEFAULT_KEY;
+ 
+ 	if (MACHINE_HAS_MVCOS) {
+-		printk("mvcos available.\n");
+ 		memcpy(&uaccess, &uaccess_mvcos_switch, sizeof(uaccess));
++		return 1;
+ 	} else {
+-		printk("mvcos not available.\n");
+ 		memcpy(&uaccess, &uaccess_pt, sizeof(uaccess));
++		return 0;
  	}
- 	rc = diag224_get_name_table();
- 	if (rc) {
- 		diag204_free_buffer();
--		printk(KERN_ERR "hypfs: could not get name table.\n");
-+		pr_err("The hardware system does not provide all "
-+		       "functions required by hypfs\n");
- 	}
- 	return rc;
  }
-Index: quilt-2.6/arch/s390/hypfs/inode.c
-===================================================================
---- quilt-2.6.orig/arch/s390/hypfs/inode.c
-+++ quilt-2.6/arch/s390/hypfs/inode.c
-@@ -2,10 +2,13 @@
-  *  arch/s390/hypfs/inode.c
-  *    Hypervisor filesystem for Linux on s390.
-  *
-- *    Copyright (C) IBM Corp. 2006
-+ *    Copyright IBM Corp. 2006, 2008
-  *    Author(s): Michael Holzheu <holzheu@de.ibm.com>
-  */
  
-+#define KMSG_COMPONENT "hypfs"
-+#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
-+
- #include <linux/types.h>
- #include <linux/errno.h>
- #include <linux/fs.h>
-@@ -200,7 +203,7 @@ static ssize_t hypfs_aio_write(struct ki
- 	else
- 		rc = hypfs_diag_create_files(sb, sb->s_root);
- 	if (rc) {
--		printk(KERN_ERR "hypfs: Update failed\n");
-+		pr_err("Updating the hypfs tree failed\n");
- 		hypfs_delete_tree(sb->s_root);
- 		goto out;
+@@ -328,9 +331,10 @@ static int __init early_parse_switch_amo
+ early_param("switch_amode", early_parse_switch_amode);
+ 
+ #else /* CONFIG_S390_SWITCH_AMODE */
+-static inline void set_amode_and_uaccess(unsigned long user_amode,
+-					 unsigned long user32_amode)
++static inline int set_amode_and_uaccess(unsigned long user_amode,
++					unsigned long user32_amode)
+ {
++	return 0;
+ }
+ #endif /* CONFIG_S390_SWITCH_AMODE */
+ 
+@@ -355,11 +359,20 @@ early_param("noexec", early_parse_noexec
+ static void setup_addressing_mode(void)
+ {
+ 	if (s390_noexec) {
+-		printk("S390 execute protection active, ");
+-		set_amode_and_uaccess(PSW_ASC_SECONDARY, PSW32_ASC_SECONDARY);
++		if (set_amode_and_uaccess(PSW_ASC_SECONDARY,
++					  PSW32_ASC_SECONDARY))
++			pr_info("Execute protection active, "
++				"mvcos available\n");
++		else
++			pr_info("Execute protection active, "
++				"mvcos not available\n");
+ 	} else if (switch_amode) {
+-		printk("S390 address spaces switched, ");
+-		set_amode_and_uaccess(PSW_ASC_PRIMARY, PSW32_ASC_PRIMARY);
++		if (set_amode_and_uaccess(PSW_ASC_PRIMARY, PSW32_ASC_PRIMARY))
++			pr_info("Address spaces switched, "
++				"mvcos available\n");
++		else
++			pr_info("Address spaces switched, "
++				"mvcos not available\n");
  	}
-@@ -252,8 +255,7 @@ static int hypfs_parse_options(char *opt
- 			break;
- 		case opt_err:
- 		default:
--			printk(KERN_ERR "hypfs: Unrecognized mount option "
--			       "\"%s\" or missing value\n", str);
-+			pr_err("%s is not a valid mount option\n", str);
- 			return -EINVAL;
+ #ifdef CONFIG_TRACE_IRQFLAGS
+ 	sysc_restore_trace_psw.mask = psw_kernel_bits & ~PSW_MASK_MCHECK;
+@@ -572,15 +585,15 @@ setup_memory(void)
+ 			start = PFN_PHYS(start_pfn) + bmap_size + PAGE_SIZE;
+ 
+ 			if (start + INITRD_SIZE > memory_end) {
+-				printk("initrd extends beyond end of memory "
+-				       "(0x%08lx > 0x%08lx)\n"
++				pr_err("initrd extends beyond end of "
++				       "memory (0x%08lx > 0x%08lx) "
+ 				       "disabling initrd\n",
+ 				       start + INITRD_SIZE, memory_end);
+ 				INITRD_START = INITRD_SIZE = 0;
+ 			} else {
+-				printk("Moving initrd (0x%08lx -> 0x%08lx, "
+-				       "size: %ld)\n",
+-				       INITRD_START, start, INITRD_SIZE);
++				pr_info("Moving initrd (0x%08lx -> "
++					"0x%08lx, size: %ld)\n",
++					INITRD_START, start, INITRD_SIZE);
+ 				memmove((void *) start, (void *) INITRD_START,
+ 					INITRD_SIZE);
+ 				INITRD_START = start;
+@@ -642,8 +655,9 @@ setup_memory(void)
+ 			initrd_start = INITRD_START;
+ 			initrd_end = initrd_start + INITRD_SIZE;
+ 		} else {
+-			printk("initrd extends beyond end of memory "
+-			       "(0x%08lx > 0x%08lx)\ndisabling initrd\n",
++			pr_err("initrd extends beyond end of "
++			       "memory (0x%08lx > 0x%08lx) "
++			       "disabling initrd\n",
+ 			       initrd_start + INITRD_SIZE, memory_end);
+ 			initrd_start = initrd_end = 0;
  		}
- 	}
-@@ -317,7 +319,7 @@ static int hypfs_fill_super(struct super
- 	}
- 	hypfs_update_update(sb);
- 	sb->s_root = root_dentry;
--	printk(KERN_INFO "hypfs: Hypervisor filesystem mounted\n");
-+	pr_info("Hypervisor filesystem mounted\n");
- 	return 0;
+@@ -744,21 +758,27 @@ setup_arch(char **cmdline_p)
+          * print what head.S has found out about the machine
+          */
+ #ifndef CONFIG_64BIT
+-	printk((MACHINE_IS_VM) ?
+-	       "We are running under VM (31 bit mode)\n" :
+-	       "We are running native (31 bit mode)\n");
+-	printk((MACHINE_HAS_IEEE) ?
+-	       "This machine has an IEEE fpu\n" :
+-	       "This machine has no IEEE fpu\n");
++	if (MACHINE_IS_VM)
++		pr_info("Linux is running as a z/VM "
++			"guest operating system in 31-bit mode\n");
++	else
++		pr_info("Linux is running natively in 31-bit mode\n");
++	if (MACHINE_HAS_IEEE)
++		pr_info("The hardware system has IEEE compatible "
++			"floating point units\n");
++	else
++		pr_info("The hardware system has no IEEE compatible "
++			"floating point units\n");
+ #else /* CONFIG_64BIT */
+ 	if (MACHINE_IS_VM)
+-		printk("We are running under VM (64 bit mode)\n");
++		pr_info("Linux is running as a z/VM "
++			"guest operating system in 64-bit mode\n");
+ 	else if (MACHINE_IS_KVM) {
+-		printk("We are running under KVM (64 bit mode)\n");
++		pr_info("Linux is running under KVM in 64-bit mode\n");
+ 		add_preferred_console("hvc", 0, NULL);
+ 		s390_virtio_console_init();
+ 	} else
+-		printk("We are running native (64 bit mode)\n");
++		pr_info("Linux is running natively in 64-bit mode\n");
+ #endif /* CONFIG_64BIT */
  
- err_tree:
-@@ -513,7 +515,7 @@ fail_sysfs:
- 	if (!MACHINE_IS_VM)
- 		hypfs_diag_exit();
- fail_diag:
--	printk(KERN_ERR "hypfs: Initialization failed with rc = %i.\n", rc);
-+	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
- 	return rc;
- }
- 
+ 	/* Have one command line that is parsed and saved in /proc/cmdline */
 
 -- 
 blue skies,
