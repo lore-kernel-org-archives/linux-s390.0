@@ -1,29 +1,17 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: Re: [PATCH next] s390_net: Kill directly reference of netdev->priv
-Date: Tue, 09 Dec 2008 13:57:11 +0100
-Message-ID: <AB3A303572A710393B461DD8@L3k9049.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: wangchen@cn.fujitsu.com
-Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+From: Ursula Braun <ursula.braun@de.ibm.com>
+Date: Mon, 01 Dec 2008 09:09:19 +0000
+Subject: [patch 0/3] af_iucv patches for net-2.6.28
+Message-Id: <20081201090919.640453000@linux.vnet.ibm.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Wang Chen <wangchen@cn.fujitsu.com>
-Date: Fri, 05 Dec 2008 23:09:55 +0800
+-- 
+Dave,
 
-> The private data comes from ccwgroup_device.
-> So just don't allocate private data memory when do alloc_netdev()
-> and use netdev->ml_priv to reference private data.
->
-> Not do compile-test. Because have no s390 box.
->
-> Signed-off-by: Wang Chen <wangchen@cn.fujitsu.com>
-Acked-by: Ursula Braun <ursula.braun@de.ibm.com>
+the following 3 af_iucv patches are intended for 2.6.28.
+They contain:
+- adding of af_iucv debugging support
+- detailled error handling for iucv_path_connect
+- cleanup improvement after connect failures
 
-We run an additional test on our s390 box. Thanks!
+Thanks and regards, Ursula
