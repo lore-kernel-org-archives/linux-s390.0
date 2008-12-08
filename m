@@ -1,43 +1,31 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 1/1] zfcp: prevent double decrement on host_busy while being busy
-Date: Thu, 27 Nov 2008 11:44:07 +0100
-Message-ID: <20081127104636.259206000@de.ibm.com>
-References: <20081127104406.090179000@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=711-zfcp-decrement.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Swen Schillig <swen@vnet.ibm.com>, Christof Schmitt <christof.schmitt@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753128AbYLHJH0@vger.kernel.org>
+Subject: Re: [PATCH 1/2] drivers/s390/crypto: Move dereference to after
+	IS_ERR test
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+In-Reply-To: <Pine.LNX.4.64.0812072314270.7130@ask.diku.dk>
+References: <Pine.LNX.4.64.0812072314270.7130@ask.diku.dk>
+Content-Type: text/plain
+Date: Mon, 08 Dec 2008 10:06:29 +0100
+Message-Id: <1228727189.15048.1.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Julia Lawall <julia@diku.dk>
+Cc: heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Swen Schillig <swen@vnet.ibm.com>
+On Sun, 2008-12-07 at 23:14 +0100, Julia Lawall wrote:
+> If reply is ERR_PTR(...), then it should not be dereferenced, so I have
+> moved the dereference from the declaration to after the IS_ERR test.
 
-The zfcp_scsi_queuecommand was not acting according to the standard
-when the respective unit was not available. In this case an -EBUSY was
-returned, which is not valid in itself, and in addition scsi_done
-was called. This combination is not allowed and was leading to a
-double finish of the request and therefor double decrement of the
-host_busy counter.
-
-Signed-off-by: Swen Schillig <swen@vnet.ibm.com>
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
----
-
- drivers/s390/scsi/zfcp_scsi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/drivers/s390/scsi/zfcp_scsi.c	2008-11-26 17:21:58.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_scsi.c	2008-11-27 10:58:30.000000000 +0100
-@@ -88,7 +88,7 @@ static int zfcp_scsi_queuecommand(struct
- 	ret = zfcp_fsf_send_fcp_command_task(adapter, unit, scpnt, 0,
- 					     ZFCP_REQ_AUTO_CLEANUP);
- 	if (unlikely(ret == -EBUSY))
--		zfcp_scsi_command_fail(scpnt, DID_NO_CONNECT);
-+		return SCSI_MLQUEUE_DEVICE_BUSY;
- 	else if (unlikely(ret < 0))
- 		return SCSI_MLQUEUE_HOST_BUSY;
- 
+Nice finding again. That semantic match tools is really useful.
+Thanks, I'll add the patch to my collection.
 
 -- 
+blue skies,
+  Martin.
+
+"Reality continues to ruin my life." - Calvin.
