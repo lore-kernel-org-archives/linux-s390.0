@@ -1,32 +1,47 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 0/4] s390: qeth fixes 2.6.29
-Date: Thu, 11 Dec 2008 14:23:09 +0100
-Message-ID: <20081211132309.053505000@de.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/4] s390: qeth fixes 2.6.29
+Date: Mon, 15 Dec 2008 00:46:07 -0800 (PST)
+Message-ID: <20081215.004607.228873135.davem@davemloft.net>
+References: <20081211132309.053505000@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20081211132309.053505000@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: jgarzik@pobox.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: frank.blaschka@de.ibm.com
+Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Jeff,
+From: frank.blaschka@de.ibm.com
+Date: Thu, 11 Dec 2008 14:23:09 +0100
 
-here are some fixes for 2.6.29
-The patches apply to linux-next
+> here are some fixes for 2.6.29
+> The patches apply to linux-next
 
-shortlog:
-Klaus Wacker (1)
-qeth: HiperSockets mcl string conversion (pre z9 mach)
+They do not apply to net-next-2.6, as just one example patch #2 has
+part of the patch saying:
 
-Ursula Braun (2)
-qeth: exploit source MAC address for inbound layer3 packets
-qeth: avoid crash in case of layer mismatch for VSWITCH
+@@ -1207,12 +1207,9 @@ static int qeth_l3_start_ipa_source_mac(
+ 
+ 	QETH_DBF_TEXT(TRACE, 3, "stsrcmac");
+ 
+-	if (!card->options.fake_ll)
+-		return -EOPNOTSUPP;
+-
+ 	if (!qeth_is_supported(card, IPA_SOURCE_MAC)) {
+ 		dev_info(&card->gdev->dev,
+-			"Inbound source address not supported on %s\n",
++			"Inbound source MAC-address not supported on %s\n",
+ 			QETH_CARD_IFNAME(card));
+ 		return -EOPNOTSUPP;
+ 	}
 
-Frank Blaschka (1)
-qeth: do not spin for SETIP ip assist command
+Yet that "dev_info" is a PRINT_INFO in the net-next-2.6 tree.
 
-Thanks,
-        Frank
+Please resend patches which apply cleanly to my tree and I'll apply
+them.
 
--- 
+Thank you.
