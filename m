@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758561AbYLLJ57@vger.kernel.org>
-Subject: Re: [PATCH 4/4] s390: remove s390_root_dev_*()
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-In-Reply-To: <1229075116.28887.4.camel@localhost>
-References: <1229012203.7968.79.camel@blaa>
-	 <1229012216-4211-1-git-send-email-markmc@redhat.com>
-	 <1229012216-4211-2-git-send-email-markmc@redhat.com>
-	 <1229012216-4211-3-git-send-email-markmc@redhat.com>
-	 <1229012216-4211-4-git-send-email-markmc@redhat.com>
-	 <20081211180025.045b9b4a@gondolin>  <20081212102951.01446f22@gondolin>
-	 <1229074546.4041.8.camel@blaa>  <1229075116.28887.4.camel@localhost>
-Content-Type: text/plain
-Date: Fri, 12 Dec 2008 10:54:05 +0100
-Message-Id: <1229075645.28887.10.camel@localhost>
+From: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Subject: Re: [BUILD-FAILURE] next-20081217-s390x-'struct device' has no
+	member named 'knode_parent'
+Date: Thu, 18 Dec 2008 22:47:08 +0530
+Message-ID: <20081218171708.GA28135@linux.vnet.ibm.com>
+References: <20081217232536.0b18f4a7.sfr@canb.auug.org.au> <20081217181745.GA18420@linux.vnet.ibm.com> <1229593665.7086.1.camel@localhost>
+Reply-To: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Mark McLoughlin <markmc@redhat.com>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>, Anthony Liguori <aliguori@us.ibm.com>, Kay Sievers <kay.sievers@vrfy.org>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+Content-Type: text/plain; charset=iso-8859-1
+Return-path: <linux-next-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1229593665.7086.1.camel@localhost>
+Sender: linux-next-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 2008-12-12 at 10:45 +0100, Martin Schwidefsky wrote:
-> On Fri, 2008-12-12 at 09:35 +0000, Mark McLoughlin wrote:
-> > From: Mark McLoughlin <markmc@redhat.com>
-> > Subject: [PATCH] s390: remove s390_root_dev_*()
-> > 
-> > Replace s390_root_dev_register() with root_device_register() etc.
-> > 
-> > [Includes fix from Cornelia Huck]
-> > 
-> > Signed-off-by: Mark McLoughlin <markmc@redhat.com>
-> 
-> I can carry the patch in my patch queue. Thanks.
+* Martin Schwidefsky <schwidefsky@de.ibm.com> [2008-12-18 10:47:45]:
 
-Oops, this depends on another patch. If the other patch is missing it
-doesn't compile.. So I better not add that patch to my queue. It should
-be sent together with the patch it depends on.
+> On Wed, 2008-12-17 at 23:47 +0530, Kamalesh Babulal wrote:
+> > drivers/s390/cio/device.c: In function 'io_subchannel_register':
+> > drivers/s390/cio/device.c:913: error: 'struct device' has no member
+> > named 'knode_parent'
+> > make[2]: *** [drivers/s390/cio/device.o] Error 1
+> > make[1]: *** [drivers/s390/cio] Error 2
+> > make: *** [drivers/s390] Error 2
+> 
+> Should be fixed now by the following patch from Cornelia:
+> 
+> commit efe46b59567ae999ff7d344170d21f093159ad80
+> Author: Cornelia Huck <cornelia.huck@de.ibm.com>
+> Date:   Thu Dec 18 10:26:55 2008 +0100
+> 
+>     [S390] cio: Use device_is_registered().
+> 
+>     Check if a ccw device is registered via device_is_registered()
+>     and not via the old kludge of checking the membership in driver
+>     core internal klists.
+> 
+>     Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+>     Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> 
+> You'll find the fix in the features branch of git390 which will be
+> included in the next linux-next kernel.
+
+Hi Martin,
+
+	Thanks, the patch fixes the build failure.I tested the patch with
+today's next (20081218), which also has the same build failure.
+
+> 
+> -- 
+> blue skies,
+>   Martin.
+> 
+> "Reality continues to ruin my life." - Calvin.
+> 
+> 
 
 -- 
-blue skies,
-  Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Thanks & Regards,
+Kamalesh Babulal,
+Linux Technology Center,
+IBM, ISTL.
