@@ -1,51 +1,112 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [BUILD-FAILURE] next-20081217-s390x-'struct device' has no
-	member named 'knode_parent'
-Date: Thu, 18 Dec 2008 10:47:45 +0100
-Message-ID: <1229593665.7086.1.camel@localhost>
-References: <20081217232536.0b18f4a7.sfr@canb.auug.org.au>
-	 <20081217181745.GA18420@linux.vnet.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <20081217181745.GA18420@linux.vnet.ibm.com>
-Sender: linux-next-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-next/>
-List-Post: <mailto:linux-next@vger.kernel.org>
-To: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 04/11] zfcp: Remove adapter list
+Date: Fri, 19 Dec 2008 16:56:55 +0100
+Message-ID: <20081219155752.629082000@de.ibm.com>
+References: <20081219155651.010878000@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline; filename=remove-adapter-list.diff
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>, Felix Beck <felix@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2008-12-17 at 23:47 +0530, Kamalesh Babulal wrote:
-> drivers/s390/cio/device.c: In function 'io_subchannel_register':
-> drivers/s390/cio/device.c:913: error: 'struct device' has no member
-> named 'knode_parent'
-> make[2]: *** [drivers/s390/cio/device.o] Error 1
-> make[1]: *** [drivers/s390/cio] Error 2
-> make: *** [drivers/s390] Error 2
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-Should be fixed now by the following patch from Cornelia:
+After the latest changes, the list of FCP devices is only used to
+lookup the adapter for requests from the actcli tool. Change this to
+use the lookup function in the cio layer. Now we can remove the
+adapter list and have one place less to use the global config_lock.
 
-commit efe46b59567ae999ff7d344170d21f093159ad80
-Author: Cornelia Huck <cornelia.huck@de.ibm.com>
-Date:   Thu Dec 18 10:26:55 2008 +0100
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+Acked-by: Felix Beck <felix@linux.vnet.ibm.com>
+---
+ drivers/s390/scsi/zfcp_aux.c  |   12 ------------
+ drivers/s390/scsi/zfcp_cfdc.c |   17 +++--------------
+ drivers/s390/scsi/zfcp_def.h  |    2 --
+ 3 files changed, 3 insertions(+), 28 deletions(-)
 
-    [S390] cio: Use device_is_registered().
-
-    Check if a ccw device is registered via device_is_registered()
-    and not via the old kludge of checking the membership in driver
-    core internal klists.
-
-    Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-    Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-
-You'll find the fix in the features branch of git390 which will be
-included in the next linux-next kernel.
+--- a/drivers/s390/scsi/zfcp_aux.c	2008-12-19 14:38:26.000000000 +0100
++++ b/drivers/s390/scsi/zfcp_aux.c	2008-12-19 14:38:30.000000000 +0100
+@@ -175,7 +175,6 @@ static int __init zfcp_module_init(void)
+ 
+ 	zfcp_data.work_queue = create_singlethread_workqueue("zfcp_wq");
+ 
+-	INIT_LIST_HEAD(&zfcp_data.adapter_list_head);
+ 	sema_init(&zfcp_data.config_sema, 1);
+ 	rwlock_init(&zfcp_data.config_lock);
+ 
+@@ -509,11 +508,7 @@ int zfcp_adapter_enqueue(struct ccw_devi
+ 			       &zfcp_sysfs_adapter_attrs))
+ 		goto sysfs_failed;
+ 
+-	write_lock_irq(&zfcp_data.config_lock);
+ 	atomic_clear_mask(ZFCP_STATUS_COMMON_REMOVE, &adapter->status);
+-	list_add_tail(&adapter->list, &zfcp_data.adapter_list_head);
+-	write_unlock_irq(&zfcp_data.config_lock);
+-
+ 	zfcp_fc_nameserver_init(adapter);
+ 
+ 	if (!zfcp_adapter_scsi_register(adapter))
+@@ -556,14 +551,7 @@ void zfcp_adapter_dequeue(struct zfcp_ad
+ 		return;
+ 
+ 	zfcp_adapter_debug_unregister(adapter);
+-
+-	/* remove specified adapter data structure from list */
+-	write_lock_irq(&zfcp_data.config_lock);
+-	list_del(&adapter->list);
+-	write_unlock_irq(&zfcp_data.config_lock);
+-
+ 	zfcp_qdio_free(adapter);
+-
+ 	zfcp_free_low_mem_buffers(adapter);
+ 	kfree(adapter->req_list);
+ 	kfree(adapter->fc_stats);
+--- a/drivers/s390/scsi/zfcp_cfdc.c	2008-12-19 14:38:13.000000000 +0100
++++ b/drivers/s390/scsi/zfcp_cfdc.c	2008-12-19 14:38:30.000000000 +0100
+@@ -82,20 +82,9 @@ static int zfcp_cfdc_copy_to_user(void _
+ 
+ static struct zfcp_adapter *zfcp_cfdc_get_adapter(u32 devno)
+ {
+-	struct zfcp_adapter *adapter = NULL, *cur_adapter;
+-	struct ccw_dev_id dev_id;
+-
+-	read_lock_irq(&zfcp_data.config_lock);
+-	list_for_each_entry(cur_adapter, &zfcp_data.adapter_list_head, list) {
+-		ccw_device_get_id(cur_adapter->ccw_device, &dev_id);
+-		if (dev_id.devno == devno) {
+-			adapter = cur_adapter;
+-			zfcp_adapter_get(adapter);
+-			break;
+-		}
+-	}
+-	read_unlock_irq(&zfcp_data.config_lock);
+-	return adapter;
++	char busid[9];
++	snprintf(busid, sizeof(busid), "0.0.%04x", devno);
++	return zfcp_get_adapter_by_busid(busid);
+ }
+ 
+ static int zfcp_cfdc_set_fsf(struct zfcp_fsf_cfdc *fsf_cfdc, int command)
+--- a/drivers/s390/scsi/zfcp_def.h	2008-12-19 14:38:13.000000000 +0100
++++ b/drivers/s390/scsi/zfcp_def.h	2008-12-19 14:38:30.000000000 +0100
+@@ -450,7 +450,6 @@ struct zfcp_latencies {
+ };
+ 
+ struct zfcp_adapter {
+-	struct list_head	list;              /* list of adapters */
+ 	atomic_t                refcount;          /* reference count */
+ 	wait_queue_head_t	remove_wq;         /* can be used to wait for
+ 						      refcount drop to zero */
+@@ -591,7 +590,6 @@ struct zfcp_fsf_req {
+ struct zfcp_data {
+ 	struct scsi_host_template scsi_host_template;
+ 	struct scsi_transport_template *scsi_transport_template;
+-	struct list_head	adapter_list_head;  /* head of adapter list */
+ 	rwlock_t                config_lock;        /* serialises changes
+ 						       to adapter/port/unit
+ 						       lists */
 
 -- 
-blue skies,
-  Martin.
-
-"Reality continues to ruin my life." - Calvin.
