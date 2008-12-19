@@ -1,45 +1,51 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Thu, 11 Dec 2008 13:06:17 +0000
-Subject: Re: [PATCH] audit: get s390 ret_from_fork in sync with other
-Message-Id: <20081211130617.GA6264@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20081211062943.GO28946@ZenIV.linux.org.uk>
-References: <20081211062943.GO28946@ZenIV.linux.org.uk>
+From: Roel Kluin <roel.kluin@gmail.com>
+Date: Fri, 19 Dec 2008 22:30:50 +0000
+Subject: [PATCH] lcs_start_kernel_thread(): handle kernel_thread failure
+Message-Id: <494C209A.1030400@gmail.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Dec 11, 2008 at 06:29:43AM +0000, Al Viro wrote:
-> 	On s390 we have ret_from_fork jump not to the "do all work we
-> normally do on return from syscall" as on x86, ppc, etc., but to the
-> "do all such work except audit".  Historical reasons - the codepath
-> triggered when we have AUDIT process flag set is separated from the
-> normall one and they converge at sysc_return, which is the common
-> part of post-syscall work.  And does not include calling audit_syscall_exit() -
-> that's done in the end of sysc_tracesys path, just before that path jumps
-> to sysc_return.
-> 
-> 	IOW, the child returning from fork()/clone()/vfork() doesn't
-> call audit_syscall_exit() at all, so no matter what we do with its
-> audit context, we are not going to see the audit entry.
-> 
-> 	The fix is simple: have ret_from_fork go to the point just past
-> the call of sys_.... in the 'we have AUDIT flag set' path.  There we
-> have (64bit variant; for 31bit the situation is the same):
-> sysc_tracenogo:
->         tm      __TI_flags+7(%r9),(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT)
->         jz      sysc_return
->         la      %r2,SP_PTREGS(%r15)     # load pt_regs
->         larl    %r14,sysc_return        # return point is sysc_return
->         jg      do_syscall_trace_exit
-> which is precisely what we need - check the flag, bugger off to sysc_return
-> if not set, otherwise call do_syscall_trace_exit() and bugger off to
-> sysc_return.  r9 has just been properly set by ret_from_fork itself,
-> so we are fine.
-> 
-> 	Tested on s390x, seems to work fine.  WARNING: it's been about
-> 16 years since my last contact with 3X0 assembler[1], so additional
-> review would be very welcome.  I don't think I've managed to screw it
-> up, but...
+kernel_thread may fail, notice this.
 
-Your patch looks fine. I added it to Martin's patch queue.
+Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
+---
+ drivers/s390/net/lcs.c |   23 ++++++++++++++++++-----
+ 1 files changed, 18 insertions(+), 5 deletions(-)
 
-Thanks!
+diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+index 0825be8..3b6f287 100644
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -1736,14 +1736,27 @@ lcs_stopcard(struct lcs_card *card)
+ static void
+ lcs_start_kernel_thread(struct work_struct *work)
+ {
++	int retval;
+ 	struct lcs_card *card = container_of(work, struct lcs_card, kernel_thread_starter);
+ 	LCS_DBF_TEXT(5, trace, "krnthrd");
+-	if (lcs_do_start_thread(card, LCS_RECOVERY_THREAD))
+-		kernel_thread(lcs_recovery, (void *) card, SIGCHLD);
++	if (lcs_do_start_thread(card, LCS_RECOVERY_THREAD)) {
++		retval = kernel_thread(lcs_recovery, card, SIGCHLD);
++		if (retval < 0) {
++			dev_err(&card->dev->dev,
++				"Creating LCS recovery thread failed.\n");
++			return;
++		}
++	}
+ #ifdef CONFIG_IP_MULTICAST
+-	if (lcs_do_start_thread(card, LCS_SET_MC_THREAD))
+-		kernel_thread(lcs_register_mc_addresses,
+-				(void *) card, SIGCHLD);
++	if (lcs_do_start_thread(card, LCS_SET_MC_THREAD)) {
++		retval = kernel_thread(lcs_register_mc_addresses, card,
++				SIGCHLD);
++		if (retval < 0) {
++			dev_err(&card->dev->dev,
++				"Creating LCS multicast address failed.\n");
++			return;
++		}
++	}
+ #endif
+ }
+ 
