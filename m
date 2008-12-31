@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754053AbYL2Kvf@vger.kernel.org>
-Subject: [GIT PULL] cputime patches for 2.6.29
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756620AbYLaOWt@vger.kernel.org>
+Subject: [GIT PULL] cputime patches for 2.6.29 take 2
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Reply-To: schwidefsky@de.ibm.com
 Content-Type: text/plain
-Date: Mon, 29 Dec 2008 11:51:16 +0100
-Message-Id: <1230547877.26091.18.camel@localhost>
+Date: Wed, 31 Dec 2008 15:21:27 +0100
+Message-Id: <1230733287.685.3.camel@localhost>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -16,12 +16,9 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Hi Linus,
 
-and another one: the cputime accouting patches I've been working on the
-last few weeks. The whole thing started with the observation that the
-figures for the idle time from the hypervisor differ from the Linux
-numbers. The bug is in Linux, the cpu cycles used by the idle process
-are accounted as idle time instead of system time. To fix this I had to
-split out the idle time accounting from account_system_time.
+I fixed the merge conflicts of the cputime branch with the latest
+upstream git and added a bug fix to "improve idle cputime accounting".
+The story is the same, second try:
 
 Please pull from 'cputime' branch of
 
@@ -58,16 +55,16 @@ Martin Schwidefsky (6):
  arch/s390/kernel/vdso.c                 |  123 ++++++++-
  arch/s390/kernel/vdso64/clock_getres.S  |    5 +
  arch/s390/kernel/vdso64/clock_gettime.S |   39 +++-
- arch/s390/kernel/vtime.c                |  478 ++++++++++++++++---------------
+ arch/s390/kernel/vtime.c                |  486 +++++++++++++++++--------------
  arch/x86/xen/time.c                     |   10 +-
  drivers/s390/cio/cio.c                  |    2 +-
  drivers/s390/s390mach.c                 |    3 +
  include/linux/kernel_stat.h             |   13 +-
  include/linux/sched.h                   |    1 -
- kernel/sched.c                          |  116 +++++---
+ kernel/sched.c                          |  115 +++++---
  kernel/time/tick-sched.c                |   12 +-
  kernel/timer.c                          |   15 -
- 30 files changed, 675 insertions(+), 457 deletions(-)
+ 30 files changed, 683 insertions(+), 456 deletions(-)
 
 diff --git a/arch/ia64/kernel/time.c b/arch/ia64/kernel/time.c
 index 65c10a4..f0ebb34 100644
@@ -1181,7 +1178,7 @@ index 738a410..79dbfee 100644
  	.cfi_endproc
  	.size	__kernel_clock_gettime,.-__kernel_clock_gettime
 diff --git a/arch/s390/kernel/vtime.c b/arch/s390/kernel/vtime.c
-index 75a6e62..3b59bc8 100644
+index 75a6e62..2fb36e4 100644
 --- a/arch/s390/kernel/vtime.c
 +++ b/arch/s390/kernel/vtime.c
 @@ -23,19 +23,43 @@
@@ -1313,7 +1310,7 @@ index 75a6e62..3b59bc8 100644
  }
  
  /*
-@@ -96,80 +111,123 @@ void account_vtime(struct task_struct *tsk)
+@@ -96,80 +111,131 @@ void account_vtime(struct task_struct *tsk)
   */
  void account_system_vtime(struct task_struct *tsk)
  {
@@ -1412,7 +1409,7 @@ index 75a6e62..3b59bc8 100644
 +	psw_t psw;
 +
 +	/* Wait for external, I/O or machine check interrupt. */
-+	psw.mask = psw_kernel_bits|PSW_MASK_WAIT|PSW_MASK_IO|PSW_MASK_EXT;
++	psw.mask = psw_kernel_bits | PSW_MASK_WAIT | PSW_MASK_IO | PSW_MASK_EXT;
 +
 +	/* Check if the CPU timer needs to be reprogrammed. */
 +	if (vq->do_spt) {
@@ -1429,18 +1426,22 @@ index 75a6e62..3b59bc8 100644
 +		 * order. This is done to increase the precision.
 +		 */
 +		asm volatile(
-+#ifndef __s390x__
++#ifndef CONFIG_64BIT
 +			"	basr	1,0\n"
 +			"0:	ahi	1,1f-0b\n"
 +			"	st	1,4(%2)\n"
-+#else /* __s390x__ */
++#else /* CONFIG_64BIT */
 +			"	larl	1,1f\n"
 +			"	stg	1,8(%2)\n"
-+#endif /* __s390x__ */
++#endif /* CONFIG_64BIT */
 +			"	stpt	0(%4)\n"
 +			"	spt	0(%5)\n"
 +			"	stck	0(%3)\n"
++#ifndef CONFIG_64BIT
++			"	lpsw	0(%2)\n"
++#else /* CONFIG_64BIT */
 +			"	lpswe	0(%2)\n"
++#endif /* CONFIG_64BIT */
 +			"1:"
 +			: "=m" (idle->idle_enter), "=m" (vq->idle)
 +			: "a" (&psw), "a" (&idle->idle_enter),
@@ -1458,17 +1459,21 @@ index 75a6e62..3b59bc8 100644
 +		 * order. This is done to increase the precision.
 +		 */
 +		asm volatile(
-+#ifndef __s390x__
++#ifndef CONFIG_64BIT
 +			"	basr	1,0\n"
 +			"0:	ahi	1,1f-0b\n"
 +			"	st	1,4(%2)\n"
-+#else /* __s390x__ */
++#else /* CONFIG_64BIT */
 +			"	larl	1,1f\n"
 +			"	stg	1,8(%2)\n"
-+#endif /* __s390x__ */
++#endif /* CONFIG_64BIT */
 +			"	stpt	0(%4)\n"
 +			"	stck	0(%3)\n"
++#ifndef CONFIG_64BIT
++			"	lpsw	0(%2)\n"
++#else /* CONFIG_64BIT */
 +			"	lpswe	0(%2)\n"
++#endif /* CONFIG_64BIT */
 +			"1:"
 +			: "=m" (idle->idle_enter), "=m" (vq->idle)
 +			: "a" (&psw), "a" (&idle->idle_enter),
@@ -1498,7 +1503,7 @@ index 75a6e62..3b59bc8 100644
  }
  
  /*
-@@ -195,30 +253,23 @@ static void list_add_sorted(struct vtimer_list *timer, struct list_head *head)
+@@ -195,30 +261,23 @@ static void list_add_sorted(struct vtimer_list *timer, struct list_head *head)
   */
  static void do_callbacks(struct list_head *cb_list)
  {
@@ -1539,7 +1544,7 @@ index 75a6e62..3b59bc8 100644
  		}
  	}
  }
-@@ -228,64 +279,57 @@ static void do_callbacks(struct list_head *cb_list)
+@@ -228,64 +287,57 @@ static void do_callbacks(struct list_head *cb_list)
   */
  static void do_cpu_timer_interrupt(__u16 error_code)
  {
@@ -1640,7 +1645,7 @@ index 75a6e62..3b59bc8 100644
  }
  EXPORT_SYMBOL(init_virt_timer);
  
-@@ -299,44 +343,40 @@ static inline int vtimer_pending(struct vtimer_list *timer)
+@@ -299,44 +351,40 @@ static inline int vtimer_pending(struct vtimer_list *timer)
   */
  static void internal_add_vtimer(struct vtimer_list *timer)
  {
@@ -1712,7 +1717,7 @@ index 75a6e62..3b59bc8 100644
  	/* release CPU acquired in prepare_vtimer or mod_virt_timer() */
  	put_cpu();
  }
-@@ -381,14 +421,15 @@ EXPORT_SYMBOL(add_virt_timer_periodic);
+@@ -381,14 +429,15 @@ EXPORT_SYMBOL(add_virt_timer_periodic);
   * If we change a pending timer the function must be called on the CPU
   * where the timer is running on, e.g. by smp_call_function_single()
   *
@@ -1731,7 +1736,7 @@ index 75a6e62..3b59bc8 100644
  	unsigned long flags;
  	int cpu;
  
-@@ -404,17 +445,17 @@ int mod_virt_timer(struct vtimer_list *timer, __u64 expires)
+@@ -404,17 +453,17 @@ int mod_virt_timer(struct vtimer_list *timer, __u64 expires)
  		return 1;
  
  	cpu = get_cpu();
@@ -1752,7 +1757,7 @@ index 75a6e62..3b59bc8 100644
  		/* we do not activate an interval timer with mod_virt_timer */
  		timer->interval = 0;
  		timer->expires = expires;
-@@ -431,7 +472,7 @@ int mod_virt_timer(struct vtimer_list *timer, __u64 expires)
+@@ -431,7 +480,7 @@ int mod_virt_timer(struct vtimer_list *timer, __u64 expires)
  		timer->interval = expires;
  
  	/* the timer can't expire anymore so we can release the lock */
@@ -1761,7 +1766,7 @@ index 75a6e62..3b59bc8 100644
  	internal_add_vtimer(timer);
  	return 1;
  }
-@@ -445,25 +486,19 @@ EXPORT_SYMBOL(mod_virt_timer);
+@@ -445,25 +494,19 @@ EXPORT_SYMBOL(mod_virt_timer);
  int del_virt_timer(struct vtimer_list *timer)
  {
  	unsigned long flags;
@@ -1791,7 +1796,7 @@ index 75a6e62..3b59bc8 100644
  	return 1;
  }
  EXPORT_SYMBOL(del_virt_timer);
-@@ -473,24 +508,19 @@ EXPORT_SYMBOL(del_virt_timer);
+@@ -473,24 +516,19 @@ EXPORT_SYMBOL(del_virt_timer);
   */
  void init_cpu_vtimer(void)
  {
@@ -1896,10 +1901,10 @@ index 834e9ee..92b0417 100644
  	mcck = &__get_cpu_var(cpu_mcck);
  	umode = user_mode(regs);
 diff --git a/include/linux/kernel_stat.h b/include/linux/kernel_stat.h
-index 4a145ca..a1b3171 100644
+index 4ee4b3d..570d204 100644
 --- a/include/linux/kernel_stat.h
 +++ b/include/linux/kernel_stat.h
-@@ -67,10 +67,13 @@ static inline unsigned int kstat_irqs(unsigned int irq)
+@@ -79,10 +79,13 @@ static inline unsigned int kstat_irqs(unsigned int irq)
  }
  
  extern unsigned long long task_delta_exec(struct task_struct *);
@@ -1931,10 +1936,10 @@ index 8395e71..b475d4d 100644
  extern void scheduler_tick(void);
  
 diff --git a/kernel/sched.c b/kernel/sched.c
-index 748ff92..3141eaf 100644
+index fff1c4a..635eaff 100644
 --- a/kernel/sched.c
 +++ b/kernel/sched.c
-@@ -4082,13 +4082,17 @@ unsigned long long task_delta_exec(struct task_struct *p)
+@@ -4080,13 +4080,17 @@ unsigned long long task_delta_exec(struct task_struct *p)
   * Account user cpu time to a process.
   * @p: the process that the cpu time gets accounted to
   * @cputime: the cpu time spent in user space since the last update
@@ -1953,7 +1958,7 @@ index 748ff92..3141eaf 100644
  	account_group_user_time(p, cputime);
  
  	/* Add user time to cpustat. */
-@@ -4105,51 +4109,48 @@ void account_user_time(struct task_struct *p, cputime_t cputime)
+@@ -4103,51 +4107,48 @@ void account_user_time(struct task_struct *p, cputime_t cputime)
   * Account guest cpu time to a process.
   * @p: the process that the cpu time gets accounted to
   * @cputime: the cpu time spent in virtual machine since the last update
@@ -2016,7 +2021,7 @@ index 748ff92..3141eaf 100644
  	account_group_system_time(p, cputime);
  
  	/* Add system time to cpustat. */
-@@ -4158,49 +4159,84 @@ void account_system_time(struct task_struct *p, int hardirq_offset,
+@@ -4156,48 +4157,84 @@ void account_system_time(struct task_struct *p, int hardirq_offset,
  		cpustat->irq = cputime64_add(cpustat->irq, tmp);
  	else if (softirq_count())
  		cpustat->softirq = cputime64_add(cpustat->softirq, tmp);
@@ -2067,7 +2072,6 @@ index 748ff92..3141eaf 100644
  
 -	if (p == rq->idle) {
 -		p->stime = cputime_add(p->stime, steal);
--		account_group_system_time(p, steal);
 -		if (atomic_read(&rq->nr_iowait) > 0)
 -			cpustat->iowait = cputime64_add(cpustat->iowait, tmp);
 -		else
@@ -2127,10 +2131,10 @@ index 748ff92..3141eaf 100644
   * Use precise platform statistics if available:
   */
 diff --git a/kernel/time/tick-sched.c b/kernel/time/tick-sched.c
-index 342fc9c..f811685 100644
+index 8f3fc25..611fa4c 100644
 --- a/kernel/time/tick-sched.c
 +++ b/kernel/time/tick-sched.c
-@@ -412,7 +412,9 @@ void tick_nohz_restart_sched_tick(void)
+@@ -419,7 +419,9 @@ void tick_nohz_restart_sched_tick(void)
  {
  	int cpu = smp_processor_id();
  	struct tick_sched *ts = &per_cpu(tick_cpu_sched, cpu);
@@ -2140,7 +2144,7 @@ index 342fc9c..f811685 100644
  	ktime_t now;
  
  	local_irq_disable();
-@@ -434,6 +436,7 @@ void tick_nohz_restart_sched_tick(void)
+@@ -441,6 +443,7 @@ void tick_nohz_restart_sched_tick(void)
  	tick_do_update_jiffies64(now);
  	cpu_clear(cpu, nohz_cpu_mask);
  
@@ -2148,7 +2152,7 @@ index 342fc9c..f811685 100644
  	/*
  	 * We stopped the tick in idle. Update process times would miss the
  	 * time we slept as update_process_times does only a 1 tick
-@@ -443,12 +446,9 @@ void tick_nohz_restart_sched_tick(void)
+@@ -450,12 +453,9 @@ void tick_nohz_restart_sched_tick(void)
  	/*
  	 * We might be one off. Do not randomly account a huge number of ticks!
  	 */
