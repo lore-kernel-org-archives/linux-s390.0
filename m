@@ -1,17 +1,36 @@
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757446AbZABJUb@vger.kernel.org>
+Subject: Re: [PATCH] asm-s390/posix_types.h: drop __USE_ALL usage
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Mon, 29 Dec 2008 08:45:47 +0000
-Subject: Re: [S390]:gettimeofday.S: removed duplicated #include's
-Message-Id: <1230540347.26091.1.camel@localhost>
-In-Reply-To: <20081229071058.4B16.WEIYI.HUANG@gmail.com>
-References: <20081229071058.4B16.WEIYI.HUANG@gmail.com>
-To: linux-s390@vger.kernel.org
+Reply-To: schwidefsky@de.ibm.com
+In-Reply-To: <200901020355.37186.vapier@gentoo.org>
+References: <1230882782-9977-1-git-send-email-vapier@gentoo.org>
+	 <1230886227.5474.0.camel@localhost>  <200901020355.37186.vapier@gentoo.org>
+Content-Type: text/plain
+Date: Fri, 02 Jan 2009 10:20:17 +0100
+Message-Id: <1230888017.5474.3.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 2008-12-29 at 07:11 +0800, Huang Weiyi wrote:
-> Removed duplicated #include's in arch/s390/kernel/vdso32/gettimeofday.S
+On Fri, 2009-01-02 at 03:55 -0500, Mike Frysinger wrote:
+> On Friday 02 January 2009 03:50:27 Martin Schwidefsky wrote:
+> > On Fri, 2009-01-02 at 02:53 -0500, Mike Frysinger wrote:
+> > > Bring s390 in line with all the other ports.  Not sure how s390 missed
+> > > this change as all the other arches were being updated ...
+> >
+> > Should I carry the patch via git390?
+> 
+> i dont know what "git390" is, but it makes no difference to me how it gets 
+> merged.  whatever is easiest for people.
 
-Odd, how did that happen ??
-Anyway, thanks for the patch. I'll add it to the queue.
+git390 == git://git390.osdl.marist.edu/pub/scm/linux-2.6.git
+
+I'll add the patch to the queue for the next s390 update.
 
 -- 
 blue skies,
