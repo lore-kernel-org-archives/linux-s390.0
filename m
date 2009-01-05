@@ -1,29 +1,28 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 4/6] qeth: do not spin for SETIP ip assist command
-Date: Sun, 04 Jan 2009 17:37:00 -0800 (PST)
-Message-ID: <20090104.173700.149427423.davem@davemloft.net>
+Subject: Re: [patch 5/6] qeth: No large send using EDDP for HiperSockets.
+Date: Sun, 04 Jan 2009 17:37:08 -0800 (PST)
+Message-ID: <20090104.173708.251697383.davem@davemloft.net>
 References: <20090102150139.830998000@de.ibm.com>
-	<20090102150255.266826000@de.ibm.com>
+	<20090102150255.989302000@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20090102150255.266826000@de.ibm.com>
+In-Reply-To: <20090102150255.989302000@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: frank.blaschka@de.ibm.com
-Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, kdwacker@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
 From: frank.blaschka@de.ibm.com
-Date: Fri, 02 Jan 2009 16:01:43 +0100
+Date: Fri, 02 Jan 2009 16:01:44 +0100
 
-> The ip assist hw command for setting an IP address last unacceptable
-> long so we can not spin while we waiting for the irq. Since we can
-> ensure process context for all occurrences of this command we can use
-> wait.
+> The device driver qeth dos not support large send using EDDP for 
+> HiperSockets.
 > 
+> Signed-off-by: Klaus-Dieter Wacker <kdwacker@de.ibm.com>
 > Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 
 Applied.
