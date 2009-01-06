@@ -1,18 +1,19 @@
-From: Ursula Braun <ursula.braun@de.ibm.com>
-Date: Mon, 05 Jan 2009 12:14:22 +0000
-Subject: [patch 0/4] iucv patches for net-2.6.29
-Message-Id: <20090105121422.994795000@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Date: Tue, 06 Jan 2009 02:07:54 +0000
+Subject: Re: [patch 2/4] afiucv: avoid left over IUCV connections from
+Message-Id: <20090105.180754.45322040.davem@davemloft.net>
+In-Reply-To: <20090105121932.187423000@linux.vnet.ibm.com>
+References: <20090105121932.187423000@linux.vnet.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
--- 
-Dave,
+From: Ursula Braun <ursula.braun@de.ibm.com>
+Date: Mon, 05 Jan 2009 13:14:24 +0100
 
-the following 3 af_iucv patches and 1 iucv patch are intended for 2.6.29.
-They contain:
-- af_iucv: detailled error handling for iucv_path_connect
-- af_iucv: cleanup improvement after connect failures
-- af_iucv: cleanup improvements in connection-requested callback
-- iucv:    fix cpu hotplug for compiled in / loaded, but unused iucv.
+> For certain types of AFIUCV socket connect failures IUCV connections
+> are left over. Add some cleanup-statements to avoid cluttered IUCV
+> connections.
+> 
+> Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
 
-Thanks and regards, Ursula
+Applied.
