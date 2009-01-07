@@ -1,29 +1,31 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 6/6] qeth: get rid of extra argument after printk to
- dev_* conversion
-Date: Sun, 04 Jan 2009 17:37:17 -0800 (PST)
-Message-ID: <20090104.173717.124451945.davem@davemloft.net>
-References: <20090102150139.830998000@de.ibm.com>
-	<20090102150256.663537000@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: frank.blaschka@de.ibm.com
+Subject: [patch 0/2] vlan, qeth: neigh_setup
+Date: Wed, 07 Jan 2009 13:15:50 +0100
+Message-ID: <20090107121550.878339000@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20090102150256.663537000@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
-Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: frank.blaschka@de.ibm.com
-Date: Fri, 02 Jan 2009 16:01:45 +0100
+Hi Dave,
 
-> drivers/s390/net/qeth_l3_main.c: In function 'qeth_l3_setadapter_parms':
-> drivers/s390/net/qeth_l3_main.c:1049: warning: too many arguments for format
-> 
-> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+the qeth_l3 driver uses the neigh_setup function to turn off ARP for
+IPv4. But since the vlan driver does not support a neigh_setup
+function I had to add an ugly hack to the qeth_l3_add_vid function
+(set the neigh_setup function of the vlan device to the function of
+the real device). With the new net_device_ops this hack will not work
+any longer so I want to add neigh_setup to the vlan driver.
 
-Also applied, thanks.
+Following patches add the neigh_setup to vlan and change qeth to
+use the net_device_ops. Do you see any problems?
+
+Or is there a better way to turn off ARP for IPv4 (we still need
+neighbour solicitation for IPv6 so IFF_NOARP is no option)?
+
+Thanks,
+        Frank
+
+-- 
