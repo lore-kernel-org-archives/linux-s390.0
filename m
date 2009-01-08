@@ -1,65 +1,27 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 1/2] vlan: add neigh_setup
-Date: Wed, 07 Jan 2009 13:15:51 +0100
-Message-ID: <20090107121659.385897000@de.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 1/2] vlan: add neigh_setup
+Date: Thu, 08 Jan 2009 10:50:30 -0800 (PST)
+Message-ID: <20090108.105030.229991099.davem@davemloft.net>
 References: <20090107121550.878339000@de.ibm.com>
+	<20090107121659.385897000@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=vlan_neigh_setup.diff
+In-Reply-To: <20090107121659.385897000@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
+To: frank.blaschka@de.ibm.com
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Frank Blaschka <frank.blaschka@de.ibm.com>
+From: frank.blaschka@de.ibm.com
+Date: Wed, 07 Jan 2009 13:15:51 +0100
 
-In case the real device has a neigh_setup function, this
-neigh_setup function should be used for the vlan device.
+> In case the real device has a neigh_setup function, this
+> neigh_setup function should be used for the vlan device.
+> 
+> Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
- net/8021q/vlan_dev.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
-
-Index: git_linus/net/8021q/vlan_dev.c
-===================================================================
---- git_linus.orig/net/8021q/vlan_dev.c
-+++ git_linus/net/8021q/vlan_dev.c
-@@ -546,6 +546,18 @@ static int vlan_dev_ioctl(struct net_dev
- 	return err;
- }
- 
-+static int vlan_dev_neigh_setup(struct net_device *dev, struct neigh_parms *pa)
-+{
-+	struct net_device *real_dev = vlan_dev_info(dev)->real_dev;
-+	const struct net_device_ops *ops = real_dev->netdev_ops;
-+	int err = 0;
-+
-+	if (netif_device_present(real_dev) && ops->ndo_neigh_setup)
-+		err = ops->ndo_neigh_setup(dev, pa);
-+
-+	return err;
-+}
-+
- static void vlan_dev_change_rx_flags(struct net_device *dev, int change)
- {
- 	struct net_device *real_dev = vlan_dev_info(dev)->real_dev;
-@@ -713,6 +725,7 @@ static const struct net_device_ops vlan_
- 	.ndo_set_multicast_list	= vlan_dev_set_rx_mode,
- 	.ndo_change_rx_flags	= vlan_dev_change_rx_flags,
- 	.ndo_do_ioctl		= vlan_dev_ioctl,
-+	.ndo_neigh_setup	= vlan_dev_neigh_setup,
- };
- 
- static const struct net_device_ops vlan_netdev_accel_ops = {
-@@ -728,6 +741,7 @@ static const struct net_device_ops vlan_
- 	.ndo_set_multicast_list	= vlan_dev_set_rx_mode,
- 	.ndo_change_rx_flags	= vlan_dev_change_rx_flags,
- 	.ndo_do_ioctl		= vlan_dev_ioctl,
-+	.ndo_neigh_setup	= vlan_dev_neigh_setup,
- };
- 
- void vlan_setup(struct net_device *dev)
-
--- 
+This looks fine, applied.
