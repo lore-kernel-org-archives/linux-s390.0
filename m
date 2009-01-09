@@ -1,68 +1,31 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 2/4] ctcm: convert to net_device_ops
-Date: Fri, 09 Jan 2009 10:01:58 +0100
-Message-ID: <20090109090221.211457000@de.ibm.com>
-References: <20090109090156.422658000@de.ibm.com>
+From: Bastian Blank <bastian@waldi.eu.org>
+Subject: Re: [patch 1/4] lcs: convert to net_device_ops
+Date: Fri, 9 Jan 2009 11:54:47 +0100
+Message-ID: <20090109105447.GA2929@wavehammer.waldi.eu.org>
+References: <20090109090156.422658000@de.ibm.com> <20090109090220.554541000@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=ctcm_devops.diff
+Content-Disposition: inline
+In-Reply-To: <20090109090220.554541000@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com
+To: frank.blaschka@de.ibm.com
+Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Frank Blaschka <frank.blaschka@de.ibm.com>
+On Fri, Jan 09, 2009 at 10:01:57AM +0100, frank.blaschka@de.ibm.com wrote:
+>  #ifdef CONFIG_IP_MULTICAST
+>  	if (!lcs_check_multicast_support(card))
+> -		card->dev->set_multicast_list = lcs_set_multicast_list;
+> +		lcs_netdev_ops.ndo_set_multicast_list = lcs_set_multicast_list;
 
-ctcm convert to net_device_ops.
+This looks wrong. lcs_netdev_ops is static but this code used to set it
+up per card.
 
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
- drivers/s390/net/ctcm_main.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
-
-Index: git_linus/drivers/s390/net/ctcm_main.c
-===================================================================
---- git_linus.orig/drivers/s390/net/ctcm_main.c
-+++ git_linus/drivers/s390/net/ctcm_main.c
-@@ -1099,15 +1099,19 @@ static void ctcm_free_netdevice(struct n
- 
- struct mpc_group *ctcmpc_init_mpc_group(struct ctcm_priv *priv);
- 
-+static struct net_device_ops ctcm_netdev_ops = {
-+	.ndo_open		= ctcm_open,
-+	.ndo_stop		= ctcm_close,
-+	.ndo_get_stats		= ctcm_stats,
-+	.ndo_change_mtu	   	= ctcm_change_mtu,
-+};
-+
- void static ctcm_dev_setup(struct net_device *dev)
- {
--	dev->open = ctcm_open;
--	dev->stop = ctcm_close;
--	dev->get_stats = ctcm_stats;
--	dev->change_mtu = ctcm_change_mtu;
- 	dev->type = ARPHRD_SLIP;
- 	dev->tx_queue_len = 100;
- 	dev->flags = IFF_POINTOPOINT | IFF_NOARP;
-+	dev->netdev_ops = &ctcm_netdev_ops;
- }
- 
- /*
-@@ -1157,12 +1161,12 @@ static struct net_device *ctcm_init_netd
- 		dev->mtu = MPC_BUFSIZE_DEFAULT -
- 				TH_HEADER_LENGTH - PDU_HEADER_LENGTH;
- 
--		dev->hard_start_xmit = ctcmpc_tx;
-+		ctcm_netdev_ops.ndo_start_xmit = ctcmpc_tx;
- 		dev->hard_header_len = TH_HEADER_LENGTH + PDU_HEADER_LENGTH;
- 		priv->buffer_size = MPC_BUFSIZE_DEFAULT;
- 	} else {
- 		dev->mtu = CTCM_BUFSIZE_DEFAULT - LL_HEADER_LENGTH - 2;
--		dev->hard_start_xmit = ctcm_tx;
-+		ctcm_netdev_ops.ndo_start_xmit = ctcm_tx;
- 		dev->hard_header_len = LL_HEADER_LENGTH + 2;
- 	}
- 
+Bastian
 
 -- 
+History tends to exaggerate.
+		-- Col. Green, "The Savage Curtain", stardate 5906.4
