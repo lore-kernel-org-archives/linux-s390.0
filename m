@@ -1,28 +1,40 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 2/2] qeth: convert to net_device_ops
-Date: Thu, 08 Jan 2009 10:50:59 -0800 (PST)
-Message-ID: <20090108.105059.214628615.davem@davemloft.net>
-References: <20090107121550.878339000@de.ibm.com>
-	<20090107121700.139748000@de.ibm.com>
+From: Stephen Hemminger <shemminger@vyatta.com>
+Subject: Re: [patch 1/4] lcs: convert to net_device_ops
+Date: Fri, 9 Jan 2009 08:36:45 -0800
+Message-ID: <20090109083645.3d2841c0@extreme>
+References: <20090109090156.422658000@de.ibm.com>
+	<20090109090220.554541000@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20090107121700.139748000@de.ibm.com>
+In-Reply-To: <20090109090220.554541000@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: frank.blaschka@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: frank.blaschka@de.ibm.com
-Date: Wed, 07 Jan 2009 13:15:52 +0100
+On Fri, 09 Jan 2009 10:01:57 +0100
+frank.blaschka@de.ibm.com wrote:
 
-> qeth_l2, qeth_l3 convert to net_device_ops.
-> qeth_l3 remove vlan neigh_setup hack since it does not work any longer
-> with the new net_device_ops.
+> From: Frank Blaschka <frank.blaschka@de.ibm.com>
+> 
+> lcs convert to net_device_ops.
 > 
 > Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
-
-Also applied, thanks.
+> ---
+>  drivers/s390/net/lcs.c |   13 ++++++++-----
+>  1 file changed, 8 insertions(+), 5 deletions(-)
+> 
+> Index: git_linus/drivers/s390/net/lcs.c
+> ===================================================================
+> --- git_linus.orig/drivers/s390/net/lcs.c
+> +++ git_linus/drivers/s390/net/lcs.c
+> @@ -2097,6 +2097,12 @@ lcs_register_netdev(struct ccwgroup_devi
+>  /**
+>   * lcs_new_device will be called by setting the group device online.
+>   */
+> +static struct net_device_ops lcs_netdev_ops = {
+should be const (if it was you would catch your other problem
