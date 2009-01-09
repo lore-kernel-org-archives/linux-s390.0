@@ -1,10 +1,10 @@
 From: frank.blaschka@de.ibm.com
-Subject: [patch 1/4] lcs: convert to net_device_ops
-Date: Fri, 09 Jan 2009 10:01:57 +0100
-Message-ID: <20090109090220.554541000@de.ibm.com>
+Subject: [patch 3/4] netiucv: convert to net_device_ops
+Date: Fri, 09 Jan 2009 10:01:59 +0100
+Message-ID: <20090109090221.873883000@de.ibm.com>
 References: <20090109090156.422658000@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=lcs_devops.diff
+Content-Disposition: inline; filename=netiucv_devops.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -14,46 +14,46 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-lcs convert to net_device_ops.
+netiucv convert to net_device_ops.
 
 Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
- drivers/s390/net/lcs.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/s390/net/netiucv.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-Index: git_linus/drivers/s390/net/lcs.c
+Index: git_linus/drivers/s390/net/netiucv.c
 ===================================================================
---- git_linus.orig/drivers/s390/net/lcs.c
-+++ git_linus/drivers/s390/net/lcs.c
-@@ -2097,6 +2097,12 @@ lcs_register_netdev(struct ccwgroup_devi
+--- git_linus.orig/drivers/s390/net/netiucv.c
++++ git_linus/drivers/s390/net/netiucv.c
+@@ -1876,20 +1876,24 @@ static void netiucv_free_netdevice(struc
  /**
-  * lcs_new_device will be called by setting the group device online.
+  * Initialize a net device. (Called from kernel in alloc_netdev())
   */
-+static struct net_device_ops lcs_netdev_ops = {
-+	.ndo_open		= lcs_open_device,
-+	.ndo_stop		= lcs_stop_device,
-+	.ndo_get_stats		= lcs_getstats,
-+	.ndo_start_xmit		= lcs_start_xmit,
++static struct net_device_ops netiucv_netdev_ops = {
++	.ndo_open		= netiucv_open,
++	.ndo_stop		= netiucv_close,
++	.ndo_get_stats		= netiucv_stats,
++	.ndo_start_xmit		= netiucv_tx,
++	.ndo_change_mtu	   	= netiucv_change_mtu,
 +};
++
+ static void netiucv_setup_netdevice(struct net_device *dev)
+ {
+ 	dev->mtu	         = NETIUCV_MTU_DEFAULT;
+-	dev->hard_start_xmit     = netiucv_tx;
+-	dev->open	         = netiucv_open;
+-	dev->stop	         = netiucv_close;
+-	dev->get_stats	         = netiucv_stats;
+-	dev->change_mtu          = netiucv_change_mtu;
+ 	dev->destructor          = netiucv_free_netdevice;
+ 	dev->hard_header_len     = NETIUCV_HDRLEN;
+ 	dev->addr_len            = 0;
+ 	dev->type                = ARPHRD_SLIP;
+ 	dev->tx_queue_len        = NETIUCV_QUEUELEN_DEFAULT;
+ 	dev->flags	         = IFF_POINTOPOINT | IFF_NOARP;
++	dev->netdev_ops		 = &netiucv_netdev_ops;
+ }
  
- static int
- lcs_new_device(struct ccwgroup_device *ccwgdev)
-@@ -2164,14 +2170,11 @@ lcs_new_device(struct ccwgroup_device *c
- 		goto out;
- 	card->dev = dev;
- 	card->dev->ml_priv = card;
--	card->dev->open = lcs_open_device;
--	card->dev->stop = lcs_stop_device;
--	card->dev->hard_start_xmit = lcs_start_xmit;
--	card->dev->get_stats = lcs_getstats;
-+	card->dev->netdev_ops = &lcs_netdev_ops;
- 	memcpy(card->dev->dev_addr, card->mac, LCS_MAC_LENGTH);
- #ifdef CONFIG_IP_MULTICAST
- 	if (!lcs_check_multicast_support(card))
--		card->dev->set_multicast_list = lcs_set_multicast_list;
-+		lcs_netdev_ops.ndo_set_multicast_list = lcs_set_multicast_list;
- #endif
- netdev_out:
- 	lcs_set_allowed_threads(card,0xffffffff);
+ /**
 
 -- 
