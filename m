@@ -1,35 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754700AbZAKCz5@vger.kernel.org>
-Message-ID: <49695FA5.2020903@sgi.com>
-Date: Sat, 10 Jan 2009 18:55:33 -0800
-From: Mike Travis <travis@sgi.com>
-MIME-Version: 1.0
-Subject: Re: [PULL]: tip/cpus4096 updates
-References: <4966CFD9.4040602@sgi.com> <20090111025340.GE7077@elte.hu>
-In-Reply-To: <20090111025340.GE7077@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, oprofile-list@lists.sf.net, linux-net-drivers@solarflare.com, S390 <linux-s390@vger.kernel.org>, linux390@de.ibm.com, virtualization@lists.osdl.org
+From: Ursula Braun <ursula.braun@de.ibm.com>
+Subject: [patch 1/2] lcs: fix compilation for !CONFIG_IP_MULTICAST
+Date: Tue, 20 Jan 2009 17:14:32 +0100
+Message-ID: <20090120161556.479681000@linux.vnet.ibm.com>
+References: <20090120161431.149552000@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=604-lcs-multicast.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: jeff@garzik.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Ingo Molnar wrote:
-> * Mike Travis <travis@sgi.com> wrote:
-> 
->> are available in the git repository at:
->>
->>   git://git.kernel.org/pub/scm/linux/kernel/git/travis/linux-2.6-cpus4096-for-ingo.git 
->>   master
-> 
-> hm, when i tried to pull it, i got:
-> 
-> fatal: Couldn't find remote ref master
-> 
-> 	Ingo
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Because I'm redoing it.  It will be there momentarily (working on last change you
-requested now.)
+drivers/s390/net/lcs.c: In function 'lcs_new_device':
+drivers/s390/net/lcs.c:2179: error: implicit declaration of function 'lcs_set_multicast_list'
 
-(You said do it the "easiest for me" way... ;-)
+Reported-by: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+---
+
+ drivers/s390/net/lcs.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff -urpN linux-2.6/drivers/s390/net/lcs.c linux-2.6-patched/drivers/s390/net/lcs.c
+--- linux-2.6/drivers/s390/net/lcs.c	2009-01-15 15:07:19.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/lcs.c	2009-01-15 15:07:28.000000000 +0100
+@@ -70,7 +70,9 @@ static char debug_buffer[255];
+ static void lcs_tasklet(unsigned long);
+ static void lcs_start_kernel_thread(struct work_struct *);
+ static void lcs_get_frames_cb(struct lcs_channel *, struct lcs_buffer *);
++#ifdef CONFIG_IP_MULTICAST
+ static int lcs_send_delipm(struct lcs_card *, struct lcs_ipm_list *);
++#endif /* CONFIG_IP_MULTICAST */
+ static int lcs_recovery(void *ptr);
+ 
+ /**
+@@ -1285,6 +1287,8 @@ out:
+ 	lcs_clear_thread_running_bit(card, LCS_SET_MC_THREAD);
+ 	return 0;
+ }
++#endif /* CONFIG_IP_MULTICAST */
++
+ /**
+  * function called by net device to
+  * handle multicast address relevant things
+@@ -1292,6 +1296,7 @@ out:
+ static void
+ lcs_set_multicast_list(struct net_device *dev)
+ {
++#ifdef CONFIG_IP_MULTICAST
+         struct lcs_card *card;
+ 
+         LCS_DBF_TEXT(4, trace, "setmulti");
+@@ -1299,9 +1304,8 @@ lcs_set_multicast_list(struct net_device
+ 
+         if (!lcs_set_thread_start_bit(card, LCS_SET_MC_THREAD))
+ 		schedule_work(&card->kernel_thread_starter);
+-}
+-
+ #endif /* CONFIG_IP_MULTICAST */
++}
+ 
+ static long
+ lcs_check_irb_error(struct ccw_device *cdev, struct irb *irb)
+
+-- 
