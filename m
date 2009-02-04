@@ -1,38 +1,83 @@
-From: Wei Yongjun <yjwei@cn.fujitsu.com>
-Subject: [PATCH] iucv: remove some pointless conditionals before kfree_skb()
-Date: Wed, 25 Feb 2009 18:41:03 +0800
-Message-ID: <49A5203F.5060009@cn.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: Ursula Braun <ursula.braun@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+Date: Wed, 04 Feb 2009 18:27:13 +0000
+Subject: Re: [PATCH 1/1] c/r: define s390-specific checkpoint-restart code
+Message-Id: <20090204182713.GA8722@us.ibm.com>
+In-Reply-To: <200902041019.53683.borntraeger@de.ibm.com>
+References: <200902041019.53683.borntraeger@de.ibm.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Remove some pointless conditionals before kfree_skb().
+Quoting Christian Borntraeger (borntraeger@de.ibm.com):
+> Am Tuesday 03 February 2009 17:12:23 schrieb Serge E. Hallyn:
+> [...]
+> > +/* Nothing to do for mm context state */
+> > +int cr_write_mm_context(struct cr_ctx *ctx, struct mm_struct *mm, int
+> > parent) +{
+> > +	struct cr_hdr h;
+> > +	struct cr_hdr_mm_context *hh = cr_hbuf_get(ctx, sizeof(*hh));
+> > +	int ret;
+> > +
+> > +	h.type = CR_HDR_MM_CONTEXT;
+> > +	h.len = sizeof(*hh);
+> > +	h.parent = parent;
+> > +
+> > +#if 0
+> > +	/* Oren's v13 is on an older kernel which has no vdso_base */
+> > +	/* on newer kernel, we'll have to enable this */
+> > +	hh->vdso_base = mm->context.vdso_base;
+> > +	printk(KERN_NOTICE "checkpointing vdso_base %lx\n", hh->vdso_base);
+> > +#else
+> > +	hh->vdso_base = 0;
+> > +#endif
+> > +
+> > +	ret = cr_write_obj(ctx, &h, hh);
+> > +	cr_hbuf_put(ctx, sizeof(*hh));
+> > +
+> > +	return ret;
+> > +}
 
-Signed-off-by: Wei Yongjun <yjwei@cn.fujitsu.com>
----
- net/iucv/af_iucv.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+Hi,  thanks for taking a look.  (I can definately use some help)
 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index eb8a2a0..49e7865 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -1171,8 +1171,7 @@ static void iucv_callback_txdone(struct iucv_path *path,
- 
- 		spin_unlock_irqrestore(&list->lock, flags);
- 
--		if (this)
--			kfree_skb(this);
-+		kfree_skb(this);
- 	}
- 	BUG_ON(!this);
- 
--- 
-1.5.3.8
+> Hmm, maybe you should also save/restore other elements of mm_context_t.
+
+Oren pointed out (on Jan 15, see
+https://lists.linux-foundation.org/pipermail/containers/2009-January/015304.html)
+that the arch-independent restart code will re-create the checkpointed
+memory mappings using do_mmap_pgoff().  So the other mm_context_t
+contents should be automatically handled, right?
+
+> At least noexec, has_pgste and alloc_pgste have an impact on the page table 
+> layout and special features like no execute or the ability to run kvm guests.
+
+I went ahead and added those three - but they're always all 0 on my
+testcases so far, and restoring them doesn't fix my restart segfault :(
+
+How and why are they supposed to be set though?  Looking through the
+s390 arch code, I don't really see anything justifying hand-tweaking
+them.
+
+> > +int cr_read_mm_context(struct cr_ctx *ctx, struct mm_struct *mm, int
+> > rparent) +{
+> > +	struct cr_hdr_mm_context *hh = cr_hbuf_get(ctx, sizeof(*hh));
+> > +	int parent, ret = -EINVAL;
+> > +
+> > +	s390_enable_sie();
+> 
+> Hmm, why do you call s390_enable_sie()? It will fail on multi-threaded apps 
+> and will create enhanced page tables for running kvm guest otherwise. It is 
+> not needed for non-kvm processes. See the has_pgste/alloc_pgste topic above.
+
+Short answer: bc martin told me to :)  But I take it I misunderstood,
+and should only do that if running in kvm?
+(That email at
+https://lists.linux-foundation.org/pipermail/containers/2009-January/015305.html)
+
+But thinking through this:  if some task 798 is running inside kvm,
+it will have already done s390_enable_sie(), right?  So if it now
+does sys_restart(), we shouldn't run that again, right?
+
+So I've removed it again.  (Which still doesn't solve my segfault on
+restart.  At the moment I'm busily learning about the VM debugger :)
+
+thanks,
+-serge
