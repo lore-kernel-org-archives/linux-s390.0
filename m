@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753549AbZBFNHO@vger.kernel.org>
-Date: Sat, 7 Feb 2009 00:06:36 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: Next 0205 build break : drivers/s390/block/dasd_proc.o
-Message-Id: <20090207000636.ee67c759.sfr@canb.auug.org.au>
-In-Reply-To: <498C03E1.1040204@in.ibm.com>
-References: <498C03E1.1040204@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sat__7_Feb_2009_00_06_36_+1100_KnxsDh.GvvIKdnh2"
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757707AbZBFOXj@vger.kernel.org>
+Message-ID: <498C47D4.1010305@in.ibm.com>
+Date: Fri, 06 Feb 2009 19:53:16 +0530
+From: "Sachin P. Sant" <sachinp@in.ibm.com>
+MIME-Version: 1.0
+Subject: [Patch] Remove remaining ref to proc_dir_entry::owner
+References: <498C03E1.1040204@in.ibm.com> <20090207000636.ee67c759.sfr@canb.auug.org.au>
+In-Reply-To: <20090207000636.ee67c759.sfr@canb.auug.org.au>
+Content-Type: multipart/mixed;
+ boundary="------------000109000202070209030003"
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: "Sachin P. Sant" <sachinp@in.ibm.com>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Mel Gorman <mel@csn.ul.ie>, Alexey Dobriyan <adobriyan@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
---Signature=_Sat__7_Feb_2009_00_06_36_+1100_KnxsDh.GvvIKdnh2
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is a multi-part message in MIME format.
+--------------000109000202070209030003
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, 06 Feb 2009 15:03:21 +0530 "Sachin P. Sant" <sachinp@in.ibm.com> wr=
-ote:
->
-> Next 0205 defconfig build on s390x fails with :
->=20
->   CC      drivers/s390/block/dasd_proc.o
-> drivers/s390/block/dasd_proc.c: In function dasd_proc_init:
-> drivers/s390/block/dasd_proc.c:321: error: struct proc_dir_entry has no m=
-ember named owner
-> drivers/s390/block/dasd_proc.c:335: error: struct proc_dir_entry has no m=
-ember named owner
-> make[1]: *** [drivers/s390/block/dasd_proc.o] Error 1
-> make: *** [drivers/s390/block/dasd_proc.o] Error 2
+Thanks Stephen.
 
-Looks like commit 4d38a69c6bc847828ae89c2249e82671ed4061c5 ("proc 2/2:
-remove struct prioc_dir_entry::owner") from the proc tree missed at least
-a couple.
+Here is a patch to fix this issue.
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+* Remove remaining references to struct proc_dir_entry::owner
 
---Signature=_Sat__7_Feb_2009_00_06_36_+1100_KnxsDh.GvvIKdnh2
-Content-Type: application/pgp-signature
+Signed-off-by : Sachin Sant <sachinp@in.ibm.com>
+Cc : Alexey Dobriyan <adobriyan@gmail.com>
+---
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+Thanks
+-Sachin
 
-iEYEARECAAYFAkmMNdwACgkQjjKRsyhoI8zbvgCgvX/BRPjilCD6rvtji++cXeNa
-I1IAoLe9h1V9uGyHBaFnABLIXSmvYHMR
-=vWP2
------END PGP SIGNATURE-----
 
---Signature=_Sat__7_Feb_2009_00_06_36_+1100_KnxsDh.GvvIKdnh2--
+
+--------------000109000202070209030003
+Content-Type: text/x-patch;
+ name="remove-remaining-proc-dir-entry-owner-refs.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="remove-remaining-proc-dir-entry-owner-refs.patch"
+
+* Remove remaining references to struct proc_dir_entry::owner
+
+Signed-off-by : Sachin Sant <sachinp@in.ibm.com>
+Cc : Alexey Dobriyan <adobriyan@gmail.com>
+---
+
+diff -Naurp a/drivers/s390/block/dasd_proc.c b/drivers/s390/block/dasd_proc.c
+--- a/drivers/s390/block/dasd_proc.c	2009-02-06 21:58:57.000000000 +0530
++++ b/drivers/s390/block/dasd_proc.c	2009-02-06 22:01:48.000000000 +0530
+@@ -318,7 +318,6 @@ dasd_proc_init(void)
+ 	dasd_proc_root_entry = proc_mkdir("dasd", NULL);
+ 	if (!dasd_proc_root_entry)
+ 		goto out_nodasd;
+-	dasd_proc_root_entry->owner = THIS_MODULE;
+ 	dasd_devices_entry = proc_create("devices",
+ 					 S_IFREG | S_IRUGO | S_IWUSR,
+ 					 dasd_proc_root_entry,
+@@ -332,7 +331,6 @@ dasd_proc_init(void)
+ 		goto out_nostatistics;
+ 	dasd_statistics_entry->read_proc = dasd_statistics_read;
+ 	dasd_statistics_entry->write_proc = dasd_statistics_write;
+-	dasd_statistics_entry->owner = THIS_MODULE;
+ 	return 0;
+ 
+  out_nostatistics:
+
+--------------000109000202070209030003--
