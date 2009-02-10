@@ -1,26 +1,32 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Tue, 27 Jan 2009 11:16:44 +0000
-Subject: Re: s390: struct device - replace bus_id with dev_name(),
-Message-Id: <20090127121644.30606dc0@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <1232924229.2924.22.camel@nga>
-References: <1232924229.2924.22.camel@nga>
-To: linux-s390@vger.kernel.org
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [Patch] [s390] Fix init irq proc build break.
+Date: Tue, 10 Feb 2009 12:40:58 +0100
+Message-ID: <1234266058.23901.0.camel@localhost>
+References: <20090210194121.80256b72.sfr@canb.auug.org.au>
+	 <4991573C.8000609@in.ibm.com>  <499161C3.2070407@in.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <499161C3.2070407@in.ibm.com>
+Sender: linux-next-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: "Sachin P. Sant" <sachinp@in.ibm.com>
+Cc: linux-s390@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, heiko.carstens@de.ibm.com, Mel Gorman <mel@csn.ul.ie>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, 25 Jan 2009 23:57:09 +0100
-Kay Sievers <kay.sievers@vrfy.org> wrote:
+On Tue, 2009-02-10 at 16:45 +0530, Sachin P. Sant wrote:
+> * Embed init_irq_proc(s390) within CONFIG_PROC_FS to fix a build
+> break.
+> 
+> Signed-off-by : Sachin Sant <sachinp@in.ibm.com>
 
-> From: Kay Sievers <kay.sievers@vrfy.org>
-> Subject: s390: struct device - replace bus_id with dev_name(), dev_set_name()
-[...]
->  drivers/s390/net/qeth_l3_main.c |    2 +-
-[...]
-> @@ -1038,7 +1038,7 @@ static int qeth_l3_setadapter_parms(stru
->  	rc = qeth_query_setadapterparms(card);
->  	if (rc) {
->  		QETH_DBF_MESSAGE(2, "%s couldn't set adapter parameters: "
-> -			"0x%x\n", card->gdev->dev.bus_id, rc);
-> +			"0x%x\n", dev_name(&card->gdev->dev), rc);
->  		return rc;
+I'll queue the patch to git390.
 
-Applied, thanks.
+-- 
+blue skies,
+  Martin.
+
+"Reality continues to ruin my life." - Calvin.
