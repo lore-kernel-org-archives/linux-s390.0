@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [s390] next Feb 18: defconfig build break
-Date: Thu, 19 Feb 2009 09:13:26 +1030
-Message-ID: <200902190913.27653.rusty@rustcorp.com.au>
+Date: Thu, 19 Feb 2009 09:29:41 +1030
+Message-ID: <200902190929.42044.rusty@rustcorp.com.au>
 References: <20090218191640.0b023029.sfr@canb.auug.org.au> <20090218224541.fe6e0355.sfr@canb.auug.org.au> <8bd0f97a0902180910wafd35ceo47aeb9f3cc6733f3@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
@@ -18,62 +18,92 @@ Cc: Stephen Rothwell <sfr@canb.auug.org.au>, "Sachin P. Sant" <sachinp@in.ibm.co
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thursday 19 February 2009 03:40:59 Mike Frysinger wrote:
-> On Wed, Feb 18, 2009 at 06:45, Stephen Rothwell wrote:
-> > That would be a side effect of commit 43a47c6ca0e0b5479ae316e188a28b7e625d41e5 ("misc:strstarts") from the rr tree.  Rusty cc'd.
-> 
 > breaks all Blackfin ports as well:
+> In file included from include/linux/bitmap.h:9,
+>                  from include/linux/nodemask.h:90,
+>                  from include/linux/mmzone.h:17,
+>                  from include/linux/gfp.h:5,
+>                  from include/linux/kmod.h:23,
+>                  from include/linux/module.h:14,
+>                  from arch/blackfin/lib/strncmp.c:14:
+> include/linux/string.h: In function 'strstarts':
+> include/linux/string.h:124: error: implicit declaration of function 'strncmp'
+> make[1]: *** [arch/blackfin/lib/strncmp.o] Error 1
+> make: *** [arch/blackfin/lib] Error 2
+> -mike
 
-My first reaction was WTF?  My second was, how did our string code become
-such a catastrophe?
+Hi Mike,
 
-Sorry, I had no idea what a mess I was wading into.
+   I don't have a blackfin cross compiler, but I think this is the right
+fix:
 
-Here's the s390 fix:
-
-Subject: s390: allow usage of string functions in linux/string.h
+Subject: blackfin: allow usage of string functions in linux/string.h
 
 In introducing a trivial "strstarts()" function in linux/string.h, we
-hit the following error on s390:
+hit the following error on blackfin:
 
-In file included from include/linux/bitmap.h:8,
-                 from include/linux/cpumask.h:142,
-                 from include/linux/smp.h:12,
-                 from /home/rusty/devel/kernel/patches/linux-2.6/arch/s390/include/asm/spinlock.h:14,
-                 from include/linux/spinlock.h:88,
-                 from include/linux/seqlock.h:29,
-                 from include/linux/time.h:8,
-                 from include/linux/stat.h:60,
-                 from include/linux/module.h:10,
-                 from arch/s390/lib/string.c:13:
+file included from include/linux/bitmap.h:9,
+                 from include/linux/nodemask.h:90,
+                 from include/linux/mmzone.h:17,
+                 from include/linux/gfp.h:5,
+                 from include/linux/kmod.h:23,
+                 from include/linux/module.h:14,
+                 from arch/blackfin/lib/strncmp.c:14:
 include/linux/string.h: In function 'strstarts':
-include/linux/string.h:124: error: implicit declaration of function 'strlen'
-include/linux/string.h:124: warning: incompatible implicit declaration of built-in function 'strlen'
+include/linux/string.h:124: error: implicit declaration of function 'strncmp'
 
-Because when including asm/string.h from arch/s390/lib/string.c we
-don't declare the string ops we are about to define, and
+Because when including asm/string.h from arch/blackfin/lib/strncmp.c,
+we don't declare the string op we are about to define, and
 linux/string.h barfs.
 
-The fix is to declare them in this IN_ARCH_STRING_C case, but in
-general I wonder if there's a neater fix.
+The fix is to declare the function whose definition we steal via the
+#define trick.  I do this for all of them, so this won't bite us in
+future.
 
 Reported-by: linux-next
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-diff --git a/arch/s390/include/asm/string.h b/arch/s390/include/asm/string.h
---- a/arch/s390/include/asm/string.h
-+++ b/arch/s390/include/asm/string.h
-@@ -135,7 +135,13 @@ static inline size_t strnlen(const char 
- 		: "+a" (end), "+a" (tmp) : "d" (r0)  : "cc");
- 	return end - s;
- }
--
-+#else /* IN_ARCH_STRING_C */
-+void *memchr(const void * s, int c, size_t n);
-+void *memscan(void *s, int c, size_t n);
-+char *strcat(char *dst, const char *src);
-+char *strcpy(char *dst, const char *src);
-+size_t strlen(const char *s);
-+size_t strnlen(const char * s, size_t n);
- #endif /* !IN_ARCH_STRING_C */
+diff --git a/arch/blackfin/lib/strcmp.c b/arch/blackfin/lib/strcmp.c
+--- a/arch/blackfin/lib/strcmp.c
++++ b/arch/blackfin/lib/strcmp.c
+@@ -6,6 +6,7 @@
+  * Licensed under the GPL-2 or later.
+  */
  
- #endif /* __KERNEL__ */
++int strcmp(const char *dest, const char *src);
+ #define strcmp __inline_strcmp
+ #include <asm/string.h>
+ #undef strcmp
+diff --git a/arch/blackfin/lib/strcpy.c b/arch/blackfin/lib/strcpy.c
+--- a/arch/blackfin/lib/strcpy.c
++++ b/arch/blackfin/lib/strcpy.c
+@@ -6,6 +6,7 @@
+  * Licensed under the GPL-2 or later.
+  */
+ 
++char *strcpy(char *dest, const char *src);
+ #define strcpy __inline_strcpy
+ #include <asm/string.h>
+ #undef strcpy
+diff --git a/arch/blackfin/lib/strncmp.c b/arch/blackfin/lib/strncmp.c
+--- a/arch/blackfin/lib/strncmp.c
++++ b/arch/blackfin/lib/strncmp.c
+@@ -6,6 +6,7 @@
+  * Licensed under the GPL-2 or later.
+  */
+ 
++int strncmp(const char *cs, const char *ct, size_t count);
+ #define strncmp __inline_strncmp
+ #include <asm/string.h>
+ #undef strncmp
+diff --git a/arch/blackfin/lib/strncpy.c b/arch/blackfin/lib/strncpy.c
+--- a/arch/blackfin/lib/strncpy.c
++++ b/arch/blackfin/lib/strncpy.c
+@@ -6,6 +6,7 @@
+  * Licensed under the GPL-2 or later.
+  */
+ 
++char *strncpy(char *dest, const char *src, size_t n);
+ #define strncpy __inline_strncpy
+ #include <asm/string.h>
+ #undef strncpy
