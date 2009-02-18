@@ -1,50 +1,47 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [s390] next Feb 18: defconfig build break
-Date: Fri, 20 Feb 2009 11:23:39 +0100
-Message-ID: <20090220112339.7fd84556@de.ibm.com>
+From: "Sachin P. Sant" <sachinp@in.ibm.com>
+Subject: [s390] next Feb 18: defconfig build break
+Date: Wed, 18 Feb 2009 15:59:20 +0530
+Message-ID: <499BE300.5090405@in.ibm.com>
 References: <20090218191640.0b023029.sfr@canb.auug.org.au>
-	<20090218224541.fe6e0355.sfr@canb.auug.org.au>
-	<8bd0f97a0902180910wafd35ceo47aeb9f3cc6733f3@mail.gmail.com>
-	<200902190913.27653.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <200902190913.27653.rusty@rustcorp.com.au>
+In-Reply-To: <20090218191640.0b023029.sfr@canb.auug.org.au>
 Sender: linux-next-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-next/>
 List-Post: <mailto:linux-next@vger.kernel.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Mike Frysinger <vapier.adi@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, "Sachin P. Sant" <sachinp@in.ibm.com>, linux-s390@vger.kernel.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, heiko.carstens@de.ibm.com
+To: linux-s390@vger.kernel.org
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Rusty,
+Next Feb 18 defconfig build on s390 fails with following error.
 
-On Thu, 19 Feb 2009 09:13:26 +1030
-Rusty Russell <rusty@rustcorp.com.au> wrote:
+  CC      arch/s390/lib/string.o
+In file included from include/linux/bitmap.h:8,
+                 from include/linux/cpumask.h:142,
+                 from include/linux/smp.h:12,
+                 from /usr/local/autobench/var/tmp/build/linux/arch/s390/include/asm/spinlock.h:14,
+                 from include/linux/spinlock.h:88,
+                 from include/linux/seqlock.h:29,
+                 from include/linux/time.h:8,
+                 from include/linux/stat.h:60,
+                 from include/linux/module.h:10,
+                 from arch/s390/lib/string.c:13:
+include/linux/string.h: In function 'strstarts':
+include/linux/string.h:124: error: implicit declaration of function 'strlen'
+include/linux/string.h:124: warning: incompatible implicit declaration of built-in function 'strlen'
+make[1]: *** [arch/s390/lib/string.o] Error 1
+make: *** [arch/s390/lib] Error 2
 
-> Here's the s390 fix:
-> 
-> Subject: s390: allow usage of string functions in linux/string.h
-
-Thanks for the fix.
- 
-> Because when including asm/string.h from arch/s390/lib/string.c we
-> don't declare the string ops we are about to define, and
-> linux/string.h barfs.
-> 
-> The fix is to declare them in this IN_ARCH_STRING_C case, but in
-> general I wonder if there's a neater fix.
-
-The out-of-line version of the string functions in
-arch/s390/lib/string.c needs EXPORT_SYMBOL and other stuff. To fix the
-problem without the seperate out-of-line prototypes would required to
-avoid the inclusing of linux/string.h. Which would be fragile if
-possible at all. So I think your patch is the best way to deal with the
-problem.
+Thanks
+-Sachin
 
 -- 
-blue skies,
-   Martin.
 
-"Reality continues to ruin my life." - Calvin.
+---------------------------------
+Sachin Sant
+IBM Linux Technology Center
+India Systems and Technology Labs
+Bangalore, India
+---------------------------------
