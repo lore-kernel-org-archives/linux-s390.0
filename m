@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [s390] next Feb 18: defconfig build break
-Date: Thu, 19 Feb 2009 09:29:41 +1030
-Message-ID: <200902190929.42044.rusty@rustcorp.com.au>
+Date: Thu, 19 Feb 2009 10:45:25 +1030
+Message-ID: <200902191045.25878.rusty@rustcorp.com.au>
 References: <20090218191640.0b023029.sfr@canb.auug.org.au> <20090218224541.fe6e0355.sfr@canb.auug.org.au> <8bd0f97a0902180910wafd35ceo47aeb9f3cc6733f3@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
@@ -14,96 +14,51 @@ Sender: linux-next-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-next/>
 List-Post: <mailto:linux-next@vger.kernel.org>
 To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, "Sachin P. Sant" <sachinp@in.ibm.com>, linux-s390@vger.kernel.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, "Sachin P. Sant" <sachinp@in.ibm.com>, linux-s390@vger.kernel.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, rmk@arm.linux.org.uk
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thursday 19 February 2009 03:40:59 Mike Frysinger wrote:
+> On Wed, Feb 18, 2009 at 06:45, Stephen Rothwell wrote:
+> > That would be a side effect of commit 43a47c6ca0e0b5479ae316e188a28b7e625d41e5 ("misc:strstarts") from the rr tree.  Rusty cc'd.
+> 
 > breaks all Blackfin ports as well:
-> In file included from include/linux/bitmap.h:9,
->                  from include/linux/nodemask.h:90,
->                  from include/linux/mmzone.h:17,
->                  from include/linux/gfp.h:5,
->                  from include/linux/kmod.h:23,
->                  from include/linux/module.h:14,
->                  from arch/blackfin/lib/strncmp.c:14:
-> include/linux/string.h: In function 'strstarts':
-> include/linux/string.h:124: error: implicit declaration of function 'strncmp'
-> make[1]: *** [arch/blackfin/lib/strncmp.o] Error 1
-> make: *** [arch/blackfin/lib] Error 2
-> -mike
 
-Hi Mike,
+And arm!
 
-   I don't have a blackfin cross compiler, but I think this is the right
-fix:
-
-Subject: blackfin: allow usage of string functions in linux/string.h
+Subject: arm: allow usage of string functions in linux/string.h
 
 In introducing a trivial "strstarts()" function in linux/string.h, we
-hit the following error on blackfin:
+hit:
 
-file included from include/linux/bitmap.h:9,
-                 from include/linux/nodemask.h:90,
-                 from include/linux/mmzone.h:17,
-                 from include/linux/gfp.h:5,
-                 from include/linux/kmod.h:23,
-                 from include/linux/module.h:14,
-                 from arch/blackfin/lib/strncmp.c:14:
-include/linux/string.h: In function 'strstarts':
-include/linux/string.h:124: error: implicit declaration of function 'strncmp'
+	arch/arm/boot/compressed/misc.o: In function `strstarts':
+	misc.c:(.text+0x368): undefined reference to `strlen'
+	misc.c:(.text+0x378): undefined reference to `strncmp'
 
-Because when including asm/string.h from arch/blackfin/lib/strncmp.c,
-we don't declare the string op we are about to define, and
-linux/string.h barfs.
+This is because of "CFLAGS_misc.o := -Dstatic=" in the Makefile.
+"static inline strstarts(...)" becomes non-inline, and refers to the
+other string ops.
 
-The fix is to declare the function whose definition we steal via the
-#define trick.  I do this for all of them, so this won't bite us in
-future.
+The simplest workaround is to include asm/string.h.  This makes sense
+anyway, since lib/string.c won't be linked against this so we can't
+use those functions anyway.
+
+Compile tested here.
 
 Reported-by: linux-next
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-diff --git a/arch/blackfin/lib/strcmp.c b/arch/blackfin/lib/strcmp.c
---- a/arch/blackfin/lib/strcmp.c
-+++ b/arch/blackfin/lib/strcmp.c
-@@ -6,6 +6,7 @@
-  * Licensed under the GPL-2 or later.
-  */
+diff --git a/arch/arm/boot/compressed/misc.c b/arch/arm/boot/compressed/misc.c
+--- a/arch/arm/boot/compressed/misc.c
++++ b/arch/arm/boot/compressed/misc.c
+@@ -18,7 +18,10 @@
  
-+int strcmp(const char *dest, const char *src);
- #define strcmp __inline_strcmp
- #include <asm/string.h>
- #undef strcmp
-diff --git a/arch/blackfin/lib/strcpy.c b/arch/blackfin/lib/strcpy.c
---- a/arch/blackfin/lib/strcpy.c
-+++ b/arch/blackfin/lib/strcpy.c
-@@ -6,6 +6,7 @@
-  * Licensed under the GPL-2 or later.
-  */
+ unsigned int __machine_arch_type;
  
-+char *strcpy(char *dest, const char *src);
- #define strcpy __inline_strcpy
- #include <asm/string.h>
- #undef strcpy
-diff --git a/arch/blackfin/lib/strncmp.c b/arch/blackfin/lib/strncmp.c
---- a/arch/blackfin/lib/strncmp.c
-+++ b/arch/blackfin/lib/strncmp.c
-@@ -6,6 +6,7 @@
-  * Licensed under the GPL-2 or later.
-  */
+-#include <linux/string.h>
++#include <linux/compiler.h>	/* for inline */
++#include <linux/types.h>	/* for size_t */
++#include <linux/stddef.h>	/* for NULL */
++#include <asm/string.h>
  
-+int strncmp(const char *cs, const char *ct, size_t count);
- #define strncmp __inline_strncmp
- #include <asm/string.h>
- #undef strncmp
-diff --git a/arch/blackfin/lib/strncpy.c b/arch/blackfin/lib/strncpy.c
---- a/arch/blackfin/lib/strncpy.c
-+++ b/arch/blackfin/lib/strncpy.c
-@@ -6,6 +6,7 @@
-  * Licensed under the GPL-2 or later.
-  */
- 
-+char *strncpy(char *dest, const char *src, size_t n);
- #define strncpy __inline_strncpy
- #include <asm/string.h>
- #undef strncpy
+ #ifdef STANDALONE_DEBUG
+ #define putstr printf
