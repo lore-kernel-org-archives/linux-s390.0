@@ -1,137 +1,85 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760766AbZBYP0F@vger.kernel.org>
-Message-Id: <20090225150831.798921881@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1763361AbZBYPZp@vger.kernel.org>
+Message-Id: <20090225150834.201977804@de.ibm.com>
 References: <20090225150622.529143164@de.ibm.com>
-Date: Wed, 25 Feb 2009 16:06:39 +0100
+Date: Wed, 25 Feb 2009 16:06:47 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch/s390 17/46] Fix hypervisor detection for KVM
-Content-Disposition: inline; filename=116-kvm-detection.diff
+Subject: [patch/s390 25/46] cio: Try harder to disable subchannel.
+Content-Disposition: inline; filename=124-cio-sub-disable.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Currently we use the cpuid (via STIDP instruction) to recognize LPAR,
-z/VM and KVM.
-The architecture states, that bit 0-7 of STIDP returns all zero, and
-if STIDP is executed in a virtual machine, the VM operating system
-will replace bits 0-7 with FF.
+Acting upon the assumption that cio_disable_subchannel()
+is only called when we really want to disable the subchannel
+(a) remove the check for activity (it is already done in
+    ccw_device_offline(), which is the place where it matters)
+(b) collect pending status via tsch() and ignore it (it
+    can't matter anymore since the subchannel will be disabled).
 
-KVM should not use FE to distinguish z/VM from KVM for interested
-guests. The proper way to detect the hypervisor is the STSI (Store
-System Information) instruction, which return information about the
-hypervisors via function code 3, selector1=2, selector2=2.
-
-This patch changes the detection routine of Linux to use STSI instead
-of STIDP. This detection is earlier than bootmem, we have to use a
-static buffer. Since STSI expects a 4kb block (4kb aligned) this
-patch also changes the init.data alignment for s390. As this section
-will be freed during boot, this should be no problem.
-
-Patch is tested with LPAR, z/VM, KVM on LPAR, and KVM under z/VM.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/include/asm/sysinfo.h |    1 +
- arch/s390/kernel/early.c        |   22 +++++++++++++---------
- arch/s390/kernel/vmlinux.lds.S  |    2 ++
- arch/s390/kvm/kvm-s390.c        |    2 +-
- 4 files changed, 17 insertions(+), 10 deletions(-)
+ drivers/s390/cio/cio.c        |   18 ++++++++++--------
+ drivers/s390/cio/device_fsm.c |    2 +-
+ 2 files changed, 11 insertions(+), 9 deletions(-)
 
-Index: quilt-2.6/arch/s390/include/asm/sysinfo.h
+Index: quilt-2.6/drivers/s390/cio/cio.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/sysinfo.h
-+++ quilt-2.6/arch/s390/include/asm/sysinfo.h
-@@ -100,6 +100,7 @@ struct sysinfo_3_2_2 {
- 		char reserved_1[24];
- 
- 	} vm[8];
-+	char reserved_544[3552];
- };
- 
- static inline int stsi(void *sysinfo, int fc, int sel1, int sel2)
-Index: quilt-2.6/arch/s390/kernel/early.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/early.c
-+++ quilt-2.6/arch/s390/kernel/early.c
-@@ -6,6 +6,7 @@
-  *		 Heiko Carstens <heiko.carstens@de.ibm.com>
-  */
- 
-+#include <linux/compiler.h>
- #include <linux/init.h>
- #include <linux/errno.h>
- #include <linux/string.h>
-@@ -20,6 +21,7 @@
- #include <asm/processor.h>
- #include <asm/sections.h>
- #include <asm/setup.h>
-+#include <asm/sysinfo.h>
- #include <asm/cpcmd.h>
- #include <asm/sclp.h>
- #include "entry.h"
-@@ -173,19 +175,21 @@ static noinline __init void init_kernel_
- 		page_set_storage_key(init_pfn << PAGE_SHIFT, PAGE_DEFAULT_KEY);
- }
- 
-+static __initdata struct sysinfo_3_2_2 vmms __aligned(PAGE_SIZE);
-+
- static noinline __init void detect_machine_type(void)
+--- quilt-2.6.orig/drivers/s390/cio/cio.c
++++ quilt-2.6/drivers/s390/cio/cio.c
+@@ -472,6 +472,7 @@ EXPORT_SYMBOL_GPL(cio_enable_subchannel)
+ int cio_disable_subchannel(struct subchannel *sch)
  {
--	struct cpuinfo_S390 *cpuinfo = &S390_lowcore.cpu_data;
+ 	char dbf_txt[15];
++	int retry;
+ 	int ret;
+ 
+ 	CIO_TRACE_EVENT (2, "dissch");
+@@ -482,16 +483,17 @@ int cio_disable_subchannel(struct subcha
+ 	if (cio_update_schib(sch))
+ 		return -ENODEV;
+ 
+-	if (scsw_actl(&sch->schib.scsw) != 0)
+-		/*
+-		 * the disable function must not be called while there are
+-		 *  requests pending for completion !
+-		 */
+-		return -EBUSY;
 -
--	get_cpu_id(&S390_lowcore.cpu_data.cpu_id);
--
--	/* Running under z/VM ? */
--	if (cpuinfo->cpu_id.version == 0xff)
--		machine_flags |= MACHINE_FLAG_VM;
-+	/* No VM information? Looks like LPAR */
-+	if (stsi(&vmms, 3, 2, 2) == -ENOSYS)
-+		return;
-+	if (!vmms.count)
-+		return;
+ 	sch->config.ena = 0;
+-	ret = cio_commit_config(sch);
  
--	/* Running under KVM ? */
--	if (cpuinfo->cpu_id.version == 0xfe)
-+	/* Running under KVM? If not we assume z/VM */
-+	if (!memcmp(vmms.vm[0].cpi, "\xd2\xe5\xd4", 3))
- 		machine_flags |= MACHINE_FLAG_KVM;
-+	else
-+		machine_flags |= MACHINE_FLAG_VM;
- }
- 
- static __init void early_pgm_check_handler(void)
-Index: quilt-2.6/arch/s390/kernel/vmlinux.lds.S
++	for (retry = 0; retry < 3; retry++) {
++		ret = cio_commit_config(sch);
++		if (ret == -EBUSY) {
++			struct irb irb;
++			if (tsch(sch->schid, &irb) != 0)
++				break;
++		} else
++			break;
++	}
+ 	sprintf (dbf_txt, "ret:%d", ret);
+ 	CIO_TRACE_EVENT (2, dbf_txt);
+ 	return ret;
+Index: quilt-2.6/drivers/s390/cio/device_fsm.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/vmlinux.lds.S
-+++ quilt-2.6/arch/s390/kernel/vmlinux.lds.S
-@@ -108,6 +108,8 @@ SECTIONS
- 		EXIT_TEXT
- 	}
- 
-+	/* early.c uses stsi, which requires page aligned data. */
-+	. = ALIGN(PAGE_SIZE);
- 	.init.data : {
- 		INIT_DATA
- 	}
-Index: quilt-2.6/arch/s390/kvm/kvm-s390.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kvm/kvm-s390.c
-+++ quilt-2.6/arch/s390/kvm/kvm-s390.c
-@@ -286,7 +286,7 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu 
- 	setup_timer(&vcpu->arch.ckc_timer, kvm_s390_idle_wakeup,
- 		 (unsigned long) vcpu);
- 	get_cpu_id(&vcpu->arch.cpu_id);
--	vcpu->arch.cpu_id.version = 0xfe;
-+	vcpu->arch.cpu_id.version = 0xff;
- 	return 0;
+--- quilt-2.6.orig/drivers/s390/cio/device_fsm.c
++++ quilt-2.6/drivers/s390/cio/device_fsm.c
+@@ -1052,7 +1052,7 @@ ccw_device_offline_irq(struct ccw_device
+ 	sch = to_subchannel(cdev->dev.parent);
+ 	/*
+ 	 * An interrupt in state offline means a previous disable was not
+-	 * successful. Try again.
++	 * successful - should not happen, but we try to disable again.
+ 	 */
+ 	cio_disable_subchannel(sch);
  }
- 
 
 -- 
 blue skies,
