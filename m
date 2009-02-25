@@ -1,85 +1,125 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763361AbZBYPZp@vger.kernel.org>
-Message-Id: <20090225150834.201977804@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932279AbZBYPYj@vger.kernel.org>
+Message-Id: <20090225150834.992834654@de.ibm.com>
 References: <20090225150622.529143164@de.ibm.com>
-Date: Wed, 25 Feb 2009 16:06:47 +0100
+Date: Wed, 25 Feb 2009 16:06:50 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch/s390 25/46] cio: Try harder to disable subchannel.
-Content-Disposition: inline; filename=124-cio-sub-disable.diff
+Subject: [patch/s390 28/46] cio/crw: add/fix locking
+Content-Disposition: inline; filename=127-cio-mutex.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Acting upon the assumption that cio_disable_subchannel()
-is only called when we really want to disable the subchannel
-(a) remove the check for activity (it is already done in
-    ccw_device_offline(), which is the place where it matters)
-(b) collect pending status via tsch() and ignore it (it
-    can't matter anymore since the subchannel will be disabled).
+The crw_unregister_handler uses xchg + synchronize_sched when
+unregistering a crw_handler.
+This doesn't protect crw_collect_info to potentially jump to NULL since
+it has unlocked code like this:
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+if (crw_handlers[i])
+        crw_handlers[i](NULL, NULL, 1);
+
+So add a mutex which protects the crw handler array for changes.
+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/cio.c        |   18 ++++++++++--------
- drivers/s390/cio/device_fsm.c |    2 +-
- 2 files changed, 11 insertions(+), 9 deletions(-)
+ drivers/s390/cio/crw.c |   32 +++++++++++++++++++++++---------
+ 1 file changed, 23 insertions(+), 9 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/cio.c
+Index: quilt-2.6/drivers/s390/cio/crw.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/cio.c
-+++ quilt-2.6/drivers/s390/cio/cio.c
-@@ -472,6 +472,7 @@ EXPORT_SYMBOL_GPL(cio_enable_subchannel)
- int cio_disable_subchannel(struct subchannel *sch)
+--- quilt-2.6.orig/drivers/s390/cio/crw.c
++++ quilt-2.6/drivers/s390/cio/crw.c
+@@ -9,11 +9,13 @@
+  */
+ 
+ #include <linux/semaphore.h>
++#include <linux/mutex.h>
+ #include <linux/kthread.h>
+ #include <linux/init.h>
+ #include <asm/crw.h>
+ 
+ static struct semaphore crw_semaphore;
++static DEFINE_MUTEX(crw_handler_mutex);
+ static crw_handler_t crw_handlers[NR_RSCS];
+ 
+ /**
+@@ -25,11 +27,17 @@ static crw_handler_t crw_handlers[NR_RSC
+  */
+ int crw_register_handler(int rsc, crw_handler_t handler)
  {
- 	char dbf_txt[15];
-+	int retry;
- 	int ret;
- 
- 	CIO_TRACE_EVENT (2, "dissch");
-@@ -482,16 +483,17 @@ int cio_disable_subchannel(struct subcha
- 	if (cio_update_schib(sch))
- 		return -ENODEV;
- 
--	if (scsw_actl(&sch->schib.scsw) != 0)
--		/*
--		 * the disable function must not be called while there are
--		 *  requests pending for completion !
--		 */
--		return -EBUSY;
--
- 	sch->config.ena = 0;
--	ret = cio_commit_config(sch);
- 
-+	for (retry = 0; retry < 3; retry++) {
-+		ret = cio_commit_config(sch);
-+		if (ret == -EBUSY) {
-+			struct irb irb;
-+			if (tsch(sch->schid, &irb) != 0)
-+				break;
-+		} else
-+			break;
-+	}
- 	sprintf (dbf_txt, "ret:%d", ret);
- 	CIO_TRACE_EVENT (2, dbf_txt);
- 	return ret;
-Index: quilt-2.6/drivers/s390/cio/device_fsm.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_fsm.c
-+++ quilt-2.6/drivers/s390/cio/device_fsm.c
-@@ -1052,7 +1052,7 @@ ccw_device_offline_irq(struct ccw_device
- 	sch = to_subchannel(cdev->dev.parent);
- 	/*
- 	 * An interrupt in state offline means a previous disable was not
--	 * successful. Try again.
-+	 * successful - should not happen, but we try to disable again.
- 	 */
- 	cio_disable_subchannel(sch);
++	int rc = 0;
++
+ 	if ((rsc < 0) || (rsc >= NR_RSCS))
+ 		return -EINVAL;
+-	if (!cmpxchg(&crw_handlers[rsc], NULL, handler))
+-		return 0;
+-	return -EBUSY;
++	mutex_lock(&crw_handler_mutex);
++	if (crw_handlers[rsc])
++		rc = -EBUSY;
++	else
++		crw_handlers[rsc] = handler;
++	mutex_unlock(&crw_handler_mutex);
++	return rc;
  }
+ 
+ /**
+@@ -40,8 +48,9 @@ void crw_unregister_handler(int rsc)
+ {
+ 	if ((rsc < 0) || (rsc >= NR_RSCS))
+ 		return;
+-	xchg(&crw_handlers[rsc], NULL);
+-	synchronize_sched();
++	mutex_lock(&crw_handler_mutex);
++	crw_handlers[rsc] = NULL;
++	mutex_unlock(&crw_handler_mutex);
+ }
+ 
+ /*
+@@ -58,6 +67,8 @@ repeat:
+ 	ignore = down_interruptible(&crw_semaphore);
+ 	chain = 0;
+ 	while (1) {
++		crw_handler_t handler;
++
+ 		if (unlikely(chain > 1)) {
+ 			struct crw tmp_crw;
+ 
+@@ -90,10 +101,12 @@ repeat:
+ 			int i;
+ 
+ 			pr_debug("%s: crw overflow detected!\n", __func__);
++			mutex_lock(&crw_handler_mutex);
+ 			for (i = 0; i < NR_RSCS; i++) {
+ 				if (crw_handlers[i])
+ 					crw_handlers[i](NULL, NULL, 1);
+ 			}
++			mutex_unlock(&crw_handler_mutex);
+ 			chain = 0;
+ 			continue;
+ 		}
+@@ -101,10 +114,11 @@ repeat:
+ 			chain++;
+ 			continue;
+ 		}
+-		if (crw_handlers[crw[chain].rsc])
+-			crw_handlers[crw[chain].rsc](&crw[0],
+-						     chain ? &crw[1] : NULL,
+-						     0);
++		mutex_lock(&crw_handler_mutex);
++		handler = crw_handlers[crw[chain].rsc];
++		if (handler)
++			handler(&crw[0], chain ? &crw[1] : NULL, 0);
++		mutex_unlock(&crw_handler_mutex);
+ 		/* chain is always 0 or 1 here. */
+ 		chain = crw[chain].chn ? chain + 1 : 0;
+ 	}
 
 -- 
 blue skies,
