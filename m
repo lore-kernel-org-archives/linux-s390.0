@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763375AbZBYPSA@vger.kernel.org>
-Message-Id: <20090225150839.584679865@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761900AbZBYPTa@vger.kernel.org>
+Message-Id: <20090225150827.934014838@de.ibm.com>
 References: <20090225150622.529143164@de.ibm.com>
-Date: Wed, 25 Feb 2009 16:07:07 +0100
+Date: Wed, 25 Feb 2009 16:06:26 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch/s390 45/46] ftrace/mcount: fix kernel stack backchain
-Content-Disposition: inline; filename=144-ftrace-mcount.diff
+Subject: [patch/s390 04/46] dasd: enable compat ioctls
+Content-Disposition: inline; filename=103-dasd-ioctl.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,47 +14,62 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-With packed stack the backchain is at a different location.
-Just use __SF_BACKCHAIN as an offset to store the backchain.
+All of the ioctls are compatible. Just enable them.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/mcount.S |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/s390/block/dasd.c       |    3 ++-
+ drivers/s390/block/dasd_ioctl.c |   17 ++++++++++++++---
+ 2 files changed, 16 insertions(+), 4 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/mcount.S
+Index: quilt-2.6/drivers/s390/block/dasd.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/mcount.S
-+++ quilt-2.6/arch/s390/kernel/mcount.S
-@@ -5,6 +5,8 @@
-  *
-  */
+--- quilt-2.6.orig/drivers/s390/block/dasd.c
++++ quilt-2.6/drivers/s390/block/dasd.c
+@@ -2101,7 +2101,8 @@ dasd_device_operations = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= dasd_open,
+ 	.release	= dasd_release,
+-	.locked_ioctl	= dasd_ioctl,
++	.ioctl		= dasd_ioctl,
++	.compat_ioctl	= dasd_ioctl,
+ 	.getgeo		= dasd_getgeo,
+ };
  
-+#include <asm/asm-offsets.h>
+Index: quilt-2.6/drivers/s390/block/dasd_ioctl.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/block/dasd_ioctl.c
++++ quilt-2.6/drivers/s390/block/dasd_ioctl.c
+@@ -365,9 +365,9 @@ static int dasd_ioctl_readall_cmb(struct
+ 	return ret;
+ }
+ 
+-int
+-dasd_ioctl(struct block_device *bdev, fmode_t mode,
+-	   unsigned int cmd, unsigned long arg)
++static int
++dasd_do_ioctl(struct block_device *bdev, fmode_t mode,
++	      unsigned int cmd, unsigned long arg)
+ {
+ 	struct dasd_block *block = bdev->bd_disk->private_data;
+ 	void __user *argp = (void __user *)arg;
+@@ -420,3 +420,14 @@ dasd_ioctl(struct block_device *bdev, fm
+ 		return -EINVAL;
+ 	}
+ }
 +
- #ifndef CONFIG_64BIT
- .globl _mcount
- _mcount:
-@@ -14,7 +16,7 @@ _mcount:
- 	ahi	%r15,-96
- 	l	%r3,100(%r15)
- 	la	%r2,0(%r14)
--	st	%r1,0(%r15)
-+	st	%r1,__SF_BACKCHAIN(%r15)
- 	la	%r3,0(%r3)
- 	bras	%r14,0f
- 	.long	ftrace_trace_function
-@@ -38,7 +40,7 @@ _mcount:
- 	stg	%r14,112(%r15)
- 	lgr	%r1,%r15
- 	aghi	%r15,-160
--	stg	%r1,0(%r15)
-+	stg	%r1,__SF_BACKCHAIN(%r15)
- 	lgr	%r2,%r14
- 	lg	%r3,168(%r15)
- 	larl	%r14,ftrace_trace_function
++int dasd_ioctl(struct block_device *bdev, fmode_t mode,
++	       unsigned int cmd, unsigned long arg)
++{
++	int rc;
++
++	lock_kernel();
++	rc = dasd_do_ioctl(bdev, mode, cmd, arg);
++	unlock_kernel();
++	return rc;
++}
 
 -- 
 blue skies,
