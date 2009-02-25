@@ -1,156 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1764203AbZBYPWI@vger.kernel.org>
-Message-Id: <20090225150833.276341700@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1764337AbZBYPWz@vger.kernel.org>
+Message-Id: <20090225150837.137355598@de.ibm.com>
 References: <20090225150622.529143164@de.ibm.com>
-Date: Wed, 25 Feb 2009 16:06:44 +0100
+Date: Wed, 25 Feb 2009 16:06:58 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch/s390 22/46] convert bitmap definitions to C
-Content-Disposition: inline; filename=121-bitmap-to-C.diff
+Subject: [patch/s390 36/46] qdio: Dont call qdio_shutdown in case qdio_activate fails
+Content-Disposition: inline; filename=135-qdio-shutdown.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Jan Glauber <jang@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Jan Glauber <jang@linux.vnet.ibm.com>
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Remove the call to qdio_shutdown from qdio_activate since the upper-layer
+drivers are responsible to call qdio_shutdown when qdio_activate returns
+with an error.
+
+Signed-off-by: Jan Glauber <jang@linux.vnet.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/include/asm/bitops.h |    2 -
- arch/s390/kernel/bitmap.S      |   56 -----------------------------------------
- arch/s390/kernel/bitmap.c      |   49 +++++++++++++++++++++++++++++++++++
- 3 files changed, 50 insertions(+), 57 deletions(-)
+ drivers/s390/cio/qdio_main.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Index: quilt-2.6/arch/s390/include/asm/bitops.h
+Index: quilt-2.6/drivers/s390/cio/qdio_main.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/bitops.h
-+++ quilt-2.6/arch/s390/include/asm/bitops.h
-@@ -57,7 +57,7 @@
-  * with operation of the form "set_bit(bitnr, flags)".
-  */
- 
--/* bitmap tables from arch/S390/kernel/bitmap.S */
-+/* bitmap tables from arch/s390/kernel/bitmap.c */
- extern const char _oi_bitmap[];
- extern const char _ni_bitmap[];
- extern const char _zb_findmap[];
-Index: quilt-2.6/arch/s390/kernel/bitmap.c
-===================================================================
---- /dev/null
-+++ quilt-2.6/arch/s390/kernel/bitmap.c
-@@ -0,0 +1,49 @@
-+/*
-+ *    Bitmaps for set_bit, clear_bit, test_and_set_bit, ...
-+ *    See include/asm/{bitops.h|posix_types.h} for details
-+ *
-+ *    Copyright IBM Corp. 1999,2009
-+ *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>,
-+ */
-+
-+#include <linux/bitops.h>
-+
-+const char _oi_bitmap[] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
-+
-+const char _ni_bitmap[] = { 0xfe, 0xfd, 0xfb, 0xf7, 0xef, 0xdf, 0xbf, 0x7f };
-+
-+const char _zb_findmap[] = {
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,7,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
-+	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,8 };
-+
-+const char _sb_findmap[] = {
-+	8,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	7,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
-+	4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0 };
-Index: quilt-2.6/arch/s390/kernel/bitmap.S
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/bitmap.S
-+++ /dev/null
-@@ -1,56 +0,0 @@
--/*
-- *  arch/s390/kernel/bitmap.S
-- *    Bitmaps for set_bit, clear_bit, test_and_set_bit, ...
-- *    See include/asm-s390/{bitops.h|posix_types.h} for details
-- *
-- *  S390 version
-- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
-- *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
-- */
--
--         .globl _oi_bitmap
--_oi_bitmap:
--         .byte  0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80
--
--         .globl _ni_bitmap
--_ni_bitmap:
--         .byte  0xFE,0xFD,0xFB,0xF7,0xEF,0xDF,0xBF,0x7F
--
--         .globl _zb_findmap
--_zb_findmap:
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4 
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,7
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4
--         .byte  0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,8
--
--         .globl _sb_findmap
--_sb_findmap:
--         .byte  8,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  7,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--         .byte  4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
--
+--- quilt-2.6.orig/drivers/s390/cio/qdio_main.c
++++ quilt-2.6/drivers/s390/cio/qdio_main.c
+@@ -1404,9 +1404,8 @@ int qdio_activate(struct ccw_device *cde
+ 	switch (irq_ptr->state) {
+ 	case QDIO_IRQ_STATE_STOPPED:
+ 	case QDIO_IRQ_STATE_ERR:
+-		mutex_unlock(&irq_ptr->setup_mutex);
+-		qdio_shutdown(cdev, QDIO_FLAG_CLEANUP_USING_CLEAR);
+-		return -EIO;
++		rc = -EIO;
++		break;
+ 	default:
+ 		qdio_set_state(irq_ptr, QDIO_IRQ_STATE_ACTIVE);
+ 		rc = 0;
 
 -- 
 blue skies,
