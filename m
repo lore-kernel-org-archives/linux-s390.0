@@ -1,43 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763879AbZBYPUI@vger.kernel.org>
-Message-Id: <20090225150832.061592948@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1764008AbZBYPU6@vger.kernel.org>
+Message-Id: <20090225150838.199361626@de.ibm.com>
 References: <20090225150622.529143164@de.ibm.com>
-Date: Wed, 25 Feb 2009 16:06:40 +0100
+Date: Wed, 25 Feb 2009 16:07:02 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch/s390 18/46] ftrace: dont trace machine check handler
-Content-Disposition: inline; filename=117-ftrace-notrace.diff
+Subject: [patch/s390 40/46] allow usage of string functions in linux/string.h
+Content-Disposition: inline; filename=139-string-protos.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 
-The ftrace code is currently not reentrant, so we better don't trace
-our machine check handler. Machine checks are handled like NMIs on s390.
+In introducing a trivial "strstarts()" function in linux/string.h, we
+hit the following error on s390:
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+In file included from include/linux/bitmap.h:8,
+                 from include/linux/cpumask.h:142,
+                 from include/linux/smp.h:12,
+                 from /home/rusty/devel/kernel/patches/linux-2.6/arch/s390/include/asm/spinlock.h:14,
+                 from include/linux/spinlock.h:88,
+                 from include/linux/seqlock.h:29,
+                 from include/linux/time.h:8,
+                 from include/linux/stat.h:60,
+                 from include/linux/module.h:10,
+                 from arch/s390/lib/string.c:13:
+include/linux/string.h: In function 'strstarts':
+include/linux/string.h:124: error: implicit declaration of function 'strlen'
+include/linux/string.h:124: warning: incompatible implicit declaration of built-in function 'strlen'
+
+Because when including asm/string.h from arch/s390/lib/string.c we
+don't declare the string ops we are about to define, and
+linux/string.h barfs.
+
+The fix is to declare them in this IN_ARCH_STRING_C case, but in
+general I wonder if there's a neater fix.
+
+Reported-by: linux-next
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/s390mach.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/s390/include/asm/string.h |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-Index: quilt-2.6/drivers/s390/s390mach.c
+Index: quilt-2.6/arch/s390/include/asm/string.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/s390mach.c
-+++ quilt-2.6/drivers/s390/s390mach.c
-@@ -357,8 +357,7 @@ s390_revalidate_registers(struct mci *mc
- /*
-  * machine check handler.
-  */
--void
--s390_do_machine_check(struct pt_regs *regs)
-+void notrace s390_do_machine_check(struct pt_regs *regs)
- {
- 	static DEFINE_SPINLOCK(ipd_lock);
- 	static unsigned long long last_ipd;
+--- quilt-2.6.orig/arch/s390/include/asm/string.h
++++ quilt-2.6/arch/s390/include/asm/string.h
+@@ -135,7 +135,13 @@ static inline size_t strnlen(const char 
+ 		: "+a" (end), "+a" (tmp) : "d" (r0)  : "cc");
+ 	return end - s;
+ }
+-
++#else /* IN_ARCH_STRING_C */
++void *memchr(const void * s, int c, size_t n);
++void *memscan(void *s, int c, size_t n);
++char *strcat(char *dst, const char *src);
++char *strcpy(char *dst, const char *src);
++size_t strlen(const char *s);
++size_t strnlen(const char * s, size_t n);
+ #endif /* !IN_ARCH_STRING_C */
+ 
+ #endif /* __KERNEL__ */
 
 -- 
 blue skies,
