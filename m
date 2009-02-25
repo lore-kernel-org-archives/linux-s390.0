@@ -1,82 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763624AbZBYP0e@vger.kernel.org>
-Message-Id: <20090225150835.567940767@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1764680AbZBYP1Z@vger.kernel.org>
+Message-Id: <20090225150831.217373674@de.ibm.com>
 References: <20090225150622.529143164@de.ibm.com>
-Date: Wed, 25 Feb 2009 16:06:52 +0100
+Date: Wed, 25 Feb 2009 16:06:37 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch/s390 30/46] cio: device scan oom fallback.
-Content-Disposition: inline; filename=129-cio-scan-oom.diff
+Subject: [patch/s390 15/46] lockdep: trace hardirq off in smp_send_stop
+Content-Disposition: inline; filename=114-lockdep-send-stop.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-Since some callers rely on for_each_subchannel_staged to not fail,
-fall back to brute force scanning using get_subchannel_by_schid in
-case of a oom situation.
+With lockdep we got the following trace after a panic:
 
-Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Badness at /home/autobuild/BUILD/linux-2.6.28-20090204/kernel/lockdep.c:2878
+[...]
+Call Trace:
+ [<0000000000176334>] lock_acquire+0x54/0xbc
+ [<000000000050b4fe>] __atomic_notifier_call_chain+0x6e/0xdc
+ [<000000000050b59c>] atomic_notifier_call_chain+0x30/0x44
+ [<0000000000504274>] panic+0xd0/0x1e8
+[...]
+INFO: lockdep is turned off.
+Last Breaking-Event-Address:
+ [<0000000000170e62>] check_flags+0xae/0x15c
+possible reason: unannotated irqs-off.
+
+lockdep is right. We missed a trace_hardirq_off in our smp_send_stop
+function and smp_send_stop is called before the panic call chain.
+
+Reported-by: Mijo <Safradin mijo@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/css.c |   31 +++++++++++++++++++++++++++----
- 1 file changed, 27 insertions(+), 4 deletions(-)
+ arch/s390/kernel/smp.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-Index: quilt-2.6/drivers/s390/cio/css.c
+Index: quilt-2.6/arch/s390/kernel/smp.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/css.c
-+++ quilt-2.6/drivers/s390/cio/css.c
-@@ -83,6 +83,25 @@ static int call_fn_unknown_sch(struct su
- 	return rc;
- }
+--- quilt-2.6.orig/arch/s390/kernel/smp.c
++++ quilt-2.6/arch/s390/kernel/smp.c
+@@ -32,6 +32,7 @@
+ #include <linux/delay.h>
+ #include <linux/cache.h>
+ #include <linux/interrupt.h>
++#include <linux/irqflags.h>
+ #include <linux/cpu.h>
+ #include <linux/timex.h>
+ #include <linux/bootmem.h>
+@@ -75,6 +76,7 @@ void smp_send_stop(void)
  
-+static int call_fn_all_sch(struct subchannel_id schid, void *data)
-+{
-+	struct cb_data *cb = data;
-+	struct subchannel *sch;
-+	int rc = 0;
-+
-+	sch = get_subchannel_by_schid(schid);
-+	if (sch) {
-+		if (cb->fn_known_sch)
-+			rc = cb->fn_known_sch(sch, cb->data);
-+		put_device(&sch->dev);
-+	} else {
-+		if (cb->fn_unknown_sch)
-+			rc = cb->fn_unknown_sch(schid, cb->data);
-+	}
-+
-+	return rc;
-+}
-+
- int for_each_subchannel_staged(int (*fn_known)(struct subchannel *, void *),
- 			       int (*fn_unknown)(struct subchannel_id,
- 			       void *), void *data)
-@@ -90,13 +109,17 @@ int for_each_subchannel_staged(int (*fn_
- 	struct cb_data cb;
- 	int rc;
+ 	/* Disable all interrupts/machine checks */
+ 	__load_psw_mask(psw_kernel_bits & ~PSW_MASK_MCHECK);
++	trace_hardirqs_off();
  
--	cb.set = idset_sch_new();
--	if (!cb.set)
--		return -ENOMEM;
--	idset_fill(cb.set);
- 	cb.data = data;
- 	cb.fn_known_sch = fn_known;
- 	cb.fn_unknown_sch = fn_unknown;
-+
-+	cb.set = idset_sch_new();
-+	if (!cb.set)
-+		/* fall back to brute force scanning in case of oom */
-+		return for_each_subchannel(call_fn_all_sch, &cb);
-+
-+	idset_fill(cb.set);
-+
- 	/* Process registered subchannels. */
- 	rc = bus_for_each_dev(&css_bus_type, NULL, &cb, call_fn_known_sch);
- 	if (rc)
+ 	/* stop all processors */
+ 	for_each_online_cpu(cpu) {
 
 -- 
 blue skies,
