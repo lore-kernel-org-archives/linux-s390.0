@@ -1,81 +1,194 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759002AbZBYPPj@vger.kernel.org>
-Message-Id: <20090225150836.857796972@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756656AbZBYPOK@vger.kernel.org>
+Message-Id: <20090225150833.674275785@de.ibm.com>
 References: <20090225150622.529143164@de.ibm.com>
-Date: Wed, 25 Feb 2009 16:06:57 +0100
+Date: Wed, 25 Feb 2009 16:06:45 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch/s390 35/46] qdio: add missing tiq_list locking
-Content-Disposition: inline; filename=134-qdio-tiq-lock.diff
+Subject: [patch/s390 23/46] move EXPORT_SYMBOLs to definitions
+Content-Disposition: inline; filename=122-export-symbols.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Jan Glauber <jang@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Jan Glauber <jang@linux.vnet.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Add a mutex to protect the tiq_list. Although reading the list is done
-using RCU adding and removing elements from the list must still
-happen locked since multiple qdio devices may change the list in parallel
-otherwise.
+Move all EXPORT_SYMBOLs to their corresponding definitions.
 
-Signed-off-by: Jan Glauber <jang@linux.vnet.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/qdio_main.c    |    1 +
- drivers/s390/cio/qdio_thinint.c |   10 +++++++---
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ arch/s390/kernel/bitmap.c     |    5 ++++
+ arch/s390/kernel/process.c    |    2 +
+ arch/s390/kernel/s390_ksyms.c |   44 ------------------------------------------
+ arch/s390/kernel/setup.c      |    8 +++++++
+ arch/s390/lib/delay.c         |    2 +
+ arch/s390/mm/init.c           |    2 +
+ 6 files changed, 19 insertions(+), 44 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/qdio_main.c
+Index: quilt-2.6/arch/s390/kernel/bitmap.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/qdio_main.c
-+++ quilt-2.6/drivers/s390/cio/qdio_main.c
-@@ -1112,6 +1112,7 @@ int qdio_shutdown(struct ccw_device *cde
- 	if (!irq_ptr)
- 		return -ENODEV;
+--- quilt-2.6.orig/arch/s390/kernel/bitmap.c
++++ quilt-2.6/arch/s390/kernel/bitmap.c
+@@ -7,10 +7,13 @@
+  */
  
-+	BUG_ON(irqs_disabled());
- 	DBF_EVENT("qshutdown:%4x", cdev->private->schid.sch_no);
+ #include <linux/bitops.h>
++#include <linux/module.h>
  
- 	mutex_lock(&irq_ptr->setup_mutex);
-Index: quilt-2.6/drivers/s390/cio/qdio_thinint.c
+ const char _oi_bitmap[] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
++EXPORT_SYMBOL(_oi_bitmap);
+ 
+ const char _ni_bitmap[] = { 0xfe, 0xfd, 0xfb, 0xf7, 0xef, 0xdf, 0xbf, 0x7f };
++EXPORT_SYMBOL(_ni_bitmap);
+ 
+ const char _zb_findmap[] = {
+ 	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
+@@ -29,6 +32,7 @@ const char _zb_findmap[] = {
+ 	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,
+ 	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
+ 	0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,8 };
++EXPORT_SYMBOL(_zb_findmap);
+ 
+ const char _sb_findmap[] = {
+ 	8,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
+@@ -47,3 +51,4 @@ const char _sb_findmap[] = {
+ 	4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
+ 	5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
+ 	4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0 };
++EXPORT_SYMBOL(_sb_findmap);
+Index: quilt-2.6/arch/s390/kernel/process.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/qdio_thinint.c
-+++ quilt-2.6/drivers/s390/cio/qdio_thinint.c
-@@ -31,6 +31,7 @@
- 
- /* list of thin interrupt input queues */
- static LIST_HEAD(tiq_list);
-+DEFINE_MUTEX(tiq_list_lock);
- 
- /* adapter local summary indicator */
- static unsigned char *tiqdio_alsi;
-@@ -95,10 +96,10 @@ void tiqdio_add_input_queues(struct qdio
- 	if (!css_qdio_omit_svs && irq_ptr->siga_flag.sync)
- 		css_qdio_omit_svs = 1;
- 
--	for_each_input_queue(irq_ptr, q, i) {
-+	mutex_lock(&tiq_list_lock);
-+	for_each_input_queue(irq_ptr, q, i)
- 		list_add_rcu(&q->entry, &tiq_list);
--		synchronize_rcu();
--	}
-+	mutex_unlock(&tiq_list_lock);
- 	xchg(irq_ptr->dsci, 1);
- 	tasklet_schedule(&tiqdio_tasklet);
+--- quilt-2.6.orig/arch/s390/kernel/process.c
++++ quilt-2.6/arch/s390/kernel/process.c
+@@ -141,6 +141,7 @@ int kernel_thread(int (*fn)(void *), voi
+ 	return do_fork(flags | CLONE_VM | CLONE_UNTRACED,
+ 		       0, &regs, 0, NULL, NULL);
  }
-@@ -118,7 +119,10 @@ void tiqdio_remove_input_queues(struct q
- 		/* if establish triggered an error */
- 		if (!q || !q->entry.prev || !q->entry.next)
- 			continue;
++EXPORT_SYMBOL(kernel_thread);
+ 
+ /*
+  * Free current thread data structures etc..
+@@ -318,6 +319,7 @@ int dump_fpu (struct pt_regs * regs, s39
+ #endif /* CONFIG_64BIT */
+ 	return 1;
+ }
++EXPORT_SYMBOL(dump_fpu);
+ 
+ unsigned long get_wchan(struct task_struct *p)
+ {
+Index: quilt-2.6/arch/s390/kernel/s390_ksyms.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/s390_ksyms.c
++++ quilt-2.6/arch/s390/kernel/s390_ksyms.c
+@@ -1,49 +1,5 @@
+-/*
+- *  arch/s390/kernel/s390_ksyms.c
+- *
+- *  S390 version
+- */
+-#include <linux/highuid.h>
+ #include <linux/module.h>
+-#include <linux/mm.h>
+-#include <linux/smp.h>
+-#include <linux/syscalls.h>
+-#include <linux/interrupt.h>
+-#include <asm/checksum.h>
+-#include <asm/cpcmd.h>
+-#include <asm/delay.h>
+-#include <asm/pgalloc.h>
+-#include <asm/setup.h>
+ #include <asm/ftrace.h>
+-#ifdef CONFIG_IP_MULTICAST
+-#include <net/arp.h>
+-#endif
+-
+-/*
+- * memory management
+- */
+-EXPORT_SYMBOL(_oi_bitmap);
+-EXPORT_SYMBOL(_ni_bitmap);
+-EXPORT_SYMBOL(_zb_findmap);
+-EXPORT_SYMBOL(_sb_findmap);
+-
+-/*
+- * binfmt_elf loader 
+- */
+-extern int dump_fpu (struct pt_regs * regs, s390_fp_regs *fpregs);
+-EXPORT_SYMBOL(dump_fpu);
+-EXPORT_SYMBOL(empty_zero_page);
+-
+-/*
+- * misc.
+- */
+-EXPORT_SYMBOL(machine_flags);
+-EXPORT_SYMBOL(__udelay);
+-EXPORT_SYMBOL(kernel_thread);
+-EXPORT_SYMBOL(csum_fold);
+-EXPORT_SYMBOL(console_mode);
+-EXPORT_SYMBOL(console_devno);
+-EXPORT_SYMBOL(console_irq);
+ 
+ #ifdef CONFIG_FUNCTION_TRACER
+ EXPORT_SYMBOL(_mcount);
+Index: quilt-2.6/arch/s390/kernel/setup.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/setup.c
++++ quilt-2.6/arch/s390/kernel/setup.c
+@@ -74,9 +74,17 @@ EXPORT_SYMBOL(uaccess);
+  * Machine setup..
+  */
+ unsigned int console_mode = 0;
++EXPORT_SYMBOL(console_mode);
 +
-+		mutex_lock(&tiq_list_lock);
- 		list_del_rcu(&q->entry);
-+		mutex_unlock(&tiq_list_lock);
- 		synchronize_rcu();
- 	}
+ unsigned int console_devno = -1;
++EXPORT_SYMBOL(console_devno);
++
+ unsigned int console_irq = -1;
++EXPORT_SYMBOL(console_irq);
++
+ unsigned long machine_flags;
++EXPORT_SYMBOL(machine_flags);
++
+ unsigned long elf_hwcap = 0;
+ char elf_platform[ELF_PLATFORM_SIZE];
+ 
+Index: quilt-2.6/arch/s390/lib/delay.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/lib/delay.c
++++ quilt-2.6/arch/s390/lib/delay.c
+@@ -9,6 +9,7 @@
+ #include <linux/sched.h>
+ #include <linux/delay.h>
+ #include <linux/timex.h>
++#include <linux/module.h>
+ #include <linux/irqflags.h>
+ #include <linux/interrupt.h>
+ 
+@@ -92,6 +93,7 @@ out:
+ 	local_irq_restore(flags);
+ 	preempt_enable();
  }
++EXPORT_SYMBOL(__udelay);
+ 
+ /*
+  * Simple udelay variant. To be used on startup and reboot
+Index: quilt-2.6/arch/s390/mm/init.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/mm/init.c
++++ quilt-2.6/arch/s390/mm/init.c
+@@ -40,7 +40,9 @@
+ DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
+ 
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __attribute__((__aligned__(PAGE_SIZE)));
++
+ char  empty_zero_page[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
++EXPORT_SYMBOL(empty_zero_page);
+ 
+ /*
+  * paging_init() sets up the page tables
 
 -- 
 blue skies,
