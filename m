@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757353AbZCYAc4@vger.kernel.org>
-From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 09/61] s390: struct device - replace bus_id with dev_name(), dev_set_name()
-Date: Tue, 24 Mar 2009 17:26:13 -0700
-Message-Id: <1237940825-22904-9-git-send-email-gregkh@suse.de>
-In-Reply-To: <20090325001659.GA22461@kroah.com>
-References: <20090325001659.GA22461@kroah.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Kay Sievers <kay.sievers@vrfy.org>, schwidefsky@de.ibm.com, linux-s390@vger.kernel.org
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 13/18] [PATCH] zfcp: Report fc_host_port_type as NPIV
+Date: Mon, 02 Mar 2009 13:09:06 +0100
+Message-ID: <20090302121003.769541000@de.ibm.com>
+References: <20090302120853.279447000@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline; filename=714-zfcp-port-type.diff
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Swen Schillig <swen@vnet.ibm.com>, Christof Schmitt <christof.schmitt@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Kay Sievers <kay.sievers@vrfy.org>
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-Cc: schwidefsky@de.ibm.com
-Cc: linux-s390@vger.kernel.org
-Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+Report the fc_host_port_type as FC_PORTTYPE_NPIV when the subchannel
+is running in NPIV mode. This allows to see the correct type with
+lsscsi -H -t --list
+
+Acked-by: Swen Schillig <swen@vnet.ibm.com>
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
 ---
- drivers/s390/net/qeth_l3_main.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 3d04920..0dcc036 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1038,7 +1038,7 @@ static int qeth_l3_setadapter_parms(struct qeth_card *card)
- 	rc = qeth_query_setadapterparms(card);
- 	if (rc) {
- 		QETH_DBF_MESSAGE(2, "%s couldn't set adapter parameters: "
--			"0x%x\n", card->gdev->dev.bus_id, rc);
-+			"0x%x\n", dev_name(&card->gdev->dev), rc);
- 		return rc;
- 	}
- 	if (qeth_adp_supported(card, IPA_SETADP_ALTER_MAC_ADDRESS)) {
--- 
-1.6.2
+ drivers/s390/scsi/zfcp_fsf.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff -urpN linux-2.6/drivers/s390/scsi/zfcp_fsf.c linux-2.6-patched/drivers/s390/scsi/zfcp_fsf.c
+--- linux-2.6/drivers/s390/scsi/zfcp_fsf.c	2009-03-01 16:41:34.000000000 +0100
++++ linux-2.6-patched/drivers/s390/scsi/zfcp_fsf.c	2009-03-01 16:41:35.000000000 +0100
+@@ -616,9 +616,10 @@ static void zfcp_fsf_exchange_port_evalu
+ 	if (req->data)
+ 		memcpy(req->data, bottom, sizeof(*bottom));
+ 
+-	if (adapter->connection_features & FSF_FEATURE_NPIV_MODE)
++	if (adapter->connection_features & FSF_FEATURE_NPIV_MODE) {
+ 		fc_host_permanent_port_name(shost) = bottom->wwpn;
+-	else
++		fc_host_port_type(shost) = FC_PORTTYPE_NPIV;
++	} else
+ 		fc_host_permanent_port_name(shost) = fc_host_port_name(shost);
+ 	fc_host_maxframe_size(shost) = bottom->maximum_frame_size;
+ 	fc_host_supported_speeds(shost) = bottom->supported_speed;
