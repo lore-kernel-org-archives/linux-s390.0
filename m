@@ -1,66 +1,49 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: Next March 27 : s390 defconfig build failure
-Date: Fri, 27 Mar 2009 15:40:27 +0100
-Message-ID: <20090327154027.55afeb02@osiris.boeblingen.de.ibm.com>
-References: <20090327231924.4e4168c5.sfr@canb.auug.org.au>
-	<49CCDB30.7010203@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <49CCDB30.7010203@in.ibm.com>
-Sender: linux-next-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-next/>
-List-Post: <mailto:linux-next@vger.kernel.org>
-To: Sachin Sant <sachinp@in.ibm.com>, Ingo Molnar <mingo@elte.hu>
-Cc: linux-s390@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: akpm@linux-foundation.org
+Date: Wed, 04 Mar 2009 20:04:50 +0000
+Subject: [patch 1/1] s390: use kzfree()
+Message-Id: <200903042004.n24K4pM4029139@imap1.linux-foundation.org>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 27 Mar 2009 19:27:04 +0530
-Sachin Sant <sachinp@in.ibm.com> wrote:
+From: Johannes Weiner <hannes@cmpxchg.org>
 
-> Today's Next defconfig s390 build failed with
-> 
-> arch/s390/hypfs/hypfs_diag.c: In function diag204_free_buffer:
-> arch/s390/hypfs/hypfs_diag.c:364: error: implicit declaration of function free_pages
-> arch/s390/hypfs/hypfs_diag.c: In function diag204_alloc_rbuf:
-> arch/s390/hypfs/hypfs_diag.c:384: error: implicit declaration of function __get_free_pages
-> arch/s390/hypfs/hypfs_diag.c:384: error: GFP_KERNEL undeclared (first use in this function)
+Use kzfree() instead of memset() + kfree().
 
-Thanks for reporting. Ingo, could you pick up the patch below please?
-
-Subject: [PATCH] s390/hypfs: fix build breakage
-
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-
-Fix build breakage below which probably was introduced with
-("rcu: don't include unnecessary headers, allow kmemtrace w/ tracepoints").
-
-  CC      arch/s390/hypfs/hypfs_diag.o
-arch/s390/hypfs/hypfs_diag.c: In function 'diag204_free_buffer':
-arch/s390/hypfs/hypfs_diag.c:364: error: implicit declaration of function 'free_pages'
-arch/s390/hypfs/hypfs_diag.c: In function 'diag204_alloc_rbuf':
-arch/s390/hypfs/hypfs_diag.c:384: error: implicit declaration of function '__get_free_pages'
-arch/s390/hypfs/hypfs_diag.c:384: error: 'GFP_KERNEL' undeclared (first use in this function)
-arch/s390/hypfs/hypfs_diag.c:384: error: (Each undeclared identifier is reported only once
-arch/s390/hypfs/hypfs_diag.c:384: error: for each function it appears in.)
-
-Reported-by: Sachin Sant <sachinp@in.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Reviewed-by: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- arch/s390/hypfs/hypfs_diag.c |    2 ++
- 1 file changed, 2 insertions(+)
 
-Index: linux-next/arch/s390/hypfs/hypfs_diag.c
-===================================================================
---- linux-next.orig/arch/s390/hypfs/hypfs_diag.c
-+++ linux-next/arch/s390/hypfs/hypfs_diag.c
-@@ -12,6 +12,8 @@
+ arch/s390/crypto/prng.c             |    3 +--
+ drivers/s390/crypto/zcrypt_pcixcc.c |    3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff -puN arch/s390/crypto/prng.c~s390-use-kzfree arch/s390/crypto/prng.c
+--- a/arch/s390/crypto/prng.c~s390-use-kzfree
++++ a/arch/s390/crypto/prng.c
+@@ -201,8 +201,7 @@ out_free:
+ static void __exit prng_exit(void)
+ {
+ 	/* wipe me */
+-	memset(p->buf, 0, prng_chunk_size);
+-	kfree(p->buf);
++	kzfree(p->buf);
+ 	kfree(p);
  
- #include <linux/types.h>
- #include <linux/errno.h>
-+#include <linux/gfp.h>
-+#include <linux/slab.h>
- #include <linux/string.h>
- #include <linux/vmalloc.h>
- #include <asm/ebcdic.h>
+ 	misc_deregister(&prng_dev);
+diff -puN drivers/s390/crypto/zcrypt_pcixcc.c~s390-use-kzfree drivers/s390/crypto/zcrypt_pcixcc.c
+--- a/drivers/s390/crypto/zcrypt_pcixcc.c~s390-use-kzfree
++++ a/drivers/s390/crypto/zcrypt_pcixcc.c
+@@ -781,8 +781,7 @@ static long zcrypt_pcixcc_send_cprb(stru
+ 		/* Signal pending. */
+ 		ap_cancel_message(zdev->ap_dev, &ap_msg);
+ out_free:
+-	memset(ap_msg.message, 0x0, ap_msg.length);
+-	kfree(ap_msg.message);
++	kzfree(ap_msg.message);
+ 	return rc;
+ }
+ 
+_
