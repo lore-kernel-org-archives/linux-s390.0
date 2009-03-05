@@ -1,49 +1,69 @@
-From: akpm@linux-foundation.org
-Date: Wed, 04 Mar 2009 20:04:50 +0000
-Subject: [patch 1/1] s390: use kzfree()
-Message-Id: <200903042004.n24K4pM4029139@imap1.linux-foundation.org>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Thu, 05 Mar 2009 11:56:59 +0000
+Subject: Re: [PATCH] s390: wraparound when block_len < 2.
+Message-Id: <1236254219.9845.3.camel@braunu-laptop>
+In-Reply-To: <49AEA2D8.1010408@gmail.com>
+References: <49AEA2D8.1010408@gmail.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Johannes Weiner <hannes@cmpxchg.org>
+Roel,
 
-Use kzfree() instead of memset() + kfree().
+thanks for your proposal to avoid wrap-arounds in our ctcm receive
+code. 
+Since the receive code should tolerate any incoming garbage, your patch 
+makes our code more robust. I am going to add your ctcm_fsms.c-patch
+and 
+come up with an additional ctcm_main.c-patch.
 
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Reviewed-by: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+Kind regards, Ursula Braun  
 
- arch/s390/crypto/prng.c             |    3 +--
- drivers/s390/crypto/zcrypt_pcixcc.c |    3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
 
-diff -puN arch/s390/crypto/prng.c~s390-use-kzfree arch/s390/crypto/prng.c
---- a/arch/s390/crypto/prng.c~s390-use-kzfree
-+++ a/arch/s390/crypto/prng.c
-@@ -201,8 +201,7 @@ out_free:
- static void __exit prng_exit(void)
- {
- 	/* wipe me */
--	memset(p->buf, 0, prng_chunk_size);
--	kfree(p->buf);
-+	kzfree(p->buf);
- 	kfree(p);
- 
- 	misc_deregister(&prng_dev);
-diff -puN drivers/s390/crypto/zcrypt_pcixcc.c~s390-use-kzfree drivers/s390/crypto/zcrypt_pcixcc.c
---- a/drivers/s390/crypto/zcrypt_pcixcc.c~s390-use-kzfree
-+++ a/drivers/s390/crypto/zcrypt_pcixcc.c
-@@ -781,8 +781,7 @@ static long zcrypt_pcixcc_send_cprb(stru
- 		/* Signal pending. */
- 		ap_cancel_message(zdev->ap_dev, &ap_msg);
- out_free:
--	memset(ap_msg.message, 0x0, ap_msg.length);
--	kfree(ap_msg.message);
-+	kzfree(ap_msg.message);
- 	return rc;
- }
- 
-_
+Roel Kluin <roel.kluin@gmail.com> wrote on 04.03.2009 16:45:03:
+
+> From:
+> 
+> Roel Kluin <roel.kluin@gmail.com>
+> 
+> To:
+> 
+> Ursula Braun1/Germany/IBM@IBMDE
+> 
+> Cc:
+> 
+> linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+> 
+> Date:
+> 
+> 04.03.2009 16:46
+> 
+> Subject:
+> 
+> [PATCH] s390: wraparound when block_len < 2.
+> 
+> I'm not sure that this is necessary, please review.
+>
+------------------------------>8-------------8<---------------------------------
+> block_len is unsigned so a too large subtraction will cause a
+wraparound.
+> 
+> Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
+> ---
+> diff --git a/drivers/s390/net/ctcm_fsms.c
+b/drivers/s390/net/ctcm_fsms.c
+> index f29c708..4ded9ac 100644
+> --- a/drivers/s390/net/ctcm_fsms.c
+> +++ b/drivers/s390/net/ctcm_fsms.c
+> @@ -410,9 +410,8 @@ static void chx_rx(fsm_instance *fi, int event,
+void *arg)
+>        priv->stats.rx_length_errors++;
+>                    goto again;
+>     }
+> -   block_len -= 2;
+> -   if (block_len > 0) {
+> -      *((__u16 *)skb->data) = block_len;
+> +   if (block_len > 2) {
+> +      *((__u16 *)skb->data) = block_len - 2;
+>        ctcm_unpack_skb(ch, skb);
+>     }
+>   again:
