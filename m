@@ -1,39 +1,32 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756725AbZCEQ7k@vger.kernel.org>
-From: Dan Smith <danms@us.ibm.com>
-Subject: Re: [PATCH] s390: Expose a constant for the number of words representing the CRs
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756428AbZCETfp@vger.kernel.org>
+Date: Thu, 5 Mar 2009 20:35:27 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] s390: Expose a constant for the number of words
+ representing the CRs
+Message-ID: <20090305203527.48d7c2cd@skybook>
+In-Reply-To: <87tz67vrkc.fsf@caffeine.danplanet.com>
 References: <1236271688-18806-1-git-send-email-danms@us.ibm.com>
-Date: Thu, 05 Mar 2009 08:54:11 -0800
-In-Reply-To: <1236271688-18806-1-git-send-email-danms@us.ibm.com> (Dan Smith's
-	message of "Thu, 5 Mar 2009 11:48:08 -0500")
-Message-ID: <87tz67vrkc.fsf@caffeine.danplanet.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	<87tz67vrkc.fsf@caffeine.danplanet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
+To: Dan Smith <danms@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-DS> We need to use this value in the checkpoint/restart code and would
-DS> like to have a constant instead of a magic '3'.
+On Thu, 05 Mar 2009 08:54:11 -0800
+Dan Smith <danms@us.ibm.com> wrote:
 
-DS> Changelog:
-DS>     Mar 03:
-DS>             . Picked up additional use of magic '3' in ptrace.h
+> If there aren't any objections to this patch, can it get picked up?
 
-DS> Signed-off-by: Dan Smith <danms@us.ibm.com>
-DS> Cc: linux-s390@vger.kernel.org
-DS> ---
-DS>  arch/s390/include/asm/ptrace.h   |    4 +++-
-DS>  arch/s390/kernel/compat_ptrace.h |    3 ++-
-DS>  2 files changed, 5 insertions(+), 2 deletions(-)
-
-If there aren't any objections to this patch, can it get picked up?
-
-Thanks!
+Have you looked at git390 lately ?
 
 -- 
-Dan Smith
-IBM Linux Technology Center
-email: danms@us.ibm.com
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
