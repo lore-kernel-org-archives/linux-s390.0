@@ -1,39 +1,42 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 16/18] [PATCH] zfcp: erp failed status bit will not be set
-Date: Mon, 02 Mar 2009 13:09:09 +0100
-Message-ID: <20090302121004.183095000@de.ibm.com>
-References: <20090302120853.279447000@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=717-zfcp-erp-status-bit.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Martin Petermann <martin@linux.vnet.ibm.com>, Christof Schmitt <christof.schmitt@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756488AbZCGVKh@vger.kernel.org>
+Date: Sat, 7 Mar 2009 22:10:15 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] s390: Expose a constant for the number of words
+ representing the CRs
+Message-ID: <20090307221015.7aff8204@de.ibm.com>
+In-Reply-To: <87zlfzu0vw.fsf@caffeine.danplanet.com>
+References: <1236271688-18806-1-git-send-email-danms@us.ibm.com>
+	<87tz67vrkc.fsf@caffeine.danplanet.com>
+	<20090305203527.48d7c2cd@skybook>
+	<878wnjviwo.fsf@caffeine.danplanet.com>
+	<20090305220926.58a380bf@skybook>
+	<87zlfzu0vw.fsf@caffeine.danplanet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Dan Smith <danms@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Petermann <martin@linux.vnet.ibm.com>
+On Thu, 05 Mar 2009 13:15:47 -0800
+Dan Smith <danms@us.ibm.com> wrote:
 
-It will not be necessary to set the erp failed status bit
-in case a SCSI device is removed by the SCSI mid layer.
-In the case a SCSI device is unavailable for a short time
-(15 to 20 seconds) a FCP unit will not get on-line again.
+> MS> The feature branch which contains the patches for the next merge
+> MS> window contains your patch. I've added it a few weeks ago, but I
+> MS> might have forgotten to drop you a note that I did so.
+> 
+> Ah, yeah, I never heard anything :)
+> 
+> The patch I sent earlier to day has been updated to catch another use
+> of the magic '3'.  Can we replace the old with the new in that branch?
 
-Signed-off-by: Martin Petermann <martin@linux.vnet.ibm.com>
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
----
+Sure, I've added the new one to my patch set.
 
- drivers/s390/scsi/zfcp_scsi.c |    1 -
- 1 file changed, 1 deletion(-)
+-- 
+blue skies,
+   Martin.
 
-diff -urpN linux-2.6/drivers/s390/scsi/zfcp_scsi.c linux-2.6-patched/drivers/s390/scsi/zfcp_scsi.c
---- linux-2.6/drivers/s390/scsi/zfcp_scsi.c	2009-03-01 16:41:36.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/scsi/zfcp_scsi.c	2009-03-01 16:41:36.000000000 +0100
-@@ -28,7 +28,6 @@ static void zfcp_scsi_slave_destroy(stru
- {
- 	struct zfcp_unit *unit = (struct zfcp_unit *) sdpnt->hostdata;
- 	unit->device = NULL;
--	zfcp_erp_unit_failed(unit, "scslvd1", NULL);
- 	zfcp_unit_put(unit);
- }
- 
+"Reality continues to ruin my life." - Calvin.
