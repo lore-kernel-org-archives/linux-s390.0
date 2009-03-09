@@ -1,34 +1,22 @@
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Date: Mon, 09 Mar 2009 09:46:28 +0000
-Subject: Re: [BUG,2.6.29-rc7] Fails to boot in Hercules if HVC_IUCV is set
-Message-Id: <20090309094628.GB4124@cetus.boeblingen.de.ibm.com>
-In-Reply-To: <200903090302.08873.elendil@planet.nl>
-References: <200903090302.08873.elendil@planet.nl>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Mon, 09 Mar 2009 12:34:27 +0000
+Subject: Re: [BUG,2.6.27] "fixpoint divide exception" while creating
+Message-Id: <20090309133427.41faac38@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <200903091223.19930.elendil@planet.nl>
+References: <200903091223.19930.elendil@planet.nl>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Mar 09, 2009 at 03:02:07AM +0100, Frans Pop wrote:
-> On Sunday 08 March 2009, Frans Pop wrote:
-> > > Initially I had CONFIG_HVC_IUCV set to y, and with that the boot
-> > > stopped after:
-> > > hvc_iucv: The z/VM IUCV HVC device driver cannot be used without z/VM
-> > >
-> > > Looks like the system got into a loop with one processor at 100%.
-> > >
-> > > After disabling the option the boot was successful.
-> As I can't be sure whether the boot failure with HVC_IUCV is or isn't
-> a side effect of the hrtimer issue mentioned in my previous mail [1],
-> I suggest we leave this until the hrtimer issue has been resolved. From 
-> what I've seen during the bisection I suspect it is just a side-effect.
-If the HVC_IUCV driver writes the message "...cannot be used without z/VM",
-the driver initialization stops and returns with ENODEV.
+On Mon, 9 Mar 2009 12:23:18 +0100
+Frans Pop <elendil@planet.nl> wrote:
+> Thanks Heiko. With that patch I can no longer reproduce the problem with 
+> 2.6.27.19, so it looks good to me.
 
-Best regards
-  Hendrik
+Ok, just sent the hopefully final version. Thanks for testing and reporting!
 
--- 
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Martin Jetter
-Geschaeftsfuehrung: Erich Baier
-Sitz der Gesellschaft: Boeblingen
-Registergericht: Amtsgericht Stuttgart, HRB 243294
+> I do wonder why no one else has hit this problem before. Could it be 
+> because the emulator is a relatively (very) slow system?
+
+Yes, I think that's the reason. We still do some daily kernel build on
+31 bit kernels, but have never seen the crash you reported. Seems only
+to happen if the system is running slow.
