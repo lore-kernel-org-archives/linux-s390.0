@@ -1,139 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755329AbZCLB6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755051AbZCLErk@vger.kernel.org>
 Subject: Re: [BUG,2.6.28,s390] Fails to boot in Hercules S/390 emulator
 From: john stultz <johnstul@us.ibm.com>
-In-Reply-To: <alpine.LFD.2.00.0903120201040.29264@localhost.localdomain>
+In-Reply-To: <1236818044.7680.153.camel@localhost.localdomain>
 References: <200903080230.10099.elendil@planet.nl>
-	 <200903091604.56455.elendil@planet.nl> <1236733226.6080.28.camel@localhost>
-	 <200903111703.41663.elendil@planet.nl>
-	 <1236817822.7680.148.camel@localhost.localdomain>
-	 <1236818863.7680.156.camel@localhost.localdomain>
-	 <alpine.LFD.2.00.0903120201040.29264@localhost.localdomain>
+	 <1236733226.6080.28.camel@localhost> <200903111703.41663.elendil@planet.nl>
+	 <200903112005.38181.elendil@planet.nl>
+	 <1236818044.7680.153.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 11 Mar 2009 18:57:46 -0700
-Message-Id: <1236823066.7680.178.camel@localhost.localdomain>
+Date: Wed, 11 Mar 2009 21:47:25 -0700
+Message-Id: <1236833245.7680.266.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Frans Pop <elendil@planet.nl>, linux-s390@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Frans Pop <elendil@planet.nl>
+Cc: linux-s390@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>, Thomas Gleixner <tglx@linutronix.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 2009-03-12 at 02:30 +0100, Thomas Gleixner wrote:
-> On Wed, 11 Mar 2009, john stultz wrote:
-> > For a cleaner version, could you try the following, against 2.6.29-git
-> > with no other modification?
-> 
-> cleaner ?
-> 
-> > xtime_nsec is expected at times to be negative. Instead of trying to
-> > handle all the shifting properly via casts, define it as a s64 instead
-> > of a u64.
-> > 
-> > NOT FOR INCLUSION
-> > Signed-off-by: John Stultz <johnstul@us.ibm.com>
-> > 
-> > diff --git a/include/linux/clocksource.h b/include/linux/clocksource.h
-> > index f88d32f..e217000 100644
-> > --- a/include/linux/clocksource.h
-> > +++ b/include/linux/clocksource.h
-> > @@ -86,7 +86,7 @@ struct clocksource {
-> >  	 * more than one cache line.
-> >  	 */
-> >  	cycle_t cycle_last ____cacheline_aligned_in_smp;
-> > -	u64 xtime_nsec;
-> > +	s64 xtime_nsec;
-> >  	s64 error;
-> >  	struct timespec raw_time;
-> >  
-> > diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-> > index 900f1b6..387be3c 100644
-> > --- a/kernel/time/timekeeping.c
-> > +++ b/kernel/time/timekeeping.c
-> > @@ -546,7 +546,7 @@ void update_wall_time(void)
-> >  	/* store full nanoseconds into xtime after rounding it up and
-> >  	 * add the remainder to the error difference.
-> >  	 */
-> > -	xtime.tv_nsec = ((s64)clock->xtime_nsec >> clock->shift) + 1;
-> > +	xtime.tv_nsec = (clock->xtime_nsec >> clock->shift) + 1;
-> >  	clock->xtime_nsec -= (s64)xtime.tv_nsec << clock->shift;
-> >  	clock->error += clock->xtime_nsec << (NTP_SCALE_SHIFT - clock->shift);
-> 
-> This code sequence does:
-> 
->    xtime.tv_nsec = (clock->xtime_nsec >> clock->shift) + 1;
->    clock->xtime_nsec -= xtime.tv_nsec << clock->shift;
-> 
-> Lets substitute a bit:
-> 
->    a = xtime.tv_nsec
->    b = clock->xtime_nsec
->    c = clock->shift
->    r = result (which ends up in b aka clock->xtime_nsec again for the next round)
-> 
-> => a = (b >> c) + 1
->    r = b - (a << c)
-> 
->    b >> c = b / 2^c
->    a << c = a * 2^c
-> 
-> => a = (b / 2^c) + 1
->    r = b - (a * 2^c)
-> 
-> => r = b - ((b / 2^c) + 1) * 2^c
->    r = b - ((2^c * b / 2^c) + 2^c)
->    r = b - (2^c * b / 2^c) - 2^c
->    r = b - b - 2^c
->    r = -2^c
->    
-> => r = -(1 << c)
-> 
-> So the whole business boils down to:
-> 
->    clock->xtime_nsec = -(1 << clock->shift);
+On Wed, 2009-03-11 at 17:34 -0700, john stultz wrote:
+> I'm still a little baffled, but I figure I can try to reproduce this
+> myself. So I'm working setting up hercules environment here to see if I
+> can't trigger it. Any help with config or links to your environment
+> would be great.
 
-Err, not quite. See, we truncate clock->xtime_nsec when we shift it down
-and store it into xtime.tv_nsec. Since we don't want to lose truncated
-remainder, we simply add one to xtime.tv_nsec, taking the ceiling in
-effect.
+Ok. I've got this up and reproduced with the hercules emulator. 
 
-However, we have to balance this out in order to not rush forward in
-time each tick. So we accumulate amount we ended up adding into the
-error.
+A couple of interesting  hints:
+*  The issue seems to go away if we disable NO_HZ/dynticks in
+the .config
 
-Lets walk through a simple example with actual values.
-b = 99
-c = 4
+*  nohz=off does not affect the issue.
 
-=> a = (b >> c) + 1
-   r = b - (a << c)
+*  The issue also seems to go away if HZ is anything except 250
 
-=> a = (99 >> 4) + 1
-   a = 6 + 1
-   a = 7
+*  Commenting out clocksource_adjust(), which does the clock steering,
+seems to avoid the issue.
 
-   r = 99 - (7 << 4)
-   r = 99 - 112
-   r = -13
+*  When the problem triggers we don't seem to transfer to the TOD clock,
+and the jiffies clocksource seems to be in use.
 
-(Your reduction would give -16, since it ignores that shift down
-truncates)
+* The jiffies clocksource mult value seems to be ever increasing, again
+pointing to something wrong in the clock steering.
 
-In effect, adding 1 to xtime.tv_nsec, is the same as adding 13 to
-clock->xtime_nsec.
+* Reverting both 6c9bacb41c10 and 5cd1c9c5cf30 against 2.6-git did not
+seem to help the issue, as originally reported. I also reverted
+49b5cf34727a as well just in case, and it didn't help either.
 
 
-Maybe a different way of expressing what we're calculating is the
-following:
+That's about all I can get for today. I'm out of town until Monday, so
+I'll start digging back into it then.
 
-xtime.tv_nsec = (clock->xtime_nsec + (1<<clock->shift)) >> clock->shift
-clock->xtime_nsec = (1<<clock->shift) 
-			- (clock->xtime_nsec &((1<<clock->shift)-1)
-
-In other words: The rounded up portion - the masked remainder in
-xtime_nsec.
-
-Does that make sense?
 thanks
 -john
