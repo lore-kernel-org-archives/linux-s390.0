@@ -1,32 +1,38 @@
-From: Dan Smith <danms@us.ibm.com>
-Subject: Re: [PATCH 1/3] s390: Expose a constant for the number of words representing the CRs
-Date: Tue, 03 Mar 2009 16:56:03 -0800
-Message-ID: <87d4cyrtr0.fsf@caffeine.danplanet.com>
-References: <1236095764-19325-1-git-send-email-danms@us.ibm.com>
-	<1236095764-19325-2-git-send-email-danms@us.ibm.com>
-	<1236096494.22399.5.camel@nimitz>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760233AbZCPLYr@vger.kernel.org>
+Subject: [Patch] relay: fix signedness in subbuf_splice_actor()
+From: Martin Peschke <mpeschke@linux.vnet.ibm.com>
+Content-Type: text/plain
+Date: Mon, 16 Mar 2009 12:24:36 +0100
+Message-Id: <1237202676.4210.5.camel@kitka.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756295AbZCDA4X@vger.kernel.org>
-In-Reply-To: <1236096494.22399.5.camel@nimitz> (Dave Hansen's message of "Tue,
-	03 Mar 2009 08:08:14 -0800")
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/containers/>
-List-Post: <mailto:containers@lists.linuxfoundation.org>
-To: Dave Hansen <dave@linux.vnet.ibm.com>
-Cc: containers@lists.osdl.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Tom Zanussi <tzanussi@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-DH> This doesn't do a lot of good unless it gets used in the base s390
-DH> code.  Otherwise, why not just define it near its use in the c/r
-DH> code?
+From: Martin Peschke <mpeschke@linux.vnet.ibm.com>
 
-I intended to replace all uses, but I just found one place I missed,
-but I think that's it.  If you know of other places that it's used in
-the s390 code, other than in compat_ptrace.h and ptrace.h please point
-them out.
+The variable ret is used as a signed value.
+Found by a statical code analysis tool.
 
--- 
-Dan Smith
-IBM Linux Technology Center
-email: danms@us.ibm.com
+Signed-off-by: Martin Peschke <mpeschke@linux.vnet.ibm.com>
+
+---
+ kernel/relay.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/kernel/relay.c
++++ b/kernel/relay.c
+@@ -1227,7 +1227,8 @@ static int subbuf_splice_actor(struct fi
+ 			       unsigned int flags,
+ 			       int *nonpad_ret)
+ {
+-	unsigned int pidx, poff, total_len, subbuf_pages, nr_pages, ret;
++	unsigned int pidx, poff, total_len, subbuf_pages, nr_pages;
++	int ret;
+ 	struct rchan_buf *rbuf = in->private_data;
+ 	unsigned int subbuf_size = rbuf->chan->subbuf_size;
+ 	uint64_t pos = (uint64_t) *ppos;
