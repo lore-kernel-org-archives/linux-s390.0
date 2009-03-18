@@ -1,28 +1,34 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757267AbZCLOqm@vger.kernel.org>
-From: Frans Pop <elendil@planet.nl>
-Subject: Re: [BUG,2.6.29-rc7,s390] System goes into endless loop during boot or logon
-Date: Thu, 12 Mar 2009 15:46:04 +0100
-References: <200903080835.14032.elendil@planet.nl> <200903091025.53284.elendil@planet.nl> <1236871686.19544.3.camel@localhost.localdomain>
-In-Reply-To: <1236871686.19544.3.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200903121546.06687.elendil@planet.nl>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757305AbZCRMtL@vger.kernel.org>
+Message-Id: <20090318124829.637003183@de.ibm.com>
+Date: Wed, 18 Mar 2009 13:48:29 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 0/6] s390 bug fixes for 2.6.29
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jan Glauber <jang@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-s390@vger.kernel.org, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Ingo Molnar <mingo@elte.hu>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thursday 12 March 2009, Jan Glauber wrote:
-> > AFAICT s390 does not have an NMI watchdog. And I have no idea how I
-> > could trigger a sysrq given that I can't login and only have a dumb
-> > console or SSH session to work with anyway.
->
-> You can try to trigger sysrq by ^-, so to get the task view type: .^-t
+Greetings,
+some of the bug fixes in my feature patch pile for the next merge
+window are severe enough to warrent inclusion in 2.6.29.
+There are 6 relevant patches:
 
-Thanks a lot Jan! On a running system that works, so now the only question 
-is if it also works when the system is looping. Will try later.
+Gerald Schaefer (1):
+      [S390] Dont check for pfn_valid() in uaccess_pt.c
+
+Heiko Carstens (2):
+      [S390] topology: define SD_MC_INIT to fix performance regression
+      [S390] ftrace/mcount: fix kernel stack backchain
+
+Martin Schwidefsky (3):
+      [S390] __div64_31 broken for CONFIG_MARCH_G5
+      [S390] make page table walking more robust
+      [S390] make page table upgrade work again
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
