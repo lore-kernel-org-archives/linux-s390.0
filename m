@@ -1,37 +1,67 @@
 From: Ursula Braun <ursula.braun@de.ibm.com>
-Subject: [patch 4/9] [PATCH] claw: invalid return codes from hard_start_xmit
-Date: Tue, 24 Mar 2009 13:29:08 +0100
-Message-ID: <20090324124335.784434000@linux.vnet.ibm.com>
-References: <20090324122904.744942000@linux.vnet.ibm.com>
+Subject: [patch 1/9] [PATCH] Use kthread instead of kernel_thread
+Date: Tue, 24 Mar 2009 14:27:43 +0100
+Message-ID: <20090324133048.845506000@linux.vnet.ibm.com>
+References: <20090324132742.300929000@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=611-claw-rc-warning.diff
+Content-Disposition: inline; filename=604-lcs-threads.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Ursula Braun <ursula.braun@de.ibm.com>
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Klaus-Dieter Wacker <kdwacker@de.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
+From: Klaus-Dieter Wacker <kdwacker@de.ibm.com>
 
-Avoid kernel warnings by using the correct hard_start_xmit return
-code NETDEV_TX_BUSY for skb requeuing.
+Lcs uses low-level kernel_thread implementation.
+All drivers should use <linux/kthread.h> API instead.
 
+Signed-off-by: Klaus-Dieter Wacker <kdwacker@de.ibm.com>
 Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
 ---
 
- drivers/s390/net/claw.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/s390/net/lcs.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/net/claw.c linux-2.6-patched/drivers/s390/net/claw.c
---- linux-2.6/drivers/s390/net/claw.c	2008-12-25 00:26:37.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/net/claw.c	2009-03-04 15:58:30.000000000 +0100
-@@ -335,6 +335,8 @@ claw_tx(struct sk_buff *skb, struct net_
-         rc=claw_hw_tx( skb, dev, 1 );
-         spin_unlock_irqrestore(get_ccwdev_lock(p_ch->cdev), saveflags);
- 	CLAW_DBF_TEXT_(4, trace, "clawtx%d", rc);
-+	if (rc)
-+		rc = NETDEV_TX_BUSY;
-         return rc;
- }   /*  end of claw_tx */
+diff -urpN linux-2.6/drivers/s390/net/lcs.c linux-2.6-patched/drivers/s390/net/lcs.c
+--- linux-2.6/drivers/s390/net/lcs.c	2009-03-04 15:58:03.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/lcs.c	2009-03-04 15:58:28.000000000 +0100
+@@ -39,6 +39,7 @@
+ #include <linux/in.h>
+ #include <linux/igmp.h>
+ #include <linux/delay.h>
++#include <linux/kthread.h>
+ #include <net/arp.h>
+ #include <net/ip.h>
  
+@@ -1259,7 +1260,6 @@ lcs_register_mc_addresses(void *data)
+ 	struct in_device *in4_dev;
+ 
+ 	card = (struct lcs_card *) data;
+-	daemonize("regipm");
+ 
+ 	if (!lcs_do_run_thread(card, LCS_SET_MC_THREAD))
+ 		return 0;
+@@ -1753,11 +1753,10 @@ lcs_start_kernel_thread(struct work_stru
+ 	struct lcs_card *card = container_of(work, struct lcs_card, kernel_thread_starter);
+ 	LCS_DBF_TEXT(5, trace, "krnthrd");
+ 	if (lcs_do_start_thread(card, LCS_RECOVERY_THREAD))
+-		kernel_thread(lcs_recovery, (void *) card, SIGCHLD);
++		kthread_run(lcs_recovery, card, "lcs_recover");
+ #ifdef CONFIG_IP_MULTICAST
+ 	if (lcs_do_start_thread(card, LCS_SET_MC_THREAD))
+-		kernel_thread(lcs_register_mc_addresses,
+-				(void *) card, SIGCHLD);
++		kthread_run(lcs_register_mc_addresses, card, "regipm");
+ #endif
+ }
+ 
+@@ -2258,7 +2257,6 @@ lcs_recovery(void *ptr)
+         int rc;
+ 
+ 	card = (struct lcs_card *) ptr;
+-	daemonize("lcs_recover");
+ 
+ 	LCS_DBF_TEXT(4, trace, "recover1");
+ 	if (!lcs_do_run_thread(card, LCS_RECOVERY_THREAD))
