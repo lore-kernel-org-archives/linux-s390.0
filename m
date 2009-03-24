@@ -1,58 +1,40 @@
-From: Ursula Braun <ursula.braun@de.ibm.com>
-Subject: [patch 6/9] [PATCH] ctcm: avoid wraparound in length of incoming data
-Date: Tue, 24 Mar 2009 14:27:48 +0100
-Message-ID: <20090324133049.499414000@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 8/9] [PATCH] kmsg: convert claw printk messages to kmsg
+ api.
+Date: Tue, 24 Mar 2009 15:28:50 -0700 (PDT)
+Message-ID: <20090324.152850.127356060.davem@davemloft.net>
 References: <20090324132742.300929000@linux.vnet.ibm.com>
+	<20090324133049.771837000@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=625-ctcm-wraparound.diff
+In-Reply-To: <20090324133049.771837000@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Roel Kluin <roel.kluin@gmail.com>, Ursula Braun <ursula.braun@de.ibm.com>
+To: ursula.braun@de.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, richtera@us.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Roel Kluin <roel.kluin@gmail.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
+Date: Tue, 24 Mar 2009 14:27:50 +0100
 
-Since the receive code should tolerate any incoming garbage, it
-should be protected against a potential wraparound when manipulating
-length values within incoming data. 
-block_len is unsigned, so a too large subtraction will cause a
-wraparound.
+> From: Andy Richter <richtera@us.ibm.com>
+> 
+> Signed-off-by: Andy Richter <richtera@us.ibm.com>
+> Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
 
-Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
----
+This patch was already added to net-next-2.6 on January 20th:
 
- drivers/s390/net/ctcm_fsms.c |    5 ++---
- drivers/s390/net/ctcm_main.c |    3 ++-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+commit 4811fcb79cee80c683237cfd15ca214e1d78c548
+Author: Andy Richter <richtera@us.ibm.com>
+Date:   Tue Jan 20 06:14:33 2009 +0000
 
-diff -urpN linux-2.6/drivers/s390/net/ctcm_fsms.c linux-2.6-patched/drivers/s390/net/ctcm_fsms.c
---- linux-2.6/drivers/s390/net/ctcm_fsms.c	2009-03-19 11:15:52.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/net/ctcm_fsms.c	2009-03-19 11:16:39.000000000 +0100
-@@ -410,9 +410,8 @@ static void chx_rx(fsm_instance *fi, int
- 		priv->stats.rx_length_errors++;
- 						goto again;
- 	}
--	block_len -= 2;
--	if (block_len > 0) {
--		*((__u16 *)skb->data) = block_len;
-+	if (block_len > 2) {
-+		*((__u16 *)skb->data) = block_len - 2;
- 		ctcm_unpack_skb(ch, skb);
- 	}
-  again:
-diff -urpN linux-2.6/drivers/s390/net/ctcm_main.c linux-2.6-patched/drivers/s390/net/ctcm_main.c
---- linux-2.6/drivers/s390/net/ctcm_main.c	2009-03-19 11:16:39.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/net/ctcm_main.c	2009-03-19 11:16:39.000000000 +0100
-@@ -105,7 +105,8 @@ void ctcm_unpack_skb(struct channel *ch,
- 			return;
- 		}
- 		pskb->protocol = ntohs(header->type);
--		if (header->length <= LL_HEADER_LENGTH) {
-+		if ((header->length <= LL_HEADER_LENGTH) ||
-+		    (len <= LL_HEADER_LENGTH)) {
- 			if (!(ch->logflags & LOG_FLAG_ILLEGALSIZE)) {
- 				CTCM_DBF_TEXT_(ERROR, CTC_DBF_ERROR,
- 					"%s(%s): Illegal packet size %d(%d,%d)"
+    kmsg: convert claw printk messages
+    
+    claw printks are converted to dev_xxx and pr_xxx macros.
+    
+    Signed-off-by: Andy Richter <richtera@us.ibm.com>
+    Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
