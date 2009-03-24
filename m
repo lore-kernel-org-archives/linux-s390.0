@@ -1,42 +1,122 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 0/9] [RESEND] s390: lcs / ctcm / claw / netiucv patches
- for 2.6.29
-Date: Tue, 24 Mar 2009 15:29:48 -0700 (PDT)
-Message-ID: <20090324.152948.107572168.davem@davemloft.net>
+From: Ursula Braun <ursula.braun@de.ibm.com>
+Subject: [patch 9/9] [PATCH] claw: fix minor findings from code analysis tool
+Date: Tue, 24 Mar 2009 14:27:51 +0100
+Message-ID: <20090324133049.899501000@linux.vnet.ibm.com>
 References: <20090324132742.300929000@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20090324132742.300929000@linux.vnet.ibm.com>
+Content-Disposition: inline; filename=628-claw-beam.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: ursula.braun@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, "Andrew H. Richter" <richtera@us.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
-Date: Tue, 24 Mar 2009 14:27:42 +0100
+From: Andrew H. Richter <richtera@us.ibm.com>
 
-> sorry for the resend; I detected compiler and checkpatch warnings in
-> patch 8, which are now removed.
-> 
-> Here are a couple of drivers/s390/net-patches for 2.6.29 :
+This patch fixes two problems in the claw driver identified by
+static code analysis:
+o Change in case differentiation of received sense codes
+o Use correct data length in claw hard_start_xmit routine
 
-We are past 2.6.29 and are developing 2.6.30
+Signed-off-by: Andrew H. Richter <richtera@us.ibm.com>
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+---
 
-> 1/9: lcs:     exploit <linux/kthread.h>          - Klaus-Dieter Wacker
-> 2/9: lcs:     hard_start_xmit return codes       - Klaus-Dieter Wacker
-> 3/9: netiucv: hard_start_xmit return codes       - Ursula Braun
-> 4/9: claw:    hard_start_xmit return codes       - Ursula Braun
-> 5/9: ctcm:    hard_start_xmit return codes       - Ursula Braun
-> 6/9: ctcm:    avoid wraparound in length of incoming data - Roel Kluin
-> 7/9: ctcm:    minor findings from code analysis tool      - Joel Fowler
-> 8/9: claw:    convert printk messages to kmsg api    - Andy Richter
-> 9/9: claw:    minor findings from code analysis tool - Andy Richter
+ drivers/s390/net/claw.c |   44 ++++++++++++++++++++------------------------
+ 1 file changed, 20 insertions(+), 24 deletions(-)
 
-As I mentioned net-next-2.6 already has the kmsg patch #8, I
-added the rest.
-
-Thanks.
+Index: linux-2.6-uschi/drivers/s390/net/claw.c
+===================================================================
+--- linux-2.6-uschi.orig/drivers/s390/net/claw.c
++++ linux-2.6-uschi/drivers/s390/net/claw.c
+@@ -1033,7 +1033,7 @@ static int
+ pages_to_order_of_mag(int num_of_pages)
+ {
+ 	int	order_of_mag=1;		/* assume 2 pages */
+-	int	nump=2;
++	int	nump;
+ 
+ 	CLAW_DBF_TEXT_(5, trace, "pages%d", num_of_pages);
+ 	if (num_of_pages == 1)   {return 0; }  /* magnitude of 0 = 1 page */
+@@ -1187,37 +1187,31 @@ ccw_check_unit_check(struct chbk * p_ch,
+ 	dev_warn(dev, "The communication peer of %s disconnected\n",
+ 		ndev->name);
+ 
+-        if (sense & 0x40) {
+-                if (sense & 0x01) {
++	if (sense & 0x40) {
++		if (sense & 0x01) {
+ 			dev_warn(dev, "The remote channel adapter for"
+ 				" %s has been reset\n",
+ 				ndev->name);
+-                }
+-        }
+-        else if (sense & 0x20) {
+-                if (sense & 0x04) {
++		}
++	} else if (sense & 0x20) {
++		if (sense & 0x04) {
+ 			dev_warn(dev, "A data streaming timeout occurred"
+ 				" for %s\n",
+ 				ndev->name);
+-                }
+-                else  {
+-			dev_warn(dev, "A data transfer parity error occurred"
+-				" for %s\n",
+-				ndev->name);
+-                }
+-        }
+-        else if (sense & 0x10) {
+-                if (sense & 0x20) {
++		} else if (sense & 0x10) {
+ 			dev_warn(dev, "The remote channel adapter for %s"
+ 				" is faulty\n",
+ 				ndev->name);
+-                }
+-                else {
+-			dev_warn(dev, "A read data parity error occurred"
++		} else {
++			dev_warn(dev, "A data transfer parity error occurred"
+ 				" for %s\n",
+ 				ndev->name);
+-                }
+-        }
++		}
++	} else if (sense & 0x10) {
++		dev_warn(dev, "A read data parity error occurred"
++			" for %s\n",
++			ndev->name);
++	}
+ 
+ }   /*    end of ccw_check_unit_check    */
+ 
+@@ -1254,7 +1248,7 @@ find_link(struct net_device *dev, char *
+ 			break;
+ 	}
+ 
+-        return 0;
++	return rc;
+ }    /*    end of find_link    */
+ 
+ /*-------------------------------------------------------------------*
+@@ -1366,7 +1360,10 @@ claw_hw_tx(struct sk_buff *skb, struct n
+                 privptr->p_write_free_chain=p_this_ccw->next;
+                 p_this_ccw->next=NULL;
+                 --privptr->write_free_count; /* -1 */
+-                bytesInThisBuffer=len_of_data;
++		if (len_of_data >= privptr->p_env->write_size)
++			bytesInThisBuffer = privptr->p_env->write_size;
++		else
++			bytesInThisBuffer = len_of_data;
+                 memcpy( p_this_ccw->p_buffer,pDataAddress, bytesInThisBuffer);
+                 len_of_data-=bytesInThisBuffer;
+                 pDataAddress+=(unsigned long)bytesInThisBuffer;
+@@ -2517,7 +2514,6 @@ unpack_read(struct net_device *dev )
+ 	p_dev = &privptr->channel[READ].cdev->dev;
+ 	p_env = privptr->p_env;
+         p_this_ccw=privptr->p_read_active_first;
+-        i=0;
+ 	while (p_this_ccw!=NULL && p_this_ccw->header.flag!=CLAW_PENDING) {
+ 		pack_off = 0;
+ 		p = 0;
