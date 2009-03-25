@@ -1,31 +1,38 @@
-From: Ursula Braun <ursula.braun@de.ibm.com>
-Subject: [patch 0/9] [RESEND] s390: lcs / ctcm / claw / netiucv patches for 2.6.29
-Date: Tue, 24 Mar 2009 14:27:42 +0100
-Message-ID: <20090324132742.300929000@linux.vnet.ibm.com>
+From: frank.blaschka@de.ibm.com
+Subject: [patch 1/6] [PATCH] qeth: struct device - replace bus_id with dev_name(), dev_set_name()
+Date: Wed, 25 Mar 2009 07:57:14 +0100
+Message-ID: <20090325065808.703907000@de.ibm.com>
+References: <20090325065713.054133000@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=605-qeth-struct-device.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Greg Kroah-Hartman <gregkh@suse.de>, Kay Sievers <kay.sievers@vrfy.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Dave,
+From: Kay Sievers <kay.sievers@vrfy.org>
 
-sorry for the resend; I detected compiler and checkpatch warnings in
-patch 8, which are now removed.
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
 
-Here are a couple of drivers/s390/net-patches for 2.6.29 :
+ drivers/s390/net/qeth_l3_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-1/9: lcs:     exploit <linux/kthread.h>          - Klaus-Dieter Wacker
-2/9: lcs:     hard_start_xmit return codes       - Klaus-Dieter Wacker
-3/9: netiucv: hard_start_xmit return codes       - Ursula Braun
-4/9: claw:    hard_start_xmit return codes       - Ursula Braun
-5/9: ctcm:    hard_start_xmit return codes       - Ursula Braun
-6/9: ctcm:    avoid wraparound in length of incoming data - Roel Kluin
-7/9: ctcm:    minor findings from code analysis tool      - Joel Fowler
-8/9: claw:    convert printk messages to kmsg api    - Andy Richter
-9/9: claw:    minor findings from code analysis tool - Andy Richter
-
-Thanks and regards,
-Ursula
+diff -urpN linux-2.6/drivers/s390/net/qeth_l3_main.c linux-2.6-patched/drivers/s390/net/qeth_l3_main.c
+--- linux-2.6/drivers/s390/net/qeth_l3_main.c	2009-02-18 12:06:14.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_l3_main.c	2009-02-18 12:06:31.000000000 +0100
+@@ -1038,7 +1038,7 @@ static int qeth_l3_setadapter_parms(stru
+ 	rc = qeth_query_setadapterparms(card);
+ 	if (rc) {
+ 		QETH_DBF_MESSAGE(2, "%s couldn't set adapter parameters: "
+-			"0x%x\n", card->gdev->dev.bus_id, rc);
++			"0x%x\n", dev_name(&card->gdev->dev), rc);
+ 		return rc;
+ 	}
+ 	if (qeth_adp_supported(card, IPA_SETADP_ALTER_MAC_ADDRESS)) {
