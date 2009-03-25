@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760109AbZCSRuw@vger.kernel.org>
-Subject: Re: PROBLEM: relay - stale data copied to user space
-From: Martin Peschke <mpeschke@linux.vnet.ibm.com>
-In-Reply-To: <1237436347.7834.13.camel@charm-linux>
-References: <1237388848.4084.64.camel@kitka.ibm.com>
-	 <1237436347.7834.13.camel@charm-linux>
-Content-Type: text/plain
-Date: Thu, 19 Mar 2009 18:50:40 +0100
-Message-Id: <1237485040.4752.16.camel@kitka.ibm.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757353AbZCYAc4@vger.kernel.org>
+From: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 09/61] s390: struct device - replace bus_id with dev_name(), dev_set_name()
+Date: Tue, 24 Mar 2009 17:26:13 -0700
+Message-Id: <1237940825-22904-9-git-send-email-gregkh@suse.de>
+In-Reply-To: <20090325001659.GA22461@kroah.com>
+References: <20090325001659.GA22461@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Tom Zanussi <tzanussi@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Kay Sievers <kay.sievers@vrfy.org>, schwidefsky@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Kay Sievers <kay.sievers@vrfy.org>
 
-On Wed, 2009-03-18 at 23:19 -0500, Tom Zanussi wrote:
-> On Wed, 2009-03-18 at 16:07 +0100, Martin Peschke wrote
-> > This is my theory:
-> > Timing matters. It's a race caused by improper protection of critical
-> > sections in a producer-consumer scenario. A bug in the bookkeeping
-> > allows a reader to read at a position that is just being written to.
-> > 
-> 
-> It does look consistent with a reader reading an event that's been
-> reserved but not yet written, or partially written e.g. if an event
-> being written on one cpu was read by another before the first one
-> finished.
+Cc: schwidefsky@de.ibm.com
+Cc: linux-s390@vger.kernel.org
+Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+---
+ drivers/s390/net/qeth_l3_main.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-So this is part of relay's design, and it's up to user space to make
-sure that reader and writer are on the same CPU?
-
-> Can you see if the below patch to blktrace userspace helps?
-
-It appears to fix it. I will give it more testing in a larger
-environment.
-
-> Or failing that, explicitly using gettid() in place of getpid() in
-> sched_setaffinity().  Or, failing that, you had mentioned previously
-> that you would try to reproduce the problem on your laptop - were you
-> able to do that?  If so, it would help in debugging it further...
-
-This didn't work out. But then, it's a single-CPU machine.
-
-Thanks,
-Martin
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 3d04920..0dcc036 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1038,7 +1038,7 @@ static int qeth_l3_setadapter_parms(struct qeth_card *card)
+ 	rc = qeth_query_setadapterparms(card);
+ 	if (rc) {
+ 		QETH_DBF_MESSAGE(2, "%s couldn't set adapter parameters: "
+-			"0x%x\n", card->gdev->dev.bus_id, rc);
++			"0x%x\n", dev_name(&card->gdev->dev), rc);
+ 		return rc;
+ 	}
+ 	if (qeth_adp_supported(card, IPA_SETADP_ALTER_MAC_ADDRESS)) {
+-- 
+1.6.2
