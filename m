@@ -1,44 +1,42 @@
-From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
 Subject: Re: [patch 0/6] s390: qeth fixes for 2.6.30
-Date: Wed, 25 Mar 2009 09:25:14 +0100
-Message-ID: <49C9EA6A.90808@linux.vnet.ibm.com>
-References: <20090325065713.054133000@de.ibm.com> <20090325.000817.183932373.davem@davemloft.net>
+Date: Wed, 25 Mar 2009 16:47:04 -0700 (PDT)
+Message-ID: <20090325.164704.89679614.davem@davemloft.net>
+References: <20090325065713.054133000@de.ibm.com>
+	<20090325.000817.183932373.davem@davemloft.net>
+	<49C9EA6A.90808@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20090325.000817.183932373.davem@davemloft.net>
+In-Reply-To: <49C9EA6A.90808@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
+To: blaschka@linux.vnet.ibm.com
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+Date: Wed, 25 Mar 2009 09:25:14 +0100
 
-> Any particular reason you wait until right when the
-> merge window opens to send me stuff?
+> > Your EDDP was slow because the implementation was incredibly
+> > sub-optimal.  %90 of the code is doing copies and fiddling
+> > with SKB internals.
 > 
-> I said on netdev that I wanted to empty my patchwork
-> queue then submit the tree to Linus.
-> 
-> So then you send me more stuff on top of that? :-/
-> 
-> Please don't wait until the last moment next time.
+> I did not wrote the EDDP code but this was my impression too. Thanks for
+> confirming my study. Also the filling of the hardware buffers was not
+> efficient and passing more buffers to the hw was expensive too.
 
-Sorry, this was by accident. Next time I will send the patches
-sooner.
+I keep meaning to get back to a project I was working on that
+would make generic the by-hand TSO that drivers such as
+drivers/net/sfc/ are doing.
 
-> Applied.
-> 
->> Frank Blaschka (2)
->> qeth: add statistics for tx csum
->> qeth: remove EDDP
-> 
-> Your EDDP was slow because the implementation was incredibly
-> sub-optimal.  %90 of the code is doing copies and fiddling
-> with SKB internals.
+Just like this EDDP code seems to have been doing, they claim
+to be TSO capable as a device but it is all done in software.
 
-I did not wrote the EDDP code but this was my impression too. Thanks for
-confirming my study. Also the filling of the hardware buffers was not
-efficient and passing more buffers to the hw was expensive too.
+The hope is to write a generic framework, and skb_dma_map() and
+skb_dma_unmap() were created as initial infrastructure for that.
+
+Anyways, if I ever complete that project, drivers like qeth
+could try to make use of it and do some perf tests.
