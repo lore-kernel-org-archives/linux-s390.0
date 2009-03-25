@@ -1,42 +1,89 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 0/6] s390: qeth fixes for 2.6.30
-Date: Wed, 25 Mar 2009 16:47:04 -0700 (PDT)
-Message-ID: <20090325.164704.89679614.davem@davemloft.net>
+From: frank.blaschka@de.ibm.com
+Subject: [patch 2/6] [PATCH] qeth: add statistics for tx csum
+Date: Wed, 25 Mar 2009 07:57:15 +0100
+Message-ID: <20090325065808.829059000@de.ibm.com>
 References: <20090325065713.054133000@de.ibm.com>
-	<20090325.000817.183932373.davem@davemloft.net>
-	<49C9EA6A.90808@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <49C9EA6A.90808@linux.vnet.ibm.com>
+Content-Disposition: inline; filename=606-qeth-tx_csum-statistics.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: blaschka@linux.vnet.ibm.com
+To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
-Date: Wed, 25 Mar 2009 09:25:14 +0100
+From: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-> > Your EDDP was slow because the implementation was incredibly
-> > sub-optimal.  %90 of the code is doing copies and fiddling
-> > with SKB internals.
-> 
-> I did not wrote the EDDP code but this was my impression too. Thanks for
-> confirming my study. Also the filling of the hardware buffers was not
-> efficient and passing more buffers to the hw was expensive too.
+Add statistics counter for software tx checksumming.
 
-I keep meaning to get back to a project I was working on that
-would make generic the by-hand TSO that drivers such as
-drivers/net/sfc/ are doing.
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
 
-Just like this EDDP code seems to have been doing, they claim
-to be TSO capable as a device but it is all done in software.
+ drivers/s390/net/qeth_core.h      |    1 +
+ drivers/s390/net/qeth_core_main.c |    2 ++
+ drivers/s390/net/qeth_l2_main.c   |    5 ++++-
+ drivers/s390/net/qeth_l3_main.c   |    5 ++++-
+ 4 files changed, 11 insertions(+), 2 deletions(-)
 
-The hope is to write a generic framework, and skb_dma_map() and
-skb_dma_unmap() were created as initial infrastructure for that.
-
-Anyways, if I ever complete that project, drivers like qeth
-could try to make use of it and do some perf tests.
+diff -urpN linux-2.6/drivers/s390/net/qeth_core.h linux-2.6-patched/drivers/s390/net/qeth_core.h
+--- linux-2.6/drivers/s390/net/qeth_core.h	2009-02-18 12:06:14.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_core.h	2009-02-18 12:06:31.000000000 +0100
+@@ -134,6 +134,7 @@ struct qeth_perf_stats {
+ 	unsigned int sg_skbs_rx;
+ 	unsigned int sg_frags_rx;
+ 	unsigned int sg_alloc_page_rx;
++	unsigned int tx_csum;
+ };
+ 
+ /* Routing stuff */
+diff -urpN linux-2.6/drivers/s390/net/qeth_core_main.c linux-2.6-patched/drivers/s390/net/qeth_core_main.c
+--- linux-2.6/drivers/s390/net/qeth_core_main.c	2009-02-18 12:06:14.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_core_main.c	2009-02-18 12:06:31.000000000 +0100
+@@ -4327,6 +4327,7 @@ static struct {
+ /* 30 */{"tx count"},
+ 	{"tx do_QDIO time"},
+ 	{"tx do_QDIO count"},
++	{"tx csum"},
+ };
+ 
+ int qeth_core_get_stats_count(struct net_device *dev)
+@@ -4378,6 +4379,7 @@ void qeth_core_get_ethtool_stats(struct 
+ 	data[30] = card->perf_stats.outbound_cnt;
+ 	data[31] = card->perf_stats.outbound_do_qdio_time;
+ 	data[32] = card->perf_stats.outbound_do_qdio_cnt;
++	data[33] = card->perf_stats.tx_csum;
+ }
+ EXPORT_SYMBOL_GPL(qeth_core_get_ethtool_stats);
+ 
+diff -urpN linux-2.6/drivers/s390/net/qeth_l2_main.c linux-2.6-patched/drivers/s390/net/qeth_l2_main.c
+--- linux-2.6/drivers/s390/net/qeth_l2_main.c	2009-02-18 12:06:14.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_l2_main.c	2009-02-18 12:06:31.000000000 +0100
+@@ -707,8 +707,11 @@ static int qeth_l2_hard_start_xmit(struc
+ 	}
+ 
+ 	if ((large_send == QETH_LARGE_SEND_NO) &&
+-	    (skb->ip_summed == CHECKSUM_PARTIAL))
++	    (skb->ip_summed == CHECKSUM_PARTIAL)) {
+ 		qeth_tx_csum(new_skb);
++		if (card->options.performance_stats)
++			card->perf_stats.tx_csum++;
++	}
+ 
+ 	if (card->info.type != QETH_CARD_TYPE_IQD)
+ 		rc = qeth_do_send_packet(card, queue, new_skb, hdr,
+diff -urpN linux-2.6/drivers/s390/net/qeth_l3_main.c linux-2.6-patched/drivers/s390/net/qeth_l3_main.c
+--- linux-2.6/drivers/s390/net/qeth_l3_main.c	2009-02-18 12:06:31.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_l3_main.c	2009-02-18 12:06:31.000000000 +0100
+@@ -2711,8 +2711,11 @@ static int qeth_l3_hard_start_xmit(struc
+ 	}
+ 
+ 	if ((large_send == QETH_LARGE_SEND_NO) &&
+-	    (new_skb->ip_summed == CHECKSUM_PARTIAL))
++	    (new_skb->ip_summed == CHECKSUM_PARTIAL)) {
+ 		qeth_tx_csum(new_skb);
++		if (card->options.performance_stats)
++			card->perf_stats.tx_csum++;
++	}
+ 
+ 	if (card->info.type != QETH_CARD_TYPE_IQD)
+ 		rc = qeth_do_send_packet(card, queue, new_skb, hdr,
