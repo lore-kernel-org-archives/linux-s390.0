@@ -1,8 +1,8 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932672AbZDCPr2@vger.kernel.org>
-Date: Fri, 3 Apr 2009 17:42:29 +0200
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1762347AbZDCPrs@vger.kernel.org>
+Date: Fri, 3 Apr 2009 17:41:10 +0200
 From: Bastian Blank <waldi@debian.org>
-Subject: [PATCH 5/5] s390: Use libgcc
-Message-ID: <20090403154229.GE7200@wavehammer.waldi.eu.org>
+Subject: [PATCH 2/5] libgcc: Add config and support headers
+Message-ID: <20090403154110.GB7200@wavehammer.waldi.eu.org>
 References: <20090403153941.GA7045@wavehammer.waldi.eu.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
@@ -14,51 +14,33 @@ List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Build our version of the libgcc.  Remove conflicting __negdi2
-implementation.
+Disable all floating point functions and add support for generic
+longlong divisions.
 
 Signed-off-by: Bastian Blank <waldi@debian.org>
 ---
- arch/s390/Kconfig                       |    3 ++
- arch/s390/include/asm/libgcc/config.h   |    4 +++
- arch/s390/include/asm/libgcc/longlong.h |   42 +++++++++++++++++++++++++++++++
- arch/s390/math-emu/math.c               |   20 --------------
- 4 files changed, 49 insertions(+), 20 deletions(-)
- create mode 100644 arch/s390/include/asm/libgcc/config.h
- create mode 100644 arch/s390/include/asm/libgcc/longlong.h
+ include/asm-generic/libgcc/longlong.h |  183 +++++++++++++++++++++++++++++++++
+ lib/libgcc/coretypes.h                |    1 +
+ lib/libgcc/longlong.h                 |    1 +
+ lib/libgcc/tconfig.h                  |    8 ++
+ lib/libgcc/tm.h                       |    3 +
+ lib/libgcc/tsystem.h                  |    1 +
+ 6 files changed, 197 insertions(+), 0 deletions(-)
+ create mode 100644 include/asm-generic/libgcc/longlong.h
+ create mode 100644 lib/libgcc/coretypes.h
+ create mode 100644 lib/libgcc/longlong.h
+ create mode 100644 lib/libgcc/tconfig.h
+ create mode 100644 lib/libgcc/tm.h
+ create mode 100644 lib/libgcc/tsystem.h
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index dcb667c..87128ef 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -75,6 +75,9 @@ config VIRT_CPU_ACCOUNTING
- config ARCH_SUPPORTS_DEBUG_PAGEALLOC
- 	def_bool y
- 
-+config LIBGCC_SUPPORT
-+	def_bool y
-+
- mainmenu "Linux Kernel Configuration"
- 
- config S390
-diff --git a/arch/s390/include/asm/libgcc/config.h b/arch/s390/include/asm/libgcc/config.h
+diff --git a/include/asm-generic/libgcc/longlong.h b/include/asm-generic/libgcc/longlong.h
 new file mode 100644
-index 0000000..1688497
+index 0000000..b5b9158
 --- /dev/null
-+++ b/arch/s390/include/asm/libgcc/config.h
-@@ -0,0 +1,4 @@
-+#define MIN_UNITS_PER_WORD 4
-+#define BITS_PER_UNIT 8
-+#define WORDS_BIG_ENDIAN 1
-+#define LONG_LONG_TYPE_SIZE 64
-diff --git a/arch/s390/include/asm/libgcc/longlong.h b/arch/s390/include/asm/libgcc/longlong.h
-new file mode 100644
-index 0000000..742445d
---- /dev/null
-+++ b/arch/s390/include/asm/libgcc/longlong.h
-@@ -0,0 +1,42 @@
++++ b/include/asm-generic/libgcc/longlong.h
+@@ -0,0 +1,183 @@
 +/*
-+ * Definitions for mixed size 32/64 bit arithmetic, s390 specific parts.
++ * Definitions for mixed size 32/64 bit arithmetic, generic parts.
 + *
 + * Copyright (C) 1991-2009 Free Software Foundation, Inc.
 + *
@@ -76,56 +58,213 @@ index 0000000..742445d
 + * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 + */
 +
-+#if W_TYPE_SIZE == 32
-+#define smul_ppmm(xh, xl, m0, m1) \
++#define __BITS4 (W_TYPE_SIZE / 4)
++#define __ll_B ((UWtype) 1 << (W_TYPE_SIZE / 2))
++#define __ll_lowpart(t) ((UWtype) (t) & (__ll_B - 1))
++#define __ll_highpart(t) ((UWtype) (t) >> (W_TYPE_SIZE / 2))
++
++extern const UQItype __clz_tab[256];
++
++#include <asm/libgcc/longlong.h>
++
++#if !defined (add_ssaaaa)
++#define add_ssaaaa(sh, sl, ah, al, bh, bl) \
 +  do {									\
-+    union {DItype __ll;							\
-+	   struct {USItype __h, __l;} __i;				\
-+	  } __x;							\
-+    __asm__ ("lr %N0,%1\n\tmr %0,%2"					\
-+	     : "=&r" (__x.__ll)						\
-+	     : "r" (m0), "r" (m1));					\
-+    (xh) = __x.__i.__h; (xl) = __x.__i.__l;				\
-+  } while (0)
-+#define sdiv_qrnnd(q, r, n1, n0, d) \
-+  do {									\
-+    union {DItype __ll;							\
-+	   struct {USItype __h, __l;} __i;				\
-+	  } __x;							\
-+    __x.__i.__h = n1; __x.__i.__l = n0;					\
-+    __asm__ ("dr %0,%2"							\
-+	     : "=r" (__x.__ll)						\
-+	     : "0" (__x.__ll), "r" (d));				\
-+    (q) = __x.__i.__l; (r) = __x.__i.__h;				\
++    UWtype __x;								\
++    __x = (al) + (bl);							\
++    (sh) = (ah) + (bh) + (__x < (al));					\
++    (sl) = __x;								\
 +  } while (0)
 +#endif
-diff --git a/arch/s390/math-emu/math.c b/arch/s390/math-emu/math.c
-index 3ee78cc..9f6869f 100644
---- a/arch/s390/math-emu/math.c
-+++ b/arch/s390/math-emu/math.c
-@@ -2233,23 +2233,3 @@ int math_emu_srnm(__u8 *opcode, struct pt_regs *regs) {
-         current->thread.fp_regs.fpc |= (temp & 3);
-         return 0;
- }
--
--/* broken compiler ... */
--long long
--__negdi2 (long long u)
--{
--
--  union lll {
--    long long ll;
--    long s[2];
--  };
--
--  union lll w,uu;
--
--  uu.ll = u;
--
--  w.s[1] = -uu.s[1];
--  w.s[0] = -uu.s[0] - ((int) w.s[1] != 0);
--
--  return w.ll;
--}
++
++#if !defined (sub_ddmmss)
++#define sub_ddmmss(sh, sl, ah, al, bh, bl) \
++  do {									\
++    UWtype __x;								\
++    __x = (al) - (bl);							\
++    (sh) = (ah) - (bh) - (__x > (al));					\
++    (sl) = __x;								\
++  } while (0)
++#endif
++
++/* If we lack umul_ppmm but have smul_ppmm, define umul_ppmm in terms of
++   smul_ppmm.  */
++#if !defined (umul_ppmm) && defined (smul_ppmm)
++#define umul_ppmm(w1, w0, u, v)						\
++  do {									\
++    UWtype __w1;							\
++    UWtype __xm0 = (u), __xm1 = (v);					\
++    smul_ppmm (__w1, w0, __xm0, __xm1);					\
++    (w1) = __w1 + (-(__xm0 >> (W_TYPE_SIZE - 1)) & __xm1)		\
++		+ (-(__xm1 >> (W_TYPE_SIZE - 1)) & __xm0);		\
++  } while (0)
++#endif
++
++/* If we still don't have umul_ppmm, define it using plain C.  */
++#if !defined (umul_ppmm)
++#define umul_ppmm(w1, w0, u, v)						\
++  do {									\
++    UWtype __x0, __x1, __x2, __x3;					\
++    UHWtype __ul, __vl, __uh, __vh;					\
++									\
++    __ul = __ll_lowpart (u);						\
++    __uh = __ll_highpart (u);						\
++    __vl = __ll_lowpart (v);						\
++    __vh = __ll_highpart (v);						\
++									\
++    __x0 = (UWtype) __ul * __vl;					\
++    __x1 = (UWtype) __ul * __vh;					\
++    __x2 = (UWtype) __uh * __vl;					\
++    __x3 = (UWtype) __uh * __vh;					\
++									\
++    __x1 += __ll_highpart (__x0);/* this can't give carry */		\
++    __x1 += __x2;		/* but this indeed can */		\
++    if (__x1 < __x2)		/* did we get it? */			\
++      __x3 += __ll_B;		/* yes, add it in the proper pos.  */	\
++									\
++    (w1) = __x3 + __ll_highpart (__x1);					\
++    (w0) = __ll_lowpart (__x1) * __ll_B + __ll_lowpart (__x0);		\
++  } while (0)
++#endif
++
++#if !defined (__umulsidi3)
++#define __umulsidi3(u, v) \
++  ({DWunion __w;							\
++    umul_ppmm (__w.s.high, __w.s.low, u, v);				\
++    __w.ll; })
++#endif
++
++/* If the processor has no udiv_qrnnd but sdiv_qrnnd, go through
++   __udiv_w_sdiv (defined in libgcc or elsewhere).  */
++#if !defined (udiv_qrnnd) && defined (sdiv_qrnnd)
++#define udiv_qrnnd(q, r, nh, nl, d) \
++  do {									\
++    USItype __r;							\
++    (q) = __udiv_w_sdiv (&__r, nh, nl, d);				\
++    (r) = __r;								\
++  } while (0)
++#endif
++
++#if !defined (udiv_qrnnd)
++#define udiv_qrnnd(q, r, n1, n0, d) \
++  do {									\
++    UWtype __d1, __d0, __q1, __q0;					\
++    UWtype __r1, __r0, __m;						\
++    __d1 = __ll_highpart (d);						\
++    __d0 = __ll_lowpart (d);						\
++									\
++    __r1 = (n1) % __d1;							\
++    __q1 = (n1) / __d1;							\
++    __m = (UWtype) __q1 * __d0;						\
++    __r1 = __r1 * __ll_B | __ll_highpart (n0);				\
++    if (__r1 < __m)							\
++      {									\
++	__q1--, __r1 += (d);						\
++	if (__r1 >= (d)) /* i.e. we didn't get carry when adding to __r1 */\
++	  if (__r1 < __m)						\
++	    __q1--, __r1 += (d);					\
++      }									\
++    __r1 -= __m;							\
++									\
++    __r0 = __r1 % __d1;							\
++    __q0 = __r1 / __d1;							\
++    __m = (UWtype) __q0 * __d0;						\
++    __r0 = __r0 * __ll_B | __ll_lowpart (n0);				\
++    if (__r0 < __m)							\
++      {									\
++	__q0--, __r0 += (d);						\
++	if (__r0 >= (d))						\
++	  if (__r0 < __m)						\
++	    __q0--, __r0 += (d);					\
++      }									\
++    __r0 -= __m;							\
++									\
++    (q) = (UWtype) __q1 * __ll_B | __q0;				\
++    (r) = __r0;								\
++  } while (0)
++#define UDIV_NEEDS_NORMALIZATION 1
++#endif
++
++#if !defined (count_leading_zeros)
++#define count_leading_zeros(count, x) \
++  do {									\
++    UWtype __xr = (x);							\
++    UWtype __a;								\
++									\
++    if (W_TYPE_SIZE <= 32)						\
++      {									\
++	__a = __xr < ((UWtype)1<<2*__BITS4)				\
++	  ? (__xr < ((UWtype)1<<__BITS4) ? 0 : __BITS4)			\
++	  : (__xr < ((UWtype)1<<3*__BITS4) ?  2*__BITS4 : 3*__BITS4);	\
++      }									\
++    else								\
++      {									\
++	for (__a = W_TYPE_SIZE - 8; __a > 0; __a -= 8)			\
++	  if (((__xr >> __a) & 0xff) != 0)				\
++	    break;							\
++      }									\
++									\
++    (count) = W_TYPE_SIZE - (__clz_tab[__xr >> __a] + __a);		\
++  } while (0)
++#define COUNT_LEADING_ZEROS_0 W_TYPE_SIZE
++#endif
++
++#if !defined (count_trailing_zeros)
++#define count_trailing_zeros(count, x) \
++  do {									\
++    UWtype __ctz_x = (x);						\
++    UWtype __ctz_c;							\
++    count_leading_zeros (__ctz_c, __ctz_x & -__ctz_x);			\
++    (count) = W_TYPE_SIZE - 1 - __ctz_c;				\
++  } while (0)
++#endif
++
++#ifndef UDIV_NEEDS_NORMALIZATION
++#define UDIV_NEEDS_NORMALIZATION 0
++#endif
+diff --git a/lib/libgcc/coretypes.h b/lib/libgcc/coretypes.h
+new file mode 100644
+index 0000000..40a8c17
+--- /dev/null
++++ b/lib/libgcc/coretypes.h
+@@ -0,0 +1 @@
++/* empty */
+diff --git a/lib/libgcc/longlong.h b/lib/libgcc/longlong.h
+new file mode 100644
+index 0000000..5127ca8
+--- /dev/null
++++ b/lib/libgcc/longlong.h
+@@ -0,0 +1 @@
++#include <asm-generic/libgcc/longlong.h>
+diff --git a/lib/libgcc/tconfig.h b/lib/libgcc/tconfig.h
+new file mode 100644
+index 0000000..16df0dc
+--- /dev/null
++++ b/lib/libgcc/tconfig.h
+@@ -0,0 +1,8 @@
++#include <asm/libgcc/config.h>
++
++#define LIBGCC2_DOUBLE_TYPE_SIZE 0
++#define LIBGCC2_LONG_DOUBLE_TYPE_SIZE 0
++#define LIBGCC2_HAS_SF_MODE 0
++#define LIBGCC2_HAS_DF_MODE 0
++#define LIBGCC2_HAS_XF_MODE 0
++#define LIBGCC2_HAS_FF_MODE 0
+diff --git a/lib/libgcc/tm.h b/lib/libgcc/tm.h
+new file mode 100644
+index 0000000..59f75d6
+--- /dev/null
++++ b/lib/libgcc/tm.h
+@@ -0,0 +1,3 @@
++#include <asm/bug.h>
++
++#define abort() do { BUG(); return 0; } while (0)
+diff --git a/lib/libgcc/tsystem.h b/lib/libgcc/tsystem.h
+new file mode 100644
+index 0000000..40a8c17
+--- /dev/null
++++ b/lib/libgcc/tsystem.h
+@@ -0,0 +1 @@
++/* empty */
 -- 
 1.6.2.1
