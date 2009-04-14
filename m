@@ -1,125 +1,79 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756742AbZDNN40@vger.kernel.org>
-Message-Id: <20090414135348.342129146@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756292AbZDNNzr@vger.kernel.org>
+Message-Id: <20090414135347.279922307@de.ibm.com>
 References: <20090414135327.576111185@de.ibm.com>
-Date: Tue, 14 Apr 2009 15:53:35 +0200
+Date: Tue, 14 Apr 2009 15:53:31 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 08/14] dasd: Use the new async framework for autoonlining.
-Content-Disposition: inline; filename=008-dasd-auto-online.diff
+Subject: [patch 04/14] stp synchronization retry timer
+Content-Disposition: inline; filename=004-stp-retry.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Stefan Haberland <stefan.haberland@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-The dasd driver can automatically online detected dasds, which
-especially important for finding the root device. Currently,
-it will wait for each online operation to finish individually,
-which may take long if many dasds need to be onlined. When using
-the new async framework, these onlining operations can run in
-parallel and presence of the root device is ensured by the fact
-that prepare_namespace() waits for all async threads to finish.
+Add a timer that retries the clock synchronization via the server time
+protocol if there is a usable clock but the synchronization failed.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Stefan Haberland <stefan.haberland@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/dasd.c |   37 +++++++++++++++++++++++++------------
- 1 file changed, 25 insertions(+), 12 deletions(-)
+ arch/s390/kernel/time.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-Index: quilt-2.6/drivers/s390/block/dasd.c
+Index: quilt-2.6/arch/s390/kernel/time.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd.c
-+++ quilt-2.6/drivers/s390/block/dasd.c
-@@ -20,6 +20,7 @@
- #include <linux/slab.h>
- #include <linux/buffer_head.h>
- #include <linux/hdreg.h>
-+#include <linux/async.h>
+--- quilt-2.6.orig/arch/s390/kernel/time.c
++++ quilt-2.6/arch/s390/kernel/time.c
+@@ -1423,6 +1423,7 @@ static void *stp_page;
+ static void stp_work_fn(struct work_struct *work);
+ static DEFINE_MUTEX(stp_work_mutex);
+ static DECLARE_WORK(stp_work, stp_work_fn);
++static struct timer_list stp_timer;
  
- #include <asm/ccwdev.h>
- #include <asm/ebcdic.h>
-@@ -480,8 +481,10 @@ static void dasd_change_state(struct das
-         if (rc && rc != -EAGAIN)
-                 device->target = device->state;
- 
--	if (device->state == device->target)
-+	if (device->state == device->target) {
- 		wake_up(&dasd_init_waitq);
-+		dasd_put_device(device);
-+	}
- 
- 	/* let user-space know that the device status changed */
- 	kobject_uevent(&device->cdev->dev.kobj, KOBJ_CHANGE);
-@@ -513,12 +516,15 @@ void dasd_kick_device(struct dasd_device
-  */
- void dasd_set_target_state(struct dasd_device *device, int target)
+ static int __init early_parse_stp(char *p)
  {
-+	dasd_get_device(device);
- 	/* If we are in probeonly mode stop at DASD_STATE_READY. */
- 	if (dasd_probeonly && target > DASD_STATE_READY)
- 		target = DASD_STATE_READY;
- 	if (device->target != target) {
--                if (device->state == target)
-+		if (device->state == target) {
- 			wake_up(&dasd_init_waitq);
-+			dasd_put_device(device);
-+		}
- 		device->target = target;
+@@ -1454,10 +1455,16 @@ static void __init stp_reset(void)
  	}
- 	if (device->state != device->target)
-@@ -2148,6 +2154,22 @@ dasd_exit(void)
-  * SECTION: common functions for ccw_driver use
-  */
+ }
  
-+static void dasd_generic_auto_online(void *data, async_cookie_t cookie)
++static void stp_timeout(unsigned long dummy)
 +{
-+	struct ccw_device *cdev = data;
-+	int ret;
-+
-+	ret = ccw_device_set_online(cdev);
-+	if (ret)
-+		pr_warning("%s: Setting the DASD online failed with rc=%d\n",
-+			   dev_name(&cdev->dev), ret);
-+	else {
-+		struct dasd_device *device = dasd_device_from_cdev(cdev);
-+		wait_event(dasd_init_waitq, _wait_for_device(device));
-+		dasd_put_device(device);
-+	}
++	queue_work(time_sync_wq, &stp_work);
 +}
 +
- /*
-  * Initial attempt at a probe function. this can be simplified once
-  * the other detection code is gone.
-@@ -2180,10 +2202,7 @@ int dasd_generic_probe(struct ccw_device
- 	 */
- 	if ((dasd_get_feature(cdev, DASD_FEATURE_INITIAL_ONLINE) > 0 ) ||
- 	    (dasd_autodetect && dasd_busid_known(dev_name(&cdev->dev)) != 0))
--		ret = ccw_device_set_online(cdev);
--	if (ret)
--		pr_warning("%s: Setting the DASD online failed with rc=%d\n",
--		       dev_name(&cdev->dev), ret);
-+		async_schedule(dasd_generic_auto_online, cdev);
- 	return 0;
- }
+ static int __init stp_init(void)
+ {
+ 	if (!test_bit(CLOCK_SYNC_HAS_STP, &clock_sync_flags))
+ 		return 0;
++	setup_timer(&stp_timer, stp_timeout, 0UL);
+ 	time_init_wq();
+ 	if (!stp_online)
+ 		return 0;
+@@ -1565,6 +1572,7 @@ static void stp_work_fn(struct work_stru
  
-@@ -2290,13 +2309,7 @@ int dasd_generic_set_online(struct ccw_d
- 	} else
- 		pr_debug("dasd_generic device %s found\n",
- 				dev_name(&cdev->dev));
--
--	/* FIXME: we have to wait for the root device but we don't want
--	 * to wait for each single device but for all at once. */
--	wait_event(dasd_init_waitq, _wait_for_device(device));
--
- 	dasd_put_device(device);
--
- 	return rc;
- }
+ 	if (!stp_online) {
+ 		chsc_sstpc(stp_page, STP_OP_CTRL, 0x0000);
++		del_timer_sync(&stp_timer);
+ 		goto out_unlock;
+ 	}
  
+@@ -1586,6 +1594,13 @@ static void stp_work_fn(struct work_stru
+ 	stop_machine(stp_sync_clock, &stp_sync, &cpu_online_map);
+ 	put_online_cpus();
+ 
++	if (!check_sync_clock())
++		/*
++		 * There is a usable clock but the synchonization failed.
++		 * Retry after a second.
++		 */
++		mod_timer(&stp_timer, jiffies + HZ);
++
+ out_unlock:
+ 	mutex_unlock(&stp_work_mutex);
+ }
 
 -- 
 blue skies,
