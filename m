@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756127AbZDNN5z@vger.kernel.org>
-Message-Id: <20090414135349.653173299@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757058AbZDNN6j@vger.kernel.org>
+Message-Id: <20090414135349.394396587@de.ibm.com>
 References: <20090414135327.576111185@de.ibm.com>
-Date: Tue, 14 Apr 2009 15:53:40 +0200
+Date: Tue, 14 Apr 2009 15:53:39 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 13/14] add read_persistent_clock
-Content-Disposition: inline; filename=013-persistent-clock.diff
+Subject: [patch 12/14] cpu hotplug and accounting values
+Content-Disposition: inline; filename=012-cpu-accounting.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,165 +14,96 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Add a read_persistent_clock function that does not just return 0.
-Since timekeeping_init calls the function before time_init has been
-called move reset_tod_clock to early.c to make sure that the TOD
-clock is running when read_persistent_clock is invoked.
+Reset the cpu timer to the maximum value and correctly initialize the
+cpu accounting values in the lowcore when the cpu is started.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/include/asm/timex.h |    5 +++++
- arch/s390/kernel/early.c      |   16 ++++++++++++++++
- arch/s390/kernel/head.S       |    7 +++++--
- arch/s390/kernel/time.c       |   28 +++++++++-------------------
- 4 files changed, 35 insertions(+), 21 deletions(-)
+ arch/s390/kernel/asm-offsets.c |    2 ++
+ arch/s390/kernel/entry.S       |   13 +++++++++++++
+ arch/s390/kernel/entry64.S     |   13 +++++++++++++
+ 3 files changed, 28 insertions(+)
 
-Index: quilt-2.6/arch/s390/include/asm/timex.h
+Index: quilt-2.6/arch/s390/kernel/asm-offsets.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/timex.h
-+++ quilt-2.6/arch/s390/include/asm/timex.h
-@@ -11,6 +11,9 @@
- #ifndef _ASM_S390_TIMEX_H
- #define _ASM_S390_TIMEX_H
- 
-+/* The value of the TOD clock for 1.1.1970. */
-+#define TOD_UNIX_EPOCH 0x7d91048bca000000ULL
-+
- /* Inline functions for clock register access. */
- static inline int set_clock(__u64 time)
- {
-@@ -85,4 +88,6 @@ int get_sync_clock(unsigned long long *c
- void init_cpu_timer(void);
- unsigned long long monotonic_clock(void);
- 
-+extern u64 sched_clock_base_cc;
-+
- #endif
-Index: quilt-2.6/arch/s390/kernel/early.c
+--- quilt-2.6.orig/arch/s390/kernel/asm-offsets.c
++++ quilt-2.6/arch/s390/kernel/asm-offsets.c
+@@ -27,6 +27,8 @@ int main(void)
+ 	DEFINE(__TI_flags, offsetof(struct thread_info, flags));
+ 	DEFINE(__TI_cpu, offsetof(struct thread_info, cpu));
+ 	DEFINE(__TI_precount, offsetof(struct thread_info, preempt_count));
++	DEFINE(__TI_user_timer, offsetof(struct thread_info, user_timer));
++	DEFINE(__TI_system_timer, offsetof(struct thread_info, system_timer));
+ 	BLANK();
+ 	DEFINE(__PT_ARGS, offsetof(struct pt_regs, args));
+ 	DEFINE(__PT_PSW, offsetof(struct pt_regs, psw));
+Index: quilt-2.6/arch/s390/kernel/entry64.S
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/early.c
-+++ quilt-2.6/arch/s390/kernel/early.c
-@@ -38,6 +38,21 @@ static unsigned long machine_flags;
- 
- static void __init setup_boot_command_line(void);
- 
-+/*
-+ * Get the TOD clock running.
-+ */
-+static void __init reset_tod_clock(void)
-+{
-+	u64 time;
-+
-+	if (store_clock(&time) == 0)
-+		return;
-+	/* TOD clock not running. Set the clock to Unix Epoch. */
-+	if (set_clock(TOD_UNIX_EPOCH) != 0 || store_clock(&time) != 0)
-+		disabled_wait(0);
-+
-+	sched_clock_base_cc = TOD_UNIX_EPOCH;
-+}
- 
- #ifdef CONFIG_SHARED_KERNEL
- int __init savesys_ipl_nss(char *cmd, const int cmdlen);
-@@ -372,6 +387,7 @@ static void __init setup_boot_command_li
-  */
- void __init startup_init(void)
- {
-+	reset_tod_clock();
- 	ipl_save_parameters();
- 	rescue_initrd();
- 	clear_bss_section();
-Index: quilt-2.6/arch/s390/kernel/head.S
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/head.S
-+++ quilt-2.6/arch/s390/kernel/head.S
-@@ -471,6 +471,8 @@ startup:basr	%r13,0			# get base
- .LPG0:
- 	xc	0x200(256),0x200	# partially clear lowcore
- 	xc	0x300(256),0x300
-+	l	%r1,5f-.LPG0(%r13)
-+	stck	0(%r1)
- 
- #ifndef CONFIG_MARCH_G5
- 	# check processor version against MARCH_{G5,Z900,Z990,Z9_109,Z10}
-@@ -496,9 +498,10 @@ startup:basr	%r13,0			# get base
- 	brct	%r0,0b
- #endif
- 
--	l	%r13,0f-.LPG0(%r13)
-+	l	%r13,4f-.LPG0(%r13)
- 	b	0(%r13)
--0:	.long	startup_continue
-+4:	.long	startup_continue
-+5:	.long	sched_clock_base_cc
- 
- #
- # params at 10400 (setup.h)
-Index: quilt-2.6/arch/s390/kernel/time.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/time.c
-+++ quilt-2.6/arch/s390/kernel/time.c
-@@ -52,9 +52,6 @@
- #define USECS_PER_JIFFY     ((unsigned long) 1000000/HZ)
- #define CLK_TICKS_PER_JIFFY ((unsigned long) USECS_PER_JIFFY << 12)
- 
--/* The value of the TOD clock for 1.1.1970. */
--#define TOD_UNIX_EPOCH 0x7d91048bca000000ULL
--
+--- quilt-2.6.orig/arch/s390/kernel/entry64.S
++++ quilt-2.6/arch/s390/kernel/entry64.S
+@@ -831,14 +831,27 @@ mcck_return:
+ 	__CPUINIT
+ 	.globl restart_int_handler
+ restart_int_handler:
++	basr	%r1,0
++restart_base:
++	spt	restart_vtime-restart_base(%r1)
++	stck	__LC_LAST_UPDATE_CLOCK
++	mvc	__LC_LAST_UPDATE_TIMER(8),restart_vtime-restart_base(%r1)
++	mvc	__LC_EXIT_TIMER(8),restart_vtime-restart_base(%r1)
+ 	lg	%r15,__LC_SAVE_AREA+120 # load ksp
+ 	lghi	%r10,__LC_CREGS_SAVE_AREA
+ 	lctlg	%c0,%c15,0(%r10) # get new ctl regs
+ 	lghi	%r10,__LC_AREGS_SAVE_AREA
+ 	lam	%a0,%a15,0(%r10)
+ 	lmg	%r6,%r15,__SF_GPRS(%r15) # load registers from clone
++	lg	%r1,__LC_THREAD_INFO
++	mvc	__LC_USER_TIMER(8),__TI_user_timer(%r1)
++	mvc	__LC_SYSTEM_TIMER(8),__TI_system_timer(%r1)
++	xc	__LC_STEAL_TIMER(8),__LC_STEAL_TIMER
+ 	stosm	__SF_EMPTY(%r15),0x04	# now we can turn dat on
+ 	jg	start_secondary
++	.align	8
++restart_vtime:
++	.long	0x7fffffff,0xffffffff
+ 	.previous
+ #else
  /*
-  * Create a small time difference between the timer interrupts
-  * on the different cpus to avoid lock contention.
-@@ -63,9 +60,10 @@
- 
- #define TICK_SIZE tick
- 
-+u64 sched_clock_base_cc = -1;	/* Force to data section. */
-+
- static ext_int_info_t ext_int_info_cc;
- static ext_int_info_t ext_int_etr_cc;
--static u64 sched_clock_base_cc;
- 
- static DEFINE_PER_CPU(struct clock_event_device, comparators);
- 
-@@ -195,22 +193,12 @@ static void timing_alert_interrupt(__u16
- static void etr_reset(void);
- static void stp_reset(void);
- 
--/*
-- * Get the TOD clock running.
-- */
--static u64 __init reset_tod_clock(void)
-+unsigned long read_persistent_clock(void)
- {
--	u64 time;
-+	struct timespec ts;
- 
--	etr_reset();
--	stp_reset();
--	if (store_clock(&time) == 0)
--		return time;
--	/* TOD clock not running. Set the clock to Unix Epoch. */
--	if (set_clock(TOD_UNIX_EPOCH) != 0 || store_clock(&time) != 0)
--		panic("TOD clock not operational.");
--
--	return TOD_UNIX_EPOCH;
-+	tod_to_timeval(get_clock() - TOD_UNIX_EPOCH, &ts);
-+	return ts.tv_sec;
- }
- 
- static cycle_t read_tod_clock(void)
-@@ -265,7 +253,9 @@ void update_vsyscall_tz(void)
-  */
- void __init time_init(void)
- {
--	sched_clock_base_cc = reset_tod_clock();
-+	/* Reset time synchronization interfaces. */
-+	etr_reset();
-+	stp_reset();
- 
- 	/* set xtime */
- 	tod_to_timeval(sched_clock_base_cc - TOD_UNIX_EPOCH, &xtime);
+Index: quilt-2.6/arch/s390/kernel/entry.S
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/entry.S
++++ quilt-2.6/arch/s390/kernel/entry.S
+@@ -837,16 +837,29 @@ mcck_return:
+ 	__CPUINIT
+ 	.globl restart_int_handler
+ restart_int_handler:
++	basr	%r1,0
++restart_base:
++	spt	restart_vtime-restart_base(%r1)
++	stck	__LC_LAST_UPDATE_CLOCK
++	mvc	__LC_LAST_UPDATE_TIMER(8),restart_vtime-restart_base(%r1)
++	mvc	__LC_EXIT_TIMER(8),restart_vtime-restart_base(%r1)
+ 	l	%r15,__LC_SAVE_AREA+60	# load ksp
+ 	lctl	%c0,%c15,__LC_CREGS_SAVE_AREA # get new ctl regs
+ 	lam	%a0,%a15,__LC_AREGS_SAVE_AREA
+ 	lm	%r6,%r15,__SF_GPRS(%r15) # load registers from clone
++	l	%r1,__LC_THREAD_INFO
++	mvc	__LC_USER_TIMER(8),__TI_user_timer(%r1)
++	mvc	__LC_SYSTEM_TIMER(8),__TI_system_timer(%r1)
++	xc	__LC_STEAL_TIMER(8),__LC_STEAL_TIMER
+ 	stosm	__SF_EMPTY(%r15),0x04	# now we can turn dat on
+ 	basr	%r14,0
+ 	l	%r14,restart_addr-.(%r14)
+ 	br	%r14			# branch to start_secondary
+ restart_addr:
+ 	.long	start_secondary
++	.align	8
++restart_vtime:
++	.long	0x7fffffff,0xffffffff
+ 	.previous
+ #else
+ /*
 
 -- 
 blue skies,
