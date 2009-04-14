@@ -1,41 +1,26 @@
-From: Huang Weiyi <weiyi.huang@gmail.com>
-Date: Sat, 21 Mar 2009 05:50:33 +0000
-Subject: [PATCH] [S390] remove duplicated #include's
-Message-Id: <1237614633-3796-1-git-send-email-weiyi.huang@gmail.com>
-To: linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759200AbZDOIfk@vger.kernel.org>
+Message-ID: <000601c9bd32$249ca570$52dd8752@namai-1y7vmhgjn>
+From: Shafer <shafer@10199.com>
+Subject: =?iso-8859-1?b?U3RvcCBkcmVhbWluZyBhYm91dCBsb3Npbmcgd2VpZ2h0ICwgQWNhaSA=?=
+ =?iso-8859-1?b?QmVycnkgbWFrZXMgaXQgaGFwcGVuIHJpZ2h0IGJlZm9yZSB5b3VyIGU=?=
+ =?iso-8859-1?b?eWVzIA==?=
+Date: Tue, 14 Apr 2009 21:52:28 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: kvm-ppc@vger.kernel.org, kvm-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.orglinux-kernel@vger.kernel.org
+Cc: linux-security-module@vger.kernel.org, linux-wireless@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Remove duplicated #include's in arch/s390/kernel/ipl.c.
+good afterno0n
 
-Signed-off-by: Huang Weiyi <weiyi.huang@gmail.com>
----
- arch/s390/kernel/ipl.c      |    1 -
- arch/s390/kernel/sys_s390.c |    1 -
- 2 files changed, 0 insertions(+), 2 deletions(-)
+this unique blend of Acair Berry is the only diet pill you will ever need. You will lose weight and burn unwanted fat , feel healthier and more vibrant. Start your free trial now ! 
+visit site http://groups.yahoo.com/group/lumucejogymaz36/message/1
 
-diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-index 2dcf590..bf3d2e3 100644
---- a/arch/s390/kernel/ipl.c
-+++ b/arch/s390/kernel/ipl.c
-@@ -23,7 +23,6 @@
- #include <asm/ebcdic.h>
- #include <asm/reset.h>
- #include <asm/sclp.h>
--#include <asm/setup.h>
- 
- #define IPL_PARM_BLOCK_VERSION 0
- 
-diff --git a/arch/s390/kernel/sys_s390.c b/arch/s390/kernel/sys_s390.c
-index c7ae4b1..e9d94f6 100644
---- a/arch/s390/kernel/sys_s390.c
-+++ b/arch/s390/kernel/sys_s390.c
-@@ -29,7 +29,6 @@
- #include <linux/personality.h>
- #include <linux/unistd.h>
- #include <linux/ipc.h>
--#include <linux/syscalls.h>
- #include <asm/uaccess.h>
- #include "entry.h"
- 
--- 
-1.6.0.4
+code msg fgnjbvjk
+id 809
