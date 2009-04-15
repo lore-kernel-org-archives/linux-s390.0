@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757798AbZDOCGt@vger.kernel.org>
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch 10/14] smp: fix cpu_possible_map initialization
-Date: Wed, 15 Apr 2009 11:36:34 +0930
-References: <20090414135327.576111185@de.ibm.com> <20090414135348.874771700@de.ibm.com>
-In-Reply-To: <20090414135348.874771700@de.ibm.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: Next April 15: s390 allnoconfig build failure
+Date: Wed, 15 Apr 2009 10:35:57 +0200
+Message-ID: <20090415103557.0b313e35@osiris.boeblingen.de.ibm.com>
+References: <20090415144745.c4fb5c4b.sfr@canb.auug.org.au>
+	<49E58211.6040900@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200904151136.34934.rusty@rustcorp.com.au>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758508AbZDOIgZ@vger.kernel.org>
+In-Reply-To: <49E58211.6040900@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Sachin Sant <sachinp@in.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 14 Apr 2009 11:23:37 pm Martin Schwidefsky wrote:
-> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+On Wed, 15 Apr 2009 12:13:29 +0530
+Sachin Sant <sachinp@in.ibm.com> wrote:
+
+> Today's next tree build (s390 allnoconfig) failed with
 > 
-> The cpu_possible_map by default is initialized with all ones in s390.
-> If the kernel paramert possible_cpus=<x> is passed the cpu_possible_map
-> is supposed to have x bits set.
-> However the current code just sets the x bits without clearing the NR_CPUS
-> bits that were already set. So we end up with an unchanged map that has
-> all bits set.
-> To fix this just clear the map before setting any new bits.
+> arch/s390/kernel/ipl.c: In function 'stop_run':
+> arch/s390/kernel/ipl.c:1461: error: implicit declaration of function 
+> 'signal_processor'
+> arch/s390/kernel/ipl.c:1461: error: 'sigp_stop' undeclared (first use in 
+> this function)
+> arch/s390/kernel/ipl.c:1461: error: (Each undeclared identifier is 
+> reported only once
+> arch/s390/kernel/ipl.c:1461: error: for each function it appears in.)
+> make[1]: *** [arch/s390/kernel/ipl.o] Error 1
 
-You're right; I created this patch back before I did the
-CONFIG_INIT_ALL_POSSIBLE patch.
+Patch below will fix it. Thanks for reporting.
 
-It'd be nice to wean S390 off CONFIG_INIT_ALL_POSSIBLE, then there'd
-only be two (parisc and m32r).  But it's a minor wart.
+Subject: [PATCH] ipl: fix compile breakage
 
-Thanks,
-Rusty.
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+
+Fix this for !CONFIG_SMP:
+
+arch/s390/kernel/ipl.c: In function 'stop_run':
+arch/s390/kernel/ipl.c:1461: error: implicit declaration of function 'signal_processor'
+
+Reported-by: Sachin Sant <sachinp@in.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+
+diff -u -r1.67 -r1.68 linux-2.5/arch/s390/kernel/ipl.c
+--- linux-2.5/arch/s390/kernel/ipl.c	24 Mar 2009 11:33:16 -0000	1.67
++++ linux-2.5/arch/s390/kernel/ipl.c	15 Apr 2009 08:33:38 -0000	1.68
+@@ -23,6 +23,7 @@
+ #include <asm/ebcdic.h>
+ #include <asm/reset.h>
+ #include <asm/sclp.h>
++#include <asm/sigp.h>
+ #include <asm/checksum.h>
+
+ #define IPL_PARM_BLOCK_VERSION 0
