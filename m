@@ -1,10 +1,10 @@
 From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 14/15] zfcp: Reference counting for cfdc requests
-Date: Fri, 17 Apr 2009 15:08:14 +0200
-Message-ID: <20090417131123.660094000@de.ibm.com>
+Subject: [patch 09/15] zfcp: Let actcli handle control file errors
+Date: Fri, 17 Apr 2009 15:08:09 +0200
+Message-ID: <20090417131122.999486000@de.ibm.com>
 References: <20090417130800.923944000@de.ibm.com>
 Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=adapter-ref.diff
+Content-Disposition: inline; filename=709-zfcp-actcli-errors.diff
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
@@ -14,31 +14,25 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-Before dropping the reference count with zfcp_adapter_put, increase it
-with zfcp_adapter_get when issuing cfdc requests. 
+Error codes specific to the control file requests are evaluated by the
+actcli tool, so don't report -ENXIO for those. Generic problems are
+still checked for outside the command specific handler.
 
 Reviewed-by: Martin Petermann <martin@linux.vnet.ibm.com>
 Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
 ---
- drivers/s390/scsi/zfcp_cfdc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/s390/scsi/zfcp_cfdc.c	2009-04-17 15:03:18.000000000 +0200
-+++ b/drivers/s390/scsi/zfcp_cfdc.c	2009-04-17 15:03:56.000000000 +0200
-@@ -4,7 +4,7 @@
-  * Userspace interface for accessing the
-  * Access Control Lists / Control File Data Channel
-  *
-- * Copyright IBM Corporation 2008
-+ * Copyright IBM Corporation 2008, 2009
-  */
+ drivers/s390/scsi/zfcp_fsf.c |    2 --
+ 1 file changed, 2 deletions(-)
+
+--- a/drivers/s390/scsi/zfcp_fsf.c	2009-04-17 15:03:33.000000000 +0200
++++ b/drivers/s390/scsi/zfcp_fsf.c	2009-04-17 15:03:44.000000000 +0200
+@@ -2479,8 +2479,6 @@ out:
  
- #define KMSG_COMPONENT "zfcp"
-@@ -197,6 +197,7 @@ static long zfcp_cfdc_dev_ioctl(struct f
- 		retval = -ENXIO;
- 		goto free_buffer;
- 	}
-+	zfcp_adapter_get(adapter);
+ static void zfcp_fsf_control_file_handler(struct zfcp_fsf_req *req)
+ {
+-	if (req->qtcb->header.fsf_status != FSF_GOOD)
+-		req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ }
  
- 	retval = zfcp_cfdc_sg_setup(data->command, fsf_cfdc->sg,
- 				    data_user->control_file);
+ /**
