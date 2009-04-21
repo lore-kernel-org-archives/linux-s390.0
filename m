@@ -1,35 +1,43 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 0/5] [RESEND] af_iucv patches for 2.6.30-rc1
-Date: Tue, 21 Apr 2009 23:46:36 -0700 (PDT)
-Message-ID: <20090421.234636.220700386.davem@davemloft.net>
+From: Ursula Braun <ursula.braun@de.ibm.com>
+Subject: [patch 3/5] [PATCH] af_iucv: Reject incoming msgs if RECV_SHUTDOWN is set
+Date: Tue, 21 Apr 2009 18:04:22 +0200
+Message-ID: <20090421161444.563541000@linux.vnet.ibm.com>
 References: <20090421160419.971500000@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20090421160419.971500000@linux.vnet.ibm.com>
+Content-Disposition: inline; filename=604-af_iucv-rej-msgs.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: ursula.braun@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
-Date: Tue, 21 Apr 2009 18:04:19 +0200
+From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 
-> as suggested, here is the series of critical af_iucv bug fixes.
-> I will submit the remaining af_iucv patches to net-next-2.6.
-> The patches are based on top of the current net-2.6 kernel
-> (2.6.30-rc1).
-> 
-> Hendrik Brueckner (11):
->     af_iucv: fix oops in iucv_sock_recvmsg() for MSG_PEEK flag
->     af_iucv: Reject incoming msgs if RECV_SHUTDOWN is set
->     af_iucv: Test additional sk states in iucv_sock_shutdown
->     af_iucv: Fix race when queuing incoming iucv messages
-> 
-> Ursula Braun (2):
->     af_iucv: consider state IUCV_CLOSING when closing a socket
+Reject incoming iucv messages if the receive direction has been shut down.
+It avoids that the queue of outstanding messages increases and exceeds the
+message limit of the iucv communication path.
 
-All applied, thanks.
+Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+---
+
+ net/iucv/af_iucv.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+Index: net-2.6-uschi/net/iucv/af_iucv.c
+===================================================================
+--- net-2.6-uschi.orig/net/iucv/af_iucv.c
++++ net-2.6-uschi/net/iucv/af_iucv.c
+@@ -1116,8 +1116,10 @@ static void iucv_callback_rx(struct iucv
+ 	struct sock_msg_q *save_msg;
+ 	int len;
+ 
+-	if (sk->sk_shutdown & RCV_SHUTDOWN)
++	if (sk->sk_shutdown & RCV_SHUTDOWN) {
++		iucv_message_reject(path, msg);
+ 		return;
++	}
+ 
+ 	if (!list_empty(&iucv->message_q.list) ||
+ 	    !skb_queue_empty(&iucv->backlog_skb_q))
