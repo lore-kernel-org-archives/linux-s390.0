@@ -1,53 +1,33 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 13/15] zfcp: Fix port reference counting
-Date: Fri, 17 Apr 2009 15:08:13 +0200
-Message-ID: <20090417131123.529354000@de.ibm.com>
-References: <20090417130800.923944000@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=713-zfcp-port-refcounting.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Martin Petermann <martin.petermann@de.ibm.com>, Christof Schmitt <christof.schmitt@de.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 00/13] iucv / af_iucv patches for 2.6.30-rc1
+Date: Tue, 21 Apr 2009 03:39:41 -0700 (PDT)
+Message-ID: <20090421.033941.140196843.davem@davemloft.net>
+References: <20090421103457.965299000@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20090421103457.965299000@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: ursula.braun@de.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Petermann <martin.petermann@de.ibm.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
+Date: Tue, 21 Apr 2009 12:34:57 +0200
 
-If this problem appears zfcp ports cannot be de-queued since it is 
-checked for a zero refcount. The port reference counting is wrong for
-existing zfcp ports when e.g. an adapter gets on-line again. During 
-port scanning the reference counting for existing ports should not be
-changed.
+> here is the series of iucv / af_iucv patches for the current
+> development cycle.
 
-Signed-off-by: Martin Petermann <martin.petermann@de.ibm.com>
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
----
+We're not developing in 2.6.30-rcX, we're fixing bugs.
 
- drivers/s390/scsi/zfcp_fc.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+> The patches are based on top of the current net-2.6 kernel
+> (2.6.30-rc1).
 
---- a/drivers/s390/scsi/zfcp_fc.c	2009-04-17 15:03:46.000000000 +0200
-+++ b/drivers/s390/scsi/zfcp_fc.c	2009-04-17 15:03:54.000000000 +0200
-@@ -539,6 +539,9 @@ static void zfcp_validate_port(struct zf
- {
- 	struct zfcp_adapter *adapter = port->adapter;
- 
-+	if (!(atomic_read(&port->status) & ZFCP_STATUS_COMMON_NOESC))
-+		return;
-+
- 	atomic_clear_mask(ZFCP_STATUS_COMMON_NOESC, &port->status);
- 
- 	if ((port->supported_classes != 0) ||
-@@ -599,10 +602,8 @@ static int zfcp_scan_eval_gpn_ft(struct 
- 		if (acc->wwpn == fc_host_port_name(adapter->scsi_host))
- 			continue;
- 		port = zfcp_get_port_by_wwpn(adapter, acc->wwpn);
--		if (port) {
--			zfcp_port_get(port);
-+		if (port)
- 			continue;
--		}
- 
- 		port = zfcp_port_enqueue(adapter, acc->wwpn,
- 					 ZFCP_STATUS_COMMON_NOESC, d_id);
+There is no way in the world I'm taking 13 freakin' patches
+into net-2.6 from anyone at this stage in the game.
+
+Trim your patch list down to the most critical bug fixes,
+if any.  The rest must go to net-next-2.6
