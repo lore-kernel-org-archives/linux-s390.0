@@ -1,46 +1,35 @@
-From: Ursula Braun <ursula.braun@de.ibm.com>
-Subject: [patch 1/5] [PATCH] af_iucv: consider state IUCV_CLOSING when closing a socket
-Date: Tue, 21 Apr 2009 18:04:20 +0200
-Message-ID: <20090421161444.298976000@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/5] [RESEND] af_iucv patches for 2.6.30-rc1
+Date: Tue, 21 Apr 2009 23:46:36 -0700 (PDT)
+Message-ID: <20090421.234636.220700386.davem@davemloft.net>
 References: <20090421160419.971500000@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=602-af_iucv-closing.diff
+In-Reply-To: <20090421160419.971500000@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Ursula Braun <ursula.braun@de.ibm.com>
+To: ursula.braun@de.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Ursula Braun <ursula.braun@de.ibm.com>
+Date: Tue, 21 Apr 2009 18:04:19 +0200
 
-Make sure a second invocation of iucv_sock_close() guarantees proper
-freeing of an iucv path.
+> as suggested, here is the series of critical af_iucv bug fixes.
+> I will submit the remaining af_iucv patches to net-next-2.6.
+> The patches are based on top of the current net-2.6 kernel
+> (2.6.30-rc1).
+> 
+> Hendrik Brueckner (11):
+>     af_iucv: fix oops in iucv_sock_recvmsg() for MSG_PEEK flag
+>     af_iucv: Reject incoming msgs if RECV_SHUTDOWN is set
+>     af_iucv: Test additional sk states in iucv_sock_shutdown
+>     af_iucv: Fix race when queuing incoming iucv messages
+> 
+> Ursula Braun (2):
+>     af_iucv: consider state IUCV_CLOSING when closing a socket
 
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
----
-
- net/iucv/af_iucv.c |    3 +++
- 1 file changed, 3 insertions(+)
-
-Index: net-2.6-uschi/net/iucv/af_iucv.c
-===================================================================
---- net-2.6-uschi.orig/net/iucv/af_iucv.c
-+++ net-2.6-uschi/net/iucv/af_iucv.c
-@@ -172,6 +172,7 @@ static void iucv_sock_close(struct sock 
- 			err = iucv_sock_wait_state(sk, IUCV_CLOSED, 0, timeo);
- 		}
- 
-+	case IUCV_CLOSING:   /* fall through */
- 		sk->sk_state = IUCV_CLOSED;
- 		sk->sk_state_change(sk);
- 
-@@ -224,6 +225,8 @@ static struct sock *iucv_sock_alloc(stru
- 	spin_lock_init(&iucv_sk(sk)->message_q.lock);
- 	skb_queue_head_init(&iucv_sk(sk)->backlog_skb_q);
- 	iucv_sk(sk)->send_tag = 0;
-+	iucv_sk(sk)->path = NULL;
-+	memset(&iucv_sk(sk)->src_user_id , 0, 32);
- 
- 	sk->sk_destruct = iucv_sock_destruct;
- 	sk->sk_sndtimeo = IUCV_CONN_TIMEOUT;
+All applied, thanks.
