@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754721AbZDWLsT@vger.kernel.org>
-Message-Id: <20090423114725.624459709@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755314AbZDWLsh@vger.kernel.org>
+Message-Id: <20090423114726.472007019@de.ibm.com>
 References: <20090423114638.865214111@de.ibm.com>
-Date: Thu, 23 Apr 2009 13:46:41 +0200
+Date: Thu, 23 Apr 2009 13:46:44 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 3/6] /proc/stat idle field for idle cpus
-Content-Disposition: inline; filename=003-idle-stat.diff
+Subject: [patch 6/6] update default configuration.
+Content-Disposition: inline; filename=006-defconfig.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,93 +14,306 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-The cpu idle field in the output of /proc/stat is too small for cpus
-that have been idle for more than a tick. Add the architecture hook
-arch_idle_time that allows to add the not accounted idle time of a
-sleeping cpu without waking the cpu.
-
-The s390 implementation of arch_idle_time uses the already existing
-s390_idle_data per_cpu variable to find the sleep time of a neighboring
-idle cpu.
-
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/include/asm/cputime.h |    4 ++++
- arch/s390/kernel/vtime.c        |   16 ++++++++++++++++
- fs/proc/stat.c                  |    5 +++++
- 3 files changed, 25 insertions(+)
+ arch/s390/defconfig |   63 +++++++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 50 insertions(+), 13 deletions(-)
 
-Index: quilt-2.6/arch/s390/include/asm/cputime.h
+Index: quilt-2.6/arch/s390/defconfig
 ===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/cputime.h
-+++ quilt-2.6/arch/s390/include/asm/cputime.h
-@@ -174,4 +174,8 @@ cputime64_to_clock_t(cputime64_t cputime
-        return __div(cputime, 4096000000ULL / USER_HZ);
- }
+--- quilt-2.6.orig/arch/s390/defconfig
++++ quilt-2.6/arch/s390/defconfig
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.29-rc4
+-# Wed Feb 11 10:07:16 2009
++# Linux kernel version: 2.6.30-rc3
++# Thu Apr 23 09:29:52 2009
+ #
+ CONFIG_SCHED_MC=y
+ CONFIG_MMU=y
+@@ -22,6 +22,7 @@ CONFIG_NO_DMA=y
+ CONFIG_GENERIC_LOCKBREAK=y
+ CONFIG_PGSTE=y
+ CONFIG_VIRT_CPU_ACCOUNTING=y
++CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC=y
+ CONFIG_S390=y
+ CONFIG_DEFCONFIG_LIST="/lib/modules/$UNAME_RELEASE/.config"
  
-+cputime64_t s390_get_idle_time(int cpu);
-+
-+#define arch_idle_time(cpu) s390_get_idle_time(cpu)
-+
- #endif /* _S390_CPUTIME_H */
-Index: quilt-2.6/arch/s390/kernel/vtime.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/vtime.c
-+++ quilt-2.6/arch/s390/kernel/vtime.c
-@@ -240,6 +240,22 @@ void vtime_stop_cpu(void)
- 	}
- }
+@@ -37,6 +38,7 @@ CONFIG_SWAP=y
+ CONFIG_SYSVIPC=y
+ CONFIG_SYSVIPC_SYSCTL=y
+ CONFIG_POSIX_MQUEUE=y
++CONFIG_POSIX_MQUEUE_SYSCTL=y
+ # CONFIG_BSD_PROCESS_ACCT is not set
+ # CONFIG_TASKSTATS is not set
+ CONFIG_AUDIT=y
+@@ -77,21 +79,24 @@ CONFIG_IPC_NS=y
+ # CONFIG_NET_NS is not set
+ CONFIG_BLK_DEV_INITRD=y
+ CONFIG_INITRAMFS_SOURCE=""
++CONFIG_RD_GZIP=y
++CONFIG_RD_BZIP2=y
++CONFIG_RD_LZMA=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SYSCTL=y
++CONFIG_ANON_INODES=y
+ # CONFIG_EMBEDDED is not set
+ CONFIG_SYSCTL_SYSCALL=y
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++# CONFIG_STRIP_ASM_SYMS is not set
+ CONFIG_HOTPLUG=y
+ CONFIG_PRINTK=y
+ CONFIG_BUG=y
+ CONFIG_ELF_CORE=y
+-# CONFIG_COMPAT_BRK is not set
+ CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+-CONFIG_ANON_INODES=y
+ CONFIG_EPOLL=y
+ CONFIG_SIGNALFD=y
+ CONFIG_TIMERFD=y
+@@ -99,10 +104,12 @@ CONFIG_EVENTFD=y
+ CONFIG_SHMEM=y
+ CONFIG_AIO=y
+ CONFIG_VM_EVENT_COUNTERS=y
++# CONFIG_COMPAT_BRK is not set
+ CONFIG_SLAB=y
+ # CONFIG_SLUB is not set
+ # CONFIG_SLOB is not set
+ # CONFIG_PROFILING is not set
++# CONFIG_MARKERS is not set
+ CONFIG_HAVE_OPROFILE=y
+ CONFIG_KPROBES=y
+ CONFIG_HAVE_SYSCALL_WRAPPERS=y
+@@ -111,6 +118,8 @@ CONFIG_HAVE_KPROBES=y
+ CONFIG_HAVE_KRETPROBES=y
+ CONFIG_HAVE_ARCH_TRACEHOOK=y
+ CONFIG_USE_GENERIC_SMP_HELPERS=y
++CONFIG_HAVE_DEFAULT_NO_SPIN_MUTEXES=y
++# CONFIG_SLOW_WORK is not set
+ # CONFIG_HAVE_GENERIC_DMA_COHERENT is not set
+ CONFIG_SLABINFO=y
+ CONFIG_RT_MUTEXES=y
+@@ -124,7 +133,6 @@ CONFIG_MODVERSIONS=y
+ CONFIG_INIT_ALL_POSSIBLE=y
+ CONFIG_STOP_MACHINE=y
+ CONFIG_BLOCK=y
+-# CONFIG_BLK_DEV_IO_TRACE is not set
+ CONFIG_BLK_DEV_BSG=y
+ # CONFIG_BLK_DEV_INTEGRITY is not set
+ CONFIG_BLOCK_COMPAT=y
+@@ -211,11 +219,12 @@ CONFIG_ZONE_DMA_FLAG=1
+ CONFIG_BOUNCE=y
+ CONFIG_VIRT_TO_BUS=y
+ CONFIG_UNEVICTABLE_LRU=y
++CONFIG_HAVE_MLOCK=y
++CONFIG_HAVE_MLOCKED_PAGE_BIT=y
  
-+cputime64_t s390_get_idle_time(int cpu)
-+{
-+	struct s390_idle_data *idle;
-+	unsigned long long now, idle_time, idle_enter;
-+
-+	idle = &per_cpu(s390_idle, cpu);
-+	spin_lock(&idle->lock);
-+	now = get_clock();
-+	idle_time = 0;
-+	idle_enter = idle->idle_enter;
-+	if (idle_enter != 0ULL && idle_enter < now)
-+		idle_time = now - idle_enter;
-+	spin_unlock(&idle->lock);
-+	return idle_time;
-+}
-+
- /*
-  * Sorted add to a list. List is linear searched until first bigger
-  * element is found.
-Index: quilt-2.6/fs/proc/stat.c
-===================================================================
---- quilt-2.6.orig/fs/proc/stat.c
-+++ quilt-2.6/fs/proc/stat.c
-@@ -18,6 +18,9 @@
- #ifndef arch_irq_stat
- #define arch_irq_stat() 0
- #endif
-+#ifndef arch_idle_time
-+#define arch_idle_time(cpu) 0
-+#endif
+ #
+ # I/O subsystem configuration
+ #
+-CONFIG_MACHCHK_WARNING=y
+ CONFIG_QDIO=y
+ CONFIG_CHSC_SCH=m
  
- static int show_stat(struct seq_file *p, void *v)
- {
-@@ -40,6 +43,7 @@ static int show_stat(struct seq_file *p,
- 		nice = cputime64_add(nice, kstat_cpu(i).cpustat.nice);
- 		system = cputime64_add(system, kstat_cpu(i).cpustat.system);
- 		idle = cputime64_add(idle, kstat_cpu(i).cpustat.idle);
-+		idle = cputime64_add(idle, arch_idle_time(i));
- 		iowait = cputime64_add(iowait, kstat_cpu(i).cpustat.iowait);
- 		irq = cputime64_add(irq, kstat_cpu(i).cpustat.irq);
- 		softirq = cputime64_add(softirq, kstat_cpu(i).cpustat.softirq);
-@@ -69,6 +73,7 @@ static int show_stat(struct seq_file *p,
- 		nice = kstat_cpu(i).cpustat.nice;
- 		system = kstat_cpu(i).cpustat.system;
- 		idle = kstat_cpu(i).cpustat.idle;
-+		idle = cputime64_add(idle, arch_idle_time(i));
- 		iowait = kstat_cpu(i).cpustat.iowait;
- 		irq = kstat_cpu(i).cpustat.irq;
- 		softirq = kstat_cpu(i).cpustat.softirq;
+@@ -247,12 +256,12 @@ CONFIG_S390_HYPFS_FS=y
+ CONFIG_KEXEC=y
+ # CONFIG_ZFCPDUMP is not set
+ CONFIG_S390_GUEST=y
++CONFIG_SECCOMP=y
+ CONFIG_NET=y
+ 
+ #
+ # Networking options
+ #
+-CONFIG_COMPAT_NET_DEV_OPS=y
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+ CONFIG_UNIX=y
+@@ -374,6 +383,7 @@ CONFIG_SCTP_HMAC_MD5=y
+ # CONFIG_LAPB is not set
+ # CONFIG_ECONET is not set
+ # CONFIG_WAN_ROUTER is not set
++# CONFIG_PHONET is not set
+ CONFIG_NET_SCHED=y
+ 
+ #
+@@ -438,7 +448,6 @@ CONFIG_CAN_BCM=m
+ CONFIG_CAN_VCAN=m
+ # CONFIG_CAN_DEBUG_DEVICES is not set
+ # CONFIG_AF_RXRPC is not set
+-# CONFIG_PHONET is not set
+ # CONFIG_WIMAX is not set
+ # CONFIG_RFKILL is not set
+ # CONFIG_NET_9P is not set
+@@ -537,6 +546,7 @@ CONFIG_SCSI_FC_ATTRS=y
+ CONFIG_SCSI_LOWLEVEL=y
+ # CONFIG_ISCSI_TCP is not set
+ # CONFIG_LIBFC is not set
++# CONFIG_LIBFCOE is not set
+ # CONFIG_SCSI_DEBUG is not set
+ CONFIG_ZFCP=y
+ CONFIG_SCSI_DH=m
+@@ -544,6 +554,10 @@ CONFIG_SCSI_DH_RDAC=m
+ CONFIG_SCSI_DH_HP_SW=m
+ CONFIG_SCSI_DH_EMC=m
+ CONFIG_SCSI_DH_ALUA=m
++CONFIG_SCSI_OSD_INITIATOR=m
++CONFIG_SCSI_OSD_ULD=m
++CONFIG_SCSI_OSD_DPRINT_SENSE=1
++# CONFIG_SCSI_OSD_DEBUG is not set
+ CONFIG_MD=y
+ CONFIG_BLK_DEV_MD=y
+ CONFIG_MD_AUTODETECT=y
+@@ -564,6 +578,7 @@ CONFIG_DM_MULTIPATH=m
+ # CONFIG_DM_DELAY is not set
+ # CONFIG_DM_UEVENT is not set
+ CONFIG_NETDEVICES=y
++CONFIG_COMPAT_NET_DEV_OPS=y
+ # CONFIG_IFB is not set
+ CONFIG_DUMMY=m
+ CONFIG_BONDING=m
+@@ -667,6 +682,7 @@ CONFIG_S390_VMUR=m
+ # CONFIG_MEMSTICK is not set
+ # CONFIG_NEW_LEDS is not set
+ CONFIG_ACCESSIBILITY=y
++# CONFIG_AUXDISPLAY is not set
+ # CONFIG_STAGING is not set
+ 
+ #
+@@ -676,6 +692,7 @@ CONFIG_EXT2_FS=y
+ # CONFIG_EXT2_FS_XATTR is not set
+ # CONFIG_EXT2_FS_XIP is not set
+ CONFIG_EXT3_FS=y
++# CONFIG_EXT3_DEFAULTS_TO_ORDERED is not set
+ CONFIG_EXT3_FS_XATTR=y
+ # CONFIG_EXT3_FS_POSIX_ACL is not set
+ # CONFIG_EXT3_FS_SECURITY is not set
+@@ -701,6 +718,11 @@ CONFIG_INOTIFY_USER=y
+ CONFIG_GENERIC_ACL=y
+ 
+ #
++# Caches
++#
++# CONFIG_FSCACHE is not set
++
++#
+ # CD-ROM/DVD Filesystems
+ #
+ # CONFIG_ISO9660_FS is not set
+@@ -744,6 +766,8 @@ CONFIG_MISC_FILESYSTEMS=y
+ # CONFIG_ROMFS_FS is not set
+ # CONFIG_SYSV_FS is not set
+ # CONFIG_UFS_FS is not set
++# CONFIG_EXOFS_FS is not set
++# CONFIG_NILFS2_FS is not set
+ CONFIG_NETWORK_FILESYSTEMS=y
+ CONFIG_NFS_FS=y
+ CONFIG_NFS_V3=y
+@@ -758,7 +782,6 @@ CONFIG_LOCKD_V4=y
+ CONFIG_EXPORTFS=y
+ CONFIG_NFS_COMMON=y
+ CONFIG_SUNRPC=y
+-# CONFIG_SUNRPC_REGISTER_V4 is not set
+ # CONFIG_RPCSEC_GSS_KRB5 is not set
+ # CONFIG_RPCSEC_GSS_SPKM3 is not set
+ # CONFIG_SMB_FS is not set
+@@ -806,6 +829,7 @@ CONFIG_MAGIC_SYSRQ=y
+ CONFIG_DEBUG_FS=y
+ # CONFIG_HEADERS_CHECK is not set
+ CONFIG_DEBUG_KERNEL=y
++# CONFIG_DETECT_HUNG_TASK is not set
+ # CONFIG_SCHED_DEBUG is not set
+ # CONFIG_SCHEDSTATS is not set
+ # CONFIG_TIMER_STATS is not set
+@@ -830,7 +854,6 @@ CONFIG_DEBUG_MEMORY_INIT=y
+ # CONFIG_DEBUG_LIST is not set
+ # CONFIG_DEBUG_SG is not set
+ # CONFIG_DEBUG_NOTIFIERS is not set
+-# CONFIG_FRAME_POINTER is not set
+ # CONFIG_RCU_TORTURE_TEST is not set
+ # CONFIG_RCU_CPU_STALL_DETECTOR is not set
+ # CONFIG_KPROBES_SANITY_TEST is not set
+@@ -840,7 +863,9 @@ CONFIG_DEBUG_MEMORY_INIT=y
+ # CONFIG_FAULT_INJECTION is not set
+ # CONFIG_LATENCYTOP is not set
+ CONFIG_SYSCTL_SYSCALL_CHECK=y
++# CONFIG_DEBUG_PAGEALLOC is not set
+ CONFIG_HAVE_FUNCTION_TRACER=y
++CONFIG_TRACING_SUPPORT=y
+ 
+ #
+ # Tracers
+@@ -850,14 +875,17 @@ CONFIG_HAVE_FUNCTION_TRACER=y
+ # CONFIG_PREEMPT_TRACER is not set
+ # CONFIG_SCHED_TRACER is not set
+ # CONFIG_CONTEXT_SWITCH_TRACER is not set
++# CONFIG_EVENT_TRACER is not set
+ # CONFIG_BOOT_TRACER is not set
+ # CONFIG_TRACE_BRANCH_PROFILING is not set
+ # CONFIG_STACK_TRACER is not set
+-# CONFIG_DYNAMIC_PRINTK_DEBUG is not set
++# CONFIG_KMEMTRACE is not set
++# CONFIG_WORKQUEUE_TRACER is not set
++# CONFIG_BLK_DEV_IO_TRACE is not set
++# CONFIG_DYNAMIC_DEBUG is not set
+ CONFIG_SAMPLES=y
+ # CONFIG_SAMPLE_KOBJECT is not set
+ # CONFIG_SAMPLE_KPROBES is not set
+-# CONFIG_DEBUG_PAGEALLOC is not set
+ 
+ #
+ # Security options
+@@ -882,10 +910,12 @@ CONFIG_CRYPTO_HASH=m
+ CONFIG_CRYPTO_HASH2=y
+ CONFIG_CRYPTO_RNG=m
+ CONFIG_CRYPTO_RNG2=y
++CONFIG_CRYPTO_PCOMP=y
+ CONFIG_CRYPTO_MANAGER=y
+ CONFIG_CRYPTO_MANAGER2=y
+ CONFIG_CRYPTO_GF128MUL=m
+ # CONFIG_CRYPTO_NULL is not set
++CONFIG_CRYPTO_WORKQUEUE=y
+ # CONFIG_CRYPTO_CRYPTD is not set
+ CONFIG_CRYPTO_AUTHENC=m
+ # CONFIG_CRYPTO_TEST is not set
+@@ -954,6 +984,7 @@ CONFIG_CRYPTO_SEED=m
+ # Compression
+ #
+ # CONFIG_CRYPTO_DEFLATE is not set
++CONFIG_CRYPTO_ZLIB=m
+ CONFIG_CRYPTO_LZO=m
+ 
+ #
+@@ -969,6 +1000,7 @@ CONFIG_CRYPTO_SHA512_S390=m
+ # CONFIG_CRYPTO_DES_S390 is not set
+ # CONFIG_CRYPTO_AES_S390 is not set
+ CONFIG_S390_PRNG=m
++# CONFIG_BINARY_PRINTF is not set
+ 
+ #
+ # Library routines
+@@ -982,9 +1014,14 @@ CONFIG_CRC_T10DIF=y
+ CONFIG_CRC32=m
+ CONFIG_CRC7=m
+ CONFIG_LIBCRC32C=m
++CONFIG_ZLIB_INFLATE=y
++CONFIG_ZLIB_DEFLATE=m
+ CONFIG_LZO_COMPRESS=m
+ CONFIG_LZO_DECOMPRESS=m
+-CONFIG_PLIST=y
++CONFIG_DECOMPRESS_GZIP=y
++CONFIG_DECOMPRESS_BZIP2=y
++CONFIG_DECOMPRESS_LZMA=y
++CONFIG_NLATTR=y
+ CONFIG_HAVE_KVM=y
+ CONFIG_VIRTUALIZATION=y
+ CONFIG_KVM=m
 
 -- 
 blue skies,
