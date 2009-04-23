@@ -1,71 +1,113 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1750952AbZDWLtf@vger.kernel.org>
-Message-Id: <20090423114726.180651295@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755353AbZDWLuY@vger.kernel.org>
+Message-Id: <20090423114725.916538072@de.ibm.com>
 References: <20090423114638.865214111@de.ibm.com>
-Date: Thu, 23 Apr 2009 13:46:43 +0200
+Date: Thu, 23 Apr 2009 13:46:42 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 5/6] omit frame pointers on s390 when possible
-Content-Disposition: inline; filename=005-omit-frame-pointer.diff
+Subject: [patch 4/6] Use tape_generic_offline directly.
+Content-Disposition: inline; filename=004-tape-generic-offline.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Frank Munzert <munzert@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Frank Munzert <munzert@de.ibm.com>
 
-Always omit frame pointers on s390. They aren't too useful for the
-kernel since we have already the kernel stack backchain which allows
-us to walk the kernel stack.
-So eleminate the extra code for frame pointers. Only allow the extra
-code for the function tracer since the gcc compile options -pg and
--fomit-frame-pointer are incompatible.
+tape_3590_offline and tape_34xx_offline are removed and tape_generic_offline
+is called directly instead.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Frank Munzert <munzert@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- lib/Kconfig.debug |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/s390/char/tape.h      |    2 +-
+ drivers/s390/char/tape_34xx.c |    8 +-------
+ drivers/s390/char/tape_3590.c |    8 +-------
+ drivers/s390/char/tape_core.c |    5 ++++-
+ 4 files changed, 7 insertions(+), 16 deletions(-)
 
-Index: quilt-2.6/lib/Kconfig.debug
+Index: quilt-2.6/drivers/s390/char/tape_34xx.c
 ===================================================================
---- quilt-2.6.orig/lib/Kconfig.debug
-+++ quilt-2.6/lib/Kconfig.debug
-@@ -440,7 +440,7 @@ config LOCKDEP
- 	bool
- 	depends on DEBUG_KERNEL && TRACE_IRQFLAGS_SUPPORT && STACKTRACE_SUPPORT && LOCKDEP_SUPPORT
- 	select STACKTRACE
--	select FRAME_POINTER if !X86 && !MIPS && !PPC && !ARM_UNWIND
-+	select FRAME_POINTER if !X86 && !MIPS && !PPC && !ARM_UNWIND && !S390
- 	select KALLSYMS
- 	select KALLSYMS_ALL
+--- quilt-2.6.orig/drivers/s390/char/tape_34xx.c
++++ quilt-2.6/drivers/s390/char/tape_34xx.c
+@@ -1294,12 +1294,6 @@ tape_34xx_online(struct ccw_device *cdev
+ 	);
+ }
  
-@@ -620,7 +620,7 @@ config ARCH_WANT_FRAME_POINTERS
- config FRAME_POINTER
- 	bool "Compile the kernel with frame pointers"
- 	depends on DEBUG_KERNEL && \
--		(CRIS || M68K || M68KNOMMU || FRV || UML || S390 || \
-+		(CRIS || M68K || M68KNOMMU || FRV || UML || \
- 		 AVR32 || SUPERH || BLACKFIN || MN10300) || \
- 		ARCH_WANT_FRAME_POINTERS
- 	default y if (DEBUG_INFO && UML) || ARCH_WANT_FRAME_POINTERS
-@@ -809,13 +809,13 @@ config FAULT_INJECTION_STACKTRACE_FILTER
- 	depends on FAULT_INJECTION_DEBUG_FS && STACKTRACE_SUPPORT
- 	depends on !X86_64
- 	select STACKTRACE
--	select FRAME_POINTER if !PPC
-+	select FRAME_POINTER if !PPC && !S390
- 	help
- 	  Provide stacktrace filter for fault-injection capabilities
+-static int
+-tape_34xx_offline(struct ccw_device *cdev)
+-{
+-	return tape_generic_offline(cdev->dev.driver_data);
+-}
+-
+ static struct ccw_driver tape_34xx_driver = {
+ 	.name = "tape_34xx",
+ 	.owner = THIS_MODULE,
+@@ -1307,7 +1301,7 @@ static struct ccw_driver tape_34xx_drive
+ 	.probe = tape_generic_probe,
+ 	.remove = tape_generic_remove,
+ 	.set_online = tape_34xx_online,
+-	.set_offline = tape_34xx_offline,
++	.set_offline = tape_generic_offline,
+ };
  
- config LATENCYTOP
- 	bool "Latency measuring infrastructure"
--	select FRAME_POINTER if !MIPS && !PPC
-+	select FRAME_POINTER if !MIPS && !PPC && !S390
- 	select KALLSYMS
- 	select KALLSYMS_ALL
- 	select STACKTRACE
+ static int
+Index: quilt-2.6/drivers/s390/char/tape_3590.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/char/tape_3590.c
++++ quilt-2.6/drivers/s390/char/tape_3590.c
+@@ -1707,19 +1707,13 @@ tape_3590_online(struct ccw_device *cdev
+ 				   &tape_discipline_3590);
+ }
+ 
+-static int
+-tape_3590_offline(struct ccw_device *cdev)
+-{
+-	return tape_generic_offline(cdev->dev.driver_data);
+-}
+-
+ static struct ccw_driver tape_3590_driver = {
+ 	.name = "tape_3590",
+ 	.owner = THIS_MODULE,
+ 	.ids = tape_3590_ids,
+ 	.probe = tape_generic_probe,
+ 	.remove = tape_generic_remove,
+-	.set_offline = tape_3590_offline,
++	.set_offline = tape_generic_offline,
+ 	.set_online = tape_3590_online,
+ };
+ 
+Index: quilt-2.6/drivers/s390/char/tape_core.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/char/tape_core.c
++++ quilt-2.6/drivers/s390/char/tape_core.c
+@@ -387,8 +387,11 @@ tape_cleanup_device(struct tape_device *
+  * Manual offline is only allowed while the drive is not in use.
+  */
+ int
+-tape_generic_offline(struct tape_device *device)
++tape_generic_offline(struct ccw_device *cdev)
+ {
++	struct tape_device *device;
++
++	device = cdev->dev.driver_data;
+ 	if (!device) {
+ 		return -ENODEV;
+ 	}
+Index: quilt-2.6/drivers/s390/char/tape.h
+===================================================================
+--- quilt-2.6.orig/drivers/s390/char/tape.h
++++ quilt-2.6/drivers/s390/char/tape.h
+@@ -285,7 +285,7 @@ extern int tape_mtop(struct tape_device 
+ extern void tape_state_set(struct tape_device *, enum tape_state);
+ 
+ extern int tape_generic_online(struct tape_device *, struct tape_discipline *);
+-extern int tape_generic_offline(struct tape_device *device);
++extern int tape_generic_offline(struct ccw_device *);
+ 
+ /* Externals from tape_devmap.c */
+ extern int tape_generic_probe(struct ccw_device *);
 
 -- 
 blue skies,
