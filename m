@@ -1,71 +1,109 @@
-From: Ursula Braun <ursula.braun@de.ibm.com>
-Subject: [patch 2/8] [PATCH] af_iucv: sync sk shutdown flag if iucv path is quiesced
-Date: Wed, 22 Apr 2009 11:26:21 +0200
-Message-ID: <20090422093429.939908000@linux.vnet.ibm.com>
-References: <20090422092619.451973000@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=605-af_iucv-sync-shutdown.diff
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754721AbZDWLsT@vger.kernel.org>
+Message-Id: <20090423114725.624459709@de.ibm.com>
+References: <20090423114638.865214111@de.ibm.com>
+Date: Thu, 23 Apr 2009 13:46:41 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 3/6] /proc/stat idle field for idle cpus
+Content-Disposition: inline; filename=003-idle-stat.diff
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-If the af_iucv communication partner quiesces the path to shutdown its
-receive direction, provide a quiesce callback implementation to shutdown
-the (local) send direction. This ensures that both sides are synchronized.
+The cpu idle field in the output of /proc/stat is too small for cpus
+that have been idle for more than a tick. Add the architecture hook
+arch_idle_time that allows to add the not accounted idle time of a
+sleeping cpu without waking the cpu.
 
-Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+The s390 implementation of arch_idle_time uses the already existing
+s390_idle_data per_cpu variable to find the sleep time of a neighboring
+idle cpu.
+
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- net/iucv/af_iucv.c |   19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/cputime.h |    4 ++++
+ arch/s390/kernel/vtime.c        |   16 ++++++++++++++++
+ fs/proc/stat.c                  |    5 +++++
+ 3 files changed, 25 insertions(+)
 
-Index: net-next-2.6-uschi/net/iucv/af_iucv.c
+Index: quilt-2.6/arch/s390/include/asm/cputime.h
 ===================================================================
---- net-next-2.6-uschi.orig/net/iucv/af_iucv.c
-+++ net-next-2.6-uschi/net/iucv/af_iucv.c
-@@ -54,6 +54,7 @@ static void iucv_callback_connack(struct
- static int iucv_callback_connreq(struct iucv_path *, u8 ipvmid[8],
- 				 u8 ipuser[16]);
- static void iucv_callback_connrej(struct iucv_path *, u8 ipuser[16]);
-+static void iucv_callback_shutdown(struct iucv_path *, u8 ipuser[16]);
- 
- static struct iucv_sock_list iucv_sk_list = {
- 	.lock = __RW_LOCK_UNLOCKED(iucv_sk_list.lock),
-@@ -65,7 +66,8 @@ static struct iucv_handler af_iucv_handl
- 	.path_complete	  = iucv_callback_connack,
- 	.path_severed	  = iucv_callback_connrej,
- 	.message_pending  = iucv_callback_rx,
--	.message_complete = iucv_callback_txdone
-+	.message_complete = iucv_callback_txdone,
-+	.path_quiesced	  = iucv_callback_shutdown,
- };
- 
- static inline void high_nmcpy(unsigned char *dst, char *src)
-@@ -1196,6 +1198,21 @@ static void iucv_callback_connrej(struct
- 	sk->sk_state_change(sk);
+--- quilt-2.6.orig/arch/s390/include/asm/cputime.h
++++ quilt-2.6/arch/s390/include/asm/cputime.h
+@@ -174,4 +174,8 @@ cputime64_to_clock_t(cputime64_t cputime
+        return __div(cputime, 4096000000ULL / USER_HZ);
  }
  
-+/* called if the other communication side shuts down its RECV direction;
-+ * in turn, the callback sets SEND_SHUTDOWN to disable sending of data.
-+ */
-+static void iucv_callback_shutdown(struct iucv_path *path, u8 ipuser[16])
-+{
-+	struct sock *sk = path->private;
++cputime64_t s390_get_idle_time(int cpu);
 +
-+	bh_lock_sock(sk);
-+	if (sk->sk_state != IUCV_CLOSED) {
-+		sk->sk_shutdown |= SEND_SHUTDOWN;
-+		sk->sk_state_change(sk);
-+	}
-+	bh_unlock_sock(sk);
++#define arch_idle_time(cpu) s390_get_idle_time(cpu)
++
+ #endif /* _S390_CPUTIME_H */
+Index: quilt-2.6/arch/s390/kernel/vtime.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/vtime.c
++++ quilt-2.6/arch/s390/kernel/vtime.c
+@@ -240,6 +240,22 @@ void vtime_stop_cpu(void)
+ 	}
+ }
+ 
++cputime64_t s390_get_idle_time(int cpu)
++{
++	struct s390_idle_data *idle;
++	unsigned long long now, idle_time, idle_enter;
++
++	idle = &per_cpu(s390_idle, cpu);
++	spin_lock(&idle->lock);
++	now = get_clock();
++	idle_time = 0;
++	idle_enter = idle->idle_enter;
++	if (idle_enter != 0ULL && idle_enter < now)
++		idle_time = now - idle_enter;
++	spin_unlock(&idle->lock);
++	return idle_time;
 +}
 +
- static struct proto_ops iucv_sock_ops = {
- 	.family		= PF_IUCV,
- 	.owner		= THIS_MODULE,
+ /*
+  * Sorted add to a list. List is linear searched until first bigger
+  * element is found.
+Index: quilt-2.6/fs/proc/stat.c
+===================================================================
+--- quilt-2.6.orig/fs/proc/stat.c
++++ quilt-2.6/fs/proc/stat.c
+@@ -18,6 +18,9 @@
+ #ifndef arch_irq_stat
+ #define arch_irq_stat() 0
+ #endif
++#ifndef arch_idle_time
++#define arch_idle_time(cpu) 0
++#endif
+ 
+ static int show_stat(struct seq_file *p, void *v)
+ {
+@@ -40,6 +43,7 @@ static int show_stat(struct seq_file *p,
+ 		nice = cputime64_add(nice, kstat_cpu(i).cpustat.nice);
+ 		system = cputime64_add(system, kstat_cpu(i).cpustat.system);
+ 		idle = cputime64_add(idle, kstat_cpu(i).cpustat.idle);
++		idle = cputime64_add(idle, arch_idle_time(i));
+ 		iowait = cputime64_add(iowait, kstat_cpu(i).cpustat.iowait);
+ 		irq = cputime64_add(irq, kstat_cpu(i).cpustat.irq);
+ 		softirq = cputime64_add(softirq, kstat_cpu(i).cpustat.softirq);
+@@ -69,6 +73,7 @@ static int show_stat(struct seq_file *p,
+ 		nice = kstat_cpu(i).cpustat.nice;
+ 		system = kstat_cpu(i).cpustat.system;
+ 		idle = kstat_cpu(i).cpustat.idle;
++		idle = cputime64_add(idle, arch_idle_time(i));
+ 		iowait = kstat_cpu(i).cpustat.iowait;
+ 		irq = kstat_cpu(i).cpustat.irq;
+ 		softirq = kstat_cpu(i).cpustat.softirq;
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
