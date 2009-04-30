@@ -1,51 +1,51 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 0/8] iucv / af_iucv patches for net-next-2.6.30-rc1
-Date: Thu, 23 Apr 2009 06:38:00 -0700 (PDT)
-Message-ID: <20090423.063800.159642504.davem@davemloft.net>
-References: <1240400356.13951.11.camel@braunu-laptop>
-	<20090423.044343.133646582.davem@davemloft.net>
-	<1240492023.11770.5.camel@braunu-laptop>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1240492023.11770.5.camel@braunu-laptop>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: ubraun@linux.vnet.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ursula.braun@de.ibm.com
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1765984AbZEAAJN@vger.kernel.org>
+From: Tim Abbott <tabbott@MIT.EDU>
+Subject: [PATCH 3/6] s390: use new macro for .data.cacheline_aligned section.
+Date: Thu, 30 Apr 2009 19:57:18 -0400
+Message-Id: <1241135841-9619-4-git-send-email-tabbott@mit.edu>
+In-Reply-To: <1241135841-9619-3-git-send-email-tabbott@mit.edu>
+References: <1241135841-9619-1-git-send-email-tabbott@mit.edu>
+ <1241135841-9619-2-git-send-email-tabbott@mit.edu>
+ <1241135841-9619-3-git-send-email-tabbott@mit.edu>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>, Anders Kaseorg <andersk@MIT.EDU>, Waseem Daher <wdaher@MIT.EDU>, Denys Vlasenko <vda.linux@googlemail.com>, Jeff Arnold <jbarnold@MIT.EDU>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Tim Abbott <tabbott@MIT.EDU>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Thu, 23 Apr 2009 15:07:03 +0200
+.data.cacheline_aligned should not need a separate output section;
+this change moves it into the .data section.
 
-> On Thu, 2009-04-23 at 04:43 -0700, David Miller wrote:
->> From: Ursula Braun <ubraun@linux.vnet.ibm.com>
->> Date: Wed, 22 Apr 2009 13:39:16 +0200
->> 
->> > the af_iucv-patches sent today apply to net-next-2.6 without pulling
->> > yesterday's patches for net-2.6.
->> > 
->> > If you prefer to pull net-2.6 first (in order to avoid potential future
->> > merge conflicts), I can rebuild and resend today's net-next-2.6 patches
->> > based on yesterday's af_iucv patches for net-2.6.
->> 
->> I applied them all, then pulled net-2.6 into net-next-2.6 to
->> resolve the conflicts.
->> 
->> Please make sure I did the right thing :-)
-> 
-> Dave,
-> 
-> net/iucv/af_iucv.c in net-next-2.6 is almost correct. 4 lines should
-> still be deleted. These are the remaining changes:
+Signed-off-by: Tim Abbott <tabbott@mit.edu>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+---
+ arch/s390/kernel/vmlinux.lds.S |    6 +-----
+ 1 files changed, 1 insertions(+), 5 deletions(-)
 
-Please provide a signoff even for fixes like this next time.
-
->  	/* receive/dequeue next skb:
->  	 * the function understands MSG_PEEK and, thus, does not dequeue skb
-> */
-
-Newline added by your email client corrupted the patch.
-I fixed this up when applying.
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index 8900f98..c828398 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -61,16 +61,12 @@ SECTIONS
+ 	.data : {		/* Data */
+ 		PAGE_ALIGNED_DATA
+ 		NOSAVE_DATA
++		CACHELINE_ALIGNED_DATA(0x100)
+ 		DATA_DATA
+ 		CONSTRUCTORS
+ 	}
+ 
+ 	. = ALIGN(0x100);
+-	.data.cacheline_aligned : {
+-		*(.data.cacheline_aligned)
+-	}
+-
+-	. = ALIGN(0x100);
+ 	.data.read_mostly : {
+ 		*(.data.read_mostly)
+ 	}
+-- 
+1.6.2.1
