@@ -1,74 +1,34 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 4/5] [PATCH] qeth: omit upstream checksumming for HiperSockets
-Date: Wed, 20 May 2009 09:38:40 +0200
-Message-ID: <20090520073928.073471000@de.ibm.com>
-References: <20090520073836.897878000@de.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=615-qeth-checksum-hipersocket.diff
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
+From: Greg KH <gregkh@suse.de>
+Date: Tue, 05 May 2009 17:15:05 +0000
+Subject: Re: [PATCH] s390: remove driver_data direct access of struct device
+Message-Id: <20090505171505.GA16356@suse.de>
+In-Reply-To: <alpine.LFD.2.00.0905051242570.3332@localhost.localdomain>
+References: <alpine.LFD.2.00.0905051242570.3332@localhost.localdomain>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
+On Tue, May 05, 2009 at 12:47:33PM +0200, Sebastian Ott wrote:
+> hi,
+> 
+> this patch introduces some build failures like:
+> 
+> drivers/s390/char/raw3270.c: In function 'raw3270_model_show':
+> drivers/s390/char/raw3270.c:1132: warning: dereferencing 'void *' pointer
+> drivers/s390/char/raw3270.c:1132: error: request for member 'model' in something not a structure or union
+> 
+> the following add-on patch fixes this
+> 
+> Regards,
+> Sebastian
+> 
+> Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
 
-For HiperSocket devices receive-path checksumming is not required.
-Thus NO_CHECKSUMMING is used as default for HiperSocket interfaces.
-For layer3 devices configured with NO_CHECKSUMMING received skbs
-should have set their ip_summed field to CHECKSUM_UNNECESSARY.
+Argh, sorry about this, bad typo, compounded by cut and paste and the
+inability for me to cross-compile s390 anymore :(
 
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
+I'll merge this with my original patch, thanks so much for checking and
+fixing it.
 
- drivers/s390/net/qeth_core_main.c |    2 ++
- drivers/s390/net/qeth_l3_main.c   |   20 +++++++++++++-------
- 2 files changed, 15 insertions(+), 7 deletions(-)
+thanks,
 
-diff -urpN linux-2.6/drivers/s390/net/qeth_core_main.c linux-2.6-patched/drivers/s390/net/qeth_core_main.c
---- linux-2.6/drivers/s390/net/qeth_core_main.c	2009-05-20 08:56:25.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/net/qeth_core_main.c	2009-05-20 08:56:43.000000000 +0200
-@@ -1140,6 +1140,8 @@ static int qeth_setup_card(struct qeth_c
- 	card->ipato.enabled = 0;
- 	card->ipato.invert4 = 0;
- 	card->ipato.invert6 = 0;
-+	if (card->info.type == QETH_CARD_TYPE_IQD)
-+		card->options.checksum_type = NO_CHECKSUMMING;
- 	/* init QDIO stuff */
- 	qeth_init_qdio_info(card);
- 	return 0;
-diff -urpN linux-2.6/drivers/s390/net/qeth_l3_main.c linux-2.6-patched/drivers/s390/net/qeth_l3_main.c
---- linux-2.6/drivers/s390/net/qeth_l3_main.c	2009-05-20 08:56:42.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/net/qeth_l3_main.c	2009-05-20 08:56:43.000000000 +0200
-@@ -1920,16 +1920,22 @@ static inline __u16 qeth_l3_rebuild_skb(
- 		 hdr->hdr.l3.vlan_id : *((u16 *)&hdr->hdr.l3.dest_addr[12]);
- 	}
- 
--	skb->ip_summed = card->options.checksum_type;
--	if (card->options.checksum_type == HW_CHECKSUMMING) {
-+	switch (card->options.checksum_type) {
-+	case SW_CHECKSUMMING:
-+		skb->ip_summed = CHECKSUM_NONE;
-+		break;
-+	case NO_CHECKSUMMING:
-+		skb->ip_summed = CHECKSUM_UNNECESSARY;
-+		break;
-+	case HW_CHECKSUMMING:
- 		if ((hdr->hdr.l3.ext_flags &
--		      (QETH_HDR_EXT_CSUM_HDR_REQ |
--		       QETH_HDR_EXT_CSUM_TRANSP_REQ)) ==
--		     (QETH_HDR_EXT_CSUM_HDR_REQ |
--		      QETH_HDR_EXT_CSUM_TRANSP_REQ))
-+		    (QETH_HDR_EXT_CSUM_HDR_REQ |
-+		     QETH_HDR_EXT_CSUM_TRANSP_REQ)) ==
-+		    (QETH_HDR_EXT_CSUM_HDR_REQ |
-+		     QETH_HDR_EXT_CSUM_TRANSP_REQ))
- 			skb->ip_summed = CHECKSUM_UNNECESSARY;
- 		else
--			skb->ip_summed = SW_CHECKSUMMING;
-+			skb->ip_summed = CHECKSUM_NONE;
- 	}
- 
- 	return vlan_id;
+greg k-h
