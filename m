@@ -1,34 +1,73 @@
-From: Frans Pop <elendil@planet.nl>
-Date: Wed, 22 Apr 2009 18:08:38 +0000
-Subject: Re: [PATCH] s390: restore tape probe info message
-Message-Id: <200904222008.39262.elendil@planet.nl>
-In-Reply-To: <20090422191445.51154ad7@cotte.boeblingen.de.ibm.com>
-References: <20090422191445.51154ad7@cotte.boeblingen.de.ibm.com>
-To: linux-s390@vger.kernel.org
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 1/9] zfcp: Use correct req_id for traces
+Date: Fri, 15 May 2009 13:18:14 +0200
+Message-ID: <20090515112221.368308000@de.ibm.com>
+References: <20090515111813.314177000@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline; filename=700-zfcp-trace-req_id.diff
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wednesday 22 April 2009, Carsten Otte wrote:
-> Am Wed, 22 Apr 2009 14:44:17 +0200
->
-> schrieb Frans Pop <elendil@planet.nl>:
-> > Bring back a basic "new device detected" message.
->
-> I fail to see why that is an important information.
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-I agree it's not essential, but IMO it is useful. It's also fairly 
-standard in the kernel to have at least some indication in dmesg by 
-default that a device driver was loaded, or rather, that a new device has 
-been detected and is now available.
+The zfcp traces used the fsf_req address in place of the req_id.
+Change this to save the correct req_id.
 
-I also don't think there's any harm in having an informative message.
-I would not mind if the level was changed from info to debug though.
+Reviewed-by: Swen Schillig <swen@vnet.ibm.com>
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+---
 
-> If one wants to figure out, it's easy to either
-> use the usermode helper on device hotplug to log
-> a message, or just have a process do inotify on
-> /dev. Both ways are device driver independent.
+ drivers/s390/scsi/zfcp_dbf.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-That sounds too much like having to jump through hoops.
-
-Cheers,
-FJP
+--- a/drivers/s390/scsi/zfcp_dbf.c	2009-05-15 12:56:02.000000000 +0200
++++ b/drivers/s390/scsi/zfcp_dbf.c	2009-05-15 12:56:08.000000000 +0200
+@@ -163,7 +163,7 @@ void zfcp_hba_dbf_event_fsf_response(str
+ 	}
+ 
+ 	response->fsf_command = fsf_req->fsf_command;
+-	response->fsf_reqid = (unsigned long)fsf_req;
++	response->fsf_reqid = fsf_req->req_id;
+ 	response->fsf_seqno = fsf_req->seq_no;
+ 	response->fsf_issued = fsf_req->issued;
+ 	response->fsf_prot_status = qtcb->prefix.prot_status;
+@@ -737,7 +737,7 @@ void zfcp_san_dbf_event_ct_request(struc
+ 	spin_lock_irqsave(&adapter->san_dbf_lock, flags);
+ 	memset(r, 0, sizeof(*r));
+ 	strncpy(r->tag, "octc", ZFCP_DBF_TAG_SIZE);
+-	r->fsf_reqid = (unsigned long)fsf_req;
++	r->fsf_reqid = fsf_req->req_id;
+ 	r->fsf_seqno = fsf_req->seq_no;
+ 	r->s_id = fc_host_port_id(adapter->scsi_host);
+ 	r->d_id = wka_port->d_id;
+@@ -773,7 +773,7 @@ void zfcp_san_dbf_event_ct_response(stru
+ 	spin_lock_irqsave(&adapter->san_dbf_lock, flags);
+ 	memset(r, 0, sizeof(*r));
+ 	strncpy(r->tag, "rctc", ZFCP_DBF_TAG_SIZE);
+-	r->fsf_reqid = (unsigned long)fsf_req;
++	r->fsf_reqid = fsf_req->req_id;
+ 	r->fsf_seqno = fsf_req->seq_no;
+ 	r->s_id = wka_port->d_id;
+ 	r->d_id = fc_host_port_id(adapter->scsi_host);
+@@ -803,7 +803,7 @@ static void zfcp_san_dbf_event_els(const
+ 	spin_lock_irqsave(&adapter->san_dbf_lock, flags);
+ 	memset(rec, 0, sizeof(*rec));
+ 	strncpy(rec->tag, tag, ZFCP_DBF_TAG_SIZE);
+-	rec->fsf_reqid = (unsigned long)fsf_req;
++	rec->fsf_reqid = fsf_req->req_id;
+ 	rec->fsf_seqno = fsf_req->seq_no;
+ 	rec->s_id = s_id;
+ 	rec->d_id = d_id;
+@@ -965,7 +965,7 @@ static void zfcp_scsi_dbf_event(const ch
+ 						      ZFCP_DBF_SCSI_FCP_SNS_INFO);
+ 				}
+ 
+-				rec->fsf_reqid = (unsigned long)fsf_req;
++				rec->fsf_reqid = fsf_req->req_id;
+ 				rec->fsf_seqno = fsf_req->seq_no;
+ 				rec->fsf_issued = fsf_req->issued;
+ 			}
