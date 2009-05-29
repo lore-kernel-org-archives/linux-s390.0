@@ -1,37 +1,36 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Wed, 20 May 2009 06:57:17 +0000
-Subject: Re: [PATCH] s390: beyond ARRAY_SIZE of irq_ptr->{in,out}put_qs
-Message-Id: <20090520085717.07847c5c@skybase>
-In-Reply-To: <4A134C97.1020409@gmail.com>
-References: <4A134C97.1020409@gmail.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Fri, 29 May 2009 08:38:35 +0000
+Subject: Re: Problem with exit status auditing of execve syscall
+Message-Id: <20090529083835.GA5301@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20090529005942.GA14017@suse.de>
+References: <20090529005942.GA14017@suse.de>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 20 May 2009 02:19:35 +0200
-Roel Kluin <roel.kluin@gmail.com> wrote:
-
-> Do not go beyond ARRAY_SIZE of irq_ptr->{in,out}put_qs
+On Thu, May 28, 2009 at 05:59:42PM -0700, Tony Jones wrote:
+> Anyone have any idea on what is causing the following:
 > 
-> Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
-> ---
-> diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-> index accd957..758e4b1 100644
-> --- a/drivers/s390/cio/qdio_main.c
-> +++ b/drivers/s390/cio/qdio_main.c
-> @@ -1514,7 +1514,7 @@ int do_QDIO(struct ccw_device *cdev, unsigned int callflags,
+> # auditctl -e 1
+> # auditctl -a entry,always -S execve
+> # /bin/true
 > 
->  	if ((bufnr > QDIO_MAX_BUFFERS_PER_Q) ||
->  	    (count > QDIO_MAX_BUFFERS_PER_Q) ||
-> -	    (q_nr > QDIO_MAX_QUEUES_PER_IRQ))
-> +	    (q_nr >= QDIO_MAX_QUEUES_PER_IRQ))
->  		return -EINVAL;
+> Causes the following to be logged in /var/log/audit/audit.log
 > 
->  	if (!count)
+> type=SYSCALL msg=audit(1243557456.840:32): arch=80000016 syscall=11 per=400000 success=yes exit=11 ...
+> 
+> Specific to S390 and the execve syscall. I looked through the arch code but 
+> I'm not seeing why on the exec case the exit code contains the syscall#.
+> 
+> Above reproduced on 2.6.30-rc7-git2.
 
-Nice find. I'll queue the patch to the git390 tree.
+The return value of execve on success is not defined.
 
--- 
-blue skies,
-   Martin.
+If it succeeds s390 does not return the return value of the system call.
+Instead it returns whatever is contained in the current pt_regs structure
+on the kernel stack that belongs to user space.
+The pt_regs structure was changed by the load_binary handler that belongs
+to the exec format of the executed file. If the ABI of an exec format would
+require a special return value in r2 it wouldn't be good if we would
+overwrite it with 0 on success of execve.
 
-"Reality continues to ruin my life." - Calvin.
+In any case, this isn't bug.
