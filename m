@@ -1,157 +1,146 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759313AbZFDQZW@vger.kernel.org>
-Message-Id: <20090604161901.134194989@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759409AbZFDQZB@vger.kernel.org>
+Message-Id: <20090604161907.773749056@de.ibm.com>
 References: <20090604161847.513682672@de.ibm.com>
-Date: Thu, 04 Jun 2009 18:18:54 +0200
+Date: Thu, 04 Jun 2009 18:19:21 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 07/38] pm: ccwgroup bus power management callbacks
-Content-Disposition: inline; filename=pm_ccwgroup.patch
+Subject: [patch 34/38] pm: memory hotplug power management callbacks
+Content-Disposition: inline; filename=pm_sclp_mem.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/s390/include/asm/ccwgroup.h |   10 +++++
- drivers/s390/cio/ccwgroup.c      |   78 ++++++++++++++++++++++++++++++++++++---
- 2 files changed, 83 insertions(+), 5 deletions(-)
+ drivers/s390/char/sclp_cmd.c |   42 ++++++++++++++++++++++++++++++++++++++----
+ mm/Kconfig                   |    4 ++--
+ 2 files changed, 40 insertions(+), 6 deletions(-)
 
-Index: linux-2.6/drivers/s390/cio/ccwgroup.c
+Index: linux-2.6/mm/Kconfig
 ===================================================================
---- linux-2.6.orig/drivers/s390/cio/ccwgroup.c
-+++ linux-2.6/drivers/s390/cio/ccwgroup.c
-@@ -1,11 +1,10 @@
+--- linux-2.6.orig/mm/Kconfig
++++ linux-2.6/mm/Kconfig
+@@ -128,11 +128,11 @@ config SPARSEMEM_VMEMMAP
+ config MEMORY_HOTPLUG
+ 	bool "Allow for memory hot-add"
+ 	depends on SPARSEMEM || X86_64_ACPI_NUMA
+-	depends on HOTPLUG && !HIBERNATION && ARCH_ENABLE_MEMORY_HOTPLUG
++	depends on HOTPLUG && !(HIBERNATION && !S390) && ARCH_ENABLE_MEMORY_HOTPLUG
+ 	depends on (IA64 || X86 || PPC64 || SUPERH || S390)
+ 
+ comment "Memory hotplug is currently incompatible with Software Suspend"
+-	depends on SPARSEMEM && HOTPLUG && HIBERNATION
++	depends on SPARSEMEM && HOTPLUG && HIBERNATION && !S390
+ 
+ config MEMORY_HOTPLUG_SPARSE
+ 	def_bool y
+Index: linux-2.6/drivers/s390/char/sclp_cmd.c
+===================================================================
+--- linux-2.6.orig/drivers/s390/char/sclp_cmd.c
++++ linux-2.6/drivers/s390/char/sclp_cmd.c
+@@ -1,9 +1,8 @@
  /*
-- *  drivers/s390/cio/ccwgroup.c
-  *  bus driver for ccwgroup
+- *  drivers/s390/char/sclp_cmd.c
++ * Copyright IBM Corp. 2007, 2009
   *
-- *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-- *                       IBM Corporation
-- *    Author(s): Arnd Bergmann (arndb@de.ibm.com)
-- *               Cornelia Huck (cornelia.huck@de.ibm.com)
-+ *  Copyright IBM Corp. 2002, 2009
-+ *
-+ *  Author(s): Arnd Bergmann (arndb@de.ibm.com)
-+ *             Cornelia Huck (cornelia.huck@de.ibm.com)
+- *    Copyright IBM Corp. 2007
+- *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>,
+- *		 Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
++ * Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>,
++ *	      Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
   */
- #include <linux/module.h>
+ 
+ #define KMSG_COMPONENT "sclp_cmd"
+@@ -12,11 +11,13 @@
+ #include <linux/completion.h>
+ #include <linux/init.h>
  #include <linux/errno.h>
-@@ -501,6 +500,74 @@ static void ccwgroup_shutdown(struct dev
- 		gdrv->shutdown(gdev);
++#include <linux/err.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
+ #include <linux/mm.h>
+ #include <linux/mmzone.h>
+ #include <linux/memory.h>
++#include <linux/platform_device.h>
+ #include <asm/chpid.h>
+ #include <asm/sclp.h>
+ #include <asm/setup.h>
+@@ -292,6 +293,7 @@ static DEFINE_MUTEX(sclp_mem_mutex);
+ static LIST_HEAD(sclp_mem_list);
+ static u8 sclp_max_storage_id;
+ static unsigned long sclp_storage_ids[256 / BITS_PER_LONG];
++static int sclp_mem_state_changed;
+ 
+ struct memory_increment {
+ 	struct list_head list;
+@@ -450,6 +452,8 @@ static int sclp_mem_notifier(struct noti
+ 		rc = -EINVAL;
+ 		break;
+ 	}
++	if (!rc)
++		sclp_mem_state_changed = 1;
+ 	mutex_unlock(&sclp_mem_mutex);
+ 	return rc ? NOTIFY_BAD : NOTIFY_OK;
+ }
+@@ -525,6 +529,14 @@ static void __init insert_increment(u16 
+ 	list_add(&new_incr->list, prev);
  }
  
-+static int ccwgroup_pm_prepare(struct device *dev)
++static int sclp_mem_freeze(struct device *dev)
 +{
-+	struct ccwgroup_device *gdev = to_ccwgroupdev(dev);
-+	struct ccwgroup_driver *gdrv = to_ccwgroupdrv(gdev->dev.driver);
-+
-+	/* Fail while device is being set online/offline. */
-+	if (atomic_read(&gdev->onoff))
-+		return -EAGAIN;
-+
-+	if (!gdev->dev.driver || gdev->state != CCWGROUP_ONLINE)
++	if (!sclp_mem_state_changed)
 +		return 0;
-+
-+	return gdrv->prepare ? gdrv->prepare(gdev) : 0;
++	pr_err("Memory hotplug state changed, suspend refused.\n");
++	return -EPERM;
 +}
 +
-+static void ccwgroup_pm_complete(struct device *dev)
-+{
-+	struct ccwgroup_device *gdev = to_ccwgroupdev(dev);
-+	struct ccwgroup_driver *gdrv = to_ccwgroupdrv(dev->driver);
-+
-+	if (!gdev->dev.driver || gdev->state != CCWGROUP_ONLINE)
-+		return;
-+
-+	if (gdrv->complete)
-+		gdrv->complete(gdev);
-+}
-+
-+static int ccwgroup_pm_freeze(struct device *dev)
-+{
-+	struct ccwgroup_device *gdev = to_ccwgroupdev(dev);
-+	struct ccwgroup_driver *gdrv = to_ccwgroupdrv(gdev->dev.driver);
-+
-+	if (!gdev->dev.driver || gdev->state != CCWGROUP_ONLINE)
-+		return 0;
-+
-+	return gdrv->freeze ? gdrv->freeze(gdev) : 0;
-+}
-+
-+static int ccwgroup_pm_thaw(struct device *dev)
-+{
-+	struct ccwgroup_device *gdev = to_ccwgroupdev(dev);
-+	struct ccwgroup_driver *gdrv = to_ccwgroupdrv(gdev->dev.driver);
-+
-+	if (!gdev->dev.driver || gdev->state != CCWGROUP_ONLINE)
-+		return 0;
-+
-+	return gdrv->thaw ? gdrv->thaw(gdev) : 0;
-+}
-+
-+static int ccwgroup_pm_restore(struct device *dev)
-+{
-+	struct ccwgroup_device *gdev = to_ccwgroupdev(dev);
-+	struct ccwgroup_driver *gdrv = to_ccwgroupdrv(gdev->dev.driver);
-+
-+	if (!gdev->dev.driver || gdev->state != CCWGROUP_ONLINE)
-+		return 0;
-+
-+	return gdrv->restore ? gdrv->restore(gdev) : 0;
-+}
-+
-+static struct dev_pm_ops ccwgroup_pm_ops = {
-+	.prepare = ccwgroup_pm_prepare,
-+	.complete = ccwgroup_pm_complete,
-+	.freeze = ccwgroup_pm_freeze,
-+	.thaw = ccwgroup_pm_thaw,
-+	.restore = ccwgroup_pm_restore,
+ struct read_storage_sccb {
+ 	struct sccb_header header;
+ 	u16 max_id;
+@@ -534,8 +546,20 @@ struct read_storage_sccb {
+ 	u32 entries[0];
+ } __packed;
+ 
++static struct dev_pm_ops sclp_mem_pm_ops = {
++	.freeze		= sclp_mem_freeze,
 +};
 +
- static struct bus_type ccwgroup_bus_type = {
- 	.name   = "ccwgroup",
- 	.match  = ccwgroup_bus_match,
-@@ -508,6 +575,7 @@ static struct bus_type ccwgroup_bus_type
- 	.probe  = ccwgroup_probe,
- 	.remove = ccwgroup_remove,
- 	.shutdown = ccwgroup_shutdown,
-+	.pm = &ccwgroup_pm_ops,
- };
++static struct platform_driver sclp_mem_pdrv = {
++	.driver = {
++		.name	= "sclp_mem",
++		.pm	= &sclp_mem_pm_ops,
++	},
++};
++
+ static int __init sclp_detect_standby_memory(void)
+ {
++	struct platform_device *sclp_pdev;
+ 	struct read_storage_sccb *sccb;
+ 	int i, id, assigned, rc;
  
- 
-Index: linux-2.6/arch/s390/include/asm/ccwgroup.h
-===================================================================
---- linux-2.6.orig/arch/s390/include/asm/ccwgroup.h
-+++ linux-2.6/arch/s390/include/asm/ccwgroup.h
-@@ -38,6 +38,11 @@ struct ccwgroup_device {
-  * @set_online: function called when device is set online
-  * @set_offline: function called when device is set offline
-  * @shutdown: function called when device is shut down
-+ * @prepare: prepare for pm state transition
-+ * @complete: undo work done in @prepare
-+ * @freeze: callback for freezing during hibernation snapshotting
-+ * @thaw: undo work done in @freeze
-+ * @restore: callback for restoring after hibernation
-  * @driver: embedded driver structure
-  */
- struct ccwgroup_driver {
-@@ -51,6 +56,11 @@ struct ccwgroup_driver {
- 	int (*set_online) (struct ccwgroup_device *);
- 	int (*set_offline) (struct ccwgroup_device *);
- 	void (*shutdown)(struct ccwgroup_device *);
-+	int (*prepare) (struct ccwgroup_device *);
-+	void (*complete) (struct ccwgroup_device *);
-+	int (*freeze)(struct ccwgroup_device *);
-+	int (*thaw) (struct ccwgroup_device *);
-+	int (*restore)(struct ccwgroup_device *);
- 
- 	struct device_driver driver;
- };
+@@ -588,7 +612,17 @@ static int __init sclp_detect_standby_me
+ 	rc = register_memory_notifier(&sclp_mem_nb);
+ 	if (rc)
+ 		goto out;
++	rc = platform_driver_register(&sclp_mem_pdrv);
++	if (rc)
++		goto out;
++	sclp_pdev = platform_device_register_simple("sclp_mem", -1, NULL, 0);
++	rc = IS_ERR(sclp_pdev) ? PTR_ERR(sclp_pdev) : 0;
++	if (rc)
++		goto out_driver;
+ 	sclp_add_standby_memory();
++	goto out;
++out_driver:
++	platform_driver_unregister(&sclp_mem_pdrv);
+ out:
+ 	free_page((unsigned long) sccb);
+ 	return rc;
 
 -- 
 blue skies,
