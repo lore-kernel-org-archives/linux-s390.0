@@ -1,199 +1,168 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758667AbZFDQWm@vger.kernel.org>
-Message-Id: <20090604161904.863591040@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758731AbZFDQWx@vger.kernel.org>
+Message-Id: <20090604161905.585166832@de.ibm.com>
 References: <20090604161847.513682672@de.ibm.com>
-Date: Thu, 04 Jun 2009 18:19:09 +0200
+Date: Thu, 04 Jun 2009 18:19:12 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 22/38] pm: appldata power management callbacks
-Content-Disposition: inline; filename=pm_appldata.patch
+Subject: [patch 25/38] pm: tape power management callbacks
+Content-Disposition: inline; filename=pm_tape.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Frank Munzert <munzert@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Frank Munzert <munzert@de.ibm.com>
 
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: Frank Munzert <munzert@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/s390/appldata/appldata_base.c |  119 +++++++++++++++++++++++++++++++++++--
- 1 file changed, 115 insertions(+), 4 deletions(-)
+ drivers/s390/char/tape.h      |    3 +-
+ drivers/s390/char/tape_34xx.c |    3 +-
+ drivers/s390/char/tape_3590.c |    3 +-
+ drivers/s390/char/tape_core.c |   52 +++++++++++++++++++++++++++++++++++++++++-
+ 4 files changed, 57 insertions(+), 4 deletions(-)
 
-Index: linux-2.6/arch/s390/appldata/appldata_base.c
+Index: linux-2.6/drivers/s390/char/tape.h
 ===================================================================
---- linux-2.6.orig/arch/s390/appldata/appldata_base.c
-+++ linux-2.6/arch/s390/appldata/appldata_base.c
-@@ -5,7 +5,7 @@
-  * Exports appldata_register_ops() and appldata_unregister_ops() for the
-  * data gathering modules.
+--- linux-2.6.orig/drivers/s390/char/tape.h
++++ linux-2.6/drivers/s390/char/tape.h
+@@ -3,7 +3,7 @@
+  *    tape device driver for 3480/3490E/3590 tapes.
   *
-- * Copyright IBM Corp. 2003, 2008
-+ * Copyright IBM Corp. 2003, 2009
+  *  S390 and zSeries version
+- *    Copyright IBM Corp. 2001,2006
++ *    Copyright IBM Corp. 2001, 2009
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  *		 Tuan Ngo-Anh <ngoanh@de.ibm.com>
+  *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
+@@ -286,6 +286,7 @@ extern void tape_state_set(struct tape_d
+ 
+ extern int tape_generic_online(struct tape_device *, struct tape_discipline *);
+ extern int tape_generic_offline(struct ccw_device *);
++extern int tape_generic_pm_suspend(struct ccw_device *);
+ 
+ /* Externals from tape_devmap.c */
+ extern int tape_generic_probe(struct ccw_device *);
+Index: linux-2.6/drivers/s390/char/tape_34xx.c
+===================================================================
+--- linux-2.6.orig/drivers/s390/char/tape_34xx.c
++++ linux-2.6/drivers/s390/char/tape_34xx.c
+@@ -2,7 +2,7 @@
+  *  drivers/s390/char/tape_34xx.c
+  *    tape device discipline for 3480/3490 tapes.
   *
-  * Author: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-  */
-@@ -26,6 +26,8 @@
- #include <linux/notifier.h>
- #include <linux/cpu.h>
- #include <linux/workqueue.h>
-+#include <linux/suspend.h>
-+#include <linux/platform_device.h>
- #include <asm/appldata.h>
- #include <asm/timer.h>
- #include <asm/uaccess.h>
-@@ -41,6 +43,9 @@
+- *    Copyright (C) IBM Corp. 2001,2006
++ *    Copyright IBM Corp. 2001, 2009
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  *		 Tuan Ngo-Anh <ngoanh@de.ibm.com>
+  *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
+@@ -1302,6 +1302,7 @@ static struct ccw_driver tape_34xx_drive
+ 	.remove = tape_generic_remove,
+ 	.set_online = tape_34xx_online,
+ 	.set_offline = tape_generic_offline,
++	.freeze = tape_generic_pm_suspend,
+ };
  
- #define TOD_MICRO	0x01000			/* nr. of TOD clock units
- 						   for 1 microsecond */
-+
-+static struct platform_device *appldata_pdev;
-+
+ static int
+Index: linux-2.6/drivers/s390/char/tape_3590.c
+===================================================================
+--- linux-2.6.orig/drivers/s390/char/tape_3590.c
++++ linux-2.6/drivers/s390/char/tape_3590.c
+@@ -2,7 +2,7 @@
+  *  drivers/s390/char/tape_3590.c
+  *    tape device discipline for 3590 tapes.
+  *
+- *    Copyright IBM Corp. 2001,2006
++ *    Copyright IBM Corp. 2001, 2009
+  *    Author(s): Stefan Bader <shbader@de.ibm.com>
+  *		 Michael Holzheu <holzheu@de.ibm.com>
+  *		 Martin Schwidefsky <schwidefsky@de.ibm.com>
+@@ -1715,6 +1715,7 @@ static struct ccw_driver tape_3590_drive
+ 	.remove = tape_generic_remove,
+ 	.set_offline = tape_generic_offline,
+ 	.set_online = tape_3590_online,
++	.freeze = tape_generic_pm_suspend,
+ };
+ 
  /*
-  * /proc entries (sysctl)
-  */
-@@ -86,6 +91,7 @@ static atomic_t appldata_expire_count = 
- static DEFINE_SPINLOCK(appldata_timer_lock);
- static int appldata_interval = APPLDATA_CPU_INTERVAL;
- static int appldata_timer_active;
-+static int appldata_timer_suspended = 0;
- 
- /*
-  * Work queue
-@@ -475,6 +481,93 @@ void appldata_unregister_ops(struct appl
- /********************** module-ops management <END> **************************/
- 
- 
-+/**************************** suspend / resume *******************************/
-+static int appldata_freeze(struct device *dev)
-+{
-+	struct appldata_ops *ops;
-+	int rc;
-+	struct list_head *lh;
-+
-+	get_online_cpus();
-+	spin_lock(&appldata_timer_lock);
-+	if (appldata_timer_active) {
-+		__appldata_vtimer_setup(APPLDATA_DEL_TIMER);
-+		appldata_timer_suspended = 1;
-+	}
-+	spin_unlock(&appldata_timer_lock);
-+	put_online_cpus();
-+
-+	mutex_lock(&appldata_ops_mutex);
-+	list_for_each(lh, &appldata_ops_list) {
-+		ops = list_entry(lh, struct appldata_ops, list);
-+		if (ops->active == 1) {
-+			rc = appldata_diag(ops->record_nr, APPLDATA_STOP_REC,
-+					(unsigned long) ops->data, ops->size,
-+					ops->mod_lvl);
-+			if (rc != 0)
-+				pr_err("Stopping the data collection for %s "
-+				       "failed with rc=%d\n", ops->name, rc);
-+		}
-+	}
-+	mutex_unlock(&appldata_ops_mutex);
-+	return 0;
-+}
-+
-+static int appldata_restore(struct device *dev)
-+{
-+	struct appldata_ops *ops;
-+	int rc;
-+	struct list_head *lh;
-+
-+	get_online_cpus();
-+	spin_lock(&appldata_timer_lock);
-+	if (appldata_timer_suspended) {
-+		__appldata_vtimer_setup(APPLDATA_ADD_TIMER);
-+		appldata_timer_suspended = 0;
-+	}
-+	spin_unlock(&appldata_timer_lock);
-+	put_online_cpus();
-+
-+	mutex_lock(&appldata_ops_mutex);
-+	list_for_each(lh, &appldata_ops_list) {
-+		ops = list_entry(lh, struct appldata_ops, list);
-+		if (ops->active == 1) {
-+			ops->callback(ops->data);	// init record
-+			rc = appldata_diag(ops->record_nr,
-+					APPLDATA_START_INTERVAL_REC,
-+					(unsigned long) ops->data, ops->size,
-+					ops->mod_lvl);
-+			if (rc != 0) {
-+				pr_err("Starting the data collection for %s "
-+				       "failed with rc=%d\n", ops->name, rc);
-+			}
-+		}
-+	}
-+	mutex_unlock(&appldata_ops_mutex);
-+	return 0;
-+}
-+
-+static int appldata_thaw(struct device *dev)
-+{
-+	return appldata_restore(dev);
-+}
-+
-+static struct dev_pm_ops appldata_pm_ops = {
-+	.freeze		= appldata_freeze,
-+	.thaw		= appldata_thaw,
-+	.restore	= appldata_restore,
-+};
-+
-+static struct platform_driver appldata_pdrv = {
-+	.driver = {
-+		.name	= "appldata",
-+		.owner	= THIS_MODULE,
-+		.pm	= &appldata_pm_ops,
-+	},
-+};
-+/************************* suspend / resume <END> ****************************/
-+
-+
- /******************************* init / exit *********************************/
- 
- static void __cpuinit appldata_online_cpu(int cpu)
-@@ -531,11 +624,23 @@ static struct notifier_block __cpuinitda
-  */
- static int __init appldata_init(void)
- {
--	int i;
-+	int i, rc;
- 
-+	rc = platform_driver_register(&appldata_pdrv);
-+	if (rc)
-+		return rc;
-+
-+	appldata_pdev = platform_device_register_simple("appldata", -1, NULL,
-+							0);
-+	if (IS_ERR(appldata_pdev)) {
-+		rc = PTR_ERR(appldata_pdev);
-+		goto out_driver;
-+	}
- 	appldata_wq = create_singlethread_workqueue("appldata");
--	if (!appldata_wq)
--		return -ENOMEM;
-+	if (!appldata_wq) {
-+		rc = -ENOMEM;
-+		goto out_device;
-+	}
- 
- 	get_online_cpus();
- 	for_each_online_cpu(i)
-@@ -547,6 +652,12 @@ static int __init appldata_init(void)
- 
- 	appldata_sysctl_header = register_sysctl_table(appldata_dir_table);
- 	return 0;
-+
-+out_device:
-+	platform_device_unregister(appldata_pdev);
-+out_driver:
-+	platform_driver_unregister(&appldata_pdrv);
-+	return rc;
+Index: linux-2.6/drivers/s390/char/tape_core.c
+===================================================================
+--- linux-2.6.orig/drivers/s390/char/tape_core.c
++++ linux-2.6/drivers/s390/char/tape_core.c
+@@ -3,7 +3,7 @@
+  *    basic function of the tape device driver
+  *
+  *  S390 and zSeries version
+- *    Copyright IBM Corp. 2001,2006
++ *    Copyright IBM Corp. 2001, 2009
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
+  *		 Michael Holzheu <holzheu@de.ibm.com>
+  *		 Tuan Ngo-Anh <ngoanh@de.ibm.com>
+@@ -380,6 +380,55 @@ tape_cleanup_device(struct tape_device *
  }
  
- __initcall(appldata_init);
+ /*
++ * Suspend device.
++ *
++ * Called by the common I/O layer if the drive should be suspended on user
++ * request. We refuse to suspend if the device is loaded or in use for the
++ * following reason:
++ * While the Linux guest is suspended, it might be logged off which causes
++ * devices to be detached. Tape devices are automatically rewound and unloaded
++ * during DETACH processing (unless the tape device was attached with the
++ * NOASSIGN or MULTIUSER option). After rewind/unload, there is no way to
++ * resume the original state of the tape device, since we would need to
++ * manually re-load the cartridge which was active at suspend time.
++ */
++int tape_generic_pm_suspend(struct ccw_device *cdev)
++{
++	struct tape_device *device;
++
++	device = cdev->dev.driver_data;
++	if (!device) {
++		return -ENODEV;
++	}
++
++	DBF_LH(3, "(%08x): tape_generic_pm_suspend(%p)\n",
++		device->cdev_id, device);
++
++	if (device->medium_state != MS_UNLOADED) {
++		pr_err("A cartridge is loaded in tape device %s, "
++		       "refusing to suspend\n", dev_name(&cdev->dev));
++		return -EBUSY;
++	}
++
++	spin_lock_irq(get_ccwdev_lock(device->cdev));
++	switch (device->tape_state) {
++		case TS_INIT:
++		case TS_NOT_OPER:
++		case TS_UNUSED:
++			spin_unlock_irq(get_ccwdev_lock(device->cdev));
++			break;
++		default:
++			pr_err("Tape device %s is busy, refusing to "
++			       "suspend\n", dev_name(&cdev->dev));
++			spin_unlock_irq(get_ccwdev_lock(device->cdev));
++			return -EBUSY;
++	}
++
++	DBF_LH(3, "(%08x): Drive suspended.\n", device->cdev_id);
++	return 0;
++}
++
++/*
+  * Set device offline.
+  *
+  * Called by the common I/O layer if the drive should set offline on user
+@@ -1273,6 +1322,7 @@ EXPORT_SYMBOL(tape_generic_remove);
+ EXPORT_SYMBOL(tape_generic_probe);
+ EXPORT_SYMBOL(tape_generic_online);
+ EXPORT_SYMBOL(tape_generic_offline);
++EXPORT_SYMBOL(tape_generic_pm_suspend);
+ EXPORT_SYMBOL(tape_put_device);
+ EXPORT_SYMBOL(tape_get_device_reference);
+ EXPORT_SYMBOL(tape_state_verbose);
 
 -- 
 blue skies,
