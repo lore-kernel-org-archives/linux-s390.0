@@ -1,266 +1,283 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759303AbZFDQYs@vger.kernel.org>
-Message-Id: <20090604161906.308867517@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1758028AbZFDQZm@vger.kernel.org>
+Message-Id: <20090604161907.542105279@de.ibm.com>
 References: <20090604161847.513682672@de.ibm.com>
-Date: Thu, 04 Jun 2009 18:19:15 +0200
+Date: Thu, 04 Jun 2009 18:19:20 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 28/38] pm: iucv power management callbacks.
-Content-Disposition: inline; filename=pm_iucv.patch
+Subject: [patch 33/38] pm: con3270 power management callbacks.
+Content-Disposition: inline; filename=pm_3270.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Patch calls the PM callback functions of iucv-bus devices, which are
-responsible for removal of their established iucv pathes.
+Introduce the power management callbacks to the 3270 driver. On suspend
+the current 3270 view is deactivated and for non-console 3270 device
+the release callback is done. This disconnects the current tty /
+fullscreen application from the 3270 device. On resume the current
+view is reactivated, on the tty you get a fresh login.
+If the system panics before the 3270 device has been resumed, the ccw
+device for the 3270 console is reactivated with ccw_device_force_console.
 
-The PM freeze callback for the first iucv-bus device disables all iucv 
-interrupts except the connection severed interrupt.
-The PM freeze callback for the last iucv-bus device shuts down iucv.
-
-The PM thaw callback for the first iucv-bus device re-enables iucv
-if it has been shut down during freeze. If freezing has been interrupted,
-it re-enables iucv interrupts according to the needs of iucv-exploiters.
-
-The PM restore callback for the first iucv-bus device re-enables iucv.
-
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- net/iucv/iucv.c |  179 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 179 insertions(+)
+ drivers/s390/char/con3270.c |   12 +++---
+ drivers/s390/char/fs3270.c  |   16 +++++---
+ drivers/s390/char/raw3270.c |   84 ++++++++++++++++++++++++++++++++++++++------
+ drivers/s390/char/raw3270.h |   12 +++---
+ 4 files changed, 95 insertions(+), 29 deletions(-)
 
-Index: linux-2.6/net/iucv/iucv.c
+Index: linux-2.6/drivers/s390/char/raw3270.c
 ===================================================================
---- linux-2.6.orig/net/iucv/iucv.c
-+++ linux-2.6/net/iucv/iucv.c
-@@ -11,6 +11,8 @@
-  *	Fritz Elfert (elfert@de.ibm.com, felfert@millenux.com)
-  *    Rewritten for af_iucv:
-  *	Martin Schwidefsky <schwidefsky@de.ibm.com>
-+ *    PM functions:
-+ *	Ursula Braun (ursula.braun@de.ibm.com)
+--- linux-2.6.orig/drivers/s390/char/raw3270.c
++++ linux-2.6/drivers/s390/char/raw3270.c
+@@ -1,11 +1,10 @@
+ /*
+- *  drivers/s390/char/raw3270.c
+- *    IBM/3270 Driver - core functions.
++ * IBM/3270 Driver - core functions.
   *
-  * Documentation used:
-  *    The original source
-@@ -77,9 +79,24 @@ static int iucv_bus_match(struct device 
+- *  Author(s):
+- *    Original 3270 Code for 2.4 written by Richard Hitt (UTS Global)
+- *    Rewritten for 2.5 by Martin Schwidefsky <schwidefsky@de.ibm.com>
+- *	-- Copyright (C) 2003 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ * Author(s):
++ *   Original 3270 Code for 2.4 written by Richard Hitt (UTS Global)
++ *   Rewritten for 2.5 by Martin Schwidefsky <schwidefsky@de.ibm.com>
++ *     Copyright IBM Corp. 2003, 2009
+  */
+ 
+ #include <linux/bootmem.h>
+@@ -61,6 +60,7 @@ struct raw3270 {
+ #define RAW3270_FLAGS_ATTN	2	/* Device sent an ATTN interrupt */
+ #define RAW3270_FLAGS_READY	4	/* Device is useable by views */
+ #define RAW3270_FLAGS_CONSOLE	8	/* Device is the console. */
++#define RAW3270_FLAGS_FROZEN	16      /* set if 3270 is frozen for suspend */
+ 
+ /* Semaphore to protect global data of raw3270 (devices, views, etc). */
+ static DEFINE_MUTEX(raw3270_mutex);
+@@ -306,7 +306,8 @@ raw3270_start(struct raw3270_view *view,
+ 
+ 	spin_lock_irqsave(get_ccwdev_lock(view->dev->cdev), flags);
+ 	rp = view->dev;
+-	if (!rp || rp->view != view)
++	if (!rp || rp->view != view ||
++	    test_bit(RAW3270_FLAGS_FROZEN, &rp->flags))
+ 		rc = -EACCES;
+ 	else if (!test_bit(RAW3270_FLAGS_READY, &rp->flags))
+ 		rc = -ENODEV;
+@@ -323,7 +324,8 @@ raw3270_start_locked(struct raw3270_view
+ 	int rc;
+ 
+ 	rp = view->dev;
+-	if (!rp || rp->view != view)
++	if (!rp || rp->view != view ||
++	    test_bit(RAW3270_FLAGS_FROZEN, &rp->flags))
+ 		rc = -EACCES;
+ 	else if (!test_bit(RAW3270_FLAGS_READY, &rp->flags))
+ 		rc = -ENODEV;
+@@ -764,7 +766,8 @@ raw3270_reset(struct raw3270_view *view)
+ 	int rc;
+ 
+ 	rp = view->dev;
+-	if (!rp || rp->view != view)
++	if (!rp || rp->view != view ||
++	    test_bit(RAW3270_FLAGS_FROZEN, &rp->flags))
+ 		rc = -EACCES;
+ 	else if (!test_bit(RAW3270_FLAGS_READY, &rp->flags))
+ 		rc = -ENODEV;
+@@ -922,6 +925,8 @@ raw3270_activate_view(struct raw3270_vie
+ 		rc = 0;
+ 	else if (!test_bit(RAW3270_FLAGS_READY, &rp->flags))
+ 		rc = -ENODEV;
++	else if (test_bit(RAW3270_FLAGS_FROZEN, &rp->flags))
++		rc = -EACCES;
+ 	else {
+ 		oldview = NULL;
+ 		if (rp->view) {
+@@ -969,7 +974,8 @@ raw3270_deactivate_view(struct raw3270_v
+ 		list_del_init(&view->list);
+ 		list_add_tail(&view->list, &rp->view_list);
+ 		/* Try to activate another view. */
+-		if (test_bit(RAW3270_FLAGS_READY, &rp->flags)) {
++		if (test_bit(RAW3270_FLAGS_READY, &rp->flags) &&
++		    !test_bit(RAW3270_FLAGS_FROZEN, &rp->flags)) {
+ 			list_for_each_entry(view, &rp->view_list, list) {
+ 				rp->view = view;
+ 				if (view->fn->activate(view) == 0)
+@@ -1068,7 +1074,8 @@ raw3270_del_view(struct raw3270_view *vi
+ 		rp->view = NULL;
+ 	}
+ 	list_del_init(&view->list);
+-	if (!rp->view && test_bit(RAW3270_FLAGS_READY, &rp->flags)) {
++	if (!rp->view && test_bit(RAW3270_FLAGS_READY, &rp->flags) &&
++	    !test_bit(RAW3270_FLAGS_FROZEN, &rp->flags)) {
+ 		/* Try to activate another view. */
+ 		list_for_each_entry(nv, &rp->view_list, list) {
+ 			if (nv->fn->activate(nv) == 0) {
+@@ -1337,6 +1344,58 @@ raw3270_set_offline (struct ccw_device *
  	return 0;
  }
  
-+static int iucv_pm_prepare(struct device *);
-+static void iucv_pm_complete(struct device *);
-+static int iucv_pm_freeze(struct device *);
-+static int iucv_pm_thaw(struct device *);
-+static int iucv_pm_restore(struct device *);
++static int raw3270_pm_stop(struct ccw_device *cdev)
++{
++	struct raw3270 *rp;
++	struct raw3270_view *view;
++	unsigned long flags;
 +
-+static struct dev_pm_ops iucv_pm_ops = {
-+	.prepare = iucv_pm_prepare,
-+	.complete = iucv_pm_complete,
-+	.freeze = iucv_pm_freeze,
-+	.thaw = iucv_pm_thaw,
-+	.restore = iucv_pm_restore,
-+};
++	rp = cdev->dev.driver_data;
++	if (!rp)
++		return 0;
++	spin_lock_irqsave(get_ccwdev_lock(rp->cdev), flags);
++	if (rp->view)
++		rp->view->fn->deactivate(rp->view);
++	if (!test_bit(RAW3270_FLAGS_CONSOLE, &rp->flags)) {
++		/*
++		 * Release tty and fullscreen for all non-console
++		 * devices.
++		 */
++		list_for_each_entry(view, &rp->view_list, list) {
++			if (view->fn->release)
++				view->fn->release(view);
++		}
++	}
++	set_bit(RAW3270_FLAGS_FROZEN, &rp->flags);
++	spin_unlock_irqrestore(get_ccwdev_lock(rp->cdev), flags);
++	return 0;
++}
 +
- struct bus_type iucv_bus = {
- 	.name = "iucv",
- 	.match = iucv_bus_match,
-+	.pm = &iucv_pm_ops,
++static int raw3270_pm_start(struct ccw_device *cdev)
++{
++	struct raw3270 *rp;
++	unsigned long flags;
++
++	rp = cdev->dev.driver_data;
++	if (!rp)
++		return 0;
++	spin_lock_irqsave(get_ccwdev_lock(rp->cdev), flags);
++	clear_bit(RAW3270_FLAGS_FROZEN, &rp->flags);
++	if (rp->view)
++		rp->view->fn->activate(rp->view);
++	spin_unlock_irqrestore(get_ccwdev_lock(rp->cdev), flags);
++	return 0;
++}
++
++void raw3270_pm_unfreeze(struct raw3270_view *view)
++{
++	struct raw3270 *rp;
++
++	rp = view->dev;
++	if (rp && test_bit(RAW3270_FLAGS_FROZEN, &rp->flags))
++		ccw_device_force_console();
++}
++
+ static struct ccw_device_id raw3270_id[] = {
+ 	{ CCW_DEVICE(0x3270, 0) },
+ 	{ CCW_DEVICE(0x3271, 0) },
+@@ -1360,6 +1419,9 @@ static struct ccw_driver raw3270_ccw_dri
+ 	.remove		= &raw3270_remove,
+ 	.set_online	= &raw3270_set_online,
+ 	.set_offline	= &raw3270_set_offline,
++	.freeze		= &raw3270_pm_stop,
++	.thaw		= &raw3270_pm_start,
++	.restore	= &raw3270_pm_start,
  };
- EXPORT_SYMBOL(iucv_bus);
  
-@@ -149,6 +166,7 @@ enum iucv_command_codes {
- 	IUCV_RESUME = 14,
- 	IUCV_SEVER = 15,
- 	IUCV_SETMASK = 16,
-+	IUCV_SETCONTROLMASK = 17,
- };
+ static int
+Index: linux-2.6/drivers/s390/char/con3270.c
+===================================================================
+--- linux-2.6.orig/drivers/s390/char/con3270.c
++++ linux-2.6/drivers/s390/char/con3270.c
+@@ -1,11 +1,10 @@
+ /*
+- *  drivers/s390/char/con3270.c
+- *    IBM/3270 Driver - console view.
++ * IBM/3270 Driver - console view.
+  *
+- *  Author(s):
+- *    Original 3270 Code for 2.4 written by Richard Hitt (UTS Global)
+- *    Rewritten for 2.5 by Martin Schwidefsky <schwidefsky@de.ibm.com>
+- *	-- Copyright (C) 2003 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ * Author(s):
++ *   Original 3270 Code for 2.4 written by Richard Hitt (UTS Global)
++ *   Rewritten for 2.5 by Martin Schwidefsky <schwidefsky@de.ibm.com>
++ *     Copyright IBM Corp. 2003, 2009
+  */
+ 
+ #include <linux/bootmem.h>
+@@ -530,6 +529,7 @@ con3270_flush(void)
+ 	cp = condev;
+ 	if (!cp->view.dev)
+ 		return;
++	raw3270_pm_unfreeze(&cp->view);
+ 	spin_lock_irqsave(&cp->view.lock, flags);
+ 	con3270_wait_write(cp);
+ 	cp->nr_up = 0;
+Index: linux-2.6/drivers/s390/char/fs3270.c
+===================================================================
+--- linux-2.6.orig/drivers/s390/char/fs3270.c
++++ linux-2.6/drivers/s390/char/fs3270.c
+@@ -1,11 +1,10 @@
+ /*
+- *  drivers/s390/char/fs3270.c
+- *    IBM/3270 Driver - fullscreen driver.
++ * IBM/3270 Driver - fullscreen driver.
+  *
+- *  Author(s):
+- *    Original 3270 Code for 2.4 written by Richard Hitt (UTS Global)
+- *    Rewritten for 2.5/2.6 by Martin Schwidefsky <schwidefsky@de.ibm.com>
+- *	-- Copyright (C) 2003 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ * Author(s):
++ *   Original 3270 Code for 2.4 written by Richard Hitt (UTS Global)
++ *   Rewritten for 2.5/2.6 by Martin Schwidefsky <schwidefsky@de.ibm.com>
++ *     Copyright IBM Corp. 2003, 2009
+  */
+ 
+ #include <linux/bootmem.h>
+@@ -399,6 +398,11 @@ fs3270_free_view(struct raw3270_view *vi
+ static void
+ fs3270_release(struct raw3270_view *view)
+ {
++	struct fs3270 *fp;
++
++	fp = (struct fs3270 *) view;
++	if (fp->fs_pid)
++		kill_pid(fp->fs_pid, SIGHUP, 1);
+ }
+ 
+ /* View to a 3270 device. Can be console, tty or fullscreen. */
+Index: linux-2.6/drivers/s390/char/raw3270.h
+===================================================================
+--- linux-2.6.orig/drivers/s390/char/raw3270.h
++++ linux-2.6/drivers/s390/char/raw3270.h
+@@ -1,11 +1,10 @@
+ /*
+- *  drivers/s390/char/raw3270.h
+- *    IBM/3270 Driver
++ * IBM/3270 Driver
+  *
+- *  Author(s):
+- *    Original 3270 Code for 2.4 written by Richard Hitt (UTS Global)
+- *    Rewritten for 2.5 by Martin Schwidefsky <schwidefsky@de.ibm.com>
+- *	-- Copyright (C) 2003 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ * Author(s):
++ *   Original 3270 Code for 2.4 written by Richard Hitt (UTS Global)
++ *   Rewritten for 2.5 by Martin Schwidefsky <schwidefsky@de.ibm.com>
++ *     Copyright IBM Corp. 2003, 2009
+  */
+ 
+ #include <asm/idals.h>
+@@ -195,6 +194,7 @@ void raw3270_wait_cons_dev(struct raw327
+ /* Notifier for device addition/removal */
+ int raw3270_register_notifier(void (*notifier)(int, int));
+ void raw3270_unregister_notifier(void (*notifier)(int, int));
++void raw3270_pm_unfreeze(struct raw3270_view *);
  
  /*
-@@ -366,6 +384,18 @@ static void iucv_allow_cpu(void *data)
- 	parm->set_mask.ipmask = 0xf8;
- 	iucv_call_b2f0(IUCV_SETMASK, parm);
- 
-+	/*
-+	 * Enable all iucv control interrupts.
-+	 * ipmask contains bits for the different interrupts
-+	 *	0x80 - Flag to allow pending connections interrupts
-+	 *	0x40 - Flag to allow connection complete interrupts
-+	 *	0x20 - Flag to allow connection severed interrupts
-+	 *	0x10 - Flag to allow connection quiesced interrupts
-+	 *	0x08 - Flag to allow connection resumed interrupts
-+	 */
-+	memset(parm, 0, sizeof(union iucv_param));
-+	parm->set_mask.ipmask = 0xf8;
-+	iucv_call_b2f0(IUCV_SETCONTROLMASK, parm);
- 	/* Set indication that iucv interrupts are allowed for this cpu. */
- 	cpu_set(cpu, iucv_irq_cpumask);
- }
-@@ -391,6 +421,31 @@ static void iucv_block_cpu(void *data)
- }
- 
- /**
-+ * iucv_block_cpu_almost
-+ * @data: unused
-+ *
-+ * Allow connection-severed interrupts only on this cpu.
-+ */
-+static void iucv_block_cpu_almost(void *data)
-+{
-+	int cpu = smp_processor_id();
-+	union iucv_param *parm;
-+
-+	/* Allow iucv control interrupts only */
-+	parm = iucv_param_irq[cpu];
-+	memset(parm, 0, sizeof(union iucv_param));
-+	parm->set_mask.ipmask = 0x08;
-+	iucv_call_b2f0(IUCV_SETMASK, parm);
-+	/* Allow iucv-severed interrupt only */
-+	memset(parm, 0, sizeof(union iucv_param));
-+	parm->set_mask.ipmask = 0x20;
-+	iucv_call_b2f0(IUCV_SETCONTROLMASK, parm);
-+
-+	/* Clear indication that iucv interrupts are allowed for this cpu. */
-+	cpu_clear(cpu, iucv_irq_cpumask);
-+}
-+
-+/**
-  * iucv_declare_cpu
-  * @data: unused
-  *
-@@ -1764,6 +1819,130 @@ static void iucv_external_interrupt(u16 
- 	spin_unlock(&iucv_queue_lock);
- }
- 
-+static int iucv_pm_prepare(struct device *dev)
-+{
-+	int rc = 0;
-+
-+#ifdef CONFIG_PM_DEBUG
-+	printk(KERN_INFO "iucv_pm_prepare\n");
-+#endif
-+	if (dev->driver && dev->driver->pm && dev->driver->pm->prepare)
-+		rc = dev->driver->pm->prepare(dev);
-+	return rc;
-+}
-+
-+static void iucv_pm_complete(struct device *dev)
-+{
-+#ifdef CONFIG_PM_DEBUG
-+	printk(KERN_INFO "iucv_pm_complete\n");
-+#endif
-+	if (dev->driver && dev->driver->pm && dev->driver->pm->complete)
-+		dev->driver->pm->complete(dev);
-+}
-+
-+/**
-+ * iucv_path_table_empty() - determine if iucv path table is empty
-+ *
-+ * Returns 0 if there are still iucv pathes defined
-+ *         1 if there are no iucv pathes defined
-+ */
-+int iucv_path_table_empty(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < iucv_max_pathid; i++) {
-+		if (iucv_path_table[i])
-+			return 0;
-+	}
-+	return 1;
-+}
-+
-+/**
-+ * iucv_pm_freeze() - Freeze PM callback
-+ * @dev:	iucv-based device
-+ *
-+ * disable iucv interrupts
-+ * invoke callback function of the iucv-based driver
-+ * shut down iucv, if no iucv-pathes are established anymore
-+ */
-+static int iucv_pm_freeze(struct device *dev)
-+{
-+	int cpu;
-+	int rc = 0;
-+
-+#ifdef CONFIG_PM_DEBUG
-+	printk(KERN_WARNING "iucv_pm_freeze\n");
-+#endif
-+	for_each_cpu_mask_nr(cpu, iucv_irq_cpumask)
-+		smp_call_function_single(cpu, iucv_block_cpu_almost, NULL, 1);
-+	if (dev->driver && dev->driver->pm && dev->driver->pm->freeze)
-+		rc = dev->driver->pm->freeze(dev);
-+	if (iucv_path_table_empty())
-+		iucv_disable();
-+	return rc;
-+}
-+
-+/**
-+ * iucv_pm_thaw() - Thaw PM callback
-+ * @dev:	iucv-based device
-+ *
-+ * make iucv ready for use again: allocate path table, declare interrupt buffers
-+ *				  and enable iucv interrupts
-+ * invoke callback function of the iucv-based driver
-+ */
-+static int iucv_pm_thaw(struct device *dev)
-+{
-+	int rc = 0;
-+
-+#ifdef CONFIG_PM_DEBUG
-+	printk(KERN_WARNING "iucv_pm_thaw\n");
-+#endif
-+	if (!iucv_path_table) {
-+		rc = iucv_enable();
-+		if (rc)
-+			goto out;
-+	}
-+	if (cpus_empty(iucv_irq_cpumask)) {
-+		if (iucv_nonsmp_handler)
-+			/* enable interrupts on one cpu */
-+			iucv_allow_cpu(NULL);
-+		else
-+			/* enable interrupts on all cpus */
-+			iucv_setmask_mp();
-+	}
-+	if (dev->driver && dev->driver->pm && dev->driver->pm->thaw)
-+		rc = dev->driver->pm->thaw(dev);
-+out:
-+	return rc;
-+}
-+
-+/**
-+ * iucv_pm_restore() - Restore PM callback
-+ * @dev:	iucv-based device
-+ *
-+ * make iucv ready for use again: allocate path table, declare interrupt buffers
-+ *				  and enable iucv interrupts
-+ * invoke callback function of the iucv-based driver
-+ */
-+static int iucv_pm_restore(struct device *dev)
-+{
-+	int rc = 0;
-+
-+#ifdef CONFIG_PM_DEBUG
-+	printk(KERN_WARNING "iucv_pm_restore %p\n", iucv_path_table);
-+#endif
-+	if (cpus_empty(iucv_irq_cpumask)) {
-+		rc = iucv_query_maxconn();
-+		rc = iucv_enable();
-+		if (rc)
-+			goto out;
-+	}
-+	if (dev->driver && dev->driver->pm && dev->driver->pm->restore)
-+		rc = dev->driver->pm->restore(dev);
-+out:
-+	return rc;
-+}
-+
- /**
-  * iucv_init
-  *
+  * Little memory allocator for string objects. 
 
 -- 
 blue skies,
