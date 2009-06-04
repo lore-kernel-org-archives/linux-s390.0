@@ -1,198 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760107AbZFDQ32@vger.kernel.org>
-Message-Id: <20090604161908.529698385@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759940AbZFDQ2k@vger.kernel.org>
+Message-Id: <20090604161902.814661884@de.ibm.com>
 References: <20090604161847.513682672@de.ibm.com>
-Date: Thu, 04 Jun 2009 18:19:24 +0200
+Date: Thu, 04 Jun 2009 18:19:01 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 37/38] pm: dcssblk power management callbacks.
-Content-Disposition: inline; filename=pm_dcssblk.patch
+Subject: [patch 14/38] cio: force console function
+Content-Disposition: inline; filename=pm_force_console.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+If something goes wrong in a suspend / resume cycle a ccw based console
+if very likely in the suspended state and cannot print anything.
+Introduce ccw_device_force_console to force the wake up of the console
+device to be able to print the oops message. The console device drivers
+should use this function only if the system paniced.
+
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- drivers/s390/block/dcssblk.c |  132 +++++++++++++++++++++++++++++++++++++------
- 1 file changed, 115 insertions(+), 17 deletions(-)
+ arch/s390/include/asm/ccwdev.h |    1 +
+ drivers/s390/cio/device.c      |    8 ++++++++
+ 2 files changed, 9 insertions(+)
 
-Index: linux-2.6/drivers/s390/block/dcssblk.c
+Index: linux-2.5/drivers/s390/cio/device.c
 ===================================================================
---- linux-2.6.orig/drivers/s390/block/dcssblk.c
-+++ linux-2.6/drivers/s390/block/dcssblk.c
-@@ -14,10 +14,11 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/blkdev.h>
--#include <asm/extmem.h>
--#include <asm/io.h>
- #include <linux/completion.h>
- #include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <asm/extmem.h>
-+#include <asm/io.h>
- 
- #define DCSSBLK_NAME "dcssblk"
- #define DCSSBLK_MINORS_PER_DISK 1
-@@ -940,11 +941,94 @@ dcssblk_check_params(void)
+--- linux-2.5.orig/drivers/s390/cio/device.c
++++ linux-2.5/drivers/s390/cio/device.c
+@@ -1785,6 +1785,15 @@ ccw_device_probe_console(void)
+ 	return &console_cdev;
  }
  
- /*
-+ * Suspend / Resume
-+ */
-+static int dcssblk_freeze(struct device *dev)
++static int ccw_device_pm_restore(struct device *dev);
++
++int ccw_device_force_console(void)
 +{
-+	struct dcssblk_dev_info *dev_info;
-+	int rc = 0;
-+
-+	list_for_each_entry(dev_info, &dcssblk_devices, lh) {
-+		switch (dev_info->segment_type) {
-+			case SEG_TYPE_SR:
-+			case SEG_TYPE_ER:
-+			case SEG_TYPE_SC:
-+				if (!dev_info->is_shared)
-+					rc = -EINVAL;
-+				break;
-+			default:
-+				rc = -EINVAL;
-+				break;
-+		}
-+		if (rc)
-+			break;
-+	}
-+	if (rc)
-+		pr_err("Suspend failed because device %s is writeable.\n",
-+		       dev_info->segment_name);
-+	return rc;
++	if (!console_cdev_in_use)
++		return -ENODEV;
++	return ccw_device_pm_restore(&console_cdev.dev);
 +}
-+
-+static int dcssblk_restore(struct device *dev)
-+{
-+	struct dcssblk_dev_info *dev_info;
-+	struct segment_info *entry;
-+	unsigned long start, end;
-+	int rc = 0;
-+
-+	list_for_each_entry(dev_info, &dcssblk_devices, lh) {
-+		list_for_each_entry(entry, &dev_info->seg_list, lh) {
-+			segment_unload(entry->segment_name);
-+			rc = segment_load(entry->segment_name, SEGMENT_SHARED,
-+					  &start, &end);
-+			if (rc < 0) {
-+// TODO in_use check ?
-+				segment_warning(rc, entry->segment_name);
-+				goto out_panic;
-+			}
-+			if (start != entry->start || end != entry->end) {
-+				pr_err("Mismatch of start / end address after "
-+				       "resuming device %s\n",
-+				       entry->segment_name);
-+				goto out_panic;
-+			}
-+		}
-+	}
-+	return 0;
-+out_panic:
-+	panic("fatal dcssblk resume error\n");
-+}
-+
-+static int dcssblk_thaw(struct device *dev)
-+{
-+	return 0;
-+}
-+
-+static struct dev_pm_ops dcssblk_pm_ops = {
-+	.freeze		= dcssblk_freeze,
-+	.thaw		= dcssblk_thaw,
-+	.restore	= dcssblk_restore,
-+};
-+
-+static struct platform_driver dcssblk_pdrv = {
-+	.driver = {
-+		.name	= "dcssblk",
-+		.owner	= THIS_MODULE,
-+		.pm	= &dcssblk_pm_ops,
-+	},
-+};
-+
-+static struct platform_device *dcssblk_pdev;
-+
-+
-+/*
-  * The init/exit functions.
-  */
- static void __exit
- dcssblk_exit(void)
++EXPORT_SYMBOL_GPL(ccw_device_force_console);
+ 
+ const char *cio_get_console_cdev_name(struct subchannel *sch)
  {
-+	platform_device_unregister(dcssblk_pdev);
-+	platform_driver_unregister(&dcssblk_pdrv);
- 	root_device_unregister(dcssblk_root_dev);
- 	unregister_blkdev(dcssblk_major, DCSSBLK_NAME);
- }
-@@ -954,30 +1038,44 @@ dcssblk_init(void)
- {
- 	int rc;
+Index: linux-2.5/arch/s390/include/asm/ccwdev.h
+===================================================================
+--- linux-2.5.orig/arch/s390/include/asm/ccwdev.h
++++ linux-2.5/arch/s390/include/asm/ccwdev.h
+@@ -192,6 +192,7 @@ extern void ccw_device_get_id(struct ccw
+ #define to_ccwdrv(n) container_of(n, struct ccw_driver, driver)
  
--	dcssblk_root_dev = root_device_register("dcssblk");
--	if (IS_ERR(dcssblk_root_dev))
--		return PTR_ERR(dcssblk_root_dev);
--	rc = device_create_file(dcssblk_root_dev, &dev_attr_add);
--	if (rc) {
--		root_device_unregister(dcssblk_root_dev);
-+	rc = platform_driver_register(&dcssblk_pdrv);
-+	if (rc)
- 		return rc;
-+
-+	dcssblk_pdev = platform_device_register_simple("dcssblk", -1, NULL,
-+							0);
-+	if (IS_ERR(dcssblk_pdev)) {
-+		rc = PTR_ERR(dcssblk_pdev);
-+		goto out_pdrv;
- 	}
--	rc = device_create_file(dcssblk_root_dev, &dev_attr_remove);
--	if (rc) {
--		root_device_unregister(dcssblk_root_dev);
--		return rc;
-+
-+	dcssblk_root_dev = root_device_register("dcssblk");
-+	if (IS_ERR(dcssblk_root_dev)) {
-+		rc = PTR_ERR(dcssblk_root_dev);
-+		goto out_pdev;
- 	}
-+	rc = device_create_file(dcssblk_root_dev, &dev_attr_add);
-+	if (rc)
-+		goto out_root;
-+	rc = device_create_file(dcssblk_root_dev, &dev_attr_remove);
-+	if (rc)
-+		goto out_root;
- 	rc = register_blkdev(0, DCSSBLK_NAME);
--	if (rc < 0) {
--		root_device_unregister(dcssblk_root_dev);
--		return rc;
--	}
-+	if (rc < 0)
-+		goto out_root;
- 	dcssblk_major = rc;
- 	init_rwsem(&dcssblk_devices_sem);
+ extern struct ccw_device *ccw_device_probe_console(void);
++extern int ccw_device_force_console(void);
  
- 	dcssblk_check_params();
--
- 	return 0;
-+
-+out_root:
-+	root_device_unregister(dcssblk_root_dev);
-+out_pdev:
-+	platform_device_unregister(dcssblk_pdev);
-+out_pdrv:
-+	platform_driver_unregister(&dcssblk_pdrv);
-+	return rc;
- }
- 
- module_init(dcssblk_init);
+ // FIXME: these have to go
+ extern int _ccw_device_get_subchannel_number(struct ccw_device *);
 
 -- 
 blue skies,
