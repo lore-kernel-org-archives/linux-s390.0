@@ -1,208 +1,165 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758291AbZFDQ1M@vger.kernel.org>
-Message-Id: <20090604161902.573576302@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759938AbZFDQ23@vger.kernel.org>
+Message-Id: <20090604161900.192634072@de.ibm.com>
 References: <20090604161847.513682672@de.ibm.com>
-Date: Thu, 04 Jun 2009 18:19:00 +0200
+Date: Thu, 04 Jun 2009 18:18:50 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 13/38] pm: xpram driver power management callbacks
-Content-Disposition: inline; filename=pm_xpram.patch
+Subject: [patch 03/38] iucv: provide second per-cpu IUCV command parameter block
+Content-Disposition: inline; filename=iucv-2ndparm.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Michael Holzheu <holzheu@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Holzheu <holzheu@de.ibm.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
+Some of the IUCV commands can be invoked in interrupt context.
+Those commands need a different per-cpu IUCV command parameter block,
+otherwise they might overwrite an IUCV command parameter of a not yet
+finished IUCV command invocation in process context.
+
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- drivers/s390/block/xpram.c |  129 +++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 126 insertions(+), 3 deletions(-)
 
-Index: linux-2.6/drivers/s390/block/xpram.c
+ net/iucv/iucv.c |   41 +++++++++++++++++++++++++++++++----------
+ 1 file changed, 31 insertions(+), 10 deletions(-)
+
+Index: linux-2.6/net/iucv/iucv.c
 ===================================================================
---- linux-2.6.orig/drivers/s390/block/xpram.c
-+++ linux-2.6/drivers/s390/block/xpram.c
-@@ -39,7 +39,10 @@
- #include <linux/hdreg.h>  /* HDIO_GETGEO */
- #include <linux/sysdev.h>
- #include <linux/bio.h>
-+#include <linux/suspend.h>
-+#include <linux/platform_device.h>
- #include <asm/uaccess.h>
-+#include <asm/checksum.h>
- 
- #define XPRAM_NAME	"xpram"
- #define XPRAM_DEVS	1	/* one partition */
-@@ -48,6 +51,7 @@
- typedef struct {
- 	unsigned int	size;		/* size of xpram segment in pages */
- 	unsigned int	offset;		/* start page of xpram segment */
-+	unsigned int	csum;		/* partition checksum for suspend */
- } xpram_device_t;
- 
- static xpram_device_t xpram_devices[XPRAM_MAX_DEVS];
-@@ -138,7 +142,7 @@ static long xpram_page_out (unsigned lon
- /*
-  * Check if xpram is available.
+--- linux-2.6.orig/net/iucv/iucv.c
++++ linux-2.6/net/iucv/iucv.c
+@@ -280,6 +280,7 @@ union iucv_param {
+  * Anchor for per-cpu IUCV command parameter block.
   */
--static int __init xpram_present(void)
-+static int xpram_present(void)
- {
- 	unsigned long mem_page;
- 	int rc;
-@@ -154,7 +158,7 @@ static int __init xpram_present(void)
- /*
-  * Return index of the last available xpram page.
-  */
--static unsigned long __init xpram_highest_page_index(void)
-+static unsigned long xpram_highest_page_index(void)
- {
- 	unsigned int page_index, add_bit;
- 	unsigned long mem_page;
-@@ -383,6 +387,106 @@ out:
- }
+ static union iucv_param *iucv_param[NR_CPUS];
++static union iucv_param *iucv_param_irq[NR_CPUS];
  
- /*
-+ * Save checksums for all partitions.
-+ */
-+static int xpram_save_checksums(void)
-+{
-+	unsigned long mem_page;
-+	int rc, i;
-+
-+	rc = 0;
-+	mem_page = (unsigned long) __get_free_page(GFP_KERNEL);
-+	if (!mem_page)
-+		return -ENOMEM;
-+	for (i = 0; i < xpram_devs; i++) {
-+		rc = xpram_page_in(mem_page, xpram_devices[i].offset);
-+		if (rc)
-+			goto fail;
-+		xpram_devices[i].csum = csum_partial((const void *) mem_page,
-+						     PAGE_SIZE, 0);
-+	}
-+fail:
-+	free_page(mem_page);
-+	return rc ? -ENXIO : 0;
-+}
-+
-+/*
-+ * Verify checksums for all partitions.
-+ */
-+static int xpram_validate_checksums(void)
-+{
-+	unsigned long mem_page;
-+	unsigned int csum;
-+	int rc, i;
-+
-+	rc = 0;
-+	mem_page = (unsigned long) __get_free_page(GFP_KERNEL);
-+	if (!mem_page)
-+		return -ENOMEM;
-+	for (i = 0; i < xpram_devs; i++) {
-+		rc = xpram_page_in(mem_page, xpram_devices[i].offset);
-+		if (rc)
-+			goto fail;
-+		csum = csum_partial((const void *) mem_page, PAGE_SIZE, 0);
-+		if (xpram_devices[i].csum != csum) {
-+			rc = -EINVAL;
-+			goto fail;
+ /**
+  * iucv_call_b2f0
+@@ -358,7 +359,7 @@ static void iucv_allow_cpu(void *data)
+ 	 *	0x10 - Flag to allow priority message completion interrupts
+ 	 *	0x08 - Flag to allow IUCV control interrupts
+ 	 */
+-	parm = iucv_param[cpu];
++	parm = iucv_param_irq[cpu];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	parm->set_mask.ipmask = 0xf8;
+ 	iucv_call_b2f0(IUCV_SETMASK, parm);
+@@ -379,7 +380,7 @@ static void iucv_block_cpu(void *data)
+ 	union iucv_param *parm;
+ 
+ 	/* Disable all iucv interrupts. */
+-	parm = iucv_param[cpu];
++	parm = iucv_param_irq[cpu];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	iucv_call_b2f0(IUCV_SETMASK, parm);
+ 
+@@ -403,7 +404,7 @@ static void iucv_declare_cpu(void *data)
+ 		return;
+ 
+ 	/* Declare interrupt buffer. */
+-	parm = iucv_param[cpu];
++	parm = iucv_param_irq[cpu];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	parm->db.ipbfadr1 = virt_to_phys(iucv_irq_data[cpu]);
+ 	rc = iucv_call_b2f0(IUCV_DECLARE_BUFFER, parm);
+@@ -460,7 +461,7 @@ static void iucv_retrieve_cpu(void *data
+ 	iucv_block_cpu(NULL);
+ 
+ 	/* Retrieve interrupt buffer. */
+-	parm = iucv_param[cpu];
++	parm = iucv_param_irq[cpu];
+ 	iucv_call_b2f0(IUCV_RETRIEVE_BUFFER, parm);
+ 
+ 	/* Clear indication that an iucv buffer exists for this cpu. */
+@@ -574,11 +575,22 @@ static int __cpuinit iucv_cpu_notify(str
+ 			iucv_irq_data[cpu] = NULL;
+ 			return NOTIFY_BAD;
+ 		}
++		iucv_param_irq[cpu] = kmalloc_node(sizeof(union iucv_param),
++					GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
++		if (!iucv_param_irq[cpu]) {
++			kfree(iucv_param[cpu]);
++			iucv_param[cpu] = NULL;
++			kfree(iucv_irq_data[cpu]);
++			iucv_irq_data[cpu] = NULL;
++			return NOTIFY_BAD;
 +		}
-+	}
-+fail:
-+	free_page(mem_page);
-+	return rc ? -ENXIO : 0;
-+}
-+
-+/*
-+ * Resume failed: Print error message and call panic.
-+ */
-+static void xpram_resume_error(const char *message)
-+{
-+	pr_err("Resume error: %s\n", message);
-+	panic("xpram resume error\n");
-+}
-+
-+/*
-+ * Check if xpram setup changed between suspend and resume.
-+ */
-+static int xpram_restore(struct device *dev)
-+{
-+	if (!xpram_pages)
-+		return 0;
-+	if (xpram_present() != 0)
-+		xpram_resume_error("xpram disappeared");
-+	if (xpram_pages != xpram_highest_page_index() + 1)
-+		xpram_resume_error("Size of xpram changed");
-+	if (xpram_validate_checksums())
-+		xpram_resume_error("Data of xpram changed");
-+	return 0;
-+}
-+
-+/*
-+ * Save necessary state in suspend.
-+ */
-+static int xpram_freeze(struct device *dev)
-+{
-+	return xpram_save_checksums();
-+}
-+
-+static struct dev_pm_ops xpram_pm_ops = {
-+	.freeze		= xpram_freeze,
-+	.restore	= xpram_restore,
-+};
-+
-+static struct platform_driver xpram_pdrv = {
-+	.driver = {
-+		.name	= XPRAM_NAME,
-+		.owner	= THIS_MODULE,
-+		.pm	= &xpram_pm_ops,
-+	},
-+};
-+
-+static struct platform_device *xpram_pdev;
-+
-+/*
-  * Finally, the init/exit functions.
-  */
- static void __exit xpram_exit(void)
-@@ -394,6 +498,8 @@ static void __exit xpram_exit(void)
- 		put_disk(xpram_disks[i]);
+ 		break;
+ 	case CPU_UP_CANCELED:
+ 	case CPU_UP_CANCELED_FROZEN:
+ 	case CPU_DEAD:
+ 	case CPU_DEAD_FROZEN:
++		kfree(iucv_param_irq[cpu]);
++		iucv_param_irq[cpu] = NULL;
+ 		kfree(iucv_param[cpu]);
+ 		iucv_param[cpu] = NULL;
+ 		kfree(iucv_irq_data[cpu]);
+@@ -625,7 +637,7 @@ static int iucv_sever_pathid(u16 pathid,
+ {
+ 	union iucv_param *parm;
+ 
+-	parm = iucv_param[smp_processor_id()];
++	parm = iucv_param_irq[smp_processor_id()];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	if (userdata)
+ 		memcpy(parm->ctrl.ipuser, userdata, sizeof(parm->ctrl.ipuser));
+@@ -918,10 +930,8 @@ int iucv_path_sever(struct iucv_path *pa
+ 	if (iucv_active_cpu != smp_processor_id())
+ 		spin_lock_bh(&iucv_table_lock);
+ 	rc = iucv_sever_pathid(path->pathid, userdata);
+-	if (!rc) {
+-		iucv_path_table[path->pathid] = NULL;
+-		list_del_init(&path->list);
+-	}
++	iucv_path_table[path->pathid] = NULL;
++	list_del_init(&path->list);
+ 	if (iucv_active_cpu != smp_processor_id())
+ 		spin_unlock_bh(&iucv_table_lock);
+ 	preempt_enable();
+@@ -1413,7 +1423,7 @@ static void iucv_path_severed(struct iuc
+ 	else {
+ 		iucv_sever_pathid(path->pathid, NULL);
+ 		iucv_path_table[path->pathid] = NULL;
+-		list_del_init(&path->list);
++		list_del(&path->list);
+ 		iucv_path_free(path);
  	}
- 	unregister_blkdev(XPRAM_MAJOR, XPRAM_NAME);
-+	platform_device_unregister(xpram_pdev);
-+	platform_driver_unregister(&xpram_pdrv);
  }
- 
- static int __init xpram_init(void)
-@@ -411,7 +517,24 @@ static int __init xpram_init(void)
- 	rc = xpram_setup_sizes(xpram_pages);
- 	if (rc)
- 		return rc;
--	return xpram_setup_blkdev();
-+	rc = platform_driver_register(&xpram_pdrv);
-+	if (rc)
-+		return rc;
-+	xpram_pdev = platform_device_register_simple(XPRAM_NAME, -1, NULL, 0);
-+	if (IS_ERR(xpram_pdev)) {
-+		rc = PTR_ERR(xpram_pdev);
-+		goto fail_platform_driver_unregister;
-+	}
-+	rc = xpram_setup_blkdev();
-+	if (rc)
-+		goto fail_platform_device_unregister;
-+	return 0;
+@@ -1717,6 +1727,13 @@ static int __init iucv_init(void)
+ 			rc = -ENOMEM;
+ 			goto out_free;
+ 		}
++		iucv_param_irq[cpu] = kmalloc_node(sizeof(union iucv_param),
++				  GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
++		if (!iucv_param_irq[cpu]) {
++			rc = -ENOMEM;
++			goto out_free;
++		}
 +
-+fail_platform_device_unregister:
-+	platform_device_unregister(xpram_pdev);
-+fail_platform_driver_unregister:
-+	platform_driver_unregister(&xpram_pdrv);
-+	return rc;
- }
- 
- module_init(xpram_init);
+ 	}
+ 	rc = register_hotcpu_notifier(&iucv_cpu_notifier);
+ 	if (rc)
+@@ -1734,6 +1751,8 @@ out_cpu:
+ 	unregister_hotcpu_notifier(&iucv_cpu_notifier);
+ out_free:
+ 	for_each_possible_cpu(cpu) {
++		kfree(iucv_param_irq[cpu]);
++		iucv_param_irq[cpu] = NULL;
+ 		kfree(iucv_param[cpu]);
+ 		iucv_param[cpu] = NULL;
+ 		kfree(iucv_irq_data[cpu]);
+@@ -1764,6 +1783,8 @@ static void __exit iucv_exit(void)
+ 	spin_unlock_irq(&iucv_queue_lock);
+ 	unregister_hotcpu_notifier(&iucv_cpu_notifier);
+ 	for_each_possible_cpu(cpu) {
++		kfree(iucv_param_irq[cpu]);
++		iucv_param_irq[cpu] = NULL;
+ 		kfree(iucv_param[cpu]);
+ 		iucv_param[cpu] = NULL;
+ 		kfree(iucv_irq_data[cpu]);
 
 -- 
 blue skies,
