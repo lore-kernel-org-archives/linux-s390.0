@@ -1,195 +1,320 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760057AbZFDQ2w@vger.kernel.org>
-Message-Id: <20090604161904.626534361@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759636AbZFDQ0l@vger.kernel.org>
+Message-Id: <20090604161906.066208246@de.ibm.com>
 References: <20090604161847.513682672@de.ibm.com>
-Date: Thu, 04 Jun 2009 18:19:08 +0200
+Date: Thu, 04 Jun 2009 18:19:14 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 21/38] pm: vmwatchdog power management callbacks.
-Content-Disposition: inline; filename=pm_vmwatchdog.patch
+Subject: [patch 27/38] iucv: establish reboot notifier
+Content-Disposition: inline; filename=pm_iucv_reboot.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-This patch implements suspend/hibernation for the vmwatchdog driver. The 
-pm_notifier_callchain is used to get control on PM events. Since watchdog
-operation and suspend cannot work together in a reliable fashion, the open
-flag is also used to prevent suspend and open from happening at the same
-time.
-The watchdog can also be active with no open file descriptor. This patch
-adds another flag which is only changed in vmwdt_keep_alive and
-vmwdt_disable.
+To guarantee a proper cleanup, patch adds a reboot notifier to
+the iucv base code, which disables iucv interrupts, shuts down
+established iucv pathes, and removes iucv declarations for z/VM.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Checks have to be added to the iucv-API functions, whether 
+iucv-buffers removed at reboot time are still declared.
+
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- drivers/s390/char/vmwatchdog.c |   81 ++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 76 insertions(+), 5 deletions(-)
+ net/iucv/iucv.c |   89 ++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 87 insertions(+), 2 deletions(-)
 
-Index: linux-2.6/drivers/s390/char/vmwatchdog.c
+Index: linux-2.6/net/iucv/iucv.c
 ===================================================================
---- linux-2.6.orig/drivers/s390/char/vmwatchdog.c
-+++ linux-2.6/drivers/s390/char/vmwatchdog.c
-@@ -1,17 +1,23 @@
+--- linux-2.6.orig/net/iucv/iucv.c
++++ linux-2.6/net/iucv/iucv.c
+@@ -1,7 +1,8 @@
  /*
-  * Watchdog implementation based on z/VM Watchdog Timer API
+  * IUCV base infrastructure.
   *
-+ * Copyright IBM Corp. 2004,2009
+- * Copyright 2001, 2006 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ * Copyright IBM Corp. 2001, 2009
 + *
-  * The user space watchdog daemon can use this driver as
-  * /dev/vmwatchdog to have z/VM execute the specified CP
-  * command when the timeout expires. The default command is
-  * "IPL", which which cause an immediate reboot.
-  */
-+#define KMSG_COMPONENT "vmwatchdog"
-+#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
-+
- #include <linux/init.h>
- #include <linux/fs.h>
- #include <linux/kernel.h>
- #include <linux/miscdevice.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-+#include <linux/suspend.h>
- #include <linux/watchdog.h>
- #include <linux/smp_lock.h>
- 
-@@ -43,6 +49,9 @@ static unsigned int vmwdt_interval = 60;
- static unsigned long vmwdt_is_open;
- static int vmwdt_expect_close;
- 
-+#define VMWDT_OPEN	0	/* devnode is open or suspend in progress */
-+#define VMWDT_RUNNING	1	/* The watchdog is armed */
-+
- enum vmwdt_func {
- 	/* function codes */
- 	wdt_init   = 0,
-@@ -92,6 +101,7 @@ static int vmwdt_keepalive(void)
- 	EBC_TOUPPER(ebc_cmd, MAX_CMDLEN);
- 
- 	func = vmwdt_conceal ? (wdt_init | wdt_conceal) : wdt_init;
-+	set_bit(VMWDT_RUNNING, &vmwdt_is_open);
- 	ret = __diag288(func, vmwdt_interval, ebc_cmd, len);
- 	WARN_ON(ret != 0);
- 	kfree(ebc_cmd);
-@@ -102,6 +112,7 @@ static int vmwdt_disable(void)
- {
- 	int ret = __diag288(wdt_cancel, 0, "", 0);
- 	WARN_ON(ret != 0);
-+	clear_bit(VMWDT_RUNNING, &vmwdt_is_open);
- 	return ret;
+  * Author(s):
+  *    Original source:
+  *	Alan Altmark (Alan_Altmark@us.ibm.com)	Sept. 2000
+@@ -45,6 +46,7 @@
+ #include <linux/err.h>
+ #include <linux/device.h>
+ #include <linux/cpu.h>
++#include <linux/reboot.h>
+ #include <net/iucv/iucv.h>
+ #include <asm/atomic.h>
+ #include <asm/ebcdic.h>
+@@ -758,6 +760,28 @@ void iucv_unregister(struct iucv_handler
  }
+ EXPORT_SYMBOL(iucv_unregister);
  
-@@ -123,13 +134,13 @@ static int vmwdt_open(struct inode *i, s
- {
- 	int ret;
- 	lock_kernel();
--	if (test_and_set_bit(0, &vmwdt_is_open)) {
-+	if (test_and_set_bit(VMWDT_OPEN, &vmwdt_is_open)) {
- 		unlock_kernel();
- 		return -EBUSY;
- 	}
- 	ret = vmwdt_keepalive();
- 	if (ret)
--		clear_bit(0, &vmwdt_is_open);
-+		clear_bit(VMWDT_OPEN, &vmwdt_is_open);
- 	unlock_kernel();
- 	return ret ? ret : nonseekable_open(i, f);
- }
-@@ -139,7 +150,7 @@ static int vmwdt_close(struct inode *i, 
- 	if (vmwdt_expect_close == 42)
- 		vmwdt_disable();
- 	vmwdt_expect_close = 0;
--	clear_bit(0, &vmwdt_is_open);
-+	clear_bit(VMWDT_OPEN, &vmwdt_is_open);
- 	return 0;
- }
- 
-@@ -223,6 +234,57 @@ static ssize_t vmwdt_write(struct file *
- 	return count;
- }
- 
-+static int vmwdt_resume(void)
++static int iucv_reboot_event(struct notifier_block *this,
++			     unsigned long event, void *ptr)
 +{
-+	clear_bit(VMWDT_OPEN, &vmwdt_is_open);
++	int i, rc;
++
++	get_online_cpus();
++	on_each_cpu(iucv_block_cpu, NULL, 1);
++	preempt_disable();
++	for (i = 0; i < iucv_max_pathid; i++) {
++		if (iucv_path_table[i])
++			rc = iucv_sever_pathid(i, NULL);
++	}
++	preempt_enable();
++	put_online_cpus();
++	iucv_disable();
 +	return NOTIFY_DONE;
 +}
 +
-+/*
-+ * It makes no sense to go into suspend while the watchdog is running.
-+ * Depending on the memory size, the watchdog might trigger, while we
-+ * are still saving the memory.
-+ * We reuse the open flag to ensure that suspend and watchdog open are
-+ * exclusive operations
-+ */
-+static int vmwdt_suspend(void)
-+{
-+	if (test_and_set_bit(VMWDT_OPEN, &vmwdt_is_open)) {
-+		pr_err("The watchdog is in use. "
-+			"This prevents hibernation or suspend.\n");
-+		return NOTIFY_BAD;
-+	}
-+	if (test_bit(VMWDT_RUNNING, &vmwdt_is_open)) {
-+		clear_bit(VMWDT_OPEN, &vmwdt_is_open);
-+		pr_err("The watchdog is running. "
-+			"This prevents hibernation or suspend.\n");
-+		return NOTIFY_BAD;
-+	}
-+	return NOTIFY_DONE;
-+}
-+
-+/*
-+ * This function is called for suspend and resume.
-+ */
-+static int vmwdt_power_event(struct notifier_block *this, unsigned long event,
-+			     void *ptr)
-+{
-+	switch (event) {
-+	case PM_POST_HIBERNATION:
-+	case PM_POST_SUSPEND:
-+		return vmwdt_resume();
-+	case PM_HIBERNATION_PREPARE:
-+	case PM_SUSPEND_PREPARE:
-+		return vmwdt_suspend();
-+	default:
-+		return NOTIFY_DONE;
-+	}
-+}
-+
-+static struct notifier_block vmwdt_power_notifier = {
-+	.notifier_call = vmwdt_power_event,
++static struct notifier_block iucv_reboot_notifier = {
++	.notifier_call = iucv_reboot_event,
 +};
 +
- static const struct file_operations vmwdt_fops = {
- 	.open    = &vmwdt_open,
- 	.release = &vmwdt_close,
-@@ -244,12 +306,21 @@ static int __init vmwdt_init(void)
- 	ret = vmwdt_probe();
- 	if (ret)
- 		return ret;
--	return misc_register(&vmwdt_dev);
-+	ret = register_pm_notifier(&vmwdt_power_notifier);
-+	if (ret)
-+		return ret;
-+	ret = misc_register(&vmwdt_dev);
-+	if (ret) {
-+		unregister_pm_notifier(&vmwdt_power_notifier);
-+		return ret;
-+	}
-+	return 0;
- }
- module_init(vmwdt_init);
+ /**
+  * iucv_path_accept
+  * @path: address of iucv path structure
+@@ -777,6 +801,10 @@ int iucv_path_accept(struct iucv_path *p
+ 	int rc;
  
- static void __exit vmwdt_exit(void)
- {
--	WARN_ON(misc_deregister(&vmwdt_dev) != 0);
-+	unregister_pm_notifier(&vmwdt_power_notifier);
-+	misc_deregister(&vmwdt_dev);
+ 	local_bh_disable();
++	if (!cpu_isset(smp_processor_id(), iucv_buffer_cpumask)) {
++		rc = -EIO;
++		goto out;
++	}
+ 	/* Prepare parameter block. */
+ 	parm = iucv_param[smp_processor_id()];
+ 	memset(parm, 0, sizeof(union iucv_param));
+@@ -792,6 +820,7 @@ int iucv_path_accept(struct iucv_path *p
+ 		path->msglim = parm->ctrl.ipmsglim;
+ 		path->flags = parm->ctrl.ipflags1;
+ 	}
++out:
+ 	local_bh_enable();
+ 	return rc;
  }
- module_exit(vmwdt_exit);
+@@ -821,6 +850,10 @@ int iucv_path_connect(struct iucv_path *
+ 
+ 	spin_lock_bh(&iucv_table_lock);
+ 	iucv_cleanup_queue();
++	if (!cpu_isset(smp_processor_id(), iucv_buffer_cpumask)) {
++		rc = -EIO;
++		goto out;
++	}
+ 	parm = iucv_param[smp_processor_id()];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	parm->ctrl.ipmsglim = path->msglim;
+@@ -855,6 +888,7 @@ int iucv_path_connect(struct iucv_path *
+ 			rc = -EIO;
+ 		}
+ 	}
++out:
+ 	spin_unlock_bh(&iucv_table_lock);
+ 	return rc;
+ }
+@@ -876,12 +910,17 @@ int iucv_path_quiesce(struct iucv_path *
+ 	int rc;
+ 
+ 	local_bh_disable();
++	if (!cpu_isset(smp_processor_id(), iucv_buffer_cpumask)) {
++		rc = -EIO;
++		goto out;
++	}
+ 	parm = iucv_param[smp_processor_id()];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	if (userdata)
+ 		memcpy(parm->ctrl.ipuser, userdata, sizeof(parm->ctrl.ipuser));
+ 	parm->ctrl.ippathid = path->pathid;
+ 	rc = iucv_call_b2f0(IUCV_QUIESCE, parm);
++out:
+ 	local_bh_enable();
+ 	return rc;
+ }
+@@ -903,12 +942,17 @@ int iucv_path_resume(struct iucv_path *p
+ 	int rc;
+ 
+ 	local_bh_disable();
++	if (!cpu_isset(smp_processor_id(), iucv_buffer_cpumask)) {
++		rc = -EIO;
++		goto out;
++	}
+ 	parm = iucv_param[smp_processor_id()];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	if (userdata)
+ 		memcpy(parm->ctrl.ipuser, userdata, sizeof(parm->ctrl.ipuser));
+ 	parm->ctrl.ippathid = path->pathid;
+ 	rc = iucv_call_b2f0(IUCV_RESUME, parm);
++out:
+ 	local_bh_enable();
+ 	return rc;
+ }
+@@ -927,6 +971,10 @@ int iucv_path_sever(struct iucv_path *pa
+ 	int rc;
+ 
+ 	preempt_disable();
++	if (!cpu_isset(smp_processor_id(), iucv_buffer_cpumask)) {
++		rc = -EIO;
++		goto out;
++	}
+ 	if (iucv_active_cpu != smp_processor_id())
+ 		spin_lock_bh(&iucv_table_lock);
+ 	rc = iucv_sever_pathid(path->pathid, userdata);
+@@ -934,6 +982,7 @@ int iucv_path_sever(struct iucv_path *pa
+ 	list_del_init(&path->list);
+ 	if (iucv_active_cpu != smp_processor_id())
+ 		spin_unlock_bh(&iucv_table_lock);
++out:
+ 	preempt_enable();
+ 	return rc;
+ }
+@@ -956,6 +1005,10 @@ int iucv_message_purge(struct iucv_path 
+ 	int rc;
+ 
+ 	local_bh_disable();
++	if (!cpu_isset(smp_processor_id(), iucv_buffer_cpumask)) {
++		rc = -EIO;
++		goto out;
++	}
+ 	parm = iucv_param[smp_processor_id()];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	parm->purge.ippathid = path->pathid;
+@@ -967,6 +1020,7 @@ int iucv_message_purge(struct iucv_path 
+ 		msg->audit = (*(u32 *) &parm->purge.ipaudit) >> 8;
+ 		msg->tag = parm->purge.ipmsgtag;
+ 	}
++out:
+ 	local_bh_enable();
+ 	return rc;
+ }
+@@ -1043,6 +1097,10 @@ int __iucv_message_receive(struct iucv_p
+ 	if (msg->flags & IUCV_IPRMDATA)
+ 		return iucv_message_receive_iprmdata(path, msg, flags,
+ 						     buffer, size, residual);
++	if (!cpu_isset(smp_processor_id(), iucv_buffer_cpumask)) {
++		rc = -EIO;
++		goto out;
++	}
+ 	parm = iucv_param[smp_processor_id()];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	parm->db.ipbfadr1 = (u32)(addr_t) buffer;
+@@ -1058,6 +1116,7 @@ int __iucv_message_receive(struct iucv_p
+ 		if (residual)
+ 			*residual = parm->db.ipbfln1f;
+ 	}
++out:
+ 	return rc;
+ }
+ EXPORT_SYMBOL(__iucv_message_receive);
+@@ -1111,6 +1170,10 @@ int iucv_message_reject(struct iucv_path
+ 	int rc;
+ 
+ 	local_bh_disable();
++	if (!cpu_isset(smp_processor_id(), iucv_buffer_cpumask)) {
++		rc = -EIO;
++		goto out;
++	}
+ 	parm = iucv_param[smp_processor_id()];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	parm->db.ippathid = path->pathid;
+@@ -1118,6 +1181,7 @@ int iucv_message_reject(struct iucv_path
+ 	parm->db.iptrgcls = msg->class;
+ 	parm->db.ipflags1 = (IUCV_IPTRGCLS | IUCV_IPFGMID | IUCV_IPFGPID);
+ 	rc = iucv_call_b2f0(IUCV_REJECT, parm);
++out:
+ 	local_bh_enable();
+ 	return rc;
+ }
+@@ -1145,6 +1209,10 @@ int iucv_message_reply(struct iucv_path 
+ 	int rc;
+ 
+ 	local_bh_disable();
++	if (!cpu_isset(smp_processor_id(), iucv_buffer_cpumask)) {
++		rc = -EIO;
++		goto out;
++	}
+ 	parm = iucv_param[smp_processor_id()];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	if (flags & IUCV_IPRMDATA) {
+@@ -1162,6 +1230,7 @@ int iucv_message_reply(struct iucv_path 
+ 		parm->db.iptrgcls = msg->class;
+ 	}
+ 	rc = iucv_call_b2f0(IUCV_REPLY, parm);
++out:
+ 	local_bh_enable();
+ 	return rc;
+ }
+@@ -1190,6 +1259,10 @@ int __iucv_message_send(struct iucv_path
+ 	union iucv_param *parm;
+ 	int rc;
+ 
++	if (!cpu_isset(smp_processor_id(), iucv_buffer_cpumask)) {
++		rc = -EIO;
++		goto out;
++	}
+ 	parm = iucv_param[smp_processor_id()];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	if (flags & IUCV_IPRMDATA) {
+@@ -1212,6 +1285,7 @@ int __iucv_message_send(struct iucv_path
+ 	rc = iucv_call_b2f0(IUCV_SEND, parm);
+ 	if (!rc)
+ 		msg->id = parm->db.ipmsgid;
++out:
+ 	return rc;
+ }
+ EXPORT_SYMBOL(__iucv_message_send);
+@@ -1272,6 +1346,10 @@ int iucv_message_send2way(struct iucv_pa
+ 	int rc;
+ 
+ 	local_bh_disable();
++	if (!cpu_isset(smp_processor_id(), iucv_buffer_cpumask)) {
++		rc = -EIO;
++		goto out;
++	}
+ 	parm = iucv_param[smp_processor_id()];
+ 	memset(parm, 0, sizeof(union iucv_param));
+ 	if (flags & IUCV_IPRMDATA) {
+@@ -1297,6 +1375,7 @@ int iucv_message_send2way(struct iucv_pa
+ 	rc = iucv_call_b2f0(IUCV_SEND, parm);
+ 	if (!rc)
+ 		msg->id = parm->db.ipmsgid;
++out:
+ 	local_bh_enable();
+ 	return rc;
+ }
+@@ -1738,15 +1817,20 @@ static int __init iucv_init(void)
+ 	rc = register_hotcpu_notifier(&iucv_cpu_notifier);
+ 	if (rc)
+ 		goto out_free;
++	rc = register_reboot_notifier(&iucv_reboot_notifier);
++	if (rc)
++		goto out_cpu;
+ 	ASCEBC(iucv_error_no_listener, 16);
+ 	ASCEBC(iucv_error_no_memory, 16);
+ 	ASCEBC(iucv_error_pathid, 16);
+ 	iucv_available = 1;
+ 	rc = bus_register(&iucv_bus);
+ 	if (rc)
+-		goto out_cpu;
++		goto out_reboot;
+ 	return 0;
+ 
++out_reboot:
++	unregister_reboot_notifier(&iucv_reboot_notifier);
+ out_cpu:
+ 	unregister_hotcpu_notifier(&iucv_cpu_notifier);
+ out_free:
+@@ -1781,6 +1865,7 @@ static void __exit iucv_exit(void)
+ 	list_for_each_entry_safe(p, n, &iucv_work_queue, list)
+ 		kfree(p);
+ 	spin_unlock_irq(&iucv_queue_lock);
++	unregister_reboot_notifier(&iucv_reboot_notifier);
+ 	unregister_hotcpu_notifier(&iucv_cpu_notifier);
+ 	for_each_possible_cpu(cpu) {
+ 		kfree(iucv_param_irq[cpu]);
 
 -- 
 blue skies,
