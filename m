@@ -1,251 +1,266 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758973AbZFDQXv@vger.kernel.org>
-Message-Id: <20090604161908.288290620@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759303AbZFDQYs@vger.kernel.org>
+Message-Id: <20090604161906.308867517@de.ibm.com>
 References: <20090604161847.513682672@de.ibm.com>
-Date: Thu, 04 Jun 2009 18:19:23 +0200
+Date: Thu, 04 Jun 2009 18:19:15 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 36/38] pm: monreader power management callbacks.
-Content-Disposition: inline; filename=pm_monreader.patch
+Subject: [patch 28/38] pm: iucv power management callbacks.
+Content-Disposition: inline; filename=pm_iucv.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Patch calls the PM callback functions of iucv-bus devices, which are
+responsible for removal of their established iucv pathes.
+
+The PM freeze callback for the first iucv-bus device disables all iucv 
+interrupts except the connection severed interrupt.
+The PM freeze callback for the last iucv-bus device shuts down iucv.
+
+The PM thaw callback for the first iucv-bus device re-enables iucv
+if it has been shut down during freeze. If freezing has been interrupted,
+it re-enables iucv interrupts according to the needs of iucv-exploiters.
+
+The PM restore callback for the first iucv-bus device re-enables iucv.
+
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- drivers/s390/char/monreader.c |  140 ++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 128 insertions(+), 12 deletions(-)
+ net/iucv/iucv.c |  179 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 179 insertions(+)
 
-Index: linux-2.6/drivers/s390/char/monreader.c
+Index: linux-2.6/net/iucv/iucv.c
 ===================================================================
---- linux-2.6.orig/drivers/s390/char/monreader.c
-+++ linux-2.6/drivers/s390/char/monreader.c
-@@ -1,10 +1,9 @@
- /*
-- * drivers/s390/char/monreader.c
-- *
-  * Character device driver for reading z/VM *MONITOR service records.
+--- linux-2.6.orig/net/iucv/iucv.c
++++ linux-2.6/net/iucv/iucv.c
+@@ -11,6 +11,8 @@
+  *	Fritz Elfert (elfert@de.ibm.com, felfert@millenux.com)
+  *    Rewritten for af_iucv:
+  *	Martin Schwidefsky <schwidefsky@de.ibm.com>
++ *    PM functions:
++ *	Ursula Braun (ursula.braun@de.ibm.com)
   *
-- *   Copyright IBM Corp. 2004, 2008
-- *   Author: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-+ * Copyright IBM Corp. 2004, 2009
+  * Documentation used:
+  *    The original source
+@@ -77,9 +79,24 @@ static int iucv_bus_match(struct device 
+ 	return 0;
+ }
+ 
++static int iucv_pm_prepare(struct device *);
++static void iucv_pm_complete(struct device *);
++static int iucv_pm_freeze(struct device *);
++static int iucv_pm_thaw(struct device *);
++static int iucv_pm_restore(struct device *);
++
++static struct dev_pm_ops iucv_pm_ops = {
++	.prepare = iucv_pm_prepare,
++	.complete = iucv_pm_complete,
++	.freeze = iucv_pm_freeze,
++	.thaw = iucv_pm_thaw,
++	.restore = iucv_pm_restore,
++};
++
+ struct bus_type iucv_bus = {
+ 	.name = "iucv",
+ 	.match = iucv_bus_match,
++	.pm = &iucv_pm_ops,
+ };
+ EXPORT_SYMBOL(iucv_bus);
+ 
+@@ -149,6 +166,7 @@ enum iucv_command_codes {
+ 	IUCV_RESUME = 14,
+ 	IUCV_SEVER = 15,
+ 	IUCV_SETMASK = 16,
++	IUCV_SETCONTROLMASK = 17,
+ };
+ 
+ /*
+@@ -366,6 +384,18 @@ static void iucv_allow_cpu(void *data)
+ 	parm->set_mask.ipmask = 0xf8;
+ 	iucv_call_b2f0(IUCV_SETMASK, parm);
+ 
++	/*
++	 * Enable all iucv control interrupts.
++	 * ipmask contains bits for the different interrupts
++	 *	0x80 - Flag to allow pending connections interrupts
++	 *	0x40 - Flag to allow connection complete interrupts
++	 *	0x20 - Flag to allow connection severed interrupts
++	 *	0x10 - Flag to allow connection quiesced interrupts
++	 *	0x08 - Flag to allow connection resumed interrupts
++	 */
++	memset(parm, 0, sizeof(union iucv_param));
++	parm->set_mask.ipmask = 0xf8;
++	iucv_call_b2f0(IUCV_SETCONTROLMASK, parm);
+ 	/* Set indication that iucv interrupts are allowed for this cpu. */
+ 	cpu_set(cpu, iucv_irq_cpumask);
+ }
+@@ -391,6 +421,31 @@ static void iucv_block_cpu(void *data)
+ }
+ 
+ /**
++ * iucv_block_cpu_almost
++ * @data: unused
 + *
-+ * Author: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-  */
- 
- #define KMSG_COMPONENT "monreader"
-@@ -22,6 +21,7 @@
- #include <linux/spinlock.h>
- #include <linux/interrupt.h>
- #include <linux/poll.h>
-+#include <linux/device.h>
- #include <net/iucv/iucv.h>
- #include <asm/uaccess.h>
- #include <asm/ebcdic.h>
-@@ -78,6 +78,7 @@ static u8 user_data_sever[16] = {
- 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
- };
- 
-+static struct device *monreader_device;
- 
- /******************************************************************************
-  *                             helper functions                               *
-@@ -319,11 +320,12 @@ static int mon_open(struct inode *inode,
- 		goto out_path;
- 	}
- 	filp->private_data = monpriv;
-+	monreader_device->driver_data = monpriv;
- 	unlock_kernel();
- 	return nonseekable_open(inode, filp);
- 
- out_path:
--	kfree(monpriv->path);
-+	iucv_path_free(monpriv->path);
- out_priv:
- 	mon_free_mem(monpriv);
- out_use:
-@@ -341,10 +343,13 @@ static int mon_close(struct inode *inode
- 	/*
- 	 * Close IUCV connection and unregister
- 	 */
--	rc = iucv_path_sever(monpriv->path, user_data_sever);
--	if (rc)
--		pr_warning("Disconnecting the z/VM *MONITOR system service "
--			   "failed with rc=%i\n", rc);
-+	if (monpriv->path) {
-+		rc = iucv_path_sever(monpriv->path, user_data_sever);
-+		if (rc)
-+			pr_warning("Disconnecting the z/VM *MONITOR system "
-+				   "service failed with rc=%i\n", rc);
-+		iucv_path_free(monpriv->path);
-+	}
- 
- 	atomic_set(&monpriv->iucv_severed, 0);
- 	atomic_set(&monpriv->iucv_connected, 0);
-@@ -452,6 +457,94 @@ static struct miscdevice mon_dev = {
- 	.minor      = MISC_DYNAMIC_MINOR,
- };
- 
-+
-+/******************************************************************************
-+ *                              suspend / resume                              *
-+ *****************************************************************************/
-+static int monreader_freeze(struct device *dev)
++ * Allow connection-severed interrupts only on this cpu.
++ */
++static void iucv_block_cpu_almost(void *data)
 +{
-+	struct mon_private *monpriv = dev->driver_data;
-+	int rc;
++	int cpu = smp_processor_id();
++	union iucv_param *parm;
 +
-+	if (!monpriv)
-+		return 0;
-+	if (monpriv->path) {
-+		rc = iucv_path_sever(monpriv->path, user_data_sever);
-+		if (rc)
-+			pr_warning("Disconnecting the z/VM *MONITOR system "
-+				   "service failed with rc=%i\n", rc);
-+		iucv_path_free(monpriv->path);
-+	}
-+	atomic_set(&monpriv->iucv_severed, 0);
-+	atomic_set(&monpriv->iucv_connected, 0);
-+	atomic_set(&monpriv->read_ready, 0);
-+	atomic_set(&monpriv->msglim_count, 0);
-+	monpriv->write_index  = 0;
-+	monpriv->read_index   = 0;
-+	monpriv->path = NULL;
-+	return 0;
++	/* Allow iucv control interrupts only */
++	parm = iucv_param_irq[cpu];
++	memset(parm, 0, sizeof(union iucv_param));
++	parm->set_mask.ipmask = 0x08;
++	iucv_call_b2f0(IUCV_SETMASK, parm);
++	/* Allow iucv-severed interrupt only */
++	memset(parm, 0, sizeof(union iucv_param));
++	parm->set_mask.ipmask = 0x20;
++	iucv_call_b2f0(IUCV_SETCONTROLMASK, parm);
++
++	/* Clear indication that iucv interrupts are allowed for this cpu. */
++	cpu_clear(cpu, iucv_irq_cpumask);
 +}
 +
-+static int monreader_thaw(struct device *dev)
++/**
+  * iucv_declare_cpu
+  * @data: unused
+  *
+@@ -1764,6 +1819,130 @@ static void iucv_external_interrupt(u16 
+ 	spin_unlock(&iucv_queue_lock);
+ }
+ 
++static int iucv_pm_prepare(struct device *dev)
 +{
-+	struct mon_private *monpriv = dev->driver_data;
-+	int rc;
++	int rc = 0;
 +
-+	if (!monpriv)
-+		return 0;
-+	rc = -ENOMEM;
-+	monpriv->path = iucv_path_alloc(MON_MSGLIM, IUCV_IPRMDATA, GFP_KERNEL);
-+	if (!monpriv->path)
-+		goto out;
-+	rc = iucv_path_connect(monpriv->path, &monreader_iucv_handler,
-+			       MON_SERVICE, NULL, user_data_connect, monpriv);
-+	if (rc) {
-+		pr_err("Connecting to the z/VM *MONITOR system service "
-+		       "failed with rc=%i\n", rc);
-+		goto out_path;
-+	}
-+	wait_event(mon_conn_wait_queue,
-+		   atomic_read(&monpriv->iucv_connected) ||
-+		   atomic_read(&monpriv->iucv_severed));
-+	if (atomic_read(&monpriv->iucv_severed))
-+		goto out_path;
-+	return 0;
-+out_path:
-+	rc = -EIO;
-+	iucv_path_free(monpriv->path);
-+	monpriv->path = NULL;
-+out:
-+	atomic_set(&monpriv->iucv_severed, 1);
++#ifdef CONFIG_PM_DEBUG
++	printk(KERN_INFO "iucv_pm_prepare\n");
++#endif
++	if (dev->driver && dev->driver->pm && dev->driver->pm->prepare)
++		rc = dev->driver->pm->prepare(dev);
 +	return rc;
 +}
 +
-+static int monreader_restore(struct device *dev)
++static void iucv_pm_complete(struct device *dev)
 +{
-+	int rc;
-+
-+	segment_unload(mon_dcss_name);
-+	rc = segment_load(mon_dcss_name, SEGMENT_SHARED,
-+			  &mon_dcss_start, &mon_dcss_end);
-+	if (rc < 0) {
-+		segment_warning(rc, mon_dcss_name);
-+		panic("fatal monreader resume error: no monitor dcss\n");
-+	}
-+	return monreader_thaw(dev);
++#ifdef CONFIG_PM_DEBUG
++	printk(KERN_INFO "iucv_pm_complete\n");
++#endif
++	if (dev->driver && dev->driver->pm && dev->driver->pm->complete)
++		dev->driver->pm->complete(dev);
 +}
 +
-+static struct dev_pm_ops monreader_pm_ops = {
-+	.freeze  = monreader_freeze,
-+	.thaw    = monreader_thaw,
-+	.restore = monreader_restore,
-+};
++/**
++ * iucv_path_table_empty() - determine if iucv path table is empty
++ *
++ * Returns 0 if there are still iucv pathes defined
++ *         1 if there are no iucv pathes defined
++ */
++int iucv_path_table_empty(void)
++{
++	int i;
 +
-+static struct device_driver monreader_driver = {
-+	.name = "monreader",
-+	.bus  = &iucv_bus,
-+	.pm   = &monreader_pm_ops,
-+};
-+
-+
- /******************************************************************************
-  *                              module init/exit                              *
-  *****************************************************************************/
-@@ -475,16 +568,33 @@ static int __init mon_init(void)
- 		return rc;
- 	}
- 
-+	rc = driver_register(&monreader_driver);
-+	if (rc)
-+		goto out_iucv;
-+	monreader_device = kzalloc(sizeof(struct device), GFP_KERNEL);
-+	if (!monreader_device)
-+		goto out_driver;
-+	dev_set_name(monreader_device, "monreader-dev");
-+	monreader_device->bus = &iucv_bus;
-+	monreader_device->parent = iucv_root;
-+	monreader_device->driver = &monreader_driver;
-+	monreader_device->release = (void (*)(struct device *))kfree;
-+	rc = device_register(monreader_device);
-+	if (rc) {
-+		kfree(monreader_device);
-+		goto out_driver;
++	for (i = 0; i < iucv_max_pathid; i++) {
++		if (iucv_path_table[i])
++			return 0;
 +	}
++	return 1;
++}
 +
- 	rc = segment_type(mon_dcss_name);
- 	if (rc < 0) {
- 		segment_warning(rc, mon_dcss_name);
--		goto out_iucv;
-+		goto out_device;
- 	}
- 	if (rc != SEG_TYPE_SC) {
- 		pr_err("The specified *MONITOR DCSS %s does not have the "
- 		       "required type SC\n", mon_dcss_name);
- 		rc = -EINVAL;
--		goto out_iucv;
-+		goto out_device;
- 	}
- 
- 	rc = segment_load(mon_dcss_name, SEGMENT_SHARED,
-@@ -492,7 +602,7 @@ static int __init mon_init(void)
- 	if (rc < 0) {
- 		segment_warning(rc, mon_dcss_name);
- 		rc = -EINVAL;
--		goto out_iucv;
-+		goto out_device;
- 	}
- 	dcss_mkname(mon_dcss_name, &user_data_connect[8]);
- 
-@@ -503,6 +613,10 @@ static int __init mon_init(void)
- 
- out:
- 	segment_unload(mon_dcss_name);
-+out_device:
-+	device_unregister(monreader_device);
-+out_driver:
-+	driver_unregister(&monreader_driver);
- out_iucv:
- 	iucv_unregister(&monreader_iucv_handler, 1);
- 	return rc;
-@@ -512,6 +626,8 @@ static void __exit mon_exit(void)
- {
- 	segment_unload(mon_dcss_name);
- 	WARN_ON(misc_deregister(&mon_dev) != 0);
-+	device_unregister(monreader_device);
-+	driver_unregister(&monreader_driver);
- 	iucv_unregister(&monreader_iucv_handler, 1);
- 	return;
- }
++/**
++ * iucv_pm_freeze() - Freeze PM callback
++ * @dev:	iucv-based device
++ *
++ * disable iucv interrupts
++ * invoke callback function of the iucv-based driver
++ * shut down iucv, if no iucv-pathes are established anymore
++ */
++static int iucv_pm_freeze(struct device *dev)
++{
++	int cpu;
++	int rc = 0;
++
++#ifdef CONFIG_PM_DEBUG
++	printk(KERN_WARNING "iucv_pm_freeze\n");
++#endif
++	for_each_cpu_mask_nr(cpu, iucv_irq_cpumask)
++		smp_call_function_single(cpu, iucv_block_cpu_almost, NULL, 1);
++	if (dev->driver && dev->driver->pm && dev->driver->pm->freeze)
++		rc = dev->driver->pm->freeze(dev);
++	if (iucv_path_table_empty())
++		iucv_disable();
++	return rc;
++}
++
++/**
++ * iucv_pm_thaw() - Thaw PM callback
++ * @dev:	iucv-based device
++ *
++ * make iucv ready for use again: allocate path table, declare interrupt buffers
++ *				  and enable iucv interrupts
++ * invoke callback function of the iucv-based driver
++ */
++static int iucv_pm_thaw(struct device *dev)
++{
++	int rc = 0;
++
++#ifdef CONFIG_PM_DEBUG
++	printk(KERN_WARNING "iucv_pm_thaw\n");
++#endif
++	if (!iucv_path_table) {
++		rc = iucv_enable();
++		if (rc)
++			goto out;
++	}
++	if (cpus_empty(iucv_irq_cpumask)) {
++		if (iucv_nonsmp_handler)
++			/* enable interrupts on one cpu */
++			iucv_allow_cpu(NULL);
++		else
++			/* enable interrupts on all cpus */
++			iucv_setmask_mp();
++	}
++	if (dev->driver && dev->driver->pm && dev->driver->pm->thaw)
++		rc = dev->driver->pm->thaw(dev);
++out:
++	return rc;
++}
++
++/**
++ * iucv_pm_restore() - Restore PM callback
++ * @dev:	iucv-based device
++ *
++ * make iucv ready for use again: allocate path table, declare interrupt buffers
++ *				  and enable iucv interrupts
++ * invoke callback function of the iucv-based driver
++ */
++static int iucv_pm_restore(struct device *dev)
++{
++	int rc = 0;
++
++#ifdef CONFIG_PM_DEBUG
++	printk(KERN_WARNING "iucv_pm_restore %p\n", iucv_path_table);
++#endif
++	if (cpus_empty(iucv_irq_cpumask)) {
++		rc = iucv_query_maxconn();
++		rc = iucv_enable();
++		if (rc)
++			goto out;
++	}
++	if (dev->driver && dev->driver->pm && dev->driver->pm->restore)
++		rc = dev->driver->pm->restore(dev);
++out:
++	return rc;
++}
++
+ /**
+  * iucv_init
+  *
 
 -- 
 blue skies,
