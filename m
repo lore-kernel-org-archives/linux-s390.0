@@ -1,135 +1,210 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1758046AbZFDQ3I@vger.kernel.org>
-Message-Id: <20090604161907.309544026@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1757446AbZFDQ0y@vger.kernel.org>
+Message-Id: <20090604161906.562582550@de.ibm.com>
 References: <20090604161847.513682672@de.ibm.com>
-Date: Thu, 04 Jun 2009 18:19:19 +0200
+Date: Thu, 04 Jun 2009 18:19:16 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 32/38] pm: smsgiucv power management callbacks.
-Content-Disposition: inline; filename=pm_smsgiucv.patch
+Subject: [patch 29/38] pm: netiucv power management callbacks.
+Content-Disposition: inline; filename=pm_netiucv.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-Create dummy iucv-device to get control when the system is suspended
-and resumed. Server the smsg iucv path on suspend, reestablish the
-path on resume.
+Patch establishes a dummy netiucv device to make sure iucv is notified
+about suspend/resume even if netiucv is the only loaded iucv-exploting
+module without any real net_device defined.
 
+The PM freeze callback closes all open netiucv connections. Thus the
+corresponding iucv path is removed.
+The PM thaw/restore callback re-opens previously closed netiucv
+connections.
+
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- drivers/s390/net/smsgiucv.c |   63 +++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 60 insertions(+), 3 deletions(-)
+ drivers/s390/net/netiucv.c |  115 ++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 109 insertions(+), 6 deletions(-)
 
-Index: linux-2.6/drivers/s390/net/smsgiucv.c
+Index: linux-2.6/drivers/s390/net/netiucv.c
 ===================================================================
---- linux-2.6.orig/drivers/s390/net/smsgiucv.c
-+++ linux-2.6/drivers/s390/net/smsgiucv.c
-@@ -1,7 +1,8 @@
+--- linux-2.6.orig/drivers/s390/net/netiucv.c
++++ linux-2.6/drivers/s390/net/netiucv.c
+@@ -1,11 +1,15 @@
  /*
-  * IUCV special message driver
+  * IUCV network driver
   *
-- * Copyright 2003 IBM Deutschland Entwicklung GmbH, IBM Corporation
-+ * Copyright IBM Corp. 2003, 2009
-+ *
-  * Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
+- * Copyright 2001 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- * Author(s): Fritz Elfert (elfert@de.ibm.com, felfert@millenux.com)
++ * Copyright IBM Corp. 2001, 2009
   *
-  * This program is free software; you can redistribute it and/or modify
-@@ -40,6 +41,8 @@ MODULE_AUTHOR
- MODULE_DESCRIPTION ("Linux for S/390 IUCV special message driver");
+- * Sysfs integration and all bugs therein by Cornelia Huck
+- * (cornelia.huck@de.ibm.com)
++ * Author(s):
++ *	Original netiucv driver:
++ *		Fritz Elfert (elfert@de.ibm.com, felfert@millenux.com)
++ *	Sysfs integration and all bugs therein:
++ *		Cornelia Huck (cornelia.huck@de.ibm.com)
++ *	PM functions:
++ *		Ursula Braun (ursula.braun@de.ibm.com)
+  *
+  * Documentation used:
+  *  the source of the original IUCV driver by:
+@@ -149,10 +153,27 @@ PRINT_##importance(header "%02x %02x %02
  
- static struct iucv_path *smsg_path;
-+/* dummy device used as trigger for PM functions */
-+static struct device *smsg_dev;
+ #define PRINTK_HEADER " iucv: "       /* for debugging */
  
- static DEFINE_SPINLOCK(smsg_list_lock);
- static LIST_HEAD(smsg_list);
-@@ -132,14 +135,51 @@ void smsg_unregister_callback(char *pref
- 	kfree(cb);
- }
- 
-+static int smsg_pm_freeze(struct device *dev)
-+{
-+#ifdef CONFIG_PM_DEBUG
-+	printk(KERN_WARNING "smsg_pm_freeze\n");
-+#endif
-+	if (smsg_path)
-+		iucv_path_sever(smsg_path, NULL);
-+	return 0;
-+}
++/* dummy device to make sure netiucv_pm functions are called */
++static struct device *netiucv_dev;
 +
-+static int smsg_pm_restore_thaw(struct device *dev)
-+{
-+	int rc;
++static int netiucv_pm_prepare(struct device *);
++static void netiucv_pm_complete(struct device *);
++static int netiucv_pm_freeze(struct device *);
++static int netiucv_pm_restore_thaw(struct device *);
 +
-+#ifdef CONFIG_PM_DEBUG
-+	printk(KERN_WARNING "smsg_pm_restore_thaw\n");
-+#endif
-+	if (smsg_path) {
-+		memset(smsg_path, 0, sizeof(*smsg_path));
-+		smsg_path->msglim = 255;
-+		smsg_path->flags = 0;
-+		rc = iucv_path_connect(smsg_path, &smsg_handler, "*MSG    ",
-+				       NULL, NULL, NULL);
-+		printk(KERN_ERR "iucv_path_connect returned with rc %i\n", rc);
-+	}
-+	return 0;
-+}
-+
-+static struct dev_pm_ops smsg_pm_ops = {
-+	.freeze = smsg_pm_freeze,
-+	.thaw = smsg_pm_restore_thaw,
-+	.restore = smsg_pm_restore_thaw,
++static struct dev_pm_ops netiucv_pm_ops = {
++	.prepare = netiucv_pm_prepare,
++	.complete = netiucv_pm_complete,
++	.freeze = netiucv_pm_freeze,
++	.thaw = netiucv_pm_restore_thaw,
++	.restore = netiucv_pm_restore_thaw,
 +};
 +
- static struct device_driver smsg_driver = {
-+	.owner = THIS_MODULE,
- 	.name = "SMSGIUCV",
+ static struct device_driver netiucv_driver = {
+ 	.owner = THIS_MODULE,
+ 	.name = "netiucv",
  	.bus  = &iucv_bus,
-+	.pm = &smsg_pm_ops,
++	.pm = &netiucv_pm_ops,
  };
  
- static void __exit smsg_exit(void)
- {
- 	cpcmd("SET SMSG IUCV", NULL, 0, NULL);
-+	device_unregister(smsg_dev);
- 	iucv_unregister(&smsg_handler, 1);
- 	driver_unregister(&smsg_driver);
- }
-@@ -166,12 +206,29 @@ static int __init smsg_init(void)
- 	rc = iucv_path_connect(smsg_path, &smsg_handler, "*MSG    ",
- 			       NULL, NULL, NULL);
- 	if (rc)
--		goto out_free;
-+		goto out_free_path;
-+	smsg_dev = kzalloc(sizeof(struct device), GFP_KERNEL);
-+	if (!smsg_dev) {
-+		rc = -ENOMEM;
-+		goto out_free_path;
-+	}
-+	dev_set_name(smsg_dev, "smsg_iucv");
-+	smsg_dev->bus = &iucv_bus;
-+	smsg_dev->parent = iucv_root;
-+	smsg_dev->release = (void (*)(struct device *))kfree;
-+	smsg_dev->driver = &smsg_driver;
-+	rc = device_register(smsg_dev);
-+	if (rc)
-+		goto out_free_dev;
-+
- 	cpcmd("SET SMSG IUCV", NULL, 0, NULL);
- 	return 0;
+ static int netiucv_callback_connreq(struct iucv_path *,
+@@ -233,6 +254,7 @@ struct netiucv_priv {
+ 	fsm_instance            *fsm;
+         struct iucv_connection  *conn;
+ 	struct device           *dev;
++	int			 pm_state;
+ };
  
--out_free:
-+out_free_dev:
-+	kfree(smsg_dev);
-+out_free_path:
- 	iucv_path_free(smsg_path);
-+	smsg_path = NULL;
- out_register:
- 	iucv_unregister(&smsg_handler, 1);
- out_driver:
+ /**
+@@ -1265,6 +1287,72 @@ static int netiucv_close(struct net_devi
+ 	return 0;
+ }
+ 
++static int netiucv_pm_prepare(struct device *dev)
++{
++	IUCV_DBF_TEXT(trace, 3, __func__);
++	return 0;
++}
++
++static void netiucv_pm_complete(struct device *dev)
++{
++	IUCV_DBF_TEXT(trace, 3, __func__);
++	return;
++}
++
++/**
++ * netiucv_pm_freeze() - Freeze PM callback
++ * @dev:	netiucv device
++ *
++ * close open netiucv interfaces
++ */
++static int netiucv_pm_freeze(struct device *dev)
++{
++	struct netiucv_priv *priv = dev->driver_data;
++	struct net_device *ndev = NULL;
++	int rc = 0;
++
++	IUCV_DBF_TEXT(trace, 3, __func__);
++	if (priv && priv->conn)
++		ndev = priv->conn->netdev;
++	if (!ndev)
++		goto out;
++	netif_device_detach(ndev);
++	priv->pm_state = fsm_getstate(priv->fsm);
++	rc = netiucv_close(ndev);
++out:
++	return rc;
++}
++
++/**
++ * netiucv_pm_restore_thaw() - Thaw and restore PM callback
++ * @dev:	netiucv device
++ *
++ * re-open netiucv interfaces closed during freeze
++ */
++static int netiucv_pm_restore_thaw(struct device *dev)
++{
++	struct netiucv_priv *priv = dev->driver_data;
++	struct net_device *ndev = NULL;
++	int rc = 0;
++
++	IUCV_DBF_TEXT(trace, 3, __func__);
++	if (priv && priv->conn)
++		ndev = priv->conn->netdev;
++	if (!ndev)
++		goto out;
++	switch (priv->pm_state) {
++	case DEV_STATE_RUNNING:
++	case DEV_STATE_STARTWAIT:
++		rc = netiucv_open(ndev);
++		break;
++	default:
++		break;
++	}
++	netif_device_attach(ndev);
++out:
++	return rc;
++}
++
+ /**
+  * Start transmission of a packet.
+  * Called from generic network device layer.
+@@ -1731,7 +1819,6 @@ static int netiucv_register_device(struc
+ 	struct device *dev = kzalloc(sizeof(struct device), GFP_KERNEL);
+ 	int ret;
+ 
+-
+ 	IUCV_DBF_TEXT(trace, 3, __func__);
+ 
+ 	if (dev) {
+@@ -2100,6 +2187,7 @@ static void __exit netiucv_exit(void)
+ 		netiucv_unregister_device(dev);
+ 	}
+ 
++	device_unregister(netiucv_dev);
+ 	driver_unregister(&netiucv_driver);
+ 	iucv_unregister(&netiucv_handler, 1);
+ 	iucv_unregister_dbf_views();
+@@ -2125,10 +2213,25 @@ static int __init netiucv_init(void)
+ 		IUCV_DBF_TEXT_(setup, 2, "ret %d from driver_register\n", rc);
+ 		goto out_iucv;
+ 	}
+-
++	/* establish dummy device */
++	netiucv_dev = kzalloc(sizeof(struct device), GFP_KERNEL);
++	if (!netiucv_dev) {
++		rc = -ENOMEM;
++		goto out_driver;
++	}
++	dev_set_name(netiucv_dev, "netiucv");
++	netiucv_dev->bus = &iucv_bus;
++	netiucv_dev->parent = iucv_root;
++	netiucv_dev->release = (void (*)(struct device *))kfree;
++	netiucv_dev->driver = &netiucv_driver;
++	rc = device_register(netiucv_dev);
++	if (rc)
++		goto out_driver;
+ 	netiucv_banner();
+ 	return rc;
+ 
++out_driver:
++	driver_unregister(&netiucv_driver);
+ out_iucv:
+ 	iucv_unregister(&netiucv_handler, 1);
+ out_dbf:
 
 -- 
 blue skies,
