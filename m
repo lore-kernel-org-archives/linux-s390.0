@@ -1,34 +1,51 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH] crypto: s390 des3 - permit weak keys unless
-	REQ_WEAK_KEY set
-Date: Thu, 18 Jun 2009 19:53:21 +0800
-Message-ID: <20090618115321.GE6596@gondor.apana.org.au>
-References: <200906081332.10608.jarod@redhat.com>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: [PATCH] crypto: s390 des3 - permit weak keys unless REQ_WEAK_KEY set
+Date: Mon, 8 Jun 2009 13:32:09 -0400
+Message-ID: <200906081332.10608.jarod@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-crypto-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <200906081332.10608.jarod@redhat.com>
 Sender: linux-crypto-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-crypto/>
 List-Post: <mailto:linux-crypto@vger.kernel.org>
-To: Jarod Wilson <jarod@redhat.com>
-Cc: linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-crypto@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jun 08, 2009 at 01:32:09PM -0400, Jarod Wilson wrote:
-> Just started running fips cavs test vectors through an s390x system
-> for giggles, and discovered that I missed patching s390's arch-specific
-> des3 implementation w/an earlier des3 patch to permit weak keys.
-> 
-> This change adds the same flag tweaks as ad79cdd77fc1466e45cf923890f66bcfe7c43f12
-> for s390's des3 implementation, yields expected test results now.
-> 
-> Signed-off-by: Jarod Wilson <jarod@redhat.com>
+Just started running fips cavs test vectors through an s390x system
+for giggles, and discovered that I missed patching s390's arch-specific
+des3 implementation w/an earlier des3 patch to permit weak keys.
 
-Patch applied to cryptodev.  Thanks Jarod!
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+This change adds the same flag tweaks as ad79cdd77fc1466e45cf923890f66bcfe7c43f12
+for s390's des3 implementation, yields expected test results now.
+
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+
+---
+ arch/s390/crypto/des_s390.c |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/arch/s390/crypto/des_s390.c b/arch/s390/crypto/des_s390.c
+index 4aba83b..2bc479a 100644
+--- a/arch/s390/crypto/des_s390.c
++++ b/arch/s390/crypto/des_s390.c
+@@ -250,8 +250,9 @@ static int des3_128_setkey(struct crypto_tfm *tfm, const u8 *key,
+ 	const u8 *temp_key = key;
+ 	u32 *flags = &tfm->crt_flags;
+ 
+-	if (!(memcmp(key, &key[DES_KEY_SIZE], DES_KEY_SIZE))) {
+-		*flags |= CRYPTO_TFM_RES_BAD_KEY_SCHED;
++	if (!(memcmp(key, &key[DES_KEY_SIZE], DES_KEY_SIZE)) &&
++	    (*flags & CRYPTO_TFM_REQ_WEAK_KEY)) {
++		*flags |= CRYPTO_TFM_RES_WEAK_KEY;
+ 		return -EINVAL;
+ 	}
+ 	for (i = 0; i < 2; i++, temp_key += DES_KEY_SIZE) {
+@@ -411,9 +412,9 @@ static int des3_192_setkey(struct crypto_tfm *tfm, const u8 *key,
+ 
+ 	if (!(memcmp(key, &key[DES_KEY_SIZE], DES_KEY_SIZE) &&
+ 	    memcmp(&key[DES_KEY_SIZE], &key[DES_KEY_SIZE * 2],
+-		   DES_KEY_SIZE))) {
