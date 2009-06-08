@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756728AbZFHPUo@vger.kernel.org>
-Date: Mon, 8 Jun 2009 08:35:01 +0200
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756702AbZFHPai@vger.kernel.org>
+Date: Mon, 8 Jun 2009 08:44:51 +0200
 From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [patch 01/38] pm: Move nvs routines into a seperate file.
-Message-ID: <20090608063501.GC1444@ucw.cz>
-References: <20090604161847.513682672@de.ibm.com> <20090604161859.713228968@de.ibm.com>
+Subject: Re: [patch 05/38] s390: hibernation support for s390
+Message-ID: <20090608064451.GD1444@ucw.cz>
+References: <20090604161847.513682672@de.ibm.com> <20090604161900.659762303@de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20090604161859.713228968@de.ibm.com>
+In-Reply-To: <20090604161900.659762303@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Hans-Joachim Picht <hans@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu 2009-06-04 18:18:48, Martin Schwidefsky wrote:
-> From: Cornelia Huck <cornelia.huck@de.ibm.com>
+On Thu 2009-06-04 18:18:52, Martin Schwidefsky wrote:
+> From: Hans-Joachim Picht <hans@linux.vnet.ibm.com>
 > 
-> The *_nvs_* routines in swsusp.c make use of the io*map()
-> functions, which are only provided for HAS_IOMEM, thus
-> breaking compilation if HAS_IOMEM is not set. Fix this
-> by moving the *_nvs_* routines into nvs.c, which is only
-> compiled if HAS_IOMEM is set.
+> This patch introduces the hibernation backend support to the 
+> s390 architecture. Now it is possible to suspend a mainframe Linux 
+> guest using the following command:
 > 
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> ---
->  include/linux/suspend.h |   18 ++++--
->  kernel/power/Kconfig    |    4 +
->  kernel/power/Makefile   |    1 
->  kernel/power/nvs.c      |  131 ++++++++++++++++++++++++++++++++++++++++++++++++
->  kernel/power/swsusp.c   |  122 --------------------------------------------
->  5 files changed, 147 insertions(+), 129 deletions(-)
-> 
-> Index: linux-2.6/kernel/power/nvs.c
+> echo disk > /sys/power/state
+
+Should this one be last in series?
+
+Otherwise no obvious problems...
+
+
+> Index: linux-2.6/arch/s390/power/swsusp.c
 > ===================================================================
 > --- /dev/null
-> +++ linux-2.6/kernel/power/nvs.c
-
-Ideally, filename would be a bit more descriptive. 
-
-> @@ -0,0 +1,131 @@
+> +++ linux-2.6/arch/s390/power/swsusp.c
+> @@ -0,0 +1,31 @@
 > +/*
-> + * Routines for NVS memory handling
+> + * Support for suspend and resume on s390
+> + *
+> + * Copyright IBM Corp. 2009
+> + *
+> + * Author(s): Hans-Joachim Picht <hans@linux.vnet.ibm.com>
+> + *
 > + */
+> +
+> +#include <linux/suspend.h>
+> +#include <linux/gfp.h>
+> +#include <linux/cpu.h>
+> +#include <linux/smp.h>
+> +#include <linux/cpumask.h>
+> +#include <asm/ipl.h>
+> +#include <asm/processor.h>
 
-If you copy&pasted code, you need to copy&paste copyright notices, too.
+Empty functions do not need 1000 includes...
 
-> --- linux-2.6.orig/kernel/power/Makefile
-> +++ linux-2.6/kernel/power/Makefile
-> @@ -7,5 +7,6 @@ obj-$(CONFIG_PM)		+= main.o
->  obj-$(CONFIG_PM_SLEEP)		+= console.o
->  obj-$(CONFIG_FREEZER)		+= process.o
->  obj-$(CONFIG_HIBERNATION)	+= swsusp.o disk.o snapshot.o swap.o user.o
-> +obj-$(CONFIG_NVS)		+= nvs.o
->  
->  obj-$(CONFIG_MAGIC_SYSRQ)	+= poweroff.o
+> +/*
+> + * save CPU registers before creating a hibernation image and before
+> + * restoring the memory state from it
+> + */
+> +void save_processor_state(void)
+> +{
+> +}
+> +
+> +/*
+> + * restore the contents of CPU registers
+> + */
+> +void restore_processor_state(void)
+> +{
+> +}
 
-CONFIG_NVS is definitely not descriptive enough. C_HIBERNATION_NVS?
+...and explaining why the functions can be emmpty would be nice.
 
 -- 
 (english) http://www.livejournal.com/~pavelmachek
