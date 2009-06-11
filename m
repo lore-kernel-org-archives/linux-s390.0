@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932494AbZFLGih@vger.kernel.org>
-Date: Fri, 12 Jun 2009 08:37:44 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 05/38] s390: hibernation support for s390
-Message-ID: <20090612083744.3d0d3fa4@skybase>
-In-Reply-To: <20090608064451.GD1444@ucw.cz>
-References: <20090604161847.513682672@de.ibm.com>
-	<20090604161900.659762303@de.ibm.com>
-	<20090608064451.GD1444@ucw.cz>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] crypto: s390 des3 - permit weak keys unless
+	REQ_WEAK_KEY set
+Date: Thu, 11 Jun 2009 15:38:59 +0200
+Message-ID: <20090611133859.GC3146@osiris.boeblingen.de.ibm.com>
+References: <200906081332.10608.jarod@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Hans-Joachim Picht <hans@linux.vnet.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-crypto-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <200906081332.10608.jarod@redhat.com>
+Sender: linux-crypto-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-crypto/>
+List-Post: <mailto:linux-crypto@vger.kernel.org>
+To: Jarod Wilson <jarod@redhat.com>
+Cc: linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 8 Jun 2009 08:44:51 +0200
-Pavel Machek <pavel@ucw.cz> wrote:
-
-> On Thu 2009-06-04 18:18:52, Martin Schwidefsky wrote:
-> > From: Hans-Joachim Picht <hans@linux.vnet.ibm.com>
-> > 
-> > This patch introduces the hibernation backend support to the 
-> > s390 architecture. Now it is possible to suspend a mainframe Linux 
-> > guest using the following command:
-> > 
-> > echo disk > /sys/power/state
+On Mon, Jun 08, 2009 at 01:32:09PM -0400, Jarod Wilson wrote:
+> Just started running fips cavs test vectors through an s390x system
+> for giggles, and discovered that I missed patching s390's arch-specific
+> des3 implementation w/an earlier des3 patch to permit weak keys.
 > 
-> Should this one be last in series?
+> This change adds the same flag tweaks as ad79cdd77fc1466e45cf923890f66bcfe7c43f12
+> for s390's des3 implementation, yields expected test results now.
 > 
-> Otherwise no obvious problems...
+> Signed-off-by: Jarod Wilson <jarod@redhat.com>
+> 
+> ---
+>  arch/s390/crypto/des_s390.c |   11 ++++++-----
+>  1 files changed, 6 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/s390/crypto/des_s390.c b/arch/s390/crypto/des_s390.c
+> index 4aba83b..2bc479a 100644
+> --- a/arch/s390/crypto/des_s390.c
+> +++ b/arch/s390/crypto/des_s390.c
+> @@ -250,8 +250,9 @@ static int des3_128_setkey(struct crypto_tfm *tfm, const u8 *key,
+>  	const u8 *temp_key = key;
+>  	u32 *flags = &tfm->crt_flags;
+> 
+> -	if (!(memcmp(key, &key[DES_KEY_SIZE], DES_KEY_SIZE))) {
+> -		*flags |= CRYPTO_TFM_RES_BAD_KEY_SCHED;
+> +	if (!(memcmp(key, &key[DES_KEY_SIZE], DES_KEY_SIZE)) &&
+> +	    (*flags & CRYPTO_TFM_REQ_WEAK_KEY)) {
+> +		*flags |= CRYPTO_TFM_RES_WEAK_KEY;
+>  		return -EINVAL;
 
-Ok, I will move the base patch to the end of the patch queue.
-Thanks for the review.
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+I think this should go in via crypt-dev. Herbert?
