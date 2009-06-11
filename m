@@ -1,23 +1,21 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760380AbZFKT5k@vger.kernel.org>
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760453AbZFKVMT@vger.kernel.org>
+Date: Thu, 11 Jun 2009 23:11:57 +0200
+From: Pavel Machek <pavel@ucw.cz>
 Subject: Re: [PATCH v2] pm: Move nvs routines into a seperate file.
-Date: Thu, 11 Jun 2009 21:58:06 +0200
-References: <20090604161847.513682672@de.ibm.com> <200906100109.20470.rjw@sisk.pl> <20090611133218.GB3146@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20090611133218.GB3146@osiris.boeblingen.de.ibm.com>
+Message-ID: <20090611211157.GD27376@elf.ucw.cz>
+References: <20090604161847.513682672@de.ibm.com> <200906082048.28779.rjw@sisk.pl> <20090609104003.50830165@gondolin> <200906100109.20470.rjw@sisk.pl> <20090611133218.GB3146@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200906112158.07490.rjw@sisk.pl>
+In-Reply-To: <20090611133218.GB3146@osiris.boeblingen.de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org, Ingo Molnar <mingo@elte.hu>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org, Ingo Molnar <mingo@elte.hu>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thursday 11 June 2009, Heiko Carstens wrote:
+On Thu 2009-06-11 15:32:18, Heiko Carstens wrote:
 > On Wed, Jun 10, 2009 at 01:09:19AM +0200, Rafael J. Wysocki wrote:
 > > On Tuesday 09 June 2009, Cornelia Huck wrote:
 > > > The *_nvs_* routines in swsusp.c make use of the io*map()
@@ -55,37 +53,14 @@ On Thursday 11 June 2009, Heiko Carstens wrote:
 > (.text+0x1cb92): undefined reference to `suspend_device_irqs'
 > 
 > To fix this add some empty inline functions for !GENERIC_HARDIRQS.
-> 
-> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> ---
-> 
->  include/linux/interrupt.h |    6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff -urpN linux-2.6/include/linux/interrupt.h linux-2.6-patched/include/linux/interrupt.h
-> --- linux-2.6/include/linux/interrupt.h	2009-06-11 13:07:46.000000000 +0200
-> +++ linux-2.6-patched/include/linux/interrupt.h	2009-06-11 13:08:31.000000000 +0200
-> @@ -183,6 +183,7 @@ extern void disable_irq(unsigned int irq
->  extern void enable_irq(unsigned int irq);
->  
->  /* The following three functions are for the core kernel use only. */
-> +#ifdef CONFIG_GENERIC_HARDIRQS
->  extern void suspend_device_irqs(void);
->  extern void resume_device_irqs(void);
->  #ifdef CONFIG_PM_SLEEP
-> @@ -190,6 +191,11 @@ extern int check_wakeup_irqs(void);
->  #else
->  static inline int check_wakeup_irqs(void) { return 0; }
->  #endif
-> +#else
-> +static inline void suspend_device_irqs(void) { };
-> +static inline void resume_device_irqs(void) { };
-> +static inline int check_wakeup_irqs(void) { return 0; }
-> +#endif
->  
->  #if defined(CONFIG_SMP) && defined(CONFIG_GENERIC_HARDIRQS)
 
-Added, thanks a lot for the patch!
+I don't think that's right fix. If architecture does not use
+GENERIC_HARDIRQS, it may want to implement *_device_irqs()
+itself. Before your patch, it could, after your patch, it can not.
 
-Best,
-Rafael
+Better put those empty functions in arch/s390/include?
+								Pavel
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
