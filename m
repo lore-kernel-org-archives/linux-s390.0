@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1763556AbZFKX2W@vger.kernel.org>
-Date: Fri, 12 Jun 2009 01:28:07 +0200
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v2] pm: Move nvs routines into a seperate file.
-Message-ID: <20090611232807.GA19752@elf.ucw.cz>
-References: <20090604161847.513682672@de.ibm.com> <200906112346.28782.rjw@sisk.pl> <20090611220517.GF27376@elf.ucw.cz> <200906120030.00425.rjw@sisk.pl> <20090611232224.GB18682@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20090611232224.GB18682@elf.ucw.cz>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932494AbZFLGih@vger.kernel.org>
+Date: Fri, 12 Jun 2009 08:37:44 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 05/38] s390: hibernation support for s390
+Message-ID: <20090612083744.3d0d3fa4@skybase>
+In-Reply-To: <20090608064451.GD1444@ucw.cz>
+References: <20090604161847.513682672@de.ibm.com>
+	<20090604161900.659762303@de.ibm.com>
+	<20090608064451.GD1444@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org, Ingo Molnar <mingo@elte.hu>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Hans-Joachim Picht <hans@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-> > > > > > To fix this add some empty inline functions for !GENERIC_HARDIRQS.
-> > > > > 
-> > > > > I don't think that's right fix. If architecture does not use
-> > > > > GENERIC_HARDIRQS, it may want to implement *_device_irqs()
-> > > > > itself. Before your patch, it could, after your patch, it can not.
-> > > > > 
-> > > > > Better put those empty functions in arch/s390/include?
-> > > > 
-> > > > If any of the affected architectures wants to implement *_device_irqs()
-> > > > itself, it can do the appropriate change in future.  For now, let's not break
-> > > > compilation on them, shall we?
-> > > 
-> > > Well, if one of those architectures will want to implement
-> > > *_device_irqs(), it will have to either modify s390, and all other
-> > > !GENERIC_HARDIRQS architectures.
-> > 
-> > Why will it?  I think it will be sufficient to modify the header changed by
-> > this patch and the architecture in question.
-> 
-> Hmm, how? Putting #ifndef MY_ARCH into generic header? Inventing
-> CONFIG_NON_GENERIC_HARDIRQS_BUT_I_NEED_DEVICE_IRQS?
+On Mon, 8 Jun 2009 08:44:51 +0200
+Pavel Machek <pavel@ucw.cz> wrote:
 
-Maybe playing with attribute((weak)) is the cleanest solution?
-									Pavel
+> On Thu 2009-06-04 18:18:52, Martin Schwidefsky wrote:
+> > From: Hans-Joachim Picht <hans@linux.vnet.ibm.com>
+> > 
+> > This patch introduces the hibernation backend support to the 
+> > s390 architecture. Now it is possible to suspend a mainframe Linux 
+> > guest using the following command:
+> > 
+> > echo disk > /sys/power/state
+> 
+> Should this one be last in series?
+> 
+> Otherwise no obvious problems...
+
+Ok, I will move the base patch to the end of the patch queue.
+Thanks for the review.
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
