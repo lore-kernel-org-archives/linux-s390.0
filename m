@@ -1,53 +1,38 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 06/13] zfcp: Use -EIO for SBAL allocation failures
-Date: Mon, 13 Jul 2009 15:06:07 +0200
-Message-ID: <20090713131043.454211000@de.ibm.com>
-References: <20090713130601.304914000@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=711-zfcp-sbal-alloc-failuer.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: Next July 16: s390 sha1 crypro build failure.
+Date: Thu, 16 Jul 2009 19:58:59 +0800
+Message-ID: <20090716115859.GA964@gondor.apana.org.au>
+References: <20090716172015.be5dc94b.sfr@canb.auug.org.au> <4A5EF9FE.2050302@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-next-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4A5EF9FE.2050302@in.ibm.com>
+Sender: linux-next-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Sachin Sant <sachinp@in.ibm.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
+On Thu, Jul 16, 2009 at 03:29:26PM +0530, Sachin Sant wrote:
+> Today's next tree fails to build on s390 with following errors.
+>
+> arch/s390/crypto/sha1_s390.c:67: error: 'struct sha1_state' has no member named 'buf'
+> arch/s390/crypto/sha1_s390.c:68: error: 'struct sha1_state' has no member named 'func'
+>
+> arch/s390/crypto/sha256_s390.c:64: error: 'struct sha256_state' has no member named 'func'
+>
+> Probably because of commit 406f104b4172de7452702c6810807c1b0132ba22.
+>
+> In sha1_/sha256_import() functions struct s390_sha_ctx *sctx should be
+> used instead of struct sha1_state.
+>
+> The following patch fixed the issue for me.
 
--ENOMEM is for memory allocation problems, -EIO for queue/SBAL
-allocation problems.
-
-Reviewed-by: Swen Schillig <swen@vnet.ibm.com>
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
----
-
- drivers/s390/scsi/zfcp_fsf.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
---- a/drivers/s390/scsi/zfcp_fsf.c	2009-07-13 13:46:05.000000000 +0200
-+++ b/drivers/s390/scsi/zfcp_fsf.c	2009-07-13 14:03:14.000000000 +0200
-@@ -1053,14 +1053,14 @@ static int zfcp_fsf_setup_ct_els_sbals(s
- 	bytes = zfcp_qdio_sbals_from_sg(req, SBAL_FLAGS0_TYPE_WRITE_READ,
- 					sg_req, max_sbals);
- 	if (bytes <= 0)
--		return -ENOMEM;
-+		return -EIO;
- 	req->qtcb->bottom.support.req_buf_length = bytes;
- 	req->sbale_curr = ZFCP_LAST_SBALE_PER_SBAL;
- 
- 	bytes = zfcp_qdio_sbals_from_sg(req, SBAL_FLAGS0_TYPE_WRITE_READ,
- 					sg_resp, max_sbals);
- 	if (bytes <= 0)
--		return -ENOMEM;
-+		return -EIO;
- 	req->qtcb->bottom.support.resp_buf_length = bytes;
- 
- 	return 0;
-@@ -2559,7 +2559,6 @@ struct zfcp_fsf_req *zfcp_fsf_control_fi
- 	bytes = zfcp_qdio_sbals_from_sg(req, direction, fsf_cfdc->sg,
- 					FSF_MAX_SBALS_PER_REQ);
- 	if (bytes != ZFCP_CFDC_MAX_SIZE) {
--		retval = -ENOMEM;
- 		zfcp_fsf_req_free(req);
- 		goto out;
- 	}
+Thanks for the fix! Patch applied to cryptodev.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
