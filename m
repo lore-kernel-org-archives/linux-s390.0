@@ -1,41 +1,37 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 5/5] [PATCH] qeth: display "undefined" value of sysfs-attribute "layer2"
-Date: Wed, 26 Aug 2009 14:01:10 +0200
-Message-ID: <20090826120136.512410000@de.ibm.com>
-References: <20090826120105.727838000@de.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=612-qeth-layer2-attribute.diff
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
+From: Roel Kluin <roel.kluin@gmail.com>
+Date: Sun, 02 Aug 2009 14:08:32 +0000
+Subject: [PATCH] KVM: Read buffer overflow
+Message-Id: <4A759DE0.8000207@gmail.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
+Check whether index is within bounds before testing the element.
 
-If nothing has been written into the qeth sysfs-attribute layer2,
-its value is "-1" meaning "not yet defined". But the value is
-displayed as "1" meaning "layer2 selected". The patch changes the
-reading of this "-1"-value to "-1" to make clear the layer2-attribute
-has not yet been defined.
-
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
 ---
-
- drivers/s390/net/qeth_core_sys.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: git_net-next/drivers/s390/net/qeth_core_sys.c
-===================================================================
---- git_net-next.orig/drivers/s390/net/qeth_core_sys.c
-+++ git_net-next/drivers/s390/net/qeth_core_sys.c
-@@ -364,7 +364,7 @@ static ssize_t qeth_dev_layer2_show(stru
- 	if (!card)
- 		return -EINVAL;
+diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+index 3667883..0ef81d6 100644
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -169,7 +169,7 @@ static int __sigp_set_prefix(struct kvm_vcpu *vcpu, u16 cpu_addr, u32 address,
+ 			     unsigned long *reg)
+ {
+ 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
+-	struct kvm_s390_local_interrupt *li;
++	struct kvm_s390_local_interrupt *li = NULL;
+ 	struct kvm_s390_interrupt_info *inti;
+ 	int rc;
+ 	u8 tmp;
+@@ -189,9 +189,10 @@ static int __sigp_set_prefix(struct kvm_vcpu *vcpu, u16 cpu_addr, u32 address,
+ 		return 2; /* busy */
  
--	return sprintf(buf, "%i\n", card->options.layer2 ? 1:0);
-+	return sprintf(buf, "%i\n", card->options.layer2);
- }
+ 	spin_lock(&fi->lock);
+-	li = fi->local_int[cpu_addr];
++	if (cpu_addr < KVM_MAX_VCPUS)
++		li = fi->local_int[cpu_addr];
  
- static ssize_t qeth_dev_layer2_store(struct device *dev,
+-	if ((cpu_addr >= KVM_MAX_VCPUS) || (li == NULL)) {
++	if (li == NULL) {
+ 		rc = 1; /* incorrect state */
+ 		*reg &= SIGP_STAT_INCORRECT_STATE;
+ 		kfree(inti);
