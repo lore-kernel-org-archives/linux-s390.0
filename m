@@ -1,37 +1,24 @@
-From: Roel Kluin <roel.kluin@gmail.com>
-Date: Sun, 02 Aug 2009 14:08:32 +0000
-Subject: [PATCH] KVM: Read buffer overflow
-Message-Id: <4A759DE0.8000207@gmail.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Thu, 06 Aug 2009 08:30:06 +0000
+Subject: Re: [PATCH] s390: remove unused irq_cpustat_t defintion
+Message-Id: <20090806103006.5be057d0@skybase>
+In-Reply-To: <20090805222332.GA30900@lst.de>
+References: <20090805222332.GA30900@lst.de>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Check whether index is within bounds before testing the element.
+On Thu, 6 Aug 2009 00:23:32 +0200
+Christoph Hellwig <hch@lst.de> wrote:
 
-Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
----
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index 3667883..0ef81d6 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -169,7 +169,7 @@ static int __sigp_set_prefix(struct kvm_vcpu *vcpu, u16 cpu_addr, u32 address,
- 			     unsigned long *reg)
- {
- 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
--	struct kvm_s390_local_interrupt *li;
-+	struct kvm_s390_local_interrupt *li = NULL;
- 	struct kvm_s390_interrupt_info *inti;
- 	int rc;
- 	u8 tmp;
-@@ -189,9 +189,10 @@ static int __sigp_set_prefix(struct kvm_vcpu *vcpu, u16 cpu_addr, u32 address,
- 		return 2; /* busy */
- 
- 	spin_lock(&fi->lock);
--	li = fi->local_int[cpu_addr];
-+	if (cpu_addr < KVM_MAX_VCPUS)
-+		li = fi->local_int[cpu_addr];
- 
--	if ((cpu_addr >= KVM_MAX_VCPUS) || (li == NULL)) {
-+	if (li == NULL) {
- 		rc = 1; /* incorrect state */
- 		*reg &= SIGP_STAT_INCORRECT_STATE;
- 		kfree(inti);
+> No need to defined a irq_cpustat_t type if __ARCH_IRQ_STAT is defined.
+> 
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+
+Makes sense, I'll add it to git390. Thanks Christoph.
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
