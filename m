@@ -1,24 +1,31 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Thu, 06 Aug 2009 08:30:06 +0000
-Subject: Re: [PATCH] s390: remove unused irq_cpustat_t defintion
-Message-Id: <20090806103006.5be057d0@skybase>
-In-Reply-To: <20090805222332.GA30900@lst.de>
-References: <20090805222332.GA30900@lst.de>
+From: Jaswinder Singh Rajput <jaswinder@kernel.org>
+Date: Sun, 09 Aug 2009 15:12:43 +0000
+Subject: [PATCH] S390: includecheck fix for sys_s390.c
+Message-Id: <1249830043.2957.26.camel@ht.satnam>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 6 Aug 2009 00:23:32 +0200
-Christoph Hellwig <hch@lst.de> wrote:
 
-> No need to defined a irq_cpustat_t type if __ARCH_IRQ_STAT is defined.
-> 
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+fix the following 'make includecheck' warning:
 
-Makes sense, I'll add it to git390. Thanks Christoph.
+  arch/s390/kernel/sys_s390.c: linux/syscalls.h is included more than once.
 
+Signed-off-by: Jaswinder Singh Rajput <jaswinderrajput@gmail.com>
+---
+ arch/s390/kernel/sys_s390.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/arch/s390/kernel/sys_s390.c b/arch/s390/kernel/sys_s390.c
+index c7ae4b1..e9d94f6 100644
+--- a/arch/s390/kernel/sys_s390.c
++++ b/arch/s390/kernel/sys_s390.c
+@@ -29,7 +29,6 @@
+ #include <linux/personality.h>
+ #include <linux/unistd.h>
+ #include <linux/ipc.h>
+-#include <linux/syscalls.h>
+ #include <asm/uaccess.h>
+ #include "entry.h"
+ 
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+1.6.0.6
