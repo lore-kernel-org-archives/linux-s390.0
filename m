@@ -1,124 +1,166 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755978AbZHNL2E@vger.kernel.org>
-Message-Id: <20090814112618.205116349@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S932214AbZHNL0x@vger.kernel.org>
+Message-Id: <20090814112616.544352043@de.ibm.com>
 References: <20090814112517.982007860@de.ibm.com>
-Date: Fri, 14 Aug 2009 13:25:41 +0200
+Date: Fri, 14 Aug 2009 13:25:34 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 24/34] move (io|sysc)_restore_trace_psw into .data section
-Content-Disposition: inline; filename=123-nss-fix.diff
+Subject: [patch 17/34] atomic ops: small cleanups
+Content-Disposition: inline; filename=116-atomic-cleanup.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-The sysc_restore_trace_psw and io_restore_trace_psw storage locations
-are created in the .text section. When creating and IPLing from a named
-saved system (NSS), writing to these locations causes a protection exception
-(because the .text section is mapped as shared read-only in the NSS).
+Couple of coding style fixes, replace __inline__ with inline and
+remove #ifdef __KERNEL_- since the header file isn't exported.
 
-To permit write access, move the storage locations into the .data section.
-
-The problem occurs only when CONFIG_TRACE_IRQFLAGS is set.
-The git commmit that has introduced these variables is:
-411788ea7fca01ee803af8225ac35807b4d02050
-
-Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/entry.S   |   16 ++++++++++++++--
- arch/s390/kernel/entry64.S |    4 ++++
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/atomic.h |   41 +++++++++++++++++++----------------------
+ 1 file changed, 19 insertions(+), 22 deletions(-)
 
-Index: quilt-2.6/arch/s390/kernel/entry64.S
+Index: quilt-2.6/arch/s390/include/asm/atomic.h
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/entry64.S
-+++ quilt-2.6/arch/s390/kernel/entry64.S
-@@ -284,10 +284,12 @@ sysc_leave:
- sysc_done:
+--- quilt-2.6.orig/arch/s390/include/asm/atomic.h
++++ quilt-2.6/arch/s390/include/asm/atomic.h
+@@ -18,8 +18,6 @@
  
- #ifdef CONFIG_TRACE_IRQFLAGS
-+	.section .data,"aw",@progbits
- 	.align	8
- 	.globl sysc_restore_trace_psw
- sysc_restore_trace_psw:
- 	.quad	0, sysc_restore_trace
-+	.previous
- #endif
+ #define ATOMIC_INIT(i)  { (i) }
  
- #
-@@ -595,10 +597,12 @@ io_leave:
- io_done:
+-#ifdef __KERNEL__
+-
+ #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 2)
  
- #ifdef CONFIG_TRACE_IRQFLAGS
-+	.section .data,"aw",@progbits
- 	.align	8
- 	.globl io_restore_trace_psw
- io_restore_trace_psw:
- 	.quad	0, io_restore_trace
-+	.previous
- #endif
+ #define __CS_LOOP(ptr, op_val, op_string) ({				\
+@@ -69,7 +67,7 @@ static inline void atomic_set(atomic_t *
+ 	barrier();
+ }
  
- #
-Index: quilt-2.6/arch/s390/kernel/entry.S
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/entry.S
-+++ quilt-2.6/arch/s390/kernel/entry.S
-@@ -278,7 +278,8 @@ sysc_return:
- 	bnz	BASED(sysc_work)  # there is work to do (signals etc.)
- sysc_restore:
- #ifdef CONFIG_TRACE_IRQFLAGS
--	la	%r1,BASED(sysc_restore_trace_psw)
-+	la	%r1,BASED(sysc_restore_trace_psw_addr)
-+	l	%r1,0(%r1)
- 	lpsw	0(%r1)
- sysc_restore_trace:
- 	TRACE_IRQS_CHECK
-@@ -289,10 +290,15 @@ sysc_leave:
- sysc_done:
+-static __inline__ int atomic_add_return(int i, atomic_t * v)
++static inline int atomic_add_return(int i, atomic_t *v)
+ {
+ 	return __CS_LOOP(v, i, "ar");
+ }
+@@ -79,7 +77,7 @@ static __inline__ int atomic_add_return(
+ #define atomic_inc_return(_v)		atomic_add_return(1, _v)
+ #define atomic_inc_and_test(_v)		(atomic_add_return(1, _v) == 0)
  
- #ifdef CONFIG_TRACE_IRQFLAGS
-+sysc_restore_trace_psw_addr:
-+	.long sysc_restore_trace_psw
+-static __inline__ int atomic_sub_return(int i, atomic_t * v)
++static inline int atomic_sub_return(int i, atomic_t *v)
+ {
+ 	return __CS_LOOP(v, i, "sr");
+ }
+@@ -89,19 +87,19 @@ static __inline__ int atomic_sub_return(
+ #define atomic_dec_return(_v)		atomic_sub_return(1, _v)
+ #define atomic_dec_and_test(_v)		(atomic_sub_return(1, _v) == 0)
+ 
+-static __inline__ void atomic_clear_mask(unsigned long mask, atomic_t * v)
++static inline void atomic_clear_mask(unsigned long mask, atomic_t *v)
+ {
+-	       __CS_LOOP(v, ~mask, "nr");
++	__CS_LOOP(v, ~mask, "nr");
+ }
+ 
+-static __inline__ void atomic_set_mask(unsigned long mask, atomic_t * v)
++static inline void atomic_set_mask(unsigned long mask, atomic_t *v)
+ {
+-	       __CS_LOOP(v, mask, "or");
++	__CS_LOOP(v, mask, "or");
+ }
+ 
+ #define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+-static __inline__ int atomic_cmpxchg(atomic_t *v, int old, int new)
++static inline int atomic_cmpxchg(atomic_t *v, int old, int new)
+ {
+ #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 2)
+ 	asm volatile(
+@@ -119,7 +117,7 @@ static __inline__ int atomic_cmpxchg(ato
+ 	return old;
+ }
+ 
+-static __inline__ int atomic_add_unless(atomic_t *v, int a, int u)
++static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int c, old;
+ 	c = atomic_read(v);
+@@ -155,7 +153,7 @@ static __inline__ int atomic_add_unless(
+ 		: "=&d" (old_val), "=&d" (new_val),			\
+ 		  "=Q" (((atomic_t *)(ptr))->counter)			\
+ 		: "d" (op_val),	"Q" (((atomic_t *)(ptr))->counter)	\
+-		: "cc", "memory" );					\
++		: "cc", "memory");					\
+ 	new_val;							\
+ })
+ 
+@@ -173,7 +171,7 @@ static __inline__ int atomic_add_unless(
+ 		  "=m" (((atomic_t *)(ptr))->counter)			\
+ 		: "a" (ptr), "d" (op_val),				\
+ 		  "m" (((atomic_t *)(ptr))->counter)			\
+-		: "cc", "memory" );					\
++		: "cc", "memory");					\
+ 	new_val;							\
+ })
+ 
+@@ -191,29 +189,29 @@ static inline void atomic64_set(atomic64
+ 	barrier();
+ }
+ 
+-static __inline__ long long atomic64_add_return(long long i, atomic64_t * v)
++static inline long long atomic64_add_return(long long i, atomic64_t *v)
+ {
+ 	return __CSG_LOOP(v, i, "agr");
+ }
+ 
+-static __inline__ long long atomic64_sub_return(long long i, atomic64_t * v)
++static inline long long atomic64_sub_return(long long i, atomic64_t *v)
+ {
+ 	return __CSG_LOOP(v, i, "sgr");
+ }
+ 
+-static __inline__ void atomic64_clear_mask(unsigned long mask, atomic64_t * v)
++static inline void atomic64_clear_mask(unsigned long mask, atomic64_t *v)
+ {
+-	       __CSG_LOOP(v, ~mask, "ngr");
++	__CSG_LOOP(v, ~mask, "ngr");
+ }
+ 
+-static __inline__ void atomic64_set_mask(unsigned long mask, atomic64_t * v)
++static inline void atomic64_set_mask(unsigned long mask, atomic64_t *v)
+ {
+-	       __CSG_LOOP(v, mask, "ogr");
++	__CSG_LOOP(v, mask, "ogr");
+ }
+ 
+ #define atomic64_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+-static __inline__ long long atomic64_cmpxchg(atomic64_t *v,
++static inline long long atomic64_cmpxchg(atomic64_t *v,
+ 					     long long old, long long new)
+ {
+ #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 2)
+@@ -337,8 +335,7 @@ static inline void atomic64_clear_mask(u
+ 
+ #endif /* CONFIG_64BIT */
+ 
+-static __inline__ int atomic64_add_unless(atomic64_t *v,
+-					  long long a, long long u)
++static inline int atomic64_add_unless(atomic64_t *v, long long a, long long u)
+ {
+ 	long long c, old;
+ 	c = atomic64_read(v);
+@@ -371,5 +368,5 @@ static __inline__ int atomic64_add_unles
+ #define smp_mb__after_atomic_inc()	smp_mb()
+ 
+ #include <asm-generic/atomic-long.h>
+-#endif /* __KERNEL__ */
 +
-+	.section .data,"aw",@progbits
- 	.align	8
- 	.globl	sysc_restore_trace_psw
- sysc_restore_trace_psw:
- 	.long	0, sysc_restore_trace + 0x80000000
-+	.previous
- #endif
- 
- #
-@@ -606,7 +612,8 @@ io_return:
- 	bnz	BASED(io_work)		# there is work to do (signals etc.)
- io_restore:
- #ifdef CONFIG_TRACE_IRQFLAGS
--	la	%r1,BASED(io_restore_trace_psw)
-+	la	%r1,BASED(io_restore_trace_psw_addr)
-+	l	%r1,0(%r1)
- 	lpsw	0(%r1)
- io_restore_trace:
- 	TRACE_IRQS_CHECK
-@@ -617,10 +624,15 @@ io_leave:
- io_done:
- 
- #ifdef CONFIG_TRACE_IRQFLAGS
-+io_restore_trace_psw_addr:
-+	.long io_restore_trace_psw
-+
-+	.section .data,"aw",@progbits
- 	.align	8
- 	.globl	io_restore_trace_psw
- io_restore_trace_psw:
- 	.long	0, io_restore_trace + 0x80000000
-+	.previous
- #endif
- 
- #
+ #endif /* __ARCH_S390_ATOMIC__  */
 
 -- 
 blue skies,
