@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755969AbZHNLcG@vger.kernel.org>
-Message-Id: <20090814112618.435817150@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756405AbZHNLdQ@vger.kernel.org>
+Message-Id: <20090814112615.383275103@de.ibm.com>
 References: <20090814112517.982007860@de.ibm.com>
-Date: Fri, 14 Aug 2009 13:25:42 +0200
+Date: Fri, 14 Aug 2009 13:25:29 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 25/34] Use macros for .data.page_aligned.
-Content-Disposition: inline; filename=124-vmlinux-lds-1.diff
+Subject: [patch 12/34] drivers/s390: put NULL test before dereference
+Content-Disposition: inline; filename=111-dasd-null-pointer.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Tim Abbott <tabbott@ksplice.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Sam Ravnborg <sam@ravnborg.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Julia Lawall <julia@diku.dk>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Tim Abbott <tabbott@ksplice.com>
+From: Julia Lawall <julia@diku.dk>
 
-.data.page_aligned should not need a separate output section, so as
-part of this cleanup I moved into the .data output section in the
-linker scripts in order to eliminate unnecessary references to the
-section name.
+If the NULL test on block is needed, it should be before the dereference of
+the base field.
 
-Remove the reference to .data.idt, since nothing is put into the
-.data.idt section on the s390 architecture.  It looks like Cyrill
-Gorcunov posted a patch to remove the .data.idt code on s390
-previously:
+The semantic match that finds this problem is as follows:
+(http://coccinelle.lip6.fr/)
 
-<http://lkml.indiana.edu/hypermail/linux/kernel/0802.2/2536.html>
+// <smpl>
+@r@
+expression E1,E2;
+identifier fld;
+statement S1,S2;
+@@
 
-CCing him and the people who acked that patch in case there's a reason
-it wasn't applied.
+E1 = E2->fld;
+(
+if (E1 == NULL) S1 else S2
+|
+*if (E2 == NULL) S1 else S2
+)
+// </smpl>
 
-Signed-off-by: Tim Abbott <tabbott@ksplice.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Acked-by: Cyrill Gorcunov <gorcunov@openvz.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Julia Lawall <julia@diku.dk>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/vmlinux.lds.S |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/s390/block/dasd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Index: quilt-2.6/arch/s390/kernel/vmlinux.lds.S
+Index: quilt-2.6/drivers/s390/block/dasd.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/vmlinux.lds.S
-+++ quilt-2.6/arch/s390/kernel/vmlinux.lds.S
-@@ -60,6 +60,7 @@ SECTIONS
- 	} :data
+--- quilt-2.6.orig/drivers/s390/block/dasd.c
++++ quilt-2.6/drivers/s390/block/dasd.c
+@@ -2133,9 +2133,9 @@ static int dasd_getgeo(struct block_devi
+ 	struct dasd_device *base;
  
- 	.data : {		/* Data */
-+		PAGE_ALIGNED_DATA(PAGE_SIZE)
- 		DATA_DATA
- 		CONSTRUCTORS
- 	}
-@@ -72,11 +73,6 @@ SECTIONS
- 	. = ALIGN(PAGE_SIZE);
- 	__nosave_end = .;
+ 	block = bdev->bd_disk->private_data;
+-	base = block->base;
+ 	if (!block)
+ 		return -ENODEV;
++	base = block->base;
  
--	. = ALIGN(PAGE_SIZE);
--	.data.page_aligned : {
--		*(.data.idt)
--	}
--
- 	. = ALIGN(0x100);
- 	.data.cacheline_aligned : {
- 		*(.data.cacheline_aligned)
+ 	if (!base->discipline ||
+ 	    !base->discipline->fill_geometry)
 
 -- 
 blue skies,
