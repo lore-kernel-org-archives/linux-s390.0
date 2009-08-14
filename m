@@ -1,193 +1,124 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932155AbZHNL0t@vger.kernel.org>
-Message-Id: <20090814112615.151258162@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755978AbZHNL2E@vger.kernel.org>
+Message-Id: <20090814112618.205116349@de.ibm.com>
 References: <20090814112517.982007860@de.ibm.com>
-Date: Fri, 14 Aug 2009 13:25:28 +0200
+Date: Fri, 14 Aug 2009 13:25:41 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 11/34] dasd: fix message naming
-Content-Disposition: inline; filename=110-dasd-message-naming.diff
+Subject: [patch 24/34] move (io|sysc)_restore_trace_psw into .data section
+Content-Disposition: inline; filename=123-nss-fix.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Haberland <stefan.haberland@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Stefan Haberland <stefan.haberland@de.ibm.com>
+From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 
-This patch fixes message naming so that generic dasd messages do not
-contain the device discipline. For this purpose the dev_ makros are
-replaced by pr_ makros for generic dasd messages.
+The sysc_restore_trace_psw and io_restore_trace_psw storage locations
+are created in the .text section. When creating and IPLing from a named
+saved system (NSS), writing to these locations causes a protection exception
+(because the .text section is mapped as shared read-only in the NSS).
 
-Signed-off-by: Stefan Haberland <stefan.haberland@de.ibm.com>
+To permit write access, move the storage locations into the .data section.
+
+The problem occurs only when CONFIG_TRACE_IRQFLAGS is set.
+The git commmit that has introduced these variables is:
+411788ea7fca01ee803af8225ac35807b4d02050
+
+Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/dasd_3990_erp.c |    2 +-
- drivers/s390/block/dasd_alias.c    |    2 +-
- drivers/s390/block/dasd_diag.c     |    2 +-
- drivers/s390/block/dasd_eckd.c     |    2 +-
- drivers/s390/block/dasd_eer.c      |    2 +-
- drivers/s390/block/dasd_erp.c      |    4 ++--
- drivers/s390/block/dasd_fba.c      |    2 +-
- drivers/s390/block/dasd_ioctl.c    |   24 ++++++++++++------------
- 8 files changed, 20 insertions(+), 20 deletions(-)
+ arch/s390/kernel/entry.S   |   16 ++++++++++++++--
+ arch/s390/kernel/entry64.S |    4 ++++
+ 2 files changed, 18 insertions(+), 2 deletions(-)
 
-Index: quilt-2.6/drivers/s390/block/dasd_3990_erp.c
+Index: quilt-2.6/arch/s390/kernel/entry64.S
 ===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd_3990_erp.c
-+++ quilt-2.6/drivers/s390/block/dasd_3990_erp.c
-@@ -7,7 +7,7 @@
-  *
-  */
+--- quilt-2.6.orig/arch/s390/kernel/entry64.S
++++ quilt-2.6/arch/s390/kernel/entry64.S
+@@ -284,10 +284,12 @@ sysc_leave:
+ sysc_done:
  
--#define KMSG_COMPONENT "dasd"
-+#define KMSG_COMPONENT "dasd-eckd"
+ #ifdef CONFIG_TRACE_IRQFLAGS
++	.section .data,"aw",@progbits
+ 	.align	8
+ 	.globl sysc_restore_trace_psw
+ sysc_restore_trace_psw:
+ 	.quad	0, sysc_restore_trace
++	.previous
+ #endif
  
- #include <linux/timer.h>
- #include <linux/slab.h>
-Index: quilt-2.6/drivers/s390/block/dasd_alias.c
+ #
+@@ -595,10 +597,12 @@ io_leave:
+ io_done:
+ 
+ #ifdef CONFIG_TRACE_IRQFLAGS
++	.section .data,"aw",@progbits
+ 	.align	8
+ 	.globl io_restore_trace_psw
+ io_restore_trace_psw:
+ 	.quad	0, io_restore_trace
++	.previous
+ #endif
+ 
+ #
+Index: quilt-2.6/arch/s390/kernel/entry.S
 ===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd_alias.c
-+++ quilt-2.6/drivers/s390/block/dasd_alias.c
-@@ -5,7 +5,7 @@
-  * Author(s): Stefan Weinhuber <wein@de.ibm.com>
-  */
+--- quilt-2.6.orig/arch/s390/kernel/entry.S
++++ quilt-2.6/arch/s390/kernel/entry.S
+@@ -278,7 +278,8 @@ sysc_return:
+ 	bnz	BASED(sysc_work)  # there is work to do (signals etc.)
+ sysc_restore:
+ #ifdef CONFIG_TRACE_IRQFLAGS
+-	la	%r1,BASED(sysc_restore_trace_psw)
++	la	%r1,BASED(sysc_restore_trace_psw_addr)
++	l	%r1,0(%r1)
+ 	lpsw	0(%r1)
+ sysc_restore_trace:
+ 	TRACE_IRQS_CHECK
+@@ -289,10 +290,15 @@ sysc_leave:
+ sysc_done:
  
--#define KMSG_COMPONENT "dasd"
-+#define KMSG_COMPONENT "dasd-eckd"
+ #ifdef CONFIG_TRACE_IRQFLAGS
++sysc_restore_trace_psw_addr:
++	.long sysc_restore_trace_psw
++
++	.section .data,"aw",@progbits
+ 	.align	8
+ 	.globl	sysc_restore_trace_psw
+ sysc_restore_trace_psw:
+ 	.long	0, sysc_restore_trace + 0x80000000
++	.previous
+ #endif
  
- #include <linux/list.h>
- #include <asm/ebcdic.h>
-Index: quilt-2.6/drivers/s390/block/dasd_diag.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd_diag.c
-+++ quilt-2.6/drivers/s390/block/dasd_diag.c
-@@ -8,7 +8,7 @@
-  *
-  */
+ #
+@@ -606,7 +612,8 @@ io_return:
+ 	bnz	BASED(io_work)		# there is work to do (signals etc.)
+ io_restore:
+ #ifdef CONFIG_TRACE_IRQFLAGS
+-	la	%r1,BASED(io_restore_trace_psw)
++	la	%r1,BASED(io_restore_trace_psw_addr)
++	l	%r1,0(%r1)
+ 	lpsw	0(%r1)
+ io_restore_trace:
+ 	TRACE_IRQS_CHECK
+@@ -617,10 +624,15 @@ io_leave:
+ io_done:
  
--#define KMSG_COMPONENT "dasd"
-+#define KMSG_COMPONENT "dasd-diag"
+ #ifdef CONFIG_TRACE_IRQFLAGS
++io_restore_trace_psw_addr:
++	.long io_restore_trace_psw
++
++	.section .data,"aw",@progbits
+ 	.align	8
+ 	.globl	io_restore_trace_psw
+ io_restore_trace_psw:
+ 	.long	0, io_restore_trace + 0x80000000
++	.previous
+ #endif
  
- #include <linux/stddef.h>
- #include <linux/kernel.h>
-Index: quilt-2.6/drivers/s390/block/dasd_eckd.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd_eckd.c
-+++ quilt-2.6/drivers/s390/block/dasd_eckd.c
-@@ -10,7 +10,7 @@
-  * Author.........: Nigel Hislop <hislop_nigel@emc.com>
-  */
- 
--#define KMSG_COMPONENT "dasd"
-+#define KMSG_COMPONENT "dasd-eckd"
- 
- #include <linux/stddef.h>
- #include <linux/kernel.h>
-Index: quilt-2.6/drivers/s390/block/dasd_eer.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd_eer.c
-+++ quilt-2.6/drivers/s390/block/dasd_eer.c
-@@ -6,7 +6,7 @@
-  *  Author(s): Stefan Weinhuber <wein@de.ibm.com>
-  */
- 
--#define KMSG_COMPONENT "dasd"
-+#define KMSG_COMPONENT "dasd-eckd"
- 
- #include <linux/init.h>
- #include <linux/fs.h>
-Index: quilt-2.6/drivers/s390/block/dasd_erp.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd_erp.c
-+++ quilt-2.6/drivers/s390/block/dasd_erp.c
-@@ -99,8 +99,8 @@ dasd_default_erp_action(struct dasd_ccw_
- 		cqr->lpm    = LPM_ANYPATH;
- 		cqr->status = DASD_CQR_FILLED;
-         } else {
--		dev_err(&device->cdev->dev,
--			"default ERP has run out of retries and failed\n");
-+		pr_err("%s: default ERP has run out of retries and failed\n",
-+		       dev_name(&device->cdev->dev));
- 		cqr->status = DASD_CQR_FAILED;
- 		cqr->stopclk = get_clock();
-         }
-Index: quilt-2.6/drivers/s390/block/dasd_fba.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd_fba.c
-+++ quilt-2.6/drivers/s390/block/dasd_fba.c
-@@ -5,7 +5,7 @@
-  * Copyright IBM Corp. 1999, 2009
-  */
- 
--#define KMSG_COMPONENT "dasd"
-+#define KMSG_COMPONENT "dasd-fba"
- 
- #include <linux/stddef.h>
- #include <linux/kernel.h>
-Index: quilt-2.6/drivers/s390/block/dasd_ioctl.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd_ioctl.c
-+++ quilt-2.6/drivers/s390/block/dasd_ioctl.c
-@@ -98,8 +98,8 @@ static int dasd_ioctl_quiesce(struct das
- 	if (!capable (CAP_SYS_ADMIN))
- 		return -EACCES;
- 
--	dev_info(&base->cdev->dev, "The DASD has been put in the quiesce "
--		 "state\n");
-+	pr_info("%s: The DASD has been put in the quiesce "
-+		"state\n", dev_name(&base->cdev->dev));
- 	spin_lock_irqsave(get_ccwdev_lock(base->cdev), flags);
- 	base->stopped |= DASD_STOPPED_QUIESCE;
- 	spin_unlock_irqrestore(get_ccwdev_lock(base->cdev), flags);
-@@ -119,8 +119,8 @@ static int dasd_ioctl_resume(struct dasd
- 	if (!capable (CAP_SYS_ADMIN))
- 		return -EACCES;
- 
--	dev_info(&base->cdev->dev, "I/O operations have been resumed "
--		 "on the DASD\n");
-+	pr_info("%s: I/O operations have been resumed "
-+		"on the DASD\n", dev_name(&base->cdev->dev));
- 	spin_lock_irqsave(get_ccwdev_lock(base->cdev), flags);
- 	base->stopped &= ~DASD_STOPPED_QUIESCE;
- 	spin_unlock_irqrestore(get_ccwdev_lock(base->cdev), flags);
-@@ -146,8 +146,8 @@ static int dasd_format(struct dasd_block
- 		return -EPERM;
- 
- 	if (base->state != DASD_STATE_BASIC) {
--		dev_warn(&base->cdev->dev,
--			 "The DASD cannot be formatted while it is enabled\n");
-+		pr_warning("%s: The DASD cannot be formatted while it is "
-+			   "enabled\n",  dev_name(&base->cdev->dev));
- 		return -EBUSY;
- 	}
- 
-@@ -175,9 +175,9 @@ static int dasd_format(struct dasd_block
- 		dasd_sfree_request(cqr, cqr->memdev);
- 		if (rc) {
- 			if (rc != -ERESTARTSYS)
--				dev_err(&base->cdev->dev,
--					"Formatting unit %d failed with "
--					"rc=%d\n", fdata->start_unit, rc);
-+				pr_err("%s: Formatting unit %d failed with "
-+				       "rc=%d\n", dev_name(&base->cdev->dev),
-+				       fdata->start_unit, rc);
- 			return rc;
- 		}
- 		fdata->start_unit++;
-@@ -204,9 +204,9 @@ dasd_ioctl_format(struct block_device *b
- 	if (copy_from_user(&fdata, argp, sizeof(struct format_data_t)))
- 		return -EFAULT;
- 	if (bdev != bdev->bd_contains) {
--		dev_warn(&block->base->cdev->dev,
--			 "The specified DASD is a partition and cannot be "
--			 "formatted\n");
-+		pr_warning("%s: The specified DASD is a partition and cannot "
-+			   "be formatted\n",
-+			   dev_name(&block->base->cdev->dev));
- 		return -EINVAL;
- 	}
- 	return dasd_format(block, &fdata);
+ #
 
 -- 
 blue skies,
