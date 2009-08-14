@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S932344AbZHNL1E@vger.kernel.org>
-Message-Id: <20090814112613.237354848@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755855AbZHNL0p@vger.kernel.org>
+Message-Id: <20090814112619.141728093@de.ibm.com>
 References: <20090814112517.982007860@de.ibm.com>
-Date: Fri, 14 Aug 2009 13:25:20 +0200
+Date: Fri, 14 Aug 2009 13:25:45 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 03/34] cio: consolidate subchannel intparm reset
-Content-Disposition: inline; filename=102-cio-intparm-reset.diff
+Subject: [patch 28/34] remove unused irq_cpustat_t defintion
+Content-Disposition: inline; filename=127-remove-irq_cpustat_t.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Oberparleiter <peter.oberparleiter@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+From: Christoph Hellwig <hch@lst.de>
 
-Ensure that the hardware interruption parameter for a subchannel is
-reset when the associated subchannel data structure is freed.
+No need to defined a irq_cpustat_t type if __ARCH_IRQ_STAT is defined.
 
-Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/css.c    |    3 +++
- drivers/s390/cio/device.c |   10 ----------
- 2 files changed, 3 insertions(+), 10 deletions(-)
+ arch/s390/include/asm/hardirq.h |    7 -------
+ 1 file changed, 7 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/css.c
+Index: quilt-2.6/arch/s390/include/asm/hardirq.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/css.c
-+++ quilt-2.6/drivers/s390/cio/css.c
-@@ -170,6 +170,9 @@ css_subchannel_release(struct device *de
+--- quilt-2.6.orig/arch/s390/include/asm/hardirq.h
++++ quilt-2.6/arch/s390/include/asm/hardirq.h
+@@ -18,13 +18,6 @@
+ #include <linux/interrupt.h>
+ #include <asm/lowcore.h>
  
- 	sch = to_subchannel(dev);
- 	if (!cio_is_console(sch->schid)) {
-+		/* Reset intparm to zeroes. */
-+		sch->config.intparm = 0;
-+		cio_commit_config(sch);
- 		kfree(sch->lock);
- 		kfree(sch);
- 	}
-Index: quilt-2.6/drivers/s390/cio/device.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device.c
-+++ quilt-2.6/drivers/s390/cio/device.c
-@@ -1026,9 +1026,6 @@ static void ccw_device_call_sch_unregist
- 		return;
- 	sch = to_subchannel(cdev->dev.parent);
- 	css_sch_device_unregister(sch);
--	/* Reset intparm to zeroes. */
--	sch->config.intparm = 0;
--	cio_commit_config(sch);
- 	/* Release cdev reference for workqueue processing.*/
- 	put_device(&cdev->dev);
- 	/* Release subchannel reference for local processing. */
-@@ -1212,9 +1209,6 @@ static void io_subchannel_do_unreg(struc
- 
- 	sch = container_of(work, struct subchannel, work);
- 	css_sch_device_unregister(sch);
--	/* Reset intparm to zeroes. */
--	sch->config.intparm = 0;
--	cio_commit_config(sch);
- 	put_device(&sch->dev);
- }
- 
-@@ -1690,10 +1684,6 @@ static int io_subchannel_sch_event(struc
- 		spin_unlock_irqrestore(sch->lock, flags);
- 		css_sch_device_unregister(sch);
- 		spin_lock_irqsave(sch->lock, flags);
+-/* irq_cpustat_t is unused currently, but could be converted
+- * into a percpu variable instead of storing softirq_pending
+- * on the lowcore */
+-typedef struct {
+-	unsigned int __softirq_pending;
+-} irq_cpustat_t;
 -
--		/* Reset intparm to zeroes. */
--		sch->config.intparm = 0;
--		cio_commit_config(sch);
- 		break;
- 	case REPROBE:
- 		ccw_device_trigger_reprobe(cdev);
+ #define local_softirq_pending() (S390_lowcore.softirq_pending)
+ 
+ #define __ARCH_IRQ_STAT
 
 -- 
 blue skies,
