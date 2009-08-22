@@ -1,31 +1,47 @@
-From: Jaswinder Singh Rajput <jaswinder@kernel.org>
-Date: Sun, 09 Aug 2009 15:12:43 +0000
-Subject: [PATCH] S390: includecheck fix for sys_s390.c
-Message-Id: <1249830043.2957.26.camel@ht.satnam>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Sat, 22 Aug 2009 20:32:43 +0000
+Subject: Re: [PATCH] s390: Reversed order of labels?
+Message-Id: <20090822223243.0a667bd0@skybase>
+In-Reply-To: <4A9006A1.7010706@gmail.com>
+References: <4A9006A1.7010706@gmail.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Sat, 22 Aug 2009 16:54:25 +0200
+Roel Kluin <roel.kluin@gmail.com> wrote:
 
-fix the following 'make includecheck' warning:
+> Fix the order of goto labels.
+> 
+> Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
+> ---
+> Is this correct? Please review.
+> 
+> diff --git a/drivers/s390/char/tape_core.c b/drivers/s390/char/tape_core.c
+> index 1d420d9..7424d64 100644
+> --- a/drivers/s390/char/tape_core.c
+> +++ b/drivers/s390/char/tape_core.c
+> @@ -358,11 +358,11 @@ tape_generic_online(struct tape_device *device,
+> 
+>  out_char:
+>  	tapechar_cleanup_device(device);
+> +out_minor:
+> +	tape_remove_minor(device);
+>  out_discipline:
+>  	device->discipline->cleanup_device(device);
+>  	device->discipline = NULL;
+> -out_minor:
+> -	tape_remove_minor(device);
+>  out:
+>  	module_put(discipline->owner);
+>  	return rc;
 
-  arch/s390/kernel/sys_s390.c: linux/syscalls.h is included more than once.
+Seems correct to me, if tape_assign_minor fails (e.g. because of too
+many devices) then the function will try to remove the minor again
+which is not registered. Nothing bad happens because tape_alloc_device
+will initialize the list head but still. I'll add it to my patch queue.
 
-Signed-off-by: Jaswinder Singh Rajput <jaswinderrajput@gmail.com>
----
- arch/s390/kernel/sys_s390.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
-
-diff --git a/arch/s390/kernel/sys_s390.c b/arch/s390/kernel/sys_s390.c
-index c7ae4b1..e9d94f6 100644
---- a/arch/s390/kernel/sys_s390.c
-+++ b/arch/s390/kernel/sys_s390.c
-@@ -29,7 +29,6 @@
- #include <linux/personality.h>
- #include <linux/unistd.h>
- #include <linux/ipc.h>
--#include <linux/syscalls.h>
- #include <asm/uaccess.h>
- #include "entry.h"
- 
 -- 
-1.6.0.6
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
