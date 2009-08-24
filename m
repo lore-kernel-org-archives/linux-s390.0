@@ -1,45 +1,44 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: [patch] Re: Next Aug 19: s390 build failure
-	(arch/s390/kernel/built-in)
-Date: Wed, 19 Aug 2009 14:15:56 +0200
-Message-ID: <20090819121556.GA24041@elte.hu>
-References: <20090819190233.86e78493.sfr@canb.auug.org.au> <4A8BDE59.2010400@in.ibm.com> <20090819114646.GB32317@elte.hu> <4A8BE82D.4000407@in.ibm.com>
-Mime-Version: 1.0
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1752576AbZHXNx7@vger.kernel.org>
+Date: Mon, 24 Aug 2009 15:53:44 +0200
+From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Subject: Re: [GIT PULL] s390 patches for v2.6.31-rc7
+Message-ID: <20090824135344.GC4639@cetus.boeblingen.de.ibm.com>
+References: <20090823213714.11757b14@skybase> <20090823201526.GA30461@wavehammer.waldi.eu.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-next-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4A8BE82D.4000407@in.ibm.com>
-Sender: linux-next-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-next/>
-List-Post: <mailto:linux-next@vger.kernel.org>
-To: Sachin Sant <sachinp@in.ibm.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org
+In-Reply-To: <20090823201526.GA30461@wavehammer.waldi.eu.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Bastian Blank <bastian@waldi.eu.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+Bastian,
 
-* Sachin Sant <sachinp@in.ibm.com> wrote:
+thanks for your feedback.
 
-> Ingo Molnar wrote:
->> Could you please send the .config that triggers this?
->>
->>   
-> .config Attached.
+On Sun, Aug 23, 2009 at 10:15:26PM +0200, Bastian Blank wrote:
+> On Sun, Aug 23, 2009 at 09:37:14PM +0200, Martin Schwidefsky wrote:
+> > +static void __init set_preferred_console(void)
+> > +{
+> > +	if (MACHINE_IS_KVM) {
+> > +		add_preferred_console("hvc", 0, NULL);
+> > +		s390_virtio_console_init();
+> > +		return;
+> > +	}
+> 
+> Why this early return instead of else if as all options are mutually
+> exclusive? Also why do you init the virtio console here instead of an
+> console_initcall?
+This is a bug fix to set the respective preferred console device for
+conmode=3270. To make as few changes as possible for -rc7, the console
+initialization for kvm has been moved to the new function.
 
-thanks - does the patch below fix the bug for you?
+You are right that s390_virtio_console_init() should be called from a 
+console_initcall().  I started working on another patch to solve this
+issue for the next kernel release.
 
-	Ingo
-
-diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-index 05f57cd..c5e87d8 100644
---- a/arch/s390/kernel/ptrace.c
-+++ b/arch/s390/kernel/ptrace.c
-@@ -51,6 +51,9 @@
- #include "compat_ptrace.h"
- #endif
- 
-+DEFINE_TRACE(syscall_enter);
-+DEFINE_TRACE(syscall_exit);
-+
- enum s390_regset {
- 	REGSET_GENERAL,
- 	REGSET_FP,
+Best regards,
+  Hendrik
