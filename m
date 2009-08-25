@@ -1,35 +1,29 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S934110AbZHWURo@vger.kernel.org>
-Date: Sun, 23 Aug 2009 22:15:26 +0200
-From: Bastian Blank <bastian@waldi.eu.org>
-Subject: Re: [GIT PULL] s390 patches for v2.6.31-rc7
-Message-ID: <20090823201526.GA30461@wavehammer.waldi.eu.org>
-References: <20090823213714.11757b14@skybase>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20090823213714.11757b14@skybase>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756317AbZHYWmP@vger.kernel.org>
+Date: Wed, 26 Aug 2009 00:42:06 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] timer.c: fix S/390 comments
+Message-ID: <20090826004206.32d41516@skybase>
+In-Reply-To: <20090825143541.43fc2ed8.randy.dunlap@oracle.com>
+References: <20090825143541.43fc2ed8.randy.dunlap@oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, akpm <akpm@linux-foundation.org>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Aug 23, 2009 at 09:37:14PM +0200, Martin Schwidefsky wrote:
-> +static void __init set_preferred_console(void)
-> +{
-> +	if (MACHINE_IS_KVM) {
-> +		add_preferred_console("hvc", 0, NULL);
-> +		s390_virtio_console_init();
-> +		return;
-> +	}
+On Tue, 25 Aug 2009 14:35:41 -0700
+Randy Dunlap <randy.dunlap@oracle.com> wrote:
 
-Why this early return instead of else if as all options are mutually
-exclusive? Also why do you init the virtio console here instead of an
-console_initcall?
-
-Bastian
+> Fix typos and add omitted words.
+ 
+Added to the git390 patch queue. Thanks.
 
 -- 
-Four thousand throats may be cut in one night by a running man.
-		-- Klingon Soldier, "Day of the Dove", stardate unknown
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
