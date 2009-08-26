@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756224AbZHYVd7@vger.kernel.org>
-Date: Tue, 25 Aug 2009 14:35:41 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: [PATCH] timer.c: fix S/390 comments
-Message-Id: <20090825143541.43fc2ed8.randy.dunlap@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: lkml <linux-kernel@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: akpm <akpm@linux-foundation.org>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+From: frank.blaschka@de.ibm.com
+Subject: [patch 2/5] [PATCH] qeth: scheduling while atomic during ifconfig online sequence
+Date: Wed, 26 Aug 2009 14:01:07 +0200
+Message-ID: <20090826120136.122811000@de.ibm.com>
+References: <20090826120105.727838000@de.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=606-qeth-online-sequence.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+From: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-Fix typos and add omitted words.
+In case the IP address list contains entries (not removed when the device was set
+offline) this entries should be registered next time the device is brought online.
+In the past this was done implicitly with the device open call but since we wait
+in the set IPv4 IPA and the device open common code holds various locks this
+does not work any longer.
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
-Cc:	Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc:	Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc:	linux390@de.ibm.com
-Cc:	linux-s390@vger.kernel.org
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
- kernel/timer.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- lnx-2631-rc7.orig/kernel/timer.c
-+++ lnx-2631-rc7/kernel/timer.c
-@@ -1007,8 +1007,8 @@ static inline void __run_timers(struct t
- #ifdef CONFIG_NO_HZ
- /*
-  * Find out when the next timer event is due to happen. This
-- * is used on S/390 to stop all activity when a cpus is idle.
-- * This functions needs to be called disabled.
-+ * is used on S/390 to stop all activity when a CPU is idle.
-+ * This function needs to be called with interrupts disabled.
-  */
- static unsigned long __next_timer_interrupt(struct tvec_base *base)
- {
+ drivers/s390/net/qeth_l3_main.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-
-
----
-~Randy
-LPC 2009, Sept. 23-25, Portland, Oregon
-http://linuxplumbersconf.org/2009/
+Index: git_net-next/drivers/s390/net/qeth_l3_main.c
+===================================================================
+--- git_net-next.orig/drivers/s390/net/qeth_l3_main.c
++++ git_net-next/drivers/s390/net/qeth_l3_main.c
+@@ -3180,6 +3180,7 @@ static int __qeth_l3_set_online(struct c
+ 	netif_carrier_on(card->dev);
+ 
+ 	qeth_set_allowed_threads(card, 0xffffffff, 0);
++	qeth_l3_set_ip_addr_list(card);
+ 	if (recover_flag == CARD_STATE_RECOVER) {
+ 		if (recovery_mode)
+ 			qeth_l3_open(card->dev);
