@@ -1,30 +1,43 @@
 From: frank.blaschka@de.ibm.com
-Subject: [patch 0/5] s390: qeth patches for 2.6.32
-Date: Wed, 26 Aug 2009 14:01:05 +0200
-Message-ID: <20090826120105.727838000@de.ibm.com>
+Subject: [patch 4/5] [PATCH] qeth: display service_level info only when valid.
+Date: Wed, 26 Aug 2009 14:01:09 +0200
+Message-ID: <20090826120136.382656000@de.ibm.com>
+References: <20090826120105.727838000@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=610-qeth-service-level.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Klaus-Dieter Wacker <kdwacker@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dave,
+From: Klaus-Dieter Wacker <kdwacker@de.ibm.com>
 
-here are a couple of qeth patches for 2.6.32 (net-next).
+qeth displayed an entry in /proc/service_level even when no valid
+MCL-string was available (the MCL info is blank). The change is to
+create an entry in /proc/service_level only when MCL-string is
+non-zero.
 
-shortlog:
-Klaus-Dieter Wacker (3)
-qeth: HiperSockets SIGA retry support on CC=2.
-qeth: Cleanup for cast-type determination.
-qeth: display service_level info only when valid.
+Signed-off-by: Klaus-Dieter Wacker <kdwacker@de.ibm.com> 
+---
 
-Ursula Braun (1)
-qeth: display "undefined" value of sysfs-attribute "layer2"
+ drivers/s390/net/qeth_core_main.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Frank Blaschka (1)
-qeth: scheduling while atomic during ifconfig online sequence
-
-Thanks,
-        Frank
+Index: git_net-next/drivers/s390/net/qeth_core_main.c
+===================================================================
+--- git_net-next.orig/drivers/s390/net/qeth_core_main.c
++++ git_net-next/drivers/s390/net/qeth_core_main.c
+@@ -1160,8 +1160,9 @@ static void qeth_core_sl_print(struct se
+ {
+ 	struct qeth_card *card = container_of(slr, struct qeth_card,
+ 					qeth_service_level);
+-	seq_printf(m, "qeth: %s firmware level %s\n", CARD_BUS_ID(card),
+-			card->info.mcl_level);
++	if (card->info.mcl_level[0])
++		seq_printf(m, "qeth: %s firmware level %s\n",
++			CARD_BUS_ID(card), card->info.mcl_level);
+ }
+ 
+ static struct qeth_card *qeth_alloc_card(void)
