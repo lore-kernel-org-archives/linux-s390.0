@@ -1,47 +1,41 @@
-From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
-Subject: Re: [patch 1/5] [PATCH] qeth: HiperSockets SIGA retry support on
- CC=2.
-Date: Thu, 27 Aug 2009 10:05:34 +0200
-Message-ID: <4A963E4E.4020405@linux.vnet.ibm.com>
-References: <20090826120105.727838000@de.ibm.com> <20090826120135.998746000@de.ibm.com> <20090827070547.GA32106@wavehammer.waldi.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: frank.blaschka@de.ibm.com
+Subject: [patch 5/5] [PATCH] qeth: display "undefined" value of sysfs-attribute "layer2"
+Date: Wed, 26 Aug 2009 14:01:10 +0200
+Message-ID: <20090826120136.512410000@de.ibm.com>
+References: <20090826120105.727838000@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20090827070547.GA32106@wavehammer.waldi.eu.org>
+Content-Disposition: inline; filename=612-qeth-layer2-attribute.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: Bastian Blank <bastian@waldi.eu.org>, davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, Klaus-Dieter Wacker <kdwacker@de.ibm.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Bastian Blank schrieb:
-> On Wed, Aug 26, 2009 at 02:01:06PM +0200, frank.blaschka@de.ibm.com wrote:
->> Qeth HiperSockets support now retries sending of packets when the
->> IBM System z signals a temporary resource shortage (e.g. target
->> buffer full). The packet is enqueued into the device queue.
->> After 3 times of unsuccessful send the packet is dropped.
-> 
-> What is the reason for that? How large is the timeout for each retry?
-> Usually the upper layers should already handle dropped packages fine and
-> adding another retry below can produce retry multiplication.
->
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-HiperSocket is very different from usual network hardware. Microcode can
-notify the driver the target of an xmit can not receive the packet because of
-a target buffer full condition (this is the queue->sync_iqdio_error == 2 error
-code). The buffer full condition is only for the target of the xmit not the
-senders hardware. There is no timeout for the retry. The retry is more or less
-immediately. If the target buffer full is only a temporary(short) condition we
-can stay at a higher throughput level because TCP congestion does not kick in.
+If nothing has been written into the qeth sysfs-attribute layer2,
+its value is "-1" meaning "not yet defined". But the value is
+displayed as "1" meaning "layer2 selected". The patch changes the
+reading of this "-1"-value to "-1" to make clear the layer2-attribute
+has not yet been defined.
 
->> @@ -3178,6 +3203,25 @@ int qeth_do_send_packet_fast(struct qeth
->>  	atomic_set(&queue->state, QETH_OUT_Q_UNLOCKED);
->>  	qeth_fill_buffer(queue, buffer, skb, hdr, offset, hd_len);
->>  	qeth_flush_buffers(queue, index, 1);
->> +	if (queue->sync_iqdio_error == 2) {
-> 
-> Is this a magic constant?
-> 
-> Bastian
-> 
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+---
+
+ drivers/s390/net/qeth_core_sys.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: git_net-next/drivers/s390/net/qeth_core_sys.c
+===================================================================
+--- git_net-next.orig/drivers/s390/net/qeth_core_sys.c
++++ git_net-next/drivers/s390/net/qeth_core_sys.c
+@@ -364,7 +364,7 @@ static ssize_t qeth_dev_layer2_show(stru
+ 	if (!card)
+ 		return -EINVAL;
+ 
+-	return sprintf(buf, "%i\n", card->options.layer2 ? 1:0);
++	return sprintf(buf, "%i\n", card->options.layer2);
+ }
+ 
+ static ssize_t qeth_dev_layer2_store(struct device *dev,
