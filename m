@@ -1,35 +1,42 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 0/5] s390: qeth patches for 2.6.32
-Date: Wed, 26 Aug 2009 17:35:02 -0700 (PDT)
-Message-ID: <20090826.173502.214522263.davem@davemloft.net>
-References: <20090826120105.727838000@de.ibm.com>
+From: Bastian Blank <bastian@waldi.eu.org>
+Subject: Re: [patch 1/5] [PATCH] qeth: HiperSockets SIGA retry support on
+	CC=2.
+Date: Thu, 27 Aug 2009 09:05:47 +0200
+Message-ID: <20090827070547.GA32106@wavehammer.waldi.eu.org>
+References: <20090826120105.727838000@de.ibm.com> <20090826120135.998746000@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20090826120105.727838000@de.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <20090826120135.998746000@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: frank.blaschka@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, Klaus-Dieter Wacker <kdwacker@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: frank.blaschka@de.ibm.com
-Date: Wed, 26 Aug 2009 14:01:05 +0200
+On Wed, Aug 26, 2009 at 02:01:06PM +0200, frank.blaschka@de.ibm.com wrote:
+> Qeth HiperSockets support now retries sending of packets when the
+> IBM System z signals a temporary resource shortage (e.g. target
+> buffer full). The packet is enqueued into the device queue.
+> After 3 times of unsuccessful send the packet is dropped.
 
-> here are a couple of qeth patches for 2.6.32 (net-next).
-> 
-> shortlog:
-> Klaus-Dieter Wacker (3)
-> qeth: HiperSockets SIGA retry support on CC=2.
-> qeth: Cleanup for cast-type determination.
-> qeth: display service_level info only when valid.
-> 
-> Ursula Braun (1)
-> qeth: display "undefined" value of sysfs-attribute "layer2"
-> 
-> Frank Blaschka (1)
-> qeth: scheduling while atomic during ifconfig online sequence
+What is the reason for that? How large is the timeout for each retry?
+Usually the upper layers should already handle dropped packages fine and
+adding another retry below can produce retry multiplication.
 
-Looks good, all applied to net-next-2.6, thanks!
+> @@ -3178,6 +3203,25 @@ int qeth_do_send_packet_fast(struct qeth
+>  	atomic_set(&queue->state, QETH_OUT_Q_UNLOCKED);
+>  	qeth_fill_buffer(queue, buffer, skb, hdr, offset, hd_len);
+>  	qeth_flush_buffers(queue, index, 1);
+> +	if (queue->sync_iqdio_error == 2) {
+
+Is this a magic constant?
+
+Bastian
+
+-- 
+... The prejudices people feel about each other disappear when they get
+to know each other.
+		-- Kirk, "Elaan of Troyius", stardate 4372.5
