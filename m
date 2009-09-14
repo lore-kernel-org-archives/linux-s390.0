@@ -1,50 +1,40 @@
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Date: Tue, 25 Aug 2009 08:48:47 +0000
-Subject: Re: [PATCH] cio: double put_device() in subchannel_register()
-Message-Id: <alpine.LFD.2.00.0908251046060.3246@localhost.localdomain>
-In-Reply-To: <4A92BA1C.4050909@gmail.com>
-References: <4A92BA1C.4050909@gmail.com>
-To: linux-s390@vger.kernel.org
+From: David Daney <ddaney@caviumnetworks.com>
+Subject: [PATCH 04/11] s390: Convert BUG() to use unreachable()
+Date: Mon, 14 Sep 2009 14:55:33 -0700
+Message-ID: <1252965340-31735-4-git-send-email-ddaney@caviumnetworks.com>
+References: <4AAEBAC2.1050905@caviumnetworks.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932327AbZINV4H@vger.kernel.org>
+In-Reply-To: <4AAEBAC2.1050905@caviumnetworks.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: torvalds@linux-foundation.org, akpm@linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+Use the new unreachable() macro instead of for(;;);
 
-On Mon, 24 Aug 2009, Roel Kluin wrote:
+Signed-off-by: David Daney <ddaney@caviumnetworks.com>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+CC: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: linux390@de.ibm.com
+CC: linux-s390@vger.kernel.org
+---
+ arch/s390/include/asm/bug.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-> If the device can't be registered, put_device(&cdev->dev) occured here
-> and after out_err:.
-> 
-
-The additional put_device should not be removed.
-
-To register a ccw device we use device_initialize, do some
-asynchronous recognition and call io_subchannel_register() via a
-workqueue.
-So in io_subchannel_register the refcount should be 2 (1 for the
-initialization and 1 for workqueue processing). If the device_add
-fails at this point we drop both references, so that the devices'
-release function gets called.
-
-Regards,
-Sebastian
-
-> Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
-> ---
-> diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-> index 3c57c1a..8c17757 100644
-> --- a/drivers/s390/cio/device.c
-> +++ b/drivers/s390/cio/device.c
-> @@ -999,8 +999,6 @@ io_subchannel_register(struct work_struct *work)
->  		spin_lock_irqsave(sch->lock, flags);
->  		sch_set_cdev(sch, NULL);
->  		spin_unlock_irqrestore(sch->lock, flags);
-> -		/* Release initial device reference. */
-> -		put_device(&cdev->dev);
->  		goto out_err;
->  	}
->  out:
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-s390" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+diff --git a/arch/s390/include/asm/bug.h b/arch/s390/include/asm/bug.h
+index 7efd0ab..efb74fd 100644
+--- a/arch/s390/include/asm/bug.h
++++ b/arch/s390/include/asm/bug.h
+@@ -49,7 +49,7 @@
+ 
+ #define BUG() do {					\
+ 	__EMIT_BUG(0);					\
+-	for (;;);					\
++	unreachable();					\
+ } while (0)
+ 
+ #define WARN_ON(x) ({					\
+-- 
+1.6.2.5
