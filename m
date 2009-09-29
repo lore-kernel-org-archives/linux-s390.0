@@ -1,39 +1,201 @@
-From: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Subject: linux-next: 20090925 - build breaks with !CONFIG_AIO
-Date: Fri, 25 Sep 2009 18:49:58 +0530
-Message-ID: <20090925131958.GC6831@linux.vnet.ibm.com>
-References: <20090925133830.1ba29584.sfr@canb.auug.org.au>
-Reply-To: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751999AbZIYNUD@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20090925133830.1ba29584.sfr@canb.auug.org.au>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754094AbZI2MZq@vger.kernel.org>
+Message-Id: <20090929122533.206589318@de.ibm.com>
+Date: Tue, 29 Sep 2009 14:25:15 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 1/2] [PATCH] nohz: reuse ktime in sub-functions of tick_check_idle.
+References: <20090929122514.693636761@de.ibm.com>
+Content-Disposition: inline; filename=200-nohz-reuse-ktime.diff
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-next/>
-List-Post: <mailto:linux-next@vger.kernel.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, adobriyan@gmail.com
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Stephen,
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-	next-20090925 randconfig build breaks on s390x, with CONFIG_AIO=n.
+On a system with NOHZ=y tick_check_idle calls tick_nohz_stop_idle and
+tick_nohz_update_jiffies. Given the right conditions (ts->idle_active
+and/or ts->tick_stopped) both function get a time stamp with ktime_get.
+The same time stamp can be reused if both function require one.
 
-arch/s390/mm/pgtable.c: In function 's390_enable_sie':
-arch/s390/mm/pgtable.c:282: error: 'struct mm_struct' has no member named 'ioctx_list'
-arch/s390/mm/pgtable.c:298: error: 'struct mm_struct' has no member named 'ioctx_list'
-make[1]: *** [arch/s390/mm/pgtable.o] Error 1
+On s390 this change has the additional benefit that gcc inlines the
+tick_nohz_stop_idle function into tick_check_idle. The number of
+instructions to execute tick_check_idle drops from 225 to 144
+(without the ktime_get optimization it is 367 vs 215 instructions).
 
-Reverting the below commit helps
+before:
 
-commit 858f09930b32c11b40fd0c5c467982ba09b10894
-Author: Alexey Dobriyan <adobriyan@gmail.com>
-Date:   Wed Sep 23 15:57:32 2009 -0700
+ 0)               |  tick_check_idle() {
+ 0)               |    tick_nohz_stop_idle() {
+ 0)               |      ktime_get() {
+ 0)               |        read_tod_clock() {
+ 0)   0.601 us    |        }
+ 0)   1.765 us    |      }
+ 0)   3.047 us    |    }
+ 0)               |    ktime_get() {
+ 0)               |      read_tod_clock() {
+ 0)   0.570 us    |      }
+ 0)   1.727 us    |    }
+ 0)               |    tick_do_update_jiffies64() {
+ 0)   0.609 us    |    }
+ 0)   8.055 us    |  }
 
-    aio: ifdef fields in mm_struct
+after:
 
-	->ioctx_lock and ->ioctx_list are used only under CONFIG_AIO.
-			    
+ 0)               |  tick_check_idle() {
+ 0)               |    ktime_get() {
+ 0)               |      read_tod_clock() {
+ 0)   0.617 us    |      }
+ 0)   1.773 us    |    }
+ 0)               |    tick_do_update_jiffies64() {
+ 0)   0.593 us    |    }
+ 0)   4.477 us    |  }
 
-			Kamalesh
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: john stultz <johnstul@us.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+
+ kernel/time/tick-sched.c |   62 +++++++++++++++++++++++++----------------------
+ 1 file changed, 33 insertions(+), 29 deletions(-)
+
+Index: quilt-2.6/kernel/time/tick-sched.c
+===================================================================
+--- quilt-2.6.orig/kernel/time/tick-sched.c	2009-08-07 11:09:40.000000000 +0200
++++ quilt-2.6/kernel/time/tick-sched.c	2009-09-29 14:15:43.000000000 +0200
+@@ -134,18 +134,13 @@
+  * value. We do this unconditionally on any cpu, as we don't know whether the
+  * cpu, which has the update task assigned is in a long sleep.
+  */
+-static void tick_nohz_update_jiffies(void)
++static void tick_nohz_update_jiffies(ktime_t now)
+ {
+ 	int cpu = smp_processor_id();
+ 	struct tick_sched *ts = &per_cpu(tick_cpu_sched, cpu);
+ 	unsigned long flags;
+-	ktime_t now;
+-
+-	if (!ts->tick_stopped)
+-		return;
+ 
+ 	cpumask_clear_cpu(cpu, nohz_cpu_mask);
+-	now = ktime_get();
+ 	ts->idle_waketime = now;
+ 
+ 	local_irq_save(flags);
+@@ -155,20 +150,17 @@
+ 	touch_softlockup_watchdog();
+ }
+ 
+-static void tick_nohz_stop_idle(int cpu)
++static void tick_nohz_stop_idle(int cpu, ktime_t now)
+ {
+ 	struct tick_sched *ts = &per_cpu(tick_cpu_sched, cpu);
++	ktime_t delta;
+ 
+-	if (ts->idle_active) {
+-		ktime_t now, delta;
+-		now = ktime_get();
+-		delta = ktime_sub(now, ts->idle_entrytime);
+-		ts->idle_lastupdate = now;
+-		ts->idle_sleeptime = ktime_add(ts->idle_sleeptime, delta);
+-		ts->idle_active = 0;
++	delta = ktime_sub(now, ts->idle_entrytime);
++	ts->idle_lastupdate = now;
++	ts->idle_sleeptime = ktime_add(ts->idle_sleeptime, delta);
++	ts->idle_active = 0;
+ 
+-		sched_clock_idle_wakeup_event(0);
+-	}
++	sched_clock_idle_wakeup_event(0);
+ }
+ 
+ static ktime_t tick_nohz_start_idle(struct tick_sched *ts)
+@@ -431,7 +423,11 @@
+ 	ktime_t now;
+ 
+ 	local_irq_disable();
+-	tick_nohz_stop_idle(cpu);
++	if (ts->idle_active || (ts->inidle && ts->tick_stopped))
++		now = ktime_get();
++
++	if (ts->idle_active)
++		tick_nohz_stop_idle(cpu, now);
+ 
+ 	if (!ts->inidle || !ts->tick_stopped) {
+ 		ts->inidle = 0;
+@@ -445,7 +441,6 @@
+ 
+ 	/* Update jiffies first */
+ 	select_nohz_load_balancer(0);
+-	now = ktime_get();
+ 	tick_do_update_jiffies64(now);
+ 	cpumask_clear_cpu(cpu, nohz_cpu_mask);
+ 
+@@ -579,22 +574,18 @@
+  * timer and do not touch the other magic bits which need to be done
+  * when idle is left.
+  */
+-static void tick_nohz_kick_tick(int cpu)
++static void tick_nohz_kick_tick(int cpu, ktime_t now)
+ {
+ #if 0
+ 	/* Switch back to 2.6.27 behaviour */
+ 
+ 	struct tick_sched *ts = &per_cpu(tick_cpu_sched, cpu);
+-	ktime_t delta, now;
+-
+-	if (!ts->tick_stopped)
+-		return;
++	ktime_t delta;
+ 
+ 	/*
+ 	 * Do not touch the tick device, when the next expiry is either
+ 	 * already reached or less/equal than the tick period.
+ 	 */
+-	now = ktime_get();
+ 	delta =	ktime_sub(hrtimer_get_expires(&ts->sched_timer), now);
+ 	if (delta.tv64 <= tick_period.tv64)
+ 		return;
+@@ -603,9 +594,26 @@
+ #endif
+ }
+ 
++static inline void tick_check_nohz(int cpu)
++{
++	struct tick_sched *ts = &per_cpu(tick_cpu_sched, cpu);
++	ktime_t now;
++
++	if (!ts->idle_active && !ts->tick_stopped)
++		return;
++	now = ktime_get();
++	if (ts->idle_active)
++		tick_nohz_stop_idle(cpu, now);
++	if (ts->tick_stopped) {
++		tick_nohz_update_jiffies(now);
++		tick_nohz_kick_tick(cpu, now);
++	}
++}
++
+ #else
+ 
+ static inline void tick_nohz_switch_to_nohz(void) { }
++static inline void tick_check_nohz(int cpu) { }
+ 
+ #endif /* NO_HZ */
+ 
+@@ -615,11 +623,7 @@
+ void tick_check_idle(int cpu)
+ {
+ 	tick_check_oneshot_broadcast(cpu);
+-#ifdef CONFIG_NO_HZ
+-	tick_nohz_stop_idle(cpu);
+-	tick_nohz_update_jiffies();
+-	tick_nohz_kick_tick(cpu);
+-#endif
++	tick_check_nohz(cpu);
+ }
+ 
+ /*
