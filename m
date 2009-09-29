@@ -1,201 +1,136 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754094AbZI2MZq@vger.kernel.org>
-Message-Id: <20090929122533.206589318@de.ibm.com>
-Date: Tue, 29 Sep 2009 14:25:15 +0200
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753949AbZI2MZg@vger.kernel.org>
+Message-Id: <20090929122533.402715150@de.ibm.com>
+Date: Tue, 29 Sep 2009 14:25:16 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 1/2] [PATCH] nohz: reuse ktime in sub-functions of tick_check_idle.
+Subject: [patch 2/2] [PATCH] nohz: introduce arch_needs_cpu
 References: <20090929122514.693636761@de.ibm.com>
-Content-Disposition: inline; filename=200-nohz-reuse-ktime.diff
+Content-Disposition: inline; filename=201-nohz-delay.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-On a system with NOHZ=y tick_check_idle calls tick_nohz_stop_idle and
-tick_nohz_update_jiffies. Given the right conditions (ts->idle_active
-and/or ts->tick_stopped) both function get a time stamp with ktime_get.
-The same time stamp can be reused if both function require one.
+Allow the architecture to request a normal jiffy tick when the system
+goes idle and tick_nohz_stop_sched_tick is called . On s390 the hook is
+used to prevent the system going fully idle if there has been an
+interrupt other than a clock comparator interrupt since the last wakeup.
 
-On s390 this change has the additional benefit that gcc inlines the
-tick_nohz_stop_idle function into tick_check_idle. The number of
-instructions to execute tick_check_idle drops from 225 to 144
-(without the ktime_get optimization it is 367 vs 215 instructions).
+On s390 the HiperSockets response time for 1 connection ping-pong goes
+down from 42 to 34 microseconds. The CPU cost decreases by 27%.
 
-before:
-
- 0)               |  tick_check_idle() {
- 0)               |    tick_nohz_stop_idle() {
- 0)               |      ktime_get() {
- 0)               |        read_tod_clock() {
- 0)   0.601 us    |        }
- 0)   1.765 us    |      }
- 0)   3.047 us    |    }
- 0)               |    ktime_get() {
- 0)               |      read_tod_clock() {
- 0)   0.570 us    |      }
- 0)   1.727 us    |    }
- 0)               |    tick_do_update_jiffies64() {
- 0)   0.609 us    |    }
- 0)   8.055 us    |  }
-
-after:
-
- 0)               |  tick_check_idle() {
- 0)               |    ktime_get() {
- 0)               |      read_tod_clock() {
- 0)   0.617 us    |      }
- 0)   1.773 us    |    }
- 0)               |    tick_do_update_jiffies64() {
- 0)   0.593 us    |    }
- 0)   4.477 us    |  }
-
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: john stultz <johnstul@us.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- kernel/time/tick-sched.c |   62 +++++++++++++++++++++++++----------------------
- 1 file changed, 33 insertions(+), 29 deletions(-)
+ arch/s390/include/asm/cputime.h |    8 ++++++++
+ arch/s390/kernel/s390_ext.c     |    2 ++
+ arch/s390/kernel/vtime.c        |    2 ++
+ drivers/s390/cio/cio.c          |    1 +
+ include/linux/tick.h            |    3 +++
+ kernel/time/tick-sched.c        |   13 ++++++++-----
+ 6 files changed, 24 insertions(+), 5 deletions(-)
 
-Index: quilt-2.6/kernel/time/tick-sched.c
+Index: quilt-2.6/arch/s390/include/asm/cputime.h
 ===================================================================
---- quilt-2.6.orig/kernel/time/tick-sched.c	2009-08-07 11:09:40.000000000 +0200
-+++ quilt-2.6/kernel/time/tick-sched.c	2009-09-29 14:15:43.000000000 +0200
-@@ -134,18 +134,13 @@
-  * value. We do this unconditionally on any cpu, as we don't know whether the
-  * cpu, which has the update task assigned is in a long sleep.
-  */
--static void tick_nohz_update_jiffies(void)
-+static void tick_nohz_update_jiffies(ktime_t now)
- {
- 	int cpu = smp_processor_id();
- 	struct tick_sched *ts = &per_cpu(tick_cpu_sched, cpu);
- 	unsigned long flags;
--	ktime_t now;
--
--	if (!ts->tick_stopped)
--		return;
+--- quilt-2.6.orig/arch/s390/include/asm/cputime.h	2009-09-24 09:06:44.000000000 +0200
++++ quilt-2.6/arch/s390/include/asm/cputime.h	2009-09-29 14:15:49.000000000 +0200
+@@ -183,6 +183,7 @@
+ 	unsigned long long idle_count;
+ 	unsigned long long idle_enter;
+ 	unsigned long long idle_time;
++	int nohz_delay;
+ };
  
- 	cpumask_clear_cpu(cpu, nohz_cpu_mask);
--	now = ktime_get();
- 	ts->idle_waketime = now;
- 
- 	local_irq_save(flags);
-@@ -155,20 +150,17 @@
- 	touch_softlockup_watchdog();
+ DECLARE_PER_CPU(struct s390_idle_data, s390_idle);
+@@ -198,4 +199,11 @@
+ 		vtime_start_cpu();
  }
  
--static void tick_nohz_stop_idle(int cpu)
-+static void tick_nohz_stop_idle(int cpu, ktime_t now)
- {
- 	struct tick_sched *ts = &per_cpu(tick_cpu_sched, cpu);
-+	ktime_t delta;
- 
--	if (ts->idle_active) {
--		ktime_t now, delta;
--		now = ktime_get();
--		delta = ktime_sub(now, ts->idle_entrytime);
--		ts->idle_lastupdate = now;
--		ts->idle_sleeptime = ktime_add(ts->idle_sleeptime, delta);
--		ts->idle_active = 0;
-+	delta = ktime_sub(now, ts->idle_entrytime);
-+	ts->idle_lastupdate = now;
-+	ts->idle_sleeptime = ktime_add(ts->idle_sleeptime, delta);
-+	ts->idle_active = 0;
- 
--		sched_clock_idle_wakeup_event(0);
--	}
-+	sched_clock_idle_wakeup_event(0);
- }
- 
- static ktime_t tick_nohz_start_idle(struct tick_sched *ts)
-@@ -431,7 +423,11 @@
- 	ktime_t now;
- 
- 	local_irq_disable();
--	tick_nohz_stop_idle(cpu);
-+	if (ts->idle_active || (ts->inidle && ts->tick_stopped))
-+		now = ktime_get();
-+
-+	if (ts->idle_active)
-+		tick_nohz_stop_idle(cpu, now);
- 
- 	if (!ts->inidle || !ts->tick_stopped) {
- 		ts->inidle = 0;
-@@ -445,7 +441,6 @@
- 
- 	/* Update jiffies first */
- 	select_nohz_load_balancer(0);
--	now = ktime_get();
- 	tick_do_update_jiffies64(now);
- 	cpumask_clear_cpu(cpu, nohz_cpu_mask);
- 
-@@ -579,22 +574,18 @@
-  * timer and do not touch the other magic bits which need to be done
-  * when idle is left.
-  */
--static void tick_nohz_kick_tick(int cpu)
-+static void tick_nohz_kick_tick(int cpu, ktime_t now)
- {
- #if 0
- 	/* Switch back to 2.6.27 behaviour */
- 
- 	struct tick_sched *ts = &per_cpu(tick_cpu_sched, cpu);
--	ktime_t delta, now;
--
--	if (!ts->tick_stopped)
--		return;
-+	ktime_t delta;
- 
- 	/*
- 	 * Do not touch the tick device, when the next expiry is either
- 	 * already reached or less/equal than the tick period.
- 	 */
--	now = ktime_get();
- 	delta =	ktime_sub(hrtimer_get_expires(&ts->sched_timer), now);
- 	if (delta.tv64 <= tick_period.tv64)
- 		return;
-@@ -603,9 +594,26 @@
- #endif
- }
- 
-+static inline void tick_check_nohz(int cpu)
++static inline int s390_nohz_delay(int cpu)
 +{
-+	struct tick_sched *ts = &per_cpu(tick_cpu_sched, cpu);
-+	ktime_t now;
-+
-+	if (!ts->idle_active && !ts->tick_stopped)
-+		return;
-+	now = ktime_get();
-+	if (ts->idle_active)
-+		tick_nohz_stop_idle(cpu, now);
-+	if (ts->tick_stopped) {
-+		tick_nohz_update_jiffies(now);
-+		tick_nohz_kick_tick(cpu, now);
-+	}
++	return per_cpu(s390_idle, cpu).nohz_delay != 0;
 +}
 +
- #else
++#define arch_needs_cpu(cpu) s390_nohz_delay(cpu)
++
+ #endif /* _S390_CPUTIME_H */
+Index: quilt-2.6/arch/s390/kernel/s390_ext.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/s390_ext.c	2009-08-14 13:17:23.000000000 +0200
++++ quilt-2.6/arch/s390/kernel/s390_ext.c	2009-09-29 14:15:49.000000000 +0200
+@@ -126,6 +126,8 @@
+ 		/* Serve timer interrupts first. */
+ 		clock_comparator_work();
+ 	kstat_cpu(smp_processor_id()).irqs[EXTERNAL_INTERRUPT]++;
++	if (code != 0x1004)
++		__get_cpu_var(s390_idle).nohz_delay = 1;
+         index = ext_hash(code);
+ 	for (p = ext_int_hash[index]; p; p = p->next) {
+ 		if (likely(p->code == code))
+Index: quilt-2.6/arch/s390/kernel/vtime.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kernel/vtime.c	2009-08-14 13:17:23.000000000 +0200
++++ quilt-2.6/arch/s390/kernel/vtime.c	2009-09-29 14:15:49.000000000 +0200
+@@ -167,6 +167,8 @@
+ 	/* Wait for external, I/O or machine check interrupt. */
+ 	psw.mask = psw_kernel_bits | PSW_MASK_WAIT | PSW_MASK_IO | PSW_MASK_EXT;
  
- static inline void tick_nohz_switch_to_nohz(void) { }
-+static inline void tick_check_nohz(int cpu) { }
++	idle->nohz_delay = 0;
++
+ 	/* Check if the CPU timer needs to be reprogrammed. */
+ 	if (vq->do_spt) {
+ 		__u64 vmax = VTIMER_MAX_SLICE;
+Index: quilt-2.6/drivers/s390/cio/cio.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/cio.c	2009-09-12 09:47:15.000000000 +0200
++++ quilt-2.6/drivers/s390/cio/cio.c	2009-09-29 14:15:49.000000000 +0200
+@@ -618,6 +618,7 @@
+ 	old_regs = set_irq_regs(regs);
+ 	s390_idle_check();
+ 	irq_enter();
++	__get_cpu_var(s390_idle).nohz_delay = 1;
+ 	if (S390_lowcore.int_clock >= S390_lowcore.clock_comparator)
+ 		/* Serve timer interrupts first. */
+ 		clock_comparator_work();
+Index: quilt-2.6/include/linux/tick.h
+===================================================================
+--- quilt-2.6.orig/include/linux/tick.h	2009-08-07 11:09:40.000000000 +0200
++++ quilt-2.6/include/linux/tick.h	2009-09-29 14:15:49.000000000 +0200
+@@ -98,6 +98,9 @@
+ extern struct tick_sched *tick_get_tick_sched(int cpu);
+ extern void tick_check_idle(int cpu);
+ extern int tick_oneshot_mode_active(void);
++#  ifndef arch_needs_cpu
++#   define arch_needs_cpu(cpu) (0)
++#  endif
+ # else
+ static inline void tick_clock_notify(void) { }
+ static inline int tick_check_oneshot_change(int allow_nohz) { return 0; }
+Index: quilt-2.6/kernel/time/tick-sched.c
+===================================================================
+--- quilt-2.6.orig/kernel/time/tick-sched.c	2009-09-29 14:15:43.000000000 +0200
++++ quilt-2.6/kernel/time/tick-sched.c	2009-09-29 14:15:49.000000000 +0200
+@@ -264,12 +264,15 @@
+ 		last_jiffies = jiffies;
+ 	} while (read_seqretry(&xtime_lock, seq));
  
- #endif /* NO_HZ */
- 
-@@ -615,11 +623,7 @@
- void tick_check_idle(int cpu)
- {
- 	tick_check_oneshot_broadcast(cpu);
--#ifdef CONFIG_NO_HZ
--	tick_nohz_stop_idle(cpu);
--	tick_nohz_update_jiffies();
--	tick_nohz_kick_tick(cpu);
--#endif
-+	tick_check_nohz(cpu);
- }
- 
- /*
+-	/* Get the next timer wheel timer */
+-	next_jiffies = get_next_timer_interrupt(last_jiffies);
+-	delta_jiffies = next_jiffies - last_jiffies;
+-
+-	if (rcu_needs_cpu(cpu) || printk_needs_cpu(cpu))
++	if (rcu_needs_cpu(cpu) || printk_needs_cpu(cpu) ||
++	    arch_needs_cpu(cpu)) {
++		next_jiffies = last_jiffies + 1;
+ 		delta_jiffies = 1;
++	} else {
++		/* Get the next timer wheel timer */
++		next_jiffies = get_next_timer_interrupt(last_jiffies);
++		delta_jiffies = next_jiffies - last_jiffies;
++	}
+ 	/*
+ 	 * Do not stop the tick, if we are only one off
+ 	 * or if the cpu is required for rcu
