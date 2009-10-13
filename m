@@ -1,55 +1,56 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: next-20091007 - comedi driver build breaks on S390x
-Date: Wed, 7 Oct 2009 10:27:15 -0700
-Message-ID: <20091007172715.GA28562@suse.de>
-References: <20091007173517.abfcfa2a.sfr@canb.auug.org.au>
- <20091007105458.GA5472@linux.vnet.ibm.com>
- <20091007130744.GA26081@suse.de>
- <20091007173415.5155d995@mschwide.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933784AbZJGRgj@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20091007173415.5155d995@mschwide.boeblingen.de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-next/>
-List-Post: <mailto:linux-next@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Stephen Rothwell <sfr@canb.auug.org.au>, devel@driverdev.osuosl.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 3/5] zfcp: Warn about storage devices with broken PLOGI data
+Date: Tue, 13 Oct 2009 10:44:09 +0200
+Message-ID: <20091013084945.818781000@de.ibm.com>
+References: <20091013084406.630890000@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline; filename=713-zfcp-broken-plogi.diff
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@suse.de>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Oct 07, 2009 at 05:34:15PM +0200, Martin Schwidefsky wrote:
-> On Wed, 7 Oct 2009 06:07:44 -0700
-> Greg KH <gregkh@suse.de> wrote:
-> 
-> > On Wed, Oct 07, 2009 at 04:24:58PM +0530, Kamalesh Babulal wrote:
-> > > Hi Greg,
-> > > 
-> > > 	next-20091007 randconfig build breaks on s390x with build error
-> > > 
-> > > drivers/staging/comedi/comedi_fops.c: In function 'comedi_mmap':
-> > > drivers/staging/comedi/comedi_fops.c:1453: error: 'PAGE_SHARED' undeclared (first use in this function)
-> > > drivers/staging/comedi/comedi_fops.c:1453: error: (Each undeclared identifier is reported only once
-> > > drivers/staging/comedi/comedi_fops.c:1453: error: for each function it appears in.)
-> > > make[3]: *** [drivers/staging/comedi/comedi_fops.o] Error 1
-> > 
-> > Odd.  What changed in the header files to cause this?
-> 
-> The problem has always been present, only now did randconfig find it.
-> The compile breaks because PAGE_SHARED is not defined for s390. The
-> equivalent define for s390 is PAGE_RW. The problem has not shown up so
-> far because all drivers who use the remap_pfn_range call with
-> PAGE_SHARED has dependencies not available on s390, e.g. CONFIG_PCI.
-> 
-> To fix this I see are two options: 1) add a PAGE_SHARED define to
-> arch/s390/include/asm/pgtable.h, 2) make comedi depend on !S390.
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-I'll drop s390 support for comedi, it doesn't make sense at all for that
-platform.
+After opening a remote port zfcp checks if the WWPN returned in the
+PLOGI maches the WWPN of the port that should have been opened. On a
+mismatch zfcp assumes that the DID just changed, queries the FC
+nameserver and tries again. If the situation persists the erp will
+give up.
 
-Actually, I'll just go off of PCI/ISA/USB/PCMCIA, that should drop s390
-automatically, right?
+With this strategy, if the remote port always returns the wrong PLOGI
+data, the remote port will not be opened. Introduce a warning, so that
+the system administrator knows why the remote port is not being opened
+and to have a pointer to investigate the problem on the storage
+system.
 
-thanks,
+Reviewed-by: Swen Schillig <swen@vnet.ibm.com>
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+---
 
-greg k-h
+ drivers/s390/scsi/zfcp_fsf.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+--- a/drivers/s390/scsi/zfcp_fsf.c	2009-10-12 09:56:22.000000000 +0200
++++ b/drivers/s390/scsi/zfcp_fsf.c	2009-10-12 09:56:27.000000000 +0200
+@@ -1475,9 +1475,16 @@ static void zfcp_fsf_open_port_handler(s
+ 		plogi = (struct fsf_plogi *) req->qtcb->bottom.support.els;
+ 		if (req->qtcb->bottom.support.els1_length >=
+ 		    FSF_PLOGI_MIN_LEN) {
+-			if (plogi->serv_param.wwpn != port->wwpn)
++			if (plogi->serv_param.wwpn != port->wwpn) {
+ 				port->d_id = 0;
+-			else {
++				dev_warn(&port->adapter->ccw_device->dev,
++					 "A port opened with WWPN 0x%016Lx "
++					 "returned data that identifies it as "
++					 "WWPN 0x%016Lx\n",
++					 (unsigned long long) port->wwpn,
++					 (unsigned long long)
++					  plogi->serv_param.wwpn);
++			} else {
+ 				port->wwnn = plogi->serv_param.wwnn;
+ 				zfcp_fc_plogi_evaluate(port, plogi);
+ 			}
