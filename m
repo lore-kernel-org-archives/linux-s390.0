@@ -1,149 +1,55 @@
-From: Joe Eykholt <jeykholt@cisco.com>
+From: James Smart <James.Smart@Emulex.Com>
 Subject: Re: [patch 2/5] zfcp: Handle WWPN mismatch in PLOGI payload
-Date: Tue, 13 Oct 2009 09:51:39 -0700
-Message-ID: <4AD4B01B.2010100@cisco.com>
-References: <20091013084406.630890000@de.ibm.com> <20091013084944.777367000@de.ibm.com>
+Date: Tue, 13 Oct 2009 14:09:12 -0400
+Message-ID: <4AD4C248.3040406@emulex.com>
+References: <20091013084406.630890000@de.ibm.com> <20091013084944.777367000@de.ibm.com> <4AD4B01B.2010100@cisco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <20091013084944.777367000@de.ibm.com>
+In-Reply-To: <4AD4B01B.2010100@cisco.com>
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Christof Schmitt <christof.schmitt@de.ibm.com>
-Cc: James Bottomley <James.Bottomley@suse.de>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+To: Joe Eykholt <jeykholt@cisco.com>
+Cc: Christof Schmitt <christof.schmitt@de.ibm.com>, James Bottomley <James.Bottomley@suse.de>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Christof Schmitt wrote:
-> From: Christof Schmitt <christof.schmitt@de.ibm.com>
-> 
-> For ports, zfcp gets the DID from the FC nameserver and tries to open
-> the port. If the open succeeds, zfcp compares the WWPN from the
-> nameserver with the WWPN in the PLOGI payload. In case of a mismatch,
-> zfcp assumes that the DID of the port just changed and we opened the
-> wrong port. This means that zfcp has to forget the DID, lookup the DID
-> again and retry.
 
-Does this happen very often?  Would you get an RSCN if a target's WWPN changed?
-Just wondering how this happens and whether libfc needs similar defenses.
-Is it due to a broken target?
 
-See below for a minor typo.
+Joe Eykholt wrote:
+> Christof Schmitt wrote:
+>   
+>> From: Christof Schmitt <christof.schmitt@de.ibm.com>
+>>
+>> For ports, zfcp gets the DID from the FC nameserver and tries to open
+>> the port. If the open succeeds, zfcp compares the WWPN from the
+>> nameserver with the WWPN in the PLOGI payload. In case of a mismatch,
+>> zfcp assumes that the DID of the port just changed and we opened the
+>> wrong port. This means that zfcp has to forget the DID, lookup the DID
+>> again and retry.
+>>     
+>
+> Does this happen very often?  Would you get an RSCN if a target's WWPN changed?
+>   
+You should - as it is supposed to re-login with the fabric, thus the 
+fabric login will update the nameserver, and nameserver will generate 
+the RSCN. But, there's no guarantee as to how quickly you will see the 
+RSCN.   If you were on FC-AL, this happens all the time and never w/ an 
+RSCN.
 
-> This error case had a problem that zfcp forgets the DID, but never
-> looks up a new one, stalling the ERP in this case. Fix this by
-> triggering the DID lookup and properly exit from the ERP. The DID
-> lookup will trigger a new ERP action.
-> 
-> Also ensure when trying to open the port again with the new DID, first
-> close the open port, even in the NOESC case.
-> 
-> Reviewed-by: Swen Schillig <swen@vnet.ibm.com>
-> Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
-> ---
-> 
->  drivers/s390/scsi/zfcp_erp.c |   22 ++++++++++------------
->  drivers/s390/scsi/zfcp_ext.h |    1 +
->  drivers/s390/scsi/zfcp_fc.c  |   11 +++++++++++
->  3 files changed, 22 insertions(+), 12 deletions(-)
-> 
-> diff -urpN linux-2.6/drivers/s390/scsi/zfcp_erp.c linux-2.6-patched/drivers/s390/scsi/zfcp_erp.c
-> --- linux-2.6/drivers/s390/scsi/zfcp_erp.c	2009-10-07 10:16:33.000000000 +0200
-> +++ linux-2.6-patched/drivers/s390/scsi/zfcp_erp.c	2009-10-07 10:17:01.000000000 +0200
-> @@ -858,10 +858,7 @@ static int zfcp_erp_port_strategy_open_c
->  		if (fc_host_port_type(adapter->scsi_host) == FC_PORTTYPE_PTP)
->  			return zfcp_erp_open_ptp_port(act);
->  		if (!port->d_id) {
-> -			zfcp_port_get(port);
-> -			if (!queue_work(adapter->work_queue,
-> -					&port->gid_pn_work))
-> -				zfcp_port_put(port);
-> +			zfcp_fc_trigger_did_lookup(port);
->  			return ZFCP_ERP_EXIT;
->  		}
->  		return zfcp_erp_port_strategy_open_port(act);
-> @@ -869,12 +866,11 @@ static int zfcp_erp_port_strategy_open_c
->  	case ZFCP_ERP_STEP_PORT_OPENING:
->  		/* D_ID might have changed during open */
->  		if (p_status & ZFCP_STATUS_COMMON_OPEN) {
-> -			if (port->d_id)
-> -				return ZFCP_ERP_SUCCEEDED;
-> -			else {
-> -				act->step = ZFCP_ERP_STEP_PORT_CLOSING;
-> -				return ZFCP_ERP_CONTINUES;
-> +			if (!port->d_id) {
-> +				zfcp_fc_trigger_did_lookup(port);
-> +				return ZFCP_ERP_EXIT;
->  			}
-> +			return ZFCP_ERP_SUCCEEDED;
->  		}
->  		if (port->d_id && !(p_status & ZFCP_STATUS_COMMON_NOESC)) {
->  			port->d_id = 0;
-> @@ -889,19 +885,21 @@ static int zfcp_erp_port_strategy_open_c
->  static int zfcp_erp_port_strategy(struct zfcp_erp_action *erp_action)
->  {
->  	struct zfcp_port *port = erp_action->port;
-> +	int p_status = atomic_read(&port->status);
->  
-> -	if (atomic_read(&port->status) & ZFCP_STATUS_COMMON_NOESC)
-> +	if ((p_status & ZFCP_STATUS_COMMON_NOESC) &&
-> +	    !(p_status & ZFCP_STATUS_COMMON_OPEN))
->  		goto close_init_done;
->  
->  	switch (erp_action->step) {
->  	case ZFCP_ERP_STEP_UNINITIALIZED:
->  		zfcp_erp_port_strategy_clearstati(port);
-> -		if (atomic_read(&port->status) & ZFCP_STATUS_COMMON_OPEN)
-> +		if (p_status & ZFCP_STATUS_COMMON_OPEN)
->  			return zfcp_erp_port_strategy_close(erp_action);
->  		break;
->  
->  	case ZFCP_ERP_STEP_PORT_CLOSING:
-> -		if (atomic_read(&port->status) & ZFCP_STATUS_COMMON_OPEN)
-> +		if (p_status & ZFCP_STATUS_COMMON_OPEN)
->  			return ZFCP_ERP_FAILED;
->  		break;
->  	}
-> diff -urpN linux-2.6/drivers/s390/scsi/zfcp_ext.h linux-2.6-patched/drivers/s390/scsi/zfcp_ext.h
-> --- linux-2.6/drivers/s390/scsi/zfcp_ext.h	2009-10-07 10:16:59.000000000 +0200
-> +++ linux-2.6-patched/drivers/s390/scsi/zfcp_ext.h	2009-10-07 10:17:01.000000000 +0200
-> @@ -96,6 +96,7 @@ extern int zfcp_fc_scan_ports(struct zfc
->  extern void _zfcp_fc_scan_ports_later(struct work_struct *);
->  extern void zfcp_fc_incoming_els(struct zfcp_fsf_req *);
->  extern void zfcp_fc_port_did_lookup(struct work_struct *);
-> +extern void zfcp_fc_trigger_did_lookup(struct zfcp_port *);
->  extern void zfcp_fc_plogi_evaluate(struct zfcp_port *, struct fsf_plogi *);
->  extern void zfcp_fc_test_link(struct zfcp_port *);
->  extern void zfcp_fc_link_test_work(struct work_struct *);
-> diff -urpN linux-2.6/drivers/s390/scsi/zfcp_fc.c linux-2.6-patched/drivers/s390/scsi/zfcp_fc.c
-> --- linux-2.6/drivers/s390/scsi/zfcp_fc.c	2009-10-07 10:16:33.000000000 +0200
-> +++ linux-2.6-patched/drivers/s390/scsi/zfcp_fc.c	2009-10-07 10:17:01.000000000 +0200
-> @@ -361,6 +361,17 @@ out:
->  }
->  
->  /**
-> + * zfcp_fc_trigger_did_ookup - trigger the d_id lookup using a GPN_FT request
+> Just wondering how this happens and whether libfc needs similar defenses.
+> Is it due to a broken target?
+>   
 
-s/ook/look/
+Libfc needs a similar defense.  You may not need to compare against the 
+"nameserver" values, but you had better compare against same N_Port_ID, 
+different WWPN. or vice-versa.   Its common to have RSCN events delayed, 
+allowing discovery to occur in between events that may be outstanding 
+(e.g. tgt plugs in - RSCN-1 event, tgt moves to another port (user error 
+-kicks out and replugs) or an array failover such that WWPN moves to new 
+switch port/N_Port_ID - RSCN-2 event;  and your ADISC/PLOGI based on 
+RSCN-1 arrives and is responded to sooner than the nameserver propagates 
+its updates and you receive RSCN-2)
 
-I just happened to notice that.  I didn't review the rest.
-
-> + * @port: The zfcp_port to lookup the d_id for.
-> + */
-> +void zfcp_fc_trigger_did_lookup(struct zfcp_port *port)
-> +{
-> +	zfcp_port_get(port);
-> +	if (!queue_work(port->adapter->work_queue, &port->gid_pn_work))
-> +		zfcp_port_put(port);
-> +}
-> +
-> +/**
->   * zfcp_fc_plogi_evaluate - evaluate PLOGI playload
->   * @port: zfcp_port structure
->   * @plogi: plogi payload
-> 
-> --
-
-	Cheers,
-	Joe
+-- james s
