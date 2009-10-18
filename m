@@ -1,39 +1,24 @@
-From: Ursula Braun <ursula.braun@de.ibm.com>
-Subject: [patch 3/5] [PATCH] lcs: ODEBUG: object is on stack, but not annotated.
-Date: Thu, 15 Oct 2009 10:54:57 +0200
-Message-ID: <20091015090749.766278000@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/5] s390: networking patches for linux-next
+Date: Sat, 17 Oct 2009 23:57:42 -0700 (PDT)
+Message-ID: <20091017.235742.120256260.davem@davemloft.net>
 References: <20091015085454.124154000@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=610-lcs-odebug.diff
+In-Reply-To: <20091015085454.124154000@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Klaus-Dieter Wacker <kdwacker@de.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>
+To: ursula.braun@de.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Klaus-Dieter Wacker <kdwacker@de.ibm.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
+Date: Thu, 15 Oct 2009 10:54:54 +0200
 
-Timer_list structure in lcs_send_lancmd() is allocated on stack. 
-Initialization with init_timer() leads to above ODEBUG message.
-Instead use init_timer_on_stack() which prevents above msg.
+> here are small improvements for net/iucv/ and drivers/s390/net/ .
+> They apply to linux-next.
 
-Signed-off-by: Klaus-Dieter Wacker <kdwacker@de.ibm.com>
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
----
-
- drivers/s390/net/lcs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff -urpN linux-2.6/drivers/s390/net/lcs.c linux-2.6-patched/drivers/s390/net/lcs.c
---- linux-2.6/drivers/s390/net/lcs.c	2009-10-15 10:19:32.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/net/lcs.c	2009-10-15 10:19:51.000000000 +0200
-@@ -889,7 +889,7 @@ lcs_send_lancmd(struct lcs_card *card, s
- 	rc = lcs_ready_buffer(&card->write, buffer);
- 	if (rc)
- 		return rc;
--	init_timer(&timer);
-+	init_timer_on_stack(&timer);
- 	timer.function = lcs_lancmd_timeout;
- 	timer.data = (unsigned long) reply;
- 	timer.expires = jiffies + HZ*card->lancmd_timeout;
+All applied, thanks.
