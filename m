@@ -1,260 +1,74 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756532AbZJ3KEr@vger.kernel.org>
-Date: Fri, 30 Oct 2009 11:04:50 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 2.6.32-rc5
-Message-ID: <20091030110450.608a6671@mschwide.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753293AbZJUNJ5@vger.kernel.org>
+Date: Wed, 21 Oct 2009 15:09:23 +0200 (CEST)
+From: John Kacur <jkacur@redhat.com>
+Subject: Re: Subject: [PATCH] crypto: s390: Remove BKL in zcrypt_open
+In-Reply-To: <alpine.LFD.2.00.0910190046540.3405@localhost.localdomain>
+Message-ID: <alpine.LFD.2.00.0910211505320.3526@localhost.localdomain>
+References: <alpine.LFD.2.00.0910190046540.3405@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Arnd Bergmann <arndbergmann@googlemail.com>, Ingo Molnar <mingo@elte.hu>, Frederic Weisbecker <fweisbec@gmail.com>, Felix Beck <felix.beck@de.ibm.com>, Ralph Wuerthner <ralph.wuerthner@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
 
-the latest bug fixes for s390, please pull from 'for-linus' branch of
+I took a deeper look at this after all of the great information form folks 
+like Arnd and Thomas about what to be careful of. I think this patch is 
+safe to do. I have respun it and explicitly set llseek to nollseek.
 
-	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
+It is still RFC, or pending an ack by the S390 zcrypt folks who can 
+actually test it.
 
-to receive the following updates:
+Thanks
 
-Heiko Carstens (5):
-      [S390] smp: fix prefix handling of offlined cpus
-      [S390] call home: fix error handling in init function
-      [S390] call home: fix string length handling
-      [S390] smp: fix sigp stop handling
-      [S390] smp: fix sigp sense handling
+From 6d3fad58dbeae2e37aeb093197c25a57018ab8fd Mon Sep 17 00:00:00 2001
+From: John Kacur <jkacur@redhat.com>
+Date: Mon, 19 Oct 2009 00:44:03 +0200
+Subject: [PATCH] crypto: s390: Remove BKL in zcrypt_open
 
-Martin Schwidefsky (2):
-      [S390] s/r: cmm resume fix
-      [S390] cputime: fix overflow on 31 bit systems
+Remove the BKL in zcrypt_open and explicitly set llseek = nollseek.
 
-Sebastian Ott (1):
-      [S390] call home: fix local buffer usage in proc handler
+- zcrypt_read, zcrypt_write, just return -EPERM
+- zcrypt_open only has an atomic_inc which doesn't need to be locked.
+- The bkl in the zcrypt_open function could conceivably be serializing the misc_register() in zcrypt_api_init(). However, the rest of the code is protected by the zcrypt_rng_mutex and the ioctl is already an unlocked_ioctl kind.
 
- arch/s390/include/asm/cputime.h |    6 ++--
- arch/s390/kernel/ipl.c          |    7 ++---
- arch/s390/kernel/smp.c          |    7 +++--
- arch/s390/kernel/swsusp_asm64.S |    2 +
- drivers/s390/char/sclp_async.c  |   47 +++++++++++++++------------------------
- drivers/s390/net/smsgiucv.c     |    7 +++++-
- 6 files changed, 36 insertions(+), 40 deletions(-)
+Signed-off-by: John Kacur <jkacur@redhat.com>
+---
+ drivers/s390/crypto/zcrypt_api.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/include/asm/cputime.h b/arch/s390/include/asm/cputime.h
-index 24b1244..f23961a 100644
---- a/arch/s390/include/asm/cputime.h
-+++ b/arch/s390/include/asm/cputime.h
-@@ -78,7 +78,7 @@ cputime64_to_jiffies64(cputime64_t cputime)
- static inline unsigned int
- cputime_to_msecs(const cputime_t cputime)
+diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+index 65b6a96..22c9b0a 100644
+--- a/drivers/s390/crypto/zcrypt_api.c
++++ b/drivers/s390/crypto/zcrypt_api.c
+@@ -34,7 +34,6 @@
+ #include <linux/fs.h>
+ #include <linux/proc_fs.h>
+ #include <linux/compat.h>
+-#include <linux/smp_lock.h>
+ #include <asm/atomic.h>
+ #include <asm/uaccess.h>
+ #include <linux/hw_random.h>
+@@ -299,9 +298,7 @@ static ssize_t zcrypt_write(struct file *filp, const char __user *buf,
+  */
+ static int zcrypt_open(struct inode *inode, struct file *filp)
  {
--	return __div(cputime, 4096000);
-+	return cputime_div(cputime, 4096000);
- }
- 
- static inline cputime_t
-@@ -160,7 +160,7 @@ cputime_to_timeval(const cputime_t cputime, struct timeval *value)
- static inline clock_t
- cputime_to_clock_t(cputime_t cputime)
- {
--	return __div(cputime, 4096000000ULL / USER_HZ);
-+	return cputime_div(cputime, 4096000000ULL / USER_HZ);
- }
- 
- static inline cputime_t
-@@ -175,7 +175,7 @@ clock_t_to_cputime(unsigned long x)
- static inline clock_t
- cputime64_to_clock_t(cputime64_t cputime)
- {
--       return __div(cputime, 4096000000ULL / USER_HZ);
-+       return cputime_div(cputime, 4096000000ULL / USER_HZ);
- }
- 
- struct s390_idle_data {
-diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-index ee57a42..4890ac6 100644
---- a/arch/s390/kernel/ipl.c
-+++ b/arch/s390/kernel/ipl.c
-@@ -1595,10 +1595,9 @@ static void stop_run(struct shutdown_trigger *trigger)
- {
- 	if (strcmp(trigger->name, ON_PANIC_STR) == 0)
- 		disabled_wait((unsigned long) __builtin_return_address(0));
--	else {
--		signal_processor(smp_processor_id(), sigp_stop);
--		for (;;);
--	}
-+	while (signal_processor(smp_processor_id(), sigp_stop) == sigp_busy)
-+		cpu_relax();
-+	for (;;);
- }
- 
- static struct shutdown_action stop_action = {SHUTDOWN_ACTION_STOP_STR,
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index c932caa..93e5203 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -76,7 +76,6 @@ static int cpu_stopped(int cpu)
- 	__u32 status;
- 
- 	switch (signal_processor_ps(&status, 0, cpu, sigp_sense)) {
--	case sigp_order_code_accepted:
- 	case sigp_status_stored:
- 		/* Check for stopped and check stop state */
- 		if (status & 0x50)
-@@ -638,6 +637,8 @@ void __cpu_die(unsigned int cpu)
- 	/* Wait until target cpu is down */
- 	while (!cpu_stopped(cpu))
- 		cpu_relax();
-+	while (signal_processor_p(0, cpu, sigp_set_prefix) == sigp_busy)
-+		udelay(10);
- 	smp_free_lowcore(cpu);
- 	pr_info("Processor %d stopped\n", cpu);
- }
-@@ -645,8 +646,8 @@ void __cpu_die(unsigned int cpu)
- void cpu_die(void)
- {
- 	idle_task_exit();
--	signal_processor(smp_processor_id(), sigp_stop);
--	BUG();
-+	while (signal_processor(smp_processor_id(), sigp_stop) == sigp_busy)
-+		cpu_relax();
- 	for (;;);
- }
- 
-diff --git a/arch/s390/kernel/swsusp_asm64.S b/arch/s390/kernel/swsusp_asm64.S
-index 7c8653e..0c26cc1 100644
---- a/arch/s390/kernel/swsusp_asm64.S
-+++ b/arch/s390/kernel/swsusp_asm64.S
-@@ -199,6 +199,7 @@ pgm_check_entry:
- 	brc	2,4b			/* busy, try again */
- 5:
- 	sigp	%r9,%r2,__SIGP_STOP	/* stop resume (current) CPU */
-+	brc	2,5b			/* busy, try again */
- 6:	j	6b
- 
- restart_suspend:
-@@ -206,6 +207,7 @@ restart_suspend:
- 	llgh	%r2,0(%r1)
- 7:
- 	sigp	%r9,%r2,__SIGP_SENSE	/* Wait for resume CPU */
-+	brc	8,7b			/* accepted, status 0, still running */
- 	brc	2,7b			/* busy, try again */
- 	tmll	%r9,0x40		/* Test if resume CPU is stopped */
- 	jz	7b
-diff --git a/drivers/s390/char/sclp_async.c b/drivers/s390/char/sclp_async.c
-index a4f68e5..b44462a 100644
---- a/drivers/s390/char/sclp_async.c
-+++ b/drivers/s390/char/sclp_async.c
-@@ -26,7 +26,6 @@ static struct sclp_async_sccb *sccb;
- static int sclp_async_send_wait(char *message);
- static struct ctl_table_header *callhome_sysctl_header;
- static DEFINE_SPINLOCK(sclp_async_lock);
--static char nodename[64];
- #define SCLP_NORMAL_WRITE	0x00
- 
- struct async_evbuf {
-@@ -52,9 +51,10 @@ static struct sclp_register sclp_async_register = {
- static int call_home_on_panic(struct notifier_block *self,
- 			      unsigned long event, void *data)
- {
--		strncat(data, nodename, strlen(nodename));
--		sclp_async_send_wait(data);
--		return NOTIFY_DONE;
-+	strncat(data, init_utsname()->nodename,
-+		sizeof(init_utsname()->nodename));
-+	sclp_async_send_wait(data);
-+	return NOTIFY_DONE;
- }
- 
- static struct notifier_block call_home_panic_nb = {
-@@ -68,15 +68,14 @@ static int proc_handler_callhome(struct ctl_table *ctl, int write,
- {
- 	unsigned long val;
- 	int len, rc;
--	char buf[2];
-+	char buf[3];
- 
--	if (!*count | (*ppos && !write)) {
-+	if (!*count || (*ppos && !write)) {
- 		*count = 0;
- 		return 0;
- 	}
- 	if (!write) {
--		len =  sprintf(buf, "%d\n", callhome_enabled);
--		buf[len] = '\0';
-+		len = snprintf(buf, sizeof(buf), "%d\n", callhome_enabled);
- 		rc = copy_to_user(buffer, buf, sizeof(buf));
- 		if (rc != 0)
- 			return -EFAULT;
-@@ -171,39 +170,29 @@ static int __init sclp_async_init(void)
- 	rc = sclp_register(&sclp_async_register);
- 	if (rc)
- 		return rc;
--	callhome_sysctl_header = register_sysctl_table(kern_dir_table);
--	if (!callhome_sysctl_header) {
--		rc = -ENOMEM;
--		goto out_sclp;
--	}
--	if (!(sclp_async_register.sclp_receive_mask & EVTYP_ASYNC_MASK)) {
--		rc = -EOPNOTSUPP;
-+	rc = -EOPNOTSUPP;
-+	if (!(sclp_async_register.sclp_receive_mask & EVTYP_ASYNC_MASK))
- 		goto out_sclp;
--	}
- 	rc = -ENOMEM;
-+	callhome_sysctl_header = register_sysctl_table(kern_dir_table);
-+	if (!callhome_sysctl_header)
-+		goto out_sclp;
- 	request = kzalloc(sizeof(struct sclp_req), GFP_KERNEL);
--	if (!request)
--		goto out_sys;
- 	sccb = (struct sclp_async_sccb *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
--	if (!sccb)
-+	if (!request || !sccb)
- 		goto out_mem;
--	rc =  atomic_notifier_chain_register(&panic_notifier_list,
--					     &call_home_panic_nb);
--	if (rc)
--		goto out_mem;
--
--	strncpy(nodename, init_utsname()->nodename, 64);
--	return 0;
--
-+	rc = atomic_notifier_chain_register(&panic_notifier_list,
-+					    &call_home_panic_nb);
-+	if (!rc)
-+		goto out;
- out_mem:
- 	kfree(request);
- 	free_page((unsigned long) sccb);
--out_sys:
- 	unregister_sysctl_table(callhome_sysctl_header);
- out_sclp:
- 	sclp_unregister(&sclp_async_register);
-+out:
- 	return rc;
--
- }
- module_init(sclp_async_init);
- 
-diff --git a/drivers/s390/net/smsgiucv.c b/drivers/s390/net/smsgiucv.c
-index 102000d..3012355 100644
---- a/drivers/s390/net/smsgiucv.c
-+++ b/drivers/s390/net/smsgiucv.c
-@@ -158,7 +158,12 @@ static int smsg_pm_restore_thaw(struct device *dev)
- 		smsg_path->flags = 0;
- 		rc = iucv_path_connect(smsg_path, &smsg_handler, "*MSG    ",
- 				       NULL, NULL, NULL);
--		printk(KERN_ERR "iucv_path_connect returned with rc %i\n", rc);
-+#ifdef CONFIG_PM_DEBUG
-+		if (rc)
-+			printk(KERN_ERR
-+			       "iucv_path_connect returned with rc %i\n", rc);
-+#endif
-+		cpcmd("SET SMSG IUCV", NULL, 0, NULL);
- 	}
+-	lock_kernel();
+ 	atomic_inc(&zcrypt_open_count);
+-	unlock_kernel();
  	return 0;
  }
+ 
+@@ -888,6 +885,7 @@ static long zcrypt_compat_ioctl(struct file *filp, unsigned int cmd,
+  */
+ static const struct file_operations zcrypt_fops = {
+ 	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
+ 	.read		= zcrypt_read,
+ 	.write		= zcrypt_write,
+ 	.unlocked_ioctl	= zcrypt_unlocked_ioctl,
+-- 
+1.6.0.6
