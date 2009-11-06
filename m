@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756360AbZKDNkr@vger.kernel.org>
-Date: Wed, 4 Nov 2009 14:40:52 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1755253AbZKFIlp@vger.kernel.org>
+Date: Fri, 6 Nov 2009 09:41:38 +0100
+From: Ingo Molnar <mingo@elte.hu>
 Subject: Re: [patch 0/2] nohz tweaking
-Message-ID: <20091104144052.0b4e99e1@mschwide.boeblingen.de.ibm.com>
-In-Reply-To: <alpine.LFD.2.00.0909301204460.2756@nanos>
-References: <20090929122514.693636761@de.ibm.com>
-	<alpine.LFD.2.00.0909301204460.2756@nanos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <20091106084138.GB22505@elte.hu>
+References: <20090929122514.693636761@de.ibm.com> <alpine.LFD.2.00.0909301204460.2756@nanos> <20091104144052.0b4e99e1@mschwide.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20091104144052.0b4e99e1@mschwide.boeblingen.de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Moin Thomas,
 
-On Wed, 30 Sep 2009 12:06:42 +0200 (CEST)
-Thomas Gleixner <tglx@linutronix.de> wrote:
+* Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
 
-> Martin,
+> Moin Thomas,
 > 
-> On Tue, 29 Sep 2009, Martin Schwidefsky wrote:
+> On Wed, 30 Sep 2009 12:06:42 +0200 (CEST)
+> Thomas Gleixner <tglx@linutronix.de> wrote:
 > 
-> > Greetings,
-> > the two remainting patches of the nohz performance work I've been
-> > doing. Both have been sent to the mailing lists before. Ingo had
-> > a comment about patch #1, but no one but me seems to be interested
-> > in patch #2. Neverless I would like to get both patches upstream.
-> > I can create a branch for them on git390 but I feel that they should
-> > go the path all the other nohz/time/clocksource patches went.
+> > Martin,
+> > 
+> > On Tue, 29 Sep 2009, Martin Schwidefsky wrote:
+> > 
+> > > Greetings,
+> > > the two remainting patches of the nohz performance work I've been
+> > > doing. Both have been sent to the mailing lists before. Ingo had
+> > > a comment about patch #1, but no one but me seems to be interested
+> > > in patch #2. Neverless I would like to get both patches upstream.
+> > > I can create a branch for them on git390 but I feel that they should
+> > > go the path all the other nohz/time/clocksource patches went.
+> > 
+> > Sorry, that's my fault. I forgot them over the watchdog
+> > wreckage. Picking them up now.
 > 
-> Sorry, that's my fault. I forgot them over the watchdog
-> wreckage. Picking them up now.
+> I could not find the patches on tip timers/core. Where did you put them ?
 
-I could not find the patches on tip timers/core. Where did you put them ?
+these are the currently pending patches in tip:timers/core:
 
--- 
-blue skies,
-   Martin.
+3c5d92a: nohz: Introduce arch_needs_cpu
+eed3b9c: nohz: Reuse ktime in sub-functions of tick_check_idle.
+7bc7d63: time: Remove xtime_cache
+a092ff0: time: Implement logarithmic time accumulation
 
-"Reality continues to ruin my life." - Calvin.
+	Ingo
