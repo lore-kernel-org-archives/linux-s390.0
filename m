@@ -1,255 +1,414 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1754503AbZKIUhS@vger.kernel.org>
-Date: Mon, 9 Nov 2009 14:37:19 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: [v11][PATCH 8/9] Define clone_with_pids() syscall
-Message-ID: <20091109203719.GA14448@us.ibm.com>
-References: <20091105053053.GA11289@us.ibm.com>
- <20091105054124.GH16142@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20091105054124.GH16142@us.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Containers <containers@lists.linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+From: frank.blaschka@de.ibm.com
+Subject: [patch 1/5] [PATCH] qeth: Exploit Connection Isolation
+Date: Thu, 12 Nov 2009 11:11:41 +0100
+Message-ID: <20091112101300.729118000@de.ibm.com>
+References: <20091112101140.882313000@de.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=604-qeth-isolation.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Einar Lueck <elelueck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Here is a stab at the s390 syscall.
+From: Einar Lueck <elelueck@de.ibm.com>
 
-From f710be4f1296d50551210bcc9ff6ba25d288bc46 Mon Sep 17 00:00:00 2001
-From: Serge E. Hallyn <serue@us.ibm.com>
-Date: Fri, 6 Nov 2009 19:03:43 -0500
-Subject: [PATCH 1/1] implement s390 clone_with_pids syscall
+Isolate data connection to a shared OSA card against other data
+connections to the same OSA card. Connectivity between isolated
+data connections sharing the same OSA card is therefore possible only
+through external network gear (e.g. a router).
 
-This does the s390 hook for v11 of clone-with-pids.
-
-I've got a program using the syscall successfully passing
-args to the child function and continuing to run - but I
-haven't yet gotten that hooked into user-cr/restart.c
-successfully.
-
-The core of my user-space code to use it is:
-
-int do_child(void *arg)
-{
-	int iarg = (int ) arg;
-
-	printf("here i am, i was passed %d, my tid is %d\n", iarg, gettid());
-	return 0;
-}
-
- #define do_cwp(flags, pids, args, sz) \
-( { \
-	register unsigned long int __r2 asm ("2") = (unsigned long int)(flags); \
-	register unsigned long int __r3 asm ("3") = (unsigned long int)(args); \
-	register unsigned long int __r4 asm ("4") = (unsigned long int)(sz); \
-	register unsigned long int __r5 asm ("5") = (unsigned long int)(pids); \
-	register unsigned long int __result asm ("2"); \
-	__asm__ __volatile__( \
-		" lghi %%r1,%5\n" /* put __NR_cwp in r1 for svc 0 */ \
-		" svc 0\n" /* do __NR_cwp syscall */ \
-		" ltgr %%r2,%%r2\n" /* returned 0? */ \
-		" jnz 1f\n" /* if not goto label 1 */ \
-		" lg %%r3,0(%%r15)\n"   /* get fnarg off stack into arg 1 */ \
-		" lg %%r2,8(%%r15)\n"   /* get fn off stack into r3 for basr*/ \
-		" lgr %%r1,%%r15\n" /* tmp store old stack pointer */ \
-		" aghi %%r15,-160\n" /* move the stack */ \
-		" stg %%r1,0(%%r15)\n" /* and save old stack pointer */ \
-		" basr %%r14,%%r3\n" /* call fn(arg) */ \
-		" svc 1\n"  /* call exit */ \
-		" 1:\n" \
-		: "=d" (__result) \
-		: "0" (__r2), "d" (__r3), "d" (__r4), "d" (__r5), \
-		  "i" (__NR_clone_with_pids) \
-		: "1", "cc", "memory"); \
-	__result; \
-} )
-
-int clone_with_pids(int (*fn)(void *), int flags, int nrpids, int *pids,
-		    void *fnarg)
-{
-	long retval;
-	struct clone_args clone_args, *ca = &clone_args;
-	int stacksize;
-	void *sb;
-	u64 *s;
-	int i;
-
-	memset(ca, 0, sizeof(struct clone_args));
-	stacksize = 4*getpagesize();
-	sb  = (void *) malloc(stacksize);
-	if (!sb) {
-		perror("malloc");
-		_exit(1);
-	}
-
-	ca->child_stack_base = (u64) sb;
-	ca->child_stack_size = stacksize-8;
-	s = (u64 *)(sb + ca->child_stack_size);
-	*--s = (u64)fnarg;
-	*--s = (u64)fn;
-	ca->child_stack_size -= 16;
-	ca->nr_pids = nrpids;
-	retval = do_cwp(flags, pids, ca, sizeof(struct clone_args));
-
-	return retval;
-}
-
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+Signed-off-by: Einar Lueck <elelueck@de.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
- arch/s390/include/asm/unistd.h  |    3 +-
- arch/s390/kernel/compat_linux.c |   50 ++++++++++++++++++++++++++++++++++++++
- arch/s390/kernel/process.c      |   51 +++++++++++++++++++++++++++++++++++++++
- arch/s390/kernel/syscalls.S     |    1 +
- 4 files changed, 104 insertions(+), 1 deletions(-)
 
-diff --git a/arch/s390/include/asm/unistd.h b/arch/s390/include/asm/unistd.h
-index cb5232d..ae9474e 100644
---- a/arch/s390/include/asm/unistd.h
-+++ b/arch/s390/include/asm/unistd.h
-@@ -269,7 +269,8 @@
- #define	__NR_pwritev		329
- #define __NR_rt_tgsigqueueinfo	330
- #define __NR_perf_event_open	331
--#define NR_syscalls 332
-+#define __NR_clone_with_pids	332
-+#define NR_syscalls 333
+ drivers/s390/net/qeth_core.h      |    2 
+ drivers/s390/net/qeth_core_main.c |  151 ++++++++++++++++++++++++++++++++++++++
+ drivers/s390/net/qeth_core_mpc.h  |   45 ++++++++---
+ drivers/s390/net/qeth_core_sys.c  |   77 +++++++++++++++++++
+ drivers/s390/net/qeth_l2_main.c   |    2 
+ drivers/s390/net/qeth_l3_main.c   |    2 
+ 6 files changed, 267 insertions(+), 12 deletions(-)
+
+diff -urpN linux-2.6/drivers/s390/net/qeth_core.h linux-2.6-patched/drivers/s390/net/qeth_core.h
+--- linux-2.6/drivers/s390/net/qeth_core.h	2009-11-10 17:02:43.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_core.h	2009-11-10 17:03:17.000000000 +0100
+@@ -648,6 +648,7 @@ struct qeth_card_options {
+ 	enum qeth_large_send_types large_send;
+ 	int performance_stats;
+ 	int rx_sg_cb;
++	enum qeth_ipa_isolation_modes isolation;
+ };
  
- /* 
-  * There are some system calls that are not present on 64 bit, some
-diff --git a/arch/s390/kernel/compat_linux.c b/arch/s390/kernel/compat_linux.c
-index 0debcec..1750fae 100644
---- a/arch/s390/kernel/compat_linux.c
-+++ b/arch/s390/kernel/compat_linux.c
-@@ -762,6 +762,56 @@ asmlinkage long sys32_write(unsigned int fd, char __user * buf, size_t count)
- 	return sys_write(fd, buf, count);
+ /*
+@@ -856,6 +857,7 @@ void qeth_core_get_strings(struct net_de
+ void qeth_core_get_drvinfo(struct net_device *, struct ethtool_drvinfo *);
+ void qeth_dbf_longtext(enum qeth_dbf_names dbf_nix, int level, char *text, ...);
+ int qeth_core_ethtool_get_settings(struct net_device *, struct ethtool_cmd *);
++int qeth_set_access_ctrl_online(struct qeth_card *card);
+ 
+ /* exports for OSN */
+ int qeth_osn_assist(struct net_device *, void *, int);
+diff -urpN linux-2.6/drivers/s390/net/qeth_core_main.c linux-2.6-patched/drivers/s390/net/qeth_core_main.c
+--- linux-2.6/drivers/s390/net/qeth_core_main.c	2009-11-10 17:02:43.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_core_main.c	2009-11-10 17:03:17.000000000 +0100
+@@ -1079,6 +1079,7 @@ static void qeth_set_intial_options(stru
+ 	card->options.add_hhlen = DEFAULT_ADD_HHLEN;
+ 	card->options.performance_stats = 0;
+ 	card->options.rx_sg_cb = QETH_RX_SG_CB;
++	card->options.isolation = ISOLATION_MODE_NONE;
  }
  
-+asmlinkage long sys32_clone_with_pids(void)
-+{
-+	int rc;
-+	struct pt_regs *regs = task_pt_regs(current);
-+	int args_size;
-+	struct clone_args kca;
-+	unsigned long flags;
-+	int __user *parent_tid_ptr;
-+	int __user *child_tid_ptr;
-+	unsigned long __user child_stack;
-+	unsigned long stack_size;
-+	unsigned int flags_low;
-+	struct clone_args __user *uca;
-+	pid_t __user *pids;
-+
-+	flags_low = regs->gprs[2] & 0xffffffffUL;
-+	uca = compat_ptr(regs->gprs[3]);
-+	args_size = regs->gprs[4] & 0xffffffffUL;
-+	pids = compat_ptr(regs->gprs[5]);
-+
-+	rc = fetch_clone_args_from_user(uca, args_size, &kca);
-+	if (rc)
-+		return rc;
-+
-+	/*
-+	 * TODO: Convert 'clone-flags' to 64-bits on all architectures.
-+	 * TODO: When ->clone_flags_high is non-zero, copy it in to the
-+	 * 	 higher word(s) of 'flags':
-+	 *
-+	 * 		flags = (kca.clone_flags_high << 32) | flags_low;
-+	 */
-+	flags = flags_low;
-+	parent_tid_ptr = (int *)kca.parent_tid_ptr;
-+	child_tid_ptr =  (int *)kca.child_tid_ptr;
-+
-+	stack_size = (unsigned long)kca.child_stack_size;
-+	child_stack = (unsigned long)kca.child_stack_base + stack_size;
-+
-+	if (!child_stack)
-+		child_stack = regs->gprs[15];
-+
-+	/*
-+	 * TODO: On 32-bit systems, clone_flags is passed in as 32-bit value
-+	 * 	 to several functions. Need to convert clone_flags to 64-bit.
-+	 */
-+	return do_fork_with_pids(flags, child_stack, regs, stack_size,
-+				parent_tid_ptr, child_tid_ptr, kca.nr_pids,
-+				pids);
-+}
-+
- /*
-  * 31 bit emulation wrapper functions for sys_fadvise64/fadvise64_64.
-  * These need to rewrite the advise values for POSIX_FADV_{DONTNEED,NOREUSE}
-diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
-index 5417eb5..e27a1b4 100644
---- a/arch/s390/kernel/process.c
-+++ b/arch/s390/kernel/process.c
-@@ -241,6 +241,57 @@ SYSCALL_DEFINE4(clone, unsigned long, newsp, unsigned long, clone_flags,
- 		       parent_tidptr, child_tidptr);
+ static int qeth_do_start_thread(struct qeth_card *card, unsigned long thread)
+@@ -3389,6 +3390,156 @@ int qeth_setadpparms_change_macaddr(stru
  }
+ EXPORT_SYMBOL_GPL(qeth_setadpparms_change_macaddr);
  
-+SYSCALL_DEFINE0(clone_with_pids)
++static int qeth_setadpparms_set_access_ctrl_cb(struct qeth_card *card,
++		struct qeth_reply *reply, unsigned long data)
 +{
++	struct qeth_ipa_cmd *cmd;
++	struct qeth_set_access_ctrl *access_ctrl_req;
 +	int rc;
-+	struct pt_regs *regs = task_pt_regs(current);
-+	int args_size;
-+	struct clone_args kca;
-+	unsigned long flags;
-+	int __user *parent_tid_ptr;
-+	int __user *child_tid_ptr;
-+	unsigned long __user child_stack;
-+	unsigned long stack_size;
-+	unsigned int flags_low;
-+	struct clone_args __user *uca;
-+	pid_t __user *pids;
 +
-+	flags_low = regs->gprs[2];
-+	uca = (struct clone_args __user *)regs->gprs[3];
-+	args_size = regs->gprs[4];
-+	pids = (pid_t __user *)regs->gprs[5];
++	QETH_DBF_TEXT(TRACE, 4, "setaccb");
 +
-+	rc = fetch_clone_args_from_user(uca, args_size, &kca);
-+	if (rc)
-+		return rc;
++	cmd = (struct qeth_ipa_cmd *) data;
++	access_ctrl_req = &cmd->data.setadapterparms.data.set_access_ctrl;
++	QETH_DBF_TEXT_(SETUP, 2, "setaccb");
++	QETH_DBF_TEXT_(SETUP, 2, "%s", card->gdev->dev.kobj.name);
++	QETH_DBF_TEXT_(SETUP, 2, "rc=%d",
++		cmd->data.setadapterparms.hdr.return_code);
++	switch (cmd->data.setadapterparms.hdr.return_code) {
++	case SET_ACCESS_CTRL_RC_SUCCESS:
++	case SET_ACCESS_CTRL_RC_ALREADY_NOT_ISOLATED:
++	case SET_ACCESS_CTRL_RC_ALREADY_ISOLATED:
++	{
++		card->options.isolation = access_ctrl_req->subcmd_code;
++		if (card->options.isolation == ISOLATION_MODE_NONE) {
++			dev_info(&card->gdev->dev,
++			    "QDIO data connection isolation is deactivated\n");
++		} else {
++			dev_info(&card->gdev->dev,
++			    "QDIO data connection isolation is activated\n");
++		}
++		QETH_DBF_MESSAGE(3, "OK:SET_ACCESS_CTRL(%s, %d)==%d\n",
++			card->gdev->dev.kobj.name,
++			access_ctrl_req->subcmd_code,
++			cmd->data.setadapterparms.hdr.return_code);
++		rc = 0;
++		break;
++	}
++	case SET_ACCESS_CTRL_RC_NOT_SUPPORTED:
++	{
++		QETH_DBF_MESSAGE(3, "ERR:SET_ACCESS_CTRL(%s,%d)==%d\n",
++			card->gdev->dev.kobj.name,
++			access_ctrl_req->subcmd_code,
++			cmd->data.setadapterparms.hdr.return_code);
++		dev_err(&card->gdev->dev, "Adapter does not "
++			"support QDIO data connection isolation\n");
 +
-+	/*
-+	 * TODO: Convert 'clone-flags' to 64-bits on all architectures.
-+	 * TODO: When ->clone_flags_high is non-zero, copy it in to the
-+	 * 	 higher word(s) of 'flags':
-+	 *
-+	 * 		flags = (kca.clone_flags_high << 32) | flags_low;
-+	 */
-+	flags = flags_low;
-+	parent_tid_ptr = (int *)kca.parent_tid_ptr;
-+	child_tid_ptr =  (int *)kca.child_tid_ptr;
++		/* ensure isolation mode is "none" */
++		card->options.isolation = ISOLATION_MODE_NONE;
++		rc = -EOPNOTSUPP;
++		break;
++	}
++	case SET_ACCESS_CTRL_RC_NONE_SHARED_ADAPTER:
++	{
++		QETH_DBF_MESSAGE(3, "ERR:SET_ACCESS_MODE(%s,%d)==%d\n",
++			card->gdev->dev.kobj.name,
++			access_ctrl_req->subcmd_code,
++			cmd->data.setadapterparms.hdr.return_code);
++		dev_err(&card->gdev->dev,
++			"Adapter is dedicated. "
++			"QDIO data connection isolation not supported\n");
 +
-+	stack_size = (unsigned long)kca.child_stack_size;
-+	child_stack = (unsigned long)kca.child_stack_base;
-+	if (child_stack)
-+		child_stack += stack_size;
-+	else
-+		child_stack = regs->gprs[15];
++		/* ensure isolation mode is "none" */
++		card->options.isolation = ISOLATION_MODE_NONE;
++		rc = -EOPNOTSUPP;
++		break;
++	}
++	case SET_ACCESS_CTRL_RC_ACTIVE_CHECKSUM_OFF:
++	{
++		QETH_DBF_MESSAGE(3, "ERR:SET_ACCESS_MODE(%s,%d)==%d\n",
++			card->gdev->dev.kobj.name,
++			access_ctrl_req->subcmd_code,
++			cmd->data.setadapterparms.hdr.return_code);
++		dev_err(&card->gdev->dev,
++			"TSO does not permit QDIO data connection isolation\n");
 +
-+	/*
-+	 * TODO: On 32-bit systems, clone_flags is passed in as 32-bit value
-+	 * 	 to several functions. Need to convert clone_flags to 64-bit.
-+	 */
-+	return do_fork_with_pids(flags, child_stack, regs, stack_size,
-+				parent_tid_ptr, child_tid_ptr, kca.nr_pids,
-+				pids);
++		/* ensure isolation mode is "none" */
++		card->options.isolation = ISOLATION_MODE_NONE;
++		rc = -EPERM;
++		break;
++	}
++	default:
++	{
++		/* this should never happen */
++		QETH_DBF_MESSAGE(3, "ERR:SET_ACCESS_MODE(%s,%d)==%d"
++			"==UNKNOWN\n",
++			card->gdev->dev.kobj.name,
++			access_ctrl_req->subcmd_code,
++			cmd->data.setadapterparms.hdr.return_code);
++
++		/* ensure isolation mode is "none" */
++		card->options.isolation = ISOLATION_MODE_NONE;
++		rc = 0;
++		break;
++	}
++	}
++	qeth_default_setadapterparms_cb(card, reply, (unsigned long) cmd);
++	return rc;
 +}
 +
- /*
-  * This is trivial, and on the face of it looks like it
-  * could equally well be done in user mode.
-diff --git a/arch/s390/kernel/syscalls.S b/arch/s390/kernel/syscalls.S
-index 30eca07..c6dc240 100644
---- a/arch/s390/kernel/syscalls.S
-+++ b/arch/s390/kernel/syscalls.S
-@@ -340,3 +340,4 @@ SYSCALL(sys_preadv,sys_preadv,compat_sys_preadv_wrapper)
- SYSCALL(sys_pwritev,sys_pwritev,compat_sys_pwritev_wrapper)
- SYSCALL(sys_rt_tgsigqueueinfo,sys_rt_tgsigqueueinfo,compat_sys_rt_tgsigqueueinfo_wrapper) /* 330 */
- SYSCALL(sys_perf_event_open,sys_perf_event_open,sys_perf_event_open_wrapper)
-+SYSCALL(sys_clone_with_pids,sys_clone_with_pids,sys_clone_with_pids_wrapper)
--- 
-1.6.1
++static int qeth_setadpparms_set_access_ctrl(struct qeth_card *card,
++		enum qeth_ipa_isolation_modes isolation)
++{
++	int rc;
++	struct qeth_cmd_buffer *iob;
++	struct qeth_ipa_cmd *cmd;
++	struct qeth_set_access_ctrl *access_ctrl_req;
++
++	QETH_DBF_TEXT(TRACE, 4, "setacctl");
++
++	QETH_DBF_TEXT_(SETUP, 2, "setacctl");
++	QETH_DBF_TEXT_(SETUP, 2, "%s", card->gdev->dev.kobj.name);
++
++	iob = qeth_get_adapter_cmd(card, IPA_SETADP_SET_ACCESS_CONTROL,
++				   sizeof(struct qeth_ipacmd_setadpparms_hdr) +
++				   sizeof(struct qeth_set_access_ctrl));
++	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
++	access_ctrl_req = &cmd->data.setadapterparms.data.set_access_ctrl;
++	access_ctrl_req->subcmd_code = isolation;
++
++	rc = qeth_send_ipa_cmd(card, iob, qeth_setadpparms_set_access_ctrl_cb,
++			       NULL);
++	QETH_DBF_TEXT_(SETUP, 2, "rc=%d", rc);
++	return rc;
++}
++
++int qeth_set_access_ctrl_online(struct qeth_card *card)
++{
++	int rc = 0;
++
++	QETH_DBF_TEXT(TRACE, 4, "setactlo");
++
++	if (card->info.type == QETH_CARD_TYPE_OSAE &&
++	    qeth_adp_supported(card, IPA_SETADP_SET_ACCESS_CONTROL)) {
++		rc = qeth_setadpparms_set_access_ctrl(card,
++			card->options.isolation);
++		if (rc) {
++			QETH_DBF_MESSAGE(3,
++				"IPA(SET_ACCESS_CTRL,%s,%d) sent failed",
++				card->gdev->dev.kobj.name,
++				rc);
++		}
++	} else if (card->options.isolation != ISOLATION_MODE_NONE) {
++		card->options.isolation = ISOLATION_MODE_NONE;
++
++		dev_err(&card->gdev->dev, "Adapter does not "
++			"support QDIO data connection isolation\n");
++		rc = -EOPNOTSUPP;
++	}
++	return rc;
++}
++EXPORT_SYMBOL_GPL(qeth_set_access_ctrl_online);
++
+ void qeth_tx_timeout(struct net_device *dev)
+ {
+ 	struct qeth_card *card;
+diff -urpN linux-2.6/drivers/s390/net/qeth_core_mpc.h linux-2.6-patched/drivers/s390/net/qeth_core_mpc.h
+--- linux-2.6/drivers/s390/net/qeth_core_mpc.h	2009-09-10 00:13:59.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth_core_mpc.h	2009-11-10 17:03:17.000000000 +0100
+@@ -234,18 +234,19 @@ enum qeth_ipa_setdelip_flags {
+ 
+ /* SETADAPTER IPA Command: ****************************************************/
+ enum qeth_ipa_setadp_cmd {
+-	IPA_SETADP_QUERY_COMMANDS_SUPPORTED	= 0x0001,
+-	IPA_SETADP_ALTER_MAC_ADDRESS		= 0x0002,
+-	IPA_SETADP_ADD_DELETE_GROUP_ADDRESS	= 0x0004,
+-	IPA_SETADP_ADD_DELETE_FUNCTIONAL_ADDR	= 0x0008,
+-	IPA_SETADP_SET_ADDRESSING_MODE		= 0x0010,
+-	IPA_SETADP_SET_CONFIG_PARMS		= 0x0020,
+-	IPA_SETADP_SET_CONFIG_PARMS_EXTENDED	= 0x0040,
+-	IPA_SETADP_SET_BROADCAST_MODE		= 0x0080,
+-	IPA_SETADP_SEND_OSA_MESSAGE		= 0x0100,
+-	IPA_SETADP_SET_SNMP_CONTROL		= 0x0200,
+-	IPA_SETADP_QUERY_CARD_INFO		= 0x0400,
+-	IPA_SETADP_SET_PROMISC_MODE		= 0x0800,
++	IPA_SETADP_QUERY_COMMANDS_SUPPORTED	= 0x00000001L,
++	IPA_SETADP_ALTER_MAC_ADDRESS		= 0x00000002L,
++	IPA_SETADP_ADD_DELETE_GROUP_ADDRESS	= 0x00000004L,
++	IPA_SETADP_ADD_DELETE_FUNCTIONAL_ADDR	= 0x00000008L,
++	IPA_SETADP_SET_ADDRESSING_MODE		= 0x00000010L,
++	IPA_SETADP_SET_CONFIG_PARMS		= 0x00000020L,
++	IPA_SETADP_SET_CONFIG_PARMS_EXTENDED	= 0x00000040L,
++	IPA_SETADP_SET_BROADCAST_MODE		= 0x00000080L,
++	IPA_SETADP_SEND_OSA_MESSAGE		= 0x00000100L,
++	IPA_SETADP_SET_SNMP_CONTROL		= 0x00000200L,
++	IPA_SETADP_QUERY_CARD_INFO		= 0x00000400L,
++	IPA_SETADP_SET_PROMISC_MODE		= 0x00000800L,
++	IPA_SETADP_SET_ACCESS_CONTROL		= 0x00010000L,
+ };
+ enum qeth_ipa_mac_ops {
+ 	CHANGE_ADDR_READ_MAC		= 0,
+@@ -264,6 +265,20 @@ enum qeth_ipa_promisc_modes {
+ 	SET_PROMISC_MODE_OFF		= 0,
+ 	SET_PROMISC_MODE_ON		= 1,
+ };
++enum qeth_ipa_isolation_modes {
++	ISOLATION_MODE_NONE		= 0x00000000L,
++	ISOLATION_MODE_FWD		= 0x00000001L,
++	ISOLATION_MODE_DROP		= 0x00000002L,
++};
++enum qeth_ipa_set_access_mode_rc {
++	SET_ACCESS_CTRL_RC_SUCCESS		= 0x0000,
++	SET_ACCESS_CTRL_RC_NOT_SUPPORTED	= 0x0004,
++	SET_ACCESS_CTRL_RC_ALREADY_NOT_ISOLATED	= 0x0008,
++	SET_ACCESS_CTRL_RC_ALREADY_ISOLATED	= 0x0010,
++	SET_ACCESS_CTRL_RC_NONE_SHARED_ADAPTER	= 0x0014,
++	SET_ACCESS_CTRL_RC_ACTIVE_CHECKSUM_OFF	= 0x0018,
++};
++
+ 
+ /* (SET)DELIP(M) IPA stuff ***************************************************/
+ struct qeth_ipacmd_setdelip4 {
+@@ -376,6 +391,11 @@ struct qeth_snmp_ureq {
+ 	struct qeth_snmp_cmd cmd;
+ } __attribute__((packed));
+ 
++/* SET_ACCESS_CONTROL: same format for request and reply */
++struct qeth_set_access_ctrl {
++	__u32 subcmd_code;
++} __attribute__((packed));
++
+ struct qeth_ipacmd_setadpparms_hdr {
+ 	__u32 supp_hw_cmds;
+ 	__u32 reserved1;
+@@ -394,6 +414,7 @@ struct qeth_ipacmd_setadpparms {
+ 		struct qeth_query_cmds_supp query_cmds_supp;
+ 		struct qeth_change_addr change_addr;
+ 		struct qeth_snmp_cmd snmp;
++		struct qeth_set_access_ctrl set_access_ctrl;
+ 		__u32 mode;
+ 	} data;
+ } __attribute__ ((packed));
+diff -urpN linux-2.6/drivers/s390/net/qeth_core_sys.c linux-2.6-patched/drivers/s390/net/qeth_core_sys.c
+--- linux-2.6/drivers/s390/net/qeth_core_sys.c	2009-11-10 17:02:43.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_core_sys.c	2009-11-10 17:03:17.000000000 +0100
+@@ -463,6 +463,82 @@ static ssize_t qeth_dev_large_send_store
+ static DEVICE_ATTR(large_send, 0644, qeth_dev_large_send_show,
+ 		   qeth_dev_large_send_store);
+ 
++#define ATTR_QETH_ISOLATION_NONE	("none")
++#define ATTR_QETH_ISOLATION_FWD		("forward")
++#define ATTR_QETH_ISOLATION_DROP	("drop")
++
++static ssize_t qeth_dev_isolation_show(struct device *dev,
++				struct device_attribute *attr, char *buf)
++{
++	struct qeth_card *card = dev_get_drvdata(dev);
++
++	if (!card)
++		return -EINVAL;
++
++	switch (card->options.isolation) {
++	case ISOLATION_MODE_NONE:
++		return snprintf(buf, 6, "%s\n", ATTR_QETH_ISOLATION_NONE);
++	case ISOLATION_MODE_FWD:
++		return snprintf(buf, 9, "%s\n", ATTR_QETH_ISOLATION_FWD);
++	case ISOLATION_MODE_DROP:
++		return snprintf(buf, 6, "%s\n", ATTR_QETH_ISOLATION_DROP);
++	default:
++		return snprintf(buf, 5, "%s\n", "N/A");
++	}
++}
++
++static ssize_t qeth_dev_isolation_store(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct qeth_card *card = dev_get_drvdata(dev);
++	enum qeth_ipa_isolation_modes isolation;
++	int rc = 0;
++	char *tmp, *curtoken;
++	curtoken = (char *) buf;
++
++	if (!card) {
++		rc = -EINVAL;
++		goto out;
++	}
++
++	/* check for unknown, too, in case we do not yet know who we are */
++	if (card->info.type != QETH_CARD_TYPE_OSAE &&
++	    card->info.type != QETH_CARD_TYPE_UNKNOWN) {
++		rc = -EOPNOTSUPP;
++		dev_err(&card->gdev->dev, "Adapter does not "
++			"support QDIO data connection isolation\n");
++		goto out;
++	}
++
++	/* parse input into isolation mode */
++	tmp = strsep(&curtoken, "\n");
++	if (!strcmp(tmp, ATTR_QETH_ISOLATION_NONE)) {
++		isolation = ISOLATION_MODE_NONE;
++	} else if (!strcmp(tmp, ATTR_QETH_ISOLATION_FWD)) {
++		isolation = ISOLATION_MODE_FWD;
++	} else if (!strcmp(tmp, ATTR_QETH_ISOLATION_DROP)) {
++		isolation = ISOLATION_MODE_DROP;
++	} else {
++		rc = -EINVAL;
++		goto out;
++	}
++	rc = count;
++
++	/* defer IP assist if device is offline (until discipline->set_online)*/
++	card->options.isolation = isolation;
++	if (card->state == CARD_STATE_SOFTSETUP ||
++	    card->state == CARD_STATE_UP) {
++		int ipa_rc = qeth_set_access_ctrl_online(card);
++		if (ipa_rc != 0)
++			rc = ipa_rc;
++	}
++out:
++	return rc;
++}
++
++static DEVICE_ATTR(isolation, 0644, qeth_dev_isolation_show,
++		   qeth_dev_isolation_store);
++
+ static ssize_t qeth_dev_blkt_show(char *buf, struct qeth_card *card, int value)
+ {
+ 
+@@ -583,6 +659,7 @@ static struct attribute *qeth_device_att
+ 	&dev_attr_performance_stats.attr,
+ 	&dev_attr_layer2.attr,
+ 	&dev_attr_large_send.attr,
++	&dev_attr_isolation.attr,
+ 	NULL,
+ };
+ 
+diff -urpN linux-2.6/drivers/s390/net/qeth_l2_main.c linux-2.6-patched/drivers/s390/net/qeth_l2_main.c
+--- linux-2.6/drivers/s390/net/qeth_l2_main.c	2009-11-10 17:02:43.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_l2_main.c	2009-11-10 17:03:17.000000000 +0100
+@@ -988,6 +988,8 @@ static int __qeth_l2_set_online(struct c
+ 		card->lan_online = 1;
+ 
+ 	if (card->info.type != QETH_CARD_TYPE_OSN) {
++		/* configure isolation level */
++		qeth_set_access_ctrl_online(card);
+ 		qeth_set_large_send(card, card->options.large_send);
+ 		qeth_l2_process_vlans(card, 0);
+ 	}
+diff -urpN linux-2.6/drivers/s390/net/qeth_l3_main.c linux-2.6-patched/drivers/s390/net/qeth_l3_main.c
+--- linux-2.6/drivers/s390/net/qeth_l3_main.c	2009-11-10 17:02:43.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_l3_main.c	2009-11-10 17:03:17.000000000 +0100
+@@ -1506,6 +1506,8 @@ static int qeth_l3_start_ipa_tso(struct 
+ static int qeth_l3_start_ipassists(struct qeth_card *card)
+ {
+ 	QETH_DBF_TEXT(TRACE, 3, "strtipas");
++
++	qeth_set_access_ctrl_online(card);	/* go on*/
+ 	qeth_l3_start_ipa_arp_processing(card);	/* go on*/
+ 	qeth_l3_start_ipa_ip_fragmentation(card);	/* go on*/
+ 	qeth_l3_start_ipa_source_mac(card);	/* go on*/
