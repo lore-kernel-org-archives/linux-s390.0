@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756573AbZKMPK6@vger.kernel.org>
-Message-Id: <20091113150916.765762750@de.ibm.com>
-Date: Fri, 13 Nov 2009 16:09:06 +0100
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756547AbZKMPKu@vger.kernel.org>
+Message-Id: <20091113150916.986219548@de.ibm.com>
+Date: Fri, 13 Nov 2009 16:09:07 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 42/52] [PATCH] cio: use sense-pgid operation for path verification
+Subject: [patch 43/52] [PATCH] cio: make steal lock procedure more robust
 References: <20091113150824.351347652@de.ibm.com>
-Content-Disposition: inline; filename=141-cio-path-verification.diff
+Content-Disposition: inline; filename=142-cio-steal-lock.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,330 +14,326 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 
-Set-pgid operations fail for some device types under z/VM for which
-the hypervisor has already set the pgid. Also reserved devices or
-changed pgids are not correctly recognized. Fix these problems by
-using a combination of sense-pgid and set-pgid and by also accepting
-pre-defined pgid settings.
+An Unconditional Reserve + Release operation (steal lock) for a
+boxed device may fail when encountering special error cases
+(e.g. unit checks or path errors). Fix this by using the more
+robust ccw_request infrastructure for performing the steal lock
+CCW program.
 
 Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/device.h      |    3 
- drivers/s390/cio/device_fsm.c  |   41 +----------
- drivers/s390/cio/device_pgid.c |  148 ++++++++++++++++++++++++++---------------
- drivers/s390/cio/io_sch.h      |    1 
- 4 files changed, 99 insertions(+), 94 deletions(-)
+ drivers/s390/cio/device.h      |    4 +
+ drivers/s390/cio/device_fsm.c  |   55 +++++++++-----------
+ drivers/s390/cio/device_ops.c  |  112 +++++++++++++++++++----------------------
+ drivers/s390/cio/device_pgid.c |   52 +++++++++++++++++++
+ 4 files changed, 134 insertions(+), 89 deletions(-)
 
 Index: quilt-2.6/drivers/s390/cio/device_fsm.c
 ===================================================================
 --- quilt-2.6.orig/drivers/s390/cio/device_fsm.c	2009-11-13 16:08:21.000000000 +0100
 +++ quilt-2.6/drivers/s390/cio/device_fsm.c	2009-11-13 16:08:21.000000000 +0100
-@@ -395,33 +395,6 @@
+@@ -641,6 +641,23 @@
  }
  
  /*
-- * Function called from device_pgid.c after sense path ground has completed.
-- */
--void
--ccw_device_sense_pgid_done(struct ccw_device *cdev, int err)
--{
--	struct subchannel *sch;
--
--	sch = to_subchannel(cdev->dev.parent);
--	switch (err) {
--	case -EOPNOTSUPP: /* path grouping not supported, use nop instead. */
--	case 0: /* success */
--	case -EACCES: /* partial success, some paths not operational */
--		break;
--	case -ETIME:		/* Sense path group id stopped by timeout. */
--	case -EUSERS:		/* device is reserved for someone else. */
--		ccw_device_done(cdev, DEV_STATE_BOXED);
--		return;
--	default:
--		ccw_device_done(cdev, DEV_STATE_NOT_OPER);
--		return;
--	}
--	/* Start Path Group verification. */
--	cdev->private->state = DEV_STATE_VERIFY;
--	ccw_device_verify_start(cdev);
--}
--
--/*
-  * Start device recognition.
++ * Handle path verification event in boxed state.
++ */
++static void ccw_device_boxed_verify(struct ccw_device *cdev,
++				    enum dev_event dev_event)
++{
++	struct subchannel *sch = to_subchannel(cdev->dev.parent);
++
++	if (cdev->online) {
++		if (cio_enable_subchannel(sch, (u32) (addr_t) sch))
++			ccw_device_done(cdev, DEV_STATE_NOT_OPER);
++		else
++			ccw_device_online_verify(cdev, dev_event);
++	} else
++		css_schedule_eval(sch->schid);
++}
++
++/*
+  * Got an interrupt for a normal io (state online).
   */
- void ccw_device_recognition(struct ccw_device *cdev)
-@@ -503,6 +476,7 @@
- 		}
- 		break;
- 	case -ETIME:
-+	case -EUSERS:
- 		/* Reset oper notify indication after verify error. */
- 		cdev->private->flags.donotify = 0;
- 		ccw_device_done(cdev, DEV_STATE_BOXED);
-@@ -540,16 +514,9 @@
- 			dev_fsm_event(cdev, DEV_EVENT_NOTOPER);
- 		return ret;
- 	}
--	/* Do we want to do path grouping? */
--	if (!cdev->private->options.pgroup) {
--		/* Start initial path verification. */
--		cdev->private->state = DEV_STATE_VERIFY;
--		ccw_device_verify_start(cdev);
--		return 0;
--	}
--	/* Do a SensePGID first. */
--	cdev->private->state = DEV_STATE_SENSE_PGID;
--	ccw_device_sense_pgid_start(cdev);
-+	/* Start initial path verification. */
-+	cdev->private->state = DEV_STATE_VERIFY;
-+	ccw_device_verify_start(cdev);
- 	return 0;
+ static void
+@@ -817,32 +834,6 @@
  }
  
+ static void
+-ccw_device_stlck_done(struct ccw_device *cdev, enum dev_event dev_event)
+-{
+-	struct irb *irb;
+-
+-	switch (dev_event) {
+-	case DEV_EVENT_INTERRUPT:
+-		irb = (struct irb *) __LC_IRB;
+-		/* Check for unsolicited interrupt. */
+-		if ((scsw_stctl(&irb->scsw) ==
+-		     (SCSW_STCTL_STATUS_PEND | SCSW_STCTL_ALERT_STATUS)) &&
+-		    (!scsw_cc(&irb->scsw)))
+-			/* FIXME: we should restart stlck here, but this
+-			 * is extremely unlikely ... */
+-			goto out_wakeup;
+-
+-		ccw_device_accumulate_irb(cdev, irb);
+-		/* We don't care about basic sense etc. */
+-		break;
+-	default: /* timeout */
+-		break;
+-	}
+-out_wakeup:
+-	wake_up(&cdev->private->wait_q);
+-}
+-
+-static void
+ ccw_device_start_id(struct ccw_device *cdev, enum dev_event dev_event)
+ {
+ 	struct subchannel *sch;
+@@ -1010,9 +1001,9 @@
+ 	},
+ 	[DEV_STATE_BOXED] = {
+ 		[DEV_EVENT_NOTOPER]	= ccw_device_generic_notoper,
+-		[DEV_EVENT_INTERRUPT]	= ccw_device_stlck_done,
+-		[DEV_EVENT_TIMEOUT]	= ccw_device_stlck_done,
+-		[DEV_EVENT_VERIFY]	= ccw_device_nop,
++		[DEV_EVENT_INTERRUPT]	= ccw_device_nop,
++		[DEV_EVENT_TIMEOUT]	= ccw_device_nop,
++		[DEV_EVENT_VERIFY]	= ccw_device_boxed_verify,
+ 	},
+ 	/* states to wait for i/o completion before doing something */
+ 	[DEV_STATE_TIMEOUT_KILL] = {
+@@ -1052,6 +1043,12 @@
+ 		[DEV_EVENT_TIMEOUT]	= ccw_device_update_cmfblock,
+ 		[DEV_EVENT_VERIFY]	= ccw_device_update_cmfblock,
+ 	},
++	[DEV_STATE_STEAL_LOCK] = {
++		[DEV_EVENT_NOTOPER]	= ccw_device_request_event,
++		[DEV_EVENT_INTERRUPT]	= ccw_device_request_event,
++		[DEV_EVENT_TIMEOUT]	= ccw_device_request_event,
++		[DEV_EVENT_VERIFY]	= ccw_device_nop,
++	},
+ };
+ 
+ EXPORT_SYMBOL_GPL(ccw_device_set_timeout);
 Index: quilt-2.6/drivers/s390/cio/device.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device.h	2009-11-13 16:08:20.000000000 +0100
+--- quilt-2.6.orig/drivers/s390/cio/device.h	2009-11-13 16:08:21.000000000 +0100
 +++ quilt-2.6/drivers/s390/cio/device.h	2009-11-13 16:08:21.000000000 +0100
-@@ -110,9 +110,6 @@
- void ccw_device_sense_id_done(struct ccw_device *, int);
+@@ -28,6 +28,7 @@
+ 	DEV_STATE_DISCONNECTED_SENSE_ID,
+ 	DEV_STATE_CMFCHANGE,
+ 	DEV_STATE_CMFUPDATE,
++	DEV_STATE_STEAL_LOCK,
+ 	/* last element! */
+ 	NR_DEV_STATES
+ };
+@@ -116,6 +117,9 @@
+ void ccw_device_disband_start(struct ccw_device *);
+ void ccw_device_disband_done(struct ccw_device *, int);
  
- /* Function prototypes for path grouping stuff. */
--void ccw_device_sense_pgid_start(struct ccw_device *);
--void ccw_device_sense_pgid_done(struct ccw_device *, int);
--
- void ccw_device_verify_start(struct ccw_device *);
- void ccw_device_verify_done(struct ccw_device *, int);
++void ccw_device_stlck_start(struct ccw_device *, void *, void *, void *);
++void ccw_device_stlck_done(struct ccw_device *, void *, int);
++
+ int ccw_device_call_handler(struct ccw_device *);
  
+ int ccw_device_stlck(struct ccw_device *);
+Index: quilt-2.6/drivers/s390/cio/device_ops.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/device_ops.c	2009-11-13 16:08:21.000000000 +0100
++++ quilt-2.6/drivers/s390/cio/device_ops.c	2009-11-13 16:08:21.000000000 +0100
+@@ -11,6 +11,7 @@
+ #include <linux/list.h>
+ #include <linux/device.h>
+ #include <linux/delay.h>
++#include <linux/completion.h>
+ 
+ #include <asm/ccwdev.h>
+ #include <asm/idals.h>
+@@ -504,74 +505,65 @@
+ 	return sch->lpm;
+ }
+ 
+-/*
+- * Try to break the lock on a boxed device.
+- */
+-int
+-ccw_device_stlck(struct ccw_device *cdev)
+-{
+-	void *buf, *buf2;
+-	unsigned long flags;
+-	struct subchannel *sch;
+-	int ret;
++struct stlck_data {
++	struct completion done;
++	int rc;
++};
+ 
+-	if (!cdev)
+-		return -ENODEV;
++void ccw_device_stlck_done(struct ccw_device *cdev, void *data, int rc)
++{
++	struct stlck_data *sdata = data;
+ 
+-	if (cdev->drv && !cdev->private->options.force)
+-		return -EINVAL;
++	sdata->rc = rc;
++	complete(&sdata->done);
++}
+ 
+-	sch = to_subchannel(cdev->dev.parent);
+-	
+-	CIO_TRACE_EVENT(2, "stl lock");
+-	CIO_TRACE_EVENT(2, dev_name(&cdev->dev));
++/*
++ * Perform unconditional reserve + release.
++ */
++int ccw_device_stlck(struct ccw_device *cdev)
++{
++	struct subchannel *sch = to_subchannel(cdev->dev.parent);
++	struct stlck_data data;
++	u8 *buffer;
++	int rc;
+ 
+-	buf = kmalloc(32*sizeof(char), GFP_DMA|GFP_KERNEL);
+-	if (!buf)
+-		return -ENOMEM;
+-	buf2 = kmalloc(32*sizeof(char), GFP_DMA|GFP_KERNEL);
+-	if (!buf2) {
+-		kfree(buf);
+-		return -ENOMEM;
++	/* Check if steal lock operation is valid for this device. */
++	if (cdev->drv) {
++		if (!cdev->private->options.force)
++			return -EINVAL;
+ 	}
+-	spin_lock_irqsave(sch->lock, flags);
+-	ret = cio_enable_subchannel(sch, (u32)(addr_t)sch);
+-	if (ret)
+-		goto out_unlock;
+-	/*
+-	 * Setup ccw. We chain an unconditional reserve and a release so we
+-	 * only break the lock.
+-	 */
+-	cdev->private->iccws[0].cmd_code = CCW_CMD_STLCK;
+-	cdev->private->iccws[0].cda = (__u32) __pa(buf);
+-	cdev->private->iccws[0].count = 32;
+-	cdev->private->iccws[0].flags = CCW_FLAG_CC;
+-	cdev->private->iccws[1].cmd_code = CCW_CMD_RELEASE;
+-	cdev->private->iccws[1].cda = (__u32) __pa(buf2);
+-	cdev->private->iccws[1].count = 32;
+-	cdev->private->iccws[1].flags = 0;
+-	ret = cio_start(sch, cdev->private->iccws, 0);
+-	if (ret) {
+-		cio_disable_subchannel(sch); //FIXME: return code?
++	buffer = kzalloc(64, GFP_DMA | GFP_KERNEL);
++	if (!buffer)
++		return -ENOMEM;
++	init_completion(&data.done);
++	data.rc = -EIO;
++	spin_lock_irq(sch->lock);
++	rc = cio_enable_subchannel(sch, (u32) (addr_t) sch);
++	if (rc)
+ 		goto out_unlock;
++	/* Perform operation. */
++	cdev->private->state = DEV_STATE_STEAL_LOCK,
++	ccw_device_stlck_start(cdev, &data, &buffer[0], &buffer[32]);
++	spin_unlock_irq(sch->lock);
++	/* Wait for operation to finish. */
++	if (wait_for_completion_interruptible(&data.done)) {
++		/* Got a signal. */
++		spin_lock_irq(sch->lock);
++		ccw_request_cancel(cdev);
++		spin_unlock_irq(sch->lock);
++		wait_for_completion(&data.done);
+ 	}
+-	cdev->private->irb.scsw.cmd.actl |= SCSW_ACTL_START_PEND;
+-	spin_unlock_irqrestore(sch->lock, flags);
+-	wait_event(cdev->private->wait_q,
+-		   cdev->private->irb.scsw.cmd.actl == 0);
+-	spin_lock_irqsave(sch->lock, flags);
+-	cio_disable_subchannel(sch); //FIXME: return code?
+-	if ((cdev->private->irb.scsw.cmd.dstat !=
+-	     (DEV_STAT_CHN_END|DEV_STAT_DEV_END)) ||
+-	    (cdev->private->irb.scsw.cmd.cstat != 0))
+-		ret = -EIO;
+-	/* Clear irb. */
+-	memset(&cdev->private->irb, 0, sizeof(struct irb));
++	rc = data.rc;
++	/* Check results. */
++	spin_lock_irq(sch->lock);
++	cio_disable_subchannel(sch);
++	cdev->private->state = DEV_STATE_BOXED;
+ out_unlock:
+-	kfree(buf);
+-	kfree(buf2);
+-	spin_unlock_irqrestore(sch->lock, flags);
+-	return ret;
++	spin_unlock_irq(sch->lock);
++	kfree(buffer);
++
++	return rc;
+ }
+ 
+ void *ccw_device_get_chp_desc(struct ccw_device *cdev, int chp_no)
 Index: quilt-2.6/drivers/s390/cio/device_pgid.c
 ===================================================================
 --- quilt-2.6.orig/drivers/s390/cio/device_pgid.c	2009-11-13 16:08:21.000000000 +0100
 +++ quilt-2.6/drivers/s390/cio/device_pgid.c	2009-11-13 16:08:21.000000000 +0100
-@@ -141,8 +141,8 @@
- 	struct ccw_request *req = &cdev->private->req;
- 	u8 fn;
- 
--	/* Adjust lpm if paths are not set in pam. */
--	req->lpm = lpm_adjust(req->lpm, sch->schib.pmcw.pam);
-+	/* Use next available path that is not already in correct state. */
-+	req->lpm = lpm_adjust(req->lpm, sch->schib.pmcw.pam & ~sch->vpm);
- 	if (!req->lpm)
- 		goto out_nopath;
- 	/* Channel program setup. */
-@@ -199,6 +199,19 @@
- 	verify_done(cdev, rc);
+@@ -507,3 +507,55 @@
+ 	spid_build_cp(cdev, fn);
+ 	ccw_request_start(cdev);
  }
- 
-+static void spid_start(struct ccw_device *cdev)
++
++static void stlck_build_cp(struct ccw_device *cdev, void *buf1, void *buf2)
 +{
 +	struct ccw_request *req = &cdev->private->req;
++	struct ccw1 *cp = cdev->private->iccws;
 +
-+	/* Initialize request data. */
++	cp[0].cmd_code = CCW_CMD_STLCK;
++	cp[0].cda = (u32) (addr_t) buf1;
++	cp[0].count = 32;
++	cp[0].flags = CCW_FLAG_CC;
++	cp[1].cmd_code = CCW_CMD_RELEASE;
++	cp[1].cda = (u32) (addr_t) buf2;
++	cp[1].count = 32;
++	cp[1].flags = 0;
++	req->cp = cp;
++}
++
++static void stlck_callback(struct ccw_device *cdev, void *data, int rc)
++{
++	ccw_device_stlck_done(cdev, data, rc);
++}
++
++/**
++ * ccw_device_stlck_start - perform unconditional release
++ * @cdev: ccw device
++ * @data: data pointer to be passed to ccw_device_stlck_done
++ * @buf1: data pointer used in channel program
++ * @buf2: data pointer used in channel program
++ *
++ * Execute a channel program on @cdev to release an existing PGID reservation.
++ * When finished, call ccw_device_stlck_done with a return code specifying the
++ * result.
++ */
++void ccw_device_stlck_start(struct ccw_device *cdev, void *data, void *buf1,
++			    void *buf2)
++{
++	struct subchannel *sch = to_subchannel(cdev->dev.parent);
++	struct ccw_request *req = &cdev->private->req;
++
++	CIO_TRACE_EVENT(4, "stlck");
++	CIO_HEX_EVENT(4, &cdev->private->dev_id, sizeof(cdev->private->dev_id));
++	/* Request setup. */
 +	memset(req, 0, sizeof(*req));
 +	req->timeout	= PGID_TIMEOUT;
 +	req->maxretries	= PGID_RETRIES;
-+	req->lpm	= 0x80;
-+	req->callback	= spid_callback;
-+	spid_do(cdev);
++	req->lpm	= sch->schib.pmcw.pam & sch->opm;
++	req->data	= data;
++	req->callback	= stlck_callback;
++	stlck_build_cp(cdev, buf1, buf2);
++	ccw_request_start(cdev);
 +}
 +
- static int pgid_cmp(struct pgid *p1, struct pgid *p2)
- {
- 	return memcmp((char *) p1 + 1, (char *) p2 + 1,
-@@ -241,6 +254,40 @@
- 	*p = first;
- }
- 
-+static u8 pgid_to_vpm(struct ccw_device *cdev)
-+{
-+	struct subchannel *sch = to_subchannel(cdev->dev.parent);
-+	struct pgid *pgid;
-+	int i;
-+	int lpm;
-+	u8 vpm = 0;
-+
-+	/* Set VPM bits for paths which are already in the target state. */
-+	for (i = 0; i < 8; i++) {
-+		lpm = 0x80 >> i;
-+		if ((cdev->private->pgid_valid_mask & lpm) == 0)
-+			continue;
-+		pgid = &cdev->private->pgid[i];
-+		if (sch->opm & lpm) {
-+			if (pgid->inf.ps.state1 != SNID_STATE1_GROUPED)
-+				continue;
-+		} else {
-+			if (pgid->inf.ps.state1 != SNID_STATE1_UNGROUPED)
-+				continue;
-+		}
-+		if (cdev->private->flags.mpath) {
-+			if (pgid->inf.ps.state3 != SNID_STATE3_MULTI_PATH)
-+				continue;
-+		} else {
-+			if (pgid->inf.ps.state3 != SNID_STATE3_SINGLE_PATH)
-+				continue;
-+		}
-+		vpm |= lpm;
-+	}
-+
-+	return vpm;
-+}
-+
- static void pgid_fill(struct ccw_device *cdev, struct pgid *pgid)
- {
- 	int i;
-@@ -255,6 +302,7 @@
- static void snid_done(struct ccw_device *cdev, int rc)
- {
- 	struct ccw_dev_id *id = &cdev->private->dev_id;
-+	struct subchannel *sch = to_subchannel(cdev->dev.parent);
- 	struct pgid *pgid;
- 	int mismatch = 0;
- 	int reserved = 0;
-@@ -263,18 +311,38 @@
- 	if (rc)
- 		goto out;
- 	pgid_analyze(cdev, &pgid, &mismatch, &reserved, &reset);
--	if (!mismatch) {
--		pgid_fill(cdev, pgid);
--		cdev->private->flags.pgid_rdy = 1;
--	}
- 	if (reserved)
- 		rc = -EUSERS;
-+	else if (mismatch)
-+		rc = -EOPNOTSUPP;
-+	else {
-+		sch->vpm = pgid_to_vpm(cdev);
-+		pgid_fill(cdev, pgid);
-+	}
- out:
--	CIO_MSG_EVENT(2, "snid: device 0.%x.%04x: rc=%d pvm=%02x mism=%d "
--		      "rsvd=%d reset=%d\n", id->ssid, id->devno, rc,
--		      cdev->private->pgid_valid_mask, mismatch, reserved,
--		      reset);
--	ccw_device_sense_pgid_done(cdev, rc);
-+	CIO_MSG_EVENT(2, "snid: device 0.%x.%04x: rc=%d pvm=%02x vpm=%02x "
-+		      "mism=%d rsvd=%d reset=%d\n", id->ssid, id->devno, rc,
-+		      cdev->private->pgid_valid_mask, sch->vpm, mismatch,
-+		      reserved, reset);
-+	switch (rc) {
-+	case 0:
-+		/* Anything left to do? */
-+		if (sch->vpm == sch->schib.pmcw.pam) {
-+			verify_done(cdev, sch->vpm == 0 ? -EACCES : 0);
-+			return;
-+		}
-+		/* Perform path-grouping. */
-+		spid_start(cdev);
-+		break;
-+	case -EOPNOTSUPP:
-+		/* Path-grouping not supported. */
-+		cdev->private->flags.pgroup = 0;
-+		cdev->private->flags.mpath = 0;
-+		verify_start(cdev);
-+		break;
-+	default:
-+		verify_done(cdev, rc);
-+	}
- }
- 
- /*
-@@ -333,33 +401,6 @@
- 	snid_done(cdev, rc);
- }
- 
--/**
-- * ccw_device_sense_pgid_start - perform SENSE PGID
-- * @cdev: ccw device
-- *
-- * Execute a SENSE PGID channel program on each path to @cdev to update its
-- * PGID information. When finished, call ccw_device_sense_id_done with a
-- * return code specifying the result.
-- */
--void ccw_device_sense_pgid_start(struct ccw_device *cdev)
--{
--	struct ccw_request *req = &cdev->private->req;
--
--	CIO_TRACE_EVENT(4, "snid");
--	CIO_HEX_EVENT(4, &cdev->private->dev_id, sizeof(cdev->private->dev_id));
--	/* Initialize PGID data. */
--	memset(cdev->private->pgid, 0, sizeof(cdev->private->pgid));
--	cdev->private->flags.pgid_rdy = 0;
--	cdev->private->pgid_valid_mask = 0;
--	/* Initialize request data. */
--	memset(req, 0, sizeof(*req));
--	req->timeout	= PGID_TIMEOUT;
--	req->maxretries	= PGID_RETRIES;
--	req->callback	= snid_callback;
--	req->lpm	= 0x80;
--	snid_do(cdev);
--}
--
- /*
-  * Perform path verification.
-  */
-@@ -367,6 +408,7 @@
- {
- 	struct subchannel *sch = to_subchannel(cdev->dev.parent);
- 	struct ccw_request *req = &cdev->private->req;
-+	struct ccw_dev_id *devid = &cdev->private->dev_id;
- 
- 	sch->vpm = 0;
- 	/* Initialize request data. */
-@@ -375,9 +417,13 @@
- 	req->maxretries	= PGID_RETRIES;
- 	req->lpm	= 0x80;
- 	if (cdev->private->flags.pgroup) {
--		req->callback	= spid_callback;
--		spid_do(cdev);
-+		CIO_TRACE_EVENT(4, "snid");
-+		CIO_HEX_EVENT(4, devid, sizeof(*devid));
-+		req->callback	= snid_callback;
-+		snid_do(cdev);
- 	} else {
-+		CIO_TRACE_EVENT(4, "nop");
-+		CIO_HEX_EVENT(4, devid, sizeof(*devid));
- 		req->filter	= nop_filter;
- 		req->callback	= nop_callback;
- 		nop_do(cdev);
-@@ -398,19 +444,15 @@
- {
- 	CIO_TRACE_EVENT(4, "vrfy");
- 	CIO_HEX_EVENT(4, &cdev->private->dev_id, sizeof(cdev->private->dev_id));
--	if (!cdev->private->flags.pgid_rdy) {
--		/* No pathgrouping possible. */
--		cdev->private->flags.pgroup = 0;
--		cdev->private->flags.mpath = 0;
--	} else {
--		/*
--		 * Initialize pathgroup and multipath state with target values.
--		 * They may change in the course of path verification.
--		 */
--		cdev->private->flags.pgroup = cdev->private->options.pgroup;
--		cdev->private->flags.mpath = cdev->private->options.mpath;
--
--	}
-+	/* Initialize PGID data. */
-+	memset(cdev->private->pgid, 0, sizeof(cdev->private->pgid));
-+	cdev->private->pgid_valid_mask = 0;
-+	/*
-+	 * Initialize pathgroup and multipath state with target values.
-+	 * They may change in the course of path verification.
-+	 */
-+	cdev->private->flags.pgroup = cdev->private->options.pgroup;
-+	cdev->private->flags.mpath = cdev->private->options.mpath;
- 	cdev->private->flags.doverify = 0;
- 	verify_start(cdev);
- }
-Index: quilt-2.6/drivers/s390/cio/io_sch.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/io_sch.h	2009-11-13 16:08:21.000000000 +0100
-+++ quilt-2.6/drivers/s390/cio/io_sch.h	2009-11-13 16:08:21.000000000 +0100
-@@ -166,7 +166,6 @@
- 		unsigned int recog_done:1;  /* dev. recog. complete */
- 		unsigned int fake_irb:1;    /* deliver faked irb */
- 		unsigned int resuming:1;    /* recognition while resume */
--		unsigned int pgid_rdy:1;    /* pgids are ready */
- 		unsigned int pgroup:1;	    /* pathgroup is set up */
- 		unsigned int mpath:1;	    /* multipathing is set up */
- 	} __attribute__((packed)) flags;
