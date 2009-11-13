@@ -1,103 +1,107 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756268AbZKMPKQ@vger.kernel.org>
-Message-Id: <20091113150918.461648826@de.ibm.com>
-Date: Fri, 13 Nov 2009 16:09:15 +0100
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756345AbZKMPKB@vger.kernel.org>
+Message-Id: <20091113150918.625258802@de.ibm.com>
+Date: Fri, 13 Nov 2009 16:09:16 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 51/52] [PATCH] cio: improve error recovery for internal I/Os
+Subject: [patch 52/52] [PATCH] cio: dont unregister a busy device in ccw_device_set_offline
 References: <20091113150824.351347652@de.ibm.com>
-Content-Disposition: inline; filename=150-cio-internal-errors.diff
+Content-Disposition: inline; filename=151-cio-busy-device-unregister.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Oberparleiter <peter.oberparleiter@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
 
-Improve error recovery for internal I/Os by repeating each I/O
-256 times per path to cope with long-running non-permanent error
-conditions. Also retry each path twice to cope with link flapping,
-i.e. single paths becoming unavailable in the order in which they
-are tried.
+If we detect a busy subchannel after the driver's set_offline
+callback returned in ccw_device_set_offline, the current behavior
+is to unregister the device, which may lead to undesired
+consequences. Change this to just quiesce the subchannel and go on
+with the offline processing.
 
-Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+Note: This is no excuse for not fixing these drivers -
+after the set_offline callback they should have no running IO!
+
+Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/ccwreq.c      |    7 ++++---
- drivers/s390/cio/device_id.c   |    2 +-
- drivers/s390/cio/device_pgid.c |    2 +-
- drivers/s390/cio/io_sch.h      |    2 +-
- 4 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/s390/cio/device.c |   29 ++++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/ccwreq.c
+Index: quilt-2.6/drivers/s390/cio/device.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/ccwreq.c	2009-11-13 16:08:19.000000000 +0100
-+++ quilt-2.6/drivers/s390/cio/ccwreq.c	2009-11-13 16:08:23.000000000 +0100
-@@ -82,7 +82,7 @@
- 		/* Perform start function. */
- 		sch->lpm = 0xff;
- 		memset(&cdev->private->irb, 0, sizeof(struct irb));
--		rc = cio_start(sch, cp, req->mask);
-+		rc = cio_start(sch, cp, (u8) req->mask);
- 		if (rc == 0) {
- 			/* I/O started successfully. */
- 			ccw_device_set_timeout(cdev, req->timeout);
-@@ -116,7 +116,8 @@
+--- quilt-2.6.orig/drivers/s390/cio/device.c	2009-11-13 16:08:23.000000000 +0100
++++ quilt-2.6/drivers/s390/cio/device.c	2009-11-13 16:08:23.000000000 +0100
+@@ -314,6 +314,8 @@
+ 	}
+ }
+ 
++static void io_subchannel_quiesce(struct subchannel *);
++
+ /**
+  * ccw_device_set_offline() - disable a ccw device for I/O
+  * @cdev: target ccw device
+@@ -327,7 +329,8 @@
+  */
+ int ccw_device_set_offline(struct ccw_device *cdev)
  {
- 	struct ccw_request *req = &cdev->private->req;
+-	int ret;
++	struct subchannel *sch;
++	int ret, state;
  
--	req->mask	= 0x80;
-+	/* Try all paths twice to counter link flapping. */
-+	req->mask	= 0x8080;
- 	req->retries	= req->maxretries;
- 	req->mask	= lpm_adjust(req->mask, req->lpm);
- 	req->drc	= 0;
-@@ -212,7 +213,7 @@
- 	}  __attribute__ ((packed)) data;
- 	data.dev_id	= cdev->private->dev_id;
- 	data.retries	= req->retries;
--	data.lpm	= req->mask;
-+	data.lpm	= (u8) req->mask;
- 	data.status	= (u8) status;
- 	CIO_TRACE_EVENT(2, "reqstat");
- 	CIO_HEX_EVENT(2, &data, sizeof(data));
-Index: quilt-2.6/drivers/s390/cio/device_id.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_id.c	2009-11-13 16:08:20.000000000 +0100
-+++ quilt-2.6/drivers/s390/cio/device_id.c	2009-11-13 16:08:23.000000000 +0100
-@@ -21,7 +21,7 @@
- #include "device.h"
- #include "io_sch.h"
+ 	if (!cdev)
+ 		return -ENODEV;
+@@ -341,6 +344,7 @@
+ 	}
+ 	cdev->online = 0;
+ 	spin_lock_irq(cdev->ccwlock);
++	sch = to_subchannel(cdev->dev.parent);
+ 	/* Wait until a final state or DISCONNECTED is reached */
+ 	while (!dev_fsm_final_state(cdev) &&
+ 	       cdev->private->state != DEV_STATE_DISCONNECTED) {
+@@ -349,9 +353,21 @@
+ 			   cdev->private->state == DEV_STATE_DISCONNECTED));
+ 		spin_lock_irq(cdev->ccwlock);
+ 	}
+-	ret = ccw_device_offline(cdev);
+-	if (ret)
+-		goto error;
++	do {
++		ret = ccw_device_offline(cdev);
++		if (!ret)
++			break;
++		CIO_MSG_EVENT(0, "ccw_device_offline returned %d, device "
++			      "0.%x.%04x\n", ret, cdev->private->dev_id.ssid,
++			      cdev->private->dev_id.devno);
++		if (ret != -EBUSY)
++			goto error;
++		state = cdev->private->state;
++		spin_unlock_irq(cdev->ccwlock);
++		io_subchannel_quiesce(sch);
++		spin_lock_irq(cdev->ccwlock);
++		cdev->private->state = state;
++	} while (ret == -EBUSY);
+ 	spin_unlock_irq(cdev->ccwlock);
+ 	wait_event(cdev->private->wait_q, (dev_fsm_final_state(cdev) ||
+ 		   cdev->private->state == DEV_STATE_DISCONNECTED));
+@@ -368,9 +384,6 @@
+ 	return 0;
  
--#define SENSE_ID_RETRIES	5
-+#define SENSE_ID_RETRIES	256
- #define SENSE_ID_TIMEOUT	(10 * HZ)
- #define SENSE_ID_MIN_LEN	4
- #define SENSE_ID_BASIC_LEN	7
-Index: quilt-2.6/drivers/s390/cio/device_pgid.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_pgid.c	2009-11-13 16:08:21.000000000 +0100
-+++ quilt-2.6/drivers/s390/cio/device_pgid.c	2009-11-13 16:08:23.000000000 +0100
-@@ -20,7 +20,7 @@
- #include "device.h"
- #include "io_sch.h"
+ error:
+-	CIO_MSG_EVENT(0, "ccw_device_offline returned %d, device 0.%x.%04x\n",
+-		      ret, cdev->private->dev_id.ssid,
+-		      cdev->private->dev_id.devno);
+ 	cdev->private->state = DEV_STATE_OFFLINE;
+ 	dev_fsm_event(cdev, DEV_EVENT_NOTOPER);
+ 	spin_unlock_irq(cdev->ccwlock);
+@@ -1059,8 +1072,6 @@
+ 	return 0;
+ }
  
--#define PGID_RETRIES	5
-+#define PGID_RETRIES	256
- #define PGID_TIMEOUT	(10 * HZ)
- 
- /*
-Index: quilt-2.6/drivers/s390/cio/io_sch.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/io_sch.h	2009-11-13 16:08:22.000000000 +0100
-+++ quilt-2.6/drivers/s390/cio/io_sch.h	2009-11-13 16:08:23.000000000 +0100
-@@ -109,7 +109,7 @@
- 	void (*callback)(struct ccw_device *, void *, int);
- 	void *data;
- 	/* These fields are used internally. */
--	u8 mask;
-+	u16 mask;
- 	u16 retries;
- 	int drc;
- 	int cancel:1;
+-static void io_subchannel_quiesce(struct subchannel *);
+-
+ static int
+ io_subchannel_remove (struct subchannel *sch)
+ {
