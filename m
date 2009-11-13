@@ -1,222 +1,67 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 3/5] [PATCH] qeth: Recognize return codes of ccw_device_set_online
-Date: Thu, 12 Nov 2009 11:11:43 +0100
-Message-ID: <20091112101300.996534000@de.ibm.com>
-References: <20091112101140.882313000@de.ibm.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
+Subject: [patch 1/4] [PATCH] iucv: add work_queue cleanup for suspend
+Date: Fri, 13 Nov 2009 08:46:27 +0100
+Message-ID: <20091113075050.470146000@linux.vnet.ibm.com>
+References: <20091113074626.078348000@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=608-qeth-set_online-rc.diff
+Content-Disposition: inline; filename=603-iucv-suspend-cleanup.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
+To: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Ursula Braun <ursula.braun@de.ibm.com>
 
-Setting a qeth device online requires to call function
-ccw_device_set_online() for read-, write-, and data-subchannel.
-Failures should be detected immediately without an attempt to
-invoke follow-on activity qeth_qdio_clear_card().,
-
-In addition, ccw_device_set_online calls are consolidated in
-qeth_core_main.c only.
+If iucv_work_queue is not empty during kernel freeze, a kernel panic
+occurs. This suspend-patch adds flushing of the work queue for
+pending connection requests and severing of remaining pending
+connections.
 
 Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
 
- drivers/s390/net/qeth_core_main.c |   26 ++++++++++++++++----------
- drivers/s390/net/qeth_l2_main.c   |   26 ++++++++------------------
- drivers/s390/net/qeth_l3_main.c   |   25 +++++++------------------
- 3 files changed, 31 insertions(+), 46 deletions(-)
+ net/iucv/iucv.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-Index: git_net-next/drivers/s390/net/qeth_core_main.c
+Index: linux-next-uschi/net/iucv/iucv.c
 ===================================================================
---- git_net-next.orig/drivers/s390/net/qeth_core_main.c
-+++ git_net-next/drivers/s390/net/qeth_core_main.c
-@@ -3883,30 +3883,36 @@ static int qeth_core_driver_group(const 
- int qeth_core_hardsetup_card(struct qeth_card *card)
+--- linux-next-uschi.orig/net/iucv/iucv.c
++++ linux-next-uschi/net/iucv/iucv.c
+@@ -1768,7 +1768,6 @@ static void iucv_tasklet_fn(unsigned lon
+  */
+ static void iucv_work_fn(struct work_struct *work)
  {
- 	struct qdio_ssqd_desc *ssqd;
--	int retries = 3;
-+	int retries = 0;
- 	int mpno = 0;
- 	int rc;
+-	typedef void iucv_irq_fn(struct iucv_irq_data *);
+ 	LIST_HEAD(work_queue);
+ 	struct iucv_irq_list *p, *n;
  
- 	QETH_DBF_TEXT(SETUP, 2, "hrdsetup");
- 	atomic_set(&card->force_alloc_skb, 0);
- retry:
--	if (retries < 3) {
-+	if (retries)
- 		QETH_DBF_MESSAGE(2, "%s Retrying to do IDX activates.\n",
- 			dev_name(&card->gdev->dev));
--		ccw_device_set_offline(CARD_DDEV(card));
--		ccw_device_set_offline(CARD_WDEV(card));
--		ccw_device_set_offline(CARD_RDEV(card));
--		ccw_device_set_online(CARD_RDEV(card));
--		ccw_device_set_online(CARD_WDEV(card));
--		ccw_device_set_online(CARD_DDEV(card));
--	}
-+	ccw_device_set_offline(CARD_DDEV(card));
-+	ccw_device_set_offline(CARD_WDEV(card));
-+	ccw_device_set_offline(CARD_RDEV(card));
-+	rc = ccw_device_set_online(CARD_RDEV(card));
-+	if (rc)
-+		goto retriable;
-+	rc = ccw_device_set_online(CARD_WDEV(card));
-+	if (rc)
-+		goto retriable;
-+	rc = ccw_device_set_online(CARD_DDEV(card));
-+	if (rc)
-+		goto retriable;
- 	rc = qeth_qdio_clear_card(card, card->info.type != QETH_CARD_TYPE_IQD);
-+retriable:
- 	if (rc == -ERESTARTSYS) {
- 		QETH_DBF_TEXT(SETUP, 2, "break1");
- 		return rc;
- 	} else if (rc) {
- 		QETH_DBF_TEXT_(SETUP, 2, "1err%d", rc);
--		if (--retries < 0)
-+		if (++retries > 3)
- 			goto out;
- 		else
- 			goto retry;
-Index: git_net-next/drivers/s390/net/qeth_l2_main.c
-===================================================================
---- git_net-next.orig/drivers/s390/net/qeth_l2_main.c
-+++ git_net-next/drivers/s390/net/qeth_l2_main.c
-@@ -940,30 +940,17 @@ static int __qeth_l2_set_online(struct c
+@@ -1878,14 +1877,25 @@ int iucv_path_table_empty(void)
+ static int iucv_pm_freeze(struct device *dev)
+ {
+ 	int cpu;
++	struct iucv_irq_list *p, *n;
+ 	int rc = 0;
  
- 	qeth_set_allowed_threads(card, QETH_RECOVER_THREAD, 1);
- 	recover_flag = card->state;
--	rc = ccw_device_set_online(CARD_RDEV(card));
--	if (rc) {
--		QETH_DBF_TEXT_(SETUP, 2, "1err%d", rc);
--		return -EIO;
--	}
--	rc = ccw_device_set_online(CARD_WDEV(card));
--	if (rc) {
--		QETH_DBF_TEXT_(SETUP, 2, "1err%d", rc);
--		return -EIO;
--	}
--	rc = ccw_device_set_online(CARD_DDEV(card));
--	if (rc) {
--		QETH_DBF_TEXT_(SETUP, 2, "1err%d", rc);
--		return -EIO;
--	}
--
- 	rc = qeth_core_hardsetup_card(card);
- 	if (rc) {
- 		QETH_DBF_TEXT_(SETUP, 2, "2err%d", rc);
-+		rc = -ENODEV;
- 		goto out_remove;
- 	}
- 
--	if (!card->dev && qeth_l2_setup_netdev(card))
-+	if (!card->dev && qeth_l2_setup_netdev(card)) {
-+		rc = -ENODEV;
- 		goto out_remove;
+ #ifdef CONFIG_PM_DEBUG
+ 	printk(KERN_WARNING "iucv_pm_freeze\n");
+ #endif
++	if (iucv_pm_state != IUCV_PM_FREEZING) {
++		for_each_cpu_mask_nr(cpu, iucv_irq_cpumask)
++			smp_call_function_single(cpu, iucv_block_cpu_almost,
++						 NULL, 1);
++		cancel_work_sync(&iucv_work);
++		list_for_each_entry_safe(p, n, &iucv_work_queue, list) {
++			list_del_init(&p->list);
++			iucv_sever_pathid(p->data.ippathid,
++					  iucv_error_no_listener);
++			kfree(p);
++		}
 +	}
- 
- 	if (card->info.type != QETH_CARD_TYPE_OSN)
- 		qeth_l2_send_setmac(card, &card->dev->dev_addr[0]);
-@@ -983,6 +970,7 @@ static int __qeth_l2_set_online(struct c
- 			card->lan_online = 0;
- 			return 0;
- 		}
-+		rc = -ENODEV;
- 		goto out_remove;
- 	} else
- 		card->lan_online = 1;
-@@ -999,6 +987,7 @@ static int __qeth_l2_set_online(struct c
- 	rc = qeth_init_qdio_queues(card);
- 	if (rc) {
- 		QETH_DBF_TEXT_(SETUP, 2, "6err%d", rc);
-+		rc = -ENODEV;
- 		goto out_remove;
- 	}
- 	card->state = CARD_STATE_SOFTSETUP;
-@@ -1020,6 +1009,7 @@ static int __qeth_l2_set_online(struct c
- 	/* let user_space know that device is online */
- 	kobject_uevent(&gdev->dev.kobj, KOBJ_CHANGE);
- 	return 0;
-+
- out_remove:
- 	card->use_hard_stop = 1;
- 	qeth_l2_stop_card(card, 0);
-@@ -1030,7 +1020,7 @@ out_remove:
- 		card->state = CARD_STATE_RECOVER;
- 	else
- 		card->state = CARD_STATE_DOWN;
--	return -ENODEV;
-+	return rc;
- }
- 
- static int qeth_l2_set_online(struct ccwgroup_device *gdev)
-Index: git_net-next/drivers/s390/net/qeth_l3_main.c
-===================================================================
---- git_net-next.orig/drivers/s390/net/qeth_l3_main.c
-+++ git_net-next/drivers/s390/net/qeth_l3_main.c
-@@ -3156,32 +3156,19 @@ static int __qeth_l3_set_online(struct c
- 	qeth_set_allowed_threads(card, QETH_RECOVER_THREAD, 1);
- 
- 	recover_flag = card->state;
--	rc = ccw_device_set_online(CARD_RDEV(card));
--	if (rc) {
--		QETH_DBF_TEXT_(SETUP, 2, "1err%d", rc);
--		return -EIO;
--	}
--	rc = ccw_device_set_online(CARD_WDEV(card));
--	if (rc) {
--		QETH_DBF_TEXT_(SETUP, 2, "1err%d", rc);
--		return -EIO;
--	}
--	rc = ccw_device_set_online(CARD_DDEV(card));
--	if (rc) {
--		QETH_DBF_TEXT_(SETUP, 2, "1err%d", rc);
--		return -EIO;
--	}
--
- 	rc = qeth_core_hardsetup_card(card);
- 	if (rc) {
- 		QETH_DBF_TEXT_(SETUP, 2, "2err%d", rc);
-+		rc = -ENODEV;
- 		goto out_remove;
- 	}
- 
- 	qeth_l3_query_ipassists(card, QETH_PROT_IPV4);
- 
--	if (!card->dev && qeth_l3_setup_netdev(card))
-+	if (!card->dev && qeth_l3_setup_netdev(card)) {
-+		rc = -ENODEV;
- 		goto out_remove;
-+	}
- 
- 	card->state = CARD_STATE_HARDSETUP;
- 	qeth_print_status_message(card);
-@@ -3198,6 +3185,7 @@ static int __qeth_l3_set_online(struct c
- 			card->lan_online = 0;
- 			return 0;
- 		}
-+		rc = -ENODEV;
- 		goto out_remove;
- 	} else
- 		card->lan_online = 1;
-@@ -3220,6 +3208,7 @@ static int __qeth_l3_set_online(struct c
- 	rc = qeth_init_qdio_queues(card);
- 	if (rc) {
- 		QETH_DBF_TEXT_(SETUP, 2, "6err%d", rc);
-+		rc = -ENODEV;
- 		goto out_remove;
- 	}
- 	card->state = CARD_STATE_SOFTSETUP;
-@@ -3250,7 +3239,7 @@ out_remove:
- 		card->state = CARD_STATE_RECOVER;
- 	else
- 		card->state = CARD_STATE_DOWN;
--	return -ENODEV;
-+	return rc;
- }
- 
- static int qeth_l3_set_online(struct ccwgroup_device *gdev)
+ 	iucv_pm_state = IUCV_PM_FREEZING;
+-	for_each_cpu_mask_nr(cpu, iucv_irq_cpumask)
+-		smp_call_function_single(cpu, iucv_block_cpu_almost, NULL, 1);
+ 	if (dev->driver && dev->driver->pm && dev->driver->pm->freeze)
+ 		rc = dev->driver->pm->freeze(dev);
+ 	if (iucv_path_table_empty())
