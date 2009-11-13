@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756494AbZKMPKg@vger.kernel.org>
-Message-Id: <20091113150916.574416935@de.ibm.com>
-Date: Fri, 13 Nov 2009 16:09:05 +0100
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756573AbZKMPK6@vger.kernel.org>
+Message-Id: <20091113150916.765762750@de.ibm.com>
+Date: Fri, 13 Nov 2009 16:09:06 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 41/52] [PATCH] cio: split PGID settings and status
+Subject: [patch 42/52] [PATCH] cio: use sense-pgid operation for path verification
 References: <20091113150824.351347652@de.ibm.com>
-Content-Disposition: inline; filename=140-cio-split-pgid.diff
+Content-Disposition: inline; filename=141-cio-path-verification.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,289 +14,330 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 
-Split setting (driver wants feature enabled) and status (feature
-setup was successful) for PGID related ccw device features so that
-setup errors can be detected. Previously, incorrectly handled setup
-errors could in rare cases lead to erratic I/O behavior and
-permanently unusuable devices.
+Set-pgid operations fail for some device types under z/VM for which
+the hypervisor has already set the pgid. Also reserved devices or
+changed pgids are not correctly recognized. Fix these problems by
+using a combination of sense-pgid and set-pgid and by also accepting
+pre-defined pgid settings.
 
 Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/include/asm/ccwdev.h |    4 ++++
- drivers/s390/block/dasd.c      |    7 -------
- drivers/s390/block/dasd_eckd.c |   12 +++++++++++-
- drivers/s390/char/tape_core.c  |    3 ++-
- drivers/s390/cio/device_fsm.c  |    2 +-
- drivers/s390/cio/device_ops.c  |   27 +++++++++++++++++++++++++++
- drivers/s390/cio/device_pgid.c |   33 ++++++++++++++++++++-------------
- drivers/s390/cio/io_sch.h      |    4 +++-
- 8 files changed, 68 insertions(+), 24 deletions(-)
+ drivers/s390/cio/device.h      |    3 
+ drivers/s390/cio/device_fsm.c  |   41 +----------
+ drivers/s390/cio/device_pgid.c |  148 ++++++++++++++++++++++++++---------------
+ drivers/s390/cio/io_sch.h      |    1 
+ 4 files changed, 99 insertions(+), 94 deletions(-)
 
-Index: quilt-2.6/arch/s390/include/asm/ccwdev.h
-===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/ccwdev.h	2009-11-13 15:48:32.000000000 +0100
-+++ quilt-2.6/arch/s390/include/asm/ccwdev.h	2009-11-13 16:08:21.000000000 +0100
-@@ -142,6 +142,8 @@
- extern int ccw_device_set_options_mask(struct ccw_device *, unsigned long);
- extern int ccw_device_set_options(struct ccw_device *, unsigned long);
- extern void ccw_device_clear_options(struct ccw_device *, unsigned long);
-+int ccw_device_is_pathgroup(struct ccw_device *cdev);
-+int ccw_device_is_multipath(struct ccw_device *cdev);
- 
- /* Allow for i/o completion notification after primary interrupt status. */
- #define CCWDEV_EARLY_NOTIFICATION	0x0001
-@@ -151,6 +153,8 @@
- #define CCWDEV_DO_PATHGROUP             0x0004
- /* Allow forced onlining of boxed devices. */
- #define CCWDEV_ALLOW_FORCE              0x0008
-+/* Try to use multipath mode. */
-+#define CCWDEV_DO_MULTIPATH		0x0010
- 
- extern int ccw_device_start(struct ccw_device *, struct ccw1 *,
- 			    unsigned long, __u8, unsigned long);
-Index: quilt-2.6/drivers/s390/block/dasd.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd.c	2009-11-13 16:08:17.000000000 +0100
-+++ quilt-2.6/drivers/s390/block/dasd.c	2009-11-13 16:08:21.000000000 +0100
-@@ -2301,13 +2301,6 @@
- {
- 	int ret;
- 
--	ret = ccw_device_set_options(cdev, CCWDEV_DO_PATHGROUP);
--	if (ret) {
--		DBF_EVENT(DBF_WARNING,
--		       "dasd_generic_probe: could not set ccw-device options "
--		       "for %s\n", dev_name(&cdev->dev));
--		return ret;
--	}
- 	ret = dasd_add_sysfs_files(cdev);
- 	if (ret) {
- 		DBF_EVENT_DEVID(DBF_WARNING, cdev, "%s",
-Index: quilt-2.6/drivers/s390/block/dasd_eckd.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/block/dasd_eckd.c	2009-11-13 16:08:17.000000000 +0100
-+++ quilt-2.6/drivers/s390/block/dasd_eckd.c	2009-11-13 16:08:21.000000000 +0100
-@@ -90,7 +90,8 @@
- 	int ret;
- 
- 	/* set ECKD specific ccw-device options */
--	ret = ccw_device_set_options(cdev, CCWDEV_ALLOW_FORCE);
-+	ret = ccw_device_set_options(cdev, CCWDEV_ALLOW_FORCE |
-+				     CCWDEV_DO_PATHGROUP | CCWDEV_DO_MULTIPATH);
- 	if (ret) {
- 		DBF_EVENT_DEVID(DBF_WARNING, cdev, "%s",
- 				"dasd_eckd_probe: could not set "
-@@ -1090,6 +1091,15 @@
- 	struct dasd_block *block;
- 	int is_known, rc;
- 
-+	if (!ccw_device_is_pathgroup(device->cdev)) {
-+		dev_warn(&device->cdev->dev,
-+			 "A channel path group could not be established\n");
-+		return -EIO;
-+	}
-+	if (!ccw_device_is_multipath(device->cdev)) {
-+		dev_info(&device->cdev->dev,
-+			 "The DASD is not operating in multipath mode\n");
-+	}
- 	private = (struct dasd_eckd_private *) device->private;
- 	if (!private) {
- 		private = kzalloc(sizeof(*private), GFP_KERNEL | GFP_DMA);
-Index: quilt-2.6/drivers/s390/char/tape_core.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/char/tape_core.c	2009-11-13 15:48:33.000000000 +0100
-+++ quilt-2.6/drivers/s390/char/tape_core.c	2009-11-13 16:08:21.000000000 +0100
-@@ -579,7 +579,8 @@
- 	device = tape_alloc_device();
- 	if (IS_ERR(device))
- 		return -ENODEV;
--	ccw_device_set_options(cdev, CCWDEV_DO_PATHGROUP);
-+	ccw_device_set_options(cdev, CCWDEV_DO_PATHGROUP |
-+				     CCWDEV_DO_MULTIPATH);
- 	ret = sysfs_create_group(&cdev->dev.kobj, &tape_attr_group);
- 	if (ret) {
- 		tape_put_device(device);
 Index: quilt-2.6/drivers/s390/cio/device_fsm.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_fsm.c	2009-11-13 16:08:20.000000000 +0100
+--- quilt-2.6.orig/drivers/s390/cio/device_fsm.c	2009-11-13 16:08:21.000000000 +0100
 +++ quilt-2.6/drivers/s390/cio/device_fsm.c	2009-11-13 16:08:21.000000000 +0100
-@@ -601,7 +601,7 @@
- 	if (cdev->private->state != DEV_STATE_ONLINE)
- 		return -EINVAL;
- 	/* Are we doing path grouping? */
+@@ -395,33 +395,6 @@
+ }
+ 
+ /*
+- * Function called from device_pgid.c after sense path ground has completed.
+- */
+-void
+-ccw_device_sense_pgid_done(struct ccw_device *cdev, int err)
+-{
+-	struct subchannel *sch;
+-
+-	sch = to_subchannel(cdev->dev.parent);
+-	switch (err) {
+-	case -EOPNOTSUPP: /* path grouping not supported, use nop instead. */
+-	case 0: /* success */
+-	case -EACCES: /* partial success, some paths not operational */
+-		break;
+-	case -ETIME:		/* Sense path group id stopped by timeout. */
+-	case -EUSERS:		/* device is reserved for someone else. */
+-		ccw_device_done(cdev, DEV_STATE_BOXED);
+-		return;
+-	default:
+-		ccw_device_done(cdev, DEV_STATE_NOT_OPER);
+-		return;
+-	}
+-	/* Start Path Group verification. */
+-	cdev->private->state = DEV_STATE_VERIFY;
+-	ccw_device_verify_start(cdev);
+-}
+-
+-/*
+  * Start device recognition.
+  */
+ void ccw_device_recognition(struct ccw_device *cdev)
+@@ -503,6 +476,7 @@
+ 		}
+ 		break;
+ 	case -ETIME:
++	case -EUSERS:
+ 		/* Reset oper notify indication after verify error. */
+ 		cdev->private->flags.donotify = 0;
+ 		ccw_device_done(cdev, DEV_STATE_BOXED);
+@@ -540,16 +514,9 @@
+ 			dev_fsm_event(cdev, DEV_EVENT_NOTOPER);
+ 		return ret;
+ 	}
+-	/* Do we want to do path grouping? */
 -	if (!cdev->private->options.pgroup) {
-+	if (!cdev->private->flags.pgroup) {
- 		/* No, set state offline immediately. */
- 		ccw_device_done(cdev, DEV_STATE_OFFLINE);
- 		return 0;
-Index: quilt-2.6/drivers/s390/cio/device_ops.c
+-		/* Start initial path verification. */
+-		cdev->private->state = DEV_STATE_VERIFY;
+-		ccw_device_verify_start(cdev);
+-		return 0;
+-	}
+-	/* Do a SensePGID first. */
+-	cdev->private->state = DEV_STATE_SENSE_PGID;
+-	ccw_device_sense_pgid_start(cdev);
++	/* Start initial path verification. */
++	cdev->private->state = DEV_STATE_VERIFY;
++	ccw_device_verify_start(cdev);
+ 	return 0;
+ }
+ 
+Index: quilt-2.6/drivers/s390/cio/device.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_ops.c	2009-11-13 16:08:20.000000000 +0100
-+++ quilt-2.6/drivers/s390/cio/device_ops.c	2009-11-13 16:08:21.000000000 +0100
-@@ -46,6 +46,7 @@
- 	cdev->private->options.repall = (flags & CCWDEV_REPORT_ALL) != 0;
- 	cdev->private->options.pgroup = (flags & CCWDEV_DO_PATHGROUP) != 0;
- 	cdev->private->options.force = (flags & CCWDEV_ALLOW_FORCE) != 0;
-+	cdev->private->options.mpath = (flags & CCWDEV_DO_MULTIPATH) != 0;
- 	return 0;
- }
+--- quilt-2.6.orig/drivers/s390/cio/device.h	2009-11-13 16:08:20.000000000 +0100
++++ quilt-2.6/drivers/s390/cio/device.h	2009-11-13 16:08:21.000000000 +0100
+@@ -110,9 +110,6 @@
+ void ccw_device_sense_id_done(struct ccw_device *, int);
  
-@@ -74,6 +75,7 @@
- 	cdev->private->options.repall |= (flags & CCWDEV_REPORT_ALL) != 0;
- 	cdev->private->options.pgroup |= (flags & CCWDEV_DO_PATHGROUP) != 0;
- 	cdev->private->options.force |= (flags & CCWDEV_ALLOW_FORCE) != 0;
-+	cdev->private->options.mpath |= (flags & CCWDEV_DO_MULTIPATH) != 0;
- 	return 0;
- }
+ /* Function prototypes for path grouping stuff. */
+-void ccw_device_sense_pgid_start(struct ccw_device *);
+-void ccw_device_sense_pgid_done(struct ccw_device *, int);
+-
+ void ccw_device_verify_start(struct ccw_device *);
+ void ccw_device_verify_done(struct ccw_device *, int);
  
-@@ -90,9 +92,34 @@
- 	cdev->private->options.repall &= (flags & CCWDEV_REPORT_ALL) == 0;
- 	cdev->private->options.pgroup &= (flags & CCWDEV_DO_PATHGROUP) == 0;
- 	cdev->private->options.force &= (flags & CCWDEV_ALLOW_FORCE) == 0;
-+	cdev->private->options.mpath &= (flags & CCWDEV_DO_MULTIPATH) == 0;
- }
- 
- /**
-+ * ccw_device_is_pathgroup - determine if paths to this device are grouped
-+ * @cdev: ccw device
-+ *
-+ * Return non-zero if there is a path group, zero otherwise.
-+ */
-+int ccw_device_is_pathgroup(struct ccw_device *cdev)
-+{
-+	return cdev->private->flags.pgroup;
-+}
-+EXPORT_SYMBOL(ccw_device_is_pathgroup);
-+
-+/**
-+ * ccw_device_is_multipath - determine if device is operating in multipath mode
-+ * @cdev: ccw device
-+ *
-+ * Return non-zero if device is operating in multipath mode, zero otherwise.
-+ */
-+int ccw_device_is_multipath(struct ccw_device *cdev)
-+{
-+	return cdev->private->flags.mpath;
-+}
-+EXPORT_SYMBOL(ccw_device_is_multipath);
-+
-+/**
-  * ccw_device_clear() - terminate I/O request processing
-  * @cdev: target ccw device
-  * @intparm: interruption parameter; value is only used if no I/O is
 Index: quilt-2.6/drivers/s390/cio/device_pgid.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_pgid.c	2009-11-13 16:08:20.000000000 +0100
+--- quilt-2.6.orig/drivers/s390/cio/device_pgid.c	2009-11-13 16:08:21.000000000 +0100
 +++ quilt-2.6/drivers/s390/cio/device_pgid.c	2009-11-13 16:08:21.000000000 +0100
-@@ -30,8 +30,8 @@
- {
- 	struct subchannel *sch = to_subchannel(cdev->dev.parent);
- 	struct ccw_dev_id *id = &cdev->private->dev_id;
--	int mpath = !cdev->private->flags.pgid_single;
--	int pgroup = cdev->private->options.pgroup;
-+	int mpath = cdev->private->flags.mpath;
-+	int pgroup = cdev->private->flags.pgroup;
+@@ -141,8 +141,8 @@
+ 	struct ccw_request *req = &cdev->private->req;
+ 	u8 fn;
  
+-	/* Adjust lpm if paths are not set in pam. */
+-	req->lpm = lpm_adjust(req->lpm, sch->schib.pmcw.pam);
++	/* Use next available path that is not already in correct state. */
++	req->lpm = lpm_adjust(req->lpm, sch->schib.pmcw.pam & ~sch->vpm);
+ 	if (!req->lpm)
+ 		goto out_nopath;
+ 	/* Channel program setup. */
+@@ -199,6 +199,19 @@
+ 	verify_done(cdev, rc);
+ }
+ 
++static void spid_start(struct ccw_device *cdev)
++{
++	struct ccw_request *req = &cdev->private->req;
++
++	/* Initialize request data. */
++	memset(req, 0, sizeof(*req));
++	req->timeout	= PGID_TIMEOUT;
++	req->maxretries	= PGID_RETRIES;
++	req->lpm	= 0x80;
++	req->callback	= spid_callback;
++	spid_do(cdev);
++}
++
+ static int pgid_cmp(struct pgid *p1, struct pgid *p2)
+ {
+ 	return memcmp((char *) p1 + 1, (char *) p2 + 1,
+@@ -241,6 +254,40 @@
+ 	*p = first;
+ }
+ 
++static u8 pgid_to_vpm(struct ccw_device *cdev)
++{
++	struct subchannel *sch = to_subchannel(cdev->dev.parent);
++	struct pgid *pgid;
++	int i;
++	int lpm;
++	u8 vpm = 0;
++
++	/* Set VPM bits for paths which are already in the target state. */
++	for (i = 0; i < 8; i++) {
++		lpm = 0x80 >> i;
++		if ((cdev->private->pgid_valid_mask & lpm) == 0)
++			continue;
++		pgid = &cdev->private->pgid[i];
++		if (sch->opm & lpm) {
++			if (pgid->inf.ps.state1 != SNID_STATE1_GROUPED)
++				continue;
++		} else {
++			if (pgid->inf.ps.state1 != SNID_STATE1_UNGROUPED)
++				continue;
++		}
++		if (cdev->private->flags.mpath) {
++			if (pgid->inf.ps.state3 != SNID_STATE3_MULTI_PATH)
++				continue;
++		} else {
++			if (pgid->inf.ps.state3 != SNID_STATE3_SINGLE_PATH)
++				continue;
++		}
++		vpm |= lpm;
++	}
++
++	return vpm;
++}
++
+ static void pgid_fill(struct ccw_device *cdev, struct pgid *pgid)
+ {
+ 	int i;
+@@ -255,6 +302,7 @@
+ static void snid_done(struct ccw_device *cdev, int rc)
+ {
+ 	struct ccw_dev_id *id = &cdev->private->dev_id;
++	struct subchannel *sch = to_subchannel(cdev->dev.parent);
+ 	struct pgid *pgid;
+ 	int mismatch = 0;
+ 	int reserved = 0;
+@@ -263,18 +311,38 @@
  	if (rc)
  		goto out;
-@@ -150,7 +150,7 @@
- 		fn = SPID_FUNC_ESTABLISH;
- 	else
- 		fn = SPID_FUNC_RESIGN;
--	if (!cdev->private->flags.pgid_single)
-+	if (cdev->private->flags.mpath)
- 		fn |= SPID_FUNC_MULTI_PATH;
- 	spid_build_cp(cdev, fn);
- 	ccw_request_start(cdev);
-@@ -177,13 +177,13 @@
- 	case -EACCES:
- 		break;
- 	case -EOPNOTSUPP:
--		if (!cdev->private->flags.pgid_single) {
-+		if (cdev->private->flags.mpath) {
- 			/* Try without multipathing. */
--			cdev->private->flags.pgid_single = 1;
-+			cdev->private->flags.mpath = 0;
- 			goto out_restart;
- 		}
- 		/* Try without pathgrouping. */
--		cdev->private->options.pgroup = 0;
-+		cdev->private->flags.pgroup = 0;
- 		goto out_restart;
- 	default:
- 		goto err;
-@@ -374,7 +374,7 @@
- 	req->timeout	= PGID_TIMEOUT;
- 	req->maxretries	= PGID_RETRIES;
- 	req->lpm	= 0x80;
--	if (cdev->private->options.pgroup) {
-+	if (cdev->private->flags.pgroup) {
- 		req->callback	= spid_callback;
- 		spid_do(cdev);
- 	} else {
-@@ -400,10 +400,17 @@
- 	CIO_HEX_EVENT(4, &cdev->private->dev_id, sizeof(cdev->private->dev_id));
- 	if (!cdev->private->flags.pgid_rdy) {
- 		/* No pathgrouping possible. */
--		cdev->private->options.pgroup = 0;
--		cdev->private->flags.pgid_single = 1;
--	} else
--		cdev->private->flags.pgid_single = 0;
+ 	pgid_analyze(cdev, &pgid, &mismatch, &reserved, &reset);
+-	if (!mismatch) {
+-		pgid_fill(cdev, pgid);
+-		cdev->private->flags.pgid_rdy = 1;
+-	}
+ 	if (reserved)
+ 		rc = -EUSERS;
++	else if (mismatch)
++		rc = -EOPNOTSUPP;
++	else {
++		sch->vpm = pgid_to_vpm(cdev);
++		pgid_fill(cdev, pgid);
++	}
+ out:
+-	CIO_MSG_EVENT(2, "snid: device 0.%x.%04x: rc=%d pvm=%02x mism=%d "
+-		      "rsvd=%d reset=%d\n", id->ssid, id->devno, rc,
+-		      cdev->private->pgid_valid_mask, mismatch, reserved,
+-		      reset);
+-	ccw_device_sense_pgid_done(cdev, rc);
++	CIO_MSG_EVENT(2, "snid: device 0.%x.%04x: rc=%d pvm=%02x vpm=%02x "
++		      "mism=%d rsvd=%d reset=%d\n", id->ssid, id->devno, rc,
++		      cdev->private->pgid_valid_mask, sch->vpm, mismatch,
++		      reserved, reset);
++	switch (rc) {
++	case 0:
++		/* Anything left to do? */
++		if (sch->vpm == sch->schib.pmcw.pam) {
++			verify_done(cdev, sch->vpm == 0 ? -EACCES : 0);
++			return;
++		}
++		/* Perform path-grouping. */
++		spid_start(cdev);
++		break;
++	case -EOPNOTSUPP:
++		/* Path-grouping not supported. */
 +		cdev->private->flags.pgroup = 0;
 +		cdev->private->flags.mpath = 0;
-+	} else {
-+		/*
-+		 * Initialize pathgroup and multipath state with target values.
-+		 * They may change in the course of path verification.
-+		 */
-+		cdev->private->flags.pgroup = cdev->private->options.pgroup;
-+		cdev->private->flags.mpath = cdev->private->options.mpath;
-+
++		verify_start(cdev);
++		break;
++	default:
++		verify_done(cdev, rc);
 +	}
+ }
+ 
+ /*
+@@ -333,33 +401,6 @@
+ 	snid_done(cdev, rc);
+ }
+ 
+-/**
+- * ccw_device_sense_pgid_start - perform SENSE PGID
+- * @cdev: ccw device
+- *
+- * Execute a SENSE PGID channel program on each path to @cdev to update its
+- * PGID information. When finished, call ccw_device_sense_id_done with a
+- * return code specifying the result.
+- */
+-void ccw_device_sense_pgid_start(struct ccw_device *cdev)
+-{
+-	struct ccw_request *req = &cdev->private->req;
+-
+-	CIO_TRACE_EVENT(4, "snid");
+-	CIO_HEX_EVENT(4, &cdev->private->dev_id, sizeof(cdev->private->dev_id));
+-	/* Initialize PGID data. */
+-	memset(cdev->private->pgid, 0, sizeof(cdev->private->pgid));
+-	cdev->private->flags.pgid_rdy = 0;
+-	cdev->private->pgid_valid_mask = 0;
+-	/* Initialize request data. */
+-	memset(req, 0, sizeof(*req));
+-	req->timeout	= PGID_TIMEOUT;
+-	req->maxretries	= PGID_RETRIES;
+-	req->callback	= snid_callback;
+-	req->lpm	= 0x80;
+-	snid_do(cdev);
+-}
+-
+ /*
+  * Perform path verification.
+  */
+@@ -367,6 +408,7 @@
+ {
+ 	struct subchannel *sch = to_subchannel(cdev->dev.parent);
+ 	struct ccw_request *req = &cdev->private->req;
++	struct ccw_dev_id *devid = &cdev->private->dev_id;
+ 
+ 	sch->vpm = 0;
+ 	/* Initialize request data. */
+@@ -375,9 +417,13 @@
+ 	req->maxretries	= PGID_RETRIES;
+ 	req->lpm	= 0x80;
+ 	if (cdev->private->flags.pgroup) {
+-		req->callback	= spid_callback;
+-		spid_do(cdev);
++		CIO_TRACE_EVENT(4, "snid");
++		CIO_HEX_EVENT(4, devid, sizeof(*devid));
++		req->callback	= snid_callback;
++		snid_do(cdev);
+ 	} else {
++		CIO_TRACE_EVENT(4, "nop");
++		CIO_HEX_EVENT(4, devid, sizeof(*devid));
+ 		req->filter	= nop_filter;
+ 		req->callback	= nop_callback;
+ 		nop_do(cdev);
+@@ -398,19 +444,15 @@
+ {
+ 	CIO_TRACE_EVENT(4, "vrfy");
+ 	CIO_HEX_EVENT(4, &cdev->private->dev_id, sizeof(cdev->private->dev_id));
+-	if (!cdev->private->flags.pgid_rdy) {
+-		/* No pathgrouping possible. */
+-		cdev->private->flags.pgroup = 0;
+-		cdev->private->flags.mpath = 0;
+-	} else {
+-		/*
+-		 * Initialize pathgroup and multipath state with target values.
+-		 * They may change in the course of path verification.
+-		 */
+-		cdev->private->flags.pgroup = cdev->private->options.pgroup;
+-		cdev->private->flags.mpath = cdev->private->options.mpath;
+-
+-	}
++	/* Initialize PGID data. */
++	memset(cdev->private->pgid, 0, sizeof(cdev->private->pgid));
++	cdev->private->pgid_valid_mask = 0;
++	/*
++	 * Initialize pathgroup and multipath state with target values.
++	 * They may change in the course of path verification.
++	 */
++	cdev->private->flags.pgroup = cdev->private->options.pgroup;
++	cdev->private->flags.mpath = cdev->private->options.mpath;
  	cdev->private->flags.doverify = 0;
  	verify_start(cdev);
  }
-@@ -419,7 +426,7 @@
- 	if (rc)
- 		goto out;
- 	/* Ensure consistent multipathing state at device and channel. */
--	cdev->private->flags.pgid_single = 1;
-+	cdev->private->flags.mpath = 0;
- 	if (sch->config.mp) {
- 		sch->config.mp = 0;
- 		rc = cio_commit_config(sch);
-@@ -453,7 +460,7 @@
- 	req->lpm	= sch->schib.pmcw.pam & sch->opm;
- 	req->callback	= disband_callback;
- 	fn = SPID_FUNC_DISBAND;
--	if (!cdev->private->flags.pgid_single)
-+	if (cdev->private->flags.mpath)
- 		fn |= SPID_FUNC_MULTI_PATH;
- 	spid_build_cp(cdev, fn);
- 	ccw_request_start(cdev);
 Index: quilt-2.6/drivers/s390/cio/io_sch.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/io_sch.h	2009-11-13 16:08:20.000000000 +0100
+--- quilt-2.6.orig/drivers/s390/cio/io_sch.h	2009-11-13 16:08:21.000000000 +0100
 +++ quilt-2.6/drivers/s390/cio/io_sch.h	2009-11-13 16:08:21.000000000 +0100
-@@ -156,9 +156,9 @@
- 		unsigned int repall:1;	/* report every interrupt status */
- 		unsigned int pgroup:1;	/* do path grouping */
- 		unsigned int force:1;	/* allow forced online */
-+		unsigned int mpath:1;	/* do multipathing */
- 	} __attribute__ ((packed)) options;
- 	struct {
--		unsigned int pgid_single:1; /* use single path for Set PGID */
- 		unsigned int esid:1;	    /* Ext. SenseID supported by HW */
- 		unsigned int dosense:1;	    /* delayed SENSE required */
- 		unsigned int doverify:1;    /* delayed path verification */
-@@ -167,6 +167,8 @@
+@@ -166,7 +166,6 @@
+ 		unsigned int recog_done:1;  /* dev. recog. complete */
  		unsigned int fake_irb:1;    /* deliver faked irb */
  		unsigned int resuming:1;    /* recognition while resume */
- 		unsigned int pgid_rdy:1;    /* pgids are ready */
-+		unsigned int pgroup:1;	    /* pathgroup is set up */
-+		unsigned int mpath:1;	    /* multipathing is set up */
+-		unsigned int pgid_rdy:1;    /* pgids are ready */
+ 		unsigned int pgroup:1;	    /* pathgroup is set up */
+ 		unsigned int mpath:1;	    /* multipathing is set up */
  	} __attribute__((packed)) flags;
- 	unsigned long intparm;	/* user interruption parameter */
- 	struct qdio_irq *qdio_data;
