@@ -1,49 +1,59 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Fri, 13 Nov 2009 10:00:25 +0000
-Subject: Re: strncmp errors?
-Message-Id: <20091113100025.GD4839@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <1258103991.16857.87.camel@Joe-Laptop.home>
-References: <1258103991.16857.87.camel@Joe-Laptop.home>
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+Date: Fri, 13 Nov 2009 15:56:47 +0000
+Subject: Re: [PATCH linux-cr] implement s390 eclone syscall
+Message-Id: <20091113155647.GA22321@us.ibm.com>
+In-Reply-To: <20091113084730.GA4839@osiris.boeblingen.de.ibm.com>
+References: <20091113084730.GA4839@osiris.boeblingen.de.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Nov 13, 2009 at 01:19:51AM -0800, Joe Perches wrote:
-> On Fri, 2009-11-13 at 10:07 +0100, Heiko Carstens wrote:
-> > On Mon, Nov 09, 2009 at 01:28:00PM -0800, Joe Perches wrote:
-> > > Typically, strncmp uses the length of the second
-> > > argument as the maximum comparison length.
-> > > Perhaps these strncmp uses should be modified?
-> > > arch/s390/kernel/vdso.c:	if (strncmp(s, "on", 3) == 0)
-> > > arch/s390/kernel/vdso.c:	else if (strncmp(s, "off", 4) == 0)
-> > > arch/s390/kernel/setup.c:	if (strncmp(str, "hwc", 4) == 0 || strncmp(str, "sclp", 5) == 0)
-> > > arch/s390/kernel/setup.c:	if (strncmp(str, "3215", 5) == 0)
-> > > arch/s390/kernel/setup.c:	if (strncmp(str, "3270", 5) == 0)
-> > Why do you think we have errors in here?
+Quoting Heiko Carstens (heiko.carstens@de.ibm.com):
+> On Thu, Nov 12, 2009 at 11:21:20PM -0600, serue@us.ibm.com wrote:
+> > +asmlinkage long sys32_eclone(void)
+> > +{
+> > +	int rc;
+> > +	struct pt_regs *regs = task_pt_regs(current);
+> > +	int args_size;
+> > +	struct clone_args kca;
+> > +	unsigned long flags;
+> > +	int __user *parent_tid_ptr;
+> > +	int __user *child_tid_ptr;
+> > +	unsigned long __user child_stack;
+> > +	unsigned long stack_size;
+> > +	unsigned int flags_low;
+> > +	struct clone_args __user *uca;
+> > +	pid_t __user *pids;
 > 
-> Other uses of strncmp in the same file.
+> Would you mind converting this to a syscall which takes its parameters via
+> registers?
+> You might have a look at git commit 2d70ca23f86647e076e3a8b64b3a90e583b894d5
+> "[S390] Convert sys_clone to function with parameters."
+
+Thanks!  That does end up looking much nicer.
+
+New version attached.
+
+> > +	flags_low = regs->orig_gpr2 & 0xffffffffUL;
+> > +	uca = compat_ptr(regs->gprs[3]);
+> > +	args_size = regs->gprs[4] & 0xffffffffUL;
+> > +	pids = compat_ptr(regs->gprs[5]);
+> > +
+> > +	rc = fetch_clone_args_from_user(uca, args_size, &kca);
+> > +	if (rc)
+> > +		return rc;
+> > +
+> > +	if (kca.clone_flags_high)
+> > +		return -EINVAL;
+> > +	flags = flags_low;
+> > +	parent_tid_ptr = (int __user *) kca.parent_tid_ptr;
+> > +	child_tid_ptr =  (int __user *) kca.child_tid_ptr;
 > 
-> $ grep strncmp arch/s390/kernel/setup.c
-> 	if (strncmp(str, "hwc", 4) == 0 || strncmp(str, "sclp", 5) == 0)
-> 	if (strncmp(str, "3215", 5) == 0)
-> 	if (strncmp(str, "3270", 5) == 0)
+> _If_ the kernel uses these two pointers to access user space then the most
+> significant bit of the pointer values must be cleared by using compat_ptr().
 
-These are all NULL terminated.
+It does, but IIUC I no longer need that compat function at all, since
+I'm now using a simple sys_eclone_wrapper in
+arch/s390/kernel/compat_wrapper.S.
 
-> 		if (strncmp(ptr + 8, "3270", 4) == 0) {
-> 		} else if (strncmp(ptr + 8, "3215", 4) == 0) {
-
-These are not.
-
-> 	if (!strncmp(p, "off", 3))
-
-This one is NULL terminated.
-
-> > The only thing I can see is that the length parameter is superfluous
-> > and that we could have used strcmp instead.
-> 
-> If that's what's appropriate, isn't
-> that what should actually be used?
-
-So everything is correct. Can't see a reason to change anything here, except
-for cleanup reasons. But it's not worth the test effort to verify if not
-something breaks in a subtle manner.
+thanks,
+-serge
