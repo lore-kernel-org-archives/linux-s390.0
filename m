@@ -1,339 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756547AbZKMPKu@vger.kernel.org>
-Message-Id: <20091113150916.986219548@de.ibm.com>
-Date: Fri, 13 Nov 2009 16:09:07 +0100
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756523AbZKMPKo@vger.kernel.org>
+Message-Id: <20091113150917.146610745@de.ibm.com>
+Date: Fri, 13 Nov 2009 16:09:08 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 43/52] [PATCH] cio: make steal lock procedure more robust
+Subject: [patch 44/52] [PATCH] cio: remove registered flag from ccw_device_private
 References: <20091113150824.351347652@de.ibm.com>
-Content-Disposition: inline; filename=142-cio-steal-lock.diff
+Content-Disposition: inline; filename=143-cio-rm-registered-flag.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Oberparleiter <peter.oberparleiter@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
 
-An Unconditional Reserve + Release operation (steal lock) for a
-boxed device may fail when encountering special error cases
-(e.g. unit checks or path errors). Fix this by using the more
-robust ccw_request infrastructure for performing the steal lock
-CCW program.
+We used to maintain a "registered" flag in our ccw_device_private
+structure. This patch removes the "registered" flag and converts
+all users of it to device_is_registered which has the exact same
+meaning.
 
-Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+Note: The usage the atomic operation test_and_clear_bit is replaced
+by the non-atomic if (device_is_registered()) device_del(). This
+will not do harm, since we serialize calls to ccw_device_unregister
+with a single-threaded workqueue.
+
+Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/device.h      |    4 +
- drivers/s390/cio/device_fsm.c  |   55 +++++++++-----------
- drivers/s390/cio/device_ops.c  |  112 +++++++++++++++++++----------------------
- drivers/s390/cio/device_pgid.c |   52 +++++++++++++++++++
- 4 files changed, 134 insertions(+), 89 deletions(-)
+ drivers/s390/cio/device.c |   11 +++--------
+ drivers/s390/cio/io_sch.h |    1 -
+ 2 files changed, 3 insertions(+), 9 deletions(-)
 
-Index: quilt-2.6/drivers/s390/cio/device_fsm.c
+Index: quilt-2.6/drivers/s390/cio/device.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_fsm.c	2009-11-13 16:08:21.000000000 +0100
-+++ quilt-2.6/drivers/s390/cio/device_fsm.c	2009-11-13 16:08:21.000000000 +0100
-@@ -641,6 +641,23 @@
- }
+--- quilt-2.6.orig/drivers/s390/cio/device.c	2009-11-13 16:08:20.000000000 +0100
++++ quilt-2.6/drivers/s390/cio/device.c	2009-11-13 16:08:21.000000000 +0100
+@@ -303,7 +303,7 @@
  
- /*
-+ * Handle path verification event in boxed state.
-+ */
-+static void ccw_device_boxed_verify(struct ccw_device *cdev,
-+				    enum dev_event dev_event)
-+{
-+	struct subchannel *sch = to_subchannel(cdev->dev.parent);
-+
-+	if (cdev->online) {
-+		if (cio_enable_subchannel(sch, (u32) (addr_t) sch))
-+			ccw_device_done(cdev, DEV_STATE_NOT_OPER);
-+		else
-+			ccw_device_online_verify(cdev, dev_event);
-+	} else
-+		css_schedule_eval(sch->schid);
-+}
-+
-+/*
-  * Got an interrupt for a normal io (state online).
-  */
- static void
-@@ -817,32 +834,6 @@
- }
- 
- static void
--ccw_device_stlck_done(struct ccw_device *cdev, enum dev_event dev_event)
--{
--	struct irb *irb;
--
--	switch (dev_event) {
--	case DEV_EVENT_INTERRUPT:
--		irb = (struct irb *) __LC_IRB;
--		/* Check for unsolicited interrupt. */
--		if ((scsw_stctl(&irb->scsw) ==
--		     (SCSW_STCTL_STATUS_PEND | SCSW_STCTL_ALERT_STATUS)) &&
--		    (!scsw_cc(&irb->scsw)))
--			/* FIXME: we should restart stlck here, but this
--			 * is extremely unlikely ... */
--			goto out_wakeup;
--
--		ccw_device_accumulate_irb(cdev, irb);
--		/* We don't care about basic sense etc. */
--		break;
--	default: /* timeout */
--		break;
--	}
--out_wakeup:
--	wake_up(&cdev->private->wait_q);
--}
--
--static void
- ccw_device_start_id(struct ccw_device *cdev, enum dev_event dev_event)
+ static void ccw_device_unregister(struct ccw_device *cdev)
  {
- 	struct subchannel *sch;
-@@ -1010,9 +1001,9 @@
- 	},
- 	[DEV_STATE_BOXED] = {
- 		[DEV_EVENT_NOTOPER]	= ccw_device_generic_notoper,
--		[DEV_EVENT_INTERRUPT]	= ccw_device_stlck_done,
--		[DEV_EVENT_TIMEOUT]	= ccw_device_stlck_done,
--		[DEV_EVENT_VERIFY]	= ccw_device_nop,
-+		[DEV_EVENT_INTERRUPT]	= ccw_device_nop,
-+		[DEV_EVENT_TIMEOUT]	= ccw_device_nop,
-+		[DEV_EVENT_VERIFY]	= ccw_device_boxed_verify,
- 	},
- 	/* states to wait for i/o completion before doing something */
- 	[DEV_STATE_TIMEOUT_KILL] = {
-@@ -1052,6 +1043,12 @@
- 		[DEV_EVENT_TIMEOUT]	= ccw_device_update_cmfblock,
- 		[DEV_EVENT_VERIFY]	= ccw_device_update_cmfblock,
- 	},
-+	[DEV_STATE_STEAL_LOCK] = {
-+		[DEV_EVENT_NOTOPER]	= ccw_device_request_event,
-+		[DEV_EVENT_INTERRUPT]	= ccw_device_request_event,
-+		[DEV_EVENT_TIMEOUT]	= ccw_device_request_event,
-+		[DEV_EVENT_VERIFY]	= ccw_device_nop,
-+	},
- };
- 
- EXPORT_SYMBOL_GPL(ccw_device_set_timeout);
-Index: quilt-2.6/drivers/s390/cio/device.h
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device.h	2009-11-13 16:08:21.000000000 +0100
-+++ quilt-2.6/drivers/s390/cio/device.h	2009-11-13 16:08:21.000000000 +0100
-@@ -28,6 +28,7 @@
- 	DEV_STATE_DISCONNECTED_SENSE_ID,
- 	DEV_STATE_CMFCHANGE,
- 	DEV_STATE_CMFUPDATE,
-+	DEV_STATE_STEAL_LOCK,
- 	/* last element! */
- 	NR_DEV_STATES
- };
-@@ -116,6 +117,9 @@
- void ccw_device_disband_start(struct ccw_device *);
- void ccw_device_disband_done(struct ccw_device *, int);
- 
-+void ccw_device_stlck_start(struct ccw_device *, void *, void *, void *);
-+void ccw_device_stlck_done(struct ccw_device *, void *, int);
-+
- int ccw_device_call_handler(struct ccw_device *);
- 
- int ccw_device_stlck(struct ccw_device *);
-Index: quilt-2.6/drivers/s390/cio/device_ops.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_ops.c	2009-11-13 16:08:21.000000000 +0100
-+++ quilt-2.6/drivers/s390/cio/device_ops.c	2009-11-13 16:08:21.000000000 +0100
-@@ -11,6 +11,7 @@
- #include <linux/list.h>
- #include <linux/device.h>
- #include <linux/delay.h>
-+#include <linux/completion.h>
- 
- #include <asm/ccwdev.h>
- #include <asm/idals.h>
-@@ -504,74 +505,65 @@
- 	return sch->lpm;
- }
- 
--/*
-- * Try to break the lock on a boxed device.
-- */
--int
--ccw_device_stlck(struct ccw_device *cdev)
--{
--	void *buf, *buf2;
--	unsigned long flags;
--	struct subchannel *sch;
--	int ret;
-+struct stlck_data {
-+	struct completion done;
-+	int rc;
-+};
- 
--	if (!cdev)
--		return -ENODEV;
-+void ccw_device_stlck_done(struct ccw_device *cdev, void *data, int rc)
-+{
-+	struct stlck_data *sdata = data;
- 
--	if (cdev->drv && !cdev->private->options.force)
--		return -EINVAL;
-+	sdata->rc = rc;
-+	complete(&sdata->done);
-+}
- 
--	sch = to_subchannel(cdev->dev.parent);
--	
--	CIO_TRACE_EVENT(2, "stl lock");
--	CIO_TRACE_EVENT(2, dev_name(&cdev->dev));
-+/*
-+ * Perform unconditional reserve + release.
-+ */
-+int ccw_device_stlck(struct ccw_device *cdev)
-+{
-+	struct subchannel *sch = to_subchannel(cdev->dev.parent);
-+	struct stlck_data data;
-+	u8 *buffer;
-+	int rc;
- 
--	buf = kmalloc(32*sizeof(char), GFP_DMA|GFP_KERNEL);
--	if (!buf)
--		return -ENOMEM;
--	buf2 = kmalloc(32*sizeof(char), GFP_DMA|GFP_KERNEL);
--	if (!buf2) {
--		kfree(buf);
--		return -ENOMEM;
-+	/* Check if steal lock operation is valid for this device. */
-+	if (cdev->drv) {
-+		if (!cdev->private->options.force)
-+			return -EINVAL;
- 	}
--	spin_lock_irqsave(sch->lock, flags);
--	ret = cio_enable_subchannel(sch, (u32)(addr_t)sch);
+-	if (test_and_clear_bit(1, &cdev->private->registered)) {
++	if (device_is_registered(&cdev->dev)) {
+ 		device_del(&cdev->dev);
+ 		/* Release reference from device_initialize(). */
+ 		put_device(&cdev->dev);
+@@ -640,12 +640,7 @@
+ 			   cdev->private->dev_id.devno);
+ 	if (ret)
+ 		return ret;
+-	ret = device_add(dev);
 -	if (ret)
--		goto out_unlock;
--	/*
--	 * Setup ccw. We chain an unconditional reserve and a release so we
--	 * only break the lock.
--	 */
--	cdev->private->iccws[0].cmd_code = CCW_CMD_STLCK;
--	cdev->private->iccws[0].cda = (__u32) __pa(buf);
--	cdev->private->iccws[0].count = 32;
--	cdev->private->iccws[0].flags = CCW_FLAG_CC;
--	cdev->private->iccws[1].cmd_code = CCW_CMD_RELEASE;
--	cdev->private->iccws[1].cda = (__u32) __pa(buf2);
--	cdev->private->iccws[1].count = 32;
--	cdev->private->iccws[1].flags = 0;
--	ret = cio_start(sch, cdev->private->iccws, 0);
--	if (ret) {
--		cio_disable_subchannel(sch); //FIXME: return code?
-+	buffer = kzalloc(64, GFP_DMA | GFP_KERNEL);
-+	if (!buffer)
-+		return -ENOMEM;
-+	init_completion(&data.done);
-+	data.rc = -EIO;
-+	spin_lock_irq(sch->lock);
-+	rc = cio_enable_subchannel(sch, (u32) (addr_t) sch);
-+	if (rc)
- 		goto out_unlock;
-+	/* Perform operation. */
-+	cdev->private->state = DEV_STATE_STEAL_LOCK,
-+	ccw_device_stlck_start(cdev, &data, &buffer[0], &buffer[32]);
-+	spin_unlock_irq(sch->lock);
-+	/* Wait for operation to finish. */
-+	if (wait_for_completion_interruptible(&data.done)) {
-+		/* Got a signal. */
-+		spin_lock_irq(sch->lock);
-+		ccw_request_cancel(cdev);
-+		spin_unlock_irq(sch->lock);
-+		wait_for_completion(&data.done);
- 	}
--	cdev->private->irb.scsw.cmd.actl |= SCSW_ACTL_START_PEND;
--	spin_unlock_irqrestore(sch->lock, flags);
--	wait_event(cdev->private->wait_q,
--		   cdev->private->irb.scsw.cmd.actl == 0);
--	spin_lock_irqsave(sch->lock, flags);
--	cio_disable_subchannel(sch); //FIXME: return code?
--	if ((cdev->private->irb.scsw.cmd.dstat !=
--	     (DEV_STAT_CHN_END|DEV_STAT_DEV_END)) ||
--	    (cdev->private->irb.scsw.cmd.cstat != 0))
--		ret = -EIO;
--	/* Clear irb. */
--	memset(&cdev->private->irb, 0, sizeof(struct irb));
-+	rc = data.rc;
-+	/* Check results. */
-+	spin_lock_irq(sch->lock);
-+	cio_disable_subchannel(sch);
-+	cdev->private->state = DEV_STATE_BOXED;
- out_unlock:
--	kfree(buf);
--	kfree(buf2);
--	spin_unlock_irqrestore(sch->lock, flags);
+-		return ret;
+-
+-	set_bit(1, &cdev->private->registered);
 -	return ret;
-+	spin_unlock_irq(sch->lock);
-+	kfree(buffer);
-+
-+	return rc;
++	return device_add(dev);
  }
  
- void *ccw_device_get_chp_desc(struct ccw_device *cdev, int chp_no)
-Index: quilt-2.6/drivers/s390/cio/device_pgid.c
+ static int match_dev_id(struct device *dev, void *data)
+@@ -669,7 +664,7 @@
+ {
+ 	int ret;
+ 
+-	if (test_bit(1, &cdev->private->registered)) {
++	if (device_is_registered(&cdev->dev)) {
+ 		device_release_driver(&cdev->dev);
+ 		ret = device_attach(&cdev->dev);
+ 		WARN_ON(ret == -ENODEV);
+Index: quilt-2.6/drivers/s390/cio/io_sch.h
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_pgid.c	2009-11-13 16:08:21.000000000 +0100
-+++ quilt-2.6/drivers/s390/cio/device_pgid.c	2009-11-13 16:08:21.000000000 +0100
-@@ -507,3 +507,55 @@
- 	spid_build_cp(cdev, fn);
- 	ccw_request_start(cdev);
- }
-+
-+static void stlck_build_cp(struct ccw_device *cdev, void *buf1, void *buf2)
-+{
-+	struct ccw_request *req = &cdev->private->req;
-+	struct ccw1 *cp = cdev->private->iccws;
-+
-+	cp[0].cmd_code = CCW_CMD_STLCK;
-+	cp[0].cda = (u32) (addr_t) buf1;
-+	cp[0].count = 32;
-+	cp[0].flags = CCW_FLAG_CC;
-+	cp[1].cmd_code = CCW_CMD_RELEASE;
-+	cp[1].cda = (u32) (addr_t) buf2;
-+	cp[1].count = 32;
-+	cp[1].flags = 0;
-+	req->cp = cp;
-+}
-+
-+static void stlck_callback(struct ccw_device *cdev, void *data, int rc)
-+{
-+	ccw_device_stlck_done(cdev, data, rc);
-+}
-+
-+/**
-+ * ccw_device_stlck_start - perform unconditional release
-+ * @cdev: ccw device
-+ * @data: data pointer to be passed to ccw_device_stlck_done
-+ * @buf1: data pointer used in channel program
-+ * @buf2: data pointer used in channel program
-+ *
-+ * Execute a channel program on @cdev to release an existing PGID reservation.
-+ * When finished, call ccw_device_stlck_done with a return code specifying the
-+ * result.
-+ */
-+void ccw_device_stlck_start(struct ccw_device *cdev, void *data, void *buf1,
-+			    void *buf2)
-+{
-+	struct subchannel *sch = to_subchannel(cdev->dev.parent);
-+	struct ccw_request *req = &cdev->private->req;
-+
-+	CIO_TRACE_EVENT(4, "stlck");
-+	CIO_HEX_EVENT(4, &cdev->private->dev_id, sizeof(cdev->private->dev_id));
-+	/* Request setup. */
-+	memset(req, 0, sizeof(*req));
-+	req->timeout	= PGID_TIMEOUT;
-+	req->maxretries	= PGID_RETRIES;
-+	req->lpm	= sch->schib.pmcw.pam & sch->opm;
-+	req->data	= data;
-+	req->callback	= stlck_callback;
-+	stlck_build_cp(cdev, buf1, buf2);
-+	ccw_request_start(cdev);
-+}
-+
+--- quilt-2.6.orig/drivers/s390/cio/io_sch.h	2009-11-13 16:08:21.000000000 +0100
++++ quilt-2.6/drivers/s390/cio/io_sch.h	2009-11-13 16:08:21.000000000 +0100
+@@ -145,7 +145,6 @@
+ 	struct subchannel *sch;
+ 	int state;		/* device state */
+ 	atomic_t onoff;
+-	unsigned long registered;
+ 	struct ccw_dev_id dev_id;	/* device id */
+ 	struct subchannel_id schid;	/* subchannel number */
+ 	struct ccw_request req;		/* internal I/O request */
