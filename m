@@ -1,10 +1,10 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1756914AbZKMPL7@vger.kernel.org>
-Message-Id: <20091113150915.209911383@de.ibm.com>
-Date: Fri, 13 Nov 2009 16:08:57 +0100
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756885AbZKMPL4@vger.kernel.org>
+Message-Id: <20091113150915.398821774@de.ibm.com>
+Date: Fri, 13 Nov 2009 16:08:58 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 33/52] [PATCH] cio: handle error during path verification consistently
+Subject: [patch 34/52] [PATCH] cio: ensure proper locking during device recognition
 References: <20091113150824.351347652@de.ibm.com>
-Content-Disposition: inline; filename=132-cio-verification-errors.diff
+Content-Disposition: inline; filename=133-cio-recognition-locking.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,75 +14,28 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 
-Handle verification errors consistently through the existing
-callback ccw_device_done to reduce cleanup code duplication.
+Device recognition needs to be started with the ccw device lock
+held to prevent race conditions between I/O starting and interrupt
+reception.
 
 Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/device_fsm.c  |   19 +++++++++----------
- drivers/s390/cio/device_pgid.c |    2 +-
- 2 files changed, 10 insertions(+), 11 deletions(-)
+ drivers/s390/cio/device.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-Index: quilt-2.6/drivers/s390/cio/device_fsm.c
+Index: quilt-2.6/drivers/s390/cio/device.c
 ===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_fsm.c	2009-11-13 16:08:18.000000000 +0100
-+++ quilt-2.6/drivers/s390/cio/device_fsm.c	2009-11-13 16:08:19.000000000 +0100
-@@ -549,9 +549,8 @@
- 	sch = to_subchannel(cdev->dev.parent);
- 	/* Update schib - pom may have changed. */
- 	if (cio_update_schib(sch)) {
--		cdev->private->flags.donotify = 0;
--		ccw_device_done(cdev, DEV_STATE_NOT_OPER);
--		return;
-+		err = -ENODEV;
-+		goto callback;
- 	}
- 	/* Update lpm with verified path mask. */
- 	sch->lpm = sch->vpm;
-@@ -561,9 +560,8 @@
- 		ccw_device_verify_start(cdev);
- 		return;
- 	}
-+callback:
- 	switch (err) {
--	case -EOPNOTSUPP: /* path grouping not supported, just set online. */
--		cdev->private->options.pgroup = 0;
- 	case 0:
- 		ccw_device_done(cdev, DEV_STATE_ONLINE);
- 		/* Deliver fake irb to device driver, if needed. */
-@@ -586,14 +584,15 @@
- 		cdev->private->flags.donotify = 0;
- 		ccw_device_done(cdev, DEV_STATE_BOXED);
- 		break;
-+	case -EACCES:
-+		/* Reset oper notify indication after verify error. */
-+		cdev->private->flags.donotify = 0;
-+		ccw_device_done(cdev, DEV_STATE_DISCONNECTED);
-+		break;
- 	default:
- 		/* Reset oper notify indication after verify error. */
- 		cdev->private->flags.donotify = 0;
--		if (cdev->online) {
--			ccw_device_set_timeout(cdev, 0);
--			dev_fsm_event(cdev, DEV_EVENT_NOTOPER);
--		} else
--			ccw_device_done(cdev, DEV_STATE_NOT_OPER);
-+		ccw_device_done(cdev, DEV_STATE_NOT_OPER);
- 		break;
- 	}
- }
-Index: quilt-2.6/drivers/s390/cio/device_pgid.c
-===================================================================
---- quilt-2.6.orig/drivers/s390/cio/device_pgid.c	2009-11-13 15:48:33.000000000 +0100
-+++ quilt-2.6/drivers/s390/cio/device_pgid.c	2009-11-13 16:08:19.000000000 +0100
-@@ -423,7 +423,7 @@
- 		/* Permanent path failure, try next. */
- 	}
- 	/* Done with all paths. */
--	ccw_device_verify_done(cdev, (sch->vpm != 0) ? 0 : -ENODEV);
-+	ccw_device_verify_done(cdev, (sch->vpm != 0) ? 0 : -EACCES);
- }
- 		
- /*
+--- quilt-2.6.orig/drivers/s390/cio/device.c	2009-11-13 16:08:18.000000000 +0100
++++ quilt-2.6/drivers/s390/cio/device.c	2009-11-13 16:08:19.000000000 +0100
+@@ -488,7 +488,9 @@
+ {
+ 	/* Do device recognition, if needed. */
+ 	if (cdev->private->state == DEV_STATE_BOXED) {
++		spin_lock_irq(cdev->ccwlock);
+ 		ccw_device_recognition(cdev);
++		spin_unlock_irq(cdev->ccwlock);
+ 		wait_event(cdev->private->wait_q,
+ 			   cdev->private->flags.recog_done);
+ 		if (cdev->private->state != DEV_STATE_OFFLINE)
