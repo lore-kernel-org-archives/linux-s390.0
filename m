@@ -1,42 +1,60 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Eric Paris <eparis@redhat.com>
 Subject: Re: [-next Nov 17] s390 build
  break(arch/s390/kernel/compat_wrapper.S)
-Date: Tue, 17 Nov 2009 13:52:01 +0100
-Message-ID: <20091117125201.GB5124@osiris.boeblingen.de.ibm.com>
+Date: Tue, 17 Nov 2009 08:40:41 -0500
+Message-ID: <1258465241.2876.29.camel@dhcp231-106.rdu.redhat.com>
 References: <20091117195309.6cc3ead0.sfr@canb.auug.org.au>
- <4B0291BB.3090005@in.ibm.com>
+	 <4B0291BB.3090005@in.ibm.com>
+	 <20091117125201.GB5124@osiris.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-next-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4B0291BB.3090005@in.ibm.com>
+In-Reply-To: <20091117125201.GB5124@osiris.boeblingen.de.ibm.com>
 Sender: linux-next-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-next/>
 List-Post: <mailto:linux-next@vger.kernel.org>
-To: Sachin Sant <sachinp@in.ibm.com>
-Cc: linux-s390@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, Eric Paris <eparis@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Sachin Sant <sachinp@in.ibm.com>, linux-s390@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Nov 17, 2009 at 05:36:19PM +0530, Sachin Sant wrote:
-> Today's next 20091117 build failed on s390 with
+On Tue, 2009-11-17 at 13:52 +0100, Heiko Carstens wrote:
+> On Tue, Nov 17, 2009 at 05:36:19PM +0530, Sachin Sant wrote:
+> > Today's next 20091117 build failed on s390 with
+> > 
+> > arch/s390/kernel/compat_wrapper.S: Assembler messages:
+> > arch/s390/kernel/compat_wrapper.S:1871: Error: operand out of range (164 is not between 0 and 15)
+> > arch/s390/kernel/compat_wrapper.S:1871: Error: junk at end of line: `(%r15)'
+> > make[1]: *** [arch/s390/kernel/compat_wrapper.o] Error 1
+> > 
+> > The code in question was added by commit 9db3031ac785b068eb4636465eebb7b346c48dbb
+> > 
+> > fanotify: sys_fanotify_mark declartion
 > 
-> arch/s390/kernel/compat_wrapper.S: Assembler messages:
-> arch/s390/kernel/compat_wrapper.S:1871: Error: operand out of range (164 is not between 0 and 15)
-> arch/s390/kernel/compat_wrapper.S:1871: Error: junk at end of line: `(%r15)'
-> make[1]: *** [arch/s390/kernel/compat_wrapper.o] Error 1
+> Hmm, the compat wrapper for sys_fanotify_mark is more broken (besides the
+> fact that it doesn't compile).
+> The same is true for sys_fanotify_init.
 > 
-> The code in question was added by commit 9db3031ac785b068eb4636465eebb7b346c48dbb
+> I thought it was general consensus that new syscalls should be wired up only
+> on x86 and let arch maintainers wire them up on their architectures.
+> Besides that a simple C source needs to be delivered so it can be easily
+> tested on each architecture.
 > 
-> fanotify: sys_fanotify_mark declartion
+> Especially we want to avoid subtle sign extension bugs like we have them here.
+> Probably gone unnoticed if there wouldn't be a compile bug.
 
-Hmm, the compat wrapper for sys_fanotify_mark is more broken (besides the
-fact that it doesn't compile).
-The same is true for sys_fanotify_init.
+I'll un-wire tonight or fix it if you tell me how.  I guess my code was
+supposed to use l instead of or as in sys_fallocate_wrapper() instead of
+copying sys32_lookup_dcookie_wrapper().
 
-I thought it was general consensus that new syscalls should be wired up only
-on x86 and let arch maintainers wire them up on their architectures.
-Besides that a simple C source needs to be delivered so it can be easily
-tested on each architecture.
+Simple C source is available, but without s390 syscall definitions at
+people.redhat.com/~eparis/fanotify
 
-Especially we want to avoid subtle sign extension bugs like we have them here.
-Probably gone unnoticed if there wouldn't be a compile bug.
+touch /tmp/tmp
+./fanotify /tmp/tmp &
+^Z
+echo hello > /tmp/tmp
+fg
+^C
+
+-Eric
