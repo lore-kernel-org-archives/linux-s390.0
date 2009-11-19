@@ -1,31 +1,32 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [-next PATCH] Add param ops struct for hvc_iucv driver.
-Date: Wed, 18 Nov 2009 11:30:43 +1030
-Message-ID: <200911181130.43385.rusty@rustcorp.com.au>
-References: <20091117132103.18413.53658.sendpatchset@localhost.localdomain> <20091117132448.GC5124@osiris.boeblingen.de.ibm.com>
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Subject: Re: Oops in Unix sockets code
+Date: Thu, 19 Nov 2009 16:46:26 +0100 (CET)
+Message-ID: <alpine.LFD.2.00.0911191631210.5225@localhost.localdomain>
+References: <20091119132028.GA22427@tuxmaker.boeblingen.de.ibm.com> <200911191440.18949.borntraeger@de.ibm.com> <4B05542D.7060401@gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <20091117132448.GC5124@osiris.boeblingen.de.ibm.com>
-Sender: linux-next-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-next/>
-List-Post: <mailto:linux-next@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Sachin Sant <sachinp@in.ibm.com>, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, linux-next@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <4B05542D.7060401@gmail.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Blaschka <frank.blaschka@de.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 17 Nov 2009 11:54:48 pm Heiko Carstens wrote:
-> On Tue, Nov 17, 2009 at 06:51:03PM +0530, Sachin Sant wrote:
-> > The following compile tested patch adds a param_ops structure for hvc_iucv.
-> > 
+
+
+On Thu, 19 Nov 2009, Eric Dumazet wrote:
 ...
-> Rusty, could you pick this one up?
+> 2.6.31 has a known bug
 > 
-> Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> 2.6.31.4 should correct it
+> 
+> commit 657453424a3c382035983f9a47306fafea730f6d
+> Author: Eric Dumazet <eric.dumazet@gmail.com>
+> Date:   Thu Sep 24 10:49:24 2009 +0000
 
-Thanks, applied, fixed spaces which should have been tabs.
+indeed, problem didn't show up with d99927f applied. thanks for
+pointing that out.
 
-Cheers,
-Rusty.
+sebastian
