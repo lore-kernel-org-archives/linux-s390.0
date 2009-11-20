@@ -1,35 +1,32 @@
-From: Eric Paris <eparis@redhat.com>
-Subject: Re: [-next Nov 17] s390 build
- break(arch/s390/kernel/compat_wrapper.S)
-Date: Wed, 18 Nov 2009 12:24:43 -0500
-Message-ID: <1258565083.6446.61.camel@dhcp231-106.rdu.redhat.com>
-References: <20091117195309.6cc3ead0.sfr@canb.auug.org.au>
-	 <4B0291BB.3090005@in.ibm.com>
-	 <20091117125201.GB5124@osiris.boeblingen.de.ibm.com>
-	 <1258465241.2876.29.camel@dhcp231-106.rdu.redhat.com>
-	 <20091117135525.GF5124@osiris.boeblingen.de.ibm.com>
-	 <1258471436.2876.34.camel@dhcp231-106.rdu.redhat.com>
-	 <20091118070418.GA4392@osiris.boeblingen.de.ibm.com>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1756159AbZKTV4m@vger.kernel.org>
+Date: Fri, 20 Nov 2009 13:56:57 -0800 (PST)
+Message-Id: <20091120.135657.78955091.davem@davemloft.net>
+Subject: Re: [PATCH] net: ETHOC should depend on HAS_DMA
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <10f740e80911201119h6db1e2e1t2c6d40ef1e614094@mail.gmail.com>
+References: <10f740e80911201119h6db1e2e1t2c6d40ef1e614094@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20091118070418.GA4392@osiris.boeblingen.de.ibm.com>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Sachin Sant <sachinp@in.ibm.com>, linux-s390@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-arch@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: geert@linux-m68k.org
+Cc: heiko.carstens@de.ibm.com, thierry.reding@avionic-design.de, schwidefsky@de.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2009-11-18 at 08:04 +0100, Heiko Carstens wrote:
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 20 Nov 2009 20:19:10 +0100
 
+> Subject: [PATCH] net: ETHOC should depend on HAS_DMA
+> 
+> When building for Sun 3:
+> 
+> drivers/net/ethoc.c:1091: undefined reference to `dma_free_coherent'
+> drivers/built-in.o: In function `ethoc_probe':
+> drivers/net/ethoc.c:965: undefined reference to `dma_alloc_coherent'
+> drivers/net/ethoc.c:1063: undefined reference to `dma_free_coherent'
+> 
+> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-> long sys_fanotify_mark(int fanotify_fd, unsigned int flags,
->                        u64 mask,
->      	 	       int fd, const char  __user *pathname);
-
-I'm willing to go with this interface if that works the best for most
-arches.  I'll queue it up for -next tomorrow.
-
--Eric
+Applied, thanks.
