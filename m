@@ -1,10 +1,18 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Date: Tue, 01 Dec 2009 21:55:52 +0000
-Subject: Re: [PATCH] seq_file: convert drivers/s390/
-Message-Id: <20091201135552.321aa3fc.akpm@linux-foundation.org>
-In-Reply-To: <20091127063517.GA25983@x200.malnet.ru>
-References: <20091127063517.GA25983@x200.malnet.ru>
+From: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
+Date: Mon, 14 Dec 2009 13:57:44 +0000
+Subject: [patch 0/3] S390-HWBKPT: Hardware breakpoint implementation for
+Message-Id: <20091214135557.GA21568@in.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Changes in linux-next killed this patch.
+Hi All,
+
+Please find the set of patches that introduces s390 specific implementation for perf-events based hardware breakpoint interfaces.
+
+The patch set has been tested with ksym_tracer and watchpoints over GDB+ptrace and works fine.
+The patch set applies cleanly on latest linux-2.6 tree (commit f405425).
+
+Thanks,
+-Mahesh.
+-- 
+Signed-off-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
