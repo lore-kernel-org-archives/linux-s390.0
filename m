@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] vhost: add missing architectures
-Date: Thu, 17 Dec 2009 14:50:55 +0200
-Message-ID: <20091217125055.GA26718@redhat.com>
+Subject: [PATCH-cc-fixed] vhost: add missing architectures
+Date: Thu, 17 Dec 2009 15:01:46 +0200
+Message-ID: <20091217130146.GA26726@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-ia64-owner@vger.kernel.org>
@@ -10,7 +10,7 @@ Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
-Cc: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Xiantao Zhang <xiantao.zhang@intel.com>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Gleb Natapov <gleb@redhat.com>, Hollis Blanchard <hollisb@us.ibm.com>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, kvm@vger.kernel.org, kvm-ia64@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Xiantao Zhang <xiantao.zhang@intel.com>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, kvm-ia64@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 vhost is completely portable, but Kconfig include was missing for all
@@ -20,6 +20,11 @@ virtualization.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
+
+Some IBM addresses seem to be bouncing. Reposting with these removed,
+please send replies to this shorter list to avoid bounces.  Sorry about
+the noise.
+
 
 Hi Rusty,
 please apply the following trivial fixup patch for 2.6.33.
