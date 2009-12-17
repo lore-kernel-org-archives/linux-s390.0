@@ -1,34 +1,70 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1757998AbZLIUva@vger.kernel.org>
-Date: Wed, 9 Dec 2009 21:51:12 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390: ptrace: don't abuse PT_PTRACED
-Message-ID: <20091209205112.GB4351@osiris.boeblingen.de.ibm.com>
-References: <20091209194651.GA24919@redhat.com>
-MIME-Version: 1.0
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] vhost: add missing architectures
+Date: Thu, 17 Dec 2009 14:50:55 +0200
+Message-ID: <20091217125055.GA26718@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-ia64-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20091209194651.GA24919@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Oleg Nesterov <oleg@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-ia64-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
+Cc: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Xiantao Zhang <xiantao.zhang@intel.com>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Gleb Natapov <gleb@redhat.com>, Hollis Blanchard <hollisb@us.ibm.com>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, kvm@vger.kernel.org, kvm-ia64@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Dec 09, 2009 at 08:46:51PM +0100, Oleg Nesterov wrote:
-> Untested, but hopefully trivial enough and should't change the
-> compiled code.
-> 
-> Nobody except ptrace itself should use task->ptrace or PT_PTRACED
-> directly, change arch/s390/kernel/traps.c to use the helper.
-> 
-> Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-> Acked-by: Roland McGrath <roland@redhat.com>
+vhost is completely portable, but Kconfig include was missing for all
+architectures besides x86, so it did not appear in the menu.  Add the
+relevant Kconfig includes to all architectures that support
+virtualization.
 
-> -	if ((current->ptrace & PT_PTRACED) != 0)
-> +	if (tracehook_consider_fatal_signal(current, SIGTRAP))
->  		force_sig(SIGTRAP, current);
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-Thanks, applied. Even though I'm wondering why tracehook_consider_fatal_signal
-has a signal parameter and doesn't do anything with it.
-Is that something that will change with utrace?
+Hi Rusty,
+please apply the following trivial fixup patch for 2.6.33.
+Thanks!
+
+ arch/ia64/kvm/Kconfig    |    1 +
+ arch/powerpc/kvm/Kconfig |    1 +
+ arch/s390/kvm/Kconfig    |    1 +
+ 3 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/arch/ia64/kvm/Kconfig b/arch/ia64/kvm/Kconfig
+index ef3e7be..01c7579 100644
+--- a/arch/ia64/kvm/Kconfig
++++ b/arch/ia64/kvm/Kconfig
+@@ -47,6 +47,7 @@ config KVM_INTEL
+ 	  Provides support for KVM on Itanium 2 processors equipped with the VT
+ 	  extensions.
+ 
++source drivers/vhost/Kconfig
+ source drivers/virtio/Kconfig
+ 
+ endif # VIRTUALIZATION
+diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
+index c299268..a1b4c5d 100644
+--- a/arch/powerpc/kvm/Kconfig
++++ b/arch/powerpc/kvm/Kconfig
+@@ -58,6 +58,7 @@ config KVM_E500
+ 
+ 	  If unsure, say N.
+ 
++source drivers/vhost/Kconfig
+ source drivers/virtio/Kconfig
+ 
+ endif # VIRTUALIZATION
+diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+index bf164fc..6be6aea 100644
+--- a/arch/s390/kvm/Kconfig
++++ b/arch/s390/kvm/Kconfig
+@@ -36,6 +36,7 @@ config KVM
+ 
+ # OK, it's a little counter-intuitive to do this, but it puts it neatly under
+ # the virtualization menu.
++source drivers/vhost/Kconfig
+ source drivers/virtio/Kconfig
+ 
+ endif # VIRTUALIZATION
+-- 
+1.6.6.rc1.43.gf55cc
