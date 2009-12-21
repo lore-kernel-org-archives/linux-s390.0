@@ -1,63 +1,53 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Fri, 18 Dec 2009 21:56:56 +0000
-Subject: Re: [patch 1/3] S390-HWBKPT: Prepare s390 for hardware breakpoint
-Message-Id: <20091218215655.GA13103@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20091214135724.GB21568@in.ibm.com>
-References: <20091214135724.GB21568@in.ibm.com>
+From: Stephen Powell <zlinuxman@wowway.com>
+Date: Mon, 21 Dec 2009 15:26:38 +0000
+Subject: Appeal to backport dasd_diag fix to stable update for 2.6.32
+Message-Id: <1697192065.629161261409198260.JavaMail.root@md01.wow.synacor.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Dec 14, 2009 at 07:27:24PM +0530, Mahesh Salgaonkar wrote:
-> Prepare the s390 code for HW Breakpoint infrastructure patches by including
-> relevant constant definitions and function declarations.
+Hello upstream kernel team!
 
-Why split this? Especially it would be nice to have function declarations and
-the functions in the same patch :)
+A fix was recently published for drivers/s390/block/dasd_diag.c to fix a problem
+with an inability to get read-only minidisks online to Linux via the dasd_diag
+driver.  This fix was published for kernel release 2.6.33.  (See
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=22825ab7693fd29769518a0d25ba43c01a50092a
+for the git commit.)  Here is a description of the problem:
 
-> Index: linux-2.6-tip/arch/s390/include/asm/hw_breakpoint.h
-> ===================================================================
-> --- /dev/null
-> +++ linux-2.6-tip/arch/s390/include/asm/hw_breakpoint.h
-> @@ -0,0 +1,65 @@
-> + */
-> +#ifndef	_S390_HW_BREAKPOINT_H
-> +#define	_S390_HW_BREAKPOINT_H
-> +
-> +#ifdef	__KERNEL__
+----------
 
-This header isn't exported, so the ifdef seems to be unnecessary.
+[S390] dasd: support DIAG access for read-only devices
 
-> +#define	__ARCH_HW_BREAKPOINT_H
+author	Stefan Weinhuber <wein@de.ibm.com>	
+	Mon, 7 Dec 2009 11:51:48 +0000 (12:51 +0100)
+committer	Martin Schwidefsky <sky@mschwide.boeblingen.de.ibm.com>	
+	Mon, 7 Dec 2009 11:51:34 +0000 (12:51 +0100)
 
-Seems to be unnecessary as well.
+When a DASD device is used with the DIAG discipline, the DIAG
+initialization will indicate success or error with a respective
+return code. So far we have interpreted a return code of 4 as error,
+but it actually means that the initialization was successful, but
+the device is read-only. To allow read-only devices to be used with
+DIAG we need to accept a return code of 4 as success.
 
-> +extern int hw_breakpoint_exceptions_notify(struct notifier_block *unused,
-> +				     unsigned long val, void *data);
-> +
-> +int arch_install_hw_breakpoint(struct perf_event *bp);
-> +void arch_uninstall_hw_breakpoint(struct perf_event *bp);
-> +void hw_breakpoint_pmu_read(struct perf_event *bp);
-> +void hw_breakpoint_pmu_unthrottle(struct perf_event *bp);
-> +
-> +extern void arch_fill_perf_breakpoint(struct perf_event *bp);
+Re-initialization of the DIAG access is also part of the DIAG error
+recovery. If we find that the access mode of a device has been
+changed from writable to read-only while the device was in use,
+we print an error message.
 
-At least this function doesn't exist in your second patch.
+Signed-off-by: Stefan Weinhuber <wein@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-> Index: linux-2.6-tip/kernel/hw_breakpoint.c
-> ===================================================================
-> --- linux-2.6-tip.orig/kernel/hw_breakpoint.c
-> +++ linux-2.6-tip/kernel/hw_breakpoint.c
-> @@ -30,6 +30,9 @@
->   * This file contains the arch-independent routines.
->   */
-> 
-> +#ifdef CONFIG_S390
-> +#include <asm/bitsperlong.h>
-> +#endif
+----------
 
-Please don't add CONFIG_S390 ifdefs in common code, unless it cannot be
-avoided. Why is this needed?
+I am the one who originally reported this problem to my Linux distributor
+(Debian), and I'd like to thank you all for your quick response to this problem.
+However, I'd also like to make an appeal to have this fix backported to your
+next stable release update for 2.6.32.  It appears likely at this point that
+2.6.32 will be adopted as the kernel used by Debian's next release (6.0.0,
+codename "Squeeze").  Having this fix in the kernel when Squeeze is first released
+will be a great benefit.  This is an important fix for the s390 architecture.
+Other distributions have recognized this and have backported the fix as far back
+as 2.6.16 kernels (SLES10).
 
->  #include <linux/irqflags.h>
->  #include <linux/kallsyms.h>
->  #include <linux/notifier.h>
+Regards,
+Steve Powell
