@@ -1,167 +1,127 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1755134Ab0AUUvj@vger.kernel.org>
-Date: Thu, 21 Jan 2010 21:51:13 +0100
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1753504Ab0ADPwe@vger.kernel.org>
+Date: Mon, 4 Jan 2010 16:52:25 +0100
 From: Oleg Nesterov <oleg@redhat.com>
-Subject: Re: s390 && user_enable_single_step() (Was: odd utrace testing
-	results on s390x)
-Message-ID: <20100121205113.GB20050@redhat.com>
-References: <20100105153633.GA9376@redhat.com> <20100105164610.388effd3@mschwide.boeblingen.de.ibm.com> <20100105155913.GA10652@redhat.com> <20100105170301.GA13641@redhat.com> <20100105195818.GA20358@redhat.com> <20100106201722.GB26204@redhat.com> <20100106211329.DB4F5134D@magilla.sf.frob.com> <20100107101855.13248dc2@mschwide.boeblingen.de.ibm.com> <20100107175446.GA13300@redhat.com> <20100107214821.94FF97300@magilla.sf.frob.com>
+Subject: s390 && user_enable_single_step() (Was: odd utrace testing results
+	on s390x)
+Message-ID: <20100104155225.GA16650@redhat.com>
+References: <1503844142.2061111261478093776.JavaMail.root@zmail06.collab.prod.int.phx2.redhat.com> <1257887498.2061171261478252049.JavaMail.root@zmail06.collab.prod.int.phx2.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20100107214821.94FF97300@magilla.sf.frob.com>
+In-Reply-To: <1257887498.2061171261478252049.JavaMail.root@zmail06.collab.prod.int.phx2.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Roland McGrath <roland@redhat.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, caiqian@redhat.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Jan Kratochvil <jkratoch@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, utrace-devel@redhat.com
+To: caiqian@redhat.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Jan Kratochvil <jkratoch@redhat.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, utrace-devel@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 01/07, Roland McGrath wrote:
->
-> > I am confused as well. Yes, I thought about regs->psw.mask change too,
-> > but I don't understand why it helps..
-> [...]
-> > But. Acoording to the testing I did (unless I did something wrong
-> > again) this patch doesn't make any difference in this particular
-> > case. 6580807da14c423f0d0a708108e6df6ebc8bc83d does.
->
-> Those results are quite mysterious to me.
-> I think we'll have to get Martin to sort it out definitively.
+Hi!
 
-I did the testing again with 2.6.32-5.el6 + Martin's
-	c3311c13adc1021e986fef12609ceb395ffc5014
-	f8d5faf718c9ff2c04eb8484585d4963c4111cd7
-patches.
+We have some strange problems with utrace on s390, and so far this _looks_
+like a s390 problem.
 
-the same test-case:
+Looks like, on any CPU user_enable_single_step() does not "work" until at
+least one thread with per_info.single_step = 1 does the context switch.
 
-	#include <stdio.h>
-	#include <unistd.h>
-	#include <signal.h>
-	#include <sys/ptrace.h>
-	#include <sys/wait.h>
-	#include <assert.h>
+This doesn't matter with the old ptrace implementation, but with utrace
+the tracee itself does user_enable_single_step(current) and returns to
+user-mode. Until it does at least one context switch the single-stepping
+doesn't work, after that everything works fine till the next reboot.
 
-	int main(void)
-	{
-		int pid, status;
+To rule out the possible problems with ptrace or utrace, I did the trivial
+patch:
 
-		if (!(pid = fork())) {
-			assert(ptrace(PTRACE_TRACEME) == 0);
-			kill(getpid(), SIGSTOP);
-
-			if (!fork())
-				return 43;
-
-			wait(&status);
-			return WEXITSTATUS(status);
-		}
-
-
-		for (;;) {
-			assert(pid == wait(&status));
-			if (WIFEXITED(status))
-				break;
-			assert(ptrace(PTRACE_SINGLESTEP, pid, 0,0) == 0);
-		}
-
-		assert(WEXITSTATUS(status) == 43);
-		return 0;
-	}
-
-with the simple debugging patch below I did
-
-	# perl -e 'syscall 172, 666, 0,0'; ./xxx
-	# perl -e 'syscall 172, 666, 0,1'; ./xxx
-	# perl -e 'syscall 172, 666, 1,0'; ./xxx
-	# perl -e 'syscall 172, 666, 1,1'; ./xxx
-
-and dmesg reports:
-
-	XXX disable_step=0, clear_flag=0
-	XXX: xxx/1868 0
-	[... 799 times ...]
-	XXX disable_step=0, clear_flag=1
-	XXX: xxx/1905 0
-	[... 799 times ...]
-	XXX disable_step=1, clear_flag=0
-	XXX disable_step=1, clear_flag=1
-
-Just in case, I did the testing with and without CONFIG_UTRACE,
-result is the same.
-
-IOW, copy_thread()->clear_tsk_thread_flag(TIF_SINGLE_STEP) doesn't
-make any difference, copy_process()->user_disable_single_step() does.
-
-Although I need to re-read Martin's explanations about psw magic,
-perhaps this was already explained...
-
-Oleg.
-
---- K/kernel/sys.c~	2010-01-21 14:16:15.366639654 -0500
-+++ K/kernel/sys.c	2010-01-21 14:30:35.131591879 -0500
-@@ -1453,6 +1453,8 @@ SYSCALL_DEFINE1(umask, int, mask)
- 	return mask;
- }
- 
-+int xxx_disable_step, xxx_clear_flag;
-+
- SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
- 		unsigned long, arg4, unsigned long, arg5)
- {
-@@ -1466,6 +1468,13 @@ SYSCALL_DEFINE5(prctl, int, option, unsi
+--- K/kernel/sys.c~	2009-12-29 10:45:25.787198223 -0500
++++ K/kernel/sys.c	2010-01-03 13:04:00.485591316 -0500
+@@ -1444,6 +1444,17 @@ SYSCALL_DEFINE5(prctl, int, option, unsi
  
  	error = 0;
  	switch (option) {
 +		case 666:
-+			xxx_disable_step = arg2;
-+			xxx_clear_flag = arg3;
-+			printk(KERN_INFO "XXX disable_step=%d, clear_flag=%d\n",
-+				xxx_disable_step, xxx_clear_flag);
++			user_enable_single_step(current);
++			break;
++
++		case 777:
++			/* same as 666, but force the context switch
++			 * after user_enable_single_step() */
++			user_enable_single_step(current);
++			schedule_timeout_interruptible(HZ/10);
 +			break;
 +
  		case PR_SET_PDEATHSIG:
  			if (!valid_signal(arg2)) {
  				error = -EINVAL;
---- K/kernel/fork.c~	2010-01-18 09:35:16.823811008 -0500
-+++ K/kernel/fork.c	2010-01-21 14:29:39.131624971 -0500
-@@ -964,6 +964,8 @@ static void posix_cpu_timers_init(struct
- 	INIT_LIST_HEAD(&tsk->cpu_timers[2]);
- }
+--- K/arch/s390/kernel/traps.c~	2009-12-22 10:41:52.909174198 -0500
++++ K/arch/s390/kernel/traps.c	2009-12-30 10:31:12.985266686 -0500
+@@ -378,11 +378,14 @@ static inline void __user *get_check_add
  
-+extern int xxx_disable_step;
-+
- /*
-  * This creates a new process as a copy of the old one,
-  * but does not actually start it yet.
-@@ -1207,7 +1209,8 @@ static struct task_struct *copy_process(
- 	 * Syscall tracing and stepping should be turned off in the
- 	 * child regardless of CLONE_PTRACE.
- 	 */
--	user_disable_single_step(p);
-+	if (xxx_disable_step)
-+		user_disable_single_step(p);
- 	clear_tsk_thread_flag(p, TIF_SYSCALL_TRACE);
- #ifdef TIF_SYSCALL_EMU
- 	clear_tsk_thread_flag(p, TIF_SYSCALL_EMU);
---- K/arch/s390/kernel/process.c~	2010-01-21 14:32:38.541609793 -0500
-+++ K/arch/s390/kernel/process.c	2010-01-21 14:34:10.461584130 -0500
-@@ -161,6 +161,8 @@ void release_thread(struct task_struct *
+ void __kprobes do_single_step(struct pt_regs *regs)
  {
++	printk("SS enter\n");
++
+ 	if (notify_die(DIE_SSTEP, "sstep", regs, 0, 0,
+ 					SIGTRAP) == NOTIFY_STOP){
++		printk(KERN_INFO "SS cancelled ???\n");
+ 		return;
+ 	}
+-	if (tracehook_consider_fatal_signal(current, SIGTRAP))
++//	if (tracehook_consider_fatal_signal(current, SIGTRAP))
+ 		force_sig(SIGTRAP, current);
  }
  
-+extern int xxx_clear_flag;
-+
- int copy_thread(unsigned long clone_flags, unsigned long new_stackp,
- 		unsigned long unused,
- 		struct task_struct *p, struct pt_regs *regs)
-@@ -217,7 +219,8 @@ int copy_thread(unsigned long clone_flag
- 	p->thread.mm_segment = get_fs();
- 	/* Don't copy debug registers */
- 	memset(&p->thread.per_info, 0, sizeof(p->thread.per_info));
--	clear_tsk_thread_flag(p, TIF_SINGLE_STEP);
-+	if (xxx_clear_flag)
-+		clear_tsk_thread_flag(p, TIF_SINGLE_STEP);
- 	/* Initialize per thread user and system timer values */
- 	ti = task_thread_info(p);
- 	ti->user_timer = 0;
+-------------------------------------------------------------------------------
+
+The change in do_single_step() just removes "is it traced" check
+and adds a couple of printk's.
+
+
+With this patch I assume that the task which does prctl(666) should
+be killed by SIGTRAP, but this doesn't happen:
+
+	# taskset -c 0 perl -le 'syscall 172,666 and die $!'
+	# taskset -c 0 perl -le 'syscall 172,666 and die $!'
+	# taskset -c 0 perl -le 'syscall 172,666 and die $!'
+
+	(syscall 172,666 == prctl(666))
+
+the task exits normally, there is nothing in dmesg.
+
+However,
+
+	# taskset -c 0 perl -le 'syscall 172,777 and die $!'
+	Trace/breakpoint trap
+
+Now prctl(777)->user_enable_single_step() does work, the task is
+killed by do_single_step()->force_sig(SIGTRAP).
+
+Now prctl(666) works too on CPU 0
+
+	# taskset -c 0 perl -le 'syscall 172,666 and die $!'
+	Trace/breakpoint trap
+	# taskset -c 0 perl -le 'syscall 172,666 and die $!'
+	Trace/breakpoint trap
+	# taskset -c 0 perl -le 'syscall 172,666 and die $!'
+	Trace/breakpoint trap
+
+
+
+And please note "# taskset -c 0", we can repeat the same on another
+CPU:
+
+	# taskset -c 1 perl -le 'syscall 172,666 and die $!'
+	# taskset -c 1 perl -le 'syscall 172,666 and die $!'
+
+doesn't work, but
+
+	# taskset -c 1 perl -le 'syscall 172,777 and die $!'
+	Trace/breakpoint trap
+
+magically "fixes" user_enable_single_step(), now we can use prctl(666)
+on CPU 1.
+
+
+The kernel is 2.6.32.2 plus ca633fd006486ed2c2d3b542283067aab61e6dc8,
+could you help?
+
+Oleg.
