@@ -1,11 +1,11 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1753358Ab0AGVco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1754049Ab0AGVlw@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 From: Roland McGrath <roland@redhat.com>
 Subject: Re: s390 && user_enable_single_step() (Was: odd utrace testing
  results on s390x)
-In-Reply-To: Martin Schwidefsky's message of  Thursday, 7 January 2010 10:00:50 +0100 <20100107100050.31724463@mschwide.boeblingen.de.ibm.com>
+In-Reply-To: Martin Schwidefsky's message of  Thursday, 7 January 2010 10:16:19 +0100 <20100107101619.0877cf67@mschwide.boeblingen.de.ibm.com>
 References: <1503844142.2061111261478093776.JavaMail.root@zmail06.collab.prod.int.phx2.redhat.com>
 	<1257887498.2061171261478252049.JavaMail.root@zmail06.collab.prod.int.phx2.redhat.com>
 	<20100104155225.GA16650@redhat.com>
@@ -13,10 +13,11 @@ References: <1503844142.2061111261478093776.JavaMail.root@zmail06.collab.prod.in
 	<20100104181412.GA21146@redhat.com>
 	<20100104211147.4CC94D532@magilla.sf.frob.com>
 	<20100105105030.66bb8a0a@mschwide.boeblingen.de.ibm.com>
-	<20100106205633.700CC134D@magilla.sf.frob.com>
-	<20100107100050.31724463@mschwide.boeblingen.de.ibm.com>
-Message-Id: <20100107213233.B49807300@magilla.sf.frob.com>
-Date: Thu,  7 Jan 2010 13:32:33 -0800 (PST)
+	<20100105153633.GA9376@redhat.com>
+	<20100106210812.E03A1134D@magilla.sf.frob.com>
+	<20100107101619.0877cf67@mschwide.boeblingen.de.ibm.com>
+Message-Id: <20100107214141.7500B7300@magilla.sf.frob.com>
+Date: Thu,  7 Jan 2010 13:41:41 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -24,45 +25,54 @@ To: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Oleg Nesterov <oleg@redhat.com>, caiqian@redhat.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Jan Kratochvil <jkratoch@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, utrace-devel@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-> > Right.  That means we should leave the status quo of not clearing
-> > TIF_SINGLE_STEP in user_disable_single_step.
+> Hmm, command for tracehook_signal_handler say this for stepping:
+> @stepping:           nonzero if debugger single-step or block-step in
+> use
+
+Are you saying you would like me to clarify that wording somehow?  It's
+meant to be implicit that the arch code is not doing any special fakery
+about single-step for signal handlers, only processing real single-step
+traps (and faking them for a syscall instruction if the arch requires
+that).  No other arch does it, so it didn't occur to me that s390 would.
+Before tracehook some had ptrace_notify calls there, and the call to
+tracehook_signal_handler replaced that call.
+
+> > In ptrace (including utrace-based ptrace), this winds up with sending a
+> > SIGTRAP.  So when we finally do get out of do_signal and TIF_SINGLE_STEP
+> > causes a second SIGTRAP, it's already pending and the second one makes no
+> > difference.
 > 
-> Ok, although it seems a bit strange not to do it. Perhaps I should add a
-> comment about it.
+> So we have been lucky so far.
 
-It doesn't seem strange to me, but then I've just been through all this.
-user_*_step is about what the task will do next.  TIF_SINGLE_STEP is about
-what the task has done recently.  Of course more good comments always help.
-I might be inclined to change the name of TIF_SINGLE_STEP so that its true
-purpose is more obvious.  
+Actually, Oleg rightly points out:
 
-AFAICT, in fact it is not even about single-step per se.  It means some PER
-trap happened and should produce SIGTRAP.  Don't you get the same thing if
-you haven't used single-step, but instead used PTRACE_POKEUSR to set up
-per_struct with bits that say to trigger for some other reason?
+> Confused again, perhaps I just misunderstood what you mean...
+> 
+> Without utrace, tracehook_signal_handler() doesn't send SIGTRAP, it
+> merely does ptrace_notify(SIGTRAP), this means that
+[...]
+> even without utrace we can have unexpected SIGTRAP.
 
-How about calling it TIF_PER_PENDING?
+That is quite true, and I just misremembered when writing that paragraph.
 
-> So after everthing has been converted to utrace we always will load the
-> control registers in FixPerRegisters.
+So indeed we have been lucky, but it's not the luck of the problem not
+happening on s390, but the luck of nobody ever caring. :-)
 
-Right.  (This could well still change in the future.  But that's how it is
-in utrace now.  And regardless of possible future implementation changes it
-will always be the case that sometimes it will be called on current.)
+> Ok, so with the full utrace the semantics of tracehook_signal_handler
+> is more than just causing a SIGTRAP. It is an indication for a signal
+> AND a SIGTRAP if single-stepping is active. 
 
-> We could use the same compare of the control registers as the code in
-> __switch_to. See below.
+In short, it is the indication of a signal handler having been set up, just
+like its kerneldoc description says.  Whatever that should mean to tracing
+(SIGTRAP or otherwise) is in the purview of the generic tracing layer, not
+the arch layer.
 
-Yes, sounds good.
+> To make both cases work we
+> should stop setting TIF_SINGLE_STEP in do_signal and pass
+> current->thread.per_info.single_step to tracehook_signal_handler
+> instead of test_thread_flag(TIF_SINGLE_STEP).
 
-> The PSW_MASK_PER is the "global" PER enablement switch, the PER_EM_MASK
-> bits enable the different PER events. We check for the PER_EM_MASK bits
-> because it is easier to access in __switch_to. The return PSW is stored
-> in the pt_regs structure, we would have to get a pointer to it (what
-> "regs = task_pt_regs(taks)" does in FixPerRegisters). In
-> FixPerRegisters we can as well use the PSW_MASK_PER bit.
-
-I see.  Thanks for the explanation.
+Correct.
 
 
 Thanks,
