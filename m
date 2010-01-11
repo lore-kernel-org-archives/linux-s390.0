@@ -1,93 +1,34 @@
-From: Jason Wessel <jason.wessel@windriver.com>
-Subject: Re: next Jan 6: drivers/s390/char/defkeymap build break
-Date: Wed, 06 Jan 2010 10:14:48 -0600
-Message-ID: <4B44B6F8.9070209@windriver.com>
-References: <20100106180342.43844983.sfr@canb.auug.org.au> <4B445470.8010402@in.ibm.com>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: -next Jan 11 : s390/kvm build failure
+Date: Mon, 11 Jan 2010 12:32:06 +0200
+Message-ID: <4B4AFE26.5080503@redhat.com>
+References: <20100111194431.c103db9b.sfr@canb.auug.org.au> <4B4AFA45.8000004@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------080204090705060707080005"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <4B445470.8010402@in.ibm.com>
+In-Reply-To: <4B4AFA45.8000004@in.ibm.com>
 Sender: linux-next-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-next/>
-List-Post: <mailto:linux-next@vger.kernel.org>
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
 To: Sachin Sant <sachinp@in.ibm.com>
-Cc: linux-s390@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-next@vger.kernel.org, kvm@vger.kernel.org, mtosatti@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------080204090705060707080005
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Sachin Sant wrote:
-> Today's next fails to build on s390 with
+On 01/11/2010 12:15 PM, Sachin Sant wrote:
 >
->  CC      drivers/s390/char/defkeymap.o
-> drivers/s390/char/defkeymap.c:30: error: static declaration of 'shift_map' follows non-static declaration
-> include/linux/keyboard.h:31: error: previous declaration of 'shift_map' was here
-> drivers/s390/char/defkeymap.c:49: error: static declaration of 'ctrl_map' follows non-static declaration
-> include/linux/keyboard.h:32: error: previous declaration of 'ctrl_map' was here
-> make[2]: *** [drivers/s390/char/defkeymap.o] Error 1
-> make[1]: *** [drivers/s390/char] Error 2
+> Probable cause could be the following commits :
 >
-> Probable cause could be commit 91570de..
-> kgdboc,keyboard: Keyboard driver for kdb with kgdb
+> commit a94db899e8e5b7c4d47e42982800243dcdc69a38
+> KVM: split kvm_arch_set_memory_region into prepare and commit
 >
-> Thanks
-> -Sachin
+> commit fe7701e1daa1ad09d5d271897b6cc65697d33db2
+> KVM: switch vcpu context to use SRCU
 >
->   
-I had patched the include/linux/keyboard.h originally to expose the
-definition which was already a global symbol.  It turns out the
-kdb_keyboard.c implementation should not be accessing shift_map[]
-directly.  It is accessed through a pointer to the data found in key_maps[].
 
-I folded in a change to this patch to not modify
-include/linux/keyboard.h and to fix the kdb keyboard code to use key_maps[].
+Yes.  Marcelo?  ia64 suffers from the same issue.
 
-Hopefully that fixes the problem.  Attached is the folded patch, which
-reverts include/linux/keyboard.h to be unmodified by the kdb series.
 
-Thanks,
-Jason.
 
---------------080204090705060707080005
-Content-Type: text/x-diff;
- name="keymap_kdb_keyboard.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="keymap_kdb_keyboard.patch"
-
-diff -u b/drivers/char/kdb_keyboard.c b/drivers/char/kdb_keyboard.c
---- b/drivers/char/kdb_keyboard.c
-+++ b/drivers/char/kdb_keyboard.c
-@@ -145,10 +145,10 @@
- 
- 	if (!shift_lock && !shift_key && !ctrl_key) {
- 		keychar = plain_map[scancode];
--	} else if (shift_lock || shift_key) {
--		keychar = shift_map[scancode];
--	} else if (ctrl_key) {
--		keychar = ctrl_map[scancode];
-+	} else if ((shift_lock || shift_key) && key_maps[1]) {
-+		keychar = key_maps[1][scancode];
-+	} else if (ctrl_key && key_maps[4]) {
-+		keychar = key_maps[4][scancode];
- 	} else {
- 		keychar = 0x0020;
- 		kdb_printf("Unknown state/scancode (%d)\n", scancode);
-reverted:
---- b/include/linux/keyboard.h
-+++ a/include/linux/keyboard.h
-@@ -28,8 +28,6 @@
- extern const int max_vals[];
- extern unsigned short *key_maps[MAX_NR_KEYMAPS];
- extern unsigned short plain_map[NR_KEYS];
--extern unsigned short shift_map[NR_KEYS];
--extern unsigned short ctrl_map[NR_KEYS];
- 
- struct keyboard_notifier_param {
- 	struct vc_data *vc;	/* VC on which the keyboard press was done */
-
---------------080204090705060707080005--
+-- 
+error compiling committee.c: too many arguments to function
