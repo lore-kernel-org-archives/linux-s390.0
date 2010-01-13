@@ -1,30 +1,24 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 1/3] [PATCH] qeth: HiperSockets Network Traffic Analyzer
-Date: Mon, 11 Jan 2010 16:30:01 -0800 (PST)
-Message-ID: <20100111.163001.08956059.davem@davemloft.net>
-References: <20100111125049.566359000@de.ibm.com>
-	<20100111125123.479494000@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20100111125123.479494000@de.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 0/3] zfcp fixes for 2.6.33-rc4
+Date: Wed, 13 Jan 2010 17:52:35 +0100
+Message-ID: <20100113165235.299592000@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@suse.de>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: frank.blaschka@de.ibm.com
-Date: Mon, 11 Jan 2010 13:50:50 +0100
+James,
 
-> From: Ursula Braun <ursula.braun@de.ibm.com>
-> 
-> New feature to trace HiperSockets network traffic for debugging
-> purposes.
-> 
-> Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-> Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+here are 3 zfcp fixes for the 2.6.33-rc series. The patches apply on
+top of 2.6.33-rc4.
 
-How exactly does this work?
+We are also working on fixes for the FC BSG timeout handling in zfcp.
+I will send them tomorrow in an additional patch series to have the
+proposed change in the FC transport class and the related zfcp patches
+in one place.
+
+--
+Christof Schmitt
