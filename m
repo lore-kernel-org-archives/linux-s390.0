@@ -1,55 +1,33 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 3/3] zfcp: add missing compat ptr conversion
-Date: Wed, 13 Jan 2010 17:52:38 +0100
-Message-ID: <20100113165513.637868000@de.ibm.com>
-References: <20100113165235.299592000@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=705-zfcp-compat-ptr.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@suse.de>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 1/3] [PATCH] qeth: HiperSockets Network Traffic Analyzer
+Date: Wed, 13 Jan 2010 20:35:15 -0800 (PST)
+Message-ID: <20100113.203515.28836592.davem@davemloft.net>
+References: <1263299131.6037.44.camel@braunu-laptop>
+	<20100112.045944.197636957.davem@davemloft.net>
+	<1263302964.6037.54.camel@braunu-laptop>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1263302964.6037.54.camel@braunu-laptop>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: ubraun@linux.vnet.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, frank.blaschka@de.ibm.com, ursula.braun@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Tue, 12 Jan 2010 14:29:24 +0100
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
----
+> I should have been more precise: In the s390-world there are 2 steps for
+> network device setup - a ccwgroup-step, which establishes the "struct
+> device", and an online-step, which establishes the "struct net_device".
+> After the ccwgroup-step we have an instantiated device and can make use
+> of sysfs. After the online-step, we have an instantiated net_device
+> incl. network interface name and can make use of ethtool. HiperSockets
+> sniffer configuration is required before the online-step.
 
- drivers/s390/scsi/zfcp_cfdc.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+Fair enough.
 
---- a/drivers/s390/scsi/zfcp_cfdc.c	2010-01-13 17:41:07.000000000 +0100
-+++ b/drivers/s390/scsi/zfcp_cfdc.c	2010-01-13 17:45:39.000000000 +0100
-@@ -12,6 +12,7 @@
- 
- #include <linux/types.h>
- #include <linux/miscdevice.h>
-+#include <asm/compat.h>
- #include <asm/ccwdev.h>
- #include "zfcp_def.h"
- #include "zfcp_ext.h"
-@@ -163,7 +164,7 @@ static void zfcp_cfdc_req_to_sense(struc
- }
- 
- static long zfcp_cfdc_dev_ioctl(struct file *file, unsigned int command,
--				unsigned long buffer)
-+				unsigned long arg)
- {
- 	struct zfcp_cfdc_data *data;
- 	struct zfcp_cfdc_data __user *data_user;
-@@ -175,7 +176,11 @@ static long zfcp_cfdc_dev_ioctl(struct f
- 	if (command != ZFCP_CFDC_IOC)
- 		return -ENOTTY;
- 
--	data_user = (void __user *) buffer;
-+	if (is_compat_task())
-+		data_user = compat_ptr(arg);
-+	else
-+		data_user = (void __user *)arg;
-+
- 	if (!data_user)
- 		return -EINVAL;
- 
+Ok, all 3 qeth patches applied to net-next-2.6, thanks.
