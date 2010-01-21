@@ -1,68 +1,101 @@
 From: Blaschka <frank.blaschka@de.ibm.com>
-Subject: Re: [RFC] qeth: exploit gro for layer 3 driver
-Date: Fri, 22 Jan 2010 07:14:20 +0100
-Message-ID: <20100122061420.GA31545@tuxmaker.boeblingen.de.ibm.com>
-References: <20100121123722.GA13815@tuxmaker.boeblingen.de.ibm.com> <20100121.051133.102632014.davem@davemloft.net> <20100121134845.GA28645@tuxmaker.boeblingen.de.ibm.com> <20100121.060354.119388130.davem@davemloft.net> <1264084527.5880.45.camel@bender>
+Subject: [RFC] qeth: exploit gro for layer 3 driver
+Date: Thu, 21 Jan 2010 13:37:22 +0100
+Message-ID: <20100121123722.GA13815@tuxmaker.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1264084527.5880.45.camel@bender>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: Jan Glauber <jang@linux.vnet.ibm.com>
-Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jan 21, 2010 at 03:35:27PM +0100, Jan Glauber wrote:
-> On Thu, 2010-01-21 at 06:03 -0800, David Miller wrote:
-> > From: Blaschka <frank.blaschka@de.ibm.com>
-> > Date: Thu, 21 Jan 2010 14:48:45 +0100
-> > 
-> > > So the qeth driver can not disable qdio IRQs (I guess this is a
-> > > major reason why not using NAPI) and poll the data.
-> > 
-> > Just because you cannot stop the events from coming in
-> > doesn't mean you can't just queue them up in software
-> > or similar.
-> 
-> The data is already queued (since qdio stands for queued direct I/O).
-> Currently qdio gets the interrupt, does some processing and
-> tells qeth which buffers contain the new data.
-> 
-> So the only question is what needs to be different for NAPI
-> regarding the event signaling.
-> 
-> --Jan
-> 
-Hi Jan,
-with some qdio changes we may be able to support NAPI. Let's
-checkout what we can do ...
+Since the qeth driver can not use NAPI I would like to hear
+your opinion about following approach to exploit GRO.
 
-Dave, thanks for the feedback
+The patch apply to net-next. To make it compile/work Dave's
+commit 11380a4b2d86fae9a6bce75c9373668cc323fe57 has to be reverted.
 
+There is following idea:
+
+The inbound processing of the qeth driver is already in bottomhalf
+(qdio input tasklet) so we can switch from netif_rx to
+netif_receive_skb. This allows us to exploit gro code for the
+layer 3 driver. I would introduce a dummy napi_struct and call
+napi_gro_flush when the inbound tasklet ends.
+
+We have to do some final performance measurements but a first try
+looks promising.
+
+Thanks,
   Frank
 
-> > The important bits you get are:
-> > 
-> > 1) RX ring depletion and packet processing all from software
-> >    interrupt context
-> > 
-> > 2) transparent GRO support, without the generic code having
-> >    to disclose most of the GRO internals to drivers
-> > 
-> > I think it can be done.
-> > 
-> > I have a similar issue as your's with the Sun virtualized network
-> > driver (I can't really stop the hypervisor events from pouring in) on
-> > sparc64 and I plan to add NAPI support to it.
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-s390" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-s390" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
+
+ drivers/s390/net/qeth_core.h    |    1 +
+ drivers/s390/net/qeth_l2_main.c |    2 +-
+ drivers/s390/net/qeth_l3_main.c |    9 ++++++---
+ 3 files changed, 8 insertions(+), 4 deletions(-)
+
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -739,6 +739,7 @@ struct qeth_card {
+ 	atomic_t force_alloc_skb;
+ 	struct service_level qeth_service_level;
+ 	struct qdio_ssqd_desc ssqd;
++	struct napi_struct napi;
+ };
+ 
+ struct qeth_card_list_struct {
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -431,7 +431,7 @@ static void qeth_l2_process_inbound_buff
+ 			if (skb->protocol == htons(ETH_P_802_2))
+ 				*((__u32 *)skb->cb) = ++card->seqno.pkt_seqno;
+ 			len = skb->len;
+-			netif_rx(skb);
++			netif_receive_skb(skb);
+ 			break;
+ 		case QETH_HEADER_TYPE_OSN:
+ 			if (card->info.type == QETH_CARD_TYPE_OSN) {
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2106,14 +2106,14 @@ static void qeth_l3_process_inbound_buff
+ 			len = skb->len;
+ 			if (vlan_tag && !card->options.sniffer)
+ 				if (card->vlangrp)
+-					vlan_hwaccel_rx(skb, card->vlangrp,
+-						vlan_tag);
++					vlan_gro_receive(&card->napi,
++						card->vlangrp, vlan_tag, skb);
+ 				else {
+ 					dev_kfree_skb_any(skb);
+ 					continue;
+ 				}
+ 			else
+-				netif_rx(skb);
++				napi_gro_receive(&card->napi, skb);
+ 			break;
+ 		case QETH_HEADER_TYPE_LAYER2: /* for HiperSockets sniffer */
+ 			skb->pkt_type = PACKET_HOST;
+@@ -3245,6 +3245,8 @@ static int qeth_l3_setup_netdev(struct q
+ 				NETIF_F_HW_VLAN_FILTER;
+ 	card->dev->priv_flags &= ~IFF_XMIT_DST_RELEASE;
+ 	card->dev->gso_max_size = 15 * PAGE_SIZE;
++	/* dummy napi struct to use napi gro code */
++	netif_napi_add(card->dev, &card->napi, NULL, 64);
+ 
+ 	SET_NETDEV_DEV(card->dev, &card->gdev->dev);
+ 	return register_netdev(card->dev);
+@@ -3286,6 +3288,7 @@ static void qeth_l3_qdio_input_handler(s
+ 		qeth_put_buffer_pool_entry(card, buffer->pool_entry);
+ 		qeth_queue_input_buffer(card, index);
+ 	}
++	napi_gro_flush(&card->napi);
+ 	if (card->options.performance_stats)
+ 		card->perf_stats.inbound_time += qeth_get_micros() -
+ 			card->perf_stats.inbound_start_time;
