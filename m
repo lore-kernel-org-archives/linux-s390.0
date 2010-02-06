@@ -1,242 +1,302 @@
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-Date: Thu, 28 Jan 2010 23:35:28 +0000
-Subject: [PATCH RFC] s390: let tasks know to restart syscalls after
-Message-Id: <20100128233528.GA10140@us.ibm.com>
-To: linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Frans Pop <elendil@planet.nl>
+Subject: [PATCH 08/16] s390: remove trailing space in messages
+Date: Sat,  6 Feb 2010 18:47:15 +0100
+Message-Id: <1265478443-31072-8-git-send-email-elendil@planet.nl>
+In-Reply-To: <201002061844.45212.elendil@planet.nl>
+References: <201002061844.45212.elendil@planet.nl>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Frans Pop <elendil@planet.nl>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-(This is a patch against the checkpoint/restart kernel tree at
-http://git.ncl.cs.columbia.edu/?p=linux-cr.git;a=shortlog;h=refs/heads/ckpt-v19-rc2.9)
-
-On x86, do_signal() leaves -516 in eax while it freezes, which
-sys_restart() can use to detect that it should restart the
-syscall which was interrupted by a signal (or the freezer).
-
-On s390, gprs[2] gets tweaked to -EINTR (-4) instead, leaving
-us no reliable way to tell whether should be restarted.  If the
-task is checkpointed here and then restarted, then the last part
-of do_signal() won't be done, and the interrupted syscall won't
-be restarted.
-
-This patch defines TIF_RESTARTBLOCK as a thread flag showing that
-the thread expects to be frozen while kicked out of a restartable
-syscall by a signal.
-
-The TIF_RESTARTBLOCK flag is only set for the duration of the
-get get_signal_to_deliver() which is where the task may get
-frozen.  We also set it in sys_restart() if the checkpointed task
-had had TIF_RESTARTBLOCK set.  It will get cleared if upon exiting
-sys_restart() we jump to sysc_sigpending.  If instead we jump back
-to do_signal(), then TIF_RESTARTBLOCK will stay set again until
-after get_signal_to_deliver() so that if it immediately freezes and
-is re-checkpointed, the resulting second checkpoint image again
-will have TIF_RESTARTBLOCK set.
-
-To test this, add a dummy handler for SIGUSR1 to cr_tests/sleep/sleeptest.c,
-open two terminals, and do:
-
-Terminal 1:                             Terminal :
-mount -t cgroup -o freezer freezer /cgroup
-mkdir /cgroup/1 /cgroup/2
-echo $$ > /cgroup/1/tasks
-./sleeptest
-
-				    echo FROZEN > /cgroup/1/freezer.state
-				    checkpoint `pidof sleeptest` > /tmp/out
-				    thaw
-
-restart -F /cgroup/2 < /tmp/out
-
-				    kill -USR1 `pidof sleeptest`;
-				    echo THAWED > /cgroup/2/freezer.state ;
-				    sleep 0.3;
-				    echo FROZEN > /cgroup/2/freezer.state;
-				    checkpoint `pidof sleeptest` > /tmp/out2;
-				    echo THAWED > /cgroup/2/freezer.state
-
-restart < /tmp/out2
-
-Without this patch, the first restart will immediately exit.  Without
-re-setting TIF_RESTARTBLOCK in sys_restart(), the second restart will
-immediately exit.  With this full patch, it will restart the sleep
-correctly.
-
+Signed-off-by: Frans Pop <elendil@planet.nl>
 Cc: linux-s390@vger.kernel.org
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
 ---
- arch/s390/include/asm/checkpoint_hdr.h |    5 +++
- arch/s390/include/asm/thread_info.h    |    2 +
- arch/s390/kernel/checkpoint.c          |   52 +++++++++++++++++++++++++++++++-
- arch/s390/kernel/entry64.S             |    2 +
- arch/s390/kernel/signal.c              |    6 ++++
- 5 files changed, 66 insertions(+), 1 deletions(-)
+ arch/s390/math-emu/math.c        |    2 +-
+ drivers/s390/block/dasd_eckd.c   |    2 +-
+ drivers/s390/block/dasd_proc.c   |    2 +-
+ drivers/s390/block/dcssblk.c     |    2 +-
+ drivers/s390/block/xpram.c       |    4 ++--
+ drivers/s390/char/vmlogrdr.c     |    2 +-
+ drivers/s390/cio/device_status.c |    2 +-
+ drivers/s390/net/claw.c          |    4 ++--
+ drivers/s390/net/ctcm_fsms.c     |    4 ++--
+ drivers/s390/net/ctcm_main.c     |    2 +-
+ drivers/s390/net/ctcm_mpc.c      |   16 ++++++++--------
+ drivers/s390/net/lcs.c           |    2 +-
+ drivers/s390/net/qeth_l2_main.c  |    2 +-
+ drivers/s390/net/qeth_l3_main.c  |    2 +-
+ 14 files changed, 24 insertions(+), 24 deletions(-)
 
-diff --git a/arch/s390/include/asm/checkpoint_hdr.h b/arch/s390/include/asm/checkpoint_hdr.h
-index a8c2a3d..fd8be2a 100644
---- a/arch/s390/include/asm/checkpoint_hdr.h
-+++ b/arch/s390/include/asm/checkpoint_hdr.h
-@@ -76,6 +76,11 @@ struct ckpt_hdr_cpu {
- 	__u8 instruction_fetch;
- };
- 
-+struct ckpt_hdr_thread {
-+	struct ckpt_hdr h;
-+	__u64 thread_info_flags;
-+};
-+
- struct ckpt_hdr_mm_context {
- 	struct ckpt_hdr h;
- 	unsigned long vdso_base;
-diff --git a/arch/s390/include/asm/thread_info.h b/arch/s390/include/asm/thread_info.h
-index 07eb61b..6ef11b2 100644
---- a/arch/s390/include/asm/thread_info.h
-+++ b/arch/s390/include/asm/thread_info.h
-@@ -100,6 +100,7 @@ static inline struct thread_info *current_thread_info(void)
- #define TIF_MEMDIE		19
- #define TIF_RESTORE_SIGMASK	20	/* restore signal mask in do_signal() */
- #define TIF_FREEZE		21	/* thread is freezing for suspend */
-+#define TIF_RESTARTBLOCK	23	/* use restart block after sys_restart */
- 
- #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
- #define _TIF_RESTORE_SIGMASK	(1<<TIF_RESTORE_SIGMASK)
-@@ -116,6 +117,7 @@ static inline struct thread_info *current_thread_info(void)
- #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
- #define _TIF_31BIT		(1<<TIF_31BIT)
- #define _TIF_FREEZE		(1<<TIF_FREEZE)
-+#define _TIF_RESTARTBLOCK	(1<<TIF_RESTARTBLOCK)
- 
- #endif /* __KERNEL__ */
- 
-diff --git a/arch/s390/kernel/checkpoint.c b/arch/s390/kernel/checkpoint.c
-index 60ba04d..092fd87 100644
---- a/arch/s390/kernel/checkpoint.c
-+++ b/arch/s390/kernel/checkpoint.c
-@@ -65,6 +65,16 @@ static void s390_copy_regs(int op, struct ckpt_hdr_cpu *h,
- 		BUG_ON(h->gprs[2] < 0);
- 		h->gprs[2] = 0;
- 	}
-+
-+	/*
-+	 * if checkpoint was taken while interrupted from restartable
-+	 * system call, then restore_thread() will have already reset
-+	 * TIF_RESTARTBLOCK, but it did not set gprs[2].  It's easier to
-+	 * do that here where gprs registers are all restored.
-+	 */
-+	if (op == CKPT_RST && test_thread_flag(TIF_RESTARTBLOCK))
-+		regs->gprs[2] = __NR_restart_syscall;
-+
- 	CKPT_COPY_ARRAY(op, h->fprs, thr->fp_regs.fprs, NUM_FPRS);
- 	CKPT_COPY_ARRAY(op, h->acrs, thr->acrs, NUM_ACRS);
- 	CKPT_COPY_ARRAY(op, h->per_control_regs,
-@@ -83,12 +93,24 @@ static void s390_mm(int op, struct ckpt_hdr_mm_context *h,
- 
- int checkpoint_thread(struct ckpt_ctx *ctx, struct task_struct *t)
- {
-+	struct ckpt_hdr_thread *h;
-+	int ret;
-+
- 	/* we will eventually support this, as we do on x86-64 */
- 	if (test_tsk_thread_flag(t, TIF_31BIT)) {
- 		ckpt_err(ctx, -EINVAL, "checkpoint of 31-bit task\n");
- 		return -EINVAL;
- 	}
--	return 0;
-+
-+	h = ckpt_hdr_get_type(ctx, sizeof(*h), CKPT_HDR_THREAD);
-+	if (!h)
-+		return -ENOMEM;
-+
-+	h->thread_info_flags = task_thread_info(t)->flags;
-+	ret = ckpt_write_obj(ctx, &h->h);
-+	ckpt_hdr_put(ctx, h);
-+
-+	return ret;
- }
- 
- /* dump the cpu state and registers of a given task */
-@@ -148,11 +170,39 @@ int checkpoint_mm_context(struct ckpt_ctx *ctx, struct mm_struct *mm)
- 
- int restore_thread(struct ckpt_ctx *ctx)
- {
-+	struct ckpt_hdr_thread *h;
-+
- 	/* a 31-bit task cannot call sys_restart right now */
- 	if (test_thread_flag(TIF_31BIT)) {
- 		ckpt_err(ctx, -EINVAL, "restart from 31-bit task\n");
- 		return -EINVAL;
- 	}
-+
-+	h = ckpt_read_obj_type(ctx, sizeof(*h), CKPT_HDR_THREAD);
-+	if (IS_ERR(h))
-+		return PTR_ERR(h);
-+
-+	/*
-+	 * if the checkpointed task was frozen in a syscall with
-+	 * -ERESTART_RESTARTBLOCK (switched to -EINTR during do_signal()
-+	 * before try_to_freeze() happened) then after restart we need
-+	 * to call __NR_restart_syscall to continue.  Fix up here.
-+	 * In other words, we're doing the rest of the fixup which the
-+	 * end of do_signal(), which won't now be run, would have done.
-+	 *
-+	 * We also re-set TIF_RESTARTBLOCK in case we hit do_signal
-+	 * right after sys_restart() instead of sysc_restart, since
-+	 * we would enter do_signal() with different inital conditions
-+	 * than usual for being "inside" a restartable syscall.
-+	 */
-+	if (h->thread_info_flags & _TIF_RESTARTBLOCK) {
-+		set_thread_flag(TIF_RESTART_SVC);
-+		set_thread_flag(TIF_RESTARTBLOCK);
-+	}
-+
-+	/* need to do something with TIF_RESTORE_SIGMASK ? */
-+
-+	ckpt_hdr_put(ctx, h);
- 	return 0;
- }
- 
-diff --git a/arch/s390/kernel/entry64.S b/arch/s390/kernel/entry64.S
-index 9aff1d4..798ea9c 100644
---- a/arch/s390/kernel/entry64.S
-+++ b/arch/s390/kernel/entry64.S
-@@ -58,6 +58,7 @@ _TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_NEED_RESCHED | \
- 		 _TIF_MCCK_PENDING)
- _TIF_SYSCALL = (_TIF_SYSCALL_TRACE>>8 | _TIF_SYSCALL_AUDIT>>8 | \
- 		_TIF_SECCOMP>>8 | _TIF_SYSCALL_TRACEPOINT>>8)
-+CLR_TIF_RESTARTBLOCK = (255 - (_TIF_RESTARTBLOCK>>16))
- 
- #define BASED(name) name-system_call(%r13)
- 
-@@ -338,6 +339,7 @@ sysc_mcck_pending:
- #
- sysc_sigpending:
- 	ni	__TI_flags+7(%r9),255-_TIF_SINGLE_STEP # clear TIF_SINGLE_STEP
-+	ni	__TI_flags+6(%r9),CLR_TIF_RESTARTBLOCK # clear TIF_RESTARTBLOCK
- 	la	%r2,SP_PTREGS(%r15)	# load pt_regs
- 	brasl	%r14,do_signal		# call do_signal
- 	tm	__TI_flags+7(%r9),_TIF_RESTART_SVC
-diff --git a/arch/s390/kernel/signal.c b/arch/s390/kernel/signal.c
-index 6b4fef8..503fd09 100644
---- a/arch/s390/kernel/signal.c
-+++ b/arch/s390/kernel/signal.c
-@@ -458,6 +458,8 @@ void do_signal(struct pt_regs *regs)
- 			regs->psw.addr = restart_addr;
+diff --git a/arch/s390/math-emu/math.c b/arch/s390/math-emu/math.c
+index cd4e9c1..aa6fb75 100644
+--- a/arch/s390/math-emu/math.c
++++ b/arch/s390/math-emu/math.c
+@@ -106,7 +106,7 @@ static void display_emulation_not_implemented(struct pt_regs *regs, char *instr)
+         {
+                 location = (__u16 *)(regs->psw.addr-S390_lowcore.pgm_ilc);
+                 printk("%s ieee fpu instruction not emulated "
+-                       "process name: %s pid: %d \n",
++                       "process name: %s pid: %d\n",
+                        instr, current->comm, current->pid);
+                 printk("%s's PSW:    %08lx %08lx\n", instr,
+                        (unsigned long) regs->psw.mask,
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 1cca21a..0922829 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -3198,7 +3198,7 @@ static void dasd_eckd_dump_sense_tcw(struct dasd_device *device,
  			break;
- 		case -ERESTART_RESTARTBLOCK:
-+			/* if checkpointed here, set needs_restart */
-+			set_thread_flag(TIF_RESTARTBLOCK);
- 			regs->gprs[2] = -EINTR;
+ 		case 3: /* tsa_intrg */
+ 			len += sprintf(page + len, KERN_ERR PRINTK_HEADER
+-				      " tsb->tsa.intrg.: not supportet yet \n");
++				      " tsb->tsa.intrg.: not supportet yet\n");
+ 			break;
  		}
- 		regs->svcnr = 0;	/* Don't deal with this again. */
-@@ -467,6 +469,10 @@ void do_signal(struct pt_regs *regs)
- 	   the debugger may change all our registers ... */
- 	signr = get_signal_to_deliver(&info, &ka, regs, NULL);
  
-+	/* we've passed the try_to_freeze() in get_signal_to_deliver(), won't
-+	 * be checkpointed before end of do_signal() */
-+	clear_thread_flag(TIF_RESTARTBLOCK);
-+
- 	/* Depending on the signal settings we may need to revert the
- 	   decision to restart the system call. */
- 	if (signr > 0 && regs->psw.addr == restart_addr) {
+diff --git a/drivers/s390/block/dasd_proc.c b/drivers/s390/block/dasd_proc.c
+index 71f95f5..9c70b8a 100644
+--- a/drivers/s390/block/dasd_proc.c
++++ b/drivers/s390/block/dasd_proc.c
+@@ -246,7 +246,7 @@ dasd_statistics_read(char *page, char **start, off_t off,
+ 	str = dasd_statistics_array(str, prof->dasd_io_time2ps, factor);
+ 	str += sprintf(str, "Histogram of I/O time between irq and end\n");
+ 	str = dasd_statistics_array(str, prof->dasd_io_time3, factor);
+-	str += sprintf(str, "# of req in chanq at enqueuing (1..32) \n");
++	str += sprintf(str, "# of req in chanq at enqueuing (1..32)\n");
+ 	str = dasd_statistics_array(str, prof->dasd_io_nr_req, factor);
+ 	len = str - page;
+ #else
+diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
+index 9b43ae9..c8f8204 100644
+--- a/drivers/s390/block/dcssblk.c
++++ b/drivers/s390/block/dcssblk.c
+@@ -1089,7 +1089,7 @@ MODULE_PARM_DESC(segments, "Name of DCSS segment(s) to be loaded, "
+ 		 "names of contiguous segments and each name max. 8 chars.\n"
+ 		 "Adding \"(local)\" to the end of each set equals echoing 0 "
+ 		 "to /sys/devices/dcssblk/<device name>/shared after loading "
+-		 "the contiguous segments - \n"
++		 "the contiguous segments -\n"
+ 		 "e.g. segments=\"mydcss1,mydcss2:mydcss3,mydcss4(local)\"");
+ 
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/s390/block/xpram.c b/drivers/s390/block/xpram.c
+index 118de39..d9cce33 100644
+--- a/drivers/s390/block/xpram.c
++++ b/drivers/s390/block/xpram.c
+@@ -71,7 +71,7 @@ module_param_array(sizes, charp, NULL, 0);
+ MODULE_PARM_DESC(devs, "number of devices (\"partitions\"), " \
+ 		 "the default is " __MODULE_STRING(XPRAM_DEVS) "\n");
+ MODULE_PARM_DESC(sizes, "list of device (partition) sizes " \
+-		 "the defaults are 0s \n" \
++		 "the defaults are 0s\n" \
+ 		 "All devices with size 0 equally partition the "
+ 		 "remaining space on the expanded strorage not "
+ 		 "claimed by explicit sizes\n");
+@@ -294,7 +294,7 @@ static int __init xpram_setup_sizes(unsigned long pages)
+ 			mem_auto_no++;
+ 	}
+ 	
+-	pr_info("  number of devices (partitions): %d \n", xpram_devs);
++	pr_info("  number of devices (partitions): %d\n", xpram_devs);
+ 	for (i = 0; i < xpram_devs; i++) {
+ 		if (xpram_sizes[i])
+ 			pr_info("  size of partition %d: %u kB\n",
+diff --git a/drivers/s390/char/vmlogrdr.c b/drivers/s390/char/vmlogrdr.c
+index 7dfa541..5c51c18 100644
+--- a/drivers/s390/char/vmlogrdr.c
++++ b/drivers/s390/char/vmlogrdr.c
+@@ -345,7 +345,7 @@ static int vmlogrdr_open (struct inode *inode, struct file *filp)
+ 				       logptr);
+ 	if (connect_rc) {
+ 		pr_err("vmlogrdr: iucv connection to %s "
+-		       "failed with rc %i \n",
++		       "failed with rc %i\n",
+ 		       logptr->system_service, connect_rc);
+ 		goto out_path;
+ 	}
+diff --git a/drivers/s390/cio/device_status.c b/drivers/s390/cio/device_status.c
+index 66d8066..1b9c304 100644
+--- a/drivers/s390/cio/device_status.c
++++ b/drivers/s390/cio/device_status.c
+@@ -60,7 +60,7 @@ ccw_device_path_notoper(struct ccw_device *cdev)
+ 		goto doverify;
+ 
+ 	CIO_MSG_EVENT(0, "%s(0.%x.%04x) - path(s) %02x are "
+-		      "not operational \n", __func__,
++		      "not operational\n", __func__,
+ 		      sch->schid.ssid, sch->schid.sch_no,
+ 		      sch->schib.pmcw.pnom);
+ 
+diff --git a/drivers/s390/net/claw.c b/drivers/s390/net/claw.c
+index 147bb1a..31bc864 100644
+--- a/drivers/s390/net/claw.c
++++ b/drivers/s390/net/claw.c
+@@ -738,7 +738,7 @@ claw_irq_handler(struct ccw_device *cdev,
+ 				privptr->stats.rx_errors++;
+ 				dev_info(&cdev->dev,
+ 					"%s: Restart is required after remote "
+-					"side recovers \n",
++					"side recovers\n",
+ 					dev->name);
+ 			}
+ 			CLAW_DBF_TEXT(4, trace, "notrdy");
+@@ -3075,7 +3075,7 @@ claw_shutdown_device(struct ccwgroup_device *cgdev)
+ 	ndev = priv->channel[READ].ndev;
+ 	if (ndev) {
+ 		/* Close the device */
+-		dev_info(&cgdev->dev, "%s: shutting down \n",
++		dev_info(&cgdev->dev, "%s: shutting down\n",
+ 			ndev->name);
+ 		if (ndev->flags & IFF_RUNNING)
+ 			ret = claw_release(ndev);
+diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
+index 70eb7f1..ed43a6f 100644
+--- a/drivers/s390/net/ctcm_fsms.c
++++ b/drivers/s390/net/ctcm_fsms.c
+@@ -1292,7 +1292,7 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
+ 		else
+ 			p_header->pdu_flag |= 0x20;
+ 
+-		CTCM_PR_DBGDATA("%s: trans_skb len:%04x \n",
++		CTCM_PR_DBGDATA("%s: trans_skb len:%04x\n",
+ 				__func__, ch->trans_skb->len);
+ 		CTCM_PR_DBGDATA("%s: pdu header and data for up"
+ 				" to 32 bytes sent to vtam\n", __func__);
+@@ -1330,7 +1330,7 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
+ 
+ 	kfree(header);
+ 
+-	CTCM_PR_DBGDATA("%s: trans_skb len:%04x \n",
++	CTCM_PR_DBGDATA("%s: trans_skb len:%04x\n",
+ 		       __func__, ch->trans_skb->len);
+ 	CTCM_PR_DBGDATA("%s: up-to-50 bytes of trans_skb "
+ 			"data to vtam from collect_q\n", __func__);
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index e35713d..6359328 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -697,7 +697,7 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
+ 		memcpy(skb_push(skb, PDU_HEADER_LENGTH), p_header,
+ 		       PDU_HEADER_LENGTH);
+ 
+-		CTCM_PR_DEBUG("%s(%s): Put on collect_q - skb len: %04x \n"
++		CTCM_PR_DEBUG("%s(%s): Put on collect_q - skb len: %04x\n"
+ 				"pdu header and data for up to 32 bytes:\n",
+ 				__func__, dev->name, skb->len);
+ 		CTCM_D3_DUMP((char *)skb->data, min_t(int, 32, skb->len));
+diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
+index 5978b39..f20c92f 100644
+--- a/drivers/s390/net/ctcm_mpc.c
++++ b/drivers/s390/net/ctcm_mpc.c
+@@ -253,7 +253,7 @@ void ctcmpc_dump_skb(struct sk_buff *skb, int offset)
+ 	header = (struct th_header *)p;
+ 
+ 	ctcm_pr_debug("dump:\n");
+-	ctcm_pr_debug("skb len=%d \n", skb->len);
++	ctcm_pr_debug("skb len=%d\n", skb->len);
+ 	if (skb->len > 2) {
+ 		switch (header->th_ch_flag) {
+ 		case TH_HAS_PDU:
+@@ -1079,7 +1079,7 @@ static void ctcmpc_unpack_skb(struct channel *ch, struct sk_buff *pskb)
+ 
+ 	CTCM_PR_DBGDATA("%s: th_header\n", __func__);
+ 	CTCM_D3_DUMP((char *)header, TH_HEADER_LENGTH);
+-	CTCM_PR_DBGDATA("%s: pskb len: %04x \n", __func__, pskb->len);
++	CTCM_PR_DBGDATA("%s: pskb len: %04x\n", __func__, pskb->len);
+ 
+ 	pskb->dev = dev;
+ 	pskb->ip_summed = CHECKSUM_UNNECESSARY;
+@@ -1119,7 +1119,7 @@ static void ctcmpc_unpack_skb(struct channel *ch, struct sk_buff *pskb)
+ 
+ 			CTCM_PR_DBGDATA("%s: pdu_header\n", __func__);
+ 			CTCM_D3_DUMP((char *)pskb->data, PDU_HEADER_LENGTH);
+-			CTCM_PR_DBGDATA("%s: pskb len: %04x \n",
++			CTCM_PR_DBGDATA("%s: pskb len: %04x\n",
+ 						__func__, pskb->len);
+ 
+ 			skb_pull(pskb, PDU_HEADER_LENGTH);
+@@ -1143,7 +1143,7 @@ static void ctcmpc_unpack_skb(struct channel *ch, struct sk_buff *pskb)
+ 			}
+ 			skb_reset_mac_header(pskb);
+ 			new_len = curr_pdu->pdu_offset;
+-			CTCM_PR_DBGDATA("%s: new_len: %04x \n",
++			CTCM_PR_DBGDATA("%s: new_len: %04x\n",
+ 						__func__, new_len);
+ 			if ((new_len == 0) || (new_len > pskb->len)) {
+ 				/* should never happen		    */
+@@ -1177,7 +1177,7 @@ static void ctcmpc_unpack_skb(struct channel *ch, struct sk_buff *pskb)
+ 				ctcm_pr_debug("%s: ToDCM_pdu_seq= %08x\n",
+ 						__func__, ch->pdu_seq);
+ 				ctcm_pr_debug("%s: skb:%0lx "
+-					"skb len: %d \n", __func__,
++					"skb len: %d\n", __func__,
+ 					(unsigned long)skb, skb->len);
+ 				ctcm_pr_debug("%s: up to 32 bytes "
+ 					"of pdu_data sent\n", __func__);
+@@ -1982,7 +1982,7 @@ static void mpc_action_rcvd_xid0(fsm_instance *fsm, int event, void *arg)
+ 	struct ctcm_priv   *priv = dev->ml_priv;
+ 	struct mpc_group   *grp  = priv->mpcg;
+ 
+-	CTCM_PR_DEBUG("%s: ch-id:%s xid2:%i xid7:%i xidt_p2:%i \n",
++	CTCM_PR_DEBUG("%s: ch-id:%s xid2:%i xid7:%i xidt_p2:%i\n",
+ 			__func__, ch->id, grp->outstanding_xid2,
+ 			grp->outstanding_xid7, grp->outstanding_xid7_p2);
+ 
+@@ -2021,10 +2021,10 @@ static void mpc_action_rcvd_xid0(fsm_instance *fsm, int event, void *arg)
+ 	}
+ 	kfree(mpcginfo);
+ 
+-	CTCM_PR_DEBUG("ctcmpc:%s() %s xid2:%i xid7:%i xidt_p2:%i \n",
++	CTCM_PR_DEBUG("ctcmpc:%s() %s xid2:%i xid7:%i xidt_p2:%i\n",
+ 		__func__, ch->id, grp->outstanding_xid2,
+ 		grp->outstanding_xid7, grp->outstanding_xid7_p2);
+-	CTCM_PR_DEBUG("ctcmpc:%s() %s grpstate: %s chanstate: %s \n",
++	CTCM_PR_DEBUG("ctcmpc:%s() %s grpstate: %s chanstate: %s\n",
+ 		__func__, ch->id,
+ 		fsm_getstate_str(grp->fsm), fsm_getstate_str(ch->fsm));
+ 	return;
+diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+index f6cc46d..d502e78 100644
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -1418,7 +1418,7 @@ lcs_irq(struct ccw_device *cdev, unsigned long intparm, struct irb *irb)
+ 	if (rc || (dstat & DEV_STAT_UNIT_EXCEP)) {
+ 		dev_warn(&cdev->dev,
+ 			"The LCS device stopped because of an error,"
+-			" dstat=0x%X, cstat=0x%X \n",
++			" dstat=0x%X, cstat=0x%X\n",
+ 			    dstat, cstat);
+ 		if (rc) {
+ 			channel->state = LCS_CH_STATE_ERROR;
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 0b76339..5371409 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -132,7 +132,7 @@ static int qeth_l2_send_setgroupmac_cb(struct qeth_card *card,
+ 	mac = &cmd->data.setdelmac.mac[0];
+ 	/* MAC already registered, needed in couple/uncouple case */
+ 	if (cmd->hdr.return_code ==  IPA_RC_L2_DUP_MAC) {
+-		QETH_DBF_MESSAGE(2, "Group MAC %pM already existing on %s \n",
++		QETH_DBF_MESSAGE(2, "Group MAC %pM already existing on %s\n",
+ 			  mac, QETH_CARD_IFNAME(card));
+ 		cmd->hdr.return_code = 0;
+ 	}
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index fd1b6ed..67a1f06 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1221,7 +1221,7 @@ static int qeth_l3_start_ipa_ip_fragmentation(struct qeth_card *card)
+ 			QETH_CARD_IFNAME(card));
+ 	} else
+ 		dev_info(&card->gdev->dev,
+-			"Hardware IP fragmentation enabled \n");
++			"Hardware IP fragmentation enabled\n");
+ 	return rc;
+ }
+ 
 -- 
-1.6.1
+1.6.6.1
