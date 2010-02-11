@@ -1,181 +1,174 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 27 Feb 2010 15:00:22 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 2.6.33+
-Message-ID: <20100227150022.04bcdf86@mschwide.boeblingen.de.ibm.com>
+From: Sachin Sant <sachinp@in.ibm.com>
+Subject: Re: [-next Feb 8] kernel BUG at fs/dcache.c:676!
+Date: Thu, 11 Feb 2010 10:43:02 +0530
+Message-ID: <4B7391DE.1070200@in.ibm.com>
+References: <4B7028BD.9070108@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-fsdevel-owner@vger.kernel.org>
+In-Reply-To: <4B7028BD.9070108@in.ibm.com>
+Sender: linux-fsdevel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-fsdevel/>
+List-Post: <mailto:linux-fsdevel@vger.kernel.org>
+To: linux-fsdevel@vger.kernel.org
+Cc: Al Viro <viro@zeniv.linux.org.uk>, linux-s390@vger.kernel.org, linux-next@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+Sachin Sant wrote:
+> While running hackbench against today's next-20100208 (9056d31..)
+> on a s390 box, came across following BUG.
+>
+I can still recreate this issue against next-20100210.
 
-please pull from 'for-linus' branch of
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs (dasdb1): using internal journal
+EXT3-fs (dasdb1): mounted filesystem with writeback data mode
+BUG: Dentry 00000000fbde0ec0{i=3D13c39,n=3Dbin} still in use (1) unmoun=
+t of ext3 da
+sdb1
+------------ cut here ------------
+kernel BUG at fs/dcache.c:676!
+illegal operation: 0001 #1 SMP
+Modules linked in: fuse loop zfcp qeth_l3 scsi_transport_fc ipv6 scsi_t=
+gt vmur s
+csi_mod ext3 jbd mbcache dasd_eckd_mod dasd_fba_mod dasd_mod qeth qdio =
+ccwgroup
+dm_mod
+CPU: 1 Not tainted 2.6.33-rc7-autotest-next-20100210-5-default #1
+Process umount (pid: 2125, task: 00000000fac04138, ksp: 00000000fb58bb8=
+0)
+Krnl PSW : 0704100180000000 000000000023ef1c (shrink_dcache_for_umount_=
+subtree+0
+x3a8/0x3d0)
+           R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:0 CC:1 PM:0 EA:3
+Krnl GPRS: 0000000000010000 0000000000686648 000000000000005c 00000000f=
+ffffffe
+           0000000000449fa2 0000000000000000 0000000000000001 000000000=
+0000001
+           00000000000000e0 000000000060ba00 00000000fbde0e60 000000000=
+0623218
+           00000000fac18e68 000000000046efc0 000000000023ef18 00000000f=
+b58bcf8
+Krnl Code: 000000000023ef0c: e3c0f0a80024       stg     %r12,168(%r15)
+           000000000023ef12: c0e50010581f       brasl   %r14,449f50
+           000000000023ef18: a7f40001           brc     15,23ef1a
+          >000000000023ef1c: a7f40000           brc     15,23ef1c
+           000000000023ef20: c0b0001f217c       larl    %r11,623218
+           000000000023ef26: a7f4fe79           brc     15,23ec18
+           000000000023ef2a: c020001e656b       larl    %r2,60ba00
+           000000000023ef30: c0e5000722a8       brasl   %r14,323480
+Call Trace:
+( <000000000023ef18>=A8 shrink_dcache_for_umount_subtree+0x3a4/0x3d0)
+  <000000000023efa6>=A8 shrink_dcache_for_umount+0x62/0x98
+  <000000000022a1fc>=A8 generic_shutdown_super+0x3c/0x160
+  <000000000022a356>=A8 kill_block_super+0x36/0x54
+  <000000000022ad00>=A8 deactivate_super+0xa0/0xc8
+  <0000000000247826>=A8 SyS_umount+0x72/0x404
+  <0000000000118bae>=A8 sysc_noemu+0x10/0x16
+  <0000020000149836>=A8 0x20000149836
+Last Breaking-Event-Address:
+  <000000000023ef18>=A8 shrink_dcache_for_umount_subtree+0x3a4/0x3d0
 
-	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
 
-to receive the following updates:
+> kjournald starting.  Commit interval 5 seconds
+> EXT3-fs (dasdb1): using internal journal
+> EXT3-fs (dasdb1): mounted filesystem with writeback data mode
+> BUG: Dentry 00000000fc937d40{i=3D13c39,n=3Dbin} still in use (1) =DDu=
+nmount=20
+> of ext3 da
+> sdb1=A8
+> ------------" cut here "------------
+> kernel BUG at fs/dcache.c:676!
+> illegal operation: 0001 "#1" SMP
+> Modules linked in: fuse loop zfcp scsi_transport_fc qeth_l3 scsi_tgt=20
+> ipv6 vmur s
+> csi_mod ext3 jbd mbcache dasd_eckd_mod dasd_fba_mod dasd_mod qeth qdi=
+o=20
+> ccwgroup
+> dm_mod
+> CPU: 2 Not tainted 2.6.33-rc7-autotest-next-20100208-5-default #1
+> Process umount (pid: 2120, task: 00000000fb3da538, ksp: 00000000fc6c7=
+b80)
+> Krnl PSW : 0704100180000000 000000000023ef54=20
+> (shrink_dcache_for_umount_subtree+0
+> x3a8/0x3d0)
+>           R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:0 CC:1 PM:0 EA:3
+> Krnl GPRS: 0000000000010000 0000000000686648 000000000000005c=20
+> 00000000fffffffd
+>           0000000000448a52 0000000000000000 0000000000000001=20
+> 0000000000000001
+>           00000000000000e0 000000000060ba00 00000000fc937ce0=20
+> 0000000000623218
+>           00000000fae10e68 000000000046ced8 000000000023ef50=20
+> 00000000fc6c7cf8
+> Krnl Code: 000000000023ef44: e3c0f0a80024       stg     %r12,168(%r15=
+)
+>           000000000023ef4a: c0e500104d5b       brasl   %r14,448a00
+>           000000000023ef50: a7f40001           brc     15,23ef52
+>          >000000000023ef54: a7f40000           brc     15,23ef54
+>           000000000023ef58: c0b0001f2160       larl    %r11,623218
+>           000000000023ef5e: a7f4fe79           brc     15,23ec50
+>           000000000023ef62: c020001e654f       larl    %r2,60ba00
+>           000000000023ef68: c0e50007229c       brasl   %r14,3234a0
+> Call Trace:
+> (<000000000023ef50> shrink_dcache_for_umount_subtree+0x3a4/0x3d0)
+> <000000000023efde> shrink_dcache_for_umount+0x62/0x98
+> <000000000022a234> generic_shutdown_super+0x3c/0x160
+> <000000000022a38e> kill_block_super+0x36/0x54
+> <000000000022ad38> deactivate_super+0xa0/0xc8
+> <000000000024785e> SyS_umount+0x72/0x404
+> <0000000000118c26> sysc_noemu+0x10/0x16
+> <0000020000149836> 0x20000149836
+> Last Breaking-Event-Address:
+> "<000000000023ef50>" shrink_dcache_for_umount_subtree+0x3a4/0x3d0
+>
+> Did not observe this with next-20100205. Also there doesn't seem to b=
+e
+> any patches applied to this code after the last release. So not
+> sure what could have caused this. Corresponding code is :
+>
+> 664                         if (atomic_read(&dentry->d_count) !=3D 0)=
+ {
+> 665                                 printk(KERN_ERR
+> 666                                        "BUG: Dentry %p{i=3D%lx,n=3D=
+%s}"
+> 667                                        " still in use (%d)"
+> 668                                        " [unmount of %s %s]\n",
+> 669                                        dentry,
+> 670                                        dentry->d_inode ?
+> 671                                        dentry->d_inode->i_ino : 0=
+UL,
+> 672                                        dentry->d_name.name,
+> 673                                        atomic_read(&dentry->d_cou=
+nt),
+> 674                                        dentry->d_sb->s_type->name=
+,
+> 675                                        dentry->d_sb->s_id);
+> 676                                 BUG();
+>           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 677                         }
+>
+> Let me know if i can provide any other information. Have attached
+> the config.
+>
+> Thanks
+> -Sachin
+>
+>
 
-Alexey Dobriyan (1):
-      [S390] seq_file: convert drivers/s390/
+--=20
 
-Gerald Schaefer (1):
-      [S390] spinlock: check virtual cpu running status
+---------------------------------
+Sachin Sant
+IBM Linux Technology Center
+India Systems and Technology Labs
+Bangalore, India
+---------------------------------
 
-Heiko Carstens (13):
-      [S390] uaccess: implement strict user copy checks
-      [S390] cio: fix storage key handling
-      [S390] zfcpdump: remove cross arch dump support
-      [S390] smp: rename and add lowcore defines
-      [S390] smp: always reboot on cpu 0
-      [S390] smp: rework sigp code
-      [S390] sysinfo: fix SYSIB 3,2,2 structure
-      [S390] Replace ENOTSUPP usage with EOPNOTSUPP
-      [S390] free_initmem: reduce code duplication
-      [S390] Cleanup struct _lowcore usage and defines.
-      [S390] bug: use relative pointers in bug table entries
-      [S390] use kprobes_built_in() in mm/fault code
-      [S390] time: remove unused code
-
-Jan Glauber (2):
-      [S390] qdio: account processed SBAL during queue scan
-      [S390] qdio: optimize cache line usage of struct qdio_irq
-
-Martin Schwidefsky (6):
-      [S390] use inline assembly contraints available with gcc 3.3.3
-      [S390] add MACHINE_IS_LPAR flag
-      [S390] add z9-ec/z10 instruction to kernel disassembler
-      [S390] codepage conversion of kernel parameter line
-      [S390] add support for compressed kernels
-      [S390] correct vdso version string
-
-Michael Holzheu (2):
-      [S390] Define new s390 ELF note sections in elf.h
-      [S390] zcore: Add prefix registers to dump header
-
-Sebastian Ott (6):
-      [S390] cio: consolidate workqueues
-      [S390] cio: introduce cio_settle
-      [S390] cio: wait for channel report
-      [S390] cio: make wait_events interruptible
-      [S390] ccw_device_notify: improve return codes
-      [S390] cio: trigger subchannel event at resume time
-
-Stefan Haberland (3):
-      [S390] dasd: fix online/offline race
-      [S390] dasd: fix refcounting.
-      [S390] dasd: correct offline processing
-
-Ursula Braun (1):
-      [S390] adapt text to cu3088-removal
-
- Documentation/s390/CommonIO             |    6 +
- Documentation/s390/driver-model.txt     |    4 +-
- arch/s390/Kconfig                       |    6 +
- arch/s390/Kconfig.debug                 |   13 +
- arch/s390/Makefile                      |   13 +-
- arch/s390/boot/Makefile                 |    8 +
- arch/s390/boot/compressed/Makefile      |   60 +++++
- arch/s390/boot/compressed/head31.S      |   51 +++++
- arch/s390/boot/compressed/head64.S      |   48 ++++
- arch/s390/boot/compressed/misc.c        |  158 +++++++++++++
- arch/s390/boot/compressed/vmlinux.lds.S |   55 +++++
- arch/s390/boot/compressed/vmlinux.scr   |   10 +
- arch/s390/defconfig                     |    7 +
- arch/s390/hypfs/hypfs_diag.c            |    4 +-
- arch/s390/include/asm/atomic.h          |   86 +-------
- arch/s390/include/asm/bitops.h          |   83 ++------
- arch/s390/include/asm/bug.h             |   10 +-
- arch/s390/include/asm/crw.h             |    1 +
- arch/s390/include/asm/etr.h             |   12 +-
- arch/s390/include/asm/irqflags.h        |   36 ---
- arch/s390/include/asm/lowcore.h         |  250 +++++----------------
- arch/s390/include/asm/page.h            |    3 -
- arch/s390/include/asm/processor.h       |   18 +-
- arch/s390/include/asm/qdio.h            |    3 +-
- arch/s390/include/asm/rwsem.h           |  147 ++++++------
- arch/s390/include/asm/setup.h           |    9 +-
- arch/s390/include/asm/sigp.h            |  142 ++++++------
- arch/s390/include/asm/smp.h             |   38 +++-
- arch/s390/include/asm/spinlock.h        |   18 --
- arch/s390/include/asm/swab.h            |   16 +-
- arch/s390/include/asm/sysinfo.h         |    3 +-
- arch/s390/include/asm/system.h          |  168 +++++++-------
- arch/s390/include/asm/thread_info.h     |    2 +-
- arch/s390/include/asm/timex.h           |   22 +--
- arch/s390/include/asm/uaccess.h         |   12 +
- arch/s390/include/asm/vdso.h            |    2 +-
- arch/s390/kernel/Makefile               |    3 +
- arch/s390/kernel/asm-offsets.c          |   99 ++++++++-
- arch/s390/kernel/base.S                 |    2 +-
- arch/s390/kernel/dis.c                  |  369 ++++++++++++++++++++++++-------
- arch/s390/kernel/early.c                |   22 ++-
- arch/s390/kernel/entry.S                |    1 -
- arch/s390/kernel/entry64.S              |    2 -
- arch/s390/kernel/ftrace.c               |    2 +-
- arch/s390/kernel/head.S                 |   60 ++----
- arch/s390/kernel/head31.S               |   16 +-
- arch/s390/kernel/head64.S               |   92 +-------
- arch/s390/kernel/ipl.c                  |   41 +++--
- arch/s390/kernel/machine_kexec.c        |   10 +-
- arch/s390/kernel/reipl.S                |    2 +-
- arch/s390/kernel/reipl64.S              |    2 +-
- arch/s390/kernel/sclp.S                 |   36 +++-
- arch/s390/kernel/setup.c                |   11 +-
- arch/s390/kernel/smp.c                  |  108 +++++----
- arch/s390/kernel/switch_cpu.S           |   58 +++++
- arch/s390/kernel/switch_cpu64.S         |   51 +++++
- arch/s390/kernel/swsusp_asm64.S         |    2 +-
- arch/s390/kernel/time.c                 |    8 -
- arch/s390/kernel/vdso.c                 |    1 +
- arch/s390/kvm/diag.c                    |    4 +-
- arch/s390/kvm/intercept.c               |   18 +-
- arch/s390/kvm/interrupt.c               |   12 +-
- arch/s390/kvm/kvm-s390.c                |   23 +-
- arch/s390/kvm/priv.c                    |    2 +-
- arch/s390/kvm/sigp.c                    |    4 +-
- arch/s390/lib/Makefile                  |    2 +-
- arch/s390/lib/spinlock.c                |   53 +++--
- arch/s390/lib/usercopy.c                |    8 +
- arch/s390/mm/extmem.c                   |   12 +-
- arch/s390/mm/fault.c                    |    5 +-
- arch/s390/mm/init.c                     |   33 ++--
- drivers/s390/block/dasd.c               |   48 +++--
- drivers/s390/block/dasd_devmap.c        |   13 +-
- drivers/s390/block/dasd_genhd.c         |    1 +
- drivers/s390/block/dasd_int.h           |    1 +
- drivers/s390/block/dasd_proc.c          |  109 ++++-----
- drivers/s390/char/zcore.c               |  163 ++++++--------
- drivers/s390/cio/ccwreq.c               |    2 +-
- drivers/s390/cio/chsc.c                 |    2 +-
- drivers/s390/cio/chsc_sch.c             |    4 +-
- drivers/s390/cio/cio.c                  |   14 +-
- drivers/s390/cio/crw.c                  |   29 ++--
- drivers/s390/cio/css.c                  |   79 ++++++-
- drivers/s390/cio/css.h                  |    5 +-
- drivers/s390/cio/device.c               |  160 +++++++-------
- drivers/s390/cio/device.h               |    3 +-
- drivers/s390/cio/device_fsm.c           |   43 +++-
- drivers/s390/cio/qdio.h                 |   92 +++++---
- drivers/s390/cio/qdio_debug.c           |   23 ++-
- drivers/s390/cio/qdio_main.c            |   28 +++-
- drivers/s390/cio/qdio_setup.c           |   20 ++-
- drivers/s390/cio/qdio_thinint.c         |    4 +-
- drivers/s390/crypto/zcrypt_api.c        |  158 ++++++-------
- drivers/s390/kvm/kvm_virtio.c           |    4 +-
- include/linux/elf.h                     |    5 +
- 95 files changed, 2207 insertions(+), 1501 deletions(-)
- create mode 100644 arch/s390/boot/compressed/Makefile
- create mode 100644 arch/s390/boot/compressed/head31.S
- create mode 100644 arch/s390/boot/compressed/head64.S
- create mode 100644 arch/s390/boot/compressed/misc.c
- create mode 100644 arch/s390/boot/compressed/vmlinux.lds.S
- create mode 100644 arch/s390/boot/compressed/vmlinux.scr
- create mode 100644 arch/s390/kernel/switch_cpu.S
- create mode 100644 arch/s390/kernel/switch_cpu64.S
- create mode 100644 arch/s390/lib/usercopy.c
+--
+To unsubscribe from this list: send the line "unsubscribe linux-fsdevel=
+" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
