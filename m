@@ -1,78 +1,74 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 10 Feb 2010 10:20:55 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 2.6.33-rc7
-Message-ID: <20100210102055.6814488d@mschwide.boeblingen.de.ibm.com>
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: mmotm 2010-02-10 - BUG at fs/dcache.c:677!
+Date: Fri, 12 Feb 2010 16:30:42 +1100
+Message-ID: <20100212163042.da2fb31d.sfr@canb.auug.org.au>
+References: <201002110043.o1B0hKxW008835@imap1.linux-foundation.org>
+	<8576.1265942657@localhost>
+	<20100211191427.6ff9aec6.akpm@linux-foundation.org>
+	<4B74DE40.5030401@ce.jp.nec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__12_Feb_2010_16_30_42_+1100_EI7capKdFqWUTW+I"
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <4B74DE40.5030401@ce.jp.nec.com>
+Sender: linux-next-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-fsdevel/>
+List-Post: <mailto:linux-fsdevel@vger.kernel.org>
+To: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Al Viro <viro@zeniv.linux.org.uk>, Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-s390@vger.kernel.org, linux-next@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+--Signature=_Fri__12_Feb_2010_16_30_42_+1100_EI7capKdFqWUTW+I
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-hopefully the last s390 update for 2.6.33.
-Please pull from 'for-linus' branch of
+Hi all,
 
-	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
+On Fri, 12 Feb 2010 13:51:12 +0900 "Jun'ichi Nomura" <j-nomura@ce.jp.nec.co=
+m> wrote:
+>
+> So the bug seems introduced between next-20100205 and next-20100208.
+>=20
+> Isn't this change missing the equivalent of "dput(old)"?
+>=20
+> In patch-v2.6.33-rc7-next-20100208:
+> > diff --git a/fs/namei.c b/fs/namei.c
+> > index 94a5e60..a056dad 100644
+> > --- a/fs/namei.c
+> > +++ b/fs/namei.c
+> > @@ -689,33 +689,17 @@ static __always_inline void follow_dotdot(struct =
+nameidata *nd)
+> ...
+> > -               spin_lock(&dcache_lock);
+> >                 if (nd->path.dentry !=3D nd->path.mnt->mnt_root) {
+> > -                       nd->path.dentry =3D dget(nd->path.dentry->d_par=
+ent);
+> > -                       spin_unlock(&dcache_lock);
+> > -                       dput(old);
+> > +                       /* rare case of legitimate dget_parent()... */
+> > +                       nd->path.dentry =3D dget_parent(nd->path.dentry=
+);
+> >                         break;
+> >                 }
 
-to receive the following updates:
+That is part of commit 12578f932a8ad5f01bbf957d9c941760ef0dc575 ("Clean
+follow_dotdot() up a bit") from the vfs tree.
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-Heiko Carstens (1):
-      [S390] Fix struct _lowcore layout.
+--Signature=_Fri__12_Feb_2010_16_30_42_+1100_EI7capKdFqWUTW+I
+Content-Type: application/pgp-signature
 
-Jan Glauber (1):
-      [S390] qdio: prevent call trace if CHPID is offline
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
 
-Ursula Braun (1):
-      [S390] qdio: continue polling for buffer state ERROR
+iEYEARECAAYFAkt054IACgkQjjKRsyhoI8z9GQCgltc6fMqphIlmMAGEK5nIgNoT
+DXoAn2oOV/HE4Cb/sd7dzahyuvDMdneh
+=dyUk
+-----END PGP SIGNATURE-----
 
- arch/s390/include/asm/lowcore.h |    4 ++--
- drivers/s390/cio/qdio_main.c    |    4 +++-
- 2 files changed, 5 insertions(+), 3 deletions(-)
-
-diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
-index f2ef4b6..c25dfac 100644
---- a/arch/s390/include/asm/lowcore.h
-+++ b/arch/s390/include/asm/lowcore.h
-@@ -293,12 +293,12 @@ struct _lowcore
- 	__u64	clock_comparator;		/* 0x02d0 */
- 	__u32	machine_flags;			/* 0x02d8 */
- 	__u32	ftrace_func;			/* 0x02dc */
--	__u8	pad_0x02f0[0x0300-0x02f0];	/* 0x02f0 */
-+	__u8	pad_0x02e0[0x0300-0x02e0];	/* 0x02e0 */
- 
- 	/* Interrupt response block */
- 	__u8	irb[64];			/* 0x0300 */
- 
--	__u8	pad_0x0400[0x0e00-0x0400];	/* 0x0400 */
-+	__u8	pad_0x0340[0x0e00-0x0340];	/* 0x0340 */
- 
- 	/*
- 	 * 0xe00 contains the address of the IPL Parameter Information
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index 999fe80..62b654a 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -531,7 +531,7 @@ static inline int qdio_inbound_q_done(struct qdio_q *q)
- 	qdio_siga_sync_q(q);
- 	get_buf_state(q, q->first_to_check, &state, 0);
- 
--	if (state == SLSB_P_INPUT_PRIMED)
-+	if (state == SLSB_P_INPUT_PRIMED || state == SLSB_P_INPUT_ERROR)
- 		/* more work coming */
- 		return 0;
- 
-@@ -960,6 +960,8 @@ void qdio_int_handler(struct ccw_device *cdev, unsigned long intparm,
- 			qdio_handle_activate_check(cdev, intparm, cstat,
- 						   dstat);
- 		break;
-+	case QDIO_IRQ_STATE_STOPPED:
-+		break;
- 	default:
- 		WARN_ON(1);
- 	}
+--Signature=_Fri__12_Feb_2010_16_30_42_+1100_EI7capKdFqWUTW+I--
