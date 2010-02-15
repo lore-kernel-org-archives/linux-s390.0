@@ -1,145 +1,232 @@
 From: Oren Laadan <orenl@cs.columbia.edu>
-Date: Tue, 09 Feb 2010 21:12:11 +0000
-Subject: Re: [PATCH RFC] s390: let tasks know to restart syscalls after sys_restart()
-Message-Id: <4B71CFAB.70409@cs.columbia.edu>
-In-Reply-To: <20100209201643.GB29094@us.ibm.com>
-References: <20100209201643.GB29094@us.ibm.com>
+Date: Mon, 15 Feb 2010 13:26:23 +0000
+Subject: Re: [PATCH] RFC: s390: Move get_signal_to_deliver() up in do_signal
+Message-Id: <4B794B7F.70306@cs.columbia.edu>
+In-Reply-To: <20100211230331.GA28209@us.ibm.com>
+References: <20100211230331.GA28209@us.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 
+Ok, I think I'm convinced ;)
+Applied...
 
 Serge E. Hallyn wrote:
-> Quoting Oren Laadan (orenl@cs.columbia.edu):
+> Quoting Serge E. Hallyn (serue@us.ibm.com):
+>> Well, perhaps I've been making this more complicated than it
+>> needs to be.
 >>
->> Serge E. Hallyn wrote:
->>> Quoting Oren Laadan (orenl@cs.columbia.edu):
->>>> Serge E. Hallyn wrote:
->>>>> (This is a patch against the checkpoint/restart kernel tree at
->>>>> http://git.ncl.cs.columbia.edu/?p=linux-cr.git;a=shortlog;h=refs/heads/ckpt-v19-rc2.9)
->>>>>
->>>>> On x86, do_signal() leaves -516 in eax while it freezes, which
->>>>> sys_restart() can use to detect that it should restart the
->>>>> syscall which was interrupted by a signal (or the freezer).
->>>>>
->>>>> On s390, gprs[2] gets tweaked to -EINTR (-4) instead, leaving
->>>>> us no reliable way to tell whether should be restarted.  If the
->>>>> task is checkpointed here and then restarted, then the last part
->>>>> of do_signal() won't be done, and the interrupted syscall won't
->>>>> be restarted.
->>>>>
->>>>> This patch defines TIF_RESTARTBLOCK as a thread flag showing that
->>>>> the thread expects to be frozen while kicked out of a restartable
->>>>> syscall by a signal.
->>>>>
->>>>> The TIF_RESTARTBLOCK flag is only set for the duration of the
->>>>> get get_signal_to_deliver() which is where the task may get
->>>>> frozen.  We also set it in sys_restart() if the checkpointed task
->>>>> had had TIF_RESTARTBLOCK set.  It will get cleared if upon exiting
->>>>> sys_restart() we jump to sysc_sigpending.  If instead we jump back
->>>>> to do_signal(), then TIF_RESTARTBLOCK will stay set again until
->>>>> after get_signal_to_deliver() so that if it immediately freezes and
->>>>> is re-checkpointed, the resulting second checkpoint image again
->>>>> will have TIF_RESTARTBLOCK set.
->>>> Two comments:
->>>>
->>>> 1) This note will be lost once we fold this patch into a clean
->>>> patchset. Can you please make it part of the code ?
->>> Sure, good idea.
->>>
->>>> 2) Maybe I'm missing something, but I'm not convinced. Can you
->>>> elaborate on why this is correct in different cases ?  Also, in
->>>> particular with respect to the post-signal-sent snippet in the
->>>> signal handling code:
->>>>
->>>>         if (retval == -ERESTART_RESTARTBLOCK
->>>>             && regs->psw.addr == continue_addr) {
->>>>
->>>>                 regs->gprs[2] = __NR_restart_syscall;
->>>>
->>>>                 set_thread_flag(TIF_RESTART_SVC);
->>>>
->>>>         }
->>>>
->>>>
->>>> Would it do what you expect after a restart ?  (restart modifies
->>>> the psw.addr)
->>> I don't understand the question.  After sys_restart(), we won't be
->>> returning to this kernel code.  We'll either immediately call
->>> restart_syscall(), or, if a signal was delivered before sys_restart(),
->>> completed, then do_signal() will start again from the top.
->> Ok, I re-read the code: let's look at these cases:
+>> If we get frozen+checkpointed, then no matter whether we were
+>> frozen with a real pending signal or not, we won't handle the
+>> signal during restart, so we can treat it as though signr==0.
 >>
->> case 1: checkpointee wasn't in syscall -- no problem.
+>> So, in that case, the only thing we need to change at end of
+>> sys_restart is to handle the case:
 >>
->> case 2: checkpointee was in syscall, no signal pending; when it was
->> frozen, regs->svcnr became 0, and that's what we save, so on restart
->> we won't enter that snippet again. Again, no problem.
+>> 	/* Restart a different system call. */
+>> 	if (retval == -ERESTART_RESTARTBLOCK
+>> 			&& regs->psw.addr == continue_addr) {
+>> 		regs->gprs[2] = __NR_restart_syscall;
+>> 		set_thread_flag(TIF_RESTART_SVC);
+>> 	}
 >>
->> case 3: checkpointee was in syscall, signal pending;
->> case 4: checkpointee was in syscall, signal received at restart;
->> look at this snippet:
+>> Now that's of course a problem bc we don't know continue_addr
+>> when we're in sys_restart().  So before we go into get_signal_to_deliver(),
+>> we should set a new TIF flag which represents the fact that we are
+>> inside do_signal with those conditions.
 >>
->>         if (signr > 0 && regs->psw.addr == restart_addr) {
->>                 if (retval == -ERESTARTNOHAND
->>                     || (retval == -ERESTARTSYS
->>                          && !(current->sighand->action[signr-1].sa.sa_flags
->>                               & SA_RESTART))) {
->>                         regs->gprs[2] = -EINTR;
->>                         regs->psw.addr = continue_addr;
->>                 }
->>         }
+>> Then at end of restore_thread(), if that flag is set, we do the
 >>
->> Because svcnr is/was 0, neither restart_addr nor continue_addr
->> were setup, so this condition is always false, which I think is
->> wrong.
+>> 	regs->gprs[2] = __NR_restart_syscall;
+>> 	set_thread_flag(TIF_RESTART_SVC);
+>>
+>> (which presumably goes into a helper)
+>>
+>> If there was a pending signal which we were intending to handle
+>> when checkpointed, then that will simply be delivered after we
+>> exit sys_restart.  That is no different from the case where we
+>> got another signal delivered while a slow sighandler was executing.
+>>
+>> I'll try implementing that idea.
+>>
+>> -serge
 > 
-> I've been focusing on the ERESTART_RESTARTBLOCK case.  Can
-> we agree that all cases appear to be handled correctly there?
-
-Errr... everytime I need to go and read all the code from
-scratch to convince myself... and I my mind just context
-switched :(
-
+> Like so:
 > 
-> For the ERESTARTSYS/ERESTARTNOHAND case, I'm probably not
-> doing the right thing.  For a single checkpoint, since either
-> there was no real signal (freezer) or it didn't get handled
-> before checkpoint,  psw.addr gets checkpointed and restored
-> as restart_addr, which is the right thing.  (since signr is
-> not >0, we would have kept the values the same after
-> get_signal_to_deliver()).
+> From b50eb90da03e82ae6e7a2f1a8362e93c18d52074 Mon Sep 17 00:00:00 2001
+> From: Serge E. Hallyn <serue@us.ibm.com>
+> Date: Thu, 11 Feb 2010 14:05:16 -0500
+> Subject: [PATCH 1/1] set TIF_RESTART_SVC when needed after sys_restart
 > 
-> But if a real signal gets delivered upon exit of sys_restart(),
-> then I think I do think we'll end up doing the wrong thing -
-> we'll restart the interrupted system call with the orig_gpr2,
-> so we'll pretend the signal did not get delivered, rather
-> than proceed past the call to the system call (in userspace)
-> with return value -EINTR.  (Just how wrong is that?)
+> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+> ---
+>  arch/s390/include/asm/checkpoint_hdr.h |    5 +++
+>  arch/s390/include/asm/thread_info.h    |    2 +
+>  arch/s390/kernel/checkpoint.c          |   52 +++++++++++++++++++++++++++++++-
+>  arch/s390/kernel/signal.c              |   16 ++++++++++
+>  4 files changed, 74 insertions(+), 1 deletions(-)
 > 
-> This is all dense enough that it may be worth thinking of
-> a different way to handle it, but I'm not sure what that
-> way would be.  The challenge is finding a *simple*, reliable
-> way to detect what the the initial conditions to do_signal()
-> where, based on the register/thread_info values as they are
-> at do_signal()->get_signal_to_deliver()->try_to_freeze(),
-> given the ways the values get swapped in the block above
-> the get_signal_to_deliver() call.
-> 
-> The simplest thing by far would be if we could safely
-> move the get_signal_to_deliver() call before the
-> 
-> 	if (regs->svcnr) {
-> 		continue_addr = regs->psw.addr;
-> 		...
-> 
-> block.  I assume there are entry_64.S-related reasons why
-> we cannot?
-
-Yes, that's what I was thinking. And I don't know enough of
-s390 to understand why we could not.
-
-Either that or record the state before it is modified in
-dedicated checkpoint-related fields (e.g. per thread).
-
-Oren.
+> diff --git a/arch/s390/include/asm/checkpoint_hdr.h b/arch/s390/include/asm/checkpoint_hdr.h
+> index a8c2a3d..fd8be2a 100644
+> --- a/arch/s390/include/asm/checkpoint_hdr.h
+> +++ b/arch/s390/include/asm/checkpoint_hdr.h
+> @@ -76,6 +76,11 @@ struct ckpt_hdr_cpu {
+>  	__u8 instruction_fetch;
+>  };
+>  
+> +struct ckpt_hdr_thread {
+> +	struct ckpt_hdr h;
+> +	__u64 thread_info_flags;
+> +};
+> +
+>  struct ckpt_hdr_mm_context {
+>  	struct ckpt_hdr h;
+>  	unsigned long vdso_base;
+> diff --git a/arch/s390/include/asm/thread_info.h b/arch/s390/include/asm/thread_info.h
+> index 66069e7..61e84e5 100644
+> --- a/arch/s390/include/asm/thread_info.h
+> +++ b/arch/s390/include/asm/thread_info.h
+> @@ -99,6 +99,7 @@ static inline struct thread_info *current_thread_info(void)
+>  #define TIF_MEMDIE		18
+>  #define TIF_RESTORE_SIGMASK	19	/* restore signal mask in do_signal() */
+>  #define TIF_FREEZE		20	/* thread is freezing for suspend */
+> +#define TIF_SIG_RESTARTBLOCK	23	/* restart must set TIF_RESTART_SVC */
+>  
+>  #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
+>  #define _TIF_RESTORE_SIGMASK	(1<<TIF_RESTORE_SIGMASK)
+> @@ -114,6 +115,7 @@ static inline struct thread_info *current_thread_info(void)
+>  #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
+>  #define _TIF_31BIT		(1<<TIF_31BIT)
+>  #define _TIF_FREEZE		(1<<TIF_FREEZE)
+> +#define _TIF_SIG_RESTARTBLOCK	(1<<TIF_SIG_RESTARTBLOCK)
+>  
+>  #endif /* __KERNEL__ */
+>  
+> diff --git a/arch/s390/kernel/checkpoint.c b/arch/s390/kernel/checkpoint.c
+> index 60ba04d..cc7f341 100644
+> --- a/arch/s390/kernel/checkpoint.c
+> +++ b/arch/s390/kernel/checkpoint.c
+> @@ -12,6 +12,7 @@
+>  #include <asm/system.h>
+>  #include <asm/pgtable.h>
+>  #include <asm/elf.h>
+> +#include <asm/unistd.h>
+>  
+>  #include <linux/checkpoint.h>
+>  #include <linux/checkpoint_hdr.h>
+> @@ -65,6 +66,18 @@ static void s390_copy_regs(int op, struct ckpt_hdr_cpu *h,
+>  		BUG_ON(h->gprs[2] < 0);
+>  		h->gprs[2] = 0;
+>  	}
+> +
+> +	/*
+> +	 * if a checkpoint was taken while interrupted from a restartable
+> +	 * syscall, then treat this as though signr==0 (since we did not
+> +	 * handle the signal) and finish the last part of do_signal
+> +	 */
+> +	if (op == CKPT_RST && test_thread_flag(TIF_SIG_RESTARTBLOCK)) {
+> +		regs->gprs[2] = __NR_restart_syscall;
+> +		set_thread_flag(TIF_RESTART_SVC);
+> +		clear_thread_flag(TIF_SIG_RESTARTBLOCK);
+> +	}
+> +
+>  	CKPT_COPY_ARRAY(op, h->fprs, thr->fp_regs.fprs, NUM_FPRS);
+>  	CKPT_COPY_ARRAY(op, h->acrs, thr->acrs, NUM_ACRS);
+>  	CKPT_COPY_ARRAY(op, h->per_control_regs,
+> @@ -83,12 +96,24 @@ static void s390_mm(int op, struct ckpt_hdr_mm_context *h,
+>  
+>  int checkpoint_thread(struct ckpt_ctx *ctx, struct task_struct *t)
+>  {
+> +	struct ckpt_hdr_thread *h;
+> +	int ret;
+> +
+>  	/* we will eventually support this, as we do on x86-64 */
+>  	if (test_tsk_thread_flag(t, TIF_31BIT)) {
+>  		ckpt_err(ctx, -EINVAL, "checkpoint of 31-bit task\n");
+>  		return -EINVAL;
+>  	}
+> -	return 0;
+> +
+> +	h = ckpt_hdr_get_type(ctx, sizeof(*h), CKPT_HDR_THREAD);
+> +	if (!h)
+> +		return -ENOMEM;
+> +
+> +	h->thread_info_flags = task_thread_info(t)->flags;
+> +	ret = ckpt_write_obj(ctx, &h->h);
+> +	ckpt_hdr_put(ctx, h);
+> +
+> +	return ret;
+>  }
+>  
+>  /* dump the cpu state and registers of a given task */
+> @@ -148,11 +173,36 @@ int checkpoint_mm_context(struct ckpt_ctx *ctx, struct mm_struct *mm)
+>  
+>  int restore_thread(struct ckpt_ctx *ctx)
+>  {
+> +	struct ckpt_hdr_thread *h;
+> +
+>  	/* a 31-bit task cannot call sys_restart right now */
+>  	if (test_thread_flag(TIF_31BIT)) {
+>  		ckpt_err(ctx, -EINVAL, "restart from 31-bit task\n");
+>  		return -EINVAL;
+>  	}
+> +
+> +	h = ckpt_read_obj_type(ctx, sizeof(*h), CKPT_HDR_THREAD);
+> +	if (IS_ERR(h))
+> +		return PTR_ERR(h);
+> +
+> +	/*
+> +	 * If we were checkpointed while do_signal() interrupted a
+> +	 * syscall with restart blocks, then we have some cleanup to
+> +	 * do at end of restart, in order to finish our pretense of
+> +	 * having handled signr==0.  (See last part of do_signal).
+> +	 *
+> +	 * We can't set gprs[2] here bc we haven't copied registers
+> +	 * yet, that happens later in restore_cpu().  So re-set the
+> +	 * TIF_SIG_RESTARTBLOCK thread flag so we can detect it
+> +	 * at restore_cpu()->s390_copy_regs() and do the right thing.
+> +	 */
+> +	if (h->thread_info_flags & _TIF_SIG_RESTARTBLOCK)
+> +		set_thread_flag(TIF_SIG_RESTARTBLOCK);
+> +
+> +	/* will have to handle TIF_RESTORE_SIGMASK as well */
+> +
+> +	ckpt_hdr_put(ctx, h);
+> +
+>  	return 0;
+>  }
+>  
+> diff --git a/arch/s390/kernel/signal.c b/arch/s390/kernel/signal.c
+> index 1675c48..9b6ca21 100644
+> --- a/arch/s390/kernel/signal.c
+> +++ b/arch/s390/kernel/signal.c
+> @@ -459,6 +459,16 @@ void do_signal(struct pt_regs *regs)
+>  			break;
+>  		case -ERESTART_RESTARTBLOCK:
+>  			regs->gprs[2] = -EINTR;
+> +			/*
+> +			 * This condition is the only one which requires
+> +			 * special care after handling a signr==0.  So if
+> +			 * we get frozen and checkpointed at the
+> +			 * get_signal_to_deliver() below, then we need
+> +			 * to convey this condition to sys_restart() so it
+> +			 * can set the restored thread up to run the restart
+> +			 * block.
+> +			 */
+> +			set_thread_flag(TIF_SIG_RESTARTBLOCK);
+>  		}
+>  		regs->svcnr = 0;	/* Don't deal with this again. */
+>  	}
+> @@ -467,6 +477,12 @@ void do_signal(struct pt_regs *regs)
+>  	   the debugger may change all our registers ... */
+>  	signr = get_signal_to_deliver(&info, &ka, regs, NULL);
+>  
+> +	/*
+> +	 * we won't get frozen past this so clear the thread flag hinting
+> +	 * to sys_restart that TIF_RESTART_SVC must be set.
+> +	 */
+> +	clear_thread_flag(TIF_SIG_RESTARTBLOCK);
+> +
+>  	/* Depending on the signal settings we may need to revert the
+>  	   decision to restart the system call. */
+>  	if (signr > 0 && regs->psw.addr == restart_addr) {
