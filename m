@@ -1,222 +1,304 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20100224084450.200868700@de.ibm.com>
-Date: Wed, 24 Feb 2010 09:44:45 +0100
+Message-Id: <20100224084449.264862886@de.ibm.com>
+Date: Wed, 24 Feb 2010 09:44:41 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 15/32] [PATCH] spinlock: check virtual cpu running status
+Subject: [patch 11/32] [PATCH] qdio: account processed SBAL during queue scan
 References: <20100224084430.193562869@de.ibm.com>
-Content-Disposition: inline; filename=114-spinlock-sigp-sense-running.diff
+Content-Disposition: inline; filename=110-qdio-account-sbal.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Jan Glauber <jang@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Jan Glauber <jang@linux.vnet.ibm.com>
 
-This patch introduces a new function that checks the running status
-of a cpu in a hypervisor. This status is not virtualized, so the check
-is only correct if running in an LPAR. On acquiring a spinlock, if the
-cpu holding the lock is scheduled by the hypervisor, we do a busy wait
-on the lock. If it is not scheduled, we yield over to that cpu.
+Add counters for the number of processed SBALs. The numbers summarize
+how many SBALs were processed at each queue scan and indicate the
+utilization of the queue. Furthermore the number of unsuccessfull
+queue scans, SBAL errors and the total number of processed
+SBALs are accounted.
 
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Also regroup struct qdio_q to move read-mostly and write-mostly data
+into different cachelines.
+
+Signed-off-by: Jan Glauber <jang@linux.vnet.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/include/asm/sigp.h |   40 ++++++++++++++----------------
- arch/s390/include/asm/smp.h  |   24 ++++++++++++++++++
- arch/s390/lib/spinlock.c     |   57 +++++++++++++++++++++++++++++--------------
- 3 files changed, 82 insertions(+), 39 deletions(-)
+ drivers/s390/cio/qdio.h       |   85 ++++++++++++++++++++++++++----------------
+ drivers/s390/cio/qdio_debug.c |   23 ++++++++++-
+ drivers/s390/cio/qdio_main.c  |   26 ++++++++++++
+ 3 files changed, 101 insertions(+), 33 deletions(-)
 
-Index: quilt-2.6/arch/s390/include/asm/sigp.h
+Index: quilt-2.6/drivers/s390/cio/qdio_debug.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/sigp.h	2010-02-24 09:28:13.000000000 +0100
-+++ quilt-2.6/arch/s390/include/asm/sigp.h	2010-02-24 09:44:25.000000000 +0100
-@@ -31,32 +31,31 @@
+--- quilt-2.6.orig/drivers/s390/cio/qdio_debug.c	2010-02-24 09:28:13.000000000 +0100
++++ quilt-2.6/drivers/s390/cio/qdio_debug.c	2010-02-24 09:44:25.000000000 +0100
+@@ -60,7 +60,7 @@
+ 	seq_printf(m, "ftc: %d  last_move: %d\n", q->first_to_check, q->last_move);
+ 	seq_printf(m, "polling: %d  ack start: %d  ack count: %d\n",
+ 		   q->u.in.polling, q->u.in.ack_start, q->u.in.ack_count);
+-	seq_printf(m, "slsb buffer states:\n");
++	seq_printf(m, "SBAL states:\n");
+ 	seq_printf(m, "|0      |8      |16     |24     |32     |40     |48     |56  63|\n");
  
- typedef enum
+ 	for (i = 0; i < QDIO_MAX_BUFFERS_PER_Q; i++) {
+@@ -97,6 +97,20 @@
+ 	}
+ 	seq_printf(m, "\n");
+ 	seq_printf(m, "|64     |72     |80     |88     |96     |104    |112    |   127|\n");
++
++	seq_printf(m, "\nSBAL statistics:");
++	if (!q->irq_ptr->perf_stat_enabled) {
++		seq_printf(m, " disabled\n");
++		return 0;
++	}
++
++	seq_printf(m, "\n1          2..        4..        8..        "
++		   "16..       32..       64..       127\n");
++	for (i = 0; i < ARRAY_SIZE(q->q_stats.nr_sbals); i++)
++		seq_printf(m, "%-10u ", q->q_stats.nr_sbals[i]);
++	seq_printf(m, "\nError      NOP        Total\n%-10u %-10u %-10u\n\n",
++		   q->q_stats.nr_sbal_error, q->q_stats.nr_sbal_nop,
++		   q->q_stats.nr_sbal_total);
+ 	return 0;
+ }
+ 
+@@ -181,9 +195,10 @@
  {
--	sigp_unassigned=0x0,
--	sigp_sense,
--	sigp_external_call,
--	sigp_emergency_signal,
--	sigp_start,
--	sigp_stop,
--	sigp_restart,
--	sigp_unassigned1,
--	sigp_unassigned2,
--	sigp_stop_and_store_status,
--	sigp_unassigned3,
--	sigp_initial_cpu_reset,
--	sigp_cpu_reset,
--	sigp_set_prefix,
--	sigp_store_status_at_address,
--	sigp_store_extended_status_at_address
-+	sigp_sense = 1,
-+	sigp_external_call = 2,
-+	sigp_emergency_signal = 3,
-+	sigp_start = 4,
-+	sigp_stop = 5,
-+	sigp_restart = 6,
-+	sigp_stop_and_store_status = 9,
-+	sigp_initial_cpu_reset = 11,
-+	sigp_cpu_reset = 12,
-+	sigp_set_prefix = 13,
-+	sigp_store_status_at_address = 14,
-+	sigp_store_extended_status_at_address = 15,
-+	sigp_set_architecture = 18,
-+	sigp_conditional_emergency_signal = 19,
-+	sigp_sense_running = 21,
- } sigp_order_code;
+ 	struct seq_file *seq = file->private_data;
+ 	struct qdio_irq *irq_ptr = seq->private;
++	struct qdio_q *q;
+ 	unsigned long val;
+ 	char buf[8];
+-	int ret;
++	int ret, i;
  
- typedef __u32 sigp_status_word;
- 
- typedef enum
- {
--        sigp_order_code_accepted=0,
--	sigp_status_stored,
--	sigp_busy,
--	sigp_not_operational
-+	sigp_order_code_accepted = 0,
-+	sigp_status_stored = 1,
-+	sigp_busy = 2,
-+	sigp_not_operational = 3,
- } sigp_ccode;
- 
- 
-@@ -70,7 +69,6 @@
- 	ec_schedule=0,
- 	ec_call_function,
- 	ec_call_function_single,
--	ec_bit_last
- } ec_bit_sig;
- 
- /*
-Index: quilt-2.6/arch/s390/include/asm/smp.h
+ 	if (!irq_ptr)
+ 		return 0;
+@@ -201,6 +216,10 @@
+ 	case 0:
+ 		irq_ptr->perf_stat_enabled = 0;
+ 		memset(&irq_ptr->perf_stat, 0, sizeof(irq_ptr->perf_stat));
++		for_each_input_queue(irq_ptr, q, i)
++			memset(&q->q_stats, 0, sizeof(q->q_stats));
++		for_each_output_queue(irq_ptr, q, i)
++			memset(&q->q_stats, 0, sizeof(q->q_stats));
+ 		break;
+ 	case 1:
+ 		irq_ptr->perf_stat_enabled = 1;
+Index: quilt-2.6/drivers/s390/cio/qdio.h
 ===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/smp.h	2010-02-24 09:44:24.000000000 +0100
-+++ quilt-2.6/arch/s390/include/asm/smp.h	2010-02-24 09:44:25.000000000 +0100
-@@ -36,6 +36,28 @@
- 			      int from, int to);
- extern void smp_restart_cpu(void);
+--- quilt-2.6.orig/drivers/s390/cio/qdio.h	2010-02-24 09:28:13.000000000 +0100
++++ quilt-2.6/drivers/s390/cio/qdio.h	2010-02-24 09:44:25.000000000 +0100
+@@ -210,16 +210,25 @@
+ 	unsigned int sqbs_partial;
+ };
+ 
++struct qdio_queue_perf_stat {
++	/*
++	 * Sorted into order-2 buckets: 1, 2-3, 4-7, ... 64-127, 128.
++	 * Since max. 127 SBALs are scanned reuse entry for 128 as queue full
++	 * aka 127 SBALs found.
++	 */
++	unsigned int nr_sbals[8];
++	unsigned int nr_sbal_error;
++	unsigned int nr_sbal_nop;
++	unsigned int nr_sbal_total;
++};
++
+ struct qdio_input_q {
+ 	/* input buffer acknowledgement flag */
+ 	int polling;
+-
+ 	/* first ACK'ed buffer */
+ 	int ack_start;
+-
+ 	/* how much sbals are acknowledged with qebsm */
+ 	int ack_count;
+-
+ 	/* last time of noticing incoming data */
+ 	u64 timestamp;
+ };
+@@ -227,40 +236,27 @@
+ struct qdio_output_q {
+ 	/* PCIs are enabled for the queue */
+ 	int pci_out_enabled;
+-
+ 	/* IQDIO: output multiple buffers (enhanced SIGA) */
+ 	int use_enh_siga;
+-
+ 	/* timer to check for more outbound work */
+ 	struct timer_list timer;
+ };
  
 +/*
-+ * returns 1 if (virtual) cpu is scheduled
-+ * returns 0 otherwise
++ * Note on cache alignment: grouped slsb and write mostly data at the beginning
++ * sbal[] is read-only and starts on a new cacheline followed by read mostly.
 + */
-+static inline int smp_vcpu_scheduled(int cpu)
-+{
-+	__u32 status = 0;
+ struct qdio_q {
+ 	struct slsb slsb;
 +
-+	switch (signal_processor_ps(&status, 0, cpu, sigp_sense_running)) {
-+	case sigp_status_stored:
-+		/* Check for running status */
-+		if (status & 0x400)
-+			return 0;
-+		break;
-+	case sigp_not_operational:
-+		return 0;
-+	default:
-+		break;
+ 	union {
+ 		struct qdio_input_q in;
+ 		struct qdio_output_q out;
+ 	} u;
+ 
+-	/* queue number */
+-	int nr;
+-
+-	/* bitmask of queue number */
+-	int mask;
+-
+-	/* input or output queue */
+-	int is_input_q;
+-
+-	/* list of thinint input queues */
+-	struct list_head entry;
+-
+-	/* upper-layer program handler */
+-	qdio_handler_t (*handler);
+-
+ 	/*
+ 	 * inbound: next buffer the program should check for
+-	 * outbound: next buffer to check for having been processed
+-	 * by the card
++	 * outbound: next buffer to check if adapter processed it
+ 	 */
+ 	int first_to_check;
+ 
+@@ -273,16 +269,32 @@
+ 	/* number of buffers in use by the adapter */
+ 	atomic_t nr_buf_used;
+ 
+-	struct qdio_irq *irq_ptr;
+-	struct dentry *debugfs_q;
+-	struct tasklet_struct tasklet;
+-
+ 	/* error condition during a data transfer */
+ 	unsigned int qdio_error;
+ 
+-	struct sl *sl;
+-	struct qdio_buffer *sbal[QDIO_MAX_BUFFERS_PER_Q];
++	struct tasklet_struct tasklet;
++	struct qdio_queue_perf_stat q_stats;
++
++	struct qdio_buffer *sbal[QDIO_MAX_BUFFERS_PER_Q] ____cacheline_aligned;
+ 
++	/* queue number */
++	int nr;
++
++	/* bitmask of queue number */
++	int mask;
++
++	/* input or output queue */
++	int is_input_q;
++
++	/* list of thinint input queues */
++	struct list_head entry;
++
++	/* upper-layer program handler */
++	qdio_handler_t (*handler);
++
++	struct dentry *debugfs_q;
++	struct qdio_irq *irq_ptr;
++	struct sl *sl;
+ 	/*
+ 	 * Warning: Leave this member at the end so it won't be cleared in
+ 	 * qdio_fill_qs. A page is allocated under this pointer and used for
+@@ -341,9 +353,20 @@
+ 	(irq->qib.qfmt == QDIO_IQDIO_QFMT || \
+ 	 css_general_characteristics.aif_osa)
+ 
+-#define qperf(qdev,attr)	qdev->perf_stat.attr
+-#define qperf_inc(q,attr)	if (q->irq_ptr->perf_stat_enabled) \
+-					q->irq_ptr->perf_stat.attr++
++#define qperf(__qdev, __attr)	((__qdev)->perf_stat.(__attr))
++
++#define qperf_inc(__q, __attr)						\
++({									\
++	struct qdio_irq *qdev = (__q)->irq_ptr;				\
++	if (qdev->perf_stat_enabled)					\
++		(qdev->perf_stat.__attr)++;				\
++})
++
++static inline void account_sbals_error(struct qdio_q *q, int count)
++{
++	q->q_stats.nr_sbal_error += count;
++	q->q_stats.nr_sbal_total += count;
++}
+ 
+ /* the highest iqdio queue is used for multicast */
+ static inline int multicast_outbound(struct qdio_q *q)
+Index: quilt-2.6/drivers/s390/cio/qdio_main.c
+===================================================================
+--- quilt-2.6.orig/drivers/s390/cio/qdio_main.c	2010-02-24 09:28:13.000000000 +0100
++++ quilt-2.6/drivers/s390/cio/qdio_main.c	2010-02-24 09:44:25.000000000 +0100
+@@ -392,6 +392,20 @@
+ 		set_buf_state(q, q->u.in.ack_start, SLSB_P_INPUT_NOT_INIT);
+ }
+ 
++static inline void account_sbals(struct qdio_q *q, int count)
++{
++	int pos = 0;
++
++	q->q_stats.nr_sbal_total += count;
++	if (count == QDIO_MAX_BUFFERS_MASK) {
++		q->q_stats.nr_sbals[7]++;
++		return;
 +	}
-+	return 1;
++	while (count >>= 1)
++		pos++;
++	q->q_stats.nr_sbals[pos]++;
 +}
 +
- #else /* CONFIG_SMP */
- 
- static inline void smp_switch_to_ipl_cpu(void (*func)(void *), void *data)
-@@ -43,6 +65,8 @@
- 	func(data);
- }
- 
-+#define smp_vcpu_scheduled	(1)
-+
- #endif /* CONFIG_SMP */
- 
- #ifdef CONFIG_HOTPLUG_CPU
-Index: quilt-2.6/arch/s390/lib/spinlock.c
-===================================================================
---- quilt-2.6.orig/arch/s390/lib/spinlock.c	2010-02-24 09:28:13.000000000 +0100
-+++ quilt-2.6/arch/s390/lib/spinlock.c	2010-02-24 09:44:25.000000000 +0100
-@@ -43,16 +43,24 @@
+ static void announce_buffer_error(struct qdio_q *q, int count)
  {
- 	int count = spin_retry;
- 	unsigned int cpu = ~smp_processor_id();
-+	unsigned int owner;
+ 	q->qdio_error |= QDIO_ERROR_SLSB_STATE;
+@@ -487,16 +501,22 @@
+ 		q->first_to_check = add_buf(q->first_to_check, count);
+ 		if (atomic_sub(count, &q->nr_buf_used) == 0)
+ 			qperf_inc(q, inbound_queue_full);
++		if (q->irq_ptr->perf_stat_enabled)
++			account_sbals(q, count);
+ 		break;
+ 	case SLSB_P_INPUT_ERROR:
+ 		announce_buffer_error(q, count);
+ 		/* process the buffer, the upper layer will take care of it */
+ 		q->first_to_check = add_buf(q->first_to_check, count);
+ 		atomic_sub(count, &q->nr_buf_used);
++		if (q->irq_ptr->perf_stat_enabled)
++			account_sbals_error(q, count);
+ 		break;
+ 	case SLSB_CU_INPUT_EMPTY:
+ 	case SLSB_P_INPUT_NOT_INIT:
+ 	case SLSB_P_INPUT_ACK:
++		if (q->irq_ptr->perf_stat_enabled)
++			q->q_stats.nr_sbal_nop++;
+ 		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "in nop");
+ 		break;
+ 	default:
+@@ -643,15 +663,21 @@
  
- 	while (1) {
--		if (count-- <= 0) {
--			unsigned int owner = lp->owner_cpu;
--			if (owner != 0)
--				_raw_yield_cpu(~owner);
--			count = spin_retry;
-+		owner = lp->owner_cpu;
-+		if (!owner || smp_vcpu_scheduled(~owner)) {
-+			for (count = spin_retry; count > 0; count--) {
-+				if (arch_spin_is_locked(lp))
-+					continue;
-+				if (_raw_compare_and_swap(&lp->owner_cpu, 0,
-+							  cpu) == 0)
-+					return;
-+			}
-+			if (MACHINE_IS_LPAR)
-+				continue;
- 		}
--		if (arch_spin_is_locked(lp))
--			continue;
-+		owner = lp->owner_cpu;
-+		if (owner)
-+			_raw_yield_cpu(~owner);
- 		if (_raw_compare_and_swap(&lp->owner_cpu, 0, cpu) == 0)
- 			return;
- 	}
-@@ -63,17 +71,27 @@
- {
- 	int count = spin_retry;
- 	unsigned int cpu = ~smp_processor_id();
-+	unsigned int owner;
- 
- 	local_irq_restore(flags);
- 	while (1) {
--		if (count-- <= 0) {
--			unsigned int owner = lp->owner_cpu;
--			if (owner != 0)
--				_raw_yield_cpu(~owner);
--			count = spin_retry;
-+		owner = lp->owner_cpu;
-+		if (!owner || smp_vcpu_scheduled(~owner)) {
-+			for (count = spin_retry; count > 0; count--) {
-+				if (arch_spin_is_locked(lp))
-+					continue;
-+				local_irq_disable();
-+				if (_raw_compare_and_swap(&lp->owner_cpu, 0,
-+							  cpu) == 0)
-+					return;
-+				local_irq_restore(flags);
-+			}
-+			if (MACHINE_IS_LPAR)
-+				continue;
- 		}
--		if (arch_spin_is_locked(lp))
--			continue;
-+		owner = lp->owner_cpu;
-+		if (owner)
-+			_raw_yield_cpu(~owner);
- 		local_irq_disable();
- 		if (_raw_compare_and_swap(&lp->owner_cpu, 0, cpu) == 0)
- 			return;
-@@ -100,8 +118,11 @@
- void arch_spin_relax(arch_spinlock_t *lock)
- {
- 	unsigned int cpu = lock->owner_cpu;
--	if (cpu != 0)
--		_raw_yield_cpu(~cpu);
-+	if (cpu != 0) {
-+		if (MACHINE_IS_VM || MACHINE_IS_KVM ||
-+		    !smp_vcpu_scheduled(~cpu))
-+			_raw_yield_cpu(~cpu);
-+	}
- }
- EXPORT_SYMBOL(arch_spin_relax);
- 
+ 		atomic_sub(count, &q->nr_buf_used);
+ 		q->first_to_check = add_buf(q->first_to_check, count);
++		if (q->irq_ptr->perf_stat_enabled)
++			account_sbals(q, count);
+ 		break;
+ 	case SLSB_P_OUTPUT_ERROR:
+ 		announce_buffer_error(q, count);
+ 		/* process the buffer, the upper layer will take care of it */
+ 		q->first_to_check = add_buf(q->first_to_check, count);
+ 		atomic_sub(count, &q->nr_buf_used);
++		if (q->irq_ptr->perf_stat_enabled)
++			account_sbals_error(q, count);
+ 		break;
+ 	case SLSB_CU_OUTPUT_PRIMED:
+ 		/* the adapter has not fetched the output yet */
++		if (q->irq_ptr->perf_stat_enabled)
++			q->q_stats.nr_sbal_nop++;
+ 		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr, "out primed:%1d", q->nr);
+ 		break;
+ 	case SLSB_P_OUTPUT_NOT_INIT:
