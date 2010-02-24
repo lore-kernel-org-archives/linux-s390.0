@@ -1,68 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20100224084448.844782557@de.ibm.com>
-Date: Wed, 24 Feb 2010 09:44:39 +0100
+Message-Id: <20100224084447.955310300@de.ibm.com>
+Date: Wed, 24 Feb 2010 09:44:35 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 09/32] [PATCH] smp: rename and add lowcore defines
+Subject: [patch 05/32] [PATCH] cio: wait for channel report
 References: <20100224084430.193562869@de.ibm.com>
-Content-Disposition: inline; filename=108-smp-lowcore-defs.diff
+Content-Disposition: inline; filename=104-cio-wait-channel-report.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
 
-Rename __LC_RESTART_PSW to __LC_RST_NEW_PSW, add a define for the
-missing 32 bit variant and the missing old PSWs.
+To fetch a pending channel report word (crw) we use a kernel
+thread which triggers stcrw and sleeps on a semaphore. The s390
+machine check handler uses crw_handle_channel_report to handle
+one crw if needed.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+This patch replaces the semaphore with a waitqueue (to block the
+kernel thread) and an atomic_t (to count the number of pending
+requests).
+
+By this we achieve the ability to force this thread to check for
+a pending crw (independent on when it is triggered by the machine
+check handler) and wait for this action to finish.
+
+Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/include/asm/lowcore.h |    5 ++++-
- arch/s390/kernel/swsusp_asm64.S |    2 +-
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/crw.h |    1 +
+ drivers/s390/cio/crw.c      |   29 +++++++++++++++--------------
+ 2 files changed, 16 insertions(+), 14 deletions(-)
 
-Index: quilt-2.6/arch/s390/include/asm/lowcore.h
+Index: quilt-2.6/arch/s390/include/asm/crw.h
 ===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/lowcore.h	2010-02-24 09:44:24.000000000 +0100
-+++ quilt-2.6/arch/s390/include/asm/lowcore.h	2010-02-24 09:44:24.000000000 +0100
-@@ -36,6 +36,8 @@
- #define __LC_DUMP_REIPL			0x0e00
+--- quilt-2.6.orig/arch/s390/include/asm/crw.h	2010-02-24 09:28:13.000000000 +0100
++++ quilt-2.6/arch/s390/include/asm/crw.h	2010-02-24 09:44:23.000000000 +0100
+@@ -32,6 +32,7 @@
+ extern int crw_register_handler(int rsc, crw_handler_t handler);
+ extern void crw_unregister_handler(int rsc);
+ extern void crw_handle_channel_report(void);
++void crw_wait_for_channel_report(void);
  
- #ifndef __s390x__
-+#define __LC_RST_NEW_PSW		0x0000
-+#define __LC_RST_OLD_PSW		0x0008
- #define __LC_EXT_OLD_PSW		0x0018
- #define __LC_SVC_OLD_PSW		0x0020
- #define __LC_PGM_OLD_PSW		0x0028
-@@ -81,12 +83,13 @@
- #define __LC_CREGS_SAVE_AREA		0x01c0
- #else /* __s390x__ */
- #define __LC_LAST_BREAK			0x0110
-+#define __LC_RST_OLD_PSW		0x0120
- #define __LC_EXT_OLD_PSW		0x0130
- #define __LC_SVC_OLD_PSW		0x0140
- #define __LC_PGM_OLD_PSW		0x0150
- #define __LC_MCK_OLD_PSW		0x0160
- #define __LC_IO_OLD_PSW			0x0170
--#define __LC_RESTART_PSW		0x01a0
-+#define __LC_RST_NEW_PSW		0x01a0
- #define __LC_EXT_NEW_PSW		0x01b0
- #define __LC_SVC_NEW_PSW		0x01c0
- #define __LC_PGM_NEW_PSW		0x01d0
-Index: quilt-2.6/arch/s390/kernel/swsusp_asm64.S
+ #define NR_RSCS 16
+ 
+Index: quilt-2.6/drivers/s390/cio/crw.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/swsusp_asm64.S	2010-02-24 09:28:13.000000000 +0100
-+++ quilt-2.6/arch/s390/kernel/swsusp_asm64.S	2010-02-24 09:44:24.000000000 +0100
-@@ -176,7 +176,7 @@
- 	cgr	%r1,%r2
- 	je	restore_registers		/* r1 = r2 -> nothing to do */
- 	larl	%r4,.Lrestart_suspend_psw	/* Set new restart PSW */
--	mvc	__LC_RESTART_PSW(16,%r0),0(%r4)
-+	mvc	__LC_RST_NEW_PSW(16,%r0),0(%r4)
- 3:
- 	sigp	%r9,%r1,__SIGP_INITIAL_CPU_RESET
- 	brc	8,4f	/* accepted */
+--- quilt-2.6.orig/drivers/s390/cio/crw.c	2010-02-24 09:28:13.000000000 +0100
++++ quilt-2.6/drivers/s390/cio/crw.c	2010-02-24 09:44:23.000000000 +0100
+@@ -8,15 +8,16 @@
+  *		 Heiko Carstens <heiko.carstens@de.ibm.com>,
+  */
+ 
+-#include <linux/semaphore.h>
+ #include <linux/mutex.h>
+ #include <linux/kthread.h>
+ #include <linux/init.h>
++#include <linux/wait.h>
+ #include <asm/crw.h>
+ 
+-static struct semaphore crw_semaphore;
+ static DEFINE_MUTEX(crw_handler_mutex);
+ static crw_handler_t crw_handlers[NR_RSCS];
++static atomic_t crw_nr_req = ATOMIC_INIT(0);
++static DECLARE_WAIT_QUEUE_HEAD(crw_handler_wait_q);
+ 
+ /**
+  * crw_register_handler() - register a channel report word handler
+@@ -59,12 +60,14 @@
+ static int crw_collect_info(void *unused)
+ {
+ 	struct crw crw[2];
+-	int ccode;
++	int ccode, signal;
+ 	unsigned int chain;
+-	int ignore;
+ 
+ repeat:
+-	ignore = down_interruptible(&crw_semaphore);
++	signal = wait_event_interruptible(crw_handler_wait_q,
++					  atomic_read(&crw_nr_req) > 0);
++	if (unlikely(signal))
++		atomic_inc(&crw_nr_req);
+ 	chain = 0;
+ 	while (1) {
+ 		crw_handler_t handler;
+@@ -122,25 +125,23 @@
+ 		/* chain is always 0 or 1 here. */
+ 		chain = crw[chain].chn ? chain + 1 : 0;
+ 	}
++	if (atomic_dec_and_test(&crw_nr_req))
++		wake_up(&crw_handler_wait_q);
+ 	goto repeat;
+ 	return 0;
+ }
+ 
+ void crw_handle_channel_report(void)
+ {
+-	up(&crw_semaphore);
++	atomic_inc(&crw_nr_req);
++	wake_up(&crw_handler_wait_q);
+ }
+ 
+-/*
+- * Separate initcall needed for semaphore initialization since
+- * crw_handle_channel_report might be called before crw_machine_check_init.
+- */
+-static int __init crw_init_semaphore(void)
++void crw_wait_for_channel_report(void)
+ {
+-	init_MUTEX_LOCKED(&crw_semaphore);
+-	return 0;
++	crw_handle_channel_report();
++	wait_event(crw_handler_wait_q, atomic_read(&crw_nr_req) == 0);
+ }
+-pure_initcall(crw_init_semaphore);
+ 
+ /*
+  * Machine checks for the channel subsystem must be enabled
