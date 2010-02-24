@@ -1,10 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20100224084450.396413374@de.ibm.com>
-Date: Wed, 24 Feb 2010 09:44:46 +0100
+Message-Id: <20100224084450.602026694@de.ibm.com>
+Date: Wed, 24 Feb 2010 09:44:47 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 16/32] [PATCH] smp: rework sigp code
+Subject: [patch 17/32] [PATCH] Replace ENOTSUPP usage with EOPNOTSUPP
 References: <20100224084430.193562869@de.ibm.com>
-Content-Disposition: inline; filename=115-smp-sigp-rework.diff
+Content-Disposition: inline; filename=116-stop-using-enotsupp.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,403 +14,264 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Rename signal_processor* functions to sigp*.
-Add raw variants of each version, so we can get rid of the hacks played
-in smp code which establish temporary cpu logical mappings so they could
-call the sigp functions.
+ENOTSUPP is not supposed to leak to userspace so lets just use
+EOPNOTSUPP everywhere.
+Doesn't fix a bug, but makes future reviews easier.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/include/asm/sigp.h |  100 +++++++++++++++++++++----------------------
- arch/s390/include/asm/smp.h  |    4 -
- arch/s390/kernel/ipl.c       |    2 
- arch/s390/kernel/smp.c       |   54 ++++++++++-------------
- 4 files changed, 76 insertions(+), 84 deletions(-)
+ arch/s390/hypfs/hypfs_diag.c |    4 ++--
+ arch/s390/kernel/ipl.c       |    2 +-
+ arch/s390/kvm/diag.c         |    4 ++--
+ arch/s390/kvm/intercept.c    |   18 +++++++++---------
+ arch/s390/kvm/interrupt.c    |    2 +-
+ arch/s390/kvm/kvm-s390.c     |    2 +-
+ arch/s390/kvm/priv.c         |    2 +-
+ arch/s390/kvm/sigp.c         |    4 ++--
+ arch/s390/mm/extmem.c        |   12 ++++++------
+ 9 files changed, 25 insertions(+), 25 deletions(-)
 
-Index: quilt-2.6/arch/s390/include/asm/sigp.h
+Index: quilt-2.6/arch/s390/hypfs/hypfs_diag.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/sigp.h	2010-02-24 09:44:25.000000000 +0100
-+++ quilt-2.6/arch/s390/include/asm/sigp.h	2010-02-24 09:44:25.000000000 +0100
-@@ -1,24 +1,19 @@
- /*
-- *  include/asm-s390/sigp.h
-+ *  Routines and structures for signalling other processors.
-  *
-- *  S390 version
-- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
-- *    Author(s): Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com),
-- *               Martin Schwidefsky (schwidefsky@de.ibm.com)
-- *               Heiko Carstens (heiko.carstens@de.ibm.com)
-- *
-- *  sigp.h by D.J. Barrow (c) IBM 1999
-- *  contains routines / structures for signalling other S/390 processors in an
-- *  SMP configuration.
-+ *    Copyright IBM Corp. 1999,2010
-+ *    Author(s): Denis Joseph Barrow,
-+ *		 Martin Schwidefsky <schwidefsky@de.ibm.com>,
-+ *		 Heiko Carstens <heiko.carstens@de.ibm.com>,
-  */
+--- quilt-2.6.orig/arch/s390/hypfs/hypfs_diag.c	2010-02-24 09:28:13.000000000 +0100
++++ quilt-2.6/arch/s390/hypfs/hypfs_diag.c	2010-02-24 09:44:26.000000000 +0100
+@@ -488,7 +488,7 @@
  
--#ifndef __SIGP__
--#define __SIGP__
-+#ifndef __ASM_SIGP_H
-+#define __ASM_SIGP_H
- 
- #include <asm/system.h>
- 
--/* get real cpu address from logical cpu number */
--extern int __cpu_logical_map[];
-+/* Get real cpu address from logical cpu number. */
-+extern unsigned short __cpu_logical_map[];
- 
- static inline int cpu_logical_map(int cpu)
+ static int diag224(void *ptr)
  {
-@@ -29,8 +24,7 @@
- #endif
- }
- 
--typedef enum
--{
-+enum {
- 	sigp_sense = 1,
- 	sigp_external_call = 2,
- 	sigp_emergency_signal = 3,
-@@ -46,88 +40,92 @@
- 	sigp_set_architecture = 18,
- 	sigp_conditional_emergency_signal = 19,
- 	sigp_sense_running = 21,
--} sigp_order_code;
--
--typedef __u32 sigp_status_word;
-+};
- 
--typedef enum
--{
-+enum {
- 	sigp_order_code_accepted = 0,
- 	sigp_status_stored = 1,
- 	sigp_busy = 2,
- 	sigp_not_operational = 3,
--} sigp_ccode;
--
-+};
- 
- /*
-- * Definitions for the external call
-+ * Definitions for external call.
-  */
--
--/* 'Bit' signals, asynchronous */
--typedef enum
--{
--	ec_schedule=0,
-+enum {
-+	ec_schedule = 0,
- 	ec_call_function,
- 	ec_call_function_single,
--} ec_bit_sig;
-+};
- 
- /*
-- * Signal processor
-+ * Signal processor.
-  */
--static inline sigp_ccode
--signal_processor(__u16 cpu_addr, sigp_order_code order_code)
-+static inline int raw_sigp(u16 cpu, int order)
- {
- 	register unsigned long reg1 asm ("1") = 0;
--	sigp_ccode ccode;
-+	int ccode;
+-	int rc = -ENOTSUPP;
++	int rc = -EOPNOTSUPP;
  
  	asm volatile(
- 		"	sigp	%1,%2,0(%3)\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28\n"
- 		:	"=d"	(ccode)
--		: "d" (reg1), "d" (cpu_logical_map(cpu_addr)),
--		  "a" (order_code) : "cc" , "memory");
-+		: "d" (reg1), "d" (cpu),
-+		  "a" (order) : "cc" , "memory");
- 	return ccode;
- }
- 
- /*
-- * Signal processor with parameter
-+ * Signal processor with parameter.
-  */
--static inline sigp_ccode
--signal_processor_p(__u32 parameter, __u16 cpu_addr, sigp_order_code order_code)
-+static inline int raw_sigp_p(u32 parameter, u16 cpu, int order)
- {
- 	register unsigned int reg1 asm ("1") = parameter;
--	sigp_ccode ccode;
-+	int ccode;
- 
- 	asm volatile(
- 		"	sigp	%1,%2,0(%3)\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28\n"
- 		: "=d" (ccode)
--		: "d" (reg1), "d" (cpu_logical_map(cpu_addr)),
--		  "a" (order_code) : "cc" , "memory");
-+		: "d" (reg1), "d" (cpu),
-+		  "a" (order) : "cc" , "memory");
- 	return ccode;
- }
- 
- /*
-- * Signal processor with parameter and return status
-+ * Signal processor with parameter and return status.
-  */
--static inline sigp_ccode
--signal_processor_ps(__u32 *statusptr, __u32 parameter, __u16 cpu_addr,
--		    sigp_order_code order_code)
-+static inline int raw_sigp_ps(u32 *status, u32 parm, u16 cpu, int order)
- {
--	register unsigned int reg1 asm ("1") = parameter;
--	sigp_ccode ccode;
-+	register unsigned int reg1 asm ("1") = parm;
-+	int ccode;
- 
- 	asm volatile(
- 		"	sigp	%1,%2,0(%3)\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28\n"
- 		: "=d" (ccode), "+d" (reg1)
--		: "d" (cpu_logical_map(cpu_addr)), "a" (order_code)
-+		: "d" (cpu), "a" (order)
- 		: "cc" , "memory");
--	*statusptr = reg1;
-+	*status = reg1;
- 	return ccode;
- }
- 
--#endif /* __SIGP__ */
-+static inline int sigp(int cpu, int order)
-+{
-+	return raw_sigp(cpu_logical_map(cpu), order);
-+}
-+
-+static inline int sigp_p(u32 parameter, int cpu, int order)
-+{
-+	return raw_sigp_p(parameter, cpu_logical_map(cpu), order);
-+}
-+
-+static inline int sigp_ps(u32 *status, u32 parm, int cpu, int order)
-+{
-+	return raw_sigp_ps(status, parm, cpu_logical_map(cpu), order);
-+}
-+
-+#endif /* __ASM_SIGP_H */
-Index: quilt-2.6/arch/s390/include/asm/smp.h
-===================================================================
---- quilt-2.6.orig/arch/s390/include/asm/smp.h	2010-02-24 09:44:25.000000000 +0100
-+++ quilt-2.6/arch/s390/include/asm/smp.h	2010-02-24 09:44:25.000000000 +0100
-@@ -42,9 +42,9 @@
-  */
- static inline int smp_vcpu_scheduled(int cpu)
- {
--	__u32 status = 0;
-+	u32 status;
- 
--	switch (signal_processor_ps(&status, 0, cpu, sigp_sense_running)) {
-+	switch (sigp_ps(&status, 0, cpu, sigp_sense_running)) {
- 	case sigp_status_stored:
- 		/* Check for running status */
- 		if (status & 0x400)
+ 		"	diag	%1,%2,0x224\n"
+@@ -507,7 +507,7 @@
+ 		return -ENOMEM;
+ 	if (diag224(diag224_cpu_names)) {
+ 		kfree(diag224_cpu_names);
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 	}
+ 	EBCASC(diag224_cpu_names + 16, (*diag224_cpu_names + 1) * 16);
+ 	return 0;
 Index: quilt-2.6/arch/s390/kernel/ipl.c
 ===================================================================
---- quilt-2.6.orig/arch/s390/kernel/ipl.c	2010-02-24 09:44:24.000000000 +0100
-+++ quilt-2.6/arch/s390/kernel/ipl.c	2010-02-24 09:44:25.000000000 +0100
-@@ -1610,7 +1610,7 @@
+--- quilt-2.6.orig/arch/s390/kernel/ipl.c	2010-02-24 09:44:25.000000000 +0100
++++ quilt-2.6/arch/s390/kernel/ipl.c	2010-02-24 09:44:26.000000000 +0100
+@@ -1592,7 +1592,7 @@
+ static int vmcmd_init(void)
  {
- 	if (strcmp(trigger->name, ON_PANIC_STR) == 0)
- 		disabled_wait((unsigned long) __builtin_return_address(0));
--	while (signal_processor(smp_processor_id(), sigp_stop) == sigp_busy)
-+	while (sigp(smp_processor_id(), sigp_stop) == sigp_busy)
- 		cpu_relax();
- 	for (;;);
- }
-Index: quilt-2.6/arch/s390/kernel/smp.c
-===================================================================
---- quilt-2.6.orig/arch/s390/kernel/smp.c	2010-02-24 09:44:24.000000000 +0100
-+++ quilt-2.6/arch/s390/kernel/smp.c	2010-02-24 09:44:25.000000000 +0100
-@@ -53,7 +53,7 @@
- #include "entry.h"
- 
- /* logical cpu to cpu address */
--int __cpu_logical_map[NR_CPUS];
-+unsigned short __cpu_logical_map[NR_CPUS];
- 
- static struct task_struct *current_set[NR_CPUS];
- 
-@@ -72,13 +72,13 @@
- 
- static DEFINE_PER_CPU(struct cpu, cpu_devices);
- 
--static void smp_ext_bitcall(int, ec_bit_sig);
-+static void smp_ext_bitcall(int, int);
- 
--static int cpu_stopped(int cpu)
-+static int raw_cpu_stopped(int cpu)
- {
--	__u32 status;
-+	u32 status;
- 
--	switch (signal_processor_ps(&status, 0, cpu, sigp_sense)) {
-+	switch (raw_sigp_ps(&status, 0, cpu, sigp_sense)) {
- 	case sigp_status_stored:
- 		/* Check for stopped and check stop state */
- 		if (status & 0x50)
-@@ -90,6 +90,11 @@
- 	return 0;
- }
- 
-+static inline int cpu_stopped(int cpu)
-+{
-+	return raw_cpu_stopped(cpu_logical_map(cpu));
-+}
-+
- void smp_switch_to_ipl_cpu(void (*func)(void *), void *data)
- {
- 	struct _lowcore *lc, *current_lc;
-@@ -110,7 +115,7 @@
- 	lc->restart_psw.addr = PSW_ADDR_AMODE | (unsigned long) smp_restart_cpu;
- 	if (!cpu_online(0))
- 		smp_switch_to_cpu(func, data, 0, stap(), __cpu_logical_map[0]);
--	while (signal_processor(0, sigp_stop_and_store_status) == sigp_busy)
-+	while (sigp(0, sigp_stop_and_store_status) == sigp_busy)
- 		cpu_relax();
- 	sp = lc->panic_stack;
- 	sp -= sizeof(struct pt_regs);
-@@ -136,7 +141,7 @@
- 		if (cpu == smp_processor_id())
- 			continue;
- 		do {
--			rc = signal_processor(cpu, sigp_stop);
-+			rc = sigp(cpu, sigp_stop);
- 		} while (rc == sigp_busy);
- 
- 		while (!cpu_stopped(cpu))
-@@ -172,13 +177,13 @@
-  * Send an external call sigp to another cpu and return without waiting
-  * for its completion.
-  */
--static void smp_ext_bitcall(int cpu, ec_bit_sig sig)
-+static void smp_ext_bitcall(int cpu, int sig)
- {
- 	/*
- 	 * Set signaling bit in lowcore of target cpu and kick it
- 	 */
- 	set_bit(sig, (unsigned long *) &lowcore_ptr[cpu]->ext_call_fast);
--	while (signal_processor(cpu, sigp_emergency_signal) == sigp_busy)
-+	while (sigp(cpu, sigp_emergency_signal) == sigp_busy)
- 		udelay(10);
- }
- 
-@@ -272,13 +277,6 @@
- }
- EXPORT_SYMBOL(smp_ctl_clear_bit);
- 
--/*
-- * In early ipl state a temp. logically cpu number is needed, so the sigp
-- * functions can be used to sense other cpus. Since NR_CPUS is >= 2 on
-- * CONFIG_SMP and the ipl cpu is logical cpu 0, it must be 1.
-- */
--#define CPU_INIT_NO	1
--
- #ifdef CONFIG_ZFCPDUMP
- 
- static void __init smp_get_save_area(unsigned int cpu, unsigned int phy_cpu)
-@@ -291,9 +289,7 @@
- 		return;
- 	}
- 	zfcpdump_save_areas[cpu] = kmalloc(sizeof(struct save_area), GFP_KERNEL);
--	__cpu_logical_map[CPU_INIT_NO] = (__u16) phy_cpu;
--	while (signal_processor(CPU_INIT_NO, sigp_stop_and_store_status) ==
--	       sigp_busy)
-+	while (raw_sigp(phy_cpu, sigp_stop_and_store_status) == sigp_busy)
- 		cpu_relax();
- 	memcpy(zfcpdump_save_areas[cpu],
- 	       (void *)(unsigned long) store_prefix() + SAVE_AREA_BASE,
-@@ -409,8 +405,7 @@
- 		for (cpu = 0; cpu <= MAX_CPU_ADDRESS; cpu++) {
- 			if (cpu == boot_cpu_addr)
- 				continue;
--			__cpu_logical_map[CPU_INIT_NO] = cpu;
--			if (!cpu_stopped(CPU_INIT_NO))
-+			if (!raw_cpu_stopped(cpu))
- 				continue;
- 			smp_get_save_area(c_cpus, cpu);
- 			c_cpus++;
-@@ -433,8 +428,7 @@
- 		cpu_addr = info->cpu[cpu].address;
- 		if (cpu_addr == boot_cpu_addr)
- 			continue;
--		__cpu_logical_map[CPU_INIT_NO] = cpu_addr;
--		if (!cpu_stopped(CPU_INIT_NO)) {
-+		if (!raw_cpu_stopped(cpu_addr)) {
- 			s_cpus++;
- 			continue;
- 		}
-@@ -553,18 +547,18 @@
- /* Upping and downing of CPUs */
- int __cpuinit __cpu_up(unsigned int cpu)
- {
--	struct task_struct *idle;
- 	struct _lowcore *cpu_lowcore;
-+	struct task_struct *idle;
- 	struct stack_frame *sf;
--	sigp_ccode ccode;
- 	u32 lowcore;
-+	int ccode;
- 
- 	if (smp_cpu_state[cpu] != CPU_STATE_CONFIGURED)
- 		return -EIO;
- 	if (smp_alloc_lowcore(cpu))
+ 	if (!MACHINE_IS_VM)
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 	vmcmd_kset = kset_create_and_add("vmcmd", NULL, firmware_kobj);
+ 	if (!vmcmd_kset)
  		return -ENOMEM;
- 	do {
--		ccode = signal_processor(cpu, sigp_initial_cpu_reset);
-+		ccode = sigp(cpu, sigp_initial_cpu_reset);
- 		if (ccode == sigp_busy)
- 			udelay(10);
- 		if (ccode == sigp_not_operational)
-@@ -572,7 +566,7 @@
- 	} while (ccode == sigp_busy);
+Index: quilt-2.6/arch/s390/kvm/diag.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kvm/diag.c	2010-02-24 09:28:13.000000000 +0100
++++ quilt-2.6/arch/s390/kvm/diag.c	2010-02-24 09:44:26.000000000 +0100
+@@ -39,7 +39,7 @@
+ 		vcpu->run->s390_reset_flags = 0;
+ 		break;
+ 	default:
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 	}
  
- 	lowcore = (u32)(unsigned long)lowcore_ptr[cpu];
--	while (signal_processor_p(lowcore, cpu, sigp_set_prefix) == sigp_busy)
-+	while (sigp_p(lowcore, cpu, sigp_set_prefix) == sigp_busy)
- 		udelay(10);
- 
- 	idle = current_set[cpu];
-@@ -598,7 +592,7 @@
- 	cpu_lowcore->ftrace_func = S390_lowcore.ftrace_func;
- 	eieio();
- 
--	while (signal_processor(cpu, sigp_restart) == sigp_busy)
-+	while (sigp(cpu, sigp_restart) == sigp_busy)
- 		udelay(10);
- 
- 	while (!cpu_online(cpu))
-@@ -660,7 +654,7 @@
- 	/* Wait until target cpu is down */
- 	while (!cpu_stopped(cpu))
- 		cpu_relax();
--	while (signal_processor_p(0, cpu, sigp_set_prefix) == sigp_busy)
-+	while (sigp_p(0, cpu, sigp_set_prefix) == sigp_busy)
- 		udelay(10);
- 	smp_free_lowcore(cpu);
- 	pr_info("Processor %d stopped\n", cpu);
-@@ -669,7 +663,7 @@
- void cpu_die(void)
- {
- 	idle_task_exit();
--	while (signal_processor(smp_processor_id(), sigp_stop) == sigp_busy)
-+	while (sigp(smp_processor_id(), sigp_stop) == sigp_busy)
- 		cpu_relax();
- 	for (;;);
+ 	atomic_clear_mask(CPUSTAT_RUNNING, &vcpu->arch.sie_block->cpuflags);
+@@ -62,6 +62,6 @@
+ 	case 0x308:
+ 		return __diag_ipl_functions(vcpu);
+ 	default:
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 	}
  }
+Index: quilt-2.6/arch/s390/kvm/intercept.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kvm/intercept.c	2010-02-24 09:28:13.000000000 +0100
++++ quilt-2.6/arch/s390/kvm/intercept.c	2010-02-24 09:44:26.000000000 +0100
+@@ -32,7 +32,7 @@
+ 
+ 	vcpu->stat.instruction_lctlg++;
+ 	if ((vcpu->arch.sie_block->ipb & 0xff) != 0x2f)
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	useraddr = disp2;
+ 	if (base2)
+@@ -138,7 +138,7 @@
+ 		rc = __kvm_s390_vcpu_store_status(vcpu,
+ 						  KVM_S390_STORE_STATUS_NOADDR);
+ 		if (rc >= 0)
+-			rc = -ENOTSUPP;
++			rc = -EOPNOTSUPP;
+ 	}
+ 
+ 	if (vcpu->arch.local_int.action_bits & ACTION_RELOADVCPU_ON_STOP) {
+@@ -150,7 +150,7 @@
+ 	if (vcpu->arch.local_int.action_bits & ACTION_STOP_ON_STOP) {
+ 		vcpu->arch.local_int.action_bits &= ~ACTION_STOP_ON_STOP;
+ 		VCPU_EVENT(vcpu, 3, "%s", "cpu stopped");
+-		rc = -ENOTSUPP;
++		rc = -EOPNOTSUPP;
+ 	}
+ 
+ 	spin_unlock_bh(&vcpu->arch.local_int.lock);
+@@ -171,9 +171,9 @@
+ 			 2*PAGE_SIZE);
+ 		if (rc)
+ 			/* user will receive sigsegv, exit to user */
+-			rc = -ENOTSUPP;
++			rc = -EOPNOTSUPP;
+ 	} else
+-		rc = -ENOTSUPP;
++		rc = -EOPNOTSUPP;
+ 
+ 	if (rc)
+ 		VCPU_EVENT(vcpu, 2, "unhandled validity intercept code %d",
+@@ -189,7 +189,7 @@
+ 	handler = instruction_handlers[vcpu->arch.sie_block->ipa >> 8];
+ 	if (handler)
+ 		return handler(vcpu);
+-	return -ENOTSUPP;
++	return -EOPNOTSUPP;
+ }
+ 
+ static int handle_prog(struct kvm_vcpu *vcpu)
+@@ -206,7 +206,7 @@
+ 	rc = handle_instruction(vcpu);
+ 	rc2 = handle_prog(vcpu);
+ 
+-	if (rc == -ENOTSUPP)
++	if (rc == -EOPNOTSUPP)
+ 		vcpu->arch.sie_block->icptcode = 0x04;
+ 	if (rc)
+ 		return rc;
+@@ -231,9 +231,9 @@
+ 	u8 code = vcpu->arch.sie_block->icptcode;
+ 
+ 	if (code & 3 || (code >> 2) >= ARRAY_SIZE(intercept_funcs))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 	func = intercept_funcs[code >> 2];
+ 	if (func)
+ 		return func(vcpu);
+-	return -ENOTSUPP;
++	return -EOPNOTSUPP;
+ }
+Index: quilt-2.6/arch/s390/kvm/interrupt.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kvm/interrupt.c	2010-02-24 09:28:13.000000000 +0100
++++ quilt-2.6/arch/s390/kvm/interrupt.c	2010-02-24 09:44:26.000000000 +0100
+@@ -342,7 +342,7 @@
+ 	if (psw_interrupts_disabled(vcpu)) {
+ 		VCPU_EVENT(vcpu, 3, "%s", "disabled wait");
+ 		__unset_cpu_idle(vcpu);
+-		return -ENOTSUPP; /* disabled wait */
++		return -EOPNOTSUPP; /* disabled wait */
+ 	}
+ 
+ 	if (psw_extint_disabled(vcpu) ||
+Index: quilt-2.6/arch/s390/kvm/kvm-s390.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kvm/kvm-s390.c	2010-02-24 09:44:24.000000000 +0100
++++ quilt-2.6/arch/s390/kvm/kvm-s390.c	2010-02-24 09:44:26.000000000 +0100
+@@ -543,7 +543,7 @@
+ 		rc = -EINTR;
+ 	}
+ 
+-	if (rc == -ENOTSUPP) {
++	if (rc == -EOPNOTSUPP) {
+ 		/* intercept cannot be handled in-kernel, prepare kvm-run */
+ 		kvm_run->exit_reason         = KVM_EXIT_S390_SIEIC;
+ 		kvm_run->s390_sieic.icptcode = vcpu->arch.sie_block->icptcode;
+Index: quilt-2.6/arch/s390/kvm/priv.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kvm/priv.c	2010-02-24 09:28:13.000000000 +0100
++++ quilt-2.6/arch/s390/kvm/priv.c	2010-02-24 09:44:26.000000000 +0100
+@@ -323,5 +323,5 @@
+ 		else
+ 			return handler(vcpu);
+ 	}
+-	return -ENOTSUPP;
++	return -EOPNOTSUPP;
+ }
+Index: quilt-2.6/arch/s390/kvm/sigp.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/kvm/sigp.c	2010-02-24 09:28:13.000000000 +0100
++++ quilt-2.6/arch/s390/kvm/sigp.c	2010-02-24 09:44:26.000000000 +0100
+@@ -172,7 +172,7 @@
+ 		rc = 0; /* order accepted */
+ 		break;
+ 	default:
+-		rc = -ENOTSUPP;
++		rc = -EOPNOTSUPP;
+ 	}
+ 	return rc;
+ }
+@@ -293,7 +293,7 @@
+ 		vcpu->stat.instruction_sigp_restart++;
+ 		/* user space must know about restart */
+ 	default:
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 	}
+ 
+ 	if (rc < 0)
+Index: quilt-2.6/arch/s390/mm/extmem.c
+===================================================================
+--- quilt-2.6.orig/arch/s390/mm/extmem.c	2010-02-24 09:28:13.000000000 +0100
++++ quilt-2.6/arch/s390/mm/extmem.c	2010-02-24 09:44:26.000000000 +0100
+@@ -309,7 +309,7 @@
+ 	}
+ #endif
+ 	if (qout->segcnt > 6) {
+-		rc = -ENOTSUPP;
++		rc = -EOPNOTSUPP;
+ 		goto out_free;
+ 	}
+ 
+@@ -324,11 +324,11 @@
+ 		for (i=0; i<qout->segcnt; i++) {
+ 			if (((qout->range[i].start & 0xff) != SEG_TYPE_EW) &&
+ 			    ((qout->range[i].start & 0xff) != SEG_TYPE_EN)) {
+-				rc = -ENOTSUPP;
++				rc = -EOPNOTSUPP;
+ 				goto out_free;
+ 			}
+ 			if (start != qout->range[i].start >> PAGE_SHIFT) {
+-				rc = -ENOTSUPP;
++				rc = -EOPNOTSUPP;
+ 				goto out_free;
+ 			}
+ 			start = (qout->range[i].end >> PAGE_SHIFT) + 1;
+@@ -357,7 +357,7 @@
+  * -ENOSYS  : we are not running on VM
+  * -EIO     : could not perform query diagnose
+  * -ENOENT  : no such segment
+- * -ENOTSUPP: multi-part segment cannot be used with linux
++ * -EOPNOTSUPP: multi-part segment cannot be used with linux
+  * -ENOMEM  : out of memory
+  * 0 .. 6   : type of segment as defined in include/asm-s390/extmem.h
+  */
+@@ -515,7 +515,7 @@
+  * -ENOSYS  : we are not running on VM
+  * -EIO     : could not perform query or load diagnose
+  * -ENOENT  : no such segment
+- * -ENOTSUPP: multi-part segment cannot be used with linux
++ * -EOPNOTSUPP: multi-part segment cannot be used with linux
+  * -ENOSPC  : segment cannot be used (overlaps with storage)
+  * -EBUSY   : segment can temporarily not be used (overlaps with dcss)
+  * -ERANGE  : segment cannot be used (exceeds kernel mapping range)
+@@ -742,7 +742,7 @@
+ 		pr_err("Loading or querying DCSS %s resulted in a "
+ 		       "hardware error\n", seg_name);
+ 		break;
+-	case -ENOTSUPP:
++	case -EOPNOTSUPP:
+ 		pr_err("DCSS %s has multiple page ranges and cannot be "
+ 		       "loaded or queried\n", seg_name);
+ 		break;
