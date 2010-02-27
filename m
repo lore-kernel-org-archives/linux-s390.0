@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Frans Pop <elendil@planet.nl>
-Subject: Re: [PATCH 00/16] remove trailing spaces in messages
-Date: Sat, 6 Feb 2010 21:57:42 +0100
-References: <201002061844.45212.elendil@planet.nl>
-In-Reply-To: <201002061844.45212.elendil@planet.nl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <201002062157.44357.elendil@planet.nl>
+From: Andrea Gelmini <andrea.gelmini@gelma.net>
+Subject: [PATCH 29/66] arch/s390/include/asm/unaligned.h: Checkpatch cleanup
+Date: Sat, 27 Feb 2010 17:51:10 +0100
+Message-Id: <1267289508-31031-30-git-send-email-andrea.gelmini@gelma.net>
+In-Reply-To: <1267289508-31031-1-git-send-email-andrea.gelmini@gelma.net>
+References: <1267289508-31031-1-git-send-email-andrea.gelmini@gelma.net>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
+Cc: Andrea Gelmini <andrea.gelmini@gelma.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Resending the patch cover letter for vger only as it didn't reach there for 
-some reason (# recipients maybe?).
+arch/s390/include/asm/unaligned.h:5: ERROR: trailing whitespace
 
-+++++++++++
-This is a first series of patches to remove trailing spaces in messages. 
-Patches cover arch-specific code plus one fix for PM and one in 
-Documentation. Depending on how this series is received I'll continue
-with other parts of the kernel.
+Signed-off-by: Andrea Gelmini <andrea.gelmini@gelma.net>
+---
+ arch/s390/include/asm/unaligned.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Benefits are:
-- general cleanup and consistency
-- minor reduction in kernel size and user's log file size
-- reduced annoyance for people writing logcheck rules
-
-The patch for m68k has been rebased against linux-next; all other
-patches apply against both mainline and -next (as of 5-2).
-
-Shortstat:
- 74 files changed, 135 insertions(+), 136 deletions(-)
-
-Frans Pop (16):
-      alpha: remove trailing spaces in messages
-      arm: remove trailing spaces in messages
-      ia64: remove trailing space in messages
-      m68k: remove trailing space in messages
-      microblaze: remove trailing space in messages
-      mips: remove trailing space in messages
-      parisc: remove trailing space in messages
-      s390: remove trailing space in messages
-      sparc: remove trailing space in messages
-      x86: remove trailing space in messages
-      blackfin: remove trailing space in messages
-      cris/trivial: remove trailing space in message
-      powerpc: remove trailing space in messages
-      um: remove trailing space in messages
-      PM: remove trailing space in message
-      trivial: remove trailing space in spidev test program
+diff --git a/arch/s390/include/asm/unaligned.h b/arch/s390/include/asm/unaligned.h
+index da9627a..1ce42c3 100644
+--- a/arch/s390/include/asm/unaligned.h
++++ b/arch/s390/include/asm/unaligned.h
+@@ -2,7 +2,7 @@
+ #define _ASM_S390_UNALIGNED_H
+ 
+ /*
+- * The S390 can do unaligned accesses itself. 
++ * The S390 can do unaligned accesses itself.
+  */
+ #include <linux/unaligned/access_ok.h>
+ #include <linux/unaligned/generic.h>
+-- 
+1.7.0.90.g251a4
