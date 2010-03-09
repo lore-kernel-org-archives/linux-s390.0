@@ -1,23 +1,38 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 0/5] qeth bug fixes for 2.6.34 next rc
-Date: Wed, 10 Mar 2010 07:32:55 -0800 (PST)
-Message-ID: <20100310.073255.150964050.davem@davemloft.net>
+From: frank.blaschka@de.ibm.com
+Subject: [patch 5/5] [PATCH] qeth: change checksumming default for HiperSockets
+Date: Tue, 09 Mar 2010 07:36:57 +0100
+Message-ID: <20100309063937.049755000@de.ibm.com>
 References: <20100309063652.706791000@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20100309063652.706791000@de.ibm.com>
+Content-Disposition: inline; filename=606-qeth-checksum-default.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
+To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: frank.blaschka@de.ibm.com
-Date: Tue, 09 Mar 2010 07:36:52 +0100
+From: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-> here are some qeth bug fixes for 2.6.34 next rc
+Deactivate inbound checksumming on HiperSocket is a valid but
+dangerous optimization in case the frame is routed from an OSA
+network to an HiperSockets network. To go for sure we change the
+default to software checksumming.
 
-All applied, thanks.
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
+
+ drivers/s390/net/qeth_core_main.c |    2 --
+ 1 file changed, 2 deletions(-)
+
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1114,8 +1114,6 @@ static int qeth_setup_card(struct qeth_c
+ 	card->ipato.enabled = 0;
+ 	card->ipato.invert4 = 0;
+ 	card->ipato.invert6 = 0;
+-	if (card->info.type == QETH_CARD_TYPE_IQD)
+-		card->options.checksum_type = NO_CHECKSUMMING;
+ 	/* init QDIO stuff */
+ 	qeth_init_qdio_info(card);
+ 	return 0;
