@@ -1,110 +1,34 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 4/5] [PATCH] qeth: no recovery after layer mismatch (z/VM NICs)
-Date: Tue, 09 Mar 2010 07:36:56 +0100
-Message-ID: <20100309063936.870978000@de.ibm.com>
-References: <20100309063652.706791000@de.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: -next Mar 22: s390 build failure (drivers/s390/net/qeth_l3)
+Date: Mon, 22 Mar 2010 10:00:05 -0700 (PDT)
+Message-ID: <20100322.100005.84370671.davem@davemloft.net>
+References: <20100322171937.d753bdba.sfr@canb.auug.org.au>
+	<4BA73423.6080101@in.ibm.com>
+	<20100322130025.GA8558@tuxmaker.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=605-qeth-layer-mismatch.diff
+In-Reply-To: <20100322130025.GA8558@tuxmaker.boeblingen.de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
+To: frank.blaschka@de.ibm.com
+Cc: sachinp@in.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
+From: Blaschka <frank.blaschka@de.ibm.com>
+Date: Mon, 22 Mar 2010 14:00:25 +0100
 
-Depending on their definition in z/VM, virtual devices for z/VM 
-VSWITCH or GuestLAN must be configured either in layer2 or in
-layer3 mode. If qeth detects a layer mismatch, device activation
-fails. Trying to recover from this error cannot help; thus
-scheduling a recovery should be avoided.
-In addition, since recovery is forbidden during online setting of
-a qeth device, existence of its network device is guaranteed for all
-dev_close() calls in qeth. The corresponding checks can be removed.
+> [PATCH] qeth: l3 fix build error in ipv6 addr list handling
+> 
+> From: Frank Blaschka <frank.blaschka@de.ibm.com>
+> 
+> Adapt qeth l3 to:
+> commit c2e21293c054817c42eb5fa9c613d2ad51954136
+> (ipv6: convert addrconf list to hlist)
+> converted lst_next member of inet6_ifaddr struct to a hlist.
+> 
+> Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
-
- drivers/s390/net/qeth_core_main.c |    3 ++-
- drivers/s390/net/qeth_l2_main.c   |   16 ++++++----------
- drivers/s390/net/qeth_l3_main.c   |   16 ++++++----------
- 3 files changed, 14 insertions(+), 21 deletions(-)
-
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -537,7 +537,8 @@ static void qeth_send_control_data_cb(st
- 			dev_err(&card->gdev->dev,
- 				"The qeth device is not configured "
- 				"for the OSI layer required by z/VM\n");
--		qeth_schedule_recovery(card);
-+		else
-+			qeth_schedule_recovery(card);
- 		goto out;
- 	}
- 
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -1071,11 +1071,9 @@ static int qeth_l2_recover(void *ptr)
- 		dev_info(&card->gdev->dev,
- 			"Device successfully recovered!\n");
- 	else {
--		if (card->dev) {
--			rtnl_lock();
--			dev_close(card->dev);
--			rtnl_unlock();
--		}
-+		rtnl_lock();
-+		dev_close(card->dev);
-+		rtnl_unlock();
- 		dev_warn(&card->gdev->dev, "The qeth device driver "
- 			"failed to recover an error on the device\n");
- 	}
-@@ -1129,11 +1127,9 @@ static int qeth_l2_pm_resume(struct ccwg
- 	if (card->state == CARD_STATE_RECOVER) {
- 		rc = __qeth_l2_set_online(card->gdev, 1);
- 		if (rc) {
--			if (card->dev) {
--				rtnl_lock();
--				dev_close(card->dev);
--				rtnl_unlock();
--			}
-+			rtnl_lock();
-+			dev_close(card->dev);
-+			rtnl_unlock();
- 		}
- 	} else
- 		rc = __qeth_l2_set_online(card->gdev, 0);
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -2219,11 +2219,9 @@ static int qeth_l3_stop_card(struct qeth
- 		if (recovery_mode)
- 			qeth_l3_stop(card->dev);
- 		else {
--			if (card->dev) {
--				rtnl_lock();
--				dev_close(card->dev);
--				rtnl_unlock();
--			}
-+			rtnl_lock();
-+			dev_close(card->dev);
-+			rtnl_unlock();
- 		}
- 		if (!card->use_hard_stop) {
- 			rc = qeth_send_stoplan(card);
-@@ -3536,11 +3534,9 @@ static int qeth_l3_pm_resume(struct ccwg
- 	if (card->state == CARD_STATE_RECOVER) {
- 		rc = __qeth_l3_set_online(card->gdev, 1);
- 		if (rc) {
--			if (card->dev) {
--				rtnl_lock();
--				dev_close(card->dev);
--				rtnl_unlock();
--			}
-+			rtnl_lock();
-+			dev_close(card->dev);
-+			rtnl_unlock();
- 		}
- 	} else
- 		rc = __qeth_l3_set_online(card->gdev, 0);
+Applied, thanks for fixing this Frank.
