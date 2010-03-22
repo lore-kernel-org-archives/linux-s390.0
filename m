@@ -1,34 +1,41 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: -next Mar 22: s390 build failure (drivers/s390/net/qeth_l3)
-Date: Mon, 22 Mar 2010 10:00:05 -0700 (PDT)
-Message-ID: <20100322.100005.84370671.davem@davemloft.net>
+From: Sachin Sant <sachinp@in.ibm.com>
+Subject: -next Mar 22: s390 build failure (drivers/s390/net/qeth_l3)
+Date: Mon, 22 Mar 2010 14:40:59 +0530
+Message-ID: <4BA73423.6080101@in.ibm.com>
 References: <20100322171937.d753bdba.sfr@canb.auug.org.au>
-	<4BA73423.6080101@in.ibm.com>
-	<20100322130025.GA8558@tuxmaker.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20100322130025.GA8558@tuxmaker.boeblingen.de.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <20100322171937.d753bdba.sfr@canb.auug.org.au>
+Sender: linux-next-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
-Cc: sachinp@in.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-s390@vger.kernel.org
+Cc: linux-next@vger.kernel.org, netdev <netdev@vger.kernel.org>, ursula.braun@de.ibm.com, Stephen Hemminger <shemminger@vyatta.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Blaschka <frank.blaschka@de.ibm.com>
-Date: Mon, 22 Mar 2010 14:00:25 +0100
+Todays next fails to build on a s390 box with
 
-> [PATCH] qeth: l3 fix build error in ipv6 addr list handling
-> 
-> From: Frank Blaschka <frank.blaschka@de.ibm.com>
-> 
-> Adapt qeth l3 to:
-> commit c2e21293c054817c42eb5fa9c613d2ad51954136
-> (ipv6: convert addrconf list to hlist)
-> converted lst_next member of inet6_ifaddr struct to a hlist.
-> 
-> Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+  CC [M]  drivers/s390/net/qeth_l3_main.o
+drivers/s390/net/qeth_l3_main.c: In function 'qeth_l3_free_vlan_addresses6':
+drivers/s390/net/qeth_l3_main.c:1931: error: incompatible types in assignment
+drivers/s390/net/qeth_l3_main.c:1931: error: 'struct inet6_ifaddr' has no member named 'lst_next'
+make[2]: *** [drivers/s390/net/qeth_l3_main.o] Error 1
 
-Applied, thanks for fixing this Frank.
+commit c2e21293c054817c42eb5fa9c613d2ad51954136
+(ipv6: convert addrconf list to hlist) 
+converted lst_next member of inet6_ifaddr struct to a hlist.
+
+Thanks
+-Sachin
+
+
+-- 
+
+---------------------------------
+Sachin Sant
+IBM Linux Technology Center
+India Systems and Technology Labs
+Bangalore, India
+---------------------------------
