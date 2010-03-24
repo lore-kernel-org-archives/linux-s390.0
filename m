@@ -1,61 +1,59 @@
-From: Blaschka <frank.blaschka@de.ibm.com>
-Subject: Re: -next Mar 22: s390 build failure (drivers/s390/net/qeth_l3)
-Date: Mon, 22 Mar 2010 14:00:25 +0100
-Message-ID: <20100322130025.GA8558@tuxmaker.boeblingen.de.ibm.com>
-References: <20100322171937.d753bdba.sfr@canb.auug.org.au> <4BA73423.6080101@in.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 24 Mar 2010 11:54:51 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [GIT PULL] s390 patches for 2.6.34-rc2
+Message-ID: <20100324115451.7eed9046@mschwide.boeblingen.de.ibm.com>
+In-Reply-To: <20100323095146.316a9487@mschwide.boeblingen.de.ibm.com>
+References: <20100323095146.316a9487@mschwide.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4BA73423.6080101@in.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: Sachin Sant <sachinp@in.ibm.com>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, davem@davemloft.net
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Mar 22, 2010 at 02:40:59PM +0530, Sachin Sant wrote:
-> Todays next fails to build on a s390 box with
+Hi Linus,
+
+On Tue, 23 Mar 2010 09:51:46 +0100
+Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+
+> a few bug fixes for s390, please pull from 'for-linus' branch of
 > 
->  CC [M]  drivers/s390/net/qeth_l3_main.o
-> drivers/s390/net/qeth_l3_main.c: In function 'qeth_l3_free_vlan_addresses6':
-> drivers/s390/net/qeth_l3_main.c:1931: error: incompatible types in 
-> assignment
-> drivers/s390/net/qeth_l3_main.c:1931: error: 'struct inet6_ifaddr' has no 
-> member named 'lst_next'
-> make[2]: *** [drivers/s390/net/qeth_l3_main.o] Error 1
->
+> 	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
+> 
+> to receive the following updates:
+> 
+> Christian Borntraeger (1):
+>       [S390] system.h: Fix compile error for 1 and 2 byte cmpxchg
+> 
+> Hans-Joachim Picht (1):
+>       [S390] fix broken proc interface for sclp_async
+> 
+> Heiko Carstens (2):
+>       [S390] smp: fix lowcore allocation
+>       [S390] sclp: avoid 64 bit division
+> 
+> Martin Schwidefsky (1):
+>       [S390] fix boot failures with compressed kernels
+> 
+> Michael Holzheu (1):
+>       [S390] zcore: CPU registers are not saved under LPAR
+> 
+> Stefan Haberland (1):
+>       [S390] dasd: check tsb validity
+> 
+> Stefan Weinhuber (1):
+>       [S390] dasd: fix alignment of transport mode recovery TCW
 
-Hi, this patch should fix the problem
+The patch "[S390] fix boot failures with compressed kernels" had a bug.
+I have not seen the patches in your tree yet, so I've updated the
+for-linus branch on git390.
 
-Thanks
-	Frank
+-- 
+blue skies,
+   Martin.
 
---- 
-[PATCH] qeth: l3 fix build error in ipv6 addr list handling
-
-From: Frank Blaschka <frank.blaschka@de.ibm.com>
-
-Adapt qeth l3 to:
-commit c2e21293c054817c42eb5fa9c613d2ad51954136
-(ipv6: convert addrconf list to hlist)
-converted lst_next member of inet6_ifaddr struct to a hlist.
-
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
- drivers/s390/net/qeth_l3_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1928,7 +1928,7 @@ static void qeth_l3_free_vlan_addresses6
- 	in6_dev = in6_dev_get(vlan_group_get_device(card->vlangrp, vid));
- 	if (!in6_dev)
- 		return;
--	for (ifa = in6_dev->addr_list; ifa; ifa = ifa->lst_next) {
-+	list_for_each_entry(ifa, &in6_dev->addr_list, if_list) {
- 		addr = qeth_l3_get_addr_buffer(QETH_PROT_IPV6);
- 		if (addr) {
- 			memcpy(&addr->u.a6.addr, &ifa->addr,
+"Reality continues to ruin my life." - Calvin.
