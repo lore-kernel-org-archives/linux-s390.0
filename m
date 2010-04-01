@@ -1,62 +1,46 @@
-From: Frederic Weisbecker <fweisbec@gmail.com>
-Date: Fri, 26 Mar 2010 23:15:50 +0000
-Subject: Re: [patch 3/3] S390-HWBKPT v4: Modify ptrace to use Hardware
-Message-Id: <20100326231548.GH7166@nowhere>
-In-Reply-To: <20100203063932.GD17281@in.ibm.com>
-References: <20100203063932.GD17281@in.ibm.com>
-To: linux-s390@vger.kernel.org
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 1/2] zfcp: Update MAINTAINERS entry
+Date: Thu, 01 Apr 2010 13:04:07 +0200
+Message-ID: <20100401110549.849117000@de.ibm.com>
+References: <20100401110406.973537000@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline; filename=700-zfcp-update-maintainers.diff
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@suse.de>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Martin Peschke <mp3@de.ibm.com>, Swen Schillig <swen@vnet.ibm.com>, Christof Schmitt <christof.schmitt@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Feb 03, 2010 at 12:09:32PM +0530, Mahesh Salgaonkar wrote:
-> +static void ptrace_triggered(struct perf_event *bp, int nmi,
-> +			     struct perf_sample_data *data,
-> +			     struct pt_regs *regs)
-> +{
-> +	struct thread_struct *thread = &(current->thread);
-> +
-> +	thread->ptrace_bps[0] = bp;
-> +}
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
+Martin no longer works on zfcp, remove his entry from the MAINTAINERS
+file and add Swen as co-maintainer.
 
+Also remove the reference to the zfcpdump.txt file, zfcpdump is not
+part of the zfcp device driver.
 
-Hmm, I don't understand what happens here. You only set up the
-thread->ptrace_bps here?
+Cc: Martin Peschke <mp3@de.ibm.com>
+Cc: Swen Schillig <swen@vnet.ibm.com>
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+---
 
-So if it never triggers it will never be freed? Also how do you
-handle the signal?
+ MAINTAINERS |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-
-
-> +
-> +static void ptrace_set_breakpoint(struct task_struct *task, int disabled)
-> +{
-> +	per_struct *per_info;
-> +	struct perf_event *bp;
-> +	struct thread_struct *t = &task->thread;
-> +	struct perf_event_attr attr;
-> +
-> +	hw_breakpoint_init(&attr);
-> +	per_info = (per_struct *) &task->thread.per_info;
-> +
-> +	if (per_info->single_step | per_info->instruction_fetch)
-> +		attr.bp_type = HW_BREAKPOINT_X;
-> +	else if (per_info->storage_alteration)
-> +		attr.bp_type = HW_BREAKPOINT_W;
-> +	else {
-> +		ptrace_remove_breakpoint(task);
-> +		return;
-> +	}
-> +
-> +	attr.disabled = disabled;
-> +	attr.bp_addr = get_per_addr(per_info);
-> +	attr.bp_len = get_per_len(per_info);
-> +
-> +	if (!t->ptrace_bps[0]) {
-> +		bp = register_user_hw_breakpoint(&attr, ptrace_triggered, task);
-> +		if (!IS_ERR(bp))
-> +			t->ptrace_bps[0] = bp;
-
-
-
-Hmm, and you actually set it up here before.
-I'm not sure what's the point of doing the same in ptrace_triggered()
+--- a/MAINTAINERS	2010-04-01 12:17:08.000000000 +0200
++++ b/MAINTAINERS	2010-04-01 12:22:54.000000000 +0200
+@@ -4776,12 +4776,11 @@ F:	drivers/s390/crypto/
+ 
+ S390 ZFCP DRIVER
+ M:	Christof Schmitt <christof.schmitt@de.ibm.com>
+-M:	Martin Peschke <mp3@de.ibm.com>
++M:	Swen Schillig <swen@vnet.ibm.com>
+ M:	linux390@de.ibm.com
+ L:	linux-s390@vger.kernel.org
+ W:	http://www.ibm.com/developerworks/linux/linux390/
+ S:	Supported
+-F:	Documentation/s390/zfcpdump.txt
+ F:	drivers/s390/scsi/zfcp_*
+ 
+ S390 IUCV NETWORK LAYER
