@@ -1,51 +1,38 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 2/2] zfcp: Fix tracing of requests with error status
-Date: Thu, 01 Apr 2010 13:04:08 +0200
-Message-ID: <20100401110549.982943000@de.ibm.com>
-References: <20100401110406.973537000@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=703-zfcp-request-tracing.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@suse.de>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [PATCH 1/4] panic: Allow warnings to set different taint flags
+Date: Tue, 6 Apr 2010 06:46:27 +0900
+Message-ID: <20100405214626.GA25192@linux-sh.org>
+References: <1270319696.12516.321.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-parisc-owner@vger.kernel.org>
+In-Reply-To: <1270319696.12516.321.camel@localhost>
+List-Archive: <https://lore.kernel.org/linux-parisc/>
+List-Post: <mailto:linux-parisc@vger.kernel.org>
+To: Ben Hutchings <ben@decadent.org.uk>
+Cc: Jesse Barnes <jbarnes@virtuousgeek.org>, David Woodhouse <dwmw2@infradead.org>, linux-pci@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-parisc@vger.kernel.org, linuxppc-dev@ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-
-When a FSF request is returned with an error it should be reported
-through blktrace for the ziomon tools, but the latency information
-should not be read. Fix this by also calling zfcp_fsf_req_trace for
-the error case, but skip reading the latencies inside the function.
-
-Reviewed-by: Swen Schillig <swen@vnet.ibm.com>
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
----
-
- drivers/s390/scsi/zfcp_fsf.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
---- a/drivers/s390/scsi/zfcp_fsf.c	2010-04-01 12:23:11.000000000 +0200
-+++ b/drivers/s390/scsi/zfcp_fsf.c	2010-04-01 12:23:12.000000000 +0200
-@@ -2104,7 +2104,8 @@ static void zfcp_fsf_req_trace(struct zf
- 	blktrc.inb_usage = req->qdio_req.qdio_inb_usage;
- 	blktrc.outb_usage = req->qdio_req.qdio_outb_usage;
- 
--	if (req->adapter->adapter_features & FSF_FEATURE_MEASUREMENT_DATA) {
-+	if (req->adapter->adapter_features & FSF_FEATURE_MEASUREMENT_DATA &&
-+	    !(req->status & ZFCP_STATUS_FSFREQ_ERROR)) {
- 		blktrc.flags |= ZFCP_BLK_LAT_VALID;
- 		blktrc.channel_lat = lat_in->channel_lat * ticks;
- 		blktrc.fabric_lat = lat_in->fabric_lat * ticks;
-@@ -2156,9 +2157,8 @@ static void zfcp_fsf_send_fcp_command_ta
- 	fcp_rsp = (struct fcp_resp_with_ext *) &req->qtcb->bottom.io.fcp_rsp;
- 	zfcp_fc_eval_fcp_rsp(fcp_rsp, scpnt);
- 
--	zfcp_fsf_req_trace(req, scpnt);
--
- skip_fsfstatus:
-+	zfcp_fsf_req_trace(req, scpnt);
- 	zfcp_dbf_scsi_result(req->adapter->dbf, scpnt, req);
- 
- 	scpnt->host_scribble = NULL;
+On Sat, Apr 03, 2010 at 07:34:56PM +0100, Ben Hutchings wrote:
+> WARN() is used in some places to report firmware or hardware bugs that
+> are then worked-around.  These bugs do not affect the stability of the
+> kernel and should not set the flag for TAINT_WARN.  To allow for this,
+> add WARN_TAINT() and WARN_TAINT_ONCE() macros that take a taint number
+> as argument.
+> 
+> Architectures that implement warnings using trap instructions instead
+> of calls to warn_slowpath_*() now implement __WARN_TAINT(taint)
+> instead of __WARN().
+> 
+> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+> ---
+> Changes since the previous version:
+> - Added note to Documentation/oops-tracing.txt
+> - Changed the commit message to distinguish taint numbers from taint
+>   flags
+> - Removed 'must' from last sentence of commit message; this patch
+>   converts all mainline architectures
+> 
+This seems to be missing my Tested-by from the last iteration, since
+there are no functional changes with this version feel free to add it in
+again.
