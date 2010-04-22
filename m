@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 9 Apr 2010 16:18:04 +0200
+Date: Thu, 22 Apr 2010 17:23:24 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 2.6.34-rc3
-Message-ID: <20100409161804.32e14161@mschwide.boeblingen.de.ibm.com>
+Subject: [GIT PULL] s390 patches for 2.6.34-rc5
+Message-ID: <20100422172324.641f31d6@mschwide.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -19,384 +19,456 @@ please pull from 'for-linus' branch of
 
 	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
 
-to receive the following updates:
+to receive the following bug fixes:
 
-Christian Borntraeger (1):
-      [S390] s390: disable change bit override
+Hendrik Brueckner (1):
+      [S390] vdso: use ntp adjusted clock multiplier
 
-Dan Carpenter (1):
-      [S390] sclp_async: potential buffer overflow
+Michael Holzheu (1):
+      [S390] zcore: Fix reipl device detection
 
-Heiko Carstens (1):
-      [S390] nss: add missing .previous statement to asm function
+Sebastian Ott (3):
+      [S390] cio: allow enable_facility from outside init functions
+      [S390] add hook to reenable mss after hibernation
+      [S390] cio: use exception-save stsch
 
-Julia Lawall (1):
-      [S390] arch/s390/kernel: Add missing unlock
+Stefan Haberland (1):
+      [S390] dasd: fix endless loop in erp
 
-Martin Schwidefsky (3):
-      [S390] fix io_return critical section cleanup
-      [S390] increase default size of vmalloc area
-      [S390] Update default configuration.
+ arch/s390/include/asm/vdso.h            |    1 +
+ arch/s390/kernel/asm-offsets.c          |    1 +
+ arch/s390/kernel/swsusp_asm64.S         |    3 +++
+ arch/s390/kernel/time.c                 |    1 +
+ arch/s390/kernel/vdso32/clock_gettime.S |   12 ++++++------
+ arch/s390/kernel/vdso32/gettimeofday.S  |    6 +++---
+ arch/s390/kernel/vdso64/clock_gettime.S |    4 ++--
+ arch/s390/kernel/vdso64/gettimeofday.S  |    2 +-
+ drivers/s390/block/dasd.c               |    3 ++-
+ drivers/s390/block/dasd_3990_erp.c      |    7 ++++++-
+ drivers/s390/char/zcore.c               |    6 +-----
+ drivers/s390/cio/chsc.c                 |   29 ++++++++++++++---------------
+ drivers/s390/cio/chsc_sch.c             |    2 +-
+ drivers/s390/cio/cio.c                  |   18 +++++++++---------
+ drivers/s390/cio/css.c                  |   16 ++++++++--------
+ drivers/s390/cio/device_fsm.c           |    2 +-
+ 16 files changed, 60 insertions(+), 53 deletions(-)
 
- arch/s390/defconfig             |   40 +++++++++++++++++++++++++++++---------
- arch/s390/include/asm/pgtable.h |    6 ++--
- arch/s390/kernel/early.c        |    3 +-
- arch/s390/kernel/entry.S        |    8 ++++++-
- arch/s390/kernel/entry64.S      |    8 ++++++-
- arch/s390/kernel/topology.c     |    3 +-
- arch/s390/mm/vmem.c             |   11 ++-------
- drivers/s390/char/sclp_async.c  |    2 +-
- 8 files changed, 55 insertions(+), 26 deletions(-)
-
-diff --git a/arch/s390/defconfig b/arch/s390/defconfig
-index 7ae71cc..bcd6884 100644
---- a/arch/s390/defconfig
-+++ b/arch/s390/defconfig
-@@ -1,7 +1,7 @@
- #
- # Automatically generated make config: don't edit
--# Linux kernel version: 2.6.33-rc2
--# Mon Jan  4 09:03:07 2010
-+# Linux kernel version: 2.6.34-rc3
-+# Fri Apr  9 09:57:10 2010
- #
- CONFIG_SCHED_MC=y
- CONFIG_MMU=y
-@@ -17,6 +17,7 @@ CONFIG_GENERIC_TIME=y
- CONFIG_GENERIC_TIME_VSYSCALL=y
- CONFIG_GENERIC_CLOCKEVENTS=y
- CONFIG_GENERIC_BUG=y
-+CONFIG_GENERIC_BUG_RELATIVE_POINTERS=y
- CONFIG_NO_IOMEM=y
- CONFIG_NO_DMA=y
- CONFIG_GENERIC_LOCKBREAK=y
-@@ -62,15 +63,11 @@ CONFIG_TREE_RCU=y
- # CONFIG_RCU_TRACE is not set
- CONFIG_RCU_FANOUT=64
- # CONFIG_RCU_FANOUT_EXACT is not set
-+# CONFIG_RCU_FAST_NO_HZ is not set
- # CONFIG_TREE_RCU_TRACE is not set
- CONFIG_IKCONFIG=y
- CONFIG_IKCONFIG_PROC=y
- CONFIG_LOG_BUF_SHIFT=17
--CONFIG_GROUP_SCHED=y
--CONFIG_FAIR_GROUP_SCHED=y
--# CONFIG_RT_GROUP_SCHED is not set
--CONFIG_USER_SCHED=y
--# CONFIG_CGROUP_SCHED is not set
- CONFIG_CGROUPS=y
- # CONFIG_CGROUP_DEBUG is not set
- CONFIG_CGROUP_NS=y
-@@ -79,6 +76,7 @@ CONFIG_CGROUP_NS=y
- # CONFIG_CPUSETS is not set
- # CONFIG_CGROUP_CPUACCT is not set
- # CONFIG_RESOURCE_COUNTERS is not set
-+# CONFIG_CGROUP_SCHED is not set
- CONFIG_SYSFS_DEPRECATED=y
- CONFIG_SYSFS_DEPRECATED_V2=y
- # CONFIG_RELAY is not set
-@@ -93,6 +91,7 @@ CONFIG_INITRAMFS_SOURCE=""
- CONFIG_RD_GZIP=y
- CONFIG_RD_BZIP2=y
- CONFIG_RD_LZMA=y
-+CONFIG_RD_LZO=y
- # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
- CONFIG_SYSCTL=y
- CONFIG_ANON_INODES=y
-@@ -126,6 +125,7 @@ CONFIG_SLAB=y
- # CONFIG_SLUB is not set
- # CONFIG_SLOB is not set
- # CONFIG_PROFILING is not set
-+CONFIG_TRACEPOINTS=y
- CONFIG_HAVE_OPROFILE=y
- CONFIG_KPROBES=y
- CONFIG_HAVE_SYSCALL_WRAPPERS=y
-@@ -134,6 +134,7 @@ CONFIG_HAVE_KPROBES=y
- CONFIG_HAVE_KRETPROBES=y
- CONFIG_HAVE_ARCH_TRACEHOOK=y
- CONFIG_USE_GENERIC_SMP_HELPERS=y
-+CONFIG_HAVE_REGS_AND_STACK_ACCESS_API=y
- CONFIG_HAVE_DEFAULT_NO_SPIN_MUTEXES=y
+diff --git a/arch/s390/include/asm/vdso.h b/arch/s390/include/asm/vdso.h
+index 4a76d94..533f357 100644
+--- a/arch/s390/include/asm/vdso.h
++++ b/arch/s390/include/asm/vdso.h
+@@ -29,6 +29,7 @@ struct vdso_data {
+ 	__u32 tz_minuteswest;		/* Minutes west of Greenwich	0x30 */
+ 	__u32 tz_dsttime;		/* Type of dst correction	0x34 */
+ 	__u32 ectg_available;
++	__u32 ntp_mult;			/* NTP adjusted multiplier	0x3C */
+ };
  
- #
-@@ -246,6 +247,7 @@ CONFIG_64BIT=y
- CONFIG_SMP=y
- CONFIG_NR_CPUS=32
- CONFIG_HOTPLUG_CPU=y
-+# CONFIG_SCHED_BOOK is not set
- CONFIG_COMPAT=y
- CONFIG_SYSVIPC_COMPAT=y
- CONFIG_AUDIT_ARCH=y
-@@ -345,13 +347,13 @@ CONFIG_PM_SLEEP=y
- CONFIG_HIBERNATION=y
- CONFIG_PM_STD_PARTITION=""
- # CONFIG_PM_RUNTIME is not set
-+CONFIG_PM_OPS=y
- CONFIG_NET=y
+ struct vdso_per_cpu_data {
+diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
+index 08db736..a094089 100644
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -61,6 +61,7 @@ int main(void)
+ 	DEFINE(__VDSO_WTOM_NSEC, offsetof(struct vdso_data, wtom_clock_nsec));
+ 	DEFINE(__VDSO_TIMEZONE, offsetof(struct vdso_data, tz_minuteswest));
+ 	DEFINE(__VDSO_ECTG_OK, offsetof(struct vdso_data, ectg_available));
++	DEFINE(__VDSO_NTP_MULT, offsetof(struct vdso_data, ntp_mult));
+ 	DEFINE(__VDSO_ECTG_BASE, offsetof(struct vdso_per_cpu_data, ectg_timer_base));
+ 	DEFINE(__VDSO_ECTG_USER, offsetof(struct vdso_per_cpu_data, ectg_user_time));
+ 	/* constants used by the vdso */
+diff --git a/arch/s390/kernel/swsusp_asm64.S b/arch/s390/kernel/swsusp_asm64.S
+index b354427..c56d3f5 100644
+--- a/arch/s390/kernel/swsusp_asm64.S
++++ b/arch/s390/kernel/swsusp_asm64.S
+@@ -256,6 +256,9 @@ restore_registers:
+ 	lghi	%r2,0
+ 	brasl	%r14,arch_set_page_states
  
- #
- # Networking options
- #
- CONFIG_PACKET=y
--# CONFIG_PACKET_MMAP is not set
- CONFIG_UNIX=y
- CONFIG_XFRM=y
- # CONFIG_XFRM_USER is not set
-@@ -529,6 +531,7 @@ CONFIG_NET_SCH_FIFO=y
- #
- # CONFIG_NET_PKTGEN is not set
- # CONFIG_NET_TCPPROBE is not set
-+# CONFIG_NET_DROP_MONITOR is not set
- CONFIG_CAN=m
- CONFIG_CAN_RAW=m
- CONFIG_CAN_BCM=m
-@@ -605,6 +608,7 @@ CONFIG_MISC_DEVICES=y
- #
- # SCSI device support
- #
-+CONFIG_SCSI_MOD=y
- # CONFIG_RAID_ATTRS is not set
- CONFIG_SCSI=y
- # CONFIG_SCSI_DMA is not set
-@@ -863,6 +867,7 @@ CONFIG_MISC_FILESYSTEMS=y
- # CONFIG_BEFS_FS is not set
- # CONFIG_BFS_FS is not set
- # CONFIG_EFS_FS is not set
-+# CONFIG_LOGFS is not set
- # CONFIG_CRAMFS is not set
- # CONFIG_SQUASHFS is not set
- # CONFIG_VXFS_FS is not set
-@@ -891,6 +896,7 @@ CONFIG_SUNRPC=y
- # CONFIG_RPCSEC_GSS_KRB5 is not set
- # CONFIG_RPCSEC_GSS_SPKM3 is not set
- # CONFIG_SMB_FS is not set
-+# CONFIG_CEPH_FS is not set
- # CONFIG_CIFS is not set
- # CONFIG_NCP_FS is not set
- # CONFIG_CODA_FS is not set
-@@ -952,6 +958,7 @@ CONFIG_DEBUG_MUTEXES=y
- # CONFIG_LOCK_STAT is not set
- CONFIG_DEBUG_SPINLOCK_SLEEP=y
- # CONFIG_DEBUG_LOCKING_API_SELFTESTS is not set
-+CONFIG_STACKTRACE=y
- # CONFIG_DEBUG_KOBJECT is not set
- CONFIG_DEBUG_BUGVERBOSE=y
- # CONFIG_DEBUG_INFO is not set
-@@ -973,12 +980,17 @@ CONFIG_DEBUG_FORCE_WEAK_PER_CPU=y
- # CONFIG_LATENCYTOP is not set
- CONFIG_SYSCTL_SYSCALL_CHECK=y
- # CONFIG_DEBUG_PAGEALLOC is not set
-+CONFIG_NOP_TRACER=y
- CONFIG_HAVE_FUNCTION_TRACER=y
- CONFIG_HAVE_FUNCTION_GRAPH_TRACER=y
- CONFIG_HAVE_FUNCTION_TRACE_MCOUNT_TEST=y
- CONFIG_HAVE_DYNAMIC_FTRACE=y
- CONFIG_HAVE_FTRACE_MCOUNT_RECORD=y
- CONFIG_HAVE_SYSCALL_TRACEPOINTS=y
-+CONFIG_RING_BUFFER=y
-+CONFIG_EVENT_TRACING=y
-+CONFIG_CONTEXT_SWITCH_TRACER=y
-+CONFIG_TRACING=y
- CONFIG_TRACING_SUPPORT=y
- CONFIG_FTRACE=y
- # CONFIG_FUNCTION_TRACER is not set
-@@ -995,10 +1007,15 @@ CONFIG_BRANCH_PROFILE_NONE=y
- # CONFIG_KMEMTRACE is not set
- # CONFIG_WORKQUEUE_TRACER is not set
- # CONFIG_BLK_DEV_IO_TRACE is not set
-+CONFIG_KPROBE_EVENT=y
-+# CONFIG_RING_BUFFER_BENCHMARK is not set
- # CONFIG_DYNAMIC_DEBUG is not set
- CONFIG_SAMPLES=y
-+# CONFIG_SAMPLE_TRACEPOINTS is not set
-+# CONFIG_SAMPLE_TRACE_EVENTS is not set
- # CONFIG_SAMPLE_KOBJECT is not set
- # CONFIG_SAMPLE_KPROBES is not set
-+# CONFIG_DEBUG_STRICT_USER_COPY_CHECKS is not set
- 
- #
- # Security options
-@@ -1032,6 +1049,7 @@ CONFIG_CRYPTO_MANAGER=y
- CONFIG_CRYPTO_MANAGER2=y
- CONFIG_CRYPTO_GF128MUL=m
- # CONFIG_CRYPTO_NULL is not set
-+# CONFIG_CRYPTO_PCRYPT is not set
- CONFIG_CRYPTO_WORKQUEUE=y
- # CONFIG_CRYPTO_CRYPTD is not set
- CONFIG_CRYPTO_AUTHENC=m
-@@ -1119,7 +1137,7 @@ CONFIG_CRYPTO_SHA512_S390=m
- # CONFIG_CRYPTO_DES_S390 is not set
- # CONFIG_CRYPTO_AES_S390 is not set
- CONFIG_S390_PRNG=m
--# CONFIG_BINARY_PRINTF is not set
-+CONFIG_BINARY_PRINTF=y
- 
- #
- # Library routines
-@@ -1136,14 +1154,16 @@ CONFIG_LIBCRC32C=m
- CONFIG_ZLIB_INFLATE=y
- CONFIG_ZLIB_DEFLATE=m
- CONFIG_LZO_COMPRESS=m
--CONFIG_LZO_DECOMPRESS=m
-+CONFIG_LZO_DECOMPRESS=y
- CONFIG_DECOMPRESS_GZIP=y
- CONFIG_DECOMPRESS_BZIP2=y
- CONFIG_DECOMPRESS_LZMA=y
-+CONFIG_DECOMPRESS_LZO=y
- CONFIG_NLATTR=y
- CONFIG_HAVE_KVM=y
- CONFIG_VIRTUALIZATION=y
- CONFIG_KVM=m
-+# CONFIG_VHOST_NET is not set
- CONFIG_VIRTIO=y
- CONFIG_VIRTIO_RING=y
- CONFIG_VIRTIO_BALLOON=m
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 9b5b918..89a504c 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -105,7 +105,7 @@ extern char empty_zero_page[PAGE_SIZE];
- #ifndef __ASSEMBLY__
- /*
-  * The vmalloc area will always be on the topmost area of the kernel
-- * mapping. We reserve 96MB (31bit) / 1GB (64bit) for vmalloc,
-+ * mapping. We reserve 96MB (31bit) / 128GB (64bit) for vmalloc,
-  * which should be enough for any sane case.
-  * By putting vmalloc at the top, we maximise the gap between physical
-  * memory and vmalloc to catch misplaced memory accesses. As a side
-@@ -120,8 +120,8 @@ extern unsigned long VMALLOC_START;
- #define VMALLOC_END	0x7e000000UL
- #define VMEM_MAP_END	0x80000000UL
- #else /* __s390x__ */
--#define VMALLOC_SIZE	(1UL << 30)
--#define VMALLOC_END	0x3e040000000UL
-+#define VMALLOC_SIZE	(128UL << 30)
-+#define VMALLOC_END	0x3e000000000UL
- #define VMEM_MAP_END	0x40000000000UL
- #endif /* __s390x__ */
- 
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index 31d618a..2d92c2c 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -82,7 +82,8 @@ asm(
- 	"	lm	6,15,24(15)\n"
- #endif
- 	"	br	14\n"
--	"	.size	savesys_ipl_nss, .-savesys_ipl_nss\n");
-+	"	.size	savesys_ipl_nss, .-savesys_ipl_nss\n"
-+	"	.previous\n");
- 
- static __initdata char upper_command_line[COMMAND_LINE_SIZE];
- 
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 4348f9b..6af7045 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -964,7 +964,7 @@ cleanup_critical:
- 	clc	4(4,%r12),BASED(cleanup_table_io_work_loop)
- 	bl	BASED(0f)
- 	clc	4(4,%r12),BASED(cleanup_table_io_work_loop+4)
--	bl	BASED(cleanup_io_return)
-+	bl	BASED(cleanup_io_work_loop)
- 0:
- 	br	%r14
- 
-@@ -1039,6 +1039,12 @@ cleanup_sysc_leave_insn:
- 
- cleanup_io_return:
- 	mvc	__LC_RETURN_PSW(4),0(%r12)
-+	mvc	__LC_RETURN_PSW+4(4),BASED(cleanup_table_io_return)
-+	la	%r12,__LC_RETURN_PSW
-+	br	%r14
++	/* Reinitialize the channel subsystem */
++	brasl	%r14,channel_subsystem_reinit
 +
-+cleanup_io_work_loop:
-+	mvc	__LC_RETURN_PSW(4),0(%r12)
- 	mvc	__LC_RETURN_PSW+4(4),BASED(cleanup_table_io_work_loop)
- 	la	%r12,__LC_RETURN_PSW
- 	br	%r14
-diff --git a/arch/s390/kernel/entry64.S b/arch/s390/kernel/entry64.S
-index 29fd0f1..52106d5 100644
---- a/arch/s390/kernel/entry64.S
-+++ b/arch/s390/kernel/entry64.S
-@@ -946,7 +946,7 @@ cleanup_critical:
- 	clc	8(8,%r12),BASED(cleanup_table_io_work_loop)
- 	jl	0f
- 	clc	8(8,%r12),BASED(cleanup_table_io_work_loop+8)
--	jl	cleanup_io_return
-+	jl	cleanup_io_work_loop
- 0:
- 	br	%r14
- 
-@@ -1021,6 +1021,12 @@ cleanup_sysc_leave_insn:
- 
- cleanup_io_return:
- 	mvc	__LC_RETURN_PSW(8),0(%r12)
-+	mvc	__LC_RETURN_PSW+8(8),BASED(cleanup_table_io_return)
-+	la	%r12,__LC_RETURN_PSW
-+	br	%r14
-+
-+cleanup_io_work_loop:
-+	mvc	__LC_RETURN_PSW(8),0(%r12)
- 	mvc	__LC_RETURN_PSW+8(8),BASED(cleanup_table_io_work_loop)
- 	la	%r12,__LC_RETURN_PSW
- 	br	%r14
-diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
-index 14ef6f0..247b4c2 100644
---- a/arch/s390/kernel/topology.c
-+++ b/arch/s390/kernel/topology.c
-@@ -165,10 +165,11 @@ static void tl_to_cores(struct tl_info *info)
- 		default:
- 			clear_cores();
- 			machine_has_topology = 0;
--			return;
-+			goto out;
+ 	/* Return 0 */
+ 	lmg	%r6,%r15,STACK_FRAME_OVERHEAD + __SF_GPRS(%r15)
+ 	lghi	%r2,0
+diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+index fba6dec..d906bf1 100644
+--- a/arch/s390/kernel/time.c
++++ b/arch/s390/kernel/time.c
+@@ -221,6 +221,7 @@ void update_vsyscall(struct timespec *wall_time, struct clocksource *clock,
+ 	vdso_data->xtime_clock_nsec = wall_time->tv_nsec;
+ 	vdso_data->wtom_clock_sec = wall_to_monotonic.tv_sec;
+ 	vdso_data->wtom_clock_nsec = wall_to_monotonic.tv_nsec;
++	vdso_data->ntp_mult = mult;
+ 	smp_wmb();
+ 	++vdso_data->tb_update_count;
+ }
+diff --git a/arch/s390/kernel/vdso32/clock_gettime.S b/arch/s390/kernel/vdso32/clock_gettime.S
+index 4a98909..9696439 100644
+--- a/arch/s390/kernel/vdso32/clock_gettime.S
++++ b/arch/s390/kernel/vdso32/clock_gettime.S
+@@ -38,13 +38,13 @@ __kernel_clock_gettime:
+ 	sl	%r1,__VDSO_XTIME_STAMP+4(%r5)
+ 	brc	3,2f
+ 	ahi	%r0,-1
+-2:	mhi	%r0,1000			/* cyc2ns(clock,cycle_delta) */
++2:	ms	%r0,__VDSO_NTP_MULT(%r5)	/* cyc2ns(clock,cycle_delta) */
+ 	lr	%r2,%r0
+-	lhi	%r0,1000
++	l	%r0,__VDSO_NTP_MULT(%r5)
+ 	ltr	%r1,%r1
+ 	mr	%r0,%r0
+ 	jnm	3f
+-	ahi	%r0,1000
++	a	%r0,__VDSO_NTP_MULT(%r5)
+ 3:	alr	%r0,%r2
+ 	srdl	%r0,12
+ 	al	%r0,__VDSO_XTIME_NSEC(%r5)	/*  + xtime */
+@@ -86,13 +86,13 @@ __kernel_clock_gettime:
+ 	sl	%r1,__VDSO_XTIME_STAMP+4(%r5)
+ 	brc	3,12f
+ 	ahi	%r0,-1
+-12:	mhi	%r0,1000			/* cyc2ns(clock,cycle_delta) */
++12:	ms	%r0,__VDSO_NTP_MULT(%r5)	/* cyc2ns(clock,cycle_delta) */
+ 	lr	%r2,%r0
+-	lhi	%r0,1000
++	l	%r0,__VDSO_NTP_MULT(%r5)
+ 	ltr	%r1,%r1
+ 	mr	%r0,%r0
+ 	jnm	13f
+-	ahi	%r0,1000
++	a	%r0,__VDSO_NTP_MULT(%r5)
+ 13:	alr	%r0,%r2
+ 	srdl	%r0,12
+ 	al	%r0,__VDSO_XTIME_NSEC(%r5)	/*  + xtime */
+diff --git a/arch/s390/kernel/vdso32/gettimeofday.S b/arch/s390/kernel/vdso32/gettimeofday.S
+index ad8acfc..2d36331 100644
+--- a/arch/s390/kernel/vdso32/gettimeofday.S
++++ b/arch/s390/kernel/vdso32/gettimeofday.S
+@@ -35,13 +35,13 @@ __kernel_gettimeofday:
+ 	sl	%r1,__VDSO_XTIME_STAMP+4(%r5)
+ 	brc	3,3f
+ 	ahi	%r0,-1
+-3:	mhi	%r0,1000			/* cyc2ns(clock,cycle_delta) */
++3:	ms	%r0,__VDSO_NTP_MULT(%r5)	/* cyc2ns(clock,cycle_delta) */
+ 	st	%r0,24(%r15)
+-	lhi	%r0,1000
++	l	%r0,__VDSO_NTP_MULT(%r5)
+ 	ltr	%r1,%r1
+ 	mr	%r0,%r0
+ 	jnm	4f
+-	ahi	%r0,1000
++	a	%r0,__VDSO_NTP_MULT(%r5)
+ 4:	al	%r0,24(%r15)
+ 	srdl	%r0,12
+ 	al	%r0,__VDSO_XTIME_NSEC(%r5)	/*  + xtime */
+diff --git a/arch/s390/kernel/vdso64/clock_gettime.S b/arch/s390/kernel/vdso64/clock_gettime.S
+index 49106c6..f404678 100644
+--- a/arch/s390/kernel/vdso64/clock_gettime.S
++++ b/arch/s390/kernel/vdso64/clock_gettime.S
+@@ -36,7 +36,7 @@ __kernel_clock_gettime:
+ 	stck	48(%r15)			/* Store TOD clock */
+ 	lg	%r1,48(%r15)
+ 	sg	%r1,__VDSO_XTIME_STAMP(%r5)	/* TOD - cycle_last */
+-	mghi	%r1,1000
++	msgf	%r1,__VDSO_NTP_MULT(%r5)	/*  * NTP adjustment */
+ 	srlg	%r1,%r1,12			/* cyc2ns(clock,cycle_delta) */
+ 	alg	%r1,__VDSO_XTIME_NSEC(%r5)	/*  + xtime */
+ 	lg	%r0,__VDSO_XTIME_SEC(%r5)
+@@ -64,7 +64,7 @@ __kernel_clock_gettime:
+ 	stck	48(%r15)			/* Store TOD clock */
+ 	lg	%r1,48(%r15)
+ 	sg	%r1,__VDSO_XTIME_STAMP(%r5)	/* TOD - cycle_last */
+-	mghi	%r1,1000
++	msgf	%r1,__VDSO_NTP_MULT(%r5)	/*  * NTP adjustment */
+ 	srlg	%r1,%r1,12			/* cyc2ns(clock,cycle_delta) */
+ 	alg	%r1,__VDSO_XTIME_NSEC(%r5)	/*  + xtime */
+ 	lg	%r0,__VDSO_XTIME_SEC(%r5)
+diff --git a/arch/s390/kernel/vdso64/gettimeofday.S b/arch/s390/kernel/vdso64/gettimeofday.S
+index f873e75..36ee674 100644
+--- a/arch/s390/kernel/vdso64/gettimeofday.S
++++ b/arch/s390/kernel/vdso64/gettimeofday.S
+@@ -31,7 +31,7 @@ __kernel_gettimeofday:
+ 	stck	48(%r15)			/* Store TOD clock */
+ 	lg	%r1,48(%r15)
+ 	sg	%r1,__VDSO_XTIME_STAMP(%r5)	/* TOD - cycle_last */
+-	mghi	%r1,1000
++	msgf	%r1,__VDSO_NTP_MULT(%r5)	/*  * NTP adjustment */
+ 	srlg	%r1,%r1,12			/* cyc2ns(clock,cycle_delta) */
+ 	alg	%r1,__VDSO_XTIME_NSEC(%r5)	/*  + xtime.tv_nsec */
+ 	lg	%r0,__VDSO_XTIME_SEC(%r5)	/* xtime.tv_sec */
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index bbea90b..acf222f 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -1899,7 +1899,8 @@ restart:
+ 		/*  Process requests that may be recovered */
+ 		if (cqr->status == DASD_CQR_NEED_ERP) {
+ 			erp_fn = base->discipline->erp_action(cqr);
+-			erp_fn(cqr);
++			if (IS_ERR(erp_fn(cqr)))
++				continue;
+ 			goto restart;
  		}
- 		tle = next_tle(tle);
+ 
+diff --git a/drivers/s390/block/dasd_3990_erp.c b/drivers/s390/block/dasd_3990_erp.c
+index 6927e75..6632649 100644
+--- a/drivers/s390/block/dasd_3990_erp.c
++++ b/drivers/s390/block/dasd_3990_erp.c
+@@ -2309,7 +2309,7 @@ static struct dasd_ccw_req *dasd_3990_erp_add_erp(struct dasd_ccw_req *cqr)
+                                      cqr->retries);
+ 			dasd_block_set_timer(device->block, (HZ << 3));
+                 }
+-		return cqr;
++		return erp;
  	}
-+out:
- 	spin_unlock_irq(&topology_lock);
+ 
+ 	ccw = cqr->cpaddr;
+@@ -2372,6 +2372,9 @@ dasd_3990_erp_additional_erp(struct dasd_ccw_req * cqr)
+ 	/* add erp and initialize with default TIC */
+ 	erp = dasd_3990_erp_add_erp(cqr);
+ 
++	if (IS_ERR(erp))
++		return erp;
++
+ 	/* inspect sense, determine specific ERP if possible */
+ 	if (erp != cqr) {
+ 
+@@ -2711,6 +2714,8 @@ dasd_3990_erp_action(struct dasd_ccw_req * cqr)
+ 	if (erp == NULL) {
+ 		/* no matching erp found - set up erp */
+ 		erp = dasd_3990_erp_additional_erp(cqr);
++		if (IS_ERR(erp))
++			return erp;
+ 	} else {
+ 		/* matching erp found - set all leading erp's to DONE */
+ 		erp = dasd_3990_erp_handle_match_erp(cqr, erp);
+diff --git a/drivers/s390/char/zcore.c b/drivers/s390/char/zcore.c
+index 18daf16..7217966 100644
+--- a/drivers/s390/char/zcore.c
++++ b/drivers/s390/char/zcore.c
+@@ -638,11 +638,7 @@ static int __init zcore_reipl_init(void)
+ 		rc = memcpy_hsa_kernel(ipl_block, ipib_info.ipib, PAGE_SIZE);
+ 	else
+ 		rc = memcpy_real(ipl_block, (void *) ipib_info.ipib, PAGE_SIZE);
+-	if (rc) {
+-		free_page((unsigned long) ipl_block);
+-		return rc;
+-	}
+-	if (csum_partial(ipl_block, ipl_block->hdr.len, 0) !=
++	if (rc || csum_partial(ipl_block, ipl_block->hdr.len, 0) !=
+ 	    ipib_info.checksum) {
+ 		TRACE("Checksum does not match\n");
+ 		free_page((unsigned long) ipl_block);
+diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
+index 4038f5b..ce7cb87 100644
+--- a/drivers/s390/cio/chsc.c
++++ b/drivers/s390/cio/chsc.c
+@@ -29,6 +29,7 @@
+ #include "chsc.h"
+ 
+ static void *sei_page;
++static DEFINE_SPINLOCK(sda_lock);
+ 
+ /**
+  * chsc_error_from_response() - convert a chsc response to an error
+@@ -832,11 +833,10 @@ void __init chsc_free_sei_area(void)
+ 	kfree(sei_page);
  }
  
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index 8ea3144..90165e7 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -71,12 +71,8 @@ static pte_t __ref *vmem_pte_alloc(void)
- 		pte = alloc_bootmem(PTRS_PER_PTE * sizeof(pte_t));
- 	if (!pte)
- 		return NULL;
--	if (MACHINE_HAS_HPAGE)
--		clear_table((unsigned long *) pte, _PAGE_TYPE_EMPTY | _PAGE_CO,
--			    PTRS_PER_PTE * sizeof(pte_t));
--	else
--		clear_table((unsigned long *) pte, _PAGE_TYPE_EMPTY,
--			    PTRS_PER_PTE * sizeof(pte_t));
-+	clear_table((unsigned long *) pte, _PAGE_TYPE_EMPTY,
-+		    PTRS_PER_PTE * sizeof(pte_t));
- 	return pte;
+-int __init
+-chsc_enable_facility(int operation_code)
++int chsc_enable_facility(int operation_code)
+ {
+ 	int ret;
+-	struct {
++	static struct {
+ 		struct chsc_header request;
+ 		u8 reserved1:4;
+ 		u8 format:4;
+@@ -849,33 +849,32 @@ chsc_enable_facility(int operation_code)
+ 		u32 reserved5:4;
+ 		u32 format2:4;
+ 		u32 reserved6:24;
+-	} __attribute__ ((packed)) *sda_area;
++	} __attribute__ ((packed, aligned(4096))) sda_area;
+ 
+-	sda_area = (void *)get_zeroed_page(GFP_KERNEL|GFP_DMA);
+-	if (!sda_area)
+-		return -ENOMEM;
+-	sda_area->request.length = 0x0400;
+-	sda_area->request.code = 0x0031;
+-	sda_area->operation_code = operation_code;
++	spin_lock(&sda_lock);
++	memset(&sda_area, 0, sizeof(sda_area));
++	sda_area.request.length = 0x0400;
++	sda_area.request.code = 0x0031;
++	sda_area.operation_code = operation_code;
+ 
+-	ret = chsc(sda_area);
++	ret = chsc(&sda_area);
+ 	if (ret > 0) {
+ 		ret = (ret == 3) ? -ENODEV : -EBUSY;
+ 		goto out;
+ 	}
+ 
+-	switch (sda_area->response.code) {
++	switch (sda_area.response.code) {
+ 	case 0x0101:
+ 		ret = -EOPNOTSUPP;
+ 		break;
+ 	default:
+-		ret = chsc_error_from_response(sda_area->response.code);
++		ret = chsc_error_from_response(sda_area.response.code);
+ 	}
+ 	if (ret != 0)
+ 		CIO_CRW_EVENT(2, "chsc: sda (oc=%x) failed (rc=%04x)\n",
+-			      operation_code, sda_area->response.code);
++			      operation_code, sda_area.response.code);
+  out:
+-	free_page((unsigned long)sda_area);
++	spin_unlock(&sda_lock);
+ 	return ret;
  }
  
-@@ -117,8 +113,7 @@ static int vmem_add_mem(unsigned long start, unsigned long size, int ro)
- 		if (MACHINE_HAS_HPAGE && !(address & ~HPAGE_MASK) &&
- 		    (address + HPAGE_SIZE <= start + size) &&
- 		    (address >= HPAGE_SIZE)) {
--			pte_val(pte) |= _SEGMENT_ENTRY_LARGE |
--					_SEGMENT_ENTRY_CO;
-+			pte_val(pte) |= _SEGMENT_ENTRY_LARGE;
- 			pmd_val(*pm_dir) = pte_val(pte);
- 			address += HPAGE_SIZE - PAGE_SIZE;
- 			continue;
-diff --git a/drivers/s390/char/sclp_async.c b/drivers/s390/char/sclp_async.c
-index 2aecf7f..7ad30e7 100644
---- a/drivers/s390/char/sclp_async.c
-+++ b/drivers/s390/char/sclp_async.c
-@@ -85,7 +85,7 @@ static int proc_handler_callhome(struct ctl_table *ctl, int write,
- 		rc = copy_from_user(buf, buffer, sizeof(buf));
- 		if (rc != 0)
- 			return -EFAULT;
--		buf[len - 1] = '\0';
-+		buf[sizeof(buf) - 1] = '\0';
- 		if (strict_strtoul(buf, 0, &val) != 0)
- 			return -EINVAL;
- 		if (val != 0 && val != 1)
+diff --git a/drivers/s390/cio/chsc_sch.c b/drivers/s390/cio/chsc_sch.c
+index 404f630..3b6f4ad 100644
+--- a/drivers/s390/cio/chsc_sch.c
++++ b/drivers/s390/cio/chsc_sch.c
+@@ -124,7 +124,7 @@ static int chsc_subchannel_prepare(struct subchannel *sch)
+ 	 * since we don't have a way to clear the subchannel and
+ 	 * cannot disable it with a request running.
+ 	 */
+-	cc = stsch(sch->schid, &schib);
++	cc = stsch_err(sch->schid, &schib);
+ 	if (!cc && scsw_stctl(&schib.scsw))
+ 		return -EAGAIN;
+ 	return 0;
+diff --git a/drivers/s390/cio/cio.c b/drivers/s390/cio/cio.c
+index f736cdc..5feea1a 100644
+--- a/drivers/s390/cio/cio.c
++++ b/drivers/s390/cio/cio.c
+@@ -361,7 +361,7 @@ int cio_commit_config(struct subchannel *sch)
+ 	struct schib schib;
+ 	int ccode, retry, ret = 0;
+ 
+-	if (stsch(sch->schid, &schib) || !css_sch_is_valid(&schib))
++	if (stsch_err(sch->schid, &schib) || !css_sch_is_valid(&schib))
+ 		return -ENODEV;
+ 
+ 	for (retry = 0; retry < 5; retry++) {
+@@ -372,7 +372,7 @@ int cio_commit_config(struct subchannel *sch)
+ 			return ccode;
+ 		switch (ccode) {
+ 		case 0: /* successful */
+-			if (stsch(sch->schid, &schib) ||
++			if (stsch_err(sch->schid, &schib) ||
+ 			    !css_sch_is_valid(&schib))
+ 				return -ENODEV;
+ 			if (cio_check_config(sch, &schib)) {
+@@ -404,7 +404,7 @@ int cio_update_schib(struct subchannel *sch)
+ {
+ 	struct schib schib;
+ 
+-	if (stsch(sch->schid, &schib) || !css_sch_is_valid(&schib))
++	if (stsch_err(sch->schid, &schib) || !css_sch_is_valid(&schib))
+ 		return -ENODEV;
+ 
+ 	memcpy(&sch->schib, &schib, sizeof(schib));
+@@ -771,7 +771,7 @@ cio_get_console_sch_no(void)
+ 	if (console_irq != -1) {
+ 		/* VM provided us with the irq number of the console. */
+ 		schid.sch_no = console_irq;
+-		if (stsch(schid, &console_subchannel.schib) != 0 ||
++		if (stsch_err(schid, &console_subchannel.schib) != 0 ||
+ 		    (console_subchannel.schib.pmcw.st != SUBCHANNEL_TYPE_IO) ||
+ 		    !console_subchannel.schib.pmcw.dnv)
+ 			return -1;
+@@ -863,10 +863,10 @@ __disable_subchannel_easy(struct subchannel_id schid, struct schib *schib)
+ 	cc = 0;
+ 	for (retry=0;retry<3;retry++) {
+ 		schib->pmcw.ena = 0;
+-		cc = msch(schid, schib);
++		cc = msch_err(schid, schib);
+ 		if (cc)
+ 			return (cc==3?-ENODEV:-EBUSY);
+-		if (stsch(schid, schib) || !css_sch_is_valid(schib))
++		if (stsch_err(schid, schib) || !css_sch_is_valid(schib))
+ 			return -ENODEV;
+ 		if (!schib->pmcw.ena)
+ 			return 0;
+@@ -913,7 +913,7 @@ static int stsch_reset(struct subchannel_id schid, struct schib *addr)
+ 
+ 	pgm_check_occured = 0;
+ 	s390_base_pgm_handler_fn = cio_reset_pgm_check_handler;
+-	rc = stsch(schid, addr);
++	rc = stsch_err(schid, addr);
+ 	s390_base_pgm_handler_fn = NULL;
+ 
+ 	/* The program check handler could have changed pgm_check_occured. */
+@@ -950,7 +950,7 @@ static int __shutdown_subchannel_easy(struct subchannel_id schid, void *data)
+ 			/* No default clear strategy */
+ 			break;
+ 		}
+-		stsch(schid, &schib);
++		stsch_err(schid, &schib);
+ 		__disable_subchannel_easy(schid, &schib);
+ 	}
+ out:
+@@ -1086,7 +1086,7 @@ int __init cio_get_iplinfo(struct cio_iplinfo *iplinfo)
+ 	schid = *(struct subchannel_id *)&S390_lowcore.subchannel_id;
+ 	if (!schid.one)
+ 		return -ENODEV;
+-	if (stsch(schid, &schib))
++	if (stsch_err(schid, &schib))
+ 		return -ENODEV;
+ 	if (schib.pmcw.st != SUBCHANNEL_TYPE_IO)
+ 		return -ENODEV;
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index 2769da5..5116491 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -870,15 +870,10 @@ static int __init css_bus_init(void)
+ 
+ 	/* Try to enable MSS. */
+ 	ret = chsc_enable_facility(CHSC_SDA_OC_MSS);
+-	switch (ret) {
+-	case 0: /* Success. */
+-		max_ssid = __MAX_SSID;
+-		break;
+-	case -ENOMEM:
+-		goto out;
+-	default:
++	if (ret)
+ 		max_ssid = 0;
+-	}
++	else /* Success. */
++		max_ssid = __MAX_SSID;
+ 
+ 	ret = slow_subchannel_init();
+ 	if (ret)
+@@ -1048,6 +1043,11 @@ static int __init channel_subsystem_init_sync(void)
+ }
+ subsys_initcall_sync(channel_subsystem_init_sync);
+ 
++void channel_subsystem_reinit(void)
++{
++	chsc_enable_facility(CHSC_SDA_OC_MSS);
++}
++
+ #ifdef CONFIG_PROC_FS
+ static ssize_t cio_settle_write(struct file *file, const char __user *buf,
+ 				size_t count, loff_t *ppos)
+diff --git a/drivers/s390/cio/device_fsm.c b/drivers/s390/cio/device_fsm.c
+index c56ab94..c9b8526 100644
+--- a/drivers/s390/cio/device_fsm.c
++++ b/drivers/s390/cio/device_fsm.c
+@@ -45,7 +45,7 @@ static void ccw_timeout_log(struct ccw_device *cdev)
+ 	sch = to_subchannel(cdev->dev.parent);
+ 	private = to_io_private(sch);
+ 	orb = &private->orb;
+-	cc = stsch(sch->schid, &schib);
++	cc = stsch_err(sch->schid, &schib);
+ 
+ 	printk(KERN_WARNING "cio: ccw device timeout occurred at %llx, "
+ 	       "device information:\n", get_clock());
