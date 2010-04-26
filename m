@@ -1,46 +1,53 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 5/5] zfcp: Zero memory for gpn_ft and adisc requests
-Date: Fri, 30 Apr 2010 18:09:37 +0200
-Message-ID: <20100430161020.583247000@de.ibm.com>
-References: <20100430160932.658896000@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=zalloc.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@suse.de>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <4BD58848.8090205@gmail.com>
+Date: Mon, 26 Apr 2010 14:34:16 +0200
+From: Xose Vazquez Perez <xose.vazquez@gmail.com>
+MIME-Version: 1.0
+Subject: deadline ALWAYS default for dasd devices(s390) ?
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
+hi,
 
-With debug kernels, the memory allocated with kmem_cache_alloc might
-be initialized with the poison values 6b and a5. Use kmem_cache_zalloc
-instead of kmem_cache_alloc to get zeroed memory and not send invalid
-requests.
+why is it FORCED ? bypassing a GLOBAL setting and also the kernel command l=
+ine !!!
 
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
----
- drivers/s390/scsi/zfcp_fc.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+drivers/s390/block/dasd.c
 
---- a/drivers/s390/scsi/zfcp_fc.c	2010-04-30 16:00:37.000000000 +0200
-+++ b/drivers/s390/scsi/zfcp_fc.c	2010-04-30 16:00:54.000000000 +0200
-@@ -400,7 +400,7 @@ static int zfcp_fc_adisc(struct zfcp_por
- 	struct zfcp_adapter *adapter = port->adapter;
- 	int ret;
- 
--	adisc = kmem_cache_alloc(zfcp_data.adisc_cache, GFP_ATOMIC);
-+	adisc = kmem_cache_zalloc(zfcp_data.adisc_cache, GFP_ATOMIC);
- 	if (!adisc)
- 		return -ENOMEM;
- 
-@@ -493,7 +493,7 @@ static struct zfcp_fc_gpn_ft *zfcp_alloc
- 	if (!gpn_ft)
- 		return NULL;
- 
--	req = kmem_cache_alloc(zfcp_data.gpn_ft_cache, GFP_KERNEL);
-+	req = kmem_cache_zalloc(zfcp_data.gpn_ft_cache, GFP_KERNEL);
- 	if (!req) {
- 		kfree(gpn_ft);
- 		gpn_ft = NULL;
+/*
+ * Allocate and initialize request queue and default I/O scheduler.
+ */
+static int dasd_alloc_queue(struct dasd_block *block)
+{
+	int rc;
+
+	block->request_queue =3D blk_init_queue(do_dasd_request,
+					       &block->request_queue_lock);
+	if (block->request_queue =3D=3D NULL)
+		return -ENOMEM;
+
+	block->request_queue->queuedata =3D block;
+
+	elevator_exit(block->request_queue->elevator);
+	block->request_queue->elevator =3D NULL;
+	rc =3D elevator_init(block->request_queue, "deadline");
+	if (rc) {
+		blk_cleanup_queue(block->request_queue);
+		return rc;
+	}
+	return 0;
+}
+
+
+-thanks-
+
+--=20
+=ABAll=E1 muevan feroz guerra, ciegos reyes por un palmo m=E1s de tierra;
+que yo aqu=ED tengo por m=EDo cuanto abarca el mar brav=EDo, a quien nadie
+impuso leyes. Y no hay playa, sea cualquiera, ni bandera de esplendor,
+que no sienta mi derecho y d=E9 pecho a mi valor.=BB
