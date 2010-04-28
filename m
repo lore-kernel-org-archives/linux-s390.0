@@ -1,69 +1,38 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 26 Apr 2010 16:06:18 +0200
-From: Christoph Egger <siccegge@cs.fau.de>
-Subject: [PATCH] Doublecheck for CONFIG_64
-Message-ID: <20100426140618.GB2710@faui49.informatik.uni-erlangen.de>
-MIME-Version: 1.0
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: linux-next: Apr 27 - S390 boot failure.
+Date: Wed, 28 Apr 2010 17:18:38 +0200
+Message-ID: <20100428151838.GA2772@osiris.boeblingen.de.ibm.com>
+References: <4BD7D399.2090601@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-next-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Tim Abbott <tabbott@ksplice.com>, Sam Ravnborg <sam@ravnborg.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: vamos@i4.informatik.uni-erlangen.de
+In-Reply-To: <4BD7D399.2090601@in.ibm.com>
+Sender: linux-next-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Sachin Sant <sachinp@in.ibm.com>
+Cc: linux-s390@vger.kernel.org, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi all!
+On Wed, Apr 28, 2010 at 11:50:09AM +0530, Sachin Sant wrote:
+> Yesterday's -next (20100427) fails to boot on a s390.
+> Here is the boot log.
+> [...]
+> 01: HCPGSP2627I The virtual machine is placed in CP mode due to a SIGP initial C
+> PU reset from CPU 00.
+> 02: HCPGSP2627I The virtual machine is placed in CP mode due to a SIGP initial C
+> PU reset from CPU 00.
+> 03: HCPGSP2627I The virtual machine is placed in CP mode due to a SIGP initial C
+> PU reset from CPU 00.
+> 
+> At this point the boot process just hangs. Previous -next build
+> (20100415) worked fine.
+> Have attached the .config
 
-	As part of the VAMOS[0] research project at the University of
-Erlangen we are looking at multiple integrity errors in linux'
-configuration system.
+Yes, I got several reports about this. The patch "improve irq tracing code
+in entry[64].S" was broken for !CONFIG_PREEMPT. I fixed it and pushed out
+a new version.
+Should be fixed with tomorrow's linux-next.
 
-	The following patch removes a unnecessary conditional. Inside
-a block making sure CONFIG_64 isn't set the option is checked again
-and based on that some parts are (not) included. As the outer check
-already makes sure CONFIG_64 isn't set here both checks are
-unnecessary so this patch removes them.
-
-	Please keep me informed of this patch getting confirmed /
-merged so we can keep track of it.
-
-Regards
-
-	Christoph Egger
-
-[0] http://vamos1.informatik.uni-erlangen.de/
-
-----
-From 32fe96794990e5e5a2cb3b2b7bcb0c49e61d4c9b Mon Sep 17 00:00:00 2001
-From: Christoph Egger <siccegge@cs.fau.de>
-Date: Mon, 26 Apr 2010 15:54:55 +0200
-Subject: [PATCH] Remove redundant check for CONFIG_64
-
-THis is a check for CONFIG_64 inside a block that is only active when
-CONFIG_64 is set. So the check is actually useless and potentially
-irritation.
-
-Signed-off-by: Christoph Egger <siccegge@cs.fau.de>
----
- arch/s390/kernel/vdso.c |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
-
-diff --git a/arch/s390/kernel/vdso.c b/arch/s390/kernel/vdso.c
-index 6bc9c19..6b83870 100644
---- a/arch/s390/kernel/vdso.c
-+++ b/arch/s390/kernel/vdso.c
-@@ -102,11 +102,7 @@ static void vdso_init_per_cpu_data(int cpu, struct vdso_per_cpu_data *vpcd)
- /*
-  * Allocate/free per cpu vdso data.
-  */
--#ifdef CONFIG_64BIT
- #define SEGMENT_ORDER	2
--#else
--#define SEGMENT_ORDER	1
--#endif
- 
- int vdso_alloc_per_cpu(int cpu, struct _lowcore *lowcore)
- {
--- 
-1.6.3.3
+Thanks for reporting!
