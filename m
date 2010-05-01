@@ -1,72 +1,101 @@
-From: Dave Hansen <dave@linux.vnet.ibm.com>
-Subject: Re: [PATCH v21 001/100] eclone (1/11): Factor out code to allocate
-	pidmap page
-Date: Mon, 03 May 2010 14:02:31 -0700
-Message-ID: <1272920551.12034.4729.camel@nimitz>
+From: Oren Laadan <orenl@cs.columbia.edu>
+Subject: [PATCH v21 004/100] eclone (4/11): Add target_pids parameter to alloc_pid()
+Date: Sat,  1 May 2010 10:14:46 -0400
+Message-ID: <1272723382-19470-5-git-send-email-orenl@cs.columbia.edu>
 References: <1272723382-19470-1-git-send-email-orenl@cs.columbia.edu>
-	<1272723382-19470-2-git-send-email-orenl@cs.columbia.edu>
-	<20100501.151022.190375136.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20100501.151022.190375136.davem@davemloft.net>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1272723382-19470-1-git-send-email-orenl@cs.columbia.edu>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: linux-s390@vger.kernel.org, orenl@cs.columbia.edu, containers@lists.linux-foundation.org, x86@kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, matthltc@us.ibm.com, linux-api@vger.kernel.org, serue@us.ibm.com, akpm@linux-foundation.org, sukadev@linux.vnet.ibm.com, xemul@openvz.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Serge Hallyn <serue@us.ibm.com>, Matt Helsley <matthltc@us.ibm.com>, Pavel Emelyanov <xemul@openvz.org>, Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>, linux-api@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, 2010-05-01 at 15:10 -0700, David Miller wrote:
-> NO WAY, there is no way in the world you should post 100 patches
-> at a time to any mailing list, especially those at vger.kernel.org
-> that have thousands upon thousands of subscribers.
-> 
-> Post only small, well contained, sets of patches at a time.  At most
-> 10 or so in one go.
+From: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
 
-Hi Dave,
+This parameter is currently NULL, but will be used in a follow-on patch.
 
-I really do apologize if these caused undue traffic on vger.  It
-certainly wasn't our intention to cause any problems.
+Cc: linux-api@vger.kernel.org
+Cc: x86@kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: linuxppc-dev@ozlabs.org
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
+Acked-by: Serge E. Hallyn <serue@us.ibm.com>
+Tested-by: Serge E. Hallyn <serue@us.ibm.com>
+Reviewed-by: Oren Laadan <orenl@cs.columbia.edu>
+---
+ include/linux/pid.h |    2 +-
+ kernel/fork.c       |    3 ++-
+ kernel/pid.c        |    9 +++++++--
+ 3 files changed, 10 insertions(+), 4 deletions(-)
 
-We've had a fear all along that we'll just go back into our little
-containers@lists.linux-foundation.org, and go astray of what the
-community wants done with these patches.  It's also important to
-remember that these really do affect the entire kernel.  Unfortunately,
-it's not really a single feature or something that fits well on any
-other mailing list.  It has implications _everywhere_.  I think Andrew
-Morton also asked that these continue coming to LKML, although his
-request probably came at a time when the set was a wee bit smaller.
-
-> Do you realize how much mail traffic you generate by posting so many
-> patches at one time, and how unlikely it is for anyone to actually
-> sift through and review your patches after you've spammed them by
-> posting so many at one time?
-
-I honestly don't expect people to be reading the whole thing at once.
-But, I do hope that people can take a look at their individual bits that
-are touched.
-
-> A second infraction and I will have no choice but to block you at the
-> SMTP level at vger.kernel.org so please do not do it again.
-
-I know these patches are certainly not at the level of importance as,
-say the pata or -stable updates, but they're certainly not of
-unprecedented scale.  I've seen a number of patchbombs of this size
-recently.
-
-I hope Andrew pulls this set into -mm so this doesn't even come up
-again.  But, if it does, can you make some suggestions on how to be more
-kind to vger in the process?
-
--- Dave
+diff --git a/include/linux/pid.h b/include/linux/pid.h
+index 49f1c2f..914185d 100644
+--- a/include/linux/pid.h
++++ b/include/linux/pid.h
+@@ -119,7 +119,7 @@ extern struct pid *find_get_pid(int nr);
+ extern struct pid *find_ge_pid(int nr, struct pid_namespace *);
+ int next_pidmap(struct pid_namespace *pid_ns, int last);
+ 
+-extern struct pid *alloc_pid(struct pid_namespace *ns);
++extern struct pid *alloc_pid(struct pid_namespace *ns, pid_t *target_pids);
+ extern void free_pid(struct pid *pid);
+ 
+ /*
+diff --git a/kernel/fork.c b/kernel/fork.c
+index afdfb08..62018c8 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -962,6 +962,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
+ 	int retval;
+ 	struct task_struct *p;
+ 	int cgroup_callbacks_done = 0;
++	pid_t *target_pids = NULL;
+ 
+ 	if ((clone_flags & (CLONE_NEWNS|CLONE_FS)) == (CLONE_NEWNS|CLONE_FS))
+ 		return ERR_PTR(-EINVAL);
+@@ -1147,7 +1148,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
+ 		goto bad_fork_cleanup_io;
+ 
+ 	if (pid != &init_struct_pid) {
+-		pid = alloc_pid(p->nsproxy->pid_ns);
++		pid = alloc_pid(p->nsproxy->pid_ns, target_pids);
+ 		if (IS_ERR(pid)) {
+ 			retval = PTR_ERR(pid);
+ 			goto bad_fork_cleanup_io;
+diff --git a/kernel/pid.c b/kernel/pid.c
+index 4eaf975..57f1344 100644
+--- a/kernel/pid.c
++++ b/kernel/pid.c
+@@ -276,13 +276,14 @@ void free_pid(struct pid *pid)
+ 	call_rcu(&pid->rcu, delayed_put_pid);
+ }
+ 
+-struct pid *alloc_pid(struct pid_namespace *ns)
++struct pid *alloc_pid(struct pid_namespace *ns, pid_t *target_pids)
+ {
+ 	struct pid *pid;
+ 	enum pid_type type;
+ 	int i, nr;
+ 	struct pid_namespace *tmp;
+ 	struct upid *upid;
++	pid_t tpid;
+ 
+ 	pid = kmem_cache_alloc(ns->pid_cachep, GFP_KERNEL);
+ 	if (!pid) {
+@@ -292,7 +293,11 @@ struct pid *alloc_pid(struct pid_namespace *ns)
+ 
+ 	tmp = ns;
+ 	for (i = ns->level; i >= 0; i--) {
+-		nr = alloc_pidmap(tmp);
++		tpid = 0;
++		if (target_pids)
++			tpid = target_pids[i];
++
++		nr = set_pidmap(tmp, tpid);
+ 		if (nr < 0)
+ 			goto out_free;
+ 
+-- 
+1.6.3.3
