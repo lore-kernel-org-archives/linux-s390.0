@@ -1,15 +1,14 @@
-Return-Path: <matthltc@us.ibm.com>
-Date: Sat, 1 May 2010 17:25:13 -0700
-From: Matt Helsley <matthltc@us.ibm.com>
+Return-Path: <brian@aljex.com>
+Message-ID: <4BDE8DCB.4000404@aljex.com>
+Date: Mon, 03 May 2010 04:48:11 -0400
+From: "Brian K. White" <brian@aljex.com>
+MIME-Version: 1.0
 Subject: Re: [PATCH v21 001/100] eclone (1/11): Factor out code to allocate
 	pidmap page
-Message-ID: <20100502002513.GC31830@count0.beaverton.ibm.com>
-References: <1272723382-19470-1-git-send-email-orenl@cs.columbia.edu>
-	<1272723382-19470-2-git-send-email-orenl@cs.columbia.edu>
+References: <1272723382-19470-1-git-send-email-orenl@cs.columbia.edu>	<1272723382-19470-2-git-send-email-orenl@cs.columbia.edu>
 	<20100501.151022.190375136.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 In-Reply-To: <20100501.151022.190375136.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
@@ -19,83 +18,26 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
 To: David Miller <davem@davemloft.net>
-Cc: linux-s390@vger.kernel.org, orenl@cs.columbia.edu, containers@lists.linux-foundation.org, x86@kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, matthltc@us.ibm.com, linux-api@vger.kernel.org, serue@us.ibm.com, akpm@linux-foundation.org, sukadev@linux.vnet.ibm.com, xemul@openvz.org
+Cc: linux-s390@vger.kernel.org, orenl@cs.columbia.edu, containers@lists.linux-foundation.org, x86@kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, linux-api@vger.kernel.org, akpm@linux-foundation.org, sukadev@linux.vnet.ibm.com, xemul@openvz.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, May 01, 2010 at 03:10:22PM -0700, David Miller wrote:
+David Miller wrote:
 > NO WAY, there is no way in the world you should post 100 patches
 > at a time to any mailing list, especially those at vger.kernel.org
 > that have thousands upon thousands of subscribers.
-
-I am sorry we concluded that sending these 100 patches at once was a
-good idea. I will try, again, to find ways to divide the
-set up into more manageable pieces. Regardless of how that goes
-the whole set will not be submitted to LKML/vger all at once in the
-future.
-
-If anyone would like to offer more specific constructive suggestions
-on subdividing the patches I'd be happy to try them.
-
-That said, for anyone who's curious, we faced a few dilemmas which
-pointed us down the wrong path here.
-
-http://lkml.org/lkml/2010/3/1/422
-
-Specifically the last part is rather hard to misinterpret:
-
-"I'd suggest waiting until very shortly after 2.6.34-rc1 then please
-send all the patches onto the list and let's get to work."
-
-(ok, it's not shortly after 2.6.34-rc1 -- we were asked to reorganize
-the code and we did...)
-
-But even if one decides to ignore the common sense interpretation of
-Andrew's reply there was more:
-
-Standard procedure is to post to LKML when pushing patches upstream.
-
-We were asked to create a useful implementation of checkpoint/restart
-yet when we tried to submit a digestable piece we were told that
-submitting it by itself was pointless (eclone). The rest of the code
-was even more checkpoint/restart-specific so the same logic seemed to
-apply.
-
-We have public git trees and used the containers@ mailing list to post
-patches for review but rarely received outside feedback on patches
-there. Not even requests to divide the set.
-
-So clearly we needed to post to relevant external lists and
-reviewers. We tried that earlier and received complaints that lists
-hadn't been Cc'd on some of the patches (e.g. fsdevel). So clearly we
-needed to expand the Cc list for v21.
-
-We looked at dividing the set but it always came down to trimming
-functionality -- this conflicted with the "useful implementation"
-we were asked for.
-
-In summary: We've been given a fair number of conflicting instructions
-		and we failed to find the right balance in following them.
-
+> 
 > Post only small, well contained, sets of patches at a time.  At most
 > 10 or so in one go.
-
-We've tried to keep the individual patches small and reviewable. That
-has the opposite effect on patch count unfortunately.
-
->
+> 
 > Do you realize how much mail traffic you generate by posting so many
 > patches at one time, and how unlikely it is for anyone to actually
 > sift through and review your patches after you've spammed them by
 > posting so many at one time?
->
+> 
 > A second infraction and I will have no choice but to block you at the
 > SMTP level at vger.kernel.org so please do not do it again.
 
-We will not post nearly this many at once again.
+Some people, you give them gold and they just complain it's heavy.
 
-I'm thinking we'll just provide URLs to git trees or quilt series
-if subdividing is impossible and/or anyone needs wider context than
-the 10 or so we post at a time.
-
-Sorry again,
-	-Matt Helsley
+-- 
+bkw
