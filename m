@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 5 May 2010 08:16:20 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: deadline ALWAYS default for dasd devices(s390) ?
-Message-ID: <20100505061620.GA2381@osiris.boeblingen.de.ibm.com>
-References: <4BD58848.8090205@gmail.com>
+Message-ID: <4BE123B1.1050500@linux.vnet.ibm.com>
+Date: Wed, 05 May 2010 09:52:17 +0200
+From: Stefan Weinhuber <wein@linux.vnet.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4BD58848.8090205@gmail.com>
+Subject: Re: deadline ALWAYS default for dasd devices(s390) ?
+References: <4BD58848.8090205@gmail.com> <20100505061620.GA2381@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20100505061620.GA2381@osiris.boeblingen.de.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Xose Vazquez Perez <xose.vazquez@gmail.com>, Stefan Weinhuber <wein@de.ibm.com>, Horst Hummel <Horst.Hummel@de.ibm.com>, Stefan Haberland <stefan.haberland@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Xose Vazquez Perez <xose.vazquez@gmail.com>, Stefan Weinhuber <wein@de.ibm.com>, Horst Hummel <Horst.Hummel@de.ibm.com>, Stefan Haberland <stefan.haberland@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Apr 26, 2010 at 02:34:16PM +0200, Xose Vazquez Perez wrote:
-> hi,
+Heiko Carstens wrote:
+> On Mon, Apr 26, 2010 at 02:34:16PM +0200, Xose Vazquez Perez wrote:
+>> hi,
+>>
+>> why is it FORCED ? bypassing a GLOBAL setting and also the kernel command line !!!
+>>
 > 
-> why is it FORCED ? bypassing a GLOBAL setting and also the kernel command line !!!
-> 
-> drivers/s390/block/dasd.c
-> 
-> /*
->  * Allocate and initialize request queue and default I/O scheduler.
->  */
-> static int dasd_alloc_queue(struct dasd_block *block)
-> {
-> 	int rc;
-> 
-> 	block->request_queue = blk_init_queue(do_dasd_request,
-> 					       &block->request_queue_lock);
-> 	if (block->request_queue == NULL)
-> 		return -ENOMEM;
-> 
-> 	block->request_queue->queuedata = block;
-> 
-> 	elevator_exit(block->request_queue->elevator);
-> 	block->request_queue->elevator = NULL;
-> 	rc = elevator_init(block->request_queue, "deadline");
-> 	if (rc) {
-> 		blk_cleanup_queue(block->request_queue);
-> 		return rc;
-> 	}
-> 	return 0;
-> }
+> Horst, Stefan W. or Stefan H. should be able to answer your question.
 
-Horst, Stefan W. or Stefan H. should be able to answer your question.
+At the time this change was made we had the problem that the
+default scheduler chosen by the distributions resulted in
+bad performance for DASD devices.
+I don't know what options were considered back then, but
+I think that having the device driver set a driver specific default
+is better than forcing the whole system to use 'our' scheduler.
+
+I agree that hard coding this choice into the driver is not pretty,
+but it is pragmatic. Some generic mechanism for setting driver specific 
+defaults would be nicer, but I doubt that many other drivers would 
+actually benefit from such an interface.
