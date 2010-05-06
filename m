@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <4BE1245F.801@msgid.tls.msk.ru>
-Date: Wed, 05 May 2010 11:55:11 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
+Message-ID: <4BE27123.6070501@gmail.com>
+Date: Thu, 06 May 2010 09:34:59 +0200
+From: Xose Vazquez Perez <xose.vazquez@gmail.com>
 MIME-Version: 1.0
 Subject: Re: deadline ALWAYS default for dasd devices(s390) ?
 References: <4BD58848.8090205@gmail.com> <20100505061620.GA2381@osiris.boeblingen.de.ibm.com> <4BE123B1.1050500@linux.vnet.ibm.com>
 In-Reply-To: <4BE123B1.1050500@linux.vnet.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Stefan Weinhuber <wein@linux.vnet.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Xose Vazquez Perez <xose.vazquez@gmail.com>, Stefan Weinhuber <wein@de.ibm.com>, Horst Hummel <Horst.Hummel@de.ibm.com>, Stefan Haberland <stefan.haberland@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Weinhuber <wein@de.ibm.com>, Horst Hummel <Horst.Hummel@de.ibm.com>, Stefan Haberland <stefan.haberland@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-05.05.2010 11:52, Stefan Weinhuber wrote:
->> On Mon, Apr 26, 2010 at 02:34:16PM +0200, Xose Vazquez Perez wrote:
->>> hi,
->>>
->>> why is it FORCED ? bypassing a GLOBAL setting and also the kernel
->>> command line !!!
->
+On 05/05/2010 09:52 AM, Stefan Weinhuber wrote:
+
+hi,
+
 > At the time this change was made we had the problem that the
 > default scheduler chosen by the distributions resulted in
 > bad performance for DASD devices.
-> I don't know what options were considered back then, but
-> I think that having the device driver set a driver specific default
-> is better than forcing the whole system to use 'our' scheduler.
->
+
+Have you done recently new cfq vs. deadline tests, in z/VM
+and LPAR ?
+
 > I agree that hard coding this choice into the driver is not pretty,
-> but it is pragmatic. Some generic mechanism for setting driver specific
+> but it is pragmatic.=20
+
+It's awful. Easier and simpler from user space: /sys/block/dasdX/queue/sche=
+duler
+
+> Some generic mechanism for setting driver specific
 > defaults would be nicer, but I doubt that many other drivers would
 > actually benefit from such an interface.
 
-See also another thread started just two days ago:
+see s390-tools-1.8.4/etc/udev/rules.d/60-readahead.rules
+That's the way to do it.
 
-  http://lkml.org/lkml/2010/5/3/404
+-thanks-
 
-Just... one more data point... ;)
-
-/mjt
+--=20
+=ABAll=E1 muevan feroz guerra, ciegos reyes por un palmo m=E1s de tierra;
+que yo aqu=ED tengo por m=EDo cuanto abarca el mar brav=EDo, a quien nadie
+impuso leyes. Y no hay playa, sea cualquiera, ni bandera de esplendor,
+que no sienta mi derecho y d=E9 pecho a mi valor.=BB
