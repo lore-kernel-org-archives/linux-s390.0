@@ -1,86 +1,152 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Oren Laadan <orenl@cs.columbia.edu>
-Subject: [PATCH v21 059/100] c/r: add CKPT_COPY() macro
-Date: Sat,  1 May 2010 10:15:41 -0400
-Message-Id: <1272723382-19470-60-git-send-email-orenl@cs.columbia.edu>
-In-Reply-To: <1272723382-19470-1-git-send-email-orenl@cs.columbia.edu>
-References: <1272723382-19470-1-git-send-email-orenl@cs.columbia.edu>
+Subject: Re: [PATCH 2/5] drivers/s390/net: Drop memory allocation cast
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+In-Reply-To: <OFA176CF49.39A9A029-ONC1257721.00506DA9-C1257721.0050820A@de.ibm.com>
+References: <OFA176CF49.39A9A029-ONC1257721.00506DA9-C1257721.0050820A@de.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 12 May 2010 16:55:34 +0200
+Message-ID: <1273676134.18115.9.camel@braunu-laptop>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: containers@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Serge Hallyn <serue@us.ibm.com>, Matt Helsley <matthltc@us.ibm.com>, Pavel Emelyanov <xemul@openvz.org>, Dan Smith <danms@us.ibm.com>, linux-s390@vger.kernel.org, Oren Laadan <orenl@cs.columbia.edu>
+To: Julia Lawall <julia@diku.dk>
+Cc: ursula.braun@de.ibm.com, blaschka@linux.vnet.ibm.com, mschwid2@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux390@de.ibm.com, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Dan Smith <danms@us.ibm.com>
+Thanks Julia, we have added your patch to our local repository and will
+submit it for upstream integration.
 
-As suggested by Dave[1], this provides us a way to make the copy-in and
-copy-out processes symmetric.  CKPT_COPY_ARRAY() provides us a way to do
-the same thing but for arrays.  It's not critical, but it helps us unify
-the checkpoint and restart paths for some things.
 
-Changelog:
-    Mar 04:
-            . Removed semicolons
-            . Added build-time check for __must_be_array in CKPT_COPY_ARRAY
-    Feb 27:
-            . Changed CKPT_COPY() to use assignment, eliminating the need
-              for the CKPT_COPY_BIT() macro
-            . Add CKPT_COPY_ARRAY() macro to help copying register arrays,
-              etc
-            . Move the macro definitions inside the CR #ifdef
-    Feb 25:
-            . Changed WARN_ON() to BUILD_BUG_ON()
-
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Dan Smith <danms@us.ibm.com>
-Signed-off-by: Oren Laadan <orenl@cs.columbia.edu>
-Acked-by: Serge E. Hallyn <serue@us.ibm.com>
-Tested-by: Serge E. Hallyn <serue@us.ibm.com>
-
-1: https://lists.linux-foundation.org/pipermail/containers/2009-February/015821.html (all the way at the bottom)
----
- include/linux/checkpoint.h |   28 ++++++++++++++++++++++++++++
- 1 files changed, 28 insertions(+), 0 deletions(-)
-
-diff --git a/include/linux/checkpoint.h b/include/linux/checkpoint.h
-index 2f72a6a..cd76f70 100644
---- a/include/linux/checkpoint.h
-+++ b/include/linux/checkpoint.h
-@@ -246,6 +246,34 @@ static inline int ckpt_validate_errno(int errno)
- 	return (errno >= 0) && (errno < MAX_ERRNO);
- }
- 
-+/* useful macros to copy fields and buffers to/from ckpt_hdr_xxx structures */
-+#define CKPT_CPT 1
-+#define CKPT_RST 2
-+
-+#define CKPT_COPY(op, SAVE, LIVE)				        \
-+	do {							\
-+		if (op == CKPT_CPT)				\
-+			SAVE = LIVE;				\
-+		else						\
-+			LIVE = SAVE;				\
-+	} while (0)
-+
-+/*
-+ * Copy @count items from @LIVE to @SAVE if op is CKPT_CPT (otherwise,
-+ * copy in the reverse direction)
-+ */
-+#define CKPT_COPY_ARRAY(op, SAVE, LIVE, count)				\
-+	do {								\
-+		(void)__must_be_array(SAVE);				\
-+		(void)__must_be_array(LIVE);				\
-+		BUILD_BUG_ON(sizeof(*SAVE) != sizeof(*LIVE));		\
-+		if (op == CKPT_CPT)					\
-+			memcpy(SAVE, LIVE, count * sizeof(*SAVE));	\
-+		else							\
-+			memcpy(LIVE, SAVE, count * sizeof(*SAVE));	\
-+	} while (0)
-+
-+
- /* debugging flags */
- #define CKPT_DBASE	0x1		/* anything */
- #define CKPT_DSYS	0x2		/* generic (system) */
--- 
-1.6.3.3
+> From: Julia Lawall <julia@diku.dk>
+> 
+> Drop cast on the result of kmalloc and similar functions.
+> 
+> The semantic patch that makes this change is as follows:
+> (http://coccinelle.lip6.fr/)
+> 
+> // <smpl>
+> @@
+> type T;
+> @@
+> 
+> - (T *)
+>  (\(kmalloc\|kzalloc\|kcalloc\|kmem_cache_alloc\|kmem_cache_zalloc\|
+>   kmem_cache_alloc_node\|kmalloc_node\|kzalloc_node\)(...))
+> // </smpl>
+> 
+> Signed-off-by: Julia Lawall <julia@diku.dk>
+> 
+> ---
+> drivers/s390/net/ctcm_main.c      |    6 ++----
+> drivers/s390/net/ctcm_mpc.c       |    6 ++----
+> drivers/s390/net/lcs.c            |    3 +--
+> drivers/s390/net/qeth_core_main.c |    2 +-
+> 4 files changed, 6 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/s390/net/ctcm_main.c
+> b/drivers/s390/net/ctcm_main.c
+> index e35713d..4ecafbf 100644
+> --- a/drivers/s390/net/ctcm_main.c
+> +++ b/drivers/s390/net/ctcm_main.c
+> @@ -1364,8 +1364,7 @@ static int add_channel(struct ccw_device *cdev,
+> enum ctcm_channel_types type,
+> 
+>                  ch->protocol = priv->protocol;
+>                  if (IS_MPC(priv)) {
+> -                                  ch->discontact_th = (struct
+> th_header *)
+> -
+>  kzalloc(TH_HEADER_LENGTH, gfp_type());
+> +                                  ch->discontact_th =
+> kzalloc(TH_HEADER_LENGTH, gfp_type());
+>                                   if (ch->discontact_th == NULL)
+> 
+>                goto nomem_return;
+> 
+> @@ -1379,8 +1378,7 @@ static int add_channel(struct ccw_device *cdev,
+> enum ctcm_channel_types type,
+>                  } else
+>                                   ccw_num = 8;
+> 
+> -                 ch->ccw = (struct ccw1 *)
+> -                                  kzalloc(ccw_num * sizeof(struct
+> ccw1), GFP_KERNEL | GFP_DMA);
+> +                 ch->ccw = kzalloc(ccw_num * sizeof(struct ccw1),
+> GFP_KERNEL | GFP_DMA);
+>                  if (ch->ccw == NULL)
+> 
+>                goto nomem_return;
+> 
+> diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
+> index 5978b39..87c24d2 100644
+> --- a/drivers/s390/net/ctcm_mpc.c
+> +++ b/drivers/s390/net/ctcm_mpc.c
+> @@ -669,8 +669,7 @@ static void ctcmpc_send_sweep_resp(struct channel
+> *rch)
+> 
+> goto done;
+>                  }
+> 
+> -                 header = (struct th_sweep *)
+> -
+> kmalloc(sizeof(struct th_sweep), gfp_type());
+> +                 header = kmalloc(sizeof(struct th_sweep),
+> gfp_type());
+> 
+>                  if (!header) {
+>                                   dev_kfree_skb_any(sweep_skb);
+> @@ -1191,8 +1190,7 @@ static void ctcmpc_unpack_skb(struct channel
+> *ch, struct sk_buff *pskb)
+>                                                    skb_pull(pskb,
+> new_len); /* point to next PDU */
+>                                   }
+>                  } else {
+> -                                  mpcginfo = (struct mpcg_info *)
+> -
+>  kmalloc(sizeof(struct mpcg_info), gfp_type());
+> +                                  mpcginfo = kmalloc(sizeof(struct
+> mpcg_info), gfp_type());
+>                                   if (mpcginfo == NULL)
+> 
+>                goto done;
+> 
+> diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+> index 9b19ea1..0f19d54 100644
+> --- a/drivers/s390/net/lcs.c
+> +++ b/drivers/s390/net/lcs.c
+> @@ -1238,8 +1238,7 @@ lcs_set_mc_addresses(struct lcs_card *card,
+> struct in_device *in4_dev)
+>                                   ipm = lcs_check_addr_entry(card,
+> im4, buf);
+>                                   if (ipm != NULL)
+>                                                    continue;
+>         /* Address already in list. */
+> -                                  ipm = (struct lcs_ipm_list *)
+> -
+> kzalloc(sizeof(struct lcs_ipm_list), GFP_ATOMIC);
+> +                                  ipm = kzalloc(sizeof(struct
+> lcs_ipm_list), GFP_ATOMIC);
+>                                   if (ipm == NULL) {
+>                                                    pr_info("Not enough
+> memory to add"
+>                                                                     "
+> new multicast entry!\n");
+> diff --git a/drivers/s390/net/qeth_core_main.c
+> b/drivers/s390/net/qeth_core_main.c
+> index 3ba738b..065a3fa 100644
+> --- a/drivers/s390/net/qeth_core_main.c
+> +++ b/drivers/s390/net/qeth_core_main.c
+> @@ -606,7 +606,7 @@ static int qeth_setup_channel(struct qeth_channel
+> *channel)
+> 
+>                  QETH_DBF_TEXT(SETUP, 2, "setupch");
+>                  for (cnt = 0; cnt < QETH_CMD_BUFFER_NO; cnt++) {
+> -                                  channel->iob[cnt].data = (char *)
+> +                                  channel->iob[cnt].data =
+> 
+>  kmalloc(QETH_BUFSIZE, GFP_DMA|GFP_KERNEL);
+>                                   if (channel->iob[cnt].data == NULL)
+>                                                    break;
+> 
