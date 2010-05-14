@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 17 May 2010 12:23:14 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH 1/10] drivers/s390/char: Use kstrdup
-Message-ID: <20100517122314.0c639383@mschwide.boeblingen.de.ibm.com>
-In-Reply-To: <Pine.LNX.4.64.1005142303180.28935@ask.diku.dk>
-References: <Pine.LNX.4.64.1005142127100.28935@ask.diku.dk>
-	<Pine.LNX.4.64.1005142210320.28935@ask.diku.dk>
-	<Pine.LNX.4.64.1005142303180.28935@ask.diku.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Fri, 14 May 2010 21:28:13 +0200 (CEST)
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH 1/10] drivers/s390/char: Use kstrdup
+Message-ID: <Pine.LNX.4.64.1005142127100.28935@ask.diku.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Julia Lawall <julia@diku.dk>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 14 May 2010 23:03:51 +0200 (CEST)
-Julia Lawall <julia@diku.dk> wrote:
+From: Julia Lawall <julia@diku.dk>
 
-> From: Julia Lawall <julia@diku.dk>
-> 
-> Use kstrdup when the goal of an allocation is copy a string into the
-> allocated region.  Additionally drop the now unused variable len.
-> 
-> The semantic patch that makes this change is as follows:
-> (http://coccinelle.lip6.fr/)
-> 
-> // <smpl>
-> @@
-> expression from,to;
-> expression flag,E1,E2;
-> statement S;
-> @@
-> 
-> -  to = kmalloc(strlen(from) + 1,flag);
-> +  to = kstrdup(from, flag);
->    ... when != \(from = E1 \| to = E1 \)
->    if (to==NULL || ...) S
->    ... when != \(from = E2 \| to = E2 \)
-> -  strcpy(to, from);
-> // </smpl>
-> 
-> Signed-off-by: Julia Lawall <julia@diku.dk>
+Use kstrdup when the goal of an allocation is copy a string into the
+allocated region.
 
-Added to git390, thanks Julia.
+The semantic patch that makes this change is as follows:
+(http://coccinelle.lip6.fr/)
 
--- 
-blue skies,
-   Martin.
+// <smpl>
+@@
+expression x,from,to;
+expression flag,E1,E2,E3;
+statement S;
+@@
 
-"Reality continues to ruin my life." - Calvin.
+-   x = strlen(from) + 1;
+    ... when != \( x = E1 \| from = E1 \)
+-   to = \(kmalloc\|kzalloc\)(x,flag);
++   to = kstrdup(from, flag);
+    ... when != \(x = E2 \| from = E2 \| to = E2 \)
+    if (to==NULL || ...) S
+    ... when != \(x = E3 \| from = E3 \| to = E3 \)
+-   memcpy(to, from, x);
+// </smpl>
+
+Signed-off-by: Julia Lawall <julia@diku.dk>
+
+---
+ drivers/s390/char/keyboard.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff -u -p a/drivers/s390/char/keyboard.c b/drivers/s390/char/keyboard.c
+--- a/drivers/s390/char/keyboard.c
++++ b/drivers/s390/char/keyboard.c
+@@ -72,11 +72,10 @@ kbd_alloc(void) {
+ 		goto out_maps;
+ 	for (i = 0; i < ARRAY_SIZE(func_table); i++) {
+ 		if (func_table[i]) {
+-			len = strlen(func_table[i]) + 1;
+-			kbd->func_table[i] = kmalloc(len, GFP_KERNEL);
++			kbd->func_table[i] = kstrdup(func_table[i],
++						     GFP_KERNEL);
+ 			if (!kbd->func_table[i])
+ 				goto out_func;
+-			memcpy(kbd->func_table[i], func_table[i], len);
+ 		}
+ 	}
+ 	kbd->fn_handler =
