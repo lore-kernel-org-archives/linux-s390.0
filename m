@@ -1,150 +1,108 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 12 May 2010 09:58:30 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 2.6.34-rc7
-Message-ID: <20100512095830.66add2ac@mschwide.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+From: frank.blaschka@de.ibm.com
+Subject: [patch 1/2] [PATCH] drivers/s390/net: Drop memory allocation cast
+Date: Mon, 17 May 2010 09:15:13 +0200
+Message-ID: <20100517071552.120190000@de.ibm.com>
+References: <20100517071512.118564000@de.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=610-drop-alloc-cast.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Julia Lawall <julia@diku.dk>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+From: Julia Lawall <julia@diku.dk>
 
-three last minute bug fixes for s390. Please pull from 'for-linus' branch of
+Drop cast on the result of kmalloc and similar functions.
 
-	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
+The semantic patch that makes this change is as follows:
+(http://coccinelle.lip6.fr/)
 
-to receive the following updates:
+// <smpl>
+@@
+type T;
+@@
 
-Gerald Schaefer (1):
-      [S390] ptrace: fix return value of do_syscall_trace_enter()
+- (T *)
+  (\(kmalloc\|kzalloc\|kcalloc\|kmem_cache_alloc\|kmem_cache_zalloc\|
+   kmem_cache_alloc_node\|kmalloc_node\|kzalloc_node\)(...))
+// </smpl>
 
-Martin Schwidefsky (1):
-      [S390] correct address of _stext with CONFIG_SHARED_KERNEL=y
+Signed-off-by: Julia Lawall <julia@diku.dk>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
 
-Stefan Weinhuber (1):
-      [S390] dasd: fix race between tasklet and dasd_sleep_on
+ drivers/s390/net/ctcm_main.c      |    6 ++----
+ drivers/s390/net/ctcm_mpc.c       |    6 ++----
+ drivers/s390/net/lcs.c            |    3 +--
+ drivers/s390/net/qeth_core_main.c |    2 +-
+ 4 files changed, 6 insertions(+), 11 deletions(-)
 
- arch/s390/kernel/head31.S |    2 +-
- arch/s390/kernel/head64.S |    2 +-
- arch/s390/kernel/ptrace.c |    5 ++---
- drivers/s390/block/dasd.c |   17 ++++++++++-------
- 4 files changed, 14 insertions(+), 12 deletions(-)
-
-diff --git a/arch/s390/kernel/head31.S b/arch/s390/kernel/head31.S
-index 1bbcc49..b8f8dc1 100644
---- a/arch/s390/kernel/head31.S
-+++ b/arch/s390/kernel/head31.S
-@@ -82,7 +82,7 @@ startup_continue:
- _ehead:
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -1364,8 +1364,7 @@ static int add_channel(struct ccw_device
  
- #ifdef CONFIG_SHARED_KERNEL
--	.org	0x100000
-+	.org	0x100000 - 0x11000	# head.o ends at 0x11000
- #endif
+ 	ch->protocol = priv->protocol;
+ 	if (IS_MPC(priv)) {
+-		ch->discontact_th = (struct th_header *)
+-				kzalloc(TH_HEADER_LENGTH, gfp_type());
++		ch->discontact_th = kzalloc(TH_HEADER_LENGTH, gfp_type());
+ 		if (ch->discontact_th == NULL)
+ 					goto nomem_return;
  
- #
-diff --git a/arch/s390/kernel/head64.S b/arch/s390/kernel/head64.S
-index 1f70970..cdef687 100644
---- a/arch/s390/kernel/head64.S
-+++ b/arch/s390/kernel/head64.S
-@@ -80,7 +80,7 @@ startup_continue:
- _ehead:
+@@ -1379,8 +1378,7 @@ static int add_channel(struct ccw_device
+ 	} else
+ 		ccw_num = 8;
  
- #ifdef CONFIG_SHARED_KERNEL
--	.org	0x100000
-+	.org	0x100000 - 0x11000	# head.o ends at 0x11000
- #endif
+-	ch->ccw = (struct ccw1 *)
+-		kzalloc(ccw_num * sizeof(struct ccw1), GFP_KERNEL | GFP_DMA);
++	ch->ccw = kzalloc(ccw_num * sizeof(struct ccw1), GFP_KERNEL | GFP_DMA);
+ 	if (ch->ccw == NULL)
+ 					goto nomem_return;
  
- #
-diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-index 33fdc5a..9f654da 100644
---- a/arch/s390/kernel/ptrace.c
-+++ b/arch/s390/kernel/ptrace.c
-@@ -640,7 +640,7 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
- 
- asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
- {
--	long ret;
-+	long ret = 0;
- 
- 	/* Do the secure computing check first. */
- 	secure_computing(regs->gprs[2]);
-@@ -649,7 +649,6 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
- 	 * The sysc_tracesys code in entry.S stored the system
- 	 * call number to gprs[2].
- 	 */
--	ret = regs->gprs[2];
- 	if (test_thread_flag(TIF_SYSCALL_TRACE) &&
- 	    (tracehook_report_syscall_entry(regs) ||
- 	     regs->gprs[2] >= NR_syscalls)) {
-@@ -671,7 +670,7 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
- 				    regs->gprs[2], regs->orig_gpr2,
- 				    regs->gprs[3], regs->gprs[4],
- 				    regs->gprs[5]);
--	return ret;
-+	return ret ?: regs->gprs[2];
- }
- 
- asmlinkage void do_syscall_trace_exit(struct pt_regs *regs)
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index acf222f..fa2339c 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -37,6 +37,9 @@
-  */
- #define DASD_CHANQ_MAX_SIZE 4
- 
-+#define DASD_SLEEPON_START_TAG	(void *) 1
-+#define DASD_SLEEPON_END_TAG	(void *) 2
-+
- /*
-  * SECTION: exported variables of dasd.c
-  */
-@@ -1472,7 +1475,10 @@ void dasd_add_request_tail(struct dasd_ccw_req *cqr)
-  */
- static void dasd_wakeup_cb(struct dasd_ccw_req *cqr, void *data)
- {
--	wake_up((wait_queue_head_t *) data);
-+	spin_lock_irq(get_ccwdev_lock(cqr->startdev->cdev));
-+	cqr->callback_data = DASD_SLEEPON_END_TAG;
-+	spin_unlock_irq(get_ccwdev_lock(cqr->startdev->cdev));
-+	wake_up(&generic_waitq);
- }
- 
- static inline int _wait_for_wakeup(struct dasd_ccw_req *cqr)
-@@ -1482,10 +1488,7 @@ static inline int _wait_for_wakeup(struct dasd_ccw_req *cqr)
- 
- 	device = cqr->startdev;
- 	spin_lock_irq(get_ccwdev_lock(device->cdev));
--	rc = ((cqr->status == DASD_CQR_DONE ||
--	       cqr->status == DASD_CQR_NEED_ERP ||
--	       cqr->status == DASD_CQR_TERMINATED) &&
--	      list_empty(&cqr->devlist));
-+	rc = (cqr->callback_data == DASD_SLEEPON_END_TAG);
- 	spin_unlock_irq(get_ccwdev_lock(device->cdev));
- 	return rc;
- }
-@@ -1573,7 +1576,7 @@ static int _dasd_sleep_on(struct dasd_ccw_req *maincqr, int interruptible)
- 			wait_event(generic_waitq, !(device->stopped));
- 
- 		cqr->callback = dasd_wakeup_cb;
--		cqr->callback_data = (void *) &generic_waitq;
-+		cqr->callback_data = DASD_SLEEPON_START_TAG;
- 		dasd_add_request_tail(cqr);
- 		if (interruptible) {
- 			rc = wait_event_interruptible(
-@@ -1652,7 +1655,7 @@ int dasd_sleep_on_immediatly(struct dasd_ccw_req *cqr)
+--- a/drivers/s390/net/ctcm_mpc.c
++++ b/drivers/s390/net/ctcm_mpc.c
+@@ -669,8 +669,7 @@ static void ctcmpc_send_sweep_resp(struc
+ 				goto done;
  	}
  
- 	cqr->callback = dasd_wakeup_cb;
--	cqr->callback_data = (void *) &generic_waitq;
-+	cqr->callback_data = DASD_SLEEPON_START_TAG;
- 	cqr->status = DASD_CQR_QUEUED;
- 	list_add(&cqr->devlist, &device->ccw_queue);
+-	header = (struct th_sweep *)
+-			kmalloc(sizeof(struct th_sweep), gfp_type());
++	header = kmalloc(sizeof(struct th_sweep), gfp_type());
  
+ 	if (!header) {
+ 		dev_kfree_skb_any(sweep_skb);
+@@ -1191,8 +1190,7 @@ static void ctcmpc_unpack_skb(struct cha
+ 			skb_pull(pskb, new_len); /* point to next PDU */
+ 		}
+ 	} else {
+-		mpcginfo = (struct mpcg_info *)
+-				kmalloc(sizeof(struct mpcg_info), gfp_type());
++		mpcginfo = kmalloc(sizeof(struct mpcg_info), gfp_type());
+ 		if (mpcginfo == NULL)
+ 					goto done;
+ 
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -1238,8 +1238,7 @@ lcs_set_mc_addresses(struct lcs_card *ca
+ 		ipm = lcs_check_addr_entry(card, im4, buf);
+ 		if (ipm != NULL)
+ 			continue;	/* Address already in list. */
+-		ipm = (struct lcs_ipm_list *)
+-			kzalloc(sizeof(struct lcs_ipm_list), GFP_ATOMIC);
++		ipm = kzalloc(sizeof(struct lcs_ipm_list), GFP_ATOMIC);
+ 		if (ipm == NULL) {
+ 			pr_info("Not enough memory to add"
+ 				" new multicast entry!\n");
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -606,7 +606,7 @@ static int qeth_setup_channel(struct qet
+ 
+ 	QETH_DBF_TEXT(SETUP, 2, "setupch");
+ 	for (cnt = 0; cnt < QETH_CMD_BUFFER_NO; cnt++) {
+-		channel->iob[cnt].data = (char *)
++		channel->iob[cnt].data =
+ 			kmalloc(QETH_BUFSIZE, GFP_DMA|GFP_KERNEL);
+ 		if (channel->iob[cnt].data == NULL)
+ 			break;
