@@ -1,74 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 15 May 2010 23:20:07 +0200 (CEST)
-From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 23/37] drivers/s390/char: Use kmemdup
-Message-ID: <Pine.LNX.4.64.1005152319490.21345@ask.diku.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Tue, 18 May 2010 09:07:16 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for the 2.6.35 merge window
+Message-ID: <20100518090716.78a9884b@mschwide.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julia Lawall <julia@diku.dk>
+Hi Linus,
 
-Use kmemdup when some other buffer is immediately copied into the
-allocated region.
+please pull from 'for-linus' branch of
 
-A simplified version of the semantic patch that makes this change is as
-follows: (http://coccinelle.lip6.fr/)
+	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
 
-// <smpl>
-@@
-expression from,to,size,flag;
-statement S;
-@@
+to receive the following updates:
 
--  to = \(kmalloc\|kzalloc\)(size,flag);
-+  to = kmemdup(from,size,flag);
-   if (to==NULL || ...) S
--  memcpy(to, from, size);
-// </smpl>
+Carsten Otte (1):
+      [S390] virtualization aware cpu measurement
 
-Signed-off-by: Julia Lawall <julia@diku.dk>
+Christoph Egger (1):
+      [S390] vdso: remove redundant check for CONFIG_64BIT
 
----
- drivers/s390/char/keyboard.c |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+Heiko Carstens (4):
+      [S390] vmcp: disallow modular build
+      [S390] topology: expose core identifier
+      [S390] user space fault: report fault before calling do_exit
+      [S390] debug: enable exception-trace debug facility
 
-diff -u -p a/drivers/s390/char/keyboard.c b/drivers/s390/char/keyboard.c
---- a/drivers/s390/char/keyboard.c
-+++ b/drivers/s390/char/keyboard.c
-@@ -59,12 +59,11 @@ kbd_alloc(void) {
- 		goto out_kbd;
- 	for (i = 0; i < ARRAY_SIZE(key_maps); i++) {
- 		if (key_maps[i]) {
--			kbd->key_maps[i] =
--				kmalloc(sizeof(u_short)*NR_KEYS, GFP_KERNEL);
-+			kbd->key_maps[i] = kmemdup(key_maps[i],
-+						   sizeof(u_short) * NR_KEYS,
-+						   GFP_KERNEL);
- 			if (!kbd->key_maps[i])
- 				goto out_maps;
--			memcpy(kbd->key_maps[i], key_maps[i],
--			       sizeof(u_short)*NR_KEYS);
- 		}
- 	}
- 	kbd->func_table = kzalloc(sizeof(func_table), GFP_KERNEL);
-@@ -83,12 +82,11 @@ kbd_alloc(void) {
- 		kzalloc(sizeof(fn_handler_fn *) * NR_FN_HANDLER, GFP_KERNEL);
- 	if (!kbd->fn_handler)
- 		goto out_func;
--	kbd->accent_table =
--		kmalloc(sizeof(struct kbdiacruc)*MAX_DIACR, GFP_KERNEL);
-+	kbd->accent_table = kmemdup(accent_table,
-+				    sizeof(struct kbdiacruc) * MAX_DIACR,
-+				    GFP_KERNEL);
- 	if (!kbd->accent_table)
- 		goto out_fn_handler;
--	memcpy(kbd->accent_table, accent_table,
--	       sizeof(struct kbdiacruc)*MAX_DIACR);
- 	kbd->accent_table_size = accent_table_size;
- 	return kbd;
- 
+Hendrik Brueckner (1):
+      [S390] vdso: add missing vdso_install target
+
+Jan Glauber (6):
+      [S390] qdio: count number of qdio interrupts
+      [S390] qdio: prevent starvation on PCI devices
+      [S390] qdio: remove memset hack
+      [S390] qdio: dont convert timestamps to microseconds
+      [S390] qdio: set correct bit in dsci
+      [S390] qdio: remove API wrappers
+
+Julia Lawall (2):
+      [S390] drivers/s390/char: Use kstrdup
+      [S390] drivers/s390/char: Use kmemdup
+
+Martin Schwidefsky (6):
+      [S390] More cleanup for struct _lowcore
+      [S390] cleanup sysc_work and io_work code
+      [S390] improve irq tracing code in entry[64].S
+      [S390] idle time accounting vs. machine checks
+      [S390] add breaking event address for user space
+      [S390] avoid default_llseek in s390 drivers
+
+Michael Holzheu (1):
+      [S390] s390_hypfs: Add new attributes
+
+Stefan Haberland (2):
+      [S390] dasd: add dynamic pav toleration
+      [S390] dasd: remove uid from devmap
+
+ arch/s390/Kconfig                   |    7 -
+ arch/s390/Makefile                  |    6 +
+ arch/s390/hypfs/hypfs.h             |    4 +
+ arch/s390/hypfs/hypfs_diag.c        |  123 +++++++-
+ arch/s390/hypfs/hypfs_vm.c          |   87 +++++-
+ arch/s390/hypfs/inode.c             |   42 ++-
+ arch/s390/include/asm/cputime.h     |    9 +-
+ arch/s390/include/asm/lowcore.h     |   89 +++---
+ arch/s390/include/asm/ptrace.h      |    3 +-
+ arch/s390/include/asm/qdio.h        |    2 -
+ arch/s390/include/asm/setup.h       |    5 +-
+ arch/s390/include/asm/system.h      |    5 -
+ arch/s390/include/asm/thread_info.h |    1 +
+ arch/s390/include/asm/timex.h       |    8 +-
+ arch/s390/include/asm/topology.h    |    2 +
+ arch/s390/kernel/asm-offsets.c      |    6 +-
+ arch/s390/kernel/debug.c            |    1 +
+ arch/s390/kernel/early.c            |    4 +
+ arch/s390/kernel/entry.S            |  324 ++++++++-----------
+ arch/s390/kernel/entry64.S          |  617 +++++++++++++++++------------------
+ arch/s390/kernel/head.S             |    4 +-
+ arch/s390/kernel/nmi.c              |    3 +-
+ arch/s390/kernel/processor.c        |   37 ++-
+ arch/s390/kernel/ptrace.c           |   68 ++++
+ arch/s390/kernel/s390_ext.c         |    3 +-
+ arch/s390/kernel/setup.c            |   27 +--
+ arch/s390/kernel/signal.c           |    2 +
+ arch/s390/kernel/topology.c         |    7 +-
+ arch/s390/kernel/traps.c            |   31 +-
+ arch/s390/kernel/vdso.c             |    4 -
+ arch/s390/kernel/vtime.c            |   15 +-
+ arch/s390/kvm/Kconfig               |   11 +
+ arch/s390/kvm/sie64a.S              |   77 ++++-
+ arch/s390/mm/fault.c                |   32 +-
+ drivers/s390/block/dasd.c           |   22 ++
+ drivers/s390/block/dasd_3990_erp.c  |   20 ++
+ drivers/s390/block/dasd_alias.c     |  125 +++++---
+ drivers/s390/block/dasd_devmap.c    |  174 ++++------
+ drivers/s390/block/dasd_eckd.c      |  116 ++++++-
+ drivers/s390/block/dasd_eckd.h      |    2 +-
+ drivers/s390/block/dasd_int.h       |   49 ++--
+ drivers/s390/char/Kconfig           |    3 +-
+ drivers/s390/char/fs3270.c          |    1 +
+ drivers/s390/char/keyboard.c        |   21 +-
+ drivers/s390/char/vmcp.c            |   38 +--
+ drivers/s390/char/zcore.c           |    4 +-
+ drivers/s390/cio/chsc_sch.c         |    1 +
+ drivers/s390/cio/cio.c              |    3 +-
+ drivers/s390/cio/css.c              |    8 +-
+ drivers/s390/cio/qdio.h             |   15 +-
+ drivers/s390/cio/qdio_main.c        |   67 +---
+ drivers/s390/cio/qdio_setup.c       |    8 +-
+ drivers/s390/cio/qdio_thinint.c     |    4 +-
+ drivers/s390/crypto/zcrypt_api.c    |    2 +-
+ drivers/s390/net/qeth_core_main.c   |   17 +-
+ drivers/s390/scsi/zfcp_cfdc.c       |    1 +
+ include/linux/elf.h                 |    1 +
+ kernel/sysctl.c                     |    5 +-
+ 58 files changed, 1369 insertions(+), 1004 deletions(-)
