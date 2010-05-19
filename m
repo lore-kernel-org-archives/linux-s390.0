@@ -1,47 +1,29 @@
-From: Rob van der Heij <rvdheij@gmail.com>
-Date: Thu, 06 May 2010 08:17:36 +0000
-Subject: Re: deadline ALWAYS default for dasd devices(s390) ?
-Message-Id: <z2x6227a1ef1005060117ld034b2e7vb31493640d0789be@mail.gmail.com>
-In-Reply-To: <4BE27123.6070501@gmail.com>
-References: <4BE27123.6070501@gmail.com>
+From: Huang Weiyi <weiyi.huang@gmail.com>
+Date: Wed, 19 May 2010 23:12:09 +0000
+Subject: [PATCH 2/3] [S390] remove duplicated #include
+Message-Id: <1274310729-5160-1-git-send-email-weiyi.huang@gmail.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, May 6, 2010 at 9:34 AM, Xose Vazquez Perez
-<xose.vazquez@gmail.com> wrote:
-> On 05/05/2010 09:52 AM, Stefan Weinhuber wrote:
->
-> hi,
->
->> At the time this change was made we had the problem that the
->> default scheduler chosen by the distributions resulted in
->> bad performance for DASD devices.
->
-> Have you done recently new cfq vs. deadline tests, in z/VM
-> and LPAR ?
->
->> I agree that hard coding this choice into the driver is not pretty,
->> but it is pragmatic.
->
-> It's awful. Easier and simpler from user space: /sys/block/dasdX/queue/scheduler
->
->> Some generic mechanism for setting driver specific
->> defaults would be nicer, but I doubt that many other drivers would
->> actually benefit from such an interface.
->
-> see s390-tools-1.8.4/etc/udev/rules.d/60-readahead.rules
-> That's the way to do it.
+Remove duplicated #include('s) in
+  arch/s390/kvm/sie64a.S
 
-</lurk>
-Hear, hear!
+Signed-off-by: Huang Weiyi <weiyi.huang@gmail.com>
+---
+ arch/s390/kvm/sie64a.S |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-When it's hardcoded, the performance recommendations become a
-self-fulfilling prophecy since it prevents simple souls like myself
-from experimenting and show under what circumstances the alternative
-is more effective. It would not be the first time. I  still recall the
-critsit when some feature of the dasd driver did great in the lab and
-failed miserably in real life.
-I'm even willing to try wrap my brains around udev if I have to ;-)
-<lurk>
-
-Rob
+diff --git a/arch/s390/kvm/sie64a.S b/arch/s390/kvm/sie64a.S
+index 31646bd..6bab37e 100644
+--- a/arch/s390/kvm/sie64a.S
++++ b/arch/s390/kvm/sie64a.S
+@@ -14,7 +14,6 @@
+ #include <linux/errno.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/setup.h>
+-#include <asm/asm-offsets.h>
+ #include <asm/ptrace.h>
+ #include <asm/thread_info.h>
+ 
+-- 
+1.6.1.3
