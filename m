@@ -1,29 +1,30 @@
-From: Huang Weiyi <weiyi.huang@gmail.com>
-Date: Wed, 19 May 2010 23:12:09 +0000
-Subject: [PATCH 2/3] [S390] remove duplicated #include
-Message-Id: <1274310729-5160-1-git-send-email-weiyi.huang@gmail.com>
+From: Jonathan Nieder <jrnieder@gmail.com>
+Date: Sat, 22 May 2010 19:58:45 +0000
+Subject: [PATCH] fill out file list in s390 MAINTAINERS entry
+Message-Id: <20100522195845.GA12411@progeny.tock>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Remove duplicated #include('s) in
-  arch/s390/kvm/sie64a.S
+Noticed with scripts/get_maintainer.pl -f fs/partitions/ibm.c
 
-Signed-off-by: Huang Weiyi <weiyi.huang@gmail.com>
+Signed-off-by: Jonathan Nieder <jrnieder@gmail.com>
 ---
- arch/s390/kvm/sie64a.S |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ MAINTAINERS |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-diff --git a/arch/s390/kvm/sie64a.S b/arch/s390/kvm/sie64a.S
-index 31646bd..6bab37e 100644
---- a/arch/s390/kvm/sie64a.S
-+++ b/arch/s390/kvm/sie64a.S
-@@ -14,7 +14,6 @@
- #include <linux/errno.h>
- #include <asm/asm-offsets.h>
- #include <asm/setup.h>
--#include <asm/asm-offsets.h>
- #include <asm/ptrace.h>
- #include <asm/thread_info.h>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index ff0784b..8d0d34a 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -4813,6 +4813,9 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
+ S:	Supported
+ F:	arch/s390/
+ F:	drivers/s390/
++F:	fs/partitions/ibm.c
++F:	Documentation/s390/
++F:	Documentation/DocBook/s390*
  
+ S390 NETWORK DRIVERS
+ M:	Ursula Braun <ursula.braun@de.ibm.com>
 -- 
-1.6.1.3
+1.7.1
