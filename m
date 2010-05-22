@@ -1,48 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <4BE27123.6070501@gmail.com>
-Date: Thu, 06 May 2010 09:34:59 +0200
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
+Date: Sat, 22 May 2010 10:24:47 +0200 (CEST)
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH 20/27] drivers/s390/net: Use memdup_user
+Message-ID: <Pine.LNX.4.64.1005221024220.13021@ask.diku.dk>
 MIME-Version: 1.0
-Subject: Re: deadline ALWAYS default for dasd devices(s390) ?
-References: <4BD58848.8090205@gmail.com> <20100505061620.GA2381@osiris.boeblingen.de.ibm.com> <4BE123B1.1050500@linux.vnet.ibm.com>
-In-Reply-To: <4BE123B1.1050500@linux.vnet.ibm.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Stefan Weinhuber <wein@linux.vnet.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Weinhuber <wein@de.ibm.com>, Horst Hummel <Horst.Hummel@de.ibm.com>, Stefan Haberland <stefan.haberland@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ursula Braun <ursula.braun@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/05/2010 09:52 AM, Stefan Weinhuber wrote:
+From: Julia Lawall <julia@diku.dk>
 
-hi,
+Use memdup_user when user data is immediately copied into the
+allocated region.
 
-> At the time this change was made we had the problem that the
-> default scheduler chosen by the distributions resulted in
-> bad performance for DASD devices.
+The semantic patch that makes this change is as follows:
+(http://coccinelle.lip6.fr/)
 
-Have you done recently new cfq vs. deadline tests, in z/VM
-and LPAR ?
+// <smpl>
+@@
+expression from,to,size,flag;
+position p;
+identifier l1,l2;
+@@
 
-> I agree that hard coding this choice into the driver is not pretty,
-> but it is pragmatic.=20
+-  to = \(kmalloc@p\|kzalloc@p\)(size,flag);
++  to = memdup_user(from,size);
+   if (
+-      to==NULL
++      IS_ERR(to)
+                 || ...) {
+   <+... when != goto l1;
+-  -ENOMEM
++  PTR_ERR(to)
+   ...+>
+   }
+-  if (copy_from_user(to, from, size) != 0) {
+-    <+... when != goto l2;
+-    -EFAULT
+-    ...+>
+-  }
+// </smpl>
 
-It's awful. Easier and simpler from user space: /sys/block/dasdX/queue/sche=
-duler
+Signed-off-by: Julia Lawall <julia@diku.dk>
 
-> Some generic mechanism for setting driver specific
-> defaults would be nicer, but I doubt that many other drivers would
-> actually benefit from such an interface.
+---
+ drivers/s390/net/qeth_core_main.c |   11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-see s390-tools-1.8.4/etc/udev/rules.d/60-readahead.rules
-That's the way to do it.
-
--thanks-
-
---=20
-=ABAll=E1 muevan feroz guerra, ciegos reyes por un palmo m=E1s de tierra;
-que yo aqu=ED tengo por m=EDo cuanto abarca el mar brav=EDo, a quien nadie
-impuso leyes. Y no hay playa, sea cualquiera, ni bandera de esplendor,
-que no sienta mi derecho y d=E9 pecho a mi valor.=BB
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 13ef46b..8b48fbd 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -3764,15 +3764,10 @@ int qeth_snmp_command(struct qeth_card *card, char __user *udata)
+ 	/* skip 4 bytes (data_len struct member) to get req_len */
+ 	if (copy_from_user(&req_len, udata + sizeof(int), sizeof(int)))
+ 		return -EFAULT;
+-	ureq = kmalloc(req_len+sizeof(struct qeth_snmp_ureq_hdr), GFP_KERNEL);
+-	if (!ureq) {
++	ureq = memdup_user(udata, req_len + sizeof(struct qeth_snmp_ureq_hdr));
++	if (IS_ERR(ureq)) {
+ 		QETH_DBF_TEXT(TRACE, 2, "snmpnome");
+-		return -ENOMEM;
+-	}
+-	if (copy_from_user(ureq, udata,
+-			req_len + sizeof(struct qeth_snmp_ureq_hdr))) {
+-		kfree(ureq);
+-		return -EFAULT;
++		return PTR_ERR(ureq);
+ 	}
+ 	qinfo.udata_len = ureq->hdr.data_len;
+ 	qinfo.udata = kzalloc(qinfo.udata_len, GFP_KERNEL);
