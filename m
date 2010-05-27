@@ -1,30 +1,40 @@
-From: Jonathan Nieder <jrnieder@gmail.com>
-Date: Sat, 22 May 2010 19:58:45 +0000
-Subject: [PATCH] fill out file list in s390 MAINTAINERS entry
-Message-Id: <20100522195845.GA12411@progeny.tock>
+From: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
+Date: Thu, 27 May 2010 03:53:34 +0000
+Subject: [patch 0/3] S390-HWBKPT v5: Hardware breakpoint implementation for
+Message-Id: <20100527034134.GA6404@in.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Noticed with scripts/get_maintainer.pl -f fs/partitions/ibm.c
+Hi Heiko/Frederic,
 
-Signed-off-by: Jonathan Nieder <jrnieder@gmail.com>
----
- MAINTAINERS |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+Please find the latest set of patches that introduces s390 specific
+implementation for perf-events based hardware breakpoint interfaces for review.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index ff0784b..8d0d34a 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -4813,6 +4813,9 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
- S:	Supported
- F:	arch/s390/
- F:	drivers/s390/
-+F:	fs/partitions/ibm.c
-+F:	Documentation/s390/
-+F:	Documentation/DocBook/s390*
- 
- S390 NETWORK DRIVERS
- M:	Ursula Braun <ursula.braun@de.ibm.com>
+Change in v5:
+- Use exclude_kernel attribute set to decide whether to install wide breakpoint
+  in kernel or not. This flag will be used by ptrace breakpoint.
+- Removed 'info->name' field as Name to address resolving is done in generic
+  code.
+- Select CONFIG_HAVE_MIXED_BREAKPOINTS_REGS as s390 uses same register for
+  instruction as well as data breakpoint.
+- Re-based the patches on commit d67f088e084755bdceb4f15bc6e05e309db1eea7 of
+  -tip perf/core
+
+Change in v4:
+- Introduced a kernel per tracing flag in lowcore structure for each cpu
+  instead of global.
+- Handled a race condition with interrupts/preemption while looking for
+  PER event in hw_breakpoint_handler() routine.
+
+Change in v3:
+- Merged first two patches of v1 patchset.
+- Introduced second patch that implements kernel part PER tracing.
+
+The patch set has been tested with ksym_tracer and watchpoints over GDB+ptrace
+and works fine.
+
+Thanks,
+-Mahesh.
+
 -- 
-1.7.1
+Signed-off-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
