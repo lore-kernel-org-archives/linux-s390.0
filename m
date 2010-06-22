@@ -1,38 +1,37 @@
 From: frank.blaschka@de.ibm.com
-Subject: [patch 08/11] [PATCH] qeth: fix use after free for qeths debug area
-Date: Tue, 22 Jun 2010 10:57:09 +0200
-Message-ID: <20100622085807.926487000@de.ibm.com>
+Subject: [patch 10/11] [PATCH] qeth: specify correct function level for OSN devices
+Date: Tue, 22 Jun 2010 10:57:11 +0200
+Message-ID: <20100622085808.185985000@de.ibm.com>
 References: <20100622085701.772508000@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=608-qeth-debug-area-free.diff
+Content-Disposition: inline; filename=610-qeth-osn-function-level.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Carsten Otte <cotte@de.ibm.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-The function qeth_free_buffer_pool is called _after_ the per-card
-debug area has been released. This debug message is not all that
-usefull anyway, and thus gets removed.
+OSN devices use the same function level as OSD devices. This patch
+adds OSN-devices to the initialization function for func_level.
 
-Signed-off-by: Carsten Otte <cotte@de.ibm.com>
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
 Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
 
- drivers/s390/net/qeth_core_main.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/s390/net/qeth_core_main.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 diff -urpN linux-2.6/drivers/s390/net/qeth_core_main.c linux-2.6-patched/drivers/s390/net/qeth_core_main.c
---- linux-2.6/drivers/s390/net/qeth_core_main.c	2010-06-22 08:55:01.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/net/qeth_core_main.c	2010-06-22 08:55:01.000000000 +0200
-@@ -973,7 +973,6 @@ static void qeth_free_buffer_pool(struct
- {
- 	struct qeth_buffer_pool_entry *pool_entry, *tmp;
- 	int i = 0;
--	QETH_CARD_TEXT(card, 5, "freepool");
- 	list_for_each_entry_safe(pool_entry, tmp,
- 				 &card->qdio.init_pool.entry_list, init_list){
- 		for (i = 0; i < QETH_MAX_BUFFER_ELEMENTS(card); ++i)
+--- linux-2.6/drivers/s390/net/qeth_core_main.c	2010-06-22 08:55:02.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth_core_main.c	2010-06-22 08:55:02.000000000 +0200
+@@ -1390,6 +1390,7 @@ static void qeth_init_func_level(struct 
+ 				QETH_IDX_FUNC_LEVEL_IQD_DIS_IPAT;
+ 		break;
+ 	case QETH_CARD_TYPE_OSD:
++	case QETH_CARD_TYPE_OSN:
+ 		card->info.func_level = QETH_IDX_FUNC_LEVEL_OSD;
+ 		break;
+ 	default:
