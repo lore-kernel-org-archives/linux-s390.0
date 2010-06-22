@@ -1,59 +1,80 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 3/3] zfcp: Update status read mempool
-Date: Mon, 21 Jun 2010 10:11:33 +0200
-Message-ID: <20100621081247.492768000@de.ibm.com>
-References: <20100621081130.507888000@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=703-zfcp-status-mempool.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@suse.de>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
+From: frank.blaschka@de.ibm.com
+Subject: [patch 01/11] [PATCH] smsgiucv: guarantee single iucv connect in thaw
+Date: Tue, 22 Jun 2010 10:57:02 +0200
+Message-ID: <20100622085806.920924000@de.ibm.com>
+References: <20100622085701.772508000@de.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=601-smsgiucv-thaw-path-connect.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-Commit 64deb6efdc5504ce97b5c1c6f281fffbc150bd93 changed the way status
-read buffers are handled but forgot to adjust the mempool to the new
-size. Add the call to resize the mempool after the exchange config
-data. Also use the define instead of the hard coded number in the fsf
-callback for consistency.
+If another smsgiucv_app device exists, suspend / resume fails with
+iucv path list corruption, because the same iucv_path_connect is
+called twice.
+The patch introduces a flag to save connect status of the smsgiucv
+path to make sure iucv_path_connect in smsg_pm_restore_thaw is
+called only once.
 
-Reviewed-by: Swen Schillig <swen@vnet.ibm.com>
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
 
- drivers/s390/scsi/zfcp_erp.c |    8 ++++++++
- drivers/s390/scsi/zfcp_fsf.c |    3 ++-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ drivers/s390/net/smsgiucv.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/scsi/zfcp_erp.c	2010-06-21 09:37:39.000000000 +0200
-+++ b/drivers/s390/scsi/zfcp_erp.c	2010-06-21 09:37:46.000000000 +0200
-@@ -714,6 +714,14 @@ static int zfcp_erp_adapter_strategy_ope
- 	if (zfcp_erp_adapter_strategy_open_fsf_xport(act) == ZFCP_ERP_FAILED)
- 		return ZFCP_ERP_FAILED;
+diff -urpN linux-2.6/drivers/s390/net/smsgiucv.c linux-2.6-patched/drivers/s390/net/smsgiucv.c
+--- linux-2.6/drivers/s390/net/smsgiucv.c	2010-05-16 23:17:36.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/smsgiucv.c	2010-06-22 08:54:57.000000000 +0200
+@@ -47,6 +47,7 @@ static struct device *smsg_dev;
  
-+	if (mempool_resize(act->adapter->pool.status_read_data,
-+			   act->adapter->stat_read_buf_num, GFP_KERNEL))
-+		return ZFCP_ERP_FAILED;
-+
-+	if (mempool_resize(act->adapter->pool.status_read_req,
-+			   act->adapter->stat_read_buf_num, GFP_KERNEL))
-+		return ZFCP_ERP_FAILED;
-+
- 	atomic_set(&act->adapter->stat_miss, act->adapter->stat_read_buf_num);
- 	if (zfcp_status_read_refill(act->adapter))
- 		return ZFCP_ERP_FAILED;
---- a/drivers/s390/scsi/zfcp_fsf.c	2010-06-21 09:37:43.000000000 +0200
-+++ b/drivers/s390/scsi/zfcp_fsf.c	2010-06-21 09:37:46.000000000 +0200
-@@ -496,7 +496,8 @@ static int zfcp_fsf_exchange_config_eval
+ static DEFINE_SPINLOCK(smsg_list_lock);
+ static LIST_HEAD(smsg_list);
++static int iucv_path_connected;
  
- 	adapter->hydra_version = bottom->adapter_type;
- 	adapter->timer_ticks = bottom->timer_interval;
--	adapter->stat_read_buf_num = max(bottom->status_read_buf_num, (u16)16);
-+	adapter->stat_read_buf_num = max(bottom->status_read_buf_num,
-+					 (u16)FSF_STATUS_READS_RECOM);
+ static int smsg_path_pending(struct iucv_path *, u8 ipvmid[8], u8 ipuser[16]);
+ static void smsg_message_pending(struct iucv_path *, struct iucv_message *);
+@@ -142,8 +143,10 @@ static int smsg_pm_freeze(struct device 
+ #ifdef CONFIG_PM_DEBUG
+ 	printk(KERN_WARNING "smsg_pm_freeze\n");
+ #endif
+-	if (smsg_path)
++	if (smsg_path && iucv_path_connected) {
+ 		iucv_path_sever(smsg_path, NULL);
++		iucv_path_connected = 0;
++	}
+ 	return 0;
+ }
  
- 	if (fc_host_permanent_port_name(shost) == -1)
- 		fc_host_permanent_port_name(shost) = fc_host_port_name(shost);
+@@ -154,7 +157,7 @@ static int smsg_pm_restore_thaw(struct d
+ #ifdef CONFIG_PM_DEBUG
+ 	printk(KERN_WARNING "smsg_pm_restore_thaw\n");
+ #endif
+-	if (smsg_path) {
++	if (smsg_path && iucv_path_connected) {
+ 		memset(smsg_path, 0, sizeof(*smsg_path));
+ 		smsg_path->msglim = 255;
+ 		smsg_path->flags = 0;
+@@ -165,6 +168,8 @@ static int smsg_pm_restore_thaw(struct d
+ 			printk(KERN_ERR
+ 			       "iucv_path_connect returned with rc %i\n", rc);
+ #endif
++		if (!rc)
++			iucv_path_connected = 1;
+ 		cpcmd("SET SMSG IUCV", NULL, 0, NULL);
+ 	}
+ 	return 0;
+@@ -214,6 +219,8 @@ static int __init smsg_init(void)
+ 			       NULL, NULL, NULL);
+ 	if (rc)
+ 		goto out_free_path;
++	else
++		iucv_path_connected = 1;
+ 	smsg_dev = kzalloc(sizeof(struct device), GFP_KERNEL);
+ 	if (!smsg_dev) {
+ 		rc = -ENOMEM;
