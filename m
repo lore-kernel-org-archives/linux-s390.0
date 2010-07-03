@@ -1,66 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5/8] dasd: no need for BKL in ioctl
-Date: Sun,  4 Jul 2010 00:02:29 +0200
-Message-Id: <1278194552-24943-6-git-send-email-arnd@arndb.de>
-In-Reply-To: <1278194552-24943-1-git-send-email-arnd@arndb.de>
-References: <1278194552-24943-1-git-send-email-arnd@arndb.de>
+Subject: [PATCH 0/8] BKL removal, assorted patches
+Date: Sun,  4 Jul 2010 00:02:24 +0200
+Message-Id: <1278194552-24943-1-git-send-email-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: John Kacur <jkacur@redhat.com>, Frederic Weisbecker <fweisbec@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+Cc: John Kacur <jkacur@redhat.com>, Frederic Weisbecker <fweisbec@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Bob Picco <bob.picco@hp.com>, Clemens Ladisch <clemens@ladisch.de>, Geert Uytterhoeven <geert@linux-m68k.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Jaroslav Kysela <perex@perex.cz>, Jesse Barnes <jbarnes@virtuousgeek.org>, linux-pci@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Takashi Iwai <tiwai@suse.de>, Tejun Heo <tj@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-The dasd driver does not need the BKL, so we can
-remove it here as well.
+These patches are necessary for the removal of the
+big kernel lock but don't fit in any other series.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+The most important one is the addition of the
+CONFIG_BKL Kconfig symbol, which can be used
+to mark device drivers that are still using the
+BKL so we can build a kernel that does not provide
+or need it.
+
+I'd like to add this series to linux-next and
+submit it for linux-2.6.36 inclusion, but
+would even more welcome the individual maintainers
+to pick up the respective patches and put them
+in their next trees.
+
+	Arnd
+
+Cc: Bob Picco <bob.picco@hp.com>
+Cc: Clemens Ladisch <clemens@ladisch.de>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: linux-pci@vger.kernel.org
 Cc: linux-s390@vger.kernel.org
----
- drivers/s390/block/dasd_ioctl.c |   17 ++---------------
- 1 files changed, 2 insertions(+), 15 deletions(-)
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Takashi Iwai <tiwai@suse.de>
+Cc: Tejun Heo <tj@kernel.org>
 
-diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
-index 1557214..26075e9 100644
---- a/drivers/s390/block/dasd_ioctl.c
-+++ b/drivers/s390/block/dasd_ioctl.c
-@@ -16,7 +16,6 @@
- #include <linux/major.h>
- #include <linux/fs.h>
- #include <linux/blkpg.h>
--#include <linux/smp_lock.h>
- #include <linux/slab.h>
- #include <asm/compat.h>
- #include <asm/ccwdev.h>
-@@ -370,9 +369,8 @@ static int dasd_ioctl_readall_cmb(struct dasd_block *block, unsigned int cmd,
- 	return ret;
- }
- 
--static int
--dasd_do_ioctl(struct block_device *bdev, fmode_t mode,
--	      unsigned int cmd, unsigned long arg)
-+int dasd_ioctl(struct block_device *bdev, fmode_t mode,
-+	       unsigned int cmd, unsigned long arg)
- {
- 	struct dasd_block *block = bdev->bd_disk->private_data;
- 	void __user *argp;
-@@ -430,14 +428,3 @@ dasd_do_ioctl(struct block_device *bdev, fmode_t mode,
- 		return -EINVAL;
- 	}
- }
--
--int dasd_ioctl(struct block_device *bdev, fmode_t mode,
--	       unsigned int cmd, unsigned long arg)
--{
--	int rc;
--
--	lock_kernel();
--	rc = dasd_do_ioctl(bdev, mode, cmd, arg);
--	unlock_kernel();
--	return rc;
--}
--- 
-1.7.1
+
+Arnd Bergmann (7):
+  do_coredump: do not take BKL
+  init: remove the BKL from startup code
+  hpet: kill BKL, add compat_ioctl
+  proc/pci: kill BKL
+  dasd: no need for BKL in ioctl
+  isapnp: BKL removal
+  BKL: introduce CONFIG_BKL.
+
+John Kacur (1):
+  soundcore_open: Reduce the area BKL coverage
+
+ drivers/char/Kconfig            |    2 +-
+ drivers/char/hpet.c             |   98 +++++++++++++++++++++++++-------------
+ drivers/gpu/drm/Kconfig         |    5 +-
+ drivers/hid/usbhid/Kconfig      |    2 +-
+ drivers/isdn/Kconfig            |    1 +
+ drivers/isdn/capi/Kconfig       |    2 +-
+ drivers/isdn/mISDN/Kconfig      |    1 +
+ drivers/media/Kconfig           |    3 +-
+ drivers/misc/Kconfig            |    2 +-
+ drivers/net/appletalk/Kconfig   |    1 +
+ drivers/pci/proc.c              |    4 +-
+ drivers/pnp/isapnp/proc.c       |   13 +++--
+ drivers/s390/block/dasd_ioctl.c |   17 +------
+ drivers/sbus/char/Kconfig       |    2 +-
+ drivers/staging/sep/Kconfig     |    2 +-
+ drivers/staging/usbip/Kconfig   |    2 +-
+ drivers/usb/gadget/Kconfig      |    2 +-
+ fs/Kconfig                      |    1 +
+ fs/adfs/Kconfig                 |    1 +
+ fs/afs/Kconfig                  |    1 +
+ fs/autofs/Kconfig               |    1 +
+ fs/autofs4/Kconfig              |    1 +
+ fs/coda/Kconfig                 |    1 +
+ fs/ecryptfs/Kconfig             |    1 +
+ fs/exec.c                       |    6 --
+ fs/fat/Kconfig                  |    2 +
+ fs/freevxfs/Kconfig             |    1 +
+ fs/hpfs/Kconfig                 |    1 +
+ fs/isofs/Kconfig                |    1 +
+ fs/jffs2/Kconfig                |    1 +
+ fs/ncpfs/Kconfig                |    1 +
+ fs/nfs/Kconfig                  |    2 +-
+ fs/nfsd/Kconfig                 |    1 +
+ fs/ocfs2/Kconfig                |    1 +
+ fs/qnx4/Kconfig                 |    1 +
+ fs/reiserfs/Kconfig             |    1 +
+ fs/smbfs/Kconfig                |    1 +
+ fs/squashfs/Kconfig             |    2 +-
+ fs/udf/Kconfig                  |    1 +
+ fs/ufs/Kconfig                  |    2 +-
+ include/linux/smp_lock.h        |    7 ++-
+ init/Kconfig                    |    2 +-
+ init/main.c                     |    5 --
+ kernel/trace/trace.c            |    8 ---
+ lib/Kconfig.debug               |   14 +++++-
+ net/ipx/Kconfig                 |    1 +
+ net/irda/Kconfig                |    2 +-
+ net/irda/irnet/Kconfig          |    2 +-
+ net/x25/Kconfig                 |    2 +-
+ sound/oss/Kconfig               |    2 +-
+ sound/sound_core.c              |   13 +++--
+ 51 files changed, 145 insertions(+), 104 deletions(-)
