@@ -1,37 +1,81 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Kulikov Vasiliy <segooon@gmail.com>
-Subject: [PATCH 02/10] s390: sysinfo: check return value of create_proc_read_entry()
-Date: Wed, 28 Jul 2010 20:39:07 +0400
-Message-Id: <1280335147-23185-1-git-send-email-segooon@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: kernel-janitors@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Tejun Heo <tj@kernel.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 2/9] zfcp: Do not wait for SBALs on stopped queue
+Date: Thu, 08 Jul 2010 09:53:03 +0200
+Message-ID: <20100708080110.048467000@de.ibm.com>
+References: <20100708075301.347904000@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline; filename=702-zfcp-stopped-queue.diff
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@suse.de>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-create_proc_read_entry() may fail, if so return -ENOMEM.
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-Signed-off-by: Kulikov Vasiliy <segooon@gmail.com>
+Trying to read the FC host statistics on an offline adapter results in
+a 5 seconds wait. Reading the statistics tries to issue an exchange
+port data request which first waits up to 5 seconds for an entry in 
+the request queue.
+
+Change the strategy for getting a free SBAL to exit when the queue is
+stopped. Reading the statistics will then fail without the wait.
+
+Reviewed-by: Swen Schillig <swen@vnet.ibm.com>
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
 ---
- arch/s390/kernel/sysinfo.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kernel/sysinfo.c b/arch/s390/kernel/sysinfo.c
-index a0ffc77..db358e6 100644
---- a/arch/s390/kernel/sysinfo.c
-+++ b/arch/s390/kernel/sysinfo.c
-@@ -231,9 +231,8 @@ static int proc_read_sysinfo(char *page, char **start,
+ drivers/s390/scsi/zfcp_fsf.c  |    5 -----
+ drivers/s390/scsi/zfcp_qdio.c |   10 +++++++++-
+ 2 files changed, 9 insertions(+), 6 deletions(-)
+
+--- a/drivers/s390/scsi/zfcp_fsf.c	2010-06-21 09:37:40.000000000 +0200
++++ b/drivers/s390/scsi/zfcp_fsf.c	2010-06-21 09:37:43.000000000 +0200
+@@ -719,11 +719,6 @@ static struct zfcp_fsf_req *zfcp_fsf_req
+ 	zfcp_qdio_req_init(adapter->qdio, &req->qdio_req, req->req_id, sbtype,
+ 			   req->qtcb, sizeof(struct fsf_qtcb));
  
- static __init int create_proc_sysinfo(void)
- {
--	create_proc_read_entry("sysinfo", 0444, NULL,
--			       proc_read_sysinfo, NULL);
--	return 0;
-+	return create_proc_read_entry("sysinfo", 0444, NULL,
-+			       proc_read_sysinfo, NULL) ? 0 : -ENOMEM;
+-	if (!(atomic_read(&adapter->status) & ZFCP_STATUS_ADAPTER_QDIOUP)) {
+-		zfcp_fsf_req_free(req);
+-		return ERR_PTR(-EIO);
+-	}
+-
+ 	return req;
  }
- device_initcall(create_proc_sysinfo);
  
--- 
-1.7.0.4
+--- a/drivers/s390/scsi/zfcp_qdio.c	2010-06-21 09:37:39.000000000 +0200
++++ b/drivers/s390/scsi/zfcp_qdio.c	2010-06-21 09:37:43.000000000 +0200
+@@ -251,7 +251,8 @@ static int zfcp_qdio_sbal_check(struct z
+ 	struct zfcp_qdio_queue *req_q = &qdio->req_q;
+ 
+ 	spin_lock_bh(&qdio->req_q_lock);
+-	if (atomic_read(&req_q->count))
++	if (atomic_read(&req_q->count) ||
++	    !(atomic_read(&qdio->adapter->status) & ZFCP_STATUS_ADAPTER_QDIOUP))
+ 		return 1;
+ 	spin_unlock_bh(&qdio->req_q_lock);
+ 	return 0;
+@@ -274,8 +275,13 @@ int zfcp_qdio_sbal_get(struct zfcp_qdio 
+ 	spin_unlock_bh(&qdio->req_q_lock);
+ 	ret = wait_event_interruptible_timeout(qdio->req_q_wq,
+ 			       zfcp_qdio_sbal_check(qdio), 5 * HZ);
++
++	if (!(atomic_read(&qdio->adapter->status) & ZFCP_STATUS_ADAPTER_QDIOUP))
++		return -EIO;
++
+ 	if (ret > 0)
+ 		return 0;
++
+ 	if (!ret) {
+ 		atomic_inc(&qdio->req_q_full);
+ 		/* assume hanging outbound queue, try queue recovery */
+@@ -375,6 +381,8 @@ void zfcp_qdio_close(struct zfcp_qdio *q
+ 	atomic_clear_mask(ZFCP_STATUS_ADAPTER_QDIOUP, &qdio->adapter->status);
+ 	spin_unlock_bh(&qdio->req_q_lock);
+ 
++	wake_up(&qdio->req_q_wq);
++
+ 	qdio_shutdown(qdio->adapter->ccw_device,
+ 		      QDIO_FLAG_CLEANUP_USING_CLEAR);
+ 
