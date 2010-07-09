@@ -1,23 +1,22 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [-next July 9 - s390 ] Badness at fs/sysfs/symlink.c:82 during qeth initalization
-Date: Fri, 09 Jul 2010 03:39:24 -0700
-Message-ID: <m14og95483.fsf@fess.ebiederm.org>
-References: <20100709150117.51612026.sfr@canb.auug.org.au>
-	<4C36EF9C.7010804@in.ibm.com> <m1d3ux55od.fsf@fess.ebiederm.org>
-	<4C36F974.4030608@in.ibm.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [-next July 9 - s390 ] Badness at fs/sysfs/symlink.c:82 during
+	qeth initalization
+Date: Fri, 9 Jul 2010 07:28:18 -0700
+Message-ID: <20100709142818.GB9041@kroah.com>
+References: <20100709150117.51612026.sfr@canb.auug.org.au> <4C36EF9C.7010804@in.ibm.com> <m1d3ux55od.fsf@fess.ebiederm.org> <4C36F974.4030608@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <4C36F974.4030608@in.ibm.com> (Sachin Sant's message of "Fri\, 09 Jul 2010 15\:57\:00 +0530")
+Content-Disposition: inline
+In-Reply-To: <4C36F974.4030608@in.ibm.com>
 Sender: linux-next-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-next/>
 List-Post: <mailto:linux-next@vger.kernel.org>
 To: Sachin Sant <sachinp@in.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-s390@vger.kernel.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Sachin Sant <sachinp@in.ibm.com> writes:
-
+On Fri, Jul 09, 2010 at 03:57:00PM +0530, Sachin Sant wrote:
 > Eric W. Biederman wrote:
 >>> With today's next(20100709) qeth interface fails to initialize
 >>> with following Badness message:
@@ -33,9 +32,12 @@ Sachin Sant <sachinp@in.ibm.com> writes:
 > CONFIG_SYSFS_DEPRECATED=y
 > CONFIG_SYSFS_DEPRECATED_V2=y
 
-Ugh. It looks like the warning is correct and I have a regression
-in 2.6.35 that was overlooked because I did not closely test
-CONIFG_SYSFS_DEPRECATED.  I will see if I can cook up a proper
-patch shortly.
+Why do you have those options enabled?  Does your userspace really
+require them?  I want to remove those options soon, and it would be good
+to find out what is still relying on them.
 
-Eric
+If you disable those options, does it then work?
+
+thanks,
+
+greg k-h
