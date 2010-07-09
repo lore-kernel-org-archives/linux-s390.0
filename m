@@ -1,59 +1,60 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 3/9] zfcp: Update status read mempool
-Date: Thu, 08 Jul 2010 09:53:04 +0200
-Message-ID: <20100708080110.196777000@de.ibm.com>
-References: <20100708075301.347904000@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=703-zfcp-status-mempool.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@suse.de>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [-next July 9 - s390 ] Badness at fs/sysfs/symlink.c:82 during
+ qeth initalization
+Date: Fri, 9 Jul 2010 08:59:41 -0700
+Message-ID: <20100709155941.GA2086@kroah.com>
+References: <20100709150117.51612026.sfr@canb.auug.org.au>
+ <4C36EF9C.7010804@in.ibm.com>
+ <m1d3ux55od.fsf@fess.ebiederm.org>
+ <4C36F974.4030608@in.ibm.com>
+ <20100709142818.GB9041@kroah.com>
+ <20100709173326.72674aea@mschwide.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-next-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20100709173326.72674aea@mschwide.boeblingen.de.ibm.com>
+Sender: linux-next-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Sachin Sant <sachinp@in.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, linux-s390@vger.kernel.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
+On Fri, Jul 09, 2010 at 05:33:26PM +0200, Martin Schwidefsky wrote:
+> On Fri, 9 Jul 2010 07:28:18 -0700
+> Greg KH <greg@kroah.com> wrote:
+> 
+> > On Fri, Jul 09, 2010 at 03:57:00PM +0530, Sachin Sant wrote:
+> > > Eric W. Biederman wrote:
+> > >>> With today's next(20100709) qeth interface fails to initialize
+> > >>> with following Badness message:
+> > >>>     sysfs: symlink across ns_types 0.0.6000/net:eth0 -> net/eth0
+> > >>>     
+> > >>
+> > >> Is this with CONFIG_SYSFS_DEPRECATED set?
+> > >>
+> > >> I think I may have made my warning check a little extra strict.
+> > >>   
+> > > Yes.
+> > >
+> > > CONFIG_SYSFS_DEPRECATED=y
+> > > CONFIG_SYSFS_DEPRECATED_V2=y
+> > 
+> > Why do you have those options enabled?  Does your userspace really
+> > require them?  I want to remove those options soon, and it would be good
+> > to find out what is still relying on them.
+> > 
+> > If you disable those options, does it then work?
+> 
+> The default configuration for s390 does not have the options enabled and
+> with a recent userspace everything works just fine. From my point of view
+> the two options can be removed.
 
-Commit 64deb6efdc5504ce97b5c1c6f281fffbc150bd93 changed the way status
-read buffers are handled but forgot to adjust the mempool to the new
-size. Add the call to resize the mempool after the exchange config
-data. Also use the define instead of the hard coded number in the fsf
-callback for consistency.
+Wonderful, thanks for letting me know.
 
-Reviewed-by: Swen Schillig <swen@vnet.ibm.com>
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
----
+Sachin, care to disable them in your image as well?
 
- drivers/s390/scsi/zfcp_erp.c |    8 ++++++++
- drivers/s390/scsi/zfcp_fsf.c |    3 ++-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+thanks,
 
---- a/drivers/s390/scsi/zfcp_erp.c	2010-06-21 09:37:39.000000000 +0200
-+++ b/drivers/s390/scsi/zfcp_erp.c	2010-06-21 09:37:46.000000000 +0200
-@@ -714,6 +714,14 @@ static int zfcp_erp_adapter_strategy_ope
- 	if (zfcp_erp_adapter_strategy_open_fsf_xport(act) == ZFCP_ERP_FAILED)
- 		return ZFCP_ERP_FAILED;
- 
-+	if (mempool_resize(act->adapter->pool.status_read_data,
-+			   act->adapter->stat_read_buf_num, GFP_KERNEL))
-+		return ZFCP_ERP_FAILED;
-+
-+	if (mempool_resize(act->adapter->pool.status_read_req,
-+			   act->adapter->stat_read_buf_num, GFP_KERNEL))
-+		return ZFCP_ERP_FAILED;
-+
- 	atomic_set(&act->adapter->stat_miss, act->adapter->stat_read_buf_num);
- 	if (zfcp_status_read_refill(act->adapter))
- 		return ZFCP_ERP_FAILED;
---- a/drivers/s390/scsi/zfcp_fsf.c	2010-06-21 09:37:43.000000000 +0200
-+++ b/drivers/s390/scsi/zfcp_fsf.c	2010-06-21 09:37:46.000000000 +0200
-@@ -496,7 +496,8 @@ static int zfcp_fsf_exchange_config_eval
- 
- 	adapter->hydra_version = bottom->adapter_type;
- 	adapter->timer_ticks = bottom->timer_interval;
--	adapter->stat_read_buf_num = max(bottom->status_read_buf_num, (u16)16);
-+	adapter->stat_read_buf_num = max(bottom->status_read_buf_num,
-+					 (u16)FSF_STATUS_READS_RECOM);
- 
- 	if (fc_host_permanent_port_name(shost) == -1)
- 		fc_host_permanent_port_name(shost) = fc_host_port_name(shost);
+greg k-h
