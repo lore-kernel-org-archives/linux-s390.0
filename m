@@ -1,130 +1,148 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 29 Jul 2010 15:03:09 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 2.6.35-rc6
-Message-ID: <20100729150309.4b2ea955@mschwide.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Joe Perches <joe@perches.com>
+Subject: [PATCH 15/36] drivers/s390: Remove unnecessary casts of private_data
+Date: Mon, 12 Jul 2010 13:50:07 -0700
+Message-Id: <4450e89c24fcd49ba08ea585ab1d145f8ebf1f06.1278967121.git.joe@perches.com>
+In-Reply-To: <cover.1278967120.git.joe@perches.com>
+References: <cover.1278967120.git.joe@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Jiri Kosina <trivial@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+Signed-off-by: Joe Perches <joe@perches.com>
+---
+ drivers/s390/block/dasd_eer.c  |    6 +++---
+ drivers/s390/char/tape_block.c |    4 ++--
+ drivers/s390/char/tape_char.c  |    8 ++++----
+ drivers/s390/char/vmcp.c       |    6 +++---
+ 4 files changed, 12 insertions(+), 12 deletions(-)
 
-please pull from 'for-linus' branch of
-
-	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
-
-to receive the following updates:
-
-Heiko Carstens (1):
-      [S390] Fix IRQ tracing in case of PER
-
-Martin Schwidefsky (1):
-      [S390] etr: fix clock synchronization race
-
- arch/s390/kernel/entry.S   |   12 ++++++++++--
- arch/s390/kernel/entry64.S |   12 ++++++++++--
- arch/s390/kernel/time.c    |   18 ++++++++++++------
- 3 files changed, 32 insertions(+), 10 deletions(-)
-
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index d5e3e60..bea9ee3 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -535,8 +535,16 @@ pgm_no_vtime2:
- 	l	%r3,__LC_PGM_ILC	# load program interruption code
- 	la	%r8,0x7f
- 	nr	%r8,%r3 		# clear per-event-bit and ilc
--	be	BASED(pgm_exit)		# only per or per+check ?
--	b	BASED(pgm_do_call)
-+	be	BASED(pgm_exit2)	# only per or per+check ?
-+	l	%r7,BASED(.Ljump_table)
-+	sll	%r8,2
-+	l	%r7,0(%r8,%r7)		# load address of handler routine
-+	la	%r2,SP_PTREGS(%r15)	# address of register-save area
-+	basr	%r14,%r7		# branch to interrupt-handler
-+pgm_exit2:
-+	TRACE_IRQS_ON
-+	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
-+	b	BASED(sysc_return)
+diff --git a/drivers/s390/block/dasd_eer.c b/drivers/s390/block/dasd_eer.c
+index dd88803..75688af 100644
+--- a/drivers/s390/block/dasd_eer.c
++++ b/drivers/s390/block/dasd_eer.c
+@@ -572,7 +572,7 @@ static int dasd_eer_close(struct inode *inp, struct file *filp)
+ 	struct eerbuffer *eerb;
+ 	unsigned long flags;
  
- #
- # it was a single stepped SVC that is causing all the trouble
-diff --git a/arch/s390/kernel/entry64.S b/arch/s390/kernel/entry64.S
-index e7192e1..8bccec1 100644
---- a/arch/s390/kernel/entry64.S
-+++ b/arch/s390/kernel/entry64.S
-@@ -544,8 +544,16 @@ pgm_no_vtime2:
- 	lgf	%r3,__LC_PGM_ILC	# load program interruption code
- 	lghi	%r8,0x7f
- 	ngr	%r8,%r3			# clear per-event-bit and ilc
--	je	pgm_exit
--	j	pgm_do_call
-+	je	pgm_exit2
-+	sll	%r8,3
-+	larl	%r1,pgm_check_table
-+	lg	%r1,0(%r8,%r1)		# load address of handler routine
-+	la	%r2,SP_PTREGS(%r15)	# address of register-save area
-+	basr	%r14,%r1		# branch to interrupt-handler
-+pgm_exit2:
-+	TRACE_IRQS_ON
-+	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
-+	j	sysc_return
+-	eerb = (struct eerbuffer *) filp->private_data;
++	eerb = filp->private_data;
+ 	spin_lock_irqsave(&bufferlock, flags);
+ 	list_del(&eerb->list);
+ 	spin_unlock_irqrestore(&bufferlock, flags);
+@@ -591,7 +591,7 @@ static ssize_t dasd_eer_read(struct file *filp, char __user *buf,
+         unsigned long flags;
+ 	struct eerbuffer *eerb;
  
- #
- # it was a single stepped SVC that is causing all the trouble
-diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
-index a2163c9..15a7536 100644
---- a/arch/s390/kernel/time.c
-+++ b/arch/s390/kernel/time.c
-@@ -524,8 +524,11 @@ void etr_switch_to_local(void)
- 	if (!etr_eacr.sl)
- 		return;
- 	disable_sync_clock(NULL);
--	set_bit(ETR_EVENT_SWITCH_LOCAL, &etr_events);
--	queue_work(time_sync_wq, &etr_work);
-+	if (!test_and_set_bit(ETR_EVENT_SWITCH_LOCAL, &etr_events)) {
-+		etr_eacr.es = etr_eacr.sl = 0;
-+		etr_setr(&etr_eacr);
-+		queue_work(time_sync_wq, &etr_work);
-+	}
- }
+-	eerb = (struct eerbuffer *) filp->private_data;
++	eerb = filp->private_data;
+ 	if (mutex_lock_interruptible(&readbuffer_mutex))
+ 		return -ERESTARTSYS;
  
- /*
-@@ -539,8 +542,11 @@ void etr_sync_check(void)
- 	if (!etr_eacr.es)
- 		return;
- 	disable_sync_clock(NULL);
--	set_bit(ETR_EVENT_SYNC_CHECK, &etr_events);
--	queue_work(time_sync_wq, &etr_work);
-+	if (!test_and_set_bit(ETR_EVENT_SYNC_CHECK, &etr_events)) {
-+		etr_eacr.es = 0;
-+		etr_setr(&etr_eacr);
-+		queue_work(time_sync_wq, &etr_work);
-+	}
- }
+@@ -653,7 +653,7 @@ static unsigned int dasd_eer_poll(struct file *filp, poll_table *ptable)
+ 	unsigned long flags;
+ 	struct eerbuffer *eerb;
  
- /*
-@@ -902,7 +908,7 @@ static struct etr_eacr etr_handle_update(struct etr_aib *aib,
- 	 * Do not try to get the alternate port aib if the clock
- 	 * is not in sync yet.
- 	 */
--	if (!check_sync_clock())
-+	if (!eacr.es || !check_sync_clock())
- 		return eacr;
+-	eerb = (struct eerbuffer *) filp->private_data;
++	eerb = filp->private_data;
+ 	poll_wait(filp, &dasd_eer_read_wait_queue, ptable);
+ 	spin_lock_irqsave(&bufferlock, flags);
+ 	if (eerb->head != eerb->tail)
+diff --git a/drivers/s390/char/tape_block.c b/drivers/s390/char/tape_block.c
+index b7de025..d448fe5 100644
+--- a/drivers/s390/char/tape_block.c
++++ b/drivers/s390/char/tape_block.c
+@@ -296,7 +296,7 @@ tapeblock_revalidate_disk(struct gendisk *disk)
+ 	unsigned int		nr_of_blks;
+ 	int			rc;
+ 
+-	device = (struct tape_device *) disk->private_data;
++	device = disk->private_data;
+ 	BUG_ON(!device);
+ 
+ 	if (!device->blk_data.medium_changed)
+@@ -345,7 +345,7 @@ tapeblock_medium_changed(struct gendisk *disk)
+ {
+ 	struct tape_device *device;
+ 
+-	device = (struct tape_device *) disk->private_data;
++	device = disk->private_data;
+ 	DBF_LH(6, "tapeblock_medium_changed(%p) = %d\n",
+ 		device, device->blk_data.medium_changed);
+ 
+diff --git a/drivers/s390/char/tape_char.c b/drivers/s390/char/tape_char.c
+index 539045a..bd037d2 100644
+--- a/drivers/s390/char/tape_char.c
++++ b/drivers/s390/char/tape_char.c
+@@ -134,7 +134,7 @@ tapechar_read(struct file *filp, char __user *data, size_t count, loff_t *ppos)
+ 	int rc;
+ 
+ 	DBF_EVENT(6, "TCHAR:read\n");
+-	device = (struct tape_device *) filp->private_data;
++	device = filp->private_data;
  
  	/*
-@@ -1064,7 +1070,7 @@ static void etr_work_fn(struct work_struct *work)
- 	 * If the clock is in sync just update the eacr and return.
- 	 * If there is no valid sync port wait for a port update.
- 	 */
--	if (check_sync_clock() || sync_port < 0) {
-+	if ((eacr.es && check_sync_clock()) || sync_port < 0) {
- 		etr_update_eacr(eacr);
- 		etr_set_tolec_timeout(now);
- 		goto out_unlock;
+ 	 * If the tape isn't terminated yet, do it now. And since we then
+@@ -199,7 +199,7 @@ tapechar_write(struct file *filp, const char __user *data, size_t count, loff_t
+ 	int i, rc;
+ 
+ 	DBF_EVENT(6, "TCHAR:write\n");
+-	device = (struct tape_device *) filp->private_data;
++	device = filp->private_data;
+ 	/* Find out block size and number of blocks */
+ 	if (device->char_data.block_size != 0) {
+ 		if (count < device->char_data.block_size) {
+@@ -317,7 +317,7 @@ tapechar_release(struct inode *inode, struct file *filp)
+ 	struct tape_device *device;
+ 
+ 	DBF_EVENT(6, "TCHAR:release: %x\n", iminor(inode));
+-	device = (struct tape_device *) filp->private_data;
++	device = filp->private_data;
+ 
+ 	/*
+ 	 * If this is the rewinding tape minor then rewind. In that case we
+@@ -454,7 +454,7 @@ tapechar_ioctl(struct file *filp, unsigned int no, unsigned long data)
+ 
+ 	DBF_EVENT(6, "TCHAR:ioct\n");
+ 
+-	device = (struct tape_device *) filp->private_data;
++	device = filp->private_data;
+ 	mutex_lock(&device->mutex);
+ 	rc = __tapechar_ioctl(device, no, data);
+ 	mutex_unlock(&device->mutex);
+diff --git a/drivers/s390/char/vmcp.c b/drivers/s390/char/vmcp.c
+index 04e532e..19a14d9 100644
+--- a/drivers/s390/char/vmcp.c
++++ b/drivers/s390/char/vmcp.c
+@@ -47,7 +47,7 @@ static int vmcp_release(struct inode *inode, struct file *file)
+ {
+ 	struct vmcp_session *session;
+ 
+-	session = (struct vmcp_session *)file->private_data;
++	session = file->private_data;
+ 	file->private_data = NULL;
+ 	free_pages((unsigned long)session->response, get_order(session->bufsize));
+ 	kfree(session);
+@@ -94,7 +94,7 @@ vmcp_write(struct file *file, const char __user *buff, size_t count,
+ 		return -EFAULT;
+ 	}
+ 	cmd[count] = '\0';
+-	session = (struct vmcp_session *)file->private_data;
++	session = file->private_data;
+ 	if (mutex_lock_interruptible(&session->mutex)) {
+ 		kfree(cmd);
+ 		return -ERESTARTSYS;
+@@ -136,7 +136,7 @@ static long vmcp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	int __user *argp;
+ 	int temp;
+ 
+-	session = (struct vmcp_session *)file->private_data;
++	session = file->private_data;
+ 	if (is_compat_task())
+ 		argp = compat_ptr(arg);
+ 	else
+-- 
+1.7.1.337.g6068.dirty
