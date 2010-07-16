@@ -1,71 +1,70 @@
-From: Sachin Sant <sachinp@in.ibm.com>
-Subject: Re: [-next July 9 - s390 ] Badness at fs/sysfs/symlink.c:82 during
- qeth initalization
-Date: Fri, 09 Jul 2010 21:26:40 +0530
-Message-ID: <4C3746B8.9050303@in.ibm.com>
-References: <20100709150117.51612026.sfr@canb.auug.org.au> <4C36EF9C.7010804@in.ibm.com> <m1d3ux55od.fsf@fess.ebiederm.org> <4C36F974.4030608@in.ibm.com> <20100709142818.GB9041@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <20100709142818.GB9041@kroah.com>
-Sender: linux-next-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-next/>
-List-Post: <mailto:linux-next@vger.kernel.org>
-To: Greg KH <greg@kroah.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-s390@vger.kernel.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 01/10] zfcp: Use memdup_user and kstrdup
+Date: Fri, 16 Jul 2010 15:37:34 +0200
+Message-ID: <20100716134259.870531000@de.ibm.com>
+References: <20100716133733.621672000@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline; filename=704-zfcp-dup.diff
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@suse.de>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Greg KH wrote:
-> On Fri, Jul 09, 2010 at 03:57:00PM +0530, Sachin Sant wrote:
->   
->> Eric W. Biederman wrote:
->>     
->>>> With today's next(20100709) qeth interface fails to initialize
->>>> with following Badness message:
->>>>     sysfs: symlink across ns_types 0.0.6000/net:eth0 -> net/eth0
->>>>     
->>>>         
->>> Is this with CONFIG_SYSFS_DEPRECATED set?
->>>
->>> I think I may have made my warning check a little extra strict.
->>>   
->>>       
->> Yes.
->>
->> CONFIG_SYSFS_DEPRECATED=y
->> CONFIG_SYSFS_DEPRECATED_V2=y
->>     
->
-> Why do you have those options enabled?  Does your userspace really
-> require them?  I want to remove those options soon, and it would be good
-> to find out what is still relying on them.
->
-> If you disable those options, does it then work?
->   
-Not sure when and why i enabled these options.
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-Without them i don't see any problem (including the badness).
+Use the functions memdup_user and kstrdup to allocate memory and copy
+the data in one step, saving some lines of code.
 
-Thanks
--Sachin
+Reviewed-by: Swen Schillig <swen@vnet.ibm.com>
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+---
 
-> thanks,
->
-> greg k-h
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-s390" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->   
+ drivers/s390/scsi/zfcp_aux.c  |    4 +---
+ drivers/s390/scsi/zfcp_cfdc.c |   12 +++---------
+ 2 files changed, 4 insertions(+), 12 deletions(-)
 
-
--- 
-
----------------------------------
-Sachin Sant
-IBM Linux Technology Center
-India Systems and Technology Labs
-Bangalore, India
----------------------------------
+diff -urpN linux-2.6/drivers/s390/scsi/zfcp_aux.c linux-2.6-patched/drivers/s390/scsi/zfcp_aux.c
+--- linux-2.6/drivers/s390/scsi/zfcp_aux.c	2010-07-15 12:21:48.000000000 +0200
++++ linux-2.6-patched/drivers/s390/scsi/zfcp_aux.c	2010-07-15 12:22:18.000000000 +0200
+@@ -98,13 +98,11 @@ static void __init zfcp_init_device_setu
+ 	u64 wwpn, lun;
+ 
+ 	/* duplicate devstr and keep the original for sysfs presentation*/
+-	str_saved = kmalloc(strlen(devstr) + 1, GFP_KERNEL);
++	str_saved = kstrdup(devstr, GFP_KERNEL);
+ 	str = str_saved;
+ 	if (!str)
+ 		return;
+ 
+-	strcpy(str, devstr);
+-
+ 	token = strsep(&str, ",");
+ 	if (!token || strlen(token) >= ZFCP_BUS_ID_SIZE)
+ 		goto err_out;
+diff -urpN linux-2.6/drivers/s390/scsi/zfcp_cfdc.c linux-2.6-patched/drivers/s390/scsi/zfcp_cfdc.c
+--- linux-2.6/drivers/s390/scsi/zfcp_cfdc.c	2010-07-15 12:21:48.000000000 +0200
++++ linux-2.6-patched/drivers/s390/scsi/zfcp_cfdc.c	2010-07-15 12:22:18.000000000 +0200
+@@ -189,18 +189,12 @@ static long zfcp_cfdc_dev_ioctl(struct f
+ 	if (!fsf_cfdc)
+ 		return -ENOMEM;
+ 
+-	data = kmalloc(sizeof(struct zfcp_cfdc_data), GFP_KERNEL);
+-	if (!data) {
+-		retval = -ENOMEM;
++	data = memdup_user(data_user, sizeof(*data_user));
++	if (IS_ERR(data)) {
++		retval = PTR_ERR(data);
+ 		goto no_mem_sense;
+ 	}
+ 
+-	retval = copy_from_user(data, data_user, sizeof(*data));
+-	if (retval) {
+-		retval = -EFAULT;
+-		goto free_buffer;
+-	}
+-
+ 	if (data->signature != 0xCFDCACDF) {
+ 		retval = -EINVAL;
+ 		goto free_buffer;
