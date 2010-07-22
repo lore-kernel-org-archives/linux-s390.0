@@ -1,14 +1,12 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Michal Simek <michal.simek@petalogix.com>
 Subject: Re: [PATCH wq#for-next] workqueue: fix how cpu number is stored in
  work->data
-Date: Thu, 22 Jul 2010 17:10:28 +0200
-Message-ID: <20100722171028.2aa0b8f2@mschwide.boeblingen.de.ibm.com>
-References: <4C46CEA3.7040503@in.ibm.com>
-	<4C4718D5.1080902@kernel.org>
-	<20100722112557.14b65077@mschwide.boeblingen.de.ibm.com>
-	<4C4838B8.1080400@kernel.org>
+Date: Thu, 22 Jul 2010 22:13:27 +0200
+Message-ID: <4C48A667.2000702@petalogix.com>
+References: <4C46CEA3.7040503@in.ibm.com>	<4C4718D5.1080902@kernel.org> <20100722112557.14b65077@mschwide.boeblingen.de.ibm.com> <4C4838B8.1080400@kernel.org>
+Reply-To: michal.simek@petalogix.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-next-owner@vger.kernel.org>
 In-Reply-To: <4C4838B8.1080400@kernel.org>
@@ -16,12 +14,10 @@ Sender: linux-next-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-next/>
 List-Post: <mailto:linux-next@vger.kernel.org>
 To: Tejun Heo <tj@kernel.org>
-Cc: Sachin Sant <sachinp@in.ibm.com>, linux-s390@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Sachin Sant <sachinp@in.ibm.com>, linux-s390@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 22 Jul 2010 14:25:28 +0200
-Tejun Heo <tj@kernel.org> wrote:
-
+Tejun Heo wrote:
 > Once a work starts execution, its data contains the cpu number it was
 > on instead of pointing to cwq.  This is added by commit 7a22ad75
 > (workqueue: carry cpu number in work data once execution starts) to
@@ -48,11 +44,18 @@ Tejun Heo <tj@kernel.org> wrote:
 > ---
 > Yeah, that was a stupid assumption by me.  Can you guys please test
 > whether this fixes the problem?
+> 
+> Thanks.
 
-Compiles and boots for s390. Thanks.
+Microblaze is OK.
+
+Tested-by: Michal Simek <monstr@monstr.eu>
+
+Thanks,
+Michal
+
 
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Michal Simek, Ing. (M.Eng)
+PetaLogix - Linux Solutions for a Reconfigurable World
+w: www.petalogix.com p: +61-7-30090663,+42-0-721842854 f: +61-7-30090663
