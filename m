@@ -1,35 +1,41 @@
 From: frank.blaschka@de.ibm.com
-Subject: [patch 0/8] s390: qeth some more patches for 2.6.36
-Date: Fri, 23 Jul 2010 11:15:02 +0200
-Message-ID: <20100723091502.678949000@de.ibm.com>
+Subject: [patch 8/8] [PATCH] qeth: avoid useless removal of multicast addresses
+Date: Fri, 23 Jul 2010 11:15:10 +0200
+Message-ID: <20100723091550.705540000@de.ibm.com>
+References: <20100723091502.678949000@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=619-qeth-multicast-removal.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dave,
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-this is the second patch set (qeth + 1 claw) for 2.6.36 (net-next).
+Function qeth_l2_remove_device invokes qeth_l2_del_all_mc at the end.
+This is needless, because it is already called in the offline function.
+And even more this is invalid, because multicast addresses cannot be
+removed in DOWN state. Thus this patch deletes invocation of
+qeth_l2_del_all_mc in function qeth_l2_remove_device.
 
-shortlog:
-Klaus Wacker (1)
-qeth: IP address takeover flag setting
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
 
-Ursula Braun (5)
-qeth: serialize sysfs-triggered device configurations
-qeth: avoid loop if ipa command response is missing
-claw: A claw device is a group of just 2 ccw devices
-qeth: return zero from reply callback functions
-qeth: avoid useless removal of multicast addresses
+ drivers/s390/net/qeth_l2_main.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-Julia Lawall (1)
-qeth: Use memdup_user when user data is immediately copied into the allocated region.
-
-Carsten Otte (1)
-qeth: Clear mac_bits field when switching between Layer 2 and Layer 3
-
-Thanks,
-        Frank
+diff -urpN linux-2.6/drivers/s390/net/qeth_l2_main.c linux-2.6-patched/drivers/s390/net/qeth_l2_main.c
+--- linux-2.6/drivers/s390/net/qeth_l2_main.c	2010-07-22 10:22:35.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth_l2_main.c	2010-07-22 10:22:37.000000000 +0200
+@@ -860,8 +860,6 @@ static void qeth_l2_remove_device(struct
+ 		unregister_netdev(card->dev);
+ 		card->dev = NULL;
+ 	}
+-
+-	qeth_l2_del_all_mc(card);
+ 	return;
+ }
+ 
