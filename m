@@ -1,52 +1,34 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH 04/36] arch/s390: Remove unnecessary casts of private_data
-Date: Mon, 12 Jul 2010 13:49:56 -0700
-Message-Id: <fa1d54091a0015737790eb442d2fbc8f5e24f276.1278967120.git.joe@perches.com>
-In-Reply-To: <cover.1278967120.git.joe@perches.com>
-References: <cover.1278967120.git.joe@perches.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jiri Kosina <trivial@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Wed, 28 Jul 2010 09:07:14 +0000
+Subject: Re: [patch 2/3] S390-HWBKPT v5: Enabling s390 kernel for kernel
+Message-Id: <20100728090714.GB3020@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20100527034301.GC6404@in.ibm.com>
+References: <20100527034301.GC6404@in.ibm.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- arch/s390/kernel/debug.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+On Thu, May 27, 2010 at 09:13:01AM +0530, Mahesh Salgaonkar wrote:
+> --- a/arch/s390/kernel/hw_breakpoint.c
+> +++ b/arch/s390/kernel/hw_breakpoint.c
+> @@ -82,6 +82,19 @@ int arch_install_hw_breakpoint(struct perf_event *bp)
+>  	per_regs[0].starting_addr = info->address;
+>  	per_regs[0].ending_addr = info->address + info->len - 1;
+> 
+> +	if (!bp->attr.exclude_kernel
+> +		&& per_regs[0].em_storage_alteration) {
+> +		/* For kernel wide breakpoints the Storage-Alteration-Space
+> +		 * Control bit as well as the Storage-Alternation-Event bit
+> +		 * in the ASCE needs to be set. Otherwise we might end up
+> +		 * tracing copy_to_user events as well.
+> +		 */
+> +		per_regs[0].storage_alt_space_ctl = 1;
+> +		__ctl_set_bit(1, 7);
+> +		__ctl_set_bit(7, 7);
+> +		__ctl_set_bit(13, 7);
+> +	}
 
-diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index 9819226..39439c7 100644
---- a/arch/s390/kernel/debug.c
-+++ b/arch/s390/kernel/debug.c
-@@ -531,7 +531,7 @@ debug_output(struct file *file,		/* file descriptor */
- 	size_t entry_offset;
- 	file_private_info_t *p_info;
- 
--	p_info = ((file_private_info_t *) file->private_data);
-+	p_info = file->private_data;
- 	if (*offset != p_info->offset) 
- 		return -EPIPE;
- 	if(p_info->act_area >= p_info->debug_info_snap->nr_areas)
-@@ -581,7 +581,7 @@ debug_input(struct file *file, const char __user *user_buf, size_t length,
- 	file_private_info_t *p_info;
- 
- 	mutex_lock(&debug_mutex);
--	p_info = ((file_private_info_t *) file->private_data);
-+	p_info = file->private_data;
- 	if (p_info->view->input_proc)
- 		rc = p_info->view->input_proc(p_info->debug_info_org,
- 					      p_info->view, file, user_buf,
-@@ -671,7 +671,7 @@ static int
- debug_close(struct inode *inode, struct file *file)
- {
- 	file_private_info_t *p_info;
--	p_info = (file_private_info_t *) file->private_data;
-+	p_info = file->private_data;
- 	if(p_info->debug_info_snap)
- 		debug_info_free(p_info->debug_info_snap);
- 	debug_info_put(p_info->debug_info_org);
--- 
-1.7.1.337.g6068.dirty
+If !exclude_kernel has the same meaning as "only_kernel" then this could work
+if the Storage-Alteration-Event would only be set in the kernel space ASCE.
+
+The corresponding bit in the user space ASCE would be lost on next context
+switch. But since that is hopefully irrelevant that shouldn't be a problem.
