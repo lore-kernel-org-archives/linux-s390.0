@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <4C5E9365.5030804@in.ibm.com>
-Date: Sun, 08 Aug 2010 16:52:13 +0530
-From: Sachin Sant <sachinp@in.ibm.com>
-MIME-Version: 1.0
-Subject: 2.6.35-git6: s390 build failure (drivers/s390/scsi/zfcp_qdio.c)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Tue, 10 Aug 2010 10:18:18 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for 2.6.35+
+Message-ID: <20100810101818.4e39541a@mschwide.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, christof.schmitt@de.ibm.com, swen@vnet.ibm.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Latest 2.6.35 git - 2.6.35-git6 (cd816a0d8...) fails to build
-on a s390 box with following error :
+Hi Linus,
 
-drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_thread':
-drivers/s390/scsi/zfcp_erp.c:1337: warning: frame size of 'zfcp_erp_thread' is 280 bytes
-drivers/s390/scsi/zfcp_qdio.c: In function 'zfcp_qdio_siosl':
-drivers/s390/scsi/zfcp_qdio.c:467: error: implicit declaration of function 'ccw_device_siosl'
-make[2]: *** [drivers/s390/scsi/zfcp_qdio.o] Error 1
+please pull from 'for-linus' branch of
 
-This problem seem to have been introduced with git2 (3cfc2c42c1c...) via
-commit 339f4f4eab80caa6cf0d39fb057ad6ddb84ba91e
+	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
 
-[SCSI] zfcp: Trigger logging in the FCP channel on qdio error conditions
+to receive the following updates:
 
-Thanks
--Sachin
+Heiko Carstens (3):
+      [S390] cmm: add missing __init/__exit annotations
+      [S390] initrd: change default load address
+      [S390] topology: use default MC domain initializer
 
--- 
+Hendrik Brueckner (1):
+      [S390] cmm, smsgiucv_app: convert sender to uppercase
 
----------------------------------
-Sachin Sant
-IBM Linux Technology Center
-India Systems and Technology Labs
-Bangalore, India
----------------------------------
+Michael Ernst (2):
+      [S390] cio: CHSC SIOSL Support
+      [S390] cio: Log the response from the unit check handler
+
+Sebastian Ott (3):
+      [S390] cio: ccw_device_online_store return -EINVAL in case of missing driver
+      [S390] ccwreq: add ability to use all paths
+      [S390] cio: use all available paths for some internal I/O
+
+Stefan Haberland (1):
+      [S390] dasd: tunable missing interrupt handler
+
+Stefan Weinhuber (1):
+      [S390] dasd: allocate fallback cqr for reserve/release
+
+ arch/s390/include/asm/ccwdev.h   |    2 +
+ arch/s390/include/asm/topology.h |    2 -
+ arch/s390/kernel/head.S          |    2 +-
+ arch/s390/mm/cmm.c               |   11 ++++-
+ drivers/s390/block/dasd_devmap.c |   44 ++++++++++++++++++
+ drivers/s390/block/dasd_diag.c   |    6 ++-
+ drivers/s390/block/dasd_eckd.c   |   94 +++++++++++++++++++++++++++++++-------
+ drivers/s390/block/dasd_eckd.h   |    7 ++-
+ drivers/s390/block/dasd_fba.c    |    4 +-
+ drivers/s390/block/dasd_int.h    |    8 +++-
+ drivers/s390/cio/ccwreq.c        |   16 +++++-
+ drivers/s390/cio/chsc.c          |   48 +++++++++++++++++++
+ drivers/s390/cio/chsc.h          |    2 +
+ drivers/s390/cio/device.c        |   47 +++++++++++++++++--
+ drivers/s390/cio/device_pgid.c   |    3 +
+ drivers/s390/cio/io_sch.h        |   10 ++--
+ drivers/s390/net/smsgiucv_app.c  |    7 +++
+ 17 files changed, 275 insertions(+), 38 deletions(-)
