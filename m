@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 10 Aug 2010 10:18:18 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 2.6.35+
-Message-ID: <20100810101818.4e39541a@mschwide.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Thu, 12 Aug 2010 12:44:13 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] partitions: fix build error in ibm partition detection
+ code
+Message-ID: <20100812104413.GD7814@osiris.boeblingen.de.ibm.com>
+References: <20100812083104.GC7814@osiris.boeblingen.de.ibm.com>
+ <m31va4nre5.fsf@hase.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m31va4nre5.fsf@hase.home>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andreas Schwab <schwab@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+On Thu, Aug 12, 2010 at 10:53:38AM +0200, Andreas Schwab wrote:
+> Heiko Carstens <heiko.carstens@de.ibm.com> writes:
+> 
+> > -				strlcat(tmp, sizeof(tmp), "(nonl)", PAGE_SIZE);
+> > +				snprintf(tmp, sizeof(tmp), "(nonl)");
+> > +				strlcat(state->pp_buf, tmp, PAGE_SIZE);
+> 
+> What's the point of tmp and snprintf if it just creates a copy of a
+> constant string?
+> 
+> 				strlcat(state->pp_buf, "(nonl)", PAGE_SIZE);
 
-please pull from 'for-linus' branch of
+There's no point, just followed the pattern in the original patch without
+thinking. Thanks! Updated patch:
 
-	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
+Subject: [PATCH] partitions: fix build error in ibm partition detection code
 
-to receive the following updates:
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Heiko Carstens (3):
-      [S390] cmm: add missing __init/__exit annotations
-      [S390] initrd: change default load address
-      [S390] topology: use default MC domain initializer
+9c867fbe "partitions: fix sometimes unreadable partition strings" coverted
+one line within the ibm partition code incorrectly. Fix this to get rid of
+a build error.
 
-Hendrik Brueckner (1):
-      [S390] cmm, smsgiucv_app: convert sender to uppercase
+fs/partitions/ibm.c: In function 'ibm_partition':
+[...]
+fs/partitions/ibm.c:185: error: too many arguments to function 'strlcat'
 
-Michael Ernst (2):
-      [S390] cio: CHSC SIOSL Support
-      [S390] cio: Log the response from the unit check handler
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ fs/partitions/ibm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Sebastian Ott (3):
-      [S390] cio: ccw_device_online_store return -EINVAL in case of missing driver
-      [S390] ccwreq: add ability to use all paths
-      [S390] cio: use all available paths for some internal I/O
-
-Stefan Haberland (1):
-      [S390] dasd: tunable missing interrupt handler
-
-Stefan Weinhuber (1):
-      [S390] dasd: allocate fallback cqr for reserve/release
-
- arch/s390/include/asm/ccwdev.h   |    2 +
- arch/s390/include/asm/topology.h |    2 -
- arch/s390/kernel/head.S          |    2 +-
- arch/s390/mm/cmm.c               |   11 ++++-
- drivers/s390/block/dasd_devmap.c |   44 ++++++++++++++++++
- drivers/s390/block/dasd_diag.c   |    6 ++-
- drivers/s390/block/dasd_eckd.c   |   94 +++++++++++++++++++++++++++++++-------
- drivers/s390/block/dasd_eckd.h   |    7 ++-
- drivers/s390/block/dasd_fba.c    |    4 +-
- drivers/s390/block/dasd_int.h    |    8 +++-
- drivers/s390/cio/ccwreq.c        |   16 +++++-
- drivers/s390/cio/chsc.c          |   48 +++++++++++++++++++
- drivers/s390/cio/chsc.h          |    2 +
- drivers/s390/cio/device.c        |   47 +++++++++++++++++--
- drivers/s390/cio/device_pgid.c   |    3 +
- drivers/s390/cio/io_sch.h        |   10 ++--
- drivers/s390/net/smsgiucv_app.c  |    7 +++
- 17 files changed, 275 insertions(+), 38 deletions(-)
+--- a/fs/partitions/ibm.c
++++ b/fs/partitions/ibm.c
+@@ -182,7 +182,7 @@ int ibm_partition(struct parsed_partitio
+ 				offset = (info->label_block + 1);
+ 			} else {
+ 				/* unlabeled disk */
+-				strlcat(tmp, sizeof(tmp), "(nonl)", PAGE_SIZE);
++				strlcat(state->pp_buf, "(nonl)", PAGE_SIZE);
+ 				size = i_size >> 9;
+ 				offset = (info->label_block + 1);
+ 			}
