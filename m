@@ -1,53 +1,61 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH 2/3] S390: Add virtio hotplug add support
-Date: Wed, 25 Aug 2010 10:48:49 +0200
-Message-ID: <20100825084849.GG2153@osiris.boeblingen.de.ibm.com>
-References: <1282657732-20902-1-git-send-email-agraf@suse.de>
- <1282657732-20902-2-git-send-email-agraf@suse.de>
- <20100825081630.GE2153@osiris.boeblingen.de.ibm.com>
- <FA6CB344-B4ED-45C1-8478-367038F5F95F@suse.de>
- <20100825083525.GF2153@osiris.boeblingen.de.ibm.com>
- <8A4DFC49-AAB9-4426-8124-583E448B6C98@suse.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: Fw: [PATCH net-next] drivers/s390/net/qeth_l3_main.c: Use %pI6
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+In-Reply-To: <OF89C50871.5ED34E2A-ONC125777D.005A40DE-C125777D.005A4DDE@de.ibm.com>
+References: <OF89C50871.5ED34E2A-ONC125777D.005A40DE-C125777D.005A4DDE@de.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 12 Aug 2010 18:36:00 +0200
+Message-ID: <1281630960.12375.8.camel@braunu-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <8A4DFC49-AAB9-4426-8124-583E448B6C98@suse.de>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Alexander Graf <agraf@suse.de>
-Cc: virtualization@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, Carsten Otte <carsteno@de.ibm.com>, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, KVM list <kvm@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Ursula Braun1 <ursula.braun@de.ibm.com>
+Cc: blaschka@linux.vnet.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Aug 25, 2010 at 10:34:29AM +0200, Alexander Graf wrote:
-> On 25.08.2010, at 10:35, Heiko Carstens wrote:
-> > On Wed, Aug 25, 2010 at 10:20:03AM +0200, Alexander Graf wrote:
-> >> On 25.08.2010, at 10:16, Heiko Carstens wrote:
-> >>> On Tue, Aug 24, 2010 at 03:48:51PM +0200, Alexander Graf wrote:
-> >>>> +static void hotplug_devices(struct work_struct *dummy)
-> >>>> +{
-> >>>> +	unsigned int i;
-> >>>> +	struct kvm_device_desc *d;
-> >>>> +	struct device *dev;
-> >>>> +
-> >>>> +	for (i = 0; i < PAGE_SIZE; i += desc_size(d)) {
-> >>> 
-> >>> This should be 
-> >>> 
-> >>> 	for (i = 0; i + desc_size(d) <= PAGE_SIZE; i += desc_size(d)) {
-> >>> 
-> >>> otherwise you might have memory accesses beyond the device page...
-> >> 
-> >> Oh, this is a simple copy&paste from the original search method.
-> >> Is d valid in the first part of the loop already?
-> > 
-> > No, you would need to initialize it with kvm_devices if you change
-> > the loop.
-> 
-> But even then it would take the size of the current entry, not the next
-> one we're actually looking for, no? Maybe it'd be easier to just convert
-> this into a while loop and explicitly open code everything.
+ACK
+Thanks Joe - we make sure your patch is submitted to Dave Miller within
+our next submission of qeth patches.
 
-Yes indeed. It's going to be quite ugly if you want to make sure that at
-no time you're going to access memory beyond the device page. Eeek.. :)
+Ursula
+
+> From:     Joe Perches <joe@perches.com>
+> To:       Frank Blaschka <blaschka@linux.vnet.ibm.com>
+> Subject:  [PATCH net-next] drivers/s390/net/qeth_l3_main.c: Use %pI6
+
+> Format an ipv6 address using vsprintf extensions.
+> 
+> Signed-off-by: Joe Perches <joe@perches.com>
+> ---
+> drivers/s390/net/qeth_l3_main.c |    7 +------
+> 1 files changed, 1 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/s390/net/qeth_l3_main.c
+> b/drivers/s390/net/qeth_l3_main.c
+> index e22ae24..561bdc8 100644
+> --- a/drivers/s390/net/qeth_l3_main.c
+> +++ b/drivers/s390/net/qeth_l3_main.c
+> @@ -103,12 +103,7 @@ int qeth_l3_string_to_ipaddr4(const char *buf,
+> __u8 *addr)
+> 
+> void qeth_l3_ipaddr6_to_string(const __u8 *addr, char *buf)
+> {
+> -                 sprintf(buf, "%02x%02x:%02x%02x:%02x%02x:%02x%02x"
+> -                                       ":%02x%02x:%02x%02x:%02x%02x:%
+> 02x%02x",
+> -                                       addr[0], addr[1], addr[2],
+> addr[3],
+> -                                       addr[4], addr[5], addr[6],
+> addr[7],
+> -                                       addr[8], addr[9], addr[10],
+> addr[11],
+> -                                       addr[12], addr[13], addr[14],
+> addr[15]);
+> +                 sprintf(buf, "%pI6", addr);
+> }
+> 
+> int qeth_l3_string_to_ipaddr6(const char *buf, __u8 *addr)
+> 
+> 
