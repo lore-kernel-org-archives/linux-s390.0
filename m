@@ -1,35 +1,31 @@
-From: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Fri, 13 Aug 2010 15:45:31 +0900
 Subject: Re: Latest git build failure on s390 - dma_get_cache_alignment()
-Date: Sat, 14 Aug 2010 16:39:15 +0900
-Message-ID: <20100814163804N.fujita.tomonori@lab.ntt.co.jp>
-References: <AANLkTinnLY4LZ-3xbKEJVR3Qjw5xghRZ6i=tWfw8hJHH@mail.gmail.com>
-	<20100813154056S.fujita.tomonori@lab.ntt.co.jp>
-	<20100813172752.4acd7089.sfr@canb.auug.org.au>
+From: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
+In-Reply-To: <AANLkTinnLY4LZ-3xbKEJVR3Qjw5xghRZ6i=tWfw8hJHH@mail.gmail.com>
+References: <20100812075532.GA7814@osiris.boeblingen.de.ibm.com>
+	<20100812080701.GB7814@osiris.boeblingen.de.ibm.com>
+	<AANLkTinnLY4LZ-3xbKEJVR3Qjw5xghRZ6i=tWfw8hJHH@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20100813172752.4acd7089.sfr@canb.auug.org.au>
+Message-ID: <20100813154056S.fujita.tomonori@lab.ntt.co.jp>
 Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20100813064531.DLgBnK9xtsWWT2gAbOvEteYSL4ZJIdWfiWXbWFzV7Do@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: sfr@canb.auug.org.au
-Cc: fujita.tomonori@lab.ntt.co.jp, geert@linux-m68k.org, heiko.carstens@de.ibm.com, sachinp@in.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, linux-arch@vger.kernel.org
+To: geert@linux-m68k.org, sfr@canb.auug.org.au
+Cc: heiko.carstens@de.ibm.com, sachinp@in.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, fujita.tomonori@lab.ntt.co.jp, akpm@linux-foundation.org, linux-arch@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 13 Aug 2010 17:27:52 +1000
-Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+On Thu, 12 Aug 2010 11:03:37 +0200
+Geert Uytterhoeven <geert@linux-m68k.org> wrote:
 
-> > Any chance to test the -mm tree on linux-next compile platform?
+> Seems Sun3 suffers from this as well:
+> http://kisskb.ellerman.id.au/kisskb/buildresult/3022174/
 > 
-> We do, I just have to remember to import the -mm tree manually.
-> 
-> See: http://kisskb.ellerman.id.au/kisskb/branch/14/
+> <std_rant>
+> Funny how these things never show up in linux-next...
+> </std_rant>
 
-Ah, thanks! Seems that I need to track that.
-
-
-> Even better would be to get most of the -mm tree into linux-next
-> itself ... ;-)
-
-Yeah, is there any way to push patches into both -mm and linux-next?
+Any chance to test the -mm tree on linux-next compile platform?
