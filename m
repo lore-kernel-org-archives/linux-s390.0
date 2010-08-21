@@ -1,61 +1,54 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Thu, 19 Aug 2010 14:47:19 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: [PATCHv2 2/1] Consolidate CONFIG_DEBUG_STRICT_USER_COPY_CHECKS
-Message-ID: <20100819144719.e690c674.sfr@canb.auug.org.au>
-In-Reply-To: <1282184898-30599-1-git-send-email-sboyd@codeaurora.org>
-References: <201008181428.45029.arnd@arndb.de>
-	<1282184898-30599-1-git-send-email-sboyd@codeaurora.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [-next PATCH] Fix s390 keyboard driver build break
+Date: Sat, 21 Aug 2010 00:40:19 -0700
+Message-ID: <20100821074018.GB2160@core.coreip.homeip.net>
+References: <20100821072126.8965.41003.sendpatchset@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__19_Aug_2010_14_47_19_+1000_C/8cy9Vqz1=X_fXL"
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20100819044719.R5pq8SQAwCKowa8nf-cAL9wgGzLlpjucx4uqFqHIYWk@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Stephen Boyd <sboyd@codeaurora.org>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-parisc@vger.kernel.org, Arjan van de Ven <arjan@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Helge Deller <deller@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-next-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20100821072126.8965.41003.sendpatchset@localhost.localdomain>
+Sender: linux-next-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Sachin Sant <sachinp@in.ibm.com>
+Cc: schwidefsky@de.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, linux-next@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
---Signature=_Thu__19_Aug_2010_14_47_19_+1000_C/8cy9Vqz1=X_fXL
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Sachin,
 
-On Wed, 18 Aug 2010 19:28:18 -0700 Stephen Boyd <sboyd@codeaurora.org> wrot=
-e:
->
-> +config ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS
-> +	def_bool y
+On Sat, Aug 21, 2010 at 12:51:26PM +0530, Sachin Sant wrote:
+> Next 20100820 fails to build on s390 with 
+> 
+> drivers/s390/char/keyboard.c: In function 'kbd_keycode':
+> drivers/s390/char/keyboard.c:308: error: too many arguments to function 'handle_sysrq'
+> make[2]: *** [drivers/s390/char/keyboard.o] Error 1
+> 
+> The following commit changed handle_sysrq() function to accept single argument. 
+> 
+> commit a821bafce37b26499e2bfbf2e6b96b0636efc014
+> Input: sysrq - drop tty argument form handle_sysrq()
+> 
+> Adapt the code accordingly to fix the build break.
+> 
+> Signed-off-by: Sachin Sant <sachinp@in.ibm.com>
+> ---
+> 
+> diff -Naurp next20100820/drivers/s390/char/keyboard.c next20100820-new//drivers/s390/char/keyboard.c
+> --- next20100820/drivers/s390/char/keyboard.c	2010-08-16 06:11:37.000000000 +0530
+> +++ next20100820-new//drivers/s390/char/keyboard.c	2010-08-21 11:55:25.000000000 +0530
+> @@ -305,7 +305,7 @@ kbd_keycode(struct kbd_data *kbd, unsign
+>  		if (kbd->sysrq) {
+>  			if (kbd->sysrq == K(KT_LATIN, '-')) {
+>  				kbd->sysrq = 0;
+> -				handle_sysrq(value, kbd->tty);
+> +				handle_sysrq(value);
+>  				return;
+>  			}
+>  			if (value == '-') {
 
-Why not just have
+Thank you very much for the patch. I folded it into original patch to
+avoid build failures in case someone needs to bisect.
 
-config ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS
-	bool
-
-in lib/Kconfig.debug
-
-and select that in each arch that want it?
-
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Thu__19_Aug_2010_14_47_19_+1000_C/8cy9Vqz1=X_fXL
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iQEcBAEBAgAGBQJMbLdXAAoJEDMEi1NhKgbsZ5cH/iwiMK4GR/Ccaa/9y8DQ/Tjc
-syjOtf+IDUrxBgXrsmXzYu6BfGNpfi0QeF2DwTkc8lxBS5xP/zVX2Kn4JWZv9Yfp
-Q59ME2b00JNc0QectvN0fOpa6qgm6EsNjohKs+lGo6gCYwyaWcACS6hZ6b3PL5wy
-X9dHfy7JR2eFx2PmurxhGOLONRFR1L4NXsDXqo1uuTGUVGUwRVLRHA7blG20r1Fs
-dPmiiWx/kATxWigF/XvU/M67Vh7kIKR0oqqb7wF0lch1jumgdjjsDZDeD5v6KePs
-23B8pxvlkFhPldEFxsOUvHsVXMw8FXMb7u+Vzpysuv8+vp49m3Rr14Ug14Xy0+w=
-=kZsc
------END PGP SIGNATURE-----
-
---Signature=_Thu__19_Aug_2010_14_47_19_+1000_C/8cy9Vqz1=X_fXL--
+-- 
+Dmitry
