@@ -1,60 +1,56 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Thu, 29 Jul 2010 13:41:43 +0000
-Subject: Re: [patch 1/3] S390-HWBKPT v5: S390 architecture specific
-Message-Id: <20100729134143.GA2189@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20100729003112.GA13088@nowhere>
-References: <20100729003112.GA13088@nowhere>
-To: linux-s390@vger.kernel.org
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: [PATCH 2/3] S390: Add virtio hotplug add support
+Date: Wed, 25 Aug 2010 10:52:12 +0200
+Message-ID: <022B7A3D-FF5E-43A0-929D-C898382B840B@suse.de>
+References: <1282657732-20902-1-git-send-email-agraf@suse.de> <1282657732-20902-2-git-send-email-agraf@suse.de> <20100825081630.GE2153@osiris.boeblingen.de.ibm.com> <FA6CB344-B4ED-45C1-8478-367038F5F95F@suse.de> <20100825083525.GF2153@osiris.boeblingen.de.ibm.com> <8A4DFC49-AAB9-4426-8124-583E448B6C98@suse.de> <20100825084849.GG2153@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v1081)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20100825084849.GG2153@osiris.boeblingen.de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: virtualization@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, Carsten Otte <carsteno@de.ibm.com>, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, KVM list <kvm@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jul 29, 2010 at 02:31:15AM +0200, Frederic Weisbecker wrote:
-> On Wed, Jul 28, 2010 at 10:56:05AM +0200, Heiko Carstens wrote:
-> > > +/*
-> > > + * Check for virtual address in kernel space.
-> > > + */
-> > > +int arch_check_bp_in_kernelspace(struct perf_event *bp)
-> > > +{
-> > > +	unsigned long hbp_len;
-> > > +	unsigned long va;
-> > > +
-> > > +	struct arch_hw_breakpoint *info = counter_arch_bp(bp);
-> > > +
-> > > +	va = info->address;
-> > > +	hbp_len = info->len;
-> > > +
-> > > +	if (kernel_text_address(va))
-> > > +		return kernel_text_address(va + hbp_len - 1);
-> > > +
-> > > +	return 0;
-> > > +}
-> > 
-> > How is this supposed to work on s390? By just passing an address it is
-> > impossible to tell if it is user space or kernel space. s390 has distinct
-> > address spaces for kernel/user space where in each space the accessible
-> > addresses are in the range from 0x-0xffff...... The same is true for
-> > other architectures (e.g. powerpc and sparc, if I remember correctly).
+
+On 25.08.2010, at 10:48, Heiko Carstens wrote:
+
+> On Wed, Aug 25, 2010 at 10:34:29AM +0200, Alexander Graf wrote:
+>> On 25.08.2010, at 10:35, Heiko Carstens wrote:
+>>> On Wed, Aug 25, 2010 at 10:20:03AM +0200, Alexander Graf wrote:
+>>>> On 25.08.2010, at 10:16, Heiko Carstens wrote:
+>>>>> On Tue, Aug 24, 2010 at 03:48:51PM +0200, Alexander Graf wrote:
+>>>>>> +static void hotplug_devices(struct work_struct *dummy)
+>>>>>> +{
+>>>>>> +	unsigned int i;
+>>>>>> +	struct kvm_device_desc *d;
+>>>>>> +	struct device *dev;
+>>>>>> +
+>>>>>> +	for (i = 0; i < PAGE_SIZE; i += desc_size(d)) {
+>>>>> 
+>>>>> This should be 
+>>>>> 
+>>>>> 	for (i = 0; i + desc_size(d) <= PAGE_SIZE; i += desc_size(d)) {
+>>>>> 
+>>>>> otherwise you might have memory accesses beyond the device page...
+>>>> 
+>>>> Oh, this is a simple copy&paste from the original search method.
+>>>> Is d valid in the first part of the loop already?
+>>> 
+>>> No, you would need to initialize it with kvm_devices if you change
+>>> the loop.
+>> 
+>> But even then it would take the size of the current entry, not the next
+>> one we're actually looking for, no? Maybe it'd be easier to just convert
+>> this into a while loop and explicitly open code everything.
 > 
-> So it's something I was really not aware of. It basically means one
-> address can have two different meanings, one in userspace and one
-> in kernelspace?
+> Yes indeed. It's going to be quite ugly if you want to make sure that at
+> no time you're going to access memory beyond the device page. Eeek.. :)
 
-Exactly.
+Thinking about this a bit more ... it's no problem to access beyond the device page. After the device page follow the rings and we always have rings because we always have a virtio console :).
 
-> Ok, I'm trying to understand how your copy_from_user() works, but
-> I gave up on the asm in copy_from_user_std() :)
 
-The (over-)simplified explanation how this works on s390:
-we have two control registers. One points to the page table of the kernel
-address space the second one to the page table of the user address space.
-The user address space is _not_ part of the kernel address space.
-If the kernel wants to access user space addresses it has to use special
-priviledged instructions.
-
-> Then yeah, s390 breakpoints must always be either exclude_kernel or
-> exclude_user for the necessary disambiguation.
-> 
-> Having 0 on both must end in -EINVAL.
-
-Ok, that should work.
-
-Thanks!
+Alex
