@@ -1,46 +1,35 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 1/1] zfcp: Reorder registration of initial SCSI device
-Date: Mon, 30 Aug 2010 10:55:09 +0200
-Message-ID: <20100830085757.306441624@de.ibm.com>
-References: <20100830085508.190658440@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=700-zfcp-reorder-registration.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@suse.de>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 31 Aug 2010 15:53:01 +0300
+From: Alexander Shishkin <virtuoso@slind.org>
+Subject: Re: [PATCH 7/7] wire up sys_time_change_notify() on s390
+Message-ID: <20100831125301.GJ3003@shisha.kicks-ass.net>
+References: <1283255151-6364-1-git-send-email-virtuoso@slind.org>
+ <1283255151-6364-7-git-send-email-virtuoso@slind.org>
+ <20100831124928.GB2166@osiris.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20100831124928.GB2166@osiris.boeblingen.de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: lkml@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, Andrew Morton <akpm@linux-foundation.org>, Jesper Nilsson <jesper.nilsson@axis.com>, David Howells <dhowells@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
+On Tue, Aug 31, 2010 at 02:49:28 +0200, Heiko Carstens wrote:
+> On Tue, Aug 31, 2010 at 02:45:51PM +0300, Alexander Shishkin wrote:
+> > diff --git a/arch/s390/kernel/syscalls.S b/arch/s390/kernel/syscalls.S
+> > index a8fee1b..b242383 100644
+> > --- a/arch/s390/kernel/syscalls.S
+> > +++ b/arch/s390/kernel/syscalls.S
+> > @@ -343,3 +343,4 @@ SYSCALL(sys_perf_event_open,sys_perf_event_open,sys_perf_event_open_wrapper)
+> >  SYSCALL(sys_fanotify_init,sys_fanotify_init,sys_fanotify_init_wrapper)
+> >  SYSCALL(sys_fanotify_mark,sys_fanotify_mark,sys_fanotify_mark_wrapper)
+> >  SYSCALL(sys_prlimit64,sys_prlimit64,sys_prlimit64_wrapper)
+> > +SYSCALL(sys_time_change_notify,sys_time_change_notify,sys_time_change_notify_wrapper) /* 335 */
+> > \ No newline at end of file
+> 
+> Please add the missing newline. Thanks.
 
-Make sure that the rport registration did complete and then register
-SCSI device directly. Otherwise the unit_enqueue would race with the
-call to zfcp_scsi_queue_unit_register.
-
-Reviewed-by: Swen Schillig <swen@vnet.ibm.com>
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
----
-
- drivers/s390/scsi/zfcp_aux.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff -urpN linux-2.6/drivers/s390/scsi/zfcp_aux.c linux-2.6-patched/drivers/s390/scsi/zfcp_aux.c
---- linux-2.6/drivers/s390/scsi/zfcp_aux.c	2010-08-25 09:25:54.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/scsi/zfcp_aux.c	2010-08-25 09:26:07.000000000 +0200
-@@ -73,13 +73,14 @@ static void __init zfcp_init_device_conf
- 	if (!port)
- 		goto out_port;
- 
-+	flush_work(&port->rport_work);
- 	unit = zfcp_unit_enqueue(port, lun);
- 	if (IS_ERR(unit))
- 		goto out_unit;
- 
- 	zfcp_erp_unit_reopen(unit, 0, "auidc_1", NULL);
- 	zfcp_erp_wait(adapter);
--	flush_work(&unit->scsi_work);
-+	zfcp_scsi_scan(unit);
- 
- out_unit:
- 	put_device(&port->dev);
+Oops. Will do.
