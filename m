@@ -1,66 +1,89 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [-next] Latest next does not boot on s390x
-Date: Fri, 24 Sep 2010 12:44:10 +0200
-Message-ID: <20100924104410.GB2230@osiris.boeblingen.de.ibm.com>
-References: <4C9B5AAB.6020000@in.ibm.com>
-Mime-Version: 1.0
+Return-Path: <qy03fugy@stud.informatik.uni-erlangen.de>
+Date: Mon, 6 Sep 2010 16:36:12 +0200
+From: Christian Dietrich <qy03fugy@stud.informatik.uni-erlangen.de>
+Subject: [PATCH 04/14] arch/{s390,powerpc}: Removing undead ifdef __KERNEL__
+Message-ID: <816d0f12ef97b609b367cfb7319792b95e0ad943.1283782701.git.qy03fugy@stud.informatik.uni-erlangen.de>
+References: <cover.1283782698.git.qy03fugy@stud.informatik.uni-erlangen.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-next-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4C9B5AAB.6020000@in.ibm.com>
-Sender: linux-next-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-next/>
-List-Post: <mailto:linux-next@vger.kernel.org>
-To: Sachin Sant <sachinp@in.ibm.com>, David Howells <dhowells@redhat.com>
-Cc: linux-s390@vger.kernel.org, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+In-Reply-To: <cover.1283782698.git.qy03fugy@stud.informatik.uni-erlangen.de>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linuxppc-dev/>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Alexander Graf <agraf@suse.de>, "K.Prasad" <prasad@linux.vnet.ibm.com>, Dave Kleikamp <shaggy@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: vamos-dev@i4.informatik.uni-erlangen.de
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Sep 23, 2010 at 07:18:27PM +0530, Sachin Sant wrote:
-> I cannot boot recent linux-next builds on a s390x box.
-> 
-> I first ran into this problem with Sept 17th linux-next build(2.6.36-rc4_next_20100917)
-> 
-> The following messages are displayed on the console :
-> 
-> 03: Please choose (default will boot in 20 seconds):
-> 03: Booting default (autotest)...
-> 03: HCPGIR450W CP entered; disabled wait PSW 00020001 80000000 00000000 0010DB3E
-> 
-> Any idea what could be the problem or how can i debug this issue ?
+The __KERNEL__ ifdef isn't necessary at this point, because it is
+checked in an outer ifdef level already and has no effect here.
 
-Caused by "Fix IRQ flag handling naming". It changed a define to a function
-which takes an unsigned long. That adds an implicit cast of the ssm_mask from
-int to unsigned long and changes bit positions.
-In consequence we fail to enable the virtual addressing mode and hence the
-kernel crashes at first access to an address that is only available in
-virtual addressing mode.
-The patch below fixes it.
-
-David, could you please merge it into your "Fix IRQ flag handling naming"
-patch? Thanks!
-
-Reported-by: Sachin Sant <sachinp@in.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Christian Dietrich <qy03fugy@stud.informatik.uni-erlangen.de>
 ---
+ arch/powerpc/include/asm/processor.h     |    2 --
+ arch/powerpc/include/asm/vdso_datapage.h |    2 --
+ arch/s390/include/asm/processor.h        |    4 ----
+ 3 files changed, 0 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index d3a24e4..bb40933 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -91,7 +91,6 @@ static unsigned long setup_zero_pages(void)
-  */
- void __init paging_init(void)
- {
--	static const int ssm_mask = 0x04000000L;
- 	unsigned long max_zone_pfns[MAX_NR_ZONES];
- 	unsigned long pgd_type;
+diff --git a/arch/powerpc/include/asm/processor.h b/arch/powerpc/include/asm/processor.h
+index 19c05b0..3defd7a 100644
+--- a/arch/powerpc/include/asm/processor.h
++++ b/arch/powerpc/include/asm/processor.h
+@@ -122,7 +122,6 @@ extern struct task_struct *last_task_used_spe;
+ 		TASK_UNMAPPED_BASE_USER32 : TASK_UNMAPPED_BASE_USER64 )
+ #endif
  
-@@ -113,7 +112,7 @@ void __init paging_init(void)
- 	__ctl_load(S390_lowcore.kernel_asce, 1, 1);
- 	__ctl_load(S390_lowcore.kernel_asce, 7, 7);
- 	__ctl_load(S390_lowcore.kernel_asce, 13, 13);
--	arch_local_irq_restore(ssm_mask);
-+	arch_local_irq_restore(4UL << (BITS_PER_LONG - 8));
+-#ifdef __KERNEL__
+ #ifdef __powerpc64__
  
- 	atomic_set(&init_mm.context.attach_count, 1);
+ #define STACK_TOP_USER64 TASK_SIZE_USER64
+@@ -139,7 +138,6 @@ extern struct task_struct *last_task_used_spe;
+ #define STACK_TOP_MAX	STACK_TOP
  
+ #endif /* __powerpc64__ */
+-#endif /* __KERNEL__ */
+ 
+ typedef struct {
+ 	unsigned long seg;
+diff --git a/arch/powerpc/include/asm/vdso_datapage.h b/arch/powerpc/include/asm/vdso_datapage.h
+index 08679c5..25e3922 100644
+--- a/arch/powerpc/include/asm/vdso_datapage.h
++++ b/arch/powerpc/include/asm/vdso_datapage.h
+@@ -116,9 +116,7 @@ struct vdso_data {
+ 
+ #endif /* CONFIG_PPC64 */
+ 
+-#ifdef __KERNEL__
+ extern struct vdso_data *vdso_data;
+-#endif
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
+index 73e2598..0e2a436 100644
+--- a/arch/s390/include/asm/processor.h
++++ b/arch/s390/include/asm/processor.h
+@@ -52,8 +52,6 @@ extern int get_cpu_capability(unsigned int *);
+ 
+ #endif /* __s390x__ */
+ 
+-#ifdef __KERNEL__
+-
+ #ifndef __s390x__
+ #define STACK_TOP		(1UL << 31)
+ #define STACK_TOP_MAX		(1UL << 31)
+@@ -63,8 +61,6 @@ extern int get_cpu_capability(unsigned int *);
+ #endif /* __s390x__ */
+ 
+ 
+-#endif
+-
+ #define HAVE_ARCH_PICK_MMAP_LAYOUT
+ 
+ typedef struct {
+-- 
+1.7.0.4
