@@ -1,25 +1,26 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 0/4] s390: network patches for net-next
-Date: Wed, 08 Sep 2010 14:31:16 -0700 (PDT)
-Message-ID: <20100908.143116.02262130.davem@davemloft.net>
-References: <20100908071438.085729717@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20100908071438.085729717@de.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 00/12] zfcp patches for 2.6.37 merge window
+Date: Wed, 08 Sep 2010 14:39:49 +0200
+Message-ID: <20100908123949.483410445@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@suse.de>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: frank.blaschka@de.ibm.com
-Date: Wed, 08 Sep 2010 09:14:38 +0200
+James,
 
-> here are some s390 network patches for net-next.
-> We finally made it and converted the qeth layer 2 and layer 3
-> driver to NAPI (thanks to Jan Glauber who did the QDIO part).
+here is the series of zfcp updates for the 2.6.37 merge window. The
+patches apply on top of the scsi-misc tree. The first patch is the
+same as the one submitted as fix for 2.6.36 here:
+http://marc.info/?l=linux-scsi&m=128324031704285&w=2
+The patch is required for the following patches to apply.
 
-Nice work, all applied to net-next-2.6, thanks!
+The main change is the restructuring of the LUN data structures and
+related code. With this change, zfcp finally can make use of the
+REPORT LUNs scan in the SCSI midlayer when using a NPIV subchannel.
+
+--
+Christof
