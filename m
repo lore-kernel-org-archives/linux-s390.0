@@ -1,71 +1,33 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Tue, 31 Aug 2010 13:00:35 +0000
-Subject: Re: [PATCH] [S390] Kconfig: have CCWGROUP depend on CLAW
-Message-Id: <1283259635.22033.6.camel@braunu-laptop>
-In-Reply-To: <1283065344-4963-1-git-send-email-vapier@gentoo.org>
-References: <1283065344-4963-1-git-send-email-vapier@gentoo.org>
-To: linux-s390@vger.kernel.org
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: [PATCH 2/3] S390: Add virtio hotplug add support
+Date: Sun, 12 Sep 2010 02:42:13 +0200
+Message-ID: <72A751CE-3F46-4D98-9FAF-BA1C1A95B6EE@suse.de>
+References: <1282657732-20902-1-git-send-email-agraf@suse.de> <1282657732-20902-2-git-send-email-agraf@suse.de>
+Mime-Version: 1.0 (Apple Message framework v1081)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1282657732-20902-2-git-send-email-agraf@suse.de>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Alexander Graf <agraf@suse.de>
+Cc: virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, KVM list <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <carsteno@de.ibm.com>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>
 List-ID: <linux-s390.vger.kernel.org>
 
 
-> From: 
-> Mike Frysinger <vapier@gentoo.org> 
-> To: 
-> linux-s390@vger.kernel.org,
-> BOEBLINGEN
-> LINUX390/Germany/IBM@IBMDE,
-> mschwid2@linux.vnet.ibm.com,
-> heicars2@linux.vnet.ibm.com 
-> Date: 
-> 29.08.2010 08:53 
-> Subject: 
-> [PATCH] [S390] Kconfig: have
-> CCWGROUP depend on CLAW 
-> Sent by: 
-> linux-s390-owner@vger.kernel.org
-> 
-> 
-> ______________________________________________________________________
-> 
-> 
-> 
-> Since the claw code calls ccwgroup_remove_ccwdev(), we need to make
-> sure
-> CCWGROUP is enabled when CLAW is enabled.  Otherwise we hit fun
-> undefined
-> references at build time:
-> ERROR: "ccwgroup_remove_ccwdev" [drivers/s390/net/claw.ko] undefined!
-> ERROR: "ccwgroup_probe_ccwdev" [drivers/s390/net/claw.ko] undefined!
-> ERROR: "ccwgroup_driver_register" [drivers/s390/net/claw.ko]
-> undefined!
-> ERROR: "ccwgroup_driver_unregister" [drivers/s390/net/claw.ko]
-> undefined!
-> ERROR: "ccwgroup_create_from_string" [drivers/s390/net/claw.ko]
-> undefined!
-> 
-> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
-> ---
-> drivers/s390/net/Kconfig |    2 +-
-> 1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
-> index 977bb4d..456b187 100644
-> --- a/drivers/s390/net/Kconfig
-> +++ b/drivers/s390/net/Kconfig
-> @@ -100,6 +100,6 @@ config QETH_IPV6
-> 
-> config CCWGROUP
->                  tristate
-> -                 default (LCS || CTCM || QETH)
-> +                 default (LCS || CTCM || QETH || CLAW)
-> 
-> endmenu
-> -- 
+On 24.08.2010, at 15:48, Alexander Graf wrote:
 
-Ack - thanks Mike!
+> The one big missing feature in s390-virtio was hotplugging. This is no more.
+> This patch implements hotplug add support, so you can on the fly add new devices
+> in the guest.
+> 
+> Keep in mind that this needs a patch for qemu to actually leverage the
+> functionality.
+> 
+> Signed-off-by: Alexander Graf <agraf@suse.de>
 
-We have added your patch to our local repository. It will be part of
-our next patch collection submitted to Dave Miller for upstream
-integration.
+ping (on the patch set)?
 
-Regards, Ursula
+
+Alex
