@@ -1,52 +1,34 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH 04/13] drivers/s390: Remove unnecessary casts of private_data
-Date: Sat,  4 Sep 2010 18:52:45 -0700
-Message-Id: <ffd65b5efc206c3bb180addeeab41a26f15991a7.1283650107.git.joe@perches.com>
-In-Reply-To: <cover.1283650107.git.joe@perches.com>
-References: <cover.1283650107.git.joe@perches.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jiri Kosina <trivial@kernel.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Nikanth Karthikesan <knikanth@suse.de>
+Date: Mon, 13 Sep 2010 10:44:47 +0000
+Subject: Re: Why S390 SetPageUptodate() unconditionally clears page dirty state?
+Message-Id: <201009131602.47810.knikanth@suse.de>
+In-Reply-To: <20100913093817.715b89be@mschwide.boeblingen.de.ibm.com>
+References: <20100913093817.715b89be@mschwide.boeblingen.de.ibm.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- drivers/s390/char/vmcp.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+On Monday 13 September 2010 13:08:17 Martin Schwidefsky wrote:
+> On Mon, 13 Sep 2010 12:13:47 +0530
+> 
+> Nikanth Karthikesan <knikanth@suse.de> wrote:
+> > On S390, the SetPageUptodate() clears the page dirty state, if page was
+> > not PG_uptodate before. This seems to mark dirty pages read back from
+> > swap to be marked as clean. Shouldn't page_clear_dirty() be called, only
+> > if page is not flagged as dirty?
+> 
+> To call page_clear_dirty() only if the page is not dirty would be wrong.
+> s390 keeps the dirty bit in the per-page storage key. The I/O to read a
+>  page will set the per-page dirty bit. The PG_dirty bit of a page may or
+>  may not be set when SetPageUptodate is called. To clear the hardware dirty
+>  bit only if the software PG_dirty bit is set would result in lots of pages
+>  that still have the hardware dirty bit set. Please not that on x86 the
+>  dirty-bit is kept in the pte. Since a not up-to-date page can not have any
+>  mapper this means that the page won't have any hardware dirty-bits set
+>  (that says nothing about the software dirty bit PG_dirty). To create the
+>  same state for s390 we clear the storage key unconditionally.
+> 
 
-diff --git a/drivers/s390/char/vmcp.c b/drivers/s390/char/vmcp.c
-index 04e532e..19a14d9 100644
---- a/drivers/s390/char/vmcp.c
-+++ b/drivers/s390/char/vmcp.c
-@@ -47,7 +47,7 @@ static int vmcp_release(struct inode *inode, struct file *file)
- {
- 	struct vmcp_session *session;
- 
--	session = (struct vmcp_session *)file->private_data;
-+	session = file->private_data;
- 	file->private_data = NULL;
- 	free_pages((unsigned long)session->response, get_order(session->bufsize));
- 	kfree(session);
-@@ -94,7 +94,7 @@ vmcp_write(struct file *file, const char __user *buff, size_t count,
- 		return -EFAULT;
- 	}
- 	cmd[count] = '\0';
--	session = (struct vmcp_session *)file->private_data;
-+	session = file->private_data;
- 	if (mutex_lock_interruptible(&session->mutex)) {
- 		kfree(cmd);
- 		return -ERESTARTSYS;
-@@ -136,7 +136,7 @@ static long vmcp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 	int __user *argp;
- 	int temp;
- 
--	session = (struct vmcp_session *)file->private_data;
-+	session = file->private_data;
- 	if (is_compat_task())
- 		argp = compat_ptr(arg);
- 	else
--- 
-1.7.2.19.g9a302
+Got it. Thanks for the explanation.
+
+Thanks
+Nikanth
