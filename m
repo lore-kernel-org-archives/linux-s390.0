@@ -1,34 +1,153 @@
-From: Nikanth Karthikesan <knikanth@suse.de>
-Date: Mon, 13 Sep 2010 10:44:47 +0000
-Subject: Re: Why S390 SetPageUptodate() unconditionally clears page dirty state?
-Message-Id: <201009131602.47810.knikanth@suse.de>
-In-Reply-To: <20100913093817.715b89be@mschwide.boeblingen.de.ibm.com>
-References: <20100913093817.715b89be@mschwide.boeblingen.de.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Tue, 14 Sep 2010 19:34:54 +0000
+Subject: [PATCH 03/18] s390/block: kill the big kernel lock
+Message-Id: <1284492909-7147-4-git-send-email-arnd@arndb.de>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Monday 13 September 2010 13:08:17 Martin Schwidefsky wrote:
-> On Mon, 13 Sep 2010 12:13:47 +0530
-> 
-> Nikanth Karthikesan <knikanth@suse.de> wrote:
-> > On S390, the SetPageUptodate() clears the page dirty state, if page was
-> > not PG_uptodate before. This seems to mark dirty pages read back from
-> > swap to be marked as clean. Shouldn't page_clear_dirty() be called, only
-> > if page is not flagged as dirty?
-> 
-> To call page_clear_dirty() only if the page is not dirty would be wrong.
-> s390 keeps the dirty bit in the per-page storage key. The I/O to read a
->  page will set the per-page dirty bit. The PG_dirty bit of a page may or
->  may not be set when SetPageUptodate is called. To clear the hardware dirty
->  bit only if the software PG_dirty bit is set would result in lots of pages
->  that still have the hardware dirty bit set. Please not that on x86 the
->  dirty-bit is kept in the pte. Since a not up-to-date page can not have any
->  mapper this means that the page won't have any hardware dirty-bits set
->  (that says nothing about the software dirty bit PG_dirty). To create the
->  same state for s390 we clear the storage key unconditionally.
-> 
+The dasd and dcssblk drivers gained the big
+kernel lock in the recent pushdown from the
+block layer, but they don't really need it,
+so remove the calls without a replacement.
 
-Got it. Thanks for the explanation.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+---
+ drivers/s390/block/dasd.c       |    6 ------
+ drivers/s390/block/dasd_ioctl.c |   17 ++---------------
+ drivers/s390/block/dcssblk.c    |    5 -----
+ 3 files changed, 2 insertions(+), 26 deletions(-)
 
-Thanks
-Nikanth
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index 8373ca0..38e6fa9 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -21,7 +21,6 @@
+ #include <linux/hdreg.h>
+ #include <linux/async.h>
+ #include <linux/mutex.h>
+-#include <linux/smp_lock.h>
+ 
+ #include <asm/ccwdev.h>
+ #include <asm/ebcdic.h>
+@@ -2236,7 +2235,6 @@ static int dasd_open(struct block_device *bdev, fmode_t mode)
+ 	if (!block)
+ 		return -ENODEV;
+ 
+-	lock_kernel();
+ 	base = block->base;
+ 	atomic_inc(&block->open_count);
+ 	if (test_bit(DASD_FLAG_OFFLINE, &base->flags)) {
+@@ -2271,14 +2269,12 @@ static int dasd_open(struct block_device *bdev, fmode_t mode)
+ 		goto out;
+ 	}
+ 
+-	unlock_kernel();
+ 	return 0;
+ 
+ out:
+ 	module_put(base->discipline->owner);
+ unlock:
+ 	atomic_dec(&block->open_count);
+-	unlock_kernel();
+ 	return rc;
+ }
+ 
+@@ -2286,10 +2282,8 @@ static int dasd_release(struct gendisk *disk, fmode_t mode)
+ {
+ 	struct dasd_block *block = disk->private_data;
+ 
+-	lock_kernel();
+ 	atomic_dec(&block->open_count);
+ 	module_put(block->base->discipline->owner);
+-	unlock_kernel();
+ 	return 0;
+ }
+ 
+diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
+index 1557214..26075e9 100644
+--- a/drivers/s390/block/dasd_ioctl.c
++++ b/drivers/s390/block/dasd_ioctl.c
+@@ -16,7 +16,6 @@
+ #include <linux/major.h>
+ #include <linux/fs.h>
+ #include <linux/blkpg.h>
+-#include <linux/smp_lock.h>
+ #include <linux/slab.h>
+ #include <asm/compat.h>
+ #include <asm/ccwdev.h>
+@@ -370,9 +369,8 @@ static int dasd_ioctl_readall_cmb(struct dasd_block *block, unsigned int cmd,
+ 	return ret;
+ }
+ 
+-static int
+-dasd_do_ioctl(struct block_device *bdev, fmode_t mode,
+-	      unsigned int cmd, unsigned long arg)
++int dasd_ioctl(struct block_device *bdev, fmode_t mode,
++	       unsigned int cmd, unsigned long arg)
+ {
+ 	struct dasd_block *block = bdev->bd_disk->private_data;
+ 	void __user *argp;
+@@ -430,14 +428,3 @@ dasd_do_ioctl(struct block_device *bdev, fmode_t mode,
+ 		return -EINVAL;
+ 	}
+ }
+-
+-int dasd_ioctl(struct block_device *bdev, fmode_t mode,
+-	       unsigned int cmd, unsigned long arg)
+-{
+-	int rc;
+-
+-	lock_kernel();
+-	rc = dasd_do_ioctl(bdev, mode, cmd, arg);
+-	unlock_kernel();
+-	return rc;
+-}
+diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
+index 2bd72aa..9b43ae9 100644
+--- a/drivers/s390/block/dcssblk.c
++++ b/drivers/s390/block/dcssblk.c
+@@ -14,7 +14,6 @@
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/blkdev.h>
+-#include <linux/smp_lock.h>
+ #include <linux/completion.h>
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
+@@ -776,7 +775,6 @@ dcssblk_open(struct block_device *bdev, fmode_t mode)
+ 	struct dcssblk_dev_info *dev_info;
+ 	int rc;
+ 
+-	lock_kernel();
+ 	dev_info = bdev->bd_disk->private_data;
+ 	if (NULL == dev_info) {
+ 		rc = -ENODEV;
+@@ -786,7 +784,6 @@ dcssblk_open(struct block_device *bdev, fmode_t mode)
+ 	bdev->bd_block_size = 4096;
+ 	rc = 0;
+ out:
+-	unlock_kernel();
+ 	return rc;
+ }
+ 
+@@ -797,7 +794,6 @@ dcssblk_release(struct gendisk *disk, fmode_t mode)
+ 	struct segment_info *entry;
+ 	int rc;
+ 
+-	lock_kernel();
+ 	if (!dev_info) {
+ 		rc = -ENODEV;
+ 		goto out;
+@@ -815,7 +811,6 @@ dcssblk_release(struct gendisk *disk, fmode_t mode)
+ 	up_write(&dcssblk_devices_sem);
+ 	rc = 0;
+ out:
+-	unlock_kernel();
+ 	return rc;
+ }
+ 
+-- 
+1.7.1
