@@ -1,87 +1,61 @@
-Return-Path: <qy03fugy@stud.informatik.uni-erlangen.de>
-Date: Mon, 6 Sep 2010 16:35:49 +0200
-From: Christian Dietrich <qy03fugy@stud.informatik.uni-erlangen.de>
-Subject: [PATCH 00/14] Removing dead code
-Message-ID: <cover.1283782698.git.qy03fugy@stud.informatik.uni-erlangen.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 23 Sep 2010 13:42:01 +0200 (CEST)
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 04/13] drivers/s390: Remove unnecessary casts of
+ private_data
+In-Reply-To: <ffd65b5efc206c3bb180addeeab41a26f15991a7.1283650107.git.joe@perches.com>
+Message-ID: <alpine.LNX.2.00.1009231341490.26813@pobox.suse.cz>
+References: <cover.1283650107.git.joe@perches.com> <ffd65b5efc206c3bb180addeeab41a26f15991a7.1283650107.git.joe@perches.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Lennert Buytenhek <kernel@wantstofly.org>, Russell King <linux@arm.linux.org.uk>, Yoshinori Sato <ysato@users.sourceforge.jp>, Kyle McMartin <kyle@mcmartin.ca>, Helge Deller <deller@gmx.de>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Akinobu Mita <akinobu.mita@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Alexander Graf <agraf@suse.de>, "K.Prasad" <prasad@linux.vnet.ibm.com>, Dave Kleikamp <shaggy@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Borislav Petkov <borislav.petkov@amd.com>, "David S. Miller" <davem@davemloft.net>, Roland Dreier <rolandd@cisco.com>, Alexey Dobriyan <adobriyan@gmail.com>, Joe Perches <joe@perches.com>, "Juergen E. Fischer" <fischer@norbit.de>, Tejun Heo <tj@kernel.org>, Krzysztof Helt <krzysztof.h1@wp.pl>, Andrew Morton <akpm@linux-foundation.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Petr Vandrovec <vandrove@vc.cvut.cz>, Jean Delvare <khali@linux-fr.org>, Arnaldo Carvalho de Melo <acme@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Ben Hutchings <ben@decadent.org.uk>, Cyrill Gorcunov <gorcunov@openvz.org>, Peter Zijlstra <peterz@infradead.org>, Mike Galbraith <efault@gmx.de>, Dipankar Sarma <dipankar@in.ibm.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Josh Triplett <josh@joshtriplett.org>, Lai Jiangshan <laijs@cn.fujitsu.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org
-Cc: vamos-dev@i4.informatik.uni-erlangen.de
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Joe Perches <joe@perches.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi all!
-       
-As part of the VAMOS[0] research project at the University of Erlangen
-we are looking at multiple integrity errors in linux' configuration
-system.
+On Sat, 4 Sep 2010, Joe Perches wrote:
 
-I've been running a check on the whole sourcetree for
-code block which are undead. This means they can't be deselected and
-are always in the kernel if the enviroment of the block is
-selected. They have often the form of
+> Signed-off-by: Joe Perches <joe@perches.com>
+> ---
+>  drivers/s390/char/vmcp.c |    6 +++---
+>  1 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/s390/char/vmcp.c b/drivers/s390/char/vmcp.c
+> index 04e532e..19a14d9 100644
+> --- a/drivers/s390/char/vmcp.c
+> +++ b/drivers/s390/char/vmcp.c
+> @@ -47,7 +47,7 @@ static int vmcp_release(struct inode *inode, struct file *file)
+>  {
+>  	struct vmcp_session *session;
+>  
+> -	session = (struct vmcp_session *)file->private_data;
+> +	session = file->private_data;
+>  	file->private_data = NULL;
+>  	free_pages((unsigned long)session->response, get_order(session->bufsize));
+>  	kfree(session);
+> @@ -94,7 +94,7 @@ vmcp_write(struct file *file, const char __user *buff, size_t count,
+>  		return -EFAULT;
+>  	}
+>  	cmd[count] = '\0';
+> -	session = (struct vmcp_session *)file->private_data;
+> +	session = file->private_data;
+>  	if (mutex_lock_interruptible(&session->mutex)) {
+>  		kfree(cmd);
+>  		return -ERESTARTSYS;
+> @@ -136,7 +136,7 @@ static long vmcp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+>  	int __user *argp;
+>  	int temp;
+>  
+> -	session = (struct vmcp_session *)file->private_data;
+> +	session = file->private_data;
+>  	if (is_compat_task())
+>  		argp = compat_ptr(arg);
+>  	else
 
-#ifdef ABC
-....
-#ifdef ABC
-fooooo
-#endif
-#endif
+Not present in linux-next as of today. Applied, thanks.
 
-Here the ifdefs of the inner block can be removed without any harm. At
-this point we just checked the source code (for the undead), but we
-want to do a crosscheck with the Kconfig for undead code blocks in the
-future.
-
-I build the patches against a vanilla kernel (v2.6.36-rc3) in order to
-try if the kernel compiles with this patches.
-
-Please keep me informed of this patch getting confirmed / merged so we
-can keep track of it.
-
-Regards
-
-        Christian Dietrich
-
-[0] http://vamos1.informatik.uni-erlangen.de/
-
-Christian Dietrich (14):
-  arch/arm: Removing undead ifdef __ASSEMBLY__
-  arch/h8300: Removing dead ifdef __H8300_TLB_H__
-  arch/parisc: Removing undead ifdef CONFIG_PA20
-  arch/{s390,powerpc}: Removing undead ifdef __KERNEL__
-  arch/x86: Removing undead ifdef ACPI/X86_IO_ACPI
-  drivers/net: Removing undead ifdef CHELSIO_T1_1G
-  drivers/scsi: Removing undead ifdef __ISAPNP__
-  drivers/scsi: Removing undead ifdef CONFIG_PCI
-  drivers/scsi: Removing undead ifdef REAL_DMA
-  drivers/video: Removing undead ifdef ATAFB_FALCON
-  drivers/video: Removing undead ifdef CONFIG_FB_MATROX_G
-  include/linux: Removing undead ifdef __KERNEL__
-  kernel/: Removing undead ifdef CONFIG_SMP
-  kernel/: Removing undead ifdef CONFIG_DEBUG_LOCK_ALLOC
-
- arch/arm/mach-ixp23xx/include/mach/platform.h |    3 ---
- arch/h8300/include/asm/tlb.h                  |   13 -------------
- arch/parisc/kernel/unaligned.c                |    3 ---
- arch/powerpc/include/asm/processor.h          |    2 --
- arch/powerpc/include/asm/vdso_datapage.h      |    2 --
- arch/s390/include/asm/processor.h             |    4 ----
- arch/x86/kernel/early-quirks.c                |    2 --
- drivers/net/chelsio/subr.c                    |    2 --
- drivers/scsi/aha152x.c                        |    2 --
- drivers/scsi/aic7xxx_old.c                    |    2 --
- drivers/scsi/atari_NCR5380.c                  |    6 ------
- drivers/video/atafb.c                         |    2 --
- drivers/video/matrox/matroxfb_DAC1064.c       |    5 +----
- include/linux/socket.h                        |    6 +-----
- kernel/sched.c                                |    4 +---
- kernel/srcu.c                                 |    2 --
- 16 files changed, 3 insertions(+), 57 deletions(-)
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.
