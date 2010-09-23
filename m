@@ -1,72 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [RFC][PATCH 09/10] taskstats: Fix exit CPU time accounting
+Subject: [RFC][PATCH 00/10] taskstats: Enhancements for precise accounting
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 Reply-To: holzheu@linux.vnet.ibm.com
-In-Reply-To: <20100929191916.21E1840038@magilla.sf.frob.com>
-References: <1285249681.1837.28.camel@holzheu-laptop>
-	 <1285250541.1837.95.camel@holzheu-laptop>
-	 <20100923171025.GA26623@redhat.com>
-	 <1285330688.2179.305.camel@holzheu-laptop>
-	 <20100926181127.GA26985@redhat.com>
-	 <20100927154257.7910cda3@mschwide.boeblingen.de.ibm.com>
-	 <20100927165133.GA23535@redhat.com>
-	 <20100929191916.21E1840038@magilla.sf.frob.com>
 Content-Type: text/plain; charset="us-ascii"
-Date: Thu, 30 Sep 2010 15:47:40 +0200
-Message-ID: <1285854460.1856.14.camel@holzheu-laptop>
+Date: Thu, 23 Sep 2010 15:48:01 +0200
+Message-ID: <1285249681.1837.28.camel@holzheu-laptop>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Roland McGrath <roland@redhat.com>
-Cc: Oleg Nesterov <oleg@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Suresh Siddha <suresh.b.siddha@intel.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Roland,
+Currently tools like "top" gather the task information by reading procfs
+files. This has several disadvantages:
 
-On Wed, 2010-09-29 at 12:19 -0700, Roland McGrath wrote: 
-> > > I would consider it to be a BUG() that the time is not accounted.
-> > > Independent of the fact that a parent wants to see the SIGCHLD and
-> > > the exit status of its child the process time of the child should be
-> > > accounted, no?
-> > 
-> > I do not know. It doesn't look like a BUG(), I mean it looks as if
-> > the code was intentionally written this way.
-> 
-> POSIX specifies this behavior: "If the child is never waited for (for
-> example, if the parent has SA_NOCLDWAIT set or sets SIGCHLD to SIG_IGN),
-> the resource information for the child process is discarded and not
-> included in the resource information provided by getrusage()."
+* It is very CPU intensive, because a lot of system calls (readdir, open,
+  read, close) are necessary.
+* No real task snapshot can be provided, because while the procfs files are
+  read the system continues running.
+* The procfs times granularity is restricted to jiffies.
 
-Thanks! That information was missing! Although still for me it not seems
-to be a good decision to do it that way. Because of that it currently is
-not possible to evaluate all consumed CPU time by looking at the current
-processes. Time can simply disappear.
+In parallel to procfs there exists the taskstats binary interface that uses
+netlink sockets as transport mechanism to deliver task information to
+user space. There exists a taskstats command "TASKSTATS_CMD_ATTR_PID"
+to get task information for a given PID. This command can already be used for
+tools like top, but has also several disadvantages:
 
-What about adding a new set of CPU time fields (e.g. cr-times) for the
-cumulative "autoreap" children times to the signal struct and export
-them via taskstats?
+* You first have to find out which PIDs are available in the system. Currently
+  we have to use procfs again to do this.
+* For each task two system calls have to be issued (First send the command and
+  then receive the reply).
+* No snapshot mechanism is available.
 
-Then the following set of CPU times will give a complete picture (I also
-added steal time (st) that is currently not accounted in Linux per
-task):
+GOALS OF THIS PATCH SET
+-----------------------
+The intention of this patch set is to provide better support for tools like
+top. The goal is to:
 
-* task->(u/s/st-time):
-  Time that has been consumed by task itself
+* provide a task snapshot mechanism where we can get a consistent view of
+  all running tasks.
+* provide a transport mechanism that does not require a lot of system calls
+  and that allows implementing low CPU overhead task monitoring.
+* provide microsecond CPU time granularity.
 
-* task->signal->(c-u/s/st-time):
-  Time that has been consumed by dead children of process where parent
-  has done a sys_wait()
+FIRST RESULTS
+-------------
+Together with this kernel patch set also user space code for a new top
+utility (ptop) is provided that exploits the new kernel infrastructure. See
+patch 10 for more details.
 
-* task->signal->(u/s/st-time):
-  Time that has been consumed by dead threads of thread group of process
-  - NEW: Has to be exported via taskstats
+TEST1: System with many sleeping tasks
 
-* task->signal->(cr-u/s/st-time):
-  Time that has been consumed by dead children that reaped 
-  themselves, because parent ignored SIGCHLD or has set SA_NOCLDWAIT
-  - NEW: Fields have to be added to signal struct
-  - NEW: Has to be exported via taskstats
+  for ((i=0; i < 1000; i++))
+  do
+         sleep 1000000 &
+  done
 
-Michael
+  # ptop_new_proc
+
+             VVVV
+  pid   user  sys  ste  total  Name
+  (#)    (%)  (%)  (%)    (%)  (str)
+  541   0.37 2.39 0.10   2.87  top
+  3743  0.03 0.05 0.00   0.07  ptop_new_proc
+             ^^^^
+
+Compared to the old top command that has to scan more than 1000 proc
+directories the new ptop consumes much less CPU time (0.05% system time
+on my s390 system).
+
+TEST2: Show snapshot consistency with system that is 100% busy
+
+  System with 3 CPUs:
+
+  for ((i=0; i < $(cat /proc/cpuinfo  | grep "^processor" | wc -l); i++))
+  do
+       ./loop &
+  done
+
+  # ptop_snap_proc
+
+          VVVV  VVV  VVV                        VVVVV
+  pid     user  sys  ste cuser csys cste delay  total Elap+ Name
+  (#)      (%)  (%)  (%)   (%)  (%)  (%)   (%)    (%)  (hm) (str)
+  23891  99.84 0.06 0.09  0.00 0.00 0.00  0.01  99.99  0:00 loop
+  23881  99.66 0.06 0.09  0.00 0.00 0.00  0.20  99.81  0:00 loop
+  23886  99.65 0.06 0.09  0.00 0.00 0.00  0.20  99.80  0:00 loop
+  2413    0.00 0.00 0.00  0.00 0.00 0.00  0.00   0.01  4:17 sshd
+  ...
+  V:V:S 299.36 0.36 0.27  0.00 0.00 0.00  0.40 300.00  4:22
+                                               ^^^^^^
+
+  With the snapshot mechanism the sum of all tasks CPU times (user + system +
+  steal) will be exactly 300.00% CPU time with this testcase. Using
+  ptop_snap_proc (see patch 10) this works fine on s390.
+
+PATCHSET OVERVIEW
+-----------------
+The code is not final and still has a few TODOs. But it is good enough for a
+first round of review. The following kernel patches are provided:
+
+[01] Prepare-0: Use real microsecond granularity for taskstats CPU times.
+[02] Prepare-1: Restructure taskstats.c in order to be able to add new commands
+     more easily.
+[03] Prepare-2: Separate the finding of a task_struct by PID or TGID from
+     filling the taskstats.
+[04] Add new command "TASKSTATS_CMD_ATTR_PIDS" to get a snapshot of multiple
+     tasks.
+[05] Add procfs interface for taskstats commands. This allows to get a complete
+     and consistent snapshot with all tasks using two system calls (ioctl and
+     read). Transferring a snapshot of all running tasks is not possible using
+     the existing netlink interface, because there we have the socket buffer
+     size as restricting factor.
+[06] Add TGID to taskstats.
+[07] Add steal time per task accounting.
+[08] Add cumulative CPU time (user, system and steal) to taskstats.
+[09] Fix exit CPU time accounting.
+
+[10] Besides of the kernel patches also user space code is provided that
+     exploits the new kernel infrastructure. The user space code provides the
+     following:
+     1. A proposal for a taskstats user space library:
+        1.1 Based on netlink (requires libnl-devel-1.1-5)
+        2.1 Based on the new /proc/taskstats interface (see [05])
+     2. A proposal for a task snapshot library based on taskstats library (1.1)
+     3. A new tool "ptop" (precise top) that uses the libraries
