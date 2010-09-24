@@ -1,43 +1,23 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH 16/25] drivers/s390/char: Use static const char arrays
-Date: Mon, 13 Sep 2010 12:47:54 -0700
-Message-Id: <5867e44ccd0f86902b2230f1e25a9bdaf16ec1e6.1284406639.git.joe@perches.com>
-In-Reply-To: <cover.1284406638.git.joe@perches.com>
-References: <cover.1284406638.git.joe@perches.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+From: David Howells <dhowells@redhat.com>
+Subject: Re: [-next] Latest next does not boot on s390x
+Date: Fri, 24 Sep 2010 12:15:17 +0100
+Message-ID: <7825.1285326917@redhat.com>
+References: <20100924104410.GB2230@osiris.boeblingen.de.ibm.com> <4C9B5AAB.6020000@in.ibm.com>
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <20100924104410.GB2230@osiris.boeblingen.de.ibm.com>
+Sender: linux-next-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: dhowells@redhat.com, Sachin Sant <sachinp@in.ibm.com>, linux-s390@vger.kernel.org, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- drivers/s390/char/vmlogrdr.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
 
-diff --git a/drivers/s390/char/vmlogrdr.c b/drivers/s390/char/vmlogrdr.c
-index e40a1b8..afd863c 100644
---- a/drivers/s390/char/vmlogrdr.c
-+++ b/drivers/s390/char/vmlogrdr.c
-@@ -214,7 +214,7 @@ static void vmlogrdr_iucv_message_pending(struct iucv_path *path,
- 
- static int vmlogrdr_get_recording_class_AB(void)
- {
--	char cp_command[]="QUERY COMMAND RECORDING ";
-+	static const char cp_command[] = "QUERY COMMAND RECORDING ";
- 	char cp_response[80];
- 	char *tail;
- 	int len,i;
-@@ -637,7 +637,7 @@ static ssize_t vmlogrdr_recording_status_show(struct device_driver *driver,
- 					      char *buf)
- {
- 
--	char cp_command[] = "QUERY RECORDING ";
-+	static const char cp_command[] = "QUERY RECORDING ";
- 	int len;
- 
- 	cpcmd(cp_command, buf, 4096, NULL);
--- 
-1.7.3.rc1
+> David, could you please merge it into your "Fix IRQ flag handling naming"
+> patch? Thanks!
+
+Done.  It'll appear in my GIT tree in a few mins; linux-next tomorrow, I
+imagine.
+
+David
