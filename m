@@ -1,47 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 24 Sep 2010 11:50:02 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
 Subject: Re: [RFC][PATCH 00/10] taskstats: Enhancements for precise
  accounting
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Reply-To: holzheu@linux.vnet.ibm.com
-In-Reply-To: <20100923221139.GI23839@count0.beaverton.ibm.com>
+Message-Id: <20100924115002.fcb4385a.akpm@linux-foundation.org>
+In-Reply-To: <1285319415.2179.116.camel@holzheu-laptop>
 References: <1285249681.1837.28.camel@holzheu-laptop>
-	 <20100923131136.356075f4.akpm@linux-foundation.org>
-	 <20100923221139.GI23839@count0.beaverton.ibm.com>
-Content-Type: text/plain; charset="us-ascii"
-Date: Fri, 24 Sep 2010 14:39:11 +0200
-Message-ID: <1285331951.2179.326.camel@holzheu-laptop>
+	<20100923131136.356075f4.akpm@linux-foundation.org>
+	<1285319415.2179.116.camel@holzheu-laptop>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Shailabh Nagar <nagar1234@in.ibm.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Heiko Carstens <heiko.carstens@de.ibm.com>, Venkatesh Pallipadi <venki@google.com>, John stultz <johnstul@us.ibm.com>, containers@lists.linux-foundation.org, linux-s390@vger.kernel.org, Balbir Singh <balbir@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, Suresh Siddha <suresh.b.siddha@intel.com>
+To: holzheu@linux.vnet.ibm.com
+Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, containers@lists.linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Matt,
+On Fri, 24 Sep 2010 11:10:15 +0200
+Michael Holzheu <holzheu@linux.vnet.ibm.com> wrote:
 
-On Thu, 2010-09-23 at 15:11 -0700, Matt Helsley wrote:
-> > Talk to me about namespaces, please.  A lot of the new code involves
-> > PIDs, but PIDs are not system-wide unique.  A PID is relative to a PID
-> > namespace.  Does everything Just Work?  When userspace sends a PID to
-> > the kernel, that PID is assumed to be within the sending process's PID
-> > namespace?  If so, then please spell it all out in the changelogs.  If
-> > not then that is a problem!
+> Hello Andrew,
 > 
-> Good point.
+> On Thu, 2010-09-23 at 13:11 -0700, Andrew Morton wrote:
+> > > GOALS OF THIS PATCH SET
+> > > -----------------------
+> > > The intention of this patch set is to provide better support for tools like
+> > > top. The goal is to:
+> > > 
+> > > * provide a task snapshot mechanism where we can get a consistent view of
+> > >   all running tasks.
+> > > * provide a transport mechanism that does not require a lot of system calls
+> > >   and that allows implementing low CPU overhead task monitoring.
+> > > * provide microsecond CPU time granularity.
+> > 
+> > This is a big change!  If this is done right then we're heading in the
+> > direction of deprecating the longstanding way in which userspace
+> > observes the state of Linux processes and we're recommending that the
+> > whole world migrate to taskstats.  I think?
 > 
-> The pid ought to be valid in the _receiving_ task's pid namespace. That
-> can be difficult or impossible if we're talking about netlink broadcasts.
-> In this regard process events connector is an example of what not to do.
+> Or it can be used as alternative. Since procfs has its drawbacks (e.g.
+> performance) an alternative could be helpful. 
 
-I think that the netlink taskstats commands are executed in the context
-of the calling process (at least my printk shows me that). The command
-collects the process data using "current->nsproxy->pid_ns" and creates a
-netlink reply. So everything should be fine here. Shouldn't it?
+And it can be harmful.  More kernel code to maintain and test, more
+userspace code to develop, maintain, etc.  Less user testing than if
+there was a single interface.
 
-Hmmm, but for exit events, this might be broken in taskstats. The code
-looks to me that every exiting task independent from the namespace is
-reported as event via taskstat_exit(). Maybe I am missing something...
+> 
+> > I worry that there's a dependency on CONFIG_NET?  If so then that's a
+> > big problem because in N years time, 99% of the world will be using
+> > taskstats, but a few embedded losers will be stuck using (and having to
+> > support) the old tools.
+> 
+> Sure, but if we could add the /proc/taskstats approach, this dependency
+> would not be there.
 
-Michael
+So why do we need to present the same info over netlink?
+
+If the info is available via procfs then userspace code should use that
+and not netlink, because that userspace code would also be applicable
+to CONFIG_NET=n systems.
+
+> 
+> > Does this have the potential to save us from the CONFIG_NET=n problem?
+> 
+> Yes
+
+Let's say that when it's all tested ;)
+
+> Are PIDs over all namespaces unique?
+
+Nope.  The same pid can be present in different namespaces at the same
+time.
