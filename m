@@ -1,75 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 24 Sep 2010 11:50:02 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
+Date: Sat, 25 Sep 2010 13:19:28 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
 Subject: Re: [RFC][PATCH 00/10] taskstats: Enhancements for precise
  accounting
-Message-Id: <20100924115002.fcb4385a.akpm@linux-foundation.org>
-In-Reply-To: <1285319415.2179.116.camel@holzheu-laptop>
+Message-ID: <20100925181928.GA19611@hallyn.com>
 References: <1285249681.1837.28.camel@holzheu-laptop>
-	<20100923131136.356075f4.akpm@linux-foundation.org>
-	<1285319415.2179.116.camel@holzheu-laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+ <20100923131136.356075f4.akpm@linux-foundation.org>
+ <20100923221139.GI23839@count0.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20100923221139.GI23839@count0.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: holzheu@linux.vnet.ibm.com
-Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, containers@lists.linux-foundation.org
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Shailabh Nagar <nagar1234@in.ibm.com>, linux-s390@vger.kernel.org, Peter Zijlstra <a.p.zijlstra@chello.nl>, Venkatesh Pallipadi <venki@google.com>, John stultz <johnstul@us.ibm.com>, containers@lists.linux-foundation.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Oleg Nesterov <oleg@redhat.com>, linux-kernel@vger.kernel.org, Suresh Siddha <suresh.b.siddha@intel.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@elte.hu>, holzheu@linux.vnet.ibm.com, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 24 Sep 2010 11:10:15 +0200
-Michael Holzheu <holzheu@linux.vnet.ibm.com> wrote:
+Quoting Matt Helsley (matthltc@us.ibm.com):
+> I don't think even "root" can see/use pids outside its namespace (without
 
-> Hello Andrew,
-> 
-> On Thu, 2010-09-23 at 13:11 -0700, Andrew Morton wrote:
-> > > GOALS OF THIS PATCH SET
-> > > -----------------------
-> > > The intention of this patch set is to provide better support for tools like
-> > > top. The goal is to:
-> > > 
-> > > * provide a task snapshot mechanism where we can get a consistent view of
-> > >   all running tasks.
-> > > * provide a transport mechanism that does not require a lot of system calls
-> > >   and that allows implementing low CPU overhead task monitoring.
-> > > * provide microsecond CPU time granularity.
-> > 
-> > This is a big change!  If this is done right then we're heading in the
-> > direction of deprecating the longstanding way in which userspace
-> > observes the state of Linux processes and we're recommending that the
-> > whole world migrate to taskstats.  I think?
-> 
-> Or it can be used as alternative. Since procfs has its drawbacks (e.g.
-> performance) an alternative could be helpful. 
+Just to be clear on this, you're right in what you say, but if a task in a child
+pidns still has access to the /proc mount of the parent pidns, then it can see
+the pids in there, and get information from them, i.e. /proc/pid/maps.  So
+in that sense, some people could misinterpret "see/use pids" and think you
+weren't right.
 
-And it can be harmful.  More kernel code to maintain and test, more
-userspace code to develop, maintain, etc.  Less user testing than if
-there was a single interface.
-
-> 
-> > I worry that there's a dependency on CONFIG_NET?  If so then that's a
-> > big problem because in N years time, 99% of the world will be using
-> > taskstats, but a few embedded losers will be stuck using (and having to
-> > support) the old tools.
-> 
-> Sure, but if we could add the /proc/taskstats approach, this dependency
-> would not be there.
-
-So why do we need to present the same info over netlink?
-
-If the info is available via procfs then userspace code should use that
-and not netlink, because that userspace code would also be applicable
-to CONFIG_NET=n systems.
-
-> 
-> > Does this have the potential to save us from the CONFIG_NET=n problem?
-> 
-> Yes
-
-Let's say that when it's all tested ;)
-
-> Are PIDs over all namespaces unique?
-
-Nope.  The same pid can be present in different namespaces at the same
-time.
+-serge
