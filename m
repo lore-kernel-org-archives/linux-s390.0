@@ -1,52 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Vasiliy Kulikov <segooon@gmail.com>
-Subject: [PATCH 4/9] s390: use free_netdev(netdev) instead of kfree()
-Date: Sun, 26 Sep 2010 13:58:09 +0400
-Message-Id: <1285495090-22002-1-git-send-email-segooon@gmail.com>
+Date: Mon, 27 Sep 2010 15:14:14 +0200
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: Re: [PATCH 01/14] s390: scsi: fix error path
+Message-ID: <20100927131413.GA8473@schmichrtp.mainz.de.ibm.com>
+References: <1284900877-24201-1-git-send-email-segooon@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1284900877-24201-1-git-send-email-segooon@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: kernel-janitors@vger.kernel.org
-Cc: Ursula Braun <ursula.braun@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Julia Lawall <julia@diku.dk>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Vasiliy Kulikov <segooon@gmail.com>
+Cc: kernel-janitors@vger.kernel.org, Swen Schillig <swen@vnet.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, James Bottomley <James.Bottomley@suse.de>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Freeing netdev without free_netdev() leads to net, tx leaks.
-I might lead to dereferencing freed pointer.
+On Sun, Sep 19, 2010 at 04:54:36PM +0400, Vasiliy Kulikov wrote:
+> zfcp_unit_add() doesn't free all allocated resources in error case.
+> 
+> Signed-off-by: Vasiliy Kulikov <segooon@gmail.com>
 
-The semantic match that finds this problem is as follows:
-(http://coccinelle.lip6.fr/)
+Where do you see a problem? The memory management for the unit 
+device has to be done the way the current code does:
 
-@@
-struct net_device* dev;
-@@
+After dev_set_name, the struct has to be deleted through put_device
+that calls the release functions and also frees the memory allocated
+for the device name.
 
--kfree(dev)
-+free_netdev(dev)
----
- drivers/s390/net/ctcm_main.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+When the memory is freed through the release function, an additional
+call to kfree is wrong, the release function already calls kfree.
+device_unregister calls the put_device, so this also frees the memory
+through the release function.
 
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index 6edf20b..2c7d2d9 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -1154,7 +1154,7 @@ static struct net_device *ctcm_init_netdevice(struct ctcm_priv *priv)
- 				dev_fsm, dev_fsm_len, GFP_KERNEL);
- 	if (priv->fsm == NULL) {
- 		CTCMY_DBF_DEV(SETUP, dev, "init_fsm error");
--		kfree(dev);
-+		free_netdev(dev);
- 		return NULL;
- 	}
- 	fsm_newstate(priv->fsm, DEV_STATE_STOPPED);
-@@ -1165,7 +1165,7 @@ static struct net_device *ctcm_init_netdevice(struct ctcm_priv *priv)
- 		grp = ctcmpc_init_mpc_group(priv);
- 		if (grp == NULL) {
- 			MPC_DBF_DEV(SETUP, dev, "init_mpc_group error");
--			kfree(dev);
-+			free_netdev(dev);
- 			return NULL;
- 		}
- 		tasklet_init(&grp->mpc_tasklet2,
--- 
-1.7.0.4
+The only thing i found wrong is that zfcp_unit_release calls
+put_device on the port, and this could be done before get_device was
+called on the port. I will prepare a patch to move the get_device.
+
+> ---
+>  I cannot compile this driver, so it is not tested at all.
+> 
+>  drivers/s390/scsi/zfcp_unit.c |   28 +++++++++++++++++-----------
+>  1 files changed, 17 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/s390/scsi/zfcp_unit.c b/drivers/s390/scsi/zfcp_unit.c
+> index 1119c53..8eb4046 100644
+> --- a/drivers/s390/scsi/zfcp_unit.c
+> +++ b/drivers/s390/scsi/zfcp_unit.c
+> @@ -119,6 +119,7 @@ static void zfcp_unit_release(struct device *dev)
+>  int zfcp_unit_add(struct zfcp_port *port, u64 fcp_lun)
+>  {
+>  	struct zfcp_unit *unit;
+> +	int err;
+> 
+>  	unit = zfcp_unit_find(port, fcp_lun);
+>  	if (unit) {
+> @@ -136,21 +137,20 @@ int zfcp_unit_add(struct zfcp_port *port, u64 fcp_lun)
+>  	unit->dev.release = zfcp_unit_release;
+>  	INIT_WORK(&unit->scsi_work, zfcp_unit_scsi_scan_work);
+> 
+> -	if (dev_set_name(&unit->dev, "0x%016llx",
+> -			 (unsigned long long) fcp_lun)) {
+> -		kfree(unit);
+> -		return -ENOMEM;
+> -	}
+> +	err = dev_set_name(&unit->dev, "0x%016llx",
+> +			 (unsigned long long) fcp_lun);
+> +	if (err)
+> +		goto err_free;
+> 
+> -	if (device_register(&unit->dev)) {
+> +	err = device_register(&unit->dev);
+> +	if (err) {
+>  		put_device(&unit->dev);
+> -		return -ENOMEM;
+> +		goto err_free;
+>  	}
+> 
+> -	if (sysfs_create_group(&unit->dev.kobj, &zfcp_sysfs_unit_attrs)) {
+> -		device_unregister(&unit->dev);
+> -		return -EINVAL;
+> -	}
+> +	err = sysfs_create_group(&unit->dev.kobj, &zfcp_sysfs_unit_attrs);
+> +	if (err)
+> +		goto err_unreg;
+> 
+>  	get_device(&port->dev);
+> 
+> @@ -161,6 +161,12 @@ int zfcp_unit_add(struct zfcp_port *port, u64 fcp_lun)
+>  	zfcp_unit_scsi_scan(unit);
+> 
+>  	return 0;
+> +
+> +err_unreg:
+> +	device_unregister(&unit->dev);
+> +err_free:
+> +	kfree(unit);
+> +	return err;
+>  }
+> 
+>  /**
+> -- 
+> 1.7.0.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-s390" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
