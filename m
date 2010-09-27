@@ -1,80 +1,203 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [RFC][PATCH 00/10] taskstats: Enhancements for precise
- accounting
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Reply-To: holzheu@linux.vnet.ibm.com
-In-Reply-To: <20100924115002.fcb4385a.akpm@linux-foundation.org>
+Date: Mon, 27 Sep 2010 15:02:05 +0530
+From: Balbir Singh <balbir@linux.vnet.ibm.com>
+Subject: Re: [RFC][PATCH 02/10] taskstats: Separate taskstats commands
+Message-ID: <20100927093205.GG11780@balbir.in.ibm.com>
+Reply-To: balbir@linux.vnet.ibm.com
 References: <1285249681.1837.28.camel@holzheu-laptop>
-	 <20100923131136.356075f4.akpm@linux-foundation.org>
-	 <1285319415.2179.116.camel@holzheu-laptop>
-	 <20100924115002.fcb4385a.akpm@linux-foundation.org>
-Content-Type: text/plain; charset="us-ascii"
-Date: Mon, 27 Sep 2010 11:18:47 +0200
-Message-ID: <1285579127.2116.62.camel@holzheu-laptop>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+ <1285250462.1837.79.camel@holzheu-laptop>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <1285250462.1837.79.camel@holzheu-laptop>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, containers@lists.linux-foundation.org
+To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Andrew,
+* Michael Holzheu <holzheu@linux.vnet.ibm.com> [2010-09-23 16:01:02]:
 
-On Fri, 2010-09-24 at 11:50 -0700, Andrew Morton wrote:
-> > > This is a big change!  If this is done right then we're heading in the
-> > > direction of deprecating the longstanding way in which userspace
-> > > observes the state of Linux processes and we're recommending that the
-> > > whole world migrate to taskstats.  I think?
-> > 
-> > Or it can be used as alternative. Since procfs has its drawbacks (e.g.
-> > performance) an alternative could be helpful. 
+> Subject: [PATCH] taskstats: Separate taskstats commands
 > 
-> And it can be harmful.  More kernel code to maintain and test, more
-> userspace code to develop, maintain, etc.  Less user testing than if
-> there was a single interface.
-
-Sure, the value has to be big enough to justify the effort.
-
-But as I said, with taskstats and procfs we already have two interfaces
-for getting task information. Currently in procfs there is information
-than you can't find in taskstats. But also the other way round in the
-taskstats structure there is very useful information that you can't get
-under proc. E.g. the task delay times, IO accounting, etc. So currently
-tools have to use both interfaces to get all information, which is not
-optimal.
-
-> > 
-> > > I worry that there's a dependency on CONFIG_NET?  If so then that's a
-> > > big problem because in N years time, 99% of the world will be using
-> > > taskstats, but a few embedded losers will be stuck using (and having to
-> > > support) the old tools.
-> > 
-> > Sure, but if we could add the /proc/taskstats approach, this dependency
-> > would not be there.
+> From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 > 
-> So why do we need to present the same info over netlink?
-
-Good point. It is not really necessary. I started development using the
-netlink code. Therefore I first added the new command in the netlink
-code. I also thought, it would be a good idea to provide all netlink
-commands over the procfs interface to be consistent.
-
-> If the info is available via procfs then userspace code should use that
-> and not netlink, because that userspace code would also be applicable
-> to CONFIG_NET=n systems.
+> This patch moves each taskstats command into a single function. This
+> makes
+> the code more readable and makes it easier to add new commands.
 > 
-> > 
-> > > Does this have the potential to save us from the CONFIG_NET=n problem?
-> > 
-> > Yes
+> Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> ---
+>  kernel/taskstats.c |  118
+> +++++++++++++++++++++++++++++++++++------------------
+>  1 file changed, 78 insertions(+), 40 deletions(-)
 > 
-> Let's say that when it's all tested ;)
+> --- a/kernel/taskstats.c
+> +++ b/kernel/taskstats.c
+> @@ -424,39 +424,76 @@ err:
+>  	return rc;
+>  }
+> 
+> -static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info
+> *info)
+> +static int cmd_attr_register_cpumask(struct genl_info *info)
+>  {
+> -	int rc;
+> -	struct sk_buff *rep_skb;
+> -	struct taskstats *stats;
+> -	size_t size;
+>  	cpumask_var_t mask;
+> +	int rc;
+> 
+>  	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
+>  		return -ENOMEM;
+> -
+>  	rc = parse(info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK], mask);
+>  	if (rc < 0)
+> -		goto free_return_rc;
+> -	if (rc == 0) {
+> -		rc = add_del_listener(info->snd_pid, mask, REGISTER);
+> -		goto free_return_rc;
+> -	}
+> +		goto out;
+> +	rc = add_del_listener(info->snd_pid, mask, REGISTER);
+> +out:
+> +	free_cpumask_var(mask);
+> +	return rc;
+> +}
+> +
+> +static int cmd_attr_deregister_cpumask(struct genl_info *info)
+> +{
+> +	cpumask_var_t mask;
+> +	int rc;
+> 
+> +	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
+> +		return -ENOMEM;
+>  	rc = parse(info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK], mask);
+>  	if (rc < 0)
+> -		goto free_return_rc;
+> -	if (rc == 0) {
+> -		rc = add_del_listener(info->snd_pid, mask, DEREGISTER);
+> -free_return_rc:
+> -		free_cpumask_var(mask);
+> -		return rc;
+> -	}
+> +		goto out;
+> +	rc = add_del_listener(info->snd_pid, mask, DEREGISTER);
+> +out:
+>  	free_cpumask_var(mask);
+> +	return rc;
+> +}
+> +
+> +static int cmd_attr_pid(struct genl_info *info)
+> +{
+> +	struct taskstats *stats;
+> +	struct sk_buff *rep_skb;
+> +	size_t size;
+> +	u32 pid;
+> +	int rc;
+> +
+> +	size = nla_total_size(sizeof(u32)) +
+> +		nla_total_size(sizeof(struct taskstats)) + nla_total_size(0);
+> +
+> +	rc = prepare_reply(info, TASKSTATS_CMD_NEW, &rep_skb, size);
+> +	if (rc < 0)
+> +		return rc;
+> +
+> +	rc = -EINVAL;
+> +	pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
+> +	stats = mk_reply(rep_skb, TASKSTATS_TYPE_PID, pid);
+> +	if (!stats)
+> +		goto err;
+> +
+> +	rc = fill_pid(pid, NULL, stats);
+> +	if (rc < 0)
+> +		goto err;
+> +	return send_reply(rep_skb, info);
+> +err:
+> +	nlmsg_free(rep_skb);
+> +	return rc;
+> +}
+> +
+> +static int cmd_attr_tgid(struct genl_info *info)
+> +{
+> +	struct taskstats *stats;
+> +	struct sk_buff *rep_skb;
+> +	size_t size;
+> +	u32 tgid;
+> +	int rc;
+> 
+> -	/*
+> -	 * Size includes space for nested attributes
+> -	 */
+>  	size = nla_total_size(sizeof(u32)) +
+>  		nla_total_size(sizeof(struct taskstats)) + nla_total_size(0);
+> 
+> @@ -465,33 +502,34 @@ free_return_rc:
+>  		return rc;
+> 
+>  	rc = -EINVAL;
+> -	if (info->attrs[TASKSTATS_CMD_ATTR_PID]) {
+> -		u32 pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
+> -		stats = mk_reply(rep_skb, TASKSTATS_TYPE_PID, pid);
+> -		if (!stats)
+> -			goto err;
+> -
+> -		rc = fill_pid(pid, NULL, stats);
+> -		if (rc < 0)
+> -			goto err;
+> -	} else if (info->attrs[TASKSTATS_CMD_ATTR_TGID]) {
+> -		u32 tgid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_TGID]);
+> -		stats = mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tgid);
+> -		if (!stats)
+> -			goto err;
+> -
+> -		rc = fill_tgid(tgid, NULL, stats);
+> -		if (rc < 0)
+> -			goto err;
+> -	} else
+> +	tgid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_TGID]);
+> +	stats = mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tgid);
+> +	if (!stats)
+>  		goto err;
+> 
+> +	rc = fill_tgid(tgid, NULL, stats);
+> +	if (rc < 0)
+> +		goto err;
+>  	return send_reply(rep_skb, info);
+>  err:
+>  	nlmsg_free(rep_skb);
+>  	return rc;
+>  }
+> 
+> +static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info
+> *info)
+> +{
+> +	if (info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK])
+> +		return cmd_attr_register_cpumask(info);
+> +	else if (info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK])
+> +		return cmd_attr_deregister_cpumask(info);
+> +	else if (info->attrs[TASKSTATS_CMD_ATTR_PID])
+> +		return cmd_attr_pid(info);
+> +	else if (info->attrs[TASKSTATS_CMD_ATTR_TGID])
+> +		return cmd_attr_tgid(info);
+> +	else
+> +		return -EINVAL;
+> +}
+> +
+>  static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
+>  {
+>  	struct signal_struct *sig = tsk->signal;
+> 
+> 
 
-That was more a theoretical statement :-)
 
-I probably still have to ensure that the kernel config options
-dependencies are done correctly.
+Looks like good clean-up
 
-Michael
+Acked-by: Balbir Singh <balbir@linux.vnet.ibm.com>
+ 
+
+-- 
+	Three Cheers,
+	Balbir
