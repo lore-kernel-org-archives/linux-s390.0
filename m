@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 27 Sep 2010 15:42:57 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Subject: Re: [RFC][PATCH 09/10] taskstats: Fix exit CPU time accounting
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Reply-To: holzheu@linux.vnet.ibm.com
+Message-ID: <20100927154257.7910cda3@mschwide.boeblingen.de.ibm.com>
 In-Reply-To: <20100926181127.GA26985@redhat.com>
 References: <1285249681.1837.28.camel@holzheu-laptop>
-	 <1285250541.1837.95.camel@holzheu-laptop>
-	 <20100923171025.GA26623@redhat.com>
-	 <1285330688.2179.305.camel@holzheu-laptop>
-	 <20100926181127.GA26985@redhat.com>
-Content-Type: text/plain; charset="us-ascii"
-Date: Mon, 27 Sep 2010 15:23:04 +0200
-Message-ID: <1285593784.2116.97.camel@holzheu-laptop>
+ <1285250541.1837.95.camel@holzheu-laptop>
+ <20100923171025.GA26623@redhat.com>
+ <1285330688.2179.305.camel@holzheu-laptop>
+ <20100926181127.GA26985@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Oleg Nesterov <oleg@redhat.com>
-Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Suresh Siddha <suresh.b.siddha@intel.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Suresh Siddha <suresh.b.siddha@intel.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Oleg,
+On Sun, 26 Sep 2010 20:11:27 +0200
+Oleg Nesterov <oleg@redhat.com> wrote:
 
-On Sun, 2010-09-26 at 20:11 +0200, Oleg Nesterov wrote:
+> Hi,
+> 
+> On 09/24, Michael Holzheu wrote:
+> >
+> > On Thu, 2010-09-23 at 19:10 +0200, Oleg Nesterov wrote:
+> > >
+> > > On 09/23, Michael Holzheu wrote:
+> > > >
+> > > > Currently there are code pathes (e.g. for kthreads) where the consumed
+> > > > CPU time is not accounted to the parents cumulative counters.
+> > >
+> > > Could you explain more?
+> >
 > > I think one place was "khelper" (kmod.c). It is created with
 > > kernel_thread() and it exits without having accounted the times with
 > > sys_wait() to the parent's ctimes
 > 
 > No. Well yes, it is not accounted, but this is not because it is
 > kthread.
-> 
+
+We noticed that behavior with kernel threads but as you point out
+the problem is bigger than that.
+ 
 > To simplify the discussion, lets talk about utime/cutime only,
 > and lets forget about the multithreading.
 > 
@@ -41,13 +56,11 @@ On Sun, 2010-09-26 at 20:11 +0200, Oleg Nesterov wrote:
 > I do not know why it was done this way, but I'm afraid we can't
 > change this historical behaviour.
 
-Ok thanks, I didn't know this. So time can disappear, if the parent
-ignores SIGCHLD.
-
-I am a bit disappointed, because I thought by looking at all tasks of a
-system it should be possible to evaluate all consumed CPU time from now
-to the time where the system has been booted. That would have been a
-nice thing.
+Why? I would consider it to be a BUG() that the time is not accounted.
+Independent of the fact that a parent wants to see the SIGCHLD and
+the exit status of its child the process time of the child should be
+accounted, no? And I'm not a particular fan of the "this has always
+been that way" reasoning.
 
 > > Ok, the problem is that I did not consider exiting threads that are no
 > > thread group leaders. When they exit the ctime of the parent is not
@@ -56,7 +69,19 @@ nice thing.
 > I think I am a bit confused, but see above. With or without threads
 > the whole process can exit without accounting.
 
-Sorry that I couldn't explain my thoughts clear enough, believe me, I
-tried my best :-)
+Got the part about self-reaping processes. But there is another issue:
+consider an exiting thread where the group leader is still active.
+The time for the thread will be added to the utime/stime fields in
+the signal structure. Taskstats will happily ignore that time while
+the group leader is still running.
 
-Michael
+Please keep in mind that we want to get to a point where it is
+possible to get a 100% coverage of cpu cycles in the last snapshot
+cycle through the taskstats interface. Otherwise the precise top
+would not be very precise ..
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
