@@ -1,56 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sun, 26 Sep 2010 20:11:27 +0200
-From: Oleg Nesterov <oleg@redhat.com>
-Subject: Re: [RFC][PATCH 09/10] taskstats: Fix exit CPU time accounting
-Message-ID: <20100926181127.GA26985@redhat.com>
-References: <1285249681.1837.28.camel@holzheu-laptop> <1285250541.1837.95.camel@holzheu-laptop> <20100923171025.GA26623@redhat.com> <1285330688.2179.305.camel@holzheu-laptop>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1285330688.2179.305.camel@holzheu-laptop>
+Subject: Re: [RFC][PATCH 00/10] taskstats: Enhancements for precise
+ accounting
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20100924115002.fcb4385a.akpm@linux-foundation.org>
+References: <1285249681.1837.28.camel@holzheu-laptop>
+	 <20100923131136.356075f4.akpm@linux-foundation.org>
+	 <1285319415.2179.116.camel@holzheu-laptop>
+	 <20100924115002.fcb4385a.akpm@linux-foundation.org>
+Content-Type: text/plain; charset="us-ascii"
+Date: Mon, 27 Sep 2010 11:18:47 +0200
+Message-ID: <1285579127.2116.62.camel@holzheu-laptop>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Suresh Siddha <suresh.b.siddha@intel.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, containers@lists.linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+Hello Andrew,
 
-On 09/24, Michael Holzheu wrote:
->
-> On Thu, 2010-09-23 at 19:10 +0200, Oleg Nesterov wrote:
-> >
-> > On 09/23, Michael Holzheu wrote:
-> > >
-> > > Currently there are code pathes (e.g. for kthreads) where the consumed
-> > > CPU time is not accounted to the parents cumulative counters.
-> >
-> > Could you explain more?
->
-> I think one place was "khelper" (kmod.c). It is created with
-> kernel_thread() and it exits without having accounted the times with
-> sys_wait() to the parent's ctimes
+On Fri, 2010-09-24 at 11:50 -0700, Andrew Morton wrote:
+> > > This is a big change!  If this is done right then we're heading in the
+> > > direction of deprecating the longstanding way in which userspace
+> > > observes the state of Linux processes and we're recommending that the
+> > > whole world migrate to taskstats.  I think?
+> > 
+> > Or it can be used as alternative. Since procfs has its drawbacks (e.g.
+> > performance) an alternative could be helpful. 
+> 
+> And it can be harmful.  More kernel code to maintain and test, more
+> userspace code to develop, maintain, etc.  Less user testing than if
+> there was a single interface.
 
-No. Well yes, it is not accounted, but this is not because it is
-kthread.
+Sure, the value has to be big enough to justify the effort.
 
-To simplify the discussion, lets talk about utime/cutime only,
-and lets forget about the multithreading.
+But as I said, with taskstats and procfs we already have two interfaces
+for getting task information. Currently in procfs there is information
+than you can't find in taskstats. But also the other way round in the
+taskstats structure there is very useful information that you can't get
+under proc. E.g. the task delay times, IO accounting, etc. So currently
+tools have to use both interfaces to get all information, which is not
+optimal.
 
-It is very simple, currently linux accounts the exiting task's
-utime and adds its to ->cutime _only_ if parent does do_wait().
-If parent ignores SIGCHLD, the child reaps itself and it is not
-accounted.
+> > 
+> > > I worry that there's a dependency on CONFIG_NET?  If so then that's a
+> > > big problem because in N years time, 99% of the world will be using
+> > > taskstats, but a few embedded losers will be stuck using (and having to
+> > > support) the old tools.
+> > 
+> > Sure, but if we could add the /proc/taskstats approach, this dependency
+> > would not be there.
+> 
+> So why do we need to present the same info over netlink?
 
-I do not know why it was done this way, but I'm afraid we can't
-change this historical behaviour.
+Good point. It is not really necessary. I started development using the
+netlink code. Therefore I first added the new command in the netlink
+code. I also thought, it would be a good idea to provide all netlink
+commands over the procfs interface to be consistent.
 
-> Ok, the problem is that I did not consider exiting threads that are no
-> thread group leaders. When they exit the ctime of the parent is not
-> updated. Instead the time is accumulated in the signal struct.
+> If the info is available via procfs then userspace code should use that
+> and not netlink, because that userspace code would also be applicable
+> to CONFIG_NET=n systems.
+> 
+> > 
+> > > Does this have the potential to save us from the CONFIG_NET=n problem?
+> > 
+> > Yes
+> 
+> Let's say that when it's all tested ;)
 
-I think I am a bit confused, but see above. With or without threads
-the whole process can exit without accounting.
+That was more a theoretical statement :-)
 
-Oleg.
+I probably still have to ensure that the kernel config options
+dependencies are done correctly.
+
+Michael
