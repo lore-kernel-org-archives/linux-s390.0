@@ -1,117 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 28 Sep 2010 13:51:05 +0530
+Date: Tue, 28 Sep 2010 14:06:02 +0530
 From: Balbir Singh <balbir@linux.vnet.ibm.com>
 Subject: Re: [RFC][PATCH 09/10] taskstats: Fix exit CPU time accounting
-Message-ID: <20100928082105.GC4128@balbir.in.ibm.com>
+Message-ID: <20100928083602.GD4128@balbir.in.ibm.com>
 Reply-To: balbir@linux.vnet.ibm.com
 References: <1285249681.1837.28.camel@holzheu-laptop>
  <1285250541.1837.95.camel@holzheu-laptop>
+ <20100923171025.GA26623@redhat.com>
+ <1285330688.2179.305.camel@holzheu-laptop>
+ <20100926181127.GA26985@redhat.com>
+ <20100927154257.7910cda3@mschwide.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1285250541.1837.95.camel@holzheu-laptop>
+In-Reply-To: <20100927154257.7910cda3@mschwide.boeblingen.de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Suresh Siddha <suresh.b.siddha@intel.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Oleg Nesterov <oleg@redhat.com>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Oleg Nesterov <oleg@redhat.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Suresh Siddha <suresh.b.siddha@intel.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-* Michael Holzheu <holzheu@linux.vnet.ibm.com> [2010-09-23 16:02:21]:
+* Martin Schwidefsky <schwidefsky@de.ibm.com> [2010-09-27 15:42:57]:
 
-> Subject: [PATCH] taskstats: Fix exit CPU time accounting
+> On Sun, 26 Sep 2010 20:11:27 +0200
+> Oleg Nesterov <oleg@redhat.com> wrote:
 > 
-> From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> > Hi,
+> > 
+> > On 09/24, Michael Holzheu wrote:
+> > >
+> > > On Thu, 2010-09-23 at 19:10 +0200, Oleg Nesterov wrote:
+> > > >
+> > > > On 09/23, Michael Holzheu wrote:
+> > > > >
+> > > > > Currently there are code pathes (e.g. for kthreads) where the consumed
+> > > > > CPU time is not accounted to the parents cumulative counters.
+> > > >
+> > > > Could you explain more?
+> > >
+> > > I think one place was "khelper" (kmod.c). It is created with
+> > > kernel_thread() and it exits without having accounted the times with
+> > > sys_wait() to the parent's ctimes
+> > 
+> > No. Well yes, it is not accounted, but this is not because it is
+> > kthread.
 > 
-> Currently there are code pathes (e.g. for kthreads) where the consumed
-> CPU time is not accounted to the parents cumulative counters.
-> Now CPU time is accounted to the parent, if the exit accounting has not
-> been done correctly.
+> We noticed that behavior with kernel threads but as you point out
+> the problem is bigger than that.
+> 
+> > To simplify the discussion, lets talk about utime/cutime only,
+> > and lets forget about the multithreading.
+> > 
+> > It is very simple, currently linux accounts the exiting task's
+> > utime and adds its to ->cutime _only_ if parent does do_wait().
+> > If parent ignores SIGCHLD, the child reaps itself and it is not
+> > accounted.
+> > 
+> > I do not know why it was done this way, but I'm afraid we can't
+> > change this historical behaviour.
+> 
+> Why? I would consider it to be a BUG() that the time is not accounted.
+> Independent of the fact that a parent wants to see the SIGCHLD and
+> the exit status of its child the process time of the child should be
+> accounted, no? And I'm not a particular fan of the "this has always
+> been that way" reasoning.
+> 
+> > > Ok, the problem is that I did not consider exiting threads that are no
+> > > thread group leaders. When they exit the ctime of the parent is not
+> > > updated. Instead the time is accumulated in the signal struct.
+> > 
+> > I think I am a bit confused, but see above. With or without threads
+> > the whole process can exit without accounting.
+> 
+> Got the part about self-reaping processes. But there is another issue:
+> consider an exiting thread where the group leader is still active.
+> The time for the thread will be added to the utime/stime fields in
+> the signal structure. Taskstats will happily ignore that time while
+> the group leader is still running.
 >
 
-Does this impact account of the init process? Why do we care about
-accounting the time to the parent? In the case of tgid, all threads
-data makes sense. What is the benefit or gap we are trying to address
-in terms of lost data or accountability?
+Why do you say that? Not sure your comment is very clean, in
+fill_tgid, we do
+
+1. Accumulate signal stats (contains stats for dead threads)
+2. Accumulate stats for current threads
+
+fill_tgid_exit does something similar
  
-> Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-> ---
->  include/linux/sched.h |    1 +
->  kernel/exit.c         |   35 +++++++++++++++++++++++++++++++++++
->  2 files changed, 36 insertions(+)
-> 
-> Index: git-linux-2.6/include/linux/sched.h
-> ===================================================================
-> --- git-linux-2.6.orig/include/linux/sched.h	2010-09-23 14:16:37.000000000 +0200
-> +++ git-linux-2.6/include/linux/sched.h	2010-09-23 14:17:20.000000000 +0200
-> @@ -1282,6 +1282,7 @@
->  	cputime_t prev_utime, prev_stime, prev_sttime;
->  #endif
->  	unsigned long long acct_time;		/* Time for last accounting */
-> +	int exit_accounting_done;
->  	unsigned long nvcsw, nivcsw; /* context switch counts */
->  	struct timespec start_time; 		/* monotonic time */
->  	struct timespec real_start_time;	/* boot based time */
-> Index: git-linux-2.6/kernel/exit.c
-> ===================================================================
-> --- git-linux-2.6.orig/kernel/exit.c	2010-09-23 14:16:37.000000000 +0200
-> +++ git-linux-2.6/kernel/exit.c	2010-09-23 14:17:20.000000000 +0200
-> @@ -157,11 +157,45 @@
->  	put_task_struct(tsk);
->  }
-> 
-> +static void account_to_parent(struct task_struct *p)
-> +{
-> +	struct signal_struct *psig, *sig;
-> +	struct task_struct *tsk_parent;
-> +
-> +	read_lock(&tasklist_lock);
-> +	tsk_parent = p->real_parent;
-> +	if (!tsk_parent) {
-> +		read_unlock(&tasklist_lock);
-> +		return;
-> +	}
-> +	get_task_struct(tsk_parent);
-> +	read_unlock(&tasklist_lock);
-> +
-> +	// printk("XXX Fix accounting: pid=%d ppid=%d\n", p->pid, tsk_parent->pid);
-> +	spin_lock_irq(&tsk_parent->sighand->siglock);
-> +	psig = tsk_parent->signal;
-> +	sig = p->signal;
-> +	psig->cutime = cputime_add(psig->cutime,
-> +				   cputime_add(sig->cutime, p->utime));
-> +	psig->cstime = cputime_add(psig->cstime,
-> +				   cputime_add(sig->cstime, p->stime));
-> +	psig->csttime = cputime_add(psig->csttime,
-> +				    cputime_add(sig->csttime, p->sttime));
-> +	psig->cgtime = cputime_add(psig->cgtime,
-> +		       cputime_add(p->gtime,
-> +		       cputime_add(sig->gtime, sig->cgtime)));
-> +	p->exit_accounting_done = 1;
-> +	spin_unlock_irq(&tsk_parent->sighand->siglock);
-> +	put_task_struct(tsk_parent);
-> +}
-> 
->  void release_task(struct task_struct * p)
->  {
->  	struct task_struct *leader;
->  	int zap_leader;
-> +
-> +	if (!p->exit_accounting_done)
-> +		account_to_parent(p);
->  repeat:
->  	tracehook_prepare_release_task(p);
->  	/* don't need to get the RCU readlock here - the process is dead and
-> @@ -1279,6 +1313,7 @@
->  			psig->cmaxrss = maxrss;
->  		task_io_accounting_add(&psig->ioac, &p->ioac);
->  		task_io_accounting_add(&psig->ioac, &sig->ioac);
-> +		p->exit_accounting_done = 1;
->  		spin_unlock_irq(&p->real_parent->sighand->siglock);
->  	}
-> 
-> 
-> 
+> Please keep in mind that we want to get to a point where it is
+> possible to get a 100% coverage of cpu cycles in the last snapshot
+> cycle through the taskstats interface. Otherwise the precise top
+> would not be very precise ..
 
 -- 
 	Three Cheers,
