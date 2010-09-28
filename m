@@ -1,85 +1,132 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 28 Sep 2010 16:09:38 +0530
-From: Balbir Singh <balbir@linux.vnet.ibm.com>
 Subject: Re: [RFC][PATCH 09/10] taskstats: Fix exit CPU time accounting
-Message-ID: <20100928103938.GB4261@balbir.in.ibm.com>
-Reply-To: balbir@linux.vnet.ibm.com
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20100928082105.GC4128@balbir.in.ibm.com>
 References: <1285249681.1837.28.camel@holzheu-laptop>
- <1285250541.1837.95.camel@holzheu-laptop>
- <20100923171025.GA26623@redhat.com>
- <1285330688.2179.305.camel@holzheu-laptop>
- <20100926181127.GA26985@redhat.com>
- <20100927154257.7910cda3@mschwide.boeblingen.de.ibm.com>
- <20100928083602.GD4128@balbir.in.ibm.com>
- <20100928110828.54e1cf25@mschwide.boeblingen.de.ibm.com>
- <20100928092355.GA4261@balbir.in.ibm.com>
- <20100928123625.18eec4ad@mschwide.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20100928123625.18eec4ad@mschwide.boeblingen.de.ibm.com>
+	 <1285250541.1837.95.camel@holzheu-laptop>
+	 <20100928082105.GC4128@balbir.in.ibm.com>
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 28 Sep 2010 18:50:30 +0200
+Message-ID: <1285692630.1866.74.camel@holzheu-laptop>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Oleg Nesterov <oleg@redhat.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Suresh Siddha <suresh.b.siddha@intel.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: balbir@linux.vnet.ibm.com
+Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Suresh Siddha <suresh.b.siddha@intel.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Oleg Nesterov <oleg@redhat.com>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-* Martin Schwidefsky <schwidefsky@de.ibm.com> [2010-09-28 12:36:25]:
+Hello Balbir,
 
-> On Tue, 28 Sep 2010 14:53:55 +0530
-> Balbir Singh <balbir@linux.vnet.ibm.com> wrote:
+On Tue, 2010-09-28 at 13:51 +0530, Balbir Singh wrote:
+> * Michael Holzheu <holzheu@linux.vnet.ibm.com> [2010-09-23 16:02:21]:
 > 
-> > * Martin Schwidefsky <schwidefsky@de.ibm.com> [2010-09-28 11:08:28]:
+> > Subject: [PATCH] taskstats: Fix exit CPU time accounting
 > > 
-> > > On Tue, 28 Sep 2010 14:06:02 +0530
-> > > Balbir Singh <balbir@linux.vnet.ibm.com> wrote:
-> > > 
-> > > > * Martin Schwidefsky <schwidefsky@de.ibm.com> [2010-09-27 15:42:57]:
-> > > > > Got the part about self-reaping processes. But there is another issue:
-> > > > > consider an exiting thread where the group leader is still active.
-> > > > > The time for the thread will be added to the utime/stime fields in
-> > > > > the signal structure. Taskstats will happily ignore that time while
-> > > > > the group leader is still running.
-> > > > >
-> > > > 
-> > > > Why do you say that? Not sure your comment is very clean, in
-> > > > fill_tgid, we do
-> > > > 
-> > > > 1. Accumulate signal stats (contains stats for dead threads)
-> > > > 2. Accumulate stats for current threads
-> > > > 
-> > > > fill_tgid_exit does something similar
-> > > 
-> > > Hmm, I can't find anything in the code where the tsk->signal->{utime,stime}
+> > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 > > 
-> > That is left to the actual subsystem (I should have been clearer in
-> > stating that the limitation is not with the taskstats infrastructure
-> > itself). Yes, your observation is indeed correct.
-> > 
-> > taskstats code is expected to contain the callback for the subsystems
-> > it supports. delayacct() already does the right thing today, AFAICS
-> > 
-> > > gets transferred to the taskstats record. There is a loop in fill_tgid over
-> > > the threads of the process but all it does is to call delayacct_add_tsk.
-> > > And that function does nothing with the cpu time of dead threads which is
-> > > stored in the signal structure. In addition which taskstats field is
-> > > supposed to contain the cpu time of the dead thread, ac_utime/ac_stime?
-> > >
-> > 
-> > I've not focused much on ac_*, The changes that need to occur are we
-> > need to get the tsacct.c callbacks into taskstats.
+> > Currently there are code pathes (e.g. for kthreads) where the consumed
+> > CPU time is not accounted to the parents cumulative counters.
+> > Now CPU time is accounted to the parent, if the exit accounting has not
+> > been done correctly.
+> >
 > 
-> Ok, so tsacct.c is the right place to implement it. We will need new fields
-> in struct taskstats to contain the tsk->signal->{utime,stime} and some code
-> in bacct_add_tsk to do the copy. Agreed ?
->
+> Does this impact account of the init process? Why do we care about
+> accounting the time to the parent? In the case of tgid, all threads
+> data makes sense. What is the benefit or gap we are trying to address
+> in terms of lost data or accountability?
 
-Yes, the caveat though is that tsacct.c or xacct was not designed to
-provide notifications for tgid exit or provide tgid data. I don't
-recollect why they decided to go down that path or if there are some
-limitations that affect it. 
+We care about the cumulative times because we wanted to write
+a top command that can get 100% of all consumed CPU time in an
+interval without using exit events.
 
--- 
-	Three Cheers,
-	Balbir
+I tried to write the idea down. Hopefully it is clear enough...
+
+HOWTO calculate 100% consumed CPU time between two taskstats snapshots
+======================================================================
+
+In the following the idea of getting 100% of consumed CPU time between two
+taskstats snapshots without using exit events is described. For simplicity we
+use CPU-time as synonym for "user time", "system time" and "steal time".
+
+In order to show the consumed CPU time in an interval a top tool has to:
+
+* Collect snapshot 1 of all running tasks
+* Wait interval
+* Collect snapshot 2 of all running tasks
+
+A snapshot contains the following data for each task:
+
+ * time-task:    CPU time that has been consumed by task itself:
+                 task->(u/s/st-time)
+ * time-child:   CPU time that has been consumed by dead children of task:
+                 task->signal->(cu/cs/cst-time)
+ * time-thread:  CPU time that has been consumed by dead threads of
+                 thread group of thread group leader:
+                 task->signal->(u/s/st-time)
+
+All consumed CPU time in the interval can be calculated as follows:
+ 
+  For all tasks that are in snapshot 1 AND in snapshot 2:
+
+    (time-task[2] - time-task[1]) +
+    (time-child[2] - time-child[1]) +
+    (time-thread[2] - time-thread[1] {for thread group leader})
+
+  minus
+
+  For all tasks that are in snapshot 1 but NOT in snapshot 2 (tasks that have
+  been exited):
+
+    time-task[1] +
+    time-child[1] +
+    time-thread[1] (if thread group has exited)
+
+    We have to subtract those CPU times in order to get the CPU time
+    of the exited tasks that has been consumed in the last interval.
+
+To provide a consistent view, the top tool could show the following fields:
+ * user:  task utime per interval
+ * sys:   task stime per interval
+ * ste:   task sttime per interval
+ * cuser: utime of exited children per interval
+ * csys:  stime of exited children per interval
+ * cste:  sttime of exited children per interval
+ * tuser: utime of exited threads per interval (only for thread group leader)
+ * tsys:  stime of exited threads per interval (only for thread group leader)
+ * tste:  sttime of exited threads per interval (only for thread group leader)
+ * total: Sum of all above fields
+
+If the top command notices that a PID disappeared between snapshot 1
+and snapshot 2, it has to do the following:
+
+If task is not the thread group leader (pid != tgid):
+  Find its thread group leader and subtract the CPU times from snapshot 1
+  of the dead task from the thread group leader's time-thread interval
+  difference.
+else
+  Find its parent and subtract the CPU times from snapshot 1 of the dead child
+  from the parents time-child interval difference.
+
+Example output:
+---------------
+pid     user   sys  ste  cuser  csys cste tuser tsys tste total  Name
+(#)      (%)   (%)  (%)    (%)   (%)  (%)   (%)  (%)  (%)   (%)  (str)
+17944   0.10  0.01 0.00  54.29 14.36 0.22  0.00 0.00 0.00 68.98  make
+18006   0.10  0.01 0.00  55.79 12.23 0.12  0.00 0.00 0.00 68.26  make
+18041  48.18  1.51 0.29   0.00  0.00 0.00  0.00 0.00 0.00 49.98  cc1
+...
+
+The sum of all "total" CPU counters on a system that is 100% busy should
+be exactly the number CPUs multiplied by the interval time. A good testcase
+for this is to start a loop program for each CPU and then in parallel
+starting a kernel build with "-j 5".
+
+OPEN ISSUE:
+
+A current problem with the Linux kernel is that CPU time can disappear,
+if a child of a parent that ignores (SIGCHLD) dies.
+
+Michael
