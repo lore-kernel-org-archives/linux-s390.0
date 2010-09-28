@@ -1,81 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 27 Sep 2010 13:02:56 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [RFC][PATCH 00/10] taskstats: Enhancements for precise
- accounting
-Message-Id: <20100927130256.5d9a3db8.akpm@linux-foundation.org>
-In-Reply-To: <1285579127.2116.62.camel@holzheu-laptop>
+Date: Tue, 28 Sep 2010 09:09:04 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [RFC][PATCH 09/10] taskstats: Fix exit CPU time accounting
+Message-ID: <20100928090904.7edc7c02@mschwide.boeblingen.de.ibm.com>
+In-Reply-To: <20100927165133.GA23535@redhat.com>
 References: <1285249681.1837.28.camel@holzheu-laptop>
-	<20100923131136.356075f4.akpm@linux-foundation.org>
-	<1285319415.2179.116.camel@holzheu-laptop>
-	<20100924115002.fcb4385a.akpm@linux-foundation.org>
-	<1285579127.2116.62.camel@holzheu-laptop>
+	<1285250541.1837.95.camel@holzheu-laptop>
+	<20100923171025.GA26623@redhat.com>
+	<1285330688.2179.305.camel@holzheu-laptop>
+	<20100926181127.GA26985@redhat.com>
+	<20100927154257.7910cda3@mschwide.boeblingen.de.ibm.com>
+	<20100927165133.GA23535@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: holzheu@linux.vnet.ibm.com
-Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, containers@lists.linux-foundation.org
+To: Oleg Nesterov <oleg@redhat.com>
+Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Suresh Siddha <suresh.b.siddha@intel.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 27 Sep 2010 11:18:47 +0200
-Michael Holzheu <holzheu@linux.vnet.ibm.com> wrote:
+On Mon, 27 Sep 2010 18:51:33 +0200
+Oleg Nesterov <oleg@redhat.com> wrote:
 
-> Hello Andrew,
+> On 09/27, Martin Schwidefsky wrote:
+> >
+> > On Sun, 26 Sep 2010 20:11:27 +0200
+> > Oleg Nesterov <oleg@redhat.com> wrote:
+> >
+> > > No. Well yes, it is not accounted, but this is not because it is
+> > > kthread.
+> >
+> > We noticed that behavior with kernel threads but as you point out
+> > the problem is bigger than that.
+> >
+> > > It is very simple, currently linux accounts the exiting task's
+> > > utime and adds its to ->cutime _only_ if parent does do_wait().
+> > > If parent ignores SIGCHLD, the child reaps itself and it is not
+> > > accounted.
+> > >
+> > > I do not know why it was done this way, but I'm afraid we can't
+> > > change this historical behaviour.
+> >
+> > Why?
 > 
-> On Fri, 2010-09-24 at 11:50 -0700, Andrew Morton wrote:
-> > > > This is a big change!  If this is done right then we're heading in the
-> > > > direction of deprecating the longstanding way in which userspace
-> > > > observes the state of Linux processes and we're recommending that the
-> > > > whole world migrate to taskstats.  I think?
-> > > 
-> > > Or it can be used as alternative. Since procfs has its drawbacks (e.g.
-> > > performance) an alternative could be helpful. 
-> > 
-> > And it can be harmful.  More kernel code to maintain and test, more
-> > userspace code to develop, maintain, etc.  Less user testing than if
-> > there was a single interface.
+> Please don't ask me ;) I was equally surprised when I studied this
+> code in the past.
+
+But I do ask >:-)
+ 
+> > I would consider it to be a BUG() that the time is not accounted.
+> > Independent of the fact that a parent wants to see the SIGCHLD and
+> > the exit status of its child the process time of the child should be
+> > accounted, no?
 > 
-> Sure, the value has to be big enough to justify the effort.
+> I do not know. It doesn't look like a BUG(), I mean it looks as if
+> the code was intentionally written this way.
+
+Well, one thing to consider is the fact that the exiting process can
+not the process accounting by itself. While a process is still running
+it uses cpu which has to bet accounted to cstime of the parent.
+So logically some other process has to do the cutime/cstime update.
+
+> > And I'm not a particular fan of the "this has always
+> > been that way" reasoning.
 > 
-> But as I said, with taskstats and procfs we already have two interfaces
-> for getting task information.
-
-That doesn't mean it was the right thing to do!  For the reasons I
-outline above, it can be the wrong thing to do and strengthening one of
-the alternatives worsens the problem.
-
-> Currently in procfs there is information
-> than you can't find in taskstats. But also the other way round in the
-> taskstats structure there is very useful information that you can't get
-> under proc. E.g. the task delay times, IO accounting, etc.
-
-Sounds like a big screwup ;)
-
-Look at it this way: if you were going to sit down and start to design
-a new operating system from scratch, would you design the task status
-reporting system as it currently stands in Linux?  Don't think so!
-
-> So currently
-> tools have to use both interfaces to get all information, which is not
-> optimal.
+> Me too, but unfortunately it often happens, sometimes we can't improve
+> things just because we should not break existing programs.
 > 
-> > > 
-> > > > I worry that there's a dependency on CONFIG_NET?  If so then that's a
-> > > > big problem because in N years time, 99% of the world will be using
-> > > > taskstats, but a few embedded losers will be stuck using (and having to
-> > > > support) the old tools.
-> > > 
-> > > Sure, but if we could add the /proc/taskstats approach, this dependency
-> > > would not be there.
-> > 
-> > So why do we need to present the same info over netlink?
+> Once again, don't get me wrong. Personally I agree, to me it makes
+> sense to move the "update parent's cxxx" code from wait_task_zombie()
+> to __exit_signal(), and account children unconditionally.
 > 
-> Good point. It is not really necessary. I started development using the
-> netlink code. Therefore I first added the new command in the netlink
-> code. I also thought, it would be a good idea to provide all netlink
-> commands over the procfs interface to be consistent.
+> But I do not know who can approve this very much user-visible change.
+> Perhaps Roland.
 
-Maybe we should have delivered taskstats over procfs from day one.
+I wonder which user space tool would break.
+
+> > Got the part about self-reaping processes. But there is another issue:
+> > consider an exiting thread where the group leader is still active.
+> > The time for the thread will be added to the utime/stime fields in
+> > the signal structure.
+> 
+> (to clarify, s/group leader/last thread/)
+> 
+> > Taskstats will happily ignore that time while
+> > the group leader is still running.
+> 
+> Sorry. I didn't read the whole series and I forgot everything I knew
+> about taskstats. But I don't understand this "ignore" above, every
+> exiting thread calls taskstats_exit()->fill_pid()->bacct_add_tsk()
+> and reports ->ac_utime?
+> 
+> Never mind. You seem to want to update, say, cutime when a sub-thread
+> exits, before the whole process exits, right? Again, trivial to
+> implement but this is another user-visible change.
+
+No, not necessarily. But to get to 100% coverage of the cpu time we
+need to be able to "find" the time. Currently the time of already
+exited threads of a thread group is invisible via the taskstats
+interface. New taskstats fields would do for this particular problem.
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
