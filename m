@@ -1,32 +1,34 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 1/1] [PATCH] qeth: tagging with VLAN-ID 0
-Date: Sun, 03 Oct 2010 22:08:29 -0700 (PDT)
-Message-ID: <20101003.220829.28819804.davem@davemloft.net>
-References: <20101001125112.459999476@de.ibm.com>
-	<20101001125142.037089467@de.ibm.com>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [-next: Oct 4] s390x build break (kernel/power/process.o)
+Date: Mon, 4 Oct 2010 22:31:39 +0200
+Message-ID: <201010042231.39605.rjw@sisk.pl>
+References: <20101004113638.a7f8517b.sfr@canb.auug.org.au> <4CA99185.3020900@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20101001125142.037089467@de.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <4CA99185.3020900@in.ibm.com>
+Sender: linux-next-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Sachin Sant <sachinp@in.ibm.com>
+Cc: linux-s390@vger.kernel.org, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: frank.blaschka@de.ibm.com
-Date: Fri, 01 Oct 2010 14:51:13 +0200
-
-> From: Ursula Braun <ursula.braun@de.ibm.com>
+On Monday, October 04, 2010, Sachin Sant wrote:
+> Today's next fails to build on a s390x box with
 > 
-> This patch adapts qeth to handle tagged frames with VLAN-ID 0 and
-> with or without priority information in the tag. It enables qeth to
-> receive priority-tagged frames on a base interface, for example from
-> z/OS, without configuring an additional VLAN interface.
+> kernel/power/process.c: In function try_to_freeze_tasks:
+> kernel/power/process.c:82: error: implicit declaration of function pm_check_wakeup_events
 > 
-> Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-> Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+> The code in question was added via following commit
+> 
+> commit a87bcded7c384857f4f83f38d666c9bf5c7c9727
+> PM: Allow wakeup events to abort freezing of tasks
+> 
+> CONFIG_PM_SLEEP is not enabled in the config.
 
-I'll apply this, thanks.
+Thanks for the report, should be fixed now.
+
+Rafael
