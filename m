@@ -1,72 +1,50 @@
-MIME-Version: 1.0
-In-Reply-To: <AANLkTimE=uzwhDMz_-jVWKyb9NAONGuVvVo5KbjkkZVu@mail.gmail.com>
-References: <4CCBC8B1.2080808@in.ibm.com>
-        <AANLkTimE=uzwhDMz_-jVWKyb9NAONGuVvVo5KbjkkZVu@mail.gmail.com>
-Date: Sat, 30 Oct 2010 16:12:15 +0800
-Message-ID: <AANLkTikXAde1yLZkB80GOjWu-sFZAvv0SL566rWssD1k@mail.gmail.com>
-Subject: Re: [s390] 2.6.36-git14 build break - fs/compat.c :631
- (PAGE_CACHE_MASK undeclared)
-From: wu zhangjin <wuzhangjin@gmail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-Path: <wuzhangjin@gmail.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-To: Sachin Sant <sachinp@in.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, linux-mips <linux-mips@linux-mips.org>
+From: "jamesmikedupont@googlemail.com" <jamesmikedupont@googlemail.com>
+Date: Tue, 05 Oct 2010 08:01:17 +0000
+Subject: state of the gcc on s390x?
+Message-Id: <AANLkTi=cCnSdwPFdJauRcy_kWS3OLeEwJP-OK9QU9htk@mail.gmail.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-(Seems Linus added that patch, add him in this loop)
+Hi,
+I was lucky to get an account on the ibm servers, .zseriespenguins.ihost.com.
 
-On Sat, Oct 30, 2010 at 4:01 PM, wu zhangjin <wuzhangjin@gmail.com> wrote:
-> The same problem on MIPS.
->
-> Perhaps this can help:
->
-> $ git diff
-> diff --git a/fs/compat.c b/fs/compat.c
-> index ff66c0d..c580c32 100644
-> --- a/fs/compat.c
-> +++ b/fs/compat.c
-> @@ -49,6 +49,7 @@
-> =A0#include <linux/eventpoll.h>
-> =A0#include <linux/fs_struct.h>
-> =A0#include <linux/slab.h>
-> +#include <linux/pagemap.h>
->
-> =A0#include <asm/uaccess.h>
-> =A0#include <asm/mmu_context.h>
->
-> I'm not sure if this is a good fixup, because the problem is
-> introduced by MAX_RW_COUNT defined in include/linux/fs.h:
->
-> #define MAX_RW_COUNT (INT_MAX & PAGE_CACHE_MASK)
->
-> and the PAGE_CACHE_MASK is defined in pagemap.h, we may be possible to
-> add <linux/pagemap.h> in include/linux/fs.h but pagemap.h has included
-> <linux/fs.h> too ...
->
-> Regards,
-> Wu Zhangjin
->
-> On Sat, Oct 30, 2010 at 3:26 PM, Sachin Sant <sachinp@in.ibm.com> wrote:
->> Latest 2.6.36 git [commit 44234d0c46...] fails to build on s390x with
->> following error :
->>
->> fs/compat.c: In function compat_rw_copy_check_uvector:
->> fs/compat.c:631: error: PAGE_CACHE_MASK undeclared (first use in this
->> function)
->> fs/compat.c:631: error: (Each undeclared identifier is reported only once
->> fs/compat.c:631: error: for each function it appears in.)
->> make[1]: *** [fs/compat.o] Error 1
->>
->> The code in question was added via following commit:
->>
->> commit 435f49a518c78eec8e2edbbadd912737246cbe20
->> readv/writev: do the same MAX_RW_COUNT truncation that read/write does
->>
->> Thanks
->> -Sachin
->
+I would like to compile the newer gcc, and the associated gmp, mpc, mpfr.
+
+Does anyone have the lastest versions running?
+What are the versions known to work?
+
+Can I download a binary of gcc 4.4 or later somewhere for the s390x?
+
+I have this machine :
+Linux 2.6.9-42.EL #1 SMP Wed Jul 12 23:21:43 EDT 2006 s390x s390x
+s390x GNU/Linux
+
+I am trying with these versions :
+mpc-0.8.2
+gmp-5.0.1
+mpfr-3.0.0
+and gcc lastest.
+
+Andreas has given me a tip already for this
+http://article.gmane.org/gmane.comp.lib.gmp.general/2611
+
+But from what I can see it is a 64 bit machine,
+and the problem I am having is that the macro in gmp in longlong.h is
+defined only for 32 bits.
+The macros/functions are
+ smul_ppmm
+and
+ sdiv_qrnnd dont seem to be defined for 64 bits on gmp.
+
+http://www.spinics.net/lists/linux-s390/msg02533.html
+
+please advise...
+thanks,
+mike
+
+
+
+-- 
+James Michael DuPont
+Member of Free Libre Open Source Software Kosova and Albania
+flossk.org flossal.org
