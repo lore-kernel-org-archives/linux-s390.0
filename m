@@ -1,153 +1,85 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Tue, 14 Sep 2010 19:34:54 +0000
-Subject: [PATCH 03/18] s390/block: kill the big kernel lock
-Message-Id: <1284492909-7147-4-git-send-email-arnd@arndb.de>
-To: linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+Subject: Re: [RFC][PATCH 09/10] taskstats: Fix exit CPU time accounting
+In-Reply-To: Michael Holzheu's message of  Thursday, 30 September 2010 15:47:40 +0200 <1285854460.1856.14.camel@holzheu-laptop>
+References: <1285249681.1837.28.camel@holzheu-laptop>
+	<1285250541.1837.95.camel@holzheu-laptop>
+	<20100923171025.GA26623@redhat.com>
+	<1285330688.2179.305.camel@holzheu-laptop>
+	<20100926181127.GA26985@redhat.com>
+	<20100927154257.7910cda3@mschwide.boeblingen.de.ibm.com>
+	<20100927165133.GA23535@redhat.com>
+	<20100929191916.21E1840038@magilla.sf.frob.com>
+	<1285854460.1856.14.camel@holzheu-laptop>
+Message-Id: <20101005085751.4490A401B2@magilla.sf.frob.com>
+Date: Tue,  5 Oct 2010 01:57:51 -0700 (PDT)
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: holzheu@linux.vnet.ibm.com
+Cc: Oleg Nesterov <oleg@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Suresh Siddha <suresh.b.siddha@intel.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The dasd and dcssblk drivers gained the big
-kernel lock in the recent pushdown from the
-block layer, but they don't really need it,
-so remove the calls without a replacement.
+> Thanks! That information was missing! Although still for me it not seems
+> to be a good decision to do it that way. Because of that it currently is
+> not possible to evaluate all consumed CPU time by looking at the current
+> processes. Time can simply disappear.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
----
- drivers/s390/block/dasd.c       |    6 ------
- drivers/s390/block/dasd_ioctl.c |   17 ++---------------
- drivers/s390/block/dcssblk.c    |    5 -----
- 3 files changed, 2 insertions(+), 26 deletions(-)
+I agree that it seems dubious.  I don't know why that decision was made in
+POSIX, but that's how it is.  Anyway, POSIX only constrains what we report
+in the POSIX calls, i.e. getrusage, times, waitid, SIGCHLD siginfo_t.
+Nothing says we can't track more information and make it accessible in
+other ways on Linux.
 
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index 8373ca0..38e6fa9 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -21,7 +21,6 @@
- #include <linux/hdreg.h>
- #include <linux/async.h>
- #include <linux/mutex.h>
--#include <linux/smp_lock.h>
- 
- #include <asm/ccwdev.h>
- #include <asm/ebcdic.h>
-@@ -2236,7 +2235,6 @@ static int dasd_open(struct block_device *bdev, fmode_t mode)
- 	if (!block)
- 		return -ENODEV;
- 
--	lock_kernel();
- 	base = block->base;
- 	atomic_inc(&block->open_count);
- 	if (test_bit(DASD_FLAG_OFFLINE, &base->flags)) {
-@@ -2271,14 +2269,12 @@ static int dasd_open(struct block_device *bdev, fmode_t mode)
- 		goto out;
- 	}
- 
--	unlock_kernel();
- 	return 0;
- 
- out:
- 	module_put(base->discipline->owner);
- unlock:
- 	atomic_dec(&block->open_count);
--	unlock_kernel();
- 	return rc;
- }
- 
-@@ -2286,10 +2282,8 @@ static int dasd_release(struct gendisk *disk, fmode_t mode)
- {
- 	struct dasd_block *block = disk->private_data;
- 
--	lock_kernel();
- 	atomic_dec(&block->open_count);
- 	module_put(block->base->discipline->owner);
--	unlock_kernel();
- 	return 0;
- }
- 
-diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
-index 1557214..26075e9 100644
---- a/drivers/s390/block/dasd_ioctl.c
-+++ b/drivers/s390/block/dasd_ioctl.c
-@@ -16,7 +16,6 @@
- #include <linux/major.h>
- #include <linux/fs.h>
- #include <linux/blkpg.h>
--#include <linux/smp_lock.h>
- #include <linux/slab.h>
- #include <asm/compat.h>
- #include <asm/ccwdev.h>
-@@ -370,9 +369,8 @@ static int dasd_ioctl_readall_cmb(struct dasd_block *block, unsigned int cmd,
- 	return ret;
- }
- 
--static int
--dasd_do_ioctl(struct block_device *bdev, fmode_t mode,
--	      unsigned int cmd, unsigned long arg)
-+int dasd_ioctl(struct block_device *bdev, fmode_t mode,
-+	       unsigned int cmd, unsigned long arg)
- {
- 	struct dasd_block *block = bdev->bd_disk->private_data;
- 	void __user *argp;
-@@ -430,14 +428,3 @@ dasd_do_ioctl(struct block_device *bdev, fmode_t mode,
- 		return -EINVAL;
- 	}
- }
--
--int dasd_ioctl(struct block_device *bdev, fmode_t mode,
--	       unsigned int cmd, unsigned long arg)
--{
--	int rc;
--
--	lock_kernel();
--	rc = dasd_do_ioctl(bdev, mode, cmd, arg);
--	unlock_kernel();
--	return rc;
--}
-diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-index 2bd72aa..9b43ae9 100644
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -14,7 +14,6 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/blkdev.h>
--#include <linux/smp_lock.h>
- #include <linux/completion.h>
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
-@@ -776,7 +775,6 @@ dcssblk_open(struct block_device *bdev, fmode_t mode)
- 	struct dcssblk_dev_info *dev_info;
- 	int rc;
- 
--	lock_kernel();
- 	dev_info = bdev->bd_disk->private_data;
- 	if (NULL == dev_info) {
- 		rc = -ENODEV;
-@@ -786,7 +784,6 @@ dcssblk_open(struct block_device *bdev, fmode_t mode)
- 	bdev->bd_block_size = 4096;
- 	rc = 0;
- out:
--	unlock_kernel();
- 	return rc;
- }
- 
-@@ -797,7 +794,6 @@ dcssblk_release(struct gendisk *disk, fmode_t mode)
- 	struct segment_info *entry;
- 	int rc;
- 
--	lock_kernel();
- 	if (!dev_info) {
- 		rc = -ENODEV;
- 		goto out;
-@@ -815,7 +811,6 @@ dcssblk_release(struct gendisk *disk, fmode_t mode)
- 	up_write(&dcssblk_devices_sem);
- 	rc = 0;
- out:
--	unlock_kernel();
- 	return rc;
- }
- 
--- 
-1.7.1
+> What about adding a new set of CPU time fields (e.g. cr-times) for the
+> cumulative "autoreap" children times to the signal struct and export
+> them via taskstats?
+
+I don't have a particular opinion about the details of how you export the
+information.  Something generally along those lines certainly sounds
+reasonable to me.
+
+> Then the following set of CPU times will give a complete picture (I also
+> added steal time (st) that is currently not accounted in Linux per
+> task):
+> 
+> * task->(u/s/st-time):
+>   Time that has been consumed by task itself
+
+There is also "gtime", "guest time" when the task is a kvm vcpu.
+
+There is also "sched time" (task->se.sum_exec_runtime), which is
+all states of task time, tracked by a different method than [usg]time.
+
+> * task->signal->(c-u/s/st-time):
+>   Time that has been consumed by dead children of process where parent
+>   has done a sys_wait()
+
+Also cgtime (to gtime as cutime is to utime).
+
+> * task->signal->(u/s/st-time):
+>   Time that has been consumed by dead threads of thread group of process
+>   - NEW: Has to be exported via taskstats
+
+Also gtime here.  These are reported as part of the aggregate process times
+that include both live and dead threads, but not distinguished.
+
+> * task->signal->(cr-u/s/st-time):
+>   Time that has been consumed by dead children that reaped 
+>   themselves, because parent ignored SIGCHLD or has set SA_NOCLDWAIT
+>   - NEW: Fields have to be added to signal struct
+>   - NEW: Has to be exported via taskstats
+
+Note that there are other stats aside from times that are treated the same
+way (c{min,maj}_flt, cn{v,iv}csw, c{in,ou}block, cmaxrss, and io accounting).
+
+What probably makes sense is to move all those cfoo fields from
+signal_struct into foo fields in a new struct, and then signal_struct can
+have "struct child_stats reaped_children, ignored_children" or whatnot.
+
+
+Thanks,
+Roland
