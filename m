@@ -1,94 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 6 Oct 2010 17:26:09 +0200
-From: Oleg Nesterov <oleg@redhat.com>
-Subject: Re: [RFC][PATCH 09/10] taskstats: Fix exit CPU time accounting
-Message-ID: <20101006152609.GA21169@redhat.com>
-References: <1285250541.1837.95.camel@holzheu-laptop> <20100923171025.GA26623@redhat.com> <1285330688.2179.305.camel@holzheu-laptop> <20100926181127.GA26985@redhat.com> <20100927154257.7910cda3@mschwide.boeblingen.de.ibm.com> <20100927165133.GA23535@redhat.com> <20100929191916.21E1840038@magilla.sf.frob.com> <1285854460.1856.14.camel@holzheu-laptop> <20101005085751.4490A401B2@magilla.sf.frob.com> <1286357350.1888.25.camel@holzheu-laptop>
+Date: Thu, 7 Oct 2010 10:38:20 +0530
+From: Balbir Singh <balbir@linux.vnet.ibm.com>
+Subject: Re: [RFC][PATCH 01/10] taskstats: Use real microsecond granularity
+ for CPU times
+Message-ID: <20101007050820.GP4195@balbir.in.ibm.com>
+Reply-To: balbir@linux.vnet.ibm.com
+References: <1285249681.1837.28.camel@holzheu-laptop>
+ <1285250452.1837.78.camel@holzheu-laptop>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1286357350.1888.25.camel@holzheu-laptop>
+In-Reply-To: <1285250452.1837.78.camel@holzheu-laptop>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc: Roland McGrath <roland@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Suresh Siddha <suresh.b.siddha@intel.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Suresh Siddha <suresh.b.siddha@intel.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Oleg Nesterov <oleg@redhat.com>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-I didn't read the whole patch, but some parts doesn't look right,
+* Michael Holzheu <holzheu@linux.vnet.ibm.com> [2010-09-23 16:00:52]:
 
-On 10/06, Michael Holzheu wrote:
->
-> The patch also approaches another ugly Unix behavior regarding process
-> accounting. If a parent process dies before his children, the children
-> get the reaper process (init) as new parent. If we want to determine the
-> CPU usage of a process tree with cumulative time, this is very
-> suboptimal. To fix this I added a new process relationship tree for
-> accounting.
+> Subject: [PATCH] taskstats: Use real microsecond granularity for CPU times
+> 
+> From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> 
+> The taskstats interface uses microsecond granularity for the user and
+> system time values. The conversion from cputime to the taskstats values
+> uses the cputime_to_msecs primitive which effectively limits the 
+> granularity to milliseconds. Add the cputime_to_usecs primitive for
+> architectures that have better, more precise CPU time values. Remove
+> cputime_to_msecs primitive because there is no more user left.
+> 
+> Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 
-Well, I must admit, I can't say I like the complications this change adds ;)
-In any case, imho this change needs a separate patch/discussion.
+Looks good to me.
 
-> Besides of that the patch adds an "acct_parent" pointer next to the parent
-> pointer and a "children_acct" list next to the children list to the
-> task_struct in order to remember the correct accounting task relationship.
-
-I am not sure I understand the "correct accounting" above. ->acct_parent
-adds the "parallel" hierarchy. In the simplest case, suppose that some
-process P forks the child C and exits. Then C->acct_parent == P->real_parent
-(P->acct_parent in general). I am not sure this is always good.
-
-Anyway,
-
-> @@ -90,6 +156,24 @@ static void __exit_signal(struct task_st
->  
->  	posix_cpu_timers_exit(tsk);
->  	if (group_dead) {
-> +		if (!tsk->exit_accounting_done) {
-> +#ifdef __s390x__
-> +		/*
-> +		 * FIXME: On s390 we can call account_process_tick to update
-> +		 * CPU time information. This is probably not valid on other
-> +		 * architectures.
-> +		 */
-> +			if (current == tsk)
-> +				account_process_tick(current, 1);
-> +#endif
-> +			/*
-> +			 * FIXME: This somehow has to be moved to
-> +			 * finish_task_switch(), because otherwise
-> +			 * if the process accounts itself, the CPU time
-> +			 * that is used for this code will be lost.
-> +			 */
-> +			__account_to_parent(tsk, 0);
-
-We hold the wrong ->siglock here.
-
-Also, the logic behind ->exit_accounting_done looks wrong (and unneeded)
-but I am not sure...
-
-> @@ -772,6 +869,15 @@ static void forget_original_parent(struc
->  	LIST_HEAD(dead_children);
->  
->  	write_lock_irq(&tasklist_lock);
-> +	list_for_each_entry_safe(p, n, &father->children_acct, sibling_acct) {
-> +		struct task_struct *t = p;
-> +		do {
-> +			t->acct_parent = t->acct_parent->acct_parent;
-> +		} while_each_thread(p, t);
-> +		list_move_tail(&p->sibling_acct,
-> +			       &p->acct_parent->children_acct);
-
-This is certainly wrong if there are other live threads in father's
-thread-group.
-
-Also, you need to change de_thread() if it changes the leader.
-
->  	list_for_each_entry_safe(p, n, &dead_children, sibling) {
->  		list_del_init(&p->sibling);
-> +		list_del_init(&p->sibling_acct);
-
-This list_del() can race with ->acct_parent if it in turn exits and
-does forget_original_parent() -> list_move_tail(sibling_acct).
-
-Oleg.
+-- 
+	Three Cheers,
+	Balbir
