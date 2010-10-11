@@ -1,50 +1,200 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 8 Oct 2010 22:09:32 +0530
+Date: Mon, 11 Oct 2010 13:10:35 +0530
 From: Balbir Singh <balbir@linux.vnet.ibm.com>
-Subject: Re: [RFC][PATCH 01/10] taskstats: Use real microsecond granularity
- for CPU times
-Message-ID: <20101008163932.GG5327@balbir.in.ibm.com>
+Subject: Re: [RFC][PATCH 02/10] taskstats: Separate taskstats commands
+Message-ID: <20101011074035.GA17223@balbir.in.ibm.com>
 Reply-To: balbir@linux.vnet.ibm.com
 References: <1285249681.1837.28.camel@holzheu-laptop>
- <1285250452.1837.78.camel@holzheu-laptop>
- <20101007050820.GP4195@balbir.in.ibm.com>
- <1286550492.1958.0.camel@holzheu-laptop>
+ <1285250462.1837.79.camel@holzheu-laptop>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1286550492.1958.0.camel@holzheu-laptop>
+In-Reply-To: <1285250462.1837.79.camel@holzheu-laptop>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Suresh Siddha <suresh.b.siddha@intel.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Oleg Nesterov <oleg@redhat.com>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-* Michael Holzheu <holzheu@linux.vnet.ibm.com> [2010-10-08 17:08:12]:
+* Michael Holzheu <holzheu@linux.vnet.ibm.com> [2010-09-23 16:01:02]:
 
-> On Thu, 2010-10-07 at 10:38 +0530, Balbir Singh wrote:
-> > * Michael Holzheu <holzheu@linux.vnet.ibm.com> [2010-09-23 16:00:52]:
-> > 
-> > > Subject: [PATCH] taskstats: Use real microsecond granularity for CPU times
-> > > 
-> > > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-> > > 
-> > > The taskstats interface uses microsecond granularity for the user and
-> > > system time values. The conversion from cputime to the taskstats values
-> > > uses the cputime_to_msecs primitive which effectively limits the 
-> > > granularity to milliseconds. Add the cputime_to_usecs primitive for
-> > > architectures that have better, more precise CPU time values. Remove
-> > > cputime_to_msecs primitive because there is no more user left.
-> > > 
-> > > Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-> > 
-> > Looks good to me.
+> Subject: [PATCH] taskstats: Separate taskstats commands
 > 
-> Can I take that as an Acked-by?
+> From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> 
+> This patch moves each taskstats command into a single function. This
+> makes
+> the code more readable and makes it easier to add new commands.
+> 
+> Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> ---
+>  kernel/taskstats.c |  118
+> +++++++++++++++++++++++++++++++++++------------------
+>  1 file changed, 78 insertions(+), 40 deletions(-)
+> 
+> --- a/kernel/taskstats.c
+> +++ b/kernel/taskstats.c
+> @@ -424,39 +424,76 @@ err:
+>  	return rc;
+>  }
+> 
+> -static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info
+> *info)
+> +static int cmd_attr_register_cpumask(struct genl_info *info)
+>  {
+> -	int rc;
+> -	struct sk_buff *rep_skb;
+> -	struct taskstats *stats;
+> -	size_t size;
+>  	cpumask_var_t mask;
+> +	int rc;
+> 
+>  	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
+>  		return -ENOMEM;
+> -
+>  	rc = parse(info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK], mask);
+>  	if (rc < 0)
+> -		goto free_return_rc;
+> -	if (rc == 0) {
+> -		rc = add_del_listener(info->snd_pid, mask, REGISTER);
+> -		goto free_return_rc;
+> -	}
+> +		goto out;
+> +	rc = add_del_listener(info->snd_pid, mask, REGISTER);
+> +out:
+> +	free_cpumask_var(mask);
+> +	return rc;
+> +}
+> +
+> +static int cmd_attr_deregister_cpumask(struct genl_info *info)
+> +{
+> +	cpumask_var_t mask;
+> +	int rc;
+> 
+> +	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
+> +		return -ENOMEM;
+>  	rc = parse(info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK], mask);
+>  	if (rc < 0)
+> -		goto free_return_rc;
+> -	if (rc == 0) {
+> -		rc = add_del_listener(info->snd_pid, mask, DEREGISTER);
+> -free_return_rc:
+> -		free_cpumask_var(mask);
+> -		return rc;
+> -	}
+> +		goto out;
+> +	rc = add_del_listener(info->snd_pid, mask, DEREGISTER);
+> +out:
+>  	free_cpumask_var(mask);
+> +	return rc;
+> +}
+> +static int cmd_attr_pid(struct genl_info *info)
+> +{
+> +	struct taskstats *stats;
+> +	struct sk_buff *rep_skb;
+> +	size_t size;
+> +	u32 pid;
+> +	int rc;
+> +
+> +	size = nla_total_size(sizeof(u32)) +
+> +		nla_total_size(sizeof(struct taskstats)) + nla_total_size(0);
+> +
+> +	rc = prepare_reply(info, TASKSTATS_CMD_NEW, &rep_skb, size);
+> +	if (rc < 0)
+> +		return rc;
+> +
+> +	rc = -EINVAL;
+> +	pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
+> +	stats = mk_reply(rep_skb, TASKSTATS_TYPE_PID, pid);
+> +	if (!stats)
+> +		goto err;
+> +
+> +	rc = fill_pid(pid, NULL, stats);
+> +	if (rc < 0)
+> +		goto err;
+> +	return send_reply(rep_skb, info);
+> +err:
+> +	nlmsg_free(rep_skb);
+> +	return rc;
+> +}
+> +
+> +static int cmd_attr_tgid(struct genl_info *info)
+> +{
+> +	struct taskstats *stats;
+> +	struct sk_buff *rep_skb;
+> +	size_t size;
+> +	u32 tgid;
+> +	int rc;
+> 
+> -	/*
+> -	 * Size includes space for nested attributes
+> -	 */
+>  	size = nla_total_size(sizeof(u32)) +
+>  		nla_total_size(sizeof(struct taskstats)) + nla_total_size(0);
+> 
+> @@ -465,33 +502,34 @@ free_return_rc:
+>  		return rc;
+> 
+>  	rc = -EINVAL;
+> -	if (info->attrs[TASKSTATS_CMD_ATTR_PID]) {
+> -		u32 pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
+> -		stats = mk_reply(rep_skb, TASKSTATS_TYPE_PID, pid);
+> -		if (!stats)
+> -			goto err;
+> -
+> -		rc = fill_pid(pid, NULL, stats);
+> -		if (rc < 0)
+> -			goto err;
+> -	} else if (info->attrs[TASKSTATS_CMD_ATTR_TGID]) {
+> -		u32 tgid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_TGID]);
+> -		stats = mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tgid);
+> -		if (!stats)
+> -			goto err;
+> -
+> -		rc = fill_tgid(tgid, NULL, stats);
+> -		if (rc < 0)
+> -			goto err;
+> -	} else
+> +	tgid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_TGID]);
+> +	stats = mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tgid);
+> +	if (!stats)
+>  		goto err;
+> 
+> +	rc = fill_tgid(tgid, NULL, stats);
+> +	if (rc < 0)
+> +		goto err;
+>  	return send_reply(rep_skb, info);
+>  err:
+>  	nlmsg_free(rep_skb);
+>  	return rc;
+>  }
+> 
+> +static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info
+> *info)
+> +{
+> +	if (info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK])
+> +		return cmd_attr_register_cpumask(info);
+> +	else if (info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK])
+> +		return cmd_attr_deregister_cpumask(info);
+> +	else if (info->attrs[TASKSTATS_CMD_ATTR_PID])
+> +		return cmd_attr_pid(info);
+> +	else if (info->attrs[TASKSTATS_CMD_ATTR_TGID])
+> +		return cmd_attr_tgid(info);
+> +	else
+> +		return -EINVAL;
+> +}
+> +
+>  static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
+>  {
+>  	struct signal_struct *sig = tsk->signal;
+> 
 >
 
-Certainly
+Looks good (sorry for the delay in reviewing, I expect to be slow for
+another two weeks or so)
 
+ 
 Acked-by: Balbir Singh <balbir@linux.vnet.ibm.com>
  
 
