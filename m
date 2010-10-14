@@ -5,8 +5,8 @@ In-Reply-To: <1287070392.8344.15.camel@thinkpad>
 References: <1287070392.8344.15.camel@thinkpad>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
-Date: Thu, 14 Oct 2010 17:55:29 +0200
-Message-ID: <1287071729.29097.278.camel@twins>
+Date: Thu, 14 Oct 2010 17:59:20 +0200
+Message-ID: <1287071960.29097.284.camel@twins>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
@@ -16,17 +16,24 @@ Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, Mart
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thu, 2010-10-14 at 17:33 +0200, Gerald Schaefer wrote:
-> From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-> 
-> The spinning mutex implementation uses cpu_relax() in busy loops as a
-> compiler barrier. Depending on the architecture, cpu_relax() may do more
-> than needed in this specific mutex spin loops. On System z we also give
-> up the time slice of the virtual cpu in cpu_relax(), which prevents
-> effective spinning on the mutex.
-> 
-> This patch replaces cpu_relax() in the spinning mutex code with a new
-> function mutex_cpu_relax(), which can be defined by each architecture
-> that selects HAVE_MUTEX_CPU_RELAX. The default is still cpu_relax(), so
-> this patch should not affect other architectures than System z for now.
 
-Sure.. I'll take it.
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -100,6 +100,7 @@ config S390
+>  	select HAVE_KERNEL_BZIP2
+>  	select HAVE_KERNEL_LZMA
+>  	select HAVE_KERNEL_LZO
+> +	select HAVE_MUTEX_CPU_RELAX
+>  	select ARCH_INLINE_SPIN_TRYLOCK
+>  	select ARCH_INLINE_SPIN_TRYLOCK_BH
+>  	select ARCH_INLINE_SPIN_LOCK
+
+>  
+> +#ifndef HAVE_MUTEX_CPU_RELAX
+> +#define mutex_cpu_relax()	cpu_relax()
+> +#endif
+
+Won't KConfig make CONFIG_HAVE_MUTEX_CPU_RELAX from that?
+
+Also, don't you have to first create a dummy Kconfig variable before you
+select it?
