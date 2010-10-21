@@ -1,40 +1,31 @@
-From: Sachin Sant <sachinp@in.ibm.com>
-Subject: [-next Oct 13] Build failure drivers/s390/net/ctcm_mpc.o
-Date: Wed, 13 Oct 2010 20:39:16 +0530
-Message-ID: <4CB5CB9C.9030603@in.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v2 03/22] s390: introduce little-endian bitops
+Date: Thu, 21 Oct 2010 17:08:00 +0200
+Message-ID: <201010211708.00606.arnd@arndb.de>
+References: <1287672077-5797-1-git-send-email-akinobu.mita@gmail.com> <1287672077-5797-4-git-send-email-akinobu.mita@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-next/>
-List-Post: <mailto:linux-next@vger.kernel.org>
-To: netdev <netdev@vger.kernel.org>
-Cc: "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com, Eric Dumazet <eric.dumazet@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1287672077-5797-4-git-send-email-akinobu.mita@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Today's next fails to build on a s390 box with following
-error
+On Thursday 21 October 2010, Akinobu Mita wrote:
+> Introduce little-endian bit operations by renaming native ext2 bit
+> operations. The ext2 bit operations are kept as wrapper macros using
+> little-endian bit operations to maintain bisectability until the
+> conversions are finished.
+> 
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: linux390@de.ibm.com
+> Cc: linux-s390@vger.kernel.org
 
-drivers/s390/net/ctcm_mpc.c: In function ctc_mpc_dealloc_ch:
-drivers/s390/net/ctcm_mpc.c:541: error: struct net_device has no member named refcnt
-
-The code in question was changed by
-commit 29b4433d991c88d86ca48a4c1cc33c671475be4b
-net: percpu net_device refcount
-
-The net_device struct member refcnt was changed from atomic_t to
-int __percpu.
-
-Thanks
--Sachin
-
-
--- 
-
----------------------------------
-Sachin Sant
-IBM Linux Technology Center
-India Systems and Technology Labs
-Bangalore, India
----------------------------------
+Acked-by: Arnd Bergmann <arnd@arndb.de>
