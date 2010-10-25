@@ -1,52 +1,45 @@
-From: Ursula Braun <ursula.braun@de.ibm.com>
-Subject: [patch 1/1] [PATCH BUG_FIX] ipv6: fix refcnt problem related to POSTDAD state
-Date: Mon, 25 Oct 2010 11:06:43 +0200
-Message-ID: <20101025090716.315678235@linux.vnet.ibm.com>
-References: <20101025090642.958260964@linux.vnet.ibm.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [patch 1/1] [PATCH BUG_FIX] ipv6: fix refcnt problem related
+	to POSTDAD state
+Date: Mon, 25 Oct 2010 16:01:32 -0700
+Message-ID: <20101025230132.GA5474@gondor.apana.org.au>
+References: <20101025090642.958260964@linux.vnet.ibm.com> <20101025090716.315678235@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=addrconf.patch
+Content-Disposition: inline
+In-Reply-To: <20101025090716.315678235@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: vosburgh@de.ibm.com, Ursula Braun <ursula.braun@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>
+To: Ursula Braun <ursula.braun@de.ibm.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, vosburgh@de.ibm.com, "David S. Miller" <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-Subject: [patch 1/1] [PATCH BUG_FIX] ipv6: fix refcnt problem related to POSTDAD state
+On Mon, Oct 25, 2010 at 11:06:43AM +0200, Ursula Braun wrote:
+> Subject: [patch 1/1] [PATCH BUG_FIX] ipv6: fix refcnt problem related to POSTDAD state
+> 
+> From: Ursula Braun <ursula.braun@de.ibm.com>
+> 
+> After running this bonding setup script
+>     modprobe bonding miimon=100 mode=0 max_bonds=1
+>     ifconfig bond0 10.1.1.1/16
+>     ifenslave bond0 eth1
+>     ifenslave bond0 eth3
+> on s390 with qeth-driven slaves, modprobe -r fails with this message
+>     unregister_netdevice: waiting for bond0 to become free. Usage count = 1
+> due to twice detection of duplicate address.
+> Problem is caused by a missing decrease of ifp->refcnt in addrconf_dad_failure.
+> An extra call of in6_ifa_put(ifp) solves it.
+> Problem has been introduced with commit f2344a131bccdbfc5338e17fa71a807dee7944fa.
+> 
+> Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+> Cc: David S. Miller <davem@davemloft.net>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-After running this bonding setup script
-    modprobe bonding miimon=100 mode=0 max_bonds=1
-    ifconfig bond0 10.1.1.1/16
-    ifenslave bond0 eth1
-    ifenslave bond0 eth3
-on s390 with qeth-driven slaves, modprobe -r fails with this message
-    unregister_netdevice: waiting for bond0 to become free. Usage count = 1
-due to twice detection of duplicate address.
-Problem is caused by a missing decrease of ifp->refcnt in addrconf_dad_failure.
-An extra call of in6_ifa_put(ifp) solves it.
-Problem has been introduced with commit f2344a131bccdbfc5338e17fa71a807dee7944fa.
-
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-
----
- net/ipv6/addrconf.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -1426,8 +1426,10 @@ void addrconf_dad_failure(struct inet6_i
- {
- 	struct inet6_dev *idev = ifp->idev;
- 
--	if (addrconf_dad_end(ifp))
-+	if (addrconf_dad_end(ifp)) {
-+		in6_ifa_put(ifp);
- 		return;
-+	}
- 
- 	if (net_ratelimit())
- 		printk(KERN_INFO "%s: IPv6 duplicate address %pI6c detected!\n",
+Thanks for catching this!
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
