@@ -1,51 +1,33 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 03/22] s390: introduce little endian bitops
-Date: Fri, 15 Oct 2010 13:12:30 +0200
-Message-ID: <201010151312.30843.arnd@arndb.de>
-References: <1287135981-17604-1-git-send-email-akinobu.mita@gmail.com> <1287135981-17604-4-git-send-email-akinobu.mita@gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1287135981-17604-4-git-send-email-akinobu.mita@gmail.com>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+MIME-Version: 1.0
+In-Reply-To: <AANLkTikXAde1yLZkB80GOjWu-sFZAvv0SL566rWssD1k@mail.gmail.com>
+References: <4CCBC8B1.2080808@in.ibm.com> <AANLkTimE=uzwhDMz_-jVWKyb9NAONGuVvVo5KbjkkZVu@mail.gmail.com>
+ <AANLkTikXAde1yLZkB80GOjWu-sFZAvv0SL566rWssD1k@mail.gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Sat, 30 Oct 2010 08:17:41 -0700
+Message-ID: <AANLkTinBNAUAh5uZ9V82zjv4uWH1UTXbUA2rPy1d2pCk@mail.gmail.com>
+Subject: Re: [s390] 2.6.36-git14 build break - fs/compat.c :631
+ (PAGE_CACHE_MASK undeclared)
+Content-Type: text/plain; charset=ISO-8859-1
+Return-Path: <torvalds@linux-foundation.org>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-Archive: <https://lore.kernel.org/linux-mips/>
+List-Post: <mailto:linux-mips@vger.kernel.org>
+To: wu zhangjin <wuzhangjin@gmail.com>
+Cc: Sachin Sant <sachinp@in.ibm.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, linux-mips <linux-mips@linux-mips.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Friday 15 October 2010, Akinobu Mita wrote:
-> +#define __set_le_bit(nr, addr) \
-> +       __set_bit((nr)^(__BITOPS_WORDSIZE - 8), (addr))
-> +#define __clear_le_bit(nr, addr)       \
-> +       __clear_bit((nr)^(__BITOPS_WORDSIZE - 8), (addr))
-> +#define __test_and_set_le_bit(nr, addr)        \
-> +       __test_and_set_bit((nr)^(__BITOPS_WORDSIZE - 8), (addr))
-> +#define test_and_set_le_bit(lock, nr, addr)    \
-> +       test_and_set_bit((nr)^(__BITOPS_WORDSIZE - 8), (addr))
-> +#define __test_and_clear_le_bit(nr, addr)      \
-> +       __test_and_clear_bit((nr)^(__BITOPS_WORDSIZE - 8), (addr))
-> +#define test_and_clear_le_bit(lock, nr, addr)  \
-> +       test_and_clear_bit((nr)^(__BITOPS_WORDSIZE - 8), (addr))
-> +#define test_le_bit(nr, addr)  \
-> +       test_bit((nr)^(__BITOPS_WORDSIZE - 8), (addr))
+On Sat, Oct 30, 2010 at 1:12 AM, wu zhangjin <wuzhangjin@gmail.com> wrote:
+>
+> (Seems Linus added that patch, add him in this loop)
 
-The test_and_clear_le_bit and test_and_set_le_bit calling conventions
-are a little surprising here. I would not pass the lock argument
-here but leave that to the ext2 wrapper:
+My bad. It was such a totally obvious and trivial patch, and it
+compiled for me on x86-64. Too bad our header include dependencies are
+such a mess, and actually change from one architecture to another.
 
-#define test_and_set_le_bit(nr, addr)    \
-       test_and_set_bit((nr)^(__BITOPS_WORDSIZE - 8), (addr))
-#define test_and_clear_le_bit(nr, addr)  \
-       test_and_clear_bit((nr)^(__BITOPS_WORDSIZE - 8), (addr))
+I'd love to fix up the header mess, but that's not going to happen. So
+I'll take the <linux/filemap.h> addition.
 
-#define ext2_set_bit_atomic(lock, nr, addr)       \
-       test_and_set_le_bit((nr), (unsigned long *)(addr))
-#define ext2_clear_bit_atomic(lock, nr, addr)     \
-       test_and_clear_le_bit((nr), (unsigned long *)(addr))
+Thanks,
 
-Same thing on arm and m68k.
-
-	Arnd
+                                  Linus
