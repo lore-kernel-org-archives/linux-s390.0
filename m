@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Joe Perches <joe@perches.com>
-Subject: [PATCH 04/49] arch/s390: Use vzalloc
-Date: Thu,  4 Nov 2010 20:07:28 -0700
-Message-Id: <4860ebaf7a0b6851c44d83be77db188e19a5388e.1288925424.git.joe@perches.com>
+Subject: [PATCH 33/49] drivers/s390: Use vzalloc
+Date: Thu,  4 Nov 2010 20:07:57 -0700
+Message-Id: <d52a1fa9af14a23c1b98e44a978e9535f9b41822.1288925425.git.joe@perches.com>
 In-Reply-To: <alpine.DEB.2.00.1011031108260.11625@router.home>
 References: <alpine.DEB.2.00.1011031108260.11625@router.home>
 In-Reply-To: <cover.1288925424.git.joe@perches.com>
@@ -16,26 +16,24 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Signed-off-by: Joe Perches <joe@perches.com>
 ---
- arch/s390/hypfs/hypfs_diag.c |    3 +--
+ drivers/s390/cio/blacklist.c |    3 +--
  1 files changed, 1 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
-index cd4a81b..1b1acef 100644
---- a/arch/s390/hypfs/hypfs_diag.c
-+++ b/arch/s390/hypfs/hypfs_diag.c
-@@ -570,12 +570,11 @@ static int dbfs_d204_open(struct inode *inode, struct file *file)
- 	if (!data)
+diff --git a/drivers/s390/cio/blacklist.c b/drivers/s390/cio/blacklist.c
+index 76058a5..08c6603 100644
+--- a/drivers/s390/cio/blacklist.c
++++ b/drivers/s390/cio/blacklist.c
+@@ -335,10 +335,9 @@ cio_ignore_write(struct file *file, const char __user *user_buf,
+ 		return -EINVAL;
+ 	if (user_len > 65536)
+ 		user_len = 65536;
+-	buf = vmalloc (user_len + 1); /* maybe better use the stack? */
++	buf = vzalloc(user_len + 1); /* maybe better use the stack? */
+ 	if (buf == NULL)
  		return -ENOMEM;
- 	buf_size = PAGE_SIZE * (diag204_buf_pages + 1) + sizeof(d204->hdr);
--	data->base = vmalloc(buf_size);
-+	data->base = vzalloc(buf_size);
- 	if (!data->base) {
- 		rc = -ENOMEM;
- 		goto fail_kfree_data;
- 	}
--	memset(data->base, 0, buf_size);
- 	d204 = page_align_ptr(data->base + sizeof(d204->hdr))
- 		- sizeof(d204->hdr);
- 	rc = diag204_do_store(&d204->buf, diag204_buf_pages);
+-	memset(buf, 0, user_len + 1);
+ 
+ 	if (strncpy_from_user (buf, user_buf, user_len) < 0) {
+ 		rc = -EFAULT;
 -- 
 1.7.3.1.g432b3.dirty
