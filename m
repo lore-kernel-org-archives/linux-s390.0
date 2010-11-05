@@ -1,34 +1,41 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 2/4] [PATCH] drivers/s390/net: Remove unnecessary semicolons
-Date: Fri, 26 Nov 2010 13:41:18 +0100
-Message-ID: <20101126124154.105857044@de.ibm.com>
-References: <20101126124116.123736494@de.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=602-unnecessary-semicolons.diff
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Joe Perches <joe@perches.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Joe Perches <joe@perches.com>
+Subject: [PATCH 04/49] arch/s390: Use vzalloc
+Date: Thu,  4 Nov 2010 20:07:28 -0700
+Message-Id: <4860ebaf7a0b6851c44d83be77db188e19a5388e.1288925424.git.joe@perches.com>
+In-Reply-To: <alpine.DEB.2.00.1011031108260.11625@router.home>
+References: <alpine.DEB.2.00.1011031108260.11625@router.home>
+In-Reply-To: <cover.1288925424.git.joe@perches.com>
+References: <cover.1288925424.git.joe@perches.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Jiri Kosina <trivial@kernel.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Joe Perches <joe@perches.com>
-
 Signed-off-by: Joe Perches <joe@perches.com>
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
+ arch/s390/hypfs/hypfs_diag.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
- drivers/s390/net/qeth_core_sys.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/drivers/s390/net/qeth_core_sys.c
-+++ b/drivers/s390/net/qeth_core_sys.c
-@@ -372,7 +372,7 @@ static ssize_t qeth_dev_performance_stat
- 	i = simple_strtoul(buf, &tmp, 16);
- 	if ((i == 0) || (i == 1)) {
- 		if (i == card->options.performance_stats)
--			goto out;;
-+			goto out;
- 		card->options.performance_stats = i;
- 		if (i == 0)
- 			memset(&card->perf_stats, 0,
+diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
+index cd4a81b..1b1acef 100644
+--- a/arch/s390/hypfs/hypfs_diag.c
++++ b/arch/s390/hypfs/hypfs_diag.c
+@@ -570,12 +570,11 @@ static int dbfs_d204_open(struct inode *inode, struct file *file)
+ 	if (!data)
+ 		return -ENOMEM;
+ 	buf_size = PAGE_SIZE * (diag204_buf_pages + 1) + sizeof(d204->hdr);
+-	data->base = vmalloc(buf_size);
++	data->base = vzalloc(buf_size);
+ 	if (!data->base) {
+ 		rc = -ENOMEM;
+ 		goto fail_kfree_data;
+ 	}
+-	memset(data->base, 0, buf_size);
+ 	d204 = page_align_ptr(data->base + sizeof(d204->hdr))
+ 		- sizeof(d204->hdr);
+ 	rc = diag204_do_store(&d204->buf, diag204_buf_pages);
+-- 
+1.7.3.1.g432b3.dirty
