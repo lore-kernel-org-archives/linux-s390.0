@@ -1,145 +1,37 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20101129164435.557525646@linux.vnet.ibm.com>
-Date: Mon, 29 Nov 2010 17:42:40 +0100
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: [patch v2 3/4] taskstats: Introduce kernel.full_cdata sysctl
-References: <20101129164237.522034198@linux.vnet.ibm.com>
-Content-Disposition: inline; filename=03-taskstats-top-improve-ctime-account-cdata_acct.patch
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Oleg Nesterov <oleg@redhat.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+From: frank.blaschka@de.ibm.com
+Subject: [patch 2/2] [PATCH] qeth: fix race condition during device startup
+Date: Mon, 08 Nov 2010 14:03:49 +0100
+Message-ID: <20101108130427.518691409@de.ibm.com>
+References: <20101108130347.973708765@de.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=603-qeth-startup-race.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+From: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-Version 2
----------
-* Implement sysctl instead of adding parallel cdata_acct
-* Call __account_cdata() in __exit_signal() without tsk siglock
+QDIO is running independent from netdevice state. We are not
+allowed to schedule NAPI in case the netdevice is not open.
 
-Description
------------
-Currently the cumulative time accounting in Linux is not complete.
-Due to POSIX POSIX.1-2001, the CPU time of processes is not accounted
-to the cumulative time of the parents, if the parents ignore SIGCHLD
-or have set SA_NOCLDWAIT. This behaviour has the major drawback that
-it is not possible to calculate all consumed CPU time of a system by
-looking at the current tasks. CPU time can be lost.
-
-This patch adds a new sysctl "kernel.full_cdata" that allows to switch
-between the POSIX behavior and complete cumulative accounting.
-The default is the POSIX semantics.
-
-Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
- Documentation/sysctl/kernel.txt |   12 ++++++++++++
- kernel/exit.c                   |   13 +++++++++----
- kernel/sysctl.c                 |   10 ++++++++++
- 3 files changed, 31 insertions(+), 4 deletions(-)
 
---- a/Documentation/sysctl/kernel.txt
-+++ b/Documentation/sysctl/kernel.txt
-@@ -247,6 +247,18 @@ see the hostname(1) man page.
- 
- ==============================================================
- 
-+full_cdata:
-+
-+With "full_cdata = 0" (default) cumulative resource accounting
-+under Linux is done according to POSIX.1-2001: The resource
-+counters of processes are not accounted to the cumulative counters
-+of their parents, if the parents ignore SIGCHLD or have set
-+SA_NOCLDWAIT. With "full_cdata = 1" it is possible to enforce
-+that all dead processes without exception are accounted to their
-+parents.
-+
-+==============================================================
-+
- hotplug:
- 
- Path for the hotplug policy agent.
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -57,6 +57,8 @@
- #include <asm/pgtable.h>
- #include <asm/mmu_context.h>
- 
-+int full_cdata_enabled;
-+
- static void exit_mm(struct task_struct * tsk);
- 
- static void __unhash_process(struct task_struct *p, bool group_dead)
-@@ -77,7 +79,7 @@ static void __unhash_process(struct task
- static void __account_cdata(struct task_struct *p)
+ drivers/s390/net/qeth_core_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff -urpN linux-2.6/drivers/s390/net/qeth_core_main.c linux-2.6-patched/drivers/s390/net/qeth_core_main.c
+--- linux-2.6/drivers/s390/net/qeth_core_main.c	2010-11-08 09:41:13.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_core_main.c	2010-11-08 09:41:13.000000000 +0100
+@@ -2903,7 +2903,7 @@ void qeth_qdio_start_poll(struct ccw_dev
  {
- 	struct cdata *cd, *pcd, *tcd;
--	unsigned long maxrss;
-+	unsigned long maxrss, flags;
- 	cputime_t tgutime, tgstime;
+ 	struct qeth_card *card = (struct qeth_card *)card_ptr;
  
- 	/*
-@@ -104,7 +106,7 @@ static void __account_cdata(struct task_
- 	tcd = &p->signal->cdata_threads;
- 	cd = &p->signal->cdata_wait;
- 
--	spin_lock_irq(&p->real_parent->sighand->siglock);
-+	spin_lock_irqsave(&p->real_parent->sighand->siglock, flags);
- 	pcd->utime =
- 		cputime_add(pcd->utime,
- 		cputime_add(tgutime,
-@@ -137,7 +139,7 @@ static void __account_cdata(struct task_
- 		pcd->maxrss = maxrss;
- 	task_io_accounting_add(&p->real_parent->signal->ioac, &p->ioac);
- 	task_io_accounting_add(&p->real_parent->signal->ioac, &p->signal->ioac);
--	spin_unlock_irq(&p->real_parent->sighand->siglock);
-+	spin_unlock_irqrestore(&p->real_parent->sighand->siglock, flags);
+-	if (card->dev)
++	if (card->dev && (card->dev->flags & IFF_UP))
+ 		napi_schedule(&card->napi);
  }
- 
- /*
-@@ -150,6 +152,9 @@ static void __exit_signal(struct task_st
- 	struct sighand_struct *sighand;
- 	struct tty_struct *uninitialized_var(tty);
- 
-+	if (group_dead && full_cdata_enabled)
-+		__account_cdata(tsk);
-+
- 	sighand = rcu_dereference_check(tsk->sighand,
- 					rcu_read_lock_held() ||
- 					lockdep_tasklist_lock_is_held());
-@@ -1292,7 +1297,7 @@ static int wait_task_zombie(struct wait_
- 	 * It can be ptraced but not reparented, check
- 	 * !task_detached() to filter out sub-threads.
- 	 */
--	if (likely(!traced) && likely(!task_detached(p)))
-+	if (likely(!traced) && likely(!task_detached(p)) && !full_cdata_enabled)
- 		__account_cdata(p);
- 
- 	/*
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -85,6 +85,7 @@
- #if defined(CONFIG_SYSCTL)
- 
- /* External variables not in a header file. */
-+extern int full_cdata_enabled;
- extern int sysctl_overcommit_memory;
- extern int sysctl_overcommit_ratio;
- extern int max_threads;
-@@ -963,6 +964,15 @@ static struct ctl_table kern_table[] = {
- 		.proc_handler	= proc_dointvec,
- 	},
- #endif
-+	{
-+		.procname	= "full_cdata",
-+		.data		= &full_cdata_enabled,
-+		.maxlen		= sizeof(unsigned int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1		= &zero,
-+		.extra2		= &one,
-+	},
- /*
-  * NOTE: do not add new entries to this table unless you have read
-  * Documentation/sysctl/ctl_unnumbered.txt
+ EXPORT_SYMBOL_GPL(qeth_qdio_start_poll);
