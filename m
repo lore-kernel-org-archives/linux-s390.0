@@ -1,7 +1,7 @@
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: [PATCH] KVM: Clean up vm creation and release
-Date: Tue, 09 Nov 2010 15:58:29 +0100
-Message-ID: <4CD96195.2000708@siemens.com>
+Subject: [PATCH v2] KVM: Clean up vm creation and release
+Date: Tue, 09 Nov 2010 17:02:49 +0100
+Message-ID: <4CD970A9.6080802@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
@@ -23,16 +23,18 @@ It also fixes error clean-up on failures of kvm_create_vm for IA64.
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
 
-Tested on x86 only. Please check carefully.
+Changes in v2:
+ - Fixed s390 conversion and added linux/slab.h
+   as remarked by Christian (thanks!)
 
  arch/ia64/include/asm/kvm_host.h |    4 ++++
- arch/ia64/kvm/kvm-ia64.c         |   29 +++++++----------------------
+ arch/ia64/kvm/kvm-ia64.c         |   28 +++++++---------------------
  arch/powerpc/kvm/powerpc.c       |   20 +++-----------------
  arch/s390/kvm/kvm-s390.c         |   23 ++++++-----------------
  arch/x86/kvm/x86.c               |   12 ++----------
- include/linux/kvm_host.h         |   14 +++++++++++++-
+ include/linux/kvm_host.h         |   15 ++++++++++++++-
  virt/kvm/kvm_main.c              |   19 +++++++++++++------
- 7 files changed, 48 insertions(+), 73 deletions(-)
+ 7 files changed, 49 insertions(+), 72 deletions(-)
 
 diff --git a/arch/ia64/include/asm/kvm_host.h b/arch/ia64/include/asm/kvm_host.h
 index 2f229e5..2689ee5 100644
@@ -50,21 +52,19 @@ index 2f229e5..2689ee5 100644
  
  #endif
 diff --git a/arch/ia64/kvm/kvm-ia64.c b/arch/ia64/kvm/kvm-ia64.c
-index f56a631..cab6722 100644
+index f56a631..48a48bd 100644
 --- a/arch/ia64/kvm/kvm-ia64.c
 +++ b/arch/ia64/kvm/kvm-ia64.c
-@@ -749,9 +749,8 @@ out:
+@@ -749,7 +749,7 @@ out:
  	return r;
  }
  
 -static struct kvm *kvm_alloc_kvm(void)
 +struct kvm *kvm_arch_alloc_vm(void)
  {
--
- 	struct kvm *kvm;
- 	uint64_t  vm_base;
  
-@@ -760,7 +759,7 @@ static struct kvm *kvm_alloc_kvm(void)
+ 	struct kvm *kvm;
+@@ -760,7 +760,7 @@ static struct kvm *kvm_alloc_kvm(void)
  	vm_base = __get_free_pages(GFP_KERNEL, get_order(KVM_VM_DATA_SIZE));
  
  	if (!vm_base)
@@ -73,7 +73,7 @@ index f56a631..cab6722 100644
  
  	memset((void *)vm_base, 0, KVM_VM_DATA_SIZE);
  	kvm = (struct kvm *)(vm_base +
-@@ -806,10 +805,12 @@ static void kvm_build_io_pmt(struct kvm *kvm)
+@@ -806,10 +806,12 @@ static void kvm_build_io_pmt(struct kvm *kvm)
  #define GUEST_PHYSICAL_RR4	0x2739
  #define VMM_INIT_RR		0x1660
  
@@ -87,7 +87,7 @@ index f56a631..cab6722 100644
  	kvm->arch.metaphysical_rr0 = GUEST_PHYSICAL_RR0;
  	kvm->arch.metaphysical_rr4 = GUEST_PHYSICAL_RR4;
  	kvm->arch.vmm_init_rr = VMM_INIT_RR;
-@@ -823,21 +824,8 @@ static void kvm_init_vm(struct kvm *kvm)
+@@ -823,21 +825,8 @@ static void kvm_init_vm(struct kvm *kvm)
  
  	/* Reserve bit 0 of irq_sources_bitmap for userspace irq source */
  	set_bit(KVM_USERSPACE_IRQ_SOURCE_ID, &kvm->arch.irq_sources_bitmap);
@@ -110,7 +110,7 @@ index f56a631..cab6722 100644
  }
  
  static int kvm_vm_ioctl_get_irqchip(struct kvm *kvm,
-@@ -1357,7 +1345,7 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
+@@ -1357,7 +1346,7 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
  	return -EINVAL;
  }
  
@@ -119,7 +119,7 @@ index f56a631..cab6722 100644
  {
  	unsigned long vm_base = kvm->arch.vm_base;
  
-@@ -1399,9 +1387,6 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+@@ -1399,9 +1388,6 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
  #endif
  	kfree(kvm->arch.vioapic);
  	kvm_release_vm_pages(kvm);
@@ -171,7 +171,7 @@ index 38f756f..ce3dd65 100644
  {
  	int r;
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 985d825..d8d1877 100644
+index 985d825..bade533 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
 @@ -164,24 +164,18 @@ long kvm_arch_vm_ioctl(struct file *filp,
@@ -179,7 +179,7 @@ index 985d825..d8d1877 100644
  }
  
 -struct kvm *kvm_arch_create_vm(void)
-+int kvm_arch_create_vm(struct kvm *kvm)
++int kvm_arch_init_vm(struct kvm *kvm)
  {
 -	struct kvm *kvm;
  	int rc;
@@ -274,10 +274,18 @@ index 2044302..fc29223 100644
  
  int kvm_arch_prepare_memory_region(struct kvm *kvm,
 diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index bcf71c7..76d3269 100644
+index bcf71c7..2d63f2c 100644
 --- a/include/linux/kvm_host.h
 +++ b/include/linux/kvm_host.h
-@@ -441,7 +441,19 @@ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu);
+@@ -16,6 +16,7 @@
+ #include <linux/mm.h>
+ #include <linux/preempt.h>
+ #include <linux/msi.h>
++#include <linux/slab.h>
+ #include <asm/signal.h>
+ 
+ #include <linux/kvm.h>
+@@ -441,7 +442,19 @@ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu);
  
  void kvm_free_physmem(struct kvm *kvm);
  
