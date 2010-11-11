@@ -1,206 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20101111170352.732381138@linux.vnet.ibm.com>
-Date: Thu, 11 Nov 2010 18:03:52 +0100
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: [RFC][PATCH v2 0/7] taskstats: Enhancements for precise process accounting (version 2)
+From: Alexander Shishkin <virtuoso@slind.org>
+Subject: [PATCHv6 5/7] wire up sys_time_change_notify() on s390
+Date: Thu, 11 Nov 2010 21:30:00 +0200
+Message-Id: <1289503802-22444-6-git-send-email-virtuoso@slind.org>
+In-Reply-To: <1289503802-22444-1-git-send-email-virtuoso@slind.org>
+References: <1289503802-22444-1-git-send-email-virtuoso@slind.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: John Stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Kay Sievers <kay.sievers@vrfy.org>, Greg KH <gregkh@suse.de>, Chris Friesen <chris.friesen@genband.com>, Linus Torvalds <torvalds@linux-foundation.org>, "Kirill A. Shutemov" <kirill@shutemov.name>, Thomas Gleixner <tglx@linutronix.de>, Alexander Shishkin <virtuoso@slind.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Jesper Nilsson <jesper.nilsson@axis.com>, David Howells <dhowells@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-CHANGE HISTORY OF THIS PATCH SET
----------------------------------
-Version 2
----------
-* The following patches from version 1 have been accepted upstream for 2.6.37:
-  + taskstats: use real microsecond granularity for CPU times
-    git commit: d57af9b2142f31a39dcfdeb30776baadfc802827
-  + taskstats: separate taskstats commands
-    git commit: 9323312592cca636d7c2580dc85fa4846efa86a2
-  + taskstats: split fill_pid function
-    git commit: 3d9e0cf1fe007b88db55d43dfdb6839e1a029ca5
+Signed-off-by: Alexander Shishkin <virtuoso@slind.org>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+CC: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: linux390@de.ibm.com
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: Jesper Nilsson <jesper.nilsson@axis.com>
+CC: David Howells <dhowells@redhat.com>
+CC: Christian Borntraeger <borntraeger@de.ibm.com>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Christoph Hellwig <hch@lst.de>
+CC: linux-s390@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+---
+ arch/s390/include/asm/unistd.h    |    3 ++-
+ arch/s390/kernel/compat_wrapper.S |    7 +++++++
+ arch/s390/kernel/syscalls.S       |    1 +
+ 3 files changed, 10 insertions(+), 1 deletions(-)
 
-* Comment from Andrew Morton:
-  I replaced the /proc/taskstats ioctls with a write interface (see patch [2])
-
-* Based on discussions with Oleg Nesterov and Roland McGrath:
-  We have identified the following problems of the current approach for getting
-  100% CPU time between two taskstats snapshots without using exit events:
-
-  1)Due to POSIX POSIX.1-2001, the CPU time of processes is not accounted
-    to the cumulative time of the parents, if the parents ignore SIGCHLD
-    or have set SA_NOCLDWAIT. This behaviour has the major drawback that
-    it is not possible to calculate all consumed CPU time of a system by
-    looking at the current tasks. CPU time can be lost.
-
-  2)When a parent process dies, its children get the init process as
-    new parent. For accounting this is suboptimal, because then init
-    gets the CPU time of the tasks. For accounting it would be better,
-    if the CPU time is passed along the relationship tree using the
-    cumulative time counters as would have happened if the child had died
-    before the parent. The main benefit of this approach is that between
-    two task snapshots it is always clear which parent got the CPU time
-    of dead tasks. Otherwise there are situations, where we can't
-    determine if either init or an older relative of a dead task has
-    inherited the CPU time.
-
-  3)If a non-leader thread calls exec(), in the de_thread() function it
-    gets some of the identity of the old thread group leader e.g. the PID
-    and the start time. But it keeps the old CPU times. This can lead to
-    confusion in user space, because CPU time can go backwards for the thread
-    group leader.
-
-  As a result of this discussion I have developed a new patch [5] (see below):
-  * It adds a second set of accounting data to the signal_struct.
-    This set is used to save all accounting data and resolves issue (1).
-  * In addition to that, the patch adds a new accounting hierarchy for
-    processes in the signal_struct to resolve issue (2).
-
-  There are three possible alternatives to this approach:
-  * Introduce "reparent" events for tasks that get init as new parent.
-  * Get all task exit events (very expensive).
-  * Live with the fact that accounting without exit events cannot be done
-    100% accurate on UNIX/Linux and provide a solution that works with the
-    cumulative time accounting as it is currently available under Linux.
-
-  I have developed an additional patch [6] to resolve issue (3).
-  It swaps the accounting data between the forking thread and the thread
-  group leader in the de_thread() function. But perhaps another solution
-  should be found for that problem because this might cause problems with
-  the scheduler that gets confused by the swapped values.
-
-DESCRIPTION OF PATCH SET
-------------------------
-Currently tools like "top" gather the task information by reading procfs
-files. This has several disadvantages:
-
-* It is very CPU intensive, because a lot of system calls (readdir, open,
-  read, close) are necessary.
-* No real task snapshot can be provided, because while the procfs files are
-  read the system continues running.
-* It is not possible to identify 100% of all consumed CPU time between two
-  snapshots.
-* The procfs times granularity is restricted to jiffies.
-
-In parallel to procfs there is the taskstats binary interface that uses
-netlink sockets as transport mechanism to deliver task information to
-user space. There is a taskstats command "TASKSTATS_CMD_ATTR_PID"
-to get task information for a given PID. This command can already be used for
-tools like top, but has also several disadvantages:
-
-* You first have to find out which PIDs are available in the system. Currently
-  we have to use procfs again to do this.
-* For each task two system calls have to be issued (First send the command and
-  then receive the reply).
-* No snapshot mechanism is available.
-
-GOALS OF THIS PATCH SET
------------------------
-The intention of this patch set is to provide better support for tools like
-top. The goal is to:
-
-* provide a task snapshot mechanism where we can get a consistent view of
-  all running tasks.
-* identify 100% of the consumed CPU time between two snapshots without
-  using task exit events.
-* provide a transport mechanism that does not require a lot of system calls
-  and that allows implementing low CPU overhead task monitoring.
-* provide microsecond CPU time granularity.
-
-FIRST RESULTS
--------------
-Together with this kernel patch set also user space code for a new top
-utility (ptop) is provided that exploits the new kernel infrastructure. See
-patch 6 for more details.
-
-TEST1: System with many sleeping tasks
-
-  for ((i=0; i < 1000; i++))
-  do
-         sleep 1000000 &
-  done
-
-  # ptop_new_proc
-
-             VVVV
-  pid   user  sys  ste  total  Name
-  (#)    (%)  (%)  (%)    (%)  (str)
-  541   0.37 2.39 0.10   2.87  top
-  3743  0.03 0.05 0.00   0.07  ptop_new_proc
-             ^^^^
-
-Compared to the old top command that has to scan more than 1000 proc
-directories the new ptop consumes much less CPU time (0.05% system time
-on my s390 system).
-
-TEST2: Show snapshot consistency with system that is 100% busy
-
-  System with 2 CPUs:
-
-  for ((i=0; i < $(cat /proc/cpuinfo  | grep "^processor" | wc -l); i++))
-  do
-       ./loop &
-  done
-  cd linux-2.6
-  make -j 5
-
-  # ptop_snap_proc
-  pid     user  sys stea cuser  csys cstea xuser xsys xstea  total Name
-  (#)      (%)  (%)  (%)   (%)   (%)   (%)   (%)  (%)   (%)    (%) (str)
-  2802   43.22 0.35 0.22  0.00  0.00  0.00  0.00 0.00  0.00  43.79 loop
-  2799   35.96 0.33 0.21  0.00  0.00  0.00  0.00 0.00  0.00  36.50 loop
-  2811    0.04 0.05 0.00 23.22 12.97  0.19  0.00 0.00  0.00  36.46 make
-  2796   35.80 0.32 0.19  0.00  0.00  0.00  0.00 0.00  0.00  36.30 loop
-  2987   15.93 2.14 0.07  8.23  3.12  0.06  0.00 0.00  0.00  29.53 make
-  3044   11.56 1.72 0.22  0.00  0.00  0.00  0.00 0.00  0.00  13.50 make
-  3053    1.92 0.73 0.01  0.00  0.00  0.00  0.00 0.00  0.00   2.65 make
-  ....
-  V:V:S 144.76 6.24 1.22 31.44 16.09  0.25  0.00 0.00  0.00 200.00
-                                                            ^^^^^^
-
-  With the snapshot mechanism the sum of all tasks CPU times will be exactly
-  200.00% CPU time with this testcase. The following CPU times are used:
-  * user/sys/stea:    Time that has been consumed by task itself
-  * cuser/csys/cstea: Time that has been consumed by dead children of task
-  * xuser/xsys/xstea: Time that has been consumed by dead threads of thread
-                      group of task
-
-  Note that the CPU times on x86 are not as precise as on s390.
-
-PATCHSET OVERVIEW
------------------
-Patches apply on:
-git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-
-The code is not final and still has several TODOs. The following kernel patches
-are provided:
-
-[1] Add new command "TASKSTATS_CMD_ATTR_PIDS" to get a snapshot of multiple
-    tasks.
-[2] Add procfs interface for taskstats commands. This allows to get a complete
-    and consistent snapshot with all tasks using two system calls (write and
-    read). Transferring a snapshot of all running tasks is not possible using
-    the existing netlink interface, because there we have the socket buffer
-    size as restricting factor.
-[3] Add TGID to taskstats.
-[4] Add steal time per task accounting.
-[5] Improve cumulative CPU time accounting.
-[6] Fix accounting for non-leader thread exec.
-
-[7] Besides of the kernel patches also user space code is provided that
-    exploits the new kernel infrastructure. The user space code provides the
-    following:
-    1. A proposal for a taskstats user space library:
-       1.1 Based on netlink (requires libnl-devel-1.1-5)
-       2.1 Based on the new /proc/taskstats interface (see patch [2])
-    2. A proposal for a task snapshot library based on taskstats library (1.1)
-    3. A new tool "ptop" (precise top) that uses the libraries
-
-* Especially patch [1] "Add new command "TASKSTATS_CMD_ATTR_PIDS" to
-  get a snapshot of multiple tasks" needs more review because it provides
-  the main functionality for getting consistent task snapshots. Up to now
-  I did not get any feedback on version 1 of this patch.
-
-* Also the user space part with the libraries [7] would need some review.
+diff --git a/arch/s390/include/asm/unistd.h b/arch/s390/include/asm/unistd.h
+index 1049ef2..f815a2d 100644
+--- a/arch/s390/include/asm/unistd.h
++++ b/arch/s390/include/asm/unistd.h
+@@ -272,7 +272,8 @@
+ #define __NR_fanotify_init	332
+ #define __NR_fanotify_mark	333
+ #define __NR_prlimit64		334
+-#define NR_syscalls 335
++#define __NR_time_change_notify	335
++#define NR_syscalls 336
+ 
+ /* 
+  * There are some system calls that are not present on 64 bit, some
+diff --git a/arch/s390/kernel/compat_wrapper.S b/arch/s390/kernel/compat_wrapper.S
+index 8e60fb2..dd4b23e 100644
+--- a/arch/s390/kernel/compat_wrapper.S
++++ b/arch/s390/kernel/compat_wrapper.S
+@@ -1877,3 +1877,10 @@ sys_prlimit64_wrapper:
+ 	llgtr	%r4,%r4			# const struct rlimit64 __user *
+ 	llgtr	%r5,%r5			# struct rlimit64 __user *
+ 	jg	sys_prlimit64		# branch to system call
++
++	.globl sys_time_change_notify_wrapper
++sys_time_change_notify_wrapper:
++	lgfr	%r2,%r2			# clockid_t (int)
++	lgfr	%r3,%r3			# int
++	llgfr	%r4,%r4			# unsigned int
++	jg	sys_time_change_notify	# branch to system call
+diff --git a/arch/s390/kernel/syscalls.S b/arch/s390/kernel/syscalls.S
+index a8fee1b..50ca1a7 100644
+--- a/arch/s390/kernel/syscalls.S
++++ b/arch/s390/kernel/syscalls.S
+@@ -343,3 +343,4 @@ SYSCALL(sys_perf_event_open,sys_perf_event_open,sys_perf_event_open_wrapper)
+ SYSCALL(sys_fanotify_init,sys_fanotify_init,sys_fanotify_init_wrapper)
+ SYSCALL(sys_fanotify_mark,sys_fanotify_mark,sys_fanotify_mark_wrapper)
+ SYSCALL(sys_prlimit64,sys_prlimit64,sys_prlimit64_wrapper)
++SYSCALL(sys_time_change_notify,sys_time_change_notify,sys_time_change_notify_wrapper) /* 335 */
+-- 
+1.7.2.1.45.gb66c2
