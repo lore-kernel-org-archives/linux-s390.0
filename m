@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [RFC][PATCH v2 1/7] taskstats: Add new taskstats command
- TASKSTATS_CMD_ATTR_PIDS
+Subject: Re: [RFC][PATCH v2 4/7] taskstats: Add per task steal time
+ accounting
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-In-Reply-To: <20101111170813.527389224@linux.vnet.ibm.com>
+In-Reply-To: <20101111170815.024542355@linux.vnet.ibm.com>
 References: <20101111170352.732381138@linux.vnet.ibm.com>
-	 <20101111170813.527389224@linux.vnet.ibm.com>
+	 <20101111170815.024542355@linux.vnet.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
-Date: Sat, 13 Nov 2010 20:20:05 +0100
-Message-ID: <1289676005.2109.148.camel@laptop>
+Date: Sat, 13 Nov 2010 20:38:02 +0100
+Message-ID: <1289677083.2109.167.camel@laptop>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
@@ -18,18 +18,15 @@ Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thu, 2010-11-11 at 18:03 +0100, Michael Holzheu wrote:
-> As clock for 'now' and 'time' the sched_clock() function is used and the patch
+> From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> 
+> Currently steal time is only accounted for the whole system. With this
+> patch we add steal time to the per task CPU time accounting.
+> The triplet "user time", "system time" and "steal time" represents
+> all consumed CPU time on hypervisor based systems. 
 
-> +       preempt_disable();
-> +       stats->time_ns = sched_clock();
-> +       preempt_enable();
+Does that really make sense? Its not like the hypervisor really knows
+anything about tasks and won't steal from one? Its really a vcpu
+feature.
 
-> +       task_snap_time = sched_clock();
-
-That's just plain broken...
-
-
-
-> +       t->sched_info.last_depart = task_rq(t)->clock;
-
-Are you sure you don't mean task_rq(t)->clock_task ? 
+What added benefit will all this extra accounting give?
