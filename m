@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 13 Nov 2010 19:38:10 +0100
-From: Oleg Nesterov <oleg@redhat.com>
-Subject: Re: [RFC][PATCH v2 5/7] taskstats: Improve cumulative CPU time
-	accounting
-Message-ID: <20101113183810.GA9021@redhat.com>
-References: <20101111170352.732381138@linux.vnet.ibm.com> <20101111170815.404670062@linux.vnet.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20101111170815.404670062@linux.vnet.ibm.com>
+Subject: Re: [RFC][PATCH v2 1/7] taskstats: Add new taskstats command
+ TASKSTATS_CMD_ATTR_PIDS
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+In-Reply-To: <20101111170813.527389224@linux.vnet.ibm.com>
+References: <20101111170352.732381138@linux.vnet.ibm.com>
+	 <20101111170813.527389224@linux.vnet.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+Date: Sat, 13 Nov 2010 20:20:05 +0100
+Message-ID: <1289676005.2109.148.camel@laptop>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-First of all, let me repeat, I am not going to discuss whether we need
-these changes or not, I do not know even if I understand your motivation.
+On Thu, 2010-11-11 at 18:03 +0100, Michael Holzheu wrote:
+> As clock for 'now' and 'time' the sched_clock() function is used and the patch
 
-My only concern is correctness, but
+> +       preempt_disable();
+> +       stats->time_ns = sched_clock();
+> +       preempt_enable();
 
-On 11/11, Michael Holzheu wrote:
->
-> * Add cumulative dead thread CPU times to taskstats
-> * Introduce parallel accounting process hierarchy (based on discussions
->   with Oleg Nesterov and Roland McGrath)
+> +       task_snap_time = sched_clock();
 
-Michael, I really think this patch does too many different things.
-I forgot the details of our previous discussion, and I got lost
-trying to understand the new version.
+That's just plain broken...
 
-I already asked you to split these changes, perhaps you can do this?
-Say, bacct_add_tsk() looks overcomplicated, the change in copy_process()
-shouldn't introduce the new CLONE_THREAD check, not sure I understand
-why release_task() was chosen for reparenting, other nits...
 
-But it is not easy to discuss these completely different things
-looking at the single patch.
 
-Imho, it would be much better if you make a separate patch which
-adds acct_parent/etc and implements the parallel hierarchy. This
-also makes sense because it touches the core kernel.
+> +       t->sched_info.last_depart = task_rq(t)->clock;
 
-Personally I think that even "struct cdata" + __account_ctime() helper
-needs a separate patch, and perhaps this change makes sense by itself
-as cleanup. And this way the "trivial" changes (like the changes in
-k_getrusage) won't distract from the functional changes.
-
-The final change should introduce cdata_acct and actually implement
-the complete cumulative accounting.
-
-At least, please distill parallel accounting process hierarchy.
-We do not want bugs in this area ;)
-
-What do you think?
-
-Oleg.
+Are you sure you don't mean task_rq(t)->clock_task ? 
