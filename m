@@ -11,8 +11,8 @@ References: <20101111170352.732381138@linux.vnet.ibm.com>
 	 <20101115184206.4463fd05@mschwide.boeblingen.de.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
-Date: Mon, 15 Nov 2010 18:48:32 +0100
-Message-ID: <1289843312.2109.518.camel@laptop>
+Date: Mon, 15 Nov 2010 18:47:09 +0100
+Message-ID: <1289843229.2109.516.camel@laptop>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
@@ -22,9 +22,9 @@ Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>, Shailabh Nagar <nagar1234@in.i
 List-ID: <linux-s390.vger.kernel.org>
 
 On Mon, 2010-11-15 at 18:42 +0100, Martin Schwidefsky wrote:
-> Would you prefer another #ifdef orgy to
-> avoid the overhead for VIRT_CPU_ACCOUNTING=n? We can certainly do
-> that.
-> 
-That still doesn't answer the question, why do you want this? What is
-per task steal time accounting good for? What problem is being solved?
+> There are 40 bytes more in the task structure and a few instructions more
+> in account_steal_time. I would not call that gazillions wasted bytes and
+> cycles. 
+
+Taken over all machines running Linux on real hardware that's gobs of
+memory wasted and lots of cycles spend adding 0s.
