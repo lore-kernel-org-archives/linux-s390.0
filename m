@@ -11,8 +11,8 @@ References: <20101111170352.732381138@linux.vnet.ibm.com>
 	 <20101115184206.4463fd05@mschwide.boeblingen.de.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
-Date: Mon, 15 Nov 2010 18:47:09 +0100
-Message-ID: <1289843229.2109.516.camel@laptop>
+Date: Mon, 15 Nov 2010 18:50:41 +0100
+Message-ID: <1289843441.2109.520.camel@laptop>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
@@ -22,9 +22,18 @@ Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>, Shailabh Nagar <nagar1234@in.i
 List-ID: <linux-s390.vger.kernel.org>
 
 On Mon, 2010-11-15 at 18:42 +0100, Martin Schwidefsky wrote:
-> There are 40 bytes more in the task structure and a few instructions more
-> in account_steal_time. I would not call that gazillions wasted bytes and
-> cycles. 
+> The steal time of a task tells us how much more progress a task could have
+> done if the hypervisor would not steal cpu. Now you could argue that the
+> steal time for a cpu is good enough for that purpose but steal time is not
+> necessarily uniform over all tasks. And we already do calculate this number,
+> we just do not store it right now. 
 
-Taken over all machines running Linux on real hardware that's gobs of
-memory wasted and lots of cycles spend adding 0s.
+If you make the scheduler take steal time into account like Jeremy
+proposed then you schedule on serviced time and the steal time gain is
+proportional to the existing service distribution.
+
+Still, then you know, then what are you going to do about it? Are you
+going to avoid the hypervisor from scheduling when that one task is
+running?
+
+What good is knowing something you cannot do anything about.
