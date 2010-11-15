@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [RFC][PATCH v2 4/7] taskstats: Add per task steal time
- accounting
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-In-Reply-To: <20101115155057.15f3be35@mschwide.boeblingen.de.ibm.com>
+Subject: Re: [RFC][PATCH v2 1/7] taskstats: Add new taskstats command
+ TASKSTATS_CMD_ATTR_PIDS
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <1289676005.2109.148.camel@laptop>
 References: <20101111170352.732381138@linux.vnet.ibm.com>
-	 <20101111170815.024542355@linux.vnet.ibm.com>
-	 <1289677083.2109.167.camel@laptop>
-	 <20101115155057.15f3be35@mschwide.boeblingen.de.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-Date: Mon, 15 Nov 2010 16:11:23 +0100
-Message-ID: <1289833883.2109.494.camel@laptop>
+	 <20101111170813.527389224@linux.vnet.ibm.com>
+	 <1289676005.2109.148.camel@laptop>
+Content-Type: text/plain; charset="us-ascii"
+Date: Mon, 15 Nov 2010 16:53:00 +0100
+Message-ID: <1289836380.1916.41.camel@holzheu-laptop>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, "jeremy.fitzhardinge" <jeremy.fitzhardinge@citrix.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 2010-11-15 at 15:50 +0100, Martin Schwidefsky wrote:
-> On Sat, 13 Nov 2010 20:38:02 +0100
-> Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> 
-> > On Thu, 2010-11-11 at 18:03 +0100, Michael Holzheu wrote:
-> > > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-> > > 
-> > > Currently steal time is only accounted for the whole system. With this
-> > > patch we add steal time to the per task CPU time accounting.
-> > > The triplet "user time", "system time" and "steal time" represents
-> > > all consumed CPU time on hypervisor based systems. 
-> > 
-> > Does that really make sense? Its not like the hypervisor really knows
-> > anything about tasks and won't steal from one? Its really a vcpu
-> > feature.
-> > 
-> > What added benefit will all this extra accounting give?
-> 
-> Currently the linux kernel keeps track of used cpu cycles per task,
-> steal time is reported only per cpu. With the patch steal cycles are
-> reported per task just like used cpu cycles, giving the complete picture
-> on a per task basis. Without the patch you don't know if the task has
-> been waiting or got its cycles stolen. A matter of granularity. 
+Hello Peter,
 
-That doesn't answer my question at all. Why do you want to know? Also,
-once we change the scheduler to not account steal time to tasks like it
-currently does (as Jeremy has been proposing to do several times now)
-this should become totally redundant as it will always be 0, no?
+On Sat, 2010-11-13 at 20:20 +0100, Peter Zijlstra wrote:
+> On Thu, 2010-11-11 at 18:03 +0100, Michael Holzheu wrote:
+> > As clock for 'now' and 'time' the sched_clock() function is used and the patch
+> 
+> > +       preempt_disable();
+> > +       stats->time_ns = sched_clock();
+> > +       preempt_enable();
+> 
+> > +       task_snap_time = sched_clock();
+> 
+> That's just plain broken...
 
-Thing is, all I'm seeing is overhead here, the vast majority of systems
-simply don't have any steal time at all. So again, what does this buy us
-except a gazillion wasted bytes and cycles?
+What exactly do you mean? Do you mean that we should not use
+sched_clock() in general or that it is called twice?
+
+> 
+> 
+> > +       t->sched_info.last_depart = task_rq(t)->clock;
+> 
+> Are you sure you don't mean task_rq(t)->clock_task ?
+
+Maybe... I want to save in "last_depart" a sched_clock() timestamp that
+is as precise as possible.
+
+We use "last_depart" for the TASKSTATS_CMD_ATTR_PIDS command to find out
+which tasks have been running on a CPU since the last taskstats
+snapshot. We return all tasks where last_depart > MIN(stats->time_ns for
+all tasks of last snapshot).
+
+Michael
