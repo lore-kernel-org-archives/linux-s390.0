@@ -1,164 +1,501 @@
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH 00/44] remove unnecessary semicolons
-Date: Sun, 14 Nov 2010 19:04:19 -0800
-Message-ID: <cover.1289789604.git.joe@perches.com>
-Return-path: <cpufreq-owner@vger.kernel.org>
-Sender: cpufreq-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: Jiri Kosina <trivial@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org, microblaze-uclinux@itee.uq.edu.au, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, cpufreq@vger.kernel.org, linux-i2c@vger.kernel.org, netdev@vger.kernel.org, linux-media@vger.kernel.org, linux-mmc@vger.kernel.org, e1000-devel@lists.sourceforge.net, linux-wireless@vger.kernel.org, ath9k-devel@lists.ath9k.org, platform-driver-x86@vger.kernel.org, ibm-acpi-devel@lists.sourceforge.net, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, spi-devel-general@lists.sourceforge.net, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, v9fs-developer@lists.sourceforge.net, ceph-devel@vger.kernel.org, logfs@logfs.org, linux-nfs@vger.kernel.org, ocfs2-devel@oss.oracle.comlinu
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 16 Nov 2010 12:49:35 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for 2.6.37-rc2
+Message-ID: <20101116124935.43600fed@mschwide.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-ya trivial series...
+Hi Linus,
 
-Joe Perches (44):
-  arch/arm: Remove unnecessary semicolons
-  arch/microblaze: Remove unnecessary semicolons
-  arch/um: Remove unnecessary semicolons
-  drivers/cpufreq: Remove unnecessary semicolons
-  drivers/gpio: Remove unnecessary semicolons
-  drivers/i2c: Remove unnecessary semicolons
-  drivers/isdn: Remove unnecessary semicolons
-  drivers/leds: Remove unnecessary semicolons
-  drivers/media/video: Remove unnecessary semicolons
-  drivers/misc: Remove unnecessary semicolons
-  drivers/mmc: Remove unnecessary semicolons
-  drivers/net/bnx2x: Remove unnecessary semicolons
-  drivers/net/e1000e: Remove unnecessary semicolons
-  drivers/net/ixgbe: Remove unnecessary semicolons
-  drivers/net/vxge: Remove unnecessary semicolons
-  drivers/net/wireless/ath: Remove unnecessary semicolons
-  drivers/net/wireless/iwlwifi: Remove unnecessary semicolons
-  drivers/net/cnic.c: Remove unnecessary semicolons
-  drivers/platform/x86: Remove unnecessary semicolons
-  drivers/power: Remove unnecessary semicolons
-  drivers/s390/net: Remove unnecessary semicolons
-  drivers/scsi/be2iscsi: Remove unnecessary semicolons
-  drivers/scsi/bfa: Remove unnecessary semicolons
-  drivers/scsi/lpfc: Remove unnecessary semicolons
-  drivers/scsi/pm8001: Remove unnecessary semicolons
-  drivers/scsi/qla2xxx: Remove unnecessary semicolons
-  drivers/serial: Remove unnecessary semicolons
-  drivers/spi: Remove unnecessary semicolons
-  drivers/staging: Remove unnecessary semicolons
-  drivers/usb/gadget: Remove unnecessary semicolons
-  drivers/xen: Remove unnecessary semicolons
-  fs/9p: Remove unnecessary semicolons
-  fs/ceph: Remove unnecessary semicolons
-  fs/logfs: Remove unnecessary semicolons
-  fs/nfs: Remove unnecessary semicolons
-  fs/ocfs2: Remove unnecessary semicolons
-  fs/ubifs: Remove unnecessary semicolons
-  include/linux/if_macvlan.h: Remove unnecessary semicolons
-  include/net/caif/cfctrl.h: Remove unnecessary semicolons
-  mm/hugetlb.c: Remove unnecessary semicolons
-  net/ipv6/mcast.c: Remove unnecessary semicolons
-  net/sunrpc/addr.c: Remove unnecessary semicolons
-  sound/core/pcm_lib.c: Remove unnecessary semicolons
-  sound/soc/codecs: Remove unnecessary semicolons
+please pull from 'for-linus' branch of
 
- arch/arm/mach-at91/at91cap9_devices.c              |    2 +-
- arch/arm/mach-at91/at91sam9g45_devices.c           |    2 +-
- arch/arm/mach-at91/at91sam9rl_devices.c            |    2 +-
- arch/arm/mach-nuc93x/time.c                        |    2 +-
- arch/arm/mach-tegra/tegra2_clocks.c                |    2 +-
- arch/arm/mach-w90x900/cpu.c                        |    2 +-
- arch/arm/plat-mxc/irq.c                            |    2 +-
- arch/microblaze/lib/memmove.c                      |    2 +-
- arch/um/drivers/mmapper_kern.c                     |    2 +-
- drivers/cpufreq/cpufreq_conservative.c             |    2 +-
- drivers/gpio/langwell_gpio.c                       |    2 +-
- drivers/i2c/busses/i2c-designware.c                |    2 +-
- drivers/isdn/hardware/mISDN/mISDNinfineon.c        |    4 ++--
- drivers/isdn/hardware/mISDN/mISDNisar.c            |    2 +-
- drivers/leds/leds-mc13783.c                        |    2 +-
- drivers/media/video/cx88/cx88-blackbird.c          |    2 +-
- drivers/media/video/davinci/vpfe_capture.c         |    2 +-
- drivers/media/video/em28xx/em28xx-cards.c          |    2 +-
- drivers/misc/bmp085.c                              |    2 +-
- drivers/misc/isl29020.c                            |    2 +-
- drivers/mmc/host/davinci_mmc.c                     |    2 +-
- drivers/net/bnx2x/bnx2x_link.c                     |    4 ++--
- drivers/net/bnx2x/bnx2x_main.c                     |    2 +-
- drivers/net/cnic.c                                 |    2 +-
- drivers/net/e1000e/netdev.c                        |    2 +-
- drivers/net/ixgbe/ixgbe_sriov.c                    |    2 +-
- drivers/net/vxge/vxge-main.c                       |    2 +-
- drivers/net/wireless/ath/ath9k/htc.h               |    2 +-
- drivers/net/wireless/iwlwifi/iwl-agn.c             |    2 +-
- drivers/platform/x86/classmate-laptop.c            |    2 +-
- drivers/platform/x86/thinkpad_acpi.c               |    2 +-
- drivers/power/intel_mid_battery.c                  |    2 +-
- drivers/s390/net/qeth_core_sys.c                   |    2 +-
- drivers/scsi/be2iscsi/be_main.c                    |    4 ++--
- drivers/scsi/bfa/bfa_fcs_lport.c                   |    2 +-
- drivers/scsi/lpfc/lpfc_bsg.c                       |    2 +-
- drivers/scsi/pm8001/pm8001_init.c                  |    2 +-
- drivers/scsi/qla2xxx/qla_isr.c                     |    4 ++--
- drivers/scsi/qla2xxx/qla_nx.c                      |    2 +-
- drivers/serial/mrst_max3110.c                      |    2 +-
- drivers/spi/amba-pl022.c                           |    2 +-
- drivers/spi/spi_nuc900.c                           |    2 +-
- .../staging/ath6kl/hif/sdio/linux_sdio/src/hif.c   |    2 +-
- drivers/staging/ath6kl/os/linux/ar6000_drv.c       |    2 +-
- drivers/staging/bcm/InterfaceInit.c                |    2 +-
- drivers/staging/bcm/InterfaceIsr.c                 |    2 +-
- drivers/staging/bcm/Misc.c                         |    4 ++--
- .../comedi/drivers/addi-data/APCI1710_Tor.c        |    2 +-
- .../comedi/drivers/addi-data/hwdrv_apci1500.c      |    2 +-
- .../comedi/drivers/addi-data/hwdrv_apci1516.c      |    2 +-
- .../comedi/drivers/addi-data/hwdrv_apci3501.c      |    2 +-
- drivers/staging/comedi/drivers/amplc_pci230.c      |    2 +-
- drivers/staging/comedi/drivers/cb_das16_cs.c       |    2 +-
- drivers/staging/comedi/drivers/comedi_bond.c       |    2 +-
- drivers/staging/crystalhd/crystalhd_hw.c           |    2 +-
- drivers/staging/go7007/go7007-driver.c             |    2 +-
- drivers/staging/iio/accel/lis3l02dq_ring.c         |    2 +-
- .../staging/intel_sst/intel_sst_drv_interface.c    |    4 ++--
- drivers/staging/keucr/smilmain.c                   |    4 ++--
- drivers/staging/keucr/smilsub.c                    |    4 ++--
- drivers/staging/msm/lcdc_toshiba_wvga_pt.c         |    2 +-
- drivers/staging/rt2860/common/cmm_data_pci.c       |    4 ++--
- drivers/staging/rt2860/rt_linux.c                  |    2 +-
- drivers/staging/rt2860/rtmp.h                      |    2 +-
- drivers/staging/rtl8192e/ieee80211/ieee80211_tx.c  |    2 +-
- drivers/staging/rtl8192e/r819xE_phy.c              |    2 +-
- drivers/staging/rtl8192u/ieee80211/ieee80211_tx.c  |    2 +-
- drivers/staging/rtl8192u/r8192U_core.c             |    2 +-
- drivers/staging/rtl8192u/r819xU_phy.c              |    2 +-
- drivers/staging/rtl8712/rtl8712_efuse.c            |    2 +-
- drivers/staging/rtl8712/rtl8712_xmit.c             |    2 +-
- drivers/staging/rtl8712/rtl871x_xmit.c             |    2 +-
- drivers/staging/tidspbridge/core/tiomap3430.c      |    4 ++--
- drivers/staging/tidspbridge/rmgr/nldr.c            |    2 +-
- drivers/staging/vt6655/card.c                      |    2 +-
- drivers/staging/vt6655/iwctl.c                     |    2 +-
- drivers/staging/vt6655/wpa2.c                      |    4 ++--
- drivers/staging/vt6656/baseband.c                  |    2 +-
- drivers/staging/vt6656/iwctl.c                     |    2 +-
- drivers/staging/vt6656/power.c                     |    2 +-
- drivers/staging/vt6656/wpa2.c                      |    4 ++--
- drivers/usb/gadget/f_fs.c                          |    2 +-
- drivers/xen/swiotlb-xen.c                          |    2 +-
- fs/9p/acl.c                                        |    2 +-
- fs/9p/xattr.c                                      |    2 +-
- fs/ceph/mds_client.c                               |    2 +-
- fs/logfs/readwrite.c                               |    2 +-
- fs/nfs/getroot.c                                   |    2 +-
- fs/ocfs2/refcounttree.c                            |    2 +-
- fs/ubifs/scan.c                                    |    2 +-
- include/linux/if_macvlan.h                         |    2 +-
- include/net/caif/cfctrl.h                          |    2 +-
- mm/hugetlb.c                                       |    2 +-
- net/ipv6/mcast.c                                   |    2 +-
- net/sunrpc/addr.c                                  |    2 +-
- sound/core/pcm_lib.c                               |    2 +-
- sound/soc/codecs/wm8904.c                          |    2 +-
- sound/soc/codecs/wm8940.c                          |    1 -
- sound/soc/codecs/wm8993.c                          |    2 +-
- sound/soc/codecs/wm_hubs.c                         |    2 +-
- 100 files changed, 111 insertions(+), 112 deletions(-)
+	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
 
--- 
-1.7.3.1.g432b3.dirty
+to receive the following updates:
+
+Heiko Carstens (1):
+      [S390] ftrace: build without frame pointers on s390
+
+Hendrik Brueckner (1):
+      [S390] mm: add devmem_is_allowed() for STRICT_DEVMEM checking
+
+Martin Schwidefsky (4):
+      [S390] fix get_user_pages_fast
+      [S390] tape: add medium state notifications
+      [S390] kprobes: disable interrupts throughout
+      [S390] kprobes: Fix the return address of multiple kretprobes
+
+Sebastian Ott (1):
+      [S390] cio: fix incorrect ccw_device_init_count
+
+Stefan Weinhuber (1):
+      [S390] vmlogrdr: purge after recording is switched off
+
+ arch/s390/Kconfig.debug       |   12 +++++++
+ arch/s390/include/asm/page.h  |    5 +++
+ arch/s390/kernel/kprobes.c    |   70 +++++++++++++++++++++++++++++++----------
+ arch/s390/mm/gup.c            |    7 ++--
+ drivers/s390/char/tape_core.c |   68 ++++++++++++++++++++++++++++++++++-----
+ drivers/s390/char/vmlogrdr.c  |   36 ++++++++++++++-------
+ drivers/s390/cio/device.c     |   11 ++++++-
+ kernel/trace/Kconfig          |    2 +-
+ 8 files changed, 167 insertions(+), 44 deletions(-)
+
+diff --git a/arch/s390/Kconfig.debug b/arch/s390/Kconfig.debug
+index 45e0c61..05221b1 100644
+--- a/arch/s390/Kconfig.debug
++++ b/arch/s390/Kconfig.debug
+@@ -6,6 +6,18 @@ config TRACE_IRQFLAGS_SUPPORT
+ 
+ source "lib/Kconfig.debug"
+ 
++config STRICT_DEVMEM
++	def_bool y
++	prompt "Filter access to /dev/mem"
++	---help---
++	  This option restricts access to /dev/mem.  If this option is
++	  disabled, you allow userspace access to all memory, including
++	  kernel and userspace memory. Accidental memory access is likely
++	  to be disastrous.
++	  Memory access is required for experts who want to debug the kernel.
++
++	  If you are unsure, say Y.
++
+ config DEBUG_STRICT_USER_COPY_CHECKS
+ 	bool "Strict user copy size checks"
+ 	---help---
+diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+index a8729ea..3c987e9 100644
+--- a/arch/s390/include/asm/page.h
++++ b/arch/s390/include/asm/page.h
+@@ -130,6 +130,11 @@ struct page;
+ void arch_free_page(struct page *page, int order);
+ void arch_alloc_page(struct page *page, int order);
+ 
++static inline int devmem_is_allowed(unsigned long pfn)
++{
++	return 0;
++}
++
+ #define HAVE_ARCH_FREE_PAGE
+ #define HAVE_ARCH_ALLOC_PAGE
+ 
+diff --git a/arch/s390/kernel/kprobes.c b/arch/s390/kernel/kprobes.c
+index d60fc43..2564793 100644
+--- a/arch/s390/kernel/kprobes.c
++++ b/arch/s390/kernel/kprobes.c
+@@ -30,6 +30,7 @@
+ #include <asm/sections.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
++#include <linux/hardirq.h>
+ 
+ DEFINE_PER_CPU(struct kprobe *, current_kprobe) = NULL;
+ DEFINE_PER_CPU(struct kprobe_ctlblk, kprobe_ctlblk);
+@@ -212,7 +213,7 @@ static void __kprobes prepare_singlestep(struct kprobe *p, struct pt_regs *regs)
+ 	/* Set the PER control regs, turns on single step for this address */
+ 	__ctl_load(kprobe_per_regs, 9, 11);
+ 	regs->psw.mask |= PSW_MASK_PER;
+-	regs->psw.mask &= ~(PSW_MASK_IO | PSW_MASK_EXT | PSW_MASK_MCHECK);
++	regs->psw.mask &= ~(PSW_MASK_IO | PSW_MASK_EXT);
+ }
+ 
+ static void __kprobes save_previous_kprobe(struct kprobe_ctlblk *kcb)
+@@ -239,7 +240,7 @@ static void __kprobes set_current_kprobe(struct kprobe *p, struct pt_regs *regs,
+ 	__get_cpu_var(current_kprobe) = p;
+ 	/* Save the interrupt and per flags */
+ 	kcb->kprobe_saved_imask = regs->psw.mask &
+-	    (PSW_MASK_PER | PSW_MASK_IO | PSW_MASK_EXT | PSW_MASK_MCHECK);
++		(PSW_MASK_PER | PSW_MASK_IO | PSW_MASK_EXT);
+ 	/* Save the control regs that govern PER */
+ 	__ctl_store(kcb->kprobe_saved_ctl, 9, 11);
+ }
+@@ -316,8 +317,6 @@ static int __kprobes kprobe_handler(struct pt_regs *regs)
+ 		return 1;
+ 
+ ss_probe:
+-	if (regs->psw.mask & (PSW_MASK_PER | PSW_MASK_IO))
+-		local_irq_disable();
+ 	prepare_singlestep(p, regs);
+ 	kcb->kprobe_status = KPROBE_HIT_SS;
+ 	return 1;
+@@ -350,6 +349,7 @@ static int __kprobes trampoline_probe_handler(struct kprobe *p,
+ 	struct hlist_node *node, *tmp;
+ 	unsigned long flags, orig_ret_address = 0;
+ 	unsigned long trampoline_address = (unsigned long)&kretprobe_trampoline;
++	kprobe_opcode_t *correct_ret_addr = NULL;
+ 
+ 	INIT_HLIST_HEAD(&empty_rp);
+ 	kretprobe_hash_lock(current, &head, &flags);
+@@ -372,10 +372,32 @@ static int __kprobes trampoline_probe_handler(struct kprobe *p,
+ 			/* another task is sharing our hash bucket */
+ 			continue;
+ 
+-		if (ri->rp && ri->rp->handler)
+-			ri->rp->handler(ri, regs);
++		orig_ret_address = (unsigned long)ri->ret_addr;
++
++		if (orig_ret_address != trampoline_address)
++			/*
++			 * This is the real return address. Any other
++			 * instances associated with this task are for
++			 * other calls deeper on the call stack
++			 */
++			break;
++	}
++
++	kretprobe_assert(ri, orig_ret_address, trampoline_address);
++
++	correct_ret_addr = ri->ret_addr;
++	hlist_for_each_entry_safe(ri, node, tmp, head, hlist) {
++		if (ri->task != current)
++			/* another task is sharing our hash bucket */
++			continue;
+ 
+ 		orig_ret_address = (unsigned long)ri->ret_addr;
++
++		if (ri->rp && ri->rp->handler) {
++			ri->ret_addr = correct_ret_addr;
++			ri->rp->handler(ri, regs);
++		}
++
+ 		recycle_rp_inst(ri, &empty_rp);
+ 
+ 		if (orig_ret_address != trampoline_address) {
+@@ -387,7 +409,7 @@ static int __kprobes trampoline_probe_handler(struct kprobe *p,
+ 			break;
+ 		}
+ 	}
+-	kretprobe_assert(ri, orig_ret_address, trampoline_address);
++
+ 	regs->psw.addr = orig_ret_address | PSW_ADDR_AMODE;
+ 
+ 	reset_current_kprobe();
+@@ -465,8 +487,6 @@ static int __kprobes post_kprobe_handler(struct pt_regs *regs)
+ 		goto out;
+ 	}
+ 	reset_current_kprobe();
+-	if (regs->psw.mask & (PSW_MASK_PER | PSW_MASK_IO))
+-		local_irq_enable();
+ out:
+ 	preempt_enable_no_resched();
+ 
+@@ -482,7 +502,7 @@ out:
+ 	return 1;
+ }
+ 
+-int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
++static int __kprobes kprobe_trap_handler(struct pt_regs *regs, int trapnr)
+ {
+ 	struct kprobe *cur = kprobe_running();
+ 	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
+@@ -508,8 +528,6 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
+ 			restore_previous_kprobe(kcb);
+ 		else {
+ 			reset_current_kprobe();
+-			if (regs->psw.mask & (PSW_MASK_PER | PSW_MASK_IO))
+-				local_irq_enable();
+ 		}
+ 		preempt_enable_no_resched();
+ 		break;
+@@ -553,6 +571,18 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
+ 	return 0;
+ }
+ 
++int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
++{
++	int ret;
++
++	if (regs->psw.mask & (PSW_MASK_IO | PSW_MASK_EXT))
++		local_irq_disable();
++	ret = kprobe_trap_handler(regs, trapnr);
++	if (regs->psw.mask & (PSW_MASK_IO | PSW_MASK_EXT))
++		local_irq_restore(regs->psw.mask & ~PSW_MASK_PER);
++	return ret;
++}
++
+ /*
+  * Wrapper routine to for handling exceptions.
+  */
+@@ -560,8 +590,12 @@ int __kprobes kprobe_exceptions_notify(struct notifier_block *self,
+ 				       unsigned long val, void *data)
+ {
+ 	struct die_args *args = (struct die_args *)data;
++	struct pt_regs *regs = args->regs;
+ 	int ret = NOTIFY_DONE;
+ 
++	if (regs->psw.mask & (PSW_MASK_IO | PSW_MASK_EXT))
++		local_irq_disable();
++
+ 	switch (val) {
+ 	case DIE_BPT:
+ 		if (kprobe_handler(args->regs))
+@@ -572,16 +606,17 @@ int __kprobes kprobe_exceptions_notify(struct notifier_block *self,
+ 			ret = NOTIFY_STOP;
+ 		break;
+ 	case DIE_TRAP:
+-		/* kprobe_running() needs smp_processor_id() */
+-		preempt_disable();
+-		if (kprobe_running() &&
+-		    kprobe_fault_handler(args->regs, args->trapnr))
++		if (!preemptible() && kprobe_running() &&
++		    kprobe_trap_handler(args->regs, args->trapnr))
+ 			ret = NOTIFY_STOP;
+-		preempt_enable();
+ 		break;
+ 	default:
+ 		break;
+ 	}
++
++	if (regs->psw.mask & (PSW_MASK_IO | PSW_MASK_EXT))
++		local_irq_restore(regs->psw.mask & ~PSW_MASK_PER);
++
+ 	return ret;
+ }
+ 
+@@ -595,6 +630,7 @@ int __kprobes setjmp_pre_handler(struct kprobe *p, struct pt_regs *regs)
+ 
+ 	/* setup return addr to the jprobe handler routine */
+ 	regs->psw.addr = (unsigned long)(jp->entry) | PSW_ADDR_AMODE;
++	regs->psw.mask &= ~(PSW_MASK_IO | PSW_MASK_EXT);
+ 
+ 	/* r14 is the function return address */
+ 	kcb->jprobe_saved_r14 = (unsigned long)regs->gprs[14];
+diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
+index 38e641c..45b405c 100644
+--- a/arch/s390/mm/gup.c
++++ b/arch/s390/mm/gup.c
+@@ -20,18 +20,17 @@
+ static inline int gup_pte_range(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
+ 		unsigned long end, int write, struct page **pages, int *nr)
+ {
+-	unsigned long mask, result;
++	unsigned long mask;
+ 	pte_t *ptep, pte;
+ 	struct page *page;
+ 
+-	result = write ? 0 : _PAGE_RO;
+-	mask = result | _PAGE_INVALID | _PAGE_SPECIAL;
++	mask = (write ? _PAGE_RO : 0) | _PAGE_INVALID | _PAGE_SPECIAL;
+ 
+ 	ptep = ((pte_t *) pmd_deref(pmd)) + pte_index(addr);
+ 	do {
+ 		pte = *ptep;
+ 		barrier();
+-		if ((pte_val(pte) & mask) != result)
++		if ((pte_val(pte) & mask) != 0)
+ 			return 0;
+ 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
+ 		page = pte_page(pte);
+diff --git a/drivers/s390/char/tape_core.c b/drivers/s390/char/tape_core.c
+index 6c40867..b3a3e8e 100644
+--- a/drivers/s390/char/tape_core.c
++++ b/drivers/s390/char/tape_core.c
+@@ -209,29 +209,79 @@ tape_state_set(struct tape_device *device, enum tape_state newstate)
+ 	wake_up(&device->state_change_wq);
+ }
+ 
++struct tape_med_state_work_data {
++	struct tape_device *device;
++	enum tape_medium_state state;
++	struct work_struct  work;
++};
++
++static void
++tape_med_state_work_handler(struct work_struct *work)
++{
++	static char env_state_loaded[] = "MEDIUM_STATE=LOADED";
++	static char env_state_unloaded[] = "MEDIUM_STATE=UNLOADED";
++	struct tape_med_state_work_data *p =
++		container_of(work, struct tape_med_state_work_data, work);
++	struct tape_device *device = p->device;
++	char *envp[] = { NULL, NULL };
++
++	switch (p->state) {
++	case MS_UNLOADED:
++		pr_info("%s: The tape cartridge has been successfully "
++			"unloaded\n", dev_name(&device->cdev->dev));
++		envp[0] = env_state_unloaded;
++		kobject_uevent_env(&device->cdev->dev.kobj, KOBJ_CHANGE, envp);
++		break;
++	case MS_LOADED:
++		pr_info("%s: A tape cartridge has been mounted\n",
++			dev_name(&device->cdev->dev));
++		envp[0] = env_state_loaded;
++		kobject_uevent_env(&device->cdev->dev.kobj, KOBJ_CHANGE, envp);
++		break;
++	default:
++		break;
++	}
++	tape_put_device(device);
++	kfree(p);
++}
++
++static void
++tape_med_state_work(struct tape_device *device, enum tape_medium_state state)
++{
++	struct tape_med_state_work_data *p;
++
++	p = kzalloc(sizeof(*p), GFP_ATOMIC);
++	if (p) {
++		INIT_WORK(&p->work, tape_med_state_work_handler);
++		p->device = tape_get_device(device);
++		p->state = state;
++		schedule_work(&p->work);
++	}
++}
++
+ void
+ tape_med_state_set(struct tape_device *device, enum tape_medium_state newstate)
+ {
+-	if (device->medium_state == newstate)
++	enum tape_medium_state oldstate;
++
++	oldstate = device->medium_state;
++	if (oldstate == newstate)
+ 		return;
++	device->medium_state = newstate;
+ 	switch(newstate){
+ 	case MS_UNLOADED:
+ 		device->tape_generic_status |= GMT_DR_OPEN(~0);
+-		if (device->medium_state == MS_LOADED)
+-			pr_info("%s: The tape cartridge has been successfully "
+-				"unloaded\n", dev_name(&device->cdev->dev));
++		if (oldstate == MS_LOADED)
++			tape_med_state_work(device, MS_UNLOADED);
+ 		break;
+ 	case MS_LOADED:
+ 		device->tape_generic_status &= ~GMT_DR_OPEN(~0);
+-		if (device->medium_state == MS_UNLOADED)
+-			pr_info("%s: A tape cartridge has been mounted\n",
+-				dev_name(&device->cdev->dev));
++		if (oldstate == MS_UNLOADED)
++			tape_med_state_work(device, MS_LOADED);
+ 		break;
+ 	default:
+-		// print nothing
+ 		break;
+ 	}
+-	device->medium_state = newstate;
+ 	wake_up(&device->state_change_wq);
+ }
+ 
+diff --git a/drivers/s390/char/vmlogrdr.c b/drivers/s390/char/vmlogrdr.c
+index 9f66142..1cc726b 100644
+--- a/drivers/s390/char/vmlogrdr.c
++++ b/drivers/s390/char/vmlogrdr.c
+@@ -249,27 +249,25 @@ static int vmlogrdr_recording(struct vmlogrdr_priv_t * logptr,
+ 	char cp_command[80];
+ 	char cp_response[160];
+ 	char *onoff, *qid_string;
++	int rc;
+ 
+-	memset(cp_command, 0x00, sizeof(cp_command));
+-	memset(cp_response, 0x00, sizeof(cp_response));
+-
+-        onoff = ((action == 1) ? "ON" : "OFF");
++	onoff = ((action == 1) ? "ON" : "OFF");
+ 	qid_string = ((recording_class_AB == 1) ? " QID * " : "");
+ 
+-        /*
++	/*
+ 	 * The recording commands needs to be called with option QID
+ 	 * for guests that have previlege classes A or B.
+ 	 * Purging has to be done as separate step, because recording
+ 	 * can't be switched on as long as records are on the queue.
+ 	 * Doing both at the same time doesn't work.
+ 	 */
+-
+-	if (purge) {
++	if (purge && (action == 1)) {
++		memset(cp_command, 0x00, sizeof(cp_command));
++		memset(cp_response, 0x00, sizeof(cp_response));
+ 		snprintf(cp_command, sizeof(cp_command),
+ 			 "RECORDING %s PURGE %s",
+ 			 logptr->recording_name,
+ 			 qid_string);
+-
+ 		cpcmd(cp_command, cp_response, sizeof(cp_response), NULL);
+ 	}
+ 
+@@ -279,19 +277,33 @@ static int vmlogrdr_recording(struct vmlogrdr_priv_t * logptr,
+ 		logptr->recording_name,
+ 		onoff,
+ 		qid_string);
+-
+ 	cpcmd(cp_command, cp_response, sizeof(cp_response), NULL);
+ 	/* The recording command will usually answer with 'Command complete'
+ 	 * on success, but when the specific service was never connected
+ 	 * before then there might be an additional informational message
+ 	 * 'HCPCRC8072I Recording entry not found' before the
+-         * 'Command complete'. So I use strstr rather then the strncmp.
++	 * 'Command complete'. So I use strstr rather then the strncmp.
+ 	 */
+ 	if (strstr(cp_response,"Command complete"))
+-		return 0;
++		rc = 0;
+ 	else
+-		return -EIO;
++		rc = -EIO;
++	/*
++	 * If we turn recording off, we have to purge any remaining records
++	 * afterwards, as a large number of queued records may impact z/VM
++	 * performance.
++	 */
++	if (purge && (action == 0)) {
++		memset(cp_command, 0x00, sizeof(cp_command));
++		memset(cp_response, 0x00, sizeof(cp_response));
++		snprintf(cp_command, sizeof(cp_command),
++			 "RECORDING %s PURGE %s",
++			 logptr->recording_name,
++			 qid_string);
++		cpcmd(cp_command, cp_response, sizeof(cp_response), NULL);
++	}
+ 
++	return rc;
+ }
+ 
+ 
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index 2ff8a22..e8391b8 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -1455,7 +1455,16 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
+ 		break;
+ 	case IO_SCH_UNREG_ATTACH:
+ 	case IO_SCH_UNREG:
+-		if (cdev)
++		if (!cdev)
++			break;
++		if (cdev->private->state == DEV_STATE_SENSE_ID) {
++			/*
++			 * Note: delayed work triggered by this event
++			 * and repeated calls to sch_event are synchronized
++			 * by the above check for work_pending(cdev).
++			 */
++			dev_fsm_event(cdev, DEV_EVENT_NOTOPER);
++		} else
+ 			ccw_device_set_notoper(cdev);
+ 		break;
+ 	case IO_SCH_NOP:
+diff --git a/kernel/trace/Kconfig b/kernel/trace/Kconfig
+index e04b8bc..ea37e2f 100644
+--- a/kernel/trace/Kconfig
++++ b/kernel/trace/Kconfig
+@@ -126,7 +126,7 @@ if FTRACE
+ config FUNCTION_TRACER
+ 	bool "Kernel Function Tracer"
+ 	depends on HAVE_FUNCTION_TRACER
+-	select FRAME_POINTER if (!ARM_UNWIND)
++	select FRAME_POINTER if !ARM_UNWIND && !S390
+ 	select KALLSYMS
+ 	select GENERIC_TRACER
+ 	select CONTEXT_SWITCH_TRACER
