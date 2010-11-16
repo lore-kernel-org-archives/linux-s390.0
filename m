@@ -1,62 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 16 Nov 2010 09:54:56 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [RFC][PATCH v2 5/7] taskstats: Improve cumulative CPU time
- accounting
-Message-ID: <20101116095456.7389bebc@mschwide.boeblingen.de.ibm.com>
-In-Reply-To: <1289844606.2109.526.camel@laptop>
+Subject: Re: [RFC][PATCH v2 1/7] taskstats: Add new taskstats command
+ TASKSTATS_CMD_ATTR_PIDS
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <1289841705.2109.513.camel@laptop>
 References: <20101111170352.732381138@linux.vnet.ibm.com>
-	<20101111170815.404670062@linux.vnet.ibm.com>
-	<20101113183810.GA9021@redhat.com>
-	<20101115165521.21baac60@mschwide.boeblingen.de.ibm.com>
-	<1289837036.2109.501.camel@laptop>
-	<20101115184910.549a828b@mschwide.boeblingen.de.ibm.com>
-	<1289843517.2109.521.camel@laptop>
-	<20101115190031.5a50e760@mschwide.boeblingen.de.ibm.com>
-	<1289844606.2109.526.camel@laptop>
+	 <20101111170813.527389224@linux.vnet.ibm.com>
+	 <1289676005.2109.148.camel@laptop>
+	 <1289836380.1916.41.camel@holzheu-laptop>
+	 <1289837178.2109.504.camel@laptop>
+	 <1289840968.1916.85.camel@holzheu-laptop>
+	 <1289841705.2109.513.camel@laptop>
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 16 Nov 2010 13:16:19 +0100
+Message-ID: <1289909779.1940.26.camel@holzheu-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Oleg Nesterov <oleg@redhat.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Ingo Molnar <mingo@elte.hu>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 15 Nov 2010 19:10:06 +0100
-Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+Hello Peter,
 
-> On Mon, 2010-11-15 at 19:00 +0100, Martin Schwidefsky wrote:
-> > On Mon, 15 Nov 2010 18:51:57 +0100
-> > Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> > 
-> > > On Mon, 2010-11-15 at 18:49 +0100, Martin Schwidefsky wrote:
-> > > > > To what purpose? 
-> > > >  
-> > > > Is that a trick question? Why do we have tools like "top"? Or process
-> > > > accounting? The point is that the quality of the numbers we get right
-> > > > now is rather bad, the overhead of scanning /proc is horrendous and
-> > > > the 10ms granularity is rather coarse. 
-> > > 
-> > > But you're not just replacing top, you're adding all kinds of new
-> > > accounting crap all over the place.
-> > 
-> > We DO replace top. Patch #7 of 7.
+On Mon, 2010-11-15 at 18:21 +0100, Peter Zijlstra wrote:
+> On Mon, 2010-11-15 at 18:09 +0100, Michael Holzheu wrote:
 > 
-> You _also_ replace top, but its not by far the only thing you do. If you
-> simply replaced top you wouldn't need to add tons of extra accounting,
-> would you?
+> > > That you should not use sched_clock(),
+> > 
+> > What should we use instead?
+> 
+> Depends on what you want, look at kernel/sched_clock.c
+> 
+> > > What does last departed mean? That is what timeline are you counting in?
+> > > Do you want time as tasks see it, or time as your wallclock sees it?
+> > 
+> > "last_depart" should be the time stamp, where the task has left a CPU
+> > the last time.
+> > 
+> > We assume that we can compare "last_depart" with "time_ns" in the
+> > taskstats structure,
+> 
+> I think you assume I actually know anything about taskstat :-), its the
+> thing I always say =n to in my config file and have so far happily
+> ignored all code of.
+> 
+> >  if we use task_rq(t)->clock for last_depart and
+> > sched_clock() for stats->time_ns.
+> 
+> Then you're up shit creek because rq->clock doesn't necessarily have any
+> correlation to sched_clock().
+> 
+> >  We also assume that we get wallclock
+> > intervals in nanoseconds, if we look at two sched_clock() timestamps.
+> 
+> Invalid assumption.
 
-There are basically two things we want to accomplish:
-1) Make top faster by replacing the /proc based data gathering with taskstats.
-   To really make it go fast with taskstats we filter with last_depart to
-   read only tasks that have changed since the last snapshot.
-2) Make top more precise. That is where all of the extra accounting comes
-   into play.
+Ok, thanks. So sched_clock() seems to be a bad idea for our purposes.
 
--- 
-blue skies,
-   Martin.
+An alternative approach could be to have a global counter for the task
+snapshots, which is increased each time a snapshot is created for
+userspace. In addition to that we had to add a snapshot counter field to
+the task_struct that is set to the current value of the global counter
+each time a task leaves a CPU. Then userspace could ask for all tasks
+that have been active after snapshot number x. In the response userspace
+gets all tasks that have a snapshot number bigger than x together with
+the new snapshot number y that can be used for the next query.
 
-"Reality continues to ruin my life." - Calvin.
+Still it would be useful to add a timestamp of the creation of the
+taskstats data in the response to userspace for calculating the interval
+time between two snapshots. Would the usage of ktime_get() be valid for
+that purpose?
+
+Michael
