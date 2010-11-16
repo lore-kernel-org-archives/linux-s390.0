@@ -1,58 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 16 Nov 2010 17:05:49 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [RFC][PATCH v2 4/7] taskstats: Add per task steal time
- accounting
-Message-ID: <20101116170549.05d9e5c6@mschwide.boeblingen.de.ibm.com>
+Message-ID: <4CE2B37F.8050808@redhat.com>
+Date: Tue, 16 Nov 2010 18:38:23 +0200
+From: Avi Kivity <avi@redhat.com>
+MIME-Version: 1.0
+Subject: Re: [RFC][PATCH v2 4/7] taskstats: Add per task steal time accounting
+References: <20101111170352.732381138@linux.vnet.ibm.com>	 <20101111170815.024542355@linux.vnet.ibm.com>	 <1289677083.2109.167.camel@laptop>	 <20101115155057.15f3be35@mschwide.boeblingen.de.ibm.com>	 <1289833883.2109.494.camel@laptop>	 <20101115184206.4463fd05@mschwide.boeblingen.de.ibm.com>	 <1289843441.2109.520.camel@laptop>	 <20101115185923.1c353d07@mschwide.boeblingen.de.ibm.com>	 <1289844524.2109.524.camel@laptop>	 <20101116095101.5d86d1e5@mschwide.boeblingen.de.ibm.com>	 <1289909768.2109.592.camel@laptop>	 <20101116163325.755a709f@mschwide.boeblingen.de.ibm.com> <1289922329.2109.627.camel@laptop>
 In-Reply-To: <1289922329.2109.627.camel@laptop>
-References: <20101111170352.732381138@linux.vnet.ibm.com>
-	<20101111170815.024542355@linux.vnet.ibm.com>
-	<1289677083.2109.167.camel@laptop>
-	<20101115155057.15f3be35@mschwide.boeblingen.de.ibm.com>
-	<1289833883.2109.494.camel@laptop>
-	<20101115184206.4463fd05@mschwide.boeblingen.de.ibm.com>
-	<1289843441.2109.520.camel@laptop>
-	<20101115185923.1c353d07@mschwide.boeblingen.de.ibm.com>
-	<1289844524.2109.524.camel@laptop>
-	<20101116095101.5d86d1e5@mschwide.boeblingen.de.ibm.com>
-	<1289909768.2109.592.camel@laptop>
-	<20101116163325.755a709f@mschwide.boeblingen.de.ibm.com>
-	<1289922329.2109.627.camel@laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, "jeremy.fitzhardinge" <jeremy.fitzhardinge@citrix.com>, Avi Kivity <avi@redhat.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, "jeremy.fitzhardinge" <jeremy.fitzhardinge@citrix.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 16 Nov 2010 16:45:29 +0100
-Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+On 11/16/2010 05:45 PM, Peter Zijlstra wrote:
+>
+>>> In fact, kvm seems to already have these tracepoints: kvm_exit/kvm_entry
+>>> and it has a separate excplicit hypercall tracepoint as well:
+>>> kvm_hypercall.
+>> But the kvm tracepoints are used when Linux is the hypervisor, no? For our
+>> situation that would be a tracepoint in z/VM - or the equivalent. This is
+>> out of scope of this patch.
+> Ah crud, you might be right.. Avi could a kvm guest generate events on
+> vcpu enter/exit?
 
-> > > Except that the per-task steal time gives you lot less detail, being
-> > > able to profile on vcpu exit/enter gives you a much more powerfull
-> > > performance tool. Aside from being able to measure the steal-time it
-> > > allows you to instantly find hypercalls (both explicit as well as
-> > > implicit), so you can also measure the hypercall induced steal-time as
-> > > well.
-> > 
-> > Yes and no. The tracepoint idea looks interesting in itself. But that does
-> > not completely replace the per-task steal time. The hypervisor can take
-> > away the cpu anytime, it is still interesting to know which task was hit
-> > hardest by that. You could view the cpu time lost by a hypercall as
-> > "synchronous" steal time for the task, the remaining delta to the total
-> > per-task steal time as "asynchronous" steal time. 
-> 
-> Right, so there is no way the guest knows about the vcpu getting
-> scheduled, it can only derive the fact from hardware clocks after the
-> fact?
-
-Correct.
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+No.  Hypercalls are voluntary and known, but most exits are involuntary 
+and unknown to the guest.  Any memory access can generate a page fault, 
+and any host interrupt will exit the guest.
