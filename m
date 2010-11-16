@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <4CE2BA2F.6010306@redhat.com>
-Date: Tue, 16 Nov 2010 19:06:55 +0200
-From: Avi Kivity <avi@redhat.com>
-MIME-Version: 1.0
-Subject: Re: [RFC][PATCH v2 4/7] taskstats: Add per task steal time accounting
-References: <20101111170352.732381138@linux.vnet.ibm.com>	 <20101111170815.024542355@linux.vnet.ibm.com>	 <1289677083.2109.167.camel@laptop>	 <20101115155057.15f3be35@mschwide.boeblingen.de.ibm.com>	 <1289833883.2109.494.camel@laptop>	 <20101115184206.4463fd05@mschwide.boeblingen.de.ibm.com>	 <1289843441.2109.520.camel@laptop>	 <20101115185923.1c353d07@mschwide.boeblingen.de.ibm.com>	 <1289844524.2109.524.camel@laptop>	 <20101116095101.5d86d1e5@mschwide.boeblingen.de.ibm.com>	 <1289909768.2109.592.camel@laptop>	 <20101116163325.755a709f@mschwide.boeblingen.de.ibm.com>	 <1289922329.2109.627.camel@laptop>  <4CE2B37F.8050808@redhat.com> <1289925806.2109.628.camel@laptop> <4CE2B7CC.9010708@redhat.com>
-In-Reply-To: <4CE2B7CC.9010708@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: [RFC][PATCH v2 5/7] taskstats: Improve cumulative CPU time
+ accounting
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20101113183810.GA9021@redhat.com>
+References: <20101111170352.732381138@linux.vnet.ibm.com>
+	 <20101111170815.404670062@linux.vnet.ibm.com>
+	 <20101113183810.GA9021@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 16 Nov 2010 18:34:40 +0100
+Message-ID: <1289928880.1940.116.camel@holzheu-laptop>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, "jeremy.fitzhardinge" <jeremy.fitzhardinge@citrix.com>
+To: Oleg Nesterov <oleg@redhat.com>
+Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 11/16/2010 06:56 PM, Avi Kivity wrote:
-> On 11/16/2010 06:43 PM, Peter Zijlstra wrote:
->>
->>> No.  Hypercalls are voluntary and known, but most exits are involuntary
->>> and unknown to the guest.  Any memory access can generate a page fault,
->>> and any host interrupt will exit the guest.
->> Right, but we could not make the guest jump to a special stub on vcpu
->> enter? I guess we could simply because we have the hypervisor under
->> control.
+Hello Oleg,
+
+On Sat, 2010-11-13 at 19:38 +0100, Oleg Nesterov wrote:
+> I already asked you to split these changes, perhaps you can do this?
+> Say, bacct_add_tsk() looks overcomplicated, the change in copy_process()
+> shouldn't introduce the new CLONE_THREAD check, not sure I understand
+> why release_task() was chosen for reparenting, other nits...
+
+I want to establish the new hierarchy when a new process is forked and
+not for new threads, therefore the check for CLONE_THREAD in
+copy_process(). I do the reparenting with reparent_acct() when a process
+dies, therefore the check for "group_dead" in exit_signal().
+
+> But it is not easy to discuss these completely different things
+> looking at the single patch.
+> 
+> Imho, it would be much better if you make a separate patch which
+> adds acct_parent/etc and implements the parallel hierarchy. This
+> also makes sense because it touches the core kernel.
+> 
+> Personally I think that even "struct cdata" + __account_ctime() helper
+> needs a separate patch, and perhaps this change makes sense by itself
+> as cleanup. And this way the "trivial" changes (like the changes in
+> k_getrusage) won't distract from the functional changes.
 >
-> No, some entries inject an interrupt or exception, so the next rip 
-> value is unknown (without doing a lot of extra slow calculations).
+> The final change should introduce cdata_acct and actually implement
+> the complete cumulative accounting.
 
-Also, consider an exit within the stub (if the stub is paged out, for 
-example).
+So you want to have the following three patches:
+* Introduce "struct cdata" + __account_ctime() (no functional change)
+* Add cdata_acct accounting + parallel accounting hierarchy
+* Add taskstats interface to export the data to userspace
 
--- 
-error compiling committee.c: too many arguments to function
+Correct?
+
+Michael
