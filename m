@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 16 Nov 2010 18:50:44 +0100
-From: Oleg Nesterov <oleg@redhat.com>
-Subject: Re: [RFC][PATCH v2 5/7] taskstats: Improve cumulative CPU time
-	accounting
-Message-ID: <20101116175043.GA10693@redhat.com>
-References: <20101111170352.732381138@linux.vnet.ibm.com> <20101111170815.404670062@linux.vnet.ibm.com> <20101113183810.GA9021@redhat.com> <1289928880.1940.116.camel@holzheu-laptop>
+Message-ID: <4CE2CFDC.4070402@goop.org>
+Date: Tue, 16 Nov 2010 10:39:24 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1289928880.1940.116.camel@holzheu-laptop>
+Subject: Re: [RFC][PATCH v2 4/7] taskstats: Add per task steal time accounting
+References: <20101111170352.732381138@linux.vnet.ibm.com>	<20101111170815.024542355@linux.vnet.ibm.com>	<1289677083.2109.167.camel@laptop>	<20101115155057.15f3be35@mschwide.boeblingen.de.ibm.com>	<1289833883.2109.494.camel@laptop>	<20101115184206.4463fd05@mschwide.boeblingen.de.ibm.com>	<1289843441.2109.520.camel@laptop>	<20101115185923.1c353d07@mschwide.boeblingen.de.ibm.com>	<1289844524.2109.524.camel@laptop>	<20101116095101.5d86d1e5@mschwide.boeblingen.de.ibm.com>	<1289909768.2109.592.camel@laptop>	<20101116163325.755a709f@mschwide.boeblingen.de.ibm.com>	<1289922329.2109.627.camel@laptop> <20101116170549.05d9e5c6@mschwide.boeblingen.de.ibm.com>
+In-Reply-To: <20101116170549.05d9e5c6@mschwide.boeblingen.de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Avi Kivity <avi@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Michael,
+On 11/16/2010 08:05 AM, Martin Schwidefsky wrote:
+>>> Yes and no. The tracepoint idea looks interesting in itself. But that does
+>>> not completely replace the per-task steal time. The hypervisor can take
+>>> away the cpu anytime, it is still interesting to know which task was hit
+>>> hardest by that. You could view the cpu time lost by a hypercall as
+>>> "synchronous" steal time for the task, the remaining delta to the total
+>>> per-task steal time as "asynchronous" steal time. 
+>> Right, so there is no way the guest knows about the vcpu getting
+>> scheduled, it can only derive the fact from hardware clocks after the
+>> fact?
+> Correct.
 
-I can't read this discussion today, will try to do tomorrow and reply.
-Just one note,
+Yes, same for Xen.
 
-On 11/16, Michael Holzheu wrote:
->
-> So you want to have the following three patches:
-> * Introduce "struct cdata" + __account_ctime() (no functional change)
-> * Add cdata_acct accounting + parallel accounting hierarchy
-> * Add taskstats interface to export the data to userspace
-
-Something like this (if possible).
-
-But my main concern is parallel hierarchy itself. So, if you ask me,
-I'd prefer to see a separate patch which only adds acct_parent/etc
-and implements this reparenting, even without cdata_acct accounting.
-
-Again, if you think this is possible. I understand that it is not
-easy to maintain this series,
-
-Oleg.
+    J
