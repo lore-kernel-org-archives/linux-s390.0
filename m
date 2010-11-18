@@ -1,46 +1,68 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next-2.6] bonding: IGMP handling cleanup
-Date: Thu, 18 Nov 2010 09:33:30 -0800 (PST)
-Message-ID: <20101118.093330.39181120.davem@davemloft.net>
-References: <1290073388.2781.12.camel@edumazet-laptop>
-	<1290075978.2781.36.camel@edumazet-laptop>
-	<1290077352.2781.47.camel@edumazet-laptop>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Sachin Sant <sachinp@in.ibm.com>
+Subject: [Patch -next] Adapt s390 qeth & lcs driver code to use RCU
+Date: Thu, 18 Nov 2010 14:48:46 +0530
+Message-ID: <20101118091846.26534.38865.sendpatchset@localhost.localdomain>
 Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <1290077352.2781.47.camel@edumazet-laptop>
 Sender: linux-next-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-next/>
 List-Post: <mailto:linux-next@vger.kernel.org>
-To: eric.dumazet@gmail.com
-Cc: sachinp@in.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-next@vger.kernel.org, ursula.braun@de.ibm.com, fubar@us.ibm.com
+To: netdev@vger.kernel.org, davem@davemloft.net
+Cc: Sachin Sant <sachinp@in.ibm.com>, linux-s390@vger.kernel.org, linux-next@vger.kernel.org, ursula.braun@de.ibm.com, eric.dumazet@gmail.com
 List-ID: <linux-s390.vger.kernel.org>
 
-=46rom: Eric Dumazet <eric.dumazet@gmail.com>
-Date: Thu, 18 Nov 2010 11:49:12 +0100
+Commit 1d7138de878d1d4210727c1200193e69596f93b3
+igmp: RCU conversion of in_dev->mc_list
 
-> Le jeudi 18 novembre 2010 =E0 11:26 +0100, Eric Dumazet a =E9crit :
->=20
->> Actually this raises an interesting case for bonding as well.
->>=20
->> Before my RCU conversion __bond_resend_igmp_join_requests() was unsa=
-fe.
->>=20
->> For net-next-2.6, it is now safe (RCU is held), but needs a cleanup
->> patch to avoid sparse errors.
->=20
-> [PATCH net-next-2.6] bonding: IGMP handling cleanup
->=20
-> Instead of iterating in_dev->mc_list from bonding driver, its better
-> to call a helper function provided by igmp.c
-> Details of implementation (locking) are private to igmp code.
->=20
-> ip_mc_rejoin_group(struct ip_mc_list *im) becomes
-> ip_mc_rejoin_groups(struct in_device *in_dev);
->=20
-> Signed-off-by: Eric Dumazet <eric.dumazet@gmail.com>
-> Cc: Jay Vosburgh <fubar@us.ibm.com>
-> Cc: Sachin Sant <sachinp@in.ibm.com>
+converted rwlock to RCU.
 
-Applied, thanks Eric.
+Update the s390 network drivers(qeth & lcs) code to adapt to this change.
+
+Signed-off-by : Sachin Sant <sachinp@in.ibm.com>
+---
+
+Only compile tested.
+
+diff -Narup linux-2.6-next/drivers/s390/net/lcs.c linux-2.6-next-new/drivers/s390/net/lcs.c
+--- linux-2.6-next/drivers/s390/net/lcs.c	2010-11-17 11:38:25.000000000 +0530
++++ linux-2.6-next-new/drivers/s390/net/lcs.c	2010-11-18 11:59:46.000000000 +0530
+@@ -1269,10 +1269,10 @@ lcs_register_mc_addresses(void *data)
+ 	in4_dev = in_dev_get(card->dev);
+ 	if (in4_dev == NULL)
+ 		goto out;
+-	read_lock(&in4_dev->mc_list_lock);
++	rcu_read_lock();
+ 	lcs_remove_mc_addresses(card,in4_dev);
+ 	lcs_set_mc_addresses(card, in4_dev);
+-	read_unlock(&in4_dev->mc_list_lock);
++	rcu_read_unlock();
+ 	in_dev_put(in4_dev);
+ 
+ 	netif_carrier_off(card->dev);
+diff -Narup linux-2.6-next/drivers/s390/net/qeth_l3_main.c linux-2.6-next-new/drivers/s390/net/qeth_l3_main.c
+--- linux-2.6-next/drivers/s390/net/qeth_l3_main.c	2010-10-30 12:54:22.000000000 +0530
++++ linux-2.6-next-new/drivers/s390/net/qeth_l3_main.c	2010-11-18 11:59:13.000000000 +0530
+@@ -1828,9 +1828,9 @@ static void qeth_l3_add_vlan_mc(struct q
+ 		in_dev = in_dev_get(netdev);
+ 		if (!in_dev)
+ 			continue;
+-		read_lock(&in_dev->mc_list_lock);
++		rcu_read_lock();
+ 		qeth_l3_add_mc(card, in_dev);
+-		read_unlock(&in_dev->mc_list_lock);
++		rcu_read_unlock();
+ 		in_dev_put(in_dev);
+ 	}
+ }
+@@ -1843,10 +1843,10 @@ static void qeth_l3_add_multicast_ipv4(s
+ 	in4_dev = in_dev_get(card->dev);
+ 	if (in4_dev == NULL)
+ 		return;
+-	read_lock(&in4_dev->mc_list_lock);
++	rcu_read_lock();
+ 	qeth_l3_add_mc(card, in4_dev);
+ 	qeth_l3_add_vlan_mc(card);
+-	read_unlock(&in4_dev->mc_list_lock);
++	rcu_read_unlock();
+ 	in_dev_put(in4_dev);
+ }
+ 
