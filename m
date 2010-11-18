@@ -1,15 +1,15 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-2.6] bonding: fix a race in IGMP handling
-Date: Thu, 18 Nov 2010 09:31:19 -0800 (PST)
-Message-ID: <20101118.093119.112598596.davem@davemloft.net>
-References: <1290072794.2781.10.camel@edumazet-laptop>
-	<1290073388.2781.12.camel@edumazet-laptop>
+Subject: Re: [PATCH net-next-2.6] bonding: IGMP handling cleanup
+Date: Thu, 18 Nov 2010 09:33:30 -0800 (PST)
+Message-ID: <20101118.093330.39181120.davem@davemloft.net>
+References: <1290073388.2781.12.camel@edumazet-laptop>
 	<1290075978.2781.36.camel@edumazet-laptop>
+	<1290077352.2781.47.camel@edumazet-laptop>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <1290075978.2781.36.camel@edumazet-laptop>
+In-Reply-To: <1290077352.2781.47.camel@edumazet-laptop>
 Sender: linux-next-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-next/>
 List-Post: <mailto:linux-next@vger.kernel.org>
@@ -17,32 +17,30 @@ To: eric.dumazet@gmail.com
 Cc: sachinp@in.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-next@vger.kernel.org, ursula.braun@de.ibm.com, fubar@us.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Date: Thu, 18 Nov 2010 11:26:18 +0100
+=46rom: Eric Dumazet <eric.dumazet@gmail.com>
+Date: Thu, 18 Nov 2010 11:49:12 +0100
 
-> Actually this raises an interesting case for bonding as well.
-> 
-> Before my RCU conversion __bond_resend_igmp_join_requests() was unsafe.
-> 
-> For net-next-2.6, it is now safe (RCU is held), but needs a cleanup
-> patch to avoid sparse errors.
-> 
-> Thanks
-> 
-> [PATCH net-2.6] bonding: fix a race in IGMP handling
-> 
-> RCU conversion in IGMP code done in net-next-2.6 raised a race in
-> __bond_resend_igmp_join_requests().
-> 
-> It iterates in_dev->mc_list without appropriate protection (RTNL, or
-> read_lock on in_dev->mc_list_lock).
-> 
-> Another cpu might delete an entry while we use it and trigger a fault.
-> 
+> Le jeudi 18 novembre 2010 =E0 11:26 +0100, Eric Dumazet a =E9crit :
+>=20
+>> Actually this raises an interesting case for bonding as well.
+>>=20
+>> Before my RCU conversion __bond_resend_igmp_join_requests() was unsa=
+fe.
+>>=20
+>> For net-next-2.6, it is now safe (RCU is held), but needs a cleanup
+>> patch to avoid sparse errors.
+>=20
+> [PATCH net-next-2.6] bonding: IGMP handling cleanup
+>=20
+> Instead of iterating in_dev->mc_list from bonding driver, its better
+> to call a helper function provided by igmp.c
+> Details of implementation (locking) are private to igmp code.
+>=20
+> ip_mc_rejoin_group(struct ip_mc_list *im) becomes
+> ip_mc_rejoin_groups(struct in_device *in_dev);
+>=20
 > Signed-off-by: Eric Dumazet <eric.dumazet@gmail.com>
 > Cc: Jay Vosburgh <fubar@us.ibm.com>
+> Cc: Sachin Sant <sachinp@in.ibm.com>
 
-Applied, but I'm going to have to be careful and make sure I undo
-this the next time I pull net-2.6 into net-next-2.6
-
-Thanks.
+Applied, thanks Eric.
