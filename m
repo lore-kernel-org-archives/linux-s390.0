@@ -1,95 +1,137 @@
 From: Eric Dumazet <eric.dumazet@gmail.com>
-Subject: [PATCH net-2.6] bonding: fix a race in  IGMP handling
-Date: Thu, 18 Nov 2010 11:26:18 +0100
-Message-ID: <1290075978.2781.36.camel@edumazet-laptop>
+Subject: [PATCH net-next-2.6] bonding: IGMP handling cleanup
+Date: Thu, 18 Nov 2010 11:49:12 +0100
+Message-ID: <1290077352.2781.47.camel@edumazet-laptop>
 References: <20101118091846.26534.38865.sendpatchset@localhost.localdomain>
 	 <1290072794.2781.10.camel@edumazet-laptop>
 	 <1290073388.2781.12.camel@edumazet-laptop>
+	 <1290075978.2781.36.camel@edumazet-laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1290073388.2781.12.camel@edumazet-laptop>
+In-Reply-To: <1290075978.2781.36.camel@edumazet-laptop>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-next/>
 List-Post: <mailto:linux-next@vger.kernel.org>
-To: Sachin Sant <sachinp@in.ibm.com>
-Cc: netdev@vger.kernel.org, davem@davemloft.net, linux-s390@vger.kernel.org, linux-next@vger.kernel.org, ursula.braun@de.ibm.com, Jay Vosburgh <fubar@us.ibm.com>
+To: Sachin Sant <sachinp@in.ibm.com>, David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-next@vger.kernel.org, ursula.braun@de.ibm.com, Jay Vosburgh <fubar@us.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Le jeudi 18 novembre 2010 =C3=A0 10:43 +0100, Eric Dumazet a =C3=A9crit=
+Le jeudi 18 novembre 2010 =C3=A0 11:26 +0100, Eric Dumazet a =C3=A9crit=
  :
-> Le jeudi 18 novembre 2010 =C3=A0 10:33 +0100, Eric Dumazet a =C3=A9cr=
-it :
-> >=20
-> >=20
-> >=20
-> > Hmm, sorry but this wont work.
-> >=20
-> > > diff -Narup linux-2.6-next/drivers/s390/net/lcs.c linux-2.6-next-=
-new/drivers/s390/net/lcs.c
-> > > --- linux-2.6-next/drivers/s390/net/lcs.c	2010-11-17 11:38:25.000=
-000000 +0530
-> > > +++ linux-2.6-next-new/drivers/s390/net/lcs.c	2010-11-18 11:59:46=
-=2E000000000 +0530
-> > > @@ -1269,10 +1269,10 @@ lcs_register_mc_addresses(void *data)
-> > >  	in4_dev =3D in_dev_get(card->dev);
-> > >  	if (in4_dev =3D=3D NULL)
-> > >  		goto out;
-> > > -	read_lock(&in4_dev->mc_list_lock);
-> > > +	rcu_read_lock();
-> >=20
-> > If you use rcu_read_lock(), then you also need to=20
-> > use the rcu list iterators in lcs_remove_mc_addresses() and
-> > lcs_set_mc_addresses()
-> >=20
-> > Then, its strange this driver is not protected by RTNL at this stag=
+
+> Actually this raises an interesting case for bonding as well.
+>=20
+> Before my RCU conversion __bond_resend_igmp_join_requests() was unsaf=
 e.
-> >=20
-> > Ah yes, it uses a kthread from its ndo_set_multicast_list() handler=
-=2E
-> >=20
-> > This seems not safe at all.
+>=20
+> For net-next-2.6, it is now safe (RCU is held), but needs a cleanup
+> patch to avoid sparse errors.
 
-Actually this raises an interesting case for bonding as well.
+[PATCH net-next-2.6] bonding: IGMP handling cleanup
 
-Before my RCU conversion __bond_resend_igmp_join_requests() was unsafe.
+Instead of iterating in_dev->mc_list from bonding driver, its better
+to call a helper function provided by igmp.c
+Details of implementation (locking) are private to igmp code.
 
-=46or net-next-2.6, it is now safe (RCU is held), but needs a cleanup
-patch to avoid sparse errors.
-
-Thanks
-
-[PATCH net-2.6] bonding: fix a race in IGMP handling
-
-RCU conversion in IGMP code done in net-next-2.6 raised a race in
-__bond_resend_igmp_join_requests().
-
-It iterates in_dev->mc_list without appropriate protection (RTNL, or
-read_lock on in_dev->mc_list_lock).
-
-Another cpu might delete an entry while we use it and trigger a fault.
+ip_mc_rejoin_group(struct ip_mc_list *im) becomes
+ip_mc_rejoin_groups(struct in_device *in_dev);
 
 Signed-off-by: Eric Dumazet <eric.dumazet@gmail.com>
 Cc: Jay Vosburgh <fubar@us.ibm.com>
+Cc: Sachin Sant <sachinp@in.ibm.com>
 ---
- drivers/net/bonding/bond_main.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/bonding/bond_main.c |    8 +------
+ include/linux/igmp.h            |    2 -
+ net/ipv4/igmp.c                 |   34 +++++++++++++++++-------------
+ 3 files changed, 23 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond=
 _main.c
-index bdb68a6..71a1697 100644
+index 5188448..e588b2e 100644
 --- a/drivers/net/bonding/bond_main.c
 +++ b/drivers/net/bonding/bond_main.c
-@@ -878,8 +878,10 @@ static void __bond_resend_igmp_join_requests(struc=
-t net_device *dev)
+@@ -873,15 +873,11 @@ static void bond_mc_del(struct bonding *bond, voi=
+d *addr)
+ static void __bond_resend_igmp_join_requests(struct net_device *dev)
+ {
+ 	struct in_device *in_dev;
+-	struct ip_mc_list *im;
+=20
  	rcu_read_lock();
  	in_dev =3D __in_dev_get_rcu(dev);
- 	if (in_dev) {
-+		read_lock(&in_dev->mc_list_lock);
- 		for (im =3D in_dev->mc_list; im; im =3D im->next)
- 			ip_mc_rejoin_group(im);
-+		read_unlock(&in_dev->mc_list_lock);
- 	}
-=20
+-	if (in_dev) {
+-		for (im =3D in_dev->mc_list; im; im =3D im->next)
+-			ip_mc_rejoin_group(im);
+-	}
+-
++	if (in_dev)
++			ip_mc_rejoin_groups(in_dev);
  	rcu_read_unlock();
+ }
+=20
+diff --git a/include/linux/igmp.h b/include/linux/igmp.h
+index 7d16467..c4987f2 100644
+--- a/include/linux/igmp.h
++++ b/include/linux/igmp.h
+@@ -238,7 +238,7 @@ extern void ip_mc_unmap(struct in_device *);
+ extern void ip_mc_remap(struct in_device *);
+ extern void ip_mc_dec_group(struct in_device *in_dev, __be32 addr);
+ extern void ip_mc_inc_group(struct in_device *in_dev, __be32 addr);
+-extern void ip_mc_rejoin_group(struct ip_mc_list *im);
++extern void ip_mc_rejoin_groups(struct in_device *in_dev);
+=20
+ #endif
+ #endif
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index afb1e82..35f0231 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -1267,26 +1267,32 @@ EXPORT_SYMBOL(ip_mc_inc_group);
+=20
+ /*
+  *	Resend IGMP JOIN report; used for bonding.
++ *	Called with rcu_read_lock()
+  */
+-void ip_mc_rejoin_group(struct ip_mc_list *im)
++void ip_mc_rejoin_groups(struct in_device *in_dev)
+ {
+ #ifdef CONFIG_IP_MULTICAST
+-	struct in_device *in_dev =3D im->interface;
+-
+-	if (im->multiaddr =3D=3D IGMP_ALL_HOSTS)
+-		return;
++	struct ip_mc_list *im;
++	int type;
++=09
++	for_each_pmc_rcu(in_dev, im) {
++		if (im->multiaddr =3D=3D IGMP_ALL_HOSTS)
++			continue;
+=20
+-	/* a failover is happening and switches
+-	 * must be notified immediately */
+-	if (IGMP_V1_SEEN(in_dev))
+-		igmp_send_report(in_dev, im, IGMP_HOST_MEMBERSHIP_REPORT);
+-	else if (IGMP_V2_SEEN(in_dev))
+-		igmp_send_report(in_dev, im, IGMPV2_HOST_MEMBERSHIP_REPORT);
+-	else
+-		igmp_send_report(in_dev, im, IGMPV3_HOST_MEMBERSHIP_REPORT);
++		/* a failover is happening and switches
++		 * must be notified immediately
++		 */
++		if (IGMP_V1_SEEN(in_dev))
++			type =3D IGMP_HOST_MEMBERSHIP_REPORT;
++		else if (IGMP_V2_SEEN(in_dev))
++			type =3D IGMPV2_HOST_MEMBERSHIP_REPORT;
++		else
++			type =3D IGMPV3_HOST_MEMBERSHIP_REPORT;
++		igmp_send_report(in_dev, im, type);
++	}
+ #endif
+ }
+-EXPORT_SYMBOL(ip_mc_rejoin_group);
++EXPORT_SYMBOL(ip_mc_rejoin_groups);
+=20
+ /*
+  *	A socket has left a multicast group on device dev
