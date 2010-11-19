@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 18 Nov 2010 18:10:01 +0100
-From: Oleg Nesterov <oleg@redhat.com>
 Subject: Re: [RFC][PATCH v2 5/7] taskstats: Improve cumulative CPU time
-	accounting
-Message-ID: <20101118171001.GB3249@redhat.com>
-References: <20101111170352.732381138@linux.vnet.ibm.com> <20101111170815.404670062@linux.vnet.ibm.com> <20101113183810.GA9021@redhat.com> <1289926635.1940.100.camel@holzheu-laptop>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1289926635.1940.100.camel@holzheu-laptop>
+ accounting
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20101118171001.GB3249@redhat.com>
+References: <20101111170352.732381138@linux.vnet.ibm.com>
+	 <20101111170815.404670062@linux.vnet.ibm.com>
+	 <20101113183810.GA9021@redhat.com>
+	 <1289926635.1940.100.camel@holzheu-laptop>
+	 <20101118171001.GB3249@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Date: Fri, 19 Nov 2010 20:46:25 +0100
+Message-ID: <1290195985.2000.18.camel@holzheu-laptop>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+To: Oleg Nesterov <oleg@redhat.com>
 Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Venkatesh Pallipadi <venki@google.com>, Suresh Siddha <suresh.b.siddha@intel.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Sorry for delay.
+Hello Oleg,
 
-On 11/16, Michael Holzheu wrote:
->
-> On Sat, 2010-11-13 at 19:38 +0100, Oleg Nesterov wrote:
-> > First of all, let me repeat, I am not going to discuss whether we need
-> > these changes or not, I do not know even if I understand your motivation.
->
-> Sorry, if I was not clear enough with my descriptions. Let me try to
-> describe my motivation again:
+On Thu, 2010-11-18 at 18:10 +0100, Oleg Nesterov wrote:
+> > 2. Because of reparent to init, there are situations where it is
+> >    not clear to which tasks the CPU time of dead tasks between
+> >    two snapshots has been accounted. This is a problem for example 2.
+> 
+> Yes, I see.
+> 
+> But I must admit, _personally_ I am not sure this problem worth the
+> trouble.
 
-Yes, more or less I see what this patch does (I hope ;).
+I think you are right...
 
-> 2. Because of reparent to init, there are situations where it is
->    not clear to which tasks the CPU time of dead tasks between
->    two snapshots has been accounted. This is a problem for example 2.
+For that function, the introduced overhead, additional code and
+especially the possible confusion with two process hierarchies is not
+worth the effort. Maybe we have a chance to solve the reparent problem
+by introducing task exit event filters (e.g. give me all exit events for
+processes that have init as parent).
 
-Yes, I see.
+So I will send no more patches with the parallel hierarchy:
+Good news for you :-)
 
-But I must admit, _personally_ I am not sure this problem worth the
-trouble. And, I already mentioned daemonize() case, IOW I am not sure
-it is _always_ right to choose exiting_parent->parent for accounting.
-To me, this can be equally confusing. A user sees the running deamon
-with ppid = 1, then this daemon exits and top reports the "unrelated"
-process as cpu consumer.
+But for the second problem with the forgotten CPU time, I would like
+send you a new patch set, separated as you have requested. Although I
+personally think that also there we probably have no good chances to get
+them accepted upstream, because the signal_struct size is increased and
+some cycles are added to the task exit processing.
 
+It would be nice, if you find some time to look at the patches,
+but no hurry!
 
-But once again. I am _not_ against this patch. I never know when it
-comes to new features. Certainly you know better if this suits top.
-
-What I actually meant is: dear CC list, please look at this change
-and comment ;)
-
-Oleg.
+Michael
