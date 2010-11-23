@@ -1,29 +1,93 @@
-From: Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: [PATCH v3 22/22] bitops: remove minix bitops from asm/bitops.h
-Date: Wed, 24 Nov 2010 12:54:12 +0000
-Message-ID: <20101124125412.GA1876@linux-mips.org>
-References: <1290519504-3958-1-git-send-email-akinobu.mita@gmail.com>
- <1290519504-3958-23-git-send-email-akinobu.mita@gmail.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH] mutex: Introduce arch_mutex_cpu_relax()
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Reply-To: gerald.schaefer@de.ibm.com
+In-Reply-To: <1290522000.2072.406.camel@laptop>
+References: <1290437256.7455.4.camel@thinkpad>
+	 <20101122121049.01c4690a.akpm@linux-foundation.org>
+	 <1290521556.16834.25.camel@thinkpad>  <1290522000.2072.406.camel@laptop>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 23 Nov 2010 16:03:32 +0100
+Message-ID: <1290524612.16834.69.camel@thinkpad>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-mips-bounce@linux-mips.org>
-Content-Disposition: inline
-In-Reply-To: <1290519504-3958-23-git-send-email-akinobu.mita@gmail.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Roman Zippel <zippel@linux-m68k.org>, Andreas Schwab <schwab@linux-m68k.org>, linux-m68k@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, microblaze-uclinux@itee.uq.edu.au, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Hirokazu Takata <takata@linux-m32r.org>, linux-m32r@ml.linux-m32r.org, linux-mips@linux-mips.org, Paul Mundt <lethal@linux-sh.org>, linux-sh@vger.kernel.org, Chris Zankel <chris@zankel.net>
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, Martin Schwidefsky <schwidefsky@de.ibm.com>, LKML <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Nov 23, 2010 at 10:38:24PM +0900, Akinobu Mita wrote:
+On Di, 2010-11-23 at 15:20 +0100, Peter Zijlstra wrote:
+> On Tue, 2010-11-23 at 15:12 +0100, Gerald Schaefer wrote:
+> > On Mo, 2010-11-22 at 12:10 -0800, Andrew Morton wrote:
+> > > On Mon, 22 Nov 2010 15:47:36 +0100
+> > > Gerald Schaefer <gerald.schaefer@de.ibm.com> wrote:
+> > > 
+> > > > From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+> > > > 
+> > > > The spinning mutex implementation uses cpu_relax() in busy loops as a
+> > > > compiler barrier. Depending on the architecture, cpu_relax() may do more
+> > > > than needed in this specific mutex spin loops. On System z we also give
+> > > > up the time slice of the virtual cpu in cpu_relax(), which prevents
+> > > > effective spinning on the mutex.
+> > > > 
+> > > > This patch replaces cpu_relax() in the spinning mutex code with
+> > > > arch_mutex_cpu_relax(), which can be defined by each architecture that
+> > > > selects HAVE_ARCH_MUTEX_CPU_RELAX. The default is still cpu_relax(), so
+> > > > this patch should not affect other architectures than System z for now.
+> > > > 
+> > > > ...
+> > > >
+> > > > --- a/include/linux/mutex.h
+> > > > +++ b/include/linux/mutex.h
+> > > > @@ -160,4 +160,8 @@ extern int mutex_trylock(struct mutex *l
+> > > >  extern void mutex_unlock(struct mutex *lock);
+> > > >  extern int atomic_dec_and_mutex_lock(atomic_t *cnt, struct mutex *lock);
+> > > >  
+> > > > +#ifndef CONFIG_HAVE_ARCH_MUTEX_CPU_RELAX
+> > > > +#define arch_mutex_cpu_relax()	cpu_relax()
+> > > > +#endif
+> > > 
+> > > A simpler way of doing this is to remove the CONFIG_ variable
+> > > altogether and do 
+> > > 
+> > > #ifndef arch_mutex_cpu_relax
+> > > #define arch_mutex_cpu_relax()	cpu_relax()
+> > > #endif
+> > > 
+> > > When doing this, one should be clear about _which_ arch file has the
+> > > responsibility of defining arch_mutex_cpu_relax, and make sure that
+> > > this arch file is reliably included in the .c file.
+> > 
+> > Well, I've tried that with my last approach, defining arch_mutex_cpu_relax()
+> > in <asm/mutex.h> and including that from <linux/mutex.h>. This didn't work
+> > well because of ugly header file dependencies, and Peter also commented
+> > that "including "asm/mutex.h" isn't advised". The problem is the following
+> > code in kernel/mutex.c (after including <linux/mutex.h>) when
+> > CONFIG_DEBUG_MUTEXES is set:
+> > 
+> > #ifdef CONFIG_DEBUG_MUTEXES
+> > # include "mutex-debug.h"
+> > # include <asm-generic/mutex-null.h>
+> > #else
+> > # include "mutex.h"
+> > # include <asm/mutex.h>
+> > #endif
+> > 
+> > So I can only include <asm/mutex.h> from <linux/mutex.h> with an ugly
+> > "#ifndef CONFIG_DEBUG_MUTEXES" around it, or use a completely different
+> > or new arch header file (but <asm/mutex.h> seems like the right place
+> > for this). The CONFIG_ approach avoids all this header file dependency
+> > mess, or did I miss something (or maybe it's just me and it is not ugly
+> > at all)?
+> 
+> Yeah, that all cause massive grief.. I've applied your patch as is,
+> assuming s390 already has the needed arch_mutex_cpu_relax()
+> implementation (otherwise I've just broken my s390 build).
 
-> minix bit operations are only used by minix filesystem and useless
-> by other modules. Because byte order of inode and block bitmaps is
-> defferent on each architecture like below:
-  ^^^^^ different
-
-Acked-by: Ralf Baechle <ralf@linux-mips.org>
-
-  Ralf
+Thanks, my patch already includes the s390 implementation for
+arch_mutex_cpu_relax() in arch/s390/include/asm/mutex.h (we use a
+simple barrier() in this case). We still have HAVE_DEFAULT_NO_SPIN_MUTEXES
+selected though, this will be removed with one of Martins next patches,
+once this preparation patch is upstream.
