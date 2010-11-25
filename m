@@ -1,87 +1,447 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH] mutex: Introduce arch_mutex_cpu_relax()
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-In-Reply-To: <1290521556.16834.25.camel@thinkpad>
-References: <1290437256.7455.4.camel@thinkpad>
-	 <20101122121049.01c4690a.akpm@linux-foundation.org>
-	 <1290521556.16834.25.camel@thinkpad>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-Date: Tue, 23 Nov 2010 15:20:00 +0100
-Message-ID: <1290522000.2072.406.camel@laptop>
+Subject: Re: [patch 1/4] taskstats: Introduce "struct cdata"
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20101125142344.GA31508@redhat.com>
+References: <20101119201108.269346583@linux.vnet.ibm.com>
+	 <20101119201143.787050299@linux.vnet.ibm.com>
+	 <20101125142344.GA31508@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Date: Thu, 25 Nov 2010 17:38:19 +0100
+Message-ID: <1290703099.1941.38.camel@holzheu-laptop>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: gerald.schaefer@de.ibm.com
-Cc: Andrew Morton <akpm@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, Martin Schwidefsky <schwidefsky@de.ibm.com>, LKML <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Oleg Nesterov <oleg@redhat.com>
+Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 2010-11-23 at 15:12 +0100, Gerald Schaefer wrote:
-> On Mo, 2010-11-22 at 12:10 -0800, Andrew Morton wrote:
-> > On Mon, 22 Nov 2010 15:47:36 +0100
-> > Gerald Schaefer <gerald.schaefer@de.ibm.com> wrote:
-> > 
-> > > From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-> > > 
-> > > The spinning mutex implementation uses cpu_relax() in busy loops as a
-> > > compiler barrier. Depending on the architecture, cpu_relax() may do more
-> > > than needed in this specific mutex spin loops. On System z we also give
-> > > up the time slice of the virtual cpu in cpu_relax(), which prevents
-> > > effective spinning on the mutex.
-> > > 
-> > > This patch replaces cpu_relax() in the spinning mutex code with
-> > > arch_mutex_cpu_relax(), which can be defined by each architecture that
-> > > selects HAVE_ARCH_MUTEX_CPU_RELAX. The default is still cpu_relax(), so
-> > > this patch should not affect other architectures than System z for now.
-> > > 
-> > > ...
-> > >
-> > > --- a/include/linux/mutex.h
-> > > +++ b/include/linux/mutex.h
-> > > @@ -160,4 +160,8 @@ extern int mutex_trylock(struct mutex *l
-> > >  extern void mutex_unlock(struct mutex *lock);
-> > >  extern int atomic_dec_and_mutex_lock(atomic_t *cnt, struct mutex *lock);
-> > >  
-> > > +#ifndef CONFIG_HAVE_ARCH_MUTEX_CPU_RELAX
-> > > +#define arch_mutex_cpu_relax()	cpu_relax()
-> > > +#endif
-> > 
-> > A simpler way of doing this is to remove the CONFIG_ variable
-> > altogether and do 
-> > 
-> > #ifndef arch_mutex_cpu_relax
-> > #define arch_mutex_cpu_relax()	cpu_relax()
-> > #endif
-> > 
-> > When doing this, one should be clear about _which_ arch file has the
-> > responsibility of defining arch_mutex_cpu_relax, and make sure that
-> > this arch file is reliably included in the .c file.
-> 
-> Well, I've tried that with my last approach, defining arch_mutex_cpu_relax()
-> in <asm/mutex.h> and including that from <linux/mutex.h>. This didn't work
-> well because of ugly header file dependencies, and Peter also commented
-> that "including "asm/mutex.h" isn't advised". The problem is the following
-> code in kernel/mutex.c (after including <linux/mutex.h>) when
-> CONFIG_DEBUG_MUTEXES is set:
-> 
-> #ifdef CONFIG_DEBUG_MUTEXES
-> # include "mutex-debug.h"
-> # include <asm-generic/mutex-null.h>
-> #else
-> # include "mutex.h"
-> # include <asm/mutex.h>
-> #endif
-> 
-> So I can only include <asm/mutex.h> from <linux/mutex.h> with an ugly
-> "#ifndef CONFIG_DEBUG_MUTEXES" around it, or use a completely different
-> or new arch header file (but <asm/mutex.h> seems like the right place
-> for this). The CONFIG_ approach avoids all this header file dependency
-> mess, or did I miss something (or maybe it's just me and it is not ugly
-> at all)?
+Hello Oleg,
 
-Yeah, that all cause massive grief.. I've applied your patch as is,
-assuming s390 already has the needed arch_mutex_cpu_relax()
-implementation (otherwise I've just broken my s390 build).
+On Thu, 2010-11-25 at 15:23 +0100, Oleg Nesterov wrote:
+> On 11/19, Michael Holzheu wrote:
+> > Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> > ---
+> >  fs/binfmt_elf.c           |    4 +-
+> >  fs/exec.c                 |    2 -
+> >  fs/proc/array.c           |   16 ++++----
+> >  include/linux/sched.h     |   22 +++++++----
+> >  kernel/exit.c             |   86 ++++++++++++++++++++++++----------------------
+> >  kernel/posix-cpu-timers.c |   12 +++---
+> >  kernel/sys.c              |   44 ++++++++++++-----------
+> >  7 files changed, 100 insertions(+), 86 deletions(-)
+> 
+> Looks good. In fact, to me it looks like a cleanup.
+>
+> But. You seem to forgot to change kernel/signal.c, no?
 
-Thanks
+Yes, you are right.
+
+> 
+> And cosmetic nit,
+> 
+> >  void thread_group_cputime(struct task_struct *tsk, struct task_cputime *times)
+> >  {
+> > -	struct signal_struct *sig = tsk->signal;
+> > +	struct cdata *tcd = &tsk->signal->cdata_threads;
+> >  	struct task_struct *t;
+> >
+> > -	times->utime = sig->utime;
+> > -	times->stime = sig->stime;
+> > -	times->sum_exec_runtime = sig->sum_sched_runtime;
+> > +	times->utime = tcd->utime;
+> > +	times->stime = tcd->stime;
+> > +	times->sum_exec_runtime = tsk->signal->sum_sched_runtime;
+> 
+> Feel free to ignore, but I don't understand why you removed "sig".
+> Afaics,
+> 
+> 	-     times->utime = sig->utime;
+> 	-     times->stime = sig->stime;
+> 	+     times->utime = sig->cdata_threads->utime;
+> 	+     times->stime = sig->cdata_threads->stime;
+> 
+> looks a bit better.
+
+Yes, this looks better.
+
+I attached the corrected patch.
+
+Michael
+---
+Subject: taskstats: Introduce "struct cdata"
+
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+
+This patch introduces a new structure "struct cdata" that is used to
+store cumulative resource counters for dead child processes and threads.
+
+Note that there is one asymmetry:
+For "struct task_io_accounting" (ioc) there is no extra accounting field for
+dead threads. One field is used for both dead processes and threads.
+
+This patch introduces no functional change.
+
+Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+---
+ fs/binfmt_elf.c           |    4 +-
+ fs/exec.c                 |    2 -
+ fs/proc/array.c           |   16 ++++----
+ include/linux/sched.h     |   22 +++++++----
+ kernel/exit.c             |   86 ++++++++++++++++++++++++----------------------
+ kernel/posix-cpu-timers.c |    8 ++--
+ kernel/signal.c           |    4 +-
+ kernel/sys.c              |   44 ++++++++++++-----------
+ 8 files changed, 100 insertions(+), 86 deletions(-)
+
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -1296,8 +1296,8 @@ static void fill_prstatus(struct elf_prs
+ 		cputime_to_timeval(p->utime, &prstatus->pr_utime);
+ 		cputime_to_timeval(p->stime, &prstatus->pr_stime);
+ 	}
+-	cputime_to_timeval(p->signal->cutime, &prstatus->pr_cutime);
+-	cputime_to_timeval(p->signal->cstime, &prstatus->pr_cstime);
++	cputime_to_timeval(p->signal->cdata_wait.utime, &prstatus->pr_cutime);
++	cputime_to_timeval(p->signal->cdata_wait.stime, &prstatus->pr_cstime);
+ }
+ 
+ static int fill_psinfo(struct elf_prpsinfo *psinfo, struct task_struct *p,
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -894,7 +894,7 @@ static int de_thread(struct task_struct
+ 
+ no_thread_group:
+ 	if (current->mm)
+-		setmax_mm_hiwater_rss(&sig->maxrss, current->mm);
++		setmax_mm_hiwater_rss(&sig->cdata_threads.maxrss, current->mm);
+ 
+ 	exit_itimers(sig);
+ 	flush_itimer_signals();
+--- a/fs/proc/array.c
++++ b/fs/proc/array.c
+@@ -413,11 +413,11 @@ static int do_task_stat(struct seq_file
+ 		num_threads = get_nr_threads(task);
+ 		collect_sigign_sigcatch(task, &sigign, &sigcatch);
+ 
+-		cmin_flt = sig->cmin_flt;
+-		cmaj_flt = sig->cmaj_flt;
+-		cutime = sig->cutime;
+-		cstime = sig->cstime;
+-		cgtime = sig->cgtime;
++		cmin_flt = sig->cdata_wait.min_flt;
++		cmaj_flt = sig->cdata_wait.maj_flt;
++		cutime = sig->cdata_wait.utime;
++		cstime = sig->cdata_wait.stime;
++		cgtime = sig->cdata_wait.gtime;
+ 		rsslim = ACCESS_ONCE(sig->rlim[RLIMIT_RSS].rlim_cur);
+ 
+ 		/* add up live thread stats at the group level */
+@@ -430,10 +430,10 @@ static int do_task_stat(struct seq_file
+ 				t = next_thread(t);
+ 			} while (t != task);
+ 
+-			min_flt += sig->min_flt;
+-			maj_flt += sig->maj_flt;
++			min_flt += sig->cdata_threads.min_flt;
++			maj_flt += sig->cdata_threads.maj_flt;
+ 			thread_group_times(task, &utime, &stime);
+-			gtime = cputime_add(gtime, sig->gtime);
++			gtime = cputime_add(gtime, sig->cdata_threads.gtime);
+ 		}
+ 
+ 		sid = task_session_nr_ns(task, ns);
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -510,6 +510,17 @@ struct thread_group_cputimer {
+ };
+ 
+ /*
++ * Cumulative resource counters
++ */
++struct cdata {
++	cputime_t utime, stime, gtime;
++	unsigned long nvcsw, nivcsw;
++	unsigned long min_flt, maj_flt;
++	unsigned long inblock, oublock;
++	unsigned long maxrss;
++};
++
++/*
+  * NOTE! "signal_struct" does not have it's own
+  * locking, because a shared signal_struct always
+  * implies a shared sighand_struct, so locking
+@@ -582,17 +593,12 @@ struct signal_struct {
+ 	 * Live threads maintain their own counters and add to these
+ 	 * in __exit_signal, except for the group leader.
+ 	 */
+-	cputime_t utime, stime, cutime, cstime;
+-	cputime_t gtime;
+-	cputime_t cgtime;
++	struct cdata cdata_wait;
++	struct cdata cdata_threads;
++	struct task_io_accounting ioac;
+ #ifndef CONFIG_VIRT_CPU_ACCOUNTING
+ 	cputime_t prev_utime, prev_stime;
+ #endif
+-	unsigned long nvcsw, nivcsw, cnvcsw, cnivcsw;
+-	unsigned long min_flt, maj_flt, cmin_flt, cmaj_flt;
+-	unsigned long inblock, oublock, cinblock, coublock;
+-	unsigned long maxrss, cmaxrss;
+-	struct task_io_accounting ioac;
+ 
+ 	/*
+ 	 * Cumulative ns of schedule CPU time fo dead threads in the
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -95,6 +95,7 @@ static void __exit_signal(struct task_st
+ 		tty = sig->tty;
+ 		sig->tty = NULL;
+ 	} else {
++		struct cdata *tcd = &sig->cdata_threads;
+ 		/*
+ 		 * This can only happen if the caller is de_thread().
+ 		 * FIXME: this is the temporary hack, we should teach
+@@ -122,15 +123,15 @@ static void __exit_signal(struct task_st
+ 		 * We won't ever get here for the group leader, since it
+ 		 * will have been the last reference on the signal_struct.
+ 		 */
+-		sig->utime = cputime_add(sig->utime, tsk->utime);
+-		sig->stime = cputime_add(sig->stime, tsk->stime);
+-		sig->gtime = cputime_add(sig->gtime, tsk->gtime);
+-		sig->min_flt += tsk->min_flt;
+-		sig->maj_flt += tsk->maj_flt;
+-		sig->nvcsw += tsk->nvcsw;
+-		sig->nivcsw += tsk->nivcsw;
+-		sig->inblock += task_io_get_inblock(tsk);
+-		sig->oublock += task_io_get_oublock(tsk);
++		tcd->utime = cputime_add(tcd->utime, tsk->utime);
++		tcd->stime = cputime_add(tcd->stime, tsk->stime);
++		tcd->gtime = cputime_add(tcd->gtime, tsk->gtime);
++		tcd->min_flt += tsk->min_flt;
++		tcd->maj_flt += tsk->maj_flt;
++		tcd->nvcsw += tsk->nvcsw;
++		tcd->nivcsw += tsk->nivcsw;
++		tcd->inblock += task_io_get_inblock(tsk);
++		tcd->oublock += task_io_get_oublock(tsk);
+ 		task_io_accounting_add(&sig->ioac, &tsk->ioac);
+ 		sig->sum_sched_runtime += tsk->se.sum_exec_runtime;
+ 	}
+@@ -960,10 +961,11 @@ NORET_TYPE void do_exit(long code)
+ 		sync_mm_rss(tsk, tsk->mm);
+ 	group_dead = atomic_dec_and_test(&tsk->signal->live);
+ 	if (group_dead) {
++		struct cdata *tcd = &tsk->signal->cdata_threads;
+ 		hrtimer_cancel(&tsk->signal->real_timer);
+ 		exit_itimers(tsk->signal);
+ 		if (tsk->mm)
+-			setmax_mm_hiwater_rss(&tsk->signal->maxrss, tsk->mm);
++			setmax_mm_hiwater_rss(&tcd->maxrss, tsk->mm);
+ 	}
+ 	acct_collect(code, group_dead);
+ 	if (group_dead)
+@@ -1225,8 +1227,7 @@ static int wait_task_zombie(struct wait_
+ 	 * !task_detached() to filter out sub-threads.
+ 	 */
+ 	if (likely(!traced) && likely(!task_detached(p))) {
+-		struct signal_struct *psig;
+-		struct signal_struct *sig;
++		struct cdata *cd, *pcd, *tcd;
+ 		unsigned long maxrss;
+ 		cputime_t tgutime, tgstime;
+ 
+@@ -1251,40 +1252,43 @@ static int wait_task_zombie(struct wait_
+ 		 */
+ 		thread_group_times(p, &tgutime, &tgstime);
+ 		spin_lock_irq(&p->real_parent->sighand->siglock);
+-		psig = p->real_parent->signal;
+-		sig = p->signal;
+-		psig->cutime =
+-			cputime_add(psig->cutime,
++		pcd = &p->real_parent->signal->cdata_wait;
++		tcd = &p->signal->cdata_threads;
++		cd = &p->signal->cdata_wait;
++
++		pcd->utime =
++			cputime_add(pcd->utime,
+ 			cputime_add(tgutime,
+-				    sig->cutime));
+-		psig->cstime =
+-			cputime_add(psig->cstime,
++				    cd->utime));
++		pcd->stime =
++			cputime_add(pcd->stime,
+ 			cputime_add(tgstime,
+-				    sig->cstime));
+-		psig->cgtime =
+-			cputime_add(psig->cgtime,
++				    cd->stime));
++		pcd->gtime =
++			cputime_add(pcd->gtime,
+ 			cputime_add(p->gtime,
+-			cputime_add(sig->gtime,
+-				    sig->cgtime)));
+-		psig->cmin_flt +=
+-			p->min_flt + sig->min_flt + sig->cmin_flt;
+-		psig->cmaj_flt +=
+-			p->maj_flt + sig->maj_flt + sig->cmaj_flt;
+-		psig->cnvcsw +=
+-			p->nvcsw + sig->nvcsw + sig->cnvcsw;
+-		psig->cnivcsw +=
+-			p->nivcsw + sig->nivcsw + sig->cnivcsw;
+-		psig->cinblock +=
++			cputime_add(tcd->gtime,
++				    cd->gtime)));
++		pcd->min_flt +=
++			p->min_flt + tcd->min_flt + cd->min_flt;
++		pcd->maj_flt +=
++			p->maj_flt + tcd->maj_flt + cd->maj_flt;
++		pcd->nvcsw +=
++			p->nvcsw + tcd->nvcsw + cd->nvcsw;
++		pcd->nivcsw +=
++			p->nivcsw + tcd->nivcsw + cd->nivcsw;
++		pcd->inblock +=
+ 			task_io_get_inblock(p) +
+-			sig->inblock + sig->cinblock;
+-		psig->coublock +=
++			tcd->inblock + cd->inblock;
++		pcd->oublock +=
+ 			task_io_get_oublock(p) +
+-			sig->oublock + sig->coublock;
+-		maxrss = max(sig->maxrss, sig->cmaxrss);
+-		if (psig->cmaxrss < maxrss)
+-			psig->cmaxrss = maxrss;
+-		task_io_accounting_add(&psig->ioac, &p->ioac);
+-		task_io_accounting_add(&psig->ioac, &sig->ioac);
++			tcd->oublock + cd->oublock;
++		maxrss = max(tcd->maxrss, cd->maxrss);
++		if (pcd->maxrss < maxrss)
++			pcd->maxrss = maxrss;
++		task_io_accounting_add(&p->real_parent->signal->ioac, &p->ioac);
++		task_io_accounting_add(&p->real_parent->signal->ioac,
++				       &p->signal->ioac);
+ 		spin_unlock_irq(&p->real_parent->sighand->siglock);
+ 	}
+ 
+--- a/kernel/posix-cpu-timers.c
++++ b/kernel/posix-cpu-timers.c
+@@ -235,8 +235,8 @@ void thread_group_cputime(struct task_st
+ 	struct signal_struct *sig = tsk->signal;
+ 	struct task_struct *t;
+ 
+-	times->utime = sig->utime;
+-	times->stime = sig->stime;
++	times->utime = sig->cdata_threads.utime;
++	times->stime = sig->cdata_threads.stime;
+ 	times->sum_exec_runtime = sig->sum_sched_runtime;
+ 
+ 	rcu_read_lock();
+@@ -516,8 +516,8 @@ void posix_cpu_timers_exit_group(struct
+ 	struct signal_struct *const sig = tsk->signal;
+ 
+ 	cleanup_timers(tsk->signal->cpu_timers,
+-		       cputime_add(tsk->utime, sig->utime),
+-		       cputime_add(tsk->stime, sig->stime),
++		       cputime_add(tsk->utime, sig->cdata_threads.utime),
++		       cputime_add(tsk->stime, sig->cdata_threads.stime),
+ 		       tsk->se.sum_exec_runtime + sig->sum_sched_runtime);
+ }
+ 
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -1476,9 +1476,9 @@ int do_notify_parent(struct task_struct
+ 	rcu_read_unlock();
+ 
+ 	info.si_utime = cputime_to_clock_t(cputime_add(tsk->utime,
+-				tsk->signal->utime));
++				tsk->signal->cdata_threads.utime));
+ 	info.si_stime = cputime_to_clock_t(cputime_add(tsk->stime,
+-				tsk->signal->stime));
++				tsk->signal->cdata_threads.stime));
+ 
+ 	info.si_status = tsk->exit_code & 0x7f;
+ 	if (tsk->exit_code & 0x80)
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -884,8 +884,8 @@ void do_sys_times(struct tms *tms)
+ 
+ 	spin_lock_irq(&current->sighand->siglock);
+ 	thread_group_times(current, &tgutime, &tgstime);
+-	cutime = current->signal->cutime;
+-	cstime = current->signal->cstime;
++	cutime = current->signal->cdata_wait.utime;
++	cstime = current->signal->cdata_wait.stime;
+ 	spin_unlock_irq(&current->sighand->siglock);
+ 	tms->tms_utime = cputime_to_clock_t(tgutime);
+ 	tms->tms_stime = cputime_to_clock_t(tgstime);
+@@ -1490,6 +1490,7 @@ static void k_getrusage(struct task_stru
+ 	unsigned long flags;
+ 	cputime_t tgutime, tgstime, utime, stime;
+ 	unsigned long maxrss = 0;
++	struct cdata *cd;
+ 
+ 	memset((char *) r, 0, sizeof *r);
+ 	utime = stime = cputime_zero;
+@@ -1497,7 +1498,7 @@ static void k_getrusage(struct task_stru
+ 	if (who == RUSAGE_THREAD) {
+ 		task_times(current, &utime, &stime);
+ 		accumulate_thread_rusage(p, r);
+-		maxrss = p->signal->maxrss;
++		maxrss = p->signal->cdata_threads.maxrss;
+ 		goto out;
+ 	}
+ 
+@@ -1507,31 +1508,34 @@ static void k_getrusage(struct task_stru
+ 	switch (who) {
+ 		case RUSAGE_BOTH:
+ 		case RUSAGE_CHILDREN:
+-			utime = p->signal->cutime;
+-			stime = p->signal->cstime;
+-			r->ru_nvcsw = p->signal->cnvcsw;
+-			r->ru_nivcsw = p->signal->cnivcsw;
+-			r->ru_minflt = p->signal->cmin_flt;
+-			r->ru_majflt = p->signal->cmaj_flt;
+-			r->ru_inblock = p->signal->cinblock;
+-			r->ru_oublock = p->signal->coublock;
+-			maxrss = p->signal->cmaxrss;
++			cd = &p->signal->cdata_wait;
++			utime = cd->utime;
++			stime = cd->stime;
++			r->ru_nvcsw = cd->nvcsw;
++			r->ru_nivcsw = cd->nivcsw;
++			r->ru_minflt = cd->min_flt;
++			r->ru_majflt = cd->maj_flt;
++			r->ru_inblock = cd->inblock;
++			r->ru_oublock = cd->oublock;
++			maxrss = cd->maxrss;
+ 
+ 			if (who == RUSAGE_CHILDREN)
+ 				break;
+ 
+ 		case RUSAGE_SELF:
++			cd = &p->signal->cdata_threads;
+ 			thread_group_times(p, &tgutime, &tgstime);
+ 			utime = cputime_add(utime, tgutime);
+ 			stime = cputime_add(stime, tgstime);
+-			r->ru_nvcsw += p->signal->nvcsw;
+-			r->ru_nivcsw += p->signal->nivcsw;
+-			r->ru_minflt += p->signal->min_flt;
+-			r->ru_majflt += p->signal->maj_flt;
+-			r->ru_inblock += p->signal->inblock;
+-			r->ru_oublock += p->signal->oublock;
+-			if (maxrss < p->signal->maxrss)
+-				maxrss = p->signal->maxrss;
++			r->ru_nvcsw += cd->nvcsw;
++			r->ru_nivcsw += cd->nivcsw;
++			r->ru_minflt += cd->min_flt;
++			r->ru_majflt += cd->maj_flt;
++			r->ru_inblock += cd->inblock;
++			r->ru_oublock += cd->oublock;
++			if (maxrss < cd->maxrss)
++				maxrss = cd->maxrss;
++
+ 			t = p;
+ 			do {
+ 				accumulate_thread_rusage(t, r);
