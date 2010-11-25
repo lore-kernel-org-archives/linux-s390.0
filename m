@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 25 Nov 2010 14:26:39 +0100
+Date: Thu, 25 Nov 2010 15:23:44 +0100
 From: Oleg Nesterov <oleg@redhat.com>
-Subject: Re: [patch 4/4] taskstats: Export "cdata_acct" with taskstats
-Message-ID: <20101125132639.GB25836@redhat.com>
-References: <20101119201108.269346583@linux.vnet.ibm.com> <20101119201144.871656307@linux.vnet.ibm.com>
+Subject: Re: [patch 1/4] taskstats: Introduce "struct cdata"
+Message-ID: <20101125142344.GA31508@redhat.com>
+References: <20101119201108.269346583@linux.vnet.ibm.com> <20101119201143.787050299@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20101119201144.871656307@linux.vnet.ibm.com>
+In-Reply-To: <20101119201143.787050299@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -19,18 +19,53 @@ On 11/19, Michael Holzheu wrote:
 >
 > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 >
-> With this patch the (full) cumulative CPU time is added to "struct taskstats".
-> The CPU time is only returned for the thread group leader.
+> This patch introduces a new structure "struct cdata" that is used to
+> store cumulative resource counters for dead child processes and threads.
 >
-> ...
+> Note that there is one asymmetry:
+> For "struct task_io_accounting" (ioc) there is no extra accounting field for
+> dead threads. One field is used for both, dead processes and threads.
 >
-> +	if (tsk->tgid == tsk->pid
+> This patch introduces no functional change.
+>
+> Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> ---
+>  fs/binfmt_elf.c           |    4 +-
+>  fs/exec.c                 |    2 -
+>  fs/proc/array.c           |   16 ++++----
+>  include/linux/sched.h     |   22 +++++++----
+>  kernel/exit.c             |   86 ++++++++++++++++++++++++----------------------
+>  kernel/posix-cpu-timers.c |   12 +++---
+>  kernel/sys.c              |   44 ++++++++++++-----------
+>  7 files changed, 100 insertions(+), 86 deletions(-)
 
-thread_group_leader() ?
+Looks good. In fact, to me it looks like a cleanup.
 
-> && lock_task_sighand(tsk, &flags)) {
+But. You seem to forgot to change kernel/signal.c, no?
 
-Do you really need ->siglock? Starting from 2.6.35 it is always
-safe to access ->signal.
+And cosmetic nit,
+
+>  void thread_group_cputime(struct task_struct *tsk, struct task_cputime *times)
+>  {
+> -	struct signal_struct *sig = tsk->signal;
+> +	struct cdata *tcd = &tsk->signal->cdata_threads;
+>  	struct task_struct *t;
+>
+> -	times->utime = sig->utime;
+> -	times->stime = sig->stime;
+> -	times->sum_exec_runtime = sig->sum_sched_runtime;
+> +	times->utime = tcd->utime;
+> +	times->stime = tcd->stime;
+> +	times->sum_exec_runtime = tsk->signal->sum_sched_runtime;
+
+Feel free to ignore, but I don't understand why you removed "sig".
+Afaics,
+
+	-     times->utime = sig->utime;
+	-     times->stime = sig->stime;
+	+     times->utime = sig->cdata_threads->utime;
+	+     times->stime = sig->cdata_threads->stime;
+
+looks a bit better.
 
 Oleg.
