@@ -1,71 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 25 Nov 2010 15:23:44 +0100
-From: Oleg Nesterov <oleg@redhat.com>
-Subject: Re: [patch 1/4] taskstats: Introduce "struct cdata"
-Message-ID: <20101125142344.GA31508@redhat.com>
-References: <20101119201108.269346583@linux.vnet.ibm.com> <20101119201143.787050299@linux.vnet.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20101119201143.787050299@linux.vnet.ibm.com>
+Message-Id: <20101129164237.522034198@linux.vnet.ibm.com>
+Date: Mon, 29 Nov 2010 17:42:37 +0100
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Subject: [patch v2 0/4] taskstats: Improve cumulative time accounting
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Oleg Nesterov <oleg@redhat.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 11/19, Michael Holzheu wrote:
->
-> From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
->
-> This patch introduces a new structure "struct cdata" that is used to
-> store cumulative resource counters for dead child processes and threads.
->
-> Note that there is one asymmetry:
-> For "struct task_io_accounting" (ioc) there is no extra accounting field for
-> dead threads. One field is used for both, dead processes and threads.
->
-> This patch introduces no functional change.
->
-> Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-> ---
->  fs/binfmt_elf.c           |    4 +-
->  fs/exec.c                 |    2 -
->  fs/proc/array.c           |   16 ++++----
->  include/linux/sched.h     |   22 +++++++----
->  kernel/exit.c             |   86 ++++++++++++++++++++++++----------------------
->  kernel/posix-cpu-timers.c |   12 +++---
->  kernel/sys.c              |   44 ++++++++++++-----------
->  7 files changed, 100 insertions(+), 86 deletions(-)
+Version 2
+---------
+* Integrate review comments (see change log of single patches)
+* Add sysctl to switch to new behavior instead of adding the
+  additional cdata_acct to struct signal (see patch 3)
 
-Looks good. In fact, to me it looks like a cleanup.
+Due to POSIX POSIX.1-2001, the CPU time of processes is not accounted
+to the cumulative time of the parents, if the parents ignore SIGCHLD
+or have set SA_NOCLDWAIT. This behaviour has the major drawback that
+it is not possible to calculate all consumed CPU time of a system by
+looking at the current tasks. CPU time can be lost.
 
-But. You seem to forgot to change kernel/signal.c, no?
+This patch series adds a new sysctl "full_cdata" that allows to switch
+the kernel to a mode where also the missing data is accounted to the
+cumulative counters.
 
-And cosmetic nit,
+PATCH SET OVERVIEW
+------------------
+Patches apply on:
+git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
 
->  void thread_group_cputime(struct task_struct *tsk, struct task_cputime *times)
->  {
-> -	struct signal_struct *sig = tsk->signal;
-> +	struct cdata *tcd = &tsk->signal->cdata_threads;
->  	struct task_struct *t;
->
-> -	times->utime = sig->utime;
-> -	times->stime = sig->stime;
-> -	times->sum_exec_runtime = sig->sum_sched_runtime;
-> +	times->utime = tcd->utime;
-> +	times->stime = tcd->stime;
-> +	times->sum_exec_runtime = tsk->signal->sum_sched_runtime;
-
-Feel free to ignore, but I don't understand why you removed "sig".
-Afaics,
-
-	-     times->utime = sig->utime;
-	-     times->stime = sig->stime;
-	+     times->utime = sig->cdata_threads->utime;
-	+     times->stime = sig->cdata_threads->stime;
-
-looks a bit better.
-
-Oleg.
+[1] Introduce "struct cdata"
+[2] Introduce __account_cdata() function
+[3] Introduce kernel.full_cdata sysctl
+[4] Export "cdata_wait" CPU times with taskstats
