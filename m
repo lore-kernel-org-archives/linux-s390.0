@@ -1,10 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20101129164435.903722027@linux.vnet.ibm.com>
-Date: Mon, 29 Nov 2010 17:42:41 +0100
+Message-Id: <20101129164435.557525646@linux.vnet.ibm.com>
+Date: Mon, 29 Nov 2010 17:42:40 +0100
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: [patch v2 4/4] taskstats: Export "cdata_wait" CPU times with taskstats
+Subject: [patch v2 3/4] taskstats: Introduce kernel.full_cdata sysctl
 References: <20101129164237.522034198@linux.vnet.ibm.com>
-Content-Disposition: inline; filename=04-taskstats-top-improve-ctime-taskstats.patch
+Content-Disposition: inline; filename=03-taskstats-top-improve-ctime-account-cdata_acct.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -16,70 +16,130 @@ From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 
 Version 2
 ---------
-* Use thread_group_leader() instead of (tsk->pid == tsk->tgid)
-* Use cdata_wait instead of cdata_acct
-* I left the struct signal locking in the patch, because I think
-  that in order to get consistent data this is necessary. See also
-  do_task_stat() in fs/proc/array.c. One problem is that we
-  report wrong values (zero) for cdata, if lock_task_sighand()
-  fails. This will be the same behavior as for /proc/<pid>/stat.
-  But maybe we should somehow return to userspace that the
-  information is not correct. Any ideas?
+* Implement sysctl instead of adding parallel cdata_acct
+* Call __account_cdata() in __exit_signal() without tsk siglock
 
 Description
 -----------
-With this patch the cumulative CPU time is added to "struct taskstats".
-The CPU time is only returned for the thread group leader.
+Currently the cumulative time accounting in Linux is not complete.
+Due to POSIX POSIX.1-2001, the CPU time of processes is not accounted
+to the cumulative time of the parents, if the parents ignore SIGCHLD
+or have set SA_NOCLDWAIT. This behaviour has the major drawback that
+it is not possible to calculate all consumed CPU time of a system by
+looking at the current tasks. CPU time can be lost.
+
+This patch adds a new sysctl "kernel.full_cdata" that allows to switch
+between the POSIX behavior and complete cumulative accounting.
+The default is the POSIX semantics.
 
 Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 ---
- include/linux/taskstats.h |    7 ++++++-
- kernel/tsacct.c           |    7 +++++++
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ Documentation/sysctl/kernel.txt |   12 ++++++++++++
+ kernel/exit.c                   |   13 +++++++++----
+ kernel/sysctl.c                 |   10 ++++++++++
+ 3 files changed, 31 insertions(+), 4 deletions(-)
 
---- a/include/linux/taskstats.h
-+++ b/include/linux/taskstats.h
-@@ -33,7 +33,7 @@
-  */
+--- a/Documentation/sysctl/kernel.txt
++++ b/Documentation/sysctl/kernel.txt
+@@ -247,6 +247,18 @@ see the hostname(1) man page.
  
+ ==============================================================
  
--#define TASKSTATS_VERSION	7
-+#define TASKSTATS_VERSION	8
- #define TS_COMM_LEN		32	/* should be >= TASK_COMM_LEN
- 					 * in linux/sched.h */
- 
-@@ -163,6 +163,11 @@ struct taskstats {
- 	/* Delay waiting for memory reclaim */
- 	__u64	freepages_count;
- 	__u64	freepages_delay_total;
-+	/* version 7 ends here */
++full_cdata:
 +
-+	/* Cumulative CPU time of dead children */
-+	__u64	ac_cutime;		/* User CPU time [usec] */
-+	__u64	ac_cstime;		/* System CPU time [usec] */
- };
++With "full_cdata = 0" (default) cumulative resource accounting
++under Linux is done according to POSIX.1-2001: The resource
++counters of processes are not accounted to the cumulative counters
++of their parents, if the parents ignore SIGCHLD or have set
++SA_NOCLDWAIT. With "full_cdata = 1" it is possible to enforce
++that all dead processes without exception are accounted to their
++parents.
++
++==============================================================
++
+ hotplug:
  
+ Path for the hotplug policy agent.
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -57,6 +57,8 @@
+ #include <asm/pgtable.h>
+ #include <asm/mmu_context.h>
  
---- a/kernel/tsacct.c
-+++ b/kernel/tsacct.c
-@@ -30,6 +30,7 @@ void bacct_add_tsk(struct taskstats *sta
++int full_cdata_enabled;
++
+ static void exit_mm(struct task_struct * tsk);
+ 
+ static void __unhash_process(struct task_struct *p, bool group_dead)
+@@ -77,7 +79,7 @@ static void __unhash_process(struct task
+ static void __account_cdata(struct task_struct *p)
  {
- 	const struct cred *tcred;
- 	struct timespec uptime, ts;
-+	unsigned long flags;
- 	u64 ac_etime;
+ 	struct cdata *cd, *pcd, *tcd;
+-	unsigned long maxrss;
++	unsigned long maxrss, flags;
+ 	cputime_t tgutime, tgstime;
  
- 	BUILD_BUG_ON(TS_COMM_LEN < TASK_COMM_LEN);
-@@ -71,6 +72,12 @@ void bacct_add_tsk(struct taskstats *sta
- 	stats->ac_majflt = tsk->maj_flt;
+ 	/*
+@@ -104,7 +106,7 @@ static void __account_cdata(struct task_
+ 	tcd = &p->signal->cdata_threads;
+ 	cd = &p->signal->cdata_wait;
  
- 	strncpy(stats->ac_comm, tsk->comm, sizeof(stats->ac_comm));
-+	if (thread_group_leader(tsk) && lock_task_sighand(tsk, &flags)) {
-+		struct cdata *cd = &tsk->signal->cdata_wait;
-+		stats->ac_cutime = cputime_to_usecs(cd->utime);
-+		stats->ac_cstime = cputime_to_usecs(cd->stime);
-+		unlock_task_sighand(tsk, &flags);
-+	}
+-	spin_lock_irq(&p->real_parent->sighand->siglock);
++	spin_lock_irqsave(&p->real_parent->sighand->siglock, flags);
+ 	pcd->utime =
+ 		cputime_add(pcd->utime,
+ 		cputime_add(tgutime,
+@@ -137,7 +139,7 @@ static void __account_cdata(struct task_
+ 		pcd->maxrss = maxrss;
+ 	task_io_accounting_add(&p->real_parent->signal->ioac, &p->ioac);
+ 	task_io_accounting_add(&p->real_parent->signal->ioac, &p->signal->ioac);
+-	spin_unlock_irq(&p->real_parent->sighand->siglock);
++	spin_unlock_irqrestore(&p->real_parent->sighand->siglock, flags);
  }
  
+ /*
+@@ -150,6 +152,9 @@ static void __exit_signal(struct task_st
+ 	struct sighand_struct *sighand;
+ 	struct tty_struct *uninitialized_var(tty);
  
++	if (group_dead && full_cdata_enabled)
++		__account_cdata(tsk);
++
+ 	sighand = rcu_dereference_check(tsk->sighand,
+ 					rcu_read_lock_held() ||
+ 					lockdep_tasklist_lock_is_held());
+@@ -1292,7 +1297,7 @@ static int wait_task_zombie(struct wait_
+ 	 * It can be ptraced but not reparented, check
+ 	 * !task_detached() to filter out sub-threads.
+ 	 */
+-	if (likely(!traced) && likely(!task_detached(p)))
++	if (likely(!traced) && likely(!task_detached(p)) && !full_cdata_enabled)
+ 		__account_cdata(p);
+ 
+ 	/*
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -85,6 +85,7 @@
+ #if defined(CONFIG_SYSCTL)
+ 
+ /* External variables not in a header file. */
++extern int full_cdata_enabled;
+ extern int sysctl_overcommit_memory;
+ extern int sysctl_overcommit_ratio;
+ extern int max_threads;
+@@ -963,6 +964,15 @@ static struct ctl_table kern_table[] = {
+ 		.proc_handler	= proc_dointvec,
+ 	},
+ #endif
++	{
++		.procname	= "full_cdata",
++		.data		= &full_cdata_enabled,
++		.maxlen		= sizeof(unsigned int),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= &zero,
++		.extra2		= &one,
++	},
+ /*
+  * NOTE: do not add new entries to this table unless you have read
+  * Documentation/sysctl/ctl_unnumbered.txt
