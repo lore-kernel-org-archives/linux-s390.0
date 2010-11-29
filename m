@@ -1,34 +1,24 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 4/4] [PATCH] qeth: l3 fix len in tso hdr
-Date: Fri, 26 Nov 2010 13:41:20 +0100
-Message-ID: <20101126124154.416738888@de.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/4] s390: qeth patches for net-next
+Date: Sun, 28 Nov 2010 18:13:29 -0800 (PST)
+Message-ID: <20101128.181329.189704974.davem@davemloft.net>
 References: <20101126124116.123736494@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=qeth_tso_hdr.patch
+In-Reply-To: <20101126124116.123736494@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
+To: frank.blaschka@de.ibm.com
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Frank Blaschka <frank.blaschka@de.ibm.com>
+From: frank.blaschka@de.ibm.com
+Date: Fri, 26 Nov 2010 13:41:16 +0100
 
-The tso hdr is longer then the regular l3 hdr. Fix the calculation
-of the total len by accounting the size of the tso hdr.
+> here are some patches for net-next.
+> The set contains also the patch from Sachin Sant to fix the s390 build.
 
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
- drivers/s390/net/qeth_l3_main.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -2939,6 +2939,7 @@ static void qeth_tso_fill_header(struct
- 
- 	/*fix header to TSO values ...*/
- 	hdr->hdr.hdr.l3.id = QETH_HEADER_TYPE_TSO;
-+	hdr->hdr.hdr.l3.length = skb->len - sizeof(struct qeth_hdr_tso);
- 	/*set values which are fix for the first approach ...*/
- 	hdr->ext.hdr_tot_len = (__u16) sizeof(struct qeth_hdr_ext_tso);
- 	hdr->ext.imb_hdr_no  = 1;
+All applied, thank you.
