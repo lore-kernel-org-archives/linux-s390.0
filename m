@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20101220130541.446049933@linux.vnet.ibm.com>
-Date: Mon, 20 Dec 2010 14:05:41 +0100
-From: graalfs@linux.vnet.ibm.com
-Subject: [patch 0/4] OProfile support for System z's hardware sampling
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: robert.richter@amd.com
-Cc: mingo@elte.hu, oprofile-list@lists.sf.net, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
+Subject: [patch 6/7] zfcp: Move qdio setup from erp to zfcp_qdio.c
+Date: Thu, 02 Dec 2010 15:16:17 +0100
+Message-ID: <20101202141919.572287350@de.ibm.com>
+References: <20101202141611.976946976@de.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline; filename=707-zfcp-qdio-setup.diff
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@suse.de>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, maier@linux.vnet.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-So far, OProfile takes samples by using a software interrupt.
-The purpose of this series of patches is to add support for System z hardware sampling to OProfile.
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-Hardware (HW) sampling is a feature provided by System z processors (z10 and follow ons).
-When sampling, the processor takes samples containing the instruction address, PID, and other information.
-The samples are taken at a programmable rate and stored into a buffer provided by the operating system.
-The sampling process is implemented in hardware and millicode and thus does not affect the operating system
-being oberved, apart from requiring buffer memory that the Linux kernel must provide.
+Initialization of the qdio waitqueue should happen when the qdio data
+is initialized and the QDIOUP flag should be handled in the qdio code
+as well. Adjust the code accordingly and remove the superfluos 
+function zfcp_erp_adapter_strategy_open_qdio.
 
-Hardware sampling is available in LPAR mode on 64 BIT processors only.
+Reviewed-by: Steffen Maier <maier@linux.vnet.ibm.com>
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+---
 
-The overall approach is to replace the software-based sample generation by hardware sampling.
-The driver for the HW sampling mechanism is a kernel module named hwsampler.
-Kernel module hwsampler provides functions for
- - controlling the sampling hardware,
- - setting up appropriate buffer structures (HW buffers),
- - retrieving sample entries from these buffers.
-Kernel module hwsampler can handle multiple CPUs.
+ drivers/s390/scsi/zfcp_erp.c  |   13 +------------
+ drivers/s390/scsi/zfcp_qdio.c |    2 ++
+ 2 files changed, 3 insertions(+), 12 deletions(-)
 
-The samples contain the instruction address, a bit distinguishing between kernel and user space,
-and for user space samples also the PID.
-Instead of taking samples from its own per-CPU buffers, OProfile would rather take samples from the
-HW buffers.
-
-When hardware sampling can be enabled on the current System z processor it will be the new default.
-Switching back to timer based sampling can be established by using
-
-   echo 0 > /dev/oprofile/hwsampling/hwsampler
-
-The user space drivers of OProfile also need an extension to control hw sampling by appropriate options.
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -644,17 +644,6 @@ static void zfcp_erp_wakeup(struct zfcp_
+ 	read_unlock_irqrestore(&adapter->erp_lock, flags);
+ }
+ 
+-static int zfcp_erp_adapter_strategy_open_qdio(struct zfcp_erp_action *act)
+-{
+-	struct zfcp_qdio *qdio = act->adapter->qdio;
+-
+-	if (zfcp_qdio_open(qdio))
+-		return ZFCP_ERP_FAILED;
+-	init_waitqueue_head(&qdio->req_q_wq);
+-	atomic_set_mask(ZFCP_STATUS_ADAPTER_QDIOUP, &act->adapter->status);
+-	return ZFCP_ERP_SUCCEEDED;
+-}
+-
+ static void zfcp_erp_enqueue_ptp_port(struct zfcp_adapter *adapter)
+ {
+ 	struct zfcp_port *port;
+@@ -778,7 +767,7 @@ static int zfcp_erp_adapter_strategy_ope
+ {
+ 	struct zfcp_adapter *adapter = act->adapter;
+ 
+-	if (zfcp_erp_adapter_strategy_open_qdio(act)) {
++	if (zfcp_qdio_open(adapter->qdio)) {
+ 		atomic_clear_mask(ZFCP_STATUS_ADAPTER_XCONFIG_OK |
+ 				  ZFCP_STATUS_ADAPTER_LINK_UNPLUGGED,
+ 				  &adapter->status);
+--- a/drivers/s390/scsi/zfcp_qdio.c
++++ b/drivers/s390/scsi/zfcp_qdio.c
+@@ -307,6 +307,7 @@ static int zfcp_qdio_allocate(struct zfc
+ 		return -ENOMEM;
+ 
+ 	zfcp_qdio_setup_init_data(&init_data, qdio);
++	init_waitqueue_head(&qdio->req_q_wq);
+ 
+ 	return qdio_allocate(&init_data);
+ }
+@@ -391,6 +392,7 @@ int zfcp_qdio_open(struct zfcp_qdio *qdi
+ 	/* set index of first avalable SBALS / number of available SBALS */
+ 	qdio->req_q_idx = 0;
+ 	atomic_set(&qdio->req_q_free, QDIO_MAX_BUFFERS_PER_Q);
++	atomic_set_mask(ZFCP_STATUS_ADAPTER_QDIOUP, &qdio->adapter->status);
+ 
+ 	return 0;
+ 
