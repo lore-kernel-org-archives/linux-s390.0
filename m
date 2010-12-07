@@ -1,122 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 6 Dec 2010 20:45:50 +0530
-From: Balbir Singh <balbir@linux.vnet.ibm.com>
 Subject: Re: [patch v2 4/4] taskstats: Export "cdata_wait" CPU times with
  taskstats
-Message-ID: <20101206151550.GF3158@balbir.in.ibm.com>
-Reply-To: balbir@linux.vnet.ibm.com
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20101201185128.GA7656@redhat.com>
 References: <20101129164237.522034198@linux.vnet.ibm.com>
- <20101129164435.903722027@linux.vnet.ibm.com>
- <20101201185128.GA7656@redhat.com>
- <20101203073303.GS2746@balbir.in.ibm.com>
- <1291639057.1848.85.camel@holzheu-laptop>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <1291639057.1848.85.camel@holzheu-laptop>
+	 <20101129164435.903722027@linux.vnet.ibm.com>
+	 <20101201185128.GA7656@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 07 Dec 2010 11:45:08 +0100
+Message-ID: <1291718708.1910.63.camel@holzheu-laptop>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc: Oleg Nesterov <oleg@redhat.com>, Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Oleg Nesterov <oleg@redhat.com>
+Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-* Michael Holzheu <holzheu@linux.vnet.ibm.com> [2010-12-06 13:37:37]:
+On Wed, 2010-12-01 at 19:51 +0100, Oleg Nesterov wrote:
+> On 11/29, Michael Holzheu wrote:
+> >
+> > * I left the struct signal locking in the patch, because I think
+> >   that in order to get consistent data this is necessary.
+> 
+> OK, I guess you mean that we want to read utime/stime "atomically",
+> and thus we need ->siglock to prevent the race with __exit_signal().
 
-> Hello Balbir,
-> 
-> On Fri, 2010-12-03 at 13:03 +0530, Balbir Singh wrote:
-> > * Oleg Nesterov <oleg@redhat.com> [2010-12-01 19:51:28]:
-> > 
-> > > On 11/29, Michael Holzheu wrote:
-> [snip]
-> > > Say, taskstats_exit()->fill_stats()->bacct_add_tsk(). Every thread
-> > > does this, including the group_leader. But, it is possible that
-> > > group_leader exits first, before other threads. IOW, what
-> > > stats->ac_cXtime actually mean?
-> > > 
-> > 
-> > stats->ac_* time was designed only for tgid's to begin with,
-> 
-> You mean for tids (threads/tasks), no? stats->ac_* time is only reported
-> for threads in bacct_add_tsk() and not for tgids.
+Yes.
 
-Sorry, I meant tid's or pid
+But I changed my mind. If I understand the code right, currently no
+locking is done for reading the tasks statistics in both the taskstats
+and also in the procfs interface. So e.g. it is not guaranteed to get a
+consistent set of data when reading /proc/<pid>/stat, because of the
+race with account_user/system/whatever_time() and other accounting
+functions.
 
-> 
-> > so I am
-> > not sure if ac_cXtime makes sense for threads
-> 
-> I would suggest to do it the same way as /proc/<tgid>/tasks/<tid>/stat.
-> It reports the (same) cumulative time for each thread. See
-> do_task_stat() in fs/proc/array.c. So IMHO also for taskstats it makes
-> sense to include the cXtime for all threads and not only for the thread
-> group leader. 
-> 
-> Also I would include tgid in taskstats so that userspace can group the
-> tasks into thread groups. 
-> 
-> I am not sure regarding the aggregation for tgids in
-> TASKSTATS_CMD_ATTR_TGID and exit events with group_dead=1. Currently
-> only the delay accounting numbers are aggregated. If we would do it
-> like /proc/<tgid>/stat (do_task_stat() with whole=1) we also could
-> aggregate also the other values e.g. the CPU time.
-> 
-> I think the following tgid data would make sense to be returned for
-> TASKSTATS_CMD_ATTR_TGID and exit events with group_dead=1:
-> 
-> bacct_add_tsk():
-> ----------------
-> ac_pid         thread group leader (tsk->tgid)
-> ac_etime       thread group leader
-> ac_btime       thread group leader
-> ac_nice        thread group leader
-> ac_sched       thread group leader
-> ac_uid         thread group leader
-> ac_gid         thread group leader
-> ac_ppid        thread group leader
-> ac_comm        thread group leader
-> ac_exit_code   thread group leader
-> ac_flags       thread group leader
-> ac_utimescaled ??
-> ac_stimescaled ??
-> ac_utime       sum for all live threads + cdata_threads
-> ac_stime       sum for all live threads + cdata_threads
-> ac_minflt      sum for all live threads + cdata_threads
-> ac_majflt      sum for all live threads + cdata_threads
-> 
-> new:
-> ac_cutime      cdata_wait
-> ac_cstime      cdata_wait
-> ac_tgid        thread group leader
->
+I assume that has been made by intention. Or am I missing something?
 
-This seems to be make sense.
+Because you said that since 2.6.35 accessing the signal_struct is save,
+I think now also for cdata it is not necessary to lock anything. As a
+result of this and the discussion regarding the group leader and cdata I
+would propose the following patch:
+---
+Subject: taskstats: Export "cdata_wait" CPU times with taskstats
+
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+
+Version 3
+---------
+* Remove signal struct locking because accessing signal_struct is save
+  since 2.6.35.
+* Report cdata for all tasks not only for the thread group leader.
+  This is then the same behavior as for /proc/<tgid>/tasks/<tid>/stat.
+* Add tgid to taskstats to allow userspace to group threads.
+
+Version 2
+---------
+* Use thread_group_leader() instead of (tsk->pid == tsk->tgid)
+* Use cdata_wait instead of cdata_acct
+* I left the struct signal locking in the patch, because I think
+  that in order to get consistent data this is necessary. See also
+  do_task_stat() in fs/proc/array.c. One problem is that we
+  report wrong values (zero) for cdata, if lock_task_sighand()
+  fails. This will be the same behavior as for /proc/<pid>/stat.
+  But maybe we should somehow return to userspace that the
+  information is not correct. Any ideas?
+
+Description
+-----------
+With this patch the cumulative CPU time and the tgid (thread group ID)
+is added to "struct taskstats".
+
+Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+---
+ include/linux/taskstats.h |   10 +++++++++-
+ kernel/tsacct.c           |    3 +++
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+--- a/include/linux/taskstats.h
++++ b/include/linux/taskstats.h
+@@ -33,7 +33,7 @@
+  */
  
-> xacct_add_tsk():
-> ----------------
-> coremem        ?
-> virtmem        ?
-> hiwater_rss    thread group leader
-> hiwater_vm     thread group leader
-> read_char      sum for all live threads + tsk->signal.ioac
-> write_char     sum for all live threads + tsk->signal.ioac
-> read_syscalls  sum for all live threads + tsk->signal.ioac
-> write_syscalls sum for all live threads + tsk->signal.ioac
-> read_bytes     sum for all live threads + tsk->signal.ioac
-> write bytes    sum for all live threads + tsk->signal.ioac
-> cancelled_write_bytes sum for all live threads + tsk->signal.ioac
->   
-> If we leave everything as it currently is for tgid accounting, we
-> probably should also not include the cXtime for tgids and just include
-> the data for threads (TASKSTATS_CMD_ATTR_PID and task exit events).
-> 
-> What do you think?
->
-
-This makes sense to me, we'd need to bump up the API version if we are
-going to make this change. 
-
--- 
-	Three Cheers,
-	Balbir
+ 
+-#define TASKSTATS_VERSION	7
++#define TASKSTATS_VERSION	8
+ #define TS_COMM_LEN		32	/* should be >= TASK_COMM_LEN
+ 					 * in linux/sched.h */
+ 
+@@ -163,6 +163,14 @@ struct taskstats {
+ 	/* Delay waiting for memory reclaim */
+ 	__u64	freepages_count;
+ 	__u64	freepages_delay_total;
++	/* version 7 ends here */
++
++	__u32	ac_tgid;		/* Thread group ID */
++
++	/* Cumulative CPU time of dead children */
++	__u64	ac_cutime;		/* User CPU time [usec] */
++	__u64	ac_cstime;		/* System CPU time [usec] */
++	/* version 8 ends here */
+ };
+ 
+ 
+--- a/kernel/tsacct.c
++++ b/kernel/tsacct.c
+@@ -71,6 +71,9 @@ void bacct_add_tsk(struct taskstats *sta
+ 	stats->ac_majflt = tsk->maj_flt;
+ 
+ 	strncpy(stats->ac_comm, tsk->comm, sizeof(stats->ac_comm));
++	stats->ac_cutime = cputime_to_usecs(tsk->signal->cdata_wait.utime);
++	stats->ac_cstime = cputime_to_usecs(tsk->signal->cdata_wait.stime);
++	stats->ac_tgid = tsk->tgid;
+ }
+ 
+ 
