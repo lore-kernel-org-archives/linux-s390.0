@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 8 Dec 2010 21:23:08 +0100
+Date: Wed, 8 Dec 2010 21:39:38 +0100
 From: Oleg Nesterov <oleg@redhat.com>
 Subject: Re: [patch v2 4/4] taskstats: Export "cdata_wait" CPU times with
 	taskstats
-Message-ID: <20101208202308.GA1804@redhat.com>
-References: <20101129164237.522034198@linux.vnet.ibm.com> <20101129164435.903722027@linux.vnet.ibm.com> <20101201185128.GA7656@redhat.com> <1291307641.1928.125.camel@holzheu-laptop>
+Message-ID: <20101208203938.GB1804@redhat.com>
+References: <20101129164237.522034198@linux.vnet.ibm.com> <20101129164435.903722027@linux.vnet.ibm.com> <20101201185128.GA7656@redhat.com> <1291718708.1910.63.camel@holzheu-laptop>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1291307641.1928.125.camel@holzheu-laptop>
+In-Reply-To: <1291718708.1910.63.camel@holzheu-laptop>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -16,42 +16,44 @@ To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Oh, sorry for the delay. Again ;)
-
-On 12/02, Michael Holzheu wrote:
+On 12/07, Michael Holzheu wrote:
 >
-> 1) You have a thread group with several threads
-> 2) Thread group leader dies and reports cdata_wait in taskstats_exit()
-> 3) Thread group leader stays around as zombie until the thread
->    group dies
-> 4) Other forked processes of this thread group die
-> 5) cdata_wait of thread group is increased
-> 6) The new cdata is not reported by any exit event of the thread group
+> On Wed, 2010-12-01 at 19:51 +0100, Oleg Nesterov wrote:
+> > On 11/29, Michael Holzheu wrote:
+> > >
+> > > * I left the struct signal locking in the patch, because I think
+> > >   that in order to get consistent data this is necessary.
+> >
+> > OK, I guess you mean that we want to read utime/stime "atomically",
+> > and thus we need ->siglock to prevent the race with __exit_signal().
+>
+> Yes.
+>
+> But I changed my mind. If I understand the code right, currently no
+> locking is done for reading the tasks statistics in both the taskstats
+> and also in the procfs interface. So e.g. it is not guaranteed to get a
+> consistent set of data when reading /proc/<pid>/stat, because of the
+> race with account_user/system/whatever_time() and other accounting
+> functions.
 
-Yes.
+Not sure, I think account_user/system/whatever_time() is a bit different.
+And, say, do_task_stat() takes ->siglock for thread_group_times(). Btw,
+I tried to remove this lock_task_sighand(), and I still hope we can
+do this ;) But the patch wasn't acked (iiuc) exactly because it can
+make top unhappy..
 
-> So maybe we should remove the thread_group_leader() check and report
-> cdata_wait for all threads and not only for the thread group leader? We
-> also should add ac_tgid to taskstats so that userspace can find the
-> corresponding thread group for each thread.
+> Because you said that since 2.6.35 accessing the signal_struct is save,
+> I think now also for cdata it is not necessary to lock anything. As a
+> result of this and the discussion regarding the group leader and cdata I
+> would propose the following patch:
 
-I do not know. My only point was, this thread_group_leader() looks
-a bit confusing, at least if we are talking about do_exit() path.
+To me, this certainly makes sense. I do not really understand why
+it is so important to prevent the case when, say, bacct_add_tsk()
+sees the updated .utime and !updated .stime.
 
-> When the last thread exits and the process/thread group dies,
-> taskstats_exit() sends an additional taskstats struct to userspace that
-> aggregates the thread accounting data. Currently only the delay
-> accounting data is aggregated (see
-> taskstats_exit->fill_tgid_exit->delayacct_add_tsk). Not sure, why the
-> other information is not aggregated. We perhaps also should include
-> ac_cXtime in the aggregated taskstats.
+If we can race with the exiting tasks, then these numbers are not
+"final" anyway.
 
-Not sure I understand... Do you mean
-
-	if (is_thread_group)
-		fill_tgid_exit(tsk);
-
-? Afaics, this is not "When the last thread exits", this is
-"this program is multithreaded, it has (or had) other threads".
+But again, this all is up to you.
 
 Oleg.
