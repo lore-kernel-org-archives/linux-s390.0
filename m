@@ -1,23 +1,45 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 0/4] s390: qeth patches for net-next
-Date: Fri, 10 Dec 2010 14:29:05 -0800 (PST)
-Message-ID: <20101210.142905.98897398.davem@davemloft.net>
+From: frank.blaschka@de.ibm.com
+Subject: [patch 4/4] [PATCH] qeth: buffer count imbalance
+Date: Wed, 08 Dec 2010 13:58:01 +0100
+Message-ID: <20101208125844.812890035@de.ibm.com>
 References: <20101208125757.726629855@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20101208125757.726629855@de.ibm.com>
+Content-Disposition: inline; filename=137-qeth-buffer-imbalance.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Jan Glauber <jang@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: frank.blaschka@de.ibm.com
-Date: Wed, 08 Dec 2010 13:57:57 +0100
+From: Jan Glauber <jang@linux.vnet.ibm.com>
 
-> here is another patch set for net-next.
+The used buffers counter is not incremented in case of an error so
+the counter can become negative. Increment the used buffers counter
+before checking for errors.
 
-All applied, thank you.
+Signed-off-by: Jan Glauber <jang@linux.vnet.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
+
+ drivers/s390/net/qeth_core_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -2840,6 +2840,7 @@ static void qeth_flush_buffers(struct qe
+ 		queue->card->perf_stats.outbound_do_qdio_time +=
+ 			qeth_get_micros() -
+ 			queue->card->perf_stats.outbound_do_qdio_start_time;
++	atomic_add(count, &queue->used_buffers);
+ 	if (rc) {
+ 		queue->card->stats.tx_errors += count;
+ 		/* ignore temporary SIGA errors without busy condition */
+@@ -2853,7 +2854,6 @@ static void qeth_flush_buffers(struct qe
+ 		qeth_schedule_recovery(queue->card);
+ 		return;
+ 	}
+-	atomic_add(count, &queue->used_buffers);
+ 	if (queue->card->options.performance_stats)
+ 		queue->card->perf_stats.bufs_sent += count;
+ }
