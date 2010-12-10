@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 8 Dec 2010 21:39:38 +0100
-From: Oleg Nesterov <oleg@redhat.com>
 Subject: Re: [patch v2 4/4] taskstats: Export "cdata_wait" CPU times with
-	taskstats
-Message-ID: <20101208203938.GB1804@redhat.com>
-References: <20101129164237.522034198@linux.vnet.ibm.com> <20101129164435.903722027@linux.vnet.ibm.com> <20101201185128.GA7656@redhat.com> <1291718708.1910.63.camel@holzheu-laptop>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1291718708.1910.63.camel@holzheu-laptop>
+ taskstats
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20101208202308.GA1804@redhat.com>
+References: <20101129164237.522034198@linux.vnet.ibm.com>
+	 <20101129164435.903722027@linux.vnet.ibm.com>
+	 <20101201185128.GA7656@redhat.com>
+	 <1291307641.1928.125.camel@holzheu-laptop>
+	 <20101208202308.GA1804@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Date: Fri, 10 Dec 2010 14:26:20 +0100
+Message-ID: <1291987580.1933.10.camel@holzheu-laptop>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+To: Oleg Nesterov <oleg@redhat.com>
 Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 12/07, Michael Holzheu wrote:
->
-> On Wed, 2010-12-01 at 19:51 +0100, Oleg Nesterov wrote:
-> > On 11/29, Michael Holzheu wrote:
-> > >
-> > > * I left the struct signal locking in the patch, because I think
-> > >   that in order to get consistent data this is necessary.
-> >
-> > OK, I guess you mean that we want to read utime/stime "atomically",
-> > and thus we need ->siglock to prevent the race with __exit_signal().
->
-> Yes.
->
-> But I changed my mind. If I understand the code right, currently no
-> locking is done for reading the tasks statistics in both the taskstats
-> and also in the procfs interface. So e.g. it is not guaranteed to get a
-> consistent set of data when reading /proc/<pid>/stat, because of the
-> race with account_user/system/whatever_time() and other accounting
-> functions.
+Hello Oleg,
 
-Not sure, I think account_user/system/whatever_time() is a bit different.
-And, say, do_task_stat() takes ->siglock for thread_group_times(). Btw,
-I tried to remove this lock_task_sighand(), and I still hope we can
-do this ;) But the patch wasn't acked (iiuc) exactly because it can
-make top unhappy..
+On Wed, 2010-12-08 at 21:23 +0100, Oleg Nesterov wrote:
+> Oh, sorry for the delay. Again ;)
 
-> Because you said that since 2.6.35 accessing the signal_struct is save,
-> I think now also for cdata it is not necessary to lock anything. As a
-> result of this and the discussion regarding the group leader and cdata I
-> would propose the following patch:
+No problem, I know this can be exhausting ;-)
 
-To me, this certainly makes sense. I do not really understand why
-it is so important to prevent the case when, say, bacct_add_tsk()
-sees the updated .utime and !updated .stime.
+> On 12/02, Michael Holzheu wrote:
+> > When the last thread exits and the process/thread group dies,
+> > taskstats_exit() sends an additional taskstats struct to userspace that
+> > aggregates the thread accounting data. Currently only the delay
+> > accounting data is aggregated (see
+> > taskstats_exit->fill_tgid_exit->delayacct_add_tsk). Not sure, why the
+> > other information is not aggregated. We perhaps also should include
+> > ac_cXtime in the aggregated taskstats.
+> 
+> Not sure I understand... Do you mean
+> 
+> 	if (is_thread_group)
+> 		fill_tgid_exit(tsk);
+> 
+> ? Afaics, this is not "When the last thread exits", this is
+> "this program is multithreaded, it has (or had) other threads".
 
-If we can race with the exiting tasks, then these numbers are not
-"final" anyway.
+fill_tgid_exit() adds the data of the dying thread to the thread group
+data (tsk->signal->stats). Currently only for delay accounting.
 
-But again, this all is up to you.
+But the accumulated data is sent to userspace only after the last thread
+has died:
 
-Oleg.
+        if (!is_thread_group || >>>!group_dead<<<)
+                goto send;
+
+        stats = mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tsk->tgid);
+        if (!stats)
+                goto err;
+
+Michael
