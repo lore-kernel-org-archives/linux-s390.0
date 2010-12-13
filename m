@@ -1,80 +1,215 @@
-From: Joe Perches <joe@perches.com>
-Subject: [trivial PATCH 00/15] remove duplicate unlikely from IS_ERR
-Date: Thu,  9 Dec 2010 12:03:53 -0800
-Message-ID: <cover.1291923888.git.joe@perches.com>
-References: <1291906801-1389-2-git-send-email-tklauser@distanz.ch>
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1291906801-1389-2-git-send-email-tklauser@distanz.ch>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/dri-devel/>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-To: netdev@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, rtc-linux@googlegroups.com, linux-s390@vger.kernel.org, osd-dev@open-osd.org, linux-arm-msm@vger.kernel.org
-Cc: Jiri Kosina <trivial@kernel.org>, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, linux-wireless@vger.kernel.org, devel@driverdev.osuosl.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [patch v2 4/4] taskstats: Export "cdata_wait" CPU times with
+ taskstats
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20101213143306.GA22840@redhat.com>
+References: <20101129164237.522034198@linux.vnet.ibm.com>
+	 <20101129164435.903722027@linux.vnet.ibm.com>
+	 <20101201185128.GA7656@redhat.com>
+	 <1291307641.1928.125.camel@holzheu-laptop>
+	 <20101208202308.GA1804@redhat.com>
+	 <1291987580.1933.10.camel@holzheu-laptop>
+	 <20101211173931.GA8084@redhat.com>
+	 <1292245515.2063.168.camel@holzheu-laptop>
+	 <1292246456.2063.179.camel@holzheu-laptop>
+	 <20101213143306.GA22840@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Date: Mon, 13 Dec 2010 17:42:24 +0100
+Message-ID: <1292258544.2063.189.camel@holzheu-laptop>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Oleg Nesterov <oleg@redhat.com>
+Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Tobias Klauser <tklauser@distanz.ch> sent a patch to remove
-an unnecessary unlikely from drivers/misc/c2port/core.c,
-https://lkml.org/lkml/2010/12/9/199
+On Mon, 2010-12-13 at 15:33 +0100, Oleg Nesterov wrote:
+> > --- a/include/linux/taskstats_kern.h
+> > +++ b/include/linux/taskstats_kern.h
+> > @@ -21,7 +21,8 @@ static inline void taskstats_tgid_free(s
+> >  		kmem_cache_free(taskstats_cache, sig->stats);
+> >  }
+> >  
+> > -extern void taskstats_exit(struct task_struct *, int group_dead);
+> > +extern void taskstats_exit_notify(struct task_struct *, int group_dead);
+> > +extern void taskstats_exit_add_thread(struct task_struct *);
+> You forgot to update the !CONFIG_TASKSTATS case ;)
 
-Here are the other instances treewide.
+... of course, thanks!
 
-I think it'd be good if people would, when noticing defects in a
-specific subsystem, look for and correct the same defect treewide.
+[snip]
 
-IS_ERR already has an unlikely test so remove unnecessary
-unlikelys from the call sites.
+> Well. I do not like the fact we take ->siglock unconditionally.
+> And _irqsave is not needed. And we take it twice if sig->stats == NULL.
+> And "if (!tsk->signal->stats)" under ->siglock in
+> taskstats_exit_add_thread() looks a bit ugly...
 
-from: include/linux/err.h
-#define IS_ERR_VALUE(x) unlikely((x) >= (unsigned long)-MAX_ERRNO)
-[...]
-static inline long __must_check IS_ERR(const void *ptr)
-{
-	return IS_ERR_VALUE((unsigned long)ptr);
-}
+Yes I also saw that, but I didn't want to change too much. In fact your
+code is much better. I added it to the patch and also replaced
+_add_thread with _add_task, because task seems to be the term for thread
+used in the taskstats code. I also did some testing. Everything still
+seems to work well.
 
-Sending directly to maintainers for now, will resend in a month
-or so only to trivial if not picked up.
+The new patch is attached below. Balbir, do you agree?
+
+Michael
+---
+ include/linux/taskstats_kern.h |    8 +++-
+ kernel/exit.c                  |    3 +
+ kernel/taskstats.c             |   67 ++++++++++++++---------------------------
+ 3 files changed, 32 insertions(+), 46 deletions(-)
+
+--- a/include/linux/taskstats_kern.h
++++ b/include/linux/taskstats_kern.h
+@@ -21,10 +21,14 @@ static inline void taskstats_tgid_free(s
+ 		kmem_cache_free(taskstats_cache, sig->stats);
+ }
  
-Joe Perches (15):
-  drm: Remove duplicate unlikely from IS_ERR
-  stmmac: Remove duplicate unlikely from IS_ERR
-  rtc: Remove duplicate unlikely from IS_ERR
-  s390: Remove duplicate unlikely from IS_ERR
-  osd: Remove duplicate unlikely from IS_ERR
-  serial: Remove duplicate unlikely from IS_ERR
-  brcm80211: Remove duplicate unlikely from IS_ERR
-  gadget: Remove duplicate unlikely from IS_ERR
-  exofs: Remove duplicate unlikely from IS_ERR
-  ext2: Remove duplicate unlikely from IS_ERR
-  ext3: Remove duplicate unlikely from IS_ERR
-  ext4: Remove duplicate unlikely from IS_ERR
-  nfs: Remove duplicate unlikely from IS_ERR
-  mm: Remove duplicate unlikely from IS_ERR
-  ipv6: Remove duplicate unlikely from IS_ERR
-
- drivers/gpu/drm/ttm/ttm_tt.c                     |    4 ++--
- drivers/net/stmmac/stmmac_main.c                 |    2 +-
- drivers/rtc/rtc-bfin.c                           |    2 +-
- drivers/s390/scsi/zfcp_fsf.c                     |    4 ++--
- drivers/scsi/osd/osd_initiator.c                 |    2 +-
- drivers/serial/msm_serial.c                      |    2 +-
- drivers/staging/brcm80211/brcmfmac/wl_cfg80211.c |    2 +-
- drivers/usb/gadget/f_fs.c                        |    4 ++--
- fs/exofs/super.c                                 |    2 +-
- fs/ext2/namei.c                                  |    2 +-
- fs/ext3/namei.c                                  |    2 +-
- fs/ext4/namei.c                                  |    2 +-
- fs/nfs/mount_clnt.c                              |    2 +-
- mm/vmalloc.c                                     |    2 +-
- net/ipv6/af_inet6.c                              |    2 +-
- 15 files changed, 18 insertions(+), 18 deletions(-)
-
--- 
-1.7.3.3.464.gf80b6
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Fight unfair telecom policy in Canada: sign http://dissolvethecrtc.ca/
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+-extern void taskstats_exit(struct task_struct *, int group_dead);
++extern void taskstats_exit_notify(struct task_struct *tsk, int group_dead);
++extern void taskstats_exit_add_task(struct task_struct *tsk);
+ extern void taskstats_init_early(void);
+ #else
+-static inline void taskstats_exit(struct task_struct *tsk, int group_dead)
++static inline void taskstats_exit_notify(struct task_struct *tsk,
++					 int group_dead)
++{}
++static inline void taskstats_exit_add_task(struct task_struct *tsk);
+ {}
+ static inline void taskstats_tgid_free(struct signal_struct *sig)
+ {}
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -1030,6 +1030,7 @@ NORET_TYPE void do_exit(long code)
+ 	/* sync mm's RSS info before statistics gathering */
+ 	if (tsk->mm)
+ 		sync_mm_rss(tsk, tsk->mm);
++	taskstats_exit_add_task(tsk);
+ 	group_dead = atomic_dec_and_test(&tsk->signal->live);
+ 	if (group_dead) {
+ 		struct cdata *tcd = &tsk->signal->cdata_threads;
+@@ -1045,7 +1046,7 @@ NORET_TYPE void do_exit(long code)
+ 		audit_free(tsk);
+ 
+ 	tsk->exit_code = code;
+-	taskstats_exit(tsk, group_dead);
++	taskstats_exit_notify(tsk, group_dead);
+ 
+ 	exit_mm(tsk);
+ 
+--- a/kernel/taskstats.c
++++ b/kernel/taskstats.c
+@@ -263,24 +263,35 @@ out:
+ 	return rc;
+ }
+ 
+-static void fill_tgid_exit(struct task_struct *tsk)
++void taskstats_exit_add_task(struct task_struct *tsk)
+ {
+-	unsigned long flags;
++	struct taskstats *stats = NULL;
+ 
+-	spin_lock_irqsave(&tsk->sighand->siglock, flags);
+-	if (!tsk->signal->stats)
+-		goto ret;
++	if (!tsk->signal->stats) {
++		if (thread_group_empty(tsk))
++			return;
+ 
++		stats = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
++		if (!stats)
++			return; /* Bad luck, we will loose this task */
++	}
++
++	spin_lock_irq(&tsk->sighand->siglock);
++	if (!tsk->signal->stats) {
++		tsk->signal->stats = stats;
++		stats = NULL;
++	}
+ 	/*
+ 	 * Each accounting subsystem calls its functions here to
+ 	 * accumalate its per-task stats for tsk, into the per-tgid structure
+ 	 *
+-	 *	per-task-foo(tsk->signal->stats, tsk);
++	 *      per-task-foo(tsk->signal->stats, tsk);
+ 	 */
+ 	delayacct_add_tsk(tsk->signal->stats, tsk);
+-ret:
+-	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
+-	return;
++	spin_unlock_irq(&tsk->sighand->siglock);
++
++	if (unlikely(stats))
++		kmem_cache_free(taskstats_cache, stats);
+ }
+ 
+ static int add_del_listener(pid_t pid, const struct cpumask *mask, int isadd)
+@@ -530,39 +541,14 @@ static int taskstats_user_cmd(struct sk_
+ 		return -EINVAL;
+ }
+ 
+-static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
+-{
+-	struct signal_struct *sig = tsk->signal;
+-	struct taskstats *stats;
+-
+-	if (sig->stats || thread_group_empty(tsk))
+-		goto ret;
+-
+-	/* No problem if kmem_cache_zalloc() fails */
+-	stats = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
+-
+-	spin_lock_irq(&tsk->sighand->siglock);
+-	if (!sig->stats) {
+-		sig->stats = stats;
+-		stats = NULL;
+-	}
+-	spin_unlock_irq(&tsk->sighand->siglock);
+-
+-	if (stats)
+-		kmem_cache_free(taskstats_cache, stats);
+-ret:
+-	return sig->stats;
+-}
+-
+ /* Send pid data out on exit */
+-void taskstats_exit(struct task_struct *tsk, int group_dead)
++void taskstats_exit_notify(struct task_struct *tsk, int group_dead)
+ {
+ 	int rc;
+ 	struct listener_list *listeners;
+ 	struct taskstats *stats;
+ 	struct sk_buff *rep_skb;
+ 	size_t size;
+-	int is_thread_group;
+ 
+ 	if (!family_registered)
+ 		return;
+@@ -573,13 +559,8 @@ void taskstats_exit(struct task_struct *
+ 	size = nla_total_size(sizeof(u32)) +
+ 		nla_total_size(sizeof(struct taskstats)) + nla_total_size(0);
+ 
+-	is_thread_group = !!taskstats_tgid_alloc(tsk);
+-	if (is_thread_group) {
+-		/* PID + STATS + TGID + STATS */
+-		size = 2 * size;
+-		/* fill the tsk->signal->stats structure */
+-		fill_tgid_exit(tsk);
+-	}
++	if (group_dead && tsk->signal->stats)
++		size = 2 * size; /* PID + STATS + TGID + STATS */
+ 
+ 	listeners = &__raw_get_cpu_var(listener_array);
+ 	if (list_empty(&listeners->list))
+@@ -598,7 +579,7 @@ void taskstats_exit(struct task_struct *
+ 	/*
+ 	 * Doesn't matter if tsk is the leader or the last group member leaving
+ 	 */
+-	if (!is_thread_group || !group_dead)
++	if (!group_dead || tsk->signal->stats == NULL)
+ 		goto send;
+ 
+ 	stats = mk_reply(rep_skb, TASKSTATS_TYPE_TGID, tsk->tgid);
