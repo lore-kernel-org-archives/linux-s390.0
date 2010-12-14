@@ -1,8 +1,10 @@
 Return-Path: <dan@danplanet.com>
 From: Dan Smith <danms@us.ibm.com>
-Subject: [PATCH 01/19] c/r: extend arch_setup_additional_pages()
-Date: Tue, 14 Dec 2010 08:14:49 -0800
-Message-Id: <1292343307-7870-1-git-send-email-danms@us.ibm.com>
+Subject: [PATCH 06/19] c/r: create syscalls: sys_checkpoint, sys_restart
+Date: Tue, 14 Dec 2010 08:14:54 -0800
+Message-Id: <1292343307-7870-6-git-send-email-danms@us.ibm.com>
+In-Reply-To: <1292343307-7870-1-git-send-email-danms@us.ibm.com>
+References: <1292343307-7870-1-git-send-email-danms@us.ibm.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
@@ -12,262 +14,274 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
 To: danms@us.ibm.com
-Cc: linux-s390@vger.kernel.org, x86@kernel.org, Oren Laadan <orenl@cs.columbia.edu>, Alexey Dobriyan <adobriyan@gmail.com>, linuxppc-dev@ozlabs.org
+Cc: linux-s390@vger.kernel.org, linux-api@vger.kernel.org, x86@kernel.org, Dave Hansen <dave@linux.vnet.ibm.com>, linuxppc-dev@ozlabs.org, Oren Laadan <orenl@cs.columbia.edu>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: Oren Laadan <orenl@cs.columbia.edu>
 
-Add "start" argument, to request to map vDSO to a specific place,
-and fail the operation if not.
+Create trivial sys_checkpoint and sys_restore system calls. They will
+enable to checkpoint and restart an entire container, to and from a
+checkpoint image file descriptor.
 
-This is useful for restart(2) to ensure that memory layout is restore
-exactly as needed.
+The syscalls take a pid, a file descriptor (for the image file) and
+flags as arguments. The pid identifies the top-most (root) task in the
+process tree, e.g. the container init: for sys_checkpoint the first
+argument identifies the pid of the target container/subtree; for
+sys_restart it will identify the pid of restarting root task.
 
-Changelog[v19]:
-  - [serge hallyn] Fix potential use-before-set ret
-Changelog[v2]:
-  - [ntl] powerpc: vdso build fix (ckpt-v17)
+A checkpoint, much like a process coredump, dumps the state of multiple
+processes at once, including the state of the container. The checkpoint
+image is written to (and read from) the file descriptor directly from
+the kernel. This way the data is generated and then pushed out naturally
+as resources and tasks are scanned to save their state. This is the
+approach taken by, e.g., Zap and OpenVZ.
 
+By using a return value and not a file descriptor, we can distinguish
+between a return from checkpoint, a return from restart (in case of a
+checkpoint that includes self, i.e. a task checkpointing its own
+container, or itself), and an error condition, in a manner analogous
+to a fork() call.
+
+We don't use copy_from_user()/copy_to_user() because it requires
+holding the entire image in user space, and does not make sense for
+restart.  Also, we don't use a pipe, pseudo-fs file and the like,
+because they work by generating data on demand as the user pulls it
+(unless the entire image is buffered in the kernel) and would require
+more complex logic.  They also would significantly complicate
+checkpoint that includes self.
+
+Changelog[v21-rc3]:
+  - Reorganize code:move checkpoint/* to kernel/checkpoint/*
+Changelog[v19-rc1]:
+  - Add 'int logfd' to prototype of sys_{checkpoint,restart}
+Changelog[v18]:
+  - [John Dykstra] Fix no-dot-config-targets pattern in linux/Makefile
+Changelog[v17]:
+  - Move checkpoint closer to namespaces (kconfig)
+  - Kill "Enable" in c/r config option
+Changelog[v16]:
+  - Change sys_restart() first argument to be 'pid_t pid'
+Changelog[v14]:
+  - Change CONFIG_CHEKCPOINT_RESTART to CONFIG_CHECKPOINT (Ingo)
+  - Remove line 'def_bool n' (default is already 'n')
+  - Add CHECKPOINT_SUPPORT in Kconfig (Nathan Lynch)
+Changelog[v5]:
+  - Config is 'def_bool n' by default
+
+Cc: linux-api@vger.kernel.org
 Cc: x86@kernel.org
 Cc: linux-s390@vger.kernel.org
 Cc: linuxppc-dev@ozlabs.org
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 Signed-off-by: Oren Laadan <orenl@cs.columbia.edu>
+Signed-off-by: Dave Hansen <dave@linux.vnet.ibm.com>
+Acked-by: Serge E. Hallyn <serue@us.ibm.com>
+Tested-by: Serge E. Hallyn <serue@us.ibm.com>
 ---
- arch/powerpc/include/asm/elf.h     |    1 +
- arch/powerpc/kernel/vdso.c         |   13 ++++++++++++-
- arch/s390/include/asm/elf.h        |    2 +-
- arch/s390/kernel/vdso.c            |   13 ++++++++++++-
- arch/sh/include/asm/elf.h          |    1 +
- arch/sh/kernel/vsyscall/vsyscall.c |    2 +-
- arch/x86/include/asm/elf.h         |    3 ++-
- arch/x86/vdso/vdso32-setup.c       |    9 +++++++--
- arch/x86/vdso/vma.c                |   11 ++++++++---
- fs/binfmt_elf.c                    |    2 +-
- 10 files changed, 46 insertions(+), 11 deletions(-)
+ Makefile                           |    2 +-
+ arch/x86/Kconfig                   |    4 +++
+ arch/x86/include/asm/unistd_32.h   |    4 ++-
+ arch/x86/kernel/syscall_table_32.S |    2 +
+ include/linux/syscalls.h           |    4 +++
+ init/Kconfig                       |    2 +
+ kernel/Makefile                    |    1 +
+ kernel/checkpoint/Kconfig          |   14 +++++++++++
+ kernel/checkpoint/Makefile         |    5 ++++
+ kernel/checkpoint/sys.c            |   45 ++++++++++++++++++++++++++++++++++++
+ kernel/sys_ni.c                    |    4 +++
+ 11 files changed, 85 insertions(+), 2 deletions(-)
+ create mode 100644 kernel/checkpoint/Kconfig
+ create mode 100644 kernel/checkpoint/Makefile
+ create mode 100644 kernel/checkpoint/sys.c
 
-diff --git a/arch/powerpc/include/asm/elf.h b/arch/powerpc/include/asm/elf.h
-index 2b917c6..1c26833 100644
---- a/arch/powerpc/include/asm/elf.h
-+++ b/arch/powerpc/include/asm/elf.h
-@@ -266,6 +266,7 @@ extern int ucache_bsize;
- #define ARCH_HAS_SETUP_ADDITIONAL_PAGES
- struct linux_binprm;
- extern int arch_setup_additional_pages(struct linux_binprm *bprm,
-+				       unsigned long start,
- 				       int uses_interp);
- #define VDSO_AUX_ENT(a,b) NEW_AUX_ENT(a,b);
+diff --git a/Makefile b/Makefile
+index ab5359d..38f5a25 100644
+--- a/Makefile
++++ b/Makefile
+@@ -421,7 +421,7 @@ endif
  
-diff --git a/arch/powerpc/kernel/vdso.c b/arch/powerpc/kernel/vdso.c
-index fd87287..c408960 100644
---- a/arch/powerpc/kernel/vdso.c
-+++ b/arch/powerpc/kernel/vdso.c
-@@ -188,7 +188,8 @@ static void dump_vdso_pages(struct vm_area_struct * vma)
-  * This is called from binfmt_elf, we create the special vma for the
-  * vDSO and insert it into the mm struct tree
-  */
--int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
-+int arch_setup_additional_pages(struct linux_binprm *bprm,
-+				unsigned long start, int uses_interp)
- {
- 	struct mm_struct *mm = current->mm;
- 	struct page **vdso_pagelist;
-@@ -220,6 +221,10 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
- 	vdso_base = VDSO32_MBASE;
- #endif
+ no-dot-config-targets := clean mrproper distclean \
+ 			 cscope TAGS tags help %docs check% coccicheck \
+-			 include/linux/version.h headers_% \
++			 checkstack include/linux/version.h headers_% \
+ 			 kernelversion %src-pkg
  
-+	/* in case restart(2) mandates a specific location */
-+	if (start)
-+		vdso_base = start;
+ config-targets := 0
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index e832768..0e043fa 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -101,6 +101,10 @@ config STACKTRACE_SUPPORT
+ config HAVE_LATENCYTOP_SUPPORT
+ 	def_bool y
+ 
++config CHECKPOINT_SUPPORT
++	bool
++	default y if X86_32
 +
- 	current->mm->context.vdso_base = 0;
+ config MMU
+ 	def_bool y
  
- 	/* vDSO has a problem and was disabled, just don't "enable" it for the
-@@ -249,6 +254,12 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
- 	/* Add required alignment. */
- 	vdso_base = ALIGN(vdso_base, VDSO_ALIGNMENT);
+diff --git a/arch/x86/include/asm/unistd_32.h b/arch/x86/include/asm/unistd_32.h
+index b766a5e..a2d589f 100644
+--- a/arch/x86/include/asm/unistd_32.h
++++ b/arch/x86/include/asm/unistd_32.h
+@@ -346,10 +346,12 @@
+ #define __NR_fanotify_init	338
+ #define __NR_fanotify_mark	339
+ #define __NR_prlimit64		340
++#define __NR_checkpoint		341
++#define __NR_restart		342
  
-+	/* for restart(2), double check that we got we asked for */
-+	if (start && vdso_base != start) {
-+		rc = -EBUSY;
-+		goto fail_mmapsem;
-+	}
+ #ifdef __KERNEL__
+ 
+-#define NR_syscalls 341
++#define NR_syscalls 343
+ 
+ #define __ARCH_WANT_IPC_PARSE_VERSION
+ #define __ARCH_WANT_OLD_READDIR
+diff --git a/arch/x86/kernel/syscall_table_32.S b/arch/x86/kernel/syscall_table_32.S
+index b35786d..13fbe8a 100644
+--- a/arch/x86/kernel/syscall_table_32.S
++++ b/arch/x86/kernel/syscall_table_32.S
+@@ -340,3 +340,5 @@ ENTRY(sys_call_table)
+ 	.long sys_fanotify_init
+ 	.long sys_fanotify_mark
+ 	.long sys_prlimit64		/* 340 */
++	.long ptregs_checkpoint
++	.long ptregs_restart
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index cacc27a..20be1a6 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -820,6 +820,10 @@ asmlinkage long sys_fanotify_init(unsigned int flags, unsigned int event_f_flags
+ asmlinkage long sys_fanotify_mark(int fanotify_fd, unsigned int flags,
+ 				  u64 mask, int fd,
+ 				  const char  __user *pathname);
++asmlinkage long sys_checkpoint(pid_t pid, int fd, unsigned long flags,
++			       int logfd);
++asmlinkage long sys_restart(pid_t pid, int fd, unsigned long flags,
++			    int logfd);
+ 
+ int kernel_execve(const char *filename, const char *const argv[], const char *const envp[]);
+ 
+diff --git a/init/Kconfig b/init/Kconfig
+index 88c1046..75650df 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -780,6 +780,8 @@ config RELAY
+ 
+ 	  If unsure, say N.
+ 
++source "kernel/checkpoint/Kconfig"
 +
- 	/*
- 	 * Put vDSO base into mm struct. We need to do this before calling
- 	 * install_special_mapping or the perf counter mmap tracking code
-diff --git a/arch/s390/include/asm/elf.h b/arch/s390/include/asm/elf.h
-index 354d426..5081938 100644
---- a/arch/s390/include/asm/elf.h
-+++ b/arch/s390/include/asm/elf.h
-@@ -216,6 +216,6 @@ do {									    \
- struct linux_binprm;
+ config BLK_DEV_INITRD
+ 	bool "Initial RAM filesystem and RAM disk (initramfs/initrd) support"
+ 	depends on BROKEN || !FRV
+diff --git a/kernel/Makefile b/kernel/Makefile
+index 0b5ff08..3f6238c 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -106,6 +106,7 @@ obj-$(CONFIG_PERF_EVENTS) += perf_event.o
+ obj-$(CONFIG_HAVE_HW_BREAKPOINT) += hw_breakpoint.o
+ obj-$(CONFIG_USER_RETURN_NOTIFIER) += user-return-notifier.o
+ obj-$(CONFIG_PADATA) += padata.o
++obj-$(CONFIG_CHECKPOINT) += checkpoint/
  
- #define ARCH_HAS_SETUP_ADDITIONAL_PAGES 1
--int arch_setup_additional_pages(struct linux_binprm *, int);
-+int arch_setup_additional_pages(struct linux_binprm *, unsigned long, int);
- 
- #endif
-diff --git a/arch/s390/kernel/vdso.c b/arch/s390/kernel/vdso.c
-index e3150dd..199642b 100644
---- a/arch/s390/kernel/vdso.c
-+++ b/arch/s390/kernel/vdso.c
-@@ -187,7 +187,8 @@ static void vdso_init_cr5(void)
-  * This is called from binfmt_elf, we create the special vma for the
-  * vDSO and insert it into the mm struct tree
-  */
--int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
-+int arch_setup_additional_pages(struct linux_binprm *bprm,
-+				unsigned long start, int uses_interp)
- {
- 	struct mm_struct *mm = current->mm;
- 	struct page **vdso_pagelist;
-@@ -218,6 +219,10 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
- 	vdso_pages = vdso32_pages;
- #endif
- 
-+	/* in case restart(2) mandates a specific location */
-+	if (start)
-+		vdso_base = start;
+ ifneq ($(CONFIG_SCHED_OMIT_FRAME_POINTER),y)
+ # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
+diff --git a/kernel/checkpoint/Kconfig b/kernel/checkpoint/Kconfig
+new file mode 100644
+index 0000000..ef7d406
+--- /dev/null
++++ b/kernel/checkpoint/Kconfig
+@@ -0,0 +1,14 @@
++# Architectures should define CHECKPOINT_SUPPORT when they have
++# implemented the hooks for processor state etc. needed by the
++# core checkpoint/restart code.
 +
- 	/*
- 	 * vDSO has a problem and was disabled, just don't "enable" it for
- 	 * the process
-@@ -240,6 +245,12 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
- 		goto out_up;
- 	}
- 
-+	/* for restart(2), double check that we got we asked for */
-+	if (start && vdso_base != start) {
-+		rc = -EINVAL;
-+		goto out_up;
-+	}
++config CHECKPOINT
++	bool "Checkpoint/restart (EXPERIMENTAL)"
++	depends on CHECKPOINT_SUPPORT && EXPERIMENTAL
++	help
++	  Application checkpoint/restart is the ability to save the
++	  state of a running application so that it can later resume
++	  its execution from the time at which it was checkpointed.
 +
- 	/*
- 	 * Put vDSO base into mm struct. We need to do this before calling
- 	 * install_special_mapping or the perf counter mmap tracking code
-diff --git a/arch/sh/include/asm/elf.h b/arch/sh/include/asm/elf.h
-index f38112b..0f1dc2a 100644
---- a/arch/sh/include/asm/elf.h
-+++ b/arch/sh/include/asm/elf.h
-@@ -190,6 +190,7 @@ do {									\
- #define ARCH_HAS_SETUP_ADDITIONAL_PAGES
- struct linux_binprm;
- extern int arch_setup_additional_pages(struct linux_binprm *bprm,
-+				       unsigned long start,
- 				       int uses_interp);
- 
- extern unsigned int vdso_enabled;
-diff --git a/arch/sh/kernel/vsyscall/vsyscall.c b/arch/sh/kernel/vsyscall/vsyscall.c
-index 242117c..6dbdfe1 100644
---- a/arch/sh/kernel/vsyscall/vsyscall.c
-+++ b/arch/sh/kernel/vsyscall/vsyscall.c
-@@ -58,7 +58,7 @@ int __init vsyscall_init(void)
- }
- 
- /* Setup a VMA at program startup for the vsyscall page */
--int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
-+int arch_setup_additional_pages(struct linux_binprm *bprm, unsigned long start, int uses_interp)
- {
- 	struct mm_struct *mm = current->mm;
- 	unsigned long addr;
-diff --git a/arch/x86/include/asm/elf.h b/arch/x86/include/asm/elf.h
-index f2ad216..3761be8 100644
---- a/arch/x86/include/asm/elf.h
-+++ b/arch/x86/include/asm/elf.h
-@@ -312,9 +312,10 @@ struct linux_binprm;
- 
- #define ARCH_HAS_SETUP_ADDITIONAL_PAGES 1
- extern int arch_setup_additional_pages(struct linux_binprm *bprm,
-+				       unsigned long start,
- 				       int uses_interp);
- 
--extern int syscall32_setup_pages(struct linux_binprm *, int exstack);
-+extern int syscall32_setup_pages(struct linux_binprm *, unsigned long start, int exstack);
- #define compat_arch_setup_additional_pages	syscall32_setup_pages
- 
- extern unsigned long arch_randomize_brk(struct mm_struct *mm);
-diff --git a/arch/x86/vdso/vdso32-setup.c b/arch/x86/vdso/vdso32-setup.c
-index 36df991..8005f6f 100644
---- a/arch/x86/vdso/vdso32-setup.c
-+++ b/arch/x86/vdso/vdso32-setup.c
-@@ -310,7 +310,8 @@ int __init sysenter_setup(void)
- }
- 
- /* Setup a VMA at program startup for the vsyscall page */
--int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
-+int arch_setup_additional_pages(struct linux_binprm *bprm,
-+				unsigned long start, int uses_interp)
- {
- 	struct mm_struct *mm = current->mm;
- 	unsigned long addr;
-@@ -331,13 +332,17 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
- 	if (compat)
- 		addr = VDSO_HIGH_BASE;
- 	else {
--		addr = get_unmapped_area(NULL, 0, PAGE_SIZE, 0, 0);
-+		addr = get_unmapped_area(NULL, start, PAGE_SIZE, 0, 0);
- 		if (IS_ERR_VALUE(addr)) {
- 			ret = addr;
- 			goto up_fail;
- 		}
- 	}
- 
-+	/* for restart(2), double check that we got we asked for */
-+	if (start && addr != start)
-+		goto up_fail;
++	  Turning this option on will enable checkpoint and restart
++	  functionality in the kernel.
+diff --git a/kernel/checkpoint/Makefile b/kernel/checkpoint/Makefile
+new file mode 100644
+index 0000000..8a32c6f
+--- /dev/null
++++ b/kernel/checkpoint/Makefile
+@@ -0,0 +1,5 @@
++#
++# Makefile for linux checkpoint/restart.
++#
 +
- 	current->mm->context.vdso = (void *)addr;
- 
- 	if (compat_uses_vma || !compat) {
-diff --git a/arch/x86/vdso/vma.c b/arch/x86/vdso/vma.c
-index 4b5d26f..5b32897 100644
---- a/arch/x86/vdso/vma.c
-+++ b/arch/x86/vdso/vma.c
-@@ -101,23 +101,28 @@ static unsigned long vdso_addr(unsigned long start, unsigned len)
- 
- /* Setup a VMA at program startup for the vsyscall page.
-    Not called for compat tasks */
--int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
-+int arch_setup_additional_pages(struct linux_binprm *bprm,
-+				unsigned long start, int uses_interp)
- {
- 	struct mm_struct *mm = current->mm;
- 	unsigned long addr;
--	int ret;
-+	int ret = -EINVAL;
- 
- 	if (!vdso_enabled)
- 		return 0;
- 
- 	down_write(&mm->mmap_sem);
--	addr = vdso_addr(mm->start_stack, vdso_size);
-+	addr = start ? : vdso_addr(mm->start_stack, vdso_size);
- 	addr = get_unmapped_area(NULL, addr, vdso_size, 0, 0);
- 	if (IS_ERR_VALUE(addr)) {
- 		ret = addr;
- 		goto up_fail;
- 	}
- 
-+	/* for restart(2), double check that we got we asked for */
-+	if (start && addr != start)
-+		goto up_fail;
++obj-$(CONFIG_CHECKPOINT) += sys.o
+diff --git a/kernel/checkpoint/sys.c b/kernel/checkpoint/sys.c
+new file mode 100644
+index 0000000..a81750a
+--- /dev/null
++++ b/kernel/checkpoint/sys.c
+@@ -0,0 +1,45 @@
++/*
++ *  Generic container checkpoint-restart
++ *
++ *  Copyright (C) 2008-2009 Oren Laadan
++ *
++ *  This file is subject to the terms and conditions of the GNU General Public
++ *  License.  See the file COPYING in the main directory of the Linux
++ *  distribution for more details.
++ */
 +
- 	current->mm->context.vdso = (void *)addr;
- 
- 	ret = install_special_mapping(mm, addr, vdso_size,
-diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
-index 6884e19..fc53346 100644
---- a/fs/binfmt_elf.c
-+++ b/fs/binfmt_elf.c
-@@ -923,7 +923,7 @@ static int load_elf_binary(struct linux_binprm *bprm, struct pt_regs *regs)
- 	set_binfmt(&elf_format);
- 
- #ifdef ARCH_HAS_SETUP_ADDITIONAL_PAGES
--	retval = arch_setup_additional_pages(bprm, !!elf_interpreter);
-+	retval = arch_setup_additional_pages(bprm, 0, !!elf_interpreter);
- 	if (retval < 0) {
- 		send_sig(SIGKILL, current, 0);
- 		goto out;
++#include <linux/sched.h>
++#include <linux/kernel.h>
++#include <linux/syscalls.h>
++
++/**
++ * sys_checkpoint - checkpoint a container
++ * @pid: pid of the container init(1) process
++ * @fd: file to which dump the checkpoint image
++ * @flags: checkpoint operation flags
++ * @logfd: fd to which to dump debug and error messages
++ *
++ * Returns positive identifier on success, 0 when returning from restart
++ * or negative value on error
++ */
++SYSCALL_DEFINE4(checkpoint, pid_t, pid, int, fd,
++		unsigned long, flags, int, logfd)
++{
++	return -ENOSYS;
++}
++
++/**
++ * sys_restart - restart a container
++ * @pid: pid of task root (in coordinator's namespace), or 0
++ * @fd: file from which read the checkpoint image
++ * @flags: restart operation flags
++ * @logfd: fd to which to dump debug and error messages
++ *
++ * Returns negative value on error, or otherwise returns in the realm
++ * of the original checkpoint
++ */
++SYSCALL_DEFINE4(restart, pid_t, pid, int, fd,
++		unsigned long, flags, int, logfd)
++{
++	return -ENOSYS;
++}
+diff --git a/kernel/sys_ni.c b/kernel/sys_ni.c
+index c782fe9..b73a106 100644
+--- a/kernel/sys_ni.c
++++ b/kernel/sys_ni.c
+@@ -186,3 +186,7 @@ cond_syscall(sys_perf_event_open);
+ /* fanotify! */
+ cond_syscall(sys_fanotify_init);
+ cond_syscall(sys_fanotify_mark);
++
++/* checkpoint/restart */
++cond_syscall(sys_checkpoint);
++cond_syscall(sys_restart);
 -- 
 1.7.2.2
