@@ -1,122 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 13 Dec 2010 15:33:06 +0100
-From: Oleg Nesterov <oleg@redhat.com>
-Subject: Re: [patch v2 4/4] taskstats: Export "cdata_wait" CPU times with
-	taskstats
-Message-ID: <20101213143306.GA22840@redhat.com>
-References: <20101129164237.522034198@linux.vnet.ibm.com> <20101129164435.903722027@linux.vnet.ibm.com> <20101201185128.GA7656@redhat.com> <1291307641.1928.125.camel@holzheu-laptop> <20101208202308.GA1804@redhat.com> <1291987580.1933.10.camel@holzheu-laptop> <20101211173931.GA8084@redhat.com> <1292245515.2063.168.camel@holzheu-laptop> <1292246456.2063.179.camel@holzheu-laptop>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1292246456.2063.179.camel@holzheu-laptop>
+Message-Id: <20101220130629.974963910@linux.vnet.ibm.com>
+Date: Mon, 20 Dec 2010 14:05:45 +0100
+From: graalfs@linux.vnet.ibm.com
+Subject: [patch 4/4] Handle memory unmap while hardware sampling is running
+References: <20101220130541.446049933@linux.vnet.ibm.com>
+Content-Disposition: inline; filename=handle_munmap.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc: Shailabh Nagar <nagar1234@in.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, John stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Balbir Singh <balbir@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Roland McGrath <roland@redhat.com>, Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: robert.richter@amd.com
+Cc: mingo@elte.hu, oprofile-list@lists.sf.net, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>, Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 12/13, Michael Holzheu wrote:
->
-> On Mon, 2010-12-13 at 14:05 +0100, Michael Holzheu wrote:
-> > > And this looks racy, or I missed something again. group_dead can be
-> > > true, but this doesn't mean all other threads have already passed
-> > > taskstats_exit()->fill_tgid_exit()->delayacct_add_tsk().
-> >
-> > I think you are right.
-> >
-> > One way to fix that could be to separate the aggregation from the
-> > sending. We could call fill_tgid_exit()->delayacct_add_tsk() before
-> > atomic_dec_and_test(&tsk->signal->live) in do_exit() and
-> > taskstats_exit() with the sender part afterwards.
+From: graalfs@linux.vnet.ibm.com
 
-Yes, I think this should fix the race. Some nits below...
+During memory unmap hardware sampling is deactivated.
+After all samples have been collected hardware sampling is reactivated again.
+ 
+Signed-off-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
+Signed-off-by: Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
+Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+---
+ arch/s390/oprofile/hwsampler_files.c |    2 +-
+ drivers/oprofile/buffer_sync.c       |   13 +++++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
-> --- a/include/linux/taskstats_kern.h
-> +++ b/include/linux/taskstats_kern.h
-> @@ -21,7 +21,8 @@ static inline void taskstats_tgid_free(s
->  		kmem_cache_free(taskstats_cache, sig->stats);
->  }
->  
-> -extern void taskstats_exit(struct task_struct *, int group_dead);
-> +extern void taskstats_exit_notify(struct task_struct *, int group_dead);
-> +extern void taskstats_exit_add_thread(struct task_struct *);
-
-You forgot to update the !CONFIG_TASKSTATS case ;)
-
-> -static void fill_tgid_exit(struct task_struct *tsk)
-> +static void alloc_signal_stats(struct task_struct *tsk)
-> +{
-> +	struct signal_struct *sig = tsk->signal;
-> +	struct taskstats *stats;
-> +
-> +	/* No problem if kmem_cache_zalloc() fails */
-> +	stats = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
-> +
-> +	spin_lock_irq(&tsk->sighand->siglock);
-> +	if (!sig->stats) {
-> +		sig->stats = stats;
-> +		stats = NULL;
-> +	}
-> +	spin_unlock_irq(&tsk->sighand->siglock);
-> +
-> +	if (stats)
-> +		kmem_cache_free(taskstats_cache, stats);
-> +}
-> +
-> +void taskstats_exit_add_thread(struct task_struct *tsk)
->  {
->  	unsigned long flags;
->  
-> +	if (tsk->signal->stats == NULL && !thread_group_empty(tsk))
-> +		alloc_signal_stats(tsk);
-> +
->  	spin_lock_irqsave(&tsk->sighand->siglock, flags);
->  	if (!tsk->signal->stats)
->  		goto ret;
-
-Well. I do not like the fact we take ->siglock unconditionally.
-And _irqsave is not needed. And we take it twice if sig->stats == NULL.
-And "if (!tsk->signal->stats)" under ->siglock in
-taskstats_exit_add_thread() looks a bit ugly...
-
-How about
-
-	void taskstats_exit_add_thread(struct task_struct *tsk)
-	{
-		struct taskstats *stats = NULL;
-
-		if (!tsk->signal->stats) {
-			if (thread_group_empty(tsk)
-				return;
-
-			stats = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
-			if (!stats)
-				return;
-		}
-
-		spin_lock_irq(&tsk->sighand->siglock);
-		if (!tsk->signal->stats) {
-			tsk->signal->stats = stats;
-			stats = NULL;
-		}
-		/*
-		 * Each accounting subsystem calls its functions here to
-		 * accumalate its per-task stats for tsk, into the per-tgid structure
-		 *
-		 *	per-task-foo(tsk->signal->stats, tsk);
-		 */
-		delayacct_add_tsk(tsk->signal->stats, tsk);
-		spin_unlock_irq(&tsk->sighand->siglock);
-
-		if (unlikely(stats))
-			kmem_cache_free(taskstats_cache, stats);
-	}
-
-?
-
-Note that it absorbs alloc_signal_stats().
-
-But up to you, probably this is matter of taste.
-
-Oleg.
+Index: linux-2.6/drivers/oprofile/buffer_sync.c
+===================================================================
+--- linux-2.6.orig/drivers/oprofile/buffer_sync.c
++++ linux-2.6/drivers/oprofile/buffer_sync.c
+@@ -32,6 +32,11 @@
+ #include <linux/sched.h>
+ #include <linux/gfp.h>
+ 
++#ifdef CONFIG_OPROFILE_HWSAMPLING_MODE
++#include <asm/hwsampler.h>
++extern unsigned long oprofile_hwsampler;
++#endif
++
+ #include "oprofile_stats.h"
+ #include "event_buffer.h"
+ #include "cpu_buffer.h"
+@@ -513,6 +518,10 @@ void sync_buffer(int cpu)
+ 
+ 	mutex_lock(&buffer_mutex);
+ 
++#ifdef CONFIG_OPROFILE_HWSAMPLING_MODE
++	if (oprofile_hwsampler)
++		hwsampler_deactivate(cpu);
++#endif
+ 	add_cpu_switch(cpu);
+ 
+ 	op_cpu_buffer_reset(cpu);
+@@ -569,6 +578,10 @@ void sync_buffer(int cpu)
+ 
+ 	mark_done(cpu);
+ 
++#ifdef CONFIG_OPROFILE_HWSAMPLING_MODE
++	if (oprofile_hwsampler)
++		hwsampler_activate(cpu);
++#endif
+ 	mutex_unlock(&buffer_mutex);
+ }
+ 
+Index: linux-2.6/arch/s390/oprofile/hwsampler_files.c
+===================================================================
+--- linux-2.6.orig/arch/s390/oprofile/hwsampler_files.c
++++ linux-2.6/arch/s390/oprofile/hwsampler_files.c
+@@ -22,7 +22,7 @@ unsigned long oprofile_max_interval;
+ static unsigned long oprofile_sdbt_blocks = DEFAULT_SDBT_BLOCKS;
+ static unsigned long oprofile_sdb_blocks = DEFAULT_SDB_BLOCKS;
+ 
+-static unsigned long oprofile_hwsampler;
++unsigned long oprofile_hwsampler;
+ 
+ static int oprofile_hwsampler_start(void)
+ {
