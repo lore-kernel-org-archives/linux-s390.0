@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 3 Jan 2011 21:39:09 +0100
+Date: Tue, 4 Jan 2011 16:34:11 +0100
 From: Robert Richter <robert.richter@amd.com>
-Subject: Re: [patch 4/4] Handle memory unmap while hardware sampling is
- running
-Message-ID: <20110103203909.GT4739@erda.amd.com>
+Subject: Re: [patch 3/4] This patch introduces a new oprofile sample add
+ function (oprofile_add_ext_hw_sample)
+Message-ID: <20110104153411.GV4739@erda.amd.com>
 References: <20101220130541.446049933@linux.vnet.ibm.com>
- <20101220130629.974963910@linux.vnet.ibm.com>
+ <20101220130629.823952802@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20101220130629.974963910@linux.vnet.ibm.com>
+In-Reply-To: <20101220130629.823952802@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -17,86 +17,36 @@ To: "graalfs@linux.vnet.ibm.com" <graalfs@linux.vnet.ibm.com>
 Cc: "mingo@elte.hu" <mingo@elte.hu>, "oprofile-list@lists.sf.net" <oprofile-list@lists.sf.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>, Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 20.12.10 08:05:45, graalfs@linux.vnet.ibm.com wrote:
+On 20.12.10 08:05:44, graalfs@linux.vnet.ibm.com wrote:
 > From: graalfs@linux.vnet.ibm.com
 > 
-> During memory unmap hardware sampling is deactivated.
-> After all samples have been collected hardware sampling is reactivated again.
-
-Do you mean you switch off the profiler for each buffer sync? This
-happens per default every 100ms. Why is this needed? Which memory is
-unmapped?
-
-This hooks in the sync_buffer() are ugly. We must try to find a better
-solution here.
-
-There is oprofile_put_buff() that allows to write directly to the the
-event buffer which is used in powerpc/cell.
-
--Robert
-
->  
+> This patch introduces a new oprofile sample add function (oprofile_add_ext_hw_sample)
+> that can also take task_struct as an argument, which is used by the hwsampler kernel module 
+> when copying hardware samples to OProfile buffers.
+> 
 > Signed-off-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
 > Signed-off-by: Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
 > Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 > ---
->  arch/s390/oprofile/hwsampler_files.c |    2 +-
->  drivers/oprofile/buffer_sync.c       |   13 +++++++++++++
->  2 files changed, 14 insertions(+), 1 deletion(-)
-> 
-> Index: linux-2.6/drivers/oprofile/buffer_sync.c
-> ===================================================================
-> --- linux-2.6.orig/drivers/oprofile/buffer_sync.c
-> +++ linux-2.6/drivers/oprofile/buffer_sync.c
-> @@ -32,6 +32,11 @@
->  #include <linux/sched.h>
->  #include <linux/gfp.h>
->  
-> +#ifdef CONFIG_OPROFILE_HWSAMPLING_MODE
-> +#include <asm/hwsampler.h>
-> +extern unsigned long oprofile_hwsampler;
-> +#endif
-> +
->  #include "oprofile_stats.h"
->  #include "event_buffer.h"
->  #include "cpu_buffer.h"
-> @@ -513,6 +518,10 @@ void sync_buffer(int cpu)
->  
->  	mutex_lock(&buffer_mutex);
->  
-> +#ifdef CONFIG_OPROFILE_HWSAMPLING_MODE
-> +	if (oprofile_hwsampler)
-> +		hwsampler_deactivate(cpu);
-> +#endif
->  	add_cpu_switch(cpu);
->  
->  	op_cpu_buffer_reset(cpu);
-> @@ -569,6 +578,10 @@ void sync_buffer(int cpu)
->  
->  	mark_done(cpu);
->  
-> +#ifdef CONFIG_OPROFILE_HWSAMPLING_MODE
-> +	if (oprofile_hwsampler)
-> +		hwsampler_activate(cpu);
-> +#endif
->  	mutex_unlock(&buffer_mutex);
->  }
->  
-> Index: linux-2.6/arch/s390/oprofile/hwsampler_files.c
-> ===================================================================
-> --- linux-2.6.orig/arch/s390/oprofile/hwsampler_files.c
-> +++ linux-2.6/arch/s390/oprofile/hwsampler_files.c
-> @@ -22,7 +22,7 @@ unsigned long oprofile_max_interval;
->  static unsigned long oprofile_sdbt_blocks = DEFAULT_SDBT_BLOCKS;
->  static unsigned long oprofile_sdb_blocks = DEFAULT_SDB_BLOCKS;
->  
-> -static unsigned long oprofile_hwsampler;
-> +unsigned long oprofile_hwsampler;
->  
->  static int oprofile_hwsampler_start(void)
->  {
-> 
-> 
+>  drivers/oprofile/cpu_buffer.c |   26 +++++++++++++++++++-------
+>  1 file changed, 19 insertions(+), 7 deletions(-)
+
+> +void oprofile_add_ext_hw_sample(unsigned long pc, struct pt_regs * const regs,
+> +				unsigned long event, int is_kernel,
+> +				struct task_struct *task)
+> +{
+> +	__oprofile_add_ext_sample(pc, regs, event, is_kernel, task);
+> +}
+> +EXPORT_SYMBOL_GPL(oprofile_add_ext_hw_sample);
+
+Hmm, I am not convinced of this new interface between the hwsampler
+module and oprofile. It is asymmetric and bloats the function's
+parameters list. A first simplification would be to not implement
+hwsampler as module and integrate this in oprofile. Then, we can look
+for a better way to add samples to the oprofile buffer. What do you
+think?
+
+-Robert
 
 -- 
 Advanced Micro Devices, Inc.
