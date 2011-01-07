@@ -1,382 +1,214 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20110121100842.039354578@linux.vnet.ibm.com>
-Date: Fri, 21 Jan 2011 11:06:53 +0100
-From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [patch v2 2/3] This patch enhances OProfile to support System zs hardware sampling feature
-References: <20110121100651.821690659@linux.vnet.ibm.com>
-Content-Disposition: inline; filename=oprofile_vfs.patch
+Date: Fri, 7 Jan 2011 10:23:29 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for 2.6.38
+Message-ID: <20110107102329.381c7d56@mschwide.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: robert.richter@amd.com
-Cc: mingo@elte.hu, oprofile-list@lists.sf.net, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>, Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+Hi Linus,
 
-OProfile is enhanced to export all files for controlling System z's hardware sampling,
-and to invoke hwsampler exported functions to initialize and use System z's hardware sampling.
+please pull from 'for-linus' branch of
 
-The patch invokes hwsampler_setup() during oprofile init and exports following
-hwsampler files under oprofilefs if hwsampler's setup succeeded:
+	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
 
-A new directory for hardware sampling based files
+to receive the following updates:
 
- /dev/oprofile/hwsampling/
+Felix Beck (6):
+      [S390] zcrypt: Fix check to look for facility bits 2 & 65
+      [S390] zcrypt: Introduce check for 4096 bit support.
+      [S390] zcrypt: support for 4096 bit keys for cex3a
+      [S390] zcrypt: support for 4096 bit keys for cex3c
+      [S390] zcrypt: cope with cca restriction of cex3
+      [S390] Handling of 4096 bit RSA keys in CRT format.
 
-The userland daemon must explicitly write to the following files
-to disable (or enable) hardware based sampling
+Gerald Schaefer (2):
+      [S390] mutex: Introduce arch_mutex_cpu_relax()
+      [S390] mutex: enable spinning mutex on s390
 
- /dev/oprofile/hwsampling/hwsampler
+Heiko Carstens (22):
+      [S390] time: move local_tick_enable()/disable() to timex.h
+      [S390] time: let local_tick_enable/disable() reprogram the clock comparator
+      [S390] irq: have detailed statistics for interrupt types
+      [S390] dasd: add support for irq statistics
+      [S390] 3215: add support for irq statistics
+      [S390] 3270: add support for irq statistics
+      [S390] tape: add support for irq statistics
+      [S390] vmur: add support for irq statistics
+      [S390] lcs: add support for irq statistics
+      [S390] claw: add support for irq statistics
+      [S390] ctc: add support for irq statistics
+      [S390] pfault: delay register of pfault interrupt
+      [S390] sclp: use register_external_interrupt()
+      [S390] extint: get rid of early code plus cleanup
+      [S390] nohz: optimize arch_needs_cpu()
+      [S390] nmi: enable machine checks early
+      [S390] smp: delay idle task creation
+      [S390] smp/idle: call init_idle() before starting a new cpu
+      [S390] perf: add DWARF register lookup for s390
+      [S390] smp: remove cpu hotplug messages
+      [S390] cpuinfo: use get_online_cpus() instead of preempt_disable()
+      [S390] prevent unneccesary loops_per_jiffy recalculation
 
-to modify the actual sampling rate
+Holger Dengler (1):
+      [S390] ap bus: add support for irq statistics
 
- /dev/oprofile/hwsampling/hw_interval
+Jan Glauber (8):
+      [S390] qdio: add qdio interrupts to interrupt statistics
+      [S390] qdio: prevent race for shared indicators
+      [S390] qdio: outbound tasklet scan threshold
+      [S390] qdio: outbound queue full counter
+      [S390] qdio: use proper QEBSM operand for SIGA-R and SIGA-S
+      [S390] qdio: remove enhanced SIGA
+      [S390] qdio: cleanup SIGA sync
+      [S390] qeth: buffer count imbalance
 
-to modify the amount of sampling memory (measured in 4K pages)
+Martin Schwidefsky (15):
+      [S390] cleanup s390 Kconfig
+      [S390] kprobes: single stepped breakpoint
+      [S390] kprobes: single step cleanup
+      [S390] kprobes: instruction swap
+      [S390] kprobes: instruction fixup
+      [S390] kprobes: activation and deactivation
+      [S390] kprobes: insn slots
+      [S390] kprobes: jprobe save and restore
+      [S390] kprobes: restructure handler function
+      [S390] kprobes: coding style
+      [S390] add kprobes annotations
+      [S390] current_thread_info optimization
+      [S390] 31 bit entry.S update.
+      [S390] ptrace cleanup
+      [S390] cleanup ftrace backend functions
 
- /dev/oprofile/hwsampling/hw_sdbt_blocks
+Michael Holzheu (1):
+      [S390] hypfs: Move buffer allocation from open to read
 
-The following files are read only and show
-the possible minimum sampling rate
+Peter Oberparleiter (1):
+      [S390] cio: fix ccwgroup unregistration race condition
 
- /dev/oprofile/hwsampling/hw_min_interval
+Sebastian Ott (2):
+      [S390] cio: obtain mdc value per channel path
+      [S390] css: update subchannel descriptor
 
-the possible maximum sampling rate
+Stefan Haberland (3):
+      [S390] dasd: Prevent deadlock during suspend/resume.
+      [S390] dasd: Add support for raw ECKD access.
+      [S390] dasd: Correct retry counter for terminated I/O.
 
- /dev/oprofile/hwsampling/hw_max_interval
+Stefan Weinhuber (4):
+      [S390] cio: reduce memory consumption of itcw structures
+      [S390] dasd: add High Performance FICON multitrack support
+      [S390] dasd: do path verification for paths added at runtime
+      [S390] dasd: Improve handling of stolen DASD reservation
 
-The patch splits the oprofile_timer_[init/exit] function so that it can be also called
-through user context (oprofilefs) to avoid kernel oops.
-
-Signed-off-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
-Signed-off-by: Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
-Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
----
- arch/s390/oprofile/Makefile          |    3 
- arch/s390/oprofile/hwsampler_files.c |  146 +++++++++++++++++++++++++++++++++++
- arch/s390/oprofile/init.c            |    7 +
- drivers/oprofile/oprof.c             |   32 +++++++
- drivers/oprofile/oprof.h             |    2 
- drivers/oprofile/timer_int.c         |   16 +++
- include/linux/oprofile.h             |   21 +++++
- 7 files changed, 222 insertions(+), 5 deletions(-)
-
-Index: linux-2.6/arch/s390/oprofile/hwsampler_files.c
-===================================================================
---- /dev/null
-+++ linux-2.6/arch/s390/oprofile/hwsampler_files.c
-@@ -0,0 +1,146 @@
-+/**
-+ * arch/s390/oprofile/hwsampler_files.c
-+ *
-+ * Copyright IBM Corp. 2010
-+ * Author: Mahesh Salgaonkar (mahesh@linux.vnet.ibm.com)
-+ */
-+#include <linux/oprofile.h>
-+#include <linux/errno.h>
-+#include <linux/fs.h>
-+
-+#include "hwsampler.h"
-+
-+#define DEFAULT_INTERVAL	4096
-+
-+#define DEFAULT_SDBT_BLOCKS	1
-+#define DEFAULT_SDB_BLOCKS	511
-+
-+static unsigned long oprofile_hw_interval = DEFAULT_INTERVAL;
-+static unsigned long oprofile_min_interval;
-+static unsigned long oprofile_max_interval;
-+
-+static unsigned long oprofile_sdbt_blocks = DEFAULT_SDBT_BLOCKS;
-+static unsigned long oprofile_sdb_blocks = DEFAULT_SDB_BLOCKS;
-+
-+static unsigned long oprofile_hwsampler;
-+
-+static int oprofile_hwsampler_start(void)
-+{
-+	int retval;
-+
-+	retval = hwsampler_allocate(oprofile_sdbt_blocks, oprofile_sdb_blocks);
-+	if (retval)
-+		return retval;
-+
-+	retval = hwsampler_start_all(oprofile_hw_interval);
-+	if (retval)
-+		hwsampler_deallocate();
-+
-+	return retval;
-+}
-+
-+static void oprofile_hwsampler_stop(void)
-+{
-+	hwsampler_stop_all();
-+	hwsampler_deallocate();
-+	return;
-+}
-+
-+int oprofile_arch_set_hwsampler(struct oprofile_operations *ops)
-+{
-+	printk(KERN_INFO "oprofile: using hardware sampling\n");
-+	ops->start = oprofile_hwsampler_start;
-+	ops->stop = oprofile_hwsampler_stop;
-+	ops->cpu_type = "timer";
-+
-+	return 0;
-+}
-+
-+static ssize_t hwsampler_read(struct file *file, char __user *buf,
-+		size_t count, loff_t *offset)
-+{
-+	return oprofilefs_ulong_to_user(oprofile_hwsampler, buf, count, offset);
-+}
-+
-+static ssize_t hwsampler_write(struct file *file, char const __user *buf,
-+		size_t count, loff_t *offset)
-+{
-+	unsigned long val;
-+	int retval;
-+
-+	if (*offset)
-+		return -EINVAL;
-+
-+	retval = oprofilefs_ulong_from_user(&val, buf, count);
-+	if (retval)
-+		return retval;
-+
-+	if (oprofile_hwsampler == val)
-+		return -EINVAL;
-+
-+	retval = oprofile_set_hwsampler(val);
-+
-+	if (retval)
-+		return retval;
-+
-+	oprofile_hwsampler = val;
-+	return count;
-+}
-+
-+static const struct file_operations hwsampler_fops = {
-+	.read		= hwsampler_read,
-+	.write		= hwsampler_write,
-+};
-+
-+static int oprofile_create_hwsampling_files(struct super_block *sb,
-+						struct dentry *root)
-+{
-+	struct dentry *hw_dir;
-+
-+	/* reinitialize default values */
-+	oprofile_hwsampler = 1;
-+
-+	hw_dir = oprofilefs_mkdir(sb, root, "hwsampling");
-+	if (!hw_dir)
-+		return -EINVAL;
-+
-+	oprofilefs_create_file(sb, hw_dir, "hwsampler", &hwsampler_fops);
-+	oprofilefs_create_ulong(sb, hw_dir, "hw_interval",
-+				&oprofile_hw_interval);
-+	oprofilefs_create_ro_ulong(sb, hw_dir, "hw_min_interval",
-+				&oprofile_min_interval);
-+	oprofilefs_create_ro_ulong(sb, hw_dir, "hw_max_interval",
-+				&oprofile_max_interval);
-+	oprofilefs_create_ulong(sb, hw_dir, "hw_sdbt_blocks",
-+				&oprofile_sdbt_blocks);
-+
-+	return 0;
-+}
-+
-+int oprofile_hwsampler_init(struct oprofile_operations* ops)
-+{
-+	if (hwsampler_setup())
-+		return -ENODEV;
-+
-+	/*
-+	 * create hwsampler files only if hwsampler_setup() succeeds.
-+	 */
-+	ops->create_files = oprofile_create_hwsampling_files;
-+	oprofile_min_interval = hwsampler_query_min_interval();
-+	if (oprofile_min_interval < 0) {
-+		oprofile_min_interval = 0;
-+		return -ENODEV;
-+	}
-+	oprofile_max_interval = hwsampler_query_max_interval();
-+	if (oprofile_max_interval < 0) {
-+		oprofile_max_interval = 0;
-+		return -ENODEV;
-+	}
-+	oprofile_arch_set_hwsampler(ops);
-+	return 0;
-+}
-+
-+void oprofile_hwsampler_exit(void)
-+{
-+	hwsampler_shutdown();
-+}
-Index: linux-2.6/drivers/oprofile/oprof.c
-===================================================================
---- linux-2.6.orig/drivers/oprofile/oprof.c
-+++ linux-2.6/drivers/oprofile/oprof.c
-@@ -239,6 +239,38 @@ int oprofile_set_ulong(unsigned long *ad
- 	return err;
- }
- 
-+#ifdef CONFIG_HAVE_HWSAMPLER
-+int oprofile_set_hwsampler(unsigned long val)
-+{
-+	int err = 0;
-+
-+	mutex_lock(&start_mutex);
-+
-+	if (oprofile_started) {
-+		err = -EBUSY;
-+		goto out;
-+	}
-+
-+	switch (val) {
-+	case 1:
-+		/* Switch to hardware sampling. */
-+		__oprofile_timer_exit();
-+		err = oprofile_arch_set_hwsampler(&oprofile_ops);
-+		break;
-+	case 0:
-+		printk(KERN_INFO "oprofile: using timer interrupt.\n");
-+		err = __oprofile_timer_init(&oprofile_ops);
-+		break;
-+	default:
-+		err = -EINVAL;
-+	}
-+
-+out:
-+	mutex_unlock(&start_mutex);
-+	return err;
-+}
-+#endif /* CONFIG_HAVE_HWSAMPLER */
-+
- static int __init oprofile_init(void)
- {
- 	int err;
-Index: linux-2.6/drivers/oprofile/oprof.h
-===================================================================
---- linux-2.6.orig/drivers/oprofile/oprof.h
-+++ linux-2.6/drivers/oprofile/oprof.h
-@@ -35,7 +35,9 @@ struct dentry;
- 
- void oprofile_create_files(struct super_block *sb, struct dentry *root);
- int oprofile_timer_init(struct oprofile_operations *ops);
-+int __oprofile_timer_init(struct oprofile_operations *ops);
- void oprofile_timer_exit(void);
-+void __oprofile_timer_exit(void);
- 
- int oprofile_set_ulong(unsigned long *addr, unsigned long val);
- int oprofile_set_timeout(unsigned long time);
-Index: linux-2.6/drivers/oprofile/timer_int.c
-===================================================================
---- linux-2.6.orig/drivers/oprofile/timer_int.c
-+++ linux-2.6/drivers/oprofile/timer_int.c
-@@ -97,14 +97,13 @@ static struct notifier_block __refdata o
- 	.notifier_call = oprofile_cpu_notify,
- };
- 
--int __init oprofile_timer_init(struct oprofile_operations *ops)
-+int  __oprofile_timer_init(struct oprofile_operations *ops)
- {
- 	int rc;
- 
- 	rc = register_hotcpu_notifier(&oprofile_cpu_notifier);
- 	if (rc)
- 		return rc;
--	ops->create_files = NULL;
- 	ops->setup = NULL;
- 	ops->shutdown = NULL;
- 	ops->start = oprofile_hrtimer_start;
-@@ -113,7 +112,18 @@ int __init oprofile_timer_init(struct op
- 	return 0;
- }
- 
--void __exit oprofile_timer_exit(void)
-+int __init oprofile_timer_init(struct oprofile_operations *ops)
-+{
-+	return __oprofile_timer_init(ops);
-+}
-+
-+void __oprofile_timer_exit(void)
- {
- 	unregister_hotcpu_notifier(&oprofile_cpu_notifier);
- }
-+
-+void __exit oprofile_timer_exit(void)
-+{
-+	__oprofile_timer_exit();
-+}
-+
-Index: linux-2.6/include/linux/oprofile.h
-===================================================================
---- linux-2.6.orig/include/linux/oprofile.h
-+++ linux-2.6/include/linux/oprofile.h
-@@ -89,6 +89,27 @@ int oprofile_arch_init(struct oprofile_o
-  */
- void oprofile_arch_exit(void);
- 
-+#ifdef CONFIG_HAVE_HWSAMPLER
-+/**
-+ * setup hardware sampler for oprofiling.
-+ */
-+
-+int oprofile_set_hwsampler(unsigned long);
-+
-+/**
-+ * hardware sampler module initialization for the s390 arch
-+ */
-+
-+int oprofile_arch_set_hwsampler(struct oprofile_operations *ops);
-+
-+/**
-+ * Add an s390 hardware sample.
-+ */
-+void oprofile_add_ext_hw_sample(unsigned long pc, struct pt_regs * const regs,
-+	unsigned long event, int is_kernel,
-+	struct task_struct *task);
-+#endif /* CONFIG_HAVE_HWSAMPLER */
-+
- /**
-  * Add a sample. This may be called from any context.
-  */
-Index: linux-2.6/arch/s390/oprofile/init.c
-===================================================================
---- linux-2.6.orig/arch/s390/oprofile/init.c
-+++ linux-2.6/arch/s390/oprofile/init.c
-@@ -11,16 +11,21 @@
- #include <linux/oprofile.h>
- #include <linux/init.h>
- #include <linux/errno.h>
-+#include <linux/fs.h>
- 
-+extern int oprofile_hwsampler_init(struct oprofile_operations* ops);
-+extern void oprofile_hwsampler_exit(void);
- 
- extern void s390_backtrace(struct pt_regs * const regs, unsigned int depth);
- 
- int __init oprofile_arch_init(struct oprofile_operations* ops)
- {
- 	ops->backtrace = s390_backtrace;
--	return -ENODEV;
-+
-+	return oprofile_hwsampler_init(ops);
- }
- 
- void oprofile_arch_exit(void)
- {
-+	oprofile_hwsampler_exit();
- }
-Index: linux-2.6/arch/s390/oprofile/Makefile
-===================================================================
---- linux-2.6.orig/arch/s390/oprofile/Makefile
-+++ linux-2.6/arch/s390/oprofile/Makefile
-@@ -6,4 +6,5 @@ DRIVER_OBJS = $(addprefix ../../../drive
- 		oprofilefs.o oprofile_stats.o  \
- 		timer_int.o )
- 
--oprofile-y				:= $(DRIVER_OBJS) init.o backtrace.o
-+oprofile-y				:= $(DRIVER_OBJS) init.o backtrace.o \
-+					hwsampler_files.o hwsampler.o
+ arch/Kconfig                           |    3 +
+ arch/s390/Kconfig                      |  131 ++++---
+ arch/s390/Kconfig.debug                |    6 +-
+ arch/s390/defconfig                    |  152 +++-----
+ arch/s390/hypfs/Makefile               |    2 +-
+ arch/s390/hypfs/hypfs.h                |   33 ++-
+ arch/s390/hypfs/hypfs_dbfs.c           |  116 ++++++
+ arch/s390/hypfs/hypfs_diag.c           |   82 +---
+ arch/s390/hypfs/hypfs_vm.c             |   62 +--
+ arch/s390/hypfs/inode.c                |   18 +-
+ arch/s390/include/asm/ccwdev.h         |    2 +
+ arch/s390/include/asm/cputime.h        |    2 +-
+ arch/s390/include/asm/dasd.h           |    3 +
+ arch/s390/include/asm/ftrace.h         |   11 +-
+ arch/s390/include/asm/hardirq.h        |   16 -
+ arch/s390/include/asm/irq.h            |   34 +-
+ arch/s390/include/asm/kprobes.h        |   20 +-
+ arch/s390/include/asm/mutex.h          |    2 +
+ arch/s390/include/asm/processor.h      |    4 +-
+ arch/s390/include/asm/ptrace.h         |   52 +++-
+ arch/s390/include/asm/qdio.h           |    1 +
+ arch/s390/include/asm/s390_ext.h       |   29 +-
+ arch/s390/include/asm/smp.h            |    3 +-
+ arch/s390/include/asm/system.h         |    4 +-
+ arch/s390/include/asm/thread_info.h    |   10 +-
+ arch/s390/include/asm/timex.h          |   20 +
+ arch/s390/kernel/asm-offsets.c         |   14 +-
+ arch/s390/kernel/compat_ptrace.h       |   53 +--
+ arch/s390/kernel/entry.S               |  274 +++++++-------
+ arch/s390/kernel/entry.h               |    2 +-
+ arch/s390/kernel/entry64.S             |   73 ++--
+ arch/s390/kernel/ftrace.c              |  238 ++++++------
+ arch/s390/kernel/irq.c                 |   41 ++-
+ arch/s390/kernel/kprobes.c             |  470 +++++++++++------------
+ arch/s390/kernel/mcount.S              |   32 +--
+ arch/s390/kernel/mcount64.S            |   29 +-
+ arch/s390/kernel/nmi.c                 |    3 +-
+ arch/s390/kernel/process.c             |   21 +-
+ arch/s390/kernel/processor.c           |   20 +-
+ arch/s390/kernel/ptrace.c              |  306 +++++++++------
+ arch/s390/kernel/s390_ext.c            |  125 +++----
+ arch/s390/kernel/signal.c              |    2 +-
+ arch/s390/kernel/smp.c                 |   47 ++-
+ arch/s390/kernel/time.c                |    6 +-
+ arch/s390/kernel/traps.c               |   15 +-
+ arch/s390/kernel/vtime.c               |    6 +-
+ arch/s390/kvm/Kconfig                  |    7 +-
+ arch/s390/lib/delay.c                  |    2 -
+ arch/s390/mm/fault.c                   |   35 +-
+ drivers/s390/block/Kconfig             |   24 +-
+ drivers/s390/block/dasd.c              |  314 +++++++++++-----
+ drivers/s390/block/dasd_3990_erp.c     |   16 +-
+ drivers/s390/block/dasd_devmap.c       |  155 ++++++++-
+ drivers/s390/block/dasd_diag.c         |    3 +
+ drivers/s390/block/dasd_eckd.c         |  664 ++++++++++++++++++++++++++-----
+ drivers/s390/block/dasd_eckd.h         |   17 +-
+ drivers/s390/block/dasd_eer.c          |    1 +
+ drivers/s390/block/dasd_erp.c          |    3 +-
+ drivers/s390/block/dasd_fba.c          |   21 +-
+ drivers/s390/block/dasd_int.h          |   35 ++-
+ drivers/s390/char/Kconfig              |   69 ++--
+ drivers/s390/char/con3215.c            |    2 +
+ drivers/s390/char/raw3270.c            |    2 +
+ drivers/s390/char/sclp.c               |   18 +-
+ drivers/s390/char/sclp_config.c        |    1 +
+ drivers/s390/char/tape_core.c          |    2 +
+ drivers/s390/char/vmur.c               |    2 +
+ drivers/s390/cio/ccwgroup.c            |   78 ++--
+ drivers/s390/cio/chsc.c                |   19 +
+ drivers/s390/cio/chsc.h                |   18 +
+ drivers/s390/cio/css.c                 |    8 +
+ drivers/s390/cio/device_ops.c          |   40 ++
+ drivers/s390/cio/itcw.c                |   62 +++-
+ drivers/s390/cio/qdio.h                |   31 +-
+ drivers/s390/cio/qdio_debug.c          |    1 +
+ drivers/s390/cio/qdio_main.c           |  177 ++++-----
+ drivers/s390/cio/qdio_setup.c          |   20 +-
+ drivers/s390/cio/qdio_thinint.c        |   56 +---
+ drivers/s390/crypto/ap_bus.c           |   67 ++++-
+ drivers/s390/crypto/ap_bus.h           |    2 +
+ drivers/s390/crypto/zcrypt_api.c       |   12 +-
+ drivers/s390/crypto/zcrypt_api.h       |    1 +
+ drivers/s390/crypto/zcrypt_cex2a.c     |   82 ++++-
+ drivers/s390/crypto/zcrypt_cex2a.h     |   25 ++
+ drivers/s390/crypto/zcrypt_pcica.c     |    1 +
+ drivers/s390/crypto/zcrypt_pcicc.c     |    1 +
+ drivers/s390/crypto/zcrypt_pcixcc.c    |   17 +-
+ drivers/s390/kvm/kvm_virtio.c          |    3 +
+ drivers/s390/net/Kconfig               |   51 ++-
+ drivers/s390/net/claw.c                |    2 +
+ drivers/s390/net/ctcm_main.c           |    2 +
+ drivers/s390/net/lcs.c                 |    2 +
+ drivers/s390/net/qeth_core_main.c      |    4 +-
+ drivers/s390/scsi/zfcp_qdio.c          |    2 +
+ include/linux/mutex.h                  |    4 +
+ kernel/mutex.c                         |    2 +-
+ kernel/sched.c                         |    3 +-
+ net/iucv/iucv.c                        |    2 +
+ tools/perf/arch/s390/Makefile          |    4 +
+ tools/perf/arch/s390/util/dwarf-regs.c |   22 +
+ 100 files changed, 3006 insertions(+), 1803 deletions(-)
+ create mode 100644 arch/s390/hypfs/hypfs_dbfs.c
+ create mode 100644 tools/perf/arch/s390/Makefile
+ create mode 100644 tools/perf/arch/s390/util/dwarf-regs.c
