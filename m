@@ -1,40 +1,38 @@
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
-Subject: [patch 1/1] [PATCH] MAINTAINERS: Update zfcp entry
-Date: Mon, 10 Jan 2011 11:12:40 +0100
-Message-ID: <20110110101751.279496095@de.ibm.com>
-References: <20110110101239.295894428@de.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline; filename=503-zfcp-maintainer.diff
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@suse.de>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, swen@vnet.ibm.com, maier@linux.vnet.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
+From: frank.blaschka@de.ibm.com
+Subject: [patch 2/2] [PATCH] qeth: l3 hw tx csum circumvent hw bug
+Date: Thu, 13 Jan 2011 07:42:25 +0100
+Message-ID: <20110113064310.729751199@de.ibm.com>
+References: <20110113064223.429450048@de.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=602-qeth-l3-tx-csum.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Christof Schmitt <christof.schmitt@de.ibm.com>
+From: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-Steffen will take over the zfcp maintainer work. Update the
-MAINTAINERS entry accordingly.
+Some OSA level have a bug in the hw tx csum logic. We can circumvent
+this bug by turning on IP hw csum also.
 
-Acked-by: Steffen Maier <maier@linux.vnet.ibm.com>
-Acked-by: Swen Schillig <swen@vnet.ibm.com>
-Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
 
- MAINTAINERS |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/s390/net/qeth_l3_main.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff -urpN linux-2.6/MAINTAINERS linux-2.6-patched/MAINTAINERS
---- linux-2.6/MAINTAINERS	2011-01-10 10:24:54.000000000 +0100
-+++ linux-2.6-patched/MAINTAINERS	2011-01-10 10:25:01.000000000 +0100
-@@ -5158,8 +5158,7 @@ S:	Supported
- F:	drivers/s390/crypto/
- 
- S390 ZFCP DRIVER
--M:	Christof Schmitt <christof.schmitt@de.ibm.com>
--M:	Swen Schillig <swen@vnet.ibm.com>
-+M:	Steffen Maier <maier@linux.vnet.ibm.com>
- M:	linux390@de.ibm.com
- L:	linux-s390@vger.kernel.org
- W:	http://www.ibm.com/developerworks/linux/linux390/
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2998,7 +2998,9 @@ static inline void qeth_l3_hdr_csum(stru
+ 	 */
+ 	if (iph->protocol == IPPROTO_UDP)
+ 		hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_UDP;
+-	hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_CSUM_TRANSP_REQ;
++	hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_CSUM_TRANSP_REQ |
++		QETH_HDR_EXT_CSUM_HDR_REQ;
++	iph->check = 0;
+ 	if (card->options.performance_stats)
+ 		card->perf_stats.tx_csum++;
+ }
