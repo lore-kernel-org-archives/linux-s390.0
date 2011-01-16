@@ -1,54 +1,57 @@
-From: Frank Blaschka <frank.blaschka@de.ibm.com>
+From: David Miller <davem@davemloft.net>
 Subject: Re: [patch 2/2] [PATCH] qeth: l3 hw tx csum circumvent hw bug
-Date: Thu, 13 Jan 2011 09:23:59 +0100
-Message-ID: <20110113082359.GA11455@tuxmaker.boeblingen.de.ibm.com>
-References: <20110113064223.429450048@de.ibm.com> <20110113064310.729751199@de.ibm.com> <20110112.234735.160088590.davem@davemloft.net>
+Date: Sat, 15 Jan 2011 20:46:25 -0800 (PST)
+Message-ID: <20110115.204625.226782089.davem@davemloft.net>
+References: <20110113064310.729751199@de.ibm.com>
+	<20110112.234735.160088590.davem@davemloft.net>
+	<20110113082359.GA11455@tuxmaker.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20110112.234735.160088590.davem@davemloft.net>
+In-Reply-To: <20110113082359.GA11455@tuxmaker.boeblingen.de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
+To: frank.blaschka@de.ibm.com
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jan 12, 2011 at 11:47:35PM -0800, David Miller wrote:
-> From: frank.blaschka@de.ibm.com
-> Date: Thu, 13 Jan 2011 07:42:25 +0100
-> 
-> > --- a/drivers/s390/net/qeth_l3_main.c
-> > +++ b/drivers/s390/net/qeth_l3_main.c
-> > @@ -2998,7 +2998,9 @@ static inline void qeth_l3_hdr_csum(stru
-> >  	 */
-> >  	if (iph->protocol == IPPROTO_UDP)
-> >  		hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_UDP;
-> > -	hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_CSUM_TRANSP_REQ;
-> > +	hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_CSUM_TRANSP_REQ |
-> > +		QETH_HDR_EXT_CSUM_HDR_REQ;
-> > +	iph->check = 0;
-> >  	if (card->options.performance_stats)
-> >  		card->perf_stats.tx_csum++;
-> >  }
-> 
-> You may not change the packet header contents blindly like this.
-> Otherwise unpredictable contents will be seen by tcpdump and any
-> other code path which has a clone of this packet.
-> 
-> Thus, you'll need to guard this change with something like:
-> 
-> 		if (skb_header_cloned(skb) &&
-> 		    pskb_expand_head(skb, 0, 0, GFP_ATOMIC)) {
-> 			dev_kfree_skb(skb);
-> 			goto tx_fail;
-> 		}
-Yes I know. Because of the suboptimal l3 driver design :-) we already have
-a private copy of the skb at this place. Thx!
-> 
-> Please fix this and resubmit your two patches.
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+From: Frank Blaschka <frank.blaschka@de.ibm.com>
+Date: Thu, 13 Jan 2011 09:23:59 +0100
+
+> On Wed, Jan 12, 2011 at 11:47:35PM -0800, David Miller wrote:
+>> From: frank.blaschka@de.ibm.com
+>> Date: Thu, 13 Jan 2011 07:42:25 +0100
+>> 
+>> > --- a/drivers/s390/net/qeth_l3_main.c
+>> > +++ b/drivers/s390/net/qeth_l3_main.c
+>> > @@ -2998,7 +2998,9 @@ static inline void qeth_l3_hdr_csum(stru
+>> >  	 */
+>> >  	if (iph->protocol == IPPROTO_UDP)
+>> >  		hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_UDP;
+>> > -	hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_CSUM_TRANSP_REQ;
+>> > +	hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_CSUM_TRANSP_REQ |
+>> > +		QETH_HDR_EXT_CSUM_HDR_REQ;
+>> > +	iph->check = 0;
+>> >  	if (card->options.performance_stats)
+>> >  		card->perf_stats.tx_csum++;
+>> >  }
+>> 
+>> You may not change the packet header contents blindly like this.
+>> Otherwise unpredictable contents will be seen by tcpdump and any
+>> other code path which has a clone of this packet.
+>> 
+>> Thus, you'll need to guard this change with something like:
+>> 
+>> 		if (skb_header_cloned(skb) &&
+>> 		    pskb_expand_head(skb, 0, 0, GFP_ATOMIC)) {
+>> 			dev_kfree_skb(skb);
+>> 			goto tx_fail;
+>> 		}
+> Yes I know. Because of the suboptimal l3 driver design :-) we already have
+> a private copy of the skb at this place. Thx!
+
+I see, thanks for explaining.
+
+Both patches applied, thanks.
