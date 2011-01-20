@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [patch 3/4] This patch introduces a new oprofile sample add
- function (oprofile_add_ext_hw_sample)
-From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-In-Reply-To: <20110104153411.GV4739@erda.amd.com>
-References: <20101220130541.446049933@linux.vnet.ibm.com>
-	 <20101220130629.823952802@linux.vnet.ibm.com>
-	 <20110104153411.GV4739@erda.amd.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 07 Jan 2011 17:31:47 +0100
-Message-ID: <1294417907.16757.1.camel@BR8HFPP0.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Robert Richter <robert.richter@amd.com>
-Cc: "mingo@elte.hu" <mingo@elte.hu>, "oprofile-list@lists.sf.net" <oprofile-list@lists.sf.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>, Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
+From: Akinobu Mita <akinobu.mita@gmail.com>
+Subject: [PATCH] s390: use asm-generic/cacheflush.h
+Date: Thu, 20 Jan 2011 20:32:13 +0900
+Message-ID: <1295523136-4277-1-git-send-email-akinobu.mita@gmail.com>
+Return-path: <linux-arch-owner@vger.kernel.org>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, arnd@arndb.de
+Cc: Akinobu Mita <akinobu.mita@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 2011-01-04 at 16:34 +0100, Robert Richter wrote:
-> On 20.12.10 08:05:44, graalfs@linux.vnet.ibm.com wrote:
-> > From: graalfs@linux.vnet.ibm.com
-> > 
-> > This patch introduces a new oprofile sample add function (oprofile_add_ext_hw_sample)
-> > that can also take task_struct as an argument, which is used by the hwsampler kernel module 
-> > when copying hardware samples to OProfile buffers.
-> > 
-> > Signed-off-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
-> > Signed-off-by: Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
-> > Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-> > ---
-> >  drivers/oprofile/cpu_buffer.c |   26 +++++++++++++++++++-------
-> >  1 file changed, 19 insertions(+), 7 deletions(-)
-> 
-> > +void oprofile_add_ext_hw_sample(unsigned long pc, struct pt_regs * const regs,
-> > +				unsigned long event, int is_kernel,
-> > +				struct task_struct *task)
-> > +{
-> > +	__oprofile_add_ext_sample(pc, regs, event, is_kernel, task);
-> > +}
-> > +EXPORT_SYMBOL_GPL(oprofile_add_ext_hw_sample);
-> 
-> Hmm, I am not convinced of this new interface between the hwsampler
-> module and oprofile. It is asymmetric and bloats the function's
-> parameters list. A first simplification would be to not implement
-> hwsampler as module and integrate this in oprofile. Then, we can look
-> for a better way to add samples to the oprofile buffer. What do you
-> think?
-> 
-> -Robert
-> 
-Robert, thanks for all the comments. I need to think and discuss this. 
+The implementation of the cache flushing interfaces on the s390
+is identical with the default implementation in asm-generic.
 
--Heinz
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux390@de.ibm.com
+Cc: linux-s390@vger.kernel.org
+---
+ arch/s390/include/asm/cacheflush.h |   23 +----------------------
+ 1 files changed, 1 insertions(+), 22 deletions(-)
+
+diff --git a/arch/s390/include/asm/cacheflush.h b/arch/s390/include/asm/cacheflush.h
+index 405cc97..7e1f776 100644
+--- a/arch/s390/include/asm/cacheflush.h
++++ b/arch/s390/include/asm/cacheflush.h
+@@ -1,29 +1,8 @@
+ #ifndef _S390_CACHEFLUSH_H
+ #define _S390_CACHEFLUSH_H
+ 
+-/* Keep includes the same across arches.  */
+-#include <linux/mm.h>
+-
+ /* Caches aren't brain-dead on the s390. */
+-#define flush_cache_all()			do { } while (0)
+-#define flush_cache_mm(mm)			do { } while (0)
+-#define flush_cache_dup_mm(mm)			do { } while (0)
+-#define flush_cache_range(vma, start, end)	do { } while (0)
+-#define flush_cache_page(vma, vmaddr, pfn)	do { } while (0)
+-#define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 0
+-#define flush_dcache_page(page)			do { } while (0)
+-#define flush_dcache_mmap_lock(mapping)		do { } while (0)
+-#define flush_dcache_mmap_unlock(mapping)	do { } while (0)
+-#define flush_icache_range(start, end)		do { } while (0)
+-#define flush_icache_page(vma,pg)		do { } while (0)
+-#define flush_icache_user_range(vma,pg,adr,len)	do { } while (0)
+-#define flush_cache_vmap(start, end)		do { } while (0)
+-#define flush_cache_vunmap(start, end)		do { } while (0)
+-
+-#define copy_to_user_page(vma, page, vaddr, dst, src, len) \
+-	memcpy(dst, src, len)
+-#define copy_from_user_page(vma, page, vaddr, dst, src, len) \
+-	memcpy(dst, src, len)
++#include <asm-generic/cacheflush.h>
+ 
+ #ifdef CONFIG_DEBUG_PAGEALLOC
+ void kernel_map_pages(struct page *page, int numpages, int enable);
+-- 
+1.7.3.4
