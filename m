@@ -1,75 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <4D449C28.90202@weilnetz.de>
-References: <1296336808-2809-1-git-send-email-weil@mail.berlios.de>
-	<1296336808-2809-2-git-send-email-weil@mail.berlios.de>
-	<alpine.LNX.2.00.1101292237220.19392@swampdragon.chaosbits.net>
-	<4D449C28.90202@weilnetz.de>
-Date: Sun, 30 Jan 2011 13:01:55 +0100
-Message-ID: <AANLkTi=zVjQKJv8Z76Nz7pkPtX5kHAD3Q1c2jjPo8CJs@mail.gmail.com>
-Subject: Re: [PATCH 2/2] s390: Fix possibly wrong size in strncmp (smsglucv)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Message-Id: <20110121100651.821690659@linux.vnet.ibm.com>
+Date: Fri, 21 Jan 2011 11:06:51 +0100
+From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+Subject: [patch v2 0/3] OProfile support for System z's hardware sampling
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Stefan Weil <stefan@weilnetz.de>
-Cc: Jesper Juhl <jj@chaosbits.net>, linux390@de.ibm.com, Ursula Braun <ursula.braun@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: robert.richter@amd.com
+Cc: mingo@elte.hu, oprofile-list@lists.sf.net, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Jan 30, 2011 at 00:00, Stefan Weil <stefan@weilnetz.de> wrote:
-> Am 29.01.2011 22:38, schrieb Jesper Juhl:
->> On Sat, 29 Jan 2011, Stefan Weil wrote:
->>> This error was reported by cppcheck:
->>> drivers/s390/net/smsgiucv.c:63: error: Using sizeof for array given as
->>> function argument returns the size of pointer.
->>>
->>> Although there is no runtime problem as long as sizeof(u8 *) == 8,
->>> this misleading code should get fixed.
->>>
->>> Cc: Ursula Braun<ursula.braun@de.ibm.com>
->>> Cc: linux390@de.ibm.com
->>> Cc: Frank Blaschka<blaschka@linux.vnet.ibm.com>
->>> Cc: Martin Schwidefsky<schwidefsky@de.ibm.com>
->>> Cc: Heiko Carstens<heiko.carstens@de.ibm.com>
->>> Cc: linux-s390@vger.kernel.org
->>> Cc: linux-kernel@vger.kernel.org
->>> Signed-off-by: Stefan Weil<weil@mail.berlios.de>
->>> ---
->>>  drivers/s390/net/smsgiucv.c |    2 +-
->>>  1 files changed, 1 insertions(+), 1 deletions(-)
->>>
->>> diff --git a/drivers/s390/net/smsgiucv.c b/drivers/s390/net/smsgiucv.c
->>> index 65e1cf1..207b7d7 100644
->>> --- a/drivers/s390/net/smsgiucv.c
->>> +++ b/drivers/s390/net/smsgiucv.c
->>> @@ -60,7 +60,7 @@ static struct iucv_handler smsg_handler = {
->>>  static int smsg_path_pending(struct iucv_path *path, u8 ipvmid[8],
->>>                             u8 ipuser[16])
->>>  {
->>> -       if (strncmp(ipvmid, "*MSG    ", sizeof(ipvmid)) != 0)
->>> +       if (strncmp(ipvmid, "*MSG    ", 8) != 0)
->>>
->>
->> Hmm, shouldn't this really be  ARRAY_SIZE(ipvmid)  ??
->>
->
-> I think that would be wrong, too (only in this special case where
-> an array is passed as a function parameter).
+Hello Robert,
 
-Yeah, I got b itten by that recently as well:
+I'm resending yesterday's mail because I missed to specify the correct sender information.
 
-if `u8 ipvmid[8]' is a variable, `sizeof(ipvmid) == 8'.
-If it's a function parameter, `sizeof(ipvmid) == sizeof(void *)'.
+This is a re-posting of the patch series originally posted last month:
 
-Gr{oetje,eeting}s,
+http://marc.info/?l=linux-s390&m=129285043619973&w=2
 
-                        Geert
+Heinz
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Changes in
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+v2:
+   - kernel module hwsampler removed, everything is now in oprofile kernel module
+   - functions from hwsampler-main.c and smpctl.c merged into arch/s390/oprofile/hwsampler.c
+     - functions made static
+   - arch/s390/include/asm/hwsampler.h moved to arch/s390/oprofile/hwsampler.h
+     - structs have now hws_ prefix
+   - config variables changed, HAVE_HWSAMPLER used only
+   - original patch 4 (handle_munmap.patch) removed
+
+Description:
+
+So far, OProfile takes samples by using a software interrupt.
+The purpose of this series of patches is to add support for System z hardware sampling to OProfile.
+
+Hardware (HW) sampling is a feature provided by System z processors (z10 and follow ons).
+When sampling, the processor takes samples containing the instruction address, PID, and other information.
+The samples are taken at a programmable rate and stored into a buffer provided by the operating system.
+The sampling process is implemented in hardware and millicode and thus does not affect the operating system
+being oberved, apart from requiring buffer memory that the Linux kernel must provide.
+
+Hardware sampling is available in LPAR mode on 64 BIT processors only.
+
+The overall approach is to replace the software-based sample generation by hardware sampling.
+All required functionality to control the HW sampling mechanism is added to the oprofile kernel module.
+The functions provide support for
+ - controlling the sampling hardware,
+ - setting up appropriate buffer structures (HW buffers),
+ - retrieving sample entries from these buffers.
+Multiple CPUs can be handled.
+
+The samples contain the instruction address, a bit distinguishing between kernel and user space,
+and for user space samples also the PID.
+Instead of taking samples from its own per-CPU buffers, OProfile would rather take samples from the
+HW buffers.
+
+When hardware sampling can be enabled on the current System z processor it will be the new default.
+Switching back to timer based sampling can be established by using
+
+   echo 0 > /dev/oprofile/hwsampling/hwsampler
+
+The user space drivers of OProfile also need an extension to control hw sampling by appropriate options.
