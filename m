@@ -1,61 +1,57 @@
-From: Akinobu Mita <akinobu.mita@gmail.com>
-Subject: [PATCH] s390: use asm-generic/cacheflush.h
-Date: Thu, 20 Jan 2011 20:32:13 +0900
-Message-ID: <1295523136-4277-1-git-send-email-akinobu.mita@gmail.com>
-Return-path: <linux-arch-owner@vger.kernel.org>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, arnd@arndb.de
-Cc: Akinobu Mita <akinobu.mita@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH 1/2] s390: Fix wrong size in memcmp (netiucv)
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+In-Reply-To: <1296336808-2809-1-git-send-email-weil@mail.berlios.de>
+References: <1296336808-2809-1-git-send-email-weil@mail.berlios.de>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 31 Jan 2011 11:37:25 +0100
+Message-ID: <1296470245.9948.20.camel@braunu-laptop>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Stefan Weil <weil@mail.berlios.de>
+Cc: linux390@de.ibm.com, Ursula Braun <ursula.braun@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The implementation of the cache flushing interfaces on the s390
-is identical with the default implementation in asm-generic.
+Ack - thanks, Stefan.
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux390@de.ibm.com
-Cc: linux-s390@vger.kernel.org
----
- arch/s390/include/asm/cacheflush.h |   23 +----------------------
- 1 files changed, 1 insertions(+), 22 deletions(-)
+We have added your netiucv patch to our local repository. It will be
+part of our next patch collection submitted to Dave Miller for upstream
+integration.
 
-diff --git a/arch/s390/include/asm/cacheflush.h b/arch/s390/include/asm/cacheflush.h
-index 405cc97..7e1f776 100644
---- a/arch/s390/include/asm/cacheflush.h
-+++ b/arch/s390/include/asm/cacheflush.h
-@@ -1,29 +1,8 @@
- #ifndef _S390_CACHEFLUSH_H
- #define _S390_CACHEFLUSH_H
- 
--/* Keep includes the same across arches.  */
--#include <linux/mm.h>
--
- /* Caches aren't brain-dead on the s390. */
--#define flush_cache_all()			do { } while (0)
--#define flush_cache_mm(mm)			do { } while (0)
--#define flush_cache_dup_mm(mm)			do { } while (0)
--#define flush_cache_range(vma, start, end)	do { } while (0)
--#define flush_cache_page(vma, vmaddr, pfn)	do { } while (0)
--#define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 0
--#define flush_dcache_page(page)			do { } while (0)
--#define flush_dcache_mmap_lock(mapping)		do { } while (0)
--#define flush_dcache_mmap_unlock(mapping)	do { } while (0)
--#define flush_icache_range(start, end)		do { } while (0)
--#define flush_icache_page(vma,pg)		do { } while (0)
--#define flush_icache_user_range(vma,pg,adr,len)	do { } while (0)
--#define flush_cache_vmap(start, end)		do { } while (0)
--#define flush_cache_vunmap(start, end)		do { } while (0)
--
--#define copy_to_user_page(vma, page, vaddr, dst, src, len) \
--	memcpy(dst, src, len)
--#define copy_from_user_page(vma, page, vaddr, dst, src, len) \
--	memcpy(dst, src, len)
-+#include <asm-generic/cacheflush.h>
- 
- #ifdef CONFIG_DEBUG_PAGEALLOC
- void kernel_map_pages(struct page *page, int numpages, int enable);
--- 
-1.7.3.4
+Regards, Ursula
+
+On Sat, 2011-01-29 at 22:33 +0100, Stefan Weil wrote:
+> This error was reported by cppcheck:
+> drivers/s390/net/netiucv.c:568: error: Using sizeof for array given as function argument returns the size of pointer.
+> 
+> sizeof(ipuser) did not result in 16 (as many programmers would have
+> expected) but sizeof(u8 *), so it is 4 or 8, too small here.
+> 
+> Cc: Ursula Braun <ursula.braun@de.ibm.com>
+> Cc: linux390@de.ibm.com
+> Cc: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Stefan Weil <weil@mail.berlios.de>
+> ---
+>  drivers/s390/net/netiucv.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
+> index 65ebee0..b6a6356 100644
+> --- a/drivers/s390/net/netiucv.c
+> +++ b/drivers/s390/net/netiucv.c
+> @@ -565,7 +565,7 @@ static int netiucv_callback_connreq(struct iucv_path *path,
+>  	struct iucv_event ev;
+>  	int rc;
+> 
+> -	if (memcmp(iucvMagic, ipuser, sizeof(ipuser)))
+> +	if (memcmp(iucvMagic, ipuser, 16))
+>  		/* ipuser must match iucvMagic. */
+>  		return -EINVAL;
+>  	rc = -EINVAL;
