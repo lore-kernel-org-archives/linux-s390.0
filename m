@@ -1,76 +1,49 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 15 Feb 2011 18:29:06 +0100
-From: Robert Richter <robert.richter@amd.com>
-Subject: Re: [patch v2 0/3] OProfile support for System z's hardware
- sampling
-Message-ID: <20110215172906.GG5874@erda.amd.com>
-References: <20110121100651.821690659@linux.vnet.ibm.com>
- <20110214194206.GW5874@erda.amd.com>
- <1297789169.3231.9.camel@BR8HFPP0.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <1297789169.3231.9.camel@BR8HFPP0.boeblingen.de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "mingo@elte.hu" <mingo@elte.hu>, "oprofile-list@lists.sf.net" <oprofile-list@lists.sf.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>
+From: frank.blaschka@de.ibm.com
+Subject: [patch 4/7] [PATCH] qeth: allow HiperSockets framesize change in suspend
+Date: Tue, 01 Feb 2011 09:16:51 +0100
+Message-ID: <20110201081723.717261632@de.ibm.com>
+References: <20110201081647.173934635@de.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=607-qeth-chparm-change.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 15.02.11 11:59:29, Heinz Graalfs wrote:
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-> > * Merge init.c and hwsampler_file.c, two files are bloated here and
-> >   hwsampler_file.c is a bad and too long naming.
-> > 
-> 
-> OK, I've merged all hwsampler_files.c contents into init.c
-> 
-> > * Rework functions in cpu_buffer.c (log_sample,
-> >   __oprofile_add_ext_sample, oprofile_add_ext_hw_sample, etc.). All
-> >   the (static) functions can be merged to a single functino by
-> >   implementing a struct that holds all current function arguments.
-> >   Something like:
-> > 
-> > static void __oprofile_add_ext_sample(struct *foobar fb);
-> > void oprofile_add_sample(struct pt_regs * const regs, unsigned long event)
-> > {
-> > 	struct foobar fb = { .regs = regs, .event = event };
-> > 	__oprofile_add_ext_sample(&fb);
-> > }
-> 
-> OK, I've done this
-> 
-> > 
-> >   The naming and description of oprofile_add_ext_hw_sample() is also
-> >   not the best. As interface in include/linux/oprofile.h we could then
-> >   merge oprofile_add_ext_sample() and oprofile_add_ext_hw_sample() to
-> >   a single function.
-> > 
-> > It would be nice if you could implement this.
-> 
-> sure, I will do this, however I'm not sure what you exactly mean.
-> Could you specify the interface in oprofile.h what you basically have in
-> mind?
+For HiperSockets the framesize-definition determines the selected
+mtu-size and the size of the allocated qdio buffers.
+A framesize-change may occur while a Linux system with probed
+HiperSockets device is in suspend state. This patch enables proper
+resuming of a HiperSockets device in this case.
 
-I mean to replace oprofile_add_ext_sample() and
-oprofile_add_ext_hw_sample() by a new one. The interface would be in
-the form of:
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
 
-struct foobar {
-       ...
-}
 
-static void __oprofile_add_ext_sample(struct *foobar fb);
-
-Hope this makes sense. The advantage would be that we don't need to
-extend the functions argument list anymore, we simply extend the
-struct.
-
-Please send me delta patches to oprofile/s390.
-
--Robert
-
--- 
-Advanced Micro Devices, Inc.
-Operating System Research Center
+ drivers/s390/net/qeth_core_main.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1887,8 +1887,16 @@ static int qeth_ulp_enable_cb(struct qet
+ 			QETH_DBF_TEXT_(SETUP, 2, "  rc%d", iob->rc);
+ 			return 0;
+ 		}
+-		card->info.max_mtu = mtu;
++		if (card->info.initial_mtu && (card->info.initial_mtu != mtu)) {
++			/* frame size has changed */
++			if (card->dev &&
++			    ((card->dev->mtu == card->info.initial_mtu) ||
++			     (card->dev->mtu > mtu)))
++				card->dev->mtu = mtu;
++			qeth_free_qdio_buffers(card);
++		}
+ 		card->info.initial_mtu = mtu;
++		card->info.max_mtu = mtu;
+ 		card->qdio.in_buf_size = mtu + 2 * PAGE_SIZE;
+ 	} else {
+ 		card->info.initial_mtu = qeth_get_initial_mtu_for_card(card);
