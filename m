@@ -1,10 +1,10 @@
 From: frank.blaschka@de.ibm.com
-Subject: [patch 6/6] [PATCH] s390: Fix possibly wrong size in strncmp (smsgiucv)
-Date: Wed, 02 Feb 2011 17:04:36 +0100
-Message-ID: <20110202160530.841230797@de.ibm.com>
+Subject: [patch 5/6] [PATCH] s390: Fix wrong size in memcmp (netiucv)
+Date: Wed, 02 Feb 2011 17:04:35 +0100
+Message-ID: <20110202160530.691540564@de.ibm.com>
 References: <20110202160430.554090958@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=610-smsgiucv-strncmp-size.diff
+Content-Disposition: inline; filename=609-netiucv-memcmp-size.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -15,27 +15,27 @@ List-ID: <linux-s390.vger.kernel.org>
 From: Stefan Weil <weil@mail.berlios.de>
 
 This error was reported by cppcheck:
-drivers/s390/net/smsgiucv.c:63: error: Using sizeof for array given as
-function argument returns the size of pointer.
+drivers/s390/net/netiucv.c:568: error: Using sizeof for array given
+as function argument returns the size of pointer.
 
-Although there is no runtime problem as long as sizeof(u8 *) == 8,
-this misleading code should get fixed.
+sizeof(ipuser) did not result in 16 (as many programmers would have
+expected) but sizeof(u8 *), so it is 4 or 8, too small here.
 
 Signed-off-by: Stefan Weil <weil@mail.berlios.de>
 Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
 
 
- drivers/s390/net/smsgiucv.c |    2 +-
+ drivers/s390/net/netiucv.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
---- a/drivers/s390/net/smsgiucv.c
-+++ b/drivers/s390/net/smsgiucv.c
-@@ -60,7 +60,7 @@ static struct iucv_handler smsg_handler
- static int smsg_path_pending(struct iucv_path *path, u8 ipvmid[8],
- 			     u8 ipuser[16])
- {
--	if (strncmp(ipvmid, "*MSG    ", sizeof(ipvmid)) != 0)
-+	if (strncmp(ipvmid, "*MSG    ", 8) != 0)
+--- a/drivers/s390/net/netiucv.c
++++ b/drivers/s390/net/netiucv.c
+@@ -565,7 +565,7 @@ static int netiucv_callback_connreq(stru
+ 	struct iucv_event ev;
+ 	int rc;
+ 
+-	if (memcmp(iucvMagic, ipuser, sizeof(ipuser)))
++	if (memcmp(iucvMagic, ipuser, 16))
+ 		/* ipuser must match iucvMagic. */
  		return -EINVAL;
- 	/* Path pending from *MSG. */
- 	return iucv_path_accept(path, &smsg_handler, "SMSGIUCV        ", NULL);
+ 	rc = -EINVAL;
