@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 14 Feb 2011 19:57:23 +0100
+Date: Mon, 14 Feb 2011 20:01:57 +0100
 From: Robert Richter <robert.richter@amd.com>
-Subject: Re: [patch v2 1/3] This patch adds support for hardware based
- sampling on System z processors (models z10 and up)
-Message-ID: <20110214185723.GR5874@erda.amd.com>
+Subject: Re: [patch v2 2/3] This patch enhances OProfile to support System
+ zs hardware sampling feature
+Message-ID: <20110214190157.GS5874@erda.amd.com>
 References: <20110121100651.821690659@linux.vnet.ibm.com>
- <20110121100841.879534437@linux.vnet.ibm.com>
+ <20110121100842.039354578@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20110121100841.879534437@linux.vnet.ibm.com>
+In-Reply-To: <20110121100842.039354578@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -17,38 +17,62 @@ To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 Cc: "mingo@elte.hu" <mingo@elte.hu>, "oprofile-list@lists.sf.net" <oprofile-list@lists.sf.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>, Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 21.01.11 05:06:52, Heinz Graalfs wrote:
+On 21.01.11 05:06:53, Heinz Graalfs wrote:
 > From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 > 
-> System z's hardware sampling is described in detail in:
+> OProfile is enhanced to export all files for controlling System z's hardware sampling,
+> and to invoke hwsampler exported functions to initialize and use System z's hardware sampling.
 > 
->    SA23-2260-01 "The Load-Program-Parameter and CPU-Measurement Facilities"
+> The patch invokes hwsampler_setup() during oprofile init and exports following
+> hwsampler files under oprofilefs if hwsampler's setup succeeded:
 > 
-> The patch introduces
->  - support for System z's hardware sampler in OProfile's kernel module
->  - it adds functions that control all hardware sampling related operations as
->   - checking if hardware sampling feature is available
->     - ie: on System z models z10 and up, in LPAR mode only, and authorised during LPAR activation
->   - allocating memory for the hardware sampling feature
->   - starting/stopping hardware sampling
+> A new directory for hardware sampling based files
 > 
-> All functions required to start and stop hardware sampling have to be
-> invoked by the oprofile kernel module as provided by the other patches of this patch set.
+>  /dev/oprofile/hwsampling/
 > 
-> In case hardware based sampling cannot be setup standard timer based sampling is used by OProfile.
+> The userland daemon must explicitly write to the following files
+> to disable (or enable) hardware based sampling
+> 
+>  /dev/oprofile/hwsampling/hwsampler
+> 
+> to modify the actual sampling rate
+> 
+>  /dev/oprofile/hwsampling/hw_interval
+> 
+> to modify the amount of sampling memory (measured in 4K pages)
+> 
+>  /dev/oprofile/hwsampling/hw_sdbt_blocks
+> 
+> The following files are read only and show
+> the possible minimum sampling rate
+> 
+>  /dev/oprofile/hwsampling/hw_min_interval
+> 
+> the possible maximum sampling rate
+> 
+>  /dev/oprofile/hwsampling/hw_max_interval
+> 
+> The patch splits the oprofile_timer_[init/exit] function so that it can be also called
+> through user context (oprofilefs) to avoid kernel oops.
 > 
 > Signed-off-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
 > Signed-off-by: Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
 > Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 > ---
->  arch/Kconfig                   |    3
->  arch/s390/Kconfig              |    1
->  arch/s390/oprofile/hwsampler.c | 1256 +++++++++++++++++++++++++++++++++++++++++
->  arch/s390/oprofile/hwsampler.h |  113 +++
->  4 files changed, 1373 insertions(+)
+>  arch/s390/oprofile/Makefile          |    3 
+>  arch/s390/oprofile/hwsampler_files.c |  146 +++++++++++++++++++++++++++++++++++
+>  arch/s390/oprofile/init.c            |    7 +
+>  drivers/oprofile/oprof.c             |   32 +++++++
+>  drivers/oprofile/oprof.h             |    2 
+>  drivers/oprofile/timer_int.c         |   16 +++
+>  include/linux/oprofile.h             |   21 +++++
+>  7 files changed, 222 insertions(+), 5 deletions(-)
 
 Applied with following changes:
-    * enable compilation in Makefile
+    * whitespace changes in Makefile and timer_int.c
+
+I reworked some changes in a follow-on patch which I apply on top of
+your patch set.
 
 -Robert
 
