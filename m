@@ -1,8 +1,9 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 14 Feb 2011 20:05:05 +0100
+Date: Mon, 14 Feb 2011 20:03:33 +0100
 From: Robert Richter <robert.richter@amd.com>
-Subject: [PATCH] oprofile, s390: Rework hwsampler implementation
-Message-ID: <20110214190505.GU5874@erda.amd.com>
+Subject: Re: [patch v2 2/3] This patch enhances OProfile to support System
+ zs hardware sampling feature
+Message-ID: <20110214190333.GT5874@erda.amd.com>
 References: <20110121100651.821690659@linux.vnet.ibm.com>
  <20110121100842.039354578@linux.vnet.ibm.com>
  <20110214190157.GS5874@erda.amd.com>
@@ -16,8 +17,6 @@ List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 Cc: "mingo@elte.hu" <mingo@elte.hu>, "oprofile-list@lists.sf.net" <oprofile-list@lists.sf.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>, Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-
-(resent with subject changed)
 
 On 14.02.11 20:01:57, Robert Richter wrote:
 > I reworked some changes in a follow-on patch which I apply on top of
