@@ -1,92 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [patch v2 0/3] OProfile support for System z's hardware
- sampling
-From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-In-Reply-To: <20110121100651.821690659@linux.vnet.ibm.com>
+Date: Mon, 14 Feb 2011 19:57:23 +0100
+From: Robert Richter <robert.richter@amd.com>
+Subject: Re: [patch v2 1/3] This patch adds support for hardware based
+ sampling on System z processors (models z10 and up)
+Message-ID: <20110214185723.GR5874@erda.amd.com>
 References: <20110121100651.821690659@linux.vnet.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 07 Feb 2011 09:23:41 +0100
-Message-ID: <1297067021.3263.3.camel@BR8HFPP0.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+ <20110121100841.879534437@linux.vnet.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20110121100841.879534437@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: robert.richter@amd.com
-Cc: linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, oprofile-list@lists.sf.net, schwidefsky@de.ibm.com
+To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+Cc: "mingo@elte.hu" <mingo@elte.hu>, "oprofile-list@lists.sf.net" <oprofile-list@lists.sf.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>, Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Robert,
+On 21.01.11 05:06:52, Heinz Graalfs wrote:
+> From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+> 
+> System z's hardware sampling is described in detail in:
+> 
+>    SA23-2260-01 "The Load-Program-Parameter and CPU-Measurement Facilities"
+> 
+> The patch introduces
+>  - support for System z's hardware sampler in OProfile's kernel module
+>  - it adds functions that control all hardware sampling related operations as
+>   - checking if hardware sampling feature is available
+>     - ie: on System z models z10 and up, in LPAR mode only, and authorised during LPAR activation
+>   - allocating memory for the hardware sampling feature
+>   - starting/stopping hardware sampling
+> 
+> All functions required to start and stop hardware sampling have to be
+> invoked by the oprofile kernel module as provided by the other patches of this patch set.
+> 
+> In case hardware based sampling cannot be setup standard timer based sampling is used by OProfile.
+> 
+> Signed-off-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
+> Signed-off-by: Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
+> Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+> ---
+>  arch/Kconfig                   |    3
+>  arch/s390/Kconfig              |    1
+>  arch/s390/oprofile/hwsampler.c | 1256 +++++++++++++++++++++++++++++++++++++++++
+>  arch/s390/oprofile/hwsampler.h |  113 +++
+>  4 files changed, 1373 insertions(+)
 
-when do you have a chance do look at my patches?
+Applied with following changes:
+    * enable compilation in Makefile
 
-Looking forward to a positive reply.
+-Robert
 
-Heinz
-
-On Fri, 2011-01-21 at 11:06 +0100, Heinz Graalfs wrote:
-> Hello Robert,
-> 
-> I'm resending yesterday's mail because I missed to specify the correct sender information.
-> 
-> This is a re-posting of the patch series originally posted last month:
-> 
-> http://marc.info/?l=linux-s390&m=129285043619973&w=2
-> 
-> Heinz
-> 
-> Changes in
-> 
-> v2:
->    - kernel module hwsampler removed, everything is now in oprofile kernel module
->    - functions from hwsampler-main.c and smpctl.c merged into arch/s390/oprofile/hwsampler.c
->      - functions made static
->    - arch/s390/include/asm/hwsampler.h moved to arch/s390/oprofile/hwsampler.h
->      - structs have now hws_ prefix
->    - config variables changed, HAVE_HWSAMPLER used only
->    - original patch 4 (handle_munmap.patch) removed
-> 
-> Description:
-> 
-> So far, OProfile takes samples by using a software interrupt.
-> The purpose of this series of patches is to add support for System z hardware sampling to OProfile.
-> 
-> Hardware (HW) sampling is a feature provided by System z processors (z10 and follow ons).
-> When sampling, the processor takes samples containing the instruction address, PID, and other information.
-> The samples are taken at a programmable rate and stored into a buffer provided by the operating system.
-> The sampling process is implemented in hardware and millicode and thus does not affect the operating system
-> being oberved, apart from requiring buffer memory that the Linux kernel must provide.
-> 
-> Hardware sampling is available in LPAR mode on 64 BIT processors only.
-> 
-> The overall approach is to replace the software-based sample generation by hardware sampling.
-> All required functionality to control the HW sampling mechanism is added to the oprofile kernel module.
-> The functions provide support for
->  - controlling the sampling hardware,
->  - setting up appropriate buffer structures (HW buffers),
->  - retrieving sample entries from these buffers.
-> Multiple CPUs can be handled.
-> 
-> The samples contain the instruction address, a bit distinguishing between kernel and user space,
-> and for user space samples also the PID.
-> Instead of taking samples from its own per-CPU buffers, OProfile would rather take samples from the
-> HW buffers.
-> 
-> When hardware sampling can be enabled on the current System z processor it will be the new default.
-> Switching back to timer based sampling can be established by using
-> 
->    echo 0 > /dev/oprofile/hwsampling/hwsampler
-> 
-> The user space drivers of OProfile also need an extension to control hw sampling by appropriate options.
-> 
-> 
-> ------------------------------------------------------------------------------
-> Special Offer-- Download ArcSight Logger for FREE (a $49 USD value)!
-> Finally, a world-class log management solution at an even better price-free!
-> Download using promo code Free_Logger_4_Dev2Dev. Offer expires 
-> February 28th, so secure your free ArcSight Logger TODAY! 
-> http://p.sf.net/sfu/arcsight-sfd2d
-> _______________________________________________
-> oprofile-list mailing list
-> oprofile-list@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/oprofile-list
+-- 
+Advanced Micro Devices, Inc.
+Operating System Research Center
