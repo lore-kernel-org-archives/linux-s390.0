@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20110215180212.334742128@linux.vnet.ibm.com>
-Date: Tue, 15 Feb 2011 19:02:12 +0100
+Message-Id: <20110216110118.316927092@linux.vnet.ibm.com>
+Date: Wed, 16 Feb 2011 12:01:18 +0100
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [patch 0/2] delta patch - s390 hw sampling rework on comments as of Feb 14th
+Subject: [patch v2 0/3] s390 hw sampling rework on comments as of Feb 14th 
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -12,13 +12,22 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Robert,
 
-here is the first version of the rework for your comments as of February 14th.
+here is the second version of the rework for your comments as of February 14th.
 
-   1. I merged hwsampler_files.c contents into init.c
-   2. I added a struct as you proposed.
+v2:
+   - oprofile_add_ext_sample.patch
+         - introduces struct oprofile_sample_parms in include/linux/oprofile.h
+         - merges oprofile_add_ext_hw_sample() into oprofile_add_ext_sample()
+         - changes signature of oprofile_add_ext_sample() by using the proposed
+           structure containing relevant parameters
+         - changes all references of oprofile_add_ext_sample()
 
-   It is not clear to me how you want me to merge the static functions.
+v1:
+   - oprofile_merge_init.patch
+         - merges hwsampler_files.c of arch/s390/oprofile into init.c
 
-   One possibility I'm seeing is to merge log_sample, op_add_code, and op_add_sample?
+   - oprofile_parms_struct.patch
+         - introduces first version of struct oprofile_sample_parms in various
+           functions
 
 Heinz
