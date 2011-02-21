@@ -1,33 +1,138 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 1/1] [PATCH] qeth: remove needless IPA-commands in
- offline
-Date: Sat, 26 Feb 2011 22:41:44 -0800 (PST)
-Message-ID: <20110226.224144.115932133.davem@davemloft.net>
-References: <20110218142258.791988211@de.ibm.com>
-	<20110218142343.763210392@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 21 Feb 2011 09:51:02 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for 2.6.38-rc5
+Message-ID: <20110221095102.0e954a57@mschwide.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20110218142343.763210392@de.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: frank.blaschka@de.ibm.com
-Date: Fri, 18 Feb 2011 15:22:59 +0100
+Hi Linus,
 
-> From: Ursula Braun <ursula.braun@de.ibm.com>
-> 
-> If a qeth device is set offline, data and control subchannels are
-> cleared, which means removal of all IP Assist Primitive settings
-> implicitly. There is no need to delete those settings explicitly.
-> This patch removes all IP Assist invocations from offline.
-> 
-> Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-> Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+please pull from 'for-linus' branch of
 
-Applied.
+	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
+
+to receive the following updates:
+
+Heiko Carstens (2):
+      [S390] atomic: use ACCESS_ONCE() for atomic_read()
+      [S390] atomic: use inline asm
+
+Horst Hartmann (1):
+      [S390] net: provide architecture specific NET_SKB_PAD
+
+Martin Schwidefsky (1):
+      [S390] correct ipl parameter block safe guard
+
+Stefan Haberland (1):
+      [S390] dasd: correct device table
+
+ arch/s390/boot/compressed/misc.c |    5 +++--
+ arch/s390/include/asm/atomic.h   |   26 ++++++++++++++++++--------
+ arch/s390/include/asm/cache.h    |    1 +
+ drivers/s390/block/dasd_eckd.c   |    2 +-
+ 4 files changed, 23 insertions(+), 11 deletions(-)
+
+diff --git a/arch/s390/boot/compressed/misc.c b/arch/s390/boot/compressed/misc.c
+index 0851eb1..2751b3a 100644
+--- a/arch/s390/boot/compressed/misc.c
++++ b/arch/s390/boot/compressed/misc.c
+@@ -133,11 +133,12 @@ unsigned long decompress_kernel(void)
+ 	unsigned long output_addr;
+ 	unsigned char *output;
+ 
+-	check_ipl_parmblock((void *) 0, (unsigned long) output + SZ__bss_start);
++	output_addr = ((unsigned long) &_end + HEAP_SIZE + 4095UL) & -4096UL;
++	check_ipl_parmblock((void *) 0, output_addr + SZ__bss_start);
+ 	memset(&_bss, 0, &_ebss - &_bss);
+ 	free_mem_ptr = (unsigned long)&_end;
+ 	free_mem_end_ptr = free_mem_ptr + HEAP_SIZE;
+-	output = (unsigned char *) ((free_mem_end_ptr + 4095UL) & -4096UL);
++	output = (unsigned char *) output_addr;
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	/*
+diff --git a/arch/s390/include/asm/atomic.h b/arch/s390/include/asm/atomic.h
+index 76daea1..5c5ba10 100644
+--- a/arch/s390/include/asm/atomic.h
++++ b/arch/s390/include/asm/atomic.h
+@@ -36,14 +36,19 @@
+ 
+ static inline int atomic_read(const atomic_t *v)
+ {
+-	barrier();
+-	return v->counter;
++	int c;
++
++	asm volatile(
++		"	l	%0,%1\n"
++		: "=d" (c) : "Q" (v->counter));
++	return c;
+ }
+ 
+ static inline void atomic_set(atomic_t *v, int i)
+ {
+-	v->counter = i;
+-	barrier();
++	asm volatile(
++		"	st	%1,%0\n"
++		: "=Q" (v->counter) : "d" (i));
+ }
+ 
+ static inline int atomic_add_return(int i, atomic_t *v)
+@@ -128,14 +133,19 @@ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ 
+ static inline long long atomic64_read(const atomic64_t *v)
+ {
+-	barrier();
+-	return v->counter;
++	long long c;
++
++	asm volatile(
++		"	lg	%0,%1\n"
++		: "=d" (c) : "Q" (v->counter));
++	return c;
+ }
+ 
+ static inline void atomic64_set(atomic64_t *v, long long i)
+ {
+-	v->counter = i;
+-	barrier();
++	asm volatile(
++		"	stg	%1,%0\n"
++		: "=Q" (v->counter) : "d" (i));
+ }
+ 
+ static inline long long atomic64_add_return(long long i, atomic64_t *v)
+diff --git a/arch/s390/include/asm/cache.h b/arch/s390/include/asm/cache.h
+index 24aafa6..2a30d5a 100644
+--- a/arch/s390/include/asm/cache.h
++++ b/arch/s390/include/asm/cache.h
+@@ -13,6 +13,7 @@
+ 
+ #define L1_CACHE_BYTES     256
+ #define L1_CACHE_SHIFT     8
++#define NET_SKB_PAD	   32
+ 
+ #define __read_mostly __attribute__((__section__(".data..read_mostly")))
+ 
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 318672d..a9fe23d 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -72,7 +72,7 @@ static struct dasd_discipline dasd_eckd_discipline;
+ static struct ccw_device_id dasd_eckd_ids[] = {
+ 	{ CCW_DEVICE_DEVTYPE (0x3990, 0, 0x3390, 0), .driver_info = 0x1},
+ 	{ CCW_DEVICE_DEVTYPE (0x2105, 0, 0x3390, 0), .driver_info = 0x2},
+-	{ CCW_DEVICE_DEVTYPE (0x3880, 0, 0x3390, 0), .driver_info = 0x3},
++	{ CCW_DEVICE_DEVTYPE (0x3880, 0, 0x3380, 0), .driver_info = 0x3},
+ 	{ CCW_DEVICE_DEVTYPE (0x3990, 0, 0x3380, 0), .driver_info = 0x4},
+ 	{ CCW_DEVICE_DEVTYPE (0x2105, 0, 0x3380, 0), .driver_info = 0x5},
+ 	{ CCW_DEVICE_DEVTYPE (0x9343, 0, 0x9345, 0), .driver_info = 0x6},
