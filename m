@@ -1,138 +1,216 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 21 Feb 2011 09:51:02 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 2.6.38-rc5
-Message-ID: <20110221095102.0e954a57@mschwide.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Steffen Maier <maier@linux.vnet.ibm.com>
+Subject: [PATCH 04/11] zfcp: Introduce new kmem_cache for FC request and response data
+Date: Tue, 22 Feb 2011 19:54:41 +0100
+Message-ID: <20110222185536.427694219@linux.vnet.ibm.com>
+References: <20110222185437.385767855@linux.vnet.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline; filename=704-zfcp-kmem-cache-fc.diff
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@suse.de>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, Christof Schmitt <christof.schmitt@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+From: Christof Schmitt <christof.schmitt@de.ibm.com>
 
-please pull from 'for-linus' branch of
+A data buffer that is passed to the hardware must not cross a page
+boundary. zfcp uses a series of kmem_caches to align the data to not
+cross a page boundary. Introduce a new kmem_cache for the FC requests
+sent from the zfcp driver and use it for the ELS ADISC data.  The goal
+is to migrate to the FC kmem_cache in later patches and remove the
+request specific kmem_caches.
 
-	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
+Signed-off-by: Christof Schmitt <christof.schmitt@de.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
+---
 
-to receive the following updates:
 
-Heiko Carstens (2):
-      [S390] atomic: use ACCESS_ONCE() for atomic_read()
-      [S390] atomic: use inline asm
-
-Horst Hartmann (1):
-      [S390] net: provide architecture specific NET_SKB_PAD
-
-Martin Schwidefsky (1):
-      [S390] correct ipl parameter block safe guard
-
-Stefan Haberland (1):
-      [S390] dasd: correct device table
-
- arch/s390/boot/compressed/misc.c |    5 +++--
- arch/s390/include/asm/atomic.h   |   26 ++++++++++++++++++--------
- arch/s390/include/asm/cache.h    |    1 +
- drivers/s390/block/dasd_eckd.c   |    2 +-
- 4 files changed, 23 insertions(+), 11 deletions(-)
-
-diff --git a/arch/s390/boot/compressed/misc.c b/arch/s390/boot/compressed/misc.c
-index 0851eb1..2751b3a 100644
---- a/arch/s390/boot/compressed/misc.c
-+++ b/arch/s390/boot/compressed/misc.c
-@@ -133,11 +133,12 @@ unsigned long decompress_kernel(void)
- 	unsigned long output_addr;
- 	unsigned char *output;
+ drivers/s390/scsi/zfcp_aux.c |   14 ++++++-------
+ drivers/s390/scsi/zfcp_def.h |    1 
+ drivers/s390/scsi/zfcp_ext.h |    1 
+ drivers/s390/scsi/zfcp_fc.c  |   46 ++++++++++++++++++++++---------------------
+ drivers/s390/scsi/zfcp_fc.h  |   27 ++++++++++++++-----------
+ 5 files changed, 47 insertions(+), 42 deletions(-)
+--- a/drivers/s390/scsi/zfcp_aux.c
++++ b/drivers/s390/scsi/zfcp_aux.c
+@@ -137,10 +137,10 @@ static int __init zfcp_module_init(void)
+ 	if (!zfcp_data.gid_pn_cache)
+ 		goto out_gid_cache;
  
--	check_ipl_parmblock((void *) 0, (unsigned long) output + SZ__bss_start);
-+	output_addr = ((unsigned long) &_end + HEAP_SIZE + 4095UL) & -4096UL;
-+	check_ipl_parmblock((void *) 0, output_addr + SZ__bss_start);
- 	memset(&_bss, 0, &_ebss - &_bss);
- 	free_mem_ptr = (unsigned long)&_end;
- 	free_mem_end_ptr = free_mem_ptr + HEAP_SIZE;
--	output = (unsigned char *) ((free_mem_end_ptr + 4095UL) & -4096UL);
-+	output = (unsigned char *) output_addr;
+-	zfcp_data.adisc_cache = zfcp_cache_hw_align("zfcp_adisc",
+-					sizeof(struct zfcp_fc_els_adisc));
+-	if (!zfcp_data.adisc_cache)
+-		goto out_adisc_cache;
++	zfcp_fc_req_cache = zfcp_cache_hw_align("zfcp_fc_req",
++						sizeof(struct zfcp_fc_req));
++	if (!zfcp_fc_req_cache)
++		goto out_fc_cache;
  
- #ifdef CONFIG_BLK_DEV_INITRD
- 	/*
-diff --git a/arch/s390/include/asm/atomic.h b/arch/s390/include/asm/atomic.h
-index 76daea1..5c5ba10 100644
---- a/arch/s390/include/asm/atomic.h
-+++ b/arch/s390/include/asm/atomic.h
-@@ -36,14 +36,19 @@
+ 	zfcp_data.scsi_transport_template =
+ 		fc_attach_transport(&zfcp_transport_functions);
+@@ -172,8 +172,8 @@ out_ccw_register:
+ out_misc:
+ 	fc_release_transport(zfcp_data.scsi_transport_template);
+ out_transport:
+-	kmem_cache_destroy(zfcp_data.adisc_cache);
+-out_adisc_cache:
++	kmem_cache_destroy(zfcp_fc_req_cache);
++out_fc_cache:
+ 	kmem_cache_destroy(zfcp_data.gid_pn_cache);
+ out_gid_cache:
+ 	kmem_cache_destroy(zfcp_data.qtcb_cache);
+@@ -190,7 +190,7 @@ static void __exit zfcp_module_exit(void
+ 	ccw_driver_unregister(&zfcp_ccw_driver);
+ 	misc_deregister(&zfcp_cfdc_misc);
+ 	fc_release_transport(zfcp_data.scsi_transport_template);
+-	kmem_cache_destroy(zfcp_data.adisc_cache);
++	kmem_cache_destroy(zfcp_fc_req_cache);
+ 	kmem_cache_destroy(zfcp_data.gid_pn_cache);
+ 	kmem_cache_destroy(zfcp_data.qtcb_cache);
+ 	kmem_cache_destroy(zfcp_data.gpn_ft_cache);
+--- a/drivers/s390/scsi/zfcp_def.h
++++ b/drivers/s390/scsi/zfcp_def.h
+@@ -320,7 +320,6 @@ struct zfcp_data {
+ 	struct kmem_cache	*gpn_ft_cache;
+ 	struct kmem_cache	*qtcb_cache;
+ 	struct kmem_cache	*gid_pn_cache;
+-	struct kmem_cache	*adisc_cache;
+ };
  
- static inline int atomic_read(const atomic_t *v)
- {
--	barrier();
--	return v->counter;
-+	int c;
+ #endif /* ZFCP_DEF_H */
+--- a/drivers/s390/scsi/zfcp_ext.h
++++ b/drivers/s390/scsi/zfcp_ext.h
+@@ -80,6 +80,7 @@ extern void zfcp_erp_notify(struct zfcp_
+ extern void zfcp_erp_timeout_handler(unsigned long);
+ 
+ /* zfcp_fc.c */
++extern struct kmem_cache *zfcp_fc_req_cache;
+ extern void zfcp_fc_enqueue_event(struct zfcp_adapter *,
+ 				enum fc_host_event_code event_code, u32);
+ extern void zfcp_fc_post_event(struct work_struct *);
+--- a/drivers/s390/scsi/zfcp_fc.c
++++ b/drivers/s390/scsi/zfcp_fc.c
+@@ -16,6 +16,8 @@
+ #include "zfcp_ext.h"
+ #include "zfcp_fc.h"
+ 
++struct kmem_cache *zfcp_fc_req_cache;
 +
-+	asm volatile(
-+		"	l	%0,%1\n"
-+		: "=d" (c) : "Q" (v->counter));
-+	return c;
- }
+ static u32 zfcp_fc_rscn_range_mask[] = {
+ 	[ELS_ADDR_FMT_PORT]		= 0xFFFFFF,
+ 	[ELS_ADDR_FMT_AREA]		= 0xFFFF00,
+@@ -419,11 +421,11 @@ void zfcp_fc_plogi_evaluate(struct zfcp_
  
- static inline void atomic_set(atomic_t *v, int i)
+ static void zfcp_fc_adisc_handler(void *data)
  {
--	v->counter = i;
--	barrier();
-+	asm volatile(
-+		"	st	%1,%0\n"
-+		: "=Q" (v->counter) : "d" (i));
+-	struct zfcp_fc_els_adisc *adisc = data;
+-	struct zfcp_port *port = adisc->els.port;
+-	struct fc_els_adisc *adisc_resp = &adisc->adisc_resp;
++	struct zfcp_fc_req *fc_req = data;
++	struct zfcp_port *port = fc_req->ct_els.port;
++	struct fc_els_adisc *adisc_resp = &fc_req->u.adisc.rsp;
+ 
+-	if (adisc->els.status) {
++	if (fc_req->ct_els.status) {
+ 		/* request rejected or timed out */
+ 		zfcp_erp_port_forced_reopen(port, ZFCP_STATUS_COMMON_ERP_FAILED,
+ 					    "fcadh_1");
+@@ -445,42 +447,42 @@ static void zfcp_fc_adisc_handler(void *
+  out:
+ 	atomic_clear_mask(ZFCP_STATUS_PORT_LINK_TEST, &port->status);
+ 	put_device(&port->dev);
+-	kmem_cache_free(zfcp_data.adisc_cache, adisc);
++	kmem_cache_free(zfcp_fc_req_cache, fc_req);
  }
  
- static inline int atomic_add_return(int i, atomic_t *v)
-@@ -128,14 +133,19 @@ static inline int atomic_add_unless(atomic_t *v, int a, int u)
- 
- static inline long long atomic64_read(const atomic64_t *v)
+ static int zfcp_fc_adisc(struct zfcp_port *port)
  {
--	barrier();
--	return v->counter;
-+	long long c;
-+
-+	asm volatile(
-+		"	lg	%0,%1\n"
-+		: "=d" (c) : "Q" (v->counter));
-+	return c;
+-	struct zfcp_fc_els_adisc *adisc;
++	struct zfcp_fc_req *fc_req;
+ 	struct zfcp_adapter *adapter = port->adapter;
++	struct Scsi_Host *shost = adapter->scsi_host;
+ 	int ret;
+ 
+-	adisc = kmem_cache_zalloc(zfcp_data.adisc_cache, GFP_ATOMIC);
+-	if (!adisc)
++	fc_req = kmem_cache_zalloc(zfcp_fc_req_cache, GFP_ATOMIC);
++	if (!fc_req)
+ 		return -ENOMEM;
+ 
+-	adisc->els.port = port;
+-	adisc->els.req = &adisc->req;
+-	adisc->els.resp = &adisc->resp;
+-	sg_init_one(adisc->els.req, &adisc->adisc_req,
++	fc_req->ct_els.port = port;
++	fc_req->ct_els.req = &fc_req->sg_req;
++	fc_req->ct_els.resp = &fc_req->sg_rsp;
++	sg_init_one(&fc_req->sg_req, &fc_req->u.adisc.req,
+ 		    sizeof(struct fc_els_adisc));
+-	sg_init_one(adisc->els.resp, &adisc->adisc_resp,
++	sg_init_one(&fc_req->sg_rsp, &fc_req->u.adisc.rsp,
+ 		    sizeof(struct fc_els_adisc));
+ 
+-	adisc->els.handler = zfcp_fc_adisc_handler;
+-	adisc->els.handler_data = adisc;
++	fc_req->ct_els.handler = zfcp_fc_adisc_handler;
++	fc_req->ct_els.handler_data = fc_req;
+ 
+ 	/* acc. to FC-FS, hard_nport_id in ADISC should not be set for ports
+ 	   without FC-AL-2 capability, so we don't set it */
+-	adisc->adisc_req.adisc_wwpn = fc_host_port_name(adapter->scsi_host);
+-	adisc->adisc_req.adisc_wwnn = fc_host_node_name(adapter->scsi_host);
+-	adisc->adisc_req.adisc_cmd = ELS_ADISC;
+-	hton24(adisc->adisc_req.adisc_port_id,
+-	       fc_host_port_id(adapter->scsi_host));
++	fc_req->u.adisc.req.adisc_wwpn = fc_host_port_name(shost);
++	fc_req->u.adisc.req.adisc_wwnn = fc_host_node_name(shost);
++	fc_req->u.adisc.req.adisc_cmd = ELS_ADISC;
++	hton24(fc_req->u.adisc.req.adisc_port_id, fc_host_port_id(shost));
+ 
+-	ret = zfcp_fsf_send_els(adapter, port->d_id, &adisc->els,
++	ret = zfcp_fsf_send_els(adapter, port->d_id, &fc_req->ct_els,
+ 				ZFCP_FC_CTELS_TMO);
+ 	if (ret)
+-		kmem_cache_free(zfcp_data.adisc_cache, adisc);
++		kmem_cache_free(zfcp_fc_req_cache, fc_req);
+ 
+ 	return ret;
  }
+--- a/drivers/s390/scsi/zfcp_fc.h
++++ b/drivers/s390/scsi/zfcp_fc.h
+@@ -123,19 +123,22 @@ struct zfcp_fc_gpn_ft {
+ };
  
- static inline void atomic64_set(atomic64_t *v, long long i)
- {
--	v->counter = i;
--	barrier();
-+	asm volatile(
-+		"	stg	%1,%0\n"
-+		: "=Q" (v->counter) : "d" (i));
- }
+ /**
+- * struct zfcp_fc_els_adisc - everything required in zfcp for issuing ELS ADISC
+- * @els: data required for issuing els fsf command
+- * @req: scatterlist entry for ELS ADISC request
+- * @resp: scatterlist entry for ELS ADISC response
+- * @adisc_req: ELS ADISC request data
+- * @adisc_resp: ELS ADISC response data
++ * struct zfcp_fc_req - Container for FC ELS and CT requests sent from zfcp
++ * @ct_els: data required for issuing fsf command
++ * @sg_req: scatterlist entry for request data
++ * @sg_rsp: scatterlist entry for response data
++ * @u: request specific data
+  */
+-struct zfcp_fc_els_adisc {
+-	struct zfcp_fsf_ct_els els;
+-	struct scatterlist req;
+-	struct scatterlist resp;
+-	struct fc_els_adisc adisc_req;
+-	struct fc_els_adisc adisc_resp;
++struct zfcp_fc_req {
++	struct zfcp_fsf_ct_els				ct_els;
++	struct scatterlist				sg_req;
++	struct scatterlist				sg_rsp;
++	union {
++		struct {
++			struct fc_els_adisc		req;
++			struct fc_els_adisc		rsp;
++		} adisc;
++	} u;
+ };
  
- static inline long long atomic64_add_return(long long i, atomic64_t *v)
-diff --git a/arch/s390/include/asm/cache.h b/arch/s390/include/asm/cache.h
-index 24aafa6..2a30d5a 100644
---- a/arch/s390/include/asm/cache.h
-+++ b/arch/s390/include/asm/cache.h
-@@ -13,6 +13,7 @@
- 
- #define L1_CACHE_BYTES     256
- #define L1_CACHE_SHIFT     8
-+#define NET_SKB_PAD	   32
- 
- #define __read_mostly __attribute__((__section__(".data..read_mostly")))
- 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 318672d..a9fe23d 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -72,7 +72,7 @@ static struct dasd_discipline dasd_eckd_discipline;
- static struct ccw_device_id dasd_eckd_ids[] = {
- 	{ CCW_DEVICE_DEVTYPE (0x3990, 0, 0x3390, 0), .driver_info = 0x1},
- 	{ CCW_DEVICE_DEVTYPE (0x2105, 0, 0x3390, 0), .driver_info = 0x2},
--	{ CCW_DEVICE_DEVTYPE (0x3880, 0, 0x3390, 0), .driver_info = 0x3},
-+	{ CCW_DEVICE_DEVTYPE (0x3880, 0, 0x3380, 0), .driver_info = 0x3},
- 	{ CCW_DEVICE_DEVTYPE (0x3990, 0, 0x3380, 0), .driver_info = 0x4},
- 	{ CCW_DEVICE_DEVTYPE (0x2105, 0, 0x3380, 0), .driver_info = 0x5},
- 	{ CCW_DEVICE_DEVTYPE (0x9343, 0, 0x9345, 0), .driver_info = 0x6},
+ /**
