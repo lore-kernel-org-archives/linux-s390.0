@@ -1,74 +1,64 @@
 Return-Path: <owner-linux-mm@kvack.org>
-References: <1299630721-4337-1-git-send-email-wilsons@start.ca> <20110310160032.GA20504@alboin.amr.corp.intel.com> <20110310163809.GA20675@alboin.amr.corp.intel.com> <20110310165414.GA6431@fibrous.localdomain>
-In-Reply-To: <20110310165414.GA6431@fibrous.localdomain>
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="----V09616JKR7L2B0NB8391YYHI8HKF8V"
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_0/5=5D_make_*=5Fgate=5Fvma_accep?= =?US-ASCII?Q?t_mm=5Fstruct_instead_of=09task=5Fstruct_II?=
-From: "H. Peter Anvin" <hpa@zytor.com>
-Date: Thu, 10 Mar 2011 09:22:48 -0800
-Message-ID: <37e280c3-7f6b-4f1e-9589-68f4a67e4c0a@email.android.com>
+From: Stephen Wilson <wilsons@start.ca>
+Subject: [PATCH 0/5] make *_gate_vma accept mm_struct instead of task_struct
+Date: Tue,  8 Mar 2011 19:31:56 -0500
+Message-Id: <1299630721-4337-1-git-send-email-wilsons@start.ca>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Stephen Wilson <wilsons@start.ca>, Andi Kleen <ak@linux.intel.com>
-Cc: x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Paul Mundt <lethal@linux-sh.org>, Michel Lespinasse <walken@google.com>, Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+To: x86@kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Paul Mundt <lethal@linux-sh.org>, Andi Kleen <ak@linux.intel.com>, Michel Lespinasse <walken@google.com>, Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-------V09616JKR7L2B0NB8391YYHI8HKF8V
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-Sorry... I confused them too. It's TS_COMPAT which is problematic.
--- 
-Sent from my mobile phone. Please pardon any lack of formatting.
+Morally, the question of whether an address lies in a gate vma should be asked
+with respect to an mm, not a particular task.
 
-Stephen Wilson <wilsons@start.ca> wrote:
+Practically, dropping the dependency on task_struct will help make current and
+future operations on mm's more flexible and convenient.  In particular, it
+allows some code paths to avoid the need to hold task_lock.
 
-On Thu, Mar 10, 2011 at 08:38:09AM -0800, Andi Kleen wrote: > On Thu, Mar 10, 2011 at 08:00:32AM -0800, Andi Kleen wrote: > > On Tue, Mar 08, 2011 at 07:31:56PM -0500, Stephen Wilson wrote: > > > The only architecture this change impacts in any significant way is x86_64. > > > The principle change on that architecture is to mirror TIF_IA32 via > > > a new flag in mm_context_t. > > > > The problem is -- you're adding a likely cache miss on mm_struct for > > every 32bit compat syscall now, even if they don't need mm_struct > > currently (and a lot of them do not) Unless there's a very good > > justification to make up for this performance issue elsewhere > > (including numbers) this seems like a bad idea. > > Hmm I see you're only setting it on exec time actually on rereading > the patches. I thought you were changing TS_COMPAT which is in > the syscall path. > > Never mind. I have no problems with doing such a change on exec > time. OK. Great! Does this mean I have your ACK'e!
- d by or
-reviewed by? Thanks for taking a look! -- steve 
+The only architecture this change impacts in any significant way is x86_64.
+The principle change on that architecture is to mirror TIF_IA32 via
+a new flag in mm_context_t. 
 
-
-------V09616JKR7L2B0NB8391YYHI8HKF8V
-Content-Type: text/html;
- charset=utf-8
-Content-Transfer-Encoding: 8bit
-
-<html><head></head><body>Sorry... I confused them too.  It&#39;s TS_COMPAT which is problematic.<br>
--- <br>
-Sent from my mobile phone.  Please pardon any lack of formatting.<br><br><div class="gmail_quote">Stephen Wilson &lt;wilsons@start.ca&gt; wrote:<blockquote class="gmail_quote" style="margin: 0pt 0pt 0pt 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">
-<div style="white-space: pre-wrap; word-wrap:break-word; ">
-On Thu, Mar 10, 2011 at 08:38:09AM -0800, Andi Kleen wrote:
-&gt; On Thu, Mar 10, 2011 at 08:00:32AM -0800, Andi Kleen wrote:
-&gt; &gt; On Tue, Mar 08, 2011 at 07:31:56PM -0500, Stephen Wilson wrote:
-&gt; &gt; &gt; The only architecture this change impacts in any significant way is x86_64.
-&gt; &gt; &gt; The principle change on that architecture is to mirror TIF_IA32 via
-&gt; &gt; &gt; a new flag in mm_context_t. 
-&gt; &gt; 
-&gt; &gt; The problem is -- you're adding a likely cache miss on mm_struct for
-&gt; &gt; every 32bit compat syscall now, even if they don't need mm_struct
-&gt; &gt; currently (and a lot of them do not) Unless there's a very good
-&gt; &gt; justification to make up for this performance issue elsewhere
-&gt; &gt; (including numbers) this seems like a bad idea.
-&gt; 
-&gt; Hmm I see you're only setting it on exec time actually on rereading
-&gt; the patches. I thought you were changing TS_COMPAT which is in
-&gt; the syscall path.
-&gt; 
-&gt; Never mind.  I have no problems with doing such a change on exec
-&gt; time.
-
-OK.  Great!  Does this mean I have your ACK'ed by or reviewed by?
+This is the first of a two part series that implements safe writes to
+/proc/pid/mem.  I will be posting the second series to lkml shortly.  These
+patches are based on v2.6.38-rc8.  The general approach used here was suggested
+to me by Alexander Viro, but any mistakes present in these patches are entirely
+my own.
 
 
-Thanks for taking a look!
-
--- 
+--
 steve
 
-</div></blockquote></div></body></html>
-------V09616JKR7L2B0NB8391YYHI8HKF8V--
+
+Stephen Wilson (5):
+      x86: add context tag to mark mm when running a task in 32-bit compatibility mode
+      x86: mark associated mm when running a task in 32 bit compatibility mode
+      mm: arch: make get_gate_vma take an mm_struct instead of a task_struct
+      mm: arch: make in_gate_area take an mm_struct instead of a task_struct
+      mm: arch: rename in_gate_area_no_task to in_gate_area_no_mm
+
+
+ arch/powerpc/kernel/vdso.c         |    6 +++---
+ arch/s390/kernel/vdso.c            |    6 +++---
+ arch/sh/kernel/vsyscall/vsyscall.c |    6 +++---
+ arch/x86/ia32/ia32_aout.c          |    1 +
+ arch/x86/include/asm/mmu.h         |    6 ++++++
+ arch/x86/kernel/process_64.c       |    8 ++++++++
+ arch/x86/mm/init_64.c              |   16 ++++++++--------
+ arch/x86/vdso/vdso32-setup.c       |   15 ++++++++-------
+ fs/binfmt_elf.c                    |    2 +-
+ fs/proc/task_mmu.c                 |    8 +++++---
+ include/linux/mm.h                 |   10 +++++-----
+ kernel/kallsyms.c                  |    4 ++--
+ mm/memory.c                        |    8 ++++----
+ mm/mlock.c                         |    4 ++--
+ mm/nommu.c                         |    2 +-
+ 15 files changed, 61 insertions(+), 42 deletions(-)
+
+
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
