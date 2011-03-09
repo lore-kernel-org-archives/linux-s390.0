@@ -1,38 +1,47 @@
 Return-Path: <owner-linux-mm@kvack.org>
+Date: Wed, 9 Mar 2011 09:14:41 -0500
+From: Stephen Wilson <wilsons@start.ca>
+Subject: Re: [PATCH 0/5] make *_gate_vma accept mm_struct instead of
+	task_struct
+Message-ID: <20110309141441.GA8861@fibrous.localdomain>
+References: <1299630721-4337-1-git-send-email-wilsons@start.ca> <AANLkTikTEi8uKeCfPLoenNx9g6fLyAqNqfVdR=4KzNB3@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1299630721-4337-1-git-send-email-wilsons@start.ca>
-References: <1299630721-4337-1-git-send-email-wilsons@start.ca>
-Date: Wed, 9 Mar 2011 05:09:09 -0800
-Message-ID: <AANLkTikTEi8uKeCfPLoenNx9g6fLyAqNqfVdR=4KzNB3@mail.gmail.com>
-Subject: Re: [PATCH 0/5] make *_gate_vma accept mm_struct instead of task_struct
-From: Michel Lespinasse <walken@google.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <AANLkTikTEi8uKeCfPLoenNx9g6fLyAqNqfVdR=4KzNB3@mail.gmail.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Stephen Wilson <wilsons@start.ca>
+To: Michel Lespinasse <walken@google.com>
 Cc: x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Paul Mundt <lethal@linux-sh.org>, Andi Kleen <ak@linux.intel.com>, Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Mar 8, 2011 at 4:31 PM, Stephen Wilson <wilsons@start.ca> wrote:
-> Morally, the question of whether an address lies in a gate vma should be =
-asked
-> with respect to an mm, not a particular task.
->
-> Practically, dropping the dependency on task_struct will help make curren=
-t and
-> future operations on mm's more flexible and convenient. =A0In particular,=
- it
-> allows some code paths to avoid the need to hold task_lock.
+On Wed, Mar 09, 2011 at 05:09:09AM -0800, Michel Lespinasse wrote:
+> On Tue, Mar 8, 2011 at 4:31 PM, Stephen Wilson <wilsons@start.ca> wrote:
+> > Morally, the question of whether an address lies in a gate vma should be asked
+> > with respect to an mm, not a particular task.
+> >
+> > Practically, dropping the dependency on task_struct will help make current and
+> > future operations on mm's more flexible and convenient.  In particular, it
+> > allows some code paths to avoid the need to hold task_lock.
+> 
+> Reviewed-by: Michel Lespinasse <walken@google.com>
+> 
+> May I suggest ia32_compat instead of just compat for the flag name ?
 
-Reviewed-by: Michel Lespinasse <walken@google.com>
+Yes, sounds good to me.  Will change in the next iteration.
 
-May I suggest ia32_compat instead of just compat for the flag name ?
+Thanks for the review!
 
---=20
-Michel "Walken" Lespinasse
-A program is never fully debugged until the last user dies.
+
+> -- 
+> Michel "Walken" Lespinasse
+> A program is never fully debugged until the last user dies.
+
+
+-- 
+steve
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
