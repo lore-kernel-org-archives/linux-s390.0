@@ -1,14 +1,14 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Thu, 10 Mar 2011 11:40:22 -0500
+Date: Thu, 10 Mar 2011 11:54:14 -0500
 From: Stephen Wilson <wilsons@start.ca>
 Subject: Re: [PATCH 0/5] make *_gate_vma accept mm_struct instead of
-	task_struct
-Message-ID: <20110310164022.GA6242@fibrous.localdomain>
-References: <1299630721-4337-1-git-send-email-wilsons@start.ca> <20110310160032.GA20504@alboin.amr.corp.intel.com>
+	task_struct II
+Message-ID: <20110310165414.GA6431@fibrous.localdomain>
+References: <1299630721-4337-1-git-send-email-wilsons@start.ca> <20110310160032.GA20504@alboin.amr.corp.intel.com> <20110310163809.GA20675@alboin.amr.corp.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20110310160032.GA20504@alboin.amr.corp.intel.com>
+In-Reply-To: <20110310163809.GA20675@alboin.amr.corp.intel.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
@@ -17,45 +17,30 @@ Cc: x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@red
 List-ID: <linux-s390.vger.kernel.org>
 
 
-On Thu, Mar 10, 2011 at 08:00:32AM -0800, Andi Kleen wrote:
-> On Tue, Mar 08, 2011 at 07:31:56PM -0500, Stephen Wilson wrote:
+On Thu, Mar 10, 2011 at 08:38:09AM -0800, Andi Kleen wrote:
+> On Thu, Mar 10, 2011 at 08:00:32AM -0800, Andi Kleen wrote:
+> > On Tue, Mar 08, 2011 at 07:31:56PM -0500, Stephen Wilson wrote:
+> > > The only architecture this change impacts in any significant way is x86_64.
+> > > The principle change on that architecture is to mirror TIF_IA32 via
+> > > a new flag in mm_context_t. 
 > > 
-> > Morally, the question of whether an address lies in a gate vma should be asked
-> > with respect to an mm, not a particular task.
-> > 
-> > Practically, dropping the dependency on task_struct will help make current and
-> > future operations on mm's more flexible and convenient.  In particular, it
-> > allows some code paths to avoid the need to hold task_lock.
-> > 
-> > The only architecture this change impacts in any significant way is x86_64.
-> > The principle change on that architecture is to mirror TIF_IA32 via
-> > a new flag in mm_context_t. 
+> > The problem is -- you're adding a likely cache miss on mm_struct for
+> > every 32bit compat syscall now, even if they don't need mm_struct
+> > currently (and a lot of them do not) Unless there's a very good
+> > justification to make up for this performance issue elsewhere
+> > (including numbers) this seems like a bad idea.
 > 
-> The problem is -- you're adding a likely cache miss on mm_struct for
-> every 32bit compat syscall now, even if they don't need mm_struct
-> currently (and a lot of them do not) Unless there's a very good
-> justification to make up for this performance issue elsewhere
-> (including numbers) this seems like a bad idea.
-
-I do not think this will result in cache misses on the scale you
-suggest.  I am simply mirroring the *state* of the TIF_IA32 flag in
-mm_struct, not testing/accessing it in the same way.
-
-The only place where this flag is accessed (outside the exec() syscall
-path) is in x86/mm/init_64.c, get_gate_vma(),  which in turn is needed
-by a few, relatively heavy weight, page locking/pinning routines on the
-mm side (get_user_pages, for example).  Patches 3 and 4 in the series
-show the extent of the change.
-
-Or am I missing something?
-
-
-> > /proc/pid/mem.  I will be posting the second series to lkml shortly.  These
+> Hmm I see you're only setting it on exec time actually on rereading
+> the patches. I thought you were changing TS_COMPAT which is in
+> the syscall path.
 > 
-> Making every syscall slower for /proc/pid/mem doesn't seem like a good
-> tradeoff to me. Please solve this in some other way.
-> 
-> -Andi
+> Never mind.  I have no problems with doing such a change on exec
+> time.
+
+OK.  Great!  Does this mean I have your ACK'ed by or reviewed by?
+
+
+Thanks for taking a look!
 
 -- 
 steve
