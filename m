@@ -1,64 +1,180 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 31 Mar 2011 18:55:52 +0200
-From: Nicolas Kaiser <nikai@nikai.net>
-Subject: [PATCH] s390: oprofile: fix error checks in
- oprofile_hwsampler_init()
-Message-ID: <20110331185552.5f633573@absol.kitzblitz>
+From: Prasad Joshi <prasadjoshi124@gmail.com>
+Subject: [RFC][PATCH v2 14/23] (s390) __vmalloc: add gfp flags variant of pte,
+ pmd, and pud allocation
+Date: Mon, 14 Mar 2011 17:56:06 +0000
+Message-ID: <AANLkTim4kvRSxrfkQdhq2H5TQRs=9XPxCd_6EzAo1h-b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Robert Richter <robert.richter@amd.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, oprofile-list@lists.sf.net, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-arch-owner@vger.kernel.org>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, Prasad Joshi <prasadjoshi124@gmail.com>, Ana
 List-ID: <linux-s390.vger.kernel.org>
 
-Checking 'oprofile_min_interval < 0' and
-'oprofile_max_interval < 0' doesn't work because
-'oprofile_min_interval' and 'oprofile_max_interval' are unsigned.
+__vmalloc: propagating GFP allocation flag.
 
-Signed-off-by: Nicolas Kaiser <nikai@nikai.net>
+- adds functions to allow caller to pass the GFP flag for memory allocation
+- helps in fixing the Bug 30702 (__vmalloc(GFP_NOFS) can callback
+		  file system evict_inode).
+
+Signed-off-by: Anand Mitra <mitra@kqinfotech.com>
+Signed-off-by: Prasad Joshi <prasadjoshi124@gmail.com>
 ---
-Untested.
+Chnagelog:
+arch/s390/include/asm/pgalloc.h |   30 +++++++++++++++++++++++++-----
+arch/s390/mm/pgtable.c          |   22 +++++++++++++++++-----
+2 files changed, 42 insertions(+), 10 deletions(-)
+---
+diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
+index 082eb4e..459e89a 100644
+--- a/arch/s390/include/asm/pgalloc.h
++++ b/arch/s390/include/asm/pgalloc.h
+@@ -20,10 +20,12 @@
+ #define check_pgt_cache()	do {} while (0)
 
- arch/s390/oprofile/init.c |   12 ++++++++----
- 1 files changed, 8 insertions(+), 4 deletions(-)
+ unsigned long *crst_table_alloc(struct mm_struct *, int);
++unsigned long * __crst_table_alloc(struct mm_struct *, int , gfp_t);
+ void crst_table_free(struct mm_struct *, unsigned long *);
+ void crst_table_free_rcu(struct mm_struct *, unsigned long *);
 
-diff --git a/arch/s390/oprofile/init.c b/arch/s390/oprofile/init.c
-index c63d7e5..09c3088 100644
---- a/arch/s390/oprofile/init.c
-+++ b/arch/s390/oprofile/init.c
-@@ -138,22 +138,26 @@ static int oprofile_create_hwsampling_files(struct super_block *sb,
- 
- static int oprofile_hwsampler_init(struct oprofile_operations *ops)
+ unsigned long *page_table_alloc(struct mm_struct *);
++unsigned long *__page_table_alloc(struct mm_struct *, gfp_t);
+ void page_table_free(struct mm_struct *, unsigned long *);
+ void page_table_free_rcu(struct mm_struct *, unsigned long *);
+ void disable_noexec(struct mm_struct *, struct task_struct *);
+@@ -62,9 +64,11 @@ static inline unsigned long pgd_entry_type(struct
+mm_struct *mm)
+ 	return _SEGMENT_ENTRY_EMPTY;
+ }
+
++#define __pud_alloc_one(mm,address,mask)		({ BUG(); ((pud_t *)2); })
+ #define pud_alloc_one(mm,address)		({ BUG(); ((pud_t *)2); })
+ #define pud_free(mm, x)				do { } while (0)
+
++#define __pmd_alloc_one(mm,address,mask)		({ BUG(); ((pmd_t *)2); })
+ #define pmd_alloc_one(mm,address)		({ BUG(); ((pmd_t *)2); })
+ #define pmd_free(mm, x)				do { } while (0)
+
+@@ -88,22 +92,34 @@ static inline unsigned long pgd_entry_type(struct
+mm_struct *mm)
+ int crst_table_upgrade(struct mm_struct *, unsigned long limit);
+ void crst_table_downgrade(struct mm_struct *, unsigned long limit);
+
+-static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
++static inline pud_t *
++__pud_alloc_one(struct mm_struct *mm, unsigned long address, gfp_t gfp_mask)
  {
-+	long retval;
+-	unsigned long *table = crst_table_alloc(mm, mm->context.noexec);
++	unsigned long *table = __crst_table_alloc(mm, mm->context.noexec, gfp_mask);
+ 	if (table)
+ 		crst_table_init(table, _REGION3_ENTRY_EMPTY);
+ 	return (pud_t *) table;
+ }
 +
- 	if (hwsampler_setup())
- 		return -ENODEV;
- 
- 	/*
- 	 * create hwsampler files only if hwsampler_setup() succeeds.
- 	 */
--	oprofile_min_interval = hwsampler_query_min_interval();
--	if (oprofile_min_interval < 0) {
-+	retval = hwsampler_query_min_interval();
-+	if (retval < 0) {
- 		oprofile_min_interval = 0;
- 		return -ENODEV;
++static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
++{
++	return __pud_alloc_one(mm, address, GFP_KERNEL);
++}
+ #define pud_free(mm, pud) crst_table_free(mm, (unsigned long *) pud)
+
+-static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
++static inline pmd_t *
++__pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr, gfp_t gfp_mask)
+ {
+-	unsigned long *table = crst_table_alloc(mm, mm->context.noexec);
++	unsigned long *table = __crst_table_alloc(mm, mm->context.noexec, gfp_mask);
+ 	if (table)
+ 		crst_table_init(table, _SEGMENT_ENTRY_EMPTY);
+ 	return (pmd_t *) table;
+ }
++
++static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
++{
++	return __pmd_alloc_one(mm, vmaddr, GFP_KERNEL);
++}
+ #define pmd_free(mm, pmd) crst_table_free(mm, (unsigned long *) pmd)
+
+ static inline void pgd_populate_kernel(struct mm_struct *mm,
+@@ -172,7 +188,11 @@ static inline void pmd_populate(struct mm_struct *mm,
+ /*
+  * page table entry allocation/free routines.
+  */
+-#define pte_alloc_one_kernel(mm, vmaddr) ((pte_t *) page_table_alloc(mm))
++#define __pte_alloc_one_kernel(mm, vmaddr, mask) \
++	((pte_t *) __page_table_alloc((mm), (mask)))
++#define pte_alloc_one_kernel(mm, vmaddr) \
++	((pte_t *) __pte_alloc_one_kernel((mm), (vmaddr), GFP_KERNEL|__GFP_REPEAT)
++
+ #define pte_alloc_one(mm, vmaddr) ((pte_t *) page_table_alloc(mm))
+
+ #define pte_free_kernel(mm, pte) page_table_free(mm, (unsigned long *) pte)
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index e1850c2..624854a 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -125,15 +125,16 @@ static int __init parse_vmalloc(char *arg)
+ }
+ early_param("vmalloc", parse_vmalloc);
+
+-unsigned long *crst_table_alloc(struct mm_struct *mm, int noexec)
++unsigned long *
++__crst_table_alloc(struct mm_struct *mm, int noexec, gfp_t gfp_mask)
+ {
+-	struct page *page = alloc_pages(GFP_KERNEL, ALLOC_ORDER);
++	struct page *page = alloc_pages(gfp_mask, ALLOC_ORDER);
+
+ 	if (!page)
+ 		return NULL;
+ 	page->index = 0;
+ 	if (noexec) {
+-		struct page *shadow = alloc_pages(GFP_KERNEL, ALLOC_ORDER);
++		struct page *shadow = alloc_pages(gfp_mask, ALLOC_ORDER);
+ 		if (!shadow) {
+ 			__free_pages(page, ALLOC_ORDER);
+ 			return NULL;
+@@ -146,6 +147,11 @@ unsigned long *crst_table_alloc(struct mm_struct
+*mm, int noexec)
+ 	return (unsigned long *) page_to_phys(page);
+ }
+
++unsigned long *crst_table_alloc(struct mm_struct *mm, int noexec)
++{
++	return __crst_table_alloc(mm, noexec, GFP_KERNEL);
++}
++
+ static void __crst_table_free(struct mm_struct *mm, unsigned long *table)
+ {
+ 	unsigned long *shadow = get_shadow_table(table);
+@@ -267,7 +273,7 @@ void crst_table_downgrade(struct mm_struct *mm,
+unsigned long limit)
+ /*
+  * page table entry allocation/free routines.
+  */
+-unsigned long *page_table_alloc(struct mm_struct *mm)
++unsigned long *__page_table_alloc(struct mm_struct *mm, gfp_t gfp_mask)
+ {
+ 	struct page *page;
+ 	unsigned long *table;
+@@ -284,7 +290,7 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
  	}
--	oprofile_max_interval = hwsampler_query_max_interval();
--	if (oprofile_max_interval < 0) {
-+	oprofile_min_interval = retval;
-+	retval = hwsampler_query_max_interval();
-+	if (retval < 0) {
- 		oprofile_max_interval = 0;
- 		return -ENODEV;
- 	}
-+	oprofile_max_interval = retval;
- 
- 	if (oprofile_timer_init(ops))
- 		return -ENODEV;
--- 
-1.7.3.4
+ 	if (!page) {
+ 		spin_unlock_bh(&mm->context.list_lock);
+-		page = alloc_page(GFP_KERNEL|__GFP_REPEAT);
++		page = alloc_page(gfp_mask);
+ 		if (!page)
+ 			return NULL;
+ 		pgtable_page_ctor(page);
+@@ -309,6 +315,12 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
+ 	return table;
+ }
+
++
++unsigned long *page_table_alloc(struct mm_struct *mm)
++{
++	return __page_table_alloc(mm, GFP_KERNEL | __GFP_REPEAT);
++}
++
+ static void __page_table_free(struct mm_struct *mm, unsigned long *table)
+ {
+ 	struct page *page;
