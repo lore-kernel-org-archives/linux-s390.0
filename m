@@ -1,29 +1,24 @@
-From: Dan Carpenter <error27@gmail.com>
-Date: Tue, 01 Mar 2011 15:22:50 +0000
-Subject: [patch] [S390] keyboard: integer underflow bug
-Message-Id: <20110301152250.GR18043@bicker>
-To: linux-s390@vger.kernel.org, kernel-janitors@vger.kernel.org
+From: Bruno Haible <bruno@clisp.org>
+Date: Tue, 15 Mar 2011 21:23:17 +0000
+Subject: Re: [bug-libsigsegv] Re: sigsegv on s390 only giving start address of page in segv handler
+Message-Id: <201103152223.19033.bruno@clisp.org>
+In-Reply-To: <4D7FD266.8050108@redhat.com>
+References: <4D7FD266.8050108@redhat.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The "ct" variable should be an unsigned int.  Both struct kbdiacrs
-->kb_cnt and struct kbd_data ->accent_table_size are unsigned ints.
+Christian Borntraeger wrote:
+> Can you give some insights about the other use cases? Userspace page faults can
+> be handled just fine with the page address (I have done that for the s390x
+> port of valgrind). Would a "works most of the time but might return the page
+> address in 10% of the cases" be ok for your other use cases?
 
-Making it signed causes a problem in KBDIACRUC because the user could
-set the signed bit and cause a buffer overflow.
+For most applications, that would work, yes. In GNU clisp, the fault handler
+needs some changes, because it assumed to be able to detect the region
+within the page based on the address, and had some related assertions. But
+in the end, the mprotect() call emitted by the fault handler depends only on
+the page and not on the address within the page.
 
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-
-diff --git a/drivers/s390/char/keyboard.c b/drivers/s390/char/keyboard.c
-index d667334..8065881 100644
---- a/drivers/s390/char/keyboard.c
-+++ b/drivers/s390/char/keyboard.c
-@@ -458,7 +458,8 @@ do_kdgkb_ioctl(struct kbd_data *kbd, struct kbsentry __user *u_kbs,
- int kbd_ioctl(struct kbd_data *kbd, unsigned int cmd, unsigned long arg)
- {
- 	void __user *argp;
--	int ct, perm;
-+	unsigned int ct;
-+	int perm;
- 
- 	argp = (void __user *)arg;
- 
+Bruno
+-- 
+In memoriam Diego de Enzinas <http://en.wikipedia.org/wiki/Diego_de_Enzinas>
