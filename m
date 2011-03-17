@@ -1,180 +1,63 @@
-From: Prasad Joshi <prasadjoshi124@gmail.com>
-Subject: [RFC][PATCH v2 14/23] (s390) __vmalloc: add gfp flags variant of pte,
- pmd, and pud allocation
-Date: Mon, 14 Mar 2011 17:56:06 +0000
-Message-ID: <AANLkTim4kvRSxrfkQdhq2H5TQRs=9XPxCd_6EzAo1h-b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-arch-owner@vger.kernel.org>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, Prasad Joshi <prasadjoshi124@gmail.com>, Ana
+From: Magnus Damm <magnus.damm@gmail.com>
+Date: Thu, 17 Mar 2011 06:50:04 +0000
+Subject: Re: [PATCH 00/02] virtio: Virtio platform driver
+Message-Id: <AANLkTimwt4hvaU0E=7tJx=zUUJKk5dgZDw4tXphj4Ype@mail.gmail.com>
+References: <20110310070541.27327.52089.sendpatchset@t400s>
+	<87d3lriv7e.fsf@rustcorp.com.au>
+	<AANLkTi=zjGubKx0vV+hqEYiVFVNTAEoGwxEfL4oprxk8@mail.gmail.com>
+	<20110316154047.GB21758@ovro.caltech.edu>
+In-Reply-To: <20110316154047.GB21758@ovro.caltech.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+List-Archive: <https://lore.kernel.org/linux-sh/>
+List-Post: <mailto:linux-sh@vger.kernel.org>
+To: "Ira W. Snyder" <iws@ovro.caltech.edu>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com, linux-kernel@vger.kernel.org, linux-sh@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-__vmalloc: propagating GFP allocation flag.
+On Thu, Mar 17, 2011 at 12:40 AM, Ira W. Snyder <iws@ovro.caltech.edu> wrote:
+> On Wed, Mar 16, 2011 at 02:17:15PM +0900, Magnus Damm wrote:
+>> On Wed, Mar 16, 2011 at 12:46 PM, Rusty Russell <rusty@rustcorp.com.au> wrote:
+>> > On Thu, 10 Mar 2011 16:05:41 +0900, Magnus Damm <magnus.damm@gmail.com> wrote:
+>> >> virtio: Virtio platform driver
+>> >>
+>> >> [PATCH 01/02] virtio: Break out lguest virtio code to virtio_lguest.c
+>> >> [PATCH 02/02] virtio: Add virtio platform driver
+>> >
+>> > I have no problem with these patches, but it's just churn until we see
+>> > your actual drivers.
+>>
+>> Well, actually this platform driver is used together with already
+>> existing drivers, so there are no new virtio drivers to wait for.
+>>
+>> The drivers that have been tested are so far:
+>>
+>> CONFIG_VIRTIO_CONSOLE=y
+>> CONFIG_VIRTIO_NET=y
+>>
+>> At this point there are four different pieces of code working together
+>>
+>> 1) Virtio platform driver patches (for guest)
+>> 2) SH4AL-DSP guest kernel patch
+>> 3) ARM UIO driver patches (for host)
+>> 4) User space backing code for ARM based on lguest.c
+>>
+>> These patches in this mail thread are 1), and I decided to brush up
+>> that portion and submit upstream because it's the part that is easiest
+>> to break out. I intend to post the rest bit by bit over time, but if
+>> someone is interested then I can post everything at once too.
+>>
+>
+> I'm very interested in the full series of patches. I want to do
+> something similar to talk between two Linux kernels (x86 and PowerPC)
+> connected by a PCI bus.
 
-- adds functions to allow caller to pass the GFP flag for memory allocation
-- helps in fixing the Bug 30702 (__vmalloc(GFP_NOFS) can callback
-		  file system evict_inode).
+For a full source release, have a look at SH Core Linux 20110317:
+http://www.spinics.net/lists/linux-sh/msg07188.html
 
-Signed-off-by: Anand Mitra <mitra@kqinfotech.com>
-Signed-off-by: Prasad Joshi <prasadjoshi124@gmail.com>
----
-Chnagelog:
-arch/s390/include/asm/pgalloc.h |   30 +++++++++++++++++++++++++-----
-arch/s390/mm/pgtable.c          |   22 +++++++++++++++++-----
-2 files changed, 42 insertions(+), 10 deletions(-)
----
-diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
-index 082eb4e..459e89a 100644
---- a/arch/s390/include/asm/pgalloc.h
-+++ b/arch/s390/include/asm/pgalloc.h
-@@ -20,10 +20,12 @@
- #define check_pgt_cache()	do {} while (0)
+The SH kernel patch shows how to make use of the virtio platform driver.
 
- unsigned long *crst_table_alloc(struct mm_struct *, int);
-+unsigned long * __crst_table_alloc(struct mm_struct *, int , gfp_t);
- void crst_table_free(struct mm_struct *, unsigned long *);
- void crst_table_free_rcu(struct mm_struct *, unsigned long *);
+Cheers,
 
- unsigned long *page_table_alloc(struct mm_struct *);
-+unsigned long *__page_table_alloc(struct mm_struct *, gfp_t);
- void page_table_free(struct mm_struct *, unsigned long *);
- void page_table_free_rcu(struct mm_struct *, unsigned long *);
- void disable_noexec(struct mm_struct *, struct task_struct *);
-@@ -62,9 +64,11 @@ static inline unsigned long pgd_entry_type(struct
-mm_struct *mm)
- 	return _SEGMENT_ENTRY_EMPTY;
- }
-
-+#define __pud_alloc_one(mm,address,mask)		({ BUG(); ((pud_t *)2); })
- #define pud_alloc_one(mm,address)		({ BUG(); ((pud_t *)2); })
- #define pud_free(mm, x)				do { } while (0)
-
-+#define __pmd_alloc_one(mm,address,mask)		({ BUG(); ((pmd_t *)2); })
- #define pmd_alloc_one(mm,address)		({ BUG(); ((pmd_t *)2); })
- #define pmd_free(mm, x)				do { } while (0)
-
-@@ -88,22 +92,34 @@ static inline unsigned long pgd_entry_type(struct
-mm_struct *mm)
- int crst_table_upgrade(struct mm_struct *, unsigned long limit);
- void crst_table_downgrade(struct mm_struct *, unsigned long limit);
-
--static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
-+static inline pud_t *
-+__pud_alloc_one(struct mm_struct *mm, unsigned long address, gfp_t gfp_mask)
- {
--	unsigned long *table = crst_table_alloc(mm, mm->context.noexec);
-+	unsigned long *table = __crst_table_alloc(mm, mm->context.noexec, gfp_mask);
- 	if (table)
- 		crst_table_init(table, _REGION3_ENTRY_EMPTY);
- 	return (pud_t *) table;
- }
-+
-+static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
-+{
-+	return __pud_alloc_one(mm, address, GFP_KERNEL);
-+}
- #define pud_free(mm, pud) crst_table_free(mm, (unsigned long *) pud)
-
--static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
-+static inline pmd_t *
-+__pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr, gfp_t gfp_mask)
- {
--	unsigned long *table = crst_table_alloc(mm, mm->context.noexec);
-+	unsigned long *table = __crst_table_alloc(mm, mm->context.noexec, gfp_mask);
- 	if (table)
- 		crst_table_init(table, _SEGMENT_ENTRY_EMPTY);
- 	return (pmd_t *) table;
- }
-+
-+static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
-+{
-+	return __pmd_alloc_one(mm, vmaddr, GFP_KERNEL);
-+}
- #define pmd_free(mm, pmd) crst_table_free(mm, (unsigned long *) pmd)
-
- static inline void pgd_populate_kernel(struct mm_struct *mm,
-@@ -172,7 +188,11 @@ static inline void pmd_populate(struct mm_struct *mm,
- /*
-  * page table entry allocation/free routines.
-  */
--#define pte_alloc_one_kernel(mm, vmaddr) ((pte_t *) page_table_alloc(mm))
-+#define __pte_alloc_one_kernel(mm, vmaddr, mask) \
-+	((pte_t *) __page_table_alloc((mm), (mask)))
-+#define pte_alloc_one_kernel(mm, vmaddr) \
-+	((pte_t *) __pte_alloc_one_kernel((mm), (vmaddr), GFP_KERNEL|__GFP_REPEAT)
-+
- #define pte_alloc_one(mm, vmaddr) ((pte_t *) page_table_alloc(mm))
-
- #define pte_free_kernel(mm, pte) page_table_free(mm, (unsigned long *) pte)
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index e1850c2..624854a 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -125,15 +125,16 @@ static int __init parse_vmalloc(char *arg)
- }
- early_param("vmalloc", parse_vmalloc);
-
--unsigned long *crst_table_alloc(struct mm_struct *mm, int noexec)
-+unsigned long *
-+__crst_table_alloc(struct mm_struct *mm, int noexec, gfp_t gfp_mask)
- {
--	struct page *page = alloc_pages(GFP_KERNEL, ALLOC_ORDER);
-+	struct page *page = alloc_pages(gfp_mask, ALLOC_ORDER);
-
- 	if (!page)
- 		return NULL;
- 	page->index = 0;
- 	if (noexec) {
--		struct page *shadow = alloc_pages(GFP_KERNEL, ALLOC_ORDER);
-+		struct page *shadow = alloc_pages(gfp_mask, ALLOC_ORDER);
- 		if (!shadow) {
- 			__free_pages(page, ALLOC_ORDER);
- 			return NULL;
-@@ -146,6 +147,11 @@ unsigned long *crst_table_alloc(struct mm_struct
-*mm, int noexec)
- 	return (unsigned long *) page_to_phys(page);
- }
-
-+unsigned long *crst_table_alloc(struct mm_struct *mm, int noexec)
-+{
-+	return __crst_table_alloc(mm, noexec, GFP_KERNEL);
-+}
-+
- static void __crst_table_free(struct mm_struct *mm, unsigned long *table)
- {
- 	unsigned long *shadow = get_shadow_table(table);
-@@ -267,7 +273,7 @@ void crst_table_downgrade(struct mm_struct *mm,
-unsigned long limit)
- /*
-  * page table entry allocation/free routines.
-  */
--unsigned long *page_table_alloc(struct mm_struct *mm)
-+unsigned long *__page_table_alloc(struct mm_struct *mm, gfp_t gfp_mask)
- {
- 	struct page *page;
- 	unsigned long *table;
-@@ -284,7 +290,7 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
- 	}
- 	if (!page) {
- 		spin_unlock_bh(&mm->context.list_lock);
--		page = alloc_page(GFP_KERNEL|__GFP_REPEAT);
-+		page = alloc_page(gfp_mask);
- 		if (!page)
- 			return NULL;
- 		pgtable_page_ctor(page);
-@@ -309,6 +315,12 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
- 	return table;
- }
-
-+
-+unsigned long *page_table_alloc(struct mm_struct *mm)
-+{
-+	return __page_table_alloc(mm, GFP_KERNEL | __GFP_REPEAT);
-+}
-+
- static void __page_table_free(struct mm_struct *mm, unsigned long *table)
- {
- 	struct page *page;
+/ magnus
