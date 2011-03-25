@@ -1,266 +1,1244 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 21 Mar 2011 19:02:39 +0000
-From: Prasad Joshi <prasadjoshi124@gmail.com>
-Subject: Re: [RFC][PATCH v3 09/22] mm, s390: add gfp flags variant of pud,
- pte, and pte allocations
-Message-ID: <20110321190239.GA6541@prasad-kvm>
-References: <20110318194341.GB4746@prasad-kvm>
- <20110318194600.GC4746@prasad-kvm>
- <20110318194740.GD4746@prasad-kvm>
- <20110318194929.GE4746@prasad-kvm>
- <20110318195035.GF4746@prasad-kvm>
- <20110318195141.GG4746@prasad-kvm>
- <20110318195307.GH4746@prasad-kvm>
- <20110318195507.GI4746@prasad-kvm>
- <20110318195643.GJ4746@prasad-kvm>
- <20110321093412.2776a69f@mschwide.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20110321093412.2776a69f@mschwide.boeblingen.de.ibm.com>
+Date: Fri, 25 Mar 2011 13:18:27 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for 2.6.39 #2
+Message-ID: <20110325131827.405563bc@mschwide.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, mitra@kqinfotech.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Mar 21, 2011 at 09:34:12AM +0100, Martin Schwidefsky wrote:
-> On Fri, 18 Mar 2011 19:56:44 +0000
-> Prasad Joshi <prasadjoshi124@gmail.com> wrote:
-> 
-> > - Added function __crst_table_alloc() which is similar to crst_table_alloc()
-> >   but accepts an extra argument gfp_t. The function uses given allocation
-> >   flag to allocate pages.
-> > 
-> > - Added a function __page_table_alloc() to allocate page table entries. This
-> >   function is allows caller to specify the page allocation flag. The
-> >   allocation flag is then passed to alloc_page(). The rest of the function is
-> >   copy of the original page_table_alloc().
-> 
-> The approach of this patch series seems straightforward, the only nitpick I
-> have is the fact that two new functions __crst_table_alloc/__page_table_alloc
-> are introduced. There aren't many call sites for the two original functions,
-> namely 4 for crst_table_alloc and 3 for page_table_alloc. Why not add the
-> gfp flag GFP_KERNEL to these call sites? Then the two additional functions
-> would not be needed.
+Hi Linus,
 
-Thanks a lot Martin for your reply. Here is a new patch, which the changes
-you suggested.
+please pull from 'for-linus' branch of
 
-Generic changes
-- Changed crst_table_alloc() to accept a new parameter gfp_t, allocate pages
-  using the passed allocation flag.
+	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
 
-- crst_table_upgrade() calls crst_table_alloc() with GFP_KERNEL.
+to receive the following updates:
 
-- page_table_alloc() is also changned to accept a parameter gfp_t and allocate
-  page using the passed allocation flag.
+Chen Liu (1):
+      [S390] early: Fix possible overlapping data buffer
 
-- vmem_pte_alloc() calls page_table_alloc() with GFP_KERNEL | __GFP_REPEAT
+Heiko Carstens (10):
+      [S390] early: limit savesys cmd string handling
+      [S390] oprofile: disable hw sampling for CONFIG_32BIT
+      [S390] wire up sys_name_to_handle_at
+      [S390] wire up sys_open_by_handle_at
+      [S390] wire up sys_clock_adjtime
+      [S390] wire up sys_syncfs
+      [S390] setup: simplify setup_resources()
+      [S390] setup: register bss section as resource
+      [S390] xchg/cmpxchg: move to own header file
+      [S390] cmpxchg: implement cmpxchg64()
 
-changes for 32 (31) bit architecture (s390)
-- Added macros __pud_alloc_one, __pmd_alloc_one which are similar to
-  pud_alloc_one and pmd_alloc_one respectively, but has an extra argument
-  for gfp_t.
+Jan Glauber (1):
+      [S390] qdio: prevent handling of buffers if count is zero
 
-changes for 64 bit architecture (s390x)
-- Added __pud_alloc_one() allow caller to pass the memory allocation flag.
-  The function passes the allocation flag to crst_table_alloc().
+Sebastian Ott (3):
+      [S390] ccw_driver: remove duplicate members
+      [S390] ccw_bus_type: make it static
+      [S390] ccwgroup_driver: remove duplicate members
 
-- The function pud_alloc_one() is modified to call __pud_alloc_one() and
-  pass GFP_KERNEL allocation flag.
+ arch/s390/include/asm/ccwdev.h    |    4 -
+ arch/s390/include/asm/ccwgroup.h  |    4 -
+ arch/s390/include/asm/cmpxchg.h   |  225 +++++++++++++++++++++++++++++++++++++
+ arch/s390/include/asm/system.h    |  196 +--------------------------------
+ arch/s390/include/asm/unistd.h    |    6 +-
+ arch/s390/kernel/compat_wrapper.S |   27 +++++
+ arch/s390/kernel/early.c          |   22 ++--
+ arch/s390/kernel/setup.c          |   88 +++++++--------
+ arch/s390/kernel/syscalls.S       |    4 +
+ arch/s390/oprofile/Makefile       |    3 +-
+ arch/s390/oprofile/init.c         |   15 ++-
+ drivers/s390/block/dasd_eckd.c    |    6 +-
+ drivers/s390/block/dasd_fba.c     |    6 +-
+ drivers/s390/char/con3215.c       |    6 +-
+ drivers/s390/char/raw3270.c       |    6 +-
+ drivers/s390/char/tape_34xx.c     |    6 +-
+ drivers/s390/char/tape_3590.c     |    6 +-
+ drivers/s390/char/vmur.c          |    6 +-
+ drivers/s390/cio/ccwgroup.c       |    6 +-
+ drivers/s390/cio/device.c         |   11 +-
+ drivers/s390/cio/device.h         |    1 -
+ drivers/s390/cio/qdio_main.c      |    3 +-
+ drivers/s390/net/claw.c           |   12 ++-
+ drivers/s390/net/ctcm_main.c      |   12 ++-
+ drivers/s390/net/lcs.c            |   12 ++-
+ drivers/s390/net/qeth_core_main.c |   10 +-
+ drivers/s390/scsi/zfcp_ccw.c      |    6 +-
+ 27 files changed, 403 insertions(+), 306 deletions(-)
+ create mode 100644 arch/s390/include/asm/cmpxchg.h
 
-- The similar changes are performed for pmd allocations
-
-- pgd_populate_kernel() calls crst_table_alloc() with GFP_KERNEL
-
-- Added marco __pte_alloc_one_kernel() to accept additional argument gfp_t.
-  This argument is then passed to page_table_alloc() to allocate the page
-  table entry.
-
-- Modified pte_alloc_one_kernel() to call __pte_alloc_one_kernel() passing
-  GFP_KERNEL|__GFP_REPEAT allocation flags.
-
-- Modified pte_alloc_one() to call page_table_alloc() with allocation flag
-  GFP_KERNEL | __GFP_REPEAT
-
-- The changes for both architectures help in fixing Bug 30702
-
-Signed-off-by: Prasad Joshi <prasadjoshi124@gmail.com>
-Signed-off-by: Anand Mitra <mitra@kqinfotech.com>
----
- arch/s390/include/asm/pgalloc.h |   37 ++++++++++++++++++++++++++++---------
- arch/s390/mm/pgtable.c          |   13 +++++++------
- arch/s390/mm/vmem.c             |    2 +-
- 3 files changed, 36 insertions(+), 16 deletions(-)
-
-diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
-index 082eb4e..8068669 100644
---- a/arch/s390/include/asm/pgalloc.h
-+++ b/arch/s390/include/asm/pgalloc.h
-@@ -19,11 +19,11 @@
+diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
+index ff6f62e..623f2fb 100644
+--- a/arch/s390/include/asm/ccwdev.h
++++ b/arch/s390/include/asm/ccwdev.h
+@@ -112,7 +112,6 @@ enum uc_todo {
  
- #define check_pgt_cache()	do {} while (0)
- 
--unsigned long *crst_table_alloc(struct mm_struct *, int);
-+unsigned long *crst_table_alloc(struct mm_struct *, int, gfp_t);
- void crst_table_free(struct mm_struct *, unsigned long *);
- void crst_table_free_rcu(struct mm_struct *, unsigned long *);
- 
--unsigned long *page_table_alloc(struct mm_struct *);
-+unsigned long *page_table_alloc(struct mm_struct *, gfp_t);
- void page_table_free(struct mm_struct *, unsigned long *);
- void page_table_free_rcu(struct mm_struct *, unsigned long *);
- void disable_noexec(struct mm_struct *, struct task_struct *);
-@@ -62,9 +62,11 @@ static inline unsigned long pgd_entry_type(struct mm_struct *mm)
- 	return _SEGMENT_ENTRY_EMPTY;
- }
- 
-+#define __pud_alloc_one(mm,address,mask)		({ BUG(); ((pud_t *)2); })
- #define pud_alloc_one(mm,address)		({ BUG(); ((pud_t *)2); })
- #define pud_free(mm, x)				do { } while (0)
- 
-+#define __pmd_alloc_one(mm,address,mask)		({ BUG(); ((pmd_t *)2); })
- #define pmd_alloc_one(mm,address)		({ BUG(); ((pmd_t *)2); })
- #define pmd_free(mm, x)				do { } while (0)
- 
-@@ -88,22 +90,34 @@ static inline unsigned long pgd_entry_type(struct mm_struct *mm)
- int crst_table_upgrade(struct mm_struct *, unsigned long limit);
- void crst_table_downgrade(struct mm_struct *, unsigned long limit);
- 
--static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
-+static inline pud_t *__pud_alloc_one(struct mm_struct *mm,
-+		unsigned long address, gfp_t gfp_mask)
- {
--	unsigned long *table = crst_table_alloc(mm, mm->context.noexec);
-+	unsigned long *table = crst_table_alloc(mm, mm->context.noexec, gfp_mask);
- 	if (table)
- 		crst_table_init(table, _REGION3_ENTRY_EMPTY);
- 	return (pud_t *) table;
- }
-+
-+static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
-+{
-+	return __pud_alloc_one(mm, address, GFP_KERNEL);
-+}
- #define pud_free(mm, pud) crst_table_free(mm, (unsigned long *) pud)
- 
--static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
-+static inline pmd_t *__pmd_alloc_one(struct mm_struct *mm,
-+		unsigned long vmaddr, gfp_t gfp_mask)
- {
--	unsigned long *table = crst_table_alloc(mm, mm->context.noexec);
-+	unsigned long *table = crst_table_alloc(mm, mm->context.noexec, gfp_mask);
- 	if (table)
- 		crst_table_init(table, _SEGMENT_ENTRY_EMPTY);
- 	return (pmd_t *) table;
- }
-+
-+static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
-+{
-+	return __pmd_alloc_one(mm, vmaddr, GFP_KERNEL);
-+}
- #define pmd_free(mm, pmd) crst_table_free(mm, (unsigned long *) pmd)
- 
- static inline void pgd_populate_kernel(struct mm_struct *mm,
-@@ -146,7 +160,7 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
- 	INIT_LIST_HEAD(&mm->context.crst_list);
- 	INIT_LIST_HEAD(&mm->context.pgtable_list);
- 	return (pgd_t *)
--		crst_table_alloc(mm, user_mode == SECONDARY_SPACE_MODE);
-+		crst_table_alloc(mm, user_mode == SECONDARY_SPACE_MODE, GFP_KERNEL);
- }
- #define pgd_free(mm, pgd) crst_table_free(mm, (unsigned long *) pgd)
- 
-@@ -172,8 +186,13 @@ static inline void pmd_populate(struct mm_struct *mm,
- /*
-  * page table entry allocation/free routines.
+ /**
+  * struct ccw driver - device driver for channel attached devices
+- * @owner: owning module
+  * @ids: ids supported by this driver
+  * @probe: function called on probe
+  * @remove: function called on remove
+@@ -128,10 +127,8 @@ enum uc_todo {
+  * @restore: callback for restoring after hibernation
+  * @uc_handler: callback for unit check handler
+  * @driver: embedded device driver structure
+- * @name: device driver name
   */
--#define pte_alloc_one_kernel(mm, vmaddr) ((pte_t *) page_table_alloc(mm))
--#define pte_alloc_one(mm, vmaddr) ((pte_t *) page_table_alloc(mm))
-+#define __pte_alloc_one_kernel(mm, vmaddr, mask) \
-+	((pte_t *) page_table_alloc((mm), (mask)))
-+#define pte_alloc_one_kernel(mm, vmaddr) \
-+	((pte_t *) __pte_alloc_one_kernel((mm), (vmaddr), GFP_KERNEL|__GFP_REPEAT)
-+
-+#define pte_alloc_one(mm, vmaddr) \
-+	 ((pte_t *) page_table_alloc((mm), GFP_KERNEL | __GFP_REPEAT))
+ struct ccw_driver {
+-	struct module *owner;
+ 	struct ccw_device_id *ids;
+ 	int (*probe) (struct ccw_device *);
+ 	void (*remove) (struct ccw_device *);
+@@ -147,7 +144,6 @@ struct ccw_driver {
+ 	int (*restore)(struct ccw_device *);
+ 	enum uc_todo (*uc_handler) (struct ccw_device *, struct irb *);
+ 	struct device_driver driver;
+-	char *name;
+ };
  
- #define pte_free_kernel(mm, pte) page_table_free(mm, (unsigned long *) pte)
- #define pte_free(mm, pte) page_table_free(mm, (unsigned long *) pte)
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index e1850c2..9bf1632 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -125,15 +125,16 @@ static int __init parse_vmalloc(char *arg)
- }
- early_param("vmalloc", parse_vmalloc);
+ extern struct ccw_device *get_ccwdev_by_busid(struct ccw_driver *cdrv,
+diff --git a/arch/s390/include/asm/ccwgroup.h b/arch/s390/include/asm/ccwgroup.h
+index c79c1e7..f2ea2c5 100644
+--- a/arch/s390/include/asm/ccwgroup.h
++++ b/arch/s390/include/asm/ccwgroup.h
+@@ -29,8 +29,6 @@ struct ccwgroup_device {
  
--unsigned long *crst_table_alloc(struct mm_struct *mm, int noexec)
-+unsigned long *crst_table_alloc(struct mm_struct *mm, int noexec,
-+		gfp_t gfp_mask)
- {
--	struct page *page = alloc_pages(GFP_KERNEL, ALLOC_ORDER);
-+	struct page *page = alloc_pages(gfp_mask, ALLOC_ORDER);
- 
- 	if (!page)
- 		return NULL;
- 	page->index = 0;
- 	if (noexec) {
--		struct page *shadow = alloc_pages(GFP_KERNEL, ALLOC_ORDER);
-+		struct page *shadow = alloc_pages(gfp_mask, ALLOC_ORDER);
- 		if (!shadow) {
- 			__free_pages(page, ALLOC_ORDER);
- 			return NULL;
-@@ -197,7 +198,7 @@ int crst_table_upgrade(struct mm_struct *mm, unsigned long limit)
- 
- 	BUG_ON(limit > (1UL << 53));
- repeat:
--	table = crst_table_alloc(mm, mm->context.noexec);
-+	table = crst_table_alloc(mm, mm->context.noexec, GFP_KERNEL);
- 	if (!table)
- 		return -ENOMEM;
- 	spin_lock_bh(&mm->page_table_lock);
-@@ -267,7 +268,7 @@ void crst_table_downgrade(struct mm_struct *mm, unsigned long limit)
- /*
-  * page table entry allocation/free routines.
+ /**
+  * struct ccwgroup_driver - driver for ccw group devices
+- * @owner: driver owner
+- * @name: driver name
+  * @max_slaves: maximum number of slave devices
+  * @driver_id: unique id
+  * @probe: function called on probe
+@@ -46,8 +44,6 @@ struct ccwgroup_device {
+  * @driver: embedded driver structure
   */
--unsigned long *page_table_alloc(struct mm_struct *mm)
-+unsigned long *page_table_alloc(struct mm_struct *mm, gfp_t gfp_mask)
- {
- 	struct page *page;
- 	unsigned long *table;
-@@ -284,7 +285,7 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
+ struct ccwgroup_driver {
+-	struct module *owner;
+-	char *name;
+ 	int max_slaves;
+ 	unsigned long driver_id;
+ 
+diff --git a/arch/s390/include/asm/cmpxchg.h b/arch/s390/include/asm/cmpxchg.h
+new file mode 100644
+index 0000000..7488e52
+--- /dev/null
++++ b/arch/s390/include/asm/cmpxchg.h
+@@ -0,0 +1,225 @@
++/*
++ * Copyright IBM Corp. 1999, 2011
++ *
++ * Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>,
++ */
++
++#ifndef __ASM_CMPXCHG_H
++#define __ASM_CMPXCHG_H
++
++#include <linux/types.h>
++
++extern void __xchg_called_with_bad_pointer(void);
++
++static inline unsigned long __xchg(unsigned long x, void *ptr, int size)
++{
++	unsigned long addr, old;
++	int shift;
++
++	switch (size) {
++	case 1:
++		addr = (unsigned long) ptr;
++		shift = (3 ^ (addr & 3)) << 3;
++		addr ^= addr & 3;
++		asm volatile(
++			"	l	%0,%4\n"
++			"0:	lr	0,%0\n"
++			"	nr	0,%3\n"
++			"	or	0,%2\n"
++			"	cs	%0,0,%4\n"
++			"	jl	0b\n"
++			: "=&d" (old), "=Q" (*(int *) addr)
++			: "d" (x << shift), "d" (~(255 << shift)),
++			  "Q" (*(int *) addr) : "memory", "cc", "0");
++		return old >> shift;
++	case 2:
++		addr = (unsigned long) ptr;
++		shift = (2 ^ (addr & 2)) << 3;
++		addr ^= addr & 2;
++		asm volatile(
++			"	l	%0,%4\n"
++			"0:	lr	0,%0\n"
++			"	nr	0,%3\n"
++			"	or	0,%2\n"
++			"	cs	%0,0,%4\n"
++			"	jl	0b\n"
++			: "=&d" (old), "=Q" (*(int *) addr)
++			: "d" (x << shift), "d" (~(65535 << shift)),
++			  "Q" (*(int *) addr) : "memory", "cc", "0");
++		return old >> shift;
++	case 4:
++		asm volatile(
++			"	l	%0,%3\n"
++			"0:	cs	%0,%2,%3\n"
++			"	jl	0b\n"
++			: "=&d" (old), "=Q" (*(int *) ptr)
++			: "d" (x), "Q" (*(int *) ptr)
++			: "memory", "cc");
++		return old;
++#ifdef CONFIG_64BIT
++	case 8:
++		asm volatile(
++			"	lg	%0,%3\n"
++			"0:	csg	%0,%2,%3\n"
++			"	jl	0b\n"
++			: "=&d" (old), "=m" (*(long *) ptr)
++			: "d" (x), "Q" (*(long *) ptr)
++			: "memory", "cc");
++		return old;
++#endif /* CONFIG_64BIT */
++	}
++	__xchg_called_with_bad_pointer();
++	return x;
++}
++
++#define xchg(ptr, x)							  \
++({									  \
++	__typeof__(*(ptr)) __ret;					  \
++	__ret = (__typeof__(*(ptr)))					  \
++		__xchg((unsigned long)(x), (void *)(ptr), sizeof(*(ptr)));\
++	__ret;								  \
++})
++
++/*
++ * Atomic compare and exchange.	 Compare OLD with MEM, if identical,
++ * store NEW in MEM.  Return the initial value in MEM.	Success is
++ * indicated by comparing RETURN with OLD.
++ */
++
++#define __HAVE_ARCH_CMPXCHG
++
++extern void __cmpxchg_called_with_bad_pointer(void);
++
++static inline unsigned long __cmpxchg(void *ptr, unsigned long old,
++				      unsigned long new, int size)
++{
++	unsigned long addr, prev, tmp;
++	int shift;
++
++	switch (size) {
++	case 1:
++		addr = (unsigned long) ptr;
++		shift = (3 ^ (addr & 3)) << 3;
++		addr ^= addr & 3;
++		asm volatile(
++			"	l	%0,%2\n"
++			"0:	nr	%0,%5\n"
++			"	lr	%1,%0\n"
++			"	or	%0,%3\n"
++			"	or	%1,%4\n"
++			"	cs	%0,%1,%2\n"
++			"	jnl	1f\n"
++			"	xr	%1,%0\n"
++			"	nr	%1,%5\n"
++			"	jnz	0b\n"
++			"1:"
++			: "=&d" (prev), "=&d" (tmp), "=Q" (*(int *) ptr)
++			: "d" (old << shift), "d" (new << shift),
++			  "d" (~(255 << shift)), "Q" (*(int *) ptr)
++			: "memory", "cc");
++		return prev >> shift;
++	case 2:
++		addr = (unsigned long) ptr;
++		shift = (2 ^ (addr & 2)) << 3;
++		addr ^= addr & 2;
++		asm volatile(
++			"	l	%0,%2\n"
++			"0:	nr	%0,%5\n"
++			"	lr	%1,%0\n"
++			"	or	%0,%3\n"
++			"	or	%1,%4\n"
++			"	cs	%0,%1,%2\n"
++			"	jnl	1f\n"
++			"	xr	%1,%0\n"
++			"	nr	%1,%5\n"
++			"	jnz	0b\n"
++			"1:"
++			: "=&d" (prev), "=&d" (tmp), "=Q" (*(int *) ptr)
++			: "d" (old << shift), "d" (new << shift),
++			  "d" (~(65535 << shift)), "Q" (*(int *) ptr)
++			: "memory", "cc");
++		return prev >> shift;
++	case 4:
++		asm volatile(
++			"	cs	%0,%3,%1\n"
++			: "=&d" (prev), "=Q" (*(int *) ptr)
++			: "0" (old), "d" (new), "Q" (*(int *) ptr)
++			: "memory", "cc");
++		return prev;
++#ifdef CONFIG_64BIT
++	case 8:
++		asm volatile(
++			"	csg	%0,%3,%1\n"
++			: "=&d" (prev), "=Q" (*(long *) ptr)
++			: "0" (old), "d" (new), "Q" (*(long *) ptr)
++			: "memory", "cc");
++		return prev;
++#endif /* CONFIG_64BIT */
++	}
++	__cmpxchg_called_with_bad_pointer();
++	return old;
++}
++
++#define cmpxchg(ptr, o, n)						\
++	((__typeof__(*(ptr)))__cmpxchg((ptr), (unsigned long)(o),	\
++				       (unsigned long)(n), sizeof(*(ptr))))
++
++#ifdef CONFIG_64BIT
++#define cmpxchg64(ptr, o, n)						\
++({									\
++	BUILD_BUG_ON(sizeof(*(ptr)) != 8);				\
++	cmpxchg((ptr), (o), (n));					\
++})
++#else /* CONFIG_64BIT */
++static inline unsigned long long __cmpxchg64(void *ptr,
++					     unsigned long long old,
++					     unsigned long long new)
++{
++	register_pair rp_old = {.pair = old};
++	register_pair rp_new = {.pair = new};
++
++	asm volatile(
++		"	cds	%0,%2,%1"
++		: "+&d" (rp_old), "=Q" (ptr)
++		: "d" (rp_new), "Q" (ptr)
++		: "cc");
++	return rp_old.pair;
++}
++#define cmpxchg64(ptr, o, n)						\
++	((__typeof__(*(ptr)))__cmpxchg64((ptr),				\
++					 (unsigned long long)(o),	\
++					 (unsigned long long)(n)))
++#endif /* CONFIG_64BIT */
++
++#include <asm-generic/cmpxchg-local.h>
++
++static inline unsigned long __cmpxchg_local(void *ptr,
++					    unsigned long old,
++					    unsigned long new, int size)
++{
++	switch (size) {
++	case 1:
++	case 2:
++	case 4:
++#ifdef CONFIG_64BIT
++	case 8:
++#endif
++		return __cmpxchg(ptr, old, new, size);
++	default:
++		return __cmpxchg_local_generic(ptr, old, new, size);
++	}
++
++	return old;
++}
++
++/*
++ * cmpxchg_local and cmpxchg64_local are atomic wrt current CPU. Always make
++ * them available.
++ */
++#define cmpxchg_local(ptr, o, n)					\
++	((__typeof__(*(ptr)))__cmpxchg_local((ptr), (unsigned long)(o),	\
++			(unsigned long)(n), sizeof(*(ptr))))
++
++#define cmpxchg64_local(ptr, o, n)	cmpxchg64((ptr), (o), (n))
++
++#endif /* __ASM_CMPXCHG_H */
+diff --git a/arch/s390/include/asm/system.h b/arch/s390/include/asm/system.h
+index 8f8d759..d382629 100644
+--- a/arch/s390/include/asm/system.h
++++ b/arch/s390/include/asm/system.h
+@@ -14,6 +14,7 @@
+ #include <asm/setup.h>
+ #include <asm/processor.h>
+ #include <asm/lowcore.h>
++#include <asm/cmpxchg.h>
+ 
+ #ifdef __KERNEL__
+ 
+@@ -120,161 +121,6 @@ extern int memcpy_real(void *, void *, size_t);
+ 
+ #define nop() asm volatile("nop")
+ 
+-#define xchg(ptr,x)							  \
+-({									  \
+-	__typeof__(*(ptr)) __ret;					  \
+-	__ret = (__typeof__(*(ptr)))					  \
+-		__xchg((unsigned long)(x), (void *)(ptr),sizeof(*(ptr))); \
+-	__ret;								  \
+-})
+-
+-extern void __xchg_called_with_bad_pointer(void);
+-
+-static inline unsigned long __xchg(unsigned long x, void * ptr, int size)
+-{
+-	unsigned long addr, old;
+-	int shift;
+-
+-        switch (size) {
+-	case 1:
+-		addr = (unsigned long) ptr;
+-		shift = (3 ^ (addr & 3)) << 3;
+-		addr ^= addr & 3;
+-		asm volatile(
+-			"	l	%0,%4\n"
+-			"0:	lr	0,%0\n"
+-			"	nr	0,%3\n"
+-			"	or	0,%2\n"
+-			"	cs	%0,0,%4\n"
+-			"	jl	0b\n"
+-			: "=&d" (old), "=Q" (*(int *) addr)
+-			: "d" (x << shift), "d" (~(255 << shift)),
+-			  "Q" (*(int *) addr) : "memory", "cc", "0");
+-		return old >> shift;
+-	case 2:
+-		addr = (unsigned long) ptr;
+-		shift = (2 ^ (addr & 2)) << 3;
+-		addr ^= addr & 2;
+-		asm volatile(
+-			"	l	%0,%4\n"
+-			"0:	lr	0,%0\n"
+-			"	nr	0,%3\n"
+-			"	or	0,%2\n"
+-			"	cs	%0,0,%4\n"
+-			"	jl	0b\n"
+-			: "=&d" (old), "=Q" (*(int *) addr)
+-			: "d" (x << shift), "d" (~(65535 << shift)),
+-			  "Q" (*(int *) addr) : "memory", "cc", "0");
+-		return old >> shift;
+-	case 4:
+-		asm volatile(
+-			"	l	%0,%3\n"
+-			"0:	cs	%0,%2,%3\n"
+-			"	jl	0b\n"
+-			: "=&d" (old), "=Q" (*(int *) ptr)
+-			: "d" (x), "Q" (*(int *) ptr)
+-			: "memory", "cc");
+-		return old;
+-#ifdef __s390x__
+-	case 8:
+-		asm volatile(
+-			"	lg	%0,%3\n"
+-			"0:	csg	%0,%2,%3\n"
+-			"	jl	0b\n"
+-			: "=&d" (old), "=m" (*(long *) ptr)
+-			: "d" (x), "Q" (*(long *) ptr)
+-			: "memory", "cc");
+-		return old;
+-#endif /* __s390x__ */
+-	}
+-	__xchg_called_with_bad_pointer();
+-	return x;
+-}
+-
+-/*
+- * Atomic compare and exchange.  Compare OLD with MEM, if identical,
+- * store NEW in MEM.  Return the initial value in MEM.  Success is
+- * indicated by comparing RETURN with OLD.
+- */
+-
+-#define __HAVE_ARCH_CMPXCHG 1
+-
+-#define cmpxchg(ptr, o, n)						\
+-	((__typeof__(*(ptr)))__cmpxchg((ptr), (unsigned long)(o),	\
+-					(unsigned long)(n), sizeof(*(ptr))))
+-
+-extern void __cmpxchg_called_with_bad_pointer(void);
+-
+-static inline unsigned long
+-__cmpxchg(volatile void *ptr, unsigned long old, unsigned long new, int size)
+-{
+-	unsigned long addr, prev, tmp;
+-	int shift;
+-
+-        switch (size) {
+-	case 1:
+-		addr = (unsigned long) ptr;
+-		shift = (3 ^ (addr & 3)) << 3;
+-		addr ^= addr & 3;
+-		asm volatile(
+-			"	l	%0,%2\n"
+-			"0:	nr	%0,%5\n"
+-			"	lr	%1,%0\n"
+-			"	or	%0,%3\n"
+-			"	or	%1,%4\n"
+-			"	cs	%0,%1,%2\n"
+-			"	jnl	1f\n"
+-			"	xr	%1,%0\n"
+-			"	nr	%1,%5\n"
+-			"	jnz	0b\n"
+-			"1:"
+-			: "=&d" (prev), "=&d" (tmp), "=Q" (*(int *) ptr)
+-			: "d" (old << shift), "d" (new << shift),
+-			  "d" (~(255 << shift)), "Q" (*(int *) ptr)
+-			: "memory", "cc");
+-		return prev >> shift;
+-	case 2:
+-		addr = (unsigned long) ptr;
+-		shift = (2 ^ (addr & 2)) << 3;
+-		addr ^= addr & 2;
+-		asm volatile(
+-			"	l	%0,%2\n"
+-			"0:	nr	%0,%5\n"
+-			"	lr	%1,%0\n"
+-			"	or	%0,%3\n"
+-			"	or	%1,%4\n"
+-			"	cs	%0,%1,%2\n"
+-			"	jnl	1f\n"
+-			"	xr	%1,%0\n"
+-			"	nr	%1,%5\n"
+-			"	jnz	0b\n"
+-			"1:"
+-			: "=&d" (prev), "=&d" (tmp), "=Q" (*(int *) ptr)
+-			: "d" (old << shift), "d" (new << shift),
+-			  "d" (~(65535 << shift)), "Q" (*(int *) ptr)
+-			: "memory", "cc");
+-		return prev >> shift;
+-	case 4:
+-		asm volatile(
+-			"	cs	%0,%3,%1\n"
+-			: "=&d" (prev), "=Q" (*(int *) ptr)
+-			: "0" (old), "d" (new), "Q" (*(int *) ptr)
+-			: "memory", "cc");
+-		return prev;
+-#ifdef __s390x__
+-	case 8:
+-		asm volatile(
+-			"	csg	%0,%3,%1\n"
+-			: "=&d" (prev), "=Q" (*(long *) ptr)
+-			: "0" (old), "d" (new), "Q" (*(long *) ptr)
+-			: "memory", "cc");
+-		return prev;
+-#endif /* __s390x__ */
+-        }
+-	__cmpxchg_called_with_bad_pointer();
+-	return old;
+-}
+-
+ /*
+  * Force strict CPU ordering.
+  * And yes, this is required on UP too when we're talking
+@@ -353,46 +199,6 @@ __cmpxchg(volatile void *ptr, unsigned long old, unsigned long new, int size)
+ 	__ctl_load(__dummy, cr, cr);	\
+ })
+ 
+-#include <linux/irqflags.h>
+-
+-#include <asm-generic/cmpxchg-local.h>
+-
+-static inline unsigned long __cmpxchg_local(volatile void *ptr,
+-				      unsigned long old,
+-				      unsigned long new, int size)
+-{
+-	switch (size) {
+-	case 1:
+-	case 2:
+-	case 4:
+-#ifdef __s390x__
+-	case 8:
+-#endif
+-		return __cmpxchg(ptr, old, new, size);
+-	default:
+-		return __cmpxchg_local_generic(ptr, old, new, size);
+-	}
+-
+-	return old;
+-}
+-
+-/*
+- * cmpxchg_local and cmpxchg64_local are atomic wrt current CPU. Always make
+- * them available.
+- */
+-#define cmpxchg_local(ptr, o, n)					\
+-	((__typeof__(*(ptr)))__cmpxchg_local((ptr), (unsigned long)(o),	\
+-			(unsigned long)(n), sizeof(*(ptr))))
+-#ifdef __s390x__
+-#define cmpxchg64_local(ptr, o, n)					\
+-  ({									\
+-	BUILD_BUG_ON(sizeof(*(ptr)) != 8);				\
+-	cmpxchg_local((ptr), (o), (n));					\
+-  })
+-#else
+-#define cmpxchg64_local(ptr, o, n) __cmpxchg64_local_generic((ptr), (o), (n))
+-#endif
+-
+ /*
+  * Use to set psw mask except for the first byte which
+  * won't be changed by this function.
+diff --git a/arch/s390/include/asm/unistd.h b/arch/s390/include/asm/unistd.h
+index 1049ef2..e821525 100644
+--- a/arch/s390/include/asm/unistd.h
++++ b/arch/s390/include/asm/unistd.h
+@@ -272,7 +272,11 @@
+ #define __NR_fanotify_init	332
+ #define __NR_fanotify_mark	333
+ #define __NR_prlimit64		334
+-#define NR_syscalls 335
++#define __NR_name_to_handle_at	335
++#define __NR_open_by_handle_at	336
++#define __NR_clock_adjtime	337
++#define __NR_syncfs		338
++#define NR_syscalls 339
+ 
+ /* 
+  * There are some system calls that are not present on 64 bit, some
+diff --git a/arch/s390/kernel/compat_wrapper.S b/arch/s390/kernel/compat_wrapper.S
+index 8e60fb2..1dc96ea 100644
+--- a/arch/s390/kernel/compat_wrapper.S
++++ b/arch/s390/kernel/compat_wrapper.S
+@@ -1877,3 +1877,30 @@ sys_prlimit64_wrapper:
+ 	llgtr	%r4,%r4			# const struct rlimit64 __user *
+ 	llgtr	%r5,%r5			# struct rlimit64 __user *
+ 	jg	sys_prlimit64		# branch to system call
++
++	.globl	sys_name_to_handle_at_wrapper
++sys_name_to_handle_at_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# const char __user *
++	llgtr	%r4,%r4			# struct file_handle __user *
++	llgtr	%r5,%r5			# int __user *
++	lgfr	%r6,%r6			# int
++	jg	sys_name_to_handle_at
++
++	.globl	compat_sys_open_by_handle_at_wrapper
++compat_sys_open_by_handle_at_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# struct file_handle __user *
++	lgfr	%r4,%r4			# int
++	jg	compat_sys_open_by_handle_at
++
++	.globl	compat_sys_clock_adjtime_wrapper
++compat_sys_clock_adjtime_wrapper:
++	lgfr	%r2,%r2			# clockid_t (int)
++	llgtr	%r3,%r3			# struct compat_timex __user *
++	jg	compat_sys_clock_adjtime
++
++	.globl	sys_syncfs_wrapper
++sys_syncfs_wrapper:
++	lgfr	%r2,%r2			# int
++	jg	sys_syncfs
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index 3b7e7dd..068f846 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -94,6 +94,7 @@ static noinline __init void create_kernel_nss(void)
+ 	unsigned int sinitrd_pfn, einitrd_pfn;
+ #endif
+ 	int response;
++	int hlen;
+ 	size_t len;
+ 	char *savesys_ptr;
+ 	char defsys_cmd[DEFSYS_CMD_SIZE];
+@@ -124,24 +125,27 @@ static noinline __init void create_kernel_nss(void)
+ 	end_pfn = PFN_UP(__pa(&_end));
+ 	min_size = end_pfn << 2;
+ 
+-	sprintf(defsys_cmd, "DEFSYS %s 00000-%.5X EW %.5X-%.5X SR %.5X-%.5X",
+-		kernel_nss_name, stext_pfn - 1, stext_pfn, eshared_pfn - 1,
+-		eshared_pfn, end_pfn);
++	hlen = snprintf(defsys_cmd, DEFSYS_CMD_SIZE,
++			"DEFSYS %s 00000-%.5X EW %.5X-%.5X SR %.5X-%.5X",
++			kernel_nss_name, stext_pfn - 1, stext_pfn,
++			eshared_pfn - 1, eshared_pfn, end_pfn);
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	if (INITRD_START && INITRD_SIZE) {
+ 		sinitrd_pfn = PFN_DOWN(__pa(INITRD_START));
+ 		einitrd_pfn = PFN_UP(__pa(INITRD_START + INITRD_SIZE));
+ 		min_size = einitrd_pfn << 2;
+-		sprintf(defsys_cmd, "%s EW %.5X-%.5X", defsys_cmd,
+-		sinitrd_pfn, einitrd_pfn);
++		hlen += snprintf(defsys_cmd + hlen, DEFSYS_CMD_SIZE - hlen,
++				 " EW %.5X-%.5X", sinitrd_pfn, einitrd_pfn);
  	}
- 	if (!page) {
- 		spin_unlock_bh(&mm->context.list_lock);
--		page = alloc_page(GFP_KERNEL|__GFP_REPEAT);
-+		page = alloc_page(gfp_mask);
- 		if (!page)
- 			return NULL;
- 		pgtable_page_ctor(page);
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index 34c43f2..f7e8716 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -66,7 +66,7 @@ static pte_t __ref *vmem_pte_alloc(void)
- 	pte_t *pte;
+ #endif
  
- 	if (slab_is_available())
--		pte = (pte_t *) page_table_alloc(&init_mm);
-+		pte = (pte_t *) page_table_alloc(&init_mm, GFP_KERNEL | __GFP_REPEAT);
+-	sprintf(defsys_cmd, "%s EW MINSIZE=%.7iK PARMREGS=0-13",
+-		defsys_cmd, min_size);
+-	sprintf(savesys_cmd, "SAVESYS %s \n IPL %s",
+-		kernel_nss_name, kernel_nss_name);
++	snprintf(defsys_cmd + hlen, DEFSYS_CMD_SIZE - hlen,
++		 " EW MINSIZE=%.7iK PARMREGS=0-13", min_size);
++	defsys_cmd[DEFSYS_CMD_SIZE - 1] = '\0';
++	snprintf(savesys_cmd, SAVESYS_CMD_SIZE, "SAVESYS %s \n IPL %s",
++		 kernel_nss_name, kernel_nss_name);
++	savesys_cmd[SAVESYS_CMD_SIZE - 1] = '\0';
+ 
+ 	__cpcmd(defsys_cmd, NULL, 0, &response);
+ 
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 6f63508..ed183c2 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -102,16 +102,6 @@ EXPORT_SYMBOL(lowcore_ptr);
+ 
+ #include <asm/setup.h>
+ 
+-static struct resource code_resource = {
+-	.name  = "Kernel code",
+-	.flags = IORESOURCE_BUSY | IORESOURCE_MEM,
+-};
+-
+-static struct resource data_resource = {
+-	.name = "Kernel data",
+-	.flags = IORESOURCE_BUSY | IORESOURCE_MEM,
+-};
+-
+ /*
+  * condev= and conmode= setup parameter.
+  */
+@@ -436,21 +426,43 @@ setup_lowcore(void)
+ 	lowcore_ptr[0] = lc;
+ }
+ 
+-static void __init
+-setup_resources(void)
++static struct resource code_resource = {
++	.name  = "Kernel code",
++	.flags = IORESOURCE_BUSY | IORESOURCE_MEM,
++};
++
++static struct resource data_resource = {
++	.name = "Kernel data",
++	.flags = IORESOURCE_BUSY | IORESOURCE_MEM,
++};
++
++static struct resource bss_resource = {
++	.name = "Kernel bss",
++	.flags = IORESOURCE_BUSY | IORESOURCE_MEM,
++};
++
++static struct resource __initdata *standard_resources[] = {
++	&code_resource,
++	&data_resource,
++	&bss_resource,
++};
++
++static void __init setup_resources(void)
+ {
+-	struct resource *res, *sub_res;
+-	int i;
++	struct resource *res, *std_res, *sub_res;
++	int i, j;
+ 
+ 	code_resource.start = (unsigned long) &_text;
+ 	code_resource.end = (unsigned long) &_etext - 1;
+ 	data_resource.start = (unsigned long) &_etext;
+ 	data_resource.end = (unsigned long) &_edata - 1;
++	bss_resource.start = (unsigned long) &__bss_start;
++	bss_resource.end = (unsigned long) &__bss_stop - 1;
+ 
+ 	for (i = 0; i < MEMORY_CHUNKS; i++) {
+ 		if (!memory_chunk[i].size)
+ 			continue;
+-		res = alloc_bootmem_low(sizeof(struct resource));
++		res = alloc_bootmem_low(sizeof(*res));
+ 		res->flags = IORESOURCE_BUSY | IORESOURCE_MEM;
+ 		switch (memory_chunk[i].type) {
+ 		case CHUNK_READ_WRITE:
+@@ -464,40 +476,24 @@ setup_resources(void)
+ 			res->name = "reserved";
+ 		}
+ 		res->start = memory_chunk[i].addr;
+-		res->end = memory_chunk[i].addr +  memory_chunk[i].size - 1;
++		res->end = res->start + memory_chunk[i].size - 1;
+ 		request_resource(&iomem_resource, res);
+ 
+-		if (code_resource.start >= res->start  &&
+-			code_resource.start <= res->end &&
+-			code_resource.end > res->end) {
+-			sub_res = alloc_bootmem_low(sizeof(struct resource));
+-			memcpy(sub_res, &code_resource,
+-				sizeof(struct resource));
+-			sub_res->end = res->end;
+-			code_resource.start = res->end + 1;
+-			request_resource(res, sub_res);
+-		}
+-
+-		if (code_resource.start >= res->start &&
+-			code_resource.start <= res->end &&
+-			code_resource.end <= res->end)
+-			request_resource(res, &code_resource);
+-
+-		if (data_resource.start >= res->start &&
+-			data_resource.start <= res->end &&
+-			data_resource.end > res->end) {
+-			sub_res = alloc_bootmem_low(sizeof(struct resource));
+-			memcpy(sub_res, &data_resource,
+-				sizeof(struct resource));
+-			sub_res->end = res->end;
+-			data_resource.start = res->end + 1;
+-			request_resource(res, sub_res);
++		for (j = 0; j < ARRAY_SIZE(standard_resources); j++) {
++			std_res = standard_resources[j];
++			if (std_res->start < res->start ||
++			    std_res->start > res->end)
++				continue;
++			if (std_res->end > res->end) {
++				sub_res = alloc_bootmem_low(sizeof(*sub_res));
++				*sub_res = *std_res;
++				sub_res->end = res->end;
++				std_res->start = res->end + 1;
++				request_resource(res, sub_res);
++			} else {
++				request_resource(res, std_res);
++			}
+ 		}
+-
+-		if (data_resource.start >= res->start &&
+-			data_resource.start <= res->end &&
+-			data_resource.end <= res->end)
+-			request_resource(res, &data_resource);
+ 	}
+ }
+ 
+diff --git a/arch/s390/kernel/syscalls.S b/arch/s390/kernel/syscalls.S
+index a8fee1b..9c65fd4 100644
+--- a/arch/s390/kernel/syscalls.S
++++ b/arch/s390/kernel/syscalls.S
+@@ -343,3 +343,7 @@ SYSCALL(sys_perf_event_open,sys_perf_event_open,sys_perf_event_open_wrapper)
+ SYSCALL(sys_fanotify_init,sys_fanotify_init,sys_fanotify_init_wrapper)
+ SYSCALL(sys_fanotify_mark,sys_fanotify_mark,sys_fanotify_mark_wrapper)
+ SYSCALL(sys_prlimit64,sys_prlimit64,sys_prlimit64_wrapper)
++SYSCALL(sys_name_to_handle_at,sys_name_to_handle_at,sys_name_to_handle_at_wrapper) /* 335 */
++SYSCALL(sys_open_by_handle_at,sys_open_by_handle_at,compat_sys_open_by_handle_at_wrapper)
++SYSCALL(sys_clock_adjtime,sys_clock_adjtime,compat_sys_clock_adjtime_wrapper)
++SYSCALL(sys_syncfs,sys_syncfs,sys_syncfs_wrapper)
+diff --git a/arch/s390/oprofile/Makefile b/arch/s390/oprofile/Makefile
+index d698cdd..524c4b6 100644
+--- a/arch/s390/oprofile/Makefile
++++ b/arch/s390/oprofile/Makefile
+@@ -6,4 +6,5 @@ DRIVER_OBJS = $(addprefix ../../../drivers/oprofile/, \
+ 		oprofilefs.o oprofile_stats.o  \
+ 		timer_int.o )
+ 
+-oprofile-y :=	$(DRIVER_OBJS) init.o backtrace.o hwsampler.o
++oprofile-y :=	$(DRIVER_OBJS) init.o backtrace.o
++oprofile-$(CONFIG_64BIT)	+= hwsampler.o
+diff --git a/arch/s390/oprofile/init.c b/arch/s390/oprofile/init.c
+index 16c76de..c63d7e5 100644
+--- a/arch/s390/oprofile/init.c
++++ b/arch/s390/oprofile/init.c
+@@ -18,6 +18,11 @@
+ #include <linux/fs.h>
+ 
+ #include "../../../drivers/oprofile/oprof.h"
++
++extern void s390_backtrace(struct pt_regs * const regs, unsigned int depth);
++
++#ifdef CONFIG_64BIT
++
+ #include "hwsampler.h"
+ 
+ #define DEFAULT_INTERVAL	4096
+@@ -37,8 +42,6 @@ static int hwsampler_running;	/* start_mutex must be held to change */
+ 
+ static struct oprofile_operations timer_ops;
+ 
+-extern void s390_backtrace(struct pt_regs * const regs, unsigned int depth);
+-
+ static int oprofile_hwsampler_start(void)
+ {
+ 	int retval;
+@@ -172,14 +175,22 @@ static void oprofile_hwsampler_exit(void)
+ 	hwsampler_shutdown();
+ }
+ 
++#endif /* CONFIG_64BIT */
++
+ int __init oprofile_arch_init(struct oprofile_operations *ops)
+ {
+ 	ops->backtrace = s390_backtrace;
+ 
++#ifdef CONFIG_64BIT
+ 	return oprofile_hwsampler_init(ops);
++#else
++	return -ENODEV;
++#endif
+ }
+ 
+ void oprofile_arch_exit(void)
+ {
++#ifdef CONFIG_64BIT
+ 	oprofile_hwsampler_exit();
++#endif
+ }
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 379d859..459f2cb 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -3982,8 +3982,10 @@ out_err:
+ }
+ 
+ static struct ccw_driver dasd_eckd_driver = {
+-	.name	     = "dasd-eckd",
+-	.owner	     = THIS_MODULE,
++	.driver = {
++		.name	= "dasd-eckd",
++		.owner	= THIS_MODULE,
++	},
+ 	.ids	     = dasd_eckd_ids,
+ 	.probe	     = dasd_eckd_probe,
+ 	.remove      = dasd_generic_remove,
+diff --git a/drivers/s390/block/dasd_fba.c b/drivers/s390/block/dasd_fba.c
+index be89b3a..4b71b11 100644
+--- a/drivers/s390/block/dasd_fba.c
++++ b/drivers/s390/block/dasd_fba.c
+@@ -65,8 +65,10 @@ dasd_fba_set_online(struct ccw_device *cdev)
+ }
+ 
+ static struct ccw_driver dasd_fba_driver = {
+-	.name        = "dasd-fba",
+-	.owner       = THIS_MODULE,
++	.driver = {
++		.name	= "dasd-fba",
++		.owner	= THIS_MODULE,
++	},
+ 	.ids         = dasd_fba_ids,
+ 	.probe       = dasd_fba_probe,
+ 	.remove      = dasd_generic_remove,
+diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
+index 3fb4335..694464c 100644
+--- a/drivers/s390/char/con3215.c
++++ b/drivers/s390/char/con3215.c
+@@ -764,8 +764,10 @@ static struct ccw_device_id raw3215_id[] = {
+ };
+ 
+ static struct ccw_driver raw3215_ccw_driver = {
+-	.name		= "3215",
+-	.owner		= THIS_MODULE,
++	.driver = {
++		.name	= "3215",
++		.owner	= THIS_MODULE,
++	},
+ 	.ids		= raw3215_id,
+ 	.probe		= &raw3215_probe,
+ 	.remove		= &raw3215_remove,
+diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
+index 96ba2fd..4c02376 100644
+--- a/drivers/s390/char/raw3270.c
++++ b/drivers/s390/char/raw3270.c
+@@ -1388,8 +1388,10 @@ static struct ccw_device_id raw3270_id[] = {
+ };
+ 
+ static struct ccw_driver raw3270_ccw_driver = {
+-	.name		= "3270",
+-	.owner		= THIS_MODULE,
++	.driver = {
++		.name	= "3270",
++		.owner	= THIS_MODULE,
++	},
+ 	.ids		= raw3270_id,
+ 	.probe		= &raw3270_probe,
+ 	.remove		= &raw3270_remove,
+diff --git a/drivers/s390/char/tape_34xx.c b/drivers/s390/char/tape_34xx.c
+index c265111..9eff2df 100644
+--- a/drivers/s390/char/tape_34xx.c
++++ b/drivers/s390/char/tape_34xx.c
+@@ -1320,8 +1320,10 @@ tape_34xx_online(struct ccw_device *cdev)
+ }
+ 
+ static struct ccw_driver tape_34xx_driver = {
+-	.name = "tape_34xx",
+-	.owner = THIS_MODULE,
++	.driver = {
++		.name = "tape_34xx",
++		.owner = THIS_MODULE,
++	},
+ 	.ids = tape_34xx_ids,
+ 	.probe = tape_generic_probe,
+ 	.remove = tape_generic_remove,
+diff --git a/drivers/s390/char/tape_3590.c b/drivers/s390/char/tape_3590.c
+index de2e99e..b98dcbd 100644
+--- a/drivers/s390/char/tape_3590.c
++++ b/drivers/s390/char/tape_3590.c
+@@ -1761,8 +1761,10 @@ tape_3590_online(struct ccw_device *cdev)
+ }
+ 
+ static struct ccw_driver tape_3590_driver = {
+-	.name = "tape_3590",
+-	.owner = THIS_MODULE,
++	.driver = {
++		.name = "tape_3590",
++		.owner = THIS_MODULE,
++	},
+ 	.ids = tape_3590_ids,
+ 	.probe = tape_generic_probe,
+ 	.remove = tape_generic_remove,
+diff --git a/drivers/s390/char/vmur.c b/drivers/s390/char/vmur.c
+index caef175..f6b00c3 100644
+--- a/drivers/s390/char/vmur.c
++++ b/drivers/s390/char/vmur.c
+@@ -64,8 +64,10 @@ static int ur_set_offline(struct ccw_device *cdev);
+ static int ur_pm_suspend(struct ccw_device *cdev);
+ 
+ static struct ccw_driver ur_driver = {
+-	.name		= "vmur",
+-	.owner		= THIS_MODULE,
++	.driver = {
++		.name	= "vmur",
++		.owner	= THIS_MODULE,
++	},
+ 	.ids		= ur_ids,
+ 	.probe		= ur_probe,
+ 	.remove		= ur_remove,
+diff --git a/drivers/s390/cio/ccwgroup.c b/drivers/s390/cio/ccwgroup.c
+index 2864581..5c56741 100644
+--- a/drivers/s390/cio/ccwgroup.c
++++ b/drivers/s390/cio/ccwgroup.c
+@@ -428,7 +428,7 @@ ccwgroup_online_store (struct device *dev, struct device_attribute *attr, const
+ 	gdev = to_ccwgroupdev(dev);
+ 	gdrv = to_ccwgroupdrv(dev->driver);
+ 
+-	if (!try_module_get(gdrv->owner))
++	if (!try_module_get(gdrv->driver.owner))
+ 		return -EINVAL;
+ 
+ 	ret = strict_strtoul(buf, 0, &value);
+@@ -442,7 +442,7 @@ ccwgroup_online_store (struct device *dev, struct device_attribute *attr, const
  	else
- 		pte = alloc_bootmem(PTRS_PER_PTE * sizeof(pte_t));
- 	if (!pte)
--- 
-1.7.0.4
-
-
-> 
-> -- 
-> blue skies,
->    Martin.
-> 
-> "Reality continues to ruin my life." - Calvin.
-> 
+ 		ret = -EINVAL;
+ out:
+-	module_put(gdrv->owner);
++	module_put(gdrv->driver.owner);
+ 	return (ret == 0) ? count : ret;
+ }
+ 
+@@ -616,8 +616,6 @@ int ccwgroup_driver_register(struct ccwgroup_driver *cdriver)
+ {
+ 	/* register our new driver with the core */
+ 	cdriver->driver.bus = &ccwgroup_bus_type;
+-	cdriver->driver.name = cdriver->name;
+-	cdriver->driver.owner = cdriver->owner;
+ 
+ 	return driver_register(&cdriver->driver);
+ }
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index e50b121..df14c51 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -127,7 +127,7 @@ static int ccw_uevent(struct device *dev, struct kobj_uevent_env *env)
+ 	return ret;
+ }
+ 
+-struct bus_type ccw_bus_type;
++static struct bus_type ccw_bus_type;
+ 
+ static void io_subchannel_irq(struct subchannel *);
+ static int io_subchannel_probe(struct subchannel *);
+@@ -547,7 +547,7 @@ static ssize_t online_store (struct device *dev, struct device_attribute *attr,
+ 	if (atomic_cmpxchg(&cdev->private->onoff, 0, 1) != 0)
+ 		return -EAGAIN;
+ 
+-	if (cdev->drv && !try_module_get(cdev->drv->owner)) {
++	if (cdev->drv && !try_module_get(cdev->drv->driver.owner)) {
+ 		atomic_set(&cdev->private->onoff, 0);
+ 		return -EINVAL;
+ 	}
+@@ -573,7 +573,7 @@ static ssize_t online_store (struct device *dev, struct device_attribute *attr,
+ 	}
+ out:
+ 	if (cdev->drv)
+-		module_put(cdev->drv->owner);
++		module_put(cdev->drv->driver.owner);
+ 	atomic_set(&cdev->private->onoff, 0);
+ 	return (ret < 0) ? ret : count;
+ }
+@@ -1970,7 +1970,7 @@ static const struct dev_pm_ops ccw_pm_ops = {
+ 	.restore = ccw_device_pm_restore,
+ };
+ 
+-struct bus_type ccw_bus_type = {
++static struct bus_type ccw_bus_type = {
+ 	.name   = "ccw",
+ 	.match  = ccw_bus_match,
+ 	.uevent = ccw_uevent,
+@@ -1993,8 +1993,6 @@ int ccw_driver_register(struct ccw_driver *cdriver)
+ 	struct device_driver *drv = &cdriver->driver;
+ 
+ 	drv->bus = &ccw_bus_type;
+-	drv->name = cdriver->name;
+-	drv->owner = cdriver->owner;
+ 
+ 	return driver_register(drv);
+ }
+@@ -2112,5 +2110,4 @@ EXPORT_SYMBOL(ccw_device_set_offline);
+ EXPORT_SYMBOL(ccw_driver_register);
+ EXPORT_SYMBOL(ccw_driver_unregister);
+ EXPORT_SYMBOL(get_ccwdev_by_busid);
+-EXPORT_SYMBOL(ccw_bus_type);
+ EXPORT_SYMBOL_GPL(ccw_device_get_subchannel_id);
+diff --git a/drivers/s390/cio/device.h b/drivers/s390/cio/device.h
+index 379de2d..7e297c7 100644
+--- a/drivers/s390/cio/device.h
++++ b/drivers/s390/cio/device.h
+@@ -133,7 +133,6 @@ void ccw_device_set_notoper(struct ccw_device *cdev);
+ /* qdio needs this. */
+ void ccw_device_set_timeout(struct ccw_device *, int);
+ extern struct subchannel_id ccw_device_get_subchannel_id(struct ccw_device *);
+-extern struct bus_type ccw_bus_type;
+ 
+ /* Channel measurement facility related */
+ void retry_set_schib(struct ccw_device *cdev);
+diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
+index 5640c89..479c665 100644
+--- a/drivers/s390/cio/qdio_main.c
++++ b/drivers/s390/cio/qdio_main.c
+@@ -1508,7 +1508,8 @@ int do_QDIO(struct ccw_device *cdev, unsigned int callflags,
+ 
+ 	if (irq_ptr->state != QDIO_IRQ_STATE_ACTIVE)
+ 		return -EBUSY;
+-
++	if (!count)
++		return 0;
+ 	if (callflags & QDIO_FLAG_SYNC_INPUT)
+ 		return handle_inbound(irq_ptr->input_qs[q_nr],
+ 				      callflags, bufnr, count);
+diff --git a/drivers/s390/net/claw.c b/drivers/s390/net/claw.c
+index ce3a5c1..9feb62f 100644
+--- a/drivers/s390/net/claw.c
++++ b/drivers/s390/net/claw.c
+@@ -264,8 +264,10 @@ static struct device *claw_root_dev;
+ /* ccwgroup table  */
+ 
+ static struct ccwgroup_driver claw_group_driver = {
+-        .owner       = THIS_MODULE,
+-        .name        = "claw",
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= "claw",
++	},
+         .max_slaves  = 2,
+         .driver_id   = 0xC3D3C1E6,
+         .probe       = claw_probe,
+@@ -282,8 +284,10 @@ static struct ccw_device_id claw_ids[] = {
+ MODULE_DEVICE_TABLE(ccw, claw_ids);
+ 
+ static struct ccw_driver claw_ccw_driver = {
+-	.owner	= THIS_MODULE,
+-	.name	= "claw",
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= "claw",
++	},
+ 	.ids	= claw_ids,
+ 	.probe	= ccwgroup_probe_ccwdev,
+ 	.remove	= ccwgroup_remove_ccwdev,
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index 4c28459..c189296 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -1764,16 +1764,20 @@ static struct ccw_device_id ctcm_ids[] = {
+ MODULE_DEVICE_TABLE(ccw, ctcm_ids);
+ 
+ static struct ccw_driver ctcm_ccw_driver = {
+-	.owner	= THIS_MODULE,
+-	.name	= "ctcm",
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= "ctcm",
++	},
+ 	.ids	= ctcm_ids,
+ 	.probe	= ccwgroup_probe_ccwdev,
+ 	.remove	= ccwgroup_remove_ccwdev,
+ };
+ 
+ static struct ccwgroup_driver ctcm_group_driver = {
+-	.owner       = THIS_MODULE,
+-	.name        = CTC_DRIVER_NAME,
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= CTC_DRIVER_NAME,
++	},
+ 	.max_slaves  = 2,
+ 	.driver_id   = 0xC3E3C3D4,	/* CTCM */
+ 	.probe       = ctcm_probe_device,
+diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+index 30b2a82..7fbc4ad 100644
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -2396,8 +2396,10 @@ static struct ccw_device_id lcs_ids[] = {
+ MODULE_DEVICE_TABLE(ccw, lcs_ids);
+ 
+ static struct ccw_driver lcs_ccw_driver = {
+-	.owner	= THIS_MODULE,
+-	.name	= "lcs",
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= "lcs",
++	},
+ 	.ids	= lcs_ids,
+ 	.probe	= ccwgroup_probe_ccwdev,
+ 	.remove	= ccwgroup_remove_ccwdev,
+@@ -2407,8 +2409,10 @@ static struct ccw_driver lcs_ccw_driver = {
+  * LCS ccwgroup driver registration
+  */
+ static struct ccwgroup_driver lcs_group_driver = {
+-	.owner       = THIS_MODULE,
+-	.name        = "lcs",
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= "lcs",
++	},
+ 	.max_slaves  = 2,
+ 	.driver_id   = 0xD3C3E2,
+ 	.probe       = lcs_probe_device,
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 25eef304..10a3a3b 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -3902,7 +3902,9 @@ static struct ccw_device_id qeth_ids[] = {
+ MODULE_DEVICE_TABLE(ccw, qeth_ids);
+ 
+ static struct ccw_driver qeth_ccw_driver = {
+-	.name = "qeth",
++	.driver = {
++		.name = "qeth",
++	},
+ 	.ids = qeth_ids,
+ 	.probe = ccwgroup_probe_ccwdev,
+ 	.remove = ccwgroup_remove_ccwdev,
+@@ -4428,8 +4430,10 @@ static int qeth_core_restore(struct ccwgroup_device *gdev)
+ }
+ 
+ static struct ccwgroup_driver qeth_core_ccwgroup_driver = {
+-	.owner = THIS_MODULE,
+-	.name = "qeth",
++	.driver = {
++		.owner = THIS_MODULE,
++		.name = "qeth",
++	},
+ 	.driver_id = 0xD8C5E3C8,
+ 	.probe = qeth_core_probe_device,
+ 	.remove = qeth_core_remove_device,
+diff --git a/drivers/s390/scsi/zfcp_ccw.c b/drivers/s390/scsi/zfcp_ccw.c
+index 4f7852d..e8b7cee 100644
+--- a/drivers/s390/scsi/zfcp_ccw.c
++++ b/drivers/s390/scsi/zfcp_ccw.c
+@@ -251,8 +251,10 @@ static void zfcp_ccw_shutdown(struct ccw_device *cdev)
+ }
+ 
+ struct ccw_driver zfcp_ccw_driver = {
+-	.owner       = THIS_MODULE,
+-	.name        = "zfcp",
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= "zfcp",
++	},
+ 	.ids         = zfcp_ccw_device_id,
+ 	.probe       = zfcp_ccw_probe,
+ 	.remove      = zfcp_ccw_remove,
