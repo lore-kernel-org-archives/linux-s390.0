@@ -1,71 +1,187 @@
-Return-Path: <owner-linux-mm@kvack.org>
-From: Stephen Wilson <wilsons@start.ca>
-Subject: [PATCH 2/5] x86: mark associated mm when running a task in 32 bit compatibility mode
-Date: Tue,  8 Mar 2011 19:31:58 -0500
-Message-Id: <1299630721-4337-3-git-send-email-wilsons@start.ca>
-In-Reply-To: <1299630721-4337-1-git-send-email-wilsons@start.ca>
-References: <1299630721-4337-1-git-send-email-wilsons@start.ca>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: x86@kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Paul Mundt <lethal@linux-sh.org>, Andi Kleen <ak@linux.intel.com>, Michel Lespinasse <walken@google.com>, Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Stephen Wilson <wilsons@start.ca>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [patch v2 1/3] This patch adds support for hardware based
+ sampling on System z processors (models z10 and up)
+From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+In-Reply-To: <20110325110013.GW31407@erda.amd.com>
+References: <20110121100651.821690659@linux.vnet.ibm.com>
+	 <20110121100841.879534437@linux.vnet.ibm.com>
+	 <20110325110013.GW31407@erda.amd.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 29 Mar 2011 14:38:04 +0200
+Message-ID: <1301402284.3343.27.camel@BR8HFPP0.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Robert Richter <robert.richter@amd.com>
+Cc: "mingo@elte.hu" <mingo@elte.hu>, "oprofile-list@lists.sf.net" <oprofile-list@lists.sf.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>, Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch simply follows the same practice as for setting the TIF_IA32 flag.
-In particular, an mm is marked as holding 32-bit tasks when a 32-bit binary is
-exec'ed.  Both ELF and a.out formats are updated.
+On Fri, 2011-03-25 at 12:00 +0100, Robert Richter wrote: 
+> On 21.01.11 05:06:52, Heinz Graalfs wrote:
+> > From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+> > 
+> > System z's hardware sampling is described in detail in:
+> > 
+> >    SA23-2260-01 "The Load-Program-Parameter and CPU-Measurement Facilities"
+> > 
+> > The patch introduces
+> >  - support for System z's hardware sampler in OProfile's kernel module
+> >  - it adds functions that control all hardware sampling related operations as
+> >   - checking if hardware sampling feature is available
+> >     - ie: on System z models z10 and up, in LPAR mode only, and authorised during LPAR activation
+> >   - allocating memory for the hardware sampling feature
+> >   - starting/stopping hardware sampling
+> > 
+> > All functions required to start and stop hardware sampling have to be
+> > invoked by the oprofile kernel module as provided by the other patches of this patch set.
+> > 
+> > In case hardware based sampling cannot be setup standard timer based sampling is used by OProfile.
+> > 
+> > Signed-off-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
+> > Signed-off-by: Maran Pakkirisamy <maranp@linux.vnet.ibm.com>
+> > Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+> > ---
+> >  arch/Kconfig                   |    3
+> >  arch/s390/Kconfig              |    1
+> >  arch/s390/oprofile/hwsampler.c | 1256 +++++++++++++++++++++++++++++++++++++++++
+> >  arch/s390/oprofile/hwsampler.h |  113 +++
+> >  4 files changed, 1373 insertions(+)
+> 
+> > +int hwsampler_setup()
+> > +{
+> > +       int rc;
+> > +       int cpu;
+> > +       struct hws_cpu_buffer *cb;
+> > +
+> > +       mutex_lock(&hws_sem);
+> > +
+> > +       rc = -EINVAL;
+> > +       if (hws_state)
+> > +               goto setup_exit;
+> > +
+> > +       hws_state = HWS_INIT;
+> 
+> hws_state is never set to zero again, so we will pass this point only
+> one time, even after hwsampler_shutdown(). Is this intended? Only
+> loading and unloading this as module would work.
+> 
+> Maybe we clear hws_state in hwsampler_shutdown()?
+> 
+> -Robert
+> 
+yes, the intent is:
+hwsampler_setup() is called on module load - oprofile_arch_init()
+and 
+hwsampler_shutdown() is called on unload - oprofile_arch_exit()
 
-Signed-off-by: Stephen Wilson <wilsons@start.ca>
----
- arch/x86/ia32/ia32_aout.c    |    1 +
- arch/x86/kernel/process_64.c |    8 ++++++++
- 2 files changed, 9 insertions(+), 0 deletions(-)
+hws_state is reset in hwsampler_shutdown()
 
-diff --git a/arch/x86/ia32/ia32_aout.c b/arch/x86/ia32/ia32_aout.c
-index 2d93bdb..95cde43 100644
---- a/arch/x86/ia32/ia32_aout.c
-+++ b/arch/x86/ia32/ia32_aout.c
-@@ -298,6 +298,7 @@ static int load_aout_binary(struct linux_binprm *bprm, struct pt_regs *regs)
- 	/* OK, This is the point of no return */
- 	set_personality(PER_LINUX);
- 	set_thread_flag(TIF_IA32);
-+	current->mm->context.compat = 1;
- 
- 	setup_new_exec(bprm);
- 
-diff --git a/arch/x86/kernel/process_64.c b/arch/x86/kernel/process_64.c
-index bd387e8..35f1221 100644
---- a/arch/x86/kernel/process_64.c
-+++ b/arch/x86/kernel/process_64.c
-@@ -501,6 +501,10 @@ void set_personality_64bit(void)
- 	/* Make sure to be in 64bit mode */
- 	clear_thread_flag(TIF_IA32);
- 
-+	/* Ensure the corresponding mm is not marked. */
-+	if (current->mm)
-+		current->mm->context.compat = 0;
-+
- 	/* TBD: overwrites user setup. Should have two bits.
- 	   But 64bit processes have always behaved this way,
- 	   so it's not too bad. The main problem is just that
-@@ -516,6 +520,10 @@ void set_personality_ia32(void)
- 	set_thread_flag(TIF_IA32);
- 	current->personality |= force_personality32;
- 
-+	/* Mark the associated mm as containing 32-bit tasks. */
-+	if (current->mm)
-+		current->mm->context.compat = 1;
-+
- 	/* Prepare the first "return" to user space */
- 	current_thread_info()->status |= TS_COMPAT;
- }
--- 
-1.7.3.5
+hwsampler_shutdown processing only succeeds if we are in states
+HWS_DEALLOCATED or HWS_STOPPED.
+Usually this is ensured by the current approach the functions are
+called, and in this case hws_state is also reset to HWS_INIT.
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Fight unfair telecom internet charges in Canada: sign http://stopthemeter.ca/
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+In case hwsampler_shutdown is called in other 'invalid states' it should
+return -EINVAL.
+However, in this case, the unregister_cpu_notifier() would be executed,
+which is not good and should be avoided.
+
+Although, current processing, never calls hwsampler_shutdown() in
+invalid states, I suppose, it might better if we do the unregister call
+as intended only if hwsampler_shutdown succeeds.
+
+I will submit a separate patch.
+
+Heinz
+
+> > +
+> > +       init_all_cpu_buffers();
+> > +
+> > +       rc = check_hardware_prerequisites();
+> > +       if (rc)
+> > +               goto setup_exit;
+> > +
+> > +       rc = check_qsi_on_setup();
+> > +       if (rc)
+> > +               goto setup_exit;
+> > +
+> > +       rc = -EINVAL;
+> > +       hws_wq = create_workqueue("hwsampler");
+> > +       if (!hws_wq)
+> > +               goto setup_exit;
+> > +
+> > +       register_cpu_notifier(&hws_cpu_notifier);
+> > +
+> > +       for_each_online_cpu(cpu) {
+> > +               cb = &per_cpu(sampler_cpu_buffer, cpu);
+> > +               INIT_WORK(&cb->worker, worker);
+> > +               rc = smp_ctl_qsi(cpu);
+> > +               WARN_ON(rc);
+> > +               if (min_sampler_rate != cb->qsi.min_sampl_rate) {
+> > +                       if (min_sampler_rate) {
+> > +                               printk(KERN_WARNING
+> > +                                       "hwsampler: different min sampler rate values.\n");
+> > +                               if (min_sampler_rate < cb->qsi.min_sampl_rate)
+> > +                                       min_sampler_rate =
+> > +                                               cb->qsi.min_sampl_rate;
+> > +                       } else
+> > +                               min_sampler_rate = cb->qsi.min_sampl_rate;
+> > +               }
+> > +               if (max_sampler_rate != cb->qsi.max_sampl_rate) {
+> > +                       if (max_sampler_rate) {
+> > +                               printk(KERN_WARNING
+> > +                                       "hwsampler: different max sampler rate values.\n");
+> > +                               if (max_sampler_rate > cb->qsi.max_sampl_rate)
+> > +                                       max_sampler_rate =
+> > +                                               cb->qsi.max_sampl_rate;
+> > +                       } else
+> > +                               max_sampler_rate = cb->qsi.max_sampl_rate;
+> > +               }
+> > +       }
+> > +       register_external_interrupt(0x1407, hws_ext_handler);
+> > +
+> > +       hws_state = HWS_DEALLOCATED;
+> > +       rc = 0;
+> > +
+> > +setup_exit:
+> > +       mutex_unlock(&hws_sem);
+> > +       return rc;
+> > +}
+> > +
+> > +int hwsampler_shutdown()
+> > +{
+> > +       int rc;
+> > +
+> > +       mutex_lock(&hws_sem);
+> > +
+> > +       rc = -EINVAL;
+> > +       if (hws_state == HWS_DEALLOCATED || hws_state == HWS_STOPPED) {
+> > +               mutex_unlock(&hws_sem);
+> > +
+> > +               if (hws_wq)
+> > +                       flush_workqueue(hws_wq);
+> > +
+> > +               mutex_lock(&hws_sem);
+> > +
+> > +               if (hws_state == HWS_STOPPED) {
+> > +                       smp_ctl_clear_bit(0, 5); /* set bit 58 CR0 off */
+> > +                       deallocate_sdbt();
+> > +               }
+> > +               if (hws_wq) {
+> > +                       destroy_workqueue(hws_wq);
+> > +                       hws_wq = NULL;
+> > +               }
+> > +
+> > +               unregister_external_interrupt(0x1407, hws_ext_handler);
+> > +               hws_state = HWS_INIT;
+> > +               rc = 0;
+> > +       }
+> > +       mutex_unlock(&hws_sem);
+> > +
+> > +       unregister_cpu_notifier(&hws_cpu_notifier);
+> > +
+> > +       return rc;
+> > +}
+> 
