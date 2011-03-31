@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20110330080923.413595315@linux.vnet.ibm.com>
-Date: Wed, 30 Mar 2011 10:06:38 +0200
-From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: v2 [patch 1/1] Do not unregister_cpu_notifier in case of wrong state 
-References: <20110330080637.110679740@linux.vnet.ibm.com>
-Content-Disposition: inline; filename=hwsampler-shutdown.patch
+Date: Thu, 31 Mar 2011 18:55:52 +0200
+From: Nicolas Kaiser <nikai@nikai.net>
+Subject: [PATCH] s390: oprofile: fix error checks in
+ oprofile_hwsampler_init()
+Message-ID: <20110331185552.5f633573@absol.kitzblitz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: robert.richter@amd.com
-Cc: mingo@elte.hu, oprofile-list@lists.sf.net, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Robert Richter <robert.richter@amd.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, oprofile-list@lists.sf.net, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+Checking 'oprofile_min_interval < 0' and
+'oprofile_max_interval < 0' doesn't work because
+'oprofile_min_interval' and 'oprofile_max_interval' are unsigned.
 
-This patch avoids calling unregister_cpu_notifier() in case
-hwsampler_shutdown() is invoked in wrong state. 
+Signed-off-by: Nicolas Kaiser <nikai@nikai.net>
 ---
- arch/s390/oprofile/hwsampler.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+Untested.
 
-Index: 2.6.39/arch/s390/oprofile/hwsampler.c
-===================================================================
---- 2.6.39.orig/arch/s390/oprofile/hwsampler.c
-+++ 2.6.39/arch/s390/oprofile/hwsampler.c
-@@ -1142,12 +1142,15 @@ int hwsampler_shutdown()
- 		}
+ arch/s390/oprofile/init.c |   12 ++++++++----
+ 1 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/arch/s390/oprofile/init.c b/arch/s390/oprofile/init.c
+index c63d7e5..09c3088 100644
+--- a/arch/s390/oprofile/init.c
++++ b/arch/s390/oprofile/init.c
+@@ -138,22 +138,26 @@ static int oprofile_create_hwsampling_files(struct super_block *sb,
  
- 		unregister_external_interrupt(0x1407, hws_ext_handler);
--		hws_state = HWS_INIT;
-+		hws_state = 0;
+ static int oprofile_hwsampler_init(struct oprofile_operations *ops)
+ {
++	long retval;
 +
-+		mutex_unlock(&hws_sem);
-+		unregister_cpu_notifier(&hws_cpu_notifier);
-+
- 		rc = 0;
-+	} else {
-+		mutex_unlock(&hws_sem);
+ 	if (hwsampler_setup())
+ 		return -ENODEV;
+ 
+ 	/*
+ 	 * create hwsampler files only if hwsampler_setup() succeeds.
+ 	 */
+-	oprofile_min_interval = hwsampler_query_min_interval();
+-	if (oprofile_min_interval < 0) {
++	retval = hwsampler_query_min_interval();
++	if (retval < 0) {
+ 		oprofile_min_interval = 0;
+ 		return -ENODEV;
  	}
--	mutex_unlock(&hws_sem);
--
--	unregister_cpu_notifier(&hws_cpu_notifier);
+-	oprofile_max_interval = hwsampler_query_max_interval();
+-	if (oprofile_max_interval < 0) {
++	oprofile_min_interval = retval;
++	retval = hwsampler_query_max_interval();
++	if (retval < 0) {
+ 		oprofile_max_interval = 0;
+ 		return -ENODEV;
+ 	}
++	oprofile_max_interval = retval;
  
- 	return rc;
- }
+ 	if (oprofile_timer_init(ops))
+ 		return -ENODEV;
+-- 
+1.7.3.4
