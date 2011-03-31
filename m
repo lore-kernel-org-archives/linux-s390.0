@@ -1,99 +1,101 @@
-From: Stefan Haberland <sth@linux.vnet.ibm.com>
-Date: Tue, 22 Mar 2011 09:00:15 +0000
-Subject: Re: replace the default scheduler code with a udev rule
-Message-Id: <4D88651F.2020709@linux.vnet.ibm.com>
-In-Reply-To: <4D84D4AF.8060406@gmail.com>
-References: <4D84D4AF.8060406@gmail.com>
+From: Alexander Graf <agraf@suse.de>
+Date: Thu, 31 Mar 2011 15:59:12 +0000
+Subject: [PATCH] s390x: Add force flag for dasd style partition label detection
+Message-Id: <1301587152-23728-1-git-send-email-agraf@suse.de>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Xose,
+Currently we can only use the DASD partition label on DASD disks. When running
+a VM in KVM, we only have virtio disks available though. In order to still be
+able to use DASD formatted disks, we need a flag that allows us to force enable
+detection of the DASD partition label. This patch implements parameters to
+achieve this.
 
-thanks for your suggestion.
+For example, to activate the label code to force devices "vda" and "vdb" to be
+detected as CDL style label, add "ibm.dasd_force_cdl=vda,vdb" to your kernel
+command line. A respective parameter is also added for the LDL label type.
 
-Am 19.03.2011 17:07, schrieb Xose Vazquez Perez:
-> On 03/03/2011 09:42 AM, Heiko Carstens wrote:
->
->> I leave it up to Stefan W. and Stefan H. to make comments to your
->> suggestion. Thanks!
->>
-> also, why deadline over cfq ?
->
-> _old_ IBM papers show a little gain of deadline in _some_ cases, but *today* ??
->
-> -thanks-
->
-We chose deadline scheduler because our performance analysis showed, 
-that other schedulers like cfq only have more overhead and do not 
-improve performance for our typical workload. There may be workload 
-which benefit from cfq but the most cases won't. This seems not to have 
-improved. So our default scheduler will stay deadline.
->> Full quote:
->>
->>> hi,
->>>
->>> udev can handle it, as do 60-readahead.rules with read_ahead_kb
->>> in s390-tools.
->>>
->>> change part of this, drivers/s390/block/dasd.c:
->>>
->>> /*
->>>   * Allocate and initialize request queue and default I/O scheduler.
->>>   */
->>> static int dasd_alloc_queue(struct dasd_block *block)
->>> {
->>> 	int rc;
->>>
->>> 	block->request_queue = blk_init_queue(do_dasd_request,
->>> 					&block->request_queue_lock);
->>> 	if (block->request_queue == NULL)
->>> 		return -ENOMEM;
->>>
->>> 	block->request_queue->queuedata = block;
->>>
->>> 	elevator_exit(block->request_queue->elevator);
->>> 	block->request_queue->elevator = NULL;
->>> 	rc = elevator_init(block->request_queue, "deadline");
->>> 	if (rc) {
->>> 		blk_cleanup_queue(block->request_queue);
->>> 		return rc;
->>> 	}
->>> 	return 0;
->>> }
->>>
->>>
->>> for this other, 61-scheduler.rules :
->>>
->>> #
->>> # Rules to change the default scheduler to deadline
->>> # This file should be installed in /etc/udev/rules.d
->>> #
->>>
->>> SUBSYSTEM!="block", GOTO="ra_end"
->>>
->>> ACTION!="add", GOTO="ra_end"
->>> # on device add change the default scheduler to deadline
->>> KERNEL=="sd*[!0-9]", ATTR{queue/scheduler}="deadline"
->>> KERNEL=="dasd*[!0-9]", ATTR{queue/scheduler}="deadline"
->>>
->>> LABEL="ra_end"
->>>
->>>
->>> simpler, more flexible and less C code.
->>>
->>> -thanks-
-This is a nice way to do the setup but I do not see any advantage for 
-our customers. If they try to set the elevator via kernel command line 
-they still will not see the expected effect as now a udev rule will 
-overwrite this default. Everybody who wants to change the default 
-scheduler for his distro is able to define a udev rule and redefine it 
-this way.
-The disadvantage is, that we have to provide one more udev rules to our 
-distributors and check if they are included correctly and working. So 
-only more overhead from this point of view.
-Maybe I do not get all usage scenarios. So if you see something that the 
-current code can not do, let us no and we will reconsider but otherwise 
-we will leave it as it is.
+Signed-off-by: Alexander Graf <agraf@suse.de>
+---
+ fs/partitions/ibm.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 48 insertions(+), 2 deletions(-)
 
-regards
-Stefan
+diff --git a/fs/partitions/ibm.c b/fs/partitions/ibm.c
+index d513a07..5a4b9f6 100644
+--- a/fs/partitions/ibm.c
++++ b/fs/partitions/ibm.c
+@@ -17,6 +17,30 @@
+ #include "check.h"
+ #include "ibm.h"
+ 
++static char *dasd_force_ldl[4];
++static char *dasd_force_cdl[4];
++
++module_param_array(dasd_force_ldl, charp, NULL, 0);
++MODULE_PARM_DESC(dasd_force_ldl, "force a block device to be detected as DASD "
++                                 "(LDL format)");
++module_param_array(dasd_force_cdl, charp, NULL, 0);
++MODULE_PARM_DESC(dasd_force_cdl, "force a block device to be detected as DASD "
++                                 "(CDL format)");
++
++static inline bool match_array(char **arr, const char *match)
++{
++	if (!arr)
++		return false;
++
++	while (*arr) {
++		if (!strcmp(*arr, match))
++			return true;
++		arr++;
++	}
++
++	return false;
++}
++
+ /*
+  * compute the block number from a
+  * cyl-cyl-head-head structure
+@@ -76,6 +100,7 @@ int ibm_partition(struct parsed_partitions *state)
+ 	Sector sect;
+ 	sector_t labelsect;
+ 	char tmp[64];
++	bool fake_cdl = false;
+ 
+ 	res = 0;
+ 	blocksize = bdev_logical_block_size(bdev);
+@@ -95,10 +120,31 @@ int ibm_partition(struct parsed_partitions *state)
+ 	if (label == NULL)
+ 		goto out_nolab;
+ 
+-	if (ioctl_by_bdev(bdev, BIODASDINFO2, (unsigned long)info) != 0 ||
+-	    ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo) != 0)
++	if (match_array(dasd_force_ldl, bdev->bd_disk->disk_name)) {
++		memset(info, 0, sizeof(dasd_information2_t));
++		info->format = DASD_FORMAT_LDL;
++		info->label_block = 2;
++	} else if (match_array(dasd_force_cdl, bdev->bd_disk->disk_name)) {
++		memset(info, 0, sizeof(dasd_information2_t));
++		info->format = DASD_FORMAT_CDL;
++		info->label_block = 2;
++		fake_cdl = true;
++	} else if (ioctl_by_bdev(bdev, BIODASDINFO2, (unsigned long)info) != 0) {
++		goto out_freeall;
++	}
++
++	if (ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo) != 0)
+ 		goto out_freeall;
+ 
++	if (fake_cdl) {
++		memset(geo, 0, sizeof(dasd_information2_t));
++		/* CDL disks always are on 15/12 layout, so calculate over */
++		geo->cylinders = (geo->heads * geo->sectors * geo->cylinders)
++				/ (15 * 12);
++		geo->heads = 15;
++		geo->sectors = 12;
++	}
++
+ 	/*
+ 	 * Special case for FBA disks: label sector does not depend on
+ 	 * blocksize.
+-- 
+1.7.3.4
