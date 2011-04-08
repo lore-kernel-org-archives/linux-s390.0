@@ -1,91 +1,211 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 18 Apr 2011 13:51:41 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [OOPS s390] Unable to handle kernel pointer dereference at
- virtual kernel address (null)
-Message-ID: <20110418115141.GA3157@osiris.boeblingen.de.ibm.com>
-References: <2099315211.286690.1302917498637.JavaMail.root@md01.wow.synacor.com>
- <20110416014811.GA6150@elie>
- <20110418084511.GA7786@hal>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20110418084511.GA7786@hal>
+Date: Fri, 8 Apr 2011 10:22:49 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for 2.6.39-rc2
+Message-ID: <20110408102249.13a916a6@mschwide.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jan Glauber <jang@linux.vnet.ibm.com>
-Cc: Jonathan Nieder <jrnieder@gmail.com>, linux-s390@vger.kernel.org, Stephen Powell <zlinuxman@wowway.com>, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Apr 18, 2011 at 10:45:11AM +0200, Jan Glauber wrote:
-> On Fri, Apr 15, 2011 at 08:48:40PM -0500, Jonathan Nieder wrote:
-> > Hi,
-> > 
-> > Here's an oops that was reported to Debian[1].  It cannot be
-> > reproduced on demand but it is reproducible with enough time.  It did
-> > not appear on v2.6.32; it does appear on Debian 2.6.38-3 (which is
-> > based on gregkh's v2.6.38.2) and pristine v2.6.39-rc3, so looks like
-> > a regression.
+Hi Linus,
 
-It's probably easily reproducible if you put enough memory pressure on
-the whole vm system, since this triggers a bug a in the pfault code.
+please pull from 'for-linus' branch of
 
-> > > [ 2698.053263] Kernel panic - not syncing: Fatal exception in interrupt
-> > > [ 2698.053316] CPU: 0 Tainted: G      D      2.6.38-2-s390x #1
-> > > [ 2698.053502] Process cron (pid: 1106, task: 000000001f962f78, ksp: 000000001fa0f9d0)
-> > > [ 2698.053516]        0000000000000000 000000001ff7fa70 0000000000000002 0000000000000000
-> > > [ 2698.053539]        000000001ff7fb10 000000001ff7fa88 000000001ff7fa88 0000000000397b9e
-> > > [ 2698.053576]        0000000000000001 0000000000000000 000000001ff03280 0000000000000000
-> > > [ 2698.053623]        0000000000000008 0000000000000000 000000000000000e 0000000000000078
-> > > [ 2698.053674]        000000001ff7faf0 0000000000011b36 000000001ff7fa70 000000001ff7fab8
-> > > [ 2698.053740] Call Trace:
-> > > [ 2698.053762] ([<0000000000011a60>] show_trace+0x5c/0xa4)
-> > > [ 2698.053801]  [<00000000003979de>] panic+0x9e/0x214
-> > > [ 2698.054443]  [<0000000000012046>] die+0x15e/0x170
-> > > [ 2698.054485]  [<000000000002c5d6>] do_no_context+0xd6/0xe0
-> > > [ 2698.054529]  [<000000000002cd52>] do_protection_exception+0x46/0x2a0
-> > > [ 2698.054577]  [<000000000039b208>] pgm_exit+0x0/0x4
-> > > [ 2698.054627]  [<000000000002c03e>] pfault_interrupt+0xa2/0x138
-> > > [ 2698.054679] ([<000000001f962f78>] 0x1f962f78)
-> > > [ 2698.056408]  [<000000000001acda>] do_extint+0xf6/0x138
-> > > [ 2698.056424]  [<000000000039b6ca>] ext_no_vtime+0x30/0x34
-> > > [ 2698.056439]  [<000000007d706e04>] 0x7d706e04
-> > > HCPGIR450W CP entered; disabled wait PSW 00020001 80000000 00000000 0001DE26
-> > [...]
-> > 
-> > > On Thu, 14 Apr 2011 21:48:56 -0400 (EDT), Stephen Powell wrote:
-> > 
-> > >> The problem appears to be fixed in the latest vanilla upstream kernel
-> > >> source, which at the time of this writing is 2.6.39-rc3.
-> > >> ...
-> > >
-> > > Oops!  I spoke too soon.  I checked the server before I went to bed
-> > > last night, and it was still up at that time; but when I got up this
-> > > morning I checked it again, and it had crashed during the night with
-> > > the same protection exception at the same offset in the same function.
-> > > That's the trouble with these kind of bugs.
-> > 
-> > Ideas?
+	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
 
-That's a bug in the pfault interrupt code. After a cleanup patch which
-simplified lowcore accesses we are left with a dereference which shouldn't
-be there.
-The patch below should fix it. The bug was introduced with 2.6.37-rc1.
+to receive the following updates:
 
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 9217e33..4cf85fe 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -558,9 +558,9 @@ static void pfault_interrupt(unsigned int ext_int_code,
- 	 * Get the token (= address of the task structure of the affected task).
- 	 */
- #ifdef CONFIG_64BIT
--	tsk = *(struct task_struct **) param64;
-+	tsk = (struct task_struct *) param64;
- #else
--	tsk = *(struct task_struct **) param32;
-+	tsk = (struct task_struct *) param32;
- #endif
+Jan Glauber (1):
+      [S390] oprofile s390: prevent stack corruption
+
+Martin Schwidefsky (1):
+      [S390] compile fix for latest binutils
+
+Michael Holzheu (1):
+      [S390] Fix parameter passing for smp_switch_to_cpu()
+
+Peter Oberparleiter (1):
+      [S390] cio: prevent purging of CCW devices in the online state
+
+Sebastian Ott (1):
+      [S390] qdio: fix init sequence
+
+ arch/s390/kernel/head.S         |    2 +-
+ arch/s390/kernel/switch_cpu.S   |    4 +++-
+ arch/s390/kernel/switch_cpu64.S |    4 +++-
+ arch/s390/oprofile/hwsampler.c  |    6 +-----
+ drivers/s390/cio/device.c       |   24 ++++++++++++++++++------
+ drivers/s390/cio/qdio_main.c    |   16 ++++++++--------
+ 6 files changed, 34 insertions(+), 22 deletions(-)
+
+diff --git a/arch/s390/kernel/head.S b/arch/s390/kernel/head.S
+index 7061398..fb317bf 100644
+--- a/arch/s390/kernel/head.S
++++ b/arch/s390/kernel/head.S
+@@ -460,7 +460,7 @@ startup:
+ #ifndef CONFIG_MARCH_G5
+ 	# check capabilities against MARCH_{G5,Z900,Z990,Z9_109,Z10}
+ 	xc	__LC_STFL_FAC_LIST(8),__LC_STFL_FAC_LIST
+-	stfl	__LC_STFL_FAC_LIST	# store facility list
++	.insn	s,0xb2b10000,__LC_STFL_FAC_LIST	# store facility list
+ 	tm	__LC_STFL_FAC_LIST,0x01	# stfle available ?
+ 	jz	0f
+ 	la	%r0,0
+diff --git a/arch/s390/kernel/switch_cpu.S b/arch/s390/kernel/switch_cpu.S
+index 469f11b..20530dd 100644
+--- a/arch/s390/kernel/switch_cpu.S
++++ b/arch/s390/kernel/switch_cpu.S
+@@ -46,7 +46,9 @@ smp_restart_cpu:
+ 	ltr	%r4,%r4			/* New stack ? */
+ 	jz	1f
+ 	lr	%r15,%r4
+-1:	basr	%r14,%r2
++1:	lr	%r14,%r2		/* r14: Function to call */
++	lr	%r2,%r3			/* r2 : Parameter for function*/
++	basr	%r14,%r14		/* Call function */
  
- 	if (subcode & 0x0080) {
+ .gprregs_addr:
+ 	.long	.gprregs
+diff --git a/arch/s390/kernel/switch_cpu64.S b/arch/s390/kernel/switch_cpu64.S
+index d94aacc..5be3f43 100644
+--- a/arch/s390/kernel/switch_cpu64.S
++++ b/arch/s390/kernel/switch_cpu64.S
+@@ -42,7 +42,9 @@ smp_restart_cpu:
+ 	ltgr	%r4,%r4			/* New stack ? */
+ 	jz	1f
+ 	lgr	%r15,%r4
+-1:	basr	%r14,%r2
++1:	lgr	%r14,%r2		/* r14: Function to call */
++	lgr	%r2,%r3			/* r2 : Parameter for function*/
++	basr	%r14,%r14		/* Call function */
+ 
+ 	.section .data,"aw",@progbits
+ .gprregs:
+diff --git a/arch/s390/oprofile/hwsampler.c b/arch/s390/oprofile/hwsampler.c
+index 3d48f4d..4952872 100644
+--- a/arch/s390/oprofile/hwsampler.c
++++ b/arch/s390/oprofile/hwsampler.c
+@@ -517,12 +517,8 @@ stop_exit:
+ 
+ static int check_hardware_prerequisites(void)
+ {
+-	unsigned long long facility_bits[2];
+-
+-	memcpy(facility_bits, S390_lowcore.stfle_fac_list, 32);
+-	if (!(facility_bits[1] & (1ULL << 59)))
++	if (!test_facility(68))
+ 		return -EOPNOTSUPP;
+-
+ 	return 0;
+ }
+ /*
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index df14c51..8e04c00 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -541,15 +541,24 @@ static ssize_t online_store (struct device *dev, struct device_attribute *attr,
+ 	int force, ret;
+ 	unsigned long i;
+ 
+-	if (!dev_fsm_final_state(cdev) &&
+-	    cdev->private->state != DEV_STATE_DISCONNECTED)
+-		return -EAGAIN;
++	/* Prevent conflict between multiple on-/offline processing requests. */
+ 	if (atomic_cmpxchg(&cdev->private->onoff, 0, 1) != 0)
+ 		return -EAGAIN;
++	/* Prevent conflict between internal I/Os and on-/offline processing. */
++	if (!dev_fsm_final_state(cdev) &&
++	    cdev->private->state != DEV_STATE_DISCONNECTED) {
++		ret = -EAGAIN;
++		goto out_onoff;
++	}
++	/* Prevent conflict between pending work and on-/offline processing.*/
++	if (work_pending(&cdev->private->todo_work)) {
++		ret = -EAGAIN;
++		goto out_onoff;
++	}
+ 
+ 	if (cdev->drv && !try_module_get(cdev->drv->driver.owner)) {
+-		atomic_set(&cdev->private->onoff, 0);
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto out_onoff;
+ 	}
+ 	if (!strncmp(buf, "force\n", count)) {
+ 		force = 1;
+@@ -574,6 +583,7 @@ static ssize_t online_store (struct device *dev, struct device_attribute *attr,
+ out:
+ 	if (cdev->drv)
+ 		module_put(cdev->drv->driver.owner);
++out_onoff:
+ 	atomic_set(&cdev->private->onoff, 0);
+ 	return (ret < 0) ? ret : count;
+ }
+@@ -1311,10 +1321,12 @@ static int purge_fn(struct device *dev, void *data)
+ 
+ 	spin_lock_irq(cdev->ccwlock);
+ 	if (is_blacklisted(id->ssid, id->devno) &&
+-	    (cdev->private->state == DEV_STATE_OFFLINE)) {
++	    (cdev->private->state == DEV_STATE_OFFLINE) &&
++	    (atomic_cmpxchg(&cdev->private->onoff, 0, 1) == 0)) {
+ 		CIO_MSG_EVENT(3, "ccw: purging 0.%x.%04x\n", id->ssid,
+ 			      id->devno);
+ 		ccw_device_sched_todo(cdev, CDEV_TODO_UNREG);
++		atomic_set(&cdev->private->onoff, 0);
+ 	}
+ 	spin_unlock_irq(cdev->ccwlock);
+ 	/* Abort loop in case of pending signal. */
+diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
+index 479c665..c532ba9 100644
+--- a/drivers/s390/cio/qdio_main.c
++++ b/drivers/s390/cio/qdio_main.c
+@@ -1649,26 +1649,26 @@ static int __init init_QDIO(void)
+ {
+ 	int rc;
+ 
+-	rc = qdio_setup_init();
++	rc = qdio_debug_init();
+ 	if (rc)
+ 		return rc;
++	rc = qdio_setup_init();
++	if (rc)
++		goto out_debug;
+ 	rc = tiqdio_allocate_memory();
+ 	if (rc)
+ 		goto out_cache;
+-	rc = qdio_debug_init();
+-	if (rc)
+-		goto out_ti;
+ 	rc = tiqdio_register_thinints();
+ 	if (rc)
+-		goto out_debug;
++		goto out_ti;
+ 	return 0;
+ 
+-out_debug:
+-	qdio_debug_exit();
+ out_ti:
+ 	tiqdio_free_memory();
+ out_cache:
+ 	qdio_setup_exit();
++out_debug:
++	qdio_debug_exit();
+ 	return rc;
+ }
+ 
+@@ -1676,8 +1676,8 @@ static void __exit exit_QDIO(void)
+ {
+ 	tiqdio_unregister_thinints();
+ 	tiqdio_free_memory();
+-	qdio_debug_exit();
+ 	qdio_setup_exit();
++	qdio_debug_exit();
+ }
+ 
+ module_init(init_QDIO);
