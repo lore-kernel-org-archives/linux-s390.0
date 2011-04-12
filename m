@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC][PATCH] virtio: 64 bit features
-In-Reply-To: <20110411165525.GA1395@redhat.com>
-References: <20110411165525.GA1395@redhat.com>
-Date: Tue, 12 Apr 2011 12:55:42 +0930
-Message-ID: <87ei58cfrd.fsf@rustcorp.com.au>
+Message-ID: <4DA45C08.4070304@de.ibm.com>
+Date: Tue, 12 Apr 2011 16:04:56 +0200
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [RFC][PATCH] virtio: 64 bit features
+References: <20110411165525.GA1395@redhat.com>
+In-Reply-To: <20110411165525.GA1395@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>"Michael S. Tsirkin" <mst@redhat.com>, lguest@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Carsten Otte <cotte@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, lguest@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 11 Apr 2011 19:55:25 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> Extend features to 64 bit so we can use more
-> transport bits.
-> 
-> Future patches add two new feature bits which would
-> exhaust the supply of transport feature bits,
-> so let's add bit 31 to tell the guest that
-> there are now 64 worth of features.
-> 
-> For PCI this also changes the config layout.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Am 11.04.2011 18:55, schrieb Michael S. Tsirkin:
 
-This was pretty much the way I imagined it would work.  We need a patch
-to the spec and a lot of cross testing...
+Looks mostly good, but 
 
-Thanks!
-Rusty.
+
+> --- a/drivers/s390/kvm/kvm_virtio.c
+> +++ b/drivers/s390/kvm/kvm_virtio.c
+> @@ -82,13 +82,13 @@ static unsigned desc_size(const struct kvm_device_desc *desc)
+>  static u32 kvm_get_features(struct virtio_device *vdev)
+
+This should be u64.
+
+>  {
+>  	unsigned int i;
+> -	u32 features = 0;
+> +	u64 features = 0;
+>  	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+>  	u8 *in_features = kvm_vq_features(desc);
+> 
+> -	for (i = 0; i < min(desc->feature_len * 8, 32); i++)
+> +	for (i = 0; i < min(desc->feature_len * 8, 64); i++)
+>  		if (in_features[i / 8] & (1 << (i % 8)))
+> -			features |= (1 << i);
+> +			features |= (1ull << i);
+>  	return features;
+>  }
