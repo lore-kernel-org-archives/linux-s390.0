@@ -1,29 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 1/3] bitops: add ifdef CONFIG_GENERIC_FIND_BIT_LE guard
-Date: Thu, 21 Apr 2011 11:03:55 +0200
-References: <1303309252-9946-1-git-send-email-akinobu.mita@gmail.com> <201104201631.40017.arnd@arndb.de> <BANLkTimBF312svk0mRkt5_Y=t+B12cLW+Q@mail.gmail.com>
-In-Reply-To: <BANLkTimBF312svk0mRkt5_Y=t+B12cLW+Q@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <201104211103.55929.arnd@arndb.de>
+From: Akinobu Mita <akinobu.mita@gmail.com>
+Subject: [PATCH 1/3] bitops: add ifdef CONFIG_GENERIC_FIND_BIT_LE guard
+Date: Wed, 20 Apr 2011 23:20:50 +0900
+Message-Id: <1303309252-9946-1-git-send-email-akinobu.mita@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: linux-kernel@vger.kernel.org, akpm@linux-foundation.org, linux-arch@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, linux-arm-kernel@lists.infradead.org
+To: linux-kernel@vger.kernel.org, akpm@linux-foundation.org
+Cc: Akinobu Mita <akinobu.mita@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thursday 21 April 2011, Akinobu Mita wrote:
-> Should we also kill CONFIG_GENERIC_FIND_BIT_LE option comletely,
-> then add the #ifdef for each find_*() in lib/find_next_bit.c and always build
-> it unconditionally ?
+Some architectures have optimized find_*_bit_le() as static inline
+functions but other little-endian bitops are identical to the generic
+version.
 
-I think that would be more consistent. It's not a big difference anyway, so
-do it only if you feel motivated. There are a lot of other things that could
-be changed this way, I'd only change it while reworking other aspects in order
-to avoid accidentally breaking things.
+This adds #ifdef CONFIG_GENERIC_FIND_BIT_LE guard for find_*_bit_le()
+in asm-generic/bitops/le.h so that those architectures can use this
+header file.
 
-	Arnd
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arch@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux390@de.ibm.com
+Cc: linux-s390@vger.kernel.org
+Cc: Russell King <linux@arm.linux.org.uk>
+Cc: linux-arm-kernel@lists.infradead.org
+---
+ include/asm-generic/bitops/le.h |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/include/asm-generic/bitops/le.h b/include/asm-generic/bitops/le.h
+index 946a21b..bd2253e 100644
+--- a/include/asm-generic/bitops/le.h
++++ b/include/asm-generic/bitops/le.h
+@@ -30,6 +30,8 @@ static inline unsigned long find_first_zero_bit_le(const void *addr,
+ 
+ #define BITOP_LE_SWIZZLE	((BITS_PER_LONG-1) & ~0x7)
+ 
++#ifdef CONFIG_GENERIC_FIND_BIT_LE
++
+ extern unsigned long find_next_zero_bit_le(const void *addr,
+ 		unsigned long size, unsigned long offset);
+ extern unsigned long find_next_bit_le(const void *addr,
+@@ -38,6 +40,8 @@ extern unsigned long find_next_bit_le(const void *addr,
+ #define find_first_zero_bit_le(addr, size) \
+ 	find_next_zero_bit_le((addr), (size), 0)
+ 
++#endif /* CONFIG_GENERIC_FIND_BIT_LE */
++
+ #else
+ #error "Please fix <asm/byteorder.h>"
+ #endif
+-- 
+1.7.4.4
