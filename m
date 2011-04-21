@@ -1,291 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
-Subject: [PATCH] s390, net: convert into new cpumask api
-Message-Id: <20110429000104.3D5D.A69D9226@jp.fujitsu.com>
+Date: Wed, 20 Apr 2011 22:45:53 -0400 (EDT)
+From: Stephen Powell <zlinuxman@wowway.com>
+Message-ID: <2008017174.74978.1303353953675.JavaMail.root@md01.wow.synacor.com>
+In-Reply-To: <20110419063400.GA2878@osiris.boeblingen.de.ibm.com>
+Subject: Re: [OOPS s390] Unable to handle kernel pointer dereference at
+ virtual kernel address (null)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Date: Thu, 28 Apr 2011 23:59:25 +0900 (JST)
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, linux390@de.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Cc: kosaki.motohiro@jp.fujitsu.com
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Jonathan Nieder <jrnieder@gmail.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, 622570@bugs.debian.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Adapt new api.
+On Tue, 19 Apr 2011 02:34:01 -0400 (EDT), Heiko Carstens wrote:
+> Stephen Powell wrote:
+>> I installed linux-image-2.6.38-2-s390x version 2.6.38-3 on my up-to-date Wheezy
+>> system today.  It runs in a virtual machine under z/VM 5.4.0 running in an LPAR
+>> on an IBM z/890.  It IPLed just fine.  After the IPL, the system fell idle for a while.
+>> Then a CRON job kicked off, which caused a page fault, which caused a kernel oops.
+>> Here is the log:
+>> ...
+> 
+> Ok, I was able to reproduce it and could verify that my patch fixes the bug.
+> Thanks for reporting! The patch below will go upstream:
 
-Signed-off-by: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Ursula Braun <ursula.braun@de.ibm.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: linux390@de.ibm.com
-Cc: linux-s390@vger.kernel.org
-Cc: netdev@vger.kernel.org
----
- net/iucv/iucv.c |   70 +++++++++++++++++++++++++++---------------------------
- 1 files changed, 35 insertions(+), 35 deletions(-)
+Great!  That's confirming evidence!  Thanks Heiko, Jonathan, Jan, and all others
+who contributed.
 
-diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-index 8f156bd..79f2caf 100644
---- a/net/iucv/iucv.c
-+++ b/net/iucv/iucv.c
-@@ -128,8 +128,8 @@ struct iucv_irq_list {
- };
- 
- static struct iucv_irq_data *iucv_irq_data[NR_CPUS];
--static cpumask_t iucv_buffer_cpumask = CPU_MASK_NONE;
--static cpumask_t iucv_irq_cpumask = CPU_MASK_NONE;
-+static cpumask_t iucv_buffer_cpumask = { CPU_BITS_NONE };
-+static cpumask_t iucv_irq_cpumask = { CPU_BITS_NONE };
- 
- /*
-  * Queue of interrupt buffers lock for delivery via the tasklet
-@@ -406,7 +406,7 @@ static void iucv_allow_cpu(void *data)
- 	parm->set_mask.ipmask = 0xf8;
- 	iucv_call_b2f0(IUCV_SETCONTROLMASK, parm);
- 	/* Set indication that iucv interrupts are allowed for this cpu. */
--	cpu_set(cpu, iucv_irq_cpumask);
-+	cpumask_set_cpu(cpu, &iucv_irq_cpumask);
- }
- 
- /**
-@@ -426,7 +426,7 @@ static void iucv_block_cpu(void *data)
- 	iucv_call_b2f0(IUCV_SETMASK, parm);
- 
- 	/* Clear indication that iucv interrupts are allowed for this cpu. */
--	cpu_clear(cpu, iucv_irq_cpumask);
-+	cpumask_clear_cpu(cpu, &iucv_irq_cpumask);
- }
- 
- /**
-@@ -451,7 +451,7 @@ static void iucv_block_cpu_almost(void *data)
- 	iucv_call_b2f0(IUCV_SETCONTROLMASK, parm);
- 
- 	/* Clear indication that iucv interrupts are allowed for this cpu. */
--	cpu_clear(cpu, iucv_irq_cpumask);
-+	cpumask_clear_cpu(cpu, &iucv_irq_cpumask);
- }
- 
- /**
-@@ -466,7 +466,7 @@ static void iucv_declare_cpu(void *data)
- 	union iucv_param *parm;
- 	int rc;
- 
--	if (cpu_isset(cpu, iucv_buffer_cpumask))
-+	if (cpumask_test_cpu(cpu, &iucv_buffer_cpumask))
- 		return;
- 
- 	/* Declare interrupt buffer. */
-@@ -499,9 +499,9 @@ static void iucv_declare_cpu(void *data)
- 	}
- 
- 	/* Set indication that an iucv buffer exists for this cpu. */
--	cpu_set(cpu, iucv_buffer_cpumask);
-+	cpumask_set_cpu(cpu, &iucv_buffer_cpumask);
- 
--	if (iucv_nonsmp_handler == 0 || cpus_empty(iucv_irq_cpumask))
-+	if (iucv_nonsmp_handler == 0 || cpumask_empty(&iucv_irq_cpumask))
- 		/* Enable iucv interrupts on this cpu. */
- 		iucv_allow_cpu(NULL);
- 	else
-@@ -520,7 +520,7 @@ static void iucv_retrieve_cpu(void *data)
- 	int cpu = smp_processor_id();
- 	union iucv_param *parm;
- 
--	if (!cpu_isset(cpu, iucv_buffer_cpumask))
-+	if (!cpumask_test_cpu(cpu, &iucv_buffer_cpumask))
- 		return;
- 
- 	/* Block iucv interrupts. */
-@@ -531,7 +531,7 @@ static void iucv_retrieve_cpu(void *data)
- 	iucv_call_b2f0(IUCV_RETRIEVE_BUFFER, parm);
- 
- 	/* Clear indication that an iucv buffer exists for this cpu. */
--	cpu_clear(cpu, iucv_buffer_cpumask);
-+	cpumask_clear_cpu(cpu, &iucv_buffer_cpumask);
- }
- 
- /**
-@@ -546,8 +546,8 @@ static void iucv_setmask_mp(void)
- 	get_online_cpus();
- 	for_each_online_cpu(cpu)
- 		/* Enable all cpus with a declared buffer. */
--		if (cpu_isset(cpu, iucv_buffer_cpumask) &&
--		    !cpu_isset(cpu, iucv_irq_cpumask))
-+		if (cpumask_test_cpu(cpu, &iucv_buffer_cpumask) &&
-+		    !cpumask_test_cpu(cpu, &iucv_irq_cpumask))
- 			smp_call_function_single(cpu, iucv_allow_cpu,
- 						 NULL, 1);
- 	put_online_cpus();
-@@ -564,9 +564,9 @@ static void iucv_setmask_up(void)
- 	int cpu;
- 
- 	/* Disable all cpu but the first in cpu_irq_cpumask. */
--	cpumask = iucv_irq_cpumask;
--	cpu_clear(first_cpu(iucv_irq_cpumask), cpumask);
--	for_each_cpu_mask_nr(cpu, cpumask)
-+	cpumask_copy(&cpumask, &iucv_irq_cpumask);
-+	cpumask_clear_cpu(cpumask_first(&iucv_irq_cpumask), &cpumask);
-+	for_each_cpu(cpu, &cpumask)
- 		smp_call_function_single(cpu, iucv_block_cpu, NULL, 1);
- }
- 
-@@ -593,7 +593,7 @@ static int iucv_enable(void)
- 	rc = -EIO;
- 	for_each_online_cpu(cpu)
- 		smp_call_function_single(cpu, iucv_declare_cpu, NULL, 1);
--	if (cpus_empty(iucv_buffer_cpumask))
-+	if (cpumask_empty(&iucv_buffer_cpumask))
- 		/* No cpu could declare an iucv buffer. */
- 		goto out;
- 	put_online_cpus();
-@@ -675,14 +675,14 @@ static int __cpuinit iucv_cpu_notify(struct notifier_block *self,
- 	case CPU_DOWN_PREPARE_FROZEN:
- 		if (!iucv_path_table)
- 			break;
--		cpumask = iucv_buffer_cpumask;
--		cpu_clear(cpu, cpumask);
--		if (cpus_empty(cpumask))
-+		cpumask_copy(&cpumask, &iucv_buffer_cpumask);
-+		cpumask_clear_cpu(cpu, &cpumask);
-+		if (cpumask_empty(&cpumask))
- 			/* Can't offline last IUCV enabled cpu. */
- 			return notifier_from_errno(-EINVAL);
- 		smp_call_function_single(cpu, iucv_retrieve_cpu, NULL, 1);
--		if (cpus_empty(iucv_irq_cpumask))
--			smp_call_function_single(first_cpu(iucv_buffer_cpumask),
-+		if (cpumask_empty(&iucv_irq_cpumask))
-+			smp_call_function_single(cpumask_first(&iucv_buffer_cpumask),
- 						 iucv_allow_cpu, NULL, 1);
- 		break;
- 	}
-@@ -866,7 +866,7 @@ int iucv_path_accept(struct iucv_path *path, struct iucv_handler *handler,
- 	int rc;
- 
- 	local_bh_disable();
--	if (cpus_empty(iucv_buffer_cpumask)) {
-+	if (cpumask_empty(&iucv_buffer_cpumask)) {
- 		rc = -EIO;
- 		goto out;
- 	}
-@@ -915,7 +915,7 @@ int iucv_path_connect(struct iucv_path *path, struct iucv_handler *handler,
- 
- 	spin_lock_bh(&iucv_table_lock);
- 	iucv_cleanup_queue();
--	if (cpus_empty(iucv_buffer_cpumask)) {
-+	if (cpumask_empty(&iucv_buffer_cpumask)) {
- 		rc = -EIO;
- 		goto out;
- 	}
-@@ -975,7 +975,7 @@ int iucv_path_quiesce(struct iucv_path *path, u8 userdata[16])
- 	int rc;
- 
- 	local_bh_disable();
--	if (cpus_empty(iucv_buffer_cpumask)) {
-+	if (cpumask_empty(&iucv_buffer_cpumask)) {
- 		rc = -EIO;
- 		goto out;
- 	}
-@@ -1007,7 +1007,7 @@ int iucv_path_resume(struct iucv_path *path, u8 userdata[16])
- 	int rc;
- 
- 	local_bh_disable();
--	if (cpus_empty(iucv_buffer_cpumask)) {
-+	if (cpumask_empty(&iucv_buffer_cpumask)) {
- 		rc = -EIO;
- 		goto out;
- 	}
-@@ -1036,7 +1036,7 @@ int iucv_path_sever(struct iucv_path *path, u8 userdata[16])
- 	int rc;
- 
- 	preempt_disable();
--	if (cpus_empty(iucv_buffer_cpumask)) {
-+	if (cpumask_empty(&iucv_buffer_cpumask)) {
- 		rc = -EIO;
- 		goto out;
- 	}
-@@ -1070,7 +1070,7 @@ int iucv_message_purge(struct iucv_path *path, struct iucv_message *msg,
- 	int rc;
- 
- 	local_bh_disable();
--	if (cpus_empty(iucv_buffer_cpumask)) {
-+	if (cpumask_empty(&iucv_buffer_cpumask)) {
- 		rc = -EIO;
- 		goto out;
- 	}
-@@ -1162,7 +1162,7 @@ int __iucv_message_receive(struct iucv_path *path, struct iucv_message *msg,
- 	if (msg->flags & IUCV_IPRMDATA)
- 		return iucv_message_receive_iprmdata(path, msg, flags,
- 						     buffer, size, residual);
--	if (cpus_empty(iucv_buffer_cpumask)) {
-+	if (cpumask_empty(&iucv_buffer_cpumask)) {
- 		rc = -EIO;
- 		goto out;
- 	}
-@@ -1235,7 +1235,7 @@ int iucv_message_reject(struct iucv_path *path, struct iucv_message *msg)
- 	int rc;
- 
- 	local_bh_disable();
--	if (cpus_empty(iucv_buffer_cpumask)) {
-+	if (cpumask_empty(&iucv_buffer_cpumask)) {
- 		rc = -EIO;
- 		goto out;
- 	}
-@@ -1274,7 +1274,7 @@ int iucv_message_reply(struct iucv_path *path, struct iucv_message *msg,
- 	int rc;
- 
- 	local_bh_disable();
--	if (cpus_empty(iucv_buffer_cpumask)) {
-+	if (cpumask_empty(&iucv_buffer_cpumask)) {
- 		rc = -EIO;
- 		goto out;
- 	}
-@@ -1324,7 +1324,7 @@ int __iucv_message_send(struct iucv_path *path, struct iucv_message *msg,
- 	union iucv_param *parm;
- 	int rc;
- 
--	if (cpus_empty(iucv_buffer_cpumask)) {
-+	if (cpumask_empty(&iucv_buffer_cpumask)) {
- 		rc = -EIO;
- 		goto out;
- 	}
-@@ -1411,7 +1411,7 @@ int iucv_message_send2way(struct iucv_path *path, struct iucv_message *msg,
- 	int rc;
- 
- 	local_bh_disable();
--	if (cpus_empty(iucv_buffer_cpumask)) {
-+	if (cpumask_empty(&iucv_buffer_cpumask)) {
- 		rc = -EIO;
- 		goto out;
- 	}
-@@ -1888,7 +1888,7 @@ static int iucv_pm_freeze(struct device *dev)
- 	printk(KERN_WARNING "iucv_pm_freeze\n");
- #endif
- 	if (iucv_pm_state != IUCV_PM_FREEZING) {
--		for_each_cpu_mask_nr(cpu, iucv_irq_cpumask)
-+		for_each_cpu(cpu, &iucv_irq_cpumask)
- 			smp_call_function_single(cpu, iucv_block_cpu_almost,
- 						 NULL, 1);
- 		cancel_work_sync(&iucv_work);
-@@ -1928,7 +1928,7 @@ static int iucv_pm_thaw(struct device *dev)
- 		if (rc)
- 			goto out;
- 	}
--	if (cpus_empty(iucv_irq_cpumask)) {
-+	if (cpumask_empty(&iucv_irq_cpumask)) {
- 		if (iucv_nonsmp_handler)
- 			/* enable interrupts on one cpu */
- 			iucv_allow_cpu(NULL);
-@@ -1961,7 +1961,7 @@ static int iucv_pm_restore(struct device *dev)
- 		pr_warning("Suspending Linux did not completely close all IUCV "
- 			"connections\n");
- 	iucv_pm_state = IUCV_PM_RESTORING;
--	if (cpus_empty(iucv_irq_cpumask)) {
-+	if (cpumask_empty(&iucv_irq_cpumask)) {
- 		rc = iucv_query_maxconn();
- 		rc = iucv_enable();
- 		if (rc)
+> 
+> Subject: [S390] pfault: fix token handling
+> 
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> 
+> f6649a7e "[S390] cleanup lowcore access from external interrupts" changed
+> handling of external interrupts. Instead of letting the external interrupt
+> handlers accessing the per cpu lowcore the entry code of the kernel reads
+> already all fields that are necessary and passes them to the handlers.
+> The pfault interrupt handler was incorrectly converted.  It tries to
+> dereference a value which used to be a pointer to a lowcore field.  After
+> the conversion however it is not anymore the pointer to the field but its
+> content.  So instead of a dereference only a cast is needed to get the
+> task pointer that caused the pfault.
+> 
+> Fixes a NULL pointer dereference and a subsequent kernel crash:
+> 
+> Unable to handle kernel pointer dereference at virtual kernel address (null)
+> Oops: 0004 [#1] SMP
+> Modules linked in: nfsd exportfs nfs lockd fscache nfs_acl auth_rpcgss sunrpc
+>                    loop qeth_l3 qeth vmur ccwgroup ext3 jbd mbcache dm_mod
+>                    dasd_eckd_mod dasd_diag_mod dasd_mod
+> CPU: 0 Not tainted 2.6.38-2-s390x #1
+> Process cron (pid: 1106, task: 000000001f962f78, ksp: 000000001fa0f9d0)
+> Krnl PSW : 0404200180000000 000000000002c03e (pfault_interrupt+0xa2/0x138)
+>            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:0 CC:2 PM:0 EA:3
+> Krnl GPRS: 0000000000000000 0000000000000001 0000000000000000 0000000000000001
+>            000000001f962f78 0000000000518968 0000000090000002 000000001ff03280
+>            0000000000000000 000000000064f000 000000001f962f78 0000000000002603
+>            0000000006002603 0000000000000000 000000001ff7fe68 000000001ff7fe48
+> Krnl Code: 000000000002c036: 5820d010            l       %r2,16(%r13)
+>            000000000002c03a: 1832                lr      %r3,%r2
+>            000000000002c03c: 1a31                ar      %r3,%r1
+>           >000000000002c03e: ba23d010            cs      %r2,%r3,16(%r13)
+>            000000000002c042: a744fffc            brc     4,2c03a
+>            000000000002c046: a7290002            lghi    %r2,2
+>            000000000002c04a: e320d0000024        stg     %r2,0(%r13)
+>            000000000002c050: 07f0                bcr     15,%r0
+> Call Trace:
+>  ([<000000001f962f78>] 0x1f962f78)
+>   [<000000000001acda>] do_extint+0xf6/0x138
+>   [<000000000039b6ca>] ext_no_vtime+0x30/0x34
+>   [<000000007d706e04>] 0x7d706e04
+> Last Breaking-Event-Address:
+>   [<0000000000000000>] 0x0
+> 
+> For stable maintainers:
+> the first kernel which contains this bug is 2.6.37.
+> 
+> Reported-by: Stephen Powell <zlinuxman@wowway.com>
+> Cc: Jonathan Nieder <jrnieder@gmail.com>
+> Cc: stable@kernel.org
+> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> ---
+> 
+>  arch/s390/mm/fault.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+> index 9217e33..4cf85fe 100644
+> --- a/arch/s390/mm/fault.c
+> +++ b/arch/s390/mm/fault.c
+> @@ -558,9 +558,9 @@ static void pfault_interrupt(unsigned int ext_int_code,
+>  	 * Get the token (= address of the task structure of the affected task).
+>  	 */
+>  #ifdef CONFIG_64BIT
+> -	tsk = *(struct task_struct **) param64;
+> +	tsk = (struct task_struct *) param64;
+>  #else
+> -	tsk = *(struct task_struct **) param32;
+> +	tsk = (struct task_struct *) param32;
+>  #endif
+>  
+>  	if (subcode & 0x0080) {
+
 -- 
-1.7.3.1
+  .''`.     Stephen Powell    
+ : :'  :
+ `. `'`
+   `-
