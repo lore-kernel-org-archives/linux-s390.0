@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 29 Apr 2011 09:09:53 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390: convert old cpumask API into new one
+Message-ID: <20110429070953.GA2481@osiris.boeblingen.de.ibm.com>
+References: <20110429000304.3D60.A69D9226@jp.fujitsu.com>
+ <BANLkTi=FwXMo=qRAS=1ORDF28kxXiR=G3Q@mail.gmail.com>
+ <20110429004726.3D83.A69D9226@jp.fujitsu.com>
 MIME-Version: 1.0
-In-Reply-To: <20110426110300.6da0b684@mschwide.boeblingen.de.ibm.com>
-References: <20110426110300.6da0b684@mschwide.boeblingen.de.ibm.com>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Tue, 26 Apr 2011 11:38:22 -0700
-Message-ID: <BANLkTik_SMi17rgLVss9esoez9OeHEhN0w@mail.gmail.com>
-Subject: Re: [GIT PULL] s390 patches for 2.6.39-rc4
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20110429004726.3D83.A69D9226@jp.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+Cc: Thiago Farina <tfransosi@gmail.com>, LKML <linux-kernel@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-I'll pull this, but:
+> From: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+> Date: Fri, 29 Apr 2011 00:44:43 +0900
+> Subject: [PATCH] s390: coding style fix
+> 
+> Signed-off-by: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+> ---
+>  arch/s390/kernel/smp.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+> index 4cc09b8..a80798b 100644
+> --- a/arch/s390/kernel/smp.c
+> +++ b/arch/s390/kernel/smp.c
+> @@ -1021,7 +1021,7 @@ int __ref smp_rescan_cpus(void)
+>  	if (rc)
+>  		goto out;
+>  	cpumask_andnot(&newcpus, cpu_present_mask, &newcpus);
+> -	for_each_cpu(cpu,&newcpus) {
+> +	for_each_cpu(cpu, &newcpus) {
+>  		rc = smp_add_present_cpu(cpu);
+>  		if (rc)
+>  			set_cpu_present(cpu, false);
 
-On Tue, Apr 26, 2011 at 2:03 AM, Martin Schwidefsky
-<schwidefsky@de.ibm.com> wrote:
->
-> Jan Glauber (3):
-> =A0 =A0 =A0[S390] prng: prevent access beyond end of stack
-
-I don't think that's _still_ correct.
-
-Just looking at the diff, it looks broken:
-
-> =A0 =A0 =A0 =A0/* Add the entropy */
-> =A0 =A0 =A0 =A0while (nbytes >=3D 8) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 *((__u64 *)parm_block) ^=3D *((__u64 *)buf+=
-i*8);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 *((__u64 *)parm_block) ^=3D *((__u64 *)buf+=
-i);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0prng_add_entropy();
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i +=3D 8;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0nbytes -=3D 8;
-
-The "i +=3D 8" implies that "i" is a byte offset.
-
-But "(__u64 *)buf+i" will parse as "((__u64 *)buf) + i" and thus still
-do another multiply-by-eight.
-
-So the diff fixes one "off by a factor of 8", but not another, if I
-read it right.
-
-So the parenthesis should be moved around to something like "*(__u64
-*) (buf+i)", I think.
-
-                     Linus
+Applied and merged both to our tree.
+Thanks!
