@@ -1,54 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Will Drewry <wad@chromium.org>
-Subject: [PATCH v3 10/13] s390: select HAVE_SECCOMP_FILTER and provide seccomp_execve
-Date: Tue, 31 May 2011 22:10:42 -0500
-Message-Id: <1306897845-9393-10-git-send-email-wad@chromium.org>
-In-Reply-To: <BANLkTimNcag-ZmVTXjUoTyiuJm6jtW0DgA@mail.gmail.com>
-References: <BANLkTimNcag-ZmVTXjUoTyiuJm6jtW0DgA@mail.gmail.com>
+Date: Mon, 2 May 2011 10:03:47 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for 2.6.39-rc5
+Message-ID: <20110502100347.52553105@mschwide.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: kees.cook@canonical.com, torvalds@linux-foundation.org, tglx@linutronix.de, mingo@elte.hu, rostedt@goodmis.org, jmorris@namei.org, Will Drewry <wad@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Facilitate the use of CONFIG_SECCOMP_FILTER by wrapping compatibility
-system call numbering for execve and selecting HAVE_SECCOMP_FILTER.
+Hi Linus,
 
-Signed-off-by: Will Drewry <wad@chromium.org>
----
- arch/s390/Kconfig               |    1 +
- arch/s390/include/asm/seccomp.h |    3 ++-
- 2 files changed, 3 insertions(+), 1 deletions(-)
+please pull from 'for-linus' branch of
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 2508a6f..9382198 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -64,6 +64,7 @@ config ARCH_SUPPORTS_DEBUG_PAGEALLOC
- config S390
- 	def_bool y
- 	select USE_GENERIC_SMP_HELPERS if SMP
-+	select HAVE_SECCOMP_FILTER
- 	select HAVE_SYSCALL_WRAPPERS
- 	select HAVE_FUNCTION_TRACER
- 	select HAVE_FUNCTION_TRACE_MCOUNT_TEST
-diff --git a/arch/s390/include/asm/seccomp.h b/arch/s390/include/asm/seccomp.h
-index 781a9cf..e5792f5 100644
---- a/arch/s390/include/asm/seccomp.h
-+++ b/arch/s390/include/asm/seccomp.h
-@@ -7,10 +7,11 @@
- #define __NR_seccomp_write	__NR_write
- #define __NR_seccomp_exit	__NR_exit
- #define __NR_seccomp_sigreturn	__NR_sigreturn
-+#define __NR_seccomp_execve	__NR_execve
+	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
+
+to receive the following updates:
+
+Heiko Carstens (1):
+      [S390] irqstats: fix counting of pfault, dasd diag and virtio irqs
+
+Martin Schwidefsky (1):
+      [S390] prng: fix pointer arithmetic
+
+ arch/s390/crypto/prng.c        |    2 +-
+ arch/s390/mm/fault.c           |    2 +-
+ drivers/s390/block/dasd_diag.c |    2 +-
+ drivers/s390/kvm/kvm_virtio.c  |    2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/s390/crypto/prng.c b/arch/s390/crypto/prng.c
+index 44bca3f..8b16c47 100644
+--- a/arch/s390/crypto/prng.c
++++ b/arch/s390/crypto/prng.c
+@@ -76,7 +76,7 @@ static void prng_seed(int nbytes)
  
- #define __NR_seccomp_read_32	__NR_read
- #define __NR_seccomp_write_32	__NR_write
- #define __NR_seccomp_exit_32	__NR_exit
--#define __NR_seccomp_sigreturn_32 __NR_sigreturn
-+#define __NR_seccomp_execve_32	__NR_execve
+ 	/* Add the entropy */
+ 	while (nbytes >= 8) {
+-		*((__u64 *)parm_block) ^= *((__u64 *)buf+i);
++		*((__u64 *)parm_block) ^= *((__u64 *)(buf+i));
+ 		prng_add_entropy();
+ 		i += 8;
+ 		nbytes -= 8;
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index 4cf85fe..ab98813 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -543,7 +543,6 @@ static void pfault_interrupt(unsigned int ext_int_code,
+ 	struct task_struct *tsk;
+ 	__u16 subcode;
  
- #endif	/* _ASM_S390_SECCOMP_H */
--- 
-1.7.0.4
+-	kstat_cpu(smp_processor_id()).irqs[EXTINT_PFL]++;
+ 	/*
+ 	 * Get the external interruption subcode & pfault
+ 	 * initial/completion signal bit. VM stores this 
+@@ -553,6 +552,7 @@ static void pfault_interrupt(unsigned int ext_int_code,
+ 	subcode = ext_int_code >> 16;
+ 	if ((subcode & 0xff00) != __SUBCODE_MASK)
+ 		return;
++	kstat_cpu(smp_processor_id()).irqs[EXTINT_PFL]++;
+ 
+ 	/*
+ 	 * Get the token (= address of the task structure of the affected task).
+diff --git a/drivers/s390/block/dasd_diag.c b/drivers/s390/block/dasd_diag.c
+index 29143ed..85dddb1 100644
+--- a/drivers/s390/block/dasd_diag.c
++++ b/drivers/s390/block/dasd_diag.c
+@@ -239,7 +239,6 @@ static void dasd_ext_handler(unsigned int ext_int_code,
+ 	addr_t ip;
+ 	int rc;
+ 
+-	kstat_cpu(smp_processor_id()).irqs[EXTINT_DSD]++;
+ 	switch (ext_int_code >> 24) {
+ 	case DASD_DIAG_CODE_31BIT:
+ 		ip = (addr_t) param32;
+@@ -250,6 +249,7 @@ static void dasd_ext_handler(unsigned int ext_int_code,
+ 	default:
+ 		return;
+ 	}
++	kstat_cpu(smp_processor_id()).irqs[EXTINT_DSD]++;
+ 	if (!ip) {		/* no intparm: unsolicited interrupt */
+ 		DBF_EVENT(DBF_NOTICE, "%s", "caught unsolicited "
+ 			      "interrupt");
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+index 414427d..607998f 100644
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -381,10 +381,10 @@ static void kvm_extint_handler(unsigned int ext_int_code,
+ 	u16 subcode;
+ 	u32 param;
+ 
+-	kstat_cpu(smp_processor_id()).irqs[EXTINT_VRT]++;
+ 	subcode = ext_int_code >> 16;
+ 	if ((subcode & 0xff00) != VIRTIO_SUBCODE_64)
+ 		return;
++	kstat_cpu(smp_processor_id()).irqs[EXTINT_VRT]++;
+ 
+ 	/* The LSB might be overloaded, we have to mask it */
+ 	vq = (struct virtqueue *)(param64 & ~1UL);
