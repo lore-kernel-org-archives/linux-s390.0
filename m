@@ -1,64 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 2 May 2011 15:48:05 +0200
-From: Nicolas Kaiser <nikai@nikai.net>
-Subject: [PATCH resend] s390: oprofile: fix error checks in
+Date: Mon, 2 May 2011 17:01:41 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH resend] s390: oprofile: fix error checks in
  oprofile_hwsampler_init()
-Message-ID: <20110502154805.71664123@absol.kitzblitz>
+Message-ID: <20110502170141.0db73ad9@mschwide.boeblingen.de.ibm.com>
+In-Reply-To: <20110502154805.71664123@absol.kitzblitz>
+References: <20110502154805.71664123@absol.kitzblitz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Robert Richter <robert.richter@amd.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, oprofile-list@lists.sf.net, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Nicolas Kaiser <nikai@nikai.net>
+Cc: Robert Richter <robert.richter@amd.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, oprofile-list@lists.sf.net, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Checking 'oprofile_min_interval < 0' and
-'oprofile_max_interval < 0' doesn't work because
-'oprofile_min_interval' and 'oprofile_max_interval' are unsigned.
+On Mon, 2 May 2011 15:48:05 +0200
+Nicolas Kaiser <nikai@nikai.net> wrote:
 
-Signed-off-by: Nicolas Kaiser <nikai@nikai.net>
----
-Untested.
+> Checking 'oprofile_min_interval < 0' and
+> 'oprofile_max_interval < 0' doesn't work because
+> 'oprofile_min_interval' and 'oprofile_max_interval' are unsigned.
+> 
+> Signed-off-by: Nicolas Kaiser <nikai@nikai.net>
 
- arch/s390/oprofile/init.c |   12 ++++++++----
- 1 files changed, 8 insertions(+), 4 deletions(-)
+Makes sense, I'll queue it up. Thanks.
 
-diff --git a/arch/s390/oprofile/init.c b/arch/s390/oprofile/init.c
-index c63d7e5..09c3088 100644
---- a/arch/s390/oprofile/init.c
-+++ b/arch/s390/oprofile/init.c
-@@ -138,22 +138,26 @@ static int oprofile_create_hwsampling_files(struct super_block *sb,
- 
- static int oprofile_hwsampler_init(struct oprofile_operations *ops)
- {
-+	long retval;
-+
- 	if (hwsampler_setup())
- 		return -ENODEV;
- 
- 	/*
- 	 * create hwsampler files only if hwsampler_setup() succeeds.
- 	 */
--	oprofile_min_interval = hwsampler_query_min_interval();
--	if (oprofile_min_interval < 0) {
-+	retval = hwsampler_query_min_interval();
-+	if (retval < 0) {
- 		oprofile_min_interval = 0;
- 		return -ENODEV;
- 	}
--	oprofile_max_interval = hwsampler_query_max_interval();
--	if (oprofile_max_interval < 0) {
-+	oprofile_min_interval = retval;
-+	retval = hwsampler_query_max_interval();
-+	if (retval < 0) {
- 		oprofile_max_interval = 0;
- 		return -ENODEV;
- 	}
-+	oprofile_max_interval = retval;
- 
- 	if (oprofile_timer_init(ops))
- 		return -ENODEV;
 -- 
-1.7.3.4
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
