@@ -1,14 +1,9 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 10 May 2011 11:19:26 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH resend] s390: oprofile: fix error checks in
+Date: Mon, 2 May 2011 15:48:05 +0200
+From: Nicolas Kaiser <nikai@nikai.net>
+Subject: [PATCH resend] s390: oprofile: fix error checks in
  oprofile_hwsampler_init()
-Message-ID: <20110510111926.788d7336@mschwide>
-In-Reply-To: <20110510090054.GS31407@erda.amd.com>
-References: <20110502154805.71664123@absol.kitzblitz>
-	<20110503085540.GX31407@erda.amd.com>
-	<20110510105510.455bbf5d@mschwide>
-	<20110510090054.GS31407@erda.amd.com>
+Message-ID: <20110502154805.71664123@absol.kitzblitz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -16,36 +11,54 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Robert Richter <robert.richter@amd.com>
-Cc: Nicolas Kaiser <nikai@nikai.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, "oprofile-list@lists.sf.net" <oprofile-list@lists.sf.net>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, oprofile-list@lists.sf.net, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 10 May 2011 11:00:54 +0200
-Robert Richter <robert.richter@amd.com> wrote:
+Checking 'oprofile_min_interval < 0' and
+'oprofile_max_interval < 0' doesn't work because
+'oprofile_min_interval' and 'oprofile_max_interval' are unsigned.
 
-> > Ok, the improved patch now looks like this:
-> > --
-> > Subject: [PATCH] s390: oprofile: fix min/max interval query checks
-> > 
-> > From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> > 
-> > oprofile_min_interval and oprofile_max_interval are unsigned, checking
-> > for negative values doesn't work. Change hwsampler_query_min_interval
-> > and hwsampler_query_max_interval to return an unsigned long and
-> > check for a zero value instead.
-> > 
-> > Reported-by: Nicolas Kaiser <nikai@nikai.net>
-> > Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> 
-> Looks good.
-> 
-> Acked-by: Robert Richter <robert.richter@amd.com>
-> 
-> Martin, can you queue this up?
+Signed-off-by: Nicolas Kaiser <nikai@nikai.net>
+---
+Untested.
 
-Yes, I will do that.
+ arch/s390/oprofile/init.c |   12 ++++++++----
+ 1 files changed, 8 insertions(+), 4 deletions(-)
 
+diff --git a/arch/s390/oprofile/init.c b/arch/s390/oprofile/init.c
+index c63d7e5..09c3088 100644
+--- a/arch/s390/oprofile/init.c
++++ b/arch/s390/oprofile/init.c
+@@ -138,22 +138,26 @@ static int oprofile_create_hwsampling_files(struct super_block *sb,
+ 
+ static int oprofile_hwsampler_init(struct oprofile_operations *ops)
+ {
++	long retval;
++
+ 	if (hwsampler_setup())
+ 		return -ENODEV;
+ 
+ 	/*
+ 	 * create hwsampler files only if hwsampler_setup() succeeds.
+ 	 */
+-	oprofile_min_interval = hwsampler_query_min_interval();
+-	if (oprofile_min_interval < 0) {
++	retval = hwsampler_query_min_interval();
++	if (retval < 0) {
+ 		oprofile_min_interval = 0;
+ 		return -ENODEV;
+ 	}
+-	oprofile_max_interval = hwsampler_query_max_interval();
+-	if (oprofile_max_interval < 0) {
++	oprofile_min_interval = retval;
++	retval = hwsampler_query_max_interval();
++	if (retval < 0) {
+ 		oprofile_max_interval = 0;
+ 		return -ENODEV;
+ 	}
++	oprofile_max_interval = retval;
+ 
+ 	if (oprofile_timer_init(ops))
+ 		return -ENODEV;
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+1.7.3.4
