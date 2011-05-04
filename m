@@ -1,34 +1,29 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Wed, 4 May 2011 09:03:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] atomic: add *_dec_not_zero
-Message-ID: <20110504070312.GD20828@elte.hu>
-References: <1304458235-28473-1-git-send-email-sven@narfation.org>
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] atomic: add *_dec_not_zero
+Date: Wed, 4 May 2011 09:05:53 +0100
+Message-ID: <AE90C24D6B3A694183C094C60CF0A2F6D8AD0D@saturn3.aculab.com>
 In-Reply-To: <1304458235-28473-1-git-send-email-sven@narfation.org>
+From: "David Laight" <David.Laight@ACULAB.COM>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20110504070312.OmyEKIKXgtE4wDdsmkSpq3_R596CSJT9n_U-liskE6g@z>
+Message-ID: <20110504080553.lrgglP6XMgOw5VQis2f4_O9SUhAN4YahJnqq1PB7ne8@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Sven Eckelmann <sven@narfation.org>
-Cc: linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>, Chris Metcalf <cmetcalf@tilera.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, uclinux-dist-devel@blackfin.uclinux.org, linux-cris-kernel@axis.com, linux-ia64@vger.kernel.org, linux-m32r@ml.linux-m32r.org, linux-m68k@lists.linux-m68k.org, linux-mips@linux-mips.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org
+To: Sven Eckelmann <sven@narfation.org>, linux-kernel@vger.kernel.org
+Cc: linux-arch@vger.kernel.org, linux-mips@linux-mips.org, linux-m32r@ml.linux-m32r.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, Chris Metcalf <cmetcalf@tilera.com>, David Howells <dhowells@redhat.com>, linux-m68k@lists.linux-m68k.org, linux-am33-list@redhat.com, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-
-* Sven Eckelmann <sven@narfation.org> wrote:
-
+ 
 > Introduce an *_dec_not_zero operation.  Make this a special case of
 > *_add_unless because batman-adv uses atomic_dec_not_zero in different
 > places like re-broadcast queue or aggregation queue management. There
 > are other non-final patches which may also want to use this macro.
 
->  arch/x86/include/asm/atomic.h      |    1 +
->  arch/x86/include/asm/atomic64_64.h |    1 +
+Isn't there a place where a default definition of this can be
+defined? Instead of adding it separately to every architecture.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-Thanks,
-
-	Ingo
+	David
