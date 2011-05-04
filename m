@@ -1,42 +1,63 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/3] virtio-net: 64 bit features,
-	event index
-Date: Thu, 5 May 2011 00:20:01 +0300
-Message-ID: <20110504212001.GA21421@redhat.com>
-References: <cover.1304542880.git.mst@redhat.com>
+Subject: [PATCH 0/3] virtio-net: 64 bit features, event index
+Date: Thu, 5 May 2011 00:01:48 +0300
+Message-ID: <cover.1304542880.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1304542880.git.mst@redhat.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: </archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel@nongnu.org
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, habanero@linux.vnet.ibm.com, Rusty Russell <rusty@rustcorp.com.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Shirley Ma <xma@us.ibm.com>, lguest@lists.ozlabs.org, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Krishna Kumar <krkumar2@in.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, steved@us.ibm.com, habanero@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, May 05, 2011 at 12:01:48AM +0300, Michael S. Tsirkin wrote:
-> OK, here's a patch that implements the virtio spec update that I
-> sent earlier. It supercedes the PUBLISH_USED_IDX patches
-> I sent out earlier.
+OK, here's a patch that implements the virtio spec update that I
+sent earlier. It supercedes the PUBLISH_USED_IDX patches
+I sent out earlier.
 
+Support is added in both userspace and vhost-net.
 
-Sorry, forgot to mention this is on top of qemu-kvm d16e0f0 .
+I see nice performance improvements: e.g. from 12 to 18 Gbit/s host
+to guest with netperf, but did not spend a lot of time testing
+performance. I hope others will try this out and report.
 
-Copy is here:
-git://git.kernel.org/pub/scm/linux/kernel/git/mst/qemu-kvm.git virtio-net-event-idx-v1
+Note: there are 2 new features, reducing the number
+of interrupts (used_event) and of exits (avail_event).
 
-Relevant kernel bits are here:
-git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net-next-event-idx-v1
+If you see issues or are just curious, you can
+turn them off separately. For example:
+
+-global virtio-net-pci.avail_event=on -global
+virtio-net-pci.used_event=on -global virtio-blk-pci.avail_event=off
+-global virtio-blk-pci.used_event=off
+
+Also, it's possible to try both vhost-net and virtio-net.
+
+Michael S. Tsirkin (3):
+  virtio/vhost: support 64 bit features
+  virtio+vhost: used_event feature
+  virtio: avail_event index support
+
+ hw/qdev-properties.c   |   39 +++++++++++++---
+ hw/qdev.h              |   10 ++++
+ hw/s390-virtio-bus.c   |    5 +-
+ hw/s390-virtio-bus.h   |    2 +-
+ hw/syborg_virtio.c     |    7 ++-
+ hw/vhost_net.c         |   20 +++++++--
+ hw/vhost_net.h         |    4 +-
+ hw/virtio-9p.c         |    2 +-
+ hw/virtio-balloon.c    |    2 +-
+ hw/virtio-blk.c        |    2 +-
+ hw/virtio-blk.h        |    2 +-
+ hw/virtio-net.c        |   11 +++--
+ hw/virtio-net.h        |   34 +++++++-------
+ hw/virtio-pci.c        |   91 +++++++++++++++++++++++++++----------
+ hw/virtio-serial-bus.c |    2 +-
+ hw/virtio.c            |  116 ++++++++++++++++++++++++++++++++++++++++++------
+ hw/virtio.h            |   27 ++++++++---
+ 17 files changed, 284 insertions(+), 92 deletions(-)
 
 -- 
-MST
+1.7.5.53.gc233e
