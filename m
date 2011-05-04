@@ -1,92 +1,112 @@
-From: Tom Lendacky <tahm@linux.vnet.ibm.com>
-Subject: Re: [PATCH 09/18] virtio: use avail_event index
-Date: Tue, 17 May 2011 11:23:32 -0500
-Message-ID: <201105171123.34706.tahm@linux.vnet.ibm.com>
-References: <cover.1304541918.git.mst@redhat.com> <20110515135541.GF24932@redhat.com> <87ei3zdsq2.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 00/18] virtio and vhost-net performance enhancements
+Date: Wed, 4 May 2011 23:50:18 +0300
+Message-ID: <cover.1304541918.git.mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <87ei3zdsq2.fsf@rustcorp.com.au>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Shirley Ma <xma@us.ibm.com>, lguest@lists.ozlabs.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Krishna Kumar <krkumar2@in.ibm.com>, steved@us.ibm.com, habanero@linux.vnet.ibm.com
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Shirley Ma <xma@us.ibm.com>, lguest@lists.ozlabs.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Krishna Kumar <krkumar2@in.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, steved@us.ibm.com, habanero@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
+OK, here's a large patchset that implements the virtio spec update that I
+sent earlier. It supercedes the PUBLISH_USED_IDX patches
+I sent out earlier.
 
-On Monday, May 16, 2011 02:12:21 AM Rusty Russell wrote:
-> On Sun, 15 May 2011 16:55:41 +0300, "Michael S. Tsirkin" <mst@redhat.com> 
-wrote:
-> > On Mon, May 09, 2011 at 02:03:26PM +0930, Rusty Russell wrote:
-> > > On Wed, 4 May 2011 23:51:47 +0300, "Michael S. Tsirkin" <mst@redhat.com> 
-wrote:
-> > > > Use the new avail_event feature to reduce the number
-> > > > of exits from the guest.
-> > > 
-> > > Figures here would be nice :)
-> > 
-> > You mean ASCII art in comments?
-> 
-> I mean benchmarks of some kind.
+I know it's a lot to ask but please test, and please consider for 2.6.40 :)
 
-I'm working on getting some benchmark results for the patches.  I should 
-hopefully have something in the next day or two.
+I see nice performance improvements: one run showed going from 12
+to 18 Gbit/s host to guest with netperf, but I did not spend a lot
+of time testing performance, so no guarantees it's not a fluke,
+I hope others will try this out and report.
+Pls note I will be away from keyboard for the next week.
 
-Tom
-> 
-> > > > @@ -228,6 +237,12 @@ add_head:
-> > > >  	 * new available array entries. */
-> > > >  	
-> > > >  	virtio_wmb();
-> > > >  	vq->vring.avail->idx++;
-> > > > 
-> > > > +	/* If the driver never bothers to kick in a very long while,
-> > > > +	 * avail index might wrap around. If that happens, invalidate
-> > > > +	 * kicked_avail index we stored. TODO: make sure all drivers
-> > > > +	 * kick at least once in 2^16 and remove this. */
-> > > > +	if (unlikely(vq->vring.avail->idx == vq->kicked_avail))
-> > > > +		vq->kicked_avail_valid = true;
-> > > 
-> > > If they don't, they're already buggy.  Simply do:
-> > >         WARN_ON(vq->vring.avail->idx == vq->kicked_avail);
-> > 
-> > Hmm, but does it say that somewhere?
-> 
-> AFAICT it's a corollary of:
-> 1) You have a finite ring of size <= 2^16.
-> 2) You need to kick the other side once you've done some work.
-> 
-> > > > @@ -482,6 +517,8 @@ void vring_transport_features(struct
-> > > > virtio_device *vdev)
-> > > > 
-> > > >  			break;
-> > > >  		
-> > > >  		case VIRTIO_RING_F_USED_EVENT_IDX:
-> > > >  			break;
-> > > > 
-> > > > +		case VIRTIO_RING_F_AVAIL_EVENT_IDX:
-> > > > +			break;
-> > > > 
-> > > >  		default:
-> > > >  			/* We don't understand this bit. */
-> > > >  			clear_bit(i, vdev->features);
-> > > 
-> > > Does this belong in a prior patch?
-> > > 
-> > > Thanks,
-> > > Rusty.
-> > 
-> > Well if we don't support the feature in the ring we should not
-> > ack the feature, right?
-> 
-> Ah, you're right.
-> 
-> Thanks,
-> Rusty.
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Essentially we change virtio ring notification
+hand-off to work like the one in Xen -
+each side publishes an event index, the other one
+notifies when it reaches that value -
+With the one difference that event index starts at 0,
+same as request index (in xen event index starts at 1).
+
+Each side of the handoff has a feature bit independent
+of the other one, so we can have e.g. interrupts
+handled in the new way and exits in the old one.
+
+This is actually what made the patchset larger:
+we run out of feature bits so I had to add some more.
+I tested various combinations of hosts and guests and
+this code seems to be solid.
+
+With the indexes in place it becomes possbile to request an event after
+many requests (and not just on the next one as done now). This shall fix
+the TX queue overrun which currently triggers a storm of interrupts.
+
+The patches are mostly independent and can also be cherry-picked,
+hopefully there won't be much need of that.
+
+One dependency I'd like to note is on two cleanup patches:
+the patch removing batching of available index updates
+and the patch fixing ring capability checks in virtio-net.
+This simplified code a bit and made the following patch simpler.
+
+I could unwrap the dependency but prefer as is.
+
+The patchset is on top of net-next which at the time
+I last rebased was 15ecd03 - so roughly 2.6.39-rc2.
+
+qemu patch will follow shortly.
+
+Rusty, I think (in the hope it will come to that) it will be easier to
+merge vhost and virtio bits in one go. Can all go in through your tree
+(Dave in the past acked a very similar patch so should not be a problem)
+or from me to Dave Miller.
+
+I see nice performance improvements: e.g. from 12 to 18 Gbit/s host
+to guest with netperf, but did not spend a lot of time testing
+performance, and I will be away from keyboard for the next week.
+I hope others will try this out and report.
+
+Michael S. Tsirkin (17):
+  virtio: 64 bit features
+  virtio_test: update for 64 bit features
+  vhost: fix 64 bit features
+  virtio: don't delay avail index update
+  virtio: used event index interface
+  virtio_ring: avail event index interface
+  virtio ring: inline function to check for events
+  virtio_ring: support for used_event idx feature
+  virtio: use avail_event index
+  vhost: utilize used_event index
+  vhost: support avail_event idx
+  virtio_test: support used_event index
+  virtio_test: avail_event index support
+  virtio: add api for delayed callbacks
+  virtio_net: delay TX callbacks
+  virtio_net: fix TX capacity checks using new API
+  virtio_net: limit xmit polling
+
+Shirley Ma (1):
+  virtio_ring: Add capacity check API
+
+ drivers/lguest/lguest_device.c |    8 +-
+ drivers/net/virtio_net.c       |   25 ++++---
+ drivers/s390/kvm/kvm_virtio.c  |    8 +-
+ drivers/vhost/net.c            |   12 ++--
+ drivers/vhost/test.c           |    6 +-
+ drivers/vhost/vhost.c          |  139 ++++++++++++++++++++++++++++++----------
+ drivers/vhost/vhost.h          |   30 ++++++---
+ drivers/virtio/virtio.c        |    8 +-
+ drivers/virtio/virtio_pci.c    |   34 ++++++++--
+ drivers/virtio/virtio_ring.c   |  105 +++++++++++++++++++++++++++---
+ include/linux/virtio.h         |   16 ++++-
+ include/linux/virtio_config.h  |   15 +++--
+ include/linux/virtio_pci.h     |    9 ++-
+ include/linux/virtio_ring.h    |   30 ++++++++-
+ tools/virtio/virtio_test.c     |   39 ++++++++++-
+ 15 files changed, 377 insertions(+), 107 deletions(-)
+
+-- 
+1.7.5.53.gc233e
