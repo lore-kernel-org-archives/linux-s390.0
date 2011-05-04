@@ -1,92 +1,67 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 18/18] virtio_net: limit xmit polling
-Date: Wed, 4 May 2011 23:53:13 +0300
-Message-ID: <5964e2f3d6aac5cd48f467848eed6570517470ef.1304541919.git.mst@redhat.com>
-References: <cover.1304541918.git.mst@redhat.com>
+From: Tom Lendacky <tahm@linux.vnet.ibm.com>
+Subject: Re: [PATCH 05/18] virtio: used event index interface
+Date: Wed, 4 May 2011 16:56:09 -0500
+Message-ID: <201105041656.11009.tahm@linux.vnet.ibm.com>
+References: <cover.1304541918.git.mst@redhat.com>  <aacced20b8109a615ee24c1bde6d9f5702850111.1304541919.git.mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1304541918.git.mst@redhat.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <aacced20b8109a615ee24c1bde6d9f5702850111.1304541919.git.mst@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, Carsten Otte <cotte@de.ibm.com>, lguest@lists.ozlabs.org, Shirley Ma <xma@us.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, steved@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Shirley Ma <xma@us.ibm.com>, lguest@lists.ozlabs.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Krishna Kumar <krkumar2@in.ibm.com>, steved@us.ibm.com, habanero@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Current code might introduce a lot of latency variation
-if there are many pending bufs at the time we
-attempt to transmit a new one. This is bad for
-real-time applications and can't be good for TCP either.
+On Wednesday, May 04, 2011 03:51:09 PM Michael S. Tsirkin wrote:
+> Define a new feature bit for the guest to utilize a used_event index
+> (like Xen) instead if a flag bit to enable/disable interrupts.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  include/linux/virtio_ring.h |    9 +++++++++
+>  1 files changed, 9 insertions(+), 0 deletions(-)
+> 
+> diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+> index e4d144b..f5c1b75 100644
+> --- a/include/linux/virtio_ring.h
+> +++ b/include/linux/virtio_ring.h
+> @@ -29,6 +29,10 @@
+>  /* We support indirect buffer descriptors */
+>  #define VIRTIO_RING_F_INDIRECT_DESC	28
+> 
+> +/* The Guest publishes the used index for which it expects an interrupt
+> + * at the end of the avail ring. Host should ignore the avail->flags
+> field. */ +#define VIRTIO_RING_F_USED_EVENT_IDX	29
+> +
+>  /* Virtio ring descriptors: 16 bytes.  These can chain together via
+> "next". */ struct vring_desc {
+>  	/* Address (guest-physical). */
+> @@ -83,6 +87,7 @@ struct vring {
+>   *	__u16 avail_flags;
+>   *	__u16 avail_idx;
+>   *	__u16 available[num];
+> + *	__u16 used_event_idx;
+>   *
+>   *	// Padding to the next align boundary.
+>   *	char pad[];
+> @@ -93,6 +98,10 @@ struct vring {
+>   *	struct vring_used_elem used[num];
+>   * };
+>   */
+> +/* We publish the used event index at the end of the available ring.
+> + * It is at the end for backwards compatibility. */
+> +#define vring_used_event(vr) ((vr)->avail->ring[(vr)->num])
+> +
+>  static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+>  			      unsigned long align)
+>  {
 
-Free up just enough to both clean up all buffers
-eventually and to be able to xmit the next packet.
+You should update the vring_size procedure to account for the extra field at 
+the end of the available ring by change the "(2 + num)" to "(3 + num)":
+    return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (3 + num)
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/net/virtio_net.c |   18 +++++++++++-------
- 1 files changed, 11 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index f33c92b..9982bd7 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -509,17 +509,23 @@ again:
- 	return received;
- }
- 
--static void free_old_xmit_skbs(struct virtnet_info *vi)
-+static bool free_old_xmit_skbs(struct virtnet_info *vi, int capacity)
- {
- 	struct sk_buff *skb;
- 	unsigned int len;
-+	bool c;
-+	/* We try to free up at least 2 skbs per one sent, so that we'll get
-+	 * all of the memory back if they are used fast enough. */
-+	int n = 2;
- 
--	while ((skb = virtqueue_get_buf(vi->svq, &len)) != NULL) {
-+	while ((c = virtqueue_get_capacity(vi->svq) >= capacity) && --n > 0 &&
-+	       (skb = virtqueue_get_buf(vi->svq, &len)) != NULL) {
- 		pr_debug("Sent skb %p\n", skb);
- 		vi->dev->stats.tx_bytes += skb->len;
- 		vi->dev->stats.tx_packets++;
- 		dev_kfree_skb_any(skb);
- 	}
-+	return c;
- }
- 
- static int xmit_skb(struct virtnet_info *vi, struct sk_buff *skb)
-@@ -574,8 +580,8 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	int capacity;
- 
--	/* Free up any pending old buffers before queueing new ones. */
--	free_old_xmit_skbs(vi);
-+	/* Free enough pending old buffers to enable queueing new ones. */
-+	free_old_xmit_skbs(vi, 2+MAX_SKB_FRAGS);
- 
- 	/* Try to transmit */
- 	capacity = xmit_skb(vi, skb);
-@@ -609,9 +615,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 		netif_stop_queue(dev);
- 		if (unlikely(!virtqueue_enable_cb_delayed(vi->svq))) {
- 			/* More just got used, free them then recheck. */
--			free_old_xmit_skbs(vi);
--			capacity = virtqueue_get_capacity(vi->svq);
--			if (capacity >= 2+MAX_SKB_FRAGS) {
-+			if (!likely(free_old_xmit_skbs(vi, 2+MAX_SKB_FRAGS))) {
- 				netif_start_queue(dev);
- 				virtqueue_disable_cb(vi->svq);
- 			}
--- 
-1.7.5.53.gc233e
+Tom
