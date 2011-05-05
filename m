@@ -1,39 +1,39 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 1/3] virtio: fix avail event support
-Date: Thu, 5 May 2011 18:08:04 +0300
-Message-ID: <1d1d5b1a8d5326dae23685587e6ab84fc6b7177e.1304605816.git.mst@redhat.com>
+Subject: [PATCH 3/3] virtio_ring: need_event api comment fix
+Date: Thu, 5 May 2011 18:08:17 +0300
+Message-ID: <c8b6d8a8df4927826d0024fceeb68726c50d0b1a.1304605817.git.mst@redhat.com>
 References: <cover.1304605816.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <cover.1304605816.git.mst@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 Cc: Rusty Russell <rusty@rustcorp.com.au>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Shirley Ma <xma@us.ibm.com>, lguest@lists.ozlabs.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Krishna Kumar <krkumar2@in.ibm.com>, Tom Lendacky <tahm@linux.vnet.ibm.com>, steved@us.ibm.com, habanero@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-make valid flag false, not true, on overrun
+fix typo in a comment: size -> side
 
-Reported-by: Tom Lendacky <tahm@linux.vnet.ibm.com>
+Reported-by: Stefan Hajnoczi <stefanha@gmail.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/virtio/virtio_ring.c |    2 +-
+ include/linux/virtio_ring.h |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 57bf9d5..0ea0781 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -242,7 +242,7 @@ add_head:
- 	 * kicked_avail index we stored. TODO: make sure all drivers
- 	 * kick at least once in 2^16 and remove this. */
- 	if (unlikely(vq->vring.avail->idx == vq->kicked_avail))
--		vq->kicked_avail_valid = true;
-+		vq->kicked_avail_valid = false;
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index 089cbf2..0a45c6e 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -131,7 +131,7 @@ static inline unsigned vring_size(unsigned int num, unsigned long align)
+ }
  
- 	pr_debug("Added buffer head %i to %p\n", head, vq);
- 	END_USE(vq);
+ /* The following is used with USED_EVENT_IDX and AVAIL_EVENT_IDX */
+-/* Assuming a given event_idx value from the other size, if
++/* Assuming a given event_idx value from the other side, if
+  * we have just incremented index from old to new_idx,
+  * should we trigger an event? */
+ static inline int vring_need_event(__u16 event_idx, __u16 new_idx, __u16 old)
 -- 
 1.7.5.53.gc233e
