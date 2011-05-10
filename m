@@ -1,103 +1,68 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 6/9] [PATCH] ctcm: get rid of compile warning
-Date: Tue, 10 May 2011 13:50:19 +0200
-Message-ID: <20110510115047.654763902@de.ibm.com>
-References: <20110510115013.363974020@de.ibm.com>
+From: =?ISO-8859-2?Q?Micha=B3_Miros=B3aw?= <mirqus@gmail.com>
+Subject: Re: [patch 1/9] [PATCH] qeth: convert to hw_features part 2
+Date: Tue, 10 May 2011 15:19:27 +0200
+Message-ID: <BANLkTimUUXp5XiCtVoD+pJyQYcE_r25zyA@mail.gmail.com>
+References: <20110510115013.363974020@de.ibm.com> <20110510115047.113084723@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=605-ctcm-compile-warning.diff
+In-Reply-To: <20110510115047.113084723@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
+To: frank.blaschka@de.ibm.com
+Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
-
--Wunused-but-set-variable generates compile warnings. The affected
-variables are removed.
-
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
-
-
- drivers/s390/net/ctcm_main.c |    2 --
- drivers/s390/net/ctcm_mpc.c  |   13 ++++---------
- 2 files changed, 4 insertions(+), 11 deletions(-)
-diff -urpN linux-2.6/drivers/s390/net/ctcm_main.c linux-2.6-patched/drivers/s390/net/ctcm_main.c
---- linux-2.6/drivers/s390/net/ctcm_main.c	2011-05-10 09:14:06.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/net/ctcm_main.c	2011-05-10 09:14:26.000000000 +0200
-@@ -672,7 +672,6 @@ static int ctcmpc_transmit_skb(struct ch
- 	int ccw_idx;
- 	unsigned long hi;
- 	unsigned long saveflags = 0;	/* avoids compiler warning */
--	__u16 block_len;
- 
- 	CTCM_PR_DEBUG("Enter %s: %s, cp=%i ch=0x%p id=%s state=%s\n",
- 			__func__, dev->name, smp_processor_id(), ch,
-@@ -719,7 +718,6 @@ static int ctcmpc_transmit_skb(struct ch
- 	 */
- 	atomic_inc(&skb->users);
- 
--	block_len = skb->len + TH_HEADER_LENGTH + PDU_HEADER_LENGTH;
- 	/*
- 	 * IDAL support in CTCM is broken, so we have to
- 	 * care about skb's above 2G ourselves.
-diff -urpN linux-2.6/drivers/s390/net/ctcm_mpc.c linux-2.6-patched/drivers/s390/net/ctcm_mpc.c
---- linux-2.6/drivers/s390/net/ctcm_mpc.c	2011-03-15 02:20:32.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/net/ctcm_mpc.c	2011-05-10 09:14:26.000000000 +0200
-@@ -653,7 +653,6 @@ static void ctcmpc_send_sweep_resp(struc
- 	struct net_device *dev = rch->netdev;
- 	struct ctcm_priv *priv = dev->ml_priv;
- 	struct mpc_group *grp = priv->mpcg;
--	int rc = 0;
- 	struct th_sweep *header;
- 	struct sk_buff *sweep_skb;
- 	struct channel *ch  = priv->channel[CTCM_WRITE];
-@@ -665,16 +664,14 @@ static void ctcmpc_send_sweep_resp(struc
- 		CTCM_DBF_TEXT_(MPC_ERROR, CTC_DBF_ERROR,
- 			"%s(%s): sweep_skb allocation ERROR\n",
- 			CTCM_FUNTAIL, rch->id);
--		rc = -ENOMEM;
--				goto done;
-+		goto done;
- 	}
- 
- 	header = kmalloc(sizeof(struct th_sweep), gfp_type());
- 
- 	if (!header) {
- 		dev_kfree_skb_any(sweep_skb);
--		rc = -ENOMEM;
--				goto done;
-+		goto done;
- 	}
- 
- 	header->th.th_seg	= 0x00 ;
-@@ -1370,8 +1367,7 @@ static void mpc_action_go_inop(fsm_insta
- 	struct net_device  *dev = arg;
- 	struct ctcm_priv    *priv;
- 	struct mpc_group *grp;
--	int rc = 0;
--	struct channel *wch, *rch;
-+	struct channel *wch;
- 
- 	BUG_ON(dev == NULL);
- 	CTCM_PR_DEBUG("Enter %s: %s\n",	__func__, dev->name);
-@@ -1396,7 +1392,6 @@ static void mpc_action_go_inop(fsm_insta
- 		fsm_deltimer(&priv->restart_timer);
- 
- 	wch = priv->channel[CTCM_WRITE];
--	rch = priv->channel[CTCM_READ];
- 
- 	switch (grp->saved_state) {
- 	case MPCG_STATE_RESET:
-@@ -1435,7 +1430,7 @@ static void mpc_action_go_inop(fsm_insta
- 
- 	if (grp->send_qllc_disc == 1) {
- 		grp->send_qllc_disc = 0;
--		rc = mpc_send_qllc_discontact(dev);
-+		mpc_send_qllc_discontact(dev);
- 	}
- 
- 	/* DO NOT issue DEV_EVENT_STOP directly out of this code */
+PiBGcm9tOiBGcmFuayBCbGFzY2hrYSA8ZnJhbmsuYmxhc2Noa2FAZGUuaWJtLmNvbT4KPgo+IFNl
+dCByeCBjc3VtIGRlZmF1bHQgdG8gaHcgY2hlY2tzdW1taW5nIGFnYWluLgo+IFJlbW92ZSBzeXNm
+cyBpbnRlcmZhY2UgZm9yIHJ4IGNzdW0gKGNoZWNrc3VtbWluZykgYW5kIFRTTyAobGFyZ2Vfc2Vu
+ZCkuCj4gV2l0aCB0aGUgbmV3IGh3X2ZlYXR1cmVzIGl0IGRvZXMgbm90IHdvcmsgdG8ga2VlcCB0
+aGUgb2xkIHN5c2ZzCj4gaW50ZXJmYWNlIGluIHBhcmFsbGVsLiBDb252ZXJ0IG9wdGlvbnMuY2hl
+Y2tzdW1fdHlwZSB0byBuZXcgaHdfZmVhdHVyZXMuClsuLi5dCj4gQEAgLTE0ODIsMzIgKzE0NzYs
+MjggQEAgc3RhdGljIGludCBxZXRoX2wzX3N0YXJ0X2lwYV9jaGVja3N1bShzdApbLi4uXQo+IC0g
+wqAgwqAgwqAgcmMgPSBxZXRoX2wzX3NlbmRfY2hlY2tzdW1fY29tbWFuZChjYXJkKTsKPiAtIMKg
+IMKgIMKgIGlmICghcmMpCj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCBkZXZfaW5mbygmY2FyZC0+
+Z2Rldi0+ZGV2LAo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgY2FyZC0+ZGV2
+LT5od19mZWF0dXJlcyAmPSB+SVBBX0lOQk9VTkRfQ0hFQ0tTVU07Cj4gKyDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCBjYXJkLT5kZXYtPmZlYXR1cmVzICY9IH5JUEFfSU5CT1VORF9D
+SEVDS1NVTTsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHJldHVybiAwOwo+
+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgfQoKU2hvdWxkIGJlIE5FVElGX0ZfUlhDU1VNIHByb2Jh
+Ymx5LgoKRG9uJ3QgbW9kaWZ5IGh3X2ZlYXR1cmVzLiBMaW1pdCBjdXJyZW50bHkgYXZhaWxhYmxl
+IGZlYXR1cmVzIGluCm5kb19maXhfZmVhdHVyZXMgY2FsbGJhY2sgaW5zdGVhZCB3aGVuIGNoZWNr
+c3VtbWluZyBpcyAodGVtcG9yYXJpbHkpCnVuYXZhaWxhYmxlLgoKWy4uLl0KPiDCoHN0YXRpYyBp
+bnQgcWV0aF9sM19zZXRfZmVhdHVyZXMoc3RydWN0IG5ldF9kZXZpY2UgKmRldiwgdTMyIGZlYXR1
+cmVzKQo+IMKgewo+IC0gwqAgwqAgwqAgZW51bSBxZXRoX2NoZWNrc3VtX3R5cGVzIGNzdW1fdHlw
+ZTsKPiDCoCDCoCDCoCDCoHN0cnVjdCBxZXRoX2NhcmQgKmNhcmQgPSBkZXYtPm1sX3ByaXY7Cj4g
+wqAgwqAgwqAgwqB1MzIgY2hhbmdlZCA9IGRldi0+ZmVhdHVyZXMgXiBmZWF0dXJlczsKPiArIMKg
+IMKgIMKgIGludCBvbjsKPgo+IMKgIMKgIMKgIMKgaWYgKCEoY2hhbmdlZCAmIE5FVElGX0ZfUlhD
+U1VNKSkKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoHJldHVybiAwOwo+Cj4gwqAgwqAgwqAgwqBp
+ZiAoZmVhdHVyZXMgJiBORVRJRl9GX1JYQ1NVTSkKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGNz
+dW1fdHlwZSA9IEhXX0NIRUNLU1VNTUlORzsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIG9uID0g
+MTsKPiDCoCDCoCDCoCDCoGVsc2UKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGNzdW1fdHlwZSA9
+IFNXX0NIRUNLU1VNTUlORzsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIG9uID0gMDsKPgo+IMKg
+IMKgIMKgIMKgZGV2LT5mZWF0dXJlcyA9IGZlYXR1cmVzIF4gTkVUSUZfRl9SWENTVU07Cj4gLSDC
+oCDCoCDCoCByZXR1cm4gcWV0aF9sM19zZXRfcnhfY3N1bShjYXJkLCBjc3VtX3R5cGUpOwo+ICsg
+wqAgwqAgwqAgcmV0dXJuIHFldGhfbDNfc2V0X3J4X2NzdW0oY2FyZCwgb24pOwo+IMKgfQoKU2lu
+Y2UgeW91IHJlbW92ZWQgZGV2LT5mZWF0dXJlcyB1cGRhdGUgZnJvbSBxZXRoX2wzX3NldF9yeF9j
+c3VtKCksIHlvdQpzaG91bGQgYWxzbyBtb2RpZnkgdGhpcyBjb2RlIHRvIG1hdGNoLiBPbiBleGl0
+IGZyb20gbmRvX2ZpeF9mZWF0dXJlcywKZGV2LT5mZWF0dXJlcyBzaG91bGQgcmVmbGVjdCB3aGF0
+IGlzIGN1cnJlbnRseSBzZXQsIGV2ZW4gaWYgcGFydCBvZgp0aGUgcmVxdWVzdCBmYWlsZWQuCgo+
+IMKgc3RhdGljIGNvbnN0IHN0cnVjdCBldGh0b29sX29wcyBxZXRoX2wzX2V0aHRvb2xfb3BzID0g
+ewo+IEBAIC0zMzQyLDYgKzMzMjYsMTIgQEAgc3RhdGljIGludCBxZXRoX2wzX3NldHVwX25ldGRl
+dihzdHJ1Y3QgcQo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgaWYgKCEoY2Fy
+ZC0+aW5mby51bmlxdWVfaWQgJiBVTklRVUVfSURfTk9UX0JZX0NBUkQpKQo+IMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgY2FyZC0+ZGV2LT5kZXZfaWQgPSBj
+YXJkLT5pbmZvLnVuaXF1ZV9pZCAmCj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgMHhmZmZm
+Owo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgaWYgKCFjYXJkLT5pbmZvLmd1
+ZXN0bGFuKSB7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCBjYXJkLT5kZXYtPmh3X2ZlYXR1cmVzID0gTkVUSUZfRl9TRyB8Cj4gKyDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBORVRJRl9GX1JYQ1NV
+TSB8IE5FVElGX0ZfSVBfQ1NVTSB8Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBORVRJRl9GX1RTTzsKPiArIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGNhcmQtPmRldi0+ZmVhdHVyZXMgPSBORVRJ
+Rl9GX1JYQ1NVTTsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIH0KCkFsbCBm
+ZWF0dXJlcyBleGNlcHQgUlhDU1VNIHdpbGwgYmUgZGlzYWJsZWQgYnkgZGVmYXVsdC4gSXMgdGhh
+dCB0aGUgaW50ZW50IGhlcmU/CgpCZXN0IFJlZ2FyZHMsCk1pY2hhxYIgTWlyb3PFgmF3Cg==
