@@ -1,68 +1,128 @@
-From: =?ISO-8859-2?Q?Micha=B3_Miros=B3aw?= <mirqus@gmail.com>
+From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
 Subject: Re: [patch 1/9] [PATCH] qeth: convert to hw_features part 2
-Date: Tue, 10 May 2011 15:19:27 +0200
-Message-ID: <BANLkTimUUXp5XiCtVoD+pJyQYcE_r25zyA@mail.gmail.com>
-References: <20110510115013.363974020@de.ibm.com> <20110510115047.113084723@de.ibm.com>
+Date: Tue, 10 May 2011 16:09:36 +0200
+Message-ID: <20110510140936.GA39624@tuxmaker.boeblingen.de.ibm.com>
+References: <20110510115013.363974020@de.ibm.com> <20110510115047.113084723@de.ibm.com> <BANLkTimUUXp5XiCtVoD+pJyQYcE_r25zyA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20110510115047.113084723@de.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <BANLkTimUUXp5XiCtVoD+pJyQYcE_r25zyA@mail.gmail.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
+To: =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirqus@gmail.com>
 Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-PiBGcm9tOiBGcmFuayBCbGFzY2hrYSA8ZnJhbmsuYmxhc2Noa2FAZGUuaWJtLmNvbT4KPgo+IFNl
-dCByeCBjc3VtIGRlZmF1bHQgdG8gaHcgY2hlY2tzdW1taW5nIGFnYWluLgo+IFJlbW92ZSBzeXNm
-cyBpbnRlcmZhY2UgZm9yIHJ4IGNzdW0gKGNoZWNrc3VtbWluZykgYW5kIFRTTyAobGFyZ2Vfc2Vu
-ZCkuCj4gV2l0aCB0aGUgbmV3IGh3X2ZlYXR1cmVzIGl0IGRvZXMgbm90IHdvcmsgdG8ga2VlcCB0
-aGUgb2xkIHN5c2ZzCj4gaW50ZXJmYWNlIGluIHBhcmFsbGVsLiBDb252ZXJ0IG9wdGlvbnMuY2hl
-Y2tzdW1fdHlwZSB0byBuZXcgaHdfZmVhdHVyZXMuClsuLi5dCj4gQEAgLTE0ODIsMzIgKzE0NzYs
-MjggQEAgc3RhdGljIGludCBxZXRoX2wzX3N0YXJ0X2lwYV9jaGVja3N1bShzdApbLi4uXQo+IC0g
-wqAgwqAgwqAgcmMgPSBxZXRoX2wzX3NlbmRfY2hlY2tzdW1fY29tbWFuZChjYXJkKTsKPiAtIMKg
-IMKgIMKgIGlmICghcmMpCj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCBkZXZfaW5mbygmY2FyZC0+
-Z2Rldi0+ZGV2LAo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgY2FyZC0+ZGV2
-LT5od19mZWF0dXJlcyAmPSB+SVBBX0lOQk9VTkRfQ0hFQ0tTVU07Cj4gKyDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCBjYXJkLT5kZXYtPmZlYXR1cmVzICY9IH5JUEFfSU5CT1VORF9D
-SEVDS1NVTTsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHJldHVybiAwOwo+
-ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgfQoKU2hvdWxkIGJlIE5FVElGX0ZfUlhDU1VNIHByb2Jh
-Ymx5LgoKRG9uJ3QgbW9kaWZ5IGh3X2ZlYXR1cmVzLiBMaW1pdCBjdXJyZW50bHkgYXZhaWxhYmxl
-IGZlYXR1cmVzIGluCm5kb19maXhfZmVhdHVyZXMgY2FsbGJhY2sgaW5zdGVhZCB3aGVuIGNoZWNr
-c3VtbWluZyBpcyAodGVtcG9yYXJpbHkpCnVuYXZhaWxhYmxlLgoKWy4uLl0KPiDCoHN0YXRpYyBp
-bnQgcWV0aF9sM19zZXRfZmVhdHVyZXMoc3RydWN0IG5ldF9kZXZpY2UgKmRldiwgdTMyIGZlYXR1
-cmVzKQo+IMKgewo+IC0gwqAgwqAgwqAgZW51bSBxZXRoX2NoZWNrc3VtX3R5cGVzIGNzdW1fdHlw
-ZTsKPiDCoCDCoCDCoCDCoHN0cnVjdCBxZXRoX2NhcmQgKmNhcmQgPSBkZXYtPm1sX3ByaXY7Cj4g
-wqAgwqAgwqAgwqB1MzIgY2hhbmdlZCA9IGRldi0+ZmVhdHVyZXMgXiBmZWF0dXJlczsKPiArIMKg
-IMKgIMKgIGludCBvbjsKPgo+IMKgIMKgIMKgIMKgaWYgKCEoY2hhbmdlZCAmIE5FVElGX0ZfUlhD
-U1VNKSkKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoHJldHVybiAwOwo+Cj4gwqAgwqAgwqAgwqBp
-ZiAoZmVhdHVyZXMgJiBORVRJRl9GX1JYQ1NVTSkKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGNz
-dW1fdHlwZSA9IEhXX0NIRUNLU1VNTUlORzsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIG9uID0g
-MTsKPiDCoCDCoCDCoCDCoGVsc2UKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGNzdW1fdHlwZSA9
-IFNXX0NIRUNLU1VNTUlORzsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIG9uID0gMDsKPgo+IMKg
-IMKgIMKgIMKgZGV2LT5mZWF0dXJlcyA9IGZlYXR1cmVzIF4gTkVUSUZfRl9SWENTVU07Cj4gLSDC
-oCDCoCDCoCByZXR1cm4gcWV0aF9sM19zZXRfcnhfY3N1bShjYXJkLCBjc3VtX3R5cGUpOwo+ICsg
-wqAgwqAgwqAgcmV0dXJuIHFldGhfbDNfc2V0X3J4X2NzdW0oY2FyZCwgb24pOwo+IMKgfQoKU2lu
-Y2UgeW91IHJlbW92ZWQgZGV2LT5mZWF0dXJlcyB1cGRhdGUgZnJvbSBxZXRoX2wzX3NldF9yeF9j
-c3VtKCksIHlvdQpzaG91bGQgYWxzbyBtb2RpZnkgdGhpcyBjb2RlIHRvIG1hdGNoLiBPbiBleGl0
-IGZyb20gbmRvX2ZpeF9mZWF0dXJlcywKZGV2LT5mZWF0dXJlcyBzaG91bGQgcmVmbGVjdCB3aGF0
-IGlzIGN1cnJlbnRseSBzZXQsIGV2ZW4gaWYgcGFydCBvZgp0aGUgcmVxdWVzdCBmYWlsZWQuCgo+
-IMKgc3RhdGljIGNvbnN0IHN0cnVjdCBldGh0b29sX29wcyBxZXRoX2wzX2V0aHRvb2xfb3BzID0g
-ewo+IEBAIC0zMzQyLDYgKzMzMjYsMTIgQEAgc3RhdGljIGludCBxZXRoX2wzX3NldHVwX25ldGRl
-dihzdHJ1Y3QgcQo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgaWYgKCEoY2Fy
-ZC0+aW5mby51bmlxdWVfaWQgJiBVTklRVUVfSURfTk9UX0JZX0NBUkQpKQo+IMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgY2FyZC0+ZGV2LT5kZXZfaWQgPSBj
-YXJkLT5pbmZvLnVuaXF1ZV9pZCAmCj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgMHhmZmZm
-Owo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgaWYgKCFjYXJkLT5pbmZvLmd1
-ZXN0bGFuKSB7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCBjYXJkLT5kZXYtPmh3X2ZlYXR1cmVzID0gTkVUSUZfRl9TRyB8Cj4gKyDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBORVRJRl9GX1JYQ1NV
-TSB8IE5FVElGX0ZfSVBfQ1NVTSB8Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBORVRJRl9GX1RTTzsKPiArIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGNhcmQtPmRldi0+ZmVhdHVyZXMgPSBORVRJ
-Rl9GX1JYQ1NVTTsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIH0KCkFsbCBm
-ZWF0dXJlcyBleGNlcHQgUlhDU1VNIHdpbGwgYmUgZGlzYWJsZWQgYnkgZGVmYXVsdC4gSXMgdGhh
-dCB0aGUgaW50ZW50IGhlcmU/CgpCZXN0IFJlZ2FyZHMsCk1pY2hhxYIgTWlyb3PFgmF3Cg==
+On Tue, May 10, 2011 at 03:19:27PM +0200, Micha=C5=82 Miros=C5=82aw wro=
+te:
+> > From: Frank Blaschka <frank.blaschka@de.ibm.com>
+> >
+> > Set rx csum default to hw checksumming again.
+> > Remove sysfs interface for rx csum (checksumming) and TSO (large_se=
+nd).
+> > With the new hw_features it does not work to keep the old sysfs
+> > interface in parallel. Convert options.checksum_type to new hw_feat=
+ures.
+> [...]
+> > @@ -1482,32 +1476,28 @@ static int qeth_l3_start_ipa_checksum(st
+> [...]
+> > - =C2=A0 =C2=A0 =C2=A0 rc =3D qeth_l3_send_checksum_command(card);
+> > - =C2=A0 =C2=A0 =C2=A0 if (!rc)
+> > - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 dev_info(&card->=
+gdev->dev,
+> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 card->dev->hw_features &=3D ~IPA_INBOUND_CHECKSUM;
+> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 card->dev->features &=3D ~IPA_INBOUND_CHECKSUM;
+> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 return 0;
+> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }
+>=20
+> Should be NETIF_F_RXCSUM probably.
+>
+Thx for reviewing the patch, yes should be NETIF_F_RXCSUM
+=20
+> Don't modify hw_features. Limit currently available features in
+> ndo_fix_features callback instead when checksumming is (temporarily)
+> unavailable.
+>
+We have a recovery operation in our driver. What can we do in case this
+recovery detects the checksumming is not available anymore (during runt=
+ime
+of the device). ndo_fix_features callback does not come into play at th=
+is time.
+How can we solve this?
+
+> [...]
+> > =C2=A0static int qeth_l3_set_features(struct net_device *dev, u32 f=
+eatures)
+> > =C2=A0{
+> > - =C2=A0 =C2=A0 =C2=A0 enum qeth_checksum_types csum_type;
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0struct qeth_card *card =3D dev->ml_priv;
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0u32 changed =3D dev->features ^ features=
+;
+> > + =C2=A0 =C2=A0 =C2=A0 int on;
+> >
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0if (!(changed & NETIF_F_RXCSUM))
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return 0;
+> >
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0if (features & NETIF_F_RXCSUM)
+> > - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 csum_type =3D HW=
+_CHECKSUMMING;
+> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 on =3D 1;
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0else
+> > - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 csum_type =3D SW=
+_CHECKSUMMING;
+> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 on =3D 0;
+> >
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0dev->features =3D features ^ NETIF_F_RXC=
+SUM;
+> > - =C2=A0 =C2=A0 =C2=A0 return qeth_l3_set_rx_csum(card, csum_type);
+> > + =C2=A0 =C2=A0 =C2=A0 return qeth_l3_set_rx_csum(card, on);
+> > =C2=A0}
+>=20
+> Since you removed dev->features update from qeth_l3_set_rx_csum(), yo=
+u
+> should also modify this code to match. On exit from ndo_fix_features,
+> dev->features should reflect what is currently set, even if part of
+Do you mean qeth_l3_set_rx_csum should set dev->features dependent of
+the result of the checksum hardware operation?
+> the request failed.
+>=20
+> > =C2=A0static const struct ethtool_ops qeth_l3_ethtool_ops =3D {
+> > @@ -3342,6 +3326,12 @@ static int qeth_l3_setup_netdev(struct q
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0if (!(card->info.unique_id & UNIQUE_ID_NOT_BY_CARD))
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0card->dev->dev_id =3D card->i=
+nfo.unique_id &
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 0xffff;
+> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 if (!card->info.guestlan) {
+> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 card->dev->hw_features =3D NETIF=
+_F_SG |
+> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 NETI=
+=46_F_RXCSUM | NETIF_F_IP_CSUM |
+> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 NETI=
+=46_F_TSO;
+> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 card->dev->features =3D NETIF_F_=
+RXCSUM;
+> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 }
+>=20
+> All features except RXCSUM will be disabled by default. Is that the i=
+ntent here?
+Yes, it is.
+
+>=20
+> Best Regards,
+> Micha=C5=82 Miros=C5=82aw
