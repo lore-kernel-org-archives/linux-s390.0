@@ -1,56 +1,53 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 5/9] [PATCH] lcs: get rid of compile warning
-Date: Thu, 12 May 2011 07:43:23 +0200
-Message-ID: <20110512054415.866413564@de.ibm.com>
-References: <20110512054318.241733700@de.ibm.com>
+From: =?ISO-8859-2?Q?Micha=B3_Miros=B3aw?= <mirqus@gmail.com>
+Subject: Re: [patch 1/9] [PATCH] qeth: convert to hw_features part 2
+Date: Thu, 12 May 2011 07:59:45 +0200
+Message-ID: <BANLkTinO4Hity5++152Ff-RuACFDtoAV2Q@mail.gmail.com>
+References: <20110512054318.241733700@de.ibm.com> <20110512054415.435611676@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=604-lcs-compile-warning.diff
+In-Reply-To: <20110512054415.435611676@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: frank.blaschka@de.ibm.com
+Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+2011/5/12  <frank.blaschka@de.ibm.com>:
+> From: Frank Blaschka <frank.blaschka@de.ibm.com>
+>
+> Set rx csum default to hw checksumming again.
+> Remove sysfs interface for rx csum (checksumming) and TSO (large_send=
+).
+> With the new hw_features it does not work to keep the old sysfs
+> interface in parallel. Convert options.checksum_type to new hw_featur=
+es.
+[...]
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /* hw may have cha=
+nged during offline or recovery */
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (!qeth_is_suppo=
+rted(card, IPA_INBOUND_CHECKSUM)) {
+[...]
 
--Wunused-but-set-variable generates a compile warning for lcs' tasklet
-function. Invoked functions contain already error handling; thus
-additional return code checking is not needed here.
+This check should go to ndo_fix_features callback. If it fails then
+just return features &~NETIF_F_RXCSUM from there ...
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
+> +update_feature:
+> + =C2=A0 =C2=A0 =C2=A0 rtnl_lock();
+> + =C2=A0 =C2=A0 =C2=A0 card->dev->hw_features &=3D ~NETIF_F_RXCSUM;
+> + =C2=A0 =C2=A0 =C2=A0 card->dev->features &=3D ~NETIF_F_RXCSUM;
+> + =C2=A0 =C2=A0 =C2=A0 netdev_update_features(card->dev);
+> + =C2=A0 =C2=A0 =C2=A0 rtnl_unlock();
 
+=2E.. and then this should be just:
+rtnl_lock();
+netdev_update_features(card->dev);
+rtnl_unlock();
 
- drivers/s390/net/lcs.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
-diff -urpN linux-2.6/drivers/s390/net/lcs.c linux-2.6-patched/drivers/s390/net/lcs.c
---- linux-2.6/drivers/s390/net/lcs.c	2011-05-10 09:14:06.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/net/lcs.c	2011-05-10 09:14:25.000000000 +0200
-@@ -1483,7 +1483,6 @@ lcs_tasklet(unsigned long data)
- 	struct lcs_channel *channel;
- 	struct lcs_buffer *iob;
- 	int buf_idx;
--	int rc;
- 
- 	channel = (struct lcs_channel *) data;
- 	LCS_DBF_TEXT_(5, trace, "tlet%s", dev_name(&channel->ccwdev->dev));
-@@ -1500,14 +1499,11 @@ lcs_tasklet(unsigned long data)
- 	channel->buf_idx = buf_idx;
- 
- 	if (channel->state == LCS_CH_STATE_STOPPED)
--		// FIXME: what if rc != 0 ??
--		rc = lcs_start_channel(channel);
-+		lcs_start_channel(channel);
- 	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
- 	if (channel->state == LCS_CH_STATE_SUSPENDED &&
--	    channel->iob[channel->io_idx].state == LCS_BUF_STATE_READY) {
--		// FIXME: what if rc != 0 ??
--		rc = __lcs_resume_channel(channel);
--	}
-+	    channel->iob[channel->io_idx].state == LCS_BUF_STATE_READY)
-+		__lcs_resume_channel(channel);
- 	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
- 
- 	/* Something happened on the channel. Wake up waiters. */
+BTW, How is the recovery process protected from interface removal if
+it's not run under rtnl_lock?
+
+Best Regards,
+Micha=C5=82 Miros=C5=82aw
