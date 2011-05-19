@@ -1,36 +1,136 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 20 May 2011 13:01:21 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [RFC][PATCH] maccess,probe_kernel: Make write/read src const
- void *
-Message-ID: <20110520130121.31a3ef5a@mschwide>
-In-Reply-To: <1305824936.1465.4.camel@gandalf.stny.rr.com>
-References: <1305824936.1465.4.camel@gandalf.stny.rr.com>
+Subject: [RFC][PATCH] maccess,probe_kernel: Make write/read src const void *
+From: Steven Rostedt <rostedt@goodmis.org>
+Content-Type: text/plain; charset="ISO-8859-15"
+Date: Thu, 19 May 2011 13:08:56 -0400
+Message-ID: <1305824936.1465.4.camel@gandalf.stny.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Mike Frysinger <vapier@gentoo.org>, uclinux-dist-devel <uclinux-dist-devel@blackfin.uclinux.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Mike Frysinger <vapier@gentoo.org>, uclinux-dist-devel <uclinux-dist-devel@blackfin.uclinux.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 19 May 2011 13:08:56 -0400
-Steven Rostedt <rostedt@goodmis.org> wrote:
+Can I get Acked-by's from the S390 and Blackfin maintainers please.
 
-> maccess,probe_kernel: Make src const void *
-> 
-> The functions probe_kernel_write() and probe_kernel_read() do not modify
-> the src pointer. Allow const pointers to be passed in without the need
-> of a typecast.
-> 
-> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Thanks!
 
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+-- Steve
 
--- 
-blue skies,
-   Martin.
 
-"Reality continues to ruin my life." - Calvin.
+
+maccess,probe_kernel: Make src const void *
+
+The functions probe_kernel_write() and probe_kernel_read() do not modify
+the src pointer. Allow const pointers to be passed in without the need
+of a typecast.
+
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+
+ arch/blackfin/mm/maccess.c |    4 ++--
+ arch/s390/mm/maccess.c     |    4 ++--
+ include/linux/uaccess.h    |    8 ++++----
+ mm/maccess.c               |    8 ++++----
+ 4 files changed, 12 insertions(+), 12 deletions(-)
+
+Index: linux-trace.git/arch/blackfin/mm/maccess.c
+===================================================================
+--- linux-trace.git.orig/arch/blackfin/mm/maccess.c
++++ linux-trace.git/arch/blackfin/mm/maccess.c
+@@ -16,7 +16,7 @@ static int validate_memory_access_addres
+ 	return bfin_mem_access_type(addr, size);
+ }
+ 
+-long probe_kernel_read(void *dst, void *src, size_t size)
++long probe_kernel_read(void *dst, const void *src, size_t size)
+ {
+ 	unsigned long lsrc = (unsigned long)src;
+ 	int mem_type;
+@@ -55,7 +55,7 @@ long probe_kernel_read(void *dst, void *
+ 	return -EFAULT;
+ }
+ 
+-long probe_kernel_write(void *dst, void *src, size_t size)
++long probe_kernel_write(void *dst, const void *src, size_t size)
+ {
+ 	unsigned long ldst = (unsigned long)dst;
+ 	int mem_type;
+Index: linux-trace.git/arch/s390/mm/maccess.c
+===================================================================
+--- linux-trace.git.orig/arch/s390/mm/maccess.c
++++ linux-trace.git/arch/s390/mm/maccess.c
+@@ -19,7 +19,7 @@
+  * using the stura instruction.
+  * Returns the number of bytes copied or -EFAULT.
+  */
+-static long probe_kernel_write_odd(void *dst, void *src, size_t size)
++static long probe_kernel_write_odd(void *dst, const void *src, size_t size)
+ {
+ 	unsigned long count, aligned;
+ 	int offset, mask;
+@@ -45,7 +45,7 @@ static long probe_kernel_write_odd(void 
+ 	return rc ? rc : count;
+ }
+ 
+-long probe_kernel_write(void *dst, void *src, size_t size)
++long probe_kernel_write(void *dst, const void *src, size_t size)
+ {
+ 	long copied = 0;
+ 
+Index: linux-trace.git/include/linux/uaccess.h
+===================================================================
+--- linux-trace.git.orig/include/linux/uaccess.h
++++ linux-trace.git/include/linux/uaccess.h
+@@ -93,8 +93,8 @@ static inline unsigned long __copy_from_
+  * Safely read from address @src to the buffer at @dst.  If a kernel fault
+  * happens, handle that and return -EFAULT.
+  */
+-extern long probe_kernel_read(void *dst, void *src, size_t size);
+-extern long __probe_kernel_read(void *dst, void *src, size_t size);
++extern long probe_kernel_read(void *dst, const void *src, size_t size);
++extern long __probe_kernel_read(void *dst, const void *src, size_t size);
+ 
+ /*
+  * probe_kernel_write(): safely attempt to write to a location
+@@ -105,7 +105,7 @@ extern long __probe_kernel_read(void *ds
+  * Safely write to address @dst from the buffer at @src.  If a kernel fault
+  * happens, handle that and return -EFAULT.
+  */
+-extern long notrace probe_kernel_write(void *dst, void *src, size_t size);
+-extern long notrace __probe_kernel_write(void *dst, void *src, size_t size);
++extern long notrace probe_kernel_write(void *dst, const void *src, size_t size);
++extern long notrace __probe_kernel_write(void *dst, const void *src, size_t size);
+ 
+ #endif		/* __LINUX_UACCESS_H__ */
+Index: linux-trace.git/mm/maccess.c
+===================================================================
+--- linux-trace.git.orig/mm/maccess.c
++++ linux-trace.git/mm/maccess.c
+@@ -15,10 +15,10 @@
+  * happens, handle that and return -EFAULT.
+  */
+ 
+-long __weak probe_kernel_read(void *dst, void *src, size_t size)
++long __weak probe_kernel_read(void *dst, const void *src, size_t size)
+     __attribute__((alias("__probe_kernel_read")));
+ 
+-long __probe_kernel_read(void *dst, void *src, size_t size)
++long __probe_kernel_read(void *dst, const void *src, size_t size)
+ {
+ 	long ret;
+ 	mm_segment_t old_fs = get_fs();
+@@ -43,10 +43,10 @@ EXPORT_SYMBOL_GPL(probe_kernel_read);
+  * Safely write to address @dst from the buffer at @src.  If a kernel fault
+  * happens, handle that and return -EFAULT.
+  */
+-long __weak probe_kernel_write(void *dst, void *src, size_t size)
++long __weak probe_kernel_write(void *dst, const void *src, size_t size)
+     __attribute__((alias("__probe_kernel_write")));
+ 
+-long __probe_kernel_write(void *dst, void *src, size_t size)
++long __probe_kernel_write(void *dst, const void *src, size_t size)
+ {
+ 	long ret;
+ 	mm_segment_t old_fs = get_fs();
