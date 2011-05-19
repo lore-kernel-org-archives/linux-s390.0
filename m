@@ -1,75 +1,69 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 05/18] virtio: used event index interface
-Date: Thu, 5 May 2011 12:38:17 +0300
-Message-ID: <20110505093816.GE28378@redhat.com>
-References: <cover.1304541918.git.mst@redhat.com>
- <aacced20b8109a615ee24c1bde6d9f5702850111.1304541919.git.mst@redhat.com>
- <201105041656.11009.tahm@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <201105041656.11009.tahm@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Tom Lendacky <tahm@linux.vnet.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Shirley Ma <xma@us.ibm.com>, lguest@lists.ozlabs.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Krishna Kumar <krkumar2@in.ibm.com>, steved@us.ibm.com, habanero@linux.vnet.ibm.com
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Jim Cromie <jim.cromie@gmail.com>
+Subject: [PATCH 07/23] use register_chrdev_ids in drivers/s390/
+Date: Thu, 19 May 2011 15:33:10 -0600
+Message-Id: <1305840792-25877-8-git-send-email-jim.cromie@gmail.com>
+In-Reply-To: <1305840792-25877-1-git-send-email-jim.cromie@gmail.com>
+References: <1305840792-25877-1-git-send-email-jim.cromie@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: gregkh@suse.de, Jim Cromie <jim.cromie@gmail.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux390@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, May 04, 2011 at 04:56:09PM -0500, Tom Lendacky wrote:
-> On Wednesday, May 04, 2011 03:51:09 PM Michael S. Tsirkin wrote:
-> > Define a new feature bit for the guest to utilize a used_event index
-> > (like Xen) instead if a flag bit to enable/disable interrupts.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  include/linux/virtio_ring.h |    9 +++++++++
-> >  1 files changed, 9 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-> > index e4d144b..f5c1b75 100644
-> > --- a/include/linux/virtio_ring.h
-> > +++ b/include/linux/virtio_ring.h
-> > @@ -29,6 +29,10 @@
-> >  /* We support indirect buffer descriptors */
-> >  #define VIRTIO_RING_F_INDIRECT_DESC	28
-> > 
-> > +/* The Guest publishes the used index for which it expects an interrupt
-> > + * at the end of the avail ring. Host should ignore the avail->flags
-> > field. */ +#define VIRTIO_RING_F_USED_EVENT_IDX	29
-> > +
-> >  /* Virtio ring descriptors: 16 bytes.  These can chain together via
-> > "next". */ struct vring_desc {
-> >  	/* Address (guest-physical). */
-> > @@ -83,6 +87,7 @@ struct vring {
-> >   *	__u16 avail_flags;
-> >   *	__u16 avail_idx;
-> >   *	__u16 available[num];
-> > + *	__u16 used_event_idx;
-> >   *
-> >   *	// Padding to the next align boundary.
-> >   *	char pad[];
-> > @@ -93,6 +98,10 @@ struct vring {
-> >   *	struct vring_used_elem used[num];
-> >   * };
-> >   */
-> > +/* We publish the used event index at the end of the available ring.
-> > + * It is at the end for backwards compatibility. */
-> > +#define vring_used_event(vr) ((vr)->avail->ring[(vr)->num])
-> > +
-> >  static inline void vring_init(struct vring *vr, unsigned int num, void *p,
-> >  			      unsigned long align)
-> >  {
-> 
-> You should update the vring_size procedure to account for the extra field at 
-> the end of the available ring by change the "(2 + num)" to "(3 + num)":
->     return ((sizeof(struct vring_desc) * num + sizeof(__u16) * (3 + num)
-> 
-> Tom
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: linux-s390@vger.kernel.org
+cc: linux390@de.ibm.com
+Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
+---
+ drivers/s390/char/tape_char.c |    2 +-
+ drivers/s390/char/vmlogrdr.c  |    2 +-
+ drivers/s390/char/vmur.c      |    4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-In practice it gives the same result because of the alignment, but sure.
-Thanks!
-
+diff --git a/drivers/s390/char/tape_char.c b/drivers/s390/char/tape_char.c
+index 87cd0ab..e321435 100644
+--- a/drivers/s390/char/tape_char.c
++++ b/drivers/s390/char/tape_char.c
+@@ -494,7 +494,7 @@ tapechar_init (void)
+ {
+ 	dev_t	dev;
+ 
+-	if (alloc_chrdev_region(&dev, 0, 256, "tape") != 0)
++	if (register_chrdev_ids(&dev, 256, "tape") != 0)
+ 		return -1;
+ 
+ 	tapechar_major = MAJOR(dev);
+diff --git a/drivers/s390/char/vmlogrdr.c b/drivers/s390/char/vmlogrdr.c
+index c837d74..15eeab7 100644
+--- a/drivers/s390/char/vmlogrdr.c
++++ b/drivers/s390/char/vmlogrdr.c
+@@ -866,7 +866,7 @@ static int __init vmlogrdr_init(void)
+ 
+         recording_class_AB = vmlogrdr_get_recording_class_AB();
+ 
+-	rc = alloc_chrdev_region(&dev, 0, MAXMINOR, "vmlogrdr");
++	rc = register_chrdev_ids(&dev, MAXMINOR, "vmlogrdr");
+ 	if (rc)
+ 		return rc;
+ 	vmlogrdr_major = MAJOR(dev);
+diff --git a/drivers/s390/char/vmur.c b/drivers/s390/char/vmur.c
+index f6b00c3..e752c84 100644
+--- a/drivers/s390/char/vmur.c
++++ b/drivers/s390/char/vmur.c
+@@ -1037,9 +1037,9 @@ static int __init ur_init(void)
+ 	if (rc)
+ 		goto fail_class_destroy;
+ 
+-	rc = alloc_chrdev_region(&dev, 0, NUM_MINORS, "vmur");
++	rc = register_chrdev_ids(&dev, NUM_MINORS, "vmur");
+ 	if (rc) {
+-		pr_err("Kernel function alloc_chrdev_region failed with "
++		pr_err("register_chrdev_ids() failed with "
+ 		       "error code %d\n", rc);
+ 		goto fail_unregister_driver;
+ 	}
 -- 
-MST
+1.7.4.4
