@@ -1,36 +1,36 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 1/1] qeth: use ndo_set_features callback for initial
- setup and recovery
-Date: Wed, 18 May 2011 17:27:50 -0400 (EDT)
-Message-ID: <20110518.172750.437310904272663239.davem@davemloft.net>
-References: <20110518132834.728225299@de.ibm.com>
-	<20110518132905.064355130@de.ibm.com>
-	<BANLkTik3A8zdDODnSntYZs8sfBvdtLGrOw@mail.gmail.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 20 May 2011 13:01:21 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [RFC][PATCH] maccess,probe_kernel: Make write/read src const
+ void *
+Message-ID: <20110520130121.31a3ef5a@mschwide>
+In-Reply-To: <1305824936.1465.4.camel@gandalf.stny.rr.com>
+References: <1305824936.1465.4.camel@gandalf.stny.rr.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=euc-kr
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <BANLkTik3A8zdDODnSntYZs8sfBvdtLGrOw@mail.gmail.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: mirqus@gmail.com
-Cc: frank.blaschka@de.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Mike Frysinger <vapier@gentoo.org>, uclinux-dist-devel <uclinux-dist-devel@blackfin.uclinux.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-=46rom: Micha=A9=A9 Miros=A9=A9aw <mirqus@gmail.com>
-Date: Wed, 18 May 2011 15:43:11 +0200
+On Thu, 19 May 2011 13:08:56 -0400
+Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> 2011/5/18  <frank.blaschka@de.ibm.com>:
->> From: Frank Blaschka <frank.blaschka@de.ibm.com>
->>
->> This patch uses the ndo_set_features callback during normal device
->> startup or recovery to turn on hardware RX checksum. Patch was done
->> with much help from Michal Miroslaw, thx!!!
->>
->> Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
->=20
-> [regarding usage of ndo_set_features and friends]
-> Reviewed-by: Micha=A9=A9 Miros=A9=A9aw <mirq-linux@rere.qmqm.pl>
+> maccess,probe_kernel: Make src const void *
+> 
+> The functions probe_kernel_write() and probe_kernel_read() do not modify
+> the src pointer. Allow const pointers to be passed in without the need
+> of a typecast.
+> 
+> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-Applied, thanks.
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
