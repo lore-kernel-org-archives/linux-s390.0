@@ -1,33 +1,50 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 20 May 2011 11:51:11 +0200
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [RFC][PATCH] maccess,probe_kernel: Make write/read src const
- void *
-Message-ID: <20110520095111.GA2439@osiris.boeblingen.de.ibm.com>
-References: <1305824936.1465.4.camel@gandalf.stny.rr.com>
-MIME-Version: 1.0
+Subject: Re: [PATCHv2] atomic: add *_dec_not_zero
+Date: Mon, 23 May 2011 09:27:40 +0200
+Message-ID: <20110523072740.GA2377@osiris.boeblingen.de.ibm.com>
+References: <1304458235-28473-1-git-send-email-sven@narfation.org>
+ <1305748194-23351-1-git-send-email-sven@narfation.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1305824936.1465.4.camel@gandalf.stny.rr.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Mike Frysinger <vapier@gentoo.org>, uclinux-dist-devel <uclinux-dist-devel@blackfin.uclinux.org>
+In-Reply-To: <1305748194-23351-1-git-send-email-sven@narfation.org>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Sven Eckelmann <sven@narfation.org>
+Cc: linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org, Hirokazu Takata <takata@linux-m32r.org>, linux-m32r@ml.linux-m32r.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, Paul Mundt <lethal@linux-sh.org>, linux-sh@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, May 19, 2011 at 01:08:56PM -0400, Steven Rostedt wrote:
-> maccess,probe_kernel: Make src const void *
-> 
-> The functions probe_kernel_write() and probe_kernel_read() do not modify
-> the src pointer. Allow const pointers to be passed in without the need
-> of a typecast.
-> 
-> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-> 
-
+On Wed, May 18, 2011 at 09:49:54PM +0200, Sven Eckelmann wrote:
+> Introduce an *_dec_not_zero operation.  Make this a special case of
+> *_add_unless because batman-adv uses atomic_dec_not_zero in different
+> places like re-broadcast queue or aggregation queue management. There
+> are other non-final patches which may also want to use this macro.
 [...]
-
->  arch/s390/mm/maccess.c     |    4 ++--
+> ---
+> This is actually the same patch as before, but I am still waiting for
+> some (N)Acks for ia64, m32r, s390, sh and generic.
+[...]
+> diff --git a/arch/s390/include/asm/atomic.h b/arch/s390/include/asm/atomic.h
+> index d9db138..09972c3 100644
+> --- a/arch/s390/include/asm/atomic.h
+> +++ b/arch/s390/include/asm/atomic.h
+> @@ -109,6 +109,7 @@ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+>  }
+> 
+>  #define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
+> +#define atomic_dec_not_zero(v) atomic_add_unless((v), -1, 0)
+> 
+>  #undef __CS_LOOP
+> 
+> @@ -326,6 +327,7 @@ static inline long long atomic64_dec_if_positive(atomic64_t *v)
+>  #define atomic64_dec_return(_v)		atomic64_sub_return(1, _v)
+>  #define atomic64_dec_and_test(_v)	(atomic64_sub_return(1, _v) == 0)
+>  #define atomic64_inc_not_zero(v)	atomic64_add_unless((v), 1, 0)
+> +#define atomic64_dec_not_zero(v)	atomic64_add_unless((v), -1, 0)
+> 
+>  #define smp_mb__before_atomic_dec()	smp_mb()
+>  #define smp_mb__after_atomic_dec()	smp_mb()
 
 Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
