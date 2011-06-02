@@ -1,57 +1,56 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [patch 1/1] [PATCH] include storage keys in
-	hibernation image.
-Date: Thu, 16 Jun 2011 01:21:26 +0200
-Message-ID: <201106160121.26767.rjw__48883.5189877593$1308180090$gmane$org@sisk.pl>
-References: <20110608074523.211912903@de.ibm.com>
-	<201106142250.15041.rjw@sisk.pl> <20110615093629.07f01779@mschwide>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110615093629.07f01779@mschwide>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
-List-Post: <mailto:linux-pm@lists.linux-foundation.org>
-List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
-Sender: linux-pm-bounces@lists.linux-foundation.org
-Errors-To: linux-pm-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/linux-pm/>
-List-Post: <mailto:linux-pm@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@lists.linux-foundation.org, Jiri Slaby <jslaby@suse.cz>
+Message-ID: <4DE817CC.80404@redhat.com>
+Date: Thu, 02 Jun 2011 19:07:56 -0400
+From: Eric Paris <eparis@redhat.com>
+MIME-Version: 1.0
+Subject: Re: [PATCH] Audit: push audit success and retcode into arch ptrace.h
+References: <20110602210458.23613.24076.stgit@paris.rdu.redhat.com>     <201106030032.17398.richard@nod.at> <BANLkTik9kCs_06=7HKo44cWqpS0zB9fr+A@mail.gmail.com>
+In-Reply-To: <BANLkTik9kCs_06=7HKo44cWqpS0zB9fr+A@mail.gmail.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+Return-Path: <linux-mips-bounce@linux-mips.org>
+List-Archive: <https://lore.kernel.org/linux-mips/>
+List-Post: <mailto:linux-mips@vger.kernel.org>
+To: Tony Luck <tony.luck@intel.com>
+Cc: Richard Weinberger <richard@nod.at>, linux-kernel@vger.kernel.org, fenghua.yu@intel.com, monstr@monstr.eu, ralf@linux-mips.org, benh@kernel.crashing.org, paulus@samba.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, lethal@linux-sh.org, davem@davemloft.net, jdike@addtoit.com, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org, viro@zeniv.linux.org.uk, oleg@redhat.com, akpm@linux-foundation.org, linux-ia64@vger.kernel.org, microblaze-uclinux@itee.uq.edu.au, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wednesday, June 15, 2011, Martin Schwidefsky wrote:
-> On Tue, 14 Jun 2011 22:50:14 +0200
-...
-> > Well, I'm sure we can handle that. :-)
-> > 
-> > I thought of the following approach:
-> > 
-> > * Allocate memory for saving the relevant bits of the storage keys before
-> >   the memory preallocation kicks in.
-> > 
-> > * Save the storage key bits to that memory before creating the image (be
-> >   careful about the storage keys of the pages they are being stored into).
-> > 
-> > * After getting control from the boot kernel, restore the storage key bits
-> >   saved before creating the image.
-> > 
-> > * Free additional memory used for storing them.
-> > 
-> > This way we wouldn't have to worry about any interactions with
-> > snapshot_read_next / snapshot_write_next etc.
-> 
-> Well before the preallocation kicked in we don't know which are the relevant
-> storage keys. The only other option would be to store all of them which I
-> consider to be a inferior solution. 
+On 06/02/2011 07:00 PM, Tony Luck wrote:
+>> But there seems to be another problem.
+>> Why is pt_regs of type void *?
+>>
+>> gcc complains:
+>> In file included from include/linux/fsnotify.h:15:0,
+>>                 from include/linux/security.h:26,
+>>                 from init/main.c:32:
+>> include/linux/audit.h: In function =91audit_syscall_exit=92:
+>> include/linux/audit.h:440:17: warning: dereferencing =91void *=92 pointer
+>> include/linux/audit.h:440:3: error: invalid use of void expression
+>> include/linux/audit.h:441:21: warning: dereferencing =91void *=92 pointer
+>> include/linux/audit.h:441:21: error: void value not ignored as it ought =
+to be
+>=20
+> Perhaps same issue on ia64 - but symptoms are different:
+>=20
+>   CC      crypto/cipher.o
+> In file included from include/linux/fsnotify.h:15,
+>                  from include/linux/security.h:26,
+>                  from init/do_mounts.c:8:
+> include/linux/audit.h: In function =91audit_syscall_exit=92:
+> include/linux/audit.h:440: warning: dereferencing =91void *=92 pointer
+> include/linux/audit.h:440: error: request for member =91r10=92 in
+> something not a structure or union
+> include/linux/audit.h:441: error: request for member =91r10=92 in
+> something not a structure or union
+> include/linux/audit.h:441: error: request for member =91r8=92 in something
+> not a structure or union
+> include/linux/audit.h:441: error: request for member =91r8=92 in something
+> not a structure or union
+> include/linux/audit.h:441: error: expected =91;=92 before =91}=92 token
+> include/linux/audit.h:441: error: void value not ignored as it ought to be
 
-OK, I see your point.  You think it's necessary to save the entire storage key
-for each page and you'd like to save storage keys only for those pages, whose
-contents is going to be saved in the image.
+I think it is the same problem.  I'll redo the patch with typed static
+inlines instead of #defines and all of this should hopefully work out.
 
-Now, I need to look at your original patch again. :-)
+-Eric
