@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joe Perches <joe@perches.com>
-Subject: [TRIVIAL PATCH next 01/15] s390: Convert vmalloc/memset to vzalloc
-Date: Sat, 28 May 2011 10:36:21 -0700
-Message-Id: <f40dc6eefbb2cd401aa47970ffe786c6f198ba47.1306603968.git.joe@perches.com>
-In-Reply-To: <cover.1306603968.git.joe@perches.com>
-References: <cover.1306603968.git.joe@perches.com>
+From: Will Drewry <wad@chromium.org>
+Subject: [PATCH v4 10/13] s390: select HAVE_SECCOMP_FILTER and provide seccomp_execve
+Date: Fri,  3 Jun 2011 15:34:09 -0500
+Message-Id: <1307133252-23259-10-git-send-email-wad@chromium.org>
+In-Reply-To: <1307133252-23259-1-git-send-email-wad@chromium.org>
+References: <1307133252-23259-1-git-send-email-wad@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jiri Kosina <trivial@kernel.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: kees.cook@canonical.com, torvalds@linux-foundation.org, tglx@linutronix.de, mingo@elte.hu, rostedt@goodmis.org, jmorris@namei.org, paulmck@linux.vnet.ibm.com, Will Drewry <wad@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- arch/s390/hypfs/hypfs_diag.c |    3 +--
- drivers/s390/cio/blacklist.c |    3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
+Facilitate the use of CONFIG_SECCOMP_FILTER by wrapping compatibility
+system call numbering for execve and selecting HAVE_SECCOMP_FILTER.
 
-diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
-index 6023c6d..74c8f5e 100644
---- a/arch/s390/hypfs/hypfs_diag.c
-+++ b/arch/s390/hypfs/hypfs_diag.c
-@@ -562,10 +562,9 @@ static int dbfs_d204_create(void **data, void **data_free_ptr, size_t *size)
- 	void *base;
+Signed-off-by: Will Drewry <wad@chromium.org>
+---
+ arch/s390/Kconfig               |    1 +
+ arch/s390/include/asm/seccomp.h |    3 ++-
+ 2 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 2508a6f..9382198 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -64,6 +64,7 @@ config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+ config S390
+ 	def_bool y
+ 	select USE_GENERIC_SMP_HELPERS if SMP
++	select HAVE_SECCOMP_FILTER
+ 	select HAVE_SYSCALL_WRAPPERS
+ 	select HAVE_FUNCTION_TRACER
+ 	select HAVE_FUNCTION_TRACE_MCOUNT_TEST
+diff --git a/arch/s390/include/asm/seccomp.h b/arch/s390/include/asm/seccomp.h
+index 781a9cf..e5792f5 100644
+--- a/arch/s390/include/asm/seccomp.h
++++ b/arch/s390/include/asm/seccomp.h
+@@ -7,10 +7,11 @@
+ #define __NR_seccomp_write	__NR_write
+ #define __NR_seccomp_exit	__NR_exit
+ #define __NR_seccomp_sigreturn	__NR_sigreturn
++#define __NR_seccomp_execve	__NR_execve
  
- 	buf_size = PAGE_SIZE * (diag204_buf_pages + 1) + sizeof(d204->hdr);
--	base = vmalloc(buf_size);
-+	base = vzalloc(buf_size);
- 	if (!base)
- 		return -ENOMEM;
--	memset(base, 0, buf_size);
- 	d204 = page_align_ptr(base + sizeof(d204->hdr)) - sizeof(d204->hdr);
- 	rc = diag204_do_store(d204->buf, diag204_buf_pages);
- 	if (rc) {
-diff --git a/drivers/s390/cio/blacklist.c b/drivers/s390/cio/blacklist.c
-index 76058a5..08c6603 100644
---- a/drivers/s390/cio/blacklist.c
-+++ b/drivers/s390/cio/blacklist.c
-@@ -335,10 +335,9 @@ cio_ignore_write(struct file *file, const char __user *user_buf,
- 		return -EINVAL;
- 	if (user_len > 65536)
- 		user_len = 65536;
--	buf = vmalloc (user_len + 1); /* maybe better use the stack? */
-+	buf = vzalloc(user_len + 1); /* maybe better use the stack? */
- 	if (buf == NULL)
- 		return -ENOMEM;
--	memset(buf, 0, user_len + 1);
+ #define __NR_seccomp_read_32	__NR_read
+ #define __NR_seccomp_write_32	__NR_write
+ #define __NR_seccomp_exit_32	__NR_exit
+-#define __NR_seccomp_sigreturn_32 __NR_sigreturn
++#define __NR_seccomp_execve_32	__NR_execve
  
- 	if (strncpy_from_user (buf, user_buf, user_len) < 0) {
- 		rc = -EFAULT;
+ #endif	/* _ASM_S390_SECCOMP_H */
 -- 
-1.7.5.rc3.dirty
+1.7.0.4
