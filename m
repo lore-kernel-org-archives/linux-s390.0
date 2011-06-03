@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Will Drewry <wad@chromium.org>
-Subject: [PATCH v9 10/13] s390: select HAVE_SECCOMP_FILTER and provide seccomp_execve
-Date: Thu, 23 Jun 2011 19:36:49 -0500
-Message-Id: <1308875813-20122-10-git-send-email-wad@chromium.org>
-In-Reply-To: <1308875813-20122-1-git-send-email-wad@chromium.org>
-References: <1308875813-20122-1-git-send-email-wad@chromium.org>
+From: Krishna Kumar2 <krkumar2@in.ibm.com>
+Subject: Re: [PATCH RFC 3/3] virtio_net: limit xmit polling
+Date: Fri, 3 Jun 2011 09:38:52 +0530
+Message-ID: <OFB84D77BF.B23AE894-ON652578A4.00162627-652578A4.00168499@in.ibm.com>
+References: <cover.1306921434.git.mst@redhat.com> <1ec8eec325839ecf2eac9930a230361e7956047c.1306921434.git.mst@redhat.com> <87pqmwj3am.fsf@rustcorp.com.au> <20110602133425.GJ7141@redhat.com> <OF990F08C5.2ECE35B1-ON652578A3.004DC0FA-652578A3.004E3FE4@in.ibm.com> <20110602144346.GA7995@redhat.com> <OFFF109303.D838CAE2-ON652578A3.0053357D-652578A3.00549366@in.ibm.com> <20110602153423.GA11300@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110602153423.GA11300@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@linux-foundation.org, djm@mindrot.org, segoon@openwall.com, kees.cook@canonical.com, mingo@elte.hu, rostedt@goodmis.org, jmorris@namei.org, fweisbec@gmail.com, tglx@linutronix.de, scarybeasts@gmail.com, Will Drewry <wad@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, kvm@vger.kernel.org, lguest@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux390@de.ibm.com, netdev@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, steved@us.ibm.com, Tom Lendacky <tahm@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Shirley Ma <xma@us.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Facilitate the use of CONFIG_SECCOMP_FILTER by wrapping compatibility
-system call numbering for execve and selecting HAVE_SECCOMP_FILTER.
+"Michael S. Tsirkin" <mst@redhat.com> wrote on 06/02/2011 09:04:23 PM:
 
-v9: rebase on to bccaeafd7c117acee36e90d37c7e05c19be9e7bf
+> > > Is this where the bug was?
+> >
+> > Return value in free_old_xmit() was wrong. I will re-do against the
+> > mainline kernel.
+> >
+> > Thanks,
+> >
+> > - KK
+>
+> Just noting that I'm working on that patch as well, it might
+> be more efficient if we don't both of us do this in parallel :)
 
-Signed-off-by: Will Drewry <wad@chromium.org>
----
- arch/s390/Kconfig               |    1 +
- arch/s390/include/asm/seccomp.h |    3 ++-
- 2 files changed, 3 insertions(+), 1 deletions(-)
+OK, but my intention was to work on a alternate approach, which
+was the reason to base it against your patch.
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 90d77bd..327d16a 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -64,6 +64,7 @@ config ARCH_SUPPORTS_DEBUG_PAGEALLOC
- config S390
- 	def_bool y
- 	select USE_GENERIC_SMP_HELPERS if SMP
-+	select HAVE_SECCOMP_FILTER
- 	select HAVE_SYSCALL_WRAPPERS
- 	select HAVE_FUNCTION_TRACER
- 	select HAVE_FUNCTION_TRACE_MCOUNT_TEST
-diff --git a/arch/s390/include/asm/seccomp.h b/arch/s390/include/asm/seccomp.h
-index 781a9cf..e5792f5 100644
---- a/arch/s390/include/asm/seccomp.h
-+++ b/arch/s390/include/asm/seccomp.h
-@@ -7,10 +7,11 @@
- #define __NR_seccomp_write	__NR_write
- #define __NR_seccomp_exit	__NR_exit
- #define __NR_seccomp_sigreturn	__NR_sigreturn
-+#define __NR_seccomp_execve	__NR_execve
- 
- #define __NR_seccomp_read_32	__NR_read
- #define __NR_seccomp_write_32	__NR_write
- #define __NR_seccomp_exit_32	__NR_exit
--#define __NR_seccomp_sigreturn_32 __NR_sigreturn
-+#define __NR_seccomp_execve_32	__NR_execve
- 
- #endif	/* _ASM_S390_SECCOMP_H */
--- 
-1.7.0.4
+I will check your latest patch.
+
+thanks,
+
+- KK
