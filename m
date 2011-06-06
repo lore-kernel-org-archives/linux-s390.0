@@ -1,38 +1,44 @@
-From: Krishna Kumar2 <krkumar2@in.ibm.com>
-Subject: Re: [PATCH RFC 3/3] virtio_net: limit xmit polling
-Date: Fri, 3 Jun 2011 09:38:52 +0530
-Message-ID: <OFB84D77BF.B23AE894-ON652578A4.00162627-652578A4.00168499@in.ibm.com>
-References: <cover.1306921434.git.mst@redhat.com> <1ec8eec325839ecf2eac9930a230361e7956047c.1306921434.git.mst@redhat.com> <87pqmwj3am.fsf@rustcorp.com.au> <20110602133425.GJ7141@redhat.com> <OF990F08C5.2ECE35B1-ON652578A3.004DC0FA-652578A3.004E3FE4@in.ibm.com> <20110602144346.GA7995@redhat.com> <OFFF109303.D838CAE2-ON652578A3.0053357D-652578A3.00549366@in.ibm.com> <20110602153423.GA11300@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [BUG] net: cpu offline cause napi stall
+Date: Mon, 06 Jun 2011 14:50:51 -0700 (PDT)
+Message-ID: <20110606.145051.267562411413352856.davem@davemloft.net>
+References: <20110601181253.GA2374@osiris.boeblingen.de.ibm.com>
+	<1306958592.3946.0.camel@edumazet-laptop>
+	<20110601204233.GA2410@osiris.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110602153423.GA11300@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, habanero@linux.vnet.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, kvm@vger.kernel.org, lguest@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux390@de.ibm.com, netdev@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, steved@us.ibm.com, Tom Lendacky <tahm@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Shirley Ma <xma@us.ibm.com>
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20110601204233.GA2410@osiris.boeblingen.de.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: heiko.carstens@de.ibm.com
+Cc: eric.dumazet@gmail.com, blaschka@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-"Michael S. Tsirkin" <mst@redhat.com> wrote on 06/02/2011 09:04:23 PM:
+=46rom: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Wed, 1 Jun 2011 22:42:34 +0200
 
-> > > Is this where the bug was?
-> >
-> > Return value in free_old_xmit() was wrong. I will re-do against the
-> > mainline kernel.
-> >
-> > Thanks,
-> >
-> > - KK
->
-> Just noting that I'm working on that patch as well, it might
-> be more efficient if we don't both of us do this in parallel :)
+> On Wed, Jun 01, 2011 at 10:03:12PM +0200, Eric Dumazet wrote:
+>> Le mercredi 01 juin 2011 =E0 20:12 +0200, Heiko Carstens a =E9crit :
+>> > On Wed, Jun 01, 2011 at 06:55:21PM +0200, Eric Dumazet wrote:
+>> > > > +	/* Append NAPI poll list from offline CPU. */
+>> > > > +	list_splice_init(&oldsd->poll_list, &sd->poll_list);
+>> > > > =20
+>> > > >  	raise_softirq_irqoff(NET_TX_SOFTIRQ);
+>> > > >  	local_irq_enable();
+>> > >=20
+>> > > Please make sure we raise NET_RX_SOFTIRQ on new cpu if necessary=
+=2E
+>> >=20
+>> > Well, see two lines below the list_splice_init() call ;)
+>>=20
+>> I see nothing... NET_TX_SOFTIRQ and NET_RX_SOFTIRQ are not the same=20
+>=20
+> Indeed. I must be blind.
 
-OK, but my intention was to work on a alternate approach, which
-was the reason to base it against your patch.
+Can I get a final version of this patch with proper commit log message,
+signoffs, etc.?
 
-I will check your latest patch.
-
-thanks,
-
-- KK
+Thanks!
