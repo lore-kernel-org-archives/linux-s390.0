@@ -1,44 +1,73 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [BUG] net: cpu offline cause napi stall
-Date: Mon, 06 Jun 2011 14:50:51 -0700 (PDT)
-Message-ID: <20110606.145051.267562411413352856.davem@davemloft.net>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Subject: [PATCH] net: cpu offline cause napi stall
+Date: Tue, 07 Jun 2011 08:50:03 +0200
+Message-ID: <1307429403.2642.77.camel@edumazet-laptop>
 References: <20110601181253.GA2374@osiris.boeblingen.de.ibm.com>
-	<1306958592.3946.0.camel@edumazet-laptop>
-	<20110601204233.GA2410@osiris.boeblingen.de.ibm.com>
+	 <1306958592.3946.0.camel@edumazet-laptop>
+	 <20110601204233.GA2410@osiris.boeblingen.de.ibm.com>
+	 <20110606.145051.267562411413352856.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20110601204233.GA2410@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20110606.145051.267562411413352856.davem@davemloft.net>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: heiko.carstens@de.ibm.com
-Cc: eric.dumazet@gmail.com, blaschka@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: heiko.carstens@de.ibm.com, blaschka@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-=46rom: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Wed, 1 Jun 2011 22:42:34 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-> On Wed, Jun 01, 2011 at 10:03:12PM +0200, Eric Dumazet wrote:
->> Le mercredi 01 juin 2011 =E0 20:12 +0200, Heiko Carstens a =E9crit :
->> > On Wed, Jun 01, 2011 at 06:55:21PM +0200, Eric Dumazet wrote:
->> > > > +	/* Append NAPI poll list from offline CPU. */
->> > > > +	list_splice_init(&oldsd->poll_list, &sd->poll_list);
->> > > > =20
->> > > >  	raise_softirq_irqoff(NET_TX_SOFTIRQ);
->> > > >  	local_irq_enable();
->> > >=20
->> > > Please make sure we raise NET_RX_SOFTIRQ on new cpu if necessary=
-=2E
->> >=20
->> > Well, see two lines below the list_splice_init() call ;)
->>=20
->> I see nothing... NET_TX_SOFTIRQ and NET_RX_SOFTIRQ are not the same=20
->=20
-> Indeed. I must be blind.
+Frank Blaschka reported :
+<quote>
+  During heavy network load we turn off/on cpus.
+  Sometimes this causes a stall on the network device.
+  Digging into the dump I found out following:
 
-Can I get a final version of this patch with proper commit log message,
-signoffs, etc.?
+  napi is scheduled but does not run. From the I/O buffers
+  and the napi state I see napi/rx_softirq processing has stopped
+  because the budget was reached. napi stays in the
+  softnet_data poll_list and the rx_softirq was raised again.
 
-Thanks!
+  I assume at this time the cpu offline comes in,
+  the rx softirq is raised/moved to another cpu but napi stays in the
+  poll_list of the softnet_data of the now offline cpu.
+
+  Reviewing dev_cpu_callback (net/core/dev.c) I did not find the
+  poll_list is transfered to the new cpu.
+</quote>
+
+This patch is a straightforward implementation of Frank suggestion :
+
+Transfert poll_list and trigger NET_RX_SOFTIRQ on new cpu.
+
+Reported-by: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Eric Dumazet <eric.dumazet@gmail.com>
+Tested-by: Eric Dumazet <eric.dumazet@gmail.com>
+---
+While doing my tests on bnx2x adapter, I found patch was working ok,
+but /proc/interrupts still increment interrupt count on my offlined
+cpu... go figure...
+
+ net/core/dev.c |    5 +++++
+ 1 files changed, 5 insertions(+)
+
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 9393078..095909c 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -6178,6 +6178,11 @@ static int dev_cpu_callback(struct notifier_block *nfb,
+ 		oldsd->output_queue = NULL;
+ 		oldsd->output_queue_tailp = &oldsd->output_queue;
+ 	}
++	/* Append NAPI poll list from offline CPU. */
++	if (!list_empty(&oldsd->poll_list)) {
++		list_splice_init(&oldsd->poll_list, &sd->poll_list);
++		raise_softirq_irqoff(NET_RX_SOFTIRQ);
++	}
+ 
+ 	raise_softirq_irqoff(NET_TX_SOFTIRQ);
+ 	local_irq_enable();
