@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [patch 1/1] [PATCH] include storage keys in hibernation image.
-Date: Thu, 16 Jun 2011 01:21:26 +0200
-References: <20110608074523.211912903@de.ibm.com> <201106142250.15041.rjw@sisk.pl> <20110615093629.07f01779@mschwide>
-In-Reply-To: <20110615093629.07f01779@mschwide>
+Date: Wed, 8 Jun 2011 21:19:10 +0200
+From: Oleg Nesterov <oleg@redhat.com>
+Subject: Re: [PATCH -v2] Audit: push audit success and retcode into arch
+        ptrace.h
+Message-ID: <20110608191910.GA18698@redhat.com>
+References: <20110603220451.23134.47368.stgit@paris.rdu.redhat.com> <20110607171952.GA25729@redhat.com> <1307472796.2052.12.camel@localhost.localdomain> <20110608163653.GA9592@redhat.com> <1307556823.2577.5.camel@localhost.localdomain> <20110608183720.GA16883@redhat.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <201106160121.26767.rjw@sisk.pl>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-pm@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Pavel Machek <pavel@ucw.cz>, Jiri Slaby <jslaby@suse.cz>, Len Brown <lenb@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20110608183720.GA16883@redhat.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+Return-Path: <linux-mips-bounce@linux-mips.org>
+List-Archive: <https://lore.kernel.org/linux-mips/>
+List-Post: <mailto:linux-mips@vger.kernel.org>
+To: Eric Paris <eparis@redhat.com>
+Cc: linux-kernel@vger.kernel.org, tony.luck@intel.com, fenghua.yu@intel.com, monstr@monstr.eu, ralf@linux-mips.org, benh@kernel.crashing.org, paulus@samba.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, lethal@linux-sh.org, davem@davemloft.net, jdike@addtoit.com, richard@nod.at, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org, viro@zeniv.linux.org.uk, akpm@linux-foundation.org, linux-ia64@vger.kernel.org, microblaze-uclinux@itee.uq.edu.au, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wednesday, June 15, 2011, Martin Schwidefsky wrote:
-> On Tue, 14 Jun 2011 22:50:14 +0200
-...
-> > Well, I'm sure we can handle that. :-)
-> > 
-> > I thought of the following approach:
-> > 
-> > * Allocate memory for saving the relevant bits of the storage keys before
-> >   the memory preallocation kicks in.
-> > 
-> > * Save the storage key bits to that memory before creating the image (be
-> >   careful about the storage keys of the pages they are being stored into).
-> > 
-> > * After getting control from the boot kernel, restore the storage key bits
-> >   saved before creating the image.
-> > 
-> > * Free additional memory used for storing them.
-> > 
-> > This way we wouldn't have to worry about any interactions with
-> > snapshot_read_next / snapshot_write_next etc.
-> 
-> Well before the preallocation kicked in we don't know which are the relevant
-> storage keys. The only other option would be to store all of them which I
-> consider to be a inferior solution. 
+On 06/08, Oleg Nesterov wrote:
+>
+> OK. Thanks a lot Eric for your explanations.
 
-OK, I see your point.  You think it's necessary to save the entire storage key
-for each page and you'd like to save storage keys only for those pages, whose
-contents is going to be saved in the image.
+Yes. but may I ask another one?
 
-Now, I need to look at your original patch again. :-)
+Shouldn't copy_process()->audit_alloc(tsk) path do
+clear_tsk_thread_flag(tsk, TIF_SYSCALL_AUDIT) if it doesn't
+set tsk->audit_context?
+
+I can be easily wrong, but afaics otherwise the child can run
+with TIF_SYSCALL_AUDIT bit copied from parent's thread_info by
+dup_task_struct()->setup_thread_stack() and without ->audit_context,
+right? For what?
+
+Any other reason why audit_syscall_entry() checks context != NULL?
+
+IOW. Any reason the patch below is wrong?
+
+I am just curious, thanks.
+
+Oleg.
+
+--- x/kernel/auditsc.c
++++ x/kernel/auditsc.c
+@@ -885,6 +885,8 @@ int audit_alloc(struct task_struct *tsk)
+ 	if (likely(!audit_ever_enabled))
+ 		return 0; /* Return if not auditing. */
+ 
++	clear_tsk_thread_flag(tsk, TIF_SYSCALL_AUDIT);
++
+ 	state = audit_filter_task(tsk, &key);
+ 	if (likely(state == AUDIT_DISABLED))
+ 		return 0;
+@@ -1591,9 +1593,7 @@ void audit_syscall_entry(int arch, int m
+ 	struct audit_context *context = tsk->audit_context;
+ 	enum audit_state     state;
+ 
+-	if (unlikely(!context))
+-		return;
+-
++	BUG_ON(!context);
+ 	/*
+ 	 * This happens only on certain architectures that make system
+ 	 * calls in kernel_thread via the entry.S interface, instead of
