@@ -1,128 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [patch 0/9] kdump: Patch series for s390 support
+Message-Id: <20110704170922.976299676@linux.vnet.ibm.com>
+Date: Mon, 04 Jul 2011 19:09:22 +0200
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Reply-To: holzheu@linux.vnet.ibm.com
-In-Reply-To: <20110715143820.GG3428@redhat.com>
-References: <20110708110121.5acfc3c9@mschwide>
-	 <20110711144255.GE30674@redhat.com> <20110711175626.121dcc58@mschwide>
-	 <20110713160239.GE4426@redhat.com> <20110713184611.6dcb09b4@mschwide>
-	 <20110713200004.GG4426@redhat.com> <20110714091800.720da848@mschwide>
-	 <20110714175532.GE6672@redhat.com> <20110714180528.GF6672@redhat.com>
-	 <1310739717.10789.31.camel@br98xy6r>  <20110715143820.GG3428@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 15 Jul 2011 17:43:23 +0200
-Message-ID: <1310744603.10789.79.camel@br98xy6r>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Subject: [patch 0/9] kdump: Patch series for s390 support
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Vivek Goyal <vgoyal@redhat.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, ebiederm@xmission.com, hbabu@us.ibm.com, mahesh@linux.vnet.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: ebiederm@xmission.com, vgoyal@redhat.com, hbabu@us.ibm.com, mahesh@linux.vnet.ibm.com
+Cc: oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Vivek,
+This patch series adds kdump support for the s390 architecture (64 bit). There
+are a few common code changes necessary because the s390 implementation is
+different to other architectures in some points. Especially these common code
+patches (1-7) should be reviewed. Patch 8 "s390: kdump backend code" contains
+the s390 specific part. Patch 9 includes the necessary changes for the kexec
+tool.
 
-On Fri, 2011-07-15 at 10:38 -0400, Vivek Goyal wrote:
-> > > In user space I think one can modify the kexec-tools infrastrucuture a
-> > > bit so that one is able to define an entry point in case checksum of
-> > > loaded segment failes. Once you are loding kdump kernel, you can define
-> > > that entry point. (And this would be jump to IPL etc.).
-> > 
-> > You mean to jump back into the crashed kernel code in case the kdump
-> > checksum failed?
-> 
-> No. I meant jump to entry point so that one can IPL the dump tools. I
-> am not sure how do initiate the IPL after panic. Similar thing needs
-> to be done here. If it is as simple as jumping to some location in
-> low memory, then purgatory should be able to do that. I think we
-> shall have to figure out the details here.
+In the following I describe the main differences of the s390 implementation:
 
-We have a machine instruction to IPL a dump tool from a device. The
-parameters (e.g. device number, or WWPN/LUN for SCSI devices) are
-currently configured via a s390 sysfs interface and an etc config file.
-In theory we could read the sysfs files or the config file from the
-kexec tool and patch the parameters into the purgatory code. The user
-would then have to restart kexec each time when the configuration is
-changed.
+The s390 kernel is not relocatable therefore the crashkernel memory is swapped
+with the area [0 - crashkernel memory] before the kdump kernel is started.
+Architectures other than s390 run the kdump kernel at a memory location that is
+disjunct to the standard location for the kernel image and to all memory that
+might be in use for I/O by the production system. The main reason for this
+seems to be that these architectures do not have a means to clear all ongoing
+I/O. If active memory of the production system is reused by the kdump kernel
+they run into memory corruption issues. On s390 with diagnose call 308 or boot
+(IPL) there is the possibility to stop all ongoing I/O. Therefore we can safely
+run the kdump kernel at the old location.
 
-> Basically I am saying that purgatory detected that kdump kernel is
-> corrupted. In x86_64 we spin in inifinite loop as we don't have a
-> backup plan. But s390 has a backup plan of being able to IPL dump
-> tools.
-> 
-> Or in first step we can keep it even simpler. We can spin in infinite
-> loop
+On s390 we do not create page tables for the crashkernel memory and use a
+memcpy_real() function to load the kdump kernel and ramdisk in kexec_load()
+system call.
 
-Looping is probably not a good option in a hypervisor environment like
-we have it on s390. At least we should load a disabled wait PSW.
+On s390 we have external kdump triggers. For example stand-alone dump tools.
+The address range information of crashkernel memory is stored at a well defined
+storage location that can be used by the external dump triggers to find the
+kdump entry point. To export the address range for the crashkernel memory we
+introduce a new mechanism that we call meminfo. This allows to define checksum
+secured information in memory that is accessible via an s390 ABI defined
+storage address. The following information is currently stored via meminfo:
+* Crashkernel memory range
+* kexec segments for kdump
+* Pointer to vmcoreinfo note
 
-> and wait for either hypervisor watchdog to kick in for automatic
-> IPL or wait for operator intervention.
-> That would simplify it even
-> further. 
-> > 
-> > In the meantime I was looking a bit more into the kexec code to find
-> > out, what we would have to do, if we use the preallocated ELF header as
-> > you want us to do. With our actual solution, we do not have to reserve
-> > any special areas for the kdump kernel. Now we have to reserve the ELF
-> > header. So what are the options?
-> 
-> ELF headers go into same memory area as kdump kenrel.
+Checksums for the loaded kexec segments are stored. This can be used to verify
+that kdump is not corrupted. The check is done e.g. by the s390 stand-alone
+dump tools via meminfo. If kdump has NOT been overwritten, the checksums are
+valid and kdump is started, otherwise a full-blown s390 stand-alone dump is
+created as backup dump mechanism.
 
-sure
+On s390 the ELF header is created dynamically at kdump startup in the kdump
+(2nd) kernel. This is possible, because the memory detection and collection of
+the CPU register sets can be done on s390 in the 2nd kernel. Therefore on s390
+the ELF header is NOT prepared by the kexec tool. The address for vmcoreinfo
+can be found via meminfo and is used by the kdump kernel for ELF header
+initialization.
 
-> Anyway you are
-> doing to reserve memory for kdump kernel and ELF headers will go 
-> right there.
-> Once you swap the kernel I think ELF headers continue to remain in
-> original location. Or may be you can move ELF headers too depending
-> on what turns out to be easier.
-> 
-> > 
-> > The x86 implementation uses a kernel parameter "memmap=exactmap" to do
-> > that.
-> 
-> It tells second kernel to use a memory map defined on command line.
-> Kexec-tools prepares this memory map with the help of memap= options. This
-> is to limit the memory second kernel use to boot into so that it does not
-> overwrite in any piece of memory used by first kernel.
+On s390 no additional kernel parameter is needed for kdump. Everything kdump
+needs to know can be determined dynamically when the 2nd kernel starts.
 
-And to reserve the ELF header that is prepared by kexec tools, no?
+If you agree with the approach of this patch series, how should this go
+upstream?
 
-> In your case I think you shall have to do little more so that second
-> kernel also seems some of the lower memory areas so that later swapping
-> of kernel can be done.
-
-After the swap the ELF header is contained in the same memory than the
-kdump kernel. When the kdump kernel starts, the ELF header has to be
-saved from being overwritten (as kernel and ramdisk). I get the address
-from the "elfcorehdr=" kernel parameter. How will I get the size?
-Looking at the ia64 and x86 implementations I have the feeling there are
-different mechanism available to do that.
-
-> 
-> > 
-> > On ia64 - if I understood the code correctly - they seem to pass a kdump
-> > segment "EFI_memmap" to the kdump kernel that contains information about
-> > all loaded kexec segments. With this segment they can find out the size
-> > of the ELF header segment in the kdump kernel and then do the memory
-> > reservation at boot time. Is that correct?
-> 
-> Sorry, I don't know the details of IA64. May be somebody else on the list
-> can pitch in with some clarifications here.
-
-For me it looks like a mechanism where a block of information is
-prepared by kexec tools and a pointer to that block is passed somehow to
-the second kernel. I would assume that the definition of this block is
-ia64 kernel ABI. 
-
-See kernel:
-* arch/ia64/kernel/setup.c: reserve_elfcorehdr()
-* arch/ia64/kernel/head.S: ia64_boot_param
-
-kexec tools:
-* kexec/arch/ia64/kexec-elf-ia64.c: efi_memmap_buf
-* purgatory/arch/ia64/entry.S: __boot_param_base
+Thanks,
 
 Michael
