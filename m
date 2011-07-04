@@ -1,10 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20110704170959.217980739@linux.vnet.ibm.com>
-Date: Mon, 04 Jul 2011 19:09:26 +0200
+Message-Id: <20110704170959.387574073@linux.vnet.ibm.com>
+Date: Mon, 04 Jul 2011 19:09:27 +0200
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: [patch 4/9] kdump: Initialize vmcoreinfo note at startup
+Subject: [patch 5/9] kdump: Allow vmcore ELF header to be created in new kernel
 References: <20110704170922.976299676@linux.vnet.ibm.com>
-Content-Disposition: inline; filename=04-s390-kdump-common-vmcoreinfo.patch
+Content-Disposition: inline; filename=05-s390-kdump-common-vmcore-newmem.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,58 +14,136 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 
-Currently the vmcoreinfo note is only initialized in case of kdump. On s390
-it is possible to create kernel dumps with other dump mechanisms than kdump
-(e.g. via hypervisor dump or stand-alone dump tools). For those dumps it
-would also be desirable to include the vmcoreinfo data. To accomplish this,
-with this patch the vmcoreinfo ELF note is always initialized, not only in
-case of a (kdump) crash.
+For s390 we create the ELF header for /proc/vmcore in the second (kdump)
+kernel. Currently vmcore gets the ELF header from oldmem using the global
+variable "elfcorehdr_addr". This patch introduces a new value
+ELFCORE_ADDR_NEWMEM for "elfcorehdr_addr" that indicates that the ELF header
+is allocated in the new kernel. In this case a new architecture function
+"arch_vmcore_get_elf_hdr()" is called to obtain address and length of the
+ELF header.
 
 Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 ---
- kernel/kexec.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ fs/proc/vmcore.c           |   66 ++++++++++++++++++++++++++++++++++++---------
+ include/linux/crash_dump.h |    1 
+ 2 files changed, 55 insertions(+), 12 deletions(-)
 
---- a/kernel/kexec.c
-+++ b/kernel/kexec.c
-@@ -1388,24 +1388,23 @@ int __init parse_crashkernel(char 		 *cm
- }
- 
- 
--
--void crash_save_vmcoreinfo(void)
-+static void update_vmcoreinfo_note(void)
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -494,14 +494,10 @@ static void __init set_vmcore_list_offse
+ 						struct list_head *vc_list)
  {
--	u32 *buf;
-+	u32 *buf = (u32 *) vmcoreinfo_note;
+ 	loff_t vmcore_off;
+-	Elf64_Ehdr *ehdr_ptr;
+ 	struct vmcore *m;
  
- 	if (!vmcoreinfo_size)
- 		return;
+-	ehdr_ptr = (Elf64_Ehdr *)elfptr;
 -
--	vmcoreinfo_append_str("CRASHTIME=%ld", get_seconds());
--
--	buf = (u32 *)vmcoreinfo_note;
--
- 	buf = append_elf_note(buf, VMCOREINFO_NOTE_NAME, 0, vmcoreinfo_data,
- 			      vmcoreinfo_size);
--
- 	final_note(buf);
- }
+ 	/* Skip Elf header and program headers. */
+-	vmcore_off = sizeof(Elf64_Ehdr) +
+-			(ehdr_ptr->e_phnum) * sizeof(Elf64_Phdr);
++	vmcore_off = elfcorebuf_sz;
  
-+void crash_save_vmcoreinfo(void)
-+{
-+	vmcoreinfo_append_str("CRASHTIME=%ld", get_seconds());
-+	update_vmcoreinfo_note();
-+}
-+
- void vmcoreinfo_append_str(const char *fmt, ...)
+ 	list_for_each_entry(m, vc_list, list) {
+ 		m->offset = vmcore_off;
+@@ -514,14 +510,10 @@ static void __init set_vmcore_list_offse
+ 						struct list_head *vc_list)
  {
- 	va_list args;
-@@ -1491,6 +1490,7 @@ static int __init crash_save_vmcoreinfo_
- 	VMCOREINFO_NUMBER(PG_swapcache);
+ 	loff_t vmcore_off;
+-	Elf32_Ehdr *ehdr_ptr;
+ 	struct vmcore *m;
  
- 	arch_crash_save_vmcoreinfo();
-+	update_vmcoreinfo_note();
+-	ehdr_ptr = (Elf32_Ehdr *)elfptr;
+-
+ 	/* Skip Elf header and program headers. */
+-	vmcore_off = sizeof(Elf32_Ehdr) +
+-			(ehdr_ptr->e_phnum) * sizeof(Elf32_Phdr);
++	vmcore_off = elfcorebuf_sz;
  
+ 	list_for_each_entry(m, vc_list, list) {
+ 		m->offset = vmcore_off;
+@@ -641,7 +633,7 @@ static int __init parse_crash_elf32_head
  	return 0;
  }
+ 
+-static int __init parse_crash_elf_headers(void)
++static int __init parse_crash_elf_headers_oldmem(void)
+ {
+ 	unsigned char e_ident[EI_NIDENT];
+ 	u64 addr;
+@@ -679,6 +671,53 @@ static int __init parse_crash_elf_header
+ 	return 0;
+ }
+ 
++/*
++ * provide an empty default implementation here -- architecture
++ * code may override this
++ */
++int __weak arch_vmcore_get_elf_hdr(char **elfcorebuf, size_t *elfcorebuf_sz)
++{
++	return -EOPNOTSUPP;
++}
++
++static int __init parse_crash_elf_headers_newmem(void)
++{
++	unsigned char e_ident[EI_NIDENT];
++	int rc;
++
++	rc = arch_vmcore_get_elf_hdr(&elfcorebuf, &elfcorebuf_sz);
++	if (rc)
++		return rc;
++	memcpy(e_ident, elfcorebuf, EI_NIDENT);
++	if (memcmp(e_ident, ELFMAG, SELFMAG) != 0) {
++		printk(KERN_WARNING "Warning: Core image elf header "
++		       "not found\n");
++		rc = -EINVAL;
++		goto fail;
++	}
++	if (e_ident[EI_CLASS] == ELFCLASS64) {
++		rc = process_ptload_program_headers_elf64(elfcorebuf,
++							  elfcorebuf_sz,
++							  &vmcore_list);
++		if (rc)
++			goto fail;
++		set_vmcore_list_offsets_elf64(elfcorebuf, &vmcore_list);
++		vmcore_size = get_vmcore_size_elf64(elfcorebuf);
++	} else if (e_ident[EI_CLASS] == ELFCLASS32) {
++		rc = process_ptload_program_headers_elf32(elfcorebuf,
++							  elfcorebuf_sz,
++							  &vmcore_list);
++		if (rc)
++			goto fail;
++		set_vmcore_list_offsets_elf32(elfcorebuf, &vmcore_list);
++		vmcore_size = get_vmcore_size_elf32(elfcorebuf);
++	}
++	return 0;
++fail:
++	kfree(elfcorebuf);
++	return rc;
++}
++
+ /* Init function for vmcore module. */
+ static int __init vmcore_init(void)
+ {
+@@ -687,7 +726,10 @@ static int __init vmcore_init(void)
+ 	/* If elfcorehdr= has been passed in cmdline, then capture the dump.*/
+ 	if (!(is_vmcore_usable()))
+ 		return rc;
+-	rc = parse_crash_elf_headers();
++	if (elfcorehdr_addr == ELFCORE_ADDR_NEWMEM)
++		rc = parse_crash_elf_headers_newmem();
++	else
++		rc = parse_crash_elf_headers_oldmem();
+ 	if (rc) {
+ 		printk(KERN_WARNING "Kdump: vmcore not initialized\n");
+ 		return rc;
+--- a/include/linux/crash_dump.h
++++ b/include/linux/crash_dump.h
+@@ -8,6 +8,7 @@
+ 
+ #define ELFCORE_ADDR_MAX	(-1ULL)
+ #define ELFCORE_ADDR_ERR	(-2ULL)
++#define ELFCORE_ADDR_NEWMEM	(-3ULL)
+ 
+ extern unsigned long long elfcorehdr_addr;
+ 
