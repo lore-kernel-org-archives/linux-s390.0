@@ -1,62 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 5 Jul 2011 16:26:15 -0400
-From: Vivek Goyal <vgoyal@redhat.com>
 Subject: Re: [patch 0/9] kdump: Patch series for s390 support
-Message-ID: <20110705202615.GJ24348@redhat.com>
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20110705202615.GJ24348@redhat.com>
 References: <20110704170922.976299676@linux.vnet.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20110704170922.976299676@linux.vnet.ibm.com>
+	 <20110705202615.GJ24348@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 06 Jul 2011 11:24:47 +0200
+Message-ID: <1309944287.3937.39.camel@br98xy6r>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+To: Vivek Goyal <vgoyal@redhat.com>
 Cc: ebiederm@xmission.com, hbabu@us.ibm.com, mahesh@linux.vnet.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jul 04, 2011 at 07:09:22PM +0200, Michael Holzheu wrote:
-> This patch series adds kdump support for the s390 architecture (64 bit). There
-> are a few common code changes necessary because the s390 implementation is
-> different to other architectures in some points. Especially these common code
-> patches (1-7) should be reviewed. Patch 8 "s390: kdump backend code" contains
-> the s390 specific part. Patch 9 includes the necessary changes for the kexec
-> tool.
-> 
-> In the following I describe the main differences of the s390 implementation:
-> 
-> The s390 kernel is not relocatable therefore the crashkernel memory is swapped
-> with the area [0 - crashkernel memory] before the kdump kernel is started.
-> Architectures other than s390 run the kdump kernel at a memory location that is
-> disjunct to the standard location for the kernel image and to all memory that
-> might be in use for I/O by the production system. The main reason for this
-> seems to be that these architectures do not have a means to clear all ongoing
-> I/O. If active memory of the production system is reused by the kdump kernel
-> they run into memory corruption issues. On s390 with diagnose call 308 or boot
-> (IPL) there is the possibility to stop all ongoing I/O. Therefore we can safely
-> run the kdump kernel at the old location.
-> 
-> On s390 we do not create page tables for the crashkernel memory and use a
-> memcpy_real() function to load the kdump kernel and ramdisk in kexec_load()
-> system call.
-> 
-> On s390 we have external kdump triggers. For example stand-alone dump tools.
-> The address range information of crashkernel memory is stored at a well defined
-> storage location that can be used by the external dump triggers to find the
-> kdump entry point. To export the address range for the crashkernel memory we
-> introduce a new mechanism that we call meminfo. This allows to define checksum
-> secured information in memory that is accessible via an s390 ABI defined
-> storage address. The following information is currently stored via meminfo:
-> * Crashkernel memory range
-> * kexec segments for kdump
-> * Pointer to vmcoreinfo note
+Hello Vivec,
 
-I don't understand what is stand-alone dump tools and why the existing
-mechanism of preparing ELF headers to describe all the above info
-and just passing the address of header on kernel commnad line
-(crashkernel=) will not work for s390. Introducing an entirely new
-infrastructure for communicating the same information does not
-sound too exciting.
+On Tue, 2011-07-05 at 16:26 -0400, Vivek Goyal wrote:
+> On Mon, Jul 04, 2011 at 07:09:22PM +0200, Michael Holzheu wrote:
 
-Thanks
-Vivek
+[snip]
+
+> I don't understand what is stand-alone dump tools and 
+
+S390 stand-alone dump tools are independent mini operating systems that
+are installed on disks or tapes. When a dump should be created, these
+stand-alone dump tools are booted. All that they do is to write the dump
+(current memory plus the CPU registers) to the disk/tape device.
+
+The advantage compared to kdump is that since they are freshly loaded
+into memory they can't be overwritten in memory. Another advantage is
+that since it is different code, it is much less likely that the dump
+tool will run into the same problem than the previously crashed kernel.
+Also the boot process ensures that the hardware is in a initialized
+state. And last but not least, with the stand-alone dump tools you can
+dump early kernel problems which is not possible using kdump, because
+you can't dump before the kdump kernel has been loaded with kexec.
+
+That were more or less the arguments, why we did not support kdump in
+the past.
+
+In order to increase dump reliability with kdump, we now implemented a
+two stage approach. The stand-alone dump tools first check via meminfo,
+if kdump is valid using checksums. If kdump is loaded and healthy it is
+started. Otherwise the stand-alone dump tools create a full-blown
+stand-alone dump.
+
+With this approach we still keep our s390 dump reliability and gain the
+great kdump features, e.g. distributor installer support, dump filtering
+with makedumpfile, etc.
+
+> why the existing
+> mechanism of preparing ELF headers to describe all the above info
+> and just passing the address of header on kernel commnad line
+> (crashkernel=) will not work for s390. Introducing an entirely new
+> infrastructure for communicating the same information does not
+> sound too exciting.
+
+We need the meminfo interface anyway for the two stage approach. The
+stand-alone dump tools have to find and verify the kdump kernel in order
+to start it. Therefore the interface is there and can be used. Also
+creating the ELF header in the 2nd kernel is more flexible and easier
+IMHO:
+* You do not have to care about memory or CPU hotplug.
+* You do not have to preallocate CPU crash notes etc.
+* It works independently from the tool/mechanism that loads the kdump
+kernel into memory. E.g. we have the idea to load the kdump kernel at
+boot time into the crashkernel memory (not via the kexec_load system
+call). That would solve the main kdump problems: The kdump kernel can't
+be overwritten by I/O and also early kernel problems could then be
+dumped using kdump.
+
+What do you think?
+
+Michael
