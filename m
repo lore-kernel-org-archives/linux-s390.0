@@ -1,44 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 8 Jul 2011 11:01:21 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Subject: Re: [patch 0/9] kdump: Patch series for s390 support
-Message-ID: <20110708110121.5acfc3c9@mschwide>
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
 In-Reply-To: <20110707193321.GE28850@redhat.com>
 References: <20110704170922.976299676@linux.vnet.ibm.com>
- <20110705202615.GJ24348@redhat.com>
- <1309944287.3937.39.camel@br98xy6r>
- <20110707193321.GE28850@redhat.com>
+	 <20110705202615.GJ24348@redhat.com>	<1309944287.3937.39.camel@br98xy6r>
+	 <20110707193321.GE28850@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 08 Jul 2011 15:04:03 +0200
+Message-ID: <1310130243.3508.230.camel@br98xy6r>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Vivek Goyal <vgoyal@redhat.com>
-Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>, ebiederm@xmission.com, hbabu@us.ibm.com, mahesh@linux.vnet.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: oomichi@mxs.nes.nec.co.jp, linux-s390@vger.kernel.org, mahesh@linux.vnet.ibm.com, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, hbabu@us.ibm.com, horms@verge.net.au, ebiederm@xmission.com, schwidefsky@de.ibm.com, kexec@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 7 Jul 2011 15:33:21 -0400
-Vivek Goyal <vgoyal@redhat.com> wrote:
+Hello Vivek,
 
-> On Wed, Jul 06, 2011 at 11:24:47AM +0200, Michael Holzheu wrote:
-> > Hello Vivec,
-> > 
-> > On Tue, 2011-07-05 at 16:26 -0400, Vivek Goyal wrote:
-> > > On Mon, Jul 04, 2011 at 07:09:22PM +0200, Michael Holzheu wrote:
-> > 
-> > [snip]
-> > 
-> > > I don't understand what is stand-alone dump tools and 
-> > 
-> > S390 stand-alone dump tools are independent mini operating systems that
-> > are installed on disks or tapes. When a dump should be created, these
-> > stand-alone dump tools are booted. All that they do is to write the dump
-> > (current memory plus the CPU registers) to the disk/tape device.
-> > 
-> > The advantage compared to kdump is that since they are freshly loaded
-> > into memory they can't be overwritten in memory.
-> 
+On Thu, 2011-07-07 at 15:33 -0400, Vivek Goyal wrote:
 > > Another advantage is
 > > that since it is different code, it is much less likely that the dump
 > > tool will run into the same problem than the previously crashed kernel.
@@ -49,17 +31,12 @@ Vivek Goyal <vgoyal@redhat.com> wrote:
 > up and running verifies that it is a stable kernel for that machine
 > and is capable of capturing the dump.
 
-Yes, this is a theoretical consideration. In practice the kdump kernel will
-work if it has not been corrupted.
- 
-> > Also the boot process ensures that the hardware is in a initialized
-> > state.
-> 
-> Who makes sure that hardware is in initiliazed state? Kdump kernel,
-> stand alone kernel or BIOS.
+I don't want to argue, about probabilities. Even if we gain only a
+little more reliability this is important for us. Don't forget that we
+write software for mainframes. We accept that the last 0.1 percent of
+reliability can be very expensive compared to the first 99.9 percent.
 
-The machine does that on IPL. Call it the BIOS, although we use different
-names for all that code that runs below the OS.
+[snip]
 
 > > And last but not least, with the stand-alone dump tools you can
 > > dump early kernel problems which is not possible using kdump, because
@@ -70,16 +47,29 @@ names for all that code that runs below the OS.
 > it is not ready to ship and it is more of a development issue and
 > there are other ways to debug problems. So I would not worry too
 > much about it.
-> 
+
+We worry about that. See the comment above regarding the 100 percent.
+
 > On a side note, few months back there were folks who were trying
 > to enhance bootloaders to be able to prepare basic environment so
 > that a kdump kernel can boot even in the event of early first
 > kernel boot.
 
-Well, here it is not only about the kernel code. The IPL could be
-prevented by a setup problem as well. And if you can not get the system
-to boot far enough to load the kdump kernel you are bust.
- 
+This is one more argument to create the ELF header in the 2nd kernel.
+With our approach loading the kdump kernel at boot time is almost
+trivial.
+
+Example (e.g. crashkernel=xxxM@256M):
+
+1. The boot loader loads standard kernel and kdump kernel into memory.
+The kdump kernel is loaded into crashkernel memory to 256M. No more
+setup (e.g. creating ELF headers) is necessary.
+2. We could add a kernel parameter "kexec_load=<segm addr>,<segm
+size>, ..." that does an internal kexec_load(). After this kernel
+parameter is processed, kdump is armed.
+
+What do you think?
+
 > > That were more or less the arguments, why we did not support kdump in
 > > the past.
 > > 
@@ -91,15 +81,16 @@ to boot far enough to load the kdump kernel you are bust.
 > 
 > kexec-tools purgatory code also checks the checksum of loaded kernel
 > and other information and next kernel boot starts only if nothing
-> has been corrupted in first kernel. So this additional meminfo strucutres
+> has been corrupted in first kernel. 
+
+Can you point me to the code where this is done and from where in the
+kernel that code is called? Currently with our implementation we do not
+use any purgatory code from kexec tools.
+
+> So this additional meminfo strucutres
 > and need of checksums sounds unnecessary. I think what you do need is
 > that somehow invoking second hook (s390 specific stand alone kernel)
 > in case primary kernel is corrupted.
-
-Yes, but what do you do if the checksum tells you that the kexec kernel
-has been compromised? If the independent stand-alone dumper does the
-check it can fall back to the "dump-all" case.
-
 > > 
 > > With this approach we still keep our s390 dump reliability and gain the
 > > great kdump features, e.g. distributor installer support, dump filtering
@@ -120,8 +111,7 @@ check it can fall back to the "dump-all" case.
 > all the loaded information in reserved area. So why introduce this
 > meminfo interface.
 
-Again, what do you do if the verification fails? Fail to dump the borked
-system? Imho not a good option.
+Ok, where is this done and when?
 
 > > Therefore the interface is there and can be used. Also
 > > creating the ELF header in the 2nd kernel is more flexible and easier
@@ -131,17 +121,12 @@ system? Imho not a good option.
 > Reloading the kernel upon memory or cpu hotplug should be trivial. This
 > does not justify to move away from standard ELF interface and creation
 > of a new one.
-
-We do not move away from the ELF interface, we just create the ELF headers
-at a different time, no?
-
+> 
 > > * You do not have to preallocate CPU crash notes etc.
 > 
 > Its a small per cpu area. Looks like otherwise you will create meminfo
 > areas otherwise.
-
-Probably doesn't matter.
-
+> 
 > > * It works independently from the tool/mechanism that loads the kdump
 > > kernel into memory. E.g. we have the idea to load the kdump kernel at
 > > boot time into the crashkernel memory (not via the kexec_load system
@@ -152,58 +137,49 @@ Probably doesn't matter.
 > Can you give more details how exactly it works. I know very little about
 > s390 dump mechanism.
 
-Before we started working on kdump the only way to get a dump is to boot
-a stand-alone dumper. That is a small piece of assembler code that is
-loaded into the first 64KB of memory (which is reserved for these kind of
-things). This assembler code will then write everything to the dump device.
-This works very reliable (which is of utmost importance to us) but has the
-problem that it will be awfully slow for large memory sizes.
- 
+Maybe I confused you here. What I wanted to describe is the following
+idea:
+1. The running production kernel starts with "crashkernel=" and reserves
+memory for kdump. No kdump is loaded with kexec.
+2. The system crashes
+3. To create the dump, a prepared dump disk is booted. The boot loader
+loads the kdump kernel into crashkernel memory.
+4. The boot loader starts kdump kernel on s390 with entry point
+<crashkernel base> + 0x10008
+5. The kdump kernel creates ELF header etc...
+
+So this is simple for the boot loader code because no preparation steps
+like creating the ELF header are required. This is similar to scenario
+of pre-loading the kdump kernel together with the standard kernel at
+startup that I described above.
+
+> 
 > When do you load kdump kernel and who does it?
 
-If the crashed kernel is still operational enough to call panic it can
-cause an IPL to the stand-alone dump tool (or do a reset of the I/O
-subsystem and directly call kdump with the new code if the checksums
-turn out ok).
-If the crashed kernel is totally bust then the administrator has to do
-a manual IPL from the disk where the stand-alone dumper has been installed.
- 
+Currently we load the kdump kernel with kexec like it is done on all
+other architectures. The other options I described above are currently
+just ideas that we have for the future.
+
 > Who gets the control first after crash?
-
-Depends. If the kernel can recognize the crash as such it can proceed to
-execute the configured "on_panic" shutdown action. If the kernel is bust
-the code loaded by the next IPL gets control. This can be a "normal" boot
-or a stand-alone dumper.
-
+> 
 > To me it looked like that you regularly load kdump kernel and if that
 > is corrupted then somehow you boot standalone kernel. So corruption
 > of kdump kernel should not be a issue for you.
 
-It is the other way round. We load the standalone dumper, then check if
-the kdump kernel looks good. Only if all the checksums turn out ok we
-jump to the purgatory code from the standalone dump code.
+As Martin already said: It can be the other way round. The stand-alone
+dump tool gets first control. We trust this code because it is freshly
+loaded and has a different code base. This code verifies the kdump setup
+and jumps into the pre-loaded kdump (crashkernel base + 0x10008) if
+everything is ok. Otherwise it creates a traditional s390 dump.
 
+> 
 > Do you load kdump kenrel from some tape/storage after system crash. Where
 > does bootloader lies and how do you make sure it is not corrupted and
 > associated device is in good condition.
-
-The bootloader sits on the boot disk / tape. If you are able to boot from
-that device then it is reasonable to assume that the device is in good
-condition. To get a corrupted bootloader you'd need a stray I/O to that
-device. The stand-alone dumper sits on its own disk / tape which is not in
-use for normal operation. Very unlikely that this device will get hit.
- 
+> 
 > To me we should not create a arch specific way of passing information
-> between kernels. Stand alone kernel should be able to parse the
-> ELF headers which contains all the relevant info. They have already
-> been checksum verified.
+> between kernels.
 
-Ok, so this seems to be the main point of discussion. When to create the
-ELF headers and how to pass all the required information from the crashed
-system to the kdump kernel.
+I agree that a common code solution would be better.
 
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Michael
