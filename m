@@ -1,15 +1,16 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Subject: Re: [patch 1/1] [PATCH] include storage keys in
 	hibernation image.
-Date: Thu, 7 Jul 2011 23:36:25 +0200
-Message-ID: <201107072336.26151.rjw__9520.88415292582$1310074565$gmane$org@sisk.pl>
+Date: Fri, 8 Jul 2011 10:29:11 +0200
+Message-ID: <20110708102911.3c4d83b6__23843.9713408754$1310113827$gmane$org@mschwide>
 References: <20110608074523.211912903@de.ibm.com>
 	<201106142250.15041.rjw@sisk.pl> <20110615093629.07f01779@mschwide>
+	<201107072336.26151.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-pm-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110615093629.07f01779@mschwide>
+In-Reply-To: <201107072336.26151.rjw@sisk.pl>
 List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
 	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
@@ -21,22 +22,34 @@ Sender: linux-pm-bounces@lists.linux-foundation.org
 Errors-To: linux-pm-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/linux-pm/>
 List-Post: <mailto:linux-pm@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@lists.linux-foundation.org, Jiri Slaby <jslaby@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wednesday, June 15, 2011, Martin Schwidefsky wrote:
-> On Tue, 14 Jun 2011 22:50:14 +0200
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-...
+On Thu, 7 Jul 2011 23:36:25 +0200
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+
+> On Wednesday, June 15, 2011, Martin Schwidefsky wrote:
+> > On Tue, 14 Jun 2011 22:50:14 +0200
+> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> ...
+> > 
+> > Well before the preallocation kicked in we don't know which are the relevant
+> > storage keys. The only other option would be to store all of them which I
+> > consider to be a inferior solution. 
 > 
-> Well before the preallocation kicked in we don't know which are the relevant
-> storage keys. The only other option would be to store all of them which I
-> consider to be a inferior solution. 
+> I've been thinking about that recently a bit.
+> 
+> Don't we need to restore the keys of the page frames that aren't copied
+> into the image too?
 
-I've been thinking about that recently a bit.
+Pages that are free (= not part of the image) will get a zero storage key
+once they are allocated again. So no, we do not need to include these
+keys into the hibernation image.
 
-Don't we need to restore the keys of the page frames that aren't copied
-into the image too?
 
-Rafael
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
