@@ -1,150 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 13 Jul 2011 12:02:39 -0400
+From: Vivek Goyal <vgoyal@redhat.com>
 Subject: Re: [patch 0/9] kdump: Patch series for s390 support
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Reply-To: holzheu@linux.vnet.ibm.com
-In-Reply-To: <20110711153625.GF30674@redhat.com>
+Message-ID: <20110713160239.GE4426@redhat.com>
 References: <20110704170922.976299676@linux.vnet.ibm.com>
-	 <20110705202615.GJ24348@redhat.com> <1309944287.3937.39.camel@br98xy6r>
-	 <20110707193321.GE28850@redhat.com> <1310130243.3508.230.camel@br98xy6r>
-	 <20110711153625.GF30674@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 12 Jul 2011 19:29:49 +0200
-Message-ID: <1310491789.3665.512.camel@br98xy6r>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+ <20110705202615.GJ24348@redhat.com>
+ <1309944287.3937.39.camel@br98xy6r>
+ <20110707193321.GE28850@redhat.com>
+ <20110708110121.5acfc3c9@mschwide>
+ <20110711144255.GE30674@redhat.com>
+ <20110711175626.121dcc58@mschwide>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20110711175626.121dcc58@mschwide>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Vivek Goyal <vgoyal@redhat.com>
-Cc: oomichi@mxs.nes.nec.co.jp, linux-s390@vger.kernel.org, mahesh@linux.vnet.ibm.com, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, hbabu@us.ibm.com, horms@verge.net.au, ebiederm@xmission.com, schwidefsky@de.ibm.com, kexec@lists.infradead.org
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>, ebiederm@xmission.com, hbabu@us.ibm.com, mahesh@linux.vnet.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Vivek,
+On Mon, Jul 11, 2011 at 05:56:26PM +0200, Martin Schwidefsky wrote:
 
-On Mon, 2011-07-11 at 11:36 -0400, Vivek Goyal wrote:
-> > > On a side note, few months back there were folks who were trying
-> > > to enhance bootloaders to be able to prepare basic environment so
-> > > that a kdump kernel can boot even in the event of early first
-> > > kernel boot.
-> > 
-> > This is one more argument to create the ELF header in the 2nd kernel.
-> > With our approach loading the kdump kernel at boot time is almost
-> > trivial.
+[..]
+> > kexec-tools purgatory code already has the checksum logic. So you don't
+> > have to redo that in stand alone tools. I think you probably need to
+> > s390 specic purgatory and jump to IPLing stand alone kernel if kdump
+> > kernel is corrupted instead of rebooting back or spinning infinitely
+> > in the loop/
 > 
-> I think ELF header is just the way of passing some required information
-> from first kernel to second kernel. In second kernel, we anyway prepare
-> fresh headers for /proc/vmcore.
+> I can not quite follow you here. The purgatory code is part of the kdump kernel,
+> no? When we trigger a dump with the stand-alone tools we will start executing
+> code in the assembler function of that stand-alone tools. We can not trust
+> the kdump kernel yet, not without doing the checksums first.
+
+Purgatory is another piece of binary code which is loaded along with kdump
+kernel in reserved memory area. So yes, there is a chance that this code
+itself get corrupted.
+
+So in case of stand alone dump, you save the calculated checksum of
+kdump kernel at disk and not in memory? And then calculate the checksum
+of memory image of kdump kernel and decide whether kdump kenrel is 
+corrupted or not?
+
+If yes, this sounds more reliable as checksum of kernel is stored on
+some disk/tape.
+
+[..]
+> > Ok. So again why not reuse the checksump capability of kexec-tools and
+> > instead of infinite looping you can jump to stand alone tools + IPL etc.
+> > I understand this will require a tighter integration with kexec-tools
+> > and using ELF header mechanism and will not cover the early kernel
+> > crashes.
 > 
-> So in your mechanism if you don't need any info from second kernel it
-> is fine to not use ELF. But if you do need, then it makes sense to
-> use existing mechanism instead of creating a new one (seems to be
-> meminfo in your case).
+> Imho the checksum of kexec-tools is in the wrong place.
 
-Ok fine. Let's concentrate on the information that we have to pass from
-the old to the new kernel. We have two ways to start the dump mechanism
-to consider. First, direct call to kdump from the crashed system and
-second, the detour via the stand-alone dump. In both cases we need the
-following information from the old kernel:
-* Pointer to vmcoreinfo
-* Pointer to reboot (re-IPL) information (s390 specific)
-* Boot CPU registers
+Because you think that stored checksum can get corrupted?
 
-The vmcoreinfo pointer is required for creating the vmcoreinfo ELF note
-that is used afterwards by tools like makedumpfile.
+[..]
+> > To me we seem to be diverging a lot from existing kdump+kexec-tools
+> > mechanism just to solve the case of early crash dumping. If we break
+> > down the problem in two parts and do thing kexec-tools way (with a
+> > backup path of booting stand alone kernel if kdump kenrel is corrupted),
+> > things might be better.
+> 
+> The "backup path of booting stand alone kernel" would result in passing
+> the control twice, once from the stand-alone dumper to the kexec purgatory
+> (after the purgatory checksum has been verified), then doing more checks 
+> in the kdump kernel, only to return to the stand-alone dumper if some check
+> fails. Does not really sound enticing to me.
 
-The reboot information is required to ensure that a reboot of the kdump
-kernel will restart the original production system.
+What I am suggesting is that stand alone dumper gets control only if
+kdump kernel is corrupted.
 
-The boot CPU registers are needed for the ELF CPU note of the IPL CPU. 
+So following sequence.
 
-CPU registers of non-boot CPUs and the memory layout can be determined
-in the 2nd kernel on s390.
+Kernel Crash ---> purgatory --> either kdump kenrel/IPL stand alone tools
 
-Now let's see how we can transfer that information for the two cases we
-have:
+Here only drawback seems to be that we assume that purgatory code and
+pre-calculated checksum has not been corrupted. The big advantage is
+that s390 kdump support looks very similar to other arches and
+understaning and supporting kdump across architectures becomes easy.
 
-Case 1: Direct call via panic()
-
-More or less we could do it the same way as on x86. The kexec tool
-prepares the ELF header with ELF notes for vmcoreinfo, s390 reboot
-information, ELF loads for the memory areas, and the containers for the
-CPU notes. Panic writes the CPU registers to the prepared location and
-jumps to purgatory code. Purgatory code start loaded kdump kernel with
-"elfcorehdr=" parameter.
-
-Case 2: Indirect call via stand-alone dump
-
-When the stand-alone dump is started, it knows nothing about the crashed
-system. We need to pass at least the address of the kdump entry point
-and the address of the ELF header at a well defined location in order to
-start kdump from the stand-alone dump tool. So it think we still need
-something like meminfo.
-
-To convert case 2 to the ELF header approach, we now would need to do
-something like the following in the stand-alone tools code:
-* Verify that kdump kernel is present.
-* Save all non-boot CPU registers and then copy the registers of all
-CPUs to the prepared ELF Notes. To do that the tools need to parse the
-ELF header and to find the location of the required ELF notes.
-* Call purgatory entry point.
-
-We cannot trust anything in memory including the purgatory code. To
-verify that the purgatory code is unmodified, we need the address and
-the length of purgatory together with the checksum.
-
-The s390 reboot information is *already* stored at a well defined
-location that is used today by the stand-alone dump tools to reboot the
-production system after dump (independent from kdump). This information
-is protected by a checksum as well and is needed for the backup case
-reboot, if we do not have a pre-loaded kdump or the purgatory checksum
-fails.
-
-In the following I describe the changes that (I think) I have to do, if
-we switch to the ELF header communication.
-
-1st kernel (crashed production system)
---------------------------------------
-* Add information about kdump/purgatory entry point, address of ELF
-header, purgatory start, length and checksum at some well defined
-address so that stand-alone dump tools can find it.
-* Communicate re-IPL block via ELF header:
-  - Either new ELF note: Add /sys/kernel/s390_reboot_info with
-    address of re-IPL info block 
-  - Or perhaps add re-IPL block pointer to vmcoreinfo
-* Fill CPU registers into ELF notes at crash time and call purgatory
-* If purgatory returns, stop machine.
-
-kexec tools
------------
-* Create and load ELF header + purgatory
-* Create new ELF NOTE for s390 re-IPL info. Maybe not required,
-  if we use vmcoreinfo.
-* Change purgatory code:
-  - Checksum failed: Return to caller instead of looping?
-  - Checksum ok: jump to crashk base + 0x10008 and start kdump
-
-2nd kernel (kdump)
-------------------
-* Prevent ELF header memory from being overwritten (how do we get the
-ELF header size?)
-* Parse ELF header and/or vmcoreinfo to get s390 re-IPL info
-
-Stand-alone dump tools:
------------------------
-* Find ELF header, purgatory start/length/checksum, and kdump entry
-point (meminfo?)
-* Verify the purgatory.
-* Parse ELF header and find location of pre-allocated ELF notes to store
-CPU register sets.
-* Jump to purgatory.
-* If purgatory returns, write stand-alone dump.
-
-Is that something that you had in mind? IMHO this does not eliminate the
-need of something like meminfo. Also we have to consider that the
-stand-alone dump tools are written in assembler and it is always hard to
-add complex code here.
-
-But perhaps I just can't see the forest for the trees and you have a
-better idea?
-
-Michael
+Thanks
+Vivek
