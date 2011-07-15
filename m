@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 14 Jul 2011 14:05:28 -0400
-From: Vivek Goyal <vgoyal@redhat.com>
 Subject: Re: [patch 0/9] kdump: Patch series for s390 support
-Message-ID: <20110714180528.GF6672@redhat.com>
-References: <1309944287.3937.39.camel@br98xy6r>
- <20110707193321.GE28850@redhat.com>
- <20110708110121.5acfc3c9@mschwide>
- <20110711144255.GE30674@redhat.com>
- <20110711175626.121dcc58@mschwide>
- <20110713160239.GE4426@redhat.com>
- <20110713184611.6dcb09b4@mschwide>
- <20110713200004.GG4426@redhat.com>
- <20110714091800.720da848@mschwide>
- <20110714175532.GE6672@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
 In-Reply-To: <20110714175532.GE6672@redhat.com>
+References: <20110705202615.GJ24348@redhat.com>
+	 <1309944287.3937.39.camel@br98xy6r> <20110707193321.GE28850@redhat.com>
+	 <20110708110121.5acfc3c9@mschwide> <20110711144255.GE30674@redhat.com>
+	 <20110711175626.121dcc58@mschwide> <20110713160239.GE4426@redhat.com>
+	 <20110713184611.6dcb09b4@mschwide> <20110713200004.GG4426@redhat.com>
+	 <20110714091800.720da848@mschwide>  <20110714175532.GE6672@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 15 Jul 2011 15:56:21 +0200
+Message-ID: <1310738181.10789.16.camel@br98xy6r>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>, ebiederm@xmission.com, hbabu@us.ibm.com, mahesh@linux.vnet.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Vivek Goyal <vgoyal@redhat.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, ebiederm@xmission.com, hbabu@us.ibm.com, mahesh@linux.vnet.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jul 14, 2011 at 01:55:32PM -0400, Vivek Goyal wrote:
+Hello Vivec,
 
-[..]
-> > > So we first try to take purgatory path which does the checksum and is
-> > > consistent with other architectures. If that does not work in case
-> > > of hard hang, you always have the option of IPLing the stand alone tool
-> > > later manually.
-> > 
-> > How are we suddenly on the purgatory path again? The code that gets
-> > control in case of a hard crash + IPL is the stand-alone dump tool,
-> > not the purgatory code.
+On Thu, 2011-07-14 at 13:55 -0400, Vivek Goyal wrote:
+
+[snip]
+
+> > The first thing we want to do is to check if
+> > the purgatory is still fine, that is do a checksum. If we have the
+> > infrastructure in place to do one checksum then we can easily do the
+> > other checksums as well.
 > 
-> I think that's the biggest contetion point. From the start of discussion
-> you have this hardcoded requirement that the moment panic() happens
-> you are jumping to some IPL code and that's what I am questioning. Why
-> can't you execute some more code after panic() (purgatory), before
-> you jump to IPL code (only if you have to). 
-> 
+> Some piece of code you have to assume is fine. Are you not already
+> assuming that IPL code you have in first 64K bytes is fine and no
+> body has overwritten it.
 
-In your parlance of shutdown actions, I think it is equivalnet to saying
-that "kdump" is a shutdown action and that that means is that for specific
-trigger points we will execute "crash_kexec()" function which will try
-to capture the dump.
+We can assume that the IPL dump code is fine, because it is freshly
+loaded into memory. Only when the disk is somehow corrupted we have a
+problem.
 
-In user space I think one can modify the kexec-tools infrastrucuture a
-bit so that one is able to define an entry point in case checksum of
-loaded segment failes. Once you are loding kdump kernel, you can define
-that entry point. (And this would be jump to IPL etc.).
+> Are you not assuming that hook in panic()
+> (I think you are calling it shutdown trigger) is fine so that it
+> can help you jump to right place.
 
-Thanks
-Vivek
+Yes, that is correct for automatic dump in case of panic(). The panic()
+path can fail.
+
+But there are two other options where really *no* code that was in
+memory, when the system crashed, is used for the dump process or
+verification of kdump:
+1) Manual IPL/boot of stand-alone dump by the operator via the virtual
+guest console
+2) Automatic IPL/boot of stand-alone dump by our z/VM hypervisor
+watchdog
+
+Michael
