@@ -1,176 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 18 Jul 2011 15:57:16 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Subject: Re: [patch 0/9] kdump: Patch series for s390 support
-Message-ID: <20110718155716.1b355f64@mschwide>
-In-Reply-To: <20110714175532.GE6672@redhat.com>
-References: <20110705202615.GJ24348@redhat.com>
-	<1309944287.3937.39.camel@br98xy6r>
-	<20110707193321.GE28850@redhat.com>
-	<20110708110121.5acfc3c9@mschwide>
-	<20110711144255.GE30674@redhat.com>
-	<20110711175626.121dcc58@mschwide>
-	<20110713160239.GE4426@redhat.com>
-	<20110713184611.6dcb09b4@mschwide>
-	<20110713200004.GG4426@redhat.com>
-	<20110714091800.720da848@mschwide>
-	<20110714175532.GE6672@redhat.com>
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20110718123140.GB31986@redhat.com>
+References: <20110711175626.121dcc58@mschwide>
+	 <20110713160239.GE4426@redhat.com> <20110713184611.6dcb09b4@mschwide>
+	 <20110713200004.GG4426@redhat.com> <20110714091800.720da848@mschwide>
+	 <20110714175532.GE6672@redhat.com> <20110714180528.GF6672@redhat.com>
+	 <1310739717.10789.31.camel@br98xy6r> <20110715143820.GG3428@redhat.com>
+	 <1310744603.10789.79.camel@br98xy6r>  <20110718123140.GB31986@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 18 Jul 2011 16:00:41 +0200
+Message-ID: <1310997641.4427.10.camel@br98xy6r>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Vivek Goyal <vgoyal@redhat.com>
-Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>, ebiederm@xmission.com, hbabu@us.ibm.com, mahesh@linux.vnet.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, ebiederm@xmission.com, hbabu@us.ibm.com, mahesh@linux.vnet.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 14 Jul 2011 13:55:32 -0400
-Vivek Goyal <vgoyal@redhat.com> wrote:
+Hello Vivek,
 
-> On Thu, Jul 14, 2011 at 09:18:00AM +0200, Martin Schwidefsky wrote:
-> > On Wed, 13 Jul 2011 16:00:04 -0400
-> > Vivek Goyal <vgoyal@redhat.com> wrote:
+On Mon, 2011-07-18 at 08:31 -0400, Vivek Goyal wrote:
+> On Fri, Jul 15, 2011 at 05:43:23PM +0200, Michael Holzheu wrote:
+> > > Or in first step we can keep it even simpler. We can spin in infinite
+> > > loop
 > > 
-> > > On Wed, Jul 13, 2011 at 06:46:11PM +0200, Martin Schwidefsky wrote:
+> > Looping is probably not a good option in a hypervisor environment like
+> > we have it on s390. At least we should load a disabled wait PSW.
+> 
+> What is "disabled wait PSW"?
+
+This is a PSW where interrupts are disabled and the wait bit is on. This
+ensures that the virtual CPU is stopped and does not consume any CPU
+time.
+ 
+> > > In your case I think you shall have to do little more so that second
+> > > kernel also seems some of the lower memory areas so that later swapping
+> > > of kernel can be done.
+> > 
+> > After the swap the ELF header is contained in the same memory than the
+> > kdump kernel. When the kdump kernel starts, the ELF header has to be
+> > saved from being overwritten (as kernel and ramdisk). I get the address
+> > from the "elfcorehdr=" kernel parameter. How will I get the size?
+> 
+> By parsing the ELF header. It will give you information about how many
+> program headers and notes are there, their sizes and locations etc.
+
+The only thing we need is the size of the preallocated header that is in
+kdump memory. All other architectures seem to pass this information
+somehow with different mechanisms to the kdump kernel (memmap kernel
+parameter, boot parameters, etc.). Why should *we* parse the ELF header?
+
+> When kexec-tools loads ELF headers, it knows what's the total size of
+> ELF headers and it removes that chunk of memory from the memory map
+> passed to second kernel with memmap= options. IOW, some memory out
+> of reserved region is not usable by second kernel because we have
+> stored information in that memory. Kdump kernel maps that memory and
+> gets to read the ELF headers.
+> 
+> So you shall have to do something similar where you need to tell second
+> kernel what memory areas it can use for boot and remove ELF header
+> memory area from the map.
+
+So if we do that, why should we parse the ELF header?
+
+> > Looking at the ia64 and x86 implementations I have the feeling there are
+> > different mechanism available to do that.
+> > 
 > > > 
-> > > [..]
-> > > > > What I am suggesting is that stand alone dumper gets control only if
-> > > > > kdump kernel is corrupted.
-> > > > > 
-> > > > > So following sequence.
-> > > > > 
-> > > > > Kernel Crash ---> purgatory --> either kdump kenrel/IPL stand alone tools
-> > > > > 
-> > > > > Here only drawback seems to be that we assume that purgatory code and
-> > > > > pre-calculated checksum has not been corrupted. The big advantage is
-> > > > > that s390 kdump support looks very similar to other arches and
-> > > > > understaning and supporting kdump across architectures becomes easy.
 > > > > 
-> > > > My problem with that is the following: how do we get from the "Kernel Crash"
-> > > > step to the purgatory code? It does work for "normal" panics, but it fails
-> > > > miserably for a hard crash that does not even get as far as panic. That is
-> > > > why we insist on a possible second order of things:
+> > > > On ia64 - if I understood the code correctly - they seem to pass a kdump
+> > > > segment "EFI_memmap" to the kdump kernel that contains information about
+> > > > all loaded kexec segments. With this segment they can find out the size
+> > > > of the ELF header segment in the kdump kernel and then do the memory
+> > > > reservation at boot time. Is that correct?
 > > > 
-> > > What is hard crash? How does that happen and what does x86 and s390
-> > > do in that case?
+> > > Sorry, I don't know the details of IA64. May be somebody else on the list
+> > > can pitch in with some clarifications here.
 > > 
-> > E.g. an endless loop with interrupts disabled. To get out of this situation
-> > we will IPL/boot a new system. That is either the production system itself
-> > or the stand-alone dump tool. 
+> > For me it looks like a mechanism where a block of information is
+> > prepared by kexec tools and a pointer to that block is passed somehow to
+> > the second kernel. I would assume that the definition of this block is
+> > ia64 kernel ABI. 
 > 
-> NMI hardware lockup detection will work in this situation and will lead
-> to kdump trigger.
-
-Ok, that reduces the problem to the code that is execution as a result of the
-nmi interrupt. Only if that code got corrupted it will fail. Should be pretty
-save.
- 
-> >  
-> > > Though I don't have details but your argument seems to be that in s390
-> > > we are always guranteed that we will jump to IPLing the stand alone
-> > > tools code irresepective of the system state hence it is relatively
-> > > safer to do checks in stand alone tools instead of purgatory where
-> > > code is in memory.
-> > 
-> > Now you got it. That is the crux of the argument.
-> > 
-> > > If due to hard hang, code can not even make to purgatory, where would
-> > > it go? Can't we do IPLing of stand alone tool then. 
-> > 
-> > It doesn't go anywhere. Basically the system is manually stopped and
-> > restarted. But on s390 we can still get to all the required information
-> > to generated a dump. That is one of the major differences to x86, if
-> > you have to do a restart the registers on x86 will be gone, no?
-> >  
-> > > So we first try to take purgatory path which does the checksum and is
-> > > consistent with other architectures. If that does not work in case
-> > > of hard hang, you always have the option of IPLing the stand alone tool
-> > > later manually.
-> > 
-> > How are we suddenly on the purgatory path again? The code that gets
-> > control in case of a hard crash + IPL is the stand-alone dump tool,
-> > not the purgatory code.
+> It is possible. Even in x86, we prepare a block of information, one
+> 4K page and fill lots of x86 boot protocol information.
 > 
-> I think that's the biggest contetion point. From the start of discussion
-> you have this hardcoded requirement that the moment panic() happens
-> you are jumping to some IPL code and that's what I am questioning. Why
-> can't you execute some more code after panic() (purgatory), before
-> you jump to IPL code (only if you have to). 
-
-No, if panic() happens and the code on the panic path is fine we do whatever
-is configured as a panic action. For the kdump panic action this can be a
-branch to the purgatory code.
-The hardcoded requirement we have is a different one: if the automatic panic
-action fails for some reason, then we still want to be able to get a dump,
-preferably a kdump if the kdump kernel is still fine.
-
-> > The first thing we want to do is to check if
-> > the purgatory is still fine, that is do a checksum. If we have the
-> > infrastructure in place to do one checksum then we can easily do the
-> > other checksums as well.
+> Look at.
 > 
-> Some piece of code you have to assume is fine. Are you not already
-> assuming that IPL code you have in first 64K bytes is fine and no
-> body has overwritten it. Are you not assuming that hook in panic()
-> (I think you are calling it shutdown trigger) is fine so that it
-> can help you jump to right place.
-
-There is no IPL code in the first 64K byte at the time the production system
-went bad. It is loaded by the IPL of the stand-alone dump tool. An IPL
-always loads the code from a "safe" place before it gets executed.
-
-> >  
-> > > This will also get rid of requirement passing all the segment and cheksum
-> > > info to stand alone tool with the help of meminfo (That's another sore
-> > > point). 
-> > 
-> > No, it doesn't. We will still need to do the checksum for the purgatory
-> > code and we already have the re-ipl information which won't go away.
+> kexec-tools/include/x86/x86-linux.h
+> kexec-tools/kexec/arch/i386/x86-linux-setup.c
 > 
-> It is a very small piece of code. The way you assume that your 8KB of
-> IPL code is fine, I think we shall have to have this assumption here
-> also.
-
-That 8KB of IPL code has been freshly loaded from disk, you can not really
-compare that to a setup where the purgatory code has been lying in memory
-for almost the complete lifetime of the production system.
-
-> >  
-> > > Bottom line, even if you can't make to purgatory reliably, you always
-> > > have the option of capturing dump manually using stand alone tools. We
-> > > don't have to mix up kdump and stand alone mechanism. If kdump fails, we
-> > > just need to have capability to still capture the dump using stand alone
-> > > tools manually. I think that will make things simpler even for stand alone
-> > > tools.
-> > 
-> > If we decide not to mix kdump and stand-alone dump then we loose something.
-> > Consider a hard crash where the kdump segments are still intact. What our
-> > customers do in that case is to start the stand-alone dump utility. Without
-> > a way to find and verify the kdump setup we would have to do a full dump.
-> > Which will take its time if the memory size is big. See?
+> Above header information contains information about e820 memory map also
+> and we fill that map info for normal kexec (fastboot, not kdump) also and
+> that's how second kernel comes to know about memory map of system.
 > 
-> This is a really-2 corner case where purgatory went bad. And even in
-> corner case you capture the dump just that it is not filtered.
+> I think one could possibly truncate the same map for kdump kernel to
+> tell second kernel about the memory to use. But IIRC, original memory
+> map is also used to determine max_pfn present in first kernel so that
+> in second kernel we don't try to map a memory beyond that and access
+> it, etc. Hence it was decided to leave it that way and pass the memory
+> map for second kernel on command line. 
+> 
+> So its possible that IA64 is doing preparing boot protocal specific
+> block and passing all the releavant information in that block instead
+> of making use of commnad line.
 
-I beg to differ here. It is not only a problem if the purgatory code went
-bad. It is a simple rule we follow on s390: if the system is unresponsive
-IPL the stand-alone dumper. The new thing we are discussing here is that
-we really want to have the benefits of the kdump mechanism in this case
-as well, no only in the case of an automatic dump via panic().
- 
-> I really don't understand that to address the corner case why would
-> you complicate the general kexec infrastructure and introduce new
-> interfaces like meminfo.
+Just to come back to your initial argumentation against our meminfo
+approach: It looks like that there are already other mechanisms besides
+of ELF-header and kernel parameters to pass information to the kdump
+kernel. Where is the conceptional difference to our meminfo interface?
 
-Is it really such a complication to the general kexec infrastructure?
-All we want is to know where the segments for the kdump kernel are to
-be able to verify them and the entry point for the kdump kernel.
-It is not like we are proposing the meminfo interface for all kdump
-users. That is just for s390.
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Michael
