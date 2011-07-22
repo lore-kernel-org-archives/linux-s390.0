@@ -1,55 +1,68 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 1/1] [PATCH] include storage keys in
-	hibernation image.
-Date: Fri, 8 Jul 2011 10:29:11 +0200
-Message-ID: <20110708102911.3c4d83b6__23843.9713408754$1310113827$gmane$org@mschwide>
-References: <20110608074523.211912903@de.ibm.com>
-	<201106142250.15041.rjw@sisk.pl> <20110615093629.07f01779@mschwide>
-	<201107072336.26151.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-bounces@lists.linux-foundation.org>
-In-Reply-To: <201107072336.26151.rjw@sisk.pl>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
-List-Post: <mailto:linux-pm@lists.linux-foundation.org>
-List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
-Sender: linux-pm-bounces@lists.linux-foundation.org
-Errors-To: linux-pm-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/linux-pm/>
-List-Post: <mailto:linux-pm@vger.kernel.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@lists.linux-foundation.org, Jiri Slaby <jslaby@suse.cz>
+Return-Path: <linux-nfs-owner@vger.kernel.org>
+In-Reply-To: <1311368872.4027.76.camel@dagon.hellion.org.uk>
+References: <1311340095.12772.57.camel@zakaz.uk.xensource.com>
+ <1311340653-19336-10-git-send-email-ian.campbell@citrix.com>
+ <CAHXqBFLQFKqK=ORpDQx6s2ud8mWkx=YC_AT60GVS+4XK0H61pw@mail.gmail.com> <1311368872.4027.76.camel@dagon.hellion.org.uk>
+From: =?ISO-8859-2?Q?Micha=B3_Miros=B3aw?= <mirqus@gmail.com>
+Date: Fri, 22 Jul 2011 23:44:05 +0200
+Message-ID: <CAHXqBF+TJrBvEo+fd4tfXxDucEx5QaCgfBWPQ2B5UPjYQUAUgg@mail.gmail.com>
+Subject: Re: [PATCH 10/13] net: add paged frag destructor to skb_fill_page_desc()
+Content-Type: text/plain; charset="iso-8859-2"
+Sender: linux-nfs-owner@vger.kernel.org
+MIME-Version: 1.0
+List-Archive: <https://lore.kernel.org/linux-nfs/>
+List-Post: <mailto:linux-nfs@vger.kernel.org>
+To: Ian Campbell <Ian.Campbell@eu.citrix.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, "James E.J. Bottomley" <JBottomley@parallels.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, "Pekka Savola (ipv6)" <pekkas@netcore.fi>, James Morris <jmorris@namei.org>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Patrick McHardy <kaber@trash.net>, "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "devel@open-fcoe.org" <devel@open-fcoe.org>
 List-ID: <linux-s390.vger.kernel.org>
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 7 Jul 2011 23:36:25 +0200
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+W dniu 22 lipca 2011 23:07 u=BFytkownik Ian Campbell
+<Ian.Campbell@eu.citrix.com> napisa=B3:
+> On Fri, 2011-07-22 at 20:58 +0100, Micha=B3 Miros=B3aw wrote:
+>> 2011/7/22 Ian Campbell <ian.campbell@citrix.com>:
+>> > diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+>> > index 9818fe2..faee8d3 100644
+>> > --- a/include/linux/skbuff.h
+>> > +++ b/include/linux/skbuff.h
+>> > @@ -1134,12 +1134,14 @@ static inline int skb_pagelen(const struct sk_=
+buff *skb)
+>> > =A0* Does not take any additional reference on the fragment.
+>> > =A0*/
+>> > =A0static inline void __skb_fill_page_desc(struct sk_buff *skb, int i,
+>> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 struct page *page, int off, int size)
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 struct page *page,
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 struct skb_frag_destructor *destroy,
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 int off, int size)
+>> > =A0{
+>> > =A0 =A0 =A0 =A0skb_frag_t *frag =3D &skb_shinfo(skb)->frags[i];
+>> >
+>> > =A0 =A0 =A0 =A0frag->page.p =A0 =A0 =A0 =A0 =A0 =A0 =A0=3D page;
+>> > - =A0 =A0 =A0 frag->page.destructor =A0 =A0 =3D NULL;
+>> > + =A0 =A0 =A0 frag->page.destructor =A0 =A0 =3D destroy;
+>> > =A0 =A0 =A0 =A0frag->page_offset =A0 =A0 =A0 =A0 =3D off;
+>> > =A0 =A0 =A0 =A0frag->size =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=3D size;
+>> > =A0}
+>>
+>> You could just rename this function to e.g.
+>> __skb_fill_fragile_page_desc() (or whatever name) add an inline
+>> wrapper calling it with destroy =3D=3D NULL. This will avoid touching all
+>> those drivers which won't ever need this functionality.
+>
+> I could call this variant __skb_frag_init (which I think better fits
+> into the pattern of the new functions) and leave the existing
+> __skb_fill_page_desc as a compat wrapper if that's preferred but I was
+> trying to avoid duplicating up constructors just for different sets of
+> defaults.
 
-> On Wednesday, June 15, 2011, Martin Schwidefsky wrote:
-> > On Tue, 14 Jun 2011 22:50:14 +0200
-> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> ...
-> > 
-> > Well before the preallocation kicked in we don't know which are the relevant
-> > storage keys. The only other option would be to store all of them which I
-> > consider to be a inferior solution. 
-> 
-> I've been thinking about that recently a bit.
-> 
-> Don't we need to restore the keys of the page frames that aren't copied
-> into the image too?
+It's just Huffman coding: since most users need destroy =3D NULL, it's
+good to have a wrapper for this case as it will then take less time to
+write and understand the code (you won't need to think what is this
+NULL for in all those places).
 
-Pages that are free (= not part of the image) will get a zero storage key
-once they are allocated again. So no, we do not need to include these
-keys into the hibernation image.
-
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Best Regards,
+Micha=B3 Miros=B3aw
