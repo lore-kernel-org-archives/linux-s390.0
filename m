@@ -1,65 +1,80 @@
-Message-ID: <4DE81786.60702@redhat.com>
-Date: Thu, 02 Jun 2011 19:06:46 -0400
-From: Eric Paris <eparis@redhat.com>
-MIME-Version: 1.0
-Subject: Re: [PATCH] Audit: push audit success and retcode into arch ptrace.h
-References: <20110602210458.23613.24076.stgit@paris.rdu.redhat.com> <201106030032.17398.richard@nod.at>
-In-Reply-To: <201106030032.17398.richard@nod.at>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-Return-Path: <linux-mips-bounce@linux-mips.org>
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-To: Richard Weinberger <richard@nod.at>
-Cc: linux-kernel@vger.kernel.org, tony.luck@intel.com, fenghua.yu@intel.com, monstr@monstr.eu, ralf@linux-mips.org, benh@kernel.crashing.org, paulus@samba.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, lethal@linux-sh.org, davem@davemloft.net, jdike@addtoit.com, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org, viro@zeniv.linux.org.uk, oleg@redhat.com, akpm@linux-foundation.org, linux-ia64@vger.kernel.org, microblaze-uclinux@itee.uq.edu.au, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [patch 0/9] kdump: Patch series for s390 support
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20110725160244.GB11009@redhat.com>
+References: <20110718123140.GB31986@redhat.com>
+	 <1310997641.4427.10.camel@br98xy6r> <20110718141943.GE31986@redhat.com>
+	 <1311000253.4427.23.camel@br98xy6r> <20110718152532.GF31986@redhat.com>
+	 <1311012188.4427.58.camel@br98xy6r> <20110720192509.GD10079@redhat.com>
+	 <1311260298.6160.43.camel@br98xy6r> <20110721212257.GI12373@redhat.com>
+	 <1311327191.5772.51.camel@br98xy6r>  <20110725160244.GB11009@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 26 Jul 2011 11:44:01 +0200
+Message-ID: <1311673441.4146.10.camel@br98xy6r>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Vivek Goyal <vgoyal@redhat.com>
+Cc: oomichi@mxs.nes.nec.co.jp, linux-s390@vger.kernel.org, mahesh@linux.vnet.ibm.com, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, hbabu@us.ibm.com, horms@verge.net.au, ebiederm@xmission.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, kexec@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/02/2011 06:32 PM, Richard Weinberger wrote:
-> Am Donnerstag 02 Juni 2011, 23:04:58 schrieb Eric Paris:
->> b/arch/um/sys-i386/shared/sysdep/ptrace.h index d50e62e..ef5c310 100644
->> --- a/arch/um/sys-i386/shared/sysdep/ptrace.h
->> +++ b/arch/um/sys-i386/shared/sysdep/ptrace.h
->> @@ -162,6 +162,7 @@ struct syscall_args {
->>  #define UPT_ORIG_SYSCALL(r) UPT_EAX(r)
->>  #define UPT_SYSCALL_NR(r) UPT_ORIG_EAX(r)
->>  #define UPT_SYSCALL_RET(r) UPT_EAX(r)
->> +#define regs_return_value UPT_SYSCALL_RET
-> 
-> This does not work at all.
-> UPT_SYSCALL_RET expects something of type struct uml_pt_regs.
-> 
-> #define regs_return_value REGS_EAX
-> Would be correct. (For x86_64 it needs to be REGS_RAX)
-> 
-> But there seems to be another problem.
-> Why is pt_regs of type void *?
+On Mon, 2011-07-25 at 12:02 -0400, Vivek Goyal wrote:
+> On Fri, Jul 22, 2011 at 11:33:11AM +0200, Michael Holzheu wrote:
 
-I was stupid and used #define's instead of static inlines.  Sorry.  I
-wonder how many other arches I got that wrong, i'm sure others....
+[snip]
 
-The code in arch/um/kernel/ptrace.c::syscall_trace() appeared to have a
-uml_pt_regs instead of just pt_regs.  Which was why audit_syscall_exit()
-takes a void * instead of a pt_regs.  We pass that right back to
-regs_return_value().  I believe the correct code should be:
-
-static inline long regs_return_value(struct uml_pt_regs *r)
-{
-	return UPT_SYSCALL_RET(r);
-}
-
-
+> > crash_kexec can be entered by e.g.:
+> > * panic -> kdump shutdown action -> crash_kexec
+> > * panic -> s390 dump shutdown action -> auto IPL dump tool -> s390_kdump_entry -> crash_kexec
 > 
-> gcc complains:
-> In file included from include/linux/fsnotify.h:15:0,
->                  from include/linux/security.h:26,
->                  from init/main.c:32:
-> include/linux/audit.h: In function ‘audit_syscall_exit’:
-> include/linux/audit.h:440:17: warning: dereferencing ‘void *’ pointer
-> include/linux/audit.h:440:3: error: invalid use of void expression
-> include/linux/audit.h:441:21: warning: dereferencing ‘void *’ pointer
-> include/linux/audit.h:441:21: error: void value not ignored as it ought to be
+> So after panic() You will still jump to dump tools?
+
+This is our current mechanism to create an automatic dump in case of
+panic. I do not see a reason to change that now.
+
+>  The only thing you
+> need to do there is installing program check handler and could have been
+> easily done in kernel too.
 > 
-> Thanks,
-> //richard
+> > * hard hang -> manual IPL dump tool -> s390_kdump_entry -> crash_kexec
+> 
+> This one makes sense as kernel is hard hung and dump tools need to
+> force crash_kexec() now. It is more like x86 NMI handler.
+> 
+> > 
+> > Handling for corrupted kdump:
+> > 
+> > New idea for returning to dump tools in case of program check:
+> > We could force a program check for s390, if purgatory checksum
+> > fails. Then we would automatically return to stand-alone dump
+> > tools.
+> > 
+> > The flow would look like the following in this case:
+> > 
+> > IPL dump tool -> s390_kdump_entry -> crash_kexec +--> purgatory -+->[checksum ok]---> kdump
+> >       ^                                          |               |
+> >       |                                          |        [checksum fail]
+> >       |                                          |               |
+> >       |                                          |     [forced program check]
+> >       +------[program check]---------------------+               |
+> >       |                                                          |
+> >       +----------------------------------------------------------+
+> > 
+> > Then of course also the kernel code would have to install a special
+> > program check handler before calling purgatory.
+> 
+> If kernel code is going to install the program check handler before
+> calling purgatory, then we don't need to jump to dump tools at all
+> after panic()?
+
+Independent from hard wait or panic, if dump tools have control, we want
+to jump back to the dump tools code in order to be able to create
+full-blown dump as backup method.
+
+I think we now have a design, where almost no change of your kdump
+framework is needed. I will resend the updated patch series.
+
+Michael
