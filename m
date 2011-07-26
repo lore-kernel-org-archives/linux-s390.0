@@ -1,14 +1,14 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Tejun Heo <tj@kernel.org>
 Subject: [PATCH 20/23] s390: Use HAVE_MEMBLOCK_NODE_MAP
 Date: Tue, 26 Jul 2011 17:35:31 +0200
-Message-Id: <1311694534-5161-21-git-send-email-tj@kernel.org>
-In-Reply-To: <1311694534-5161-1-git-send-email-tj@kernel.org>
+Message-ID: <1311694534-5161-21-git-send-email-tj__14111.7077241235$1311694714$gmane$org@kernel.org>
 References: <1311694534-5161-1-git-send-email-tj@kernel.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <1311694534-5161-1-git-send-email-tj@kernel.org>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: benh@kernel.crashing.org, yinghai@kernel.org, hpa@zytor.com, tony.luck@intel.com, ralf@linux-mips.org, schwidefsky@de.ibm.com, liqin.chen@sunplusct.com, lethal@linux-sh.org, davem@davemloft.net, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+To: benh@kernel.crashing.org, yinghai@kernel.org, hpa@zytor.com, tony.luck@intel.com, ralf@linux-mips.org, schwidefsky@de.ibm.com, liqin.chen@sunplusct.com, lethal@linux-sh.org, davem@dave
 Cc: mingo@redhat.com, Tejun Heo <tj@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
