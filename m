@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Yong Zhang <yong.zhang0@gmail.com>
-Subject: [PATCH 2/2] [S390] irq: fix show_interrupts() vs cpu hotplug
-Date: Wed, 27 Jul 2011 12:56:23 +0800
-Message-Id: <1311742583-18633-2-git-send-email-yong.zhang0@gmail.com>
+Message-ID: <4E2FA002.2020302@jp.fujitsu.com>
+Date: Wed, 27 Jul 2011 14:20:02 +0900
+From: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+MIME-Version: 1.0
+Subject: Re: [PATCH 1/2] proc/insterrupts: make it cpu hotplug safe
+References: <20110726163424.GC2576@osiris.boeblingen.de.ibm.com> <1311742583-18633-1-git-send-email-yong.zhang0@gmail.com>
 In-Reply-To: <1311742583-18633-1-git-send-email-yong.zhang0@gmail.com>
-References: <20110726163424.GC2576@osiris.boeblingen.de.ibm.com>
- <1311742583-18633-1-git-send-email-yong.zhang0@gmail.com>
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: yong.zhang0@gmail.com
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, kobayashi.kk@ncos.nec.co.jp, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-The current usage of get_online_cpus()/put_online_cpus()
-in show_interrupts() is not correct since show_interrupts()
-will be called nr_irqs times, during that period, cpu hotplug
-could also happen.
-Since have moved the protection to upper(patch#1), the pair of
-get_online_cpus()/put_online_cpus() could be removed here.
+(2011/07/27 13:56), Yong Zhang wrote:
+> KOSAKI Motonhiro noticed that the reader of /proc/interrupts
+> could be preempted by cpu hotplug, thus the reader can get
+> broken result due to show_interrupts() iterate every online
+> cpu without any protection.
+> 
+> Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Keika Kobayashi <kobayashi.kk@ncos.nec.co.jp>
+> Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- arch/s390/kernel/irq.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+Looks good. but I have a question. On last thread, kobayashi-san
+suggested to use for_each_possible_cpu() and you wrote "+1".
 
-diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
-index e3264f6..57c036d 100644
---- a/arch/s390/kernel/irq.c
-+++ b/arch/s390/kernel/irq.c
-@@ -63,7 +63,6 @@ int show_interrupts(struct seq_file *p, void *v)
- {
- 	int i = *(loff_t *) v, j;
- 
--	get_online_cpus();
- 	if (i == 0) {
- 		seq_puts(p, "           ");
- 		for_each_online_cpu(j)
-@@ -83,7 +82,6 @@ int show_interrupts(struct seq_file *p, void *v)
- 			seq_printf(p, "  %s", intrclass_names[i].desc);
-                 seq_putc(p, '\n');
-         }
--	put_online_cpus();
-         return 0;
- }
- 
--- 
-1.7.4.1
+>> At that time, I suggested to change
+>> from for_each_online_cpu() to for_each_possible_cpu(),
+>> in /proc/interrupts.
+>+1
+>Thus we could also avoid the issue pointed by KOSAKI Motonhiro.
+
+Why do you decide to use another way?
