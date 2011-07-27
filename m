@@ -1,10 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20110727125807.853426542@linux.vnet.ibm.com>
-Date: Wed, 27 Jul 2011 14:55:07 +0200
+Message-Id: <20110727125504.491183728@linux.vnet.ibm.com>
+Date: Wed, 27 Jul 2011 14:55:04 +0200
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: [patch v2 03/10] kdump: Add size to elfcorehdr kernel parameter
-References: <20110727125504.491183728@linux.vnet.ibm.com>
-Content-Disposition: inline; filename=s390-kdump-common-elfcorehdr-parm.patch
+Subject: [patch v2 00/10] kdump: Patch series for s390 support (version 2)
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -12,76 +10,27 @@ To: vgoyal@redhat.com
 Cc: ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, hbabu@us.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Hello Vivek,
 
-Currently only the address of the pre-allocated ELF header is passed with
-the elfcorehdr= kernel parameter. In order to reserve memory for the header
-in the 2nd kernel also the size is required. To pass the size with this
-patch the syntax of the kernel parameter is extended as follows:
+To make progress and for getting at least the "standard" kdump port upstream
+soon, I send you now the updated patch series that contain the s390 kdump port
+without stand-alone dump support. The support for stand-alone dump tools
+can be added later.
 
-elfcorehdr=[size[KMG]@]offset[KMG]
+Main changes compared to version 1:
+1. We use purgatory code
+2. We use pre-allocated ELF core header
+3. Registers are saved in old kernel
+4. Removed meminfo
 
-This change is backward compatible because elfcorehdr=size is still allowed.
+The following patches are most interesting for you:
+[1-4] Common code changes
+[9]   S390 kdump kernel backend
+[10]  S390 kdump kexec-tools backend
 
-Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
----
- Documentation/kernel-parameters.txt |    6 +++---
- include/linux/crash_dump.h          |    1 +
- kernel/crash_dump.c                 |   11 +++++++++++
- 3 files changed, 15 insertions(+), 3 deletions(-)
+Patches 5-8 are s390 specific preparation patches for the kdump port.
 
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -717,10 +717,10 @@ bytes respectively. Such letter suffixes
- 			See Documentation/block/as-iosched.txt and
- 			Documentation/block/deadline-iosched.txt for details.
- 
--	elfcorehdr=	[IA64,PPC,SH,X86]
-+	elfcorehdr=[size[KMG]@]offset[KMG] [IA64,PPC,SH,X86,S390]
- 			Specifies physical address of start of kernel core
--			image elf header. Generally kexec loader will
--			pass this option to capture kernel.
-+			image elf header and optionally the size. Generally
-+			kexec loader will pass this option to capture kernel.
- 			See Documentation/kdump/kdump.txt for details.
- 
- 	enable_mtrr_cleanup [X86]
---- a/include/linux/crash_dump.h
-+++ b/include/linux/crash_dump.h
-@@ -10,6 +10,7 @@
- #define ELFCORE_ADDR_ERR	(-2ULL)
- 
- extern unsigned long long elfcorehdr_addr;
-+extern unsigned long long elfcorehdr_size;
- 
- extern ssize_t copy_oldmem_page(unsigned long, char *, size_t,
- 						unsigned long, int);
---- a/kernel/crash_dump.c
-+++ b/kernel/crash_dump.c
-@@ -20,8 +20,15 @@ unsigned long saved_max_pfn;
- unsigned long long elfcorehdr_addr = ELFCORE_ADDR_MAX;
- 
- /*
-+ * stores the size of elf header of crash image
-+ */
-+unsigned long long elfcorehdr_size;
-+
-+/*
-  * elfcorehdr= specifies the location of elf core header stored by the crashed
-  * kernel. This option will be passed by kexec loader to the capture kernel.
-+ *
-+ * Syntax: elfcorehdr=[size[KMG]@]offset[KMG]
-  */
- static int __init setup_elfcorehdr(char *arg)
- {
-@@ -29,6 +36,10 @@ static int __init setup_elfcorehdr(char
- 	if (!arg)
- 		return -EINVAL;
- 	elfcorehdr_addr = memparse(arg, &end);
-+	if (*end == '@') {
-+		elfcorehdr_size = elfcorehdr_addr;
-+		elfcorehdr_addr = memparse(end + 1, &end);
-+	}
- 	return end > arg ? 0 : -EINVAL;
- }
- early_param("elfcorehdr", setup_elfcorehdr);
+I hope we will make progress.
+Thanks!
+
+Michael
