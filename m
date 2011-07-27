@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <4E2FA002.2020302@jp.fujitsu.com>
-Date: Wed, 27 Jul 2011 14:20:02 +0900
-From: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
 MIME-Version: 1.0
+In-Reply-To: <4E2FA002.2020302@jp.fujitsu.com>
+References: <20110726163424.GC2576@osiris.boeblingen.de.ibm.com>
+	<1311742583-18633-1-git-send-email-yong.zhang0@gmail.com>
+	<4E2FA002.2020302@jp.fujitsu.com>
+Date: Wed, 27 Jul 2011 13:47:15 +0800
+Message-ID: <CAM2zO=AiGqbyna8NeC8PZxGBJzHokLKyixE6wv6nac3-OjzcWQ@mail.gmail.com>
 Subject: Re: [PATCH 1/2] proc/insterrupts: make it cpu hotplug safe
-References: <20110726163424.GC2576@osiris.boeblingen.de.ibm.com> <1311742583-18633-1-git-send-email-yong.zhang0@gmail.com>
-In-Reply-To: <1311742583-18633-1-git-send-email-yong.zhang0@gmail.com>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+From: Yong Zhang <yong.zhang0@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: yong.zhang0@gmail.com
+To: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, kobayashi.kk@ncos.nec.co.jp, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-(2011/07/27 13:56), Yong Zhang wrote:
-> KOSAKI Motonhiro noticed that the reader of /proc/interrupts
-> could be preempted by cpu hotplug, thus the reader can get
-> broken result due to show_interrupts() iterate every online
-> cpu without any protection.
-> 
-> Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Keika Kobayashi <kobayashi.kk@ncos.nec.co.jp>
-> Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+2011/7/27 KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>:
+> (2011/07/27 13:56), Yong Zhang wrote:
+>> KOSAKI Motonhiro noticed that the reader of /proc/interrupts
+>> could be preempted by cpu hotplug, thus the reader can get
+>> broken result due to show_interrupts() iterate every online
+>> cpu without any protection.
+>>
+>> Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>> Cc: Keika Kobayashi <kobayashi.kk@ncos.nec.co.jp>
+>> Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+>> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+>
+> Looks good. but I have a question. On last thread, kobayashi-san
+> suggested to use for_each_possible_cpu() and you wrote "+1".
 
-Looks good. but I have a question. On last thread, kobayashi-san
-suggested to use for_each_possible_cpu() and you wrote "+1".
+Yeah, for_each_possible_cpu() will make code more cleaner.
+so I give it my support.
 
->> At that time, I suggested to change
->> from for_each_online_cpu() to for_each_possible_cpu(),
->> in /proc/interrupts.
->+1
->Thus we could also avoid the issue pointed by KOSAKI Motonhiro.
+>
+>>> At that time, I suggested to change
+>>> from for_each_online_cpu() to for_each_possible_cpu(),
+>>> in /proc/interrupts.
+>>+1
+>>Thus we could also avoid the issue pointed by KOSAKI Motonhiro.
+>
+> Why do you decide to use another way?
 
-Why do you decide to use another way?
+But, as kobayashi-san has also said:
+In conclusion, we decided to remain /proc/interrupts.
+because it had been the way for a long time.
+
+So I don't want to raise an argument again :)
+
+Thanks,
+Yong
+
+
+-- 
+Only stand for myself
