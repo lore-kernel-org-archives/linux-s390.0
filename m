@@ -1,47 +1,217 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 8 Jul 2011 10:29:11 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 Subject: Re: [patch 1/1] [PATCH] include storage keys in hibernation image.
-Message-ID: <20110708102911.3c4d83b6@mschwide>
-In-Reply-To: <201107072336.26151.rjw@sisk.pl>
-References: <20110608074523.211912903@de.ibm.com>
-	<201106142250.15041.rjw@sisk.pl>
-	<20110615093629.07f01779@mschwide>
-	<201107072336.26151.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Fri, 29 Jul 2011 00:01:14 +0200
+References: <20110608074523.211912903@de.ibm.com> <20110608074648.287491002@de.ibm.com>
+In-Reply-To: <20110608074648.287491002@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Message-Id: <201107290001.14465.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-pm@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Pavel Machek <pavel@ucw.cz>, Jiri Slaby <jslaby@suse.cz>, Len Brown <lenb@kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-pm@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Pavel Machek <pavel@ucw.cz>, Jiri Slaby <jslaby@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 7 Jul 2011 23:36:25 +0200
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+Hi,
 
-> On Wednesday, June 15, 2011, Martin Schwidefsky wrote:
-> > On Tue, 14 Jun 2011 22:50:14 +0200
-> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> ...
-> > 
-> > Well before the preallocation kicked in we don't know which are the relevant
-> > storage keys. The only other option would be to store all of them which I
-> > consider to be a inferior solution. 
+Sorry for the extreme delay.
+
+On Wednesday, June 08, 2011, Martin Schwidefsky wrote:
+> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 > 
-> I've been thinking about that recently a bit.
+> For s390 there is one additional byte associated with each page,
+> the storage key. This byte contains the referenced and changed
+> bits and needs to be included into the hibernation image.
+> If the storage keys are not restored to their previous state all
+> original pages would appear to be dirty. This can cause
+> inconsistencies e.g. with read-only filesystems.
 > 
-> Don't we need to restore the keys of the page frames that aren't copied
-> into the image too?
+> Cc: Pavel Machek <pavel@ucw.cz>
+> Cc: Rafael J. Wysocki <rjw@sisk.pl>
+> Cc: Jiri Slaby <jslaby@suse.cz>
+> Cc: linux-pm@lists.linux-foundation.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> ---
+> 
+>  arch/s390/kernel/swsusp_asm64.S |    3 
+>  kernel/power/snapshot.c         |  148 ++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 151 insertions(+)
+> 
+> diff -urpN linux-2.6/arch/s390/kernel/swsusp_asm64.S linux-2.6-patched/arch/s390/kernel/swsusp_asm64.S
+> --- linux-2.6/arch/s390/kernel/swsusp_asm64.S	2011-05-19 06:06:34.000000000 +0200
+> +++ linux-2.6-patched/arch/s390/kernel/swsusp_asm64.S	2011-06-06 11:14:43.000000000 +0200
+> @@ -138,11 +138,14 @@ swsusp_arch_resume:
+>  0:
+>  	lg	%r2,8(%r1)
+>  	lg	%r4,0(%r1)
+> +	iske	%r0,%r4
+>  	lghi	%r3,PAGE_SIZE
+>  	lghi	%r5,PAGE_SIZE
+>  1:
+>  	mvcle	%r2,%r4,0
+>  	jo	1b
+> +	lg	%r2,8(%r1)
+> +	sske	%r0,%r2
+>  	lg	%r1,16(%r1)
+>  	ltgr	%r1,%r1
+>  	jnz	0b
+> diff -urpN linux-2.6/kernel/power/snapshot.c linux-2.6-patched/kernel/power/snapshot.c
+> --- linux-2.6/kernel/power/snapshot.c	2011-06-06 11:14:39.000000000 +0200
+> +++ linux-2.6-patched/kernel/power/snapshot.c	2011-06-06 11:14:43.000000000 +0200
+> @@ -1022,6 +1022,137 @@ static inline void copy_data_page(unsign
+>  }
+>  #endif /* CONFIG_HIGHMEM */
+>  
+> +#ifdef CONFIG_S390
+> +/*
+> + * For s390 there is one additional byte associated with each page,
+> + * the storage key. The key consists of the access-control bits
+> + * (alias the key), the fetch-protection bit, the referenced bit
+> + * and the change bit (alias dirty bit). Linux uses only the
+> + * referenced bit and the change bit for pages in the page cache.
+> + * Any modification of a page will set the change bit, any access
+> + * sets the referenced bit. Overindication of the referenced bits
+> + * after a hibernation cycle does not cause any harm but the
+> + * overindication of the change bits would cause trouble.
+> + * Therefore it is necessary to include the storage keys in the
+> + * hibernation image. The storage keys are saved to the most
+> + * significant byte of each page frame number in the list of pfns
+> + * in the hibernation image.
+> + */
+> +
+> +/*
+> + * Key storage is allocated as a linked list of pages.
+> + * The size of the keys array is (PAGE_SIZE - sizeof(long))
+> + */
+> +struct page_key_data {
+> +	struct page_key_data *next;
+> +	unsigned char data[];
+> +};
+> +
+> +#define PAGE_KEY_DATA_SIZE	(PAGE_SIZE - sizeof(struct page_key_data *))
+> +
+> +static struct page_key_data *page_key_data;
+> +static struct page_key_data *page_key_rp, *page_key_wp;
+> +static unsigned long page_key_rx, page_key_wx;
+> +
+> +/*
+> + * For each page in the hibernation image one additional byte is
+> + * stored in the most significant byte of the page frame number.
+> + * On suspend no additional memory is required but on resume the
+> + * keys need to be memorized until the page data has been restored.
+> + * Only then can the storage keys be set to their old state.
+> + */
+> +static inline unsigned long page_key_additional_pages(unsigned long pages)
+> +{
+> +	return DIV_ROUND_UP(pages, PAGE_KEY_DATA_SIZE);
+> +}
+> +
+> +/*
+> + * Free page_key_data list of arrays.
+> + */
+> +static void page_key_free(void)
+> +{
+> +	struct page_key_data *pkd;
+> +
+> +	while (page_key_data) {
+> +		pkd = page_key_data;
+> +		page_key_data = pkd->next;
+> +		free_page((unsigned long) pkd);
+> +	}
+> +}
+> +
+> +/*
+> + * Allocate page_key_data list of arrays with enough room to store
+> + * one byte for each page in the hibernation image.
+> + */
+> +static int page_key_alloc(unsigned long pages)
+> +{
+> +	struct page_key_data *pk;
+> +	unsigned long size;
+> +
+> +	size = DIV_ROUND_UP(pages, PAGE_KEY_DATA_SIZE);
+> +	while (size--) {
+> +		pk = (struct page_key_data *) get_zeroed_page(GFP_KERNEL);
+> +		if (!pk) {
+> +			page_key_free();
+> +			return -ENOMEM;
+> +		}
+> +		pk->next = page_key_data;
+> +		page_key_data = pk;
+> +	}
+> +	page_key_rp = page_key_wp = page_key_data;
+> +	page_key_rx = page_key_wx = 0;
+> +	return 0;
+> +}
+> +
+> +/*
+> + * Save the storage key into the upper 8 bits of the page frame number.
+> + */
+> +static inline void page_key_read(unsigned long *pfn)
+> +{
+> +	unsigned long addr;
+> +
+> +	addr = (unsigned long) page_address(pfn_to_page(*pfn));
+> +	*(unsigned char *) pfn = (unsigned char) page_get_storage_key(addr);
+> +}
+> +
+> +/*
+> + * Extract the storage key from the upper 8 bits of the page frame number
+> + * and store it in the page_key_data list of arrays.
+> + */
+> +static inline void page_key_memorize(unsigned long *pfn)
+> +{
+> +	page_key_wp->data[page_key_wx] = *(unsigned char *) pfn;
+> +	*(unsigned char *) pfn = 0;
+> +	if (++page_key_wx < PAGE_KEY_DATA_SIZE)
+> +		return;
+> +	page_key_wp = page_key_wp->next;
+> +	page_key_wx = 0;
+> +}
+> +
+> +/*
+> + * Get the next key from the page_key_data list of arrays and set the
+> + * storage key of the page referred by @address. If @address refers to
+> + * a "safe" page the swsusp_arch_resume code will transfer the storage
+> + * key from the buffer page to the original page.
+> + */
+> +static void page_key_write(void *address)
+> +{
+> +	page_set_storage_key((unsigned long) address,
+> +			     page_key_rp->data[page_key_rx], 0);
+> +	if (++page_key_rx >= PAGE_KEY_DATA_SIZE)
+> +		return;
+> +	page_key_rp = page_key_rp->next;
+> +	page_key_rx = 0;
+> +}
+> +#else
+> +static unsigned long page_key_additional_pages(unsigned long pages) { return 0; }
+> +static inline int  page_key_alloc(unsigned long pages) { return 0; }
+> +static inline void page_key_free(void) { }
+> +static inline void page_key_read(unsigned long *pfn) { }
+> +static inline void page_key_memorize(unsigned long *pfn) { }
+> +static inline void page_key_write(void *address) { }
+> +#endif
 
-Pages that are free (= not part of the image) will get a zero storage key
-once they are allocated again. So no, we do not need to include these
-keys into the hibernation image.
+Having reconsidered things I think the code under the #ifdef above
+should really go to arch/s390.
 
+Now, for the purpose of exporting the headers I'd introduce
+CONFIG_ARCH_SAVE_PAGE_KEYS and make S390 do
 
--- 
-blue skies,
-   Martin.
+select ARCH_SAVE_PAGE_KEYS if HIBERNATION
 
-"Reality continues to ruin my life." - Calvin.
+and I'd put a #ifdef depending on that into include/linux/suspend.h.
+
+Apart from this, I have only one complaint, which is that the kerneldoc
+comments should follow the standard (the other comments in snapshot.c don't,
+but that's a matter for a separate patch).
+
+Thanks,
+Rafael
