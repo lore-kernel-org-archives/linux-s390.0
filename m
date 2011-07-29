@@ -1,10 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20110727125807.695225427@linux.vnet.ibm.com>
-Date: Wed, 27 Jul 2011 14:55:06 +0200
+Message-Id: <20110729124000.481435260@linux.vnet.ibm.com>
+Date: Fri, 29 Jul 2011 14:39:45 +0200
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: [patch v2 02/10] kdump: Make kimage_load_crash_segment() weak
-References: <20110727125504.491183728@linux.vnet.ibm.com>
-Content-Disposition: inline; filename=s390-kdump-common-load_crash_segment.patch
+Subject: [patch 1/3] kdump: Add new machine_kexec_finish() architecture callback
+References: <20110729123944.562622201@linux.vnet.ibm.com>
+Content-Disposition: inline; filename=s390-kdump-common-kexec_finish.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -14,41 +14,46 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 
-On s390 we do not create page tables at all for the crashkernel memory.
-This requires a s390 specific version for kimage_load_crash_segment().
-Therefore this patch declares this function as "__weak". The s390 version is
-very simple. It just copies the kexec segment to real memory without using
-page tables:
-
-int kimage_load_crash_segment(struct kimage *image,
-                              struct kexec_segment *segment)
-{
-        return copy_from_user_real((void *) segment->mem, segment->buf,
-                                   segment->bufsz);
-}
-
-There are two main advantages of not creating page tables for the
-crashkernel memory:
-
-a) It saves memory. We have scenarios in mind, where crashkernel
-   memory can be very large and saving page table space is important.
-b) We protect the crashkernel memory from being overwritten.
+In order to be able to set the "kdump active" flag on s390, this patch adds
+the new kexec architecture callback "machine_kexec_finish()".
 
 Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 ---
- kernel/kexec.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/kexec.h |    1 +
+ kernel/kexec.c        |    8 ++++++++
+ 2 files changed, 9 insertions(+)
 
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -115,6 +115,7 @@ struct kimage {
+ /* kexec interface functions */
+ extern void machine_kexec(struct kimage *image);
+ extern int machine_kexec_prepare(struct kimage *image);
++extern void machine_kexec_finish(struct kimage *image, int flags);
+ extern void machine_kexec_cleanup(struct kimage *image);
+ extern asmlinkage long sys_kexec_load(unsigned long entry,
+ 					unsigned long nr_segments,
 --- a/kernel/kexec.c
 +++ b/kernel/kexec.c
-@@ -842,8 +842,8 @@ out:
+@@ -1017,6 +1017,7 @@ SYSCALL_DEFINE4(kexec_load, unsigned lon
+ 		kimage_terminate(image);
+ 	}
+ 	/* Install the new kernel, and  Uninstall the old */
++	machine_kexec_finish(image, flags);
+ 	image = xchg(dest_image, image);
+ 
+ out:
+@@ -1026,6 +1027,13 @@ out:
  	return result;
  }
  
--static int kimage_load_crash_segment(struct kimage *image,
--					struct kexec_segment *segment)
-+int __weak kimage_load_crash_segment(struct kimage *image,
-+				     struct kexec_segment *segment)
- {
- 	/* For crash dumps kernels we simply copy the data from
- 	 * user space to it's destination.
++/*
++ * provide an empty default implementation here -- architecture
++ * code may override this
++ */
++void __weak machine_kexec_finish(struct kimage *image, int flags)
++{}
++
+ #ifdef CONFIG_COMPAT
+ asmlinkage long compat_sys_kexec_load(unsigned long entry,
+ 				unsigned long nr_segments,
