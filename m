@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 1 Aug 2011 16:16:44 -0400
+Date: Mon, 1 Aug 2011 16:31:43 -0400
 From: Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: [patch v2 01/10] kdump: Add KEXEC_CRASH_CONTROL_MEMORY_LIMIT
-Message-ID: <20110801201644.GG3805@redhat.com>
+Subject: Re: [patch v2 02/10] kdump: Make kimage_load_crash_segment() weak
+Message-ID: <20110801203143.GH3805@redhat.com>
 References: <20110727125504.491183728@linux.vnet.ibm.com>
- <20110727125807.529303146@linux.vnet.ibm.com>
+ <20110727125807.695225427@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20110727125807.529303146@linux.vnet.ibm.com>
+In-Reply-To: <20110727125807.695225427@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -16,51 +16,51 @@ To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 Cc: ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, hbabu@us.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jul 27, 2011 at 02:55:05PM +0200, Michael Holzheu wrote:
+On Wed, Jul 27, 2011 at 02:55:06PM +0200, Michael Holzheu wrote:
 > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 > 
-> On s390 there is a different KEXEC_CONTROL_MEMORY_LIMIT for the normal and
-> the kdump kexec case. Therefore this patch introduces a new macro
-> KEXEC_CRASH_CONTROL_MEMORY_LIMIT. This is set to
-> KEXEC_CONTROL_MEMORY_LIMIT for all architectures that do not define
-> KEXEC_CRASH_CONTROL_MEMORY_LIMIT.
+> On s390 we do not create page tables at all for the crashkernel memory.
+> This requires a s390 specific version for kimage_load_crash_segment().
+> Therefore this patch declares this function as "__weak". The s390 version is
+> very simple. It just copies the kexec segment to real memory without using
+> page tables:
+> 
+> int kimage_load_crash_segment(struct kimage *image,
+>                               struct kexec_segment *segment)
+> {
+>         return copy_from_user_real((void *) segment->mem, segment->buf,
+>                                    segment->bufsz);
+> }
+> 
+> There are two main advantages of not creating page tables for the
+> crashkernel memory:
+> 
+> a) It saves memory. We have scenarios in mind, where crashkernel
+>    memory can be very large and saving page table space is important.
+> b) We protect the crashkernel memory from being overwritten.
+> 
+> Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> ---
+>  kernel/kexec.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> --- a/kernel/kexec.c
+> +++ b/kernel/kexec.c
+> @@ -842,8 +842,8 @@ out:
+>  	return result;
+>  }
+>  
+> -static int kimage_load_crash_segment(struct kimage *image,
+> -					struct kexec_segment *segment)
+> +int __weak kimage_load_crash_segment(struct kimage *image,
+> +				     struct kexec_segment *segment)
 
-Hi Michael,
-
-Curious that why limit is different for kexec and kdump cases on s390
-only.
+A comment here why we are making it weak should help in increasing
+the code readability.
 
 Thanks
 Vivek
 
-> 
-> Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-> ---
->  include/linux/kexec.h |    4 ++++
->  kernel/kexec.c        |    2 +-
->  2 files changed, 5 insertions(+), 1 deletion(-)
-> 
-> --- a/include/linux/kexec.h
-> +++ b/include/linux/kexec.h
-> @@ -33,6 +33,10 @@
->  #error KEXEC_ARCH not defined
->  #endif
->  
-> +#ifndef KEXEC_CRASH_CONTROL_MEMORY_LIMIT
-> +#define KEXEC_CRASH_CONTROL_MEMORY_LIMIT KEXEC_CONTROL_MEMORY_LIMIT
-> +#endif
-> +
->  #define KEXEC_NOTE_HEAD_BYTES ALIGN(sizeof(struct elf_note), 4)
->  #define KEXEC_CORE_NOTE_NAME "CORE"
->  #define KEXEC_CORE_NOTE_NAME_BYTES ALIGN(sizeof(KEXEC_CORE_NOTE_NAME), 4)
-> --- a/kernel/kexec.c
-> +++ b/kernel/kexec.c
-> @@ -498,7 +498,7 @@ static struct page *kimage_alloc_crash_c
->  	while (hole_end <= crashk_res.end) {
->  		unsigned long i;
->  
-> -		if (hole_end > KEXEC_CONTROL_MEMORY_LIMIT)
-> +		if (hole_end > KEXEC_CRASH_CONTROL_MEMORY_LIMIT)
->  			break;
->  		if (hole_end > crashk_res.end)
->  			break;
+>  {
+>  	/* For crash dumps kernels we simply copy the data from
+>  	 * user space to it's destination.
