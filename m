@@ -1,45 +1,33 @@
-Return-Path: <linux-nfs-owner@vger.kernel.org>
-In-Reply-To: <1311340653-19336-10-git-send-email-ian.campbell@citrix.com>
-References: <1311340095.12772.57.camel@zakaz.uk.xensource.com> <1311340653-19336-10-git-send-email-ian.campbell@citrix.com>
-From: =?ISO-8859-2?Q?Micha=B3_Miros=B3aw?= <mirqus@gmail.com>
-Date: Fri, 22 Jul 2011 21:58:51 +0200
-Message-ID: <CAHXqBFLQFKqK=ORpDQx6s2ud8mWkx=YC_AT60GVS+4XK0H61pw@mail.gmail.com>
-Subject: Re: [PATCH 10/13] net: add paged frag destructor to skb_fill_page_desc()
-Content-Type: text/plain; charset=UTF-8
-Sender: linux-nfs-owner@vger.kernel.org
-MIME-Version: 1.0
-List-Archive: <https://lore.kernel.org/linux-nfs/>
-List-Post: <mailto:linux-nfs@vger.kernel.org>
-To: Ian Campbell <ian.campbell@citrix.com>
-Cc: netdev@vger.kernel.org, linux-nfs@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, "James E.J. Bottomley" <JBottomley@parallels.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, "Pekka Savola (ipv6)" <pekkas@netcore.fi>, James Morris <jmorris@namei.org>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Patrick McHardy <kaber@trash.net>, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, devel@open-fcoe.org
+From: Ralf Baechle <ralf@linux-mips.org>
+Subject: Re: [PATCHv4 01/11] atomic: add *_dec_not_zero
+Date: Tue, 2 Aug 2011 10:58:14 +0100
+Message-ID: <20110802095814.GA22947@linux-mips.org>
+References: <1311760070-21532-1-git-send-email-sven@narfation.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1311760070-21532-1-git-send-email-sven@narfation.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Sven Eckelmann <sven@narfation.org>
+Cc: linux-m32r-ja@ml.linux-m32r.org, linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Randy Dunlap <rdunlap@xenotime.net>, Paul Mackerras <paulus@samba.org>, Helge Deller <deller@gmx.de>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, Richard Weinberger <richard@nod.at>, Hirokazu Takata <takata@linux-m32r.org>, x86@kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, Ingo Molnar <mingo@redhat.com>, Matt Turner <mattst88@gmail.com>, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergmann <arnd@arndb.de>, Jeff Dike <jdike@addtoit.com>, Chris Metcalf <cmetcalf@tilera.com>, linux-m32r@ml.linux-m32r
 List-ID: <linux-s390.vger.kernel.org>
 
-MjAxMS83LzIyIElhbiBDYW1wYmVsbCA8aWFuLmNhbXBiZWxsQGNpdHJpeC5jb20+Ogo+IGRpZmYg
-LS1naXQgYS9pbmNsdWRlL2xpbnV4L3NrYnVmZi5oIGIvaW5jbHVkZS9saW51eC9za2J1ZmYuaAo+
-IGluZGV4IDk4MThmZTIuLmZhZWU4ZDMgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS9saW51eC9za2J1
-ZmYuaAo+ICsrKyBiL2luY2x1ZGUvbGludXgvc2tidWZmLmgKPiBAQCAtMTEzNCwxMiArMTEzNCwx
-NCBAQCBzdGF0aWMgaW5saW5lIGludCBza2JfcGFnZWxlbihjb25zdCBzdHJ1Y3Qgc2tfYnVmZiAq
-c2tiKQo+IMKgKiBEb2VzIG5vdCB0YWtlIGFueSBhZGRpdGlvbmFsIHJlZmVyZW5jZSBvbiB0aGUg
-ZnJhZ21lbnQuCj4gwqAqLwo+IMKgc3RhdGljIGlubGluZSB2b2lkIF9fc2tiX2ZpbGxfcGFnZV9k
-ZXNjKHN0cnVjdCBza19idWZmICpza2IsIGludCBpLAo+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgc3RydWN0IHBhZ2UgKnBhZ2UsIGlu
-dCBvZmYsIGludCBzaXplKQo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgc3RydWN0IHBhZ2UgKnBhZ2UsCj4gKyDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBzdHJ1Y3Qgc2tiX2Zy
-YWdfZGVzdHJ1Y3RvciAqZGVzdHJveSwKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGludCBvZmYsIGludCBzaXplKQo+IMKgewo+IMKg
-IMKgIMKgIMKgc2tiX2ZyYWdfdCAqZnJhZyA9ICZza2Jfc2hpbmZvKHNrYiktPmZyYWdzW2ldOwo+
-Cj4gwqAgwqAgwqAgwqBmcmFnLT5wYWdlLnAgwqAgwqAgwqAgwqAgwqAgwqAgwqA9IHBhZ2U7Cj4g
-LSDCoCDCoCDCoCBmcmFnLT5wYWdlLmRlc3RydWN0b3IgwqAgwqAgPSBOVUxMOwo+ICsgwqAgwqAg
-wqAgZnJhZy0+cGFnZS5kZXN0cnVjdG9yIMKgIMKgID0gZGVzdHJveTsKPiDCoCDCoCDCoCDCoGZy
-YWctPnBhZ2Vfb2Zmc2V0IMKgIMKgIMKgIMKgID0gb2ZmOwo+IMKgIMKgIMKgIMKgZnJhZy0+c2l6
-ZSDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoD0gc2l6ZTsKPiDCoH0KCllvdSBjb3VsZCBqdXN0IHJl
-bmFtZSB0aGlzIGZ1bmN0aW9uIHRvIGUuZy4KX19za2JfZmlsbF9mcmFnaWxlX3BhZ2VfZGVzYygp
-IChvciB3aGF0ZXZlciBuYW1lKSBhZGQgYW4gaW5saW5lCndyYXBwZXIgY2FsbGluZyBpdCB3aXRo
-IGRlc3Ryb3kgPT0gTlVMTC4gVGhpcyB3aWxsIGF2b2lkIHRvdWNoaW5nIGFsbAp0aG9zZSBkcml2
-ZXJzIHdoaWNoIHdvbid0IGV2ZXIgbmVlZCB0aGlzIGZ1bmN0aW9uYWxpdHkuCgpCZXN0IFJlZ2Fy
-ZHMsCk1pY2hhxYIgTWlyb3PFgmF3CgTvv717Lm7vv70r77+977+977+977+977+977+977+9KyXv
-v73vv71sendt77+977+9Yu+/veunsu+/ve+/vXLvv73vv716WO+/ve+/vRnfsinvv73vv73vv713
-Kh9qZ++/ve+/ve+/vR7vv73vv73vv73vv73vv73domov77+977+977+9eu+/vd6W77+977+9Mu+/
-vd6Z77+977+977+9Ju+/vSnfoe+/vWHvv73vv71/77+977+9Hu+/vUfvv73vv73vv71o77+9D++/
-vWo6K3bvv73vv73vv71377+92aU=
+On Wed, Jul 27, 2011 at 11:47:40AM +0200, Sven Eckelmann wrote:
+
+For MIPS:
+
+Acked-by: Ralf Baechle <ralf@linux-mips.org>
+
+  Ralf
