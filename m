@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 2 Aug 2011 14:55:30 -0400
+Date: Tue, 2 Aug 2011 15:16:03 -0400
 From: Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: [patch v2 02/10] kdump: Make kimage_load_crash_segment() weak
-Message-ID: <20110802185530.GH6399@redhat.com>
+Subject: Re: [patch v2 01/10] kdump: Add KEXEC_CRASH_CONTROL_MEMORY_LIMIT
+Message-ID: <20110802191603.GI6399@redhat.com>
 References: <20110727125504.491183728@linux.vnet.ibm.com>
- <20110727125807.695225427@linux.vnet.ibm.com>
- <20110801203143.GH3805@redhat.com>
- <1312277403.4881.26.camel@br98xy6r>
+ <20110727125807.529303146@linux.vnet.ibm.com>
+ <20110801201644.GG3805@redhat.com>
+ <1312278664.4881.35.camel@br98xy6r>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1312277403.4881.26.camel@br98xy6r>
+In-Reply-To: <1312278664.4881.35.camel@br98xy6r>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -18,38 +18,38 @@ To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 Cc: ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, hbabu@us.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Aug 02, 2011 at 11:30:03AM +0200, Michael Holzheu wrote:
+On Tue, Aug 02, 2011 at 11:51:04AM +0200, Michael Holzheu wrote:
 > Hello Vivek,
 > 
-> On Mon, 2011-08-01 at 16:31 -0400, Vivek Goyal wrote:
-> > On Wed, Jul 27, 2011 at 02:55:06PM +0200, Michael Holzheu wrote:
-> 
-> [snip]
-> 
-> > > --- a/kernel/kexec.c
-> > > +++ b/kernel/kexec.c
-> > > @@ -842,8 +842,8 @@ out:
-> > >  	return result;
-> > >  }
-> > >  
-> > > -static int kimage_load_crash_segment(struct kimage *image,
-> > > -					struct kexec_segment *segment)
-> > > +int __weak kimage_load_crash_segment(struct kimage *image,
-> > > +				     struct kexec_segment *segment)
+> On Mon, 2011-08-01 at 16:16 -0400, Vivek Goyal wrote:
+> > On Wed, Jul 27, 2011 at 02:55:05PM +0200, Michael Holzheu wrote:
+> > > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> > > 
+> > > On s390 there is a different KEXEC_CONTROL_MEMORY_LIMIT for the normal and
+> > > the kdump kexec case. Therefore this patch introduces a new macro
+> > > KEXEC_CRASH_CONTROL_MEMORY_LIMIT. This is set to
+> > > KEXEC_CONTROL_MEMORY_LIMIT for all architectures that do not define
+> > > KEXEC_CRASH_CONTROL_MEMORY_LIMIT.
 > > 
-> > A comment here why we are making it weak should help in increasing
-> > the code readability.
+> > Hi Michael,
+> > 
+> > Curious that why limit is different for kexec and kdump cases on s390
+> > only.
 > 
-> What about the following:
-> 
-> /*
->  * Load crash segment into memory. Architecture code can override this
->  * function. E.g. this is necessary for architectures that do not
->  * create page tables for crashkernel memory.
->  */
-> int __weak kimage_load_crash_segment(struct kimage *image,
+> The standard kexec relocate_kernel code calls a machine instruction that
+> must run below 2 GiB. For kdump we currently do not use the control page
+> at all because no segments have to be moved in that case. Perhaps I am
+> still missing something here?
 
-This looks better.
+On x86, control page is used for transition to purgatory and second kernel
+and common code is used. The only step which is skipped in case of kdump
+is the page copying part. As code is common for both the cases the limit
+is same.
+
+If you are not using control page at all during s390 kdump (because you
+are doing all the setup in dump tools, then probably you can specify
+a higher limit so control page.) So in this case you are allocating
+control page but not using it?
 
 Thanks
 Vivek
