@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [patch v2 01/10] kdump: Add KEXEC_CRASH_CONTROL_MEMORY_LIMIT
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Reply-To: holzheu@linux.vnet.ibm.com
-In-Reply-To: <20110801201644.GG3805@redhat.com>
+Date: Tue, 2 Aug 2011 14:55:01 -0400
+From: Vivek Goyal <vgoyal@redhat.com>
+Subject: Re: [patch v2 03/10] kdump: Add size to elfcorehdr kernel parameter
+Message-ID: <20110802185501.GG6399@redhat.com>
 References: <20110727125504.491183728@linux.vnet.ibm.com>
-	 <20110727125807.529303146@linux.vnet.ibm.com>
-	 <20110801201644.GG3805@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 02 Aug 2011 11:51:04 +0200
-Message-ID: <1312278664.4881.35.camel@br98xy6r>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+ <20110727125807.853426542@linux.vnet.ibm.com>
+ <20110801203607.GI3805@redhat.com>
+ <1312276087.4881.24.camel@br98xy6r>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1312276087.4881.24.camel@br98xy6r>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Vivek Goyal <vgoyal@redhat.com>
+To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 Cc: ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, hbabu@us.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Vivek,
-
-On Mon, 2011-08-01 at 16:16 -0400, Vivek Goyal wrote:
-> On Wed, Jul 27, 2011 at 02:55:05PM +0200, Michael Holzheu wrote:
-> > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+On Tue, Aug 02, 2011 at 11:08:07AM +0200, Michael Holzheu wrote:
+> Hello Vivek,
+> 
+> #On Mon, 2011-08-01 at 16:36 -0400, Vivek Goyal wrote: 
+> > On Wed, Jul 27, 2011 at 02:55:07PM +0200, Michael Holzheu wrote:
+> > > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> > > 
+> > > Currently only the address of the pre-allocated ELF header is passed with
+> > > the elfcorehdr= kernel parameter. In order to reserve memory for the header
+> > > in the 2nd kernel also the size is required. To pass the size with this
+> > > patch the syntax of the kernel parameter is extended as follows:
+> > > 
+> > > elfcorehdr=[size[KMG]@]offset[KMG]
+> > > 
+> > > This change is backward compatible because elfcorehdr=size is still allowed.
 > > 
-> > On s390 there is a different KEXEC_CONTROL_MEMORY_LIMIT for the normal and
-> > the kdump kexec case. Therefore this patch introduces a new macro
-> > KEXEC_CRASH_CONTROL_MEMORY_LIMIT. This is set to
-> > KEXEC_CONTROL_MEMORY_LIMIT for all architectures that do not define
-> > KEXEC_CRASH_CONTROL_MEMORY_LIMIT.
+> > Generally vmcore parses elfcorehdr to figure out the sizes. kexec-tools
+> > knows about it and relevant memory is excluded from second kernel's map
+> > with the help of memmap= command line option.
+> > 
+> > Can you please mention that this is only s390 specific requirement as
+> > there are no memmap= equivalent options and somehow dump tools wants
+> > to know how big the elf header size is?
 > 
-> Hi Michael,
+> I updated the description: 
 > 
-> Curious that why limit is different for kexec and kdump cases on s390
-> only.
+> Currently only the address of the pre-allocated ELF header is passed with
+> the elfcorehdr= kernel parameter. In order to reserve memory for the header
+> in the 2nd kernel also the size is required. Current kdump architecture
+> backends use different methods to do that, e.g. x86 uses the memmap= kernel
+> parameter. On s390 there is no easy way to transfer this information.
+> Therefore the elfcorehdr kernel parameter is extended to also pass the size.
+> This now can also be used as standard mechanism by all future kdump
+> architecture backends.
+> 
+> The syntax of the kernel parameter is extended as follows:
+> 
+> elfcorehdr=[size[KMG]@]offset[KMG]
+> 
+> This change is backward compatible because elfcorehdr=size is still allowed.
+> 
+> Ok?
 
-The standard kexec relocate_kernel code calls a machine instruction that
-must run below 2 GiB. For kdump we currently do not use the control page
-at all because no segments have to be moved in that case. Perhaps I am
-still missing something here?
+Yes, this one looks ok.
 
-Michael
+Thanks
+Vivek
