@@ -1,15 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [patch v2 04/10] kdump: Trigger kdump via panic notifier chain
- on s390
+Subject: Re: [patch v2 03/10] kdump: Add size to elfcorehdr kernel parameter
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 Reply-To: holzheu@linux.vnet.ibm.com
-In-Reply-To: <20110801204114.GJ3805@redhat.com>
+In-Reply-To: <20110801203607.GI3805@redhat.com>
 References: <20110727125504.491183728@linux.vnet.ibm.com>
-	 <20110727125808.028895659@linux.vnet.ibm.com>
-	 <20110801204114.GJ3805@redhat.com>
+	 <20110727125807.853426542@linux.vnet.ibm.com>
+	 <20110801203607.GI3805@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 02 Aug 2011 10:37:59 +0200
-Message-ID: <1312274279.4881.18.camel@br98xy6r>
+Date: Tue, 02 Aug 2011 11:08:07 +0200
+Message-ID: <1312276087.4881.24.camel@br98xy6r>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,37 +20,44 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Hello Vivek,
 
-On Mon, 2011-08-01 at 16:41 -0400, Vivek Goyal wrote:
-> On Wed, Jul 27, 2011 at 02:55:08PM +0200, Michael Holzheu wrote:
+#On Mon, 2011-08-01 at 16:36 -0400, Vivek Goyal wrote: 
+> On Wed, Jul 27, 2011 at 02:55:07PM +0200, Michael Holzheu wrote:
 > > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 > > 
-> > On s390 we have the possibility to configure actions that are executed in
-> > case of a kernel panic. E.g. it is possible to automatically trigger an s390
-> > stand-alone dump. The actions are called via a panic notifier.  We also want
-> > to trigger kdump via the notifier call chain. Therefore this patch disables
-> > for s390 the direct kdump invocation in the panic() function.
+> > Currently only the address of the pre-allocated ELF header is passed with
+> > the elfcorehdr= kernel parameter. In order to reserve memory for the header
+> > in the 2nd kernel also the size is required. To pass the size with this
+> > patch the syntax of the kernel parameter is extended as follows:
+> > 
+> > elfcorehdr=[size[KMG]@]offset[KMG]
+> > 
+> > This change is backward compatible because elfcorehdr=size is still allowed.
 > 
-> Doesn't this reduce the reliability of the operation as you are assuming
-> that panic notifier list is fine and not corrupted.
+> Generally vmcore parses elfcorehdr to figure out the sizes. kexec-tools
+> knows about it and relevant memory is excluded from second kernel's map
+> with the help of memmap= command line option.
+> 
+> Can you please mention that this is only s390 specific requirement as
+> there are no memmap= equivalent options and somehow dump tools wants
+> to know how big the elf header size is?
 
-Yes, this is correct. We have to rely that the notifier list is fine.
-Probably there is still room for improvement here.
+I updated the description: 
 
-> There might be other generic notifiers registerd on panic notifier list
-> too. So in your case, are there multiple subsystem registering for panic
-> notifiers? If not, why not call crash_kexec() directly. Are there any
-> other actions you want to take on panic then calling crash_kexec()?
+Currently only the address of the pre-allocated ELF header is passed with
+the elfcorehdr= kernel parameter. In order to reserve memory for the header
+in the 2nd kernel also the size is required. Current kdump architecture
+backends use different methods to do that, e.g. x86 uses the memmap= kernel
+parameter. On s390 there is no easy way to transfer this information.
+Therefore the elfcorehdr kernel parameter is extended to also pass the size.
+This now can also be used as standard mechanism by all future kdump
+architecture backends.
 
-We have added the panic notifier in the past in order to be able to
-configure the action that should be done in case of panic using our
-shutdown actions infrastructure. We can configure the action using sysfs
-and we are able to configure that a stand-alone dump should be started
-as action for panic.
+The syntax of the kernel parameter is extended as follows:
 
-Now with the two stage dump approach we would like to keep the
-possibility to trigger a stand-alone dump even if kdump is installed.
-The stand-alone dumper will be started in case of a kernel panic and
-then the procedure we discussed will happen: Jump into kdump and if
-program check occurs do stand-alone dump as backup.
+elfcorehdr=[size[KMG]@]offset[KMG]
+
+This change is backward compatible because elfcorehdr=size is still allowed.
+
+Ok?
 
 Michael
