@@ -1,14 +1,15 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [patch v2 05/10] s390: Add PSW restart shutdown trigger
+Subject: Re: [patch v2 04/10] kdump: Trigger kdump via panic notifier chain
+ on s390
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 Reply-To: holzheu@linux.vnet.ibm.com
-In-Reply-To: <20110801205402.GK3805@redhat.com>
+In-Reply-To: <20110801204114.GJ3805@redhat.com>
 References: <20110727125504.491183728@linux.vnet.ibm.com>
-	 <20110727125808.172069159@linux.vnet.ibm.com>
-	 <20110801205402.GK3805@redhat.com>
+	 <20110727125808.028895659@linux.vnet.ibm.com>
+	 <20110801204114.GJ3805@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 02 Aug 2011 10:05:16 +0200
-Message-ID: <1312272316.4881.4.camel@br98xy6r>
+Date: Tue, 02 Aug 2011 10:37:59 +0200
+Message-ID: <1312274279.4881.18.camel@br98xy6r>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,30 +21,37 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Hello Vivek,
 
-On Mon, 2011-08-01 at 16:54 -0400, Vivek Goyal wrote:
-> On Wed, Jul 27, 2011 at 02:55:09PM +0200, Michael Holzheu wrote:
+On Mon, 2011-08-01 at 16:41 -0400, Vivek Goyal wrote:
+> On Wed, Jul 27, 2011 at 02:55:08PM +0200, Michael Holzheu wrote:
 > > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 > > 
-> > With this patch a new S390 shutdown trigger "restart" is added. If under
-> > z/VM "systerm restart" is entered or under the HMC the "PSW restart" button
-> > is pressed, the PSW located at 0 (31 bit) or 0x1a0 (64 bit) bit is loaded.
-> > Now we execute do_restart() that processes the restart action that is
-> > defined under /sys/firmware/shutdown_actions/on_restart. Currently the
-> > following actions are possible: reipl (default), stop, vmcmd, dump, and
-> > dump_reipl.
+> > On s390 we have the possibility to configure actions that are executed in
+> > case of a kernel panic. E.g. it is possible to automatically trigger an s390
+> > stand-alone dump. The actions are called via a panic notifier.  We also want
+> > to trigger kdump via the notifier call chain. Therefore this patch disables
+> > for s390 the direct kdump invocation in the panic() function.
 > 
-> i know nothing about s390 but this sounds like a independent
-> functionality? I mean defining a restart trigger and associated actions
-> could be done even in current framework without kdump. IIUC, additional
-> kdump series only adds the ability to use kdump for second kernel instead
-> of using dump tools in case of "dump" or "dump_reipl" ?
-> 
-> If yes, then this patch probably does not have to be part of this series
-> and pushed in independetly?
+> Doesn't this reduce the reliability of the operation as you are assuming
+> that panic notifier list is fine and not corrupted.
 
-Yes, this is correct. We implemented the PSW restart functionality for
-kdump, but it can be used independently.
+Yes, this is correct. We have to rely that the notifier list is fine.
+Probably there is still room for improvement here.
 
-We will integrate this patch upstream independently from this series.
+> There might be other generic notifiers registerd on panic notifier list
+> too. So in your case, are there multiple subsystem registering for panic
+> notifiers? If not, why not call crash_kexec() directly. Are there any
+> other actions you want to take on panic then calling crash_kexec()?
+
+We have added the panic notifier in the past in order to be able to
+configure the action that should be done in case of panic using our
+shutdown actions infrastructure. We can configure the action using sysfs
+and we are able to configure that a stand-alone dump should be started
+as action for panic.
+
+Now with the two stage dump approach we would like to keep the
+possibility to trigger a stand-alone dump even if kdump is installed.
+The stand-alone dumper will be started in case of a kernel panic and
+then the procedure we discussed will happen: Jump into kdump and if
+program check occurs do stand-alone dump as backup.
 
 Michael
