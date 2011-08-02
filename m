@@ -1,33 +1,49 @@
-From: Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: [PATCHv4 01/11] atomic: add *_dec_not_zero
-Date: Tue, 2 Aug 2011 10:58:14 +0100
-Message-ID: <20110802095814.GA22947@linux-mips.org>
-References: <1311760070-21532-1-git-send-email-sven@narfation.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [patch v2 05/10] s390: Add PSW restart shutdown trigger
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20110801205402.GK3805@redhat.com>
+References: <20110727125504.491183728@linux.vnet.ibm.com>
+	 <20110727125808.172069159@linux.vnet.ibm.com>
+	 <20110801205402.GK3805@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 02 Aug 2011 10:05:16 +0200
+Message-ID: <1312272316.4881.4.camel@br98xy6r>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <1311760070-21532-1-git-send-email-sven@narfation.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Sven Eckelmann <sven@narfation.org>
-Cc: linux-m32r-ja@ml.linux-m32r.org, linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Randy Dunlap <rdunlap@xenotime.net>, Paul Mackerras <paulus@samba.org>, Helge Deller <deller@gmx.de>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, Richard Weinberger <richard@nod.at>, Hirokazu Takata <takata@linux-m32r.org>, x86@kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, Ingo Molnar <mingo@redhat.com>, Matt Turner <mattst88@gmail.com>, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergmann <arnd@arndb.de>, Jeff Dike <jdike@addtoit.com>, Chris Metcalf <cmetcalf@tilera.com>, linux-m32r@ml.linux-m32r
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Vivek Goyal <vgoyal@redhat.com>
+Cc: ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, hbabu@us.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jul 27, 2011 at 11:47:40AM +0200, Sven Eckelmann wrote:
+Hello Vivek,
 
-For MIPS:
+On Mon, 2011-08-01 at 16:54 -0400, Vivek Goyal wrote:
+> On Wed, Jul 27, 2011 at 02:55:09PM +0200, Michael Holzheu wrote:
+> > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> > 
+> > With this patch a new S390 shutdown trigger "restart" is added. If under
+> > z/VM "systerm restart" is entered or under the HMC the "PSW restart" button
+> > is pressed, the PSW located at 0 (31 bit) or 0x1a0 (64 bit) bit is loaded.
+> > Now we execute do_restart() that processes the restart action that is
+> > defined under /sys/firmware/shutdown_actions/on_restart. Currently the
+> > following actions are possible: reipl (default), stop, vmcmd, dump, and
+> > dump_reipl.
+> 
+> i know nothing about s390 but this sounds like a independent
+> functionality? I mean defining a restart trigger and associated actions
+> could be done even in current framework without kdump. IIUC, additional
+> kdump series only adds the ability to use kdump for second kernel instead
+> of using dump tools in case of "dump" or "dump_reipl" ?
+> 
+> If yes, then this patch probably does not have to be part of this series
+> and pushed in independetly?
 
-Acked-by: Ralf Baechle <ralf@linux-mips.org>
+Yes, this is correct. We implemented the PSW restart functionality for
+kdump, but it can be used independently.
 
-  Ralf
+We will integrate this patch upstream independently from this series.
+
+Michael
