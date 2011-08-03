@@ -1,16 +1,15 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [patch v2 04/10] kdump: Trigger kdump via panic notifier chain
- on s390
+Subject: Re: [patch v2 03/10] kdump: Add size to elfcorehdr kernel parameter
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 Reply-To: holzheu@linux.vnet.ibm.com
-In-Reply-To: <20110802192147.GJ6399@redhat.com>
+In-Reply-To: <20110802185501.GG6399@redhat.com>
 References: <20110727125504.491183728@linux.vnet.ibm.com>
-	 <20110727125808.028895659@linux.vnet.ibm.com>
-	 <20110801204114.GJ3805@redhat.com> <1312274279.4881.18.camel@br98xy6r>
-	 <20110802192147.GJ6399@redhat.com>
+	 <20110727125807.853426542@linux.vnet.ibm.com>
+	 <20110801203607.GI3805@redhat.com> <1312276087.4881.24.camel@br98xy6r>
+	 <20110802185501.GG6399@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 03 Aug 2011 11:50:39 +0200
-Message-ID: <1312365039.3783.36.camel@br98xy6r>
+Date: Wed, 03 Aug 2011 12:40:44 +0200
+Message-ID: <1312368044.3783.39.camel@br98xy6r>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,59 +21,40 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Hello Vivek,
 
-On Tue, 2011-08-02 at 15:21 -0400, Vivek Goyal wrote:
-> > We have added the panic notifier in the past in order to be able to
-> > configure the action that should be done in case of panic using our
-> > shutdown actions infrastructure. We can configure the action using sysfs
-> > and we are able to configure that a stand-alone dump should be started
-> > as action for panic.
+On Tue, 2011-08-02 at 14:55 -0400, Vivek Goyal wrote:
+> On Tue, Aug 02, 2011 at 11:08:07AM +0200, Michael Holzheu wrote:
+> > Hello Vivek,
 > > 
-> > Now with the two stage dump approach we would like to keep the
-> > possibility to trigger a stand-alone dump even if kdump is installed.
-> > The stand-alone dumper will be started in case of a kernel panic and
-> > then the procedure we discussed will happen: Jump into kdump and if
-> > program check occurs do stand-alone dump as backup.
+> > > Generally vmcore parses elfcorehdr to figure out the sizes. kexec-tools
+> > > knows about it and relevant memory is excluded from second kernel's map
+> > > with the help of memmap= command line option.
+> > > 
+> > > Can you please mention that this is only s390 specific requirement as
+> > > there are no memmap= equivalent options and somehow dump tools wants
+> > > to know how big the elf header size is?
+> > 
+> > I updated the description: 
+> > 
+> > Currently only the address of the pre-allocated ELF header is passed with
+> > the elfcorehdr= kernel parameter. In order to reserve memory for the header
+> > in the 2nd kernel also the size is required. Current kdump architecture
+> > backends use different methods to do that, e.g. x86 uses the memmap= kernel
+> > parameter. On s390 there is no easy way to transfer this information.
+> > Therefore the elfcorehdr kernel parameter is extended to also pass the size.
+> > This now can also be used as standard mechanism by all future kdump
+> > architecture backends.
+> > 
+> > The syntax of the kernel parameter is extended as follows:
+> > 
+> > elfcorehdr=[size[KMG]@]offset[KMG]
+> > 
+> > This change is backward compatible because elfcorehdr=size is still allowed.
+> > 
+> > Ok?
 > 
-> Frankly speaking this jumping to stand alone kernel by default is not
-> making any sense to me. Once you have already determined from /sys that
-> in case of crash a user has set the action to kdump, then we should
-> simply call crash_kexec()
+> Yes, this one looks ok.
 
-If the user has set the panic action to kdump, we jump directly to
-crash_kexec(). This then works like on all other architectures.
-
-Only if the user has specified panic action stand-alone dump, we do the
-detour via the stand-alone dump tools.
-
-> like other architectures and jump to stand
-> alone kernel only if some piece of code is corrupted and that action
-> failed.
-> 
-> What's the point of jumping to stand alone kenrel in case of panic()
-> and then re-enter it back to original kernel using crash_kexec(). Sound
-> like a very odd design choice to me.
-> 
-> I am now I am repeating this question umpteen time simply because
-> I never got a good answer except "we have to do it this way".
-
-Sometimes communication is really hard and frustrating.
-... but at least we are still communicating.
-
-Ok very last try:
-
-* We can use the same mechanism for manual dump and automatic dump on
-panic: IPL the stand-alone dump tools. kdump check and backup
-stand-alone dump is implemented only in the stand-alone dump code. If we
-would do it like you suggested, we would have to do it twice - in the
-kernel and in the stand-alone dump tools:
-- kernel: Try kdump and if kdump fails trigger standalone dump tool
-- Stand-alone dump tool: Try kdump and if kdump fails do full dump
-
-* Still the panic action is configured via sysfs as the user is already
-used to on s390.
-
-* It fits much better into our whole s390 infrastructure. Believe me, we
-have discussed that here a long time. I think you do not have a full
-overview here. Perhaps you just have to believe that.
+With that description change: Do I get an "Acked-by" for this patch from
+you?
 
 Michael
