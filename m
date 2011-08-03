@@ -1,15 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [patch v2 01/10] kdump: Add KEXEC_CRASH_CONTROL_MEMORY_LIMIT
+Subject: Re: [patch v2 04/10] kdump: Trigger kdump via panic notifier chain
+ on s390
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 Reply-To: holzheu@linux.vnet.ibm.com
-In-Reply-To: <20110802191603.GI6399@redhat.com>
+In-Reply-To: <20110802192147.GJ6399@redhat.com>
 References: <20110727125504.491183728@linux.vnet.ibm.com>
-	 <20110727125807.529303146@linux.vnet.ibm.com>
-	 <20110801201644.GG3805@redhat.com> <1312278664.4881.35.camel@br98xy6r>
-	 <20110802191603.GI6399@redhat.com>
+	 <20110727125808.028895659@linux.vnet.ibm.com>
+	 <20110801204114.GJ3805@redhat.com> <1312274279.4881.18.camel@br98xy6r>
+	 <20110802192147.GJ6399@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 03 Aug 2011 11:27:18 +0200
-Message-ID: <1312363638.3783.17.camel@br98xy6r>
+Date: Wed, 03 Aug 2011 11:50:39 +0200
+Message-ID: <1312365039.3783.36.camel@br98xy6r>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,41 +22,59 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Hello Vivek,
 
-On Tue, 2011-08-02 at 15:16 -0400, Vivek Goyal wrote:
-> On Tue, Aug 02, 2011 at 11:51:04AM +0200, Michael Holzheu wrote:
-> > Hello Vivek,
+On Tue, 2011-08-02 at 15:21 -0400, Vivek Goyal wrote:
+> > We have added the panic notifier in the past in order to be able to
+> > configure the action that should be done in case of panic using our
+> > shutdown actions infrastructure. We can configure the action using sysfs
+> > and we are able to configure that a stand-alone dump should be started
+> > as action for panic.
 > > 
-> > On Mon, 2011-08-01 at 16:16 -0400, Vivek Goyal wrote:
-> > > On Wed, Jul 27, 2011 at 02:55:05PM +0200, Michael Holzheu wrote:
-> > > > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-> > > > 
-> > > > On s390 there is a different KEXEC_CONTROL_MEMORY_LIMIT for the normal and
-> > > > the kdump kexec case. Therefore this patch introduces a new macro
-> > > > KEXEC_CRASH_CONTROL_MEMORY_LIMIT. This is set to
-> > > > KEXEC_CONTROL_MEMORY_LIMIT for all architectures that do not define
-> > > > KEXEC_CRASH_CONTROL_MEMORY_LIMIT.
-> > > 
-> > > Hi Michael,
-> > > 
-> > > Curious that why limit is different for kexec and kdump cases on s390
-> > > only.
-> > 
-> > The standard kexec relocate_kernel code calls a machine instruction that
-> > must run below 2 GiB. For kdump we currently do not use the control page
-> > at all because no segments have to be moved in that case. Perhaps I am
-> > still missing something here?
+> > Now with the two stage dump approach we would like to keep the
+> > possibility to trigger a stand-alone dump even if kdump is installed.
+> > The stand-alone dumper will be started in case of a kernel panic and
+> > then the procedure we discussed will happen: Jump into kdump and if
+> > program check occurs do stand-alone dump as backup.
 > 
-> On x86, control page is used for transition to purgatory and second kernel
-> and common code is used. The only step which is skipped in case of kdump
-> is the page copying part. As code is common for both the cases the limit
-> is same.
-> If you are not using control page at all during s390 kdump (because you
-> are doing all the setup in dump tools, then probably you can specify
-> a higher limit so control page.) So in this case you are allocating
-> control page but not using it?
+> Frankly speaking this jumping to stand alone kernel by default is not
+> making any sense to me. Once you have already determined from /sys that
+> in case of crash a user has set the action to kdump, then we should
+> simply call crash_kexec()
 
-Correct, we do not use the control page for kdump, because there is
-nothing to do for us. Common code is reserving the control page, we just
-don't care about it.
+If the user has set the panic action to kdump, we jump directly to
+crash_kexec(). This then works like on all other architectures.
+
+Only if the user has specified panic action stand-alone dump, we do the
+detour via the stand-alone dump tools.
+
+> like other architectures and jump to stand
+> alone kernel only if some piece of code is corrupted and that action
+> failed.
+> 
+> What's the point of jumping to stand alone kenrel in case of panic()
+> and then re-enter it back to original kernel using crash_kexec(). Sound
+> like a very odd design choice to me.
+> 
+> I am now I am repeating this question umpteen time simply because
+> I never got a good answer except "we have to do it this way".
+
+Sometimes communication is really hard and frustrating.
+... but at least we are still communicating.
+
+Ok very last try:
+
+* We can use the same mechanism for manual dump and automatic dump on
+panic: IPL the stand-alone dump tools. kdump check and backup
+stand-alone dump is implemented only in the stand-alone dump code. If we
+would do it like you suggested, we would have to do it twice - in the
+kernel and in the stand-alone dump tools:
+- kernel: Try kdump and if kdump fails trigger standalone dump tool
+- Stand-alone dump tool: Try kdump and if kdump fails do full dump
+
+* Still the panic action is configured via sysfs as the user is already
+used to on s390.
+
+* It fits much better into our whole s390 infrastructure. Believe me, we
+have discussed that here a long time. I think you do not have a full
+overview here. Perhaps you just have to believe that.
 
 Michael
