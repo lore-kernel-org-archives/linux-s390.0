@@ -1,56 +1,78 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [patch 1/1] [PATCH] include storage keys in
-	hibernation image.
-Date: Tue, 9 Aug 2011 21:56:12 +0200
-Message-ID: <201108092156.12451.rjw__27154.6612064869$1312921881$gmane$org@sisk.pl>
-References: <20110608074523.211912903@de.ibm.com>
-	<201107290001.14465.rjw@sisk.pl> <20110809174524.45cd496d@mschwide>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-bounces@lists.linux-foundation.org>
-In-Reply-To: <20110809174524.45cd496d@mschwide>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
-List-Post: <mailto:linux-pm@lists.linux-foundation.org>
-List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
-Sender: linux-pm-bounces@lists.linux-foundation.org
-Errors-To: linux-pm-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/linux-pm/>
-List-Post: <mailto:linux-pm@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-pm@lists.linux-foundation.org, Jiri Slaby <jslaby@suse.cz>, linux-kernel@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 4 Aug 2011 13:53:24 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [GIT PULL] s390 updates for Linux 3.1
+Message-ID: <20110804115324.GB5207@osiris.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tuesday, August 09, 2011, Martin Schwidefsky wrote:
-> On Fri, 29 Jul 2011 00:01:14 +0200
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> 
-> > Sorry for the extreme delay.
-> 
-> No big deal, I have been busy with other things anyway.
->  
-> > Having reconsidered things I think the code under the #ifdef above
-> > should really go to arch/s390.
-> 
-> Ok, that is reasonable.
->  
-> > Now, for the purpose of exporting the headers I'd introduce
-> > CONFIG_ARCH_SAVE_PAGE_KEYS and make S390 do
-> > 
-> > select ARCH_SAVE_PAGE_KEYS if HIBERNATION
-> > 
-> > and I'd put a #ifdef depending on that into include/linux/suspend.h.
-> > 
-> > Apart from this, I have only one complaint, which is that the kerneldoc
-> > comments should follow the standard (the other comments in snapshot.c don't,
-> > but that's a matter for a separate patch).
-> 
-> Sounds good. I will come up with new patches for this and resend them
-> for review. Might be one or two weeks though, currently conferencing in
-> Orlando..
+Hi Linus,
 
-OK, thanks!
+please pull from 'for-linus' branch of
+
+	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
+
+to receive the following updates:
+
+Heiko Carstens (6):
+      [S390] Add support for IBM zEnterprise 114
+      [S390] asm offsets: fix coding style
+      [S390] signal: convert to use set_current_blocked()
+      [S390] cpu hotplug: on cpu start wait until being marked active
+      [S390] smp: remove pointless comments in startup_secondary()
+      [S390] signal: use set_restore_sigmask() helper
+
+Jan Glauber (2):
+      [S390] qdio: 2nd stage retry on SIGA-W busy conditions
+      [S390] missing return in page_table_alloc_pgste
+
+Mathias Krause (1):
+      [S390] exec: remove redundant set_fs(USER_DS)
+
+Michael Holzheu (3):
+      [S390] Add PSW restart shutdown trigger
+      [S390] Export store_status() function
+      [S390] Use diagnose 308 for system reset
+
+Peter Huewe (2):
+      [S390] sclp_async: Use kstrtoul_from_user
+      [S390] qdio: Use kstrtoul_from_user
+
+Stefan Haberland (1):
+      [S390] dasd: check if raw track access is supported
+
+Stefan Weinhuber (1):
+      [S390] dasd: use vmalloc for statistics input buffer
+
+ arch/s390/Kconfig                 |    8 ++--
+ arch/s390/include/asm/ipl.h       |    1 +
+ arch/s390/include/asm/lowcore.h   |   11 ++++-
+ arch/s390/include/asm/processor.h |    2 -
+ arch/s390/include/asm/system.h    |    1 +
+ arch/s390/kernel/asm-offsets.c    |   10 ++---
+ arch/s390/kernel/base.S           |   36 ++++++++++++++++
+ arch/s390/kernel/compat_signal.c  |   43 ++++++--------------
+ arch/s390/kernel/entry.S          |   28 +++++++++++++
+ arch/s390/kernel/entry64.S        |   20 +++++++++
+ arch/s390/kernel/ipl.c            |   45 ++++++++++++++++++++-
+ arch/s390/kernel/reipl64.S        |   80 +++++++++++++++++++++++++++---------
+ arch/s390/kernel/setup.c          |   25 +++++++++++-
+ arch/s390/kernel/signal.c         |   61 +++++++++-------------------
+ arch/s390/kernel/smp.c            |   24 +++++++----
+ arch/s390/mm/maccess.c            |   16 +++++++
+ arch/s390/mm/pgtable.c            |    1 +
+ drivers/s390/block/dasd.c         |    9 ++--
+ drivers/s390/block/dasd_eckd.c    |    9 ++++
+ drivers/s390/block/dasd_proc.c    |    4 +-
+ drivers/s390/char/sclp_async.c    |    9 +---
+ drivers/s390/cio/qdio.h           |    2 +
+ drivers/s390/cio/qdio_debug.c     |   12 +----
+ drivers/s390/cio/qdio_main.c      |   21 ++++++++-
+ 24 files changed, 337 insertions(+), 141 deletions(-)
