@@ -1,38 +1,37 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 00/13] s390: network patches for net-next
-Date: Sat, 13 Aug 2011 01:10:38 -0700 (PDT)
-Message-ID: <20110813.011038.384530492272203270.davem@davemloft.net>
+From: frank.blaschka@de.ibm.com
+Subject: [patch 11/13] [PATCH] qeth: support forced signal adapter indications
+Date: Mon, 08 Aug 2011 13:33:57 +0200
+Message-ID: <20110808113516.466713424@de.ibm.com>
 References: <20110808113346.516293249@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20110808113346.516293249@de.ibm.com>
+Content-Disposition: inline; filename=net1117_qeth_siga_r.patch
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Einar Lueck <elelueck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: frank.blaschka@de.ibm.com
-Date: Mon, 08 Aug 2011 13:33:46 +0200
+From: Einar Lueck <elelueck@de.ibm.com>
 
-> Einar Lueck (4)
-> qdio: support asynchronous delivery of storage blocks
-> qdio: support forced signal adapter indications
-> qeth: exploit asynchronous delivery of storage blocks
-> qeth: support forced signal adapter indications
-> 
-> Ursula Braun (3)
-> iucv: kernel option for z/VM IUCV and HiperSockets
-> af_iucv: cleanup - use iucv_sk(sk) early
-> af_iucv: add HiperSockets transport
-> 
-> Frank Blaschka (4)
-> iucv: introduce loadable iucv interface
-> af_iucv: use loadable iucv interface
-> if_ether: add new Ethernet Protocol ID for af_iucv
-> qeth: add support for af_iucv HiperSockets transport
+This patch ensures that signal adapter commands are issued if they are
+indicated to be required.
 
-All applied to net-next, thanks.
+Signed-off-by: Einar Lueck <elelueck@de.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
+ drivers/s390/net/qeth_core.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -231,7 +231,8 @@ static inline int qeth_is_ipa_enabled(st
+ #define QETH_IN_BUF_COUNT_MAX 128
+ #define QETH_MAX_BUFFER_ELEMENTS(card) ((card)->qdio.in_buf_size >> 12)
+ #define QETH_IN_BUF_REQUEUE_THRESHOLD(card) \
+-		((card)->qdio.in_buf_pool.buf_count / 2)
++		((card)->ssqd.qdioac1 & AC1_SIGA_INPUT_NEEDED ? 1 : \
++		 ((card)->qdio.in_buf_pool.buf_count / 2))
+ 
+ /* buffers we have to be behind before we get a PCI */
+ #define QETH_PCI_THRESHOLD_A(card) ((card)->qdio.in_buf_pool.buf_count+1)
