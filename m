@@ -1,78 +1,36 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 4 Aug 2011 13:53:24 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [GIT PULL] s390 updates for Linux 3.1
-Message-ID: <20110804115324.GB5207@osiris.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+From: frank.blaschka@de.ibm.com
+Subject: [patch 01/13] [PATCH] qeth: l3 ipv6 vlan not working on shared OSA chpid
+Date: Mon, 08 Aug 2011 13:33:47 +0200
+Message-ID: <20110808113515.381926973@de.ibm.com>
+References: <20110808113346.516293249@de.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=qeth_l3_ipv6_vlan.patch
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+From: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-please pull from 'for-linus' branch of
+In layer 3 mode IPv6 over VLAN does not work on newer OSA  levels in
+case the sender and receiver run on the same (shared) OSA adapter.
+Keep vlan info in the skb so the qdio header is filled with the
+required vlan tag.
 
-	git://git390.marist.edu/pub/scm/linux-2.6.git for-linus
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
+ drivers/s390/net/qeth_l3_main.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-to receive the following updates:
-
-Heiko Carstens (6):
-      [S390] Add support for IBM zEnterprise 114
-      [S390] asm offsets: fix coding style
-      [S390] signal: convert to use set_current_blocked()
-      [S390] cpu hotplug: on cpu start wait until being marked active
-      [S390] smp: remove pointless comments in startup_secondary()
-      [S390] signal: use set_restore_sigmask() helper
-
-Jan Glauber (2):
-      [S390] qdio: 2nd stage retry on SIGA-W busy conditions
-      [S390] missing return in page_table_alloc_pgste
-
-Mathias Krause (1):
-      [S390] exec: remove redundant set_fs(USER_DS)
-
-Michael Holzheu (3):
-      [S390] Add PSW restart shutdown trigger
-      [S390] Export store_status() function
-      [S390] Use diagnose 308 for system reset
-
-Peter Huewe (2):
-      [S390] sclp_async: Use kstrtoul_from_user
-      [S390] qdio: Use kstrtoul_from_user
-
-Stefan Haberland (1):
-      [S390] dasd: check if raw track access is supported
-
-Stefan Weinhuber (1):
-      [S390] dasd: use vmalloc for statistics input buffer
-
- arch/s390/Kconfig                 |    8 ++--
- arch/s390/include/asm/ipl.h       |    1 +
- arch/s390/include/asm/lowcore.h   |   11 ++++-
- arch/s390/include/asm/processor.h |    2 -
- arch/s390/include/asm/system.h    |    1 +
- arch/s390/kernel/asm-offsets.c    |   10 ++---
- arch/s390/kernel/base.S           |   36 ++++++++++++++++
- arch/s390/kernel/compat_signal.c  |   43 ++++++--------------
- arch/s390/kernel/entry.S          |   28 +++++++++++++
- arch/s390/kernel/entry64.S        |   20 +++++++++
- arch/s390/kernel/ipl.c            |   45 ++++++++++++++++++++-
- arch/s390/kernel/reipl64.S        |   80 +++++++++++++++++++++++++++---------
- arch/s390/kernel/setup.c          |   25 +++++++++++-
- arch/s390/kernel/signal.c         |   61 +++++++++-------------------
- arch/s390/kernel/smp.c            |   24 +++++++----
- arch/s390/mm/maccess.c            |   16 +++++++
- arch/s390/mm/pgtable.c            |    1 +
- drivers/s390/block/dasd.c         |    9 ++--
- drivers/s390/block/dasd_eckd.c    |    9 ++++
- drivers/s390/block/dasd_proc.c    |    4 +-
- drivers/s390/char/sclp_async.c    |    9 +---
- drivers/s390/cio/qdio.h           |    2 +
- drivers/s390/cio/qdio_debug.c     |   12 +----
- drivers/s390/cio/qdio_main.c      |   21 ++++++++-
- 24 files changed, 337 insertions(+), 141 deletions(-)
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2993,7 +2993,6 @@ static int qeth_l3_hard_start_xmit(struc
+ 			tag = (u16 *)(new_skb->data + 12);
+ 			*tag = __constant_htons(ETH_P_8021Q);
+ 			*(tag + 1) = htons(vlan_tx_tag_get(new_skb));
+-			new_skb->vlan_tci = 0;
+ 		}
+ 	}
+ 
