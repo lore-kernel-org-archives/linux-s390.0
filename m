@@ -1,35 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 8 Aug 2011 16:32:55 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH 5/9] drivers/s390/block/dasd_ioctl.c: add missing kfree
-Message-ID: <20110808143255.GA19688@osiris.boeblingen.de.ibm.com>
-References: <1312802283-9107-5-git-send-email-julia@diku.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1312802283-9107-5-git-send-email-julia@diku.dk>
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH 5/9] drivers/s390/block/dasd_ioctl.c: add missing kfree
+Date: Mon,  8 Aug 2011 13:17:59 +0200
+Message-Id: <1312802283-9107-5-git-send-email-julia@diku.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Julia Lawall <julia@diku.dk>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, kernel-janitors@vger.kernel.org, linux390@de.ibm.com, Stefan Weinhuber <wein@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: kernel-janitors@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Stefan Weinhuber <wein@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Aug 08, 2011 at 01:17:59PM +0200, Julia Lawall wrote:
-> From: Julia Lawall <julia@diku.dk>
-> 
-> Data is only used to temporarily hold information to be copied to the user
-> level, so it should be freed before leaving the function.
-> 
-> A simplified version of the semantic match that finds this problem is as
-> follows: (http://coccinelle.lip6.fr/)
+From: Julia Lawall <julia@diku.dk>
 
-[...]
+Data is only used to temporarily hold information to be copied to the user
+level, so it should be freed before leaving the function.
 
-> Signed-off-by: Julia Lawall <julia@diku.dk>
-> 
-> ---
->  drivers/s390/block/dasd_ioctl.c |   10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
+A simplified version of the semantic match that finds this problem is as
+follows: (http://coccinelle.lip6.fr/)
 
-Applied. Thanks!
+// <smpl>
+@exists@
+local idexpression x;
+statement S,S1;
+expression E;
+identifier fl;
+expression *ptr != NULL;
+@@
+
+x = \(kmalloc\|kzalloc\|kcalloc\)(...);
+...
+if (x == NULL) S
+<... when != x
+     when != if (...) { <+...kfree(x)...+> }
+     when any
+     when != true x == NULL
+x->fl
+...>
+(
+if (x == NULL) S1
+|
+if (...) { ... when != x
+               when forall
+(
+ return \(0\|<+...x...+>\|ptr\);
+|
+* return ...;
+)
+}
+)
+// </smpl>
+
+Signed-off-by: Julia Lawall <julia@diku.dk>
+
+---
+ drivers/s390/block/dasd_ioctl.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
+index eb4e034..753636f 100644
+--- a/drivers/s390/block/dasd_ioctl.c
++++ b/drivers/s390/block/dasd_ioctl.c
+@@ -249,6 +249,7 @@ static int dasd_ioctl_reset_profile(struct dasd_block *block)
+ static int dasd_ioctl_read_profile(struct dasd_block *block, void __user *argp)
+ {
+ 	struct dasd_profile_info_t *data;
++	int ret = 0;
+ 
+ 	data = kmalloc(sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+@@ -279,11 +280,14 @@ static int dasd_ioctl_read_profile(struct dasd_block *block, void __user *argp)
+ 		spin_unlock_bh(&block->profile.lock);
+ 	} else {
+ 		spin_unlock_bh(&block->profile.lock);
+-		return -EIO;
++		ret = -EIO;
++		goto out;
+ 	}
+ 	if (copy_to_user(argp, data, sizeof(*data)))
+-		return -EFAULT;
+-	return 0;
++		ret = -EFAULT;
++out:
++	kfree(data);
++	return ret;
+ }
+ #else
+ static int dasd_ioctl_reset_profile(struct dasd_block *block)
