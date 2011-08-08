@@ -1,112 +1,35 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 03/13] [PATCH] iucv: introduce loadable iucv interface
-Date: Mon, 08 Aug 2011 13:33:49 +0200
-Message-ID: <20110808113515.598188086@de.ibm.com>
-References: <20110808113346.516293249@de.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=net1117-iucv-introduce-loadable-iucv-interface.patch
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 8 Aug 2011 16:32:55 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 5/9] drivers/s390/block/dasd_ioctl.c: add missing kfree
+Message-ID: <20110808143255.GA19688@osiris.boeblingen.de.ibm.com>
+References: <1312802283-9107-5-git-send-email-julia@diku.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1312802283-9107-5-git-send-email-julia@diku.dk>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Julia Lawall <julia@diku.dk>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, kernel-janitors@vger.kernel.org, linux390@de.ibm.com, Stefan Weinhuber <wein@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Frank Blaschka <frank.blaschka@de.ibm.com>
+On Mon, Aug 08, 2011 at 01:17:59PM +0200, Julia Lawall wrote:
+> From: Julia Lawall <julia@diku.dk>
+> 
+> Data is only used to temporarily hold information to be copied to the user
+> level, so it should be freed before leaving the function.
+> 
+> A simplified version of the semantic match that finds this problem is as
+> follows: (http://coccinelle.lip6.fr/)
 
-This patch adds a symbol to dynamically load iucv functions.
+[...]
 
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
- include/net/iucv/iucv.h |   36 +++++++++++++++++++++++++++++++++++-
- net/iucv/iucv.c         |   23 +++++++++++++++++++++++
- 2 files changed, 58 insertions(+), 1 deletion(-)
+> Signed-off-by: Julia Lawall <julia@diku.dk>
+> 
+> ---
+>  drivers/s390/block/dasd_ioctl.c |   10 +++++++---
+>  1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/include/net/iucv/iucv.h
-+++ b/include/net/iucv/iucv.h
-@@ -120,7 +120,7 @@ struct iucv_message {
- 	u32 reply_size;
- 	u8  rmmsg[8];
- 	u8  flags;
--};
-+} __packed;
- 
- /*
-  * struct iucv_handler
-@@ -459,3 +459,37 @@ int __iucv_message_send(struct iucv_path
- int iucv_message_send2way(struct iucv_path *path, struct iucv_message *msg,
- 			  u8 flags, u32 srccls, void *buffer, size_t size,
- 			  void *answer, size_t asize, size_t *residual);
-+
-+struct iucv_interface {
-+	int (*message_receive)(struct iucv_path *path, struct iucv_message *msg,
-+		u8 flags, void *buffer, size_t size, size_t *residual);
-+	int (*__message_receive)(struct iucv_path *path,
-+		struct iucv_message *msg, u8 flags, void *buffer, size_t size,
-+		size_t *residual);
-+	int (*message_reply)(struct iucv_path *path, struct iucv_message *msg,
-+		u8 flags, void *reply, size_t size);
-+	int (*message_reject)(struct iucv_path *path, struct iucv_message *msg);
-+	int (*message_send)(struct iucv_path *path, struct iucv_message *msg,
-+		u8 flags, u32 srccls, void *buffer, size_t size);
-+	int (*__message_send)(struct iucv_path *path, struct iucv_message *msg,
-+		u8 flags, u32 srccls, void *buffer, size_t size);
-+	int (*message_send2way)(struct iucv_path *path,
-+		struct iucv_message *msg, u8 flags, u32 srccls, void *buffer,
-+		size_t size, void *answer, size_t asize, size_t *residual);
-+	int (*message_purge)(struct iucv_path *path, struct iucv_message *msg,
-+		u32 srccls);
-+	int (*path_accept)(struct iucv_path *path, struct iucv_handler *handler,
-+		u8 userdata[16], void *private);
-+	int (*path_connect)(struct iucv_path *path,
-+		struct iucv_handler *handler,
-+		u8 userid[8], u8 system[8], u8 userdata[16], void *private);
-+	int (*path_quiesce)(struct iucv_path *path, u8 userdata[16]);
-+	int (*path_resume)(struct iucv_path *path, u8 userdata[16]);
-+	int (*path_sever)(struct iucv_path *path, u8 userdata[16]);
-+	int (*iucv_register)(struct iucv_handler *handler, int smp);
-+	void (*iucv_unregister)(struct iucv_handler *handler, int smp);
-+	struct bus_type *bus;
-+	struct device *root;
-+};
-+
-+extern struct iucv_interface iucv_if;
---- a/net/iucv/iucv.c
-+++ b/net/iucv/iucv.c
-@@ -1974,6 +1974,27 @@ out:
- 	return rc;
- }
- 
-+struct iucv_interface iucv_if = {
-+	.message_receive = iucv_message_receive,
-+	.__message_receive = __iucv_message_receive,
-+	.message_reply = iucv_message_reply,
-+	.message_reject = iucv_message_reject,
-+	.message_send = iucv_message_send,
-+	.__message_send = __iucv_message_send,
-+	.message_send2way = iucv_message_send2way,
-+	.message_purge = iucv_message_purge,
-+	.path_accept = iucv_path_accept,
-+	.path_connect = iucv_path_connect,
-+	.path_quiesce = iucv_path_quiesce,
-+	.path_resume = iucv_path_resume,
-+	.path_sever = iucv_path_sever,
-+	.iucv_register = iucv_register,
-+	.iucv_unregister = iucv_unregister,
-+	.bus = NULL,
-+	.root = NULL,
-+};
-+EXPORT_SYMBOL(iucv_if);
-+
- /**
-  * iucv_init
-  *
-@@ -2038,6 +2059,8 @@ static int __init iucv_init(void)
- 	rc = bus_register(&iucv_bus);
- 	if (rc)
- 		goto out_reboot;
-+	iucv_if.root = iucv_root;
-+	iucv_if.bus = &iucv_bus;
- 	return 0;
- 
- out_reboot:
+Applied. Thanks!
