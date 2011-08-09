@@ -1,44 +1,51 @@
-From: Ian Campbell <ian.campbell@citrix.com>
-Subject: [PATCH 10/14] qeth: convert to SKB paged frag API.
-Date: Wed, 31 Aug 2011 11:47:02 +0100
-Message-ID: <1314787626-12273-10-git-send-email-ian.campbell@citrix.com>
-References: <1314787608.28989.41.camel@zakaz.uk.xensource.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 9 Aug 2011 17:45:24 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 1/1] [PATCH] include storage keys in hibernation image.
+Message-ID: <20110809174524.45cd496d@mschwide>
+In-Reply-To: <201107290001.14465.rjw@sisk.pl>
+References: <20110608074523.211912903@de.ibm.com>
+	<20110608074648.287491002@de.ibm.com>
+	<201107290001.14465.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1314787608.28989.41.camel@zakaz.uk.xensource.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: netdev@vger.kernel.org
-Cc: Ian Campbell <ian.campbell@citrix.com>, Ursula Braun <ursula.braun@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-pm@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Pavel Machek <pavel@ucw.cz>, Jiri Slaby <jslaby@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Ian Campbell <ian.campbell@citrix.com>
-Cc: Ursula Braun <ursula.braun@de.ibm.com>
-Cc: Frank Blaschka <blaschka@linux.vnet.ibm.com>
-Cc: linux390@de.ibm.com
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: netdev@vger.kernel.org
----
- drivers/s390/net/qeth_core_main.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+On Fri, 29 Jul 2011 00:01:14 +0200
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 97172f8..8153443 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3694,7 +3694,8 @@ static inline void __qeth_fill_buffer(struct sk_buff *skb,
+> Sorry for the extreme delay.
+
+No big deal, I have been busy with other things anyway.
  
- 	for (cnt = 0; cnt < skb_shinfo(skb)->nr_frags; cnt++) {
- 		frag = &skb_shinfo(skb)->frags[cnt];
--		buffer->element[element].addr = (char *)page_to_phys(frag->page)
-+		buffer->element[element].addr = (char *)
-+			page_to_phys(skb_frag_page(frag))
- 			+ frag->page_offset;
- 		buffer->element[element].length = frag->size;
- 		buffer->element[element].eflags = SBAL_EFLAGS_MIDDLE_FRAG;
+> Having reconsidered things I think the code under the #ifdef above
+> should really go to arch/s390.
+
+Ok, that is reasonable.
+ 
+> Now, for the purpose of exporting the headers I'd introduce
+> CONFIG_ARCH_SAVE_PAGE_KEYS and make S390 do
+> 
+> select ARCH_SAVE_PAGE_KEYS if HIBERNATION
+> 
+> and I'd put a #ifdef depending on that into include/linux/suspend.h.
+> 
+> Apart from this, I have only one complaint, which is that the kerneldoc
+> comments should follow the standard (the other comments in snapshot.c don't,
+> but that's a matter for a separate patch).
+
+Sounds good. I will come up with new patches for this and resend them
+for review. Might be one or two weeks though, currently conferencing in
+Orlando..
+
 -- 
-1.7.2.5
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
