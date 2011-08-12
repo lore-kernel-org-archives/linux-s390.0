@@ -1,127 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 19 Aug 2011 16:44:32 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch v3 2/8] kdump: Make kimage_load_crash_segment() weak
-Message-ID: <20110819164432.2bda197c@mschwide>
-In-Reply-To: <20110819143748.GI18656@redhat.com>
-References: <20110812134849.748973593@linux.vnet.ibm.com>
-	<20110812134907.166585439@linux.vnet.ibm.com>
-	<20110818171541.GC15413@redhat.com>
-	<1313760472.3858.26.camel@br98xy6r>
-	<20110819134836.GB18656@redhat.com>
-	<20110819162854.64bd7201@mschwide>
-	<20110819143748.GI18656@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-Id: <20110812134849.748973593@linux.vnet.ibm.com>
+Date: Fri, 12 Aug 2011 15:48:49 +0200
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Subject: [patch v3 0/8] kdump: Patch series for s390 support (version 3)
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Vivek Goyal <vgoyal@redhat.com>
-Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>, ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, hbabu@us.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org
+To: vgoyal@redhat.com
+Cc: ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, hbabu@us.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 19 Aug 2011 10:37:48 -0400
-Vivek Goyal <vgoyal@redhat.com> wrote:
+Hello Vivek,
 
-> On Fri, Aug 19, 2011 at 04:28:54PM +0200, Martin Schwidefsky wrote:
-> > On Fri, 19 Aug 2011 09:48:36 -0400
-> > Vivek Goyal <vgoyal@redhat.com> wrote:
-> > 
-> > > On Fri, Aug 19, 2011 at 03:27:52PM +0200, Michael Holzheu wrote:
-> > > > Hello Vivek,
-> > > > 
-> > > > On Thu, 2011-08-18 at 13:15 -0400, Vivek Goyal wrote:
-> > > > > On Fri, Aug 12, 2011 at 03:48:51PM +0200, Michael Holzheu wrote:
-> > > > > > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-> > > > > > 
-> > > > > > On s390 we do not create page tables at all for the crashkernel memory.
-> > > > > > This requires a s390 specific version for kimage_load_crash_segment().
-> > > > > > Therefore this patch declares this function as "__weak". The s390 version is
-> > > > > > very simple. It just copies the kexec segment to real memory without using
-> > > > > > page tables:
-> > > > > > 
-> > > > > > int kimage_load_crash_segment(struct kimage *image,
-> > > > > >                               struct kexec_segment *segment)
-> > > > > > {
-> > > > > >         return copy_from_user_real((void *) segment->mem, segment->buf,
-> > > > > >                                    segment->bufsz);
-> > > > > > }
-> > > > > > 
-> > > > > > There are two main advantages of not creating page tables for the
-> > > > > > crashkernel memory:
-> > > > > > 
-> > > > > > a) It saves memory. We have scenarios in mind, where crashkernel
-> > > > > >    memory can be very large and saving page table space is important.
-> > > > > > b) We protect the crashkernel memory from being overwritten.
-> > > > > 
-> > > > > Michael,
-> > > > > 
-> > > > > Thinking more about it. Can't we provide a arch specific version of
-> > > > > kmap() and kunmap() so that we create temporary mappings to copy
-> > > > > the pages and then these are torn off.
-> > > > 
-> > > > Isn't kmap/kunmap() used for higmem? These functions are called from
-> > > > many different functions in the Linux kernel, not only for kdump. I
-> > > > would assume that creating and removing mappings with these functions is
-> > > > not what a caller would expect and probably would break the Linux kernel
-> > > > at many other places, no?
-> > > 
-> > > [CCing linux-mm]
-> > > 
-> > > Yes it is being used for highmem pages. If arch has not defined kmap()
-> > > then generic definition is just returning page_address(page), expecting
-> > > that page will be mapped.
-> > > 
-> > > I was wondering that what will be broken if arch decides to extend this
-> > > to create temporary mappings for pages which are not HIGHMEM but do
-> > > not have any mapping. (Like this special case of s390).
-> > > 
-> > > I guess memory management guys can give a better answer here. As a layman,
-> > > kmap() seems to be the way to get a kernel mapping for any page frame
-> > > and if one is not already there, then arch might create one on the fly,
-> > > like we do for HIGHMEM pages. So the question is can be extend this
-> > > to also cover pages which are not highmem but do not have any mappings
-> > > on s390.
-> > 
-> > Imho it would be wrong to misuse kmap/kunmap to get around a minor problem
-> > with the memory for the crash kernel. These functions are used to provide
-> > accessibility to highmem pages in the kernel address space. The highmem
-> > area is "normal" memory with corresponding struct page elements (the
-> > functions do take a struct page * as argument after all). They are not
-> > usable to map arbitrary page frames.
-> 
-> Same is the case with crashkernel memory in s390 where these are
-> normal pages, just that these are not mapped in linearly mapped region.
-> 
-> The only exception to highmem pages is that linearly mapped region is
-> not big enough in certain arches, so we left them unmapped.
+I updated the patch series according to our last discussions. As you requested,
+I removed the "#if !defined(CONFIG_S390)" in the panic function.
 
-Well, the crashkernel memory in s390 is addressable without a page table
-but is not included in the mem_map array (no struct page). For the highmem
-page it is the other way round, the are not addressable without a page table
-entry but they are included in mem_map. That makes all the difference, no?
- 
-> > 
-> > And we definitely don't want to make the memory management any slower by
-> > defining non-trivial kmap/kunmap functions.
-> 
-> if we continue to return page_address() and only go into else loop if page
-> is not mapped, then there should not be any slow down for exisitng cases
-> where memory is mapped?
-> 
-> Anyway, this was just a thought. I am not too particular about it and
-> michael has agreed to get rid of code which was removing mappings for
-> crashkernel area. So for the time we don't need above.
+The semantics is now as follows:
 
-Then we can use the standard kimage_load_crash_segment function. But we
-should think about adding code that protects the crash kernel memory,
-e.g. by making the memory area read-only in the kernel page table. One
-reason why we wanted to exclude the crash kernel memory from the memory
-that is seen by the Linux kernel is protection from wild stores.
+If kdump is loaded, kdump is always triggered for panic and PSW restart
+(s390 NMI). If kdump is not loaded, the s390 shutdown actions defined
+under /sys/firmware are executed as we are doing it already today.
 
--- 
-blue skies,
-   Martin.
+I also added again patches for stand-alone dump integration:
 
-"Reality continues to ruin my life." - Calvin.
+For s390 we add a parameter to the purgatory entry point. When "0" is passed,
+purgatory only returns the result of the checksum test. When "1" is passed,
+purgatory triggers kdump. So we call purgatory twice. First for checking and
+second time for execution. You can argue that it would be better to call
+purgatory only once and it returns only, if checksums are invalid.
+Unfortunately this would be very hard to implement for us, because we
+switch to the boot CPU before kdump is finally triggered and after that
+currently it is not possible to return from the called function.
+
+panic --------+
+              +--- crash_kexec()
+              |    call_s390_shutdown_actions() -> stand-alone dump
+PSW restart --+
+
+crash_kexec +--> kdump loaded? --> machine_kexec()
+            |
+            +--> kdump not loaded --> return
+
+machine_kexec +-> purgatory(0)==0 -> switch to IPL cpu -> purgatory(1) -> kdump
+              |
+              +-> purgatory(0)!=0 -> return
+
+See patches [6] and [8] for details.
+
+Does that sound ok for you?
+
+Michael
+
+Patch overview:
+---------------
+[1-3] common code changes (could you please ACC patches [1] and [3]?)
+[4]   s390 kdump preparation patch
+[5]   s390 kdump backend
+[6]   s390 stand-alone dump/shutdown actions integration
+[7]   kexec-tools: s390 kdump backend for kexec-tools
+[8]   kexec-tools: s390 stand-alone dump/shutdown actions integration
+
+History: v1->v2:
+----------------
+Main changes compared to version 1:
+1. We use purgatory code
+2. We use pre-allocated ELF core header
+3. Registers are saved in old kernel
+4. Removed meminfo
