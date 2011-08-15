@@ -1,88 +1,68 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 5/9] drivers/s390/block/dasd_ioctl.c: add missing kfree
-Date: Mon,  8 Aug 2011 13:17:59 +0200
-Message-Id: <1312802283-9107-5-git-send-email-julia@diku.dk>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: kernel-janitors@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Stefan Weinhuber <wein@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Steffen Maier <maier@linux.vnet.ibm.com>
+Subject: [PATCH 1/3] zfcp: non-experimental support for DIF/DIX
+Date: Mon, 15 Aug 2011 14:40:30 +0200
+Message-ID: <20110815124058.684182245@linux.vnet.ibm.com>
+References: <20110815124029.627237499@linux.vnet.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Content-Disposition: inline; filename=3.2/700-zfcp-dif-dix.diff
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julia Lawall <julia@diku.dk>
+From: Steffen Maier <maier@linux.vnet.ibm.com>
 
-Data is only used to temporarily hold information to be copied to the user
-level, so it should be freed before leaving the function.
+DIF/DIX support for zfcp is no longer experimental,
+and config option is no longer necessary.
+Return error from queuecommand for unsupported data directions.
 
-A simplified version of the semantic match that finds this problem is as
-follows: (http://coccinelle.lip6.fr/)
-
-// <smpl>
-@exists@
-local idexpression x;
-statement S,S1;
-expression E;
-identifier fl;
-expression *ptr != NULL;
-@@
-
-x = \(kmalloc\|kzalloc\|kcalloc\)(...);
-...
-if (x == NULL) S
-<... when != x
-     when != if (...) { <+...kfree(x)...+> }
-     when any
-     when != true x == NULL
-x->fl
-...>
-(
-if (x == NULL) S1
-|
-if (...) { ... when != x
-               when forall
-(
- return \(0\|<+...x...+>\|ptr\);
-|
-* return ...;
-)
-}
-)
-// </smpl>
-
-Signed-off-by: Julia Lawall <julia@diku.dk>
-
+Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
 ---
- drivers/s390/block/dasd_ioctl.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
-index eb4e034..753636f 100644
---- a/drivers/s390/block/dasd_ioctl.c
-+++ b/drivers/s390/block/dasd_ioctl.c
-@@ -249,6 +249,7 @@ static int dasd_ioctl_reset_profile(struct dasd_block *block)
- static int dasd_ioctl_read_profile(struct dasd_block *block, void __user *argp)
- {
- 	struct dasd_profile_info_t *data;
-+	int ret = 0;
- 
- 	data = kmalloc(sizeof(*data), GFP_KERNEL);
- 	if (!data)
-@@ -279,11 +280,14 @@ static int dasd_ioctl_read_profile(struct dasd_block *block, void __user *argp)
- 		spin_unlock_bh(&block->profile.lock);
- 	} else {
- 		spin_unlock_bh(&block->profile.lock);
--		return -EIO;
-+		ret = -EIO;
-+		goto out;
+ drivers/s390/scsi/zfcp_fsf.c  |    3 ++-
+ drivers/s390/scsi/zfcp_scsi.c |    5 +----
+ drivers/scsi/Kconfig          |    4 ----
+ 3 files changed, 3 insertions(+), 9 deletions(-)
+
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -2207,7 +2207,8 @@ int zfcp_fsf_fcp_cmnd(struct scsi_cmnd *
+ 		io->ref_tag_value = scsi_get_lba(scsi_cmnd) & 0xFFFFFFFF;
  	}
- 	if (copy_to_user(argp, data, sizeof(*data)))
--		return -EFAULT;
--	return 0;
-+		ret = -EFAULT;
-+out:
-+	kfree(data);
-+	return ret;
- }
- #else
- static int dasd_ioctl_reset_profile(struct dasd_block *block)
+ 
+-	zfcp_fsf_set_data_dir(scsi_cmnd, &io->data_direction);
++	if (zfcp_fsf_set_data_dir(scsi_cmnd, &io->data_direction))
++		goto failed_scsi_cmnd;
+ 
+ 	fcp_cmnd = (struct fcp_cmnd *) &req->qtcb->bottom.io.fcp_cmnd;
+ 	zfcp_fc_scsi_to_fcp(fcp_cmnd, scsi_cmnd, 0);
+--- a/drivers/s390/scsi/zfcp_scsi.c
++++ b/drivers/s390/scsi/zfcp_scsi.c
+@@ -24,11 +24,8 @@ module_param_named(queue_depth, default_
+ MODULE_PARM_DESC(queue_depth, "Default queue depth for new SCSI devices");
+ 
+ static bool enable_dif;
+-
+-#ifdef CONFIG_ZFCP_DIF
+-module_param_named(dif, enable_dif, bool, 0600);
++module_param_named(dif, enable_dif, bool, 0400);
+ MODULE_PARM_DESC(dif, "Enable DIF/DIX data integrity support");
+-#endif
+ 
+ static bool allow_lun_scan = 1;
+ module_param(allow_lun_scan, bool, 0600);
+--- a/drivers/scsi/Kconfig
++++ b/drivers/scsi/Kconfig
+@@ -1871,10 +1871,6 @@ config ZFCP
+           called zfcp. If you want to compile it as a module, say M here
+           and read <file:Documentation/kbuild/modules.txt>.
+ 
+-config ZFCP_DIF
+-	tristate "T10 DIF/DIX support for the zfcp driver (EXPERIMENTAL)"
+-	depends on ZFCP && EXPERIMENTAL
+-
+ config SCSI_PMCRAID
+ 	tristate "PMC SIERRA Linux MaxRAID adapter support"
+ 	depends on PCI && SCSI && NET
