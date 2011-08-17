@@ -1,100 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20110812134908.120804811@linux.vnet.ibm.com>
-Date: Fri, 12 Aug 2011 15:48:57 +0200
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: [patch v3 8/8] kexec-tools: Allow to call verify_sha256_digest() from kernel
+Date: Wed, 17 Aug 2011 17:05:55 -0400
+From: Vivek Goyal <vgoyal@redhat.com>
+Subject: Re: [patch v3 3/8] kdump: Add size to elfcorehdr kernel parameter
+Message-ID: <20110817210554.GD14813@redhat.com>
 References: <20110812134849.748973593@linux.vnet.ibm.com>
-Content-Disposition: inline; filename=kexec-tools-s390-kdump-entry.patch
+ <20110812134907.325789470@linux.vnet.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20110812134907.325789470@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: vgoyal@redhat.com
+To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 Cc: ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, hbabu@us.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+On Fri, Aug 12, 2011 at 03:48:52PM +0200, Michael Holzheu wrote:
+> From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> 
+> Currently only the address of the pre-allocated ELF header is passed with
+> the elfcorehdr= kernel parameter. In order to reserve memory for the header
+> in the 2nd kernel also the size is required. Current kdump architecture
+> backends use different methods to do that, e.g. x86 uses the memmap= kernel
+> parameter. On s390 there is no easy way to transfer this information.
+> Therefore the elfcorehdr kernel parameter is extended to also pass the size.
+> This now can also be used as standard mechanism by all future kdump
+> architecture backends.
 
-For s390 we first want to check if kdump checksums are valid before we start
-the kdump kernel. With this patch on s390 the purgatory entry point is
-called with a parameter. If the parameter is "0", only the checksum test
-is done and the result (0 = ok, 1 = invalid) is passed as return code back
-to the caller (kernel). If the parameter is "1", the complete purgatory code
-is executed and kdump is started.
+Michael,
 
-Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
----
- purgatory/arch/s390/setup-s390.S |   14 ++++++++++++++
- purgatory/purgatory.c            |   13 ++++++++-----
- 2 files changed, 22 insertions(+), 5 deletions(-)
+This version looks much better. A quick question. Who parses this
+elfcorehdr= parameter in s390 and how do we make sure these headers are not
+overwritten.
 
---- a/purgatory/arch/s390/setup-s390.S
-+++ b/purgatory/arch/s390/setup-s390.S
-@@ -11,12 +11,23 @@
- 	.balign 16
- purgatory_start:
- #ifdef __s390x__
-+	larl	%r5,gprs_save_area
-+	stmg	%r6,%r15,0(%r5)
- 	larl	%r15,lstack_end
- 	aghi	%r15,-160
-+
-+	clgfi	%r2,0
-+	je	verify_checksums
-+
- 	brasl	%r14,purgatory
- 	larl	%r14,kdump_psw
- 	lpswe	0(%r14)
- 
-+verify_checksums:
-+	brasl	%r14,verify_sha256_digest
-+	larl	%r5,gprs_save_area
-+	lmg	%r6,%r15,0(%r5)
-+	br	%r14
- 	.section ".data"
- 	.balign 16
- kdump_psw:
-@@ -24,6 +35,9 @@ kdump_psw:
- 	.quad 0x0000000000010010
- 
- 	.bss
-+gprs_save_area:
-+	.fill 80
-+
- 	.balign 4096
- lstack:
- 	.skip 4096
---- a/purgatory/purgatory.c
-+++ b/purgatory/purgatory.c
-@@ -9,7 +9,7 @@
- struct sha256_region sha256_regions[SHA256_REGIONS] = {};
- sha256_digest_t sha256_digest = { };
- 
--void verify_sha256_digest(void)
-+int verify_sha256_digest(void)
- {
- 	struct sha256_region *ptr, *end;
- 	sha256_digest_t digest;
-@@ -34,16 +34,19 @@ void verify_sha256_digest(void)
- 			printf("%hhx ", sha256_digest[i]);
- 		}
- 		printf("\n");
--		for(;;) {
--			/* loop forever */
--		}
-+		return 1;
- 	}
-+	return 0;
- }
- 
- void purgatory(void)
- {
- 	printf("I'm in purgatory\n");
- 	setup_arch();
--	verify_sha256_digest();
-+	if (verify_sha256_digest()) {
-+		for(;;) {
-+			/* loop forever */
-+		}
-+	}
- 	post_verification_setup_arch();
- }
+Thanks
+Vivek
