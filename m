@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Ian Campbell <ian.campbell@citrix.com>
-Subject: [PATCH 41/75] qeth: convert to SKB paged frag API.
-Date: Fri, 19 Aug 2011 14:27:13 +0100
-Message-ID: <1313760467-8598-41-git-send-email-ian.campbell@citrix.com>
-In-Reply-To: <1313760393.5010.356.camel@zakaz.uk.xensource.com>
-References: <1313760393.5010.356.camel@zakaz.uk.xensource.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Subject: Re: [patch 0/3] kdump: Add external kdump entry point for s390
+ stand-alone dump tools
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20110819132019.GA18656@redhat.com>
+References: <20110729123944.562622201@linux.vnet.ibm.com>
+	 <20110819011431.GB20747@verge.net.au> <1313758400.3858.12.camel@br98xy6r>
+	 <20110819132019.GA18656@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 19 Aug 2011 15:36:38 +0200
+Message-ID: <1313760998.3858.32.camel@br98xy6r>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Ian Campbell <ian.campbell@citrix.com>, Ursula Braun <ursula.braun@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+To: Vivek Goyal <vgoyal@redhat.com>
+Cc: Simon Horman <horms@verge.net.au>, oomichi@mxs.nes.nec.co.jp, linux-s390@vger.kernel.org, mahesh@linux.vnet.ibm.com, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, hbabu@us.ibm.com, ebiederm@xmission.com, schwidefsky@de.ibm.com, kexec@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Ian Campbell <ian.campbell@citrix.com>
-Cc: Ursula Braun <ursula.braun@de.ibm.com>
-Cc: Frank Blaschka <blaschka@linux.vnet.ibm.com>
-Cc: linux390@de.ibm.com
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- drivers/s390/net/qeth_core_main.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+Hello Vivek,
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 4550573..91d87ba 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3204,7 +3204,8 @@ static inline void __qeth_fill_buffer(struct sk_buff *skb,
- 
- 	for (cnt = 0; cnt < skb_shinfo(skb)->nr_frags; cnt++) {
- 		frag = &skb_shinfo(skb)->frags[cnt];
--		buffer->element[element].addr = (char *)page_to_phys(frag->page)
-+		buffer->element[element].addr = (char *)
-+			page_to_phys(skb_frag_page(frag))
- 			+ frag->page_offset;
- 		buffer->element[element].length = frag->size;
- 		buffer->element[element].eflags = SBAL_EFLAGS_MIDDLE_FRAG;
--- 
-1.7.2.5
+On Fri, 2011-08-19 at 09:20 -0400, Vivek Goyal wrote:
+> On Fri, Aug 19, 2011 at 02:53:20PM +0200, Michael Holzheu wrote:
+> 
+> [...]
+> > > although I am a little unclear about the status of the kernel side of
+> > > things. Please let me know if you would like me to merge the kexec-tools
+> > > patches now or wait a bit (for an updated version?).
+> > 
+> > I think that we are almost done with the discussion. I will send you my
+> > current kexec-tools patches and would be glad, if you could integrate
+> > them now.
+> 
+> I guess kexec-tools integration will make more sense once kernel patches
+> show up atleast in one maintainer's subtree.
+
+The s390 kexec-tools kdump code will inactive as long a kernel shows
+"Crash kernel" in /proc/iomem. So IMHO there is little risk to integrate
+the code.
+
+> Also in kernel patches, atleast we need to resolve the issue of arch
+> specific kmap(), kunmap() calls so that we don't have to make
+> kimage_load_crash_segment() arch specific.
+
+As I told in my last mail we will do this later. So I think there are
+currently no more open issues, correct?
+
+Michael
