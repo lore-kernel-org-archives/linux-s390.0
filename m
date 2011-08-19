@@ -1,30 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 19 Aug 2011 16:28:54 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Subject: Re: [patch v3 2/8] kdump: Make kimage_load_crash_segment() weak
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Reply-To: holzheu@linux.vnet.ibm.com
+Message-ID: <20110819162854.64bd7201@mschwide>
 In-Reply-To: <20110819134836.GB18656@redhat.com>
 References: <20110812134849.748973593@linux.vnet.ibm.com>
-	 <20110812134907.166585439@linux.vnet.ibm.com>
-	 <20110818171541.GC15413@redhat.com> <1313760472.3858.26.camel@br98xy6r>
-	 <20110819134836.GB18656@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 19 Aug 2011 16:02:34 +0200
-Message-ID: <1313762554.3858.37.camel@br98xy6r>
+	<20110812134907.166585439@linux.vnet.ibm.com>
+	<20110818171541.GC15413@redhat.com>
+	<1313760472.3858.26.camel@br98xy6r>
+	<20110819134836.GB18656@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Vivek Goyal <vgoyal@redhat.com>
-Cc: ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, hbabu@us.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org
+Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>, ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, hbabu@us.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Vivek,
+On Fri, 19 Aug 2011 09:48:36 -0400
+Vivek Goyal <vgoyal@redhat.com> wrote:
 
-On Fri, 2011-08-19 at 09:48 -0400, Vivek Goyal wrote:
-
-[snip]
-
+> On Fri, Aug 19, 2011 at 03:27:52PM +0200, Michael Holzheu wrote:
+> > Hello Vivek,
+> > 
+> > On Thu, 2011-08-18 at 13:15 -0400, Vivek Goyal wrote:
+> > > On Fri, Aug 12, 2011 at 03:48:51PM +0200, Michael Holzheu wrote:
+> > > > From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> > > > 
+> > > > On s390 we do not create page tables at all for the crashkernel memory.
+> > > > This requires a s390 specific version for kimage_load_crash_segment().
+> > > > Therefore this patch declares this function as "__weak". The s390 version is
+> > > > very simple. It just copies the kexec segment to real memory without using
+> > > > page tables:
+> > > > 
+> > > > int kimage_load_crash_segment(struct kimage *image,
+> > > >                               struct kexec_segment *segment)
+> > > > {
+> > > >         return copy_from_user_real((void *) segment->mem, segment->buf,
+> > > >                                    segment->bufsz);
+> > > > }
+> > > > 
+> > > > There are two main advantages of not creating page tables for the
+> > > > crashkernel memory:
+> > > > 
+> > > > a) It saves memory. We have scenarios in mind, where crashkernel
+> > > >    memory can be very large and saving page table space is important.
+> > > > b) We protect the crashkernel memory from being overwritten.
+> > > 
 > > > Michael,
 > > > 
 > > > Thinking more about it. Can't we provide a arch specific version of
@@ -46,39 +70,26 @@ On Fri, 2011-08-19 at 09:48 -0400, Vivek Goyal wrote:
 > I was wondering that what will be broken if arch decides to extend this
 > to create temporary mappings for pages which are not HIGHMEM but do
 > not have any mapping. (Like this special case of s390).
-
-At least we have significant additional overhead for all the other
-places where kmap/kunmap is called.
-
+> 
 > I guess memory management guys can give a better answer here. As a layman,
 > kmap() seems to be the way to get a kernel mapping for any page frame
 > and if one is not already there, then arch might create one on the fly,
 > like we do for HIGHMEM pages. So the question is can be extend this
 > to also cover pages which are not highmem but do not have any mappings
 > on s390.
-> 
-> > 
-> > Perhaps we can finish this discussion after my vacation. I will change
-> > my patch series that we even do not need this patch...
-> 
-> So how are you planning to get rid of this patch without modifying kmap(),
-> kunmap() implementation for s390?
 
-I will update my patch series that we do not remove page tables for
-crashkernel memory. So everything will be as on other architectures.
+Imho it would be wrong to misuse kmap/kunmap to get around a minor problem
+with the memory for the crash kernel. These functions are used to provide
+accessibility to highmem pages in the kernel address space. The highmem
+area is "normal" memory with corresponding struct page elements (the
+functions do take a struct page * as argument after all). They are not
+usable to map arbitrary page frames.
 
-I hope that we can find a good solution after my vacation. Perhaps then
-I have enough energy again :-)
+And we definitely don't want to make the memory management any slower by
+defining non-trivial kmap/kunmap functions.
 
-> > So only two common code patches are remaining. I will send the common
-> > code patches again and will ask Andrew Morton to integrate them in the
-> > next merge window.The s390 patches will be integrated by Martin.
-> 
-> I am fine with merge of other 2 common patches. Once you repost the
-> series, I will ack those.
+-- 
+blue skies,
+   Martin.
 
-Great! I will resend the patches and contact Andrew Morton.
-
-Thanks!
-
-Michael
+"Reality continues to ruin my life." - Calvin.
