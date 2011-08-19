@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [patch 1/1] [PATCH] include storage keys in hibernation image.
-Date: Wed, 17 Aug 2011 11:15:21 +0200
-References: <20110816141441.898339466@de.ibm.com> <201108161956.47434.rjw@sisk.pl> <20110817094347.3c106bd9@mschwide>
-In-Reply-To: <20110817094347.3c106bd9@mschwide>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Date: Fri, 19 Aug 2011 08:16:37 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] s390: fix _TIF_SINGLE_STEP definition
+Message-ID: <20110819081637.76e52a6a@mschwide>
+In-Reply-To: <20110818163702.GF20085@htj.dyndns.org>
+References: <20110818163702.GF20085@htj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <201108171115.21607.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-pm@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Pavel Machek <pavel@ucw.cz>, Jiri Slaby <jslaby@suse.cz>
+To: Tejun Heo <tj@kernel.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wednesday, August 17, 2011, Martin Schwidefsky wrote:
-> On Tue, 16 Aug 2011 19:56:47 +0200
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> 
-> > On Tuesday, August 16, 2011, Martin Schwidefsky wrote:
-> > > From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> > > 
-> > > For s390 there is one additional byte associated with each page,
-> > > the storage key. This byte contains the referenced and changed
-> > > bits and needs to be included into the hibernation image.
-> > > If the storage keys are not restored to their previous state all
-> > > original pages would appear to be dirty. This can cause
-> > > inconsistencies e.g. with read-only filesystems.
-> > > 
-> > > Cc: Pavel Machek <pavel@ucw.cz>
-> > > Cc: Rafael J. Wysocki <rjw@sisk.pl>
-> > > Cc: Jiri Slaby <jslaby@suse.cz>
-> > > Cc: linux-pm@lists.linux-foundation.org
-> > > Cc: linux-kernel@vger.kernel.org
-> > > Cc: linux-s390@vger.kernel.org
-> > > Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> > 
-> > OK, I don't have any complaints.  Do you want me to take this
-> > patch or do you want to push it through the s390 tree?
-> 
-> The patch affects the common power management code. At minimum I
-> would like an acked-by to take it into the s390 tree. I would feel
-> more comfortable if you'd take it via the power management tree
-> though.
+On Thu, 18 Aug 2011 18:37:02 +0200
+Tejun Heo <tj@kernel.org> wrote:
 
-OK, I will.  Expect it to appear in 3.2. :-)
+> _TIF_SINGLE_STEP is incorrectly defined as 1<<TIF_FREEZE.  Fix it.
+> 
+> Signed-off-by: Tejun Heo <tj@kernel.org>
+> ---
+>  arch/s390/include/asm/thread_info.h |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: work/arch/s390/include/asm/thread_info.h
+> ===================================================================
+> --- work.orig/arch/s390/include/asm/thread_info.h
+> +++ work/arch/s390/include/asm/thread_info.h
+> @@ -117,7 +117,7 @@ static inline struct thread_info *curren
+>  #define _TIF_SIE		(1<<TIF_SIE)
+>  #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
+>  #define _TIF_31BIT		(1<<TIF_31BIT)
+> -#define _TIF_SINGLE_STEP	(1<<TIF_FREEZE)
+> +#define _TIF_SINGLE_STEP	(1<<TIF_SINGLE_STEP)
+>  #define _TIF_FREEZE		(1<<TIF_FREEZE)
+> 
+>  #ifdef CONFIG_64BIT
 
-Thanks,
-Rafael
+Whoa, that has been "unfixed" by git commit 5e9a26928f550157..
+Nice catch!
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
