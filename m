@@ -1,35 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 18 Aug 2011 18:37:02 +0200
-From: Tejun Heo <tj@kernel.org>
-Subject: [PATCH] s390: fix _TIF_SINGLE_STEP definition
-Message-ID: <20110818163702.GF20085@htj.dyndns.org>
+Date: Fri, 19 Aug 2011 10:24:03 -0400
+From: Vivek Goyal <vgoyal@redhat.com>
+Subject: Re: [patch 1/2] kdump: Add KEXEC_CRASH_CONTROL_MEMORY_LIMIT
+Message-ID: <20110819142403.GF18656@redhat.com>
+References: <20110819141857.052232873@linux.vnet.ibm.com>
+ <20110819141940.177788593@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20110819141940.177788593@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Cc: akpm@linux-foundation.org, ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, hbabu@us.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-_TIF_SINGLE_STEP is incorrectly defined as 1<<TIF_FREEZE.  Fix it.
+On Fri, Aug 19, 2011 at 04:18:58PM +0200, Michael Holzheu wrote:
+> From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> 
+> On s390 there is a different KEXEC_CONTROL_MEMORY_LIMIT for the normal and
+> the kdump kexec case. Therefore this patch introduces a new macro
+> KEXEC_CRASH_CONTROL_MEMORY_LIMIT. This is set to
+> KEXEC_CONTROL_MEMORY_LIMIT for all architectures that do not define
+> KEXEC_CRASH_CONTROL_MEMORY_LIMIT.
+> 
+> Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
----
- arch/s390/include/asm/thread_info.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Looks good to me. 
 
-Index: work/arch/s390/include/asm/thread_info.h
-===================================================================
---- work.orig/arch/s390/include/asm/thread_info.h
-+++ work/arch/s390/include/asm/thread_info.h
-@@ -117,7 +117,7 @@ static inline struct thread_info *curren
- #define _TIF_SIE		(1<<TIF_SIE)
- #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
- #define _TIF_31BIT		(1<<TIF_31BIT)
--#define _TIF_SINGLE_STEP	(1<<TIF_FREEZE)
-+#define _TIF_SINGLE_STEP	(1<<TIF_SINGLE_STEP)
- #define _TIF_FREEZE		(1<<TIF_FREEZE)
- 
- #ifdef CONFIG_64BIT
+Acked-by: Vivek Goyal <vgoyal@redhat.com>
+
+Vivek
+
+> ---
+>  include/linux/kexec.h |    4 ++++
+>  kernel/kexec.c        |    2 +-
+>  2 files changed, 5 insertions(+), 1 deletion(-)
+> 
+> --- a/include/linux/kexec.h
+> +++ b/include/linux/kexec.h
+> @@ -33,6 +33,10 @@
+>  #error KEXEC_ARCH not defined
+>  #endif
+>  
+> +#ifndef KEXEC_CRASH_CONTROL_MEMORY_LIMIT
+> +#define KEXEC_CRASH_CONTROL_MEMORY_LIMIT KEXEC_CONTROL_MEMORY_LIMIT
+> +#endif
+> +
+>  #define KEXEC_NOTE_HEAD_BYTES ALIGN(sizeof(struct elf_note), 4)
+>  #define KEXEC_CORE_NOTE_NAME "CORE"
+>  #define KEXEC_CORE_NOTE_NAME_BYTES ALIGN(sizeof(KEXEC_CORE_NOTE_NAME), 4)
+> --- a/kernel/kexec.c
+> +++ b/kernel/kexec.c
+> @@ -498,7 +498,7 @@ static struct page *kimage_alloc_crash_c
+>  	while (hole_end <= crashk_res.end) {
+>  		unsigned long i;
+>  
+> -		if (hole_end > KEXEC_CONTROL_MEMORY_LIMIT)
+> +		if (hole_end > KEXEC_CRASH_CONTROL_MEMORY_LIMIT)
+>  			break;
+>  		if (hole_end > crashk_res.end)
+>  			break;
