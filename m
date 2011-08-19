@@ -1,135 +1,658 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH 00/24] net: Remove unnecessary OOM logging messages
-Date: Mon, 29 Aug 2011 14:17:19 -0700
-Message-Id: <cover.1314650069.git.joe@perches.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-hams@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org, netfilter-devel@vger.kernel.org, netfilter@vger.kernel.org, coreteam@netfilter.org, netdev@vger.kernel.org, ceph-devel@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-s390@vger.kernel.org, linux-wireless@vger.kernel.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org, linux-nfs@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Date: Fri, 19 Aug 2011 13:09:50 +0000
+Subject: [patch 1/2] kexec-tools: Add s390 kdump support
+Message-Id: <20110819131211.988753361@linux.vnet.ibm.com>
+To: linux-s390@vger.kernel.org, kexec@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Remove all the site-specific OOM messages because they duplicate
-the MM subsystem generic OOM message.
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 
-Saves ~.2% (~2.5kb) of code/text in an x86 defconfig
+This patch adds kdump support for s390 to the kexec tool and enables the
+"--load-panic" option. When loading the kdump kernel and ramdisk we add the
+address of the crashkernel memory to the normal load address.
 
-$ size net/built-in.o*defconfig
-   text	   data	    bss	    dec	    hex	filename
-1506772	  58652	  34928	1600352	 186b60	net/built-in.o.new.defconfig
-1509144	  58652	  34928	1602724	 1874a4	net/built-in.o.old.defconfig
+Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+---
+ include/elf.h                        |    8 ++-
+ kexec/arch/s390/Makefile             |    1 
+ kexec/arch/s390/crashdump-s390.c     |   74 +++++++++++++++++++++++++++
+ kexec/arch/s390/kexec-elf-rel-s390.c |   66 +++++++++++++++++++++---
+ kexec/arch/s390/kexec-image.c        |   69 ++++++++++++++++++-------
+ kexec/arch/s390/kexec-s390.c         |   68 ++++++++++++++++++-------
+ kexec/arch/s390/kexec-s390.h         |    9 +++
+ purgatory/arch/s390/Makefile         |    5 +
+ purgatory/arch/s390/console-s390.c   |   14 +++++
+ purgatory/arch/s390/purgatory-s390.c |   93 +++++++++++++++++++++++++++++++++++
+ purgatory/arch/s390/setup-s390.S     |   33 ++++++++++++
+ 11 files changed, 390 insertions(+), 50 deletions(-)
 
-$ size net/built-in.o*allyesconfig
-   text	   data	    bss	    dec	    hex	filename
-7655361	 275361	2062352	 9993074 987b72	net/built-in.o.new.allyesconfig
-7667400	 275649	2064024	10007073 98b221	net/built-in.o.old.allyesconfig
-
-Joe Perches (24):
-  802: Remove unnecessary OOM logging messages
-  9p: Remove unnecessary OOM logging messages
-  atm: Remove unnecessary OOM logging messages
-  ax25: Remove unnecessary OOM logging messages
-  batman-adv: Remove unnecessary OOM logging messages
-  netfilter: Remove unnecessary OOM logging messages
-  net: Remove unnecessary OOM logging messages
-  ceph: Remove unnecessary OOM logging messages
-  decnet: Remove unnecessary OOM logging messages
-  econet: Remove unnecessary OOM logging messages
-  iucv: Remove unnecessary OOM logging messages
-  mac80211: Remove unnecessary OOM logging messages
-  netrom: Remove unnecessary OOM logging messages
-  rds: Remove unnecessary OOM logging messages
-  rfkill: Remove unnecessary OOM logging messages
-  rose: Remove unnecessary OOM logging messages
-  sched: Remove unnecessary OOM logging messages
-  sctp: Remove unnecessary OOM logging messages
-  sunrpc: Remove unnecessary OOM logging messages
-  tipc: Remove unnecessary OOM logging messages
-  wanrouter: Remove unnecessary OOM logging messages
-  wireless: Remove unnecessary OOM logging messages
-  x25: Remove unnecessary OOM logging messages
-  net: Remove unnecessary OOM logging messages
-
- net/802/tr.c                            |    1 -
- net/9p/client.c                         |    7 +----
- net/9p/trans_virtio.c                   |    6 +----
- net/atm/lec.c                           |    4 +--
- net/atm/mpc.c                           |   17 ++++----------
- net/atm/mpoa_caches.c                   |    8 +-----
- net/ax25/ax25_dev.c                     |    5 +--
- net/ax25/ax25_out.c                     |    8 +++---
- net/ax25/ax25_route.c                   |    5 +--
- net/batman-adv/hard-interface.c         |    5 +---
- net/batman-adv/main.c                   |    2 -
- net/batman-adv/originator.c             |   16 +++----------
- net/batman-adv/soft-interface.c         |    4 +--
- net/batman-adv/vis.c                    |    4 +--
- net/bridge/netfilter/ebt_ulog.c         |    7 ++---
- net/can/af_can.c                        |    6 +---
- net/ceph/messenger.c                    |    5 +---
- net/ceph/msgpool.c                      |    6 +----
- net/core/dev.c                          |   25 ++++++----------------
- net/core/flow.c                         |    4 +--
- net/core/pktgen.c                       |    5 +---
- net/decnet/dn_neigh.c                   |    6 -----
- net/econet/af_econet.c                  |    4 +--
- net/ipv4/netfilter/ipt_CLUSTERIP.c      |    1 -
- net/ipv4/netfilter/ipt_ULOG.c           |    4 +--
- net/ipv4/netfilter/nf_nat_snmp_basic.c  |   22 +-----------------
- net/ipv6/netfilter/nf_conntrack_reasm.c |    7 ++---
- net/iucv/iucv.c                         |    5 +--
- net/mac80211/agg-rx.c                   |   19 +---------------
- net/mac80211/agg-tx.c                   |   35 +++++++-----------------------
- net/mac80211/debugfs.c                  |    3 ++
- net/mac80211/ht.c                       |    6 +----
- net/mac80211/mesh.c                     |    5 +--
- net/mac80211/mlme.c                     |   17 ++++----------
- net/mac80211/spectmgmt.c                |    6 +----
- net/mac80211/tx.c                       |   17 ++++----------
- net/mac80211/util.c                     |   11 ++-------
- net/mac80211/work.c                     |    6 +---
- net/netfilter/ipset/ip_set_core.c       |    4 +--
- net/netfilter/ipvs/ip_vs_core.c         |    5 +--
- net/netfilter/ipvs/ip_vs_ctl.c          |   18 +++++----------
- net/netfilter/ipvs/ip_vs_dh.c           |    5 +--
- net/netfilter/ipvs/ip_vs_lblc.c         |    9 ++-----
- net/netfilter/ipvs/ip_vs_lblcr.c        |   13 +++--------
- net/netfilter/ipvs/ip_vs_proto.c        |    5 +--
- net/netfilter/ipvs/ip_vs_sh.c           |    5 +--
- net/netfilter/ipvs/ip_vs_wrr.c          |    5 +--
- net/netfilter/nf_conntrack_core.c       |    5 +---
- net/netfilter/nfnetlink_log.c           |    7 +----
- net/netfilter/xt_IDLETIMER.c            |    2 -
- net/netfilter/xt_hashlimit.c            |    5 +---
- net/netrom/af_netrom.c                  |    8 +-----
- net/rds/ib_rdma.c                       |    1 -
- net/rds/iw_rdma.c                       |    8 +------
- net/rds/iw_send.c                       |    8 +-----
- net/rfkill/rfkill-regulator.c           |    1 -
- net/rose/af_rose.c                      |    1 -
- net/sched/act_api.c                     |    6 +---
- net/sched/sch_atm.c                     |    1 -
- net/sctp/protocol.c                     |    3 --
- net/socket.c                            |    5 +---
- net/sunrpc/auth_gss/gss_krb5_crypto.c   |   10 +-------
- net/sunrpc/auth_gss/gss_krb5_mech.c     |    2 -
- net/sunrpc/backchannel_rqst.c           |    9 ++-----
- net/sunrpc/clnt.c                       |    3 --
- net/sunrpc/rpc_pipe.c                   |    3 +-
- net/sunrpc/rpcb_clnt.c                  |    2 -
- net/sunrpc/xprtrdma/svc_rdma.c          |    8 +-----
- net/sunrpc/xprtrdma/transport.c         |    5 +---
- net/sunrpc/xprtrdma/verbs.c             |   14 ------------
- net/sunrpc/xprtsock.c                   |    5 +---
- net/tipc/link.c                         |    4 +--
- net/wanrouter/wanmain.c                 |    8 +------
- net/wireless/lib80211_crypt_ccmp.c      |    2 -
- net/wireless/lib80211_crypt_tkip.c      |    4 ---
- net/wireless/lib80211_crypt_wep.c       |    4 ---
- net/wireless/util.c                     |    5 +--
- net/x25/x25_dev.c                       |   10 +++-----
- 78 files changed, 137 insertions(+), 415 deletions(-)
-
--- 
-1.7.6.405.gc1be0
+--- a/include/elf.h
++++ b/include/elf.h
+@@ -2304,9 +2304,13 @@ typedef Elf32_Addr Elf32_Conflict;
+ #define R_390_TLS_DTPOFF	55	/* Offset in TLS block.	 */
+ #define R_390_TLS_TPOFF		56	/* Negated offset in static TLS
+ 					   block.  */
+-
++#define R_390_20		57	/* Direct 20 bit.  */
++#define R_390_GOT20		58	/* 20 bit GOT offset.  */
++#define R_390_GOTPLT20		59	/* 20 bit offset to jump slot.  */
++#define R_390_TLS_GOTIE20	60	/* 20 bit GOT offset for static TLS
++					   block offset.  */
+ /* Keep this the last entry.  */
+-#define R_390_NUM		57
++#define R_390_NUM		61
+ 
+ /* CRIS relocations.  */
+ #define R_CRIS_NONE		0
+--- a/kexec/arch/s390/Makefile
++++ b/kexec/arch/s390/Makefile
+@@ -4,6 +4,7 @@
+ s390_KEXEC_SRCS =  kexec/arch/s390/kexec-s390.c
+ s390_KEXEC_SRCS += kexec/arch/s390/kexec-image.c
+ s390_KEXEC_SRCS += kexec/arch/s390/kexec-elf-rel-s390.c
++s390_KEXEC_SRCS += kexec/arch/s390/crashdump-s390.c
+ 
+ dist += kexec/arch/s390/Makefile $(s390_KEXEC_SRCS)			\
+ 	kexec/arch/s390/kexec-s390.h					\
+--- /dev/null
++++ b/kexec/arch/s390/crashdump-s390.c
+@@ -0,0 +1,74 @@
++/*
++ * kexec/arch/s390/crashdump-s390.c
++ *
++ * Copyright IBM Corp. 2011
++ *
++ * Author(s): Michael Holzheu <holzheu@linux.vnet.ibm.com>
++ */
++
++#ifdef __s390x__
++#define _GNU_SOURCE
++
++#include <stdio.h>
++#include <elf.h>
++#include <limits.h>
++#include "../../kexec.h"
++#include "../../kexec-syscall.h"
++#include "../../kexec/crashdump.h"
++#include "kexec-s390.h"
++
++/*
++ * Load additional segments for kdump kernel
++ */
++int load_crashdump_segments(struct kexec_info *info, unsigned long crash_base,
++			    unsigned long crash_end)
++{
++	static struct memory_range crash_memory_range[MAX_MEMORY_RANGES];
++	unsigned long bufsz, elfcorehdr, elfcorehdr_size, crash_size;
++	struct crash_elf_info elf_info;
++	char str[COMMAND_LINESIZE];
++	int ranges;
++	void *tmp;
++
++	crash_size = crash_end - crash_base + 1;
++	memset(&elf_info, 0, sizeof(elf_info));
++
++	elf_info.data = ELFDATA2MSB;
++	elf_info.machine = EM_S390;
++	elf_info.class = ELFCLASS64;
++	elf_info.get_note_info = get_crash_notes_per_cpu;
++
++	if (get_memory_ranges_s390(crash_memory_range, &ranges, 0))
++		return -1;
++
++	if (crash_create_elf64_headers(info, &elf_info, crash_memory_range,
++				       ranges, &tmp, &bufsz,
++				       ELF_CORE_HEADER_ALIGN))
++		return -1;
++
++	elfcorehdr = add_buffer(info, tmp, bufsz, bufsz, 1024,
++				crash_base, crash_end, -1);
++	elfcorehdr_size = bufsz;
++	elf_rel_build_load(info, &info->rhdr, (const char *) purgatory,
++			   purgatory_size, crash_base + 0x2000,
++			   crash_base + 0x10000, -1, 0);
++	elf_rel_set_symbol(&info->rhdr, "crash_base", &crash_base,
++			   sizeof(crash_base));
++	elf_rel_set_symbol(&info->rhdr, "crash_size", &crash_size,
++			   sizeof(crash_size));
++	info->entry = (void *) elf_rel_get_addr(&info->rhdr, "purgatory_start");
++	snprintf(str, sizeof(str), " elfcorehdr=%ld@%ldK\n",
++		 elfcorehdr_size, elfcorehdr / 1024);
++	command_line_add(str);
++	return 0;
++}
++#else
++/*
++ * kdump is not available for s390
++ */
++int load_crashdump_segments(struct kexec_info *info, unsigned long crash_base,
++			    unsigned long crash_end)
++{
++	return -1;
++}
++#endif
+--- a/kexec/arch/s390/kexec-elf-rel-s390.c
++++ b/kexec/arch/s390/kexec-elf-rel-s390.c
+@@ -1,7 +1,7 @@
+ /*
+  * kexec/arch/s390/kexec-elf-rel-s390.c
+  *
+- * (C) Copyright IBM Corp. 2005
++ * Copyright IBM Corp. 2005,2011
+  *
+  * Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
+  *
+@@ -12,15 +12,65 @@
+ #include "../../kexec.h"
+ #include "../../kexec-elf.h"
+ 
+-int machine_verify_elf_rel(struct mem_ehdr *UNUSED(ehdr))
++int machine_verify_elf_rel(struct mem_ehdr *ehdr)
+ {
+-	return 0;
++	if (ehdr->ei_data != ELFDATA2MSB)
++		return 0;
++	if (ehdr->ei_class != ELFCLASS64)
++		return 0;
++	if (ehdr->e_machine != EM_S390)
++		return 0;
++	return 1;
+ }
+ 
+-void machine_apply_elf_rel(struct mem_ehdr *UNUSED(ehdr),
+-			   unsigned long UNUSED(r_type),
+-			   void *UNUSED(location),
+-			   unsigned long UNUSED(address),
+-			   unsigned long UNUSED(value))
++void machine_apply_elf_rel(struct mem_ehdr *ehdr,
++			   unsigned long r_type,
++			   void *loc,
++			   unsigned long address,
++			   unsigned long val)
+ {
++	switch (r_type) {
++	case R_390_8:		/* Direct 8 bit.   */
++	case R_390_12:		/* Direct 12 bit.  */
++	case R_390_16:		/* Direct 16 bit.  */
++	case R_390_20:		/* Direct 20 bit.  */
++	case R_390_32:		/* Direct 32 bit.  */
++	case R_390_64:		/* Direct 64 bit.  */
++		if (r_type == R_390_8)
++			*(unsigned char *) loc = val;
++		else if (r_type == R_390_12)
++			*(unsigned short *) loc = (val & 0xfff) |
++				(*(unsigned short *) loc & 0xf000);
++		else if (r_type == R_390_16)
++			*(unsigned short *) loc = val;
++		else if (r_type == R_390_20)
++			*(unsigned int *) loc =
++				(*(unsigned int *) loc & 0xf00000ff) |
++				(val & 0xfff) << 16 | (val & 0xff000) >> 4;
++		else if (r_type == R_390_32)
++			*(unsigned int *) loc = val;
++		else if (r_type == R_390_64)
++			*(unsigned long *) loc = val;
++		break;
++	case R_390_PC16:	/* PC relative 16 bit.  */
++	case R_390_PC16DBL:	/* PC relative 16 bit shifted by 1.  */
++	case R_390_PC32DBL:	/* PC relative 32 bit shifted by 1.  */
++	case R_390_PC32:	/* PC relative 32 bit.  */
++	case R_390_PC64:	/* PC relative 64 bit.	*/
++		val -= address;
++		if (r_type == R_390_PC16)
++			*(unsigned short *) loc = val;
++		else if (r_type == R_390_PC16DBL)
++			*(unsigned short *) loc = val >> 1;
++		else if (r_type == R_390_PC32DBL)
++			*(unsigned int *) loc = val >> 1;
++		else if (r_type == R_390_PC32)
++			*(unsigned int *) loc = val;
++		else if (r_type == R_390_PC64)
++			*(unsigned long *) loc = val;
++		break;
++	default:
++		die("Unknown rela relocation: 0x%lx 0x%lx\n", r_type, address);
++		break;
++	}
+ }
+--- a/kexec/arch/s390/kexec-image.c
++++ b/kexec/arch/s390/kexec-image.c
+@@ -18,18 +18,41 @@
+ #include <unistd.h>
+ #include <getopt.h>
+ #include "../../kexec.h"
++#include "../../kexec-syscall.h"
++#include "../../kexec/crashdump.h"
+ #include "kexec-s390.h"
++#include "elf.h"
+ #include <arch/options.h>
+ 
++static uint64_t crash_base, crash_end;
++static char command_line[COMMAND_LINESIZE];
++
++static void add_segment_check(struct kexec_info *info, const void *buf,
++			      size_t bufsz, unsigned long base, size_t memsz)
++{
++	if (info->kexec_flags & KEXEC_ON_CRASH)
++		if (base + memsz > crash_end - crash_base)
++			die("Not enough crashkernel memory to load segments\n");
++	add_segment(info, buf, bufsz, crash_base + base, memsz);
++}
++
++int command_line_add(const char *str)
++{
++	if (strlen(command_line) + strlen(str) + 1 > COMMAND_LINESIZE) {
++		fprintf(stderr, "Command line too long.\n");
++		return -1;
++	}
++	strcat(command_line, str);
++	return 0;
++}
++
+ int
+ image_s390_load(int argc, char **argv, const char *kernel_buf,
+ 		off_t kernel_size, struct kexec_info *info)
+ {
+ 	void *krnl_buffer;
+ 	char *rd_buffer;
+-	const char *command_line;
+ 	const char *ramdisk;
+-	int command_line_len;
+ 	off_t ramdisk_len;
+ 	unsigned int ramdisk_origin;
+ 	int opt;
+@@ -44,7 +67,6 @@ image_s390_load(int argc, char **argv, c
+ 	static const char short_options[] = KEXEC_OPT_STR "";
+ 
+ 	ramdisk = NULL;
+-	command_line = NULL;
+ 	ramdisk_len = 0;
+ 	ramdisk_origin = 0;
+ 
+@@ -55,7 +77,8 @@ image_s390_load(int argc, char **argv, c
+ 			return -1;
+ 			break;
+ 		case OPT_APPEND:
+-			command_line = optarg;
++			if (command_line_add(optarg))
++				return -1;
+ 			break;
+ 		case OPT_RAMDISK:
+ 			ramdisk = optarg;
+@@ -63,17 +86,14 @@ image_s390_load(int argc, char **argv, c
+ 		}
+ 	}
+ 
+-	/* Process a given command_line: */
+-	if (command_line) {
+-		command_line_len = strlen(command_line) + 1; /* Remember the '\0' */
+-		if (command_line_len > COMMAND_LINESIZE) {
+-		        fprintf(stderr, "Command line too long.\n");
++	if (info->kexec_flags & KEXEC_ON_CRASH) {
++		if (parse_iomem_single("Crash kernel\n", &crash_base,
++				       &crash_end))
+ 			return -1;
+-		}
+ 	}
+ 
+ 	/* Add kernel segment */
+-	add_segment(info, kernel_buf + IMAGE_READ_OFFSET,
++	add_segment_check(info, kernel_buf + IMAGE_READ_OFFSET,
+ 		    kernel_size - IMAGE_READ_OFFSET, IMAGE_READ_OFFSET,
+ 		    kernel_size - IMAGE_READ_OFFSET);
+ 
+@@ -88,10 +108,17 @@ image_s390_load(int argc, char **argv, c
+ 			return -1;
+ 		}
+ 		ramdisk_origin = RAMDISK_ORIGIN_ADDR;
+-		add_segment(info, rd_buffer, ramdisk_len, RAMDISK_ORIGIN_ADDR, ramdisk_len);
++		add_segment_check(info, rd_buffer, ramdisk_len,
++				  RAMDISK_ORIGIN_ADDR, ramdisk_len);
+ 	}
+-	
+-	/* Register the ramdisk in the kernel. */
++	if (info->kexec_flags & KEXEC_ON_CRASH) {
++		if (load_crashdump_segments(info, crash_base, crash_end))
++			return -1;
++	} else {
++		info->entry = (void *) IMAGE_READ_OFFSET;
++	}
++
++	/* Register the ramdisk and crashkernel memory in the kernel. */
+ 	{
+ 		unsigned long long *tmp;
+ 
+@@ -100,19 +127,23 @@ image_s390_load(int argc, char **argv, c
+ 
+ 		tmp = krnl_buffer + INITRD_SIZE_OFFS;
+ 		*tmp = (unsigned long long) ramdisk_len;
+-	}
+ 
++		if (info->kexec_flags & KEXEC_ON_CRASH) {
++			tmp = krnl_buffer + OLDMEM_BASE_OFFS;
++			*tmp = crash_base;
++
++			tmp = krnl_buffer + OLDMEM_SIZE_OFFS;
++			*tmp = crash_end - crash_base + 1;
++		}
++	}
+ 	/*
+ 	 * We will write a probably given command line.
+ 	 * First, erase the old area, then setup the new parameters:
+ 	 */
+-	if (command_line) {
++	if (strlen(command_line) != 0) {
+ 		memset(krnl_buffer + COMMAND_LINE_OFFS, 0, COMMAND_LINESIZE);
+ 		memcpy(krnl_buffer + COMMAND_LINE_OFFS, command_line, strlen(command_line));
+ 	}
+-
+-	info->entry = (void *) IMAGE_READ_OFFSET;
+-
+ 	return 0;
+ }
+ 
+--- a/kexec/arch/s390/kexec-s390.c
++++ b/kexec/arch/s390/kexec-s390.c
+@@ -1,9 +1,10 @@
+ /*
+  * kexec/arch/s390/kexec-s390.c
+  *
+- * (C) Copyright IBM Corp. 2005
++ * Copyright IBM Corp. 2005,2011
+  *
+  * Author(s): Rolf Adelsberger <adelsberger@de.ibm.com>
++ *            Michael Holzheu <holzheu@linux.vnet.ibm.com>
+  *
+  */
+ 
+@@ -19,26 +20,16 @@
+ #include "kexec-s390.h"
+ #include <arch/options.h>
+ 
+-#define MAX_MEMORY_RANGES 64
+ static struct memory_range memory_range[MAX_MEMORY_RANGES];
+ 
+ /*
+- * get_memory_ranges:
+- *  Return a list of memory ranges by parsing the file returned by
+- *  proc_iomem()
+- *
+- * INPUT:
+- *  - Pointer to an array of memory_range structures.
+- *  - Pointer to an integer with holds the number of memory ranges.
+- *
+- * RETURN:
+- *  - 0 on normal execution.
+- *  - (-1) if something went wrong.
++ * Get memory ranges of type "System RAM" from /proc/iomem. If with_crashk=1
++ * then also type "Crash kernel" is added.
+  */
+-
+-int get_memory_ranges(struct memory_range **range, int *ranges,
+-		      unsigned long UNUSED(flags))
++int get_memory_ranges_s390(struct memory_range memory_range[], int *ranges,
++			   int with_crashk)
+ {
++	char crash_kernel[] = "Crash kernel\n";
+ 	char sys_ram[] = "System RAM\n";
+ 	const char *iomem = proc_iomem();
+ 	FILE *fp;
+@@ -52,7 +43,7 @@ int get_memory_ranges(struct memory_rang
+ 	}
+ 
+ 	/* Setup the compare string properly. */
+-	while(fgets(line,sizeof(line),fp) != 0) {
++	while (fgets(line, sizeof(line), fp) != 0) {
+ 		unsigned long long start, end;
+ 		int cons;
+ 		char *str;
+@@ -62,7 +53,9 @@ int get_memory_ranges(struct memory_rang
+ 
+ 		sscanf(line,"%Lx-%Lx : %n", &start, &end, &cons);
+ 		str = line+cons;
+-		if(memcmp(str,sys_ram,strlen(sys_ram)) == 0) {
++		if ((memcmp(str, sys_ram, strlen(sys_ram)) == 0) ||
++		    ((memcmp(str, crash_kernel, strlen(crash_kernel)) == 0) &&
++		     with_crashk)) {
+ 			memory_range[current_range].start = start;
+ 			memory_range[current_range].end = end;
+ 			memory_range[current_range].type = RANGE_RAM;
+@@ -73,9 +66,41 @@ int get_memory_ranges(struct memory_rang
+ 		}
+ 	}
+ 	fclose(fp);
+-	*range = memory_range;
+ 	*ranges = current_range;
++	return 0;
++}
+ 
++/*
++ * get_memory_ranges:
++ *  Return a list of memory ranges by parsing the file returned by
++ *  proc_iomem()
++ *
++ * INPUT:
++ *  - Pointer to an array of memory_range structures.
++ *  - Pointer to an integer with holds the number of memory ranges.
++ *
++ * RETURN:
++ *  - 0 on normal execution.
++ *  - (-1) if something went wrong.
++ */
++
++int get_memory_ranges(struct memory_range **range, int *ranges,
++		      unsigned long flags)
++{
++	uint64_t start, end;
++
++	if (get_memory_ranges_s390(memory_range, ranges,
++				   flags & KEXEC_ON_CRASH))
++		return -1;
++	*range = memory_range;
++	if ((flags & KEXEC_ON_CRASH) && !(flags & KEXEC_PRESERVE_CONTEXT)) {
++		if (parse_iomem_single("Crash kernel\n", &start, &end))
++			return -1;
++		if (start > mem_min)
++			mem_min = start;
++		if (end < mem_max)
++			mem_max = end;
++	}
+ 	return 0;
+ }
+ 
+@@ -112,5 +137,8 @@ void arch_update_purgatory(struct kexec_
+ 
+ int is_crashkernel_mem_reserved(void)
+ {
+-	return 0; /* kdump is not supported on this platform (yet) */
++	uint64_t start, end;
++
++	return parse_iomem_single("Crash kernel\n", &start, &end) == 0 ?
++		(start != end) : 0;
+ }
+--- a/kexec/arch/s390/kexec-s390.h
++++ b/kexec/arch/s390/kexec-s390.h
+@@ -15,11 +15,20 @@
+ #define RAMDISK_ORIGIN_ADDR   0x800000
+ #define INITRD_START_OFFS     0x408
+ #define INITRD_SIZE_OFFS      0x410
++#define OLDMEM_BASE_OFFS      0x418
++#define OLDMEM_SIZE_OFFS      0x420
+ #define COMMAND_LINE_OFFS     0x480
+ #define COMMAND_LINESIZE      896
++#define MAX_MEMORY_RANGES     64
+ 
+ extern int image_s390_load(int, char **, const char *, off_t, struct kexec_info *);
+ extern int image_s390_probe(const char *, off_t);
+ extern void image_s390_usage(void);
++extern int load_crashdump_segments(struct kexec_info *info,
++				   unsigned long crash_base,
++				   unsigned long crash_end);
++extern int get_memory_ranges_s390(struct memory_range range[], int *ranges,
++				  int with_crashk);
++extern int command_line_add(const char *str);
+ 
+ #endif /* KEXEC_IA64_H */
+--- a/purgatory/arch/s390/Makefile
++++ b/purgatory/arch/s390/Makefile
+@@ -2,7 +2,10 @@
+ # Purgatory s390
+ #
+ 
+-s390_PURGATORY_SRCS =
++s390_PURGATORY_EXTRA_CFLAGS += -fno-stack-protector
++s390_PURGATORY_SRCS += purgatory/arch/s390/console-s390.c
++s390_PURGATORY_SRCS += purgatory/arch/s390/setup-s390.S
++s390_PURGATORY_SRCS += purgatory/arch/s390/purgatory-s390.c
+ 
+ dist += purgatory/arch/s390/Makefile $(s390_PURGATORY_SRCS)
+ 
+--- /dev/null
++++ b/purgatory/arch/s390/console-s390.c
+@@ -0,0 +1,14 @@
++/*
++ * S390 console code (currently not implemented)
++ *
++ * Copyright IBM Corp. 2011
++ *
++ * Author(s): Michael Holzheu <holzheu@linux.vnet.ibm.com>
++ */
++
++#include <purgatory.h>
++#include "unused.h"
++
++void putchar(int UNUSED(ch))
++{
++}
+--- /dev/null
++++ b/purgatory/arch/s390/purgatory-s390.c
+@@ -0,0 +1,93 @@
++/*
++ * S390 purgatory
++ *
++ * Copyright IBM Corp. 2011
++ *
++ * Author(s): Michael Holzheu <holzheu@linux.vnet.ibm.com>
++ */
++
++#include <stdint.h>
++#include <stddef.h>
++#include <string.h>
++#include "../../../kexec/kexec-sha256.h"
++
++#define MIN(x, y) ((x) < (y) ? (x) : (y))
++#define MAX(x, y) ((x) > (y) ? (x) : (y))
++
++extern struct sha256_region sha256_regions[SHA256_REGIONS];
++
++unsigned long crash_base = (unsigned long) -1;
++unsigned long crash_size = (unsigned long) -1;
++
++/*
++ * Implement memcpy using the mvcle instruction
++ */
++static void memcpy_fast(void *target, void *src, unsigned long size)
++{
++	register unsigned long __target asm("2") = (unsigned long) target;
++	register unsigned long __size1 asm("3") = size;
++	register unsigned long __src asm("4") = (unsigned long) src;
++	register unsigned long __size2 asm("5") = size;
++
++	asm volatile (
++		"0:	mvcle	%0,%2,0\n"
++		"	jo	0b\n"
++		: "+d" (__target), "+d" (__size1), "+d" (__src), "+d" (__size2)
++		:
++		: "cc", "memory"
++	);
++}
++
++/*
++ * Swap memory areas
++ */
++static void memswap(void *addr1, void *addr2, unsigned long size)
++{
++	unsigned long off, copy_len;
++	static char buf[1024];
++
++	for (off = 0; off < size; off += sizeof(buf)) {
++		copy_len = MIN(size - off, sizeof(buf));
++		memcpy_fast(buf, (void *) addr2 + off, copy_len);
++		memcpy_fast(addr2 + off, addr1 + off, copy_len);
++		memcpy_fast(addr1 + off, buf, copy_len);
++	}
++}
++
++/*
++ * Nothing to do
++ */
++void setup_arch(void)
++{
++}
++
++/*
++ * Do swap of [crash base - crash base + size] with [0 - crash size]
++ *
++ * We swap all kexec segments except of purgatory. The rest is copied
++ * from [0 - crash size] to [crash base - crash base + size].
++ * We use [0x2000 - 0x10000] for purgatory. This area is never used
++ * by s390 Linux kernels.
++ *
++ * This functions assumes that the sha256_regions[] is sorted.
++ */
++void post_verification_setup_arch(void)
++{
++	unsigned long start, len, last = crash_base + 0x10000;
++	struct sha256_region *ptr, *end;
++
++	end = &sha256_regions[sizeof(sha256_regions)/sizeof(sha256_regions[0])];
++	for (ptr = sha256_regions; ptr < end; ptr++) {
++		if (!ptr->start)
++			continue;
++		start = MAX(ptr->start, crash_base + 0x10000);
++		len = ptr->len - (start - ptr->start);
++		memcpy_fast((void *) last, (void *) last - crash_base,
++			    start - last);
++		memswap((void *) start - crash_base, (void *) start, len);
++		last = start + len;
++	}
++	memcpy_fast((void *) last, (void *) last - crash_base,
++		    crash_base + crash_size - last);
++	memcpy_fast((void *) crash_base, (void *) 0, 0x2000);
++}
+--- /dev/null
++++ b/purgatory/arch/s390/setup-s390.S
+@@ -0,0 +1,33 @@
++/*
++ * Purgatory setup code
++ *
++ * Copyright IBM Corp. 2011
++ *
++ * Author(s): Michael Holzheu <holzheu@linux.vnet.ibm.com>
++ */
++
++	.text
++	.globl purgatory_start
++	.balign 16
++purgatory_start:
++#ifdef __s390x__
++	larl	%r15,lstack_end
++	aghi	%r15,-160
++	brasl	%r14,purgatory
++	larl	%r14,kdump_psw
++	lpswe	0(%r14)
++
++	.section ".data"
++	.balign 16
++kdump_psw:
++	.quad 0x0000000180000000
++	.quad 0x0000000000010010
++
++	.bss
++	.balign 4096
++lstack:
++	.skip 4096
++lstack_end:
++#else
++0:	j	0
++#endif
