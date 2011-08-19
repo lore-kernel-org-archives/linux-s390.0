@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 19 Aug 2011 09:20:19 -0400
+From: Vivek Goyal <vgoyal@redhat.com>
 Subject: Re: [patch 0/3] kdump: Add external kdump entry point for s390
  stand-alone dump tools
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Reply-To: holzheu@linux.vnet.ibm.com
-In-Reply-To: <20110819011431.GB20747@verge.net.au>
+Message-ID: <20110819132019.GA18656@redhat.com>
 References: <20110729123944.562622201@linux.vnet.ibm.com>
-	 <20110819011431.GB20747@verge.net.au>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 19 Aug 2011 14:53:20 +0200
-Message-ID: <1313758400.3858.12.camel@br98xy6r>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+ <20110819011431.GB20747@verge.net.au>
+ <1313758400.3858.12.camel@br98xy6r>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1313758400.3858.12.camel@br98xy6r>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Simon Horman <horms@verge.net.au>
-Cc: oomichi@mxs.nes.nec.co.jp, linux-s390@vger.kernel.org, mahesh@linux.vnet.ibm.com, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, hbabu@us.ibm.com, ebiederm@xmission.com, schwidefsky@de.ibm.com, kexec@lists.infradead.org, vgoyal@redhat.com
+To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Cc: Simon Horman <horms@verge.net.au>, oomichi@mxs.nes.nec.co.jp, linux-s390@vger.kernel.org, mahesh@linux.vnet.ibm.com, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, hbabu@us.ibm.com, ebiederm@xmission.com, schwidefsky@de.ibm.com, kexec@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Simon,
+On Fri, Aug 19, 2011 at 02:53:20PM +0200, Michael Holzheu wrote:
 
-On Fri, 2011-08-19 at 10:14 +0900, Simon Horman wrote:
-> On Fri, Jul 29, 2011 at 02:39:44PM +0200, Michael Holzheu wrote:
-> > Hello Vivek,
-> > 
-> > I finished the patches that add the stand-alone dump tools support on
-> > top of the recently sent v2 patch series. The following three patches
-> > implement the program check idea that we have discussed recently:
-> > 
-> > [1] kdump: Add new machine_kexec_finish() architecture callback
-> > [2] s390: Add external kdump entry point for s390 stand-alone dump tools
-> > [3] kexec-tools: Emit program check on s390 for checksum failure
+[...]
+> > although I am a little unclear about the status of the kernel side of
+> > things. Please let me know if you would like me to merge the kexec-tools
+> > patches now or wait a bit (for an updated version?).
 > 
-> Hi Michael,
-> 
-> in general I am fine with these patches and happy to merge them
+> I think that we are almost done with the discussion. I will send you my
+> current kexec-tools patches and would be glad, if you could integrate
+> them now.
 
-That's good news.
+I guess kexec-tools integration will make more sense once kernel patches
+show up atleast in one maintainer's subtree.
 
-> although I am a little unclear about the status of the kernel side of
-> things. Please let me know if you would like me to merge the kexec-tools
-> patches now or wait a bit (for an updated version?).
+Also in kernel patches, atleast we need to resolve the issue of arch
+specific kmap(), kunmap() calls so that we don't have to make
+kimage_load_crash_segment() arch specific.
 
-I think that we are almost done with the discussion. I will send you my
-current kexec-tools patches and would be glad, if you could integrate
-them now.
-
-From Monday I will be two weeks on vacation. If there are additional
-questions please contact Martin Schwidefsky and Heiko Carstens.
-
-> Also, if you could give me any pointers on how to obtain an s390
-> cross-compiling environment for x86_64 I would be most grateful.
-
-There are debian packages for under:
-http://debian.speedblue.org/ 
-
-Michael
+Thanks
+Vivek
