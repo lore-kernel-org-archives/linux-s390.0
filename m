@@ -1,52 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20110819141940.177788593@linux.vnet.ibm.com>
-Date: Fri, 19 Aug 2011 16:18:58 +0200
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: [patch 1/2] kdump: Add KEXEC_CRASH_CONTROL_MEMORY_LIMIT
-References: <20110819141857.052232873@linux.vnet.ibm.com>
-Content-Disposition: inline; filename=s390-kdump-common-control-limit.patch
+Date: Mon, 22 Aug 2011 14:27:32 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] arch/s390/kernel/ipl.c: correct error detection check
+Message-ID: <20110822122732.GA9280@osiris.boeblingen.de.ibm.com>
+References: <1314013594-25651-1-git-send-email-julia@diku.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1314013594-25651-1-git-send-email-julia@diku.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: akpm@linux-foundation.org
-Cc: vgoyal@redhat.com, ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, hbabu@us.ibm.com, oomichi@mxs.nes.nec.co.jp, horms@verge.net.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Julia Lawall <julia@diku.dk>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, kernel-janitors@vger.kernel.org, linux390@de.ibm.com, Michael Holzheu <holzheu@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, sumsaha@gmail.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+On Mon, Aug 22, 2011 at 01:46:34PM +0200, Julia Lawall wrote:
+> From: Julia Lawall <julia@diku.dk>
+> 
+> reipl_fcp_kset was just initialized, so it appears that it should be tested
+> instead of reipl_kset.
+> 
+> Signed-off-by: Julia Lawall <julia@diku.dk>
+> Reported-by: Suman Saha <sumsaha@gmail.com>
 
-On s390 there is a different KEXEC_CONTROL_MEMORY_LIMIT for the normal and
-the kdump kexec case. Therefore this patch introduces a new macro
-KEXEC_CRASH_CONTROL_MEMORY_LIMIT. This is set to
-KEXEC_CONTROL_MEMORY_LIMIT for all architectures that do not define
-KEXEC_CRASH_CONTROL_MEMORY_LIMIT.
-
-Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
----
- include/linux/kexec.h |    4 ++++
- kernel/kexec.c        |    2 +-
- 2 files changed, 5 insertions(+), 1 deletion(-)
-
---- a/include/linux/kexec.h
-+++ b/include/linux/kexec.h
-@@ -33,6 +33,10 @@
- #error KEXEC_ARCH not defined
- #endif
- 
-+#ifndef KEXEC_CRASH_CONTROL_MEMORY_LIMIT
-+#define KEXEC_CRASH_CONTROL_MEMORY_LIMIT KEXEC_CONTROL_MEMORY_LIMIT
-+#endif
-+
- #define KEXEC_NOTE_HEAD_BYTES ALIGN(sizeof(struct elf_note), 4)
- #define KEXEC_CORE_NOTE_NAME "CORE"
- #define KEXEC_CORE_NOTE_NAME_BYTES ALIGN(sizeof(KEXEC_CORE_NOTE_NAME), 4)
---- a/kernel/kexec.c
-+++ b/kernel/kexec.c
-@@ -498,7 +498,7 @@ static struct page *kimage_alloc_crash_c
- 	while (hole_end <= crashk_res.end) {
- 		unsigned long i;
- 
--		if (hole_end > KEXEC_CONTROL_MEMORY_LIMIT)
-+		if (hole_end > KEXEC_CRASH_CONTROL_MEMORY_LIMIT)
- 			break;
- 		if (hole_end > crashk_res.end)
- 			break;
+Applied. Thanks!
