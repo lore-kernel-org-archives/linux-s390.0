@@ -1,9 +1,9 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 9 Sep 2011 14:23:25 -0400
+Date: Fri, 9 Sep 2011 15:30:08 -0400
 From: Vivek Goyal <vgoyal@redhat.com>
 Subject: Re: [RFC][patch 1/2] kdump: Add infrastructure for unmapping
  crashkernel memory
-Message-ID: <20110909182325.GD15748@redhat.com>
+Message-ID: <20110909193008.GE15748@redhat.com>
 References: <20110908132609.177038405@linux.vnet.ibm.com>
  <20110908132652.189920773@linux.vnet.ibm.com>
 MIME-Version: 1.0
@@ -13,7 +13,7 @@ In-Reply-To: <20110908132652.189920773@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+To: Michael Holzheu <holzheu@linux.vnet.ibm.com>, Huang Ying <ying.huang@intel.com>
 Cc: ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
@@ -25,30 +25,28 @@ On Thu, Sep 08, 2011 at 03:26:10PM +0200, Michael Holzheu wrote:
 > kdump kernel from being overwritten by broken kernel code.
 > A new function crash_map_pages() is added that can be implemented by
 > architecture code. This function has the following syntax:
+> 
+> void crash_map_pages(int enable);
 
-I guess having separate functions for mapping and unmapping pages might
-look cleaner. Because we are not passing a page range, so specifying
-what pages we are talking about in function name might make it more
-clear.
+CCing Huang Ying. I am not sure if preserve context thing will be impacted
+by this in anyway.
 
-crash_map_reserved_pages()
-crash_unmap_reserved_pages().
+Hyuang,
 
-Secondly, what happens to the code which runs after crash (crash_kexec()).
-Current x86 code assumes that reserved region is mapped at the time of
-crash and does few things with control page there. 
+While I am looking at x86 code, I had a question. gitblame tells you
+changed that code last, so here I go.
 
-So this generic approach is not valid atleast for x86, because it does
-not tackle the scenario about how to map reserved range again once 
-kernel crashes. It will only work if there is assumption that after
-a crash, we don't expect reserved range/pages to be mapped.
+What is init_transition_pgtable() and why do we need it. I see that 
+init_pgtable() sets up identity mapped page table from 0 to max_pfn.
+Code running in control page (identity_mapped onwards) will make use
+of identity mapped page tables. Then I see that init_transition_pgtable()
+goes ahead and seems to be modifying identity mapped page tables to
+map address relocate_kernel to control code physical address. Why
+do we have to do that?
 
 Thanks
 Vivek
- 
 
-> 
-> void crash_map_pages(int enable);
 > 
 > "enable" can be 0 for removing or 1 for adding page tables.  The function is
 > called before and after the crashkernel segments are loaded. It is also
