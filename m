@@ -1,55 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [patch v2 2/2] s390: Add architecture code for unmapping
- crashkernel memory
+Message-Id: <20110913132654.157278466@linux.vnet.ibm.com>
+Date: Tue, 13 Sep 2011 15:26:37 +0200
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Reply-To: holzheu@linux.vnet.ibm.com
-In-Reply-To: <20110914182902.GA32658@redhat.com>
+Subject: [patch v2 2/2] s390: Add architecture code for unmapping crashkernel memory
 References: <20110913132635.063397500@linux.vnet.ibm.com>
-	 <20110913132654.157278466@linux.vnet.ibm.com>
-	 <20110913145218.659f9e21.akpm@google.com>
-	 <1315990708.3367.14.camel@br98xy6r>  <20110914182902.GA32658@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 15 Sep 2011 10:48:03 +0200
-Message-ID: <1316076483.3526.4.camel@br98xy6r>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename=s390-kdump-arch-crash_map_pages.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Vivek Goyal <vgoyal@redhat.com>
-Cc: Andrew Morton <akpm@google.com>, ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+To: vgoyal@redhat.com, akpm@linux-foundation.org
+Cc: ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Vivek, Andrew,
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 
-On Wed, 2011-09-14 at 14:29 -0400, Vivek Goyal wrote:
-> On Wed, Sep 14, 2011 at 10:58:28AM +0200, Michael Holzheu wrote:
-> > > Why not make this unconditional, for all architectures which support
-> > > hugepages?  ie:
-> > > 
-> > > #ifdef HPAGE_SIZE
-> > > #define KEXEC_CRASH_MEM_ALIGN HPAGE_SIZE
-> > > #else
-> > > #define KEXEC_CRASH_MEM_ALIGN PAGE_SIZE
-> > > #endif
-> > 
-> > > in include/linux/kexec.h?
-> > > 
-> > > IOW, what are the compromises here?
-> > 
-> > If we would do it that way, crashkernel memory on architectures that
-> > support large pages but do not support unmapping of crashkernel memory
-> > would always be aligned to HPAGE_SIZE. But only PAGE_SIZE alignment
-> > would be necessary in that case.
-> > 
-> > If that is acceptable I have no problem to define that unconditional for
-> > all architectures. Vivek what do you think?
-> 
-> As PAGE_SIZE alignment is sufficient for rest of the architecture, I 
-> am fine with keeping it in arch dependent files.
+This patch implements the crash_map_pages() function for s390.
+KEXEC_CRASH_MEM_ALIGN is set to HPAGE_SIZE, in order to support
+kernel mappings that use large pages.
 
-Ok fine. So I will resend the two patches including Andrew's
-resource_size() fix and keep KEXEC_CRASH_MEM_ALIGN definition
-architecture dependent.
+Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+---
+ arch/s390/include/asm/kexec.h    |    3 +++
+ arch/s390/kernel/machine_kexec.c |   31 +++++++++++++++++++++++++++++++
+ arch/s390/kernel/setup.c         |   10 ++++++----
+ 3 files changed, 40 insertions(+), 4 deletions(-)
 
-Michael
+--- a/arch/s390/include/asm/kexec.h
++++ b/arch/s390/include/asm/kexec.h
+@@ -36,6 +36,9 @@
+ /* Allocate one page for the pdp and the second for the code */
+ #define KEXEC_CONTROL_PAGE_SIZE 4096
+ 
++/* Alignment of crashkernel memory */
++#define KEXEC_CRASH_MEM_ALIGN HPAGE_SIZE
++
+ /* The native architecture */
+ #define KEXEC_ARCH KEXEC_ARCH_S390
+ 
+--- a/arch/s390/kernel/machine_kexec.c
++++ b/arch/s390/kernel/machine_kexec.c
+@@ -243,6 +243,37 @@ static void __machine_kdump(void *image)
+ #endif
+ 
+ /*
++ * Map or unmap crashkernel memory
++ */
++static void crash_map_pages(int enable)
++{
++	unsigned long size = crashk_res.end - crashk_res.start + 1;
++
++	BUG_ON(crashk_res.start % KEXEC_CRASH_MEM_ALIGN ||
++	       size % KEXEC_CRASH_MEM_ALIGN);
++	if (enable)
++		vmem_add_mapping(crashk_res.start, size);
++	else
++		vmem_remove_mapping(crashk_res.start, size);
++}
++
++/*
++ * Map crashkernel memory
++ */
++void crash_map_reserved_pages(void)
++{
++	crash_map_pages(1);
++}
++
++/*
++ * Unmap crashkernel memory
++ */
++void crash_unmap_reserved_pages(void)
++{
++	crash_map_pages(0);
++}
++
++/*
+  * Give back memory to hypervisor before new kdump is loaded
+  */
+ static int machine_kexec_prepare_kdump(void)
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -446,6 +446,7 @@ static void __init setup_resources(void)
+ 		res->flags = IORESOURCE_BUSY | IORESOURCE_MEM;
+ 		switch (memory_chunk[i].type) {
+ 		case CHUNK_READ_WRITE:
++		case CHUNK_CRASHK:
+ 			res->name = "System RAM";
+ 			break;
+ 		case CHUNK_READ_ONLY:
+@@ -706,8 +707,8 @@ static void __init reserve_crashkernel(v
+ 			       &crash_base);
+ 	if (rc || crash_size == 0)
+ 		return;
+-	crash_base = PAGE_ALIGN(crash_base);
+-	crash_size = PAGE_ALIGN(crash_size);
++	crash_base = ALIGN(crash_base, KEXEC_CRASH_MEM_ALIGN);
++	crash_size = ALIGN(crash_size, KEXEC_CRASH_MEM_ALIGN);
+ 	if (register_memory_notifier(&kdump_mem_nb))
+ 		return;
+ 	if (!crash_base)
+@@ -727,7 +728,7 @@ static void __init reserve_crashkernel(v
+ 	crashk_res.start = crash_base;
+ 	crashk_res.end = crash_base + crash_size - 1;
+ 	insert_resource(&iomem_resource, &crashk_res);
+-	reserve_kdump_bootmem(crash_base, crash_size, CHUNK_READ_WRITE);
++	reserve_kdump_bootmem(crash_base, crash_size, CHUNK_CRASHK);
+ 	pr_info("Reserving %lluMB of memory at %lluMB "
+ 		"for crashkernel (System RAM: %luMB)\n",
+ 		crash_size >> 20, crash_base >> 20, memory_end >> 20);
+@@ -802,7 +803,8 @@ setup_memory(void)
+ 	for (i = 0; i < MEMORY_CHUNKS && memory_chunk[i].size > 0; i++) {
+ 		unsigned long start_chunk, end_chunk, pfn;
+ 
+-		if (memory_chunk[i].type != CHUNK_READ_WRITE)
++		if (memory_chunk[i].type != CHUNK_READ_WRITE &&
++		    memory_chunk[i].type != CHUNK_CRASHK)
+ 			continue;
+ 		start_chunk = PFN_DOWN(memory_chunk[i].addr);
+ 		end_chunk = start_chunk + PFN_DOWN(memory_chunk[i].size);
