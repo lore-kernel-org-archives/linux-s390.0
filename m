@@ -1,18 +1,55 @@
-From: Simon Horman <horms@verge.net.au>
-Date: Sat, 20 Aug 2011 09:21:57 +0000
-Subject: Re: [patch 0/2] s390: Patch series for s390 kdump support
-Message-Id: <20110820092157.GA24619@verge.net.au>
-In-Reply-To: <20110819130949.289522258@linux.vnet.ibm.com>
-References: <20110819130949.289522258@linux.vnet.ibm.com>
-To: linux-s390@vger.kernel.org, kexec@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [patch v2 2/2] s390: Add architecture code for unmapping
+ crashkernel memory
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20110914182902.GA32658@redhat.com>
+References: <20110913132635.063397500@linux.vnet.ibm.com>
+	 <20110913132654.157278466@linux.vnet.ibm.com>
+	 <20110913145218.659f9e21.akpm@google.com>
+	 <1315990708.3367.14.camel@br98xy6r>  <20110914182902.GA32658@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 15 Sep 2011 10:48:03 +0200
+Message-ID: <1316076483.3526.4.camel@br98xy6r>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Vivek Goyal <vgoyal@redhat.com>
+Cc: Andrew Morton <akpm@google.com>, ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Aug 19, 2011 at 03:09:49PM +0200, Michael Holzheu wrote:
-> Hello Simon,
-> 
-> The following two patches add s390 kdump support (64 bit only) to the
-> kexec-tools:
-> [0] Add s390 kdump support
-> [1] Allow to call verify_sha256_digest() from kernel
+Hello Vivek, Andrew,
 
-Thanks, applied.
+On Wed, 2011-09-14 at 14:29 -0400, Vivek Goyal wrote:
+> On Wed, Sep 14, 2011 at 10:58:28AM +0200, Michael Holzheu wrote:
+> > > Why not make this unconditional, for all architectures which support
+> > > hugepages?  ie:
+> > > 
+> > > #ifdef HPAGE_SIZE
+> > > #define KEXEC_CRASH_MEM_ALIGN HPAGE_SIZE
+> > > #else
+> > > #define KEXEC_CRASH_MEM_ALIGN PAGE_SIZE
+> > > #endif
+> > 
+> > > in include/linux/kexec.h?
+> > > 
+> > > IOW, what are the compromises here?
+> > 
+> > If we would do it that way, crashkernel memory on architectures that
+> > support large pages but do not support unmapping of crashkernel memory
+> > would always be aligned to HPAGE_SIZE. But only PAGE_SIZE alignment
+> > would be necessary in that case.
+> > 
+> > If that is acceptable I have no problem to define that unconditional for
+> > all architectures. Vivek what do you think?
+> 
+> As PAGE_SIZE alignment is sufficient for rest of the architecture, I 
+> am fine with keeping it in arch dependent files.
+
+Ok fine. So I will resend the two patches including Andrew's
+resource_size() fix and keep KEXEC_CRASH_MEM_ALIGN definition
+architecture dependent.
+
+Michael
