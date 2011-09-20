@@ -1,8 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20110920143400.776127689@linux.vnet.ibm.com>
-Date: Tue, 20 Sep 2011 16:34:00 +0200
+Message-Id: <20110920143436.019045253@linux.vnet.ibm.com>
+Date: Tue, 20 Sep 2011 16:34:01 +0200
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: [patch 0/2] kdump: Initialize vmcoreinfo note at startup
+Subject: [patch 1/2] kdump: Initialize vmcoreinfo note at startup
+References: <20110920143400.776127689@linux.vnet.ibm.com>
+Content-Disposition: inline; filename=s390-kdump-common-vmcoreinfo-init.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -10,20 +12,80 @@ To: akpm@linux-foundation.org
 Cc: vgoyal@redhat.com, ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Andrew,
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 
-Another common code patch that we would like to have upstream is the vmcoreinfo
-note initialization at Linux startup time. We need that for our traditional
-stand-alone and hypervisor dump tools.
+Currently the vmcoreinfo note is only initialized in case of kdump. On s390
+it is possible to create kernel dumps with other dump mechanisms than kdump
+(e.g. via hypervisor dump or stand-alone dump tools). For those dumps it
+would also be desirable to include the vmcoreinfo data. To accomplish this,
+with this patch the vmcoreinfo ELF note is always initialized, not only in
+case of a (kdump) crash. On s390 we will add an ABI defined pointer at
+a well known address to vmcoreinfo so that dump analysis tools are able to
+find this information.
 
-[1] kdump: Initialize vmcoreinfo note at startup
-[2] s390: Export vmcoreinfo note
+In particular on s390 we have a tool named zgetdump. With this tool it is
+possible to convert dump formats on the fly using fuse. E.g. you can mount a
+s390 stand-alone dump as ELF dump. When this is done, the tool finds the
+vmcoreinfo in the stand-alone dump via the well known ABI defined address and
+it creates the respective VMCOREINFO ELF note in the output ELF dump. This then
+can be used e.g. by makedumpfile for dump filtering.  No more need for a
+vmlinux file with debug information.
 
-I already have discussed this with Vivek and he has acked the common code
-patch [1].
+So this will look like the following:
+$ zgetdump --mount standalone.dump -f elf /mnt
+$ ls /mnt
+  dump.elf
+$ readelf -n /mnt/dump.elf
+$ ...
+  VMCOREINFO            0x00000474      Unknown note type: (0x00000000)
+$ makedumpfile -c -d 31 /mnt/dump.elf dump.kdump
 
-Do you agree that Martin sends these patches together with the kdump page
-table patches (see https://lkml.org/lkml/2011/9/15/55) in the next merge
-window?
+Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Acked-by: Vivek Goyal <vgoyal@redhat.com>
+---
+ kernel/kexec.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-Michael
+--- a/kernel/kexec.c
++++ b/kernel/kexec.c
+@@ -1392,24 +1392,23 @@ int __init parse_crashkernel(char 		 *cm
+ }
+ 
+ 
+-
+-void crash_save_vmcoreinfo(void)
++static void update_vmcoreinfo_note(void)
+ {
+-	u32 *buf;
++	u32 *buf = (u32 *) vmcoreinfo_note;
+ 
+ 	if (!vmcoreinfo_size)
+ 		return;
+-
+-	vmcoreinfo_append_str("CRASHTIME=%ld", get_seconds());
+-
+-	buf = (u32 *)vmcoreinfo_note;
+-
+ 	buf = append_elf_note(buf, VMCOREINFO_NOTE_NAME, 0, vmcoreinfo_data,
+ 			      vmcoreinfo_size);
+-
+ 	final_note(buf);
+ }
+ 
++void crash_save_vmcoreinfo(void)
++{
++	vmcoreinfo_append_str("CRASHTIME=%ld", get_seconds());
++	update_vmcoreinfo_note();
++}
++
+ void vmcoreinfo_append_str(const char *fmt, ...)
+ {
+ 	va_list args;
+@@ -1495,6 +1494,7 @@ static int __init crash_save_vmcoreinfo_
+ 	VMCOREINFO_NUMBER(PG_swapcache);
+ 
+ 	arch_crash_save_vmcoreinfo();
++	update_vmcoreinfo_note();
+ 
+ 	return 0;
+ }
