@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [patch 1/2] kdump: Initialize vmcoreinfo note at startup
+Message-Id: <20110920143436.224880681@linux.vnet.ibm.com>
+Date: Tue, 20 Sep 2011 16:34:02 +0200
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Reply-To: holzheu@linux.vnet.ibm.com
-In-Reply-To: <20110920155912.d107fd49.akpm@google.com>
+Subject: [patch 2/2] s390: Export vmcoreinfo note
 References: <20110920143400.776127689@linux.vnet.ibm.com>
-	 <20110920143436.019045253@linux.vnet.ibm.com>
-	 <20110920155912.d107fd49.akpm@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 21 Sep 2011 10:49:08 +0200
-Message-ID: <1316594948.3888.3.camel@br98xy6r>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename=s390-kdump-arch-vmcoreinfo.patch
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Andrew Morton <akpm@google.com>
-Cc: vgoyal@redhat.com, ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+To: akpm@linux-foundation.org
+Cc: vgoyal@redhat.com, ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Andrew,
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 
-On Tue, 2011-09-20 at 15:59 -0700, Andrew Morton wrote:
-> On Tue, 20 Sep 2011 16:34:01 +0200
+This patch defines for s390 an ABI defined pointer to the vmcoreinfo note at
+a well known address. With this patch tools are able to find this information
+in dumps created by stand-alone or hypervisor dump tools.
 
-[snip]
+Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+---
+ arch/s390/include/asm/lowcore.h |    3 ++-
+ arch/s390/kernel/setup.c        |    8 ++++++++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
-> Michael Holzheu <holzheu@linux.vnet.ibm.com> wrote:
-> > -void crash_save_vmcoreinfo(void)
-> > +static void update_vmcoreinfo_note(void)
-> >  {
-> > -	u32 *buf;
-> > +	u32 *buf = (u32 *) vmcoreinfo_note;
-> 
-> The cast is unneeded?
-
-Correct. I removed the cast (with the blank :), thanks!
-
-Michael
+--- a/arch/s390/include/asm/lowcore.h
++++ b/arch/s390/include/asm/lowcore.h
+@@ -287,7 +287,8 @@ struct _lowcore {
+ 	 */
+ 	__u64	ipib;				/* 0x0e00 */
+ 	__u32	ipib_checksum;			/* 0x0e08 */
+-	__u8	pad_0x0e0c[0x0f00-0x0e0c];	/* 0x0e0c */
++	__u64	vmcore_info;			/* 0x0e0c */
++	__u8	pad_0x0e14[0x0f00-0x0e14];	/* 0x0e14 */
+ 
+ 	/* Extended facility list */
+ 	__u64	stfle_fac_list[32];		/* 0x0f00 */
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -559,6 +559,13 @@ static void __init setup_restart_psw(voi
+ 	copy_to_absolute_zero(&S390_lowcore.restart_psw, &psw, sizeof(psw));
+ }
+ 
++static void __init setup_vmcoreinfo(void)
++{
++	unsigned long ptr = paddr_vmcoreinfo_note();
++
++	copy_to_absolute_zero(&S390_lowcore.vmcore_info, &ptr, sizeof(ptr));
++}
++
+ #ifdef CONFIG_CRASH_DUMP
+ 
+ /*
+@@ -1019,6 +1026,7 @@ setup_arch(char **cmdline_p)
+ 	reserve_crashkernel();
+ 	setup_memory();
+ 	setup_resources();
++	setup_vmcoreinfo();
+ 	setup_restart_psw();
+ 	setup_lowcore();
+ 
