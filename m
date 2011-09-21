@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 14 Sep 2011 14:29:02 -0400
-From: Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: [patch v2 2/2] s390: Add architecture code for unmapping
- crashkernel memory
-Message-ID: <20110914182902.GA32658@redhat.com>
-References: <20110913132635.063397500@linux.vnet.ibm.com>
- <20110913132654.157278466@linux.vnet.ibm.com>
- <20110913145218.659f9e21.akpm@google.com>
- <1315990708.3367.14.camel@br98xy6r>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1315990708.3367.14.camel@br98xy6r>
+Subject: Re: [patch 1/2] kdump: Initialize vmcoreinfo note at startup
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Reply-To: holzheu@linux.vnet.ibm.com
+In-Reply-To: <20110920155912.d107fd49.akpm@google.com>
+References: <20110920143400.776127689@linux.vnet.ibm.com>
+	 <20110920143436.019045253@linux.vnet.ibm.com>
+	 <20110920155912.d107fd49.akpm@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 21 Sep 2011 10:49:08 +0200
+Message-ID: <1316594948.3888.3.camel@br98xy6r>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc: Andrew Morton <akpm@google.com>, ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+To: Andrew Morton <akpm@google.com>
+Cc: vgoyal@redhat.com, ebiederm@xmission.com, mahesh@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Sep 14, 2011 at 10:58:28AM +0200, Michael Holzheu wrote:
-> Hello Andrew,
-> 
-> On Tue, 2011-09-13 at 14:52 -0700, Andrew Morton wrote:
-> > On Tue, 13 Sep 2011 15:26:37 +0200
-> > Michael Holzheu <holzheu@linux.vnet.ibm.com> wrote:
-> 
-> [snip]
-> 
-> > > --- a/arch/s390/include/asm/kexec.h
-> > > +++ b/arch/s390/include/asm/kexec.h
-> > > @@ -36,6 +36,9 @@
-> > >  /* Allocate one page for the pdp and the second for the code */
-> > >  #define KEXEC_CONTROL_PAGE_SIZE 4096
-> > >  
-> > > +/* Alignment of crashkernel memory */
-> > > +#define KEXEC_CRASH_MEM_ALIGN HPAGE_SIZE
-> > 
-> > Why not make this unconditional, for all architectures which support
-> > hugepages?  ie:
-> > 
-> > #ifdef HPAGE_SIZE
-> > #define KEXEC_CRASH_MEM_ALIGN HPAGE_SIZE
-> > #else
-> > #define KEXEC_CRASH_MEM_ALIGN PAGE_SIZE
-> > #endif
-> 
-> > in include/linux/kexec.h?
-> > 
-> > IOW, what are the compromises here?
-> 
-> If we would do it that way, crashkernel memory on architectures that
-> support large pages but do not support unmapping of crashkernel memory
-> would always be aligned to HPAGE_SIZE. But only PAGE_SIZE alignment
-> would be necessary in that case.
-> 
-> If that is acceptable I have no problem to define that unconditional for
-> all architectures. Vivek what do you think?
+Hello Andrew,
 
-As PAGE_SIZE alignment is sufficient for rest of the architecture, I 
-am fine with keeping it in arch dependent files.
+On Tue, 2011-09-20 at 15:59 -0700, Andrew Morton wrote:
+> On Tue, 20 Sep 2011 16:34:01 +0200
 
-Thanks
-Vivek
+[snip]
+
+> Michael Holzheu <holzheu@linux.vnet.ibm.com> wrote:
+> > -void crash_save_vmcoreinfo(void)
+> > +static void update_vmcoreinfo_note(void)
+> >  {
+> > -	u32 *buf;
+> > +	u32 *buf = (u32 *) vmcoreinfo_note;
+> 
+> The cast is unneeded?
+
+Correct. I removed the cast (with the blank :), thanks!
+
+Michael
