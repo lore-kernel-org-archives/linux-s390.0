@@ -1,37 +1,46 @@
-MIME-Version: 1.0
-In-Reply-To: <abb1d8b542872ef3bfd695e85d3b8a0fd70645b9.1320917558.git.joe@perches.com>
-References: <cover.1320917551.git.joe@perches.com>
-        <abb1d8b542872ef3bfd695e85d3b8a0fd70645b9.1320917558.git.joe@perches.com>
-Date: Mon, 14 Nov 2011 21:50:37 +0100
-Message-ID: <CAMuHMdW+KORv6K6jMxTVOM=EeVQ6JTHHe9cOVfKZ39x4NcgvfQ@mail.gmail.com>
-Subject: Re: [PATCH 4/5] treewide: Convert uses of ATTRIB_NORETURN to __noreturn
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+From: Joe Perches <joe@perches.com>
+Subject: [PATCH 0/5] treewide: __attribute__ neatening
+Date: Thu, 10 Nov 2011 01:41:41 -0800
+Message-Id: <cover.1320917551.git.joe@perches.com>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 Return-Path: <linux-mips-bounce@linux-mips.org>
 List-Archive: <https://lore.kernel.org/linux-mips/>
 List-Post: <mailto:linux-mips@vger.kernel.org>
-To: Joe Perches <joe@perches.com>
-Cc: Andrew Morton <akpm@google.com>, linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Ralf Baechle <ralf@linux-mips.org>, David Howells <dhowells@redhat.com>, Koichi Yasutake <yasutake.koichi@jp.panasonic.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Paul Mundt <lethal@linux-sh.org>, Chris Metcalf <cmetcalf@tilera.com>, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@linux-mips.org, linux-am33-list@redhat.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org
+To: Andrew Morton <akpm@google.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@linux-mips.org, linux-am33-list@redhat.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Nov 10, 2011 at 10:41, Joe Perches <joe@perches.com> wrote:
-> Use the more commonly used __noreturn instead of ATTRIB_NORETURN.
->
-> Signed-off-by: Joe Perches <joe@perches.com>
+Use the more current __<foo> styles for compiler attributes.
+NORET_TYPE is #defined to a null comment, so just remove it.
 
-For the m68k parts:
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Joe Perches (5):
+  kernel.h: Neaten panic prototype
+  linkage: Remove unused NORET_AND macro
+  treewide: Remove useless NORET_TYPE macro and uses
+  treewide: Convert uses of ATTRIB_NORETURN to __noreturn
+  linkage: Remove unused ATTRIB_NORET macro
 
-Gr{oetje,eeting}s,
+ arch/avr32/include/asm/system.h        |    2 +-
+ arch/avr32/kernel/traps.c              |    2 +-
+ arch/ia64/kernel/machine_kexec.c       |    4 ++--
+ arch/m68k/amiga/config.c               |    4 ++--
+ arch/mips/include/asm/ptrace.h         |    2 +-
+ arch/mips/kernel/traps.c               |    2 +-
+ arch/mn10300/include/asm/exceptions.h  |    2 +-
+ arch/powerpc/kernel/machine_kexec_32.c |    4 ++--
+ arch/powerpc/kernel/machine_kexec_64.c |    6 +++---
+ arch/s390/include/asm/processor.h      |    2 +-
+ arch/s390/kernel/nmi.c                 |    2 +-
+ arch/sh/kernel/process_32.c            |    2 +-
+ arch/sh/kernel/process_64.c            |    2 +-
+ arch/tile/kernel/machine_kexec.c       |    6 +++---
+ include/linux/kernel.h                 |   13 +++++++------
+ include/linux/linkage.h                |    4 ----
+ include/linux/sched.h                  |    2 +-
+ kernel/exit.c                          |    6 +++---
+ kernel/panic.c                         |    2 +-
+ 19 files changed, 33 insertions(+), 36 deletions(-)
 
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-- 
+1.7.6.405.gc1be0
