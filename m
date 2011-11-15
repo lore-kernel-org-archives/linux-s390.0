@@ -1,23 +1,40 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 0/5] s390: network driver bug fixes for 3.2.0 next rc
-Date: Wed, 16 Nov 2011 17:47:56 -0500 (EST)
-Message-ID: <20111116.174756.2087765469123715205.davem@davemloft.net>
+From: frank.blaschka@de.ibm.com
+Subject: [patch 5/5] [PATCH] qeth: Reduce CPU consumption through less SIGA-r calls
+Date: Tue, 15 Nov 2011 13:31:16 +0100
+Message-ID: <20111115123152.686856892@de.ibm.com>
 References: <20111115123111.128739986@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20111115123111.128739986@de.ibm.com>
+Content-Disposition: inline; filename=623-qeth-reduce-siga.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Einar Lueck <elelueck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: frank.blaschka@de.ibm.com
-Date: Tue, 15 Nov 2011 13:31:11 +0100
+From: Einar Lueck <elelueck@de.ibm.com>
 
-> here are a couple of s390 network driver bug fixes for 3.2.0 next rc
+Patch avoids SIGA-r calls in case of SIGA-r required. It only calls
+SIGA-r if a threshold of free buffer is reached. CPU consumption is
+reduced as a consequence.
 
-All applied, thanks.
+Signed-off-by: Einar Lueck <elelueck@de.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
+
+ drivers/s390/net/qeth_core.h |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff -urpN linux-2.6/drivers/s390/net/qeth_core.h linux-2.6-patched/drivers/s390/net/qeth_core.h
+--- linux-2.6/drivers/s390/net/qeth_core.h	2011-11-14 18:26:56.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_core.h	2011-11-14 18:27:18.000000000 +0100
+@@ -236,8 +236,7 @@ static inline int qeth_is_ipa_enabled(st
+ #define QETH_IN_BUF_COUNT_MAX 128
+ #define QETH_MAX_BUFFER_ELEMENTS(card) ((card)->qdio.in_buf_size >> 12)
+ #define QETH_IN_BUF_REQUEUE_THRESHOLD(card) \
+-		((card)->ssqd.qdioac1 & AC1_SIGA_INPUT_NEEDED ? 1 : \
+-		 ((card)->qdio.in_buf_pool.buf_count / 2))
++		 ((card)->qdio.in_buf_pool.buf_count / 2)
+ 
+ /* buffers we have to be behind before we get a PCI */
+ #define QETH_PCI_THRESHOLD_A(card) ((card)->qdio.in_buf_pool.buf_count+1)
