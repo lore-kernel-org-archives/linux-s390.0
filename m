@@ -1,81 +1,57 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Mon, 05 Dec 2011 08:43:41 +0000
-Subject: Re: s390-tools: zipl build fails with binutils-2.21+ on s390
-Message-Id: <20111205094341.1e513163@de.ibm.com>
-In-Reply-To: <201112050247.24855.vapier@gentoo.org>
-References: <201112050247.24855.vapier@gentoo.org>
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Mon, 05 Dec 2011 18:55:20 +0000
+Subject: Re: [PATCH] zipl: Do not use larl for 31 bit code
+Message-Id: <201112051355.21528.vapier@gentoo.org>
+In-Reply-To: <1323110414.13642.6.camel@br98xy6r>
+References: <1323110414.13642.6.camel@br98xy6r>
 MIME-Version: 1
-Content-Type: multipart/mixed; boundary="--Sig_//6hcgcnXhz9U7OgylfmUbA+"
+Content-Type: multipart/mixed; boundary="--nextPart3879648.5j58r6OZdd"
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
---Sig_//6hcgcnXhz9U7OgylfmUbA+
-Content-Type: text/plain; charset=US-ASCII
+--nextPart3879648.5j58r6OZdd
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, 5 Dec 2011 02:47:24 -0500
-Mike Frysinger <vapier@gentoo.org> wrote:
-
-> after upgrading our s390 systems (-m31) to binutils-2.21.1, we noticed th=
-e=20
-> s390-tools package failed in the zipl code:
+On Monday 05 December 2011 13:40:14 Michael Holzheu wrote:
+> On Mon, 2011-12-05 at 10:44 -0500, Mike Frysinger wrote:
+> > On Monday 05 December 2011 09:19:39 Michael Holzheu wrote:
+> > > Hi Mike,
+> > >=20
+> > > You reported a zipl build problem for 31 bit:
+> > > http://marc.info/?l=3Dlinux-s390&m=3D132307473025493&w=3D2
+> >=20
+> > > The following patch (for s390-tools-1.15.0) should fix this problem:
+> > it fixes most of them, but seems there's still one left :)
 >=20
-> gcc -O2 -pipe -W -Wall -Wno-unused-parameter  -W -Wall -Wno-unused-parame=
-ter =20
-> -W -Wall -Wno-unused-parameter  -DS390_TOOLS_RELEASE=3D1.15.0-build-20111=
-205 -
-> DS390_TOOLS_LIBDIR=3D/lib/s390-tools -DS390_TOOLS_SYSCONFDIR=3D/etc -
-> DS390_TOOLS_RELEASE=3D1.15.0-build-20111205 -DS390_TOOLS_LIBDIR=3D/lib/s3=
-90-tools=20
-> -DS390_TOOLS_SYSCONFDIR=3D/etc -DS390_TOOLS_RELEASE=3D1.15.0-build-201112=
-05 -
-> DS390_TOOLS_LIBDIR=3D/lib/s390-tools -DS390_TOOLS_SYSCONFDIR=3D/etc -I../=
-include -
-> D__ASSEMBLY__ -
-> DS390_TOOLS_VERSION_EBCDIC=3D0xf1,0x4b,0xf1,0xf5,0x4b,0xf0,0x60,0x82,0xa4=
-,0x89,0x93,0x84,0x60,0xf2,0xf0,0xf1,0xf1,0xf1,0xf2,0xf0,0xf5=20
-> -c -o eckd2dump.o eckd2dump.S
-> eckd2dump.S: Assembler messages:
-> eckd2dump.S:708: Error: Unrecognized opcode: `larl'
-> eckd2dump.S:708: Error: Unrecognized opcode: `larl'
-> make[2]: *** [eckd2dump.o] Error 1
->=20
-> Debian fixed this by adding -m64 to CFLAGS in zipl's boot/Makefile.  is t=
-his the=20
-> right way to go ?  if so, could we get this added to the s390-tools packa=
-ge ?
+> Ok, try this one:
 
-No, the bug is in dumpcommon.S where the 31 bit code section uses larl. Tha=
-t is not
-a good idea as this instruction is not available on old machines (pre z900).
+we've got a winner :).  thanks!
 
---=20
-blue skies,
-   Martin.
+>>> Installing (1 of 1) sys-apps/s390-tools-1.15.0
+=2Dmike
 
-"Reality continues to ruin my life." - Calvin.
-
-
---Sig_//6hcgcnXhz9U7OgylfmUbA+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
+--nextPart3879648.5j58r6OZdd
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+Version: GnuPG v2.0.17 (GNU/Linux)
 
-iQIcBAEBAgAGBQJO3IQ9AAoJELvpdr8mrl3SWusQALAnmB9GD83W7ebTagErU8ym
-VsR/7Efh2skiPkiFNsi1WoPBqHXT5j9t20maKLPgX12vdQkAWPajFYRkJ11Tsaka
-zJiOw/blC2LFCmEv61wxwuK7lRVn8D1BQDXyzXJJl63LRPs3ccSI44IBLkD1iO4B
-WZP7tuuTapw4evMa2HZ4gjo2P6UDDrJh+l0N7ODqauEoM33aLX8DqMnawvS8Ag2X
-86Dl80LcQpab+DZ1vzCPVUm8e7sWg8vj6ZpNDAsQ4sm8xusiju71YhQwZiEoy3Dq
-FLrFhP7Y/G8n7LT0eJTepzm3oM8YoARiDgiwDo9f7Sf7ST5pf9Vy9Y1yDUZhNxwz
-81M0+wwpD8svxHcgDxCNrjCPE/rlIq2CW3D84UfTRjPBb5Epk2GYKomGaJnQdqfY
-ZPj2H/3EQbYAD11cY0+1Z/OUmCsb+37KIO2xwNza1g12hDxcV2S5D1mwmhHPKKWj
-FgYNaR1x7Klv4GqR2dyh67kSTaDCvORGl4SKiL5MwQN3VhlND+HuESraRHM2dYD9
-EJClGhXN/Y+cqtCGtzXizlbzrBvUJIqPznJegh+XXdZ4MJnFw1J1p4U9i4YLuZOW
-VWQ+xsl91zyKTrNEWRWwKDOKYtOI/MpXGjLy1koXbicBKOPgG+ddJuB4c4D8oDFq
-Z4OC1cvRTgbklZ7GmiLe
-=lCUb
+iQIcBAABAgAGBQJO3ROZAAoJEEFjO5/oN/WBfJkP/0d7nHfGqAWtU6+m9bA9Tu+N
+NVROKOFFq+fVfQyALQFff8WL0X4D6jYGQWUPUJaJcghqjM5rl5L/59nZWSay587I
+ElIm3eBJEik4gpoIDt7cCBsrlcZTgooIWo42gRkPwA2izHY9zg8EhURVyRhw3y2x
+mQuI2p0sgrQzw2BK99QQaXvSYVPYAxfarlZQiTfCaPpWCtaiMOXKnlen0UEzKzhY
+Wufg0Um8oXxqgp4XfjhLEs8sS0oUNnjImojW2NdfglaN0qJLafjJp5VpD6nbD4ZA
+3ONaWUMZcrWBpujdjqE56CcphHB0QMYGNgEx40A3FEwXOKXV7J+28CGdMcASfaOi
+rC07/Jq+XxCZYNoz7hvxuIbm+iQA8AaHYaO3R6Y4QjMCAhy9UxnrrgIm34/O2AUZ
+tXqpkiT0Tq7SIF+vQWs13cfFjiabWxi6P2hTC2kzJOTNjcR5dPIpdA3Av3+WYvIA
+HYEjS/hX7MdK9EeDIAXsrOLdqRAY7djYfijFTvvEW65s2rBqOzYwaaFt8uxXdcDU
+JYmGrsr+09K3dWou4h5K3TUvHB8rGH5gi2F4Faoy7kpilrufR3YJ2oWHA3mR66aN
+TiLkgD3cOOnPncP5QbeM63FcyrFlg4+CHYPIH0Olo+u2BAoumgUOc6/5j7m7zHzm
+SxxYfQVUrlxSBvn04KAP
+=1pE9
 -----END PGP SIGNATURE-----
 
---Sig_//6hcgcnXhz9U7OgylfmUbA+--
+--nextPart3879648.5j58r6OZdd--
