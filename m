@@ -1,9 +1,9 @@
-Message-Id: <201112122148.pBCLmPH0023959@farm-0002.internal.tilera.com>
+Message-Id: <201112091903.pB9J39pd031553@farm-0002.internal.tilera.com>
 From: Chris Metcalf <cmetcalf@tilera.com>
 Date: Fri, 9 Dec 2011 10:29:07 -0500
-Subject: [PATCH v3] ipc: provide generic compat versions of IPC syscalls
-References: <201112091536.pB9Fa5f7002738@farm-0002.internal.tilera.com> <201112091903.pB9J39pd031553@farm-0002.internal.tilera.com> <20111209134852.f5b5bcbc.akpm@linux-foundation.org> <1690400.7yOAjHVqTH@wuerfel>
-In-Reply-To: <1690400.7yOAjHVqTH@wuerfel>
+Subject: [PATCH v2] ipc: provide generic compat versions of IPC syscalls
+References: <201112091536.pB9Fa5f7002738@farm-0002.internal.tilera.com>, <201112091602.31325.arnd@arndb.de>
+In-Reply-To: <201112091602.31325.arnd@arndb.de>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 Return-Path: <linux-mips-bounce@linux-mips.org>
@@ -22,16 +22,17 @@ syscalls do not do this.  semctl() expects a pointer to the fourth
 argument, instead of the fourth argument itself.  msgsnd(), msgrcv()
 and shmat() expect arguments in different order.
 
-This change adds an ARCH_WANT_OLD_COMPAT_IPC config option that can be
-set to preserve this behavior for ports that use it (x86, sparc, powerpc,
-s390, and mips).  No actual semantics are changed for those architectures,
-and there is only a minimal amount of code refactoring in ipc/compat.c.
+This change adds an __ARCH_WANT_OLD_COMPAT_IPC define that can be
+set in <asm/compat.h> to preserve this behavior for ports that use it
+(x86, sparc, powerpc, s390, and mips).  No actual semantics are changed
+for those architectures, and there is only a minimal amount of code
+refactoring in ipc/compat.c.
 
 Newer architectures like tile (and perhaps future architectures such
-as arm64 and unicore64) should not select this option, and thus can
+as arm64 and unicore64) should not supply this define, and thus can
 avoid having any IPC-specific code at all in their architecture-specific
-compat layer.  In the same vein, if this option is not selected, IPC_64
-mode is assumed, since that's what the <asm-generic> headers expect.
+compat layer.  In the same vein, if this define is omitted, IPC_64 mode
+is assumed, since that's what the <asm-generic> headers expect.
 
 The workaround code in "tile" for msgsnd() and msgrcv() is removed
 with this change; it also fixes the bug that shmat() and semctl() were
@@ -39,78 +40,85 @@ not being properly handled.
 
 Signed-off-by: Chris Metcalf <cmetcalf@tilera.com>
 ---
- arch/Kconfig                   |    3 ++
- arch/mips/Kconfig              |    1 +
- arch/powerpc/Kconfig           |    1 +
- arch/s390/Kconfig              |    1 +
- arch/sparc/Kconfig             |    1 +
- arch/tile/include/asm/compat.h |   11 ------
- arch/tile/kernel/compat.c      |   43 ------------------------
- arch/x86/Kconfig               |    1 +
- include/linux/compat.h         |   12 ++++++-
- ipc/compat.c                   |   70 ++++++++++++++++++++++++++++++++++++---
- 10 files changed, 83 insertions(+), 61 deletions(-)
+The first version used an "__ARCH_WANT_GENERIC_COMPAT_IPC" define that
+was set by tile, and presumably would be set by all future architectures.
+Arnd Bergmann observed:
 
-diff --git a/arch/Kconfig b/arch/Kconfig
-index 4b0669c..dfb1e07 100644
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -181,4 +181,7 @@ config HAVE_RCU_TABLE_FREE
- config ARCH_HAVE_NMI_SAFE_CMPXCHG
- 	bool
+> I like the patch, but I think the __ARCH_WANT_GENERIC_COMPAT_IPC
+> should be defined as the opposite, so all "old" architectures
+> have to set it while tile (and future architectures like arm64
+> and unicore64) just get the default. [...]
+> We have powerpc, mips, s390, sparc and
+> x86 using the legacy method, while only parisc and tile get it right
+> and use the syscalls directly.
+
+ arch/mips/include/asm/compat.h    |    3 ++
+ arch/powerpc/include/asm/compat.h |    3 ++
+ arch/s390/include/asm/compat.h    |    3 ++
+ arch/sparc/include/asm/compat.h   |    3 ++
+ arch/tile/include/asm/compat.h    |   11 ------
+ arch/tile/kernel/compat.c         |   43 ----------------------
+ arch/x86/include/asm/compat.h     |    3 ++
+ include/linux/compat.h            |   12 ++++++-
+ ipc/compat.c                      |   70 +++++++++++++++++++++++++++++++++---
+ 9 files changed, 90 insertions(+), 61 deletions(-)
+
+diff --git a/arch/mips/include/asm/compat.h b/arch/mips/include/asm/compat.h
+index b77df03..41a57cb 100644
+--- a/arch/mips/include/asm/compat.h
++++ b/arch/mips/include/asm/compat.h
+@@ -8,6 +8,9 @@
+ #include <asm/page.h>
+ #include <asm/ptrace.h>
  
-+config ARCH_WANT_OLD_COMPAT_IPC
-+	bool
++/* Use different 32-bit syscall convention than 64-bit for some syscalls. */
++#define __ARCH_WANT_OLD_COMPAT_IPC
 +
- source "kernel/gcov/Kconfig"
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index d46f1da..ad2af82 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -2420,6 +2420,7 @@ config MIPS32_COMPAT
- config COMPAT
- 	bool
- 	depends on MIPS32_COMPAT
-+	select ARCH_WANT_OLD_COMPAT_IPC
- 	default y
+ #define COMPAT_USER_HZ		100
+ #define COMPAT_UTS_MACHINE	"mips\0\0\0"
  
- config SYSVIPC_COMPAT
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 951e18f..e2be710 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -146,6 +146,7 @@ config COMPAT
- 	bool
- 	default y if PPC64
- 	select COMPAT_BINFMT_ELF
-+	select ARCH_WANT_OLD_COMPAT_IPC
+diff --git a/arch/powerpc/include/asm/compat.h b/arch/powerpc/include/asm/compat.h
+index 88e602f..450a976 100644
+--- a/arch/powerpc/include/asm/compat.h
++++ b/arch/powerpc/include/asm/compat.h
+@@ -7,6 +7,9 @@
+ #include <linux/types.h>
+ #include <linux/sched.h>
  
- config SYSVIPC_COMPAT
- 	bool
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 373679b..2fc3bca 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -221,6 +221,7 @@ config COMPAT
- 	prompt "Kernel support for 31 bit emulation"
- 	depends on 64BIT
- 	select COMPAT_BINFMT_ELF
-+	select ARCH_WANT_OLD_COMPAT_IPC
- 	help
- 	  Select this option if you want to enable your system kernel to
- 	  handle system-calls from ELF binaries for 31 bit ESA.  This option
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index f92602e..846cb5c 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -577,6 +577,7 @@ config COMPAT
- 	depends on SPARC64
- 	default y
- 	select COMPAT_BINFMT_ELF
-+	select ARCH_WANT_OLD_COMPAT_IPC
++/* Use different 32-bit syscall convention than 64-bit for some syscalls. */
++#define __ARCH_WANT_OLD_COMPAT_IPC
++
+ #define COMPAT_USER_HZ		100
+ #define COMPAT_UTS_MACHINE	"ppc\0\0"
  
- config SYSVIPC_COMPAT
- 	bool
+diff --git a/arch/s390/include/asm/compat.h b/arch/s390/include/asm/compat.h
+index 2e49748..9a38bae 100644
+--- a/arch/s390/include/asm/compat.h
++++ b/arch/s390/include/asm/compat.h
+@@ -7,6 +7,9 @@
+ #include <linux/sched.h>
+ #include <linux/thread_info.h>
+ 
++/* Use different 32-bit syscall convention than 64-bit for some syscalls. */
++#define __ARCH_WANT_OLD_COMPAT_IPC
++
+ #define PSW32_MASK_PER		0x40000000UL
+ #define PSW32_MASK_DAT		0x04000000UL
+ #define PSW32_MASK_IO		0x02000000UL
+diff --git a/arch/sparc/include/asm/compat.h b/arch/sparc/include/asm/compat.h
+index b8be20d..bfd3d8b 100644
+--- a/arch/sparc/include/asm/compat.h
++++ b/arch/sparc/include/asm/compat.h
+@@ -5,6 +5,9 @@
+  */
+ #include <linux/types.h>
+ 
++/* Use different 32-bit syscall convention than 64-bit for some syscalls. */
++#define __ARCH_WANT_OLD_COMPAT_IPC
++
+ #define COMPAT_USER_HZ		100
+ #define COMPAT_UTS_MACHINE	"sparc\0\0"
+ 
 diff --git a/arch/tile/include/asm/compat.h b/arch/tile/include/asm/compat.h
 index bf95f55..4b4b289 100644
 --- a/arch/tile/include/asm/compat.h
@@ -198,20 +206,22 @@ index bf5e9d7..d67459b 100644
  /* See comments in sys.c */
  #define compat_sys_fadvise64_64 sys32_fadvise64_64
  #define compat_sys_readahead sys32_readahead
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index cb9a104..0e1f474 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -2131,6 +2131,7 @@ config IA32_AOUT
- config COMPAT
- 	def_bool y
- 	depends on IA32_EMULATION
-+	select ARCH_WANT_OLD_COMPAT_IPC
+diff --git a/arch/x86/include/asm/compat.h b/arch/x86/include/asm/compat.h
+index 30d737e..a72cbe4 100644
+--- a/arch/x86/include/asm/compat.h
++++ b/arch/x86/include/asm/compat.h
+@@ -8,6 +8,9 @@
+ #include <linux/sched.h>
+ #include <asm/user32.h>
  
- config COMPAT_FOR_U64_ALIGNMENT
- 	def_bool COMPAT
++/* Use different 32-bit syscall convention than 64-bit for some syscalls. */
++#define __ARCH_WANT_OLD_COMPAT_IPC
++
+ #define COMPAT_USER_HZ		100
+ #define COMPAT_UTS_MACHINE	"i686\0\0"
+ 
 diff --git a/include/linux/compat.h b/include/linux/compat.h
-index 66ed067..f295dae 100644
+index 66ed067..472e66c 100644
 --- a/include/linux/compat.h
 +++ b/include/linux/compat.h
 @@ -224,6 +224,7 @@ struct compat_sysinfo;
@@ -226,7 +236,7 @@ index 66ed067..f295dae 100644
  compat_sys_get_robust_list(int pid, compat_uptr_t __user *head_ptr,
  			   compat_size_t __user *len_ptr);
  
-+#ifdef CONFIG_ARCH_WANT_OLD_COMPAT_IPC
++#ifdef __ARCH_WANT_OLD_COMPAT_IPC
  long compat_sys_semctl(int first, int second, int third, void __user *uptr);
  long compat_sys_msgsnd(int first, int second, int third, void __user *uptr);
  long compat_sys_msgrcv(int first, int second, int msgtyp, int third,
@@ -247,7 +257,7 @@ index 66ed067..f295dae 100644
  long compat_sys_semtimedop(int semid, struct sembuf __user *tsems,
  		unsigned nsems, const struct compat_timespec __user *timeout);
 diff --git a/ipc/compat.c b/ipc/compat.c
-index 845a287..a6df704 100644
+index 845a287..94ee136 100644
 --- a/ipc/compat.c
 +++ b/ipc/compat.c
 @@ -27,6 +27,7 @@
@@ -262,7 +272,7 @@ index 845a287..a6df704 100644
  
  static inline int compat_ipc_parse_version(int *cmd)
  {
-+#ifdef CONFIG_ARCH_WANT_OLD_COMPAT_IPC
++#ifdef __ARCH_WANT_OLD_COMPAT_IPC
  	int version = *cmd & IPC_64;
  
  	/* this is tricky: architectures that have support for the old
@@ -304,7 +314,7 @@ index 845a287..a6df704 100644
  	return err;
  }
  
-+#ifdef CONFIG_ARCH_WANT_OLD_COMPAT_IPC
++#ifdef __ARCH_WANT_OLD_COMPAT_IPC
 +long compat_sys_semctl(int first, int second, int third, void __user *uptr)
 +{
 +	u32 pad;
@@ -361,7 +371,7 @@ index 845a287..a6df704 100644
  	return err;
  }
  
-+#ifdef CONFIG_ARCH_WANT_OLD_COMPAT_IPC
++#ifdef __ARCH_WANT_OLD_COMPAT_IPC
  long compat_sys_shmat(int first, int second, compat_uptr_t third, int version,
  			void __user *uptr)
  {
