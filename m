@@ -1,8 +1,10 @@
 From: frank.blaschka@de.ibm.com
-Subject: [patch 00/10] s390: network driver features and fixes for net-next
-Date: Tue, 20 Dec 2011 09:56:26 +0100
-Message-ID: <20111220085626.924756639@de.ibm.com>
+Subject: [patch 09/10] [PATCH] qeth: improve recovery during resource shortage
+Date: Tue, 20 Dec 2011 09:56:35 +0100
+Message-ID: <20111220085736.446526376@de.ibm.com>
+References: <20111220085626.924756639@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=610-qeth-resource-shortage.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -10,27 +12,43 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dave,
+From: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-here are some s390 network driver features and fixes for net-next
+In case there are no system resources to run a recovery we have to clear
+recovery bitmasks so a further automatic or manual driven recovery can
+fix up the device.
 
-shortlog:
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
 
-Ursula Braun (8)
-af_iucv: support ancillary data with HS transport
-af_iucv: accelerate close for HS transport
-af_iucv: release reference to HS device
-af_iucv: remove unused timer infrastructure
-af_iucv: get rid of state IUCV_SEVERED
-qeth: suspicious rcu_dereference_check in recovery
-qeth: forbid recovery during shutdown
-netiucv: allow multiple interfaces to same peer
+ drivers/s390/net/qeth_core_main.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-Frank Blaschka (1)
-qeth: improve recovery during resource shortage
-
-Einar Lueck (1)
-qeth: recovery through asynchronous delivery
-
-Thanks,
-        Frank
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1329,6 +1329,7 @@ static int qeth_do_start_thread(struct q
+ 
+ static void qeth_start_kernel_thread(struct work_struct *work)
+ {
++	struct task_struct *ts;
+ 	struct qeth_card *card = container_of(work, struct qeth_card,
+ 					kernel_thread_starter);
+ 	QETH_CARD_TEXT(card , 2, "strthrd");
+@@ -1336,9 +1337,15 @@ static void qeth_start_kernel_thread(str
+ 	if (card->read.state != CH_STATE_UP &&
+ 	    card->write.state != CH_STATE_UP)
+ 		return;
+-	if (qeth_do_start_thread(card, QETH_RECOVER_THREAD))
+-		kthread_run(card->discipline.recover, (void *) card,
++	if (qeth_do_start_thread(card, QETH_RECOVER_THREAD)) {
++		ts = kthread_run(card->discipline.recover, (void *)card,
+ 				"qeth_recover");
++		if (IS_ERR(ts)) {
++			qeth_clear_thread_start_bit(card, QETH_RECOVER_THREAD);
++			qeth_clear_thread_running_bit(card,
++				QETH_RECOVER_THREAD);
++		}
++	}
+ }
+ 
+ static int qeth_setup_card(struct qeth_card *card)
