@@ -1,32 +1,38 @@
-From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
-Subject: qeth_l3 build broken in net-next
-Date: Mon, 19 Dec 2011 14:20:10 +0100
-Message-ID: <20111219132010.GA10345@tuxmaker.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: frank.blaschka@de.ibm.com
+Subject: [patch 01/10] [PATCH] af_iucv: support ancillary data with HS transport
+Date: Tue, 20 Dec 2011 09:56:27 +0100
+Message-ID: <20111220085735.580688572@de.ibm.com>
+References: <20111220085626.924756639@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
+Content-Disposition: inline; filename=600-af_iucv-ancillary-hs.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-qeth_l3 build is broken in net-next
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-drivers/s390/net/qeth_l3_main.c: In function 'qeth_l3_neigh_setup':
-drivers/s390/net/qeth_l3_main.c:3277: error: 'struct neigh_parms' has no member named 'neigh_setup'
-make[2]: *** [drivers/s390/net/qeth_l3_main.o] Error 1
-make[1]: *** [drivers/s390/net] Error 2
-make: *** [drivers/s390] Error 2
+The AF_IUCV address family offers support for ancillary data.
+This patch enables usage of ancillary data with the new
+HiperSockets transport.
 
-commit 5c3ddec73d01a1fae9409c197078cb02c42238c3
-    net: Remove unused neighbour layer ops.
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
 
-cause the problem. Actually qeth_l3 uses neigh_setup.
-Can you revert commit 5c3ddec73d01a1fae9409c197078cb02c42238c3 ?
+ net/iucv/af_iucv.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-Thx,
-
-Frank
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -2209,6 +2209,8 @@ static int afiucv_hs_rcv(struct sk_buff
+ 		break;
+ 	case 0:
+ 		/* plain data frame */
++		memcpy(CB_TRGCLS(skb), &trans_hdr->iucv_hdr.class,
++		       CB_TRGCLS_LEN);
+ 		err = afiucv_hs_callback_rx(sk, skb);
+ 		break;
+ 	default:
