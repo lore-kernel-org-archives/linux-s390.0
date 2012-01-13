@@ -1,57 +1,59 @@
-From: Mike Frysinger <vapier@gentoo.org>
-Date: Mon, 05 Dec 2011 18:55:20 +0000
-Subject: Re: [PATCH] zipl: Do not use larl for 31 bit code
-Message-Id: <201112051355.21528.vapier@gentoo.org>
-In-Reply-To: <1323110414.13642.6.camel@br98xy6r>
-References: <1323110414.13642.6.camel@br98xy6r>
-MIME-Version: 1
-Content-Type: multipart/mixed; boundary="--nextPart3879648.5j58r6OZdd"
-To: linux-s390@vger.kernel.org
+From: Akinobu Mita <akinobu.mita@gmail.com>
+Subject: [PATCH 0/7] bitops: introduce for_each_clear_bit()
+Date: Sat, 14 Jan 2012 00:53:17 +0900
+Message-Id: <1326470004-10096-1-git-send-email-akinobu.mita@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
+List-Post: <mailto:linux-mtd@lists.infradead.org>
+List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linux-mtd/>
+To: linux-kernel@vger.kernel.org, akpm@linux-foundation.org
+Cc: linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, Robert Richter <robert.richter@amd.com>, x86@kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Akinobu Mita <akinobu.mita@gmail.com>, Ingo Molnar <mingo@redhat.com>, linux-mtd@lists.infradead.org, "H. Peter Anvin" <hpa@zytor.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, Thomas Gleixner <tglx@linutronix.de>, David Woodhouse <dwmw2@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
---nextPart3879648.5j58r6OZdd
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+This patch set introduces for_each_clear_bit() which is similar to
+for_each_set_bit(), but it iterates over all the cleared bits in a
+memory region.
 
-On Monday 05 December 2011 13:40:14 Michael Holzheu wrote:
-> On Mon, 2011-12-05 at 10:44 -0500, Mike Frysinger wrote:
-> > On Monday 05 December 2011 09:19:39 Michael Holzheu wrote:
-> > > Hi Mike,
-> > >=20
-> > > You reported a zipl build problem for 31 bit:
-> > > http://marc.info/?l=3Dlinux-s390&m=3D132307473025493&w=3D2
-> >=20
-> > > The following patch (for s390-tools-1.15.0) should fix this problem:
-> > it fixes most of them, but seems there's still one left :)
->=20
-> Ok, try this one:
+This also renames for_each_set_bit_cont() to for_each_set_bit_from()
+because it is anologous to list_for_each_entry_from() in list.h
+rather than list_for_each_entry_continue(), and then introduces
+for_each_clear_bit_from(), too.
 
-we've got a winner :).  thanks!
+Akinobu Mita (7):
+  bitops: rename for_each_set_bit_cont in favor of anologous to list.h
+    function
+  bitops: remove for_each_set_bit_cont
+  bitops: introduce list_for_each_clear_bit
+  mtd: use for_each_clear_bit
+  s390/char: use for_each_clear_bit
+  uwb: use for_each_clear_bit
+  x86: use for_each_clear_bit_from
 
->>> Installing (1 of 1) sys-apps/s390-tools-1.15.0
-=2Dmike
+ arch/x86/kernel/cpu/perf_event.c       |    4 ++--
+ arch/x86/kernel/irqinit.c              |    6 +++---
+ drivers/mtd/chips/cfi_cmdset_0001.c    |    6 ++----
+ drivers/s390/char/sclp_cmd.c           |    5 ++---
+ drivers/uwb/allocator.c                |    6 ++----
+ include/linux/bitops.h                 |   13 ++++++++++++-
+ tools/perf/util/include/linux/bitops.h |    2 +-
+ 7 files changed, 24 insertions(+), 18 deletions(-)
 
---nextPart3879648.5j58r6OZdd
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+Cc: Robert Richter <robert.richter@amd.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-mtd@lists.infradead.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux390@de.ibm.com
+Cc: linux-s390@vger.kernel.org
+Cc: linux-usb@vger.kernel.org
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iQIcBAABAgAGBQJO3ROZAAoJEEFjO5/oN/WBfJkP/0d7nHfGqAWtU6+m9bA9Tu+N
-NVROKOFFq+fVfQyALQFff8WL0X4D6jYGQWUPUJaJcghqjM5rl5L/59nZWSay587I
-ElIm3eBJEik4gpoIDt7cCBsrlcZTgooIWo42gRkPwA2izHY9zg8EhURVyRhw3y2x
-mQuI2p0sgrQzw2BK99QQaXvSYVPYAxfarlZQiTfCaPpWCtaiMOXKnlen0UEzKzhY
-Wufg0Um8oXxqgp4XfjhLEs8sS0oUNnjImojW2NdfglaN0qJLafjJp5VpD6nbD4ZA
-3ONaWUMZcrWBpujdjqE56CcphHB0QMYGNgEx40A3FEwXOKXV7J+28CGdMcASfaOi
-rC07/Jq+XxCZYNoz7hvxuIbm+iQA8AaHYaO3R6Y4QjMCAhy9UxnrrgIm34/O2AUZ
-tXqpkiT0Tq7SIF+vQWs13cfFjiabWxi6P2hTC2kzJOTNjcR5dPIpdA3Av3+WYvIA
-HYEjS/hX7MdK9EeDIAXsrOLdqRAY7djYfijFTvvEW65s2rBqOzYwaaFt8uxXdcDU
-JYmGrsr+09K3dWou4h5K3TUvHB8rGH5gi2F4Faoy7kpilrufR3YJ2oWHA3mR66aN
-TiLkgD3cOOnPncP5QbeM63FcyrFlg4+CHYPIH0Olo+u2BAoumgUOc6/5j7m7zHzm
-SxxYfQVUrlxSBvn04KAP
-=1pE9
------END PGP SIGNATURE-----
-
---nextPart3879648.5j58r6OZdd--
+-- 
+1.7.4.4
