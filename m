@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1326281412.2819.3.camel@br98xy6r>
-Subject: [PATCH] kdump: Define KEXEC_NOTE_BYTES arch specific for s390x
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Reply-To: holzheu@linux.vnet.ibm.com
-Date: Wed, 11 Jan 2012 12:30:12 +0100
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 0/5] Get rid of get_driver() and put_driver()
+Date: Tue, 24 Jan 2012 16:06:34 -0800
+Message-ID: <20120125000634.GA1178@kroah.com>
+References: <Pine.LNX.4.44L0.1201241158540.1200-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.1201241158540.1200-100000@iolanthe.rowland.org>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: akpm@linux-foundation.org
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Vivek Goyal <vgoyal@redhat.com>, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-input/>
+List-Post: <mailto:linux-input@vger.kernel.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kyungmin Park <kyungmin.park@samsung.com>, Andy Walls <awalls@md.metrocast.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jiri Kosina <jkosina@suse.cz>, Jesse Barnes <jbarnes@virtuousgeek.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "David S. Miller" <davem@davemloft.net>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Michael Buesch <m@bues.ch>, Joerg Roedel <joerg.roedel@amd.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, netdev@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-s390@vger.kernel.org, USB list <linux-usb@vger.kernel.org>, xen-devel@lists.xensource.com, Kernel development list <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+On Tue, Jan 24, 2012 at 01:33:37PM -0500, Alan Stern wrote:
+> Greg:
+> 
+> This patch series removes the get_driver() and put_driver() routines
+> from the kernel.
+> 
+> Those routines don't do anything useful.  Their comments say that they
+> increment and decrement the driver's reference count, just like
+> get_device()/put_device() and a lot of other utility routines.  But a
+> struct driver is _not_ like a struct device!  It resembles a piece of
+> code more than a piece of data -- it acts as an encapsulation of a
+> driver.  Incrementing its refcount doesn't have much meaning because a
+> driver's lifetime isn't determined by the structure's refcount; it's
+> determined by when the driver's module gets unloaded.
+> 
+> What really matters for a driver is whether or not it is registered.  
+> Drivers expect, for example, that none of their methods will be called
+> after driver_unregister() returns.  It doesn't matter if some other
+> thread still holds a reference to the driver structure; that reference
+> mustn't be used for accessing the driver code after unregistration.  
+> get_driver() does not do any checking for this.
+> 
+> People may have been misled by the kerneldoc into thinking that the
+> references obtained by get_driver() do somehow pin the driver structure
+> in memory.  This simply isn't true; all it pins is the associated
+> private structure.  Code that needs to pin a driver must do it some
+> other way (probably by calling try_module_get()).
+> 
+> In short, these routines don't do anything useful and they can actively 
+> mislead people.  Removing them won't introduce any bugs that aren't 
+> already present.  There is no reason to keep them.
 
-kdump only allocates memory for the prstatus ELF note. For s390x,
-besides of prstatus multiple ELF notes for various different register
-types are stored. Therefore the currently allocated memory is not
-sufficient. With this patch the KEXEC_NOTE_BYTES macro can be
-defined by architecture code and for s390x it is set to the correct
-size now.
+Very nice work, all now applied, thanks for doing this.
 
-Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
----
- arch/s390/include/asm/kexec.h |   18 ++++++++++++++++++
- include/linux/kexec.h         |    2 ++
- 2 files changed, 20 insertions(+)
-
---- a/arch/s390/include/asm/kexec.h
-+++ b/arch/s390/include/asm/kexec.h
-@@ -42,6 +42,24 @@
- /* The native architecture */
- #define KEXEC_ARCH KEXEC_ARCH_S390
- 
-+/*
-+ * Size for s390x ELF notes per CPU
-+ *
-+ * Seven notes plus zero note at the end: prstatus, fpregset, timer,
-+ * tod_cmp, tod_reg, control regs, and prefix
-+ */
-+#define KEXEC_NOTE_BYTES \
-+	(ALIGN(sizeof(struct elf_note), 4) * 8 + \
-+	 ALIGN(sizeof("CORE"), 4) * 7 + \
-+	 ALIGN(sizeof(struct elf_prstatus), 4) + \
-+	 ALIGN(sizeof(elf_fpregset_t), 4) + \
-+	 ALIGN(sizeof(u64), 4) + \
-+	 ALIGN(sizeof(u64), 4) + \
-+	 ALIGN(sizeof(u32), 4) + \
-+	 ALIGN(sizeof(u64) * 16, 4) + \
-+	 ALIGN(sizeof(u32), 4) \
-+	)
-+
- /* Provide a dummy definition to avoid build failures. */
- static inline void crash_setup_regs(struct pt_regs *newregs,
- 					struct pt_regs *oldregs) { }
---- a/include/linux/kexec.h
-+++ b/include/linux/kexec.h
-@@ -50,9 +50,11 @@
-  * note header.  For kdump, the code in vmcore.c runs in the context
-  * of the second kernel to combine them into one note.
-  */
-+#ifndef KEXEC_NOTE_BYTES
- #define KEXEC_NOTE_BYTES ( (KEXEC_NOTE_HEAD_BYTES * 2) +		\
- 			    KEXEC_CORE_NOTE_NAME_BYTES +		\
- 			    KEXEC_CORE_NOTE_DESC_BYTES )
-+#endif
- 
- /*
-  * This structure is used to hold the arguments that are used when loading
+greg k-h
