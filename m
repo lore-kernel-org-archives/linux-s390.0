@@ -1,218 +1,336 @@
-From: Kyungmin Park <kyungmin.park@samsung.com>
-Subject: Re: [PATCH 1/5] Driver core: driver_find() drops reference before returning
-Date: Wed, 25 Jan 2012 11:56:41 +0900
-Message-ID: <CAH9JG2WEQ4hzvd=Lunfi=Y7LYF19Gs0CNT3WACCxNT1EvzhoyA@mail.gmail.com>
-References: <Pine.LNX.4.44L0.1201241258510.1200-100000@iolanthe.rowland.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 30 Jan 2012 15:29:06 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for 3.3-rc2
+Message-ID: <20120130152906.5b1dc015@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.1201241258510.1200-100000@iolanthe.rowland.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-input/>
-List-Post: <mailto:linux-input@vger.kernel.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andy Walls <awalls@md.metrocast.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-For s5p-{fimc,tv}
+Hi Linus,
 
-Acked-by: Kyungmin Park <kyungmin.park@samsung.com>
+please pull from 'for-linus' branch of
 
-On 1/25/12, Alan Stern <stern@rowland.harvard.edu> wrote:
-> As part of the removal of get_driver()/put_driver(), this patch
-> (as1510) changes driver_find(); it now drops the reference it acquires
-> before returning.  The patch also adjusts all the callers of
-> driver_find() to remove the now unnecessary calls to put_driver().
->
-> In addition, the patch adds a warning to driver_find(): Callers must
-> make sure the driver they are searching for does not get unloaded
-> while they are using it.  This has always been the case; driver_find()
-> has never prevented a driver from being unregistered or unloaded.
-> Hence the patch will not introduce any new bugs.  The existing callers
-> all seem to be okay in this respect, however I don't understand the
-> video drivers well enough to be certain about them.
->
-> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> CC: Kyungmin Park <kyungmin.park@samsung.com>
-> CC: Andy Walls <awalls@md.metrocast.net>
-> CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
->
-> ---
->
->  drivers/base/driver.c                       |    7 +++++--
->  drivers/input/gameport/gameport.c           |    1 -
->  drivers/input/serio/serio.c                 |    1 -
->  drivers/media/video/cx18/cx18-alsa-main.c   |    1 -
->  drivers/media/video/ivtv/ivtvfb.c           |    2 --
->  drivers/media/video/s5p-fimc/fimc-mdevice.c |    5 +----
->  drivers/media/video/s5p-tv/mixer_video.c    |    1 -
->  drivers/s390/net/smsgiucv_app.c             |    9 ++++-----
->  8 files changed, 10 insertions(+), 17 deletions(-)
->
-> Index: usb-3.3/drivers/base/driver.c
-> ===================================================================
-> --- usb-3.3.orig/drivers/base/driver.c
-> +++ usb-3.3/drivers/base/driver.c
-> @@ -234,7 +234,6 @@ int driver_register(struct device_driver
->
->  	other = driver_find(drv->name, drv->bus);
->  	if (other) {
-> -		put_driver(other);
->  		printk(KERN_ERR "Error: Driver '%s' is already registered, "
->  			"aborting...\n", drv->name);
->  		return -EBUSY;
-> @@ -275,7 +274,9 @@ EXPORT_SYMBOL_GPL(driver_unregister);
->   * Call kset_find_obj() to iterate over list of drivers on
->   * a bus to find driver by name. Return driver if found.
->   *
-> - * Note that kset_find_obj increments driver's reference count.
-> + * This routine provides no locking to prevent the driver it returns
-> + * from being unregistered or unloaded while the caller is using it.
-> + * The caller is responsible for preventing this.
->   */
->  struct device_driver *driver_find(const char *name, struct bus_type *bus)
->  {
-> @@ -283,6 +284,8 @@ struct device_driver *driver_find(const
->  	struct driver_private *priv;
->
->  	if (k) {
-> +		/* Drop reference added by kset_find_obj() */
-> +		kobject_put(k);
->  		priv = to_driver(k);
->  		return priv->driver;
->  	}
-> Index: usb-3.3/drivers/input/gameport/gameport.c
-> ===================================================================
-> --- usb-3.3.orig/drivers/input/gameport/gameport.c
-> +++ usb-3.3/drivers/input/gameport/gameport.c
-> @@ -449,7 +449,6 @@ static ssize_t gameport_rebind_driver(st
->  	} else if ((drv = driver_find(buf, &gameport_bus)) != NULL) {
->  		gameport_disconnect_port(gameport);
->  		error = gameport_bind_driver(gameport, to_gameport_driver(drv));
-> -		put_driver(drv);
->  	} else {
->  		error = -EINVAL;
->  	}
-> Index: usb-3.3/drivers/input/serio/serio.c
-> ===================================================================
-> --- usb-3.3.orig/drivers/input/serio/serio.c
-> +++ usb-3.3/drivers/input/serio/serio.c
-> @@ -441,7 +441,6 @@ static ssize_t serio_rebind_driver(struc
->  	} else if ((drv = driver_find(buf, &serio_bus)) != NULL) {
->  		serio_disconnect_port(serio);
->  		error = serio_bind_driver(serio, to_serio_driver(drv));
-> -		put_driver(drv);
->  		serio_remove_duplicate_events(serio, SERIO_RESCAN_PORT);
->  	} else {
->  		error = -EINVAL;
-> Index: usb-3.3/drivers/media/video/cx18/cx18-alsa-main.c
-> ===================================================================
-> --- usb-3.3.orig/drivers/media/video/cx18/cx18-alsa-main.c
-> +++ usb-3.3/drivers/media/video/cx18/cx18-alsa-main.c
-> @@ -285,7 +285,6 @@ static void __exit cx18_alsa_exit(void)
->
->  	drv = driver_find("cx18", &pci_bus_type);
->  	ret = driver_for_each_device(drv, NULL, NULL, cx18_alsa_exit_callback);
-> -	put_driver(drv);
->
->  	cx18_ext_init = NULL;
->  	printk(KERN_INFO "cx18-alsa: module unload complete\n");
-> Index: usb-3.3/drivers/media/video/ivtv/ivtvfb.c
-> ===================================================================
-> --- usb-3.3.orig/drivers/media/video/ivtv/ivtvfb.c
-> +++ usb-3.3/drivers/media/video/ivtv/ivtvfb.c
-> @@ -1293,7 +1293,6 @@ static int __init ivtvfb_init(void)
->
->  	drv = driver_find("ivtv", &pci_bus_type);
->  	err = driver_for_each_device(drv, NULL, &registered,
-> ivtvfb_callback_init);
-> -	put_driver(drv);
->  	if (!registered) {
->  		printk(KERN_ERR "ivtvfb:  no cards found\n");
->  		return -ENODEV;
-> @@ -1310,7 +1309,6 @@ static void ivtvfb_cleanup(void)
->
->  	drv = driver_find("ivtv", &pci_bus_type);
->  	err = driver_for_each_device(drv, NULL, NULL, ivtvfb_callback_cleanup);
-> -	put_driver(drv);
->  }
->
->  module_init(ivtvfb_init);
-> Index: usb-3.3/drivers/media/video/s5p-fimc/fimc-mdevice.c
-> ===================================================================
-> --- usb-3.3.orig/drivers/media/video/s5p-fimc/fimc-mdevice.c
-> +++ usb-3.3/drivers/media/video/s5p-fimc/fimc-mdevice.c
-> @@ -344,16 +344,13 @@ static int fimc_md_register_platform_ent
->  		return -ENODEV;
->  	ret = driver_for_each_device(driver, NULL, fmd,
->  				     fimc_register_callback);
-> -	put_driver(driver);
->  	if (ret)
->  		return ret;
->
->  	driver = driver_find(CSIS_DRIVER_NAME, &platform_bus_type);
-> -	if (driver) {
-> +	if (driver)
->  		ret = driver_for_each_device(driver, NULL, fmd,
->  					     csis_register_callback);
-> -		put_driver(driver);
-> -	}
->  	return ret;
->  }
->
-> Index: usb-3.3/drivers/media/video/s5p-tv/mixer_video.c
-> ===================================================================
-> --- usb-3.3.orig/drivers/media/video/s5p-tv/mixer_video.c
-> +++ usb-3.3/drivers/media/video/s5p-tv/mixer_video.c
-> @@ -58,7 +58,6 @@ static struct v4l2_subdev *find_and_regi
->  	}
->
->  done:
-> -	put_driver(drv);
->  	return sd;
->  }
->
-> Index: usb-3.3/drivers/s390/net/smsgiucv_app.c
-> ===================================================================
-> --- usb-3.3.orig/drivers/s390/net/smsgiucv_app.c
-> +++ usb-3.3/drivers/s390/net/smsgiucv_app.c
-> @@ -168,7 +168,7 @@ static int __init smsgiucv_app_init(void
->  	rc = dev_set_name(smsg_app_dev, KMSG_COMPONENT);
->  	if (rc) {
->  		kfree(smsg_app_dev);
-> -		goto fail_put_driver;
-> +		goto fail;
->  	}
->  	smsg_app_dev->bus = &iucv_bus;
->  	smsg_app_dev->parent = iucv_root;
-> @@ -177,7 +177,7 @@ static int __init smsgiucv_app_init(void
->  	rc = device_register(smsg_app_dev);
->  	if (rc) {
->  		put_device(smsg_app_dev);
-> -		goto fail_put_driver;
-> +		goto fail;
->  	}
->
->  	/* convert sender to uppercase characters */
-> @@ -191,12 +191,11 @@ static int __init smsgiucv_app_init(void
->  	rc = smsg_register_callback(SMSG_PREFIX, smsg_app_callback);
->  	if (rc) {
->  		device_unregister(smsg_app_dev);
-> -		goto fail_put_driver;
-> +		goto fail;
->  	}
->
->  	rc = 0;
-> -fail_put_driver:
-> -	put_driver(smsgiucv_drv);
-> +fail:
->  	return rc;
->  }
->  module_init(smsgiucv_app_init);
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+
+to receive the following updates:
+
+Christian Borntraeger (1):
+      [S390] cleanup entry point definition
+
+Stefan Haberland (2):
+      [S390] dasd: revert LCU optimization
+      [S390] dasd: revalidate server for new pathgroup
+
+ arch/s390/Makefile              |    1 -
+ arch/s390/kernel/vmlinux.lds.S  |    4 +-
+ drivers/s390/block/dasd.c       |    6 ++++
+ drivers/s390/block/dasd_alias.c |   64 +--------------------------------------
+ drivers/s390/block/dasd_eckd.c  |   63 ++++++++++++++++++++++----------------
+ drivers/s390/block/dasd_int.h   |    2 +
+ 6 files changed, 48 insertions(+), 92 deletions(-)
+
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index e9f3533..0ad2f1e 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -88,7 +88,6 @@ KBUILD_CFLAGS	+= -pipe -fno-strength-reduce -Wno-sign-compare
+ KBUILD_AFLAGS	+= $(aflags-y)
+ 
+ OBJCOPYFLAGS	:= -O binary
+-LDFLAGS_vmlinux := -e start
+ 
+ head-y		:= arch/s390/kernel/head.o
+ head-y		+= arch/s390/kernel/$(if $(CONFIG_64BIT),head64.o,head31.o)
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index e4c79eb..21109c6 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -9,12 +9,12 @@
+ #ifndef CONFIG_64BIT
+ OUTPUT_FORMAT("elf32-s390", "elf32-s390", "elf32-s390")
+ OUTPUT_ARCH(s390)
+-ENTRY(_start)
++ENTRY(startup)
+ jiffies = jiffies_64 + 4;
+ #else
+ OUTPUT_FORMAT("elf64-s390", "elf64-s390", "elf64-s390")
+ OUTPUT_ARCH(s390:64-bit)
+-ENTRY(_start)
++ENTRY(startup)
+ jiffies = jiffies_64;
+ #endif
+ 
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index eef27a1..110137e 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -3261,6 +3261,12 @@ void dasd_generic_path_event(struct ccw_device *cdev, int *path_event)
+ 			device->path_data.tbvpm |= eventlpm;
+ 			dasd_schedule_device_bh(device);
+ 		}
++		if (path_event[chp] & PE_PATHGROUP_ESTABLISHED) {
++			DBF_DEV_EVENT(DBF_WARNING, device, "%s",
++				      "Pathgroup re-established\n");
++			if (device->discipline->kick_validate)
++				device->discipline->kick_validate(device);
++		}
+ 	}
+ 	dasd_put_device(device);
+ }
+diff --git a/drivers/s390/block/dasd_alias.c b/drivers/s390/block/dasd_alias.c
+index 553b3c5..b3beed5 100644
+--- a/drivers/s390/block/dasd_alias.c
++++ b/drivers/s390/block/dasd_alias.c
+@@ -189,14 +189,12 @@ int dasd_alias_make_device_known_to_lcu(struct dasd_device *device)
+ 	unsigned long flags;
+ 	struct alias_server *server, *newserver;
+ 	struct alias_lcu *lcu, *newlcu;
+-	int is_lcu_known;
+ 	struct dasd_uid uid;
+ 
+ 	private = (struct dasd_eckd_private *) device->private;
+ 
+ 	device->discipline->get_uid(device, &uid);
+ 	spin_lock_irqsave(&aliastree.lock, flags);
+-	is_lcu_known = 1;
+ 	server = _find_server(&uid);
+ 	if (!server) {
+ 		spin_unlock_irqrestore(&aliastree.lock, flags);
+@@ -208,7 +206,6 @@ int dasd_alias_make_device_known_to_lcu(struct dasd_device *device)
+ 		if (!server) {
+ 			list_add(&newserver->server, &aliastree.serverlist);
+ 			server = newserver;
+-			is_lcu_known = 0;
+ 		} else {
+ 			/* someone was faster */
+ 			_free_server(newserver);
+@@ -226,12 +223,10 @@ int dasd_alias_make_device_known_to_lcu(struct dasd_device *device)
+ 		if (!lcu) {
+ 			list_add(&newlcu->lcu, &server->lculist);
+ 			lcu = newlcu;
+-			is_lcu_known = 0;
+ 		} else {
+ 			/* someone was faster */
+ 			_free_lcu(newlcu);
+ 		}
+-		is_lcu_known = 0;
+ 	}
+ 	spin_lock(&lcu->lock);
+ 	list_add(&device->alias_list, &lcu->inactive_devices);
+@@ -239,64 +234,7 @@ int dasd_alias_make_device_known_to_lcu(struct dasd_device *device)
+ 	spin_unlock(&lcu->lock);
+ 	spin_unlock_irqrestore(&aliastree.lock, flags);
+ 
+-	return is_lcu_known;
+-}
+-
+-/*
+- * The first device to be registered on an LCU will have to do
+- * some additional setup steps to configure that LCU on the
+- * storage server. All further devices should wait with their
+- * initialization until the first device is done.
+- * To synchronize this work, the first device will call
+- * dasd_alias_lcu_setup_complete when it is done, and all
+- * other devices will wait for it with dasd_alias_wait_for_lcu_setup.
+- */
+-void dasd_alias_lcu_setup_complete(struct dasd_device *device)
+-{
+-	unsigned long flags;
+-	struct alias_server *server;
+-	struct alias_lcu *lcu;
+-	struct dasd_uid uid;
+-
+-	device->discipline->get_uid(device, &uid);
+-	lcu = NULL;
+-	spin_lock_irqsave(&aliastree.lock, flags);
+-	server = _find_server(&uid);
+-	if (server)
+-		lcu = _find_lcu(server, &uid);
+-	spin_unlock_irqrestore(&aliastree.lock, flags);
+-	if (!lcu) {
+-		DBF_EVENT_DEVID(DBF_ERR, device->cdev,
+-				"could not find lcu for %04x %02x",
+-				uid.ssid, uid.real_unit_addr);
+-		WARN_ON(1);
+-		return;
+-	}
+-	complete_all(&lcu->lcu_setup);
+-}
+-
+-void dasd_alias_wait_for_lcu_setup(struct dasd_device *device)
+-{
+-	unsigned long flags;
+-	struct alias_server *server;
+-	struct alias_lcu *lcu;
+-	struct dasd_uid uid;
+-
+-	device->discipline->get_uid(device, &uid);
+-	lcu = NULL;
+-	spin_lock_irqsave(&aliastree.lock, flags);
+-	server = _find_server(&uid);
+-	if (server)
+-		lcu = _find_lcu(server, &uid);
+-	spin_unlock_irqrestore(&aliastree.lock, flags);
+-	if (!lcu) {
+-		DBF_EVENT_DEVID(DBF_ERR, device->cdev,
+-				"could not find lcu for %04x %02x",
+-				uid.ssid, uid.real_unit_addr);
+-		WARN_ON(1);
+-		return;
+-	}
+-	wait_for_completion(&lcu->lcu_setup);
++	return 0;
+ }
+ 
+ /*
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index bbcd5e9..70880be 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -1534,6 +1534,10 @@ static void dasd_eckd_validate_server(struct dasd_device *device)
+ 	struct dasd_eckd_private *private;
+ 	int enable_pav;
+ 
++	private = (struct dasd_eckd_private *) device->private;
++	if (private->uid.type == UA_BASE_PAV_ALIAS ||
++	    private->uid.type == UA_HYPER_PAV_ALIAS)
++		return;
+ 	if (dasd_nopav || MACHINE_IS_VM)
+ 		enable_pav = 0;
+ 	else
+@@ -1542,11 +1546,28 @@ static void dasd_eckd_validate_server(struct dasd_device *device)
+ 
+ 	/* may be requested feature is not available on server,
+ 	 * therefore just report error and go ahead */
+-	private = (struct dasd_eckd_private *) device->private;
+ 	DBF_EVENT_DEVID(DBF_WARNING, device->cdev, "PSF-SSC for SSID %04x "
+ 			"returned rc=%d", private->uid.ssid, rc);
+ }
+ 
++/*
++ * worker to do a validate server in case of a lost pathgroup
++ */
++static void dasd_eckd_do_validate_server(struct work_struct *work)
++{
++	struct dasd_device *device = container_of(work, struct dasd_device,
++						  kick_validate);
++	dasd_eckd_validate_server(device);
++	dasd_put_device(device);
++}
++
++static void dasd_eckd_kick_validate_server(struct dasd_device *device)
++{
++	dasd_get_device(device);
++	/* queue call to do_validate_server to the kernel event daemon. */
++	schedule_work(&device->kick_validate);
++}
++
+ static u32 get_fcx_max_data(struct dasd_device *device)
+ {
+ #if defined(CONFIG_64BIT)
+@@ -1588,10 +1609,13 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+ 	struct dasd_eckd_private *private;
+ 	struct dasd_block *block;
+ 	struct dasd_uid temp_uid;
+-	int is_known, rc, i;
++	int rc, i;
+ 	int readonly;
+ 	unsigned long value;
+ 
++	/* setup work queue for validate server*/
++	INIT_WORK(&device->kick_validate, dasd_eckd_do_validate_server);
++
+ 	if (!ccw_device_is_pathgroup(device->cdev)) {
+ 		dev_warn(&device->cdev->dev,
+ 			 "A channel path group could not be established\n");
+@@ -1651,22 +1675,12 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+ 		block->base = device;
+ 	}
+ 
+-	/* register lcu with alias handling, enable PAV if this is a new lcu */
+-	is_known = dasd_alias_make_device_known_to_lcu(device);
+-	if (is_known < 0) {
+-		rc = is_known;
++	/* register lcu with alias handling, enable PAV */
++	rc = dasd_alias_make_device_known_to_lcu(device);
++	if (rc)
+ 		goto out_err2;
+-	}
+-	/*
+-	 * dasd_eckd_validate_server is done on the first device that
+-	 * is found for an LCU. All later other devices have to wait
+-	 * for it, so they will read the correct feature codes.
+-	 */
+-	if (!is_known) {
+-		dasd_eckd_validate_server(device);
+-		dasd_alias_lcu_setup_complete(device);
+-	} else
+-		dasd_alias_wait_for_lcu_setup(device);
++
++	dasd_eckd_validate_server(device);
+ 
+ 	/* device may report different configuration data after LCU setup */
+ 	rc = dasd_eckd_read_conf(device);
+@@ -4098,7 +4112,7 @@ static int dasd_eckd_restore_device(struct dasd_device *device)
+ {
+ 	struct dasd_eckd_private *private;
+ 	struct dasd_eckd_characteristics temp_rdc_data;
+-	int is_known, rc;
++	int rc;
+ 	struct dasd_uid temp_uid;
+ 	unsigned long flags;
+ 
+@@ -4121,14 +4135,10 @@ static int dasd_eckd_restore_device(struct dasd_device *device)
+ 		goto out_err;
+ 
+ 	/* register lcu with alias handling, enable PAV if this is a new lcu */
+-	is_known = dasd_alias_make_device_known_to_lcu(device);
+-	if (is_known < 0)
+-		return is_known;
+-	if (!is_known) {
+-		dasd_eckd_validate_server(device);
+-		dasd_alias_lcu_setup_complete(device);
+-	} else
+-		dasd_alias_wait_for_lcu_setup(device);
++	rc = dasd_alias_make_device_known_to_lcu(device);
++	if (rc)
++		return rc;
++	dasd_eckd_validate_server(device);
+ 
+ 	/* RE-Read Configuration Data */
+ 	rc = dasd_eckd_read_conf(device);
+@@ -4270,6 +4280,7 @@ static struct dasd_discipline dasd_eckd_discipline = {
+ 	.restore = dasd_eckd_restore_device,
+ 	.reload = dasd_eckd_reload_device,
+ 	.get_uid = dasd_eckd_get_uid,
++	.kick_validate = dasd_eckd_kick_validate_server,
+ };
+ 
+ static int __init
+diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
+index afe8c33..33a6743 100644
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -355,6 +355,7 @@ struct dasd_discipline {
+ 	int (*reload) (struct dasd_device *);
+ 
+ 	int (*get_uid) (struct dasd_device *, struct dasd_uid *);
++	void (*kick_validate) (struct dasd_device *);
+ };
+ 
+ extern struct dasd_discipline *dasd_diag_discipline_pointer;
+@@ -455,6 +456,7 @@ struct dasd_device {
+ 	struct work_struct kick_work;
+ 	struct work_struct restore_device;
+ 	struct work_struct reload_device;
++	struct work_struct kick_validate;
+ 	struct timer_list timer;
+ 
+ 	debug_info_t *debug_area;
