@@ -1,75 +1,198 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Danny Kukawka <danny.kukawka@bisect.de>
-Subject: [PATCH 00/12] Part 2: check given MAC address, if invalid return -EADDRNOTAVAIL 
-Date: Fri, 24 Feb 2012 17:01:10 +0100
-Message-Id: <1330099282-4588-1-git-send-email-danny.kukawka@bisect.de>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Andy Gospodarek <andy@greyhouse.net>, Guo-Fu Tseng <cooldavid@cooldavid.org>, Petko Manolov <petkan@users.sourceforge.net>, "VMware, Inc." <pv-drivers@vmware.com>, "John W. Linville" <linville@tuxdriver.com>, linux390@de.ibm.com, Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: Danny Kukawka <dkukawka@suse.de>, Stephen Hemminger <shemminger@vyatta.com>, Joe Perches <joe@perches.com>, Jeff Kirsher <jeffrey.t.kirsher@intel.com>, Jiri Pirko <jpirko@redhat.com>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, libertas-dev@lists.infradead.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, linux-hams@vger.kernel.org, linux-mips@linux-mips.org
+From: frank.blaschka@de.ibm.com
+Subject: [patch 1/6] [PATCH] af_iucv: remove IUCV-pathes completely
+Date: Wed, 08 Feb 2012 11:19:45 +0100
+Message-ID: <20120208102029.117792481@de.ibm.com>
+References: <20120208101944.272235343@de.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=601-af_iucv-remove-path.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Second Part of series patches to unifiy the return value of 
-.ndo_set_mac_address if the given address isn't valid.
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-These changes check if a given (MAC) address is valid in 
-.ndo_set_mac_address, if invalid return -EADDRNOTAVAIL 
-as eth_mac_addr() already does if is_valid_ether_addr() fails.
+A SEVER is missing in the callback of a receiving SEVERED. This may
+inhibit z/VM to remove the corresponding IUCV-path completely.
+This patch adds a SEVER in iucv_callback_connrej (together with
+additional locking.
 
-These patches are against net-next.
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
 
-Danny Kukawka (12):
-  ethernet: .ndo_set_mac_address: check given address, if invalid
-    return -EADDRNOTAVAIL
-  cris/eth_v10: check given MAC address, if invalid return
-    -EADDRNOTAVAIL
-  dvb_net: check given MAC address, if invalid return -EADDRNOTAVAIL
-  fddi/skfp: check given MAC address, if invalid return -EADDRNOTAVAIL
-  team: check given MAC address, if invalid return -EADDRNOTAVAIL
-  tokenring: check given MAC address, if invalid return -EADDRNOTAVAIL
-  usb/rtl8150: check given MAC address, if invalid return
-    -EADDRNOTAVAIL
-  vmxnet3: check given MAC address, if invalid return -EADDRNOTAVAIL
-  wan/lapbether: check given MAC address, if invalid return
-    -EADDRNOTAVAIL
-  wireless: check given MAC address, if invalid return -EADDRNOTAVAIL
-  s390/net/qeth_l2_main: check given MAC address, if invalid return
-    -EADDRNOTAVAIL
-  rose: check given MAC address, if invalid return -EADDRNOTAVAIL
+ net/iucv/af_iucv.c |   71 +++++++++++++++++++++++++++--------------------------
+ 1 file changed, 37 insertions(+), 34 deletions(-)
 
- drivers/media/dvb/dvb-core/dvb_net.c               |    5 ++++-
- drivers/net/cris/eth_v10.c                         |    3 +++
- drivers/net/ethernet/amd/amd8111e.c                |    3 +++
- drivers/net/ethernet/amd/atarilance.c              |    3 +++
- drivers/net/ethernet/chelsio/cxgb/cxgb2.c          |    3 +++
- drivers/net/ethernet/cisco/enic/enic_main.c        |    3 +++
- drivers/net/ethernet/freescale/fec_mpc52xx.c       |    3 +++
- drivers/net/ethernet/jme.c                         |    3 +++
- drivers/net/ethernet/micrel/ks8851_mll.c           |    3 +++
- drivers/net/ethernet/micrel/ksz884x.c              |    3 +++
- drivers/net/ethernet/seeq/sgiseeq.c                |    3 +++
- drivers/net/ethernet/sgi/ioc3-eth.c                |    3 +++
- drivers/net/ethernet/tehuti/tehuti.c               |    3 +++
- drivers/net/fddi/skfp/skfddi.c                     |    3 +++
- drivers/net/team/team.c                            |    3 +++
- drivers/net/tokenring/3c359.c                      |    4 ++++
- drivers/net/tokenring/lanstreamer.c                |    4 ++++
- drivers/net/tokenring/olympic.c                    |    4 ++++
- drivers/net/tokenring/tms380tr.c                   |    3 +++
- drivers/net/usb/rtl8150.c                          |    3 +++
- drivers/net/vmxnet3/vmxnet3_drv.c                  |    3 +++
- drivers/net/wan/lapbether.c                        |    5 +++++
- drivers/net/wireless/airo.c                        |    3 +++
- drivers/net/wireless/atmel.c                       |    3 +++
- .../net/wireless/brcm80211/brcmfmac/dhd_linux.c    |    5 ++++-
- drivers/net/wireless/hostap/hostap_main.c          |    3 +++
- drivers/net/wireless/libertas/main.c               |    3 +++
- drivers/net/wireless/mwifiex/main.c                |    3 +++
- drivers/net/wireless/zd1201.c                      |    2 ++
- drivers/s390/net/qeth_l2_main.c                    |    3 +++
- net/rose/rose_dev.c                                |    3 +++
- 31 files changed, 99 insertions(+), 2 deletions(-)
-
--- 
-1.7.8.3
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -90,6 +90,7 @@ do {									\
+ 
+ static void iucv_sock_kill(struct sock *sk);
+ static void iucv_sock_close(struct sock *sk);
++static void iucv_sever_path(struct sock *, int);
+ 
+ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
+ 	struct packet_type *pt, struct net_device *orig_dev);
+@@ -181,11 +182,7 @@ static int afiucv_pm_freeze(struct devic
+ 		case IUCV_DISCONN:
+ 		case IUCV_CLOSING:
+ 		case IUCV_CONNECTED:
+-			if (iucv->path) {
+-				err = pr_iucv->path_sever(iucv->path, NULL);
+-				iucv_path_free(iucv->path);
+-				iucv->path = NULL;
+-			}
++			iucv_sever_path(sk, 0);
+ 			break;
+ 		case IUCV_OPEN:
+ 		case IUCV_BOUND:
+@@ -194,6 +191,8 @@ static int afiucv_pm_freeze(struct devic
+ 		default:
+ 			break;
+ 		}
++		skb_queue_purge(&iucv->send_skb_q);
++		skb_queue_purge(&iucv->backlog_skb_q);
+ 	}
+ 	read_unlock(&iucv_sk_list.lock);
+ 	return err;
+@@ -447,10 +446,29 @@ static void iucv_sock_kill(struct sock *
+ 	sock_put(sk);
+ }
+ 
++/* Terminate an IUCV path */
++static void iucv_sever_path(struct sock *sk, int with_user_data)
++{
++	unsigned char user_data[16];
++	struct iucv_sock *iucv = iucv_sk(sk);
++	struct iucv_path *path = iucv->path;
++
++	if (iucv->path) {
++		iucv->path = NULL;
++		if (with_user_data) {
++			low_nmcpy(user_data, iucv->src_name);
++			high_nmcpy(user_data, iucv->dst_name);
++			ASCEBC(user_data, sizeof(user_data));
++			pr_iucv->path_sever(path, user_data);
++		} else
++			pr_iucv->path_sever(path, NULL);
++		iucv_path_free(path);
++	}
++}
++
+ /* Close an IUCV socket */
+ static void iucv_sock_close(struct sock *sk)
+ {
+-	unsigned char user_data[16];
+ 	struct iucv_sock *iucv = iucv_sk(sk);
+ 	unsigned long timeo;
+ 	int err, blen;
+@@ -494,25 +512,14 @@ static void iucv_sock_close(struct sock
+ 		sk->sk_state = IUCV_CLOSED;
+ 		sk->sk_state_change(sk);
+ 
+-		if (iucv->path) {
+-			low_nmcpy(user_data, iucv->src_name);
+-			high_nmcpy(user_data, iucv->dst_name);
+-			ASCEBC(user_data, sizeof(user_data));
+-			pr_iucv->path_sever(iucv->path, user_data);
+-			iucv_path_free(iucv->path);
+-			iucv->path = NULL;
+-		}
+-
+ 		sk->sk_err = ECONNRESET;
+ 		sk->sk_state_change(sk);
+ 
+ 		iucv_skb_queue_purge(&iucv->send_skb_q);
+ 		skb_queue_purge(&iucv->backlog_skb_q);
+-		break;
+ 
+-	default:
+-		/* nothing to do here */
+-		break;
++	default:   /* fall through */
++		iucv_sever_path(sk, 1);
+ 	}
+ 
+ 	/* mark socket for deletion by iucv_sock_kill() */
+@@ -894,11 +901,8 @@ static int iucv_sock_connect(struct sock
+ 	if (sk->sk_state == IUCV_DISCONN || sk->sk_state == IUCV_CLOSED)
+ 		err = -ECONNREFUSED;
+ 
+-	if (err && iucv->transport == AF_IUCV_TRANS_IUCV) {
+-		pr_iucv->path_sever(iucv->path, NULL);
+-		iucv_path_free(iucv->path);
+-		iucv->path = NULL;
+-	}
++	if (err && iucv->transport == AF_IUCV_TRANS_IUCV)
++		iucv_sever_path(sk, 0);
+ 
+ done:
+ 	release_sock(sk);
+@@ -1565,13 +1569,6 @@ static int iucv_sock_release(struct sock
+ 
+ 	iucv_sock_close(sk);
+ 
+-	/* Unregister with IUCV base support */
+-	if (iucv_sk(sk)->path) {
+-		pr_iucv->path_sever(iucv_sk(sk)->path, NULL);
+-		iucv_path_free(iucv_sk(sk)->path);
+-		iucv_sk(sk)->path = NULL;
+-	}
+-
+ 	sock_orphan(sk);
+ 	iucv_sock_kill(sk);
+ 	return err;
+@@ -1750,8 +1747,7 @@ static int iucv_callback_connreq(struct
+ 	path->msglim = iucv->msglimit;
+ 	err = pr_iucv->path_accept(path, &af_iucv_handler, nuser_data, nsk);
+ 	if (err) {
+-		err = pr_iucv->path_sever(path, user_data);
+-		iucv_path_free(path);
++		iucv_sever_path(nsk, 1);
+ 		iucv_sock_kill(nsk);
+ 		goto fail;
+ 	}
+@@ -1828,6 +1824,7 @@ static void iucv_callback_txdone(struct
+ 	struct sk_buff *list_skb = list->next;
+ 	unsigned long flags;
+ 
++	bh_lock_sock(sk);
+ 	if (!skb_queue_empty(list)) {
+ 		spin_lock_irqsave(&list->lock, flags);
+ 
+@@ -1849,7 +1846,6 @@ static void iucv_callback_txdone(struct
+ 			iucv_sock_wake_msglim(sk);
+ 		}
+ 	}
+-	BUG_ON(!this);
+ 
+ 	if (sk->sk_state == IUCV_CLOSING) {
+ 		if (skb_queue_empty(&iucv_sk(sk)->send_skb_q)) {
+@@ -1857,6 +1853,7 @@ static void iucv_callback_txdone(struct
+ 			sk->sk_state_change(sk);
+ 		}
+ 	}
++	bh_unlock_sock(sk);
+ 
+ }
+ 
+@@ -1864,9 +1861,15 @@ static void iucv_callback_connrej(struct
+ {
+ 	struct sock *sk = path->private;
+ 
++	if (sk->sk_state == IUCV_CLOSED)
++		return;
++
++	bh_lock_sock(sk);
++	iucv_sever_path(sk, 1);
+ 	sk->sk_state = IUCV_DISCONN;
+ 
+ 	sk->sk_state_change(sk);
++	bh_unlock_sock(sk);
+ }
+ 
+ /* called if the other communication side shuts down its RECV direction;
