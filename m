@@ -1,70 +1,85 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 24 Jan 2012 13:35:02 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 3/5] cio: remove {get,put}_driver
-Message-ID: <Pine.LNX.4.44L0.1201241315180.1200-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Matt Fleming <matt@console-pimps.org>
+Subject: [PATCH 27/40] [S390] Use block_sigmask()
+Date: Tue, 14 Feb 2012 11:41:00 +0000
+Message-ID: <1329219673-28711-28-git-send-email-matt@console-pimps.org>
+References: <1329219673-28711-1-git-send-email-matt@console-pimps.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1329219673-28711-1-git-send-email-matt@console-pimps.org>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Greg KH <greg@kroah.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linux-arch@vger.kernel.org
+Cc: Oleg Nesterov <oleg@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Matt Fleming <matt.fleming@intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+From: Matt Fleming <matt.fleming@intel.com>
 
-Remove useless {get,put}_driver - the caller of the functions
-has to ensure valid driver pointers.
+Use the new helper function introduced in commit 5e6292c0f28f
+("signal: add block_sigmask() for adding sigmask to current->blocked")
+which centralises the code for updating current->blocked after
+successfully delivering a signal and reduces the amount of duplicate
+code across architectures.
 
-Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
+In the past some architectures got this code wrong, so using this
+helper function should stop that from happening again.
 
+Cc: Oleg Nesterov <oleg@redhat.com>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Matt Fleming <matt.fleming@intel.com>
 ---
+ arch/s390/kernel/compat_signal.c |    6 +-----
+ arch/s390/kernel/signal.c        |    6 +-----
+ 2 files changed, 2 insertions(+), 10 deletions(-)
 
- drivers/s390/cio/ccwgroup.c |    2 --
- drivers/s390/cio/device.c   |    8 +-------
- 2 files changed, 1 insertion(+), 9 deletions(-)
-
-Index: usb-3.3/drivers/s390/cio/ccwgroup.c
-===================================================================
---- usb-3.3.orig/drivers/s390/cio/ccwgroup.c
-+++ usb-3.3/drivers/s390/cio/ccwgroup.c
-@@ -580,7 +580,6 @@ void ccwgroup_driver_unregister(struct c
- 	struct device *dev;
- 
- 	/* We don't want ccwgroup devices to live longer than their driver. */
--	get_driver(&cdriver->driver);
- 	while ((dev = driver_find_device(&cdriver->driver, NULL, NULL,
- 					 __ccwgroup_match_all))) {
- 		struct ccwgroup_device *gdev = to_ccwgroupdev(dev);
-@@ -592,7 +591,6 @@ void ccwgroup_driver_unregister(struct c
- 		mutex_unlock(&gdev->reg_mutex);
- 		put_device(dev);
- 	}
--	put_driver(&cdriver->driver);
- 	driver_unregister(&cdriver->driver);
- }
- EXPORT_SYMBOL(ccwgroup_driver_unregister);
-Index: usb-3.3/drivers/s390/cio/device.c
-===================================================================
---- usb-3.3.orig/drivers/s390/cio/device.c
-+++ usb-3.3/drivers/s390/cio/device.c
-@@ -1676,15 +1676,9 @@ struct ccw_device *get_ccwdev_by_busid(s
- 				       const char *bus_id)
+diff --git a/arch/s390/kernel/compat_signal.c b/arch/s390/kernel/compat_signal.c
+index 6fe78c2..53a82c8 100644
+--- a/arch/s390/kernel/compat_signal.c
++++ b/arch/s390/kernel/compat_signal.c
+@@ -581,7 +581,6 @@ give_sigsegv:
+ int handle_signal32(unsigned long sig, struct k_sigaction *ka,
+ 		    siginfo_t *info, sigset_t *oldset, struct pt_regs *regs)
  {
- 	struct device *dev;
--	struct device_driver *drv;
+-	sigset_t blocked;
+ 	int ret;
  
--	drv = get_driver(&cdrv->driver);
--	if (!drv)
--		return NULL;
--
--	dev = driver_find_device(drv, NULL, (void *)bus_id,
-+	dev = driver_find_device(&cdrv->driver, NULL, (void *)bus_id,
- 				 __ccwdev_check_busid);
--	put_driver(drv);
- 
- 	return dev ? to_ccwdev(dev) : NULL;
+ 	/* Set up the stack frame */
+@@ -591,10 +590,7 @@ int handle_signal32(unsigned long sig, struct k_sigaction *ka,
+ 		ret = setup_frame32(sig, ka, oldset, regs);
+ 	if (ret)
+ 		return ret;
+-	sigorsets(&blocked, &current->blocked, &ka->sa.sa_mask);
+-	if (!(ka->sa.sa_flags & SA_NODEFER))
+-		sigaddset(&blocked, sig);
+-	set_current_blocked(&blocked);
++	block_sigmask(ka, sig);
+ 	return 0;
  }
+ 
+diff --git a/arch/s390/kernel/signal.c b/arch/s390/kernel/signal.c
+index a8ba840..c4f5790 100644
+--- a/arch/s390/kernel/signal.c
++++ b/arch/s390/kernel/signal.c
+@@ -385,7 +385,6 @@ static int handle_signal(unsigned long sig, struct k_sigaction *ka,
+ 			 siginfo_t *info, sigset_t *oldset,
+ 			 struct pt_regs *regs)
+ {
+-	sigset_t blocked;
+ 	int ret;
+ 
+ 	/* Set up the stack frame */
+@@ -395,10 +394,7 @@ static int handle_signal(unsigned long sig, struct k_sigaction *ka,
+ 		ret = setup_frame(sig, ka, oldset, regs);
+ 	if (ret)
+ 		return ret;
+-	sigorsets(&blocked, &current->blocked, &ka->sa.sa_mask);
+-	if (!(ka->sa.sa_flags & SA_NODEFER))
+-		sigaddset(&blocked, sig);
+-	set_current_blocked(&blocked);
++	block_sigmask(ka, sig);
+ 	return 0;
+ }
+ 
+-- 
+1.7.4.4
