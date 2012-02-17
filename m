@@ -1,23 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <4F3A785A.4030500@de.ibm.com>
-References: <4F3A785A.4030500@de.ibm.com> <20120214145022.12531.16731.stgit@warthog.procyon.org.uk>
-Subject: Re: [PATCH] KEYS: Enable the compat keyctl wrapper on s390x
-Date: Tue, 14 Feb 2012 15:22:38 +0000
-Message-ID: <15313.1329232958@redhat.com>
+Date: Fri, 17 Feb 2012 10:20:24 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] arch/s390/kernel/crash_dump.c: included
+ linux/crash_dump.h twice
+Message-ID: <20120217102024.1c838437@de.ibm.com>
+In-Reply-To: <1329400541-31849-1-git-send-email-danny.kukawka@bisect.de>
+References: <1329400541-31849-1-git-send-email-danny.kukawka@bisect.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: dhowells@redhat.com, keyrings@linux-nfs.org, linux-kernel@vger.kernel.org, dan@danny.cz, Carsten Otte <cotte@de.ibm.com>, linux-s390@vger.kernel.org, stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Danny Kukawka <danny.kukawka@bisect.de>
+Cc: Danny Kukawka <dkukawka@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Michael Holzheu <holzheu@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+On Thu, 16 Feb 2012 14:55:41 +0100
+Danny Kukawka <danny.kukawka@bisect.de> wrote:
 
-> Do you want to push this change via Martins s390 tree or via other
-> trees?
+> arch/s390/kernel/crash_dump.c included 'linux/crash_dump.h' twice,
+> remove the duplicate.
+> 
+> Signed-off-by: Danny Kukawka <danny.kukawka@bisect.de>
 
-I've no objection to it going via Martin's tree.  It's really an S390 fix
-rather than a keyrings/security fix.
+Added to the s390 tree. Thanks.
 
-David
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
