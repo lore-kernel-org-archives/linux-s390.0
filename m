@@ -1,33 +1,110 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v3] ipc: provide generic compat versions of IPC syscalls
-Date: Thu, 15 Mar 2012 16:25:32 +0000
-References: <201112091536.pB9Fa5f7002738@farm-0002.internal.tilera.com> <201112122148.pBCLmPH0023959@farm-0002.internal.tilera.com> <4F6144B8.5010601@tilera.com>
-In-Reply-To: <4F6144B8.5010601@tilera.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 1 Mar 2012 09:30:04 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for 3.3-rc5
+Message-ID: <20120301093004.4756e8bd@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <201203151625.32199.arnd@arndb.de>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-Return-Path: <linux-mips-bounce@linux-mips.org>
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-To: Chris Metcalf <cmetcalf@tilera.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>, Christoph Hellwig <hch@lst.de>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, "J. Bruce Fields" <bfields@redhat.com>, NeilBrown <neilb@suse.de>, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thursday 15 March 2012, Chris Metcalf wrote:
-> 
-> Somewhat belatedly, I'm looking to push this through the "tile" tree. 
-> Andrew Morton has been keeping it in his tree but I figure I should push it
-> since it directly affects "tile" and currently no one else.
+Hi Linus,
 
-Sounds good.
+please pull from 'for-linus' branch of
 
-> However, it would be nice if anyone could provide a Reviewed-by or Acked-by
-> on the patch.  Thanks!
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-As the main author of ipc/compat.c in its current form,
+to receive the following updates:
 
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Danny Kukawka (1):
+      [S390] crash_dump: remove duplicate include
+
+David Howells (1):
+      [S390] KEYS: Enable the compat keyctl wrapper on s390x
+
+Gerald Schaefer (1):
+      [S390] memory hotplug: prevent memory zone interleave
+
+ arch/s390/Kconfig             |    3 +++
+ arch/s390/kernel/crash_dump.c |    1 -
+ arch/s390/mm/init.c           |   30 ++++++++++++++++++++++++++----
+ 3 files changed, 29 insertions(+), 5 deletions(-)
+
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index d172758..6d99a5f 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -227,6 +227,9 @@ config COMPAT
+ config SYSVIPC_COMPAT
+ 	def_bool y if COMPAT && SYSVIPC
+ 
++config KEYS_COMPAT
++	def_bool y if COMPAT && KEYS
++
+ config AUDIT_ARCH
+ 	def_bool y
+ 
+diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+index 39f8fd4..c383ce4 100644
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -11,7 +11,6 @@
+ #include <linux/module.h>
+ #include <linux/gfp.h>
+ #include <linux/slab.h>
+-#include <linux/crash_dump.h>
+ #include <linux/bootmem.h>
+ #include <linux/elf.h>
+ #include <asm/ipl.h>
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 5d63301..5023661 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -223,16 +223,38 @@ void free_initrd_mem(unsigned long start, unsigned long end)
+ #ifdef CONFIG_MEMORY_HOTPLUG
+ int arch_add_memory(int nid, u64 start, u64 size)
+ {
+-	struct pglist_data *pgdat;
++	unsigned long zone_start_pfn, zone_end_pfn, nr_pages;
++	unsigned long start_pfn = PFN_DOWN(start);
++	unsigned long size_pages = PFN_DOWN(size);
+ 	struct zone *zone;
+ 	int rc;
+ 
+-	pgdat = NODE_DATA(nid);
+-	zone = pgdat->node_zones + ZONE_MOVABLE;
+ 	rc = vmem_add_mapping(start, size);
+ 	if (rc)
+ 		return rc;
+-	rc = __add_pages(nid, zone, PFN_DOWN(start), PFN_DOWN(size));
++	for_each_zone(zone) {
++		if (zone_idx(zone) != ZONE_MOVABLE) {
++			/* Add range within existing zone limits */
++			zone_start_pfn = zone->zone_start_pfn;
++			zone_end_pfn = zone->zone_start_pfn +
++				       zone->spanned_pages;
++		} else {
++			/* Add remaining range to ZONE_MOVABLE */
++			zone_start_pfn = start_pfn;
++			zone_end_pfn = start_pfn + size_pages;
++		}
++		if (start_pfn < zone_start_pfn || start_pfn >= zone_end_pfn)
++			continue;
++		nr_pages = (start_pfn + size_pages > zone_end_pfn) ?
++			   zone_end_pfn - start_pfn : size_pages;
++		rc = __add_pages(nid, zone, start_pfn, nr_pages);
++		if (rc)
++			break;
++		start_pfn += nr_pages;
++		size_pages -= nr_pages;
++		if (!size_pages)
++			break;
++	}
+ 	if (rc)
+ 		vmem_remove_mapping(start, size);
+ 	return rc;
