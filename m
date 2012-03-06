@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 1 Mar 2012 09:30:04 +0100
+Date: Tue, 6 Mar 2012 13:40:42 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 3.3-rc5
-Message-ID: <20120301093004.4756e8bd@de.ibm.com>
+Subject: [GIT PULL] s390 regression fix for 3.3-rc6
+Message-ID: <20120306134042.337a6fc6@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -21,90 +21,35 @@ please pull from 'for-linus' branch of
 
 to receive the following updates:
 
-Danny Kukawka (1):
-      [S390] crash_dump: remove duplicate include
+Steffen Maier (1):
+      [S390] qdio: fix handler function arguments for zfcp data router
 
-David Howells (1):
-      [S390] KEYS: Enable the compat keyctl wrapper on s390x
+It is a fix for a regression that has been introduced with git commit
+25f269f17316549e and if possible we would like to have working code
+for the fcp data router in 3.3.
 
-Gerald Schaefer (1):
-      [S390] memory hotplug: prevent memory zone interleave
+ drivers/s390/cio/qdio_main.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
- arch/s390/Kconfig             |    3 +++
- arch/s390/kernel/crash_dump.c |    1 -
- arch/s390/mm/init.c           |   30 ++++++++++++++++++++++++++----
- 3 files changed, 29 insertions(+), 5 deletions(-)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index d172758..6d99a5f 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -227,6 +227,9 @@ config COMPAT
- config SYSVIPC_COMPAT
- 	def_bool y if COMPAT && SYSVIPC
+diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
+index 3ef8d07..770a740 100644
+--- a/drivers/s390/cio/qdio_main.c
++++ b/drivers/s390/cio/qdio_main.c
+@@ -167,7 +167,7 @@ again:
+ 	DBF_ERROR("%4x EQBS ERROR", SCH_NO(q));
+ 	DBF_ERROR("%3d%3d%2d", count, tmp_count, nr);
+ 	q->handler(q->irq_ptr->cdev, QDIO_ERROR_ACTIVATE_CHECK_CONDITION,
+-		   0, -1, -1, q->irq_ptr->int_parm);
++		   q->nr, q->first_to_kick, count, q->irq_ptr->int_parm);
+ 	return 0;
+ }
  
-+config KEYS_COMPAT
-+	def_bool y if COMPAT && KEYS
-+
- config AUDIT_ARCH
- 	def_bool y
+@@ -215,7 +215,7 @@ again:
+ 	DBF_ERROR("%4x SQBS ERROR", SCH_NO(q));
+ 	DBF_ERROR("%3d%3d%2d", count, tmp_count, nr);
+ 	q->handler(q->irq_ptr->cdev, QDIO_ERROR_ACTIVATE_CHECK_CONDITION,
+-		   0, -1, -1, q->irq_ptr->int_parm);
++		   q->nr, q->first_to_kick, count, q->irq_ptr->int_parm);
+ 	return 0;
+ }
  
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index 39f8fd4..c383ce4 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -11,7 +11,6 @@
- #include <linux/module.h>
- #include <linux/gfp.h>
- #include <linux/slab.h>
--#include <linux/crash_dump.h>
- #include <linux/bootmem.h>
- #include <linux/elf.h>
- #include <asm/ipl.h>
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 5d63301..5023661 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -223,16 +223,38 @@ void free_initrd_mem(unsigned long start, unsigned long end)
- #ifdef CONFIG_MEMORY_HOTPLUG
- int arch_add_memory(int nid, u64 start, u64 size)
- {
--	struct pglist_data *pgdat;
-+	unsigned long zone_start_pfn, zone_end_pfn, nr_pages;
-+	unsigned long start_pfn = PFN_DOWN(start);
-+	unsigned long size_pages = PFN_DOWN(size);
- 	struct zone *zone;
- 	int rc;
- 
--	pgdat = NODE_DATA(nid);
--	zone = pgdat->node_zones + ZONE_MOVABLE;
- 	rc = vmem_add_mapping(start, size);
- 	if (rc)
- 		return rc;
--	rc = __add_pages(nid, zone, PFN_DOWN(start), PFN_DOWN(size));
-+	for_each_zone(zone) {
-+		if (zone_idx(zone) != ZONE_MOVABLE) {
-+			/* Add range within existing zone limits */
-+			zone_start_pfn = zone->zone_start_pfn;
-+			zone_end_pfn = zone->zone_start_pfn +
-+				       zone->spanned_pages;
-+		} else {
-+			/* Add remaining range to ZONE_MOVABLE */
-+			zone_start_pfn = start_pfn;
-+			zone_end_pfn = start_pfn + size_pages;
-+		}
-+		if (start_pfn < zone_start_pfn || start_pfn >= zone_end_pfn)
-+			continue;
-+		nr_pages = (start_pfn + size_pages > zone_end_pfn) ?
-+			   zone_end_pfn - start_pfn : size_pages;
-+		rc = __add_pages(nid, zone, start_pfn, nr_pages);
-+		if (rc)
-+			break;
-+		start_pfn += nr_pages;
-+		size_pages -= nr_pages;
-+		if (!size_pages)
-+			break;
-+	}
- 	if (rc)
- 		vmem_remove_mapping(start, size);
- 	return rc;
