@@ -1,23 +1,61 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 0/7] s390: network driver fixes for net-next
-Date: Wed, 07 Mar 2012 22:52:40 -0800 (PST)
-Message-ID: <20120307.225240.2140592477867705902.davem@davemloft.net>
+From: frank.blaschka@de.ibm.com
+Subject: [patch 7/7] [PATCH] lcs: Return zero from ccwgroup devs set_offline function
+Date: Wed, 07 Mar 2012 13:06:29 +0100
+Message-ID: <20120307120708.254004797@de.ibm.com>
 References: <20120307120622.922387262@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20120307120622.922387262@de.ibm.com>
+Content-Disposition: inline; filename=607-lcs-offline.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Klaus-Dieter Wacker <kdwacker@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: frank.blaschka@de.ibm.com
-Date: Wed, 07 Mar 2012 13:06:22 +0100
+From: Klaus-Dieter Wacker <kdwacker@de.ibm.com>
 
-> here is a couple of s390 network driver fixes for net-next
+A return code of non-zero of the devs ccwgroup set_offline function
+leaves the dev in online state. Having done a partly offlining
+may leave the dev in unusable state. To make sure the dev is set to
+offline, zero is returned. A setup trace entry is written in case
+the offlining steps encountered some trouble.
 
-All applied, thanks.
+Signed-off-by: Klaus-Dieter Wacker <kdwacker@de.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
+
+ drivers/s390/net/lcs.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff -urpN linux-2.6/drivers/s390/net/lcs.c linux-2.6-patched/drivers/s390/net/lcs.c
+--- linux-2.6/drivers/s390/net/lcs.c	2012-01-05 00:55:44.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/lcs.c	2012-03-06 13:35:58.000000000 +0100
+@@ -2240,7 +2240,7 @@ __lcs_shutdown_device(struct ccwgroup_de
+ {
+ 	struct lcs_card *card;
+ 	enum lcs_dev_states recover_state;
+-	int ret;
++	int ret = 0, ret2 = 0, ret3 = 0;
+ 
+ 	LCS_DBF_TEXT(3, setup, "shtdndev");
+ 	card = dev_get_drvdata(&ccwgdev->dev);
+@@ -2255,13 +2255,15 @@ __lcs_shutdown_device(struct ccwgroup_de
+ 	recover_state = card->state;
+ 
+ 	ret = lcs_stop_device(card->dev);
+-	ret = ccw_device_set_offline(card->read.ccwdev);
+-	ret = ccw_device_set_offline(card->write.ccwdev);
++	ret2 = ccw_device_set_offline(card->read.ccwdev);
++	ret3 = ccw_device_set_offline(card->write.ccwdev);
++	if (!ret)
++		ret = (ret2) ? ret2 : ret3;
++	if (ret)
++		LCS_DBF_TEXT_(3, setup, "1err:%d", ret);
+ 	if (recover_state == DEV_STATE_UP) {
+ 		card->state = DEV_STATE_RECOVER;
+ 	}
+-	if (ret)
+-		return ret;
+ 	return 0;
+ }
+ 
