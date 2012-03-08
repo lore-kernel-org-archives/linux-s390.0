@@ -1,49 +1,23 @@
-From: "David Laight" <David.Laight@ACULAB.COM>
-Subject: RE: [patch 4/7] [PATCH] ctcm: make ctcmpc debugging compilable
-Date: Wed, 7 Mar 2012 12:20:05 -0000
-Message-ID: <AE90C24D6B3A694183C094C60CF0A2F6026B6E90@saturn3.aculab.com>
-References: <20120307120707.933695671@de.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/7] s390: network driver fixes for net-next
+Date: Wed, 07 Mar 2012 22:52:40 -0800 (PST)
+Message-ID: <20120307.225240.2140592477867705902.davem@davemloft.net>
+References: <20120307120622.922387262@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <20120307120707.933695671@de.ibm.com>
+In-Reply-To: <20120307120622.922387262@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com, davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
+To: frank.blaschka@de.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
->  static const struct xid2 init_xid = {
-> @@ -132,7 +132,7 @@ void ctcmpc_dumpit(char *buf, int len)
->  	__u32	ct, sw, rm, dup;
->  	char	*ptr, *rptr;
->  	char	tbuf[82], tdup[82];
-> -	#if (UTS_MACHINE == s390x)
-> +	#ifdef CONFIG_64BIT
->  	char	addr[22];
->  	#else
->  	char	addr[12];
-> @@ -149,8 +149,8 @@ void ctcmpc_dumpit(char *buf, int len)
->  
->  	for (ct = 0; ct < len; ct++, ptr++, rptr++) {
->  		if (sw == 0) {
-> -			#if (UTS_MACHINE == s390x)
-> -			sprintf(addr, "%16.16lx", (__u64)rptr);
-> +			#ifdef CONFIG_64BIT
-> +			sprintf(addr, "%16.16llx", (__u64)rptr);
->  			#else
->  			sprintf(addr, "%8.8X", (__u32)rptr);
->  			#endif
+From: frank.blaschka@de.ibm.com
+Date: Wed, 07 Mar 2012 13:06:22 +0100
 
-What is wrong with:
-	char addr[24];
-	snprintf(addr, sizeof addr, "%p", rptr);
+> here is a couple of s390 network driver fixes for net-next
 
-There seemed to be other 'dangerous' unbounded string
-operations in that code as well.
-
-	David
+All applied, thanks.
