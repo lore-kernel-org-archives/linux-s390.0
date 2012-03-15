@@ -1,18 +1,18 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 25/35] Disintegrate asm/system.h for S390 [ver #2]
-Date: Mon, 12 Mar 2012 23:40:15 +0000
-Message-ID: <20120312234015.13888.3695.stgit@warthog.procyon.org.uk>
-References: <20120312233602.13888.27659.stgit@warthog.procyon.org.uk>
+Subject: [PATCH 22/38] Disintegrate asm/system.h for S390 [ver #3]
+Date: Thu, 15 Mar 2012 20:58:42 +0000
+Message-ID: <20120315205842.28759.65584.stgit@warthog.procyon.org.uk>
+References: <20120315205514.28759.58969.stgit@warthog.procyon.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120312233602.13888.27659.stgit@warthog.procyon.org.uk>
+In-Reply-To: <20120315205514.28759.58969.stgit@warthog.procyon.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: paul.gortmaker@windriver.com, hpa@zytor.com
-Cc: torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, arnd@arndb.de, David Howells <dhowells@redhat.com>, linux-s390@vger.kernel.org
+To: paul.gortmaker@windriver.com
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, arnd@arndb.de, David Howells <dhowells@redhat.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 Disintegrate asm/system.h for S390.
