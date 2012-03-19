@@ -1,8 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: "Chen, Dennis (SRDC SW)" <Dennis1.Chen@amd.com>
-Subject: [PATCH]s390/char/vmur.c: memory leak Fix in the driver
-Date: Sat, 17 Mar 2012 19:40:41 +0000
-Message-ID: <491D6B4EAD0A714894D8AD22F4BDE0430495F2@SCYBEXDAG04.amd.com>
+Subject: RE: [PATCH]s390/char/vmur.c: memory leak Fix in the driver
+Date: Mon, 19 Mar 2012 01:55:40 +0000
+Message-ID: <491D6B4EAD0A714894D8AD22F4BDE04304FF5A@SCYBEXDAG04.amd.com>
+References: <491D6B4EAD0A714894D8AD22F4BDE0430495F2@SCYBEXDAG04.amd.com>
+In-Reply-To: <491D6B4EAD0A714894D8AD22F4BDE0430495F2@SCYBEXDAG04.amd.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
@@ -11,8 +13,17 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "beattiem@uk.ibm.com" <beattiem@uk.ibm.com>, "holzheu@de.ibm.com" <holzheu@de.ibm.com>, "munzert@de.ibm.com" <munzert@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "Chen, Dennis (SRDC SW)" <Dennis1.Chen@amd.com>
+Cc: "beattiem@uk.ibm.com" <beattiem@uk.ibm.com>, "holzheu@de.ibm.com" <holzheu@de.ibm.com>, "munzert@de.ibm.com" <munzert@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "Chen, Dennis (SRDC SW)" <Dennis1.Chen@amd.com>
 List-ID: <linux-s390.vger.kernel.org>
+
+CC'ing maintainer: Martin Schwidefsky &  Heiko Carstens...
+
+-----Original Message-----
+From: Chen, Dennis (SRDC SW) 
+Sent: Sunday, March 18, 2012 3:41 AM
+To: linux-kernel@vger.kernel.org
+Cc: beattiem@uk.ibm.com; holzheu@de.ibm.com; munzert@de.ibm.com; linux390@de.ibm.com; linux-s390@vger.kernel.org; Chen, Dennis (SRDC SW)
+Subject: [PATCH]s390/char/vmur.c: memory leak Fix in the driver
 
 This patch is used to fix a memory leak issue in s390/char/vmur.c: a character device instance is 
 allocated by cdev_alloc, the cdev_del will not free that space if cdev_init is applied before. 
