@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 25/69] TTY: con3215, remove tasklet for tty_wakeup
-Date: Mon,  2 Apr 2012 13:54:09 +0200
-Message-Id: <1333367693-3244-26-git-send-email-jslaby@suse.cz>
+Subject: [PATCH 28/69] TTY: sclp_tty, add tty_port
+Date: Mon,  2 Apr 2012 13:54:12 +0200
+Message-Id: <1333367693-3244-29-git-send-email-jslaby@suse.cz>
 In-Reply-To: <1333367693-3244-1-git-send-email-jslaby@suse.cz>
 References: <1333367693-3244-1-git-send-email-jslaby@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -12,10 +12,9 @@ To: gregkh@linuxfoundation.org
 Cc: alan@linux.intel.com, linux-kernel@vger.kernel.org, jirislaby@gmail.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-tty_wakeup is safe to be called from all contexts. No need to schedule
-a tasklet for that. Let us call it directly like in other drivers.
-
-And delete the tasklet completely.
+tty_port will hold tty buffers in the future. So we need to have it
+even here. The only needed member here is tty, so let us store it in
+the structure now.
 
 Signed-off-by: Jiri Slaby <jslaby@suse.cz>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
@@ -23,61 +22,115 @@ Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 Cc: linux390@de.ibm.com
 Cc: linux-s390@vger.kernel.org
 ---
- drivers/s390/char/con3215.c |   14 +-------------
- 1 file changed, 1 insertion(+), 13 deletions(-)
+ drivers/s390/char/sclp_tty.c |   33 +++++++++++++++++++--------------
+ 1 file changed, 19 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
-index 7e30f85..fb195f3 100644
---- a/drivers/s390/char/con3215.c
-+++ b/drivers/s390/char/con3215.c
-@@ -87,7 +87,6 @@ struct raw3215_info {
- 	struct tty_struct *tty;	      /* pointer to tty structure if present */
- 	struct raw3215_req *queued_read; /* pointer to queued read requests */
- 	struct raw3215_req *queued_write;/* pointer to queued write requests */
--	struct tasklet_struct tlet;   /* tasklet to invoke tty_wakeup */
- 	wait_queue_head_t empty_wait; /* wait queue for flushing */
- 	struct timer_list timer;      /* timer for delayed output */
- 	int line_pos;		      /* position on the line (for tabs) */
-@@ -332,15 +331,6 @@ static inline void raw3215_try_io(struct raw3215_info *raw)
+diff --git a/drivers/s390/char/sclp_tty.c b/drivers/s390/char/sclp_tty.c
+index 40a9d69..e66a75b 100644
+--- a/drivers/s390/char/sclp_tty.c
++++ b/drivers/s390/char/sclp_tty.c
+@@ -48,7 +48,7 @@ static struct sclp_buffer *sclp_ttybuf;
+ /* Timer for delayed output of console messages. */
+ static struct timer_list sclp_tty_timer;
+ 
+-static struct tty_struct *sclp_tty;
++static struct tty_port sclp_port;
+ static unsigned char sclp_tty_chars[SCLP_TTY_BUF_SIZE];
+ static unsigned short int sclp_tty_chars_count;
+ 
+@@ -64,7 +64,7 @@ static int sclp_tty_columns = 80;
+ static int
+ sclp_tty_open(struct tty_struct *tty, struct file *filp)
+ {
+-	sclp_tty = tty;
++	tty_port_tty_set(&sclp_port, tty);
+ 	tty->driver_data = NULL;
+ 	tty->low_latency = 0;
+ 	return 0;
+@@ -76,7 +76,7 @@ sclp_tty_close(struct tty_struct *tty, struct file *filp)
+ {
+ 	if (tty->count > 1)
+ 		return;
+-	sclp_tty = NULL;
++	tty_port_tty_set(&sclp_port, NULL);
  }
  
  /*
-- * Call tty_wakeup from tasklet context
-- */
--static void raw3215_wakeup(unsigned long data)
--{
--	struct raw3215_info *raw = (struct raw3215_info *) data;
--	tty_wakeup(raw->tty);
--}
--
--/*
-  * Try to start the next IO and wake up processes waiting on the tty.
-  */
- static void raw3215_next_io(struct raw3215_info *raw)
-@@ -348,7 +338,7 @@ static void raw3215_next_io(struct raw3215_info *raw)
- 	raw3215_mk_write_req(raw);
- 	raw3215_try_io(raw);
- 	if (raw->tty && RAW3215_BUFFER_SIZE - raw->count >= RAW3215_MIN_SPACE)
--		tasklet_schedule(&raw->tlet);
-+		tty_wakeup(raw->tty);
+@@ -108,6 +108,7 @@ sclp_tty_write_room (struct tty_struct *tty)
+ static void
+ sclp_ttybuf_callback(struct sclp_buffer *buffer, int rc)
+ {
++	struct tty_struct *tty;
+ 	unsigned long flags;
+ 	void *page;
+ 
+@@ -126,8 +127,10 @@ sclp_ttybuf_callback(struct sclp_buffer *buffer, int rc)
+ 		spin_unlock_irqrestore(&sclp_tty_lock, flags);
+ 	} while (buffer && sclp_emit_buffer(buffer, sclp_ttybuf_callback));
+ 	/* check if the tty needs a wake up call */
+-	if (sclp_tty != NULL) {
+-		tty_wakeup(sclp_tty);
++	tty = tty_port_tty_get(&sclp_port);
++	if (tty != NULL) {
++		tty_wakeup(tty);
++		tty_kref_put(tty);
+ 	}
+ }
+ 
+@@ -326,21 +329,22 @@ sclp_tty_flush_buffer(struct tty_struct *tty)
+ static void
+ sclp_tty_input(unsigned char* buf, unsigned int count)
+ {
++	struct tty_struct *tty = tty_port_tty_get(&sclp_port);
+ 	unsigned int cchar;
+ 
+ 	/*
+ 	 * If this tty driver is currently closed
+ 	 * then throw the received input away.
+ 	 */
+-	if (sclp_tty == NULL)
++	if (tty == NULL)
+ 		return;
+-	cchar = ctrlchar_handle(buf, count, sclp_tty);
++	cchar = ctrlchar_handle(buf, count, tty);
+ 	switch (cchar & CTRLCHAR_MASK) {
+ 	case CTRLCHAR_SYSRQ:
+ 		break;
+ 	case CTRLCHAR_CTRL:
+-		tty_insert_flip_char(sclp_tty, cchar, TTY_NORMAL);
+-		tty_flip_buffer_push(sclp_tty);
++		tty_insert_flip_char(tty, cchar, TTY_NORMAL);
++		tty_flip_buffer_push(tty);
+ 		break;
+ 	case CTRLCHAR_NONE:
+ 		/* send (normal) input to line discipline */
+@@ -348,13 +352,14 @@ sclp_tty_input(unsigned char* buf, unsigned int count)
+ 		    (strncmp((const char *) buf + count - 2, "^n", 2) &&
+ 		     strncmp((const char *) buf + count - 2, "\252n", 2))) {
+ 			/* add the auto \n */
+-			tty_insert_flip_string(sclp_tty, buf, count);
+-			tty_insert_flip_char(sclp_tty, '\n', TTY_NORMAL);
++			tty_insert_flip_string(tty, buf, count);
++			tty_insert_flip_char(tty, '\n', TTY_NORMAL);
+ 		} else
+-			tty_insert_flip_string(sclp_tty, buf, count - 2);
+-		tty_flip_buffer_push(sclp_tty);
++			tty_insert_flip_string(tty, buf, count - 2);
++		tty_flip_buffer_push(tty);
+ 		break;
+ 	}
++	tty_kref_put(tty);
  }
  
  /*
-@@ -662,7 +652,6 @@ static struct raw3215_info *raw3215_alloc_info(void)
+@@ -543,7 +548,7 @@ sclp_tty_init(void)
+ 		sclp_tty_tolower = 1;
+ 	}
+ 	sclp_tty_chars_count = 0;
+-	sclp_tty = NULL;
++	tty_port_init(&sclp_port);
  
- 	setup_timer(&info->timer, raw3215_timeout, (unsigned long)info);
- 	init_waitqueue_head(&info->empty_wait);
--	tasklet_init(&info->tlet, raw3215_wakeup, (unsigned long)info);
- 
- 	return info;
- }
-@@ -973,7 +962,6 @@ static void tty3215_close(struct tty_struct *tty, struct file * filp)
- 	tty->closing = 1;
- 	/* Shutdown the terminal */
- 	raw3215_shutdown(raw);
--	tasklet_kill(&raw->tlet);
- 	tty->closing = 0;
- 	raw->tty = NULL;
- }
+ 	rc = sclp_register(&sclp_input_event);
+ 	if (rc) {
 -- 
 1.7.9.2
