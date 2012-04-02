@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 32/69] TTY: tty3270, get rid of ugly aliasing
-Date: Mon,  2 Apr 2012 13:54:16 +0200
-Message-Id: <1333367693-3244-33-git-send-email-jslaby@suse.cz>
+Subject: [PATCH 25/69] TTY: con3215, remove tasklet for tty_wakeup
+Date: Mon,  2 Apr 2012 13:54:09 +0200
+Message-Id: <1333367693-3244-26-git-send-email-jslaby@suse.cz>
 In-Reply-To: <1333367693-3244-1-git-send-email-jslaby@suse.cz>
 References: <1333367693-3244-1-git-send-email-jslaby@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -12,8 +12,10 @@ To: gregkh@linuxfoundation.org
 Cc: alan@linux.intel.com, linux-kernel@vger.kernel.org, jirislaby@gmail.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Blah, do not assume that raw3270_view is at the beginning of tty3270.
-Use proper types and container_of wherever needed.
+tty_wakeup is safe to be called from all contexts. No need to schedule
+a tasklet for that. Let us call it directly like in other drivers.
+
+And delete the tasklet completely.
 
 Signed-off-by: Jiri Slaby <jslaby@suse.cz>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
@@ -21,155 +23,61 @@ Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 Cc: linux390@de.ibm.com
 Cc: linux-s390@vger.kernel.org
 ---
- drivers/s390/char/tty3270.c |   42 +++++++++++++++++++-----------------------
- 1 file changed, 19 insertions(+), 23 deletions(-)
+ drivers/s390/char/con3215.c |   14 +-------------
+ 1 file changed, 1 insertion(+), 13 deletions(-)
 
-diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-index f3837da..bb1514a 100644
---- a/drivers/s390/char/tty3270.c
-+++ b/drivers/s390/char/tty3270.c
-@@ -324,9 +324,8 @@ tty3270_blank_line(struct tty3270 *tp)
- static void
- tty3270_write_callback(struct raw3270_request *rq, void *data)
- {
--	struct tty3270 *tp;
-+	struct tty3270 *tp = container_of(rq->view, struct tty3270, view);
- 
--	tp = (struct tty3270 *) rq->view;
- 	if (rq->rc != 0) {
- 		/* Write wasn't successful. Refresh all. */
- 		tp->update_flags = TTY_UPDATE_ALL;
-@@ -537,11 +536,10 @@ static void
- tty3270_read_tasklet(struct raw3270_request *rrq)
- {
- 	static char kreset_data = TW_KR;
--	struct tty3270 *tp;
-+	struct tty3270 *tp = container_of(rrq->view, struct tty3270, view);
- 	char *input;
- 	int len;
- 
--	tp = (struct tty3270 *) rrq->view;
- 	spin_lock_bh(&tp->view.lock);
- 	/*
- 	 * Two AID keys are special: For 0x7d (enter) the input line
-@@ -596,9 +594,10 @@ tty3270_read_tasklet(struct raw3270_request *rrq)
- static void
- tty3270_read_callback(struct raw3270_request *rq, void *data)
- {
-+	struct tty3270 *tp = container_of(rq->view, struct tty3270, view);
- 	raw3270_get_view(rq->view);
- 	/* Schedule tasklet to pass input to tty. */
--	tasklet_schedule(&((struct tty3270 *) rq->view)->readlet);
-+	tasklet_schedule(&tp->readlet);
+diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
+index 7e30f85..fb195f3 100644
+--- a/drivers/s390/char/con3215.c
++++ b/drivers/s390/char/con3215.c
+@@ -87,7 +87,6 @@ struct raw3215_info {
+ 	struct tty_struct *tty;	      /* pointer to tty structure if present */
+ 	struct raw3215_req *queued_read; /* pointer to queued read requests */
+ 	struct raw3215_req *queued_write;/* pointer to queued write requests */
+-	struct tasklet_struct tlet;   /* tasklet to invoke tty_wakeup */
+ 	wait_queue_head_t empty_wait; /* wait queue for flushing */
+ 	struct timer_list timer;      /* timer for delayed output */
+ 	int line_pos;		      /* position on the line (for tabs) */
+@@ -332,15 +331,6 @@ static inline void raw3215_try_io(struct raw3215_info *raw)
  }
  
  /*
-@@ -635,9 +634,8 @@ tty3270_issue_read(struct tty3270 *tp, int lock)
- static int
- tty3270_activate(struct raw3270_view *view)
- {
--	struct tty3270 *tp;
-+	struct tty3270 *tp = container_of(view, struct tty3270, view);
- 
--	tp = (struct tty3270 *) view;
- 	tp->update_flags = TTY_UPDATE_ALL;
- 	tty3270_set_timer(tp, 1);
- 	return 0;
-@@ -646,9 +644,8 @@ tty3270_activate(struct raw3270_view *view)
- static void
- tty3270_deactivate(struct raw3270_view *view)
- {
--	struct tty3270 *tp;
-+	struct tty3270 *tp = container_of(view, struct tty3270, view);
- 
--	tp = (struct tty3270 *) view;
- 	del_timer(&tp->timer);
- }
- 
-@@ -804,10 +801,9 @@ tty3270_free_screen(struct tty3270 *tp)
- static void
- tty3270_release(struct raw3270_view *view)
- {
--	struct tty3270 *tp;
-+	struct tty3270 *tp = container_of(view, struct tty3270, view);
- 	struct tty_struct *tty;
- 
--	tp = (struct tty3270 *) view;
- 	tty = tp->tty;
- 	if (tty) {
- 		tty->driver_data = NULL;
-@@ -823,8 +819,9 @@ tty3270_release(struct raw3270_view *view)
- static void
- tty3270_free(struct raw3270_view *view)
- {
--	tty3270_free_screen((struct tty3270 *) view);
--	tty3270_free_view((struct tty3270 *) view);
-+	struct tty3270 *tp = container_of(view, struct tty3270, view);
-+	tty3270_free_screen(tp);
-+	tty3270_free_view(tp);
+- * Call tty_wakeup from tasklet context
+- */
+-static void raw3215_wakeup(unsigned long data)
+-{
+-	struct raw3215_info *raw = (struct raw3215_info *) data;
+-	tty_wakeup(raw->tty);
+-}
+-
+-/*
+  * Try to start the next IO and wake up processes waiting on the tty.
+  */
+ static void raw3215_next_io(struct raw3215_info *raw)
+@@ -348,7 +338,7 @@ static void raw3215_next_io(struct raw3215_info *raw)
+ 	raw3215_mk_write_req(raw);
+ 	raw3215_try_io(raw);
+ 	if (raw->tty && RAW3215_BUFFER_SIZE - raw->count >= RAW3215_MIN_SPACE)
+-		tasklet_schedule(&raw->tlet);
++		tty_wakeup(raw->tty);
  }
  
  /*
-@@ -833,14 +830,13 @@ tty3270_free(struct raw3270_view *view)
- static void
- tty3270_del_views(void)
- {
--	struct tty3270 *tp;
- 	int i;
+@@ -662,7 +652,6 @@ static struct raw3215_info *raw3215_alloc_info(void)
  
- 	for (i = 0; i < tty3270_max_index; i++) {
--		tp = (struct tty3270 *)
-+		struct raw3270_view *view =
- 			raw3270_find_view(&tty3270_fn, i + RAW3270_FIRSTMINOR);
--		if (!IS_ERR(tp))
--			raw3270_del_view(&tp->view);
-+		if (!IS_ERR(view))
-+			raw3270_del_view(view);
- 	}
+ 	setup_timer(&info->timer, raw3215_timeout, (unsigned long)info);
+ 	init_waitqueue_head(&info->empty_wait);
+-	tasklet_init(&info->tlet, raw3215_wakeup, (unsigned long)info);
+ 
+ 	return info;
  }
- 
-@@ -858,16 +854,17 @@ static struct raw3270_fn tty3270_fn = {
- static int
- tty3270_open(struct tty_struct *tty, struct file * filp)
- {
-+	struct raw3270_view *view;
- 	struct tty3270 *tp;
- 	int i, rc;
- 
- 	if (tty->count > 1)
- 		return 0;
- 	/* Check if the tty3270 is already there. */
--	tp = (struct tty3270 *)
--		raw3270_find_view(&tty3270_fn,
-+	view = raw3270_find_view(&tty3270_fn,
- 				  tty->index + RAW3270_FIRSTMINOR);
--	if (!IS_ERR(tp)) {
-+	if (!IS_ERR(view)) {
-+		tp = container_of(view, struct tty3270, view);
- 		tty->driver_data = tp;
- 		tty->winsize.ws_row = tp->view.rows - 2;
- 		tty->winsize.ws_col = tp->view.cols;
-@@ -881,7 +878,7 @@ tty3270_open(struct tty_struct *tty, struct file * filp)
- 		tty3270_max_index = tty->index + 1;
- 
- 	/* Quick exit if there is no device for tty->index. */
--	if (PTR_ERR(tp) == -ENODEV)
-+	if (PTR_ERR(view) == -ENODEV)
- 		return -ENODEV;
- 
- 	/* Allocate tty3270 structure on first open. */
-@@ -935,11 +932,10 @@ tty3270_open(struct tty_struct *tty, struct file * filp)
- static void
- tty3270_close(struct tty_struct *tty, struct file * filp)
- {
--	struct tty3270 *tp;
-+	struct tty3270 *tp = tty->driver_data;
- 
- 	if (tty->count > 1)
- 		return;
--	tp = (struct tty3270 *) tty->driver_data;
- 	if (tp) {
- 		tty->driver_data = NULL;
- 		tp->tty = tp->kbd->tty = NULL;
+@@ -973,7 +962,6 @@ static void tty3215_close(struct tty_struct *tty, struct file * filp)
+ 	tty->closing = 1;
+ 	/* Shutdown the terminal */
+ 	raw3215_shutdown(raw);
+-	tasklet_kill(&raw->tlet);
+ 	tty->closing = 0;
+ 	raw->tty = NULL;
+ }
 -- 
 1.7.9.2
