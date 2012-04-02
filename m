@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 9 Apr 2012 12:07:10 -0700
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 25/69] TTY: con3215, remove tasklet for tty_wakeup
-Message-ID: <20120409190710.GA14176@kroah.com>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 33/69] TTY: tty3270, push tty down to tty3270_do_write
+Date: Mon,  2 Apr 2012 13:54:17 +0200
+Message-Id: <1333367693-3244-34-git-send-email-jslaby@suse.cz>
+In-Reply-To: <1333367693-3244-1-git-send-email-jslaby@suse.cz>
 References: <1333367693-3244-1-git-send-email-jslaby@suse.cz>
- <1333367693-3244-26-git-send-email-jslaby@suse.cz>
- <20120403054241.GA2700@osiris.boeblingen.de.ibm.com>
- <4F7AADD7.5070802@suse.cz>
- <20120409182720.GA12044@kroah.com>
- <4F832ABF.4060509@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4F832ABF.4060509@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, alan@linux.intel.com, linux-kernel@vger.kernel.org, jirislaby@gmail.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+To: gregkh@linuxfoundation.org
+Cc: alan@linux.intel.com, linux-kernel@vger.kernel.org, jirislaby@gmail.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Apr 09, 2012 at 08:30:23PM +0200, Jiri Slaby wrote:
-> On 04/09/2012 08:27 PM, Greg KH wrote:
-> > On Tue, Apr 03, 2012 at 09:59:19AM +0200, Jiri Slaby wrote:
-> >> On 04/03/2012 07:42 AM, Heiko Carstens wrote:
-> >>> On Mon, Apr 02, 2012 at 01:54:09PM +0200, Jiri Slaby wrote:
-> >>>> tty_wakeup is safe to be called from all contexts. No need to schedule
-> >>>> a tasklet for that. Let us call it directly like in other drivers.
-> >>>>
-> >>>> And delete the tasklet completely.
-> >>>
-> >>> Your patch actually reverts Martin's recent commit 656d912537
-> >>> "[S390] 3215 deadlock with tty_wakeup".
-> >>> I'm quite sure the reason for the deadlock still exists.
-> >>> Unfortunately the commit doesn't contain the call chain that
-> >>> led to fix.
-> >>
-> >> Ok, I would really appreciate the trace.
-> >>
-> >> If this is really an issue, we should provide a helper in the TTY layer
-> >> like tty_schedule_wakeup.
-> > 
-> > Jiri, should I not apply this patch?
-> 
-> Yes, please skip it until this is sorted out. And also the other con3215
-> patches if they don't apply cleanly now.
+So that we do not need to access tp->tty there. It is going away.
 
-Ok, I've not applied patches 25, 26, and 27 in this series, but have
-applied all others, thanks.
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux390@de.ibm.com
+Cc: linux-s390@vger.kernel.org
+---
+ drivers/s390/char/tty3270.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-greg k-h
+diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
+index bb1514a..1f4aff7 100644
+--- a/drivers/s390/char/tty3270.c
++++ b/drivers/s390/char/tty3270.c
+@@ -1509,12 +1509,13 @@ tty3270_escape_sequence(struct tty3270 *tp, char ch)
+  * String write routine for 3270 ttys
+  */
+ static void
+-tty3270_do_write(struct tty3270 *tp, const unsigned char *buf, int count)
++tty3270_do_write(struct tty3270 *tp, struct tty_struct *tty,
++		const unsigned char *buf, int count)
+ {
+ 	int i_msg, i;
+ 
+ 	spin_lock_bh(&tp->view.lock);
+-	for (i_msg = 0; !tp->tty->stopped && i_msg < count; i_msg++) {
++	for (i_msg = 0; !tty->stopped && i_msg < count; i_msg++) {
+ 		if (tp->esc_state != 0) {
+ 			/* Continue escape sequence. */
+ 			tty3270_escape_sequence(tp, buf[i_msg]);
+@@ -1591,10 +1592,10 @@ tty3270_write(struct tty_struct * tty,
+ 	if (!tp)
+ 		return 0;
+ 	if (tp->char_count > 0) {
+-		tty3270_do_write(tp, tp->char_buf, tp->char_count);
++		tty3270_do_write(tp, tty, tp->char_buf, tp->char_count);
+ 		tp->char_count = 0;
+ 	}
+-	tty3270_do_write(tp, buf, count);
++	tty3270_do_write(tp, tty, buf, count);
+ 	return count;
+ }
+ 
+@@ -1625,7 +1626,7 @@ tty3270_flush_chars(struct tty_struct *tty)
+ 	if (!tp)
+ 		return;
+ 	if (tp->char_count > 0) {
+-		tty3270_do_write(tp, tp->char_buf, tp->char_count);
++		tty3270_do_write(tp, tty, tp->char_buf, tp->char_count);
+ 		tp->char_count = 0;
+ 	}
+ }
+-- 
+1.7.9.2
