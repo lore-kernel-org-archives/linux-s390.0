@@ -1,49 +1,43 @@
-Return-Path: <owner-linux-mm@kvack.org>
-Date: Mon, 23 Apr 2012 13:41:24 +0100
-From: Mel Gorman <mgorman@suse.de>
-Subject: Re: [RFC PATCH] s390: mm: rmap: Transfer storage key to struct page
- under the page lock
-Message-ID: <20120423124124.GB3255@suse.de>
-References: <20120416141423.GD2359@suse.de>
- <alpine.LSU.2.00.1204161332120.1675@eggly.anvils>
- <20120417122202.GF2359@suse.de>
- <alpine.LSU.2.00.1204172023390.1609@eggly.anvils>
- <20120418152831.GK2359@suse.de>
- <alpine.LSU.2.00.1204181005500.1811@eggly.anvils>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <alpine.LSU.2.00.1204181005500.1811@eggly.anvils>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: Hugh Dickins <hughd@google.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Rik van Riel <riel@redhat.com>, Ken Chen <kenchen@google.com>, Linux-MM <linux-mm@kvack.org>, Linux-S390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20120404074553.GA14959@merkur.ravnborg.org>
+References: <20120404074553.GA14959@merkur.ravnborg.org>
+Date: Wed, 4 Apr 2012 19:44:00 +0200
+Message-ID: <CAMuHMdXuODijkJrPOwppaU9z07ziBFFoag6AQT7vqr0yXva3Aw@mail.gmail.com>
+Subject: Re: [PATCH] irq: remove obsolete definitions in interrupt.h
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, lkml <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, linux-m68k@vger.kernel.org, Greg Ungerer <gerg@uclinux.org>, sparclinux <sparclinux@vger.kernel.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Apr 18, 2012 at 10:09:24AM -0700, Hugh Dickins wrote:
-> > Acked-by: Mel Gorman <mgorman@suse.de>
-> > 
-> > I've sent a kernel based on this patch to the s390 folk that originally
-> > reported the bug. Hopefully they'll test and get back to me in a few
-> > days.
-> 
-> Thanks - I'll leave it at that for the moment, expecting to hear back.
-> 
+On Wed, Apr 4, 2012 at 09:45, Sam Ravnborg <sam@ravnborg.org> wrote:
+> interrupt.h contained a small fixlet for the days when
+> m68k and sparc32 did not use genirq.
+> As they have both entered the modern world this
+> fixlet can be dropped.
+>
+> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: Greg Ungerer <gerg@uclinux.org>
+> Cc: "David S. Miller" <davem@davemloft.net>
 
-Tests completed successfully confirming that this was certainly a
-PageSwapCache issue. Will you resend the patch to Andrew for merging or
-will I?
+Does this affect s390 (the sole !genirq arch) negatively?
 
-Thanks Hugh.
+If not:
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
--- 
-Mel Gorman
-SUSE Labs
+Gr{oetje,eeting}s,
+
+                        Geert
 
 --
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Fight unfair telecom internet charges in Canada: sign http://stopthemeter.ca/
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
