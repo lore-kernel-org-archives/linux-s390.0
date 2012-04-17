@@ -1,156 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 3/3] TTY: con3215, use tty from tty_port
-Date: Wed, 11 Apr 2012 11:14:59 +0200
-Message-Id: <1334135699-30180-3-git-send-email-jslaby@suse.cz>
-In-Reply-To: <1334135699-30180-1-git-send-email-jslaby@suse.cz>
-References: <1334135699-30180-1-git-send-email-jslaby@suse.cz>
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: [PATCH] s390: fix build failure in con3215.c tty wakeup tasklet
+Date: Tue, 17 Apr 2012 12:07:09 -0400
+Message-Id: <1334678829-30823-1-git-send-email-paul.gortmaker@windriver.com>
+In-Reply-To: <1334135699-30180-3-git-send-email-jslaby@suse.cz>
+References: <1334135699-30180-3-git-send-email-jslaby@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: gregkh@linuxfoundation.org
-Cc: linux-kernel@vger.kernel.org, jirislaby@gmail.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Jiri Slaby <jslaby@suse.cz>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Obtain tty_struct only once in ISR and pass it down to
-raw3215_next_io. Other than that, we just use the tty with raised
-reference. And set it properly in open and close.
+Commit 86b26007a37d81e7aca242bb5b649473f8f81297 (tty-next)
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+    "TTY: con3215, use tty from tty_port"
+
+removed the tty struct from the raw struct, causing:
+
+  CC      drivers/s390/char/con3215.o
+drivers/s390/char/con3215.c: In function 'raw3215_wakeup':
+drivers/s390/char/con3215.c:339:16: error: 'struct raw3215_info' has no member named 'tty'
+make[2]: *** [drivers/s390/char/con3215.o] Error 1
+
+We can't simply add a tty to the args of raw3215_wakeup since
+it is registered as a tasklet.  The flow is:
+
+	raw3215_irq
+		--> tty_port_tty_get
+			--> raw3215_next_io
+				--> tasklet_schedule
+		--> tty_kref_put
+
+so it seems we'll need to do a get/put in the raw3215_wakeup
+tasklet as well.
+
+Cc: Jiri Slaby <jslaby@suse.cz>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: linux390@de.ibm.com
 Cc: linux-s390@vger.kernel.org
----
- drivers/s390/char/con3215.c |   32 ++++++++++++++++----------------
- 1 file changed, 16 insertions(+), 16 deletions(-)
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
 
 diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
-index f7bc23b..e928e04 100644
+index e928e04..759c43c 100644
 --- a/drivers/s390/char/con3215.c
 +++ b/drivers/s390/char/con3215.c
-@@ -83,7 +83,6 @@ struct raw3215_info {
- 	int head;		      /* first free byte in output buffer */
- 	int count;		      /* number of bytes in output buffer */
- 	int written;		      /* number of bytes in write requests */
--	struct tty_struct *tty;	      /* pointer to tty structure if present */
- 	struct raw3215_req *queued_read; /* pointer to queued read requests */
- 	struct raw3215_req *queued_write;/* pointer to queued write requests */
- 	struct tasklet_struct tlet;   /* tasklet to invoke tty_wakeup */
-@@ -343,11 +342,11 @@ static void raw3215_wakeup(unsigned long data)
- /*
-  * Try to start the next IO and wake up processes waiting on the tty.
-  */
--static void raw3215_next_io(struct raw3215_info *raw)
-+static void raw3215_next_io(struct raw3215_info *raw, struct tty_struct *tty)
+@@ -336,7 +336,13 @@ static inline void raw3215_try_io(struct raw3215_info *raw)
+ static void raw3215_wakeup(unsigned long data)
  {
- 	raw3215_mk_write_req(raw);
- 	raw3215_try_io(raw);
--	if (raw->tty && RAW3215_BUFFER_SIZE - raw->count >= RAW3215_MIN_SPACE)
-+	if (tty && RAW3215_BUFFER_SIZE - raw->count >= RAW3215_MIN_SPACE)
- 		tasklet_schedule(&raw->tlet);
- }
- 
-@@ -365,10 +364,11 @@ static void raw3215_irq(struct ccw_device *cdev, unsigned long intparm,
- 
- 	raw = dev_get_drvdata(&cdev->dev);
- 	req = (struct raw3215_req *) intparm;
-+	tty = tty_port_tty_get(&raw->port);
- 	cstat = irb->scsw.cmd.cstat;
- 	dstat = irb->scsw.cmd.dstat;
- 	if (cstat != 0)
--		raw3215_next_io(raw);
-+		raw3215_next_io(raw, tty);
- 	if (dstat & 0x01) { /* we got a unit exception */
- 		dstat &= ~0x01;	 /* we can ignore it */
- 	}
-@@ -378,13 +378,13 @@ static void raw3215_irq(struct ccw_device *cdev, unsigned long intparm,
- 			break;
- 		/* Attention interrupt, someone hit the enter key */
- 		raw3215_mk_read_req(raw);
--		raw3215_next_io(raw);
-+		raw3215_next_io(raw, tty);
- 		break;
- 	case 0x08:
- 	case 0x0C:
- 		/* Channel end interrupt. */
- 		if ((raw = req->info) == NULL)
--			return;		     /* That shouldn't happen ... */
-+			goto put_tty;	     /* That shouldn't happen ... */
- 		if (req->type == RAW3215_READ) {
- 			/* store residual count, then wait for device end */
- 			req->residual = irb->scsw.cmd.count;
-@@ -394,11 +394,10 @@ static void raw3215_irq(struct ccw_device *cdev, unsigned long intparm,
- 	case 0x04:
- 		/* Device end interrupt. */
- 		if ((raw = req->info) == NULL)
--			return;		     /* That shouldn't happen ... */
--		if (req->type == RAW3215_READ && raw->tty != NULL) {
-+			goto put_tty;	     /* That shouldn't happen ... */
-+		if (req->type == RAW3215_READ && tty != NULL) {
- 			unsigned int cchar;
- 
--			tty = raw->tty;
- 			count = 160 - req->residual;
- 			EBCASC(raw->inbuf, count);
- 			cchar = ctrlchar_handle(raw->inbuf, count, tty);
-@@ -408,7 +407,7 @@ static void raw3215_irq(struct ccw_device *cdev, unsigned long intparm,
- 
- 			case CTRLCHAR_CTRL:
- 				tty_insert_flip_char(tty, cchar, TTY_NORMAL);
--				tty_flip_buffer_push(raw->tty);
-+				tty_flip_buffer_push(tty);
- 				break;
- 
- 			case CTRLCHAR_NONE:
-@@ -421,7 +420,7 @@ static void raw3215_irq(struct ccw_device *cdev, unsigned long intparm,
- 				} else
- 					count -= 2;
- 				tty_insert_flip_string(tty, raw->inbuf, count);
--				tty_flip_buffer_push(raw->tty);
-+				tty_flip_buffer_push(tty);
- 				break;
- 			}
- 		} else if (req->type == RAW3215_WRITE) {
-@@ -436,7 +435,7 @@ static void raw3215_irq(struct ccw_device *cdev, unsigned long intparm,
- 		    raw->queued_read == NULL) {
- 			wake_up_interruptible(&raw->empty_wait);
- 		}
--		raw3215_next_io(raw);
-+		raw3215_next_io(raw, tty);
- 		break;
- 	default:
- 		/* Strange interrupt, I'll do my best to clean up */
-@@ -448,9 +447,10 @@ static void raw3215_irq(struct ccw_device *cdev, unsigned long intparm,
- 			raw->flags &= ~RAW3215_WORKING;
- 			raw3215_free_req(req);
- 		}
--		raw3215_next_io(raw);
-+		raw3215_next_io(raw, tty);
- 	}
--	return;
-+put_tty:
+ 	struct raw3215_info *raw = (struct raw3215_info *) data;
+-	tty_wakeup(raw->tty);
++	struct tty_struct *tty = tty_port_tty_get(&raw->port);
++
++	if (tty == NULL)
++		return;
++
++	tty_wakeup(tty);
 +	tty_kref_put(tty);
  }
  
  /*
-@@ -946,7 +946,7 @@ static int tty3215_open(struct tty_struct *tty, struct file * filp)
- 		return -ENODEV;
- 
- 	tty->driver_data = raw;
--	raw->tty = tty;
-+	tty_port_tty_set(&raw->port, tty);
- 
- 	tty->low_latency = 0;  /* don't use bottom half for pushing chars */
- 	/*
-@@ -977,7 +977,7 @@ static void tty3215_close(struct tty_struct *tty, struct file * filp)
- 	raw3215_shutdown(raw);
- 	tasklet_kill(&raw->tlet);
- 	tty->closing = 0;
--	raw->tty = NULL;
-+	tty_port_tty_set(&raw->port, NULL);
- }
- 
- /*
 -- 
-1.7.9.2
+1.7.9.1
