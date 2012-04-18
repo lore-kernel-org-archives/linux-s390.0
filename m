@@ -1,76 +1,110 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Tue, 17 Apr 2012 15:02:37 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Tue, 17 Apr 2012 20:52:21 -0700 (PDT)
+From: Hugh Dickins <hughd@google.com>
 Subject: Re: [RFC PATCH] s390: mm: rmap: Transfer storage key to struct page
  under the page lock
-Message-ID: <20120417150237.0abb8ec5@de.ibm.com>
-In-Reply-To: <20120417122925.GG2359@suse.de>
-References: <20120416141423.GD2359@suse.de>
-	<20120416175040.0e33b37f@de.ibm.com>
-	<20120417122925.GG2359@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20120417122202.GF2359@suse.de>
+Message-ID: <alpine.LSU.2.00.1204172023390.1609@eggly.anvils>
+References: <20120416141423.GD2359@suse.de> <alpine.LSU.2.00.1204161332120.1675@eggly.anvils> <20120417122202.GF2359@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
 To: Mel Gorman <mgorman@suse.de>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Hugh Dickins <hughd@google.com>, Rik van Riel <riel@redhat.com>, Linux-MM <linux-mm@kvack.org>, Linux-S390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Rik van Riel <riel@redhat.com>, Ken Chen <kenchen@google.com>, Linux-MM <linux-mm@kvack.org>, Linux-S390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 17 Apr 2012 13:29:25 +0100
-Mel Gorman <mgorman@suse.de> wrote:
-
-> On Mon, Apr 16, 2012 at 05:50:40PM +0200, Martin Schwidefsky wrote:
-> > On Mon, 16 Apr 2012 15:14:23 +0100
-> > Mel Gorman <mgorman@suse.de> wrote:
+On Tue, 17 Apr 2012, Mel Gorman wrote:
+> On Mon, Apr 16, 2012 at 02:14:09PM -0700, Hugh Dickins wrote:
+> > On Mon, 16 Apr 2012, Mel Gorman wrote:
 > > 
 > > > This patch is horribly ugly and there has to be a better way of doing
 > > > it. I'm looking for suggestions on what s390 can do here that is not
 > > > painful or broken. 
 > > > 
-> > > However, s390 needs a better way of guarding against
-> > > PageSwapCache pages being removed from the radix tree while set_page_dirty()
-> > > is being called. The patch would be marginally better if in the PageSwapCache
-> > > case we simply tried to lock once and in the contended case just fail to
-> > > propogate the storage key. I lack familiarity with the s390 architecture
-> > > to be certain if this is safe or not. Suggestions on a better fix?
-> > 
-> > One though that crossed my mind is that maybe a better approach would be
-> > to move the page_test_and_clear_dirty check out of page_remove_rmap.
-> > What we need to look out for are code sequences of the form:
-> > 
-> > 	if (pte_dirty(pte))
-> > 		set_page_dirty(page);
-> > 	...
-> > 	page_remove_rmap(page);
-> > 
-> > There are four of those as far as I can see: in try_to_unmap_one,
-> > try_to_unmap_cluster, zap_pte, and zap_pte_range.
-> > 
-> > A valid implementation for s390 would be to test and clear the changed
-> > bit in the storage key for every of those pte_dirty() calls.
-> > 
-> > 	if (pte_dirty(pte) || page_test_and_clear_dirty(page))
-> > 		set_page_dirty(page);
-> > 	...
-> > 	page_remove_rmap(page); /* w/o page_test_clear_dirty */
-> > 
+> > > The following bug was reported on s390
+> > > 
+> > > kernel BUG at
+> > > /usr/src/packages/BUILD/kernel-default-3.0.13/linux-3.0/lib/radix-tree.c:477!
+>... 
+> > I'm confused as to whether you see this problem with file pages,
+> > or with anon-swap-cache pages, or with both, or not yet determined.
 > 
-> In the zap_pte_range() case at least, pte_dirty() is only being checked
-> for !PageAnon pages so if we took this approach we would miss
-> PageSwapCache pages. If we added the check then the same problem is hit
-> and we'd need additional logic there for s390 to drop the PTL, take the
-> page lock and retry the operation. It'd still be ugly :(
+> PageSwapCache pages only.
 
-Well if x86 can get away with ignoring PageSwapCache pages in zap_pte_range()
-pages then s390 should be able to get away with it as well, no ?
+Oh good, thanks, that narrowed the search space a lot.
 
--- 
-blue skies,
-   Martin.
+> > (You do remind me that I meant years ago to switch swapper_space over
+> > to the much simpler __set_page_dirty_no_writeback(), which shmem has
+> > used for ages; but as far as this problem goes, that would probably
+> > be at best a workaround, rather than the proper fix.)
+> 
+> It would be a workaround. If in the future we wanted to treat swapper
+> space more like a normal file inode and writeback dirty pages from
+> the flusher thread then this bug would just pop its head back up.
 
-"Reality continues to ruin my life." - Calvin.
+It's a no-brainer workaround: patch and more explanation below.  I
+can double-fix it if you prefer, but the one-liner appeals more to me.
+
+> > Hmm, mm/migrate.c.
+> 
+> Migration moves the page mapping under the tree lock so
+> __set_page_dirty_nobuffers() I don't think that is it.
+
+Yes, I was worried by the places that set page->mapping = NULL in
+migrate.c (later, not under the tree_lock), but those would not be able
+to generate this issue at all (ptes already replaced by migration entries).
+
+> I think the race is against something like reuse_swap_page() which locks
+> the page and removes it from swap cache while page_remove_rmap() looks
+> up the same page.
+
+No, __delete_from_swap_cache() is always doing ClearPageSwapCache under
+tree_lock (which __set_page_dirty_no_buffers acquires before proceeding).
+
+
+[PATCH] mm: fix s390 BUG by using __set_page_dirty_no_writeback on swap
+
+Mel reports a BUG_ON(slot == NULL) in radix_tree_tag_set() on s390 3.0.13:
+called from __set_page_dirty_nobuffers() when page_remove_rmap() tries to
+transfer dirty flag from s390 storage key to struct page and radix_tree.
+
+That would be because of reclaim's shrink_page_list() calling add_to_swap()
+on this page at the same time: first PageSwapCache is set (causing
+page_mapping(page) to appear as &swapper_space), then page->private set,
+then tree_lock taken, then page inserted into radix_tree - so there's
+an interval before taking the lock when the radix_tree slot is empty.
+
+We could fix this by moving __add_to_swap_cache()'s spin_lock_irq up
+before SetPageSwapCache, with error case ClearPageSwapCache moved up
+under tree_lock too.
+
+But a better fix is just to do what's five years overdue.  Ken Chen
+added __set_page_dirty_no_writeback() (if !PageDirty TestSetPageDirty)
+for tmpfs to skip all that radix_tree overhead, and swap is just the same:
+it ignores the radix_tree tag, and does not participate in dirty page
+accounting, so should be using __set_page_dirty_no_writeback() too.
+
+Reported-by: Mel Gorman <mgorman@suse.de>
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Cc: stable@kernel.org
+---
+
+ mm/swap_state.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- 3.4-rc2/mm/swap_state.c	2012-03-31 17:42:26.949729938 -0700
++++ linux/mm/swap_state.c	2012-04-17 15:34:05.732086663 -0700
+@@ -26,7 +26,7 @@
+  */
+ static const struct address_space_operations swap_aops = {
+ 	.writepage	= swap_writepage,
+-	.set_page_dirty	= __set_page_dirty_nobuffers,
++	.set_page_dirty	= __set_page_dirty_no_writeback,
+ 	.migratepage	= migrate_page,
+ };
+ 
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
