@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Yong Zhang <yong.zhang0@gmail.com>
-Subject: [RFC PATCH 04/10] S390: smp: remove call to ipi_call_lock()/ipi_call_unlock()
-Date: Tue, 29 May 2012 15:15:59 +0800
-Message-Id: <1338275765-3217-5-git-send-email-yong.zhang0@gmail.com>
-In-Reply-To: <1338275765-3217-1-git-send-email-yong.zhang0@gmail.com>
-References: <1338275765-3217-1-git-send-email-yong.zhang0@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: ralf@linux-mips.org, sshtylyov@mvista.com, david.daney@cavium.com, nikunj@linux.vnet.ibm.com, paulmck@linux.vnet.ibm.com, axboe@kernel.dk, mingo@kernel.org, tglx@linutronix.de, peterz@infradead.org, akpm@linux-foundation.org, srivatsa.bhat@linux.vnet.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+Subject: Re: [PATCH] net: skb_set_dev do not unconditionally drop ref to dst
+Date: Wed, 2 May 2012 07:50:18 +0200
+Message-ID: <20120502055018.GA50959@tuxmaker.boeblingen.de.ibm.com>
+References: <20120430053804.GA59677@tuxmaker.boeblingen.de.ibm.com> <1335765093.2296.4.camel@edumazet-glaptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1335765093.2296.4.camel@edumazet-glaptop>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: davem@davemloft.net, netdev@vger.kernel.org, arnd@arndb.de, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Yong Zhang <yong.zhang@windriver.com>
-
-1) call_function.lock used in smp_call_function_many() is just to protect
-   call_function.queue and &data->refs, cpu_online_mask is outside of the
-   lock. And it's not necessary to protect cpu_online_mask,
-   because data->cpumask is pre-calculate and even if a cpu is brougt up
-   when calling arch_send_call_function_ipi_mask(), it's harmless because
-   validation test in generic_smp_call_function_interrupt() will take care
-   of it.
-
-2) For cpu down issue, stop_machine() will guarantee that no concurrent
-   smp_call_fuction() is processing.
-
-Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux390@de.ibm.com
-Cc: linux-s390@vger.kernel.org
----
- arch/s390/kernel/smp.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 647ba94..14c8a08 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -716,9 +716,7 @@ static void __cpuinit smp_start_secondary(void *cpuvoid)
- 	init_cpu_vtimer();
- 	pfault_init();
- 	notify_cpu_starting(smp_processor_id());
--	ipi_call_lock();
- 	set_cpu_online(smp_processor_id(), true);
--	ipi_call_unlock();
- 	local_irq_enable();
- 	/* cpu_idle will call schedule for us */
- 	cpu_idle();
--- 
-1.7.5.4
+On Mon, Apr 30, 2012 at 07:51:33AM +0200, Eric Dumazet wrote:
+> On Mon, 2012-04-30 at 07:38 +0200, Frank Blaschka wrote:
+> > From: Frank Blaschka <frank.blaschka@de.ibm.com>
+> > 
+> > commit 8a83a00b0735190384a348156837918271034144 unconditionally
+> > drops dst reference when skb->dev is set. This causes a regression
+> > with VLAN and the qeth_l3 network driver. qeth_l3 can not get gw
+> > information from the skb coming from the vlan driver. It is only
+> > valid to drop the dst in case of different name spaces.
+> > 
+> > Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+> > ---
+> >  net/core/dev.c |    2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > --- a/net/core/dev.c
+> > +++ b/net/core/dev.c
+> > @@ -1881,8 +1881,8 @@ EXPORT_SYMBOL(netif_device_attach);
+> >  #ifdef CONFIG_NET_NS
+> >  void skb_set_dev(struct sk_buff *skb, struct net_device *dev)
+> >  {
+> > -	skb_dst_drop(skb);
+> >  	if (skb->dev && !net_eq(dev_net(skb->dev), dev_net(dev))) {
+> > +		skb_dst_drop(skb);
+> >  		secpath_reset(skb);
+> >  		nf_reset(skb);
+> >  		skb_init_secmark(skb);
+> > 
+> 
+> You forgot CC Arnd Bergmann <arnd@arndb.de> ?
+> 
+> But we do want to do the skb_dst_drop() in dev_forward_skb()
+> 
+> Your patch breaks dev_forward_skb() then.
+If NET_NS is not defined is this broken too?
+> 
+> But apparently this forward path was alredy broken in Arnd patch...
+>
+Ok, until nobody comes up with an other idea I will post a patch to
+change back the vlan driver (use skb->dev = dev instead of skb_set_dev)
+next week. 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
