@@ -1,26 +1,35 @@
-From: David Miller <davem@davemloft.net>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCH] net: skb_set_dev do not unconditionally drop ref to dst
-Date: Thu, 03 May 2012 02:28:37 -0400 (EDT)
-Message-ID: <20120503.022837.2021054007853235758.davem@davemloft.net>
-References: <1335765093.2296.4.camel@edumazet-glaptop>
-	<20120502055018.GA50959@tuxmaker.boeblingen.de.ibm.com>
-	<1335941961.22133.48.camel@edumazet-glaptop>
+Date: Thu, 3 May 2012 12:32:27 +0000
+Message-ID: <201205031232.27842.arnd@arndb.de>
+References: <1335765093.2296.4.camel@edumazet-glaptop> <1335941961.22133.48.camel@edumazet-glaptop> <20120503.022837.2021054007853235758.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1335941961.22133.48.camel@edumazet-glaptop>
+In-Reply-To: <20120503.022837.2021054007853235758.davem@davemloft.net>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: eric.dumazet@gmail.com
-Cc: blaschka@linux.vnet.ibm.com, netdev@vger.kernel.org, arnd@arndb.de, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: eric.dumazet@gmail.com, blaschka@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Date: Wed, 02 May 2012 08:59:21 +0200
+On Thursday 03 May 2012, David Miller wrote:
+> From: Eric Dumazet <eric.dumazet@gmail.com>
+> Date: Wed, 02 May 2012 08:59:21 +0200
+> 
+> > If Arnd doesnt care to even reply, we can just revert his buggy
+> > patch, instead of trying to understand and fix all issues.
+> 
+> Agreed, it's the best sounding solution by far.
 
-> If Arnd doesnt care to even reply, we can just revert his buggy
-> patch, instead of trying to understand and fix all issues.
+I've tried to understand what I've done back then but also couldn't
+remember, so I won't complain when it gets reverted.
 
-Agreed, it's the best sounding solution by far.
+For all I know I did this because it looked broken back then, but
+I don't remember a specific way in which it could be exploited
+to escape a namespace.
+
+	Arnd
