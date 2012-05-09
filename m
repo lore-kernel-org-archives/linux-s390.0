@@ -1,41 +1,64 @@
-From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+From: Stephen Hemminger <shemminger@vyatta.com>
 Subject: Re: [PATCH] net: skb_set_dev do not unconditionally drop ref to dst
-Date: Wed, 9 May 2012 12:48:03 +0200
-Message-ID: <20120509104803.GA52076@tuxmaker.boeblingen.de.ibm.com>
-References: <1335765093.2296.4.camel@edumazet-glaptop> <20120502055018.GA50959@tuxmaker.boeblingen.de.ibm.com> <1335941961.22133.48.camel@edumazet-glaptop> <20120503.022837.2021054007853235758.davem@davemloft.net>
+Date: Wed, 9 May 2012 08:16:15 -0700
+Message-ID: <20120509081615.7be58fb3@nehalam.linuxnetplumber.net>
+References: <20120430053804.GA59677@tuxmaker.boeblingen.de.ibm.com>
+	<1335765093.2296.4.camel@edumazet-glaptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20120503.022837.2021054007853235758.davem@davemloft.net>
+In-Reply-To: <1335765093.2296.4.camel@edumazet-glaptop>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, arnd@arndb.de, linux-s390@vger.kernel.org, eric.dumazet@gmail.com
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Frank Blaschka <blaschka@linux.vnet.ibm.com>, davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, May 03, 2012 at 02:28:37AM -0400, David Miller wrote:
-> From: Eric Dumazet <eric.dumazet@gmail.com>
-> Date: Wed, 02 May 2012 08:59:21 +0200
+On Mon, 30 Apr 2012 07:51:33 +0200
+Eric Dumazet <eric.dumazet@gmail.com> wrote:
+
+> On Mon, 2012-04-30 at 07:38 +0200, Frank Blaschka wrote:
+> > From: Frank Blaschka <frank.blaschka@de.ibm.com>
+> > 
+> > commit 8a83a00b0735190384a348156837918271034144 unconditionally
+> > drops dst reference when skb->dev is set. This causes a regression
+> > with VLAN and the qeth_l3 network driver. qeth_l3 can not get gw
+> > information from the skb coming from the vlan driver. It is only
+> > valid to drop the dst in case of different name spaces.
+> > 
+> > Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+> > ---
+> >  net/core/dev.c |    2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > --- a/net/core/dev.c
+> > +++ b/net/core/dev.c
+> > @@ -1881,8 +1881,8 @@ EXPORT_SYMBOL(netif_device_attach);
+> >  #ifdef CONFIG_NET_NS
+> >  void skb_set_dev(struct sk_buff *skb, struct net_device *dev)
+> >  {
+> > -	skb_dst_drop(skb);
+> >  	if (skb->dev && !net_eq(dev_net(skb->dev), dev_net(dev))) {
+> > +		skb_dst_drop(skb);
+> >  		secpath_reset(skb);
+> >  		nf_reset(skb);
+> >  		skb_init_secmark(skb);
+> > 
 > 
-> > If Arnd doesnt care to even reply, we can just revert his buggy
-> > patch, instead of trying to understand and fix all issues.
+> You forgot CC Arnd Bergmann <arnd@arndb.de> ?
 > 
-> Agreed, it's the best sounding solution by far.
-Hi Dave,
-
-looks like discussion is done and everybody is ok with reverting
-Arnds patch. Can you revert commit 8a83a00b0735190384a348156837918271034144 ?
-Thx
-
-Fran ?
-Thx
-
-Frank
-
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> But we do want to do the skb_dst_drop() in dev_forward_skb()
 > 
+> Your patch breaks dev_forward_skb() then.
+> 
+> But apparently this forward path was alredy broken in Arnd patch...
+
+Is this related to why, PMTU discover is broken now over GRE.
+The simple case of doing a TCP transfer from local host over
+GRE tunnel hangs.
+
+What happens is that skb_dst(skb) is null in ip_tunnel_xmit.
+Which leads to the MTU not being updated, and the ICMP_FRAG_NEEDED
+is never sent.
