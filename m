@@ -1,167 +1,269 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] net: skb_set_dev do not unconditionally drop ref to dst
-Date: Thu, 10 May 2012 23:06:11 -0400 (EDT)
-Message-ID: <20120510.230611.551784978338373902.davem@davemloft.net>
-References: <1335941961.22133.48.camel@edumazet-glaptop>
-	<20120503.022837.2021054007853235758.davem@davemloft.net>
-	<20120509104803.GA52076@tuxmaker.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: frank.blaschka@de.ibm.com
+Subject: [patch 1/2] [PATCH] qeth: remove token ring part 2
+Date: Wed, 16 May 2012 13:28:25 +0200
+Message-ID: <20120516112915.515805833@de.ibm.com>
+References: <20120516112824.602200177@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20120509104803.GA52076@tuxmaker.boeblingen.de.ibm.com>
+Content-Disposition: inline; filename=qeth_l3_rem_tr.patch
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: blaschka@linux.vnet.ibm.com
-Cc: netdev@vger.kernel.org, arnd@arndb.de, linux-s390@vger.kernel.org, eric.dumazet@gmail.com
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
-Date: Wed, 9 May 2012 12:48:03 +0200
+From: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-> On Thu, May 03, 2012 at 02:28:37AM -0400, David Miller wrote:
->> From: Eric Dumazet <eric.dumazet@gmail.com>
->> Date: Wed, 02 May 2012 08:59:21 +0200
->> 
->> > If Arnd doesnt care to even reply, we can just revert his buggy
->> > patch, instead of trying to understand and fix all issues.
->> 
->> Agreed, it's the best sounding solution by far.
-> Hi Dave,
-> 
-> looks like discussion is done and everybody is ok with reverting
-> Arnds patch. Can you revert commit 8a83a00b0735190384a348156837918271034144 ?
+Commit 1abd2296b4a1ee7b6a883541c3ede52042a09521 starts removing
+token ring from qeth_l3. This patch removes the rest of token
+ring related code from the driver.
 
-Done, and I'll queue this up for -stable too.
-
-[PATCH] Revert "net: maintain namespace isolation between vlan and real device"
-
-This reverts commit 8a83a00b0735190384a348156837918271034144.
-
-It causes regressions for S390 devices, because it does an
-unconditional DST drop on SKBs for vlans and the QETH device
-needs the neighbour entry hung off the DST for certain things
-on transmit.
-
-Arnd can't remember exactly why he even needed this change.
-
-Conflicts:
-
-	drivers/net/macvlan.c
-	net/8021q/vlan_dev.c
-	net/core/dev.c
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
- drivers/net/macvlan.c     |    2 +-
- include/linux/netdevice.h |    9 ---------
- net/8021q/vlan_dev.c      |    2 +-
- net/core/dev.c            |   36 +++++-------------------------------
- 4 files changed, 7 insertions(+), 42 deletions(-)
+ drivers/s390/net/qeth_core.h      |    2 
+ drivers/s390/net/qeth_core_main.c |    2 
+ drivers/s390/net/qeth_core_mpc.h  |   10 ---
+ drivers/s390/net/qeth_l3_main.c   |   55 ------------------
+ drivers/s390/net/qeth_l3_sys.c    |  112 --------------------------------------
+ 5 files changed, 181 deletions(-)
 
-diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
-index f975afd..025367a 100644
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -259,7 +259,7 @@ static int macvlan_queue_xmit(struct sk_buff *skb, struct net_device *dev)
- 
- xmit_world:
- 	skb->ip_summed = ip_summed;
--	skb_set_dev(skb, vlan->lowerdev);
-+	skb->dev = vlan->lowerdev;
- 	return dev_queue_xmit(skb);
- }
- 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 5cbaa20..33900a5 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -1403,15 +1403,6 @@ static inline bool netdev_uses_dsa_tags(struct net_device *dev)
- 	return 0;
- }
- 
--#ifndef CONFIG_NET_NS
--static inline void skb_set_dev(struct sk_buff *skb, struct net_device *dev)
--{
--	skb->dev = dev;
--}
--#else /* CONFIG_NET_NS */
--void skb_set_dev(struct sk_buff *skb, struct net_device *dev);
--#endif
--
- static inline bool netdev_uses_trailer_tags(struct net_device *dev)
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -674,8 +674,6 @@ struct qeth_card_options {
+ 	struct qeth_ipa_info adp; /*Adapter parameters*/
+ 	struct qeth_routing_info route6;
+ 	struct qeth_ipa_info ipa6;
+-	int broadcast_mode;
+-	int macaddr_mode;
+ 	int fake_broadcast;
+ 	int add_hhlen;
+ 	int layer2;
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1329,8 +1329,6 @@ static void qeth_set_intial_options(stru
  {
- #ifdef CONFIG_NET_DSA_TAG_TRAILER
-diff --git a/net/8021q/vlan_dev.c b/net/8021q/vlan_dev.c
-index 9988d4a..9757c19 100644
---- a/net/8021q/vlan_dev.c
-+++ b/net/8021q/vlan_dev.c
-@@ -157,7 +157,7 @@ static netdev_tx_t vlan_dev_hard_start_xmit(struct sk_buff *skb,
- 		skb = __vlan_hwaccel_put_tag(skb, vlan_tci);
- 	}
+ 	card->options.route4.type = NO_ROUTER;
+ 	card->options.route6.type = NO_ROUTER;
+-	card->options.broadcast_mode = QETH_TR_BROADCAST_ALLRINGS;
+-	card->options.macaddr_mode = QETH_TR_MACADDR_NONCANONICAL;
+ 	card->options.fake_broadcast = 0;
+ 	card->options.add_hhlen = DEFAULT_ADD_HHLEN;
+ 	card->options.performance_stats = 0;
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -70,16 +70,6 @@ enum qeth_link_types {
+ 	QETH_LINK_TYPE_ATM_NATIVE   = 0x90,
+ };
  
--	skb_set_dev(skb, vlan_dev_priv(dev)->real_dev);
-+	skb->dev = vlan_dev_priv(dev)->real_dev;
- 	len = skb->len;
- 	if (netpoll_tx_running(dev))
- 		return skb->dev->netdev_ops->ndo_start_xmit(skb, skb->dev);
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 9bb8f87..99e1d75 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -1617,10 +1617,14 @@ int dev_forward_skb(struct net_device *dev, struct sk_buff *skb)
- 		return NET_RX_DROP;
- 	}
- 	skb->skb_iif = 0;
--	skb_set_dev(skb, dev);
-+	skb->dev = dev;
-+	skb_dst_drop(skb);
- 	skb->tstamp.tv64 = 0;
- 	skb->pkt_type = PACKET_HOST;
- 	skb->protocol = eth_type_trans(skb, dev);
-+	skb->mark = 0;
-+	secpath_reset(skb);
-+	nf_reset(skb);
- 	return netif_rx(skb);
+-enum qeth_tr_macaddr_modes {
+-	QETH_TR_MACADDR_NONCANONICAL = 0,
+-	QETH_TR_MACADDR_CANONICAL    = 1,
+-};
+-
+-enum qeth_tr_broadcast_modes {
+-	QETH_TR_BROADCAST_ALLRINGS = 0,
+-	QETH_TR_BROADCAST_LOCAL    = 1,
+-};
+-
+ /*
+  * Routing stuff
+  */
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -976,57 +976,6 @@ static inline u8 qeth_l3_get_qeth_hdr_fl
+ 	return ct | QETH_CAST_UNICAST;
  }
- EXPORT_SYMBOL_GPL(dev_forward_skb);
-@@ -1869,36 +1873,6 @@ void netif_device_attach(struct net_device *dev)
- }
- EXPORT_SYMBOL(netif_device_attach);
  
--/**
-- * skb_dev_set -- assign a new device to a buffer
-- * @skb: buffer for the new device
-- * @dev: network device
-- *
-- * If an skb is owned by a device already, we have to reset
-- * all data private to the namespace a device belongs to
-- * before assigning it a new device.
-- */
--#ifdef CONFIG_NET_NS
--void skb_set_dev(struct sk_buff *skb, struct net_device *dev)
+-static int qeth_l3_send_setadp_mode(struct qeth_card *card, __u32 command,
+-					__u32 mode)
 -{
--	skb_dst_drop(skb);
--	if (skb->dev && !net_eq(dev_net(skb->dev), dev_net(dev))) {
--		secpath_reset(skb);
--		nf_reset(skb);
--		skb_init_secmark(skb);
--		skb->mark = 0;
--		skb->priority = 0;
--		skb->nf_trace = 0;
--		skb->ipvs_property = 0;
--#ifdef CONFIG_NET_SCHED
--		skb->tc_index = 0;
--#endif
+-	int rc;
+-	struct qeth_cmd_buffer *iob;
+-	struct qeth_ipa_cmd *cmd;
+-
+-	QETH_CARD_TEXT(card, 4, "adpmode");
+-
+-	iob = qeth_get_adapter_cmd(card, command,
+-				   sizeof(struct qeth_ipacmd_setadpparms));
+-	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
+-	cmd->data.setadapterparms.data.mode = mode;
+-	rc = qeth_send_ipa_cmd(card, iob, qeth_default_setadapterparms_cb,
+-			       NULL);
+-	return rc;
+-}
+-
+-static int qeth_l3_setadapter_hstr(struct qeth_card *card)
+-{
+-	int rc;
+-
+-	QETH_CARD_TEXT(card, 4, "adphstr");
+-
+-	if (qeth_adp_supported(card, IPA_SETADP_SET_BROADCAST_MODE)) {
+-		rc = qeth_l3_send_setadp_mode(card,
+-					IPA_SETADP_SET_BROADCAST_MODE,
+-					card->options.broadcast_mode);
+-		if (rc)
+-			QETH_DBF_MESSAGE(2, "couldn't set broadcast mode on "
+-				   "device %s: x%x\n",
+-				   CARD_BUS_ID(card), rc);
+-		rc = qeth_l3_send_setadp_mode(card,
+-					IPA_SETADP_ALTER_MAC_ADDRESS,
+-					card->options.macaddr_mode);
+-		if (rc)
+-			QETH_DBF_MESSAGE(2, "couldn't set macaddr mode on "
+-				   "device %s: x%x\n", CARD_BUS_ID(card), rc);
+-		return rc;
 -	}
--	skb->dev = dev;
+-	if (card->options.broadcast_mode == QETH_TR_BROADCAST_LOCAL)
+-		QETH_DBF_MESSAGE(2, "set adapter parameters not available "
+-			   "to set broadcast mode, using ALLRINGS "
+-			   "on device %s:\n", CARD_BUS_ID(card));
+-	if (card->options.macaddr_mode == QETH_TR_MACADDR_CANONICAL)
+-		QETH_DBF_MESSAGE(2, "set adapter parameters not available "
+-			   "to set macaddr mode, using NONCANONICAL "
+-			   "on device %s:\n", CARD_BUS_ID(card));
+-	return 0;
 -}
--EXPORT_SYMBOL(skb_set_dev);
--#endif /* CONFIG_NET_NS */
 -
- static void skb_warn_bad_offload(const struct sk_buff *skb)
+ static int qeth_l3_setadapter_parms(struct qeth_card *card)
  {
- 	static const netdev_features_t null_features = 0;
--- 
-1.7.10.1
+ 	int rc;
+@@ -1052,10 +1001,6 @@ static int qeth_l3_setadapter_parms(stru
+ 				" address failed\n");
+ 	}
+ 
+-	if ((card->info.link_type == QETH_LINK_TYPE_HSTR) ||
+-	    (card->info.link_type == QETH_LINK_TYPE_LANE_TR))
+-		rc = qeth_l3_setadapter_hstr(card);
+-
+ 	return rc;
+ }
+ 
+--- a/drivers/s390/net/qeth_l3_sys.c
++++ b/drivers/s390/net/qeth_l3_sys.c
+@@ -175,116 +175,6 @@ out:
+ static DEVICE_ATTR(fake_broadcast, 0644, qeth_l3_dev_fake_broadcast_show,
+ 		   qeth_l3_dev_fake_broadcast_store);
+ 
+-static ssize_t qeth_l3_dev_broadcast_mode_show(struct device *dev,
+-				struct device_attribute *attr, char *buf)
+-{
+-	struct qeth_card *card = dev_get_drvdata(dev);
+-
+-	if (!card)
+-		return -EINVAL;
+-
+-	if (!((card->info.link_type == QETH_LINK_TYPE_HSTR) ||
+-	      (card->info.link_type == QETH_LINK_TYPE_LANE_TR)))
+-		return sprintf(buf, "n/a\n");
+-
+-	return sprintf(buf, "%s\n", (card->options.broadcast_mode ==
+-				     QETH_TR_BROADCAST_ALLRINGS)?
+-		       "all rings":"local");
+-}
+-
+-static ssize_t qeth_l3_dev_broadcast_mode_store(struct device *dev,
+-		struct device_attribute *attr, const char *buf, size_t count)
+-{
+-	struct qeth_card *card = dev_get_drvdata(dev);
+-	char *tmp;
+-	int rc = 0;
+-
+-	if (!card)
+-		return -EINVAL;
+-
+-	mutex_lock(&card->conf_mutex);
+-	if ((card->state != CARD_STATE_DOWN) &&
+-	    (card->state != CARD_STATE_RECOVER)) {
+-		rc = -EPERM;
+-		goto out;
+-	}
+-
+-	if (!((card->info.link_type == QETH_LINK_TYPE_HSTR) ||
+-	      (card->info.link_type == QETH_LINK_TYPE_LANE_TR))) {
+-		rc = -EINVAL;
+-		goto out;
+-	}
+-
+-	tmp = strsep((char **) &buf, "\n");
+-
+-	if (!strcmp(tmp, "local"))
+-		card->options.broadcast_mode = QETH_TR_BROADCAST_LOCAL;
+-	else if (!strcmp(tmp, "all_rings"))
+-		card->options.broadcast_mode = QETH_TR_BROADCAST_ALLRINGS;
+-	else
+-		rc = -EINVAL;
+-out:
+-	mutex_unlock(&card->conf_mutex);
+-	return rc ? rc : count;
+-}
+-
+-static DEVICE_ATTR(broadcast_mode, 0644, qeth_l3_dev_broadcast_mode_show,
+-		   qeth_l3_dev_broadcast_mode_store);
+-
+-static ssize_t qeth_l3_dev_canonical_macaddr_show(struct device *dev,
+-				struct device_attribute *attr, char *buf)
+-{
+-	struct qeth_card *card = dev_get_drvdata(dev);
+-
+-	if (!card)
+-		return -EINVAL;
+-
+-	if (!((card->info.link_type == QETH_LINK_TYPE_HSTR) ||
+-	      (card->info.link_type == QETH_LINK_TYPE_LANE_TR)))
+-		return sprintf(buf, "n/a\n");
+-
+-	return sprintf(buf, "%i\n", (card->options.macaddr_mode ==
+-				     QETH_TR_MACADDR_CANONICAL)? 1:0);
+-}
+-
+-static ssize_t qeth_l3_dev_canonical_macaddr_store(struct device *dev,
+-		struct device_attribute *attr, const char *buf, size_t count)
+-{
+-	struct qeth_card *card = dev_get_drvdata(dev);
+-	char *tmp;
+-	int i, rc = 0;
+-
+-	if (!card)
+-		return -EINVAL;
+-
+-	mutex_lock(&card->conf_mutex);
+-	if ((card->state != CARD_STATE_DOWN) &&
+-	    (card->state != CARD_STATE_RECOVER)) {
+-		rc = -EPERM;
+-		goto out;
+-	}
+-
+-	if (!((card->info.link_type == QETH_LINK_TYPE_HSTR) ||
+-	      (card->info.link_type == QETH_LINK_TYPE_LANE_TR))) {
+-		rc = -EINVAL;
+-		goto out;
+-	}
+-
+-	i = simple_strtoul(buf, &tmp, 16);
+-	if ((i == 0) || (i == 1))
+-		card->options.macaddr_mode = i?
+-			QETH_TR_MACADDR_CANONICAL :
+-			QETH_TR_MACADDR_NONCANONICAL;
+-	else
+-		rc = -EINVAL;
+-out:
+-	mutex_unlock(&card->conf_mutex);
+-	return rc ? rc : count;
+-}
+-
+-static DEVICE_ATTR(canonical_macaddr, 0644, qeth_l3_dev_canonical_macaddr_show,
+-		   qeth_l3_dev_canonical_macaddr_store);
+-
+ static ssize_t qeth_l3_dev_sniffer_show(struct device *dev,
+ 		struct device_attribute *attr, char *buf)
+ {
+@@ -458,8 +348,6 @@ static struct attribute *qeth_l3_device_
+ 	&dev_attr_route4.attr,
+ 	&dev_attr_route6.attr,
+ 	&dev_attr_fake_broadcast.attr,
+-	&dev_attr_broadcast_mode.attr,
+-	&dev_attr_canonical_macaddr.attr,
+ 	&dev_attr_sniffer.attr,
+ 	&dev_attr_hsuid.attr,
+ 	NULL,
