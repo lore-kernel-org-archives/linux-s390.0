@@ -1,8 +1,10 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 0/3] kvm/s390 patches for 3.6
-Date: Mon, 11 Jun 2012 16:06:56 +0200
-Message-ID: <1339423619-42299-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 1/3] s390/kvm: Set CPU in stopped state on initial cpu reset
+Date: Mon, 11 Jun 2012 16:06:57 +0200
+Message-ID: <1339423619-42299-2-git-send-email-cornelia.huck@de.ibm.com>
+References: <1339423619-42299-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1339423619-42299-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,31 +12,30 @@ To: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Avi, Marcelo,
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-here are some s390 patches for the next release. A bugfix, a tracing
-related update (real tracing support for s390 will follow once we
-have sorted out the architectural vs. internal tracepoint split),
-and a patch used for console detection.
+The initial cpu reset sets the cpu in the stopped state.
+Several places check for the cpu state (e.g. sigp set prefix) and
+not setting the STOPPED state triggered errors with newer guest
+kernels after reboot.
 
-Christian Borntraeger (1):
-  s390/kvm: Set CPU in stopped state on initial cpu reset
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-Cornelia Huck (1):
-  kvm: trace events: update list of exit reasons
-
-Heinz Graalfs (1):
-  s390/kvm: Perform early event mask processing during boot.
-
- arch/s390/include/asm/sclp.h  |    2 ++
- arch/s390/kernel/setup.c      |   12 +++++++++---
- arch/s390/kvm/kvm-s390.c      |    1 +
- drivers/s390/char/sclp.c      |   10 ----------
- drivers/s390/char/sclp.h      |   10 ++++++++++
- drivers/s390/char/sclp_cmd.c  |   38 ++++++++++++++++++++++++++++++++++++++
- drivers/s390/kvm/kvm_virtio.c |    3 ++-
- include/trace/events/kvm.h    |    3 ++-
- 8 files changed, 64 insertions(+), 15 deletions(-)
-
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 664766d..ace9360 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -347,6 +347,7 @@ static void kvm_s390_vcpu_initial_reset(struct kvm_vcpu *vcpu)
+ 	vcpu->arch.guest_fpregs.fpc = 0;
+ 	asm volatile("lfpc %0" : : "Q" (vcpu->arch.guest_fpregs.fpc));
+ 	vcpu->arch.sie_block->gbea = 1;
++	atomic_set_mask(CPUSTAT_STOPPED, &vcpu->arch.sie_block->cpuflags);
+ }
+ 
+ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
 -- 
 1.7.10.4
