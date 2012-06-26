@@ -1,47 +1,43 @@
-From: Alexander Graf <agraf@suse.de>
-Subject: Re: [PATCH 3/6] KVM: s390: fix sigp sense running condition code handling
-Date: Tue, 26 Jun 2012 17:36:19 +0200
-Message-ID: <B15BC6F5-3B2C-47DD-9879-108CAEF71B22@suse.de>
-References: <1340719601-11867-1-git-send-email-cornelia.huck@de.ibm.com> <1340719601-11867-4-git-send-email-cornelia.huck@de.ibm.com> <06A9A05A-0EF3-4ACF-8254-1F3F10844793@suse.de> <20120626173344.6e3d6a01@BR9GNB5Z>
-Mime-Version: 1.0 (Apple Message framework v1278)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 4/6] KVM: s390: fix sigp set prefix status stored cases
+Date: Tue, 26 Jun 2012 17:39:39 +0200
+Message-ID: <20120626173939.52617394@BR9GNB5Z>
+References: <1340719601-11867-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1340719601-11867-5-git-send-email-cornelia.huck@de.ibm.com>
+	<FBB4695B-5B84-4644-9C26-C037258DC20A@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20120626173344.6e3d6a01@BR9GNB5Z>
+In-Reply-To: <FBB4695B-5B84-4644-9C26-C037258DC20A@suse.de>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Alexander Graf <agraf@suse.de>
 Cc: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Tue, 26 Jun 2012 16:56:08 +0200
+Alexander Graf <agraf@suse.de> wrote:
 
-On 26.06.2012, at 17:33, Cornelia Huck wrote:
-
-> On Tue, 26 Jun 2012 16:52:56 +0200
-> Alexander Graf <agraf@suse.de> wrote:
 > 
->> 
->> On 26.06.2012, at 16:06, Cornelia Huck wrote:
->> 
->>> From: Heiko Carstens <heiko.carstens@de.ibm.com>
->>> 
->>> Only if the sensed cpu is not running a status is stored, which
->>> is reflected by condition code 1. If the cpu is running, condition
->>> code 0 should be returned.
->>> Just the opposite of what the code is doing.
->>> 
->>> Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
->>> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
->>> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
->> 
->> Yikes. Is this a stable candidate?
+> On 26.06.2012, at 16:06, Cornelia Huck wrote:
 > 
-> This code will only hit when running on a host running virtualized
-> itself (where sigp sense running will cause an intercept), so I doubt
-> many people will see the effects.
+> > From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> > 
+> > If an invalid parameter is passed or the addressed cpu is in an
+> > incorrect state sigp set prefix will store a status.
+> > This status must only have bits set as defined by the architecture.
+> > The current kvm implementation missed to clear bits and also did
+> > not set the intended status bit ("and" instead of "or" operation).
+> > 
+> > Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> 
+> What was the net effect of this for a guest? Any problems rising from it?
 
-You mean this will hit when running kvm inside of a z/VM VM? That's a pretty valid use case.
+The guest might see some unexpected status bits if it did call sigp set
+prefix in an incorrect way. I'm not aware that anybody has actually
+seen that.
 
-
-Alex
+Cornelia
