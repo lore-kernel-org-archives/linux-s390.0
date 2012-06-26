@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 1/6] s390/smp: remove redundant check
-Date: Tue, 26 Jun 2012 16:06:36 +0200
-Message-ID: <1340719601-11867-2-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 3/6] KVM: s390: fix sigp sense running condition code handling
+Date: Tue, 26 Jun 2012 16:06:38 +0200
+Message-ID: <1340719601-11867-4-git-send-email-cornelia.huck@de.ibm.com>
 References: <1340719601-11867-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1340719601-11867-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -14,31 +14,36 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-condition code "status stored" for sigp sense running always implies
-that only the "not running" status bit is set. Therefore no need to
-check if it is set.
+Only if the sensed cpu is not running a status is stored, which
+is reflected by condition code 1. If the cpu is running, condition
+code 0 should be returned.
+Just the opposite of what the code is doing.
 
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/kernel/smp.c |    4 ++--
+ arch/s390/kvm/sigp.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 15cca26..c78074c 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -158,8 +158,8 @@ static inline int pcpu_running(struct pcpu *pcpu)
- 	if (__pcpu_sigp(pcpu->address, sigp_sense_running,
- 			0, &pcpu->status) != sigp_status_stored)
- 		return 1;
--	/* Check for running status */
--	return !(pcpu->status & 0x400);
-+	/* Status stored condition code is equivalent to cpu not running. */
-+	return 0;
- }
- 
- /*
+diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+index fda1d64..caccc0e 100644
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -268,12 +268,12 @@ static int __sigp_sense_running(struct kvm_vcpu *vcpu, u16 cpu_addr,
+ 		if (atomic_read(fi->local_int[cpu_addr]->cpuflags)
+ 		    & CPUSTAT_RUNNING) {
+ 			/* running */
+-			rc = 1;
++			rc = 0;
+ 		} else {
+ 			/* not running */
+ 			*reg &= 0xffffffff00000000UL;
+ 			*reg |= SIGP_STATUS_NOT_RUNNING;
+-			rc = 0;
++			rc = 1;
+ 		}
+ 	}
+ 	spin_unlock(&fi->lock);
 -- 
 1.7.10.4
