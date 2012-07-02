@@ -1,60 +1,56 @@
-From: Alexander Graf <agraf@suse.de>
-Subject: Re: [PATCH 3/3] s390/kvm: Perform early event mask processing during boot.
-Date: Mon, 11 Jun 2012 21:45:05 +0200
-Message-ID: <38A9E6FD-F9C2-492A-B250-1CE77365853A@suse.de>
-References: <1339423619-42299-1-git-send-email-cornelia.huck@de.ibm.com> <1339423619-42299-4-git-send-email-cornelia.huck@de.ibm.com> <4FD620D0.4030503@suse.de> <4FD63BE8.2000709@de.ibm.com>
-Mime-Version: 1.0 (1.0)
-Content-Type: text/plain;
-	charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH 0/6] kvm/s390: sigp related changes for 3.6
+Date: Mon, 2 Jul 2012 12:00:20 +0200
+Message-ID: <20120702120020.1525923d@de.ibm.com>
+References: <1340719601-11867-1-git-send-email-cornelia.huck@de.ibm.com>
+	<20120629231946.GB14304@amt.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <4FD63BE8.2000709@de.ibm.com>
+In-Reply-To: <20120629231946.GB14304@amt.cnet>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heinz Graalfs <graalfs@linux.vnet.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>
+To: Marcelo Tosatti <mtosatti@redhat.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Avi Kivity <avi@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Fri, 29 Jun 2012 20:19:46 -0300
+Marcelo Tosatti <mtosatti@redhat.com> wrote:
 
-
-On 11.06.2012, at 20:41, Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-
-> On 11/06/12 18:46, Alexander Graf wrote:
->> On 06/11/2012 04:06 PM, Cornelia Huck wrote:
->>> From: Heinz Graalfs<graalfs@linux.vnet.ibm.com>
->>> 
->>> For processing under KVM it is required to detect
->>> the actual SCLP console type in order to set it as
->>> preferred console.
->>> 
->>> Signed-off-by: Heinz Graalfs<graalfs@linux.vnet.ibm.com>
->>> Acked-by: Heiko Carstens<heiko.carstens@de.ibm.com>
->>> Acked-by: Peter Oberparleiter<peter.oberparleiter@de.ibm.com>
->>> Signed-off-by: Cornelia Huck<cornelia.huck@de.ibm.com>
->> 
->> Any chance we could get this into -stable?
->> 
->> 
->> Acked-by: Alexander Graf <agraf@suse.de>
+> On Tue, Jun 26, 2012 at 04:06:35PM +0200, Cornelia Huck wrote:
+> > Avi, Marcelo,
+> > 
+> > here are some more s390 patches for the next release.
+> > 
+> > Patches 1 and 2 are included for dependency reasons; they will also
+> > be sent through Martin's s390 tree.
 > 
-> We scheduled this for 3.6, to give it some time to settle, but it has been tested 
-> internally on 3.4 with the sclp console patches that we submitted last week against
-> qemu and on lpar/zvm. (this reminds me: can you have a look at the qemu patches
-> that Jens sent last week?)
-
-It's on my todo list, yeah :). These were easier to review, so I quickly did them.
-
+> I don't see why patch 1 is a dependency for merging in the kvm 
+> tree, and why patch 2 should go through both trees?
 > 
-> If you can testify that this also works on a SLES system we can ask Avi/Marcelo,
-> to consider this for 3.5. The current setup of assuming virtio console if running
-> under KVM is obviously not correct, so it makes sense to check for the existing consoles
-> before activating them.
+> That is, patch 1 can go through S390 tree, patches 2-6 through 
+> KVM tree. No?
 
-Right, but I'd be more interested in a 3.0 backport than 3.5 ;).
+Patch 3 has a dependency on patch 2 and patch 2 has a dependency
+on patch 1. The hunk in pcpu_running would cause a reject:
 
-Alex
+@@ -155,8 +131,8 @@ static inline int pcpu_stopped(struct pcpu *pcpu)
+ 
+ static inline int pcpu_running(struct pcpu *pcpu)
+ {
+-       if (__pcpu_sigp(pcpu->address, sigp_sense_running,
+-                       0, &pcpu->status) != sigp_status_stored)
++       if (__pcpu_sigp(pcpu->address, SIGP_SENSE_RUNNING,
++                       0, &pcpu->status) != SIGP_CC_STATUS_STORED)
+                return 1;
+        /* Status stored condition code is equivalent to cpu not running. */
+        return 0;
 
-> 
-> Christian
-> 
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
