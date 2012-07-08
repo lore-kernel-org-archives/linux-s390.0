@@ -1,45 +1,47 @@
-From: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: [PATCH 0/6] kvm/s390: sigp related changes for 3.6
-Date: Mon, 2 Jul 2012 20:16:08 -0300
-Message-ID: <20120702231608.GA5758@amt.cnet>
-References: <1340719601-11867-1-git-send-email-cornelia.huck@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1340719601-11867-1-git-send-email-cornelia.huck@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Avi Kivity <avi@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH 7/7] drivers/s390/scsi/zfcp_cfdc.c: remove invalid reference to list iterator variable
+Date: Sun,  8 Jul 2012 13:37:44 +0200
+Message-Id: <1341747464-1772-8-git-send-email-Julia.Lawall@lip6.fr>
+In-Reply-To: <1341747464-1772-1-git-send-email-Julia.Lawall@lip6.fr>
+References: <1341747464-1772-1-git-send-email-Julia.Lawall@lip6.fr>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Steffen Maier <maier@linux.vnet.ibm.com>
+Cc: kernel-janitors@vger.kernel.org, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jun 26, 2012 at 04:06:35PM +0200, Cornelia Huck wrote:
-> Avi, Marcelo,
-> 
-> here are some more s390 patches for the next release.
-> 
-> Patches 1 and 2 are included for dependency reasons; they will also
-> be sent through Martin's s390 tree.
-> 
-> The other patches fix several problems in our sigp handling code
-> and make it nicer to read.
-> 
-> Cornelia Huck (1):
->   KVM: s390: Fix sigp sense handling.
-> 
-> Heiko Carstens (5):
->   s390/smp: remove redundant check
->   s390/smp/kvm: unifiy sigp definitions
->   KVM: s390: fix sigp sense running condition code handling
->   KVM: s390: fix sigp set prefix status stored cases
->   KVM: s390: use sigp condition code defines
-> 
->  arch/s390/include/asm/sigp.h |   32 ++++++++++++
->  arch/s390/kernel/smp.c       |   76 ++++++++++-----------------
->  arch/s390/kvm/sigp.c         |  117 +++++++++++++++++-------------------------
->  3 files changed, 106 insertions(+), 119 deletions(-)
->  create mode 100644 arch/s390/include/asm/sigp.h
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-Applied, thanks.
+If list_for_each_entry, etc complete a traversal of the list, the iterator
+variable ends up pointing to an address at an offset from the list head,
+and not a meaningful structure.  Thus this value should not be used after
+the end of the iterator.  Replace port->adapter->scsi_host by
+adapter->scsi_host.
+
+This problem was found using Coccinelle (http://coccinelle.lip6.fr/).
+
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+
+---
+This is not tested, an I am not sure that this is the right change.
+Indeed, I'm not at all sure how the original code could have worked, since
+port->adapter->scsi_host should be a completely random value.
+
+ drivers/s390/scsi/zfcp_cfdc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/s390/scsi/zfcp_cfdc.c b/drivers/s390/scsi/zfcp_cfdc.c
+index fab2c25..8ed63aa 100644
+--- a/drivers/s390/scsi/zfcp_cfdc.c
++++ b/drivers/s390/scsi/zfcp_cfdc.c
+@@ -293,7 +293,7 @@ void zfcp_cfdc_adapter_access_changed(struct zfcp_adapter *adapter)
+ 	}
+ 	read_unlock_irqrestore(&adapter->port_list_lock, flags);
+ 
+-	shost_for_each_device(sdev, port->adapter->scsi_host) {
++	shost_for_each_device(sdev, adapter->scsi_host) {
+ 		zfcp_sdev = sdev_to_zfcp(sdev);
+ 		status = atomic_read(&zfcp_sdev->status);
+ 		if ((status & ZFCP_STATUS_COMMON_ACCESS_DENIED) ||
