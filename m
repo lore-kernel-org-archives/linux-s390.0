@@ -1,13 +1,14 @@
 From: Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH RFC 0/2] kvm: Improving directed yield in PLE handler
-Date: Mon, 09 Jul 2012 18:28:03 -0400
-Message-ID: <4FFB5AF3.4010805@redhat.com>
-References: <20120709062012.24030.37154.sendpatchset@codeblue>
+Subject: Re: [PATCH RFC 2/2] kvm PLE handler: Choose better candidate for
+ directed yield
+Date: Mon, 09 Jul 2012 18:30:25 -0400
+Message-ID: <4FFB5B81.4040903@redhat.com>
+References: <20120709062012.24030.37154.sendpatchset@codeblue> <20120709062053.24030.52767.sendpatchset@codeblue>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120709062012.24030.37154.sendpatchset@codeblue>
+In-Reply-To: <20120709062053.24030.52767.sendpatchset@codeblue>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -16,28 +17,30 @@ Cc: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marc
 List-ID: <linux-s390.vger.kernel.org>
 
 On 07/09/2012 02:20 AM, Raghavendra K T wrote:
-> Currently Pause Looop Exit (PLE) handler is doing directed yield to a
-> random VCPU on PL exit. Though we already have filtering while choosing
-> the candidate to yield_to, we can do better.
->
-> Problem is, for large vcpu guests, we have more probability of yielding
-> to a bad vcpu. We are not able to prevent directed yield to same guy who
-> has done PL exit recently, who perhaps spins again and wastes CPU.
->
-> Fix that by keeping track of who has done PL exit. So The Algorithm in series
-> give chance to a VCPU which has:
->
->   (a) Not done PLE exit at all (probably he is preempted lock-holder)
->
->   (b) VCPU skipped in last iteration because it did PL exit, and probably
->   has become eligible now (next eligible lock holder)
->
-> Future enhancemnets:
 
-Your patch series looks good to me. Simple changes with a
-significant result.
+> +bool kvm_arch_vcpu_check_and_update_eligible(struct kvm_vcpu *vcpu)
+> +{
+> +	bool eligible;
+> +
+> +	eligible = !vcpu->arch.plo.pause_loop_exited ||
+> +			(vcpu->arch.plo.pause_loop_exited&&
+> +			 vcpu->arch.plo.dy_eligible);
+> +
+> +	if (vcpu->arch.plo.pause_loop_exited)
+> +		vcpu->arch.plo.dy_eligible = !vcpu->arch.plo.dy_eligible;
+> +
+> +	return eligible;
+> +}
 
-However, the simple heuristic could use some comments :)
+This is a nice simple mechanism to skip CPUs that were
+eligible last time and had pause loop exits recently.
+
+However, it could stand some documentation.  Please
+add a good comment explaining how and why the algorithm
+works, when arch.plo.pause_loop_exited is cleared, etc...
+
+It would be good to make this heuristic understandable
+to people who look at the code for the first time.
 
 -- 
 All rights reversed
