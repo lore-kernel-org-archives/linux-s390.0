@@ -1,91 +1,100 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC 1/2] kvm vcpu: Note down pause loop exit
-Date: Mon, 09 Jul 2012 11:50:33 +0530
-Message-ID: <20120709062032.24030.10454.sendpatchset@codeblue>
+Subject: [PATCH RFC 2/2] kvm PLE handler: Choose better candidate for directed yield
+Date: Mon, 09 Jul 2012 11:50:54 +0530
+Message-ID: <20120709062053.24030.52767.sendpatchset@codeblue>
 References: <20120709062012.24030.37154.sendpatchset@codeblue>
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20120709062012.24030.37154.sendpatchset@codeblue>
-Sender: kvm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Avi Kivity <avi@redhat.com>, Ingo Molnar <mingo@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Rik van Riel <riel@redhat.com>
+To: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>
 Cc: S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-
-Noting pause loop exited vcpu helps in filtering right candidate to yield.
-Yielding to same vcpu may result in more wastage of cpu.
-
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
----
- arch/x86/include/asm/kvm_host.h |    7 +++++++
- arch/x86/kvm/svm.c              |    1 +
- arch/x86/kvm/vmx.c              |    1 +
- arch/x86/kvm/x86.c              |    4 +++-
- 4 files changed, 12 insertions(+), 1 deletions(-)
 
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index db7c1f2..857ca68 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -484,6 +484,13 @@ struct kvm_vcpu_arch {
- 		u64 length;
- 		u64 status;
- 	} osvw;
-+
-+	/* Pause loop exit optimization */
-+	struct {
-+		bool pause_loop_exited;
-+		bool dy_eligible;
-+	} plo;
-+
+Currently PLE handler can repeatedly do a directed yield to same vcpu
+that has recently done PL exit. This can degrade the performance
+Try to yield to most eligible guy instead, by alternate yielding.
+
+Precisely, give chance to a VCPU which has:
+ (a) Not done PLE exit at all (probably he is preempted lock-holder)
+ (b) VCPU skipped in last iteration because it did PL exit, and probably
+ has become eligible now (next eligible lock holder)
+
+Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+---
+ arch/s390/include/asm/kvm_host.h |    5 +++++
+ arch/x86/include/asm/kvm_host.h  |    2 +-
+ arch/x86/kvm/x86.c               |   14 ++++++++++++++
+ virt/kvm/kvm_main.c              |    3 +++
+ 4 files changed, 23 insertions(+), 1 deletions(-)
+
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index dd17537..884f2c4 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -256,5 +256,10 @@ struct kvm_arch{
+ 	struct gmap *gmap;
  };
  
- struct kvm_lpage_info {
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index f75af40..a492f5d 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -3264,6 +3264,7 @@ static int interrupt_window_interception(struct vcpu_svm *svm)
++static inline bool kvm_arch_vcpu_check_and_update_eligible(struct kvm_vcpu *v)
++{
++	return true;
++}
++
+ extern int sie64a(struct kvm_s390_sie_block *, u64 *);
+ #endif
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 857ca68..ce01db3 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -962,7 +962,7 @@ extern bool kvm_find_async_pf_gfn(struct kvm_vcpu *vcpu, gfn_t gfn);
+ void kvm_complete_insn_gp(struct kvm_vcpu *vcpu, int err);
  
- static int pause_interception(struct vcpu_svm *svm)
- {
-+	svm->vcpu.arch.plo.pause_loop_exited = true;
- 	kvm_vcpu_on_spin(&(svm->vcpu));
- 	return 1;
- }
-diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
-index 32eb588..600fb3c 100644
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -4945,6 +4945,7 @@ out:
- static int handle_pause(struct kvm_vcpu *vcpu)
- {
- 	skip_emulated_instruction(vcpu);
-+	vcpu->arch.plo.pause_loop_exited = true;
- 	kvm_vcpu_on_spin(vcpu);
- 
- 	return 1;
+ int kvm_is_in_guest(void);
+-
++bool kvm_arch_vcpu_check_and_update_eligible(struct kvm_vcpu *vcpu);
+ void kvm_pmu_init(struct kvm_vcpu *vcpu);
+ void kvm_pmu_destroy(struct kvm_vcpu *vcpu);
+ void kvm_pmu_reset(struct kvm_vcpu *vcpu);
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index be6d549..07dbd14 100644
+index 07dbd14..24ceae8 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -5331,7 +5331,7 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+@@ -6623,6 +6623,20 @@ bool kvm_arch_can_inject_async_page_present(struct kvm_vcpu *vcpu)
+ 			kvm_x86_ops->interrupt_allowed(vcpu);
+ }
  
- 	if (req_immediate_exit)
- 		smp_send_reschedule(vcpu->cpu);
--
-+	vcpu->arch.plo.pause_loop_exited = false;
- 	kvm_guest_enter();
- 
- 	if (unlikely(vcpu->arch.switch_db_regs)) {
-@@ -6168,6 +6168,8 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
- 	BUG_ON(vcpu->kvm == NULL);
- 	kvm = vcpu->kvm;
- 
-+	vcpu->arch.plo.pause_loop_exited = false;
-+	vcpu->arch.plo.dy_eligible = true;
- 	vcpu->arch.emulate_ctxt.ops = &emulate_ops;
- 	if (!irqchip_in_kernel(kvm) || kvm_vcpu_is_bsp(vcpu))
- 		vcpu->arch.mp_state = KVM_MP_STATE_RUNNABLE;
++bool kvm_arch_vcpu_check_and_update_eligible(struct kvm_vcpu *vcpu)
++{
++	bool eligible;
++
++	eligible = !vcpu->arch.plo.pause_loop_exited ||
++			(vcpu->arch.plo.pause_loop_exited &&
++			 vcpu->arch.plo.dy_eligible);
++
++	if (vcpu->arch.plo.pause_loop_exited)
++		vcpu->arch.plo.dy_eligible = !vcpu->arch.plo.dy_eligible;
++
++	return eligible;
++}
++
+ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_exit);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_inj_virq);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_page_fault);
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 7e14068..519321a 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1595,6 +1595,9 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me)
+ 				continue;
+ 			if (waitqueue_active(&vcpu->wq))
+ 				continue;
++			if (!kvm_arch_vcpu_check_and_update_eligible(vcpu)) {
++				continue;
++			}
+ 			if (kvm_vcpu_yield_to(vcpu)) {
+ 				kvm->last_boosted_vcpu = i;
+ 				yielded = 1;
