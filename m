@@ -1,36 +1,39 @@
-From: Rik van Riel <riel@redhat.com>
+From: Ingo Molnar <mingo@kernel.org>
 Subject: Re: [PATCH RFC V2 2/2] kvm PLE handler: Choose better candidate for
  directed yield
-Date: Tue, 10 Jul 2012 15:40:43 -0400
-Message-ID: <4FFC853B.30900@redhat.com>
-References: <20120710193056.16440.40112.sendpatchset@codeblue> <20120710193138.16440.31791.sendpatchset@codeblue>
+Date: Tue, 10 Jul 2012 22:50:18 +0200
+Message-ID: <20120710205018.GB16986@gmail.com>
+References: <20120710193056.16440.40112.sendpatchset@codeblue>
+ <20120710193138.16440.31791.sendpatchset@codeblue>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <20120710193138.16440.31791.sendpatchset@codeblue>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/10/2012 03:31 PM, Raghavendra K T wrote:
-> From: Raghavendra K T<raghavendra.kt@linux.vnet.ibm.com>
->
-> Currently PLE handler can repeatedly do a directed yield to same vcpu
-> that has recently done PL exit. This can degrade the performance.
->
-> Try to yield to most eligible guy instead by alternate yielding.
-> Precisely, give chance to a VCPU which has:
->   (a) Not done PLE exit at all (probably he is preempted lock-holder)
->   (b) VCPU skipped in last iteration because it did PL exit, and probably
->   has become eligible now (next eligible lock holder)
->
-> Signed-off-by: Raghavendra K T<raghavendra.kt@linux.vnet.ibm.com>
 
-Reviewed-by: Rik van Riel <riel@redhat.com>
+* Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com> wrote:
 
--- 
-All rights reversed
+> --- a/virt/kvm/kvm_main.c
+> +++ b/virt/kvm/kvm_main.c
+> @@ -1595,6 +1595,9 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me)
+>  				continue;
+>  			if (waitqueue_active(&vcpu->wq))
+>  				continue;
+> +			if (!kvm_arch_vcpu_check_and_update_eligible(vcpu)) {
+> +				continue;
+> +			}
+
+Saw this fly by for a second time and now it annoyed me enough 
+to mention it: those curly braces are superfluous and should be 
+dropped.
+
+Thanks,
+
+	Ingo
