@@ -1,47 +1,36 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC 2/2] kvm PLE handler: Choose better candidate for
- directed yield
-Date: Tue, 10 Jul 2012 17:16:24 +0530
-Message-ID: <4FFC1610.5060801@linux.vnet.ibm.com>
-References: <20120709062012.24030.37154.sendpatchset@codeblue> <20120709062053.24030.52767.sendpatchset@codeblue> <4FFB5B81.4040903@redhat.com>
+Subject: Re: [PATCH RFC 0/2] kvm: Improving directed yield in PLE handler
+Date: Tue, 10 Jul 2012 17:24:00 +0530
+Message-ID: <4FFC17D8.5010108@linux.vnet.ibm.com>
+References: <20120709062012.24030.37154.sendpatchset@codeblue> <1341870457.2909.27.camel@oc2024037011.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4FFB5B81.4040903@redhat.com>
+In-Reply-To: <1341870457.2909.27.camel@oc2024037011.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
+To: habanero@linux.vnet.ibm.com
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/10/2012 04:00 AM, Rik van Riel wrote:
-> On 07/09/2012 02:20 AM, Raghavendra K T wrote:
+On 07/10/2012 03:17 AM, Andrew Theurer wrote:
+> On Mon, 2012-07-09 at 11:50 +0530, Raghavendra K T wrote:
+>> Currently Pause Looop Exit (PLE) handler is doing directed yield to a
+>> random VCPU on PL exit. Though we already have filtering while choosing
+>> the candidate to yield_to, we can do better.
 >
->> +bool kvm_arch_vcpu_check_and_update_eligible(struct kvm_vcpu *vcpu)
->> +{
->> + bool eligible;
->> +
->> + eligible = !vcpu->arch.plo.pause_loop_exited ||
->> + (vcpu->arch.plo.pause_loop_exited&&
->> + vcpu->arch.plo.dy_eligible);
->> +
->> + if (vcpu->arch.plo.pause_loop_exited)
->> + vcpu->arch.plo.dy_eligible = !vcpu->arch.plo.dy_eligible;
->> +
->> + return eligible;
->> +}
+> Hi, Raghu.
 >
-> This is a nice simple mechanism to skip CPUs that were
-> eligible last time and had pause loop exits recently.
+[...]
 >
-> However, it could stand some documentation. Please
-> add a good comment explaining how and why the algorithm
-> works, when arch.plo.pause_loop_exited is cleared, etc...
->
-> It would be good to make this heuristic understandable
-> to people who look at the code for the first time.
+> Can you briefly explain the 1x and 2x configs?  This of course is highly
+> dependent whether or not HT is enabled...
 >
 
-Thanks for the review. will do more documentation.
+Sorry if I had not made very clear in earlier threads. Have you applied
+Rik's following patch for base. without this you could see some 
+inconsistent results perhaps.
+
+https://lkml.org/lkml/2012/6/19/401
