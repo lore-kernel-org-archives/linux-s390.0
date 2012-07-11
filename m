@@ -1,44 +1,73 @@
-From: Andrew Theurer <habanero@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC 0/2] kvm: Improving directed yield in PLE handler
-Date: Tue, 10 Jul 2012 08:27:29 -0500
-Message-ID: <1341926849.2909.28.camel@oc2024037011.ibm.com>
-References: <20120709062012.24030.37154.sendpatchset@codeblue>
-	 <1341870457.2909.27.camel@oc2024037011.ibm.com>
-	 <4FFC17D8.5010108@linux.vnet.ibm.com>
-Reply-To: habanero@linux.vnet.ibm.com
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCH RFC 1/2] kvm vcpu: Note down pause loop exit
+Date: Wed, 11 Jul 2012 11:53:36 +0300
+Message-ID: <4FFD3F10.5020900@redhat.com>
+References: <20120709062012.24030.37154.sendpatchset@codeblue> <20120709062032.24030.10454.sendpatchset@codeblue>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4FFC17D8.5010108@linux.vnet.ibm.com>
+In-Reply-To: <20120709062032.24030.10454.sendpatchset@codeblue>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Rik van Riel <riel@redhat.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 2012-07-10 at 17:24 +0530, Raghavendra K T wrote:
-> On 07/10/2012 03:17 AM, Andrew Theurer wrote:
-> > On Mon, 2012-07-09 at 11:50 +0530, Raghavendra K T wrote:
-> >> Currently Pause Looop Exit (PLE) handler is doing directed yield to a
-> >> random VCPU on PL exit. Though we already have filtering while choosing
-> >> the candidate to yield_to, we can do better.
-> >
-> > Hi, Raghu.
-> >
-> [...]
-> >
-> > Can you briefly explain the 1x and 2x configs?  This of course is highly
-> > dependent whether or not HT is enabled...
-> >
+On 07/09/2012 09:20 AM, Raghavendra K T wrote:
+> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 > 
-> Sorry if I had not made very clear in earlier threads. Have you applied
-> Rik's following patch for base. without this you could see some 
-> inconsistent results perhaps.
+> Noting pause loop exited vcpu helps in filtering right candidate to yield.
+> Yielding to same vcpu may result in more wastage of cpu.
 > 
-> https://lkml.org/lkml/2012/6/19/401
+>  
+>  struct kvm_lpage_info {
+> diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+> index f75af40..a492f5d 100644
+> --- a/arch/x86/kvm/svm.c
+> +++ b/arch/x86/kvm/svm.c
+> @@ -3264,6 +3264,7 @@ static int interrupt_window_interception(struct vcpu_svm *svm)
+>  
+>  static int pause_interception(struct vcpu_svm *svm)
+>  {
+> +	svm->vcpu.arch.plo.pause_loop_exited = true;
+>  	kvm_vcpu_on_spin(&(svm->vcpu));
+>  	return 1;
+>  }
+> diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+> index 32eb588..600fb3c 100644
+> --- a/arch/x86/kvm/vmx.c
+> +++ b/arch/x86/kvm/vmx.c
+> @@ -4945,6 +4945,7 @@ out:
+>  static int handle_pause(struct kvm_vcpu *vcpu)
+>  {
+>  	skip_emulated_instruction(vcpu);
+> +	vcpu->arch.plo.pause_loop_exited = true;
+>  	kvm_vcpu_on_spin(vcpu);
+>  
 
-Yes, I do have that applied with your patch and in my baseline.
+This code is duplicated.  Should we move it to kvm_vcpu_on_spin?
 
--Andrew Theurer
+That means the .plo structure needs to be in common code, but that's not
+too bad perhaps.
+
+> index be6d549..07dbd14 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -5331,7 +5331,7 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+>  
+>  	if (req_immediate_exit)
+>  		smp_send_reschedule(vcpu->cpu);
+> -
+> +	vcpu->arch.plo.pause_loop_exited = false;
+
+This adds some tiny overhead to vcpu entry.  You could remove it by
+using the vcpu->requests mechanism to clear the flag, since
+vcpu->requests is already checked on every entry.
+
+>  	kvm_guest_enter();
+>  
+
+-- 
+error compiling committee.c: too many arguments to function
