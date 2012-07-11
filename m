@@ -1,39 +1,71 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC 0/2] kvm: Improving directed yield in PLE handler
-Date: Wed, 11 Jul 2012 17:34:47 +0530
-Message-ID: <4FFD6BDF.2050609@linux.vnet.ibm.com>
-References: <20120709062012.24030.37154.sendpatchset@codeblue> <4FFA8E5E.3070108@de.ibm.com> <4FFD422B.9060008@redhat.com> <4FFD52CD.7040403@de.ibm.com> <4FFD68AA.1000607@linux.vnet.ibm.com> <4FFD69B5.9000401@de.ibm.com>
+From: Andrew Jones <drjones@redhat.com>
+Subject: Re: [PATCH RFC 1/2] kvm vcpu: Note down pause loop exit
+Date: Wed, 11 Jul 2012 08:41:39 -0400 (EDT)
+Message-ID: <d0f10496-d51c-4ba6-8f78-8021f3cf5a15@zmail17.collab.prod.int.phx2.redhat.com>
+References: <4FFD69DF.1070107@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4FFD69B5.9000401@de.ibm.com>
+In-Reply-To: <4FFD69DF.1070107@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Rik van Riel <riel@redhat.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>, Avi Kivity <avi@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/11/2012 05:25 PM, Christian Borntraeger wrote:
-> On 11/07/12 13:51, Raghavendra K T wrote:
->>>>> Almost all s390 kernels use diag9c (directed yield to a given guest cpu) for spinlocks, though.
->>>>
->>>> Perhaps x86 should copy this.
->>>
->>> See arch/s390/lib/spinlock.c
->>> The basic idea is using several heuristics:
->>> - loop for a given amount of loops
->>> - check if the lock holder is currently scheduled by the hypervisor
->>>     (smp_vcpu_scheduled, which uses the sigp sense running instruction)
->>>     Dont know if such thing is available for x86. It must be a lot cheaper
->>>     than a guest exit to be useful
->>
->> Unfortunately we do not have information on lock-holder.
->
-> That would be an independent patch and requires guest changes.
->
 
-Yes, AFAI think, there are two options:
-(1) extend lock and use spare bit in ticketlock indicate lock is held
-(2) use percpu list entry.
+
+----- Original Message -----
+> >
+> > Hm, suppose we're the next-in-line for a ticket lock and exit due
+> > to
+> > PLE.  The lock holder completes and unlocks, which really assigns
+> > the
+> > lock to us.  So now we are the lock owner, yet we are marked as
+> > don't
+> > yield-to-us in the PLE code.
+> 
+> Yes.. off-topic but that is solved by kicked flag in PV spinlocks.
+> 
+
+Yeah, this is a different, but related, topic. pvticketlocks not
+only help yield spinning vcpus, but also allow the use of ticketlocks
+for the guaranteed fairness. If we want that fairness we'll always
+need some pv-ness, even if it's a mostly PLE solution. I see that as
+a reasonable reason to take the pvticketlock series, assuming it
+performs at least as well as PLE. The following options have all been
+brought up at some point by various people, and all have their own
+pluses and minuses;
+
+PLE-only best-effort:
+   + hardware-only, algorithm improvements can be made independent of
+     guest OSes
+   - has limited info about spinning vcpus, making it hard to improve
+     the algorithm (improved with an auto-adjusting ple_window?)
+   - perf enhancement/degradation is workload/ple_window dependant
+   - impossible? to guarantee FIFO order
+
+pvticketlocks:
+   - have to maintain pv code, both hosts and guests
+   + perf is only workload dependant (should disable ple to avoid
+     interference?)
+   + guarantees FIFO order
+   + can fall-back on PLE-only if the guest doesn't support it
+
+hybrid:
+   + takes advantage of the hw support
+   - still requires host and guest pv code
+   - will likely make perf dependant on ple_window again
+   + guarantees FIFO order
+
+???: did I miss any?
+
+I think more benchmarking of PLE vs. pvticketlocks is needed, which
+I'm working on. If we see that it performs just as well or better,
+then IMHO, we should consider committing Raghu's latest version of
+the pvticketlock series, perhaps with and additional patch that
+auto-disables PLE when pvticketlocks are enabled.
+
+Drew
