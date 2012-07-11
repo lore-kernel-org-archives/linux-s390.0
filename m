@@ -1,78 +1,42 @@
-From: Avi Kivity <avi@redhat.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Subject: Re: [PATCH RFC 0/2] kvm: Improving directed yield in PLE handler
-Date: Wed, 11 Jul 2012 15:48:42 +0300
-Message-ID: <4FFD762A.3060106@redhat.com>
-References: <20120709062012.24030.37154.sendpatchset@codeblue> <4FFA8E5E.3070108@de.ibm.com> <4FFD422B.9060008@redhat.com> <4FFD52CD.7040403@de.ibm.com> <4FFD5DA3.3010001@redhat.com> <39DA3B9A-87D6-4EA5-B1FF-B6E30733EF7B@suse.de> <4FFD621D.5090607@redhat.com> <794FFD35-579D-48CE-890F-8FCC785032F3@suse.de>
+Date: Wed, 11 Jul 2012 18:34:34 +0530
+Message-ID: <4FFD79E2.3080307@linux.vnet.ibm.com>
+References: <20120709062012.24030.37154.sendpatchset@codeblue> <4FFA8E5E.3070108@de.ibm.com> <4FFD422B.9060008@redhat.com> <4FFD52CD.7040403@de.ibm.com> <4FFD68AA.1000607@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <794FFD35-579D-48CE-890F-8FCC785032F3@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <4FFD68AA.1000607@linux.vnet.ibm.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Alexander Graf <agraf@suse.de>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, Paul Mackerras <paulus@samba.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/11/2012 02:52 PM, Alexander Graf wrote:
-> 
-> On 11.07.2012, at 13:23, Avi Kivity wrote:
-> 
->> On 07/11/2012 02:16 PM, Alexander Graf wrote:
->>>> 
->>>>> yes the data structure itself seems based on the algorithm
->>>>> and not on arch specific things. That should work. If we move that to common 
->>>>> code then s390 will use that scheme automatically for the cases were we call 
->>>>> kvm_vcpu_on_spin(). All others archs as well.
->>>> 
->>>> ARM doesn't have an instruction for cpu_relax(), so it can't intercept
->>>> it.  Given ppc's dislike of overcommit,
->>> 
->>> What dislike of overcommit?
->> 
->> I understood ppc virtualization is more of the partitioning sort.
->> Perhaps I misunderstood it.  But the reliance on device assignment, the
->> restrictions on scheduling, etc. all point to it.
-> 
-> Well, you need to distinguish the different PPC targets here. In the embedded world, partitioning is obviously the biggest use case, though overcommit is possible. For big servers however, we usually do want overcommit and we do support it within the constraints hardware gives us.
-> 
-> It's really no different from x86 when it comes to the use case wideness :).
+On 07/11/2012 05:21 PM, Raghavendra K T wrote:
+> On 07/11/2012 03:47 PM, Christian Borntraeger wrote:
+>> On 11/07/12 11:06, Avi Kivity wrote:
+[...]
+>>>> So there is no win here, but there are other cases were diag44 is
+>>>> used, e.g. cpu_relax.
+>>>> I have to double check with others, if these cases are critical, but
+>>>> for now, it seems
+>>>> that your dummy implementation for s390 is just fine. After all it
+>>>> is a no-op until
+>>>> we implement something.
+>>>
+>>> Does the data structure make sense for you? If so we can move it to
+>>> common code (and manage it in kvm_vcpu_on_spin()). We can guard it with
+>>> CONFIG_KVM_HAVE_CPU_RELAX_INTERCEPT or something, so other archs don't
+>>> have to pay anything.
+>>
+>> Ignoring the name, yes the data structure itself seems based on the
+>> algorithm
+>> and not on arch specific things. That should work.
+>
+> Ok. can you please elaborate, on the flow.
+>
 
-Okay, thanks for the correction.
-
-> 
->> 
->>> 
->>>> and the way it implements cpu_relax() by adjusting hw thread priority,
->>> 
->>> Yeah, I don't think we can intercept relaxing.
->> 
->> ... and the lack of ability to intercept cpu_relax() ...
->> 
->>> It's basically a nop-like instruction that gives hardware hints on its current priorities.
->> 
->> That's what x88 PAUSE does.  But we can intercept it (and not just any
->> execution - we can restrict intercept to tight loops executed more than
->> a specific number of times).
-> 
-> Yeah, it's pretty hard to fetch that information from PPC, since unlike x86 we split the hint from the loop. But I'll let Ben speak to that, he certainly knows way better how the hardware works.
-
-On x86 it's split from the loop as well (inside cpu_relax() like ppc).
-But the hardware detects the loop and lets us know about it.
-
-> 
->> 
->>> That said, we can always add PV code.
->> 
->> Sure, but that's defeated by advancements like self-tuning PLE exits.
->> It's hard to get this right.
-> 
-> Well, eventually everything we do in PV is going to be moot as soon as hardware catches up. In most cases from what I've seen it's only useful as an interim solution. But for that time it's good to have :).
-
-Depends on how interim it is.  If better hardware is coming, I'd rather
-not add more pv-ness.
-
-
--- 
-error compiling committee.c: too many arguments to function
+Ok got it..  Will check how the code can be common to both x86 and s390.
