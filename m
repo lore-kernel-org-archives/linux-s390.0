@@ -1,47 +1,32 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH 7/7] drivers/s390/scsi/zfcp_cfdc.c: remove invalid reference to list iterator variable
-Date: Sun,  8 Jul 2012 13:37:44 +0200
-Message-Id: <1341747464-1772-8-git-send-email-Julia.Lawall@lip6.fr>
-In-Reply-To: <1341747464-1772-1-git-send-email-Julia.Lawall@lip6.fr>
-References: <1341747464-1772-1-git-send-email-Julia.Lawall@lip6.fr>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Steffen Maier <maier@linux.vnet.ibm.com>
-Cc: kernel-janitors@vger.kernel.org, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Jan Glauber <jang@linux.vnet.ibm.com>
+Subject: Re: [PATCH 14/14] crypto: arch/s390 - cleanup - remove unneeded
+ cra_list initialization
+Date: Thu, 12 Jul 2012 11:28:24 +0200
+Message-ID: <1342085304.5693.6.camel@localhost.localdomain>
+References: <20120711111949.6875.60269.stgit@localhost6.localdomain6>
+	 <20120711112101.6875.85841.stgit@localhost6.localdomain6>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-crypto-owner@vger.kernel.org>
+In-Reply-To: <20120711112101.6875.85841.stgit@localhost6.localdomain6>
+Sender: linux-crypto-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-crypto/>
+List-Post: <mailto:linux-crypto@vger.kernel.org>
+To: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
+Cc: linux-crypto@vger.kernel.org, Jan Glauber <jang@de.ibm.com>, linux-s390@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, "David S. Miller" <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julia Lawall <Julia.Lawall@lip6.fr>
+On Wed, 2012-07-11 at 14:21 +0300, Jussi Kivilinna wrote:
+> Initialization of cra_list is currently mixed, most ciphers initialize this
+> field and most shashes do not. Initialization however is not needed at all
+> since cra_list is initialized/overwritten in __crypto_register_alg() with
+> list_add(). Therefore perform cleanup to remove all unneeded initializations
+> of this field in 'arch/s390/crypto/'
+> 
+> Cc: Jan Glauber <jang@de.ibm.com>
+> Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
 
-If list_for_each_entry, etc complete a traversal of the list, the iterator
-variable ends up pointing to an address at an offset from the list head,
-and not a meaningful structure.  Thus this value should not be used after
-the end of the iterator.  Replace port->adapter->scsi_host by
-adapter->scsi_host.
-
-This problem was found using Coccinelle (http://coccinelle.lip6.fr/).
-
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-
----
-This is not tested, an I am not sure that this is the right change.
-Indeed, I'm not at all sure how the original code could have worked, since
-port->adapter->scsi_host should be a completely random value.
-
- drivers/s390/scsi/zfcp_cfdc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/scsi/zfcp_cfdc.c b/drivers/s390/scsi/zfcp_cfdc.c
-index fab2c25..8ed63aa 100644
---- a/drivers/s390/scsi/zfcp_cfdc.c
-+++ b/drivers/s390/scsi/zfcp_cfdc.c
-@@ -293,7 +293,7 @@ void zfcp_cfdc_adapter_access_changed(struct zfcp_adapter *adapter)
- 	}
- 	read_unlock_irqrestore(&adapter->port_list_lock, flags);
- 
--	shost_for_each_device(sdev, port->adapter->scsi_host) {
-+	shost_for_each_device(sdev, adapter->scsi_host) {
- 		zfcp_sdev = sdev_to_zfcp(sdev);
- 		status = atomic_read(&zfcp_sdev->status);
- 		if ((status & ZFCP_STATUS_COMMON_ACCESS_DENIED) ||
+Signed-off-by: Jan Glauber <jang@linux.vnet.ibm.com>
