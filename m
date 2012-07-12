@@ -1,129 +1,80 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [RESEND PATCH RFC V3 0/3] kvm: Improving directed yield in PLE
- handler
-Date: Thu, 19 Jul 2012 14:45:31 +0530
-Message-ID: <20120719091531.GA29888@linux.vnet.ibm.com>
-References: <20120712191712.30440.68944.sendpatchset@codeblue>
- <4FFF2440.40807@linux.vnet.ibm.com>
-Reply-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Subject: [PATCH RFC V3 0/3] kvm: Improving directed yield in PLE handler
+Date: Fri, 13 Jul 2012 00:47:12 +0530
+Message-ID: <20120712191712.30440.68944.sendpatchset@codeblue>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4FFF2440.40807@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, KVM <kvm@vger.kernel.org>
-Cc: S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
+To: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>
+Cc: S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 
-Currently, on a large vcpu guests, there is a high probability of
-yielding to the same vcpu who had recently done a pause-loop exit or
-cpu relax intercepted. Such a yield can lead to the vcpu spinning
-again and hence degrade the performance.
+Currently Pause Loop Exit (PLE) handler is doing directed yield to a
+random vcpu on pl-exit. We already have filtering while choosing
+the candidate to yield_to. This change adds more checks while choosing
+a candidate to yield_to.
 
-The patchset keeps track of the pause loop exit/cpu relax interception
-and gives chance to a vcpu which:
- (a) Has not done pause loop exit or cpu relax intercepted at all
-     (probably he is preempted lock-holder)
- (b) Was skipped in last iteration because it did pause loop exit or
-     cpu relax intercepted, and probably has become eligible now
-     (next eligible lock holder)
+On a large vcpu guests, there is a high probability of
+yielding to the same vcpu who had recently done a pause-loop exit. 
+Such a yield can lead to the vcpu spinning again.
 
-Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+The patchset keeps track of the pause loop exit and gives chance to a
+vcpu which has:
+
+ (a) Not done pause loop exit at all (probably he is preempted lock-holder)
+
+ (b) vcpu skipped in last iteration because it did pause loop exit, and
+ probably has become eligible now (next eligible lock holder)
+
+This concept also helps in cpu relax interception cases which use same handler.
+
+Changes since v2:
+ - Move ple structure to common code (Avi)
+ - rename pause_loop_exited to cpu_relax_intercepted (Avi)
+ - add config HAVE_KVM_CPU_RELAX_INTERCEPT (Avi)
+ - Drop superfluous curly braces (Ingo)
+
+Changes since v1:
+ - Add more documentation for structure and algorithm and Rename
+   plo ==> ple (Rik).
+ - change dy_eligible initial value to false. (otherwise very first directed
+    yield will not be skipped. (Nikunj)
+ - fixup signoff/from issue
+
+Future enhancements:
+  (1) Currently we have a boolean to decide on eligibility of vcpu. It
+    would be nice if I get feedback on guest (>32 vcpu) whether we can
+    improve better with integer counter. (with counter = say f(log n )).
+  
+  (2) We have not considered system load during iteration of vcpu. With
+   that information we can limit the scan and also decide whether schedule()
+   is better. [ I am able to use #kicked vcpus to decide on this But may
+   be there are better ideas like information from global loadavg.]
+
+  (3) We can exploit this further with PV patches since it also knows about
+   next eligible lock-holder.
+
+Summary: There is a very good improvement for moderate / no over-commit scenario
+ for kvm based guest on PLE machine.
+
+ Results: kernbench improves by around 30%, 6% for 1x,2x
+          ebizzy improves by around 87%, 23% for 1x,2x
+
+ Links 
+  V1: https://lkml.org/lkml/2012/7/9/32
+
+  V2: https://lkml.org/lkml/2012/7/10/392
+
+ Raghavendra K T (3):
+   config: Add config to support ple or cpu relax optimzation 
+   kvm : Note down when cpu relax intercepted or pause loop exited 
+   kvm : Choose a better candidate for directed yield 
 ---
-V2 was:
-Reviewed-by: Rik van Riel <riel@redhat.com>
-
-Changelog: Added comment on locking as suggested by Avi
-
- include/linux/kvm_host.h |    5 +++++
- virt/kvm/kvm_main.c      |   42 ++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 47 insertions(+), 0 deletions(-)
-
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 34ce296..952427d 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -923,6 +923,11 @@ static inline void kvm_vcpu_set_dy_eligible(struct kvm_vcpu *vcpu, bool val)
- {
- }
- 
-+static inline bool kvm_vcpu_eligible_for_directed_yield(struct kvm_vcpu *vcpu)
-+{
-+	return true;
-+}
-+
- #endif /* CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT */
- #endif
- 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 3d6ffc8..8fda756 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1571,6 +1571,43 @@ bool kvm_vcpu_yield_to(struct kvm_vcpu *target)
- }
- EXPORT_SYMBOL_GPL(kvm_vcpu_yield_to);
- 
-+#ifdef CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT
-+/*
-+ * Helper that checks whether a VCPU is eligible for directed yield.
-+ * Most eligible candidate to yield is decided by following heuristics:
-+ *
-+ *  (a) VCPU which has not done pl-exit or cpu relax intercepted recently
-+ *  (preempted lock holder), indicated by @in_spin_loop.
-+ *  Set at the beiginning and cleared at the end of interception/PLE handler.
-+ *
-+ *  (b) VCPU which has done pl-exit/ cpu relax intercepted but did not get
-+ *  chance last time (mostly it has become eligible now since we have probably
-+ *  yielded to lockholder in last iteration. This is done by toggling
-+ *  @dy_eligible each time a VCPU checked for eligibility.)
-+ *
-+ *  Yielding to a recently pl-exited/cpu relax intercepted VCPU before yielding
-+ *  to preempted lock-holder could result in wrong VCPU selection and CPU
-+ *  burning. Giving priority for a potential lock-holder increases lock
-+ *  progress.
-+ *
-+ *  Since algorithm is based on heuristics, accessing another VCPU data without
-+ *  locking does not harm. It may result in trying to yield to same VCPU, fail
-+ *  and continue with next VCPU and so on.
-+ */
-+bool kvm_vcpu_eligible_for_directed_yield(struct kvm_vcpu *vcpu)
-+{
-+	bool eligible;
-+
-+	eligible = !vcpu->spin_loop.in_spin_loop ||
-+			(vcpu->spin_loop.in_spin_loop &&
-+			 vcpu->spin_loop.dy_eligible);
-+
-+	if (vcpu->spin_loop.in_spin_loop)
-+		kvm_vcpu_set_dy_eligible(vcpu, !vcpu->spin_loop.dy_eligible);
-+
-+	return eligible;
-+}
-+#endif
- void kvm_vcpu_on_spin(struct kvm_vcpu *me)
- {
- 	struct kvm *kvm = me->kvm;
-@@ -1599,6 +1636,8 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me)
- 				continue;
- 			if (waitqueue_active(&vcpu->wq))
- 				continue;
-+			if (!kvm_vcpu_eligible_for_directed_yield(vcpu))
-+				continue;
- 			if (kvm_vcpu_yield_to(vcpu)) {
- 				kvm->last_boosted_vcpu = i;
- 				yielded = 1;
-@@ -1607,6 +1646,9 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me)
- 		}
- 	}
- 	kvm_vcpu_set_in_spin_loop(me, false);
-+
-+	/* Ensure vcpu is not eligible during next spinloop */
-+	kvm_vcpu_set_dy_eligible(me, false);
- }
- EXPORT_SYMBOL_GPL(kvm_vcpu_on_spin);
- 
+ arch/s390/kvm/Kconfig    |    1 +
+ arch/x86/kvm/Kconfig     |    1 +
+ include/linux/kvm_host.h |   12 ++++++++++++
+ virt/kvm/Kconfig         |    3 +++
+ virt/kvm/kvm_main.c      |   38 ++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 55 insertions(+), 0 deletions(-)
