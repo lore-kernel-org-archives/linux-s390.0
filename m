@@ -1,40 +1,60 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V2 2/2] kvm PLE handler: Choose better candidate for
- directed yield
-Date: Wed, 11 Jul 2012 08:30:50 +0530
-Message-ID: <4FFCEC62.5090200@linux.vnet.ibm.com>
-References: <20120710193056.16440.40112.sendpatchset@codeblue> <20120710193138.16440.31791.sendpatchset@codeblue> <20120710205018.GB16986@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH RFC V3 1/3] kvm/config: Add config to support ple or cpu relax optimzation
+Date: Fri, 13 Jul 2012 00:47:39 +0530
+Message-ID: <20120712191733.30440.48744.sendpatchset@codeblue>
+References: <20120712191712.30440.68944.sendpatchset@codeblue>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20120710205018.GB16986@gmail.com>
+In-Reply-To: <20120712191712.30440.68944.sendpatchset@codeblue>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Ingo Molnar <mingo@kernel.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
+To: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Avi Kivity <avi@redhat.com>, Ingo Molnar <mingo@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Rik van Riel <riel@redhat.com>
+Cc: S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/11/2012 02:20 AM, Ingo Molnar wrote:
->
-> * Raghavendra K T<raghavendra.kt@linux.vnet.ibm.com>  wrote:
->
->> --- a/virt/kvm/kvm_main.c
->> +++ b/virt/kvm/kvm_main.c
->> @@ -1595,6 +1595,9 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me)
->>   				continue;
->>   			if (waitqueue_active(&vcpu->wq))
->>   				continue;
->> +			if (!kvm_arch_vcpu_check_and_update_eligible(vcpu)) {
->> +				continue;
->> +			}
->
-> Saw this fly by for a second time and now it annoyed me enough
-> to mention it: those curly braces are superfluous and should be
-> dropped.
->
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 
-Oops! Sorry.will remove {} and resend with Rik's reviewed-by. TBH,
-block got simplified after iterations (local), this one leftout. my
-mistake.
+Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+---
+
+ arch/s390/kvm/Kconfig |    1 +
+ arch/x86/kvm/Kconfig  |    1 +
+ virt/kvm/Kconfig      |    3 +++
+ 3 files changed, 5 insertions(+), 0 deletions(-)
+
+
+diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+index 78eb984..a6e2677 100644
+--- a/arch/s390/kvm/Kconfig
++++ b/arch/s390/kvm/Kconfig
+@@ -21,6 +21,7 @@ config KVM
+ 	depends on HAVE_KVM && EXPERIMENTAL
+ 	select PREEMPT_NOTIFIERS
+ 	select ANON_INODES
++	select HAVE_KVM_CPU_RELAX_INTERCEPT
+ 	---help---
+ 	  Support hosting paravirtualized guest machines using the SIE
+ 	  virtualization capability on the mainframe. This should work
+diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
+index a28f338..45c044f 100644
+--- a/arch/x86/kvm/Kconfig
++++ b/arch/x86/kvm/Kconfig
+@@ -37,6 +37,7 @@ config KVM
+ 	select TASK_DELAY_ACCT
+ 	select PERF_EVENTS
+ 	select HAVE_KVM_MSI
++	select HAVE_KVM_CPU_RELAX_INTERCEPT
+ 	---help---
+ 	  Support hosting fully virtualized guest machines using hardware
+ 	  virtualization extensions.  You will need a fairly recent
+diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
+index 28694f4..d01b24b 100644
+--- a/virt/kvm/Kconfig
++++ b/virt/kvm/Kconfig
+@@ -21,3 +21,6 @@ config KVM_ASYNC_PF
+ 
+ config HAVE_KVM_MSI
+        bool
++
++config HAVE_KVM_CPU_RELAX_INTERCEPT
++       bool
