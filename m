@@ -1,64 +1,75 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Subject: Re: [PATCH RFC 0/2] kvm: Improving directed yield in PLE handler
-Date: Thu, 12 Jul 2012 12:19:18 +1000
-Message-ID: <1342059558.18850.48.camel@pasglop>
-References: <20120709062012.24030.37154.sendpatchset@codeblue>
-	 <4FFA8E5E.3070108@de.ibm.com> <4FFD422B.9060008@redhat.com>
-	 <4FFD52CD.7040403@de.ibm.com> <4FFD5DA3.3010001@redhat.com>
-	 <39DA3B9A-87D6-4EA5-B1FF-B6E30733EF7B@suse.de>
-	 <4FFD621D.5090607@redhat.com>
+Date: Thu, 12 Jul 2012 10:41:56 +0530
+Message-ID: <4FFE5C9C.9070001@linux.vnet.ibm.com>
+References: <20120709062012.24030.37154.sendpatchset@codeblue> <4FFA8E5E.3070108@de.ibm.com> <4FFD422B.9060008@redhat.com> <4FFD52CD.7040403@de.ibm.com> <4FFD5DA3.3010001@redhat.com> <4FFD6100.8050202@de.ibm.com> <4FFD65E0.500@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4FFD621D.5090607@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <4FFD65E0.500@redhat.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Avi Kivity <avi@redhat.com>
-Cc: Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, Paul Mackerras <paulus@samba.org>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>, Paul Mackerras <paulus@samba.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2012-07-11 at 14:23 +0300, Avi Kivity wrote:
-> On 07/11/2012 02:16 PM, Alexander Graf wrote:
-> >> 
-> >>> yes the data structure itself seems based on the algorithm
-> >>> and not on arch specific things. That should work. If we move that to common 
-> >>> code then s390 will use that scheme automatically for the cases were we call 
-> >>> kvm_vcpu_on_spin(). All others archs as well.
-> >> 
-> >> ARM doesn't have an instruction for cpu_relax(), so it can't intercept
-> >> it.  Given ppc's dislike of overcommit,
-> > 
-> > What dislike of overcommit?
-> 
-> I understood ppc virtualization is more of the partitioning sort.
-> Perhaps I misunderstood it.  But the reliance on device assignment, the
-> restrictions on scheduling, etc. all point to it.
+On 07/11/2012 05:09 PM, Avi Kivity wrote:
+> On 07/11/2012 02:18 PM, Christian Borntraeger wrote:
+>> On 11/07/12 13:04, Avi Kivity wrote:
+>>> On 07/11/2012 01:17 PM, Christian Borntraeger wrote:
+>>>> On 11/07/12 11:06, Avi Kivity wrote:
+>>>> [...]
+>>>>>> Almost all s390 kernels use diag9c (directed yield to a given guest cpu) for spinlocks, though.
+>>>>>
+>>>>> Perhaps x86 should copy this.
+>>>>
+>>>> See arch/s390/lib/spinlock.c
+>>>> The basic idea is using several heuristics:
+>>>> - loop for a given amount of loops
+>>>> - check if the lock holder is currently scheduled by the hypervisor
+>>>>    (smp_vcpu_scheduled, which uses the sigp sense running instruction)
+>>>>    Dont know if such thing is available for x86. It must be a lot cheaper
+>>>>    than a guest exit to be useful
+>>>
+>>> We could make it available via shared memory, updated using preempt
+>>> notifiers.  Of course piling on more pv makes this less attractive.
+>>>
+>>>> - if lock holder is not running and we looped for a while do a directed
+>>>>    yield to that cpu.
+>>>>
+>>>>>
+>>>>>> So there is no win here, but there are other cases were diag44 is used, e.g. cpu_relax.
+>>>>>> I have to double check with others, if these cases are critical, but for now, it seems
+>>>>>> that your dummy implementation  for s390 is just fine. After all it is a no-op until
+>>>>>> we implement something.
+>>>>>
+>>>>> Does the data structure make sense for you?  If so we can move it to
+>>>>> common code (and manage it in kvm_vcpu_on_spin()).  We can guard it with
+>>>>> CONFIG_KVM_HAVE_CPU_RELAX_INTERCEPT or something, so other archs don't
+>>>>> have to pay anything.
+>>>>
+>>>> Ignoring the name,
+>>>
+>>> What name would you suggest?
+>>
+>> maybe vcpu_no_progress instead of pause_loop_exited
+>
+> Ah, I thouht you objected to the CONFIG var.  Maybe call it
+> cpu_relax_intercepted since that's the linuxy name for the instruction.
+>
 
-It historically was but that has changed quite a bit. Essentially the
-user can configure partitions to be more of the "all virtualized" kind
-or on the contrary more fixed partitions. The hypervisor does shared
-processors and we have paravirt APIs to cede our time slice to the lock
-holder. 
+Ok, just to be on same page. 'll have :
+1. cpu_relax_intercepted instead of  pause_loop_exited.
 
-> >> and the way it implements cpu_relax() by adjusting hw thread priority,
-> > 
-> > Yeah, I don't think we can intercept relaxing.
-> 
-> ... and the lack of ability to intercept cpu_relax() ...
-> 
-> > It's basically a nop-like instruction that gives hardware hints on its current priorities.
-> 
-> That's what x88 PAUSE does.  But we can intercept it (and not just any
-> execution - we can restrict intercept to tight loops executed more than
-> a specific number of times).
-> 
-> > That said, we can always add PV code.
-> 
-> Sure, but that's defeated by advancements like self-tuning PLE exits.
-> It's hard to get this right.
-> 
+2. CONFIG_KVM_HAVE_CPU_RELAX_INTERCEPT which is unconditionally
+selected for x86 and s390
 
-Cheers,
-Ben.
+3. make request mechanism to clear cpu_relax_intercepted.
+
+('ll do same thing for s390 also but have not seen s390 code using 
+request mechanism, so not sure if it ok.. otherwise we have to clear 
+unconditionally for s390 before guest enter and for x86 we have to move 
+make_request back to vmx/svm).
+will post V3 with these changes.
