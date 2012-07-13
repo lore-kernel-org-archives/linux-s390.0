@@ -1,51 +1,53 @@
-From: Wen Congyang <wency@cn.fujitsu.com>
-Subject: Re: [RFC PATCH v5 12/19] memory-hotplug: introduce new function arch_remove_memory()
-Date: Mon, 30 Jul 2012 18:35:37 +0800
-Message-ID: <50166379.4090305@cn.fujitsu.com>
-References: <50126B83.3050201@cn.fujitsu.com> <50126E2F.8010301@cn.fujitsu.com> <20120730102305.GB3631@osiris.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20120730102305.GB3631@osiris.boeblingen.de.ibm.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com, Yasuaki ISIMATU <isimatu.yasuaki@jp.fujitsu.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Joe Perches <joe@perches.com>
+Subject: [PATCH net-next 6/8] s390: Use eth_random_addr
+Date: Thu, 12 Jul 2012 22:33:10 -0700
+Message-Id: <26e67c596de28829d68351aa7b8355e6b83a089d.1342157022.git.joe@perches.com>
+In-Reply-To: <1341968967.13724.23.camel@joe2Laptop>
+References: <1341968967.13724.23.camel@joe2Laptop>
+In-Reply-To: <cover.1342157022.git.joe@perches.com>
+References: <cover.1342157022.git.joe@perches.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: David Miller <davem@davemloft.net>, Ursula Braun <ursula.braun@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, linux390@de.ibm.com
+Cc: Johannes Berg <johannes@sipsolutions.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-At 07/30/2012 06:23 PM, Heiko Carstens Wrote:
-> On Fri, Jul 27, 2012 at 06:32:15PM +0800, Wen Congyang wrote:
->> We don't call __add_pages() directly in the function add_memory()
->> because some other architecture related things need to be done
->> before or after calling __add_pages(). So we should introduce
->> a new function arch_remove_memory() to revert the things
->> done in arch_add_memory().
->>
->> Note: the function for s390 is not implemented(I don't know how to
->> implement it for s390).
-> 
-> There is no hardware or firmware interface which could trigger a
-> hot memory remove on s390. So there is nothing that needs to be
-> implemented.
+Convert the existing uses of random_ether_addr to
+the new eth_random_addr.
 
-Thanks for providing this information.
+Signed-off-by: Joe Perches <joe@perches.com>
+---
+ drivers/s390/net/qeth_l2_main.c |    2 +-
+ drivers/s390/net/qeth_l3_main.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-According to this, arch_remove_memory() for s390 can just return -EBUSY.
-
-Thanks
-Wen Congyang
-
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 4269865..b09355c 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -647,7 +647,7 @@ static int qeth_l2_request_initial_mac(struct qeth_card *card)
+ 		}
+ 		QETH_DBF_HEX(SETUP, 2, card->dev->dev_addr, OSA_ADDR_LEN);
+ 	} else {
+-		random_ether_addr(card->dev->dev_addr);
++		eth_random_addr(card->dev->dev_addr);
+ 		memcpy(card->dev->dev_addr, vendor_pre, 3);
+ 	}
+ 	return 0;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 73ac63d..bada7f6 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1473,7 +1473,7 @@ static int qeth_l3_iqd_read_initial_mac_cb(struct qeth_card *card,
+ 		memcpy(card->dev->dev_addr,
+ 			cmd->data.create_destroy_addr.unique_id, ETH_ALEN);
+ 	else
+-		random_ether_addr(card->dev->dev_addr);
++		eth_random_addr(card->dev->dev_addr);
+ 
+ 	return 0;
+ }
+-- 
+1.7.8.111.gad25c.dirty
