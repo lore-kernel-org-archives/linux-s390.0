@@ -1,13 +1,13 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V3 0/3] kvm: Improving directed yield in PLE handler
-Date: Fri, 13 Jul 2012 00:47:12 +0530
-Message-ID: <20120712191712.30440.68944.sendpatchset@codeblue>
+Subject: [PATCH RFC V4 0/3] kvm: Improving directed yield in PLE handler
+Date: Mon, 16 Jul 2012 13:54:45 +0530
+Message-ID: <20120716082445.23477.15128.sendpatchset@codeblue.in.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>
-Cc: S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
+Cc: Srikar <srikar@linux.vnet.ibm.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
@@ -29,6 +29,9 @@ vcpu which has:
  probably has become eligible now (next eligible lock holder)
 
 This concept also helps in cpu relax interception cases which use same handler.
+
+Changes since V3:
+ - arch specific fix/changes (Christian)
 
 Changes since v2:
  - Move ple structure to common code (Avi)
@@ -59,13 +62,15 @@ Future enhancements:
 Summary: There is a very good improvement for moderate / no over-commit scenario
  for kvm based guest on PLE machine.
 
- Results: kernbench improves by around 30%, 6% for 1x,2x
-          ebizzy improves by around 87%, 23% for 1x,2x
+Results: kernbench improves by around 30%, 6%  for 1x,2x respectively
+         ebizzy    improves by around 87%, 23% for 1x,2x respectively
+
+Note: The patches are tested on x86.
 
  Links 
   V1: https://lkml.org/lkml/2012/7/9/32
-
   V2: https://lkml.org/lkml/2012/7/10/392
+  V3: https://lkml.org/lkml/2012/7/12/437
 
  Raghavendra K T (3):
    config: Add config to support ple or cpu relax optimzation 
@@ -74,7 +79,7 @@ Summary: There is a very good improvement for moderate / no over-commit scenario
 ---
  arch/s390/kvm/Kconfig    |    1 +
  arch/x86/kvm/Kconfig     |    1 +
- include/linux/kvm_host.h |   12 ++++++++++++
+ include/linux/kvm_host.h |   42 ++++++++++++++++++++++++++++++++++++++++++
  virt/kvm/Kconfig         |    3 +++
- virt/kvm/kvm_main.c      |   38 ++++++++++++++++++++++++++++++++++++++
- 5 files changed, 55 insertions(+), 0 deletions(-)
+ virt/kvm/kvm_main.c      |   40 ++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 87 insertions(+), 0 deletions(-)
