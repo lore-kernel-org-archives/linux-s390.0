@@ -1,56 +1,98 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V4 3/3] kvm: Choose better candidate for directed
- yield
-Date: Mon, 16 Jul 2012 22:37:32 +0530
-Message-ID: <50044A54.2090005@linux.vnet.ibm.com>
-References: <20120716082445.23477.15128.sendpatchset@codeblue.in.ibm.com> <20120716082529.23477.91096.sendpatchset@codeblue.in.ibm.com> <5003E7ED.2030701@redhat.com> <50043CF3.8020903@redhat.com>
+Subject: Re: [PATCH RFC V4 2/3] kvm: Note down when cpu relax intercepted
+ or pause loop exited
+Date: Mon, 16 Jul 2012 22:54:40 +0530
+Message-ID: <50044E58.60905@linux.vnet.ibm.com>
+References: <20120716082445.23477.15128.sendpatchset@codeblue.in.ibm.com> <20120716082514.23477.23849.sendpatchset@codeblue.in.ibm.com> <5003E682.20909@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <50043CF3.8020903@redhat.com>
+In-Reply-To: <5003E682.20909@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Rik van Riel <riel@redhat.com>, Avi Kivity <avi@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Srikar <srikar@linux.vnet.ibm.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
+To: Avi Kivity <avi@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@redhat.com>, Srikar <srikar@linux.vnet.ibm.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/16/2012 09:40 PM, Rik van Riel wrote:
-> On 07/16/2012 06:07 AM, Avi Kivity wrote:
->
->>> +{
->>> + bool eligible;
->>> +
->>> + eligible = !vcpu->ple.cpu_relax_intercepted ||
->>> + (vcpu->ple.cpu_relax_intercepted&&
->>> + vcpu->ple.dy_eligible);
->>> +
->>> + if (vcpu->ple.cpu_relax_intercepted)
->>> + vcpu->ple.dy_eligible = !vcpu->ple.dy_eligible;
+On 07/16/2012 03:31 PM, Avi Kivity wrote:
+> On 07/16/2012 11:25 AM, Raghavendra K T wrote:
+>> From: Raghavendra K T<raghavendra.kt@linux.vnet.ibm.com>
 >>
->> Probably should assign 'true', since the previous value is essentially
->> random.
+>> Noting pause loop exited vcpu or cpu relax intercepted helps in
+>> filtering right candidate to yield. Wrong selection of vcpu;
+>> i.e., a vcpu that just did a pl-exit or cpu relax intercepted may
+>> contribute to performance degradation.
+>>
+>> Signed-off-by: Raghavendra K T<raghavendra.kt@linux.vnet.ibm.com>
+>> ---
+>> V2 was:
+>> Reviewed-by: Rik van Riel<riel@redhat.com>
+>>
+>>   include/linux/kvm_host.h |   37 +++++++++++++++++++++++++++++++++++++
+>>   virt/kvm/kvm_main.c      |    5 +++++
+>>   2 files changed, 42 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+>> index c446435..fa353bd 100644
+>> --- a/include/linux/kvm_host.h
+>> +++ b/include/linux/kvm_host.h
+>> @@ -183,6 +183,18 @@ struct kvm_vcpu {
+>>   	} async_pf;
+>>   #endif
+>>
+>> +#ifdef CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT
+>> +	/*
+>> +	 * Cpu relax intercept or pause loop exit optimization
+>> +	 * cpu_relax_intercepted: set when a vcpu does a pause loop exit
+>> +	 *  or cpu relax intercepted.
+>> +	 * dy_eligible: indicates whether vcpu is eligible for directed yield.
+>> +	 */
+>> +	struct {
+>> +		bool cpu_relax_intercepted;
+>> +		bool dy_eligible;
+>> +	} ple;
 >
-> I suspect the intended purpose of this conditional is to
-> flip the eligibility of a vcpu for being selected as a
-> direct yield target.
+> Naming:
 >
-> In other words, that bit of the code is correct.
+> - ple is the x86 name, but this is common code.  I'd call it spin_loop.
 
-Yes, That is the intention.
+agree.
 
-The first intention was to make sure, not to select previously selected
-pause loop exited guy.
-But second intention was not to make a vcpu permanently eligible after
-skipping once.
+> - cpu_relax_intercepted: can call it in_spin_loop,
 
-The problem is when several PL exits happen simultaneously, (most
-possible in large vcpu guest), it is very much probable that same vcpu
-is tried as target of directed yield slowing down yielding to a
-eligible guy.
+Yes
 
-But I 'll test one more time to make sure that.
+the original name can
+> me "are we intercepting cpu_relax or not" which may be useful at one
+> point (when we know we aren't overcommitted)
 
-(if we can make dy_eligible true as suggested, that means probably we 
-can live with only one bool variable.)
+Okay.
+So are you saying allow vcpu to spin in non over-commit scenarios? So 
+that we avoid all yield_to etc...
+
+( Or even in some other place where it is useful).
+
+> - dy_eligible: I'd like to understand the algorithm more and would want
+> the name to reflect it, will come to this later if I have a better idea.
+
+Yes, welcome any good name.
+
+I had thought eligible initially, but felt it is too generic.
+
+The intention of variable is to decide whether the vcpu is eligible for 
+directed yield, so made it short, and added eligible.
+
+>> +#endif
+>
+> blank line.
+
+oops! 'll take care of this.
+
+>
+>>   	struct kvm_vcpu_arch arch;
+>>   };
+>>
+>
+>
