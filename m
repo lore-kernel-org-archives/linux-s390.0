@@ -1,111 +1,38 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V5 2/3] kvm: Note down when cpu relax intercepted or pause loop exited
-Date: Wed, 18 Jul 2012 19:07:46 +0530
-Message-ID: <20120718133746.5321.74543.sendpatchset@codeblue.in.ibm.com>
-References: <20120718133717.5321.71347.sendpatchset@codeblue.in.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120718133717.5321.71347.sendpatchset@codeblue.in.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: Re: [PATCH RFC V5 3/3] kvm: Choose better candidate for directed
+ yield
+Date: Wed, 18 Jul 2012 20:09:04 +0530
+Message-ID: <5006CA88.8040906@linux.vnet.ibm.com>
+References: <20120718133717.5321.71347.sendpatchset@codeblue.in.ibm.com> <20120718133800.5321.51446.sendpatchset@codeblue.in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20120718133800.5321.51446.sendpatchset@codeblue.in.ibm.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>
-Cc: Srikar <srikar@linux.vnet.ibm.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
+To: Avi Kivity <avi@redhat.com>
+Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Rik van Riel <riel@redhat.com>, Srikar <srikar@linux.vnet.ibm.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+On 07/18/2012 07:08 PM, Raghavendra K T wrote:
+> From: Raghavendra K T<raghavendra.kt@linux.vnet.ibm.com>
+> +bool kvm_vcpu_eligible_for_directed_yield(struct kvm_vcpu *vcpu)
+> +{
+> +	bool eligible;
+> +
+> +	eligible = !vcpu->spin_loop.in_spin_loop ||
+> +			(vcpu->spin_loop.in_spin_loop&&
+> +			 vcpu->spin_loop.dy_eligible);
+> +
+> +	if (vcpu->spin_loop.in_spin_loop)
+> +		vcpu->spin_loop.dy_eligible = !vcpu->spin_loop.dy_eligible;
+> +
+> +	return eligible;
+> +}
 
-Noting pause loop exited vcpu or cpu relax intercepted helps in
-filtering right candidate to yield. Wrong selection of vcpu;
-i.e., a vcpu that just did a pl-exit or cpu relax intercepted may
-contribute to performance degradation.
-
-Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
----
-V2 was:
-Reviewed-by: Rik van Riel <riel@redhat.com>
-
- include/linux/kvm_host.h |   34 ++++++++++++++++++++++++++++++++++
- virt/kvm/kvm_main.c      |    5 +++++
- 2 files changed, 39 insertions(+), 0 deletions(-)
-
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index c446435..34ce296 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -183,6 +183,18 @@ struct kvm_vcpu {
- 	} async_pf;
- #endif
- 
-+#ifdef CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT
-+	/*
-+	 * Cpu relax intercept or pause loop exit optimization
-+	 * in_spin_loop: set when a vcpu does a pause loop exit
-+	 *  or cpu relax intercepted.
-+	 * dy_eligible: indicates whether vcpu is eligible for directed yield.
-+	 */
-+	struct {
-+		bool in_spin_loop;
-+		bool dy_eligible;
-+	} spin_loop;
-+#endif
- 	struct kvm_vcpu_arch arch;
- };
- 
-@@ -890,5 +902,27 @@ static inline bool kvm_check_request(int req, struct kvm_vcpu *vcpu)
- 	}
- }
- 
-+#ifdef CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT
-+
-+static inline void kvm_vcpu_set_in_spin_loop(struct kvm_vcpu *vcpu, bool val)
-+{
-+	vcpu->spin_loop.in_spin_loop = val;
-+}
-+static inline void kvm_vcpu_set_dy_eligible(struct kvm_vcpu *vcpu, bool val)
-+{
-+	vcpu->spin_loop.dy_eligible = val;
-+}
-+
-+#else /* !CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT */
-+
-+static inline void kvm_vcpu_set_in_spin_loop(struct kvm_vcpu *vcpu, bool val)
-+{
-+}
-+
-+static inline void kvm_vcpu_set_dy_eligible(struct kvm_vcpu *vcpu, bool val)
-+{
-+}
-+
-+#endif /* CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT */
- #endif
- 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 7e14068..3d6ffc8 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -236,6 +236,9 @@ int kvm_vcpu_init(struct kvm_vcpu *vcpu, struct kvm *kvm, unsigned id)
- 	}
- 	vcpu->run = page_address(page);
- 
-+	kvm_vcpu_set_in_spin_loop(vcpu, false);
-+	kvm_vcpu_set_dy_eligible(vcpu, false);
-+
- 	r = kvm_arch_vcpu_init(vcpu);
- 	if (r < 0)
- 		goto fail_free_run;
-@@ -1577,6 +1580,7 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me)
- 	int pass;
- 	int i;
- 
-+	kvm_vcpu_set_in_spin_loop(me, true);
- 	/*
- 	 * We boost the priority of a VCPU that is runnable but not
- 	 * currently running, because it got preempted by something
-@@ -1602,6 +1606,7 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me)
- 			}
- 		}
- 	}
-+	kvm_vcpu_set_in_spin_loop(me, false);
- }
- EXPORT_SYMBOL_GPL(kvm_vcpu_on_spin);
- 
+I should have added a comment like:
+Since algorithm is based on heuristics, accessing another vcpu data
+without locking does not harm. It may result in trying to yield to  same 
+VCPU, fail and continue with next and so on.
