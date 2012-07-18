@@ -1,38 +1,59 @@
-Date: Mon, 16 Jul 2012 04:17:23 -0700 (PDT)
-Message-Id: <20120716.041723.349766690942695703.davem@davemloft.net>
-Subject: Re: [PATCH net-next 0/8] etherdevice: Rename random_ether_addr to
- eth_random_addr
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20120716111218.GA4913@arwen.pp.htv.fi>
-References: <20120716101437.GC22638@arwen.pp.htv.fi>
-        <20120716.032901.1657058688119342783.davem@davemloft.net>
-        <20120716111218.GA4913@arwen.pp.htv.fi>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-Return-Path: <linux-mips-bounce@linux-mips.org>
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-To: balbi@ti.com
-Cc: joe@perches.com, netdev@vger.kernel.org, linux-usb@vger.kernel.org, wimax@linuxwimax.org, linux-wireless@vger.kernel.org, users@rt2x00.serialmonkey.com, linux-s390@vger.kernel.org, johannes@sipsolutions.net, uclinux-dist-devel@blackfin.uclinux.org, linux-kernel@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-mips@linux-mips.org, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, e1000-devel@lists.sourceforge.net
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: [PATCH RFC V5 1/3] kvm/config: Add config to support ple or cpu relax optimzation
+Date: Wed, 18 Jul 2012 19:07:32 +0530
+Message-ID: <20120718133732.5321.90998.sendpatchset@codeblue.in.ibm.com>
+References: <20120718133717.5321.71347.sendpatchset@codeblue.in.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120718133717.5321.71347.sendpatchset@codeblue.in.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Avi Kivity <avi@redhat.com>, Ingo Molnar <mingo@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Rik van Riel <riel@redhat.com>
+Cc: Srikar <srikar@linux.vnet.ibm.com>, S390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, chegu vinod <chegu_vinod@hp.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, Joerg Roedel <joerg.roedel@amd.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Felipe Balbi <balbi@ti.com>
-Date: Mon, 16 Jul 2012 14:12:19 +0300
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 
-> Acked-by: Felipe Balbi <balbi@ti.com>
+Suggested-by: Avi Kivity <avi@redhat.com>
+Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+---
+ arch/s390/kvm/Kconfig |    1 +
+ arch/x86/kvm/Kconfig  |    1 +
+ virt/kvm/Kconfig      |    3 +++
+ 3 files changed, 5 insertions(+), 0 deletions(-)
 
-You need to provide this in a reply to the patch you actually want
-to ACK, so that the patch tracking system attaches your ACK to
-the proper patch.
-
-Thank you.
+diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+index 78eb984..a6e2677 100644
+--- a/arch/s390/kvm/Kconfig
++++ b/arch/s390/kvm/Kconfig
+@@ -21,6 +21,7 @@ config KVM
+ 	depends on HAVE_KVM && EXPERIMENTAL
+ 	select PREEMPT_NOTIFIERS
+ 	select ANON_INODES
++	select HAVE_KVM_CPU_RELAX_INTERCEPT
+ 	---help---
+ 	  Support hosting paravirtualized guest machines using the SIE
+ 	  virtualization capability on the mainframe. This should work
+diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
+index a28f338..45c044f 100644
+--- a/arch/x86/kvm/Kconfig
++++ b/arch/x86/kvm/Kconfig
+@@ -37,6 +37,7 @@ config KVM
+ 	select TASK_DELAY_ACCT
+ 	select PERF_EVENTS
+ 	select HAVE_KVM_MSI
++	select HAVE_KVM_CPU_RELAX_INTERCEPT
+ 	---help---
+ 	  Support hosting fully virtualized guest machines using hardware
+ 	  virtualization extensions.  You will need a fairly recent
+diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
+index 28694f4..d01b24b 100644
+--- a/virt/kvm/Kconfig
++++ b/virt/kvm/Kconfig
+@@ -21,3 +21,6 @@ config KVM_ASYNC_PF
+ 
+ config HAVE_KVM_MSI
+        bool
++
++config HAVE_KVM_CPU_RELAX_INTERCEPT
++       bool
