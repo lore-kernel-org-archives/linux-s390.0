@@ -1,166 +1,77 @@
-From: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
-Subject: [PATCH 14/14] crypto: arch/s390 - cleanup - remove unneeded cra_list
- initialization
-Date: Wed, 11 Jul 2012 14:21:01 +0300
-Message-ID: <20120711112101.6875.85841.stgit@localhost6.localdomain6>
-References: <20120711111949.6875.60269.stgit@localhost6.localdomain6>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-crypto-owner@vger.kernel.org>
-In-Reply-To: <20120711111949.6875.60269.stgit@localhost6.localdomain6>
-Sender: linux-crypto-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-crypto/>
-List-Post: <mailto:linux-crypto@vger.kernel.org>
-To: linux-crypto@vger.kernel.org
-Cc: Jan Glauber <jang@de.ibm.com>, linux-s390@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, "David S. Miller" <davem@davemloft.net>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH 1/3] s390/dis: Instruction decoding interface.
+Date: Mon, 23 Jul 2012 17:20:28 +0200
+Message-ID: <1343056830-45290-2-git-send-email-cornelia.huck@de.ibm.com>
+References: <1343056830-45290-1-git-send-email-cornelia.huck@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1343056830-45290-1-git-send-email-cornelia.huck@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Initialization of cra_list is currently mixed, most ciphers initialize this
-field and most shashes do not. Initialization however is not needed at all
-since cra_list is initialized/overwritten in __crypto_register_alg() with
-list_add(). Therefore perform cleanup to remove all unneeded initializations
-of this field in 'arch/s390/crypto/'
+Provide a new function, insn_to_mnemonic, by which e.g. kvm can obtain
+a human-readable decoding of an instruction's opcode.
 
-Cc: Jan Glauber <jang@de.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
-
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
+ arch/s390/include/asm/processor.h |  1 +
+ arch/s390/kernel/dis.c            | 27 +++++++++++++++++++++++++++
+ 2 files changed, 28 insertions(+)
 
-Due to lack of cross-compiler, this is entirely untested. However it just
-removes the ".cra_list = " lines from crypto_alg structures, so it should
-be fine.
----
- arch/s390/crypto/aes_s390.c   |    5 -----
- arch/s390/crypto/des_s390.c   |   10 ----------
- arch/s390/crypto/ghash_s390.c |    1 -
- 3 files changed, 16 deletions(-)
-
-diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
-index a9ce135..4b59b21 100644
---- a/arch/s390/crypto/aes_s390.c
-+++ b/arch/s390/crypto/aes_s390.c
-@@ -216,7 +216,6 @@ static struct crypto_alg aes_alg = {
- 	.cra_blocksize		=	AES_BLOCK_SIZE,
- 	.cra_ctxsize		=	sizeof(struct s390_aes_ctx),
- 	.cra_module		=	THIS_MODULE,
--	.cra_list		=	LIST_HEAD_INIT(aes_alg.cra_list),
- 	.cra_init               =       fallback_init_cip,
- 	.cra_exit               =       fallback_exit_cip,
- 	.cra_u			=	{
-@@ -398,7 +397,6 @@ static struct crypto_alg ecb_aes_alg = {
- 	.cra_ctxsize		=	sizeof(struct s390_aes_ctx),
- 	.cra_type		=	&crypto_blkcipher_type,
- 	.cra_module		=	THIS_MODULE,
--	.cra_list		=	LIST_HEAD_INIT(ecb_aes_alg.cra_list),
- 	.cra_init		=	fallback_init_blk,
- 	.cra_exit		=	fallback_exit_blk,
- 	.cra_u			=	{
-@@ -508,7 +506,6 @@ static struct crypto_alg cbc_aes_alg = {
- 	.cra_ctxsize		=	sizeof(struct s390_aes_ctx),
- 	.cra_type		=	&crypto_blkcipher_type,
- 	.cra_module		=	THIS_MODULE,
--	.cra_list		=	LIST_HEAD_INIT(cbc_aes_alg.cra_list),
- 	.cra_init		=	fallback_init_blk,
- 	.cra_exit		=	fallback_exit_blk,
- 	.cra_u			=	{
-@@ -710,7 +707,6 @@ static struct crypto_alg xts_aes_alg = {
- 	.cra_ctxsize		=	sizeof(struct s390_xts_ctx),
- 	.cra_type		=	&crypto_blkcipher_type,
- 	.cra_module		=	THIS_MODULE,
--	.cra_list		=	LIST_HEAD_INIT(xts_aes_alg.cra_list),
- 	.cra_init		=	xts_fallback_init,
- 	.cra_exit		=	xts_fallback_exit,
- 	.cra_u			=	{
-@@ -832,7 +828,6 @@ static struct crypto_alg ctr_aes_alg = {
- 	.cra_ctxsize		=	sizeof(struct s390_aes_ctx),
- 	.cra_type		=	&crypto_blkcipher_type,
- 	.cra_module		=	THIS_MODULE,
--	.cra_list		=	LIST_HEAD_INIT(ctr_aes_alg.cra_list),
- 	.cra_u			=	{
- 		.blkcipher = {
- 			.min_keysize		=	AES_MIN_KEY_SIZE,
-diff --git a/arch/s390/crypto/des_s390.c b/arch/s390/crypto/des_s390.c
-index a52bfd1..1554262 100644
---- a/arch/s390/crypto/des_s390.c
-+++ b/arch/s390/crypto/des_s390.c
-@@ -70,7 +70,6 @@ static struct crypto_alg des_alg = {
- 	.cra_blocksize		=	DES_BLOCK_SIZE,
- 	.cra_ctxsize		=	sizeof(struct s390_des_ctx),
- 	.cra_module		=	THIS_MODULE,
--	.cra_list		=	LIST_HEAD_INIT(des_alg.cra_list),
- 	.cra_u			=	{
- 		.cipher = {
- 			.cia_min_keysize	=	DES_KEY_SIZE,
-@@ -163,7 +162,6 @@ static struct crypto_alg ecb_des_alg = {
- 	.cra_ctxsize		=	sizeof(struct s390_des_ctx),
- 	.cra_type		=	&crypto_blkcipher_type,
- 	.cra_module		=	THIS_MODULE,
--	.cra_list		=	LIST_HEAD_INIT(ecb_des_alg.cra_list),
- 	.cra_u			=	{
- 		.blkcipher = {
- 			.min_keysize		=	DES_KEY_SIZE,
-@@ -206,7 +204,6 @@ static struct crypto_alg cbc_des_alg = {
- 	.cra_ctxsize		=	sizeof(struct s390_des_ctx),
- 	.cra_type		=	&crypto_blkcipher_type,
- 	.cra_module		=	THIS_MODULE,
--	.cra_list		=	LIST_HEAD_INIT(cbc_des_alg.cra_list),
- 	.cra_u			=	{
- 		.blkcipher = {
- 			.min_keysize		=	DES_KEY_SIZE,
-@@ -271,7 +268,6 @@ static struct crypto_alg des3_alg = {
- 	.cra_blocksize		=	DES_BLOCK_SIZE,
- 	.cra_ctxsize		=	sizeof(struct s390_des_ctx),
- 	.cra_module		=	THIS_MODULE,
--	.cra_list		=	LIST_HEAD_INIT(des3_alg.cra_list),
- 	.cra_u			=	{
- 		.cipher = {
- 			.cia_min_keysize	=	DES3_KEY_SIZE,
-@@ -314,8 +310,6 @@ static struct crypto_alg ecb_des3_alg = {
- 	.cra_ctxsize		=	sizeof(struct s390_des_ctx),
- 	.cra_type		=	&crypto_blkcipher_type,
- 	.cra_module		=	THIS_MODULE,
--	.cra_list		=	LIST_HEAD_INIT(
--						ecb_des3_alg.cra_list),
- 	.cra_u			=	{
- 		.blkcipher = {
- 			.min_keysize		=	DES3_KEY_SIZE,
-@@ -358,8 +352,6 @@ static struct crypto_alg cbc_des3_alg = {
- 	.cra_ctxsize		=	sizeof(struct s390_des_ctx),
- 	.cra_type		=	&crypto_blkcipher_type,
- 	.cra_module		=	THIS_MODULE,
--	.cra_list		=	LIST_HEAD_INIT(
--						cbc_des3_alg.cra_list),
- 	.cra_u			=	{
- 		.blkcipher = {
- 			.min_keysize		=	DES3_KEY_SIZE,
-@@ -452,7 +444,6 @@ static struct crypto_alg ctr_des_alg = {
- 	.cra_ctxsize		=	sizeof(struct s390_des_ctx),
- 	.cra_type		=	&crypto_blkcipher_type,
- 	.cra_module		=	THIS_MODULE,
--	.cra_list		=	LIST_HEAD_INIT(ctr_des_alg.cra_list),
- 	.cra_u			=	{
- 		.blkcipher = {
- 			.min_keysize		=	DES_KEY_SIZE,
-@@ -496,7 +487,6 @@ static struct crypto_alg ctr_des3_alg = {
- 	.cra_ctxsize		=	sizeof(struct s390_des_ctx),
- 	.cra_type		=	&crypto_blkcipher_type,
- 	.cra_module		=	THIS_MODULE,
--	.cra_list		=	LIST_HEAD_INIT(ctr_des3_alg.cra_list),
- 	.cra_u			=	{
- 		.blkcipher = {
- 			.min_keysize		=	DES3_KEY_SIZE,
-diff --git a/arch/s390/crypto/ghash_s390.c b/arch/s390/crypto/ghash_s390.c
-index b1bd170..1ebd3a1 100644
---- a/arch/s390/crypto/ghash_s390.c
-+++ b/arch/s390/crypto/ghash_s390.c
-@@ -135,7 +135,6 @@ static struct shash_alg ghash_alg = {
- 		.cra_blocksize		= GHASH_BLOCK_SIZE,
- 		.cra_ctxsize		= sizeof(struct ghash_ctx),
- 		.cra_module		= THIS_MODULE,
--		.cra_list		= LIST_HEAD_INIT(ghash_alg.base.cra_list),
- 	},
- };
+diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
+index 20d0585..dc99b6e 100644
+--- a/arch/s390/include/asm/processor.h
++++ b/arch/s390/include/asm/processor.h
+@@ -140,6 +140,7 @@ extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ extern unsigned long thread_saved_pc(struct task_struct *t);
  
+ extern void show_code(struct pt_regs *regs);
++extern int insn_to_mnemonic(unsigned char *instruction, char buf[8]);
+ 
+ unsigned long get_wchan(struct task_struct *p);
+ #define task_pt_regs(tsk) ((struct pt_regs *) \
+diff --git a/arch/s390/kernel/dis.c b/arch/s390/kernel/dis.c
+index 3221c6f..8e7088e 100644
+--- a/arch/s390/kernel/dis.c
++++ b/arch/s390/kernel/dis.c
+@@ -1469,6 +1469,33 @@ static struct insn *find_insn(unsigned char *code)
+ 	return NULL;
+ }
+ 
++/**
++ * insn_to_mnemonic - decode an s390 instruction
++ * @instruction: instruction to decode
++ * @buf: buffer to fill with mnemonic
++ *
++ * Decode the instruction at @instruction and store the corresponding
++ * mnemonic into @buf.
++ * @buf is left unchanged if the instruction could not be decoded.
++ * Returns:
++ *  %0 on success, %-ENOENT if the instruction was not found.
++ */
++int insn_to_mnemonic(unsigned char *instruction, char buf[8])
++{
++	struct insn *insn;
++
++	insn = find_insn(instruction);
++	if (!insn)
++		return -ENOENT;
++	if (insn->name[0] == '\0')
++		snprintf(buf, sizeof(buf), "%s",
++			 long_insn_name[(int) insn->name[1]]);
++	else
++		snprintf(buf, sizeof(buf), "%.5s", insn->name);
++	return 0;
++}
++EXPORT_SYMBOL_GPL(insn_to_mnemonic);
++
+ static int print_insn(char *buffer, unsigned char *code, unsigned long addr)
+ {
+ 	struct insn *insn;
+-- 
+1.7.11.2
