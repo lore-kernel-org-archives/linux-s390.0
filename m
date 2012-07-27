@@ -1,70 +1,38 @@
-From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-Subject: Re: [RFC PATCH v5 19/19] memory-hotplug: remove sysfs file of node
-Date: Fri, 27 Jul 2012 19:45:02 +0900
-Message-ID: <5012712E.9000005@jp.fujitsu.com>
-References: <50126B83.3050201@cn.fujitsu.com> <50126F21.803@cn.fujitsu.com>
+From: Tony Luck <tony.luck@intel.com>
+Subject: Re: [RFC PATCH v5 05/19] memory-hotplug: check whether memory is
+ present or not
+Date: Fri, 27 Jul 2012 13:17:20 -0700
+Message-ID: <CA+8MBbL+G=xqkWU4xGF3_Ra7KoeoHuzL6QYcRiKqtVZoOBfLdQ@mail.gmail.com>
+References: <50126B83.3050201@cn.fujitsu.com>
+	<50126D44.7070608@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <50126F21.803@cn.fujitsu.com>
+In-Reply-To: <50126D44.7070608@cn.fujitsu.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
 To: Wen Congyang <wency@cn.fujitsu.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com, Yasuaki ISIMATU <isimatu.yasuaki@jp.fujitsu.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Wen,
+On Fri, Jul 27, 2012 at 3:28 AM, Wen Congyang <wency@cn.fujitsu.com> wrote:
+> +static inline int pfns_present(unsigned long pfn, unsigned long nr_pages)
+> +{
+> +       int i;
+> +       for (i = 0; i < nr_pages; i++) {
+> +               if (pfn_present(pfn + 1))
 
-2012/07/27 19:36, Wen Congyang wrote:
-> From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
->
-> The patch adds node_set_offline() and unregister_one_node() to remove_memory()
-> for removing sysfs file of node.
->
-> CC: David Rientjes <rientjes@google.com>
-> CC: Jiang Liu <liuj97@gmail.com>
-> CC: Len Brown <len.brown@intel.com>
-> CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> CC: Paul Mackerras <paulus@samba.org>
-> CC: Christoph Lameter <cl@linux.com>
-> Cc: Minchan Kim <minchan.kim@gmail.com>
-> CC: Andrew Morton <akpm@linux-foundation.org>
-> CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
-> CC: Wen Congyang <wency@cn.fujitsu.com>
-> Signed-off-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-> ---
->   mm/memory_hotplug.c |    5 +++++
->   1 files changed, 5 insertions(+), 0 deletions(-)
->
-> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> index 5ac035f..5681968 100644
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -1267,6 +1267,11 @@ int __ref remove_memory(int nid, u64 start, u64 size)
->   	/* remove memmap entry */
->   	firmware_map_remove(start, start + size, "System RAM");
->
-> +	if (!node_present_pages(nid)) {
+Typo? I think you meant "pfn + i"
 
-Applying [PATCH v5 17/19], pgdat->node_spanned_pages can become 0 when
-all memory of the pgdat is removed. When pgdat->node_spanned_pages is 0,
-it means the pgdat has no memory. So I think node_spanned_pages() is
-better.
+> +                       continue;
+> +               else
+> +                       return -EINVAL;
+> +       }
+> +       return 0;
+> +}
 
-Thanks,
-Yasuaki Ishimatsu
-
-> +		node_set_offline(nid);
-> +		unregister_one_node(nid);
-> +	}
-> +
->   	arch_remove_memory(start, size);
->   out:
->   	unlock_memory_hotplug();
->
-
+-Tony
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
