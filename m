@@ -1,14 +1,14 @@
 From: Wen Congyang <wency@cn.fujitsu.com>
 Subject: Re: [RFC PATCH v5 19/19] memory-hotplug: remove sysfs file of node
-Date: Mon, 30 Jul 2012 10:03:27 +0800
-Message-ID: <5015EB6F.40901@cn.fujitsu.com>
+Date: Mon, 30 Jul 2012 11:47:51 +0800
+Message-ID: <501603E7.1060200@cn.fujitsu.com>
 References: <50126B83.3050201@cn.fujitsu.com> <50126F21.803@cn.fujitsu.com> <5012712E.9000005@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <owner-linux-mm@kvack.org>
 In-Reply-To: <5012712E.9000005@jp.fujitsu.com>
-Sender: linux-ia64-owner@vger.kernel.org
+Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
 To: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
@@ -56,10 +56,8 @@ At 07/27/2012 06:45 PM, Yasuaki Ishimatsu Wrote:
 > it means the pgdat has no memory. So I think node_spanned_pages() is
 > better.
 
-node_spanned_pages = present_pages + hole_pages
-
-So present_pages is always less or equal than spanned_pages, and I think
-checking present pages is better.
+Hmm, if the node contains cpu, and the cpu is onlined, can we offline
+this node?
 
 Thanks
 Wen Congyang
@@ -79,3 +77,9 @@ Wen Congyang
 > 
 > 
 > 
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
