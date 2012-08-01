@@ -1,84 +1,62 @@
-From: wency@cn.fujitsu.com
-Subject: [RFC v8 PATCH 10/20] memory-hotplug: add memory_block_release
-Date: Tue, 28 Aug 2012 18:00:17 +0800
-Message-ID: <1346148027-24468-11-git-send-email-wency@cn.fujitsu.com>
-References: <1346148027-24468-1-git-send-email-wency@cn.fujitsu.com>
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1346148027-24468-1-git-send-email-wency@cn.fujitsu.com>
-Sender: owner-linux-mm@kvack.org
+From: Wen Congyang <wency@cn.fujitsu.com>
+Subject: Re: [RFC PATCH v5 12/19] memory-hotplug: introduce new function
+ arch_remove_memory()
+Date: Wed, 01 Aug 2012 09:42:22 +0800
+Message-ID: <5018897E.4040109@cn.fujitsu.com>
+References: <50126B83.3050201@cn.fujitsu.com>	<50126E2F.8010301@cn.fujitsu.com>	<20120730102305.GB3631@osiris.boeblingen.de.ibm.com>	<50166379.4090305@cn.fujitsu.com>
+ <20120731144000.33fd4a0a@thinkpad>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <20120731144000.33fd4a0a@thinkpad>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org
-Cc: rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, Wen Congyang <wency@cn.fujitsu.com>
+To: gerald.schaefer@de.ibm.com
+Cc: linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, len.brown@intel.com, linux-acpi@vger.kernel.org, linux-sh@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, cmetcalf@tilera.com, linux-mm@kvack.org, Yasuaki ISIMATU <isimatu.yasuaki@jp.fujitsu.com>, paulus@samba.org, minchan.kim@gmail.com, kosaki.motohiro@jp.fujitsu.com, rientjes@google.com, cl@linux.com, linuxppc-dev@lists.ozlabs.org, akpm@linux-foundation.org, liuj97@gmail.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-
-When calling remove_memory_block(), the function shows following message at
-device_release().
-
-Device 'memory528' does not have a release() function, it is broken and must
-be fixed.
-
-remove_memory_block() calls kfree(mem). I think it shouled be called from
-device_release(). So the patch implements memory_block_release()
-
-CC: David Rientjes <rientjes@google.com>
-CC: Jiang Liu <liuj97@gmail.com>
-CC: Len Brown <len.brown@intel.com>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Paul Mackerras <paulus@samba.org>
-CC: Christoph Lameter <cl@linux.com>
-Cc: Minchan Kim <minchan.kim@gmail.com>
-CC: Andrew Morton <akpm@linux-foundation.org>
-CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
-CC: Wen Congyang <wency@cn.fujitsu.com>
-Signed-off-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
----
- drivers/base/memory.c |   11 ++++++++++-
- 1 files changed, 10 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/base/memory.c b/drivers/base/memory.c
-index 038be73..1cd3ef3 100644
---- a/drivers/base/memory.c
-+++ b/drivers/base/memory.c
-@@ -109,6 +109,15 @@ bool is_memblk_offline(unsigned long start, unsigned long size)
- }
- EXPORT_SYMBOL(is_memblk_offline);
- 
-+#define to_memory_block(device) container_of(device, struct memory_block, dev)
-+
-+static void release_memory_block(struct device *dev)
-+{
-+	struct memory_block *mem = to_memory_block(dev);
-+
-+	kfree(mem);
-+}
-+
- /*
-  * register_memory - Setup a sysfs device for a memory block
-  */
-@@ -119,6 +128,7 @@ int register_memory(struct memory_block *memory)
- 
- 	memory->dev.bus = &memory_subsys;
- 	memory->dev.id = memory->start_section_nr / sections_per_block;
-+	memory->dev.release = release_memory_block;
- 
- 	error = device_register(&memory->dev);
- 	return error;
-@@ -674,7 +684,6 @@ int remove_memory_block(unsigned long node_id, struct mem_section *section,
- 		mem_remove_simple_file(mem, phys_device);
- 		mem_remove_simple_file(mem, removable);
- 		unregister_memory(mem);
--		kfree(mem);
- 	} else
- 		kobject_put(&mem->dev.kobj);
- 
--- 
-1.7.1
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+QXQgMDcvMzEvMjAxMiAwODo0MCBQTSwgR2VyYWxkIFNjaGFlZmVyIFdyb3RlOgo+IE9uIE1vbiwg
+MzAgSnVsIDIwMTIgMTg6MzU6MzcgKzA4MDAKPiBXZW4gQ29uZ3lhbmcgPHdlbmN5QGNuLmZ1aml0
+c3UuY29tPiB3cm90ZToKPiAKPj4gQXQgMDcvMzAvMjAxMiAwNjoyMyBQTSwgSGVpa28gQ2Fyc3Rl
+bnMgV3JvdGU6Cj4+PiBPbiBGcmksIEp1bCAyNywgMjAxMiBhdCAwNjozMjoxNVBNICswODAwLCBX
+ZW4gQ29uZ3lhbmcgd3JvdGU6Cj4+Pj4gV2UgZG9uJ3QgY2FsbCBfX2FkZF9wYWdlcygpIGRpcmVj
+dGx5IGluIHRoZSBmdW5jdGlvbiBhZGRfbWVtb3J5KCkKPj4+PiBiZWNhdXNlIHNvbWUgb3RoZXIg
+YXJjaGl0ZWN0dXJlIHJlbGF0ZWQgdGhpbmdzIG5lZWQgdG8gYmUgZG9uZQo+Pj4+IGJlZm9yZSBv
+ciBhZnRlciBjYWxsaW5nIF9fYWRkX3BhZ2VzKCkuIFNvIHdlIHNob3VsZCBpbnRyb2R1Y2UKPj4+
+PiBhIG5ldyBmdW5jdGlvbiBhcmNoX3JlbW92ZV9tZW1vcnkoKSB0byByZXZlcnQgdGhlIHRoaW5n
+cwo+Pj4+IGRvbmUgaW4gYXJjaF9hZGRfbWVtb3J5KCkuCj4+Pj4KPj4+PiBOb3RlOiB0aGUgZnVu
+Y3Rpb24gZm9yIHMzOTAgaXMgbm90IGltcGxlbWVudGVkKEkgZG9uJ3Qga25vdyBob3cgdG8KPj4+
+PiBpbXBsZW1lbnQgaXQgZm9yIHMzOTApLgo+Pj4KPj4+IFRoZXJlIGlzIG5vIGhhcmR3YXJlIG9y
+IGZpcm13YXJlIGludGVyZmFjZSB3aGljaCBjb3VsZCB0cmlnZ2VyIGEKPj4+IGhvdCBtZW1vcnkg
+cmVtb3ZlIG9uIHMzOTAuIFNvIHRoZXJlIGlzIG5vdGhpbmcgdGhhdCBuZWVkcyB0byBiZQo+Pj4g
+aW1wbGVtZW50ZWQuCj4+Cj4+IFRoYW5rcyBmb3IgcHJvdmlkaW5nIHRoaXMgaW5mb3JtYXRpb24u
+Cj4+Cj4+IEFjY29yZGluZyB0byB0aGlzLCBhcmNoX3JlbW92ZV9tZW1vcnkoKSBmb3IgczM5MCBj
+YW4ganVzdCByZXR1cm4KPj4gLUVCVVNZLgo+IAo+IFllcywgYnV0IHRoZXJlIGlzIGEgcHJvdG90
+eXBlIG1pc21hdGNoIGZvciBhcmNoX3JlbW92ZV9tZW1vcnkoKSBvbiBzMzkwCj4gYW5kIGFsc28g
+b3RoZXIgYXJjaGl0ZWN0dXJlcyAodTY0IHZzLiB1bnNpZ25lZCBsb25nKS4KPiAKPiBhcmNoL3Mz
+OTAvbW0vaW5pdC5jOjI2MjogZXJyb3I6IGNvbmZsaWN0aW5nIHR5cGVzIGZvcgo+IOKAmGFyY2hf
+cmVtb3ZlX21lbW9yeeKAmSBpbmNsdWRlL2xpbnV4L21lbW9yeV9ob3RwbHVnLmg6ODg6IGVycm9y
+OiBwcmV2aW91cwo+IGRlY2xhcmF0aW9uIG9mIOKAmGFyY2hfcmVtb3ZlX21lbW9yeeKAmSB3YXMg
+aGVyZQo+IAo+IEluIG1lbW9yeV9ob3RwbHVnLmggeW91IGhhdmU6Cj4gZXh0ZXJuIGludCBhcmNo
+X3JlbW92ZV9tZW1vcnkodW5zaWduZWQgbG9uZyBzdGFydCwgdW5zaWduZWQgbG9uZyBzaXplKTsK
+PiAKPiBPbiBhbGwgYXJjaHMgb3RoZXIgdGhhbiB4ODYgeW91IGhhdmU6Cj4gaW50IGFyY2hfcmVt
+b3ZlX21lbW9yeSh1NjQgc3RhcnQsIHU2NCBzaXplKQoKVGhhbmtzIGZvciBwb2ludGluZyBpdCBv
+dXQuIEkgd2lsbCBmaXggaXQuCgpXZW4gQ29uZ3lhbmcKCj4gCj4gLS0KPiBUbyB1bnN1YnNjcmli
+ZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgbGludXgta2VybmVs
+IiBpbgo+IHRoZSBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3Jn
+Cj4gTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpvcmRv
+bW8taW5mby5odG1sCj4gUGxlYXNlIHJlYWQgdGhlIEZBUSBhdCAgaHR0cDovL3d3dy50dXgub3Jn
+L2xrbWwvCj4gCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+XwpMaW51eHBwYy1kZXYgbWFpbGluZyBsaXN0CkxpbnV4cHBjLWRldkBsaXN0cy5vemxhYnMub3Jn
+Cmh0dHBzOi8vbGlzdHMub3psYWJzLm9yZy9saXN0aW5mby9saW51eHBwYy1kZXY=
