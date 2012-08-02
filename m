@@ -1,9 +1,11 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 1 Aug 2012 20:48:48 +0200 (CEST)
+Date: Thu, 2 Aug 2012 09:11:23 +0200 (CEST)
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] [S390] do not clobber personality flags in
+Subject: [PATCH v2] [S390] do not clobber personality flags in
  sys_32_personality()
-Message-ID: <alpine.LNX.2.00.1208012045500.14910@pobox.suse.cz>
+In-Reply-To: <alpine.LNX.2.00.1208012045500.14910@pobox.suse.cz>
+Message-ID: <alpine.LNX.2.00.1208020910260.14910@pobox.suse.cz>
+References: <alpine.LNX.2.00.1208012045500.14910@pobox.suse.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,17 +25,21 @@ flags stored in top three bytes.
   discards any flags stored in the top three bytes
 
 Fix the first one by properly using personality() macro to compare only
-bytes covered by PER_MASK.
+PER_MASK bytes.
 Fix the second one by setting only the bits that should be set, instead of
 overwriting the whole value.
 
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 ---
+
+changed since v1: fix the bit ops to reflect the fact that PER_LINUX is 
+actually 0
+
  arch/s390/kernel/sys_s390.c |    9 +++++----
  1 files changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/arch/s390/kernel/sys_s390.c b/arch/s390/kernel/sys_s390.c
-index b4a29ee..6afcfd9 100644
+index b4a29ee..d0964d2 100644
 --- a/arch/s390/kernel/sys_s390.c
 +++ b/arch/s390/kernel/sys_s390.c
 @@ -81,11 +81,12 @@ SYSCALL_DEFINE1(s390_personality, unsigned int, personality)
@@ -44,12 +50,12 @@ index b4a29ee..6afcfd9 100644
 -		personality = PER_LINUX32;
 +	if (personality(current->personality) == PER_LINUX32 &&
 +	    personality(personality) == PER_LINUX)
-+		personality &= ~PER_LINUX | PER_LINUX32;
++		personality |= PER_LINUX32;
  	ret = sys_personality(personality);
 -	if (ret == PER_LINUX32)
 -		ret = PER_LINUX;
 +	if (personality(ret) == PER_LINUX32)
-+		ret &= ~PER_LINUX32 | PER_LINUX;
++		ret &= ~PER_LINUX32;
  
  	return ret;
  }
