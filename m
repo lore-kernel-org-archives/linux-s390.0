@@ -1,21 +1,22 @@
 From: wency@cn.fujitsu.com
-Subject: [RFC PATCH V6 19/19] memory-hotplug: remove sysfs file of node
-Date: Fri, 3 Aug 2012 15:49:21 +0800
-Message-ID: <1343980161-14254-20-git-send-email-wency@cn.fujitsu.com>
+Subject: [RFC PATCH V6 03/19] memory-hotplug: store the node id in acpi_memory_device
+Date: Fri, 3 Aug 2012 15:49:05 +0800
+Message-ID: <1343980161-14254-4-git-send-email-wency@cn.fujitsu.com>
 References: <1343980161-14254-1-git-send-email-wency@cn.fujitsu.com>
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <owner-linux-mm@kvack.org>
 In-Reply-To: <1343980161-14254-1-git-send-email-wency@cn.fujitsu.com>
-Sender: linux-ia64-owner@vger.kernel.org
+Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com
 Cc: rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, Wen Congyang <wency@cn.fujitsu.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+From: Wen Congyang <wency@cn.fujitsu.com>
 
-The patch adds node_set_offline() and unregister_one_node() to remove_memory()
-for removing sysfs file of node.
+The memory device has only one node id. Store the node id when
+enable the memory device, and we can reuse it when removing the
+memory device.
 
 CC: David Rientjes <rientjes@google.com>
 CC: Jiang Liu <liuj97@gmail.com>
@@ -26,27 +27,40 @@ CC: Christoph Lameter <cl@linux.com>
 Cc: Minchan Kim <minchan.kim@gmail.com>
 CC: Andrew Morton <akpm@linux-foundation.org>
 CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
-CC: Wen Congyang <wency@cn.fujitsu.com>
-Signed-off-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+CC: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
+Reviewed-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
 ---
- mm/memory_hotplug.c |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+ drivers/acpi/acpi_memhotplug.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 68d7123..7d68e0a 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1271,6 +1271,11 @@ int __ref remove_memory(int nid, u64 start, u64 size)
- 	/* remove memmap entry */
- 	firmware_map_remove(start, start + size, "System RAM");
+diff --git a/drivers/acpi/acpi_memhotplug.c b/drivers/acpi/acpi_memhotplug.c
+index 8957ed9..293d718 100644
+--- a/drivers/acpi/acpi_memhotplug.c
++++ b/drivers/acpi/acpi_memhotplug.c
+@@ -83,6 +83,7 @@ struct acpi_memory_info {
+ struct acpi_memory_device {
+ 	struct acpi_device * device;
+ 	unsigned int state;	/* State of the memory device */
++	int nid;
+ 	struct list_head res_list;
+ };
  
-+	if (!node_present_pages(nid)) {
-+		node_set_offline(nid);
-+		unregister_one_node(nid);
-+	}
+@@ -256,6 +257,9 @@ static int acpi_memory_enable_device(struct acpi_memory_device *mem_device)
+ 		info->enabled = 1;
+ 		num_enabled++;
+ 	}
 +
- 	arch_remove_memory(start, size);
- out:
- 	unlock_memory_hotplug();
++	mem_device->nid = node;
++
+ 	if (!num_enabled) {
+ 		printk(KERN_ERR PREFIX "add_memory failed\n");
+ 		mem_device->state = MEMORY_INVALID_STATE;
 -- 
 1.7.1
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
