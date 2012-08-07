@@ -1,40 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 16/41] TTY: tty3270, free tty driver properly
-Date: Tue,  7 Aug 2012 21:47:41 +0200
-Message-Id: <1344368886-24033-17-git-send-email-jslaby@suse.cz>
+Subject: [PATCH 23/41] TTY: automatically create nodes for some drivers
+Date: Tue,  7 Aug 2012 21:47:48 +0200
+Message-Id: <1344368886-24033-24-git-send-email-jslaby@suse.cz>
 In-Reply-To: <1344368886-24033-1-git-send-email-jslaby@suse.cz>
 References: <1344368886-24033-1-git-send-email-jslaby@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: gregkh@linuxfoundation.org
-Cc: alan@linux.intel.com, linux-kernel@vger.kernel.org, jirislaby@gmail.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+Cc: alan@linux.intel.com, linux-kernel@vger.kernel.org, jirislaby@gmail.com, netdev@vger.kernel.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-cris-kernel@axis.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On module unload, in tty3270_exit, we forgot to free the tty driver.
-Add there a call to put_tty_driver.
+This looks like it was a mistake not to create device nodes for these
+drivers. Let us create them from now on.
+
+It will be necessary to call tty_register_device some way, either by
+tty_register_driver implicitly or to call tty_register_device proper.
 
 Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: netdev@vger.kernel.org
 Cc: linux390@de.ibm.com
 Cc: linux-s390@vger.kernel.org
+Cc: linux-cris-kernel@axis.com
 ---
- drivers/s390/char/tty3270.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/isdn/i4l/isdn_tty.c  |    2 +-
+ drivers/s390/char/tty3270.c  |    2 +-
+ drivers/tty/serial/crisv10.c |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/isdn/i4l/isdn_tty.c b/drivers/isdn/i4l/isdn_tty.c
+index 7a61ef6..576ce4b 100644
+--- a/drivers/isdn/i4l/isdn_tty.c
++++ b/drivers/isdn/i4l/isdn_tty.c
+@@ -1782,7 +1782,7 @@ isdn_tty_modem_init(void)
+ 	m->tty_modem->subtype = SERIAL_TYPE_NORMAL;
+ 	m->tty_modem->init_termios = tty_std_termios;
+ 	m->tty_modem->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+-	m->tty_modem->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
++	m->tty_modem->flags = TTY_DRIVER_REAL_RAW;
+ 	m->tty_modem->driver_name = "isdn_tty";
+ 	tty_set_operations(m->tty_modem, &modem_ops);
+ 	retval = tty_register_driver(m->tty_modem);
 diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-index 1928f34..215037c 100644
+index 215037c..f2b8c6c 100644
 --- a/drivers/s390/char/tty3270.c
 +++ b/drivers/s390/char/tty3270.c
-@@ -1800,6 +1800,7 @@ tty3270_exit(void)
- 	driver = tty3270_driver;
- 	tty3270_driver = NULL;
- 	tty_unregister_driver(driver);
-+	put_tty_driver(driver);
- 	tty3270_del_views();
- }
+@@ -1781,7 +1781,7 @@ static int __init tty3270_init(void)
+ 	driver->type = TTY_DRIVER_TYPE_SYSTEM;
+ 	driver->subtype = SYSTEM_TYPE_TTY;
+ 	driver->init_termios = tty_std_termios;
+-	driver->flags = TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_DYNAMIC_DEV;
++	driver->flags = TTY_DRIVER_RESET_TERMIOS;
+ 	tty_set_operations(driver, &tty3270_ops);
+ 	ret = tty_register_driver(driver);
+ 	if (ret) {
+diff --git a/drivers/tty/serial/crisv10.c b/drivers/tty/serial/crisv10.c
+index 6b705b2..708c3bf 100644
+--- a/drivers/tty/serial/crisv10.c
++++ b/drivers/tty/serial/crisv10.c
+@@ -4443,7 +4443,7 @@ static int __init rs_init(void)
+ 		B115200 | CS8 | CREAD | HUPCL | CLOCAL; /* is normally B9600 default... */
+ 	driver->init_termios.c_ispeed = 115200;
+ 	driver->init_termios.c_ospeed = 115200;
+-	driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
++	driver->flags = TTY_DRIVER_REAL_RAW;
  
+ 	tty_set_operations(driver, &rs_ops);
+         serial_driver = driver;
 -- 
 1.7.10.4
