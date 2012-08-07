@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 2/4] s390: Add a mechanism to get the subchannel id.
-Date: Tue,  7 Aug 2012 16:52:46 +0200
-Message-ID: <1344351168-2568-3-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 4/4] s390/kvm: Split out early console code.
+Date: Tue,  7 Aug 2012 16:52:48 +0200
+Message-ID: <1344351168-2568-5-git-send-email-cornelia.huck@de.ibm.com>
 References: <1344351168-2568-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1344351168-2568-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,56 +12,150 @@ To: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-dev
 Cc: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This will be needed by the new virtio-ccw transport.
+This code is transport agnostic and can be used by both the legacy
+virtio code and virtio_ccw.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/include/asm/ccwdev.h |  5 +++++
- drivers/s390/cio/device_ops.c  | 10 ++++++++++
- 2 files changed, 15 insertions(+)
+ drivers/s390/kvm/Makefile       |  2 +-
+ drivers/s390/kvm/early_printk.c | 42 +++++++++++++++++++++++++++++++++++++++++
+ drivers/s390/kvm/kvm_virtio.c   | 29 ++--------------------------
+ drivers/s390/kvm/virtio_ccw.c   |  1 -
+ 4 files changed, 45 insertions(+), 29 deletions(-)
+ create mode 100644 drivers/s390/kvm/early_printk.c
 
-diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
-index 1cb4bb3..9ad79f7 100644
---- a/arch/s390/include/asm/ccwdev.h
-+++ b/arch/s390/include/asm/ccwdev.h
-@@ -18,6 +18,9 @@ struct irb;
- struct ccw1;
- struct ccw_dev_id;
+diff --git a/drivers/s390/kvm/Makefile b/drivers/s390/kvm/Makefile
+index 241891a..a3c8fc4 100644
+--- a/drivers/s390/kvm/Makefile
++++ b/drivers/s390/kvm/Makefile
+@@ -6,4 +6,4 @@
+ # it under the terms of the GNU General Public License (version 2 only)
+ # as published by the Free Software Foundation.
  
-+/* from asm/schid.h */
-+struct subchannel_id;
+-obj-$(CONFIG_S390_GUEST) += kvm_virtio.o virtio_ccw.o
++obj-$(CONFIG_S390_GUEST) += kvm_virtio.o early_printk.o virtio_ccw.o
+diff --git a/drivers/s390/kvm/early_printk.c b/drivers/s390/kvm/early_printk.c
+new file mode 100644
+index 0000000..7831530
+--- /dev/null
++++ b/drivers/s390/kvm/early_printk.c
+@@ -0,0 +1,42 @@
++/*
++ * early_printk.c - code for early console output with virtio_console
++ * split off from kvm_virtio.c
++ *
++ * Copyright IBM Corp. 2008
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License (version 2 only)
++ * as published by the Free Software Foundation.
++ *
++ *    Author(s): Christian Borntraeger <borntraeger@de.ibm.com>
++ */
 +
- /* simplified initializers for struct ccw_device:
-  * CCW_DEVICE and CCW_DEVICE_DEVTYPE initialize one
-  * entry in your MODULE_DEVICE_TABLE and set the match_flag correctly */
-@@ -226,5 +229,7 @@ int ccw_device_siosl(struct ccw_device *);
- // FIXME: these have to go
- extern int _ccw_device_get_subchannel_number(struct ccw_device *);
++#include <linux/kernel_stat.h>
++#include <linux/init.h>
++#include <linux/err.h>
++#include <linux/virtio_console.h>
++#include <asm/kvm_para.h>
++#include <asm/kvm_virtio.h>
++#include <asm/setup.h>
++#include <asm/sclp.h>
++
++static __init int early_put_chars(u32 vtermno, const char *buf, int count)
++{
++	char scratch[17];
++	unsigned int len = count;
++
++	if (len > sizeof(scratch) - 1)
++		len = sizeof(scratch) - 1;
++	scratch[len] = '\0';
++	memcpy(scratch, buf, len);
++	kvm_hypercall1(KVM_S390_VIRTIO_NOTIFY, __pa(scratch));
++	return len;
++}
++
++static int __init s390_virtio_console_init(void)
++{
++	if (sclp_has_vt220() || sclp_has_linemode())
++		return -ENODEV;
++	return virtio_cons_early_init(early_put_chars);
++}
++console_initcall(s390_virtio_console_init);
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+index 408447c..c693548 100644
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -17,7 +17,6 @@
+ #include <linux/virtio.h>
+ #include <linux/virtio_config.h>
+ #include <linux/slab.h>
+-#include <linux/virtio_console.h>
+ #include <linux/interrupt.h>
+ #include <linux/virtio_ring.h>
+ #include <linux/export.h>
+@@ -25,9 +24,9 @@
+ #include <asm/io.h>
+ #include <asm/kvm_para.h>
+ #include <asm/kvm_virtio.h>
+-#include <asm/sclp.h>
+ #include <asm/setup.h>
+ #include <asm/irq.h>
++#include <asm/sclp.h>
  
-+extern void ccw_device_get_schid(struct ccw_device *, struct subchannel_id *);
-+
- extern void *ccw_device_get_chp_desc(struct ccw_device *, int);
- #endif /* _S390_CCWDEV_H_ */
-diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
-index ec7fb6d..a93f4a0 100644
---- a/drivers/s390/cio/device_ops.c
-+++ b/drivers/s390/cio/device_ops.c
-@@ -763,6 +763,16 @@ _ccw_device_get_subchannel_number(struct ccw_device *cdev)
- 	return cdev->private->schid.sch_no;
+ #define VIRTIO_SUBCODE_64 0x0D00
+ 
+@@ -461,8 +460,7 @@ static int __init kvm_devices_init(void)
+ 	if (test_devices_support() < 0) {
+ 		vmem_remove_mapping(real_memory_size, PAGE_SIZE);
+ 		root_device_unregister(kvm_root);
+-		/* No error. */
+-		return 0;
++		return -ENODEV;
+ 	}
+ 
+ 	INIT_WORK(&hotplug_work, hotplug_devices);
+@@ -474,29 +472,6 @@ static int __init kvm_devices_init(void)
+ 	return 0;
  }
  
-+/**
-+ * ccw_device_get_schid - obtain a subchannel id
-+ * @cdev: device to obtain the id for
-+ * @schid: where to fill in the values
-+ */
-+void ccw_device_get_schid(struct ccw_device *cdev, struct subchannel_id *schid)
-+{
-+	*schid = cdev->private->schid;
-+}
-+EXPORT_SYMBOL(ccw_device_get_schid);
- 
- MODULE_LICENSE("GPL");
- EXPORT_SYMBOL(ccw_device_set_options_mask);
+-/* code for early console output with virtio_console */
+-static __init int early_put_chars(u32 vtermno, const char *buf, int count)
+-{
+-	char scratch[17];
+-	unsigned int len = count;
+-
+-	if (len > sizeof(scratch) - 1)
+-		len = sizeof(scratch) - 1;
+-	scratch[len] = '\0';
+-	memcpy(scratch, buf, len);
+-	kvm_hypercall1(KVM_S390_VIRTIO_NOTIFY, __pa(scratch));
+-	return len;
+-}
+-
+-static int __init s390_virtio_console_init(void)
+-{
+-	if (sclp_has_vt220() || sclp_has_linemode())
+-		return -ENODEV;
+-	return virtio_cons_early_init(early_put_chars);
+-}
+-console_initcall(s390_virtio_console_init);
+-
+-
+ /*
+  * We do this after core stuff, but before the drivers.
+  */
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index df0f994..c3d07db 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -17,7 +17,6 @@
+ #include <linux/virtio.h>
+ #include <linux/virtio_config.h>
+ #include <linux/slab.h>
+-#include <linux/virtio_console.h>
+ #include <linux/interrupt.h>
+ #include <linux/virtio_ring.h>
+ #include <linux/pfn.h>
 -- 
 1.7.11.4
