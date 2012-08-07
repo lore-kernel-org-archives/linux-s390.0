@@ -1,72 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 23/41] TTY: automatically create nodes for some drivers
-Date: Tue,  7 Aug 2012 21:47:48 +0200
-Message-Id: <1344368886-24033-24-git-send-email-jslaby@suse.cz>
+Subject: [PATCH 33/41] TTY: con3215, add tty install
+Date: Tue,  7 Aug 2012 21:47:58 +0200
+Message-Id: <1344368886-24033-34-git-send-email-jslaby@suse.cz>
 In-Reply-To: <1344368886-24033-1-git-send-email-jslaby@suse.cz>
 References: <1344368886-24033-1-git-send-email-jslaby@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: gregkh@linuxfoundation.org
-Cc: alan@linux.intel.com, linux-kernel@vger.kernel.org, jirislaby@gmail.com, netdev@vger.kernel.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-cris-kernel@axis.com
+Cc: alan@linux.intel.com, linux-kernel@vger.kernel.org, jirislaby@gmail.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This looks like it was a mistake not to create device nodes for these
-drivers. Let us create them from now on.
-
-It will be necessary to call tty_register_device some way, either by
-tty_register_driver implicitly or to call tty_register_device proper.
+This has two outcomes:
+* we give the TTY layer a tty_port
+* we do not find the info structure every time open is called on that
+  tty
 
 Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: netdev@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 Cc: linux390@de.ibm.com
 Cc: linux-s390@vger.kernel.org
-Cc: linux-cris-kernel@axis.com
 ---
- drivers/isdn/i4l/isdn_tty.c  |    2 +-
- drivers/s390/char/tty3270.c  |    2 +-
- drivers/tty/serial/crisv10.c |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/s390/char/con3215.c |   21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/isdn/i4l/isdn_tty.c b/drivers/isdn/i4l/isdn_tty.c
-index 7a61ef6..576ce4b 100644
---- a/drivers/isdn/i4l/isdn_tty.c
-+++ b/drivers/isdn/i4l/isdn_tty.c
-@@ -1782,7 +1782,7 @@ isdn_tty_modem_init(void)
- 	m->tty_modem->subtype = SERIAL_TYPE_NORMAL;
- 	m->tty_modem->init_termios = tty_std_termios;
- 	m->tty_modem->init_termios.c_cflag = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
--	m->tty_modem->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
-+	m->tty_modem->flags = TTY_DRIVER_REAL_RAW;
- 	m->tty_modem->driver_name = "isdn_tty";
- 	tty_set_operations(m->tty_modem, &modem_ops);
- 	retval = tty_register_driver(m->tty_modem);
-diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-index 215037c..f2b8c6c 100644
---- a/drivers/s390/char/tty3270.c
-+++ b/drivers/s390/char/tty3270.c
-@@ -1781,7 +1781,7 @@ static int __init tty3270_init(void)
- 	driver->type = TTY_DRIVER_TYPE_SYSTEM;
- 	driver->subtype = SYSTEM_TYPE_TTY;
- 	driver->init_termios = tty_std_termios;
--	driver->flags = TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_DYNAMIC_DEV;
-+	driver->flags = TTY_DRIVER_RESET_TERMIOS;
- 	tty_set_operations(driver, &tty3270_ops);
- 	ret = tty_register_driver(driver);
- 	if (ret) {
-diff --git a/drivers/tty/serial/crisv10.c b/drivers/tty/serial/crisv10.c
-index 6b705b2..708c3bf 100644
---- a/drivers/tty/serial/crisv10.c
-+++ b/drivers/tty/serial/crisv10.c
-@@ -4443,7 +4443,7 @@ static int __init rs_init(void)
- 		B115200 | CS8 | CREAD | HUPCL | CLOCAL; /* is normally B9600 default... */
- 	driver->init_termios.c_ispeed = 115200;
- 	driver->init_termios.c_ospeed = 115200;
--	driver->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
-+	driver->flags = TTY_DRIVER_REAL_RAW;
+diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
+index 1655498..9ffb6d5 100644
+--- a/drivers/s390/char/con3215.c
++++ b/drivers/s390/char/con3215.c
+@@ -942,6 +942,19 @@ static int __init con3215_init(void)
+ console_initcall(con3215_init);
+ #endif
  
- 	tty_set_operations(driver, &rs_ops);
-         serial_driver = driver;
++static int tty3215_install(struct tty_driver *driver, struct tty_struct *tty)
++{
++	struct raw3215_info *raw;
++
++	raw = raw3215[tty->index];
++	if (raw == NULL)
++		return -ENODEV;
++
++	tty->driver_data = raw;
++
++	return tty_port_install(&raw->port, driver, tty);
++}
++
+ /*
+  * tty3215_open
+  *
+@@ -949,14 +962,9 @@ console_initcall(con3215_init);
+  */
+ static int tty3215_open(struct tty_struct *tty, struct file * filp)
+ {
+-	struct raw3215_info *raw;
++	struct raw3215_info *raw = tty->driver_data;
+ 	int retval;
+ 
+-	raw = raw3215[tty->index];
+-	if (raw == NULL)
+-		return -ENODEV;
+-
+-	tty->driver_data = raw;
+ 	tty_port_tty_set(&raw->port, tty);
+ 
+ 	tty->low_latency = 0;  /* don't use bottom half for pushing chars */
+@@ -1117,6 +1125,7 @@ static void tty3215_start(struct tty_struct *tty)
+ }
+ 
+ static const struct tty_operations tty3215_ops = {
++	.install = tty3215_install,
+ 	.open = tty3215_open,
+ 	.close = tty3215_close,
+ 	.write = tty3215_write,
 -- 
 1.7.10.4
