@@ -1,44 +1,74 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 3/4] s390/kvm: Add a channel I/O based
-	virtio transport driver.
-Date: Tue, 21 Aug 2012 15:05:18 +0930
-Message-ID: <87k3ws3izt.fsf@rustcorp.com.au>
-References: <1344351168-2568-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1344351168-2568-4-git-send-email-cornelia.huck@de.ibm.com>
-	<87fw7ps0x4.fsf@codemonkey.ws> <878vdgr4v2.fsf@rustcorp.com.au>
-	<502B545C.8000904@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
-In-Reply-To: <502B545C.8000904@de.ibm.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [RFC PATCH 0/5] qemu: s390: virtual css and virtio-ccw
+Date: Tue,  7 Aug 2012 16:52:48 +0200
+Message-ID: <1344351173-2716-1-git-send-email-cornelia.huck@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Anthony Liguori <aliguori@us.ibm.com>, KVM <kvm@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Marcelo Tosatti <mtosatti@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, qemu-devel <qemu-devel@nongnu.org>, Alexander Graf <agraf@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Avi Kivity <avi@redhat.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
+To: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>
+Cc: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 15 Aug 2012 09:48:44 +0200, Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-> >> Have you written an appendix for the virtio specification for
-> >> virtio-ccw?  I think it would be good to include in this series for the
-> >> purposes of review.
-> > 
-> > Might be nice, but don't get fancy about it.  Text will be fine and I
-> > can cut & paste it in once it's finalized.
-> 
-> There was a patch against the virtio spec in the patch series. Did it not
-> make it to you?
+Hi,
 
-Yes, I got it, thanks (not in this thread, but that's OK).  Will hold
-off until finalized.
+following are the qemu parts for supporting virtual channel I/O
+and the new virtio-ccw transport.
 
-Cheers,
-Rusty.
+Patch 1 pulls in the new interface definitions.
+
+Patch 2 contains the ground work for supporting virtual subchannels
+(kvm only).
+
+Patch 3 implements the new virtio-ccw transport.
+
+Patch 4 makes virtual subchannels available for !kvm as well. Note
+that this patch is completely untested; it basically contains my
+initial channel subsystem code before I moved most of it into the
+kernel.
+
+Patch 5 is a hack needed to make virtio-ccw work with the alias stuff
+for now. The correct solution is to rework the virtio layering as
+has been proposed for virtio-mmio (see
+http://comments.gmane.org/gmane.comp.emulators.qemu/148224).
+
+The patches still have some TODOs in them (but nothing major), and
+likely some things need to be done differently. I hope, however,
+that the architectural part is fine.
+
+Cornelia Huck (5):
+  Update headers for upcoming s390 changes.
+  s390: Virtual channel subsystem support.
+  s390: Add new channel I/O based virtio transport.
+  s390: Virtual channel subsystem support for !KVM.
+  [HACK] Handle multiple virtio aliases.
+
+ blockdev.c                        |    6 +-
+ hw/qdev-monitor.c                 |   90 +--
+ hw/s390-virtio.c                  |  268 ++++++---
+ hw/s390x/Makefile.objs            |    2 +
+ hw/s390x/css.c                    | 1202 +++++++++++++++++++++++++++++++++++++
+ hw/s390x/css.h                    |   89 +++
+ hw/s390x/virtio-ccw.c             |  962 +++++++++++++++++++++++++++++
+ hw/s390x/virtio-ccw.h             |   77 +++
+ linux-headers/asm-s390/kvm.h      |    2 +-
+ linux-headers/asm-s390/kvm_para.h |    2 +-
+ linux-headers/linux/kvm.h         |   63 ++
+ target-s390x/Makefile.objs        |    2 +-
+ target-s390x/cpu.h                |  261 ++++++++
+ target-s390x/helper.c             |  140 +++++
+ target-s390x/ioinst.c             |  734 ++++++++++++++++++++++
+ target-s390x/ioinst.h             |  206 +++++++
+ target-s390x/kvm.c                |  265 +++++++-
+ target-s390x/op_helper.c          |   22 +-
+ vl.c                              |    7 +-
+ 19 files changed, 4260 insertions(+), 140 deletions(-)
+ create mode 100644 hw/s390x/css.c
+ create mode 100644 hw/s390x/css.h
+ create mode 100644 hw/s390x/virtio-ccw.c
+ create mode 100644 hw/s390x/virtio-ccw.h
+ create mode 100644 target-s390x/ioinst.c
+ create mode 100644 target-s390x/ioinst.h
+
+-- 
+1.7.11.4
