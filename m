@@ -1,50 +1,56 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [RFC PATCH 0/4] s390: virtio-ccw guest kernel support.
-Date: Tue,  7 Aug 2012 16:52:44 +0200
-Message-ID: <1344351168-2568-1-git-send-email-cornelia.huck@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCH 1/4] s390/kvm: Handle hosts not supporting
+	s390-virtio.
+Date: Thu, 09 Aug 2012 13:03:57 +0300
+Message-ID: <50238B0D.2060604@redhat.com>
+References: <1344351168-2568-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1344351168-2568-2-git-send-email-cornelia.huck@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+In-Reply-To: <1344351168-2568-2-git-send-email-cornelia.huck@de.ibm.com>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>
-Cc: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, KVM <kvm@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Marcelo Tosatti <mtosatti@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, qemu-devel <qemu-devel@nongnu.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+On 08/07/2012 05:52 PM, Cornelia Huck wrote:
+> Running under a kvm host does not necessarily imply the presence of
+> a page mapped above the main memory with the virtio information;
+> however, the code includes a hard coded access to that page.
+> 
+> Instead, check for the presence of the page and exit gracefully
+> before we hit an addressing exception if it does not exist.
+> 
+>  /*
+>   * Init function for virtio
+>   * devices are in a single page above top of "normal" mem
+> @@ -443,6 +458,12 @@ static int __init kvm_devices_init(void)
+>  	}
+>  
+>  	kvm_devices = (void *) real_memory_size;
+> +	if (test_devices_support() < 0) {
+> +		vmem_remove_mapping(real_memory_size, PAGE_SIZE);
+> +		root_device_unregister(kvm_root);
+> +		/* No error. */
+> +		return 0;
+> +	}
+>  
 
-the following patches are for Linux running as a guest under a
-host with virtio-ccw support.
+Cleaner to defer root_device_register() until after the mapping has been
+verified.
 
-Patch 1 makes the kvm_virtio driver exit gracefully if the page
-containing s390-virtio information it expects is not present; it
-could probably go in seperately from the other patches.
-
-Patch 2 exports a needed interface.
-
-Patch 3 adds a driver handling virtio-ccw devices. The virtual
-subchannels have ccw devices with a special CU id this driver
-matches for. The virtio_ccw driver handles configuration and
-operation via the special new channel commands.
-
-Patch 4 is a split out of common code.
-
-Cornelia Huck (4):
-  s390/kvm: Handle hosts not supporting s390-virtio.
-  s390: Add a mechanism to get the subchannel id.
-  s390/kvm: Add a channel I/O based virtio transport driver.
-  s390/kvm: Split out early console code.
-
- arch/s390/include/asm/ccwdev.h  |   5 +
- arch/s390/include/asm/irq.h     |   1 +
- arch/s390/kernel/irq.c          |   1 +
- drivers/s390/cio/device_ops.c   |  10 +
- drivers/s390/kvm/Makefile       |   2 +-
- drivers/s390/kvm/early_printk.c |  42 +++
- drivers/s390/kvm/kvm_virtio.c   |  46 ++-
- drivers/s390/kvm/virtio_ccw.c   | 760 ++++++++++++++++++++++++++++++++++++++++
- 8 files changed, 841 insertions(+), 26 deletions(-)
- create mode 100644 drivers/s390/kvm/early_printk.c
- create mode 100644 drivers/s390/kvm/virtio_ccw.c
 
 -- 
-1.7.11.4
+error compiling committee.c: too many arguments to function
