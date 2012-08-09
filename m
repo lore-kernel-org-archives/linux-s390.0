@@ -1,74 +1,53 @@
-From: Wen Congyang <wency@cn.fujitsu.com>
-Subject: Re: [RFC PATCH V6 13/19] memory-hotplug: check page type in get_page_bootmem
-Date: Tue, 07 Aug 2012 13:31:53 +0800
-Message-ID: <5020A849.4050209@cn.fujitsu.com>
-References: <1343980161-14254-1-git-send-email-wency@cn.fujitsu.com> <1343980161-14254-14-git-send-email-wency@cn.fujitsu.com>
+From: Vasilis Liaskovitis <vasilis.liaskovitis@profitbricks.com>
+Subject: Re: [RFC PATCH V6 04/19] memory-hotplug: offline and remove memory
+ when removing the memory device
+Date: Thu, 9 Aug 2012 17:41:04 +0200
+Message-ID: <CAFEPiEY7gBeLoEJggSjFsF92X1Lw9DzPvEfCxhBx75NKCiL6XQ@mail.gmail.com>
+References: <1343980161-14254-1-git-send-email-wency@cn.fujitsu.com>
+	<1343980161-14254-5-git-send-email-wency@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1343980161-14254-14-git-send-email-wency@cn.fujitsu.com>
+In-Reply-To: <1343980161-14254-5-git-send-email-wency@cn.fujitsu.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: isimatu.yasuaki@jp.fujitsu.com
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com
+To: wency@cn.fujitsu.com
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com
 List-ID: <linux-s390.vger.kernel.org>
 
-At 08/03/2012 03:49 PM, wency@cn.fujitsu.com Wrote:
-> From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-> 
-> There is a possibility that get_page_bootmem() is called to the same page many
-> times. So when get_page_bootmem is called to the same page, the function only
-> increments page->_count.
-> 
-> CC: David Rientjes <rientjes@google.com>
-> CC: Jiang Liu <liuj97@gmail.com>
-> CC: Len Brown <len.brown@intel.com>
-> CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> CC: Paul Mackerras <paulus@samba.org>
-> CC: Christoph Lameter <cl@linux.com>
-> Cc: Minchan Kim <minchan.kim@gmail.com>
-> CC: Andrew Morton <akpm@linux-foundation.org>
-> CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
-> CC: Wen Congyang <wency@cn.fujitsu.com>
-> Signed-off-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-> ---
->  mm/memory_hotplug.c |   15 +++++++++++----
->  1 files changed, 11 insertions(+), 4 deletions(-)
-> 
-> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> index 5f9f8c7..710e593 100644
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -95,10 +95,17 @@ static void release_memory_resource(struct resource *res)
->  static void get_page_bootmem(unsigned long info,  struct page *page,
->  			     unsigned long type)
->  {
-> -	page->lru.next = (struct list_head *) type;
-> -	SetPagePrivate(page);
-> -	set_page_private(page, info);
-> -	atomic_inc(&page->_count);
-> +	unsigned long page_type;
+Hi,
+
+> We should offline and remove memory when removing the memory device.
+> The memory device can be removed by 2 ways:
+> 1. send eject request by SCI
+> 2. echo 1 >/sys/bus/pci/devices/PNP0C80:XX/eject
+>
+
+[snip]
+
 > +
-> +	page_type = (unsigned long) page->lru.next;
-> +	if (type < MEMORY_HOTPLUG_MIN_BOOTMEM_TYPE ||
-> +	    type > MEMORY_HOTPLUG_MAX_BOOTMEM_TYPE){
+> +static int acpi_memory_disable_device(struct acpi_memory_device *mem_device)
+> +{
+> +       int result;
+> +
+> +       /*
+> +        * Ask the VM to offline this memory range.
+> +        * Note: Assume that this function returns zero on success
+> +        */
+> +       result = acpi_memory_device_remove_memory(mem_device);
+> +
 
-I think it should be page_type not type here.
+here we should check the result of acpi_memory_device_remove_memory()
+and not continue if it failed.
 
-Thanks
-Wen Congyang
+>         /* Power-off and eject the device */
+>         result = acpi_memory_powerdown_device(mem_device);
+>         if (result) {
 
-> +		page->lru.next = (struct list_head *) type;
-> +		SetPagePrivate(page);
-> +		set_page_private(page, info);
-> +		atomic_inc(&page->_count);
-> +	} else
-> +		atomic_inc(&page->_count);
->  }
->  
->  /* reference to __meminit __free_pages_bootmem is valid
+thanks,
+
+- Vasilis
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
