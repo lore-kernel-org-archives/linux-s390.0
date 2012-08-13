@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 32/41] TTY: con3215, unset raw3215[line]
-Date: Tue,  7 Aug 2012 21:47:57 +0200
-Message-Id: <1344368886-24033-33-git-send-email-jslaby@suse.cz>
-In-Reply-To: <1344368886-24033-1-git-send-email-jslaby@suse.cz>
-References: <1344368886-24033-1-git-send-email-jslaby@suse.cz>
+From: Jiri Pirko <jiri@resnulli.us>
+Subject: [patch net-next 09/16] qlcnic: guard __vlan_find_dev_deep() by rcu_read_lock
+Date: Mon, 13 Aug 2012 17:27:08 +0200
+Message-ID: <1344871635-1052-10-git-send-email-jiri@resnulli.us>
+References: <1344871635-1052-1-git-send-email-jiri@resnulli.us>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1344871635-1052-1-git-send-email-jiri@resnulli.us>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: gregkh@linuxfoundation.org
-Cc: alan@linux.intel.com, linux-kernel@vger.kernel.org, jirislaby@gmail.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-rdma/>
+List-Post: <mailto:linux-rdma@vger.kernel.org>
+To: netdev@vger.kernel.org
+Cc: davem@davemloft.net, edumazet@google.com, faisal.latif@intel.com, roland@kernel.org, sean.hefty@intel.com, hal.rosenstock@gmail.com, fubar@us.ibm.com, andy@greyhouse.net, divy@chelsio.com, jitendra.kalsaria@qlogic.com, sony.chacko@qlogic.com, linux-driver@qlogic.com, kaber@trash.net, ursula.braun@de.ibm.com, blaschka@linux.vnet.ibm.com, linux390@de.ibm.com, shemminger@vyatta.com, bhutchings@solarflare.com, therbert@google.com, xiyou.wangcong@gmail.com, joe@perches.com, gregory.v.rose@intel.com, john.r.fastabend@intel.com, linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, bridge@lists.linux-foundation.org, fbl@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-raw3215[line] is set in probe, but not unset in remove. This will lead
-to random crashes if the device is removed and the corresponding tty
-opened later. open would dereference freed memory.
+rcu_read_lock was missing here
 
-So set raw3215[line] to NULL in remove to fix that.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux390@de.ibm.com
-Cc: linux-s390@vger.kernel.org
+Signed-off-by: Jiri Pirko <jiri@resnulli.us>
 ---
- drivers/s390/char/con3215.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
-index 6c0116d..1655498 100644
---- a/drivers/s390/char/con3215.c
-+++ b/drivers/s390/char/con3215.c
-@@ -716,10 +716,17 @@ static int raw3215_probe (struct ccw_device *cdev)
- static void raw3215_remove (struct ccw_device *cdev)
- {
- 	struct raw3215_info *raw;
-+	unsigned int line;
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+index 212c121..9eadf17 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+@@ -4425,12 +4425,14 @@ qlcnic_restore_indev_addr(struct net_device *netdev, unsigned long event)
  
- 	ccw_device_set_offline(cdev);
- 	raw = dev_get_drvdata(&cdev->dev);
- 	if (raw) {
-+		spin_lock(&raw3215_device_lock);
-+		for (line = 0; line < NR_3215; line++)
-+			if (raw3215[line] == raw)
-+				break;
-+		raw3215[line] = NULL;
-+		spin_unlock(&raw3215_device_lock);
- 		dev_set_drvdata(&cdev->dev, NULL);
- 		raw3215_free_info(raw);
+ 	qlcnic_config_indev_addr(adapter, netdev, event);
+ 
++	rcu_read_lock();
+ 	for_each_set_bit(vid, adapter->vlans, VLAN_N_VID) {
+ 		dev = __vlan_find_dev_deep(netdev, vid);
+ 		if (!dev)
+ 			continue;
+ 		qlcnic_config_indev_addr(adapter, dev, event);
  	}
++	rcu_read_unlock();
+ }
+ 
+ static int qlcnic_netdev_event(struct notifier_block *this,
 -- 
 1.7.10.4
