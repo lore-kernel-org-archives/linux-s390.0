@@ -1,106 +1,205 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [RFC] s390: virtual channel subsystem and new virtio transport.
-Date: Tue, 7 Aug 2012 16:52:04 +0200
-Message-ID: <20120807165204.7a176ca7@BR9GNB5Z>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 13 Aug 2012 13:20:13 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for the 3.6-rc1
+Message-ID: <20120813132013.1fce081b@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>
-Cc: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+Hi Linus,
 
-I've been working on a new virtio transport for s390 replacing the
-existing s390-virtio transport. Patches to Linux, qemu and the virtio
-spec will follow.
+please pull from the 'for-linus' branch of
 
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-Why?
+to receive some s390 patches on top of 3.6-rc1.
+Included are bug fixes and a patch to enable system call filtering with BPF.
 
-s390-virtio is quite limited in the number of supported devices (all
-related structures need to fit into a single specially mapped page),
-and does not support hotunplug. It is also completely dissimilar to
-other devices on s390.
+Heiko Carstens (4):
+      s390/mm: remove MAX_PHYSADDR_BITS define
+      s390/seccomp: add support for system call filtering using BPF
+      s390/compat: fix compat wrappers for process_vm system calls
+      s390/compat: fix mmap compat system calls
 
+Jiri Kosina (1):
+      s390: do not clobber personality flags in sys_32_personality()
 
-What's the alternative?
+Michael Holzheu (1):
+      s390/sclp_sdias: Add missing break and "fall through"
 
-The classic method of discovering and addressing devices on s390 is via
-channel I/O. Devices are accessed through subchannels and driven via
-control units. A set of instructions operates on subchannels and allows
-the operating system to send channel programs to the control
-unit/device. Hot(un)plug of devices is reported via channel reports.
+ arch/s390/Kconfig                 |    1 +
+ arch/s390/include/asm/sparsemem.h |    2 --
+ arch/s390/include/asm/syscall.h   |   10 ++++++++++
+ arch/s390/kernel/compat_linux.c   |    2 --
+ arch/s390/kernel/compat_wrapper.S |    4 ++--
+ arch/s390/kernel/ptrace.c         |    7 ++++++-
+ arch/s390/kernel/sys_s390.c       |    9 +++++----
+ drivers/s390/char/sclp_sdias.c    |    2 ++
+ 8 files changed, 26 insertions(+), 11 deletions(-)
 
-This method of accessing devices is well architectured and supported by
-every s390 operating system (for Linux, the common I/O layer under
-drivers/s390/cio handles the non device-specific work).
-
-More information about channel I/O can be found in the z/Architecture
-Principles of Operation (SA22-7832), chapter 13 ff. Also of interest
-might be Common I/O-Device Commands and Self-Description (SA22-7204).
-
-My patches implement support for virtual subchannels in kvm/s390
-(Linux) and qemu (!kvm).
-
-
-How does this tie in with virtio?
-
-virtio devices in the host show up with a special (architectured)
-control unit type (0x3832). The type (block,...) of the virtio device
-is reflected in the control unit model. All virtual subchannels/devices
-are in a special virtual channel subsystem (architectured id 0xfe).
-
-For setting up virtqueues etc., a set of channel commands has been
-defined for the virtio control unit type. Setting up thus works
-completely through channel programs.
-
-Guest -> host notification is implemented through normal I/O
-interrupts; host -> guest notification is done via a new subcode to the
-kvm diagnose (hypercall).
-
-Host support for virtio-ccw is implemented in qemu.
-
-
-How does this look in action?
-
-The Linux guest looks like a normal s390 Linux guest with some channel
-devices:
-
-[root@localhost ~]# lscss
-Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs
-----------------------------------------------------------------------
-0.0.0000 0.0.0000  0000/00 3832/01 yes  80  80  ff   00000000 00000000 
-0.0.0815 0.0.0001  0000/00 3832/02 yes  80  80  ff   00000000 00000000 
-0.0.9999 0.0.0002  0000/00 3832/03 yes  80  80  ff   00000000 00000000 
-0.1.abcd 0.1.0000  0000/00 3832/05 yes  80  80  ff   00000000 00000000 
-
-[root@localhost ~]# lschp
-CHPID  Vary  Cfg.  Type  Cmg  Shared  PCHID
-============================================
-0.00   1     -     32    -    0       -    
-
-
-How can you try this out?
-
-The patches should apply on top of kvm-next (Linux) resp. qemu head.
-
-qemu device drivers are called virtio-xxx-ccw, the default machine type
-is s390-ccw(-virtio).
-
-You can specify an optional device id with the 'devno' property:
-
--device virtio-balloon-ccw,devno=fe.1.abcd
-
-Note that the virtual channel subsystem id 0xfe needs to be specified;
-in the guest, the devices will show in the default channel subsystem
-(0x00).
-
-
-Feedback welcome!
-
-Cornelia
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 76de6b6..107610e 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -124,6 +124,7 @@ config S390
+ 	select GENERIC_TIME_VSYSCALL
+ 	select GENERIC_CLOCKEVENTS
+ 	select KTIME_SCALAR if 32BIT
++	select HAVE_ARCH_SECCOMP_FILTER
+ 
+ config SCHED_OMIT_FRAME_POINTER
+ 	def_bool y
+diff --git a/arch/s390/include/asm/sparsemem.h b/arch/s390/include/asm/sparsemem.h
+index 0fb3402..a60d085 100644
+--- a/arch/s390/include/asm/sparsemem.h
++++ b/arch/s390/include/asm/sparsemem.h
+@@ -4,13 +4,11 @@
+ #ifdef CONFIG_64BIT
+ 
+ #define SECTION_SIZE_BITS	28
+-#define MAX_PHYSADDR_BITS	46
+ #define MAX_PHYSMEM_BITS	46
+ 
+ #else
+ 
+ #define SECTION_SIZE_BITS	25
+-#define MAX_PHYSADDR_BITS	31
+ #define MAX_PHYSMEM_BITS	31
+ 
+ #endif /* CONFIG_64BIT */
+diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
+index fb214dd..fe7b997 100644
+--- a/arch/s390/include/asm/syscall.h
++++ b/arch/s390/include/asm/syscall.h
+@@ -12,6 +12,7 @@
+ #ifndef _ASM_SYSCALL_H
+ #define _ASM_SYSCALL_H	1
+ 
++#include <linux/audit.h>
+ #include <linux/sched.h>
+ #include <linux/err.h>
+ #include <asm/ptrace.h>
+@@ -87,4 +88,13 @@ static inline void syscall_set_arguments(struct task_struct *task,
+ 		regs->orig_gpr2 = args[0];
+ }
+ 
++static inline int syscall_get_arch(struct task_struct *task,
++				   struct pt_regs *regs)
++{
++#ifdef CONFIG_COMPAT
++	if (test_tsk_thread_flag(task, TIF_31BIT))
++		return AUDIT_ARCH_S390;
++#endif
++	return sizeof(long) == 8 ? AUDIT_ARCH_S390X : AUDIT_ARCH_S390;
++}
+ #endif	/* _ASM_SYSCALL_H */
+diff --git a/arch/s390/kernel/compat_linux.c b/arch/s390/kernel/compat_linux.c
+index d122508..f606d93 100644
+--- a/arch/s390/kernel/compat_linux.c
++++ b/arch/s390/kernel/compat_linux.c
+@@ -620,7 +620,6 @@ asmlinkage unsigned long old32_mmap(struct mmap_arg_struct_emu31 __user *arg)
+ 		return -EFAULT;
+ 	if (a.offset & ~PAGE_MASK)
+ 		return -EINVAL;
+-	a.addr = (unsigned long) compat_ptr(a.addr);
+ 	return sys_mmap_pgoff(a.addr, a.len, a.prot, a.flags, a.fd,
+ 			      a.offset >> PAGE_SHIFT);
+ }
+@@ -631,7 +630,6 @@ asmlinkage long sys32_mmap2(struct mmap_arg_struct_emu31 __user *arg)
+ 
+ 	if (copy_from_user(&a, arg, sizeof(a)))
+ 		return -EFAULT;
+-	a.addr = (unsigned long) compat_ptr(a.addr);
+ 	return sys_mmap_pgoff(a.addr, a.len, a.prot, a.flags, a.fd, a.offset);
+ }
+ 
+diff --git a/arch/s390/kernel/compat_wrapper.S b/arch/s390/kernel/compat_wrapper.S
+index e835d6d..2d82cfc 100644
+--- a/arch/s390/kernel/compat_wrapper.S
++++ b/arch/s390/kernel/compat_wrapper.S
+@@ -1635,7 +1635,7 @@ ENTRY(compat_sys_process_vm_readv_wrapper)
+ 	llgfr	%r6,%r6			# unsigned long
+ 	llgf	%r0,164(%r15)		# unsigned long
+ 	stg	%r0,160(%r15)
+-	jg	sys_process_vm_readv
++	jg	compat_sys_process_vm_readv
+ 
+ ENTRY(compat_sys_process_vm_writev_wrapper)
+ 	lgfr	%r2,%r2			# compat_pid_t
+@@ -1645,4 +1645,4 @@ ENTRY(compat_sys_process_vm_writev_wrapper)
+ 	llgfr	%r6,%r6			# unsigned long
+ 	llgf	%r0,164(%r15)		# unsigned long
+ 	stg	%r0,160(%r15)
+-	jg	sys_process_vm_writev
++	jg	compat_sys_process_vm_writev
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index f4eb376..e4be113 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -719,7 +719,11 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
+ 	long ret = 0;
+ 
+ 	/* Do the secure computing check first. */
+-	secure_computing_strict(regs->gprs[2]);
++	if (secure_computing(regs->gprs[2])) {
++		/* seccomp failures shouldn't expose any additional code. */
++		ret = -1;
++		goto out;
++	}
+ 
+ 	/*
+ 	 * The sysc_tracesys code in entry.S stored the system
+@@ -745,6 +749,7 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
+ 			    regs->gprs[2], regs->orig_gpr2,
+ 			    regs->gprs[3], regs->gprs[4],
+ 			    regs->gprs[5]);
++out:
+ 	return ret ?: regs->gprs[2];
+ }
+ 
+diff --git a/arch/s390/kernel/sys_s390.c b/arch/s390/kernel/sys_s390.c
+index b4a29ee..d0964d2 100644
+--- a/arch/s390/kernel/sys_s390.c
++++ b/arch/s390/kernel/sys_s390.c
+@@ -81,11 +81,12 @@ SYSCALL_DEFINE1(s390_personality, unsigned int, personality)
+ {
+ 	unsigned int ret;
+ 
+-	if (current->personality == PER_LINUX32 && personality == PER_LINUX)
+-		personality = PER_LINUX32;
++	if (personality(current->personality) == PER_LINUX32 &&
++	    personality(personality) == PER_LINUX)
++		personality |= PER_LINUX32;
+ 	ret = sys_personality(personality);
+-	if (ret == PER_LINUX32)
+-		ret = PER_LINUX;
++	if (personality(ret) == PER_LINUX32)
++		ret &= ~PER_LINUX32;
+ 
+ 	return ret;
+ }
+diff --git a/drivers/s390/char/sclp_sdias.c b/drivers/s390/char/sclp_sdias.c
+index 6a6f76b..b103293 100644
+--- a/drivers/s390/char/sclp_sdias.c
++++ b/drivers/s390/char/sclp_sdias.c
+@@ -242,11 +242,13 @@ int sclp_sdias_copy(void *dest, int start_blk, int nr_blks)
+ 	switch (sdias_evbuf.event_status) {
+ 		case EVSTATE_ALL_STORED:
+ 			TRACE("all stored\n");
++			break;
+ 		case EVSTATE_PART_STORED:
+ 			TRACE("part stored: %i\n", sdias_evbuf.blk_cnt);
+ 			break;
+ 		case EVSTATE_NO_DATA:
+ 			TRACE("no data\n");
++			/* fall through */
+ 		default:
+ 			pr_err("Error from SCLP while copying hsa. "
+ 			       "Event status = %x\n",
