@@ -1,16 +1,16 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
 Subject: Re: [PATCH 2/4] s390: Add a mechanism to get the
 	subchannel id.
-Date: Tue, 14 Aug 2012 12:38:21 +0200
-Message-ID: <20120814123821.1b6f93b7@BR9GNB5Z>
+Date: Tue, 14 Aug 2012 12:53:56 +0200 (CEST)
+Message-ID: <alpine.LFD.2.02.1208141245270.1632@c4eb>
 References: <1344351168-2568-1-git-send-email-cornelia.huck@de.ibm.com>
 	<1344351168-2568-3-git-send-email-cornelia.huck@de.ibm.com>
 	<alpine.LFD.2.02.1208141040240.1632@c4eb>
+	<20120814123821.1b6f93b7@BR9GNB5Z>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
-In-Reply-To: <alpine.LFD.2.02.1208141040240.1632@c4eb>
+In-Reply-To: <20120814123821.1b6f93b7@BR9GNB5Z>
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
 List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
@@ -22,34 +22,42 @@ Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Sebastian Ott <sebott@linux.vnet.ibm.com>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
 Cc: linux-s390 <linux-s390@vger.kernel.org>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, KVM <kvm@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Marcelo Tosatti <mtosatti@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, qemu-devel <qemu-devel@nongnu.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 14 Aug 2012 10:52:09 +0200 (CEST)
-Sebastian Ott <sebott@linux.vnet.ibm.com> wrote:
+
+On Tue, 14 Aug 2012, Cornelia Huck wrote:
+> Sebastian Ott <sebott@linux.vnet.ibm.com> wrote:
+> > On Tue, 7 Aug 2012, Cornelia Huck wrote:
+> > > +/**
+> > > + * ccw_device_get_schid - obtain a subchannel id
+> > > + * @cdev: device to obtain the id for
+> > > + * @schid: where to fill in the values
+> > > + */
+> > > +void ccw_device_get_schid(struct ccw_device *cdev, struct subchannel_id *schid)
+> > > +{
+> > > +	*schid = cdev->private->schid;
+> > > +}
+> > > +EXPORT_SYMBOL(ccw_device_get_schid);
+> > 
+> > After I gave this some thought I like your version of this function
+> > better. But please use the id of the parent subchannel instead of the
+> > copy in cdev->private (since this will be removed soon). I'll do a
+> > cleanup patch to convert the internal users of the old function to use
+> > the one above.
+> 
+> Good, will change that (I think we can rely on a ccw device always
+> having either a real subchannel or the orphanage pseudo subchannel as
+> parent).
+
+Yes you can rely on that.
 
 > 
-> On Tue, 7 Aug 2012, Cornelia Huck wrote:
-> > +/**
-> > + * ccw_device_get_schid - obtain a subchannel id
-> > + * @cdev: device to obtain the id for
-> > + * @schid: where to fill in the values
-> > + */
-> > +void ccw_device_get_schid(struct ccw_device *cdev, struct subchannel_id *schid)
-> > +{
-> > +	*schid = cdev->private->schid;
-> > +}
-> > +EXPORT_SYMBOL(ccw_device_get_schid);
-> 
-> After I gave this some thought I like your version of this function
-> better. But please use the id of the parent subchannel instead of the
-> copy in cdev->private (since this will be removed soon). I'll do a
-> cleanup patch to convert the internal users of the old function to use
-> the one above.
+> Small taste question: EXPORT_SYMBOL vs EXPORT_SYMBOL_GPL?
 
-Good, will change that (I think we can rely on a ccw device always
-having either a real subchannel or the orphanage pseudo subchannel as
-parent).
+get_subchannel_id was EXPORT_SYMBOL_GPL since its going to replace this
+let's use the _GPL variant.
 
-Small taste question: EXPORT_SYMBOL vs EXPORT_SYMBOL_GPL?
+Regards,
+Sebastian
