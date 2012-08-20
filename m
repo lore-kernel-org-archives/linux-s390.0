@@ -1,7 +1,7 @@
 From: wency@cn.fujitsu.com
-Subject: [RFC V7 PATCH 08/19] memory-hotplug: remove /sys/firmware/memmap/X sysfs
-Date: Mon, 20 Aug 2012 17:35:31 +0800
-Message-ID: <1345455342-27752-9-git-send-email-wency@cn.fujitsu.com>
+Subject: [RFC V7 PATCH 14/19] memory-hotplug: move register_page_bootmem_info_node and put_page_bootmem for sparse-vmemmap
+Date: Mon, 20 Aug 2012 17:35:37 +0800
+Message-ID: <1345455342-27752-15-git-send-email-wency@cn.fujitsu.com>
 References: <1345455342-27752-1-git-send-email-wency@cn.fujitsu.com>
 Return-path: <owner-linux-mm@kvack.org>
 In-Reply-To: <1345455342-27752-1-git-send-email-wency@cn.fujitsu.com>
@@ -14,12 +14,9 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
 
-When (hot)adding memory into system, /sys/firmware/memmap/X/{end, start, type}
-sysfs files are created. But there is no code to remove these files. The patch
-implements the function to remove them.
-
-Note : The code does not free firmware_map_entry since there is no way to free
-       memory which is allocated by bootmem.
+For implementing register_page_bootmem_info_node of sparse-vmemmap,
+register_page_bootmem_info_node and put_page_bootmem are moved to
+memory_hotplug.c
 
 CC: David Rientjes <rientjes@google.com>
 CC: Jiang Liu <liuj97@gmail.com>
@@ -33,190 +30,72 @@ CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
 CC: Wen Congyang <wency@cn.fujitsu.com>
 Signed-off-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
 ---
- drivers/firmware/memmap.c    |   78 +++++++++++++++++++++++++++++++++++++++++-
- include/linux/firmware-map.h |    6 +++
- mm/memory_hotplug.c          |    9 ++++-
- 3 files changed, 90 insertions(+), 3 deletions(-)
+ include/linux/memory_hotplug.h |    9 ---------
+ mm/memory_hotplug.c            |    8 ++++++--
+ 2 files changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/firmware/memmap.c b/drivers/firmware/memmap.c
-index c1cdc92..b2e7e5e 100644
---- a/drivers/firmware/memmap.c
-+++ b/drivers/firmware/memmap.c
-@@ -21,6 +21,7 @@
- #include <linux/types.h>
- #include <linux/bootmem.h>
- #include <linux/slab.h>
-+#include <linux/mm.h>
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+index cdbbd79..1133e63 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -162,17 +162,8 @@ static inline void arch_refresh_nodedata(int nid, pg_data_t *pgdat)
+ #endif /* CONFIG_NUMA */
+ #endif /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
+ 
+-#ifdef CONFIG_SPARSEMEM_VMEMMAP
+-static inline void register_page_bootmem_info_node(struct pglist_data *pgdat)
+-{
+-}
+-static inline void put_page_bootmem(struct page *page)
+-{
+-}
+-#else
+ extern void register_page_bootmem_info_node(struct pglist_data *pgdat);
+ extern void put_page_bootmem(struct page *page);
+-#endif
  
  /*
-  * Data types ------------------------------------------------------------------
-@@ -79,7 +80,22 @@ static const struct sysfs_ops memmap_attr_ops = {
- 	.show = memmap_attr_show,
- };
- 
-+#define to_memmap_entry(obj) container_of(obj, struct firmware_map_entry, kobj)
-+
-+static void release_firmware_map_entry(struct kobject *kobj)
-+{
-+	struct firmware_map_entry *entry = to_memmap_entry(kobj);
-+	struct page *page;
-+
-+	page = virt_to_page(entry);
-+	if (PageSlab(page) || PageCompound(page))
-+		kfree(entry);
-+
-+	/* There is no way to free memory allocated from bootmem*/
-+}
-+
- static struct kobj_type memmap_ktype = {
-+	.release	= release_firmware_map_entry,
- 	.sysfs_ops	= &memmap_attr_ops,
- 	.default_attrs	= def_attrs,
- };
-@@ -123,6 +139,16 @@ static int firmware_map_add_entry(u64 start, u64 end,
- 	return 0;
- }
- 
-+/**
-+ * firmware_map_remove_entry() - Does the real work to remove a firmware
-+ * memmap entry.
-+ * @entry: removed entry.
-+ **/
-+static inline void firmware_map_remove_entry(struct firmware_map_entry *entry)
-+{
-+	list_del(&entry->list);
-+}
-+
- /*
-  * Add memmap entry on sysfs
-  */
-@@ -144,6 +170,31 @@ static int add_sysfs_fw_map_entry(struct firmware_map_entry *entry)
- 	return 0;
- }
- 
-+/*
-+ * Remove memmap entry on sysfs
-+ */
-+static inline void remove_sysfs_fw_map_entry(struct firmware_map_entry *entry)
-+{
-+	kobject_put(&entry->kobj);
-+}
-+
-+/*
-+ * Search memmap entry
-+ */
-+
-+struct firmware_map_entry * __meminit
-+find_firmware_map_entry(u64 start, u64 end, const char *type)
-+{
-+	struct firmware_map_entry *entry;
-+
-+	list_for_each_entry(entry, &map_entries, list)
-+		if ((entry->start == start) && (entry->end == end) &&
-+		    (!strcmp(entry->type, type)))
-+			return entry;
-+
-+	return NULL;
-+}
-+
- /**
-  * firmware_map_add_hotplug() - Adds a firmware mapping entry when we do
-  * memory hotplug.
-@@ -196,6 +247,32 @@ int __init firmware_map_add_early(u64 start, u64 end, const char *type)
- 	return firmware_map_add_entry(start, end, type, entry);
- }
- 
-+/**
-+ * firmware_map_remove() - remove a firmware mapping entry
-+ * @start: Start of the memory range.
-+ * @end:   End of the memory range.
-+ * @type:  Type of the memory range.
-+ *
-+ * removes a firmware mapping entry.
-+ *
-+ * Returns 0 on success, or -EINVAL if no entry.
-+ **/
-+int __meminit firmware_map_remove(u64 start, u64 end, const char *type)
-+{
-+	struct firmware_map_entry *entry;
-+
-+	entry = find_firmware_map_entry(start, end - 1, type);
-+	if (!entry)
-+		return -EINVAL;
-+
-+	firmware_map_remove_entry(entry);
-+
-+	/* remove the memmap entry */
-+	remove_sysfs_fw_map_entry(entry);
-+
-+	return 0;
-+}
-+
- /*
-  * Sysfs functions -------------------------------------------------------------
-  */
-@@ -218,7 +295,6 @@ static ssize_t type_show(struct firmware_map_entry *entry, char *buf)
- }
- 
- #define to_memmap_attr(_attr) container_of(_attr, struct memmap_attribute, attr)
--#define to_memmap_entry(obj) container_of(obj, struct firmware_map_entry, kobj)
- 
- static ssize_t memmap_attr_show(struct kobject *kobj,
- 				struct attribute *attr, char *buf)
-diff --git a/include/linux/firmware-map.h b/include/linux/firmware-map.h
-index 43fe52f..71d4fa7 100644
---- a/include/linux/firmware-map.h
-+++ b/include/linux/firmware-map.h
-@@ -25,6 +25,7 @@
- 
- int firmware_map_add_early(u64 start, u64 end, const char *type);
- int firmware_map_add_hotplug(u64 start, u64 end, const char *type);
-+int firmware_map_remove(u64 start, u64 end, const char *type);
- 
- #else /* CONFIG_FIRMWARE_MEMMAP */
- 
-@@ -38,6 +39,11 @@ static inline int firmware_map_add_hotplug(u64 start, u64 end, const char *type)
- 	return 0;
- }
- 
-+static inline int firmware_map_remove(u64 start, u64 end, const char *type)
-+{
-+	return 0;
-+}
-+
- #endif /* CONFIG_FIRMWARE_MEMMAP */
- 
- #endif /* _LINUX_FIRMWARE_MAP_H */
+  * Lock for memory hotplug guarantees 1) all callbacks for memory hotplug
 diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 3f1d7c5..45b03b3 100644
+index d85af6d..3ca66bc 100644
 --- a/mm/memory_hotplug.c
 +++ b/mm/memory_hotplug.c
-@@ -1052,9 +1052,9 @@ int offline_memory(u64 start, u64 size)
- 	return 0;
+@@ -91,7 +91,6 @@ static void release_memory_resource(struct resource *res)
  }
  
--int remove_memory(int nid, u64 start, u64 size)
-+int __ref remove_memory(int nid, u64 start, u64 size)
+ #ifdef CONFIG_MEMORY_HOTPLUG_SPARSE
+-#ifndef CONFIG_SPARSEMEM_VMEMMAP
+ static void get_page_bootmem(unsigned long info,  struct page *page,
+ 			     unsigned long type)
  {
--	int ret = -EBUSY;
-+	int ret = 0;
- 	lock_memory_hotplug();
- 	/*
- 	 * The memory might become online by other task, even if you offine it.
-@@ -1065,8 +1065,13 @@ int remove_memory(int nid, u64 start, u64 size)
- 			"because the memmory range is online\n",
- 			start, start + size);
- 		ret = -EAGAIN;
-+		goto out;
- 	}
+@@ -127,6 +126,7 @@ void __ref put_page_bootmem(struct page *page)
  
-+	/* remove memmap entry */
-+	firmware_map_remove(start, start + size, "System RAM");
-+
-+out:
- 	unlock_memory_hotplug();
- 	return ret;
+ }
  
++#ifndef CONFIG_SPARSEMEM_VMEMMAP
+ static void register_page_bootmem_info_section(unsigned long start_pfn)
+ {
+ 	unsigned long *usemap, mapsize, section_nr, i;
+@@ -163,6 +163,11 @@ static void register_page_bootmem_info_section(unsigned long start_pfn)
+ 		get_page_bootmem(section_nr, page, MIX_SECTION_INFO);
+ 
+ }
++#else
++static inline void register_page_bootmem_info_section(unsigned long start_pfn)
++{
++}
++#endif
+ 
+ void register_page_bootmem_info_node(struct pglist_data *pgdat)
+ {
+@@ -198,7 +203,6 @@ void register_page_bootmem_info_node(struct pglist_data *pgdat)
+ 		register_page_bootmem_info_section(pfn);
+ 
+ }
+-#endif /* !CONFIG_SPARSEMEM_VMEMMAP */
+ 
+ static void grow_zone_span(struct zone *zone, unsigned long start_pfn,
+ 			   unsigned long end_pfn)
 -- 
 1.7.1
 
