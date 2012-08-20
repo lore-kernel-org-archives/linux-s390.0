@@ -1,254 +1,94 @@
-From: Wen Congyang <wency@cn.fujitsu.com>
-Subject: Re: [RFC PATCH 6/8] memory-hotplug: introduce new function arch_remove_memory()
-Date: Fri, 20 Jul 2012 16:38:41 +0800
-Message-ID: <50091911.7080303@cn.fujitsu.com>
-References: <5009038A.4090001@cn.fujitsu.com> <500904D6.3030109@cn.fujitsu.com> <5009151F.3060903@jp.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <5009151F.3060903@jp.fujitsu.com>
-Sender: linux-acpi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, cmetcalf@tilera.com
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <5032824F.6090607@linux.vnet.ibm.com>
+Date: Mon, 20 Aug 2012 20:30:39 +0200
+From: Steffen Maier <maier@linux.vnet.ibm.com>
+MIME-Version: 1.0
+Subject: Re: [PATCH 7/7] drivers/s390/scsi/zfcp_cfdc.c: remove invalid reference
+ to list iterator variable
+References: <1341747464-1772-1-git-send-email-Julia.Lawall@lip6.fr> <1341747464-1772-8-git-send-email-Julia.Lawall@lip6.fr>
+In-Reply-To: <1341747464-1772-8-git-send-email-Julia.Lawall@lip6.fr>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Julia Lawall <Julia.Lawall@lip6.fr>
+Cc: kernel-janitors@vger.kernel.org, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-At 07/20/2012 04:21 PM, Yasuaki Ishimatsu Wrote:
-> 2012/07/20 16:12, Wen Congyang wrote:
->> We don't call __add_pages() directly in the function add_memory()
->> because some other architecture related thins needs to be done
->> before or after calling __add_pages(). So we should not call
->> __remove_pages() directly in the function remove_memory.
->> Introduce new function arch_remove_memory() to revert the things done
->> in arch_add_memory().
->>
->> Note: the function for x86_64 will be implemented later. And I don't
->> know how to implement it for s390.
-> 
-> I think you need cc to other arch ML for reviewing the patch.
+Hi Julia,
 
-I forgot to do it.
+sorry for the long delay until I finally responded.
+Thanks a lot for your report and patch.
+I'll queue this and send it for v3.6rcX hopefully soon.
 
-> 
-> 
->> CC: David Rientjes <rientjes@google.com>
->> CC: Jiang Liu <liuj97@gmail.com>
->> CC: Len Brown <len.brown@intel.com>
->> CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>
->> CC: Paul Mackerras <paulus@samba.org>
->> CC: Christoph Lameter <cl@linux.com>
->> Cc: Minchan Kim <minchan.kim@gmail.com>
->> CC: Andrew Morton <akpm@linux-foundation.org>
->> CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
->> CC: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
->> Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
->> ---
->>   arch/ia64/mm/init.c            |   16 ++++++++++++++++
->>   arch/powerpc/mm/mem.c          |   14 ++++++++++++++
->>   arch/s390/mm/init.c            |    8 ++++++++
->>   arch/sh/mm/init.c              |   15 +++++++++++++++
->>   arch/tile/mm/init.c            |    8 ++++++++
->>   arch/x86/mm/init_32.c          |   10 ++++++++++
->>   arch/x86/mm/init_64.c          |    7 +++++++
->>   include/linux/memory_hotplug.h |    1 +
->>   mm/memory_hotplug.c            |    2 +-
->>   9 files changed, 80 insertions(+), 1 deletions(-)
->>
->> diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
->> index 0eab454..1e345ed 100644
->> --- a/arch/ia64/mm/init.c
->> +++ b/arch/ia64/mm/init.c
->> @@ -688,6 +688,22 @@ int arch_add_memory(int nid, u64 start, u64 size)
->>
->>       return ret;
->>   }
->> +
->> +#ifdef CONFIG_MEMORY_HOTREMOVE
->> +int arch_remove_memory(u64 start, u64 size)
->> +{
->> +    unsigned long start_pfn = start >> PAGE_SHIFT;
->> +    unsigned long nr_pages = size >> PAGE_SHIFT;
->> +    int ret;
->> +
->> +    ret = __remove_pages(start_pfn, nr_pages);
->> +    if (ret)
->> +        pr_warn("%s: Problem encountered in __remove_pages() as"
->> +            " ret=%d\n", __func__,  ret);
->> +
->> +    return ret;
->> +}
->> +#endif
->>   #endif
->>
->>   /*
->> diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
->> index baaafde..249cef4 100644
->> --- a/arch/powerpc/mm/mem.c
->> +++ b/arch/powerpc/mm/mem.c
->> @@ -133,6 +133,20 @@ int arch_add_memory(int nid, u64 start, u64 size)
->>
->>       return __add_pages(nid, zone, start_pfn, nr_pages);
->>   }
->> +
->> +#ifdef CONFIG_MEMORY_HOTREMOVE
->> +int arch_remove_memory(u64 start, u64 size)
->> +{
->> +    unsigned long start_pfn = start >> PAGE_SHIFT;
->> +    unsigned long nr_pages = size >> PAGE_SHIFT;
->> +
->> +    start = (unsigned long)__va(start);
->> +    if (remove_section_mapping(start, start + size))
->> +        return -EINVAL;
->> +
->> +    return __remove_pages(start_pfn, nr_pages);
->> +}
->> +#endif
->>   #endif /* CONFIG_MEMORY_HOTPLUG */
->>
->>   /*
->> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
->> index 2bea060..3de0d5b 100644
->> --- a/arch/s390/mm/init.c
->> +++ b/arch/s390/mm/init.c
->> @@ -259,4 +259,12 @@ int arch_add_memory(int nid, u64 start, u64 size)
->>           vmem_remove_mapping(start, size);
->>       return rc;
->>   }
->> +
->> +#ifdef CONFIG_MEMORY_HOTREMOVE
->> +int arch_remove_memory(u64 start, u64 size)
->> +{
->> +    /* TODO */
->> +    return -EBUSY;
->> +}
->> +#endif
->>   #endif /* CONFIG_MEMORY_HOTPLUG */
->> diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
->> index 82cc576..fc84491 100644
->> --- a/arch/sh/mm/init.c
->> +++ b/arch/sh/mm/init.c
->> @@ -558,4 +558,19 @@ int memory_add_physaddr_to_nid(u64 addr)
->>   EXPORT_SYMBOL_GPL(memory_add_physaddr_to_nid);
->>   #endif
->>
->> +#ifdef CONFIG_MEMORY_HOTREMOVE
->> +int arch_remove_memory(u64 start, u64 size)
->> +{
->> +    unsigned long start_pfn = start >> PAGE_SHIFT;
->> +    unsigned long nr_pages = size >> PAGE_SHIFT;
->> +    int ret;
->> +
->> +    ret = __remove_pages(start_pfn, nr_pages);
->> +    if (unlikely(ret))
->> +        pr_warn("%s: Failed, __remove_pages() == %d\n", __func__,
->> +            ret);
->> +
->> +    return ret;
->> +}
->> +#endif
->>   #endif /* CONFIG_MEMORY_HOTPLUG */
->> diff --git a/arch/tile/mm/init.c b/arch/tile/mm/init.c
->> index 630dd2c..bdd8a99 100644
->> --- a/arch/tile/mm/init.c
->> +++ b/arch/tile/mm/init.c
->> @@ -947,6 +947,14 @@ int remove_memory(u64 start, u64 size)
->>   {
->>       return -EINVAL;
->>   }
->> +
->> +#ifdef CONFIG_MEMORY_HOTREMOVE
->> +int arch_remove_memory(u64 start, u64 size)
->> +{
->> +    /* TODO */
->> +    return -EBUSY;
->> +}
->> +#endif
->>   #endif
->>
->>   struct kmem_cache *pgd_cache;
->> diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
->> index 575d86f..a690153 100644
->> --- a/arch/x86/mm/init_32.c
->> +++ b/arch/x86/mm/init_32.c
->> @@ -842,6 +842,16 @@ int arch_add_memory(int nid, u64 start, u64 size)
->>
->>       return __add_pages(nid, zone, start_pfn, nr_pages);
->>   }
->> +
->> +#ifdef CONFIG_MEMORY_HOTREMOVE
->> +int arch_remove_memory(unsigned long start, unsigned long size)
->> +{
->> +    unsigned long start_pfn = start >> PAGE_SHIFT;
->> +    unsigned long nr_pages = size >> PAGE_SHIFT;
->> +
->> +    return __remove_pages(start_pfn, nr_pages);
->> +}
->> +#endif
->>   #endif
->>
->>   /*
->> diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
->> index 9e635b3..78b94bc 100644
->> --- a/arch/x86/mm/init_64.c
->> +++ b/arch/x86/mm/init_64.c
->> @@ -675,6 +675,13 @@ int arch_add_memory(int nid, u64 start, u64 size)
->>   }
->>   EXPORT_SYMBOL_GPL(arch_add_memory);
->>
->> +#ifdef CONFIG_MEMORY_HOTREMOVE
->> +int arch_remove_memory(unsigned long start, unsigned long size)
->> +{
->> +    /* TODO */
->> +    return -EBUSY;
->> +}
->> +#endif
-> 
-> Why does not the function call __remove_pages()?
+On 07/08/2012 01:37 PM, Julia Lawall wrote:
+> From: Julia Lawall <Julia.Lawall@lip6.fr>
+>
+> If list_for_each_entry, etc complete a traversal of the list, the iterator
+> variable ends up pointing to an address at an offset from the list head,
+> and not a meaningful structure.  Thus this value should not be used after
+> the end of the iterator.  Replace port->adapter->scsi_host by
+> adapter->scsi_host.
+>
+> This problem was found using Coccinelle (http://coccinelle.lip6.fr/).
+>
+> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+>
+> ---
+> This is not tested, an I am not sure that this is the right change.
+> Indeed, I'm not at all sure how the original code could have worked, since
+> port->adapter->scsi_host should be a completely random value.
 
-arch_remove_memory() should clear the page table after remove pages here.
-I implement this function in patch 8.
+This is most probably a copy & paste oversight in
+commit a1ca48319a9aa1c5b57ce142f538e76050bb8972
+"[SCSI] zfcp: Move ACL/CFDC code to zfcp_cfdc.c"
+v2.6.37
+where the content of
 
-Thanks
-Wen Congyang
+static void zfcp_erp_port_access_changed(struct zfcp_port *port, char *id,
+                                        void *ref)
+{
+       struct scsi_device *sdev;
+       int status =3D atomic_read(&port->status);
 
-> 
-> Thanks,
-> Yasuaki ishimatsu
-> 
->>   #endif /* CONFIG_MEMORY_HOTPLUG */
->>
->>   static struct kcore_list kcore_vsyscall;
->> diff --git a/include/linux/memory_hotplug.h
->> b/include/linux/memory_hotplug.h
->> index 2ba0a1a..8639799 100644
->> --- a/include/linux/memory_hotplug.h
->> +++ b/include/linux/memory_hotplug.h
->> @@ -84,6 +84,7 @@ extern void __online_page_free(struct page *page);
->>
->>   #ifdef CONFIG_MEMORY_HOTREMOVE
->>   extern bool is_pageblock_removable_nolock(struct page *page);
->> +extern int arch_remove_memory(unsigned long start, unsigned long size);
->>   #endif /* CONFIG_MEMORY_HOTREMOVE */
->>
->>   /* reasonably generic interface to expand the physical pages in a
->> zone  */
->> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
->> index dccdf71..cc2c8b9 100644
->> --- a/mm/memory_hotplug.c
->> +++ b/mm/memory_hotplug.c
->> @@ -1055,7 +1055,7 @@ int __ref remove_memory(int nid, u64 start, u64
->> size)
->>           unregister_one_node(nid);
->>       }
->>
->> -    __remove_pages(start >> PAGE_SHIFT, size >> PAGE_SHIFT);
->> +    arch_remove_memory(start, size);
->>   out:
->>       unlock_memory_hotplug();
->>       return ret;
->>
-> 
-> 
-> 
+       if (!(status & (ZFCP_STATUS_COMMON_ACCESS_DENIED |
+                       ZFCP_STATUS_COMMON_ACCESS_BOXED))) {
+               shost_for_each_device(sdev, port->adapter->scsi_host)
+                                           ^^^^
+
+was merged into
+zfcp_cfdc_adapter_access_changed(struct zfcp_adapter *adapter)
+
+Since this code is for older hardware and users not using NPIV
+and this is only executed on dynamic access changes,
+nobody has noticed this so far I guess.
+
+>   drivers/s390/scsi/zfcp_cfdc.c |    2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/s390/scsi/zfcp_cfdc.c b/drivers/s390/scsi/zfcp_cfdc.c
+> index fab2c25..8ed63aa 100644
+> --- a/drivers/s390/scsi/zfcp_cfdc.c
+> +++ b/drivers/s390/scsi/zfcp_cfdc.c
+> @@ -293,7 +293,7 @@ void zfcp_cfdc_adapter_access_changed(struct zfcp_ada=
+pter *adapter)
+>   	}
+>   	read_unlock_irqrestore(&adapter->port_list_lock, flags);
+>
+> -	shost_for_each_device(sdev, port->adapter->scsi_host) {
+> +	shost_for_each_device(sdev, adapter->scsi_host) {
+>   		zfcp_sdev =3D sdev_to_zfcp(sdev);
+>   		status =3D atomic_read(&zfcp_sdev->status);
+>   		if ((status & ZFCP_STATUS_COMMON_ACCESS_DENIED) ||
+>
+
+Steffen
+
+Linux on System z Development
+
+IBM Deutschland Research & Development GmbH
+Vorsitzende des Aufsichtsrats: Martina Koederitz
+Gesch=E4ftsf=FChrung: Dirk Wittkopp
+Sitz der Gesellschaft: B=F6blingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
