@@ -1,47 +1,44 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 3/4] s390/kvm: Add a channel I/O based virtio transport
- driver.
-Date: Wed, 15 Aug 2012 09:48:44 +0200
-Message-ID: <502B545C.8000904@de.ibm.com>
-References: <1344351168-2568-1-git-send-email-cornelia.huck@de.ibm.com> <1344351168-2568-4-git-send-email-cornelia.huck@de.ibm.com> <87fw7ps0x4.fsf@codemonkey.ws> <878vdgr4v2.fsf@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 3/4] s390/kvm: Add a channel I/O based
+	virtio transport driver.
+Date: Tue, 21 Aug 2012 15:05:18 +0930
+Message-ID: <87k3ws3izt.fsf@rustcorp.com.au>
+References: <1344351168-2568-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1344351168-2568-4-git-send-email-cornelia.huck@de.ibm.com>
+	<87fw7ps0x4.fsf@codemonkey.ws> <878vdgr4v2.fsf@rustcorp.com.au>
+	<502B545C.8000904@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <878vdgr4v2.fsf@rustcorp.com.au>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+In-Reply-To: <502B545C.8000904@de.ibm.com>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Anthony Liguori <aliguori@us.ibm.com>, KVM <kvm@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Marcelo Tosatti <mtosatti@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, qemu-devel <qemu-devel@nongnu.org>, Alexander Graf <agraf@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Avi Kivity <avi@redhat.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
->> Have you written an appendix for the virtio specification for
->> virtio-ccw?  I think it would be good to include in this series for the
->> purposes of review.
+On Wed, 15 Aug 2012 09:48:44 +0200, Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> >> Have you written an appendix for the virtio specification for
+> >> virtio-ccw?  I think it would be good to include in this series for the
+> >> purposes of review.
+> > 
+> > Might be nice, but don't get fancy about it.  Text will be fine and I
+> > can cut & paste it in once it's finalized.
 > 
-> Might be nice, but don't get fancy about it.  Text will be fine and I
-> can cut & paste it in once it's finalized.
+> There was a patch against the virtio spec in the patch series. Did it not
+> make it to you?
 
-There was a patch against the virtio spec in the patch series. Did it not
-make it to you?
+Yes, I got it, thanks (not in this thread, but that's OK).  Will hold
+off until finalized.
 
-But Anthony is right, the spec is important, because the two main things 
-that we need to get right are the 2 interfaces
-guest<->host and userspace(qemu)<->kvm.
-Everything else is not an ABI and can be fixed later on if necessary. 
-
-Regarding the guest<->host interface a lot of things are mandated by the 
-channel-IO architecture. We have also reserved some IDs for virtio 
-(control unit type 0x3832, channel path type 0x32 and channel subsystem id 0xfe)
-so we just have to focus on the virtio part (thanks Rusty for the good feedback
-already).
-
-Regarding the qemu<->kvm interface it is important to have an interface that
-- allows us to be architectural compliant
-- which is fast
-- which must not prevent features like vhost
-- which allows to implement live migration
-- ...?
-
-Christian
+Cheers,
+Rusty.
