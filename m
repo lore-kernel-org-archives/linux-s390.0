@@ -1,56 +1,62 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [RFC v8 PATCH 13/20] memory-hotplug: check page type in
- get_page_bootmem
-Date: Fri, 31 Aug 2012 14:30:32 -0700
-Message-ID: <20120831143032.1343e99a.akpm@linux-foundation.org>
+From: wency@cn.fujitsu.com
+Subject: [RFC v8 PATCH 20/20] memory-hotplug: clear hwpoisoned flag when onlining pages
+Date: Tue, 28 Aug 2012 18:00:27 +0800
+Message-ID: <1346148027-24468-21-git-send-email-wency@cn.fujitsu.com>
 References: <1346148027-24468-1-git-send-email-wency@cn.fujitsu.com>
-	<1346148027-24468-14-git-send-email-wency@cn.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
-In-Reply-To: <1346148027-24468-14-git-send-email-wency@cn.fujitsu.com>
-Sender: linux-ia64-owner@vger.kernel.org
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1346148027-24468-1-git-send-email-wency@cn.fujitsu.com>
+Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: wency@cn.fujitsu.com
-Cc: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com
+To: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org
+Cc: rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, Wen Congyang <wency@cn.fujitsu.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 28 Aug 2012 18:00:20 +0800
-wency@cn.fujitsu.com wrote:
+From: Wen Congyang <wency@cn.fujitsu.com>
 
-> From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-> 
-> There is a possibility that get_page_bootmem() is called to the same page many
-> times. So when get_page_bootmem is called to the same page, the function only
-> increments page->_count.
+hwpoisoned may set when we offline a page by the sysfs interface
+/sys/devices/system/memory/soft_offline_page or
+/sys/devices/system/memory/hard_offline_page. If we don't clear
+this flag when onlining pages, this page can't be freed, and will
+not in free list. So we can't offline these pages again. So we
+should clear this flag when onlining pages.
 
-I really don't understand this explanation, even after having looked at
-the code.  Can you please have another attempt at the changelog?
+CC: David Rientjes <rientjes@google.com>
+CC: Jiang Liu <liuj97@gmail.com>
+CC: Len Brown <len.brown@intel.com>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Paul Mackerras <paulus@samba.org>
+CC: Christoph Lameter <cl@linux.com>
+Cc: Minchan Kim <minchan.kim@gmail.com>
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+CC: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
+---
+ mm/memory_hotplug.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
 
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -95,10 +95,17 @@ static void release_memory_resource(struct resource *res)
->  static void get_page_bootmem(unsigned long info,  struct page *page,
->  			     unsigned long type)
->  {
-> -	page->lru.next = (struct list_head *) type;
-> -	SetPagePrivate(page);
-> -	set_page_private(page, info);
-> -	atomic_inc(&page->_count);
-> +	unsigned long page_type;
-> +
-> +	page_type = (unsigned long) page->lru.next;
-> +	if (page_type < MEMORY_HOTPLUG_MIN_BOOTMEM_TYPE ||
-> +	    page_type > MEMORY_HOTPLUG_MAX_BOOTMEM_TYPE){
-> +		page->lru.next = (struct list_head *) type;
-> +		SetPagePrivate(page);
-> +		set_page_private(page, info);
-> +		atomic_inc(&page->_count);
-> +	} else
-> +		atomic_inc(&page->_count);
->  }
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index fb8af64..85603c4 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -661,6 +661,11 @@ EXPORT_SYMBOL_GPL(__online_page_increment_counters);
+ 
+ void __online_page_free(struct page *page)
+ {
++#ifdef CONFIG_MEMORY_FAILURE
++	/* The page may be marked HWPoisoned by soft/hard offline page */
++	ClearPageHWPoison(page);
++#endif
++
+ 	ClearPageReserved(page);
+ 	init_page_count(page);
+ 	__free_page(page);
+-- 
+1.7.1
 
-And a code comment which explains what is going on would be good.  As
-is always the case ;)
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
