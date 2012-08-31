@@ -1,45 +1,48 @@
 From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [RFC v8 PATCH 00/20] memory-hotplug: hot-remove physical memory
-Date: Fri, 31 Aug 2012 13:49:56 -0700
-Message-ID: <20120831134956.fec0f681.akpm@linux-foundation.org>
+Subject: Re: [RFC v8 PATCH 04/20] memory-hotplug: offline and remove memory
+ when removing the memory device
+Date: Fri, 31 Aug 2012 13:55:14 -0700
+Message-ID: <20120831135514.2a2dc0d4.akpm@linux-foundation.org>
 References: <1346148027-24468-1-git-send-email-wency@cn.fujitsu.com>
+	<1346148027-24468-5-git-send-email-wency@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
-In-Reply-To: <1346148027-24468-1-git-send-email-wency@cn.fujitsu.com>
-Sender: linux-ia64-owner@vger.kernel.org
+Return-path: <sparclinux-owner@vger.kernel.org>
+In-Reply-To: <1346148027-24468-5-git-send-email-wency@cn.fujitsu.com>
+Sender: sparclinux-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
 To: wency@cn.fujitsu.com
 Cc: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 28 Aug 2012 18:00:07 +0800
+On Tue, 28 Aug 2012 18:00:11 +0800
 wency@cn.fujitsu.com wrote:
 
-> This patch series aims to support physical memory hot-remove.
+> +int remove_memory(int nid, u64 start, u64 size)
+> +{
+> +	int ret = -EBUSY;
+> +	lock_memory_hotplug();
+> +	/*
+> +	 * The memory might become online by other task, even if you offine it.
+> +	 * So we check whether the cpu has been onlined or not.
 
-Have you had much review and testing feedback yet?
+I think you meant "memory", not "cpu".
 
-> The patches can free/remove the following things:
-> 
->   - acpi_memory_info                          : [RFC PATCH 4/19]
->   - /sys/firmware/memmap/X/{end, start, type} : [RFC PATCH 8/19]
->   - iomem_resource                            : [RFC PATCH 9/19]
->   - mem_section and related sysfs files       : [RFC PATCH 10-11, 13-16/19]
->   - page table of removed memory              : [RFC PATCH 12/19]
->   - node and related sysfs files              : [RFC PATCH 18-19/19]
-> 
-> If you find lack of function for physical memory hot-remove, please let me
-> know.
+Actually, "check whether any part of this memory range has been
+onlined" would be better.  If that is accurate ;)
 
-I doubt if many people have hardware which permits physical memory
-removal?  How would you suggest that people with regular hardware can
-test these chagnes?
-
-> Known problems:
-> 1. memory can't be offlined when CONFIG_MEMCG is selected.
-
-That's quite a problem!  Do you have a description of why this is the
-case, and a plan for fixing it?
+> +	 */
+> +	if (!is_memblk_offline(start, size)) {
+> +		pr_warn("memory removing [mem %#010llx-%#010llx] failed, "
+> +			"because the memmory range is online\n",
+> +			start, start + size);
+> +		ret = -EAGAIN;
+> +	}
+> +
+> +	unlock_memory_hotplug();
+> +	return ret;
+> +
+> +}
+> +EXPORT_SYMBOL_GPL(remove_memory);
