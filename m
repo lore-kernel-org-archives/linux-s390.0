@@ -1,41 +1,55 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 2/2] s390: Always use "long" for ssize_t to match size_t
-Date: Sun, 12 Aug 2012 12:01:34 +0200
-Message-ID: <1344765694-7465-2-git-send-email-geert@linux-m68k.org>
-References: <1344765694-7465-1-git-send-email-geert@linux-m68k.org>
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1344765694-7465-1-git-send-email-geert@linux-m68k.org>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 31 Aug 2012 10:13:55 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for the 3.6-rc4
+Message-ID: <20120831101355.433a1745@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On s390x-linux-gcc, __SIZE_TYPE__ expands to "long unsigned int" for both
-32-bit s390 and 64-bit s390x, as
-gcc-4.6.3-nolibc/s390x-linux/lib/gcc/s390x-linux/4.6.3/plugin/include/config/s390/linux.h
-has
+Hi Linus,
 
-    #define SIZE_TYPE (TARGET_64BIT ? "long unsigned int" : "long unsigned int")
+please pull from the 'for-linus' branch of
 
-To match this, __kernel_size_t is always set to "long unsigned int".
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-But while __kernel_ssize_t is "long" on 64-bit s390x, it is "int" on 32-bit
-s390, causing compiler warnings like:
+to receive a couple of s390 bug fixes for 3.5-rc4:
 
-    fs/quota/quota_tree.c:372:4: warning: format '%zd' expects argument of type 'signed size_t', but argument 4 has type 'ssize_t' [-Wformat]
+Geert Uytterhoeven (1):
+      s390: Always use "long" for ssize_t to match size_t
 
-To fix this, __kernel_ssize_t should be "long", irrespective of word size.
+Heiko Carstens (3):
+      s390/dasd: fix ioctl return value
+      s390/smp: add missing smp_store_status() for !SMP
+      s390/32: Don't clobber personality flags on exec
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
----
+ arch/s390/include/asm/elf.h         |    3 ++-
  arch/s390/include/asm/posix_types.h |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/smp.h         |    1 +
+ drivers/s390/block/dasd_eckd.c      |    2 +-
+ drivers/s390/block/dasd_ioctl.c     |    7 ++-----
+ 5 files changed, 7 insertions(+), 9 deletions(-)
 
+diff --git a/arch/s390/include/asm/elf.h b/arch/s390/include/asm/elf.h
+index 32e8449..9b94a16 100644
+--- a/arch/s390/include/asm/elf.h
++++ b/arch/s390/include/asm/elf.h
+@@ -180,7 +180,8 @@ extern char elf_platform[];
+ #define ELF_PLATFORM (elf_platform)
+ 
+ #ifndef CONFIG_64BIT
+-#define SET_PERSONALITY(ex) set_personality(PER_LINUX)
++#define SET_PERSONALITY(ex) \
++	set_personality(PER_LINUX | (current->personality & (~PER_MASK)))
+ #else /* CONFIG_64BIT */
+ #define SET_PERSONALITY(ex)					\
+ do {								\
 diff --git a/arch/s390/include/asm/posix_types.h b/arch/s390/include/asm/posix_types.h
 index 7bcc14e..bf2a2ad 100644
 --- a/arch/s390/include/asm/posix_types.h
@@ -64,5 +78,47 @@ index 7bcc14e..bf2a2ad 100644
  typedef long            __kernel_ptrdiff_t;
  typedef unsigned long   __kernel_sigset_t;      /* at least 32 bits */
  
--- 
-1.7.0.4
+diff --git a/arch/s390/include/asm/smp.h b/arch/s390/include/asm/smp.h
+index a0a8340..ce26ac3 100644
+--- a/arch/s390/include/asm/smp.h
++++ b/arch/s390/include/asm/smp.h
+@@ -44,6 +44,7 @@ static inline void smp_call_online_cpu(void (*func)(void *), void *data)
+ }
+ 
+ static inline int smp_find_processor_id(int address) { return 0; }
++static inline int smp_store_status(int cpu) { return 0; }
+ static inline int smp_vcpu_scheduled(int cpu) { return 1; }
+ static inline void smp_yield_cpu(int cpu) { }
+ static inline void smp_yield(void) { }
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 40a826a..2fb2b9e 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -3804,7 +3804,7 @@ dasd_eckd_ioctl(struct dasd_block *block, unsigned int cmd, void __user *argp)
+ 	case BIODASDSYMMIO:
+ 		return dasd_symm_io(device, argp);
+ 	default:
+-		return -ENOIOCTLCMD;
++		return -ENOTTY;
+ 	}
+ }
+ 
+diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
+index cceae70..654c692 100644
+--- a/drivers/s390/block/dasd_ioctl.c
++++ b/drivers/s390/block/dasd_ioctl.c
+@@ -498,12 +498,9 @@ int dasd_ioctl(struct block_device *bdev, fmode_t mode,
+ 		break;
+ 	default:
+ 		/* if the discipline has an ioctl method try it. */
+-		if (base->discipline->ioctl) {
++		rc = -ENOTTY;
++		if (base->discipline->ioctl)
+ 			rc = base->discipline->ioctl(block, cmd, argp);
+-			if (rc == -ENOIOCTLCMD)
+-				rc = -EINVAL;
+-		} else
+-			rc = -EINVAL;
+ 	}
+ 	dasd_put_device(base);
+ 	return rc;
