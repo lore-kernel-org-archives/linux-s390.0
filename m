@@ -1,43 +1,49 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [-next]: s390 *_irq() link errors
-Date: Sun, 30 Sep 2012 12:05:16 +0200
-Message-ID: <20120930120516.29be3022@endymion.delvare>
-References: <CAMuHMdXqsPgfToNyjbxJ-WM=-kEEvAweE03wb3vtkwVO+-RR3A@mail.gmail.com>
-	<20120927115134.GA5654@osiris.de.ibm.com>
-	<CAMuHMdUqXnY5ZNgjYN0YMpLkPw0j41MXM18H9qiLoEk-BzKYMg@mail.gmail.com>
-	<20120930105350.16e54037@endymion.delvare>
-	<CAMuHMdV=mcVuVuJaWrVjwxLz0+gkBoC=NUq6=C176B3W7j8Yag@mail.gmail.com>
-	<20120930112052.733ce361@endymion.delvare>
-	<CAMuHMdVV5F148RrqyGgD7q9y_C5tTnGi8S9hC4tus6wu-mLPxw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <CAMuHMdVV5F148RrqyGgD7q9y_C5tTnGi8S9hC4tus6wu-mLPxw@mail.gmail.com>
-Sender: linux-next-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-next/>
-List-Post: <mailto:linux-next@vger.kernel.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Huewe <peterhuewe@gmx.de>, linux-s390@vger.kernel.org, Linux-Next <linux-next@vger.kernel.org>, linux-kernel@vger.kernel.org
+From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+Date: Tue, 04 Sep 2012 08:13:13 +0000
+Subject: Re: [PATCH] qeth: fix possible memory leak in qeth_l3_add_[vipa|rxip]()
+Message-Id: <20120904081313.GA35191@tuxmaker.boeblingen.de.ibm.com>
+In-Reply-To: <CAPgLHd95W1aCZ1Z6mNC8pZ1j9AmTKso4nwFYS1cFn69Xz0aUSQ@mail.gmail.com>
+References: <CAPgLHd95W1aCZ1Z6mNC8pZ1j9AmTKso4nwFYS1cFn69Xz0aUSQ@mail.gmail.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, 30 Sep 2012 11:35:41 +0200, Geert Uytterhoeven wrote:
-> On Sun, Sep 30, 2012 at 11:20 AM, Jean Delvare <khali@linux-fr.org> wrote:
-> > On Sun, 30 Sep 2012 11:08:41 +0200, Geert Uytterhoeven wrote:
-> >> On Sun, Sep 30, 2012 at 10:53 AM, Jean Delvare <khali@linux-fr.org> wrote:
-> >> > I thought we were trying to move away from explicit arch exclusions,
-> >> > but if S390 is special then fine with me. I've folded Heiko's fix into
-> >>
-> >> "depends on GENERIC_HARDIRQS" is the alternative...
-> >
-> > That would make even less sense to me, I2C can work just fine without
-> > IRQs.
+On Mon, Sep 03, 2012 at 05:37:33PM +0800, Wei Yongjun wrote:
+> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 > 
-> For the individual drivers that need it...
+> ipaddr has been allocated in function qeth_l3_add_vipa() but
+> does not free before leaving from the error handling cases. The
+> same problem also exists in function qeth_l3_add_rxip().
+> 
+> spatch with a semantic match is used to found this problem.
+> (http://coccinelle.lip6.fr/)
+> 
+> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+> ---
+added this one to my local tree. THX!
 
-Oh, of course. Sorry I was probably not completely awaken ;)
-
-Either way is fine with me if it makes developers and users happy.
-
--- 
-Jean Delvare
+Frank
+>  drivers/s390/net/qeth_l3_main.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+> index c5f03fa..4cd310c 100644
+> --- a/drivers/s390/net/qeth_l3_main.c
+> +++ b/drivers/s390/net/qeth_l3_main.c
+> @@ -794,6 +794,7 @@ int qeth_l3_add_vipa(struct qeth_card *card, enum qeth_prot_versions proto,
+>  		rc = -EEXIST;
+>  	spin_unlock_irqrestore(&card->ip_lock, flags);
+>  	if (rc) {
+> +		kfree(ipaddr);
+>  		return rc;
+>  	}
+>  	if (!qeth_l3_add_ip(card, ipaddr))
+> @@ -858,6 +859,7 @@ int qeth_l3_add_rxip(struct qeth_card *card, enum qeth_prot_versions proto,
+>  		rc = -EEXIST;
+>  	spin_unlock_irqrestore(&card->ip_lock, flags);
+>  	if (rc) {
+> +		kfree(ipaddr);
+>  		return rc;
+>  	}
+>  	if (!qeth_l3_add_ip(card, ipaddr))
+> 
+> 
