@@ -1,72 +1,86 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v2 7/7] s390/kvm: In-kernel channel subsystem support.
-Date: Thu, 20 Sep 2012 09:26:15 +0200
-Message-ID: <505AC517.1040602@de.ibm.com>
-References: <1346771610-52423-1-git-send-email-cornelia.huck@de.ibm.com> <1346771610-52423-8-git-send-email-cornelia.huck@de.ibm.com> <48430489-B96F-4717-AA1E-B04445F55717@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH v2 6/7] s390/kvm: Base infrastructure for enabling capabilities.
+Date: Tue,  4 Sep 2012 17:13:29 +0200
+Message-ID: <1346771610-52423-7-git-send-email-cornelia.huck@de.ibm.com>
+References: <1346771610-52423-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <48430489-B96F-4717-AA1E-B04445F55717@suse.de>
+In-Reply-To: <1346771610-52423-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Alexander Graf <agraf@suse.de>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+To: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>
+Cc: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 19/09/12 16:47, Alexander Graf wrote:
-> 
-> On 04.09.2012, at 17:13, Cornelia Huck wrote:
-> 
->> Handle most support for channel I/O instructions in the kernel itself.
->>
->> Only asynchronous functions (such as the start function) need to be
->> handled by userspace.
-> 
-> Phew. This is a lot of code for something that is usually handled in user space in the kvm
-> world. The x86 equivalent would be an in-kernel PCI bus, right? Have you measured major 
-> performance penalties when running this from user space?
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ Documentation/virtual/kvm/api.txt |  2 +-
+ arch/s390/kvm/kvm-s390.c          | 26 ++++++++++++++++++++++++++
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
-Conny is on vacation, but I will try to answer that based on the discussions with Carsten
-and Conny that we had the last 9 month. ( so Conny, Carsten please correct me, if I got 
-something wrong).
-
-In essence it is that way, because we have our interrupt delivery in the kernel.
-
-Here is the story of how this evolved:
-
-we started with a userspace solution but it turned out that this cannot work in an
-architecture-compliant way. The problem is that the channel subsystem interacts with the 
-interrupts of the system. For example there is a "test pending interruption" instruction, that
-can clear pending interrupts (a pending interrupt must not be delivered after tpi, but it might already
-be queued in KVM for delivery on another cpu)
-Since the channel subsystem and the interrupt delivery work so closely together, to code structure
-has to follow that. So there are two possible ways of implementing:
-
-1. do basic channel subsystem (instructions + interrupts) and interrupt handling in userspace
-- e.g. qemu would have a call to kvm to ask for a cpu that can accept a certain interrupt type
-- if that cpu returns to qemu, qemu would then do the psw swap (deliver the interrupt) and go back
-to KVM_RUN.
-Given that interrupts have a priority, that also means that in the long run qemu would need to do
-that for all kind interrupts, even those that the kernel currently handles. For example if a 
-sigp and and I/O interrupt should be delivered to a cpu, you have problems to obey the priorities 
-if kvm and qemu are allowed to do a psw swap
-- we already had that variant prototyped, but it has its downsides:
-    - it makes things like vhost impossible (you have to go to userspace to deliver an int)
-    - interrupts require an additional call into the kernel (get it out + KVM_RUN, instead of
-      one KVM_S390_INTERRUPT call)
-    - (future) passthrough of ccw devices does require in kernel handling anyway
-
-2. do basic channel subsystem in kvm
-- the kernel handles the basic channel subsystem instruction to be able to have the interrupt
-delivery architecturally correct. qemu will implement the devices on this in-kernel channel
-subsystem. This will allow for things like vhost and it is also cheaper for things that the
-kernel already handles. The downside is, that the non-kvm case differs in qemu (but Conny 
-left here userspace implementation in)
-
-Please note, that the channel subsystem architecture is tightly coupled to the cpu architecture
-(e.g. by having instructions for interaction), so the comparison with PCI is not fully correct
-
-
-Christian
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index b91bfd4..9c71aaa 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -913,7 +913,7 @@ documentation when it pops into existence).
+ 4.37 KVM_ENABLE_CAP
+ 
+ Capability: KVM_CAP_ENABLE_CAP
+-Architectures: ppc
++Architectures: ppc, s390
+ Type: vcpu ioctl
+ Parameters: struct kvm_enable_cap (in)
+ Returns: 0 on success; -1 on error
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index e83df7f..4b0681c 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -140,6 +140,7 @@ int kvm_dev_ioctl_check_extension(long ext)
+ #endif
+ 	case KVM_CAP_SYNC_REGS:
+ 	case KVM_CAP_ONE_REG:
++	case KVM_CAP_ENABLE_CAP:
+ 		r = 1;
+ 		break;
+ 	case KVM_CAP_NR_VCPUS:
+@@ -807,6 +808,22 @@ int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr)
+ 	return 0;
+ }
+ 
++static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
++				     struct kvm_enable_cap *cap)
++{
++	int r;
++
++	if (cap->flags)
++		return -EINVAL;
++
++	switch (cap->cap) {
++	default:
++		r = -EINVAL;
++		break;
++	}
++	return r;
++}
++
+ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 			 unsigned int ioctl, unsigned long arg)
+ {
+@@ -893,6 +910,15 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 			r = 0;
+ 		break;
+ 	}
++	case KVM_ENABLE_CAP:
++	{
++		struct kvm_enable_cap cap;
++		r = -EFAULT;
++		if (copy_from_user(&cap, argp, sizeof(cap)))
++			break;
++		r = kvm_vcpu_ioctl_enable_cap(vcpu, &cap);
++		break;
++	}
+ 	default:
+ 		r = -ENOTTY;
+ 	}
+-- 
+1.7.11.5
