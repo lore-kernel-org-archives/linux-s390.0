@@ -1,191 +1,67 @@
 From: Wen Congyang <wency@cn.fujitsu.com>
-Subject: Re: [RFC v8 PATCH 08/20] memory-hotplug: remove /sys/firmware/memmap/X
- sysfs
-Date: Mon, 03 Sep 2012 15:31:00 +0800
-Message-ID: <50445CB4.80303@cn.fujitsu.com>
-References: <1346148027-24468-1-git-send-email-wency@cn.fujitsu.com>	<1346148027-24468-9-git-send-email-wency@cn.fujitsu.com> <20120831140623.8d13bd2c.akpm@linux-foundation.org>
+Subject: Re: [RFC v8 PATCH 13/20] memory-hotplug: check page type in get_page_bootmem
+Date: Tue, 04 Sep 2012 11:46:11 +0800
+Message-ID: <50457983.1050304@cn.fujitsu.com>
+References: <1346148027-24468-1-git-send-email-wency@cn.fujitsu.com>	<1346148027-24468-14-git-send-email-wency@cn.fujitsu.com> <20120831143032.1343e99a.akpm@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20120831140623.8d13bd2c.akpm@linux-foundation.org>
-Sender: owner-linux-mm@kvack.org
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20120831143032.1343e99a.akpm@linux-foundation.org>
+Sender: linux-acpi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com
+To: Andrew Morton <akpm@linux-foundation.org>, isimatu.yasuaki@jp.fujitsu.com
+Cc: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, kosaki.motohiro@jp.fujitsu.com
 List-ID: <linux-s390.vger.kernel.org>
 
-At 09/01/2012 05:06 AM, Andrew Morton Wrote:
-> On Tue, 28 Aug 2012 18:00:15 +0800
+Hi, isimatu-san
+
+At 09/01/2012 05:30 AM, Andrew Morton Wrote:
+> On Tue, 28 Aug 2012 18:00:20 +0800
 > wency@cn.fujitsu.com wrote:
 > 
 >> From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
 >>
->> When (hot)adding memory into system, /sys/firmware/memmap/X/{end, start, type}
->> sysfs files are created. But there is no code to remove these files. The patch
->> implements the function to remove them.
->>
->> Note : The code does not free firmware_map_entry since there is no way to free
->>        memory which is allocated by bootmem.
->>
->> ....
->>
->> +#define to_memmap_entry(obj) container_of(obj, struct firmware_map_entry, kobj)
+>> There is a possibility that get_page_bootmem() is called to the same page many
+>> times. So when get_page_bootmem is called to the same page, the function only
+>> increments page->_count.
 > 
-> It would be better to implement this as an inlined C function.  That
-> has improved type safety and improved readability.
+> I really don't understand this explanation, even after having looked at
+> the code.  Can you please have another attempt at the changelog?
 
-Hmm, this macro is not a new macro. It is defined after the function
-release_firmware_map_entry(). We just moved it here because we
-need it in the function release_firmware_map_entry().
-
-> 
->> +static void release_firmware_map_entry(struct kobject *kobj)
->> +{
->> +	struct firmware_map_entry *entry = to_memmap_entry(kobj);
->> +	struct page *page;
->> +
->> +	page = virt_to_page(entry);
->> +	if (PageSlab(page) || PageCompound(page))
-> 
-> That PageCompound() test looks rather odd.  Why is this done?
-> 
->> +		kfree(entry);
->> +
->> +	/* There is no way to free memory allocated from bootmem*/
->> +}
-> 
-> This function is a bit ugly - poking around in page flags to determine
-> whether or not the memory came from bootmem.  It would be cleaner to
-> use a separate boolean.  Although I guess we can live with it as you
-> have it here.
-> 
->>  static struct kobj_type memmap_ktype = {
->> +	.release	= release_firmware_map_entry,
->>  	.sysfs_ops	= &memmap_attr_ops,
->>  	.default_attrs	= def_attrs,
->>  };
->> @@ -123,6 +139,16 @@ static int firmware_map_add_entry(u64 start, u64 end,
->>  	return 0;
->>  }
->>  
->> +/**
->> + * firmware_map_remove_entry() - Does the real work to remove a firmware
->> + * memmap entry.
->> + * @entry: removed entry.
->> + **/
->> +static inline void firmware_map_remove_entry(struct firmware_map_entry *entry)
->> +{
->> +	list_del(&entry->list);
->> +}
-> 
-> Is there no locking  to protect that list?
-
-OK, I will add a lock to protect it.
+What is the problem that you want to fix? The function get_page_bootmem()
+may be called to the same page more than once, but I don't find any problem
+about current implementation.
 
 Thanks
 Wen Congyang
 
 > 
->>  /*
->>   * Add memmap entry on sysfs
->>   */
->> @@ -144,6 +170,31 @@ static int add_sysfs_fw_map_entry(struct firmware_map_entry *entry)
->>  	return 0;
->>  }
->>  
->> +/*
->> + * Remove memmap entry on sysfs
->> + */
->> +static inline void remove_sysfs_fw_map_entry(struct firmware_map_entry *entry)
->> +{
->> +	kobject_put(&entry->kobj);
->> +}
->> +
->> +/*
->> + * Search memmap entry
->> + */
->> +
->> +struct firmware_map_entry * __meminit
->> +find_firmware_map_entry(u64 start, u64 end, const char *type)
-> 
-> A better name would be firmware_map_find_entry().  To retain the (good)
-> convention that symbols exported from here all start with
-> "firmware_map_".
-> 
->> +{
->> +	struct firmware_map_entry *entry;
->> +
->> +	list_for_each_entry(entry, &map_entries, list)
->> +		if ((entry->start == start) && (entry->end == end) &&
->> +		    (!strcmp(entry->type, type)))
->> +			return entry;
->> +
->> +	return NULL;
->> +}
->> +
->>  /**
->>   * firmware_map_add_hotplug() - Adds a firmware mapping entry when we do
->>   * memory hotplug.
->> @@ -196,6 +247,32 @@ int __init firmware_map_add_early(u64 start, u64 end, const char *type)
->>  	return firmware_map_add_entry(start, end, type, entry);
->>  }
->>  
->> +/**
->> + * firmware_map_remove() - remove a firmware mapping entry
->> + * @start: Start of the memory range.
->> + * @end:   End of the memory range.
->> + * @type:  Type of the memory range.
->> + *
->> + * removes a firmware mapping entry.
->> + *
->> + * Returns 0 on success, or -EINVAL if no entry.
->> + **/
->> +int __meminit firmware_map_remove(u64 start, u64 end, const char *type)
->> +{
->> +	struct firmware_map_entry *entry;
->> +
->> +	entry = find_firmware_map_entry(start, end - 1, type);
->> +	if (!entry)
->> +		return -EINVAL;
->> +
->> +	firmware_map_remove_entry(entry);
->> +
->> +	/* remove the memmap entry */
->> +	remove_sysfs_fw_map_entry(entry);
->> +
->> +	return 0;
->> +}
-> 
-> Again, the lack of locking looks bad.
-> 
->> ...
->>
 >> --- a/mm/memory_hotplug.c
 >> +++ b/mm/memory_hotplug.c
->> @@ -1052,9 +1052,9 @@ int offline_memory(u64 start, u64 size)
->>  	return 0;
->>  }
->>  
->> -int remove_memory(int nid, u64 start, u64 size)
->> +int __ref remove_memory(int nid, u64 start, u64 size)
-> 
-> Why was __ref added?
-> 
+>> @@ -95,10 +95,17 @@ static void release_memory_resource(struct resource *res)
+>>  static void get_page_bootmem(unsigned long info,  struct page *page,
+>>  			     unsigned long type)
 >>  {
->> -	int ret = -EBUSY;
->> +	int ret = 0;
->>  	lock_memory_hotplug();
->>  	/*
->>  	 * The memory might become online by other task, even if you offine it.
->>
->> ...
->>
+>> -	page->lru.next = (struct list_head *) type;
+>> -	SetPagePrivate(page);
+>> -	set_page_private(page, info);
+>> -	atomic_inc(&page->_count);
+>> +	unsigned long page_type;
+>> +
+>> +	page_type = (unsigned long) page->lru.next;
+>> +	if (page_type < MEMORY_HOTPLUG_MIN_BOOTMEM_TYPE ||
+>> +	    page_type > MEMORY_HOTPLUG_MAX_BOOTMEM_TYPE){
+>> +		page->lru.next = (struct list_head *) type;
+>> +		SetPagePrivate(page);
+>> +		set_page_private(page, info);
+>> +		atomic_inc(&page->_count);
+>> +	} else
+>> +		atomic_inc(&page->_count);
+>>  }
 > 
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+> And a code comment which explains what is going on would be good.  As
+> is always the case ;)
+> 
+> 
