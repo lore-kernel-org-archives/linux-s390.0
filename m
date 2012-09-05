@@ -1,87 +1,58 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH v2 2/7] s390/kvm: Add support for machine checks.
-Date: Wed, 5 Sep 2012 09:22:32 +0200
-Message-ID: <20120905072232.GA5852@osiris.de.ibm.com>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCH v2 1/7] s390/kvm: Support for I/O
+	interrupts.
+Date: Wed, 05 Sep 2012 10:28:53 +0300
+Message-ID: <5046FF35.6050403@redhat.com>
 References: <1346771610-52423-1-git-send-email-cornelia.huck@de.ibm.com>
- <1346771610-52423-3-git-send-email-cornelia.huck@de.ibm.com>
+	<1346771610-52423-2-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1346771610-52423-3-git-send-email-cornelia.huck@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+In-Reply-To: <1346771610-52423-2-git-send-email-cornelia.huck@de.ibm.com>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, KVM <kvm@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Marcelo Tosatti <mtosatti@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, qemu-devel <qemu-devel@nongnu.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Sep 04, 2012 at 05:13:25PM +0200, Cornelia Huck wrote:
-
-Just some quick comments:
-
-[...]
-
->  int kvm_s390_inject_program_int(struct kvm_vcpu *vcpu, u16 code)
->  {
->  	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-> @@ -648,6 +747,12 @@ int kvm_s390_inject_vm(struct kvm *kvm,
->  	case KVM_S390_INT_EMERGENCY:
->  		kfree(inti);
->  		return -EINVAL;
-> +	case KVM_S390_MCHK:
-> +		VM_EVENT(kvm, 5, "inject: machine check parm64:%llx",
-> +			 s390int->parm64);
-> +		inti->type = s390int->type;
-> +		inti->mchk.mcic = s390int->parm64;
-> +		break;
-
-The kvm_s390_interrupt struct seems to be inappropriate to pass machine check
-data around.
-E.g. if you want to inject an uncorrectable storage error, because the host
-failed to swap in a page, you must also pass a failing storage address which
-doesn't fit into this structure.
-Just something you should consider. ;)
-
-> +static int handle_lpswe(struct kvm_vcpu *vcpu)
-> +{
-> +	int base2 = vcpu->arch.sie_block->ipb >> 28;
-> +	int disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16);
-
-Sooner or later we need helper functions which extract the significant parts
-of an instruction.
-Maybay something like insn_[type]_get_base2(...) or simply structures like
-struct insn_[type], which allow to easily access parts of an instruction.
-
-> +	u64 addr;
-> +	u64 new_psw[2];
-
-psw_t?
-
+On 09/04/2012 06:13 PM, Cornelia Huck wrote:
+> Add support for handling I/O interrupts (standard, subchannel-related
+> ones and rudimentary adapter interrupts).
+> 
+> The subchannel-identifying parameters are encoded into the interrupt
+> type.
+> 
+> I/O interrupts are floating, so they can't be injected on a specific
+> vcpu.
+> 
+> diff --git a/include/linux/kvm.h b/include/linux/kvm.h
+> index d808694..5a36e65 100644
+> --- a/include/linux/kvm.h
+> +++ b/include/linux/kvm.h
+> @@ -396,6 +396,12 @@ struct kvm_s390_psw {
+>  #define KVM_S390_INT_SERVICE		0xffff2401u
+>  #define KVM_S390_INT_EMERGENCY		0xffff1201u
+>  #define KVM_S390_INT_EXTERNAL_CALL	0xffff1202u
+> +#define KVM_S390_INT_IO(ai,cssid,ssid,schid)   \
+> +	(((schid)) |			       \
+> +	 ((ssid) << 16) |		       \
+> +	 ((cssid) << 18) |		       \
+> +	 ((ai) << 26))
 > +
-> +	addr = disp2;
-> +	if (base2)
-> +		addr += vcpu->run->s.regs.gprs[base2];
-> +	
-> +	if (addr & 7) {
-> +		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-> +		goto out;
-> +	}
-> +
-> +	if (copy_from_guest(vcpu, new_psw, addr, sizeof(*new_psw))) {
+>  
 
-I assume that should be sizeof(new_psw). Did that ever work?!
+Documentation?
 
-> +	if ((vcpu->arch.sie_block->gpsw.mask & 0xb80800fe7fffffff) ||
-> +	    (((vcpu->arch.sie_block->gpsw.mask & 0x0000000110000000) ==
-> +	      0x0000000010000000) &&
-> +	     (vcpu->arch.sie_block->gpsw.addr & 0xffffffff80000000)) ||
-> +	    (!(vcpu->arch.sie_block->gpsw.mask & 0x0000000180000000) &&
-> +	     (vcpu->arch.sie_block->gpsw.addr & 0xfffffffffff00000)) ||
-> +	    ((vcpu->arch.sie_block->gpsw.mask & 0x0000000110000000) ==
-> +	     0x0000000100000000)) {
 
-This is not very readable...
-
-Please make use of the PSW defines in ptrace.h and add new ones if needed.
-Also please make use of (move) the PSW32 defines in compat.h.
+-- 
+error compiling committee.c: too many arguments to function
