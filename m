@@ -1,43 +1,54 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [RFC PATCH v2 0/7] s390: virtual css host support.
-Date: Wed, 05 Sep 2012 10:51:25 +0300
-Message-ID: <5047047D.7000406@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v2 1/7] s390/kvm: Support for I/O interrupts.
+Date: Wed, 5 Sep 2012 10:26:00 +0200
+Message-ID: <20120905102600.6759cec3@BR9GNB5Z>
 References: <1346771610-52423-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1346771610-52423-2-git-send-email-cornelia.huck@de.ibm.com>
+	<5046FF35.6050403@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
-In-Reply-To: <1346771610-52423-1-git-send-email-cornelia.huck@de.ibm.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <5046FF35.6050403@redhat.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, KVM <kvm@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Marcelo Tosatti <mtosatti@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, qemu-devel <qemu-devel@nongnu.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Avi Kivity <avi@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Marcelo Tosatti <mtosatti@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 09/04/2012 06:13 PM, Cornelia Huck wrote:
-> Hi,
+On Wed, 05 Sep 2012 10:28:53 +0300
+Avi Kivity <avi@redhat.com> wrote:
+
+> On 09/04/2012 06:13 PM, Cornelia Huck wrote:
+> > Add support for handling I/O interrupts (standard, subchannel-related
+> > ones and rudimentary adapter interrupts).
+> > 
+> > The subchannel-identifying parameters are encoded into the interrupt
+> > type.
+> > 
+> > I/O interrupts are floating, so they can't be injected on a specific
+> > vcpu.
+> > 
+> > diff --git a/include/linux/kvm.h b/include/linux/kvm.h
+> > index d808694..5a36e65 100644
+> > --- a/include/linux/kvm.h
+> > +++ b/include/linux/kvm.h
+> > @@ -396,6 +396,12 @@ struct kvm_s390_psw {
+> >  #define KVM_S390_INT_SERVICE		0xffff2401u
+> >  #define KVM_S390_INT_EMERGENCY		0xffff1201u
+> >  #define KVM_S390_INT_EXTERNAL_CALL	0xffff1202u
+> > +#define KVM_S390_INT_IO(ai,cssid,ssid,schid)   \
+> > +	(((schid)) |			       \
+> > +	 ((ssid) << 16) |		       \
+> > +	 ((cssid) << 18) |		       \
+> > +	 ((ai) << 26))
+> > +
+> >  
 > 
-> here's the second revision of the virtual channel subsystem support for
-> s390.
+> Documentation?
 > 
-> I changed the representation of the channel subsystem, introducing channel
-> subsystem images, which brings it closer to the actual implementation. A
-> new ioctl for adding a new channel subsystem image has also been introduced.
 
-Looks good to me, though of course I could only do a shallow review.
-
-I'd like to see acks from an s390 maintainer on the non-kvm patches, and
-will apply after the other comments are addressed.
-
-
--- 
-error compiling committee.c: too many arguments to function
+KVM_S390_INTERRUPT is currently completely undocumented... I'll
+probably do an extra patch and then have this and the machine check
+patch add the new values.
