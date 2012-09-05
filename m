@@ -1,93 +1,57 @@
-From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-Subject: Re: [RFC v9 PATCH 13/21] memory-hotplug: check page type in get_page_bootmem
-Date: Mon, 1 Oct 2012 12:03:01 +0900
-Message-ID: <506907E5.2080609@jp.fujitsu.com>
-References: <1346837155-534-1-git-send-email-wency@cn.fujitsu.com> <1346837155-534-14-git-send-email-wency@cn.fujitsu.com> <506659D7.9080904@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <506659D7.9080904@gmail.com>
-Sender: linux-acpi-owner@vger.kernel.org
+From: wency@cn.fujitsu.com
+Subject: [RFC v9 PATCH 07/21] memory-hotplug: call acpi_bus_remove() to remove memory device
+Date: Wed, 5 Sep 2012 17:25:41 +0800
+Message-ID: <1346837155-534-8-git-send-email-wency@cn.fujitsu.com>
+References: <1346837155-534-1-git-send-email-wency@cn.fujitsu.com>
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1346837155-534-1-git-send-email-wency@cn.fujitsu.com>
+Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Ni zhan Chen <nizhan.chen@gmail.com>
-Cc: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com, Wen Congyang <wency@cn.fujitsu.com>
+To: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org
+Cc: rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, Wen Congyang <wency@cn.fujitsu.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Chen,
+From: Wen Congyang <wency@cn.fujitsu.com>
 
-2012/09/29 11:15, Ni zhan Chen wrote:
-> On 09/05/2012 05:25 PM, wency@cn.fujitsu.com wrote:
->> From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
->>
->> The function get_page_bootmem() may be called more than one time to the same
->> page. There is no need to set page's type, private if the function is not
->> the first time called to the page.
->>
->> Note: the patch is just optimization and does not fix any problem.
->
-> Hi Yasuaki,
->
-> this patch is reasonable to me. I have another question associated to get_page_bootmem(), the question is from another fujitsu guy's patch changelog [commit : 04753278769f3], the changelog said  that:
->
->   1) When the memmap of removing section is allocated on other
->       section by bootmem, it should/can be free.
->   2) When the memmap of removing section is allocated on the
->       same section, it shouldn't be freed. Because the section has to be
->       logical memory offlined already and all pages must be isolated against
->       page allocater. If it is freed, page allocator may use it which will
->       be removed physically soon.
->
-> but I don't see his patch guarantee 2), it means that his patch doesn't guarantee the memmap of removing section which is allocated on other section by bootmem doesn't be freed. Hopefully get your explaination in details, thanks in advance. :-)
+The memory device has been ejected and powoffed, so we can call
+acpi_bus_remove() to remove the memory device from acpi bus.
 
-In my understanding, the patch does not guarantee it.
-Please see [commit : 0c0a4a517a31e]. free_map_bootmem() in the commit
-guarantees it.
+CC: David Rientjes <rientjes@google.com>
+CC: Jiang Liu <liuj97@gmail.com>
+CC: Len Brown <len.brown@intel.com>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Paul Mackerras <paulus@samba.org>
+CC: Christoph Lameter <cl@linux.com>
+Cc: Minchan Kim <minchan.kim@gmail.com>
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+CC: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
+---
+ drivers/acpi/acpi_memhotplug.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-Thanks,
-Yasuaki Ishimatsu
+diff --git a/drivers/acpi/acpi_memhotplug.c b/drivers/acpi/acpi_memhotplug.c
+index 9d47458..b152767 100644
+--- a/drivers/acpi/acpi_memhotplug.c
++++ b/drivers/acpi/acpi_memhotplug.c
+@@ -425,8 +425,9 @@ static void acpi_memory_device_notify(acpi_handle handle, u32 event, void *data)
+ 		}
+ 
+ 		/*
+-		 * TBD: Invoke acpi_bus_remove to cleanup data structures
++		 * Invoke acpi_bus_remove() to remove memory device
+ 		 */
++		acpi_bus_remove(device, 1);
+ 
+ 		/* _EJ0 succeeded; _OST is not necessary */
+ 		return;
+-- 
+1.7.1
 
->
->>
->> CC: David Rientjes <rientjes@google.com>
->> CC: Jiang Liu <liuj97@gmail.com>
->> CC: Len Brown <len.brown@intel.com>
->> CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>
->> CC: Paul Mackerras <paulus@samba.org>
->> CC: Christoph Lameter <cl@linux.com>
->> Cc: Minchan Kim <minchan.kim@gmail.com>
->> CC: Andrew Morton <akpm@linux-foundation.org>
->> CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
->> CC: Wen Congyang <wency@cn.fujitsu.com>
->> Signed-off-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
->> ---
->>   mm/memory_hotplug.c |   15 +++++++++++----
->>   1 files changed, 11 insertions(+), 4 deletions(-)
->>
->> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
->> index d736df3..26a5012 100644
->> --- a/mm/memory_hotplug.c
->> +++ b/mm/memory_hotplug.c
->> @@ -95,10 +95,17 @@ static void release_memory_resource(struct resource *res)
->>   static void get_page_bootmem(unsigned long info,  struct page *page,
->>                    unsigned long type)
->>   {
->> -    page->lru.next = (struct list_head *) type;
->> -    SetPagePrivate(page);
->> -    set_page_private(page, info);
->> -    atomic_inc(&page->_count);
->> +    unsigned long page_type;
->> +
->> +    page_type = (unsigned long)page->lru.next;
->> +    if (page_type < MEMORY_HOTPLUG_MIN_BOOTMEM_TYPE ||
->> +        page_type > MEMORY_HOTPLUG_MAX_BOOTMEM_TYPE){
->> +        page->lru.next = (struct list_head *)type;
->> +        SetPagePrivate(page);
->> +        set_page_private(page, info);
->> +        atomic_inc(&page->_count);
->> +    } else
->> +        atomic_inc(&page->_count);
->>   }
->>   /* reference to __meminit __free_pages_bootmem is valid
->
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
