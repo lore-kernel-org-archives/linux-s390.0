@@ -1,49 +1,44 @@
-From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
-Date: Tue, 04 Sep 2012 08:13:13 +0000
-Subject: Re: [PATCH] qeth: fix possible memory leak in qeth_l3_add_[vipa|rxip]()
-Message-Id: <20120904081313.GA35191@tuxmaker.boeblingen.de.ibm.com>
-In-Reply-To: <CAPgLHd95W1aCZ1Z6mNC8pZ1j9AmTKso4nwFYS1cFn69Xz0aUSQ@mail.gmail.com>
-References: <CAPgLHd95W1aCZ1Z6mNC8pZ1j9AmTKso4nwFYS1cFn69Xz0aUSQ@mail.gmail.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Thu, 06 Sep 2012 08:26:02 +0000
+Subject: Re: [PATCH] [S390] 3270 console: Drop unused spinlock
+Message-Id: <20120906102602.147f2359@de.ibm.com>
+In-Reply-To: <20120906082156.GB4324@osiris.de.ibm.com>
+References: <20120906082156.GB4324@osiris.de.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Sep 03, 2012 at 05:37:33PM +0800, Wei Yongjun wrote:
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> 
-> ipaddr has been allocated in function qeth_l3_add_vipa() but
-> does not free before leaving from the error handling cases. The
-> same problem also exists in function qeth_l3_add_rxip().
-> 
-> spatch with a semantic match is used to found this problem.
-> (http://coccinelle.lip6.fr/)
-> 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> ---
-added this one to my local tree. THX!
+On Thu, 6 Sep 2012 09:55:56 +0200
+Jean Delvare <khali@linux-fr.org> wrote:
 
-Frank
->  drivers/s390/net/qeth_l3_main.c | 2 ++
->  1 file changed, 2 insertions(+)
+> I was checking why this spinlock was never initialized, but it turns
+> out it's not used anywhere, so we can drop it.
 > 
-> diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-> index c5f03fa..4cd310c 100644
-> --- a/drivers/s390/net/qeth_l3_main.c
-> +++ b/drivers/s390/net/qeth_l3_main.c
-> @@ -794,6 +794,7 @@ int qeth_l3_add_vipa(struct qeth_card *card, enum qeth_prot_versions proto,
->  		rc = -EEXIST;
->  	spin_unlock_irqrestore(&card->ip_lock, flags);
->  	if (rc) {
-> +		kfree(ipaddr);
->  		return rc;
->  	}
->  	if (!qeth_l3_add_ip(card, ipaddr))
-> @@ -858,6 +859,7 @@ int qeth_l3_add_rxip(struct qeth_card *card, enum qeth_prot_versions proto,
->  		rc = -EEXIST;
->  	spin_unlock_irqrestore(&card->ip_lock, flags);
->  	if (rc) {
-> +		kfree(ipaddr);
->  		return rc;
->  	}
->  	if (!qeth_l3_add_ip(card, ipaddr))
+> Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> ---
+> I can't even build-test this.
 > 
+>  drivers/s390/char/con3270.c |    1 -
+>  1 file changed, 1 deletion(-)
 > 
+> --- linux-3.6-rc4.orig/drivers/s390/char/con3270.c	2012-07-21 22:58:29.000000000 +0200
+> +++ linux-3.6-rc4/drivers/s390/char/con3270.c	2012-09-06 09:52:43.801881092 +0200
+> @@ -35,7 +35,6 @@ static struct raw3270_fn con3270_fn;
+>   */
+>  struct con3270 {
+>  	struct raw3270_view view;
+> -	spinlock_t lock;
+>  	struct list_head freemem;	/* list of free memory for strings. */
+> 
+>  	/* Output stuff. */
+> 
+>  
+
+That is true, the code always uses the view->lock. I'll add this to the queue. Thanks.
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
