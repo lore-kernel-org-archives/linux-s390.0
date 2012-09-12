@@ -1,44 +1,30 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Thu, 06 Sep 2012 08:26:02 +0000
-Subject: Re: [PATCH] [S390] 3270 console: Drop unused spinlock
-Message-Id: <20120906102602.147f2359@de.ibm.com>
-In-Reply-To: <20120906082156.GB4324@osiris.de.ibm.com>
-References: <20120906082156.GB4324@osiris.de.ibm.com>
-To: linux-s390@vger.kernel.org
+From: Fengguang Wu <fengguang.wu@intel.com>
+Date: Wed, 12 Sep 2012 11:03:47 +0000
+Subject: arch/s390/kernel/ptrace.c:63:4: warning: left shift count >= width of type
+Message-Id: <20120912110347.GB6170@localhost>
+To: linux-s390@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 6 Sep 2012 09:55:56 +0200
-Jean Delvare <khali@linux-fr.org> wrote:
+FYI, a new compile warning in linux-next:
 
-> I was checking why this spinlock was never initialized, but it turns
-> out it's not used anywhere, so we can drop it.
-> 
-> Signed-off-by: Jean Delvare <khali@linux-fr.org>
-> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> ---
-> I can't even build-test this.
-> 
->  drivers/s390/char/con3270.c |    1 -
->  1 file changed, 1 deletion(-)
-> 
-> --- linux-3.6-rc4.orig/drivers/s390/char/con3270.c	2012-07-21 22:58:29.000000000 +0200
-> +++ linux-3.6-rc4/drivers/s390/char/con3270.c	2012-09-06 09:52:43.801881092 +0200
-> @@ -35,7 +35,6 @@ static struct raw3270_fn con3270_fn;
->   */
->  struct con3270 {
->  	struct raw3270_view view;
-> -	spinlock_t lock;
->  	struct list_head freemem;	/* list of free memory for strings. */
-> 
->  	/* Output stuff. */
-> 
->  
+arch/s390/kernel/ptrace.c:63:4: warning: left shift count >= width of type [enabled by default]
 
-That is true, the code always uses the view->lock. I'll add this to the queue. Thanks.
+vim +63 arch/s390/kernel/ptrace.c
+    56		/* Take care of the enable/disable of transactional execution. */
+    57		if (MACHINE_HAS_TE) {
+    58			unsigned long cr0, cr0_new;
+    59	
+    60			__ctl_store(cr0, 0, 0);
+    61			/* set or clear transaction execution bits 8 and 9. */
+    62			if (task->thread.per_flags & PER_FLAG_NO_TE)
+  > 63				cr0_new = cr0 & ~(3UL << 54);
+    64			else
+    65				cr0_new = cr0 | (3UL << 54);
+    66			/* Only load control register 0 if necessary. */
+    67			if (cr0 != cr0_new)
+    68				__ctl_load(cr0_new, 0, 0);
+    69		}
 
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+---
+0-DAY kernel build testing backend         Open Source Technology Centre
+Fengguang Wu <wfg@linux.intel.com>                     Intel Corporation
