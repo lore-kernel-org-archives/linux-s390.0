@@ -1,26 +1,98 @@
-From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Date: Tue, 11 Sep 2012 17:34:34 +0200
-Message-Id: <1347377675-22865-1-git-send-email-graalfs@linux.vnet.ibm.com>
-Subject: [Qemu-devel] [PATCH] virtio spec amendment for virtio-ccw
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-List-Archive: <https://lore.kernel.org/qemu-devel/>
-To: rusty@rustcorp.com.au
-Cc: linux-s390@vger.kernel.org, aliguori@us.ibm.com, cornelia.huck@de.ibm.com, cotte@de.ibm.com, heiko.carstens@de.ibm.com, mtosatti@redhat.com, sebott@linux.vnet.ibm.com, qemu-devel@nongnu.org, agraf@suse.de, borntraeger@de.ibm.com, avi@redhat.com, schwidefsky@de.ibm.com, Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH 7/15] drivers/s390/net: removes unnecessary semicolon
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+In-Reply-To: <OF869CD991.BF07C10D-ONC1257A78.002BEE03-C1257A78.002BF89E@de.ibm.com>
+References: <OF869CD991.BF07C10D-ONC1257A78.002BEE03-C1257A78.002BF89E@de.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 13 Sep 2012 10:19:54 +0200
+Message-ID: <1347524394.9036.3.camel@br9gv9yg.de.ibm.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: peter.senna@gmail.com
+Cc: trivial@kernel.org, kernel-janitors@vger.kernel.org, blaschka@linux.vnet.ibm.com, mschwid2@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Rusty, here is Conny's virtio spec amendment.
+Thanks, Peter. I will schedule these changes for our next posting.
 
-Cornelia Huck (1):
-  virtio-ccw: Add secondary indicators.
-
- virtio-spec.lyx | 28 +++++++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
-
--- 
-1.7.11.5
+Ursula Braun
+> Peter Senna Tschudin <peter.senna@gmail.com> wrote on 12/09/2012 19:03:14:
+> 
+> > From:
+> > 
+> > Peter Senna Tschudin <peter.senna@gmail.com>
+> > 
+> > To:
+> > 
+> > Ursula Braun1/Germany/IBM@IBMDE
+> > 
+> > Cc:
+> > 
+> > trivial@kernel.org, kernel-janitors@vger.kernel.org, Frank Blaschka 
+> > <blaschka@linux.vnet.ibm.com>, BOEBLINGEN LINUX390/Germany/
+> > IBM@IBMDE, mschwid2@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.com,
+> > linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+> > 
+> > Date:
+> > 
+> > 12/09/2012 19:03
+> > 
+> > Subject:
+> > 
+> > [PATCH 7/15] drivers/s390/net: removes unnecessary semicolon
+> > 
+> > From: Peter Senna Tschudin <peter.senna@gmail.com>
+> > 
+> > removes unnecessary semicolon
+> > 
+> > Found by Coccinelle: http://coccinelle.lip6.fr/
+> > 
+> > Signed-off-by: Peter Senna Tschudin <peter.senna@gmail.com>
+> > 
+> > ---
+> >  drivers/s390/net/ctcm_fsms.c      |    2 +-
+> >  drivers/s390/net/qeth_core_main.c |    4 ++--
+> >  2 files changed, 3 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
+> > index d4ade9e..fb92524 100644
+> > --- a/drivers/s390/net/ctcm_fsms.c
+> > +++ b/drivers/s390/net/ctcm_fsms.c
+> > @@ -1523,7 +1523,7 @@ static void ctcmpc_chx_firstio(fsm_instance 
+> > *fi, int event, void *arg)
+> >              goto done;
+> >     default:
+> >        break;
+> > -   };
+> > +   }
+> > 
+> >     fsm_newstate(fi, (CHANNEL_DIRECTION(ch->flags) == CTCM_READ)
+> >             ? CTC_STATE_RXINIT : CTC_STATE_TXINIT);
+> > diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/
+> > qeth_core_main.c
+> > index cf6da7f..0bd86b8 100644
+> > --- a/drivers/s390/net/qeth_core_main.c
+> > +++ b/drivers/s390/net/qeth_core_main.c
+> > @@ -489,7 +489,7 @@ static struct qeth_reply *qeth_alloc_reply
+> > (struct qeth_card *card)
+> >        atomic_set(&reply->refcnt, 1);
+> >        atomic_set(&reply->received, 0);
+> >        reply->card = card;
+> > -   };
+> > +   }
+> >     return reply;
+> >  }
+> > 
+> > @@ -2029,7 +2029,7 @@ int qeth_send_control_data(struct qeth_card 
+> > *card, int len,
+> >           if (time_after(jiffies, timeout))
+> >              goto time_err;
+> >           cpu_relax();
+> > -      };
+> > +      }
+> >     }
+> > 
+> >     if (reply->rc == -EIO)
+> > 
