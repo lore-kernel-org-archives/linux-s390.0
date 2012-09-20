@@ -1,203 +1,98 @@
-From: Alexander Graf <agraf@suse.de>
-Subject: Re: [PATCH v2 5/5] [HACK] Handle multiple virtio aliases.
-Date: Wed, 19 Sep 2012 18:24:53 +0200
-Message-ID: <32599FD0-40B5-49C7-9012-56907D552D1D@suse.de>
-References: <1346771633-53081-1-git-send-email-cornelia.huck@de.ibm.com> <1346771633-53081-6-git-send-email-cornelia.huck@de.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v1278)
+From: Jens Freimann <jfrei@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2 3/5] s390: Add new channel I/O based
+ virtio transport.
+Date: Thu, 20 Sep 2012 09:39:40 +0200
+Message-ID: <20120920073940.GB12978@chuck.boeblingen.de.ibm.com>
+References: <1346771633-53081-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1346771633-53081-4-git-send-email-cornelia.huck@de.ibm.com>
+	<92A64BAD-77EB-4A7A-A310-B9AB55989446@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1346771633-53081-6-git-send-email-cornelia.huck@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+Content-Disposition: inline
+In-Reply-To: <92A64BAD-77EB-4A7A-A310-B9AB55989446@suse.de>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+To: Alexander Graf <agraf@suse.de>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Anthony Liguori <aliguori@us.ibm.com>, Marcelo Tosatti <mtosatti@redhat.com>, KVM <kvm@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Sebastian Ott <sebott@linux.vnet.ibm.com>, qemu-devel <qemu-devel@nongnu.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Wed, Sep 19, 2012 at 06:12:55PM +0200, Alexander Graf wrote:
+> Just a really quick glimpse. This patch is huge :).
+> 
+> On 04.09.2012, at 17:13, Cornelia Huck wrote:
+> 
+> > Add a new virtio transport that uses channel commands to perform
+> > virtio operations.
+> > 
+> > Add a new machine type s390-ccw that uses this virtio-ccw transport
+> > and make it the default machine for s390.
+> > 
+> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> > ---
+> > 
+> > Changes v1->v2:
+> > - update to virtio-ccw interface changes
+> > 
+> > ---
+> > hw/qdev-monitor.c      |   5 +
+> > hw/s390-virtio.c       | 277 ++++++++++++----
+> > hw/s390x/Makefile.objs |   1 +
+> > hw/s390x/css.c         |  45 +++
+> > hw/s390x/css.h         |   3 +
+> > hw/s390x/virtio-ccw.c  | 875 +++++++++++++++++++++++++++++++++++++++++++++++++
+> > hw/s390x/virtio-ccw.h  |  79 +++++
+> > vl.c                   |   1 +
+> > 8 files changed, 1215 insertions(+), 71 deletions(-)
+> > create mode 100644 hw/s390x/virtio-ccw.c
+> > create mode 100644 hw/s390x/virtio-ccw.h
+> > 
+> > diff --git a/hw/qdev-monitor.c b/hw/qdev-monitor.c
+> > index 33b7f79..92b7c59 100644
+> > --- a/hw/qdev-monitor.c
+> > +++ b/hw/qdev-monitor.c
+> > @@ -42,6 +42,11 @@ static const QDevAlias qdev_alias_table[] = {
+> >     { "virtio-blk-s390", "virtio-blk", QEMU_ARCH_S390X },
+> >     { "virtio-net-s390", "virtio-net", QEMU_ARCH_S390X },
+> >     { "virtio-serial-s390", "virtio-serial", QEMU_ARCH_S390X },
+> > +    { "virtio-blk-ccw", "virtio-blk", QEMU_ARCH_S390X },
+> > +    { "virtio-net-ccw", "virtio-net", QEMU_ARCH_S390X },
+> > +    { "virtio-serial-ccw", "virtio-serial", QEMU_ARCH_S390X },
+> > +    { "virtio-balloon-ccw", "virtio-balloon", QEMU_ARCH_S390X },
+> > +    { "virtio-scsi-ccw", "virtio-scsi", QEMU_ARCH_S390X },
+> 
+> How does this work? We want to default to virtio-xxx-pci on !s390, to virtio-xxx-s390 on the legacy machine and to virtio-xxx-ccw for the s390-ccw machine, right?
 
-On 04.09.2012, at 17:13, Cornelia Huck wrote:
+See patch 5. As you said, we need to find a nice way to solve this. 
 
-> This patch enables using both virtio-xxx-s390 and virtio-xxx-ccw
-> by making the alias lookup code verify that a driver is actually
-> registered.
+> > [...]  
+> > +
+> > +static void virtio_ccw_notify(void *opaque, uint16_t vector)
+> > +{
+> > +    VirtioCcwData *dev = opaque;
+> > +    SubchDev *sch = dev->sch;
+> > +    uint64_t indicators;
+> > +
+> > +    if (vector >= VIRTIO_PCI_QUEUE_MAX) {
+> > +        return;
+> > +    }
+> > +
+> > +    qemu_mutex_lock(&sch->mutex);
 > 
-> (Only included in order to allow testing of virtio-ccw; should be
-> replaced by cleaning up the virtio bus model.)
+> Why do you need this lock?
 
-Phew. That explains how the overlapping aliases work for you. We really need to come up with something more clever here :)
+The locks are probably a leftover from an earlier version where Conny used
+a separate thread for subchannel work. We will double check if the lock would
+be needed when the big QEMU lock is gone and, if yes, leave a comment in the code 
+as a reminder.
 
-
-Alex
-
-> 
-> Not-signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> ---
-> blockdev.c        |  6 +---
-> hw/qdev-monitor.c | 85 +++++++++++++++++++++++++++++++++----------------------
-> vl.c              |  6 +---
-> 3 files changed, 53 insertions(+), 44 deletions(-)
-> 
-> diff --git a/blockdev.c b/blockdev.c
-> index 7c83baa..a7c39b6 100644
-> --- a/blockdev.c
-> +++ b/blockdev.c
-> @@ -560,11 +560,7 @@ DriveInfo *drive_init(QemuOpts *opts, int default_to_scsi)
->     case IF_VIRTIO:
->         /* add virtio block device */
->         opts = qemu_opts_create(qemu_find_opts("device"), NULL, 0, NULL);
-> -        if (arch_type == QEMU_ARCH_S390X) {
-> -            qemu_opt_set(opts, "driver", "virtio-blk-s390");
-> -        } else {
-> -            qemu_opt_set(opts, "driver", "virtio-blk-pci");
-> -        }
-> +        qemu_opt_set(opts, "driver", "virtio-blk");
->         qemu_opt_set(opts, "drive", dinfo->id);
->         if (devaddr)
->             qemu_opt_set(opts, "addr", devaddr);
-> diff --git a/hw/qdev-monitor.c b/hw/qdev-monitor.c
-> index 92b7c59..9245a1e 100644
-> --- a/hw/qdev-monitor.c
-> +++ b/hw/qdev-monitor.c
-> @@ -118,9 +118,53 @@ static int set_property(const char *name, const char *value, void *opaque)
->     return 0;
-> }
-> 
-> -static const char *find_typename_by_alias(const char *alias)
-> +static BusState *qbus_find_recursive(BusState *bus, const char *name,
-> +                                     const char *bus_typename)
-> +{
-> +    BusChild *kid;
-> +    BusState *child, *ret;
-> +    int match = 1;
-> +
-> +    if (name && (strcmp(bus->name, name) != 0)) {
-> +        match = 0;
-> +    }
-> +    if (bus_typename &&
-> +        (strcmp(object_get_typename(OBJECT(bus)), bus_typename) != 0)) {
-> +        match = 0;
-> +    }
-> +    if (match) {
-> +        return bus;
-> +    }
-> +
-> +    QTAILQ_FOREACH(kid, &bus->children, sibling) {
-> +        DeviceState *dev = kid->child;
-> +        QLIST_FOREACH(child, &dev->child_bus, sibling) {
-> +            ret = qbus_find_recursive(child, name, bus_typename);
-> +            if (ret) {
-> +                return ret;
-> +            }
-> +        }
-> +    }
-> +    return NULL;
-> +}
-> +
-> +static bool qdev_verify_bus(DeviceClass *dc)
-> +{
-> +    BusState *bus;
-> +
-> +    if (dc) {
-> +        bus = qbus_find_recursive(sysbus_get_default(), NULL, dc->bus_type);
-> +        if (bus) {
-> +            return true;
-> +        }
-> +    }
-> +    return false;
-> +}
-> +
-> +static const char *find_typename_by_alias(const char *alias, bool check_bus)
-> {
->     int i;
-> +    ObjectClass *oc;
-> 
->     for (i = 0; qdev_alias_table[i].alias; i++) {
->         if (qdev_alias_table[i].arch_mask &&
-> @@ -129,7 +173,10 @@ static const char *find_typename_by_alias(const char *alias)
->         }
-> 
->         if (strcmp(qdev_alias_table[i].alias, alias) == 0) {
-> -            return qdev_alias_table[i].typename;
-> +            oc = object_class_by_name(qdev_alias_table[i].typename);
-> +            if (oc && (!check_bus || qdev_verify_bus(DEVICE_CLASS(oc)))) {
-> +                return qdev_alias_table[i].typename;
-> +            }
->         }
->     }
-> 
-> @@ -155,7 +202,7 @@ int qdev_device_help(QemuOpts *opts)
-> 
->     klass = object_class_by_name(driver);
->     if (!klass) {
-> -        const char *typename = find_typename_by_alias(driver);
-> +        const char *typename = find_typename_by_alias(driver, false);
-> 
->         if (typename) {
->             driver = typename;
-> @@ -283,36 +330,6 @@ static DeviceState *qbus_find_dev(BusState *bus, char *elem)
->     return NULL;
-> }
-> 
-> -static BusState *qbus_find_recursive(BusState *bus, const char *name,
-> -                                     const char *bus_typename)
-> -{
-> -    BusChild *kid;
-> -    BusState *child, *ret;
-> -    int match = 1;
-> -
-> -    if (name && (strcmp(bus->name, name) != 0)) {
-> -        match = 0;
-> -    }
-> -    if (bus_typename &&
-> -        (strcmp(object_get_typename(OBJECT(bus)), bus_typename) != 0)) {
-> -        match = 0;
-> -    }
-> -    if (match) {
-> -        return bus;
-> -    }
-> -
-> -    QTAILQ_FOREACH(kid, &bus->children, sibling) {
-> -        DeviceState *dev = kid->child;
-> -        QLIST_FOREACH(child, &dev->child_bus, sibling) {
-> -            ret = qbus_find_recursive(child, name, bus_typename);
-> -            if (ret) {
-> -                return ret;
-> -            }
-> -        }
-> -    }
-> -    return NULL;
-> -}
-> -
-> static BusState *qbus_find(const char *path)
-> {
->     DeviceState *dev;
-> @@ -417,7 +434,7 @@ DeviceState *qdev_device_add(QemuOpts *opts)
->     /* find driver */
->     obj = object_class_by_name(driver);
->     if (!obj) {
-> -        const char *typename = find_typename_by_alias(driver);
-> +        const char *typename = find_typename_by_alias(driver, true);
-> 
->         if (typename) {
->             driver = typename;
-> diff --git a/vl.c b/vl.c
-> index 2b8cae6..788a536 100644
-> --- a/vl.c
-> +++ b/vl.c
-> @@ -2113,11 +2113,7 @@ static int virtcon_parse(const char *devname)
->     }
-> 
->     bus_opts = qemu_opts_create(device, NULL, 0, NULL);
-> -    if (arch_type == QEMU_ARCH_S390X) {
-> -        qemu_opt_set(bus_opts, "driver", "virtio-serial-s390");
-> -    } else {
-> -        qemu_opt_set(bus_opts, "driver", "virtio-serial-pci");
-> -    } 
-> +    qemu_opt_set(bus_opts, "driver", "virtio-serial");
-> 
->     dev_opts = qemu_opts_create(device, NULL, 0, NULL);
->     qemu_opt_set(dev_opts, "driver", "virtconsole");
-> -- 
-> 1.7.11.5
-> 
+Jens
