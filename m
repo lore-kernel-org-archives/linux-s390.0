@@ -1,65 +1,31 @@
 From: frank.blaschka@de.ibm.com
-Subject: [patch 4/5] [PATCH] drivers/s390/net: removes unnecessary semicolon
-Date: Mon, 24 Sep 2012 16:24:26 +0200
-Message-ID: <20120924142501.344742310@de.ibm.com>
-References: <20120924142422.001953152@de.ibm.com>
+Subject: [patch 0/5] s390: network patches for net-next
+Date: Mon, 24 Sep 2012 16:24:22 +0200
+Message-ID: <20120924142422.001953152@de.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=603-net-semicolon-cleanup.diff
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Peter Senna Tschudin <peter.senna@gmail.com>, Ursula Braun <ursula.braun@de.ibm.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Peter Senna Tschudin <peter.senna@gmail.com>
+Hi Dave,
 
-removes unnecessary semicolon
+here are some s390 related patches for net-next
 
-Found by Coccinelle: http://coccinelle.lip6.fr/
+shortlog:
 
-Signed-off-by: Peter Senna Tschudin <peter.senna@gmail.com>
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
- drivers/s390/net/ctcm_fsms.c      | 2 +-
- drivers/s390/net/qeth_core_main.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+Sebastian Ott(2)
+qeth: cleanup channel path descriptor function
+lcs: ensure proper ccw setup
 
-diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
-index d4ade9e..fb92524 100644
---- a/drivers/s390/net/ctcm_fsms.c
-+++ b/drivers/s390/net/ctcm_fsms.c
-@@ -1523,7 +1523,7 @@ static void ctcmpc_chx_firstio(fsm_instance *fi, int event, void *arg)
- 				goto done;
- 	default:
- 		break;
--	};
-+	}
- 
- 	fsm_newstate(fi, (CHANNEL_DIRECTION(ch->flags) == CTCM_READ)
- 		     ? CTC_STATE_RXINIT : CTC_STATE_TXINIT);
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 3420abf..3e25d31 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -489,7 +489,7 @@ static struct qeth_reply *qeth_alloc_reply(struct qeth_card *card)
- 		atomic_set(&reply->refcnt, 1);
- 		atomic_set(&reply->received, 0);
- 		reply->card = card;
--	};
-+	}
- 	return reply;
- }
- 
-@@ -2037,7 +2037,7 @@ int qeth_send_control_data(struct qeth_card *card, int len,
- 			if (time_after(jiffies, timeout))
- 				goto time_err;
- 			cpu_relax();
--		};
-+		}
- 	}
- 
- 	if (reply->rc == -EIO)
--- 
-1.7.11.7
+Wei Yongjun(1)
+qeth: fix possible memory leak in qeth_l3_add_[vipa|rxip]()
+
+Peter Senna(2)
+drivers/s390/net: removes unnecessary semicolon
+ctcm: fix error return code
+
+Thanks,
+        Frank
