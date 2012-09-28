@@ -1,136 +1,171 @@
-From: Ni zhan Chen <nizhan.chen@gmail.com>
-Subject: Re: [RFC v9 PATCH 05/21] memory-hotplug: check whether memory is
- present or not
-Date: Fri, 28 Sep 2012 11:37:27 +0800
-Message-ID: <50651B77.1070809@gmail.com>
-References: <1346837155-534-1-git-send-email-wency@cn.fujitsu.com> <1346837155-534-6-git-send-email-wency@cn.fujitsu.com> <504E9EBE.1040403@cn.fujitsu.com> <504EA0F7.5090805@jp.fujitsu.com>
+From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+Subject: Re: [RFC v9 PATCH 01/21] memory-hotplug: rename remove_memory() to
+ offline_memory()/offline_pages()
+Date: Fri, 28 Sep 2012 12:50:00 +0900
+Message-ID: <50651E68.3040208@jp.fujitsu.com>
+References: <1346837155-534-1-git-send-email-wency@cn.fujitsu.com> <1346837155-534-2-git-send-email-wency@cn.fujitsu.com> <506509E4.1090000@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
-In-Reply-To: <504EA0F7.5090805@jp.fujitsu.com>
-Sender: linux-ia64-owner@vger.kernel.org
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <506509E4.1090000@gmail.com>
+Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-Cc: Wen Congyang <wency@cn.fujitsu.com>, x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com
+To: Ni zhan Chen <nizhan.chen@gmail.com>
+Cc: wency@cn.fujitsu.com, x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 09/11/2012 10:24 AM, Yasuaki Ishimatsu wrote:
-> Hi Wen,
->
-> 2012/09/11 11:15, Wen Congyang wrote:
->> Hi, ishimatsu
->>
->> At 09/05/2012 05:25 PM, wency@cn.fujitsu.com Wrote:
->>> From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
->>>
->>> If system supports memory hot-remove, online_pages() may online 
->>> removed pages.
->>> So online_pages() need to check whether onlining pages are present 
->>> or not.
->>
->> Because we use memory_block_change_state() to hotremoving memory, I 
->> think
->> this patch can be removed. What do you think?
->
-> Pleae teach me detals a little more. If we use 
-> memory_block_change_state(),
-> does the conflict never occur? Why?
+Hi Chen,
 
-since memory hot-add or hot-remove is based on memblock, if check in 
-memory_block_change_state()
-can guarantee conflict never occur?
+2012/09/28 11:22, Ni zhan Chen wrote:
+> On 09/05/2012 05:25 PM, wency@cn.fujitsu.com wrote:
+>> From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+>>
+>> remove_memory() only try to offline pages. It is called in two cases:
+>> 1. hot remove a memory device
+>> 2. echo offline >/sys/devices/system/memory/memoryXX/state
+>>
+>> In the 1st case, we should also change memory block's state, and notify
+>> the userspace that the memory block's state is changed after offlining
+>> pages.
+>>
+>> So rename remove_memory() to offline_memory()/offline_pages(). And in
+>> the 1st case, offline_memory() will be used. The function offline_memory()
+>> is not implemented. In the 2nd case, offline_pages() will be used.
+>
+> But this time there is not a function associated with add_memory.
+
+To associate with add_memory() later, we renamed it.
+
+Thanks,
+Yasuaki Ishimatsu
 
 >
-> Thansk,
-> Yasuaki Ishimatsu
->
->> Thanks
->> Wen Congyang
 >>
->>>
->>> CC: David Rientjes <rientjes@google.com>
->>> CC: Jiang Liu <liuj97@gmail.com>
->>> CC: Len Brown <len.brown@intel.com>
->>> CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>
->>> CC: Paul Mackerras <paulus@samba.org>
->>> CC: Christoph Lameter <cl@linux.com>
->>> Cc: Minchan Kim <minchan.kim@gmail.com>
->>> CC: Andrew Morton <akpm@linux-foundation.org>
->>> CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
->>> CC: Wen Congyang <wency@cn.fujitsu.com>
->>> Signed-off-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
->>> ---
->>>   include/linux/mmzone.h |   19 +++++++++++++++++++
->>>   mm/memory_hotplug.c    |   13 +++++++++++++
->>>   2 files changed, 32 insertions(+), 0 deletions(-)
->>>
->>> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
->>> index 2daa54f..ac3ae30 100644
->>> --- a/include/linux/mmzone.h
->>> +++ b/include/linux/mmzone.h
->>> @@ -1180,6 +1180,25 @@ void sparse_init(void);
->>>   #define sparse_index_init(_sec, _nid)  do {} while (0)
->>>   #endif /* CONFIG_SPARSEMEM */
->>>
->>> +#ifdef CONFIG_SPARSEMEM
->>> +static inline int pfns_present(unsigned long pfn, unsigned long 
->>> nr_pages)
->>> +{
->>> +    int i;
->>> +    for (i = 0; i < nr_pages; i++) {
->>> +        if (pfn_present(pfn + i))
->>> +            continue;
->>> +        else
->>> +            return -EINVAL;
->>> +    }
->>> +    return 0;
->>> +}
->>> +#else
->>> +static inline int pfns_present(unsigned long pfn, unsigned long 
->>> nr_pages)
->>> +{
->>> +    return 0;
->>> +}
->>> +#endif /* CONFIG_SPARSEMEM*/
->>> +
->>>   #ifdef CONFIG_NODES_SPAN_OTHER_NODES
->>>   bool early_pfn_in_nid(unsigned long pfn, int nid);
->>>   #else
->>> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
->>> index 49f7747..299747d 100644
->>> --- a/mm/memory_hotplug.c
->>> +++ b/mm/memory_hotplug.c
->>> @@ -467,6 +467,19 @@ int __ref online_pages(unsigned long pfn, 
->>> unsigned long nr_pages)
->>>       struct memory_notify arg;
->>>
->>>       lock_memory_hotplug();
->>> +    /*
->>> +     * If system supports memory hot-remove, the memory may have been
->>> +     * removed. So we check whether the memory has been removed or 
->>> not.
->>> +     *
->>> +     * Note: When CONFIG_SPARSEMEM is defined, pfns_present() become
->>> +     *       effective. If CONFIG_SPARSEMEM is not defined, 
->>> pfns_present()
->>> +     *       always returns 0.
->>> +     */
->>> +    ret = pfns_present(pfn, nr_pages);
->>> +    if (ret) {
->>> +        unlock_memory_hotplug();
->>> +        return ret;
->>> +    }
->>>       arg.start_pfn = pfn;
->>>       arg.nr_pages = nr_pages;
->>>       arg.status_change_nid = -1;
+>> CC: David Rientjes <rientjes@google.com>
+>> CC: Jiang Liu <liuj97@gmail.com>
+>> CC: Len Brown <len.brown@intel.com>
+>> CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+>> CC: Paul Mackerras <paulus@samba.org>
+>> CC: Christoph Lameter <cl@linux.com>
+>> Cc: Minchan Kim <minchan.kim@gmail.com>
+>> CC: Andrew Morton <akpm@linux-foundation.org>
+>> CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+>> Signed-off-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+>> Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
+>> ---
+>>   drivers/acpi/acpi_memhotplug.c |    2 +-
+>>   drivers/base/memory.c          |    9 +++------
+>>   include/linux/memory_hotplug.h |    3 ++-
+>>   mm/memory_hotplug.c            |   22 ++++++++++++++--------
+>>   4 files changed, 20 insertions(+), 16 deletions(-)
 >>
+>> diff --git a/drivers/acpi/acpi_memhotplug.c b/drivers/acpi/acpi_memhotplug.c
+>> index 24c807f..2a7beac 100644
+>> --- a/drivers/acpi/acpi_memhotplug.c
+>> +++ b/drivers/acpi/acpi_memhotplug.c
+>> @@ -318,7 +318,7 @@ static int acpi_memory_disable_device(struct acpi_memory_device *mem_device)
+>>        */
+>>       list_for_each_entry_safe(info, n, &mem_device->res_list, list) {
+>>           if (info->enabled) {
+>> -            result = remove_memory(info->start_addr, info->length);
+>> +            result = offline_memory(info->start_addr, info->length);
+>>               if (result)
+>>                   return result;
+>>           }
+>> diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+>> index 7dda4f7..44e7de6 100644
+>> --- a/drivers/base/memory.c
+>> +++ b/drivers/base/memory.c
+>> @@ -248,26 +248,23 @@ static bool pages_correctly_reserved(unsigned long start_pfn,
+>>   static int
+>>   memory_block_action(unsigned long phys_index, unsigned long action)
+>>   {
+>> -    unsigned long start_pfn, start_paddr;
+>> +    unsigned long start_pfn;
+>>       unsigned long nr_pages = PAGES_PER_SECTION * sections_per_block;
+>>       struct page *first_page;
+>>       int ret;
+>>       first_page = pfn_to_page(phys_index << PFN_SECTION_SHIFT);
+>> +    start_pfn = page_to_pfn(first_page);
+>>       switch (action) {
+>>           case MEM_ONLINE:
+>> -            start_pfn = page_to_pfn(first_page);
+>> -
+>>               if (!pages_correctly_reserved(start_pfn, nr_pages))
+>>                   return -EBUSY;
+>>               ret = online_pages(start_pfn, nr_pages);
+>>               break;
+>>           case MEM_OFFLINE:
+>> -            start_paddr = page_to_pfn(first_page) << PAGE_SHIFT;
+>> -            ret = remove_memory(start_paddr,
+>> -                        nr_pages << PAGE_SHIFT);
+>> +            ret = offline_pages(start_pfn, nr_pages);
+>>               break;
+>>           default:
+>>               WARN(1, KERN_WARNING "%s(%ld, %ld) unknown action: "
+>> diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+>> index 910550f..c183f39 100644
+>> --- a/include/linux/memory_hotplug.h
+>> +++ b/include/linux/memory_hotplug.h
+>> @@ -233,7 +233,8 @@ static inline int is_mem_section_removable(unsigned long pfn,
+>>   extern int mem_online_node(int nid);
+>>   extern int add_memory(int nid, u64 start, u64 size);
+>>   extern int arch_add_memory(int nid, u64 start, u64 size);
+>> -extern int remove_memory(u64 start, u64 size);
+>> +extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages);
+>> +extern int offline_memory(u64 start, u64 size);
+>>   extern int sparse_add_one_section(struct zone *zone, unsigned long start_pfn,
+>>                                   int nr_pages);
+>>   extern void sparse_remove_one_section(struct zone *zone, struct mem_section *ms);
+>> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+>> index 3ad25f9..bb42316 100644
+>> --- a/mm/memory_hotplug.c
+>> +++ b/mm/memory_hotplug.c
+>> @@ -866,7 +866,7 @@ check_pages_isolated(unsigned long start_pfn, unsigned long end_pfn)
+>>       return offlined;
+>>   }
+>> -static int __ref offline_pages(unsigned long start_pfn,
+>> +static int __ref __offline_pages(unsigned long start_pfn,
+>>             unsigned long end_pfn, unsigned long timeout)
+>>   {
+>>       unsigned long pfn, nr_pages, expire;
+>> @@ -994,18 +994,24 @@ out:
+>>       return ret;
+>>   }
+>> -int remove_memory(u64 start, u64 size)
+>> +int offline_pages(unsigned long start_pfn, unsigned long nr_pages)
+>>   {
+>> -    unsigned long start_pfn, end_pfn;
+>> +    return __offline_pages(start_pfn, start_pfn + nr_pages, 120 * HZ);
+>> +}
+>> -    start_pfn = PFN_DOWN(start);
+>> -    end_pfn = start_pfn + PFN_DOWN(size);
+>> -    return offline_pages(start_pfn, end_pfn, 120 * HZ);
+>> +int offline_memory(u64 start, u64 size)
+>> +{
+>> +    return -EINVAL;
+>>   }
+>>   #else
+>> -int remove_memory(u64 start, u64 size)
+>> +int offline_pages(unsigned long start, unsigned long size)
+>> +{
+>> +    return -EINVAL;
+>> +}
+>> +
+>> +int offline_memory(u64 start, u64 size)
+>>   {
+>>       return -EINVAL;
+>>   }
+>>   #endif /* CONFIG_MEMORY_HOTREMOVE */
+>> -EXPORT_SYMBOL_GPL(remove_memory);
+>> +EXPORT_SYMBOL_GPL(offline_memory);
 >
->
-> -- 
-> To unsubscribe, send a message with 'unsubscribe linux-mm' in
-> the body to majordomo@kvack.org.  For more info on Linux MM,
-> see: http://www.linux-mm.org/ .
-> Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
->
+
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
