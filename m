@@ -1,7 +1,7 @@
 From: Ni zhan Chen <nizhan.chen@gmail.com>
 Subject: Re: [RFC v9 PATCH 00/21] memory-hotplug: hot-remove physical memory
-Date: Sat, 29 Sep 2012 11:45:24 +0800
-Message-ID: <50666ED4.2010406@gmail.com>
+Date: Sat, 29 Sep 2012 16:19:38 +0800
+Message-ID: <5066AF1A.4090509@gmail.com>
 References: <1346837155-534-1-git-send-email-wency@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -31,15 +31,16 @@ On 09/05/2012 05:25 PM, wency@cn.fujitsu.com wrote:
 >
 > If you find lack of function for physical memory hot-remove, please let me
 > know.
-
-Since patchset is too big, could you add more patchset changelog to 
-describe how this patchset works? in order that it is easier to review.
-
 >
 > How to test this patchset?
 > 1. apply this patchset and build the kernel. MEMORY_HOTPLUG, MEMORY_HOTREMOVE,
 >     ACPI_HOTPLUG_MEMORY must be selected.
 > 2. load the module acpi_memhotplug
+
+Hi Yasuaki,
+
+where is the acpi_memhotplug module?
+
 > 3. hotplug the memory device(it depends on your hardware)
 >     You will see the memory device under the directory /sys/bus/acpi/devices/.
 >     Its name is PNP0C80:XX.
