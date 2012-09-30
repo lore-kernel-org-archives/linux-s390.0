@@ -1,132 +1,52 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio: support reserved vqs
-Date: Wed, 5 Sep 2012 21:47:45 +0300
-Message-ID: <20120905184745.GA15861@redhat.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [-next]: s390 *_irq() link errors
+Date: Sun, 30 Sep 2012 13:08:30 +0200
+Message-ID: <CAMuHMdVciRLg3GCcetXMxuXJjC_ur2_=DpgijOTSoO=LvLA1_g@mail.gmail.com>
+References: <CAMuHMdXqsPgfToNyjbxJ-WM=-kEEvAweE03wb3vtkwVO+-RR3A@mail.gmail.com>
+	<20120927115134.GA5654@osiris.de.ibm.com>
+	<CAMuHMdUqXnY5ZNgjYN0YMpLkPw0j41MXM18H9qiLoEk-BzKYMg@mail.gmail.com>
+	<20120930105350.16e54037@endymion.delvare>
+	<CAMuHMdV=mcVuVuJaWrVjwxLz0+gkBoC=NUq6=C176B3W7j8Yag@mail.gmail.com>
+	<20120930112052.733ce361@endymion.delvare>
+	<CAMuHMdVV5F148RrqyGgD7q9y_C5tTnGi8S9hC4tus6wu-mLPxw@mail.gmail.com>
+	<20120930120516.29be3022@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Rusty Russell <rusty@rustcorp.com.au>, Ohad Ben-Cohen <ohad@wizery.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Stratos Psomadakis <psomas@cslab.ece.ntua.gr>, "David S. Miller" <davem@davemloft.net>, lguest@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120930120516.29be3022@endymion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Huewe <peterhuewe@gmx.de>, linux-s390@vger.kernel.org, Linux-Next <linux-next@vger.kernel.org>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-virtio network device multiqueue support reserves
-vq 3 for future use (useful both for future extensions and to make it
-pretty - this way receive vqs have even and transmit - odd numbers).
-Make it possible to skip initialization for
-specific vq numbers by specifying NULL for name.
-Document this usage as well as (existing) NULL callback.
+On Sun, Sep 30, 2012 at 12:05 PM, Jean Delvare <khali@linux-fr.org> wrote:
+> On Sun, 30 Sep 2012 11:35:41 +0200, Geert Uytterhoeven wrote:
+>> On Sun, Sep 30, 2012 at 11:20 AM, Jean Delvare <khali@linux-fr.org> wrote:
+>> > On Sun, 30 Sep 2012 11:08:41 +0200, Geert Uytterhoeven wrote:
+>> >> On Sun, Sep 30, 2012 at 10:53 AM, Jean Delvare <khali@linux-fr.org> wrote:
+>> >> > I thought we were trying to move away from explicit arch exclusions,
+>> >> > but if S390 is special then fine with me. I've folded Heiko's fix into
+>> >>
+>> >> "depends on GENERIC_HARDIRQS" is the alternative...
+>> >
+>> > That would make even less sense to me, I2C can work just fine without
+>> > IRQs.
+>>
+>> For the individual drivers that need it...
+>
+> Oh, of course. Sorry I was probably not completely awaken ;)
 
-Drivers using this not coded up yet, so I simply tested
-with virtio-pci and verified that this patch does
-not break existing drivers.
+Me neither ;-)
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/lguest/lguest_device.c         | 3 +++
- drivers/remoteproc/remoteproc_virtio.c | 3 +++
- drivers/s390/kvm/kvm_virtio.c          | 3 +++
- drivers/virtio/virtio_mmio.c           | 3 +++
- drivers/virtio/virtio_pci.c            | 5 ++++-
- include/linux/virtio_config.h          | 2 ++
- 6 files changed, 18 insertions(+), 1 deletion(-)
+Gr{oetje,eeting}s,
 
-diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
-index 9e8388e..e849e12 100644
---- a/drivers/lguest/lguest_device.c
-+++ b/drivers/lguest/lguest_device.c
-@@ -263,6 +263,9 @@ static struct virtqueue *lg_find_vq(struct virtio_device *vdev,
- 	struct virtqueue *vq;
- 	int err;
- 
-+	if (!name)
-+		return NULL;
-+
- 	/* We must have this many virtqueues. */
- 	if (index >= ldev->desc->num_vq)
- 		return ERR_PTR(-ENOENT);
-diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-index 3541b44..bda6750 100644
---- a/drivers/remoteproc/remoteproc_virtio.c
-+++ b/drivers/remoteproc/remoteproc_virtio.c
-@@ -84,6 +84,9 @@ static struct virtqueue *rp_find_vq(struct virtio_device *vdev,
- 	if (id >= ARRAY_SIZE(rvdev->vring))
- 		return ERR_PTR(-EINVAL);
- 
-+	if (!name)
-+		return NULL;
-+
- 	ret = rproc_alloc_vring(rvdev, id);
- 	if (ret)
- 		return ERR_PTR(ret);
-diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
-index 47cccd5..6e842d1 100644
---- a/drivers/s390/kvm/kvm_virtio.c
-+++ b/drivers/s390/kvm/kvm_virtio.c
-@@ -190,6 +190,9 @@ static struct virtqueue *kvm_find_vq(struct virtio_device *vdev,
- 	if (index >= kdev->desc->num_vq)
- 		return ERR_PTR(-ENOENT);
- 
-+	if (!name)
-+		return NULL;
-+
- 	config = kvm_vq_config(kdev->desc)+index;
- 
- 	err = vmem_add_mapping(config->address,
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 453db0c..b1f342e 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -309,6 +309,9 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 	unsigned long flags, size;
- 	int err;
- 
-+	if (!name)
-+		return NULL;
-+
- 	/* Select the queue we're interested in */
- 	writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
- 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 2e03d41..92809ba 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -542,7 +542,10 @@ static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	vp_dev->per_vq_vectors = per_vq_vectors;
- 	allocated_vectors = vp_dev->msix_used_vectors;
- 	for (i = 0; i < nvqs; ++i) {
--		if (!callbacks[i] || !vp_dev->msix_enabled)
-+		if (!names[i]) {
-+			vqs[i] = NULL;
-+			continue;
-+		} else if (!callbacks[i] || !vp_dev->msix_enabled)
- 			msix_vec = VIRTIO_MSI_NO_VECTOR;
- 		else if (vp_dev->per_vq_vectors)
- 			msix_vec = allocated_vectors++;
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index fc457f4..07c0c69 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -84,7 +84,9 @@
-  *	nvqs: the number of virtqueues to find
-  *	vqs: on success, includes new virtqueues
-  *	callbacks: array of callbacks, for each virtqueue
-+ *		include a NULL entry for vqs that do not need a callback
-  *	names: array of virtqueue names (mainly for debugging)
-+ *		include a NULL entry for vqs unused by driver
-  *	Returns 0 on success or error status
-  * @del_vqs: free virtqueues found by find_vqs().
-  * @get_features: get the array of feature bits for this device.
--- 
-MST
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
