@@ -1,110 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: David Howells <dhowells@redhat.com>
-Subject: [GIT PULL] Disintegrate UAPI for s390 [ver #2]
-Date: Tue, 09 Oct 2012 10:15:52 +0100
-Message-ID: <21182.1349774152@warthog.procyon.org.uk>
+Date: Wed, 10 Oct 2012 11:10:56 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for the 3.7 merge window #2
+Message-ID: <20121010111056.173fca51@mschwide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: schwidefsky@de.ibm.com
-Cc: dhowells@redhat.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Can you merge the following branch into the s390 tree please.
+Hi Linus,
 
-This is to complete part of the UAPI disintegration for which the preparatory
-patches were pulled recently.
+please pull from the 'for-linus' branch of
 
-Now that the fixups and the asm-generic chunk have been merged, I've
-regenerated the patches to get rid of those dependencies and to take account of
-any changes made so far in the merge window.  If you have already pulled the
-older version of the branch aimed at you, then please feel free to ignore this
-request.
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-The following changes since commit 9e2d8656f5e8aa214e66b462680cf86b210b74a8:
+to receive the following updates:
+The big thing in this pull request is the UAPI patch from David,
+and worth mentioning is the page table dumper. The rest are small
+improvements and bug fixes.
 
-  Merge branch 'akpm' (Andrew's patch-bomb) (2012-10-09 16:23:15 +0900)
-
-are available in the git repository at:
-
-
-  git://git.infradead.org/users/dhowells/linux-headers.git tags/disintegrate-s390-20121009
-
-for you to fetch changes up to 9807f75955ea7f1877981056755284481873115c:
-
-  UAPI: (Scripted) Disintegrate arch/s390/include/asm (2012-10-09 09:47:31 +0100)
-
-----------------------------------------------------------------
-UAPI Disintegration 2012-10-09
-
-----------------------------------------------------------------
 David Howells (1):
       UAPI: (Scripted) Disintegrate arch/s390/include/asm
 
- arch/s390/include/asm/Kbuild                   |  14 -
- arch/s390/include/asm/chpid.h                  |  17 +-
- arch/s390/include/asm/cmb.h                    |  51 +--
- arch/s390/include/asm/debug.h                  |  28 +-
- arch/s390/include/asm/kvm_para.h               |  14 +-
- arch/s390/include/asm/mman.h                   |   6 +-
- arch/s390/include/asm/ptrace.h                 | 462 +-----------------------
- arch/s390/include/asm/schid.h                  |  15 +-
- arch/s390/include/asm/setup.h                  |   7 +-
- arch/s390/include/asm/signal.h                 | 128 +------
- arch/s390/include/asm/termios.h                |  42 +--
- arch/s390/include/asm/types.h                  |  15 +-
- arch/s390/include/asm/unistd.h                 | 367 +------------------
- arch/s390/include/uapi/asm/Kbuild              |  45 +++
- arch/s390/include/{ => uapi}/asm/auxvec.h      |   0
- arch/s390/include/{ => uapi}/asm/bitsperlong.h |   0
- arch/s390/include/{ => uapi}/asm/byteorder.h   |   0
- arch/s390/include/uapi/asm/chpid.h             |  22 ++
- arch/s390/include/{ => uapi}/asm/chsc.h        |   0
- arch/s390/include/uapi/asm/cmb.h               |  53 +++
- arch/s390/include/{ => uapi}/asm/dasd.h        |   0
- arch/s390/include/uapi/asm/debug.h             |  34 ++
- arch/s390/include/{ => uapi}/asm/errno.h       |   0
- arch/s390/include/{ => uapi}/asm/fcntl.h       |   0
- arch/s390/include/{ => uapi}/asm/ioctl.h       |   0
- arch/s390/include/{ => uapi}/asm/ioctls.h      |   0
- arch/s390/include/{ => uapi}/asm/ipcbuf.h      |   0
- arch/s390/include/{ => uapi}/asm/kvm.h         |   0
- arch/s390/include/{ => uapi}/asm/kvm_virtio.h  |   0
- arch/s390/include/uapi/asm/mman.h              |   6 +
- arch/s390/include/{ => uapi}/asm/monwriter.h   |   0
- arch/s390/include/{ => uapi}/asm/msgbuf.h      |   0
- arch/s390/include/{ => uapi}/asm/param.h       |   0
- arch/s390/include/{ => uapi}/asm/poll.h        |   0
- arch/s390/include/{ => uapi}/asm/posix_types.h |   0
- arch/s390/include/uapi/asm/ptrace.h            | 472 +++++++++++++++++++++++++
- arch/s390/include/{ => uapi}/asm/qeth.h        |   0
- arch/s390/include/{ => uapi}/asm/resource.h    |   0
- arch/s390/include/uapi/asm/schid.h             |  16 +
- arch/s390/include/{ => uapi}/asm/sembuf.h      |   0
- arch/s390/include/uapi/asm/setup.h             |  13 +
- arch/s390/include/{ => uapi}/asm/shmbuf.h      |   0
- arch/s390/include/{ => uapi}/asm/sigcontext.h  |   0
- arch/s390/include/{ => uapi}/asm/siginfo.h     |   0
- arch/s390/include/uapi/asm/signal.h            | 135 +++++++
- arch/s390/include/{ => uapi}/asm/socket.h      |   0
- arch/s390/include/{ => uapi}/asm/sockios.h     |   0
- arch/s390/include/{ => uapi}/asm/stat.h        |   0
- arch/s390/include/{ => uapi}/asm/statfs.h      |   0
- arch/s390/include/{ => uapi}/asm/swab.h        |   0
- arch/s390/include/{ => uapi}/asm/tape390.h     |   0
- arch/s390/include/{ => uapi}/asm/termbits.h    |   0
- arch/s390/include/uapi/asm/termios.h           |  49 +++
- arch/s390/include/uapi/asm/types.h             |  22 ++
- arch/s390/include/{ => uapi}/asm/ucontext.h    |   0
- arch/s390/include/uapi/asm/unistd.h            | 374 ++++++++++++++++++++
- arch/s390/include/{ => uapi}/asm/vtoc.h        |   0
- arch/s390/include/{ => uapi}/asm/zcrypt.h      |   0
- 58 files changed, 1258 insertions(+), 1149 deletions(-)
+Heiko Carstens (10):
+      s390/facilities: cleanup PFMF and HPAGE machine facility detection
+      s390/mm: use pfmf instruction to initialize storage keys
+      s390/mm: fix pmd_huge() usage for kernel mapping
+      s390/mm,pageattr: add more page table walk sanity checks
+      s390/mm,pageattr: remove superfluous EXPORT_SYMBOLs
+      s390/mm: add page table dumper
+      s390/mm: fix mapping of read-only kernel text section
+      s390/mm: let kernel text section always begin at 1MB
+      s390/vmalloc: have separate modules area
+      s390/mm,vmem: fix vmem_add_mem()/vmem_remove_range()
+
+Martin Schwidefsky (2):
+      s390: add support to start the kernel in 64 bit mode.
+      s390/entry: fix svc number for TIF_SYSCALL system call restart
+
+Sebastian Ott (3):
+      s390/dcssblk: cleanup device attribute usage
+      s390/chsc: make headers usable
+      s390/css_chars: remove superfluous ifdef
+
+Wei Yongjun (1):
+      s390/zcrypt: remove duplicated include from zcrypt_pcixcc.c
+
+ arch/s390/Kconfig.debug                        |   12 +
+ arch/s390/include/asm/Kbuild                   |   14 -
+ arch/s390/include/asm/chpid.h                  |   19 +-
+ arch/s390/include/asm/cmb.h                    |   51 +--
+ arch/s390/include/asm/css_chars.h              |    3 -
+ arch/s390/include/asm/debug.h                  |   28 +-
+ arch/s390/include/asm/kvm_para.h               |   14 +-
+ arch/s390/include/asm/mman.h                   |    6 +-
+ arch/s390/include/asm/page.h                   |   14 +-
+ arch/s390/include/asm/pgtable.h                |   30 +-
+ arch/s390/include/asm/ptrace.h                 |  462 +----------------------
+ arch/s390/include/asm/schid.h                  |   15 +-
+ arch/s390/include/asm/setup.h                  |   21 +-
+ arch/s390/include/asm/signal.h                 |  128 +------
+ arch/s390/include/asm/termios.h                |   42 +--
+ arch/s390/include/asm/types.h                  |   15 +-
+ arch/s390/include/asm/unistd.h                 |  367 +-----------------
+ arch/s390/include/uapi/asm/Kbuild              |   45 +++
+ arch/s390/include/{ => uapi}/asm/auxvec.h      |    0
+ arch/s390/include/{ => uapi}/asm/bitsperlong.h |    0
+ arch/s390/include/{ => uapi}/asm/byteorder.h   |    0
+ arch/s390/include/uapi/asm/chpid.h             |   22 ++
+ arch/s390/include/{ => uapi}/asm/chsc.h        |   10 +-
+ arch/s390/include/uapi/asm/cmb.h               |   53 +++
+ arch/s390/include/{ => uapi}/asm/dasd.h        |    0
+ arch/s390/include/uapi/asm/debug.h             |   34 ++
+ arch/s390/include/{ => uapi}/asm/errno.h       |    0
+ arch/s390/include/{ => uapi}/asm/fcntl.h       |    0
+ arch/s390/include/{ => uapi}/asm/ioctl.h       |    0
+ arch/s390/include/{ => uapi}/asm/ioctls.h      |    0
+ arch/s390/include/{ => uapi}/asm/ipcbuf.h      |    0
+ arch/s390/include/{ => uapi}/asm/kvm.h         |    0
+ arch/s390/include/{ => uapi}/asm/kvm_virtio.h  |    0
+ arch/s390/include/uapi/asm/mman.h              |    6 +
+ arch/s390/include/{ => uapi}/asm/monwriter.h   |    0
+ arch/s390/include/{ => uapi}/asm/msgbuf.h      |    0
+ arch/s390/include/{ => uapi}/asm/param.h       |    0
+ arch/s390/include/{ => uapi}/asm/poll.h        |    0
+ arch/s390/include/{ => uapi}/asm/posix_types.h |    0
+ arch/s390/include/uapi/asm/ptrace.h            |  472 ++++++++++++++++++++++++
+ arch/s390/include/{ => uapi}/asm/qeth.h        |    0
+ arch/s390/include/{ => uapi}/asm/resource.h    |    0
+ arch/s390/include/uapi/asm/schid.h             |   16 +
+ arch/s390/include/{ => uapi}/asm/sembuf.h      |    0
+ arch/s390/include/uapi/asm/setup.h             |   13 +
+ arch/s390/include/{ => uapi}/asm/shmbuf.h      |    0
+ arch/s390/include/{ => uapi}/asm/sigcontext.h  |    0
+ arch/s390/include/{ => uapi}/asm/siginfo.h     |    0
+ arch/s390/include/uapi/asm/signal.h            |  135 +++++++
+ arch/s390/include/{ => uapi}/asm/socket.h      |    0
+ arch/s390/include/{ => uapi}/asm/sockios.h     |    0
+ arch/s390/include/{ => uapi}/asm/stat.h        |    0
+ arch/s390/include/{ => uapi}/asm/statfs.h      |    0
+ arch/s390/include/{ => uapi}/asm/swab.h        |    0
+ arch/s390/include/{ => uapi}/asm/tape390.h     |    0
+ arch/s390/include/{ => uapi}/asm/termbits.h    |    0
+ arch/s390/include/uapi/asm/termios.h           |   49 +++
+ arch/s390/include/uapi/asm/types.h             |   22 ++
+ arch/s390/include/{ => uapi}/asm/ucontext.h    |    0
+ arch/s390/include/uapi/asm/unistd.h            |  374 +++++++++++++++++++
+ arch/s390/include/{ => uapi}/asm/vtoc.h        |    0
+ arch/s390/include/{ => uapi}/asm/zcrypt.h      |    0
+ arch/s390/kernel/early.c                       |   17 +-
+ arch/s390/kernel/entry64.S                     |    2 +-
+ arch/s390/kernel/head.S                        |  101 +++--
+ arch/s390/kernel/head31.S                      |    3 -
+ arch/s390/kernel/head64.S                      |    3 -
+ arch/s390/kernel/module.c                      |   11 +
+ arch/s390/kernel/setup.c                       |   51 ++-
+ arch/s390/mm/Makefile                          |    1 +
+ arch/s390/mm/dump_pagetables.c                 |  226 ++++++++++++
+ arch/s390/mm/pageattr.c                        |   40 +-
+ arch/s390/mm/vmem.c                            |   45 ++-
+ drivers/s390/block/dcssblk.c                   |   52 ++-
+ drivers/s390/crypto/zcrypt_pcixcc.c            |    1 -
+ 75 files changed, 1755 insertions(+), 1290 deletions(-)
  rename arch/s390/include/{ => uapi}/asm/auxvec.h (100%)
  rename arch/s390/include/{ => uapi}/asm/bitsperlong.h (100%)
  rename arch/s390/include/{ => uapi}/asm/byteorder.h (100%)
  create mode 100644 arch/s390/include/uapi/asm/chpid.h
- rename arch/s390/include/{ => uapi}/asm/chsc.h (100%)
+ rename arch/s390/include/{ => uapi}/asm/chsc.h (92%)
  create mode 100644 arch/s390/include/uapi/asm/cmb.h
  rename arch/s390/include/{ => uapi}/asm/dasd.h (100%)
  create mode 100644 arch/s390/include/uapi/asm/debug.h
@@ -145,4 +172,4 @@ David Howells (1):
  create mode 100644 arch/s390/include/uapi/asm/unistd.h
  rename arch/s390/include/{ => uapi}/asm/vtoc.h (100%)
  rename arch/s390/include/{ => uapi}/asm/zcrypt.h (100%)
-.
+ create mode 100644 arch/s390/mm/dump_pagetables.c
