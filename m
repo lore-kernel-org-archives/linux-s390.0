@@ -1,40 +1,33 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 1/2] [PATCH] smsgiucv: reestablish IUCV path after resume
-Date: Tue, 16 Oct 2012 07:21:17 +0200
-Message-ID: <20121016052331.713229633@de.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/2] s390: network bug fixes for net
+Date: Tue, 16 Oct 2012 14:42:41 -0400 (EDT)
+Message-ID: <20121016.144241.1919888793645036212.davem@davemloft.net>
 References: <20121016052116.210859505@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=600-smsg-path-resume.diff
+In-Reply-To: <20121016052116.210859505@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
+To: frank.blaschka@de.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+From: frank.blaschka@de.ibm.com
+Date: Tue, 16 Oct 2012 07:21:16 +0200
 
-smsg_pm_restore_thaw() uses wrong checking before reconnecting
-the IUCV path to *MSG. It is corrected with this patch.
+> Hi Dave,
+> 
+> here are some bug fixes for net.
+> 
+> shortlog:
+> 
+> Hendrik Brueckner (1)
+> smsgiucv: reestablish IUCV path after resume
+> 
+> Stefan Raspl (1)
+> qeth: fix deadlock between recovery and bonding driver
 
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
- drivers/s390/net/smsgiucv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/net/smsgiucv.c b/drivers/s390/net/smsgiucv.c
-index 207b7d7..d8f990b 100644
---- a/drivers/s390/net/smsgiucv.c
-+++ b/drivers/s390/net/smsgiucv.c
-@@ -157,7 +157,7 @@ static int smsg_pm_restore_thaw(struct device *dev)
- #ifdef CONFIG_PM_DEBUG
- 	printk(KERN_WARNING "smsg_pm_restore_thaw\n");
- #endif
--	if (smsg_path && iucv_path_connected) {
-+	if (smsg_path && !iucv_path_connected) {
- 		memset(smsg_path, 0, sizeof(*smsg_path));
- 		smsg_path->msglim = 255;
- 		smsg_path->flags = 0;
--- 
-1.7.11.7
+Both applied, thanks.
