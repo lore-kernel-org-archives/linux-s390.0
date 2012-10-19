@@ -1,121 +1,181 @@
 From: Wen Congyang <wency@cn.fujitsu.com>
-Subject: Re: [PATCH 5/10] memory-hotplug : memory-hotplug: check page type
- in get_page_bootmem
-Date: Fri, 19 Oct 2012 09:55:28 +0800
-Message-ID: <5080B310.50608@cn.fujitsu.com>
-References: <506E43E0.70507@jp.fujitsu.com> <506E46B6.3060502@jp.fujitsu.com> <CAHGf_=raSH5C8ye90F1PLZ8mGQUGggB=J0HYU8UhkKVDTV5JXQ@mail.gmail.com> <5080A394.2000409@jp.fujitsu.com>
+Subject: Re: [PATCH 1/10] memory-hotplug : check whether memory is offline
+ or not when removing memory
+Date: Fri, 19 Oct 2012 18:44:35 +0800
+Message-ID: <50812F13.20503@cn.fujitsu.com>
+References: <506E43E0.70507@jp.fujitsu.com> <506E451E.1050403@jp.fujitsu.com> <CAHGf_=rVDm-JygjPoLHbmF28Dgd52HFc4-b5KCxhEieG60okuw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <5080A394.2000409@jp.fujitsu.com>
+In-Reply-To: <CAHGf_=rVDm-JygjPoLHbmF28Dgd52HFc4-b5KCxhEieG60okuw@mail.gmail.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org
+To: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+Cc: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>, x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-At 10/19/2012 08:49 AM, Yasuaki Ishimatsu Wrote:
-> Hi Kosaki,
-> 
-> Sorry for late reply.
-> 
-> 2012/10/13 4:28, KOSAKI Motohiro wrote:
->> On Thu, Oct 4, 2012 at 10:32 PM, Yasuaki Ishimatsu
->> <isimatu.yasuaki@jp.fujitsu.com> wrote:
->>> The function get_page_bootmem() may be called more than one time to
->>> the same
->>> page. There is no need to set page's type, private if the function is
->>> not
->>> the first time called to the page.
->>>
->>> Note: the patch is just optimization and does not fix any problem.
->>>
->>> CC: David Rientjes <rientjes@google.com>
->>> CC: Jiang Liu <liuj97@gmail.com>
->>> CC: Len Brown <len.brown@intel.com>
->>> CC: Christoph Lameter <cl@linux.com>
->>> Cc: Minchan Kim <minchan.kim@gmail.com>
->>> CC: Andrew Morton <akpm@linux-foundation.org>
->>> CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
->>> CC: Wen Congyang <wency@cn.fujitsu.com>
->>> Signed-off-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
->>> ---
->>>   mm/memory_hotplug.c |   15 +++++++++++----
->>>   1 file changed, 11 insertions(+), 4 deletions(-)
->>>
->>> Index: linux-3.6/mm/memory_hotplug.c
->>> ===================================================================
->>> --- linux-3.6.orig/mm/memory_hotplug.c  2012-10-04 18:29:58.284676075
->>> +0900
->>> +++ linux-3.6/mm/memory_hotplug.c       2012-10-04 18:30:03.454680542
->>> +0900
->>> @@ -95,10 +95,17 @@ static void release_memory_resource(stru
->>>   static void get_page_bootmem(unsigned long info,  struct page *page,
->>>                               unsigned long type)
->>>   {
->>> -       page->lru.next = (struct list_head *) type;
->>> -       SetPagePrivate(page);
->>> -       set_page_private(page, info);
->>> -       atomic_inc(&page->_count);
->>> +       unsigned long page_type;
->>> +
->>> +       page_type = (unsigned long)page->lru.next;
+At 10/06/2012 03:27 AM, KOSAKI Motohiro Wrote:
+> On Thu, Oct 4, 2012 at 10:25 PM, Yasuaki Ishimatsu
+> <isimatu.yasuaki@jp.fujitsu.com> wrote:
+>> When calling remove_memory(), the memory should be offline. If the function
+>> is used to online memory, kernel panic may occur.
 >>
->> If I understand correctly, page->lru.next might be uninitialized yet.
+>> So the patch checks whether memory is offline or not.
 > 
-> Ah yes. I was misunderstanding...
-> 
-> Hi Wen,
-> 
-> When you update the physical hot remove patch-set, please drop the patch.
+> You don't explain WHY we need the check.
 
-OK
+This patch is no necessary now, because the newest kernel has checked
+it.
 
 Thanks
 Wen Congyang
 
 > 
-> Thanks,
-> Yasuaki Ishimatsu   
->> Moreover, I have no seen any good effect in this patch. I don't
->> understand
->> why we need to increase code complexity.
+> 
+>> CC: David Rientjes <rientjes@google.com>
+>> CC: Jiang Liu <liuj97@gmail.com>
+>> CC: Len Brown <len.brown@intel.com>
+>> CC: Christoph Lameter <cl@linux.com>
+>> Cc: Minchan Kim <minchan.kim@gmail.com>
+>> CC: Andrew Morton <akpm@linux-foundation.org>
+>> CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+>> Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
+>> Signed-off-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
 >>
+>> ---
+>>  drivers/base/memory.c  |   39 +++++++++++++++++++++++++++++++++++++++
+>>  include/linux/memory.h |    5 +++++
+>>  mm/memory_hotplug.c    |   17 +++++++++++++++--
+>>  3 files changed, 59 insertions(+), 2 deletions(-)
 >>
+>> Index: linux-3.6/drivers/base/memory.c
+>> ===================================================================
+>> --- linux-3.6.orig/drivers/base/memory.c        2012-10-04 14:22:57.000000000 +0900
+>> +++ linux-3.6/drivers/base/memory.c     2012-10-04 14:45:46.653585860 +0900
+>> @@ -70,6 +70,45 @@ void unregister_memory_isolate_notifier(
+>>  }
+>>  EXPORT_SYMBOL(unregister_memory_isolate_notifier);
 >>
->>> +       if (page_type < MEMORY_HOTPLUG_MIN_BOOTMEM_TYPE ||
->>> +           page_type > MEMORY_HOTPLUG_MAX_BOOTMEM_TYPE){
->>> +               page->lru.next = (struct list_head *)type;
->>> +               SetPagePrivate(page);
->>> +               set_page_private(page, info);
->>> +               atomic_inc(&page->_count);
->>> +       } else
->>> +               atomic_inc(&page->_count);
->>>   }
->>>
->>>   /* reference to __meminit __free_pages_bootmem is valid
->>>
->>> -- 
->>> To unsubscribe, send a message with 'unsubscribe linux-mm' in
->>> the body to majordomo@kvack.org.  For more info on Linux MM,
->>> see: http://www.linux-mm.org/ .
->>> Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
->> -- 
->> To unsubscribe from this list: send the line "unsubscribe
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
+>> +bool is_memblk_offline(unsigned long start, unsigned long size)
+> 
+> Don't use memblk. Usually memblk mean struct numa_meminfo for x86/numa.
+> Maybe memory_range_offlined() is better.
+> 
+> And, this function don't take struct memory_block, then this file may be no good
+> place.
+> 
+> And you need to write down function comment.
 > 
 > 
-> -- 
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>> +{
+>> +       struct memory_block *mem = NULL;
+>> +       struct mem_section *section;
+>> +       unsigned long start_pfn, end_pfn;
+>> +       unsigned long pfn, section_nr;
+>> +
+>> +       start_pfn = PFN_DOWN(start);
+>> +       end_pfn = PFN_UP(start + size);
+>> +
+>> +       for (pfn = start_pfn; pfn < end_pfn; pfn += PAGES_PER_SECTION) {
+>> +               section_nr = pfn_to_section_nr(pfn);
+>> +               if (!present_section_nr(section_nr))
+>> +                       continue;
+>> +
+>> +               section = __nr_to_section(section_nr);
+>> +               /* same memblock? */
+>> +               if (mem)
+>> +                       if ((section_nr >= mem->start_section_nr) &&
+>> +                           (section_nr <= mem->end_section_nr))
+>> +                               continue;
+>> +
+>> +               mem = find_memory_block_hinted(section, mem);
+>> +               if (!mem)
+>> +                       continue;
+>> +               if (mem->state == MEM_OFFLINE)
+>> +                       continue;
+>> +
+>> +               kobject_put(&mem->dev.kobj);
+>> +               return false;
+>> +       }
+>> +
+>> +       if (mem)
+>> +               kobject_put(&mem->dev.kobj);
+>> +
+>> +       return true;
+>> +}
+>> +EXPORT_SYMBOL(is_memblk_offline);
+>> +
+>>  /*
+>>   * register_memory - Setup a sysfs device for a memory block
+>>   */
+>> Index: linux-3.6/include/linux/memory.h
+>> ===================================================================
+>> --- linux-3.6.orig/include/linux/memory.h       2012-10-02 18:00:22.000000000 +0900
+>> +++ linux-3.6/include/linux/memory.h    2012-10-04 14:44:40.902581028 +0900
+>> @@ -106,6 +106,10 @@ static inline int memory_isolate_notify(
+>>  {
+>>         return 0;
+>>  }
+>> +static inline bool is_memblk_offline(unsigned long start, unsigned long size)
+>> +{
+>> +       return false;
+>> +}
+>>  #else
+>>  extern int register_memory_notifier(struct notifier_block *nb);
+>>  extern void unregister_memory_notifier(struct notifier_block *nb);
+>> @@ -120,6 +124,7 @@ extern int memory_isolate_notify(unsigne
+>>  extern struct memory_block *find_memory_block_hinted(struct mem_section *,
+>>                                                         struct memory_block *);
+>>  extern struct memory_block *find_memory_block(struct mem_section *);
+>> +extern bool is_memblk_offline(unsigned long start, unsigned long size);
+>>  #define CONFIG_MEM_BLOCK_SIZE  (PAGES_PER_SECTION<<PAGE_SHIFT)
+>>  enum mem_add_context { BOOT, HOTPLUG };
+>>  #endif /* CONFIG_MEMORY_HOTPLUG_SPARSE */
+>> Index: linux-3.6/mm/memory_hotplug.c
+>> ===================================================================
+>> --- linux-3.6.orig/mm/memory_hotplug.c  2012-10-04 14:31:08.000000000 +0900
+>> +++ linux-3.6/mm/memory_hotplug.c       2012-10-04 14:58:22.449687986 +0900
+>> @@ -1045,8 +1045,21 @@ int offline_memory(u64 start, u64 size)
+>>
+>>  int remove_memory(int nid, u64 start, u64 size)
+>>  {
+> 
+> Your remove_memory() don't remove anything. that's strange.
+> 
+> 
+>> -       /* It is not implemented yet*/
+>> -       return 0;
+>> +       int ret = 0;
+>> +       lock_memory_hotplug();
+>> +       /*
+>> +        * The memory might become online by other task, even if you offine it.
+>> +        * So we check whether the memory has been onlined or not.
+>> +        */
+>> +       if (!is_memblk_offline(start, size)) {
+>> +               pr_warn("memory removing [mem %#010llx-%#010llx] failed, "
+>> +                       "because the memmory range is online\n",
+>> +                       start, start + size);
+> 
+> No good warning. You should output which memory block can't be
+> offlined, I think.
+> 
+> 
+>> +               ret = -EAGAIN;
+>> +       }
+>> +
+>> +       unlock_memory_hotplug();
+>> +       return ret;
+>>  }
+>>  EXPORT_SYMBOL_GPL(remove_memory);
+>>  #else
+>>
+>> --
+>> To unsubscribe, send a message with 'unsubscribe linux-mm' in
+>> the body to majordomo@kvack.org.  For more info on Linux MM,
+>> see: http://www.linux-mm.org/ .
+>> Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
 > 
 
 --
