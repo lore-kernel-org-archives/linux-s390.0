@@ -1,21 +1,23 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Mon, 22 Oct 2012 21:40:26 -0700 (PDT)
-From: Hugh Dickins <hughd@google.com>
+Date: Tue, 23 Oct 2012 12:21:53 +0200
+From: Jan Kara <jack@suse.cz>
 Subject: Re: [PATCH] mm: Fix XFS oops due to dirty pages without buffers on
  s390
-In-Reply-To: <20121022123852.a4bd5f2a.akpm@linux-foundation.org>
-Message-ID: <alpine.LNX.2.00.1210222121270.1136@eggly.anvils>
-References: <1350918406-11369-1-git-send-email-jack@suse.cz> <20121022123852.a4bd5f2a.akpm@linux-foundation.org>
+Message-ID: <20121023102153.GD3064@quack.suse.cz>
+References: <1350918406-11369-1-git-send-email-jack@suse.cz>
+ <20121022123852.a4bd5f2a.akpm@linux-foundation.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20121022123852.a4bd5f2a.akpm@linux-foundation.org>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
 To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jan Kara <jack@suse.cz>, linux-mm@kvack.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mel Gorman <mgorman@suse.de>, linux-s390@vger.kernel.org
+Cc: Jan Kara <jack@suse.cz>, linux-mm@kvack.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mel Gorman <mgorman@suse.de>, linux-s390@vger.kernel.org, Hugh Dickins <hughd@google.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 22 Oct 2012, Andrew Morton wrote:
+On Mon 22-10-12 12:38:52, Andrew Morton wrote:
 > On Mon, 22 Oct 2012 17:06:46 +0200
 > Jan Kara <jack@suse.cz> wrote:
 > 
@@ -52,34 +54,30 @@ On Mon, 22 Oct 2012, Andrew Morton wrote:
 > 
 > That seems a fairly serious problem.  To which kernel version(s) should
 > we apply the fix?
+  Well, XFS will crash starting from 2.6.36 kernel where the assertion was
+added. Previously XFS just silently added buffers (as other filesystems do
+it) and wrote / redirtied the page (unnecessarily). So looking into
+maintained -stable branches I think pushing the patch to -stable from 3.0
+on should be enough.
 
-That I'll leave Jan and/or Martin to answer.
-
-> 
 > > diff --git a/mm/rmap.c b/mm/rmap.c
 > 
 > It's a bit surprising that none of the added comments mention the s390
 > pte-dirtying oddity.  I don't see an obvious place to mention this, but
 > I for one didn't know about this and it would be good if we could
 > capture the info _somewhere_?
+  As Hugh says, the comment before page_test_and_clear_dirty() is somewhat
+updated. But do you mean recording somewhere the catch that s390 HW dirty
+bit gets set also whenever we write to a page from kernel? I guess we could
+add that also to the comment before page_test_and_clear_dirty() in
+page_remove_rmap() and also before definition of
+page_test_and_clear_dirty(). So most people that will add / remove these
+calls will be warned. OK?
 
-I think it's okay: the comment you can see in Jan's patch is extending
-this existing comment in page_remove_rmap(), that I added sometime in
-the past (largely because "page_test_and_clear_dirty" sounds so
-magisterially generic, when in actuality it's specific to s390):
-
-	/*
-	 * Now that the last pte has gone, s390 must transfer dirty
-	 * flag from storage key to struct page.  We can usually skip
-	 * this if the page is anon, so about to be freed; but perhaps
-	 * not if it's in swapcache - there might be another pte slot
-	 * containing the swap entry, but page not yet written to swap.
-	 */
-
-And one of the delights of Jan's patch is that it removes the other
-callsite completely.
-
-Hugh
+								Honza
+-- 
+Jan Kara <jack@suse.cz>
+SUSE Labs, CR
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
