@@ -1,67 +1,37 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH] UAPI: S390 shouldn't've been changed to use
- uapi/asm-generic/kvm_para.h
-Date: Thu, 18 Oct 2012 18:58:13 +0100
-Message-ID: <20121018175813.7489.19089.stgit@warthog.procyon.org.uk>
+Return-Path: <heiko.carstens@de.ibm.com>
+Date: Tue, 23 Oct 2012 08:55:48 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: Build regressions/improvements in v3.7-rc2
+Message-ID: <20121023065548.GA4164@osiris.de.ibm.com>
+References: <alpine.DEB.2.00.1210222146440.12209@ayla.of.borg>
+ <CAMuHMdVS-qz0BAHXFGD01+w1GxyQ2M7DpLnLRQKtdZSiDfYgHw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>, Yuanhan Liu <yuanhan.liu@intel.com>, fengguang.wu@intel.com
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAMuHMdVS-qz0BAHXFGD01+w1GxyQ2M7DpLnLRQKtdZSiDfYgHw@mail.gmail.com>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linuxppc-dev/>
+To: Geert Uytterhoeven <geert@linux-m68k.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Linux Kernel Development <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-It turns out that S390 shouldn't use uapi/asm-generic/kvm_para.h since it
-defines the functions in its non-UAPI kvm_para.h file.
+On Mon, Oct 22, 2012 at 09:50:26PM +0200, Geert Uytterhoeven wrote:
+> On Mon, Oct 22, 2012 at 9:47 PM, Geert Uytterhoeven
+> <geert@linux-m68k.org> wrote:
+> > JFYI, when comparing v3.7-rc2 to v3.7-rc1[3], the summaries are:
+> >   - build errors: +4/-44
+> 
+>   + arch/s390/include/asm/kvm_para.h: error: redefinition of
+> 'kvm_arch_para_features':  => 147:28, 147:99
+>   + arch/s390/include/asm/kvm_para.h: error: redefinition of
+> 'kvm_check_and_clear_guest_paused':  => 152:91, 152:20
+> 
+> s390-allmodconfig/s390-allyesconfig/s390-defconfig
 
-#including <asm-generic/kvm_para.h> will first pick up
-include/asm-generic/kvm_para.h, which defines conflicting functions.
-
-Instead, partially revert commit 0420c87e648a3b623ad925038a0bcff2ef5a4bc9,
-ungenericising this file and just inserting a comment to prevent the patch
-program from deleting it.
-
-Reported-by: Yuanhan Liu <yuanhan.liu@intel.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Yuanhan Liu <yuanhan.liu@intel.com>
-cc: fengguang.wu@intel.com
----
-
- arch/s390/include/uapi/asm/Kbuild     |    2 --
- arch/s390/include/uapi/asm/kvm_para.h |   11 +++++++++++
- 2 files changed, 11 insertions(+), 2 deletions(-)
- create mode 100644 arch/s390/include/uapi/asm/kvm_para.h
-
-diff --git a/arch/s390/include/uapi/asm/Kbuild b/arch/s390/include/uapi/asm/Kbuild
-index 59b67ed..7bf68ff 100644
---- a/arch/s390/include/uapi/asm/Kbuild
-+++ b/arch/s390/include/uapi/asm/Kbuild
-@@ -1,8 +1,6 @@
- # UAPI Header export list
- include include/uapi/asm-generic/Kbuild.asm
- 
--generic-y += kvm_para.h
--
- header-y += auxvec.h
- header-y += bitsperlong.h
- header-y += byteorder.h
-diff --git a/arch/s390/include/uapi/asm/kvm_para.h b/arch/s390/include/uapi/asm/kvm_para.h
-new file mode 100644
-index 0000000..ff1f4e7
---- /dev/null
-+++ b/arch/s390/include/uapi/asm/kvm_para.h
-@@ -0,0 +1,11 @@
-+/*
-+ * User API definitions for paravirtual devices on s390
-+ *
-+ * Copyright IBM Corp. 2008
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License (version 2 only)
-+ * as published by the Free Software Foundation.
-+ *
-+ *    Author(s): Christian Borntraeger <borntraeger@de.ibm.com>
-+ */
+Thanks Geert. We have already a build fix for this from David Howells
+which is waiting to be merged upstream.
