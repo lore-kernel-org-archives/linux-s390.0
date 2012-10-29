@@ -1,47 +1,69 @@
-From: Alexander Graf <agraf@suse.de>
-Subject: Re: [PATCH 0/5] s390: Guest support for virtio-ccw.
-Date: Mon, 29 Oct 2012 19:33:14 +0100
-Message-ID: <88DEC3C5-44B9-498D-9F7F-A0AFAB527235@suse.de>
-References: <1351516046-30037-1-git-send-email-cornelia.huck@de.ibm.com> <CE383E4A-4C23-4E8C-B237-EFD2F849D884@suse.de> <20121029191504.0d36a68a@BR9GNB5Z>
-Mime-Version: 1.0 (Apple Message framework v1278)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 4/5] KVM: s390: Add a channel I/O based virtio transport
+ driver.
+Date: Mon, 29 Oct 2012 19:34:47 +0100
+Message-ID: <20121029193447.05dad97b@BR9GNB5Z>
+References: <1351516046-30037-1-git-send-email-cornelia.huck@de.ibm.com>
+	<1351516046-30037-5-git-send-email-cornelia.huck@de.ibm.com>
+	<D3058F7E-EB72-4749-AD52-485A1777CE17@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20121029191504.0d36a68a@BR9GNB5Z>
+In-Reply-To: <D3058F7E-EB72-4749-AD52-485A1777CE17@suse.de>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Alexander Graf <agraf@suse.de>
 Cc: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Mon, 29 Oct 2012 19:12:54 +0100
+Alexander Graf <agraf@suse.de> wrote:
 
-On 29.10.2012, at 19:15, Cornelia Huck wrote:
-
-> On Mon, 29 Oct 2012 18:55:21 +0100
-> Alexander Graf <agraf@suse.de> wrote:
 > 
->> 
->> On 29.10.2012, at 14:07, Cornelia Huck wrote:
->> 
->>> Avi, Marcelo,
->>> 
->>> I'd like to propose inclusion of the guest support patches for
->>> virtio-ccw into 3.8.
->>> 
->>> I'm confident that the host <-> guest interface for virtio-ccw
->>> is fine now, and the patches have been extensively tested by our
->>> internal test team.
->>> 
->>> Patch 1 might conceivably be 3.7 material, though I fear it's a
->>> bit late for that.
->> 
->> Well, patch 1 without virtio-ccw support is quite useless, right? You wouldn't get any I/O at all.
+> On 29.10.2012, at 14:07, Cornelia Huck wrote:
+
+> > +static void virtio_ccw_kvm_notify(struct virtqueue *vq)
+> > +{
+> > +	struct virtio_ccw_vq_info *info = vq->priv;
+> > +	struct virtio_ccw_device *vcdev;
+> > +	struct subchannel_id schid;
+> > +	__u32 reg2;
+> > +
+> > +	vcdev = to_vc_device(info->vq->vdev);
+> > +	ccw_device_get_schid(vcdev->cdev, &schid);
+> > +	reg2 = *(__u32 *)&schid;
 > 
-> Yes, but it stops in an obvious way (no devices can be found) and
-> not with a strange backchain.
+> That cast looks quite ugly. Can't you just access the field in there you need? Or if it's multiple fields do a union over them? Or assemble them by hand in C?
 
-Hrm. Then it's probably best to actually CC stable as well :)
+I think the cast looks less ugly than using a union to morph it around.
+I want the schid with all fields filled out anyway, since this is what
+identifies the subchannel.
 
+> 
+> > +	kvm_hypercall2(3 /* CCW_NOTIFY */, reg2, info->queue_index);
+> 
+> This wants to be a #define :)
 
-Alex
+Probably :)
+
+> 
+> > +}
+> > +
+> > +static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev, int index)
+> > +{
+> > +	vcdev->config_block->index = index;
+> > +	vcdev->ccw->cmd_code = CCW_CMD_READ_VQ_CONF;
+> > +	vcdev->ccw->flags = 0;
+> > +	vcdev->ccw->count = sizeof(struct vq_config_block);
+> > +	vcdev->ccw->cda = (__u32)(unsigned long)(vcdev->config_block);
+> 
+> Is this casting a pointer to a u32? What if this is in highmem? Ah, I just saw the comment that ccw memory needs to be <2GB. Phew. Any plans to get rid of that limitation?
+
+Well, we could do full-blown IDAW handling to get to 64bit addresses -
+which would need a lot of extra code in the host. I doubt whether it
+would be worth it.
+
+(Well, we'll probably want IDAWs sometime in the future - I just think
+it's overkill for those tiny snippets.)
