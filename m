@@ -1,82 +1,92 @@
-From: wency@cn.fujitsu.com
-Subject: [PATCH v2 12/12] memory-hotplug: free node_data when a node is offlined
-Date: Tue, 23 Oct 2012 18:30:50 +0800
-Message-ID: <1350988250-31294-13-git-send-email-wency@cn.fujitsu.com>
-References: <1350988250-31294-1-git-send-email-wency@cn.fujitsu.com>
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1350988250-31294-1-git-send-email-wency@cn.fujitsu.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org
-Cc: rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, akpm@linux-foundation.org, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, Wen Congyang <wency@cn.fujitsu.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH 1/5] KVM: s390: Handle hosts not supporting s390-virtio.
+Date: Mon, 29 Oct 2012 14:07:22 +0100
+Message-ID: <1351516046-30037-2-git-send-email-cornelia.huck@de.ibm.com>
+References: <1351516046-30037-1-git-send-email-cornelia.huck@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1351516046-30037-1-git-send-email-cornelia.huck@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Wen Congyang <wency@cn.fujitsu.com>
+Running under a kvm host does not necessarily imply the presence of
+a page mapped above the main memory with the virtio information;
+however, the code includes a hard coded access to that page.
 
-We call hotadd_new_pgdat() to allocate memory to store node_data. So we
-should free it when removing a node.
+Instead, check for the presence of the page and exit gracefully
+before we hit an addressing exception if it does not exist.
 
-CC: David Rientjes <rientjes@google.com>
-CC: Jiang Liu <liuj97@gmail.com>
-CC: Len Brown <len.brown@intel.com>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Paul Mackerras <paulus@samba.org>
-CC: Christoph Lameter <cl@linux.com>
-Cc: Minchan Kim <minchan.kim@gmail.com>
-CC: Andrew Morton <akpm@linux-foundation.org>
-CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
-CC: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- mm/memory_hotplug.c |   20 +++++++++++++++++++-
- 1 files changed, 19 insertions(+), 1 deletions(-)
+ drivers/s390/kvm/kvm_virtio.c | 39 +++++++++++++++++++++++++++++++--------
+ 1 file changed, 31 insertions(+), 8 deletions(-)
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index b1fe41d..6b4cd53 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1320,9 +1320,12 @@ static int check_cpu_on_node(void *data)
- /* offline the node if all memory sections of this node are removed */
- static void try_offline_node(int nid)
- {
-+	pg_data_t *pgdat = NODE_DATA(nid);
- 	unsigned long start_pfn = NODE_DATA(nid)->node_start_pfn;
--	unsigned long end_pfn = start_pfn + NODE_DATA(nid)->node_spanned_pages;
-+	unsigned long end_pfn = start_pfn + pgdat->node_spanned_pages;
- 	unsigned long pfn;
-+	struct page *pgdat_page = virt_to_page(pgdat);
-+	int i;
- 
- 	for (pfn = start_pfn; pfn < end_pfn; pfn += PAGES_PER_SECTION) {
- 		unsigned long section_nr = pfn_to_section_nr(pfn);
-@@ -1349,6 +1352,21 @@ static void try_offline_node(int nid)
- 	 */
- 	node_set_offline(nid);
- 	unregister_one_node(nid);
-+
-+	if (!PageSlab(pgdat_page) && !PageCompound(pgdat_page))
-+		/* node data is allocated from boot memory */
-+		return;
-+
-+	/* free waittable in each zone */
-+	for (i = 0; i < MAX_NR_ZONES; i++) {
-+		struct zone *zone = pgdat->node_zones + i;
-+
-+		if (zone->wait_table)
-+			vfree(zone->wait_table);
-+	}
-+
-+	arch_refresh_nodedata(nid, NULL);
-+	arch_free_nodedata(pgdat);
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+index 47cccd5..76b95f3 100644
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -419,6 +419,26 @@ static void kvm_extint_handler(struct ext_code ext_code,
  }
  
- int __ref remove_memory(int nid, u64 start, u64 size)
+ /*
++ * For s390-virtio, we expect a page above main storage containing
++ * the virtio configuration. Try to actually load from this area
++ * in order to figure out if the host provides this page.
++ */
++static int __init test_devices_support(unsigned long addr)
++{
++	int ret = -EIO;
++
++	asm volatile(
++		"0:	lura	0,%1\n"
++		"1:	xgr	%0,%0\n"
++		"2:\n"
++		EX_TABLE(0b,2b)
++		EX_TABLE(1b,2b)
++		: "+d" (ret)
++		: "a" (addr)
++		: "0", "cc");
++	return ret;
++}
++/*
+  * Init function for virtio
+  * devices are in a single page above top of "normal" mem
+  */
+@@ -429,21 +449,24 @@ static int __init kvm_devices_init(void)
+ 	if (!MACHINE_IS_KVM)
+ 		return -ENODEV;
+ 
++	if (test_devices_support(real_memory_size) < 0)
++		/* No error. */
++		return 0;
++
++	rc = vmem_add_mapping(real_memory_size, PAGE_SIZE);
++	if (rc)
++		return rc;
++
++	kvm_devices = (void *) real_memory_size;
++
+ 	kvm_root = root_device_register("kvm_s390");
+ 	if (IS_ERR(kvm_root)) {
+ 		rc = PTR_ERR(kvm_root);
+ 		printk(KERN_ERR "Could not register kvm_s390 root device");
++		vmem_remove_mapping(real_memory_size, PAGE_SIZE);
+ 		return rc;
+ 	}
+ 
+-	rc = vmem_add_mapping(real_memory_size, PAGE_SIZE);
+-	if (rc) {
+-		root_device_unregister(kvm_root);
+-		return rc;
+-	}
+-
+-	kvm_devices = (void *) real_memory_size;
+-
+ 	INIT_WORK(&hotplug_work, hotplug_devices);
+ 
+ 	service_subclass_irq_register();
 -- 
-1.7.1
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+1.7.12.4
