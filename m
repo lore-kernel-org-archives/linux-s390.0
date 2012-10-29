@@ -1,8 +1,10 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 0/5] s390: Guest support for virtio-ccw.
-Date: Mon, 29 Oct 2012 14:07:21 +0100
-Message-ID: <1351516046-30037-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 3/5] s390: Add a mechanism to get the subchannel id.
+Date: Mon, 29 Oct 2012 14:07:24 +0100
+Message-ID: <1351516046-30037-4-git-send-email-cornelia.huck@de.ibm.com>
+References: <1351516046-30037-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1351516046-30037-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,45 +12,58 @@ To: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Avi, Marcelo,
+This will be needed by the new virtio-ccw transport.
 
-I'd like to propose inclusion of the guest support patches for
-virtio-ccw into 3.8.
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ arch/s390/include/asm/ccwdev.h |  5 +++++
+ drivers/s390/cio/device_ops.c  | 12 ++++++++++++
+ 2 files changed, 17 insertions(+)
 
-I'm confident that the host <-> guest interface for virtio-ccw
-is fine now, and the patches have been extensively tested by our
-internal test team.
-
-Patch 1 might conceivably be 3.7 material, though I fear it's a
-bit late for that.
-
-Patch 2 has been moved over from the host-support patchset since
-the limits are needed by the guest driver as well.
-
-Patch 4 has seen some further bugfixes (feature bits, 2G and 4G
-problems, device detach handling) and is working well in our
-internal environment.
-
-Cornelia Huck (5):
-  KVM: s390: Handle hosts not supporting s390-virtio.
-  s390: Move css limits from drivers/s390/cio/ to include/asm/.
-  s390: Add a mechanism to get the subchannel id.
-  KVM: s390: Add a channel I/O based virtio transport driver.
-  KVM: s390: Split out early console code.
-
- arch/s390/include/asm/ccwdev.h  |   5 +
- arch/s390/include/asm/cio.h     |   2 +
- arch/s390/include/asm/irq.h     |   1 +
- arch/s390/kernel/irq.c          |   1 +
- drivers/s390/cio/css.h          |   3 -
- drivers/s390/cio/device_ops.c   |  12 +
- drivers/s390/kvm/Makefile       |   2 +-
- drivers/s390/kvm/early_printk.c |  42 ++
- drivers/s390/kvm/kvm_virtio.c   |  64 ++-
- drivers/s390/kvm/virtio_ccw.c   | 841 ++++++++++++++++++++++++++++++++++++++++
- 10 files changed, 936 insertions(+), 37 deletions(-)
- create mode 100644 drivers/s390/kvm/early_printk.c
- create mode 100644 drivers/s390/kvm/virtio_ccw.c
-
+diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
+index 1cb4bb3..9ad79f7 100644
+--- a/arch/s390/include/asm/ccwdev.h
++++ b/arch/s390/include/asm/ccwdev.h
+@@ -18,6 +18,9 @@ struct irb;
+ struct ccw1;
+ struct ccw_dev_id;
+ 
++/* from asm/schid.h */
++struct subchannel_id;
++
+ /* simplified initializers for struct ccw_device:
+  * CCW_DEVICE and CCW_DEVICE_DEVTYPE initialize one
+  * entry in your MODULE_DEVICE_TABLE and set the match_flag correctly */
+@@ -226,5 +229,7 @@ int ccw_device_siosl(struct ccw_device *);
+ // FIXME: these have to go
+ extern int _ccw_device_get_subchannel_number(struct ccw_device *);
+ 
++extern void ccw_device_get_schid(struct ccw_device *, struct subchannel_id *);
++
+ extern void *ccw_device_get_chp_desc(struct ccw_device *, int);
+ #endif /* _S390_CCWDEV_H_ */
+diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
+index ec7fb6d..2ad832f 100644
+--- a/drivers/s390/cio/device_ops.c
++++ b/drivers/s390/cio/device_ops.c
+@@ -763,6 +763,18 @@ _ccw_device_get_subchannel_number(struct ccw_device *cdev)
+ 	return cdev->private->schid.sch_no;
+ }
+ 
++/**
++ * ccw_device_get_schid - obtain a subchannel id
++ * @cdev: device to obtain the id for
++ * @schid: where to fill in the values
++ */
++void ccw_device_get_schid(struct ccw_device *cdev, struct subchannel_id *schid)
++{
++	struct subchannel *sch = to_subchannel(cdev->dev.parent);
++
++	*schid = sch->schid;
++}
++EXPORT_SYMBOL_GPL(ccw_device_get_schid);
+ 
+ MODULE_LICENSE("GPL");
+ EXPORT_SYMBOL(ccw_device_set_options_mask);
 -- 
 1.7.12.4
