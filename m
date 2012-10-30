@@ -1,18 +1,16 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 4/5] KVM: s390: Add a channel I/O based virtio transport
- driver.
-Date: Tue, 30 Oct 2012 14:03:04 +0100
-Message-ID: <20121030140304.3bcd3863@BR9GNB5Z>
+Subject: Re: [PATCH 0/5] s390: Guest support for virtio-ccw.
+Date: Tue, 30 Oct 2012 14:04:52 +0100
+Message-ID: <20121030140452.32dfa251@BR9GNB5Z>
 References: <1351516046-30037-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1351516046-30037-5-git-send-email-cornelia.huck@de.ibm.com>
-	<D3058F7E-EB72-4749-AD52-485A1777CE17@suse.de>
-	<20121029193447.05dad97b@BR9GNB5Z>
-	<8466E164-8A30-431B-9103-D45F97331489@suse.de>
+	<CE383E4A-4C23-4E8C-B237-EFD2F849D884@suse.de>
+	<20121029191504.0d36a68a@BR9GNB5Z>
+	<88DEC3C5-44B9-498D-9F7F-A0AFAB527235@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <8466E164-8A30-431B-9103-D45F97331489@suse.de>
+In-Reply-To: <88DEC3C5-44B9-498D-9F7F-A0AFAB527235@suse.de>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -20,36 +18,36 @@ To: Alexander Graf <agraf@suse.de>
 Cc: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 29 Oct 2012 19:37:10 +0100
+On Mon, 29 Oct 2012 19:33:14 +0100
 Alexander Graf <agraf@suse.de> wrote:
 
 > 
-> On 29.10.2012, at 19:34, Cornelia Huck wrote:
+> On 29.10.2012, at 19:15, Cornelia Huck wrote:
 > 
-> > On Mon, 29 Oct 2012 19:12:54 +0100
+> > On Mon, 29 Oct 2012 18:55:21 +0100
 > > Alexander Graf <agraf@suse.de> wrote:
 > > 
 > >> 
 > >> On 29.10.2012, at 14:07, Cornelia Huck wrote:
-> > 
-> >>> +static void virtio_ccw_kvm_notify(struct virtqueue *vq)
-> >>> +{
-> >>> +	struct virtio_ccw_vq_info *info = vq->priv;
-> >>> +	struct virtio_ccw_device *vcdev;
-> >>> +	struct subchannel_id schid;
-> >>> +	__u32 reg2;
-> >>> +
-> >>> +	vcdev = to_vc_device(info->vq->vdev);
-> >>> +	ccw_device_get_schid(vcdev->cdev, &schid);
-> >>> +	reg2 = *(__u32 *)&schid;
 > >> 
-> >> That cast looks quite ugly. Can't you just access the field in there you need? Or if it's multiple fields do a union over them? Or assemble them by hand in C?
+> >>> Avi, Marcelo,
+> >>> 
+> >>> I'd like to propose inclusion of the guest support patches for
+> >>> virtio-ccw into 3.8.
+> >>> 
+> >>> I'm confident that the host <-> guest interface for virtio-ccw
+> >>> is fine now, and the patches have been extensively tested by our
+> >>> internal test team.
+> >>> 
+> >>> Patch 1 might conceivably be 3.7 material, though I fear it's a
+> >>> bit late for that.
+> >> 
+> >> Well, patch 1 without virtio-ccw support is quite useless, right? You wouldn't get any I/O at all.
 > > 
-> > I think the cast looks less ugly than using a union to morph it around.
-> > I want the schid with all fields filled out anyway, since this is what
-> > identifies the subchannel.
+> > Yes, but it stops in an obvious way (no devices can be found) and
+> > not with a strange backchain.
 > 
-> How about a helper function that returns a u32 for a struct subchannel_id in arch/s390/include/asm/schid.h then?
+> Hrm. Then it's probably best to actually CC stable as well :)
 
-This would just move the cast around, no? I don't think that would
-improve readability.
+If there aren't any objections, I'll just respin with minor changes and
+put in a cc:stable.
