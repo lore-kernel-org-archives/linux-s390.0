@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH v2 3/5] s390: Add a mechanism to get the subchannel id.
-Date: Tue, 30 Oct 2012 16:56:41 +0100
-Message-ID: <1351612603-31036-4-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH v2 1/5] KVM: s390: Handle hosts not supporting s390-virtio.
+Date: Tue, 30 Oct 2012 16:56:39 +0100
+Message-ID: <1351612603-31036-2-git-send-email-cornelia.huck@de.ibm.com>
 References: <1351612603-31036-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1351612603-31036-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -9,61 +9,85 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This will be needed by the new virtio-ccw transport.
+Running under a kvm host does not necessarily imply the presence of
+a page mapped above the main memory with the virtio information;
+however, the code includes a hard coded access to that page.
+
+Instead, check for the presence of the page and exit gracefully
+before we hit an addressing exception if it does not exist.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: stable@vger.kernel.org
 ---
- arch/s390/include/asm/ccwdev.h |  5 +++++
- drivers/s390/cio/device_ops.c  | 12 ++++++++++++
- 2 files changed, 17 insertions(+)
+ drivers/s390/kvm/kvm_virtio.c | 39 +++++++++++++++++++++++++++++++--------
+ 1 file changed, 31 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
-index 1cb4bb3..9ad79f7 100644
---- a/arch/s390/include/asm/ccwdev.h
-+++ b/arch/s390/include/asm/ccwdev.h
-@@ -18,6 +18,9 @@ struct irb;
- struct ccw1;
- struct ccw_dev_id;
- 
-+/* from asm/schid.h */
-+struct subchannel_id;
-+
- /* simplified initializers for struct ccw_device:
-  * CCW_DEVICE and CCW_DEVICE_DEVTYPE initialize one
-  * entry in your MODULE_DEVICE_TABLE and set the match_flag correctly */
-@@ -226,5 +229,7 @@ int ccw_device_siosl(struct ccw_device *);
- // FIXME: these have to go
- extern int _ccw_device_get_subchannel_number(struct ccw_device *);
- 
-+extern void ccw_device_get_schid(struct ccw_device *, struct subchannel_id *);
-+
- extern void *ccw_device_get_chp_desc(struct ccw_device *, int);
- #endif /* _S390_CCWDEV_H_ */
-diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
-index ec7fb6d..2ad832f 100644
---- a/drivers/s390/cio/device_ops.c
-+++ b/drivers/s390/cio/device_ops.c
-@@ -763,6 +763,18 @@ _ccw_device_get_subchannel_number(struct ccw_device *cdev)
- 	return cdev->private->schid.sch_no;
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+index 47cccd5..76b95f3 100644
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -419,6 +419,26 @@ static void kvm_extint_handler(struct ext_code ext_code,
  }
  
-+/**
-+ * ccw_device_get_schid - obtain a subchannel id
-+ * @cdev: device to obtain the id for
-+ * @schid: where to fill in the values
+ /*
++ * For s390-virtio, we expect a page above main storage containing
++ * the virtio configuration. Try to actually load from this area
++ * in order to figure out if the host provides this page.
 + */
-+void ccw_device_get_schid(struct ccw_device *cdev, struct subchannel_id *schid)
++static int __init test_devices_support(unsigned long addr)
 +{
-+	struct subchannel *sch = to_subchannel(cdev->dev.parent);
++	int ret = -EIO;
 +
-+	*schid = sch->schid;
++	asm volatile(
++		"0:	lura	0,%1\n"
++		"1:	xgr	%0,%0\n"
++		"2:\n"
++		EX_TABLE(0b,2b)
++		EX_TABLE(1b,2b)
++		: "+d" (ret)
++		: "a" (addr)
++		: "0", "cc");
++	return ret;
 +}
-+EXPORT_SYMBOL_GPL(ccw_device_get_schid);
++/*
+  * Init function for virtio
+  * devices are in a single page above top of "normal" mem
+  */
+@@ -429,21 +449,24 @@ static int __init kvm_devices_init(void)
+ 	if (!MACHINE_IS_KVM)
+ 		return -ENODEV;
  
- MODULE_LICENSE("GPL");
- EXPORT_SYMBOL(ccw_device_set_options_mask);
++	if (test_devices_support(real_memory_size) < 0)
++		/* No error. */
++		return 0;
++
++	rc = vmem_add_mapping(real_memory_size, PAGE_SIZE);
++	if (rc)
++		return rc;
++
++	kvm_devices = (void *) real_memory_size;
++
+ 	kvm_root = root_device_register("kvm_s390");
+ 	if (IS_ERR(kvm_root)) {
+ 		rc = PTR_ERR(kvm_root);
+ 		printk(KERN_ERR "Could not register kvm_s390 root device");
++		vmem_remove_mapping(real_memory_size, PAGE_SIZE);
+ 		return rc;
+ 	}
+ 
+-	rc = vmem_add_mapping(real_memory_size, PAGE_SIZE);
+-	if (rc) {
+-		root_device_unregister(kvm_root);
+-		return rc;
+-	}
+-
+-	kvm_devices = (void *) real_memory_size;
+-
+ 	INIT_WORK(&hotplug_work, hotplug_devices);
+ 
+ 	service_subclass_irq_register();
 -- 
 1.7.12.4
