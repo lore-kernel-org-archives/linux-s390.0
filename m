@@ -1,10 +1,10 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 5/5] KVM: s390: Add support for channel I/O instructions.
-Date: Wed, 31 Oct 2012 17:24:38 +0100
-Message-ID: <1351700678-41969-6-git-send-email-cornelia.huck@de.ibm.com>
-References: <1351700678-41969-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 1/3] Update linux headers.
+Date: Wed, 31 Oct 2012 17:24:46 +0100
+Message-ID: <1351700688-42353-2-git-send-email-cornelia.huck@de.ibm.com>
+References: <1351700688-42353-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1351700678-41969-1-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <1351700688-42353-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,361 +12,197 @@ To: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-dev
 Cc: Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Add a new capability, KVM_CAP_S390_CSS_SUPPORT, which will pass
-intercepts for channel I/O instructions to userspace. Only I/O
-instructions interacting with I/O interrupts need to be handled
-in-kernel:
-
-- TEST PENDING INTERRUPTION (tpi) dequeues and stores pending
-  interrupts entirely in-kernel.
-- TEST SUBCHANNEL (tsch) dequeues pending interrupts in-kernel
-  and exits via KVM_EXIT_S390_TSCH to userspace for subchannel-
-  related processing.
-
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- Documentation/virtual/kvm/api.txt | 30 ++++++++++++
- arch/s390/include/asm/kvm_host.h  |  1 +
- arch/s390/kvm/intercept.c         |  1 +
- arch/s390/kvm/interrupt.c         | 37 +++++++++++++++
- arch/s390/kvm/kvm-s390.c          | 12 +++++
- arch/s390/kvm/kvm-s390.h          |  2 +
- arch/s390/kvm/priv.c              | 96 +++++++++++++++++++++++++++++++++++++--
- arch/s390/kvm/trace-s390.h        | 20 ++++++++
- include/linux/kvm.h               | 11 +++++
- include/trace/events/kvm.h        |  2 +-
- 10 files changed, 207 insertions(+), 5 deletions(-)
+ linux-headers/asm-generic/kvm_para.h |  5 +++
+ linux-headers/asm-powerpc/kvm.h      | 59 ++++++++++++++++++++++++++++++++++
+ linux-headers/asm-powerpc/kvm_para.h |  7 +++--
+ linux-headers/asm-x86/kvm.h          | 17 ++++++++++
+ linux-headers/linux/kvm.h            | 61 ++++++++++++++++++++++++++++++------
+ 5 files changed, 137 insertions(+), 12 deletions(-)
+ create mode 100644 linux-headers/asm-generic/kvm_para.h
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index a0408cf..2233081 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -2294,6 +2294,22 @@ The possible hypercalls are defined in the Power Architecture Platform
- Requirements (PAPR) document available from www.power.org (free
- developer registration required to access it).
+diff --git a/linux-headers/asm-generic/kvm_para.h b/linux-headers/asm-generic/kvm_para.h
+new file mode 100644
+index 0000000..63df88b
+--- /dev/null
++++ b/linux-headers/asm-generic/kvm_para.h
+@@ -0,0 +1,5 @@
++#ifndef _ASM_GENERIC_KVM_PARA_H
++#define _ASM_GENERIC_KVM_PARA_H
++
++
++#endif
+diff --git a/linux-headers/asm-powerpc/kvm.h b/linux-headers/asm-powerpc/kvm.h
+index 1bea4d8..b89ae4d 100644
+--- a/linux-headers/asm-powerpc/kvm.h
++++ b/linux-headers/asm-powerpc/kvm.h
+@@ -221,6 +221,12 @@ struct kvm_sregs {
  
-+		/* KVM_EXIT_S390_TSCH */
-+		struct {
-+			__u16 subchannel_id;
-+			__u16 subchannel_nr;
-+			__u32 io_int_parm;
-+			__u32 io_int_word;
-+			__u32 ipb;
-+			__u8 dequeued;
-+		} s390_tsch;
-+
-+s390 specific. This exit occurs when KVM_CAP_S390_CSS_SUPPORT has been enabled
-+and TEST SUBCHANNEL was intercepted. If dequeued is set, a pending I/O
-+interrupt for the target subchannel has been dequeued and subchannel_id,
-+subchannel_nr, io_int_parm and io_int_word contain the parameters for that
-+interrupt. ipb is needed for instruction parameter decoding.
-+
- 		/* Fix the size of the union. */
- 		char padding[256];
- 	};
-@@ -2415,3 +2431,17 @@ For mmu types KVM_MMU_FSL_BOOKE_NOHV and KVM_MMU_FSL_BOOKE_HV:
-    where "num_sets" is the tlb_sizes[] value divided by the tlb_ways[] value.
-  - The tsize field of mas1 shall be set to 4K on TLB0, even though the
-    hardware ignores this value for TLB0.
-+
-+6.4 KVM_CAP_S390_CSS_SUPPORT
-+
-+Architectures: s390
-+Parameters: none
-+Returns: 0 on success; -1 on error
-+
-+This capability enables support for handling of channel I/O instructions.
-+
-+TEST PENDING INTERRUPTION and the interrupt portion of TEST SUBCHANNEL are
-+handled in-kernel, while the other I/O instructions are passed to userspace.
-+
-+When this capability is enabled, KVM_EXIT_S390_TSCH will occur on TEST
-+SUBCHANNEL intercepts.
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 773859e..091c581 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -264,6 +264,7 @@ struct kvm_arch{
- 	debug_info_t *dbf;
- 	struct kvm_s390_float_interrupt float_int;
- 	struct gmap *gmap;
-+	int css_support;
+ 			__u32 dbsr;	/* KVM_SREGS_E_UPDATE_DBSR */
+ 			__u32 dbcr[3];
++			/*
++			 * iac/dac registers are 64bit wide, while this API
++			 * interface provides only lower 32 bits on 64 bit
++			 * processors. ONE_REG interface is added for 64bit
++			 * iac/dac registers.
++			 */
+ 			__u32 iac[4];
+ 			__u32 dac[2];
+ 			__u32 dvc[2];
+@@ -326,5 +332,58 @@ struct kvm_book3e_206_tlb_params {
  };
  
- extern int sie64a(struct kvm_s390_sie_block *, u64 *);
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 754dc9e..9ab2efd 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -273,6 +273,7 @@ static const intercept_handler_t intercept_funcs[] = {
- 	[0x0C >> 2] = handle_instruction_and_prog,
- 	[0x10 >> 2] = handle_noop,
- 	[0x14 >> 2] = handle_noop,
-+	[0x18 >> 2] = handle_noop,
- 	[0x1C >> 2] = kvm_s390_handle_wait,
- 	[0x20 >> 2] = handle_validity,
- 	[0x28 >> 2] = handle_stop,
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 6b10267..495a411 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -714,6 +714,43 @@ int kvm_s390_inject_program_int(struct kvm_vcpu *vcpu, u16 code)
- 	return 0;
- }
+ #define KVM_REG_PPC_HIOR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x1)
++#define KVM_REG_PPC_IAC1	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x2)
++#define KVM_REG_PPC_IAC2	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x3)
++#define KVM_REG_PPC_IAC3	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x4)
++#define KVM_REG_PPC_IAC4	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x5)
++#define KVM_REG_PPC_DAC1	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x6)
++#define KVM_REG_PPC_DAC2	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x7)
++#define KVM_REG_PPC_DABR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x8)
++#define KVM_REG_PPC_DSCR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x9)
++#define KVM_REG_PPC_PURR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0xa)
++#define KVM_REG_PPC_SPURR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0xb)
++#define KVM_REG_PPC_DAR		(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0xc)
++#define KVM_REG_PPC_DSISR	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0xd)
++#define KVM_REG_PPC_AMR		(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0xe)
++#define KVM_REG_PPC_UAMOR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0xf)
++
++#define KVM_REG_PPC_MMCR0	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x10)
++#define KVM_REG_PPC_MMCR1	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x11)
++#define KVM_REG_PPC_MMCRA	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x12)
++
++#define KVM_REG_PPC_PMC1	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x18)
++#define KVM_REG_PPC_PMC2	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x19)
++#define KVM_REG_PPC_PMC3	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x1a)
++#define KVM_REG_PPC_PMC4	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x1b)
++#define KVM_REG_PPC_PMC5	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x1c)
++#define KVM_REG_PPC_PMC6	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x1d)
++#define KVM_REG_PPC_PMC7	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x1e)
++#define KVM_REG_PPC_PMC8	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x1f)
++
++/* 32 floating-point registers */
++#define KVM_REG_PPC_FPR0	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x20)
++#define KVM_REG_PPC_FPR(n)	(KVM_REG_PPC_FPR0 + (n))
++#define KVM_REG_PPC_FPR31	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x3f)
++
++/* 32 VMX/Altivec vector registers */
++#define KVM_REG_PPC_VR0		(KVM_REG_PPC | KVM_REG_SIZE_U128 | 0x40)
++#define KVM_REG_PPC_VR(n)	(KVM_REG_PPC_VR0 + (n))
++#define KVM_REG_PPC_VR31	(KVM_REG_PPC | KVM_REG_SIZE_U128 | 0x5f)
++
++/* 32 double-width FP registers for VSX */
++/* High-order halves overlap with FP regs */
++#define KVM_REG_PPC_VSR0	(KVM_REG_PPC | KVM_REG_SIZE_U128 | 0x60)
++#define KVM_REG_PPC_VSR(n)	(KVM_REG_PPC_VSR0 + (n))
++#define KVM_REG_PPC_VSR31	(KVM_REG_PPC | KVM_REG_SIZE_U128 | 0x7f)
++
++/* FP and vector status/control registers */
++#define KVM_REG_PPC_FPSCR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x80)
++#define KVM_REG_PPC_VSCR	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x81)
++
++/* Virtual processor areas */
++/* For SLB & DTL, address in high (first) half, length in low half */
++#define KVM_REG_PPC_VPA_ADDR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x82)
++#define KVM_REG_PPC_VPA_SLB	(KVM_REG_PPC | KVM_REG_SIZE_U128 | 0x83)
++#define KVM_REG_PPC_VPA_DTL	(KVM_REG_PPC | KVM_REG_SIZE_U128 | 0x84)
  
-+struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
-+						    u64 cr6, u64 schid)
-+{
-+	struct kvm_s390_float_interrupt *fi;
-+	struct kvm_s390_interrupt_info *inti, *iter;
-+
-+	if ((!schid && !cr6) || (schid && cr6))
-+		return NULL;
-+	mutex_lock(&kvm->lock);
-+	fi = &kvm->arch.float_int;
-+	spin_lock(&fi->lock);
-+	inti = NULL;
-+	list_for_each_entry(iter, &fi->list, list) {
-+		if (!is_ioint(iter->type))
-+			continue;
-+		if (cr6 && ((cr6 & iter->io.io_int_word) == 0))
-+			continue;
-+		if (schid) {
-+			if (((schid & 0x00000000ffff0000) >> 16) !=
-+			    iter->io.subchannel_id)
-+				continue;
-+			if ((schid & 0x000000000000ffff) !=
-+			    iter->io.subchannel_nr)
-+				continue;
-+		}
-+		inti = iter;
-+		break;
-+	}
-+	if (inti)
-+		list_del_init(&inti->list);
-+	if (list_empty(&fi->list))
-+		atomic_set(&fi->active, 0);
-+	spin_unlock(&fi->lock);
-+	mutex_unlock(&kvm->lock);
-+	return inti;
-+}
-+
- int kvm_s390_inject_vm(struct kvm *kvm,
- 		       struct kvm_s390_interrupt *s390int)
- {
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index c19568b..fcbb711 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -141,6 +141,7 @@ int kvm_dev_ioctl_check_extension(long ext)
- 	case KVM_CAP_SYNC_REGS:
- 	case KVM_CAP_ONE_REG:
- 	case KVM_CAP_ENABLE_CAP:
-+	case KVM_CAP_S390_CSS_SUPPORT:
- 		r = 1;
- 		break;
- 	case KVM_CAP_NR_VCPUS:
-@@ -235,6 +236,9 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 		if (!kvm->arch.gmap)
- 			goto out_nogmap;
- 	}
-+
-+	kvm->arch.css_support = 0;
-+
- 	return 0;
- out_nogmap:
- 	debug_unregister(kvm->arch.dbf);
-@@ -657,6 +661,7 @@ rerun_vcpu:
- 	case KVM_EXIT_INTR:
- 	case KVM_EXIT_S390_RESET:
- 	case KVM_EXIT_S390_UCONTROL:
-+	case KVM_EXIT_S390_TSCH:
- 		break;
- 	default:
- 		BUG();
-@@ -817,6 +822,13 @@ static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
- 		return -EINVAL;
+ #endif /* __LINUX_KVM_POWERPC_H */
+diff --git a/linux-headers/asm-powerpc/kvm_para.h b/linux-headers/asm-powerpc/kvm_para.h
+index c047a84..7e64f57 100644
+--- a/linux-headers/asm-powerpc/kvm_para.h
++++ b/linux-headers/asm-powerpc/kvm_para.h
+@@ -75,9 +75,10 @@ struct kvm_vcpu_arch_shared {
+ };
  
- 	switch (cap->cap) {
-+	case KVM_CAP_S390_CSS_SUPPORT:
-+		if (!vcpu->kvm->arch.css_support) {
-+			vcpu->kvm->arch.css_support = 1;
-+			trace_kvm_s390_enable_css(vcpu->kvm);
-+		}
-+		r = 0;
-+		break;
- 	default:
- 		r = -EINVAL;
- 		break;
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 7f50229..14a417f 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -76,6 +76,8 @@ int kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
- 		struct kvm_s390_interrupt *s390int);
- int kvm_s390_inject_program_int(struct kvm_vcpu *vcpu, u16 code);
- int kvm_s390_inject_sigp_stop(struct kvm_vcpu *vcpu, int action);
-+struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
-+						    u64 cr6, u64 schid);
+ #define KVM_SC_MAGIC_R0		0x4b564d21 /* "KVM!" */
+-#define HC_VENDOR_KVM		(42 << 16)
+-#define HC_EV_SUCCESS		0
+-#define HC_EV_UNIMPLEMENTED	12
++
++#define KVM_HCALL_TOKEN(num)     _EV_HCALL_TOKEN(EV_KVM_VENDOR_ID, num)
++
++#include <asm/epapr_hcalls.h>
  
- /* implemented in priv.c */
- int kvm_s390_handle_b2(struct kvm_vcpu *vcpu);
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 2aba96b..7473888 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -135,15 +135,103 @@ static int handle_skey(struct kvm_vcpu *vcpu)
- 	return 0;
- }
+ #define KVM_FEATURE_MAGIC_PAGE	1
  
--static int handle_io_inst(struct kvm_vcpu *vcpu)
-+static int handle_tpi(struct kvm_vcpu *vcpu)
- {
--	VCPU_EVENT(vcpu, 4, "%s", "I/O instruction");
--	/* condition code 3 */
-+	u32 ipb = vcpu->arch.sie_block->ipb;
-+	u64 addr;
-+	struct kvm_s390_interrupt_info *inti;
-+	int cc;
-+
-+	addr = ipb >> 28;
-+	if (addr > 0)
-+		addr = vcpu->run->s.regs.gprs[addr];
-+
-+	addr += (ipb & 0xfff0000) >> 16;
-+
-+	inti = kvm_s390_get_io_int(vcpu->kvm, vcpu->run->s.regs.crs[6], 0);
-+	if (inti) {
-+		if (addr) {
-+			/*
-+			 * Store the two-word I/O interruption code into the
-+			 * provided area.
-+			 */
-+			put_guest_u16(vcpu, addr, inti->io.subchannel_id);
-+			put_guest_u16(vcpu, addr + 2, inti->io.subchannel_nr);
-+			put_guest_u32(vcpu, addr + 4, inti->io.io_int_parm);
-+		} else {
-+			/*
-+			 * Store the three-word I/O interruption code into
-+			 * the appropriate lowcore area.
-+			 */
-+			put_guest_u16(vcpu, 184, inti->io.subchannel_id);
-+			put_guest_u16(vcpu, 186, inti->io.subchannel_nr);
-+			put_guest_u32(vcpu, 188, inti->io.io_int_parm);
-+			put_guest_u32(vcpu, 192, inti->io.io_int_word);
-+		}
-+		cc = 1;
-+	} else
-+		cc = 0;
-+	kfree(inti);
-+	/* Set condition code and we're done. */
- 	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
--	vcpu->arch.sie_block->gpsw.mask |= (3 & 3ul) << 44;
-+	vcpu->arch.sie_block->gpsw.mask |= (cc & 3ul) << 44;
- 	return 0;
- }
+diff --git a/linux-headers/asm-x86/kvm.h b/linux-headers/asm-x86/kvm.h
+index 246617e..a65ec29 100644
+--- a/linux-headers/asm-x86/kvm.h
++++ b/linux-headers/asm-x86/kvm.h
+@@ -9,6 +9,22 @@
+ #include <linux/types.h>
+ #include <linux/ioctl.h>
  
-+static int handle_tsch(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_s390_interrupt_info *inti;
++#define DE_VECTOR 0
++#define DB_VECTOR 1
++#define BP_VECTOR 3
++#define OF_VECTOR 4
++#define BR_VECTOR 5
++#define UD_VECTOR 6
++#define NM_VECTOR 7
++#define DF_VECTOR 8
++#define TS_VECTOR 10
++#define NP_VECTOR 11
++#define SS_VECTOR 12
++#define GP_VECTOR 13
++#define PF_VECTOR 14
++#define MF_VECTOR 16
++#define MC_VECTOR 18
 +
-+	inti = kvm_s390_get_io_int(vcpu->kvm, 0,
-+				   vcpu->run->s.regs.gprs[1]);
-+
-+	/*
-+	 * Prepare exit to userspace.
-+	 * We indicate whether we dequeued a pending I/O interrupt
-+	 * so that userspace can re-inject it if the instruction gets
-+	 * a program check. While this may re-order the pending I/O
-+	 * interrupts, this is no problem since the priority is kept
-+	 * intact.
-+	 */
-+	vcpu->run->exit_reason = KVM_EXIT_S390_TSCH;
-+	vcpu->run->s390_tsch.dequeued = !!inti;
-+	if (inti) {
-+		vcpu->run->s390_tsch.subchannel_id = inti->io.subchannel_id;
-+		vcpu->run->s390_tsch.subchannel_nr = inti->io.subchannel_nr;
-+		vcpu->run->s390_tsch.io_int_parm = inti->io.io_int_parm;
-+		vcpu->run->s390_tsch.io_int_word = inti->io.io_int_word;
-+	}
-+	vcpu->run->s390_tsch.ipb = vcpu->arch.sie_block->ipb;
-+	kfree(inti);
-+	return -EREMOTE;
-+}
-+
-+static int handle_io_inst(struct kvm_vcpu *vcpu)
-+{
-+	VCPU_EVENT(vcpu, 4, "%s", "I/O instruction");
-+
-+	if (vcpu->kvm->arch.css_support) {
-+		/*
-+		 * Most I/O instructions will be handled by userspace.
-+		 * Exceptions are tpi and the interrupt portion of tsch.
-+		 */
-+		if (vcpu->arch.sie_block->ipa == 0xb236)
-+			return handle_tpi(vcpu);
-+		if (vcpu->arch.sie_block->ipa == 0xb235)
-+			return handle_tsch(vcpu);
-+		/* Handle in userspace. */
-+		return -EOPNOTSUPP;
-+	} else {
-+		/*
-+		 * Set condition code 3 to stop the guest from issueing channel
-+		 * I/O instructions.
-+		 */
-+		vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
-+		vcpu->arch.sie_block->gpsw.mask |= (3 & 3ul) << 44;
-+		return 0;
-+	}
-+}
-+
- static int handle_stfl(struct kvm_vcpu *vcpu)
- {
- 	unsigned int facility_list;
-diff --git a/arch/s390/kvm/trace-s390.h b/arch/s390/kvm/trace-s390.h
-index 95fbc1a..13f30f5 100644
---- a/arch/s390/kvm/trace-s390.h
-+++ b/arch/s390/kvm/trace-s390.h
-@@ -204,6 +204,26 @@ TRACE_EVENT(kvm_s390_stop_request,
- 	);
+ /* Select x86 specific features in <linux/kvm.h> */
+ #define __KVM_HAVE_PIT
+ #define __KVM_HAVE_IOAPIC
+@@ -25,6 +41,7 @@
+ #define __KVM_HAVE_DEBUGREGS
+ #define __KVM_HAVE_XSAVE
+ #define __KVM_HAVE_XCRS
++#define __KVM_HAVE_READONLY_MEM
  
+ /* Architectural interrupt line count. */
+ #define KVM_NR_INTERRUPTS 256
+diff --git a/linux-headers/linux/kvm.h b/linux-headers/linux/kvm.h
+index 4b9e575..84e7abc 100644
+--- a/linux-headers/linux/kvm.h
++++ b/linux-headers/linux/kvm.h
+@@ -101,9 +101,13 @@ struct kvm_userspace_memory_region {
+ 	__u64 userspace_addr; /* start of the userspace allocated memory */
+ };
  
+-/* for kvm_memory_region::flags */
+-#define KVM_MEM_LOG_DIRTY_PAGES  1UL
+-#define KVM_MEMSLOT_INVALID      (1UL << 1)
 +/*
-+ * Trace point for enabling channel I/O instruction support.
++ * The bit 0 ~ bit 15 of kvm_memory_region::flags are visible for userspace,
++ * other bits are reserved for kvm internal use which are defined in
++ * include/linux/kvm_host.h.
 + */
-+TRACE_EVENT(kvm_s390_enable_css,
-+	    TP_PROTO(void *kvm),
-+	    TP_ARGS(kvm),
-+
-+	    TP_STRUCT__entry(
-+		    __field(void *, kvm)
-+		    ),
-+
-+	    TP_fast_assign(
-+		    __entry->kvm = kvm;
-+		    ),
-+
-+	    TP_printk("enabling channel I/O support (kvm @ %p)\n",
-+		      __entry->kvm)
-+	);
-+
-+
- #endif /* _TRACE_KVMS390_H */
++#define KVM_MEM_LOG_DIRTY_PAGES	(1UL << 0)
++#define KVM_MEM_READONLY	(1UL << 1)
  
- /* This part must be outside protection */
-diff --git a/include/linux/kvm.h b/include/linux/kvm.h
-index 22859dc..72aa4a3 100644
---- a/include/linux/kvm.h
-+++ b/include/linux/kvm.h
-@@ -168,6 +168,7 @@ struct kvm_pit_config {
+ /* for KVM_IRQ_LINE */
+ struct kvm_irq_level {
+@@ -163,10 +167,16 @@ struct kvm_pit_config {
+ #define KVM_EXIT_OSI              18
  #define KVM_EXIT_PAPR_HCALL	  19
  #define KVM_EXIT_S390_UCONTROL	  20
- #define KVM_EXIT_WATCHDOG         21
++#define KVM_EXIT_WATCHDOG         21
 +#define KVM_EXIT_S390_TSCH        22
  
  /* For KVM_EXIT_INTERNAL_ERROR */
- /* Emulate instruction failed. */
-@@ -285,6 +286,15 @@ struct kvm_run {
+-#define KVM_INTERNAL_ERROR_EMULATION 1
+-#define KVM_INTERNAL_ERROR_SIMUL_EX 2
++/* Emulate instruction failed. */
++#define KVM_INTERNAL_ERROR_EMULATION	1
++/* Encounter unexpected simultaneous exceptions. */
++#define KVM_INTERNAL_ERROR_SIMUL_EX	2
++/* Encounter unexpected vm-exit due to delivery event. */
++#define KVM_INTERNAL_ERROR_DELIVERY_EV	3
+ 
+ /* for KVM_RUN, returned by mmap(vcpu_fd, offset=0) */
+ struct kvm_run {
+@@ -276,6 +286,15 @@ struct kvm_run {
  			__u64 ret;
  			__u64 args[9];
  		} papr_hcall;
@@ -382,26 +218,88 @@ index 22859dc..72aa4a3 100644
  		/* Fix the size of the union. */
  		char padding[256];
  	};
-@@ -641,6 +651,7 @@ struct kvm_ppc_smmu_info {
- #endif
- #define KVM_CAP_IRQFD_RESAMPLE 82
- #define KVM_CAP_PPC_BOOKE_WATCHDOG 83
+@@ -388,10 +407,17 @@ struct kvm_s390_psw {
+ #define KVM_S390_PROGRAM_INT		0xfffe0001u
+ #define KVM_S390_SIGP_SET_PREFIX	0xfffe0002u
+ #define KVM_S390_RESTART		0xfffe0003u
++#define KVM_S390_MCHK			0xfffe1000u
+ #define KVM_S390_INT_VIRTIO		0xffff2603u
+ #define KVM_S390_INT_SERVICE		0xffff2401u
+ #define KVM_S390_INT_EMERGENCY		0xffff1201u
+ #define KVM_S390_INT_EXTERNAL_CALL	0xffff1202u
++#define KVM_S390_INT_IO(ai,cssid,ssid,schid)   \
++	(((schid)) |			       \
++	 ((ssid) << 16) |		       \
++	 ((cssid) << 18) |		       \
++	 ((ai) << 26))
++
+ 
+ struct kvm_s390_interrupt {
+ 	__u32 type;
+@@ -473,6 +499,8 @@ struct kvm_ppc_smmu_info {
+ 	struct kvm_ppc_one_seg_page_size sps[KVM_PPC_PAGE_SIZES_MAX_SZ];
+ };
+ 
++#define KVM_PPC_PVINFO_FLAGS_EV_IDLE   (1<<0)
++
+ #define KVMIO 0xAE
+ 
+ /* machine type bits, to be used as argument to KVM_CREATE_VM */
+@@ -618,6 +646,12 @@ struct kvm_ppc_smmu_info {
+ #define KVM_CAP_PPC_GET_SMMU_INFO 78
+ #define KVM_CAP_S390_COW 79
+ #define KVM_CAP_PPC_ALLOC_HTAB 80
++#ifdef __KVM_HAVE_READONLY_MEM
++#define KVM_CAP_READONLY_MEM 81
++#endif
++#define KVM_CAP_IRQFD_RESAMPLE 82
++#define KVM_CAP_PPC_BOOKE_WATCHDOG 83
 +#define KVM_CAP_S390_CSS_SUPPORT 84
  
  #ifdef KVM_CAP_IRQ_ROUTING
  
-diff --git a/include/trace/events/kvm.h b/include/trace/events/kvm.h
-index 7ef9e75..a23f47c 100644
---- a/include/trace/events/kvm.h
-+++ b/include/trace/events/kvm.h
-@@ -14,7 +14,7 @@
- 	ERSN(SHUTDOWN), ERSN(FAIL_ENTRY), ERSN(INTR), ERSN(SET_TPR),	\
- 	ERSN(TPR_ACCESS), ERSN(S390_SIEIC), ERSN(S390_RESET), ERSN(DCR),\
- 	ERSN(NMI), ERSN(INTERNAL_ERROR), ERSN(OSI), ERSN(PAPR_HCALL),	\
--	ERSN(S390_UCONTROL)
-+	ERSN(S390_UCONTROL), ERSN(S390_TSCH)
+@@ -683,12 +717,21 @@ struct kvm_xen_hvm_config {
+ #endif
  
- TRACE_EVENT(kvm_userspace_exit,
- 	    TP_PROTO(__u32 reason, int errno),
+ #define KVM_IRQFD_FLAG_DEASSIGN (1 << 0)
++/*
++ * Available with KVM_CAP_IRQFD_RESAMPLE
++ *
++ * KVM_IRQFD_FLAG_RESAMPLE indicates resamplefd is valid and specifies
++ * the irqfd to operate in resampling mode for level triggered interrupt
++ * emlation.  See Documentation/virtual/kvm/api.txt.
++ */
++#define KVM_IRQFD_FLAG_RESAMPLE (1 << 1)
+ 
+ struct kvm_irqfd {
+ 	__u32 fd;
+ 	__u32 gsi;
+ 	__u32 flags;
+-	__u8  pad[20];
++	__u32 resamplefd;
++	__u8  pad[16];
+ };
+ 
+ struct kvm_clock_data {
+@@ -831,6 +874,9 @@ struct kvm_s390_ucas_mapping {
+ #define KVM_PPC_GET_SMMU_INFO	  _IOR(KVMIO,  0xa6, struct kvm_ppc_smmu_info)
+ /* Available with KVM_CAP_PPC_ALLOC_HTAB */
+ #define KVM_PPC_ALLOCATE_HTAB	  _IOWR(KVMIO, 0xa7, __u32)
++#define KVM_CREATE_SPAPR_TCE	  _IOW(KVMIO,  0xa8, struct kvm_create_spapr_tce)
++/* Available with KVM_CAP_RMA */
++#define KVM_ALLOCATE_RMA	  _IOR(KVMIO,  0xa9, struct kvm_allocate_rma)
+ 
+ /*
+  * ioctls for vcpu fds
+@@ -894,9 +940,6 @@ struct kvm_s390_ucas_mapping {
+ /* Available with KVM_CAP_XCRS */
+ #define KVM_GET_XCRS		  _IOR(KVMIO,  0xa6, struct kvm_xcrs)
+ #define KVM_SET_XCRS		  _IOW(KVMIO,  0xa7, struct kvm_xcrs)
+-#define KVM_CREATE_SPAPR_TCE	  _IOW(KVMIO,  0xa8, struct kvm_create_spapr_tce)
+-/* Available with KVM_CAP_RMA */
+-#define KVM_ALLOCATE_RMA	  _IOR(KVMIO,  0xa9, struct kvm_allocate_rma)
+ /* Available with KVM_CAP_SW_TLB */
+ #define KVM_DIRTY_TLB		  _IOW(KVMIO,  0xaa, struct kvm_dirty_tlb)
+ /* Available with KVM_CAP_ONE_REG */
 -- 
 1.7.12.4
