@@ -1,8 +1,11 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [RFC PATCH v3 0/5] s390: Host support for channel I/O.
-Date: Wed, 31 Oct 2012 17:24:33 +0100
-Message-ID: <1351700678-41969-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 4/5] KVM: s390: Base infrastructure for
+	enabling capabilities.
+Date: Wed, 31 Oct 2012 17:24:37 +0100
+Message-ID: <1351700678-41969-5-git-send-email-cornelia.huck@de.ibm.com>
+References: <1351700678-41969-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+In-Reply-To: <1351700678-41969-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
 List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
@@ -18,38 +21,75 @@ To: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-dev
 Cc: Carsten Otte <cotte@de.ibm.com>, Anthony Liguori <aliguori@us.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Marcelo Tosatti <mtosatti@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Avi Kivity <avi@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ Documentation/virtual/kvm/api.txt |  2 +-
+ arch/s390/kvm/kvm-s390.c          | 26 ++++++++++++++++++++++++++
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
-here's the latest incarnation of my host patches to support channel
-I/O on s390.
-
-Most patches have only seen minor fixes, but patch 5 is completely
-different since the kvm <-> user space interface has been reworked.
-
-We now handle only interrupt-related operations in kvm. This
-includes two channel I/O instructions that can dequeue pending I/O
-interrupts: tpi and tsch (not the part actually interacting with
-the subchannel). This makes the interface less complex (only one
-new exit for tsch handling) and avoids duplicating code from qemu.
-
-Cornelia Huck (5):
-  KVM: s390: Support for I/O interrupts.
-  KVM: s390: Add support for machine checks.
-  KVM: s390: In-kernel handling of I/O instructions.
-  KVM: s390: Base infrastructure for enabling capabilities.
-  KVM: s390: Add support for channel I/O instructions.
-
- Documentation/virtual/kvm/api.txt |  40 +++++-
- arch/s390/include/asm/kvm_host.h  |  11 ++
- arch/s390/kvm/intercept.c         |  22 ++-
- arch/s390/kvm/interrupt.c         | 264 +++++++++++++++++++++++++++++++++++-
- arch/s390/kvm/kvm-s390.c          |  38 ++++++
- arch/s390/kvm/kvm-s390.h          |   6 +
- arch/s390/kvm/priv.c              | 275 +++++++++++++++++++++++++++++++++++---
- arch/s390/kvm/trace-s390.h        |  26 +++-
- include/linux/kvm.h               |  18 +++
- include/trace/events/kvm.h        |   2 +-
- 10 files changed, 673 insertions(+), 29 deletions(-)
-
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index 5d09948..a0408cf 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -913,7 +913,7 @@ documentation when it pops into existence).
+ 4.37 KVM_ENABLE_CAP
+ 
+ Capability: KVM_CAP_ENABLE_CAP
+-Architectures: ppc
++Architectures: ppc, s390
+ Type: vcpu ioctl
+ Parameters: struct kvm_enable_cap (in)
+ Returns: 0 on success; -1 on error
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 38883f0..c19568b 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -140,6 +140,7 @@ int kvm_dev_ioctl_check_extension(long ext)
+ #endif
+ 	case KVM_CAP_SYNC_REGS:
+ 	case KVM_CAP_ONE_REG:
++	case KVM_CAP_ENABLE_CAP:
+ 		r = 1;
+ 		break;
+ 	case KVM_CAP_NR_VCPUS:
+@@ -807,6 +808,22 @@ int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr)
+ 	return 0;
+ }
+ 
++static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
++				     struct kvm_enable_cap *cap)
++{
++	int r;
++
++	if (cap->flags)
++		return -EINVAL;
++
++	switch (cap->cap) {
++	default:
++		r = -EINVAL;
++		break;
++	}
++	return r;
++}
++
+ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 			 unsigned int ioctl, unsigned long arg)
+ {
+@@ -893,6 +910,15 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 			r = 0;
+ 		break;
+ 	}
++	case KVM_ENABLE_CAP:
++	{
++		struct kvm_enable_cap cap;
++		r = -EFAULT;
++		if (copy_from_user(&cap, argp, sizeof(cap)))
++			break;
++		r = kvm_vcpu_ioctl_enable_cap(vcpu, &cap);
++		break;
++	}
+ 	default:
+ 		r = -ENOTTY;
+ 	}
 -- 
 1.7.12.4
