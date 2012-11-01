@@ -1,182 +1,384 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 2/3] s390: Virtual channel subsystem support.
-Date: Tue, 20 Nov 2012 10:27:53 +0100
-Message-ID: <20121120102753.4104ec05@BR9GNB5Z>
-References: <1351700688-42353-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1351700688-42353-3-git-send-email-cornelia.huck@de.ibm.com>
-	<B6F2031C-0AC3-486A-9A95-51DE66F747AA@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <B6F2031C-0AC3-486A-9A95-51DE66F747AA@suse.de>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Alexander Graf <agraf@suse.de>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+From: Wen Congyang <wency@cn.fujitsu.com>
+Subject: [PATCH v3 09/12] memory-hotplug: remove page table of x86_64 architecture
+Date: Thu, 1 Nov 2012 17:44:40 +0800
+Message-ID: <1351763083-7905-10-git-send-email-wency@cn.fujitsu.com>
+References: <1351763083-7905-1-git-send-email-wency@cn.fujitsu.com>
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1351763083-7905-1-git-send-email-wency@cn.fujitsu.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-acpi/>
+List-Post: <mailto:linux-acpi@vger.kernel.org>
+To: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org
+Cc: David Rientjes <rientjes@google.com>, Jiang Liu <liuj97@gmail.com>, Len Brown <len.brown@intel.com>, benh@kernel.crashing.org, paulus@samba.org, Christoph Lameter <cl@linux.com>, Minchan Kim <minchan.kim@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>, Jianguo Wu <wujianguo@huawei.com>, Wen Congyang <wency@cn.fujitsu.com>, Jiang Liu <jiang.liu@huawei.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 19 Nov 2012 14:30:00 +0100
-Alexander Graf <agraf@suse.de> wrote:
+For hot removing memory, we sholud remove page table about the memory.
+So the patch searches a page table about the removed memory, and clear
+page table.
 
-> 
-> On 31.10.2012, at 17:24, Cornelia Huck wrote:
-> 
-> > Provide a mechanism for qemu to provide fully virtual subchannels to
-> > the guest. In the KVM case, this relies on the kernel's css support
-> > for I/O and machine check interrupt handling. The !KVM case handles
-> > interrupts on its own.
-> > 
-> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > ---
-> > hw/s390x/Makefile.objs     |    1 +
-> > hw/s390x/css.c             | 1209 ++++++++++++++++++++++++++++++++++++++++++++
-> > hw/s390x/css.h             |   90 ++++
-> > target-s390x/Makefile.objs |    2 +-
-> > target-s390x/cpu.h         |  232 +++++++++
-> > target-s390x/helper.c      |  146 ++++++
-> > target-s390x/ioinst.c      |  737 +++++++++++++++++++++++++++
-> > target-s390x/ioinst.h      |  213 ++++++++
-> > target-s390x/kvm.c         |  251 ++++++++-
-> > target-s390x/misc_helper.c |    6 +-
-> > 10 files changed, 2872 insertions(+), 15 deletions(-)
-> > create mode 100644 hw/s390x/css.c
-> > create mode 100644 hw/s390x/css.h
-> > create mode 100644 target-s390x/ioinst.c
-> > create mode 100644 target-s390x/ioinst.h
-> > 
-> > diff --git a/hw/s390x/Makefile.objs b/hw/s390x/Makefile.objs
-> > index 096dfcd..378b099 100644
-> > --- a/hw/s390x/Makefile.objs
-> > +++ b/hw/s390x/Makefile.objs
-> > @@ -4,3 +4,4 @@ obj-y := $(addprefix ../,$(obj-y))
-> > obj-y += sclp.o
-> > obj-y += event-facility.o
-> > obj-y += sclpquiesce.o sclpconsole.o
-> > +obj-y += css.o
-> > diff --git a/hw/s390x/css.c b/hw/s390x/css.c
-> > new file mode 100644
-> > index 0000000..9adffb3
-> > --- /dev/null
-> > +++ b/hw/s390x/css.c
-> > @@ -0,0 +1,1209 @@
-> > +/*
-> > + * Channel subsystem base support.
-> > + *
-> > + * Copyright 2012 IBM Corp.
-> > + * Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
-> > + *
-> > + * This work is licensed under the terms of the GNU GPL, version 2 or (at
-> > + * your option) any later version. See the COPYING file in the top-level
-> > + * directory.
-> > + */
-> > +
-> > +#include "qemu-thread.h"
-> > +#include "qemu-queue.h"
-> > +#include <hw/qdev.h>
-> > +#include "bitops.h"
-> > +#include "kvm.h"
-> > +#include "cpu.h"
-> > +#include "ioinst.h"
-> > +#include "css.h"
-> > +#include "virtio-ccw.h"
-> > +
-> > +typedef struct CrwContainer {
-> > +    CRW crw;
-> > +    QTAILQ_ENTRY(CrwContainer) sibling;
-> > +} CrwContainer;
-> > +
-> > +typedef struct ChpInfo {
-> > +    uint8_t in_use;
-> > +    uint8_t type;
-> > +    uint8_t is_virtual;
-> > +} ChpInfo;
-> > +
-> > +typedef struct SubchSet {
-> > +    SubchDev *sch[MAX_SCHID + 1];
-> > +    unsigned long schids_used[BITS_TO_LONGS(MAX_SCHID + 1)];
-> > +    unsigned long devnos_used[BITS_TO_LONGS(MAX_SCHID + 1)];
-> > +} SubchSet;
-> > +
-> > +typedef struct CssImage {
-> > +    SubchSet *sch_set[MAX_SSID + 1];
-> > +    ChpInfo chpids[MAX_CHPID + 1];
-> > +} CssImage;
-> > +
-> > +typedef struct ChannelSubSys {
-> > +    QTAILQ_HEAD(, CrwContainer) pending_crws;
-> > +    bool do_crw_mchk;
-> > +    bool crws_lost;
-> > +    uint8_t max_cssid;
-> > +    uint8_t max_ssid;
-> > +    bool chnmon_active;
-> > +    uint64_t chnmon_area;
-> > +    CssImage *css[MAX_CSSID + 1];
-> > +    uint8_t default_cssid;
-> > +} ChannelSubSys;
-> > +
-> > +static ChannelSubSys *channel_subsys;
-> > +
-> > +int css_create_css_image(uint8_t cssid, bool default_image)
-> > +{
-> > +    if (cssid > MAX_CSSID) {
-> > +        return -EINVAL;
-> > +    }
-> > +    if (channel_subsys->css[cssid]) {
-> > +        return -EBUSY;
-> > +    }
-> > +    channel_subsys->css[cssid] = g_try_malloc0(sizeof(CssImage));
-> > +    if (!channel_subsys->css[cssid]) {
-> > +        return -ENOMEM;
-> > +    }
-> > +    if (default_image) {
-> > +        channel_subsys->default_cssid = cssid;
-> > +    }
-> > +    return 0;
-> > +}
-> > +
-> > +static void css_write_phys_pmcw(uint64_t addr, PMCW *pmcw)
-> > +{
-> > +    int i;
-> > +    uint32_t offset = 0;
-> > +    struct copy_pmcw {
-> > +        uint32_t intparm;
-> > +        uint16_t flags;
-> > +        uint16_t devno;
-> > +        uint8_t lpm;
-> > +        uint8_t pnom;
-> > +        uint8_t lpum;
-> > +        uint8_t pim;
-> > +        uint16_t mbi;
-> > +        uint8_t pom;
-> > +        uint8_t pam;
-> > +        uint8_t chpid[8];
-> > +        uint32_t chars;
-> > +    } *copy;
-> 
-> This needs to be packed. Also, it might be a good idea to separate the struct definition from the actual code ;).
-> 
-> > +
-> > +    copy = (struct copy_pmcw *)pmcw;
-> 
-> This will break on any system that doesn't coincidently stick to the same bitfield order as s390x. Please drop any usage of bitfields in QEMU source code :).
-> 
-> > +    stl_phys(addr + offset, copy->intparm);
-> > +    offset += sizeof(copy->intparm);
-> 
-> Can't you just use cpu_physical_memory_map() and assign things left and right as you see fit? Or prepare the target endianness struct on the stack and cpu_physical_memory_read/write it from/to guest memory.
+CC: David Rientjes <rientjes@google.com>
+CC: Jiang Liu <liuj97@gmail.com>
+CC: Len Brown <len.brown@intel.com>
+CC: Christoph Lameter <cl@linux.com>
+Cc: Minchan Kim <minchan.kim@gmail.com>
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+CC: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
+Signed-off-by: Jianguo Wu <wujianguo@huawei.com>
+Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
+---
+ arch/x86/include/asm/pgtable_types.h |   1 +
+ arch/x86/mm/init_64.c                | 231 +++++++++++++++++++++++++++++++++++
+ arch/x86/mm/pageattr.c               |  47 +++----
+ 3 files changed, 257 insertions(+), 22 deletions(-)
 
-All that copying stuff (other places as well) was still on my todo list
-- just wanted to get the patches out of the door so people could take a
-look at the interface.
+diff --git a/arch/x86/include/asm/pgtable_types.h b/arch/x86/include/asm/pgtable_types.h
+index ec8a1fc..fb0c24d 100644
+--- a/arch/x86/include/asm/pgtable_types.h
++++ b/arch/x86/include/asm/pgtable_types.h
+@@ -332,6 +332,7 @@ static inline void update_page_count(int level, unsigned long pages) { }
+  * as a pte too.
+  */
+ extern pte_t *lookup_address(unsigned long address, unsigned int *level);
++extern int __split_large_page(pte_t *kpte, unsigned long address, pte_t *pbase);
+ 
+ #endif	/* !__ASSEMBLY__ */
+ 
+diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+index e85626d..23d932a 100644
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -680,6 +680,235 @@ int arch_add_memory(int nid, u64 start, u64 size)
+ }
+ EXPORT_SYMBOL_GPL(arch_add_memory);
+ 
++static inline void free_pagetable(struct page *page)
++{
++	struct zone *zone;
++	bool bootmem = false;
++
++	/* bootmem page has reserved flag */
++	if (PageReserved(page)) {
++		__ClearPageReserved(page);
++		bootmem = true;
++	}
++
++	__free_page(page);
++
++	if (bootmem) {
++		zone = page_zone(page);
++		zone_span_writelock(zone);
++		zone->present_pages++;
++		zone_span_writeunlock(zone);
++		totalram_pages++;
++	}
++}
++
++static void free_pte_table(pte_t *pte_start, pmd_t *pmd)
++{
++	pte_t *pte;
++	int i;
++
++	for (i = 0; i < PTRS_PER_PTE; i++) {
++		pte = pte_start + i;
++		if (pte_val(*pte))
++			return;
++	}
++
++	/* free a pte talbe */
++	free_pagetable(pmd_page(*pmd));
++	pmd_clear(pmd);
++}
++
++static void free_pmd_table(pmd_t *pmd_start, pud_t *pud)
++{
++	pmd_t *pmd;
++	int i;
++
++	for (i = 0; i < PTRS_PER_PMD; i++) {
++		pmd = pmd_start + i;
++		if (pmd_val(*pmd))
++			return;
++	}
++
++	/* free a pmd talbe */
++	free_pagetable(pud_page(*pud));
++	pud_clear(pud);
++}
++
++/* return true if pgd is changed, otherwise return false */
++static bool free_pud_table(pud_t *pud_start, pgd_t *pgd)
++{
++	pud_t *pud;
++	int i;
++
++	for (i = 0; i < PTRS_PER_PUD; i++) {
++		pud = pud_start + i;
++		if (pud_val(*pud))
++			return false;
++	}
++
++	/* free a pud table */
++	free_pagetable(pgd_page(*pgd));
++	pgd_clear(pgd);
++
++	return true;
++}
++
++static void __meminit
++phys_pte_remove(pte_t *pte_page, unsigned long addr, unsigned long end)
++{
++	unsigned pages = 0;
++	int i = pte_index(addr);
++
++	pte_t *pte = pte_page + pte_index(addr);
++
++	for (; i < PTRS_PER_PTE; i++, addr += PAGE_SIZE, pte++) {
++
++		if (addr >= end)
++			break;
++
++		if (!pte_present(*pte))
++			continue;
++
++		pages++;
++		set_pte(pte, __pte(0));
++	}
++
++	update_page_count(PG_LEVEL_4K, -pages);
++}
++
++static void __meminit
++phys_pmd_remove(pmd_t *pmd_page, unsigned long addr, unsigned long end)
++{
++	unsigned long pages = 0, next;
++	int i = pmd_index(addr);
++
++	for (; i < PTRS_PER_PMD && addr < end; i++, addr = next) {
++		unsigned long pte_phys;
++		pmd_t *pmd = pmd_page + pmd_index(addr);
++		pte_t *pte;
++
++		next = pmd_addr_end(addr, end);
++
++		if (!pmd_present(*pmd))
++			continue;
++
++		if (pmd_large(*pmd)) {
++			if (IS_ALIGNED(addr, PMD_SIZE) &&
++			    IS_ALIGNED(next, PMD_SIZE)) {
++				set_pmd(pmd, __pmd(0));
++				pages++;
++				continue;
++			}
++
++			/*
++			 * We use 2M page, but we need to remove part of them,
++			 * so split 2M page to 4K page.
++			 */
++			pte = alloc_low_page(&pte_phys);
++			BUG_ON(!pte);
++			__split_large_page((pte_t *)pmd,
++					   (unsigned long)__va(addr), pte);
++
++			spin_lock(&init_mm.page_table_lock);
++			pmd_populate_kernel(&init_mm, pmd, __va(pte_phys));
++			spin_unlock(&init_mm.page_table_lock);
++
++			/* Do a global flush tlb after splitting a large page */
++			flush_tlb_all();
++		}
++
++		spin_lock(&init_mm.page_table_lock);
++		pte = map_low_page((pte_t *)pmd_page_vaddr(*pmd));
++		phys_pte_remove(pte, addr, next);
++		free_pte_table(pte, pmd);
++		unmap_low_page(pte);
++		spin_unlock(&init_mm.page_table_lock);
++	}
++	update_page_count(PG_LEVEL_2M, -pages);
++}
++
++static void __meminit
++phys_pud_remove(pud_t *pud_page, unsigned long addr, unsigned long end)
++{
++	unsigned long pages = 0, next;
++	int i = pud_index(addr);
++
++	for (; i < PTRS_PER_PUD && addr < end; i++, addr = next) {
++		unsigned long pmd_phys;
++		pud_t *pud = pud_page + pud_index(addr);
++		pmd_t *pmd;
++
++		next = pud_addr_end(addr, end);
++
++		if (!pud_present(*pud))
++			continue;
++
++		if (pud_large(*pud)) {
++			if (IS_ALIGNED(addr, PUD_SIZE) &&
++			    IS_ALIGNED(next, PUD_SIZE)) {
++				set_pud(pud, __pud(0));
++				pages++;
++				continue;
++			}
++
++			/*
++			 * We use 1G page, but we need to remove part of them,
++			 * so split 1G page to 2M page.
++			 */
++			pmd = alloc_low_page(&pmd_phys);
++			BUG_ON(!pmd);
++			__split_large_page((pte_t *)pud,
++					   (unsigned long)__va(addr),
++					   (pte_t *)pmd);
++
++			spin_lock(&init_mm.page_table_lock);
++			pud_populate(&init_mm, pud, __va(pmd_phys));
++			spin_unlock(&init_mm.page_table_lock);
++
++			/* Do a global flush tlb after splitting a large page */
++			flush_tlb_all();
++		}
++
++		pmd = map_low_page((pmd_t *)pud_page_vaddr(*pud));
++		phys_pmd_remove(pmd, addr, next);
++		free_pmd_table(pmd, pud);
++		unmap_low_page(pmd);
++	}
++
++	update_page_count(PG_LEVEL_1G, -pages);
++}
++
++void __meminit
++kernel_physical_mapping_remove(unsigned long start, unsigned long end)
++{
++	unsigned long next;
++	bool pgd_changed = false;
++
++	start = (unsigned long)__va(start);
++	end = (unsigned long)__va(end);
++
++	for (; start < end; start = next) {
++		pgd_t *pgd = pgd_offset_k(start);
++		pud_t *pud;
++
++		next = pgd_addr_end(start, end);
++
++		if (!pgd_present(*pgd))
++			continue;
++
++		pud = map_low_page((pud_t *)pgd_page_vaddr(*pgd));
++		phys_pud_remove(pud, __pa(start), __pa(next));
++		if (free_pud_table(pud, pgd))
++			pgd_changed = true;
++		unmap_low_page(pud);
++	}
++
++	if (pgd_changed)
++		sync_global_pgds(start, end - 1);
++
++	flush_tlb_all();
++}
++
+ #ifdef CONFIG_MEMORY_HOTREMOVE
+ int __ref arch_remove_memory(u64 start, u64 size)
+ {
+@@ -692,6 +921,8 @@ int __ref arch_remove_memory(u64 start, u64 size)
+ 	ret = __remove_pages(zone, start_pfn, nr_pages);
+ 	WARN_ON_ONCE(ret);
+ 
++	kernel_physical_mapping_remove(start, start + size);
++
+ 	return ret;
+ }
+ #endif
+diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
+index a718e0d..7dcb6f9 100644
+--- a/arch/x86/mm/pageattr.c
++++ b/arch/x86/mm/pageattr.c
+@@ -501,21 +501,13 @@ out_unlock:
+ 	return do_split;
+ }
+ 
+-static int split_large_page(pte_t *kpte, unsigned long address)
++int __split_large_page(pte_t *kpte, unsigned long address, pte_t *pbase)
+ {
+ 	unsigned long pfn, pfninc = 1;
+ 	unsigned int i, level;
+-	pte_t *pbase, *tmp;
++	pte_t *tmp;
+ 	pgprot_t ref_prot;
+-	struct page *base;
+-
+-	if (!debug_pagealloc)
+-		spin_unlock(&cpa_lock);
+-	base = alloc_pages(GFP_KERNEL | __GFP_NOTRACK, 0);
+-	if (!debug_pagealloc)
+-		spin_lock(&cpa_lock);
+-	if (!base)
+-		return -ENOMEM;
++	struct page *base = virt_to_page(pbase);
+ 
+ 	spin_lock(&pgd_lock);
+ 	/*
+@@ -523,10 +515,11 @@ static int split_large_page(pte_t *kpte, unsigned long address)
+ 	 * up for us already:
+ 	 */
+ 	tmp = lookup_address(address, &level);
+-	if (tmp != kpte)
+-		goto out_unlock;
++	if (tmp != kpte) {
++		spin_unlock(&pgd_lock);
++		return 1;
++	}
+ 
+-	pbase = (pte_t *)page_address(base);
+ 	paravirt_alloc_pte(&init_mm, page_to_pfn(base));
+ 	ref_prot = pte_pgprot(pte_clrhuge(*kpte));
+ 	/*
+@@ -579,17 +572,27 @@ static int split_large_page(pte_t *kpte, unsigned long address)
+ 	 * going on.
+ 	 */
+ 	__flush_tlb_all();
++	spin_unlock(&pgd_lock);
+ 
+-	base = NULL;
++	return 0;
++}
+ 
+-out_unlock:
+-	/*
+-	 * If we dropped out via the lookup_address check under
+-	 * pgd_lock then stick the page back into the pool:
+-	 */
+-	if (base)
++static int split_large_page(pte_t *kpte, unsigned long address)
++{
++	pte_t *pbase;
++	struct page *base;
++
++	if (!debug_pagealloc)
++		spin_unlock(&cpa_lock);
++	base = alloc_pages(GFP_KERNEL | __GFP_NOTRACK, 0);
++	if (!debug_pagealloc)
++		spin_lock(&cpa_lock);
++	if (!base)
++		return -ENOMEM;
++
++	pbase = (pte_t *)page_address(base);
++	if (__split_large_page(kpte, address, pbase))
+ 		__free_page(base);
+-	spin_unlock(&pgd_lock);
+ 
+ 	return 0;
+ }
+-- 
+1.8.0
 
-> 
-> Also, please split this patch into smaller patches :). As it is now it's very hard to review. However, apart from the above issues (which may happen in other places of the code further down, I just didn't comment then) I couldn't see major problems so far. But please split it nevertheless so that I have an easier time reviewing it :)
-
-I'll try, but I found it hard to come up with a logical split.
-
-> 
-> 
-> Alex
-> 
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
