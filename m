@@ -1,238 +1,235 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 8 Nov 2012 11:10:06 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for the 3.7-rc5
-Message-ID: <20121108111006.4be14a7d@mschwide>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: [PATCH RFC 1/1] kvm: Add dynamic ple window feature
+Date: Sun, 11 Nov 2012 13:29:39 +0530
+Message-ID: <20121111075938.3617.4526.sendpatchset@codeblue>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>, "H. Peter Anvin" <hpa@zytor.com>, Marcelo Tosatti <mtosatti@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>
+Cc: linux-s390@vger.kernel.org, Srikar <srikar@linux.vnet.ibm.com>, joerg.roedel@amd.com, borntraeger@de.ibm.com, KVM <kvm@vger.kernel.org>, chegu_vinod@hp.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, drjones@redhat.com, Gleb Natapov <gleb@redhat.com>, linux390@de.ibm.com, srivatsa.vaddagiri@gmail.com, ouyang@cs.pitt.edu
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+This patch introduces dynamic PLE window that is based on detecting potential
+undrcommit case patch series (patch 1 and RESENT patch 2) from the thread
+https://lkml.org/lkml/2012/10/29/287.
 
-please pull from the 'for-linus' branch of
+Results are on expected lines from the discussion of ple_window experiment
+where  summary showed improvement for undercommit cases for ebizzy workload.
+link: https://lkml.org/lkml/2012/10/9/545
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+32 vcpu guest on 32 core (HT diabled) mx3850 PLE machine
+base = 3.7.0-rc1 
+A = base + bail out on successive failures patch. (link above)
+B = A + dynamic ple window patch (below patch)
 
-to receive a couple of bug fixes. I keep the fingers crossed that we now
-got transparent huge pages ready for prime time.
+Results w.r.t base. (Tested only on x86_64)
 
-Cornelia Huck (1):
-      s390: Move css limits from drivers/s390/cio/ to include/asm/.
+                 A               B
+ebizzy_1x      147.47995       182.69864
+ebizzy_2x      -4.52835        -12.22457
+ebizzy_3x      -5.17241        -39.55113
 
-Gerald Schaefer (2):
-      s390/mm: use pmd_large() instead of pmd_huge()
-      s390/thp: respect page protection in pmd_none() and pmd_present()
+dbench_1x      61.14888        54.31150      
+dbench_2x      -4.17130        -6.15509       
+dbench_3x      -3.18740        -9.63721       
+			       
+Result shows improvement for 1x ebizzy case. 
 
-Heiko Carstens (1):
-      s390/sclp: fix addressing mode clobber
+Comments/suggestions welcome.
 
-Sebastian Ott (2):
-      s390/cio: suppress 2nd path verification during resume
-      s390/cio: fix length calculation in idset.c
+----8<----
+kvm: Add dynamic ple window feature
 
- arch/s390/include/asm/cio.h     |    2 ++
- arch/s390/include/asm/pgtable.h |   35 ++++++++++++++++++++++-------------
- arch/s390/kernel/sclp.S         |    8 +++++++-
- arch/s390/lib/uaccess_pt.c      |    2 +-
- arch/s390/mm/gup.c              |    2 +-
- drivers/s390/cio/css.h          |    3 ---
- drivers/s390/cio/device.c       |    8 +-------
- drivers/s390/cio/idset.c        |    3 +--
- 8 files changed, 35 insertions(+), 28 deletions(-)
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 
-diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
-index 55bde60..ad2b924 100644
---- a/arch/s390/include/asm/cio.h
-+++ b/arch/s390/include/asm/cio.h
-@@ -9,6 +9,8 @@
+The current value of PLE window is tuned very well for overcommited
+cases. However for less than 1:1 overcommit, PLE is a big overhead.
+A PLE window of 16k is good for such cases.
+
+This patch adds the logic of dynamic PLE window, where,
+upon successful yield_to in PLE handler we decrement window size until 4k
+Similarly when we find yield_to have been unsuccessful, we increment
+until 16k.
+
+With this patchset we change the defult PLE window size to 16k.
+
+Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+---
+
+ arch/s390/include/asm/kvm_host.h |    2 ++
+ arch/x86/include/asm/kvm_host.h  |    4 ++++
+ arch/x86/kvm/svm.c               |   10 ++++++++++
+ arch/x86/kvm/vmx.c               |   32 ++++++++++++++++++++++++++++++--
+ arch/x86/kvm/x86.c               |   10 ++++++++++
+ virt/kvm/kvm_main.c              |    5 +++++
+ 6 files changed, 61 insertions(+), 2 deletions(-)
+
+
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index b784154..012b48d 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -257,4 +257,6 @@ struct kvm_arch{
+ };
  
- #define LPM_ANYPATH 0xff
- #define __MAX_CSSID 0
-+#define __MAX_SUBCHANNEL 65535
-+#define __MAX_SSID 3
- 
- #include <asm/scsw.h>
- 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index dd647c9..2d3b7cb 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -506,12 +506,15 @@ static inline int pud_bad(pud_t pud)
- 
- static inline int pmd_present(pmd_t pmd)
- {
--	return (pmd_val(pmd) & _SEGMENT_ENTRY_ORIGIN) != 0UL;
-+	unsigned long mask = _SEGMENT_ENTRY_INV | _SEGMENT_ENTRY_RO;
-+	return (pmd_val(pmd) & mask) == _HPAGE_TYPE_NONE ||
-+	       !(pmd_val(pmd) & _SEGMENT_ENTRY_INV);
- }
- 
- static inline int pmd_none(pmd_t pmd)
- {
--	return (pmd_val(pmd) & _SEGMENT_ENTRY_INV) != 0UL;
-+	return (pmd_val(pmd) & _SEGMENT_ENTRY_INV) &&
-+	       !(pmd_val(pmd) & _SEGMENT_ENTRY_RO);
- }
- 
- static inline int pmd_large(pmd_t pmd)
-@@ -1223,6 +1226,11 @@ static inline void __pmd_idte(unsigned long address, pmd_t *pmdp)
- }
- 
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+
-+#define SEGMENT_NONE	__pgprot(_HPAGE_TYPE_NONE)
-+#define SEGMENT_RO	__pgprot(_HPAGE_TYPE_RO)
-+#define SEGMENT_RW	__pgprot(_HPAGE_TYPE_RW)
-+
- #define __HAVE_ARCH_PGTABLE_DEPOSIT
- extern void pgtable_trans_huge_deposit(struct mm_struct *mm, pgtable_t pgtable);
- 
-@@ -1242,16 +1250,15 @@ static inline void set_pmd_at(struct mm_struct *mm, unsigned long addr,
- 
- static inline unsigned long massage_pgprot_pmd(pgprot_t pgprot)
- {
--	unsigned long pgprot_pmd = 0;
--
--	if (pgprot_val(pgprot) & _PAGE_INVALID) {
--		if (pgprot_val(pgprot) & _PAGE_SWT)
--			pgprot_pmd |= _HPAGE_TYPE_NONE;
--		pgprot_pmd |= _SEGMENT_ENTRY_INV;
--	}
--	if (pgprot_val(pgprot) & _PAGE_RO)
--		pgprot_pmd |= _SEGMENT_ENTRY_RO;
--	return pgprot_pmd;
-+	/*
-+	 * pgprot is PAGE_NONE, PAGE_RO, or PAGE_RW (see __Pxxx / __Sxxx)
-+	 * Convert to segment table entry format.
-+	 */
-+	if (pgprot_val(pgprot) == pgprot_val(PAGE_NONE))
-+		return pgprot_val(SEGMENT_NONE);
-+	if (pgprot_val(pgprot) == pgprot_val(PAGE_RO))
-+		return pgprot_val(SEGMENT_RO);
-+	return pgprot_val(SEGMENT_RW);
- }
- 
- static inline pmd_t pmd_modify(pmd_t pmd, pgprot_t newprot)
-@@ -1269,7 +1276,9 @@ static inline pmd_t pmd_mkhuge(pmd_t pmd)
- 
- static inline pmd_t pmd_mkwrite(pmd_t pmd)
- {
--	pmd_val(pmd) &= ~_SEGMENT_ENTRY_RO;
-+	/* Do not clobber _HPAGE_TYPE_NONE pages! */
-+	if (!(pmd_val(pmd) & _SEGMENT_ENTRY_INV))
-+		pmd_val(pmd) &= ~_SEGMENT_ENTRY_RO;
- 	return pmd;
- }
- 
-diff --git a/arch/s390/kernel/sclp.S b/arch/s390/kernel/sclp.S
-index bf05389..b6506ee 100644
---- a/arch/s390/kernel/sclp.S
-+++ b/arch/s390/kernel/sclp.S
-@@ -44,6 +44,12 @@ _sclp_wait_int:
+ extern int sie64a(struct kvm_s390_sie_block *, u64 *);
++static inline void kvm_inc_ple_window(void) {}
++static inline void kvm_dec_ple_window(void) {}
  #endif
- 	mvc	.LoldpswS1-.LbaseS1(16,%r13),0(%r8)
- 	mvc	0(16,%r8),0(%r9)
-+#ifdef CONFIG_64BIT
-+	epsw	%r6,%r7				# set current addressing mode
-+	nill	%r6,0x1				# in new psw (31 or 64 bit mode)
-+	nilh	%r7,0x8000
-+	stm	%r6,%r7,0(%r8)
-+#endif
- 	lhi	%r6,0x0200			# cr mask for ext int (cr0.54)
- 	ltr	%r2,%r2
- 	jz	.LsetctS1
-@@ -87,7 +93,7 @@ _sclp_wait_int:
- 	.long	0x00080000, 0x80000000+.LwaitS1	# PSW to handle ext int
- #ifdef CONFIG_64BIT
- .LextpswS1_64:
--	.quad	0x0000000180000000, .LwaitS1	# PSW to handle ext int, 64 bit
-+	.quad	0, .LwaitS1			# PSW to handle ext int, 64 bit
- #endif
- .LwaitpswS1:
- 	.long	0x010a0000, 0x00000000+.LloopS1	# PSW to wait for ext int
-diff --git a/arch/s390/lib/uaccess_pt.c b/arch/s390/lib/uaccess_pt.c
-index 2d37bb8..9017a63 100644
---- a/arch/s390/lib/uaccess_pt.c
-+++ b/arch/s390/lib/uaccess_pt.c
-@@ -39,7 +39,7 @@ static __always_inline unsigned long follow_table(struct mm_struct *mm,
- 	pmd = pmd_offset(pud, addr);
- 	if (pmd_none(*pmd))
- 		return -0x10UL;
--	if (pmd_huge(*pmd)) {
-+	if (pmd_large(*pmd)) {
- 		if (write && (pmd_val(*pmd) & _SEGMENT_ENTRY_RO))
- 			return -0x04UL;
- 		return (pmd_val(*pmd) & HPAGE_MASK) + (addr & ~HPAGE_MASK);
-diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
-index 60acb93..8b82853 100644
---- a/arch/s390/mm/gup.c
-+++ b/arch/s390/mm/gup.c
-@@ -126,7 +126,7 @@ static inline int gup_pmd_range(pud_t *pudp, pud_t pud, unsigned long addr,
- 		 */
- 		if (pmd_none(pmd) || pmd_trans_splitting(pmd))
- 			return 0;
--		if (unlikely(pmd_huge(pmd))) {
-+		if (unlikely(pmd_large(pmd))) {
- 			if (!gup_huge_pmd(pmdp, pmd, addr, next,
- 					  write, pages, nr))
- 				return 0;
-diff --git a/drivers/s390/cio/css.h b/drivers/s390/cio/css.h
-index 33bb4d8..4af3dfe 100644
---- a/drivers/s390/cio/css.h
-+++ b/drivers/s390/cio/css.h
-@@ -112,9 +112,6 @@ extern int for_each_subchannel(int(*fn)(struct subchannel_id, void *), void *);
- extern void css_reiterate_subchannels(void);
- void css_update_ssd_info(struct subchannel *sch);
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index b2e11f4..4629e59 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -707,6 +707,8 @@ struct kvm_x86_ops {
+ 	int (*check_intercept)(struct kvm_vcpu *vcpu,
+ 			       struct x86_instruction_info *info,
+ 			       enum x86_intercept_stage stage);
++	void (*inc_ple_window)(void);
++	void (*dec_ple_window)(void);
+ };
  
--#define __MAX_SUBCHANNEL 65535
--#define __MAX_SSID 3
--
- struct channel_subsystem {
- 	u8 cssid;
- 	int valid;
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index fc916f5..fd3143c 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -1424,7 +1424,7 @@ static enum io_sch_action sch_get_action(struct subchannel *sch)
+ struct kvm_arch_async_pf {
+@@ -1007,5 +1009,7 @@ int kvm_pmu_set_msr(struct kvm_vcpu *vcpu, u32 msr, u64 data);
+ int kvm_pmu_read_pmc(struct kvm_vcpu *vcpu, unsigned pmc, u64 *data);
+ void kvm_handle_pmu_event(struct kvm_vcpu *vcpu);
+ void kvm_deliver_pmi(struct kvm_vcpu *vcpu);
++void kvm_inc_ple_window(void);
++void kvm_dec_ple_window(void);
+ 
+ #endif /* _ASM_X86_KVM_HOST_H */
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index d017df3..198523e 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -4220,6 +4220,14 @@ out:
+ 	return ret;
+ }
+ 
++static inline void svm_inc_ple_window(void)
++{
++}
++
++static inline void svm_dec_ple_window(void)
++{
++}
++
+ static struct kvm_x86_ops svm_x86_ops = {
+ 	.cpu_has_kvm_support = has_svm,
+ 	.disabled_by_bios = is_disabled,
+@@ -4310,6 +4318,8 @@ static struct kvm_x86_ops svm_x86_ops = {
+ 	.set_tdp_cr3 = set_tdp_cr3,
+ 
+ 	.check_intercept = svm_check_intercept,
++	.inc_ple_window = svm_inc_ple_window,
++	.dec_ple_window = svm_dec_ple_window,
+ };
+ 
+ static int __init svm_init(void)
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index ad6b1dd..68fb3e4 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -115,12 +115,17 @@ module_param(nested, bool, S_IRUGO);
+  *             According to test, this time is usually smaller than 128 cycles.
+  * ple_window: upper bound on the amount of time a guest is allowed to execute
+  *             in a PAUSE loop. Tests indicate that most spinlocks are held for
+- *             less than 2^12 cycles
++ *             less than 2^12 cycles. But we keep the default value 2^14 to
++ *             ensure less overhead in uncontended cases.
+  * Time is measured based on a counter that runs at the same rate as the TSC,
+  * refer SDM volume 3b section 21.6.13 & 22.1.3.
+  */
+ #define KVM_VMX_DEFAULT_PLE_GAP    128
+-#define KVM_VMX_DEFAULT_PLE_WINDOW 4096
++#define KVM_VMX_DEFAULT_PLE_WINDOW 16384
++#define KVM_VMX_MAX_PLE_WINDOW     16384
++#define KVM_VMX_MIN_PLE_WINDOW     4096
++#define KVM_VMX_PLE_WINDOW_DELTA   1024
++
+ static int ple_gap = KVM_VMX_DEFAULT_PLE_GAP;
+ module_param(ple_gap, int, S_IRUGO);
+ 
+@@ -7149,6 +7154,27 @@ void load_vmcs12_host_state(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
+ 			vmcs12->host_ia32_perf_global_ctrl);
+ }
+ 
++#define MAX(a, b) ((a) > (b) ? (a) : (b))
++#define MIN(a, b) ((a) < (b) ? (a) : (b))
++
++static inline void vmx_inc_ple_window(void)
++{
++	if (ple_gap) {
++		ple_window = MIN(KVM_VMX_MAX_PLE_WINDOW,
++					ple_window + KVM_VMX_PLE_WINDOW_DELTA);
++		vmcs_write32(PLE_WINDOW, ple_window);
++	}
++}
++
++static inline void vmx_dec_ple_window(void)
++{
++	if (ple_gap) {
++		ple_window = MAX(KVM_VMX_MIN_PLE_WINDOW,
++				ple_window - (KVM_VMX_PLE_WINDOW_DELTA>>2));
++		vmcs_write32(PLE_WINDOW, ple_window);
++	}
++}
++
+ /*
+  * Emulate an exit from nested guest (L2) to L1, i.e., prepare to run L1
+  * and modify vmcs12 to make it see what it would expect to see there if
+@@ -7314,6 +7340,8 @@ static struct kvm_x86_ops vmx_x86_ops = {
+ 	.set_tdp_cr3 = vmx_set_cr3,
+ 
+ 	.check_intercept = vmx_check_intercept,
++	.inc_ple_window = vmx_inc_ple_window,
++	.dec_ple_window = vmx_dec_ple_window,
+ };
+ 
+ static int __init vmx_init(void)
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 224a7e7..7af4315 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6052,6 +6052,16 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
+ 	return r;
+ }
+ 
++void kvm_inc_ple_window(void)
++{
++	kvm_x86_ops->inc_ple_window();
++}
++
++void kvm_dec_ple_window(void)
++{
++	kvm_x86_ops->dec_ple_window();
++}
++
+ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
+ {
+ 	int r;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 9f390e7..0272863 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1731,15 +1731,20 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me)
+ 
+ 			yielded = kvm_vcpu_yield_to(vcpu);
+ 			if (yielded > 0) {
++				kvm_dec_ple_window();
+ 				kvm->last_boosted_vcpu = i;
+ 				break;
+ 			} else if (yielded < 0) {
+ 				try--;
++				kvm_inc_ple_window();
+ 				if (!try)
+ 					break;
+ 			}
+ 		}
  	}
- 	if (device_is_disconnected(cdev))
- 		return IO_SCH_REPROBE;
--	if (cdev->online)
-+	if (cdev->online && !cdev->private->flags.resuming)
- 		return IO_SCH_VERIFY;
- 	if (cdev->private->state == DEV_STATE_NOT_OPER)
- 		return IO_SCH_UNREG_ATTACH;
-@@ -1469,12 +1469,6 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
- 		rc = 0;
- 		goto out_unlock;
- 	case IO_SCH_VERIFY:
--		if (cdev->private->flags.resuming == 1) {
--			if (cio_enable_subchannel(sch, (u32)(addr_t)sch)) {
--				ccw_device_set_notoper(cdev);
--				break;
--			}
--		}
- 		/* Trigger path verification. */
- 		io_subchannel_verify(sch);
- 		rc = 0;
-diff --git a/drivers/s390/cio/idset.c b/drivers/s390/cio/idset.c
-index 199bc67..65d13e3 100644
---- a/drivers/s390/cio/idset.c
-+++ b/drivers/s390/cio/idset.c
-@@ -125,8 +125,7 @@ int idset_is_empty(struct idset *set)
++	if (!yielded)
++		kvm_inc_ple_window();
++
+ 	kvm_vcpu_set_in_spin_loop(me, false);
  
- void idset_add_set(struct idset *to, struct idset *from)
- {
--	int len = min(__BITOPS_WORDS(to->num_ssid * to->num_id),
--		      __BITOPS_WORDS(from->num_ssid * from->num_id));
-+	int len = min(to->num_ssid * to->num_id, from->num_ssid * from->num_id);
- 
- 	bitmap_or(to->bitmap, to->bitmap, from->bitmap, len);
- }
+ 	/* Ensure vcpu is not eligible during next spinloop */
