@@ -1,287 +1,138 @@
-From: Wen Congyang <wency@cn.fujitsu.com>
-Subject: [PATCH v3 07/12] memory-hotplug: implement register_page_bootmem_info_section of sparse-vmemmap
-Date: Thu, 1 Nov 2012 17:44:38 +0800
-Message-ID: <1351763083-7905-8-git-send-email-wency@cn.fujitsu.com>
-References: <1351763083-7905-1-git-send-email-wency@cn.fujitsu.com>
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1351763083-7905-1-git-send-email-wency@cn.fujitsu.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org
-Cc: David Rientjes <rientjes@google.com>, Jiang Liu <liuj97@gmail.com>, Len Brown <len.brown@intel.com>, benh@kernel.crashing.org, paulus@samba.org, Christoph Lameter <cl@linux.com>, Minchan Kim <minchan.kim@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>, Jianguo Wu <wujianguo@huawei.com>, Wen Congyang <wency@cn.fujitsu.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Subject: Re: performance regression on HiperSockets depending on MTU size
+Date: Mon, 26 Nov 2012 08:12:31 -0800
+Message-ID: <1353946351.30446.1779.camel@edumazet-glaptop>
+References: <20121126153242.GA61652@tuxmaker.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20121126153242.GA61652@tuxmaker.boeblingen.de.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+On Mon, 2012-11-26 at 16:32 +0100, Frank Blaschka wrote:
+> Hi Eric,
+> 
+> since kernel 3.6 we see a massive performance regression on s390
+> HiperSockets devices.
+> 
+> HiperSockets differ from normal devices by the fact they support
+> large MTU sizes (up to 56K). Here are some iperf numbers to show
+> the problem depended on MTU size:
+> 
+> # ifconfig hsi0 mtu 1500
+> # iperf -c 10.42.49.2
+> ------------------------------------------------------------
+> Client connecting to 10.42.49.2, TCP port 5001
+> TCP window size: 47.6 KByte (default)
+> ------------------------------------------------------------
+> [  3] local 10.42.49.1 port 55855 connected with 10.42.49.2 port 5001
+> [ ID] Interval       Transfer     Bandwidth
+> [  3]  0.0-10.0 sec    632 MBytes    530 Mbits/sec
+> 
+> # ifconfig hsi0 mtu 9000
+> # iperf -c 10.42.49.2
+> ------------------------------------------------------------
+> Client connecting to 10.42.49.2, TCP port 5001
+> TCP window size: 97.0 KByte (default)
+> ------------------------------------------------------------
+> [  3] local 10.42.49.1 port 55856 connected with 10.42.49.2 port 5001
+> [ ID] Interval       Transfer     Bandwidth
+> [  3]  0.0-10.0 sec  2.26 GBytes  1.94 Gbits/sec
+> 
+> # ifconfig hsi0 mtu 32000
+> # iperf -c 10.42.49.2
+> ------------------------------------------------------------
+> Client connecting to 10.42.49.2, TCP port 5001
+> TCP window size:   322 KByte (default)
+> ------------------------------------------------------------
+> [  3] local 10.42.49.1 port 55857 connected with 10.42.49.2 port 5001
+> [ ID] Interval       Transfer     Bandwidth
+> [  3]  0.0-10.3 sec  3.12 MBytes  2.53 Mbits/sec
+> 
+> Prior the regression throughput grows with the MTU size but now it drops
+> to a few Mbits if the MTU is bigger then 15000. It is interesting to see
+> if 2 or more connections are running in parallel the regression is gone.
+> 
+> # ifconfig hsi0 mtu 32000
+> # iperf -c 10.42.49.2 -P2
+> ------------------------------------------------------------
+> Client connecting to 10.42.49.2, TCP port 5001
+> TCP window size:   322 KByte (default)
+> ------------------------------------------------------------
+> [  4] local 10.42.49.1 port 55869 connected with 10.42.49.2 port 5001
+> [  3] local 10.42.49.1 port 55868 connected with 10.42.49.2 port 5001
+> [ ID] Interval       Transfer     Bandwidth
+> [  4]  0.0-10.0 sec  2.19 GBytes  1.88 Gbits/sec
+> [ ID] Interval       Transfer     Bandwidth
+> [  3]  0.0-10.0 sec  2.17 GBytes  1.87 Gbits/sec
+> [SUM]  0.0-10.0 sec  4.36 GBytes  3.75 Gbits/sec
+> 
+> I bisected the problem to following patch:
+> 
+> commit 46d3ceabd8d98ed0ad10f20c595ca784e34786c5
+> Author: Eric Dumazet <eric.dumazet@gmail.com>
+> Date:   Wed Jul 11 05:50:31 2012 +0000
+> 
+>     tcp: TCP Small Queues
+> 
+>     This introduce TSQ (TCP Small Queues)
+> 
+>     TSQ goal is to reduce number of TCP packets in xmit queues (qdisc &
+>     device queues), to reduce RTT and cwnd bias, part of the bufferbloat
+>     problem.
+> 
+> Changing sysctl net.ipv4.tcp_limit_output_bytes to a higher value
+> (e.g. 640000) seems to fix the problem.
+> 
+> How does MTU influence/effects TSQ?
+> Why is the problem gone if there are more connections?
+> Do you see any drawbacks by increasing net.ipv4.tcp_limit_output_bytes?
+> Finally is this expected behavior or is there a bug depending on the big
+> MTU? What can I do to check ... ?
+> 
 
-For removing memmap region of sparse-vmemmap which is allocated bootmem,
-memmap region of sparse-vmemmap needs to be registered by get_page_bootmem().
-So the patch searches pages of virtual mapping and registers the pages by
-get_page_bootmem().
+Hi Frank, thanks for this report.
 
-Note: register_page_bootmem_memmap() is not implemented for ia64, ppc, s390,
-and sparc.
+You could tweak tcp_limit_output_bytes, but IMO the root of the problem
+is in the driver itself.
 
-CC: David Rientjes <rientjes@google.com>
-CC: Jiang Liu <liuj97@gmail.com>
-CC: Len Brown <len.brown@intel.com>
-CC: Christoph Lameter <cl@linux.com>
-Cc: Minchan Kim <minchan.kim@gmail.com>
-CC: Andrew Morton <akpm@linux-foundation.org>
-CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
-Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
-Signed-off-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
----
- arch/ia64/mm/discontig.c       |  6 +++++
- arch/powerpc/mm/init_64.c      |  6 +++++
- arch/s390/mm/vmem.c            |  6 +++++
- arch/sparc/mm/init_64.c        |  6 +++++
- arch/x86/mm/init_64.c          | 52 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/memory_hotplug.h | 11 ++-------
- include/linux/mm.h             |  3 ++-
- mm/memory_hotplug.c            | 37 ++++++++++++++++++++++++++----
- 8 files changed, 113 insertions(+), 14 deletions(-)
+For example, I had to change mlx4 driver for the same problem : Make
+sure a TX packet can be "TX completed" in a short amount of time.
 
-diff --git a/arch/ia64/mm/discontig.c b/arch/ia64/mm/discontig.c
-index c641333..33943db 100644
---- a/arch/ia64/mm/discontig.c
-+++ b/arch/ia64/mm/discontig.c
-@@ -822,4 +822,10 @@ int __meminit vmemmap_populate(struct page *start_page,
- {
- 	return vmemmap_populate_basepages(start_page, size, node);
- }
-+
-+void register_page_bootmem_memmap(unsigned long section_nr,
-+				  struct page *start_page, unsigned long size)
-+{
-+	/* TODO */
-+}
- #endif
-diff --git a/arch/powerpc/mm/init_64.c b/arch/powerpc/mm/init_64.c
-index 95a4529..6466440 100644
---- a/arch/powerpc/mm/init_64.c
-+++ b/arch/powerpc/mm/init_64.c
-@@ -297,5 +297,11 @@ int __meminit vmemmap_populate(struct page *start_page,
+In the case of mlx4, the wait time was 128 us, but I suspect on your
+case its more like an infinite time or several ms.
  
- 	return 0;
- }
-+
-+void register_page_bootmem_memmap(unsigned long section_nr,
-+				  struct page *start_page, unsigned long size)
-+{
-+	/* TODO */
-+}
- #endif /* CONFIG_SPARSEMEM_VMEMMAP */
- 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index 387c7c6..4f4803a 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -236,6 +236,12 @@ out:
- 	return ret;
- }
- 
-+void register_page_bootmem_memmap(unsigned long section_nr,
-+				  struct page *start_page, unsigned long size)
-+{
-+	/* TODO */
-+}
-+
- /*
-  * Add memory segment to the segment list if it doesn't overlap with
-  * an already present segment.
-diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-index 9e28a11..75a984b 100644
---- a/arch/sparc/mm/init_64.c
-+++ b/arch/sparc/mm/init_64.c
-@@ -2231,6 +2231,12 @@ void __meminit vmemmap_populate_print_last(void)
- 		node_start = 0;
- 	}
- }
-+
-+void register_page_bootmem_memmap(unsigned long section_nr,
-+				  struct page *start_page, unsigned long size)
-+{
-+	/* TODO */
-+}
- #endif /* CONFIG_SPARSEMEM_VMEMMAP */
- 
- static void prot_init_common(unsigned long page_none,
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index 5675335..795dae3 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -998,6 +998,58 @@ vmemmap_populate(struct page *start_page, unsigned long size, int node)
- 	return 0;
- }
- 
-+void register_page_bootmem_memmap(unsigned long section_nr,
-+				  struct page *start_page, unsigned long size)
-+{
-+	unsigned long addr = (unsigned long)start_page;
-+	unsigned long end = (unsigned long)(start_page + size);
-+	unsigned long next;
-+	pgd_t *pgd;
-+	pud_t *pud;
-+	pmd_t *pmd;
-+
-+	for (; addr < end; addr = next) {
-+		pte_t *pte = NULL;
-+
-+		pgd = pgd_offset_k(addr);
-+		if (pgd_none(*pgd)) {
-+			next = (addr + PAGE_SIZE) & PAGE_MASK;
-+			continue;
-+		}
-+		get_page_bootmem(section_nr, pgd_page(*pgd), MIX_SECTION_INFO);
-+
-+		pud = pud_offset(pgd, addr);
-+		if (pud_none(*pud)) {
-+			next = (addr + PAGE_SIZE) & PAGE_MASK;
-+			continue;
-+		}
-+		get_page_bootmem(section_nr, pud_page(*pud), MIX_SECTION_INFO);
-+
-+		if (!cpu_has_pse) {
-+			next = (addr + PAGE_SIZE) & PAGE_MASK;
-+			pmd = pmd_offset(pud, addr);
-+			if (pmd_none(*pmd))
-+				continue;
-+			get_page_bootmem(section_nr, pmd_page(*pmd),
-+					 MIX_SECTION_INFO);
-+
-+			pte = pte_offset_kernel(pmd, addr);
-+			if (pte_none(*pte))
-+				continue;
-+			get_page_bootmem(section_nr, pte_page(*pte),
-+					 SECTION_INFO);
-+		} else {
-+			next = pmd_addr_end(addr, end);
-+
-+			pmd = pmd_offset(pud, addr);
-+			if (pmd_none(*pmd))
-+				continue;
-+			get_page_bootmem(section_nr, pmd_page(*pmd),
-+					 SECTION_INFO);
-+		}
-+	}
-+}
-+
- void __meminit vmemmap_populate_print_last(void)
- {
- 	if (p_start) {
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index 191b2d9..d4c4402 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -163,17 +163,10 @@ static inline void arch_refresh_nodedata(int nid, pg_data_t *pgdat)
- #endif /* CONFIG_NUMA */
- #endif /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
- 
--#ifdef CONFIG_SPARSEMEM_VMEMMAP
--static inline void register_page_bootmem_info_node(struct pglist_data *pgdat)
--{
--}
--static inline void put_page_bootmem(struct page *page)
--{
--}
--#else
- extern void register_page_bootmem_info_node(struct pglist_data *pgdat);
- extern void put_page_bootmem(struct page *page);
--#endif
-+extern void get_page_bootmem(unsigned long ingo, struct page *page,
-+			     unsigned long type);
- 
- /*
-  * Lock for memory hotplug guarantees 1) all callbacks for memory hotplug
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index fa06804..8e5a56f 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1640,7 +1640,8 @@ int vmemmap_populate_basepages(struct page *start_page,
- 						unsigned long pages, int node);
- int vmemmap_populate(struct page *start_page, unsigned long pages, int node);
- void vmemmap_populate_print_last(void);
--
-+void register_page_bootmem_memmap(unsigned long section_nr, struct page *map,
-+				  unsigned long size);
- 
- enum mf_flags {
- 	MF_COUNT_INCREASED = 1 << 0,
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 66a79a7..db9806c 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -91,9 +91,8 @@ static void release_memory_resource(struct resource *res)
- }
- 
- #ifdef CONFIG_MEMORY_HOTPLUG_SPARSE
--#ifndef CONFIG_SPARSEMEM_VMEMMAP
--static void get_page_bootmem(unsigned long info,  struct page *page,
--			     unsigned long type)
-+void get_page_bootmem(unsigned long info,  struct page *page,
-+		      unsigned long type)
- {
- 	page->lru.next = (struct list_head *) type;
- 	SetPagePrivate(page);
-@@ -127,6 +126,7 @@ void __ref put_page_bootmem(struct page *page)
- 
- }
- 
-+#ifndef CONFIG_SPARSEMEM_VMEMMAP
- static void register_page_bootmem_info_section(unsigned long start_pfn)
- {
- 	unsigned long *usemap, mapsize, section_nr, i;
-@@ -160,6 +160,36 @@ static void register_page_bootmem_info_section(unsigned long start_pfn)
- 		get_page_bootmem(section_nr, page, MIX_SECTION_INFO);
- 
- }
-+#else
-+static void register_page_bootmem_info_section(unsigned long start_pfn)
-+{
-+	unsigned long *usemap, mapsize, section_nr, i;
-+	struct mem_section *ms;
-+	struct page *page, *memmap;
-+
-+	if (!pfn_valid(start_pfn))
-+		return;
-+
-+	section_nr = pfn_to_section_nr(start_pfn);
-+	ms = __nr_to_section(section_nr);
-+
-+	memmap = sparse_decode_mem_map(ms->section_mem_map, section_nr);
-+
-+	page = virt_to_page(memmap);
-+	mapsize = sizeof(struct page) * PAGES_PER_SECTION;
-+	mapsize = PAGE_ALIGN(mapsize) >> PAGE_SHIFT;
-+
-+	register_page_bootmem_memmap(section_nr, memmap, PAGES_PER_SECTION);
-+
-+	usemap = __nr_to_section(section_nr)->pageblock_flags;
-+	page = virt_to_page(usemap);
-+
-+	mapsize = PAGE_ALIGN(usemap_size()) >> PAGE_SHIFT;
-+
-+	for (i = 0; i < mapsize; i++, page++)
-+		get_page_bootmem(section_nr, page, MIX_SECTION_INFO);
-+}
-+#endif
- 
- void register_page_bootmem_info_node(struct pglist_data *pgdat)
- {
-@@ -202,7 +232,6 @@ void register_page_bootmem_info_node(struct pglist_data *pgdat)
- 			register_page_bootmem_info_section(pfn);
- 	}
- }
--#endif /* !CONFIG_SPARSEMEM_VMEMMAP */
- 
- static void grow_zone_span(struct zone *zone, unsigned long start_pfn,
- 			   unsigned long end_pfn)
--- 
-1.8.0
+The driver is delaying the free of TX skb by a fixed amount of time,
+or relies on following transmits to perform the TX completion
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+
+Check for an example :
+
+commit ecfd2ce1a9d5e6376ff5c00b366345160abdbbb7
+Author: Eric Dumazet <edumazet@google.com>
+Date:   Mon Nov 5 16:20:42 2012 +0000
+
+    mlx4: change TX coalescing defaults
+    
+    mlx4 currently uses a too high tx coalescing setting, deferring
+    TX completion interrupts by up to 128 us.
+    
+    With the recent skb_orphan() removal in commit 8112ec3b872,
+    performance of a single TCP flow is capped to ~4 Gbps, unless
+    we increase tcp_limit_output_bytes.
+    
+    I suggest using 16 us instead of 128 us, allowing a finer control.
+    
+    Performance of a single TCP flow is restored to previous levels,
+    while keeping TCP small queues fully enabled with default sysctl.
+    
+    This patch is also a BQL prereq.
+    
+    Reported-by: Vimalkumar <j.vimal@gmail.com>
+    Signed-off-by: Eric Dumazet <edumazet@google.com>
