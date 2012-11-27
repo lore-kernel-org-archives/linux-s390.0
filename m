@@ -1,67 +1,95 @@
-From: Tang Chen <tangchen@cn.fujitsu.com>
-Subject: Re: [Patch v4 00/12] memory-hotplug: hot-remove physical memory
-Date: Fri, 30 Nov 2012 14:37:41 +0800
-Message-ID: <50B85435.8020907@cn.fujitsu.com>
-References: <1354010422-19648-1-git-send-email-wency@cn.fujitsu.com> <20121127112741.b616c2f6.akpm@linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Wen Congyang <wency@cn.fujitsu.com>
+Subject: [Patch v4 01/12] memory-hotplug: try to offline the memory twice to avoid dependence
+Date: Tue, 27 Nov 2012 18:00:11 +0800
+Message-ID: <1354010422-19648-2-git-send-email-wency@cn.fujitsu.com>
+References: <1354010422-19648-1-git-send-email-wency@cn.fujitsu.com>
 Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20121127112741.b616c2f6.akpm@linux-foundation.org>
+In-Reply-To: <1354010422-19648-1-git-send-email-wency@cn.fujitsu.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Wen Congyang <wency@cn.fujitsu.com>, x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org, David Rientjes <rientjes@google.com>, Jiang Liu <liuj97@gmail.com>, Len Brown <len.brown@intel.com>, benh@kernel.crashing.org, paulus@samba.org, Christoph Lameter <cl@linux.com>, Minchan Kim <minchan.kim@gmail.com>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>, Jianguo Wu <wujianguo@huawei.com>
+To: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org
+Cc: David Rientjes <rientjes@google.com>, Jiang Liu <liuj97@gmail.com>, Len Brown <len.brown@intel.com>, benh@kernel.crashing.org, paulus@samba.org, Christoph Lameter <cl@linux.com>, Minchan Kim <minchan.kim@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>, Jianguo Wu <wujianguo@huawei.com>, Wen Congyang <wency@cn.fujitsu.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Andrew,
+memory can't be offlined when CONFIG_MEMCG is selected.
+For example: there is a memory device on node 1. The address range
+is [1G, 1.5G). You will find 4 new directories memory8, memory9, memory10,
+and memory11 under the directory /sys/devices/system/memory/.
 
-On 11/28/2012 03:27 AM, Andrew Morton wrote:
->>
->> - acpi framework
->>    https://lkml.org/lkml/2012/10/26/175
->
-> What's happening with the acpi framework?  has it received any feedback
-> from the ACPI developers?
+If CONFIG_MEMCG is selected, we will allocate memory to store page cgroup
+when we online pages. When we online memory8, the memory stored page cgroup
+is not provided by this memory device. But when we online memory9, the memory
+stored page cgroup may be provided by memory8. So we can't offline memory8
+now. We should offline the memory in the reversed order.
 
-About ACPI framework, we are trying to do the following.
+When the memory device is hotremoved, we will auto offline memory provided
+by this memory device. But we don't know which memory is onlined first, so
+offlining memory may fail. In such case, iterate twice to offline the memory.
+1st iterate: offline every non primary memory block.
+2nd iterate: offline primary (i.e. first added) memory block.
 
-     The memory device can be removed by 2 ways:
-     1. send eject request by SCI
-     2. echo 1 >/sys/bus/pci/devices/PNP0C80:XX/eject
+This idea is suggested by KOSAKI Motohiro.
 
-     In the 1st case, acpi_memory_disable_device() will be called.
-     In the 2nd case, acpi_memory_device_remove() will be called.
-     acpi_memory_device_remove() will also be called when we unbind the
-     memory device from the driver acpi_memhotplug or a driver
-     initialization fails.
+CC: David Rientjes <rientjes@google.com>
+CC: Jiang Liu <liuj97@gmail.com>
+CC: Len Brown <len.brown@intel.com>
+CC: Christoph Lameter <cl@linux.com>
+Cc: Minchan Kim <minchan.kim@gmail.com>
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+CC: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
+---
+ mm/memory_hotplug.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-     acpi_memory_disable_device() has already implemented a code which
-     offlines memory and releases acpi_memory_info struct . But
-     acpi_memory_device_remove() has not implemented it yet.
-
-     So the patch prepares the framework for hot removing memory and
-     adds the framework into acpi_memory_device_remove().
-
-All the ACPI related patches have been put into the linux-next branch
-of the linux-pm.git tree as v3.8 material.Please refer to the following
-url.
-https://lkml.org/lkml/2012/11/2/160
-
-So for now, with this patch set, we can do memory hot-remove on x86_64
-linux.
-
-I do hope you would merge them before 3.8-rc1, so that we can use this
-functionality in 3.8.
-
-As we are still testing all memory hotplug related functionalities, I
-hope we can do the bug fix during 3.8 rc.
-
-Thanks. :)
-
-
-
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index e4eeaca..b825dbc 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1012,10 +1012,13 @@ int remove_memory(u64 start, u64 size)
+ 	unsigned long start_pfn, end_pfn;
+ 	unsigned long pfn, section_nr;
+ 	int ret;
++	int return_on_error = 0;
++	int retry = 0;
+ 
+ 	start_pfn = PFN_DOWN(start);
+ 	end_pfn = start_pfn + PFN_DOWN(size);
+ 
++repeat:
+ 	for (pfn = start_pfn; pfn < end_pfn; pfn += PAGES_PER_SECTION) {
+ 		section_nr = pfn_to_section_nr(pfn);
+ 		if (!present_section_nr(section_nr))
+@@ -1034,14 +1037,23 @@ int remove_memory(u64 start, u64 size)
+ 
+ 		ret = offline_memory_block(mem);
+ 		if (ret) {
+-			kobject_put(&mem->dev.kobj);
+-			return ret;
++			if (return_on_error) {
++				kobject_put(&mem->dev.kobj);
++				return ret;
++			} else {
++				retry = 1;
++			}
+ 		}
+ 	}
+ 
+ 	if (mem)
+ 		kobject_put(&mem->dev.kobj);
+ 
++	if (retry) {
++		return_on_error = 1;
++		goto repeat;
++	}
++
+ 	return 0;
+ }
+ #else
+-- 
+1.8.0
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
