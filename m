@@ -1,632 +1,120 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 18 Dec 2012 09:08:33 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for the 3.8 merge window #2
-Message-ID: <20121218090833.3ac43e11@mschwide>
+From: Sven Eckelmann <sven@narfation.org>
+Subject: Re: [B.A.T.M.A.N.] [PATCH] net: fix possible deadlocks in rtnl_trylock/unlock
+Date: Sat, 01 Dec 2012 19:07:56 +0100
+Message-ID: <5233033.Yg8T20E3Sl@sven-laptop.home.narfation.org>
+References: <1354382991-31350-1-git-send-email-siwu@hrz.tu-chemnitz.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Content-Type: multipart/signed; boundary="nextPart4022694.fXEdSxRaOt"; micalg="pgp-sha512"; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7Bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1354382991-31350-1-git-send-email-siwu@hrz.tu-chemnitz.de>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-rdma/>
+List-Post: <mailto:linux-rdma@vger.kernel.org>
+To: b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, Andy Gospodarek <andy@greyhouse.net>, Jay Vosburgh <fubar@us.ibm.com>, Divy Le Ray <divy@chelsio.com>
+Cc: Simon Wunderlich <simon.wunderlich@s2003.tu-chemnitz.de>, davem@davemloft.net, netdev@vger.kernel.org, Simon Wunderlich <siwu@hrz.tu-chemnitz.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
 
-please pull from the 'for-linus' branch of
+--nextPart4022694.fXEdSxRaOt
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="ISO-8859-1"
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+On Saturday 01 December 2012 18:29:51 Simon Wunderlich wrote:
+> If rtnl_trylock() is used to prevent circular dependencies, rtnl_unlock()
+> may destroy this attempt because it first unlocks rtnl_mutex but may
+> lock it again later. The callgraph roughly looks like:
+> 
+> rtnl_unlock()
+>    netdev_run_todo()
+>       __rtnl_unlock()
+>       netdev_wait_allrefs()
+>          rtnl_lock()
+>          ...
+>          __rtnl_unlock()
+> 
+> There are two users which have possible deadlocks and are fixed in this
+> patch: batman-adv and bridge. Their problematic access pattern is the same:
+> 
+> notifier_call handler:
+>  * holds rtnl lock when called
+>  * calls sysfs code at some point (acquiring sysfs locks)
+> 
+> sysfs code:
+>  * holds sysfs lock when called
+>  * calls rtnl_trylock() and rtnl_unlock(), rtnl_unlock() calls rtnl_lock
+>    implicitly
+> 
+> Fix this by exporting __rtnl_unlock() to just unlock the mutex without
+> implicitly locking again.
+> 
+> Reported-by: Sven Eckelmann <sven@narfation.org>
+> Signed-off-by: Simon Wunderlich <siwu@hrz.tu-chemnitz.de>
+> 
+> ---
+> Of course, an alternative would be to not lock again after unlocking
+> within rtnl_unlock(), or put the todo handling into the locked section.
+> I'm not familiar enough with this code to know what would be best.
+> 
+> There are others using rtnl_trylock(), but I'm not sure if they
+> are affected.
 
-to receive the following updates:
-The main patch is the function measurement blocks extension for PCI to do
-performance statistics and help with debugging. The other patch is a small
-cleanup in ccwdev.h.
+At least they look like they have a problem in a parallel user scenario 
+involving another lock and locking order (most of them s_active or a device 
+lock). So just to list the places and poke some other users. They can better 
+decide for themself because they know the code.
 
-Cornelia Huck (1):
-      s390/ccwdev: Include asm/schid.h.
+drivers/infiniband/ulp/ipoib/ipoib_cm.c:  if (!rtnl_trylock())
+drivers/infiniband/ulp/ipoib/ipoib_vlan.c:        if (!rtnl_trylock())
+drivers/infiniband/ulp/ipoib/ipoib_vlan.c:        if (!rtnl_trylock())
+drivers/net/bonding/bond_alb.c:                   if (!rtnl_trylock()) {
+drivers/net/bonding/bond_main.c:          if (!rtnl_trylock()) {
+drivers/net/bonding/bond_main.c:          if (!rtnl_trylock()) {
+drivers/net/bonding/bond_main.c:          if (!rtnl_trylock()) {
+drivers/net/bonding/bond_main.c:          if (!rtnl_trylock()) {
+drivers/net/bonding/bond_sysfs.c: if (!rtnl_trylock())
+drivers/net/bonding/bond_sysfs.c: if (!rtnl_trylock())
+drivers/net/bonding/bond_sysfs.c: if (!rtnl_trylock())
+drivers/net/bonding/bond_sysfs.c: if (!rtnl_trylock())
+drivers/net/bonding/bond_sysfs.c: if (!rtnl_trylock())
+drivers/net/bonding/bond_sysfs.c: if (!rtnl_trylock())
+drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c:  if (!rtnl_trylock())    /* 
+synchronize with ifdown */
+drivers/s390/net/qeth_l2_main.c:          if (rtnl_trylock()) {
+drivers/s390/net/qeth_l3_main.c:          if (rtnl_trylock()) {
+net/bridge/br_sysfs_br.c: if (!rtnl_trylock())
+net/bridge/br_sysfs_if.c:         if (!rtnl_trylock())
+net/core/net-sysfs.c:     if (!rtnl_trylock())
+net/core/net-sysfs.c:     if (!rtnl_trylock())
+net/core/net-sysfs.c:     if (!rtnl_trylock())
+net/core/net-sysfs.c:     if (!rtnl_trylock())
+net/core/net-sysfs.c:     if (!rtnl_trylock())
+net/ipv4/devinet.c:                       if (!rtnl_trylock()) {
+net/ipv6/addrconf.c:      if (!rtnl_trylock())
+net/ipv6/addrconf.c:      if (!rtnl_trylock())
 
-Jan Glauber (1):
-      s390/pci: performance statistics and debug infrastructure
+Kind regards,
+	Sven
+--nextPart4022694.fXEdSxRaOt
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
 
- arch/s390/include/asm/ccwdev.h    |    4 +-
- arch/s390/include/asm/pci.h       |   39 ++++++++
- arch/s390/include/asm/pci_debug.h |   36 +++++++
- arch/s390/pci/Makefile            |    2 +-
- arch/s390/pci/pci.c               |   73 +++++++++++++-
- arch/s390/pci/pci_clp.c           |    1 +
- arch/s390/pci/pci_debug.c         |  193 +++++++++++++++++++++++++++++++++++++
- arch/s390/pci/pci_dma.c           |    8 +-
- arch/s390/pci/pci_event.c         |    2 +
- 9 files changed, 350 insertions(+), 8 deletions(-)
- create mode 100644 arch/s390/include/asm/pci_debug.h
- create mode 100644 arch/s390/pci/pci_debug.c
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
-index 6d1f357..e606161 100644
---- a/arch/s390/include/asm/ccwdev.h
-+++ b/arch/s390/include/asm/ccwdev.h
-@@ -12,15 +12,13 @@
- #include <linux/mod_devicetable.h>
- #include <asm/fcx.h>
- #include <asm/irq.h>
-+#include <asm/schid.h>
- 
- /* structs from asm/cio.h */
- struct irb;
- struct ccw1;
- struct ccw_dev_id;
- 
--/* from asm/schid.h */
--struct subchannel_id;
--
- /* simplified initializers for struct ccw_device:
-  * CCW_DEVICE and CCW_DEVICE_DEVTYPE initialize one
-  * entry in your MODULE_DEVICE_TABLE and set the match_flag correctly */
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index a6175ad..b1fa93c 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -9,6 +9,7 @@
- #include <asm-generic/pci.h>
- #include <asm-generic/pci-dma-compat.h>
- #include <asm/pci_clp.h>
-+#include <asm/pci_debug.h>
- 
- #define PCIBIOS_MIN_IO		0x1000
- #define PCIBIOS_MIN_MEM		0x10000000
-@@ -33,6 +34,25 @@ int pci_proc_domain(struct pci_bus *);
- #define ZPCI_FC_BLOCKED			0x20
- #define ZPCI_FC_DMA_ENABLED		0x10
- 
-+struct zpci_fmb {
-+	u32 format	:  8;
-+	u32 dma_valid	:  1;
-+	u32		: 23;
-+	u32 samples;
-+	u64 last_update;
-+	/* hardware counters */
-+	u64 ld_ops;
-+	u64 st_ops;
-+	u64 stb_ops;
-+	u64 rpcit_ops;
-+	u64 dma_rbytes;
-+	u64 dma_wbytes;
-+	/* software counters */
-+	atomic64_t allocated_pages;
-+	atomic64_t mapped_pages;
-+	atomic64_t unmapped_pages;
-+} __packed __aligned(16);
-+
- struct msi_map {
- 	unsigned long irq;
- 	struct msi_desc *msi;
-@@ -92,7 +112,15 @@ struct zpci_dev {
- 	u64		end_dma;	/* End of available DMA addresses */
- 	u64		dma_mask;	/* DMA address space mask */
- 
-+	/* Function measurement block */
-+	struct zpci_fmb *fmb;
-+	u16		fmb_update;	/* update interval */
-+
- 	enum pci_bus_speed max_bus_speed;
-+
-+	struct dentry	*debugfs_dev;
-+	struct dentry	*debugfs_perf;
-+	struct dentry	*debugfs_debug;
- };
- 
- struct pci_hp_callback_ops {
-@@ -155,4 +183,15 @@ extern struct list_head zpci_list;
- extern struct pci_hp_callback_ops hotplug_ops;
- extern unsigned int pci_probe;
- 
-+/* FMB */
-+int zpci_fmb_enable_device(struct zpci_dev *);
-+int zpci_fmb_disable_device(struct zpci_dev *);
-+
-+/* Debug */
-+int zpci_debug_init(void);
-+void zpci_debug_exit(void);
-+void zpci_debug_init_device(struct zpci_dev *);
-+void zpci_debug_exit_device(struct zpci_dev *);
-+void zpci_debug_info(struct zpci_dev *, struct seq_file *);
-+
- #endif
-diff --git a/arch/s390/include/asm/pci_debug.h b/arch/s390/include/asm/pci_debug.h
-new file mode 100644
-index 0000000..6bbec42
---- /dev/null
-+++ b/arch/s390/include/asm/pci_debug.h
-@@ -0,0 +1,36 @@
-+#ifndef _S390_ASM_PCI_DEBUG_H
-+#define _S390_ASM_PCI_DEBUG_H
-+
-+#include <asm/debug.h>
-+
-+extern debug_info_t *pci_debug_msg_id;
-+extern debug_info_t *pci_debug_err_id;
-+
-+#ifdef CONFIG_PCI_DEBUG
-+#define zpci_dbg(fmt, args...)							\
-+	do {									\
-+		if (pci_debug_msg_id->level >= 2)				\
-+			debug_sprintf_event(pci_debug_msg_id, 2, fmt , ## args);\
-+	} while (0)
-+
-+#else /* !CONFIG_PCI_DEBUG */
-+#define zpci_dbg(fmt, args...) do { } while (0)
-+#endif
-+
-+#define zpci_err(text...)							\
-+	do {									\
-+		char debug_buffer[16];						\
-+		snprintf(debug_buffer, 16, text);				\
-+		debug_text_event(pci_debug_err_id, 0, debug_buffer);		\
-+	} while (0)
-+
-+static inline void zpci_err_hex(void *addr, int len)
-+{
-+	while (len > 0) {
-+		debug_event(pci_debug_err_id, 0, (void *) addr, len);
-+		len -= pci_debug_err_id->buf_size;
-+		addr += pci_debug_err_id->buf_size;
-+	}
-+}
-+
-+#endif
-diff --git a/arch/s390/pci/Makefile b/arch/s390/pci/Makefile
-index ab0827b..f0f426a 100644
---- a/arch/s390/pci/Makefile
-+++ b/arch/s390/pci/Makefile
-@@ -3,4 +3,4 @@
- #
- 
- obj-$(CONFIG_PCI)	+= pci.o pci_dma.o pci_clp.o pci_msi.o \
--			   pci_sysfs.o pci_event.o
-+			   pci_sysfs.o pci_event.o pci_debug.o
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 7ed38e5..8fa416b 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -98,6 +98,10 @@ EXPORT_SYMBOL_GPL(zpci_iomap_start);
- static int __read_mostly aisb_max;
- 
- static struct kmem_cache *zdev_irq_cache;
-+static struct kmem_cache *zdev_fmb_cache;
-+
-+debug_info_t *pci_debug_msg_id;
-+debug_info_t *pci_debug_err_id;
- 
- static inline int irq_to_msi_nr(unsigned int irq)
- {
-@@ -216,6 +220,7 @@ struct mod_pci_args {
- 	u64 base;
- 	u64 limit;
- 	u64 iota;
-+	u64 fmb_addr;
- };
- 
- static int mod_pci(struct zpci_dev *zdev, int fn, u8 dmaas, struct mod_pci_args *args)
-@@ -232,6 +237,7 @@ static int mod_pci(struct zpci_dev *zdev, int fn, u8 dmaas, struct mod_pci_args
- 	fib->pba = args->base;
- 	fib->pal = args->limit;
- 	fib->iota = args->iota;
-+	fib->fmb_addr = args->fmb_addr;
- 
- 	rc = mpcifc_instr(req, fib);
- 	free_page((unsigned long) fib);
-@@ -242,7 +248,7 @@ static int mod_pci(struct zpci_dev *zdev, int fn, u8 dmaas, struct mod_pci_args
- int zpci_register_ioat(struct zpci_dev *zdev, u8 dmaas,
- 		       u64 base, u64 limit, u64 iota)
- {
--	struct mod_pci_args args = { base, limit, iota };
-+	struct mod_pci_args args = { base, limit, iota, 0 };
- 
- 	WARN_ON_ONCE(iota & 0x3fff);
- 	args.iota |= ZPCI_IOTA_RTTO_FLAG;
-@@ -252,7 +258,7 @@ int zpci_register_ioat(struct zpci_dev *zdev, u8 dmaas,
- /* Modify PCI: Unregister I/O address translation parameters */
- int zpci_unregister_ioat(struct zpci_dev *zdev, u8 dmaas)
- {
--	struct mod_pci_args args = { 0, 0, 0 };
-+	struct mod_pci_args args = { 0, 0, 0, 0 };
- 
- 	return mod_pci(zdev, ZPCI_MOD_FC_DEREG_IOAT, dmaas, &args);
- }
-@@ -260,11 +266,46 @@ int zpci_unregister_ioat(struct zpci_dev *zdev, u8 dmaas)
- /* Modify PCI: Unregister adapter interruptions */
- static int zpci_unregister_airq(struct zpci_dev *zdev)
- {
--	struct mod_pci_args args = { 0, 0, 0 };
-+	struct mod_pci_args args = { 0, 0, 0, 0 };
- 
- 	return mod_pci(zdev, ZPCI_MOD_FC_DEREG_INT, 0, &args);
- }
- 
-+/* Modify PCI: Set PCI function measurement parameters */
-+int zpci_fmb_enable_device(struct zpci_dev *zdev)
-+{
-+	struct mod_pci_args args = { 0, 0, 0, 0 };
-+
-+	if (zdev->fmb)
-+		return -EINVAL;
-+
-+	zdev->fmb = kmem_cache_alloc(zdev_fmb_cache, GFP_KERNEL);
-+	if (!zdev->fmb)
-+		return -ENOMEM;
-+	memset(zdev->fmb, 0, sizeof(*zdev->fmb));
-+	WARN_ON((u64) zdev->fmb & 0xf);
-+
-+	args.fmb_addr = virt_to_phys(zdev->fmb);
-+	return mod_pci(zdev, ZPCI_MOD_FC_SET_MEASURE, 0, &args);
-+}
-+
-+/* Modify PCI: Disable PCI function measurement */
-+int zpci_fmb_disable_device(struct zpci_dev *zdev)
-+{
-+	struct mod_pci_args args = { 0, 0, 0, 0 };
-+	int rc;
-+
-+	if (!zdev->fmb)
-+		return -EINVAL;
-+
-+	/* Function measurement is disabled if fmb address is zero */
-+	rc = mod_pci(zdev, ZPCI_MOD_FC_SET_MEASURE, 0, &args);
-+
-+	kmem_cache_free(zdev_fmb_cache, zdev->fmb);
-+	zdev->fmb = NULL;
-+	return rc;
-+}
-+
- #define ZPCI_PCIAS_CFGSPC	15
- 
- static int zpci_cfg_load(struct zpci_dev *zdev, int offset, u32 *val, u8 len)
-@@ -633,6 +674,7 @@ static void zpci_remove_device(struct pci_dev *pdev)
- 	dev_info(&pdev->dev, "Removing device %u\n", zdev->domain);
- 	zdev->state = ZPCI_FN_STATE_CONFIGURED;
- 	zpci_dma_exit_device(zdev);
-+	zpci_fmb_disable_device(zdev);
- 	zpci_sysfs_remove_device(&pdev->dev);
- 	zpci_unmap_resources(pdev);
- 	list_del(&zdev->entry);		/* can be called from init */
-@@ -799,6 +841,16 @@ static void zpci_irq_exit(void)
- 	kfree(bucket);
- }
- 
-+void zpci_debug_info(struct zpci_dev *zdev, struct seq_file *m)
-+{
-+	if (!zdev)
-+		return;
-+
-+	seq_printf(m, "global irq retries: %u\n", atomic_read(&irq_retries));
-+	seq_printf(m, "aibv[0]:%016lx  aibv[1]:%016lx  aisb:%016lx\n",
-+		   get_imap(0)->aibv, get_imap(1)->aibv, *bucket->aisb);
-+}
-+
- static struct resource *zpci_alloc_bus_resource(unsigned long start, unsigned long size,
- 						unsigned long flags, int domain)
- {
-@@ -994,6 +1046,8 @@ int zpci_scan_device(struct zpci_dev *zdev)
- 		goto out;
- 	}
- 
-+	zpci_debug_init_device(zdev);
-+	zpci_fmb_enable_device(zdev);
- 	zpci_map_resources(zdev);
- 	pci_bus_add_devices(zdev->bus);
- 
-@@ -1020,6 +1074,11 @@ static int zpci_mem_init(void)
- 	if (!zdev_irq_cache)
- 		goto error_zdev;
- 
-+	zdev_fmb_cache = kmem_cache_create("PCI_FMB_cache", sizeof(struct zpci_fmb),
-+				16, 0, NULL);
-+	if (!zdev_fmb_cache)
-+		goto error_fmb;
-+
- 	/* TODO: use realloc */
- 	zpci_iomap_start = kzalloc(ZPCI_IOMAP_MAX_ENTRIES * sizeof(*zpci_iomap_start),
- 				   GFP_KERNEL);
-@@ -1028,6 +1087,8 @@ static int zpci_mem_init(void)
- 	return 0;
- 
- error_iomap:
-+	kmem_cache_destroy(zdev_fmb_cache);
-+error_fmb:
- 	kmem_cache_destroy(zdev_irq_cache);
- error_zdev:
- 	return -ENOMEM;
-@@ -1037,6 +1098,7 @@ static void zpci_mem_exit(void)
- {
- 	kfree(zpci_iomap_start);
- 	kmem_cache_destroy(zdev_irq_cache);
-+	kmem_cache_destroy(zdev_fmb_cache);
- }
- 
- unsigned int pci_probe = 1;
-@@ -1066,6 +1128,10 @@ static int __init pci_base_init(void)
- 		test_facility(69), test_facility(70),
- 		test_facility(71));
- 
-+	rc = zpci_debug_init();
-+	if (rc)
-+		return rc;
-+
- 	rc = zpci_mem_init();
- 	if (rc)
- 		goto out_mem;
-@@ -1098,6 +1164,7 @@ out_irq:
- out_hash:
- 	zpci_mem_exit();
- out_mem:
-+	zpci_debug_exit();
- 	return rc;
- }
- subsys_initcall(pci_base_init);
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index 7f4ce8d..2c84714 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -51,6 +51,7 @@ static void clp_store_query_pci_fngrp(struct zpci_dev *zdev,
- 	zdev->tlb_refresh = response->refresh;
- 	zdev->dma_mask = response->dasm;
- 	zdev->msi_addr = response->msia;
-+	zdev->fmb_update = response->mui;
- 
- 	pr_debug("Supported number of MSI vectors: %u\n", response->noi);
- 	switch (response->version) {
-diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
-new file mode 100644
-index 0000000..a303c95
---- /dev/null
-+++ b/arch/s390/pci/pci_debug.c
-@@ -0,0 +1,193 @@
-+/*
-+ *  Copyright IBM Corp. 2012
-+ *
-+ *  Author(s):
-+ *    Jan Glauber <jang@linux.vnet.ibm.com>
-+ */
-+
-+#define COMPONENT "zPCI"
-+#define pr_fmt(fmt) COMPONENT ": " fmt
-+
-+#include <linux/kernel.h>
-+#include <linux/seq_file.h>
-+#include <linux/debugfs.h>
-+#include <linux/pci.h>
-+#include <asm/debug.h>
-+
-+#include <asm/pci_dma.h>
-+
-+static struct dentry *debugfs_root;
-+
-+static char *pci_perf_names[] = {
-+	/* hardware counters */
-+	"Load operations",
-+	"Store operations",
-+	"Store block operations",
-+	"Refresh operations",
-+	"DMA read bytes",
-+	"DMA write bytes",
-+	/* software counters */
-+	"Allocated pages",
-+	"Mapped pages",
-+	"Unmapped pages",
-+};
-+
-+static int pci_perf_show(struct seq_file *m, void *v)
-+{
-+	struct zpci_dev *zdev = m->private;
-+	u64 *stat;
-+	int i;
-+
-+	if (!zdev)
-+		return 0;
-+	if (!zdev->fmb)
-+		return seq_printf(m, "FMB statistics disabled\n");
-+
-+	/* header */
-+	seq_printf(m, "FMB @ %p\n", zdev->fmb);
-+	seq_printf(m, "Update interval: %u ms\n", zdev->fmb_update);
-+	seq_printf(m, "Samples: %u\n", zdev->fmb->samples);
-+	seq_printf(m, "Last update TOD: %Lx\n", zdev->fmb->last_update);
-+
-+	/* hardware counters */
-+	stat = (u64 *) &zdev->fmb->ld_ops;
-+	for (i = 0; i < 4; i++)
-+		seq_printf(m, "%26s:\t%llu\n",
-+			   pci_perf_names[i], *(stat + i));
-+	if (zdev->fmb->dma_valid)
-+		for (i = 4; i < 6; i++)
-+			seq_printf(m, "%26s:\t%llu\n",
-+				   pci_perf_names[i], *(stat + i));
-+	/* software counters */
-+	for (i = 6; i < ARRAY_SIZE(pci_perf_names); i++)
-+		seq_printf(m, "%26s:\t%llu\n",
-+			   pci_perf_names[i],
-+			   atomic64_read((atomic64_t *) (stat + i)));
-+
-+	return 0;
-+}
-+
-+static ssize_t pci_perf_seq_write(struct file *file, const char __user *ubuf,
-+				  size_t count, loff_t *off)
-+{
-+	struct zpci_dev *zdev = ((struct seq_file *) file->private_data)->private;
-+	unsigned long val;
-+	int rc;
-+
-+	if (!zdev)
-+		return 0;
-+
-+	rc = kstrtoul_from_user(ubuf, count, 10, &val);
-+	if (rc)
-+		return rc;
-+
-+	switch (val) {
-+	case 0:
-+		rc = zpci_fmb_disable_device(zdev);
-+		if (rc)
-+			return rc;
-+		break;
-+	case 1:
-+		rc = zpci_fmb_enable_device(zdev);
-+		if (rc)
-+			return rc;
-+		break;
-+	}
-+	return count;
-+}
-+
-+static int pci_perf_seq_open(struct inode *inode, struct file *filp)
-+{
-+	return single_open(filp, pci_perf_show,
-+			   filp->f_path.dentry->d_inode->i_private);
-+}
-+
-+static const struct file_operations debugfs_pci_perf_fops = {
-+	.open	 = pci_perf_seq_open,
-+	.read	 = seq_read,
-+	.write	 = pci_perf_seq_write,
-+	.llseek  = seq_lseek,
-+	.release = single_release,
-+};
-+
-+static int pci_debug_show(struct seq_file *m, void *v)
-+{
-+	struct zpci_dev *zdev = m->private;
-+
-+	zpci_debug_info(zdev, m);
-+	return 0;
-+}
-+
-+static int pci_debug_seq_open(struct inode *inode, struct file *filp)
-+{
-+	return single_open(filp, pci_debug_show,
-+			   filp->f_path.dentry->d_inode->i_private);
-+}
-+
-+static const struct file_operations debugfs_pci_debug_fops = {
-+	.open	 = pci_debug_seq_open,
-+	.read	 = seq_read,
-+	.llseek  = seq_lseek,
-+	.release = single_release,
-+};
-+
-+void zpci_debug_init_device(struct zpci_dev *zdev)
-+{
-+	zdev->debugfs_dev = debugfs_create_dir(dev_name(&zdev->pdev->dev),
-+					       debugfs_root);
-+	if (IS_ERR(zdev->debugfs_dev))
-+		zdev->debugfs_dev = NULL;
-+
-+	zdev->debugfs_perf = debugfs_create_file("statistics",
-+				S_IFREG | S_IRUGO | S_IWUSR,
-+				zdev->debugfs_dev, zdev,
-+				&debugfs_pci_perf_fops);
-+	if (IS_ERR(zdev->debugfs_perf))
-+		zdev->debugfs_perf = NULL;
-+
-+	zdev->debugfs_debug = debugfs_create_file("debug",
-+				S_IFREG | S_IRUGO | S_IWUSR,
-+				zdev->debugfs_dev, zdev,
-+				&debugfs_pci_debug_fops);
-+	if (IS_ERR(zdev->debugfs_debug))
-+		zdev->debugfs_debug = NULL;
-+}
-+
-+void zpci_debug_exit_device(struct zpci_dev *zdev)
-+{
-+	debugfs_remove(zdev->debugfs_perf);
-+	debugfs_remove(zdev->debugfs_debug);
-+	debugfs_remove(zdev->debugfs_dev);
-+}
-+
-+int __init zpci_debug_init(void)
-+{
-+	/* event trace buffer */
-+	pci_debug_msg_id = debug_register("pci_msg", 16, 1, 16 * sizeof(long));
-+	if (!pci_debug_msg_id)
-+		return -EINVAL;
-+	debug_register_view(pci_debug_msg_id, &debug_sprintf_view);
-+	debug_set_level(pci_debug_msg_id, 3);
-+	zpci_dbg("Debug view initialized\n");
-+
-+	/* error log */
-+	pci_debug_err_id = debug_register("pci_error", 2, 1, 16);
-+	if (!pci_debug_err_id)
-+		return -EINVAL;
-+	debug_register_view(pci_debug_err_id, &debug_hex_ascii_view);
-+	debug_set_level(pci_debug_err_id, 6);
-+	zpci_err("Debug view initialized\n");
-+
-+	debugfs_root = debugfs_create_dir("pci", NULL);
-+	return 0;
-+}
-+
-+void zpci_debug_exit(void)
-+{
-+	if (pci_debug_msg_id)
-+		debug_unregister(pci_debug_msg_id);
-+	if (pci_debug_err_id)
-+		debug_unregister(pci_debug_err_id);
-+
-+	debugfs_remove(debugfs_root);
-+}
-diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
-index c64b4b2..6138468 100644
---- a/arch/s390/pci/pci_dma.c
-+++ b/arch/s390/pci/pci_dma.c
-@@ -291,8 +291,10 @@ static dma_addr_t s390_dma_map_pages(struct device *dev, struct page *page,
- 	if (direction == DMA_NONE || direction == DMA_TO_DEVICE)
- 		flags |= ZPCI_TABLE_PROTECTED;
- 
--	if (!dma_update_trans(zdev, pa, dma_addr, size, flags))
-+	if (!dma_update_trans(zdev, pa, dma_addr, size, flags)) {
-+		atomic64_add(nr_pages, (atomic64_t *) &zdev->fmb->mapped_pages);
- 		return dma_addr + offset;
-+	}
- 
- out_free:
- 	dma_free_iommu(zdev, iommu_page_index, nr_pages);
-@@ -315,6 +317,7 @@ static void s390_dma_unmap_pages(struct device *dev, dma_addr_t dma_addr,
- 			     ZPCI_TABLE_PROTECTED | ZPCI_PTE_INVALID))
- 		dev_err(dev, "Failed to unmap addr: %Lx\n", dma_addr);
- 
-+	atomic64_add(npages, (atomic64_t *) &zdev->fmb->unmapped_pages);
- 	iommu_page_index = (dma_addr - zdev->start_dma) >> PAGE_SHIFT;
- 	dma_free_iommu(zdev, iommu_page_index, npages);
- }
-@@ -323,6 +326,7 @@ static void *s390_dma_alloc(struct device *dev, size_t size,
- 			    dma_addr_t *dma_handle, gfp_t flag,
- 			    struct dma_attrs *attrs)
- {
-+	struct zpci_dev *zdev = get_zdev(container_of(dev, struct pci_dev, dev));
- 	struct page *page;
- 	unsigned long pa;
- 	dma_addr_t map;
-@@ -331,6 +335,8 @@ static void *s390_dma_alloc(struct device *dev, size_t size,
- 	page = alloc_pages(flag, get_order(size));
- 	if (!page)
- 		return NULL;
-+
-+	atomic64_add(size / PAGE_SIZE, (atomic64_t *) &zdev->fmb->allocated_pages);
- 	pa = page_to_phys(page);
- 	memset((void *) pa, 0, size);
- 
-diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-index dbed8cd..ec62e3a 100644
---- a/arch/s390/pci/pci_event.c
-+++ b/arch/s390/pci/pci_event.c
-@@ -45,6 +45,8 @@ static void zpci_event_log_err(struct zpci_ccdf_err *ccdf)
- {
- 	struct zpci_dev *zdev = get_zdev_by_fid(ccdf->fid);
- 
-+	zpci_err("SEI error CCD:\n");
-+	zpci_err_hex(ccdf, sizeof(*ccdf));
- 	dev_err(&zdev->pdev->dev, "event code: 0x%x\n", ccdf->pec);
- }
- 
+iQIcBAABCgAGBQJQukd8AAoJEF2HCgfBJntGjQAP/iZNTmIofZitO2/2cOQ8+87S
+PwWyB7onTT1f0YW96anwb/fas+X5+9gd2DhIX1b7IywuJ02Y8MiY5vaCUSkmCdi9
+2MUSGk4l+dRCu3H4Bo/8iNZyEFgDeZXp+YeJkq7Ry8riYWCAEnIG/zdigqBVUO+N
+3mMcs9wEbzj2tBBIzkXyPrB5Gm4sut6nmjOxNbDY7CIb7VWQI/s4r5kqb+uKYsLL
+Xl75m/HR45ZcS71uw7s62u+A+eyYW9o937If4rgMWmoO/MEl5LIXa7i7+xcfSNUQ
+HUT367nmM+AMjLozlFbGsqOKDlUQIZLRj1uVAjcXSIeqf7ObnTdlJp1Gp0NHlBv9
+4YRPldVO+wU5tB6zazvs4JLtf3/+9iz0bYQ0Afw4BFwSLWHhOfVc4JO4CGO2iHqP
+9CWgM+eirZ0lVTBgTrANpX+M+iVQN2zPGDuS/iNyh6BNtu0SHo/Wih1TIjivYKTn
+Z2B4bcms085ipdAMCoboBnmTeCYIUDm51Sf16To0oikZb45Z1DBhm6tMfIl1QyM2
+Dp4FinhmcZBuAO8LBVTYfQisLiL26XWs+q4g+MS5QJXe9NbfdjkvIAjGu/J2e9FL
+XEwXPhnlU9WDPIZn5dtiEftVPKF4zPdo0Dt5UPczvhvkaQaMIUzCu/NiAfuGNLgp
+kS9injKwBA5v1cZCfBZK
+=E+pM
+-----END PGP SIGNATURE-----
+
+--nextPart4022694.fXEdSxRaOt--
