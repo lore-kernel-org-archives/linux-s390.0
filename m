@@ -1,74 +1,25 @@
-From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Subject: Re: [PATCH, RESEND] asm-generic, mm: pgtable: consolidate zero page
- helpers
-Date: Wed, 12 Dec 2012 12:55:38 +0200
-Message-ID: <20121212105538.GA14208@otc-wbsnb-06>
-References: <1354881215-26257-1-git-send-email-kirill.shutemov@linux.intel.com>
- <alpine.DEB.2.00.1212111906270.18872@chino.kir.corp.google.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
-Return-path: <linux-arch-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.00.1212111906270.18872@chino.kir.corp.google.com>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: David Rientjes <rientjes@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-mips@linux-mips.org, Ralf Baechle <ralf@linux-mips.org>, John Crispin <blogic@openwrt.org>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Mon, 03 Dec 2012 16:02:18 +0000
+Subject: Re: [PATCH -next] s390/pci: use kmem_cache_zalloc instead of kmem_cache_alloc/memset
+Message-Id: <20121203110218.3f1c9136@mschwide>
+In-Reply-To: <CAPgLHd-wy1eaf0OjxHeho3Lo3ADBt=oKsU7pGR0vpbHvHiCkjg@mail.gmail.com>
+References: <CAPgLHd-wy1eaf0OjxHeho3Lo3ADBt=oKsU7pGR0vpbHvHiCkjg@mail.gmail.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Mon, 3 Dec 2012 08:07:27 -0500
+Wei Yongjun <weiyj.lk@gmail.com> wrote:
 
---+QahgC5+KEYLbs62
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+> 
+> Using kmem_cache_zalloc() instead of kmem_cache_alloc() and memset().
+> 
+> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 
-On Tue, Dec 11, 2012 at 07:07:14PM -0800, David Rientjes wrote:
-> On Fri, 7 Dec 2012, Kirill A. Shutemov wrote:
->=20
-> > From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-> >=20
-> > We have two different implementation of is_zero_pfn() and
-> > my_zero_pfn() helpers: for architectures with and without zero page
-> > coloring.
-> >=20
-> > Let's consolidate them in <asm-generic/pgtable.h>.
-> >=20
->=20
-> What's the benefit from doing this other than generalizing some per-arch=
-=20
-> code?  It simply adds on more layer of redirection to try to find the=20
-> implementation that matters for the architecture you're hacking on.
+Added to the features branch of the s390 tree. Thanks.
 
-The idea of asm-generic is consolidation arch code which can be re-used
-for different arches. It also makes support of new arches easier.
+-- 
+blue skies,
+   Martin.
 
-Do you think have copy of the same code here and there is any better?
-
---=20
- Kirill A. Shutemov
-
---+QahgC5+KEYLbs62
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQyGKqAAoJEAd+omnVudOMyuEQAMemWRvnFt+7wByWD1jXWC2Z
-nUe8yPig5B3W4uawzQNJXj7PS9xr+xHCi52KlJT5TLnpPAih8ozor0Ohj+hxWBG0
-OssHOzZhk6z+/IEG1DB8UDOmVUK9z3k17yfqsZkx+YB9F/x5tSug1Qt5AHGYvzt8
-LXYbtVBx5CJm21TlnnOfx7woy21Q6CgAWhA+wBm+MiUbTN1btI8xmapBAuzrE+vh
-1EIFdZe+7uWJOqHNadmVhjFvhF/Bym9z3dY7+hCc6dKvqPVOm2Bd1KJ5Pw3kgXls
-m1d2Z6LEdC7k7z1ZtU1T+mUSVSJbEMCc3F9x7FcP24sw/9zYWNX0zG6t2Iz0Mr5N
-AQ7uZxWIn9OdEhmViJyoqHDUNBIP+k+fg5M57ZsgB42BR4orJvRgCEtV2Byts+sN
-kn0AqJHU2n7v60liv/mzeKKK9z/c+Kjeg3Tp6vRSg7jSjl1Akk9M4urtuu9fFEBw
-bNS0IsIdjMwMF5DVXJGR5fCW8wu4r20VvRv8ISjGTo+g7FngSphafmwEq5Fl0/Hh
-2c0sZ+j9fpuuvwzzYBUPdulXji8frkHZ4WxMGJ1DINTq6kARaaxGkNFUS1IeteCG
-Wpyj+chEnkL+1UwLLdrfGz7gbO/+fmeiuTOAnbS2qOe5zcRD8pcTCBhQ4W/IQXcG
-5L9+tvjncCAEktFUZWvH
-=6aAs
------END PGP SIGNATURE-----
-
---+QahgC5+KEYLbs62--
+"Reality continues to ruin my life." - Calvin.
