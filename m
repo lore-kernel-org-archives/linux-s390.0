@@ -1,8 +1,10 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [RFC PATCH v4 0/8] s390: channel I/O support in qemu.
-Date: Fri,  7 Dec 2012 13:50:18 +0100
-Message-ID: <1354884626-15060-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 2/8] s390: Channel I/O basic defintions.
+Date: Fri,  7 Dec 2012 13:50:20 +0100
+Message-ID: <1354884626-15060-3-git-send-email-cornelia.huck@de.ibm.com>
+References: <1354884626-15060-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+In-Reply-To: <1354884626-15060-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
 List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
@@ -18,52 +20,291 @@ To: qemu-devel <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>, linux-s390 <l
 Cc: Carsten Otte <cotte@de.ibm.com>, Anthony Liguori <aliguori@us.ibm.com>, Gleb Natapov <gleb@redhat.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Marcelo Tosatti <mtosatti@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+Basic channel I/O structures and helper function.
 
-just a quick dump of my qemu patch series for channel I/O.
-
-I've managed to chop the virtual css patch into some smaller
-chunks (patches 2-6), which are hopefully easier to review.
-
-The virtio-ccw patch is still based upon the current virtio
-infrastructure; I'll try to rebase it upon the virtio refactoring
-once that has most of the infrastructure in place.
-
-Cornelia Huck (8):
-  Update linux headers.
-  s390: Channel I/O basic defintions.
-  s390: I/O interrupt and machine check injection.
-  s390: Add channel I/O instructions.
-  s390: Virtual channel subsystem support.
-  s390: Wire up channel I/O in kvm.
-  s390-virtio: Factor out some initialization code.
-  s390: Add new channel I/O based virtio transport.
-
- hw/s390-virtio.c                     |  281 +++++---
- hw/s390x/Makefile.objs               |    2 +
- hw/s390x/css.c                       | 1195 ++++++++++++++++++++++++++++++++++
- hw/s390x/css.h                       |   92 +++
- hw/s390x/virtio-ccw.c                |  909 ++++++++++++++++++++++++++
- hw/s390x/virtio-ccw.h                |   81 +++
- linux-headers/asm-generic/kvm_para.h |    4 +
- linux-headers/asm-powerpc/kvm.h      |   59 ++
- linux-headers/asm-powerpc/kvm_para.h |    7 +-
- linux-headers/linux/kvm.h            |   36 +-
- target-s390x/Makefile.objs           |    2 +-
- target-s390x/cpu.h                   |  230 +++++++
- target-s390x/helper.c                |  145 +++++
- target-s390x/ioinst.c                |  726 +++++++++++++++++++++
- target-s390x/ioinst.h                |  223 +++++++
- target-s390x/kvm.c                   |  246 ++++++-
- trace-events                         |   18 +
- 17 files changed, 4161 insertions(+), 95 deletions(-)
- create mode 100644 hw/s390x/css.c
- create mode 100644 hw/s390x/css.h
- create mode 100644 hw/s390x/virtio-ccw.c
- create mode 100644 hw/s390x/virtio-ccw.h
- create mode 100644 linux-headers/asm-generic/kvm_para.h
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ target-s390x/Makefile.objs |   2 +-
+ target-s390x/ioinst.c      |  46 ++++++++++
+ target-s390x/ioinst.h      | 207 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 254 insertions(+), 1 deletion(-)
  create mode 100644 target-s390x/ioinst.c
  create mode 100644 target-s390x/ioinst.h
 
+diff --git a/target-s390x/Makefile.objs b/target-s390x/Makefile.objs
+index e728abf..3afb0b7 100644
+--- a/target-s390x/Makefile.objs
++++ b/target-s390x/Makefile.objs
+@@ -1,4 +1,4 @@
+ obj-y += translate.o helper.o cpu.o interrupt.o
+ obj-y += int_helper.o fpu_helper.o cc_helper.o mem_helper.o misc_helper.o
+-obj-$(CONFIG_SOFTMMU) += machine.o
++obj-$(CONFIG_SOFTMMU) += machine.o ioinst.o
+ obj-$(CONFIG_KVM) += kvm.o
+diff --git a/target-s390x/ioinst.c b/target-s390x/ioinst.c
+new file mode 100644
+index 0000000..8577b2c
+--- /dev/null
++++ b/target-s390x/ioinst.c
+@@ -0,0 +1,46 @@
++/*
++ * I/O instructions for S/390
++ *
++ * Copyright 2012 IBM Corp.
++ * Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or (at
++ * your option) any later version. See the COPYING file in the top-level
++ * directory.
++ */
++
++#include <sys/types.h>
++#include <sys/ioctl.h>
++#include <sys/mman.h>
++
++#include "cpu.h"
++#include "ioinst.h"
++
++#ifdef DEBUG_IOINST
++#define dprintf(fmt, ...) \
++    do { fprintf(stderr, fmt, ## __VA_ARGS__); } while (0)
++#else
++#define dprintf(fmt, ...) \
++    do { } while (0)
++#endif
++
++int ioinst_disassemble_sch_ident(uint32_t value, int *m, int *cssid, int *ssid,
++                                 int *schid)
++{
++    if (!(value & IOINST_SCHID_ONE)) {
++        return -EINVAL;
++    }
++    if (!(value & IOINST_SCHID_M)) {
++        if (value & IOINST_SCHID_CSSID) {
++            return -EINVAL;
++        }
++        *cssid = 0;
++        *m = 0;
++    } else {
++        *cssid = (value & IOINST_SCHID_CSSID) >> 24;
++        *m = 1;
++    }
++    *ssid = (value & IOINST_SCHID_SSID) >> 17;
++    *schid = value & IOINST_SCHID_NR;
++    return 0;
++}
+diff --git a/target-s390x/ioinst.h b/target-s390x/ioinst.h
+new file mode 100644
+index 0000000..b5b4a03
+--- /dev/null
++++ b/target-s390x/ioinst.h
+@@ -0,0 +1,207 @@
++/*
++ * S/390 channel I/O instructions
++ *
++ * Copyright 2012 IBM Corp.
++ * Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or (at
++ * your option) any later version. See the COPYING file in the top-level
++ * directory.
++*/
++
++#ifndef IOINST_S390X_H
++#define IOINST_S390X_H
++/*
++ * Channel I/O related definitions, as defined in the Principles
++ * Of Operation (and taken from the Linux implementation).
++ */
++
++/* subchannel status word (command mode only) */
++typedef struct SCSW {
++    uint16_t flags;
++    uint16_t ctrl;
++    uint32_t cpa;
++    uint8_t dstat;
++    uint8_t cstat;
++    uint16_t count;
++} QEMU_PACKED SCSW;
++
++#define SCSW_FLAGS_MASK_KEY 0xf000
++#define SCSW_FLAGS_MASK_SCTL 0x0800
++#define SCSW_FLAGS_MASK_ESWF 0x0400
++#define SCSW_FLAGS_MASK_CC 0x0300
++#define SCSW_FLAGS_MASK_FMT 0x0080
++#define SCSW_FLAGS_MASK_PFCH 0x0040
++#define SCSW_FLAGS_MASK_ISIC 0x0020
++#define SCSW_FLAGS_MASK_ALCC 0x0010
++#define SCSW_FLAGS_MASK_SSI 0x0008
++#define SCSW_FLAGS_MASK_ZCC 0x0004
++#define SCSW_FLAGS_MASK_ECTL 0x0002
++#define SCSW_FLAGS_MASK_PNO 0x0001
++
++#define SCSW_CTRL_MASK_FCTL 0x7000
++#define SCSW_CTRL_MASK_ACTL 0x0fe0
++#define SCSW_CTRL_MASK_STCTL 0x001f
++
++#define SCSW_FCTL_CLEAR_FUNC 0x1000
++#define SCSW_FCTL_HALT_FUNC 0x2000
++#define SCSW_FCTL_START_FUNC 0x4000
++
++#define SCSW_ACTL_SUSP 0x0020
++#define SCSW_ACTL_DEVICE_ACTIVE 0x0040
++#define SCSW_ACTL_SUBCH_ACTIVE 0x0080
++#define SCSW_ACTL_CLEAR_PEND 0x0100
++#define SCSW_ACTL_HALT_PEND  0x0200
++#define SCSW_ACTL_START_PEND 0x0400
++#define SCSW_ACTL_RESUME_PEND 0x0800
++
++#define SCSW_STCTL_STATUS_PEND 0x0001
++#define SCSW_STCTL_SECONDARY 0x0002
++#define SCSW_STCTL_PRIMARY 0x0004
++#define SCSW_STCTL_INTERMEDIATE 0x0008
++#define SCSW_STCTL_ALERT 0x0010
++
++#define SCSW_DSTAT_ATTENTION     0x80
++#define SCSW_DSTAT_STAT_MOD      0x40
++#define SCSW_DSTAT_CU_END        0x20
++#define SCSW_DSTAT_BUSY          0x10
++#define SCSW_DSTAT_CHANNEL_END   0x08
++#define SCSW_DSTAT_DEVICE_END    0x04
++#define SCSW_DSTAT_UNIT_CHECK    0x02
++#define SCSW_DSTAT_UNIT_EXCEP    0x01
++
++#define SCSW_CSTAT_PCI           0x80
++#define SCSW_CSTAT_INCORR_LEN    0x40
++#define SCSW_CSTAT_PROG_CHECK    0x20
++#define SCSW_CSTAT_PROT_CHECK    0x10
++#define SCSW_CSTAT_DATA_CHECK    0x08
++#define SCSW_CSTAT_CHN_CTRL_CHK  0x04
++#define SCSW_CSTAT_INTF_CTRL_CHK 0x02
++#define SCSW_CSTAT_CHAIN_CHECK   0x01
++
++/* path management control word */
++typedef struct PMCW {
++    uint32_t intparm;
++    uint16_t flags;
++    uint16_t devno;
++    uint8_t  lpm;
++    uint8_t  pnom;
++    uint8_t  lpum;
++    uint8_t  pim;
++    uint16_t mbi;
++    uint8_t  pom;
++    uint8_t  pam;
++    uint8_t  chpid[8];
++    uint32_t chars;
++} QEMU_PACKED PMCW;
++
++#define PMCW_FLAGS_MASK_QF 0x8000
++#define PMCW_FLAGS_MASK_W 0x4000
++#define PMCW_FLAGS_MASK_ISC 0x3800
++#define PMCW_FLAGS_MASK_ENA 0x0080
++#define PMCW_FLAGS_MASK_LM 0x0060
++#define PMCW_FLAGS_MASK_MME 0x0018
++#define PMCW_FLAGS_MASK_MP 0x0004
++#define PMCW_FLAGS_MASK_TF 0x0002
++#define PMCW_FLAGS_MASK_DNV 0x0001
++#define PMCW_FLAGS_MASK_INVALID 0x0700
++
++#define PMCW_CHARS_MASK_ST 0x00e00000
++#define PMCW_CHARS_MASK_MBFC 0x00000004
++#define PMCW_CHARS_MASK_XMWME 0x00000002
++#define PMCW_CHARS_MASK_CSENSE 0x00000001
++#define PMCW_CHARS_MASK_INVALID 0xff1ffff8
++
++/* subchannel information block */
++struct SCHIB {
++    PMCW pmcw;
++    SCSW scsw;
++    uint64_t mba;
++    uint8_t mda[4];
++} QEMU_PACKED;
++
++/* interruption response block */
++typedef struct IRB {
++    SCSW scsw;
++    uint32_t esw[5];
++    uint32_t ecw[8];
++    uint32_t emw[8];
++} QEMU_PACKED IRB;
++
++/* operation request block */
++struct ORB {
++    uint32_t intparm;
++    uint16_t ctrl0;
++    uint8_t lpm;
++    uint8_t ctrl1;
++    uint32_t cpa;
++} QEMU_PACKED;
++
++#define ORB_CTRL0_MASK_KEY 0xf000
++#define ORB_CTRL0_MASK_SPND 0x0800
++#define ORB_CTRL0_MASK_STR 0x0400
++#define ORB_CTRL0_MASK_MOD 0x0200
++#define ORB_CTRL0_MASK_SYNC 0x0100
++#define ORB_CTRL0_MASK_FMT 0x0080
++#define ORB_CTRL0_MASK_PFCH 0x0040
++#define ORB_CTRL0_MASK_ISIC 0x0020
++#define ORB_CTRL0_MASK_ALCC 0x0010
++#define ORB_CTRL0_MASK_SSIC 0x0008
++#define ORB_CTRL0_MASK_C64 0x0002
++#define ORB_CTRL0_MASK_I2K 0x0001
++#define ORB_CTRL0_MASK_INVALID 0x0004
++
++#define ORB_CTRL1_MASK_ILS 0x80
++#define ORB_CTRL1_MASK_MIDAW 0x40
++#define ORB_CTRL1_MASK_ORBX 0x01
++#define ORB_CTRL1_MASK_INVALID 0x3e
++
++/* channel command word (type 1) */
++typedef struct CCW1 {
++    uint8_t cmd_code;
++    uint8_t flags;
++    uint16_t count;
++    uint32_t cda;
++} QEMU_PACKED CCW1;
++
++#define CCW_FLAG_DC              0x80
++#define CCW_FLAG_CC              0x40
++#define CCW_FLAG_SLI             0x20
++#define CCW_FLAG_SKIP            0x10
++#define CCW_FLAG_PCI             0x08
++#define CCW_FLAG_IDA             0x04
++#define CCW_FLAG_SUSPEND         0x02
++
++#define CCW_CMD_NOOP             0x03
++#define CCW_CMD_BASIC_SENSE      0x04
++#define CCW_CMD_TIC              0x08
++#define CCW_CMD_SENSE_ID         0xe4
++
++typedef struct CRW {
++    uint16_t flags;
++    uint16_t rsid;
++} QEMU_PACKED CRW;
++
++#define CRW_FLAGS_MASK_S 0x4000
++#define CRW_FLAGS_MASK_R 0x2000
++#define CRW_FLAGS_MASK_C 0x1000
++#define CRW_FLAGS_MASK_RSC 0x0f00
++#define CRW_FLAGS_MASK_A 0x0080
++#define CRW_FLAGS_MASK_ERC 0x003f
++
++#define CRW_ERC_INIT 0x02
++#define CRW_ERC_IPI  0x04
++
++#define CRW_RSC_SUBCH 0x3
++#define CRW_RSC_CHP   0x4
++
++/* schid disintegration */
++#define IOINST_SCHID_ONE   0x00010000
++#define IOINST_SCHID_M     0x00080000
++#define IOINST_SCHID_CSSID 0xff000000
++#define IOINST_SCHID_SSID  0x00060000
++#define IOINST_SCHID_NR    0x0000ffff
++
++int ioinst_disassemble_sch_ident(uint32_t value, int *m, int *cssid, int *ssid,
++                                 int *schid);
++#endif
 -- 
 1.7.12.4
