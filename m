@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 1/8] Update linux headers.
-Date: Fri,  7 Dec 2012 13:50:19 +0100
-Message-ID: <1354884626-15060-2-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 4/8] s390: Add channel I/O instructions.
+Date: Fri,  7 Dec 2012 13:50:22 +0100
+Message-ID: <1354884626-15060-5-git-send-email-cornelia.huck@de.ibm.com>
 References: <1354884626-15060-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1354884626-15060-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,213 +12,869 @@ To: qemu-devel <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>, linux-s390 <l
 Cc: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+Provide handlers for (most) channel I/O instructions.
+
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- linux-headers/asm-generic/kvm_para.h |  4 +++
- linux-headers/asm-powerpc/kvm.h      | 59 ++++++++++++++++++++++++++++++++++++
- linux-headers/asm-powerpc/kvm_para.h |  7 +++--
- linux-headers/linux/kvm.h            | 36 +++++++++++++++++++---
- 4 files changed, 98 insertions(+), 8 deletions(-)
- create mode 100644 linux-headers/asm-generic/kvm_para.h
+ target-s390x/cpu.h    |  87 +++++++
+ target-s390x/ioinst.c | 694 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ target-s390x/ioinst.h |  16 ++
+ trace-events          |   6 +
+ 4 files changed, 796 insertions(+), 7 deletions(-)
 
-diff --git a/linux-headers/asm-generic/kvm_para.h b/linux-headers/asm-generic/kvm_para.h
-new file mode 100644
-index 0000000..486f0af
---- /dev/null
-+++ b/linux-headers/asm-generic/kvm_para.h
-@@ -0,0 +1,4 @@
-+/*
-+ * There isn't anything here, but the file must not be empty or patch
-+ * will delete it.
-+ */
-diff --git a/linux-headers/asm-powerpc/kvm.h b/linux-headers/asm-powerpc/kvm.h
-index 1bea4d8..b89ae4d 100644
---- a/linux-headers/asm-powerpc/kvm.h
-+++ b/linux-headers/asm-powerpc/kvm.h
-@@ -221,6 +221,12 @@ struct kvm_sregs {
+diff --git a/target-s390x/cpu.h b/target-s390x/cpu.h
+index 73bfc20..bc119f8 100644
+--- a/target-s390x/cpu.h
++++ b/target-s390x/cpu.h
+@@ -127,6 +127,8 @@ typedef struct CPUS390XState {
+     QEMUTimer *tod_timer;
  
- 			__u32 dbsr;	/* KVM_SREGS_E_UPDATE_DBSR */
- 			__u32 dbcr[3];
-+			/*
-+			 * iac/dac registers are 64bit wide, while this API
-+			 * interface provides only lower 32 bits on 64 bit
-+			 * processors. ONE_REG interface is added for 64bit
-+			 * iac/dac registers.
-+			 */
- 			__u32 iac[4];
- 			__u32 dac[2];
- 			__u32 dvc[2];
-@@ -326,5 +332,58 @@ struct kvm_book3e_206_tlb_params {
- };
+     QEMUTimer *cpu_timer;
++
++    void *chsc_page;
+ } CPUS390XState;
  
- #define KVM_REG_PPC_HIOR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x1)
-+#define KVM_REG_PPC_IAC1	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x2)
-+#define KVM_REG_PPC_IAC2	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x3)
-+#define KVM_REG_PPC_IAC3	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x4)
-+#define KVM_REG_PPC_IAC4	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x5)
-+#define KVM_REG_PPC_DAC1	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x6)
-+#define KVM_REG_PPC_DAC2	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x7)
-+#define KVM_REG_PPC_DABR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x8)
-+#define KVM_REG_PPC_DSCR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x9)
-+#define KVM_REG_PPC_PURR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0xa)
-+#define KVM_REG_PPC_SPURR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0xb)
-+#define KVM_REG_PPC_DAR		(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0xc)
-+#define KVM_REG_PPC_DSISR	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0xd)
-+#define KVM_REG_PPC_AMR		(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0xe)
-+#define KVM_REG_PPC_UAMOR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0xf)
-+
-+#define KVM_REG_PPC_MMCR0	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x10)
-+#define KVM_REG_PPC_MMCR1	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x11)
-+#define KVM_REG_PPC_MMCRA	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x12)
-+
-+#define KVM_REG_PPC_PMC1	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x18)
-+#define KVM_REG_PPC_PMC2	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x19)
-+#define KVM_REG_PPC_PMC3	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x1a)
-+#define KVM_REG_PPC_PMC4	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x1b)
-+#define KVM_REG_PPC_PMC5	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x1c)
-+#define KVM_REG_PPC_PMC6	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x1d)
-+#define KVM_REG_PPC_PMC7	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x1e)
-+#define KVM_REG_PPC_PMC8	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x1f)
-+
-+/* 32 floating-point registers */
-+#define KVM_REG_PPC_FPR0	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x20)
-+#define KVM_REG_PPC_FPR(n)	(KVM_REG_PPC_FPR0 + (n))
-+#define KVM_REG_PPC_FPR31	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x3f)
-+
-+/* 32 VMX/Altivec vector registers */
-+#define KVM_REG_PPC_VR0		(KVM_REG_PPC | KVM_REG_SIZE_U128 | 0x40)
-+#define KVM_REG_PPC_VR(n)	(KVM_REG_PPC_VR0 + (n))
-+#define KVM_REG_PPC_VR31	(KVM_REG_PPC | KVM_REG_SIZE_U128 | 0x5f)
-+
-+/* 32 double-width FP registers for VSX */
-+/* High-order halves overlap with FP regs */
-+#define KVM_REG_PPC_VSR0	(KVM_REG_PPC | KVM_REG_SIZE_U128 | 0x60)
-+#define KVM_REG_PPC_VSR(n)	(KVM_REG_PPC_VSR0 + (n))
-+#define KVM_REG_PPC_VSR31	(KVM_REG_PPC | KVM_REG_SIZE_U128 | 0x7f)
-+
-+/* FP and vector status/control registers */
-+#define KVM_REG_PPC_FPSCR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x80)
-+#define KVM_REG_PPC_VSCR	(KVM_REG_PPC | KVM_REG_SIZE_U32 | 0x81)
-+
-+/* Virtual processor areas */
-+/* For SLB & DTL, address in high (first) half, length in low half */
-+#define KVM_REG_PPC_VPA_ADDR	(KVM_REG_PPC | KVM_REG_SIZE_U64 | 0x82)
-+#define KVM_REG_PPC_VPA_SLB	(KVM_REG_PPC | KVM_REG_SIZE_U128 | 0x83)
-+#define KVM_REG_PPC_VPA_DTL	(KVM_REG_PPC | KVM_REG_SIZE_U128 | 0x84)
+ #include "cpu-qom.h"
+@@ -363,6 +365,91 @@ static inline unsigned s390_del_running_cpu(CPUS390XState *env)
+ void cpu_lock(void);
+ void cpu_unlock(void);
  
- #endif /* __LINUX_KVM_POWERPC_H */
-diff --git a/linux-headers/asm-powerpc/kvm_para.h b/linux-headers/asm-powerpc/kvm_para.h
-index 5e04383..ed0e025 100644
---- a/linux-headers/asm-powerpc/kvm_para.h
-+++ b/linux-headers/asm-powerpc/kvm_para.h
-@@ -75,9 +75,10 @@ struct kvm_vcpu_arch_shared {
- };
- 
- #define KVM_SC_MAGIC_R0		0x4b564d21 /* "KVM!" */
--#define HC_VENDOR_KVM		(42 << 16)
--#define HC_EV_SUCCESS		0
--#define HC_EV_UNIMPLEMENTED	12
++typedef struct SubchDev SubchDev;
++typedef struct SCHIB SCHIB;
++typedef struct ORB ORB;
 +
-+#define KVM_HCALL_TOKEN(num)     _EV_HCALL_TOKEN(EV_KVM_VENDOR_ID, num)
++static inline SubchDev *css_find_subch(uint8_t m, uint8_t cssid, uint8_t ssid,
++                                       uint16_t schid)
++{
++    return NULL;
++}
++static inline bool css_subch_visible(SubchDev *sch)
++{
++    return false;
++}
++static inline void css_conditional_io_interrupt(SubchDev *sch)
++{
++}
++static inline int css_do_stsch(SubchDev *sch, uint64_t addr)
++{
++    return -ENODEV;
++}
++static inline bool css_schid_final(uint8_t cssid, uint8_t ssid, uint16_t schid)
++{
++    return true;
++}
++static inline int css_do_msch(SubchDev *sch, SCHIB *schib)
++{
++    return -ENODEV;
++}
++static inline int css_do_xsch(SubchDev *sch)
++{
++    return -ENODEV;
++}
++static inline int css_do_csch(SubchDev *sch)
++{
++    return -ENODEV;
++}
++static inline int css_do_hsch(SubchDev *sch)
++{
++    return -ENODEV;
++}
++static inline int css_do_ssch(SubchDev *sch, ORB *orb)
++{
++    return -ENODEV;
++}
++static inline int css_do_tsch(SubchDev *sch, uint64_t addr)
++{
++    return -ENODEV;
++}
++static inline int css_do_stcrw(uint64_t addr)
++{
++    return 1;
++}
++static inline int css_do_tpi(uint64_t addr, int lowcore)
++{
++    return 0;
++}
++static inline int css_collect_chp_desc(int m, uint8_t cssid, uint8_t f_chpid,
++                                       int rfmt, uint8_t l_chpid, void *buf)
++{
++    return 0;
++}
++static inline void css_do_schm(uint8_t mbk, int update, int dct, uint64_t mbo)
++{
++}
++static inline int css_enable_mss(void)
++{
++    return -EINVAL;
++}
++static inline int css_enable_mcsse(void)
++{
++    return -EINVAL;
++}
++static inline int css_do_rsch(SubchDev *sch)
++{
++    return -ENODEV;
++}
++static inline int css_do_rchp(uint8_t cssid, uint8_t chpid)
++{
++    return -ENODEV;
++}
++static inline bool css_present(uint8_t cssid)
++{
++    return false;
++}
 +
-+#include <uapi/asm/epapr_hcalls.h>
+ static inline void cpu_set_tls(CPUS390XState *env, target_ulong newtls)
+ {
+     env->aregs[0] = newtls >> 32;
+diff --git a/target-s390x/ioinst.c b/target-s390x/ioinst.c
+index 8577b2c..60ce985 100644
+--- a/target-s390x/ioinst.c
++++ b/target-s390x/ioinst.c
+@@ -15,14 +15,19 @@
  
- #define KVM_FEATURE_MAGIC_PAGE	1
+ #include "cpu.h"
+ #include "ioinst.h"
++#include "trace.h"
  
-diff --git a/linux-headers/linux/kvm.h b/linux-headers/linux/kvm.h
-index 81d2feb..84e7abc 100644
---- a/linux-headers/linux/kvm.h
-+++ b/linux-headers/linux/kvm.h
-@@ -167,10 +167,16 @@ struct kvm_pit_config {
- #define KVM_EXIT_OSI              18
- #define KVM_EXIT_PAPR_HCALL	  19
- #define KVM_EXIT_S390_UCONTROL	  20
-+#define KVM_EXIT_WATCHDOG         21
-+#define KVM_EXIT_S390_TSCH        22
- 
- /* For KVM_EXIT_INTERNAL_ERROR */
--#define KVM_INTERNAL_ERROR_EMULATION 1
--#define KVM_INTERNAL_ERROR_SIMUL_EX 2
-+/* Emulate instruction failed. */
-+#define KVM_INTERNAL_ERROR_EMULATION	1
-+/* Encounter unexpected simultaneous exceptions. */
-+#define KVM_INTERNAL_ERROR_SIMUL_EX	2
-+/* Encounter unexpected vm-exit due to delivery event. */
-+#define KVM_INTERNAL_ERROR_DELIVERY_EV	3
- 
- /* for KVM_RUN, returned by mmap(vcpu_fd, offset=0) */
- struct kvm_run {
-@@ -280,6 +286,15 @@ struct kvm_run {
- 			__u64 ret;
- 			__u64 args[9];
- 		} papr_hcall;
-+		/* KVM_EXIT_S390_TSCH */
-+		struct {
-+			__u16 subchannel_id;
-+			__u16 subchannel_nr;
-+			__u32 io_int_parm;
-+			__u32 io_int_word;
-+			__u32 ipb;
-+			__u8 dequeued;
-+		} s390_tsch;
- 		/* Fix the size of the union. */
- 		char padding[256];
- 	};
-@@ -392,10 +407,17 @@ struct kvm_s390_psw {
- #define KVM_S390_PROGRAM_INT		0xfffe0001u
- #define KVM_S390_SIGP_SET_PREFIX	0xfffe0002u
- #define KVM_S390_RESTART		0xfffe0003u
-+#define KVM_S390_MCHK			0xfffe1000u
- #define KVM_S390_INT_VIRTIO		0xffff2603u
- #define KVM_S390_INT_SERVICE		0xffff2401u
- #define KVM_S390_INT_EMERGENCY		0xffff1201u
- #define KVM_S390_INT_EXTERNAL_CALL	0xffff1202u
-+#define KVM_S390_INT_IO(ai,cssid,ssid,schid)   \
-+	(((schid)) |			       \
-+	 ((ssid) << 16) |		       \
-+	 ((cssid) << 18) |		       \
-+	 ((ai) << 26))
+-#ifdef DEBUG_IOINST
+-#define dprintf(fmt, ...) \
+-    do { fprintf(stderr, fmt, ## __VA_ARGS__); } while (0)
+-#else
+-#define dprintf(fmt, ...) \
+-    do { } while (0)
+-#endif
++/* Special handling for the prefix page. */
++static void *s390_get_address(CPUS390XState *env, ram_addr_t guest_addr)
++{
++    if (guest_addr < 8192) {
++        guest_addr += env->psa;
++    } else if ((env->psa <= guest_addr) && (guest_addr < env->psa + 8192)) {
++        guest_addr -= env->psa;
++    }
 +
++    return qemu_get_ram_ptr(guest_addr);
++}
  
- struct kvm_s390_interrupt {
- 	__u32 type;
-@@ -477,6 +499,8 @@ struct kvm_ppc_smmu_info {
- 	struct kvm_ppc_one_seg_page_size sps[KVM_PPC_PAGE_SIZES_MAX_SZ];
- };
- 
-+#define KVM_PPC_PVINFO_FLAGS_EV_IDLE   (1<<0)
+ int ioinst_disassemble_sch_ident(uint32_t value, int *m, int *cssid, int *ssid,
+                                  int *schid)
+@@ -44,3 +49,678 @@ int ioinst_disassemble_sch_ident(uint32_t value, int *m, int *cssid, int *ssid,
+     *schid = value & IOINST_SCHID_NR;
+     return 0;
+ }
 +
- #define KVMIO 0xAE
++int ioinst_handle_xsch(CPUS390XState *env, uint64_t reg1)
++{
++    int cssid, ssid, schid, m;
++    SubchDev *sch;
++    int ret = -ENODEV;
++    int cc;
++
++    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++    trace_ioinst_sch_id("xsch", cssid, ssid, schid);
++    sch = css_find_subch(m, cssid, ssid, schid);
++    if (sch && css_subch_visible(sch)) {
++        ret = css_do_xsch(sch);
++    }
++    switch (ret) {
++    case -ENODEV:
++        cc = 3;
++        break;
++    case -EBUSY:
++        cc = 2;
++        break;
++    case 0:
++        cc = 0;
++        break;
++    default:
++        cc = 1;
++        break;
++    }
++
++    return cc;
++}
++
++int ioinst_handle_csch(CPUS390XState *env, uint64_t reg1)
++{
++    int cssid, ssid, schid, m;
++    SubchDev *sch;
++    int ret = -ENODEV;
++    int cc;
++
++    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++    trace_ioinst_sch_id("csch", cssid, ssid, schid);
++    sch = css_find_subch(m, cssid, ssid, schid);
++    if (sch && css_subch_visible(sch)) {
++        ret = css_do_csch(sch);
++    }
++    if (ret == -ENODEV) {
++        cc = 3;
++    } else {
++        cc = 0;
++    }
++    return cc;
++}
++
++int ioinst_handle_hsch(CPUS390XState *env, uint64_t reg1)
++{
++    int cssid, ssid, schid, m;
++    SubchDev *sch;
++    int ret = -ENODEV;
++    int cc;
++
++    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++    trace_ioinst_sch_id("hsch", cssid, ssid, schid);
++    sch = css_find_subch(m, cssid, ssid, schid);
++    if (sch && css_subch_visible(sch)) {
++        ret = css_do_hsch(sch);
++    }
++    switch (ret) {
++    case -ENODEV:
++        cc = 3;
++        break;
++    case -EBUSY:
++        cc = 2;
++        break;
++    case 0:
++        cc = 0;
++        break;
++    default:
++        cc = 1;
++        break;
++    }
++
++    return cc;
++}
++
++static int ioinst_schib_valid(SCHIB *schib)
++{
++    if ((schib->pmcw.flags & PMCW_FLAGS_MASK_INVALID) ||
++        (schib->pmcw.chars & PMCW_CHARS_MASK_INVALID)) {
++        return 0;
++    }
++    /* Disallow extended measurements for now. */
++    if (schib->pmcw.chars & PMCW_CHARS_MASK_XMWME) {
++        return 0;
++    }
++    return 1;
++}
++
++int ioinst_handle_msch(CPUS390XState *env, uint64_t reg1, uint32_t ipb)
++{
++    int cssid, ssid, schid, m;
++    SubchDev *sch;
++    SCHIB *schib;
++    uint64_t addr;
++    int ret = -ENODEV;
++    int cc;
++
++    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++    trace_ioinst_sch_id("msch", cssid, ssid, schid);
++    addr = ipb >> 28;
++    if (addr > 0) {
++        addr = env->regs[addr];
++    }
++    addr += (ipb & 0xfff0000) >> 16;
++    schib = s390_get_address(env, addr);
++    if (!schib) {
++        program_interrupt(env, PGM_SPECIFICATION, 2);
++        return -EIO;
++    }
++    if (!ioinst_schib_valid(schib)) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++    sch = css_find_subch(m, cssid, ssid, schid);
++    if (sch && css_subch_visible(sch)) {
++        ret = css_do_msch(sch, schib);
++    }
++    switch (ret) {
++    case -ENODEV:
++        cc = 3;
++        break;
++    case -EBUSY:
++        cc = 2;
++        break;
++    case 0:
++        cc = 0;
++        break;
++    default:
++        cc = 1;
++        break;
++    }
++
++    return cc;
++}
++
++static int ioinst_orb_valid(ORB *orb)
++{
++    if ((orb->ctrl0 & ORB_CTRL0_MASK_INVALID) ||
++        (orb->ctrl1 & ORB_CTRL1_MASK_INVALID)) {
++        return 0;
++    }
++    if ((orb->cpa & 0x80000000) != 0) {
++        return 0;
++    }
++    return 1;
++}
++
++int ioinst_handle_ssch(CPUS390XState *env, uint64_t reg1, uint32_t ipb)
++{
++    int cssid, ssid, schid, m;
++    SubchDev *sch;
++    ORB *orb;
++    uint64_t addr;
++    int ret = -ENODEV;
++    int cc;
++
++    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++    trace_ioinst_sch_id("ssch", cssid, ssid, schid);
++    addr = ipb >> 28;
++    if (addr > 0) {
++        addr = env->regs[addr];
++    }
++    addr += (ipb & 0xfff0000) >> 16;
++    orb = s390_get_address(env, addr);
++    if (!orb) {
++        program_interrupt(env, PGM_SPECIFICATION, 2);
++        return -EIO;
++    }
++    if (!ioinst_orb_valid(orb)) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++    sch = css_find_subch(m, cssid, ssid, schid);
++    if (sch && css_subch_visible(sch)) {
++        ret = css_do_ssch(sch, orb);
++    }
++    switch (ret) {
++    case -ENODEV:
++        cc = 3;
++        break;
++    case -EBUSY:
++        cc = 2;
++        break;
++    case 0:
++        cc = 0;
++        break;
++    default:
++        cc = 1;
++        break;
++    }
++
++    return cc;
++}
++
++int ioinst_handle_stcrw(CPUS390XState *env, uint32_t ipb)
++{
++    CRW *crw;
++    uint64_t addr;
++    int cc;
++
++    addr = ipb >> 28;
++    if (addr > 0) {
++        addr = env->regs[addr];
++    }
++    addr += (ipb & 0xfff0000) >> 16;
++    crw = s390_get_address(env, addr);
++    if (!crw) {
++        program_interrupt(env, PGM_SPECIFICATION, 2);
++        return -EIO;
++    }
++    if (addr < 8192) {
++        addr += env->psa;
++    } else if ((env->psa <= addr) && (addr < env->psa + 8192)) {
++        addr -= env->psa;
++    }
++    cc = css_do_stcrw(addr);
++    /* 0 - crw stored, 1 - zeroes stored */
++    return cc;
++}
++
++int ioinst_handle_stsch(CPUS390XState *env, uint64_t reg1, uint32_t ipb)
++{
++    int cssid, ssid, schid, m;
++    SubchDev *sch;
++    uint64_t addr;
++    int cc;
++
++    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++    trace_ioinst_sch_id("stsch", cssid, ssid, schid);
++    addr = ipb >> 28;
++    if (addr > 0) {
++        addr = env->regs[addr];
++    }
++    addr += (ipb & 0xfff0000) >> 16;
++    if (addr < 8192) {
++        addr += env->psa;
++    } else if ((env->psa <= addr) && (addr < env->psa + 8192)) {
++        addr -= env->psa;
++    }
++    if (!qemu_get_ram_ptr(addr)) {
++        program_interrupt(env, PGM_SPECIFICATION, 2);
++        return -EIO;
++    }
++    sch = css_find_subch(m, cssid, ssid, schid);
++    if (sch) {
++        if (css_subch_visible(sch)) {
++            css_do_stsch(sch, addr);
++            cc = 0;
++        } else {
++            /* Indicate no more subchannels in this css/ss */
++            cc = 3;
++        }
++    } else {
++        if (css_schid_final(cssid, ssid, schid)) {
++            cc = 3; /* No more subchannels in this css/ss */
++        } else {
++            int i;
++
++            /* Store an empty schib. */
++            for (i = 0; i < sizeof(SCHIB); i++) {
++                stb_phys(addr + i, 0);
++            }
++            cc = 0;
++        }
++    }
++    return cc;
++}
++
++int ioinst_handle_tsch(CPUS390XState *env, uint64_t reg1, uint32_t ipb)
++{
++    int cssid, ssid, schid, m;
++    SubchDev *sch;
++    IRB *irb;
++    uint64_t addr;
++    int ret = -ENODEV;
++    int cc;
++
++    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++    trace_ioinst_sch_id("tsch", cssid, ssid, schid);
++    addr = ipb >> 28;
++    if (addr > 0) {
++        addr = env->regs[addr];
++    }
++    addr += (ipb & 0xfff0000) >> 16;
++    irb = s390_get_address(env, addr);
++    if (!irb) {
++        program_interrupt(env, PGM_SPECIFICATION, 2);
++        return -EIO;
++    }
++    sch = css_find_subch(m, cssid, ssid, schid);
++    if (sch && css_subch_visible(sch)) {
++        if (addr < 8192) {
++            addr += env->psa;
++        } else if ((env->psa <= addr) && (addr < env->psa + 8192)) {
++            addr -= env->psa;
++        }
++        ret = css_do_tsch(sch, addr);
++        /* 0 - status pending, 1 - not status pending */
++        cc = ret;
++    } else {
++        cc = 3;
++    }
++    return cc;
++}
++
++typedef struct ChscReq {
++    uint16_t len;
++    uint16_t command;
++    uint32_t param0;
++    uint32_t param1;
++    uint32_t param2;
++} QEMU_PACKED ChscReq;
++
++typedef struct ChscResp {
++    uint16_t len;
++    uint16_t code;
++    uint32_t param;
++    char data[0];
++} QEMU_PACKED ChscResp;
++
++#define CHSC_SCPD 0x0002
++#define CHSC_SCSC 0x0010
++#define CHSC_SDA  0x0031
++
++static void ioinst_handle_chsc_scpd(ChscReq *req, ChscResp *res)
++{
++    uint16_t resp_code;
++    int rfmt;
++    uint16_t cssid;
++    uint8_t f_chpid, l_chpid;
++    int desc_size;
++    int m;
++
++    rfmt = (req->param0 & 0x00000f00) >> 8;
++    if ((rfmt == 0) ||  (rfmt == 1)) {
++        rfmt = (req->param0 & 0x10000000) >> 28;
++    }
++    if ((req->len != 0x0010) || (req->param0 & 0xc000f000) ||
++        (req->param1 & 0xffffff00) || req->param2) {
++        resp_code = 0x0003;
++        goto out_err;
++    }
++    if (req->param0 & 0x0f000000) {
++        resp_code = 0x0007;
++        goto out_err;
++    }
++    cssid = (req->param0 & 0x00ff0000) >> 16;
++    m = req->param0 & 0x20000000;
++    if (cssid != 0) {
++        if (!m || !css_present(cssid)) {
++            resp_code = 0x0008;
++            goto out_err;
++        }
++    }
++    f_chpid = req->param0 & 0x000000ff;
++    l_chpid = req->param1 & 0x000000ff;
++    if (l_chpid < f_chpid) {
++        resp_code = 0x0003;
++        goto out_err;
++    }
++    desc_size = css_collect_chp_desc(m, cssid, f_chpid, l_chpid, rfmt,
++                                     &res->data);
++    res->code = 0x0001;
++    res->len = 8 + desc_size;
++    res->param = rfmt;
++    return;
++
++  out_err:
++    res->code = resp_code;
++    res->len = 8;
++    res->param = rfmt;
++}
++
++static void ioinst_handle_chsc_scsc(ChscReq *req, ChscResp *res)
++{
++    uint8_t cssid;
++    uint16_t resp_code;
++    uint32_t general_chars[510];
++    uint32_t chsc_chars[508];
++
++    if (req->param0 & 0x000f0000) {
++        resp_code = 0x0007;
++        goto out_err;
++    }
++    cssid = (req->param0 & 0x0000ff00) >> 8;
++    if (cssid != 0) {
++        if (!(req->param0 & 0x20000000) || !css_present(cssid)) {
++            resp_code = 0x0008;
++            goto out_err;
++        }
++    }
++    if ((req->param0 & 0xdff000ff) || req->param1 || req->param2) {
++        resp_code = 0x0003;
++        goto out_err;
++    }
++    res->code = 0x0001;
++    res->len = 4080;
++    res->param = 0;
++
++    memset(general_chars, 0, sizeof(general_chars));
++    memset(chsc_chars, 0, sizeof(chsc_chars));
++
++    general_chars[0] = 0x03000000;
++    general_chars[1] = 0x00059000;
++
++    chsc_chars[0] = 0x40000000;
++    chsc_chars[3] = 0x00040000;
++
++    memcpy(res->data, general_chars, sizeof(general_chars));
++    memcpy(res->data + sizeof(general_chars), chsc_chars, sizeof(chsc_chars));
++    return;
++
++  out_err:
++    res->code = resp_code;
++    res->len = 8;
++    res->param = 0;
++}
++
++#define CHSC_SDA_OC_MCSSE 0x0
++#define CHSC_SDA_OC_MSS 0x2
++static void ioinst_handle_chsc_sda(ChscReq *req, ChscResp *res)
++{
++    uint16_t resp_code = 0x0001;
++    uint16_t oc;
++    int ret;
++
++    if ((req->len != 0x0400) || (req->param0 & 0xf0ff0000)) {
++        resp_code = 0x0003;
++        goto out;
++    }
++
++    if (req->param0 & 0x0f000000) {
++        resp_code = 0x0007;
++        goto out;
++    }
++
++    oc = req->param0 & 0x0000ffff;
++    switch (oc) {
++    case CHSC_SDA_OC_MCSSE:
++        ret = css_enable_mcsse();
++        if (ret == -EINVAL) {
++            resp_code = 0x0101;
++            goto out;
++        }
++        break;
++    case CHSC_SDA_OC_MSS:
++        ret = css_enable_mss();
++        if (ret == -EINVAL) {
++            resp_code = 0x0101;
++            goto out;
++        }
++        break;
++    default:
++        resp_code = 0x0003;
++        goto out;
++    }
++
++out:
++    res->code = resp_code;
++    res->len = 8;
++    res->param = 0;
++}
++
++static void ioinst_handle_chsc_unimplemented(ChscResp *res)
++{
++    res->len = 8;
++    res->code = 0x0004;
++    res->param = 0;
++}
++
++int ioinst_handle_chsc(CPUS390XState *env, uint32_t ipb)
++{
++    ChscReq *req;
++    ChscResp *res;
++    uint64_t addr;
++    int reg;
++
++    trace_ioinst("chsc");
++    reg = (ipb >> 20) & 0x00f;
++    addr = env->regs[reg];
++    req = s390_get_address(env, addr);
++    if (!req) {
++        program_interrupt(env, PGM_SPECIFICATION, 2);
++        return -EIO;
++    }
++    if (!env->chsc_page) {
++        env->chsc_page = g_malloc0(TARGET_PAGE_SIZE);
++    } else {
++        memset(env->chsc_page, 0, TARGET_PAGE_SIZE);
++    }
++    res = env->chsc_page;
++    trace_ioinst_chsc_cmd(req->command, req->len);
++    switch (req->command) {
++    case CHSC_SCSC:
++        ioinst_handle_chsc_scsc(req, res);
++        break;
++    case CHSC_SCPD:
++        ioinst_handle_chsc_scpd(req, res);
++        break;
++    case CHSC_SDA:
++        ioinst_handle_chsc_sda(req, res);
++        break;
++    default:
++        ioinst_handle_chsc_unimplemented(res);
++        break;
++    }
++    if (addr < 8192) {
++        addr += env->psa;
++    } else if ((env->psa <= addr) && (addr < env->psa + 8192)) {
++        addr -= env->psa;
++    }
++    cpu_physical_memory_write(addr + req->len, res, res->len);
++    return 0;
++}
++
++int ioinst_handle_tpi(CPUS390XState *env, uint32_t ipb)
++{
++    uint64_t addr;
++    int lowcore;
++
++    trace_ioinst("tpi");
++    addr = ipb >> 28;
++    if (addr > 0) {
++        addr = env->regs[addr];
++    }
++    addr += (ipb & 0xfff0000) >> 16;
++    lowcore = addr ? 0 : 1;
++    if (addr < 8192) {
++        addr += env->psa;
++    } else if ((env->psa <= addr) && (addr < env->psa + 8192)) {
++        addr -= env->psa;
++    }
++    return css_do_tpi(addr, lowcore);
++}
++
++int ioinst_handle_schm(CPUS390XState *env, uint64_t reg1, uint64_t reg2,
++                       uint32_t ipb)
++{
++    uint8_t mbk;
++    int update;
++    int dct;
++
++    trace_ioinst("schm");
++
++    if (reg1 & 0x000000000ffffffc) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++
++    mbk = (reg1 & 0x00000000f0000000) >> 28;
++    update = (reg1 & 0x0000000000000002) >> 1;
++    dct = reg1 & 0x0000000000000001;
++
++    if (update && (reg2 & 0x0000000000000fff)) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++
++    css_do_schm(mbk, update, dct, update ? reg2 : 0);
++
++    return 0;
++}
++
++int ioinst_handle_rsch(CPUS390XState *env, uint64_t reg1)
++{
++    int cssid, ssid, schid, m;
++    SubchDev *sch;
++    int ret = -ENODEV;
++    int cc;
++
++    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++    trace_ioinst_sch_id("rsch", cssid, ssid, schid);
++    sch = css_find_subch(m, cssid, ssid, schid);
++    if (sch && css_subch_visible(sch)) {
++        ret = css_do_rsch(sch);
++    }
++    switch (ret) {
++    case -ENODEV:
++        cc = 3;
++        break;
++    case -EINVAL:
++        cc = 2;
++        break;
++    case 0:
++        cc = 0;
++        break;
++    default:
++        cc = 1;
++        break;
++    }
++
++    return cc;
++
++}
++
++int ioinst_handle_rchp(CPUS390XState *env, uint64_t reg1)
++{
++    int cc;
++    uint8_t cssid;
++    uint8_t chpid;
++    int ret;
++
++    if (reg1 & 0xff00ff00) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++
++    cssid = (reg1 >> 16) & 0xff;
++    chpid = reg1 & 0xff;
++
++    trace_ioinst_chp_id("rchp", cssid, chpid);
++
++    ret = css_do_rchp(cssid, chpid);
++
++    switch (ret) {
++    case -ENODEV:
++        cc = 3;
++        break;
++    case -EBUSY:
++        cc = 2;
++        break;
++    case 0:
++        cc = 0;
++        break;
++    default:
++        /* Invalid channel subsystem. */
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++
++    return cc;
++}
++
++int ioinst_handle_sal(CPUS390XState *env, uint64_t reg1)
++{
++    /* We do not provide address limit checking, so let's suppress it. */
++    if (env->regs[1] & 0x000000008000ffff) {
++        program_interrupt(env, PGM_OPERAND, 2);
++        return -EIO;
++    }
++    return 0;
++}
+diff --git a/target-s390x/ioinst.h b/target-s390x/ioinst.h
+index b5b4a03..e5f54f5 100644
+--- a/target-s390x/ioinst.h
++++ b/target-s390x/ioinst.h
+@@ -204,4 +204,20 @@ typedef struct CRW {
  
- /* machine type bits, to be used as argument to KVM_CREATE_VM */
-@@ -626,6 +650,8 @@ struct kvm_ppc_smmu_info {
- #define KVM_CAP_READONLY_MEM 81
+ int ioinst_disassemble_sch_ident(uint32_t value, int *m, int *cssid, int *ssid,
+                                  int *schid);
++int ioinst_handle_xsch(CPUS390XState *env, uint64_t reg1);
++int ioinst_handle_csch(CPUS390XState *env, uint64_t reg1);
++int ioinst_handle_hsch(CPUS390XState *env, uint64_t reg1);
++int ioinst_handle_msch(CPUS390XState *env, uint64_t reg1, uint32_t ipb);
++int ioinst_handle_ssch(CPUS390XState *env, uint64_t reg1, uint32_t ipb);
++int ioinst_handle_stcrw(CPUS390XState *env, uint32_t ipb);
++int ioinst_handle_stsch(CPUS390XState *env, uint64_t reg1, uint32_t ipb);
++int ioinst_handle_tsch(CPUS390XState *env, uint64_t reg1, uint32_t ipb);
++int ioinst_handle_chsc(CPUS390XState *env, uint32_t ipb);
++int ioinst_handle_tpi(CPUS390XState *env, uint32_t ipb);
++int ioinst_handle_schm(CPUS390XState *env, uint64_t reg1, uint64_t reg2,
++                       uint32_t ipb);
++int ioinst_handle_rsch(CPUS390XState *env, uint64_t reg1);
++int ioinst_handle_rchp(CPUS390XState *env, uint64_t reg1);
++int ioinst_handle_sal(CPUS390XState *env, uint64_t reg1);
++
  #endif
- #define KVM_CAP_IRQFD_RESAMPLE 82
-+#define KVM_CAP_PPC_BOOKE_WATCHDOG 83
-+#define KVM_CAP_S390_CSS_SUPPORT 84
- 
- #ifdef KVM_CAP_IRQ_ROUTING
- 
-@@ -848,6 +874,9 @@ struct kvm_s390_ucas_mapping {
- #define KVM_PPC_GET_SMMU_INFO	  _IOR(KVMIO,  0xa6, struct kvm_ppc_smmu_info)
- /* Available with KVM_CAP_PPC_ALLOC_HTAB */
- #define KVM_PPC_ALLOCATE_HTAB	  _IOWR(KVMIO, 0xa7, __u32)
-+#define KVM_CREATE_SPAPR_TCE	  _IOW(KVMIO,  0xa8, struct kvm_create_spapr_tce)
-+/* Available with KVM_CAP_RMA */
-+#define KVM_ALLOCATE_RMA	  _IOR(KVMIO,  0xa9, struct kvm_allocate_rma)
- 
- /*
-  * ioctls for vcpu fds
-@@ -911,9 +940,6 @@ struct kvm_s390_ucas_mapping {
- /* Available with KVM_CAP_XCRS */
- #define KVM_GET_XCRS		  _IOR(KVMIO,  0xa6, struct kvm_xcrs)
- #define KVM_SET_XCRS		  _IOW(KVMIO,  0xa7, struct kvm_xcrs)
--#define KVM_CREATE_SPAPR_TCE	  _IOW(KVMIO,  0xa8, struct kvm_create_spapr_tce)
--/* Available with KVM_CAP_RMA */
--#define KVM_ALLOCATE_RMA	  _IOR(KVMIO,  0xa9, struct kvm_allocate_rma)
- /* Available with KVM_CAP_SW_TLB */
- #define KVM_DIRTY_TLB		  _IOW(KVMIO,  0xaa, struct kvm_dirty_tlb)
- /* Available with KVM_CAP_ONE_REG */
+diff --git a/trace-events b/trace-events
+index 6c6cbf1..af50c68 100644
+--- a/trace-events
++++ b/trace-events
+@@ -1022,3 +1022,9 @@ spapr_pci_rtas_ibm_change_msi(unsigned func, unsigned req) "func %u, requested %
+ spapr_pci_rtas_ibm_query_interrupt_source_number(unsigned ioa, unsigned intr) "queries for #%u, IRQ%u"
+ spapr_pci_msi_write(uint64_t addr, uint64_t data, uint32_t dt_irq) "@%"PRIx64"<=%"PRIx64" IRQ %u"
+ spapr_pci_lsi_set(const char *busname, int pin, uint32_t irq) "%s PIN%d IRQ %u"
++
++# target-s390x/ioinst.c
++ioinst(const char *insn) "IOINST: %s"
++ioinst_sch_id(const char *insn, int cssid, int ssid, int schid) "IOINST: %s (%x.%x.%04x)"
++ioinst_chp_id(const char *insn, int cssid, int chpid) "IOINST: %s (%x.%02x)"
++ioinst_chsc_cmd(uint16_t cmd, uint16_t len) "IOINST: chsc command %04x, len %04x"
 -- 
 1.7.12.4
