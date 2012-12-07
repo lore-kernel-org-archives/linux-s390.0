@@ -1,98 +1,52 @@
-From: Jianguo Wu <wujianguo@huawei.com>
-Subject: Re: [Patch v4 09/12] memory-hotplug: remove page table of x86_64
- architecture
-Date: Fri, 7 Dec 2012 15:06:16 +0800
-Message-ID: <50C19568.7080500@huawei.com>
-References: <1354010422-19648-1-git-send-email-wency@cn.fujitsu.com> <1354010422-19648-10-git-send-email-wency@cn.fujitsu.com> <50C19022.9000501@cn.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <50C19022.9000501@cn.fujitsu.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Tang Chen <tangchen@cn.fujitsu.com>
-Cc: Wen Congyang <wency@cn.fujitsu.com>, x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org, David Rientjes <rientjes@google.com>, Jiang Liu <liuj97@gmail.com>, Len Brown <len.brown@intel.com>, benh@kernel.crashing.org, paulus@samba.org, Christoph Lameter <cl@linux.com>, Minchan Kim <minchan.kim@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>, Jiang Liu <jiang.liu@huawei.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH 2/5] s390: Move css limits from drivers/s390/cio/ to include/asm/.
+Date: Fri,  7 Dec 2012 13:29:26 +0100
+Message-ID: <1354883369-36537-3-git-send-email-cornelia.huck@de.ibm.com>
+References: <1354883369-36537-1-git-send-email-cornelia.huck@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1354883369-36537-1-git-send-email-cornelia.huck@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+Cc: Avi Kivity <avi.kivity@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 2012/12/7 14:43, Tang Chen wrote:
+There's no need to keep __MAX_SUBCHANNEL and __MAX_SSID private to the
+common I/O layer when __MAX_CSSID is usable by everybody.
 
-> On 11/27/2012 06:00 PM, Wen Congyang wrote:
->> For hot removing memory, we sholud remove page table about the memory.
->> So the patch searches a page table about the removed memory, and clear
->> page table.
-> 
-> (snip)
-> 
->> +void __meminit
->> +kernel_physical_mapping_remove(unsigned long start, unsigned long end)
->> +{
->> +    unsigned long next;
->> +    bool pgd_changed = false;
->> +
->> +    start = (unsigned long)__va(start);
->> +    end = (unsigned long)__va(end);
-> 
-> Hi Wu,
-> 
-> Here, you expect start and end are physical addresses. But in
-> phys_xxx_remove() function, I think using virtual addresses is just
-> fine. Functions like pmd_addr_end() and pud_index() only calculate
-> an offset.
->
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ arch/s390/include/asm/cio.h | 2 ++
+ drivers/s390/cio/css.h      | 3 ---
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-Hi Tang,
-
+diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
+index 55bde60..ad2b924 100644
+--- a/arch/s390/include/asm/cio.h
++++ b/arch/s390/include/asm/cio.h
+@@ -9,6 +9,8 @@
  
-
-Virtual addresses will work fine, I used physical addresses in order to
-keep consistent with phys_pud[pmd/pte]_init(), So I think we should keep this.
-
-Thanks,
-Jianguo Wu
-
-> So, would you please tell me if we have to use physical addresses here ?
-> 
-> Thanks. :)
-> 
->> +
->> +    for (; start<  end; start = next) {
->> +        pgd_t *pgd = pgd_offset_k(start);
->> +        pud_t *pud;
->> +
->> +        next = pgd_addr_end(start, end);
->> +
->> +        if (!pgd_present(*pgd))
->> +            continue;
->> +
->> +        pud = map_low_page((pud_t *)pgd_page_vaddr(*pgd));
->> +        phys_pud_remove(pud, __pa(start), __pa(next));
->> +        if (free_pud_table(pud, pgd))
->> +            pgd_changed = true;
->> +        unmap_low_page(pud);
->> +    }
->> +
->> +    if (pgd_changed)
->> +        sync_global_pgds(start, end - 1);
->> +
->> +    flush_tlb_all();
->> +}
->> +
->>   #ifdef CONFIG_MEMORY_HOTREMOVE
->>   int __ref arch_remove_memory(u64 start, u64 size)
->>   {
->> @@ -692,6 +921,8 @@ int __ref arch_remove_memory(u64 start, u64 size)
->>       ret = __remove_pages(zone, start_pfn, nr_pages);
->>       WARN_ON_ONCE(ret);
->>
->> +    kernel_physical_mapping_remove(start, start + size);
->> +
->>       return ret;
->>   }
->>   #endif
-> 
-> 
-> 
-> .
-> 
+ #define LPM_ANYPATH 0xff
+ #define __MAX_CSSID 0
++#define __MAX_SUBCHANNEL 65535
++#define __MAX_SSID 3
+ 
+ #include <asm/scsw.h>
+ 
+diff --git a/drivers/s390/cio/css.h b/drivers/s390/cio/css.h
+index 33bb4d8..4af3dfe 100644
+--- a/drivers/s390/cio/css.h
++++ b/drivers/s390/cio/css.h
+@@ -112,9 +112,6 @@ extern int for_each_subchannel(int(*fn)(struct subchannel_id, void *), void *);
+ extern void css_reiterate_subchannels(void);
+ void css_update_ssd_info(struct subchannel *sch);
+ 
+-#define __MAX_SUBCHANNEL 65535
+-#define __MAX_SSID 3
+-
+ struct channel_subsystem {
+ 	u8 cssid;
+ 	int valid;
+-- 
+1.7.12.4
