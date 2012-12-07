@@ -1,25 +1,32 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Mon, 03 Dec 2012 16:02:36 +0000
-Subject: Re: [PATCH -next] s390/pci: fix potential NULL pointer dereference in dma_free_seg_table()
-Message-Id: <20121203110236.15958af0@mschwide>
-In-Reply-To: <CAPgLHd-CdtheHfnGzpogmgV8_3of8Px2gZKokgt7PtgCFUSPFQ@mail.gmail.com>
-References: <CAPgLHd-CdtheHfnGzpogmgV8_3of8Px2gZKokgt7PtgCFUSPFQ@mail.gmail.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Fri, 07 Dec 2012 14:39:19 +0000
+Subject: Re: qethconf does not work correctly over bonding devices
+Message-Id: <1354891159.24668.7.camel@BR9GV9YG.de.ibm.com>
+In-Reply-To: <50C1E7C5.3020607@gmail.com>
+References: <50C1E7C5.3020607@gmail.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 3 Dec 2012 08:08:23 -0500
-Wei Yongjun <weiyj.lk@gmail.com> wrote:
-
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+> On 12/07/2012 01:55 PM, Xose Vazquez Perez wrote:
+> > hi,
+> >
+> > # qethconf vipa add "IP" bond0 : up and running.
+> >
+> > # qethconf vipa del "IP" bond0 : it does not work.
+> >
+> > # qethconf list_all : this shows nothing.
+> >
+> > tested on SLES 10-SP4, LPAR z10 2097 E64
+> >
+> > -thanks-
 > 
-> The dereference to 'zdev' should be moved below the NULL test.
-> 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+> done with s390-tools-1.17.0
 
-Added this patch as well. Thanks again.
+What do you want to configure here? Mixing qethconf with a bonding
+interface does not make sense. qethconf is a configuration tool for
+OSA-Express cards in Layer3 mode; thus it should be used for qeth
+interfaces only, not for bonding interfaces. Bonding on the other side
+requires Layer2 slaves; thus there is no need to make use of qethconf
+for OSA bonding slaves.
 
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Kind regards, Ursula Braun, IBM Germany
