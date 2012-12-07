@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 5/5] KVM: s390: Add support for channel I/O instructions.
-Date: Fri,  7 Dec 2012 13:30:25 +0100
-Message-ID: <1354883425-38531-6-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 1/5] KVM: s390: Support for I/O interrupts.
+Date: Fri,  7 Dec 2012 13:30:21 +0100
+Message-ID: <1354883425-38531-2-git-send-email-cornelia.huck@de.ibm.com>
 References: <1354883425-38531-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1354883425-38531-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,397 +12,257 @@ To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, KVM <
 Cc: Avi Kivity <avi.kivity@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Add a new capability, KVM_CAP_S390_CSS_SUPPORT, which will pass
-intercepts for channel I/O instructions to userspace. Only I/O
-instructions interacting with I/O interrupts need to be handled
-in-kernel:
+Add support for handling I/O interrupts (standard, subchannel-related
+ones and rudimentary adapter interrupts).
 
-- TEST PENDING INTERRUPTION (tpi) dequeues and stores pending
-  interrupts entirely in-kernel.
-- TEST SUBCHANNEL (tsch) dequeues pending interrupts in-kernel
-  and exits via KVM_EXIT_S390_TSCH to userspace for subchannel-
-  related processing.
+The subchannel-identifying parameters are encoded into the interrupt
+type.
+
+I/O interrupts are floating, so they can't be injected on a specific
+vcpu.
 
 Reviewed-by: Marcelo Tosatti <mtosatti@redhat.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- Documentation/virtual/kvm/api.txt | 30 ++++++++++++
- arch/s390/include/asm/kvm_host.h  |  1 +
- arch/s390/kvm/intercept.c         |  1 +
- arch/s390/kvm/interrupt.c         | 37 +++++++++++++++
- arch/s390/kvm/kvm-s390.c          | 12 +++++
- arch/s390/kvm/kvm-s390.h          |  2 +
- arch/s390/kvm/priv.c              | 96 +++++++++++++++++++++++++++++++++++++--
- arch/s390/kvm/trace-s390.h        | 20 ++++++++
- include/trace/events/kvm.h        |  2 +-
- include/uapi/linux/kvm.h          | 11 +++++
- 10 files changed, 207 insertions(+), 5 deletions(-)
+ Documentation/virtual/kvm/api.txt |   4 ++
+ arch/s390/include/asm/kvm_host.h  |   2 +
+ arch/s390/kvm/interrupt.c         | 115 ++++++++++++++++++++++++++++++++++++--
+ include/uapi/linux/kvm.h          |   6 ++
+ 4 files changed, 122 insertions(+), 5 deletions(-)
 
 diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index bba630b..f7627c9 100644
+index 6671fdc..e298a72 100644
 --- a/Documentation/virtual/kvm/api.txt
 +++ b/Documentation/virtual/kvm/api.txt
-@@ -2295,6 +2295,22 @@ The possible hypercalls are defined in the Power Architecture Platform
- Requirements (PAPR) document available from www.power.org (free
- developer registration required to access it).
+@@ -2068,6 +2068,10 @@ KVM_S390_INT_VIRTIO (vm) - virtio external interrupt; external interrupt
+ KVM_S390_INT_SERVICE (vm) - sclp external interrupt; sclp parameter in parm
+ KVM_S390_INT_EMERGENCY (vcpu) - sigp emergency; source cpu in parm
+ KVM_S390_INT_EXTERNAL_CALL (vcpu) - sigp external call; source cpu in parm
++KVM_S390_INT_IO(ai,cssid,ssid,schid) (vm) - compound value to indicate an
++    I/O interrupt (ai - adapter interrupt; cssid,ssid,schid - subchannel);
++    I/O interruption parameters in parm (subchannel) and parm64 (intparm,
++    interruption subclass)
  
-+		/* KVM_EXIT_S390_TSCH */
-+		struct {
-+			__u16 subchannel_id;
-+			__u16 subchannel_nr;
-+			__u32 io_int_parm;
-+			__u32 io_int_word;
-+			__u32 ipb;
-+			__u8 dequeued;
-+		} s390_tsch;
-+
-+s390 specific. This exit occurs when KVM_CAP_S390_CSS_SUPPORT has been enabled
-+and TEST SUBCHANNEL was intercepted. If dequeued is set, a pending I/O
-+interrupt for the target subchannel has been dequeued and subchannel_id,
-+subchannel_nr, io_int_parm and io_int_word contain the parameters for that
-+interrupt. ipb is needed for instruction parameter decoding.
-+
- 		/* Fix the size of the union. */
- 		char padding[256];
- 	};
-@@ -2416,3 +2432,17 @@ For mmu types KVM_MMU_FSL_BOOKE_NOHV and KVM_MMU_FSL_BOOKE_HV:
-    where "num_sets" is the tlb_sizes[] value divided by the tlb_ways[] value.
-  - The tsize field of mas1 shall be set to 4K on TLB0, even though the
-    hardware ignores this value for TLB0.
-+
-+6.4 KVM_CAP_S390_CSS_SUPPORT
-+
-+Architectures: s390
-+Parameters: none
-+Returns: 0 on success; -1 on error
-+
-+This capability enables support for handling of channel I/O instructions.
-+
-+TEST PENDING INTERRUPTION and the interrupt portion of TEST SUBCHANNEL are
-+handled in-kernel, while the other I/O instructions are passed to userspace.
-+
-+When this capability is enabled, KVM_EXIT_S390_TSCH will occur on TEST
-+SUBCHANNEL intercepts.
+ Note that the vcpu ioctl is asynchronous to vcpu execution.
+ 
 diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 773859e..091c581 100644
+index b784154..e47f697 100644
 --- a/arch/s390/include/asm/kvm_host.h
 +++ b/arch/s390/include/asm/kvm_host.h
-@@ -264,6 +264,7 @@ struct kvm_arch{
- 	debug_info_t *dbf;
- 	struct kvm_s390_float_interrupt float_int;
- 	struct gmap *gmap;
-+	int css_support;
- };
- 
- extern int sie64a(struct kvm_s390_sie_block *, u64 *);
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 754dc9e..9ab2efd 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -273,6 +273,7 @@ static const intercept_handler_t intercept_funcs[] = {
- 	[0x0C >> 2] = handle_instruction_and_prog,
- 	[0x10 >> 2] = handle_noop,
- 	[0x14 >> 2] = handle_noop,
-+	[0x18 >> 2] = handle_noop,
- 	[0x1C >> 2] = kvm_s390_handle_wait,
- 	[0x20 >> 2] = handle_validity,
- 	[0x28 >> 2] = handle_stop,
+@@ -76,6 +76,7 @@ struct kvm_s390_sie_block {
+ 	__u64	epoch;			/* 0x0038 */
+ 	__u8	reserved40[4];		/* 0x0040 */
+ #define LCTL_CR0	0x8000
++#define LCTL_CR6	0x0200
+ 	__u16   lctl;			/* 0x0044 */
+ 	__s16	icpua;			/* 0x0046 */
+ 	__u32	ictl;			/* 0x0048 */
+@@ -127,6 +128,7 @@ struct kvm_vcpu_stat {
+ 	u32 deliver_prefix_signal;
+ 	u32 deliver_restart_signal;
+ 	u32 deliver_program_int;
++	u32 deliver_io_int;
+ 	u32 exit_wait_state;
+ 	u32 instruction_stidp;
+ 	u32 instruction_spx;
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 6b10267..495a411 100644
+index c30615e..070ba22 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -714,6 +714,43 @@ int kvm_s390_inject_program_int(struct kvm_vcpu *vcpu, u16 code)
- 	return 0;
- }
+@@ -21,11 +21,26 @@
+ #include "gaccess.h"
+ #include "trace-s390.h"
  
-+struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
-+						    u64 cr6, u64 schid)
-+{
-+	struct kvm_s390_float_interrupt *fi;
-+	struct kvm_s390_interrupt_info *inti, *iter;
++#define IOINT_SCHID_MASK 0x0000ffff
++#define IOINT_SSID_MASK 0x00030000
++#define IOINT_CSSID_MASK 0x03fc0000
++#define IOINT_AI_MASK 0x04000000
 +
-+	if ((!schid && !cr6) || (schid && cr6))
-+		return NULL;
-+	mutex_lock(&kvm->lock);
-+	fi = &kvm->arch.float_int;
-+	spin_lock(&fi->lock);
-+	inti = NULL;
-+	list_for_each_entry(iter, &fi->list, list) {
-+		if (!is_ioint(iter->type))
-+			continue;
-+		if (cr6 && ((cr6 & iter->io.io_int_word) == 0))
-+			continue;
-+		if (schid) {
-+			if (((schid & 0x00000000ffff0000) >> 16) !=
-+			    iter->io.subchannel_id)
-+				continue;
-+			if ((schid & 0x000000000000ffff) !=
-+			    iter->io.subchannel_nr)
-+				continue;
-+		}
-+		inti = iter;
-+		break;
-+	}
-+	if (inti)
-+		list_del_init(&inti->list);
-+	if (list_empty(&fi->list))
-+		atomic_set(&fi->active, 0);
-+	spin_unlock(&fi->lock);
-+	mutex_unlock(&kvm->lock);
-+	return inti;
++static int is_ioint(u64 type)
++{
++	return ((type & 0xfffe0000u) != 0xfffe0000u);
 +}
 +
- int kvm_s390_inject_vm(struct kvm *kvm,
- 		       struct kvm_s390_interrupt *s390int)
+ static int psw_extint_disabled(struct kvm_vcpu *vcpu)
  {
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index c015f6f..c30257b 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -141,6 +141,7 @@ int kvm_dev_ioctl_check_extension(long ext)
- 	case KVM_CAP_SYNC_REGS:
- 	case KVM_CAP_ONE_REG:
- 	case KVM_CAP_ENABLE_CAP:
-+	case KVM_CAP_S390_CSS_SUPPORT:
- 		r = 1;
- 		break;
- 	case KVM_CAP_NR_VCPUS:
-@@ -235,6 +236,9 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 		if (!kvm->arch.gmap)
- 			goto out_nogmap;
- 	}
-+
-+	kvm->arch.css_support = 0;
-+
- 	return 0;
- out_nogmap:
- 	debug_unregister(kvm->arch.dbf);
-@@ -662,6 +666,7 @@ rerun_vcpu:
- 	case KVM_EXIT_INTR:
- 	case KVM_EXIT_S390_RESET:
- 	case KVM_EXIT_S390_UCONTROL:
-+	case KVM_EXIT_S390_TSCH:
- 		break;
- 	default:
- 		BUG();
-@@ -822,6 +827,13 @@ static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
- 		return -EINVAL;
- 
- 	switch (cap->cap) {
-+	case KVM_CAP_S390_CSS_SUPPORT:
-+		if (!vcpu->kvm->arch.css_support) {
-+			vcpu->kvm->arch.css_support = 1;
-+			trace_kvm_s390_enable_css(vcpu->kvm);
-+		}
-+		r = 0;
-+		break;
- 	default:
- 		r = -EINVAL;
- 		break;
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 7f50229..14a417f 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -76,6 +76,8 @@ int kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
- 		struct kvm_s390_interrupt *s390int);
- int kvm_s390_inject_program_int(struct kvm_vcpu *vcpu, u16 code);
- int kvm_s390_inject_sigp_stop(struct kvm_vcpu *vcpu, int action);
-+struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
-+						    u64 cr6, u64 schid);
- 
- /* implemented in priv.c */
- int kvm_s390_handle_b2(struct kvm_vcpu *vcpu);
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index e85f461..22eb993 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -135,15 +135,103 @@ static int handle_skey(struct kvm_vcpu *vcpu)
- 	return 0;
+ 	return !(vcpu->arch.sie_block->gpsw.mask & PSW_MASK_EXT);
  }
  
--static int handle_io_inst(struct kvm_vcpu *vcpu)
-+static int handle_tpi(struct kvm_vcpu *vcpu)
++static int psw_ioint_disabled(struct kvm_vcpu *vcpu)
++{
++	return !(vcpu->arch.sie_block->gpsw.mask & PSW_MASK_IO);
++}
++
+ static int psw_interrupts_disabled(struct kvm_vcpu *vcpu)
  {
--	VCPU_EVENT(vcpu, 4, "%s", "I/O instruction");
--	/* condition code 3 */
-+	u32 ipb = vcpu->arch.sie_block->ipb;
-+	u64 addr;
-+	struct kvm_s390_interrupt_info *inti;
-+	int cc;
-+
-+	addr = ipb >> 28;
-+	if (addr > 0)
-+		addr = vcpu->run->s.regs.gprs[addr];
-+
-+	addr += (ipb & 0xfff0000) >> 16;
-+
-+	inti = kvm_s390_get_io_int(vcpu->kvm, vcpu->run->s.regs.crs[6], 0);
-+	if (inti) {
-+		if (addr) {
-+			/*
-+			 * Store the two-word I/O interruption code into the
-+			 * provided area.
-+			 */
-+			put_guest_u16(vcpu, addr, inti->io.subchannel_id);
-+			put_guest_u16(vcpu, addr + 2, inti->io.subchannel_nr);
-+			put_guest_u32(vcpu, addr + 4, inti->io.io_int_parm);
+ 	if ((vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PER) ||
+@@ -68,7 +83,18 @@ static int __interrupt_is_deliverable(struct kvm_vcpu *vcpu,
+ 	case KVM_S390_RESTART:
+ 		return 1;
+ 	default:
+-		BUG();
++		if (is_ioint(inti->type)) {
++			if (psw_ioint_disabled(vcpu))
++				return 0;
++			if (vcpu->arch.sie_block->gcr[6] &
++			    inti->io.io_int_word)
++				return 1;
++			return 0;
 +		} else {
-+			/*
-+			 * Store the three-word I/O interruption code into
-+			 * the appropriate lowcore area.
-+			 */
-+			put_guest_u16(vcpu, 184, inti->io.subchannel_id);
-+			put_guest_u16(vcpu, 186, inti->io.subchannel_nr);
-+			put_guest_u32(vcpu, 188, inti->io.io_int_parm);
-+			put_guest_u32(vcpu, 192, inti->io.io_int_word);
++			printk(KERN_WARNING "illegal interrupt type %llx\n",
++			       inti->type);
++			BUG();
 +		}
-+		cc = 1;
-+	} else
-+		cc = 0;
-+	kfree(inti);
-+	/* Set condition code and we're done. */
- 	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
--	vcpu->arch.sie_block->gpsw.mask |= (3 & 3ul) << 44;
-+	vcpu->arch.sie_block->gpsw.mask |= (cc & 3ul) << 44;
+ 	}
  	return 0;
  }
+@@ -117,6 +143,13 @@ static void __set_intercept_indicator(struct kvm_vcpu *vcpu,
+ 		__set_cpuflag(vcpu, CPUSTAT_STOP_INT);
+ 		break;
+ 	default:
++		if (is_ioint(inti->type)) {
++			if (psw_ioint_disabled(vcpu))
++				__set_cpuflag(vcpu, CPUSTAT_IO_INT);
++			else
++				vcpu->arch.sie_block->lctl |= LCTL_CR6;
++			break;
++		}
+ 		BUG();
+ 	}
+ }
+@@ -298,7 +331,49 @@ static void __do_deliver_interrupt(struct kvm_vcpu *vcpu,
+ 		break;
  
-+static int handle_tsch(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_s390_interrupt_info *inti;
+ 	default:
+-		BUG();
++		if (is_ioint(inti->type)) {
++			__u32 param0 = ((__u32)inti->io.subchannel_id << 16) |
++				inti->io.subchannel_nr;
++			__u64 param1 = ((__u64)inti->io.io_int_parm << 32) |
++				inti->io.io_int_word;
++			VCPU_EVENT(vcpu, 4,
++				   "interrupt: I/O %llx", inti->type);
++			vcpu->stat.deliver_io_int++;
++			trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, inti->type,
++							 param0, param1);
++			rc = put_guest_u16(vcpu, __LC_SUBCHANNEL_ID,
++					   inti->io.subchannel_id);
++			if (rc == -EFAULT)
++				exception = 1;
 +
-+	inti = kvm_s390_get_io_int(vcpu->kvm, 0,
-+				   vcpu->run->s.regs.gprs[1]);
++			rc = put_guest_u16(vcpu, __LC_SUBCHANNEL_NR,
++					   inti->io.subchannel_nr);
++			if (rc == -EFAULT)
++				exception = 1;
 +
-+	/*
-+	 * Prepare exit to userspace.
-+	 * We indicate whether we dequeued a pending I/O interrupt
-+	 * so that userspace can re-inject it if the instruction gets
-+	 * a program check. While this may re-order the pending I/O
-+	 * interrupts, this is no problem since the priority is kept
-+	 * intact.
-+	 */
-+	vcpu->run->exit_reason = KVM_EXIT_S390_TSCH;
-+	vcpu->run->s390_tsch.dequeued = !!inti;
-+	if (inti) {
-+		vcpu->run->s390_tsch.subchannel_id = inti->io.subchannel_id;
-+		vcpu->run->s390_tsch.subchannel_nr = inti->io.subchannel_nr;
-+		vcpu->run->s390_tsch.io_int_parm = inti->io.io_int_parm;
-+		vcpu->run->s390_tsch.io_int_word = inti->io.io_int_word;
-+	}
-+	vcpu->run->s390_tsch.ipb = vcpu->arch.sie_block->ipb;
-+	kfree(inti);
-+	return -EREMOTE;
-+}
++			rc = put_guest_u32(vcpu, __LC_IO_INT_PARM,
++					   inti->io.io_int_parm);
++			if (rc == -EFAULT)
++				exception = 1;
 +
-+static int handle_io_inst(struct kvm_vcpu *vcpu)
-+{
-+	VCPU_EVENT(vcpu, 4, "%s", "I/O instruction");
++			rc = put_guest_u32(vcpu, __LC_IO_INT_WORD,
++					   inti->io.io_int_word);
++			if (rc == -EFAULT)
++				exception = 1;
 +
-+	if (vcpu->kvm->arch.css_support) {
-+		/*
-+		 * Most I/O instructions will be handled by userspace.
-+		 * Exceptions are tpi and the interrupt portion of tsch.
-+		 */
-+		if (vcpu->arch.sie_block->ipa == 0xb236)
-+			return handle_tpi(vcpu);
-+		if (vcpu->arch.sie_block->ipa == 0xb235)
-+			return handle_tsch(vcpu);
-+		/* Handle in userspace. */
-+		return -EOPNOTSUPP;
-+	} else {
-+		/*
-+		 * Set condition code 3 to stop the guest from issueing channel
-+		 * I/O instructions.
-+		 */
-+		vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
-+		vcpu->arch.sie_block->gpsw.mask |= (3 & 3ul) << 44;
-+		return 0;
-+	}
-+}
++			rc = copy_to_guest(vcpu, __LC_IO_OLD_PSW,
++					   &vcpu->arch.sie_block->gpsw,
++					   sizeof(psw_t));
++			if (rc == -EFAULT)
++				exception = 1;
 +
- static int handle_stfl(struct kvm_vcpu *vcpu)
++			rc = copy_from_guest(vcpu, &vcpu->arch.sie_block->gpsw,
++					     __LC_IO_NEW_PSW, sizeof(psw_t));
++			if (rc == -EFAULT)
++				exception = 1;
++			break;
++		} else
++			BUG();
+ 	}
+ 	if (exception) {
+ 		printk("kvm: The guest lowcore is not mapped during interrupt "
+@@ -545,7 +620,7 @@ int kvm_s390_inject_vm(struct kvm *kvm,
  {
- 	unsigned int facility_list;
-diff --git a/arch/s390/kvm/trace-s390.h b/arch/s390/kvm/trace-s390.h
-index 95fbc1a..13f30f5 100644
---- a/arch/s390/kvm/trace-s390.h
-+++ b/arch/s390/kvm/trace-s390.h
-@@ -204,6 +204,26 @@ TRACE_EVENT(kvm_s390_stop_request,
- 	);
+ 	struct kvm_s390_local_interrupt *li;
+ 	struct kvm_s390_float_interrupt *fi;
+-	struct kvm_s390_interrupt_info *inti;
++	struct kvm_s390_interrupt_info *inti, *iter;
+ 	int sigcpu;
  
- 
-+/*
-+ * Trace point for enabling channel I/O instruction support.
-+ */
-+TRACE_EVENT(kvm_s390_enable_css,
-+	    TP_PROTO(void *kvm),
-+	    TP_ARGS(kvm),
-+
-+	    TP_STRUCT__entry(
-+		    __field(void *, kvm)
-+		    ),
-+
-+	    TP_fast_assign(
-+		    __entry->kvm = kvm;
-+		    ),
-+
-+	    TP_printk("enabling channel I/O support (kvm @ %p)\n",
-+		      __entry->kvm)
-+	);
-+
-+
- #endif /* _TRACE_KVMS390_H */
- 
- /* This part must be outside protection */
-diff --git a/include/trace/events/kvm.h b/include/trace/events/kvm.h
-index 7ef9e75..a23f47c 100644
---- a/include/trace/events/kvm.h
-+++ b/include/trace/events/kvm.h
-@@ -14,7 +14,7 @@
- 	ERSN(SHUTDOWN), ERSN(FAIL_ENTRY), ERSN(INTR), ERSN(SET_TPR),	\
- 	ERSN(TPR_ACCESS), ERSN(S390_SIEIC), ERSN(S390_RESET), ERSN(DCR),\
- 	ERSN(NMI), ERSN(INTERNAL_ERROR), ERSN(OSI), ERSN(PAPR_HCALL),	\
--	ERSN(S390_UCONTROL)
-+	ERSN(S390_UCONTROL), ERSN(S390_TSCH)
- 
- TRACE_EVENT(kvm_userspace_exit,
- 	    TP_PROTO(__u32 reason, int errno),
+ 	inti = kzalloc(sizeof(*inti), GFP_KERNEL);
+@@ -569,9 +644,26 @@ int kvm_s390_inject_vm(struct kvm *kvm,
+ 	case KVM_S390_SIGP_STOP:
+ 	case KVM_S390_INT_EXTERNAL_CALL:
+ 	case KVM_S390_INT_EMERGENCY:
+-	default:
+ 		kfree(inti);
+ 		return -EINVAL;
++	default:
++		if (!is_ioint(s390int->type)) {
++			kfree(inti);
++			return -EINVAL;
++		}
++		if (s390int->type & IOINT_AI_MASK)
++			VM_EVENT(kvm, 5, "%s", "inject: I/O (AI)");
++		else
++			VM_EVENT(kvm, 5, "inject: I/O css %x ss %x schid %04x",
++				 s390int->type & IOINT_CSSID_MASK,
++				 s390int->type & IOINT_SSID_MASK,
++				 s390int->type & IOINT_SCHID_MASK);
++		inti->type = s390int->type;
++		inti->io.subchannel_id = s390int->parm >> 16;
++		inti->io.subchannel_nr = s390int->parm & 0x0000ffffu;
++		inti->io.io_int_parm = s390int->parm64 >> 32;
++		inti->io.io_int_word = s390int->parm64 & 0x00000000ffffffffull;
++		break;
+ 	}
+ 	trace_kvm_s390_inject_vm(s390int->type, s390int->parm, s390int->parm64,
+ 				 2);
+@@ -579,7 +671,19 @@ int kvm_s390_inject_vm(struct kvm *kvm,
+ 	mutex_lock(&kvm->lock);
+ 	fi = &kvm->arch.float_int;
+ 	spin_lock(&fi->lock);
+-	list_add_tail(&inti->list, &fi->list);
++	if (!is_ioint(inti->type))
++		list_add_tail(&inti->list, &fi->list);
++	else {
++		/* Keep I/O interrupts sorted in isc order. */
++		list_for_each_entry(iter, &fi->list, list) {
++			if (!is_ioint(iter->type))
++				continue;
++			if (iter->io.io_int_word <= inti->io.io_int_word)
++				continue;
++			break;
++		}
++		list_add_tail(&inti->list, &iter->list);
++	}
+ 	atomic_set(&fi->active, 1);
+ 	sigcpu = find_first_bit(fi->idle_mask, KVM_MAX_VCPUS);
+ 	if (sigcpu == KVM_MAX_VCPUS) {
+@@ -654,6 +758,7 @@ int kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
+ 	case KVM_S390_INT_VIRTIO:
+ 	case KVM_S390_INT_SERVICE:
+ 	default:
++		/* also includes IOINT */
+ 		kfree(inti);
+ 		return -EINVAL;
+ 	}
 diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 22859dc..72aa4a3 100644
+index 494a84c..e676940 100644
 --- a/include/uapi/linux/kvm.h
 +++ b/include/uapi/linux/kvm.h
-@@ -168,6 +168,7 @@ struct kvm_pit_config {
- #define KVM_EXIT_PAPR_HCALL	  19
- #define KVM_EXIT_S390_UCONTROL	  20
- #define KVM_EXIT_WATCHDOG         21
-+#define KVM_EXIT_S390_TSCH        22
+@@ -401,6 +401,12 @@ struct kvm_s390_psw {
+ #define KVM_S390_INT_SERVICE		0xffff2401u
+ #define KVM_S390_INT_EMERGENCY		0xffff1201u
+ #define KVM_S390_INT_EXTERNAL_CALL	0xffff1202u
++#define KVM_S390_INT_IO(ai,cssid,ssid,schid)   \
++	(((schid)) |			       \
++	 ((ssid) << 16) |		       \
++	 ((cssid) << 18) |		       \
++	 ((ai) << 26))
++
  
- /* For KVM_EXIT_INTERNAL_ERROR */
- /* Emulate instruction failed. */
-@@ -285,6 +286,15 @@ struct kvm_run {
- 			__u64 ret;
- 			__u64 args[9];
- 		} papr_hcall;
-+		/* KVM_EXIT_S390_TSCH */
-+		struct {
-+			__u16 subchannel_id;
-+			__u16 subchannel_nr;
-+			__u32 io_int_parm;
-+			__u32 io_int_word;
-+			__u32 ipb;
-+			__u8 dequeued;
-+		} s390_tsch;
- 		/* Fix the size of the union. */
- 		char padding[256];
- 	};
-@@ -641,6 +651,7 @@ struct kvm_ppc_smmu_info {
- #endif
- #define KVM_CAP_IRQFD_RESAMPLE 82
- #define KVM_CAP_PPC_BOOKE_WATCHDOG 83
-+#define KVM_CAP_S390_CSS_SUPPORT 84
- 
- #ifdef KVM_CAP_IRQ_ROUTING
- 
+ struct kvm_s390_interrupt {
+ 	__u32 type;
 -- 
 1.7.12.4
