@@ -1,15 +1,15 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 2/8] s390: Channel I/O basic defintions.
-Date: Mon, 10 Dec 2012 11:18:34 +0100
-Message-ID: <20121210111834.42d25bcb@BR9GNB5Z>
+Subject: Re: [PATCH 3/8] s390: I/O interrupt and machine check injection.
+Date: Mon, 10 Dec 2012 11:27:26 +0100
+Message-ID: <20121210112726.0697bc4f@BR9GNB5Z>
 References: <1354884626-15060-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1354884626-15060-3-git-send-email-cornelia.huck@de.ibm.com>
-	<413896B0-480D-4113-99FC-6432847ADD9F@suse.de>
+	<1354884626-15060-4-git-send-email-cornelia.huck@de.ibm.com>
+	<82610216-94CA-44E8-B3CE-EB94886CECFC@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <413896B0-480D-4113-99FC-6432847ADD9F@suse.de>
+In-Reply-To: <82610216-94CA-44E8-B3CE-EB94886CECFC@suse.de>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -17,307 +17,342 @@ To: Alexander Graf <agraf@suse.de>
 Cc: qemu-devel <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 10 Dec 2012 09:07:57 +0100
+On Mon, 10 Dec 2012 09:20:57 +0100
 Alexander Graf <agraf@suse.de> wrote:
 
 > 
 > On 07.12.2012, at 13:50, Cornelia Huck wrote:
 > 
-> > Basic channel I/O structures and helper function.
+> > I/O interrupts are queued per isc. Only crw pending machine checks
+> > are supported.
 > > 
 > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 > > ---
-> > target-s390x/Makefile.objs |   2 +-
-> > target-s390x/ioinst.c      |  46 ++++++++++
-> > target-s390x/ioinst.h      | 207 +++++++++++++++++++++++++++++++++++++++++++++
-> > 3 files changed, 254 insertions(+), 1 deletion(-)
-> > create mode 100644 target-s390x/ioinst.c
-> > create mode 100644 target-s390x/ioinst.h
+> > target-s390x/cpu.h    |  67 +++++++++++++++++++++++
+> > target-s390x/helper.c | 145 ++++++++++++++++++++++++++++++++++++++++++++++++++
+> > 2 files changed, 212 insertions(+)
 > > 
-> > diff --git a/target-s390x/Makefile.objs b/target-s390x/Makefile.objs
-> > index e728abf..3afb0b7 100644
-> > --- a/target-s390x/Makefile.objs
-> > +++ b/target-s390x/Makefile.objs
-> > @@ -1,4 +1,4 @@
-> > obj-y += translate.o helper.o cpu.o interrupt.o
-> > obj-y += int_helper.o fpu_helper.o cc_helper.o mem_helper.o misc_helper.o
-> > -obj-$(CONFIG_SOFTMMU) += machine.o
-> > +obj-$(CONFIG_SOFTMMU) += machine.o ioinst.o
-> > obj-$(CONFIG_KVM) += kvm.o
-> > diff --git a/target-s390x/ioinst.c b/target-s390x/ioinst.c
-> > new file mode 100644
-> > index 0000000..8577b2c
-> > --- /dev/null
-> > +++ b/target-s390x/ioinst.c
-> > @@ -0,0 +1,46 @@
-> > +/*
-> > + * I/O instructions for S/390
-> > + *
-> > + * Copyright 2012 IBM Corp.
-> > + * Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
-> > + *
-> > + * This work is licensed under the terms of the GNU GPL, version 2 or (at
-> > + * your option) any later version. See the COPYING file in the top-level
-> > + * directory.
-> > + */
+> > diff --git a/target-s390x/cpu.h b/target-s390x/cpu.h
+> > index 0f9a1f7..73bfc20 100644
+> > --- a/target-s390x/cpu.h
+> > +++ b/target-s390x/cpu.h
+> > @@ -47,6 +47,11 @@
+> > #define MMU_USER_IDX 1
+> > 
+> > #define MAX_EXT_QUEUE 16
+> > +#define MAX_IO_QUEUE 16
+> > +#define MAX_MCHK_QUEUE 16
 > > +
-> > +#include <sys/types.h>
-> > +#include <sys/ioctl.h>
-> > +#include <sys/mman.h>
+> > +#define PSW_MCHK_MASK 0x0004000000000000
+> > +#define PSW_IO_MASK 0x0200000000000000
+> > 
+> > typedef struct PSW {
+> >     uint64_t mask;
+> > @@ -59,6 +64,17 @@ typedef struct ExtQueue {
+> >     uint32_t param64;
+> > } ExtQueue;
+> > 
+> > +typedef struct IOQueue {
+> > +    uint16_t id;
+> > +    uint16_t nr;
+> > +    uint32_t parm;
+> > +    uint32_t word;
+> > +} IOQueue;
 > > +
-> > +#include "cpu.h"
-> > +#include "ioinst.h"
+> > +typedef struct MchkQueue {
+> > +    uint16_t type;
+> > +} MchkQueue;
 > > +
-> > +#ifdef DEBUG_IOINST
-> > +#define dprintf(fmt, ...) \
-> > +    do { fprintf(stderr, fmt, ## __VA_ARGS__); } while (0)
-> > +#else
-> > +#define dprintf(fmt, ...) \
-> > +    do { } while (0)
-> > +#endif
+> > typedef struct CPUS390XState {
+> >     uint64_t regs[16];	/* GP registers */
+> > 
+> > @@ -88,8 +104,16 @@ typedef struct CPUS390XState {
+> > 
+> >     int pending_int;
+> >     ExtQueue ext_queue[MAX_EXT_QUEUE];
+> > +    IOQueue io_queue[MAX_IO_QUEUE][8];
+> > +    MchkQueue mchk_queue[MAX_MCHK_QUEUE];
+> > 
+> >     int ext_index;
+> > +    int io_index[8];
+> > +    int mchk_index;
 > > +
-> > +int ioinst_disassemble_sch_ident(uint32_t value, int *m, int *cssid, int *ssid,
-> > +                                 int *schid)
+> > +    uint64_t ckc;
+> > +    uint64_t cputm;
+> > +    uint32_t todpr;
+> > 
+> >     CPU_COMMON
+> > 
+> > @@ -364,12 +388,16 @@ static inline void cpu_set_tls(CPUS390XState *env, target_ulong newtls)
+> > #define EXCP_EXT 1 /* external interrupt */
+> > #define EXCP_SVC 2 /* supervisor call (syscall) */
+> > #define EXCP_PGM 3 /* program interruption */
+> > +#define EXCP_IO  7 /* I/O interrupt */
+> > +#define EXCP_MCHK 8 /* machine check */
+> > 
+> > #endif /* CONFIG_USER_ONLY */
+> > 
+> > #define INTERRUPT_EXT        (1 << 0)
+> > #define INTERRUPT_TOD        (1 << 1)
+> > #define INTERRUPT_CPUTIMER   (1 << 2)
+> > +#define INTERRUPT_IO         (1 << 3)
+> > +#define INTERRUPT_MCHK       (1 << 4)
+> > 
+> > /* Program Status Word.  */
+> > #define S390_PSWM_REGNUM 0
+> > @@ -977,6 +1005,45 @@ static inline void cpu_inject_ext(CPUS390XState *env, uint32_t code, uint32_t pa
+> >     cpu_interrupt(env, CPU_INTERRUPT_HARD);
+> > }
+> > 
+> > +static inline void cpu_inject_io(CPUS390XState *env, uint16_t subchannel_id,
+> > +                                 uint16_t subchannel_number,
+> > +                                 uint32_t io_int_parm, uint32_t io_int_word)
 > > +{
-> > +    if (!(value & IOINST_SCHID_ONE)) {
-> > +        return -EINVAL;
+> > +    int isc = ffs(io_int_word << 2) - 1;
+> > +
+> > +    if (env->io_index[isc] == MAX_IO_QUEUE - 1) {
+> > +        /* ugh - can't queue anymore. Let's drop. */
+> > +        return;
 > > +    }
-> > +    if (!(value & IOINST_SCHID_M)) {
-> > +        if (value & IOINST_SCHID_CSSID) {
-> > +            return -EINVAL;
-> > +        }
-> > +        *cssid = 0;
-> > +        *m = 0;
-> > +    } else {
-> > +        *cssid = (value & IOINST_SCHID_CSSID) >> 24;
-> 
-> (value & IOINST_SCHID_CSSID_MASK) >> IOINST_SCHID_CSSID_SHIFT
-
-I think that actually decreases readability.
-
-> 
-> 
-> Alex
-> 
-> > +        *m = 1;
-> > +    }
-> > +    *ssid = (value & IOINST_SCHID_SSID) >> 17;
-> > +    *schid = value & IOINST_SCHID_NR;
-> > +    return 0;
+> > +
+> > +    env->io_index[isc]++;
+> > +    assert(env->io_index[isc] < MAX_IO_QUEUE);
+> > +
+> > +    env->io_queue[env->io_index[isc]][isc].id = subchannel_id;
+> > +    env->io_queue[env->io_index[isc]][isc].nr = subchannel_number;
+> > +    env->io_queue[env->io_index[isc]][isc].parm = io_int_parm;
+> > +    env->io_queue[env->io_index[isc]][isc].word = io_int_word;
+> > +
+> > +    env->pending_int |= INTERRUPT_IO;
+> > +    cpu_interrupt(env, CPU_INTERRUPT_HARD);
 > > +}
-> > diff --git a/target-s390x/ioinst.h b/target-s390x/ioinst.h
-> > new file mode 100644
-> > index 0000000..b5b4a03
-> > --- /dev/null
-> > +++ b/target-s390x/ioinst.h
-> > @@ -0,0 +1,207 @@
-> > +/*
-> > + * S/390 channel I/O instructions
-> > + *
-> > + * Copyright 2012 IBM Corp.
-> > + * Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
-> > + *
-> > + * This work is licensed under the terms of the GNU GPL, version 2 or (at
-> > + * your option) any later version. See the COPYING file in the top-level
-> > + * directory.
-> > +*/
 > > +
-> > +#ifndef IOINST_S390X_H
-> > +#define IOINST_S390X_H
-> > +/*
-> > + * Channel I/O related definitions, as defined in the Principles
-> > + * Of Operation (and taken from the Linux implementation).
-> > + */
+> > +static inline void cpu_inject_crw_mchk(CPUS390XState *env)
+> > +{
+> > +    if (env->mchk_index == MAX_MCHK_QUEUE - 1) {
+> > +        /* ugh - can't queue anymore. Let's drop. */
+> > +        return;
+> > +    }
 > > +
-> > +/* subchannel status word (command mode only) */
-> > +typedef struct SCSW {
-> > +    uint16_t flags;
-> > +    uint16_t ctrl;
-> > +    uint32_t cpa;
-> > +    uint8_t dstat;
-> > +    uint8_t cstat;
-> > +    uint16_t count;
-> > +} QEMU_PACKED SCSW;
+> > +    env->mchk_index++;
+> > +    assert(env->mchk_index < MAX_MCHK_QUEUE);
 > > +
-> > +#define SCSW_FLAGS_MASK_KEY 0xf000
-> > +#define SCSW_FLAGS_MASK_SCTL 0x0800
-> > +#define SCSW_FLAGS_MASK_ESWF 0x0400
-> > +#define SCSW_FLAGS_MASK_CC 0x0300
-> > +#define SCSW_FLAGS_MASK_FMT 0x0080
-> > +#define SCSW_FLAGS_MASK_PFCH 0x0040
-> > +#define SCSW_FLAGS_MASK_ISIC 0x0020
-> > +#define SCSW_FLAGS_MASK_ALCC 0x0010
-> > +#define SCSW_FLAGS_MASK_SSI 0x0008
-> > +#define SCSW_FLAGS_MASK_ZCC 0x0004
-> > +#define SCSW_FLAGS_MASK_ECTL 0x0002
-> > +#define SCSW_FLAGS_MASK_PNO 0x0001
+> > +    env->mchk_queue[env->mchk_index].type = 1;
 > > +
-> > +#define SCSW_CTRL_MASK_FCTL 0x7000
-> > +#define SCSW_CTRL_MASK_ACTL 0x0fe0
-> > +#define SCSW_CTRL_MASK_STCTL 0x001f
+> > +    env->pending_int |= INTERRUPT_MCHK;
+> > +    cpu_interrupt(env, CPU_INTERRUPT_HARD);
+> > +}
 > > +
-> > +#define SCSW_FCTL_CLEAR_FUNC 0x1000
-> > +#define SCSW_FCTL_HALT_FUNC 0x2000
-> > +#define SCSW_FCTL_START_FUNC 0x4000
+> > static inline bool cpu_has_work(CPUState *cpu)
+> > {
+> >     CPUS390XState *env = &S390_CPU(cpu)->env;
+> > diff --git a/target-s390x/helper.c b/target-s390x/helper.c
+> > index b7b812a..4ff148d 100644
+> > --- a/target-s390x/helper.c
+> > +++ b/target-s390x/helper.c
+> > @@ -574,12 +574,144 @@ static void do_ext_interrupt(CPUS390XState *env)
+> >     load_psw(env, mask, addr);
+> > }
+> > 
+> > +static void do_io_interrupt(CPUS390XState *env)
+> > +{
+> > +    uint64_t mask, addr;
+> > +    LowCore *lowcore;
+> > +    hwaddr len = TARGET_PAGE_SIZE;
+> > +    IOQueue *q;
+> > +    uint8_t isc;
+> > +    int disable = 1;
+> > +    int found = 0;
 > > +
-> > +#define SCSW_ACTL_SUSP 0x0020
-> > +#define SCSW_ACTL_DEVICE_ACTIVE 0x0040
-> > +#define SCSW_ACTL_SUBCH_ACTIVE 0x0080
-> > +#define SCSW_ACTL_CLEAR_PEND 0x0100
-> > +#define SCSW_ACTL_HALT_PEND  0x0200
-> > +#define SCSW_ACTL_START_PEND 0x0400
-> > +#define SCSW_ACTL_RESUME_PEND 0x0800
+> > +    if (!(env->psw.mask & PSW_MASK_IO)) {
+> > +        cpu_abort(env, "I/O int w/o I/O mask\n");
+> > +    }
 > > +
-> > +#define SCSW_STCTL_STATUS_PEND 0x0001
-> > +#define SCSW_STCTL_SECONDARY 0x0002
-> > +#define SCSW_STCTL_PRIMARY 0x0004
-> > +#define SCSW_STCTL_INTERMEDIATE 0x0008
-> > +#define SCSW_STCTL_ALERT 0x0010
+> > +    for (isc = 0; isc < 8; isc++) {
+> > +        if (env->io_index[isc] < 0) {
+> > +            continue;
+> > +        }
+> > +        if (env->io_index[isc] > MAX_IO_QUEUE) {
+> > +            cpu_abort(env, "I/O queue overrun for isc %d: %d\n",
+> > +                      isc, env->io_index[isc]);
+> > +        }
 > > +
-> > +#define SCSW_DSTAT_ATTENTION     0x80
-> > +#define SCSW_DSTAT_STAT_MOD      0x40
-> > +#define SCSW_DSTAT_CU_END        0x20
-> > +#define SCSW_DSTAT_BUSY          0x10
-> > +#define SCSW_DSTAT_CHANNEL_END   0x08
-> > +#define SCSW_DSTAT_DEVICE_END    0x04
-> > +#define SCSW_DSTAT_UNIT_CHECK    0x02
-> > +#define SCSW_DSTAT_UNIT_EXCEP    0x01
+> > +        q = &env->io_queue[env->io_index[isc]][isc];
+> > +        if (!(env->cregs[6] & q->word)) {
+> > +            disable = 0;
+> > +            continue;
+> > +        }
+> > +        found = 1;
+> > +        lowcore = cpu_physical_memory_map(env->psa, &len, 1);
+> 
+> This one is missing a check whether len >= sizeof(*lowcore) :).
+
+Yes, since do_ext_interrupt which I copy/pasted this from does as
+well :) Will add.
+
+> 
 > > +
-> > +#define SCSW_CSTAT_PCI           0x80
-> > +#define SCSW_CSTAT_INCORR_LEN    0x40
-> > +#define SCSW_CSTAT_PROG_CHECK    0x20
-> > +#define SCSW_CSTAT_PROT_CHECK    0x10
-> > +#define SCSW_CSTAT_DATA_CHECK    0x08
-> > +#define SCSW_CSTAT_CHN_CTRL_CHK  0x04
-> > +#define SCSW_CSTAT_INTF_CTRL_CHK 0x02
-> > +#define SCSW_CSTAT_CHAIN_CHECK   0x01
+> > +        lowcore->subchannel_id = cpu_to_be16(q->id);
+> > +        lowcore->subchannel_nr = cpu_to_be16(q->nr);
+> > +        lowcore->io_int_parm = cpu_to_be32(q->parm);
+> > +        lowcore->io_int_word = cpu_to_be32(q->word);
+> > +        lowcore->io_old_psw.mask = cpu_to_be64(get_psw_mask(env));
+> > +        lowcore->io_old_psw.addr = cpu_to_be64(env->psw.addr);
+> > +        mask = be64_to_cpu(lowcore->io_new_psw.mask);
+> > +        addr = be64_to_cpu(lowcore->io_new_psw.addr);
 > > +
-> > +/* path management control word */
-> > +typedef struct PMCW {
-> > +    uint32_t intparm;
-> > +    uint16_t flags;
-> > +    uint16_t devno;
-> > +    uint8_t  lpm;
-> > +    uint8_t  pnom;
-> > +    uint8_t  lpum;
-> > +    uint8_t  pim;
-> > +    uint16_t mbi;
-> > +    uint8_t  pom;
-> > +    uint8_t  pam;
-> > +    uint8_t  chpid[8];
-> > +    uint32_t chars;
-> > +} QEMU_PACKED PMCW;
+> > +        cpu_physical_memory_unmap(lowcore, len, 1, len);
 > > +
-> > +#define PMCW_FLAGS_MASK_QF 0x8000
-> > +#define PMCW_FLAGS_MASK_W 0x4000
-> > +#define PMCW_FLAGS_MASK_ISC 0x3800
-> > +#define PMCW_FLAGS_MASK_ENA 0x0080
-> > +#define PMCW_FLAGS_MASK_LM 0x0060
-> > +#define PMCW_FLAGS_MASK_MME 0x0018
-> > +#define PMCW_FLAGS_MASK_MP 0x0004
-> > +#define PMCW_FLAGS_MASK_TF 0x0002
-> > +#define PMCW_FLAGS_MASK_DNV 0x0001
-> > +#define PMCW_FLAGS_MASK_INVALID 0x0700
+> > +        env->io_index[isc]--;
+> > +        if (env->io_index >= 0) {
+> > +            disable = 0;
+> > +        }
+> > +        break;
+> > +    }
 > > +
-> > +#define PMCW_CHARS_MASK_ST 0x00e00000
-> > +#define PMCW_CHARS_MASK_MBFC 0x00000004
-> > +#define PMCW_CHARS_MASK_XMWME 0x00000002
-> > +#define PMCW_CHARS_MASK_CSENSE 0x00000001
-> > +#define PMCW_CHARS_MASK_INVALID 0xff1ffff8
+> > +    if (disable) {
+> > +        env->pending_int &= ~INTERRUPT_IO;
+> > +    }
 > > +
-> > +/* subchannel information block */
-> > +struct SCHIB {
-> > +    PMCW pmcw;
-> > +    SCSW scsw;
-> > +    uint64_t mba;
-> > +    uint8_t mda[4];
-> > +} QEMU_PACKED;
+> > +    if (found) {
+> > +        DPRINTF("%s: %" PRIx64 " %" PRIx64 "\n", __func__,
+> > +                env->psw.mask, env->psw.addr);
+> > +        load_psw(env, mask, addr);
+> > +    }
+> > +}
 > > +
-> > +/* interruption response block */
-> > +typedef struct IRB {
-> > +    SCSW scsw;
-> > +    uint32_t esw[5];
-> > +    uint32_t ecw[8];
-> > +    uint32_t emw[8];
-> > +} QEMU_PACKED IRB;
+> > +static void do_mchk_interrupt(CPUS390XState *env)
+> > +{
+> > +    uint64_t mask, addr;
+> > +    LowCore *lowcore;
+> > +    hwaddr len = TARGET_PAGE_SIZE;
+> > +    MchkQueue *q;
+> > +    int i;
 > > +
-> > +/* operation request block */
-> > +struct ORB {
-> > +    uint32_t intparm;
-> > +    uint16_t ctrl0;
-> > +    uint8_t lpm;
-> > +    uint8_t ctrl1;
-> > +    uint32_t cpa;
-> > +} QEMU_PACKED;
+> > +    if (!(env->psw.mask & PSW_MASK_MCHECK)) {
+> > +        cpu_abort(env, "Machine check w/o mchk mask\n");
+> > +    }
 > > +
-> > +#define ORB_CTRL0_MASK_KEY 0xf000
-> > +#define ORB_CTRL0_MASK_SPND 0x0800
-> > +#define ORB_CTRL0_MASK_STR 0x0400
-> > +#define ORB_CTRL0_MASK_MOD 0x0200
-> > +#define ORB_CTRL0_MASK_SYNC 0x0100
-> > +#define ORB_CTRL0_MASK_FMT 0x0080
-> > +#define ORB_CTRL0_MASK_PFCH 0x0040
-> > +#define ORB_CTRL0_MASK_ISIC 0x0020
-> > +#define ORB_CTRL0_MASK_ALCC 0x0010
-> > +#define ORB_CTRL0_MASK_SSIC 0x0008
-> > +#define ORB_CTRL0_MASK_C64 0x0002
-> > +#define ORB_CTRL0_MASK_I2K 0x0001
-> > +#define ORB_CTRL0_MASK_INVALID 0x0004
+> > +    if (env->mchk_index < 0 || env->mchk_index > MAX_MCHK_QUEUE) {
+> > +        cpu_abort(env, "Mchk queue overrun: %d\n", env->mchk_index);
+> > +    }
 > > +
-> > +#define ORB_CTRL1_MASK_ILS 0x80
-> > +#define ORB_CTRL1_MASK_MIDAW 0x40
-> > +#define ORB_CTRL1_MASK_ORBX 0x01
-> > +#define ORB_CTRL1_MASK_INVALID 0x3e
+> > +    q = &env->mchk_queue[env->mchk_index];
 > > +
-> > +/* channel command word (type 1) */
-> > +typedef struct CCW1 {
-> > +    uint8_t cmd_code;
-> > +    uint8_t flags;
-> > +    uint16_t count;
-> > +    uint32_t cda;
-> > +} QEMU_PACKED CCW1;
+> > +    if (q->type != 1) {
+> 
+> What is type 1?
+
+Something that should be MCHK_TYPE_CRW or so :)
+
+> 
+> > +        /* Don't know how to handle this... */
+> > +        cpu_abort(env, "Unknown machine check type %d\n", q->type);
+> > +    }
+> > +    if (!(env->cregs[14] & (1 << 28))) {
+> 
+> Please create a #define for this one :)
+
+OK
+
+> 
+> > +        /* CRW machine checks disabled */
+> > +        return;
+> > +    }
 > > +
-> > +#define CCW_FLAG_DC              0x80
-> > +#define CCW_FLAG_CC              0x40
-> > +#define CCW_FLAG_SLI             0x20
-> > +#define CCW_FLAG_SKIP            0x10
-> > +#define CCW_FLAG_PCI             0x08
-> > +#define CCW_FLAG_IDA             0x04
-> > +#define CCW_FLAG_SUSPEND         0x02
+> > +    lowcore = cpu_physical_memory_map(env->psa, &len, 1);
+> 
+> Check missing again.
+
+Perhaps we want {map,unmap}_lowcore() functions?
+
+> 
 > > +
-> > +#define CCW_CMD_NOOP             0x03
-> > +#define CCW_CMD_BASIC_SENSE      0x04
-> > +#define CCW_CMD_TIC              0x08
-> > +#define CCW_CMD_SENSE_ID         0xe4
+> > +    for (i = 0; i < 16; i++) {
+> > +        lowcore->floating_pt_save_area[i] = cpu_to_be64(env->fregs[i].ll);
+> > +        lowcore->gpregs_save_area[i] = cpu_to_be64(env->regs[i]);
+> > +        lowcore->access_regs_save_area[i] = cpu_to_be32(env->aregs[i]);
+> > +        lowcore->cregs_save_area[i] = cpu_to_be64(env->cregs[i]);
+> > +    }
+> > +    lowcore->prefixreg_save_area = cpu_to_be32(env->psa);
+> > +    lowcore->fpt_creg_save_area = cpu_to_be32(env->fpc);
+> > +    lowcore->tod_progreg_save_area = cpu_to_be32(env->todpr);
+> > +    lowcore->cpu_timer_save_area[0] = cpu_to_be32(env->cputm >> 32);
+> > +    lowcore->cpu_timer_save_area[1] =
+> > +        cpu_to_be32(env->cputm & 0x00000000ffffffff);
+> 
+> cpu_to_be32((uint32_t)env->cputm)
+
+Can change that.
+
+> 
+> > +    lowcore->clock_comp_save_area[0] = cpu_to_be32(env->ckc >> 32);
+> > +    lowcore->clock_comp_save_area[1] =
+> > +        cpu_to_be32(env->ckc & 0x00000000ffffffff);
 > > +
-> > +typedef struct CRW {
-> > +    uint16_t flags;
-> > +    uint16_t rsid;
-> > +} QEMU_PACKED CRW;
+> > +    lowcore->mcck_interruption_code[0] = cpu_to_be32(0x00400f1d);
+> > +    lowcore->mcck_interruption_code[1] = cpu_to_be32(0x40330000);
+> > +    lowcore->mcck_old_psw.mask = cpu_to_be64(get_psw_mask(env));
+> > +    lowcore->mcck_old_psw.addr = cpu_to_be64(env->psw.addr);
+> > +    mask = be64_to_cpu(lowcore->mcck_new_psw.mask);
+> > +    addr = be64_to_cpu(lowcore->mcck_new_psw.addr);
 > > +
-> > +#define CRW_FLAGS_MASK_S 0x4000
-> > +#define CRW_FLAGS_MASK_R 0x2000
-> > +#define CRW_FLAGS_MASK_C 0x1000
-> > +#define CRW_FLAGS_MASK_RSC 0x0f00
-> > +#define CRW_FLAGS_MASK_A 0x0080
-> > +#define CRW_FLAGS_MASK_ERC 0x003f
+> > +    cpu_physical_memory_unmap(lowcore, len, 1, len);
 > > +
-> > +#define CRW_ERC_INIT 0x02
-> > +#define CRW_ERC_IPI  0x04
+> > +    env->mchk_index--;
+> > +    if (env->mchk_index == -1) {
+> > +        env->pending_int &= ~INTERRUPT_MCHK;
+> > +    }
 > > +
-> > +#define CRW_RSC_SUBCH 0x3
-> > +#define CRW_RSC_CHP   0x4
+> > +    DPRINTF("%s: %" PRIx64 " %" PRIx64 "\n", __func__,
+> > +            env->psw.mask, env->psw.addr);
 > > +
-> > +/* schid disintegration */
-> > +#define IOINST_SCHID_ONE   0x00010000
-> > +#define IOINST_SCHID_M     0x00080000
-> > +#define IOINST_SCHID_CSSID 0xff000000
-> > +#define IOINST_SCHID_SSID  0x00060000
-> > +#define IOINST_SCHID_NR    0x0000ffff
+> > +    load_psw(env, mask, addr);
+> > +}
 > > +
-> > +int ioinst_disassemble_sch_ident(uint32_t value, int *m, int *cssid, int *ssid,
-> > +                                 int *schid);
-> > +#endif
+> > void do_interrupt(CPUS390XState *env)
+> > {
+> >     qemu_log_mask(CPU_LOG_INT, "%s: %d at pc=%" PRIx64 "\n",
+> >                   __func__, env->exception_index, env->psw.addr);
+> > 
+> >     s390_add_running_cpu(env);
+> > +    /* handle machine checks */
+> > +    if ((env->psw.mask & PSW_MASK_MCHECK) &&
+> > +        (env->exception_index == -1)) {
+> > +        if (env->pending_int & INTERRUPT_MCHK) {
+> > +            env->exception_index = EXCP_MCHK;
+> > +        }
+> > +    }
+> >     /* handle external interrupts */
+> >     if ((env->psw.mask & PSW_MASK_EXT) &&
+> >         env->exception_index == -1) {
+> > @@ -598,6 +730,13 @@ void do_interrupt(CPUS390XState *env)
+> >             env->pending_int &= ~INTERRUPT_TOD;
+> >         }
+> >     }
+> > +    /* handle I/O interrupts */
+> > +    if ((env->psw.mask & PSW_MASK_IO) &&
+> > +        (env->exception_index == -1)) {
+> > +        if (env->pending_int & INTERRUPT_IO) {
+> > +            env->exception_index = EXCP_IO;
+> > +        }
+> > +    }
+> > 
+> >     switch (env->exception_index) {
+> >     case EXCP_PGM:
+> > @@ -609,6 +748,12 @@ void do_interrupt(CPUS390XState *env)
+> >     case EXCP_EXT:
+> >         do_ext_interrupt(env);
+> >         break;
+> > +    case EXCP_IO:
+> > +        do_io_interrupt(env);
+> > +        break;
+> > +    case EXCP_MCHK:
+> > +        do_mchk_interrupt(env);
+> > +        break;
+> >     }
+> >     env->exception_index = -1;
+> > 
 > > -- 
 > > 1.7.12.4
 > > 
