@@ -1,15 +1,15 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 3/8] s390: I/O interrupt and machine check injection.
-Date: Mon, 10 Dec 2012 11:27:26 +0100
-Message-ID: <20121210112726.0697bc4f@BR9GNB5Z>
+Subject: Re: [PATCH 6/8] s390: Wire up channel I/O in kvm.
+Date: Mon, 10 Dec 2012 11:29:28 +0100
+Message-ID: <20121210112928.660d3d5b@BR9GNB5Z>
 References: <1354884626-15060-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1354884626-15060-4-git-send-email-cornelia.huck@de.ibm.com>
-	<82610216-94CA-44E8-B3CE-EB94886CECFC@suse.de>
+	<1354884626-15060-7-git-send-email-cornelia.huck@de.ibm.com>
+	<F8BFFCBB-8137-4C48-BE74-43A9CE6387FA@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <82610216-94CA-44E8-B3CE-EB94886CECFC@suse.de>
+In-Reply-To: <F8BFFCBB-8137-4C48-BE74-43A9CE6387FA@suse.de>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -17,342 +17,371 @@ To: Alexander Graf <agraf@suse.de>
 Cc: qemu-devel <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 10 Dec 2012 09:20:57 +0100
+On Mon, 10 Dec 2012 10:40:15 +0100
 Alexander Graf <agraf@suse.de> wrote:
 
 > 
-> On 07.12.2012, at 13:50, Cornelia Huck wrote:
 > 
-> > I/O interrupts are queued per isc. Only crw pending machine checks
-> > are supported.
+> On 07.12.2012, at 13:50, Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
+> 
+> > Trigger the code for our virtual css in case of instruction
+> > intercepts for I/O instructions.
+> > 
+> > Handle the tsch exit for the subchannel-related part of tsch.
 > > 
 > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 > > ---
-> > target-s390x/cpu.h    |  67 +++++++++++++++++++++++
-> > target-s390x/helper.c | 145 ++++++++++++++++++++++++++++++++++++++++++++++++++
-> > 2 files changed, 212 insertions(+)
+> > target-s390x/cpu.h |  11 +++
+> > target-s390x/kvm.c | 246 ++++++++++++++++++++++++++++++++++++++++++++++++++---
+> > 2 files changed, 244 insertions(+), 13 deletions(-)
 > > 
 > > diff --git a/target-s390x/cpu.h b/target-s390x/cpu.h
-> > index 0f9a1f7..73bfc20 100644
+> > index eb24c6b..1d21ca8 100644
 > > --- a/target-s390x/cpu.h
 > > +++ b/target-s390x/cpu.h
-> > @@ -47,6 +47,11 @@
-> > #define MMU_USER_IDX 1
+> > @@ -1178,6 +1178,13 @@ uint32_t set_cc_nz_f64(float64 v);
+> > /* misc_helper.c */
+> > void program_interrupt(CPUS390XState *env, uint32_t code, int ilc);
 > > 
-> > #define MAX_EXT_QUEUE 16
-> > +#define MAX_IO_QUEUE 16
-> > +#define MAX_MCHK_QUEUE 16
-> > +
-> > +#define PSW_MCHK_MASK 0x0004000000000000
-> > +#define PSW_IO_MASK 0x0200000000000000
+> > +#ifdef CONFIG_KVM
+> > +int kvm_s390_io_interrupt(CPUS390XState *env, uint16_t subchannel_id,
+> > +                          uint16_t subchannel_nr, uint32_t io_int_parm,
+> > +                          uint32_t io_int_word);
+> > +int kvm_s390_crw_mchk(CPUS390XState *env);
+> > +void kvm_s390_enable_css_support(CPUS390XState *env);
+> > +#else
+> > static inline int kvm_s390_io_interrupt(CPUS390XState *env,
+> >                                         uint16_t subchannel_id,
+> >                                         uint16_t subchannel_nr,
+> > @@ -1190,6 +1197,10 @@ static inline int kvm_s390_crw_mchk(CPUS390XState *env)
+> > {
+> >     return -EOPNOTSUPP;
+> > }
+> > +static inline void kvm_s390_enable_css_support(CPUS390XState *env)
+> > +{
+> > +}
+> > +#endif
 > > 
-> > typedef struct PSW {
-> >     uint64_t mask;
-> > @@ -59,6 +64,17 @@ typedef struct ExtQueue {
-> >     uint32_t param64;
-> > } ExtQueue;
+> > static inline void s390_io_interrupt(CPUS390XState *env,
+> >                                      uint16_t subchannel_id,
+> > diff --git a/target-s390x/kvm.c b/target-s390x/kvm.c
+> > index 94de764..c9a4a7d 100644
+> > --- a/target-s390x/kvm.c
+> > +++ b/target-s390x/kvm.c
+> > @@ -30,6 +30,7 @@
+> > #include "kvm.h"
+> > #include "cpu.h"
+> > #include "device_tree.h"
+> > +#include "ioinst.h"
 > > 
-> > +typedef struct IOQueue {
-> > +    uint16_t id;
-> > +    uint16_t nr;
-> > +    uint32_t parm;
-> > +    uint32_t word;
-> > +} IOQueue;
-> > +
-> > +typedef struct MchkQueue {
-> > +    uint16_t type;
-> > +} MchkQueue;
-> > +
-> > typedef struct CPUS390XState {
-> >     uint64_t regs[16];	/* GP registers */
+> > /* #define DEBUG_KVM */
 > > 
-> > @@ -88,8 +104,16 @@ typedef struct CPUS390XState {
+> > @@ -43,9 +44,27 @@
 > > 
-> >     int pending_int;
-> >     ExtQueue ext_queue[MAX_EXT_QUEUE];
-> > +    IOQueue io_queue[MAX_IO_QUEUE][8];
-> > +    MchkQueue mchk_queue[MAX_MCHK_QUEUE];
+> > #define IPA0_DIAG                       0x8300
+> > #define IPA0_SIGP                       0xae00
+> > -#define IPA0_PRIV                       0xb200
+> > +#define IPA0_B2                         0xb200
+> > +#define IPA0_B9                         0xb900
+> > +#define IPA0_EB                         0xeb00
 > > 
-> >     int ext_index;
-> > +    int io_index[8];
-> > +    int mchk_index;
-> > +
-> > +    uint64_t ckc;
-> > +    uint64_t cputm;
-> > +    uint32_t todpr;
+> > #define PRIV_SCLP_CALL                  0x20
+> > +#define PRIV_CSCH                       0x30
+> > +#define PRIV_HSCH                       0x31
+> > +#define PRIV_MSCH                       0x32
+> > +#define PRIV_SSCH                       0x33
+> > +#define PRIV_STSCH                      0x34
+> > +#define PRIV_TSCH                       0x35
+> > +#define PRIV_TPI                        0x36
+> > +#define PRIV_SAL                        0x37
+> > +#define PRIV_RSCH                       0x38
+> > +#define PRIV_STCRW                      0x39
+> > +#define PRIV_STCPS                      0x3a
+> > +#define PRIV_RCHP                       0x3b
+> > +#define PRIV_SCHM                       0x3c
+> > +#define PRIV_CHSC                       0x5f
+> > +#define PRIV_SIGA                       0x74
+> > +#define PRIV_XSCH                       0x76
+> > #define DIAG_KVM_HYPERCALL              0x500
+> > #define DIAG_KVM_BREAKPOINT             0x501
 > > 
-> >     CPU_COMMON
-> > 
-> > @@ -364,12 +388,16 @@ static inline void cpu_set_tls(CPUS390XState *env, target_ulong newtls)
-> > #define EXCP_EXT 1 /* external interrupt */
-> > #define EXCP_SVC 2 /* supervisor call (syscall) */
-> > #define EXCP_PGM 3 /* program interruption */
-> > +#define EXCP_IO  7 /* I/O interrupt */
-> > +#define EXCP_MCHK 8 /* machine check */
-> > 
-> > #endif /* CONFIG_USER_ONLY */
-> > 
-> > #define INTERRUPT_EXT        (1 << 0)
-> > #define INTERRUPT_TOD        (1 << 1)
-> > #define INTERRUPT_CPUTIMER   (1 << 2)
-> > +#define INTERRUPT_IO         (1 << 3)
-> > +#define INTERRUPT_MCHK       (1 << 4)
-> > 
-> > /* Program Status Word.  */
-> > #define S390_PSWM_REGNUM 0
-> > @@ -977,6 +1005,45 @@ static inline void cpu_inject_ext(CPUS390XState *env, uint32_t code, uint32_t pa
-> >     cpu_interrupt(env, CPU_INTERRUPT_HARD);
+> > @@ -350,10 +369,120 @@ static int kvm_sclp_service_call(CPUS390XState *env, struct kvm_run *run,
+> >     return 0;
 > > }
 > > 
-> > +static inline void cpu_inject_io(CPUS390XState *env, uint16_t subchannel_id,
-> > +                                 uint16_t subchannel_number,
-> > +                                 uint32_t io_int_parm, uint32_t io_int_word)
+> > -static int handle_priv(CPUS390XState *env, struct kvm_run *run, uint8_t ipa1)
+> > +static int kvm_handle_css_inst(CPUS390XState *env, struct kvm_run *run,
+> > +                               uint8_t ipa0, uint8_t ipa1, uint8_t ipb)
 > > +{
-> > +    int isc = ffs(io_int_word << 2) - 1;
+> > +    int r = 0;
+> > +    int no_cc = 0;
 > > +
-> > +    if (env->io_index[isc] == MAX_IO_QUEUE - 1) {
-> > +        /* ugh - can't queue anymore. Let's drop. */
-> > +        return;
+> > +    if (ipa0 != 0xb2) {
+> > +        /* Not handled for now. */
+> > +        return -1;
+> > +    }
+> > +    cpu_synchronize_state(env);
+> > +    switch (ipa1) {
+> > +    case PRIV_XSCH:
+> > +        r = ioinst_handle_xsch(env, env->regs[1]);
+> > +        break;
+> > +    case PRIV_CSCH:
+> > +        r = ioinst_handle_csch(env, env->regs[1]);
+> > +        break;
+> > +    case PRIV_HSCH:
+> > +        r = ioinst_handle_hsch(env, env->regs[1]);
+> > +        break;
+> > +    case PRIV_MSCH:
+> > +        r = ioinst_handle_msch(env, env->regs[1], run->s390_sieic.ipb);
+> > +        break;
+> > +    case PRIV_SSCH:
+> > +        r = ioinst_handle_ssch(env, env->regs[1], run->s390_sieic.ipb);
+> > +        break;
+> > +    case PRIV_STCRW:
+> > +        r = ioinst_handle_stcrw(env, run->s390_sieic.ipb);
+> > +        break;
+> > +    case PRIV_STSCH:
+> > +        r = ioinst_handle_stsch(env, env->regs[1], run->s390_sieic.ipb);
+> > +        break;
+> > +    case PRIV_TSCH:
+> > +        /* We should only get tsch via KVM_EXIT_S390_TSCH. */
+> > +        fprintf(stderr, "Spurious tsch intercept\n");
+> > +        break;
+> > +    case PRIV_CHSC:
+> > +        r = ioinst_handle_chsc(env, run->s390_sieic.ipb);
+> > +        break;
+> > +    case PRIV_TPI:
+> > +        /* This should have been handled by kvm already. */
+> > +        fprintf(stderr, "Spurious tpi intercept\n");
+> > +        break;
+> > +    case PRIV_SCHM:
+> > +        no_cc = 1;
+> > +        r = ioinst_handle_schm(env, env->regs[1], env->regs[2],
+> > +                               run->s390_sieic.ipb);
+> > +        break;
+> > +    case PRIV_RSCH:
+> > +        r = ioinst_handle_rsch(env, env->regs[1]);
+> > +        break;
+> > +    case PRIV_RCHP:
+> > +        r = ioinst_handle_rchp(env, env->regs[1]);
+> > +        break;
+> > +    case PRIV_STCPS:
+> > +        /* We do not provide this instruction, it is suppressed. */
+> > +        no_cc = 1;
+> > +        r = 0;
+> > +        break;
+> > +    case PRIV_SAL:
+> > +        no_cc = 1;
+> > +        r = ioinst_handle_sal(env, env->regs[1]);
+> > +        break;
+> > +    default:
+> > +        r = -1;
+> > +        break;
 > > +    }
 > > +
-> > +    env->io_index[isc]++;
-> > +    assert(env->io_index[isc] < MAX_IO_QUEUE);
-> > +
-> > +    env->io_queue[env->io_index[isc]][isc].id = subchannel_id;
-> > +    env->io_queue[env->io_index[isc]][isc].nr = subchannel_number;
-> > +    env->io_queue[env->io_index[isc]][isc].parm = io_int_parm;
-> > +    env->io_queue[env->io_index[isc]][isc].word = io_int_word;
-> > +
-> > +    env->pending_int |= INTERRUPT_IO;
-> > +    cpu_interrupt(env, CPU_INTERRUPT_HARD);
+> > +    if (r >= 0) {
+> > +        if (!no_cc) {
+> > +            setcc(env, r);
+> > +        }
+> > +        r = 0;
+> > +    } else if (r < -1) {
+> > +        r = 0;
+> > +    }
+> > +    return r;
 > > +}
 > > +
-> > +static inline void cpu_inject_crw_mchk(CPUS390XState *env)
+> > +static int is_ioinst(uint8_t ipa0, uint8_t ipa1, uint8_t ipb)
 > > +{
-> > +    if (env->mchk_index == MAX_MCHK_QUEUE - 1) {
-> > +        /* ugh - can't queue anymore. Let's drop. */
-> > +        return;
+> > +    int ret = 0;
+> > +
+> > +    switch (ipa0) {
+> > +    case 0xb2:
+> > +        if (((ipa1 >= 0x30) && (ipa1 <= 0x3c)) ||
+> > +            (ipa1 == 0x5f) ||
+> > +            (ipa1 == 0x74) ||
+> > +            (ipa1 == 0x76)) {
+> 
+> Just make this a switch. You can the also use defines for the instruction names :).
+
+I thought I could get away with ranges, but the I/O instructions are
+unfortunately too dispersed. I'll change that to a switch and see how
+that looks.
+
+> 
+> Alex
+> 
+> > +            ret = 1;
+> > +        }
+> > +        break;
+> > +    case 0xb9:
+> > +        if (ipa1 == 0x9c) {
+> > +            ret = 1;
+> > +        }
+> > +        break;
+> > +    case 0xeb:
+> > +        if (ipb == 0x8a) {
+> > +            ret = 1;
+> > +        }
+> > +        break;
 > > +    }
 > > +
-> > +    env->mchk_index++;
-> > +    assert(env->mchk_index < MAX_MCHK_QUEUE);
-> > +
-> > +    env->mchk_queue[env->mchk_index].type = 1;
-> > +
-> > +    env->pending_int |= INTERRUPT_MCHK;
-> > +    cpu_interrupt(env, CPU_INTERRUPT_HARD);
+> > +    return ret;
 > > +}
 > > +
-> > static inline bool cpu_has_work(CPUState *cpu)
+> > +static int handle_priv(CPUS390XState *env, struct kvm_run *run,
+> > +                       uint8_t ipa0, uint8_t ipa1)
 > > {
-> >     CPUS390XState *env = &S390_CPU(cpu)->env;
-> > diff --git a/target-s390x/helper.c b/target-s390x/helper.c
-> > index b7b812a..4ff148d 100644
-> > --- a/target-s390x/helper.c
-> > +++ b/target-s390x/helper.c
-> > @@ -574,12 +574,144 @@ static void do_ext_interrupt(CPUS390XState *env)
-> >     load_psw(env, mask, addr);
+> >     int r = 0;
+> >     uint16_t ipbh0 = (run->s390_sieic.ipb & 0xffff0000) >> 16;
+> > +    uint8_t ipb = run->s390_sieic.ipb & 0xff;
+> > 
+> >     dprintf("KVM: PRIV: %d\n", ipa1);
+> >     switch (ipa1) {
+> > @@ -361,8 +490,16 @@ static int handle_priv(CPUS390XState *env, struct kvm_run *run, uint8_t ipa1)
+> >             r = kvm_sclp_service_call(env, run, ipbh0);
+> >             break;
+> >         default:
+> > -            dprintf("KVM: unknown PRIV: 0x%x\n", ipa1);
+> > -            r = -1;
+> > +            if (is_ioinst(ipa0, ipa1, ipb)) {
+> > +                r = kvm_handle_css_inst(env, run, ipa0, ipa1, ipb);
+> > +                if (r == -1) {
+> > +                    setcc(env, 3);
+> > +                    r = 0;
+> > +                }
+> > +            } else {
+> > +                dprintf("KVM: unknown PRIV: 0x%x\n", ipa1);
+> > +                r = -1;
+> > +            }
+> >             break;
+> >     }
+> > 
+> > @@ -500,15 +637,17 @@ static int handle_instruction(CPUS390XState *env, struct kvm_run *run)
+> > 
+> >     dprintf("handle_instruction 0x%x 0x%x\n", run->s390_sieic.ipa, run->s390_sieic.ipb);
+> >     switch (ipa0) {
+> > -        case IPA0_PRIV:
+> > -            r = handle_priv(env, run, ipa1);
+> > -            break;
+> > -        case IPA0_DIAG:
+> > -            r = handle_diag(env, run, ipb_code);
+> > -            break;
+> > -        case IPA0_SIGP:
+> > -            r = handle_sigp(env, run, ipa1);
+> > -            break;
+> > +    case IPA0_B2:
+> > +    case IPA0_B9:
+> > +    case IPA0_EB:
+> > +        r = handle_priv(env, run, ipa0 >> 8, ipa1);
+> > +        break;
+> > +    case IPA0_DIAG:
+> > +        r = handle_diag(env, run, ipb_code);
+> > +        break;
+> > +    case IPA0_SIGP:
+> > +        r = handle_sigp(env, run, ipa1);
+> > +        break;
+> >     }
+> > 
+> >     if (r < 0) {
+> > @@ -565,6 +704,38 @@ static int handle_intercept(CPUS390XState *env)
+> >     return r;
 > > }
 > > 
-> > +static void do_io_interrupt(CPUS390XState *env)
+> > +static int handle_tsch(CPUS390XState *env, struct kvm_run *run, int dequeued,
+> > +                       uint16_t subchannel_id, uint16_t subchannel_nr,
+> > +                       uint32_t io_int_parm, uint32_t io_int_word)
 > > +{
-> > +    uint64_t mask, addr;
-> > +    LowCore *lowcore;
-> > +    hwaddr len = TARGET_PAGE_SIZE;
-> > +    IOQueue *q;
-> > +    uint8_t isc;
-> > +    int disable = 1;
-> > +    int found = 0;
+> > +    int ret;
 > > +
-> > +    if (!(env->psw.mask & PSW_MASK_IO)) {
-> > +        cpu_abort(env, "I/O int w/o I/O mask\n");
-> > +    }
+> > +    cpu_synchronize_state(env);
+> > +    ret = ioinst_handle_tsch(env, env->regs[1], run->s390_tsch.ipb);
+> > +    if (ret >= 0) {
+> > +        /* Success; set condition code. */
+> > +        setcc(env, ret);
+> > +        ret = 0;
+> > +    } else if (ret < -1) {
+> > +        /*
+> > +         * Failure.
+> > +         * If an I/O interrupt had been dequeued, we have to reinject it.
+> > +         */
+> > +        if (dequeued) {
+> > +            uint32_t type = ((subchannel_id & 0xff00) << 24) |
+> > +                ((subchannel_id & 0x00060) << 22) | (subchannel_nr << 16);
 > > +
-> > +    for (isc = 0; isc < 8; isc++) {
-> > +        if (env->io_index[isc] < 0) {
-> > +            continue;
+> > +            kvm_s390_interrupt_internal(env, type,
+> > +                                        ((uint32_t)subchannel_id << 16)
+> > +                                        | subchannel_nr,
+> > +                                        ((uint64_t)io_int_parm << 32)
+> > +                                        | io_int_word, 1);
 > > +        }
-> > +        if (env->io_index[isc] > MAX_IO_QUEUE) {
-> > +            cpu_abort(env, "I/O queue overrun for isc %d: %d\n",
-> > +                      isc, env->io_index[isc]);
-> > +        }
-> > +
-> > +        q = &env->io_queue[env->io_index[isc]][isc];
-> > +        if (!(env->cregs[6] & q->word)) {
-> > +            disable = 0;
-> > +            continue;
-> > +        }
-> > +        found = 1;
-> > +        lowcore = cpu_physical_memory_map(env->psa, &len, 1);
-> 
-> This one is missing a check whether len >= sizeof(*lowcore) :).
-
-Yes, since do_ext_interrupt which I copy/pasted this from does as
-well :) Will add.
-
-> 
-> > +
-> > +        lowcore->subchannel_id = cpu_to_be16(q->id);
-> > +        lowcore->subchannel_nr = cpu_to_be16(q->nr);
-> > +        lowcore->io_int_parm = cpu_to_be32(q->parm);
-> > +        lowcore->io_int_word = cpu_to_be32(q->word);
-> > +        lowcore->io_old_psw.mask = cpu_to_be64(get_psw_mask(env));
-> > +        lowcore->io_old_psw.addr = cpu_to_be64(env->psw.addr);
-> > +        mask = be64_to_cpu(lowcore->io_new_psw.mask);
-> > +        addr = be64_to_cpu(lowcore->io_new_psw.addr);
-> > +
-> > +        cpu_physical_memory_unmap(lowcore, len, 1, len);
-> > +
-> > +        env->io_index[isc]--;
-> > +        if (env->io_index >= 0) {
-> > +            disable = 0;
-> > +        }
-> > +        break;
+> > +        ret = 0;
 > > +    }
-> > +
-> > +    if (disable) {
-> > +        env->pending_int &= ~INTERRUPT_IO;
-> > +    }
-> > +
-> > +    if (found) {
-> > +        DPRINTF("%s: %" PRIx64 " %" PRIx64 "\n", __func__,
-> > +                env->psw.mask, env->psw.addr);
-> > +        load_psw(env, mask, addr);
-> > +    }
+> > +    return ret;
 > > +}
 > > +
-> > +static void do_mchk_interrupt(CPUS390XState *env)
-> > +{
-> > +    uint64_t mask, addr;
-> > +    LowCore *lowcore;
-> > +    hwaddr len = TARGET_PAGE_SIZE;
-> > +    MchkQueue *q;
-> > +    int i;
-> > +
-> > +    if (!(env->psw.mask & PSW_MASK_MCHECK)) {
-> > +        cpu_abort(env, "Machine check w/o mchk mask\n");
-> > +    }
-> > +
-> > +    if (env->mchk_index < 0 || env->mchk_index > MAX_MCHK_QUEUE) {
-> > +        cpu_abort(env, "Mchk queue overrun: %d\n", env->mchk_index);
-> > +    }
-> > +
-> > +    q = &env->mchk_queue[env->mchk_index];
-> > +
-> > +    if (q->type != 1) {
-> 
-> What is type 1?
-
-Something that should be MCHK_TYPE_CRW or so :)
-
-> 
-> > +        /* Don't know how to handle this... */
-> > +        cpu_abort(env, "Unknown machine check type %d\n", q->type);
-> > +    }
-> > +    if (!(env->cregs[14] & (1 << 28))) {
-> 
-> Please create a #define for this one :)
-
-OK
-
-> 
-> > +        /* CRW machine checks disabled */
-> > +        return;
-> > +    }
-> > +
-> > +    lowcore = cpu_physical_memory_map(env->psa, &len, 1);
-> 
-> Check missing again.
-
-Perhaps we want {map,unmap}_lowcore() functions?
-
-> 
-> > +
-> > +    for (i = 0; i < 16; i++) {
-> > +        lowcore->floating_pt_save_area[i] = cpu_to_be64(env->fregs[i].ll);
-> > +        lowcore->gpregs_save_area[i] = cpu_to_be64(env->regs[i]);
-> > +        lowcore->access_regs_save_area[i] = cpu_to_be32(env->aregs[i]);
-> > +        lowcore->cregs_save_area[i] = cpu_to_be64(env->cregs[i]);
-> > +    }
-> > +    lowcore->prefixreg_save_area = cpu_to_be32(env->psa);
-> > +    lowcore->fpt_creg_save_area = cpu_to_be32(env->fpc);
-> > +    lowcore->tod_progreg_save_area = cpu_to_be32(env->todpr);
-> > +    lowcore->cpu_timer_save_area[0] = cpu_to_be32(env->cputm >> 32);
-> > +    lowcore->cpu_timer_save_area[1] =
-> > +        cpu_to_be32(env->cputm & 0x00000000ffffffff);
-> 
-> cpu_to_be32((uint32_t)env->cputm)
-
-Can change that.
-
-> 
-> > +    lowcore->clock_comp_save_area[0] = cpu_to_be32(env->ckc >> 32);
-> > +    lowcore->clock_comp_save_area[1] =
-> > +        cpu_to_be32(env->ckc & 0x00000000ffffffff);
-> > +
-> > +    lowcore->mcck_interruption_code[0] = cpu_to_be32(0x00400f1d);
-> > +    lowcore->mcck_interruption_code[1] = cpu_to_be32(0x40330000);
-> > +    lowcore->mcck_old_psw.mask = cpu_to_be64(get_psw_mask(env));
-> > +    lowcore->mcck_old_psw.addr = cpu_to_be64(env->psw.addr);
-> > +    mask = be64_to_cpu(lowcore->mcck_new_psw.mask);
-> > +    addr = be64_to_cpu(lowcore->mcck_new_psw.addr);
-> > +
-> > +    cpu_physical_memory_unmap(lowcore, len, 1, len);
-> > +
-> > +    env->mchk_index--;
-> > +    if (env->mchk_index == -1) {
-> > +        env->pending_int &= ~INTERRUPT_MCHK;
-> > +    }
-> > +
-> > +    DPRINTF("%s: %" PRIx64 " %" PRIx64 "\n", __func__,
-> > +            env->psw.mask, env->psw.addr);
-> > +
-> > +    load_psw(env, mask, addr);
-> > +}
-> > +
-> > void do_interrupt(CPUS390XState *env)
+> > int kvm_arch_handle_exit(CPUS390XState *env, struct kvm_run *run)
 > > {
-> >     qemu_log_mask(CPU_LOG_INT, "%s: %d at pc=%" PRIx64 "\n",
-> >                   __func__, env->exception_index, env->psw.addr);
-> > 
-> >     s390_add_running_cpu(env);
-> > +    /* handle machine checks */
-> > +    if ((env->psw.mask & PSW_MASK_MCHECK) &&
-> > +        (env->exception_index == -1)) {
-> > +        if (env->pending_int & INTERRUPT_MCHK) {
-> > +            env->exception_index = EXCP_MCHK;
-> > +        }
+> >     int ret = 0;
+> > @@ -576,6 +747,13 @@ int kvm_arch_handle_exit(CPUS390XState *env, struct kvm_run *run)
+> >         case KVM_EXIT_S390_RESET:
+> >             qemu_system_reset_request();
+> >             break;
+> > +        case KVM_EXIT_S390_TSCH:
+> > +            ret = handle_tsch(env, run, run->s390_tsch.dequeued,
+> > +                              run->s390_tsch.subchannel_id,
+> > +                              run->s390_tsch.subchannel_nr,
+> > +                              run->s390_tsch.io_int_parm,
+> > +                              run->s390_tsch.io_int_word);
+> > +            break;
+> >         default:
+> >             fprintf(stderr, "Unknown KVM exit: %d\n", run->exit_reason);
+> >             break;
+> > @@ -601,3 +779,45 @@ int kvm_arch_on_sigbus(int code, void *addr)
+> > {
+> >     return 1;
+> > }
+> > +
+> > +int kvm_s390_io_interrupt(CPUS390XState *env, uint16_t subchannel_id,
+> > +                          uint16_t subchannel_nr, uint32_t io_int_parm,
+> > +                          uint32_t io_int_word)
+> > +{
+> > +    uint32_t type;
+> > +
+> > +    if (!kvm_enabled()) {
+> > +        return -EOPNOTSUPP;
 > > +    }
-> >     /* handle external interrupts */
-> >     if ((env->psw.mask & PSW_MASK_EXT) &&
-> >         env->exception_index == -1) {
-> > @@ -598,6 +730,13 @@ void do_interrupt(CPUS390XState *env)
-> >             env->pending_int &= ~INTERRUPT_TOD;
-> >         }
-> >     }
-> > +    /* handle I/O interrupts */
-> > +    if ((env->psw.mask & PSW_MASK_IO) &&
-> > +        (env->exception_index == -1)) {
-> > +        if (env->pending_int & INTERRUPT_IO) {
-> > +            env->exception_index = EXCP_IO;
-> > +        }
+> > +
+> > +    type = ((subchannel_id & 0xff00) << 24) |
+> > +        ((subchannel_id & 0x00060) << 22) | (subchannel_nr << 16);
+> > +    kvm_s390_interrupt_internal(env, type,
+> > +                                ((uint32_t)subchannel_id << 16) | subchannel_nr,
+> > +                                ((uint64_t)io_int_parm << 32) | io_int_word, 1);
+> > +    return 0;
+> > +}
+> > +
+> > +int kvm_s390_crw_mchk(CPUS390XState *env)
+> > +{
+> > +    if (!kvm_enabled()) {
+> > +        return -EOPNOTSUPP;
 > > +    }
-> > 
-> >     switch (env->exception_index) {
-> >     case EXCP_PGM:
-> > @@ -609,6 +748,12 @@ void do_interrupt(CPUS390XState *env)
-> >     case EXCP_EXT:
-> >         do_ext_interrupt(env);
-> >         break;
-> > +    case EXCP_IO:
-> > +        do_io_interrupt(env);
-> > +        break;
-> > +    case EXCP_MCHK:
-> > +        do_mchk_interrupt(env);
-> > +        break;
-> >     }
-> >     env->exception_index = -1;
-> > 
+> > +
+> > +    kvm_s390_interrupt_internal(env, KVM_S390_MCHK, 1 << 28,
+> > +                                0x00400f1d40330000, 1);
+> > +    return 0;
+> > +}
+> > +
+> > +void kvm_s390_enable_css_support(CPUS390XState *env)
+> > +{
+> > +    struct kvm_enable_cap cap = {};
+> > +    int r;
+> > +
+> > +    /* Activate host kernel channel subsystem support. */
+> > +    if (kvm_enabled()) {
+> > +        cap.cap = KVM_CAP_S390_CSS_SUPPORT;
+> > +        r = kvm_vcpu_ioctl(env, KVM_ENABLE_CAP, &cap);
+> > +        assert(r == 0);
+> > +    }
+> > +}
 > > -- 
 > > 1.7.12.4
 > > 
