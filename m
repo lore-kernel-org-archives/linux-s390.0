@@ -1,86 +1,42 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [RFC PATCH v4 0/8] s390: channel I/O support in qemu.
-Date: Mon, 10 Dec 2012 11:34:48 +0100
-Message-ID: <20121210113448.70a7d860@BR9GNB5Z>
+From: Rob Landley <rob@landley.net>
+Subject: Re: [PATCH 3/8] s390: I/O interrupt and machine check
+ injection.
+Date: Mon, 10 Dec 2012 18:26:28 -0600
+Message-ID: <1355185588.21015.1@driftwood>
 References: <1354884626-15060-1-git-send-email-cornelia.huck@de.ibm.com>
-	<019BF2A3-BDA8-493F-815D-246C54989501@suse.de>
+	<1354884626-15060-4-git-send-email-cornelia.huck@de.ibm.com>
+	<82610216-94CA-44E8-B3CE-EB94886CECFC@suse.de>
+	<20121210112726.0697bc4f@BR9GNB5Z>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <019BF2A3-BDA8-493F-815D-246C54989501@suse.de>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii; DelSp=Yes; Format=Flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+In-Reply-To: <20121210112726.0697bc4f@BR9GNB5Z> (from
+	cornelia.huck@de.ibm.com on Mon Dec 10 04:27:26 2012)
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Alexander Graf <agraf@suse.de>
-Cc: qemu-devel qemu-devel <qemu-devel@nongnu.org>, KVM list <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, fred.konrad@greensocs.com
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Anthony Liguori <aliguori@us.ibm.com>, Gleb Natapov <gleb@redhat.com>, KVM <kvm@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Marcelo Tosatti <mtosatti@redhat.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>, qemu-devel <qemu-devel@nongnu.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 10 Dec 2012 09:02:51 +0100
-Alexander Graf <agraf@suse.de> wrote:
+What do you actually use to run Linux under this target? There are some =20
+leads at
+http://virtuallyfun.superglobalmegacorp.com/?p=3D1206 which more or less =20
+leads to
+http://ftp.nl.debian.org/debian/dists/Debian6.0.6/main/installer-s390/curre=
+nt/images/generic/ =20
+but I dunno what qemu command line would go along with those files...
 
-> 
-> On 07.12.2012, at 13:50, Cornelia Huck wrote:
-> 
-> > Hi,
-> > 
-> > just a quick dump of my qemu patch series for channel I/O.
-> > 
-> > I've managed to chop the virtual css patch into some smaller
-> > chunks (patches 2-6), which are hopefully easier to review.
-> > 
-> > The virtio-ccw patch is still based upon the current virtio
-> > infrastructure; I'll try to rebase it upon the virtio refactoring
-> > once that has most of the infrastructure in place.
-> 
-> I wouldn't want to hold this feature back only for some virtio refactoring. Let's try to get it into shape for now and worry about the refactor work when that's closer to merging.
+Any hints?
 
-The virtio-ccw stuff is already in a state where I welcome feedback -
-if you keep in mind that the modelling will look a bit different after
-the virtio refactoring. (And the other patches could be merged when
-ready without waiting for the refactoring.)
-> 
-> 
-> Alex
-> 
-> > 
-> > Cornelia Huck (8):
-> >  Update linux headers.
-> >  s390: Channel I/O basic defintions.
-> >  s390: I/O interrupt and machine check injection.
-> >  s390: Add channel I/O instructions.
-> >  s390: Virtual channel subsystem support.
-> >  s390: Wire up channel I/O in kvm.
-> >  s390-virtio: Factor out some initialization code.
-> >  s390: Add new channel I/O based virtio transport.
-> > 
-> > hw/s390-virtio.c                     |  281 +++++---
-> > hw/s390x/Makefile.objs               |    2 +
-> > hw/s390x/css.c                       | 1195 ++++++++++++++++++++++++++++++++++
-> > hw/s390x/css.h                       |   92 +++
-> > hw/s390x/virtio-ccw.c                |  909 ++++++++++++++++++++++++++
-> > hw/s390x/virtio-ccw.h                |   81 +++
-> > linux-headers/asm-generic/kvm_para.h |    4 +
-> > linux-headers/asm-powerpc/kvm.h      |   59 ++
-> > linux-headers/asm-powerpc/kvm_para.h |    7 +-
-> > linux-headers/linux/kvm.h            |   36 +-
-> > target-s390x/Makefile.objs           |    2 +-
-> > target-s390x/cpu.h                   |  230 +++++++
-> > target-s390x/helper.c                |  145 +++++
-> > target-s390x/ioinst.c                |  726 +++++++++++++++++++++
-> > target-s390x/ioinst.h                |  223 +++++++
-> > target-s390x/kvm.c                   |  246 ++++++-
-> > trace-events                         |   18 +
-> > 17 files changed, 4161 insertions(+), 95 deletions(-)
-> > create mode 100644 hw/s390x/css.c
-> > create mode 100644 hw/s390x/css.h
-> > create mode 100644 hw/s390x/virtio-ccw.c
-> > create mode 100644 hw/s390x/virtio-ccw.h
-> > create mode 100644 linux-headers/asm-generic/kvm_para.h
-> > create mode 100644 target-s390x/ioinst.c
-> > create mode 100644 target-s390x/ioinst.h
-> > 
-> > -- 
-> > 1.7.12.4
-> > 
-> 
+Rob=
