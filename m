@@ -1,96 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1355363029.2164.14.camel@joe-AO722>
-Subject: [TRIVIAL PATCH V2 12/26] s390: Convert print_symbol to %pSR
 From: Joe Perches <joe@perches.com>
-Date: Wed, 12 Dec 2012 17:43:49 -0800
-In-Reply-To: <cover.1355335227.git.joe@perches.com>
-References: <cover.1355335227.git.joe@perches.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Subject: [TRIVIAL PATCH 00/26] treewide: Add and use vsprintf extension %pSR
+Date: Wed, 12 Dec 2012 10:18:49 -0800
+Message-Id: <cover.1355335227.git.joe@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jiri Kosina <trivial@kernel.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <trivial@kernel.org>, linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, cbe-oss-dev@lists.ozlabs.org, linux-edac@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, cluster-devel@redhat.com, linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, linux-kernel@zh-kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m32r@ml.linux-m32r.org, linux-m32r-ja@ml.linux-m32r.org, linux-am33-list@redhat.com, linux@openrisc.net, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Use the new vsprintf extension to avoid any possible
-message interleaving.
+Remove the somewhat awkward uses of print_symbol and convert all the
+existing uses to a new vsprintf pointer type of %pSR.
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
+print_symbol can be interleaved when it is used in a sequence like:
 
-V2: Add missing parentheses, remove comma
+	printk("something: ...");
+	print_symbol("%s", addr);
+	printk("\n");
 
- arch/s390/kernel/traps.c |   28 ++++++++++++++++------------
- 1 files changed, 16 insertions(+), 12 deletions(-)
+Instead use:
 
-diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
-index 70ecfc5..f718e12 100644
---- a/arch/s390/kernel/traps.c
-+++ b/arch/s390/kernel/traps.c
-@@ -91,8 +91,9 @@ __show_trace(unsigned long sp, unsigned long low, unsigned long high)
- 		if (sp < low || sp > high - sizeof(*sf))
- 			return sp;
- 		sf = (struct stack_frame *) sp;
--		printk("([<%016lx>] ", sf->gprs[8] & PSW_ADDR_INSN);
--		print_symbol("%s)\n", sf->gprs[8] & PSW_ADDR_INSN);
-+		printk("([<%016lx>] %pSR)\n",
-+		       sf->gprs[8] & PSW_ADDR_INSN,
-+		       (void *)(sf->gprs[8] & PSW_ADDR_INSN));
- 		/* Follow the backchain. */
- 		while (1) {
- 			low = sp;
-@@ -102,16 +103,18 @@ __show_trace(unsigned long sp, unsigned long low, unsigned long high)
- 			if (sp <= low || sp > high - sizeof(*sf))
- 				return sp;
- 			sf = (struct stack_frame *) sp;
--			printk(" [<%016lx>] ", sf->gprs[8] & PSW_ADDR_INSN);
--			print_symbol("%s\n", sf->gprs[8] & PSW_ADDR_INSN);
-+			printk(" [<%016lx>] %pSR\n",
-+			       sf->gprs[8] & PSW_ADDR_INSN,
-+			       (void *)(sf->gprs[8] & PSW_ADDR_INSN));
- 		}
- 		/* Zero backchain detected, check for interrupt frame. */
- 		sp = (unsigned long) (sf + 1);
- 		if (sp <= low || sp > high - sizeof(*regs))
- 			return sp;
- 		regs = (struct pt_regs *) sp;
--		printk(" [<%016lx>] ", regs->psw.addr & PSW_ADDR_INSN);
--		print_symbol("%s\n", regs->psw.addr & PSW_ADDR_INSN);
-+		printk(" [<%016lx>] %pSR\n",
-+		       regs->psw.addr & PSW_ADDR_INSN,
-+		       (void *)(regs->psw.addr & PSW_ADDR_INSN));
- 		low = sp;
- 		sp = regs->gprs[15];
- 	}
-@@ -169,8 +172,9 @@ static void show_last_breaking_event(struct pt_regs *regs)
- {
- #ifdef CONFIG_64BIT
- 	printk("Last Breaking-Event-Address:\n");
--	printk(" [<%016lx>] ", regs->args[0] & PSW_ADDR_INSN);
--	print_symbol("%s\n", regs->args[0] & PSW_ADDR_INSN);
-+	printk(" [<%016lx>] %pSR\n",
-+	       regs->args[0] & PSW_ADDR_INSN,
-+	       (void *)(regs->args[0] & PSW_ADDR_INSN));
- #endif
- }
- 
-@@ -201,10 +205,10 @@ void show_registers(struct pt_regs *regs)
- 	char *mode;
- 
- 	mode = user_mode(regs) ? "User" : "Krnl";
--	printk("%s PSW : %p %p",
--	       mode, (void *) regs->psw.mask,
--	       (void *) regs->psw.addr);
--	print_symbol(" (%s)\n", regs->psw.addr & PSW_ADDR_INSN);
-+	printk("%s PSW : %p %p (%pSR)\n",
-+	       mode, (void *)regs->psw.mask,
-+	       (void *)regs->psw.addr,
-+	       (void *)(regs->psw.addr & PSW_ADDR_INSN));
- 	printk("           R:%x T:%x IO:%x EX:%x Key:%x M:%x W:%x "
- 	       "P:%x AS:%x CC:%x PM:%x", mask_bits(regs, PSW_MASK_PER),
- 	       mask_bits(regs, PSW_MASK_DAT), mask_bits(regs, PSW_MASK_IO),
+	printk("something: %pSR\n", (void *)addr);
+
+Add a new %p[SsFf]R vsprintf extension that can perform the same
+symbol function/address/offset formatting as print_symbol to
+reduce the number and styles of message logging functions.
+
+print_symbol used __builtin_extract_return_addr for those architectures
+like S/390 and SPARC that have offset or masked addressing.
+%p[FfSs]R uses the same gcc __builtin
+
+Joe Perches (26):
+  vsprintf: Add extension %pSR - print_symbol replacement
+  alpha: Convert print_symbol to %pSR
+  arm: Convert print_symbol to %pSR
+  arm64: Convert print_symbol to %pSR
+  avr32: Convert print_symbol to %pSR
+  c6x: Convert print_symbol to %pSR
+  ia64: Convert print_symbol to %pSR
+  m32r: Convert print_symbol to %pSR
+  mn10300: Convert print_symbol to %pSR
+  openrisc: Convert print_symbol to %pSR
+  powerpc: Convert print_symbol to %pSR
+  s390: Convert print_symbol to %pSR
+  sh: Convert print_symbol to %pSR
+  um: Convert print_symbol to %pSR
+  unicore32: Convert print_symbol to %pSR
+  x86: Convert print_symbol to %pSR
+  xtensa: Convert print_symbol to %pSR
+  drivers: base: Convert print_symbol to %pSR
+  gfs2: Convert print_symbol to %pSR
+  sysfs: Convert print_symbol to %pSR
+  irq: Convert print_symbol to %pSR
+  smp_processor_id: Convert print_symbol to %pSR
+  mm: Convert print_symbol to %pSR
+  xtensa: Convert print_symbol to %pSR
+  x86: head_64.S: Use vsprintf extension %pSR not print_symbol
+  kallsyms: Remove print_symbol
+
+ Documentation/filesystems/sysfs.txt         |    4 +-
+ Documentation/printk-formats.txt            |    2 +
+ Documentation/zh_CN/filesystems/sysfs.txt   |    4 +-
+ arch/alpha/kernel/traps.c                   |    8 ++----
+ arch/arm/kernel/process.c                   |    4 +-
+ arch/arm64/kernel/process.c                 |    4 +-
+ arch/avr32/kernel/process.c                 |   25 ++++++-----------------
+ arch/c6x/kernel/traps.c                     |    3 +-
+ arch/ia64/kernel/process.c                  |   13 ++++-------
+ arch/m32r/kernel/traps.c                    |    6 +---
+ arch/mn10300/kernel/traps.c                 |    8 +++---
+ arch/openrisc/kernel/traps.c                |    7 +----
+ arch/powerpc/platforms/cell/spu_callbacks.c |   12 ++++------
+ arch/s390/kernel/traps.c                    |   28 +++++++++++++++-----------
+ arch/sh/kernel/process_32.c                 |    4 +-
+ arch/um/kernel/sysrq.c                      |    6 +---
+ arch/unicore32/kernel/process.c             |    5 ++-
+ arch/x86/kernel/cpu/mcheck/mce.c            |   13 ++++++-----
+ arch/x86/kernel/dumpstack.c                 |    5 +--
+ arch/x86/kernel/head_64.S                   |    4 +-
+ arch/x86/kernel/process_32.c                |    2 +-
+ arch/x86/mm/mmio-mod.c                      |    4 +-
+ arch/x86/um/sysrq_32.c                      |    9 ++-----
+ arch/xtensa/kernel/traps.c                  |    6 +---
+ drivers/base/core.c                         |    4 +-
+ fs/gfs2/glock.c                             |    4 +-
+ fs/gfs2/trans.c                             |    3 +-
+ fs/sysfs/file.c                             |    4 +-
+ include/linux/kallsyms.h                    |   18 -----------------
+ kernel/irq/debug.h                          |   15 ++++++-------
+ kernel/kallsyms.c                           |   11 ----------
+ lib/smp_processor_id.c                      |    2 +-
+ lib/vsprintf.c                              |   18 ++++++++++++----
+ mm/memory.c                                 |    8 +++---
+ mm/slab.c                                   |    8 ++----
+ 35 files changed, 117 insertions(+), 164 deletions(-)
+
 -- 
 1.7.8.112.g3fd21
