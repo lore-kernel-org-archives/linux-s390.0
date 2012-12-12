@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 2/4] s390: Move css limits from drivers/s390/cio/ to include/asm/.
-Date: Wed, 12 Dec 2012 17:36:39 +0100
-Message-ID: <1355330201-36481-3-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 3/4] s390: Add a mechanism to get the subchannel id.
+Date: Wed, 12 Dec 2012 17:36:40 +0100
+Message-ID: <1355330201-36481-4-git-send-email-cornelia.huck@de.ibm.com>
 References: <1355330201-36481-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1355330201-36481-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,41 +12,58 @@ To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, KVM <
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-There's no need to keep __MAX_SUBCHANNEL and __MAX_SSID private to the
-common I/O layer when __MAX_CSSID is usable by everybody.
+This will be needed by the new virtio-ccw transport.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/include/asm/cio.h | 2 ++
- drivers/s390/cio/css.h      | 3 ---
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/ccwdev.h |  5 +++++
+ drivers/s390/cio/device_ops.c  | 12 ++++++++++++
+ 2 files changed, 17 insertions(+)
 
-diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
-index 55bde60..ad2b924 100644
---- a/arch/s390/include/asm/cio.h
-+++ b/arch/s390/include/asm/cio.h
-@@ -9,6 +9,8 @@
+diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
+index 1cb4bb3..9ad79f7 100644
+--- a/arch/s390/include/asm/ccwdev.h
++++ b/arch/s390/include/asm/ccwdev.h
+@@ -18,6 +18,9 @@ struct irb;
+ struct ccw1;
+ struct ccw_dev_id;
  
- #define LPM_ANYPATH 0xff
- #define __MAX_CSSID 0
-+#define __MAX_SUBCHANNEL 65535
-+#define __MAX_SSID 3
++/* from asm/schid.h */
++struct subchannel_id;
++
+ /* simplified initializers for struct ccw_device:
+  * CCW_DEVICE and CCW_DEVICE_DEVTYPE initialize one
+  * entry in your MODULE_DEVICE_TABLE and set the match_flag correctly */
+@@ -226,5 +229,7 @@ int ccw_device_siosl(struct ccw_device *);
+ // FIXME: these have to go
+ extern int _ccw_device_get_subchannel_number(struct ccw_device *);
  
- #include <asm/scsw.h>
++extern void ccw_device_get_schid(struct ccw_device *, struct subchannel_id *);
++
+ extern void *ccw_device_get_chp_desc(struct ccw_device *, int);
+ #endif /* _S390_CCWDEV_H_ */
+diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
+index ec7fb6d..2ad832f 100644
+--- a/drivers/s390/cio/device_ops.c
++++ b/drivers/s390/cio/device_ops.c
+@@ -763,6 +763,18 @@ _ccw_device_get_subchannel_number(struct ccw_device *cdev)
+ 	return cdev->private->schid.sch_no;
+ }
  
-diff --git a/drivers/s390/cio/css.h b/drivers/s390/cio/css.h
-index 33bb4d8..4af3dfe 100644
---- a/drivers/s390/cio/css.h
-+++ b/drivers/s390/cio/css.h
-@@ -112,9 +112,6 @@ extern int for_each_subchannel(int(*fn)(struct subchannel_id, void *), void *);
- extern void css_reiterate_subchannels(void);
- void css_update_ssd_info(struct subchannel *sch);
++/**
++ * ccw_device_get_schid - obtain a subchannel id
++ * @cdev: device to obtain the id for
++ * @schid: where to fill in the values
++ */
++void ccw_device_get_schid(struct ccw_device *cdev, struct subchannel_id *schid)
++{
++	struct subchannel *sch = to_subchannel(cdev->dev.parent);
++
++	*schid = sch->schid;
++}
++EXPORT_SYMBOL_GPL(ccw_device_get_schid);
  
--#define __MAX_SUBCHANNEL 65535
--#define __MAX_SSID 3
--
- struct channel_subsystem {
- 	u8 cssid;
- 	int valid;
+ MODULE_LICENSE("GPL");
+ EXPORT_SYMBOL(ccw_device_set_options_mask);
 -- 
 1.7.12.4
