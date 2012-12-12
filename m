@@ -1,69 +1,230 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 3/4] s390: Add a mechanism to get the subchannel id.
-Date: Wed, 12 Dec 2012 17:36:40 +0100
-Message-ID: <1355330201-36481-4-git-send-email-cornelia.huck@de.ibm.com>
-References: <1355330201-36481-1-git-send-email-cornelia.huck@de.ibm.com>
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: [PATCH 4/4] KVM: s390: Add a channel I/O based virtio transport
+ driver.
+Date: Wed, 12 Dec 2012 19:31:43 +0100
+Message-ID: <50C8CD8F.2000909@suse.de>
+References: <1355330201-36481-1-git-send-email-cornelia.huck@de.ibm.com> <1355330201-36481-5-git-send-email-cornelia.huck@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1355330201-36481-1-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <1355330201-36481-5-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This will be needed by the new virtio-ccw transport.
+On 12/12/2012 05:36 PM, Cornelia Huck wrote:
+> Add a driver for kvm guests that matches virtual ccw devices provided
+> by the host as virtio bridge devices.
+>
+> These virtio-ccw devices use a special set of channel commands in order
+> to perform virtio functions.
+>
+> Reviewed-by: Marcelo Tosatti<mtosatti@redhat.com>
+> Signed-off-by: Cornelia Huck<cornelia.huck@de.ibm.com>
+> ---
+>   arch/s390/include/asm/irq.h   |   1 +
+>   arch/s390/kernel/irq.c        |   1 +
+>   drivers/s390/kvm/Makefile     |   2 +-
+>   drivers/s390/kvm/virtio_ccw.c | 854 ++++++++++++++++++++++++++++++++++++++++++
+>   4 files changed, 857 insertions(+), 1 deletion(-)
+>   create mode 100644 drivers/s390/kvm/virtio_ccw.c
+>
+> diff --git a/arch/s390/include/asm/irq.h b/arch/s390/include/asm/irq.h
+> index 6703dd9..ad2ad6b 100644
+> --- a/arch/s390/include/asm/irq.h
+> +++ b/arch/s390/include/asm/irq.h
+> @@ -33,6 +33,7 @@ enum interruption_class {
+>   	IOINT_APB,
+>   	IOINT_ADM,
+>   	IOINT_CSC,
+> +	IOINT_VIR,
+>   	NMI_NMI,
+>   	NR_IRQS,
+>   };
+> diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
+> index 6cdc55b..97c171a 100644
+> --- a/arch/s390/kernel/irq.c
+> +++ b/arch/s390/kernel/irq.c
+> @@ -58,6 +58,7 @@ static const struct irq_class intrclass_names[] = {
+>   	[IOINT_APB]  = {.name = "APB", .desc = "[I/O] AP Bus"},
+>   	[IOINT_ADM]  = {.name = "ADM", .desc = "[I/O] EADM Subchannel"},
+>   	[IOINT_CSC]  = {.name = "CSC", .desc = "[I/O] CHSC Subchannel"},
+> +	[IOINT_VIR]  = {.name = "VIR", .desc = "[I/O] Virtual I/O Devices"},
+>   	[NMI_NMI]    = {.name = "NMI", .desc = "[NMI] Machine Check"},
+>   };
+>
+> diff --git a/drivers/s390/kvm/Makefile b/drivers/s390/kvm/Makefile
+> index 0815690..241891a 100644
+> --- a/drivers/s390/kvm/Makefile
+> +++ b/drivers/s390/kvm/Makefile
+> @@ -6,4 +6,4 @@
+>   # it under the terms of the GNU General Public License (version 2 only)
+>   # as published by the Free Software Foundation.
+>
+> -obj-$(CONFIG_S390_GUEST) += kvm_virtio.o
+> +obj-$(CONFIG_S390_GUEST) += kvm_virtio.o virtio_ccw.o
+> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> new file mode 100644
+> index 0000000..7f1a0c6
+> --- /dev/null
+> +++ b/drivers/s390/kvm/virtio_ccw.c
+> @@ -0,0 +1,854 @@
+> +/*
+> + * ccw based virtio transport
+> + *
+> + * Copyright IBM Corp. 2012
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License (version 2 only)
+> + * as published by the Free Software Foundation.
+> + *
+> + *    Author(s): Cornelia Huck<cornelia.huck@de.ibm.com>
+> + */
+> +
+> +#include<linux/kernel_stat.h>
+> +#include<linux/init.h>
+> +#include<linux/bootmem.h>
+> +#include<linux/err.h>
+> +#include<linux/virtio.h>
+> +#include<linux/virtio_config.h>
+> +#include<linux/slab.h>
+> +#include<linux/interrupt.h>
+> +#include<linux/virtio_ring.h>
+> +#include<linux/pfn.h>
+> +#include<linux/async.h>
+> +#include<linux/wait.h>
+> +#include<linux/list.h>
+> +#include<linux/bitops.h>
+> +#include<linux/module.h>
+> +#include<linux/io.h>
+> +#include<linux/kvm_para.h>
+> +#include<asm/setup.h>
+> +#include<asm/irq.h>
+> +#include<asm/cio.h>
+> +#include<asm/ccwdev.h>
+> +#include<asm/schid.h>
+> +
+> +/*
+> + * virtio related functions
+> + */
+> +
+> +struct vq_config_block {
+> +	__u16 index;
+> +	__u16 num;
+> +} __packed;
+> +
+> +#define VIRTIO_CCW_CONFIG_SIZE 0x100
+> +/* same as PCI config space size, should be enough for all drivers */
+> +
+> +struct virtio_ccw_device {
+> +	struct virtio_device vdev;
+> +	__u8 status;
+> +	__u8 config[VIRTIO_CCW_CONFIG_SIZE];
+> +	struct ccw_device *cdev;
+> +	struct ccw1 *ccw;
+> +	__u32 area;
+> +	__u32 curr_io;
+> +	int err;
+> +	wait_queue_head_t wait_q;
+> +	spinlock_t lock;
+> +	struct list_head virtqueues;
+> +	unsigned long indicators;
+> +	unsigned long indicators2;
+> +	struct vq_config_block *config_block;
+> +};
+> +
+> +struct vq_info_block {
+> +	__u64 queue;
+> +	__u32 align;
+> +	__u16 index;
+> +	__u16 num;
+> +} __packed;
+> +
+> +struct virtio_feature_desc {
+> +	__u32 features;
+> +	__u8 index;
+> +} __packed;
+> +
+> +struct virtio_ccw_vq_info {
+> +	struct virtqueue *vq;
+> +	int num;
+> +	void *queue;
+> +	struct vq_info_block *info_block;
+> +	struct list_head node;
+> +};
+> +
+> +#define KVM_VIRTIO_CCW_RING_ALIGN 4096
+> +
+> +#define KVM_S390_VIRTIO_CCW_NOTIFY 3
+> +
+> +#define CCW_CMD_SET_VQ 0x13
+> +#define CCW_CMD_VDEV_RESET 0x33
+> +#define CCW_CMD_SET_IND 0x43
+> +#define CCW_CMD_SET_CONF_IND 0x53
+> +#define CCW_CMD_READ_FEAT 0x12
+> +#define CCW_CMD_WRITE_FEAT 0x11
+> +#define CCW_CMD_READ_CONF 0x22
+> +#define CCW_CMD_WRITE_CONF 0x21
+> +#define CCW_CMD_WRITE_STATUS 0x31
+> +#define CCW_CMD_READ_VQ_CONF 0x32
+> +
+> +#define VIRTIO_CCW_DOING_SET_VQ 0x00010000
+> +#define VIRTIO_CCW_DOING_RESET 0x00040000
+> +#define VIRTIO_CCW_DOING_READ_FEAT 0x00080000
+> +#define VIRTIO_CCW_DOING_WRITE_FEAT 0x00100000
+> +#define VIRTIO_CCW_DOING_READ_CONFIG 0x00200000
+> +#define VIRTIO_CCW_DOING_WRITE_CONFIG 0x00400000
+> +#define VIRTIO_CCW_DOING_WRITE_STATUS 0x00800000
+> +#define VIRTIO_CCW_DOING_SET_IND 0x01000000
+> +#define VIRTIO_CCW_DOING_READ_VQ_CONF 0x02000000
+> +#define VIRTIO_CCW_DOING_SET_CONF_IND 0x04000000
+> +#define VIRTIO_CCW_INTPARM_MASK 0xffff0000
+> +
+> +static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
+> +{
+> +	return container_of(vdev, struct virtio_ccw_device, vdev);
+> +}
+> +
+> +static int doing_io(struct virtio_ccw_device *vcdev, __u32 flag)
+> +{
+> +	unsigned long flags;
+> +	__u32 ret;
+> +
+> +	spin_lock_irqsave(get_ccwdev_lock(vcdev->cdev), flags);
+> +	if (vcdev->err)
+> +		ret = 0;
+> +	else
+> +		ret = vcdev->curr_io&  flag;
+> +	spin_unlock_irqrestore(get_ccwdev_lock(vcdev->cdev), flags);
+> +	return ret;
+> +}
+> +
+> +static int ccw_io_helper(struct virtio_ccw_device *vcdev, __u32 intparm)
+> +{
+> +	int ret;
+> +	unsigned long flags;
+> +	int flag = intparm&  VIRTIO_CCW_INTPARM_MASK;
+> +
+> +	spin_lock_irqsave(get_ccwdev_lock(vcdev->cdev), flags);
+> +	ret = ccw_device_start(vcdev->cdev, vcdev->ccw, intparm, 0, 0);
+> +	if (!ret)
+> +		vcdev->curr_io |= flag;
+> +	spin_unlock_irqrestore(get_ccwdev_lock(vcdev->cdev), flags);
+> +	wait_event(vcdev->wait_q, doing_io(vcdev, flag) == 0);
+> +	return ret ? ret : vcdev->err;
+> +}
+> +
+> +static inline long do_kvm_notify(struct subchannel_id schid,
+> +				 unsigned long queue_index)
+> +{
+> +	register unsigned long __nr asm("1") = KVM_S390_VIRTIO_CCW_NOTIFY;
+> +	register struct subchannel_id __schid asm("2") = schid;
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- arch/s390/include/asm/ccwdev.h |  5 +++++
- drivers/s390/cio/device_ops.c  | 12 ++++++++++++
- 2 files changed, 17 insertions(+)
+How does the compiler know that the struct fits within a register?
 
-diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
-index 1cb4bb3..9ad79f7 100644
---- a/arch/s390/include/asm/ccwdev.h
-+++ b/arch/s390/include/asm/ccwdev.h
-@@ -18,6 +18,9 @@ struct irb;
- struct ccw1;
- struct ccw_dev_id;
- 
-+/* from asm/schid.h */
-+struct subchannel_id;
-+
- /* simplified initializers for struct ccw_device:
-  * CCW_DEVICE and CCW_DEVICE_DEVTYPE initialize one
-  * entry in your MODULE_DEVICE_TABLE and set the match_flag correctly */
-@@ -226,5 +229,7 @@ int ccw_device_siosl(struct ccw_device *);
- // FIXME: these have to go
- extern int _ccw_device_get_subchannel_number(struct ccw_device *);
- 
-+extern void ccw_device_get_schid(struct ccw_device *, struct subchannel_id *);
-+
- extern void *ccw_device_get_chp_desc(struct ccw_device *, int);
- #endif /* _S390_CCWDEV_H_ */
-diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
-index ec7fb6d..2ad832f 100644
---- a/drivers/s390/cio/device_ops.c
-+++ b/drivers/s390/cio/device_ops.c
-@@ -763,6 +763,18 @@ _ccw_device_get_subchannel_number(struct ccw_device *cdev)
- 	return cdev->private->schid.sch_no;
- }
- 
-+/**
-+ * ccw_device_get_schid - obtain a subchannel id
-+ * @cdev: device to obtain the id for
-+ * @schid: where to fill in the values
-+ */
-+void ccw_device_get_schid(struct ccw_device *cdev, struct subchannel_id *schid)
-+{
-+	struct subchannel *sch = to_subchannel(cdev->dev.parent);
-+
-+	*schid = sch->schid;
-+}
-+EXPORT_SYMBOL_GPL(ccw_device_get_schid);
- 
- MODULE_LICENSE("GPL");
- EXPORT_SYMBOL(ccw_device_set_options_mask);
--- 
-1.7.12.4
+
+Alex
