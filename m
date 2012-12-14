@@ -1,8 +1,10 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH v5 0/3] s390: Guest support for virtio-ccw.
-Date: Fri, 14 Dec 2012 17:02:15 +0100
-Message-ID: <1355500938-35344-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 2/3] s390/ccwdev: Include asm/schid.h.
+Date: Fri, 14 Dec 2012 17:02:17 +0100
+Message-ID: <1355500938-35344-3-git-send-email-cornelia.huck@de.ibm.com>
+References: <1355500938-35344-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1355500938-35344-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,29 +12,33 @@ To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, KVM <
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+Get the definition of struct subchannel_id.
 
-here's the virtio-ccw guest support for kvm/next again.
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ arch/s390/include/asm/ccwdev.h | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-The not-kvm specific patches have made their way upstream via the
-s390 tree in the meantime. Patch 2 fixes an inconsistency there.
-
-Patch 3 lost the now unneeded schid.h include; otherwise, the patches
-are unchanged from v4.
-
-Cornelia Huck (3):
-  KVM: s390: Handle hosts not supporting s390-virtio.
-  s390/ccwdev: Include asm/schid.h.
-  KVM: s390: Add a channel I/O based virtio transport driver.
-
- arch/s390/include/asm/ccwdev.h |   4 +-
- arch/s390/include/asm/irq.h    |   1 +
- arch/s390/kernel/irq.c         |   1 +
- drivers/s390/kvm/Makefile      |   2 +-
- drivers/s390/kvm/kvm_virtio.c  |  38 +-
- drivers/s390/kvm/virtio_ccw.c  | 853 +++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 887 insertions(+), 12 deletions(-)
- create mode 100644 drivers/s390/kvm/virtio_ccw.c
-
+diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
+index 6d1f357..e606161 100644
+--- a/arch/s390/include/asm/ccwdev.h
++++ b/arch/s390/include/asm/ccwdev.h
+@@ -12,15 +12,13 @@
+ #include <linux/mod_devicetable.h>
+ #include <asm/fcx.h>
+ #include <asm/irq.h>
++#include <asm/schid.h>
+ 
+ /* structs from asm/cio.h */
+ struct irb;
+ struct ccw1;
+ struct ccw_dev_id;
+ 
+-/* from asm/schid.h */
+-struct subchannel_id;
+-
+ /* simplified initializers for struct ccw_device:
+  * CCW_DEVICE and CCW_DEVICE_DEVTYPE initialize one
+  * entry in your MODULE_DEVICE_TABLE and set the match_flag correctly */
 -- 
 1.7.12.4
