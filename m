@@ -1,90 +1,233 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joe Perches <joe@perches.com>
-Subject: [TRIVIAL PATCH 12/26] s390: Convert print_symbol to %pSR
-Date: Wed, 12 Dec 2012 10:19:01 -0800
-Message-Id: <08ed143e48ebb9f16ae49daa9fb2d90f45c6e2cf.1355335228.git.joe@perches.com>
-In-Reply-To: <cover.1355335227.git.joe@perches.com>
-References: <cover.1355335227.git.joe@perches.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jiri Kosina <trivial@kernel.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Toshi Kani <toshi.kani@hp.com>
+Subject: Re: [RFC PATCH 00/11] Hot-plug and Online/Offline framework
+Date: Thu, 13 Dec 2012 18:51:12 -0700
+Message-ID: <1355449872.18964.295.camel@misato.fc.hp.com>
+References: <1355354243-18657-1-git-send-email-toshi.kani@hp.com>
+	 <20121212235657.GD22764@kroah.com>
+	 <1355359176.18964.41.camel@misato.fc.hp.com>
+	 <20121213005510.GA9220@kroah.com>
+	 <1355369864.18964.68.camel@misato.fc.hp.com>
+	 <20121213041627.GA14083@kroah.com>
+	 <1355414634.18964.158.camel@misato.fc.hp.com>
+	 <20121213183021.GC9606@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <20121213183021.GC9606@kroah.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-acpi/>
+List-Post: <mailto:linux-acpi@vger.kernel.org>
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: "rjw@sisk.pl" <rjw@sisk.pl>, "lenb@kernel.org" <lenb@kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "bhelgaas@google.com" <bhelgaas@google.com>, "isimatu.yasuaki@jp.fujitsu.com" <isimatu.yasuaki@jp.fujitsu.com>, "jiang.liu@huawei.com" <jiang.liu@huawei.com>, "wency@cn.fujitsu.com" <wency@cn.fujitsu.com>, "guohanjun@huawei.com" <guohanjun@huawei.com>, "yinghai@kernel.org" <yinghai@kernel.org>, "srivatsa.bhat@linux.vnet.ibm.com" <srivatsa.bhat@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Use the new vsprintf extension to avoid any possible
-message interleaving.
+On Thu, 2012-12-13 at 10:30 -0800, Greg KH wrote:
+> On Thu, Dec 13, 2012 at 09:03:54AM -0700, Toshi Kani wrote:
+> > On Thu, 2012-12-13 at 04:16 +0000, Greg KH wrote:
+> > > On Wed, Dec 12, 2012 at 08:37:44PM -0700, Toshi Kani wrote:
+> > > > On Wed, 2012-12-12 at 16:55 -0800, Greg KH wrote:
+> > > > > On Wed, Dec 12, 2012 at 05:39:36PM -0700, Toshi Kani wrote:
+> > > > > > On Wed, 2012-12-12 at 15:56 -0800, Greg KH wrote:
+> > > > > > > On Wed, Dec 12, 2012 at 04:17:12PM -0700, Toshi Kani wrote:
+> > > > > > > > This patchset is an initial prototype of proposed hot-plug framework
+> > > > > > > > for design review.  The hot-plug framework is designed to provide 
+> > > > > > > > the common framework for hot-plugging and online/offline operations
+> > > > > > > > of system devices, such as CPU, Memory and Node.  While this patchset
+> > > > > > > > only supports ACPI-based hot-plug operations, the framework itself is
+> > > > > > > > designed to be platform-neural and can support other FW architectures
+> > > > > > > > as necessary.
+> > > > > > > > 
+> > > > > > > > The patchset has not been fully tested yet, esp. for memory hot-plug.
+> > > > > > > > Any help for testing will be very appreciated since my test setup
+> > > > > > > > is limited.
+> > > > > > > > 
+> > > > > > > > The patchset is based on the linux-next branch of linux-pm.git tree.
+> > > > > > > > 
+> > > > > > > > Overview of the Framework
+> > > > > > > > =========================
+> > > > > > > 
+> > > > > > > <snip>
+> > > > > > > 
+> > > > > > > Why all the new framework, doesn't the existing bus infrastructure
+> > > > > > > provide everything you need here?  Shouldn't you just be putting your
+> > > > > > > cpus and memory sticks on a bus and handle stuff that way?  What makes
+> > > > > > > these types of devices so unique from all other devices that Linux has
+> > > > > > > been handling in a dynamic manner (i.e. hotplugging them) for many many
+> > > > > > > years?
+> > > > > > > 
+> > > > > > > Why are you reinventing the wheel?
+> > > > > > 
+> > > > > > Good question.  Yes, USB and PCI hotplug operate based on their bus
+> > > > > > structures.  USB and PCI cards only work under USB and PCI bus
+> > > > > > controllers.  So, their framework can be composed within the bus
+> > > > > > structures as you pointed out.
+> > > > > > 
+> > > > > > However, system devices such CPU and memory do not have their standard
+> > > > > > bus.  ACPI allows these system devices to be enumerated, but it does not
+> > > > > > make ACPI as the HW bus hierarchy for CPU and memory, unlike PCI and
+> > > > > > USB.  Therefore, CPU and memory modules manage CPU and memory outside of
+> > > > > > ACPI.  This makes sense because CPU and memory can be used without ACPI.
+> > > > > > 
+> > > > > > This leads us an issue when we try to manage system device hotplug
+> > > > > > within ACPI, because ACPI does not control everything.  This patchset
+> > > > > > provides a common hotplug framework for system devices, which both ACPI
+> > > > > > and non-ACPI modules (i.e. CPU and memory modules) can participate and
+> > > > > > are coordinated for their hotplug operations.  This is analogous to the
+> > > > > > boot-up sequence, which ACPI and non-ACPI modules can participate to
+> > > > > > enable CPU and memory.
+> > > > > 
+> > > > > Then create a "virtual" bus and put the devices you wish to control on
+> > > > > that.  That is what the "system bus" devices were supposed to be, it's
+> > > > > about time someone took that code and got it all working properly in
+> > > > > this way, that is why it was created oh so long ago.
+> > > > 
+> > > > It may be the ideal, but it will take us great effort to make such
+> > > > things to happen based on where we are now.  It is going to be a long
+> > > > way.  I believe the first step is to make the boot-up flow and hot-plug
+> > > > flow consistent for system devices.  This is what this patchset is
+> > > > trying to do.
+> > > 
+> > > If you use the system "bus" for this, the "flow" will be identical, that
+> > > is what the driver core provides for you.  I don't see why you need to
+> > > implement something that sits next to it and not just use what we
+> > > already have here.
+> > 
+> > Here is very brief boot-up flow.  
+> > 
+> > start_kernel()
+> >   boot_cpu_init()         // init cpu0
+> >   setup_arch()
+> >     x86_init.paging.pagetable_init() // init mem pagetable
+> >   :
+> > kernel_init()
+> >   kernel_init_freeable()
+> >     smp_init()            // init other CPUs
+> >       :
+> >     do_basic_setup()
+> >       driver_init()
+> >         cpu_dev_init()    // build system/cpu tree
+> >         memory_dev_init() // build system/memory tree
+> >       do_initcalls()
+> >         acpi_init()       // build ACPI device tree
+> > 
+> > CPU and memory are initialized at early boot.  The system device tree is
+> > built at the last step of the boot sequence and is only used for
+> > providing sysfs interfaces.
+> 
+> Then fix that and create the system device tree earlier.
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- arch/s390/kernel/traps.c |   28 ++++++++++++++++------------
- 1 files changed, 16 insertions(+), 12 deletions(-)
+# I added ppc and s390 to the list as you suggested... and because
+# I may be wrong in my code reading...  This thread is:
+# https://lkml.org/lkml/2012/12/13/452
 
-diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
-index 70ecfc5..f718e12 100644
---- a/arch/s390/kernel/traps.c
-+++ b/arch/s390/kernel/traps.c
-@@ -91,8 +91,9 @@ __show_trace(unsigned long sp, unsigned long low, unsigned long high)
- 		if (sp < low || sp > high - sizeof(*sf))
- 			return sp;
- 		sf = (struct stack_frame *) sp;
--		printk("([<%016lx>] ", sf->gprs[8] & PSW_ADDR_INSN);
--		print_symbol("%s)\n", sf->gprs[8] & PSW_ADDR_INSN);
-+		printk("([<%016lx>] %pSR\n",
-+		       sf->gprs[8] & PSW_ADDR_INSN,
-+		       (void *)(sf->gprs[8] & PSW_ADDR_INSN));
- 		/* Follow the backchain. */
- 		while (1) {
- 			low = sp;
-@@ -102,16 +103,18 @@ __show_trace(unsigned long sp, unsigned long low, unsigned long high)
- 			if (sp <= low || sp > high - sizeof(*sf))
- 				return sp;
- 			sf = (struct stack_frame *) sp;
--			printk(" [<%016lx>] ", sf->gprs[8] & PSW_ADDR_INSN);
--			print_symbol("%s\n", sf->gprs[8] & PSW_ADDR_INSN);
-+			printk(" [<%016lx>] %pSR\n",
-+			       sf->gprs[8] & PSW_ADDR_INSN,
-+			       (void *)(sf->gprs[8] & PSW_ADDR_INSN));
- 		}
- 		/* Zero backchain detected, check for interrupt frame. */
- 		sp = (unsigned long) (sf + 1);
- 		if (sp <= low || sp > high - sizeof(*regs))
- 			return sp;
- 		regs = (struct pt_regs *) sp;
--		printk(" [<%016lx>] ", regs->psw.addr & PSW_ADDR_INSN);
--		print_symbol("%s\n", regs->psw.addr & PSW_ADDR_INSN);
-+		printk(" [<%016lx>] %pSR\n",
-+		       regs->psw.addr & PSW_ADDR_INSN,
-+		       (void *)(regs->psw.addr & PSW_ADDR_INSN));
- 		low = sp;
- 		sp = regs->gprs[15];
- 	}
-@@ -169,8 +172,9 @@ static void show_last_breaking_event(struct pt_regs *regs)
- {
- #ifdef CONFIG_64BIT
- 	printk("Last Breaking-Event-Address:\n");
--	printk(" [<%016lx>] ", regs->args[0] & PSW_ADDR_INSN);
--	print_symbol("%s\n", regs->args[0] & PSW_ADDR_INSN);
-+	printk(" [<%016lx>] %pSR\n",
-+	       regs->args[0] & PSW_ADDR_INSN,
-+	       (void *)(regs->args[0] & PSW_ADDR_INSN));
- #endif
- }
- 
-@@ -201,10 +205,10 @@ void show_registers(struct pt_regs *regs)
- 	char *mode;
- 
- 	mode = user_mode(regs) ? "User" : "Krnl";
--	printk("%s PSW : %p %p",
--	       mode, (void *) regs->psw.mask,
--	       (void *) regs->psw.addr);
--	print_symbol(" (%s)\n", regs->psw.addr & PSW_ADDR_INSN);
-+	printk("%s PSW : %p %p, %pSR\n",
-+	       mode, (void *)regs->psw.mask,
-+	       (void *)regs->psw.addr,
-+	       (void *)(regs->psw.addr & PSW_ADDR_INSN));
- 	printk("           R:%x T:%x IO:%x EX:%x Key:%x M:%x W:%x "
- 	       "P:%x AS:%x CC:%x PM:%x", mask_bits(regs, PSW_MASK_PER),
- 	       mask_bits(regs, PSW_MASK_DAT), mask_bits(regs, PSW_MASK_IO),
--- 
-1.7.8.112.g3fd21
+I looked at s390 and powerpc hotplug code.  Their boot flow is
+consistent as above since most of the funcs above are actually common.
+
+For hotplug, pSeries (powerpc) supports CPU, Memory and I/O hotplug.
+s390 seems to support less capability, so I looked at pSeries mostly.
+
+pSeries supports DLPAR, and all hotplug code is put under
+pSeries-specific code, such as arch/powerpc/platforms/pseries/dlpar.c.
+The code is implemented outside of the OF module.  Therefore, I think
+the OF module itself works consistently at boot and hot-add.  It has its
+own hotplug framework with pSeries_reconfig_chain, which calls all
+registered handlers for reconfig events.
+
+So, it looks to me that pSeries has somewhat a similar framework, but
+put everything under pSeries specific code.  pSeries and s390 hotplug
+implementations do not use the bus structure you suggested, either.
+
+
+> > That is, the system bus structure has nothing to do with the actual
+> > CPU and memory initialization at boot.
+> 
+> Then that should be fixed, right?
+
+The boot-up sequence is shared by all architectures, and it is nearly
+impossible to make such changes to work on all architectures.
+
+
+> > Similarly, ACPI drivers do not initialize actual CPU and memory at boot
+> > as they are also called at the last step.
+> 
+> That should also probably be fixed, right?
+
+Since the boot flow is consistent for all architectures, I do not think
+other FW modules initialize CPU and memory, either.
+
+
+> > Further, the ACPI device tree and system bus tree are separate
+> > entities.
+> 
+> That's because ACPI seems to be getting crazy these days, and creating
+> lots of different devices and tieing it back into the existing device
+> trees.  Which is fine, see how it's being done with USB for one example
+> of how this can be done correctly, _if_ you want to keep them separate
+> (doing so is your own choice, nothing that I'm saying is necessary.)
+> 
+> > Hotplug events are sent to ACPI.
+> 
+> Your hotplug events are being sent there, that's your decision to do so,
+> it doesn't happen that way with other subsystems that get hotplug events
+> from ACPI (i.e. PCI hotplug, right?)
+
+ACPICA sends a notification to an ACPI notify handler, so it has to go
+with ACPI.  The "system/cpu" and "system/memory" sysfs drivers are
+platform neutral and do not depend on ACPI.  PCIe hotplug is based on
+PCIe spec, and does not use ACPI.  ACPI PCI hotplug (for PCIx) uses ACPI
+and its notification is sent to an ACPI notify handler. 
+
+
+> > In order to keep the boot flow and hotplug flow consistent, I believe
+> > the first step is to keep the role of modules consistent between boot
+> > and hotplug.
+> 
+> I agree, see above for how to resolve that :)
+>
+> > For instance, acpi_init() only builds ACPI tree at boot, so ACPI
+> > should only build ACPI tree at hot-add as well.  This keeps ACPI
+> > drivers to do the same for both boot and hot-add.
+> 
+> Agreed.
+
+Great!  Yes, we just need to agree on a solution. :)
+
+
+> > The framework is designed to provide the consistency along with other
+> > high-availability features such as rollback.
+> 
+> I want my tiny, USB-powered device to have "high-availability", don't
+> think of that type of functionality as somehow being special, it's what
+> we have been doing with other subsystems for _years_ now.
+> 
+> Again, I think if you properly tie the system bus code into the CPU work
+> at the correct location, you can achieve everything you need.  I base
+> this on the fact that this is what other subsystems and architectures
+> have been doing for years.  Just because this is ACPI is no reason to
+> think that it needs to be done differently.
+> 
+> Odds are, s390 has been doing this for 10+ years and none of us realize
+> this, they are usually that far ahead of the curve if history is any
+> lesson.
+
+I looked at pSeries and s390, and they have their own framework.  Their
+cases are also unique because their implementations are tied with
+specific platforms / products.  In high-level, however, their approach
+is similar to mine.  I have also worked on hotplug for years on other
+OS, so I am not coming from nowhere, either. :)
+
+If your concern is having a common hotplug framework, I can try to
+address it by putting this framework under ACPI.  This makes it less
+capable/cleaner, but it keeps it within ACPI.  That makes it more
+similar to how pSeries and s390 did.
+
+Thanks,
+-Toshi
+
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
