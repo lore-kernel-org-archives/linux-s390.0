@@ -1,507 +1,756 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 4/7] KVM: s390: Add support for machine checks.
-Date: Thu, 20 Dec 2012 15:32:09 +0100
-Message-ID: <1356013932-23775-5-git-send-email-cornelia.huck@de.ibm.com>
-References: <1356013932-23775-1-git-send-email-cornelia.huck@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1356013932-23775-1-git-send-email-cornelia.huck@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+Return-Path: <owner-linux-mm@kvack.org>
+Date: Fri, 14 Dec 2012 09:45:05 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] mm: Fix XFS oops due to dirty pages without buffers on
+ s390
+Message-ID: <20121214094505.0163bda6@mschwide>
+In-Reply-To: <20121025200141.GF3262@quack.suse.cz>
+References: <1350918406-11369-1-git-send-email-jack@suse.cz>
+	<20121022123852.a4bd5f2a.akpm@linux-foundation.org>
+	<20121023102153.GD3064@quack.suse.cz>
+	<20121023145636.0a9b9a3e.akpm@linux-foundation.org>
+	<20121025200141.GF3262@quack.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Jan Kara <jack@suse.cz>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, Mel Gorman <mgorman@suse.de>, linux-s390@vger.kernel.org, Hugh Dickins <hughd@google.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Add support for injecting machine checks (only repressible
-conditions for now).
+On Thu, 25 Oct 2012 22:01:41 +0200
+Jan Kara <jack@suse.cz> wrote:
 
-This is a bit more involved than I/O interrupts, for these reasons:
+> On Tue 23-10-12 14:56:36, Andrew Morton wrote:
+> > On Tue, 23 Oct 2012 12:21:53 +0200
+> > Jan Kara <jack@suse.cz> wrote:
+> > 
+> > > > That seems a fairly serious problem.  To which kernel version(s) should
+> > > > we apply the fix?
+> > >   Well, XFS will crash starting from 2.6.36 kernel where the assertion was
+> > > added. Previously XFS just silently added buffers (as other filesystems do
+> > > it) and wrote / redirtied the page (unnecessarily). So looking into
+> > > maintained -stable branches I think pushing the patch to -stable from 3.0
+> > > on should be enough.
+> > 
+> > OK, thanks, I made it so.
+> > 
+> > > > > diff --git a/mm/rmap.c b/mm/rmap.c
+> > > > 
+> > > > It's a bit surprising that none of the added comments mention the s390
+> > > > pte-dirtying oddity.  I don't see an obvious place to mention this, but
+> > > > I for one didn't know about this and it would be good if we could
+> > > > capture the info _somewhere_?
+> > >   As Hugh says, the comment before page_test_and_clear_dirty() is somewhat
+> > > updated. But do you mean recording somewhere the catch that s390 HW dirty
+> > > bit gets set also whenever we write to a page from kernel?
+> > 
+> > Yes, this.  It's surprising behaviour which we may trip over again, so
+> > how do we inform developers about it?
+> > 
+> > > I guess we could
+> > > add that also to the comment before page_test_and_clear_dirty() in
+> > > page_remove_rmap() and also before definition of
+> > > page_test_and_clear_dirty(). So most people that will add / remove these
+> > > calls will be warned. OK?
+> > 
+> > Sounds good, thanks.
+>   OK, the patch is attached. As Martin says, it may be obsolete soon but just
+> in case Martin's patch set gets delayed...
+> 
+> 								Honza
 
-- Machine checks come in both floating and cpu varieties.
-- We don't have a bit for machine checks enabling, but have to use
-  a roundabout approach with trapping PSW changing instructions and
-  watching for opened machine checks.
+The patch got delayed a bit, the main issue is to get conclusive performance
+measurements about the effects of the patch. I am pretty sure that the patch
+works and will not cause any major degradation so it is time to ask for your
+opinion. Here we go:
+--
+Subject: [PATCH] s390/mm: implement software dirty bits
 
-Reviewed-by: Marcelo Tosatti <mtosatti@redhat.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+
+The s390 architecture is unique in respect to dirty page detection,
+it uses the change bit in the per-page storage key to track page
+modifications. All other architectures track dirty bits by means
+of page table entries. This property of s390 has caused numerous
+problems in the past, e.g. see git commit ef5d437f71afdf4a
+"mm: fix XFS oops due to dirty pages without buffers on s390".
+
+To avoid future issues in regard to per-page dirty bits convert
+s390 to a fault based software dirty bit detection mechanism. All
+user page table entries which are marked as clean will be hardware
+read-only, even if the pte is supposed to be writable. A write by
+the user process will trigger a protection fault which will cause
+the user pte to be marked as dirty and the hardware read-only bit
+is removed.
+
+With this change the dirty bit in the storage key is irrelevant
+for Linux as a host, but the storage key is still required for
+KVM guests. The effect is that page_test_and_clear_dirty and the
+related code can be removed. The referenced bit in the storage
+key is still used by the page_test_and_clear_young primitive to
+provide page age information.
+
+For page cache pages of mappings with mapping_cap_account_dirty
+there will not be any change in behavior as the dirty bit tracking
+already uses read-only ptes to control the amount of dirty pages.
+Only for swap cache pages and pages of mappings without
+mapping_cap_account_dirty there can be additional protection faults.
+To avoid an excessive number of additional faults the mk_pte
+primitive checks for PageDirty if the pgprot value allows for writes
+and pre-dirties the pte. That avoids all additional faults for
+tmpfs and shmem pages until these pages are added to the swap cache.
+
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- Documentation/virtual/kvm/api.txt |   4 ++
- arch/s390/include/asm/kvm_host.h  |   8 +++
- arch/s390/kvm/intercept.c         |   2 +
- arch/s390/kvm/interrupt.c         | 112 +++++++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.h          |   3 +
- arch/s390/kvm/priv.c              | 135 ++++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/trace-s390.h        |   6 +-
- include/uapi/linux/kvm.h          |   1 +
- 8 files changed, 268 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/page.h    |  22 -------
+ arch/s390/include/asm/pgtable.h | 131 +++++++++++++++++++++++++++-------------
+ arch/s390/include/asm/sclp.h    |   1 -
+ arch/s390/include/asm/setup.h   |  16 ++---
+ arch/s390/kvm/kvm-s390.c        |   2 +-
+ arch/s390/lib/uaccess_pt.c      |   2 +-
+ arch/s390/mm/pageattr.c         |   2 +-
+ arch/s390/mm/vmem.c             |  24 +++-----
+ drivers/s390/char/sclp_cmd.c    |  10 +--
+ include/asm-generic/pgtable.h   |  10 ---
+ include/linux/page-flags.h      |   8 ---
+ mm/rmap.c                       |  23 -------
+ 12 files changed, 112 insertions(+), 139 deletions(-)
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index 83bd92b..8a0de30 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -2073,6 +2073,10 @@ KVM_S390_INT_IO(ai,cssid,ssid,schid) (vm) - compound value to indicate an
-     I/O interrupt (ai - adapter interrupt; cssid,ssid,schid - subchannel);
-     I/O interruption parameters in parm (subchannel) and parm64 (intparm,
-     interruption subclass)
-+KVM_S390_MCHK (vm, vcpu) - machine check interrupt; cr 14 bits in parm,
-+                           machine check interrupt code in parm64 (note that
-+                           machine checks needing further payload are not
-+                           supported by this ioctl)
+diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+index a86ad40840..75ce9b0 100644
+--- a/arch/s390/include/asm/page.h
++++ b/arch/s390/include/asm/page.h
+@@ -155,28 +155,6 @@ static inline int page_reset_referenced(unsigned long addr)
+ #define _PAGE_ACC_BITS		0xf0	/* HW access control bits	*/
  
- Note that the vcpu ioctl is asynchronous to vcpu execution.
+ /*
+- * Test and clear dirty bit in storage key.
+- * We can't clear the changed bit atomically. This is a potential
+- * race against modification of the referenced bit. This function
+- * should therefore only be called if it is not mapped in any
+- * address space.
+- *
+- * Note that the bit gets set whenever page content is changed. That means
+- * also when the page is modified by DMA or from inside the kernel.
+- */
+-#define __HAVE_ARCH_PAGE_TEST_AND_CLEAR_DIRTY
+-static inline int page_test_and_clear_dirty(unsigned long pfn, int mapped)
+-{
+-	unsigned char skey;
+-
+-	skey = page_get_storage_key(pfn << PAGE_SHIFT);
+-	if (!(skey & _PAGE_CHANGED))
+-		return 0;
+-	page_set_storage_key(pfn << PAGE_SHIFT, skey & ~_PAGE_CHANGED, mapped);
+-	return 1;
+-}
+-
+-/*
+  * Test and clear referenced bit in storage key.
+  */
+ #define __HAVE_ARCH_PAGE_TEST_AND_CLEAR_YOUNG
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 33aeb77..66d3b2a 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -29,6 +29,7 @@
+ #ifndef __ASSEMBLY__
+ #include <linux/sched.h>
+ #include <linux/mm_types.h>
++#include <linux/page-flags.h>
+ #include <asm/bug.h>
+ #include <asm/page.h>
  
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index a8e35c4..29363d1 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -75,8 +75,10 @@ struct kvm_s390_sie_block {
- 	__u8	reserved40[4];		/* 0x0040 */
- #define LCTL_CR0	0x8000
- #define LCTL_CR6	0x0200
-+#define LCTL_CR14	0x0002
- 	__u16   lctl;			/* 0x0044 */
- 	__s16	icpua;			/* 0x0046 */
-+#define ICTL_LPSW 0x00400000
- 	__u32	ictl;			/* 0x0048 */
- 	__u32	eca;			/* 0x004c */
- 	__u8	icptcode;		/* 0x0050 */
-@@ -187,6 +189,11 @@ struct kvm_s390_emerg_info {
- 	__u16 code;
- };
+@@ -221,13 +222,15 @@ extern unsigned long MODULES_END;
+ /* Software bits in the page table entry */
+ #define _PAGE_SWT	0x001		/* SW pte type bit t */
+ #define _PAGE_SWX	0x002		/* SW pte type bit x */
+-#define _PAGE_SWC	0x004		/* SW pte changed bit (for KVM) */
+-#define _PAGE_SWR	0x008		/* SW pte referenced bit (for KVM) */
+-#define _PAGE_SPECIAL	0x010		/* SW associated with special page */
++#define _PAGE_SWC	0x004		/* SW pte changed bit */
++#define _PAGE_SWR	0x008		/* SW pte referenced bit */
++#define _PAGE_SWW	0x010		/* SW pte write bit */
++#define _PAGE_SPECIAL	0x020		/* SW associated with special page */
+ #define __HAVE_ARCH_PTE_SPECIAL
  
-+struct kvm_s390_mchk_info {
-+	__u64 cr14;
-+	__u64 mcic;
-+};
-+
- struct kvm_s390_interrupt_info {
- 	struct list_head list;
- 	u64	type;
-@@ -197,6 +204,7 @@ struct kvm_s390_interrupt_info {
- 		struct kvm_s390_emerg_info emerg;
- 		struct kvm_s390_extcall_info extcall;
- 		struct kvm_s390_prefix_info prefix;
-+		struct kvm_s390_mchk_info mchk;
- 	};
- };
+ /* Set of bits not changed in pte_modify */
+-#define _PAGE_CHG_MASK	(PAGE_MASK | _PAGE_SPECIAL | _PAGE_SWC | _PAGE_SWR)
++#define _PAGE_CHG_MASK		(PAGE_MASK | _PAGE_SPECIAL | _PAGE_CO | \
++				 _PAGE_SWC | _PAGE_SWR)
  
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index df6c0ad..950c13e 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -97,10 +97,12 @@ static int handle_lctl(struct kvm_vcpu *vcpu)
+ /* Six different types of pages. */
+ #define _PAGE_TYPE_EMPTY	0x400
+@@ -321,6 +324,7 @@ extern unsigned long MODULES_END;
  
- static const intercept_handler_t instruction_handlers[256] = {
- 	[0x01] = kvm_s390_handle_01,
-+	[0x82] = kvm_s390_handle_lpsw,
- 	[0x83] = kvm_s390_handle_diag,
- 	[0xae] = kvm_s390_handle_sigp,
- 	[0xb2] = kvm_s390_handle_b2,
- 	[0xb7] = handle_lctl,
-+	[0xb9] = kvm_s390_handle_b9,
- 	[0xe5] = kvm_s390_handle_e5,
- 	[0xeb] = handle_lctlg,
- };
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 52cdf20..b3b4748 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -41,6 +41,11 @@ static int psw_ioint_disabled(struct kvm_vcpu *vcpu)
- 	return !(vcpu->arch.sie_block->gpsw.mask & PSW_MASK_IO);
+ /* Bits in the region table entry */
+ #define _REGION_ENTRY_ORIGIN	~0xfffUL/* region/segment table origin	    */
++#define _REGION_ENTRY_RO	0x200	/* region protection bit	    */
+ #define _REGION_ENTRY_INV	0x20	/* invalid region table entry	    */
+ #define _REGION_ENTRY_TYPE_MASK	0x0c	/* region/segment table type mask   */
+ #define _REGION_ENTRY_TYPE_R1	0x0c	/* region first table type	    */
+@@ -382,9 +386,10 @@ extern unsigned long MODULES_END;
+  */
+ #define PAGE_NONE	__pgprot(_PAGE_TYPE_NONE)
+ #define PAGE_RO		__pgprot(_PAGE_TYPE_RO)
+-#define PAGE_RW		__pgprot(_PAGE_TYPE_RW)
++#define PAGE_RW		__pgprot(_PAGE_TYPE_RO | _PAGE_SWW)
++#define PAGE_RWC	__pgprot(_PAGE_TYPE_RW | _PAGE_SWW | _PAGE_SWC)
+ 
+-#define PAGE_KERNEL	PAGE_RW
++#define PAGE_KERNEL	PAGE_RWC
+ #define PAGE_COPY	PAGE_RO
+ 
+ /*
+@@ -625,23 +630,23 @@ static inline pgste_t pgste_update_all(pte_t *ptep, pgste_t pgste)
+ 	bits = skey & (_PAGE_CHANGED | _PAGE_REFERENCED);
+ 	/* Clear page changed & referenced bit in the storage key */
+ 	if (bits & _PAGE_CHANGED)
+-		page_set_storage_key(address, skey ^ bits, 1);
++		page_set_storage_key(address, skey ^ bits, 0);
+ 	else if (bits)
+ 		page_reset_referenced(address);
+ 	/* Transfer page changed & referenced bit to guest bits in pgste */
+ 	pgste_val(pgste) |= bits << 48;		/* RCP_GR_BIT & RCP_GC_BIT */
+ 	/* Get host changed & referenced bits from pgste */
+ 	bits |= (pgste_val(pgste) & (RCP_HR_BIT | RCP_HC_BIT)) >> 52;
+-	/* Clear host bits in pgste. */
++	/* Transfer page changed & referenced bit to kvm user bits */
++	pgste_val(pgste) |= bits << 45;		/* KVM_UR_BIT & KVM_UC_BIT */
++	/* Clear relevant host bits in pgste. */
+ 	pgste_val(pgste) &= ~(RCP_HR_BIT | RCP_HC_BIT);
+ 	pgste_val(pgste) &= ~(RCP_ACC_BITS | RCP_FP_BIT);
+ 	/* Copy page access key and fetch protection bit to pgste */
+ 	pgste_val(pgste) |=
+ 		(unsigned long) (skey & (_PAGE_ACC_BITS | _PAGE_FP_BIT)) << 56;
+-	/* Transfer changed and referenced to kvm user bits */
+-	pgste_val(pgste) |= bits << 45;		/* KVM_UR_BIT & KVM_UC_BIT */
+-	/* Transfer changed & referenced to pte sofware bits */
+-	pte_val(*ptep) |= bits << 1;		/* _PAGE_SWR & _PAGE_SWC */
++	/* Transfer referenced bit to pte */
++	pte_val(*ptep) |= (bits & _PAGE_REFERENCED) << 1;
+ #endif
+ 	return pgste;
+ 
+@@ -654,20 +659,25 @@ static inline pgste_t pgste_update_young(pte_t *ptep, pgste_t pgste)
+ 
+ 	if (!pte_present(*ptep))
+ 		return pgste;
++	/* Get referenced bit from storage key */
+ 	young = page_reset_referenced(pte_val(*ptep) & PAGE_MASK);
+-	/* Transfer page referenced bit to pte software bit (host view) */
+-	if (young || (pgste_val(pgste) & RCP_HR_BIT))
++	if (young)
++		pgste_val(pgste) |= RCP_GR_BIT;
++	/* Get host referenced bit from pgste */
++	if (pgste_val(pgste) & RCP_HR_BIT) {
++		pgste_val(pgste) &= ~RCP_HR_BIT;
++		young = 1;
++	}
++	/* Transfer referenced bit to kvm user bits and pte */
++	if (young) {
++		pgste_val(pgste) |= KVM_UR_BIT;
+ 		pte_val(*ptep) |= _PAGE_SWR;
+-	/* Clear host referenced bit in pgste. */
+-	pgste_val(pgste) &= ~RCP_HR_BIT;
+-	/* Transfer page referenced bit to guest bit in pgste */
+-	pgste_val(pgste) |= (unsigned long) young << 50; /* set RCP_GR_BIT */
++	}
+ #endif
+ 	return pgste;
+-
  }
  
-+static int psw_mchk_disabled(struct kvm_vcpu *vcpu)
+-static inline void pgste_set_pte(pte_t *ptep, pgste_t pgste, pte_t entry)
++static inline void pgste_set_key(pte_t *ptep, pgste_t pgste, pte_t entry)
+ {
+ #ifdef CONFIG_PGSTE
+ 	unsigned long address;
+@@ -681,10 +691,23 @@ static inline void pgste_set_pte(pte_t *ptep, pgste_t pgste, pte_t entry)
+ 	/* Set page access key and fetch protection bit from pgste */
+ 	nkey |= (pgste_val(pgste) & (RCP_ACC_BITS | RCP_FP_BIT)) >> 56;
+ 	if (okey != nkey)
+-		page_set_storage_key(address, nkey, 1);
++		page_set_storage_key(address, nkey, 0);
+ #endif
+ }
+ 
++static inline void pgste_set_pte(pte_t *ptep, pte_t entry)
 +{
-+	return !(vcpu->arch.sie_block->gpsw.mask & PSW_MASK_MCHECK);
++	if (!MACHINE_HAS_ESOP && (pte_val(entry) & _PAGE_SWW)) {
++		/*
++		 * Without enhanced suppression-on-protection force
++		 * the dirty bit on for all writable ptes.
++		 */
++		pte_val(entry) |= _PAGE_SWC;
++		pte_val(entry) &= ~_PAGE_RO;
++	}
++	*ptep = entry;
 +}
 +
- static int psw_interrupts_disabled(struct kvm_vcpu *vcpu)
- {
- 	if ((vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PER) ||
-@@ -82,6 +87,12 @@ static int __interrupt_is_deliverable(struct kvm_vcpu *vcpu,
- 	case KVM_S390_SIGP_SET_PREFIX:
- 	case KVM_S390_RESTART:
- 		return 1;
-+	case KVM_S390_MCHK:
-+		if (psw_mchk_disabled(vcpu))
-+			return 0;
-+		if (vcpu->arch.sie_block->gcr[14] & inti->mchk.cr14)
-+			return 1;
-+		return 0;
- 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
- 		if (psw_ioint_disabled(vcpu))
- 			return 0;
-@@ -116,6 +127,7 @@ static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
- 		CPUSTAT_IO_INT | CPUSTAT_EXT_INT | CPUSTAT_STOP_INT,
- 		&vcpu->arch.sie_block->cpuflags);
- 	vcpu->arch.sie_block->lctl = 0x0000;
-+	vcpu->arch.sie_block->ictl &= ~ICTL_LPSW;
+ /**
+  * struct gmap_struct - guest address space
+  * @mm: pointer to the parent mm_struct
+@@ -743,11 +766,14 @@ static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
+ 
+ 	if (mm_has_pgste(mm)) {
+ 		pgste = pgste_get_lock(ptep);
+-		pgste_set_pte(ptep, pgste, entry);
+-		*ptep = entry;
++		pgste_set_key(ptep, pgste, entry);
++		pgste_set_pte(ptep, entry);
+ 		pgste_set_unlock(ptep, pgste);
+-	} else
++	} else {
++		if (!(pte_val(entry) & _PAGE_INVALID) && MACHINE_HAS_EDAT1)
++			pte_val(entry) |= _PAGE_CO;
+ 		*ptep = entry;
++	}
  }
  
- static void __set_cpuflag(struct kvm_vcpu *vcpu, u32 flag)
-@@ -139,6 +151,12 @@ static void __set_intercept_indicator(struct kvm_vcpu *vcpu,
- 	case KVM_S390_SIGP_STOP:
- 		__set_cpuflag(vcpu, CPUSTAT_STOP_INT);
- 		break;
-+	case KVM_S390_MCHK:
-+		if (psw_mchk_disabled(vcpu))
-+			vcpu->arch.sie_block->ictl |= ICTL_LPSW;
-+		else
-+			vcpu->arch.sie_block->lctl |= LCTL_CR14;
-+		break;
- 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
- 		if (psw_ioint_disabled(vcpu))
- 			__set_cpuflag(vcpu, CPUSTAT_IO_INT);
-@@ -326,6 +344,32 @@ static void __do_deliver_interrupt(struct kvm_vcpu *vcpu,
- 			exception = 1;
- 		break;
+ /*
+@@ -756,16 +782,12 @@ static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
+  */
+ static inline int pte_write(pte_t pte)
+ {
+-	return (pte_val(pte) & _PAGE_RO) == 0;
++	return (pte_val(pte) & _PAGE_SWW) != 0;
+ }
  
-+	case KVM_S390_MCHK:
-+		VCPU_EVENT(vcpu, 4, "interrupt: machine check mcic=%llx",
-+			   inti->mchk.mcic);
-+		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, inti->type,
-+						 inti->mchk.cr14,
-+						 inti->mchk.mcic);
-+		rc = kvm_s390_vcpu_store_status(vcpu,
-+						KVM_S390_STORE_STATUS_PREFIXED);
-+		if (rc == -EFAULT)
-+			exception = 1;
-+
-+		rc = put_guest_u64(vcpu, __LC_MCCK_CODE, inti->mchk.mcic);
-+		if (rc == -EFAULT)
-+			exception = 1;
-+
-+		rc = copy_to_guest(vcpu, __LC_MCK_OLD_PSW,
-+				   &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+		if (rc == -EFAULT)
-+			exception = 1;
-+
-+		rc = copy_from_guest(vcpu, &vcpu->arch.sie_block->gpsw,
-+				     __LC_MCK_NEW_PSW, sizeof(psw_t));
-+		if (rc == -EFAULT)
-+			exception = 1;
-+		break;
-+
- 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
- 	{
- 		__u32 param0 = ((__u32)inti->io.subchannel_id << 16) |
-@@ -588,6 +632,61 @@ void kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
+ static inline int pte_dirty(pte_t pte)
+ {
+-#ifdef CONFIG_PGSTE
+-	if (pte_val(pte) & _PAGE_SWC)
+-		return 1;
+-#endif
+-	return 0;
++	return (pte_val(pte) & _PAGE_SWC) != 0;
+ }
+ 
+ static inline int pte_young(pte_t pte)
+@@ -815,11 +837,14 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
+ {
+ 	pte_val(pte) &= _PAGE_CHG_MASK;
+ 	pte_val(pte) |= pgprot_val(newprot);
++	if ((pte_val(pte) & _PAGE_SWC) && (pte_val(pte) & _PAGE_SWW))
++		pte_val(pte) &= ~_PAGE_RO;
+ 	return pte;
+ }
+ 
+ static inline pte_t pte_wrprotect(pte_t pte)
+ {
++	pte_val(pte) &= ~_PAGE_SWW;
+ 	/* Do not clobber _PAGE_TYPE_NONE pages!  */
+ 	if (!(pte_val(pte) & _PAGE_INVALID))
+ 		pte_val(pte) |= _PAGE_RO;
+@@ -828,20 +853,26 @@ static inline pte_t pte_wrprotect(pte_t pte)
+ 
+ static inline pte_t pte_mkwrite(pte_t pte)
+ {
+-	pte_val(pte) &= ~_PAGE_RO;
++	pte_val(pte) |= _PAGE_SWW;
++	if (pte_val(pte) & _PAGE_SWC)
++		pte_val(pte) &= ~_PAGE_RO;
+ 	return pte;
+ }
+ 
+ static inline pte_t pte_mkclean(pte_t pte)
+ {
+-#ifdef CONFIG_PGSTE
+ 	pte_val(pte) &= ~_PAGE_SWC;
+-#endif
++	/* Do not clobber _PAGE_TYPE_NONE pages!  */
++	if (!(pte_val(pte) & _PAGE_INVALID))
++		pte_val(pte) |= _PAGE_RO;
+ 	return pte;
+ }
+ 
+ static inline pte_t pte_mkdirty(pte_t pte)
+ {
++	pte_val(pte) |= _PAGE_SWC;
++	if (pte_val(pte) & _PAGE_SWW)
++		pte_val(pte) &= ~_PAGE_RO;
+ 	return pte;
+ }
+ 
+@@ -879,10 +910,10 @@ static inline pte_t pte_mkhuge(pte_t pte)
+ 		pte_val(pte) |= _SEGMENT_ENTRY_INV;
+ 	}
+ 	/*
+-	 * Clear SW pte bits SWT and SWX, there are no SW bits in a segment
+-	 * table entry.
++	 * Clear SW pte bits, there are no SW bits in a segment table entry.
+ 	 */
+-	pte_val(pte) &= ~(_PAGE_SWT | _PAGE_SWX);
++	pte_val(pte) &= ~(_PAGE_SWT | _PAGE_SWX | _PAGE_SWC |
++			  _PAGE_SWR | _PAGE_SWW);
+ 	/*
+ 	 * Also set the change-override bit because we don't need dirty bit
+ 	 * tracking for hugetlbfs pages.
+@@ -1053,9 +1084,11 @@ static inline void ptep_modify_prot_commit(struct mm_struct *mm,
+ 					   unsigned long address,
+ 					   pte_t *ptep, pte_t pte)
+ {
+-	*ptep = pte;
+-	if (mm_has_pgste(mm))
++	if (mm_has_pgste(mm)) {
++		pgste_set_pte(ptep, pte);
+ 		pgste_set_unlock(ptep, *(pgste_t *)(ptep + PTRS_PER_PTE));
++	} else
++		*ptep = pte;
+ }
+ 
+ #define __HAVE_ARCH_PTEP_CLEAR_FLUSH
+@@ -1121,10 +1154,13 @@ static inline pte_t ptep_set_wrprotect(struct mm_struct *mm,
+ 			pgste = pgste_get_lock(ptep);
+ 
+ 		ptep_flush_lazy(mm, address, ptep);
+-		*ptep = pte_wrprotect(pte);
++		pte = pte_wrprotect(pte);
+ 
+-		if (mm_has_pgste(mm))
++		if (mm_has_pgste(mm)) {
++			pgste_set_pte(ptep, pte);
+ 			pgste_set_unlock(ptep, pgste);
++		} else
++			*ptep = pte;
+ 	}
+ 	return pte;
+ }
+@@ -1142,10 +1178,12 @@ static inline int ptep_set_access_flags(struct vm_area_struct *vma,
+ 		pgste = pgste_get_lock(ptep);
+ 
+ 	__ptep_ipte(address, ptep);
+-	*ptep = entry;
+ 
+-	if (mm_has_pgste(vma->vm_mm))
++	if (mm_has_pgste(vma->vm_mm)) {
++		pgste_set_pte(ptep, entry);
+ 		pgste_set_unlock(ptep, pgste);
++	} else
++		*ptep = entry;
+ 	return 1;
+ }
+ 
+@@ -1163,8 +1201,13 @@ static inline pte_t mk_pte_phys(unsigned long physpage, pgprot_t pgprot)
+ static inline pte_t mk_pte(struct page *page, pgprot_t pgprot)
+ {
+ 	unsigned long physpage = page_to_phys(page);
++	pte_t __pte = mk_pte_phys(physpage, pgprot);
+ 
+-	return mk_pte_phys(physpage, pgprot);
++	if ((pte_val(__pte) & _PAGE_SWW) && PageDirty(page)) {
++		pte_val(__pte) |= _PAGE_SWC;
++		pte_val(__pte) &= ~_PAGE_RO;
++	}
++	return __pte;
+ }
+ 
+ #define pgd_index(address) (((address) >> PGDIR_SHIFT) & (PTRS_PER_PGD-1))
+@@ -1256,6 +1299,8 @@ static inline int pmd_trans_splitting(pmd_t pmd)
+ static inline void set_pmd_at(struct mm_struct *mm, unsigned long addr,
+ 			      pmd_t *pmdp, pmd_t entry)
+ {
++	if (!(pmd_val(entry) & _SEGMENT_ENTRY_INV) && MACHINE_HAS_EDAT1)
++		pmd_val(entry) |= _SEGMENT_ENTRY_CO;
+ 	*pmdp = entry;
+ }
+ 
+diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
+index 8337886..06a1361 100644
+--- a/arch/s390/include/asm/sclp.h
++++ b/arch/s390/include/asm/sclp.h
+@@ -46,7 +46,6 @@ int sclp_cpu_deconfigure(u8 cpu);
+ void sclp_facilities_detect(void);
+ unsigned long long sclp_get_rnmax(void);
+ unsigned long long sclp_get_rzm(void);
+-u8 sclp_get_fac85(void);
+ int sclp_sdias_blk_count(void);
+ int sclp_sdias_copy(void *dest, int blk_num, int nr_blks);
+ int sclp_chp_configure(struct chp_id chpid);
+diff --git a/arch/s390/include/asm/setup.h b/arch/s390/include/asm/setup.h
+index f69f76b..f685751 100644
+--- a/arch/s390/include/asm/setup.h
++++ b/arch/s390/include/asm/setup.h
+@@ -64,13 +64,14 @@ extern unsigned int s390_user_mode;
+ 
+ #define MACHINE_FLAG_VM		(1UL << 0)
+ #define MACHINE_FLAG_IEEE	(1UL << 1)
+-#define MACHINE_FLAG_CSP	(1UL << 3)
+-#define MACHINE_FLAG_MVPG	(1UL << 4)
+-#define MACHINE_FLAG_DIAG44	(1UL << 5)
+-#define MACHINE_FLAG_IDTE	(1UL << 6)
+-#define MACHINE_FLAG_DIAG9C	(1UL << 7)
+-#define MACHINE_FLAG_MVCOS	(1UL << 8)
+-#define MACHINE_FLAG_KVM	(1UL << 9)
++#define MACHINE_FLAG_CSP	(1UL << 2)
++#define MACHINE_FLAG_MVPG	(1UL << 3)
++#define MACHINE_FLAG_DIAG44	(1UL << 4)
++#define MACHINE_FLAG_IDTE	(1UL << 5)
++#define MACHINE_FLAG_DIAG9C	(1UL << 6)
++#define MACHINE_FLAG_MVCOS	(1UL << 7)
++#define MACHINE_FLAG_KVM	(1UL << 8)
++#define MACHINE_FLAG_ESOP	(1UL << 9)
+ #define MACHINE_FLAG_EDAT1	(1UL << 10)
+ #define MACHINE_FLAG_EDAT2	(1UL << 11)
+ #define MACHINE_FLAG_LPAR	(1UL << 12)
+@@ -84,6 +85,7 @@ extern unsigned int s390_user_mode;
+ #define MACHINE_IS_LPAR		(S390_lowcore.machine_flags & MACHINE_FLAG_LPAR)
+ 
+ #define MACHINE_HAS_DIAG9C	(S390_lowcore.machine_flags & MACHINE_FLAG_DIAG9C)
++#define MACHINE_HAS_ESOP	(S390_lowcore.machine_flags & MACHINE_FLAG_ESOP)
+ #define MACHINE_HAS_PFMF	MACHINE_HAS_EDAT1
+ #define MACHINE_HAS_HPAGE	MACHINE_HAS_EDAT1
+ 
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index c9011bf..4659b62 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -147,7 +147,7 @@ int kvm_dev_ioctl_check_extension(long ext)
+ 		r = KVM_MAX_VCPUS;
+ 		break;
+ 	case KVM_CAP_S390_COW:
+-		r = sclp_get_fac85() & 0x2;
++		r = MACHINE_HAS_ESOP;
+ 		break;
+ 	default:
+ 		r = 0;
+diff --git a/arch/s390/lib/uaccess_pt.c b/arch/s390/lib/uaccess_pt.c
+index 9017a63..a70ee84 100644
+--- a/arch/s390/lib/uaccess_pt.c
++++ b/arch/s390/lib/uaccess_pt.c
+@@ -50,7 +50,7 @@ static __always_inline unsigned long follow_table(struct mm_struct *mm,
+ 	ptep = pte_offset_map(pmd, addr);
+ 	if (!pte_present(*ptep))
+ 		return -0x11UL;
+-	if (write && !pte_write(*ptep))
++	if (write && (!pte_write(*ptep) || !pte_dirty(*ptep)))
+ 		return -0x04UL;
+ 
+ 	return (pte_val(*ptep) & PAGE_MASK) + (addr & ~PAGE_MASK);
+diff --git a/arch/s390/mm/pageattr.c b/arch/s390/mm/pageattr.c
+index 29ccee3..d21040e 100644
+--- a/arch/s390/mm/pageattr.c
++++ b/arch/s390/mm/pageattr.c
+@@ -127,7 +127,7 @@ void kernel_map_pages(struct page *page, int numpages, int enable)
+ 			pte_val(*pte) = _PAGE_TYPE_EMPTY;
+ 			continue;
+ 		}
+-		*pte = mk_pte_phys(address, __pgprot(_PAGE_TYPE_RW));
++		pte_val(*pte) = __pa(address);
  	}
  }
  
-+void kvm_s390_deliver_pending_machine_checks(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-+	struct kvm_s390_float_interrupt *fi = vcpu->arch.local_int.float_int;
-+	struct kvm_s390_interrupt_info  *n, *inti = NULL;
-+	int deliver;
-+
-+	__reset_intercept_indicators(vcpu);
-+	if (atomic_read(&li->active)) {
-+		do {
-+			deliver = 0;
-+			spin_lock_bh(&li->lock);
-+			list_for_each_entry_safe(inti, n, &li->list, list) {
-+				if ((inti->type == KVM_S390_MCHK) &&
-+				    __interrupt_is_deliverable(vcpu, inti)) {
-+					list_del(&inti->list);
-+					deliver = 1;
-+					break;
-+				}
-+				__set_intercept_indicator(vcpu, inti);
-+			}
-+			if (list_empty(&li->list))
-+				atomic_set(&li->active, 0);
-+			spin_unlock_bh(&li->lock);
-+			if (deliver) {
-+				__do_deliver_interrupt(vcpu, inti);
-+				kfree(inti);
-+			}
-+		} while (deliver);
-+	}
-+
-+	if (atomic_read(&fi->active)) {
-+		do {
-+			deliver = 0;
-+			spin_lock(&fi->lock);
-+			list_for_each_entry_safe(inti, n, &fi->list, list) {
-+				if ((inti->type == KVM_S390_MCHK) &&
-+				    __interrupt_is_deliverable(vcpu, inti)) {
-+					list_del(&inti->list);
-+					deliver = 1;
-+					break;
-+				}
-+				__set_intercept_indicator(vcpu, inti);
-+			}
-+			if (list_empty(&fi->list))
-+				atomic_set(&fi->active, 0);
-+			spin_unlock(&fi->lock);
-+			if (deliver) {
-+				__do_deliver_interrupt(vcpu, inti);
-+				kfree(inti);
-+			}
-+		} while (deliver);
-+	}
-+}
-+
- int kvm_s390_inject_program_int(struct kvm_vcpu *vcpu, u16 code)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-@@ -641,6 +740,13 @@ int kvm_s390_inject_vm(struct kvm *kvm,
- 	case KVM_S390_INT_EMERGENCY:
- 		kfree(inti);
- 		return -EINVAL;
-+	case KVM_S390_MCHK:
-+		VM_EVENT(kvm, 5, "inject: machine check parm64:%llx",
-+			 s390int->parm64);
-+		inti->type = s390int->type;
-+		inti->mchk.cr14 = s390int->parm; /* upper bits are not used */
-+		inti->mchk.mcic = s390int->parm64;
-+		break;
- 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
- 		if (s390int->type & IOINT_AI_MASK)
- 			VM_EVENT(kvm, 5, "%s", "inject: I/O (AI)");
-@@ -749,6 +855,12 @@ int kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
- 		inti->type = s390int->type;
- 		inti->emerg.code = s390int->parm;
- 		break;
-+	case KVM_S390_MCHK:
-+		VCPU_EVENT(vcpu, 5, "inject: machine check parm64:%llx",
-+			   s390int->parm64);
-+		inti->type = s390int->type;
-+		inti->mchk.mcic = s390int->parm64;
-+		break;
- 	case KVM_S390_INT_VIRTIO:
- 	case KVM_S390_INT_SERVICE:
- 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index dccc024..1f7cc6c 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -106,6 +106,7 @@ int kvm_s390_handle_wait(struct kvm_vcpu *vcpu);
- enum hrtimer_restart kvm_s390_idle_wakeup(struct hrtimer *timer);
- void kvm_s390_tasklet(unsigned long parm);
- void kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu);
-+void kvm_s390_deliver_pending_machine_checks(struct kvm_vcpu *vcpu);
- int kvm_s390_inject_vm(struct kvm *kvm,
- 		struct kvm_s390_interrupt *s390int);
- int kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
-@@ -117,6 +118,8 @@ int kvm_s390_inject_sigp_stop(struct kvm_vcpu *vcpu, int action);
- int kvm_s390_handle_b2(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_e5(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_01(struct kvm_vcpu *vcpu);
-+int kvm_s390_handle_b9(struct kvm_vcpu *vcpu);
-+int kvm_s390_handle_lpsw(struct kvm_vcpu *vcpu);
+diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+index 6ed1426..79699f46 100644
+--- a/arch/s390/mm/vmem.c
++++ b/arch/s390/mm/vmem.c
+@@ -85,11 +85,9 @@ static int vmem_add_mem(unsigned long start, unsigned long size, int ro)
+ 	pud_t *pu_dir;
+ 	pmd_t *pm_dir;
+ 	pte_t *pt_dir;
+-	pte_t  pte;
+ 	int ret = -ENOMEM;
  
- /* implemented in sigp.c */
- int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index d715842..d3cbcd3 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -18,6 +18,8 @@
- #include <asm/debug.h>
- #include <asm/ebcdic.h>
- #include <asm/sysinfo.h>
-+#include <asm/ptrace.h>
-+#include <asm/compat.h>
- #include "gaccess.h"
- #include "kvm-s390.h"
- #include "trace.h"
-@@ -166,6 +168,99 @@ static int handle_stfl(struct kvm_vcpu *vcpu)
- 	return 0;
+ 	while (address < end) {
+-		pte = mk_pte_phys(address, __pgprot(ro ? _PAGE_RO : 0));
+ 		pg_dir = pgd_offset_k(address);
+ 		if (pgd_none(*pg_dir)) {
+ 			pu_dir = vmem_pud_alloc();
+@@ -101,9 +99,9 @@ static int vmem_add_mem(unsigned long start, unsigned long size, int ro)
+ #if defined(CONFIG_64BIT) && !defined(CONFIG_DEBUG_PAGEALLOC)
+ 		if (MACHINE_HAS_EDAT2 && pud_none(*pu_dir) && address &&
+ 		    !(address & ~PUD_MASK) && (address + PUD_SIZE <= end)) {
+-			pte_val(pte) |= _REGION3_ENTRY_LARGE;
+-			pte_val(pte) |= _REGION_ENTRY_TYPE_R3;
+-			pud_val(*pu_dir) = pte_val(pte);
++			pud_val(*pu_dir) = __pa(address) |
++				_REGION_ENTRY_TYPE_R3 | _REGION3_ENTRY_LARGE |
++				(ro ? _REGION_ENTRY_RO : 0);
+ 			address += PUD_SIZE;
+ 			continue;
+ 		}
+@@ -118,8 +116,9 @@ static int vmem_add_mem(unsigned long start, unsigned long size, int ro)
+ #if defined(CONFIG_64BIT) && !defined(CONFIG_DEBUG_PAGEALLOC)
+ 		if (MACHINE_HAS_EDAT1 && pmd_none(*pm_dir) && address &&
+ 		    !(address & ~PMD_MASK) && (address + PMD_SIZE <= end)) {
+-			pte_val(pte) |= _SEGMENT_ENTRY_LARGE;
+-			pmd_val(*pm_dir) = pte_val(pte);
++			pmd_val(*pm_dir) = __pa(address) |
++				_SEGMENT_ENTRY | _SEGMENT_ENTRY_LARGE |
++				(ro ? _SEGMENT_ENTRY_RO : 0);
+ 			address += PMD_SIZE;
+ 			continue;
+ 		}
+@@ -132,7 +131,7 @@ static int vmem_add_mem(unsigned long start, unsigned long size, int ro)
+ 		}
+ 
+ 		pt_dir = pte_offset_kernel(pm_dir, address);
+-		*pt_dir = pte;
++		pte_val(*pt_dir) = __pa(address) | (ro ? _PAGE_RO : 0);
+ 		address += PAGE_SIZE;
+ 	}
+ 	ret = 0;
+@@ -199,7 +198,6 @@ int __meminit vmemmap_populate(struct page *start, unsigned long nr, int node)
+ 	pud_t *pu_dir;
+ 	pmd_t *pm_dir;
+ 	pte_t *pt_dir;
+-	pte_t  pte;
+ 	int ret = -ENOMEM;
+ 
+ 	start_addr = (unsigned long) start;
+@@ -237,9 +235,8 @@ int __meminit vmemmap_populate(struct page *start, unsigned long nr, int node)
+ 				new_page = vmemmap_alloc_block(PMD_SIZE, node);
+ 				if (!new_page)
+ 					goto out;
+-				pte = mk_pte_phys(__pa(new_page), PAGE_RW);
+-				pte_val(pte) |= _SEGMENT_ENTRY_LARGE;
+-				pmd_val(*pm_dir) = pte_val(pte);
++				pmd_val(*pm_dir) = __pa(new_page) |
++					_SEGMENT_ENTRY | _SEGMENT_ENTRY_LARGE;
+ 				address = (address + PMD_SIZE) & PMD_MASK;
+ 				continue;
+ 			}
+@@ -260,8 +257,7 @@ int __meminit vmemmap_populate(struct page *start, unsigned long nr, int node)
+ 			new_page =__pa(vmem_alloc_pages(0));
+ 			if (!new_page)
+ 				goto out;
+-			pte = pfn_pte(new_page >> PAGE_SHIFT, PAGE_KERNEL);
+-			*pt_dir = pte;
++			pte_val(*pt_dir) = __pa(new_page);
+ 		}
+ 		address += PAGE_SIZE;
+ 	}
+diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
+index c44d13f..30a2255 100644
+--- a/drivers/s390/char/sclp_cmd.c
++++ b/drivers/s390/char/sclp_cmd.c
+@@ -56,7 +56,6 @@ static int __initdata early_read_info_sccb_valid;
+ 
+ u64 sclp_facilities;
+ static u8 sclp_fac84;
+-static u8 sclp_fac85;
+ static unsigned long long rzm;
+ static unsigned long long rnmax;
+ 
+@@ -131,7 +130,8 @@ void __init sclp_facilities_detect(void)
+ 	sccb = &early_read_info_sccb;
+ 	sclp_facilities = sccb->facilities;
+ 	sclp_fac84 = sccb->fac84;
+-	sclp_fac85 = sccb->fac85;
++	if (sccb->fac85 & 0x02)
++		S390_lowcore.machine_flags |= MACHINE_FLAG_ESOP;
+ 	rnmax = sccb->rnmax ? sccb->rnmax : sccb->rnmax2;
+ 	rzm = sccb->rnsize ? sccb->rnsize : sccb->rnsize2;
+ 	rzm <<= 20;
+@@ -171,12 +171,6 @@ unsigned long long sclp_get_rzm(void)
+ 	return rzm;
  }
  
-+static void handle_new_psw(struct kvm_vcpu *vcpu)
-+{
-+	/* Check whether the new psw is enabled for machine checks. */
-+	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_MCHECK)
-+		kvm_s390_deliver_pending_machine_checks(vcpu);
-+}
-+
-+#define PSW_MASK_ADDR_MODE (PSW_MASK_EA | PSW_MASK_BA)
-+#define PSW_MASK_UNASSIGNED 0xb80800fe7fffffffUL
-+#define PSW_ADDR_24 0x00000000000fffffUL
-+#define PSW_ADDR_31 0x000000007fffffffUL
-+
-+int kvm_s390_handle_lpsw(struct kvm_vcpu *vcpu)
-+{
-+	u64 addr;
-+	psw_compat_t new_psw;
-+
-+	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
-+		return kvm_s390_inject_program_int(vcpu,
-+						   PGM_PRIVILEGED_OPERATION);
-+
-+	addr = kvm_s390_get_base_disp_s(vcpu);
-+
-+	if (addr & 7) {
-+		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+		goto out;
-+	}
-+
-+	if (copy_from_guest(vcpu, &new_psw, addr, sizeof(new_psw))) {
-+		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+		goto out;
-+	}
-+
-+	if (!(new_psw.mask & PSW32_MASK_BASE)) {
-+		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+		goto out;
-+	}
-+
-+	vcpu->arch.sie_block->gpsw.mask =
-+		(new_psw.mask & ~PSW32_MASK_BASE) << 32;
-+	vcpu->arch.sie_block->gpsw.addr = new_psw.addr;
-+
-+	if ((vcpu->arch.sie_block->gpsw.mask & PSW_MASK_UNASSIGNED) ||
-+	    (!(vcpu->arch.sie_block->gpsw.mask & PSW_MASK_ADDR_MODE) &&
-+	     (vcpu->arch.sie_block->gpsw.addr & ~PSW_ADDR_24)) ||
-+	    ((vcpu->arch.sie_block->gpsw.mask & PSW_MASK_ADDR_MODE) ==
-+	     PSW_MASK_EA)) {
-+		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+		goto out;
-+	}
-+
-+	handle_new_psw(vcpu);
-+out:
-+	return 0;
-+}
-+
-+static int handle_lpswe(struct kvm_vcpu *vcpu)
-+{
-+	u64 addr;
-+	psw_t new_psw;
-+
-+	addr = kvm_s390_get_base_disp_s(vcpu);
-+
-+	if (addr & 7) {
-+		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+		goto out;
-+	}
-+
-+	if (copy_from_guest(vcpu, &new_psw, addr, sizeof(new_psw))) {
-+		kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+		goto out;
-+	}
-+
-+	vcpu->arch.sie_block->gpsw.mask = new_psw.mask;
-+	vcpu->arch.sie_block->gpsw.addr = new_psw.addr;
-+
-+	if ((vcpu->arch.sie_block->gpsw.mask & PSW_MASK_UNASSIGNED) ||
-+	    (((vcpu->arch.sie_block->gpsw.mask & PSW_MASK_ADDR_MODE) ==
-+	      PSW_MASK_BA) &&
-+	     (vcpu->arch.sie_block->gpsw.addr & ~PSW_ADDR_31)) ||
-+	    (!(vcpu->arch.sie_block->gpsw.mask & PSW_MASK_ADDR_MODE) &&
-+	     (vcpu->arch.sie_block->gpsw.addr & ~PSW_ADDR_24)) ||
-+	    ((vcpu->arch.sie_block->gpsw.mask & PSW_MASK_ADDR_MODE) ==
-+	     PSW_MASK_EA)) {
-+		kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+		goto out;
-+	}
-+
-+	handle_new_psw(vcpu);
-+out:
-+	return 0;
-+}
-+
- static int handle_stidp(struct kvm_vcpu *vcpu)
- {
- 	u64 operand2;
-@@ -292,6 +387,7 @@ static const intercept_handler_t priv_handlers[256] = {
- 	[0x5f] = handle_chsc,
- 	[0x7d] = handle_stsi,
- 	[0xb1] = handle_stfl,
-+	[0xb2] = handle_lpswe,
- };
+-u8 sclp_get_fac85(void)
+-{
+-	return sclp_fac85;
+-}
+-EXPORT_SYMBOL_GPL(sclp_get_fac85);
+-
+ /*
+  * This function will be called after sclp_facilities_detect(), which gets
+  * called from early.c code. Therefore the sccb should have valid contents.
+diff --git a/include/asm-generic/pgtable.h b/include/asm-generic/pgtable.h
+index 83b54ed..bdd7fac 100644
+--- a/include/asm-generic/pgtable.h
++++ b/include/asm-generic/pgtable.h
+@@ -197,16 +197,6 @@ static inline int pmd_same(pmd_t pmd_a, pmd_t pmd_b)
+ #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+ #endif
  
- int kvm_s390_handle_b2(struct kvm_vcpu *vcpu)
-@@ -316,6 +412,45 @@ int kvm_s390_handle_b2(struct kvm_vcpu *vcpu)
- 	return -EOPNOTSUPP;
+-#ifndef __HAVE_ARCH_PAGE_TEST_AND_CLEAR_DIRTY
+-#define page_test_and_clear_dirty(pfn, mapped)	(0)
+-#endif
+-
+-#ifndef __HAVE_ARCH_PAGE_TEST_AND_CLEAR_DIRTY
+-#define pte_maybe_dirty(pte)		pte_dirty(pte)
+-#else
+-#define pte_maybe_dirty(pte)		(1)
+-#endif
+-
+ #ifndef __HAVE_ARCH_PAGE_TEST_AND_CLEAR_YOUNG
+ #define page_test_and_clear_young(pfn) (0)
+ #endif
+diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+index b5d1384..4c0c8eb 100644
+--- a/include/linux/page-flags.h
++++ b/include/linux/page-flags.h
+@@ -303,21 +303,13 @@ static inline void __SetPageUptodate(struct page *page)
+ 
+ static inline void SetPageUptodate(struct page *page)
+ {
+-#ifdef CONFIG_S390
+-	if (!test_and_set_bit(PG_uptodate, &page->flags))
+-		page_set_storage_key(page_to_phys(page), PAGE_DEFAULT_KEY, 0);
+-#else
+ 	/*
+ 	 * Memory barrier must be issued before setting the PG_uptodate bit,
+ 	 * so that all previous stores issued in order to bring the page
+ 	 * uptodate are actually visible before PageUptodate becomes true.
+-	 *
+-	 * s390 doesn't need an explicit smp_wmb here because the test and
+-	 * set bit already provides full barriers.
+ 	 */
+ 	smp_wmb();
+ 	set_bit(PG_uptodate, &(page)->flags);
+-#endif
  }
  
-+static int handle_epsw(struct kvm_vcpu *vcpu)
-+{
-+	int reg1, reg2;
-+
-+	reg1 = (vcpu->arch.sie_block->ipb & 0x00f00000) >> 24;
-+	reg2 = (vcpu->arch.sie_block->ipb & 0x000f0000) >> 16;
-+
-+	/* This basically extracts the mask half of the psw. */
-+	vcpu->run->s.regs.gprs[reg1] &= 0xffffffff00000000;
-+	vcpu->run->s.regs.gprs[reg1] |= vcpu->arch.sie_block->gpsw.mask >> 32;
-+	if (reg2) {
-+		vcpu->run->s.regs.gprs[reg2] &= 0xffffffff00000000;
-+		vcpu->run->s.regs.gprs[reg2] |=
-+			vcpu->arch.sie_block->gpsw.mask & 0x00000000ffffffff;
-+	}
-+	return 0;
-+}
-+
-+static const intercept_handler_t b9_handlers[256] = {
-+	[0x8d] = handle_epsw,
-+};
-+
-+int kvm_s390_handle_b9(struct kvm_vcpu *vcpu)
-+{
-+	intercept_handler_t handler;
-+
-+	/* This is handled just as for the B2 instructions. */
-+	handler = b9_handlers[vcpu->arch.sie_block->ipa & 0x00ff];
-+	if (handler) {
-+		if ((handler != handle_epsw) &&
-+		    (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE))
-+			return kvm_s390_inject_program_int(vcpu,
-+						   PGM_PRIVILEGED_OPERATION);
-+		else
-+			return handler(vcpu);
-+	}
-+	return -EOPNOTSUPP;
-+}
-+
- static int handle_tprot(struct kvm_vcpu *vcpu)
- {
- 	u64 address1, address2;
-diff --git a/arch/s390/kvm/trace-s390.h b/arch/s390/kvm/trace-s390.h
-index 90fdf85..95fbc1a 100644
---- a/arch/s390/kvm/trace-s390.h
-+++ b/arch/s390/kvm/trace-s390.h
-@@ -141,13 +141,13 @@ TRACE_EVENT(kvm_s390_inject_vcpu,
-  * Trace point for the actual delivery of interrupts.
-  */
- TRACE_EVENT(kvm_s390_deliver_interrupt,
--	    TP_PROTO(unsigned int id, __u64 type, __u32 data0, __u64 data1),
-+	    TP_PROTO(unsigned int id, __u64 type, __u64 data0, __u64 data1),
- 	    TP_ARGS(id, type, data0, data1),
+ CLEARPAGEFLAG(Uptodate, uptodate)
+diff --git a/mm/rmap.c b/mm/rmap.c
+index face808..ef75a7d 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -1144,29 +1144,6 @@ void page_remove_rmap(struct page *page)
+ 		goto out;
  
- 	    TP_STRUCT__entry(
- 		    __field(int, id)
- 		    __field(__u32, inttype)
--		    __field(__u32, data0)
-+		    __field(__u64, data0)
- 		    __field(__u64, data1)
- 		    ),
- 
-@@ -159,7 +159,7 @@ TRACE_EVENT(kvm_s390_deliver_interrupt,
- 		    ),
- 
- 	    TP_printk("deliver interrupt (vcpu %d): type:%x (%s) "	\
--		      "data:%08x %016llx",
-+		      "data:%08llx %016llx",
- 		      __entry->id, __entry->inttype,
- 		      __print_symbolic(__entry->inttype, kvm_s390_int_type),
- 		      __entry->data0, __entry->data1)
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 54540bd..80bb3b8 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -397,6 +397,7 @@ struct kvm_s390_psw {
- #define KVM_S390_PROGRAM_INT		0xfffe0001u
- #define KVM_S390_SIGP_SET_PREFIX	0xfffe0002u
- #define KVM_S390_RESTART		0xfffe0003u
-+#define KVM_S390_MCHK			0xfffe1000u
- #define KVM_S390_INT_VIRTIO		0xffff2603u
- #define KVM_S390_INT_SERVICE		0xffff2401u
- #define KVM_S390_INT_EMERGENCY		0xffff1201u
+ 	/*
+-	 * Now that the last pte has gone, s390 must transfer dirty
+-	 * flag from storage key to struct page.  We can usually skip
+-	 * this if the page is anon, so about to be freed; but perhaps
+-	 * not if it's in swapcache - there might be another pte slot
+-	 * containing the swap entry, but page not yet written to swap.
+-	 *
+-	 * And we can skip it on file pages, so long as the filesystem
+-	 * participates in dirty tracking (note that this is not only an
+-	 * optimization but also solves problems caused by dirty flag in
+-	 * storage key getting set by a write from inside kernel); but need to
+-	 * catch shm and tmpfs and ramfs pages which have been modified since
+-	 * creation by read fault.
+-	 *
+-	 * Note that mapping must be decided above, before decrementing
+-	 * mapcount (which luckily provides a barrier): once page is unmapped,
+-	 * it could be truncated and page->mapping reset to NULL at any moment.
+-	 * Note also that we are relying on page_mapping(page) to set mapping
+-	 * to &swapper_space when PageSwapCache(page).
+-	 */
+-	if (mapping && !mapping_cap_account_dirty(mapping) &&
+-	    page_test_and_clear_dirty(page_to_pfn(page), 1))
+-		set_page_dirty(page);
+-	/*
+ 	 * Hugepages are not counted in NR_ANON_PAGES nor NR_FILE_MAPPED
+ 	 * and not charged by memcg for now.
+ 	 */
 -- 
 1.7.12.4
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
