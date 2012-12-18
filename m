@@ -1,54 +1,53 @@
-From: Wen Congyang <wency@cn.fujitsu.com>
-Subject: Re: [PATCH v5 14/14] memory-hotplug: free node_data when a node is
- offlined
-Date: Sun, 30 Dec 2012 14:02:28 +0800
-Message-ID: <50DFD8F4.7040301@cn.fujitsu.com>
-References: <1356350964-13437-1-git-send-email-tangchen@cn.fujitsu.com> <1356350964-13437-15-git-send-email-tangchen@cn.fujitsu.com> <50DA7533.6060407@jp.fujitsu.com> <50DC3C26.6060308@cn.fujitsu.com> <50DCE7C0.8070407@jp.fujitsu.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v2 3/5] s390: Add new channel I/O based virtio transport.
+Date: Tue, 18 Dec 2012 09:45:27 +0100
+Message-ID: <50D02D27.6070604@redhat.com>
+References: <1346771633-53081-1-git-send-email-cornelia.huck@de.ibm.com> <1346771633-53081-4-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
-In-Reply-To: <50DCE7C0.8070407@jp.fujitsu.com>
-Sender: linux-ia64-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Tang Chen <tangchen@cn.fujitsu.com>, akpm@linux-foundation.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, wujianguo@huawei.com, hpa@zytor.com, linfeng@cn.fujitsu.com, laijs@cn.fujitsu.com, mgorman@suse.de, yinghai@kernel.org, x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1346771633-53081-4-git-send-email-cornelia.huck@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Avi Kivity <avi@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-At 12/28/2012 08:28 AM, Kamezawa Hiroyuki Wrote:
-> (2012/12/27 21:16), Wen Congyang wrote:
->> At 12/26/2012 11:55 AM, Kamezawa Hiroyuki Wrote:
->>> (2012/12/24 21:09), Tang Chen wrote:
->>>> From: Wen Congyang <wency@cn.fujitsu.com>
->>>>
->>>> We call hotadd_new_pgdat() to allocate memory to store node_data. So we
->>>> should free it when removing a node.
->>>>
->>>> Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
->>>
->>> I'm sorry but is it safe to remove pgdat ? All zone cache and zonelists are
->>> properly cleared/rebuilded in synchronous way ? and No threads are visinting
->>> zone in vmscan.c ?
->>
->> We have rebuilt zonelists when a zone has no memory after offlining some pages.
->>
-> 
-> How do you guarantee that the address of pgdat/zone is not on stack of any kernel
-> threads or other kernel objects without reference counting or other syncing method ?
+Il 04/09/2012 17:13, Cornelia Huck ha scritto:
+> +VirtioCcwBus *virtio_ccw_bus_init(void)
+> +{
+> +    VirtioCcwBus *cbus;
+> +    BusState *bus;
+> +    DeviceState *dev;
+> +
+> +    /* Create bridge device */
+> +    dev = qdev_create(NULL, "virtio-ccw-bridge");
+> +    qdev_init_nofail(dev);
+> +
+> +    /* Create bus on bridge device */
+> +    bus = qbus_create(TYPE_VIRTIO_CCW_BUS, dev, "virtio-ccw");
+> +    cbus = DO_UPCAST(VirtioCcwBus, bus, bus);
+> +
+> +    /* Enable hotplugging */
+> +    bus->allow_hotplug = 1;
+> +
+> +    qemu_register_reset(virtio_ccw_reset_subchannels, cbus);
 
-No way to guarentee this. But, the kernel should not use the address of pgdat/zone when
-it is offlined.
+Please use qdev device-reset and bus-reset callbacks instead of this.
 
-Hmm, what about this: reuse the memory when the node is onlined again?
+In particular, when writing the status you should call
+qdev_reset_all(DEVICE(sch)), and whatever state should be reset will
+have to be cleared by the device-reset callback of SubchDev, including
+calling virtio_reset.
 
-Thanks
-Wen Congyang
+Everything else will be cleared instead by the bus-reset callback of
+virtio-ccw-bus, similar to what you are doing in
+virtio_ccw_reset_subchannels.
 
-> 
-> 
-> Thanks,
-> -Kame
-> 
-> 
-> 
+Paolo
+
+
+> +    return cbus;
+> +}
