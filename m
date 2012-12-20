@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 3/7] KVM: s390: Support for I/O interrupts.
-Date: Thu, 20 Dec 2012 15:32:08 +0100
-Message-ID: <1356013932-23775-4-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 5/7] KVM: s390: In-kernel handling of I/O instructions.
+Date: Thu, 20 Dec 2012 15:32:10 +0100
+Message-ID: <1356013932-23775-6-git-send-email-cornelia.huck@de.ibm.com>
 References: <1356013932-23775-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1356013932-23775-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,247 +12,184 @@ To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, KVM <
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Add support for handling I/O interrupts (standard, subchannel-related
-ones and rudimentary adapter interrupts).
+Explicitely catch all channel I/O related instructions intercepts
+in the kernel and set condition code 3 for them.
 
-The subchannel-identifying parameters are encoded into the interrupt
-type.
+This paves the way for properly handling these instructions later
+on.
 
-I/O interrupts are floating, so they can't be injected on a specific
-vcpu.
+Note: This is not architecture compliant (the previous code wasn't
+either) since setting cc 3 is not the correct thing to do for some
+of these instructions. For Linux guests, however, it still has the
+intended effect of stopping css probing.
 
 Reviewed-by: Marcelo Tosatti <mtosatti@redhat.com>
+Reviewed-by: Alexander Graf <agraf@suse.de>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- Documentation/virtual/kvm/api.txt |   4 ++
- arch/s390/include/asm/kvm_host.h  |   2 +
- arch/s390/kvm/interrupt.c         | 103 +++++++++++++++++++++++++++++++++++++-
- include/uapi/linux/kvm.h          |   9 ++++
- 4 files changed, 116 insertions(+), 2 deletions(-)
+ arch/s390/kvm/intercept.c | 19 +++++++++++++---
+ arch/s390/kvm/kvm-s390.h  |  1 +
+ arch/s390/kvm/priv.c      | 56 +++++++++++++++++++++++++++++++++--------------
+ 3 files changed, 56 insertions(+), 20 deletions(-)
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index a4df553..83bd92b 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -2069,6 +2069,10 @@ KVM_S390_INT_VIRTIO (vm) - virtio external interrupt; external interrupt
- KVM_S390_INT_SERVICE (vm) - sclp external interrupt; sclp parameter in parm
- KVM_S390_INT_EMERGENCY (vcpu) - sigp emergency; source cpu in parm
- KVM_S390_INT_EXTERNAL_CALL (vcpu) - sigp external call; source cpu in parm
-+KVM_S390_INT_IO(ai,cssid,ssid,schid) (vm) - compound value to indicate an
-+    I/O interrupt (ai - adapter interrupt; cssid,ssid,schid - subchannel);
-+    I/O interruption parameters in parm (subchannel) and parm64 (intparm,
-+    interruption subclass)
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 950c13e..71af87d 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -30,8 +30,6 @@ static int handle_lctlg(struct kvm_vcpu *vcpu)
+ 	int reg, rc;
  
- Note that the vcpu ioctl is asynchronous to vcpu execution.
+ 	vcpu->stat.instruction_lctlg++;
+-	if ((vcpu->arch.sie_block->ipb & 0xff) != 0x2f)
+-		return -EOPNOTSUPP;
  
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 711c5ab..a8e35c4 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -74,6 +74,7 @@ struct kvm_s390_sie_block {
- 	__u64	epoch;			/* 0x0038 */
- 	__u8	reserved40[4];		/* 0x0040 */
- #define LCTL_CR0	0x8000
-+#define LCTL_CR6	0x0200
- 	__u16   lctl;			/* 0x0044 */
- 	__s16	icpua;			/* 0x0046 */
- 	__u32	ictl;			/* 0x0048 */
-@@ -125,6 +126,7 @@ struct kvm_vcpu_stat {
- 	u32 deliver_prefix_signal;
- 	u32 deliver_restart_signal;
- 	u32 deliver_program_int;
-+	u32 deliver_io_int;
- 	u32 exit_wait_state;
- 	u32 instruction_stidp;
- 	u32 instruction_spx;
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index c30615e..52cdf20 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -21,11 +21,26 @@
- #include "gaccess.h"
- #include "trace-s390.h"
+ 	useraddr = kvm_s390_get_base_disp_rsy(vcpu);
  
-+#define IOINT_SCHID_MASK 0x0000ffff
-+#define IOINT_SSID_MASK 0x00030000
-+#define IOINT_CSSID_MASK 0x03fc0000
-+#define IOINT_AI_MASK 0x04000000
-+
-+static int is_ioint(u64 type)
-+{
-+	return ((type & 0xfffe0000u) != 0xfffe0000u);
-+}
-+
- static int psw_extint_disabled(struct kvm_vcpu *vcpu)
- {
- 	return !(vcpu->arch.sie_block->gpsw.mask & PSW_MASK_EXT);
+@@ -95,6 +93,21 @@ static int handle_lctl(struct kvm_vcpu *vcpu)
+ 	return 0;
  }
  
-+static int psw_ioint_disabled(struct kvm_vcpu *vcpu)
++static const intercept_handler_t eb_handlers[256] = {
++	[0x2f] = handle_lctlg,
++	[0x8a] = kvm_s390_handle_priv_eb,
++};
++
++static int handle_eb(struct kvm_vcpu *vcpu)
 +{
-+	return !(vcpu->arch.sie_block->gpsw.mask & PSW_MASK_IO);
++	intercept_handler_t handler;
++
++	handler = eb_handlers[vcpu->arch.sie_block->ipb & 0xff];
++	if (handler)
++		return handler(vcpu);
++	return -EOPNOTSUPP;
 +}
 +
- static int psw_interrupts_disabled(struct kvm_vcpu *vcpu)
- {
- 	if ((vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PER) ||
-@@ -67,7 +82,15 @@ static int __interrupt_is_deliverable(struct kvm_vcpu *vcpu,
- 	case KVM_S390_SIGP_SET_PREFIX:
- 	case KVM_S390_RESTART:
- 		return 1;
-+	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
-+		if (psw_ioint_disabled(vcpu))
-+			return 0;
-+		if (vcpu->arch.sie_block->gcr[6] & inti->io.io_int_word)
-+			return 1;
-+		return 0;
- 	default:
-+		printk(KERN_WARNING "illegal interrupt type %llx\n",
-+		       inti->type);
- 		BUG();
- 	}
+ static const intercept_handler_t instruction_handlers[256] = {
+ 	[0x01] = kvm_s390_handle_01,
+ 	[0x82] = kvm_s390_handle_lpsw,
+@@ -104,7 +117,7 @@ static const intercept_handler_t instruction_handlers[256] = {
+ 	[0xb7] = handle_lctl,
+ 	[0xb9] = kvm_s390_handle_b9,
+ 	[0xe5] = kvm_s390_handle_e5,
+-	[0xeb] = handle_lctlg,
++	[0xeb] = handle_eb,
+ };
+ 
+ static int handle_noop(struct kvm_vcpu *vcpu)
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 1f7cc6c..211b340 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -120,6 +120,7 @@ int kvm_s390_handle_e5(struct kvm_vcpu *vcpu);
+ int kvm_s390_handle_01(struct kvm_vcpu *vcpu);
+ int kvm_s390_handle_b9(struct kvm_vcpu *vcpu);
+ int kvm_s390_handle_lpsw(struct kvm_vcpu *vcpu);
++int kvm_s390_handle_priv_eb(struct kvm_vcpu *vcpu);
+ 
+ /* implemented in sigp.c */
+ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index d3cbcd3..8ad776f 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -127,20 +127,9 @@ static int handle_skey(struct kvm_vcpu *vcpu)
  	return 0;
-@@ -116,6 +139,12 @@ static void __set_intercept_indicator(struct kvm_vcpu *vcpu,
- 	case KVM_S390_SIGP_STOP:
- 		__set_cpuflag(vcpu, CPUSTAT_STOP_INT);
- 		break;
-+	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
-+		if (psw_ioint_disabled(vcpu))
-+			__set_cpuflag(vcpu, CPUSTAT_IO_INT);
-+		else
-+			vcpu->arch.sie_block->lctl |= LCTL_CR6;
-+		break;
- 	default:
- 		BUG();
- 	}
-@@ -297,6 +326,47 @@ static void __do_deliver_interrupt(struct kvm_vcpu *vcpu,
- 			exception = 1;
- 		break;
+ }
  
-+	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
-+	{
-+		__u32 param0 = ((__u32)inti->io.subchannel_id << 16) |
-+			inti->io.subchannel_nr;
-+		__u64 param1 = ((__u64)inti->io.io_int_parm << 32) |
-+			inti->io.io_int_word;
-+		VCPU_EVENT(vcpu, 4, "interrupt: I/O %llx", inti->type);
-+		vcpu->stat.deliver_io_int++;
-+		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, inti->type,
-+						 param0, param1);
-+		rc = put_guest_u16(vcpu, __LC_SUBCHANNEL_ID,
-+				   inti->io.subchannel_id);
-+		if (rc == -EFAULT)
-+			exception = 1;
-+
-+		rc = put_guest_u16(vcpu, __LC_SUBCHANNEL_NR,
-+				   inti->io.subchannel_nr);
-+		if (rc == -EFAULT)
-+			exception = 1;
-+
-+		rc = put_guest_u32(vcpu, __LC_IO_INT_PARM,
-+				   inti->io.io_int_parm);
-+		if (rc == -EFAULT)
-+			exception = 1;
-+
-+		rc = put_guest_u32(vcpu, __LC_IO_INT_WORD,
-+				   inti->io.io_int_word);
-+		if (rc == -EFAULT)
-+			exception = 1;
-+
-+		rc = copy_to_guest(vcpu, __LC_IO_OLD_PSW,
-+				   &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+		if (rc == -EFAULT)
-+			exception = 1;
-+
-+		rc = copy_from_guest(vcpu, &vcpu->arch.sie_block->gpsw,
-+				     __LC_IO_NEW_PSW, sizeof(psw_t));
-+		if (rc == -EFAULT)
-+			exception = 1;
-+		break;
-+	}
- 	default:
- 		BUG();
- 	}
-@@ -545,7 +615,7 @@ int kvm_s390_inject_vm(struct kvm *kvm,
+-static int handle_stsch(struct kvm_vcpu *vcpu)
++static int handle_io_inst(struct kvm_vcpu *vcpu)
  {
- 	struct kvm_s390_local_interrupt *li;
- 	struct kvm_s390_float_interrupt *fi;
--	struct kvm_s390_interrupt_info *inti;
-+	struct kvm_s390_interrupt_info *inti, *iter;
- 	int sigcpu;
+-	vcpu->stat.instruction_stsch++;
+-	VCPU_EVENT(vcpu, 4, "%s", "store subchannel - CC3");
+-	/* condition code 3 */
+-	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
+-	vcpu->arch.sie_block->gpsw.mask |= (3 & 3ul) << 44;
+-	return 0;
+-}
+-
+-static int handle_chsc(struct kvm_vcpu *vcpu)
+-{
+-	vcpu->stat.instruction_chsc++;
+-	VCPU_EVENT(vcpu, 4, "%s", "channel subsystem call - CC3");
++	VCPU_EVENT(vcpu, 4, "%s", "I/O instruction");
+ 	/* condition code 3 */
+ 	vcpu->arch.sie_block->gpsw.mask &= ~(3ul << 44);
+ 	vcpu->arch.sie_block->gpsw.mask |= (3 & 3ul) << 44;
+@@ -375,7 +364,7 @@ out_fail:
+ 	return 0;
+ }
  
- 	inti = kzalloc(sizeof(*inti), GFP_KERNEL);
-@@ -569,6 +639,22 @@ int kvm_s390_inject_vm(struct kvm *kvm,
- 	case KVM_S390_SIGP_STOP:
- 	case KVM_S390_INT_EXTERNAL_CALL:
- 	case KVM_S390_INT_EMERGENCY:
-+		kfree(inti);
-+		return -EINVAL;
-+	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
-+		if (s390int->type & IOINT_AI_MASK)
-+			VM_EVENT(kvm, 5, "%s", "inject: I/O (AI)");
-+		else
-+			VM_EVENT(kvm, 5, "inject: I/O css %x ss %x schid %04x",
-+				 s390int->type & IOINT_CSSID_MASK,
-+				 s390int->type & IOINT_SSID_MASK,
-+				 s390int->type & IOINT_SCHID_MASK);
-+		inti->type = s390int->type;
-+		inti->io.subchannel_id = s390int->parm >> 16;
-+		inti->io.subchannel_nr = s390int->parm & 0x0000ffffu;
-+		inti->io.io_int_parm = s390int->parm64 >> 32;
-+		inti->io.io_int_word = s390int->parm64 & 0x00000000ffffffffull;
-+		break;
- 	default:
- 		kfree(inti);
- 		return -EINVAL;
-@@ -579,7 +665,19 @@ int kvm_s390_inject_vm(struct kvm *kvm,
- 	mutex_lock(&kvm->lock);
- 	fi = &kvm->arch.float_int;
- 	spin_lock(&fi->lock);
--	list_add_tail(&inti->list, &fi->list);
-+	if (!is_ioint(inti->type))
-+		list_add_tail(&inti->list, &fi->list);
-+	else {
-+		/* Keep I/O interrupts sorted in isc order. */
-+		list_for_each_entry(iter, &fi->list, list) {
-+			if (!is_ioint(iter->type))
-+				continue;
-+			if (iter->io.io_int_word <= inti->io.io_int_word)
-+				continue;
-+			break;
-+		}
-+		list_add_tail(&inti->list, &iter->list);
-+	}
- 	atomic_set(&fi->active, 1);
- 	sigcpu = find_first_bit(fi->idle_mask, KVM_MAX_VCPUS);
- 	if (sigcpu == KVM_MAX_VCPUS) {
-@@ -653,6 +751,7 @@ int kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
- 		break;
- 	case KVM_S390_INT_VIRTIO:
- 	case KVM_S390_INT_SERVICE:
-+	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
- 	default:
- 		kfree(inti);
- 		return -EINVAL;
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index e6e5d4b..54540bd 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -401,6 +401,15 @@ struct kvm_s390_psw {
- #define KVM_S390_INT_SERVICE		0xffff2401u
- #define KVM_S390_INT_EMERGENCY		0xffff1201u
- #define KVM_S390_INT_EXTERNAL_CALL	0xffff1202u
-+/* Anything below 0xfffe0000u is taken by INT_IO */
-+#define KVM_S390_INT_IO(ai,cssid,ssid,schid)   \
-+	(((schid)) |			       \
-+	 ((ssid) << 16) |		       \
-+	 ((cssid) << 18) |		       \
-+	 ((ai) << 26))
-+#define KVM_S390_INT_IO_MIN		0x00000000u
-+#define KVM_S390_INT_IO_MAX		0xfffdffffu
+-static const intercept_handler_t priv_handlers[256] = {
++static const intercept_handler_t b2_handlers[256] = {
+ 	[0x02] = handle_stidp,
+ 	[0x10] = handle_set_prefix,
+ 	[0x11] = handle_store_prefix,
+@@ -383,8 +372,22 @@ static const intercept_handler_t priv_handlers[256] = {
+ 	[0x29] = handle_skey,
+ 	[0x2a] = handle_skey,
+ 	[0x2b] = handle_skey,
+-	[0x34] = handle_stsch,
+-	[0x5f] = handle_chsc,
++	[0x30] = handle_io_inst,
++	[0x31] = handle_io_inst,
++	[0x32] = handle_io_inst,
++	[0x33] = handle_io_inst,
++	[0x34] = handle_io_inst,
++	[0x35] = handle_io_inst,
++	[0x36] = handle_io_inst,
++	[0x37] = handle_io_inst,
++	[0x38] = handle_io_inst,
++	[0x39] = handle_io_inst,
++	[0x3a] = handle_io_inst,
++	[0x3b] = handle_io_inst,
++	[0x3c] = handle_io_inst,
++	[0x5f] = handle_io_inst,
++	[0x74] = handle_io_inst,
++	[0x76] = handle_io_inst,
+ 	[0x7d] = handle_stsi,
+ 	[0xb1] = handle_stfl,
+ 	[0xb2] = handle_lpswe,
+@@ -401,7 +404,7 @@ int kvm_s390_handle_b2(struct kvm_vcpu *vcpu)
+ 	 * state bit and (a) handle the instruction or (b) send a code 2
+ 	 * program check.
+ 	 * Anything else goes to userspace.*/
+-	handler = priv_handlers[vcpu->arch.sie_block->ipa & 0x00ff];
++	handler = b2_handlers[vcpu->arch.sie_block->ipa & 0x00ff];
+ 	if (handler) {
+ 		if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 			return kvm_s390_inject_program_int(vcpu,
+@@ -432,6 +435,7 @@ static int handle_epsw(struct kvm_vcpu *vcpu)
+ 
+ static const intercept_handler_t b9_handlers[256] = {
+ 	[0x8d] = handle_epsw,
++	[0x9c] = handle_io_inst,
+ };
+ 
+ int kvm_s390_handle_b9(struct kvm_vcpu *vcpu)
+@@ -451,6 +455,24 @@ int kvm_s390_handle_b9(struct kvm_vcpu *vcpu)
+ 	return -EOPNOTSUPP;
+ }
+ 
++static const intercept_handler_t eb_handlers[256] = {
++	[0x8a] = handle_io_inst,
++};
 +
- 
- struct kvm_s390_interrupt {
- 	__u32 type;
++int kvm_s390_handle_priv_eb(struct kvm_vcpu *vcpu)
++{
++	intercept_handler_t handler;
++
++	/* All eb instructions that end up here are privileged. */
++	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
++		return kvm_s390_inject_program_int(vcpu,
++						   PGM_PRIVILEGED_OPERATION);
++	handler = eb_handlers[vcpu->arch.sie_block->ipb & 0xff];
++	if (handler)
++		return handler(vcpu);
++	return -EOPNOTSUPP;
++}
++
+ static int handle_tprot(struct kvm_vcpu *vcpu)
+ {
+ 	u64 address1, address2;
 -- 
 1.7.12.4
