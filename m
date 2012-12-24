@@ -1,133 +1,126 @@
 From: Tang Chen <tangchen@cn.fujitsu.com>
-Subject: [PATCH v5 00/14] memory-hotplug: hot-remove physical memory
-Date: Mon, 24 Dec 2012 20:09:10 +0800
-Message-ID: <1356350964-13437-1-git-send-email-tangchen@cn.fujitsu.com>
-Return-path: <owner-linux-mm@kvack.org>
-Sender: owner-linux-mm@kvack.org
+Subject: [PATCH v5 02/14] memory-hotplug: check whether all memory blocks are offlined or not when removing memory
+Date: Mon, 24 Dec 2012 20:09:12 +0800
+Message-ID: <1356350964-13437-3-git-send-email-tangchen@cn.fujitsu.com>
+References: <1356350964-13437-1-git-send-email-tangchen@cn.fujitsu.com>
+Return-path: <linux-ia64-owner@vger.kernel.org>
+In-Reply-To: <1356350964-13437-1-git-send-email-tangchen@cn.fujitsu.com>
+Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
 To: akpm@linux-foundation.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, wujianguo@huawei.com, wency@cn.fujitsu.com, tangchen@cn.fujitsu.com, hpa@zytor.com, linfeng@cn.fujitsu.com, laijs@cn.fujitsu.com, mgorman@suse.de, yinghai@kernel.org
 Cc: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Andrew,
+From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
 
-Here is the physical memory hot-remove patch-set based on 3.8rc-1.
+We remove the memory like this:
+1. lock memory hotplug
+2. offline a memory block
+3. unlock memory hotplug
+4. repeat 1-3 to offline all memory blocks
+5. lock memory hotplug
+6. remove memory(TODO)
+7. unlock memory hotplug
 
-This patch-set aims to implement physical memory hot-removing.
+All memory blocks must be offlined before removing memory. But we don't hold
+the lock in the whole operation. So we should check whether all memory blocks
+are offlined before step6. Otherwise, kernel maybe panicked.
 
-The patches can free/remove the following things:
+Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
+Signed-off-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+---
+ drivers/base/memory.c          |    6 +++++
+ include/linux/memory_hotplug.h |    1 +
+ mm/memory_hotplug.c            |   47 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 54 insertions(+), 0 deletions(-)
 
-  - /sys/firmware/memmap/X/{end, start, type} : [PATCH 4/14]
-  - memmap of sparse-vmemmap                  : [PATCH 6,7,8,10/14]
-  - page table of removed memory              : [RFC PATCH 7,8,10/14]
-  - node and related sysfs files              : [RFC PATCH 13-14/14]
-
-
-How to test this patchset?
-1. apply this patchset and build the kernel. MEMORY_HOTPLUG, MEMORY_HOTREMOVE,
-   ACPI_HOTPLUG_MEMORY must be selected.
-2. load the module acpi_memhotplug
-3. hotplug the memory device(it depends on your hardware)
-   You will see the memory device under the directory /sys/bus/acpi/devices/.
-   Its name is PNP0C80:XX.
-4. online/offline pages provided by this memory device
-   You can write online/offline to /sys/devices/system/memory/memoryX/state to
-   online/offline pages provided by this memory device
-5. hotremove the memory device
-   You can hotremove the memory device by the hardware, or writing 1 to
-   /sys/bus/acpi/devices/PNP0C80:XX/eject.
-
-Note: if the memory provided by the memory device is used by the kernel, it
-can't be offlined. It is not a bug.
-
-
-Changelogs from v4 to v5:
- Patch7: new patch, move pgdat_resize_lock into sparse_remove_one_section() to
-         avoid disabling irq because we need flush tlb when free pagetables.
- Patch8: new patch, pick up some common APIs that are used to free direct mapping
-         and vmemmap pagetables.
- Patch9: free direct mapping pagetables on x86_64 arch.
- Patch10: free vmemmap pagetables.
- Patch11: since freeing memmap with vmemmap has been implemented, the config
-          macro CONFIG_SPARSEMEM_VMEMMAP when defining __remove_section() is
-          no longer needed.
- Patch13: no need to modify acpi_memory_disable_device() since it was removed,
-          and add nid parameter when calling remove_memory().
-
-Changelogs from v3 to v4:
- Patch7: remove unused codes.
- Patch8: fix nr_pages that is passed to free_map_bootmem()
-
-Changelogs from v2 to v3:
- Patch9: call sync_global_pgds() if pgd is changed
- Patch10: fix a problem int the patch
-
-Changelogs from v1 to v2:
- Patch1: new patch, offline memory twice. 1st iterate: offline every non primary
-         memory block. 2nd iterate: offline primary (i.e. first added) memory
-         block.
-
- Patch3: new patch, no logical change, just remove reduntant codes.
-
- Patch9: merge the patch from wujianguo into this patch. flush tlb on all cpu
-         after the pagetable is changed.
-
- Patch12: new patch, free node_data when a node is offlined.
-
-
-Tang Chen (5):
-  memory-hotplug: move pgdat_resize_lock into
-    sparse_remove_one_section()
-  memory-hotplug: remove page table of x86_64 architecture
-  memory-hotplug: remove memmap of sparse-vmemmap
-  memory-hotplug: Integrated __remove_section() of
-    CONFIG_SPARSEMEM_VMEMMAP.
-  memory-hotplug: remove sysfs file of node
-
-Wen Congyang (5):
-  memory-hotplug: try to offline the memory twice to avoid dependence
-  memory-hotplug: remove redundant codes
-  memory-hotplug: introduce new function arch_remove_memory() for
-    removing page table depends on architecture
-  memory-hotplug: Common APIs to support page tables hot-remove
-  memory-hotplug: free node_data when a node is offlined
-
-Yasuaki Ishimatsu (4):
-  memory-hotplug: check whether all memory blocks are offlined or not
-    when removing memory
-  memory-hotplug: remove /sys/firmware/memmap/X sysfs
-  memory-hotplug: implement register_page_bootmem_info_section of
-    sparse-vmemmap
-  memory-hotplug: memory_hotplug: clear zone when removing the memory
-
- arch/arm64/mm/mmu.c                  |    3 +
- arch/ia64/mm/discontig.c             |   10 +
- arch/ia64/mm/init.c                  |   18 ++
- arch/powerpc/mm/init_64.c            |   10 +
- arch/powerpc/mm/mem.c                |   12 +
- arch/s390/mm/init.c                  |   12 +
- arch/s390/mm/vmem.c                  |   10 +
- arch/sh/mm/init.c                    |   17 ++
- arch/sparc/mm/init_64.c              |   10 +
- arch/tile/mm/init.c                  |    8 +
- arch/x86/include/asm/pgtable_types.h |    1 +
- arch/x86/mm/init_32.c                |   12 +
- arch/x86/mm/init_64.c                |  382 ++++++++++++++++++++++++++++++++
- arch/x86/mm/pageattr.c               |   47 ++--
- drivers/acpi/acpi_memhotplug.c       |    8 +-
- drivers/base/memory.c                |    6 +
- drivers/firmware/memmap.c            |   98 ++++++++-
- include/linux/bootmem.h              |    1 +
- include/linux/firmware-map.h         |    6 +
- include/linux/memory_hotplug.h       |   15 +-
- include/linux/mm.h                   |    4 +-
- mm/memory_hotplug.c                  |  406 ++++++++++++++++++++++++++++++++--
- mm/sparse.c                          |    8 +-
- 23 files changed, 1043 insertions(+), 61 deletions(-)
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index 987604d..8300a18 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -693,6 +693,12 @@ int offline_memory_block(struct memory_block *mem)
+ 	return ret;
+ }
+ 
++/* return true if the memory block is offlined, otherwise, return false */
++bool is_memblock_offlined(struct memory_block *mem)
++{
++	return mem->state == MEM_OFFLINE;
++}
++
+ /*
+  * Initialize the sysfs support for memory devices...
+  */
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+index 4a45c4e..8dd0950 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -247,6 +247,7 @@ extern int add_memory(int nid, u64 start, u64 size);
+ extern int arch_add_memory(int nid, u64 start, u64 size);
+ extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages);
+ extern int offline_memory_block(struct memory_block *mem);
++extern bool is_memblock_offlined(struct memory_block *mem);
+ extern int remove_memory(u64 start, u64 size);
+ extern int sparse_add_one_section(struct zone *zone, unsigned long start_pfn,
+ 								int nr_pages);
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 62e04c9..d43d97b 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1430,6 +1430,53 @@ repeat:
+ 		goto repeat;
+ 	}
+ 
++	lock_memory_hotplug();
++
++	/*
++	 * we have offlined all memory blocks like this:
++	 *   1. lock memory hotplug
++	 *   2. offline a memory block
++	 *   3. unlock memory hotplug
++	 *
++	 * repeat step1-3 to offline the memory block. All memory blocks
++	 * must be offlined before removing memory. But we don't hold the
++	 * lock in the whole operation. So we should check whether all
++	 * memory blocks are offlined.
++	 */
++
++	for (pfn = start_pfn; pfn < end_pfn; pfn += PAGES_PER_SECTION) {
++		section_nr = pfn_to_section_nr(pfn);
++		if (!present_section_nr(section_nr))
++			continue;
++
++		section = __nr_to_section(section_nr);
++		/* same memblock? */
++		if (mem)
++			if ((section_nr >= mem->start_section_nr) &&
++			    (section_nr <= mem->end_section_nr))
++				continue;
++
++		mem = find_memory_block_hinted(section, mem);
++		if (!mem)
++			continue;
++
++		ret = is_memblock_offlined(mem);
++		if (!ret) {
++			pr_warn("removing memory fails, because memory "
++				"[%#010llx-%#010llx] is onlined\n",
++				PFN_PHYS(section_nr_to_pfn(mem->start_section_nr)),
++				PFN_PHYS(section_nr_to_pfn(mem->end_section_nr + 1)) - 1);
++
++			kobject_put(&mem->dev.kobj);
++			unlock_memory_hotplug();
++			return ret;
++		}
++	}
++
++	if (mem)
++		kobject_put(&mem->dev.kobj);
++	unlock_memory_hotplug();
++
+ 	return 0;
+ }
+ #else
+-- 
+1.7.1
