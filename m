@@ -1,120 +1,67 @@
-From: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [PATCH v5 02/14] memory-hotplug: check whether all memory blocks
- are offlined or not when removing memory
-Date: Wed, 26 Dec 2012 12:10:43 +0900
-Message-ID: <50DA6AB3.2030608@jp.fujitsu.com>
-References: <1356350964-13437-1-git-send-email-tangchen@cn.fujitsu.com> <1356350964-13437-3-git-send-email-tangchen@cn.fujitsu.com>
+From: Tang Chen <tangchen@cn.fujitsu.com>
+Subject: Re: [PATCH v5 08/14] memory-hotplug: Common APIs to support page
+ tables hot-remove
+Date: Wed, 26 Dec 2012 11:11:01 +0800
+Message-ID: <50DA6AC5.4020904@cn.fujitsu.com>
+References: <1356350964-13437-1-git-send-email-tangchen@cn.fujitsu.com> <1356350964-13437-9-git-send-email-tangchen@cn.fujitsu.com> <50D96116.1070305@huawei.com> <50DA65B7.2050707@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1356350964-13437-3-git-send-email-tangchen@cn.fujitsu.com>
+In-Reply-To: <50DA65B7.2050707@cn.fujitsu.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Tang Chen <tangchen@cn.fujitsu.com>
-Cc: akpm@linux-foundation.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, wujianguo@huawei.com, wency@cn.fujitsu.com, hpa@zytor.com, linfeng@cn.fujitsu.com, laijs@cn.fujitsu.com, mgorman@suse.de, yinghai@kernel.org, x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org
+To: Jianguo Wu <wujianguo@huawei.com>
+Cc: akpm@linux-foundation.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, wency@cn.fujitsu.com, hpa@zytor.com, linfeng@cn.fujitsu.com, laijs@cn.fujitsu.com, mgorman@suse.de, yinghai@kernel.org, x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-(2012/12/24 21:09), Tang Chen wrote:
-> From: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-> 
-> We remove the memory like this:
-> 1. lock memory hotplug
-> 2. offline a memory block
-> 3. unlock memory hotplug
-> 4. repeat 1-3 to offline all memory blocks
-> 5. lock memory hotplug
-> 6. remove memory(TODO)
-> 7. unlock memory hotplug
-> 
-> All memory blocks must be offlined before removing memory. But we don't hold
-> the lock in the whole operation. So we should check whether all memory blocks
-> are offlined before step6. Otherwise, kernel maybe panicked.
-> 
-> Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
-> Signed-off-by: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+On 12/26/2012 10:49 AM, Tang Chen wrote:
+> On 12/25/2012 04:17 PM, Jianguo Wu wrote:
+>>> +
+>>> +static void __meminit free_pagetable(struct page *page, int order)
+>>> +{
+>>> + struct zone *zone;
+>>> + bool bootmem = false;
+>>> + unsigned long magic;
+>>> +
+>>> + /* bootmem page has reserved flag */
+>>> + if (PageReserved(page)) {
+>>> + __ClearPageReserved(page);
+>>> + bootmem = true;
+>>> +
+>>> + magic = (unsigned long)page->lru.next;
+>>> + if (magic == SECTION_INFO || magic == MIX_SECTION_INFO)
 
-Acked-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+And also, I think we don't need to check MIX_SECTION_INFO since it is
+for the pageblock_flags, not the memmap in the section.
 
-a nitpick below.
+Thanks. :)
 
-> ---
->   drivers/base/memory.c          |    6 +++++
->   include/linux/memory_hotplug.h |    1 +
->   mm/memory_hotplug.c            |   47 ++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 54 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/base/memory.c b/drivers/base/memory.c
-> index 987604d..8300a18 100644
-> --- a/drivers/base/memory.c
-> +++ b/drivers/base/memory.c
-> @@ -693,6 +693,12 @@ int offline_memory_block(struct memory_block *mem)
->   	return ret;
->   }
->   
-> +/* return true if the memory block is offlined, otherwise, return false */
-> +bool is_memblock_offlined(struct memory_block *mem)
-> +{
-> +	return mem->state == MEM_OFFLINE;
-> +}
-> +
->   /*
->    * Initialize the sysfs support for memory devices...
->    */
-> diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-> index 4a45c4e..8dd0950 100644
-> --- a/include/linux/memory_hotplug.h
-> +++ b/include/linux/memory_hotplug.h
-> @@ -247,6 +247,7 @@ extern int add_memory(int nid, u64 start, u64 size);
->   extern int arch_add_memory(int nid, u64 start, u64 size);
->   extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages);
->   extern int offline_memory_block(struct memory_block *mem);
-> +extern bool is_memblock_offlined(struct memory_block *mem);
->   extern int remove_memory(u64 start, u64 size);
->   extern int sparse_add_one_section(struct zone *zone, unsigned long start_pfn,
->   								int nr_pages);
-> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> index 62e04c9..d43d97b 100644
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -1430,6 +1430,53 @@ repeat:
->   		goto repeat;
->   	}
->   
-> +	lock_memory_hotplug();
-> +
-> +	/*
-> +	 * we have offlined all memory blocks like this:
-> +	 *   1. lock memory hotplug
-> +	 *   2. offline a memory block
-> +	 *   3. unlock memory hotplug
-> +	 *
-> +	 * repeat step1-3 to offline the memory block. All memory blocks
-> +	 * must be offlined before removing memory. But we don't hold the
-> +	 * lock in the whole operation. So we should check whether all
-> +	 * memory blocks are offlined.
-> +	 */
-> +
-> +	for (pfn = start_pfn; pfn < end_pfn; pfn += PAGES_PER_SECTION) {
-
-I prefer adding mem = NULL at the start of this for().
-
-> +		section_nr = pfn_to_section_nr(pfn);
-> +		if (!present_section_nr(section_nr))
-> +			continue;
-> +
-> +		section = __nr_to_section(section_nr);
-> +		/* same memblock? */
-> +		if (mem)
-> +			if ((section_nr >= mem->start_section_nr) &&
-> +			    (section_nr <= mem->end_section_nr))
-> +				continue;
-> +
-
-Thanks,
--Kame
-
+>>> + put_page_bootmem(page);
+>>
+>> Hi Tang,
+>>
+>> For removing memmap of sparse-vmemmap, in cpu_has_pse case, if magic
+>> == SECTION_INFO,
+>> the order will be get_order(PMD_SIZE), so we need a loop here to put
+>> all the 512 pages.
+>>
+> Hi Wu,
+>
+> Thanks for reminding me that. I truely missed it.
+>
+> And since in register_page_bootmem_info_section(), a whole memory
+> section will be set as SECTION_INFO, I think we don't need to check
+> the page magic one by one, just the first one is enough. :)
+>
+> I will fix it, thanks. :)
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at http://vger.kernel.org/majordomo-info.html
+>
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
