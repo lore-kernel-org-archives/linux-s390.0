@@ -1,15 +1,15 @@
 From: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [PATCH v5 05/14] memory-hotplug: introduce new function arch_remove_memory()
- for removing page table depends on architecture
-Date: Wed, 26 Dec 2012 12:37:04 +0900
-Message-ID: <50DA70E0.3050704@jp.fujitsu.com>
-References: <1356350964-13437-1-git-send-email-tangchen@cn.fujitsu.com> <1356350964-13437-6-git-send-email-tangchen@cn.fujitsu.com>
+Subject: Re: [PATCH v5 07/14] memory-hotplug: move pgdat_resize_lock into
+ sparse_remove_one_section()
+Date: Wed, 26 Dec 2012 12:47:35 +0900
+Message-ID: <50DA7357.109@jp.fujitsu.com>
+References: <1356350964-13437-1-git-send-email-tangchen@cn.fujitsu.com> <1356350964-13437-8-git-send-email-tangchen@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1356350964-13437-6-git-send-email-tangchen@cn.fujitsu.com>
-Sender: owner-linux-mm@kvack.org
+Return-path: <linux-ia64-owner@vger.kernel.org>
+In-Reply-To: <1356350964-13437-8-git-send-email-tangchen@cn.fujitsu.com>
+Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
 To: Tang Chen <tangchen@cn.fujitsu.com>
@@ -17,25 +17,18 @@ Cc: akpm@linux-foundation.org, rientjes@google.com, liuj97@gmail.com, len.brown@
 List-ID: <linux-s390.vger.kernel.org>
 
 (2012/12/24 21:09), Tang Chen wrote:
-> From: Wen Congyang <wency@cn.fujitsu.com>
+> In __remove_section(), we locked pgdat_resize_lock when calling
+> sparse_remove_one_section(). This lock will disable irq. But we don't need
+> to lock the whole function. If we do some work to free pagetables in
+> free_section_usemap(), we need to call flush_tlb_all(), which need
+> irq enabled. Otherwise the WARN_ON_ONCE() in smp_call_function_many()
+> will be triggered.
 > 
-> For removing memory, we need to remove page table. But it depends
-> on architecture. So the patch introduce arch_remove_memory() for
-> removing page table. Now it only calls __remove_pages().
-> 
-> Note: __remove_pages() for some archtecuture is not implemented
->        (I don't know how to implement it for s390).
-> 
+> Signed-off-by: Tang Chen <tangchen@cn.fujitsu.com>
+> Signed-off-by: Lai Jiangshan <laijs@cn.fujitsu.com>
 > Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
 
-Then, remove code will be symetric to add codes.
+If this is a bug fix, call-trace in your log and BUGFIX or -fix- in patch title
+will be appreciated, I think.
 
 Acked-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-
-
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
