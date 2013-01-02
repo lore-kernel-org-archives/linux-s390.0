@@ -1,42 +1,43 @@
-From: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: [PATCH v5 0/7] s390: Host support for channel I/O.
-Date: Mon, 7 Jan 2013 19:54:01 -0200
-Message-ID: <20130107215401.GA1139@amt.cnet>
-References: <1356013932-23775-1-git-send-email-cornelia.huck@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1356013932-23775-1-git-send-email-cornelia.huck@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Gleb Natapov <gleb@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+From: Jiri Pirko <jiri@resnulli.us>
+Subject: [patch net-next V5 09/15] qlcnic: guard __vlan_find_dev_deep() by rcu_read_lock
+Date: Wed,  2 Jan 2013 13:28:30 +0100
+Message-ID: <1357129716-2450-10-git-send-email-jiri@resnulli.us>
+References: <1357129716-2450-1-git-send-email-jiri@resnulli.us>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1357129716-2450-1-git-send-email-jiri@resnulli.us>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-rdma/>
+List-Post: <mailto:linux-rdma@vger.kernel.org>
+To: netdev@vger.kernel.org
+Cc: davem@davemloft.net, edumazet@google.com, faisal.latif@intel.com, roland@kernel.org, sean.hefty@intel.com, hal.rosenstock@gmail.com, fubar@us.ibm.com, andy@greyhouse.net, divy@chelsio.com, jitendra.kalsaria@qlogic.com, sony.chacko@qlogic.com, linux-driver@qlogic.com, kaber@trash.net, ursula.braun@de.ibm.com, blaschka@linux.vnet.ibm.com, linux390@de.ibm.com, shemminger@vyatta.com, bhutchings@solarflare.com, therbert@google.com, xiyou.wangcong@gmail.com, joe@perches.com, gregory.v.rose@intel.com, john.r.fastabend@intel.com, linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, bridge@lists.linux-foundation.org, fbl@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Dec 20, 2012 at 03:32:05PM +0100, Cornelia Huck wrote:
-> Hi,
-> 
-> here's the next iteration of the host patches to support channel
-> I/O against kvm/next.
-> 
-> Changes from v4 are on the style side; mainly using defines instead
-> of magic numbers and using helper functions for decoding instructions.
-> 
-> Patches 1 and 2 are new (and can be applied independently of the
-> channel I/O patches); some things Alex pointed out in the patches
-> apply to existing code as well.
-> 
-> Please consider for kvm/next.
-> 
-> Cornelia Huck (7):
->   KVM: s390: Constify intercept handler tables.
->   KVM: s390: Decoding helper functions.
->   KVM: s390: Support for I/O interrupts.
->   KVM: s390: Add support for machine checks.
->   KVM: s390: In-kernel handling of I/O instructions.
->   KVM: s390: Base infrastructure for enabling capabilities.
->   KVM: s390: Add support for channel I/O instructions.
+rcu_read_lock was missing here
 
-Applied, thanks.
+Signed-off-by: Jiri Pirko <jiri@resnulli.us>
+Acked-by: Sony Chacko <sony.chacko@qlogic.com>
+---
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+index e1a3625..d4170a0 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+@@ -3204,12 +3204,14 @@ void qlcnic_restore_indev_addr(struct net_device *netdev, unsigned long event)
+ 
+ 	qlcnic_config_indev_addr(adapter, netdev, event);
+ 
++	rcu_read_lock();
+ 	for_each_set_bit(vid, adapter->vlans, VLAN_N_VID) {
+ 		dev = __vlan_find_dev_deep(netdev, vid);
+ 		if (!dev)
+ 			continue;
+ 		qlcnic_config_indev_addr(adapter, dev, event);
+ 	}
++	rcu_read_unlock();
+ }
+ 
+ static int qlcnic_netdev_event(struct notifier_block *this,
+-- 
+1.8.0
