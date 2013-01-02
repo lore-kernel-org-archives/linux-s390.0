@@ -1,61 +1,86 @@
 From: Jiri Pirko <jiri@resnulli.us>
-Subject: [patch net-next V5 05/15] team: remove usage of netdev_set_master()
-Date: Wed,  2 Jan 2013 13:28:26 +0100
-Message-ID: <1357129716-2450-6-git-send-email-jiri@resnulli.us>
-References: <1357129716-2450-1-git-send-email-jiri@resnulli.us>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1357129716-2450-1-git-send-email-jiri@resnulli.us>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [patch net-next V5 00/15] net: introduce upper device lists and remove dev->master
+Date: Wed,  2 Jan 2013 13:28:21 +0100
+Message-ID: <1357129716-2450-1-git-send-email-jiri@resnulli.us>
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-rdma/>
 List-Post: <mailto:linux-rdma@vger.kernel.org>
 To: netdev@vger.kernel.org
 Cc: davem@davemloft.net, edumazet@google.com, faisal.latif@intel.com, roland@kernel.org, sean.hefty@intel.com, hal.rosenstock@gmail.com, fubar@us.ibm.com, andy@greyhouse.net, divy@chelsio.com, jitendra.kalsaria@qlogic.com, sony.chacko@qlogic.com, linux-driver@qlogic.com, kaber@trash.net, ursula.braun@de.ibm.com, blaschka@linux.vnet.ibm.com, linux390@de.ibm.com, shemminger@vyatta.com, bhutchings@solarflare.com, therbert@google.com, xiyou.wangcong@gmail.com, joe@perches.com, gregory.v.rose@intel.com, john.r.fastabend@intel.com, linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, bridge@lists.linux-foundation.org, fbl@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Jiri Pirko <jiri@resnulli.us>
----
- drivers/net/team/team.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+This is a V5 of a repost of my previous patchset:
+"[patch net-next v2 00/15] net: introduce upper device lists and remove dev->master" from Aug 14
 
-diff --git a/drivers/net/team/team.c b/drivers/net/team/team.c
-index 918a901..3df5cc1 100644
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -1055,10 +1055,11 @@ static int team_port_add(struct team *team, struct net_device *port_dev)
- 		}
- 	}
- 
--	err = netdev_set_master(port_dev, dev);
-+	err = netdev_master_upper_dev_link(port_dev, dev);
- 	if (err) {
--		netdev_err(dev, "Device %s failed to set master\n", portname);
--		goto err_set_master;
-+		netdev_err(dev, "Device %s failed to set upper link\n",
-+			   portname);
-+		goto err_set_upper_link;
- 	}
- 
- 	err = netdev_rx_handler_register(port_dev, team_handle_frame,
-@@ -1091,9 +1092,9 @@ err_option_port_add:
- 	netdev_rx_handler_unregister(port_dev);
- 
- err_handler_register:
--	netdev_set_master(port_dev, NULL);
-+	netdev_upper_dev_unlink(port_dev, dev);
- 
--err_set_master:
-+err_set_upper_link:
- 	team_port_disable_netpoll(port);
- 
- err_enable_netpoll:
-@@ -1137,7 +1138,7 @@ static int team_port_del(struct team *team, struct net_device *port_dev)
- 	team_port_disable(team, port);
- 	list_del_rcu(&port->list);
- 	netdev_rx_handler_unregister(port_dev);
--	netdev_set_master(port_dev, NULL);
-+	netdev_upper_dev_unlink(port_dev, dev);
- 	team_port_disable_netpoll(port);
- 	vlan_vids_del_by_dev(port_dev, dev);
- 	dev_close(port_dev);
+The discussion around
+"[net-next] bonding: don't allow the master to become its slave"
+forced me to think about upper<->lower device connections.
+
+This patchset adds a possibility to record upper device linkage.
+All upper<->lower devices are converted to use this mechanism right after.
+That leads to dev->master removal because this info becomes redundant since
+"master links" have the same value.
+
+After all changes, there is no longer possible to do things as:
+"bond->someotherdevice->samebond"
+
+Also I think that drivers like cxgb3, qlcnic, qeth would benefit by this
+in future by being able to get more appropriate info about l3 addresses.
+
+v4->v5:
+- fixed missed typo in drivers/infiniband/hw/nes/nes_cm.c
+
+v3->v4:
+- comments in __netdev_upper_dev_link() squashed into one line
+- kfree_rcu used instead of call_rcu in netdev_upper_dev_unlink()
+
+v2->v3:
+- removed recursion in __netdev_has_upper_dev()
+- refreshed bits to be applicable on current net-next
+
+v1->v2:
+- s/unique/master/ better naming + stays closer to the past
+- fixed vlan err goto
+- original patch 15 (WARN_ON change) is squashed into the first patch
+
+Jiri Pirko (15):
+  net: introduce upper device lists
+  macvlan: add link to upper device
+  vlan: add link to upper device
+  rtnetlink: remove usage of dev->master
+  team: remove usage of netdev_set_master()
+  bridge: remove usage of netdev_set_master()
+  netpoll: remove usage of dev->master
+  cxgb3: remove usage of dev->master
+  qlcnic: guard __vlan_find_dev_deep() by rcu_read_lock
+  qeth: ensure that __vlan_find_dev_deep() is called with rcu_read_lock
+  vlan: remove usage of dev->master in __vlan_find_dev_deep()
+  nes: remove usage of dev->master
+  bonding: remove usage of dev->master
+  net: remove no longer used netdev_set_bond_master() and
+    netdev_set_master()
+  net: kill dev->master
+
+ drivers/infiniband/hw/nes/nes.c                    |   8 +-
+ drivers/infiniband/hw/nes/nes_cm.c                 |   2 +-
+ drivers/net/bonding/bond_3ad.c                     |  30 +--
+ drivers/net/bonding/bond_alb.c                     |   6 +-
+ drivers/net/bonding/bond_main.c                    |  94 ++++----
+ drivers/net/bonding/bonding.h                      |  14 +-
+ drivers/net/ethernet/chelsio/cxgb3/cxgb3_offload.c |  11 +-
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c   |   2 +
+ drivers/net/macvlan.c                              |   9 +-
+ drivers/net/team/team.c                            |  13 +-
+ drivers/s390/net/qeth_l3_main.c                    |  21 +-
+ include/linux/netdevice.h                          |  22 +-
+ net/8021q/vlan.c                                   |  10 +-
+ net/8021q/vlan_core.c                              |  18 +-
+ net/bridge/br_if.c                                 |   6 +-
+ net/core/dev.c                                     | 244 +++++++++++++++++----
+ net/core/netpoll.c                                 |   9 +-
+ net/core/rtnetlink.c                               |  70 +++---
+ 18 files changed, 407 insertions(+), 182 deletions(-)
+
 -- 
 1.8.0
