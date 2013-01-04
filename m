@@ -1,11 +1,11 @@
 From: Jiri Pirko <jiri@resnulli.us>
-Subject: [patch net-next V6 12/15] nes: remove usage of dev->master
-Date: Fri,  4 Jan 2013 09:49:00 +0100
-Message-ID: <1357289343-817-13-git-send-email-jiri@resnulli.us>
+Subject: [patch net-next V6 08/15] cxgb3: remove usage of dev->master
+Date: Fri,  4 Jan 2013 09:48:56 +0100
+Message-ID: <1357289343-817-9-git-send-email-jiri@resnulli.us>
 References: <1357289343-817-1-git-send-email-jiri@resnulli.us>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <1357289343-817-1-git-send-email-jiri@resnulli.us>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-rdma/>
 List-Post: <mailto:linux-rdma@vger.kernel.org>
 To: netdev@vger.kernel.org
@@ -14,57 +14,34 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Signed-off-by: Jiri Pirko <jiri@resnulli.us>
 ---
- drivers/infiniband/hw/nes/nes.c    | 8 +++++---
- drivers/infiniband/hw/nes/nes_cm.c | 2 +-
- 2 files changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb3/cxgb3_offload.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/nes/nes.c b/drivers/infiniband/hw/nes/nes.c
-index 748db2d..d129c36 100644
---- a/drivers/infiniband/hw/nes/nes.c
-+++ b/drivers/infiniband/hw/nes/nes.c
-@@ -135,6 +135,7 @@ static int nes_inetaddr_event(struct notifier_block *notifier,
- 	struct net_device *event_netdev = ifa->ifa_dev->dev;
- 	struct nes_device *nesdev;
- 	struct net_device *netdev;
-+	struct net_device *upper_dev;
- 	struct nes_vnic *nesvnic;
- 	unsigned int is_bonded;
+diff --git a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_offload.c b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_offload.c
+index 942dace..3f1f501 100644
+--- a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_offload.c
++++ b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_offload.c
+@@ -182,14 +182,17 @@ static struct net_device *get_iff_from_mac(struct adapter *adapter,
+ 		struct net_device *dev = adapter->port[i];
  
-@@ -145,8 +146,9 @@ static int nes_inetaddr_event(struct notifier_block *notifier,
- 				nesdev, nesdev->netdev[0]->name);
- 		netdev = nesdev->netdev[0];
- 		nesvnic = netdev_priv(netdev);
-+		upper_dev = netdev_master_upper_dev_get(netdev);
- 		is_bonded = netif_is_bond_slave(netdev) &&
--			    (netdev->master == event_netdev);
-+			    (upper_dev == event_netdev);
- 		if ((netdev == event_netdev) || is_bonded) {
- 			if (nesvnic->rdma_enabled == 0) {
- 				nes_debug(NES_DBG_NETDEV, "Returning without processing event for %s since"
-@@ -179,9 +181,9 @@ static int nes_inetaddr_event(struct notifier_block *notifier,
- 					/* fall through */
- 				case NETDEV_CHANGEADDR:
- 					/* Add the address to the IP table */
--					if (netdev->master)
-+					if (upper_dev)
- 						nesvnic->local_ipaddr =
--							((struct in_device *)netdev->master->ip_ptr)->ifa_list->ifa_address;
-+							((struct in_device *)upper_dev->ip_ptr)->ifa_list->ifa_address;
- 					else
- 						nesvnic->local_ipaddr = ifa->ifa_address;
- 
-diff --git a/drivers/infiniband/hw/nes/nes_cm.c b/drivers/infiniband/hw/nes/nes_cm.c
-index 22ea67e..24b9f1a 100644
---- a/drivers/infiniband/hw/nes/nes_cm.c
-+++ b/drivers/infiniband/hw/nes/nes_cm.c
-@@ -1340,7 +1340,7 @@ static int nes_addr_resolve_neigh(struct nes_vnic *nesvnic, u32 dst_ip, int arpi
+ 		if (!memcmp(dev->dev_addr, mac, ETH_ALEN)) {
++			rcu_read_lock();
+ 			if (vlan && vlan != VLAN_VID_MASK) {
+-				rcu_read_lock();
+ 				dev = __vlan_find_dev_deep(dev, vlan);
+-				rcu_read_unlock();
+ 			} else if (netif_is_bond_slave(dev)) {
+-				while (dev->master)
+-					dev = dev->master;
++				struct net_device *upper_dev;
++
++				while ((upper_dev =
++					netdev_master_upper_dev_get_rcu(dev)))
++					dev = upper_dev;
+ 			}
++			rcu_read_unlock();
+ 			return dev;
+ 		}
  	}
- 
- 	if (netif_is_bond_slave(nesvnic->netdev))
--		netdev = nesvnic->netdev->master;
-+		netdev = netdev_master_upper_dev_get(nesvnic->netdev);
- 	else
- 		netdev = nesvnic->netdev;
- 
 -- 
 1.8.0
