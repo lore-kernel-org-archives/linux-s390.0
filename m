@@ -1,7 +1,7 @@
 From: Jiri Pirko <jiri@resnulli.us>
-Subject: [patch net-next V6 05/15] team: remove usage of netdev_set_master()
-Date: Fri,  4 Jan 2013 09:48:53 +0100
-Message-ID: <1357289343-817-6-git-send-email-jiri@resnulli.us>
+Subject: [patch net-next V6 10/15] qeth: ensure that __vlan_find_dev_deep() is called with rcu_read_lock
+Date: Fri,  4 Jan 2013 09:48:58 +0100
+Message-ID: <1357289343-817-11-git-send-email-jiri@resnulli.us>
 References: <1357289343-817-1-git-send-email-jiri@resnulli.us>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1357289343-817-1-git-send-email-jiri@resnulli.us>
@@ -12,50 +12,96 @@ To: netdev@vger.kernel.org
 Cc: davem@davemloft.net, edumazet@google.com, faisal.latif@intel.com, roland@kernel.org, sean.hefty@intel.com, hal.rosenstock@gmail.com, fubar@us.ibm.com, andy@greyhouse.net, divy@chelsio.com, jitendra.kalsaria@qlogic.com, sony.chacko@qlogic.com, linux-driver@qlogic.com, kaber@trash.net, ursula.braun@de.ibm.com, blaschka@linux.vnet.ibm.com, linux390@de.ibm.com, shemminger@vyatta.com, bhutchings@solarflare.com, therbert@google.com, xiyou.wangcong@gmail.com, joe@perches.com, gregory.v.rose@intel.com, john.r.fastabend@intel.com, linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, bridge@lists.linux-foundation.org, fbl@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
+Also benefit from rcu_read_lock held and use __in_dev_get_rcu() in ipv4 case.
+
 Signed-off-by: Jiri Pirko <jiri@resnulli.us>
 ---
- drivers/net/team/team.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/s390/net/qeth_l3_main.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/team/team.c b/drivers/net/team/team.c
-index 78c7d87..5f35d6b 100644
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -1055,10 +1055,11 @@ static int team_port_add(struct team *team, struct net_device *port_dev)
- 		}
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 6e5eef0..0749efe 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1640,6 +1640,7 @@ static void qeth_l3_add_mc(struct qeth_card *card, struct in_device *in4_dev)
  	}
+ }
  
--	err = netdev_set_master(port_dev, dev);
-+	err = netdev_master_upper_dev_link(port_dev, dev);
- 	if (err) {
--		netdev_err(dev, "Device %s failed to set master\n", portname);
--		goto err_set_master;
-+		netdev_err(dev, "Device %s failed to set upper link\n",
-+			   portname);
-+		goto err_set_upper_link;
++/* called with rcu_read_lock */
+ static void qeth_l3_add_vlan_mc(struct qeth_card *card)
+ {
+ 	struct in_device *in_dev;
+@@ -1652,19 +1653,14 @@ static void qeth_l3_add_vlan_mc(struct qeth_card *card)
+ 	for_each_set_bit(vid, card->active_vlans, VLAN_N_VID) {
+ 		struct net_device *netdev;
+ 
+-		rcu_read_lock();
+ 		netdev = __vlan_find_dev_deep(card->dev, vid);
+-		rcu_read_unlock();
+ 		if (netdev == NULL ||
+ 		    !(netdev->flags & IFF_UP))
+ 			continue;
+-		in_dev = in_dev_get(netdev);
++		in_dev = __in_dev_get_rcu(netdev);
+ 		if (!in_dev)
+ 			continue;
+-		rcu_read_lock();
+ 		qeth_l3_add_mc(card, in_dev);
+-		rcu_read_unlock();
+-		in_dev_put(in_dev);
  	}
+ }
  
- 	err = netdev_rx_handler_register(port_dev, team_handle_frame,
-@@ -1091,9 +1092,9 @@ err_option_port_add:
- 	netdev_rx_handler_unregister(port_dev);
+@@ -1673,14 +1669,14 @@ static void qeth_l3_add_multicast_ipv4(struct qeth_card *card)
+ 	struct in_device *in4_dev;
  
- err_handler_register:
--	netdev_set_master(port_dev, NULL);
-+	netdev_upper_dev_unlink(port_dev, dev);
+ 	QETH_CARD_TEXT(card, 4, "chkmcv4");
+-	in4_dev = in_dev_get(card->dev);
+-	if (in4_dev == NULL)
+-		return;
+ 	rcu_read_lock();
++	in4_dev = __in_dev_get_rcu(card->dev);
++	if (in4_dev == NULL)
++		goto unlock;
+ 	qeth_l3_add_mc(card, in4_dev);
+ 	qeth_l3_add_vlan_mc(card);
++unlock:
+ 	rcu_read_unlock();
+-	in_dev_put(in4_dev);
+ }
  
--err_set_master:
-+err_set_upper_link:
- 	team_port_disable_netpoll(port);
+ #ifdef CONFIG_QETH_IPV6
+@@ -1705,6 +1701,7 @@ static void qeth_l3_add_mc6(struct qeth_card *card, struct inet6_dev *in6_dev)
+ 	}
+ }
  
- err_enable_netpoll:
-@@ -1137,7 +1138,7 @@ static int team_port_del(struct team *team, struct net_device *port_dev)
- 	team_port_disable(team, port);
- 	list_del_rcu(&port->list);
- 	netdev_rx_handler_unregister(port_dev);
--	netdev_set_master(port_dev, NULL);
-+	netdev_upper_dev_unlink(port_dev, dev);
- 	team_port_disable_netpoll(port);
- 	vlan_vids_del_by_dev(port_dev, dev);
- 	dev_close(port_dev);
++/* called with rcu_read_lock */
+ static void qeth_l3_add_vlan_mc6(struct qeth_card *card)
+ {
+ 	struct inet6_dev *in_dev;
+@@ -1741,10 +1738,12 @@ static void qeth_l3_add_multicast_ipv6(struct qeth_card *card)
+ 	in6_dev = in6_dev_get(card->dev);
+ 	if (in6_dev == NULL)
+ 		return;
++	rcu_read_lock();
+ 	read_lock_bh(&in6_dev->lock);
+ 	qeth_l3_add_mc6(card, in6_dev);
+ 	qeth_l3_add_vlan_mc6(card);
+ 	read_unlock_bh(&in6_dev->lock);
++	rcu_read_unlock();
+ 	in6_dev_put(in6_dev);
+ }
+ #endif /* CONFIG_QETH_IPV6 */
+@@ -1813,8 +1812,10 @@ static void qeth_l3_free_vlan_addresses6(struct qeth_card *card,
+ static void qeth_l3_free_vlan_addresses(struct qeth_card *card,
+ 			unsigned short vid)
+ {
++	rcu_read_lock();
+ 	qeth_l3_free_vlan_addresses4(card, vid);
+ 	qeth_l3_free_vlan_addresses6(card, vid);
++	rcu_read_unlock();
+ }
+ 
+ static int qeth_l3_vlan_rx_add_vid(struct net_device *dev, unsigned short vid)
 -- 
 1.8.0
