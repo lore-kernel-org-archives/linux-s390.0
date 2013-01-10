@@ -1,120 +1,215 @@
 From: Toshi Kani <toshi.kani@hp.com>
-Subject: Re: [RFC PATCH v2 01/12] Add sys_hotplug.h for system device
- hotplug framework
-Date: Thu, 31 Jan 2013 18:32:18 -0700
-Message-ID: <1359682338.15120.209.camel@misato.fc.hp.com>
-References: <1357861230-29549-1-git-send-email-toshi.kani@hp.com>
-	 <20130130045830.GH30002@kroah.com>
-	 <1359601065.15120.156.camel@misato.fc.hp.com>
-	 <9860755.q4y3PrCFZx@vostro.rjw.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <9860755.q4y3PrCFZx@vostro.rjw.lan>
-Sender: linux-acpi-owner@vger.kernel.org
+Subject: [RFC PATCH v2 00/12] System device hot-plug framework
+Date: Thu, 10 Jan 2013 16:40:18 -0700
+Message-ID: <1357861230-29549-1-git-send-email-toshi.kani@hp.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Greg KH <gregkh@linuxfoundation.org>, lenb@kernel.org, akpm@linux-foundation.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, bhelgaas@google.com, isimatu.yasuaki@jp.fujitsu.com, jiang.liu@huawei.com, wency@cn.fujitsu.com, guohanjun@huawei.com, yinghai@kernel.org, srivatsa.bhat@linux.vnet.ibm.com
+To: rjw@sisk.pl, lenb@kernel.org, gregkh@linuxfoundation.org, akpm@linux-foundation.org
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, bhelgaas@google.com, isimatu.yasuaki@jp.fujitsu.com, jiang.liu@huawei.com, wency@cn.fujitsu.com, guohanjun@huawei.com, yinghai@kernel.org, srivatsa.bhat@linux.vnet.ibm.com, Toshi Kani <toshi.kani@hp.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 2013-01-31 at 21:54 +0100, Rafael J. Wysocki wrote:
-> On Wednesday, January 30, 2013 07:57:45 PM Toshi Kani wrote:
-> > On Tue, 2013-01-29 at 23:58 -0500, Greg KH wrote:
-> > > On Thu, Jan 10, 2013 at 04:40:19PM -0700, Toshi Kani wrote:
- :
-> > > > +};
-> > > > +
-> > > > +struct shp_device {
-> > > > +	struct list_head	list;
-> > > > +	struct device		*device;
-> > > 
-> > > No, make it a "real" device, embed the device into it.
-> > 
-> > This device pointer is used to send KOBJ_ONLINE/OFFLINE event during CPU
-> > online/offline operation in order to maintain the current behavior.  CPU
-> > online/offline operation only changes the state of CPU, so its
-> > system/cpu device continues to be present before and after an operation.
-> > (Whereas, CPU hot-add/delete operation creates or removes a system/cpu
-> > device.)  So, this "*device" needs to be a pointer to reference an
-> > existing device that is to be on-lined/off-lined.
-> > 
-> > > But, again, I'm going to ask why you aren't using the existing cpu /
-> > > memory / bridge / node devices that we have in the kernel.  Please use
-> > > them, or give me a _really_ good reason why they will not work.
-> > 
-> > We cannot use the existing system devices or ACPI devices here.  During
-> > hot-plug, ACPI handler sets this shp_device info, so that cpu and memory
-> > handlers (drivers/cpu.c and mm/memory_hotplug.c) can obtain their target
-> > device information in a platform-neutral way.  During hot-add, we first
-> > creates an ACPI device node (i.e. device under /sys/bus/acpi/devices),
-> > but platform-neutral modules cannot use them as they are ACPI-specific.
-> 
-> But suppose we're smart and have ACPI scan handlers that will create
-> "physical" device nodes for those devices during the ACPI namespace scan.
-> Then, the platform-neutral nodes will be able to bind to those "physical"
-> nodes.  Moreover, it should be possible to get a hierarchy of device objects
-> this way that will reflect all of the dependencies we need to take into
-> account during hot-add and hot-remove operations.  That may not be what we
-> have today, but I don't see any *fundamental* obstacles preventing us from
-> using this approach.
+This patchset is a prototype of proposed system device hot-plug framework
+for design review.  Unlike other hot-plug environments, such as USB and
+PCI, there is no common framework for system device hot-plug [1].
+Therefore, this patchset is designed to provide a common framework for
+hot-plugging and online/offline operations of system devices, such as CPU,
+Memory and Node.  While this patchset only supports ACPI-based hot-plug
+operations, the framework itself is designed to be platform-neural and
+can support other FW architectures as necessary.
 
-I misstated in my previous email.  system/cpu device is actually created
-by ACPI driver during ACPI scan in case of hot-add.  This is done by 
-acpi_processor_hotadd_init(), which I consider as a hack but can be
-done.  system/memory device is created in add_memory() by the mm module.
+This patchset is based on Linus's tree (3.8-rc3).
 
-> This is already done for PCI host bridges and platform devices and I don't
-> see why we can't do that for the other types of devices too.
-> 
-> The only missing piece I see is a way to handle the "eject" problem, i.e.
-> when we try do eject a device at the top of a subtree and need to tear down
-> the entire subtree below it, but if that's going to lead to a system crash,
-> for example, we want to cancel the eject.  It seems to me that we'll need some
-> help from the driver core here.
+I have seen a few stability issues with 3.8-rc3 in my testing and will
+look into their solutions.
 
-There are three different approaches suggested for system device
-hot-plug:
- A. Proceed within system device bus scan.
- B. Proceed within ACPI bus scan.
- C. Proceed with a sequence (as a mini-boot).
+[1] System device hot-plug frameworks for ppc and s390 are implemented
+    for specific platforms and products.
 
-Option A uses system devices as tokens, option B uses acpi devices as
-tokens, and option C uses resource tables as tokens, for their handlers.
 
-Here is summary of key questions & answers so far.  I hope this
-clarifies why I am suggesting option 3.
+Background: System Device Initialization
+========================================
+System devices, such as CPU and memory, must be initialized during early
+boot sequence as they are the essential components to provide low-level
+services, ex. scheduling, memory allocation and interrupts, which are
+the foundations of the kernel services.  start_kernel() and kernel_init()
+manage the boot-up sequence to initialize system devices and low-level
+services in pre-defined order as shown below. 
 
-1. What are the system devices?
-System devices provide system-wide core computing resources, which are
-essential to compose a computer system.  System devices are not
-connected to any particular standard buses.
+  start_kernel()
+    boot_cpu_init()          // init cpu0
+    setup_arch()
+      efi_init()             // init EFI memory map
+      initmem_init()         // init NUMA
+      x86_init.paging.pagetable_init() // init page table
+      acpi_boot_init()       // parse ACPI MADT table
+        :
+  kernel_init()
+    kernel_init_freeable()
+      smp_init()             // init other CPUs
+        :
+      do_basic_setup()
+        driver_init()
+          cpu_dev_init()     // build system/cpu tree
+          memory_dev_init()  // build system/memory tree
+        do_initcalls()
+          acpi_init()        // build ACPI device tree
 
-2. Why are the system devices special?
-The system devices are initialized during early boot-time, by multiple
-subsystems, from the boot-up sequence, in pre-defined order.  They
-provide low-level services to enable other subsystems to come up.
+Note that drivers are initialized at the end of the boot sequence as they
+depend on the kernel services from system devices.  Hence, while system
+devices may be exposed to sysfs with their pseudo drivers, their
+initialization may not be fully integrated into the driver structures.  
 
-3. Why can't initialize the system devices from the driver structure at
-boot?
-The driver structure is initialized at the end of the boot sequence and
-requires the low-level services from the system devices initialized
-beforehand.
+Overview of the System Device Hot-plug Framework
+================================================
+Similar to the boot-up sequence, the system device hot-plug framework
+provides a sequencer that calls all registered handlers in pre-defined
+order for hot-add and hot-delete of system devices.  It allows any modules
+initializing system devices in the boot-up sequence to participate in
+the hot-plug operations as well.  In high-level, there are two types of
+handlers, 1) FW-dependent (ex. ACPI) handlers that enumerate or eject
+system devices, and 2) system device (ex. CPU, Memory) management handlers
+that online or offline the enumerated system devices.  Online/offline
+operations are sub-set of hot-add/delete operations.  The ordering of the
+handlers are symmetric between hot-add (online) and hot-delete (offline)
+operations.
 
-4. Why do we need a new common framework?
-Sysfs CPU and memory on-lining/off-lining are performed within the CPU
-and memory modules.  They are common code and do not depend on ACPI.
-Therefore, a new common framework is necessary to integrate both
-on-lining/off-lining operation and hot-plugging operation of system
-devices into a single framework.
+        hot-add    online
+           |    ^    :    ^
+  HW Enum/ |    |    :    :
+    Eject  |    |    :    :
+           |    |    :    :
+  Online/  |    |    |    |
+  Offline  |    |    |    |
+           V    |    V    |
+             hot-del   offline
 
-5. Why can't do everything with ACPI bus scan?
-Software dependency among system devices may not be dictated by the ACPI
-hierarchy.  For instance, memory should be initialized before CPUs (i.e.
-a new cpu may need its local memory), but such ordering cannot be
-guaranteed by the ACPI hierarchy.  Also, as described in 4,
-online/offline operations are independent from ACPI.  
+The handlers may not call other handlers directly to exceed their role.
+Therefore, the role of the handlers in their modules remains consistent
+with their role at the boot-up sequence.  For instance, the ACPI module
+may not perform online or offline of system devices.
 
-Thanks,
--Toshi
+System Device Hot-plug Operation
+================================
+
+Serialized Startup
+------------------
+The framework provides an interface (hp_submit_req) to request a hot-plug
+operation.  All requests are queued to and run on a single work queue.
+The framework assures that there is only a single hot-plug or online/
+offline operation running at a time.  A single request may however target
+to multiple devices.  This makes the execution context of handlers to be
+consistent with the boot-up sequence and enables code sharing.
+
+Phased Execution
+----------------
+The framework proceeds hot-plug and online/offline operations in the 
+following three phases.  The modules can register their handlers to each
+phase.  The framework also initiates a roll-back operation if any hander
+failed in the validate or execute phase.
+
+1) Validate Phase - Handlers validate if they support a given request
+without making any changes to target device(s).  They check any known
+restrictions and/or prerequisite conditions to their modules, and fail
+an unsupported request before making any changes.  For instance, the
+memory module may check if a hot-remove request is targeted to movable
+ranges.
+
+2) Execute Phase - Handlers make requested change within the scope that
+its roll-back is possible in case of a failure.  Execute handlers must
+implement their roll-back procedures.
+
+3) Commit Phase - Handlers make the final change that cannot be rolled-back.
+For instance, the ACPI module invokes _EJ0 for a hot-remove operation.
+
+System Device Management Modules
+================================
+
+CPU Handlers
+------------
+CPU handlers are provided by the CPU driver in drivers/base/cpu.c, and
+perform CPU online/offline procedures when CPU device(s) is added or
+deleted during an operation.
+
+Memory Handlers
+---------------
+Memory handlers are provided by the memory module in mm/memory_hotplug.c,
+and perform Memory online/offline procedure when memory device(s) is
+added or deleted during an operation.
+
+FW-dependent Modules
+====================
+
+ACPI Bus Handlers
+-----------------
+ACPI bus handlers are provided by the ACPI core in drivers/acpi/bus.c,
+and construct/destruct acpi_device object(s) during a hot-plug operation.
+
+ACPI Resource Handlers
+----------------------
+ACPI resource handlers are provided by the ACPI core in
+drivers/acpi/hp_resource.c, and set device resource information to
+a request during a hot-plug operation.  This device resource information
+is then consumed by the system device management modules for their
+online/offline procedure.
+
+ACPI Drivers
+------------
+ACPI drivers are called from the ACPI core during a hot-plug operation
+through the following interfaces.  ACPI drivers are not called from the
+framework directly, and remain internal to the ACPI core.  ACPI drivers
+may not initiate online/offline of a device.
+
+.add - Construct device-specific information to a given acpi_device.
+Called at boot, hot-add and sysfs bind.
+
+.remove - Destruct device-specific information to a given acpi_device.
+Called at hot-remove and sysfs unbind.
+
+.resource - Set device-specific resource information to a given hot-plug
+request.  Called at hot-add and hot-remove.
+
+---
+v2:
+ - Documented that system devices may not be initialized through the driver
+   structures.
+ - Clarified that the framework is for "system device" hotplug by changing
+   file name, prefix and documentation.
+ - Removed the use of CONFIG_HOTPLUG.
+ - Moved ACPI specific definitions to include/acpi/sys_hotplug.h.
+ - Implemented shp_unregister_handler() and added locking.
+ - Added module parameters, shp_trace and del_movable_only.
+
+---
+Toshi Kani (12):
+ Add sys_hotplug.h for system device hotplug framework
+ ACPI: Add sys_hotplug.h for system device hotplug framework
+ drivers/base: Add system device hotplug framework 
+ cpu: Add cpu hotplug handlers
+ mm: Add memory hotplug handlers
+ ACPI: Add ACPI bus hotplug handlers
+ ACPI: Add ACPI resource hotplug handler
+ ACPI: Update processor driver for hotplug framework
+ ACPI: Update memory driver for hotplug framework
+ ACPI: Update container driver for hotplug framework
+ cpu: Update sysfs cpu/online for hotplug framework
+ ACPI: Update sysfs eject for hotplug framework
+
+---
+ drivers/acpi/Makefile           |   1 +
+ drivers/acpi/acpi_memhotplug.c  | 271 ++++++++++++----------------------
+ drivers/acpi/bus.c              | 134 +++++++++++++++++
+ drivers/acpi/container.c        |  95 +++++-------
+ drivers/acpi/internal.h         |   1 +
+ drivers/acpi/processor_driver.c | 150 +++++++++----------
+ drivers/acpi/scan.c             | 122 +++-------------
+ drivers/acpi/shp_resource.c     |  86 +++++++++++
+ drivers/base/Makefile           |   1 +
+ drivers/base/cpu.c              | 147 +++++++++++++++++--
+ drivers/base/sys_hotplug.c      | 313 ++++++++++++++++++++++++++++++++++++++++
+ include/acpi/acpi_bus.h         |   8 +-
+ include/acpi/sys_hotplug.h      |  48 ++++++
+ include/linux/sys_hotplug.h     | 181 +++++++++++++++++++++++
+ mm/memory_hotplug.c             | 101 +++++++++++++
+ 15 files changed, 1224 insertions(+), 435 deletions(-)
