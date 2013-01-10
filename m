@@ -1,13 +1,14 @@
 From: Tang Chen <tangchen@cn.fujitsu.com>
-Subject: Re: [PATCH v6 00/15] memory-hotplug: hot-remove physical memory
-Date: Thu, 10 Jan 2013 10:18:40 +0800
-Message-ID: <50EE2500.2040903@cn.fujitsu.com>
-References: <1357723959-5416-1-git-send-email-tangchen@cn.fujitsu.com> <20130109153324.bbd019b3.akpm@linux-foundation.org>
+Subject: Re: [PATCH v6 05/15] memory-hotplug: introduce new function arch_remove_memory()
+ for removing page table depends on architecture
+Date: Thu, 10 Jan 2013 10:25:56 +0800
+Message-ID: <50EE26B4.40204@cn.fujitsu.com>
+References: <1357723959-5416-1-git-send-email-tangchen@cn.fujitsu.com> <1357723959-5416-6-git-send-email-tangchen@cn.fujitsu.com> <20130109145031.210505d0.akpm@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20130109153324.bbd019b3.akpm@linux-foundation.org>
+In-Reply-To: <20130109145031.210505d0.akpm@linux-foundation.org>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
@@ -17,33 +18,21 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Hi Andrew,
 
-On 01/10/2013 07:33 AM, Andrew Morton wrote:
-> On Wed, 9 Jan 2013 17:32:24 +0800
+On 01/10/2013 06:50 AM, Andrew Morton wrote:
+> On Wed, 9 Jan 2013 17:32:29 +0800
 > Tang Chen<tangchen@cn.fujitsu.com>  wrote:
 >
->> This patch-set aims to implement physical memory hot-removing.
+>> For removing memory, we need to remove page table. But it depends
+>> on architecture. So the patch introduce arch_remove_memory() for
+>> removing page table. Now it only calls __remove_pages().
+>>
+>> Note: __remove_pages() for some archtecuture is not implemented
+>>        (I don't know how to implement it for s390).
 >
-> As you were on th patch delivery path, all of these patches should have
-> your Signed-off-by:.  But some were missing it.  I fixed this in my
-> copy of the patches.
+> Can this break the build for s390?
 
-Thank you very much for the help. Next time I'll add it myself.
-
->
->
-> I suspect this patchset adds a significant amount of code which will
-> not be used if CONFIG_MEMORY_HOTPLUG=n.  "[PATCH v6 06/15]
-> memory-hotplug: implement register_page_bootmem_info_section of
-> sparse-vmemmap", for example.  This is not a good thing, so please go
-> through the patchset (in fact, go through all the memhotplug code) and
-> let's see if we can reduce the bloat for CONFIG_MEMORY_HOTPLUG=n
-> kernels.
->
-> This needn't be done immediately - it would be OK by me if you were to
-> defer this exercise until all the new memhotplug code is largely in
-> place.  But please, let's do it.
-
-OK, I'll do have a check on it when the page_cgroup problem is solved.
+No, I don't think so. The arch_remove_memory() in s390 will only
+return -EBUSY.
 
 Thanks. :)
 
