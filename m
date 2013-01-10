@@ -1,15 +1,15 @@
 From: Tang Chen <tangchen@cn.fujitsu.com>
-Subject: Re: [PATCH v6 05/15] memory-hotplug: introduce new function arch_remove_memory()
- for removing page table depends on architecture
-Date: Thu, 10 Jan 2013 10:25:56 +0800
-Message-ID: <50EE26B4.40204@cn.fujitsu.com>
-References: <1357723959-5416-1-git-send-email-tangchen@cn.fujitsu.com> <1357723959-5416-6-git-send-email-tangchen@cn.fujitsu.com> <20130109145031.210505d0.akpm@linux-foundation.org>
+Subject: Re: [PATCH v6 04/15] memory-hotplug: remove /sys/firmware/memmap/X
+ sysfs
+Date: Thu, 10 Jan 2013 14:07:37 +0800
+Message-ID: <50EE5AA9.3090401@cn.fujitsu.com>
+References: <1357723959-5416-1-git-send-email-tangchen@cn.fujitsu.com> <1357723959-5416-5-git-send-email-tangchen@cn.fujitsu.com> <20130109144905.8993886a.akpm@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20130109145031.210505d0.akpm@linux-foundation.org>
-Sender: owner-linux-mm@kvack.org
+Return-path: <sparclinux-owner@vger.kernel.org>
+In-Reply-To: <20130109144905.8993886a.akpm@linux-foundation.org>
+Sender: sparclinux-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>
@@ -18,30 +18,25 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Hi Andrew,
 
-On 01/10/2013 06:50 AM, Andrew Morton wrote:
-> On Wed, 9 Jan 2013 17:32:29 +0800
+On 01/10/2013 06:49 AM, Andrew Morton wrote:
+> On Wed, 9 Jan 2013 17:32:28 +0800
 > Tang Chen<tangchen@cn.fujitsu.com>  wrote:
 >
->> For removing memory, we need to remove page table. But it depends
->> on architecture. So the patch introduce arch_remove_memory() for
->> removing page table. Now it only calls __remove_pages().
+>> When (hot)adding memory into system, /sys/firmware/memmap/X/{end, start, type}
+>> sysfs files are created. But there is no code to remove these files. The patch
+>> implements the function to remove them.
 >>
->> Note: __remove_pages() for some archtecuture is not implemented
->>        (I don't know how to implement it for s390).
+>> Note: The code does not free firmware_map_entry which is allocated by bootmem.
+>>        So the patch makes memory leak. But I think the memory leak size is
+>>        very samll. And it does not affect the system.
 >
-> Can this break the build for s390?
+> Well that's bad.  Can we remember the address of that memory and then
+> reuse the storage if/when the memory is re-added?  That at least puts an upper
+> bound on the leak.
 
-No, I don't think so. The arch_remove_memory() in s390 will only
-return -EBUSY.
+I think we can do this. I'll post a new patch to do so.
 
 Thanks. :)
 
 >
 >
->
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
