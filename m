@@ -1,234 +1,405 @@
-From: Tang Chen <tangchen@cn.fujitsu.com>
-Subject: [PATCH v6 05/15] memory-hotplug: introduce new function arch_remove_memory() for removing page table depends on architecture
-Date: Wed, 9 Jan 2013 17:32:29 +0800
-Message-ID: <1357723959-5416-6-git-send-email-tangchen@cn.fujitsu.com>
-References: <1357723959-5416-1-git-send-email-tangchen@cn.fujitsu.com>
+From: Toshi Kani <toshi.kani@hp.com>
+Subject: [RFC PATCH v2 09/12] ACPI: Update memory driver for hotplug framework
+Date: Thu, 10 Jan 2013 16:40:27 -0700
+Message-ID: <1357861230-29549-10-git-send-email-toshi.kani@hp.com>
+References: <1357861230-29549-1-git-send-email-toshi.kani@hp.com>
 Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1357723959-5416-1-git-send-email-tangchen@cn.fujitsu.com>
+In-Reply-To: <1357861230-29549-1-git-send-email-toshi.kani@hp.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: akpm@linux-foundation.org, rientjes@google.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, wujianguo@huawei.com, wency@cn.fujitsu.com, tangchen@cn.fujitsu.com, hpa@zytor.com, linfeng@cn.fujitsu.com, laijs@cn.fujitsu.com, mgorman@suse.de, yinghai@kernel.org, glommer@parallels.com
-Cc: x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org
+To: rjw@sisk.pl, lenb@kernel.org, gregkh@linuxfoundation.org, akpm@linux-foundation.org
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, bhelgaas@google.com, isimatu.yasuaki@jp.fujitsu.com, jiang.liu@huawei.com, wency@cn.fujitsu.com, guohanjun@huawei.com, yinghai@kernel.org, srivatsa.bhat@linux.vnet.ibm.com, Toshi Kani <toshi.kani@hp.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Wen Congyang <wency@cn.fujitsu.com>
+Changed acpi_memory_device_notify() to request a hotplug operation
+by calling shp_submit_req().  It no longer initiates hot-add or
+hot-delete operation by calling add_memory() or remove_memory()
+directly.  Removed the enabled and failed flags from acpi_memory_info
+since they are no longer used.
 
-For removing memory, we need to remove page table. But it depends
-on architecture. So the patch introduce arch_remove_memory() for
-removing page table. Now it only calls __remove_pages().
+Changed acpi_memory_device_add() to not call add_memory() to online
+a memory device.  Similarly, changed acpi_memory_device_remove()
+to not call remove_memory() to offline a memory device.
 
-Note: __remove_pages() for some archtecuture is not implemented
-      (I don't know how to implement it for s390).
+Added acpi_memory_resource() to set memory information to a hotplug
+request.
 
-Signed-off-by: Wen Congyang <wency@cn.fujitsu.com>
-Acked-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Signed-off-by: Toshi Kani <toshi.kani@hp.com>
 ---
- arch/ia64/mm/init.c            |   18 ++++++++++++++++++
- arch/powerpc/mm/mem.c          |   12 ++++++++++++
- arch/s390/mm/init.c            |   12 ++++++++++++
- arch/sh/mm/init.c              |   17 +++++++++++++++++
- arch/tile/mm/init.c            |    8 ++++++++
- arch/x86/mm/init_32.c          |   12 ++++++++++++
- arch/x86/mm/init_64.c          |   15 +++++++++++++++
- include/linux/memory_hotplug.h |    1 +
- mm/memory_hotplug.c            |    2 ++
- 9 files changed, 97 insertions(+), 0 deletions(-)
+ drivers/acpi/acpi_memhotplug.c |  271 +++++++++++++---------------------------
+ 1 file changed, 89 insertions(+), 182 deletions(-)
 
-diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-index b755ea9..20bc967 100644
---- a/arch/ia64/mm/init.c
-+++ b/arch/ia64/mm/init.c
-@@ -688,6 +688,24 @@ int arch_add_memory(int nid, u64 start, u64 size)
+diff --git a/drivers/acpi/acpi_memhotplug.c b/drivers/acpi/acpi_memhotplug.c
+index b679bf8..67868f5 100644
+--- a/drivers/acpi/acpi_memhotplug.c
++++ b/drivers/acpi/acpi_memhotplug.c
+@@ -33,6 +33,7 @@
+ #include <linux/slab.h>
+ #include <linux/acpi.h>
+ #include <acpi/acpi_drivers.h>
++#include <acpi/sys_hotplug.h>
  
- 	return ret;
+ #define ACPI_MEMORY_DEVICE_CLASS		"memory"
+ #define ACPI_MEMORY_DEVICE_HID			"PNP0C80"
+@@ -55,6 +56,8 @@ MODULE_LICENSE("GPL");
+ 
+ static int acpi_memory_device_add(struct acpi_device *device);
+ static int acpi_memory_device_remove(struct acpi_device *device, int type);
++static int acpi_memory_device_resource(struct acpi_device *device,
++		struct shp_request *shp_req);
+ 
+ static const struct acpi_device_id memory_device_ids[] = {
+ 	{ACPI_MEMORY_DEVICE_HID, 0},
+@@ -69,6 +72,7 @@ static struct acpi_driver acpi_memory_device_driver = {
+ 	.ops = {
+ 		.add = acpi_memory_device_add,
+ 		.remove = acpi_memory_device_remove,
++		.resource = acpi_memory_device_resource,
+ 		},
+ };
+ 
+@@ -153,59 +157,12 @@ acpi_memory_get_device_resources(struct acpi_memory_device *mem_device)
+ 	return 0;
  }
-+
-+#ifdef CONFIG_MEMORY_HOTREMOVE
-+int arch_remove_memory(u64 start, u64 size)
-+{
-+	unsigned long start_pfn = start >> PAGE_SHIFT;
-+	unsigned long nr_pages = size >> PAGE_SHIFT;
-+	struct zone *zone;
-+	int ret;
-+
-+	zone = page_zone(pfn_to_page(start_pfn));
-+	ret = __remove_pages(zone, start_pfn, nr_pages);
-+	if (ret)
-+		pr_warn("%s: Problem encountered in __remove_pages() as"
-+			" ret=%d\n", __func__,  ret);
-+
-+	return ret;
-+}
-+#endif
- #endif
  
- /*
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index 0dba506..09c6451 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -133,6 +133,18 @@ int arch_add_memory(int nid, u64 start, u64 size)
- 
- 	return __add_pages(nid, zone, start_pfn, nr_pages);
- }
-+
-+#ifdef CONFIG_MEMORY_HOTREMOVE
-+int arch_remove_memory(u64 start, u64 size)
-+{
-+	unsigned long start_pfn = start >> PAGE_SHIFT;
-+	unsigned long nr_pages = size >> PAGE_SHIFT;
-+	struct zone *zone;
-+
-+	zone = page_zone(pfn_to_page(start_pfn));
-+	return __remove_pages(zone, start_pfn, nr_pages);
-+}
-+#endif
- #endif /* CONFIG_MEMORY_HOTPLUG */
- 
- /*
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index ae672f4..49ce6bb 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -228,4 +228,16 @@ int arch_add_memory(int nid, u64 start, u64 size)
- 		vmem_remove_mapping(start, size);
- 	return rc;
- }
-+
-+#ifdef CONFIG_MEMORY_HOTREMOVE
-+int arch_remove_memory(u64 start, u64 size)
-+{
-+	/*
-+	 * There is no hardware or firmware interface which could trigger a
-+	 * hot memory remove on s390. So there is nothing that needs to be
-+	 * implemented.
-+	 */
-+	return -EBUSY;
-+}
-+#endif
- #endif /* CONFIG_MEMORY_HOTPLUG */
-diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
-index 82cc576..1057940 100644
---- a/arch/sh/mm/init.c
-+++ b/arch/sh/mm/init.c
-@@ -558,4 +558,21 @@ int memory_add_physaddr_to_nid(u64 addr)
- EXPORT_SYMBOL_GPL(memory_add_physaddr_to_nid);
- #endif
- 
-+#ifdef CONFIG_MEMORY_HOTREMOVE
-+int arch_remove_memory(u64 start, u64 size)
-+{
-+	unsigned long start_pfn = start >> PAGE_SHIFT;
-+	unsigned long nr_pages = size >> PAGE_SHIFT;
-+	struct zone *zone;
-+	int ret;
-+
-+	zone = page_zone(pfn_to_page(start_pfn));
-+	ret = __remove_pages(zone, start_pfn, nr_pages);
-+	if (unlikely(ret))
-+		pr_warn("%s: Failed, __remove_pages() == %d\n", __func__,
-+			ret);
-+
-+	return ret;
-+}
-+#endif
- #endif /* CONFIG_MEMORY_HOTPLUG */
-diff --git a/arch/tile/mm/init.c b/arch/tile/mm/init.c
-index ef29d6c..2749515 100644
---- a/arch/tile/mm/init.c
-+++ b/arch/tile/mm/init.c
-@@ -935,6 +935,14 @@ int remove_memory(u64 start, u64 size)
+-static int
+-acpi_memory_get_device(acpi_handle handle,
+-		       struct acpi_memory_device **mem_device)
+-{
+-	acpi_status status;
+-	acpi_handle phandle;
+-	struct acpi_device *device = NULL;
+-	struct acpi_device *pdevice = NULL;
+-	int result;
+-
+-
+-	if (!acpi_bus_get_device(handle, &device) && device)
+-		goto end;
+-
+-	status = acpi_get_parent(handle, &phandle);
+-	if (ACPI_FAILURE(status)) {
+-		ACPI_EXCEPTION((AE_INFO, status, "Cannot find acpi parent"));
+-		return -EINVAL;
+-	}
+-
+-	/* Get the parent device */
+-	result = acpi_bus_get_device(phandle, &pdevice);
+-	if (result) {
+-		acpi_handle_warn(phandle, "Cannot get acpi bus device\n");
+-		return -EINVAL;
+-	}
+-
+-	/*
+-	 * Now add the notified device.  This creates the acpi_device
+-	 * and invokes .add function
+-	 */
+-	result = acpi_bus_add(&device, pdevice, handle, ACPI_BUS_TYPE_DEVICE);
+-	if (result) {
+-		acpi_handle_warn(handle, "Cannot add acpi bus\n");
+-		return -EINVAL;
+-	}
+-
+-      end:
+-	*mem_device = acpi_driver_data(device);
+-	if (!(*mem_device)) {
+-		dev_err(&device->dev, "driver data not found\n");
+-		return -ENODEV;
+-	}
+-
+-	return 0;
+-}
+-
+-static int acpi_memory_check_device(struct acpi_memory_device *mem_device)
++static int acpi_memory_check_device(acpi_handle handle)
  {
- 	return -EINVAL;
+ 	unsigned long long current_status;
+ 
+ 	/* Get device present/absent information from the _STA */
+-	if (ACPI_FAILURE(acpi_evaluate_integer(mem_device->device->handle, "_STA",
++	if (ACPI_FAILURE(acpi_evaluate_integer(handle, "_STA",
+ 					       NULL, &current_status)))
+ 		return -ENODEV;
+ 	/*
+@@ -220,148 +177,46 @@ static int acpi_memory_check_device(struct acpi_memory_device *mem_device)
+ 	return 0;
  }
+ 
+-static int acpi_memory_enable_device(struct acpi_memory_device *mem_device)
+-{
+-	int result, num_enabled = 0;
+-	struct acpi_memory_info *info;
+-	int node;
+-
+-	node = acpi_get_node(mem_device->device->handle);
+-	/*
+-	 * Tell the VM there is more memory here...
+-	 * Note: Assume that this function returns zero on success
+-	 * We don't have memory-hot-add rollback function,now.
+-	 * (i.e. memory-hot-remove function)
+-	 */
+-	list_for_each_entry(info, &mem_device->res_list, list) {
+-		if (info->enabled) { /* just sanity check...*/
+-			num_enabled++;
+-			continue;
+-		}
+-		/*
+-		 * If the memory block size is zero, please ignore it.
+-		 * Don't try to do the following memory hotplug flowchart.
+-		 */
+-		if (!info->length)
+-			continue;
+-		if (node < 0)
+-			node = memory_add_physaddr_to_nid(info->start_addr);
+-
+-		result = add_memory(node, info->start_addr, info->length);
+-
+-		/*
+-		 * If the memory block has been used by the kernel, add_memory()
+-		 * returns -EEXIST. If add_memory() returns the other error, it
+-		 * means that this memory block is not used by the kernel.
+-		 */
+-		if (result && result != -EEXIST) {
+-			info->failed = 1;
+-			continue;
+-		}
+-
+-		if (!result)
+-			info->enabled = 1;
+-		/*
+-		 * Add num_enable even if add_memory() returns -EEXIST, so the
+-		 * device is bound to this driver.
+-		 */
+-		num_enabled++;
+-	}
+-	if (!num_enabled) {
+-		dev_err(&mem_device->device->dev, "add_memory failed\n");
+-		mem_device->state = MEMORY_INVALID_STATE;
+-		return -EINVAL;
+-	}
+-	/*
+-	 * Sometimes the memory device will contain several memory blocks.
+-	 * When one memory block is hot-added to the system memory, it will
+-	 * be regarded as a success.
+-	 * Otherwise if the last memory block can't be hot-added to the system
+-	 * memory, it will be failure and the memory device can't be bound with
+-	 * driver.
+-	 */
+-	return 0;
+-}
+-
+-static int acpi_memory_remove_memory(struct acpi_memory_device *mem_device)
+-{
+-	int result = 0;
+-	struct acpi_memory_info *info, *n;
+-
+-	list_for_each_entry_safe(info, n, &mem_device->res_list, list) {
+-		if (info->failed)
+-			/* The kernel does not use this memory block */
+-			continue;
+-
+-		if (!info->enabled)
+-			/*
+-			 * The kernel uses this memory block, but it may be not
+-			 * managed by us.
+-			 */
+-			return -EBUSY;
+-
+-		result = remove_memory(info->start_addr, info->length);
+-		if (result)
+-			return result;
+-
+-		list_del(&info->list);
+-		kfree(info);
+-	}
+-
+-	return result;
+-}
+-
+ static void acpi_memory_device_notify(acpi_handle handle, u32 event, void *data)
+ {
+ 	struct acpi_memory_device *mem_device;
+ 	struct acpi_device *device;
+-	struct acpi_eject_event *ej_event = NULL;
++	struct shp_request *shp_req;
++	enum shp_operation shp_op;
+ 	u32 ost_code = ACPI_OST_SC_NON_SPECIFIC_FAILURE; /* default */
+ 
+ 	switch (event) {
+ 	case ACPI_NOTIFY_BUS_CHECK:
+-		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
+-				  "\nReceived BUS CHECK notification for device\n"));
+ 		/* Fall Through */
+ 	case ACPI_NOTIFY_DEVICE_CHECK:
+-		if (event == ACPI_NOTIFY_DEVICE_CHECK)
+-			ACPI_DEBUG_PRINT((ACPI_DB_INFO,
+-					  "\nReceived DEVICE CHECK notification for device\n"));
+-		if (acpi_memory_get_device(handle, &mem_device)) {
+-			acpi_handle_err(handle, "Cannot find driver data\n");
+-			break;
++		if (acpi_memory_check_device(handle)) {
++			acpi_handle_err(handle, "Device not enabled\n");
++			goto err;
++		}
 +
-+#ifdef CONFIG_MEMORY_HOTREMOVE
-+int arch_remove_memory(u64 start, u64 size)
-+{
-+	/* TODO */
-+	return -EBUSY;
-+}
-+#endif
- #endif
++		if (!acpi_bus_get_device(handle, &device)) {
++			acpi_handle_err(handle, "Device added already\n");
++			goto err;
+ 		}
  
- struct kmem_cache *pgd_cache;
-diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
-index 745d66b..3166e78 100644
---- a/arch/x86/mm/init_32.c
-+++ b/arch/x86/mm/init_32.c
-@@ -836,6 +836,18 @@ int arch_add_memory(int nid, u64 start, u64 size)
+-		ost_code = ACPI_OST_SC_SUCCESS;
++		shp_op = SHP_HOTPLUG_ADD;
+ 		break;
  
- 	return __add_pages(nid, zone, start_pfn, nr_pages);
+ 	case ACPI_NOTIFY_EJECT_REQUEST:
+-		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
+-				  "\nReceived EJECT REQUEST notification for device\n"));
+-
+ 		if (acpi_bus_get_device(handle, &device)) {
+ 			acpi_handle_err(handle, "Device doesn't exist\n");
+-			break;
++			goto err;
+ 		}
++
+ 		mem_device = acpi_driver_data(device);
+ 		if (!mem_device) {
+ 			acpi_handle_err(handle, "Driver Data is NULL\n");
+-			break;
++			goto err;
+ 		}
+ 
+-		ej_event = kmalloc(sizeof(*ej_event), GFP_KERNEL);
+-		if (!ej_event) {
+-			pr_err(PREFIX "No memory, dropping EJECT\n");
+-			break;
+-		}
+-
+-		ej_event->handle = handle;
+-		ej_event->event = ACPI_NOTIFY_EJECT_REQUEST;
+-		acpi_os_hotplug_execute(acpi_bus_hot_remove_device,
+-					(void *)ej_event);
++		shp_op = SHP_HOTPLUG_DEL;
++		break;
+ 
+-		/* eject is performed asynchronously */
+-		return;
+ 	default:
+ 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
+ 				  "Unsupported event [0x%x]\n", event));
+@@ -370,7 +225,25 @@ static void acpi_memory_device_notify(acpi_handle handle, u32 event, void *data)
+ 		return;
+ 	}
+ 
+-	/* Inform firmware that the hotplug operation has completed */
++	shp_req = shp_alloc_request(shp_op);
++	if (!shp_req) {
++		acpi_handle_err(handle, "No memory to request hotplug\n");
++		goto err;
++	}
++
++	shp_req->handle = (void *)handle;
++	shp_req->event = event;
++
++	if (shp_submit_req(shp_req)) {
++		acpi_handle_err(handle, "Failed to request hotplug\n");
++		kfree(shp_req);
++		goto err;
++	}
++
++	return;
++
++err:
++	/* Inform firmware that the hotplug operation completed w/ error */
+ 	(void) acpi_evaluate_hotplug_ost(handle, event, ost_code, NULL);
+ 	return;
  }
-+
-+#ifdef CONFIG_MEMORY_HOTREMOVE
-+int arch_remove_memory(u64 start, u64 size)
-+{
-+	unsigned long start_pfn = start >> PAGE_SHIFT;
-+	unsigned long nr_pages = size >> PAGE_SHIFT;
-+	struct zone *zone;
-+
-+	zone = page_zone(pfn_to_page(start_pfn));
-+	return __remove_pages(zone, start_pfn, nr_pages);
-+}
-+#endif
- #endif
+@@ -414,38 +287,72 @@ static int acpi_memory_device_add(struct acpi_device *device)
+ 	mem_device->state = MEMORY_POWER_ON_STATE;
  
- /*
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index e779e0b..f78509c 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -682,6 +682,21 @@ int arch_add_memory(int nid, u64 start, u64 size)
+ 	pr_debug("%s\n", acpi_device_name(device));
+-
+-	if (!acpi_memory_check_device(mem_device)) {
+-		/* call add_memory func */
+-		result = acpi_memory_enable_device(mem_device);
+-		if (result) {
+-			dev_err(&device->dev,
+-				"Error in acpi_memory_enable_device\n");
+-			acpi_memory_device_free(mem_device);
+-		}
+-	}
+ 	return result;
  }
- EXPORT_SYMBOL_GPL(arch_add_memory);
  
-+#ifdef CONFIG_MEMORY_HOTREMOVE
-+int __ref arch_remove_memory(u64 start, u64 size)
-+{
-+	unsigned long start_pfn = start >> PAGE_SHIFT;
-+	unsigned long nr_pages = size >> PAGE_SHIFT;
-+	struct zone *zone;
-+	int ret;
-+
-+	zone = page_zone(pfn_to_page(start_pfn));
-+	ret = __remove_pages(zone, start_pfn, nr_pages);
-+	WARN_ON_ONCE(ret);
-+
-+	return ret;
-+}
-+#endif
- #endif /* CONFIG_MEMORY_HOTPLUG */
+ static int acpi_memory_device_remove(struct acpi_device *device, int type)
+ {
+ 	struct acpi_memory_device *mem_device = NULL;
+-	int result;
++	struct acpi_memory_info *info, *n;
  
- static struct kcore_list kcore_vsyscall;
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index 8dd0950..31a563b 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -96,6 +96,7 @@ extern void __online_page_free(struct page *page);
+ 	if (!device || !acpi_driver_data(device))
+ 		return -EINVAL;
  
- #ifdef CONFIG_MEMORY_HOTREMOVE
- extern bool is_pageblock_removable_nolock(struct page *page);
-+extern int arch_remove_memory(u64 start, u64 size);
- #endif /* CONFIG_MEMORY_HOTREMOVE */
+ 	mem_device = acpi_driver_data(device);
  
- /* reasonably generic interface to expand the physical pages in a zone  */
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 9fd5904..f6724c2 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1514,6 +1514,8 @@ repeat:
- 	/* remove memmap entry */
- 	firmware_map_remove(start, start + size, "System RAM");
+-	result = acpi_memory_remove_memory(mem_device);
+-	if (result)
+-		return result;
++	/* remove the memory_info list of this mem_device */
++	list_for_each_entry_safe(info, n, &mem_device->res_list, list) {
++		list_del(&info->list);
++		kfree(info);
++	}
  
-+	arch_remove_memory(start, size);
-+
- 	unlock_memory_hotplug();
+ 	acpi_memory_device_free(mem_device);
  
  	return 0;
--- 
-1.7.1
+ }
+ 
++static int acpi_memory_device_resource(struct acpi_device *device,
++				struct shp_request *shp_req)
++{
++	struct acpi_memory_device *mem_device = NULL;
++	struct acpi_memory_info *info, *n;
++	struct shp_device *shp_dev;
++	int node;
++
++	mem_device = acpi_driver_data(device);
++	if (!mem_device) {
++		dev_err(&device->dev, "Invalid device\n");
++		return -EINVAL;
++	}
++
++	node = acpi_get_node(mem_device->device->handle);
++
++	/*
++	 * Set resource info of the device
++	 */
++	list_for_each_entry_safe(info, n, &mem_device->res_list, list) {
++
++		if (!info->length)
++			continue;
++
++		shp_dev = kzalloc(sizeof(*shp_dev), GFP_KERNEL);
++		if (!shp_dev) {
++			dev_err(&device->dev, "Failed to allocate shp_dev\n");
++			return -EINVAL;
++		}
++
++		shp_dev->device = &device->dev;
++		shp_dev->class = SHP_CLS_MEMORY;
++		shp_dev->info.mem.node = node;
++		shp_dev->info.mem.start_addr = info->start_addr;
++		shp_dev->info.mem.length = info->length;
++
++		shp_add_dev_info(shp_req, shp_dev);
++	}
++
++	return 0;
++}
++
+ /*
+  * Helper function to check for memory device
+  */
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
