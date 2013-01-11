@@ -1,223 +1,235 @@
-From: Toshi Kani <toshi.kani@hp.com>
-Subject: [RFC PATCH v2 12/12] ACPI: Update sysfs eject for hotplug framework
-Date: Thu, 10 Jan 2013 16:40:30 -0700
-Message-ID: <1357861230-29549-13-git-send-email-toshi.kani@hp.com>
-References: <1357861230-29549-1-git-send-email-toshi.kani@hp.com>
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1357861230-29549-1-git-send-email-toshi.kani@hp.com>
-Sender: owner-linux-mm@kvack.org
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [RFC PATCH v2 01/12] Add sys_hotplug.h for system device hotplug framework
+Date: Fri, 11 Jan 2013 22:23:34 +0100
+Message-ID: <5036592.TuXAnGzk4M@vostro.rjw.lan>
+References: <1357861230-29549-1-git-send-email-toshi.kani@hp.com> <1357861230-29549-2-git-send-email-toshi.kani@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1357861230-29549-2-git-send-email-toshi.kani@hp.com>
+Sender: linux-acpi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: rjw@sisk.pl, lenb@kernel.org, gregkh@linuxfoundation.org, akpm@linux-foundation.org
-Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, bhelgaas@google.com, isimatu.yasuaki@jp.fujitsu.com, jiang.liu@huawei.com, wency@cn.fujitsu.com, guohanjun@huawei.com, yinghai@kernel.org, srivatsa.bhat@linux.vnet.ibm.com, Toshi Kani <toshi.kani@hp.com>
+To: Toshi Kani <toshi.kani@hp.com>
+Cc: lenb@kernel.org, gregkh@linuxfoundation.org, akpm@linux-foundation.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, bhelgaas@google.com, isimatu.yasuaki@jp.fujitsu.com, jiang.liu@huawei.com, wency@cn.fujitsu.com, guohanjun@huawei.com, yinghai@kernel.org, srivatsa.bhat@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Changed acpi_eject_store() to request a hot-delete operation by
-calling shp_submit_req().  It no longer initiates a hot-delete
-operation by calling acpi_bus_hot_remove_device().
+On Thursday, January 10, 2013 04:40:19 PM Toshi Kani wrote:
+> Added include/linux/sys_hotplug.h, which defines the system device
+> hotplug framework interfaces used by the framework itself and
+> handlers.
+> 
+> The order values define the calling sequence of handlers.  For add
+> execute, the ordering is ACPI->MEM->CPU.  Memory is onlined before
+> CPU so that threads on new CPUs can start using their local memory.
+> The ordering of the delete execute is symmetric to the add execute.
+> 
+> struct shp_request defines a hot-plug request information.  The
+> device resource information is managed with a list so that a single
+> request may target to multiple devices.
+> 
+> Signed-off-by: Toshi Kani <toshi.kani@hp.com>
+> ---
+>  include/linux/sys_hotplug.h |  181 +++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 181 insertions(+)
+>  create mode 100644 include/linux/sys_hotplug.h
+> 
+> diff --git a/include/linux/sys_hotplug.h b/include/linux/sys_hotplug.h
+> new file mode 100644
+> index 0000000..86674dd
+> --- /dev/null
+> +++ b/include/linux/sys_hotplug.h
+> @@ -0,0 +1,181 @@
+> +/*
+> + * sys_hotplug.h - System device hot-plug framework
+> + *
+> + * Copyright (C) 2012 Hewlett-Packard Development Company, L.P.
+> + *	Toshi Kani <toshi.kani@hp.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#ifndef _LINUX_SYS_HOTPLUG_H
+> +#define _LINUX_SYS_HOTPLUG_H
+> +
+> +#include <linux/list.h>
+> +#include <linux/device.h>
+> +
+> +/*
+> + * System device hot-plug operation proceeds in the following order.
+> + *   Validate phase -> Execute phase -> Commit phase
+> + *
+> + * The order values below define the calling sequence of platform
+> + * neutral handlers for each phase in ascending order.  The order
+> + * values of firmware-specific handlers are defined in sys_hotplug.h
+> + * under firmware specific directories.
+> + */
+> +
+> +/* All order values must be smaller than this value */
+> +#define SHP_ORDER_MAX				0xffffff
+> +
+> +/* Add Validate order values */
+> +
+> +/* Add Execute order values */
+> +#define SHP_MEM_ADD_EXECUTE_ORDER		100
+> +#define SHP_CPU_ADD_EXECUTE_ORDER		110
+> +
+> +/* Add Commit order values */
+> +
+> +/* Delete Validate order values */
+> +#define SHP_CPU_DEL_VALIDATE_ORDER		100
+> +#define SHP_MEM_DEL_VALIDATE_ORDER		110
+> +
+> +/* Delete Execute order values */
+> +#define SHP_CPU_DEL_EXECUTE_ORDER		10
+> +#define SHP_MEM_DEL_EXECUTE_ORDER		20
+> +
+> +/* Delete Commit order values */
+> +
+> +/*
+> + * Hot-plug request types
+> + */
+> +#define SHP_REQ_ADD		0x000000
+> +#define SHP_REQ_DELETE		0x000001
+> +#define SHP_REQ_MASK		0x0000ff
+> +
+> +/*
+> + * Hot-plug phase types
+> + */
+> +#define SHP_PH_VALIDATE		0x000000
+> +#define SHP_PH_EXECUTE		0x000100
+> +#define SHP_PH_COMMIT		0x000200
+> +#define SHP_PH_MASK		0x00ff00
+> +
+> +/*
+> + * Hot-plug operation types
+> + */
+> +#define SHP_OP_HOTPLUG		0x000000
+> +#define SHP_OP_ONLINE		0x010000
+> +#define SHP_OP_MASK		0xff0000
+> +
+> +/*
+> + * Hot-plug phases
+> + */
+> +enum shp_phase {
+> +	SHP_ADD_VALIDATE	= (SHP_REQ_ADD|SHP_PH_VALIDATE),
+> +	SHP_ADD_EXECUTE		= (SHP_REQ_ADD|SHP_PH_EXECUTE),
+> +	SHP_ADD_COMMIT		= (SHP_REQ_ADD|SHP_PH_COMMIT),
+> +	SHP_DEL_VALIDATE	= (SHP_REQ_DELETE|SHP_PH_VALIDATE),
+> +	SHP_DEL_EXECUTE		= (SHP_REQ_DELETE|SHP_PH_EXECUTE),
+> +	SHP_DEL_COMMIT		= (SHP_REQ_DELETE|SHP_PH_COMMIT)
+> +};
+> +
+> +/*
+> + * Hot-plug operations
+> + */
+> +enum shp_operation {
+> +	SHP_HOTPLUG_ADD		= (SHP_OP_HOTPLUG|SHP_REQ_ADD),
+> +	SHP_HOTPLUG_DEL		= (SHP_OP_HOTPLUG|SHP_REQ_DELETE),
+> +	SHP_ONLINE_ADD		= (SHP_OP_ONLINE|SHP_REQ_ADD),
+> +	SHP_ONLINE_DEL		= (SHP_OP_ONLINE|SHP_REQ_DELETE)
+> +};
+> +
+> +/*
+> + * Hot-plug device classes
+> + */
+> +enum shp_class {
+> +	SHP_CLS_INVALID		= 0,
+> +	SHP_CLS_CPU		= 1,
+> +	SHP_CLS_MEMORY		= 2,
+> +	SHP_CLS_HOSTBRIDGE	= 3,
+> +	SHP_CLS_CONTAINER	= 4,
+> +};
+> +
+> +/*
+> + * Hot-plug device information
+> + */
+> +union shp_dev_info {
+> +	struct shp_cpu {
+> +		u32		cpu_id;
+> +	} cpu;
+> +
+> +	struct shp_memory {
+> +		int		node;
+> +		u64		start_addr;
+> +		u64		length;
+> +	} mem;
+> +
+> +	struct shp_hostbridge {
+> +	} hb;
+> +
+> +	struct shp_node {
+> +	} node;
+> +};
+> +
+> +struct shp_device {
+> +	struct list_head	list;
+> +	struct device		*device;
+> +	enum shp_class		class;
+> +	union shp_dev_info	info;
+> +};
+> +
+> +/*
+> + * Hot-plug request
+> + */
+> +struct shp_request {
+> +	/* common info */
+> +	enum shp_operation	operation;	/* operation */
+> +
+> +	/* hot-plug event info: only valid for hot-plug operations */
+> +	void			*handle;	/* FW handle */
 
-Deleted acpi_bus_hot_remove_device() since it no longer has any
-caller and should not be called for hot-delete.
+What's the role of handle here?
 
-Deleted eject_pending bit from acpi_device_flags since the ACPI
-container driver no longer sets it for hot-delete, and sysfs
-eject no longer checks it in acpi_bus_hot_remove_device().
 
-Signed-off-by: Toshi Kani <toshi.kani@hp.com>
----
- drivers/acpi/scan.c     |  122 ++++++++---------------------------------------
- include/acpi/acpi_bus.h |    4 --
- 2 files changed, 23 insertions(+), 103 deletions(-)
-
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index c88be6c..5e47b49 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -13,6 +13,7 @@
- #include <linux/nls.h>
- 
- #include <acpi/acpi_drivers.h>
-+#include <acpi/sys_hotplug.h>
- 
- #include "internal.h"
- 
-@@ -105,85 +106,6 @@ acpi_device_modalias_show(struct device *dev, struct device_attribute *attr, cha
- }
- static DEVICE_ATTR(modalias, 0444, acpi_device_modalias_show, NULL);
- 
--/**
-- * acpi_bus_hot_remove_device: hot-remove a device and its children
-- * @context: struct acpi_eject_event pointer (freed in this func)
-- *
-- * Hot-remove a device and its children. This function frees up the
-- * memory space passed by arg context, so that the caller may call
-- * this function asynchronously through acpi_os_hotplug_execute().
-- */
--void acpi_bus_hot_remove_device(void *context)
--{
--	struct acpi_eject_event *ej_event = (struct acpi_eject_event *) context;
--	struct acpi_device *device;
--	acpi_handle handle = ej_event->handle;
--	acpi_handle temp;
--	struct acpi_object_list arg_list;
--	union acpi_object arg;
--	acpi_status status = AE_OK;
--	u32 ost_code = ACPI_OST_SC_NON_SPECIFIC_FAILURE; /* default */
--
--	if (acpi_bus_get_device(handle, &device))
--		goto err_out;
--
--	if (!device)
--		goto err_out;
--
--	ACPI_DEBUG_PRINT((ACPI_DB_INFO,
--		"Hot-removing device %s...\n", dev_name(&device->dev)));
--
--	if (acpi_bus_trim(device, 1)) {
--		printk(KERN_ERR PREFIX
--				"Removing device failed\n");
--		goto err_out;
--	}
--
--	/* device has been freed */
--	device = NULL;
--
--	/* power off device */
--	status = acpi_evaluate_object(handle, "_PS3", NULL, NULL);
--	if (ACPI_FAILURE(status) && status != AE_NOT_FOUND)
--		printk(KERN_WARNING PREFIX
--				"Power-off device failed\n");
--
--	if (ACPI_SUCCESS(acpi_get_handle(handle, "_LCK", &temp))) {
--		arg_list.count = 1;
--		arg_list.pointer = &arg;
--		arg.type = ACPI_TYPE_INTEGER;
--		arg.integer.value = 0;
--		acpi_evaluate_object(handle, "_LCK", &arg_list, NULL);
--	}
--
--	arg_list.count = 1;
--	arg_list.pointer = &arg;
--	arg.type = ACPI_TYPE_INTEGER;
--	arg.integer.value = 1;
--
--	/*
--	 * TBD: _EJD support.
--	 */
--	status = acpi_evaluate_object(handle, "_EJ0", &arg_list, NULL);
--	if (ACPI_FAILURE(status)) {
--		if (status != AE_NOT_FOUND)
--			printk(KERN_WARNING PREFIX
--					"Eject device failed\n");
--		goto err_out;
--	}
--
--	kfree(context);
--	return;
--
--err_out:
--	/* Inform firmware the hot-remove operation has completed w/ error */
--	(void) acpi_evaluate_hotplug_ost(handle,
--				ej_event->event, ost_code, NULL);
--	kfree(context);
--	return;
--}
--EXPORT_SYMBOL(acpi_bus_hot_remove_device);
--
- static ssize_t
- acpi_eject_store(struct device *d, struct device_attribute *attr,
- 		const char *buf, size_t count)
-@@ -192,44 +114,44 @@ acpi_eject_store(struct device *d, struct device_attribute *attr,
- 	acpi_status status;
- 	acpi_object_type type = 0;
- 	struct acpi_device *acpi_device = to_acpi_device(d);
--	struct acpi_eject_event *ej_event;
-+	struct shp_request *shp_req;
- 
- 	if ((!count) || (buf[0] != '1')) {
- 		return -EINVAL;
- 	}
- #ifndef FORCE_EJECT
- 	if (acpi_device->driver == NULL) {
--		ret = -ENODEV;
--		goto err;
-+		return -ENODEV;
- 	}
- #endif
- 	status = acpi_get_type(acpi_device->handle, &type);
- 	if (ACPI_FAILURE(status) || (!acpi_device->flags.ejectable)) {
--		ret = -ENODEV;
--		goto err;
-+		return -ENODEV;
- 	}
- 
--	ej_event = kmalloc(sizeof(*ej_event), GFP_KERNEL);
--	if (!ej_event) {
--		ret = -ENOMEM;
-+	shp_req = shp_alloc_request(SHP_HOTPLUG_DEL);
-+	if (!shp_req)
-+		return -ENOMEM;
-+
-+	shp_req->handle = (void *) acpi_device->handle;
-+
-+	/* event originated from user */
-+	shp_req->event = ACPI_OST_EC_OSPM_EJECT;
-+	(void) acpi_evaluate_hotplug_ost(shp_req->handle,
-+			shp_req->event, ACPI_OST_SC_EJECT_IN_PROGRESS, NULL);
-+
-+	if (shp_submit_req(shp_req)) {
-+		kfree(shp_req);
- 		goto err;
- 	}
- 
--	ej_event->handle = acpi_device->handle;
--	if (acpi_device->flags.eject_pending) {
--		/* event originated from ACPI eject notification */
--		ej_event->event = ACPI_NOTIFY_EJECT_REQUEST;
--		acpi_device->flags.eject_pending = 0;
--	} else {
--		/* event originated from user */
--		ej_event->event = ACPI_OST_EC_OSPM_EJECT;
--		(void) acpi_evaluate_hotplug_ost(ej_event->handle,
--			ej_event->event, ACPI_OST_SC_EJECT_IN_PROGRESS, NULL);
--	}
-+	return ret;
- 
--	acpi_os_hotplug_execute(acpi_bus_hot_remove_device, (void *)ej_event);
- err:
--	return ret;
-+	/* Inform firmware that the hotplug operation completed w/ error */
-+	(void) acpi_evaluate_hotplug_ost(shp_req->handle,
-+			shp_req->event, ACPI_OST_SC_NON_SPECIFIC_FAILURE, NULL);
-+	return -EINVAL;
- }
- 
- static DEVICE_ATTR(eject, 0200, NULL, acpi_eject_store);
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index 6bf002e..ccbfef3 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -151,8 +151,7 @@ struct acpi_device_flags {
- 	u32 suprise_removal_ok:1;
- 	u32 power_manageable:1;
- 	u32 performance_manageable:1;
--	u32 eject_pending:1;
--	u32 reserved:24;
-+	u32 reserved:25;
- };
- 
- /* File System */
-@@ -362,7 +361,6 @@ int acpi_bus_register_driver(struct acpi_driver *driver);
- void acpi_bus_unregister_driver(struct acpi_driver *driver);
- int acpi_bus_add(struct acpi_device **child, struct acpi_device *parent,
- 		 acpi_handle handle, int type);
--void acpi_bus_hot_remove_device(void *context);
- int acpi_bus_trim(struct acpi_device *start, int rmdevice);
- int acpi_bus_start(struct acpi_device *device);
- acpi_status acpi_bus_get_ejd(acpi_handle handle, acpi_handle * ejd);
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+> +	u32			event;		/* FW event */
+> +
+> +	/* device resource info */
+> +	struct list_head	dev_list;	/* shp_device list */
+> +};
+> +
+> +/*
+> + * Inline Utility Functions
+> + */
+> +static inline bool shp_is_hotplug_op(enum shp_operation operation)
+> +{
+> +	return (operation & SHP_OP_MASK) == SHP_OP_HOTPLUG;
+> +}
+> +
+> +static inline bool shp_is_online_op(enum shp_operation operation)
+> +{
+> +	return (operation & SHP_OP_MASK) == SHP_OP_ONLINE;
+> +}
+> +
+> +static inline bool shp_is_add_op(enum shp_operation operation)
+> +{
+> +	return (operation & SHP_REQ_MASK) == SHP_REQ_ADD;
+> +}
+> +
+> +static inline bool shp_is_add_phase(enum shp_phase phase)
+> +{
+> +	return (phase & SHP_REQ_MASK) == SHP_REQ_ADD;
+> +}
+> +
+> +/*
+> + * Externs
+> + */
+> +typedef int (*shp_func)(struct shp_request *req, int rollback);
+> +extern int shp_register_handler(enum shp_phase phase, shp_func func, u32 order);
+> +extern int shp_unregister_handler(enum shp_phase phase, shp_func func);
+> +extern int shp_submit_req(struct shp_request *req);
+> +extern struct shp_request *shp_alloc_request(enum shp_operation operation);
+> +extern void shp_add_dev_info(struct shp_request *shp_req,
+> +		struct shp_device *shp_dev);
+> +
+> +#endif	/* _LINUX_SYS_HOTPLUG_H */
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
