@@ -1,99 +1,60 @@
 Return-Path: <owner-linux-mm@kvack.org>
-From: Lin Feng <linfeng@cn.fujitsu.com>
-Subject: [PATCH 2/2] memory-hotplug: cleanup: removing the arch specific functions without any implementation
-Date: Wed, 16 Jan 2013 16:14:19 +0800
-Message-Id: <1358324059-9608-3-git-send-email-linfeng@cn.fujitsu.com>
-In-Reply-To: <1358324059-9608-1-git-send-email-linfeng@cn.fujitsu.com>
+Date: Wed, 16 Jan 2013 15:14:36 +0100
+From: Michal Hocko <mhocko@suse.cz>
+Subject: Re: [PATCH v3 1/2] memory-hotplug: introduce
+ CONFIG_HAVE_BOOTMEM_INFO_NODE and revert register_page_bootmem_info_node()
+ when platform not support
+Message-ID: <20130116141436.GE343@dhcp22.suse.cz>
 References: <1358324059-9608-1-git-send-email-linfeng@cn.fujitsu.com>
+ <1358324059-9608-2-git-send-email-linfeng@cn.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1358324059-9608-2-git-send-email-linfeng@cn.fujitsu.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: akpm@linux-foundation.org, mhocko@suse.cz, linux-mm@kvack.org, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, jbeulich@suse.com, dhowells@redhat.com, wency@cn.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, paul.gortmaker@windriver.com, laijs@cn.fujitsu.com, kamezawa.hiroyu@jp.fujitsu.com, mel@csn.ul.ie, minchan@kernel.org, aquini@redhat.com, jiang.liu@huawei.com, tony.luck@intel.com, fenghua.yu@intel.com, benh@kernel.crashing.org, paulus@samba.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, davem@davemloft.net, michael@ellerman.id.au, gerald.schaefer@de.ibm.com, gregkh@linuxfoundation.org
-Cc: x86@kernel.org, linux390@de.ibm.com, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linfeng@cn.fujitsu.com, tangchen@cn.fujitsu.com
+To: Lin Feng <linfeng@cn.fujitsu.com>
+Cc: akpm@linux-foundation.org, linux-mm@kvack.org, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, jbeulich@suse.com, dhowells@redhat.com, wency@cn.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, paul.gortmaker@windriver.com, laijs@cn.fujitsu.com, kamezawa.hiroyu@jp.fujitsu.com, mel@csn.ul.ie, minchan@kernel.org, aquini@redhat.com, jiang.liu@huawei.com, tony.luck@intel.com, fenghua.yu@intel.com, benh@kernel.crashing.org, paulus@samba.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, davem@davemloft.net, michael@ellerman.id.au, gerald.schaefer@de.ibm.com, gregkh@linuxfoundation.org, x86@kernel.org, linux390@de.ibm.com, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, tangchen@cn.fujitsu.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michal Hocko <mhocko@suse.cz>
+On Wed 16-01-13 16:14:18, Lin Feng wrote:
+[...]
+> diff --git a/mm/Kconfig b/mm/Kconfig
+> index 278e3ab..f8c5799 100644
+> --- a/mm/Kconfig
+> +++ b/mm/Kconfig
+> @@ -162,10 +162,18 @@ config MOVABLE_NODE
+>  	  Say Y here if you want to hotplug a whole node.
+>  	  Say N here if you want kernel to use memory on all nodes evenly.
+>  
+> +#
+> +# Only be set on architectures that have completely implemented memory hotplug
+> +# feature. If you are not sure, don't touch it.
+> +#
+> +config HAVE_BOOTMEM_INFO_NODE
+> +	def_bool n
+> +
+>  # eventually, we can have this option just 'select SPARSEMEM'
+>  config MEMORY_HOTPLUG
+>  	bool "Allow for memory hot-add"
+>  	select MEMORY_ISOLATION
+> +	select HAVE_BOOTMEM_INFO_NODE if X86_64
+>  	depends on SPARSEMEM || X86_64_ACPI_NUMA
+>  	depends on HOTPLUG && ARCH_ENABLE_MEMORY_HOTPLUG
+>  	depends on (IA64 || X86 || PPC_BOOK3S_64 || SUPERH || S390)
 
-After introducing CONFIG_HAVE_BOOTMEM_INFO_NODE Kconfig option, the related arch
-specific functions become confusing, remove them.
+I am still not sure I understand the relation to MEMORY_HOTREMOVE.
+Is register_page_bootmem_info_node required/helpful even if
+!CONFIG_MEMORY_HOTREMOVE?
 
-Guys who want to implement memory-hotplug feature on such archs for this part
-should look into register_page_bootmem_info_node() and flesh out from top to
-end.
-
-Signed-off-by: Michal Hocko <mhocko@suse.cz>
-Signed-off-by: Lin Feng <linfeng@cn.fujitsu.com>
----
- arch/ia64/mm/discontig.c  |    5 -----
- arch/powerpc/mm/init_64.c |    5 -----
- arch/s390/mm/vmem.c       |    6 ------
- arch/sparc/mm/init_64.c   |    5 -----
- 4 files changed, 0 insertions(+), 21 deletions(-)
-
-diff --git a/arch/ia64/mm/discontig.c b/arch/ia64/mm/discontig.c
-index 882a0fd..cb5e1ff 100644
---- a/arch/ia64/mm/discontig.c
-+++ b/arch/ia64/mm/discontig.c
-@@ -827,9 +827,4 @@ void vmemmap_free(struct page *memmap, unsigned long nr_pages)
- {
- }
- 
--void register_page_bootmem_memmap(unsigned long section_nr,
--				  struct page *start_page, unsigned long size)
--{
--	/* TODO */
--}
- #endif
-diff --git a/arch/powerpc/mm/init_64.c b/arch/powerpc/mm/init_64.c
-index 2969591..7e2246f 100644
---- a/arch/powerpc/mm/init_64.c
-+++ b/arch/powerpc/mm/init_64.c
-@@ -302,10 +302,5 @@ void vmemmap_free(struct page *memmap, unsigned long nr_pages)
- {
- }
- 
--void register_page_bootmem_memmap(unsigned long section_nr,
--				  struct page *start_page, unsigned long size)
--{
--	/* TODO */
--}
- #endif /* CONFIG_SPARSEMEM_VMEMMAP */
- 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index 81e6ba3..fa09c2f 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -276,12 +276,6 @@ void vmemmap_free(struct page *memmap, unsigned long nr_pages)
- {
- }
- 
--void register_page_bootmem_memmap(unsigned long section_nr,
--				  struct page *start_page, unsigned long size)
--{
--	/* TODO */
--}
--
- /*
-  * Add memory segment to the segment list if it doesn't overlap with
-  * an already present segment.
-diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-index 5afe21a..76ac544 100644
---- a/arch/sparc/mm/init_64.c
-+++ b/arch/sparc/mm/init_64.c
-@@ -2236,11 +2236,6 @@ void vmemmap_free(struct page *memmap, unsigned long nr_pages)
- {
- }
- 
--void register_page_bootmem_memmap(unsigned long section_nr,
--				  struct page *start_page, unsigned long size)
--{
--	/* TODO */
--}
- #endif /* CONFIG_SPARSEMEM_VMEMMAP */
- 
- static void prot_init_common(unsigned long page_none,
+Also, now that I am thinking about that more, maybe it would
+be cleaner to put the select into arch/x86/Kconfig and do it
+same as ARCH_ENABLE_MEMORY_{HOTPLUG,HOTREMOVE} (and name it
+ARCH_HAVE_BOOTMEM_INFO_NODE).
 -- 
-1.7.1
+Michal Hocko
+SUSE Labs
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
