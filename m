@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 09/12] s390: Wire up channel I/O in kvm.
-Date: Thu, 17 Jan 2013 15:23:54 +0100
-Message-ID: <1358432637-42512-10-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 08/12] s390: Virtual channel subsystem support.
+Date: Thu, 17 Jan 2013 15:23:53 +0100
+Message-ID: <1358432637-42512-9-git-send-email-cornelia.huck@de.ibm.com>
 References: <1358432637-42512-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1358432637-42512-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,359 +12,1367 @@ To: qemu-devel <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>, linux-s390 <l
 Cc: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Trigger the code for our virtual css in case of instruction
-intercepts for I/O instructions.
-
-Handle the tsch exit for the subchannel-related part of tsch.
+Provide a mechanism for qemu to provide fully virtual subchannels to
+the guest.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- target-s390x/cpu.h |  11 +++
- target-s390x/kvm.c | 252 ++++++++++++++++++++++++++++++++++++++++++++++++++---
- 2 files changed, 250 insertions(+), 13 deletions(-)
+ hw/s390x/Makefile.objs |    1 +
+ hw/s390x/css.c         | 1131 ++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/s390x/css.h         |   92 ++++
+ target-s390x/cpu.h     |   65 +++
+ trace-events           |    8 +
+ 5 files changed, 1297 insertions(+)
+ create mode 100644 hw/s390x/css.c
+ create mode 100644 hw/s390x/css.h
 
+diff --git a/hw/s390x/Makefile.objs b/hw/s390x/Makefile.objs
+index ae87a12..029a0b2 100644
+--- a/hw/s390x/Makefile.objs
++++ b/hw/s390x/Makefile.objs
+@@ -5,3 +5,4 @@ obj-y += s390-virtio-hcall.o
+ obj-y += sclp.o
+ obj-y += event-facility.o
+ obj-y += sclpquiesce.o sclpconsole.o
++obj-y += css.o
+diff --git a/hw/s390x/css.c b/hw/s390x/css.c
+new file mode 100644
+index 0000000..60372f1
+--- /dev/null
++++ b/hw/s390x/css.c
+@@ -0,0 +1,1131 @@
++/*
++ * Channel subsystem base support.
++ *
++ * Copyright 2012 IBM Corp.
++ * Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or (at
++ * your option) any later version. See the COPYING file in the top-level
++ * directory.
++ */
++
++#include <hw/qdev.h>
++#include "qemu/bitops.h"
++#include <linux/kvm.h>
++#include "cpu.h"
++#include "ioinst.h"
++#include "css.h"
++#include "trace.h"
++
++typedef struct CrwContainer {
++    CRW crw;
++    QTAILQ_ENTRY(CrwContainer) sibling;
++} CrwContainer;
++
++typedef struct ChpInfo {
++    uint8_t in_use;
++    uint8_t type;
++    uint8_t is_virtual;
++} ChpInfo;
++
++typedef struct SubchSet {
++    SubchDev *sch[MAX_SCHID + 1];
++    unsigned long schids_used[BITS_TO_LONGS(MAX_SCHID + 1)];
++    unsigned long devnos_used[BITS_TO_LONGS(MAX_SCHID + 1)];
++} SubchSet;
++
++typedef struct CssImage {
++    SubchSet *sch_set[MAX_SSID + 1];
++    ChpInfo chpids[MAX_CHPID + 1];
++} CssImage;
++
++typedef struct ChannelSubSys {
++    QTAILQ_HEAD(, CrwContainer) pending_crws;
++    bool do_crw_mchk;
++    bool crws_lost;
++    uint8_t max_cssid;
++    uint8_t max_ssid;
++    bool chnmon_active;
++    uint64_t chnmon_area;
++    CssImage *css[MAX_CSSID + 1];
++    uint8_t default_cssid;
++} ChannelSubSys;
++
++static ChannelSubSys *channel_subsys;
++
++int css_create_css_image(uint8_t cssid, bool default_image)
++{
++    trace_css_new_image(cssid, default_image ? "(default)" : "");
++    if (cssid > MAX_CSSID) {
++        return -EINVAL;
++    }
++    if (channel_subsys->css[cssid]) {
++        return -EBUSY;
++    }
++    channel_subsys->css[cssid] = g_try_malloc0(sizeof(CssImage));
++    if (!channel_subsys->css[cssid]) {
++        return -ENOMEM;
++    }
++    if (default_image) {
++        channel_subsys->default_cssid = cssid;
++    }
++    return 0;
++}
++
++static void css_inject_io_interrupt(SubchDev *sch)
++{
++    S390CPU *cpu = s390_cpu_addr2state(0);
++    uint8_t isc = (sch->curr_status.pmcw.flags & PMCW_FLAGS_MASK_ISC) >> 11;
++
++    trace_css_io_interrupt(sch->cssid, sch->ssid, sch->schid,
++                           sch->curr_status.pmcw.intparm, isc, "");
++    s390_io_interrupt(cpu,
++                      channel_subsys->max_cssid > 0 ?
++                      (sch->cssid << 8) | (1 << 3) | (sch->ssid << 1) | 1 :
++                      (sch->ssid << 1) | 1,
++                      sch->schid,
++                      sch->curr_status.pmcw.intparm,
++                      (0x80 >> isc) << 24);
++}
++
++void css_conditional_io_interrupt(SubchDev *sch)
++{
++    /*
++     * If the subchannel is not currently status pending, make it pending
++     * with alert status.
++     */
++    if (sch && !(sch->curr_status.scsw.ctrl & SCSW_STCTL_STATUS_PEND)) {
++        S390CPU *cpu = s390_cpu_addr2state(0);
++        uint8_t isc = (sch->curr_status.pmcw.flags & PMCW_FLAGS_MASK_ISC) >> 11;
++
++        trace_css_io_interrupt(sch->cssid, sch->ssid, sch->schid,
++                               sch->curr_status.pmcw.intparm, isc,
++                               "(unsolicited)");
++        sch->curr_status.scsw.ctrl &= ~SCSW_CTRL_MASK_STCTL;
++        sch->curr_status.scsw.ctrl |=
++            SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND;
++        /* Inject an I/O interrupt. */
++        s390_io_interrupt(cpu,
++                          channel_subsys->max_cssid > 0 ?
++                          (sch->cssid << 8) | (1 << 3) | (sch->ssid << 1) | 1 :
++                          (sch->ssid << 1) | 1,
++                          sch->schid,
++                          sch->curr_status.pmcw.intparm,
++                          (0x80 >> isc) << 24);
++    }
++}
++
++static void sch_handle_clear_func(SubchDev *sch)
++{
++    PMCW *p = &sch->curr_status.pmcw;
++    SCSW *s = &sch->curr_status.scsw;
++    int path;
++
++    /* Path management: In our simple css, we always choose the only path. */
++    path = 0x80;
++
++    /* Reset values prior to 'issueing the clear signal'. */
++    p->lpum = 0;
++    p->pom = 0xff;
++    s->flags &= ~SCSW_FLAGS_MASK_PNO;
++
++    /* We always 'attempt to issue the clear signal', and we always succeed. */
++    sch->orb = NULL;
++    sch->channel_prog = NULL;
++    sch->last_cmd = NULL;
++    s->ctrl &= ~SCSW_ACTL_CLEAR_PEND;
++    s->ctrl |= SCSW_STCTL_STATUS_PEND;
++
++    s->dstat = 0;
++    s->cstat = 0;
++    p->lpum = path;
++
++}
++
++static void sch_handle_halt_func(SubchDev *sch)
++{
++
++    PMCW *p = &sch->curr_status.pmcw;
++    SCSW *s = &sch->curr_status.scsw;
++    int path;
++
++    /* Path management: In our simple css, we always choose the only path. */
++    path = 0x80;
++
++    /* We always 'attempt to issue the halt signal', and we always succeed. */
++    sch->orb = NULL;
++    sch->channel_prog = NULL;
++    sch->last_cmd = NULL;
++    s->ctrl &= ~SCSW_ACTL_HALT_PEND;
++    s->ctrl |= SCSW_STCTL_STATUS_PEND;
++
++    if ((s->ctrl & (SCSW_ACTL_SUBCH_ACTIVE | SCSW_ACTL_DEVICE_ACTIVE)) ||
++        !((s->ctrl & SCSW_ACTL_START_PEND) ||
++          (s->ctrl & SCSW_ACTL_SUSP))) {
++        s->dstat = SCSW_DSTAT_DEVICE_END;
++    }
++    s->cstat = 0;
++    p->lpum = path;
++
++}
++
++static int css_interpret_ccw(SubchDev *sch, CCW1 *ccw)
++{
++    int ret;
++    bool check_len;
++    int len;
++
++    if (!ccw) {
++        return -EIO;
++    }
++
++    /* Check for invalid command codes. */
++    if ((ccw->cmd_code & 0x0f) == 0) {
++        return -EINVAL;
++    }
++    if (((ccw->cmd_code & 0x0f) == CCW_CMD_TIC) &&
++        ((ccw->cmd_code & 0xf0) != 0)) {
++        return -EINVAL;
++    }
++
++    if (ccw->flags & CCW_FLAG_SUSPEND) {
++        return -ERESTART;
++    }
++
++    check_len = !((ccw->flags & CCW_FLAG_SLI) && !(ccw->flags & CCW_FLAG_DC));
++
++    /* Look at the command. */
++    switch (ccw->cmd_code) {
++    case CCW_CMD_NOOP:
++        /* Nothing to do. */
++        ret = 0;
++        break;
++    case CCW_CMD_BASIC_SENSE:
++        if (check_len) {
++            if (ccw->count != sizeof(sch->sense_data)) {
++                ret = -EINVAL;
++                break;
++            }
++        }
++        len = MIN(ccw->count, sizeof(sch->sense_data));
++        cpu_physical_memory_write(ccw->cda, sch->sense_data, len);
++        sch->curr_status.scsw.count = ccw->count - len;
++        memset(sch->sense_data, 0, sizeof(sch->sense_data));
++        ret = 0;
++        break;
++    case CCW_CMD_SENSE_ID:
++    {
++        uint8_t sense_bytes[256];
++
++        /* Sense ID information is device specific. */
++        memcpy(sense_bytes, &sch->id, sizeof(sense_bytes));
++        if (check_len) {
++            if (ccw->count != sizeof(sense_bytes)) {
++                ret = -EINVAL;
++                break;
++            }
++        }
++        len = MIN(ccw->count, sizeof(sense_bytes));
++        /*
++         * Only indicate 0xff in the first sense byte if we actually
++         * have enough place to store at least bytes 0-3.
++         */
++        if (len >= 4) {
++            stb_phys(ccw->cda, 0xff);
++        } else {
++            stb_phys(ccw->cda, 0);
++        }
++        cpu_physical_memory_write(ccw->cda + 1, sense_bytes + 1, len - 1);
++        sch->curr_status.scsw.count = ccw->count - len;
++        ret = 0;
++        break;
++    }
++    case CCW_CMD_TIC:
++        if (sch->last_cmd->cmd_code == CCW_CMD_TIC) {
++            ret = -EINVAL;
++            break;
++        }
++        if (ccw->flags & (CCW_FLAG_CC | CCW_FLAG_DC)) {
++            ret = -EINVAL;
++            break;
++        }
++        sch->channel_prog = qemu_get_ram_ptr(ccw->cda);
++        ret = sch->channel_prog ? -EAGAIN : -EFAULT;
++        break;
++    default:
++        if (sch->ccw_cb) {
++            /* Handle device specific commands. */
++            ret = sch->ccw_cb(sch, ccw);
++        } else {
++            ret = -EOPNOTSUPP;
++        }
++        break;
++    }
++    sch->last_cmd = ccw;
++    if (ret == 0) {
++        if (ccw->flags & CCW_FLAG_CC) {
++            sch->channel_prog += 8;
++            ret = -EAGAIN;
++        }
++    }
++
++    return ret;
++}
++
++static void sch_handle_start_func(SubchDev *sch)
++{
++
++    PMCW *p = &sch->curr_status.pmcw;
++    SCSW *s = &sch->curr_status.scsw;
++    ORB *orb = sch->orb;
++    int path;
++    int ret;
++
++    /* Path management: In our simple css, we always choose the only path. */
++    path = 0x80;
++
++    if (!(s->ctrl & SCSW_ACTL_SUSP)) {
++        /* Look at the orb and try to execute the channel program. */
++        p->intparm = orb->intparm;
++        if (!(orb->lpm & path)) {
++            /* Generate a deferred cc 3 condition. */
++            s->flags |= SCSW_FLAGS_MASK_CC;
++            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
++            s->ctrl |= (SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND);
++            return;
++        }
++    } else {
++        s->ctrl &= ~(SCSW_ACTL_SUSP | SCSW_ACTL_RESUME_PEND);
++    }
++    sch->last_cmd = NULL;
++    do {
++        ret = css_interpret_ccw(sch, sch->channel_prog);
++        switch (ret) {
++        case -EAGAIN:
++            /* ccw chain, continue processing */
++            break;
++        case 0:
++            /* success */
++            s->ctrl &= ~SCSW_ACTL_START_PEND;
++            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
++            s->ctrl |= SCSW_STCTL_PRIMARY | SCSW_STCTL_SECONDARY |
++                    SCSW_STCTL_STATUS_PEND;
++            s->dstat = SCSW_DSTAT_CHANNEL_END | SCSW_DSTAT_DEVICE_END;
++            break;
++        case -EOPNOTSUPP:
++            /* unsupported command, generate unit check (command reject) */
++            s->ctrl &= ~SCSW_ACTL_START_PEND;
++            s->dstat = SCSW_DSTAT_UNIT_CHECK;
++            /* Set sense bit 0 in ecw0. */
++            sch->sense_data[0] = 0x80;
++            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
++            s->ctrl |= SCSW_STCTL_PRIMARY | SCSW_STCTL_SECONDARY |
++                    SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND;
++            break;
++        case -EFAULT:
++            /* memory problem, generate channel data check */
++            s->ctrl &= ~SCSW_ACTL_START_PEND;
++            s->cstat = SCSW_CSTAT_DATA_CHECK;
++            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
++            s->ctrl |= SCSW_STCTL_PRIMARY | SCSW_STCTL_SECONDARY |
++                    SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND;
++            break;
++        case -EBUSY:
++            /* subchannel busy, generate deferred cc 1 */
++            s->flags &= ~SCSW_FLAGS_MASK_CC;
++            s->flags |= (1 << 8);
++            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
++            s->ctrl |= SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND;
++            break;
++        case -ERESTART:
++            /* channel program has been suspended */
++            s->ctrl &= ~SCSW_ACTL_START_PEND;
++            s->ctrl |= SCSW_ACTL_SUSP;
++            break;
++        default:
++            /* error, generate channel program check */
++            s->ctrl &= ~SCSW_ACTL_START_PEND;
++            s->cstat = SCSW_CSTAT_PROG_CHECK;
++            s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
++            s->ctrl |= SCSW_STCTL_PRIMARY | SCSW_STCTL_SECONDARY |
++                    SCSW_STCTL_ALERT | SCSW_STCTL_STATUS_PEND;
++            break;
++        }
++    } while (ret == -EAGAIN);
++
++}
++
++/*
++ * On real machines, this would run asynchronously to the main vcpus.
++ * We might want to make some parts of the ssch handling (interpreting
++ * read/writes) asynchronous later on if we start supporting more than
++ * our current very simple devices.
++ */
++static void do_subchannel_work(SubchDev *sch)
++{
++
++    SCSW *s = &sch->curr_status.scsw;
++
++    if (s->ctrl & SCSW_FCTL_CLEAR_FUNC) {
++        sch_handle_clear_func(sch);
++    } else if (s->ctrl & SCSW_FCTL_HALT_FUNC) {
++        sch_handle_halt_func(sch);
++    } else if (s->ctrl & SCSW_FCTL_START_FUNC) {
++        sch_handle_start_func(sch);
++    } else {
++        /* Cannot happen. */
++        return;
++    }
++    css_inject_io_interrupt(sch);
++}
++
++int css_do_stsch(SubchDev *sch, SCHIB *schib)
++{
++    /* Use current status. */
++    memcpy(schib, &sch->curr_status, sizeof(*schib));
++    return 0;
++}
++
++int css_do_msch(SubchDev *sch, SCHIB *schib)
++{
++    SCSW *s = &sch->curr_status.scsw;
++    PMCW *p = &sch->curr_status.pmcw;
++    int ret;
++
++    if (!(sch->curr_status.pmcw.flags & PMCW_FLAGS_MASK_DNV)) {
++        ret = 0;
++        goto out;
++    }
++
++    if (s->ctrl & SCSW_STCTL_STATUS_PEND) {
++        ret = -EINPROGRESS;
++        goto out;
++    }
++
++    if (s->ctrl &
++        (SCSW_FCTL_START_FUNC|SCSW_FCTL_HALT_FUNC|SCSW_FCTL_CLEAR_FUNC)) {
++        ret = -EBUSY;
++        goto out;
++    }
++
++    /* Only update the program-modifiable fields. */
++    p->intparm = schib->pmcw.intparm;
++    p->flags &= ~(PMCW_FLAGS_MASK_ISC | PMCW_FLAGS_MASK_ENA |
++                  PMCW_FLAGS_MASK_LM | PMCW_FLAGS_MASK_MME |
++                  PMCW_FLAGS_MASK_MP);
++    p->flags |= schib->pmcw.flags &
++            (PMCW_FLAGS_MASK_ISC | PMCW_FLAGS_MASK_ENA |
++             PMCW_FLAGS_MASK_LM | PMCW_FLAGS_MASK_MME |
++             PMCW_FLAGS_MASK_MP);
++    p->lpm = schib->pmcw.lpm;
++    p->mbi = schib->pmcw.mbi;
++    p->pom = schib->pmcw.pom;
++    p->chars &= ~(PMCW_CHARS_MASK_MBFC | PMCW_CHARS_MASK_CSENSE);
++    p->chars |= schib->pmcw.chars &
++            (PMCW_CHARS_MASK_MBFC | PMCW_CHARS_MASK_CSENSE);
++    sch->curr_status.mba = schib->mba;
++
++    ret = 0;
++
++out:
++    return ret;
++}
++
++int css_do_xsch(SubchDev *sch)
++{
++    SCSW *s = &sch->curr_status.scsw;
++    PMCW *p = &sch->curr_status.pmcw;
++    int ret;
++
++    if (!(p->flags & (PMCW_FLAGS_MASK_DNV | PMCW_FLAGS_MASK_ENA))) {
++        ret = -ENODEV;
++        goto out;
++    }
++
++    if (!(s->ctrl & SCSW_CTRL_MASK_FCTL) ||
++        ((s->ctrl & SCSW_CTRL_MASK_FCTL) != SCSW_FCTL_START_FUNC) ||
++        (!(s->ctrl &
++           (SCSW_ACTL_RESUME_PEND | SCSW_ACTL_START_PEND | SCSW_ACTL_SUSP))) ||
++        (s->ctrl & SCSW_ACTL_SUBCH_ACTIVE)) {
++        ret = -EINPROGRESS;
++        goto out;
++    }
++
++    if (s->ctrl & SCSW_CTRL_MASK_STCTL) {
++        ret = -EBUSY;
++        goto out;
++    }
++
++    /* Cancel the current operation. */
++    s->ctrl &= ~(SCSW_FCTL_START_FUNC |
++                 SCSW_ACTL_RESUME_PEND |
++                 SCSW_ACTL_START_PEND |
++                 SCSW_ACTL_SUSP);
++    sch->channel_prog = NULL;
++    sch->last_cmd = NULL;
++    sch->orb = NULL;
++    s->dstat = 0;
++    s->cstat = 0;
++    ret = 0;
++
++out:
++    return ret;
++}
++
++int css_do_csch(SubchDev *sch)
++{
++    SCSW *s = &sch->curr_status.scsw;
++    PMCW *p = &sch->curr_status.pmcw;
++    int ret;
++
++    if (!(p->flags & (PMCW_FLAGS_MASK_DNV | PMCW_FLAGS_MASK_ENA))) {
++        ret = -ENODEV;
++        goto out;
++    }
++
++    /* Trigger the clear function. */
++    s->ctrl &= ~(SCSW_CTRL_MASK_FCTL | SCSW_CTRL_MASK_ACTL);
++    s->ctrl |= SCSW_FCTL_CLEAR_FUNC | SCSW_FCTL_CLEAR_FUNC;
++
++    do_subchannel_work(sch);
++    ret = 0;
++
++out:
++    return ret;
++}
++
++int css_do_hsch(SubchDev *sch)
++{
++    SCSW *s = &sch->curr_status.scsw;
++    PMCW *p = &sch->curr_status.pmcw;
++    int ret;
++
++    if (!(p->flags & (PMCW_FLAGS_MASK_DNV | PMCW_FLAGS_MASK_ENA))) {
++        ret = -ENODEV;
++        goto out;
++    }
++
++    if (((s->ctrl & SCSW_CTRL_MASK_STCTL) == SCSW_STCTL_STATUS_PEND) ||
++        (s->ctrl & (SCSW_STCTL_PRIMARY |
++                    SCSW_STCTL_SECONDARY |
++                    SCSW_STCTL_ALERT))) {
++        ret = -EINPROGRESS;
++        goto out;
++    }
++
++    if (s->ctrl & (SCSW_FCTL_HALT_FUNC | SCSW_FCTL_CLEAR_FUNC)) {
++        ret = -EBUSY;
++        goto out;
++    }
++
++    /* Trigger the halt function. */
++    s->ctrl |= SCSW_FCTL_HALT_FUNC;
++    s->ctrl &= ~SCSW_FCTL_START_FUNC;
++    if (((s->ctrl & SCSW_CTRL_MASK_ACTL) ==
++         (SCSW_ACTL_SUBCH_ACTIVE | SCSW_ACTL_DEVICE_ACTIVE)) &&
++        ((s->ctrl & SCSW_CTRL_MASK_STCTL) == SCSW_STCTL_INTERMEDIATE)) {
++        s->ctrl &= ~SCSW_STCTL_STATUS_PEND;
++    }
++    s->ctrl |= SCSW_ACTL_HALT_PEND;
++
++    do_subchannel_work(sch);
++    ret = 0;
++
++out:
++    return ret;
++}
++
++static void css_update_chnmon(SubchDev *sch)
++{
++    if (!(sch->curr_status.pmcw.flags & PMCW_FLAGS_MASK_MME)) {
++        /* Not active. */
++        return;
++    }
++    if (sch->curr_status.pmcw.chars & PMCW_CHARS_MASK_MBFC) {
++        /* Format 1, per-subchannel area. */
++        struct cmbe *cmbe;
++
++        cmbe = qemu_get_ram_ptr(sch->curr_status.mba);
++        if (cmbe) {
++            cmbe->ssch_rsch_count++;
++        }
++    } else {
++        /* Format 0, global area. */
++        struct cmb *cmb;
++        uint32_t offset;
++
++        offset = sch->curr_status.pmcw.mbi << 5;
++        cmb = qemu_get_ram_ptr(channel_subsys->chnmon_area + offset);
++        if (cmb) {
++            cmb->ssch_rsch_count++;
++        }
++    }
++}
++
++int css_do_ssch(SubchDev *sch, ORB *orb)
++{
++    SCSW *s = &sch->curr_status.scsw;
++    PMCW *p = &sch->curr_status.pmcw;
++    int ret;
++
++    if (!(p->flags & (PMCW_FLAGS_MASK_DNV | PMCW_FLAGS_MASK_ENA))) {
++        ret = -ENODEV;
++        goto out;
++    }
++
++    if (s->ctrl & SCSW_STCTL_STATUS_PEND) {
++        ret = -EINPROGRESS;
++        goto out;
++    }
++
++    if (s->ctrl & (SCSW_FCTL_START_FUNC |
++                   SCSW_FCTL_HALT_FUNC |
++                   SCSW_FCTL_CLEAR_FUNC)) {
++        ret = -EBUSY;
++        goto out;
++    }
++
++    /* If monitoring is active, update counter. */
++    if (channel_subsys->chnmon_active) {
++        css_update_chnmon(sch);
++    }
++    sch->orb = orb;
++    sch->channel_prog = qemu_get_ram_ptr(orb->cpa);
++    /* Trigger the start function. */
++    s->ctrl |= (SCSW_FCTL_START_FUNC | SCSW_ACTL_START_PEND);
++    s->flags &= ~SCSW_FLAGS_MASK_PNO;
++
++    do_subchannel_work(sch);
++    ret = 0;
++
++out:
++    return ret;
++}
++
++int css_do_tsch(SubchDev *sch, IRB *target_irb)
++{
++    SCSW *s = &sch->curr_status.scsw;
++    PMCW *p = &sch->curr_status.pmcw;
++    uint16_t stctl;
++    uint16_t fctl;
++    uint16_t actl;
++    IRB irb;
++    int ret;
++
++    if (!(p->flags & (PMCW_FLAGS_MASK_DNV | PMCW_FLAGS_MASK_ENA))) {
++        ret = 3;
++        goto out;
++    }
++
++    stctl = s->ctrl & SCSW_CTRL_MASK_STCTL;
++    fctl = s->ctrl & SCSW_CTRL_MASK_FCTL;
++    actl = s->ctrl & SCSW_CTRL_MASK_ACTL;
++
++    /* Prepare the irb for the guest. */
++    memset(&irb, 0, sizeof(IRB));
++
++    /* Copy scsw from current status. */
++    memcpy(&irb.scsw, s, sizeof(SCSW));
++    if (stctl & SCSW_STCTL_STATUS_PEND) {
++        if (s->cstat & (SCSW_CSTAT_DATA_CHECK |
++                        SCSW_CSTAT_CHN_CTRL_CHK |
++                        SCSW_CSTAT_INTF_CTRL_CHK)) {
++            irb.scsw.flags |= SCSW_FLAGS_MASK_ESWF;
++            irb.esw[0] = 0x04804000;
++        } else {
++            irb.esw[0] = 0x00800000;
++        }
++        /* If a unit check is pending, copy sense data. */
++        if ((s->dstat & SCSW_DSTAT_UNIT_CHECK) &&
++            (p->chars & PMCW_CHARS_MASK_CSENSE)) {
++            irb.scsw.flags |= SCSW_FLAGS_MASK_ESWF | SCSW_FLAGS_MASK_ECTL;
++            memcpy(irb.ecw, sch->sense_data, sizeof(sch->sense_data));
++            irb.esw[1] = 0x02000000 | (sizeof(sch->sense_data) << 8);
++        }
++    }
++    /* Store the irb to the guest. */
++    memcpy(target_irb, &irb, sizeof(irb));
++
++    /* Clear conditions on subchannel, if applicable. */
++    if (stctl & SCSW_STCTL_STATUS_PEND) {
++        s->ctrl &= ~SCSW_CTRL_MASK_STCTL;
++        if ((stctl != (SCSW_STCTL_INTERMEDIATE | SCSW_STCTL_STATUS_PEND)) ||
++            ((fctl & SCSW_FCTL_HALT_FUNC) &&
++             (actl & SCSW_ACTL_SUSP))) {
++            s->ctrl &= ~SCSW_CTRL_MASK_FCTL;
++        }
++        if (stctl != (SCSW_STCTL_INTERMEDIATE | SCSW_STCTL_STATUS_PEND)) {
++            s->flags &= ~SCSW_FLAGS_MASK_PNO;
++            s->ctrl &= ~(SCSW_ACTL_RESUME_PEND |
++                         SCSW_ACTL_START_PEND |
++                         SCSW_ACTL_HALT_PEND |
++                         SCSW_ACTL_CLEAR_PEND |
++                         SCSW_ACTL_SUSP);
++        } else {
++            if ((actl & SCSW_ACTL_SUSP) &&
++                (fctl & SCSW_FCTL_START_FUNC)) {
++                s->flags &= ~SCSW_FLAGS_MASK_PNO;
++                if (fctl & SCSW_FCTL_HALT_FUNC) {
++                    s->ctrl &= ~(SCSW_ACTL_RESUME_PEND |
++                                 SCSW_ACTL_START_PEND |
++                                 SCSW_ACTL_HALT_PEND |
++                                 SCSW_ACTL_CLEAR_PEND |
++                                 SCSW_ACTL_SUSP);
++                } else {
++                    s->ctrl &= ~SCSW_ACTL_RESUME_PEND;
++                }
++            }
++        }
++        /* Clear pending sense data. */
++        if (p->chars & PMCW_CHARS_MASK_CSENSE) {
++            memset(sch->sense_data, 0 , sizeof(sch->sense_data));
++        }
++    }
++
++    ret = ((stctl & SCSW_STCTL_STATUS_PEND) == 0);
++
++out:
++    return ret;
++}
++
++int css_do_stcrw(CRW *crw)
++{
++    CrwContainer *crw_cont;
++    int ret;
++
++    crw_cont = QTAILQ_FIRST(&channel_subsys->pending_crws);
++    if (crw_cont) {
++        QTAILQ_REMOVE(&channel_subsys->pending_crws, crw_cont, sibling);
++        memcpy(crw, &crw_cont->crw, sizeof(*crw));
++        g_free(crw_cont);
++        ret = 0;
++    } else {
++        /* List was empty, turn crw machine checks on again. */
++        memset(crw, 0, sizeof(*crw));
++        channel_subsys->do_crw_mchk = true;
++        ret = 1;
++    }
++
++    return ret;
++}
++
++int css_do_tpi(uint64_t addr, int lowcore)
++{
++    /* No pending interrupts for !KVM. */
++    return 0;
++ }
++
++int css_collect_chp_desc(int m, uint8_t cssid, uint8_t f_chpid, uint8_t l_chpid,
++                         int rfmt, void *buf)
++{
++    int i, desc_size;
++    uint32_t words[8];
++    CssImage *css;
++
++    if (!m && !cssid) {
++        css = channel_subsys->css[channel_subsys->default_cssid];
++    } else {
++        css = channel_subsys->css[cssid];
++    }
++    if (!css) {
++        return 0;
++    }
++    desc_size = 0;
++    for (i = f_chpid; i <= l_chpid; i++) {
++        if (css->chpids[i].in_use) {
++            if (rfmt == 0) {
++                words[0] = 0x80000000 | (css->chpids[i].type << 8) | i;
++                words[1] = 0;
++                memcpy(buf + desc_size, words, 8);
++                desc_size += 8;
++            } else if (rfmt == 1) {
++                words[0] = 0x80000000 | (css->chpids[i].type << 8) | i;
++                words[1] = 0;
++                words[2] = 0;
++                words[3] = 0;
++                words[4] = 0;
++                words[5] = 0;
++                words[6] = 0;
++                words[7] = 0;
++                memcpy(buf + desc_size, words, 32);
++                desc_size += 32;
++            }
++        }
++    }
++    return desc_size;
++}
++
++void css_do_schm(uint8_t mbk, int update, int dct, uint64_t mbo)
++{
++    /* dct is currently ignored (not really meaningful for our devices) */
++    /* TODO: Don't ignore mbk. */
++    if (update && !channel_subsys->chnmon_active) {
++        /* Enable measuring. */
++        channel_subsys->chnmon_area = mbo;
++        channel_subsys->chnmon_active = true;
++    }
++    if (!update && channel_subsys->chnmon_active) {
++        /* Disable measuring. */
++        channel_subsys->chnmon_area = 0;
++        channel_subsys->chnmon_active = false;
++    }
++}
++
++int css_do_rsch(SubchDev *sch)
++{
++    SCSW *s = &sch->curr_status.scsw;
++    PMCW *p = &sch->curr_status.pmcw;
++    int ret;
++
++    if (!(p->flags & (PMCW_FLAGS_MASK_DNV | PMCW_FLAGS_MASK_ENA))) {
++        ret = -ENODEV;
++        goto out;
++    }
++
++    if (s->ctrl & SCSW_STCTL_STATUS_PEND) {
++        ret = -EINPROGRESS;
++        goto out;
++    }
++
++    if (((s->ctrl & SCSW_CTRL_MASK_FCTL) != SCSW_FCTL_START_FUNC) ||
++        (s->ctrl & SCSW_ACTL_RESUME_PEND) ||
++        (!(s->ctrl & SCSW_ACTL_SUSP))) {
++        ret = -EINVAL;
++        goto out;
++    }
++
++    /* If monitoring is active, update counter. */
++    if (channel_subsys->chnmon_active) {
++        css_update_chnmon(sch);
++    }
++
++    s->ctrl |= SCSW_ACTL_RESUME_PEND;
++    do_subchannel_work(sch);
++    ret = 0;
++
++out:
++    return ret;
++}
++
++int css_do_rchp(uint8_t cssid, uint8_t chpid)
++{
++    uint8_t real_cssid;
++
++    if (cssid > channel_subsys->max_cssid) {
++        return -EINVAL;
++    }
++    if (channel_subsys->max_cssid == 0) {
++        real_cssid = channel_subsys->default_cssid;
++    } else {
++        real_cssid = cssid;
++    }
++    if (!channel_subsys->css[real_cssid]) {
++        return -EINVAL;
++    }
++
++    if (!channel_subsys->css[real_cssid]->chpids[chpid].in_use) {
++        return -ENODEV;
++    }
++
++    if (!channel_subsys->css[real_cssid]->chpids[chpid].is_virtual) {
++        fprintf(stderr,
++                "rchp unsupported for non-virtual chpid %x.%02x!\n",
++                real_cssid, chpid);
++        return -ENODEV;
++    }
++
++    /* We don't really use a channel path, so we're done here. */
++    css_queue_crw(CRW_RSC_CHP, CRW_ERC_INIT,
++                  channel_subsys->max_cssid > 0 ? 1 : 0, chpid);
++    if (channel_subsys->max_cssid > 0) {
++        css_queue_crw(CRW_RSC_CHP, CRW_ERC_INIT, 0, real_cssid << 8);
++    }
++    return 0;
++}
++
++bool css_schid_final(uint8_t cssid, uint8_t ssid, uint16_t schid)
++{
++    SubchSet *set;
++
++    if (cssid > MAX_CSSID || ssid > MAX_SSID || !channel_subsys->css[cssid] ||
++        !channel_subsys->css[cssid]->sch_set[ssid]) {
++        return true;
++    }
++    set = channel_subsys->css[cssid]->sch_set[ssid];
++    return schid > find_last_bit(set->schids_used,
++                                 (MAX_SCHID + 1) / sizeof(unsigned long));
++}
++
++static int css_add_virtual_chpid(uint8_t cssid, uint8_t chpid, uint8_t type)
++{
++    CssImage *css;
++
++    trace_css_chpid_add(cssid, chpid, type);
++    if (cssid > MAX_CSSID) {
++        return -EINVAL;
++    }
++    css = channel_subsys->css[cssid];
++    if (!css) {
++        return -EINVAL;
++    }
++    if (css->chpids[chpid].in_use) {
++        return -EEXIST;
++    }
++    css->chpids[chpid].in_use = 1;
++    css->chpids[chpid].type = type;
++    css->chpids[chpid].is_virtual = 1;
++
++    css_generate_chp_crws(cssid, chpid);
++
++    return 0;
++}
++
++void css_sch_build_virtual_schib(SubchDev *sch, uint8_t chpid, uint8_t type)
++{
++    PMCW *p = &sch->curr_status.pmcw;
++    SCSW *s = &sch->curr_status.scsw;
++    int i;
++    CssImage *css = channel_subsys->css[sch->cssid];
++
++    assert(css != NULL);
++    memset(p, 0, sizeof(PMCW));
++    p->flags |= PMCW_FLAGS_MASK_DNV;
++    p->devno = sch->devno;
++    /* single path */
++    p->pim = 0x80;
++    p->pom = 0xff;
++    p->pam = 0x80;
++    p->chpid[0] = chpid;
++    if (!css->chpids[chpid].in_use) {
++        css_add_virtual_chpid(sch->cssid, chpid, type);
++    }
++
++    memset(s, 0, sizeof(SCSW));
++    sch->curr_status.mba = 0;
++    for (i = 0; i < 4; i++) {
++        sch->curr_status.mda[i] = 0;
++    }
++}
++
++SubchDev *css_find_subch(uint8_t m, uint8_t cssid, uint8_t ssid, uint16_t schid)
++{
++    uint8_t real_cssid;
++
++    real_cssid = (!m && (cssid == 0)) ? channel_subsys->default_cssid : cssid;
++
++    if (!channel_subsys->css[real_cssid]) {
++        return NULL;
++    }
++
++    if (!channel_subsys->css[real_cssid]->sch_set[ssid]) {
++        return NULL;
++    }
++
++    return channel_subsys->css[real_cssid]->sch_set[ssid]->sch[schid];
++}
++
++bool css_subch_visible(SubchDev *sch)
++{
++    if (sch->ssid > channel_subsys->max_ssid) {
++        return false;
++    }
++
++    if (sch->cssid != channel_subsys->default_cssid) {
++        return (channel_subsys->max_cssid > 0);
++    }
++
++    return true;
++}
++
++bool css_present(uint8_t cssid)
++{
++    return (channel_subsys->css[cssid] != NULL);
++}
++
++bool css_devno_used(uint8_t cssid, uint8_t ssid, uint16_t devno)
++{
++    if (!channel_subsys->css[cssid]) {
++        return false;
++    }
++    if (!channel_subsys->css[cssid]->sch_set[ssid]) {
++        return false;
++    }
++
++    return !!test_bit(devno,
++                      channel_subsys->css[cssid]->sch_set[ssid]->devnos_used);
++}
++
++void css_subch_assign(uint8_t cssid, uint8_t ssid, uint16_t schid,
++                      uint16_t devno, SubchDev *sch)
++{
++    CssImage *css;
++    SubchSet *s_set;
++
++    trace_css_assign_subch(sch ? "assign" : "deassign", cssid, ssid, schid, devno);
++    if (!channel_subsys->css[cssid]) {
++        fprintf(stderr,
++                "Suspicious call to %s (%x.%x.%04x) for non-existing css!\n",
++                __func__, cssid, ssid, schid);
++        return;
++    }
++    css = channel_subsys->css[cssid];
++
++    if (!css->sch_set[ssid]) {
++        css->sch_set[ssid] = g_malloc0(sizeof(SubchSet));
++    }
++    s_set = css->sch_set[ssid];
++
++    s_set->sch[schid] = sch;
++    if (sch) {
++        set_bit(schid, s_set->schids_used);
++        set_bit(devno, s_set->devnos_used);
++    } else {
++        clear_bit(schid, s_set->schids_used);
++        clear_bit(devno, s_set->devnos_used);
++    }
++}
++
++void css_queue_crw(uint8_t rsc, uint8_t erc, int chain, uint16_t rsid)
++{
++    CrwContainer *crw_cont;
++
++    trace_css_crw(rsc, erc, rsid, chain ? "(chained)" : "");
++    /* TODO: Maybe use a static crw pool? */
++    crw_cont = g_try_malloc0(sizeof(CrwContainer));
++    if (!crw_cont) {
++        channel_subsys->crws_lost = true;
++        return;
++    }
++    crw_cont->crw.flags = (rsc << 8) | erc;
++    if (chain) {
++        crw_cont->crw.flags |= CRW_FLAGS_MASK_C;
++    }
++    crw_cont->crw.rsid = rsid;
++    if (channel_subsys->crws_lost) {
++        crw_cont->crw.flags |= CRW_FLAGS_MASK_R;
++        channel_subsys->crws_lost = false;
++    }
++
++    QTAILQ_INSERT_TAIL(&channel_subsys->pending_crws, crw_cont, sibling);
++
++    if (channel_subsys->do_crw_mchk) {
++        S390CPU *cpu = s390_cpu_addr2state(0);
++
++        channel_subsys->do_crw_mchk = false;
++        /* Inject crw pending machine check. */
++        s390_crw_mchk(cpu);
++    }
++}
++
++void css_generate_sch_crws(uint8_t cssid, uint8_t ssid, uint16_t schid,
++                           int hotplugged, int add)
++{
++    uint8_t guest_cssid;
++    bool chain_crw;
++
++    if (add && !hotplugged) {
++        return;
++    }
++    if (channel_subsys->max_cssid == 0) {
++        /* Default cssid shows up as 0. */
++        guest_cssid = (cssid == channel_subsys->default_cssid) ? 0 : cssid;
++    } else {
++        /* Show real cssid to the guest. */
++        guest_cssid = cssid;
++    }
++    /*
++     * Only notify for higher subchannel sets/channel subsystems if the
++     * guest has enabled it.
++     */
++    if ((ssid > channel_subsys->max_ssid) ||
++        (guest_cssid > channel_subsys->max_cssid) ||
++        ((channel_subsys->max_cssid == 0) &&
++         (cssid != channel_subsys->default_cssid))) {
++        return;
++    }
++    chain_crw = (channel_subsys->max_ssid > 0) ||
++            (channel_subsys->max_cssid > 0);
++    css_queue_crw(CRW_RSC_SUBCH, CRW_ERC_IPI, chain_crw ? 1 : 0, schid);
++    if (chain_crw) {
++        css_queue_crw(CRW_RSC_SUBCH, CRW_ERC_IPI, 0,
++                      (guest_cssid << 8) | (ssid << 4));
++    }
++}
++
++void css_generate_chp_crws(uint8_t cssid, uint8_t chpid)
++{
++    /* TODO */
++}
++
++int css_enable_mcsse(void)
++{
++    trace_css_enable_facility("mcsse");
++    channel_subsys->max_cssid = MAX_CSSID;
++    return 0;
++}
++
++int css_enable_mss(void)
++{
++    trace_css_enable_facility("mss");
++    channel_subsys->max_ssid = MAX_SSID;
++    return 0;
++}
++
++static void css_init(void)
++{
++    channel_subsys = g_malloc0(sizeof(*channel_subsys));
++    QTAILQ_INIT(&channel_subsys->pending_crws);
++    channel_subsys->do_crw_mchk = true;
++    channel_subsys->crws_lost = false;
++    channel_subsys->chnmon_active = false;
++}
++machine_init(css_init);
++
++void css_reset_sch(SubchDev *sch)
++{
++    PMCW *p = &sch->curr_status.pmcw;
++
++    p->intparm = 0;
++    p->flags &= ~(PMCW_FLAGS_MASK_ISC | PMCW_FLAGS_MASK_ENA |
++                  PMCW_FLAGS_MASK_LM | PMCW_FLAGS_MASK_MME |
++                  PMCW_FLAGS_MASK_MP | PMCW_FLAGS_MASK_TF);
++    p->flags |= PMCW_FLAGS_MASK_DNV;
++    p->devno = sch->devno;
++    p->pim = 0x80;
++    p->lpm = p->pim;
++    p->pnom = 0;
++    p->lpum = 0;
++    p->mbi = 0;
++    p->pom = 0xff;
++    p->pam = 0x80;
++    p->chars &= ~(PMCW_CHARS_MASK_MBFC | PMCW_CHARS_MASK_XMWME |
++                  PMCW_CHARS_MASK_CSENSE);
++
++    memset(&sch->curr_status.scsw, 0, sizeof(sch->curr_status.scsw));
++    sch->curr_status.mba = 0;
++
++    sch->channel_prog = NULL;
++    sch->last_cmd = NULL;
++    sch->orb = NULL;
++}
++
++void css_reset(void)
++{
++    CrwContainer *crw_cont;
++
++    /* Clean up monitoring. */
++    channel_subsys->chnmon_active = false;
++    channel_subsys->chnmon_area = 0;
++
++    /* Clear pending CRWs. */
++    while ((crw_cont = QTAILQ_FIRST(&channel_subsys->pending_crws))) {
++        QTAILQ_REMOVE(&channel_subsys->pending_crws, crw_cont, sibling);
++        g_free(crw_cont);
++    }
++    channel_subsys->do_crw_mchk = true;
++    channel_subsys->crws_lost = false;
++
++    /* Reset maximum ids. */
++    channel_subsys->max_cssid = 0;
++    channel_subsys->max_ssid = 0;
++}
+diff --git a/hw/s390x/css.h b/hw/s390x/css.h
+new file mode 100644
+index 0000000..7bc42fc
+--- /dev/null
++++ b/hw/s390x/css.h
+@@ -0,0 +1,92 @@
++/*
++ * Channel subsystem structures and definitions.
++ *
++ * Copyright 2012 IBM Corp.
++ * Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or (at
++ * your option) any later version. See the COPYING file in the top-level
++ * directory.
++ */
++
++#ifndef CSS_H
++#define CSS_H
++
++#include "ioinst.h"
++
++/* Channel subsystem constants. */
++#define MAX_SCHID 65535
++#define MAX_SSID 3
++#define MAX_CSSID 254 /* 255 is reserved */
++#define MAX_CHPID 255
++
++#define MAX_CIWS 62
++
++typedef struct SenseId {
++    /* common part */
++    uint8_t reserved;        /* always 0x'FF' */
++    uint16_t cu_type;        /* control unit type */
++    uint8_t cu_model;        /* control unit model */
++    uint16_t dev_type;       /* device type */
++    uint8_t dev_model;       /* device model */
++    uint8_t unused;          /* padding byte */
++    /* extended part */
++    uint32_t ciw[MAX_CIWS];  /* variable # of CIWs */
++} QEMU_PACKED SenseId;
++
++/* Channel measurements, from linux/drivers/s390/cio/cmf.c. */
++struct cmb {
++    uint16_t ssch_rsch_count;
++    uint16_t sample_count;
++    uint32_t device_connect_time;
++    uint32_t function_pending_time;
++    uint32_t device_disconnect_time;
++    uint32_t control_unit_queuing_time;
++    uint32_t device_active_only_time;
++    uint32_t reserved[2];
++};
++
++struct cmbe {
++    uint32_t ssch_rsch_count;
++    uint32_t sample_count;
++    uint32_t device_connect_time;
++    uint32_t function_pending_time;
++    uint32_t device_disconnect_time;
++    uint32_t control_unit_queuing_time;
++    uint32_t device_active_only_time;
++    uint32_t device_busy_time;
++    uint32_t initial_command_response_time;
++    uint32_t reserved[7];
++};
++
++struct SubchDev {
++    /* channel-subsystem related things: */
++    uint8_t cssid;
++    uint8_t ssid;
++    uint16_t schid;
++    uint16_t devno;
++    SCHIB curr_status;
++    uint8_t sense_data[32];
++    CCW1 *channel_prog;
++    CCW1 *last_cmd;
++    ORB *orb;
++    /* transport-provided data: */
++    int (*ccw_cb) (SubchDev *, CCW1 *);
++    SenseId id;
++    void *driver_data;
++};
++
++typedef SubchDev *(*css_subch_cb_func)(uint8_t m, uint8_t cssid, uint8_t ssid,
++                                       uint16_t schid);
++int css_create_css_image(uint8_t cssid, bool default_image);
++bool css_devno_used(uint8_t cssid, uint8_t ssid, uint16_t devno);
++void css_subch_assign(uint8_t cssid, uint8_t ssid, uint16_t schid,
++                      uint16_t devno, SubchDev *sch);
++void css_sch_build_virtual_schib(SubchDev *sch, uint8_t chpid, uint8_t type);
++void css_reset(void);
++void css_reset_sch(SubchDev *sch);
++void css_queue_crw(uint8_t rsc, uint8_t erc, int chain, uint16_t rsid);
++void css_generate_sch_crws(uint8_t cssid, uint8_t ssid, uint16_t schid,
++                           int hotplugged, int add);
++void css_generate_chp_crws(uint8_t cssid, uint8_t chpid);
++#endif
 diff --git a/target-s390x/cpu.h b/target-s390x/cpu.h
-index b619edb..4438dc8 100644
+index cf5334e..b619edb 100644
 --- a/target-s390x/cpu.h
 +++ b/target-s390x/cpu.h
-@@ -1136,6 +1136,13 @@ void program_interrupt(CPUS390XState *env, uint32_t code, int ilen);
+@@ -401,6 +401,30 @@ typedef struct ORB ORB;
+ typedef struct IRB IRB;
+ typedef struct CRW CRW;
+ 
++#ifndef CONFIG_USER_ONLY
++SubchDev *css_find_subch(uint8_t m, uint8_t cssid, uint8_t ssid,
++                         uint16_t schid);
++bool css_subch_visible(SubchDev *sch);
++void css_conditional_io_interrupt(SubchDev *sch);
++int css_do_stsch(SubchDev *sch, SCHIB *schib);
++bool css_schid_final(uint8_t cssid, uint8_t ssid, uint16_t schid);
++int css_do_msch(SubchDev *sch, SCHIB *schib);
++int css_do_xsch(SubchDev *sch);
++int css_do_csch(SubchDev *sch);
++int css_do_hsch(SubchDev *sch);
++int css_do_ssch(SubchDev *sch, ORB *orb);
++int css_do_tsch(SubchDev *sch, IRB *irb);
++int css_do_stcrw(CRW *crw);
++int css_do_tpi(uint64_t addr, int lowcore);
++int css_collect_chp_desc(int m, uint8_t cssid, uint8_t f_chpid, uint8_t l_chpid,
++                         int rfmt, void *buf);
++void css_do_schm(uint8_t mbk, int update, int dct, uint64_t mbo);
++int css_enable_mcsse(void);
++int css_enable_mss(void);
++int css_do_rsch(SubchDev *sch);
++int css_do_rchp(uint8_t cssid, uint8_t chpid);
++bool css_present(uint8_t cssid);
++#else
+ static inline SubchDev *css_find_subch(uint8_t m, uint8_t cssid, uint8_t ssid,
+                                        uint16_t schid)
+ {
+@@ -481,6 +505,7 @@ static inline bool css_present(uint8_t cssid)
+ {
+     return false;
+ }
++#endif
+ 
+ static inline void cpu_set_tls(CPUS390XState *env, target_ulong newtls)
+ {
+@@ -1111,4 +1136,44 @@ void program_interrupt(CPUS390XState *env, uint32_t code, int ilen);
  void QEMU_NORETURN runtime_exception(CPUS390XState *env, int excp,
                                       uintptr_t retaddr);
  
-+#ifdef CONFIG_KVM
-+int kvm_s390_io_interrupt(S390CPU *cpu, uint16_t subchannel_id,
-+                          uint16_t subchannel_nr, uint32_t io_int_parm,
-+                          uint32_t io_int_word);
-+int kvm_s390_crw_mchk(S390CPU *cpu);
-+void kvm_s390_enable_css_support(S390CPU *cpu);
-+#else
- static inline int kvm_s390_io_interrupt(S390CPU *cpu,
-                                         uint16_t subchannel_id,
-                                         uint16_t subchannel_nr,
-@@ -1148,6 +1155,10 @@ static inline int kvm_s390_crw_mchk(S390CPU *cpu)
- {
-     return -EOPNOTSUPP;
- }
-+static inline void kvm_s390_enable_css_support(S390CPU *cpu)
++static inline int kvm_s390_io_interrupt(S390CPU *cpu,
++                                        uint16_t subchannel_id,
++                                        uint16_t subchannel_nr,
++                                        uint32_t io_int_parm,
++                                        uint32_t io_int_word)
 +{
++    return -EOPNOTSUPP;
 +}
-+#endif
- 
- static inline void s390_io_interrupt(S390CPU *cpu,
-                                      uint16_t subchannel_id,
-diff --git a/target-s390x/kvm.c b/target-s390x/kvm.c
-index ae6ae07..7578880 100644
---- a/target-s390x/kvm.c
-+++ b/target-s390x/kvm.c
-@@ -30,6 +30,7 @@
- #include "sysemu/kvm.h"
- #include "cpu.h"
- #include "sysemu/device_tree.h"
-+#include "ioinst.h"
- 
- /* #define DEBUG_KVM */
- 
-@@ -43,9 +44,29 @@
- 
- #define IPA0_DIAG                       0x8300
- #define IPA0_SIGP                       0xae00
--#define IPA0_PRIV                       0xb200
-+#define IPA0_B2                         0xb200
-+#define IPA0_B9                         0xb900
-+#define IPA0_EB                         0xeb00
- 
- #define PRIV_SCLP_CALL                  0x20
-+#define PRIV_CSCH                       0x30
-+#define PRIV_HSCH                       0x31
-+#define PRIV_MSCH                       0x32
-+#define PRIV_SSCH                       0x33
-+#define PRIV_STSCH                      0x34
-+#define PRIV_TSCH                       0x35
-+#define PRIV_TPI                        0x36
-+#define PRIV_SAL                        0x37
-+#define PRIV_RSCH                       0x38
-+#define PRIV_STCRW                      0x39
-+#define PRIV_STCPS                      0x3a
-+#define PRIV_RCHP                       0x3b
-+#define PRIV_SCHM                       0x3c
-+#define PRIV_CHSC                       0x5f
-+#define PRIV_SIGA                       0x74
-+#define PRIV_XSCH                       0x76
-+#define PRIV_SQBS                       0x8a
-+#define PRIV_EQBS                       0x9c
- #define DIAG_KVM_HYPERCALL              0x500
- #define DIAG_KVM_BREAKPOINT             0x501
- 
-@@ -364,10 +385,123 @@ static int kvm_sclp_service_call(S390CPU *cpu, struct kvm_run *run,
-     return 0;
- }
- 
--static int handle_priv(S390CPU *cpu, struct kvm_run *run, uint8_t ipa1)
-+static int kvm_handle_css_inst(S390CPU *cpu, struct kvm_run *run,
-+                               uint8_t ipa0, uint8_t ipa1, uint8_t ipb)
++static inline int kvm_s390_crw_mchk(S390CPU *cpu)
 +{
-+    int r = 0;
-+    int no_cc = 0;
-+    CPUS390XState *env = &cpu->env;
-+
-+    if (ipa0 != 0xb2) {
-+        /* Not handled for now. */
-+        return -1;
-+    }
-+    cpu_synchronize_state(env);
-+    switch (ipa1) {
-+    case PRIV_XSCH:
-+        r = ioinst_handle_xsch(env, env->regs[1]);
-+        break;
-+    case PRIV_CSCH:
-+        r = ioinst_handle_csch(env, env->regs[1]);
-+        break;
-+    case PRIV_HSCH:
-+        r = ioinst_handle_hsch(env, env->regs[1]);
-+        break;
-+    case PRIV_MSCH:
-+        r = ioinst_handle_msch(env, env->regs[1], run->s390_sieic.ipb);
-+        break;
-+    case PRIV_SSCH:
-+        r = ioinst_handle_ssch(env, env->regs[1], run->s390_sieic.ipb);
-+        break;
-+    case PRIV_STCRW:
-+        r = ioinst_handle_stcrw(env, run->s390_sieic.ipb);
-+        break;
-+    case PRIV_STSCH:
-+        r = ioinst_handle_stsch(env, env->regs[1], run->s390_sieic.ipb);
-+        break;
-+    case PRIV_TSCH:
-+        /* We should only get tsch via KVM_EXIT_S390_TSCH. */
-+        fprintf(stderr, "Spurious tsch intercept\n");
-+        break;
-+    case PRIV_CHSC:
-+        r = ioinst_handle_chsc(env, run->s390_sieic.ipb);
-+        break;
-+    case PRIV_TPI:
-+        /* This should have been handled by kvm already. */
-+        fprintf(stderr, "Spurious tpi intercept\n");
-+        break;
-+    case PRIV_SCHM:
-+        no_cc = 1;
-+        r = ioinst_handle_schm(env, env->regs[1], env->regs[2],
-+                               run->s390_sieic.ipb);
-+        break;
-+    case PRIV_RSCH:
-+        r = ioinst_handle_rsch(env, env->regs[1]);
-+        break;
-+    case PRIV_RCHP:
-+        r = ioinst_handle_rchp(env, env->regs[1]);
-+        break;
-+    case PRIV_STCPS:
-+        /* We do not provide this instruction, it is suppressed. */
-+        no_cc = 1;
-+        r = 0;
-+        break;
-+    case PRIV_SAL:
-+        no_cc = 1;
-+        r = ioinst_handle_sal(env, env->regs[1]);
-+        break;
-+    default:
-+        r = -1;
-+        break;
-+    }
-+
-+    if (r >= 0) {
-+        if (!no_cc) {
-+            setcc(cpu, r);
-+        }
-+        r = 0;
-+    } else if (r < -1) {
-+        r = 0;
-+    }
-+    return r;
++    return -EOPNOTSUPP;
 +}
 +
-+static int is_ioinst(uint8_t ipa0, uint8_t ipa1, uint8_t ipb)
++static inline void s390_io_interrupt(S390CPU *cpu,
++                                     uint16_t subchannel_id,
++                                     uint16_t subchannel_nr,
++                                     uint32_t io_int_parm,
++                                     uint32_t io_int_word)
 +{
-+    int ret = 0;
-+    uint16_t ipa = (ipa0 << 8) | ipa1;
-+
-+    switch (ipa) {
-+    case IPA0_B2 | PRIV_CSCH:
-+    case IPA0_B2 | PRIV_HSCH:
-+    case IPA0_B2 | PRIV_MSCH:
-+    case IPA0_B2 | PRIV_SSCH:
-+    case IPA0_B2 | PRIV_STSCH:
-+    case IPA0_B2 | PRIV_TPI:
-+    case IPA0_B2 | PRIV_SAL:
-+    case IPA0_B2 | PRIV_RSCH:
-+    case IPA0_B2 | PRIV_STCRW:
-+    case IPA0_B2 | PRIV_STCPS:
-+    case IPA0_B2 | PRIV_RCHP:
-+    case IPA0_B2 | PRIV_SCHM:
-+    case IPA0_B2 | PRIV_CHSC:
-+    case IPA0_B2 | PRIV_SIGA:
-+    case IPA0_B2 | PRIV_XSCH:
-+    case IPA0_B9 | PRIV_EQBS:
-+    case IPA0_EB | PRIV_SQBS:
-+        ret = 1;
-+        break;
-+    }
-+
-+    return ret;
-+}
-+
-+static int handle_priv(S390CPU *cpu, struct kvm_run *run,
-+                       uint8_t ipa0, uint8_t ipa1)
- {
-     int r = 0;
-     uint16_t ipbh0 = (run->s390_sieic.ipb & 0xffff0000) >> 16;
-+    uint8_t ipb = run->s390_sieic.ipb & 0xff;
- 
-     dprintf("KVM: PRIV: %d\n", ipa1);
-     switch (ipa1) {
-@@ -375,8 +509,16 @@ static int handle_priv(S390CPU *cpu, struct kvm_run *run, uint8_t ipa1)
-             r = kvm_sclp_service_call(cpu, run, ipbh0);
-             break;
-         default:
--            dprintf("KVM: unknown PRIV: 0x%x\n", ipa1);
--            r = -1;
-+            if (is_ioinst(ipa0, ipa1, ipb)) {
-+                r = kvm_handle_css_inst(cpu, run, ipa0, ipa1, ipb);
-+                if (r == -1) {
-+                    setcc(cpu, 3);
-+                    r = 0;
-+                }
-+            } else {
-+                dprintf("KVM: unknown PRIV: 0x%x\n", ipa1);
-+                r = -1;
-+            }
-             break;
-     }
- 
-@@ -517,15 +659,17 @@ static int handle_instruction(S390CPU *cpu, struct kvm_run *run)
- 
-     dprintf("handle_instruction 0x%x 0x%x\n", run->s390_sieic.ipa, run->s390_sieic.ipb);
-     switch (ipa0) {
--        case IPA0_PRIV:
--            r = handle_priv(cpu, run, ipa1);
--            break;
--        case IPA0_DIAG:
--            r = handle_diag(env, run, ipb_code);
--            break;
--        case IPA0_SIGP:
--            r = handle_sigp(cpu, run, ipa1);
--            break;
-+    case IPA0_B2:
-+    case IPA0_B9:
-+    case IPA0_EB:
-+        r = handle_priv(cpu, run, ipa0 >> 8, ipa1);
-+        break;
-+    case IPA0_DIAG:
-+        r = handle_diag(env, run, ipb_code);
-+        break;
-+    case IPA0_SIGP:
-+        r = handle_sigp(cpu, run, ipa1);
-+        break;
-     }
- 
-     if (r < 0) {
-@@ -584,6 +728,43 @@ static int handle_intercept(S390CPU *cpu)
-     return r;
- }
- 
-+static int handle_tsch(S390CPU *cpu)
-+{
-+    CPUS390XState *env = &cpu->env;
-+    CPUState *cs = CPU(cpu);
-+    struct kvm_run *run = cs->kvm_run;
 +    int ret;
 +
-+    cpu_synchronize_state(env);
-+    ret = ioinst_handle_tsch(env, env->regs[1], run->s390_tsch.ipb);
-+    if (ret >= 0) {
-+        /* Success; set condition code. */
-+        setcc(cpu, ret);
-+        ret = 0;
-+    } else if (ret < -1) {
-+        /*
-+         * Failure.
-+         * If an I/O interrupt had been dequeued, we have to reinject it.
-+         */
-+        if (run->s390_tsch.dequeued) {
-+            uint16_t subchannel_id = run->s390_tsch.subchannel_id;
-+            uint16_t subchannel_nr = run->s390_tsch.subchannel_nr;
-+            uint32_t io_int_parm = run->s390_tsch.io_int_parm;
-+            uint32_t io_int_word = run->s390_tsch.io_int_word;
-+            uint32_t type = ((subchannel_id & 0xff00) << 24) |
-+                ((subchannel_id & 0x00060) << 22) | (subchannel_nr << 16);
-+
-+            kvm_s390_interrupt_internal(cpu, type,
-+                                        ((uint32_t)subchannel_id << 16)
-+                                        | subchannel_nr,
-+                                        ((uint64_t)io_int_parm << 32)
-+                                        | io_int_word, 1);
-+        }
-+        ret = 0;
++    ret = kvm_s390_io_interrupt(cpu, subchannel_id, subchannel_nr, io_int_parm,
++                                io_int_word);
++    if (ret == -EOPNOTSUPP) {
++        cpu_inject_io(&cpu->env, subchannel_id, subchannel_nr, io_int_parm,
++                      io_int_word);
 +    }
-+    return ret;
 +}
 +
- int kvm_arch_handle_exit(CPUState *cs, struct kvm_run *run)
- {
-     S390CPU *cpu = S390_CPU(cs);
-@@ -596,6 +777,9 @@ int kvm_arch_handle_exit(CPUState *cs, struct kvm_run *run)
-         case KVM_EXIT_S390_RESET:
-             qemu_system_reset_request();
-             break;
-+        case KVM_EXIT_S390_TSCH:
-+            ret = handle_tsch(cpu);
-+            break;
-         default:
-             fprintf(stderr, "Unknown KVM exit: %d\n", run->exit_reason);
-             break;
-@@ -621,3 +805,45 @@ int kvm_arch_on_sigbus(int code, void *addr)
- {
-     return 1;
- }
-+
-+int kvm_s390_io_interrupt(S390CPU *cpu, uint16_t subchannel_id,
-+                          uint16_t subchannel_nr, uint32_t io_int_parm,
-+                          uint32_t io_int_word)
++static inline void s390_crw_mchk(S390CPU *cpu)
 +{
-+    uint32_t type;
++    int ret;
 +
-+    if (!kvm_enabled()) {
-+        return -EOPNOTSUPP;
-+    }
++    ret = kvm_s390_crw_mchk(cpu);
 +
-+    type = ((subchannel_id & 0xff00) << 24) |
-+        ((subchannel_id & 0x00060) << 22) | (subchannel_nr << 16);
-+    kvm_s390_interrupt_internal(cpu, type,
-+                                ((uint32_t)subchannel_id << 16) | subchannel_nr,
-+                                ((uint64_t)io_int_parm << 32) | io_int_word, 1);
-+    return 0;
-+}
-+
-+int kvm_s390_crw_mchk(S390CPU *cpu)
-+{
-+    if (!kvm_enabled()) {
-+        return -EOPNOTSUPP;
-+    }
-+
-+    kvm_s390_interrupt_internal(cpu, KVM_S390_MCHK, 1 << 28,
-+                                0x00400f1d40330000, 1);
-+    return 0;
-+}
-+
-+void kvm_s390_enable_css_support(S390CPU *cpu)
-+{
-+    struct kvm_enable_cap cap = {};
-+    int r;
-+
-+    /* Activate host kernel channel subsystem support. */
-+    if (kvm_enabled()) {
-+        cap.cap = KVM_CAP_S390_CSS_SUPPORT;
-+        r = kvm_vcpu_ioctl(CPU(cpu), KVM_ENABLE_CAP, &cap);
-+        assert(r == 0);
++    if (ret == -EOPNOTSUPP) {
++            cpu_inject_crw_mchk(&cpu->env);
 +    }
 +}
++
+ #endif
+diff --git a/trace-events b/trace-events
+index 266cfd6..1f93fd6 100644
+--- a/trace-events
++++ b/trace-events
+@@ -1057,3 +1057,11 @@ ioinst(const char *insn) "IOINST: %s"
+ ioinst_sch_id(const char *insn, int cssid, int ssid, int schid) "IOINST: %s (%x.%x.%04x)"
+ ioinst_chp_id(const char *insn, int cssid, int chpid) "IOINST: %s (%x.%02x)"
+ ioinst_chsc_cmd(uint16_t cmd, uint16_t len) "IOINST: chsc command %04x, len %04x"
++
++# hw/s390x/css.c
++css_enable_facility(const char *facility) "CSS: enable %s"
++css_crw(uint8_t rsc, uint8_t erc, uint16_t rsid, const char *chained) "CSS: queueing crw: rsc=%x, erc=%x, rsid=%x %s"
++css_chpid_add(uint8_t cssid, uint8_t chpid, uint8_t type) "CSS: add chpid %x.%02x (type %02x)"
++css_new_image(uint8_t cssid, const char *default_cssid) "CSS: add css image %02x %s"
++css_assign_subch(const char *do_assign, uint8_t cssid, uint8_t ssid, uint16_t schid, uint16_t devno) "CSS: %s %x.%x.%04x (devno %04x)"
++css_io_interrupt(int cssid, int ssid, int schid, uint32_t intparm, uint8_t isc, const char *conditional) "CSS: I/O interrupt on sch %x.%x.%04x (intparm %08x, isc %x) %s"
 -- 
 1.7.12.4
