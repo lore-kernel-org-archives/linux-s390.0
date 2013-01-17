@@ -1,59 +1,50 @@
-From: Tang Chen <tangchen@cn.fujitsu.com>
-Subject: Re: [PATCH v5 01/14] memory-hotplug: try to offline the memory twice
- to avoid dependence
-Date: Thu, 10 Jan 2013 09:38:10 +0800
-Message-ID: <50EE1B82.4090601@cn.fujitsu.com>
-References: <1356350964-13437-1-git-send-email-tangchen@cn.fujitsu.com> <1356350964-13437-2-git-send-email-tangchen@cn.fujitsu.com> <50D96543.6010903@parallels.com> <50DFD7F7.5090408@cn.fujitsu.com> <50ED8834.1090804@parallels.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <50ED8834.1090804@parallels.com>
-Sender: linux-acpi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Glauber Costa <glommer@parallels.com>
-Cc: Wen Congyang <wency@cn.fujitsu.com>, akpm@linux-foundation.org, rientjes@google.com, liuj97@gmail.com, len.brown@intel.com, benh@kernel.crashing.org, paulus@samba.org, cl@linux.com, minchan.kim@gmail.com, kosaki.motohiro@jp.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, wujianguo@huawei.com, hpa@zytor.com, linfeng@cn.fujitsu.com, laijs@cn.fujitsu.com, mgorman@suse.de, yinghai@kernel.org, x86@kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-ia64@vger.kernel.org, cmetcalf@tilera.com, sparclinux@vger.kernel.org, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: [Qemu-devel] [PATCH 04/12] Update linux headers.
+Date: Thu, 17 Jan 2013 17:55:49 +0100
+Message-ID: <080EA8BA-16D5-432E-9C87-4933C98E9FDD@suse.de>
+References: <1358432637-42512-1-git-send-email-cornelia.huck@de.ibm.com> <1358432637-42512-5-git-send-email-cornelia.huck@de.ibm.com> <CAFEAcA8iZwQTLCf6EC3oud7HMFORS2WmL1amk10MCXmMD+2VGA@mail.gmail.com> <20130117172045.3aca1992@gondolin>
+Mime-Version: 1.0 (Apple Message framework v1278)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20130117172045.3aca1992@gondolin>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, qemu-devel <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Carsten Otte <cotte@de.ibm.com>, Anthony Liguori <aliguori@us.ibm.com>, Gleb Natapov <gleb@redhat.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Marcelo Tosatti <mtosatti@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Glauber,
 
-On 01/09/2013 11:09 PM, Glauber Costa wrote:
->>
->> We try to make all page_cgroup allocations local to the node they are describing
->> now. If the memory is the first memory onlined in this node, we will allocate
->> it from the other node.
->>
->> For example, node1 has 4 memory blocks: 8-11, and we online it from 8 to 11
->> 1. memory block 8, page_cgroup allocations are in the other nodes
->> 2. memory block 9, page_cgroup allocations are in memory block 8
->>
->> So we should offline memory block 9 first. But we don't know in which order
->> the user online the memory block.
->>
->> I think we can modify memcg like this:
->> allocate the memory from the memory block they are describing
->>
->> I am not sure it is OK to do so.
->
-> I don't see a reason why not.
+On 17.01.2013, at 17:20, Cornelia Huck wrote:
 
-I'm not sure, but if we do this, we could bring in a fragment for each
-memory block (a memory section, 128MB, right?). Is this a problem when
-we use large page (such as 1GB page) ?
+> On Thu, 17 Jan 2013 15:05:46 +0000
+> Peter Maydell <peter.maydell@linaro.org> wrote:
+> 
+>> On 17 January 2013 14:23, Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
+>>> Base is kvm-next as of 2013/01/16.
+>> 
+>>> --- a/linux-headers/asm-powerpc/kvm_para.h
+>>> +++ b/linux-headers/asm-powerpc/kvm_para.h
+>>> @@ -78,7 +78,7 @@ struct kvm_vcpu_arch_shared {
+>>> 
+>>> #define KVM_HCALL_TOKEN(num)     _EV_HCALL_TOKEN(EV_KVM_VENDOR_ID, num)
+>>> 
+>>> -#include <asm/epapr_hcalls.h>
+>>> +#include <uapi/asm/epapr_hcalls.h>
+>> 
+>> This is reintroducing a bug, isn't it? cf
+>> http://lists.gnu.org/archive/html/qemu-devel/2012-12/msg02807.html
+>> 
+>> (maybe this just means the sync needs to be against some
+>> different set of kernel headers?)
+>> 
+>> -- PMM
+>> 
+> 
+> Hm, I seem to have some stale copy here - will check.
 
-Even if not, will these fragments make any bad effects ?
+No, the problem is that the fix went into master, but you were probably basing off of next. This is the way Linus envisions Linux development. Next is always a broken tree.
 
-Thank. :)
 
->
-> You would have to tweak a bit the lookup function for page_cgroup, but
-> assuming you will always have the pfns and limits, it should be easy to do.
->
-> I think the only tricky part is that today we have a single
-> node_page_cgroup, and we would of course have to have one per memory
-> block. My assumption is that the number of memory blocks is limited and
-> likely not very big. So even a static array would do.
->
-> Kamezawa, do you have any input in here?
->
+Alex
