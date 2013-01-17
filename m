@@ -1,322 +1,255 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 06/12] s390: I/O interrupt and machine check
-	injection.
-Date: Thu, 17 Jan 2013 15:23:51 +0100
-Message-ID: <1358432637-42512-7-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 11/12] s390-virtio: Factor out some initialization code.
+Date: Thu, 17 Jan 2013 15:23:56 +0100
+Message-ID: <1358432637-42512-12-git-send-email-cornelia.huck@de.ibm.com>
 References: <1358432637-42512-1-git-send-email-cornelia.huck@de.ibm.com>
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1358432637-42512-1-git-send-email-cornelia.huck@de.ibm.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
-Cc: Carsten Otte <cotte@de.ibm.com>, Anthony Liguori <aliguori@us.ibm.com>, Gleb Natapov <gleb@redhat.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Marcelo Tosatti <mtosatti@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-I/O interrupts are queued per isc. Only crw pending machine checks
-are supported.
+Some of the machine initialization for s390-virtio will be reused
+by virtio-ccw.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- target-s390x/cpu.h    |  69 +++++++++++++++++++++++-
- target-s390x/helper.c | 143 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 211 insertions(+), 1 deletion(-)
+ hw/s390-virtio.c | 155 ++++++++++++++++++++++++++++++-------------------------
+ hw/s390-virtio.h |   5 ++
+ 2 files changed, 91 insertions(+), 69 deletions(-)
 
-diff --git a/target-s390x/cpu.h b/target-s390x/cpu.h
-index 931ed4d..97f70f3 100644
---- a/target-s390x/cpu.h
-+++ b/target-s390x/cpu.h
-@@ -47,6 +47,11 @@
- #define MMU_USER_IDX 1
- 
- #define MAX_EXT_QUEUE 16
-+#define MAX_IO_QUEUE 16
-+#define MAX_MCHK_QUEUE 16
-+
-+#define PSW_MCHK_MASK 0x0004000000000000
-+#define PSW_IO_MASK 0x0200000000000000
- 
- typedef struct PSW {
-     uint64_t mask;
-@@ -59,6 +64,17 @@ typedef struct ExtQueue {
-     uint32_t param64;
- } ExtQueue;
- 
-+typedef struct IOIntQueue {
-+    uint16_t id;
-+    uint16_t nr;
-+    uint32_t parm;
-+    uint32_t word;
-+} IOIntQueue;
-+
-+typedef struct MchkQueue {
-+    uint16_t type;
-+} MchkQueue;
-+
- typedef struct CPUS390XState {
-     uint64_t regs[16];     /* GP registers */
-     CPU_DoubleU fregs[16]; /* FP registers */
-@@ -90,9 +106,17 @@ typedef struct CPUS390XState {
-     uint64_t cregs[16]; /* control registers */
- 
-     ExtQueue ext_queue[MAX_EXT_QUEUE];
--    int pending_int;
-+    IOIntQueue io_queue[MAX_IO_QUEUE][8];
-+    MchkQueue mchk_queue[MAX_MCHK_QUEUE];
- 
-+    int pending_int;
-     int ext_index;
-+    int io_index[8];
-+    int mchk_index;
-+
-+    uint64_t ckc;
-+    uint64_t cputm;
-+    uint32_t todpr;
- 
-     CPU_COMMON
- 
-@@ -373,10 +397,14 @@ static inline void cpu_set_tls(CPUS390XState *env, target_ulong newtls)
- #define EXCP_EXT 1 /* external interrupt */
- #define EXCP_SVC 2 /* supervisor call (syscall) */
- #define EXCP_PGM 3 /* program interruption */
-+#define EXCP_IO  7 /* I/O interrupt */
-+#define EXCP_MCHK 8 /* machine check */
- 
- #define INTERRUPT_EXT        (1 << 0)
- #define INTERRUPT_TOD        (1 << 1)
- #define INTERRUPT_CPUTIMER   (1 << 2)
-+#define INTERRUPT_IO         (1 << 3)
-+#define INTERRUPT_MCHK       (1 << 4)
- 
- /* Program Status Word.  */
- #define S390_PSWM_REGNUM 0
-@@ -920,6 +948,45 @@ static inline void cpu_inject_ext(CPUS390XState *env, uint32_t code, uint32_t pa
-     cpu_interrupt(env, CPU_INTERRUPT_HARD);
+diff --git a/hw/s390-virtio.c b/hw/s390-virtio.c
+index bded30b..603f6b0 100644
+--- a/hw/s390-virtio.c
++++ b/hw/s390-virtio.c
+@@ -155,62 +155,10 @@ unsigned s390_del_running_cpu(CPUS390XState *env)
+     return s390_running_cpus;
  }
  
-+static inline void cpu_inject_io(CPUS390XState *env, uint16_t subchannel_id,
-+                                 uint16_t subchannel_number,
-+                                 uint32_t io_int_parm, uint32_t io_int_word)
-+{
-+    int isc = ffs(io_int_word << 2) - 1;
-+
-+    if (env->io_index[isc] == MAX_IO_QUEUE - 1) {
-+        /* ugh - can't queue anymore. Let's drop. */
-+        return;
-+    }
-+
-+    env->io_index[isc]++;
-+    assert(env->io_index[isc] < MAX_IO_QUEUE);
-+
-+    env->io_queue[env->io_index[isc]][isc].id = subchannel_id;
-+    env->io_queue[env->io_index[isc]][isc].nr = subchannel_number;
-+    env->io_queue[env->io_index[isc]][isc].parm = io_int_parm;
-+    env->io_queue[env->io_index[isc]][isc].word = io_int_word;
-+
-+    env->pending_int |= INTERRUPT_IO;
-+    cpu_interrupt(env, CPU_INTERRUPT_HARD);
-+}
-+
-+static inline void cpu_inject_crw_mchk(CPUS390XState *env)
-+{
-+    if (env->mchk_index == MAX_MCHK_QUEUE - 1) {
-+        /* ugh - can't queue anymore. Let's drop. */
-+        return;
-+    }
-+
-+    env->mchk_index++;
-+    assert(env->mchk_index < MAX_MCHK_QUEUE);
-+
-+    env->mchk_queue[env->mchk_index].type = 1;
-+
-+    env->pending_int |= INTERRUPT_MCHK;
-+    cpu_interrupt(env, CPU_INTERRUPT_HARD);
-+}
-+
- static inline bool cpu_has_work(CPUState *cpu)
+-/* PC hardware initialisation */
+-static void s390_init(QEMUMachineInitArgs *args)
++void s390_init_cpus(const char *cpu_model, uint8_t *storage_keys)
  {
-     CPUS390XState *env = &S390_CPU(cpu)->env;
-diff --git a/target-s390x/helper.c b/target-s390x/helper.c
-index d350f28..6e0a2d2 100644
---- a/target-s390x/helper.c
-+++ b/target-s390x/helper.c
-@@ -618,12 +618,142 @@ static void do_ext_interrupt(CPUS390XState *env)
-     load_psw(env, mask, addr);
- }
+-    ram_addr_t my_ram_size = args->ram_size;
+-    const char *cpu_model = args->cpu_model;
+-    const char *kernel_filename = args->kernel_filename;
+-    const char *kernel_cmdline = args->kernel_cmdline;
+-    const char *initrd_filename = args->initrd_filename;
+-    CPUS390XState *env = NULL;
+-    MemoryRegion *sysmem = get_system_memory();
+-    MemoryRegion *ram = g_new(MemoryRegion, 1);
+-    ram_addr_t kernel_size = 0;
+-    ram_addr_t initrd_offset;
+-    ram_addr_t initrd_size = 0;
+-    int shift = 0;
+-    uint8_t *storage_keys;
+-    void *virtio_region;
+-    hwaddr virtio_region_len;
+-    hwaddr virtio_region_start;
+     int i;
  
-+static void do_io_interrupt(CPUS390XState *env)
-+{
-+    uint64_t mask, addr;
-+    LowCore *lowcore;
-+    hwaddr len = TARGET_PAGE_SIZE;
-+    IOIntQueue *q;
-+    uint8_t isc;
-+    int disable = 1;
-+    int found = 0;
+-    /* s390x ram size detection needs a 16bit multiplier + an increment. So
+-       guests > 64GB can be specified in 2MB steps etc. */
+-    while ((my_ram_size >> (20 + shift)) > 65535) {
+-        shift++;
+-    }
+-    my_ram_size = my_ram_size >> (20 + shift) << (20 + shift);
+-
+-    /* lets propagate the changed ram size into the global variable. */
+-    ram_size = my_ram_size;
+-
+-    /* get a BUS */
+-    s390_bus = s390_virtio_bus_init(&my_ram_size);
+-    s390_sclp_init();
+-
+-    /* register hypercalls */
+-    s390_virtio_register_hcalls();
+-
+-    /* allocate RAM */
+-    memory_region_init_ram(ram, "s390.ram", my_ram_size);
+-    vmstate_register_ram_global(ram);
+-    memory_region_add_subregion(sysmem, 0, ram);
+-
+-    /* clear virtio region */
+-    virtio_region_len = my_ram_size - ram_size;
+-    virtio_region_start = ram_size;
+-    virtio_region = cpu_physical_memory_map(virtio_region_start,
+-                                            &virtio_region_len, true);
+-    memset(virtio_region, 0, virtio_region_len);
+-    cpu_physical_memory_unmap(virtio_region, virtio_region_len, 1,
+-                              virtio_region_len);
+-
+-    /* allocate storage keys */
+-    storage_keys = g_malloc0(my_ram_size / TARGET_PAGE_SIZE);
+-
+-    /* init CPUs */
+     if (cpu_model == NULL) {
+         cpu_model = "host";
+     }
+@@ -219,21 +167,27 @@ static void s390_init(QEMUMachineInitArgs *args)
+ 
+     for (i = 0; i < smp_cpus; i++) {
+         S390CPU *cpu;
+-        CPUS390XState *tmp_env;
+ 
+         cpu = cpu_s390x_init(cpu_model);
+-        tmp_env = &cpu->env;
+-        if (!env) {
+-            env = tmp_env;
+-        }
 +
-+    if (!(env->psw.mask & PSW_MASK_IO)) {
-+        cpu_abort(env, "I/O int w/o I/O mask\n");
-+    }
-+
-+    for (isc = 0; isc < 8; isc++) {
-+        if (env->io_index[isc] < 0) {
-+            continue;
-+        }
-+        if (env->io_index[isc] > MAX_IO_QUEUE) {
-+            cpu_abort(env, "I/O queue overrun for isc %d: %d\n",
-+                      isc, env->io_index[isc]);
-+        }
-+
-+        q = &env->io_queue[env->io_index[isc]][isc];
-+        if (!(env->cregs[6] & q->word)) {
-+            disable = 0;
-+            continue;
-+        }
-+        found = 1;
-+        lowcore = cpu_map_lowcore(env, &len);
-+
-+        lowcore->subchannel_id = cpu_to_be16(q->id);
-+        lowcore->subchannel_nr = cpu_to_be16(q->nr);
-+        lowcore->io_int_parm = cpu_to_be32(q->parm);
-+        lowcore->io_int_word = cpu_to_be32(q->word);
-+        lowcore->io_old_psw.mask = cpu_to_be64(get_psw_mask(env));
-+        lowcore->io_old_psw.addr = cpu_to_be64(env->psw.addr);
-+        mask = be64_to_cpu(lowcore->io_new_psw.mask);
-+        addr = be64_to_cpu(lowcore->io_new_psw.addr);
-+
-+        cpu_unmap_lowcore(lowcore, len);
-+
-+        env->io_index[isc]--;
-+        if (env->io_index >= 0) {
-+            disable = 0;
-+        }
-+        break;
-+    }
-+
-+    if (disable) {
-+        env->pending_int &= ~INTERRUPT_IO;
-+    }
-+
-+    if (found) {
-+        DPRINTF("%s: %" PRIx64 " %" PRIx64 "\n", __func__,
-+                env->psw.mask, env->psw.addr);
-+        load_psw(env, mask, addr);
-+    }
+         ipi_states[i] = cpu;
+-        tmp_env->halted = 1;
+-        tmp_env->exception_index = EXCP_HLT;
+-        tmp_env->storage_keys = storage_keys;
++        cpu->env.halted = 1;
++        cpu->env.exception_index = EXCP_HLT;
++        cpu->env.storage_keys = storage_keys;
+     }
 +}
 +
-+static void do_mchk_interrupt(CPUS390XState *env)
++void s390_set_up_kernel(const char *kernel_filename,
++                        const char *kernel_cmdline,
++                        const char *initrd_filename)
 +{
-+    uint64_t mask, addr;
-+    LowCore *lowcore;
-+    hwaddr len = TARGET_PAGE_SIZE;
-+    MchkQueue *q;
++    ram_addr_t kernel_size = 0;
++    ram_addr_t initrd_offset;
++    ram_addr_t initrd_size = 0;
++    S390CPU *cpu = s390_cpu_addr2state(0);
+ 
+     /* One CPU has to run */
+-    s390_add_running_cpu(env);
++    s390_add_running_cpu(&cpu->env);
+ 
+     if (kernel_filename) {
+ 
+@@ -252,8 +206,8 @@ static void s390_init(QEMUMachineInitArgs *args)
+          * value was 0x800 (the SALIPL loader) and it wont work. For
+          * all (Linux) cases 0x10000 (KERN_IMAGE_START) should be fine.
+          */
+-        env->psw.addr = KERN_IMAGE_START;
+-        env->psw.mask = 0x0000000180000000ULL;
++        cpu->env.psw.addr = KERN_IMAGE_START;
++        cpu->env.psw.mask = 0x0000000180000000ULL;
+     } else {
+         ram_addr_t bios_size = 0;
+         char *bios_filename;
+@@ -275,8 +229,8 @@ static void s390_init(QEMUMachineInitArgs *args)
+             hw_error("stage1 bootloader is > 4k\n");
+         }
+ 
+-        env->psw.addr = ZIPL_START;
+-        env->psw.mask = 0x0000000180000000ULL;
++        cpu->env.psw.addr = ZIPL_START;
++        cpu->env.psw.mask = 0x0000000180000000ULL;
+     }
+ 
+     if (initrd_filename) {
+@@ -302,9 +256,13 @@ static void s390_init(QEMUMachineInitArgs *args)
+         memcpy(rom_ptr(KERN_PARM_AREA), kernel_cmdline,
+                strlen(kernel_cmdline) + 1);
+     }
++}
+ 
+-    /* Create VirtIO network adapters */
+-    for(i = 0; i < nb_nics; i++) {
++void s390_create_virtio_net(BusState *bus, const char *name)
++{
 +    int i;
 +
-+    if (!(env->psw.mask & PSW_MASK_MCHECK)) {
-+        cpu_abort(env, "Machine check w/o mchk mask\n");
++    for (i = 0; i < nb_nics; i++) {
+         NICInfo *nd = &nd_table[i];
+         DeviceState *dev;
+ 
+@@ -317,12 +275,71 @@ static void s390_init(QEMUMachineInitArgs *args)
+             exit(1);
+         }
+ 
+-        dev = qdev_create((BusState *)s390_bus, "virtio-net-s390");
++        dev = qdev_create(bus, name);
+         qdev_set_nic_properties(dev, nd);
+         qdev_init_nofail(dev);
+     }
+ }
+ 
++/* PC hardware initialisation */
++static void s390_init(QEMUMachineInitArgs *args)
++{
++    ram_addr_t my_ram_size = args->ram_size;
++    const char *cpu_model = args->cpu_model;
++    const char *kernel_filename = args->kernel_filename;
++    const char *kernel_cmdline = args->kernel_cmdline;
++    const char *initrd_filename = args->initrd_filename;
++    MemoryRegion *sysmem = get_system_memory();
++    MemoryRegion *ram = g_new(MemoryRegion, 1);
++    int shift = 0;
++    uint8_t *storage_keys;
++    void *virtio_region;
++    hwaddr virtio_region_len;
++    hwaddr virtio_region_start;
++
++    /* s390x ram size detection needs a 16bit multiplier + an increment. So
++       guests > 64GB can be specified in 2MB steps etc. */
++    while ((my_ram_size >> (20 + shift)) > 65535) {
++        shift++;
 +    }
++    my_ram_size = my_ram_size >> (20 + shift) << (20 + shift);
 +
-+    if (env->mchk_index < 0 || env->mchk_index > MAX_MCHK_QUEUE) {
-+        cpu_abort(env, "Mchk queue overrun: %d\n", env->mchk_index);
-+    }
++    /* lets propagate the changed ram size into the global variable. */
++    ram_size = my_ram_size;
 +
-+    q = &env->mchk_queue[env->mchk_index];
++    /* get a BUS */
++    s390_bus = s390_virtio_bus_init(&my_ram_size);
++    s390_sclp_init();
 +
-+    if (q->type != 1) {
-+        /* Don't know how to handle this... */
-+        cpu_abort(env, "Unknown machine check type %d\n", q->type);
-+    }
-+    if (!(env->cregs[14] & (1 << 28))) {
-+        /* CRW machine checks disabled */
-+        return;
-+    }
++    /* register hypercalls */
++    s390_virtio_register_hcalls();
 +
-+    lowcore = cpu_map_lowcore(env, &len);
++    /* allocate RAM */
++    memory_region_init_ram(ram, "s390.ram", my_ram_size);
++    vmstate_register_ram_global(ram);
++    memory_region_add_subregion(sysmem, 0, ram);
 +
-+    for (i = 0; i < 16; i++) {
-+        lowcore->floating_pt_save_area[i] = cpu_to_be64(env->fregs[i].ll);
-+        lowcore->gpregs_save_area[i] = cpu_to_be64(env->regs[i]);
-+        lowcore->access_regs_save_area[i] = cpu_to_be32(env->aregs[i]);
-+        lowcore->cregs_save_area[i] = cpu_to_be64(env->cregs[i]);
-+    }
-+    lowcore->prefixreg_save_area = cpu_to_be32(env->psa);
-+    lowcore->fpt_creg_save_area = cpu_to_be32(env->fpc);
-+    lowcore->tod_progreg_save_area = cpu_to_be32(env->todpr);
-+    lowcore->cpu_timer_save_area[0] = cpu_to_be32(env->cputm >> 32);
-+    lowcore->cpu_timer_save_area[1] = cpu_to_be32((uint32_t)env->cputm);
-+    lowcore->clock_comp_save_area[0] = cpu_to_be32(env->ckc >> 32);
-+    lowcore->clock_comp_save_area[1] = cpu_to_be32((uint32_t)env->ckc);
++    /* clear virtio region */
++    virtio_region_len = my_ram_size - ram_size;
++    virtio_region_start = ram_size;
++    virtio_region = cpu_physical_memory_map(virtio_region_start,
++                                            &virtio_region_len, true);
++    memset(virtio_region, 0, virtio_region_len);
++    cpu_physical_memory_unmap(virtio_region, virtio_region_len, 1,
++                              virtio_region_len);
 +
-+    lowcore->mcck_interruption_code[0] = cpu_to_be32(0x00400f1d);
-+    lowcore->mcck_interruption_code[1] = cpu_to_be32(0x40330000);
-+    lowcore->mcck_old_psw.mask = cpu_to_be64(get_psw_mask(env));
-+    lowcore->mcck_old_psw.addr = cpu_to_be64(env->psw.addr);
-+    mask = be64_to_cpu(lowcore->mcck_new_psw.mask);
-+    addr = be64_to_cpu(lowcore->mcck_new_psw.addr);
++    /* allocate storage keys */
++    storage_keys = g_malloc0(my_ram_size / TARGET_PAGE_SIZE);
 +
-+    cpu_unmap_lowcore(lowcore, len);
++    /* init CPUs */
++    s390_init_cpus(cpu_model, storage_keys);
 +
-+    env->mchk_index--;
-+    if (env->mchk_index == -1) {
-+        env->pending_int &= ~INTERRUPT_MCHK;
-+    }
++    s390_set_up_kernel(kernel_filename, kernel_cmdline, initrd_filename);
 +
-+    DPRINTF("%s: %" PRIx64 " %" PRIx64 "\n", __func__,
-+            env->psw.mask, env->psw.addr);
-+
-+    load_psw(env, mask, addr);
++    /* Create VirtIO network adapters */
++    s390_create_virtio_net((BusState *)s390_bus, "virtio-net-s390");
 +}
 +
- void do_interrupt(CPUS390XState *env)
- {
-     qemu_log_mask(CPU_LOG_INT, "%s: %d at pc=%" PRIx64 "\n",
-                   __func__, env->exception_index, env->psw.addr);
+ static QEMUMachine s390_machine = {
+     .name = "s390-virtio",
+     .alias = "s390",
+diff --git a/hw/s390-virtio.h b/hw/s390-virtio.h
+index 25bb610..aefc99d 100644
+--- a/hw/s390-virtio.h
++++ b/hw/s390-virtio.h
+@@ -19,4 +19,9 @@
+ typedef int (*s390_virtio_fn)(const uint64_t *args);
+ void s390_register_virtio_hypercall(uint64_t code, s390_virtio_fn fn);
  
-     s390_add_running_cpu(env);
-+    /* handle machine checks */
-+    if ((env->psw.mask & PSW_MASK_MCHECK) &&
-+        (env->exception_index == -1)) {
-+        if (env->pending_int & INTERRUPT_MCHK) {
-+            env->exception_index = EXCP_MCHK;
-+        }
-+    }
-     /* handle external interrupts */
-     if ((env->psw.mask & PSW_MASK_EXT) &&
-         env->exception_index == -1) {
-@@ -642,6 +772,13 @@ void do_interrupt(CPUS390XState *env)
-             env->pending_int &= ~INTERRUPT_TOD;
-         }
-     }
-+    /* handle I/O interrupts */
-+    if ((env->psw.mask & PSW_MASK_IO) &&
-+        (env->exception_index == -1)) {
-+        if (env->pending_int & INTERRUPT_IO) {
-+            env->exception_index = EXCP_IO;
-+        }
-+    }
- 
-     switch (env->exception_index) {
-     case EXCP_PGM:
-@@ -653,6 +790,12 @@ void do_interrupt(CPUS390XState *env)
-     case EXCP_EXT:
-         do_ext_interrupt(env);
-         break;
-+    case EXCP_IO:
-+        do_io_interrupt(env);
-+        break;
-+    case EXCP_MCHK:
-+        do_mchk_interrupt(env);
-+        break;
-     }
-     env->exception_index = -1;
- 
++void s390_init_cpus(const char *cpu_model, uint8_t *storage_keys);
++void s390_set_up_kernel(const char *kernel_filename,
++                        const char *kernel_cmdline,
++                        const char *initrd_filename);
++void s390_create_virtio_net(BusState *bus, const char *name);
+ #endif
 -- 
 1.7.12.4
