@@ -1,60 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1358544300.7383.37.camel@gandalf.local.home>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 2/5] jump label: constify lookup functions
-From: Steven Rostedt <rostedt@goodmis.org>
-Date: Fri, 18 Jan 2013 16:25:00 -0500
-In-Reply-To: <1357772960-4436-2-git-send-email-sasha.levin@oracle.com>
-References: <1357772960-4436-1-git-send-email-sasha.levin@oracle.com>
-	 <1357772960-4436-2-git-send-email-sasha.levin@oracle.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1358544300.7383.37.camel@gandalf.local.home>
+References: <1357772960-4436-1-git-send-email-sasha.levin@oracle.com> <1357772960-4436-2-git-send-email-sasha.levin@oracle.com> <1358544300.7383.37.camel@gandalf.local.home>
+Date: Mon, 21 Jan 2013 17:21:06 +1030
+Message-ID: <87sj5vuizp.fsf@rustcorp.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Sasha Levin <sasha.levin@oracle.com>
-Cc: tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, fweisbec@gmail.com, rusty@rustcorp.com.au, ananth@in.ibm.com, anil.s.keshavamurthy@intel.com, masami.hiramatsu.pt@hitachi.com, jbaron@redhat.com, x86@kernel.org, linux-kernel@vger.kernel.org, MartinSchwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+To: Steven Rostedt <rostedt@goodmis.org>, Sasha Levin <sasha.levin@oracle.com>
+Cc: tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, fweisbec@gmail.com, ananth@in.ibm.com, anil.s.keshavamurthy@intel.com, masami.hiramatsu.pt@hitachi.com, jbaron@redhat.com, x86@kernel.org, linux-kernel@vger.kernel.org, MartinSchwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2013-01-09 at 18:09 -0500, Sasha Levin wrote:
-> Modify the parameters of all the lookup and the bookkeeping functions which
-> should be const to const.
-> 
-> For example, jump_label_text_reserved() doesn't modify the memory it works on,
-> it just checks whether there are any jump labels there.
+Steven Rostedt <rostedt@goodmis.org> writes:
+> On Wed, 2013-01-09 at 18:09 -0500, Sasha Levin wrote:
+>> Modify the parameters of all the lookup and the bookkeeping functions which
+>> should be const to const.
+>> 
+>> For example, jump_label_text_reserved() doesn't modify the memory it works on,
+>> it just checks whether there are any jump labels there.
+>
+> This is dependent on the module patch, which Rusty is taking. I need to
+> see that he has it before this can go in. At least see it in linux-next.
+>
+> Also, you should have Cc'd the linux-arch mailing list. I'll send it
+> there.
 
-This is dependent on the module patch, which Rusty is taking. I need to
-see that he has it before this can go in. At least see it in linux-next.
+I've put it in now.
 
-Also, you should have Cc'd the linux-arch mailing list. I'll send it
-there.
-
-> 
-> Note I couldn't test the non-x86 architectures, but the changes are rather
-> trivial.
-
-I ran it on 25 archs, and s390 hit:
-
-/work/autotest/nobackup/cross-linux.git/arch/s390/kernel/jump_label.c: In function 'arch_jump_label_transform':
-/work/autotest/nobackup/cross-linux.git/arch/s390/kernel/jump_label.c:58:13: warning: assignment discards 'const' qualifier from pointer target type [enabled by default]
-
--- Steve
-
-Here's the patch:
-
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
-diff --git a/arch/s390/kernel/jump_label.c
-b/arch/s390/kernel/jump_label.c
-index 85fa643..ef047ef 100644
---- a/arch/s390/kernel/jump_label.c
-+++ b/arch/s390/kernel/jump_label.c
-@@ -18,7 +18,7 @@ struct insn {
- } __packed;
- 
- struct insn_args {
--	struct jump_entry *entry;
-+	const struct jump_entry *entry;
- 	enum jump_label_type type;
- };
- 
+Thanks,
+Rusty.
