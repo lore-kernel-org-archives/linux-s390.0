@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 05/11] s390: Add channel I/O instructions.
-Date: Thu, 24 Jan 2013 13:28:05 +0100
-Message-ID: <1359030491-46725-6-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 04/11] s390: I/O interrupt and machine check injection.
+Date: Thu, 24 Jan 2013 13:28:04 +0100
+Message-ID: <1359030491-46725-5-git-send-email-cornelia.huck@de.ibm.com>
 References: <1359030491-46725-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1359030491-46725-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,917 +12,305 @@ To: qemu-devel <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>, linux-s390 <l
 Cc: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-Provide handlers for (most) channel I/O instructions.
+I/O interrupts are queued per isc. Only crw pending machine checks
+are supported.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
 ---
 
 v5 -> v6:
-- Adapt to s390_cpu_physical_memory_map changes
-- Simplify chsc handling
-- Handle endianness
+ - Adapt to cpu_map_lowcore changes
 ---
- target-s390x/cpu.h    | 100 +++++++
- target-s390x/ioinst.c | 716 ++++++++++++++++++++++++++++++++++++++++++++++++++
- target-s390x/ioinst.h |  16 ++
- trace-events          |   6 +
- 4 files changed, 838 insertions(+)
+ target-s390x/cpu.h    |  69 +++++++++++++++++++++++-
+ target-s390x/helper.c | 141 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 209 insertions(+), 1 deletion(-)
 
 diff --git a/target-s390x/cpu.h b/target-s390x/cpu.h
-index 3e00d38..76a822c 100644
+index c1a0040..3e00d38 100644
 --- a/target-s390x/cpu.h
 +++ b/target-s390x/cpu.h
-@@ -147,6 +147,9 @@ static inline void cpu_clone_regs(CPUS390XState *env, target_ulong newsp)
+@@ -50,6 +50,11 @@
+ #define MMU_USER_IDX 1
+ 
+ #define MAX_EXT_QUEUE 16
++#define MAX_IO_QUEUE 16
++#define MAX_MCHK_QUEUE 16
++
++#define PSW_MCHK_MASK 0x0004000000000000
++#define PSW_IO_MASK 0x0200000000000000
+ 
+ typedef struct PSW {
+     uint64_t mask;
+@@ -62,6 +67,17 @@ typedef struct ExtQueue {
+     uint32_t param64;
+ } ExtQueue;
+ 
++typedef struct IOIntQueue {
++    uint16_t id;
++    uint16_t nr;
++    uint32_t parm;
++    uint32_t word;
++} IOIntQueue;
++
++typedef struct MchkQueue {
++    uint16_t type;
++} MchkQueue;
++
+ typedef struct CPUS390XState {
+     uint64_t regs[16];     /* GP registers */
+     CPU_DoubleU fregs[16]; /* FP registers */
+@@ -93,9 +109,17 @@ typedef struct CPUS390XState {
+     uint64_t cregs[16]; /* control registers */
+ 
+     ExtQueue ext_queue[MAX_EXT_QUEUE];
+-    int pending_int;
++    IOIntQueue io_queue[MAX_IO_QUEUE][8];
++    MchkQueue mchk_queue[MAX_MCHK_QUEUE];
+ 
++    int pending_int;
+     int ext_index;
++    int io_index[8];
++    int mchk_index;
++
++    uint64_t ckc;
++    uint64_t cputm;
++    uint32_t todpr;
+ 
+     CPU_COMMON
+ 
+@@ -375,10 +399,14 @@ void s390_cpu_list(FILE *f, fprintf_function cpu_fprintf);
+ #define EXCP_EXT 1 /* external interrupt */
+ #define EXCP_SVC 2 /* supervisor call (syscall) */
+ #define EXCP_PGM 3 /* program interruption */
++#define EXCP_IO  7 /* I/O interrupt */
++#define EXCP_MCHK 8 /* machine check */
+ 
+ #define INTERRUPT_EXT        (1 << 0)
+ #define INTERRUPT_TOD        (1 << 1)
+ #define INTERRUPT_CPUTIMER   (1 << 2)
++#define INTERRUPT_IO         (1 << 3)
++#define INTERRUPT_MCHK       (1 << 4)
+ 
+ /* Program Status Word.  */
+ #define S390_PSWM_REGNUM 0
+@@ -841,6 +869,45 @@ static inline void cpu_inject_ext(CPUS390XState *env, uint32_t code, uint32_t pa
+     cpu_interrupt(env, CPU_INTERRUPT_HARD);
  }
- #endif
  
-+/* distinguish between 24 bit and 31 bit addressing */
-+#define HIGH_ORDER_BIT 0x80000000
-+
- /* Interrupt Codes */
- /* Program Interrupts */
- #define PGM_OPERATION                   0x0001
-@@ -331,6 +334,20 @@ void *s390_cpu_physical_memory_map(CPUS390XState *env, hwaddr addr, hwaddr *len,
-                                    int is_write);
- void s390_cpu_physical_memory_unmap(CPUS390XState *env, void *addr, hwaddr len,
-                                     int is_write);
-+static inline hwaddr decode_basedisp_s(CPUS390XState *env, uint32_t ipb)
++static inline void cpu_inject_io(CPUS390XState *env, uint16_t subchannel_id,
++                                 uint16_t subchannel_number,
++                                 uint32_t io_int_parm, uint32_t io_int_word)
 +{
-+    hwaddr addr = 0;
-+    uint8_t reg;
++    int isc = ffs(io_int_word << 2) - 1;
 +
-+    reg = ipb >> 28;
-+    if (reg > 0) {
-+        addr = env->regs[reg];
++    if (env->io_index[isc] == MAX_IO_QUEUE - 1) {
++        /* ugh - can't queue anymore. Let's drop. */
++        return;
 +    }
-+    addr += (ipb >> 16) & 0xfff;
 +
-+    return addr;
-+}
++    env->io_index[isc]++;
++    assert(env->io_index[isc] < MAX_IO_QUEUE);
 +
- void s390x_tod_timer(void *opaque);
- void s390x_cpu_timer(void *opaque);
- 
-@@ -380,6 +397,89 @@ static inline unsigned s390_del_running_cpu(CPUS390XState *env)
- void cpu_lock(void);
- void cpu_unlock(void);
- 
-+typedef struct SubchDev SubchDev;
++    env->io_queue[env->io_index[isc]][isc].id = subchannel_id;
++    env->io_queue[env->io_index[isc]][isc].nr = subchannel_number;
++    env->io_queue[env->io_index[isc]][isc].parm = io_int_parm;
++    env->io_queue[env->io_index[isc]][isc].word = io_int_word;
 +
-+static inline SubchDev *css_find_subch(uint8_t m, uint8_t cssid, uint8_t ssid,
-+                                       uint16_t schid)
-+{
-+    return NULL;
-+}
-+static inline bool css_subch_visible(SubchDev *sch)
-+{
-+    return false;
-+}
-+static inline void css_conditional_io_interrupt(SubchDev *sch)
-+{
-+}
-+static inline int css_do_stsch(SubchDev *sch, SCHIB *schib)
-+{
-+    return -ENODEV;
-+}
-+static inline bool css_schid_final(uint8_t cssid, uint8_t ssid, uint16_t schid)
-+{
-+    return true;
-+}
-+static inline int css_do_msch(SubchDev *sch, SCHIB *schib)
-+{
-+    return -ENODEV;
-+}
-+static inline int css_do_xsch(SubchDev *sch)
-+{
-+    return -ENODEV;
-+}
-+static inline int css_do_csch(SubchDev *sch)
-+{
-+    return -ENODEV;
-+}
-+static inline int css_do_hsch(SubchDev *sch)
-+{
-+    return -ENODEV;
-+}
-+static inline int css_do_ssch(SubchDev *sch, ORB *orb)
-+{
-+    return -ENODEV;
-+}
-+static inline int css_do_tsch(SubchDev *sch, IRB *irb)
-+{
-+    return -ENODEV;
-+}
-+static inline int css_do_stcrw(CRW *crw)
-+{
-+    return 1;
-+}
-+static inline int css_do_tpi(uint64_t addr, int lowcore)
-+{
-+    return 0;
-+}
-+static inline int css_collect_chp_desc(int m, uint8_t cssid, uint8_t f_chpid,
-+                                       int rfmt, uint8_t l_chpid, void *buf)
-+{
-+    return 0;
-+}
-+static inline void css_do_schm(uint8_t mbk, int update, int dct, uint64_t mbo)
-+{
-+}
-+static inline int css_enable_mss(void)
-+{
-+    return -EINVAL;
-+}
-+static inline int css_enable_mcsse(void)
-+{
-+    return -EINVAL;
-+}
-+static inline int css_do_rsch(SubchDev *sch)
-+{
-+    return -ENODEV;
-+}
-+static inline int css_do_rchp(uint8_t cssid, uint8_t chpid)
-+{
-+    return -ENODEV;
-+}
-+static inline bool css_present(uint8_t cssid)
-+{
-+    return false;
++    env->pending_int |= INTERRUPT_IO;
++    cpu_interrupt(env, CPU_INTERRUPT_HARD);
 +}
 +
- static inline void cpu_set_tls(CPUS390XState *env, target_ulong newtls)
++static inline void cpu_inject_crw_mchk(CPUS390XState *env)
++{
++    if (env->mchk_index == MAX_MCHK_QUEUE - 1) {
++        /* ugh - can't queue anymore. Let's drop. */
++        return;
++    }
++
++    env->mchk_index++;
++    assert(env->mchk_index < MAX_MCHK_QUEUE);
++
++    env->mchk_queue[env->mchk_index].type = 1;
++
++    env->pending_int |= INTERRUPT_MCHK;
++    cpu_interrupt(env, CPU_INTERRUPT_HARD);
++}
++
+ static inline bool cpu_has_work(CPUState *cpu)
  {
-     env->aregs[0] = newtls >> 32;
-diff --git a/target-s390x/ioinst.c b/target-s390x/ioinst.c
-index 06a16ee..4ef2d73 100644
---- a/target-s390x/ioinst.c
-+++ b/target-s390x/ioinst.c
-@@ -13,6 +13,7 @@
- 
- #include "cpu.h"
- #include "ioinst.h"
-+#include "trace.h"
- 
- int ioinst_disassemble_sch_ident(uint32_t value, int *m, int *cssid, int *ssid,
-                                  int *schid)
-@@ -34,3 +35,718 @@ int ioinst_disassemble_sch_ident(uint32_t value, int *m, int *cssid, int *ssid,
-     *schid = IOINST_SCHID_NR(value);
-     return 0;
+     CPUS390XState *env = &S390_CPU(cpu)->env;
+diff --git a/target-s390x/helper.c b/target-s390x/helper.c
+index 3109c77..857c897 100644
+--- a/target-s390x/helper.c
++++ b/target-s390x/helper.c
+@@ -614,12 +614,140 @@ static void do_ext_interrupt(CPUS390XState *env)
+     load_psw(env, mask, addr);
  }
-+
-+int ioinst_handle_xsch(CPUS390XState *env, uint64_t reg1)
-+{
-+    int cssid, ssid, schid, m;
-+    SubchDev *sch;
-+    int ret = -ENODEV;
-+    int cc;
-+
-+    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        return -EIO;
-+    }
-+    trace_ioinst_sch_id("xsch", cssid, ssid, schid);
-+    sch = css_find_subch(m, cssid, ssid, schid);
-+    if (sch && css_subch_visible(sch)) {
-+        ret = css_do_xsch(sch);
-+    }
-+    switch (ret) {
-+    case -ENODEV:
-+        cc = 3;
-+        break;
-+    case -EBUSY:
-+        cc = 2;
-+        break;
-+    case 0:
-+        cc = 0;
-+        break;
-+    default:
-+        cc = 1;
-+        break;
-+    }
-+
-+    return cc;
-+}
-+
-+int ioinst_handle_csch(CPUS390XState *env, uint64_t reg1)
-+{
-+    int cssid, ssid, schid, m;
-+    SubchDev *sch;
-+    int ret = -ENODEV;
-+    int cc;
-+
-+    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        return -EIO;
-+    }
-+    trace_ioinst_sch_id("csch", cssid, ssid, schid);
-+    sch = css_find_subch(m, cssid, ssid, schid);
-+    if (sch && css_subch_visible(sch)) {
-+        ret = css_do_csch(sch);
-+    }
-+    if (ret == -ENODEV) {
-+        cc = 3;
-+    } else {
-+        cc = 0;
-+    }
-+    return cc;
-+}
-+
-+int ioinst_handle_hsch(CPUS390XState *env, uint64_t reg1)
-+{
-+    int cssid, ssid, schid, m;
-+    SubchDev *sch;
-+    int ret = -ENODEV;
-+    int cc;
-+
-+    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        return -EIO;
-+    }
-+    trace_ioinst_sch_id("hsch", cssid, ssid, schid);
-+    sch = css_find_subch(m, cssid, ssid, schid);
-+    if (sch && css_subch_visible(sch)) {
-+        ret = css_do_hsch(sch);
-+    }
-+    switch (ret) {
-+    case -ENODEV:
-+        cc = 3;
-+        break;
-+    case -EBUSY:
-+        cc = 2;
-+        break;
-+    case 0:
-+        cc = 0;
-+        break;
-+    default:
-+        cc = 1;
-+        break;
-+    }
-+
-+    return cc;
-+}
-+
-+static int ioinst_schib_valid(SCHIB *schib)
-+{
-+    if ((schib->pmcw.flags & PMCW_FLAGS_MASK_INVALID) ||
-+        (schib->pmcw.chars & PMCW_CHARS_MASK_INVALID)) {
-+        return 0;
-+    }
-+    /* Disallow extended measurements for now. */
-+    if (schib->pmcw.chars & PMCW_CHARS_MASK_XMWME) {
-+        return 0;
-+    }
-+    return 1;
-+}
-+
-+int ioinst_handle_msch(CPUS390XState *env, uint64_t reg1, uint32_t ipb)
-+{
-+    int cssid, ssid, schid, m;
-+    SubchDev *sch;
-+    SCHIB *schib;
-+    uint64_t addr;
-+    int ret = -ENODEV;
-+    int cc;
-+    hwaddr len = sizeof(*schib);
-+
-+    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        return -EIO;
-+    }
-+    trace_ioinst_sch_id("msch", cssid, ssid, schid);
-+    addr = decode_basedisp_s(env, ipb);
-+    schib = s390_cpu_physical_memory_map(env, addr, &len, 0);
-+    if (!schib || len != sizeof(*schib)) {
-+        program_interrupt(env, PGM_SPECIFICATION, 2);
-+        cc = -EIO;
-+        goto out;
-+    }
-+    if (!ioinst_schib_valid(schib)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        cc = -EIO;
-+        goto out;
-+    }
-+    sch = css_find_subch(m, cssid, ssid, schid);
-+    if (sch && css_subch_visible(sch)) {
-+        ret = css_do_msch(sch, schib);
-+    }
-+    switch (ret) {
-+    case -ENODEV:
-+        cc = 3;
-+        break;
-+    case -EBUSY:
-+        cc = 2;
-+        break;
-+    case 0:
-+        cc = 0;
-+        break;
-+    default:
-+        cc = 1;
-+        break;
-+    }
-+out:
-+    s390_cpu_physical_memory_unmap(env, schib, len, 0);
-+    return cc;
-+}
-+
-+static void copy_orb_from_guest(ORB *dest, const ORB *src)
-+{
-+    dest->intparm = be32_to_cpu(src->intparm);
-+    dest->ctrl0 = be16_to_cpu(src->ctrl0);
-+    dest->lpm = src->lpm;
-+    dest->ctrl1 = src->ctrl1;
-+    dest->cpa = be32_to_cpu(src->cpa);
-+}
-+
-+static int ioinst_orb_valid(ORB *orb)
-+{
-+    if ((orb->ctrl0 & ORB_CTRL0_MASK_INVALID) ||
-+        (orb->ctrl1 & ORB_CTRL1_MASK_INVALID)) {
-+        return 0;
-+    }
-+    if ((orb->cpa & HIGH_ORDER_BIT) != 0) {
-+        return 0;
-+    }
-+    return 1;
-+}
-+
-+int ioinst_handle_ssch(CPUS390XState *env, uint64_t reg1, uint32_t ipb)
-+{
-+    int cssid, ssid, schid, m;
-+    SubchDev *sch;
-+    ORB *orig_orb, orb;
-+    uint64_t addr;
-+    int ret = -ENODEV;
-+    int cc;
-+    hwaddr len = sizeof(*orig_orb);
-+
-+    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        return -EIO;
-+    }
-+    trace_ioinst_sch_id("ssch", cssid, ssid, schid);
-+    addr = decode_basedisp_s(env, ipb);
-+    orig_orb = s390_cpu_physical_memory_map(env, addr, &len, 0);
-+    if (!orig_orb || len != sizeof(*orig_orb)) {
-+        program_interrupt(env, PGM_SPECIFICATION, 2);
-+        cc = -EIO;
-+        goto out;
-+    }
-+    copy_orb_from_guest(&orb, orig_orb);
-+    if (!ioinst_orb_valid(&orb)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        cc = -EIO;
-+        goto out;
-+    }
-+    sch = css_find_subch(m, cssid, ssid, schid);
-+    if (sch && css_subch_visible(sch)) {
-+        ret = css_do_ssch(sch, &orb);
-+    }
-+    switch (ret) {
-+    case -ENODEV:
-+        cc = 3;
-+        break;
-+    case -EBUSY:
-+        cc = 2;
-+        break;
-+    case 0:
-+        cc = 0;
-+        break;
-+    default:
-+        cc = 1;
-+        break;
-+    }
-+
-+out:
-+    s390_cpu_physical_memory_unmap(env, orig_orb, len, 0);
-+    return cc;
-+}
-+
-+int ioinst_handle_stcrw(CPUS390XState *env, uint32_t ipb)
-+{
-+    CRW *crw;
-+    uint64_t addr;
-+    int cc;
-+    hwaddr len = sizeof(*crw);
-+
-+    addr = decode_basedisp_s(env, ipb);
-+    crw = s390_cpu_physical_memory_map(env, addr, &len, 1);
-+    if (!crw || len != sizeof(*crw)) {
-+        program_interrupt(env, PGM_SPECIFICATION, 2);
-+        cc = -EIO;
-+        goto out;
-+    }
-+    cc = css_do_stcrw(crw);
-+    /* 0 - crw stored, 1 - zeroes stored */
-+out:
-+    s390_cpu_physical_memory_unmap(env, crw, len, 1);
-+    return cc;
-+}
-+
-+int ioinst_handle_stsch(CPUS390XState *env, uint64_t reg1, uint32_t ipb)
-+{
-+    int cssid, ssid, schid, m;
-+    SubchDev *sch;
-+    uint64_t addr;
-+    int cc;
-+    SCHIB *schib;
-+    hwaddr len = sizeof(*schib);
-+
-+    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        return -EIO;
-+    }
-+    trace_ioinst_sch_id("stsch", cssid, ssid, schid);
-+    addr = decode_basedisp_s(env, ipb);
-+    schib = s390_cpu_physical_memory_map(env, addr, &len, 1);
-+    if (!schib || len != sizeof(*schib)) {
-+        program_interrupt(env, PGM_SPECIFICATION, 2);
-+        cc = -EIO;
-+        goto out;
-+    }
-+    sch = css_find_subch(m, cssid, ssid, schid);
-+    if (sch) {
-+        if (css_subch_visible(sch)) {
-+            css_do_stsch(sch, schib);
-+            cc = 0;
-+        } else {
-+            /* Indicate no more subchannels in this css/ss */
-+            cc = 3;
-+        }
-+    } else {
-+        if (css_schid_final(cssid, ssid, schid)) {
-+            cc = 3; /* No more subchannels in this css/ss */
-+        } else {
-+            /* Store an empty schib. */
-+            memset(schib, 0, sizeof(*schib));
-+            cc = 0;
-+        }
-+    }
-+out:
-+    s390_cpu_physical_memory_unmap(env, schib, len, 1);
-+    return cc;
-+}
-+
-+int ioinst_handle_tsch(CPUS390XState *env, uint64_t reg1, uint32_t ipb)
-+{
-+    int cssid, ssid, schid, m;
-+    SubchDev *sch;
-+    IRB *irb;
-+    uint64_t addr;
-+    int ret = -ENODEV;
-+    int cc;
-+    hwaddr len = sizeof(*irb);
-+
-+    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        return -EIO;
-+    }
-+    trace_ioinst_sch_id("tsch", cssid, ssid, schid);
-+    addr = decode_basedisp_s(env, ipb);
-+    irb = s390_cpu_physical_memory_map(env, addr, &len, 1);
-+    if (!irb || len != sizeof(*irb)) {
-+        program_interrupt(env, PGM_SPECIFICATION, 2);
-+        cc = -EIO;
-+        goto out;
-+    }
-+    sch = css_find_subch(m, cssid, ssid, schid);
-+    if (sch && css_subch_visible(sch)) {
-+        ret = css_do_tsch(sch, irb);
-+        /* 0 - status pending, 1 - not status pending */
-+        cc = ret;
-+    } else {
-+        cc = 3;
-+    }
-+out:
-+    s390_cpu_physical_memory_unmap(env, irb, sizeof(*irb), 1);
-+    return cc;
-+}
-+
-+typedef struct ChscReq {
-+    uint16_t len;
-+    uint16_t command;
-+    uint32_t param0;
-+    uint32_t param1;
-+    uint32_t param2;
-+} QEMU_PACKED ChscReq;
-+
-+typedef struct ChscResp {
-+    uint16_t len;
-+    uint16_t code;
-+    uint32_t param;
-+    char data[0];
-+} QEMU_PACKED ChscResp;
-+
-+#define CHSC_MIN_RESP_LEN 0x0008
-+
-+#define CHSC_SCPD 0x0002
-+#define CHSC_SCSC 0x0010
-+#define CHSC_SDA  0x0031
-+
-+#define CHSC_SCPD_0_M 0x20000000
-+#define CHSC_SCPD_0_C 0x10000000
-+#define CHSC_SCPD_0_FMT 0x0f000000
-+#define CHSC_SCPD_0_CSSID 0x00ff0000
-+#define CHSC_SCPD_0_RFMT 0x00000f00
-+#define CHSC_SCPD_0_RES 0xc000f000
-+#define CHSC_SCPD_1_RES 0xffffff00
-+#define CHSC_SCPD_01_CHPID 0x000000ff
-+static void ioinst_handle_chsc_scpd(ChscReq *req, ChscResp *res)
-+{
-+    uint16_t len = be16_to_cpu(req->len);
-+    uint32_t param0 = be32_to_cpu(req->param0);
-+    uint32_t param1 = be32_to_cpu(req->param1);
-+    uint16_t resp_code;
-+    int rfmt;
-+    uint16_t cssid;
-+    uint8_t f_chpid, l_chpid;
-+    int desc_size;
-+    int m;
-+
-+    rfmt = (param0 & CHSC_SCPD_0_RFMT) >> 8;
-+    if ((rfmt == 0) ||  (rfmt == 1)) {
-+        rfmt = !!(param0 & CHSC_SCPD_0_C);
-+    }
-+    if ((len != 0x0010) || (param0 & CHSC_SCPD_0_RES) ||
-+        (param1 & CHSC_SCPD_1_RES) || req->param2) {
-+        resp_code = 0x0003;
-+        goto out_err;
-+    }
-+    if (param0 & CHSC_SCPD_0_FMT) {
-+        resp_code = 0x0007;
-+        goto out_err;
-+    }
-+    cssid = (param0 & CHSC_SCPD_0_CSSID) >> 16;
-+    m = param0 & CHSC_SCPD_0_M;
-+    if (cssid != 0) {
-+        if (!m || !css_present(cssid)) {
-+            resp_code = 0x0008;
-+            goto out_err;
-+        }
-+    }
-+    f_chpid = param0 & CHSC_SCPD_01_CHPID;
-+    l_chpid = param1 & CHSC_SCPD_01_CHPID;
-+    if (l_chpid < f_chpid) {
-+        resp_code = 0x0003;
-+        goto out_err;
-+    }
-+    /* css_collect_chp_desc() is endian-aware */
-+    desc_size = css_collect_chp_desc(m, cssid, f_chpid, l_chpid, rfmt,
-+                                     &res->data);
-+    res->code = cpu_to_be16(0x0001);
-+    res->len = cpu_to_be16(8 + desc_size);
-+    res->param = cpu_to_be32(rfmt);
-+    return;
-+
-+  out_err:
-+    res->code = cpu_to_be16(resp_code);
-+    res->len = cpu_to_be16(CHSC_MIN_RESP_LEN);
-+    res->param = cpu_to_be32(rfmt);
-+}
-+
-+#define CHSC_SCSC_0_M 0x20000000
-+#define CHSC_SCSC_0_FMT 0x000f0000
-+#define CHSC_SCSC_0_CSSID 0x0000ff00
-+#define CHSC_SCSC_0_RES 0xdff000ff
-+static void ioinst_handle_chsc_scsc(ChscReq *req, ChscResp *res)
-+{
-+    uint16_t len = be16_to_cpu(req->len);
-+    uint32_t param0 = be32_to_cpu(req->param0);
-+    uint8_t cssid;
-+    uint16_t resp_code;
-+    uint32_t general_chars[510];
-+    uint32_t chsc_chars[508];
-+
-+    if (len != 0x0010) {
-+        resp_code = 0x0003;
-+        goto out_err;
-+    }
-+
-+    if (param0 & CHSC_SCSC_0_FMT) {
-+        resp_code = 0x0007;
-+        goto out_err;
-+    }
-+    cssid = (param0 & CHSC_SCSC_0_CSSID) >> 8;
-+    if (cssid != 0) {
-+        if (!(param0 & CHSC_SCSC_0_M) || !css_present(cssid)) {
-+            resp_code = 0x0008;
-+            goto out_err;
-+        }
-+    }
-+    if ((param0 & CHSC_SCSC_0_RES) || req->param1 || req->param2) {
-+        resp_code = 0x0003;
-+        goto out_err;
-+    }
-+    res->code = cpu_to_be16(0x0001);
-+    res->len = cpu_to_be16(4080);
-+    res->param = 0;
-+
-+    memset(general_chars, 0, sizeof(general_chars));
-+    memset(chsc_chars, 0, sizeof(chsc_chars));
-+
-+    general_chars[0] = cpu_to_be32(0x03000000);
-+    general_chars[1] = cpu_to_be32(0x00059000);
-+
-+    chsc_chars[0] = cpu_to_be32(0x40000000);
-+    chsc_chars[3] = cpu_to_be32(0x00040000);
-+
-+    memcpy(res->data, general_chars, sizeof(general_chars));
-+    memcpy(res->data + sizeof(general_chars), chsc_chars, sizeof(chsc_chars));
-+    return;
-+
-+  out_err:
-+    res->code = cpu_to_be16(resp_code);
-+    res->len = cpu_to_be16(CHSC_MIN_RESP_LEN);
-+    res->param = 0;
-+}
-+
-+#define CHSC_SDA_0_FMT 0x0f000000
-+#define CHSC_SDA_0_OC 0x0000ffff
-+#define CHSC_SDA_0_RES 0xf0ff0000
-+#define CHSC_SDA_OC_MCSSE 0x0
-+#define CHSC_SDA_OC_MSS 0x2
-+static void ioinst_handle_chsc_sda(ChscReq *req, ChscResp *res)
-+{
-+    uint16_t resp_code = 0x0001;
-+    uint16_t len = be16_to_cpu(req->len);
-+    uint32_t param0 = be32_to_cpu(req->param0);
-+    uint16_t oc;
-+    int ret;
-+
-+    if ((len != 0x0400) || (param0 & CHSC_SDA_0_RES)) {
-+        resp_code = 0x0003;
-+        goto out;
-+    }
-+
-+    if (param0 & CHSC_SDA_0_FMT) {
-+        resp_code = 0x0007;
-+        goto out;
-+    }
-+
-+    oc = param0 & CHSC_SDA_0_OC;
-+    switch (oc) {
-+    case CHSC_SDA_OC_MCSSE:
-+        ret = css_enable_mcsse();
-+        if (ret == -EINVAL) {
-+            resp_code = 0x0101;
-+            goto out;
-+        }
-+        break;
-+    case CHSC_SDA_OC_MSS:
-+        ret = css_enable_mss();
-+        if (ret == -EINVAL) {
-+            resp_code = 0x0101;
-+            goto out;
-+        }
-+        break;
-+    default:
-+        resp_code = 0x0003;
-+        goto out;
-+    }
-+
-+out:
-+    res->code = cpu_to_be16(resp_code);
-+    res->len = cpu_to_be16(CHSC_MIN_RESP_LEN);
-+    res->param = 0;
-+}
-+
-+static void ioinst_handle_chsc_unimplemented(ChscResp *res)
-+{
-+    res->len = cpu_to_be16(CHSC_MIN_RESP_LEN);
-+    res->code = cpu_to_be16(0x0004);
-+    res->param = 0;
-+}
-+
-+int ioinst_handle_chsc(CPUS390XState *env, uint32_t ipb)
-+{
-+    ChscReq *req;
-+    ChscResp *res;
-+    uint64_t addr;
-+    int reg;
-+    uint16_t len;
-+    uint16_t command;
-+    hwaddr map_size = TARGET_PAGE_SIZE;
-+    int ret = 0;
-+
-+    trace_ioinst("chsc");
-+    reg = (ipb >> 20) & 0x00f;
-+    addr = env->regs[reg];
-+    /* Page boundary? */
-+    if (addr & 0xfff) {
-+        program_interrupt(env, PGM_SPECIFICATION, 2);
-+        return -EIO;
-+    }
-+    req = s390_cpu_physical_memory_map(env, addr, &map_size, 1);
-+    if (!req || map_size != TARGET_PAGE_SIZE) {
-+        program_interrupt(env, PGM_SPECIFICATION, 2);
-+        ret = -EIO;
-+        goto out;
-+    }
-+    len = be16_to_cpu(req->len);
-+    /* Length field valid? */
-+    if ((len < 16) || (len > 4088) || (len & 7)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        ret = -EIO;
-+        goto out;
-+    }
-+    memset((char *)req + len, 0, TARGET_PAGE_SIZE - len);
-+    res = (void *)((char *)req + len);
-+    command = be16_to_cpu(req->command);
-+    trace_ioinst_chsc_cmd(command, len);
-+    switch (command) {
-+    case CHSC_SCSC:
-+        ioinst_handle_chsc_scsc(req, res);
-+        break;
-+    case CHSC_SCPD:
-+        ioinst_handle_chsc_scpd(req, res);
-+        break;
-+    case CHSC_SDA:
-+        ioinst_handle_chsc_sda(req, res);
-+        break;
-+    default:
-+        ioinst_handle_chsc_unimplemented(res);
-+        break;
-+    }
-+
-+out:
-+    s390_cpu_physical_memory_unmap(env, req, map_size, 1);
-+    return ret;
-+}
-+
-+int ioinst_handle_tpi(CPUS390XState *env, uint32_t ipb)
-+{
-+    uint64_t addr;
-+    int lowcore;
-+
-+    trace_ioinst("tpi");
-+    addr = decode_basedisp_s(env, ipb);
-+    lowcore = addr ? 0 : 1;
-+    if (addr < 8192) {
-+        addr += env->psa;
-+    } else if ((env->psa <= addr) && (addr < env->psa + 8192)) {
-+        addr -= env->psa;
-+    }
-+    return css_do_tpi(addr, lowcore);
-+}
-+
-+#define SCHM_REG1_RES(_reg) (_reg & 0x000000000ffffffc)
-+#define SCHM_REG1_MBK(_reg) ((_reg & 0x00000000f0000000) >> 28)
-+#define SCHM_REG1_UPD(_reg) ((_reg & 0x0000000000000002) >> 1)
-+#define SCHM_REG1_DCT(_reg) (_reg & 0x0000000000000001)
-+
-+int ioinst_handle_schm(CPUS390XState *env, uint64_t reg1, uint64_t reg2,
-+                       uint32_t ipb)
-+{
-+    uint8_t mbk;
-+    int update;
-+    int dct;
-+
-+    trace_ioinst("schm");
-+
-+    if (SCHM_REG1_RES(reg1)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        return -EIO;
-+    }
-+
-+    mbk = SCHM_REG1_MBK(reg1);
-+    update = SCHM_REG1_UPD(reg1);
-+    dct = SCHM_REG1_DCT(reg1);
-+
-+    if (update && (reg2 & 0x0000000000000fff)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        return -EIO;
-+    }
-+
-+    css_do_schm(mbk, update, dct, update ? reg2 : 0);
-+
-+    return 0;
-+}
-+
-+int ioinst_handle_rsch(CPUS390XState *env, uint64_t reg1)
-+{
-+    int cssid, ssid, schid, m;
-+    SubchDev *sch;
-+    int ret = -ENODEV;
-+    int cc;
-+
-+    if (ioinst_disassemble_sch_ident(reg1, &m, &cssid, &ssid, &schid)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        return -EIO;
-+    }
-+    trace_ioinst_sch_id("rsch", cssid, ssid, schid);
-+    sch = css_find_subch(m, cssid, ssid, schid);
-+    if (sch && css_subch_visible(sch)) {
-+        ret = css_do_rsch(sch);
-+    }
-+    switch (ret) {
-+    case -ENODEV:
-+        cc = 3;
-+        break;
-+    case -EINVAL:
-+        cc = 2;
-+        break;
-+    case 0:
-+        cc = 0;
-+        break;
-+    default:
-+        cc = 1;
-+        break;
-+    }
-+
-+    return cc;
-+
-+}
-+
-+#define RCHP_REG1_RES(_reg) (_reg & 0x00000000ff00ff00)
-+#define RCHP_REG1_CSSID(_reg) ((_reg & 0x0000000000ff0000) >> 16)
-+#define RCHP_REG1_CHPID(_reg) (_reg & 0x00000000000000ff)
-+int ioinst_handle_rchp(CPUS390XState *env, uint64_t reg1)
-+{
-+    int cc;
-+    uint8_t cssid;
-+    uint8_t chpid;
-+    int ret;
-+
-+    if (RCHP_REG1_RES(reg1)) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        return -EIO;
-+    }
-+
-+    cssid = RCHP_REG1_CSSID(reg1);
-+    chpid = RCHP_REG1_CHPID(reg1);
-+
-+    trace_ioinst_chp_id("rchp", cssid, chpid);
-+
-+    ret = css_do_rchp(cssid, chpid);
-+
-+    switch (ret) {
-+    case -ENODEV:
-+        cc = 3;
-+        break;
-+    case -EBUSY:
-+        cc = 2;
-+        break;
-+    case 0:
-+        cc = 0;
-+        break;
-+    default:
-+        /* Invalid channel subsystem. */
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        return -EIO;
-+    }
-+
-+    return cc;
-+}
-+
-+#define SAL_REG1_INVALID(_reg) (_reg & 0x0000000080000000)
-+int ioinst_handle_sal(CPUS390XState *env, uint64_t reg1)
-+{
-+    /* We do not provide address limit checking, so let's suppress it. */
-+    if (SAL_REG1_INVALID(reg1) || reg1 & 0x000000000000ffff) {
-+        program_interrupt(env, PGM_OPERAND, 2);
-+        return -EIO;
-+    }
-+    return 0;
-+}
-diff --git a/target-s390x/ioinst.h b/target-s390x/ioinst.h
-index 037aabc..a59742c 100644
---- a/target-s390x/ioinst.h
-+++ b/target-s390x/ioinst.h
-@@ -204,4 +204,20 @@ typedef struct CRW {
  
- int ioinst_disassemble_sch_ident(uint32_t value, int *m, int *cssid, int *ssid,
-                                  int *schid);
-+int ioinst_handle_xsch(CPUS390XState *env, uint64_t reg1);
-+int ioinst_handle_csch(CPUS390XState *env, uint64_t reg1);
-+int ioinst_handle_hsch(CPUS390XState *env, uint64_t reg1);
-+int ioinst_handle_msch(CPUS390XState *env, uint64_t reg1, uint32_t ipb);
-+int ioinst_handle_ssch(CPUS390XState *env, uint64_t reg1, uint32_t ipb);
-+int ioinst_handle_stcrw(CPUS390XState *env, uint32_t ipb);
-+int ioinst_handle_stsch(CPUS390XState *env, uint64_t reg1, uint32_t ipb);
-+int ioinst_handle_tsch(CPUS390XState *env, uint64_t reg1, uint32_t ipb);
-+int ioinst_handle_chsc(CPUS390XState *env, uint32_t ipb);
-+int ioinst_handle_tpi(CPUS390XState *env, uint32_t ipb);
-+int ioinst_handle_schm(CPUS390XState *env, uint64_t reg1, uint64_t reg2,
-+                       uint32_t ipb);
-+int ioinst_handle_rsch(CPUS390XState *env, uint64_t reg1);
-+int ioinst_handle_rchp(CPUS390XState *env, uint64_t reg1);
-+int ioinst_handle_sal(CPUS390XState *env, uint64_t reg1);
++static void do_io_interrupt(CPUS390XState *env)
++{
++    uint64_t mask, addr;
++    LowCore *lowcore;
++    IOIntQueue *q;
++    uint8_t isc;
++    int disable = 1;
++    int found = 0;
 +
- #endif
-diff --git a/trace-events b/trace-events
-index 09091e6..1b54542 100644
---- a/trace-events
-+++ b/trace-events
-@@ -1060,3 +1060,9 @@ xics_set_irq_lsi(int srcno, int nr) "set_irq_lsi: srcno %d [irq %#x]"
- xics_ics_write_xive(int nr, int srcno, int server, uint8_t priority) "ics_write_xive: irq %#x [src %d] server %#x prio %#x"
- xics_ics_reject(int nr, int srcno) "reject irq %#x [src %d]"
- xics_ics_eoi(int nr) "ics_eoi: irq %#x"
++    if (!(env->psw.mask & PSW_MASK_IO)) {
++        cpu_abort(env, "I/O int w/o I/O mask\n");
++    }
 +
-+# target-s390x/ioinst.c
-+ioinst(const char *insn) "IOINST: %s"
-+ioinst_sch_id(const char *insn, int cssid, int ssid, int schid) "IOINST: %s (%x.%x.%04x)"
-+ioinst_chp_id(const char *insn, int cssid, int chpid) "IOINST: %s (%x.%02x)"
-+ioinst_chsc_cmd(uint16_t cmd, uint16_t len) "IOINST: chsc command %04x, len %04x"
++    for (isc = 0; isc < ARRAY_SIZE(env->io_index); isc++) {
++        if (env->io_index[isc] < 0) {
++            continue;
++        }
++        if (env->io_index[isc] > MAX_IO_QUEUE) {
++            cpu_abort(env, "I/O queue overrun for isc %d: %d\n",
++                      isc, env->io_index[isc]);
++        }
++
++        q = &env->io_queue[env->io_index[isc]][isc];
++        if (!(env->cregs[6] & q->word)) {
++            disable = 0;
++            continue;
++        }
++        found = 1;
++        lowcore = cpu_map_lowcore(env);
++
++        lowcore->subchannel_id = cpu_to_be16(q->id);
++        lowcore->subchannel_nr = cpu_to_be16(q->nr);
++        lowcore->io_int_parm = cpu_to_be32(q->parm);
++        lowcore->io_int_word = cpu_to_be32(q->word);
++        lowcore->io_old_psw.mask = cpu_to_be64(get_psw_mask(env));
++        lowcore->io_old_psw.addr = cpu_to_be64(env->psw.addr);
++        mask = be64_to_cpu(lowcore->io_new_psw.mask);
++        addr = be64_to_cpu(lowcore->io_new_psw.addr);
++
++        cpu_unmap_lowcore(lowcore);
++
++        env->io_index[isc]--;
++        if (env->io_index >= 0) {
++            disable = 0;
++        }
++        break;
++    }
++
++    if (disable) {
++        env->pending_int &= ~INTERRUPT_IO;
++    }
++
++    if (found) {
++        DPRINTF("%s: %" PRIx64 " %" PRIx64 "\n", __func__,
++                env->psw.mask, env->psw.addr);
++        load_psw(env, mask, addr);
++    }
++}
++
++static void do_mchk_interrupt(CPUS390XState *env)
++{
++    uint64_t mask, addr;
++    LowCore *lowcore;
++    MchkQueue *q;
++    int i;
++
++    if (!(env->psw.mask & PSW_MASK_MCHECK)) {
++        cpu_abort(env, "Machine check w/o mchk mask\n");
++    }
++
++    if (env->mchk_index < 0 || env->mchk_index > MAX_MCHK_QUEUE) {
++        cpu_abort(env, "Mchk queue overrun: %d\n", env->mchk_index);
++    }
++
++    q = &env->mchk_queue[env->mchk_index];
++
++    if (q->type != 1) {
++        /* Don't know how to handle this... */
++        cpu_abort(env, "Unknown machine check type %d\n", q->type);
++    }
++    if (!(env->cregs[14] & (1 << 28))) {
++        /* CRW machine checks disabled */
++        return;
++    }
++
++    lowcore = cpu_map_lowcore(env);
++
++    for (i = 0; i < 16; i++) {
++        lowcore->floating_pt_save_area[i] = cpu_to_be64(env->fregs[i].ll);
++        lowcore->gpregs_save_area[i] = cpu_to_be64(env->regs[i]);
++        lowcore->access_regs_save_area[i] = cpu_to_be32(env->aregs[i]);
++        lowcore->cregs_save_area[i] = cpu_to_be64(env->cregs[i]);
++    }
++    lowcore->prefixreg_save_area = cpu_to_be32(env->psa);
++    lowcore->fpt_creg_save_area = cpu_to_be32(env->fpc);
++    lowcore->tod_progreg_save_area = cpu_to_be32(env->todpr);
++    lowcore->cpu_timer_save_area[0] = cpu_to_be32(env->cputm >> 32);
++    lowcore->cpu_timer_save_area[1] = cpu_to_be32((uint32_t)env->cputm);
++    lowcore->clock_comp_save_area[0] = cpu_to_be32(env->ckc >> 32);
++    lowcore->clock_comp_save_area[1] = cpu_to_be32((uint32_t)env->ckc);
++
++    lowcore->mcck_interruption_code[0] = cpu_to_be32(0x00400f1d);
++    lowcore->mcck_interruption_code[1] = cpu_to_be32(0x40330000);
++    lowcore->mcck_old_psw.mask = cpu_to_be64(get_psw_mask(env));
++    lowcore->mcck_old_psw.addr = cpu_to_be64(env->psw.addr);
++    mask = be64_to_cpu(lowcore->mcck_new_psw.mask);
++    addr = be64_to_cpu(lowcore->mcck_new_psw.addr);
++
++    cpu_unmap_lowcore(lowcore);
++
++    env->mchk_index--;
++    if (env->mchk_index == -1) {
++        env->pending_int &= ~INTERRUPT_MCHK;
++    }
++
++    DPRINTF("%s: %" PRIx64 " %" PRIx64 "\n", __func__,
++            env->psw.mask, env->psw.addr);
++
++    load_psw(env, mask, addr);
++}
++
+ void do_interrupt(CPUS390XState *env)
+ {
+     qemu_log_mask(CPU_LOG_INT, "%s: %d at pc=%" PRIx64 "\n",
+                   __func__, env->exception_index, env->psw.addr);
+ 
+     s390_add_running_cpu(env);
++    /* handle machine checks */
++    if ((env->psw.mask & PSW_MASK_MCHECK) &&
++        (env->exception_index == -1)) {
++        if (env->pending_int & INTERRUPT_MCHK) {
++            env->exception_index = EXCP_MCHK;
++        }
++    }
+     /* handle external interrupts */
+     if ((env->psw.mask & PSW_MASK_EXT) &&
+         env->exception_index == -1) {
+@@ -638,6 +766,13 @@ void do_interrupt(CPUS390XState *env)
+             env->pending_int &= ~INTERRUPT_TOD;
+         }
+     }
++    /* handle I/O interrupts */
++    if ((env->psw.mask & PSW_MASK_IO) &&
++        (env->exception_index == -1)) {
++        if (env->pending_int & INTERRUPT_IO) {
++            env->exception_index = EXCP_IO;
++        }
++    }
+ 
+     switch (env->exception_index) {
+     case EXCP_PGM:
+@@ -649,6 +784,12 @@ void do_interrupt(CPUS390XState *env)
+     case EXCP_EXT:
+         do_ext_interrupt(env);
+         break;
++    case EXCP_IO:
++        do_io_interrupt(env);
++        break;
++    case EXCP_MCHK:
++        do_mchk_interrupt(env);
++        break;
+     }
+     env->exception_index = -1;
+ 
 -- 
 1.7.12.4
