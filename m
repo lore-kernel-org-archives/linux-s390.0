@@ -1,117 +1,200 @@
-Return-Path: <owner-linux-mm@kvack.org>
-From: Lin Feng <linfeng@cn.fujitsu.com>
-Subject: [PATCH v3 1/2] memory-hotplug: introduce CONFIG_HAVE_BOOTMEM_INFO_NODE and revert register_page_bootmem_info_node() when platform not support
-Date: Wed, 16 Jan 2013 16:14:18 +0800
-Message-Id: <1358324059-9608-2-git-send-email-linfeng@cn.fujitsu.com>
-In-Reply-To: <1358324059-9608-1-git-send-email-linfeng@cn.fujitsu.com>
-References: <1358324059-9608-1-git-send-email-linfeng@cn.fujitsu.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: akpm@linux-foundation.org, mhocko@suse.cz, linux-mm@kvack.org, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, jbeulich@suse.com, dhowells@redhat.com, wency@cn.fujitsu.com, isimatu.yasuaki@jp.fujitsu.com, paul.gortmaker@windriver.com, laijs@cn.fujitsu.com, kamezawa.hiroyu@jp.fujitsu.com, mel@csn.ul.ie, minchan@kernel.org, aquini@redhat.com, jiang.liu@huawei.com, tony.luck@intel.com, fenghua.yu@intel.com, benh@kernel.crashing.org, paulus@samba.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, davem@davemloft.net, michael@ellerman.id.au, gerald.schaefer@de.ibm.com, gregkh@linuxfoundation.org
-Cc: x86@kernel.org, linux390@de.ibm.com, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linfeng@cn.fujitsu.com, tangchen@cn.fujitsu.com
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH 09/11] s390-virtio: Factor out some initialization code.
+Date: Thu, 24 Jan 2013 13:28:09 +0100
+Message-ID: <1359030491-46725-10-git-send-email-cornelia.huck@de.ibm.com>
+References: <1359030491-46725-1-git-send-email-cornelia.huck@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1359030491-46725-1-git-send-email-cornelia.huck@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: qemu-devel <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+Cc: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-It's implemented by adding a new Kconfig option named
-CONFIG_HAVE_BOOTMEM_INFO_NODE, which will be automatically selected by
-memory-hotplug feature fully supported archs(currently only on x86_64).
+Some of the machine initialization for s390-virtio will be reused
+by virtio-ccw.
 
-Reported-by: Michal Hocko <mhocko@suse.cz>
-Signed-off-by: Lin Feng <linfeng@cn.fujitsu.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+
 ---
-ChangeLog v2->v3:
-- Rename the patch title to conform it's content.
-- Update memory_hotplug.h and remove the misleading TODO pointed out by Michal.
 
-ChangeLog v1->v2:
-- Add a Kconfig option named HAVE_BOOTMEM_INFO_NODE suggested by Michal, which
-  will be automatically selected by supported archs(currently only on x86_64).
+v5 -> v6:
+- Adapt to ipl device changes
 ---
- arch/x86/mm/init_64.c          |    2 +-
- include/linux/memory_hotplug.h |    6 ++++++
- mm/Kconfig                     |    8 ++++++++
- mm/memory_hotplug.c            |    2 ++
- 4 files changed, 17 insertions(+), 1 deletions(-)
+ hw/s390-virtio.c | 118 +++++++++++++++++++++++++++++++------------------------
+ hw/s390-virtio.h |   5 +++
+ 2 files changed, 72 insertions(+), 51 deletions(-)
 
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index 07d6966..b539015 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1317,7 +1317,7 @@ vmemmap_populate(struct page *start_page, unsigned long size, int node)
- 	return 0;
+diff --git a/hw/s390-virtio.c b/hw/s390-virtio.c
+index 5edaabb..6e0f53b 100644
+--- a/hw/s390-virtio.c
++++ b/hw/s390-virtio.c
+@@ -147,13 +147,73 @@ unsigned s390_del_running_cpu(CPUS390XState *env)
+     return s390_running_cpus;
  }
  
--#ifdef CONFIG_MEMORY_HOTPLUG_SPARSE
-+#if defined(CONFIG_MEMORY_HOTPLUG_SPARSE) && defined(CONFIG_HAVE_BOOTMEM_INFO_NODE)
- void register_page_bootmem_memmap(unsigned long section_nr,
- 				  struct page *start_page, unsigned long size)
- {
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index f60e728..69903cc 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -174,7 +174,13 @@ static inline void arch_refresh_nodedata(int nid, pg_data_t *pgdat)
- #endif /* CONFIG_NUMA */
- #endif /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
- 
-+#ifdef CONFIG_HAVE_BOOTMEM_INFO_NODE
- extern void register_page_bootmem_info_node(struct pglist_data *pgdat);
-+#else
-+static inline void register_page_bootmem_info_node(struct pglist_data *pgdat)
++void s390_init_ipl_dev(const char *kernel_filename,
++                       const char *kernel_cmdline,
++                       const char *initrd_filename)
 +{
-+}
-+#endif
- extern void put_page_bootmem(struct page *page);
- extern void get_page_bootmem(unsigned long ingo, struct page *page,
- 			     unsigned long type);
-diff --git a/mm/Kconfig b/mm/Kconfig
-index 278e3ab..f8c5799 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -162,10 +162,18 @@ config MOVABLE_NODE
- 	  Say Y here if you want to hotplug a whole node.
- 	  Say N here if you want kernel to use memory on all nodes evenly.
- 
-+#
-+# Only be set on architectures that have completely implemented memory hotplug
-+# feature. If you are not sure, don't touch it.
-+#
-+config HAVE_BOOTMEM_INFO_NODE
-+	def_bool n
++    DeviceState *dev;
 +
- # eventually, we can have this option just 'select SPARSEMEM'
- config MEMORY_HOTPLUG
- 	bool "Allow for memory hot-add"
- 	select MEMORY_ISOLATION
-+	select HAVE_BOOTMEM_INFO_NODE if X86_64
- 	depends on SPARSEMEM || X86_64_ACPI_NUMA
- 	depends on HOTPLUG && ARCH_ENABLE_MEMORY_HOTPLUG
- 	depends on (IA64 || X86 || PPC_BOOK3S_64 || SUPERH || S390)
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 8aa2b56..daf111f 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -189,6 +189,7 @@ static void register_page_bootmem_info_section(unsigned long start_pfn)
- }
- #endif
- 
-+#ifdef CONFIG_HAVE_BOOTMEM_INFO_NODE
- void register_page_bootmem_info_node(struct pglist_data *pgdat)
++    dev  = qdev_create(NULL, "s390-ipl");
++    if (kernel_filename) {
++        qdev_prop_set_string(dev, "kernel", kernel_filename);
++    }
++    if (initrd_filename) {
++        qdev_prop_set_string(dev, "initrd", initrd_filename);
++    }
++    qdev_prop_set_string(dev, "cmdline", kernel_cmdline);
++    qdev_init_nofail(dev);
++}
++
++void s390_init_cpus(const char *cpu_model, uint8_t *storage_keys)
++{
++    int i;
++
++    if (cpu_model == NULL) {
++        cpu_model = "host";
++    }
++
++    ipi_states = g_malloc(sizeof(S390CPU *) * smp_cpus);
++
++    for (i = 0; i < smp_cpus; i++) {
++        S390CPU *cpu;
++
++        cpu = cpu_s390x_init(cpu_model);
++
++        ipi_states[i] = cpu;
++        cpu->env.halted = 1;
++        cpu->env.exception_index = EXCP_HLT;
++        cpu->env.storage_keys = storage_keys;
++    }
++}
++
++
++void s390_create_virtio_net(BusState *bus, const char *name)
++{
++    int i;
++
++    for (i = 0; i < nb_nics; i++) {
++        NICInfo *nd = &nd_table[i];
++        DeviceState *dev;
++
++        if (!nd->model) {
++            nd->model = g_strdup("virtio");
++        }
++
++        if (strcmp(nd->model, "virtio")) {
++            fprintf(stderr, "S390 only supports VirtIO nics\n");
++            exit(1);
++        }
++
++        dev = qdev_create(bus, name);
++        qdev_set_nic_properties(dev, nd);
++        qdev_init_nofail(dev);
++    }
++}
++
+ /* PC hardware initialisation */
+ static void s390_init(QEMUMachineInitArgs *args)
  {
- 	unsigned long i, pfn, end_pfn, nr_pages;
-@@ -230,6 +231,7 @@ void register_page_bootmem_info_node(struct pglist_data *pgdat)
- 			register_page_bootmem_info_section(pfn);
- 	}
- }
-+#endif
+     ram_addr_t my_ram_size = args->ram_size;
+-    const char *cpu_model = args->cpu_model;
+-    CPUS390XState *env = NULL;
+-    DeviceState *dev;
+     MemoryRegion *sysmem = get_system_memory();
+     MemoryRegion *ram = g_new(MemoryRegion, 1);
+     int shift = 0;
+@@ -161,7 +221,6 @@ static void s390_init(QEMUMachineInitArgs *args)
+     void *virtio_region;
+     hwaddr virtio_region_len;
+     hwaddr virtio_region_start;
+-    int i;
  
- static void grow_zone_span(struct zone *zone, unsigned long start_pfn,
- 			   unsigned long end_pfn)
+     /* s390x ram size detection needs a 16bit multiplier + an increment. So
+        guests > 64GB can be specified in 2MB steps etc. */
+@@ -176,15 +235,8 @@ static void s390_init(QEMUMachineInitArgs *args)
+     /* get a BUS */
+     s390_bus = s390_virtio_bus_init(&my_ram_size);
+     s390_sclp_init();
+-    dev  = qdev_create(NULL, "s390-ipl");
+-    if (args->kernel_filename) {
+-        qdev_prop_set_string(dev, "kernel", args->kernel_filename);
+-    }
+-    if (args->initrd_filename) {
+-        qdev_prop_set_string(dev, "initrd", args->initrd_filename);
+-    }
+-    qdev_prop_set_string(dev, "cmdline", args->kernel_cmdline);
+-    qdev_init_nofail(dev);
++    s390_init_ipl_dev(args->kernel_filename, args->kernel_cmdline,
++                      args->initrd_filename);
+ 
+     /* register hypercalls */
+     s390_virtio_register_hcalls();
+@@ -207,46 +259,10 @@ static void s390_init(QEMUMachineInitArgs *args)
+     storage_keys = g_malloc0(my_ram_size / TARGET_PAGE_SIZE);
+ 
+     /* init CPUs */
+-    if (cpu_model == NULL) {
+-        cpu_model = "host";
+-    }
+-
+-    ipi_states = g_malloc(sizeof(S390CPU *) * smp_cpus);
+-
+-    for (i = 0; i < smp_cpus; i++) {
+-        S390CPU *cpu;
+-        CPUS390XState *tmp_env;
+-
+-        cpu = cpu_s390x_init(cpu_model);
+-        tmp_env = &cpu->env;
+-        if (!env) {
+-            env = tmp_env;
+-        }
+-        ipi_states[i] = cpu;
+-        tmp_env->halted = 1;
+-        tmp_env->exception_index = EXCP_HLT;
+-        tmp_env->storage_keys = storage_keys;
+-    }
+-
++    s390_init_cpus(args->cpu_model, storage_keys);
+ 
+     /* Create VirtIO network adapters */
+-    for(i = 0; i < nb_nics; i++) {
+-        NICInfo *nd = &nd_table[i];
+-        DeviceState *dev;
+-
+-        if (!nd->model) {
+-            nd->model = g_strdup("virtio");
+-        }
+-
+-        if (strcmp(nd->model, "virtio")) {
+-            fprintf(stderr, "S390 only supports VirtIO nics\n");
+-            exit(1);
+-        }
+-
+-        dev = qdev_create((BusState *)s390_bus, "virtio-net-s390");
+-        qdev_set_nic_properties(dev, nd);
+-        qdev_init_nofail(dev);
+-    }
++    s390_create_virtio_net((BusState *)s390_bus, "virtio-net-s390");
+ }
+ 
+ static QEMUMachine s390_machine = {
+diff --git a/hw/s390-virtio.h b/hw/s390-virtio.h
+index 25bb610..67bfd20 100644
+--- a/hw/s390-virtio.h
++++ b/hw/s390-virtio.h
+@@ -19,4 +19,9 @@
+ typedef int (*s390_virtio_fn)(const uint64_t *args);
+ void s390_register_virtio_hypercall(uint64_t code, s390_virtio_fn fn);
+ 
++void s390_init_cpus(const char *cpu_model, uint8_t *storage_keys);
++void s390_init_ipl_dev(const char *kernel_filename,
++                       const char *kernel_cmdline,
++                       const char *initrd_filename);
++void s390_create_virtio_net(BusState *bus, const char *name);
+ #endif
 -- 
-1.7.1
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+1.7.12.4
