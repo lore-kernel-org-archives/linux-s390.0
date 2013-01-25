@@ -1,33 +1,31 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH v8 0/2] s390: virtio-ccw transport.
-Date: Thu, 24 Jan 2013 17:08:54 +0100
-Message-ID: <1359043736-6203-1-git-send-email-cornelia.huck@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: qemu-devel <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
-Cc: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <1359119011.21576.212.camel@gandalf.local.home>
+Subject: Re: [PATCH 2/5] jump label: constify lookup functions
+From: Steven Rostedt <rostedt@goodmis.org>
+Date: Fri, 25 Jan 2013 08:03:31 -0500
+In-Reply-To: <20130125101640.GA32419@pd.tnic>
+References: <1357772960-4436-1-git-send-email-sasha.levin@oracle.com>
+	 <1357772960-4436-2-git-send-email-sasha.levin@oracle.com>
+	 <1358544300.7383.37.camel@gandalf.local.home> <510206CE.9050804@oracle.com>
+	 <20130125101640.GA32419@pd.tnic>
+Content-Type: text/plain; charset="ISO-8859-15"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Borislav Petkov <bp@alien8.de>
+Cc: Sasha Levin <sasha.levin@oracle.com>, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, fweisbec@gmail.com, rusty@rustcorp.com.au, ananth@in.ibm.com, anil.s.keshavamurthy@intel.com, masami.hiramatsu.pt@hitachi.com, jbaron@redhat.com, x86@kernel.org, linux-kernel@vger.kernel.org, MartinSchwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+On Fri, 2013-01-25 at 11:16 +0100, Borislav Petkov wrote:
+> On Thu, Jan 24, 2013 at 11:15:10PM -0500, Sasha Levin wrote:
+> > Sorry about this. I didn't have the ability to build all arches over here :(
+> 
+> Seen this already: https://www.kernel.org/pub/tools/crosstool/
 
-patches against s390-next again, with coding style fixes.
+And look in the kernel tree:
 
-Cornelia Huck (2):
-  s390: Add new channel I/O based virtio transport.
-  s390: Add s390-ccw-virtio machine.
+  tools/testing/ktest/examples/crosstests.conf
 
- hw/s390-virtio.h           |   1 +
- hw/s390x/Makefile.objs     |   2 +
- hw/s390x/s390-virtio-ccw.c | 134 +++++++
- hw/s390x/virtio-ccw.c      | 960 +++++++++++++++++++++++++++++++++++++++++++++
- hw/s390x/virtio-ccw.h      |  98 +++++
- trace-events               |   4 +
- 6 files changed, 1199 insertions(+)
- create mode 100644 hw/s390x/s390-virtio-ccw.c
- create mode 100644 hw/s390x/virtio-ccw.c
- create mode 100644 hw/s390x/virtio-ccw.h
-
--- 
-1.7.12.4
+-- Steve
