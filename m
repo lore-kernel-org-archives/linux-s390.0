@@ -1,16 +1,16 @@
 From: Simon Jeons <simon.jeons@gmail.com>
 Subject: Re: [PATCH v6 08/15] memory-hotplug: Common APIs to support page
  tables hot-remove
-Date: Tue, 29 Jan 2013 07:02:24 -0600
-Message-ID: <1359464544.1624.16.camel@kernel>
+Date: Tue, 29 Jan 2013 07:04:54 -0600
+Message-ID: <1359464694.1624.18.camel@kernel>
 References: <1357723959-5416-1-git-send-email-tangchen@cn.fujitsu.com>
 	 <1357723959-5416-9-git-send-email-tangchen@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <owner-linux-mm@kvack.org>
 In-Reply-To: <1357723959-5416-9-git-send-email-tangchen@cn.fujitsu.com>
-Sender: linux-ia64-owner@vger.kernel.org
+Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
 To: Tang Chen <tangchen@cn.fujitsu.com>
@@ -24,10 +24,11 @@ On Wed, 2013-01-09 at 17:32 +0800, Tang Chen wrote:
 > When memory is removed, the corresponding pagetables should alse be removed.
 > This patch introduces some common APIs to support vmemmap pagetable and x86_64
 > architecture pagetable removing.
+
+Why don't need to build_all_zonelists like online_pages does during
+hot-add path(add_memory)?
+
 > 
-
-When page table of hot-add memory is created?
-
 > All pages of virtual mapping in removed memory cannot be freedi if some pages
 > used as PGD/PUD includes not only removed memory but also other memory. So the
 > patch uses the following way to check whether page can be freed or not.
@@ -462,3 +463,10 @@ When page table of hot-add memory is created?
 >  
 >  /*
 >   * Flags for reserve_bootmem (also if CONFIG_HAVE_ARCH_BOOTMEM_NODE,
+
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
