@@ -1,37 +1,54 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 4/6] [PATCH] qeth: Update Kconfig wording
-Date: Mon, 21 Jan 2013 13:30:21 +0100
-Message-ID: <20130121123037.534460661@de.ibm.com>
-References: <20130121123017.240686588@de.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=603-qeth-kconfig-help.diff
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Stefan Raspl <raspl@linux.vnet.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 29 Jan 2013 09:10:19 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] one s390 patch for 3.8-rc6
+Message-ID: <20130129091019.0e7c4455@mschwide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Stefan Raspl <raspl@linux.vnet.ibm.com>
+Hi Linus,
 
-Refer to virtual NICs instead of GuestLANs.
+please pull from the 'for-linus' branch of
 
-Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
- drivers/s390/net/Kconfig |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
---- a/drivers/s390/net/Kconfig
-+++ b/drivers/s390/net/Kconfig
-@@ -74,8 +74,8 @@ config QETH
- 	depends on CCW && NETDEVICES && IP_MULTICAST && QDIO
- 	help
- 	  This driver supports the IBM System z OSA Express adapters
--	  in QDIO mode (all media types), HiperSockets interfaces and VM GuestLAN
--	  interfaces in QDIO and HIPER mode.
-+	  in QDIO mode (all media types), HiperSockets interfaces and z/VM
-+	  virtual NICs for Guest LAN and VSWITCH.
- 	
- 	  For details please refer to the documentation provided by IBM at
- 	  <http://www.ibm.com/developerworks/linux/linux390>
+to receive the following update:
+Another transparent huge page fix, we need to define a s390 variant
+for pmdp_set_wrprotect to flush the TLB for the huge page correctly.
+
+Gerald Schaefer (1):
+      s390/thp: implement pmdp_set_wrprotect()
+
+ arch/s390/include/asm/pgtable.h |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index c1d7930..098adbb 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -1365,6 +1365,18 @@ static inline void pmdp_invalidate(struct vm_area_struct *vma,
+ 	__pmd_idte(address, pmdp);
+ }
+ 
++#define __HAVE_ARCH_PMDP_SET_WRPROTECT
++static inline void pmdp_set_wrprotect(struct mm_struct *mm,
++				      unsigned long address, pmd_t *pmdp)
++{
++	pmd_t pmd = *pmdp;
++
++	if (pmd_write(pmd)) {
++		__pmd_idte(address, pmdp);
++		set_pmd_at(mm, address, pmdp, pmd_wrprotect(pmd));
++	}
++}
++
+ static inline pmd_t mk_pmd_phys(unsigned long physpage, pgprot_t pgprot)
+ {
+ 	pmd_t __pmd;
