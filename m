@@ -1,8 +1,8 @@
 From: Greg KH <gregkh@linuxfoundation.org>
 Subject: Re: [RFC PATCH v2 01/12] Add sys_hotplug.h for system device hotplug
  framework
-Date: Tue, 29 Jan 2013 23:53:30 -0500
-Message-ID: <20130130045330.GF30002@kroah.com>
+Date: Tue, 29 Jan 2013 23:58:30 -0500
+Message-ID: <20130130045830.GH30002@kroah.com>
 References: <1357861230-29549-1-git-send-email-toshi.kani@hp.com>
  <1357861230-29549-2-git-send-email-toshi.kani@hp.com>
 Mime-Version: 1.0
@@ -18,90 +18,66 @@ Cc: rjw@sisk.pl, lenb@kernel.org, akpm@linux-foundation.org, linux-acpi@vger.ker
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thu, Jan 10, 2013 at 04:40:19PM -0700, Toshi Kani wrote:
-> Added include/linux/sys_hotplug.h, which defines the system device
-> hotplug framework interfaces used by the framework itself and
-> handlers.
-> 
-> The order values define the calling sequence of handlers.  For add
-> execute, the ordering is ACPI->MEM->CPU.  Memory is onlined before
-> CPU so that threads on new CPUs can start using their local memory.
-> The ordering of the delete execute is symmetric to the add execute.
-> 
-> struct shp_request defines a hot-plug request information.  The
-> device resource information is managed with a list so that a single
-> request may target to multiple devices.
-> 
-> Signed-off-by: Toshi Kani <toshi.kani@hp.com>
-> ---
->  include/linux/sys_hotplug.h |  181 +++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 181 insertions(+)
->  create mode 100644 include/linux/sys_hotplug.h
-> 
-> diff --git a/include/linux/sys_hotplug.h b/include/linux/sys_hotplug.h
-> new file mode 100644
-> index 0000000..86674dd
-> --- /dev/null
-> +++ b/include/linux/sys_hotplug.h
-> @@ -0,0 +1,181 @@
 > +/*
-> + * sys_hotplug.h - System device hot-plug framework
-> + *
-> + * Copyright (C) 2012 Hewlett-Packard Development Company, L.P.
-> + *	Toshi Kani <toshi.kani@hp.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
+> + * Hot-plug device information
 > + */
+
+Again, stop it with the "generic" hotplug term here, and everywhere
+else.  You are doing a very _specific_ type of hotplug devices, so spell
+it out.  We've worked hard to hotplug _everything_ in Linux, you are
+going to confuse a lot of people with this type of terms.
+
+> +union shp_dev_info {
+> +	struct shp_cpu {
+> +		u32		cpu_id;
+> +	} cpu;
+
+What is this?  Why not point to the system device for the cpu?
+
+> +	struct shp_memory {
+> +		int		node;
+> +		u64		start_addr;
+> +		u64		length;
+> +	} mem;
+
+Same here, why not point to the system device?
+
+> +	struct shp_hostbridge {
+> +	} hb;
 > +
-> +#ifndef _LINUX_SYS_HOTPLUG_H
-> +#define _LINUX_SYS_HOTPLUG_H
+> +	struct shp_node {
+> +	} node;
+
+What happened here with these?  Empty structures?  Huh?
+
+> +};
 > +
-> +#include <linux/list.h>
-> +#include <linux/device.h>
+> +struct shp_device {
+> +	struct list_head	list;
+> +	struct device		*device;
+
+No, make it a "real" device, embed the device into it.
+
+But, again, I'm going to ask why you aren't using the existing cpu /
+memory / bridge / node devices that we have in the kernel.  Please use
+them, or give me a _really_ good reason why they will not work.
+
+> +	enum shp_class		class;
+> +	union shp_dev_info	info;
+> +};
 > +
 > +/*
-> + * System device hot-plug operation proceeds in the following order.
-> + *   Validate phase -> Execute phase -> Commit phase
-> + *
-> + * The order values below define the calling sequence of platform
-> + * neutral handlers for each phase in ascending order.  The order
-> + * values of firmware-specific handlers are defined in sys_hotplug.h
-> + * under firmware specific directories.
+> + * Hot-plug request
 > + */
+> +struct shp_request {
+> +	/* common info */
+> +	enum shp_operation	operation;	/* operation */
 > +
-> +/* All order values must be smaller than this value */
-> +#define SHP_ORDER_MAX				0xffffff
-> +
-> +/* Add Validate order values */
-> +
-> +/* Add Execute order values */
-> +#define SHP_MEM_ADD_EXECUTE_ORDER		100
-> +#define SHP_CPU_ADD_EXECUTE_ORDER		110
-> +
-> +/* Add Commit order values */
-> +
-> +/* Delete Validate order values */
-> +#define SHP_CPU_DEL_VALIDATE_ORDER		100
-> +#define SHP_MEM_DEL_VALIDATE_ORDER		110
-> +
-> +/* Delete Execute order values */
-> +#define SHP_CPU_DEL_EXECUTE_ORDER		10
-> +#define SHP_MEM_DEL_EXECUTE_ORDER		20
-> +
-> +/* Delete Commit order values */
-> +
+> +	/* hot-plug event info: only valid for hot-plug operations */
+> +	void			*handle;	/* FW handle */
+> +	u32			event;		/* FW event */
 
-Empty value?
-
-Anyway, as I said before, don't use "values", just call things directly
-in the order you need to.
-
-This isn't like other operating systems, we don't need to be so
-"flexible", we can modify the core code as much as we want and need to
-if future things come along :)
-
-thanks,
+What is this?
 
 greg k-h
 
