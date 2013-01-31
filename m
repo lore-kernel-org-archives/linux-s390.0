@@ -1,88 +1,89 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [RFC PATCH v2 01/12] Add sys_hotplug.h for system device hotplug
- framework
-Date: Tue, 29 Jan 2013 23:58:30 -0500
-Message-ID: <20130130045830.GH30002@kroah.com>
+From: Toshi Kani <toshi.kani@hp.com>
+Subject: Re: [RFC PATCH v2 01/12] Add sys_hotplug.h for system device
+ hotplug framework
+Date: Wed, 30 Jan 2013 18:15:12 -0700
+Message-ID: <1359594912.15120.85.camel@misato.fc.hp.com>
 References: <1357861230-29549-1-git-send-email-toshi.kani@hp.com>
- <1357861230-29549-2-git-send-email-toshi.kani@hp.com>
+	 <5036592.TuXAnGzk4M@vostro.rjw.lan>
+	 <1358177628.14145.49.camel@misato.fc.hp.com>
+	 <2154272.qDAyBlTr8z@vostro.rjw.lan>
+	 <1358190124.14145.79.camel@misato.fc.hp.com>
+	 <20130130044859.GD30002@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <owner-linux-mm@kvack.org>
-Content-Disposition: inline
-In-Reply-To: <1357861230-29549-2-git-send-email-toshi.kani@hp.com>
-Sender: owner-linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20130130044859.GD30002@kroah.com>
+Sender: linux-acpi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Toshi Kani <toshi.kani@hp.com>
-Cc: rjw@sisk.pl, lenb@kernel.org, akpm@linux-foundation.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, bhelgaas@google.com, isimatu.yasuaki@jp.fujitsu.com, jiang.liu@huawei.com, wency@cn.fujitsu.com, guohanjun@huawei.com, yinghai@kernel.org, srivatsa.bhat@linux.vnet.ibm.com
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, lenb@kernel.org, akpm@linux-foundation.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, bhelgaas@google.com, isimatu.yasuaki@jp.fujitsu.com, jiang.liu@huawei.com, wency@cn.fujitsu.com, guohanjun@huawei.com, yinghai@kernel.org, srivatsa.bhat@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jan 10, 2013 at 04:40:19PM -0700, Toshi Kani wrote:
-> +/*
-> + * Hot-plug device information
-> + */
+On Tue, 2013-01-29 at 23:48 -0500, Greg KH wrote:
+> On Mon, Jan 14, 2013 at 12:02:04PM -0700, Toshi Kani wrote:
+> > On Mon, 2013-01-14 at 19:48 +0100, Rafael J. Wysocki wrote:
+> > > On Monday, January 14, 2013 08:33:48 AM Toshi Kani wrote:
+> > > > On Fri, 2013-01-11 at 22:23 +0100, Rafael J. Wysocki wrote:
+> > > > > On Thursday, January 10, 2013 04:40:19 PM Toshi Kani wrote:
+> > > > > > Added include/linux/sys_hotplug.h, which defines the system device
+> > > > > > hotplug framework interfaces used by the framework itself and
+> > > > > > handlers.
+> > > > > > 
+> > > > > > The order values define the calling sequence of handlers.  For add
+> > > > > > execute, the ordering is ACPI->MEM->CPU.  Memory is onlined before
+> > > > > > CPU so that threads on new CPUs can start using their local memory.
+> > > > > > The ordering of the delete execute is symmetric to the add execute.
+> > > > > > 
+> > > > > > struct shp_request defines a hot-plug request information.  The
+> > > > > > device resource information is managed with a list so that a single
+> > > > > > request may target to multiple devices.
+> > > > > > 
+> > > >  :
+> > > > > > +
+> > > > > > +struct shp_device {
+> > > > > > +	struct list_head	list;
+> > > > > > +	struct device		*device;
+> > > > > > +	enum shp_class		class;
+> > > > > > +	union shp_dev_info	info;
+> > > > > > +};
+> > > > > > +
+> > > > > > +/*
+> > > > > > + * Hot-plug request
+> > > > > > + */
+> > > > > > +struct shp_request {
+> > > > > > +	/* common info */
+> > > > > > +	enum shp_operation	operation;	/* operation */
+> > > > > > +
+> > > > > > +	/* hot-plug event info: only valid for hot-plug operations */
+> > > > > > +	void			*handle;	/* FW handle */
+> > > > > 
+> > > > > What's the role of handle here?
+> > > > 
+> > > > On ACPI-based platforms, the handle keeps a notified ACPI handle when a
+> > > > hot-plug request is made.  ACPI bus handlers, acpi_add_execute() /
+> > > > acpi_del_execute(), then scans / trims ACPI devices from the handle.
+> > > 
+> > > OK, so this is ACPI-specific and should be described as such.
+> > 
+> > Other FW interface I know is parisc, which has mod_index (module index)
+> > to identify a unique object, just like what ACPI handle does.  The
+> > handle can keep the mod_index as an opaque value as well.  But as you
+> > said, I do not know if the handle works for all other FWs.  So, I will
+> > add descriptions, such that the hot-plug event info is modeled after
+> > ACPI and may need to be revisited when supporting other FW.
+> 
+> Please make it a "real" pointer, and not a void *, those shouldn't be
+> used at all if possible.
 
-Again, stop it with the "generic" hotplug term here, and everywhere
-else.  You are doing a very _specific_ type of hotplug devices, so spell
-it out.  We've worked hard to hotplug _everything_ in Linux, you are
-going to confuse a lot of people with this type of terms.
+How about changing the "void *handle" to acpi_dev_node below?   
 
-> +union shp_dev_info {
-> +	struct shp_cpu {
-> +		u32		cpu_id;
-> +	} cpu;
+   struct acpi_dev_node    acpi_node;
 
-What is this?  Why not point to the system device for the cpu?
+Basically, it has the same challenge as struct device, which uses
+acpi_dev_node as well.  We can add other FW node when needed (just like
+device also has *of_node).
 
-> +	struct shp_memory {
-> +		int		node;
-> +		u64		start_addr;
-> +		u64		length;
-> +	} mem;
-
-Same here, why not point to the system device?
-
-> +	struct shp_hostbridge {
-> +	} hb;
-> +
-> +	struct shp_node {
-> +	} node;
-
-What happened here with these?  Empty structures?  Huh?
-
-> +};
-> +
-> +struct shp_device {
-> +	struct list_head	list;
-> +	struct device		*device;
-
-No, make it a "real" device, embed the device into it.
-
-But, again, I'm going to ask why you aren't using the existing cpu /
-memory / bridge / node devices that we have in the kernel.  Please use
-them, or give me a _really_ good reason why they will not work.
-
-> +	enum shp_class		class;
-> +	union shp_dev_info	info;
-> +};
-> +
-> +/*
-> + * Hot-plug request
-> + */
-> +struct shp_request {
-> +	/* common info */
-> +	enum shp_operation	operation;	/* operation */
-> +
-> +	/* hot-plug event info: only valid for hot-plug operations */
-> +	void			*handle;	/* FW handle */
-> +	u32			event;		/* FW event */
-
-What is this?
-
-greg k-h
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+Thanks,
+-Toshi
