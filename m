@@ -1,142 +1,112 @@
-From: Toshi Kani <toshi.kani@hp.com>
-Subject: Re: [RFC PATCH v2 01/12] Add sys_hotplug.h for system device
- hotplug framework
-Date: Mon, 04 Feb 2013 15:13:29 -0700
-Message-ID: <1360016009.23410.213.camel@misato.fc.hp.com>
-References: <1357861230-29549-1-git-send-email-toshi.kani@hp.com>
-	 <2048116.Qo8UgQ5hjb@vostro.rjw.lan> <20130204143351.GA20119@kroah.com>
-	 <5598823.8hjkkMP1h9@vostro.rjw.lan>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [RFC PATCH v2 01/12] Add sys_hotplug.h for system device hotplug framework
+Date: Tue, 05 Feb 2013 00:19:59 +0100
+Message-ID: <2002851.rU9bZPbPSe@vostro.rjw.lan>
+References: <1357861230-29549-1-git-send-email-toshi.kani@hp.com> <23473445.t1DSaBm58X@vostro.rjw.lan> <1360010058.23410.169.camel@misato.fc.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <5598823.8hjkkMP1h9@vostro.rjw.lan>
-Sender: linux-acpi-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1360010058.23410.169.camel@misato.fc.hp.com>
+Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Toshi Kani <toshi.kani@hp.com>
 Cc: Greg KH <gregkh@linuxfoundation.org>, lenb@kernel.org, akpm@linux-foundation.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, bhelgaas@google.com, isimatu.yasuaki@jp.fujitsu.com, jiang.liu@huawei.com, wency@cn.fujitsu.com, guohanjun@huawei.com, yinghai@kernel.org, srivatsa.bhat@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 2013-02-04 at 21:07 +0100, Rafael J. Wysocki wrote:
-> On Monday, February 04, 2013 06:33:52 AM Greg KH wrote:
-> > On Mon, Feb 04, 2013 at 03:21:22PM +0100, Rafael J. Wysocki wrote:
-> > > On Monday, February 04, 2013 04:48:10 AM Greg KH wrote:
-> > > > On Sun, Feb 03, 2013 at 09:44:39PM +0100, Rafael J. Wysocki wrote:
-> > > > > > Yes, but those are just remove events and we can only see how destructive they
-> > > > > > were after the removal.  The point is to be able to figure out whether or not
-> > > > > > we *want* to do the removal in the first place.
+On Monday, February 04, 2013 01:34:18 PM Toshi Kani wrote:
+> On Mon, 2013-02-04 at 21:12 +0100, Rafael J. Wysocki wrote:
+> > On Monday, February 04, 2013 12:46:24 PM Toshi Kani wrote:
+> > > On Mon, 2013-02-04 at 20:48 +0100, Rafael J. Wysocki wrote:
+> > > > On Monday, February 04, 2013 09:02:46 AM Toshi Kani wrote:
+> > > > > On Mon, 2013-02-04 at 14:41 +0100, Rafael J. Wysocki wrote:
+> > > > > > On Sunday, February 03, 2013 07:23:49 PM Greg KH wrote:
+> > > > > > > On Sat, Feb 02, 2013 at 09:15:37PM +0100, Rafael J. Wysocki wrote:
+> > > > > > > > On Saturday, February 02, 2013 03:58:01 PM Greg KH wrote:
+> > > > >   :
+> > > > > > > > Yes, but those are just remove events and we can only see how destructive they
+> > > > > > > > were after the removal.  The point is to be able to figure out whether or not
+> > > > > > > > we *want* to do the removal in the first place.
+> > > > > > > 
+> > > > > > > Yes, but, you will always race if you try to test to see if you can shut
+> > > > > > > down a device and then trying to do it.  So walking the bus ahead of
+> > > > > > > time isn't a good idea.
+> > > > > > >
+> > > > > > > And, we really don't have a viable way to recover if disconnect() fails,
+> > > > > > > do we.  What do we do in that situation, restore the other devices we
+> > > > > > > disconnected successfully?  How do we remember/know what they were?
+> > > > > > > 
+> > > > > > > PCI hotplug almost had this same problem until the designers finally
+> > > > > > > realized that they just had to accept the fact that removing a PCI
+> > > > > > > device could either happen by:
+> > > > > > > 	- a user yanking out the device, at which time the OS better
+> > > > > > > 	  clean up properly no matter what happens
+> > > > > > > 	- the user asked nicely to remove a device, and the OS can take
+> > > > > > > 	  as long as it wants to complete that action, including
+> > > > > > > 	  stalling for noticable amounts of time before eventually,
+> > > > > > > 	  always letting the action succeed.
+> > > > > > > 
+> > > > > > > I think the second thing is what you have to do here.  If a user tells
+> > > > > > > the OS it wants to remove these devices, you better do it.  If you
+> > > > > > > can't, because memory is being used by someone else, either move them
+> > > > > > > off, or just hope that nothing bad happens, before the user gets
+> > > > > > > frustrated and yanks out the CPU/memory module themselves physically :)
 > > > > > > 
-> > > > > > Say you have a computing node which signals a hardware problem in a processor
-> > > > > > package (the container with CPU cores, memory, PCI host bridge etc.).  You
-> > > > > > may want to eject that package, but you don't want to kill the system this
-> > > > > > way.  So if the eject is doable, it is very much desirable to do it, but if it
-> > > > > > is not doable, you'd rather shut the box down and do the replacement afterward.
-> > > > > > That may be costly, however (maybe weeks of computations), so it should be
-> > > > > > avoided if possible, but not at the expense of crashing the box if the eject
-> > > > > > doesn't work out.
+> > > > > > Well, that we can't help, but sometimes users really *want* the OS to tell them
+> > > > > > if it is safe to unplug something at this particualr time (think about the
+> > > > > > Windows' "safe remove" feature for USB sticks, for example; that came out of
+> > > > > > users' demand AFAIR).
+> > > > > > 
+> > > > > > So in my opinion it would be good to give them an option to do "safe eject" or
+> > > > > > "forcible eject", whichever they prefer.
 > > > > > 
-> > > > > It seems to me that we could handle that with the help of a new flag, say
-> > > > > "no_eject", in struct device, a global mutex, and a function that will walk
-> > > > > the given subtree of the device hierarchy and check if "no_eject" is set for
-> > > > > any devices in there.  Plus a global "no_eject" switch, perhaps.
+> > > > > For system device hot-plug, it always needs to be "safe eject".  This
+> > > > > feature will be implemented on mission critical servers, which are
+> > > > > managed by professional IT folks.  Crashing a server causes serious
+> > > > > money to the business.
 > > > > 
-> > > > I think this will always be racy, or at worst, slow things down on
-> > > > normal device operations as you will always be having to grab this flag
-> > > > whenever you want to do something new.
+> > > > Well, "always" is a bit too strong a word as far as human behavior is concerned
+> > > > in my opinion.
+> > > > 
+> > > > That said I would be perfectly fine with not supporting the "forcible eject" to
+> > > > start with and waiting for the first request to add support for it.  I also
+> > > > would be fine with taking bets on how much time it's going to take for such a
+> > > > request to appear. :-)
 > > > 
-> > > I don't see why this particular scheme should be racy, at least I don't see any
-> > > obvious races in it (although I'm not that good at races detection in general,
-> > > admittedly).
-> > > 
-> > > Also, I don't expect that flag to be used for everything, just for things known
-> > > to seriously break if forcible eject is done.  That may be not precise enough,
-> > > so that's a matter of defining its purpose more precisely.
-> > > 
-> > > We can do something like that on the ACPI level (ie. introduce a no_eject flag
-> > > in struct acpi_device and provide an iterface for the layers above ACPI to
-> > > manipulate it) but then devices without ACPI namespace objects won't be
-> > > covered.  That may not be a big deal, though.
-> > > 
-> > > So say dev is about to be used for something incompatible with ejecting, so to
-> > > speak.  Then, one would do platform_lock_eject(dev), which would check if dev
-> > > has an ACPI handle and then take acpi_eject_lock (if so).  The return value of
-> > > platform_lock_eject(dev) would need to be checked to see if the device is not
-> > > gone.  If it returns success (0), one would do something to the device and
-> > > call platform_no_eject(dev) and then platform_unlock_eject(dev).
+> > > Sounds good.  In my experience, though, it actually takes a LONG time to
+> > > convince customers that "safe eject" is actually safe.  Enterprise
+> > > customers are so afraid of doing anything risky that might cause the
+> > > system to crash or hang due to some defect.  I would be very surprised
+> > > to see a customer asking for a force operation when we do not guarantee
+> > > its outcome.  I have not seen such enterprise customers yet.
 > > 
-> > How does a device "know" it is doing something that is incompatible with
-> > ejecting?  That's a non-trivial task from what I can tell.
+> > But we're talking about a kernel that is supposed to run on mobile phones too,
+> > among other things.
 > 
-> I agree that this is complicated in general.  But.
+> I think using this feature for RAS i.e. replacing a faulty device
+> on-line, will continue to be limited for high-end systems.  For low-end
+> systems, it does not make sense for customers to pay much $$ for this
+> feature.  They can just shut the system down for replacement, or they
+> can simply buy a new system instead of repairing.
 > 
-> There are devices known to have software "offline" and "online" operations
-> such that after the "offline" the given device is guaranteed to be not used
-> until "online".  We have that for CPU cores, for example, and user space can
-> do it via /sys/devices/system/cpu/cpuX/online .  So, why don't we make the
-> "online" set the no_eject flag (under the lock as appropriate) and the
-> "offline" clear it?  And why don't we define such "online" and "offline" for
-> all of the other "system" stuff, like memory, PCI host bridges etc. and make it
-> behave analogously?
-> 
-> Then, it is quite simple to say which devices should use the no_eject flag:
-> devices that have "online" and "offline" exported to user space.  And guess
-> who's responsible for "offlining" all of those things before trying to eject
-> them: user space is.  From the kernel's point of view it is all clear.  Hands
-> clean. :-)
-> 
-> Now, there's a different problem how to expose all of the relevant information
-> to user space so that it knows what to "offline" for the specific eject
-> operation to succeed, but that's kind of separate and worth addressing
-> anyway.
+> That said, using this feature on VM for workload balancing does not
+> require any special hardware.  So, I can see someone willing to try out
+> to see how it goes with a force option on VM for personal use.   
 
-So, the idea is to run a user space program that off-lines all relevant
-devices before trimming ACPI devices.  Is that right?  That sounds like
-a worth idea to consider with.  This basically moves the "sequencer"
-part into user space instead of the kernel space in my proposal.  I
-agree that how to expose all of the relevant info to user space is an
-issue.  Also, we will need to make sure that the user program always
-runs per a kernel request and then informs a result back to the kernel,
-so that the kernel can do the rest of an operation and inform a result
-to FW with _OST or _EJ0.  This loop has to close.  I think it is going
-to be more complicated than the kernel-only approach.
-
-In addition, I am not sure if the "no_eject" flag in acpi_device is
-really necessary here since the user program will inform the kernel if
-all devices are off-line.  Also, the kernel will likely need to expose
-the device info to the user program to tell which devices need to be
-off-lined.  At that time, the kernel already knows if there is any
-on-line device in the scope.
-
-
-> > What happens if a device wants to set that flag, right after it was told
-> > to eject and the device was in the middle of being removed?  How can you
-> > "fail" the "I can't be removed me now, so don't" requirement that it now
-> > has?
-> 
-> This one is easy. :-)
-> 
-> If platform_lock_eject() is called when an eject is under way, it will block
-> on acpi_eject_lock until the eject is complete and if the device is gone as
-> a result of the eject, it will return an error code.
-
-In this case, we do really need to make sure that the user program does
-not get killed in the middle of its operation since the kernel is
-holding a lock while it is under way.
-
+Besides, SMP was a $$ "enterprise" feature not so long ago, so things tend to
+change. :-)
 
 Thanks,
--Toshi
+Rafael
 
 
-> In turn, if an eject happens after platform_lock_eject(), it will block until
-> platform_unlock_eject() and if platform_no_eject() is called in between the
-> lock and unlock, it will notice the device with no_eject set and bail out.
-> 
-> Quite obviously, it would be a bug to call platform_lock_eject() from within an
-> eject code path.
-> 
-> Thanks,
-> Rafael
-> 
-> 
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
