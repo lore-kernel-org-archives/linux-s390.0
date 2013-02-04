@@ -1,164 +1,165 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC PATCH v2 01/12] Add sys_hotplug.h for system device hotplug framework
-Date: Sun, 03 Feb 2013 21:44:39 +0100
-Message-ID: <5876609.Ic1nhHW6N2@vostro.rjw.lan>
-References: <1357861230-29549-1-git-send-email-toshi.kani@hp.com> <20130202145801.GB1434@kroah.com> <1810611.i6Sc4oLaux@vostro.rjw.lan>
+From: Toshi Kani <toshi.kani@hp.com>
+Subject: Re: [RFC PATCH v2 01/12] Add sys_hotplug.h for system device
+ hotplug framework
+Date: Sun, 03 Feb 2013 17:28:09 -0700
+Message-ID: <1359937689.23410.82.camel@misato.fc.hp.com>
+References: <1357861230-29549-1-git-send-email-toshi.kani@hp.com>
+	 <20130130045830.GH30002@kroah.com>
+	 <1359601065.15120.156.camel@misato.fc.hp.com>
+	 <9860755.q4y3PrCFZx@vostro.rjw.lan>
+	 <1359682338.15120.209.camel@misato.fc.hp.com>
+	 <20130201073010.GC1180@kroah.com>
+	 <1359751210.15120.278.camel@misato.fc.hp.com>
+	 <20130202150154.GC1434@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1810611.i6Sc4oLaux@vostro.rjw.lan>
-Sender: owner-linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20130202150154.GC1434@kroah.com>
+Sender: linux-acpi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
 To: Greg KH <gregkh@linuxfoundation.org>
-Cc: Toshi Kani <toshi.kani@hp.com>, lenb@kernel.org, akpm@linux-foundation.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, bhelgaas@google.com, isimatu.yasuaki@jp.fujitsu.com, jiang.liu@huawei.com, wency@cn.fujitsu.com, guohanjun@huawei.com, yinghai@kernel.org, srivatsa.bhat@linux.vnet.ibm.com
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, "lenb@kernel.org" <lenb@kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "bhelgaas@google.com" <bhelgaas@google.com>, "isimatu.yasuaki@jp.fujitsu.com" <isimatu.yasuaki@jp.fujitsu.com>, "jiang.liu@huawei.com" <jiang.liu@huawei.com>, "wency@cn.fujitsu.com" <wency@cn.fujitsu.com>, "guohanjun@huawei.com" <guohanjun@huawei.com>, "yinghai@kernel.org" <yinghai@kernel.org>, "srivatsa.bhat@linux.vnet.ibm.com" <srivatsa.bhat@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Saturday, February 02, 2013 09:15:37 PM Rafael J. Wysocki wrote:
-> On Saturday, February 02, 2013 03:58:01 PM Greg KH wrote:
-> > On Fri, Feb 01, 2013 at 11:12:59PM +0100, Rafael J. Wysocki wrote:
-> > > On Friday, February 01, 2013 08:23:12 AM Greg KH wrote:
-> > > > On Thu, Jan 31, 2013 at 09:54:51PM +0100, Rafael J. Wysocki wrote:
-> > > > > > > But, again, I'm going to ask why you aren't using the existing cpu /
-> > > > > > > memory / bridge / node devices that we have in the kernel.  Please use
-> > > > > > > them, or give me a _really_ good reason why they will not work.
-> > > > > > 
-> > > > > > We cannot use the existing system devices or ACPI devices here.  During
-> > > > > > hot-plug, ACPI handler sets this shp_device info, so that cpu and memory
-> > > > > > handlers (drivers/cpu.c and mm/memory_hotplug.c) can obtain their target
-> > > > > > device information in a platform-neutral way.  During hot-add, we first
-> > > > > > creates an ACPI device node (i.e. device under /sys/bus/acpi/devices),
-> > > > > > but platform-neutral modules cannot use them as they are ACPI-specific.
-> > > > > 
-> > > > > But suppose we're smart and have ACPI scan handlers that will create
-> > > > > "physical" device nodes for those devices during the ACPI namespace scan.
-> > > > > Then, the platform-neutral nodes will be able to bind to those "physical"
-> > > > > nodes.  Moreover, it should be possible to get a hierarchy of device objects
-> > > > > this way that will reflect all of the dependencies we need to take into
-> > > > > account during hot-add and hot-remove operations.  That may not be what we
-> > > > > have today, but I don't see any *fundamental* obstacles preventing us from
-> > > > > using this approach.
-> > > > 
-> > > > I would _much_ rather see that be the solution here as I think it is the
-> > > > proper one.
-> > > > 
-> > > > > This is already done for PCI host bridges and platform devices and I don't
+On Sat, 2013-02-02 at 16:01 +0100, Greg KH wrote:
+> On Fri, Feb 01, 2013 at 01:40:10PM -0700, Toshi Kani wrote:
+> > On Fri, 2013-02-01 at 07:30 +0000, Greg KH wrote:
+> > > On Thu, Jan 31, 2013 at 06:32:18PM -0700, Toshi Kani wrote:
+> > >  > This is already done for PCI host bridges and platform devices and I don't
 > > > > > see why we can't do that for the other types of devices too.
-> > > > 
-> > > > I agree.
-> > > > 
+> > > > > 
 > > > > > The only missing piece I see is a way to handle the "eject" problem, i.e.
 > > > > > when we try do eject a device at the top of a subtree and need to tear down
 > > > > > the entire subtree below it, but if that's going to lead to a system crash,
 > > > > > for example, we want to cancel the eject.  It seems to me that we'll need some
 > > > > > help from the driver core here.
 > > > > 
-> > > > I say do what we always have done here, if the user asked us to tear
-> > > > something down, let it happen as they are the ones that know best :)
+> > > > There are three different approaches suggested for system device
+> > > > hot-plug:
+> > > >  A. Proceed within system device bus scan.
+> > > >  B. Proceed within ACPI bus scan.
+> > > >  C. Proceed with a sequence (as a mini-boot).
 > > > > 
-> > > > Seriously, I guess this gets back to the "fail disconnect" idea that the
-> > > > ACPI developers keep harping on.  I thought we already resolved this
-> > > > properly by having them implement it in their bus code, no reason the
-> > > > same thing couldn't happen here, right?
+> > > > Option A uses system devices as tokens, option B uses acpi devices as
+> > > > tokens, and option C uses resource tables as tokens, for their handlers.
+> > > > 
+> > > > Here is summary of key questions & answers so far.  I hope this
+> > > > clarifies why I am suggesting option 3.
+> > > > 
+> > > > 1. What are the system devices?
+> > > > System devices provide system-wide core computing resources, which are
+> > > > essential to compose a computer system.  System devices are not
+> > > > connected to any particular standard buses.
 > > > 
-> > > Not really. :-)  We haven't ever resolved that particular issue I'm afraid.
+> > > Not a problem, lots of devices are not connected to any "particular
+> > > standard busses".  All this means is that system devices are connected
+> > > to the "system" bus, nothing more.
 > > 
-> > Ah, I didn't realize that.
-> > 
-> > > > I don't think the core needs to do anything special, but if so, I'll be glad
-> > > > to review it.
-> > > 
-> > > OK, so this is the use case.  We have "eject" defined for something like
-> > > a container with a number of CPU cores, PCI host bridge, and a memory
-> > > controller under it.  And a few pretty much arbitrary I/O devices as a bonus.
-> > > 
-> > > Now, there's a button on the system case labeled as "Eject" and if that button
-> > > is pressed, we're supposed to _try_ to eject all of those things at once.  We
-> > > are allowed to fail that request, though, if that's problematic for some
-> > > reason, but we're supposed to let the BIOS know about that.
-> > > 
-> > > Do you seriously think that if that button is pressed, we should just proceed
-> > > with removing all that stuff no matter what?  That'd be kind of like Russian
-> > > roulette for whoever pressed that button, because s/he could only press it and
-> > > wait for the system to either crash or not.  Or maybe to crash a bit later
-> > > because of some delayed stuff that would hit one of those devices that had just
-> > > gone.  Surely not a situation any admin of a high-availability system would
-> > > like to be in. :-)
-> > > 
-> > > Quite frankly, I have no idea how that can be addressed in a single bus type,
-> > > let alone ACPI (which is not even a proper bus type, just something pretending
-> > > to be one).
-> > 
-> > You don't have it as a single bus type, you have a controller somewhere,
-> > off of the bus being destroyed, that handles sending remove events to
-> > the device and tearing everything down.  PCI does this from the very
-> > beginning.
+> > Can you give me a few examples of other devices that support hotplug and
+> > are not connected to any particular buses?  I will investigate them to
+> > see how they are managed to support hotplug.
 > 
-> Yes, but those are just remove events and we can only see how destructive they
-> were after the removal.  The point is to be able to figure out whether or not
-> we *want* to do the removal in the first place.
+> Any device that is attached to any bus in the driver model can be
+> hotunplugged from userspace by telling it to be "unbound" from the
+> driver controlling it.  Try it for any platform device in your system to
+> see how it happens.
+
+The unbind operation, as I understand from you, is to detach a driver
+from a device.  Yes, unbinding can be done for any devices.  It is
+however different from hot-plug operation, which unplugs a device.
+
+Today, the unbind operation to an ACPI cpu/memory devices causes
+hot-unplug (offline) operation to them, which is one of the major issues
+for us since unbind cannot fail.  This patchset addresses this issue by
+making the unbind operation of ACPI cpu/memory devices to do the
+unbinding only.  ACPI drivers no longer control cpu and memory as they
+are supposed to be controlled by their drivers, cpu and memory modules.
+The current hotplug code requires putting all device control stuff into
+ACPI, which this patchset is trying to fix it.
+
+
+> > > > 2. Why are the system devices special?
+> > > > The system devices are initialized during early boot-time, by multiple
+> > > > subsystems, from the boot-up sequence, in pre-defined order.  They
+> > > > provide low-level services to enable other subsystems to come up.
+> > > 
+> > > Sorry, no, that doesn't mean they are special, nothing here is unique
+> > > for the point of view of the driver model from any other device or bus.
+> > 
+> > I think system devices are unique in a sense that they are initialized
+> > before drivers run.
 > 
-> Say you have a computing node which signals a hardware problem in a processor
-> package (the container with CPU cores, memory, PCI host bridge etc.).  You
-> may want to eject that package, but you don't want to kill the system this
-> way.  So if the eject is doable, it is very much desirable to do it, but if it
-> is not doable, you'd rather shut the box down and do the replacement afterward.
-> That may be costly, however (maybe weeks of computations), so it should be
-> avoided if possible, but not at the expense of crashing the box if the eject
-> doesn't work out.
+> No, most all devices are "initialized" before a driver runs on it, USB
+> is one such example, PCI another, and I'm pretty sure that there are
+> others.
 
-It seems to me that we could handle that with the help of a new flag, say
-"no_eject", in struct device, a global mutex, and a function that will walk
-the given subtree of the device hierarchy and check if "no_eject" is set for
-any devices in there.  Plus a global "no_eject" switch, perhaps.
+USB devices can be initialized after the USB bus driver is initialized.
+Similarly, PCI devices can be initialized after the PCI bus driver is
+initialized.  However, CPU and memory are initialized without any
+dependency to their bus driver since there is no such thing.
 
-To be more precise, suppose we have a "no_eject" flag that is set for a device
-when the kernel is about to start using it in such a way that ejecting it would
-lead to serious trouble (i.e. it is a memory module holding the kernel's page
-tables or something like that).  Next, suppose that we have a function called,
-say, "device_may_eject()" that will walk the subtree of the device hierarchy
-starting at the given node and return false if any of the devices in there have
-"no_eject" set.  Further, require that device_may_eject() has to be called
-under a global mutex called something like "device_eject_lock".  Then, we can
-arrange things as follows:
-
-1. When a device is about to be used for such purposes that it shouldn't be
-   ejected, the relevant code should:
-  (a) Acquire device_eject_lock.
-  (b) Check if the device is still there and go to (e) if not.
-  (c) Do whatever needs to be done to the device.
-  (d) Set the device's no_eject flag.
-  (e) Release device_eject_lock.
-
-2. When an eject operation is about to be carried out on a subtree of the device
-   hierarchy, the eject code (be it ACPI or something else) should:
-  (a) Acquire device_eject_lock.
-  (b) Call device_may_eject() on the starting device and go to (d) if it
-      returns false.
-  (c) Carry out the eject (that includes calling .remove() from all of the
-      involved drivers in partiular).
-  (d) Release device_eject_lock.
-
-3. When it is OK to eject the device again, the relevant code should just clear
-   its "no_eject" flag under device_eject_lock.
-
-If we want to synchronize that with such things like boot or system suspend,
-a global "no_eject" switch can be used for that (it needs to be manipulated
-under device_eject_lock) and one more step (check the global "no_eject") is
-needed between 2(a) and 2(b).
-
-Does it look like a reasonable approach?
-
-Rafael
+In addition, CPU and memory have two drivers -- their actual
+drivers/subsystems and their ACPI drivers.  Their actual
+drivers/subsystems initialize cpu and memory.  The ACPI drivers
+initialize driver-specific data of their ACPI nodes.  During hot-plug
+operation, however, the current code requires these ACPI drivers to do
+their hot-plug operations.  This patchset keeps them separated during
+hot-plug and let their actual drivers/subsystems to do the job.
 
 
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+> > > If you need to initialize the driver
+> > > core earlier, then do so.  Or, even better, just wait until enough of
+> > > the system has come up and then go initialize all of the devices you
+> > > have found so far as part of your boot process.
+> > 
+> > They are pseudo drivers that provide sysfs entry points of cpu and
+> > memory.  They do not actually initialize cpu and memory.  I do not think
+> > initializing cpu and memory fits into the driver model either, since
+> > drivers should run after cpu and memory are initialized.
+> 
+> We already represent CPUs in the sysfs tree, don't represent them in two
+> different places with two different structures.  Use the existing ones
+> please.
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+This patchset does not make any changes to sysfs.  It does however make
+the system drivers to control the system devices, and ACPI to do the
+ACPI stuff only.
+
+The boot sequence calls the following steps to initialize memory and
+cpu, as well as their acpi nodes.  These steps are independent, i.e. #1
+and #2 run without ACPI.
+
+ 1. mm -> initialize memory -> create sysfs system/memory
+ 2. smp/cpu -> initialize cpu -> create sysfs system/cpu
+ 3. acpi core -> acpi scan -> create sysfs acpi nodes
+
+While there are 3 separate steps at boot, the current hotplug code tries
+to do everything in #3.  Therefore, this patchset provides a sequencer
+(which is similar to the boot sequence) to run these steps during a
+hot-plug operation as well.  Hence, we have consistent steps and role
+mode between boot and hot-plug operations.
+
+
+> > > None of the above things you have stated seem to have anything to do
+> > > with your proposed patch, so I don't understand why you have mentioned
+> > > them...
+> > 
+> > You suggested option A before, which uses system bus scan to initialize
+> > all system devices at boot time as well as hot-plug.  I tried to say
+> > that this option would not be doable.
+> 
+> I haven't yet been convinced otherwise, sorry.  Please prove me wrong :)
+
+This patchset enables the system drivers (i.e. cpu and memory drivers)
+to do the hot-plug operations, and ACPI core to do the ACPI stuff.
+
+We should not go with the system driver only approach since we do need
+to use ACPI stuff.  Also, we should not go with the ACPI only approach
+since we do need to use the system (and other) drivers.  This patchset
+provides a sequencer to manage these steps across multiple subsystems.
+
+
+Thanks,
+-Toshi
