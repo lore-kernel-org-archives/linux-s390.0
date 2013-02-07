@@ -1,84 +1,88 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC PATCH v2 01/12] Add sys_hotplug.h for system device hotplug framework
-Date: Tue, 05 Feb 2013 22:13:49 +0100
-Message-ID: <1692384.YXBH6mB6ZX@vostro.rjw.lan>
-References: <1357861230-29549-1-git-send-email-toshi.kani@hp.com> <4225828.6MQHJn7Yzr@vostro.rjw.lan> <20130205183948.GA19026@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20130205183948.GA19026@kroah.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: Toshi Kani <toshi.kani@hp.com>, lenb@kernel.org, akpm@linux-foundation.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, bhelgaas@google.com, isimatu.yasuaki@jp.fujitsu.com, jiang.liu@huawei.com, wency@cn.fujitsu.com, guohanjun@huawei.com, yinghai@kernel.org, srivatsa.bhat@linux.vnet.ibm.com
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH] KVM: s390: Fix handling of iscs.
+Date: Thu,  7 Feb 2013 13:20:52 +0100
+Message-ID: <1360239652-52350-2-git-send-email-cornelia.huck@de.ibm.com>
+References: <1360239652-52350-1-git-send-email-cornelia.huck@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1360239652-52350-1-git-send-email-cornelia.huck@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tuesday, February 05, 2013 10:39:48 AM Greg KH wrote:
-> On Tue, Feb 05, 2013 at 12:11:17PM +0100, Rafael J. Wysocki wrote:
-> > On Monday, February 04, 2013 04:04:47 PM Greg KH wrote:
-> > > On Tue, Feb 05, 2013 at 12:52:30AM +0100, Rafael J. Wysocki wrote:
-> > > > You'd probably never try to hot-remove a disk before unmounting filesystems
-> > > > mounted from it or failing it as a RAID component and nobody sane wants the
-> > > > kernel to do things like that automatically when the user presses the eject
-> > > > button.  In my opinion we should treat memory eject, or CPU package eject, or
-> > > > PCI host bridge eject in exactly the same way: Don't eject if it is not
-> > > > prepared for ejecting in the first place.
-> > > 
-> > > Bad example, we have disks hot-removed all the time without any
-> > > filesystems being unmounted, and have supported this since the 2.2 days
-> > > (although we didn't get it "right" until 2.6.)
-> > 
-> > I actually don't think it is really bad, because it exposes the problem nicely.
-> > 
-> > Namely, there are two arguments that can be made here.  The first one is the
-> > usability argument: Users should always be allowed to do what they want,
-> > because it is [explicit content] annoying if software pretends to know better
-> > what to do than the user (it is a convenience argument too, because usually
-> > it's *easier* to allow users to do what they want).  The second one is the
-> > data integrity argument: Operations that may lead to data loss should never
-> > be carried out, because it is [explicit content] disappointing to lose valuable
-> > stuff by a stupid mistake if software allows that mistake to be made (that also
-> > may be costly in terms of real money).
-> > 
-> > You seem to believe that we should always follow the usability argument, while
-> > Toshi seems to be thinking that (at least in the case of the "system" devices),
-> > the data integrity argument is more important.  They are both valid arguments,
-> > however, and they are in conflict, so this is a matter of balance.
-> > 
-> > You're saying that in the case of disks we always follow the usability argument
-> > entirely.  I'm fine with that, although I suspect that some people may not be
-> > considering this as the right balance.
-> > 
-> > Toshi seems to be thinking that for the hotplug of memory/CPUs/host bridges we
-> > should always follow the data integrity argument entirely, because the users of
-> > that feature value their data so much that they pretty much don't care about
-> > usability.  That very well may be the case, so I'm fine with that too, although
-> > I'm sure there are people who'll argue that this is not the right balance
-> > either.
-> > 
-> > Now, the point is that we *can* do what Toshi is arguing for and that doesn't
-> > seem to be overly complicated, so my question is: Why don't we do that, at
-> > least to start with?  If it turns out eventually that the users care about
-> > usability too, after all, we can add a switch to adjust things more to their
-> > liking.  Still, we can very well do that later.
-> 
-> Ok, I'd much rather deal with reviewing actual implementations than
-> talking about theory at this point in time, so let's see what you all
-> can come up with next and I'll be glad to review it.
+There are two ways to express an interruption subclass:
+- As a bitmask, as used in cr6.
+- As a number, as used in the I/O interruption word.
 
-Sure, thanks a lot for your comments so far!
+Unfortunately, we have treated the I/O interruption word as if it
+contained the bitmask as well, which went unnoticed so far as
+- (not-yet-released) qemu made the same mistake, and
+- Linux guest kernels don't check the isc value in the I/O interruption
+  word for subchannel interrupts.
 
-Rafael
+Make sure that we treat the I/O interruption word correctly.
 
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ arch/s390/kvm/interrupt.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 9a12835..2f6ccb0 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -55,6 +55,13 @@ static int psw_interrupts_disabled(struct kvm_vcpu *vcpu)
+ 	return 1;
+ }
+ 
++static u64 int_word_to_isc_bits(u32 int_word)
++{
++	u8 isc = (int_word & 0x38000000) >> 27;
++
++	return (0x80 >> isc) << 24;
++}
++
+ static int __interrupt_is_deliverable(struct kvm_vcpu *vcpu,
+ 				      struct kvm_s390_interrupt_info *inti)
+ {
+@@ -96,7 +103,8 @@ static int __interrupt_is_deliverable(struct kvm_vcpu *vcpu,
+ 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
+ 		if (psw_ioint_disabled(vcpu))
+ 			return 0;
+-		if (vcpu->arch.sie_block->gcr[6] & inti->io.io_int_word)
++		if (vcpu->arch.sie_block->gcr[6] &
++		    int_word_to_isc_bits(inti->io.io_int_word))
+ 			return 1;
+ 		return 0;
+ 	default:
+@@ -724,7 +732,8 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
+ 	list_for_each_entry(iter, &fi->list, list) {
+ 		if (!is_ioint(iter->type))
+ 			continue;
+-		if (cr6 && ((cr6 & iter->io.io_int_word) == 0))
++		if (cr6 &&
++		    ((cr6 & int_word_to_isc_bits(iter->io.io_int_word)) == 0))
+ 			continue;
+ 		if (schid) {
+ 			if (((schid & 0x00000000ffff0000) >> 16) !=
+@@ -811,11 +820,14 @@ int kvm_s390_inject_vm(struct kvm *kvm,
+ 	if (!is_ioint(inti->type))
+ 		list_add_tail(&inti->list, &fi->list);
+ 	else {
++		u64 isc_bits = int_word_to_isc_bits(inti->io.io_int_word);
++
+ 		/* Keep I/O interrupts sorted in isc order. */
+ 		list_for_each_entry(iter, &fi->list, list) {
+ 			if (!is_ioint(iter->type))
+ 				continue;
+-			if (iter->io.io_int_word <= inti->io.io_int_word)
++			if (int_word_to_isc_bits(iter->io.io_int_word)
++			    <= isc_bits)
+ 				continue;
+ 			break;
+ 		}
 -- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+1.7.12.4
