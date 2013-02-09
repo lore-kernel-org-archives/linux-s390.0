@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 12 Feb 2013 10:40:11 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390: Add missing PAGE_SHARED as an alias for PAGE_RW
-Message-ID: <20130212094011.GB4232@osiris>
-References: <1360432485-25726-1-git-send-email-geert@linux-m68k.org>
- <20130211091109.GA3890@osiris>
- <CAMuHMdWm+VfBFN8fqL+Nkt7h5-+xv5EeeknhtkroAk4FhiRMnA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdWm+VfBFN8fqL+Nkt7h5-+xv5EeeknhtkroAk4FhiRMnA@mail.gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] s390: Add missing PAGE_SHARED as an alias for PAGE_RW
+Date: Sat,  9 Feb 2013 18:54:45 +0100
+Message-Id: <1360432485-25726-1-git-send-email-geert@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Feb 12, 2013 at 10:20:22AM +0100, Geert Uytterhoeven wrote:
-> Hi Heiko,
-> 
-> On Mon, Feb 11, 2013 at 10:11 AM, Heiko Carstens
-> <heiko.carstens@de.ibm.com> wrote:
-> > Thanks Geert. A similar patch however is already in linux-next, together
-> > with a whole bunch of other patches which try to make s390's allmodconfig
-> > compile again after PCI, HAS_DMA and HAS_IOMEM got enabled by our new PCI
-> > code.
-> 
-> Cool!
-> 
-> Will you select HAVE_GENERIC_HARDIRQS soon, too?
+s390 allmodconfig:
 
-I discussed that just with Martin, and looking at the code it doesn't look
-like we want to have GENERIC_HARDIRQS.
-If we would select that option it looks like we need to special case the
-common generic hardirqs code quite a lot, which is something we certainly
-do not want.
-However that's our result after looking 5 minutes into the code ;)
-So, if at all, it's not going to happen soon.
+drivers/gpu/drm/udl/udl_fb.c:237:52: error: 'PAGE_SHARED' undeclared (first use in this function)
+drivers/media/pci/zoran/zoran_driver.c:2955:14: error: 'PAGE_SHARED' undeclared (first use in this function)
+drivers/media/usb/cpia2/cpia2_core.c:2405:66: error: 'PAGE_SHARED' undeclared (first use in this function)
+drivers/video/udlfb.c:337:52: error: 'PAGE_SHARED' undeclared (first use in this function)
+drivers/video/smscufx.c:795:52: error: 'PAGE_SHARED' undeclared (first use in this function)
+drivers/video/vfb.c:431:52: error: 'PAGE_SHARED' undeclared (first use in this function)
+
+According to an email from Martin a few years ago, the equivalent define
+for s390 is PAGE_RW, so make PAGE_SHARED an alias for PAGE_RW.
+
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+ arch/s390/include/asm/pgtable.h |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 098adbb..0ca3e62 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -386,6 +386,7 @@ extern unsigned long MODULES_END;
+ 
+ #define PAGE_KERNEL	PAGE_RW
+ #define PAGE_COPY	PAGE_RO
++#define PAGE_SHARED	PAGE_RW
+ 
+ /*
+  * On s390 the page table entry has an invalid bit and a read-only bit.
+-- 
+1.7.0.4
