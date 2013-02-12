@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 11 Feb 2013 14:49:43 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 regression patch for 3.8-rc8
-Message-ID: <20130211144943.69c83140@mschwide>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Tue, 12 Feb 2013 10:40:11 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390: Add missing PAGE_SHARED as an alias for PAGE_RW
+Message-ID: <20130212094011.GB4232@osiris>
+References: <1360432485-25726-1-git-send-email-geert@linux-m68k.org>
+ <20130211091109.GA3890@osiris>
+ <CAMuHMdWm+VfBFN8fqL+Nkt7h5-+xv5EeeknhtkroAk4FhiRMnA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdWm+VfBFN8fqL+Nkt7h5-+xv5EeeknhtkroAk4FhiRMnA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+On Tue, Feb 12, 2013 at 10:20:22AM +0100, Geert Uytterhoeven wrote:
+> Hi Heiko,
+> 
+> On Mon, Feb 11, 2013 at 10:11 AM, Heiko Carstens
+> <heiko.carstens@de.ibm.com> wrote:
+> > Thanks Geert. A similar patch however is already in linux-next, together
+> > with a whole bunch of other patches which try to make s390's allmodconfig
+> > compile again after PCI, HAS_DMA and HAS_IOMEM got enabled by our new PCI
+> > code.
+> 
+> Cool!
+> 
+> Will you select HAVE_GENERIC_HARDIRQS soon, too?
 
-please pull from the 'for-linus' branch of
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
-
-to receive the following updates:
-The recent fix for the s390 sched_clock() function uncovered yet
-another bug in s390_next_ktime which causes an endless loop in KVM.
-This regression should be fixed before v3.8.
-
-I keep the fingers crossed that this is the last one for v3.8.
-
-Heiko Carstens (1):
-      s390/timer: avoid overflow when programming clock comparator
-
- arch/s390/kernel/time.c |    3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
-index a5f4f5a..0aa98db 100644
---- a/arch/s390/kernel/time.c
-+++ b/arch/s390/kernel/time.c
-@@ -120,6 +120,9 @@ static int s390_next_ktime(ktime_t expires,
- 	nsecs = ktime_to_ns(ktime_add(timespec_to_ktime(ts), expires));
- 	do_div(nsecs, 125);
- 	S390_lowcore.clock_comparator = sched_clock_base_cc + (nsecs << 9);
-+	/* Program the maximum value if we have an overflow (== year 2042) */
-+	if (unlikely(S390_lowcore.clock_comparator < sched_clock_base_cc))
-+		S390_lowcore.clock_comparator = -1ULL;
- 	set_clock_comparator(S390_lowcore.clock_comparator);
- 	return 0;
- }
+I discussed that just with Martin, and looking at the code it doesn't look
+like we want to have GENERIC_HARDIRQS.
+If we would select that option it looks like we need to special case the
+common generic hardirqs code quite a lot, which is something we certainly
+do not want.
+However that's our result after looking 5 minutes into the code ;)
+So, if at all, it's not going to happen soon.
