@@ -1,206 +1,387 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH 1/3] KVM: s390: Move out initialization code.
-Date: Thu, 21 Feb 2013 16:18:34 +0200
-Message-ID: <20130221141834.GB24738@redhat.com>
+Subject: Re: [RFC PATCH 3/3] KVM: s390: Hook up ioeventfds.
+Date: Thu, 21 Feb 2013 16:39:05 +0200
+Message-ID: <20130221143904.GC24738@redhat.com>
 References: <1361452380-50398-1-git-send-email-cornelia.huck@de.ibm.com>
- <1361452380-50398-2-git-send-email-cornelia.huck@de.ibm.com>
- <20130221134355.GA24738@redhat.com>
- <20130221150732.1580dbd4@gondolin>
+ <1361452380-50398-4-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20130221150732.1580dbd4@gondolin>
+In-Reply-To: <1361452380-50398-4-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Feb 21, 2013 at 03:07:32PM +0100, Cornelia Huck wrote:
-> On Thu, 21 Feb 2013 15:43:55 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Thu, Feb 21, 2013 at 02:13:00PM +0100, Cornelia Huck wrote:
+> As s390 doesn't use memory writes for virtio notifcations, create
+> a special kind of ioeventfd instead that hooks up into diagnose
+> 0x500 (kvm hypercall) with function code 3 (virtio-ccw notification).
 > 
-> > On Thu, Feb 21, 2013 at 02:12:58PM +0100, Cornelia Huck wrote:
-> > > kvm-s390's module initialization code needs to live in a separate
-> > > module (kvm-s390.ko) if we want to include eventfd (which has its
-> > > own module init func).
-> > > 
-> > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > 
-> > I don't get this explanation.
-> > What's the problem this solves?
-> > Could you clarify please?
+> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+
+Do we really have to put virtio specific stuff into kvm?
+How about we add generic functionality to match GPRs
+on a hypercall and signal an eventfd?
+
+Also, it's a bit unfortunate that this doesn't use
+the io bus datastructure, long term the linked list handling
+might become a bottleneck, using shared code this could maybe
+benefit from performance optimizations there.
+io bus data structure currently has the ability to match on
+two 64 bit fields (addr/datamatch) and a signed 32 bit one (length).
+Isn't this sufficient for your purposes?
+How about sticking subchannel id in address, vq in data match
+and using io bus?
+
+BTW maybe we could do this for the user interface too,
+while I'm not 100% sure it's the cleanest thing to do
+(or will work), it would certainly minimize the patchset.
+
+> ---
+>  arch/s390/include/asm/kvm_host.h |  23 ++++++
+>  arch/s390/kvm/Kconfig            |   1 +
+>  arch/s390/kvm/Makefile           |   2 +-
+>  arch/s390/kvm/diag.c             |  23 ++++++
+>  arch/s390/kvm/kvm-s390.c         | 165 +++++++++++++++++++++++++++++++++++++++
+>  arch/s390/kvm/kvm-s390.h         |   3 +
+>  6 files changed, 216 insertions(+), 1 deletion(-)
 > 
-> On s390, we currently build a single 'kvm' module, with a module_init
-> function. eventfd has its own module_init function, and we can't have
-> two of them in the same module. I just moved our specific module
-> initialization into a new 'kvm_s390' module.
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index 16bd5d1..8dad9dc 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -18,6 +18,7 @@
+>  #include <linux/kvm_host.h>
+>  #include <asm/debug.h>
+>  #include <asm/cpu.h>
+> +#include <asm/schid.h>
+>  
+>  #define KVM_MAX_VCPUS 64
+>  #define KVM_USER_MEM_SLOTS 32
+> @@ -262,8 +263,30 @@ struct kvm_arch{
+>  	debug_info_t *dbf;
+>  	struct kvm_s390_float_interrupt float_int;
+>  	struct gmap *gmap;
+> +	struct list_head sch_fds;
+> +	struct rw_semaphore sch_fds_sem;
 
+Why sch_? Related to subchannel somehow?
+Also you mean _ioeventfds really?
+Might be a good idea to document locking here.
 
-You mean this?
+>  	int css_support;
+>  };
+>  
+>  extern int sie64a(struct kvm_s390_sie_block *, u64 *);
+> +#define __KVM_HAVE_ARCH_IOEVENTFD
+> +
+> +#define KVM_S390_IOEVENTFD_VIRTIO_CCW_NOTIFY 1
+> +
+> +struct kvm_s390_ioeventfd_data {
+> +	__u8 type;
+> +	union {
+> +		/* VIRTIO_CCW_NOTIFY */
+> +		struct {
+> +			__u64 vq;
+> +			struct subchannel_id schid;
+> +		} virtio_ccw_vq;
+> +		char padding[35];
+> +	};
+> +} __packed;
+> +
 
-virt/kvm/eventfd.c:static int __init irqfd_module_init(void)
-virt/kvm/eventfd.c:module_init(irqfd_module_init);
+Do you expect userspace to use this structure?
+If yes this is the wrong header. If not why is it packed?
 
-I see. Won't it be easier to just call irqfd_module_init
-from kvm_init?
+> +struct kvm_arch_ioeventfd {
+> +	struct list_head entry;
+> +	struct kvm_s390_ioeventfd_data data;
 
-> > 
-> > > ---
-> > >  arch/s390/kvm/Makefile   |  4 +++-
-> > >  arch/s390/kvm/init.c     | 52 ++++++++++++++++++++++++++++++++++++++++++++++++
-> > >  arch/s390/kvm/kvm-s390.c | 38 ++++-------------------------------
-> > >  3 files changed, 59 insertions(+), 35 deletions(-)
-> > >  create mode 100644 arch/s390/kvm/init.c
-> > > 
-> > > diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
-> > > index 3975722..2441ffd 100644
-> > > --- a/arch/s390/kvm/Makefile
-> > > +++ b/arch/s390/kvm/Makefile
-> > > @@ -11,4 +11,6 @@ common-objs = $(addprefix ../../../virt/kvm/, kvm_main.o)
-> > >  ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
-> > >  
-> > >  kvm-objs := $(common-objs) kvm-s390.o intercept.o interrupt.o priv.o sigp.o diag.o
-> > > -obj-$(CONFIG_KVM) += kvm.o
-> > > +kvm_s390-objs := init.o
-> > > +
-> > > +obj-$(CONFIG_KVM) += kvm.o kvm_s390.o
-> > > diff --git a/arch/s390/kvm/init.c b/arch/s390/kvm/init.c
-> > > new file mode 100644
-> > > index 0000000..dc4028a
-> > > --- /dev/null
-> > > +++ b/arch/s390/kvm/init.c
-> > > @@ -0,0 +1,52 @@
-> > > +/*
-> > > + * kvm on s390 module initialization
-> > > + *
-> > > + * Copyright IBM Corp. 2013
-> > > + *
-> > > + * This program is free software; you can redistribute it and/or modify
-> > > + * it under the terms of the GNU General Public License (version 2 only)
-> > > + * as published by the Free Software Foundation.
-> > > + *
-> > > + *    Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > + */
-> > > +
-> > > +#include <linux/kvm.h>
-> > > +#include <linux/kvm_host.h>
-> > > +#include <linux/module.h>
-> > > +#include "kvm-s390.h"
-> > > +
-> > > +extern unsigned long long *facilities;
-> > > +
-> > > +static int __init kvm_s390_init(void)
-> > > +{
-> > > +	int ret;
-> > > +	ret = kvm_init(NULL, sizeof(struct kvm_vcpu), 0, THIS_MODULE);
-> > > +	if (ret)
-> > > +		return ret;
-> > > +
-> > > +	/*
-> > > +	 * guests can ask for up to 255+1 double words, we need a full page
-> > > +	 * to hold the maximum amount of facilities. On the other hand, we
-> > > +	 * only set facilities that are known to work in KVM.
-> > > +	 */
-> > > +	facilities = (unsigned long long *) get_zeroed_page(GFP_KERNEL|GFP_DMA);
-> > > +	if (!facilities) {
-> > > +		kvm_exit();
-> > > +		return -ENOMEM;
-> > > +	}
-> > > +	memcpy(facilities, S390_lowcore.stfle_fac_list, 16);
-> > > +	facilities[0] &= 0xff00fff3f47c0000ULL;
-> > > +	facilities[1] &= 0x001c000000000000ULL;
-> > > +	return 0;
-> > > +}
-> > > +
-> > > +static void __exit kvm_s390_exit(void)
-> > > +{
-> > > +	free_page((unsigned long) facilities);
-> > > +	kvm_exit();
-> > > +}
-> > > +
-> > > +module_init(kvm_s390_init);
-> > > +module_exit(kvm_s390_exit);
-> > > +
-> > > +MODULE_LICENSE("GPL");
-> > 
-> > GPL v2?
-> > 
-> > > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> > > index f822d36..58a5f03 100644
-> > > --- a/arch/s390/kvm/kvm-s390.c
-> > > +++ b/arch/s390/kvm/kvm-s390.c
-> > > @@ -36,6 +36,9 @@
-> > >  #include "trace.h"
-> > >  #include "trace-s390.h"
-> > >  
-> > > +unsigned long long *facilities;
-> > > +EXPORT_SYMBOL_GPL(facilities);
-> > > +
-> > >  #define VCPU_STAT(x) offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU
-> > >  
-> > >  struct kvm_stats_debugfs_item debugfs_entries[] = {
-> > > @@ -83,8 +86,6 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
-> > >  	{ NULL }
-> > >  };
-> > >  
-> > > -static unsigned long long *facilities;
-> > > -
-> > >  /* Section: not file related */
-> > >  int kvm_arch_hardware_enable(void *garbage)
-> > >  {
-> > > @@ -823,6 +824,7 @@ int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr)
-> > >  		return -EFAULT;
-> > >  	return 0;
-> > >  }
-> > > +EXPORT_SYMBOL_GPL(kvm_s390_vcpu_store_status);
-> > >  
-> > >  static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
-> > >  				     struct kvm_enable_cap *cap)
-> > > @@ -1026,35 +1028,3 @@ void kvm_arch_flush_shadow_memslot(struct kvm *kvm,
-> > >  				   struct kvm_memory_slot *slot)
-> > >  {
-> > >  }
-> > > -
-> > > -static int __init kvm_s390_init(void)
-> > > -{
-> > > -	int ret;
-> > > -	ret = kvm_init(NULL, sizeof(struct kvm_vcpu), 0, THIS_MODULE);
-> > > -	if (ret)
-> > > -		return ret;
-> > > -
-> > > -	/*
-> > > -	 * guests can ask for up to 255+1 double words, we need a full page
-> > > -	 * to hold the maximum amount of facilities. On the other hand, we
-> > > -	 * only set facilities that are known to work in KVM.
-> > > -	 */
-> > > -	facilities = (unsigned long long *) get_zeroed_page(GFP_KERNEL|GFP_DMA);
-> > > -	if (!facilities) {
-> > > -		kvm_exit();
-> > > -		return -ENOMEM;
-> > > -	}
-> > > -	memcpy(facilities, S390_lowcore.stfle_fac_list, 16);
-> > > -	facilities[0] &= 0xff00fff3f47c0000ULL;
-> > > -	facilities[1] &= 0x001c000000000000ULL;
-> > > -	return 0;
-> > > -}
-> > > -
-> > > -static void __exit kvm_s390_exit(void)
-> > > -{
-> > > -	free_page((unsigned long) facilities);
-> > > -	kvm_exit();
-> > > -}
-> > > -
-> > > -module_init(kvm_s390_init);
-> > > -module_exit(kvm_s390_exit);
-> > > -- 
-> > > 1.7.12.4
-> > > 
-> > > --
-> > > To unsubscribe from this list: send the line "unsubscribe kvm" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > 
+Let's not waste memory keeping padding in kernel datastructures.
+
+> +};
+>  #endif
+> diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+> index b58dd86..3c43e30 100644
+> --- a/arch/s390/kvm/Kconfig
+> +++ b/arch/s390/kvm/Kconfig
+> @@ -22,6 +22,7 @@ config KVM
+>  	select PREEMPT_NOTIFIERS
+>  	select ANON_INODES
+>  	select HAVE_KVM_CPU_RELAX_INTERCEPT
+> +	select HAVE_KVM_EVENTFD
+>  	---help---
+>  	  Support hosting paravirtualized guest machines using the SIE
+>  	  virtualization capability on the mainframe. This should work
+> diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
+> index 2441ffd..dbd8cc9 100644
+> --- a/arch/s390/kvm/Makefile
+> +++ b/arch/s390/kvm/Makefile
+> @@ -6,7 +6,7 @@
+>  # it under the terms of the GNU General Public License (version 2 only)
+>  # as published by the Free Software Foundation.
+>  
+> -common-objs = $(addprefix ../../../virt/kvm/, kvm_main.o)
+> +common-objs = $(addprefix ../../../virt/kvm/, kvm_main.o eventfd.o)
+>  
+>  ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
+>  
+> diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+> index a390687..51ea66f 100644
+> --- a/arch/s390/kvm/diag.c
+> +++ b/arch/s390/kvm/diag.c
+> @@ -104,6 +104,27 @@ static int __diag_ipl_functions(struct kvm_vcpu *vcpu)
+>  	return -EREMOTE;
+>  }
+>  
+> +static int __diag_virtio_hypercall(struct kvm_vcpu *vcpu)
+> +{
+> +	struct kvm_s390_ioeventfd_data data;
+> +	u32 tmp;
+> +
+> +	/* No channel I/O? Get out quickly. */
+> +	if (!vcpu->kvm->arch.css_support ||
+> +	    (vcpu->run->s.regs.gprs[1] != 3))
+> +		return -EOPNOTSUPP;
+> +
+> +	/* subchannel id is in gpr 2, queue in gpr 3 */
+> +	tmp = vcpu->run->s.regs.gprs[2] & 0xffffffff;
+> +	memcpy(&data.virtio_ccw_vq.schid, &tmp,
+> +	       sizeof(data.virtio_ccw_vq.schid));
+> +	data.virtio_ccw_vq.vq = vcpu->run->s.regs.gprs[3];
+> +	data.type = KVM_S390_IOEVENTFD_VIRTIO_CCW_NOTIFY;
+> +
+> +	/* If signalling via eventfd fails, we want to drop to userspace. */
+> +	return kvm_s390_ioeventfd_signal(vcpu->kvm, &data) ? -EOPNOTSUPP : 0;
+> +}
+> +
+>  int kvm_s390_handle_diag(struct kvm_vcpu *vcpu)
+>  {
+>  	int code = (vcpu->arch.sie_block->ipb & 0xfff0000) >> 16;
+> @@ -118,6 +139,8 @@ int kvm_s390_handle_diag(struct kvm_vcpu *vcpu)
+>  		return __diag_time_slice_end_directed(vcpu);
+>  	case 0x308:
+>  		return __diag_ipl_functions(vcpu);
+> +	case 0x500:
+> +		return __diag_virtio_hypercall(vcpu);
+>  	default:
+>  		return -EOPNOTSUPP;
+>  	}
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 58a5f03..cd9eb0e 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -15,6 +15,7 @@
+>  
+>  #include <linux/compiler.h>
+>  #include <linux/err.h>
+> +#include <linux/eventfd.h>
+>  #include <linux/fs.h>
+>  #include <linux/hrtimer.h>
+>  #include <linux/init.h>
+> @@ -143,6 +144,7 @@ int kvm_dev_ioctl_check_extension(long ext)
+>  	case KVM_CAP_ONE_REG:
+>  	case KVM_CAP_ENABLE_CAP:
+>  	case KVM_CAP_S390_CSS_SUPPORT:
+> +	case KVM_CAP_IOEVENTFD:
+>  		r = 1;
+>  		break;
+>  	case KVM_CAP_NR_VCPUS:
+> @@ -237,6 +239,8 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>  		if (!kvm->arch.gmap)
+>  			goto out_nogmap;
+>  	}
+> +	INIT_LIST_HEAD(&kvm->arch.sch_fds);
+> +	init_rwsem(&kvm->arch.sch_fds_sem);
+>  
+>  	kvm->arch.css_support = 0;
+>  
+> @@ -1028,3 +1032,164 @@ void kvm_arch_flush_shadow_memslot(struct kvm *kvm,
+>  				   struct kvm_memory_slot *slot)
+>  {
+>  }
+> +static void kvm_s390_ioeventfd_add(struct kvm *kvm,
+> +				   struct kvm_arch_ioeventfd *arch)
+> +{
+> +	switch (arch->data.type) {
+> +	case KVM_S390_IOEVENTFD_VIRTIO_CCW_NOTIFY:
+> +		down_write(&kvm->arch.sch_fds_sem);
+> +		list_add_tail(&arch->entry, &kvm->arch.sch_fds);
+> +		up_write(&kvm->arch.sch_fds_sem);
+> +		break;
+> +	default:
+> +		pr_warn("Trying to add ioeventfd type %x\n", arch->data.type);
+> +	}
+> +}
+> +
+> +static void kvm_s390_ioeventfd_remove(struct kvm *kvm,
+> +				      struct kvm_arch_ioeventfd *arch)
+> +{
+> +	switch (arch->data.type) {
+> +	case KVM_S390_IOEVENTFD_VIRTIO_CCW_NOTIFY:
+> +		down_write(&kvm->arch.sch_fds_sem);
+> +		list_del(&arch->entry);
+> +		up_write(&kvm->arch.sch_fds_sem);
+> +		break;
+> +	default:
+> +		pr_warn("Trying to remove ioeventfd type %x\n",
+> +			arch->data.type);
+> +	}
+> +}
+> +
+> +int kvm_s390_ioeventfd_signal(struct kvm *kvm,
+> +			      struct kvm_s390_ioeventfd_data *data)
+> +{
+> +	struct kvm_arch_ioeventfd *arch, match;
+> +	int ret;
+> +
+> +	if (data->type != KVM_S390_IOEVENTFD_VIRTIO_CCW_NOTIFY)
+> +		return -ENOENT;
+> +	down_read(&kvm->arch.sch_fds_sem);
+> +	if (list_empty(&kvm->arch.sch_fds)) {
+> +		ret = -ENOENT;
+> +		goto out_unlock;
+> +	}
+> +	memcpy(&match.data, data, sizeof(match.data));
+> +	list_for_each_entry(arch, &kvm->arch.sch_fds, entry) {
+> +		if (!kvm_arch_ioeventfd_match(arch, &match))
+> +			continue;
+> +		ret = eventfd_signal(kvm_ioeventfd_get_eventfd(arch), 1);
+> +		goto out_unlock;
+> +	}
+> +	ret = -ENOENT;
+> +out_unlock:
+> +	if (ret > 0)
+> +		ret = 0;
+> +	up_read(&kvm->arch.sch_fds_sem);
+> +	return ret;
+> +}
+> +
+> +int kvm_arch_ioeventfd_check(struct kvm_ioeventfd *args)
+> +{
+> +	struct kvm_s390_ioeventfd_data *data;
+> +
+> +	if (!(args->flags & KVM_IOEVENTFD_FLAG_ARCH))
+> +		return -EINVAL;
+> +	if (args->flags & (KVM_IOEVENTFD_FLAG_DATAMATCH |
+> +			   KVM_IOEVENTFD_FLAG_PIO))
+> +		return -EINVAL;
+> +
+> +	data = (struct kvm_s390_ioeventfd_data *) args->data;
+> +	if (data->type != KVM_S390_IOEVENTFD_VIRTIO_CCW_NOTIFY)
+> +		return -EINVAL;
+> +	if (((data->virtio_ccw_vq.schid.m == 1) &&
+> +	     (data->virtio_ccw_vq.schid.cssid != 0xfe)) ||
+> +	    ((data->virtio_ccw_vq.schid.m == 0) &&
+> +	     (data->virtio_ccw_vq.schid.cssid != 0)))
+> +		return -EINVAL;
+> +	if (data->virtio_ccw_vq.schid.one != 1)
+> +		return -EINVAL;
+> +	if (data->virtio_ccw_vq.vq > 128)
+
+Why 128?
+Generally maybe add a comment documenting the
+constants used.
+
+> +		return -EINVAL;
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(kvm_arch_ioeventfd_check);
+> +
+> +void kvm_arch_ioeventfd_init(struct kvm_arch_ioeventfd *arch,
+> +			     struct kvm_ioeventfd *args)
+> +{
+> +	INIT_LIST_HEAD(&arch->entry);
+> +	memcpy(&arch->data, &args->data, sizeof(arch->data));
+> +}
+> +EXPORT_SYMBOL_GPL(kvm_arch_ioeventfd_init);
+> +
+> +int kvm_arch_ioeventfd_activate(struct kvm *kvm,
+> +				struct kvm_arch_ioeventfd *arch,
+> +				struct kvm_ioeventfd *args)
+> +{
+> +	int ret;
+> +
+> +	switch (arch->data.type) {
+> +	case KVM_S390_IOEVENTFD_VIRTIO_CCW_NOTIFY:
+> +		/* Fail if channel subsystem support is not active. */
+> +		if (!kvm->arch.css_support)
+> +			ret = -EINVAL;
+> +		else {
+> +			kvm_s390_ioeventfd_add(kvm, arch);
+> +			ret = 0;
+> +		}
+> +		break;
+> +	default:
+> +		ret = -EINVAL;
+> +	}
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_GPL(kvm_arch_ioeventfd_activate);
+> +
+> +bool kvm_arch_ioeventfd_match(struct kvm_arch_ioeventfd *arch,
+> +			      struct kvm_arch_ioeventfd *to_match)
+> +{
+> +	if (arch->data.type != to_match->data.type)
+> +		return false;
+> +
+> +	switch (arch->data.type) {
+> +	case KVM_S390_IOEVENTFD_VIRTIO_CCW_NOTIFY:
+> +		if (memcmp(&arch->data.virtio_ccw_vq.schid,
+> +			   &to_match->data.virtio_ccw_vq.schid,
+> +			   sizeof(arch->data.virtio_ccw_vq.schid)))
+> +			return false;
+> +		if (arch->data.virtio_ccw_vq.vq !=
+> +		    to_match->data.virtio_ccw_vq.vq)
+> +			return false;
+> +		return true;
+> +	default:
+> +		return false;
+> +	}
+> +}
+> +EXPORT_SYMBOL_GPL(kvm_arch_ioeventfd_match);
+> +
+> +bool kvm_arch_ioeventfd_match_and_release(struct kvm *kvm,
+> +					  struct kvm_arch_ioeventfd *arch,
+> +					  struct kvm_ioeventfd *args)
+> +{
+> +	struct kvm_s390_ioeventfd_data *data;
+> +
+> +	data = (struct kvm_s390_ioeventfd_data *)args->data;
+> +	if (arch->data.type != data->type)
+> +		return false;
+> +
+> +	switch (arch->data.type) {
+> +	case KVM_S390_IOEVENTFD_VIRTIO_CCW_NOTIFY:
+> +		if (memcmp(&arch->data.virtio_ccw_vq.schid,
+> +			   &data->virtio_ccw_vq.schid,
+> +			   sizeof(arch->data.virtio_ccw_vq.schid)))
+> +			return false;
+> +		if (arch->data.virtio_ccw_vq.vq != data->virtio_ccw_vq.vq)
+> +			return false;
+> +		kvm_s390_ioeventfd_remove(kvm, arch);
+> +		return true;
+> +	default:
+> +		return false;
+> +	}
+> +}
+> +EXPORT_SYMBOL_GPL(kvm_arch_ioeventfd_match_and_release);
+> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+> index 4d89d64..9794906 100644
+> --- a/arch/s390/kvm/kvm-s390.h
+> +++ b/arch/s390/kvm/kvm-s390.h
+> @@ -136,4 +136,7 @@ int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu,
+>  /* implemented in diag.c */
+>  int kvm_s390_handle_diag(struct kvm_vcpu *vcpu);
+>  
+> +int kvm_s390_ioeventfd_signal(struct kvm *kvm,
+> +			      struct kvm_s390_ioeventfd_data *data);
+> +
+>  #endif
+> -- 
+> 1.7.12.4
 > 
