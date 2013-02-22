@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [RFC PATCH v2 1/4] KVM: Initialize irqfd from kvm_init().
-Date: Fri, 22 Feb 2013 13:09:46 +0100
-Message-ID: <1361534989-38884-2-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [RFC PATCH v2 3/4] KVM: ioeventfd for s390 css devices.
+Date: Fri, 22 Feb 2013 13:09:48 +0100
+Message-ID: <1361534989-38884-4-git-send-email-cornelia.huck@de.ibm.com>
 References: <1361534989-38884-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1361534989-38884-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,103 +12,95 @@ To: KVM <kvm@vger.kernel.org>
 Cc: linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently, eventfd introduces module_init/module_exit functions
-to initialize/cleanup the irqfd workqueue. This only works, however,
-if no other module_init/module_exit functions are built into the
-same module.
-
-Let's just move the initialization and cleanup to kvm_init and kvm_exit.
-This way, it is also clearer where kvm startup may fail.
+Enhance KVM_IOEVENTFD with a new flag that allows to attach to s390 css
+devices.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- include/linux/kvm_host.h | 13 +++++++++++++
- virt/kvm/eventfd.c       |  7 ++-----
- virt/kvm/kvm_main.c      |  6 ++++++
- 3 files changed, 21 insertions(+), 5 deletions(-)
+ Documentation/virtual/kvm/api.txt | 7 +++++++
+ include/uapi/linux/kvm.h          | 2 ++
+ virt/kvm/eventfd.c                | 8 ++++++--
+ 3 files changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 722cae7..3b768ef 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -423,6 +423,19 @@ void kvm_vcpu_uninit(struct kvm_vcpu *vcpu);
- int __must_check vcpu_load(struct kvm_vcpu *vcpu);
- void vcpu_put(struct kvm_vcpu *vcpu);
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index c2534c3..40e799c 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -1468,15 +1468,22 @@ struct kvm_ioeventfd {
+ 	__u8  pad[36];
+ };
  
-+#ifdef __KVM_HAVE_IOAPIC
-+int kvm_irqfd_init(void);
-+void kvm_irqfd_exit(void);
-+#else
-+static inline int kvm_irqfd_init(void)
-+{
-+	return 0;
-+}
++For the special case of s390 css devices, the ioevent is matched to a
++subchannel/virtqueue tuple instead.
 +
-+static inline void kvm_irqfd_exit(void)
-+{
-+}
-+#endif
- int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
- 		  struct module *module);
- void kvm_exit(void);
+ The following flags are defined:
+ 
+ #define KVM_IOEVENTFD_FLAG_DATAMATCH (1 << kvm_ioeventfd_flag_nr_datamatch)
+ #define KVM_IOEVENTFD_FLAG_PIO       (1 << kvm_ioeventfd_flag_nr_pio)
+ #define KVM_IOEVENTFD_FLAG_DEASSIGN  (1 << kvm_ioeventfd_flag_nr_deassign)
++#define KVM_IOEVENTFD_FLAG_CSS       (1 << kvm_ioeventfd_flag_nr_css)
+ 
+ If datamatch flag is set, the event will be signaled only if the written value
+ to the registered address is equal to datamatch in struct kvm_ioeventfd.
+ 
++For css devices, addr contains the subchannel id and datamatch the virtqueue
++index.
++
+ 
+ 4.60 KVM_DIRTY_TLB
+ 
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 9a2db57..1df0766 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -448,12 +448,14 @@ enum {
+ 	kvm_ioeventfd_flag_nr_datamatch,
+ 	kvm_ioeventfd_flag_nr_pio,
+ 	kvm_ioeventfd_flag_nr_deassign,
++	kvm_ioeventfd_flag_nr_css,
+ 	kvm_ioeventfd_flag_nr_max,
+ };
+ 
+ #define KVM_IOEVENTFD_FLAG_DATAMATCH (1 << kvm_ioeventfd_flag_nr_datamatch)
+ #define KVM_IOEVENTFD_FLAG_PIO       (1 << kvm_ioeventfd_flag_nr_pio)
+ #define KVM_IOEVENTFD_FLAG_DEASSIGN  (1 << kvm_ioeventfd_flag_nr_deassign)
++#define KVM_IOEVENTFD_FLAG_CSS       (1 << kvm_ioeventfd_flag_nr_css)
+ 
+ #define KVM_IOEVENTFD_VALID_FLAG_MASK  ((1 << kvm_ioeventfd_flag_nr_max) - 1)
+ 
 diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
-index b6eea5c..f0ced1a 100644
+index f0ced1a..7347652 100644
 --- a/virt/kvm/eventfd.c
 +++ b/virt/kvm/eventfd.c
-@@ -544,7 +544,7 @@ void kvm_irq_routing_update(struct kvm *kvm,
-  * aggregated from all vm* instances. We need our own isolated single-thread
-  * queue to prevent deadlock against flushing the normal work-queue.
-  */
--static int __init irqfd_module_init(void)
-+int kvm_irqfd_init(void)
+@@ -679,11 +679,13 @@ static int
+ kvm_assign_ioeventfd(struct kvm *kvm, struct kvm_ioeventfd *args)
  {
- 	irqfd_cleanup_wq = create_singlethread_workqueue("kvm-irqfd-cleanup");
- 	if (!irqfd_cleanup_wq)
-@@ -553,13 +553,10 @@ static int __init irqfd_module_init(void)
- 	return 0;
- }
+ 	int                       pio = args->flags & KVM_IOEVENTFD_FLAG_PIO;
+-	enum kvm_bus              bus_idx = pio ? KVM_PIO_BUS : KVM_MMIO_BUS;
++	int                       css = args->flags & KVM_IOEVENTFD_FLAG_CSS;
++	enum kvm_bus              bus_idx;
+ 	struct _ioeventfd        *p;
+ 	struct eventfd_ctx       *eventfd;
+ 	int                       ret;
  
--static void __exit irqfd_module_exit(void)
-+void kvm_irqfd_exit(void)
++	bus_idx = pio ? KVM_PIO_BUS : css ? KVM_CSS_BUS: KVM_MMIO_BUS;
+ 	/* must be natural-word sized */
+ 	switch (args->len) {
+ 	case 1:
+@@ -759,11 +761,13 @@ static int
+ kvm_deassign_ioeventfd(struct kvm *kvm, struct kvm_ioeventfd *args)
  {
- 	destroy_workqueue(irqfd_cleanup_wq);
- }
--
--module_init(irqfd_module_init);
--module_exit(irqfd_module_exit);
- #endif
+ 	int                       pio = args->flags & KVM_IOEVENTFD_FLAG_PIO;
+-	enum kvm_bus              bus_idx = pio ? KVM_PIO_BUS : KVM_MMIO_BUS;
++	int                       css = args->flags & KVM_IOEVENTFD_FLAG_CSS;
++	enum kvm_bus              bus_idx;
+ 	struct _ioeventfd        *p, *tmp;
+ 	struct eventfd_ctx       *eventfd;
+ 	int                       ret = -ENOENT;
  
- /*
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index adc68fe..7c188a3 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2920,6 +2920,9 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
- 	int r;
- 	int cpu;
- 
-+	r = kvm_irqfd_init();
-+	if (r)
-+		goto out_irqfd;
- 	r = kvm_arch_init(opaque);
- 	if (r)
- 		goto out_fail;
-@@ -3000,6 +3003,8 @@ out_free_0a:
- out_free_0:
- 	kvm_arch_exit();
- out_fail:
-+	kvm_irqfd_exit();
-+out_irqfd:
- 	return r;
- }
- EXPORT_SYMBOL_GPL(kvm_init);
-@@ -3016,6 +3021,7 @@ void kvm_exit(void)
- 	on_each_cpu(hardware_disable_nolock, NULL, 1);
- 	kvm_arch_hardware_unsetup();
- 	kvm_arch_exit();
-+	kvm_irqfd_exit();
- 	free_cpumask_var(cpus_hardware_enabled);
- }
- EXPORT_SYMBOL_GPL(kvm_exit);
++	bus_idx = pio ? KVM_PIO_BUS : css ? KVM_CSS_BUS: KVM_MMIO_BUS;
+ 	eventfd = eventfd_ctx_fdget(args->fd);
+ 	if (IS_ERR(eventfd))
+ 		return PTR_ERR(eventfd);
 -- 
 1.7.12.4
