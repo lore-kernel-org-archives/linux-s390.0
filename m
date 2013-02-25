@@ -1,15 +1,15 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [RFC PATCH v2 3/4] KVM: ioeventfd for s390 css devices.
-Date: Mon, 25 Feb 2013 09:49:01 +0100
-Message-ID: <20130225094901.7dac374e@gondolin>
+Subject: Re: [RFC PATCH v2 2/4] KVM: Introduce KVM_CSS_BUS.
+Date: Mon, 25 Feb 2013 09:50:34 +0100
+Message-ID: <20130225095034.776c8824@gondolin>
 References: <1361534989-38884-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1361534989-38884-4-git-send-email-cornelia.huck@de.ibm.com>
-	<20130224094750.GD25269@redhat.com>
+	<1361534989-38884-3-git-send-email-cornelia.huck@de.ibm.com>
+	<20130224095725.GF25269@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20130224094750.GD25269@redhat.com>
+In-Reply-To: <20130224095725.GF25269@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -17,111 +17,38 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, 24 Feb 2013 11:47:50 +0200
+On Sun, 24 Feb 2013 11:57:25 +0200
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> On Fri, Feb 22, 2013 at 01:09:48PM +0100, Cornelia Huck wrote:
-> > Enhance KVM_IOEVENTFD with a new flag that allows to attach to s390 css
-> > devices.
+> On Fri, Feb 22, 2013 at 01:09:47PM +0100, Cornelia Huck wrote:
+> > Add a new bus type for s390 css kvm io devices.
 > > 
 > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 > > ---
-> >  Documentation/virtual/kvm/api.txt | 7 +++++++
-> >  include/uapi/linux/kvm.h          | 2 ++
-> >  virt/kvm/eventfd.c                | 8 ++++++--
-> >  3 files changed, 15 insertions(+), 2 deletions(-)
+> >  include/linux/kvm_host.h | 1 +
+> >  1 file changed, 1 insertion(+)
 > > 
-> > diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-> > index c2534c3..40e799c 100644
-> > --- a/Documentation/virtual/kvm/api.txt
-> > +++ b/Documentation/virtual/kvm/api.txt
-> > @@ -1468,15 +1468,22 @@ struct kvm_ioeventfd {
-> >  	__u8  pad[36];
-> >  };
-> >  
-> > +For the special case of s390 css devices, the ioevent is matched to a
-> > +subchannel/virtqueue tuple instead.
-> > +
-> >  The following flags are defined:
-> >  
-> >  #define KVM_IOEVENTFD_FLAG_DATAMATCH (1 << kvm_ioeventfd_flag_nr_datamatch)
-> >  #define KVM_IOEVENTFD_FLAG_PIO       (1 << kvm_ioeventfd_flag_nr_pio)
-> >  #define KVM_IOEVENTFD_FLAG_DEASSIGN  (1 << kvm_ioeventfd_flag_nr_deassign)
-> > +#define KVM_IOEVENTFD_FLAG_CSS       (1 << kvm_ioeventfd_flag_nr_css)
-> >  
-> >  If datamatch flag is set, the event will be signaled only if the written value
-> >  to the registered address is equal to datamatch in struct kvm_ioeventfd.
-> >  
-> > +For css devices, addr contains the subchannel id and datamatch the virtqueue
-> > +index.
-> > +
-> >  
-> >  4.60 KVM_DIRTY_TLB
-> >  
-> > diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-> > index 9a2db57..1df0766 100644
-> > --- a/include/uapi/linux/kvm.h
-> > +++ b/include/uapi/linux/kvm.h
-> > @@ -448,12 +448,14 @@ enum {
-> >  	kvm_ioeventfd_flag_nr_datamatch,
-> >  	kvm_ioeventfd_flag_nr_pio,
-> >  	kvm_ioeventfd_flag_nr_deassign,
-> > +	kvm_ioeventfd_flag_nr_css,
-> >  	kvm_ioeventfd_flag_nr_max,
-> >  };
-> >  
-> >  #define KVM_IOEVENTFD_FLAG_DATAMATCH (1 << kvm_ioeventfd_flag_nr_datamatch)
-> >  #define KVM_IOEVENTFD_FLAG_PIO       (1 << kvm_ioeventfd_flag_nr_pio)
-> >  #define KVM_IOEVENTFD_FLAG_DEASSIGN  (1 << kvm_ioeventfd_flag_nr_deassign)
-> > +#define KVM_IOEVENTFD_FLAG_CSS       (1 << kvm_ioeventfd_flag_nr_css)
+> > diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+> > index 3b768ef..59be516 100644
+> > --- a/include/linux/kvm_host.h
+> > +++ b/include/linux/kvm_host.h
+> > @@ -148,6 +148,7 @@ struct kvm_io_bus {
+> >  enum kvm_bus {
+> >  	KVM_MMIO_BUS,
+> >  	KVM_PIO_BUS,
+> > +	KVM_CSS_BUS,
 > 
-> So let's explicitly name is KVM_IOEVENTFD_S390_VIRTIO_CCW or even
-> KVM_IOEVENTFD_S390_VIRTIO_CCW_NOTIFY?
+> so maybe KVM_S390_VIRTIO_CCW_NOTIFY_BUS
+> 
+> to make the fact it's s390 and virtio specific, explicit?
 
-How about KVM_IOEVENTFD_FLAG_VIRTIO_CCW_NOTIFY?
-
-> Also, maybe we want to add KVM_IOEVENTFD_S390_VIRTIO_NOTIFY as well?
-
-No, since s390-virtio is a dead end.
+Hm, I don't really see a need to point out that this is s390-specific,
+so I think I'd prefer KVM_VIRTIO_CCW_NOTIFY_BUS.
 
 > 
+> >  	KVM_NR_BUSES
+> >  };
 > >  
-> >  #define KVM_IOEVENTFD_VALID_FLAG_MASK  ((1 << kvm_ioeventfd_flag_nr_max) - 1)
-> >  
-> > diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
-> > index f0ced1a..7347652 100644
-> > --- a/virt/kvm/eventfd.c
-> > +++ b/virt/kvm/eventfd.c
-> > @@ -679,11 +679,13 @@ static int
-> >  kvm_assign_ioeventfd(struct kvm *kvm, struct kvm_ioeventfd *args)
-> >  {
-> >  	int                       pio = args->flags & KVM_IOEVENTFD_FLAG_PIO;
-> > -	enum kvm_bus              bus_idx = pio ? KVM_PIO_BUS : KVM_MMIO_BUS;
-> > +	int                       css = args->flags & KVM_IOEVENTFD_FLAG_CSS;
-> > +	enum kvm_bus              bus_idx;
-> >  	struct _ioeventfd        *p;
-> >  	struct eventfd_ctx       *eventfd;
-> >  	int                       ret;
-> >  
-> > +	bus_idx = pio ? KVM_PIO_BUS : css ? KVM_CSS_BUS: KVM_MMIO_BUS;
-> >  	/* must be natural-word sized */
-> >  	switch (args->len) {
-> >  	case 1:
-> > @@ -759,11 +761,13 @@ static int
-> >  kvm_deassign_ioeventfd(struct kvm *kvm, struct kvm_ioeventfd *args)
-> >  {
-> >  	int                       pio = args->flags & KVM_IOEVENTFD_FLAG_PIO;
-> > -	enum kvm_bus              bus_idx = pio ? KVM_PIO_BUS : KVM_MMIO_BUS;
-> > +	int                       css = args->flags & KVM_IOEVENTFD_FLAG_CSS;
-> > +	enum kvm_bus              bus_idx;
-> >  	struct _ioeventfd        *p, *tmp;
-> >  	struct eventfd_ctx       *eventfd;
-> >  	int                       ret = -ENOENT;
-> >  
-> > +	bus_idx = pio ? KVM_PIO_BUS : css ? KVM_CSS_BUS: KVM_MMIO_BUS;
-> >  	eventfd = eventfd_ctx_fdget(args->fd);
-> >  	if (IS_ERR(eventfd))
-> >  		return PTR_ERR(eventfd);
 > > -- 
 > > 1.7.12.4
 > 
