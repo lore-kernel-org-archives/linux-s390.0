@@ -1,14 +1,15 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [RFC PATCH v2 0/4] kvm: Make ioeventfd usable on s390.
-Date: Mon, 25 Feb 2013 09:43:38 +0100
-Message-ID: <20130225094338.24388fd8@gondolin>
+Subject: Re: [RFC PATCH v2 4/4] KVM: s390: Wire up ioeventfd.
+Date: Mon, 25 Feb 2013 09:46:36 +0100
+Message-ID: <20130225094636.09fa2521@gondolin>
 References: <1361534989-38884-1-git-send-email-cornelia.huck@de.ibm.com>
-	<20130224095639.GE25269@redhat.com>
+	<1361534989-38884-5-git-send-email-cornelia.huck@de.ibm.com>
+	<20130224094522.GC25269@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20130224095639.GE25269@redhat.com>
+In-Reply-To: <20130224094522.GC25269@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -16,79 +17,122 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, 24 Feb 2013 11:56:39 +0200
+On Sun, 24 Feb 2013 11:45:22 +0200
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> On Fri, Feb 22, 2013 at 01:09:45PM +0100, Cornelia Huck wrote:
-> > Here's the second attempt at implementing ioeventfd for s390.
+> On Fri, Feb 22, 2013 at 01:09:49PM +0100, Cornelia Huck wrote:
+> > Enable ioeventfd support on s390 and hook up diagnose 500 virtio-ccw
+> > notifications.
+> > 
+> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> > ---
+> >  arch/s390/kvm/Kconfig    |  1 +
+> >  arch/s390/kvm/Makefile   |  2 +-
+> >  arch/s390/kvm/diag.c     | 25 +++++++++++++++++++++++++
+> >  arch/s390/kvm/kvm-s390.c |  1 +
+> >  4 files changed, 28 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+> > index b58dd86..3c43e30 100644
+> > --- a/arch/s390/kvm/Kconfig
+> > +++ b/arch/s390/kvm/Kconfig
+> > @@ -22,6 +22,7 @@ config KVM
+> >  	select PREEMPT_NOTIFIERS
+> >  	select ANON_INODES
+> >  	select HAVE_KVM_CPU_RELAX_INTERCEPT
+> > +	select HAVE_KVM_EVENTFD
+> >  	---help---
+> >  	  Support hosting paravirtualized guest machines using the SIE
+> >  	  virtualization capability on the mainframe. This should work
+> > diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
+> > index 3975722..8fe9d65 100644
+> > --- a/arch/s390/kvm/Makefile
+> > +++ b/arch/s390/kvm/Makefile
+> > @@ -6,7 +6,7 @@
+> >  # it under the terms of the GNU General Public License (version 2 only)
+> >  # as published by the Free Software Foundation.
+> >  
+> > -common-objs = $(addprefix ../../../virt/kvm/, kvm_main.o)
+> > +common-objs = $(addprefix ../../../virt/kvm/, kvm_main.o eventfd.o)
+> >  
+> >  ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
+> >  
+> > diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+> > index a390687..13cf74a 100644
+> > --- a/arch/s390/kvm/diag.c
+> > +++ b/arch/s390/kvm/diag.c
+> > @@ -104,6 +104,29 @@ static int __diag_ipl_functions(struct kvm_vcpu *vcpu)
+> >  	return -EREMOTE;
+> >  }
+> >  
+> > +static int __diag_virtio_hypercall(struct kvm_vcpu *vcpu)
+> > +{
+> > +	int ret, idx;
+> > +
+> > +	/* No virtio-ccw notification? Get out quickly. */
+> > +	if (!vcpu->kvm->arch.css_support ||
+> > +	    (vcpu->run->s.regs.gprs[1] != 3))
+> > +		return -EOPNOTSUPP;
 > 
-> The patchset looks fine overall.
-> Minor comments and questions below.
+> Looks like we have:
+> arch/s390/include/uapi/asm/kvm_virtio.h:#define KVM_S390_VIRTIO_NOTIFY 0
+> arch/s390/include/uapi/asm/kvm_virtio.h:#define KVM_S390_VIRTIO_RESET 1
+> arch/s390/include/uapi/asm/kvm_virtio.h:#define KVM_S390_VIRTIO_SET_STATUS      2
+> 
+> KVM_S390_VIRTIO_CSS_NOTIFY is missing? Strange.
+> Maybe it should be added in that header and included here?
 
-Cool, thanks for reviewing.
+kvm_virtio.h is for the old-style s390-virtio mechanism. Subcode 3 will
+be included in 3.9.
+
+> Do some guests use it?
+> Also, do you want to support KVM_S390_VIRTIO_NOTIFY as well?
+
+We don't want to invest any more effort in the old style s390-virtio
+transport (other than keeping it working). Any future work will be for
+virtio-ccw.
 
 > 
-> > 
-> > Rather than the architecture-specific functions used in v1, we
-> > now try to integrate with the kvm_io_device infrastructure.
-> > Calls to diagnose 500 subcode 3 are now mapped to _write.
-> > These devices are created on a new KVM_CSS_BUS when using a
-> > new flag KVM_IOEVENTFD_FLAG_CSS. addr and datamatch are (ab)used
-> > to contain the subchannel id and the virtqueue.
-> > 
-> > A drawback is that this interface is not easily extendable should
-> > we want to attach other hypercalls or carry more payload.
 > 
-> Under s390 kvm_hypercallX already uses diagnose 500 so that seems
-> fine. If you want to make it more generic and support
-> more subcodes, I think you'll have to pass an extra u64 field:
-> to bus to both avoid overflowing int value and avoid ugly
-> bus-specific hacks in generic code.
-> 
-> Will we ever need that? Code using subcode 3 does not yet seem
-> to be upstream in 3.8 so maybe yes, but you decide.
-
-Subcode 3 will be in 3.9.
-
-> An alternative is to add new bus types when kvm needs to handle
-> new subcodes. So e.g. KVM_BUS_S390_VIRTIO_CCW_NOTIFY and
-> KVM_BUS_S390_VIRTIO_NOTIFY ?
-
-I think I'll fall back to a new bus type should we ever need a new
-notification type - the less strange hacks, the better.
-
-> 
-> You decide, I'm fine with either approach.
-> 
-> More minor comments and questions in response to individual patches.
-> 
-> > Another limitation is the limit of 1000 io devices per bus, which
-> > we would hit easily with a few hundred devices, but that should
-> > be fixable.
-> > 
-> > v1 -> v2:
-> > - Move irqfd initialization from a module init function to kvm_init,
-> >   eliminating the need for a second module for kvm/s390.
-> > - Use kvm_io_device for s390 css devices.
-> > 
-> > 
-> > Cornelia Huck (4):
-> >   KVM: Initialize irqfd from kvm_init().
-> >   KVM: Introduce KVM_CSS_BUS.
-> >   KVM: ioeventfd for s390 css devices.
-> >   KVM: s390: Wire up ioeventfd.
-> > 
-> >  Documentation/virtual/kvm/api.txt |  7 +++++++
-> >  arch/s390/kvm/Kconfig             |  1 +
-> >  arch/s390/kvm/Makefile            |  2 +-
-> >  arch/s390/kvm/diag.c              | 25 +++++++++++++++++++++++++
-> >  arch/s390/kvm/kvm-s390.c          |  1 +
-> >  include/linux/kvm_host.h          | 14 ++++++++++++++
-> >  include/uapi/linux/kvm.h          |  2 ++
-> >  virt/kvm/eventfd.c                | 15 ++++++++-------
-> >  virt/kvm/kvm_main.c               |  6 ++++++
-> >  9 files changed, 65 insertions(+), 8 deletions(-)
-> > 
+> > +
+> > +	idx = srcu_read_lock(&vcpu->kvm->srcu);
+> > +	/*
+> > +	 * The layout is as follows:
+> > +	 * - gpr 2 contains the subchannel id (passed as addr)
+> > +	 * - gpr 3 contains the virtqueue index (passed as datamatch)
+> > +	 */
+> > +	ret = kvm_io_bus_write(vcpu->kvm, KVM_CSS_BUS,
+> > +				vcpu->run->s.regs.gprs[2],
+> > +				8, &vcpu->run->s.regs.gprs[3]);
+> > +	srcu_read_unlock(&vcpu->kvm->srcu, idx);
+> > +	/* kvm_io_bus_write returns -EOPNOTSUPP if it found no match. */
+> > +	return ret;
+> > +}
+> > +
+> >  int kvm_s390_handle_diag(struct kvm_vcpu *vcpu)
+> >  {
+> >  	int code = (vcpu->arch.sie_block->ipb & 0xfff0000) >> 16;
+> > @@ -118,6 +141,8 @@ int kvm_s390_handle_diag(struct kvm_vcpu *vcpu)
+> >  		return __diag_time_slice_end_directed(vcpu);
+> >  	case 0x308:
+> >  		return __diag_ipl_functions(vcpu);
+> > +	case 0x500:
+> > +		return __diag_virtio_hypercall(vcpu);
+> >  	default:
+> >  		return -EOPNOTSUPP;
+> >  	}
+> > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> > index f822d36..04d2454 100644
+> > --- a/arch/s390/kvm/kvm-s390.c
+> > +++ b/arch/s390/kvm/kvm-s390.c
+> > @@ -142,6 +142,7 @@ int kvm_dev_ioctl_check_extension(long ext)
+> >  	case KVM_CAP_ONE_REG:
+> >  	case KVM_CAP_ENABLE_CAP:
+> >  	case KVM_CAP_S390_CSS_SUPPORT:
+> > +	case KVM_CAP_IOEVENTFD:
+> >  		r = 1;
+> >  		break;
+> >  	case KVM_CAP_NR_VCPUS:
 > > -- 
 > > 1.7.12.4
 > 
