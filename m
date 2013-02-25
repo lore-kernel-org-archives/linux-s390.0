@@ -1,10 +1,8 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH v3 1/5] KVM: Initialize irqfd from kvm_init().
-Date: Mon, 25 Feb 2013 16:27:46 +0100
-Message-ID: <1361806070-62465-2-git-send-email-cornelia.huck@de.ibm.com>
-References: <1361806070-62465-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH v3 0/5] kvm: Make ioeventfd usable on s390.
+Date: Mon, 25 Feb 2013 16:27:45 +0100
+Message-ID: <1361806070-62465-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1361806070-62465-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,103 +10,48 @@ To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently, eventfd introduces module_init/module_exit functions
-to initialize/cleanup the irqfd workqueue. This only works, however,
-if no other module_init/module_exit functions are built into the
-same module.
+Here's the latest version of my patch series enabling ioeventfds
+on s390, again against kvm-next.
 
-Let's just move the initialization and cleanup to kvm_init and kvm_exit.
-This way, it is also clearer where kvm startup may fail.
+Patches 1 and 2 (cleaning up initialization and exporting the virtio-ccw
+api) would make sense even independent of the ioeventfd enhancements.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- include/linux/kvm_host.h | 13 +++++++++++++
- virt/kvm/eventfd.c       |  7 ++-----
- virt/kvm/kvm_main.c      |  6 ++++++
- 3 files changed, 21 insertions(+), 5 deletions(-)
+Patches 3-5 are concerned with adding a new type of ioeventfds for
+virtio-ccw notifications on s390. The naming is now hopefully clearer.
+We won't add ioeventfd support for the legacy s390-virtio transport.
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 722cae7..3b768ef 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -423,6 +423,19 @@ void kvm_vcpu_uninit(struct kvm_vcpu *vcpu);
- int __must_check vcpu_load(struct kvm_vcpu *vcpu);
- void vcpu_put(struct kvm_vcpu *vcpu);
- 
-+#ifdef __KVM_HAVE_IOAPIC
-+int kvm_irqfd_init(void);
-+void kvm_irqfd_exit(void);
-+#else
-+static inline int kvm_irqfd_init(void)
-+{
-+	return 0;
-+}
-+
-+static inline void kvm_irqfd_exit(void)
-+{
-+}
-+#endif
- int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
- 		  struct module *module);
- void kvm_exit(void);
-diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
-index b6eea5c..f0ced1a 100644
---- a/virt/kvm/eventfd.c
-+++ b/virt/kvm/eventfd.c
-@@ -544,7 +544,7 @@ void kvm_irq_routing_update(struct kvm *kvm,
-  * aggregated from all vm* instances. We need our own isolated single-thread
-  * queue to prevent deadlock against flushing the normal work-queue.
-  */
--static int __init irqfd_module_init(void)
-+int kvm_irqfd_init(void)
- {
- 	irqfd_cleanup_wq = create_singlethread_workqueue("kvm-irqfd-cleanup");
- 	if (!irqfd_cleanup_wq)
-@@ -553,13 +553,10 @@ static int __init irqfd_module_init(void)
- 	return 0;
- }
- 
--static void __exit irqfd_module_exit(void)
-+void kvm_irqfd_exit(void)
- {
- 	destroy_workqueue(irqfd_cleanup_wq);
- }
--
--module_init(irqfd_module_init);
--module_exit(irqfd_module_exit);
- #endif
- 
- /*
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index adc68fe..7c188a3 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2920,6 +2920,9 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
- 	int r;
- 	int cpu;
- 
-+	r = kvm_irqfd_init();
-+	if (r)
-+		goto out_irqfd;
- 	r = kvm_arch_init(opaque);
- 	if (r)
- 		goto out_fail;
-@@ -3000,6 +3003,8 @@ out_free_0a:
- out_free_0:
- 	kvm_arch_exit();
- out_fail:
-+	kvm_irqfd_exit();
-+out_irqfd:
- 	return r;
- }
- EXPORT_SYMBOL_GPL(kvm_init);
-@@ -3016,6 +3021,7 @@ void kvm_exit(void)
- 	on_each_cpu(hardware_disable_nolock, NULL, 1);
- 	kvm_arch_hardware_unsetup();
- 	kvm_arch_exit();
-+	kvm_irqfd_exit();
- 	free_cpumask_var(cpus_hardware_enabled);
- }
- EXPORT_SYMBOL_GPL(kvm_exit);
+Please consider applying.
+
+v2 -> v3:
+- Added a patch exporting the virtio-ccw api and use it for the
+  diagnose implementation.
+- Better naming: We're dealing with virtio-ccw notifications only.
+v1 -> v2:
+- Move irqfd initialization from a module init function to kvm_init,
+  eliminating the need for a second module for kvm/s390.
+- Use kvm_io_device for s390 css devices.
+
+Cornelia Huck (5):
+  KVM: Initialize irqfd from kvm_init().
+  KVM: s390: Export virtio-ccw api.
+  KVM: Introduce KVM_VIRTIO_CCW_NOTIFY_BUS.
+  KVM: ioeventfd for virtio-ccw devices.
+  KVM: s390: Wire up ioeventfd.
+
+ Documentation/virtual/kvm/api.txt       |  8 ++++++++
+ arch/s390/include/uapi/asm/Kbuild       |  1 +
+ arch/s390/include/uapi/asm/virtio-ccw.h | 21 +++++++++++++++++++++
+ arch/s390/kvm/Kconfig                   |  1 +
+ arch/s390/kvm/Makefile                  |  2 +-
+ arch/s390/kvm/diag.c                    | 26 ++++++++++++++++++++++++++
+ arch/s390/kvm/kvm-s390.c                |  1 +
+ drivers/s390/kvm/virtio_ccw.c           |  5 +----
+ include/linux/kvm_host.h                | 14 ++++++++++++++
+ include/uapi/linux/kvm.h                |  3 +++
+ virt/kvm/eventfd.c                      | 21 ++++++++++++++-------
+ virt/kvm/kvm_main.c                     |  6 ++++++
+ 12 files changed, 97 insertions(+), 12 deletions(-)
+ create mode 100644 arch/s390/include/uapi/asm/virtio-ccw.h
+
 -- 
 1.7.12.4
