@@ -1,26 +1,32 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v3 0/5] kvm: Make ioeventfd usable on s390.
-Date: Tue, 26 Feb 2013 14:29:07 +0100
-Message-ID: <20130226142907.3a38659f@gondolin>
+Date: Tue, 26 Feb 2013 15:41:56 +0200
+Message-ID: <20130226134156.GA11665@redhat.com>
 References: <1361806070-62465-1-git-send-email-cornelia.huck@de.ibm.com>
 	<20130226110421.GB10915@redhat.com>
-	<20130226111812.GA11111@redhat.com>
-	<512CA6F3.7080203@de.ibm.com>
+	<20130226111812.GA11111@redhat.com> <512CA6F3.7080203@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <512CA6F3.7080203@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, rusty@rustcorp.com.au
+Cc: Carsten Otte <cotte@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, qemu-devel <qemu-devel@nongnu.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 26 Feb 2013 13:13:39 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-
+On Tue, Feb 26, 2013 at 01:13:39PM +0100, Christian Borntraeger wrote:
 > On 26/02/13 12:18, Michael S. Tsirkin wrote:
 > > virtio_ccw: pass a cookie value to kvm hypercall
 > > 
@@ -100,9 +106,8 @@ Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 > So...
 > Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-Yes, that sounds sane; I'll give it a try later.
+So let's apply the patch for 3.9 and avoid caring about
+"old guests" much?
 
-However, I'd rather not want to rush this; I'd prefer to get the
-initial version in first.
-
-I'll do a v4 later.
+-- 
+MST
