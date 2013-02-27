@@ -1,68 +1,46 @@
-From: Benjamin Poirier <bpoirier@suse.de>
-Subject: qeth_l2 duplicated frames in promiscuous mode
-Date: Tue, 26 Feb 2013 16:08:37 -0500
-Message-ID: <20130226210837.GB18118@d2.synalogic.ca>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] Consolidate CONFIG_DEBUG_STRICT_USER_COPY_CHECK
+Date: Wed, 27 Feb 2013 15:21:06 -0800
+Message-ID: <512E94E2.50809@zytor.com>
+References: <1361934016-22630-1-git-send-email-sboyd@codeaurora.org> <201302272032.21014.arnd@arndb.de> <512E6FA9.4060504@codeaurora.org> <512E8664.3070903@zytor.com> <512E8E48.8020007@codeaurora.org> <512E8ECF.1080307@zytor.com> <512E9480.7020306@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: Ursula Braun <ursula.braun@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Mark Post <mpost@suse.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-parisc-owner@vger.kernel.org>
+In-Reply-To: <512E9480.7020306@codeaurora.org>
+List-Archive: <https://lore.kernel.org/linux-parisc/>
+List-Post: <mailto:linux-parisc@vger.kernel.org>
+To: Stephen Boyd <sboyd@codeaurora.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, Arjan van de Ven <arjan@linux.intel.com>, Helge Deller <deller@gmx.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Chris Metcalf <cmetcalf@tilera.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello,
+On 02/27/2013 03:19 PM, Stephen Boyd wrote:
+> On 02/27/13 14:55, H. Peter Anvin wrote:
+>> On 02/27/2013 02:52 PM, Stephen Boyd wrote:
+>>> On 02/27/13 14:19, H. Peter Anvin wrote:
+>>>> On 02/27/2013 12:42 PM, Stephen Boyd wrote:
+>>>>>> It's fine to do your patch as a first step though, which would not
+>>>>>> change the behavior.
+>>>>> A lot of arches seem to not want to enable it because false positives
+>>>>> are everywhere. It really depends on how good the compiler is at doing
+>>>>> constant propagation and dead code removal.
+>>>>>
+>>>> Although some of the cases I have seen being flagged as "false
+>>>> positives" have been real bugs.
+>>> There were so many false-positives on x86_64 that Andrew eventually
+>>> dropped my patch to add support for this option to the copy_from_user()
+>>> function there.
+>>>
+>> I would probably have taken it, especially if it came with more x86-64
+>> to i386 unification.
+>>
+>> It's an option, though.
+> 
+> You acked the patch[1]. Will you pick it up?
+> 
+> [1] https://patchwork.kernel.org/patch/833192/
+> 
 
-While working with the qeth/qeth_l2 drivers I've noticed that once the
-nic enters promiscuous mode, every received frame is duplicated. This
-appears to happen at the (virtual) hardware level since the "RX Packets"
-counter printed by `#cp q nic [...] det` shows this duplicated count. It
-also happens when setting promiscuous mode using `#cp set nic [...]
-pro`.
+I can, although I would prefer if it came with the uaccess/usercopy
+unification.
 
-It can be witnessed in tcpdump output or simply by pinging the machine
-from another host. As soon as promiscuous mode is enabled using the cp
-command above, the machine receives the echo request in duplicate and
-answers them accordingly:
-64 bytes from 10.121.155.133: icmp_seq=61 ttl=64 time=0.314 ms
-64 bytes from 10.121.155.133: icmp_seq=62 ttl=64 time=0.308 ms
-# enable promiscuous mode on 10.121.155.133 now
-64 bytes from 10.121.155.133: icmp_seq=63 ttl=64 time=0.301 ms
-64 bytes from 10.121.155.133: icmp_seq=63 ttl=64 time=0.326 ms (DUP!)
-64 bytes from 10.121.155.133: icmp_seq=64 ttl=64 time=0.309 ms
-64 bytes from 10.121.155.133: icmp_seq=64 ttl=64 time=0.330 ms (DUP!)
-
-This duplication happens for multicast and unicast frames, whether those
-are directed to an address in the uc filter list or not.
-
-Tested on v3.8.
-
-Is this a known issue?
-
-Here is the nic info, let me know if you need anything else, I'm not
-familiar with s390.
-
-CP Q NIC 0800 DET
-Adapter 0800.P00 Type: QDIO      Name: UNASSIGNED  Devices: 3
-  MAC: 02-00-00-00-00-07         VSWITCH: SYSTEM VSWNL2
-      RX Packets: 3005625    Discarded: 1318       Errors: 0
-      TX Packets: 287690     Discarded: 0          Errors: 0
-      RX Bytes: 3777624734           TX Bytes: 32040428
-  Connection Name: HALLOLE   State: Session Established
-      Device: 0800  Unit: 000   Role: CTL-READ
-      Device: 0801  Unit: 001   Role: CTL-WRITE
-      Device: 0802  Unit: 002   Role: DATA       vPort: 0264  Index: 0264
-      VLAN: 0556
-      Options: Ethernet Broadcast Promiscuous
-        Unicast MAC Addresses:
-          02-00-00-00-00-07
-        Multicast MAC Addresses:
-          01-00-5E-00-00-01
-          33-33-00-00-00-01
-          33-33-00-00-02-02
-          33-33-FF-00-00-07
-
-Thank you,
--Benjamin
+	-hpa
