@@ -1,10 +1,8 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH v5 5/6] KVM: ioeventfd for virtio-ccw devices.
-Date: Thu, 28 Feb 2013 12:33:20 +0100
-Message-ID: <1362051201-56541-6-git-send-email-cornelia.huck@de.ibm.com>
-References: <1362051201-56541-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH v5 0/6] kvm: Make ioeventfd usable on s390.
+Date: Thu, 28 Feb 2013 12:33:15 +0100
+Message-ID: <1362051201-56541-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1362051201-56541-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,109 +10,47 @@ To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Enhance KVM_IOEVENTFD with a new flag that allows to attach to virtio-ccw
-devices on s390 via the KVM_VIRTIO_CCW_NOTIFY_BUS.
+v5 of the ioeventfd patch set, this time with a proper return code
+from __diag_virtio_hypercall(), otherwise unchanged.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- Documentation/virtual/kvm/api.txt |  8 ++++++++
- include/uapi/linux/kvm.h          |  3 +++
- virt/kvm/eventfd.c                | 17 +++++++++++++----
- 3 files changed, 24 insertions(+), 4 deletions(-)
+v4 -> v5:
+- Proper return code in __diag_virtio_hypercall()
+v3 -> v4:
+- Pass cookies in virtio-ccw notify hypercall
+- Coding style
+v2 -> v3:
+- Added a patch exporting the virtio-ccw api and use it for the
+  diagnose implementation.
+- Better naming: We're dealing with virtio-ccw notifications only.
+v1 -> v2:
+- Move irqfd initialization from a module init function to kvm_init,
+  eliminating the need for a second module for kvm/s390.
+- Use kvm_io_device for s390 css devices.
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index c2534c3..86232d6 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -1468,15 +1468,23 @@ struct kvm_ioeventfd {
- 	__u8  pad[36];
- };
- 
-+For the special case of virtio-ccw devices on s390, the ioevent is matched
-+to a subchannel/virtqueue tuple instead.
-+
- The following flags are defined:
- 
- #define KVM_IOEVENTFD_FLAG_DATAMATCH (1 << kvm_ioeventfd_flag_nr_datamatch)
- #define KVM_IOEVENTFD_FLAG_PIO       (1 << kvm_ioeventfd_flag_nr_pio)
- #define KVM_IOEVENTFD_FLAG_DEASSIGN  (1 << kvm_ioeventfd_flag_nr_deassign)
-+#define KVM_IOEVENTFD_FLAG_VIRTIO_CCW_NOTIFY \
-+	(1 << kvm_ioeventfd_flag_nr_virtio_ccw_notify)
- 
- If datamatch flag is set, the event will be signaled only if the written value
- to the registered address is equal to datamatch in struct kvm_ioeventfd.
- 
-+For virtio-ccw devices, addr contains the subchannel id and datamatch the
-+virtqueue index.
-+
- 
- 4.60 KVM_DIRTY_TLB
- 
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 9a2db57..8f3e5ae 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -448,12 +448,15 @@ enum {
- 	kvm_ioeventfd_flag_nr_datamatch,
- 	kvm_ioeventfd_flag_nr_pio,
- 	kvm_ioeventfd_flag_nr_deassign,
-+	kvm_ioeventfd_flag_nr_virtio_ccw_notify,
- 	kvm_ioeventfd_flag_nr_max,
- };
- 
- #define KVM_IOEVENTFD_FLAG_DATAMATCH (1 << kvm_ioeventfd_flag_nr_datamatch)
- #define KVM_IOEVENTFD_FLAG_PIO       (1 << kvm_ioeventfd_flag_nr_pio)
- #define KVM_IOEVENTFD_FLAG_DEASSIGN  (1 << kvm_ioeventfd_flag_nr_deassign)
-+#define KVM_IOEVENTFD_FLAG_VIRTIO_CCW_NOTIFY \
-+	(1 << kvm_ioeventfd_flag_nr_virtio_ccw_notify)
- 
- #define KVM_IOEVENTFD_VALID_FLAG_MASK  ((1 << kvm_ioeventfd_flag_nr_max) - 1)
- 
-diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
-index f0ced1a..c9b6494 100644
---- a/virt/kvm/eventfd.c
-+++ b/virt/kvm/eventfd.c
-@@ -675,15 +675,24 @@ ioeventfd_check_collision(struct kvm *kvm, struct _ioeventfd *p)
- 	return false;
- }
- 
-+static enum kvm_bus ioeventfd_bus_from_flags(__u32 flags)
-+{
-+	if (flags & KVM_IOEVENTFD_FLAG_PIO)
-+		return KVM_PIO_BUS;
-+	if (flags & KVM_IOEVENTFD_FLAG_VIRTIO_CCW_NOTIFY)
-+		return KVM_VIRTIO_CCW_NOTIFY_BUS;
-+	return KVM_MMIO_BUS;
-+}
-+
- static int
- kvm_assign_ioeventfd(struct kvm *kvm, struct kvm_ioeventfd *args)
- {
--	int                       pio = args->flags & KVM_IOEVENTFD_FLAG_PIO;
--	enum kvm_bus              bus_idx = pio ? KVM_PIO_BUS : KVM_MMIO_BUS;
-+	enum kvm_bus              bus_idx;
- 	struct _ioeventfd        *p;
- 	struct eventfd_ctx       *eventfd;
- 	int                       ret;
- 
-+	bus_idx = ioeventfd_bus_from_flags(args->flags);
- 	/* must be natural-word sized */
- 	switch (args->len) {
- 	case 1:
-@@ -758,12 +767,12 @@ fail:
- static int
- kvm_deassign_ioeventfd(struct kvm *kvm, struct kvm_ioeventfd *args)
- {
--	int                       pio = args->flags & KVM_IOEVENTFD_FLAG_PIO;
--	enum kvm_bus              bus_idx = pio ? KVM_PIO_BUS : KVM_MMIO_BUS;
-+	enum kvm_bus              bus_idx;
- 	struct _ioeventfd        *p, *tmp;
- 	struct eventfd_ctx       *eventfd;
- 	int                       ret = -ENOENT;
- 
-+	bus_idx = ioeventfd_bus_from_flags(args->flags);
- 	eventfd = eventfd_ctx_fdget(args->fd);
- 	if (IS_ERR(eventfd))
- 		return PTR_ERR(eventfd);
+Cornelia Huck (5):
+  KVM: s390: Export virtio-ccw api.
+  KVM: Initialize irqfd from kvm_init().
+  KVM: Introduce KVM_VIRTIO_CCW_NOTIFY_BUS.
+  KVM: ioeventfd for virtio-ccw devices.
+  KVM: s390: Wire up ioeventfd.
+
+Michael S. Tsirkin (1):
+  virtio_ccw: pass a cookie value to kvm hypercall
+
+ Documentation/virtual/kvm/api.txt       |  8 ++++++++
+ arch/s390/include/uapi/asm/Kbuild       |  1 +
+ arch/s390/include/uapi/asm/virtio-ccw.h | 21 +++++++++++++++++++++
+ arch/s390/kvm/Kconfig                   |  1 +
+ arch/s390/kvm/Makefile                  |  2 +-
+ arch/s390/kvm/diag.c                    | 26 ++++++++++++++++++++++++++
+ arch/s390/kvm/kvm-s390.c                |  1 +
+ drivers/s390/kvm/virtio_ccw.c           | 16 +++++++++-------
+ include/linux/kvm_host.h                | 14 ++++++++++++++
+ include/uapi/linux/kvm.h                |  3 +++
+ virt/kvm/eventfd.c                      | 24 +++++++++++++++---------
+ virt/kvm/kvm_main.c                     |  6 ++++++
+ 12 files changed, 106 insertions(+), 17 deletions(-)
+ create mode 100644 arch/s390/include/uapi/asm/virtio-ccw.h
+
 -- 
 1.7.12.4
