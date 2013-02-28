@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH v5 1/6] virtio_ccw: pass a cookie value to kvm hypercall
-Date: Thu, 28 Feb 2013 12:33:16 +0100
-Message-ID: <1362051201-56541-2-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH v5 2/6] KVM: s390: Export virtio-ccw api.
+Date: Thu, 28 Feb 2013 12:33:17 +0100
+Message-ID: <1362051201-56541-3-git-send-email-cornelia.huck@de.ibm.com>
 References: <1362051201-56541-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1362051201-56541-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,63 +12,76 @@ To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
+Export the virtio-ccw api in a header for usage by other code.
 
-Lookups by channel/vq pair on host during virtio notifications might be
-expensive.  Interpret hypercall return value as a cookie which host can
-use to do device lookups for the next notification more efficiently.
-
-[CH: Fix line > 80 chars]
-Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- drivers/s390/kvm/virtio_ccw.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/s390/include/uapi/asm/Kbuild       |  1 +
+ arch/s390/include/uapi/asm/virtio-ccw.h | 21 +++++++++++++++++++++
+ drivers/s390/kvm/virtio_ccw.c           |  5 +----
+ 3 files changed, 23 insertions(+), 4 deletions(-)
+ create mode 100644 arch/s390/include/uapi/asm/virtio-ccw.h
 
+diff --git a/arch/s390/include/uapi/asm/Kbuild b/arch/s390/include/uapi/asm/Kbuild
+index 7bf68ff..9ccd190 100644
+--- a/arch/s390/include/uapi/asm/Kbuild
++++ b/arch/s390/include/uapi/asm/Kbuild
+@@ -44,5 +44,6 @@ header-y += termios.h
+ header-y += types.h
+ header-y += ucontext.h
+ header-y += unistd.h
++header-y += virtio-ccw.h
+ header-y += vtoc.h
+ header-y += zcrypt.h
+diff --git a/arch/s390/include/uapi/asm/virtio-ccw.h b/arch/s390/include/uapi/asm/virtio-ccw.h
+new file mode 100644
+index 0000000..a9a4ebf
+--- /dev/null
++++ b/arch/s390/include/uapi/asm/virtio-ccw.h
+@@ -0,0 +1,21 @@
++/*
++ * Definitions for virtio-ccw devices.
++ *
++ * Copyright IBM Corp. 2013
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License (version 2 only)
++ * as published by the Free Software Foundation.
++ *
++ *  Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
++ */
++#ifndef __KVM_VIRTIO_CCW_H
++#define __KVM_VIRTIO_CCW_H
++
++/* Alignment of vring buffers. */
++#define KVM_VIRTIO_CCW_RING_ALIGN 4096
++
++/* Subcode for diagnose 500 (virtio hypercall). */
++#define KVM_S390_VIRTIO_CCW_NOTIFY 3
++
++#endif
 diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 3217dfe..259a2fb 100644
+index 259a2fb..bf5ba3b 100644
 --- a/drivers/s390/kvm/virtio_ccw.c
 +++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -77,6 +77,7 @@ struct virtio_ccw_vq_info {
- 	void *queue;
- 	struct vq_info_block *info_block;
- 	struct list_head node;
-+	long cookie;
+@@ -31,6 +31,7 @@
+ #include <asm/irq.h>
+ #include <asm/cio.h>
+ #include <asm/ccwdev.h>
++#include <asm/virtio-ccw.h>
+ 
+ /*
+  * virtio related functions
+@@ -80,10 +81,6 @@ struct virtio_ccw_vq_info {
+ 	long cookie;
  };
  
- #define KVM_VIRTIO_CCW_RING_ALIGN 4096
-@@ -145,15 +146,18 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
- }
- 
- static inline long do_kvm_notify(struct subchannel_id schid,
--				 unsigned long queue_index)
-+				 unsigned long queue_index,
-+				 long cookie)
- {
- 	register unsigned long __nr asm("1") = KVM_S390_VIRTIO_CCW_NOTIFY;
- 	register struct subchannel_id __schid asm("2") = schid;
- 	register unsigned long __index asm("3") = queue_index;
- 	register long __rc asm("2");
-+	register long __cookie asm("4") = cookie;
- 
- 	asm volatile ("diag 2,4,0x500\n"
--		      : "=d" (__rc) : "d" (__nr), "d" (__schid), "d" (__index)
-+		      : "=d" (__rc) : "d" (__nr), "d" (__schid), "d" (__index),
-+		      "d"(__cookie)
- 		      : "memory", "cc");
- 	return __rc;
- }
-@@ -166,7 +170,8 @@ static void virtio_ccw_kvm_notify(struct virtqueue *vq)
- 
- 	vcdev = to_vc_device(info->vq->vdev);
- 	ccw_device_get_schid(vcdev->cdev, &schid);
--	do_kvm_notify(schid, virtqueue_get_queue_index(vq));
-+	info->cookie = do_kvm_notify(schid, virtqueue_get_queue_index(vq),
-+				     info->cookie);
- }
- 
- static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
+-#define KVM_VIRTIO_CCW_RING_ALIGN 4096
+-
+-#define KVM_S390_VIRTIO_CCW_NOTIFY 3
+-
+ #define CCW_CMD_SET_VQ 0x13
+ #define CCW_CMD_VDEV_RESET 0x33
+ #define CCW_CMD_SET_IND 0x43
 -- 
 1.7.12.4
