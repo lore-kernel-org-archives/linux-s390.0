@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH v4 1/6] virtio_ccw: pass a cookie value to kvm hypercall
-Date: Thu, 28 Feb 2013 10:22:27 +0100
-Message-ID: <1362043352-56889-2-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH v4 5/6] KVM: ioeventfd for virtio-ccw devices.
+Date: Thu, 28 Feb 2013 10:22:31 +0100
+Message-ID: <1362043352-56889-6-git-send-email-cornelia.huck@de.ibm.com>
 References: <1362043352-56889-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1362043352-56889-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,63 +12,109 @@ To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
+Enhance KVM_IOEVENTFD with a new flag that allows to attach to virtio-ccw
+devices on s390 via the KVM_VIRTIO_CCW_NOTIFY_BUS.
 
-Lookups by channel/vq pair on host during virtio notifications might be
-expensive.  Interpret hypercall return value as a cookie which host can
-use to do device lookups for the next notification more efficiently.
-
-[CH: Fix line > 80 chars]
-Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- drivers/s390/kvm/virtio_ccw.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ Documentation/virtual/kvm/api.txt |  8 ++++++++
+ include/uapi/linux/kvm.h          |  3 +++
+ virt/kvm/eventfd.c                | 17 +++++++++++++----
+ 3 files changed, 24 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 3217dfe..259a2fb 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -77,6 +77,7 @@ struct virtio_ccw_vq_info {
- 	void *queue;
- 	struct vq_info_block *info_block;
- 	struct list_head node;
-+	long cookie;
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index c2534c3..86232d6 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -1468,15 +1468,23 @@ struct kvm_ioeventfd {
+ 	__u8  pad[36];
  };
  
- #define KVM_VIRTIO_CCW_RING_ALIGN 4096
-@@ -145,15 +146,18 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
++For the special case of virtio-ccw devices on s390, the ioevent is matched
++to a subchannel/virtqueue tuple instead.
++
+ The following flags are defined:
+ 
+ #define KVM_IOEVENTFD_FLAG_DATAMATCH (1 << kvm_ioeventfd_flag_nr_datamatch)
+ #define KVM_IOEVENTFD_FLAG_PIO       (1 << kvm_ioeventfd_flag_nr_pio)
+ #define KVM_IOEVENTFD_FLAG_DEASSIGN  (1 << kvm_ioeventfd_flag_nr_deassign)
++#define KVM_IOEVENTFD_FLAG_VIRTIO_CCW_NOTIFY \
++	(1 << kvm_ioeventfd_flag_nr_virtio_ccw_notify)
+ 
+ If datamatch flag is set, the event will be signaled only if the written value
+ to the registered address is equal to datamatch in struct kvm_ioeventfd.
+ 
++For virtio-ccw devices, addr contains the subchannel id and datamatch the
++virtqueue index.
++
+ 
+ 4.60 KVM_DIRTY_TLB
+ 
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 9a2db57..8f3e5ae 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -448,12 +448,15 @@ enum {
+ 	kvm_ioeventfd_flag_nr_datamatch,
+ 	kvm_ioeventfd_flag_nr_pio,
+ 	kvm_ioeventfd_flag_nr_deassign,
++	kvm_ioeventfd_flag_nr_virtio_ccw_notify,
+ 	kvm_ioeventfd_flag_nr_max,
+ };
+ 
+ #define KVM_IOEVENTFD_FLAG_DATAMATCH (1 << kvm_ioeventfd_flag_nr_datamatch)
+ #define KVM_IOEVENTFD_FLAG_PIO       (1 << kvm_ioeventfd_flag_nr_pio)
+ #define KVM_IOEVENTFD_FLAG_DEASSIGN  (1 << kvm_ioeventfd_flag_nr_deassign)
++#define KVM_IOEVENTFD_FLAG_VIRTIO_CCW_NOTIFY \
++	(1 << kvm_ioeventfd_flag_nr_virtio_ccw_notify)
+ 
+ #define KVM_IOEVENTFD_VALID_FLAG_MASK  ((1 << kvm_ioeventfd_flag_nr_max) - 1)
+ 
+diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
+index f0ced1a..c9b6494 100644
+--- a/virt/kvm/eventfd.c
++++ b/virt/kvm/eventfd.c
+@@ -675,15 +675,24 @@ ioeventfd_check_collision(struct kvm *kvm, struct _ioeventfd *p)
+ 	return false;
  }
  
- static inline long do_kvm_notify(struct subchannel_id schid,
--				 unsigned long queue_index)
-+				 unsigned long queue_index,
-+				 long cookie)
++static enum kvm_bus ioeventfd_bus_from_flags(__u32 flags)
++{
++	if (flags & KVM_IOEVENTFD_FLAG_PIO)
++		return KVM_PIO_BUS;
++	if (flags & KVM_IOEVENTFD_FLAG_VIRTIO_CCW_NOTIFY)
++		return KVM_VIRTIO_CCW_NOTIFY_BUS;
++	return KVM_MMIO_BUS;
++}
++
+ static int
+ kvm_assign_ioeventfd(struct kvm *kvm, struct kvm_ioeventfd *args)
  {
- 	register unsigned long __nr asm("1") = KVM_S390_VIRTIO_CCW_NOTIFY;
- 	register struct subchannel_id __schid asm("2") = schid;
- 	register unsigned long __index asm("3") = queue_index;
- 	register long __rc asm("2");
-+	register long __cookie asm("4") = cookie;
+-	int                       pio = args->flags & KVM_IOEVENTFD_FLAG_PIO;
+-	enum kvm_bus              bus_idx = pio ? KVM_PIO_BUS : KVM_MMIO_BUS;
++	enum kvm_bus              bus_idx;
+ 	struct _ioeventfd        *p;
+ 	struct eventfd_ctx       *eventfd;
+ 	int                       ret;
  
- 	asm volatile ("diag 2,4,0x500\n"
--		      : "=d" (__rc) : "d" (__nr), "d" (__schid), "d" (__index)
-+		      : "=d" (__rc) : "d" (__nr), "d" (__schid), "d" (__index),
-+		      "d"(__cookie)
- 		      : "memory", "cc");
- 	return __rc;
- }
-@@ -166,7 +170,8 @@ static void virtio_ccw_kvm_notify(struct virtqueue *vq)
++	bus_idx = ioeventfd_bus_from_flags(args->flags);
+ 	/* must be natural-word sized */
+ 	switch (args->len) {
+ 	case 1:
+@@ -758,12 +767,12 @@ fail:
+ static int
+ kvm_deassign_ioeventfd(struct kvm *kvm, struct kvm_ioeventfd *args)
+ {
+-	int                       pio = args->flags & KVM_IOEVENTFD_FLAG_PIO;
+-	enum kvm_bus              bus_idx = pio ? KVM_PIO_BUS : KVM_MMIO_BUS;
++	enum kvm_bus              bus_idx;
+ 	struct _ioeventfd        *p, *tmp;
+ 	struct eventfd_ctx       *eventfd;
+ 	int                       ret = -ENOENT;
  
- 	vcdev = to_vc_device(info->vq->vdev);
- 	ccw_device_get_schid(vcdev->cdev, &schid);
--	do_kvm_notify(schid, virtqueue_get_queue_index(vq));
-+	info->cookie = do_kvm_notify(schid, virtqueue_get_queue_index(vq),
-+				     info->cookie);
- }
- 
- static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
++	bus_idx = ioeventfd_bus_from_flags(args->flags);
+ 	eventfd = eventfd_ctx_fdget(args->fd);
+ 	if (IS_ERR(eventfd))
+ 		return PTR_ERR(eventfd);
 -- 
 1.7.12.4
