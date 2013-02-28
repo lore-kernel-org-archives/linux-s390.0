@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH v5 2/6] KVM: s390: Export virtio-ccw api.
-Date: Thu, 28 Feb 2013 12:33:17 +0100
-Message-ID: <1362051201-56541-3-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH v5 3/6] KVM: Initialize irqfd from kvm_init().
+Date: Thu, 28 Feb 2013 12:33:18 +0100
+Message-ID: <1362051201-56541-4-git-send-email-cornelia.huck@de.ibm.com>
 References: <1362051201-56541-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1362051201-56541-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,76 +12,103 @@ To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Export the virtio-ccw api in a header for usage by other code.
+Currently, eventfd introduces module_init/module_exit functions
+to initialize/cleanup the irqfd workqueue. This only works, however,
+if no other module_init/module_exit functions are built into the
+same module.
+
+Let's just move the initialization and cleanup to kvm_init and kvm_exit.
+This way, it is also clearer where kvm startup may fail.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/include/uapi/asm/Kbuild       |  1 +
- arch/s390/include/uapi/asm/virtio-ccw.h | 21 +++++++++++++++++++++
- drivers/s390/kvm/virtio_ccw.c           |  5 +----
- 3 files changed, 23 insertions(+), 4 deletions(-)
- create mode 100644 arch/s390/include/uapi/asm/virtio-ccw.h
+ include/linux/kvm_host.h | 13 +++++++++++++
+ virt/kvm/eventfd.c       |  7 ++-----
+ virt/kvm/kvm_main.c      |  6 ++++++
+ 3 files changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/include/uapi/asm/Kbuild b/arch/s390/include/uapi/asm/Kbuild
-index 7bf68ff..9ccd190 100644
---- a/arch/s390/include/uapi/asm/Kbuild
-+++ b/arch/s390/include/uapi/asm/Kbuild
-@@ -44,5 +44,6 @@ header-y += termios.h
- header-y += types.h
- header-y += ucontext.h
- header-y += unistd.h
-+header-y += virtio-ccw.h
- header-y += vtoc.h
- header-y += zcrypt.h
-diff --git a/arch/s390/include/uapi/asm/virtio-ccw.h b/arch/s390/include/uapi/asm/virtio-ccw.h
-new file mode 100644
-index 0000000..a9a4ebf
---- /dev/null
-+++ b/arch/s390/include/uapi/asm/virtio-ccw.h
-@@ -0,0 +1,21 @@
-+/*
-+ * Definitions for virtio-ccw devices.
-+ *
-+ * Copyright IBM Corp. 2013
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License (version 2 only)
-+ * as published by the Free Software Foundation.
-+ *
-+ *  Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
-+ */
-+#ifndef __KVM_VIRTIO_CCW_H
-+#define __KVM_VIRTIO_CCW_H
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 722cae7..3b768ef 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -423,6 +423,19 @@ void kvm_vcpu_uninit(struct kvm_vcpu *vcpu);
+ int __must_check vcpu_load(struct kvm_vcpu *vcpu);
+ void vcpu_put(struct kvm_vcpu *vcpu);
+ 
++#ifdef __KVM_HAVE_IOAPIC
++int kvm_irqfd_init(void);
++void kvm_irqfd_exit(void);
++#else
++static inline int kvm_irqfd_init(void)
++{
++	return 0;
++}
 +
-+/* Alignment of vring buffers. */
-+#define KVM_VIRTIO_CCW_RING_ALIGN 4096
-+
-+/* Subcode for diagnose 500 (virtio hypercall). */
-+#define KVM_S390_VIRTIO_CCW_NOTIFY 3
-+
++static inline void kvm_irqfd_exit(void)
++{
++}
 +#endif
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 259a2fb..bf5ba3b 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -31,6 +31,7 @@
- #include <asm/irq.h>
- #include <asm/cio.h>
- #include <asm/ccwdev.h>
-+#include <asm/virtio-ccw.h>
+ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
+ 		  struct module *module);
+ void kvm_exit(void);
+diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
+index b6eea5c..f0ced1a 100644
+--- a/virt/kvm/eventfd.c
++++ b/virt/kvm/eventfd.c
+@@ -544,7 +544,7 @@ void kvm_irq_routing_update(struct kvm *kvm,
+  * aggregated from all vm* instances. We need our own isolated single-thread
+  * queue to prevent deadlock against flushing the normal work-queue.
+  */
+-static int __init irqfd_module_init(void)
++int kvm_irqfd_init(void)
+ {
+ 	irqfd_cleanup_wq = create_singlethread_workqueue("kvm-irqfd-cleanup");
+ 	if (!irqfd_cleanup_wq)
+@@ -553,13 +553,10 @@ static int __init irqfd_module_init(void)
+ 	return 0;
+ }
+ 
+-static void __exit irqfd_module_exit(void)
++void kvm_irqfd_exit(void)
+ {
+ 	destroy_workqueue(irqfd_cleanup_wq);
+ }
+-
+-module_init(irqfd_module_init);
+-module_exit(irqfd_module_exit);
+ #endif
  
  /*
-  * virtio related functions
-@@ -80,10 +81,6 @@ struct virtio_ccw_vq_info {
- 	long cookie;
- };
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index adc68fe..7c188a3 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2920,6 +2920,9 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
+ 	int r;
+ 	int cpu;
  
--#define KVM_VIRTIO_CCW_RING_ALIGN 4096
--
--#define KVM_S390_VIRTIO_CCW_NOTIFY 3
--
- #define CCW_CMD_SET_VQ 0x13
- #define CCW_CMD_VDEV_RESET 0x33
- #define CCW_CMD_SET_IND 0x43
++	r = kvm_irqfd_init();
++	if (r)
++		goto out_irqfd;
+ 	r = kvm_arch_init(opaque);
+ 	if (r)
+ 		goto out_fail;
+@@ -3000,6 +3003,8 @@ out_free_0a:
+ out_free_0:
+ 	kvm_arch_exit();
+ out_fail:
++	kvm_irqfd_exit();
++out_irqfd:
+ 	return r;
+ }
+ EXPORT_SYMBOL_GPL(kvm_init);
+@@ -3016,6 +3021,7 @@ void kvm_exit(void)
+ 	on_each_cpu(hardware_disable_nolock, NULL, 1);
+ 	kvm_arch_hardware_unsetup();
+ 	kvm_arch_exit();
++	kvm_irqfd_exit();
+ 	free_cpumask_var(cpus_hardware_enabled);
+ }
+ EXPORT_SYMBOL_GPL(kvm_exit);
 -- 
 1.7.12.4
