@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/8] s390/mm,gmap: implement gmap_translate()
-Date: Tue,  5 Mar 2013 13:14:41 +0100
-Message-ID: <1362485687-2799-3-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 6/8] s390/kvm,gaccess: shorten copy_to/from_guest code
+Date: Tue,  5 Mar 2013 13:14:45 +0100
+Message-ID: <1362485687-2799-7-git-send-email-borntraeger@de.ibm.com>
 References: <1362485687-2799-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1362485687-2799-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,182 +14,353 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Implement gmap_translate() function which translates a guest absolute address
-to a user space process address without establishing the guest page table
-entries.
-
-This is useful for kvm guest address translations where no memory access
-is expected to happen soon (e.g. tprot exception handler).
+The code can be significantly shortened. There is no functional change,
+except that for large (> PAGE_SIZE) copies the guest translation would
+be done more frequently.
+However, there is not a single user which does this currently. If one
+gets added later on this functionality can be added easily again.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h |   2 +
- arch/s390/mm/pgtable.c          | 107 +++++++++++++++++++++++++++++++---------
- 2 files changed, 87 insertions(+), 22 deletions(-)
+ arch/s390/kvm/gaccess.h | 294 +++++++-----------------------------------------
+ 1 file changed, 41 insertions(+), 253 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 4a29308..75b8750 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -759,6 +759,8 @@ void gmap_disable(struct gmap *gmap);
- int gmap_map_segment(struct gmap *gmap, unsigned long from,
- 		     unsigned long to, unsigned long length);
- int gmap_unmap_segment(struct gmap *gmap, unsigned long to, unsigned long len);
-+unsigned long __gmap_translate(unsigned long address, struct gmap *);
-+unsigned long gmap_translate(unsigned long address, struct gmap *);
- unsigned long __gmap_fault(unsigned long address, struct gmap *);
- unsigned long gmap_fault(unsigned long address, struct gmap *);
- void gmap_discard(unsigned long from, unsigned long to, struct gmap *);
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index ae44d2a..2accf71 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -379,45 +379,108 @@ out_unmap:
- }
- EXPORT_SYMBOL_GPL(gmap_map_segment);
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index 82f450e..8608d7e 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -18,16 +18,19 @@
+ #include <asm/uaccess.h>
+ #include "kvm-s390.h"
  
-+static unsigned long *gmap_table_walk(unsigned long address, struct gmap *gmap)
-+{
-+	unsigned long *table;
-+
-+	table = gmap->table + ((address >> 53) & 0x7ff);
-+	if (unlikely(*table & _REGION_ENTRY_INV))
-+		return ERR_PTR(-EFAULT);
-+	table = (unsigned long *)(*table & _REGION_ENTRY_ORIGIN);
-+	table = table + ((address >> 42) & 0x7ff);
-+	if (unlikely(*table & _REGION_ENTRY_INV))
-+		return ERR_PTR(-EFAULT);
-+	table = (unsigned long *)(*table & _REGION_ENTRY_ORIGIN);
-+	table = table + ((address >> 31) & 0x7ff);
-+	if (unlikely(*table & _REGION_ENTRY_INV))
-+		return ERR_PTR(-EFAULT);
-+	table = (unsigned long *)(*table & _REGION_ENTRY_ORIGIN);
-+	table = table + ((address >> 20) & 0x7ff);
-+	return table;
-+}
-+
-+/**
-+ * __gmap_translate - translate a guest address to a user space address
-+ * @address: guest address
-+ * @gmap: pointer to guest mapping meta data structure
-+ *
-+ * Returns user space address which corresponds to the guest address or
-+ * -EFAULT if no such mapping exists.
-+ * This function does not establish potentially missing page table entries.
-+ * The mmap_sem of the mm that belongs to the address space must be held
-+ * when this function gets called.
-+ */
-+unsigned long __gmap_translate(unsigned long address, struct gmap *gmap)
-+{
-+	unsigned long *segment_ptr, vmaddr, segment;
-+	struct gmap_pgtable *mp;
-+	struct page *page;
-+
-+	current->thread.gmap_addr = address;
-+	segment_ptr = gmap_table_walk(address, gmap);
-+	if (IS_ERR(segment_ptr))
-+		return PTR_ERR(segment_ptr);
-+	/* Convert the gmap address to an mm address. */
-+	segment = *segment_ptr;
-+	if (!(segment & _SEGMENT_ENTRY_INV)) {
-+		page = pfn_to_page(segment >> PAGE_SHIFT);
-+		mp = (struct gmap_pgtable *) page->index;
-+		return mp->vmaddr | (address & ~PMD_MASK);
-+	} else if (segment & _SEGMENT_ENTRY_RO) {
-+		vmaddr = segment & _SEGMENT_ENTRY_ORIGIN;
-+		return vmaddr | (address & ~PMD_MASK);
-+	}
-+	return -EFAULT;
-+}
-+EXPORT_SYMBOL_GPL(__gmap_translate);
-+
-+/**
-+ * gmap_translate - translate a guest address to a user space address
-+ * @address: guest address
-+ * @gmap: pointer to guest mapping meta data structure
-+ *
-+ * Returns user space address which corresponds to the guest address or
-+ * -EFAULT if no such mapping exists.
-+ * This function does not establish potentially missing page table entries.
-+ */
-+unsigned long gmap_translate(unsigned long address, struct gmap *gmap)
-+{
-+	unsigned long rc;
-+
-+	down_read(&gmap->mm->mmap_sem);
-+	rc = __gmap_translate(address, gmap);
-+	up_read(&gmap->mm->mmap_sem);
-+	return rc;
-+}
-+EXPORT_SYMBOL_GPL(gmap_translate);
-+
- /*
-  * this function is assumed to be called with mmap_sem held
-  */
- unsigned long __gmap_fault(unsigned long address, struct gmap *gmap)
+-static inline void *__gptr_to_uptr(struct kvm_vcpu *vcpu, void *gptr)
++static inline void *__gptr_to_uptr(struct kvm_vcpu *vcpu, void *gptr,
++				   int prefixing)
  {
--	unsigned long *table, vmaddr, segment;
--	struct mm_struct *mm;
-+	unsigned long *segment_ptr, vmaddr, segment;
-+	struct vm_area_struct *vma;
- 	struct gmap_pgtable *mp;
- 	struct gmap_rmap *rmap;
--	struct vm_area_struct *vma;
-+	struct mm_struct *mm;
- 	struct page *page;
- 	pgd_t *pgd;
- 	pud_t *pud;
- 	pmd_t *pmd;
+ 	unsigned long prefix  = vcpu->arch.sie_block->prefix;
+ 	unsigned long gaddr = (unsigned long) gptr;
+ 	unsigned long uaddr;
  
- 	current->thread.gmap_addr = address;
--	mm = gmap->mm;
--	/* Walk the gmap address space page table */
--	table = gmap->table + ((address >> 53) & 0x7ff);
--	if (unlikely(*table & _REGION_ENTRY_INV))
--		return -EFAULT;
--	table = (unsigned long *)(*table & _REGION_ENTRY_ORIGIN);
--	table = table + ((address >> 42) & 0x7ff);
--	if (unlikely(*table & _REGION_ENTRY_INV))
-+	segment_ptr = gmap_table_walk(address, gmap);
-+	if (IS_ERR(segment_ptr))
- 		return -EFAULT;
--	table = (unsigned long *)(*table & _REGION_ENTRY_ORIGIN);
--	table = table + ((address >> 31) & 0x7ff);
--	if (unlikely(*table & _REGION_ENTRY_INV))
--		return -EFAULT;
--	table = (unsigned long *)(*table & _REGION_ENTRY_ORIGIN);
--	table = table + ((address >> 20) & 0x7ff);
+-	if (gaddr < 2 * PAGE_SIZE)
+-		gaddr += prefix;
+-	else if ((gaddr >= prefix) && (gaddr < prefix + 2 * PAGE_SIZE))
+-		gaddr -= prefix;
++	if (prefixing) {
++		if (gaddr < 2 * PAGE_SIZE)
++			gaddr += prefix;
++		else if ((gaddr >= prefix) && (gaddr < prefix + 2 * PAGE_SIZE))
++			gaddr -= prefix;
++	}
+ 	uaddr = gmap_fault(gaddr, vcpu->arch.gmap);
+ 	if (IS_ERR_VALUE(uaddr))
+ 		uaddr = -EFAULT;
+@@ -36,7 +39,7 @@ static inline void *__gptr_to_uptr(struct kvm_vcpu *vcpu, void *gptr)
+ 
+ #define get_guest(vcpu, x, gptr)				\
+ ({								\
+-	__typeof__(gptr) __uptr = __gptr_to_uptr(vcpu, gptr);	\
++	__typeof__(gptr) __uptr = __gptr_to_uptr(vcpu, gptr, 1);\
+ 	int __mask = sizeof(__typeof__(*(gptr))) - 1;		\
+ 	int __ret = PTR_RET(__uptr);				\
+ 								\
+@@ -49,7 +52,7 @@ static inline void *__gptr_to_uptr(struct kvm_vcpu *vcpu, void *gptr)
+ 
+ #define put_guest(vcpu, x, gptr)				\
+ ({								\
+-	__typeof__(gptr) __uptr = __gptr_to_uptr(vcpu, gptr);	\
++	__typeof__(gptr) __uptr = __gptr_to_uptr(vcpu, gptr, 1);\
+ 	int __mask = sizeof(__typeof__(*(gptr))) - 1;		\
+ 	int __ret = PTR_RET(__uptr);				\
+ 								\
+@@ -60,255 +63,40 @@ static inline void *__gptr_to_uptr(struct kvm_vcpu *vcpu, void *gptr)
+ 	__ret;							\
+ })
+ 
+-static inline int __copy_to_guest_slow(struct kvm_vcpu *vcpu,
+-				       unsigned long guestdest,
+-				       void *from, unsigned long n)
+-{
+-	int rc;
+-	unsigned long i;
+-	u8 *data = from;
 -
- 	/* Convert the gmap address to an mm address. */
--	segment = *table;
--	if (likely(!(segment & _SEGMENT_ENTRY_INV))) {
-+	segment = *segment_ptr;
-+	if (!(segment & _SEGMENT_ENTRY_INV)) {
- 		page = pfn_to_page(segment >> PAGE_SHIFT);
- 		mp = (struct gmap_pgtable *) page->index;
- 		return mp->vmaddr | (address & ~PMD_MASK);
- 	} else if (segment & _SEGMENT_ENTRY_RO) {
-+		mm = gmap->mm;
- 		vmaddr = segment & _SEGMENT_ENTRY_ORIGIN;
- 		vma = find_vma(mm, vmaddr);
- 		if (!vma || vma->vm_start > vmaddr)
-@@ -441,12 +504,12 @@ unsigned long __gmap_fault(unsigned long address, struct gmap *gmap)
- 		/* Link gmap segment table entry location to page table. */
- 		page = pmd_page(*pmd);
- 		mp = (struct gmap_pgtable *) page->index;
--		rmap->entry = table;
-+		rmap->entry = segment_ptr;
- 		spin_lock(&mm->page_table_lock);
- 		list_add(&rmap->list, &mp->mapper);
- 		spin_unlock(&mm->page_table_lock);
- 		/* Set gmap segment table entry to page table. */
--		*table = pmd_val(*pmd) & PAGE_MASK;
-+		*segment_ptr = pmd_val(*pmd) & PAGE_MASK;
- 		return vmaddr | (address & ~PMD_MASK);
+-	for (i = 0; i < n; i++) {
+-		rc = put_guest(vcpu, *(data++), (u8 *)guestdest++);
+-		if (rc < 0)
+-			return rc;
+-	}
+-	return 0;
+-}
+-
+-static inline int __copy_to_guest_fast(struct kvm_vcpu *vcpu,
+-				       unsigned long guestdest,
+-				       void *from, unsigned long n)
+-{
+-	int r;
+-	void __user *uptr;
+-	unsigned long size;
+-
+-	if (guestdest + n < guestdest)
+-		return -EFAULT;
+-
+-	/* simple case: all within one segment table entry? */
+-	if ((guestdest & PMD_MASK) == ((guestdest+n) & PMD_MASK)) {
+-		uptr = (void __user *) gmap_fault(guestdest, vcpu->arch.gmap);
+-
+-		if (IS_ERR((void __force *) uptr))
+-			return PTR_ERR((void __force *) uptr);
+-
+-		r = copy_to_user(uptr, from, n);
+-
+-		if (r)
+-			r = -EFAULT;
+-
+-		goto out;
+-	}
+-
+-	/* copy first segment */
+-	uptr = (void __user *)gmap_fault(guestdest, vcpu->arch.gmap);
+-
+-	if (IS_ERR((void __force *) uptr))
+-		return PTR_ERR((void __force *) uptr);
+-
+-	size = PMD_SIZE - (guestdest & ~PMD_MASK);
+-
+-	r = copy_to_user(uptr, from, size);
+-
+-	if (r) {
+-		r = -EFAULT;
+-		goto out;
+-	}
+-	from += size;
+-	n -= size;
+-	guestdest += size;
+-
+-	/* copy full segments */
+-	while (n >= PMD_SIZE) {
+-		uptr = (void __user *)gmap_fault(guestdest, vcpu->arch.gmap);
+-
+-		if (IS_ERR((void __force *) uptr))
+-			return PTR_ERR((void __force *) uptr);
+-
+-		r = copy_to_user(uptr, from, PMD_SIZE);
+-
+-		if (r) {
+-			r = -EFAULT;
+-			goto out;
+-		}
+-		from += PMD_SIZE;
+-		n -= PMD_SIZE;
+-		guestdest += PMD_SIZE;
+-	}
+-
+-	/* copy the tail segment */
+-	if (n) {
+-		uptr = (void __user *)gmap_fault(guestdest, vcpu->arch.gmap);
+-
+-		if (IS_ERR((void __force *) uptr))
+-			return PTR_ERR((void __force *) uptr);
+-
+-		r = copy_to_user(uptr, from, n);
+-
+-		if (r)
+-			r = -EFAULT;
+-	}
+-out:
+-	return r;
+-}
+-
+-static inline int copy_to_guest_absolute(struct kvm_vcpu *vcpu,
+-					 unsigned long guestdest,
+-					 void *from, unsigned long n)
+-{
+-	return __copy_to_guest_fast(vcpu, guestdest, from, n);
+-}
+-
+-static inline int copy_to_guest(struct kvm_vcpu *vcpu, unsigned long guestdest,
+-				void *from, unsigned long n)
+-{
+-	unsigned long prefix  = vcpu->arch.sie_block->prefix;
+-
+-	if ((guestdest < 2 * PAGE_SIZE) && (guestdest + n > 2 * PAGE_SIZE))
+-		goto slowpath;
+-
+-	if ((guestdest < prefix) && (guestdest + n > prefix))
+-		goto slowpath;
+-
+-	if ((guestdest < prefix + 2 * PAGE_SIZE)
+-	    && (guestdest + n > prefix + 2 * PAGE_SIZE))
+-		goto slowpath;
+-
+-	if (guestdest < 2 * PAGE_SIZE)
+-		guestdest += prefix;
+-	else if ((guestdest >= prefix) && (guestdest < prefix + 2 * PAGE_SIZE))
+-		guestdest -= prefix;
+-
+-	return __copy_to_guest_fast(vcpu, guestdest, from, n);
+-slowpath:
+-	return __copy_to_guest_slow(vcpu, guestdest, from, n);
+-}
+-
+-static inline int __copy_from_guest_slow(struct kvm_vcpu *vcpu, void *to,
+-					 unsigned long guestsrc,
+-					 unsigned long n)
++static inline int __copy_guest(struct kvm_vcpu *vcpu, unsigned long to,
++			       unsigned long from, unsigned long len,
++			       int to_guest, int prefixing)
+ {
+-	int rc;
+-	unsigned long i;
+-	u8 *data = to;
+-
+-	for (i = 0; i < n; i++) {
+-		rc = get_guest(vcpu, *(data++), (u8 *)guestsrc++);
+-		if (rc < 0)
+-			return rc;
++	unsigned long _len, rc;
++	void *uptr;
++
++	while (len) {
++		uptr = to_guest ? (void *)to : (void *)from;
++		uptr = __gptr_to_uptr(vcpu, uptr, prefixing);
++		if (IS_ERR(uptr))
++			return -EFAULT;
++		_len = PAGE_SIZE - ((unsigned long)uptr & (PAGE_SIZE - 1));
++		_len = min(_len, len);
++		if (to_guest)
++			rc = copy_to_user(uptr, (void *)from, _len);
++		else
++			rc = copy_from_user((void *)to, uptr, _len);
++		if (rc)
++			return -EFAULT;
++		len -= _len;
++		from += _len;
++		to += _len;
  	}
- 	return -EFAULT;
+ 	return 0;
+ }
+ 
+-static inline int __copy_from_guest_fast(struct kvm_vcpu *vcpu, void *to,
+-					 unsigned long guestsrc,
+-					 unsigned long n)
+-{
+-	int r;
+-	void __user *uptr;
+-	unsigned long size;
+-
+-	if (guestsrc + n < guestsrc)
+-		return -EFAULT;
+-
+-	/* simple case: all within one segment table entry? */
+-	if ((guestsrc & PMD_MASK) == ((guestsrc+n) & PMD_MASK)) {
+-		uptr = (void __user *) gmap_fault(guestsrc, vcpu->arch.gmap);
+-
+-		if (IS_ERR((void __force *) uptr))
+-			return PTR_ERR((void __force *) uptr);
+-
+-		r = copy_from_user(to, uptr, n);
+-
+-		if (r)
+-			r = -EFAULT;
+-
+-		goto out;
+-	}
+-
+-	/* copy first segment */
+-	uptr = (void __user *)gmap_fault(guestsrc, vcpu->arch.gmap);
+-
+-	if (IS_ERR((void __force *) uptr))
+-		return PTR_ERR((void __force *) uptr);
+-
+-	size = PMD_SIZE - (guestsrc & ~PMD_MASK);
+-
+-	r = copy_from_user(to, uptr, size);
+-
+-	if (r) {
+-		r = -EFAULT;
+-		goto out;
+-	}
+-	to += size;
+-	n -= size;
+-	guestsrc += size;
+-
+-	/* copy full segments */
+-	while (n >= PMD_SIZE) {
+-		uptr = (void __user *)gmap_fault(guestsrc, vcpu->arch.gmap);
+-
+-		if (IS_ERR((void __force *) uptr))
+-			return PTR_ERR((void __force *) uptr);
++#define copy_to_guest(vcpu, to, from, size) \
++	__copy_guest(vcpu, to, (unsigned long)from, size, 1, 1)
++#define copy_from_guest(vcpu, to, from, size) \
++	__copy_guest(vcpu, (unsigned long)to, from, size, 0, 1)
++#define copy_to_guest_absolute(vcpu, to, from, size) \
++	__copy_guest(vcpu, to, (unsigned long)from, size, 1, 0)
++#define copy_from_guest_absolute(vcpu, to, from, size) \
++	__copy_guest(vcpu, (unsigned long)to, from, size, 0, 0)
+ 
+-		r = copy_from_user(to, uptr, PMD_SIZE);
+-
+-		if (r) {
+-			r = -EFAULT;
+-			goto out;
+-		}
+-		to += PMD_SIZE;
+-		n -= PMD_SIZE;
+-		guestsrc += PMD_SIZE;
+-	}
+-
+-	/* copy the tail segment */
+-	if (n) {
+-		uptr = (void __user *)gmap_fault(guestsrc, vcpu->arch.gmap);
+-
+-		if (IS_ERR((void __force *) uptr))
+-			return PTR_ERR((void __force *) uptr);
+-
+-		r = copy_from_user(to, uptr, n);
+-
+-		if (r)
+-			r = -EFAULT;
+-	}
+-out:
+-	return r;
+-}
+-
+-static inline int copy_from_guest_absolute(struct kvm_vcpu *vcpu, void *to,
+-					   unsigned long guestsrc,
+-					   unsigned long n)
+-{
+-	return __copy_from_guest_fast(vcpu, to, guestsrc, n);
+-}
+-
+-static inline int copy_from_guest(struct kvm_vcpu *vcpu, void *to,
+-				  unsigned long guestsrc, unsigned long n)
+-{
+-	unsigned long prefix  = vcpu->arch.sie_block->prefix;
+-
+-	if ((guestsrc < 2 * PAGE_SIZE) && (guestsrc + n > 2 * PAGE_SIZE))
+-		goto slowpath;
+-
+-	if ((guestsrc < prefix) && (guestsrc + n > prefix))
+-		goto slowpath;
+-
+-	if ((guestsrc < prefix + 2 * PAGE_SIZE)
+-	    && (guestsrc + n > prefix + 2 * PAGE_SIZE))
+-		goto slowpath;
+-
+-	if (guestsrc < 2 * PAGE_SIZE)
+-		guestsrc += prefix;
+-	else if ((guestsrc >= prefix) && (guestsrc < prefix + 2 * PAGE_SIZE))
+-		guestsrc -= prefix;
+-
+-	return __copy_from_guest_fast(vcpu, to, guestsrc, n);
+-slowpath:
+-	return __copy_from_guest_slow(vcpu, to, guestsrc, n);
+-}
+-#endif
++#endif /* __KVM_S390_GACCESS_H */
 -- 
 1.8.0.1
