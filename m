@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Stelian Nirlu <steliannirlu@gmail.com>
-Subject: [PATCH v2] s390: use kcalloc instead of kmalloc and memset
-Date: Mon, 11 Mar 2013 18:22:10 +0200
-Message-Id: <1363018931-9628-1-git-send-email-steliannirlu@gmail.com>
+Date: Tue, 12 Mar 2013 08:25:23 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 11/18] driver: s390: net: remove cast for kzalloc return
+ value
+Message-ID: <20130312072523.GD4148@osiris>
+References: <513EB23D.7020303@cn.fujitsu.com>
+ <513EBBA0.60804@cn.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <513EBBA0.60804@cn.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: schwidefsky@de.ibm.com
-Cc: heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, penberg@kernel.org, Stelian Nirlu <steliannirlu@gmail.com>
+To: Zhang Yanfei <zhangyanfei@cn.fujitsu.com>
+Cc: Ursula Braun <ursula.braun@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linux390@de.ibm.com, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Stelian Nirlu <steliannirlu@gmail.com>
----
- arch/s390/net/bpf_jit_comp.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+On Tue, Mar 12, 2013 at 01:22:40PM +0800, Zhang Yanfei wrote:
+> remove cast for kzalloc return value.
+> 
+> Signed-off-by: Zhang Yanfei <zhangyanfei@cn.fujitsu.com>
+>  drivers/s390/net/qeth_core_main.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+> index 0d8cdff..754a54f 100644
+> --- a/drivers/s390/net/qeth_core_main.c
+> +++ b/drivers/s390/net/qeth_core_main.c
+> @@ -316,7 +316,7 @@ static inline int qeth_alloc_cq(struct qeth_card *card)
+>  
+>  		card->qdio.no_in_queues = 2;
+>  
+> -		card->qdio.out_bufstates = (struct qdio_outbuf_state *)
+> +		card->qdio.out_bufstates =
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 0972e91..82f165f 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -747,10 +747,9 @@ void bpf_jit_compile(struct sk_filter *fp)
- 
- 	if (!bpf_jit_enable)
- 		return;
--	addrs = kmalloc(fp->len * sizeof(*addrs), GFP_KERNEL);
-+	addrs = kcalloc(fp->len, sizeof(*addrs), GFP_KERNEL);
- 	if (addrs == NULL)
- 		return;
--	memset(addrs, 0, fp->len * sizeof(*addrs));
- 	memset(&jit, 0, sizeof(cjit));
- 	memset(&cjit, 0, sizeof(cjit));
- 
--- 
-1.7.9.5
+Applied, thanks.
