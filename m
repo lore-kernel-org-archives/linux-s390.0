@@ -1,54 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 22 Mar 2013 15:05:10 -0700
-From: Zach Brown <zab@redhat.com>
-Subject: Re: [PATCH] aio: convert the ioctx list to radix tree
-Message-ID: <20130322220510.GV10038@lenny.home.zabbo.net>
-References: <1363977199-1507-1-git-send-email-octavian.purdila@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1363977199-1507-1-git-send-email-octavian.purdila@intel.com>
+In-Reply-To: <20130322203652.GC19091@google.com>
+References: <1363977199-1507-1-git-send-email-octavian.purdila@intel.com>
+	<20130322203652.GC19091@google.com>
+Date: Fri, 22 Mar 2013 16:32:36 -0700
+Message-ID: <CAE1zot+ij8KBS6WDe0W=e5vobNwDLa0UDo66i1N0b6p7cfxdXQ@mail.gmail.com>
+Subject: Re: [PATCH] aio: convert the ioctx list to radix tree
+From: Octavian Purdila <octavian.purdila@intel.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org, linux-s390@vger.kernel.org, koverstreet@google.com, bcrl@kvack.org, schwidefsky@de.ibm.com, kirill.shutemov@linux.intel.com, Andi Kleen <ak@linux.intel.com>
+To: Kent Overstreet <koverstreet@google.com>
+Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org, linux-s390@vger.kernel.org, bcrl@kvack.org, schwidefsky@de.ibm.com, kirill.shutemov@linux.intel.com, Andi Kleen <ak@linux.intel.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Mar 22, 2013 at 08:33:19PM +0200, Octavian Purdila wrote:
-> When using a large number of threads performing AIO operations the
-> IOCTX list may get a significant number of entries which will cause
-> significant overhead. For example, when running this fio script:
+On Fri, Mar 22, 2013 at 1:36 PM, Kent Overstreet <koverstreet@google.com> wrote:
+> On Fri, Mar 22, 2013 at 08:33:19PM +0200, Octavian Purdila wrote:
+>> When using a large number of threads performing AIO operations the
+>> IOCTX list may get a significant number of entries which will cause
+>> significant overhead. For example, when running this fio script:
+>>
+>> rw=randrw; size=256k ;directory=/mnt/fio; ioengine=libaio; iodepth=1
+>> blocksize=1024; numjobs=512; thread; loops=100
+>>
+>> on an EXT2 filesystem mounted on top of a ramdisk we can observe up to
+>> 30% CPU time spent by lookup_ioctx:
+>>
+>>  32.51%  [guest.kernel]  [g] lookup_ioctx
+>>   9.19%  [guest.kernel]  [g] __lock_acquire.isra.28
+>>   4.40%  [guest.kernel]  [g] lock_release
+>>   4.19%  [guest.kernel]  [g] sched_clock_local
+>>   3.86%  [guest.kernel]  [g] local_clock
+>>   3.68%  [guest.kernel]  [g] native_sched_clock
+>>   3.08%  [guest.kernel]  [g] sched_clock_cpu
+>>   2.64%  [guest.kernel]  [g] lock_release_holdtime.part.11
+>>   2.60%  [guest.kernel]  [g] memcpy
+>>   2.33%  [guest.kernel]  [g] lock_acquired
+>>   2.25%  [guest.kernel]  [g] lock_acquire
+>>   1.84%  [guest.kernel]  [g] do_io_submit
+>>
+>> This patchs converts the ioctx list to a radix tree. For a performance
+>> comparison the above FIO script was run on a 2 sockets 8 core
+>> machine. This are the results for the original list based
+>> implementation and for the radix tree based implementation:
+>
+> The biggest reason the overhead is so high is that the kioctx's
+> hlist_node shares a cacheline with the refcount. Did you check what just
+> fixing that does? My aio patch series (in akpm's tree) fixes that.
+>
 
-Indeed.  But you also need to consider the impact this change has on the
-typical case of only having one ctx in the mm.  Please include
-measurements of that case in the commit message.
+Hi Kent,
 
-> --- a/arch/s390/mm/pgtable.c
-> +++ b/arch/s390/mm/pgtable.c
-> @@ -831,7 +831,7 @@ int s390_enable_sie(void)
->  	task_lock(tsk);
->  	if (!tsk->mm || atomic_read(&tsk->mm->mm_users) > 1 ||
->  #ifdef CONFIG_AIO
-> -	    !hlist_empty(&tsk->mm->ioctx_list) ||
-> +	    tsk->mm->ioctx_rtree.rnode ||
->  #endif
+Just checked, and I don't see any improvements for this particular workload.
 
-Boy, what a curious thing.  I wonder if this is still needed if we're no
-longer storing the mm in the ctx after retry support is removed.
+> Also, why are you using so many kioctxs? I can't think any good reason
+> why userspace would want to - you really want to use only one or a few
+> (potentially one per cpu) so that events can get serviced as soon as a
+> worker thread is available.
+>
 
-> +	err = radix_tree_insert(&mm->ioctx_rtree, ctx->user_id, ctx);
+For servers, 1 kioctx per core can easily translate to 16-32 kioctxes.
+And you probably want to oversubscribe the cores, especially since IO
+is getting faster these days. So, I think 512 is not such an
+outrageously large number of kioctxes.
 
-Hmm.  Is there anything stopping an exceptionally jerky app from racing
-io_setup() and munmap() and having two contexts be mapped to the same
-address and get the same user_id?  I guess this would just return
--EEXIST, then, not do anything terrible.  I guess that's OK?
+> Currently there are applications using many kioctxs to work around the
+> fact that performance is terrible when you're sharing kioctxs between
+> threads - but that's fixed in my aio patch series.
+>
+> In fact, we want userspace to be using as few kioctxs as they can so we
+> can benefit from batch completion.
+>
 
-> +					       idx, sizeof(ctx)/sizeof(void *));
-
-ARRAY_SIZE(ctx)
-
-And why bother tracking the starting idx?  If you're completely draining
-it simply always start from 0?
-
-- z
+I think that using multiple contexts has its uses, with your great
+series not for I/O performance anymore :) , but for example for I/O
+operations management/grouping. Then, there is the case of existing
+applications, it would be nice to have them perform better without
+rewriting them. So, I think that this patch is complementary to your
+work.
