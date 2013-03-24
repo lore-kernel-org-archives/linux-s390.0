@@ -1,8 +1,8 @@
 Return-Path: <owner-linux-mm@kvack.org>
 From: Jiang Liu <liuj97@gmail.com>
-Subject: [RFC PATCH v2, part4 28/39] mm/s390: prepare for removing num_physpages and simplify mem_init()
-Date: Sun, 24 Mar 2013 15:25:14 +0800
-Message-Id: <1364109934-7851-49-git-send-email-jiang.liu@huawei.com>
+Subject: [RFC PATCH v2, part4 29/39] mm/s390: prepare for removing num_physpages and simplify mem_init()
+Date: Sun, 24 Mar 2013 15:25:15 +0800
+Message-Id: <1364109934-7851-50-git-send-email-jiang.liu@huawei.com>
 In-Reply-To: <1364109934-7851-1-git-send-email-jiang.liu@huawei.com>
 References: <1364109934-7851-1-git-send-email-jiang.liu@huawei.com>
 Sender: owner-linux-mm@kvack.org
