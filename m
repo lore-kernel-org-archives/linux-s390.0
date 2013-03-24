@@ -1,28 +1,69 @@
-From: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: [PATCH 0/8] s390/kvm: memory mgmt related fixes/cleanups
-Date: Thu, 7 Mar 2013 16:21:34 -0300
-Message-ID: <20130307192134.GD15854@amt.cnet>
-References: <1362485687-2799-1-git-send-email-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1362485687-2799-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Gleb Natapov <gleb@redhat.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+Return-Path: <owner-linux-mm@kvack.org>
+From: Jiang Liu <liuj97@gmail.com>
+Subject: [RFC PATCH v2, part4 28/39] mm/s390: prepare for removing num_physpages and simplify mem_init()
+Date: Sun, 24 Mar 2013 15:25:14 +0800
+Message-Id: <1364109934-7851-49-git-send-email-jiang.liu@huawei.com>
+In-Reply-To: <1364109934-7851-1-git-send-email-jiang.liu@huawei.com>
+References: <1364109934-7851-1-git-send-email-jiang.liu@huawei.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Andrew Morton <akpm@linux-foundation.org>, David Rientjes <rientjes@google.com>
+Cc: Jiang Liu <jiang.liu@huawei.com>, Wen Congyang <wency@cn.fujitsu.com>, Mel Gorman <mgorman@suse.de>, Minchan Kim <minchan@kernel.org>, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Michal Hocko <mhocko@suse.cz>, Jianguo Wu <wujianguo@huawei.com>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Mar 05, 2013 at 01:14:39PM +0100, Christian Borntraeger wrote:
-> Marcelo, Gleb,
-> 
-> here are some patches to cleanup/fix some aspects of the KVM
-> memory management on s390. Since these patches mostly touch
-> files names */kvm*/ lets push them via the kvm tree.
-> Please queue for 3.10.
-> 
-> The patch queue applies on 3.9-rc1
+Prepare for removing num_physpages and simplify mem_init().
 
-Applied, thanks.
+Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux390@de.ibm.com
+Cc: linux-s390@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ arch/s390/mm/init.c |   17 ++---------------
+ 1 file changed, 2 insertions(+), 15 deletions(-)
+
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 4a72888..07e6df6 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -125,9 +125,7 @@ void __init paging_init(void)
+ 
+ void __init mem_init(void)
+ {
+-	unsigned long codesize, reservedpages, datasize, initsize;
+-
+-        max_mapnr = num_physpages = max_low_pfn;
++        max_mapnr = max_low_pfn;
+         high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+ 
+ 	/* Setup guest page hinting */
+@@ -137,18 +135,7 @@ void __init mem_init(void)
+ 	free_all_bootmem();
+ 	setup_zero_pages();	/* Setup zeroed pages. */
+ 
+-	reservedpages = 0;
+-
+-	codesize =  (unsigned long) &_etext - (unsigned long) &_text;
+-	datasize =  (unsigned long) &_edata - (unsigned long) &_etext;
+-	initsize =  (unsigned long) &__init_end - (unsigned long) &__init_begin;
+-        printk("Memory: %luk/%luk available (%ldk kernel code, %ldk reserved, %ldk data, %ldk init)\n",
+-		nr_free_pages() << (PAGE_SHIFT-10),
+-                max_mapnr << (PAGE_SHIFT-10),
+-                codesize >> 10,
+-                reservedpages << (PAGE_SHIFT-10),
+-                datasize >>10,
+-                initsize >> 10);
++	mem_init_print_info(NULL);
+ 	printk("Write protected kernel read-only data: %#lx - %#lx\n",
+ 	       (unsigned long)&_stext,
+ 	       PFN_ALIGN((unsigned long)&_eshared) - 1);
+-- 
+1.7.9.5
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
