@@ -1,10 +1,11 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 03/11] KVM: s390: fix psw conversion in lpsw handler
-Date: Mon, 25 Mar 2013 17:22:50 +0100
-Message-ID: <1364228578-20528-4-git-send-email-cornelia.huck@de.ibm.com>
-References: <1364228578-20528-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 00/11] KVM: s390: More patches for kvm-next.
+Date: Mon, 25 Mar 2013 17:22:47 +0100
+Message-ID: <1364228578-20528-1-git-send-email-cornelia.huck@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1364228578-20528-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,36 +13,43 @@ To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Hi,
 
-When converting a 64 bit psw to a 128 bit psw the addressing mode bit of
-the "addr" part of the 64 bit psw must be moved to the basic addressing
-mode bit of the "mask" part of the 128 bit psw.
-In addition the addressing mode bit must be cleared when moved to the "addr"
-part of the 128 bit psw.
-Otherwise an invalid psw would be generated if the orginal psw was in the
-31 bit addressing mode.
+here are some kvm/s390 patches that have accumulated in our queue.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- arch/s390/kvm/priv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Changes include fixes in the lpsw(e) and stsi handlers, proper
+handling of interrupt injection failures and a gmap optimization.
 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 7b397b3..844a2b9 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -286,7 +286,8 @@ int kvm_s390_handle_lpsw(struct kvm_vcpu *vcpu)
- 
- 	vcpu->arch.sie_block->gpsw.mask =
- 		(new_psw.mask & ~PSW32_MASK_BASE) << 32;
--	vcpu->arch.sie_block->gpsw.addr = new_psw.addr;
-+	vcpu->arch.sie_block->gpsw.mask |= new_psw.addr & PSW32_ADDR_AMODE;
-+	vcpu->arch.sie_block->gpsw.addr = new_psw.addr & ~PSW32_ADDR_AMODE;
- 
- 	if ((vcpu->arch.sie_block->gpsw.mask & PSW_MASK_UNASSIGNED) ||
- 	    (!(vcpu->arch.sie_block->gpsw.mask & PSW_MASK_ADDR_MODE) &&
+Also included are patches allowing support for standby memory on
+kvm guests. Standby memory is used for providing hotpluggable
+memory on s390.
+
+Please consider applying.
+
+Christian Borntraeger (1):
+  KVM: s390: Dont do a gmap update on minor memslot changes
+
+Heiko Carstens (7):
+  KVM: s390: fix 24 bit psw handling in lpsw/lpswe handler
+  KVM: s390: fix psw conversion in lpsw handler
+  KVM: s390: fix return code handling in lpsw/lpswe handlers
+  KVM: s390: make if statements in lpsw/lpswe handlers readable
+  KVM: s390: fix and enforce return code handling for irq injections
+  KVM: s390: fix stsi exception handling
+  KVM: s390: fix compile with !CONFIG_COMPAT
+
+Nick Wang (3):
+  KVM: s390: Change the virtual memory mapping location for virtio
+    devices
+  KVM: s390: Remove the sanity checks for kvm memory slot
+  KVM: s390: Enable KVM_CAP_NR_MEMSLOTS on s390
+
+ arch/s390/kvm/intercept.c     |  12 +--
+ arch/s390/kvm/kvm-s390.c      |  32 ++++---
+ arch/s390/kvm/kvm-s390.h      |  12 +--
+ arch/s390/kvm/priv.c          | 203 +++++++++++++++---------------------------
+ drivers/s390/kvm/kvm_virtio.c |  11 +--
+ 5 files changed, 108 insertions(+), 162 deletions(-)
+
 -- 
 1.7.12.4
