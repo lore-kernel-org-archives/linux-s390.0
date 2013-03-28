@@ -1,132 +1,201 @@
-From: Dmitry Monakhov <dmonakhov@openvz.org>
-Subject: Re: s390x: kernel BUG at fs/ext4/inode.c:1591!
-Date: Fri, 29 Mar 2013 14:08:38 +0400
-Message-ID: <87mwtmcyc9.fsf@openvz.org>
-References: <20431405.8258404.1364547223843.JavaMail.root@redhat.com>
+From: CAI Qian <caiqian@redhat.com>
+Subject: s390x: kernel BUG at fs/ext4/inode.c:1591!
+Date: Thu, 28 Mar 2013 02:40:33 -0400 (EDT)
+Message-ID: <356372233.7624880.1364452833412.JavaMail.root@redhat.com>
+References: <863434221.7624846.1364452822093.JavaMail.root@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-ext4-owner@vger.kernel.org>
-In-Reply-To: <20431405.8258404.1364547223843.JavaMail.root@redhat.com>
+In-Reply-To: <863434221.7624846.1364452822093.JavaMail.root@redhat.com>
 Sender: linux-ext4-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-ext4/>
 List-Post: <mailto:linux-ext4@vger.kernel.org>
-To: CAI Qian <caiqian@redhat.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Steve Best <sbest@redhat.com>, linux-ext4@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: linux-s390  <linux-s390@vger.kernel.org>, Steve Best <sbest@redhat.com>, Theodore Ts'o <tytso@mit.edu>, linux-ext4@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
---=-=-=
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+System hung when running xfstests-dev 013 test case on an s390x guest. =
+Never saw
+this on 3.9-rc3 before but need to double-check. Any idea?
 
-On Fri, 29 Mar 2013 04:53:43 -0400 (EDT), CAI Qian <caiqian@redhat.com> wro=
-te:
->=20
->=20
-> ----- Original Message -----
-> > From: "Dmitry Monakhov" <dmonakhov@openvz.org>
-> > To: "Theodore Ts'o" <tytso@mit.edu>, "CAI Qian" <caiqian@redhat.com>
-> > Cc: "LKML" <linux-kernel@vger.kernel.org>, "linux-s390" <linux-s390@vge=
-r.kernel.org>, "Steve Best"
-> > <sbest@redhat.com>, linux-ext4@vger.kernel.org
-> > Sent: Thursday, March 28, 2013 10:56:37 PM
-> > Subject: Re: s390x: kernel BUG at fs/ext4/inode.c:1591!
-> >=20
-> > On Thu, 28 Mar 2013 08:05:17 -0400, Theodore Ts'o <tytso@mit.edu>
-> > wrote:
-> > > On Thu, Mar 28, 2013 at 02:40:33AM -0400, CAI Qian wrote:
-> > > > System hung when running xfstests-dev 013 test case on an s390x
-> > > > guest. Never saw
-> > > > this on 3.9-rc3 before but need to double-check. Any idea?
-> > > >=20
-> > > > =C3=9D 1113.795759=C2=A8 ------------=C3=9D cut here =C2=A8--------=
-----
-> > > > =C3=9D 1113.795771=C2=A8 kernel BUG at fs/ext4/inode.c:1591!
-> > >=20
-> > > thanks for the report.  What kernel version did this come from?
-> > >  Was
-> > > it 3.9-rc4?  (line 1591 for 3.9-rc3 doesn't contain a BUG_ON).
-> > >=20
-> > > If it is indeed 3.9-rc4, it would be helpful, since you can
-> > > reproduce
-> > > the problem, to insert a debugging printk which fires when
-> > > bh->b_blocknr !=3D pblock before the BUG_ON, and have it print the
-> > > b_blocknr and pblock values.
-> > I've triggered this bug on before at the time i've worked on
-> > e4defrag functionality, but AFAIK all related issues was aready fixed
-> > and 013 has nothing with e4defrag.
-> > But still bh->b_blocknr under us. So other obvious place I suspect is
-> > puch_hole but this also not true because 013 use fsstress
-> > test in vegetarian mode: "-f rmdir=3D10 -f link=3D10 -f creat=3D10 -f
-> > mkdir=3D10
-> > -f rename=3D30 -f stat=3D30 -f unlink=3D30 -f truncate=3D20"
-> > So the only place I suspect is some unknown bug in extent status tree
-> > Can you please enable ES_AGGRESSIVE_TEST and rerun xfstest.
-> What is ES_AGGRESSIVE_TEST and how can it enable it?
-Please apply patch. It should helps to spot an issue
+CAI Qian
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: inline; filename=ext4-map_corruption_debug.patch
+=C3=9D 1113.795759=C2=A8 ------------=C3=9D cut here =C2=A8------------
+=C3=9D 1113.795771=C2=A8 kernel BUG at fs/ext4/inode.c:1591!
+=C3=9D 1113.795845=C2=A8 illegal operation: 0001 =C3=9D#1=C2=A8 SMP
+=C3=9D 1113.795848=C2=A8 Modules linked in: nf_conntrack_netbios_ns nf_=
+conntrack_broadcast
+ ipt_MASQUERADE ip6table_mangle ip6t_REJECT nf_conntrack_ipv6 nf_defrag=
+_ipv6 ipt
+able_nat nf_nat_ipv4 nf_nat iptable_mangle ipt_REJECT nf_conntrack_ipv4=
+ nf_defra
+g_ipv4 xt_conntrack nf_conntrack ebtable_filter ebtables ip6table_filte=
+r ip6_tab
+les iptable_filter ip_tables sg qeth_l2 vmur xfs libcrc32c dasd_fba_mod=
+ dasd_eck
+d_mod dasd_mod lcs ctcm qeth fsm qdio ccwgroup dm_mirror dm_region_hash=
+ dm_log d
+m_mod
+=C3=9D 1113.795880=C2=A8 CPU: 1 Not tainted 3.9.0-rc4+ #2
+=C3=9D 1113.795882=C2=A8 Process flush-253:1 (pid: 12418, task: 0000000=
+003f04890, ksp: 000
+0000032eab3b8)
+=C3=9D 1113.795885=C2=A8 Krnl PSW : 0704e00180000000 000000000030bc62 (=
+mpage_da_submit_io+
+0x38e/0x3c0)
+=C3=9D 1113.795895=C2=A8            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0=
+ AS:3 CC:2 PM:0 EA:
+3
+Krnl GPRS: 0000000001000000 000000001b5823a8 0000000000000010 000000001=
+b5823a8
+=C3=9D 1113.795900=C2=A8            0000000000000000 00000000000000af 0=
+000000000001000 000
+0000032eab9c8
+=C3=9D 1113.795902=C2=A8            000003d10053bb40 0000000032eaba30 0=
+0000000000000a1 000
+0000032eaba98
+=C3=9D 1113.795905=C2=A8            00000000000100b0 00000000000000a1 0=
+00000000030b9a8 000
+0000032eab8a0
+=C3=9D 1113.795921=C2=A8 Krnl Code: 000000000030bc54: f0dca7f4fecf     =
+   srp     2036(14,
+%r10),3791(%r15),12
 
-diff --git a/fs/ext4/extents_status.h b/fs/ext4/extents_status.h
-index d8e2d4d..70233a6 100644
---- a/fs/ext4/extents_status.h
-+++ b/fs/ext4/extents_status.h
-@@ -24,7 +24,7 @@
-  * With ES_AGGRESSIVE_TEST defined, the result of es caching will be
-  * checked with old map_block's result.
-  */
--#define ES_AGGRESSIVE_TEST__
-+#define ES_AGGRESSIVE_TEST
- 
- /*
-  * These flags live in the high bits of extent_status.es_pblk
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index b3a5213..676c3e1 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -1588,7 +1588,8 @@ static int mpage_da_submit_io(struct mpage_da_data *mpd,
- 					}
- 					if (buffer_unwritten(bh) ||
- 					    buffer_mapped(bh))
--						BUG_ON(bh->b_blocknr != pblock);
-+						if (bh->b_blocknr != pblock)
-+							goto map_corruption;
- 					if (map->m_flags & EXT4_MAP_UNINIT)
- 						set_buffer_uninit(bh);
- 					clear_buffer_unwritten(bh);
-@@ -1627,6 +1628,17 @@ static int mpage_da_submit_io(struct mpage_da_data *mpd,
- 	}
- 	ext4_io_submit(&io_submit);
- 	return ret;
-+
-+map_corruption:
-+	printk(KERN_ERR "mpage_da_submit_io failed block=%llu != b_blocknr=%llu\n",
-+	       (unsigned long long)pblock, (unsigned long long)bh->b_blocknr);
-+	printk(KERN_ERR "ino:%ld lbkl:%lu, b_state=0x%08lx, b_size=%zu\n",
-+	       inode->i_ino, cur_logical,  bh->b_state, bh->b_size);
-+	/* We have triggered emergency situation. Do not waste our time on
-+	 * useless cleanup in order to pretend what situation is under controll.
-+	 * Just panic. */
-+	BUG();
-+	return -EIO;
- }
- 
- static void ext4_da_block_invalidatepages(struct mpage_da_data *mpd)
+                                                            MORE...   Z=
+VM-RHTS
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D
+           000000000030bc5a: a7f40001           brc     15,30bc5c
+          #000000000030bc5e: a7f40001           brc     15,30bc60
+          >000000000030bc62: a7f40001           brc     15,30bc64
+           000000000030bc66: a7f40001           brc     15,30bc68
+           000000000030bc6a: 4120f0e8           la      %r2,232(%r15)
+           000000000030bc6e: a7180000           lhi     %r1,0
+=C3=9D 1113.796303=C2=A8 Call Trace:
+=C3=9D 1113.796306=C2=A8 (=C3=9D<000000000030b9a8>=C2=A8 mpage_da_submi=
+t_io+0xd4/0x3c0)
+=C3=9D 1113.796311=C2=A8  =C3=9D<000000000031204c>=C2=A8 mpage_da_map_a=
+nd_submit+0x150/0x41c
+=C3=9D 1113.796314=C2=A8  =C3=9D<0000000000312bac>=C2=A8 ext4_da_writep=
+ages+0x364/0x628
+=C3=9D 1113.796317=C2=A8  =C3=9D<00000000002a08c8>=C2=A8 __writeback_si=
+ngle_inode+0x54/0x27c
+=C3=9D 1113.796322=C2=A8  =C3=9D<00000000002a2c6c>=C2=A8 writeback_sb_i=
+nodes+0x284/0x4d8
+=C3=9D 1113.796325=C2=A8  =C3=9D<00000000002a30b6>=C2=A8 wb_writeback+0=
+x10e/0x374
+=C3=9D 1113.796327=C2=A8  =C3=9D<00000000002a3d22>=C2=A8 wb_do_writebac=
+k+0x102/0x2e0
+=C3=9D 1113.796330=C2=A8  =C3=9D<00000000002a3fa2>=C2=A8 bdi_writeback_=
+thread+0xa2/0x270
+=C3=9D 1113.796333=C2=A8  =C3=9D<00000000001581b2>=C2=A8 kthread+0xda/0=
+xe4
+=C3=9D 1113.796338=C2=A8  =C3=9D<0000000000629836>=C2=A8 kernel_thread_=
+starter+0x6/0xc
+=C3=9D 1113.796342=C2=A8  =C3=9D<0000000000629830>=C2=A8 kernel_thread_=
+starter+0x0/0xc
+=C3=9D 1113.796345=C2=A8 Last Breaking-Event-Address:
+=C3=9D 1113.796346=C2=A8  =C3=9D<000000000030bc5e>=C2=A8 mpage_da_submi=
+t_io+0x38a/0x3c0
+=C3=9D 1113.796349=C2=A8
+=C3=9D 1113.796351=C2=A8 ---=C3=9D end trace 45df5089b835470e =C2=A8---
+=C3=9D 1113.796365=C2=A8 ------------=C3=9D cut here =C2=A8------------
+=C3=9D 1113.796367=C2=A8 WARNING: at kernel/exit.c:715
+=C3=9D 1113.796369=C2=A8 Modules linked in: nf_conntrack_netbios_ns nf_=
+conntrack_broadcast
+ ipt_MASQUERADE ip6table_mangle ip6t_REJECT nf_conntrack_ipv6 nf_defrag=
+_ipv6 ipt
+able_nat nf_nat_ipv4 nf_nat iptable_mangle ipt_REJECT nf_conntrack_ipv4=
+ nf_defra
+g_ipv4 xt_conntrack nf_conntrack ebtable_filter ebtables ip6table_filte=
+r ip6_tab
+les iptable_filter ip_tables sg qeth_l2 vmur xfs libcrc32c dasd_fba_mod=
+ dasd_eck
+d_mod dasd_mod lcs ctcm qeth fsm qdio ccwgroup dm_mirror dm_region_hash=
+ dm_log d
+m_mod
+=C3=9D 1113.796393=C2=A8 CPU: 1 Tainted: G      D      3.9.0-rc4+ #2
+=C3=9D 1113.796396=C2=A8 Process flush-253:1 (pid: 12418, task: 0000000=
+003f04890, ksp: 000
+0000032eab3b8)
+=C3=9D 1113.796398=C2=A8 Krnl PSW : 0704e00180000000 0000000000133074 (=
+do_exit+0x54/0xab8)
 
---=-=-=
+=C3=9D 1113.796404=C2=A8            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0=
+ AS:3 CC:2 PM:0 EA:
+3
+Krnl GPRS: 0000000000000015 0000000032eabb60 0000000032eabb68 000000000=
+0000000
+=C3=9D 1113.796408=C2=A8            0000000000133058 ffffffffffffffff 0=
+000000000000001 00
 
-
-> > > 
-> > > Thanks,
-> > > 
-> > > 						- Ted
-> > > --
-> > > To unsubscribe from this list: send the line "unsubscribe
-> > > linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-
---=-=-=--
+                                                            MORE...   Z=
+VM-RHTS
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D
+0000032eab9c8
+=C3=9D 1113.796411=C2=A8            0704e00180000000 000000000030bc62 0=
+000000003f04890 000
+0000000778d38
+=C3=9D 1113.796413=C2=A8            000000000000000b 0000000000634140 0=
+000000000133058 000
+0000032eab4a0
+=C3=9D 1113.796423=C2=A8 Krnl Code: 0000000000133066: e32010080020     =
+   cg      %r2,8(%r
+1)
+           000000000013306c: a78403fa           brc     8,133860
+          #0000000000133070: a7f40001           brc     15,133072
+          >0000000000133074: e31003180004       lg      %r1,792
+           000000000013307a: 5810101c           l       %r1,28(%r1)
+           000000000013307e: c01b01ffff00       nilf    %r1,33554176
+           0000000000133084: a7740481           brc     7,133986
+           0000000000133088: e310a2bc0012       lt      %r1,700(%r10)
+=C3=9D 1113.796447=C2=A8 Call Trace:
+=C3=9D 1113.796449=C2=A8 (=C3=9D<0000000000133058>=C2=A8 do_exit+0x38/0=
+xab8)
+=C3=9D 1113.796451=C2=A8  =C3=9D<0000000000100ea4>=C2=A8 die+0x158/0x18=
+0
+=C3=9D 1113.796455=C2=A8  =C3=9D<00000000006291fa>=C2=A8 do_trap+0x1a2/=
+0x1a4
+=C3=9D 1113.796459=C2=A8  =C3=9D<00000000006293ac>=C2=A8 illegal_op+0xf=
+c/0x144
+=C3=9D 1113.796462=C2=A8  =C3=9D<0000000000629974>=C2=A8 pgm_check_hand=
+ler+0x138/0x13c
+=C3=9D 1113.796464=C2=A8  =C3=9D<000000000030bc62>=C2=A8 mpage_da_submi=
+t_io+0x38e/0x3c0
+=C3=9D 1113.796467=C2=A8 (=C3=9D<000000000030b9a8>=C2=A8 mpage_da_submi=
+t_io+0xd4/0x3c0)
+=C3=9D 1113.796470=C2=A8  =C3=9D<000000000031204c>=C2=A8 mpage_da_map_a=
+nd_submit+0x150/0x41c
+=C3=9D 1113.796472=C2=A8  =C3=9D<0000000000312bac>=C2=A8 ext4_da_writep=
+ages+0x364/0x628
+=C3=9D 1113.829664=C2=A8  =C3=9D<00000000002a08c8>=C2=A8 __writeback_si=
+ngle_inode+0x54/0x27c
+=C3=9D 1113.829674=C2=A8  =C3=9D<00000000002a2c6c>=C2=A8 writeback_sb_i=
+nodes+0x284/0x4d8
+=C3=9D 1113.829681=C2=A8  =C3=9D<00000000002a30b6>=C2=A8 wb_writeback+0=
+x10e/0x374
+=C3=9D 1113.829691=C2=A8  =C3=9D<00000000002a3d22>=C2=A8 wb_do_writebac=
+k+0x102/0x2e0
+=C3=9D 1113.829706=C2=A8  =C3=9D<00000000002a3fa2>=C2=A8 bdi_writeback_=
+thread+0xa2/0x270
+=C3=9D 1113.829715=C2=A8  =C3=9D<00000000001581b2>=C2=A8 kthread+0xda/0=
+xe4
+=C3=9D 1113.829725=C2=A8  =C3=9D<0000000000629836>=C2=A8 kernel_thread_=
+starter+0x6/0xc
+=C3=9D 1113.829736=C2=A8  =C3=9D<0000000000629830>=C2=A8 kernel_thread_=
+starter+0x0/0xc
+=C3=9D 1113.829753=C2=A8 Last Breaking-Event-Address:
+=C3=9D 1113.829759=C2=A8  =C3=9D<0000000000133070>=C2=A8 do_exit+0x50/0=
+xab8
+=C3=9D 1113.829771=C2=A8 ---=C3=9D end trace 45df5089b835470f =C2=A8---
+--
+To unsubscribe from this list: send the line "unsubscribe linux-ext4" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
