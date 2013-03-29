@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <51385F79.7000106@huawei.com>
-Date: Thu, 7 Mar 2013 17:35:53 +0800
-From: Li Zefan <lizefan@huawei.com>
-MIME-Version: 1.0
-Subject: [PATCH][RESEND] s390: Fix a build error
-References: <5137EB66.9050509@huawei.com>
-In-Reply-To: <5137EB66.9050509@huawei.com>
-Content-Type: text/plain; charset="GB2312"
-Content-Transfer-Encoding: 7bit
+From: CAI Qian <caiqian@redhat.com>
+Subject: Re: s390x: kernel BUG at fs/ext4/inode.c:1591!
+Date: Fri, 29 Mar 2013 05:27:02 -0400 (EDT)
+Message-ID: <2133129347.8273339.1364549222854.JavaMail.root@redhat.com>
+References: <20130328120517.GB5737@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20130328120517.GB5737@thunk.org>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ingo Molnar <mingo@kernel.org>
-Cc: Fengguang Wu <fengguang.wu@intel.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+List-Archive: <https://lore.kernel.org/linux-ext4/>
+List-Post: <mailto:linux-ext4@vger.kernel.org>
+To: Theodore Ts'o <tytso@mit.edu>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Steve Best <sbest@redhat.com>, linux-ext4@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Commit 877c685607925238e302cd3aa38788dca6c1b226
-("perf: Remove include of cgroup.h from perf_event.h") caused this:
 
-   In file included from arch/s390/include/asm/perf_event.h:9:0,
-                    from include/linux/perf_event.h:24,
-                    from kernel/events/ring_buffer.c:12:
-   arch/s390/include/asm/cpu_mf.h: In function 'qctri':
-   arch/s390/include/asm/cpu_mf.h:61:12: error: 'EINVAL' undeclared
-   (first use in this function)
 
-Reported-by: Fengguang Wu <fengguang.wu@intel.com>
-Tested-by: Fengguang Wu <fengguang.wu@intel.com>
-Signed-off-by: Li Zefan <lizefan@huawei.com>
----
+----- Original Message -----
+> From: "Theodore Ts'o" <tytso@mit.edu>
+> To: "CAI Qian" <caiqian@redhat.com>
+> Cc: "LKML" <linux-kernel@vger.kernel.org>, "linux-s390" <linux-s390@v=
+ger.kernel.org>, "Steve Best"
+> <sbest@redhat.com>, linux-ext4@vger.kernel.org
+> Sent: Thursday, March 28, 2013 8:05:17 PM
+> Subject: Re: s390x: kernel BUG at fs/ext4/inode.c:1591!
+>=20
+> On Thu, Mar 28, 2013 at 02:40:33AM -0400, CAI Qian wrote:
+> > System hung when running xfstests-dev 013 test case on an s390x
+> > guest. Never saw
+> > this on 3.9-rc3 before but need to double-check. Any idea?
+> >=20
+> > =C3=9D 1113.795759=C2=A8 ------------=C3=9D cut here =C2=A8--------=
+----
+> > =C3=9D 1113.795771=C2=A8 kernel BUG at fs/ext4/inode.c:1591!
+>=20
+> thanks for the report.  What kernel version did this come from?  Was
+> it 3.9-rc4?  (line 1591 for 3.9-rc3 doesn't contain a BUG_ON).
+Yes, the lastest mainline.
+>=20
+> If it is indeed 3.9-rc4, it would be helpful, since you can reproduce
+> the problem, to insert a debugging printk which fires when
+> bh->b_blocknr !=3D pblock before the BUG_ON, and have it print the
+> b_blocknr and pblock values.
+bh->b_blocknr=3D100346
+pblock=3D66797
 
-CC LKML, and add tested-by tag.
-
----
- arch/s390/include/asm/cpu_mf.h | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/s390/include/asm/cpu_mf.h b/arch/s390/include/asm/cpu_mf.h
-index f1eddd1..c879fad 100644
---- a/arch/s390/include/asm/cpu_mf.h
-+++ b/arch/s390/include/asm/cpu_mf.h
-@@ -12,6 +12,7 @@
- #ifndef _ASM_S390_CPU_MF_H
- #define _ASM_S390_CPU_MF_H
- 
-+#include <linux/errno.h>
- #include <asm/facility.h>
- 
- #define CPU_MF_INT_SF_IAE	(1 << 31)	/* invalid entry address */
--- 
-1.8.0.2
+Bisecting results so far,
+git bisect start
+# good: [a937536b868b8369b98967929045f1df54234323] Linux 3.9-rc3
+git bisect good a937536b868b8369b98967929045f1df54234323
+# bad: [9064171268d838b8f283fe111ef086b9479d059a] Merge tag 'for-linus'=
+ of git://git.kernel.org/pub/scm/linux/kernel/git/sfr/next-fixes
+git bisect bad 9064171268d838b8f283fe111ef086b9479d059a
+# bad: [38d78e587d4960d0db94add518d27ee74bad2301] mqueue: sys_mq_open: =
+do not call mnt_drop_write() if read-only
+git bisect bad 38d78e587d4960d0db94add518d27ee74bad2301
+# good: [e7489622d3603b7d161b484dcd340d9f678b0c7a] Merge tag 'arm64-fix=
+es' of git://git.kernel.org/pub/scm/linux/kernel/git/cmarinas/linux-aar=
+ch64
+git bisect good e7489622d3603b7d161b484dcd340d9f678b0c7a
+# good: [172a271b5e090da7468c66b9ccbcdb3d929eed75] Merge branch 'drm-fi=
+xes' of git://people.freedesktop.org/~airlied/linux
+git bisect good 172a271b5e090da7468c66b9ccbcdb3d929eed75
+# good: [0a7e453103b9718d357688b83bb968ee108cc874] Merge branch 'next' =
+of git://git.kernel.org/pub/scm/linux/kernel/git/rzhang/linux
+git bisect good 0a7e453103b9718d357688b83bb968ee108cc874
+# bad: [0e401101db49959f5783f6ee9e676124b5a183ac] ext4: fix memory leak=
+age in mext_check_coverage
+git bisect bad 0e401101db49959f5783f6ee9e676124b5a183ac
+CAI Qian
+>=20
+> Thanks,
+>=20
+> 						- Ted
+>=20
