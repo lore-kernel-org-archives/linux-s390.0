@@ -1,9 +1,10 @@
 From: Fengguang Wu <fengguang.wu@intel.com>
-Date: Fri, 29 Mar 2013 02:56:28 +0000
-Subject: drivers/base/regmap/regmap-irq.c:81:4: error: implicit declaration of function 'irq_set_irq_wake'
-Message-Id: <20130329025628.GC10831@localhost>
+Date: Fri, 29 Mar 2013 02:57:16 +0000
+Subject: drivers/mfd/arizona-irq.c:68:2: error: implicit declaration of function 'irq_set_irq_wake'
+Message-Id: <20130329025716.GD10831@localhost>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
+
 
 Greetings,
 
@@ -11,142 +12,137 @@ FYI, kernel build failed on s390 since
 
 tree:   git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux master
 head:   9064171268d838b8f283fe111ef086b9479d059a
-commit: a43fd50dc99a5f65505f174eca5a421707d73b4c regmap: Implement support for wake IRQs
-date:   10 months ago
+commit: 966cdc96e15d113da80622bdddd63b461a7492f5 mfd: arizona: Interrupt support
+date:   9 months ago
 config: make ARCH=s390 allmodconfig
 
 All error/warnings:
 
-   In file included from drivers/base/regmap/regmap-irq.c:21:0:
-   drivers/base/regmap/internal.h:129:52: warning: 'struct regmap_config' declared inside parameter list [enabled by default]
-   drivers/base/regmap/internal.h:129:52: warning: its scope is only this definition or declaration, which is probably not what you want [enabled by default]
-   drivers/base/regmap/regmap-irq.c: In function 'irq_to_regmap_irq':
-   drivers/base/regmap/regmap-irq.c:47:20: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c: At top level:
-   drivers/base/regmap/regmap-irq.c:50:36: warning: 'struct irq_data' declared inside parameter list [enabled by default]
-   drivers/base/regmap/regmap-irq.c: In function 'regmap_irq_lock':
-   drivers/base/regmap/regmap-irq.c:52:9: error: implicit declaration of function 'irq_data_get_irq_chip_data' [-Werror=implicit-function-declaration]
-   drivers/base/regmap/regmap-irq.c:52:35: warning: initialization makes pointer from integer without a cast [enabled by default]
-   drivers/base/regmap/regmap-irq.c: At top level:
-   drivers/base/regmap/regmap-irq.c:57:43: warning: 'struct irq_data' declared inside parameter list [enabled by default]
-   drivers/base/regmap/regmap-irq.c: In function 'regmap_irq_sync_unlock':
-   drivers/base/regmap/regmap-irq.c:59:35: warning: initialization makes pointer from integer without a cast [enabled by default]
-   drivers/base/regmap/regmap-irq.c:68:25: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:69:43: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:75:12: error: dereferencing pointer to incomplete type
->> drivers/base/regmap/regmap-irq.c:81:4: error: implicit declaration of function 'irq_set_irq_wake' [-Werror=implicit-function-declaration]
-   drivers/base/regmap/regmap-irq.c: At top level:
-   drivers/base/regmap/regmap-irq.c:91:38: warning: 'struct irq_data' declared inside parameter list [enabled by default]
-   drivers/base/regmap/regmap-irq.c: In function 'regmap_irq_enable':
-   drivers/base/regmap/regmap-irq.c:93:35: warning: initialization makes pointer from integer without a cast [enabled by default]
-   drivers/base/regmap/regmap-irq.c:95:63: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:97:22: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:97:66: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c: At top level:
-   drivers/base/regmap/regmap-irq.c:100:39: warning: 'struct irq_data' declared inside parameter list [enabled by default]
-   drivers/base/regmap/regmap-irq.c: In function 'regmap_irq_disable':
-   drivers/base/regmap/regmap-irq.c:102:35: warning: initialization makes pointer from integer without a cast [enabled by default]
-   drivers/base/regmap/regmap-irq.c:104:63: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:106:22: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:106:65: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c: At top level:
-   drivers/base/regmap/regmap-irq.c:109:39: warning: 'struct irq_data' declared inside parameter list [enabled by default]
-   drivers/base/regmap/regmap-irq.c: In function 'regmap_irq_set_wake':
-   drivers/base/regmap/regmap-irq.c:111:35: warning: initialization makes pointer from integer without a cast [enabled by default]
-   drivers/base/regmap/regmap-irq.c:113:63: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:115:14: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:119:23: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:120:16: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:123:23: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:124:15: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c: At top level:
-   drivers/base/regmap/regmap-irq.c:131:15: error: variable 'regmap_irq_chip' has initializer but incomplete type
-   drivers/base/regmap/regmap-irq.c:132:2: error: unknown field 'name' specified in initializer
-   drivers/base/regmap/regmap-irq.c:132:2: warning: excess elements in struct initializer [enabled by default]
-   drivers/base/regmap/regmap-irq.c:132:2: warning: (near initialization for 'regmap_irq_chip') [enabled by default]
-   drivers/base/regmap/regmap-irq.c:133:2: error: unknown field 'irq_bus_lock' specified in initializer
-   drivers/base/regmap/regmap-irq.c:133:2: warning: excess elements in struct initializer [enabled by default]
-   drivers/base/regmap/regmap-irq.c:133:2: warning: (near initialization for 'regmap_irq_chip') [enabled by default]
-   drivers/base/regmap/regmap-irq.c:134:2: error: unknown field 'irq_bus_sync_unlock' specified in initializer
-   drivers/base/regmap/regmap-irq.c:134:2: warning: excess elements in struct initializer [enabled by default]
-   drivers/base/regmap/regmap-irq.c:134:2: warning: (near initialization for 'regmap_irq_chip') [enabled by default]
-   drivers/base/regmap/regmap-irq.c:135:2: error: unknown field 'irq_disable' specified in initializer
-   drivers/base/regmap/regmap-irq.c:135:2: warning: excess elements in struct initializer [enabled by default]
-   drivers/base/regmap/regmap-irq.c:135:2: warning: (near initialization for 'regmap_irq_chip') [enabled by default]
-   drivers/base/regmap/regmap-irq.c:136:2: error: unknown field 'irq_enable' specified in initializer
-   drivers/base/regmap/regmap-irq.c:136:2: warning: excess elements in struct initializer [enabled by default]
-   drivers/base/regmap/regmap-irq.c:136:2: warning: (near initialization for 'regmap_irq_chip') [enabled by default]
-   drivers/base/regmap/regmap-irq.c:137:2: error: unknown field 'irq_set_wake' specified in initializer
-   drivers/base/regmap/regmap-irq.c:137:2: warning: excess elements in struct initializer [enabled by default]
-   drivers/base/regmap/regmap-irq.c:137:2: warning: (near initialization for 'regmap_irq_chip') [enabled by default]
-   drivers/base/regmap/regmap-irq.c: In function 'regmap_irq_thread':
-   drivers/base/regmap/regmap-irq.c:155:28: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:156:30: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:168:34: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:169:32: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:175:10: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:180:22: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:181:28: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:182:33: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:183:4: error: implicit declaration of function 'handle_nested_irq' [-Werror=implicit-function-declaration]
-   drivers/base/regmap/regmap-irq.c:183:4: error: implicit declaration of function 'irq_find_mapping' [-Werror=implicit-function-declaration]
-   drivers/base/regmap/regmap-irq.c: In function 'regmap_irq_map':
-   drivers/base/regmap/regmap-irq.c:199:2: error: implicit declaration of function 'irq_set_chip_data' [-Werror=implicit-function-declaration]
-   drivers/base/regmap/regmap-irq.c:200:2: error: implicit declaration of function 'irq_set_chip_and_handler' [-Werror=implicit-function-declaration]
-   drivers/base/regmap/regmap-irq.c:200:51: error: 'handle_edge_irq' undeclared (first use in this function)
-   drivers/base/regmap/regmap-irq.c:200:51: note: each undeclared identifier is reported only once for each function it appears in
-   drivers/base/regmap/regmap-irq.c:201:2: error: implicit declaration of function 'irq_set_nested_thread' [-Werror=implicit-function-declaration]
-   drivers/base/regmap/regmap-irq.c:208:2: error: implicit declaration of function 'irq_set_noprobe' [-Werror=implicit-function-declaration]
-   drivers/base/regmap/regmap-irq.c: At top level:
-   drivers/base/regmap/regmap-irq.c:216:11: error: 'irq_domain_xlate_twocell' undeclared here (not in a function)
-   drivers/base/regmap/regmap-irq.c: In function 'regmap_add_irq_chip':
-   drivers/base/regmap/regmap-irq.c:242:22: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:243:11: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:245:11: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:246:11: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:251:3: error: implicit declaration of function 'irq_alloc_descs' [-Werror=implicit-function-declaration]
-   drivers/base/regmap/regmap-irq.c:251:47: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:265:53: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:270:51: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:275:55: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:280:10: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:281:52: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:292:10: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:293:27: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:299:22: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:300:23: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:301:11: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:304:22: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:306:31: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:311:9: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:317:3: error: implicit declaration of function 'irq_domain_add_legacy' [-Werror=implicit-function-declaration]
-   drivers/base/regmap/regmap-irq.c:318:13: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:321:3: error: implicit declaration of function 'irq_domain_add_linear' [-Werror=implicit-function-declaration]
-   drivers/base/regmap/regmap-irq.c:322:13: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:331:12: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c: In function 'regmap_irq_get_virq':
-   drivers/base/regmap/regmap-irq.c:397:17: error: dereferencing pointer to incomplete type
-   drivers/base/regmap/regmap-irq.c:400:2: error: implicit declaration of function 'irq_create_mapping' [-Werror=implicit-function-declaration]
+   drivers/mfd/arizona-irq.c: In function 'arizona_map_irq':
+   drivers/mfd/arizona-irq.c:33:2: error: implicit declaration of function 'regmap_irq_get_virq' [-Werror=implicit-function-declaration]
+   drivers/mfd/arizona-irq.c: In function 'arizona_set_irq_wake':
+>> drivers/mfd/arizona-irq.c:68:2: error: implicit declaration of function 'irq_set_irq_wake' [-Werror=implicit-function-declaration]
+   drivers/mfd/arizona-irq.c: In function 'arizona_irq_thread':
+>> drivers/mfd/arizona-irq.c:107:3: error: implicit declaration of function 'handle_nested_irq' [-Werror=implicit-function-declaration]
+   drivers/mfd/arizona-irq.c:107:3: error: implicit declaration of function 'irq_find_mapping' [-Werror=implicit-function-declaration]
+   drivers/mfd/arizona-irq.c: At top level:
+   drivers/mfd/arizona-irq.c:115:39: warning: 'struct irq_data' declared inside parameter list [enabled by default]
+   drivers/mfd/arizona-irq.c:115:39: warning: its scope is only this definition or declaration, which is probably not what you want [enabled by default]
+   drivers/mfd/arizona-irq.c:119:40: warning: 'struct irq_data' declared inside parameter list [enabled by default]
+   drivers/mfd/arizona-irq.c:123:15: error: variable 'arizona_irq_chip' has initializer but incomplete type
+   drivers/mfd/arizona-irq.c:124:2: error: unknown field 'name' specified in initializer
+   drivers/mfd/arizona-irq.c:124:2: warning: excess elements in struct initializer [enabled by default]
+   drivers/mfd/arizona-irq.c:124:2: warning: (near initialization for 'arizona_irq_chip') [enabled by default]
+   drivers/mfd/arizona-irq.c:125:2: error: unknown field 'irq_disable' specified in initializer
+   drivers/mfd/arizona-irq.c:125:2: warning: excess elements in struct initializer [enabled by default]
+   drivers/mfd/arizona-irq.c:125:2: warning: (near initialization for 'arizona_irq_chip') [enabled by default]
+   drivers/mfd/arizona-irq.c:126:2: error: unknown field 'irq_enable' specified in initializer
+   drivers/mfd/arizona-irq.c:126:2: warning: excess elements in struct initializer [enabled by default]
+   drivers/mfd/arizona-irq.c:126:2: warning: (near initialization for 'arizona_irq_chip') [enabled by default]
+   drivers/mfd/arizona-irq.c: In function 'arizona_irq_map':
+>> drivers/mfd/arizona-irq.c:134:2: error: implicit declaration of function 'irq_set_chip_data' [-Werror=implicit-function-declaration]
+>> drivers/mfd/arizona-irq.c:135:2: error: implicit declaration of function 'irq_set_chip_and_handler' [-Werror=implicit-function-declaration]
+>> drivers/mfd/arizona-irq.c:135:52: error: 'handle_edge_irq' undeclared (first use in this function)
+   drivers/mfd/arizona-irq.c:135:52: note: each undeclared identifier is reported only once for each function it appears in
+>> drivers/mfd/arizona-irq.c:136:2: error: implicit declaration of function 'irq_set_nested_thread' [-Werror=implicit-function-declaration]
+>> drivers/mfd/arizona-irq.c:143:2: error: implicit declaration of function 'irq_set_noprobe' [-Werror=implicit-function-declaration]
+   drivers/mfd/arizona-irq.c: At top level:
+   drivers/mfd/arizona-irq.c:151:11: error: 'irq_domain_xlate_twocell' undeclared here (not in a function)
+   drivers/mfd/arizona-irq.c: In function 'arizona_irq_init':
+   drivers/mfd/arizona-irq.c:185:2: error: implicit declaration of function 'irq_domain_add_linear' [-Werror=implicit-function-declaration]
+   drivers/mfd/arizona-irq.c:185:16: warning: assignment makes pointer from integer without a cast [enabled by default]
+   drivers/mfd/arizona-irq.c:192:2: error: implicit declaration of function 'regmap_add_irq_chip' [-Werror=implicit-function-declaration]
+   drivers/mfd/arizona-irq.c:193:7: error: implicit declaration of function 'irq_create_mapping' [-Werror=implicit-function-declaration]
+   drivers/mfd/arizona-irq.c:246:2: error: implicit declaration of function 'regmap_del_irq_chip' [-Werror=implicit-function-declaration]
    cc1: some warnings being treated as errors
 
-vim +/irq_set_irq_wake +81 drivers/base/regmap/regmap-irq.c
+vim +/irq_set_irq_wake +68 drivers/mfd/arizona-irq.c
 
-f01ee60f Stephen Warren 2012-04-09  69  		ret = regmap_update_bits(d->map, d->chip->mask_base +
-022f926a Graeme Gregory 2012-05-14  70  						(i * map->reg_stride *
-022f926a Graeme Gregory 2012-05-14  71  						d->irq_reg_stride),
-f8beab2b Mark Brown     2011-10-28  72  					 d->mask_buf_def[i], d->mask_buf[i]);
-f8beab2b Mark Brown     2011-10-28  73  		if (ret != 0)
-f8beab2b Mark Brown     2011-10-28  74  			dev_err(d->map->dev, "Failed to sync masks in %x\n",
-f01ee60f Stephen Warren 2012-04-09 @75  				d->chip->mask_base + (i * map->reg_stride));
-f8beab2b Mark Brown     2011-10-28  76  	}
-f8beab2b Mark Brown     2011-10-28  77  
-a43fd50d Mark Brown     2012-06-05  78  	/* If we've changed our wakeup count propagate it to the parent */
-a43fd50d Mark Brown     2012-06-05  79  	if (d->wake_count < 0)
-a43fd50d Mark Brown     2012-06-05  80  		for (i = d->wake_count; i < 0; i++)
-a43fd50d Mark Brown     2012-06-05 @81  			irq_set_irq_wake(d->irq, 0);
-a43fd50d Mark Brown     2012-06-05  82  	else if (d->wake_count > 0)
-a43fd50d Mark Brown     2012-06-05  83  		for (i = 0; i < d->wake_count; i++)
-a43fd50d Mark Brown     2012-06-05  84  			irq_set_irq_wake(d->irq, 1);
+966cdc96 Mark Brown 2012-06-19   62  int arizona_set_irq_wake(struct arizona *arizona, int irq, int on)
+966cdc96 Mark Brown 2012-06-19   63  {
+966cdc96 Mark Brown 2012-06-19   64  	irq = arizona_map_irq(arizona, irq);
+966cdc96 Mark Brown 2012-06-19   65  	if (irq < 0)
+966cdc96 Mark Brown 2012-06-19   66  		return irq;
+966cdc96 Mark Brown 2012-06-19   67  
+966cdc96 Mark Brown 2012-06-19  @68  	return irq_set_irq_wake(irq, on);
+966cdc96 Mark Brown 2012-06-19   69  }
+966cdc96 Mark Brown 2012-06-19   70  EXPORT_SYMBOL_GPL(arizona_set_irq_wake);
+966cdc96 Mark Brown 2012-06-19   71  
+966cdc96 Mark Brown 2012-06-19   72  static irqreturn_t arizona_boot_done(int irq, void *data)
+966cdc96 Mark Brown 2012-06-19   73  {
+966cdc96 Mark Brown 2012-06-19   74  	struct arizona *arizona = data;
+966cdc96 Mark Brown 2012-06-19   75  
+966cdc96 Mark Brown 2012-06-19   76  	dev_dbg(arizona->dev, "Boot done\n");
+966cdc96 Mark Brown 2012-06-19   77  
+966cdc96 Mark Brown 2012-06-19   78  	return IRQ_HANDLED;
+966cdc96 Mark Brown 2012-06-19   79  }
+966cdc96 Mark Brown 2012-06-19   80  
+966cdc96 Mark Brown 2012-06-19   81  static irqreturn_t arizona_ctrlif_err(int irq, void *data)
+966cdc96 Mark Brown 2012-06-19   82  {
+966cdc96 Mark Brown 2012-06-19   83  	struct arizona *arizona = data;
+966cdc96 Mark Brown 2012-06-19   84  
+966cdc96 Mark Brown 2012-06-19   85  	/*
+966cdc96 Mark Brown 2012-06-19   86  	 * For pretty much all potential sources a register cache sync
+966cdc96 Mark Brown 2012-06-19   87  	 * won't help, we've just got a software bug somewhere.
+966cdc96 Mark Brown 2012-06-19   88  	 */
+966cdc96 Mark Brown 2012-06-19   89  	dev_err(arizona->dev, "Control interface error\n");
+966cdc96 Mark Brown 2012-06-19   90  
+966cdc96 Mark Brown 2012-06-19   91  	return IRQ_HANDLED;
+966cdc96 Mark Brown 2012-06-19   92  }
+966cdc96 Mark Brown 2012-06-19   93  
+966cdc96 Mark Brown 2012-06-19   94  static irqreturn_t arizona_irq_thread(int irq, void *data)
+966cdc96 Mark Brown 2012-06-19   95  {
+966cdc96 Mark Brown 2012-06-19   96  	struct arizona *arizona = data;
+966cdc96 Mark Brown 2012-06-19   97  	int i, ret;
+966cdc96 Mark Brown 2012-06-19   98  
+966cdc96 Mark Brown 2012-06-19   99  	ret = pm_runtime_get_sync(arizona->dev);
+966cdc96 Mark Brown 2012-06-19  100  	if (ret < 0) {
+966cdc96 Mark Brown 2012-06-19  101  		dev_err(arizona->dev, "Failed to resume device: %d\n", ret);
+966cdc96 Mark Brown 2012-06-19  102  		return IRQ_NONE;
+966cdc96 Mark Brown 2012-06-19  103  	}
+966cdc96 Mark Brown 2012-06-19  104  
+966cdc96 Mark Brown 2012-06-19  105  	/* Check both domains */
+966cdc96 Mark Brown 2012-06-19  106  	for (i = 0; i < 2; i++)
+966cdc96 Mark Brown 2012-06-19 @107  		handle_nested_irq(irq_find_mapping(arizona->virq, i));
+966cdc96 Mark Brown 2012-06-19  108  
+966cdc96 Mark Brown 2012-06-19  109  	pm_runtime_mark_last_busy(arizona->dev);
+966cdc96 Mark Brown 2012-06-19  110  	pm_runtime_put_autosuspend(arizona->dev);
+966cdc96 Mark Brown 2012-06-19  111  
+966cdc96 Mark Brown 2012-06-19  112  	return IRQ_HANDLED;
+966cdc96 Mark Brown 2012-06-19  113  }
+966cdc96 Mark Brown 2012-06-19  114  
+966cdc96 Mark Brown 2012-06-19  115  static void arizona_irq_enable(struct irq_data *data)
+966cdc96 Mark Brown 2012-06-19  116  {
+966cdc96 Mark Brown 2012-06-19  117  }
+966cdc96 Mark Brown 2012-06-19  118  
+966cdc96 Mark Brown 2012-06-19  119  static void arizona_irq_disable(struct irq_data *data)
+966cdc96 Mark Brown 2012-06-19  120  {
+966cdc96 Mark Brown 2012-06-19  121  }
+966cdc96 Mark Brown 2012-06-19  122  
+966cdc96 Mark Brown 2012-06-19  123  static struct irq_chip arizona_irq_chip = {
+966cdc96 Mark Brown 2012-06-19  124  	.name			= "arizona",
+966cdc96 Mark Brown 2012-06-19  125  	.irq_disable		= arizona_irq_disable,
+966cdc96 Mark Brown 2012-06-19  126  	.irq_enable		= arizona_irq_enable,
+966cdc96 Mark Brown 2012-06-19  127  };
+966cdc96 Mark Brown 2012-06-19  128  
+966cdc96 Mark Brown 2012-06-19  129  static int arizona_irq_map(struct irq_domain *h, unsigned int virq,
+966cdc96 Mark Brown 2012-06-19  130  			      irq_hw_number_t hw)
+966cdc96 Mark Brown 2012-06-19  131  {
+966cdc96 Mark Brown 2012-06-19  132  	struct regmap_irq_chip_data *data = h->host_data;
+966cdc96 Mark Brown 2012-06-19  133  
+966cdc96 Mark Brown 2012-06-19 @134  	irq_set_chip_data(virq, data);
+966cdc96 Mark Brown 2012-06-19 @135  	irq_set_chip_and_handler(virq, &arizona_irq_chip, handle_edge_irq);
+966cdc96 Mark Brown 2012-06-19 @136  	irq_set_nested_thread(virq, 1);
+966cdc96 Mark Brown 2012-06-19  137  
+966cdc96 Mark Brown 2012-06-19  138  	/* ARM needs us to explicitly flag the IRQ as valid
+966cdc96 Mark Brown 2012-06-19  139  	 * and will set them noprobe when we do so. */
+966cdc96 Mark Brown 2012-06-19  140  #ifdef CONFIG_ARM
+966cdc96 Mark Brown 2012-06-19  141  	set_irq_flags(virq, IRQF_VALID);
+966cdc96 Mark Brown 2012-06-19  142  #else
+966cdc96 Mark Brown 2012-06-19 @143  	irq_set_noprobe(virq);
+966cdc96 Mark Brown 2012-06-19  144  #endif
+966cdc96 Mark Brown 2012-06-19  145  
+966cdc96 Mark Brown 2012-06-19  146  	return 0;
 
 ---
 0-DAY kernel build testing backend              Open Source Technology Center
