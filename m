@@ -1,203 +1,282 @@
 From: Fengguang Wu <fengguang.wu@intel.com>
-Date: Fri, 29 Mar 2013 02:31:43 +0000
-Subject: drivers/usb/musb/tusb6010.c:946:2: error: implicit declaration of function 'irq_set_irq_type'
-Message-Id: <20130329023143.GA9840@localhost>
-To: linux-s390@vger.kernel.org, linux-usb@vger.kernel.org
+Date: Fri, 29 Mar 2013 02:34:26 +0000
+Subject: drivers/base/regmap/regmap-irq.c:44:9: error: implicit declaration of function 'irq_data_get_irq_chi
+Message-Id: <20130329023426.GB9840@localhost>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
+
 
 Greetings,
 
-These *huge number* of *long standing* errors make me wonder whether
-the below USB driver code should be disabled on s390?
+These errors make me wonder if regmap is ever useable in s390..
 
 tree:   git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux master
 head:   9064171268d838b8f283fe111ef086b9479d059a
-commit: dced35aeb0367dda2636ee9ee914bda14510dcc9 drivers: Final irq namespace conversion
-date:   2 years ago
+commit: f8beab2bb611d735767871e0e1a12dc6a0def7b1 regmap: Add a reusable irq_chip for regmap based interrupt controllers
+date:   1 year, 5 months ago
 config: make ARCH=s390 allmodconfig
 
-All error/warnings (The >> prefixed ones are introduced by above commit):
+All error/warnings:
 
-   drivers/usb/musb/tusb6010.c: In function 'tusb_wbus_quirk':
-   drivers/usb/musb/tusb6010.c:101:36: error: 'TUSB_PHY_OTG_CTRL' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:102:35: error: 'TUSB_PHY_OTG_CTRL_ENABLE' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:103:9: error: 'TUSB_PHY_OTG_CTRL_WRPROTECT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:104:21: error: 'TUSB_PHY_OTG_CTRL_TESTM2' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:104:21: error: 'TUSB_PHY_OTG_CTRL_TESTM1' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:104:21: error: 'TUSB_PHY_OTG_CTRL_TESTM0' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c: In function 'musb_write_fifo':
-   drivers/usb/musb/tusb6010.c:175:31: error: 'struct musb_hw_ep' has no member named 'conf'
-   drivers/usb/musb/tusb6010.c:185:24: error: 'TUSB_EP_TX_OFFSET' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:186:4: error: implicit declaration of function 'TUSB_EP_CONFIG_XFR_SIZE' [-Werror=implicit-function-declaration]
-   drivers/usb/musb/tusb6010.c:188:27: error: 'TUSB_EP0_CONFIG_DIR_TX' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:189:4: error: implicit declaration of function 'TUSB_EP0_CONFIG_XFR_SIZE' [-Werror=implicit-function-declaration]
-   drivers/usb/musb/tusb6010.c: In function 'musb_read_fifo':
-   drivers/usb/musb/tusb6010.c:224:31: error: 'struct musb_hw_ep' has no member named 'conf'
-   drivers/usb/musb/tusb6010.c:232:24: error: 'TUSB_EP_RX_OFFSET' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c: In function 'tusb_set_clock_source':
-   drivers/usb/musb/tusb6010.c:324:26: error: 'TUSB_PRCM_CONF' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:325:2: error: implicit declaration of function 'TUSB_PRCM_CONF_SYS_CLKSEL' [-Werror=implicit-function-declaration]
-   drivers/usb/musb/tusb6010.c: In function 'tusb_allow_idle':
-   drivers/usb/musb/tusb6010.c:351:24: error: 'TUSB_PRCM_WBUS' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:352:35: error: 'TUSB_REV_30' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:357:20: error: 'TUSB_PRCM_WNORCS' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:358:21: error: 'TUSB_PRCM_WAKEUP_MASK' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:365:26: error: 'TUSB_PRCM_MNGMT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:368:10: error: 'TUSB_PRCM_MNGMT_OTG_VBUS_DET_EN' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:369:11: error: 'TUSB_PRCM_MNGMT_OTG_SESS_END_EN' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:374:9: error: 'TUSB_PRCM_MNGMT_PM_IDLE' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:374:35: error: 'TUSB_PRCM_MNGMT_DEV_IDLE' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c: In function 'tusb_musb_vbus_status':
-   drivers/usb/musb/tusb6010.c:389:31: error: 'TUSB_DEV_OTG_STAT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:390:33: error: 'TUSB_PRCM_MNGMT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:396:21: error: 'TUSB_PRCM_MNGMT_OTG_VBUS_DET_EN' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:404:17: error: 'TUSB_DEV_OTG_STAT_VBUS_VALID' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c: In function 'musb_do_idle':
-   drivers/usb/musb/tusb6010.c:452:13: error: 'TUSB_PRCM_WHOSTDISCON' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:452:37: error: 'TUSB_PRCM_WBUS' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c: In function 'tusb_musb_set_vbus':
-   drivers/usb/musb/tusb6010.c:524:27: error: 'TUSB_PRCM_MNGMT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:525:27: error: 'TUSB_DEV_CONF' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:529:3: error: implicit declaration of function 'TUSB_DEV_OTG_TIMER_VAL' [-Werror=implicit-function-declaration]
-   drivers/usb/musb/tusb6010.c:529:11: error: 'TUSB_DEV_OTG_TIMER_ENABLE' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:534:11: error: 'TUSB_DEV_CONF_USB_HOST_MODE' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:542:32: error: 'TUSB_DEV_OTG_STAT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:543:20: error: 'TUSB_DEV_OTG_STAT_ID_STATUS' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:568:12: error: 'TUSB_PRCM_MNGMT_15_SW_EN' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:568:39: error: 'TUSB_PRCM_MNGMT_33_SW_EN' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:571:21: error: 'TUSB_DEV_OTG_TIMER' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c: In function 'tusb_musb_set_mode':
-   drivers/usb/musb/tusb6010.c:603:31: error: 'TUSB_DEV_OTG_STAT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:604:35: error: 'TUSB_PHY_OTG_CTRL' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:605:34: error: 'TUSB_PHY_OTG_CTRL_ENABLE' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:606:31: error: 'TUSB_DEV_CONF' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:641:4: error: 'TUSB_PHY_OTG_CTRL_WRPROTECT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:648:16: error: 'TUSB_DEV_OTG_STAT_ID_STATUS' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c: In function 'tusb_otg_ints':
-   drivers/usb/musb/tusb6010.c:658:36: error: 'TUSB_DEV_OTG_STAT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:662:17: error: 'TUSB_INT_SRC_ID_STATUS_CHNG' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:666:29: error: 'TUSB_DEV_OTG_STAT_ID_STATUS' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:679:16: error: 'TUSB_INT_SRC_VBUS_SENSE_CHNG' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:695:19: error: 'TUSB_DEV_OTG_STAT_SESS_END' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:756:16: error: 'TUSB_INT_SRC_OTG_TIMEOUT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:767:19: error: 'TUSB_DEV_OTG_STAT_VBUS_VALID' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c: In function 'tusb_musb_interrupt':
-   drivers/usb/musb/tusb6010.c:811:31: error: 'TUSB_INT_MASK' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:812:37: error: 'TUSB_INT_MASK_RESERVED_BITS' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:814:30: error: 'TUSB_INT_SRC' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:814:47: error: 'TUSB_INT_SRC_RESERVED_BITS' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:820:16: error: 'TUSB_INT_SRC_DEV_WAKEUP' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:824:34: error: 'TUSB_REV_30' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:831:23: error: 'TUSB_SCRATCH_PAD' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:842:27: error: 'TUSB_PRCM_WAKEUP_SOURCE' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:843:22: error: 'TUSB_PRCM_WAKEUP_CLEAR' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:844:14: error: 'TUSB_PRCM_WNORCS' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:854:16: error: 'TUSB_INT_SRC_USB_IP_CONN' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:858:17: error: 'TUSB_INT_SRC_VBUS_SENSE_CHNG' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:859:7: error: 'TUSB_INT_SRC_OTG_TIMEOUT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:860:7: error: 'TUSB_INT_SRC_ID_STATUS_CHNG' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:866:17: error: 'TUSB_INT_SRC_TXRX_DMA_DONE' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:867:35: error: 'TUSB_DMA_INT_SRC' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:868:40: error: 'TUSB_DMA_INT_MASK' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:883:22: error: 'TUSB_DMA_INT_CLEAR' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:887:17: error: 'TUSB_INT_SRC_USB_IP_TX' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:887:42: error: 'TUSB_INT_SRC_USB_IP_RX' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:888:36: error: 'TUSB_USBIP_INT_SRC' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:890:22: error: 'TUSB_USBIP_INT_CLEAR' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:902:21: error: 'TUSB_INT_SRC_CLEAR' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c: In function 'tusb_musb_enable':
-   drivers/usb/musb/tusb6010.c:926:21: error: 'TUSB_INT_MASK' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:926:36: error: 'TUSB_INT_SRC_USB_IP_SOF' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:929:21: error: 'TUSB_USBIP_INT_MASK' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:930:21: error: 'TUSB_DMA_INT_MASK' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:931:21: error: 'TUSB_GPIO_INT_MASK' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:934:21: error: 'TUSB_USBIP_INT_CLEAR' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:935:21: error: 'TUSB_DMA_INT_CLEAR' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:936:21: error: 'TUSB_GPIO_INT_CLEAR' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:939:21: error: 'TUSB_INT_SRC_CLEAR' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:939:42: error: 'TUSB_INT_MASK_RESERVED_BITS' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:943:21: error: 'TUSB_INT_CTRL_CONF' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:944:4: error: implicit declaration of function 'TUSB_INT_CTRL_CONF_INT_RELCYC' [-Werror=implicit-function-declaration]
->> drivers/usb/musb/tusb6010.c:946:2: error: implicit declaration of function 'irq_set_irq_type' [-Werror=implicit-function-declaration]
-   drivers/usb/musb/tusb6010.c:946:31: error: 'IRQ_TYPE_LEVEL_LOW' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:949:26: error: 'TUSB_DEV_OTG_STAT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:950:6: error: 'TUSB_DEV_OTG_STAT_ID_STATUS' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:951:22: error: 'TUSB_INT_SRC_SET' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:952:5: error: 'TUSB_INT_SRC_ID_STATUS_CHNG' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c: In function 'tusb_musb_disable':
-   drivers/usb/musb/tusb6010.c:971:21: error: 'TUSB_INT_MASK' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:971:37: error: 'TUSB_INT_MASK_RESERVED_BITS' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:972:21: error: 'TUSB_USBIP_INT_MASK' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:973:21: error: 'TUSB_DMA_INT_MASK' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:974:21: error: 'TUSB_GPIO_INT_MASK' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c: In function 'tusb_setup_cpu_interface':
-   drivers/usb/musb/tusb6010.c:997:21: error: 'TUSB_PULLUP_1_CTRL' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1000:21: error: 'TUSB_PULLUP_2_CTRL' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1003:21: error: 'TUSB_GPIO_CONF' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1003:2: error: implicit declaration of function 'TUSB_GPIO_CONF_DMAREQ' [-Werror=implicit-function-declaration]
-   drivers/usb/musb/tusb6010.c:1007:21: error: 'TUSB_DMA_REQ_CONF' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1008:3: error: implicit declaration of function 'TUSB_DMA_REQ_CONF_BURST_SIZE' [-Werror=implicit-function-declaration]
-   drivers/usb/musb/tusb6010.c:1009:3: error: implicit declaration of function 'TUSB_DMA_REQ_CONF_DMA_REQ_EN' [-Werror=implicit-function-declaration]
-   drivers/usb/musb/tusb6010.c:1010:3: error: implicit declaration of function 'TUSB_DMA_REQ_CONF_DMA_REQ_ASSER' [-Werror=implicit-function-declaration]
-   drivers/usb/musb/tusb6010.c:1013:21: error: 'TUSB_WAIT_COUNT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c: In function 'tusb_musb_start':
-   drivers/usb/musb/tusb6010.c:1032:24: error: 'TUSB_PROD_TEST_RESET' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1033:3: error: 'TUSB_PROD_TEST_RESET_VAL' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1047:21: error: 'TUSB_VLYNQ_CTRL' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1055:21: error: 'TUSB_PRCM_MNGMT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1056:3: error: implicit declaration of function 'TUSB_PRCM_MNGMT_VBUS_VALID_TIMER' [-Werror=implicit-function-declaration]
-   drivers/usb/musb/tusb6010.c:1057:3: error: 'TUSB_PRCM_MNGMT_VBUS_VALID_FLT_EN' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1058:3: error: 'TUSB_PRCM_MNGMT_OTG_SESS_END_EN' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1059:3: error: 'TUSB_PRCM_MNGMT_OTG_VBUS_DET_EN' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1060:3: error: 'TUSB_PRCM_MNGMT_OTG_ID_PULLUP' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1064:26: error: 'TUSB_PHY_OTG_CTRL_ENABLE' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1065:9: error: 'TUSB_PHY_OTG_CTRL_WRPROTECT' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1065:39: error: 'TUSB_PHY_OTG_CTRL_OTG_ID_PULLUP' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1068:26: error: 'TUSB_PHY_OTG_CTRL' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c: In function 'tusb_musb_init':
-   drivers/usb/musb/tusb6010.c:1101:6: error: 'struct musb' has no member named 'async'
-   drivers/usb/musb/tusb6010.c:1110:6: error: 'struct musb' has no member named 'sync'
-   drivers/usb/musb/tusb6010.c:1112:2: error: implicit declaration of function 'ioremap' [-Werror=implicit-function-declaration]
-   drivers/usb/musb/tusb6010.c:1112:7: warning: assignment makes pointer from integer without a cast [enabled by default]
-   drivers/usb/musb/tusb6010.c:1118:6: error: 'struct musb' has no member named 'sync_va'
-   drivers/usb/musb/tusb6010.c:1123:17: error: 'TUSB_BASE_OFFSET' undeclared (first use in this function)
-   drivers/usb/musb/tusb6010.c:1143:4: error: implicit declaration of function 'iounmap' [-Werror=implicit-function-declaration]
-   drivers/usb/musb/tusb6010.c: In function 'tusb_musb_exit':
-   drivers/usb/musb/tusb6010.c:1159:14: error: 'struct musb' has no member named 'sync_va'
-   cc1: some warnings being treated as errors
---
-   drivers/usb/host/oxu210hp-hcd.c: In function 'oxu_readl':
-   drivers/usb/host/oxu210hp-hcd.c:253:2: error: implicit declaration of function 'readl' [-Werror=implicit-function-declaration]
-   drivers/usb/host/oxu210hp-hcd.c: In function 'oxu_writel':
-   drivers/usb/host/oxu210hp-hcd.c:258:2: error: implicit declaration of function 'writel' [-Werror=implicit-function-declaration]
-   drivers/usb/host/oxu210hp-hcd.c: In function 'submit_async':
-   drivers/usb/host/oxu210hp-hcd.c:1618:19: warning: variable 'qtd' set but not used [-Wunused-but-set-variable]
-   drivers/usb/host/oxu210hp-hcd.c: In function 'scan_periodic':
-   drivers/usb/host/oxu210hp-hcd.c:2294:8: warning: variable 'live' set but not used [-Wunused-but-set-variable]
-   drivers/usb/host/oxu210hp-hcd.c:2272:13: warning: variable 'uframes' set but not used [-Wunused-but-set-variable]
-   drivers/usb/host/oxu210hp-hcd.c: In function 'oxu_urb_enqueue':
-   drivers/usb/host/oxu210hp-hcd.c:2857:6: warning: variable 'transfer_buffer_length' set but not used [-Wunused-but-set-variable]
-   drivers/usb/host/oxu210hp-hcd.c: In function 'oxu_drv_probe':
->> drivers/usb/host/oxu210hp-hcd.c:3835:2: error: implicit declaration of function 'irq_set_irq_type' [-Werror=implicit-function-declaration]
-   drivers/usb/host/oxu210hp-hcd.c:3842:2: error: implicit declaration of function 'ioremap' [-Werror=implicit-function-declaration]
-   drivers/usb/host/oxu210hp-hcd.c:3842:7: warning: assignment makes pointer from integer without a cast [enabled by default]
-   drivers/usb/host/oxu210hp-hcd.c:3876:2: error: implicit declaration of function 'iounmap' [-Werror=implicit-function-declaration]
+   drivers/base/regmap/regmap-irq.c:42:36: warning: 'struct irq_data' declared inside parameter list [enabled by default]
+   drivers/base/regmap/regmap-irq.c:42:36: warning: its scope is only this definition or declaration, which is probably not what you want [enabled by default]
+   drivers/base/regmap/regmap-irq.c: In function 'regmap_irq_lock':
+>> drivers/base/regmap/regmap-irq.c:44:9: error: implicit declaration of function 'irq_data_get_irq_chip_data' [-Werror=implicit-function-declaration]
+   drivers/base/regmap/regmap-irq.c:44:35: warning: initialization makes pointer from integer without a cast [enabled by default]
+   drivers/base/regmap/regmap-irq.c: At top level:
+   drivers/base/regmap/regmap-irq.c:49:43: warning: 'struct irq_data' declared inside parameter list [enabled by default]
+   drivers/base/regmap/regmap-irq.c: In function 'regmap_irq_sync_unlock':
+   drivers/base/regmap/regmap-irq.c:51:35: warning: initialization makes pointer from integer without a cast [enabled by default]
+   drivers/base/regmap/regmap-irq.c: At top level:
+   drivers/base/regmap/regmap-irq.c:70:38: warning: 'struct irq_data' declared inside parameter list [enabled by default]
+   drivers/base/regmap/regmap-irq.c: In function 'regmap_irq_enable':
+   drivers/base/regmap/regmap-irq.c:72:35: warning: initialization makes pointer from integer without a cast [enabled by default]
+   drivers/base/regmap/regmap-irq.c:73:63: error: dereferencing pointer to incomplete type
+   drivers/base/regmap/regmap-irq.c: At top level:
+   drivers/base/regmap/regmap-irq.c:78:39: warning: 'struct irq_data' declared inside parameter list [enabled by default]
+   drivers/base/regmap/regmap-irq.c: In function 'regmap_irq_disable':
+   drivers/base/regmap/regmap-irq.c:80:35: warning: initialization makes pointer from integer without a cast [enabled by default]
+   drivers/base/regmap/regmap-irq.c:81:63: error: dereferencing pointer to incomplete type
+   drivers/base/regmap/regmap-irq.c: At top level:
+   drivers/base/regmap/regmap-irq.c:86:15: error: variable 'regmap_irq_chip' has initializer but incomplete type
+   drivers/base/regmap/regmap-irq.c:87:2: error: unknown field 'name' specified in initializer
+   drivers/base/regmap/regmap-irq.c:87:2: warning: excess elements in struct initializer [enabled by default]
+   drivers/base/regmap/regmap-irq.c:87:2: warning: (near initialization for 'regmap_irq_chip') [enabled by default]
+   drivers/base/regmap/regmap-irq.c:88:2: error: unknown field 'irq_bus_lock' specified in initializer
+   drivers/base/regmap/regmap-irq.c:88:2: warning: excess elements in struct initializer [enabled by default]
+   drivers/base/regmap/regmap-irq.c:88:2: warning: (near initialization for 'regmap_irq_chip') [enabled by default]
+   drivers/base/regmap/regmap-irq.c:89:2: error: unknown field 'irq_bus_sync_unlock' specified in initializer
+   drivers/base/regmap/regmap-irq.c:89:2: warning: excess elements in struct initializer [enabled by default]
+   drivers/base/regmap/regmap-irq.c:89:2: warning: (near initialization for 'regmap_irq_chip') [enabled by default]
+   drivers/base/regmap/regmap-irq.c:90:2: error: unknown field 'irq_disable' specified in initializer
+   drivers/base/regmap/regmap-irq.c:90:2: warning: excess elements in struct initializer [enabled by default]
+   drivers/base/regmap/regmap-irq.c:90:2: warning: (near initialization for 'regmap_irq_chip') [enabled by default]
+   drivers/base/regmap/regmap-irq.c:91:2: error: unknown field 'irq_enable' specified in initializer
+   drivers/base/regmap/regmap-irq.c:91:2: warning: excess elements in struct initializer [enabled by default]
+   drivers/base/regmap/regmap-irq.c:91:2: warning: (near initialization for 'regmap_irq_chip') [enabled by default]
+   drivers/base/regmap/regmap-irq.c: In function 'regmap_irq_thread':
+>> drivers/base/regmap/regmap-irq.c:148:4: error: implicit declaration of function 'handle_nested_irq' [-Werror=implicit-function-declaration]
+   drivers/base/regmap/regmap-irq.c: In function 'regmap_add_irq_chip':
+>> drivers/base/regmap/regmap-irq.c:178:2: error: implicit declaration of function 'irq_alloc_descs' [-Werror=implicit-function-declaration]
+>> drivers/base/regmap/regmap-irq.c:233:3: error: implicit declaration of function 'irq_set_chip_data' [-Werror=implicit-function-declaration]
+   drivers/base/regmap/regmap-irq.c:234:3: error: implicit declaration of function 'irq_set_chip_and_handler' [-Werror=implicit-function-declaration]
+   drivers/base/regmap/regmap-irq.c:235:7: error: 'handle_edge_irq' undeclared (first use in this function)
+   drivers/base/regmap/regmap-irq.c:235:7: note: each undeclared identifier is reported only once for each function it appears in
+>> drivers/base/regmap/regmap-irq.c:236:3: error: implicit declaration of function 'irq_set_nested_thread' [-Werror=implicit-function-declaration]
+>> drivers/base/regmap/regmap-irq.c:243:3: error: implicit declaration of function 'irq_set_noprobe' [-Werror=implicit-function-declaration]
    cc1: some warnings being treated as errors
 
-vim +/irq_set_irq_type +946 drivers/usb/musb/tusb6010.c
+vim +/irq_data_get_irq_chip_data +44 drivers/base/regmap/regmap-irq.c
 
-550a7375 Felipe Balbi    2008-07-24  938  	/* Acknowledge pending interrupt(s) */
-550a7375 Felipe Balbi    2008-07-24  939  	musb_writel(tbase, TUSB_INT_SRC_CLEAR, ~TUSB_INT_MASK_RESERVED_BITS);
-550a7375 Felipe Balbi    2008-07-24  940  
-550a7375 Felipe Balbi    2008-07-24  941  	/* Only 0 clock cycles for minimum interrupt de-assertion time and
-550a7375 Felipe Balbi    2008-07-24  942  	 * interrupt polarity active low seems to work reliably here */
-550a7375 Felipe Balbi    2008-07-24  943  	musb_writel(tbase, TUSB_INT_CTRL_CONF,
-550a7375 Felipe Balbi    2008-07-24 @944  			TUSB_INT_CTRL_CONF_INT_RELCYC(0));
-550a7375 Felipe Balbi    2008-07-24  945  
-dced35ae Thomas Gleixner 2011-03-28 @946  	irq_set_irq_type(musb->nIrq, IRQ_TYPE_LEVEL_LOW);
-550a7375 Felipe Balbi    2008-07-24  947  
-550a7375 Felipe Balbi    2008-07-24  948  	/* maybe force into the Default-A OTG state machine */
-550a7375 Felipe Balbi    2008-07-24  949  	if (!(musb_readl(tbase, TUSB_DEV_OTG_STAT)
+f8beab2b Mark Brown 2011-10-28   38  {
+f8beab2b Mark Brown 2011-10-28   39  	return &data->chip->irqs[irq - data->irq_base];
+f8beab2b Mark Brown 2011-10-28   40  }
+f8beab2b Mark Brown 2011-10-28   41  
+f8beab2b Mark Brown 2011-10-28   42  static void regmap_irq_lock(struct irq_data *data)
+f8beab2b Mark Brown 2011-10-28   43  {
+f8beab2b Mark Brown 2011-10-28  @44  	struct regmap_irq_chip_data *d = irq_data_get_irq_chip_data(data);
+f8beab2b Mark Brown 2011-10-28   45  
+f8beab2b Mark Brown 2011-10-28   46  	mutex_lock(&d->lock);
+f8beab2b Mark Brown 2011-10-28   47  }
+f8beab2b Mark Brown 2011-10-28   48  
+f8beab2b Mark Brown 2011-10-28   49  static void regmap_irq_sync_unlock(struct irq_data *data)
+f8beab2b Mark Brown 2011-10-28   50  {
+f8beab2b Mark Brown 2011-10-28   51  	struct regmap_irq_chip_data *d = irq_data_get_irq_chip_data(data);
+f8beab2b Mark Brown 2011-10-28   52  	int i, ret;
+f8beab2b Mark Brown 2011-10-28   53  
+f8beab2b Mark Brown 2011-10-28   54  	/*
+f8beab2b Mark Brown 2011-10-28   55  	 * If there's been a change in the mask write it back to the
+f8beab2b Mark Brown 2011-10-28   56  	 * hardware.  We rely on the use of the regmap core cache to
+f8beab2b Mark Brown 2011-10-28   57  	 * suppress pointless writes.
+f8beab2b Mark Brown 2011-10-28   58  	 */
+f8beab2b Mark Brown 2011-10-28   59  	for (i = 0; i < d->chip->num_regs; i++) {
+f8beab2b Mark Brown 2011-10-28   60  		ret = regmap_update_bits(d->map, d->chip->mask_base + i,
+f8beab2b Mark Brown 2011-10-28   61  					 d->mask_buf_def[i], d->mask_buf[i]);
+f8beab2b Mark Brown 2011-10-28   62  		if (ret != 0)
+f8beab2b Mark Brown 2011-10-28   63  			dev_err(d->map->dev, "Failed to sync masks in %x\n",
+f8beab2b Mark Brown 2011-10-28   64  				d->chip->mask_base + i);
+f8beab2b Mark Brown 2011-10-28   65  	}
+f8beab2b Mark Brown 2011-10-28   66  
+f8beab2b Mark Brown 2011-10-28   67  	mutex_unlock(&d->lock);
+f8beab2b Mark Brown 2011-10-28   68  }
+f8beab2b Mark Brown 2011-10-28   69  
+f8beab2b Mark Brown 2011-10-28   70  static void regmap_irq_enable(struct irq_data *data)
+f8beab2b Mark Brown 2011-10-28   71  {
+f8beab2b Mark Brown 2011-10-28   72  	struct regmap_irq_chip_data *d = irq_data_get_irq_chip_data(data);
+f8beab2b Mark Brown 2011-10-28   73  	const struct regmap_irq *irq_data = irq_to_regmap_irq(d, data->irq);
+f8beab2b Mark Brown 2011-10-28   74  
+f8beab2b Mark Brown 2011-10-28   75  	d->mask_buf[irq_data->reg_offset] &= ~irq_data->mask;
+f8beab2b Mark Brown 2011-10-28   76  }
+f8beab2b Mark Brown 2011-10-28   77  
+f8beab2b Mark Brown 2011-10-28   78  static void regmap_irq_disable(struct irq_data *data)
+f8beab2b Mark Brown 2011-10-28   79  {
+f8beab2b Mark Brown 2011-10-28   80  	struct regmap_irq_chip_data *d = irq_data_get_irq_chip_data(data);
+f8beab2b Mark Brown 2011-10-28   81  	const struct regmap_irq *irq_data = irq_to_regmap_irq(d, data->irq);
+f8beab2b Mark Brown 2011-10-28   82  
+f8beab2b Mark Brown 2011-10-28   83  	d->mask_buf[irq_data->reg_offset] |= irq_data->mask;
+f8beab2b Mark Brown 2011-10-28   84  }
+f8beab2b Mark Brown 2011-10-28   85  
+f8beab2b Mark Brown 2011-10-28   86  static struct irq_chip regmap_irq_chip = {
+f8beab2b Mark Brown 2011-10-28   87  	.name			= "regmap",
+f8beab2b Mark Brown 2011-10-28   88  	.irq_bus_lock		= regmap_irq_lock,
+f8beab2b Mark Brown 2011-10-28   89  	.irq_bus_sync_unlock	= regmap_irq_sync_unlock,
+f8beab2b Mark Brown 2011-10-28   90  	.irq_disable		= regmap_irq_disable,
+f8beab2b Mark Brown 2011-10-28   91  	.irq_enable		= regmap_irq_enable,
+f8beab2b Mark Brown 2011-10-28   92  };
+f8beab2b Mark Brown 2011-10-28   93  
+f8beab2b Mark Brown 2011-10-28   94  static irqreturn_t regmap_irq_thread(int irq, void *d)
+f8beab2b Mark Brown 2011-10-28   95  {
+f8beab2b Mark Brown 2011-10-28   96  	struct regmap_irq_chip_data *data = d;
+f8beab2b Mark Brown 2011-10-28   97  	struct regmap_irq_chip *chip = data->chip;
+f8beab2b Mark Brown 2011-10-28   98  	struct regmap *map = data->map;
+f8beab2b Mark Brown 2011-10-28   99  	int ret, i;
+f8beab2b Mark Brown 2011-10-28  100  	u8 *buf8 = data->status_reg_buf;
+f8beab2b Mark Brown 2011-10-28  101  	u16 *buf16 = data->status_reg_buf;
+f8beab2b Mark Brown 2011-10-28  102  	u32 *buf32 = data->status_reg_buf;
+f8beab2b Mark Brown 2011-10-28  103  
+f8beab2b Mark Brown 2011-10-28  104  	ret = regmap_bulk_read(map, chip->status_base, data->status_reg_buf,
+f8beab2b Mark Brown 2011-10-28  105  			       chip->num_regs);
+f8beab2b Mark Brown 2011-10-28  106  	if (ret != 0) {
+f8beab2b Mark Brown 2011-10-28  107  		dev_err(map->dev, "Failed to read IRQ status: %d\n", ret);
+f8beab2b Mark Brown 2011-10-28  108  		return IRQ_NONE;
+f8beab2b Mark Brown 2011-10-28  109  	}
+f8beab2b Mark Brown 2011-10-28  110  
+f8beab2b Mark Brown 2011-10-28  111  	/*
+f8beab2b Mark Brown 2011-10-28  112  	 * Ignore masked IRQs and ack if we need to; we ack early so
+f8beab2b Mark Brown 2011-10-28  113  	 * there is no race between handling and acknowleding the
+f8beab2b Mark Brown 2011-10-28  114  	 * interrupt.  We assume that typically few of the interrupts
+f8beab2b Mark Brown 2011-10-28  115  	 * will fire simultaneously so don't worry about overhead from
+f8beab2b Mark Brown 2011-10-28  116  	 * doing a write per register.
+f8beab2b Mark Brown 2011-10-28  117  	 */
+f8beab2b Mark Brown 2011-10-28  118  	for (i = 0; i < data->chip->num_regs; i++) {
+f8beab2b Mark Brown 2011-10-28  119  		switch (map->format.val_bytes) {
+f8beab2b Mark Brown 2011-10-28  120  		case 1:
+f8beab2b Mark Brown 2011-10-28  121  			data->status_buf[i] = buf8[i];
+f8beab2b Mark Brown 2011-10-28  122  			break;
+f8beab2b Mark Brown 2011-10-28  123  		case 2:
+f8beab2b Mark Brown 2011-10-28  124  			data->status_buf[i] = buf16[i];
+f8beab2b Mark Brown 2011-10-28  125  			break;
+f8beab2b Mark Brown 2011-10-28  126  		case 4:
+f8beab2b Mark Brown 2011-10-28  127  			data->status_buf[i] = buf32[i];
+f8beab2b Mark Brown 2011-10-28  128  			break;
+f8beab2b Mark Brown 2011-10-28  129  		default:
+f8beab2b Mark Brown 2011-10-28  130  			BUG();
+f8beab2b Mark Brown 2011-10-28  131  			return IRQ_NONE;
+f8beab2b Mark Brown 2011-10-28  132  		}
+f8beab2b Mark Brown 2011-10-28  133  
+f8beab2b Mark Brown 2011-10-28  134  		data->status_buf[i] &= ~data->mask_buf[i];
+f8beab2b Mark Brown 2011-10-28  135  
+f8beab2b Mark Brown 2011-10-28  136  		if (data->status_buf[i] && chip->ack_base) {
+f8beab2b Mark Brown 2011-10-28  137  			ret = regmap_write(map, chip->ack_base + i,
+f8beab2b Mark Brown 2011-10-28  138  					   data->status_buf[i]);
+f8beab2b Mark Brown 2011-10-28  139  			if (ret != 0)
+f8beab2b Mark Brown 2011-10-28  140  				dev_err(map->dev, "Failed to ack 0x%x: %d\n",
+f8beab2b Mark Brown 2011-10-28  141  					chip->ack_base + i, ret);
+f8beab2b Mark Brown 2011-10-28  142  		}
+f8beab2b Mark Brown 2011-10-28  143  	}
+f8beab2b Mark Brown 2011-10-28  144  
+f8beab2b Mark Brown 2011-10-28  145  	for (i = 0; i < chip->num_irqs; i++) {
+f8beab2b Mark Brown 2011-10-28  146  		if (data->status_buf[chip->irqs[i].reg_offset] &
+f8beab2b Mark Brown 2011-10-28  147  		    chip->irqs[i].mask) {
+f8beab2b Mark Brown 2011-10-28 @148  			handle_nested_irq(data->irq_base + i);
+f8beab2b Mark Brown 2011-10-28  149  		}
+f8beab2b Mark Brown 2011-10-28  150  	}
+f8beab2b Mark Brown 2011-10-28  151  
+f8beab2b Mark Brown 2011-10-28  152  	return IRQ_HANDLED;
+f8beab2b Mark Brown 2011-10-28  153  }
+f8beab2b Mark Brown 2011-10-28  154  
+f8beab2b Mark Brown 2011-10-28  155  /**
+f8beab2b Mark Brown 2011-10-28  156   * regmap_add_irq_chip(): Use standard regmap IRQ controller handling
+f8beab2b Mark Brown 2011-10-28  157   *
+f8beab2b Mark Brown 2011-10-28  158   * map:       The regmap for the device.
+f8beab2b Mark Brown 2011-10-28  159   * irq:       The IRQ the device uses to signal interrupts
+f8beab2b Mark Brown 2011-10-28  160   * irq_flags: The IRQF_ flags to use for the primary interrupt.
+f8beab2b Mark Brown 2011-10-28  161   * chip:      Configuration for the interrupt controller.
+f8beab2b Mark Brown 2011-10-28  162   * data:      Runtime data structure for the controller, allocated on success
+f8beab2b Mark Brown 2011-10-28  163   *
+f8beab2b Mark Brown 2011-10-28  164   * Returns 0 on success or an errno on failure.
+f8beab2b Mark Brown 2011-10-28  165   *
+f8beab2b Mark Brown 2011-10-28  166   * In order for this to be efficient the chip really should use a
+f8beab2b Mark Brown 2011-10-28  167   * register cache.  The chip driver is responsible for restoring the
+f8beab2b Mark Brown 2011-10-28  168   * register values used by the IRQ controller over suspend and resume.
+f8beab2b Mark Brown 2011-10-28  169   */
+f8beab2b Mark Brown 2011-10-28  170  int regmap_add_irq_chip(struct regmap *map, int irq, int irq_flags,
+f8beab2b Mark Brown 2011-10-28  171  			int irq_base, struct regmap_irq_chip *chip,
+f8beab2b Mark Brown 2011-10-28  172  			struct regmap_irq_chip_data **data)
+f8beab2b Mark Brown 2011-10-28  173  {
+f8beab2b Mark Brown 2011-10-28  174  	struct regmap_irq_chip_data *d;
+f8beab2b Mark Brown 2011-10-28  175  	int cur_irq, i;
+f8beab2b Mark Brown 2011-10-28  176  	int ret = -ENOMEM;
+f8beab2b Mark Brown 2011-10-28  177  
+f8beab2b Mark Brown 2011-10-28 @178  	irq_base = irq_alloc_descs(irq_base, 0, chip->num_irqs, 0);
+f8beab2b Mark Brown 2011-10-28  179  	if (irq_base < 0) {
+f8beab2b Mark Brown 2011-10-28  180  		dev_warn(map->dev, "Failed to allocate IRQs: %d\n",
+f8beab2b Mark Brown 2011-10-28  181  			 irq_base);
+f8beab2b Mark Brown 2011-10-28  182  		return irq_base;
+f8beab2b Mark Brown 2011-10-28  183  	}
+f8beab2b Mark Brown 2011-10-28  184  
+f8beab2b Mark Brown 2011-10-28  185  	d = kzalloc(sizeof(*d), GFP_KERNEL);
+f8beab2b Mark Brown 2011-10-28  186  	if (!d)
+f8beab2b Mark Brown 2011-10-28  187  		return -ENOMEM;
+f8beab2b Mark Brown 2011-10-28  188  
+f8beab2b Mark Brown 2011-10-28  189  	d->status_buf = kzalloc(sizeof(unsigned int) * chip->num_regs,
+f8beab2b Mark Brown 2011-10-28  190  				GFP_KERNEL);
+f8beab2b Mark Brown 2011-10-28  191  	if (!d->status_buf)
+f8beab2b Mark Brown 2011-10-28  192  		goto err_alloc;
+f8beab2b Mark Brown 2011-10-28  193  
+f8beab2b Mark Brown 2011-10-28  194  	d->status_reg_buf = kzalloc(map->format.val_bytes * chip->num_regs,
+f8beab2b Mark Brown 2011-10-28  195  				    GFP_KERNEL);
+f8beab2b Mark Brown 2011-10-28  196  	if (!d->status_reg_buf)
+f8beab2b Mark Brown 2011-10-28  197  		goto err_alloc;
+f8beab2b Mark Brown 2011-10-28  198  
+f8beab2b Mark Brown 2011-10-28  199  	d->mask_buf = kzalloc(sizeof(unsigned int) * chip->num_regs,
+f8beab2b Mark Brown 2011-10-28  200  			      GFP_KERNEL);
+f8beab2b Mark Brown 2011-10-28  201  	if (!d->mask_buf)
+f8beab2b Mark Brown 2011-10-28  202  		goto err_alloc;
+f8beab2b Mark Brown 2011-10-28  203  
+f8beab2b Mark Brown 2011-10-28  204  	d->mask_buf_def = kzalloc(sizeof(unsigned int) * chip->num_regs,
+f8beab2b Mark Brown 2011-10-28  205  				  GFP_KERNEL);
+f8beab2b Mark Brown 2011-10-28  206  	if (!d->mask_buf_def)
+f8beab2b Mark Brown 2011-10-28  207  		goto err_alloc;
+f8beab2b Mark Brown 2011-10-28  208  
+f8beab2b Mark Brown 2011-10-28  209  	d->map = map;
+f8beab2b Mark Brown 2011-10-28  210  	d->chip = chip;
+f8beab2b Mark Brown 2011-10-28  211  	d->irq_base = irq_base;
+f8beab2b Mark Brown 2011-10-28  212  	mutex_init(&d->lock);
+f8beab2b Mark Brown 2011-10-28  213  
+f8beab2b Mark Brown 2011-10-28  214  	for (i = 0; i < chip->num_irqs; i++)
+f8beab2b Mark Brown 2011-10-28  215  		d->mask_buf_def[chip->irqs[i].reg_offset]
+f8beab2b Mark Brown 2011-10-28  216  			|= chip->irqs[i].mask;
+f8beab2b Mark Brown 2011-10-28  217  
+f8beab2b Mark Brown 2011-10-28  218  	/* Mask all the interrupts by default */
+f8beab2b Mark Brown 2011-10-28  219  	for (i = 0; i < chip->num_regs; i++) {
+f8beab2b Mark Brown 2011-10-28  220  		d->mask_buf[i] = d->mask_buf_def[i];
+f8beab2b Mark Brown 2011-10-28  221  		ret = regmap_write(map, chip->mask_base + i, d->mask_buf[i]);
+f8beab2b Mark Brown 2011-10-28  222  		if (ret != 0) {
+f8beab2b Mark Brown 2011-10-28  223  			dev_err(map->dev, "Failed to set masks in 0x%x: %d\n",
+f8beab2b Mark Brown 2011-10-28  224  				chip->mask_base + i, ret);
+f8beab2b Mark Brown 2011-10-28  225  			goto err_alloc;
+f8beab2b Mark Brown 2011-10-28  226  		}
+f8beab2b Mark Brown 2011-10-28  227  	}
+f8beab2b Mark Brown 2011-10-28  228  
+f8beab2b Mark Brown 2011-10-28  229  	/* Register them with genirq */
+f8beab2b Mark Brown 2011-10-28  230  	for (cur_irq = irq_base;
+f8beab2b Mark Brown 2011-10-28  231  	     cur_irq < chip->num_irqs + irq_base;
+f8beab2b Mark Brown 2011-10-28  232  	     cur_irq++) {
+f8beab2b Mark Brown 2011-10-28 @233  		irq_set_chip_data(cur_irq, d);
+f8beab2b Mark Brown 2011-10-28  234  		irq_set_chip_and_handler(cur_irq, &regmap_irq_chip,
+f8beab2b Mark Brown 2011-10-28 @235  					 handle_edge_irq);
+f8beab2b Mark Brown 2011-10-28 @236  		irq_set_nested_thread(cur_irq, 1);
+f8beab2b Mark Brown 2011-10-28  237  
+f8beab2b Mark Brown 2011-10-28  238  		/* ARM needs us to explicitly flag the IRQ as valid
+f8beab2b Mark Brown 2011-10-28  239  		 * and will set them noprobe when we do so. */
+f8beab2b Mark Brown 2011-10-28  240  #ifdef CONFIG_ARM
+f8beab2b Mark Brown 2011-10-28  241  		set_irq_flags(cur_irq, IRQF_VALID);
+f8beab2b Mark Brown 2011-10-28  242  #else
+f8beab2b Mark Brown 2011-10-28 @243  		irq_set_noprobe(cur_irq);
+f8beab2b Mark Brown 2011-10-28  244  #endif
+f8beab2b Mark Brown 2011-10-28  245  	}
+f8beab2b Mark Brown 2011-10-28  246  
 
 ---
 0-DAY kernel build testing backend              Open Source Technology Center
