@@ -1,25 +1,22 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 3/5] dump_stack: consolidate dump_stack()
- implementations and unify their behaviors
-Date: Fri, 29 Mar 2013 23:30:02 -0400 (EDT)
-Message-ID: <20130329.233002.1109620073576548375.davem@davemloft.net>
-References: <1364610428-2074-1-git-send-email-tj@kernel.org>
-	<1364610428-2074-4-git-send-email-tj@kernel.org>
+From: Vineet Gupta <Vineet.Gupta1@synopsys.com>
+Subject: Re: [PATCH 3/5] dump_stack: consolidate dump_stack() implementations
+ and unify their behaviors
+Date: Sat, 30 Mar 2013 10:57:55 +0530
+Message-ID: <515677DB.4070803@synopsys.com>
+References: <1364610428-2074-1-git-send-email-tj@kernel.org> <1364610428-2074-4-git-send-email-tj@kernel.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arch-owner@vger.kernel.org>
 In-Reply-To: <1364610428-2074-4-git-send-email-tj@kernel.org>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: tj@kernel.org
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, mingo@redhat.com, x86@kernel.org, rth@twiddle.net, linux@arm.linux.org.uk, msalter@redhat.com, starvik@axis.com, dhowells@redhat.com, tony.luck@intel.com, benh@kernel.crashing.org, takata@linux-m32r.org, geert@linux-m68k.org, james.hogan@imgtec.com, monstr@monstr.eu, ralf@linux-mips.org, jonas@southpole.se, rkuo@codeaurora.org, schwidefsky@de.ibm.com, liqin.chen@sunplusct.com, lethal@linux-sh.org, vgupta@synopsys.com, chris@zankel.net, cmetcalf@tilera.com, ysato@users.sourceforge.jp, gxt@mprc.pku.edu.cn, jdike@addtoit.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, vapier@gentoo.org, uclinux-dist-devel@blackfin.uclinux.org
+To: Tejun Heo <tj@kernel.org>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, mingo@redhat.com, x86@kernel.org, rth@twiddle.net, linux@arm.linux.org.uk, msalter@redhat.com, starvik@axis.com, dhowells@redhat.com, tony.luck@intel.com, benh@kernel.crashing.org, takata@linux-m32r.org, geert@linux-m68k.org, james.hogan@imgtec.com, monstr@monstr.eu, ralf@linux-mips.org, jonas@southpole.se, rkuo@codeaurora.org, schwidefsky@de.ibm.com, liqin.chen@sunplusct.com, davem@davemloft.net, lethal@linux-sh.org, chris@zankel.net, cmetcalf@tilera.com, ysato@users.sourceforge.jp, gxt@mprc.pku.edu.cn, jdike@addtoit.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Mike Frysinger <vapier@gentoo.org>, uclinux-dist-devel@blackfin.uclinux.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Tejun Heo <tj@kernel.org>
-Date: Fri, 29 Mar 2013 19:27:06 -0700
-
+On 03/30/2013 07:57 AM, Tejun Heo wrote:
 > Both dump_stack() and show_stack() are currently implemented by each
 > architecture.  show_stack(NULL, NULL) dumps the backtrace for the
 > current task as does dump_stack().  On some archs, dump_stack() prints
@@ -79,6 +76,9 @@ Date: Fri, 29 Mar 2013 19:27:06 -0700
 > 
 > Signed-off-by: Tejun Heo <tj@kernel.org>
 
-For sparc bits:
+For arch/arc bits
 
-Acked-by: David S. Miller <davem@davemloft.net>
+Acked-by: Vineet Gupta <vgupta@synopsys.com>
+
+Thx,
+-Vineet
