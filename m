@@ -1,103 +1,39 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 2/3] qeth: Fix invalid router settings handling
-Date: Tue, 19 Mar 2013 07:04:43 +0100
-Message-ID: <20130319060454.865937233@de.ibm.com>
-References: <20130319060441.956271217@de.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=601-qeth-router-setting.diff
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Stefan Raspl <raspl@linux.vnet.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 3/5] dump_stack: consolidate dump_stack() implementations
+ and unify their behaviors
+Date: Sat, 30 Mar 2013 12:45:35 +0100
+Message-ID: <20130330114534.GA5404@osiris>
+References: <1364610428-2074-1-git-send-email-tj@kernel.org>
+ <1364610428-2074-4-git-send-email-tj@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1364610428-2074-4-git-send-email-tj@kernel.org>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Tejun Heo <tj@kernel.org>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, mingo@redhat.com, x86@kernel.org, rth@twiddle.net, linux@arm.linux.org.uk, msalter@redhat.com, starvik@axis.com, dhowells@redhat.com, tony.luck@intel.com, benh@kernel.crashing.org, takata@linux-m32r.org, geert@linux-m68k.org, james.hogan@imgtec.com, monstr@monstr.eu, ralf@linux-mips.org, jonas@southpole.se, rkuo@codeaurora.org, schwidefsky@de.ibm.com, liqin.chen@sunplusct.com, davem@davemloft.net, lethal@linux-sh.org, vgupta@synopsys.com, chris@zankel.net, cmetcalf@tilera.com, ysato@users.sourceforge.jp, gxt@mprc.pku.edu.cn, jdike@addtoit.com, linux-s390@vger.kernel.org, Mike Frysinger <vapier@gentoo.org>, uclinux-dist-devel@blackfin.uclinux.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Stefan Raspl <raspl@linux.vnet.ibm.com>
+On Fri, Mar 29, 2013 at 07:27:06PM -0700, Tejun Heo wrote:
+> Both dump_stack() and show_stack() are currently implemented by each
+> architecture.  show_stack(NULL, NULL) dumps the backtrace for the
+> current task as does dump_stack().  On some archs, dump_stack() prints
+> extra information - pid, utsname and so on - in addition to the
+> backtrace while the two are identical on other archs.
 
-Give a bad return code when specifying a router setting that is either
-invalid or not support on the respective device type. In addition, fall back
-the previous setting instead of silently switching back to 'no routing'.
+[...]
 
-Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
-Signed-off-by: Frank Blaschka <blaschka@linux.vnet.ibm.com>
----
- drivers/s390/net/qeth_l3_main.c |   17 +++++++++++------
- drivers/s390/net/qeth_l3_sys.c  |    2 ++
- 2 files changed, 13 insertions(+), 6 deletions(-)
+> This patch expands the dummy fallback dump_stack() implementation in
+> lib/dump_stack.c such that it prints out debug information (taken from
+> x86) and invokes show_stack(NULL, NULL) and drops arch-specific
+> dump_stack() implementations in all archs except blackfin and s390.
+> Blackfin's dump_stack() does something wonky that I don't understand
+> and s390 prints its own debug information which includes fields which
+> aren't accessible from arch-indepdent code.
 
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -623,7 +623,7 @@ static int qeth_l3_send_setrouting(struc
- 	return rc;
- }
- 
--static void qeth_l3_correct_routing_type(struct qeth_card *card,
-+static int qeth_l3_correct_routing_type(struct qeth_card *card,
- 		enum qeth_routing_types *type, enum qeth_prot_versions prot)
- {
- 	if (card->info.type == QETH_CARD_TYPE_IQD) {
-@@ -632,7 +632,7 @@ static void qeth_l3_correct_routing_type
- 		case PRIMARY_CONNECTOR:
- 		case SECONDARY_CONNECTOR:
- 		case MULTICAST_ROUTER:
--			return;
-+			return 0;
- 		default:
- 			goto out_inval;
- 		}
-@@ -641,17 +641,18 @@ static void qeth_l3_correct_routing_type
- 		case NO_ROUTER:
- 		case PRIMARY_ROUTER:
- 		case SECONDARY_ROUTER:
--			return;
-+			return 0;
- 		case MULTICAST_ROUTER:
- 			if (qeth_is_ipafunc_supported(card, prot,
- 						      IPA_OSA_MC_ROUTER))
--				return;
-+				return 0;
- 		default:
- 			goto out_inval;
- 		}
- 	}
- out_inval:
- 	*type = NO_ROUTER;
-+	return -EINVAL;
- }
- 
- int qeth_l3_setrouting_v4(struct qeth_card *card)
-@@ -660,8 +661,10 @@ int qeth_l3_setrouting_v4(struct qeth_ca
- 
- 	QETH_CARD_TEXT(card, 3, "setrtg4");
- 
--	qeth_l3_correct_routing_type(card, &card->options.route4.type,
-+	rc = qeth_l3_correct_routing_type(card, &card->options.route4.type,
- 				  QETH_PROT_IPV4);
-+	if (rc)
-+		return rc;
- 
- 	rc = qeth_l3_send_setrouting(card, card->options.route4.type,
- 				  QETH_PROT_IPV4);
-@@ -683,8 +686,10 @@ int qeth_l3_setrouting_v6(struct qeth_ca
- 
- 	if (!qeth_is_supported(card, IPA_IPV6))
- 		return 0;
--	qeth_l3_correct_routing_type(card, &card->options.route6.type,
-+	rc = qeth_l3_correct_routing_type(card, &card->options.route6.type,
- 				  QETH_PROT_IPV6);
-+	if (rc)
-+		return rc;
- 
- 	rc = qeth_l3_send_setrouting(card, card->options.route6.type,
- 				  QETH_PROT_IPV6);
---- a/drivers/s390/net/qeth_l3_sys.c
-+++ b/drivers/s390/net/qeth_l3_sys.c
-@@ -87,6 +87,8 @@ static ssize_t qeth_l3_dev_route_store(s
- 			rc = qeth_l3_setrouting_v6(card);
- 	}
- out:
-+	if (rc)
-+		route->type = old_route_type;
- 	mutex_unlock(&card->conf_mutex);
- 	return rc ? rc : count;
- }
+The couple of extra fields aren't worth an s390 version of dump_stack()
+that differs from all other architectures.
+Please drop the s390 version as well. Thanks!
