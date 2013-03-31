@@ -1,55 +1,88 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Date: Fri, 29 Mar 2013 17:22:00 +0000
-Subject: Re: sound/soc/codecs/wm8903.c:2043:9: error: implicit declaration of function 'irq_get_irq_data'
-Message-Id: <20130329172200.GE18316@opensource.wolfsonmicro.com>
-In-Reply-To: <74CDBE0F657A3D45AFBB94109FB122FF2A74F42F7E@HQMAIL01.nvidia.com>
-References: <74CDBE0F657A3D45AFBB94109FB122FF2A74F42F7E@HQMAIL01.nvidia.com>
-MIME-Version: 1
-Content-Type: multipart/mixed; boundary="--PZgnm7T+MVPmWSUE"
+From: Tomoya MORINAGA <tomoya.rohm@gmail.com>
+Date: Sun, 31 Mar 2013 23:52:26 +0000
+Subject: Re: drivers/usb/gadget/pch_udc.c:1405:3: error: implicit declaration of function 'irq_set_irq_type'
+Message-Id: <CANKRQnjzAZ+FymhRc5Re6i7QbpjQsLsXwXXPqhUmBbHPS7X7LQ@mail.gmail.com>
+In-Reply-To: <20130329025523.GB10831@localhost>
+References: <20130329025523.GB10831@localhost>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+Hi
 
---PZgnm7T+MVPmWSUE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This driver works only for X86, especially, Intel Atom E6XX series.
+I should have written X86 definition to Kconfig.
 
-On Fri, Mar 29, 2013 at 08:28:35AM -0700, Stephen Warren wrote:
-> Fengguang Wu wrote at Thursday, March 28, 2013 8:36 PM:
+thanks.
+-- 
+ROHM Co., Ltd.
+tomoya
 
-> >    sound/soc/codecs/wm8903.c: In function 'wm8903_set_pdata_irq_trigger':
-> > >> sound/soc/codecs/wm8903.c:2043:9: error: implicit declaration of function 'irq_get_irq_data' [-
-> > Werror=implicit-function-declaration]
-
-> I guess this is all because !CONFIG_GENERIC_HARDIRQs on s390. s390 and um
-> appear to be the only architectures that don't enable that option. Should
-> we just make the WM8903 driver depend on GENERIC_HARDIRQs? I'd imagine this
-> could easily affect a variety of other drivers though.
-
-It seems much more useful to fix this on the architecture side, I think
-that this point the generic interrupt API is something we ought to be
-able to just rely on.
-
---PZgnm7T+MVPmWSUE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRVc1uAAoJELSic+t+oim9xbYP/je6ZqdMoRSNpRlf+ZFJ+7OF
-RXAqV+r3iNFZTmgoGgYx0Ik4AERQyN/+R1d6vYKFRSvwRbKCA/4+HRekzDZ/z01Y
-A9WAVzkaX/gh8ThtE7fk/pw6Ts3zf2E3zcL8PeN1YRmBGEPuSNNu1vRXSy96+QaT
-LSAh1M0bP6/GcpqaEj7xXOgIS3NOAAR4vaiBMNmaE86Ys5WxuVB3CX99z6bji7y7
-IR46paqODkGO1RMDlwYftQ/VXTYwjgVWfPcL8y4C72md+fU2nJLtOAWNZMc8YMPH
-x/Q8LNGVespr5I/JyewAcrwYk5SsW7j+BVSZWtNATINTQ3raVOq4Y4+vNLav2bys
-FalbB65PEx5zoTFUlLjNmgqZTSrSKVkw0aBZHncVj7qpb4jvB1VfoN07+y2ZPmEx
-q8cXhzX2ZlVCaschZfF4jZR5CeefffFoJCW+eWWB003ZBLv7GszYBtrLxy8JZFKs
-cNIA3bx4sDZssEmkpGJ5m8CK8XH7Tte2yfjCtnFadXY6gXrvNJu7Zs7Kgnjw3jTE
-ur0vhIGVT/VhPGCI8XmVVAymhNU0GAcyjfgSlGreLmkZSRwMRO0z/M1dgQdkNL/C
-4+jabkDsRdPa06sqEivMOUafYZGZ4ahQOxDl0WMarRhGLGDHC0NTs2uG71NJO7sc
-yOjVxv7EhBLsMXgNxxyD
-=7avX
------END PGP SIGNATURE-----
-
---PZgnm7T+MVPmWSUE--
+On Fri, Mar 29, 2013 at 11:55 AM, Fengguang Wu <fengguang.wu@intel.com> wrote:
+> Greetings,
+>
+> FYI, kernel build failed on s390 since
+>
+> tree:   git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux master
+> head:   9064171268d838b8f283fe111ef086b9479d059a
+> commit: 637b78eb31e0b167ed913f1750bb645dfeda38f0 usb: gadget: pch_udc: Detecting VBUS through GPIO with interrupt
+> date:   1 year, 2 months ago
+> config: make ARCH=s390 allmodconfig
+>
+> All error/warnings:
+>
+>    drivers/usb/gadget/pch_udc.c: In function 'pch_udc_readl':
+>    drivers/usb/gadget/pch_udc.c:422:2: error: implicit declaration of function 'ioread32' [-Werror=implicit-function-declaration]
+>    drivers/usb/gadget/pch_udc.c: In function 'pch_udc_writel':
+>    drivers/usb/gadget/pch_udc.c:428:2: error: implicit declaration of function 'iowrite32' [-Werror=implicit-function-declaration]
+>    drivers/usb/gadget/pch_udc.c: In function 'pch_vbus_gpio_init':
+>>> drivers/usb/gadget/pch_udc.c:1405:3: error: implicit declaration of function 'irq_set_irq_type' [-Werror=implicit-function-declaration]
+>    drivers/usb/gadget/pch_udc.c:1405:29: error: 'IRQ_TYPE_EDGE_BOTH' undeclared (first use in this function)
+>    drivers/usb/gadget/pch_udc.c:1405:29: note: each undeclared identifier is reported only once for each function it appears in
+>    drivers/usb/gadget/pch_udc.c: In function 'complete_req':
+>    drivers/usb/gadget/pch_udc.c:1459:5: error: implicit declaration of function 'dma_unmap_single' [-Werror=implicit-function-declaration]
+>    drivers/usb/gadget/pch_udc.c:1461:8: error: 'DMA_TO_DEVICE' undeclared (first use in this function)
+>    drivers/usb/gadget/pch_udc.c:1465:8: error: 'DMA_FROM_DEVICE' undeclared (first use in this function)
+>    drivers/usb/gadget/pch_udc.c: In function 'pch_udc_free_dma_chain':
+>    drivers/usb/gadget/pch_udc.c:1529:3: error: implicit declaration of function 'pci_pool_free' [-Werror=implicit-function-declaration]
+>    drivers/usb/gadget/pch_udc.c: In function 'pch_udc_create_dma_chain':
+>    drivers/usb/gadget/pch_udc.c:1572:3: error: implicit declaration of function 'pci_pool_alloc' [-Werror=implicit-function-declaration]
+>    drivers/usb/gadget/pch_udc.c:1572:6: warning: assignment makes pointer from integer without a cast [enabled by default]
+>    drivers/usb/gadget/pch_udc.c: In function 'pch_udc_alloc_request':
+>    drivers/usb/gadget/pch_udc.c:1781:11: warning: assignment makes pointer from integer without a cast [enabled by default]
+>    drivers/usb/gadget/pch_udc.c: In function 'pch_udc_pcd_queue':
+>    drivers/usb/gadget/pch_udc.c:1863:5: error: implicit declaration of function 'dma_map_single' [-Werror=implicit-function-declaration]
+>    drivers/usb/gadget/pch_udc.c:1866:13: error: 'DMA_TO_DEVICE' undeclared (first use in this function)
+>    drivers/usb/gadget/pch_udc.c:1871:13: error: 'DMA_FROM_DEVICE' undeclared (first use in this function)
+>    drivers/usb/gadget/pch_udc.c: In function 'init_dma_pools':
+>    drivers/usb/gadget/pch_udc.c:2935:2: error: implicit declaration of function 'pci_pool_create' [-Werror=implicit-function-declaration]
+>    drivers/usb/gadget/pch_udc.c:2935:21: warning: assignment makes pointer from integer without a cast [enabled by default]
+>    drivers/usb/gadget/pch_udc.c:2944:20: warning: assignment makes pointer from integer without a cast [enabled by default]
+>    drivers/usb/gadget/pch_udc.c:2952:9: warning: assignment makes pointer from integer without a cast [enabled by default]
+>    drivers/usb/gadget/pch_udc.c:2962:10: warning: assignment makes pointer from integer without a cast [enabled by default]
+>    drivers/usb/gadget/pch_udc.c:2980:12: error: 'DMA_FROM_DEVICE' undeclared (first use in this function)
+>    drivers/usb/gadget/pch_udc.c: In function 'pch_udc_remove':
+>    drivers/usb/gadget/pch_udc.c:3079:3: error: implicit declaration of function 'pci_pool_destroy' [-Werror=implicit-function-declaration]
+>    drivers/usb/gadget/pch_udc.c:3098:32: error: 'DMA_FROM_DEVICE' undeclared (first use in this function)
+>    drivers/usb/gadget/pch_udc.c:3108:3: error: implicit declaration of function 'iounmap' [-Werror=implicit-function-declaration]
+>    drivers/usb/gadget/pch_udc.c: In function 'pch_udc_probe':
+>    drivers/usb/gadget/pch_udc.c:3199:2: error: implicit declaration of function 'ioremap_nocache' [-Werror=implicit-function-declaration]
+>    drivers/usb/gadget/pch_udc.c:3199:17: warning: assignment makes pointer from integer without a cast [enabled by default]
+>    drivers/usb/gadget/pch_udc.c:3227:2: error: implicit declaration of function 'pci_try_set_mwi' [-Werror=implicit-function-declaration]
+>    cc1: some warnings being treated as errors
+>
+> vim +/irq_set_irq_type +1405 drivers/usb/gadget/pch_udc.c
+>
+> dd63180b Tomoya MORINAGA 2012-02-03  1399       dev->vbus_gpio.port = vbus_gpio_port;
+> dd63180b Tomoya MORINAGA 2012-02-03  1400       gpio_direction_input(vbus_gpio_port);
+> dd63180b Tomoya MORINAGA 2012-02-03  1401       INIT_WORK(&dev->vbus_gpio.irq_work_fall, pch_vbus_gpio_work_fall);
+> dd63180b Tomoya MORINAGA 2012-02-03  1402
+> 637b78eb Tomoya MORINAGA 2012-02-03  1403       irq_num = gpio_to_irq(vbus_gpio_port);
+> 637b78eb Tomoya MORINAGA 2012-02-03  1404       if (irq_num > 0) {
+> 637b78eb Tomoya MORINAGA 2012-02-03 @1405               irq_set_irq_type(irq_num, IRQ_TYPE_EDGE_BOTH);
+> 637b78eb Tomoya MORINAGA 2012-02-03  1406               err = request_irq(irq_num, pch_vbus_gpio_irq, 0,
+> 637b78eb Tomoya MORINAGA 2012-02-03  1407                       "vbus_detect", dev);
+> 637b78eb Tomoya MORINAGA 2012-02-03  1408               if (!err) {
+>
+> ---
+> 0-DAY kernel build testing backend              Open Source Technology Center
+> http://lists.01.org/mailman/listinfo/kbuild                 Intel Corporation
