@@ -1,46 +1,94 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH] ext4: fix a big-endian bug when an extent is zeroed out
-Date: Mon, 22 Apr 2013 12:04:22 +0200
-Message-ID: <51750B26.4000607@de.ibm.com>
-References: <alpine.DEB.2.10.1304012249440.5874@trent.utfs.org> <alpine.DEB.2.10.1304021611020.13746@trent.utfs.org> <87li90q9mx.fsf@openvz.org> <87hajoq6s2.fsf@openvz.org> <20130403102204.GA15383@gmail.com> <20130403122058.GB7741@thunk.org> <20130403143406.GA3006@wallace> <20130403144114.GB13668@thunk.org> <683906006.1314495.1365476711254.JavaMail.root@redhat.com> <20130420151945.GA8575@thunk.org>
+From: Dmitry Monakhov <dmonakhov@openvz.org>
+Subject: Re: s390x: kernel BUG at fs/ext4/inode.c:1591!
+Date: Mon, 01 Apr 2013 10:07:35 +0400
+Message-ID: <87ip46ss0o.fsf@openvz.org>
+References: <2133129347.8273339.1364549222854.JavaMail.root@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-ext4-owner@vger.kernel.org>
-In-Reply-To: <20130420151945.GA8575@thunk.org>
+In-Reply-To: <2133129347.8273339.1364549222854.JavaMail.root@redhat.com>
 Sender: linux-ext4-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-ext4/>
 List-Post: <mailto:linux-ext4@vger.kernel.org>
-To: Theodore Ts'o <tytso@mit.edu>
-Cc: CAI Qian <caiqian@redhat.com>, Eric Whitney <enwlinux@gmail.com>, Dmitry Monakhov <dmonakhov@openvz.org>, Christian Kujau <lists@nerdbynature.de>, LKML <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Steve Best <sbest@redhat.com>, linux-ext4@vger.kernel.org
+To: CAI Qian <caiqian@redhat.com>, Theodore Ts'o <tytso@mit.edu>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Steve Best <sbest@redhat.com>, linux-ext4@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 20/04/13 17:19, Theodore Ts'o wrote:
-> On Mon, Apr 08, 2013 at 11:05:11PM -0400, CAI Qian wrote:
->> I can help run xfstests for ext4 dev tree on x64, Power7, Z10 and
->> KVM platforms with back-storage like SAN/multipath, iSCSI and FCoE.
->> I plan to run this weekly and setup a wiki page to update the testing
->> status by every Friday.
-> 
-> Hi CAI,
-> 
-> Sorry for not getting back to you sooner; I was at Collaboration
-> Summit and LSF/MM last week.
-> 
-> It would be great if you could help run xfstests on the ext4 dev tree
-> on various platforms.  We don't have any coverage on Power7 or
-> s390/Z10 at the moment, so that would be especially welcome.  Coverage
-> on alternate storage backends can be interesting in finding timing
-> problems so they would be valuable as well.
-
-It is probably easier to get access to a Power system (gcc compile farm?).
-Having said that, there is a service available to get access to a System z
-for open source development:
-http://www-03.ibm.com/systems/z/os/linux/support/community.html
-
-When we did the valgrind port we used that a lot to gave access to 
-non-IBMers.
-Dont know if it is ok to install a private kernel, though. Will double
-check.
-
-Christian
+On Fri, 29 Mar 2013 05:27:02 -0400 (EDT), CAI Qian <caiqian@redhat.com>=
+ wrote:
+>=20
+I've spent a half of weekend by trying to create s390x guest image,
+without any success. Can you please share it.
+>=20
+> ----- Original Message -----
+> > From: "Theodore Ts'o" <tytso@mit.edu>
+> > To: "CAI Qian" <caiqian@redhat.com>
+> > Cc: "LKML" <linux-kernel@vger.kernel.org>, "linux-s390" <linux-s390=
+@vger.kernel.org>, "Steve Best"
+> > <sbest@redhat.com>, linux-ext4@vger.kernel.org
+> > Sent: Thursday, March 28, 2013 8:05:17 PM
+> > Subject: Re: s390x: kernel BUG at fs/ext4/inode.c:1591!
+> >=20
+> > On Thu, Mar 28, 2013 at 02:40:33AM -0400, CAI Qian wrote:
+> > > System hung when running xfstests-dev 013 test case on an s390x
+> > > guest. Never saw
+> > > this on 3.9-rc3 before but need to double-check. Any idea?
+> > >=20
+> > > =C3=9D 1113.795759=C2=A8 ------------=C3=9D cut here =C2=A8------=
+------
+> > > =C3=9D 1113.795771=C2=A8 kernel BUG at fs/ext4/inode.c:1591!
+> >=20
+> > thanks for the report.  What kernel version did this come from?  Wa=
+s
+> > it 3.9-rc4?  (line 1591 for 3.9-rc3 doesn't contain a BUG_ON).
+> Yes, the lastest mainline.
+> >=20
+> > If it is indeed 3.9-rc4, it would be helpful, since you can reprodu=
+ce
+> > the problem, to insert a debugging printk which fires when
+> > bh->b_blocknr !=3D pblock before the BUG_ON, and have it print the
+> > b_blocknr and pblock values.
+> bh->b_blocknr=3D100346
+> pblock=3D66797
+>=20
+> Bisecting results so far,
+> git bisect start
+> # good: [a937536b868b8369b98967929045f1df54234323] Linux 3.9-rc3
+> git bisect good a937536b868b8369b98967929045f1df54234323
+> # bad: [9064171268d838b8f283fe111ef086b9479d059a] Merge tag 'for-linu=
+s' of git://git.kernel.org/pub/scm/linux/kernel/git/sfr/next-fixes
+> git bisect bad 9064171268d838b8f283fe111ef086b9479d059a
+> # bad: [38d78e587d4960d0db94add518d27ee74bad2301] mqueue: sys_mq_open=
+: do not call mnt_drop_write() if read-only
+> git bisect bad 38d78e587d4960d0db94add518d27ee74bad2301
+> # good: [e7489622d3603b7d161b484dcd340d9f678b0c7a] Merge tag 'arm64-f=
+ixes' of git://git.kernel.org/pub/scm/linux/kernel/git/cmarinas/linux-a=
+arch64
+> git bisect good e7489622d3603b7d161b484dcd340d9f678b0c7a
+> # good: [172a271b5e090da7468c66b9ccbcdb3d929eed75] Merge branch 'drm-=
+fixes' of git://people.freedesktop.org/~airlied/linux
+> git bisect good 172a271b5e090da7468c66b9ccbcdb3d929eed75
+> # good: [0a7e453103b9718d357688b83bb968ee108cc874] Merge branch 'next=
+' of git://git.kernel.org/pub/scm/linux/kernel/git/rzhang/linux
+> git bisect good 0a7e453103b9718d357688b83bb968ee108cc874
+> # bad: [0e401101db49959f5783f6ee9e676124b5a183ac] ext4: fix memory le=
+akage in mext_check_coverage
+> git bisect bad 0e401101db49959f5783f6ee9e676124b5a183ac
+> CAI Qian
+> >=20
+> > Thanks,
+> >=20
+> > 						- Ted
+> >=20
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
+l" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--
+To unsubscribe from this list: send the line "unsubscribe linux-ext4" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
