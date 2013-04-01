@@ -1,26 +1,57 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 11 Apr 2013 13:25:47 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH v2] aio: convert the ioctx list to radix tree
-Message-Id: <20130411132547.cd0df05abeea6a7f49646b0c@linux-foundation.org>
-In-Reply-To: <1364995248-11028-1-git-send-email-octavian.purdila@intel.com>
-References: <1364995248-11028-1-git-send-email-octavian.purdila@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org, linux-s390@vger.kernel.org, koverstreet@google.com, bcrl@kvack.org, schwidefsky@de.ibm.com, kirill.shutemov@linux.intel.com, Andi Kleen <ak@linux.intel.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Mon, 01 Apr 2013 08:41:25 +0000
+Subject: Re: drivers/tty/serial/8250/8250.c:109:24: fatal error: asm/serial.h: No such file or directory
+Message-Id: <20130401084125.GA3671@osiris>
+In-Reply-To: <20130329053713.GA14438@localhost>
+References: <20130329053713.GA14438@localhost>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed,  3 Apr 2013 16:20:48 +0300 Octavian Purdila <octavian.purdila@intel.com> wrote:
+On Fri, Mar 29, 2013 at 01:37:13PM +0800, Fengguang Wu wrote:
+> On Fri, Mar 29, 2013 at 11:47:54AM +0800, Fengguang Wu wrote:
+> > Hi Paul,
+> > 
+> > > Hi Fengguang,
+> > > 
+> > > I don't think this is right.  It can't be a 14 month old change.
+> > > The 2nd error itself totally smells like uapi changes.
+> > > 
+> > > The 1st error makes no sense at all when you look at this:
+> > > 
+> > > config SERIAL_8250_RUNTIME_UARTS
+> > >         int "Number of 8250/16550 serial ports to register at runtime"
+> > >         depends on SERIAL_8250
+> > > 
+> > > How can you build 8250 support and not have a value for the
+> > > number of runtime UARTs, given the above?
+> > > 
+> > > I also just checked that mainline v3.9-rc4-158-g9064171 has no
+> > > problems building drivers/tty/* for s390 while x-compiling in
+> > > my local test of allmodconfig.
+> > 
+> > You are right! I cannot reproduce this problem in upstream and
+> > linux-next. It should be some problem with my build scripts..
+> 
+> OK I got the root cause: the error
+> 
+>         drivers/tty/serial/8250/8250.c:101:24: fatal error: asm/serial.h: No such file or directory
+> 
+> is first detected in tree/branch
+> 
+>         git://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git topic/r8a73a4
+> 
+> where 8250 is enabled on "make ARCH=s390 allmodconfig":
 
-> This patchs converts the ioctx list to a radix tree.
+[...]
 
-This looks rather nice, but unfortunately all the pending aio work in
--mm/linux-next totally messes it up.
+> The build script then start bisecting command
+> 
+>         make ARCH=s390 drivers/tty/serial/8250/8250.o
+> 
+> and goes all the way down to commit 9bef3d41973 ("serial: group all
+> the 8250 related code together"), not being aware of the
+> CONFIG_SERIAL_8250 was disabled in earlier kernels.
 
-Could you please redo and retest it over the pending work?  Perhaps
-after 3.10-rc1 would be a convenient time.
+FWIW, all your build error reports with respect to s390 and generic hardirqs
+seem to be wrong.
+There are a couple of new different build errors in linux-next, however. *sigh*
