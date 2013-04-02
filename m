@@ -1,74 +1,63 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v4 3/6] KVM: Initialize irqfd from kvm_init().
-Date: Wed, 3 Apr 2013 13:32:26 +0200
-Message-ID: <20130403133226.6d92c671@gondolin>
-References: <1362043352-56889-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1362043352-56889-4-git-send-email-cornelia.huck@de.ibm.com>
-	<515B7A95.6020800@oracle.com>
+From: Gleb Natapov <gleb@redhat.com>
+Subject: Re: [PATCH 00/11] KVM: s390: More patches for kvm-next.
+Date: Tue, 2 Apr 2013 16:15:15 +0300
+Message-ID: <20130402131515.GE3889@redhat.com>
+References: <1364228578-20528-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <515B7A95.6020800@oracle.com>
+Content-Disposition: inline
+In-Reply-To: <1364228578-20528-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Sasha Levin <sasha.levin@oracle.com>
-Cc: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Tejun Heo <tj@kernel.org>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Marcelo Tosatti <mtosatti@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 02 Apr 2013 20:40:53 -0400
-Sasha Levin <sasha.levin@oracle.com> wrote:
+On Mon, Mar 25, 2013 at 05:22:47PM +0100, Cornelia Huck wrote:
+> Hi,
+> 
+> here are some kvm/s390 patches that have accumulated in our queue.
+> 
+> Changes include fixes in the lpsw(e) and stsi handlers, proper
+> handling of interrupt injection failures and a gmap optimization.
+> 
+> Also included are patches allowing support for standby memory on
+> kvm guests. Standby memory is used for providing hotpluggable
+> memory on s390.
+> 
+> Please consider applying.
+> 
+Applied, thanks.
 
-> On 02/28/2013 04:22 AM, Cornelia Huck wrote:
-> > Currently, eventfd introduces module_init/module_exit functions
-> > to initialize/cleanup the irqfd workqueue. This only works, however,
-> > if no other module_init/module_exit functions are built into the
-> > same module.
-> > 
-> > Let's just move the initialization and cleanup to kvm_init and kvm_exit.
-> > This way, it is also clearer where kvm startup may fail.
-> > 
-> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> Christian Borntraeger (1):
+>   KVM: s390: Dont do a gmap update on minor memslot changes
 > 
-> I'm seeing this during boot:
+> Heiko Carstens (7):
+>   KVM: s390: fix 24 bit psw handling in lpsw/lpswe handler
+>   KVM: s390: fix psw conversion in lpsw handler
+>   KVM: s390: fix return code handling in lpsw/lpswe handlers
+>   KVM: s390: make if statements in lpsw/lpswe handlers readable
+>   KVM: s390: fix and enforce return code handling for irq injections
+>   KVM: s390: fix stsi exception handling
+>   KVM: s390: fix compile with !CONFIG_COMPAT
 > 
-> [    6.763302] ------------[ cut here ]------------
-> [    6.763763] WARNING: at kernel/workqueue.c:4204 destroy_workqueue+0x1df/0x3d0()
-> [    6.764507] Modules linked in:
-> [    6.764792] Pid: 1, comm: swapper/0 Tainted: G        W    3.9.0-rc5-next-20130402-sasha-00015-g3522ec5 #324
-> [    6.765654] Call Trace:
-> [    6.765875]  [<ffffffff811074fb>] warn_slowpath_common+0x8b/0xc0
-> [    6.766436]  [<ffffffff81107545>] warn_slowpath_null+0x15/0x20
-> [    6.766947]  [<ffffffff8112ca7f>] destroy_workqueue+0x1df/0x3d0
-> [    6.768631]  [<ffffffff8100d880>] kvm_irqfd_exit+0x10/0x20
-> [    6.770000]  [<ffffffff81004dbb>] kvm_init+0x2ab/0x310
-> [    6.770607]  [<ffffffff86183dc0>] ? cpu_has_kvm_support+0x4d/0x4d
-> [    6.771241]  [<ffffffff86183fb4>] vmx_init+0x1f4/0x437
-> [    6.771709]  [<ffffffff86183dc0>] ? cpu_has_kvm_support+0x4d/0x4d
-> [    6.772266]  [<ffffffff810020f2>] do_one_initcall+0xb2/0x1b0
-> [    6.772995]  [<ffffffff86180021>] kernel_init_freeable+0x15d/0x1ef
-> [    6.773857]  [<ffffffff8617f801>] ? loglevel+0x31/0x31
-> [    6.774609]  [<ffffffff83d51230>] ? rest_init+0x140/0x140
-> [    6.775551]  [<ffffffff83d51239>] kernel_init+0x9/0xf0
-> [    6.776162]  [<ffffffff83dbf37c>] ret_from_fork+0x7c/0xb0
-> [    6.776662]  [<ffffffff83d51230>] ? rest_init+0x140/0x140
-> [    6.777241] ---[ end trace 10bba684ced4346a ]---
+> Nick Wang (3):
+>   KVM: s390: Change the virtual memory mapping location for virtio
+>     devices
+>   KVM: s390: Remove the sanity checks for kvm memory slot
+>   KVM: s390: Enable KVM_CAP_NR_MEMSLOTS on s390
 > 
-> And I think it has something to do with this patch.
+>  arch/s390/kvm/intercept.c     |  12 +--
+>  arch/s390/kvm/kvm-s390.c      |  32 ++++---
+>  arch/s390/kvm/kvm-s390.h      |  12 +--
+>  arch/s390/kvm/priv.c          | 203 +++++++++++++++---------------------------
+>  drivers/s390/kvm/kvm_virtio.c |  11 +--
+>  5 files changed, 108 insertions(+), 162 deletions(-)
+> 
+> -- 
+> 1.7.12.4
 
-What this patch does is move initialization of the workqueue - the code
-called should be indentical.
-
-The workqueue created/destroyed should not have been touched (no irqfds
-yet), but the new workqueue code seems to encounter something
-unexpected.
-
-I'd expect destroy_workqueue() to be callable after a successful
-create_singlethread_workqueue(). Tejun?
-
-> 
-> 
-> Thanks,
-> Sasha
-> 
+--
+			Gleb.
