@@ -1,44 +1,57 @@
-From: Gleb Natapov <gleb@redhat.com>
-Subject: Re: [PATCH] KVM: s390: virtio-ccw bugfix.
-Date: Thu, 4 Apr 2013 12:00:05 +0300
-Message-ID: <20130404090005.GA17411@redhat.com>
-References: <1365063906-61392-1-git-send-email-cornelia.huck@de.ibm.com>
- <20130404082739.GA17009@redhat.com>
- <20130404103554.03b81d3c@gondolin>
-Mime-Version: 1.0
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: [PATCH] KVM: s390: virtio_ccw: reset errors for new I/O.
+Date: Thu, 4 Apr 2013 11:28:35 +0200
+Message-ID: <FFC59559-C498-4EA4-971A-A61436932654@suse.de>
+References: <1365063906-61392-1-git-send-email-cornelia.huck@de.ibm.com> <1365063906-61392-2-git-send-email-cornelia.huck@de.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v1278)
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130404103554.03b81d3c@gondolin>
+In-Reply-To: <1365063906-61392-2-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Marcelo Tosatti <mtosatti@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Alexander Graf <agraf@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+Cc: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Apr 04, 2013 at 10:35:54AM +0200, Cornelia Huck wrote:
-> On Thu, 4 Apr 2013 11:27:39 +0300
-> Gleb Natapov <gleb@redhat.com> wrote:
-> 
-> > On Thu, Apr 04, 2013 at 10:25:05AM +0200, Cornelia Huck wrote:
-> > > Hi,
-> > > 
-> > > another virtio-ccw bugfix for a problem where we would not reset
-> > > old I/O errors. Please apply.
-> > > 
-> > > Cornelia Huck (1):
-> > >   KVM: s390: virtio_ccw: reset errors for new I/O.
-> > > 
-> > >  drivers/s390/kvm/virtio_ccw.c | 5 ++++-
-> > >  1 file changed, 4 insertions(+), 1 deletion(-)
-> > > 
-> > Is this for 3.9 or 3.10?
-> 
-> I created the patch on top of kvm/queue (the problem won't surface with
-> the current code, I only noticed it when I was mucking around with some
-> experimental stuff).
-Applied to queue. Thanks.
 
---
-			Gleb.
+On 04.04.2013, at 10:25, Cornelia Huck wrote:
+
+> ccw_io_helper neglected to reset vcdev->err after a new channel
+> program had been successfully started, resulting in stale errors
+> delivered after one I/O failed. Reset the error after a new
+> channel program has been successfully started with no old I/O
+> pending.
+> 
+> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+
+Shouldn't this be CC: stable?
+
+
+Alex
+
+> ---
+> drivers/s390/kvm/virtio_ccw.c | 5 ++++-
+> 1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> index 42d507c..5948f2a 100644
+> --- a/drivers/s390/kvm/virtio_ccw.c
+> +++ b/drivers/s390/kvm/virtio_ccw.c
+> @@ -133,8 +133,11 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
+> 	do {
+> 		spin_lock_irqsave(get_ccwdev_lock(vcdev->cdev), flags);
+> 		ret = ccw_device_start(vcdev->cdev, ccw, intparm, 0, 0);
+> -		if (!ret)
+> +		if (!ret) {
+> +			if (!vcdev->curr_io)
+> +				vcdev->err = 0;
+> 			vcdev->curr_io |= flag;
+> +		}
+> 		spin_unlock_irqrestore(get_ccwdev_lock(vcdev->cdev), flags);
+> 		cpu_relax();
+> 	} while (ret == -EBUSY);
+> -- 
+> 1.7.12.4
+> 
