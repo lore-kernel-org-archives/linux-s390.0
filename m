@@ -1,26 +1,63 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 0/2] s390: network bug fixes for net
-Date: Tue, 02 Apr 2013 12:56:50 +0200
-Message-ID: <20130402105650.056630101@de.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+From: Jiang Liu <liuj97@gmail.com>
+Subject: [PATCH v4, part3 32/41] mm/s390: prepare for removing num_physpages and simplify mem_init()
+Date: Sat,  6 Apr 2013 22:32:31 +0800
+Message-ID: <1365258760-30821-33-git-send-email-jiang.liu@huawei.com>
+References: <1365258760-30821-1-git-send-email-jiang.liu@huawei.com>
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <1365258760-30821-1-git-send-email-jiang.liu@huawei.com>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jiang Liu <jiang.liu@huawei.com>, David Rientjes <rientjes@google.com>, Wen Congyang <wency@cn.fujitsu.com>, Mel Gorman <mgorman@suse.de>, Minchan Kim <minchan@kernel.org>, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Michal Hocko <mhocko@suse.cz>, James Bottomley <James.Bottomley@HansenPartnership.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, David Howells <dhowells@redhat.com>, Mark Salter <msalter@redhat.com>, Jianguo Wu <wujianguo@huawei.com>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dave,
+Prepare for removing num_physpages and simplify mem_init().
 
-here are 2 bug fixes for net.
+Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux390@de.ibm.com
+Cc: linux-s390@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ arch/s390/mm/init.c |   17 ++---------------
+ 1 file changed, 2 insertions(+), 15 deletions(-)
 
-shortlog:
-
-Hendrik Brueckner (1)
-af_iucv: recvmsg: use correct skb_pull() function
-
-Stefan Raspl (1)
-qeth: fix qeth_wait_for_threads() deadlock for OSN devices
-
-Thanks,
-        Frank
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 24d52aa..771c27a 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -133,9 +133,7 @@ void __init paging_init(void)
+ 
+ void __init mem_init(void)
+ {
+-	unsigned long codesize, reservedpages, datasize, initsize;
+-
+-        max_mapnr = num_physpages = max_low_pfn;
++        max_mapnr = max_low_pfn;
+         high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+ 
+ 	/* Setup guest page hinting */
+@@ -145,18 +143,7 @@ void __init mem_init(void)
+ 	free_all_bootmem();
+ 	setup_zero_pages();	/* Setup zeroed pages. */
+ 
+-	reservedpages = 0;
+-
+-	codesize =  (unsigned long) &_etext - (unsigned long) &_text;
+-	datasize =  (unsigned long) &_edata - (unsigned long) &_etext;
+-	initsize =  (unsigned long) &__init_end - (unsigned long) &__init_begin;
+-        printk("Memory: %luk/%luk available (%ldk kernel code, %ldk reserved, %ldk data, %ldk init)\n",
+-		nr_free_pages() << (PAGE_SHIFT-10),
+-                max_mapnr << (PAGE_SHIFT-10),
+-                codesize >> 10,
+-                reservedpages << (PAGE_SHIFT-10),
+-                datasize >>10,
+-                initsize >> 10);
++	mem_init_print_info(NULL);
+ 	printk("Write protected kernel read-only data: %#lx - %#lx\n",
+ 	       (unsigned long)&_stext,
+ 	       PFN_ALIGN((unsigned long)&_eshared) - 1);
+-- 
+1.7.9.5
