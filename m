@@ -1,37 +1,24 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Subject: Re: [patch 1/2] af_iucv: fix recvmsg by replacing skb_pull()
- function
-Date: Mon, 08 Apr 2013 13:16:32 -0700
-Message-ID: <1365452192.3887.39.camel@edumazet-glaptop>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/2] s390: network bug fixes for net [v2]
+Date: Mon, 08 Apr 2013 17:17:15 -0400 (EDT)
+Message-ID: <20130408.171715.798266333924985380.davem@davemloft.net>
 References: <20130408081925.995757091@de.ibm.com>
-	 <20130408082003.666955316@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20130408082003.666955316@de.ibm.com>
+In-Reply-To: <20130408081925.995757091@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: frank.blaschka@de.ibm.com
-Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 2013-04-08 at 10:19 +0200, frank.blaschka@de.ibm.com wrote:
-> plain text document attachment (601-af-iucv-skb-pull.diff)
-> From: Ursula Braun <ursula.braun@de.ibm.com>
-> 
-> When receiving data messages, the "BUG_ON(skb->len < skb->data_len)" in
-> the skb_pull() function triggers a kernel panic.
-> 
-> Replace the skb_pull logic by a per skb offset as advised by
-> Eric Dumazet.
-> 
-> Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-> Signed-off-by: Frank Blaschka <blaschka@linux.vnet.ibm.com>
-> Reviewed-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-> ---
+From: frank.blaschka@de.ibm.com
+Date: Mon, 08 Apr 2013 10:19:25 +0200
 
-This is indeed a nicer patch ;)
+> here are the fixes for net again, including
+> feedback from Eric (Thx!)
 
-Acked-by: Eric Dumazet <edumazet@google.com>
+Both applied, thanks.
