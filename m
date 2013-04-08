@@ -1,63 +1,37 @@
-From: Jiang Liu <liuj97@gmail.com>
-Subject: [PATCH v4, part3 32/41] mm/s390: prepare for removing num_physpages and simplify mem_init()
-Date: Sat,  6 Apr 2013 22:32:31 +0800
-Message-ID: <1365258760-30821-33-git-send-email-jiang.liu@huawei.com>
-References: <1365258760-30821-1-git-send-email-jiang.liu@huawei.com>
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1365258760-30821-1-git-send-email-jiang.liu@huawei.com>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jiang Liu <jiang.liu@huawei.com>, David Rientjes <rientjes@google.com>, Wen Congyang <wency@cn.fujitsu.com>, Mel Gorman <mgorman@suse.de>, Minchan Kim <minchan@kernel.org>, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Michal Hocko <mhocko@suse.cz>, James Bottomley <James.Bottomley@HansenPartnership.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, David Howells <dhowells@redhat.com>, Mark Salter <msalter@redhat.com>, Jianguo Wu <wujianguo@huawei.com>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Subject: Re: [patch 1/2] af_iucv: fix recvmsg by replacing skb_pull()
+ function
+Date: Mon, 08 Apr 2013 13:16:32 -0700
+Message-ID: <1365452192.3887.39.camel@edumazet-glaptop>
+References: <20130408081925.995757091@de.ibm.com>
+	 <20130408082003.666955316@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20130408082003.666955316@de.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: frank.blaschka@de.ibm.com
+Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Prepare for removing num_physpages and simplify mem_init().
+On Mon, 2013-04-08 at 10:19 +0200, frank.blaschka@de.ibm.com wrote:
+> plain text document attachment (601-af-iucv-skb-pull.diff)
+> From: Ursula Braun <ursula.braun@de.ibm.com>
+> 
+> When receiving data messages, the "BUG_ON(skb->len < skb->data_len)" in
+> the skb_pull() function triggers a kernel panic.
+> 
+> Replace the skb_pull logic by a per skb offset as advised by
+> Eric Dumazet.
+> 
+> Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+> Signed-off-by: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+> Reviewed-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+> ---
 
-Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux390@de.ibm.com
-Cc: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- arch/s390/mm/init.c |   17 ++---------------
- 1 file changed, 2 insertions(+), 15 deletions(-)
+This is indeed a nicer patch ;)
 
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 24d52aa..771c27a 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -133,9 +133,7 @@ void __init paging_init(void)
- 
- void __init mem_init(void)
- {
--	unsigned long codesize, reservedpages, datasize, initsize;
--
--        max_mapnr = num_physpages = max_low_pfn;
-+        max_mapnr = max_low_pfn;
-         high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
- 
- 	/* Setup guest page hinting */
-@@ -145,18 +143,7 @@ void __init mem_init(void)
- 	free_all_bootmem();
- 	setup_zero_pages();	/* Setup zeroed pages. */
- 
--	reservedpages = 0;
--
--	codesize =  (unsigned long) &_etext - (unsigned long) &_text;
--	datasize =  (unsigned long) &_edata - (unsigned long) &_etext;
--	initsize =  (unsigned long) &__init_end - (unsigned long) &__init_begin;
--        printk("Memory: %luk/%luk available (%ldk kernel code, %ldk reserved, %ldk data, %ldk init)\n",
--		nr_free_pages() << (PAGE_SHIFT-10),
--                max_mapnr << (PAGE_SHIFT-10),
--                codesize >> 10,
--                reservedpages << (PAGE_SHIFT-10),
--                datasize >>10,
--                initsize >> 10);
-+	mem_init_print_info(NULL);
- 	printk("Write protected kernel read-only data: %#lx - %#lx\n",
- 	       (unsigned long)&_stext,
- 	       PFN_ALIGN((unsigned long)&_eshared) - 1);
--- 
-1.7.9.5
+Acked-by: Eric Dumazet <edumazet@google.com>
