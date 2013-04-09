@@ -1,85 +1,56 @@
-From: Zheng Liu <gnehzuil.liu@gmail.com>
-Subject: Re: s390x: kernel BUG at fs/ext4/inode.c:1591! (powerpc too!)
-Date: Thu, 04 Apr 2013 00:52:29 +0800
-Message-ID: <515C5E4D.3090403@gmail.com>
-References: <2133129347.8273339.1364549222854.JavaMail.root@redhat.com> <87ip46ss0o.fsf@openvz.org> <1211053180.322948.1364797847717.JavaMail.root@redhat.com> <87fvzaspr8.fsf@openvz.org> <874841142.414482.1364875584266.JavaMail.root@redhat.com> <alpine.DEB.2.10.1304012249440.5874@trent.utfs.org> <877gkls1q7.fsf@openvz.org> <alpine.DEB.2.10.1304021430480.13746@trent.utfs.org> <87r4isd1vn.fsf@openvz.org> <alpine.DEB.2.10.1304021611020.13746@trent.utfs.org> <87li90q9mx.fsf@openvz.org> <87hajoq6s2.fsf@openvz.org> <87eherri5i.fsf@openvz.org> <alpine.DEB.2.10.1304030935230.13746@trent.utfs.org>
+From: CAI Qian <caiqian@redhat.com>
+Subject: Re: [PATCH] ext4: fix a big-endian bug when an extent is zeroed out
+Date: Mon, 8 Apr 2013 23:05:11 -0400 (EDT)
+Message-ID: <683906006.1314495.1365476711254.JavaMail.root@redhat.com>
+References: <alpine.DEB.2.10.1304012249440.5874@trent.utfs.org> <alpine.DEB.2.10.1304021611020.13746@trent.utfs.org> <87li90q9mx.fsf@openvz.org> <87hajoq6s2.fsf@openvz.org> <20130403102204.GA15383@gmail.com> <20130403122058.GB7741@thunk.org> <20130403143406.GA3006@wallace> <20130403144114.GB13668@thunk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-ext4-owner@vger.kernel.org>
-In-Reply-To: <alpine.DEB.2.10.1304030935230.13746@trent.utfs.org>
-Sender: linux-ext4-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20130403144114.GB13668@thunk.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-ext4/>
 List-Post: <mailto:linux-ext4@vger.kernel.org>
-To: Christian Kujau <lists@nerdbynature.de>
-Cc: Dmitry Monakhov <dmonakhov@openvz.org>, CAI Qian <caiqian@redhat.com>, Theodore Ts'o <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Steve Best <sbest@redhat.com>, linux-ext4@vger.kernel.org
+To: Theodore Ts'o <tytso@mit.edu>
+Cc: Eric Whitney <enwlinux@gmail.com>, Dmitry Monakhov <dmonakhov@openvz.org>, Christian Kujau <lists@nerdbynature.de>, LKML <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Steve Best <sbest@redhat.com>, linux-ext4@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 04/04/2013 12:46 AM, Christian Kujau wrote:
-> On Wed, 3 Apr 2013 at 15:02, Dmitry Monakhov wrote:
->> Good news big endian cpu owners
->> Please try following patches(second is most important):
->> http://patchwork.ozlabs.org/patch/233396/
->> http://patchwork.ozlabs.org/patch/233397/
->> I hope this should fix all known issues
-> 
-> Zheng Liu also sent a patch:
-> 
->   [PATCH] ext4: fix a big-endian bug when an extent is zeroed out
-> 
-> When I try to apply all three of those to 3.9-4c4, the 2nd one from Dmitry 
-> fails:
-> 
-> $ cat ~/dev/002-ext4_fix-cpu_vs_disk-conversions.diff | patch --dry-run -p1
-> patching file fs/ext4/extents.c
-> Hunk #2 FAILED at 2999.
-> Hunk #3 FAILED at 3272.
-> Hunk #4 FAILED at 4639.
-> 3 out of 4 hunks FAILED -- saving rejects to file fs/ext4/extents.c.rej
-> patching file fs/ext4/indirect.c
-> Hunk #1 succeeded at 1539 (offset 215 lines).
-> patching file fs/ext4/inode.c
-> patching file fs/ext4/mmp.c
-> patching file fs/ext4/namei.c
-> patching file fs/ext4/super.c
-> Hunk #1 succeeded at 1951 (offset -3 lines).
-> patching file fs/ext4/xattr.c
-> patching file include/trace/events/ext4.h
-> Hunk #1 succeeded at 1956 (offset 8 lines).
-> Hunk #2 succeeded at 2060 (offset 8 lines).
-> Hunk #3 succeeded at 2079 (offset 8 lines).
-> 
-> With only Dimitry's patchesm this happens, to -rc4:
-> 
-> $ cat ~/dev/001-ext4_fix-usless-declarations.diff | patch -p1
-> patching file fs/ext4/ialloc.c
-> patching file fs/ext4/ioctl.c
-> Hunk #1 succeeded at 359 (offset 4 lines).
-> patching file fs/ext4/mballoc.c
-> patching file fs/ext4/move_extent.c
-> 
-> $ cat ~/dev/002-ext4_fix-cpu_vs_disk-conversions.diff | patch --dry-run -p1
-> patching file fs/ext4/extents.c
-> Hunk #4 FAILED at 4639.
-> 1 out of 4 hunks FAILED -- saving rejects to file fs/ext4/extents.c.rej
-> patching file fs/ext4/indirect.c
-> Hunk #1 succeeded at 1539 (offset 215 lines).
-> patching file fs/ext4/inode.c
-> patching file fs/ext4/mmp.c
-> patching file fs/ext4/namei.c
-> patching file fs/ext4/super.c
-> Hunk #1 succeeded at 1951 (offset -3 lines).
-> patching file fs/ext4/xattr.c
-> patching file include/trace/events/ext4.h
-> Hunk #1 succeeded at 1956 (offset 8 lines).
-> Hunk #2 succeeded at 2060 (offset 8 lines).
-> Hunk #3 succeeded at 2079 (offset 8 lines).
+Hello Ted,
 
-I guess that is because Dmitry's patch is against dev branch of ext4
-tree.  Please applied my patch.  I think it could fix the bug.  That
-would be great if you could give this patch a try [1].
-
-1. http://patchwork.ozlabs.org/patch/233555/
-
-Thanks,
-						- Zheng
+----- Original Message -----
+> From: "Theodore Ts'o" <tytso@mit.edu>
+> To: "Eric Whitney" <enwlinux@gmail.com>
+> Cc: "Dmitry Monakhov" <dmonakhov@openvz.org>, "Christian Kujau" <lists@nerdbynature.de>, "CAI Qian"
+> <caiqian@redhat.com>, "LKML" <linux-kernel@vger.kernel.org>, "linux-s390" <linux-s390@vger.kernel.org>, "Steve Best"
+> <sbest@redhat.com>, linux-ext4@vger.kernel.org
+> Sent: Wednesday, April 3, 2013 10:41:14 PM
+> Subject: Re: [PATCH] ext4: fix a big-endian bug when an extent is zeroed out
+> 
+> On Wed, Apr 03, 2013 at 10:34:06AM -0400, Eric Whitney wrote:
+> > 
+> > The TI OMAP4 processor on my Pandaboard test system is little endian.
+> 
+> Ah... so basically, we need to find a test platform which allows us to
+> boot arbitrary kernels and allows us to have root access (which means
+> it's unlikely we'll be able to do this via remote access) and which
+> doesn't have exotic power requirements (which as far as I know rules
+> out pSeries and zSeries systems....)
+> 
+> It would also be nice if we could run tests in finite time, which
+> probably rules out the Hercules emulator (it runs at one-tenth zSeries
+> processor speeds, which doesn't win speed competitions by default, and
+> I suspect their storage speeds are even worse).
+> 
+> Anyone else have any suggestions?  Or anyone willing to help us run
+> ext4 regression tests on the ext4 dev tree, so we can find these
+> problems before we merge into mainline?
+I can help run xfstests for ext4 dev tree on x64, Power7, Z10 and
+KVM platforms with back-storage like SAN/multipath, iSCSI and FCoE.
+I plan to run this weekly and setup a wiki page to update the testing
+status by every Friday.
+CAI Qian
+> 
+> Thanks,
+> 
+> 						- Ted
+> 
