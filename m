@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1365919574.1878.13.camel@joe-AO722>
-Subject: arch/s390/lib/uaccess_pt.c: Missing breaks: ?
-From: Joe Perches <joe@perches.com>
-Date: Sat, 13 Apr 2013 23:06:14 -0700
-Content-Type: text/plain; charset="ISO-8859-1"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Date: Mon, 15 Apr 2013 07:48:14 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: arch/s390/lib/uaccess_pt.c: Missing breaks: ?
+Message-ID: <20130415054814.GA4207@osiris>
+References: <1365919574.1878.13.camel@joe-AO722>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1365919574.1878.13.camel@joe-AO722>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Joe Perches <joe@perches.com>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello Heiko.
+On Sat, Apr 13, 2013 at 11:06:14PM -0700, Joe Perches wrote:
+> Hello Heiko.
+> 
+> Commit ea81531d ("s390/uaccess: fix page table walk")
+> added this code.  It looks like it should have break;
+> for each case.
 
-Commit ea81531d ("s390/uaccess: fix page table walk")
-added this code.  It looks like it should have break;
-for each case.
+Hi Joe,
 
-------------
+no, the fallthrough is on purpose for each case statement.
 
-static unsigned long follow_table(struct mm_struct *mm,
-				  unsigned long address, int write)
-{
-	unsigned long *table = (unsigned long *)__pa(mm->pgd);
-
-	switch (mm->context.asce_bits & _ASCE_TYPE_MASK) {
-	case _ASCE_TYPE_REGION1:
-		table = table + ((address >> 53) & 0x7ff);
-		if (unlikely(*table & _REGION_ENTRY_INV))
-			return -0x39UL;
-		table = (unsigned long *)(*table & _REGION_ENTRY_ORIGIN);
-	case _ASCE_TYPE_REGION2:
-		table = table + ((address >> 42) & 0x7ff);
-		if (unlikely(*table & _REGION_ENTRY_INV))
-			return -0x3aUL;
-		table = (unsigned long *)(*table & _REGION_ENTRY_ORIGIN);
-	case _ASCE_TYPE_REGION3:
-		table = table + ((address >> 31) & 0x7ff);
-		if (unlikely(*table & _REGION_ENTRY_INV))
-			return -0x3bUL;
-		table = (unsigned long *)(*table & _REGION_ENTRY_ORIGIN);
-	case _ASCE_TYPE_SEGMENT:
-		table = table + ((address >> 20) & 0x7ff);
-		if (unlikely(*table & _SEGMENT_ENTRY_INV))
-			return -0x10UL;
-		if (unlikely(*table & _SEGMENT_ENTRY_LARGE)) {
-			if (write && (*table & _SEGMENT_ENTRY_RO))
-				return -0x04UL;
-			return (*table & _SEGMENT_ENTRY_ORIGIN_LARGE) +
-				(address & ~_SEGMENT_ENTRY_ORIGIN_LARGE);
-		}
-		table = (unsigned long *)(*table & _SEGMENT_ENTRY_ORIGIN);
-	}
+> static unsigned long follow_table(struct mm_struct *mm,
+> 				  unsigned long address, int write)
+> {
+> 	unsigned long *table = (unsigned long *)__pa(mm->pgd);
+> 
+> 	switch (mm->context.asce_bits & _ASCE_TYPE_MASK) {
+> 	case _ASCE_TYPE_REGION1:
+> 		table = table + ((address >> 53) & 0x7ff);
+> 		if (unlikely(*table & _REGION_ENTRY_INV))
+> 			return -0x39UL;
+> 		table = (unsigned long *)(*table & _REGION_ENTRY_ORIGIN);
+> 	case _ASCE_TYPE_REGION2:
