@@ -1,32 +1,181 @@
-From: Chris Metcalf <cmetcalf@tilera.com>
-Subject: Re: [PATCH 3/7] dump_stack: consolidate dump_stack() implementations
- and unify their behaviors
-Date: Fri, 12 Apr 2013 16:39:01 -0400
-Message-ID: <516870E5.3050901@tilera.com>
-References: <1365016497-32033-1-git-send-email-tj@kernel.org> <1365016497-32033-4-git-send-email-tj@kernel.org>
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 01/28] Include missing linux/slab.h inclusions [RFC]
+Date: Tue, 16 Apr 2013 19:25:54 +0100
+Message-ID: <20130416182554.27773.86004.stgit@warthog.procyon.org.uk>
+References: <20130416182550.27773.89310.stgit@warthog.procyon.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1365016497-32033-4-git-send-email-tj@kernel.org>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Tejun Heo <tj@kernel.org>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, mingo@redhat.com, x86@kernel.org, rth@twiddle.net, linux@arm.linux.org.uk, msalter@redhat.com, starvik@axis.com, dhowells@redhat.com, tony.luck@intel.com, benh@kernel.crashing.org, takata@linux-m32r.org, geert@linux-m68k.org, james.hogan@imgtec.com, monstr@monstr.eu, ralf@linux-mips.org, jonas@southpole.se, rkuo@codeaurora.org, schwidefsky@de.ibm.com, liqin.chen@sunplusct.com, davem@davemloft.net, lethal@linux-sh.org, vgupta@synopsys.com, chris@zankel.net, ysato@users.sourceforge.jp, gxt@mprc.pku.edu.cn, jdike@addtoit.com, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Mike Frysinger <vapier@gentoo.org>, uclinux-dist-devel@blackfin.uclinux.org, Fengguang Wu <fengguang.wu@intel.com>
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20130416182550.27773.89310.stgit@warthog.procyon.org.uk>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel/>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: "devel" <devel-bounces@linuxdriverproject.org>
+List-Archive: <https://lore.kernel.org/linux-efi/>
+List-Post: <mailto:linux-efi@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, linux-efi@vger.kernel.org, x86@kernel.org, linux-fsdevel@vger.kernel.org, linux-mtd@lists.infradead.org, viro@zeniv.linux.org.uk, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 4/3/2013 3:14 PM, Tejun Heo wrote:
-> This patch expands the dummy fallback dump_stack() implementation in
-> lib/dump_stack.c such that it prints out debug information (taken from
-> x86) and invokes show_stack(NULL, NULL) and drops arch-specific
-> dump_stack() implementations in all archs except blackfin.  Blackfin's
-> dump_stack() does something wonky that I don't understand.
+Include missing linux/slab.h inclusions where the source file is currently
+expecting to get kmalloc() and co. through linux/proc_fs.h.
 
-arch/tile has a dump_stack() entry point in assembly (see arch/tile/kernel/entry.S) that passes to _dump_stack(), which passes to dump_stack_regs(), which passes to tile_show_stack().  Similarly, show_stack() passes to tile_show_stack(), which does lots of work to cross into userspace and continue showing the stack if possible, print symbol info for both kernel and userspace, etc.  I don't know if that's all supported fully in Tejun's generic version.
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: linux-s390@vger.kernel.org
+cc: sparclinux@vger.kernel.org
+cc: linux-efi@vger.kernel.org
+cc: linux-mtd@lists.infradead.org
+cc: devel@driverdev.osuosl.org
+cc: x86@kernel.org
+---
 
-Would it make sense for me to look at this after it's merged up into -next and see what tile needs?  Unfortunately I'm taking off for a week's vacation so won't be able to do much until after the 23rd.
+ arch/s390/kernel/os_info.c           |    1 +
+ arch/sparc/kernel/sun4d_irq.c        |    1 +
+ arch/x86/platform/efi/efi.c          |    1 +
+ arch/x86/platform/efi/efi_64.c       |    1 +
+ drivers/mtd/mtdcore.c                |    1 +
+ drivers/pps/clients/pps_parport.c    |    1 +
+ drivers/staging/dgrp/dgrp_dpa_ops.c  |    1 +
+ drivers/staging/dgrp/dgrp_mon_ops.c  |    1 +
+ drivers/staging/dgrp/dgrp_net_ops.c  |    2 +-
+ drivers/staging/dgrp/dgrp_specproc.c |    1 +
+ fs/proc/self.c                       |    1 +
+ 11 files changed, 11 insertions(+), 1 deletion(-)
 
--- 
-Chris Metcalf, Tilera Corp.
-http://www.tilera.com
+diff --git a/arch/s390/kernel/os_info.c b/arch/s390/kernel/os_info.c
+index 46480d8..d112fc6 100644
+--- a/arch/s390/kernel/os_info.c
++++ b/arch/s390/kernel/os_info.c
+@@ -10,6 +10,7 @@
+ 
+ #include <linux/crash_dump.h>
+ #include <linux/kernel.h>
++#include <linux/slab.h>
+ #include <asm/checksum.h>
+ #include <asm/lowcore.h>
+ #include <asm/os_info.h>
+diff --git a/arch/sparc/kernel/sun4d_irq.c b/arch/sparc/kernel/sun4d_irq.c
+index e490ac9..f8933be 100644
+--- a/arch/sparc/kernel/sun4d_irq.c
++++ b/arch/sparc/kernel/sun4d_irq.c
+@@ -6,6 +6,7 @@
+  */
+ 
+ #include <linux/kernel_stat.h>
++#include <linux/slab.h>
+ #include <linux/seq_file.h>
+ 
+ #include <asm/timer.h>
+diff --git a/arch/x86/platform/efi/efi.c b/arch/x86/platform/efi/efi.c
+index 5f2ecaf..55ea7df 100644
+--- a/arch/x86/platform/efi/efi.c
++++ b/arch/x86/platform/efi/efi.c
+@@ -34,6 +34,7 @@
+ #include <linux/efi-bgrt.h>
+ #include <linux/export.h>
+ #include <linux/bootmem.h>
++#include <linux/slab.h>
+ #include <linux/memblock.h>
+ #include <linux/spinlock.h>
+ #include <linux/uaccess.h>
+diff --git a/arch/x86/platform/efi/efi_64.c b/arch/x86/platform/efi/efi_64.c
+index 2b20038..39a0e7f 100644
+--- a/arch/x86/platform/efi/efi_64.c
++++ b/arch/x86/platform/efi/efi_64.c
+@@ -27,6 +27,7 @@
+ #include <linux/uaccess.h>
+ #include <linux/io.h>
+ #include <linux/reboot.h>
++#include <linux/slab.h>
+ 
+ #include <asm/setup.h>
+ #include <asm/page.h>
+diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
+index 61d5f56..322ca65 100644
+--- a/drivers/mtd/mtdcore.c
++++ b/drivers/mtd/mtdcore.c
+@@ -36,6 +36,7 @@
+ #include <linux/idr.h>
+ #include <linux/backing-dev.h>
+ #include <linux/gfp.h>
++#include <linux/slab.h>
+ 
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/partitions.h>
+diff --git a/drivers/pps/clients/pps_parport.c b/drivers/pps/clients/pps_parport.c
+index e1b4705..38a8bbe 100644
+--- a/drivers/pps/clients/pps_parport.c
++++ b/drivers/pps/clients/pps_parport.c
+@@ -32,6 +32,7 @@
+ #include <linux/init.h>
+ #include <linux/irqnr.h>
+ #include <linux/time.h>
++#include <linux/slab.h>
+ #include <linux/parport.h>
+ #include <linux/pps_kernel.h>
+ 
+diff --git a/drivers/staging/dgrp/dgrp_dpa_ops.c b/drivers/staging/dgrp/dgrp_dpa_ops.c
+index 43209c1..1fc13de 100644
+--- a/drivers/staging/dgrp/dgrp_dpa_ops.c
++++ b/drivers/staging/dgrp/dgrp_dpa_ops.c
+@@ -40,6 +40,7 @@
+ #include <linux/cred.h>
+ #include <linux/sched.h>
+ #include <linux/ratelimit.h>
++#include <linux/slab.h>
+ #include <asm/unaligned.h>
+ 
+ #include "dgrp_common.h"
+diff --git a/drivers/staging/dgrp/dgrp_mon_ops.c b/drivers/staging/dgrp/dgrp_mon_ops.c
+index 6edbbf0..d18be41 100644
+--- a/drivers/staging/dgrp/dgrp_mon_ops.c
++++ b/drivers/staging/dgrp/dgrp_mon_ops.c
+@@ -37,6 +37,7 @@
+ #include <linux/tty.h>
+ #include <linux/sched.h>
+ #include <asm/unaligned.h>
++#include <linux/slab.h>
+ #include <linux/proc_fs.h>
+ #include <linux/uaccess.h>
+ 
+diff --git a/drivers/staging/dgrp/dgrp_net_ops.c b/drivers/staging/dgrp/dgrp_net_ops.c
+index 5448fc7..9914f1c 100644
+--- a/drivers/staging/dgrp/dgrp_net_ops.c
++++ b/drivers/staging/dgrp/dgrp_net_ops.c
+@@ -35,7 +35,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/proc_fs.h>
+-#include <linux/types.h>
++#include <linux/slab.h>
+ #include <linux/string.h>
+ #include <linux/device.h>
+ #include <linux/tty.h>
+diff --git a/drivers/staging/dgrp/dgrp_specproc.c b/drivers/staging/dgrp/dgrp_specproc.c
+index b990b26..205d80e 100644
+--- a/drivers/staging/dgrp/dgrp_specproc.c
++++ b/drivers/staging/dgrp/dgrp_specproc.c
+@@ -37,6 +37,7 @@
+ #include <linux/sched.h>
+ #include <linux/cred.h>
+ #include <linux/proc_fs.h>
++#include <linux/slab.h>
+ #include <linux/ctype.h>
+ #include <linux/seq_file.h>
+ #include <linux/uaccess.h>
+diff --git a/fs/proc/self.c b/fs/proc/self.c
+index 21940d8..6b6a993 100644
+--- a/fs/proc/self.c
++++ b/fs/proc/self.c
+@@ -1,5 +1,6 @@
+ #include <linux/sched.h>
+ #include <linux/namei.h>
++#include <linux/slab.h>
+ #include <linux/pid_namespace.h>
+ #include "internal.h"
