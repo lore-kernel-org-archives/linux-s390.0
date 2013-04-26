@@ -1,60 +1,33 @@
-From: Steffen Maier <maier@linux.vnet.ibm.com>
-Subject: [PATCH RESEND 7/9] zfcp: module parameter dbflevel for early debugging
-Date: Fri, 26 Apr 2013 16:13:53 +0200
-Message-ID: <1366985635-38270-8-git-send-email-maier@linux.vnet.ibm.com>
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Subject: Re: [PATCH RESEND 0/9] zfcp features and bugfixes for 3.10 merge
+ window
+Date: Fri, 26 Apr 2013 08:10:19 -0700
+Message-ID: <1366989019.1927.2.camel@dabdike>
 References: <1366985635-38270-1-git-send-email-maier@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-15"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-scsi-owner@vger.kernel.org>
 In-Reply-To: <1366985635-38270-1-git-send-email-maier@linux.vnet.ibm.com>
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>
+To: Steffen Maier <maier@linux.vnet.ibm.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-So far, we could only increase the s390dbf log level after an FCP
-device has been initially set online for it to create the dbf entries
-required to adjust the level.
+On Fri, 2013-04-26 at 16:13 +0200, Steffen Maier wrote:
+> James,
+> 
+> here is a series of zfcp features and bugfixes.
+> We would very much appreciate if you could integrate them for the
+> upcoming merge window preparing kernel v3.10.
+> The patches apply on top of the current misc branch of your scsi.git.
+> 
+> Apparently, I did something wrong on git-send-email so the mails
+> did not appear on the mailing lists. Apologies for resending.
 
-Introduce zfcp.dbflevel as counterpart to the already existing
-zfcp.dbfsize to enable debugging of e.g. setting an FCP device online.
+Since no-one saw the originals, apologies aren't necessary.
+Unfortunately, you're still missing three patches: 5,6,9/9
 
-Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
----
- drivers/s390/scsi/zfcp_dbf.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
-
---- a/drivers/s390/scsi/zfcp_dbf.c
-+++ b/drivers/s390/scsi/zfcp_dbf.c
-@@ -3,7 +3,7 @@
-  *
-  * Debug traces for zfcp.
-  *
-- * Copyright IBM Corp. 2002, 2010
-+ * Copyright IBM Corp. 2002, 2013
-  */
- 
- #define KMSG_COMPONENT "zfcp"
-@@ -23,6 +23,13 @@ module_param(dbfsize, uint, 0400);
- MODULE_PARM_DESC(dbfsize,
- 		 "number of pages for each debug feature area (default 4)");
- 
-+static u32 dbflevel = 3;
-+
-+module_param(dbflevel, uint, 0400);
-+MODULE_PARM_DESC(dbflevel,
-+		 "log level for each debug feature area "
-+		 "(default 3, range 0..6)");
-+
- static inline unsigned int zfcp_dbf_plen(unsigned int offset)
- {
- 	return sizeof(struct zfcp_dbf_pay) + offset - ZFCP_DBF_PAY_MAX_REC;
-@@ -447,7 +454,7 @@ static debug_info_t *zfcp_dbf_reg(const
- 		return NULL;
- 
- 	debug_register_view(d, &debug_hex_ascii_view);
--	debug_set_level(d, 3);
-+	debug_set_level(d, dbflevel);
- 
- 	return d;
- }
+James
