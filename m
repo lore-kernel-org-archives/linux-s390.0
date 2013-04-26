@@ -1,33 +1,55 @@
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-Subject: Re: [PATCH RESEND 0/9] zfcp features and bugfixes for 3.10 merge
- window
-Date: Fri, 26 Apr 2013 08:10:19 -0700
-Message-ID: <1366989019.1927.2.camel@dabdike>
-References: <1366985635-38270-1-git-send-email-maier@linux.vnet.ibm.com>
+From: Steffen Maier <maier@linux.vnet.ibm.com>
+Subject: [PATCH RESEND 5/9] zfcp: fix adapter (re)open recovery while link
+ to SAN is down
+Date: Fri, 26 Apr 2013 17:32:14 +0200
+Message-ID: <517A9DFE.7060207@linux.vnet.ibm.com>
+References: <1366985635-38270-1-git-send-email-maier@linux.vnet.ibm.com> <1366985635-38270-6-git-send-email-maier@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-15"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <1366985635-38270-1-git-send-email-maier@linux.vnet.ibm.com>
-Sender: linux-scsi-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1366985635-38270-6-git-send-email-maier@linux.vnet.ibm.com>
+Sender: stable-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Steffen Maier <maier@linux.vnet.ibm.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>, stable@vger.kernel.org, Steffen Maier <maier@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 2013-04-26 at 16:13 +0200, Steffen Maier wrote:
-> James,
-> 
-> here is a series of zfcp features and bugfixes.
-> We would very much appreciate if you could integrate them for the
-> upcoming merge window preparing kernel v3.10.
-> The patches apply on top of the current misc branch of your scsi.git.
-> 
-> Apparently, I did something wrong on git-send-email so the mails
-> did not appear on the mailing lists. Apologies for resending.
+From: Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>
 
-Since no-one saw the originals, apologies aren't necessary.
-Unfortunately, you're still missing three patches: 5,6,9/9
+FCP device remains in status ERP_FAILED when device is switched online
+or adapter recovery is triggered  while link to SAN is down.
 
-James
+When Exchange Configuration Data command returns the FSF status
+FSF_EXCHANGE_CONFIG_DATA_INCOMPLETE it aborts the exchange process.
+The only retries are done during the common error recovery procedure
+(i.e. max. 3 retries with 8sec sleep between) and remains in status
+ERP_FAILED with QDIO down.
+
+This commit reverts the commit 0df138476c8306478d6e726f044868b4bccf411c
+(zfcp: Fix adapter activation on link down).
+When FSF status FSF_EXCHANGE_CONFIG_DATA_INCOMPLETE is received the
+adapter recovery will be finished without any retries. QDIO will be
+up now and status changes such as LINK UP will be received now.
+
+Signed-off-by: Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
+Cc: <stable@vger.kernel.org> #2.6.37+
+---
+ drivers/s390/scsi/zfcp_fsf.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -563,6 +563,10 @@ static void zfcp_fsf_exchange_config_dat
+ 		fc_host_port_type(shost) = FC_PORTTYPE_UNKNOWN;
+ 		adapter->hydra_version = 0;
+
++		/* avoids adapter shutdown to be able to recognize
++		 * events such as LINK UP */
++		atomic_set_mask(ZFCP_STATUS_ADAPTER_XCONFIG_OK,
++				&adapter->status);
+ 		zfcp_fsf_link_down_info_eval(req,
+ 			&qtcb->header.fsf_status_qual.link_down_info);
+ 		break;
