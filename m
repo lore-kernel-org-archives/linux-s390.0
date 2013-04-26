@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Damian Hobson-Garcia <dhobsong@igel.co.jp>
-Subject: [RFC/PATCH 4/4] s390: Provide default implementation for dma_{alloc,free}_attrs
-Date: Mon, 22 Apr 2013 14:10:31 +0900
-Message-Id: <1366607431-3156-1-git-send-email-dhobsong@igel.co.jp>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Damian Hobson-Garcia <dhobsong@igel.co.jp>
+From: Steffen Maier <maier@linux.vnet.ibm.com>
+Subject: [PATCH RESEND 1/9] zfcp: cfdc fops add owner
+Date: Fri, 26 Apr 2013 16:13:47 +0200
+Message-ID: <1366985635-38270-2-git-send-email-maier@linux.vnet.ibm.com>
+References: <1366985635-38270-1-git-send-email-maier@linux.vnet.ibm.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+In-Reply-To: <1366985635-38270-1-git-send-email-maier@linux.vnet.ibm.com>
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Most architectures that define CONFIG_HAVE_DMA, have implementations for
-both dma_alloc_attrs() and dma_free_attrs().  All achitectures that do
-not define CONFIG_HAVE_DMA also have both of these definitions provided by
-dma-mapping-broken.h.
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
 
-Add default implementations for these functions on s390.
+Set the owner member of zfcp_cfdc_fops, to ensure that the
+caller of these functions holds a module reference.
 
-Signed-off-by: Damian Hobson-Garcia <dhobsong@igel.co.jp>
+Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
 ---
- arch/s390/include/asm/dma-mapping.h |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+ drivers/s390/scsi/zfcp_cfdc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
-index 9411db65..91f7312 100644
---- a/arch/s390/include/asm/dma-mapping.h
-+++ b/arch/s390/include/asm/dma-mapping.h
-@@ -55,6 +55,9 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
- 	return (dma_addr == 0UL);
+--- a/drivers/s390/scsi/zfcp_cfdc.c
++++ b/drivers/s390/scsi/zfcp_cfdc.c
+@@ -14,6 +14,7 @@
+ #include <linux/compat.h>
+ #include <linux/slab.h>
+ #include <linux/types.h>
++#include <linux/module.h>
+ #include <linux/miscdevice.h>
+ #include <asm/compat.h>
+ #include <asm/ccwdev.h>
+@@ -250,6 +251,7 @@ static long zfcp_cfdc_dev_ioctl(struct f
  }
  
-+#define dma_alloc_attrs(d, s, h, f, a) dma_alloc_coherent(d, s, h, f)
-+#define dma_free_attrs(d, s, h, f, a) dma_free_coherent(d, s, h, f)
-+
- static inline void *dma_alloc_coherent(struct device *dev, size_t size,
- 				       dma_addr_t *dma_handle, gfp_t flag)
- {
--- 
-1.7.5.4
+ static const struct file_operations zfcp_cfdc_fops = {
++	.owner = THIS_MODULE,
+ 	.open = nonseekable_open,
+ 	.unlocked_ioctl = zfcp_cfdc_dev_ioctl,
+ #ifdef CONFIG_COMPAT
