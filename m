@@ -1,103 +1,65 @@
-From: Steffen Maier <maier@linux.vnet.ibm.com>
-Subject: [PATCH RESEND 3/9] zfcp: cleanup unit sysfs attribute usage
-Date: Fri, 26 Apr 2013 16:13:49 +0200
-Message-ID: <1366985635-38270-4-git-send-email-maier@linux.vnet.ibm.com>
-References: <1366985635-38270-1-git-send-email-maier@linux.vnet.ibm.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <1366985635-38270-1-git-send-email-maier@linux.vnet.ibm.com>
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Damian Hobson-Garcia <dhobsong@igel.co.jp>
+Subject: [PATCH v2 4/4] s390: Provide default implementation for dma_{alloc,free}_attrs
+Date: Tue, 30 Apr 2013 12:03:10 +0900
+Message-Id: <1367290990-10582-1-git-send-email-dhobsong@igel.co.jp>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, Damian Hobson-Garcia <dhobsong@igel.co.jp>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Most architectures that define CONFIG_HAVE_DMA, have implementations for
+both dma_alloc_attrs() and dma_free_attrs().  All achitectures that do
+not define CONFIG_HAVE_DMA also have both of these definitions provided by
+dma-mapping-broken.h.
 
-Let the driver core handle device attribute creation and removal. This
-will simplify the code and eliminates races between attribute
-availability and userspace notification via uevents.
+Add default implementations for these functions on s390.
 
-Reviewed-by: Steffen Maier <maier@linux.vnet.ibm.com>
-Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
+Signed-off-by: Damian Hobson-Garcia <dhobsong@igel.co.jp>
 ---
- drivers/s390/scsi/zfcp_ccw.c   |    2 +-
- drivers/s390/scsi/zfcp_ext.h   |    2 +-
- drivers/s390/scsi/zfcp_sysfs.c |    7 +++++--
- drivers/s390/scsi/zfcp_unit.c  |    9 ++-------
- 4 files changed, 9 insertions(+), 11 deletions(-)
+ arch/s390/include/asm/dma-mapping.h |   17 +++++++++++------
+ 1 files changed, 11 insertions(+), 6 deletions(-)
 
---- a/drivers/s390/scsi/zfcp_ccw.c
-+++ b/drivers/s390/scsi/zfcp_ccw.c
-@@ -129,7 +129,7 @@ static void zfcp_ccw_remove(struct ccw_d
- 	zfcp_ccw_adapter_put(adapter); /* put from zfcp_ccw_adapter_by_cdev */
- 
- 	list_for_each_entry_safe(unit, u, &unit_remove_lh, list)
--		zfcp_device_unregister(&unit->dev, &zfcp_sysfs_unit_attrs);
-+		device_unregister(&unit->dev);
- 
- 	list_for_each_entry_safe(port, p, &port_remove_lh, list)
- 		device_unregister(&port->dev);
---- a/drivers/s390/scsi/zfcp_ext.h
-+++ b/drivers/s390/scsi/zfcp_ext.h
-@@ -158,7 +158,7 @@ extern void zfcp_scsi_set_prot(struct zf
- extern void zfcp_scsi_dif_sense_error(struct scsi_cmnd *, int);
- 
- /* zfcp_sysfs.c */
--extern struct attribute_group zfcp_sysfs_unit_attrs;
-+extern const struct attribute_group *zfcp_unit_attr_groups[];
- extern struct attribute_group zfcp_sysfs_adapter_attrs;
- extern const struct attribute_group *zfcp_port_attr_groups[];
- extern struct mutex zfcp_sysfs_port_units_mutex;
---- a/drivers/s390/scsi/zfcp_sysfs.c
-+++ b/drivers/s390/scsi/zfcp_sysfs.c
-@@ -357,10 +357,13 @@ static struct attribute *zfcp_unit_attrs
- 	&dev_attr_unit_access_readonly.attr,
- 	NULL
- };
--
--struct attribute_group zfcp_sysfs_unit_attrs = {
-+static struct attribute_group zfcp_unit_attr_group = {
- 	.attrs = zfcp_unit_attrs,
- };
-+const struct attribute_group *zfcp_unit_attr_groups[] = {
-+	&zfcp_unit_attr_group,
-+	NULL,
-+};
- 
- #define ZFCP_DEFINE_LATENCY_ATTR(_name) 				\
- static ssize_t								\
---- a/drivers/s390/scsi/zfcp_unit.c
-+++ b/drivers/s390/scsi/zfcp_unit.c
-@@ -145,6 +145,7 @@ int zfcp_unit_add(struct zfcp_port *port
- 	unit->fcp_lun = fcp_lun;
- 	unit->dev.parent = &port->dev;
- 	unit->dev.release = zfcp_unit_release;
-+	unit->dev.groups = zfcp_unit_attr_groups;
- 	INIT_WORK(&unit->scsi_work, zfcp_unit_scsi_scan_work);
- 
- 	if (dev_set_name(&unit->dev, "0x%016llx",
-@@ -160,12 +161,6 @@ int zfcp_unit_add(struct zfcp_port *port
- 		goto out;
- 	}
- 
--	if (sysfs_create_group(&unit->dev.kobj, &zfcp_sysfs_unit_attrs)) {
--		device_unregister(&unit->dev);
--		retval = -EINVAL;
--		goto out;
--	}
--
- 	atomic_inc(&port->units); /* under zfcp_sysfs_port_units_mutex ! */
- 
- 	write_lock_irq(&port->unit_list_lock);
-@@ -254,7 +249,7 @@ int zfcp_unit_remove(struct zfcp_port *p
- 
- 	put_device(&unit->dev);
- 
--	zfcp_device_unregister(&unit->dev, &zfcp_sysfs_unit_attrs);
-+	device_unregister(&unit->dev);
- 
- 	return 0;
+diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
+index 9411db65..3a549b6 100644
+--- a/arch/s390/include/asm/dma-mapping.h
++++ b/arch/s390/include/asm/dma-mapping.h
+@@ -55,23 +55,28 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+ 	return (dma_addr == 0UL);
  }
+ 
+-static inline void *dma_alloc_coherent(struct device *dev, size_t size,
+-				       dma_addr_t *dma_handle, gfp_t flag)
++#define dma_alloc_coherent(d, s, h, f) dma_alloc_attrs(d, s, h, f, NULL)
++#define dma_free_coherent(d, s, h, f) dma_free_attrs(d, s, h, f, NULL)
++
++static inline void *dma_alloc_attrs(struct device *dev, size_t size,
++				       dma_addr_t *dma_handle, gfp_t flag,
++				       struct dma_attrs *attrs)
+ {
+ 	struct dma_map_ops *ops = get_dma_ops(dev);
+ 	void *ret;
+ 
+-	ret = ops->alloc(dev, size, dma_handle, flag, NULL);
++	ret = ops->alloc(dev, size, dma_handle, flag, attrs);
+ 	debug_dma_alloc_coherent(dev, size, *dma_handle, ret);
+ 	return ret;
+ }
+ 
+-static inline void dma_free_coherent(struct device *dev, size_t size,
+-				     void *cpu_addr, dma_addr_t dma_handle)
++static inline void dma_free_attrs(struct device *dev, size_t size,
++				     void *cpu_addr, dma_addr_t dma_handle,
++				     struct dma_attrs *attrs)
+ {
+ 	struct dma_map_ops *dma_ops = get_dma_ops(dev);
+ 
+-	dma_ops->free(dev, size, cpu_addr, dma_handle, NULL);
++	dma_ops->free(dev, size, cpu_addr, dma_handle, attrs);
+ 	debug_dma_free_coherent(dev, size, cpu_addr, dma_handle);
+ }
+ 
+-- 
+1.7.5.4
