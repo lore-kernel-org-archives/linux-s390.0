@@ -1,66 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1368467297.3305.28.camel@bwh-desktop.uk.solarflarecom.com>
-Subject: [PATCH net] sfc: Reduce RX scatter buffer size to multiple of 256
-From: Ben Hutchings <bhutchings@solarflare.com>
-Date: Mon, 13 May 2013 18:48:17 +0100
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
+In-Reply-To: <1368467297.3305.28.camel@bwh-desktop.uk.solarflarecom.com>
+References: <1368467297.3305.28.camel@bwh-desktop.uk.solarflarecom.com>
+Date: Mon, 13 May 2013 21:02:42 +0200
+Message-ID: <CAMuHMdXnp0z-Tn6KBkPzpbmu1jFpZZaSWRGSggysX5QHNx52ng@mail.gmail.com>
+Subject: Re: [PATCH net] sfc: Reduce RX scatter buffer size to multiple of 256
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: linux-net-drivers@solarflare.com, Linux Kernel Development <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+To: Ben Hutchings <bhutchings@solarflare.com>
+Cc: David Miller <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Solarflare linux maintainers <linux-net-drivers@solarflare.com>, Linux Kernel Development <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-efx_start_datapath() asserts that we can fit 2 RX scatter buffers plus
-a software structure, each cache-aligned, into a single page.  Where
-L1_CACHE_BYTES == 256 and PAGE_SIZE == 4096, which is the case on
-s390, this assertion fails.  Reduce EFX_RX_USR_BUF_SIZE to make this
-work.
+Hi Ben,
 
-This should also be good for performance, as it ensures that each RX
-scatter buffer covers whole cache lines and slightly reduces the use
-of DMA writes that can require a read-modify-write on inter-processor
-links.
+On Mon, May 13, 2013 at 7:48 PM, Ben Hutchings
+<bhutchings@solarflare.com> wrote:
+> efx_start_datapath() asserts that we can fit 2 RX scatter buffers plus
+> a software structure, each cache-aligned, into a single page.  Where
+> L1_CACHE_BYTES == 256 and PAGE_SIZE == 4096, which is the case on
+> s390, this assertion fails.  Reduce EFX_RX_USR_BUF_SIZE to make this
+> work.
+>
+> This should also be good for performance, as it ensures that each RX
+> scatter buffer covers whole cache lines and slightly reduces the use
+> of DMA writes that can require a read-modify-write on inter-processor
+> links.
+>
+> (We could use 2048 - L1_CACHE_BYTES, but EFX_RX_USR_BUF_SIZE also
+> affects user-level networking where a larger amount of housekeeping
+> data may be needed.  Although this version of the driver does not
+> support user-level networking, I prefer to keep scattering behaviour
+> consistent with the out-of-tree version.)
+>
+> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Reported-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Signed-off-by: Ben Hutchings <bhutchings@solarflare.com>
+> ---
+> Heiko or Geert, please confirm that this really does fix the build
 
-(We could use 2048 - L1_CACHE_BYTES, but EFX_RX_USR_BUF_SIZE also
-affects user-level networking where a larger amount of housekeeping
-data may be needed.  Although this version of the driver does not
-support user-level networking, I prefer to keep scattering behaviour
-consistent with the out-of-tree version.)
+Thanks! But unfortunately I still get the same error:
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reported-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Ben Hutchings <bhutchings@solarflare.com>
----
-Heiko or Geert, please confirm that this really does fix the build
-failure - I don't have an s390 toolchain.
+  CC [M]  drivers/net/ethernet/sfc/efx.o
+/scratch/geert/linux/linux-m68k/drivers/net/ethernet/sfc/efx.c: In
+function 'efx_start_datapath':
+/scratch/geert/linux/linux-m68k/drivers/net/ethernet/sfc/efx.c:646:3:
+error: call to '__compiletime_assert_648' declared with attribute
+error: BUILD_BUG_ON failed: sizeof(struct efx_rx_page_state) +
+EFX_PAGE_IP_ALIGN + EFX_RX_USR_BUF_SIZE > PAGE_SIZE / 2
+make[4]: *** [drivers/net/ethernet/sfc/efx.o] Error 1
 
-Ben.
+> failure - I don't have an s390 toolchain.
 
- drivers/net/ethernet/sfc/net_driver.h |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
+http://kernel.org/pub/tools/crosstool/files/bin/
 
-diff --git a/drivers/net/ethernet/sfc/net_driver.h b/drivers/net/ethernet/sfc/net_driver.h
-index 9bd433a..6c8e1a8 100644
---- a/drivers/net/ethernet/sfc/net_driver.h
-+++ b/drivers/net/ethernet/sfc/net_driver.h
-@@ -72,8 +72,10 @@
- /* Maximum possible MTU the driver supports */
- #define EFX_MAX_MTU (9 * 1024)
- 
--/* Size of an RX scatter buffer.  Small enough to pack 2 into a 4K page. */
--#define EFX_RX_USR_BUF_SIZE 1824
-+/* Size of an RX scatter buffer.  Small enough to pack 2 into a 4K page,
-+ * and should be a multiple of the cache line size.
-+ */
-+#define EFX_RX_USR_BUF_SIZE	(2048 - 256)
- 
- /* Forward declare Precision Time Protocol (PTP) support structure. */
- struct efx_ptp_data;
+Gr{oetje,eeting}s,
 
--- 
-Ben Hutchings, Staff Engineer, Solarflare
-Not speaking for my employer; that's the marketing department's job.
-They asked us to note that Solarflare product names are trademarked.
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
