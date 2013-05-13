@@ -1,69 +1,107 @@
-From: Jiang Liu <liuj97@gmail.com>
-Subject: [PATCH v6, part4 32/41] mm/s390: prepare for removing num_physpages and simplify mem_init()
-Date: Wed, 29 May 2013 21:57:50 +0800
-Message-ID: <1369835879-23553-33-git-send-email-jiang.liu@huawei.com>
-References: <1369835879-23553-1-git-send-email-jiang.liu@huawei.com>
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1369835879-23553-1-git-send-email-jiang.liu@huawei.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jiang Liu <jiang.liu@huawei.com>, David Rientjes <rientjes@google.com>, Wen Congyang <wency@cn.fujitsu.com>, Mel Gorman <mgorman@suse.de>, Minchan Kim <minchan@kernel.org>, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Michal Hocko <mhocko@suse.cz>, James Bottomley <James.Bottomley@HansenPartnership.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, David Howells <dhowells@redhat.com>, Mark Salter <msalter@redhat.com>, Jianguo Wu <wujianguo@huawei.com>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <1368482311.3305.48.camel@bwh-desktop.uk.solarflarecom.com>
+Subject: [PATCHv2 net 1/2] sfc: Delete EFX_PAGE_IP_ALIGN, equivalent to
+ NET_IP_ALIGN
+From: Ben Hutchings <bhutchings@solarflare.com>
+Date: Mon, 13 May 2013 22:58:31 +0100
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: David Miller <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-net-drivers@solarflare.com, Linux Kernel Development <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, netdev <netdev@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Prepare for removing num_physpages and simplify mem_init().
+The two architectures that define CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+(powerpc and x86) now both define NET_IP_ALIGN as 0, so there is no
+need for this optimisation any more.
 
-Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux390@de.ibm.com
-Cc: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Ben Hutchings <bhutchings@solarflare.com>
 ---
- arch/s390/mm/init.c | 17 ++---------------
- 1 file changed, 2 insertions(+), 15 deletions(-)
+ drivers/net/ethernet/sfc/efx.c        |    4 ++--
+ drivers/net/ethernet/sfc/net_driver.h |   15 +--------------
+ drivers/net/ethernet/sfc/rx.c         |    6 +++---
+ 3 files changed, 6 insertions(+), 19 deletions(-)
 
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index a2aafe1..ce36ea8 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -135,9 +135,7 @@ void __init paging_init(void)
+diff --git a/drivers/net/ethernet/sfc/efx.c b/drivers/net/ethernet/sfc/efx.c
+index 01b9920..999289b 100644
+--- a/drivers/net/ethernet/sfc/efx.c
++++ b/drivers/net/ethernet/sfc/efx.c
+@@ -638,13 +638,13 @@ static void efx_start_datapath(struct efx_nic *efx)
+ 			   EFX_MAX_FRAME_LEN(efx->net_dev->mtu) +
+ 			   efx->type->rx_buffer_padding);
+ 	rx_buf_len = (sizeof(struct efx_rx_page_state) +
+-		      EFX_PAGE_IP_ALIGN + efx->rx_dma_len);
++		      NET_IP_ALIGN + efx->rx_dma_len);
+ 	if (rx_buf_len <= PAGE_SIZE) {
+ 		efx->rx_scatter = false;
+ 		efx->rx_buffer_order = 0;
+ 	} else if (efx->type->can_rx_scatter) {
+ 		BUILD_BUG_ON(sizeof(struct efx_rx_page_state) +
+-			     EFX_PAGE_IP_ALIGN + EFX_RX_USR_BUF_SIZE >
++			     NET_IP_ALIGN + EFX_RX_USR_BUF_SIZE >
+ 			     PAGE_SIZE / 2);
+ 		efx->rx_scatter = true;
+ 		efx->rx_dma_len = EFX_RX_USR_BUF_SIZE;
+diff --git a/drivers/net/ethernet/sfc/net_driver.h b/drivers/net/ethernet/sfc/net_driver.h
+index 9bd433a..5efddf3 100644
+--- a/drivers/net/ethernet/sfc/net_driver.h
++++ b/drivers/net/ethernet/sfc/net_driver.h
+@@ -468,24 +468,11 @@ enum nic_state {
+ };
  
- void __init mem_init(void)
+ /*
+- * Alignment of page-allocated RX buffers
+- *
+- * Controls the number of bytes inserted at the start of an RX buffer.
+- * This is the equivalent of NET_IP_ALIGN [which controls the alignment
+- * of the skb->head for hardware DMA].
+- */
+-#ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+-#define EFX_PAGE_IP_ALIGN 0
+-#else
+-#define EFX_PAGE_IP_ALIGN NET_IP_ALIGN
+-#endif
+-
+-/*
+  * Alignment of the skb->head which wraps a page-allocated RX buffer
+  *
+  * The skb allocated to wrap an rx_buffer can have this alignment. Since
+  * the data is memcpy'd from the rx_buf, it does not need to be equal to
+- * EFX_PAGE_IP_ALIGN.
++ * NET_IP_ALIGN.
+  */
+ #define EFX_PAGE_SKB_ALIGN 2
+ 
+diff --git a/drivers/net/ethernet/sfc/rx.c b/drivers/net/ethernet/sfc/rx.c
+index e73e30b..99f70dd 100644
+--- a/drivers/net/ethernet/sfc/rx.c
++++ b/drivers/net/ethernet/sfc/rx.c
+@@ -93,7 +93,7 @@ static inline void efx_sync_rx_buffer(struct efx_nic *efx,
+ 
+ void efx_rx_config_page_split(struct efx_nic *efx)
  {
--	unsigned long codesize, reservedpages, datasize, initsize;
--
--        max_mapnr = num_physpages = max_low_pfn;
-+        max_mapnr = max_low_pfn;
-         high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
- 
- 	/* Setup guest page hinting */
-@@ -147,18 +145,7 @@ void __init mem_init(void)
- 	free_all_bootmem();
- 	setup_zero_pages();	/* Setup zeroed pages. */
- 
--	reservedpages = 0;
--
--	codesize =  (unsigned long) &_etext - (unsigned long) &_text;
--	datasize =  (unsigned long) &_edata - (unsigned long) &_etext;
--	initsize =  (unsigned long) &__init_end - (unsigned long) &__init_begin;
--        printk("Memory: %luk/%luk available (%ldk kernel code, %ldk reserved, %ldk data, %ldk init)\n",
--		nr_free_pages() << (PAGE_SHIFT-10),
--                max_mapnr << (PAGE_SHIFT-10),
--                codesize >> 10,
--                reservedpages << (PAGE_SHIFT-10),
--                datasize >>10,
--                initsize >> 10);
-+	mem_init_print_info(NULL);
- 	printk("Write protected kernel read-only data: %#lx - %#lx\n",
- 	       (unsigned long)&_stext,
- 	       PFN_ALIGN((unsigned long)&_eshared) - 1);
--- 
-1.8.1.2
+-	efx->rx_page_buf_step = ALIGN(efx->rx_dma_len + EFX_PAGE_IP_ALIGN,
++	efx->rx_page_buf_step = ALIGN(efx->rx_dma_len + NET_IP_ALIGN,
+ 				      L1_CACHE_BYTES);
+ 	efx->rx_bufs_per_page = efx->rx_buffer_order ? 1 :
+ 		((PAGE_SIZE - sizeof(struct efx_rx_page_state)) /
+@@ -188,9 +188,9 @@ static int efx_init_rx_buffers(struct efx_rx_queue *rx_queue)
+ 		do {
+ 			index = rx_queue->added_count & rx_queue->ptr_mask;
+ 			rx_buf = efx_rx_buffer(rx_queue, index);
+-			rx_buf->dma_addr = dma_addr + EFX_PAGE_IP_ALIGN;
++			rx_buf->dma_addr = dma_addr + NET_IP_ALIGN;
+ 			rx_buf->page = page;
+-			rx_buf->page_offset = page_offset + EFX_PAGE_IP_ALIGN;
++			rx_buf->page_offset = page_offset + NET_IP_ALIGN;
+ 			rx_buf->len = efx->rx_dma_len;
+ 			rx_buf->flags = 0;
+ 			++rx_queue->added_count;
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+-- 
+Ben Hutchings, Staff Engineer, Solarflare
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
