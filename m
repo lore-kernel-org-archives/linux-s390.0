@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 4/8] s390/kvm: Mark if a cpu is in SIE
-Date: Fri, 17 May 2013 14:41:34 +0200
-Message-ID: <1368794498-2051-5-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 3/8] s390/kvm: rename RCP_xxx defines to PGSTE_xxx
+Date: Fri, 17 May 2013 14:41:33 +0200
+Message-ID: <1368794498-2051-4-git-send-email-borntraeger@de.ibm.com>
 References: <1368794498-2051-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1368794498-2051-1-git-send-email-borntraeger@de.ibm.com>
@@ -12,97 +12,196 @@ To: Marcelo Tossati <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Paolo
 Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Lets track in a private bit if the sie control block is active.
-We want to track this as closely as possible, so we also have to
-instrument the interrupt and program check handler. Lets use the
-existing HANDLE_SIE_INTERCEPT macro.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
+The RCP byte is a part of the PGSTE value, the existing RCP_xxx names
+are inaccurate. As the defines describe bits and pieces of the PGSTE,
+the names should start with PGSTE_. The KVM_UR_BIT and KVM_UC_BIT are
+part of the PGSTE as well, give them better names as well.
+
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |  5 ++++-
- arch/s390/kernel/asm-offsets.c   |  2 ++
- arch/s390/kernel/entry64.S       | 10 +++++++---
- 3 files changed, 13 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/pgtable.h | 82 ++++++++++++++++++++---------------------
+ arch/s390/mm/pgtable.c          |  2 +-
+ 2 files changed, 40 insertions(+), 44 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 16bd5d1..962b92e 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -68,7 +68,10 @@ struct sca_block {
- struct kvm_s390_sie_block {
- 	atomic_t cpuflags;		/* 0x0000 */
- 	__u32	prefix;			/* 0x0004 */
--	__u8	reserved8[32];		/* 0x0008 */
-+	__u8	reserved08[4];		/* 0x0008 */
-+#define PROG_IN_SIE (1<<0)
-+	__u32	prog0c;			/* 0x000c */
-+	__u8	reserved10[24];		/* 0x0010 */
- 	__u64	cputm;			/* 0x0028 */
- 	__u64	ckc;			/* 0x0030 */
- 	__u64	epoch;			/* 0x0038 */
-diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
-index 7a82f9f..6456bbe 100644
---- a/arch/s390/kernel/asm-offsets.c
-+++ b/arch/s390/kernel/asm-offsets.c
-@@ -7,6 +7,7 @@
- #define ASM_OFFSETS_C
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 0f0de30..1fc68d9 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -299,18 +299,16 @@ extern unsigned long MODULES_END;
+ #define _SEGMENT_ENTRY_EMPTY	(_SEGMENT_ENTRY_INV)
  
- #include <linux/kbuild.h>
-+#include <linux/kvm_host.h>
- #include <linux/sched.h>
- #include <asm/cputime.h>
- #include <asm/vdso.h>
-@@ -161,6 +162,7 @@ int main(void)
- 	DEFINE(__LC_PGM_TDB, offsetof(struct _lowcore, pgm_tdb));
- 	DEFINE(__THREAD_trap_tdb, offsetof(struct task_struct, thread.trap_tdb));
- 	DEFINE(__GMAP_ASCE, offsetof(struct gmap, asce));
-+	DEFINE(__SIE_PROG0C, offsetof(struct kvm_s390_sie_block, prog0c));
- #endif /* CONFIG_32BIT */
- 	return 0;
- }
-diff --git a/arch/s390/kernel/entry64.S b/arch/s390/kernel/entry64.S
-index 4c17eec..c2e81b4 100644
---- a/arch/s390/kernel/entry64.S
-+++ b/arch/s390/kernel/entry64.S
-@@ -84,7 +84,7 @@ _TIF_EXIT_SIE = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | _TIF_MCCK_PENDING)
- 	.macro	HANDLE_SIE_INTERCEPT scratch,pgmcheck
- #if defined(CONFIG_KVM) || defined(CONFIG_KVM_MODULE)
- 	tmhh	%r8,0x0001		# interrupting from user ?
--	jnz	.+42
-+	jnz	.+52
- 	lgr	\scratch,%r9
- 	slg	\scratch,BASED(.Lsie_loop)
- 	clg	\scratch,BASED(.Lsie_length)
-@@ -92,12 +92,14 @@ _TIF_EXIT_SIE = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | _TIF_MCCK_PENDING)
- 	# Some program interrupts are suppressing (e.g. protection).
- 	# We must also check the instruction after SIE in that case.
- 	# do_protection_exception will rewind to rewind_pad
--	jh	.+22
-+	jh	.+32
- 	.else
--	jhe	.+22
-+	jhe	.+32
- 	.endif
- 	lg	%r9,BASED(.Lsie_loop)
- 	LPP	BASED(.Lhost_id)	# set host id
-+	lg	%r14,__SF_EMPTY(%r15)	# get control block pointer
-+	ni	__SIE_PROG0C+3(%r14),0xfe	# no longer in SIE
+ /* Page status table bits for virtualization */
+-#define RCP_ACC_BITS	0xf0000000UL
+-#define RCP_FP_BIT	0x08000000UL
+-#define RCP_PCL_BIT	0x00800000UL
+-#define RCP_HR_BIT	0x00400000UL
+-#define RCP_HC_BIT	0x00200000UL
+-#define RCP_GR_BIT	0x00040000UL
+-#define RCP_GC_BIT	0x00020000UL
+-#define RCP_IN_BIT	0x00002000UL	/* IPTE notify bit */
+-
+-/* User dirty / referenced bit for KVM's migration feature */
+-#define KVM_UR_BIT	0x00008000UL
+-#define KVM_UC_BIT	0x00004000UL
++#define PGSTE_ACC_BITS	0xf0000000UL
++#define PGSTE_FP_BIT	0x08000000UL
++#define PGSTE_PCL_BIT	0x00800000UL
++#define PGSTE_HR_BIT	0x00400000UL
++#define PGSTE_HC_BIT	0x00200000UL
++#define PGSTE_GR_BIT	0x00040000UL
++#define PGSTE_GC_BIT	0x00020000UL
++#define PGSTE_UR_BIT	0x00008000UL
++#define PGSTE_UC_BIT	0x00004000UL	/* user dirty (migration) */
++#define PGSTE_IN_BIT	0x00002000UL	/* IPTE notify bit */
+ 
+ #else /* CONFIG_64BIT */
+ 
+@@ -367,18 +365,16 @@ extern unsigned long MODULES_END;
+ 				 | _SEGMENT_ENTRY_SPLIT | _SEGMENT_ENTRY_CO)
+ 
+ /* Page status table bits for virtualization */
+-#define RCP_ACC_BITS	0xf000000000000000UL
+-#define RCP_FP_BIT	0x0800000000000000UL
+-#define RCP_PCL_BIT	0x0080000000000000UL
+-#define RCP_HR_BIT	0x0040000000000000UL
+-#define RCP_HC_BIT	0x0020000000000000UL
+-#define RCP_GR_BIT	0x0004000000000000UL
+-#define RCP_GC_BIT	0x0002000000000000UL
+-#define RCP_IN_BIT	0x0000200000000000UL	/* IPTE notify bit */
+-
+-/* User dirty / referenced bit for KVM's migration feature */
+-#define KVM_UR_BIT	0x0000800000000000UL
+-#define KVM_UC_BIT	0x0000400000000000UL
++#define PGSTE_ACC_BITS	0xf000000000000000UL
++#define PGSTE_FP_BIT	0x0800000000000000UL
++#define PGSTE_PCL_BIT	0x0080000000000000UL
++#define PGSTE_HR_BIT	0x0040000000000000UL
++#define PGSTE_HC_BIT	0x0020000000000000UL
++#define PGSTE_GR_BIT	0x0004000000000000UL
++#define PGSTE_GC_BIT	0x0002000000000000UL
++#define PGSTE_UR_BIT	0x0000800000000000UL
++#define PGSTE_UC_BIT	0x0000400000000000UL	/* user dirty (migration) */
++#define PGSTE_IN_BIT	0x0000200000000000UL	/* IPTE notify bit */
+ 
+ #endif /* CONFIG_64BIT */
+ 
+@@ -618,8 +614,8 @@ static inline pgste_t pgste_get_lock(pte_t *ptep)
+ 	asm(
+ 		"	lg	%0,%2\n"
+ 		"0:	lgr	%1,%0\n"
+-		"	nihh	%0,0xff7f\n"	/* clear RCP_PCL_BIT in old */
+-		"	oihh	%1,0x0080\n"	/* set RCP_PCL_BIT in new */
++		"	nihh	%0,0xff7f\n"	/* clear PCL bit in old */
++		"	oihh	%1,0x0080\n"	/* set PCL bit in new */
+ 		"	csg	%0,%1,%2\n"
+ 		"	jl	0b\n"
+ 		: "=&d" (old), "=&d" (new), "=Q" (ptep[PTRS_PER_PTE])
+@@ -632,7 +628,7 @@ static inline void pgste_set_unlock(pte_t *ptep, pgste_t pgste)
+ {
+ #ifdef CONFIG_PGSTE
+ 	asm(
+-		"	nihh	%1,0xff7f\n"	/* clear RCP_PCL_BIT */
++		"	nihh	%1,0xff7f\n"	/* clear PCL bit */
+ 		"	stg	%1,%0\n"
+ 		: "=Q" (ptep[PTRS_PER_PTE])
+ 		: "d" (pgste_val(pgste)), "Q" (ptep[PTRS_PER_PTE]) : "cc");
+@@ -657,14 +653,14 @@ static inline pgste_t pgste_update_all(pte_t *ptep, pgste_t pgste)
+ 	else if (bits)
+ 		page_reset_referenced(address);
+ 	/* Transfer page changed & referenced bit to guest bits in pgste */
+-	pgste_val(pgste) |= bits << 48;		/* RCP_GR_BIT & RCP_GC_BIT */
++	pgste_val(pgste) |= bits << 48;		/* GR bit & GC bit */
+ 	/* Get host changed & referenced bits from pgste */
+-	bits |= (pgste_val(pgste) & (RCP_HR_BIT | RCP_HC_BIT)) >> 52;
++	bits |= (pgste_val(pgste) & (PGSTE_HR_BIT | PGSTE_HC_BIT)) >> 52;
+ 	/* Transfer page changed & referenced bit to kvm user bits */
+-	pgste_val(pgste) |= bits << 45;		/* KVM_UR_BIT & KVM_UC_BIT */
++	pgste_val(pgste) |= bits << 45;		/* PGSTE_UR_BIT & PGSTE_UC_BIT */
+ 	/* Clear relevant host bits in pgste. */
+-	pgste_val(pgste) &= ~(RCP_HR_BIT | RCP_HC_BIT);
+-	pgste_val(pgste) &= ~(RCP_ACC_BITS | RCP_FP_BIT);
++	pgste_val(pgste) &= ~(PGSTE_HR_BIT | PGSTE_HC_BIT);
++	pgste_val(pgste) &= ~(PGSTE_ACC_BITS | PGSTE_FP_BIT);
+ 	/* Copy page access key and fetch protection bit to pgste */
+ 	pgste_val(pgste) |=
+ 		(unsigned long) (skey & (_PAGE_ACC_BITS | _PAGE_FP_BIT)) << 56;
+@@ -685,15 +681,15 @@ static inline pgste_t pgste_update_young(pte_t *ptep, pgste_t pgste)
+ 	/* Get referenced bit from storage key */
+ 	young = page_reset_referenced(pte_val(*ptep) & PAGE_MASK);
+ 	if (young)
+-		pgste_val(pgste) |= RCP_GR_BIT;
++		pgste_val(pgste) |= PGSTE_GR_BIT;
+ 	/* Get host referenced bit from pgste */
+-	if (pgste_val(pgste) & RCP_HR_BIT) {
+-		pgste_val(pgste) &= ~RCP_HR_BIT;
++	if (pgste_val(pgste) & PGSTE_HR_BIT) {
++		pgste_val(pgste) &= ~PGSTE_HR_BIT;
+ 		young = 1;
+ 	}
+ 	/* Transfer referenced bit to kvm user bits and pte */
+ 	if (young) {
+-		pgste_val(pgste) |= KVM_UR_BIT;
++		pgste_val(pgste) |= PGSTE_UR_BIT;
+ 		pte_val(*ptep) |= _PAGE_SWR;
+ 	}
  #endif
- 	.endm
- 
-@@ -956,10 +958,12 @@ sie_loop:
- 	lctlg	%c1,%c1,__GMAP_ASCE(%r14)	# load primary asce
- sie_gmap:
- 	lg	%r14,__SF_EMPTY(%r15)		# get control block pointer
-+	oi	__SIE_PROG0C+3(%r14),1		# we are in SIE now
- 	LPP	__SF_EMPTY(%r15)		# set guest id
- 	sie	0(%r14)
- sie_done:
- 	LPP	__SF_EMPTY+16(%r15)		# set host id
-+	ni	__SIE_PROG0C+3(%r14),0xfe	# no longer in SIE
- 	lg	%r14,__LC_THREAD_INFO		# pointer thread_info struct
- sie_exit:
- 	lctlg	%c1,%c1,__LC_USER_ASCE		# load primary asce
+@@ -712,7 +708,7 @@ static inline void pgste_set_key(pte_t *ptep, pgste_t pgste, pte_t entry)
+ 	okey = nkey = page_get_storage_key(address);
+ 	nkey &= ~(_PAGE_ACC_BITS | _PAGE_FP_BIT);
+ 	/* Set page access key and fetch protection bit from pgste */
+-	nkey |= (pgste_val(pgste) & (RCP_ACC_BITS | RCP_FP_BIT)) >> 56;
++	nkey |= (pgste_val(pgste) & (PGSTE_ACC_BITS | PGSTE_FP_BIT)) >> 56;
+ 	if (okey != nkey)
+ 		page_set_storage_key(address, nkey, 0);
+ #endif
+@@ -801,8 +797,8 @@ static inline pgste_t pgste_ipte_notify(struct mm_struct *mm,
+ 					pte_t *ptep, pgste_t pgste)
+ {
+ #ifdef CONFIG_PGSTE
+-	if (pgste_val(pgste) & RCP_IN_BIT) {
+-		pgste_val(pgste) &= ~RCP_IN_BIT;
++	if (pgste_val(pgste) & PGSTE_IN_BIT) {
++		pgste_val(pgste) &= ~PGSTE_IN_BIT;
+ 		gmap_do_ipte_notify(mm, addr, ptep);
+ 	}
+ #endif
+@@ -970,8 +966,8 @@ static inline int ptep_test_and_clear_user_dirty(struct mm_struct *mm,
+ 	if (mm_has_pgste(mm)) {
+ 		pgste = pgste_get_lock(ptep);
+ 		pgste = pgste_update_all(ptep, pgste);
+-		dirty = !!(pgste_val(pgste) & KVM_UC_BIT);
+-		pgste_val(pgste) &= ~KVM_UC_BIT;
++		dirty = !!(pgste_val(pgste) & PGSTE_UC_BIT);
++		pgste_val(pgste) &= ~PGSTE_UC_BIT;
+ 		pgste_set_unlock(ptep, pgste);
+ 		return dirty;
+ 	}
+@@ -990,8 +986,8 @@ static inline int ptep_test_and_clear_user_young(struct mm_struct *mm,
+ 	if (mm_has_pgste(mm)) {
+ 		pgste = pgste_get_lock(ptep);
+ 		pgste = pgste_update_young(ptep, pgste);
+-		young = !!(pgste_val(pgste) & KVM_UR_BIT);
+-		pgste_val(pgste) &= ~KVM_UR_BIT;
++		young = !!(pgste_val(pgste) & PGSTE_UR_BIT);
++		pgste_val(pgste) &= ~PGSTE_UR_BIT;
+ 		pgste_set_unlock(ptep, pgste);
+ 	}
+ 	return young;
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index 7805ddc..5ca7568 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -690,7 +690,7 @@ int gmap_ipte_notify(struct gmap *gmap, unsigned long start, unsigned long len)
+ 		entry = *ptep;
+ 		if ((pte_val(entry) & (_PAGE_INVALID | _PAGE_RO)) == 0) {
+ 			pgste = pgste_get_lock(ptep);
+-			pgste_val(pgste) |= RCP_IN_BIT;
++			pgste_val(pgste) |= PGSTE_IN_BIT;
+ 			pgste_set_unlock(ptep, pgste);
+ 			start += PAGE_SIZE;
+ 			len -= PAGE_SIZE;
 -- 
 1.8.1.4
