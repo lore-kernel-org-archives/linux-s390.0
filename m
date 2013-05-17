@@ -1,53 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 14 May 2013 11:32:39 -0700 (PDT)
-Message-Id: <20130514.113239.791038636818706716.davem@davemloft.net>
-Subject: Re: [PATCHv2 net 2/2] sfc: Reduce RX scatter buffer size, and
- reduce alignment if appropriate
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1368482482.3305.50.camel@bwh-desktop.uk.solarflarecom.com>
-References: <1368482311.3305.48.camel@bwh-desktop.uk.solarflarecom.com>
-	<1368482482.3305.50.camel@bwh-desktop.uk.solarflarecom.com>
+Message-ID: <1368780693.1350.228.camel@x61.thuisdomein>
+Subject: [PATCH v2] locking: Fix copy/paste errors "ARCH_INLINE_*_UNLOCK_BH"
+From: Paul Bolle <pebolle@tiscali.nl>
+Date: Fri, 17 May 2013 10:51:33 +0200
+In-Reply-To: <20130408153614.GB17500@gmail.com>
+References: <1365428154.1830.99.camel@x61.thuisdomein>
+	 <20130408151609.GA13640@gmail.com>
+	 <1365435015.1830.113.camel@x61.thuisdomein>
+	 <20130408153614.GB17500@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: bhutchings@solarflare.com
-Cc: geert@linux-m68k.org, heiko.carstens@de.ibm.com, linux-net-drivers@solarflare.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+To: Ingo Molnar <mingo@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ben Hutchings <bhutchings@solarflare.com>
-Date: Mon, 13 May 2013 23:01:22 +0100
+The Kconfig symbols ARCH_INLINE_READ_UNLOCK_IRQ,
+ARCH_INLINE_SPIN_UNLOCK_IRQ, and ARCH_INLINE_WRITE_UNLOCK_IRQ were added
+in v2.6.33, but have never actually been used. Ingo Molnar spotted that
+this is caused by three identical copy/paste erros. Eg, the Kconfig
+entry for
+         INLINE_READ_UNLOCK_IRQ
 
-> efx_start_datapath() asserts that we can fit 2 RX scatter buffers plus
-> a software structure, each appropriately aligned, into a single page.
-> Where L1_CACHE_BYTES == 256 and PAGE_SIZE == 4096, which is the case
-> on s390, this assertion fails.
-> 
-> The current scatter buffer size is also not a multiple of 64 or 128,
-> which are more common cache line sizes.  If we can make both the start
-> and end of a scatter buffer cache-aligned, this will reduce the need
-> for read-modify-write operations on inter- processor links.
-> 
-> Fix the alignment by reducing EFX_RX_USR_BUF_SIZE to 2048 - 256 ==
-> 1792.  (We could use 2048 - L1_CACHE_BYTES, but EFX_RX_USR_BUF_SIZE
-> also affects user-level networking where a larger amount of
-> housekeeping data may be needed.  Although this version of the driver
-> does not support user-level networking, I prefer to keep scattering
-> behaviour consistent with the out-of-tree version.)
-> 
-> This still doesn't fix the s390 build because like most architectures
-> it has NET_IP_ALIGN == 2.  When NET_IP_ALIGN != 0 we cannot achieve
-> cache line alignment at either the start or end of a scatter buffer,
-> so there is actually no point in padding the buffers to a multiple of
-> the cache line size.  All we need is 4-byte alignment of the network
-> header, so do that.
-> 
-> Adjust the assertions accordingly.
-> 
-> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Reported-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Signed-off-by: Ben Hutchings <bhutchings@solarflare.com>
+has an (optional) dependency on
+    ARCH_INLINE_READ_UNLOCK_BH
 
-Applied.
+were it apparently should depend on
+    ARCH_INLINE_READ_UNLOCK_IRQ
+
+instead. Likewise for the Kconfig entries for INLINE_SPIN_UNLOCK_IRQ and
+INLINE_WRITE_UNLOCK_IRQ. Fix these three errors.
+
+Reported-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
+---
+0) v1 was titled "locking: remove three unused Kconfig symbols".
+
+1) Still untested.
+
+ kernel/Kconfig.locks | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/Kconfig.locks b/kernel/Kconfig.locks
+index 44511d1..d2b32ac 100644
+--- a/kernel/Kconfig.locks
++++ b/kernel/Kconfig.locks
+@@ -138,7 +138,7 @@ config INLINE_SPIN_UNLOCK_BH
+ 
+ config INLINE_SPIN_UNLOCK_IRQ
+ 	def_bool y
+-	depends on !PREEMPT || ARCH_INLINE_SPIN_UNLOCK_BH
++	depends on !PREEMPT || ARCH_INLINE_SPIN_UNLOCK_IRQ
+ 
+ config INLINE_SPIN_UNLOCK_IRQRESTORE
+ 	def_bool y
+@@ -175,7 +175,7 @@ config INLINE_READ_UNLOCK_BH
+ 
+ config INLINE_READ_UNLOCK_IRQ
+ 	def_bool y
+-	depends on !PREEMPT || ARCH_INLINE_READ_UNLOCK_BH
++	depends on !PREEMPT || ARCH_INLINE_READ_UNLOCK_IRQ
+ 
+ config INLINE_READ_UNLOCK_IRQRESTORE
+ 	def_bool y
+@@ -212,7 +212,7 @@ config INLINE_WRITE_UNLOCK_BH
+ 
+ config INLINE_WRITE_UNLOCK_IRQ
+ 	def_bool y
+-	depends on !PREEMPT || ARCH_INLINE_WRITE_UNLOCK_BH
++	depends on !PREEMPT || ARCH_INLINE_WRITE_UNLOCK_IRQ
+ 
+ config INLINE_WRITE_UNLOCK_IRQRESTORE
+ 	def_bool y
+-- 
+1.7.11.7
