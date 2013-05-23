@@ -1,66 +1,63 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] arch: configuration, deleting 'CONFIG_BUG' since always
- need it.
-Date: Thu, 23 May 2013 11:12:56 +0200
-Message-ID: <CAMuHMdWez-j1Maa3BD7ucmzv0_zFJnChERQiHFmkCaZUzG0_AA@mail.gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] arch: configuration,
+ deleting 'CONFIG_BUG' since always need it.
+Date: Thu, 23 May 2013 11:39:37 +0200
+Message-ID: <201305231139.38233.arnd@arndb.de>
 References: <519DCBEF.3090208@asianux.com>
- <CAMuHMdU7QuzgmWCH145p8PVebBzPo8DBAvbY+0AZa2cmGXmRHw@mail.gmail.com>
  <20130523090534.GJ18614@n2100.arm.linux.org.uk>
+ <CAMuHMdWez-j1Maa3BD7ucmzv0_zFJnChERQiHFmkCaZUzG0_AA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20130523090534.GJ18614@n2100.arm.linux.org.uk>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CAMuHMdWez-j1Maa3BD7ucmzv0_zFJnChERQiHFmkCaZUzG0_AA@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Catalin Marinas <Catalin.Marinas@arm.com>, Linux-sh list <linux-sh@vger.kernel.org>, Chen Gang <gang.chen@asianux.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "paulus@samba.org" <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Michel Lespinasse <walken@google.com>, Hans-Christian Egtvedt <egtvedt@samfundet.no>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390@vger.kernel.org, uml-devel <user-mode-linux-devel@lists.sourceforge.net>, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger <richard@nod.at>, Helge Deller <deller@gmx.de>, the arch/x86 maintainers <x86@kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, "mingo@redhat.com" <mingo@redhat.com>, Frederic Weisbecker <fweisbec@gmail.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>, =?UTF-8?Q?H=C3=A5vard_Skinnemoen?= <hskinnemoen@gmail.com>, Serge Hallyn <serge.hallyn@canonical.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Catalin Marinas <Catalin.Marinas@arm.com>, Linux-sh list <linux-sh@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Chen Gang <gang.chen@asianux.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "paulus@samba.org" <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Michel Lespinasse <walken@google.com>, Hans-Christian Egtvedt <egtvedt@samfundet.no>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger <richard@nod.at>, Helge Deller <deller@gmx.de>, the arch/x86 maintainers <x86@kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, "mingo@redhat.com" <mingo@redhat.com>, Frederic Weisbecker <fweisbec@gmail.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>, =?utf-8?q?H=C3=A5vard_Skinnemoen?= <hskinnemoen@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, May 23, 2013 at 11:05 AM, Russell King - ARM Linux
-<linux@arm.linux.org.uk> wrote:
-> On Thu, May 23, 2013 at 10:40:29AM +0200, Geert Uytterhoeven wrote:
->> On Thu, May 23, 2013 at 9:57 AM, Chen Gang <gang.chen@asianux.com> wrote:
->> > -config BUG
->> > -       bool "BUG() support" if EXPERT
->> > -       default y
->> > -       help
->> > -          Disabling this option eliminates support for BUG and WARN, reducing
->> > -          the size of your kernel image and potentially quietly ignoring
->> > -          numerous fatal conditions. You should only consider disabling this
->> > -          option for embedded systems with no facilities for reporting errors.
->> > -          Just say Y.
->>
->> ... It's about reducing memory size on devices where you can't show bug or
->> warning messages.
->
-> And turning off CONFIG_BUG causes lots of warning messages at compile time
-> about functions which are returning nothing which shouldn't.
->
-> The problem is: trying to fix that _will_ mean the result is a larger
-> kernel than if you just do the usual arch-implemented thing of placing
-> an defined faulting instruction at the BUG() site - which defeats the
-> purpose of turning off CONFIG_BUG.
+On Thursday 23 May 2013, Geert Uytterhoeven wrote:
+> > The problem is: trying to fix that will mean the result is a larger
+> > kernel than if you just do the usual arch-implemented thing of placing
+> > an defined faulting instruction at the BUG() site - which defeats the
+> > purpose of turning off CONFIG_BUG.
+> 
+> Is __builtin_unreachable() working well these days?
+> 
 
-Is __builtin_unreachable() working well these days?
+Hmm, I just tried the trivial patch below, which seemed to do the right thing.
+Needs a little more investigation, but that might actually be the correct
+solution. I thought that at some point __builtin_unreachable() was the same
+as "do {} while (1)", but this is not the case with the gcc I was using --
+it just tells gcc that we don't expect to ever get here.
 
-Gr{oetje,eeting}s,
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/include/asm-generic/bug.h b/include/asm-generic/bug.h
+index 7d10f96..9afff7d 100644
+--- a/include/asm-generic/bug.h
++++ b/include/asm-generic/bug.h
+@@ -108,11 +108,11 @@ extern void warn_slowpath_null(const char *file, const int line);
+ 
+ #else /* !CONFIG_BUG */
+ #ifndef HAVE_ARCH_BUG
+-#define BUG() do {} while(0)
++#define BUG() __builtin_unreachable ()
+ #endif
+ 
+ #ifndef HAVE_ARCH_BUG_ON
+-#define BUG_ON(condition) do { if (condition) ; } while(0)
++#define BUG_ON(condition) do { if (condition) __builtin_unreachable(); } while(0)
+ #endif
+ 
+ #ifndef HAVE_ARCH_WARN_ON
