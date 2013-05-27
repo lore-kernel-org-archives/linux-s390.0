@@ -1,48 +1,72 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] arch: configuration,
- deleting 'CONFIG_BUG' since always need it.
-Date: Tue, 28 May 2013 17:43:52 +0200
-Message-ID: <201305281743.52649.arnd@arndb.de>
-References: <519DCBEF.3090208@asianux.com> <20130528081910.GA29557@gmail.com>
- <51A4C564.4040301@zytor.com>
+From: Chen Gang <gang.chen@asianux.com>
+Subject: Re: [PATCH] arch: s390: appldata: using strncpy() instead of sprintf()
+Date: Mon, 27 May 2013 17:06:11 +0800
+Message-ID: <51A32203.1090003@asianux.com>
+References: <51A2CC07.5010100@asianux.com> <CAMuHMdXTW3QOxfAfqQXdbSpP4R83srFf7eMfu5fA-75S_Mujsg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <51A4C564.4040301@zytor.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <CAMuHMdXTW3QOxfAfqQXdbSpP4R83srFf7eMfu5fA-75S_Mujsg@mail.gmail.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Catalin Marinas <Catalin.Marinas@arm.com>, Linux-sh list <linux-sh@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Chen Gang <gang.chen@asianux.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "paulus@samba.org" <paulus@samba.org>, Michel Lespinasse <walken@google.com>, Ingo Molnar <mingo@kernel.org>, Hans-Christian Egtvedt <egtvedt@samfundet.no>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger <richard@nod.at>, Helge Deller <deller@gmx.de>, the arch/x86 maintainers <x86@kernel.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, "mingo@redhat.com" <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Frederic Weisbecker <fweisbec@gmail.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>, H?vard
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, jang@linux.vnet.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tuesday 28 May 2013, H. Peter Anvin wrote:
-> On 05/28/2013 01:19 AM, Ingo Molnar wrote:
-> > 
-> > So I think the same principle applies to it as to any other debugging 
-> > code: it's fine to be able to turn debugging off. It's a performance 
-> > versus kernel robustness/determinism trade-off.
-> > 
+On 05/27/2013 04:34 PM, Geert Uytterhoeven wrote:
+>> Signed-off-by: Chen Gang <gang.chen@asianux.com>
+>> > ---
+>> >  arch/s390/appldata/appldata_base.c |    5 +++--
+>> >  1 files changed, 3 insertions(+), 2 deletions(-)
+>> >
+>> > diff --git a/arch/s390/appldata/appldata_base.c b/arch/s390/appldata/appldata_base.c
+>> > index bae0f40..566ea87 100644
+>> > --- a/arch/s390/appldata/appldata_base.c
+>> > +++ b/arch/s390/appldata/appldata_base.c
+>> > @@ -212,7 +212,8 @@ appldata_timer_handler(ctl_table *ctl, int write,
+>> >                 return 0;
+>> >         }
+>> >         if (!write) {
+>> > -               len = sprintf(buf, appldata_timer_active ? "1\n" : "0\n");
+> Before, len was always 2. The string was zero-terminated but the zero was
+> not returned to user space, which is OK.
 > 
-> I suspect, rather, that BUG() should turn into a trap (or jump to a
-> death routine) under any circumstances.  The one thing that can be
-> omitted for small configurations are the annotations, which only serve
-> to output a more human-readable error message.
 
-Right, that is what the patch I just posted does.
+I guess, the original API did not treat it as a zero-terminated string,
+it is more like a 'protocol' contents for 'write' or '!write' between
+kernel mode and user mode.
 
-On a related note, I found that WARN_ON() can no longer be compiled
-out since there is already code that relies on the side-effects of
-the condition. I assume that was an intentional change I missed,
-since it used to be defined so that you could remove it completely.
+At least the kernel did not treat it as a zero-terminated string, we can
+reference the '!write' work flow to know about it.
 
-	Arnd
+
+>> > +               len = strncpy(buf, appldata_timer_active ? "1\n" : "0\n",
+>> > +                                                               sizeof(buf));
+> Oops, strncpy() doesn't return a size, but a pointer! So this doesn't work.
+> I guess you haven't compiled this?
+> http://kernel.org/pub/tools/crosstool/files/bin/
+> 
+
+Oh, it is my fault, I need compile it for a basic checking.
+
+>> >                 if (len > *lenp)
+>> >                         len = *lenp;
+>> >                 if (copy_to_user(buffer, buf, len))
+> What about creating a "uprintf()" that formats strings to a userspace buffer?
+> 
+
+Hmm... maybe it is a good idea for processing the zero-terminated string
+from kernel mode to user mode, but I guess, for our case, it is not a
+zero-terminated string, so...
+
+
+All together, thank you very much for your checking, I should send patch v2.
+
+
+Thanks.
+-- 
+Chen Gang
+
+Asianux Corporation
