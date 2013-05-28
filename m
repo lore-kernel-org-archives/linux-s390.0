@@ -1,111 +1,52 @@
-Return-Path: <xfs-bounces@oss.sgi.com>
-Date: Thu, 23 May 2013 00:57:20 -0400 (EDT)
-From: CAI Qian <caiqian@redhat.com>
-Message-ID: <1125086079.5019070.1369285040855.JavaMail.root@redhat.com>
-In-Reply-To: <20130523034611.GX24543@dastard>
-References: <40971621.4497871.1369211701112.JavaMail.root@redhat.com>
-	<1805266998.4499261.1369211998387.JavaMail.root@redhat.com>
-	<20130522095300.GK29466@dastard>
-	<1483868349.4996990.1369279016162.JavaMail.root@redhat.com>
-	<20130523034611.GX24543@dastard>
-Subject: 3.9.2/3.9.3: stack overrun on s390x and ppc64 (WAS Re: 3.9.2:
-	xfstests triggered panic)
-MIME-Version: 1.0
-List-Unsubscribe: <http://oss.sgi.com/mailman/options/xfs>,
-	<mailto:xfs-request@oss.sgi.com?subject=unsubscribe>
-List-Archive: <http://oss.sgi.com/pipermail/xfs>
-List-Post: <mailto:xfs@oss.sgi.com>
-List-Help: <mailto:xfs-request@oss.sgi.com?subject=help>
-List-Subscribe: <http://oss.sgi.com/mailman/listinfo/xfs>,
-	<mailto:xfs-request@oss.sgi.com?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Errors-To: xfs-bounces@oss.sgi.com
-Sender: xfs-bounces@oss.sgi.com
-List-Archive: <https://lore.kernel.org/linux-xfs/>
-List-Post: <mailto:linux-xfs@vger.kernel.org>
-To: linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev@lists.ozlabs.org
-Cc: LKML <linux-kernel@vger.kernel.org>, Steve Best <sbest@redhat.com>, xfs@oss.sgi.com, stable@vger.kernel.org, Hendrik Brueckner <bhendrik@redhat.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: Build regressions/improvements in v3.10-rc3
+Date: Tue, 28 May 2013 09:16:30 +0200 (CEST)
+Message-ID: <alpine.DEB.2.00.1305280909260.29186@ayla.of.borg>
+References: <alpine.DEB.2.00.1305280908430.28098@ayla.of.borg>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.DEB.2.00.1305280908430.28098@ayla.of.borg>
+List-Archive: <https://lore.kernel.org/linux-parisc/>
+List-Post: <mailto:linux-parisc@vger.kernel.org>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Cc: linux-parisc@vger.kernel.org, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-T3JpZ2luYWwgcmVwb3J0OgpodHRwOi8vb3NzLnNnaS5jb20vYXJjaGl2ZXMveGZzLzIwMTMtMDUv
-bXNnMDA2ODMuaHRtbAoKQWxzbyBzZWVuIG9uIFBvd2VyNzoKaHR0cDovL21hcmMuaW5mby8/bD1s
-aW51eC1rZXJuZWwmbT0xMzY5Mjc5MDQ5MDA2OTImdz0yCgpDQUkgUWlhbgoKLS0tLS0gT3JpZ2lu
-YWwgTWVzc2FnZSAtLS0tLQo+IEZyb206ICJEYXZlIENoaW5uZXIiIDxkYXZpZEBmcm9tb3JiaXQu
-Y29tPgo+IFRvOiAiQ0FJIFFpYW4iIDxjYWlxaWFuQHJlZGhhdC5jb20+Cj4gQ2M6ICJMS01MIiA8
-bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZz4sIHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcsIHhm
-c0Bvc3Muc2dpLmNvbQo+IFNlbnQ6IFRodXJzZGF5LCBNYXkgMjMsIDIwMTMgMTE6NDY6MTEgQU0K
-PiBTdWJqZWN0OiBSZTogMy45LjI6IHhmc3Rlc3RzIHRyaWdnZXJlZCBwYW5pYwo+IAo+IE9uIFdl
-ZCwgTWF5IDIyLCAyMDEzIGF0IDExOjE2OjU2UE0gLTA0MDAsIENBSSBRaWFuIHdyb3RlOgo+ID4g
-LS0tLS0gT3JpZ2luYWwgTWVzc2FnZSAtLS0tLQo+ID4gPiBGcm9tOiAiRGF2ZSBDaGlubmVyIiA8
-ZGF2aWRAZnJvbW9yYml0LmNvbT4KPiA+ID4gVG86ICJDQUkgUWlhbiIgPGNhaXFpYW5AcmVkaGF0
-LmNvbT4KPiA+ID4gQ2M6ICJMS01MIiA8bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZz4sIHN0
-YWJsZUB2Z2VyLmtlcm5lbC5vcmcsCj4gPiA+IHhmc0Bvc3Muc2dpLmNvbQo+ID4gPiBTZW50OiBX
-ZWRuZXNkYXksIE1heSAyMiwgMjAxMyA1OjUzOjAwIFBNCj4gPiA+IFN1YmplY3Q6IFJlOiAzLjku
-MjogeGZzdGVzdHMgdHJpZ2dlcmVkIHBhbmljCj4gPiA+IAo+ID4gPiBPbiBXZWQsIE1heSAyMiwg
-MjAxMyBhdCAwNDozOTo1OEFNIC0wNDAwLCBDQUkgUWlhbiB3cm90ZToKPiA+ID4gPiBSZXByb2R1
-Y2VkIG9uIGFsbW9zdCBhbGwgczM5MHggZ3Vlc3RzIGJ5IHJ1bm5pbmcgeGZzdGVzdHMuCj4gPiA+
-ID4gCj4gPiA+ID4gMTQ2MzQuMzk2NjU4wqggWEZTIChkbS0xKTogTW91bnRpbmcgRmlsZXN5c3Rl
-bQo+ID4gPiA+IDE0NjM0LjUyNTUyMsKoIFhGUyAoZG0tMSk6IEVuZGluZyBjbGVhbiBtb3VudAo+
-ID4gPiA+IDE0NjQwLjQxMzAwN8KoICA8MDAwMDAwMDAwMDE3YzZkND7CqCBpZGxlX2JhbGFuY2Ur
-MHgxYTAvMHgzNDAKPiA+ID4gPiAxNDY0MC40MTMwMTDCqCAgPDAwMDAwMDAwMDA2MzMwM2U+wqgg
-X19zY2hlZHVsZSsweGEyMi8weGFmMAo+ID4gPiA+IDE0NjQwLjQyODI3OcKoICA8MDAwMDAwMDAw
-MDYzMGRhNj7CqCBzY2hlZHVsZV90aW1lb3V0KzB4MTg2LzB4MmMwCj4gPiA+ID4gMTQ2NDAuNDI4
-Mjg5wqggIDwwMDAwMDAwMDAwMWNmODY0PsKoIHJjdV9ncF9rdGhyZWFkKzB4MWJjLzB4Mjk4Cj4g
-PiA+ID4gMTQ2NDAuNDI4MzAwwqggIDwwMDAwMDAwMDAwMTU4YzVhPsKoIGt0aHJlYWQrMHhlNi8w
-eGVjCj4gPiA+ID4gMTQ2NDAuNDI4MzA0wqggIDwwMDAwMDAwMDAwNjM0ZGU2PsKoIGtlcm5lbF90
-aHJlYWRfc3RhcnRlcisweDYvMHhjCj4gPiA+ID4gMTQ2NDAuNDI4MzA4wqggIDwwMDAwMDAwMDAw
-NjM0ZGUwPsKoIGtlcm5lbF90aHJlYWRfc3RhcnRlcisweDAvMHhjCj4gPiA+ID4gMTQ2NDAuNDI4
-MzExwqggTGFzdCBCcmVha2luZy1FdmVudC1BZGRyZXNzOgo+ID4gPiA+IDE0NjQwLjQyODMxNMKo
-ICA8MDAwMDAwMDAwMDE2YmQ3Nj7CqCB3YWxrX3RnX3RyZWVfZnJvbSsweDNhLzB4ZjQKPiA+ID4g
-PiAxNDY0MC40MjgzMTnCqCAgbGlzdF9hZGQgY29ycnVwdGlvbi4gbmV4dC0+cHJldiBzaG91bGQg
-YmUgcHJldgo+ID4gPiA+ICgwMDAwMDAwMDAwMDAwOTE4Cj4gPiA+ID4gKSwgYnV0IHdhcyAgICAg
-ICAgICAgKG51bGwpLiAobmV4dD0gICAgICAgICAgKG51bGwpKS4KPiA+ID4gCj4gPiA+IFdoZXJl
-J3MgWEZTIGluIHRoaXM/IHdhbGtfdGdfdHJlZV9mcm9tKCkgaXMgcGFydCBvZiB0aGUgc2NoZWR1
-bGVyCj4gPiA+IGNvZGUuIFRoaXMga2luZCBvZiBpbXBsaWVzIGEgc3RhY2sgY29ycnVwdGlvbi4u
-Li4KPiA+ID4gCj4gPiA+ID4gU29tZXRpbWVzLCB0aGlzIHBvcHMgdXAsCj4gPiA+ID4gWzE2OTA3
-LjI3NTAwMl0gV0FSTklORzogYXQga2VybmVsL3JjdXRyZWUuYzoxOTYwCj4gPiA+ID4gCj4gPiA+
-ID4gb3IgdGhpcywKPiA+ID4gPiAxNTMxNi4xNTQxNzHCqCBYRlMgKGRtLTEpOiBNb3VudGluZyBG
-aWxlc3lzdGVtCj4gPiA+ID4gMTUzMTYuMjU1Nzk2wqggWEZTIChkbS0xKTogRW5kaW5nIGNsZWFu
-IG1vdW50Cj4gPiA+ID4gMTUzMjAuMzY0MjQ2wqggICAgICAgICAgICAwMDAwMDAwMDAwNjM2N2Ey
-OiBlMzEwYjAwODAwMDQgICAgICAgIGxnCj4gPiA+ID4gJXIxLDgoJXIKPiA+ID4gPiAxMSkKPiA+
-ID4gPiAxNTMyMC4zNjQyNDnCqCAgICAgICAgICAgIDAwMDAwMDAwMDA2MzY3YTg6IDQxMTAxMDEw
-ICAgICAgICAgICAgbGEKPiA+ID4gPiAlcjEsMTYoJQo+ID4gPiA+IHIxKQo+ID4gPiA+IDE1MzIw
-LjM2NDI1McKoICAgICAgICAgICAgMDAwMDAwMDAwMDYzNjdhYzogZTMzMDEwMDAwMDA0ICAgICAg
-ICBsZwo+ID4gPiA+ICVyMywwKCVyCj4gPiA+ID4gMSkKPiA+ID4gPiAxNTMyMC4zNjQyNTLCqCBD
-YWxsIFRyYWNlOgo+ID4gPiA+IDE1MzIwLjM2NDI1MsKoIExhc3QgQnJlYWtpbmctRXZlbnQtQWRk
-cmVzczoKPiA+ID4gPiAxNTMyMC4zNjQyNTPCqCAg77+9IDwwMDAwMDAwMDAwMDAwMDAwPsKoIEtl
-cm5lbCBzdGFjayBvdmVyZmxvdy4KPiA+ID4gPiAxNTMyMC4zNjQzMDjCqCBDUFU6IDAgVGFpbnRl
-ZDogR0YgICAgICAgVyAgICAzLjkuMiAjMQo+ID4gPiA+IDE1MzIwLjM2NDMwOcKoIFByb2Nlc3Mg
-cmh0cy10ZXN0LXJ1bm5lIChwaWQ6IDYyNSwgdGFzazoKPiA+ID4gPiAwMDAwMDAwMDNkY2NjODkw
-LAo+ID4gPiA+IGtzcDogMAo+ID4gPiAKPiA+ID4gLi4uLiBhbmQgdGhlcmUgeW91IGdvIC0gYSBz
-dGFjayBvdmVyZmxvdy4gWW91ciBrZXJuZWwgc3RhY2sgc2l6ZSBpcwo+ID4gPiB0b28gc21hbGwu
-Cj4gPiA+IAo+ID4gPiBJJ2Qgc3VnZ2VzdCB0aGF0IHlvdSBuZWVkIDE2ayBzdGFja3Mgb24gczM5
-MCAtIElJUkMgZXZlcnkgZnVuY3Rpb24KPiA+ID4gY2FsbCBoYXMgMTI4IGJ5dGUgc3RhY2sgZnJh
-bWUsIGFuZCB0aGVyZSBhcmUgY2FsbCBjaGFpbnMgNzAtODAKPiA+ID4gZnVuY3Rpb25zIGRlZXAg
-aW4gdGhlIHN0b3JhZ2Ugc3RhY2suLi4KPiA+IEhtbSwgSSBhbSB1bnN1cmUgaG93IHRvIHNldCB0
-byAxNmsgc3RhY2sgdGhlcmUKPiAKPiBBcmUgeW91IGJ1aWxkIGEgNjQgYml0IHMzOTAga2VybmVs
-IG9yIGEgMzIgYml0IGtlcm5lbD8gMzIgYml0Cj4ga2VybmVscyBvbmx5IGhhdmUgYW4gOGsgc3Rh
-Y2sgc2l6ZSwgNjQgYml0IGtlcm5lbHMgYXJlIDE2ayAoc2VlCj4gYXJjaC9zMzkwL01ha2VmaWxl
-KS4KPiAKPiAkIGdpdCBncmVwIFNUQUNLX1NJWkUgYXJjaC9zMzkwIHxoZWFkIC0yCj4gYXJjaC9z
-MzkwL01ha2VmaWxlOlNUQUNLX1NJWkUgICA6PSA4MTkyCj4gYXJjaC9zMzkwL01ha2VmaWxlOlNU
-QUNLX1NJWkUgICA6PSAxNjM4NAo+IAo+IEFzIGl0IGlzLCB0aGUgc3RhY2sgZnJhbWUgdXNhZ2Ug
-aXMgd29yc2UgdGhhbiBJIHRob3VnaHQ6Cj4gCj4gJCBnaXQgZ3JlcCBTVEFDS19GUkFNRV9PVkVS
-SEVBRCBhcmNoL3MzOTAgfGhlYWQgLTIKPiBhcmNoL3MzOTAvaW5jbHVkZS91YXBpL2FzbS9wdHJh
-Y2UuaDojZGVmaW5lIFNUQUNLX0ZSQU1FX09WRVJIRUFEIDk2ICAgICAgLyoKPiBzaXplIG9mIG1p
-bmltdW0gc3RhY2sgZnJhbWUgKi8KPiBhcmNoL3MzOTAvaW5jbHVkZS91YXBpL2FzbS9wdHJhY2Uu
-aDojZGVmaW5lIFNUQUNLX0ZSQU1FX09WRVJIRUFEIDE2MCAgICAgIC8qCj4gc2l6ZSBvZiBtaW5p
-bXVtIHN0YWNrIGZyYW1lICovCj4gCj4gT3ZlcmhlYWQgaXMgOTYgYnl0ZXMgZm9yIDMyIGJpdCBh
-bmQgMTYwIGJ5dGVzIGZvciA2NCBiaXQuIFNvIDE2awo+IHN0YWNrIHNpemUgaXMgZ29pbmcgdG8g
-aGF2ZSBiaWcgdHJvdWJsZXMgd2l0aCBhIDcwLTgwIGZ1bmN0aW9uIGRlZXAKPiBjYWxsIGNoYWlu
-Lgo+IAo+IEFzIGZvciBwb3dlcnBjOgo+IAo+IGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9wcGNf
-YXNtLmg6I2RlZmluZSBTVEFDS0ZSQU1FU0laRSAyNTYKPiAKPiBZZWFoLCBzYW1lIGlzc3VlLgo+
-IAo+IEJ1dCwgc2VyaW91c2x5LCB0aGVzZSBzdGFjayB0cmFjZXMgYXJlIG1lYW5pbmdsZXNzIHRv
-IGFueW9uZSBub3QKPiBmYW1pbGlhciB3aXRoIHMzOTAgb3IgcG93ZXI3IC0gdGhleSBpbmRpY2F0
-ZSBhIHByb2JsZW0gZGV0ZWN0ZWQKPiBpbiB0aGUgaWRsZSBsb29wLCBub3Qgd2hlcmUgZXZlciB0
-aGUgc3RhY2sgb3ZlcnJhbi4KPiAKPiBDYW4geW91IHBsZWFzZSB3b3JrIHdpdGggdGhlIHMzOTAv
-cG93ZXI3IHBlb3BsZSB0byBvYnRhaW4gd2hhdGV2ZXIKPiBzdGFjayBpdCB3YXMgdGhhdCBvdmVy
-Zmxvd2VkLCBhbmQgd2UgY2FuIGdvIGZyb20gdGhlcmUuCj4gCj4gQ2hlZXJzLAo+IAo+IERhdmUu
-Cj4gLS0KPiBEYXZlIENoaW5uZXIKPiBkYXZpZEBmcm9tb3JiaXQuY29tCj4gCgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwp4ZnMgbWFpbGluZyBsaXN0Cnhm
-c0Bvc3Muc2dpLmNvbQpodHRwOi8vb3NzLnNnaS5jb20vbWFpbG1hbi9saXN0aW5mby94ZnMK
+On Tue, 28 May 2013, Geert Uytterhoeven wrote:
+> JFYI, when comparing v3.10-rc3 to v3.10-rc2[3], the summaries are:
+>   - build errors: +15/-10
+
+Ignoring the PPC64 relocation truncations in powerpc-allyesconfig:
+
+  + error: "__sync_fetch_and_and_4" [drivers/staging/line6/line6usb.ko] undefined!:  => N/A
+  + error: "__sync_fetch_and_or_4" [drivers/staging/line6/line6usb.ko] undefined!:  => N/A
+
+parisc-allmodconfig
+
+  + error: "devm_request_threaded_irq" [drivers/i2c/busses/i2c-designware-pci.ko] undefined!:  => N/A
+  + error: "devm_request_threaded_irq" [drivers/input/touchscreen/st1232.ko] undefined!:  => N/A
+  + error: "devm_request_threaded_irq" [drivers/mfd/si476x-core.ko] undefined!:  => N/A
+  + error: "devm_request_threaded_irq" [drivers/net/ethernet/marvell/mvmdio.ko] undefined!:  => N/A
+  + error: "devm_request_threaded_irq" [drivers/staging/dwc2/dwc2.ko] undefined!:  => N/A
+  + error: "irq_create_mapping" [drivers/mfd/mfd-core.ko] undefined!:  => N/A
+  
+s390-allmodconfig, s390-allyesconfig
+
+Related warning for the last one:
+
+warning: (ARM_GIC && ARM_VIC && RENESAS_INTC_IRQPIN && RENESAS_IRQC && VERSATILE_FPGA_IRQ && REGMAP && GPIO_LYNXPOINT && GPIO_GRGPIO && GPIO_PCF857X && GPIO_LANGWELL && MFD_CORE && MFD_MAX77686 && MFD_MAX8997 && AB8500_CORE && MFD_LP8788 && MFD_TPS65910 && TWL4030_CORE && MFD_WM831X_I2C && MFD_WM831X_SPI && EXTCON_MAX77693) selects IRQ_DOMAIN which has unmet direct dependencies (HAVE_GENERIC_HARDIRQS)
+
+> [1] http://kisskb.ellerman.id.au/kisskb/head/6268/ (all 120 configs)
+> [3] http://kisskb.ellerman.id.au/kisskb/head/6246/ (all 120 configs)
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
