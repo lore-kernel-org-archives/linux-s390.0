@@ -1,78 +1,48 @@
-From: aneesh.kumar@linux.vnet.ibm.com (Aneesh Kumar K.V)
-Date: Thu, 23 May 2013 13:58:26 +0000
-Subject: [Aneesh Kumar K.V] Re: [mmotm:master 98/322] /c/kernel-tests/src/tip/arch/s390/include/asm/pgtable.h
-Message-Id: <87r4gx4xn1.fsf@linux.vnet.ibm.com>
-MIME-Version: 1
-Content-Type: multipart/mixed; boundary="--=-=-="
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Date: Tue, 28 May 2013 09:55:27 +0000
+Subject: [PATCH] s390/net/netiucv: remove unused macro
+Message-Id: <1369734927-28401-1-git-send-email-andriy.shevchenko@linux.intel.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
---=-=-=
-Content-Type: text/plain
+If someone is interested to dump something they may consider to use
+print_hex_dump() or print_hex_dump_bytes() kernel helpers.
 
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/s390/net/netiucv.c | 20 --------------------
+ 1 file changed, 20 deletions(-)
 
-
-Forgot to cc the s390 list.
-
-
---=-=-=
-Content-Type: message/rfc822
-Content-Disposition: inline
-
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>
-To: kbuild test robot <fengguang.wu@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Johannes Weiner <hannes@cmpxchg.org>, kbuild-all@01.org
-Subject: Re: [mmotm:master 98/322] /c/kernel-tests/src/tip/arch/s390/include/asm/pgtable.h:1354:62: error: expected declaration specifiers or '...' before ',' token
-In-Reply-To: <519ddd97.0c1Iy86hq5fLERvb%fengguang.wu@intel.com>
-References: <519ddd97.0c1Iy86hq5fLERvb%fengguang.wu@intel.com>
-User-Agent: Notmuch/0.15.2+52~gb714a80 (http://notmuchmail.org) Emacs/24.3.50.1 (x86_64-unknown-linux-gnu)
-Date: Thu, 23 May 2013 17:09:39 +0530
-Message-ID: <87txlu3oxw.fsf@linux.vnet.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-
-kbuild test robot <fengguang.wu@intel.com> writes:
-
-> tree:   git://git.cmpxchg.org/linux-mmotm.git master
-> head:   8d4c612420310911f3152bf23e1923c8d7073995
-> commit: 78e3c7a9571d456ad799ed0b357540addc7de796 [98/322] mm/THP: add pmd args to pgtable deposit and withdraw APIs
-> config: make ARCH=s390 allmodconfig
->
-> All error/warnings:
->
->    warning: (ARM_GIC && ARM_VIC && RENESAS_INTC_IRQPIN && RENESAS_IRQC && VERSATILE_FPGA_IRQ && REGMAP && GPIO_LYNXPOINT && GPIO_GRGPIO && GPIO_PCF857X && GPIO_LANGWELL && MFD_CORE && MFD_MAX77686 && MFD_MAX8997 && AB8500_CORE && MFD_LP8788 && MFD_TPS65910 && TWL4030_CORE && MFD_WM831X_I2C && MFD_WM831X_SPI && EXTCON_MAX77693) selects IRQ_DOMAIN which has unmet direct dependencies (HAVE_GENERIC_HARDIRQS)
->    warning: (ARM_GIC && ARM_VIC && RENESAS_INTC_IRQPIN && RENESAS_IRQC && VERSATILE_FPGA_IRQ && REGMAP && GPIO_LYNXPOINT && GPIO_GRGPIO && GPIO_PCF857X && GPIO_LANGWELL && MFD_CORE && MFD_MAX77686 && MFD_MAX8997 && AB8500_CORE && MFD_LP8788 && MFD_TPS65910 && TWL4030_CORE && MFD_WM831X_I2C && MFD_WM831X_SPI && EXTCON_MAX77693) selects IRQ_DOMAIN which has unmet direct dependencies (HAVE_GENERIC_HARDIRQS)
->    In file included from /c/kernel-tests/src/tip/arch/s390/kernel/asm-offsets.c:13:0:
->>> /c/kernel-tests/src/tip/arch/s390/include/asm/pgtable.h:1354:62: error: expected declaration specifiers or '...' before ',' token
->    make[2]: *** [arch/s390/kernel/asm-offsets.s] Error 1
->    make[2]: Target `__build' not remade because of errors.
->    make[1]: *** [prepare0] Error 2
->    make[1]: Target `prepare' not remade because of errors.
->    make: *** [sub-make] Error 2
->
-
-Sorry about breaking the build. the below should fix. Please fold
-
-commit 7b0c8a587f0ece7c6bba6f29eeec6ac37bba11f3
-Author: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
-Date:   Thu May 23 17:08:43 2013 +0530
-
-    s390: Fix build error
-    
-    Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
-
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 9fba7a8..b99bbfb 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1351,7 +1351,7 @@ static inline pmd_t pmd_mkwrite(pmd_t pmd)
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
+index 4ffa66c..533454a 100644
+--- a/drivers/s390/net/netiucv.c
++++ b/drivers/s390/net/netiucv.c
+@@ -130,26 +130,6 @@ static inline int iucv_dbf_passes(debug_info_t *dbf_grp, int level)
+ /**
+  * some more debug stuff
+  */
+-#define IUCV_HEXDUMP16(importance,header,ptr) \
+-PRINT_##importance(header "%02x %02x %02x %02x  %02x %02x %02x %02x  " \
+-		   "%02x %02x %02x %02x  %02x %02x %02x %02x\n", \
+-		   *(((char*)ptr)),*(((char*)ptr)+1),*(((char*)ptr)+2), \
+-		   *(((char*)ptr)+3),*(((char*)ptr)+4),*(((char*)ptr)+5), \
+-		   *(((char*)ptr)+6),*(((char*)ptr)+7),*(((char*)ptr)+8), \
+-		   *(((char*)ptr)+9),*(((char*)ptr)+10),*(((char*)ptr)+11), \
+-		   *(((char*)ptr)+12),*(((char*)ptr)+13), \
+-		   *(((char*)ptr)+14),*(((char*)ptr)+15)); \
+-PRINT_##importance(header "%02x %02x %02x %02x  %02x %02x %02x %02x  " \
+-		   "%02x %02x %02x %02x  %02x %02x %02x %02x\n", \
+-		   *(((char*)ptr)+16),*(((char*)ptr)+17), \
+-		   *(((char*)ptr)+18),*(((char*)ptr)+19), \
+-		   *(((char*)ptr)+20),*(((char*)ptr)+21), \
+-		   *(((char*)ptr)+22),*(((char*)ptr)+23), \
+-		   *(((char*)ptr)+24),*(((char*)ptr)+25), \
+-		   *(((char*)ptr)+26),*(((char*)ptr)+27), \
+-		   *(((char*)ptr)+28),*(((char*)ptr)+29), \
+-		   *(((char*)ptr)+30),*(((char*)ptr)+31));
+-
+ #define PRINTK_HEADER " iucv: "       /* for debugging */
  
- #define __HAVE_ARCH_PGTABLE_DEPOSIT
--extern void pgtable_trans_huge_deposit(struct mm_struct *mm, , pmd_t *pmdp,
-+extern void pgtable_trans_huge_deposit(struct mm_struct *mm, pmd_t *pmdp,
- 				       pgtable_t pgtable);
- 
- #define __HAVE_ARCH_PGTABLE_WITHDRAW
-
---=-=-=--
+ /* dummy device to make sure netiucv_pm functions are called */
+-- 
+1.8.2.rc0.22.gb3600c3
