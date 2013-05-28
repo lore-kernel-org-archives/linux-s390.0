@@ -1,48 +1,65 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] KVM: s390: Add "devname:kvm" alias.
-Date: Tue, 28 May 2013 12:44:01 +0200
-Message-ID: <51A48A71.3010705@redhat.com>
-References: <1369672953-33705-1-git-send-email-cornelia.huck@de.ibm.com> <1369672953-33705-2-git-send-email-cornelia.huck@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1369672953-33705-2-git-send-email-cornelia.huck@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Marcelo Tossati <mtosatti@redhat.com>, Gleb Natapov <gleb@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Damian Hobson-Garcia <dhobsong@igel.co.jp>
+Subject: [PATCH v3 3/3] s390: Provide default implementation for dma_{alloc,free}_attrs
+Date: Tue, 28 May 2013 10:37:53 +0900
+Message-Id: <1369705073-16427-1-git-send-email-dhobsong@igel.co.jp>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, Damian Hobson-Garcia <dhobsong@igel.co.jp>
 List-ID: <linux-s390.vger.kernel.org>
 
-Il 27/05/2013 18:42, Cornelia Huck ha scritto:
-> Providing a "devname:kvm" module alias enables automatic loading of
-> the kvm module when /dev/kvm is opened.
-> 
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> ---
->  arch/s390/kvm/kvm-s390.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 93444c4..3b597e5 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -1138,3 +1138,12 @@ static void __exit kvm_s390_exit(void)
->  
->  module_init(kvm_s390_init);
->  module_exit(kvm_s390_exit);
-> +
-> +/*
-> + * Enable autoloading of the kvm module.
-> + * Note that we add the module alias here instead of virt/kvm/kvm_main.c
-> + * since x86 takes a different approach.
-> + */
-> +#include <linux/miscdevice.h>
-> +MODULE_ALIAS_MISCDEV(KVM_MINOR);
-> +MODULE_ALIAS("devname:kvm");
-> 
+Most architectures that define CONFIG_HAS_DMA, have implementations for
+both dma_alloc_attrs() and dma_free_attrs().  All achitectures that do
+not define CONFIG_HAS_DMA also have both of these definitions provided by
+dma-mapping-broken.h.
 
-Applied, thanks.
+Add default implementations for these functions on s390.
 
-Paolo
+Signed-off-by: Damian Hobson-Garcia <dhobsong@igel.co.jp>
+---
+ arch/s390/include/asm/dma-mapping.h |   17 +++++++++++------
+ 1 files changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
+index 9411db65..3a549b6 100644
+--- a/arch/s390/include/asm/dma-mapping.h
++++ b/arch/s390/include/asm/dma-mapping.h
+@@ -55,23 +55,28 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+ 	return (dma_addr == 0UL);
+ }
+ 
+-static inline void *dma_alloc_coherent(struct device *dev, size_t size,
+-				       dma_addr_t *dma_handle, gfp_t flag)
++#define dma_alloc_coherent(d, s, h, f) dma_alloc_attrs(d, s, h, f, NULL)
++#define dma_free_coherent(d, s, h, f) dma_free_attrs(d, s, h, f, NULL)
++
++static inline void *dma_alloc_attrs(struct device *dev, size_t size,
++				       dma_addr_t *dma_handle, gfp_t flag,
++				       struct dma_attrs *attrs)
+ {
+ 	struct dma_map_ops *ops = get_dma_ops(dev);
+ 	void *ret;
+ 
+-	ret = ops->alloc(dev, size, dma_handle, flag, NULL);
++	ret = ops->alloc(dev, size, dma_handle, flag, attrs);
+ 	debug_dma_alloc_coherent(dev, size, *dma_handle, ret);
+ 	return ret;
+ }
+ 
+-static inline void dma_free_coherent(struct device *dev, size_t size,
+-				     void *cpu_addr, dma_addr_t dma_handle)
++static inline void dma_free_attrs(struct device *dev, size_t size,
++				     void *cpu_addr, dma_addr_t dma_handle,
++				     struct dma_attrs *attrs)
+ {
+ 	struct dma_map_ops *dma_ops = get_dma_ops(dev);
+ 
+-	dma_ops->free(dev, size, cpu_addr, dma_handle, NULL);
++	dma_ops->free(dev, size, cpu_addr, dma_handle, attrs);
+ 	debug_dma_free_coherent(dev, size, cpu_addr, dma_handle);
+ }
+ 
+-- 
+1.7.5.4
