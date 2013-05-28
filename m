@@ -1,39 +1,27 @@
-From: Chen Gang <gang.chen@asianux.com>
-Subject: Re: [PATCH v2] arch: s390: appldata: using strncpy() and strnlen()
- instead of sprintf()
-Date: Tue, 28 May 2013 12:58:14 +0800
-Message-ID: <51A43966.7080309@asianux.com>
-References: <51A2CC07.5010100@asianux.com> <CAMuHMdXTW3QOxfAfqQXdbSpP4R83srFf7eMfu5fA-75S_Mujsg@mail.gmail.com> <51A32D81.2010105@asianux.com> <20130527182306.3bd8a252@thinkpad>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 7bit
+From: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH v2] arch: s390: appldata: using strncpy() and strnlen() instead of sprintf()
+Date: Tue, 28 May 2013 11:22:33 +0100
+Message-ID: <4310.1369736553@warthog.procyon.org.uk>
+References: <51A32D81.2010105@asianux.com> <51A2CC07.5010100@asianux.com> <CAMuHMdXTW3QOxfAfqQXdbSpP4R83srFf7eMfu5fA-75S_Mujsg@mail.gmail.com>
 Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20130527182306.3bd8a252@thinkpad>
+In-Reply-To: <51A32D81.2010105@asianux.com>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>
+To: Chen Gang <gang.chen@asianux.com>
+Cc: dhowells@redhat.com, Geert Uytterhoeven <geert@linux-m68k.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, jang@linux.vnet.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/28/2013 12:23 AM, Gerald Schaefer wrote:
-> On Mon, 27 May 2013 17:55:13 +0800
-> Chen Gang <gang.chen@asianux.com> wrote:
-> 
->> > 
->> > 'buf[2]' is 2 bytes length, and sprintf() will append '\0' at the end
->> > of string "?\n", so original implementation is memory overflow.
->> > 
->> > Need use strncpy() and strnlen() instead of sprintf().
->> > 
->> > 
->> > Signed-off-by: Chen Gang <gang.chen@asianux.com>
-> Applied, thanks.
-> 
+Chen Gang <gang.chen@asianux.com> wrote:
 
-Thank you, too.
+> -		len = sprintf(buf, appldata_timer_active ? "1\n" : "0\n");
+> +		strncpy(buf, appldata_timer_active ? "1\n" : "0\n",
+> +			ARRAY_SIZE(buf));
+> +		len = strnlen(buf, ARRAY_SIZE(buf));
 
--- 
-Chen Gang
+Since the strings here are a fixed, preknown size, you should use memcpy (or
+just fill in the array directly which would likely take fewer instructions
+since the strings are so short and vary by one character) and hard-code the
+length or use sizeof() instead of strnlen().
 
-Asianux Corporation
+David
