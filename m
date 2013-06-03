@@ -1,43 +1,190 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1370080791.29224.40.camel@localhost.localdomain>
-Subject: [PATCH] [S390] hypfs: Cocci spatch "ptr_ret.spatch"
-From: Thomas Meyer <thomas@m3y3r.de>
-Date: Sat, 01 Jun 2013 11:59:51 +0200
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [PATCH 9/9] dasd: Fail all requests when DASD_FLAG_ABORTIO is set
+Date: Mon,  3 Jun 2013 17:03:22 +0200
+Message-Id: <1370271802-30019-10-git-send-email-schwidefsky@de.ibm.com>
+In-Reply-To: <1370271802-30019-1-git-send-email-schwidefsky@de.ibm.com>
+References: <1370271802-30019-1-git-send-email-schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Hannes Reinecke <hare@suse.de>, Stefan Weinhuber <wein@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Hannes Reinecke <hare@suse.de>
 
-Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
+Whenever a DASD request encounters a timeout we might
+need to abort all outstanding requests on this or
+even other devices.
+
+This is especially useful if one wants to fail all
+devices on one side of a RAID10 configuration, even
+though only one device exhibited an error.
+
+To handle this I've introduced a new device flag
+DASD_FLAG_ABORTIO.
+This flag is evaluated in __dasd_process_request_queue()
+and will invoke blk_abort_request() for all
+outstanding requests with DASD_CQR_FLAGS_FAILFAST set.
+This will cause any of these requests to be aborted
+immediately if the blk_timeout function is activated.
+
+The DASD_FLAG_ABORTIO is also evaluated in
+__dasd_process_request_queue to abort all
+new request which would have the
+DASD_CQR_FLAGS_FAILFAST bit set.
+
+The flag can be set with the new ioctls 'BIODASDABORTIO'
+and removed with 'BIODASDALLOWIO'.
+
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Stefan Weinhuber <wein@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
+ arch/s390/include/uapi/asm/dasd.h |    4 +++
+ drivers/s390/block/dasd.c         |   13 ++++++--
+ drivers/s390/block/dasd_int.h     |    3 ++
+ drivers/s390/block/dasd_ioctl.c   |   59 +++++++++++++++++++++++++++++++++++++
+ 4 files changed, 76 insertions(+), 3 deletions(-)
 
-diff -u -p a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
---- a/arch/s390/hypfs/hypfs_diag.c
-+++ b/arch/s390/hypfs/hypfs_diag.c
-@@ -651,9 +651,7 @@ static int hypfs_create_cpu_files(struct
- 	}
- 	diag224_idx2name(cpu_info__ctidx(diag204_info_type, cpu_info), buffer);
- 	rc = hypfs_create_str(sb, cpu_dir, "type", buffer);
--	if (IS_ERR(rc))
--		return PTR_ERR(rc);
--	return 0;
-+	return PTR_RET(rc);
+diff --git a/arch/s390/include/uapi/asm/dasd.h b/arch/s390/include/uapi/asm/dasd.h
+index 38eca3b..5812a3b 100644
+--- a/arch/s390/include/uapi/asm/dasd.h
++++ b/arch/s390/include/uapi/asm/dasd.h
+@@ -261,6 +261,10 @@ struct dasd_snid_ioctl_data {
+ #define BIODASDQUIESCE _IO(DASD_IOCTL_LETTER,6) 
+ /* Resume IO on device */
+ #define BIODASDRESUME  _IO(DASD_IOCTL_LETTER,7) 
++/* Abort all I/O on a device */
++#define BIODASDABORTIO _IO(DASD_IOCTL_LETTER, 240)
++/* Allow I/O on a device */
++#define BIODASDALLOWIO _IO(DASD_IOCTL_LETTER, 241)
+ 
+ 
+ /* retrieve API version number */
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index 54f4bb8..17150a7 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -38,9 +38,6 @@
+  */
+ #define DASD_CHANQ_MAX_SIZE 4
+ 
+-#define DASD_SLEEPON_START_TAG	(void *) 1
+-#define DASD_SLEEPON_END_TAG	(void *) 2
+-
+ /*
+  * SECTION: exported variables of dasd.c
+  */
+@@ -2535,6 +2532,16 @@ static void __dasd_process_request_queue(struct dasd_block *block)
+ 			__blk_end_request_all(req, -EIO);
+ 			continue;
+ 		}
++		if (test_bit(DASD_FLAG_ABORTALL, &basedev->flags) &&
++		    (basedev->features & DASD_FEATURE_FAILFAST ||
++		     blk_noretry_request(req))) {
++			DBF_DEV_EVENT(DBF_ERR, basedev,
++				      "Rejecting failfast request %p",
++				      req);
++			blk_start_request(req);
++			__blk_end_request_all(req, -ETIMEDOUT);
++			continue;
++		}
+ 		cqr = basedev->discipline->build_cp(basedev, block, req);
+ 		if (IS_ERR(cqr)) {
+ 			if (PTR_ERR(cqr) == -EBUSY)
+diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
+index 2bd03f4..690001a 100644
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -524,7 +524,10 @@ struct dasd_block {
+ #define DASD_FLAG_SUSPENDED	9	/* The device was suspended */
+ #define DASD_FLAG_SAFE_OFFLINE	10	/* safe offline processing requested*/
+ #define DASD_FLAG_SAFE_OFFLINE_RUNNING	11	/* safe offline running */
++#define DASD_FLAG_ABORTALL	12	/* Abort all noretry requests */
+ 
++#define DASD_SLEEPON_START_TAG	((void *) 1)
++#define DASD_SLEEPON_END_TAG	((void *) 2)
+ 
+ void dasd_put_device_wake(struct dasd_device *);
+ 
+diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
+index 8be1b51..25a0f2f 100644
+--- a/drivers/s390/block/dasd_ioctl.c
++++ b/drivers/s390/block/dasd_ioctl.c
+@@ -141,6 +141,59 @@ static int dasd_ioctl_resume(struct dasd_block *block)
  }
  
- static void *hypfs_create_lpar_files(struct super_block *sb,
-@@ -702,9 +700,7 @@ static int hypfs_create_phys_cpu_files(s
- 		return PTR_ERR(rc);
- 	diag224_idx2name(phys_cpu__ctidx(diag204_info_type, cpu_info), buffer);
- 	rc = hypfs_create_str(sb, cpu_dir, "type", buffer);
--	if (IS_ERR(rc))
--		return PTR_ERR(rc);
--	return 0;
-+	return PTR_RET(rc);
- }
- 
- static void *hypfs_create_phys_files(struct super_block *sb,
+ /*
++ * Abort all failfast I/O on a device.
++ */
++static int dasd_ioctl_abortio(struct dasd_block *block)
++{
++	unsigned long flags;
++	struct dasd_device *base;
++	struct dasd_ccw_req *cqr, *n;
++
++	base = block->base;
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++
++	if (test_and_set_bit(DASD_FLAG_ABORTALL, &base->flags))
++		return 0;
++	DBF_DEV_EVENT(DBF_NOTICE, base, "%s", "abortall flag set");
++
++	spin_lock_irqsave(&block->request_queue_lock, flags);
++	spin_lock(&block->queue_lock);
++	list_for_each_entry_safe(cqr, n, &block->ccw_queue, blocklist) {
++		if (test_bit(DASD_CQR_FLAGS_FAILFAST, &cqr->flags) &&
++		    cqr->callback_data &&
++		    cqr->callback_data != DASD_SLEEPON_START_TAG &&
++		    cqr->callback_data != DASD_SLEEPON_END_TAG) {
++			spin_unlock(&block->queue_lock);
++			blk_abort_request(cqr->callback_data);
++			spin_lock(&block->queue_lock);
++		}
++	}
++	spin_unlock(&block->queue_lock);
++	spin_unlock_irqrestore(&block->request_queue_lock, flags);
++
++	dasd_schedule_block_bh(block);
++	return 0;
++}
++
++/*
++ * Allow I/O on a device
++ */
++static int dasd_ioctl_allowio(struct dasd_block *block)
++{
++	struct dasd_device *base;
++
++	base = block->base;
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++
++	if (test_and_clear_bit(DASD_FLAG_ABORTALL, &base->flags))
++		DBF_DEV_EVENT(DBF_NOTICE, base, "%s", "abortall flag unset");
++
++	return 0;
++}
++
++/*
+  * performs formatting of _device_ according to _fdata_
+  * Note: The discipline's format_function is assumed to deliver formatting
+  * commands to format multiple units of the device. In terms of the ECKD
+@@ -458,6 +511,12 @@ int dasd_ioctl(struct block_device *bdev, fmode_t mode,
+ 	case BIODASDRESUME:
+ 		rc = dasd_ioctl_resume(block);
+ 		break;
++	case BIODASDABORTIO:
++		rc = dasd_ioctl_abortio(block);
++		break;
++	case BIODASDALLOWIO:
++		rc = dasd_ioctl_allowio(block);
++		break;
+ 	case BIODASDFMT:
+ 		rc = dasd_ioctl_format(bdev, argp);
+ 		break;
+-- 
+1.7.9.5
