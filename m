@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [PATCH 5/9] dasd: Reduce amount of messages for specific errors
-Date: Mon,  3 Jun 2013 17:03:18 +0200
-Message-Id: <1370271802-30019-6-git-send-email-schwidefsky@de.ibm.com>
+Subject: [PATCH 6/9] block,dasd: detailed I/O errors
+Date: Mon,  3 Jun 2013 17:03:19 +0200
+Message-Id: <1370271802-30019-7-git-send-email-schwidefsky@de.ibm.com>
 In-Reply-To: <1370271802-30019-1-git-send-email-schwidefsky@de.ibm.com>
 References: <1370271802-30019-1-git-send-email-schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -14,35 +14,74 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Hannes Reinecke <hare@suse.de>
 
-Whenever a request has been aborted internally by the driver
-there is no sense data to be had. And printing lots of messages
-stalls the system, so better to print out a short one-liner.
+The DASD driver is using FASTFAIL as an equivalent to the
+transport errors in SCSI. And the 'steal lock' function maps
+roughly to a reservation error. So we should be returning the
+appropriate error codes when completing a request.
 
+Cc: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Hannes Reinecke <hare@suse.de>
 Signed-off-by: Stefan Weinhuber <wein@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- drivers/s390/block/dasd_erp.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ block/blk-core.c          |    3 +++
+ drivers/s390/block/dasd.c |   16 +++++++++++++---
+ 2 files changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_erp.c b/drivers/s390/block/dasd_erp.c
-index 3250cb4..8d11f77 100644
---- a/drivers/s390/block/dasd_erp.c
-+++ b/drivers/s390/block/dasd_erp.c
-@@ -159,6 +159,14 @@ dasd_log_sense(struct dasd_ccw_req *cqr, struct irb *irb)
- 	struct dasd_device *device;
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 33c33bc..ef19bf2 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -2315,6 +2315,9 @@ bool blk_update_request(struct request *req, int error, unsigned int nr_bytes)
+ 		case -EBADE:
+ 			error_type = "critical nexus";
+ 			break;
++		case -ETIMEDOUT:
++			error_type = "timeout";
++			break;
+ 		case -EIO:
+ 		default:
+ 			error_type = "I/O";
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index 87478be..b97624b 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -2183,7 +2183,7 @@ static int _dasd_sleep_on(struct dasd_ccw_req *maincqr, int interruptible)
+ 		    test_bit(DASD_CQR_FLAGS_FAILFAST, &cqr->flags) &&
+ 		    (!dasd_eer_enabled(device))) {
+ 			cqr->status = DASD_CQR_FAILED;
+-			cqr->intrc = -EAGAIN;
++			cqr->intrc = -ENOLINK;
+ 			continue;
+ 		}
+ 		/* Don't try to start requests if device is stopped */
+@@ -2590,8 +2590,17 @@ static void __dasd_cleanup_cqr(struct dasd_ccw_req *cqr)
+ 	req = (struct request *) cqr->callback_data;
+ 	dasd_profile_end(cqr->block, cqr, req);
+ 	status = cqr->block->base->discipline->free_cp(cqr, req);
+-	if (status <= 0)
+-		error = status ? status : -EIO;
++	if (status < 0)
++		error = status;
++	else if (status == 0) {
++		if (cqr->intrc == -EPERM)
++			error = -EBADE;
++		else if (cqr->intrc == -ENOLINK ||
++			 cqr->intrc == -ETIMEDOUT)
++			error = cqr->intrc;
++		else
++			error = -EIO;
++	}
+ 	__blk_end_request_all(req, error);
+ }
  
- 	device = cqr->startdev;
-+	if (cqr->intrc == -ETIMEDOUT) {
-+		dev_err(&device->cdev->dev, "cqr %p timeout error", cqr);
-+		return;
-+	}
-+	if (cqr->intrc == -ENOLINK) {
-+		dev_err(&device->cdev->dev, "cqr %p transport error", cqr);
-+		return;
-+	}
- 	/* dump sense data */
- 	if (device->discipline && device->discipline->dump_sense)
- 		device->discipline->dump_sense(device, cqr, irb);
+@@ -2692,6 +2701,7 @@ static void __dasd_block_start_head(struct dasd_block *block)
+ 		    test_bit(DASD_CQR_FLAGS_FAILFAST, &cqr->flags) &&
+ 		    (!dasd_eer_enabled(block->base))) {
+ 			cqr->status = DASD_CQR_FAILED;
++			cqr->intrc = -ENOLINK;
+ 			dasd_schedule_block_bh(block);
+ 			continue;
+ 		}
 -- 
 1.7.9.5
