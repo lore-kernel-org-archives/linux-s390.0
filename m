@@ -1,65 +1,75 @@
-From: Ben Hutchings <ben@decadent.org.uk>
-Subject: [SCSI] ufs: Add missing dependency on CONFIG_HAS_IOMEM
-Date: Sun, 09 Jun 2013 21:04:34 +0100
-Message-ID: <1370808274.5614.10.camel@deadeye.wl.decadent.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-W31E72mh7h7kJAO93B0B"
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: "James E.J. Bottomley" <JBottomley@parallels.com>
-Cc: Debian kernel maintainers <debian-kernel@lists.debian.org>, linux-scsi <linux-scsi@vger.kernel.org>, linux-s390@vger.kernel.org, stable@vger.kernel.org
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Mon, 03 Jun 2013 10:37:39 +0000
+Subject: Re: [PATCH] s390/net/netiucv: remove unused macro
+Message-Id: <1370255859.14163.5.camel@BR9GV9YG.de.ibm.com>
+In-Reply-To: <1369734927-28401-1-git-send-email-andriy.shevchenko@linux.intel.com>
+References: <1369734927-28401-1-git-send-email-andriy.shevchenko@linux.intel.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+Thanks, Andy. We will add your patch to one of our next submissions to
+Dave Miller.
 
---=-W31E72mh7h7kJAO93B0B
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-The ufs driver doesn't build on s390 with CONFIG_PCI disabled as it
-requires MMIO functions.
-
-Marking for 3.9-stable only as CONFIG_SCSI_UFSHCD was previously
-dependent on CONFIG_PCI.
-
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Cc: stable@vger.kernel.org # 3.9
----
---- a/drivers/scsi/ufs/Kconfig
-+++ b/drivers/scsi/ufs/Kconfig
-@@ -34,7 +34,7 @@
-=20
- config SCSI_UFSHCD
- 	tristate "Universal Flash Storage Controller Driver Core"
--	depends on SCSI
-+	depends on SCSI && HAS_IOMEM
- 	---help---
- 	This selects the support for UFS devices in Linux, say Y and make
- 	  sure that you know the name of your UFS host adapter (the card
+Regards, Ursula Braun
 
 
---=-W31E72mh7h7kJAO93B0B
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
+On Mon, 2013-05-28, Andy Shevchenko wrote:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIVAwUAUbTf0ue/yOyVhhEJAQpF/xAArX9TH4T9NQ3doxLih5pV7VTumYT7M2S/
-RlMaLpB9ZilPy90dErSf2/JFvrvPJsIVga9BV+sj9Oz2hAZHAILLgjWTjwi9Kh9i
-dzMf0ztq7hDMyXw9YnK7/iwRA3Y/sQcXm9xV3dYSBExWyi6JMVWEU18aRy6nmrh4
-bi/rdehBI5MbBFAfwblPMNIZyzITprQ6Nq5z3FZZQKSYhkoNtr1VHFtaKsCkK5TM
-SNq4+mDrChjOL0ljw1KlBOE8gGGCjaF68C1NCcWE5Iu7DpwwMUdaRXbJquqETAUz
-q8viDDkSrxTEn+dQiPvYikQyEmDvYsN3xBIyWd34mV2B+7uJB66cBR+3ZRd4OMcZ
-e6UOPLzOoP1/xrTDwQVM9OHpPZIMLm9NdxSxSHd6AI7COsSg+ZXEVoApYjcecAyf
-EFC2yaoUrdezj6tMY0pNbsN7Nwu8s4OUtXu7JhXXHDYGwdB6OIdedrta3qP0VEQh
-YRCEgTJCXr1J+PYfWEIzFrIociplyUc93mqD5YWmdbz3HX657XURDWxbOlNKjr0m
-PNlVvWr3dmXP4m1AVUOYDgIvlJJV0ie8VXGEZJMnTEKWRl6A3mKclvu+wYamMbiU
-acSYzwp8hgTcnoO/l7fznnP9IjxBNeoEtg90Jj5uHPJyC0HiIDOSnF6G8bYeR4L+
-8JDPIdLHn08=
-=c41M
------END PGP SIGNATURE-----
-
---=-W31E72mh7h7kJAO93B0B--
+> If someone is interested to dump something they may consider to use
+> print_hex_dump() or print_hex_dump_bytes() kernel helpers.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+> drivers/s390/net/netiucv.c | 20 --------------------
+> 1 file changed, 20 deletions(-)
+> 
+> diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
+> index 4ffa66c..533454a 100644
+> --- a/drivers/s390/net/netiucv.c
+> +++ b/drivers/s390/net/netiucv.c
+> @@ -130,26 +130,6 @@ static inline int iucv_dbf_passes(debug_info_t
+> *dbf_grp, int level)
+> /**
+>  * some more debug stuff
+>  */
+> -#define IUCV_HEXDUMP16(importance,header,ptr) \
+> -PRINT_##importance(header "%02x %02x %02x %02x  %02x %02x %02x %02x
+>  " \
+> -                                     "%02x %02x %02x %02x  %02x %02x
+> %02x %02x\n", \
+> -
+> *(((char*)ptr)),*(((char*)ptr)+1),*(((char*)ptr)+2), \
+> -
+> *(((char*)ptr)+3),*(((char*)ptr)+4),*(((char*)ptr)+5), \
+> -
+> *(((char*)ptr)+6),*(((char*)ptr)+7),*(((char*)ptr)+8), \
+> -
+> *(((char*)ptr)+9),*(((char*)ptr)+10),*(((char*)ptr)+11), \
+> -
+> *(((char*)ptr)+12),*(((char*)ptr)+13), \
+> -
+> *(((char*)ptr)+14),*(((char*)ptr)+15)); \
+> -PRINT_##importance(header "%02x %02x %02x %02x  %02x %02x %02x %02x
+>  " \
+> -                                     "%02x %02x %02x %02x  %02x %02x
+> %02x %02x\n", \
+> -
+> *(((char*)ptr)+16),*(((char*)ptr)+17), \
+> -
+> *(((char*)ptr)+18),*(((char*)ptr)+19), \
+> -
+> *(((char*)ptr)+20),*(((char*)ptr)+21), \
+> -
+> *(((char*)ptr)+22),*(((char*)ptr)+23), \
+> -
+> *(((char*)ptr)+24),*(((char*)ptr)+25), \
+> -
+> *(((char*)ptr)+26),*(((char*)ptr)+27), \
+> -
+> *(((char*)ptr)+28),*(((char*)ptr)+29), \
+> -
+> *(((char*)ptr)+30),*(((char*)ptr)+31));
+> -
+> #define PRINTK_HEADER " iucv: "       /* for debugging */
+> 
+> /* dummy device to make sure netiucv_pm functions are called */
