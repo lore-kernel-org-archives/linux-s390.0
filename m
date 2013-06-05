@@ -1,21 +1,22 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+From: Andrew Morton <akpm@linux-foundation.org>
 Subject: Re: [PATCH] clean up scary strncpy(dst, src, strlen(src)) uses
-Date: Sat, 01 Jun 2013 21:54:29 +0200
-Message-ID: <1473633.hHuG9rKQnc@vostro.rjw.lan>
+Date: Wed, 5 Jun 2013 16:48:04 -0700
+Message-ID: <20130605164804.8071867d28c1f20cad8d7d2a@linux-foundation.org>
 References: <20130531161807.GA9536@www.outflux.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
 In-Reply-To: <20130531161807.GA9536@www.outflux.net>
-Sender: linux-doc-owner@vger.kernel.org
+Sender: linux-acpi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
 To: Kees Cook <keescook@chromium.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, user-mode-linux-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, user-mode-linux-devel@lists.sourceforge.net
 List-ID: <linux-s390.vger.kernel.org>
 
-On Friday, May 31, 2013 09:18:07 AM Kees Cook wrote:
+On Fri, 31 May 2013 09:18:07 -0700 Kees Cook <keescook@chromium.org> wrote:
+
 > Fix various weird constructions of strncpy(dst, src, strlen(src)). Length
 > limits should be about the space available in the destination, not
 > repurposed as a method to either always include or always exclude
@@ -24,27 +25,8 @@ On Friday, May 31, 2013 09:18:07 AM Kees Cook wrote:
 > memcpy). Readable code should not depend on the weird behavior of strncpy
 > when it hits the length limit. Better to avoid the anti-pattern entirely.
 > 
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-
-For the ACPI part:
-
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
-> ---
-> This is a follow-up to the anti-pattern being fixed in iscsi-target,
-> which was exploitable:
-> "iscsi-target: fix heap buffer overflow on error"
-> http://git.kernel.org/cgit/linux/kernel/git/nab/target-pending.git/commit/?id=cea4dcfdad926a27a18e188720efe0f2c9403456
-> ---
->  Documentation/accounting/getdelays.c             |    3 ++-
->  drivers/acpi/sysfs.c                             |    3 +--
->  drivers/s390/net/qeth_l3_sys.c                   |    6 ++----
->  drivers/staging/tidspbridge/rmgr/drv_interface.c |    3 +--
->  fs/hppfs/hppfs.c                                 |   11 ++++++-----
->  5 files changed, 12 insertions(+), 14 deletions(-)
-> 
-> diff --git a/Documentation/accounting/getdelays.c b/Documentation/accounting/getdelays.c
-> index f8ebcde..5e4773d 100644
+> ...
+>
 > --- a/Documentation/accounting/getdelays.c
 > +++ b/Documentation/accounting/getdelays.c
 > @@ -23,6 +23,7 @@
@@ -64,103 +46,7 @@ Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 >  			break;
 >  		case 'w':
 >  			logfile = strdup(optarg);
-> diff --git a/drivers/acpi/sysfs.c b/drivers/acpi/sysfs.c
-> index fcae5fa..193745d 100644
-> --- a/drivers/acpi/sysfs.c
-> +++ b/drivers/acpi/sysfs.c
-> @@ -677,10 +677,9 @@ void acpi_irq_stats_init(void)
->  		else
->  			sprintf(buffer, "bug%02X", i);
->  
-> -		name = kzalloc(strlen(buffer) + 1, GFP_KERNEL);
-> +		name = kstrdup(buffer, GFP_KERNEL);
->  		if (name == NULL)
->  			goto fail;
-> -		strncpy(name, buffer, strlen(buffer) + 1);
->  
->  		sysfs_attr_init(&counter_attrs[i].attr);
->  		counter_attrs[i].attr.name = name;
-> diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
-> index e70af24..d1c8025 100644
-> --- a/drivers/s390/net/qeth_l3_sys.c
-> +++ b/drivers/s390/net/qeth_l3_sys.c
-> @@ -315,10 +315,8 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
->  	if (qeth_configure_cq(card, QETH_CQ_ENABLED))
->  		return -EPERM;
->  
-> -	for (i = 0; i < 8; i++)
-> -		card->options.hsuid[i] = ' ';
-> -	card->options.hsuid[8] = '\0';
-> -	strncpy(card->options.hsuid, tmp, strlen(tmp));
-> +	snprintf(card->options.hsuid, sizeof(card->options.hsuid),
-> +		 "%-8s", tmp);
->  	ASCEBC(card->options.hsuid, 8);
->  	if (card->dev)
->  		memcpy(card->dev->perm_addr, card->options.hsuid, 9);
-> diff --git a/drivers/staging/tidspbridge/rmgr/drv_interface.c b/drivers/staging/tidspbridge/rmgr/drv_interface.c
-> index df0f37e..c4d632c 100644
-> --- a/drivers/staging/tidspbridge/rmgr/drv_interface.c
-> +++ b/drivers/staging/tidspbridge/rmgr/drv_interface.c
-> @@ -421,12 +421,11 @@ static int omap3_bridge_startup(struct platform_device *pdev)
->  	drv_datap->tc_wordswapon = tc_wordswapon;
->  
->  	if (base_img) {
-> -		drv_datap->base_img = kmalloc(strlen(base_img) + 1, GFP_KERNEL);
-> +		drv_datap->base_img = kstrdup(base_img, GFP_KERNEL);
->  		if (!drv_datap->base_img) {
->  			err = -ENOMEM;
->  			goto err2;
->  		}
-> -		strncpy(drv_datap->base_img, base_img, strlen(base_img) + 1);
->  	}
->  
->  	dev_set_drvdata(bridge, drv_datap);
-> diff --git a/fs/hppfs/hppfs.c b/fs/hppfs/hppfs.c
-> index cd3e389..d619b83 100644
-> --- a/fs/hppfs/hppfs.c
-> +++ b/fs/hppfs/hppfs.c
-> @@ -69,7 +69,7 @@ static char *dentry_name(struct dentry *dentry, int extra)
->  	struct dentry *parent;
->  	char *root, *name;
->  	const char *seg_name;
-> -	int len, seg_len;
-> +	int len, seg_len, root_len;
->  
->  	len = 0;
->  	parent = dentry;
-> @@ -81,7 +81,8 @@ static char *dentry_name(struct dentry *dentry, int extra)
->  	}
->  
->  	root = "proc";
-> -	len += strlen(root);
-> +	root_len = strlen(root);
-> +	len += root_len;
->  	name = kmalloc(len + extra + 1, GFP_KERNEL);
->  	if (name == NULL)
->  		return NULL;
-> @@ -91,7 +92,7 @@ static char *dentry_name(struct dentry *dentry, int extra)
->  	while (parent->d_parent != parent) {
->  		if (is_pid(parent)) {
->  			seg_name = "pid";
-> -			seg_len = strlen("pid");
-> +			seg_len = strlen(seg_name);
->  		}
->  		else {
->  			seg_name = parent->d_name.name;
-> @@ -100,10 +101,10 @@ static char *dentry_name(struct dentry *dentry, int extra)
->  
->  		len -= seg_len + 1;
->  		name[len] = '/';
-> -		strncpy(&name[len + 1], seg_name, seg_len);
-> +		memcpy(&name[len + 1], seg_name, seg_len);
->  		parent = parent->d_parent;
->  	}
-> -	strncpy(name, root, strlen(root));
-> +	memcpy(name, root, root_len);
->  	return name;
->  }
->  
-> 
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+
+Documentation/accounting/getdelays.c:26:24: fatal error: bsd/string.h: No such file or directory
+
+I'll revert this part.
