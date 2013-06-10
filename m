@@ -1,31 +1,39 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Mon, 10 Jun 2013 14:04:38 +0000
-Subject: Re: s390: Implement IRQ functions if !PCI
-Message-Id: <20130610160438.237ce20b@mschwide>
-In-Reply-To: <20130609.170304.610055126891418919.davem@davemloft.net>
-References: <20130609.170304.610055126891418919.davem@davemloft.net>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Mon, 10 Jun 2013 15:05:43 +0000
+Subject: Re: [PATCH 3.9.y] s390: Add pgste to ptep_modify_prot_start()
+Message-Id: <20130610150543.GA6341@osiris>
+In-Reply-To: <1370808564.5614.14.camel@deadeye.wl.decadent.org.uk>
+References: <1370808564.5614.14.camel@deadeye.wl.decadent.org.uk>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, 09 Jun 2013 17:03:04 -0700 (PDT)
-David Miller <davem@davemloft.net> wrote:
-
-> From: Ben Hutchings <ben@decadent.org.uk>
-> Date: Sun, 09 Jun 2013 21:07:31 +0100
+On Sun, Jun 09, 2013 at 09:09:24PM +0100, Ben Hutchings wrote:
+> Commit 52f36be0f4e2 's390/pgtable: Fix check for pgste/storage key
+> handling', which was commit b56433cb782d upstream, added a use of
+> pgste to ptep_modify_prot_start(), but this variable does not exist.
+> In mainline, pgste was added by commit d3383632d4e8 's390/mm: add pte
+> invalidation notifier for kvm' and initialised to the return value of
+> pgste_get_lock(ptep).  Initialise it similarly here.
 > 
-> > All architectures must implement IRQ functions.  Since various
-> > dependencies on !S390 were removed, there are various drivers that can
-> > be selected but will fail to link.  Provide a dummy implementation of
-> > these functions for the !PCI case.
-> > 
-> > Compile-tested only.
+> Compile-tested only.
 > 
-> Acked-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+> ---
+> --- a/arch/s390/include/asm/pgtable.h
+> +++ b/arch/s390/include/asm/pgtable.h
+> @@ -1063,11 +1063,12 @@ static inline pte_t ptep_modify_prot_sta
+>  					   unsigned long address,
+>  					   pte_t *ptep)
+>  {
+> +	pgste_t pgste;
+>  	pte_t pte;
+>  
+>  	mm->context.flush_mm = 1;
+>  	if (mm_has_pgste(mm))
+> -		pgste_get_lock(ptep);
+> +		pgste = pgste_get_lock(ptep);
+>  
+>  	pte = *ptep;
+>  	if (!mm_exclusive(mm))
 
-Yeah, this is probably the least painful method to do it. Applied.
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+Looks good. Thanks!
