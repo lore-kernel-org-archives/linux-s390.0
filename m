@@ -1,41 +1,44 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] clean up scary strncpy(dst, src, strlen(src)) uses
-Date: Thu, 6 Jun 2013 09:08:49 +0200
-Message-ID: <CAMuHMdWH=3XMTn6Qbt+af9oEOG=EhBVTaDTWqmqg3=zn70q0JQ@mail.gmail.com>
-References: <20130531161807.GA9536@www.outflux.net>
-	<20130605164804.8071867d28c1f20cad8d7d2a@linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20130605164804.8071867d28c1f20cad8d7d2a@linux-foundation.org>
-Sender: linux-doc-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Kees Cook <keescook@chromium.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-doc@vger.kernel.org, linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, driverdevel <devel@driverdev.osuosl.org>, uml-devel <user-mode-linux-devel@lists.sourceforge.net>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 10 Jun 2013 17:23:30 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390/ap: Cocci spatch "ptr_ret.spatch"
+Message-ID: <20130610152330.GB6341@osiris>
+References: <1370080273.29224.21.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1370080273.29224.21.camel@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Thomas Meyer <thomas@m3y3r.de>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jun 6, 2013 at 1:48 AM, Andrew Morton <akpm@linux-foundation.org> wrote:
->> -                     strncpy(containerpath, optarg, strlen(optarg) + 1);
->> +                     strlcpy(containerpath, optarg, sizeof(containerpath));
->>                       break;
->>               case 'w':
->>                       logfile = strdup(optarg);
->
-> Documentation/accounting/getdelays.c:26:24: fatal error: bsd/string.h: No such file or directory
+On Sat, Jun 01, 2013 at 11:51:13AM +0200, Thomas Meyer wrote:
+> 
+> Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
+> ---
+> 
+> diff -u -p a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+> --- a/drivers/s390/crypto/ap_bus.c
+> +++ b/drivers/s390/crypto/ap_bus.c
+> @@ -1795,7 +1795,7 @@ static int ap_poll_thread_start(void)
+>  	mutex_lock(&ap_poll_thread_mutex);
+>  	if (!ap_poll_kthread) {
+>  		ap_poll_kthread = kthread_run(ap_poll_thread, NULL, "appoll");
+> -		rc = IS_ERR(ap_poll_kthread) ? PTR_ERR(ap_poll_kthread) : 0;
+> +		rc = PTR_RET(ap_poll_kthread);
+>  		if (rc)
+>  			ap_poll_kthread = NULL;
+>  	}
+> @@ -1904,7 +1904,7 @@ int __init ap_module_init(void)
+>  
+>  	/* Create /sys/devices/ap. */
+>  	ap_root_device = root_device_register("ap");
+> -	rc = IS_ERR(ap_root_device) ? PTR_ERR(ap_root_device) : 0;
+> +	rc = PTR_RET(ap_root_device);
+>  	if (rc)
+>  		goto out_bus;
 
-sudo apt-get install libbsd-dev
-
-strlcpy() is available almost everywhere, except in glibc, cfr.
-http://en.wikibooks.org/wiki/C_Programming/C_Reference/nonstandard/strlcpy#Criticism
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Applied all you s390 related patches. Thanks.
