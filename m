@@ -1,52 +1,59 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 0/6] KVM: s390: Patches for kvm-next.
-Date: Wed, 12 Jun 2013 13:54:51 +0200
-Message-ID: <1371038097-28577-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 3/6] KVM: s390: code cleanup to use common vcpu slab cache
+Date: Wed, 12 Jun 2013 13:54:54 +0200
+Message-ID: <1371038097-28577-4-git-send-email-cornelia.huck@de.ibm.com>
+References: <1371038097-28577-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1371038097-28577-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Gleb Natapov <gleb@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-here are some patches that have accumulated in our kvm/s390 patch queue.
+cleanup of arch specific code to use common code provided vcpu slab cache
+instead of kzalloc() provided memory
 
-There's now support for large pages in the guest, and perf samples can
-be sorted between kvm host or guest. Other than that, some cleanup and
-a bugfix.
+Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Please apply.
-
-Christian Borntraeger (3):
-  KVM: s390: Provide function for setting the guest storage key
-  KVM: s390: guest large pages
-  KVM: s390: Use common waitqueue
-
-Heinz Graalfs (1):
-  KVM: s390,perf: Detect if perf samples belong to KVM host or guest
-
-Michael Mueller (1):
-  KVM: s390: code cleanup to use common vcpu slab cache
-
-Thomas Huth (1):
-  KVM: s390: Fix epsw instruction decoding
-
- arch/s390/include/asm/kvm_host.h   |  8 +++-
- arch/s390/include/asm/perf_event.h | 10 +++++
- arch/s390/include/asm/pgalloc.h    |  3 ++
- arch/s390/kernel/entry64.S         |  1 +
- arch/s390/kernel/perf_event.c      | 52 ++++++++++++++++++++++
- arch/s390/kernel/s390_ksyms.c      |  1 +
- arch/s390/kvm/interrupt.c          | 18 ++++----
- arch/s390/kvm/kvm-s390.c           | 15 ++++---
- arch/s390/kvm/kvm-s390.h           |  6 +++
- arch/s390/kvm/priv.c               | 89 ++++++++++++++++++++++++++++++++++++--
- arch/s390/kvm/sigp.c               | 16 +++----
- arch/s390/mm/pgtable.c             | 48 ++++++++++++++++++++
- 12 files changed, 238 insertions(+), 29 deletions(-)
-
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index e56caec..757e1c6 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -278,7 +278,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
+ 
+ 	free_page((unsigned long)(vcpu->arch.sie_block));
+ 	kvm_vcpu_uninit(vcpu);
+-	kfree(vcpu);
++	kmem_cache_free(kvm_vcpu_cache, vcpu);
+ }
+ 
+ static void kvm_free_vcpus(struct kvm *kvm)
+@@ -408,7 +408,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
+ 
+ 	rc = -ENOMEM;
+ 
+-	vcpu = kzalloc(sizeof(struct kvm_vcpu), GFP_KERNEL);
++	vcpu = kmem_cache_zalloc(kvm_vcpu_cache, GFP_KERNEL);
+ 	if (!vcpu)
+ 		goto out;
+ 
+@@ -453,7 +453,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
+ out_free_sie_block:
+ 	free_page((unsigned long)(vcpu->arch.sie_block));
+ out_free_cpu:
+-	kfree(vcpu);
++	kmem_cache_free(kvm_vcpu_cache, vcpu);
+ out:
+ 	return ERR_PTR(rc);
+ }
 -- 
 1.8.1.6
