@@ -1,113 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Joe Perches <joe@perches.com>
-Subject: [Trivial PATCH 06/33] s390: Convert use of typedef ctl_table to struct ctl_table
-Date: Thu, 13 Jun 2013 19:37:31 -0700
-Message-Id: <a7fb85fd601818d0cac8f76e9d9c4be6c985fbba.1371177118.git.joe@perches.com>
-In-Reply-To: <cover.1371177118.git.joe@perches.com>
-References: <cover.1371177118.git.joe@perches.com>
+Subject: [Trivial PATCH 00/33] Remove uses of typedef ctl_table
+Date: Thu, 13 Jun 2013 19:37:25 -0700
+Message-Id: <cover.1371177118.git.joe@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Jiri Kosina <trivial@kernel.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, openipmi-developer@lists.sourceforge.net, linux-rdma@vger.kernel.org, linux-raid@vger.kernel.org, linux-scsi@vger.kernel.org, codalist@TELEMANN.coda.cs.cmu.edu, linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com, linux-nfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net, ocfs2-devel@oss.oracle.com, xfs@oss.sgi.com, keyrings@linux-nfs.org, netdev@vger.kernel.org, linux-mm@kvack.org, linux-security-module@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This typedef is unnecessary and should just be removed.
+It's clearer to use struct ctl_table instead
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- arch/s390/appldata/appldata_base.c | 16 ++++++++--------
- arch/s390/kernel/debug.c           |  4 ++--
- arch/s390/mm/cmm.c                 |  6 ++++--
- 3 files changed, 14 insertions(+), 12 deletions(-)
+Joe Perches (33):
+  arm: kernel: isa: Convert use of typedef ctl_table to struct ctl_table
+  frv: Convert use of typedef ctl_table to struct ctl_table
+  ia64: crash: Convert use of typedef ctl_table to struct ctl_table
+  mips: lasat: sysctl: Convert use of typedef ctl_table to struct ctl_table
+  powerpc: idle: Convert use of typedef ctl_table to struct ctl_table
+  s390: Convert use of typedef ctl_table to struct ctl_table
+  tile: proc: Convert use of typedef ctl_table to struct ctl_table
+  x86: vdso: Convert use of typedef ctl_table to struct ctl_table
+  cdrom: Convert use of typedef ctl_table to struct ctl_table
+  char: Convert use of typedef ctl_table to struct ctl_table
+  infiniband: Convert use of typedef ctl_table to struct ctl_table
+  macintosh: Convert use of typedef ctl_table to struct ctl_table
+  md: Convert use of typedef ctl_table to struct ctl_table
+  sgi: xpc: Convert use of typedef ctl_table to struct ctl_table
+  parport: Convert use of typedef ctl_table to struct ctl_table
+  scsi_sysctl: Convert use of typedef ctl_table to struct ctl_table
+  coda: Convert use of typedef ctl_table to struct ctl_table
+  fscache: Convert use of typedef ctl_table to struct ctl_table
+  lockd: Convert use of typedef ctl_table to struct ctl_table
+  nfs: Convert use of typedef ctl_table to struct ctl_table
+  inotify: Convert use of typedef ctl_table to struct ctl_table
+  ntfs: Convert use of typedef ctl_table to struct ctl_table
+  ocfs2: Convert use of typedef ctl_table to struct ctl_table
+  quota: Convert use of typedef ctl_table to struct ctl_table
+  xfs: Convert use of typedef ctl_table to struct ctl_table
+  fs: Convert use of typedef ctl_table to struct ctl_table
+  key: Convert use of typedef ctl_table to struct ctl_table
+  ipv6: Convert use of typedef ctl_table to struct ctl_table
+  ndisc: Convert use of typedef ctl_table to struct ctl_table
+  ipc: Convert use of typedef ctl_table to struct ctl_table
+  sysctl: Convert use of typedef ctl_table to struct ctl_table
+  mm: Convert use of typedef ctl_table to struct ctl_table
+  security: keys: Convert use of typedef ctl_table to struct ctl_table
 
-diff --git a/arch/s390/appldata/appldata_base.c b/arch/s390/appldata/appldata_base.c
-index 87a2209..c0ef020a 100644
---- a/arch/s390/appldata/appldata_base.c
-+++ b/arch/s390/appldata/appldata_base.c
-@@ -48,9 +48,9 @@ static struct platform_device *appldata_pdev;
-  * /proc entries (sysctl)
-  */
- static const char appldata_proc_name[APPLDATA_PROC_NAME_LENGTH] = "appldata";
--static int appldata_timer_handler(ctl_table *ctl, int write,
-+static int appldata_timer_handler(struct ctl_table *ctl, int write,
- 				  void __user *buffer, size_t *lenp, loff_t *ppos);
--static int appldata_interval_handler(ctl_table *ctl, int write,
-+static int appldata_interval_handler(struct ctl_table *ctl, int write,
- 					 void __user *buffer,
- 					 size_t *lenp, loff_t *ppos);
- 
-@@ -201,8 +201,8 @@ static void __appldata_vtimer_setup(int cmd)
-  * Start/Stop timer, show status of timer (0 = not active, 1 = active)
-  */
- static int
--appldata_timer_handler(ctl_table *ctl, int write,
--			   void __user *buffer, size_t *lenp, loff_t *ppos)
-+appldata_timer_handler(struct ctl_table *ctl, int write,
-+		       void __user *buffer, size_t *lenp, loff_t *ppos)
- {
- 	int len;
- 	char buf[2];
-@@ -243,8 +243,8 @@ out:
-  * current timer interval.
-  */
- static int
--appldata_interval_handler(ctl_table *ctl, int write,
--			   void __user *buffer, size_t *lenp, loff_t *ppos)
-+appldata_interval_handler(struct ctl_table *ctl, int write,
-+			  void __user *buffer, size_t *lenp, loff_t *ppos)
- {
- 	int len, interval;
- 	char buf[16];
-@@ -286,8 +286,8 @@ out:
-  * monitoring (0 = not in process, 1 = in process)
-  */
- static int
--appldata_generic_handler(ctl_table *ctl, int write,
--			   void __user *buffer, size_t *lenp, loff_t *ppos)
-+appldata_generic_handler(struct ctl_table *ctl, int write,
-+			 void __user *buffer, size_t *lenp, loff_t *ppos)
- {
- 	struct appldata_ops *ops = NULL, *tmp_ops;
- 	int rc, len, found;
-diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index f1279dc..fc5672f 100644
---- a/arch/s390/kernel/debug.c
-+++ b/arch/s390/kernel/debug.c
-@@ -889,8 +889,8 @@ static int debug_active=1;
-  * if debug_active is already off
-  */
- static int
--s390dbf_procactive(ctl_table *table, int write,
--                     void __user *buffer, size_t *lenp, loff_t *ppos)
-+s390dbf_procactive(struct ctl_table *table, int write,
-+		   void __user *buffer, size_t *lenp, loff_t *ppos)
- {
- 	if (!write || debug_stoppable || !debug_active)
- 		return proc_dointvec(table, write, buffer, lenp, ppos);
-diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
-index 9d84a1f..0caf085 100644
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -253,7 +253,8 @@ static int cmm_skip_blanks(char *cp, char **endp)
- 
- static struct ctl_table cmm_table[];
- 
--static int cmm_pages_handler(ctl_table *ctl, int write, void __user *buffer,
-+static int cmm_pages_handler(struct ctl_table *ctl, int write,
-+			     void __user *buffer,
- 			     size_t *lenp, loff_t *ppos)
- {
- 	char buf[16], *p;
-@@ -293,7 +294,8 @@ static int cmm_pages_handler(ctl_table *ctl, int write, void __user *buffer,
- 	return 0;
- }
- 
--static int cmm_timeout_handler(ctl_table *ctl, int write,  void __user *buffer,
-+static int cmm_timeout_handler(struct ctl_table *ctl, int write,
-+			       void __user *buffer,
- 			       size_t *lenp, loff_t *ppos)
- {
- 	char buf[64], *p;
+ arch/arm/kernel/isa.c              |  6 ++--
+ arch/frv/kernel/pm.c               |  8 +++---
+ arch/frv/kernel/sysctl.c           |  4 +--
+ arch/ia64/kernel/crash.c           |  4 +--
+ arch/ia64/kernel/perfmon.c         |  6 ++--
+ arch/mips/lasat/sysctl.c           | 14 ++++-----
+ arch/powerpc/kernel/idle.c         |  4 +--
+ arch/s390/appldata/appldata_base.c | 16 +++++------
+ arch/s390/kernel/debug.c           |  4 +--
+ arch/s390/mm/cmm.c                 |  6 ++--
+ arch/tile/kernel/proc.c            |  4 +--
+ arch/x86/vdso/vdso32-setup.c       |  4 +--
+ drivers/cdrom/cdrom.c              | 10 +++----
+ drivers/char/hpet.c                |  6 ++--
+ drivers/char/ipmi/ipmi_poweroff.c  |  6 ++--
+ drivers/char/random.c              |  8 +++---
+ drivers/char/rtc.c                 |  6 ++--
+ drivers/infiniband/core/ucma.c     |  2 +-
+ drivers/macintosh/mac_hid.c        |  8 +++---
+ drivers/md/md.c                    |  6 ++--
+ drivers/misc/sgi-xp/xpc_main.c     |  6 ++--
+ drivers/parport/procfs.c           | 58 +++++++++++++++++++-------------------
+ drivers/scsi/scsi_sysctl.c         |  6 ++--
+ fs/coda/sysctl.c                   |  4 +--
+ fs/dcache.c                        |  2 +-
+ fs/drop_caches.c                   |  2 +-
+ fs/eventpoll.c                     |  2 +-
+ fs/file_table.c                    |  4 +--
+ fs/fscache/main.c                  |  4 +--
+ fs/inode.c                         |  2 +-
+ fs/lockd/svc.c                     |  6 ++--
+ fs/nfs/nfs4sysctl.c                |  6 ++--
+ fs/nfs/sysctl.c                    |  6 ++--
+ fs/notify/inotify/inotify_user.c   |  2 +-
+ fs/ntfs/sysctl.c                   |  4 +--
+ fs/ocfs2/stackglue.c               |  8 +++---
+ fs/quota/dquot.c                   |  6 ++--
+ fs/xfs/xfs_sysctl.c                | 26 ++++++++---------
+ include/linux/key.h                |  2 +-
+ include/net/ipv6.h                 |  4 +--
+ include/net/ndisc.h                |  2 +-
+ ipc/ipc_sysctl.c                   | 14 ++++-----
+ ipc/mq_sysctl.c                    | 10 +++----
+ kernel/sysctl.c                    |  2 +-
+ kernel/utsname_sysctl.c            |  6 ++--
+ mm/page-writeback.c                |  2 +-
+ mm/page_alloc.c                    | 15 +++++-----
+ security/keys/sysctl.c             |  2 +-
+ 48 files changed, 174 insertions(+), 171 deletions(-)
+
 -- 
 1.8.1.2.459.gbcd45b4.dirty
