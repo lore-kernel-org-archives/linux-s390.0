@@ -1,52 +1,113 @@
-From: Chen Gang <gang.chen@asianux.com>
-Subject: Re: [PATCH] arch: s390: kernel: reset 'c->hotpluggable' when failure
- occurs
-Date: Tue, 25 Jun 2013 15:24:09 +0800
-Message-ID: <51C94599.1020707@asianux.com>
-References: <51C8F685.6000209@asianux.com> <20130625064832.GA4999@osiris>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20130625064832.GA4999@osiris>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, cornelia.huck@de.ibm.com, mtosatti@redhat.com, Thomas Gleixner <tglx@linutronix.de>, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Joe Perches <joe@perches.com>
+Subject: [Trivial PATCH 06/33] s390: Convert use of typedef ctl_table to struct ctl_table
+Date: Thu, 13 Jun 2013 19:37:31 -0700
+Message-Id: <a7fb85fd601818d0cac8f76e9d9c4be6c985fbba.1371177118.git.joe@perches.com>
+In-Reply-To: <cover.1371177118.git.joe@perches.com>
+References: <cover.1371177118.git.joe@perches.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Jiri Kosina <trivial@kernel.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/25/2013 02:48 PM, Heiko Carstens wrote:
-> On Tue, Jun 25, 2013 at 09:46:45AM +0800, Chen Gang wrote:
->> > When smp_add_present_cpu() fails, it has reset all things excluding
->> > 'c->hotpluggable', so need reset it as original state completely.
->> > 
->> > Signed-off-by: Chen Gang <gang.chen@asianux.com>
->> > ---
->> >  arch/s390/kernel/smp.c |    1 +
->> >  1 files changed, 1 insertions(+), 0 deletions(-)
->> > 
->> > diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
->> > index 15a016c..c4c6f42 100644
->> > --- a/arch/s390/kernel/smp.c
->> > +++ b/arch/s390/kernel/smp.c
->> > @@ -1016,6 +1016,7 @@ out_cpu:
->> >  	unregister_cpu(c);
->> >  #endif
->> >  out:
->> > +	c->hotpluggable = 0;
->> >  	return rc;
-> No, that doesn't make sense. All cpus on s390 are always hotplugable.
-> It really doesn't matter if the value of this field is 0 or 1 after
-> an error.
-> 
+This typedef is unnecessary and should just be removed.
 
-If so, is it better to set 'c->hotpluggable' for all cpus on s390 during
-initializing ?
+Signed-off-by: Joe Perches <joe@perches.com>
+---
+ arch/s390/appldata/appldata_base.c | 16 ++++++++--------
+ arch/s390/kernel/debug.c           |  4 ++--
+ arch/s390/mm/cmm.c                 |  6 ++++--
+ 3 files changed, 14 insertions(+), 12 deletions(-)
 
-
-Thanks.
+diff --git a/arch/s390/appldata/appldata_base.c b/arch/s390/appldata/appldata_base.c
+index 87a2209..c0ef020a 100644
+--- a/arch/s390/appldata/appldata_base.c
++++ b/arch/s390/appldata/appldata_base.c
+@@ -48,9 +48,9 @@ static struct platform_device *appldata_pdev;
+  * /proc entries (sysctl)
+  */
+ static const char appldata_proc_name[APPLDATA_PROC_NAME_LENGTH] = "appldata";
+-static int appldata_timer_handler(ctl_table *ctl, int write,
++static int appldata_timer_handler(struct ctl_table *ctl, int write,
+ 				  void __user *buffer, size_t *lenp, loff_t *ppos);
+-static int appldata_interval_handler(ctl_table *ctl, int write,
++static int appldata_interval_handler(struct ctl_table *ctl, int write,
+ 					 void __user *buffer,
+ 					 size_t *lenp, loff_t *ppos);
+ 
+@@ -201,8 +201,8 @@ static void __appldata_vtimer_setup(int cmd)
+  * Start/Stop timer, show status of timer (0 = not active, 1 = active)
+  */
+ static int
+-appldata_timer_handler(ctl_table *ctl, int write,
+-			   void __user *buffer, size_t *lenp, loff_t *ppos)
++appldata_timer_handler(struct ctl_table *ctl, int write,
++		       void __user *buffer, size_t *lenp, loff_t *ppos)
+ {
+ 	int len;
+ 	char buf[2];
+@@ -243,8 +243,8 @@ out:
+  * current timer interval.
+  */
+ static int
+-appldata_interval_handler(ctl_table *ctl, int write,
+-			   void __user *buffer, size_t *lenp, loff_t *ppos)
++appldata_interval_handler(struct ctl_table *ctl, int write,
++			  void __user *buffer, size_t *lenp, loff_t *ppos)
+ {
+ 	int len, interval;
+ 	char buf[16];
+@@ -286,8 +286,8 @@ out:
+  * monitoring (0 = not in process, 1 = in process)
+  */
+ static int
+-appldata_generic_handler(ctl_table *ctl, int write,
+-			   void __user *buffer, size_t *lenp, loff_t *ppos)
++appldata_generic_handler(struct ctl_table *ctl, int write,
++			 void __user *buffer, size_t *lenp, loff_t *ppos)
+ {
+ 	struct appldata_ops *ops = NULL, *tmp_ops;
+ 	int rc, len, found;
+diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
+index f1279dc..fc5672f 100644
+--- a/arch/s390/kernel/debug.c
++++ b/arch/s390/kernel/debug.c
+@@ -889,8 +889,8 @@ static int debug_active=1;
+  * if debug_active is already off
+  */
+ static int
+-s390dbf_procactive(ctl_table *table, int write,
+-                     void __user *buffer, size_t *lenp, loff_t *ppos)
++s390dbf_procactive(struct ctl_table *table, int write,
++		   void __user *buffer, size_t *lenp, loff_t *ppos)
+ {
+ 	if (!write || debug_stoppable || !debug_active)
+ 		return proc_dointvec(table, write, buffer, lenp, ppos);
+diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
+index 9d84a1f..0caf085 100644
+--- a/arch/s390/mm/cmm.c
++++ b/arch/s390/mm/cmm.c
+@@ -253,7 +253,8 @@ static int cmm_skip_blanks(char *cp, char **endp)
+ 
+ static struct ctl_table cmm_table[];
+ 
+-static int cmm_pages_handler(ctl_table *ctl, int write, void __user *buffer,
++static int cmm_pages_handler(struct ctl_table *ctl, int write,
++			     void __user *buffer,
+ 			     size_t *lenp, loff_t *ppos)
+ {
+ 	char buf[16], *p;
+@@ -293,7 +294,8 @@ static int cmm_pages_handler(ctl_table *ctl, int write, void __user *buffer,
+ 	return 0;
+ }
+ 
+-static int cmm_timeout_handler(ctl_table *ctl, int write,  void __user *buffer,
++static int cmm_timeout_handler(struct ctl_table *ctl, int write,
++			       void __user *buffer,
+ 			       size_t *lenp, loff_t *ppos)
+ {
+ 	char buf[64], *p;
 -- 
-Chen Gang
-
-Asianux Corporation
+1.8.1.2.459.gbcd45b4.dirty
