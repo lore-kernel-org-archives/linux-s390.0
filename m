@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1370080273.29224.21.camel@localhost.localdomain>
-Subject: [PATCH] s390/ap: Cocci spatch "ptr_ret.spatch"
-From: Thomas Meyer <thomas@m3y3r.de>
-Date: Sat, 01 Jun 2013 11:51:13 +0200
-Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 13 Jun 2013 17:41:54 -0700 (PDT)
+Message-Id: <20130613.174154.4560842535243312.davem@davemloft.net>
+Subject: Re: [PATCH] netiucv: Hold rtnl between name allocation and device
+ registration.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1371128987-3723-1-git-send-email-bpoirier@suse.de>
+References: <1371128987-3723-1-git-send-email-bpoirier@suse.de>
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: bpoirier@suse.de
+Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org, ursula.braun@de.ibm.com, linux390@de.ibm.com, blaschka@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, cornelia.huck@de.ibm.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Benjamin Poirier <bpoirier@suse.de>
+Date: Thu, 13 Jun 2013 09:09:47 -0400
 
-Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
----
+> fixes a race condition between concurrent initializations of netiucv devices
+> that try to use the same name.
+> 
+> sysfs: cannot create duplicate filename '/devices/iucv/netiucv2'
+> [...]
+> Call Trace:
+> ([<00000000002edea4>] sysfs_add_one+0xb0/0xdc)
+>  [<00000000002eecd4>] create_dir+0x80/0xfc
+>  [<00000000002eee38>] sysfs_create_dir+0xe8/0x118
+>  [<00000000003835a8>] kobject_add_internal+0x120/0x2d0
+>  [<00000000003839d6>] kobject_add+0x62/0x9c
+>  [<00000000003d9564>] device_add+0xcc/0x510
+>  [<000003e00212c7b4>] netiucv_register_device+0xc0/0x1ec [netiucv]
+> 
+> Signed-off-by: Benjamin Poirier <bpoirier@suse.de>
+> Tested-by: Ursula Braun <braunu@de.ibm.com>
 
-diff -u -p a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -1795,7 +1795,7 @@ static int ap_poll_thread_start(void)
- 	mutex_lock(&ap_poll_thread_mutex);
- 	if (!ap_poll_kthread) {
- 		ap_poll_kthread = kthread_run(ap_poll_thread, NULL, "appoll");
--		rc = IS_ERR(ap_poll_kthread) ? PTR_ERR(ap_poll_kthread) : 0;
-+		rc = PTR_RET(ap_poll_kthread);
- 		if (rc)
- 			ap_poll_kthread = NULL;
- 	}
-@@ -1904,7 +1904,7 @@ int __init ap_module_init(void)
- 
- 	/* Create /sys/devices/ap. */
- 	ap_root_device = root_device_register("ap");
--	rc = IS_ERR(ap_root_device) ? PTR_ERR(ap_root_device) : 0;
-+	rc = PTR_RET(ap_root_device);
- 	if (rc)
- 		goto out_bus;
- 
+Yes as dev_alloc_name() must be invoked under RTNL or dev_base_lock, this
+fix is correct.
+
+Applied, thanks.
