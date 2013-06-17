@@ -1,214 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 17 Jun 2013 09:22:15 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [PATCH 2/9] dasd: make number of retries configurable
-Date: Mon,  3 Jun 2013 17:03:15 +0200
-Message-Id: <1370271802-30019-3-git-send-email-schwidefsky@de.ibm.com>
+Subject: Re: [PATCH 0/9] dasd: implement block timeout
+Message-ID: <20130617092215.6c0df7d1@mschwide>
 In-Reply-To: <1370271802-30019-1-git-send-email-schwidefsky@de.ibm.com>
 References: <1370271802-30019-1-git-send-email-schwidefsky@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Hannes Reinecke <hare@suse.de>, Stefan Weinhuber <wein@de.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hannes Reinecke <hare@suse.de>
+On Mon,  3 Jun 2013 17:03:13 +0200
+Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
 
-Instead of having the number of retries hard-coded in the various
-functions we should be using a default retry value, which can
-be modified via sysfs.
+> This is a re-send of a patch series Hannes sent last january. Stefan
+> looked at the patches and our tests went well, so I guess this is ready
+> for upstream integration.
+> 
+> The changes to block/blk-core.c and block/blk-timeout.c look good
+> to me, but I would like to request an acked-by from Jens for the
+> block layer parts in patch #6 and #7 of the series (pretty please :-)
+> 
+> The original patch description from Hannes:
+> 
+> This patch series implements a block timeout handler for
+> DASDs. The main impetus was to allow for a fixed upper
+> timeout value after which a request is aborted.
+> This is required eg when implementing a host-based
+> mirroring system where otherwise the entire mirror
+> would stall under certain circumstances.
+> 
+> Changes since v1:
+> - Fixed lock inversion in dasd_times_out()
+> - Checked for 'device->block' when writing to 'timeout' attribute
+> - Check against 'UINT_MAX' when verifying the 'timeout' value
+> 
+> Once I got the required acked-by I can carry the patch set in the
+> linux-s390 tree for the next merge window.
+> 
+> Hannes Reinecke (9):
+>   dasd: Clarify comment
+>   dasd: make number of retries configurable
+>   dasd: process all requests in the device tasklet
+>   dasd: Implement block timeout handling
+>   dasd: Reduce amount of messages for specific errors
+>   block,dasd: detailed I/O errors
+>   block: check for timeout function in blk_rq_timed_out()
+>   dasd: Add 'timeout' attribute
+>   dasd: Fail all requests when DASD_FLAG_ABORTIO is set
+> 
+>  arch/s390/include/uapi/asm/dasd.h |    4 ++
+>  block/blk-core.c                  |    3 +
+>  block/blk-timeout.c               |    5 +-
+>  drivers/s390/block/dasd.c         |  115 +++++++++++++++++++++++++++++++++----
+>  drivers/s390/block/dasd_devmap.c  |   97 +++++++++++++++++++++++++++++++
+>  drivers/s390/block/dasd_diag.c    |    8 ++-
+>  drivers/s390/block/dasd_eckd.c    |   15 +++--
+>  drivers/s390/block/dasd_erp.c     |    8 +++
+>  drivers/s390/block/dasd_fba.c     |   10 +++-
+>  drivers/s390/block/dasd_int.h     |   10 ++++
+>  drivers/s390/block/dasd_ioctl.c   |   59 +++++++++++++++++++
+>  11 files changed, 313 insertions(+), 21 deletions(-)
+> 
 
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Stefan Weinhuber <wein@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
- drivers/s390/block/dasd_devmap.c |   41 ++++++++++++++++++++++++++++++++++++++
- drivers/s390/block/dasd_diag.c   |    3 ++-
- drivers/s390/block/dasd_eckd.c   |   11 ++++++----
- drivers/s390/block/dasd_fba.c    |    5 ++++-
- drivers/s390/block/dasd_int.h    |    3 +++
- 5 files changed, 57 insertions(+), 6 deletions(-)
+Ping. Jens could you please look at patch #6 and #7? I don't want
+to do a please pull with block layer parts without your consent.
 
-diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
-index a71bb8a..bc3e7af 100644
---- a/drivers/s390/block/dasd_devmap.c
-+++ b/drivers/s390/block/dasd_devmap.c
-@@ -1240,6 +1240,46 @@ dasd_expires_store(struct device *dev, struct device_attribute *attr,
- 
- static DEVICE_ATTR(expires, 0644, dasd_expires_show, dasd_expires_store);
- 
-+static ssize_t
-+dasd_retries_show(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct dasd_device *device;
-+	int len;
-+
-+	device = dasd_device_from_cdev(to_ccwdev(dev));
-+	if (IS_ERR(device))
-+		return -ENODEV;
-+	len = snprintf(buf, PAGE_SIZE, "%lu\n", device->default_retries);
-+	dasd_put_device(device);
-+	return len;
-+}
-+
-+static ssize_t
-+dasd_retries_store(struct device *dev, struct device_attribute *attr,
-+		   const char *buf, size_t count)
-+{
-+	struct dasd_device *device;
-+	unsigned long val;
-+
-+	device = dasd_device_from_cdev(to_ccwdev(dev));
-+	if (IS_ERR(device))
-+		return -ENODEV;
-+
-+	if ((strict_strtoul(buf, 10, &val) != 0) ||
-+	    (val > DASD_RETRIES_MAX)) {
-+		dasd_put_device(device);
-+		return -EINVAL;
-+	}
-+
-+	if (val)
-+		device->default_retries = val;
-+
-+	dasd_put_device(device);
-+	return count;
-+}
-+
-+static DEVICE_ATTR(retries, 0644, dasd_retries_show, dasd_retries_store);
-+
- static ssize_t dasd_reservation_policy_show(struct device *dev,
- 					    struct device_attribute *attr,
- 					    char *buf)
-@@ -1350,6 +1390,7 @@ static struct attribute * dasd_attrs[] = {
- 	&dev_attr_erplog.attr,
- 	&dev_attr_failfast.attr,
- 	&dev_attr_expires.attr,
-+	&dev_attr_retries.attr,
- 	&dev_attr_reservation_policy.attr,
- 	&dev_attr_last_known_reservation_state.attr,
- 	&dev_attr_safe_offline.attr,
-diff --git a/drivers/s390/block/dasd_diag.c b/drivers/s390/block/dasd_diag.c
-index cc06033..1548422 100644
---- a/drivers/s390/block/dasd_diag.c
-+++ b/drivers/s390/block/dasd_diag.c
-@@ -359,6 +359,7 @@ dasd_diag_check_device(struct dasd_device *device)
- 	}
- 
- 	device->default_expires = DIAG_TIMEOUT;
-+	device->default_retries = DIAG_MAX_RETRIES;
- 
- 	/* Figure out position of label block */
- 	switch (private->rdc_data.vdev_class) {
-@@ -555,7 +556,7 @@ static struct dasd_ccw_req *dasd_diag_build_cp(struct dasd_device *memdev,
- 			recid++;
- 		}
- 	}
--	cqr->retries = DIAG_MAX_RETRIES;
-+	cqr->retries = memdev->default_retries;
- 	cqr->buildclk = get_tod_clock();
- 	if (blk_noretry_request(req) ||
- 	    block->base->features & DASD_FEATURE_FAILFAST)
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 6a44b27..f4315dc 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -1682,6 +1682,9 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
- 
- 	/* set default timeout */
- 	device->default_expires = DASD_EXPIRES;
-+	/* set default retry count */
-+	device->default_retries = DASD_RETRIES;
-+
- 	if (private->gneq) {
- 		value = 1;
- 		for (i = 0; i < private->gneq->timeout.value; i++)
-@@ -2659,7 +2662,7 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_cmd_single(
- 	cqr->block = block;
- 	cqr->expires = startdev->default_expires * HZ;	/* default 5 minutes */
- 	cqr->lpm = startdev->path_data.ppm;
--	cqr->retries = 256;
-+	cqr->retries = startdev->default_retries;
- 	cqr->buildclk = get_tod_clock();
- 	cqr->status = DASD_CQR_FILLED;
- 	return cqr;
-@@ -2834,7 +2837,7 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_cmd_track(
- 	cqr->block = block;
- 	cqr->expires = startdev->default_expires * HZ;	/* default 5 minutes */
- 	cqr->lpm = startdev->path_data.ppm;
--	cqr->retries = 256;
-+	cqr->retries = startdev->default_retries;
- 	cqr->buildclk = get_tod_clock();
- 	cqr->status = DASD_CQR_FILLED;
- 	return cqr;
-@@ -3127,7 +3130,7 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_tpm_track(
- 	cqr->block = block;
- 	cqr->expires = startdev->default_expires * HZ;	/* default 5 minutes */
- 	cqr->lpm = startdev->path_data.ppm;
--	cqr->retries = 256;
-+	cqr->retries = startdev->default_retries;
- 	cqr->buildclk = get_tod_clock();
- 	cqr->status = DASD_CQR_FILLED;
- 	return cqr;
-@@ -3330,7 +3333,7 @@ static struct dasd_ccw_req *dasd_raw_build_cp(struct dasd_device *startdev,
- 	cqr->block = block;
- 	cqr->expires = startdev->default_expires * HZ;
- 	cqr->lpm = startdev->path_data.ppm;
--	cqr->retries = 256;
-+	cqr->retries = startdev->default_retries;
- 	cqr->buildclk = get_tod_clock();
- 	cqr->status = DASD_CQR_FILLED;
- 
-diff --git a/drivers/s390/block/dasd_fba.c b/drivers/s390/block/dasd_fba.c
-index 4dd0e2f..d232c83 100644
---- a/drivers/s390/block/dasd_fba.c
-+++ b/drivers/s390/block/dasd_fba.c
-@@ -29,6 +29,8 @@
- #endif				/* PRINTK_HEADER */
- #define PRINTK_HEADER "dasd(fba):"
- 
-+#define FBA_DEFAULT_RETRIES 32
-+
- #define DASD_FBA_CCW_WRITE 0x41
- #define DASD_FBA_CCW_READ 0x42
- #define DASD_FBA_CCW_LOCATE 0x43
-@@ -167,6 +169,7 @@ dasd_fba_check_characteristics(struct dasd_device *device)
- 	}
- 
- 	device->default_expires = DASD_EXPIRES;
-+	device->default_retries = FBA_DEFAULT_RETRIES;
- 	device->path_data.opm = LPM_ANYPATH;
- 
- 	readonly = dasd_device_is_ro(device);
-@@ -369,7 +372,7 @@ static struct dasd_ccw_req *dasd_fba_build_cp(struct dasd_device * memdev,
- 	cqr->memdev = memdev;
- 	cqr->block = block;
- 	cqr->expires = memdev->default_expires * HZ;	/* default 5 minutes */
--	cqr->retries = 32;
-+	cqr->retries = memdev->default_retries;
- 	cqr->buildclk = get_tod_clock();
- 	cqr->status = DASD_CQR_FILLED;
- 	return cqr;
-diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-index 0785bd9..ad42075 100644
---- a/drivers/s390/block/dasd_int.h
-+++ b/drivers/s390/block/dasd_int.h
-@@ -224,6 +224,8 @@ struct dasd_ccw_req {
- /* default expiration time*/
- #define DASD_EXPIRES	  300
- #define DASD_EXPIRES_MAX  40000000
-+#define DASD_RETRIES	  256
-+#define DASD_RETRIES_MAX  32768
- 
- /* per dasd_ccw_req flags */
- #define DASD_CQR_FLAGS_USE_ERP   0	/* use ERP for this request */
-@@ -466,6 +468,7 @@ struct dasd_device {
- 
- 	/* default expiration time in s */
- 	unsigned long default_expires;
-+	unsigned long default_retries;
- 
- 	struct dentry *debugfs_dentry;
- 	struct dasd_profile profile;
 -- 
-1.7.9.5
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
