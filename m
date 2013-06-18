@@ -1,72 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Benjamin Poirier <bpoirier@suse.de>
-Subject: [PATCH] netiucv: Hold rtnl between name allocation and device registration.
-Date: Thu, 13 Jun 2013 09:09:47 -0400
-Message-Id: <1371128987-3723-1-git-send-email-bpoirier@suse.de>
+Date: Tue, 18 Jun 2013 13:19:10 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [GIT PULL] s390 patches for the 3.10-rc6
+Message-ID: <20130618111910.GA24526@osiris>
+References: <20130613164730.65273fbd@mschwide>
+ <CAMuHMdW+C=kQh+0XM1m1W5EPOPYCmq1KoJOKSbT+-VZWdK-9Ww@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdW+C=kQh+0XM1m1W5EPOPYCmq1KoJOKSbT+-VZWdK-9Ww@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: netdev@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>, linux390@de.ibm.com, Frank Blaschka <blaschka@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Ben Hutchings <ben@decadent.org.uk>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-fixes a race condition between concurrent initializations of netiucv devices
-that try to use the same name.
+On Tue, Jun 18, 2013 at 12:08:51PM +0200, Geert Uytterhoeven wrote:
+> On Thu, Jun 13, 2013 at 4:47 PM, Martin Schwidefsky
+> allnoconfig:
+> 
+> arch/s390/kernel/irq.c:315:6: error: expected identifier or '(' before '__asm__'
+> http://kisskb.ellerman.id.au/kisskb/buildresult/8987667/
+> 
+> The function is expanded to:
+> 
+>     void __asm__ __volatile__("": : :"memory")
+>     {
+> 
+>     }
+> 
+> include/linux/hardirq.h: # define synchronize_irq(irq)   barrier()
+> include/linux/compiler-gcc.h: #define barrier() __asm__
+> __volatile__("": : :"memory")
+> 
+> Turning synchronize_irq() into a static inline function doesn't help as then
+> it becomes a redefinition.
 
-sysfs: cannot create duplicate filename '/devices/iucv/netiucv2'
-[...]
-Call Trace:
-([<00000000002edea4>] sysfs_add_one+0xb0/0xdc)
- [<00000000002eecd4>] create_dir+0x80/0xfc
- [<00000000002eee38>] sysfs_create_dir+0xe8/0x118
- [<00000000003835a8>] kobject_add_internal+0x120/0x2d0
- [<00000000003839d6>] kobject_add+0x62/0x9c
- [<00000000003d9564>] device_add+0xcc/0x510
- [<000003e00212c7b4>] netiucv_register_device+0xc0/0x1ec [netiucv]
+We received a patch from Ben which fixes this:
 
-Signed-off-by: Benjamin Poirier <bpoirier@suse.de>
-Tested-by: Ursula Braun <braunu@de.ibm.com>
+From 7bf4da5763f30823b4eeb4c82f8499ffe2f475ab Mon Sep 17 00:00:00 2001
+From: Ben Hutchings <ben@decadent.org.uk>
+Date: Fri, 14 Jun 2013 01:18:44 +0100
+Subject: [PATCH] s390/irq: Only define synchronize_irq() on SMP
+
+In uniprocessor configurations, synchronize_irq() is defined in
+<linux/hardirq.h> as a macro, and this function definition fails to
+compile.
+
+Reported-by: kbuild test robot <fengguang.wu@intel.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Cc: stable@vger.kernel.org # 3.9
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
- drivers/s390/net/netiucv.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/s390/kernel/irq.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
-index 4ffa66c..9ca3996 100644
---- a/drivers/s390/net/netiucv.c
-+++ b/drivers/s390/net/netiucv.c
-@@ -2040,6 +2040,7 @@ static struct net_device *netiucv_init_netdevice(char *username, char *userdata)
- 			   netiucv_setup_netdevice);
- 	if (!dev)
- 		return NULL;
-+	rtnl_lock();
- 	if (dev_alloc_name(dev, dev->name) < 0)
- 		goto out_netdev;
- 
-@@ -2061,6 +2062,7 @@ static struct net_device *netiucv_init_netdevice(char *username, char *userdata)
- out_fsm:
- 	kfree_fsm(privptr->fsm);
- out_netdev:
-+	rtnl_unlock();
- 	free_netdev(dev);
- 	return NULL;
+diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
+index 408e866..dd3c199 100644
+--- a/arch/s390/kernel/irq.c
++++ b/arch/s390/kernel/irq.c
+@@ -312,6 +312,7 @@ void measurement_alert_subclass_unregister(void)
  }
-@@ -2100,6 +2102,7 @@ static ssize_t conn_write(struct device_driver *drv,
+ EXPORT_SYMBOL(measurement_alert_subclass_unregister);
  
- 	rc = netiucv_register_device(dev);
- 	if (rc) {
-+		rtnl_unlock();
- 		IUCV_DBF_TEXT_(setup, 2,
- 			"ret %d from netiucv_register_device\n", rc);
- 		goto out_free_ndev;
-@@ -2109,7 +2112,8 @@ static ssize_t conn_write(struct device_driver *drv,
- 	priv = netdev_priv(dev);
- 	SET_NETDEV_DEV(dev, priv->dev);
++#ifdef CONFIG_SMP
+ void synchronize_irq(unsigned int irq)
+ {
+ 	/*
+@@ -320,6 +321,7 @@ void synchronize_irq(unsigned int irq)
+ 	 */
+ }
+ EXPORT_SYMBOL_GPL(synchronize_irq);
++#endif
  
--	rc = register_netdev(dev);
-+	rc = register_netdevice(dev);
-+	rtnl_unlock();
- 	if (rc)
- 		goto out_unreg;
+ #ifndef CONFIG_PCI
  
 -- 
-1.7.10.4
+1.8.2.2
