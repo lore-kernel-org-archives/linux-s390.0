@@ -1,22 +1,20 @@
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Fri, 14 Jun 2013 08:20:53 +0000
-Subject: Re: [PATCH] s390: Only define synchronize_irq() on SMP
-Message-Id: <20130614082053.GA4475@osiris>
-In-Reply-To: <1371169124.10688.59.camel@deadeye.wl.decadent.org.uk>
-References: <1371169124.10688.59.camel@deadeye.wl.decadent.org.uk>
+Date: Thu, 20 Jun 2013 05:51:19 +0000
+Subject: Re: [PATCH -next] s390/sclp: remove duplicated include from sclp_ctl.c
+Message-Id: <20130620055119.GA4779@osiris>
+In-Reply-To: <CAPgLHd_nKsymJdNV2JSA_KXmTrTJJRq4kxftT9jwptKd34gp1Q@mail.gmail.com>
+References: <CAPgLHd_nKsymJdNV2JSA_KXmTrTJJRq4kxftT9jwptKd34gp1Q@mail.gmail.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Jun 14, 2013 at 01:18:44AM +0100, Ben Hutchings wrote:
-> In uniprocessor configurations, synchronize_irq() is defined in
-> <linux/hardirq.h> as a macro, and this function definition fails to
-> compile.
+On Thu, Jun 20, 2013 at 08:00:50AM +0800, Wei Yongjun wrote:
+> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 > 
-> Reported-by: kbuild test robot <fengguang.wu@intel.com>
-> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-> Cc: stable@vger.kernel.org # 3.9
+> Remove duplicated include.
+> 
+> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 > ---
->  arch/s390/kernel/irq.c |    2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/s390/char/sclp_ctl.c | 1 -
+>  1 file changed, 1 deletion(-)
 
 Applied, thanks.
