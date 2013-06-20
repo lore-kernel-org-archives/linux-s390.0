@@ -1,38 +1,42 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 0/7] KVM: s390: further fixes for -next
-Date: Thu, 20 Jun 2013 17:21:58 +0200
-Message-ID: <1371741725-53624-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 2/7] KVM: s390: Privileged operation check for TPROT
+Date: Thu, 20 Jun 2013 17:22:00 +0200
+Message-ID: <1371741725-53624-3-git-send-email-cornelia.huck@de.ibm.com>
+References: <1371741725-53624-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1371741725-53624-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Gleb Natapov <gleb@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-some more fixes for kvm-next, bringing our handling of intercepted
-instructions more into line with what is actually architectured.
+TPROT is a privileged instruction and thus should generate a privileged
+operation exception when the problem state bit is not cleared in the PSW.
 
-Please apply.
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ arch/s390/kvm/priv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Thomas Huth (7):
-  KVM: s390: Renamed PGM_PRIVILEGED_OPERATION
-  KVM: s390: Privileged operation check for TPROT
-  KVM: s390: Privileged operation checks moved to instruction handlers
-  KVM: s390: Check for PSTATE when handling DIAGNOSE
-  KVM: s390: Check for access exceptions during TPI
-  KVM: s390: Reworked LCTL and LCTLG instructions
-  KVM: s390: Fixed priority of execution in STSI
-
- arch/s390/include/asm/kvm_host.h |   2 +-
- arch/s390/kvm/diag.c             |   3 +
- arch/s390/kvm/intercept.c        |  85 +-----------------
- arch/s390/kvm/kvm-s390.h         |   3 +-
- arch/s390/kvm/priv.c             | 184 ++++++++++++++++++++++++++++++---------
- arch/s390/kvm/sigp.c             |   3 +-
- 6 files changed, 152 insertions(+), 128 deletions(-)
-
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index a21e014..04dc4a1 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -596,6 +596,9 @@ static int handle_tprot(struct kvm_vcpu *vcpu)
+ 
+ 	vcpu->stat.instruction_tprot++;
+ 
++	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
++		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
++
+ 	kvm_s390_get_base_disp_sse(vcpu, &address1, &address2);
+ 
+ 	/* we only handle the Linux memory detection case:
 -- 
 1.8.2.2
