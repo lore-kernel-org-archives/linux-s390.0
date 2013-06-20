@@ -1,47 +1,46 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 5/7] KVM: s390: Check for access exceptions during TPI
-Date: Thu, 20 Jun 2013 17:22:03 +0200
-Message-ID: <1371741725-53624-6-git-send-email-cornelia.huck@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 0/7] KVM: s390: further fixes for -next
+Date: Thu, 20 Jun 2013 23:33:07 +0200
+Message-ID: <51C37513.6000404@redhat.com>
 References: <1371741725-53624-1-git-send-email-cornelia.huck@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1371741725-53624-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Gleb Natapov <gleb@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@linux.vnet.ibm.com>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Gleb Natapov <gleb@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
+Il 20/06/2013 17:21, Cornelia Huck ha scritto:
+> Hi,
+> 
+> some more fixes for kvm-next, bringing our handling of intercepted
+> instructions more into line with what is actually architectured.
+> 
+> Please apply.
+> 
+> Thomas Huth (7):
+>   KVM: s390: Renamed PGM_PRIVILEGED_OPERATION
+>   KVM: s390: Privileged operation check for TPROT
+>   KVM: s390: Privileged operation checks moved to instruction handlers
+>   KVM: s390: Check for PSTATE when handling DIAGNOSE
+>   KVM: s390: Check for access exceptions during TPI
+>   KVM: s390: Reworked LCTL and LCTLG instructions
+>   KVM: s390: Fixed priority of execution in STSI
+> 
+>  arch/s390/include/asm/kvm_host.h |   2 +-
+>  arch/s390/kvm/diag.c             |   3 +
+>  arch/s390/kvm/intercept.c        |  85 +-----------------
+>  arch/s390/kvm/kvm-s390.h         |   3 +-
+>  arch/s390/kvm/priv.c             | 184 ++++++++++++++++++++++++++++++---------
+>  arch/s390/kvm/sigp.c             |   3 +-
+>  6 files changed, 152 insertions(+), 128 deletions(-)
+> 
 
-When a guest calls the TPI instruction, the second operand address could
-point to an invalid location. In this case the problem should be signaled
-to the guest by throwing an access exception.
+Applied to next, thanks.
 
-Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- arch/s390/kvm/priv.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 0b19e22..4b8fb6c 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -146,9 +146,10 @@ static int handle_tpi(struct kvm_vcpu *vcpu)
- 		 * Store the two-word I/O interruption code into the
- 		 * provided area.
- 		 */
--		put_guest(vcpu, inti->io.subchannel_id, (u16 __user *) addr);
--		put_guest(vcpu, inti->io.subchannel_nr, (u16 __user *) (addr + 2));
--		put_guest(vcpu, inti->io.io_int_parm, (u32 __user *) (addr + 4));
-+		if (put_guest(vcpu, inti->io.subchannel_id, (u16 __user *)addr)
-+		    || put_guest(vcpu, inti->io.subchannel_nr, (u16 __user *)(addr + 2))
-+		    || put_guest(vcpu, inti->io.io_int_parm, (u32 __user *)(addr + 4)))
-+			return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
- 	} else {
- 		/*
- 		 * Store the three-word I/O interruption code into
--- 
-1.8.2.2
+Paolo
