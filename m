@@ -1,75 +1,38 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <20130613164730.65273fbd@mschwide>
-References: <20130613164730.65273fbd@mschwide>
-Date: Tue, 18 Jun 2013 12:08:51 +0200
-Message-ID: <CAMuHMdW+C=kQh+0XM1m1W5EPOPYCmq1KoJOKSbT+-VZWdK-9Ww@mail.gmail.com>
-Subject: Re: [GIT PULL] s390 patches for the 3.10-rc6
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Content-Type: text/plain; charset=UTF-8
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Ben Hutchings <ben@decadent.org.uk>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
+From: frank.blaschka@de.ibm.com
+Subject: [patch 5/5] qeth: use default napi weight
+Date: Mon, 24 Jun 2013 13:21:52 +0200
+Message-ID: <20130624112226.861904661@de.ibm.com>
+References: <20130624112147.347247916@de.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=604-qeth-default-napi-weight.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jun 13, 2013 at 4:47 PM, Martin Schwidefsky
-<schwidefsky@de.ibm.com> wrote:
-> please pull from the 'for-linus' branch of
->
->         git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
->
-> to receive the following updates:
->
-> Three kvm related memory management fixes, a fix for show_trace,
-> a fix for early console output and a patch from Ben to help prevent
-> compile errors in regard to irq functions (or our lack thereof).
->
-> Ben Hutchings (1):
->       s390/pci: Implement IRQ functions if !PCI
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
 
-> --- a/arch/s390/kernel/irq.c
-> +++ b/arch/s390/kernel/irq.c
-> @@ -311,3 +311,67 @@ void measurement_alert_subclass_unregister(void)
->         spin_unlock(&ma_subclass_lock);
->  }
->  EXPORT_SYMBOL(measurement_alert_subclass_unregister);
-> +
-> +void synchronize_irq(unsigned int irq)
-> +{
-> +       /*
-> +        * Not needed, the handler is protected by a lock and IRQs that occur
-> +        * after the handler is deleted are just NOPs.
-> +        */
-> +}
+Since commit 82dc3c63c692b1e1d59378ecee948ac88e034aad
+"net: introduce NAPI_POLL_WEIGHT" network drivers receive a warning
+when they use napi weight higher than NAPI_POLL_WEIGHT. This patch
+reduces QETH_NAPI_WEIGHT from 128 to 64 (NAPI_POLL_WEIGHT).
 
-allnoconfig:
+Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Signed-off-by: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+---
+ drivers/s390/net/qeth_core.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-arch/s390/kernel/irq.c:315:6: error: expected identifier or '(' before '__asm__'
-http://kisskb.ellerman.id.au/kisskb/buildresult/8987667/
-
-The function is expanded to:
-
-    void __asm__ __volatile__("": : :"memory")
-    {
-
-    }
-
-include/linux/hardirq.h: # define synchronize_irq(irq)   barrier()
-include/linux/compiler-gcc.h: #define barrier() __asm__
-__volatile__("": : :"memory")
-
-Turning synchronize_irq() into a static inline function doesn't help as then
-it becomes a redefinition.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -738,7 +738,7 @@ struct qeth_rx {
+ 	int qdio_err;
+ };
+ 
+-#define QETH_NAPI_WEIGHT 128
++#define QETH_NAPI_WEIGHT NAPI_POLL_WEIGHT
+ 
+ struct qeth_card {
+ 	struct list_head list;
