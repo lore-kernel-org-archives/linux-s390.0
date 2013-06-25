@@ -1,53 +1,37 @@
-From: Chen Gang <gang.chen@asianux.com>
-Subject: Re: [Suggestion] arch: s390: mm: the warnings with allmodconfig and
- "EXTRA_CFLAGS=-W"
-Date: Tue, 25 Jun 2013 15:25:50 +0800
-Message-ID: <51C945FE.2030305@asianux.com>
-References: <51C8F685.6000209@asianux.com> <51C8F861.9010101@asianux.com> <20130625085006.01a7f368@mschwide>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] arch: s390: kernel: reset 'c->hotpluggable' when failure
+ occurs
+Date: Tue, 25 Jun 2013 11:09:28 +0200
+Message-ID: <20130625090928.GA8981@osiris>
+References: <51C8F685.6000209@asianux.com>
+ <20130625064832.GA4999@osiris>
+ <51C94599.1020707@asianux.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20130625085006.01a7f368@mschwide>
+Content-Disposition: inline
+In-Reply-To: <51C94599.1020707@asianux.com>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, cornelia.huck@de.ibm.com, mtosatti@redhat.com, Thomas Gleixner <tglx@linutronix.de>, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, linux-mm@kvack.org
+To: Chen Gang <gang.chen@asianux.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, cornelia.huck@de.ibm.com, mtosatti@redhat.com, Thomas Gleixner <tglx@linutronix.de>, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/25/2013 02:50 PM, Martin Schwidefsky wrote:
-> On Tue, 25 Jun 2013 09:54:41 +0800
-> Chen Gang <gang.chen@asianux.com> wrote:
->=20
->> > Hello Maintainers:
->> >=20
->> > When allmodconfig for " IBM zSeries model z800 and z900"
->> >=20
->> > It will report the related warnings ("EXTRA_CFLAGS=3D-W"):
->> >   mm/slub.c:1875:1: warning: =E2=80=98deactivate_slab=E2=80=99 use=
-s dynamic stack allocation [enabled by default]
->> >   mm/slub.c:1941:1: warning: =E2=80=98unfreeze_partials.isra.32=E2=
-=80=99 uses dynamic stack allocation [enabled by default]
->> >   mm/slub.c:2575:1: warning: =E2=80=98__slab_free=E2=80=99 uses dy=
-namic stack allocation [enabled by default]
->> >   mm/slub.c:1582:1: warning: =E2=80=98get_partial_node.isra.34=E2=80=
-=99 uses dynamic stack allocation [enabled by default]
->> >   mm/slub.c:2311:1: warning: =E2=80=98__slab_alloc.constprop.42=E2=
-=80=99 uses dynamic stack allocation [enabled by default]
->> >=20
->> > Is it OK ?
-> Yes, these warnings should be ok. They are enabled by CONFIG_WARN_DYN=
-AMIC_STACK,
-> the purpose is to find all functions with dynamic stack allocations. =
-The check
-> if the allocations are truly ok needs to be done manually as the comp=
-iler
-> can not find out the maximum allocation size automatically.
+On Tue, Jun 25, 2013 at 03:24:09PM +0800, Chen Gang wrote:
+> On 06/25/2013 02:48 PM, Heiko Carstens wrote:
+> > On Tue, Jun 25, 2013 at 09:46:45AM +0800, Chen Gang wrote:
+> >> > When smp_add_present_cpu() fails, it has reset all things excluding
+> >> > 'c->hotpluggable', so need reset it as original state completely.
+> >> > 
+> >> > +	c->hotpluggable = 0;
+> >> >  	return rc;
+> > No, that doesn't make sense. All cpus on s390 are always hotplugable.
+> > It really doesn't matter if the value of this field is 0 or 1 after
+> > an error.
+> > 
+> 
+> If so, is it better to set 'c->hotpluggable' for all cpus on s390 during
+> initializing ?
 
-Thank you very much for your details information.
-
---=20
-Chen Gang
-
-Asianux Corporation
+No, just leave the code as it is.
