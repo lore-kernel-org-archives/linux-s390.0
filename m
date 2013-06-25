@@ -1,52 +1,53 @@
 From: Chen Gang <gang.chen@asianux.com>
-Subject: Re: [PATCH v2] arch: asm-generic: for atomic_set_mask() 1st param,
- use 'unsigned int' instead of 'unsigned long'
-Date: Thu, 13 Jun 2013 09:19:46 +0800
-Message-ID: <51B91E32.2040502@asianux.com>
-References: <51B2E262.3030603@asianux.com> <CAErSpo5pg0EvJOR9nn3B0d+q0o6zsdwzM41AQx=AHfynRqX3hQ@mail.gmail.com> <51B4214E.6090007@asianux.com> <20130610092106.GA4697@osiris>
+Subject: Re: [Suggestion] arch: s390: mm: the warnings with allmodconfig and
+ "EXTRA_CFLAGS=-W"
+Date: Tue, 25 Jun 2013 15:25:50 +0800
+Message-ID: <51C945FE.2030305@asianux.com>
+References: <51C8F685.6000209@asianux.com> <51C8F861.9010101@asianux.com> <20130625085006.01a7f368@mschwide>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20130610092106.GA4697@osiris>
+In-Reply-To: <20130625085006.01a7f368@mschwide>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, Mike Frysinger <vapier@gentoo.org>, takata@linux-m32r.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, realmz paranoid <realmz6@gmail.com>, linux390@de.ibm.com, "uclinux-dist-devel@blackfin.uclinux.org" <uclinux-dist-devel@blackfin.uclinux.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-m32r@ml.linux-m32r.org, linux-m32r-ja@ml.linux-m32r.org, linux-s390@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>, Marc Gauthier <Marc.Gauthier@tensilica.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, cornelia.huck@de.ibm.com, mtosatti@redhat.com, Thomas Gleixner <tglx@linutronix.de>, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, linux-mm@kvack.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 06/10/2013 05:21 PM, Heiko Carstens wrote:
-> On Sun, Jun 09, 2013 at 02:31:42PM +0800, Chen Gang wrote:
->> > 
->> > atomic_set_mask() and atomic_clear_mask() are the pairs, so the related
->> > parameters' type need match with each other.
->> > 
->> > The type of 'addr->counter' is 'int', so use 'unsigned int' instead
->> > of 'unsigned long', and let atomic_set_mask() match atomic_clear_mask().
->> > 
->> > 
->> > For arch sub-system, currently, have 3 types of definition for them:
->> > 1st for 'int', 2nd for 'long', 3rd is conflict to use 'int' and 'long'.
->> > 
->> > At least, better to fix 3rd (conflict using 'int' and 'long').
->> > 
->> > Signed-off-by: Chen Gang <gang.chen@asianux.com>
->> > ---
->> >  arch/blackfin/include/asm/atomic.h |    4 ++--
->> >  arch/m32r/include/asm/atomic.h     |    8 ++++----
->> >  arch/s390/include/asm/atomic.h     |    4 ++--
->> >  include/asm-generic/atomic.h       |    2 +-
->> >  4 files changed, 9 insertions(+), 9 deletions(-)
-> For the s390 part:
-> 
-> Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> 
+On 06/25/2013 02:50 PM, Martin Schwidefsky wrote:
+> On Tue, 25 Jun 2013 09:54:41 +0800
+> Chen Gang <gang.chen@asianux.com> wrote:
+>=20
+>> > Hello Maintainers:
+>> >=20
+>> > When allmodconfig for " IBM zSeries model z800 and z900"
+>> >=20
+>> > It will report the related warnings ("EXTRA_CFLAGS=3D-W"):
+>> >   mm/slub.c:1875:1: warning: =E2=80=98deactivate_slab=E2=80=99 use=
+s dynamic stack allocation [enabled by default]
+>> >   mm/slub.c:1941:1: warning: =E2=80=98unfreeze_partials.isra.32=E2=
+=80=99 uses dynamic stack allocation [enabled by default]
+>> >   mm/slub.c:2575:1: warning: =E2=80=98__slab_free=E2=80=99 uses dy=
+namic stack allocation [enabled by default]
+>> >   mm/slub.c:1582:1: warning: =E2=80=98get_partial_node.isra.34=E2=80=
+=99 uses dynamic stack allocation [enabled by default]
+>> >   mm/slub.c:2311:1: warning: =E2=80=98__slab_alloc.constprop.42=E2=
+=80=99 uses dynamic stack allocation [enabled by default]
+>> >=20
+>> > Is it OK ?
+> Yes, these warnings should be ok. They are enabled by CONFIG_WARN_DYN=
+AMIC_STACK,
+> the purpose is to find all functions with dynamic stack allocations. =
+The check
+> if the allocations are truly ok needs to be done manually as the comp=
+iler
+> can not find out the maximum allocation size automatically.
 
-Thank you very much !!
+Thank you very much for your details information.
 
-
--- 
+--=20
 Chen Gang
 
 Asianux Corporation
