@@ -1,77 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <20130625161202.4d0a0075@mschwide>
-References: <20130403172534.528d04c5@mschwide> <CACxGe6sYM8QPB-ZZkgB0+f81CZHULPi5zPAsWb5dzHiRgU+w6Q@mail.gmail.com>
- <20130625141508.6c391fd8@mschwide> <CACxGe6s3RqOkf=M4zwpJGEEVa9XjJvP2q5xeLKewGo6np5C-3g@mail.gmail.com>
- <20130625151151.73aaba28@mschwide> <CACxGe6uOf+TONiCu27w9TsXmo2VVYXKS1+RZckAtxAdshtPDgQ@mail.gmail.com>
- <20130625161202.4d0a0075@mschwide>
-From: Grant Likely <grant.likely@secretlab.ca>
-Date: Tue, 25 Jun 2013 15:18:21 +0100
-Message-ID: <CACxGe6ujRoZkB9V6L_Zi1pVoaRganMDfZ70RKJJP1pF-NGNv=A@mail.gmail.com>
+Date: Fri, 28 Jun 2013 09:16:14 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Subject: Re: [GIT PULL] s390 patches for the 3.9-rc6
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <20130628091614.1fb04baa@mschwide>
+In-Reply-To: <CACxGe6ujRoZkB9V6L_Zi1pVoaRganMDfZ70RKJJP1pF-NGNv=A@mail.gmail.com>
+References: <20130403172534.528d04c5@mschwide>
+	<CACxGe6sYM8QPB-ZZkgB0+f81CZHULPi5zPAsWb5dzHiRgU+w6Q@mail.gmail.com>
+	<20130625141508.6c391fd8@mschwide>
+	<CACxGe6s3RqOkf=M4zwpJGEEVa9XjJvP2q5xeLKewGo6np5C-3g@mail.gmail.com>
+	<20130625151151.73aaba28@mschwide>
+	<CACxGe6uOf+TONiCu27w9TsXmo2VVYXKS1+RZckAtxAdshtPDgQ@mail.gmail.com>
+	<20130625161202.4d0a0075@mschwide>
+	<CACxGe6ujRoZkB9V6L_Zi1pVoaRganMDfZ70RKJJP1pF-NGNv=A@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Grant Likely <grant.likely@secretlab.ca>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jun 25, 2013 at 3:12 PM, Martin Schwidefsky
-<schwidefsky@de.ibm.com> wrote:
-> On Tue, 25 Jun 2013 14:30:20 +0100
-> Grant Likely <grant.likely@secretlab.ca> wrote:
->
->> On Tue, Jun 25, 2013 at 2:11 PM, Martin Schwidefsky
->> <schwidefsky@de.ibm.com> wrote:
->> > On Tue, 25 Jun 2013 13:42:23 +0100
->> > Grant Likely <grant.likely@secretlab.ca> wrote:
->> >
->> >> On Tue, Jun 25, 2013 at 1:15 PM, Martin Schwidefsky
->> >> <schwidefsky@de.ibm.com> wrote:
->> >> > On Tue, 25 Jun 2013 13:09:51 +0100
->> >> > Grant Likely <grant.likely@secretlab.ca> wrote:
->> >> >
->> >> >> On Wed, Apr 3, 2013 at 4:25 PM, Martin Schwidefsky
->> >> >> <schwidefsky@de.ibm.com> wrote:
->> >> >> > Hi Linus,
->> >> >> >
->> >> >> > please pull from the 'for-linus' branch of
->> >> >> >
->> >> >> >         git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
->> >> >> >
->> >> >> > to receive the following updates: Just a bunch of bugfixes.
->> >> >> >
->> >> >> > Heiko Carstens (4):
->> >> >> >       drivers/Kconfig: add several missing GENERIC_HARDIRQS dependencies
->> >> >>
->> >> >> Is anyone currently working on fixing this? s390 is the only
->> >> >> architecture left that does not enable GENERIC_HARDIRQS. It's painful
->> >> >> to keep adding dependencies on GENERIC_HARDIRQS to driver configs.
->> >> >
->> >> > I am working on it. The hardest part is MSI irqs for PCI. Chances are
->> >> > that I get it done for the merge window of 3.12.
->> >>
->> >> How are you handling the MSIs? I've just been looking at some code for
->> >> irq_domain to handle MSI mapping. What's the part that is getting you
->> >> hung up?
->> >
->> > Basically a name-space thing. The current code allocates 64 interrupts numbers
->> > for each PCI device, starting at 0. With GENERIC_HARDIRQS=y irq #0 is used for
->> > for external interrupts, irq #1 for I/O interrupts and irq #2 for adapter
->> > interrupts. The adapter interrupt handler for PCI has to scan the interrupt
->> > vectors and call generic_handle_irq for the MSI interrupts starting at irq #3.
->> > As I don't want to create a huge irq_desc array the number of allocatable
->> > interrupts for MSI will be limited and I can not simply assign 64 interrupts
->> > numbers to each device anymore.
->>
->> Have you looked at irq_domain? It was created to solve that exact
->> problem. irq_descs can get allocated dynamically as irqs are
->> requested.
->
-> That is one option I am considering. The PCI support for System z can have multiple
-> PCI function groups, each with up to 2048 MSI interrupts. It is quite a good match.
+Hi Grant,
 
-:-) It was designed to support exactly that use-case on PowerPC.
+On Tue, 25 Jun 2013 15:18:21 +0100
+Grant Likely <grant.likely@secretlab.ca> wrote:
 
-g.
+> On Tue, Jun 25, 2013 at 3:12 PM, Martin Schwidefsky
+> <schwidefsky@de.ibm.com> wrote:
+> > On Tue, 25 Jun 2013 14:30:20 +0100
+> > Grant Likely <grant.likely@secretlab.ca> wrote:
+> >
+> >> Have you looked at irq_domain? It was created to solve that exact
+> >> problem. irq_descs can get allocated dynamically as irqs are
+> >> requested.
+> >
+> > That is one option I am considering. The PCI support for System z can have multiple
+> > PCI function groups, each with up to 2048 MSI interrupts. It is quite a good match.
+> 
+> :-) It was designed to support exactly that use-case on PowerPC.
+
+I decided against irq_domains after all. The reason is that on s390 the same
+MSI interrupt numbers are used for multiple devices but without actually
+sharing them. The PCI root complex uses the adapter id and the MSI interrupt
+number to set two indicators for the target device (adapter interrupt summary
+bit and the MSI interrupt bit in the adapter interrupt vector). That would
+give me two options for irq_domains: 1) allocate an irq_domain for each
+device, or 2) encode the adapter id in the hwirq number and create a sparsely
+populated irq_domain. It is simpler to just use the irq_alloc_desc and
+irq_free_desc calls directly.
+
+The preliminary result of this can be gawked at 
+git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git genirq
+
+Test and performance analysis is to-be-done and will take some time.
+
+-- 
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
