@@ -1,51 +1,52 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: Re: [patch 1/1] tcp: introduce TCP experimental option for SMC-R
-Date: Mon, 01 Jul 2013 16:53:24 +0200
-Message-ID: <1372690404.15336.8.camel@BR9GV9YG.de.ibm.com>
-References: <20130625135904.840700403@linux.vnet.ibm.com>
-	 <20130625140033.744208982@linux.vnet.ibm.com>
-	 <20130626.152228.1637104209838437474.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20130626.152228.1637104209838437474.davem@davemloft.net>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Return-Path: <brueckner@linux.vnet.ibm.com>
+From: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Subject: [PATCH 0/2] hvc_console: Add DTR/RTS callbacks to handle HUPCL
+ conditions
+Date: Tue,  2 Jul 2013 17:07:13 +0200
+Message-Id: <1372777635-10423-1-git-send-email-brueckner@linux.vnet.ibm.com>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linuxppc-dev/>
+To: benh@kernel.crashing.org, jslaby@suse.cz, gregkh@linuxfoundation.org
+Cc: linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, brueckner@linux.vnet.com, schwidefsky@de.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2013-06-26 at 15:22 -0700, David Miller wrote:
-> We've already been bitten by having things like the VXLAN port number
-> change on us after we've deployed the feature already.  So this must
-> be finalized in a real RFC before I am willing to consider this patch.
-> 
-> Also, I and everyone else, wants to see the user of these new flags
-> and behavior.  That means you must post the entire SMC-R protocol stack
-> implementation at the time that you want this set of changes integrated.
-> 
-> I'm not applying this patch until both of those issues are fully resolved.
-> 
-> Thanks.
-> 
+Hi folks,
 
-Dave,
+this series resolves an issue for hvc back-ends that transfer
+terminal data over an established communication path.
 
-thanks for your response. I understand that you do not want to apply it
-this time when we do not have the using code ready. This will take us
-some more time.
-IBM intends to close the "Shared Memory Communications over RDMA" RFC
-[1] within a couple of months making it a published RFC, which should
-promote it into a status you would accept -- right? 
-By the way, the TCP experimental option for SMC-R is already an official
-ID assigned from IANA [2]. 
-Thus we are working on resolving both of your issues and intend to come
-back with this base tcp patch and its exploiting new address family in a
-few months. 
+The current implementation of the hvc_console layer notifies its
+back-ends for tty open, close, and hangups.  However, there are
+conditions where the hangup-on-close (HUPCL) termios flag must be
+considered, for example, when doing a vhangup().
 
-Kind regards, Ursula Braun
+For the hvc_iucv back-end, users perceives disconnects at their
+login which are triggered by a modified vhangup() invocation as
+described in https://lkml.org/lkml/2012/6/5/145.
+(The kernel change implied also a change in the login program).
 
-[1] http://datatracker.ietf.org/doc/draft-fox-tcpm-shared-memory-rdma/
-[2] http://www.iana.org/assignments/tcp-parameters
+However, this also necessitates to inform back-ends about changes
+in the DTR/RTS control lines which actually depend on the setting
+of the HUPCL termios flag.  Like in the old days for modems,
+network-based back-ends need to know when to hang-up and drop off
+an established communication path.  Without this new notification,
+back-ends can only use the tty open, close, hangup notifiers to
+decide whether to disconnect.  This is not sufficient because the
+HUPCL flag can be cleared (i.e. not to hang-up a connection) when
+last tty file descriptor is closed.
+
+This series adds the dtr_rts() callback to the hvc_console layer
+and modifies the hvc_iucv device driver to disconnect an established
+IUCV connection only when the DTR/RTS is lowered.
+
+
+Feedback is very welcome.  Thanks in advance!
+
+Kind regards,
+  Hendrik
