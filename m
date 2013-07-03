@@ -1,59 +1,157 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 0/8] KVM: s390: fixes and cleanup
-Date: Fri, 26 Jul 2013 15:03:59 +0200
-Message-ID: <1374843847-5046-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Gleb Natapov <gleb@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 3 Jul 2013 09:24:55 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for the 3.11 merge window #1
+Message-ID: <20130703092455.3ae5bd06@mschwide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Gleb, Paolo,
+Hi Linus,
 
-here are some fixes and cleanups for KVM/s390.
+please pull from the 'for-linus' branch of
 
-The first two patches
-"KVM: s390: move kvm_guest_enter,exit closer to sie"
-and
-"KVM: s390: fix pfmf non-quiescing control handling"
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-should go into 3.11. Everything else looks more like 3.12.
-Please apply.
+to receive the following updates:
+This is the bulk of the s390 patches for the 3.11 merge window.
+Notable enhancements are: the block timeout patches for dasd from Hannes,
+and more work on the PCI support front. In addition some cleanup and
+the usual bug fixing.
 
-Christian
+Christian Borntraeger (1):
+      s390/kvm: Provide function for setting the guest storage key
 
-
-Dominik Dingel (2):
-  KVM: s390: move kvm_guest_enter,exit closer to sie
-  KVM: s390: Make KVM_HVA_ERR_BAD usable on s390
+Hannes Reinecke (9):
+      s390/dasd: Clarify comment
+      s390/dasd: make number of retries configurable
+      s390/dasd: process all requests in the device tasklet
+      s390/dasd: Implement block timeout handling
+      s390/dasd: Reduce amount of messages for specific errors
+      block/dasd: detailed I/O errors
+      block: check for timeout function in blk_rq_timed_out()
+      s390/dasd: Add 'timeout' attribute
+      s390/dasd: Fail all requests when DASD_FLAG_ABORTIO is set
 
 Heiko Carstens (1):
-  KVM: s390: fix pfmf non-quiescing control handling
+      s390/smp: get rid of generic_smp_call_function_interrupt
 
-Martin Schwidefsky (2):
-  KVM: s390: allow sie enablement for multi-threaded programs
-  KVM: s390: fix task size check
+Hendrik Brueckner (1):
+      s390/hwsampler: Updated misleading member names in hws_data_entry
+
+Martin Schwidefsky (4):
+      s390/sclp: add parameter to specify number of buffer pages
+      s390/irq: store interrupt information in pt_regs
+      s390/pci: remove per device debug attribute
+      s390/airq: simplify adapter interrupt code
+
+Michael Holzheu (5):
+      s390/cio: Introduce generic synchronous CHSC IOCTL
+      s390/cio: Make /dev/chsc a single-open device
+      s390/cio: Introduce on-close CHSC IOCTLs
+      s390/sclp: Add SCLP character device driver
+      s390/chsc: Use snprintf instead of sprintf
 
 Michael Mueller (1):
-  KVM: s390: declare virtual HW facilities
+      s390/facility: decompose test_facility()
 
-Thomas Huth (2):
-  KVM: s390: Fix sparse warnings in priv.c
-  KVM: s390: Add helper function for setting condition code
+Sebastian Ott (14):
+      s390/pci: use to_pci_dev
+      s390/qdio: remove unused function
+      s390: remove virt_to_phys implementation
+      pci: add pcibios_release_device
+      s390/pci: implement pcibios_release_device
+      s390/pci: cleanup hotplug code
+      s390/pci: remove pdev during unplug
+      s390/pci: sysfs remove strlen
+      s390/qdio: cleanup chsc SSQD usage
+      s390/qdio: cleanup chsc SADC usage
+      s390/dma: remove gratuitous brackets
+      s390/vmwatchdog: do not use static data
+      s390/appldata_mem: do not use static data
+      s390/appldata_net_sum: do not use static data
 
- arch/s390/include/asm/kvm_host.h    |   8 ++
- arch/s390/include/asm/mmu.h         |   2 -
- arch/s390/include/asm/mmu_context.h |  19 +---
- arch/s390/include/asm/pgtable.h     |  11 +++
- arch/s390/include/asm/processor.h   |   2 +
- arch/s390/kvm/kvm-s390.c            |  44 ++++++---
- arch/s390/kvm/kvm-s390.h            |  10 ++
- arch/s390/kvm/priv.c                |  36 +++----
- arch/s390/mm/pgtable.c              | 183 +++++++++++++++++++++++-------------
- include/linux/kvm_host.h            |   8 ++
- 10 files changed, 202 insertions(+), 121 deletions(-)
+Thomas Meyer (5):
+      s390/ap_bus: Cocci spatch "ptr_ret.spatch"
+      s390/dasd: Cocci spatch "ptr_ret.spatch"
+      s390/net: Cocci spatch "ptr_ret.spatch"
+      s390/hypfs: Cocci spatch "ptr_ret.spatch"
+      s390/drivers: Cocci spatch "ptr_ret.spatch"
 
--- 
-1.8.3.1
+Wei Yongjun (1):
+      s390/sclp: remove duplicated include from sclp_ctl.c
+
+ Documentation/ioctl/ioctl-number.txt  |    1 +
+ arch/s390/appldata/appldata_mem.c     |   18 +++-
+ arch/s390/appldata/appldata_net_sum.c |   18 +++-
+ arch/s390/hypfs/hypfs_diag.c          |    8 +-
+ arch/s390/include/asm/airq.h          |   15 ++-
+ arch/s390/include/asm/dma-mapping.h   |    2 +-
+ arch/s390/include/asm/facility.h      |   17 ++--
+ arch/s390/include/asm/io.h            |   22 -----
+ arch/s390/include/asm/pci.h           |    2 -
+ arch/s390/include/asm/pgalloc.h       |    3 +
+ arch/s390/include/asm/ptrace.h        |    1 +
+ arch/s390/include/uapi/asm/Kbuild     |    1 +
+ arch/s390/include/uapi/asm/chsc.h     |   13 +++
+ arch/s390/include/uapi/asm/dasd.h     |    4 +
+ arch/s390/include/uapi/asm/sclp_ctl.h |   24 +++++
+ arch/s390/kernel/asm-offsets.c        |    1 +
+ arch/s390/kernel/entry.S              |   12 ++-
+ arch/s390/kernel/entry.h              |    2 +-
+ arch/s390/kernel/entry64.S            |   16 +++-
+ arch/s390/kernel/irq.c                |    8 +-
+ arch/s390/kernel/smp.c                |    5 +-
+ arch/s390/mm/pgtable.c                |   48 ++++++++++
+ arch/s390/oprofile/hwsampler.h        |    4 +-
+ arch/s390/pci/pci.c                   |   83 ++++++++--------
+ arch/s390/pci/pci_clp.c               |    1 -
+ arch/s390/pci/pci_debug.c             |   29 ------
+ arch/s390/pci/pci_dma.c               |    6 +-
+ arch/s390/pci/pci_sysfs.c             |   20 ++--
+ block/blk-core.c                      |    3 +
+ block/blk-timeout.c                   |    5 +-
+ drivers/pci/hotplug/s390_pci_hpc.c    |   60 ++++++++----
+ drivers/pci/pci.c                     |   10 ++
+ drivers/pci/probe.c                   |    1 +
+ drivers/s390/block/dasd.c             |  115 ++++++++++++++++++++---
+ drivers/s390/block/dasd_devmap.c      |   97 +++++++++++++++++++
+ drivers/s390/block/dasd_diag.c        |    8 +-
+ drivers/s390/block/dasd_eckd.c        |   17 +++-
+ drivers/s390/block/dasd_erp.c         |    8 ++
+ drivers/s390/block/dasd_fba.c         |   10 +-
+ drivers/s390/block/dasd_int.h         |   10 ++
+ drivers/s390/block/dasd_ioctl.c       |   59 ++++++++++++
+ drivers/s390/char/Makefile            |    2 +-
+ drivers/s390/char/sclp.c              |   86 +++++++++++++++--
+ drivers/s390/char/sclp.h              |    7 +-
+ drivers/s390/char/sclp_cmd.c          |   20 ++--
+ drivers/s390/char/sclp_con.c          |   31 +++++-
+ drivers/s390/char/sclp_ctl.c          |  144 ++++++++++++++++++++++++++++
+ drivers/s390/char/sclp_vt220.c        |   39 +++++++-
+ drivers/s390/char/tape_class.c        |    2 +-
+ drivers/s390/char/vmwatchdog.c        |    5 +-
+ drivers/s390/cio/airq.c               |  167 +++++++++++----------------------
+ drivers/s390/cio/chsc.c               |   60 ++++++++++++
+ drivers/s390/cio/chsc.h               |   44 +++++++--
+ drivers/s390/cio/chsc_sch.c           |  155 +++++++++++++++++++++++++++++-
+ drivers/s390/cio/cio.c                |   68 ++++++--------
+ drivers/s390/cio/qdio.h               |   34 -------
+ drivers/s390/cio/qdio_main.c          |   44 ---------
+ drivers/s390/cio/qdio_setup.c         |   47 ++++------
+ drivers/s390/cio/qdio_thinint.c       |   79 ++++++----------
+ drivers/s390/crypto/ap_bus.c          |   64 +++++++------
+ drivers/s390/net/claw.c               |    2 +-
+ drivers/s390/net/ctcm_main.c          |    2 +-
+ drivers/s390/net/lcs.c                |    2 +-
+ drivers/s390/net/qeth_core_main.c     |    2 +-
+ include/linux/pci.h                   |    1 +
+ 65 files changed, 1325 insertions(+), 569 deletions(-)
+ create mode 100644 arch/s390/include/uapi/asm/sclp_ctl.h
+ create mode 100644 drivers/s390/char/sclp_ctl.c
