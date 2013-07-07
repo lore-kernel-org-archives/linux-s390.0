@@ -1,14 +1,14 @@
 From: Gleb Natapov <gleb@redhat.com>
-Subject: Re: [PATCH 2/4] PF: Move architecture specifics to the backends
-Date: Sun, 7 Jul 2013 12:20:31 +0300
-Message-ID: <20130707092031.GT5113@redhat.com>
+Subject: Re: [PATCH 3/4] PF: Provide additional direct page notification
+Date: Sun, 7 Jul 2013 12:28:04 +0300
+Message-ID: <20130707092804.GU5113@redhat.com>
 References: <1373057754-59225-1-git-send-email-dingel@linux.vnet.ibm.com>
- <1373057754-59225-3-git-send-email-dingel@linux.vnet.ibm.com>
+ <1373057754-59225-4-git-send-email-dingel@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-mm@kvack.org>
 Content-Disposition: inline
-In-Reply-To: <1373057754-59225-3-git-send-email-dingel@linux.vnet.ibm.com>
+In-Reply-To: <1373057754-59225-4-git-send-email-dingel@linux.vnet.ibm.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -16,165 +16,131 @@ To: Dominik Dingel <dingel@linux.vnet.ibm.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Xiantao Zhang <xiantao.zhang@intel.com>, Alexander Graf <agraf@suse.de>, Christoffer Dall <christoffer.dall@linaro.org>, Marc Zyngier <marc.zyngier@arm.com>, Ralf Baechle <ralf@linux-mips.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Jul 05, 2013 at 10:55:52PM +0200, Dominik Dingel wrote:
-> Current common codes uses PAGE_OFFSET to indicate a bad host virtual address.
-> As this check won't work on architectures that don't map kernel and user memory
-> into the same address space (e.g. s390), it is moved into architcture specific
-> code.
+On Fri, Jul 05, 2013 at 10:55:53PM +0200, Dominik Dingel wrote:
+> By setting a Kconfig option, the architecture can control when
+> guest notifications will be presented by the apf backend.
+> So there is the default batch mechanism, working as before, where the vcpu thread
+> should pull in this information. On the other hand there is now the direct
+> mechanism, this will directly push the information to the guest.
+> 
+> Still the vcpu thread should call check_completion to cleanup leftovers,
+> that leaves most of the common code untouched.
 > 
 > Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 > ---
->  arch/arm/include/asm/kvm_host.h     |  8 ++++++++
->  arch/ia64/include/asm/kvm_host.h    |  3 +++
->  arch/mips/include/asm/kvm_host.h    |  6 ++++++
->  arch/powerpc/include/asm/kvm_host.h |  8 ++++++++
->  arch/s390/include/asm/kvm_host.h    | 12 ++++++++++++
->  arch/x86/include/asm/kvm_host.h     |  8 ++++++++
->  include/linux/kvm_host.h            |  8 --------
->  7 files changed, 45 insertions(+), 8 deletions(-)
+>  arch/x86/kvm/mmu.c       |  2 +-
+>  include/linux/kvm_host.h |  2 +-
+>  virt/kvm/Kconfig         |  4 ++++
+>  virt/kvm/async_pf.c      | 22 +++++++++++++++++++---
+>  4 files changed, 25 insertions(+), 5 deletions(-)
 > 
-> diff --git a/arch/arm/include/asm/kvm_host.h b/arch/arm/include/asm/kvm_host.h
-> index 7d22517..557c2a1 100644
-> --- a/arch/arm/include/asm/kvm_host.h
-> +++ b/arch/arm/include/asm/kvm_host.h
-> @@ -74,6 +74,14 @@ struct kvm_arch {
->  	struct vgic_dist	vgic;
->  };
+> diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
+> index 0d094da..b8632e9 100644
+> --- a/arch/x86/kvm/mmu.c
+> +++ b/arch/x86/kvm/mmu.c
+> @@ -3343,7 +3343,7 @@ static int kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu, gva_t gva, gfn_t gfn)
+>  	arch.direct_map = vcpu->arch.mmu.direct_map;
+>  	arch.cr3 = vcpu->arch.mmu.get_cr3(vcpu);
 >  
-> +#define KVM_HVA_ERR_BAD		(PAGE_OFFSET)
-> +#define KVM_HVA_ERR_RO_BAD	(PAGE_OFFSET + PAGE_SIZE)
-> +
-> +static inline bool kvm_is_error_hva(unsigned long addr)
-> +{
-> +	return addr >= PAGE_OFFSET;
-> +}
-> +
-Instead of changing every arch I prefer to add
-#ifndef KVM_HVA_ERR_BAD
-#dndif
-around this code in the common header and define different version for
-s390 only.
-
-A question bellow.
-
->  #define KVM_NR_MEM_OBJS     40
->  
->  /*
-> diff --git a/arch/ia64/include/asm/kvm_host.h b/arch/ia64/include/asm/kvm_host.h
-> index 989dd3f..d3afa6f 100644
-> --- a/arch/ia64/include/asm/kvm_host.h
-> +++ b/arch/ia64/include/asm/kvm_host.h
-> @@ -486,6 +486,9 @@ struct kvm_arch {
->  	unsigned long irq_states[KVM_IOAPIC_NUM_PINS];
->  };
->  
-> +#define KVM_HVA_ERR_BAD		(PAGE_OFFSET)
-> +#define KVM_HVA_ERR_RO_BAD	(PAGE_OFFSET + PAGE_SIZE)
-> +
->  union cpuid3_t {
->  	u64 value;
->  	struct {
-> diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
-> index 4d6fa0b..3a0a3f7 100644
-> --- a/arch/mips/include/asm/kvm_host.h
-> +++ b/arch/mips/include/asm/kvm_host.h
-> @@ -34,7 +34,13 @@
->  #define KVM_NR_PAGE_SIZES	1
->  #define KVM_PAGES_PER_HPAGE(x)	1
->  
-> +#define KVM_HVA_ERR_BAD		(PAGE_OFFSET)
-> +#define KVM_HVA_ERR_RO_BAD	(PAGE_OFFSET + PAGE_SIZE)
->  
-> +static inline bool kvm_is_error_hva(unsigned long addr)
-> +{
-> +	return addr >= PAGE_OFFSET;
-> +}
->  
->  /* Special address that contains the comm page, used for reducing # of traps */
->  #define KVM_GUEST_COMMPAGE_ADDR     0x0
-> diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
-> index af326cd..be5d7f4 100644
-> --- a/arch/powerpc/include/asm/kvm_host.h
-> +++ b/arch/powerpc/include/asm/kvm_host.h
-> @@ -273,6 +273,14 @@ struct kvm_arch {
->  #endif
->  };
->  
-> +#define KVM_HVA_ERR_BAD		(PAGE_OFFSET)
-> +#define KVM_HVA_ERR_RO_BAD	(PAGE_OFFSET + PAGE_SIZE)
-> +
-> +static inline bool kvm_is_error_hva(unsigned long addr)
-> +{
-> +	return addr >= PAGE_OFFSET;
-> +}
-> +
->  /*
->   * Struct for a virtual core.
->   * Note: entry_exit_count combines an entry count in the bottom 8 bits
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 3238d40..1588882 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -274,6 +274,18 @@ struct kvm_arch{
->  	int css_support;
->  };
->  
-> +#define KVM_HVA_ERR_BAD		(-1UL)
-> +#define KVM_HVA_ERR_RO_BAD	(-1UL)
-> +
-> +static inline bool kvm_is_error_hva(unsigned long addr)
-> +{
-> +	/*
-> +	 * on s390, this check is not needed as kernel and user memory
-> +	 * is not mapped into the same address space
-> +	 */
-> +	return false;
-> +}
-> +
-Can gfn_to_hva() ever return error hva on S390? Currently error hva is
-returned if gfn is outside of any slot or slot is invalid.
-
->  extern int sie64a(struct kvm_s390_sie_block *, u64 *);
->  extern char sie_exit;
->  #endif
-> diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-> index f87f7fc..07e8570 100644
-> --- a/arch/x86/include/asm/kvm_host.h
-> +++ b/arch/x86/include/asm/kvm_host.h
-> @@ -96,6 +96,14 @@
->  
->  #define ASYNC_PF_PER_VCPU 64
->  
-> +#define KVM_HVA_ERR_BAD		(PAGE_OFFSET)
-> +#define KVM_HVA_ERR_RO_BAD	(PAGE_OFFSET + PAGE_SIZE)
-> +
-> +static inline bool kvm_is_error_hva(unsigned long addr)
-> +{
-> +	return addr >= PAGE_OFFSET;
-> +}
-> +
->  struct kvm_vcpu;
->  struct kvm;
->  struct kvm_async_pf;
-> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-> index a63d83e..210f493 100644
-> --- a/include/linux/kvm_host.h
-> +++ b/include/linux/kvm_host.h
-> @@ -85,14 +85,6 @@ static inline bool is_noslot_pfn(pfn_t pfn)
->  	return pfn == KVM_PFN_NOSLOT;
+> -	return kvm_setup_async_pf(vcpu, gva, gfn, &arch);
+> +	return kvm_setup_async_pf(vcpu, gva, gfn_to_hva(vcpu->kvm, gfn), &arch);
 >  }
 >  
-> -#define KVM_HVA_ERR_BAD		(PAGE_OFFSET)
-> -#define KVM_HVA_ERR_RO_BAD	(PAGE_OFFSET + PAGE_SIZE)
-> -
-> -static inline bool kvm_is_error_hva(unsigned long addr)
-> -{
-> -	return addr >= PAGE_OFFSET;
-> -}
-> -
->  #define KVM_ERR_PTR_BAD_PAGE	(ERR_PTR(-ENOENT))
+>  static bool can_do_async_pf(struct kvm_vcpu *vcpu)
+> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+> index 210f493..969d575 100644
+> --- a/include/linux/kvm_host.h
+> +++ b/include/linux/kvm_host.h
+> @@ -175,7 +175,7 @@ struct kvm_async_pf {
 >  
->  static inline bool is_error_page(struct page *page)
+>  void kvm_clear_async_pf_completion_queue(struct kvm_vcpu *vcpu);
+>  void kvm_check_async_pf_completion(struct kvm_vcpu *vcpu);
+> -int kvm_setup_async_pf(struct kvm_vcpu *vcpu, gva_t gva, gfn_t gfn,
+> +int kvm_setup_async_pf(struct kvm_vcpu *vcpu, gva_t gva, unsigned long hva,
+>  		       struct kvm_arch_async_pf *arch);
+>  int kvm_async_pf_wakeup_all(struct kvm_vcpu *vcpu);
+>  #endif
+> diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
+> index 779262f..715e6b5 100644
+> --- a/virt/kvm/Kconfig
+> +++ b/virt/kvm/Kconfig
+> @@ -22,6 +22,10 @@ config KVM_MMIO
+>  config KVM_ASYNC_PF
+>         bool
+>  
+> +# Toggle to switch between direct notification and batch job
+> +config KVM_ASYNC_PF_DIRECT
+> +       bool
+> +
+>  config HAVE_KVM_MSI
+>         bool
+>  
+> diff --git a/virt/kvm/async_pf.c b/virt/kvm/async_pf.c
+> index ea475cd..b8df37a 100644
+> --- a/virt/kvm/async_pf.c
+> +++ b/virt/kvm/async_pf.c
+> @@ -28,6 +28,21 @@
+>  #include "async_pf.h"
+>  #include <trace/events/kvm.h>
+>  
+> +static inline void kvm_async_page_direct_present(struct kvm_vcpu *vcpu,
+> +						 struct kvm_async_pf *work)
+> +{
+> +#ifdef CONFIG_KVM_ASYNC_PF_DIRECT
+> +	kvm_arch_async_page_present(vcpu, work);
+> +#endif
+> +}
+> +static inline void kvm_async_page_batch_present(struct kvm_vcpu *vcpu,
+> +						struct kvm_async_pf *work)
+> +{
+> +#ifndef CONFIG_KVM_ASYNC_PF_DIRECT
+> +	kvm_arch_async_page_present(vcpu, work);
+> +#endif
+> +}
+> +
+I would call them kvm_async_page_present_(async|sync)().
+
+Hmm, to much "sync" in each function name, but I still think it is
+better.
+
+>  static struct kmem_cache *async_pf_cache;
+>  
+>  int kvm_async_pf_init(void)
+> @@ -70,6 +85,7 @@ static void async_pf_execute(struct work_struct *work)
+>  	down_read(&mm->mmap_sem);
+>  	get_user_pages(current, mm, addr, 1, 1, 0, &page, NULL);
+>  	up_read(&mm->mmap_sem);
+> +	kvm_async_page_direct_present(vcpu, apf);
+>  	unuse_mm(mm);
+>  
+>  	spin_lock(&vcpu->async_pf.lock);
+> @@ -134,7 +150,7 @@ void kvm_check_async_pf_completion(struct kvm_vcpu *vcpu)
+>  
+>  		if (work->page)
+>  			kvm_arch_async_page_ready(vcpu, work);
+> -		kvm_arch_async_page_present(vcpu, work);
+> +		kvm_async_page_batch_present(vcpu, work);
+>  
+>  		list_del(&work->queue);
+>  		vcpu->async_pf.queued--;
+> @@ -144,7 +160,7 @@ void kvm_check_async_pf_completion(struct kvm_vcpu *vcpu)
+>  	}
+>  }
+>  
+> -int kvm_setup_async_pf(struct kvm_vcpu *vcpu, gva_t gva, gfn_t gfn,
+> +int kvm_setup_async_pf(struct kvm_vcpu *vcpu, gva_t gva, unsigned long hva,
+>  		       struct kvm_arch_async_pf *arch)
+>  {
+>  	struct kvm_async_pf *work;
+> @@ -166,7 +182,7 @@ int kvm_setup_async_pf(struct kvm_vcpu *vcpu, gva_t gva, gfn_t gfn,
+>  	work->done = false;
+>  	work->vcpu = vcpu;
+>  	work->gva = gva;
+> -	work->addr = gfn_to_hva(vcpu->kvm, gfn);
+> +	work->addr = hva;
+>  	work->arch = *arch;
+>  	work->mm = current->mm;
+>  	atomic_inc(&work->mm->mm_count);
 > -- 
 > 1.8.2.2
 
