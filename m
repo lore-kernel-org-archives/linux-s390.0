@@ -1,54 +1,64 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [RFC PATCH v2 1/2] KVM: s390: virtio-ccw: Handle command rejects.
-Date: Wed, 10 Jul 2013 10:47:25 +0200
-Message-ID: <51DD1F9D.9060500@de.ibm.com>
-References: <1373369657-51675-1-git-send-email-cornelia.huck@de.ibm.com> <1373369657-51675-2-git-send-email-cornelia.huck@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1373369657-51675-2-git-send-email-cornelia.huck@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Subject: [PATCH 2/4] PF: Make KVM_HVA_ERR_BAD usable on s390
+Date: Tue,  9 Jul 2013 15:56:45 +0200
+Message-ID: <1373378207-10451-3-git-send-email-dingel@linux.vnet.ibm.com>
+References: <1373378207-10451-1-git-send-email-dingel@linux.vnet.ibm.com>
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1373378207-10451-1-git-send-email-dingel@linux.vnet.ibm.com>
+Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org
+To: Gleb Natapov <gleb@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Xiantao Zhang <xiantao.zhang@intel.com>, Alexander Graf <agraf@suse.de>, Christoffer Dall <christoffer.dall@linaro.org>, Marc Zyngier <marc.zyngier@arm.com>, Ralf Baechle <ralf@linux-mips.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Dominik Dingel <dingel@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 09/07/13 13:34, Cornelia Huck wrote:
-> A command reject for a ccw may happen if we run on a host not supporting
-> a certain feature. We want to be able to handle this as special case of
-> command failure, so let's split this off from the generic -EIO error code.
-> 
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Current common code uses PAGE_OFFSET to indicate a bad host virtual address.
+As this check won't work on architectures that don't map kernel and user memory
+into the same address space (e.g. s390), an additional implementation is made
+available in the case that PAGE_OFFSET == 0.
 
+Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+---
+ include/linux/kvm_host.h | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index a63d83e..f3c04e7 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -85,6 +85,18 @@ static inline bool is_noslot_pfn(pfn_t pfn)
+ 	return pfn == KVM_PFN_NOSLOT;
+ }
+ 
++#if (PAGE_OFFSET == 0)
++
++#define KVM_HVA_ERR_BAD		(-1UL)
++#define KVM_HVA_ERR_RO_BAD	(-1UL)
++
++static inline bool kvm_is_error_hva(unsigned long addr)
++{
++	return addr == KVM_HVA_ERR_BAD;
++}
++
++#else
++
+ #define KVM_HVA_ERR_BAD		(PAGE_OFFSET)
+ #define KVM_HVA_ERR_RO_BAD	(PAGE_OFFSET + PAGE_SIZE)
+ 
+@@ -93,6 +105,8 @@ static inline bool kvm_is_error_hva(unsigned long addr)
+ 	return addr >= PAGE_OFFSET;
+ }
+ 
++#endif
++
+ #define KVM_ERR_PTR_BAD_PAGE	(ERR_PTR(-ENOENT))
+ 
+ static inline bool is_error_page(struct page *page)
+-- 
+1.8.2.2
 
-> ---
->  drivers/s390/kvm/virtio_ccw.c | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-> index 779dc51..d6c7aba 100644
-> --- a/drivers/s390/kvm/virtio_ccw.c
-> +++ b/drivers/s390/kvm/virtio_ccw.c
-> @@ -639,8 +639,15 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
->  	     (SCSW_STCTL_ALERT_STATUS | SCSW_STCTL_STATUS_PEND))) {
->  		/* OK */
->  	}
-> -	if (irb_is_error(irb))
-> -		vcdev->err = -EIO; /* XXX - use real error */
-> +	if (irb_is_error(irb)) {
-> +		/* Command reject? */
-> +		if ((scsw_dstat(&irb->scsw) & DEV_STAT_UNIT_CHECK) &&
-> +		    (irb->ecw[0] & SNS0_CMD_REJECT))
-> +			vcdev->err = -EOPNOTSUPP;
-> +		else
-> +			/* Map everything else to -EIO. */
-> +			vcdev->err = -EIO;
-> +	}
->  	if (vcdev->curr_io & activity) {
->  		switch (activity) {
->  		case VIRTIO_CCW_DOING_READ_FEAT:
-> 
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
