@@ -1,48 +1,34 @@
-From: Gleb Natapov <gleb@redhat.com>
-Subject: Re: [PATCH 1/4] PF: Add FAULT_FLAG_RETRY_NOWAIT for guest fault
-Date: Tue, 9 Jul 2013 18:43:35 +0300
-Message-ID: <20130709154335.GI24941@redhat.com>
-References: <1373378207-10451-1-git-send-email-dingel@linux.vnet.ibm.com>
- <1373378207-10451-2-git-send-email-dingel@linux.vnet.ibm.com>
- <20130709152346.GG24941@redhat.com>
- <51DC2E0E.1050309@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 3/4] PF: Provide additional direct page notification
+Date: Tue, 09 Jul 2013 18:01:43 +0200
+Message-ID: <51DC33E7.1030404@de.ibm.com>
+References: <1373378207-10451-1-git-send-email-dingel@linux.vnet.ibm.com> <1373378207-10451-4-git-send-email-dingel@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-mm@kvack.org>
-Content-Disposition: inline
-In-Reply-To: <51DC2E0E.1050309@de.ibm.com>
+In-Reply-To: <1373378207-10451-4-git-send-email-dingel@linux.vnet.ibm.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Dominik Dingel <dingel@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Xiantao Zhang <xiantao.zhang@intel.com>, Alexander Graf <agraf@suse.de>, Christoffer Dall <christoffer.dall@linaro.org>, Marc Zyngier <marc.zyngier@arm.com>, Ralf Baechle <ralf@linux-mips.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+To: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Cc: Gleb Natapov <gleb@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Xiantao Zhang <xiantao.zhang@intel.com>, Alexander Graf <agraf@suse.de>, Christoffer Dall <christoffer.dall@linaro.org>, Marc Zyngier <marc.zyngier@arm.com>, Ralf Baechle <ralf@linux-mips.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jul 09, 2013 at 05:36:46PM +0200, Christian Borntraeger wrote:
-> On 09/07/13 17:23, Gleb Natapov wrote:
-> > On Tue, Jul 09, 2013 at 03:56:44PM +0200, Dominik Dingel wrote:
-> >> In case of a fault retry exit sie64() with gmap_fault indication for the
-> >> running thread set. This makes it possible to handle async page faults
-> >> without the need for mm notifiers.
-> >>
-> >> Based on a patch from Martin Schwidefsky.
-> >>
-> > For that we will obviously need Christian and Cornelia ACKs. Or it can
-> > go in via S390 tree.
-> > 
+On 09/07/13 15:56, Dominik Dingel wrote:
+> By setting a Kconfig option, the architecture can control when
+> guest notifications will be presented by the apf backend.
+> So there is the default batch mechanism, working as before, where the vcpu thread
+> should pull in this information. On the other hand there is now the direct
+> mechanism, this will directly push the information to the guest.
 > 
-> >> Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Still the vcpu thread should call check_completion to cleanup leftovers,
+> that leaves most of the common code untouched.
 > 
-> Do you want me or Conny to apply these patches add a signoff and resend them?
-> Otherwise I will review the s390 specific patches and ack them individually.
-> 
-If your are OK with me merging this one through kvm.git then just
-ack/review all others. I have a small comment on patch 2, but otherwise
-the patch series looks OK to me from KVM perspective.
+> Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 
---
-			Gleb.
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com> 
+for the "why". We want to use the existing architectured interface.
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
