@@ -1,80 +1,127 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 16 Jul 2013 09:52:10 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: Build regressions/improvements in v3.11-rc1
-In-Reply-To: <alpine.DEB.2.02.1307160950110.8862@ayla.of.borg>
-Message-ID: <alpine.DEB.2.02.1307160950380.22552@ayla.of.borg>
-References: <alpine.DEB.2.02.1307160950110.8862@ayla.of.borg>
+Return-Path: <owner-linux-mm@kvack.org>
+Date: Tue, 9 Jul 2013 17:54:26 -0700 (PDT)
+From: Hugh Dickins <hughd@google.com>
+Subject: Re: PageDirty check in mk_pte for s390
+In-Reply-To: <20130703104134.4e901aea@mschwide>
+Message-ID: <alpine.LNX.2.00.1307091727160.7227@eggly.anvils>
+References: <20130703104134.4e901aea@mschwide>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Cc: linux-cris-kernel@axis.com, linux-s390@vger.kernel.org
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-mm@kvack.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 16 Jul 2013, Geert Uytterhoeven wrote:
-> *** ERRORS ***
+Hi Martin,
+
+Sorry for being so slow to respond: just back from vacation,
+and masses of mail to go through.
+
+On Wed, 3 Jul 2013, Martin Schwidefsky wrote:
+
+> Hi Hugh,
 > 
-> 73 regressions:
->   + drivers/ata/libata-core.c: error: implicit declaration of function 'ioread32' [-Werror=implicit-function-declaration]:  => 6734:2
->   + drivers/ata/libata-sff.c: error: implicit declaration of function 'ioread16' [-Werror=implicit-function-declaration]:  => 2172:3
->   + drivers/ata/libata-sff.c: error: implicit declaration of function 'ioread16_rep' [-Werror=implicit-function-declaration]:  => 567:3
->   + drivers/ata/libata-sff.c: error: implicit declaration of function 'ioread32_rep' [-Werror=implicit-function-declaration]:  => 626:3
->   + drivers/ata/libata-sff.c: error: implicit declaration of function 'ioread8' [-Werror=implicit-function-declaration]:  => 86:2
->   + drivers/ata/libata-sff.c: error: implicit declaration of function 'iowrite16_rep' [-Werror=implicit-function-declaration]:  => 569:3
->   + drivers/ata/libata-sff.c: error: implicit declaration of function 'iowrite32' [-Werror=implicit-function-declaration]:  => 3018:2
->   + drivers/ata/libata-sff.c: error: implicit declaration of function 'iowrite32_rep' [-Werror=implicit-function-declaration]:  => 628:3
->   + drivers/ata/libata-sff.c: error: implicit declaration of function 'iowrite8' [-Werror=implicit-function-declaration]:  => 301:3
->   + drivers/ata/pata_arasan_cf.c: error: implicit declaration of function 'ioread8' [-Werror=implicit-function-declaration]:  => 549:3
->   + drivers/ata/sata_mv.c: error: implicit declaration of function 'ioread8' [-Werror=implicit-function-declaration]:  => 1957:3
->   + drivers/ata/sata_rcar.c: error: implicit declaration of function 'ioread32' [-Werror=implicit-function-declaration]:  => 163:3
->   + drivers/ata/sata_rcar.c: error: implicit declaration of function 'iowrite32' [-Werror=implicit-function-declaration]:  => 136:2
->   + drivers/crypto/amcc/crypto4xx_core.c: error: expected declaration specifiers or '...' before string constant:  => 1299:15, 1300:20, 1298:16
->   + drivers/dma/timb_dma.c: error: implicit declaration of function 'ioread32' [-Werror=implicit-function-declaration]:  => 130:2
->   + drivers/dma/timb_dma.c: error: implicit declaration of function 'iowrite32' [-Werror=implicit-function-declaration]:  => 134:2
->   + drivers/gpu/drm/drm_bufs.c: error: implicit declaration of function 'ioremap_wc' [-Werror=implicit-function-declaration]:  => 219:5
->   + drivers/gpu/drm/drm_memory.c: error: implicit declaration of function 'ioremap_wc' [-Werror=implicit-function-declaration]:  => 129:3
->   + drivers/ipack/devices/ipoctal.c: error: implicit declaration of function 'ioread8' [-Werror=implicit-function-declaration]:  => 134:3
->   + drivers/ipack/devices/ipoctal.c: error: implicit declaration of function 'iowrite8' [-Werror=implicit-function-declaration]:  => 68:2
->   + drivers/ipack/ipack.c: error: implicit declaration of function 'ioread16be' [-Werror=implicit-function-declaration]:  => 376:3
->   + drivers/ipack/ipack.c: error: implicit declaration of function 'ioread8' [-Werror=implicit-function-declaration]:  => 358:2
->   + drivers/media/platform/sh_veu.c: error: implicit declaration of function 'ioread32' [-Werror=implicit-function-declaration]:  => 228:2
->   + drivers/media/platform/sh_veu.c: error: implicit declaration of function 'iowrite32' [-Werror=implicit-function-declaration]:  => 234:2
->   + drivers/mfd/kempld-core.c: error: implicit declaration of function 'ioread8' [-Werror=implicit-function-declaration]:  => 38:2
->   + drivers/mfd/kempld-core.c: error: implicit declaration of function 'iowrite8' [-Werror=implicit-function-declaration]:  => 45:2
->   + drivers/net/ethernet/micrel/ks8842.c: error: implicit declaration of function 'ioread16' [-Werror=implicit-function-declaration]:  => 207:2
->   + drivers/net/ethernet/micrel/ks8842.c: error: implicit declaration of function 'ioread32' [-Werror=implicit-function-declaration]:  => 247:2
->   + drivers/net/ethernet/micrel/ks8842.c: error: implicit declaration of function 'ioread8' [-Werror=implicit-function-declaration]:  => 233:2
->   + drivers/net/ethernet/micrel/ks8842.c: error: implicit declaration of function 'iowrite16' [-Werror=implicit-function-declaration]:  => 185:2
->   + drivers/net/ethernet/micrel/ks8842.c: error: implicit declaration of function 'iowrite32' [-Werror=implicit-function-declaration]:  => 180:2
->   + drivers/net/ethernet/micrel/ks8842.c: error: implicit declaration of function 'iowrite8' [-Werror=implicit-function-declaration]:  => 192:2
->   + drivers/net/ethernet/renesas/sh_eth.h: error: implicit declaration of function 'ioread32' [-Werror=implicit-function-declaration]:  => 548:2
->   + drivers/net/ethernet/renesas/sh_eth.h: error: implicit declaration of function 'iowrite32' [-Werror=implicit-function-declaration]:  => 540:2
->   + drivers/ptp/ptp_pch.c: error: implicit declaration of function 'ioread32' [-Werror=implicit-function-declaration]:  => 153:2
->   + drivers/ptp/ptp_pch.c: error: implicit declaration of function 'iowrite32' [-Werror=implicit-function-declaration]:  => 154:2
->   + drivers/spi/spi-xilinx.c: error: implicit declaration of function 'ioread32' [-Werror=implicit-function-declaration]:  => 105:2
->   + drivers/spi/spi-xilinx.c: error: implicit declaration of function 'ioread32be' [-Werror=implicit-function-declaration]:  => 115:2
->   + drivers/spi/spi-xilinx.c: error: implicit declaration of function 'iowrite32' [-Werror=implicit-function-declaration]:  => 100:2
->   + drivers/spi/spi-xilinx.c: error: implicit declaration of function 'iowrite32be' [-Werror=implicit-function-declaration]:  => 110:2
->   + drivers/usb/gadget/fotg210-udc.c: error: implicit declaration of function 'ioread32' [-Werror=implicit-function-declaration]:  => 33:2
->   + drivers/usb/gadget/fotg210-udc.c: error: implicit declaration of function 'iowrite32' [-Werror=implicit-function-declaration]:  => 39:2
->   + drivers/video/uvesafb.c: error: implicit declaration of function 'ioremap_wc' [-Werror=implicit-function-declaration]:  => 1563:2
+> I still have the patch below in my patch heap. Should I just go ahead and
+> add it to my s390-tree or do you prefer to take care of it yourself ?
 
-cris
+I didn't realize that you had taken that in.  Mel had acked your original
+patch, I raised this concern, but nobody agreed or disagreed with me
+(and you didn't persuade rmk to join you in __ARCH_WANT_PTE_WRITE_DIRTY).
 
->   + sound/soc/codecs/wm0010.c: error: implicit declaration of function 'irq_set_irq_wake' [-Werror=implicit-function-declaration]:  => 976:2
+When I saw your original go to linux-next, then to Linus, I had to ask
+myself how much I still cared about it, given everything else going on.
 
-s390
+I decided that I didn't care enough to spend time on it, so just let it
+drop; and find myself still feeling that way.  I still don't like your
+PageDirty buried in mk_pte, and fear we may cause s390 unforeseen trouble
+in future because of it; but now that it is upstream, I'm inclined to let
+it rest until a problem is demonstrated - it can't hurt anyone but s390.
 
-Gr{oetje,eeting}s,
+If you feel differently, and think it is better with the patch below (I
+didn't realize that I had persuaded you), then by all means send it in
+to Linus.  As you know, I personally prefer an explicit CONFIG_S390, but
+clearly you disagree with me on that, and I wouldn't be surprised if
+Linus and everyone else share your view.
 
-						Geert
+Thanks for caring!
+Hugh
+
+> 
+> --
+> Subject: [PATCH] s390/mm: move PageDirty check from mk_pte to common code
+> 
+> Hugh Dickins commented on the software dirty bit implementation and he
+> does not like the fact that mk_pte uses PageDirty under the covers.
+> His suggestion is to move the PageDirty check into the __do_fault
+> function.
+> 
+> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> ---
+>  arch/s390/include/asm/pgtable.h |  9 +++------
+>  mm/memory.c                     | 12 ++++++++++++
+>  2 files changed, 15 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+> index 68e6168..d56dc6d 100644
+> --- a/arch/s390/include/asm/pgtable.h
+> +++ b/arch/s390/include/asm/pgtable.h
+> @@ -1260,13 +1260,8 @@ static inline pte_t mk_pte_phys(unsigned long physpage, pgprot_t pgprot)
+>  static inline pte_t mk_pte(struct page *page, pgprot_t pgprot)
+>  {
+>  	unsigned long physpage = page_to_phys(page);
+> -	pte_t __pte = mk_pte_phys(physpage, pgprot);
+>  
+> -	if ((pte_val(__pte) & _PAGE_SWW) && PageDirty(page)) {
+> -		pte_val(__pte) |= _PAGE_SWC;
+> -		pte_val(__pte) &= ~_PAGE_RO;
+> -	}
+> -	return __pte;
+> +	return mk_pte_phys(physpage, pgprot);
+>  }
+>  
+>  #define pgd_index(address) (((address) >> PGDIR_SHIFT) & (PTRS_PER_PGD-1))
+> @@ -1599,6 +1594,8 @@ extern int s390_enable_sie(void);
+>  static inline void pgtable_cache_init(void) { }
+>  static inline void check_pgt_cache(void) { }
+>  
+> +#define __ARCH_WANT_PTE_WRITE_DIRTY
+> +
+>  #include <asm-generic/pgtable.h>
+>  
+>  #endif /* _S390_PAGE_H */
+> diff --git a/mm/memory.c b/mm/memory.c
+> index 1207cef..765d5f2 100644
+> --- a/mm/memory.c
+> +++ b/mm/memory.c
+> @@ -3417,6 +3417,18 @@ static int __do_fault(struct mm_struct *mm, struct vm_area_struct *vma,
+>  				dirty_page = page;
+>  				get_page(dirty_page);
+>  			}
+> +#ifdef __ARCH_WANT_PTE_WRITE_DIRTY
+> +			/*
+> +			 * Architectures that use software dirty bits may
+> +			 * want to set the dirty bit in the pte if the pte
+> +			 * is writable and the PageDirty bit is set for the
+> +			 * page. This avoids unnecessary protection faults
+> +			 * for writable mappings which do not use
+> +			 * mapping_cap_account_dirty, e.g. tmpfs and shmem.
+> +			 */
+> +			else if (pte_write(entry) && PageDirty(page))
+> +				entry = pte_mkdirty(entry);
+> +#endif
+>  		}
+>  		set_pte_at(mm, address, page_table, entry);
+>  
+> -- 
+> blue skies,
+>    Martin.
+> 
+> "Reality continues to ruin my life." - Calvin.
 
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
