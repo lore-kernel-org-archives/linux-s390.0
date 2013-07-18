@@ -1,36 +1,33 @@
-From: Gleb Natapov <gleb@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: [PATCH 4/4] PF: Async page fault support on s390
-Date: Thu, 11 Jul 2013 13:58:22 +0300
-Message-ID: <20130711105822.GI8575@redhat.com>
-References: <1373461195-27628-1-git-send-email-dingel@linux.vnet.ibm.com>
- <1373461195-27628-5-git-send-email-dingel@linux.vnet.ibm.com>
- <20130711090411.GA8575@redhat.com>
- <51DE8BE1.8000902@de.ibm.com>
+Date: Thu, 18 Jul 2013 15:57:20 +0200
+Message-ID: <51E7F440.2010600@redhat.com>
+References: <1373461195-27628-1-git-send-email-dingel@linux.vnet.ibm.com> <1373461195-27628-5-git-send-email-dingel@linux.vnet.ibm.com> <20130711090411.GA8575@redhat.com> <51DE8BE1.8000902@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-mm@kvack.org>
-Content-Disposition: inline
 In-Reply-To: <51DE8BE1.8000902@de.ibm.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Dominik Dingel <dingel@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Xiantao Zhang <xiantao.zhang@intel.com>, Alexander Graf <agraf@suse.de>, Christoffer Dall <christoffer.dall@linaro.org>, Marc Zyngier <marc.zyngier@arm.com>, Ralf Baechle <ralf@linux-mips.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Cc: Gleb Natapov <gleb@redhat.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Xiantao Zhang <xiantao.zhang@intel.com>, Alexander Graf <agraf@suse.de>, Christoffer Dall <christoffer.dall@linaro.org>, Marc Zyngier <marc.zyngier@arm.com>, Ralf Baechle <ralf@linux-mips.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jul 11, 2013 at 12:41:37PM +0200, Christian Borntraeger wrote:
+Il 11/07/2013 12:41, Christian Borntraeger ha scritto:
 > On 11/07/13 11:04, Gleb Natapov wrote:
-> > On Wed, Jul 10, 2013 at 02:59:55PM +0200, Dominik Dingel wrote:
-> >> This patch enables async page faults for s390 kvm guests.
-> >> It provides the userspace API to enable, disable or get the status of this
-> >> feature. Also it includes the diagnose code, called by the guest to enable
-> >> async page faults.
-> >>
-> >> The async page faults will use an already existing guest interface for this
-> >> purpose, as described in "CP Programming Services (SC24-6084)".
-> >>
-> >> Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-> > Christian, looks good now?
+>> On Wed, Jul 10, 2013 at 02:59:55PM +0200, Dominik Dingel wrote:
+>>> This patch enables async page faults for s390 kvm guests.
+>>> It provides the userspace API to enable, disable or get the status of this
+>>> feature. Also it includes the diagnose code, called by the guest to enable
+>>> async page faults.
+>>>
+>>> The async page faults will use an already existing guest interface for this
+>>> purpose, as described in "CP Programming Services (SC24-6084)".
+>>>
+>>> Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+>> Christian, looks good now?
 > 
 > Looks good, but I just had a  discussion with Dominik about several other cases 
 > (guest driven reboot, qemu driven reboot, life migration). This patch should 
@@ -44,11 +41,10 @@ On Thu, Jul 11, 2013 at 12:41:37PM +0200, Christian Borntraeger wrote:
 > 
 > Will discuss this with Dominik, Conny and Alex. So lets defer that till next
 > week, ok?
-> 
-Sure.
 
---
-			Gleb.
+Let us know if we should wait for a v5. :)
+
+Paolo
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
