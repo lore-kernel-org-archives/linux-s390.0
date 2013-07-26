@@ -1,73 +1,75 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 1/8] KVM: s390: move kvm_guest_enter,exit closer to sie
-Date: Fri, 26 Jul 2013 15:04:00 +0200
-Message-ID: <1374843847-5046-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 8/8] KVM: s390: Make KVM_HVA_ERR_BAD usable on s390
+Date: Fri, 26 Jul 2013 15:04:07 +0200
+Message-ID: <1374843847-5046-9-git-send-email-borntraeger@de.ibm.com>
 References: <1374843847-5046-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <stable-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1374843847-5046-1-git-send-email-borntraeger@de.ibm.com>
-Sender: stable-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Gleb Natapov <gleb@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, stable@vger.kernel.org
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Dominik Dingel <dingel@linux.vnet.ibm.com>
 
-Any uaccess between guest_enter and guest_exit could trigger a page fault,
-the page fault handler would handle it as a guest fault and translate a
-user address as guest address.
+Current common code uses PAGE_OFFSET to indicate a bad host virtual address.
+As this check won't work on architectures that don't map kernel and user memory
+into the same address space (e.g. s390), such architectures can now provide
+their own KVM_HVA_ERR_BAD defines.
 
 Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-CC: stable@vger.kernel.org
 ---
- arch/s390/kvm/kvm-s390.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ arch/s390/include/asm/kvm_host.h | 8 ++++++++
+ include/linux/kvm_host.h         | 8 ++++++++
+ 2 files changed, 16 insertions(+)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index a3d797b..39894aa 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -702,14 +702,25 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
- 		return rc;
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 3238d40..e87ecaa 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -274,6 +274,14 @@ struct kvm_arch{
+ 	int css_support;
+ };
  
- 	vcpu->arch.sie_block->icptcode = 0;
--	preempt_disable();
--	kvm_guest_enter();
--	preempt_enable();
- 	VCPU_EVENT(vcpu, 6, "entering sie flags %x",
- 		   atomic_read(&vcpu->arch.sie_block->cpuflags));
- 	trace_kvm_s390_sie_enter(vcpu,
- 				 atomic_read(&vcpu->arch.sie_block->cpuflags));
++#define KVM_HVA_ERR_BAD		(-1UL)
++#define KVM_HVA_ERR_RO_BAD	(-2UL)
 +
-+	/*
-+	 * As PF_VCPU will be used in fault handler, between guest_enter
-+	 * and guest_exit should be no uaccess.
-+	 */
-+	preempt_disable();
-+	kvm_guest_enter();
-+	preempt_enable();
- 	rc = sie64a(vcpu->arch.sie_block, vcpu->run->s.regs.gprs);
-+	kvm_guest_exit();
++static inline bool kvm_is_error_hva(unsigned long addr)
++{
++	return IS_ERR_VALUE(addr);
++}
 +
-+	VCPU_EVENT(vcpu, 6, "exit sie icptcode %d",
-+		   vcpu->arch.sie_block->icptcode);
-+	trace_kvm_s390_sie_exit(vcpu, vcpu->arch.sie_block->icptcode);
-+
- 	if (rc > 0)
- 		rc = 0;
- 	if (rc < 0) {
-@@ -721,10 +732,6 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
- 			rc = kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
- 		}
- 	}
--	VCPU_EVENT(vcpu, 6, "exit sie icptcode %d",
--		   vcpu->arch.sie_block->icptcode);
--	trace_kvm_s390_sie_exit(vcpu, vcpu->arch.sie_block->icptcode);
--	kvm_guest_exit();
+ extern int sie64a(struct kvm_s390_sie_block *, u64 *);
+ extern char sie_exit;
+ #endif
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index c11c7686..ca645a0 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -85,6 +85,12 @@ static inline bool is_noslot_pfn(pfn_t pfn)
+ 	return pfn == KVM_PFN_NOSLOT;
+ }
  
- 	memcpy(&vcpu->run->s.regs.gprs[14], &vcpu->arch.sie_block->gg14, 16);
- 	return rc;
++/*
++ * architectures with KVM_HVA_ERR_BAD other than PAGE_OFFSET (e.g. s390)
++ * provide own defines and kvm_is_error_hva
++ */
++#ifndef KVM_HVA_ERR_BAD
++
+ #define KVM_HVA_ERR_BAD		(PAGE_OFFSET)
+ #define KVM_HVA_ERR_RO_BAD	(PAGE_OFFSET + PAGE_SIZE)
+ 
+@@ -93,6 +99,8 @@ static inline bool kvm_is_error_hva(unsigned long addr)
+ 	return addr >= PAGE_OFFSET;
+ }
+ 
++#endif
++
+ #define KVM_ERR_PTR_BAD_PAGE	(ERR_PTR(-ENOENT))
+ 
+ static inline bool is_error_page(struct page *page)
 -- 
 1.8.3.1
