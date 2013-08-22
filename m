@@ -1,39 +1,29 @@
-From: Jingoo Han <jg1.han@samsung.com>
-Subject: Re: [PATCH 2/8] zfcp: cleanup use of obsolete strict_strto* functions
-Date: Thu, 22 Aug 2013 09:08:32 +0900
-Message-ID: <000e01ce9ecb$bd2a51a0$377ef4e0$%han@samsung.com>
-References: <1377097531-4942-1-git-send-email-maier@linux.vnet.ibm.com>
- <1377097531-4942-3-git-send-email-maier@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Steffen Maier <maier@linux.vnet.ibm.com>
+Subject: [PATCH RESEND 0/3] zfcp bugfixes for 3.11-rc
+Date: Thu, 22 Aug 2013 17:45:35 +0200
+Message-ID: <1377186338-35344-1-git-send-email-maier@linux.vnet.ibm.com>
+References: <1377099366.2011.23.camel@dabdike.int.hansenpartnership.com>
 Return-path: <linux-scsi-owner@vger.kernel.org>
-In-reply-to: <1377097531-4942-3-git-send-email-maier@linux.vnet.ibm.com>
-Content-language: ko
+In-Reply-To: <1377099366.2011.23.camel@dabdike.int.hansenpartnership.com>
 Sender: linux-scsi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: 'Steffen Maier' <maier@linux.vnet.ibm.com>, 'James Bottomley' <James.Bottomley@HansenPartnership.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, 'Martin Schwidefsky' <schwidefsky@de.ibm.com>, 'Heiko Carstens' <heiko.carstens@de.ibm.com>, 'Martin Peschke' <mpeschke@linux.vnet.ibm.com>, 'Jingoo Han' <jg1.han@samsung.com>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thursday, August 22, 2013 12:05 AM, Steffen Maier wrote:
-> 
-> From: Martin Peschke <mpeschke@linux.vnet.ibm.com>
-> 
-> strict_strtoul and friends are obsolete. Use kstrtoul functions
-> instead.
-> 
-> Signed-off-by: Martin Peschke <mpeschke@linux.vnet.ibm.com>
-> Cc: Jingoo Han <jg1.han@samsung.com>
+James,
 
-Reviewed-by: Jingoo Han <jg1.han@samsung.com>
+as discussed, I split up bugfixes and features in two separate sets.
+Here is a resend of zfcp bugfixes for 3.11-rc and stable.
+The patches apply on top of the current fixes branch of your scsi.git.
 
-Best regards,
-Jingoo Han
+Steffen
 
-> Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
-> ---
->  drivers/s390/scsi/zfcp_aux.c   |    4 ++--
->  drivers/s390/scsi/zfcp_sysfs.c |   12 ++++++------
->  2 files changed, 8 insertions(+), 8 deletions(-)
+Linux on System z Development
+
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Martin Jetter
+Geschaeftsfuehrung: Dirk Wittkopp
+Sitz der Gesellschaft: Boeblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
