@@ -1,32 +1,39 @@
-From: Chen Gang <gang.chen@asianux.com>
-Date: Tue, 23 Jul 2013 23:53:07 +0000
-Subject: Re: [PATCH] s390: Kconfig: select 'TTY' when 'S390_GUEST' enabled.
-Message-Id: <51EF1763.3020904@asianux.com>
-In-Reply-To: <20130723104703.GB26775@osiris>
-References: <20130723104703.GB26775@osiris>
-To: linux-s390@vger.kernel.org
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: Re: [PATCH 2/8] zfcp: cleanup use of obsolete strict_strto* functions
+Date: Thu, 22 Aug 2013 09:08:32 +0900
+Message-ID: <000e01ce9ecb$bd2a51a0$377ef4e0$%han@samsung.com>
+References: <1377097531-4942-1-git-send-email-maier@linux.vnet.ibm.com>
+ <1377097531-4942-3-git-send-email-maier@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-scsi-owner@vger.kernel.org>
+In-reply-to: <1377097531-4942-3-git-send-email-maier@linux.vnet.ibm.com>
+Content-language: ko
+Sender: linux-scsi-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: 'Steffen Maier' <maier@linux.vnet.ibm.com>, 'James Bottomley' <James.Bottomley@HansenPartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, 'Martin Schwidefsky' <schwidefsky@de.ibm.com>, 'Heiko Carstens' <heiko.carstens@de.ibm.com>, 'Martin Peschke' <mpeschke@linux.vnet.ibm.com>, 'Jingoo Han' <jg1.han@samsung.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/23/2013 06:47 PM, Heiko Carstens wrote:
-> On Tue, Jul 23, 2013 at 04:26:08PM +0800, Chen Gang wrote:
->> 'VIRTIO_CONSOLE' depends on 'TTY', so need select 'TTY' explicitly
->> before select 'VIRTIO_CONSOLE'.
->>
->> Or randconfig can generate a config file which enable 'VIRTIO_CONSOLE'
->> but disable 'TTY' (e.g. the attachment).
->>
->>
->> Signed-off-by: Chen Gang <gang.chen@asianux.com>
->> ---
->>  arch/s390/Kconfig |    1 +
->>  1 files changed, 1 insertions(+), 0 deletions(-)
+On Thursday, August 22, 2013 12:05 AM, Steffen Maier wrote:
 > 
-> Applied, thanks.
+> From: Martin Peschke <mpeschke@linux.vnet.ibm.com>
 > 
+> strict_strtoul and friends are obsolete. Use kstrtoul functions
+> instead.
 > 
-> 
+> Signed-off-by: Martin Peschke <mpeschke@linux.vnet.ibm.com>
+> Cc: Jingoo Han <jg1.han@samsung.com>
 
-Thank you very much.
+Reviewed-by: Jingoo Han <jg1.han@samsung.com>
 
--- 
-Chen Gang
+Best regards,
+Jingoo Han
+
+> Signed-off-by: Steffen Maier <maier@linux.vnet.ibm.com>
+> ---
+>  drivers/s390/scsi/zfcp_aux.c   |    4 ++--
+>  drivers/s390/scsi/zfcp_sysfs.c |   12 ++++++------
+>  2 files changed, 8 insertions(+), 8 deletions(-)
