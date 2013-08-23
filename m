@@ -1,32 +1,57 @@
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-Subject: Re: [PATCH 0/8] zfcp features and bugfixes for 3.12 merge window
-Date: Wed, 21 Aug 2013 08:36:06 -0700
-Message-ID: <1377099366.2011.23.camel@dabdike.int.hansenpartnership.com>
-References: <1377097531-4942-1-git-send-email-maier@linux.vnet.ibm.com>
+From: Rui Xiang <rui.xiang@huawei.com>
+Subject: [PATCH 1/2] fs: implement inode uid/gid setting function
+Date: Fri, 23 Aug 2013 10:48:37 +0800
+Message-ID: <1377226118-43756-2-git-send-email-rui.xiang@huawei.com>
+References: <1377226118-43756-1-git-send-email-rui.xiang@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-15"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <1377097531-4942-1-git-send-email-maier@linux.vnet.ibm.com>
-Sender: linux-scsi-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Steffen Maier <maier@linux.vnet.ibm.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Content-Type: text/plain
+Return-path: <linux-ia64-owner@vger.kernel.org>
+In-Reply-To: <1377226118-43756-1-git-send-email-rui.xiang@huawei.com>
+Sender: linux-ia64-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-fsdevel/>
+List-Post: <mailto:linux-fsdevel@vger.kernel.org>
+To: linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, linux-usb@vger.kernel.org, v9fs-developer@lists.sourceforge.net, linux-mm@kvack.org, cgroups@vger.kernel.org, netdev@vger.kernel.org, Rui Xiang <rui.xiang@huawei.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2013-08-21 at 17:05 +0200, Steffen Maier wrote:
-> James,
-> 
-> here is a series of zfcp features and bugfixes
-> for the upcoming merge window preparing kernel v3.12.
-> The patches apply on top of the current misc branch of your scsi.git.
+Supply a interface inode_set_user  to set uid/gid of inode
+structs.
 
-OK, so this isn't going to work any more given Greg's recent statements.
-Patches for stable have to go through the -rc fixes process, so could
-you redo this as two patch sets: one for fixes with the cc stable tags
-and the rest for misc?
+Signed-off-by: Rui Xiang <rui.xiang@huawei.com>
+---
+ fs/inode.c         | 7 +++++++
+ include/linux/fs.h | 1 +
+ 2 files changed, 8 insertions(+)
 
-Thanks,
-
-James
+diff --git a/fs/inode.c b/fs/inode.c
+index e315c0a..3f90499 100644
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -343,6 +343,13 @@ void inc_nlink(struct inode *inode)
+ }
+ EXPORT_SYMBOL(inc_nlink);
+ 
++void inode_set_user(struct inode *inode, kuid_t uid, kgid_t gid)
++{
++	inode->i_uid = uid;
++	inode->i_gid = gid;
++}
++EXPORT_SYMBOL(inode_set_user);
++
+ void address_space_init_once(struct address_space *mapping)
+ {
+ 	memset(mapping, 0, sizeof(*mapping));
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 729e81b..36ac51b 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2619,6 +2619,7 @@ void __inode_sub_bytes(struct inode *inode, loff_t bytes);
+ void inode_sub_bytes(struct inode *inode, loff_t bytes);
+ loff_t inode_get_bytes(struct inode *inode);
+ void inode_set_bytes(struct inode *inode, loff_t bytes);
++void inode_set_user(struct inode *inode, kuid_t uid, kgid_t gid);
+ 
+ extern int vfs_readdir(struct file *, filldir_t, void *);
+ extern int iterate_dir(struct file *, struct dir_context *);
+-- 
+1.8.2.2
