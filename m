@@ -1,257 +1,82 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <521ABF22.4030903@hitachi.com>
-Date: Mon, 26 Aug 2013 11:36:18 +0900
-From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-MIME-Version: 1.0
-Subject: Re: [Patch v2 3/3] s390/kprobes: add support for pc-relative long
- displacement instructions
-References: <1377255854-30163-1-git-send-email-heiko.carstens@de.ibm.com> <1377255854-30163-4-git-send-email-heiko.carstens@de.ibm.com>
-In-Reply-To: <1377255854-30163-4-git-send-email-heiko.carstens@de.ibm.com>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, Ingo Molnar <mingo@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [RFC 11/14] powerpc: Eliminate NO_IRQ usage
+Date: Fri, 23 Aug 2013 15:22:51 +0200
+Message-ID: <CAMuHMdXtzwRY7VJe2EUssEPwGbFHwuHkwqbA+pi4N_Eujx3sNA@mail.gmail.com>
+References: <1326313337-24603-1-git-send-email-grant.likely@secretlab.ca>
+	<1326313337-24603-12-git-send-email-grant.likely@secretlab.ca>
+	<CAMuHMdV=pSG+CtvGqr1c9nDKeHCU0cVQcFkfAo5iMMna2HOvZg@mail.gmail.com>
+	<CACxGe6s3wit88ynuzYsBZBvijHmAfJNeY9LH2T5S9iY7kJtg=w@mail.gmail.com>
+	<CAMuHMdW0EE9MiwoOzvg_2VBf5QvYpgJ8bHsjV1HL8iN5HyhxYA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <CAMuHMdW0EE9MiwoOzvg_2VBf5QvYpgJ8bHsjV1HL8iN5HyhxYA@mail.gmail.com>
+Sender: linux-next-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Rob Herring <rob.herring@calxeda.com>, Thomas Gleixner <tglx@linutronix.de>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Russell King <linux@arm.linux.org.uk>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux-Next <linux-next@vger.kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-(2013/08/23 20:04), Heiko Carstens wrote:
-> With the general-instruction extension facility (z10) a couple of
-> instructions with a pc-relative long displacement were introduced.
-> The kprobes support for these instructions however was never implemented.
-> 
-> In result, if anybody ever put a probe on any of these instructions the
-> result would have been random behaviour after the instruction got executed
-> within the insn slot.
-> 
-> So lets add the missing handling for these instructions. Since all of the
-> new instructions have 32 bit signed displacement the easiest solution is
-> to allocate an insn slot that is within the same 2GB area like the original
-> instruction and patch the displacement field.
-> 
+On Fri, Aug 23, 2013 at 3:18 PM, Geert Uytterhoeven
+<geert@linux-m68k.org> wrote:
+> On Fri, Jul 26, 2013 at 5:56 AM, Grant Likely <grant.likely@secretlab.ca> wrote:
+>> On Thu, Jul 25, 2013 at 3:58 PM, Geert Uytterhoeven
+>> <geert@linux-m68k.org> wrote:
+>>> On Wed, Jan 11, 2012 at 9:22 PM, Grant Likely <grant.likely@secretlab.ca> wrote:
+>>>> NO_IRQ is evil.  Stop using it in arch/powerpc and powerpc device drivers
+>>>
+>>>> diff --git a/sound/soc/fsl/fsl_ssi.c b/sound/soc/fsl/fsl_ssi.c
+>>>> index 3e06696..55c6ff9 100644
+>>>> --- a/sound/soc/fsl/fsl_ssi.c
+>>>> +++ b/sound/soc/fsl/fsl_ssi.c
+>>>> @@ -666,7 +666,7 @@ static int __devinit fsl_ssi_probe(struct platform_device *pdev)
+>>>>         ssi_private->ssi_phys = res.start;
+>>>>
+>>>>         ssi_private->irq = irq_of_parse_and_map(np, 0);
+>>>> -       if (ssi_private->irq == NO_IRQ) {
+>>>> +       if (!ssi_private->irq) {
+>>>>                 dev_err(&pdev->dev, "no irq for node %s\n", np->full_name);
+>>>>                 ret = -ENXIO;
+>>>>                 goto error_iomap;
+>>>
+>>> What's the plan with this patch?
+>>>
+>>> This is now failing on xtensa, as it's one of the architectures that doesn't
+>>> define NO_IRQ. Only arm, c6x, mn10300, openrisc, parisc, powerpc, and sparc
+>>> define it.
+>>
+>> Wow. I'd pretty much dropped that patch because I didn't have time to
+>> chase it down. It should be pursued though.
+>>
+>> In that particular case it is safe I think to apply the change. PPC
+>> defines NO_IRQ to be 0 anyway.
+>
+> Note that we still have arches that define it as nonzero:
+>
+> arch/arm/include/asm/irq.h:#define NO_IRQ ((unsigned int)(-1))
+> arch/mn10300/include/asm/irq.h:#define NO_IRQ INT_MAX
+> arch/openrisc/include/asm/irq.h:#define NO_IRQ (-1)
+> arch/parisc/include/asm/irq.h:#define NO_IRQ (-1)
+> arch/sparc/include/asm/irq_32.h:#define NO_IRQ 0xffffffff
+> arch/sparc/include/asm/irq_64.h:#define NO_IRQ 0xffffffff
+>
+> Only c6x and powerpc use zero, and thus are ready to drop NO_IRQ.
 
-At least generic kprobes flow looks good for me.
+s390 just gained "NO_IRQ support" in -next, in commit
+e15a9dcfdec29786d1830c5b7beaf02a288a89e1 ("s390: convert interrupt
+handling to use generic hardirq"):
 
-Reviewed-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+/* This number is used when no interrupt has been assigned */
+#define NO_IRQ         0
 
-> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> ---
->  arch/s390/include/asm/kprobes.h |    4 +-
->  arch/s390/kernel/kprobes.c      |  144 +++++++++++++++++++++++++++++++++++++--
->  2 files changed, 140 insertions(+), 8 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/kprobes.h b/arch/s390/include/asm/kprobes.h
-> index dcf6948..4176dfe 100644
-> --- a/arch/s390/include/asm/kprobes.h
-> +++ b/arch/s390/include/asm/kprobes.h
-> @@ -31,6 +31,8 @@
->  #include <linux/ptrace.h>
->  #include <linux/percpu.h>
->  
-> +#define __ARCH_WANT_KPROBES_INSN_SLOT
-> +
->  struct pt_regs;
->  struct kprobe;
->  
-> @@ -57,7 +59,7 @@ typedef u16 kprobe_opcode_t;
->  /* Architecture specific copy of original instruction */
->  struct arch_specific_insn {
->  	/* copy of original instruction */
-> -	kprobe_opcode_t insn[MAX_INSN_SIZE];
-> +	kprobe_opcode_t *insn;
->  };
->  
->  struct prev_kprobe {
-> diff --git a/arch/s390/kernel/kprobes.c b/arch/s390/kernel/kprobes.c
-> index 3388b2b..cb7ac9e 100644
-> --- a/arch/s390/kernel/kprobes.c
-> +++ b/arch/s390/kernel/kprobes.c
-> @@ -37,6 +37,26 @@ DEFINE_PER_CPU(struct kprobe_ctlblk, kprobe_ctlblk);
->  
->  struct kretprobe_blackpoint kretprobe_blacklist[] = { };
->  
-> +DEFINE_INSN_CACHE_OPS(dmainsn);
-> +
-> +static void *alloc_dmainsn_page(void)
-> +{
-> +	return (void *)__get_free_page(GFP_KERNEL | GFP_DMA);
-> +}
-> +
-> +static void free_dmainsn_page(void *page)
-> +{
-> +	free_page((unsigned long)page);
-> +}
-> +
-> +struct kprobe_insn_cache kprobe_dmainsn_slots = {
-> +	.mutex = __MUTEX_INITIALIZER(kprobe_dmainsn_slots.mutex),
-> +	.alloc = alloc_dmainsn_page,
-> +	.free = free_dmainsn_page,
-> +	.pages = LIST_HEAD_INIT(kprobe_dmainsn_slots.pages),
-> +	.insn_size = MAX_INSN_SIZE,
-> +};
-> +
->  static int __kprobes is_prohibited_opcode(kprobe_opcode_t *insn)
->  {
->  	switch (insn[0] >> 8) {
-> @@ -100,9 +120,8 @@ static int __kprobes get_fixup_type(kprobe_opcode_t *insn)
->  			fixup |= FIXUP_RETURN_REGISTER;
->  		break;
->  	case 0xc0:
-> -		if ((insn[0] & 0x0f) == 0x00 ||	/* larl  */
-> -		    (insn[0] & 0x0f) == 0x05)	/* brasl */
-> -		fixup |= FIXUP_RETURN_REGISTER;
-> +		if ((insn[0] & 0x0f) == 0x05)	/* brasl */
-> +			fixup |= FIXUP_RETURN_REGISTER;
->  		break;
->  	case 0xeb:
->  		if ((insn[2] & 0xff) == 0x44 ||	/* bxhg  */
-> @@ -117,18 +136,128 @@ static int __kprobes get_fixup_type(kprobe_opcode_t *insn)
->  	return fixup;
->  }
->  
-> +static int __kprobes is_insn_relative_long(kprobe_opcode_t *insn)
-> +{
-> +	/* Check if we have a RIL-b or RIL-c format instruction which
-> +	 * we need to modify in order to avoid instruction emulation. */
-> +	switch (insn[0] >> 8) {
-> +	case 0xc0:
-> +		if ((insn[0] & 0x0f) == 0x00) /* larl */
-> +			return true;
-> +		break;
-> +	case 0xc4:
-> +		switch (insn[0] & 0x0f) {
-> +		case 0x02: /* llhrl  */
-> +		case 0x04: /* lghrl  */
-> +		case 0x05: /* lhrl   */
-> +		case 0x06: /* llghrl */
-> +		case 0x07: /* sthrl  */
-> +		case 0x08: /* lgrl   */
-> +		case 0x0b: /* stgrl  */
-> +		case 0x0c: /* lgfrl  */
-> +		case 0x0d: /* lrl    */
-> +		case 0x0e: /* llgfrl */
-> +		case 0x0f: /* strl   */
-> +			return true;
-> +		}
-> +		break;
-> +	case 0xc6:
-> +		switch (insn[0] & 0x0f) {
-> +		case 0x00: /* exrl   */
-> +		case 0x02: /* pfdrl  */
-> +		case 0x04: /* cghrl  */
-> +		case 0x05: /* chrl   */
-> +		case 0x06: /* clghrl */
-> +		case 0x07: /* clhrl  */
-> +		case 0x08: /* cgrl   */
-> +		case 0x0a: /* clgrl  */
-> +		case 0x0c: /* cgfrl  */
-> +		case 0x0d: /* crl    */
-> +		case 0x0e: /* clgfrl */
-> +		case 0x0f: /* clrl   */
-> +			return true;
-> +		}
-> +		break;
-> +	}
-> +	return false;
-> +}
-> +
-> +static void __kprobes copy_instruction(struct kprobe *p)
-> +{
-> +	s64 disp, new_disp;
-> +	u64 addr, new_addr;
-> +
-> +	memcpy(p->ainsn.insn, p->addr, ((p->opcode >> 14) + 3) & -2);
-> +	if (!is_insn_relative_long(p->ainsn.insn))
-> +		return;
-> +	/*
-> +	 * For pc-relative instructions in RIL-b or RIL-c format patch the
-> +	 * RI2 displacement field. We have already made sure that the insn
-> +	 * slot for the patched instruction is within the same 2GB area
-> +	 * as the original instruction (either kernel image or module area).
-> +	 * Therefore the new displacement will always fit.
-> +	 */
-> +	disp = *(s32 *)&p->ainsn.insn[1];
-> +	addr = (u64)(unsigned long)p->addr;
-> +	new_addr = (u64)(unsigned long)p->ainsn.insn;
-> +	new_disp = ((addr + (disp * 2)) - new_addr) / 2;
-> +	*(s32 *)&p->ainsn.insn[1] = new_disp;
-> +}
-> +
-> +static inline int is_kernel_addr(void *addr)
-> +{
-> +	return addr < (void *)_end;
-> +}
-> +
-> +static inline int is_module_addr(void *addr)
-> +{
-> +#ifdef CONFIG_64BIT
-> +	BUILD_BUG_ON(MODULES_LEN > (1UL << 31));
-> +	if (addr < (void *)MODULES_VADDR)
-> +		return 0;
-> +	if (addr > (void *)MODULES_END)
-> +		return 0;
-> +#endif
-> +	return 1;
-> +}
-> +
-> +static int __kprobes s390_get_insn_slot(struct kprobe *p)
-> +{
-> +	/*
-> +	 * Get an insn slot that is within the same 2GB area like the original
-> +	 * instruction. That way instructions with a 32bit signed displacement
-> +	 * field can be patched and executed within the insn slot.
-> +	 */
-> +	p->ainsn.insn = NULL;
-> +	if (is_kernel_addr(p->addr))
-> +		p->ainsn.insn = get_dmainsn_slot();
-> +	if (is_module_addr(p->addr))
-> +		p->ainsn.insn = get_insn_slot();
-> +	return p->ainsn.insn ? 0 : -ENOMEM;
-> +}
-> +
-> +static void __kprobes s390_free_insn_slot(struct kprobe *p)
-> +{
-> +	if (!p->ainsn.insn)
-> +		return;
-> +	if (is_kernel_addr(p->addr))
-> +		free_dmainsn_slot(p->ainsn.insn, 0);
-> +	else
-> +		free_insn_slot(p->ainsn.insn, 0);
-> +	p->ainsn.insn = NULL;
-> +}
-> +
->  int __kprobes arch_prepare_kprobe(struct kprobe *p)
->  {
->  	if ((unsigned long) p->addr & 0x01)
->  		return -EINVAL;
-> -
->  	/* Make sure the probe isn't going on a difficult instruction */
->  	if (is_prohibited_opcode(p->addr))
->  		return -EINVAL;
-> -
-> +	if (s390_get_insn_slot(p))
-> +		return -ENOMEM;
->  	p->opcode = *p->addr;
-> -	memcpy(p->ainsn.insn, p->addr, ((p->opcode >> 14) + 3) & -2);
-> -
-> +	copy_instruction(p);
->  	return 0;
->  }
->  
-> @@ -169,6 +298,7 @@ void __kprobes arch_disarm_kprobe(struct kprobe *p)
->  
->  void __kprobes arch_remove_kprobe(struct kprobe *p)
->  {
-> +	s390_free_insn_slot(p);
->  }
->  
->  static void __kprobes enable_singlestep(struct kprobe_ctlblk *kcb,
-> 
+Gr{oetje,eeting}s,
 
+                        Geert
 
--- 
-Masami HIRAMATSU
-IT Management Research Dept. Linux Technology Center
-Hitachi, Ltd., Yokohama Research Laboratory
-E-mail: masami.hiramatsu.pt@hitachi.com
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
