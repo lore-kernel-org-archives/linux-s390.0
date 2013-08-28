@@ -1,82 +1,65 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [RFC 11/14] powerpc: Eliminate NO_IRQ usage
-Date: Fri, 23 Aug 2013 15:22:51 +0200
-Message-ID: <CAMuHMdXtzwRY7VJe2EUssEPwGbFHwuHkwqbA+pi4N_Eujx3sNA@mail.gmail.com>
-References: <1326313337-24603-1-git-send-email-grant.likely@secretlab.ca>
-	<1326313337-24603-12-git-send-email-grant.likely@secretlab.ca>
-	<CAMuHMdV=pSG+CtvGqr1c9nDKeHCU0cVQcFkfAo5iMMna2HOvZg@mail.gmail.com>
-	<CACxGe6s3wit88ynuzYsBZBvijHmAfJNeY9LH2T5S9iY7kJtg=w@mail.gmail.com>
-	<CAMuHMdW0EE9MiwoOzvg_2VBf5QvYpgJ8bHsjV1HL8iN5HyhxYA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <CAMuHMdW0EE9MiwoOzvg_2VBf5QvYpgJ8bHsjV1HL8iN5HyhxYA@mail.gmail.com>
-Sender: linux-next-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Rob Herring <rob.herring@calxeda.com>, Thomas Gleixner <tglx@linutronix.de>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Russell King <linux@arm.linux.org.uk>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux-Next <linux-next@vger.kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+From: Chen Gang <gang.chen@asianux.com>
+Date: Wed, 28 Aug 2013 08:19:20 +0000
+Subject: Re: [PATCH] s390: kernel: remove redundency checking for sysinfo_show() in "sysinfo.c"
+Message-Id: <521DB288.8010700@asianux.com>
+In-Reply-To: <20130828060633.GA4353@osiris>
+References: <20130828060633.GA4353@osiris>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Aug 23, 2013 at 3:18 PM, Geert Uytterhoeven
-<geert@linux-m68k.org> wrote:
-> On Fri, Jul 26, 2013 at 5:56 AM, Grant Likely <grant.likely@secretlab.ca> wrote:
->> On Thu, Jul 25, 2013 at 3:58 PM, Geert Uytterhoeven
->> <geert@linux-m68k.org> wrote:
->>> On Wed, Jan 11, 2012 at 9:22 PM, Grant Likely <grant.likely@secretlab.ca> wrote:
->>>> NO_IRQ is evil.  Stop using it in arch/powerpc and powerpc device drivers
->>>
->>>> diff --git a/sound/soc/fsl/fsl_ssi.c b/sound/soc/fsl/fsl_ssi.c
->>>> index 3e06696..55c6ff9 100644
->>>> --- a/sound/soc/fsl/fsl_ssi.c
->>>> +++ b/sound/soc/fsl/fsl_ssi.c
->>>> @@ -666,7 +666,7 @@ static int __devinit fsl_ssi_probe(struct platform_device *pdev)
->>>>         ssi_private->ssi_phys = res.start;
->>>>
->>>>         ssi_private->irq = irq_of_parse_and_map(np, 0);
->>>> -       if (ssi_private->irq == NO_IRQ) {
->>>> +       if (!ssi_private->irq) {
->>>>                 dev_err(&pdev->dev, "no irq for node %s\n", np->full_name);
->>>>                 ret = -ENXIO;
->>>>                 goto error_iomap;
->>>
->>> What's the plan with this patch?
->>>
->>> This is now failing on xtensa, as it's one of the architectures that doesn't
->>> define NO_IRQ. Only arm, c6x, mn10300, openrisc, parisc, powerpc, and sparc
->>> define it.
->>
->> Wow. I'd pretty much dropped that patch because I didn't have time to
->> chase it down. It should be pursued though.
->>
->> In that particular case it is safe I think to apply the change. PPC
->> defines NO_IRQ to be 0 anyway.
->
-> Note that we still have arches that define it as nonzero:
->
-> arch/arm/include/asm/irq.h:#define NO_IRQ ((unsigned int)(-1))
-> arch/mn10300/include/asm/irq.h:#define NO_IRQ INT_MAX
-> arch/openrisc/include/asm/irq.h:#define NO_IRQ (-1)
-> arch/parisc/include/asm/irq.h:#define NO_IRQ (-1)
-> arch/sparc/include/asm/irq_32.h:#define NO_IRQ 0xffffffff
-> arch/sparc/include/asm/irq_64.h:#define NO_IRQ 0xffffffff
->
-> Only c6x and powerpc use zero, and thus are ready to drop NO_IRQ.
+On 08/28/2013 02:06 PM, Heiko Carstens wrote:
+> On Wed, Aug 28, 2013 at 09:55:00AM +0800, Chen Gang wrote:
+>> So in my opnion, it will be better to let all level 1 related functions
+>> within "if (level >= 1) {...}" code block, that will make code clearer
+>> to readers (or some members may doubt about this code).
+> 
+> I'm not going to apply your patch, otherwise I would have done that already.
+> 
 
-s390 just gained "NO_IRQ support" in -next, in commit
-e15a9dcfdec29786d1830c5b7beaf02a288a89e1 ("s390: convert interrupt
-handling to use generic hardirq"):
+OK, I can understand.
 
-/* This number is used when no interrupt has been assigned */
-#define NO_IRQ         0
+Hmm... better to provide some reasons, or I have to 'guess'. ;-)
 
-Gr{oetje,eeting}s,
 
-                        Geert
+>> BTW: could you provide more information about why need stsi_15_1_x() be
+>> in "level 1" ?
+> 
+> That's what the architecture says.
+> You can download it here: publibfi.boulder.ibm.com/epubs/pdf/dz9zr009.pdf
+> 
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Firstly, it is a valuable document (at least to me, it is), thanks.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+
+After a quick reference of it, I find the answer below:
+
+  for "level 15":
+
+    "level 15" is "Current-configuration-level information".
+    so it should print at any valid level: "level 1, 2, and 3".
+    that is just equal to "level 1"
+
+  and for "level 1,2,3"
+
+    "Information about level 1 (the basic machine)"
+    "Information about level 2 (a logical partition)"
+    "Information about level 3 (a virtual machine)"
+
+  and for "level 4--14"
+
+    "None; codes are reserved"
+
+  and for "level 0":
+
+    "level 0" is for qureying ("Current-configuration-level number")
+    so "level 1" also need check level number to support "level 0".
+
+
+Is it correct ?
+
+
+:-)
+
+Thanks.
+-- 
+Chen Gang
