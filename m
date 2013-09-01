@@ -1,65 +1,93 @@
-From: Chen Gang <gang.chen@asianux.com>
-Date: Wed, 28 Aug 2013 08:19:20 +0000
-Subject: Re: [PATCH] s390: kernel: remove redundency checking for sysinfo_show() in "sysinfo.c"
-Message-Id: <521DB288.8010700@asianux.com>
-In-Reply-To: <20130828060633.GA4353@osiris>
-References: <20130828060633.GA4353@osiris>
-To: linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <1378051797.25743.25.camel@deadeye.wl.decadent.org.uk>
+Subject: [PATCH] irq: Always define devm_{request_threaded,free}_irq()
+From: Ben Hutchings <ben@decadent.org.uk>
+Date: Sun, 01 Sep 2013 17:09:57 +0100
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-CHl7HdIBUnE+qn94OhZ7"
+Mime-Version: 1.0
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, Debian kernel maintainers <debian-kernel@lists.debian.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 08/28/2013 02:06 PM, Heiko Carstens wrote:
-> On Wed, Aug 28, 2013 at 09:55:00AM +0800, Chen Gang wrote:
->> So in my opnion, it will be better to let all level 1 related functions
->> within "if (level >= 1) {...}" code block, that will make code clearer
->> to readers (or some members may doubt about this code).
-> 
-> I'm not going to apply your patch, otherwise I would have done that already.
-> 
 
-OK, I can understand.
+--=-CHl7HdIBUnE+qn94OhZ7
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hmm... better to provide some reasons, or I have to 'guess'. ;-)
+These functions are currently defined only if CONFIG_GENERIC_HARDIRQS
+is enabled.  But they may still be needed on architectures with their
+own IRQ management (e.g. s390).
 
+References: https://buildd.debian.org/status/fetch.php?pkg=3Dlinux&arch=3Ds=
+390&ver=3D3.11%7Erc4-1%7Eexp1&stamp=3D1376009959
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+---
+ kernel/Makefile     | 2 +-
+ kernel/irq/Makefile | 6 ++++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
->> BTW: could you provide more information about why need stsi_15_1_x() be
->> in "level 1" ?
-> 
-> That's what the architecture says.
-> You can download it here: publibfi.boulder.ibm.com/epubs/pdf/dz9zr009.pdf
-> 
+diff --git a/kernel/Makefile b/kernel/Makefile
+index 35ef118..ed2c9a9 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -79,7 +79,7 @@ obj-$(CONFIG_KPROBES) +=3D kprobes.o
+ obj-$(CONFIG_KGDB) +=3D debug/
+ obj-$(CONFIG_DETECT_HUNG_TASK) +=3D hung_task.o
+ obj-$(CONFIG_LOCKUP_DETECTOR) +=3D watchdog.o
+-obj-$(CONFIG_GENERIC_HARDIRQS) +=3D irq/
++obj-y +=3D irq/
+ obj-$(CONFIG_SECCOMP) +=3D seccomp.o
+ obj-$(CONFIG_RCU_TORTURE_TEST) +=3D rcutorture.o
+ obj-$(CONFIG_TREE_RCU) +=3D rcutree.o
+diff --git a/kernel/irq/Makefile b/kernel/irq/Makefile
+index fff1738..639b2e1 100644
+--- a/kernel/irq/Makefile
++++ b/kernel/irq/Makefile
+@@ -1,8 +1,10 @@
+-
+-obj-y :=3D irqdesc.o handle.o manage.o spurious.o resend.o chip.o dummychi=
+p.o devres.o
++obj-y +=3D devres.o
++ifdef CONFIG_GENERIC_HARDIRQS
++obj-y +=3D irqdesc.o handle.o manage.o spurious.o resend.o chip.o dummychi=
+p.o
+ obj-$(CONFIG_GENERIC_IRQ_CHIP) +=3D generic-chip.o
+ obj-$(CONFIG_GENERIC_IRQ_PROBE) +=3D autoprobe.o
+ obj-$(CONFIG_IRQ_DOMAIN) +=3D irqdomain.o
+ obj-$(CONFIG_PROC_FS) +=3D proc.o
+ obj-$(CONFIG_GENERIC_PENDING_IRQ) +=3D migration.o
+ obj-$(CONFIG_PM_SLEEP) +=3D pm.o
++endif
 
-Firstly, it is a valuable document (at least to me, it is), thanks.
+--=20
+Ben Hutchings
+The most exhausting thing in life is being insincere. - Anne Morrow Lindber=
+g
 
+--=-CHl7HdIBUnE+qn94OhZ7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
-After a quick reference of it, I find the answer below:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
 
-  for "level 15":
+iQIVAwUAUiNm1ee/yOyVhhEJAQo1/A//QLPYT/GGmfieKVBlArPIBgzc/ilw/gc/
+rjaSqvD/0VER9jo7vVxmDTgfa0n5gL2XXM13IaIBmIwXTYPwQzwsrYkL4xv2i/Xr
+1ZCeHaCYzviFtl3OEU/0EfR6qtJl8fJATtpo8AfXjGfh/r93AXh2+vWoyVSUVzrE
+AKbY3xgW97gzvj+zDER3pL1ljq6uPr1yFFEOexZsMZ7ccGlw1aj+KwfUAVrokyJG
+PhA/Xo1SxEQBI4rA0JJWGT0xT+O4cgpgwwTXvk0S1yiYiV0TZ+6ghv4iOh9uQWZh
+GtsvR13s2TZdInVDvfHLRml3rL8fxx0XiyvvVhQVCftCe3dyOy2UcGeZKeDynrt2
+RtkAIopcWH2RLwStE2XSLmn/3JoqyWZ/g1ZDjHXLeWnXD3HyNuHpVrSaRsGekMNc
+MjExYIdORl5Lf8bNk/Ce7b2zQSpMvX0MpRBwXXpLPKXwER6Rk8cTOL6+e1WqkVdX
+EfdmaVdTYc11c/G07te5c8csKN/m7Wiv0xY8t4nUerjzrnFW9Cv4R2Vim+8fxaG/
+SGvWWVO20AclpK0AycvT5t27dBcOLfWygb7mLPZpBWuizTA+ENIOWnlPyglM84wH
+jUzsInewV5u8877ZdGclbztkn78ilLOWjSMCjd64w3cJdyaTekYsBrhzulhtmSmR
+R56fAxYV4Rw=
+=L2sA
+-----END PGP SIGNATURE-----
 
-    "level 15" is "Current-configuration-level information".
-    so it should print at any valid level: "level 1, 2, and 3".
-    that is just equal to "level 1"
-
-  and for "level 1,2,3"
-
-    "Information about level 1 (the basic machine)"
-    "Information about level 2 (a logical partition)"
-    "Information about level 3 (a virtual machine)"
-
-  and for "level 4--14"
-
-    "None; codes are reserved"
-
-  and for "level 0":
-
-    "level 0" is for qureying ("Current-configuration-level number")
-    so "level 1" also need check level number to support "level 0".
-
-
-Is it correct ?
-
-
-:-)
-
-Thanks.
--- 
-Chen Gang
+--=-CHl7HdIBUnE+qn94OhZ7--
