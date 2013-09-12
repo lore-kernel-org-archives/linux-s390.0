@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 5/8] KVM: s390: Allow NULL parameter for kvm_s390_get_regs_rre
-Date: Thu, 12 Sep 2013 10:33:46 +0200
-Message-ID: <1378974829-46578-6-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 6/8] KVM: s390: Helper for converting real addresses to absolute
+Date: Thu, 12 Sep 2013 10:33:47 +0200
+Message-ID: <1378974829-46578-7-git-send-email-borntraeger@de.ibm.com>
 References: <1378974829-46578-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1378974829-46578-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,33 +14,53 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-We're not always interested in both registers that are specified
-for an RRE instruction. So allow NULL as parameter, too, to indicate
-that we do not need the corresponding value.
+Added a separate helper function that translates guest real addresses
+to guest absolute addresses by applying the prefix of the guest CPU.
 
 Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/s390/kvm/gaccess.h | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index a307a85..b44912a 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -90,8 +90,10 @@ static inline void kvm_s390_get_base_disp_sse(struct kvm_vcpu *vcpu,
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index 99d789e..374a439 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -18,20 +18,27 @@
+ #include <asm/uaccess.h>
+ #include "kvm-s390.h"
  
- static inline void kvm_s390_get_regs_rre(struct kvm_vcpu *vcpu, int *r1, int *r2)
++/* Convert real to absolute address by applying the prefix of the CPU */
++static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
++						 unsigned long gaddr)
++{
++	unsigned long prefix  = vcpu->arch.sie_block->prefix;
++	if (gaddr < 2 * PAGE_SIZE)
++		gaddr += prefix;
++	else if (gaddr >= prefix && gaddr < prefix + 2 * PAGE_SIZE)
++		gaddr -= prefix;
++	return gaddr;
++}
++
+ static inline void __user *__gptr_to_uptr(struct kvm_vcpu *vcpu,
+ 					  void __user *gptr,
+ 					  int prefixing)
  {
--	*r1 = (vcpu->arch.sie_block->ipb & 0x00f00000) >> 20;
--	*r2 = (vcpu->arch.sie_block->ipb & 0x000f0000) >> 16;
-+	if (r1)
-+		*r1 = (vcpu->arch.sie_block->ipb & 0x00f00000) >> 20;
-+	if (r2)
-+		*r2 = (vcpu->arch.sie_block->ipb & 0x000f0000) >> 16;
- }
+-	unsigned long prefix  = vcpu->arch.sie_block->prefix;
+ 	unsigned long gaddr = (unsigned long) gptr;
+ 	unsigned long uaddr;
  
- static inline u64 kvm_s390_get_base_disp_rsy(struct kvm_vcpu *vcpu)
+-	if (prefixing) {
+-		if (gaddr < 2 * PAGE_SIZE)
+-			gaddr += prefix;
+-		else if ((gaddr >= prefix) && (gaddr < prefix + 2 * PAGE_SIZE))
+-			gaddr -= prefix;
+-	}
++	if (prefixing)
++		gaddr = kvm_s390_real_to_abs(vcpu, gaddr);
+ 	uaddr = gmap_fault(gaddr, vcpu->arch.gmap);
+ 	if (IS_ERR_VALUE(uaddr))
+ 		uaddr = -EFAULT;
 -- 
 1.8.3.1
