@@ -1,75 +1,47 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 7/8] KVM: s390: Implement TEST BLOCK
-Date: Thu, 12 Sep 2013 10:33:48 +0200
-Message-ID: <1378974829-46578-8-git-send-email-borntraeger@de.ibm.com>
-References: <1378974829-46578-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 0/8] KVM: s390: fixes and cleanup
+Date: Thu, 12 Sep 2013 10:33:41 +0200
+Message-ID: <1378974829-46578-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1378974829-46578-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Gleb Natapov <gleb@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
+Paolo, Gleb,
 
-This patch provides a simple version for the mandatory TEST BLOCK
-instruction interception, so that guests that use this instruction
-do not crash anymore.
+here is a bunch of patch for kvm on s390.
+The first 4 patches restructure the code to protect most of 
+vcpu_run with the kvm->srcu lock. The old code was structured
+in way that adding the lock was more complicated than necessary,
+therefore, the rework.
 
-Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/priv.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+The last 4 patches deal with instruction intercept handling.
 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 59200ee..6f95994 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -128,6 +128,33 @@ static int handle_skey(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
-+static int handle_test_block(struct kvm_vcpu *vcpu)
-+{
-+	unsigned long hva;
-+	gpa_t addr;
-+	int reg2;
-+
-+	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
-+		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-+
-+	kvm_s390_get_regs_rre(vcpu, NULL, &reg2);
-+	addr = vcpu->run->s.regs.gprs[reg2] & PAGE_MASK;
-+	addr = kvm_s390_real_to_abs(vcpu, addr);
-+
-+	hva = gfn_to_hva(vcpu->kvm, gpa_to_gfn(addr));
-+	if (kvm_is_error_hva(hva))
-+		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+	/*
-+	 * We don't expect errors on modern systems, and do not care
-+	 * about storage keys (yet), so let's just clear the page.
-+	 */
-+	if (clear_user((void __user *)hva, PAGE_SIZE) != 0)
-+		return -EFAULT;
-+	kvm_s390_set_psw_cc(vcpu, 0);
-+	vcpu->run->s.regs.gprs[0] = 0;
-+	return 0;
-+}
-+
- static int handle_tpi(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_interrupt_info *inti;
-@@ -444,6 +471,7 @@ static const intercept_handler_t b2_handlers[256] = {
- 	[0x29] = handle_skey,
- 	[0x2a] = handle_skey,
- 	[0x2b] = handle_skey,
-+	[0x2c] = handle_test_block,
- 	[0x30] = handle_io_inst,
- 	[0x31] = handle_io_inst,
- 	[0x32] = handle_io_inst,
+Patches are against kvm.git queue. Please apply.
+
+
+Thomas Huth (8):
+  KVM: s390: Remove dead "rerun vcpu" code
+  KVM: s390: Split up __vcpu_run into three parts
+  KVM: s390: Push run loop into __vcpu_run
+  KVM: s390: Lock kvm->srcu at the appropriate places
+  KVM: s390: Allow NULL parameter for kvm_s390_get_regs_rre
+  KVM: s390: Helper for converting real addresses to absolute
+  KVM: s390: Implement TEST BLOCK
+  KVM: s390: Intercept SCK instruction
+
+ arch/s390/include/asm/kvm_host.h |  1 -
+ arch/s390/kvm/diag.c             |  4 +-
+ arch/s390/kvm/gaccess.h          | 21 ++++++----
+ arch/s390/kvm/intercept.c        |  6 ---
+ arch/s390/kvm/interrupt.c        |  3 ++
+ arch/s390/kvm/kvm-s390.c         | 91 ++++++++++++++++++++++++++--------------
+ arch/s390/kvm/kvm-s390.h         |  9 ++--
+ arch/s390/kvm/priv.c             | 61 +++++++++++++++++++++++++++
+ 8 files changed, 144 insertions(+), 52 deletions(-)
+
 -- 
 1.8.3.1
