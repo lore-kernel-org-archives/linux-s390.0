@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 6/8] KVM: s390: Helper for converting real addresses to absolute
-Date: Thu, 12 Sep 2013 10:33:47 +0200
-Message-ID: <1378974829-46578-7-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 2/8] KVM: s390: Split up __vcpu_run into three parts
+Date: Thu, 12 Sep 2013 10:33:43 +0200
+Message-ID: <1378974829-46578-3-git-send-email-borntraeger@de.ibm.com>
 References: <1378974829-46578-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1378974829-46578-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,53 +14,104 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-Added a separate helper function that translates guest real addresses
-to guest absolute addresses by applying the prefix of the guest CPU.
+In preparation for the following patch (which will change the indentation
+of __vcpu_run quite a bit), this patch puts most of the code from __vcpu_run
+into separate functions. The first function handles the code that runs
+before the SIE instruction and the other one handles the code that runs
+afterwards.
 
 Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/gaccess.h | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 54 +++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 37 insertions(+), 17 deletions(-)
 
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index 99d789e..374a439 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -18,20 +18,27 @@
- #include <asm/uaccess.h>
- #include "kvm-s390.h"
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index e3e7ff7..69c7592 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -689,9 +689,9 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+ 	return 0;
+ }
  
-+/* Convert real to absolute address by applying the prefix of the CPU */
-+static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
-+						 unsigned long gaddr)
-+{
-+	unsigned long prefix  = vcpu->arch.sie_block->prefix;
-+	if (gaddr < 2 * PAGE_SIZE)
-+		gaddr += prefix;
-+	else if (gaddr >= prefix && gaddr < prefix + 2 * PAGE_SIZE)
-+		gaddr -= prefix;
-+	return gaddr;
+-static int __vcpu_run(struct kvm_vcpu *vcpu)
++static int vcpu_pre_run(struct kvm_vcpu *vcpu)
+ {
+-	int rc;
++	int rc, cpuflags;
+ 
+ 	memcpy(&vcpu->arch.sie_block->gg14, &vcpu->run->s.regs.gprs[14], 16);
+ 
+@@ -709,28 +709,24 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 		return rc;
+ 
+ 	vcpu->arch.sie_block->icptcode = 0;
+-	VCPU_EVENT(vcpu, 6, "entering sie flags %x",
+-		   atomic_read(&vcpu->arch.sie_block->cpuflags));
+-	trace_kvm_s390_sie_enter(vcpu,
+-				 atomic_read(&vcpu->arch.sie_block->cpuflags));
++	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
++	VCPU_EVENT(vcpu, 6, "entering sie flags %x", cpuflags);
++	trace_kvm_s390_sie_enter(vcpu, cpuflags);
+ 
+-	/*
+-	 * As PF_VCPU will be used in fault handler, between guest_enter
+-	 * and guest_exit should be no uaccess.
+-	 */
+-	preempt_disable();
+-	kvm_guest_enter();
+-	preempt_enable();
+-	rc = sie64a(vcpu->arch.sie_block, vcpu->run->s.regs.gprs);
+-	kvm_guest_exit();
++	return 0;
 +}
 +
- static inline void __user *__gptr_to_uptr(struct kvm_vcpu *vcpu,
- 					  void __user *gptr,
- 					  int prefixing)
- {
--	unsigned long prefix  = vcpu->arch.sie_block->prefix;
- 	unsigned long gaddr = (unsigned long) gptr;
- 	unsigned long uaddr;
++static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
++{
++	int rc;
  
--	if (prefixing) {
--		if (gaddr < 2 * PAGE_SIZE)
--			gaddr += prefix;
--		else if ((gaddr >= prefix) && (gaddr < prefix + 2 * PAGE_SIZE))
--			gaddr -= prefix;
--	}
-+	if (prefixing)
-+		gaddr = kvm_s390_real_to_abs(vcpu, gaddr);
- 	uaddr = gmap_fault(gaddr, vcpu->arch.gmap);
- 	if (IS_ERR_VALUE(uaddr))
- 		uaddr = -EFAULT;
+ 	VCPU_EVENT(vcpu, 6, "exit sie icptcode %d",
+ 		   vcpu->arch.sie_block->icptcode);
+ 	trace_kvm_s390_sie_exit(vcpu, vcpu->arch.sie_block->icptcode);
+ 
+-	if (rc > 0)
++	if (exit_reason >= 0) {
+ 		rc = 0;
+-	if (rc < 0) {
++	} else {
+ 		if (kvm_is_ucontrol(vcpu->kvm)) {
+ 			rc = SIE_INTERCEPT_UCONTROL;
+ 		} else {
+@@ -741,6 +737,30 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 	}
+ 
+ 	memcpy(&vcpu->run->s.regs.gprs[14], &vcpu->arch.sie_block->gg14, 16);
++
++	return rc;
++}
++
++static int __vcpu_run(struct kvm_vcpu *vcpu)
++{
++	int rc, exit_reason;
++
++	rc = vcpu_pre_run(vcpu);
++	if (rc)
++		return rc;
++
++	/*
++	 * As PF_VCPU will be used in fault handler, between guest_enter
++	 * and guest_exit should be no uaccess.
++	 */
++	preempt_disable();
++	kvm_guest_enter();
++	preempt_enable();
++	exit_reason = sie64a(vcpu->arch.sie_block, vcpu->run->s.regs.gprs);
++	kvm_guest_exit();
++
++	rc = vcpu_post_run(vcpu, exit_reason);
++
+ 	return rc;
+ }
+ 
 -- 
 1.8.3.1
