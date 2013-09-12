@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/8] KVM: s390: Split up __vcpu_run into three parts
-Date: Thu, 12 Sep 2013 10:33:43 +0200
-Message-ID: <1378974829-46578-3-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 7/8] KVM: s390: Implement TEST BLOCK
+Date: Thu, 12 Sep 2013 10:33:48 +0200
+Message-ID: <1378974829-46578-8-git-send-email-borntraeger@de.ibm.com>
 References: <1378974829-46578-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1378974829-46578-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,104 +14,62 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-In preparation for the following patch (which will change the indentation
-of __vcpu_run quite a bit), this patch puts most of the code from __vcpu_run
-into separate functions. The first function handles the code that runs
-before the SIE instruction and the other one handles the code that runs
-afterwards.
+This patch provides a simple version for the mandatory TEST BLOCK
+instruction interception, so that guests that use this instruction
+do not crash anymore.
 
 Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 54 +++++++++++++++++++++++++++++++++---------------
- 1 file changed, 37 insertions(+), 17 deletions(-)
+ arch/s390/kvm/priv.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index e3e7ff7..69c7592 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -689,9 +689,9 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 59200ee..6f95994 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -128,6 +128,33 @@ static int handle_skey(struct kvm_vcpu *vcpu)
  	return 0;
  }
  
--static int __vcpu_run(struct kvm_vcpu *vcpu)
-+static int vcpu_pre_run(struct kvm_vcpu *vcpu)
- {
--	int rc;
-+	int rc, cpuflags;
- 
- 	memcpy(&vcpu->arch.sie_block->gg14, &vcpu->run->s.regs.gprs[14], 16);
- 
-@@ -709,28 +709,24 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
- 		return rc;
- 
- 	vcpu->arch.sie_block->icptcode = 0;
--	VCPU_EVENT(vcpu, 6, "entering sie flags %x",
--		   atomic_read(&vcpu->arch.sie_block->cpuflags));
--	trace_kvm_s390_sie_enter(vcpu,
--				 atomic_read(&vcpu->arch.sie_block->cpuflags));
-+	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
-+	VCPU_EVENT(vcpu, 6, "entering sie flags %x", cpuflags);
-+	trace_kvm_s390_sie_enter(vcpu, cpuflags);
- 
--	/*
--	 * As PF_VCPU will be used in fault handler, between guest_enter
--	 * and guest_exit should be no uaccess.
--	 */
--	preempt_disable();
--	kvm_guest_enter();
--	preempt_enable();
--	rc = sie64a(vcpu->arch.sie_block, vcpu->run->s.regs.gprs);
--	kvm_guest_exit();
++static int handle_test_block(struct kvm_vcpu *vcpu)
++{
++	unsigned long hva;
++	gpa_t addr;
++	int reg2;
++
++	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
++		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
++
++	kvm_s390_get_regs_rre(vcpu, NULL, &reg2);
++	addr = vcpu->run->s.regs.gprs[reg2] & PAGE_MASK;
++	addr = kvm_s390_real_to_abs(vcpu, addr);
++
++	hva = gfn_to_hva(vcpu->kvm, gpa_to_gfn(addr));
++	if (kvm_is_error_hva(hva))
++		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++	/*
++	 * We don't expect errors on modern systems, and do not care
++	 * about storage keys (yet), so let's just clear the page.
++	 */
++	if (clear_user((void __user *)hva, PAGE_SIZE) != 0)
++		return -EFAULT;
++	kvm_s390_set_psw_cc(vcpu, 0);
++	vcpu->run->s.regs.gprs[0] = 0;
 +	return 0;
 +}
 +
-+static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
-+{
-+	int rc;
- 
- 	VCPU_EVENT(vcpu, 6, "exit sie icptcode %d",
- 		   vcpu->arch.sie_block->icptcode);
- 	trace_kvm_s390_sie_exit(vcpu, vcpu->arch.sie_block->icptcode);
- 
--	if (rc > 0)
-+	if (exit_reason >= 0) {
- 		rc = 0;
--	if (rc < 0) {
-+	} else {
- 		if (kvm_is_ucontrol(vcpu->kvm)) {
- 			rc = SIE_INTERCEPT_UCONTROL;
- 		} else {
-@@ -741,6 +737,30 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
- 	}
- 
- 	memcpy(&vcpu->run->s.regs.gprs[14], &vcpu->arch.sie_block->gg14, 16);
-+
-+	return rc;
-+}
-+
-+static int __vcpu_run(struct kvm_vcpu *vcpu)
-+{
-+	int rc, exit_reason;
-+
-+	rc = vcpu_pre_run(vcpu);
-+	if (rc)
-+		return rc;
-+
-+	/*
-+	 * As PF_VCPU will be used in fault handler, between guest_enter
-+	 * and guest_exit should be no uaccess.
-+	 */
-+	preempt_disable();
-+	kvm_guest_enter();
-+	preempt_enable();
-+	exit_reason = sie64a(vcpu->arch.sie_block, vcpu->run->s.regs.gprs);
-+	kvm_guest_exit();
-+
-+	rc = vcpu_post_run(vcpu, exit_reason);
-+
- 	return rc;
- }
- 
+ static int handle_tpi(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_interrupt_info *inti;
+@@ -444,6 +471,7 @@ static const intercept_handler_t b2_handlers[256] = {
+ 	[0x29] = handle_skey,
+ 	[0x2a] = handle_skey,
+ 	[0x2b] = handle_skey,
++	[0x2c] = handle_test_block,
+ 	[0x30] = handle_io_inst,
+ 	[0x31] = handle_io_inst,
+ 	[0x32] = handle_io_inst,
 -- 
 1.8.3.1
