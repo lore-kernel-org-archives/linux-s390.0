@@ -1,93 +1,135 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1378051797.25743.25.camel@deadeye.wl.decadent.org.uk>
-Subject: [PATCH] irq: Always define devm_{request_threaded,free}_irq()
-From: Ben Hutchings <ben@decadent.org.uk>
-Date: Sun, 01 Sep 2013 17:09:57 +0100
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-CHl7HdIBUnE+qn94OhZ7"
-Mime-Version: 1.0
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, Debian kernel maintainers <debian-kernel@lists.debian.org>, linux-s390@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 4/8] KVM: s390: Lock kvm->srcu at the appropriate places
+Date: Thu, 12 Sep 2013 10:33:45 +0200
+Message-ID: <1378974829-46578-5-git-send-email-borntraeger@de.ibm.com>
+References: <1378974829-46578-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1378974829-46578-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Gleb Natapov <gleb@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
---=-CHl7HdIBUnE+qn94OhZ7
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+The kvm->srcu lock has to be held while accessing the memory of
+guests and during certain other actions. This patch now adds
+the locks to the __vcpu_run function so that all affected code
+is protected now (and additionally to the KVM_S390_STORE_STATUS
+ioctl, which can be called out-of-band and needs a separate lock).
 
-These functions are currently defined only if CONFIG_GENERIC_HARDIRQS
-is enabled.  But they may still be needed on architectures with their
-own IRQ management (e.g. s390).
-
-References: https://buildd.debian.org/status/fetch.php?pkg=3Dlinux&arch=3Ds=
-390&ver=3D3.11%7Erc4-1%7Eexp1&stamp=3D1376009959
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- kernel/Makefile     | 2 +-
- kernel/irq/Makefile | 6 ++++--
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ arch/s390/kvm/diag.c      |  4 +---
+ arch/s390/kvm/interrupt.c |  3 +++
+ arch/s390/kvm/kvm-s390.c  | 12 ++++++++++++
+ 3 files changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/Makefile b/kernel/Makefile
-index 35ef118..ed2c9a9 100644
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -79,7 +79,7 @@ obj-$(CONFIG_KPROBES) +=3D kprobes.o
- obj-$(CONFIG_KGDB) +=3D debug/
- obj-$(CONFIG_DETECT_HUNG_TASK) +=3D hung_task.o
- obj-$(CONFIG_LOCKUP_DETECTOR) +=3D watchdog.o
--obj-$(CONFIG_GENERIC_HARDIRQS) +=3D irq/
-+obj-y +=3D irq/
- obj-$(CONFIG_SECCOMP) +=3D seccomp.o
- obj-$(CONFIG_RCU_TORTURE_TEST) +=3D rcutorture.o
- obj-$(CONFIG_TREE_RCU) +=3D rcutree.o
-diff --git a/kernel/irq/Makefile b/kernel/irq/Makefile
-index fff1738..639b2e1 100644
---- a/kernel/irq/Makefile
-+++ b/kernel/irq/Makefile
-@@ -1,8 +1,10 @@
--
--obj-y :=3D irqdesc.o handle.o manage.o spurious.o resend.o chip.o dummychi=
-p.o devres.o
-+obj-y +=3D devres.o
-+ifdef CONFIG_GENERIC_HARDIRQS
-+obj-y +=3D irqdesc.o handle.o manage.o spurious.o resend.o chip.o dummychi=
-p.o
- obj-$(CONFIG_GENERIC_IRQ_CHIP) +=3D generic-chip.o
- obj-$(CONFIG_GENERIC_IRQ_PROBE) +=3D autoprobe.o
- obj-$(CONFIG_IRQ_DOMAIN) +=3D irqdomain.o
- obj-$(CONFIG_PROC_FS) +=3D proc.o
- obj-$(CONFIG_GENERIC_PENDING_IRQ) +=3D migration.o
- obj-$(CONFIG_PM_SLEEP) +=3D pm.o
-+endif
-
---=20
-Ben Hutchings
-The most exhausting thing in life is being insincere. - Anne Morrow Lindber=
-g
-
---=-CHl7HdIBUnE+qn94OhZ7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIVAwUAUiNm1ee/yOyVhhEJAQo1/A//QLPYT/GGmfieKVBlArPIBgzc/ilw/gc/
-rjaSqvD/0VER9jo7vVxmDTgfa0n5gL2XXM13IaIBmIwXTYPwQzwsrYkL4xv2i/Xr
-1ZCeHaCYzviFtl3OEU/0EfR6qtJl8fJATtpo8AfXjGfh/r93AXh2+vWoyVSUVzrE
-AKbY3xgW97gzvj+zDER3pL1ljq6uPr1yFFEOexZsMZ7ccGlw1aj+KwfUAVrokyJG
-PhA/Xo1SxEQBI4rA0JJWGT0xT+O4cgpgwwTXvk0S1yiYiV0TZ+6ghv4iOh9uQWZh
-GtsvR13s2TZdInVDvfHLRml3rL8fxx0XiyvvVhQVCftCe3dyOy2UcGeZKeDynrt2
-RtkAIopcWH2RLwStE2XSLmn/3JoqyWZ/g1ZDjHXLeWnXD3HyNuHpVrSaRsGekMNc
-MjExYIdORl5Lf8bNk/Ce7b2zQSpMvX0MpRBwXXpLPKXwER6Rk8cTOL6+e1WqkVdX
-EfdmaVdTYc11c/G07te5c8csKN/m7Wiv0xY8t4nUerjzrnFW9Cv4R2Vim+8fxaG/
-SGvWWVO20AclpK0AycvT5t27dBcOLfWygb7mLPZpBWuizTA+ENIOWnlPyglM84wH
-jUzsInewV5u8877ZdGclbztkn78ilLOWjSMCjd64w3cJdyaTekYsBrhzulhtmSmR
-R56fAxYV4Rw=
-=L2sA
------END PGP SIGNATURE-----
-
---=-CHl7HdIBUnE+qn94OhZ7--
+diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+index 3a74d8a..78d967f 100644
+--- a/arch/s390/kvm/diag.c
++++ b/arch/s390/kvm/diag.c
+@@ -107,14 +107,13 @@ static int __diag_ipl_functions(struct kvm_vcpu *vcpu)
+ 
+ static int __diag_virtio_hypercall(struct kvm_vcpu *vcpu)
+ {
+-	int ret, idx;
++	int ret;
+ 
+ 	/* No virtio-ccw notification? Get out quickly. */
+ 	if (!vcpu->kvm->arch.css_support ||
+ 	    (vcpu->run->s.regs.gprs[1] != KVM_S390_VIRTIO_CCW_NOTIFY))
+ 		return -EOPNOTSUPP;
+ 
+-	idx = srcu_read_lock(&vcpu->kvm->srcu);
+ 	/*
+ 	 * The layout is as follows:
+ 	 * - gpr 2 contains the subchannel id (passed as addr)
+@@ -125,7 +124,6 @@ static int __diag_virtio_hypercall(struct kvm_vcpu *vcpu)
+ 				      vcpu->run->s.regs.gprs[2],
+ 				      8, &vcpu->run->s.regs.gprs[3],
+ 				      vcpu->run->s.regs.gprs[4]);
+-	srcu_read_unlock(&vcpu->kvm->srcu, idx);
+ 
+ 	/*
+ 	 * Return cookie in gpr 2, but don't overwrite the register if the
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 7f35cb3..e7323cd 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -436,6 +436,7 @@ int kvm_s390_handle_wait(struct kvm_vcpu *vcpu)
+ 	hrtimer_start(&vcpu->arch.ckc_timer, ktime_set (0, sltime) , HRTIMER_MODE_REL);
+ 	VCPU_EVENT(vcpu, 5, "enabled wait via clock comparator: %llx ns", sltime);
+ no_timer:
++	srcu_read_unlock(&vcpu->kvm->srcu, vcpu->srcu_idx);
+ 	spin_lock(&vcpu->arch.local_int.float_int->lock);
+ 	spin_lock_bh(&vcpu->arch.local_int.lock);
+ 	add_wait_queue(&vcpu->wq, &wait);
+@@ -455,6 +456,8 @@ no_timer:
+ 	remove_wait_queue(&vcpu->wq, &wait);
+ 	spin_unlock_bh(&vcpu->arch.local_int.lock);
+ 	spin_unlock(&vcpu->arch.local_int.float_int->lock);
++	vcpu->srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
++
+ 	hrtimer_try_to_cancel(&vcpu->arch.ckc_timer);
+ 	return 0;
+ }
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 8eec7ab..1e4e7b9 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -752,11 +752,18 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ {
+ 	int rc, exit_reason;
+ 
++	/*
++	 * We try to hold kvm->srcu during most of vcpu_run (except when run-
++	 * ning the guest), so that memslots (and other stuff) are protected
++	 */
++	vcpu->srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
++
+ 	do {
+ 		rc = vcpu_pre_run(vcpu);
+ 		if (rc)
+ 			break;
+ 
++		srcu_read_unlock(&vcpu->kvm->srcu, vcpu->srcu_idx);
+ 		/*
+ 		 * As PF_VCPU will be used in fault handler, between
+ 		 * guest_enter and guest_exit should be no uaccess.
+@@ -767,10 +774,12 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 		exit_reason = sie64a(vcpu->arch.sie_block,
+ 				     vcpu->run->s.regs.gprs);
+ 		kvm_guest_exit();
++		vcpu->srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
+ 
+ 		rc = vcpu_post_run(vcpu, exit_reason);
+ 	} while (!signal_pending(current) && !rc);
+ 
++	srcu_read_unlock(&vcpu->kvm->srcu, vcpu->srcu_idx);
+ 	return rc;
+ }
+ 
+@@ -968,6 +977,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+ {
+ 	struct kvm_vcpu *vcpu = filp->private_data;
+ 	void __user *argp = (void __user *)arg;
++	int idx;
+ 	long r;
+ 
+ 	switch (ioctl) {
+@@ -981,7 +991,9 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 		break;
+ 	}
+ 	case KVM_S390_STORE_STATUS:
++		idx = srcu_read_lock(&vcpu->kvm->srcu);
+ 		r = kvm_s390_vcpu_store_status(vcpu, arg);
++		srcu_read_unlock(&vcpu->kvm->srcu, idx);
+ 		break;
+ 	case KVM_S390_SET_INITIAL_PSW: {
+ 		psw_t psw;
+-- 
+1.8.3.1
