@@ -1,55 +1,98 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 0/8] KVM: s390: fixes and cleanup
-Date: Thu, 12 Sep 2013 18:34:45 +0200
-Message-ID: <5231ED25.8050003@redhat.com>
-References: <1378974829-46578-1-git-send-email-borntraeger@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <1380498811.14493.7.camel@deadeye.wl.decadent.org.uk>
+Subject: [stable 3.11] [PATCH] irq: Always define
+ devm_{request_threaded,free}_irq()
+From: Ben Hutchings <ben@decadent.org.uk>
+Date: Mon, 30 Sep 2013 00:53:31 +0100
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-PGcLgTSHFvrt2fg/wRWZ"
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1378974829-46578-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Gleb Natapov <gleb@redhat.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: stable@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Debian kernel maintainers <debian-kernel@lists.debian.org>, linux-s390@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-Il 12/09/2013 10:33, Christian Borntraeger ha scritto:
-> Paolo, Gleb,
-> 
-> here is a bunch of patch for kvm on s390.
-> The first 4 patches restructure the code to protect most of 
-> vcpu_run with the kvm->srcu lock. The old code was structured
-> in way that adding the lock was more complicated than necessary,
-> therefore, the rework.
-> 
-> The last 4 patches deal with instruction intercept handling.
-> 
-> Patches are against kvm.git queue. Please apply.
-> 
-> 
-> Thomas Huth (8):
->   KVM: s390: Remove dead "rerun vcpu" code
->   KVM: s390: Split up __vcpu_run into three parts
->   KVM: s390: Push run loop into __vcpu_run
->   KVM: s390: Lock kvm->srcu at the appropriate places
->   KVM: s390: Allow NULL parameter for kvm_s390_get_regs_rre
->   KVM: s390: Helper for converting real addresses to absolute
->   KVM: s390: Implement TEST BLOCK
->   KVM: s390: Intercept SCK instruction
-> 
->  arch/s390/include/asm/kvm_host.h |  1 -
->  arch/s390/kvm/diag.c             |  4 +-
->  arch/s390/kvm/gaccess.h          | 21 ++++++----
->  arch/s390/kvm/intercept.c        |  6 ---
->  arch/s390/kvm/interrupt.c        |  3 ++
->  arch/s390/kvm/kvm-s390.c         | 91 ++++++++++++++++++++++++++--------------
->  arch/s390/kvm/kvm-s390.h         |  9 ++--
->  arch/s390/kvm/priv.c             | 61 +++++++++++++++++++++++++++
->  8 files changed, 144 insertions(+), 52 deletions(-)
-> 
 
-Applied to kvm/queue for 3.13, thanks.
+--=-PGcLgTSHFvrt2fg/wRWZ
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Paolo
+This is only needed for 3.11, as s390 has now been changed to use the
+generic IRQ code upstream.
+
+These functions are currently defined only if CONFIG_GENERIC_HARDIRQS
+is enabled.  But they are still needed on s390 which has its own IRQ
+management.
+
+References: https://buildd.debian.org/status/fetch.php?pkg=3Dlinux&arch=3Ds=
+390&ver=3D3.11%7Erc4-1%7Eexp1&stamp=3D1376009959
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+---
+ kernel/Makefile     | 2 +-
+ kernel/irq/Makefile | 6 ++++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/Makefile b/kernel/Makefile
+index 35ef118..ed2c9a9 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -79,7 +79,7 @@ obj-$(CONFIG_KPROBES) +=3D kprobes.o
+ obj-$(CONFIG_KGDB) +=3D debug/
+ obj-$(CONFIG_DETECT_HUNG_TASK) +=3D hung_task.o
+ obj-$(CONFIG_LOCKUP_DETECTOR) +=3D watchdog.o
+-obj-$(CONFIG_GENERIC_HARDIRQS) +=3D irq/
++obj-y +=3D irq/
+ obj-$(CONFIG_SECCOMP) +=3D seccomp.o
+ obj-$(CONFIG_RCU_TORTURE_TEST) +=3D rcutorture.o
+ obj-$(CONFIG_TREE_RCU) +=3D rcutree.o
+diff --git a/kernel/irq/Makefile b/kernel/irq/Makefile
+index fff1738..639b2e1 100644
+--- a/kernel/irq/Makefile
++++ b/kernel/irq/Makefile
+@@ -1,8 +1,10 @@
+-
+-obj-y :=3D irqdesc.o handle.o manage.o spurious.o resend.o chip.o dummychi=
+p.o devres.o
++obj-y +=3D devres.o
++ifdef CONFIG_GENERIC_HARDIRQS
++obj-y +=3D irqdesc.o handle.o manage.o spurious.o resend.o chip.o dummychi=
+p.o
+ obj-$(CONFIG_GENERIC_IRQ_CHIP) +=3D generic-chip.o
+ obj-$(CONFIG_GENERIC_IRQ_PROBE) +=3D autoprobe.o
+ obj-$(CONFIG_IRQ_DOMAIN) +=3D irqdomain.o
+ obj-$(CONFIG_PROC_FS) +=3D proc.o
+ obj-$(CONFIG_GENERIC_PENDING_IRQ) +=3D migration.o
+ obj-$(CONFIG_PM_SLEEP) +=3D pm.o
++endif
+
+--=20
+Ben Hutchings
+The most exhausting thing in life is being insincere. - Anne Morrow Lindber=
+g
+
+
+--=-PGcLgTSHFvrt2fg/wRWZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIVAwUAUki9e+e/yOyVhhEJAQqIXA/9HJLEiJ7OW5gvleV3IddhMMNrVylOTNP7
+NJXrrv1IfHm7kisQOYIYnJjbY6x8oo35dXOdKc/FdwfpFAVZFAhshGMEyViIIP70
+0GlrzhzDgnb914W3ZIpJz6JHZzJIt3YWp264OILsmMxrcDSA6gNilr9XsPI2KoBy
+cbMDgI1fa+od2TwFG8e71njr7vAhcdBGLIwKgJsBQsoCzzPyIzHIhq07/rclzvGD
+wQGDwUcDkLTwVUOfpIVV7OX13Uwz00i+bN8IjQqtn7nLAtiW2A20bB0vUMKg3IY7
+rXStDf7C1nVh6fY87hjjwgZ3Tb0SbAe/5w6SVVlA9YclkfI2SlDfxSmv1OkKDdRJ
+jwtKDNsHzpyYq91qBkvDmptztkJAgp1IwXXH9xmfX4S7VTRusJiOCZpXtskf+ryJ
+zzeYlCzcGmqJ2UCmRz+4LBTZ/jDPfSQfPXloIG1fJb4IETn5VTwpsbGFPnGuO/FM
+FZUev14tVw2CBIRrel971DuKwWe4oF2UWRKJsCBNzsC1u0mSYfJLuByhLBKIBoBM
+hCsmeZX5aHsDDyjHS/ExYffawzCat5Ej3h/+Z+6OFnsWff3bsBcUfqih2yTf6yh3
+GmRqBaF3k9d2VSDooHNJo2pN2fERkqddPWSJiXYSiL9eGeHyHpW0ebYF+isbbW39
+QUxUkqlJ80Q=
+=fPHO
+-----END PGP SIGNATURE-----
+
+--=-PGcLgTSHFvrt2fg/wRWZ--
