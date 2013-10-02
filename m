@@ -1,7 +1,7 @@
 From: Alexander Gordeev <agordeev@redhat.com>
-Subject: [PATCH RFC 44/77] lpfc: Make MSI-X initialization routine more readable
-Date: Wed,  2 Oct 2013 12:49:00 +0200
-Message-ID: <f3a2e684c57fb47c8f789b0aca078d90c0e52878.1380703263.git.agordeev@redhat.com>
+Subject: [PATCH RFC 01/77] PCI/MSI: Fix return value when populate_msi_sysfs() failed
+Date: Wed,  2 Oct 2013 12:48:17 +0200
+Message-ID: <3ff5236944aae69f2cd934b5b6da7c1c269df7c1.1380703262.git.agordeev@redhat.com>
 References: <cover.1380703262.git.agordeev@redhat.com>
 Return-path: <linux-mips-bounce@linux-mips.org>
 In-Reply-To: <cover.1380703262.git.agordeev@redhat.com>
@@ -22,66 +22,51 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Signed-off-by: Alexander Gordeev <agordeev@redhat.com>
 ---
- drivers/scsi/lpfc/lpfc_init.c |   23 +++++++++++------------
- 1 files changed, 11 insertions(+), 12 deletions(-)
+ drivers/pci/msi.c |   11 +++++------
+ 1 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index 0ec8008..0cfaf20 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -8633,10 +8633,6 @@ lpfc_sli4_enable_msix(struct lpfc_hba *phba)
- {
- 	int vectors, rc, index;
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index d5f90d6..b43f391 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -719,7 +719,7 @@ static int msix_capability_init(struct pci_dev *dev,
  
--	/* Set up MSI-X multi-message vectors */
--	for (index = 0; index < phba->cfg_fcp_io_channel; index++)
--		phba->sli4_hba.msix_entries[index].entry = index;
--
- 	/* Configure MSI-X capability structure */
- 	vectors = phba->cfg_fcp_io_channel;
+ 	ret = arch_setup_msi_irqs(dev, nvec, PCI_CAP_ID_MSIX);
+ 	if (ret)
+-		goto error;
++		goto out_avail;
  
-@@ -8650,14 +8646,14 @@ lpfc_sli4_enable_msix(struct lpfc_hba *phba)
- 		goto msg_fail_out;
- 	}
+ 	/*
+ 	 * Some devices require MSI-X to be enabled before we can touch the
+@@ -732,10 +732,8 @@ static int msix_capability_init(struct pci_dev *dev,
+ 	msix_program_entries(dev, entries);
  
-+	/* Set up MSI-X multi-message vectors */
-+	for (index = 0; index < vectors; index++)
-+		phba->sli4_hba.msix_entries[index].entry = index;
-+
- 	rc = pci_enable_msix(phba->pcidev, phba->sli4_hba.msix_entries,
- 			     vectors);
--	if (rc) {
--msg_fail_out:
--		lpfc_printf_log(phba, KERN_INFO, LOG_INIT,
--				"0484 PCI enable MSI-X failed (%d)\n", rc);
--		goto vec_fail_out;
+ 	ret = populate_msi_sysfs(dev);
+-	if (ret) {
+-		ret = 0;
+-		goto error;
 -	}
-+	if (rc)
-+		goto msg_fail_out;
++	if (ret)
++		goto out_free;
  
- 	/* Log MSI-X vector assignment */
- 	for (index = 0; index < vectors; index++)
-@@ -8697,7 +8693,7 @@ msg_fail_out:
+ 	/* Set MSI-X enabled bits and unmask the function */
+ 	pci_intx_for_msi(dev, 0);
+@@ -746,7 +744,7 @@ static int msix_capability_init(struct pci_dev *dev,
+ 
+ 	return 0;
+ 
+-error:
++out_avail:
+ 	if (ret < 0) {
+ 		/*
+ 		 * If we had some success, report the number of irqs
+@@ -763,6 +761,7 @@ error:
+ 			ret = avail;
  	}
  
- 	lpfc_sli4_set_affinity(phba, vectors);
--	return rc;
-+	return 0;
++out_free:
+ 	free_msi_irqs(dev);
  
- cfg_fail_out:
- 	/* free the irq already requested */
-@@ -8710,8 +8706,11 @@ cfg_fail_out:
- 
- 	/* Unconfigure MSI-X capability structure */
- 	pci_disable_msix(phba->pcidev);
-+	return rc;
- 
--vec_fail_out:
-+msg_fail_out:
-+	lpfc_printf_log(phba, KERN_INFO, LOG_INIT,
-+			"0484 PCI enable MSI-X failed (%d)\n", rc);
- 	return rc;
- }
- 
+ 	return ret;
 -- 
 1.7.7.6
