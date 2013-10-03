@@ -1,83 +1,40 @@
-From: Alexander Gordeev <agordeev@redhat.com>
-Subject: Re: [PATCH RFC 50/77] mlx5: Update MSI/MSI-X interrupts enablement
- code
-Date: Thu, 3 Oct 2013 21:48:39 +0200
-Message-ID: <20131003194837.GA27636@dhcp-26-207.brq.redhat.com>
+From: Ben Hutchings <bhutchings@solarflare.com>
+Subject: Re: [PATCH RFC 01/77] PCI/MSI: Fix return value when
+ populate_msi_sysfs() failed
+Date: Thu, 3 Oct 2013 22:46:21 +0100
+Message-ID: <1380836781.3419.17.camel@bwh-desktop.uk.level5networks.com>
 References: <cover.1380703262.git.agordeev@redhat.com>
- <9650a7dfbcfd5f1da21f7b093665abf4b1041071.1380703263.git.agordeev@redhat.com>
- <20131003071433.GA7299@mtldesk30>
+	 <3ff5236944aae69f2cd934b5b6da7c1c269df7c1.1380703262.git.agordeev@redhat.com>
+	 <20131003003905.GK6768@jonmason-lab>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-mips-bounce@linux-mips.org>
-Content-Disposition: inline
-In-Reply-To: <20131003071433.GA7299@mtldesk30>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-ide-owner@vger.kernel.org>
+In-Reply-To: <20131003003905.GK6768@jonmason-lab>
+Sender: linux-ide-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-ide/>
 List-Post: <mailto:linux-ide@vger.kernel.org>
-To: Eli Cohen <eli@dev.mellanox.co.il>
-Cc: linux-kernel@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Ralf Baechle <ralf@linux-mips.org>, Michael Ellerman <michael@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Tejun Heo <tj@kernel.org>, Dan Williams <dan.j.williams@intel.com>, Andy King <acking@vmware.com>, Jon Mason <jon.mason@intel.com>, Matt Porter <mporter@kernel.crashing.org>, linux-pci@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, x86@kernel.org, linux-ide@vger.kernel.org, iss_storagedev@hp.com, linux-nvme@lists.infradead.org, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, e1000-devel@lists.sourceforge.net, linux-dr
+To: Jon Mason <jon.mason@intel.com>
+Cc: Alexander Gordeev <agordeev@redhat.com>, linux-kernel@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Ralf Baechle <ralf@linux-mips.org>, Michael Ellerman <michael@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Tejun Heo <tj@kernel.org>, Dan Williams <dan.j.williams@intel.com>, Andy King <acking@vmware.com>, Matt Porter <mporter@kernel.crashing.org>, stable@vger.kernel.org, linux-pci@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, x86@kernel.org, linux-ide@vger.kernel.org, iss_storagedev@hp.com, linux-nvme@lists.infradead.org, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, e1000-devel@lists.sourceforge.net, linux-driver@qlogic.com, Solarflare
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Oct 03, 2013 at 10:14:33AM +0300, Eli Cohen wrote:
-> On Wed, Oct 02, 2013 at 12:49:06PM +0200, Alexander Gordeev wrote:
-> >  
-> > +	err = pci_msix_table_size(dev->pdev);
-> > +	if (err < 0)
-> > +		return err;
-> > +
-> >  	nvec = dev->caps.num_ports * num_online_cpus() + MLX5_EQ_VEC_COMP_BASE;
-> >  	nvec = min_t(int, nvec, num_eqs);
-> > +	nvec = min_t(int, nvec, err);
-> >  	if (nvec <= MLX5_EQ_VEC_COMP_BASE)
-> >  		return -ENOSPC;
+On Wed, 2013-10-02 at 17:39 -0700, Jon Mason wrote:
+> On Wed, Oct 02, 2013 at 12:48:17PM +0200, Alexander Gordeev wrote:
+> > Signed-off-by: Alexander Gordeev <agordeev@redhat.com>
 > 
-> Making sure we don't request more vectors then the device's is capable
-> of -- looks good.
-> >  
-> > @@ -131,20 +136,15 @@ static int mlx5_enable_msix(struct mlx5_core_dev *dev)
-> >  	for (i = 0; i < nvec; i++)
-> >  		table->msix_arr[i].entry = i;
-> >  
-> > -retry:
-> > -	table->num_comp_vectors = nvec - MLX5_EQ_VEC_COMP_BASE;
-> >  	err = pci_enable_msix(dev->pdev, table->msix_arr, nvec);
-> > -	if (err <= 0) {
-> > +	if (err) {
-> > +		kfree(table->msix_arr);
-> >  		return err;
-> > -	} else if (err > MLX5_EQ_VEC_COMP_BASE) {
-> > -		nvec = err;
-> > -		goto retry;
-> >  	}
-> >  
-> 
-> According to latest sources, pci_enable_msix() may still fail so why
-> do you want to remove this code?
+> Since you are changing the behavior of the msix_capability_init
+> function on populate_msi_sysfs error, a comment describing why in this
+> commit would be nice.
+[...]
 
-pci_enable_msix() may fail, but it can not return a positive number.
+This function was already treating that error as fatal, and freeing the
+MSIs.  The change in behaviour is that it now returns the error code in
+this case, rather than 0.  This is obviously correct and properly
+described by the one-line summary.
 
-We first calculate how many MSI-Xs we need, adjust to what we can get,
-check if that is enough and only then go for it.
-
-> > -	mlx5_core_dbg(dev, "received %d MSI vectors out of %d requested\n", err, nvec);
-> > -	kfree(table->msix_arr);
-> > +	table->num_comp_vectors = nvec - MLX5_EQ_VEC_COMP_BASE;
-> >  
-> > -	return -ENOSPC;
-> > +	return 0;
-> >  }
-> >  
-> >  static void mlx5_disable_msix(struct mlx5_core_dev *dev)
+Ben.
 
 -- 
-Regards,
-Alexander Gordeev
-agordeev@redhat.com
+Ben Hutchings, Staff Engineer, Solarflare
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
