@@ -1,23 +1,16 @@
-From: Alexander Gordeev <agordeev@redhat.com>
-Subject: Re: [PATCH RFC 00/77] Re-design MSI/MSI-X interrupts enablement
- pattern
-Date: Tue, 8 Oct 2013 14:22:16 +0200
-Message-ID: <20131008122215.GA14389@dhcp-26-207.brq.redhat.com>
+From: Himanshu Madhani <himanshu.madhani@qlogic.com>
+Subject: RE: [PATCH RFC 63/77] qlcnic: Update MSI/MSI-X interrupts
+ enablement code
+Date: Tue, 8 Oct 2013 22:46:51 +0000
+Message-ID: <ADFE82A996F10145934E45547759F7638C923C26@avmb3.qlogic.org>
 References: <cover.1380703262.git.agordeev@redhat.com>
- <1380840585.3419.50.camel@bwh-desktop.uk.level5networks.com>
- <20131004082920.GA4536@dhcp-26-207.brq.redhat.com>
- <1380922156.3214.49.camel@bwh-desktop.uk.level5networks.com>
- <20131005142054.GA11270@dhcp-26-207.brq.redhat.com>
- <1381009586.645.141.camel@pasglop>
- <20131006060243.GB28142@dhcp-26-207.brq.redhat.com>
- <1381040386.645.143.camel@pasglop>
- <20131006071027.GA29143@dhcp-26-207.brq.redhat.com>
- <20131007180111.GC2481@htj.dyndns.org>
+ <c92efbde96541d08f37510422c096d543bb01279.1380703263.git.agordeev@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-mips-bounce@linux-mips.org>
-Content-Disposition: inline
-In-Reply-To: <20131007180111.GC2481@htj.dyndns.org>
+In-Reply-To: <c92efbde96541d08f37510422c096d543bb01279.1380703263.git.agordeev@redhat.com>
+Content-Language: en-US
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 List-help: <mailto:ecartis@linux-mips.org?Subject=help>
@@ -29,44 +22,32 @@ List-post: <mailto:linux-mips@linux-mips.org>
 List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 List-Archive: <https://lore.kernel.org/linux-ide/>
 List-Post: <mailto:linux-ide@vger.kernel.org>
-To: Tejun Heo <tj@kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ben Hutchings <bhutchings@solarflare.com>, linux-kernel@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Ralf Baechle <ralf@linux-mips.org>, Michael Ellerman <michael@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Dan Williams <dan.j.williams@intel.com>, Andy King <acking@vmware.com>, Jon Mason <jon.mason@intel.com>, Matt Porter <mporter@kernel.crashing.org>, linux-pci@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, x86@kernel.org, linux-ide@vger.kernel.org, iss_storagedev@hp.com, linux-nvme@lists.infradead.org, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, e1000-devel@lists.sourcefor
+To: Alexander Gordeev <agordeev@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, Ralf Baechle <ralf@linux-mips.org>, Michael Ellerman <michael@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Tejun Heo <tj@kernel.org>, Dan Williams <dan.j.williams@intel.com>, Andy King <acking@vmware.com>, Jon Mason <jon.mason@intel.com>, Matt Porter <mporter@kernel.crashing.org>, linux-pci <linux-pci@vger.kernel.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux390@de.ibm.com" <linux390@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Oct 07, 2013 at 02:01:11PM -0400, Tejun Heo wrote:
-> > What about introducing pci_lock_msi() and pci_unlock_msi() and let device
-> > drivers care about their ranges and specifics in race-safe manner?
-> > I do not call to introduce it right now (since it appears pSeries has not
-> > been hitting the race for years) just as a possible alternative to Ben's
-> > proposal.
+> -----Original Message-----
+> From: Alexander Gordeev [mailto:agordeev@redhat.com]
+> Sent: Wednesday, October 02, 2013 3:49 AM
+> To: linux-kernel
+> Cc: Alexander Gordeev; Bjorn Helgaas; Ralf Baechle; Michael Ellerman;
+> Benjamin Herrenschmidt; Martin Schwidefsky; Ingo Molnar; Tejun Heo; Dan
+> Williams; Andy King; Jon Mason; Matt Porter; linux-pci; linux-mips@linux-
+> mips.org; linuxppc-dev@lists.ozlabs.org; linux390@de.ibm.com; linux-
+> s390@vger.kernel.org; x86@kernel.org; linux-ide@vger.kernel.org;
+> iss_storagedev@hp.com; linux-nvme@lists.infradead.org; linux-
+> rdma@vger.kernel.org; netdev; e1000-devel@lists.sourceforge.net; Dept-
+> Eng Linux Driver; Solarflare linux maintainers; VMware, Inc.; linux-scsi
+> Subject: [PATCH RFC 63/77] qlcnic: Update MSI/MSI-X interrupts enablement
+> code
 > 
-> I don't think the same race condition would happen with the loop.
+> As result of recent re-design of the MSI/MSI-X interrupts enabling pattern
+> this driver has to be updated to use the new technique to obtain a optimal
+> number of MSI/MSI-X interrupts required.
+> 
+ "We will test this change for the driver and provide feedback."
 
-We need to distinguish the contexts we're discussing.
+> Signed-off-by: Alexander Gordeev <agordeev@redhat.com>
 
-If we talk about pSeries quota, then the current pSeries pci_enable_msix()
-implementation is racy internally and could fail if the quota went down
-*while* pci_enable_msix() is executing. In this case the loop will have to
-exit rather than retry with a lower number (what number?).
-
-In this regard the new scheme does not bring anything new and relies on
-the fact this race does not hit and therefore does not worry.
-
-If we talk about quota as it has to be, then yes - the loop scheme seems
-more preferable.
-
-Overall, looks like we just need to fix the pSeries implementation,
-if the guys want it, he-he :)
-
-> The problem case is where multiple msi(x) allocation fails completely
-> because the global limit went down before inquiry and allocation.  In
-> the loop based interface, it'd retry with the lower number.
-
-I am probably missing something here. If the global limit went down before
-inquiry then the inquiry will get what is available and try to allocate with
-than number.
-
--- 
-Regards,
-Alexander Gordeev
-agordeev@redhat.com
+Thanks,
+Himanshu
