@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [Patchv5 4/7] KVM: async_pf: Provide additional direct page notification
-Date: Tue,  8 Oct 2013 16:54:57 +0200
-Message-ID: <1381244100-59056-5-git-send-email-borntraeger@de.ibm.com>
+Subject: [Patchv5 2/7] KVM: s390: add floating irq controller
+Date: Tue,  8 Oct 2013 16:54:55 +0200
+Message-ID: <1381244100-59056-3-git-send-email-borntraeger@de.ibm.com>
 References: <1381244100-59056-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1381244100-59056-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,131 +9,502 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Gleb Natapov <gleb@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+From: Jens Freimann <jfrei@linux.vnet.ibm.com>
 
-By setting a Kconfig option, the architecture can control when
-guest notifications will be presented by the apf backend.
-So there is the default batch mechanism, working as before, where the vcpu thread
-should pull in this information. On the other hand there is now the direct
-mechanism, this will directly push the information to the guest.
-This way s390 can use an already existing architecture interface.
+This patch adds a floating irq controller as a kvm_device.
+It will be necessary for migration of floating interrupts as well
+as for hardening the reset code by allowing user space to explicitly
+remove all pending floating interrupts.
 
-Still the vcpu thread should call check_completion to cleanup leftovers,
-that leaves most of the common code untouched.
-
-Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Signed-off-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/x86/kvm/mmu.c       |  2 +-
- include/linux/kvm_host.h |  2 +-
- virt/kvm/Kconfig         |  4 ++++
- virt/kvm/async_pf.c      | 22 +++++++++++++++++++---
- 4 files changed, 25 insertions(+), 5 deletions(-)
+ Documentation/virtual/kvm/devices/s390_flic.txt |  36 +++
+ arch/s390/include/asm/kvm_host.h                |   1 +
+ arch/s390/include/uapi/asm/kvm.h                |   5 +
+ arch/s390/kvm/interrupt.c                       | 296 ++++++++++++++++++++----
+ arch/s390/kvm/kvm-s390.c                        |   1 +
+ include/linux/kvm_host.h                        |   1 +
+ include/uapi/linux/kvm.h                        |   1 +
+ virt/kvm/kvm_main.c                             |   5 +
+ 8 files changed, 295 insertions(+), 51 deletions(-)
+ create mode 100644 Documentation/virtual/kvm/devices/s390_flic.txt
 
-diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
-index cf95cfe..9862e36 100644
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -3324,7 +3324,7 @@ static int kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu, gva_t gva, gfn_t gfn)
- 	arch.direct_map = vcpu->arch.mmu.direct_map;
- 	arch.cr3 = vcpu->arch.mmu.get_cr3(vcpu);
+diff --git a/Documentation/virtual/kvm/devices/s390_flic.txt b/Documentation/virtual/kvm/devices/s390_flic.txt
+new file mode 100644
+index 0000000..06aef31
+--- /dev/null
++++ b/Documentation/virtual/kvm/devices/s390_flic.txt
+@@ -0,0 +1,36 @@
++FLIC (floating interrupt controller)
++====================================
++
++FLIC handles floating (non per-cpu) interrupts, i.e.  I/O, service and some
++machine check interruptions. All interrupts are stored in a per-vm list of
++pending interrupts. FLIC performs operations on this list.
++
++Only one FLIC instance may be instantiated.
++
++FLIC provides support to
++- add/delete interrupts (KVM_DEV_FLIC_ENQUEUE and _DEQUEUE)
++- purge all pending floating interrupts (KVM_DEV_FLIC_CLEAR_IRQS)
++
++Groups:
++  KVM_DEV_FLIC_ENQUEUE
++    Adds one interrupt to the list of pending floating interrupts. Interrupts
++    are taken from this list for injection into the guest. attr contains
++    a struct kvm_s390_irq which contains all data relevant for
++    interrupt injection.
++    The format of the data structure kvm_s390_irq as it is copied from userspace
++    is defined in usr/include/linux/kvm.h.
++    For historic reasons list members are stored in a different data structure, i.e.
++    we need to copy the relevant data into a struct kvm_s390_interrupt_info
++    which can then be added to the list.
++
++  KVM_DEV_FLIC_DEQUEUE
++    Takes one element off the pending interrupts list and copies it into userspace.
++    Dequeued interrupts are not injected into the guest.
++    attr->addr contains the userspace address of a struct kvm_s390_irq.
++    List elements are stored in the format of struct kvm_s390_interrupt_info
++    (arch/s390/include/asm/kvm_host.h) and are copied into a struct kvm_s390_irq
++    (usr/include/linux/kvm.h)
++
++  KVM_DEV_FLIC_CLEAR_IRQS
++    Simply deletes all elements from the list of currently pending floating interrupts.
++    No interrupts are injected into the guest.
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 78b6918..2d09c1d 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -237,6 +237,7 @@ struct kvm_arch{
+ 	struct sca_block *sca;
+ 	debug_info_t *dbf;
+ 	struct kvm_s390_float_interrupt float_int;
++	struct kvm_device *flic;
+ 	struct gmap *gmap;
+ 	int css_support;
+ };
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index d25da59..33d52b8 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -16,6 +16,11 @@
  
--	return kvm_setup_async_pf(vcpu, gva, gfn, &arch);
-+	return kvm_setup_async_pf(vcpu, gva, gfn_to_hva(vcpu->kvm, gfn), &arch);
+ #define __KVM_S390
+ 
++/* Device control API: s390-specific devices */
++#define KVM_DEV_FLIC_DEQUEUE 1
++#define KVM_DEV_FLIC_ENQUEUE 2
++#define KVM_DEV_FLIC_CLEAR_IRQS 3
++
+ /* for KVM_GET_REGS and KVM_SET_REGS */
+ struct kvm_regs {
+ 	/* general purpose regs for s390 */
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index e7323cd..66478a0 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -659,53 +659,85 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
+ 	return inti;
  }
  
- static bool can_do_async_pf(struct kvm_vcpu *vcpu)
+-int kvm_s390_inject_vm(struct kvm *kvm,
+-		       struct kvm_s390_interrupt *s390int)
++static void __inject_vm(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
+ {
+ 	struct kvm_s390_local_interrupt *li;
+ 	struct kvm_s390_float_interrupt *fi;
+-	struct kvm_s390_interrupt_info *inti, *iter;
++	struct kvm_s390_interrupt_info *iter;
+ 	int sigcpu;
+ 
++	mutex_lock(&kvm->lock);
++	fi = &kvm->arch.float_int;
++	spin_lock(&fi->lock);
++	if (!is_ioint(inti->type)) {
++		list_add_tail(&inti->list, &fi->list);
++	} else {
++		u64 isc_bits = int_word_to_isc_bits(inti->io.io_int_word);
++
++		/* Keep I/O interrupts sorted in isc order. */
++		list_for_each_entry(iter, &fi->list, list) {
++			if (!is_ioint(iter->type))
++				continue;
++			if (int_word_to_isc_bits(iter->io.io_int_word) <= isc_bits)
++				continue;
++			break;
++		}
++		list_add_tail(&inti->list, &iter->list);
++	}
++	atomic_set(&fi->active, 1);
++	sigcpu = find_first_bit(fi->idle_mask, KVM_MAX_VCPUS);
++	if (sigcpu == KVM_MAX_VCPUS) {
++		do {
++			sigcpu = fi->next_rr_cpu++;
++			if (sigcpu == KVM_MAX_VCPUS)
++				sigcpu = fi->next_rr_cpu = 0;
++		} while (fi->local_int[sigcpu] == NULL);
++	}
++	li = fi->local_int[sigcpu];
++	spin_lock_bh(&li->lock);
++	atomic_set_mask(CPUSTAT_EXT_INT, li->cpuflags);
++	if (waitqueue_active(li->wq))
++		wake_up_interruptible(li->wq);
++	spin_unlock_bh(&li->lock);
++	spin_unlock(&fi->lock);
++	mutex_unlock(&kvm->lock);
++}
++
++int kvm_s390_inject_vm(struct kvm *kvm,
++		       struct kvm_s390_interrupt *s390int)
++{
++	struct kvm_s390_interrupt_info *inti;
++
+ 	inti = kzalloc(sizeof(*inti), GFP_KERNEL);
+ 	if (!inti)
+ 		return -ENOMEM;
+ 
+-	switch (s390int->type) {
++	inti->type = s390int->type;
++	switch (inti->type) {
+ 	case KVM_S390_INT_VIRTIO:
+ 		VM_EVENT(kvm, 5, "inject: virtio parm:%x,parm64:%llx",
+ 			 s390int->parm, s390int->parm64);
+-		inti->type = s390int->type;
+ 		inti->ext.ext_params = s390int->parm;
+ 		inti->ext.ext_params2 = s390int->parm64;
+ 		break;
+ 	case KVM_S390_INT_SERVICE:
+ 		VM_EVENT(kvm, 5, "inject: sclp parm:%x", s390int->parm);
+-		inti->type = s390int->type;
+ 		inti->ext.ext_params = s390int->parm;
+ 		break;
+-	case KVM_S390_PROGRAM_INT:
+-	case KVM_S390_SIGP_STOP:
+-	case KVM_S390_INT_EXTERNAL_CALL:
+-	case KVM_S390_INT_EMERGENCY:
+-		kfree(inti);
+-		return -EINVAL;
+ 	case KVM_S390_MCHK:
+ 		VM_EVENT(kvm, 5, "inject: machine check parm64:%llx",
+ 			 s390int->parm64);
+-		inti->type = s390int->type;
+ 		inti->mchk.cr14 = s390int->parm; /* upper bits are not used */
+ 		inti->mchk.mcic = s390int->parm64;
+ 		break;
+ 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
+-		if (s390int->type & IOINT_AI_MASK)
++		if (inti->type & IOINT_AI_MASK)
+ 			VM_EVENT(kvm, 5, "%s", "inject: I/O (AI)");
+ 		else
+ 			VM_EVENT(kvm, 5, "inject: I/O css %x ss %x schid %04x",
+ 				 s390int->type & IOINT_CSSID_MASK,
+ 				 s390int->type & IOINT_SSID_MASK,
+ 				 s390int->type & IOINT_SCHID_MASK);
+-		inti->type = s390int->type;
+ 		inti->io.subchannel_id = s390int->parm >> 16;
+ 		inti->io.subchannel_nr = s390int->parm & 0x0000ffffu;
+ 		inti->io.io_int_parm = s390int->parm64 >> 32;
+@@ -718,42 +750,7 @@ int kvm_s390_inject_vm(struct kvm *kvm,
+ 	trace_kvm_s390_inject_vm(s390int->type, s390int->parm, s390int->parm64,
+ 				 2);
+ 
+-	mutex_lock(&kvm->lock);
+-	fi = &kvm->arch.float_int;
+-	spin_lock(&fi->lock);
+-	if (!is_ioint(inti->type))
+-		list_add_tail(&inti->list, &fi->list);
+-	else {
+-		u64 isc_bits = int_word_to_isc_bits(inti->io.io_int_word);
+-
+-		/* Keep I/O interrupts sorted in isc order. */
+-		list_for_each_entry(iter, &fi->list, list) {
+-			if (!is_ioint(iter->type))
+-				continue;
+-			if (int_word_to_isc_bits(iter->io.io_int_word)
+-			    <= isc_bits)
+-				continue;
+-			break;
+-		}
+-		list_add_tail(&inti->list, &iter->list);
+-	}
+-	atomic_set(&fi->active, 1);
+-	sigcpu = find_first_bit(fi->idle_mask, KVM_MAX_VCPUS);
+-	if (sigcpu == KVM_MAX_VCPUS) {
+-		do {
+-			sigcpu = fi->next_rr_cpu++;
+-			if (sigcpu == KVM_MAX_VCPUS)
+-				sigcpu = fi->next_rr_cpu = 0;
+-		} while (fi->local_int[sigcpu] == NULL);
+-	}
+-	li = fi->local_int[sigcpu];
+-	spin_lock_bh(&li->lock);
+-	atomic_set_mask(CPUSTAT_EXT_INT, li->cpuflags);
+-	if (waitqueue_active(li->wq))
+-		wake_up_interruptible(li->wq);
+-	spin_unlock_bh(&li->lock);
+-	spin_unlock(&fi->lock);
+-	mutex_unlock(&kvm->lock);
++	__inject_vm(kvm, inti);
+ 	return 0;
+ }
+ 
+@@ -841,3 +838,200 @@ int kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
+ 	mutex_unlock(&vcpu->kvm->lock);
+ 	return 0;
+ }
++
++static void clear_floating_interrupts(struct kvm *kvm)
++{
++	struct kvm_s390_float_interrupt *fi;
++	struct kvm_s390_interrupt_info	*n, *inti = NULL;
++
++	mutex_lock(&kvm->lock);
++	fi = &kvm->arch.float_int;
++	spin_lock(&fi->lock);
++	list_for_each_entry_safe(inti, n, &fi->list, list) {
++		list_del(&inti->list);
++		kfree(inti);
++	}
++	atomic_set(&fi->active, 0);
++	spin_unlock(&fi->lock);
++	mutex_unlock(&kvm->lock);
++}
++
++static inline int copy_irq_to_user(struct kvm_s390_interrupt_info *inti,
++				   u64 addr)
++{
++	struct kvm_s390_irq __user *uptr = (struct kvm_s390_irq __user *) addr;
++	void __user *target;
++	void *source;
++	u64 size;
++	int r = 0;
++
++	switch (inti->type) {
++	case KVM_S390_INT_VIRTIO:
++	case KVM_S390_INT_SERVICE:
++		source = &inti->ext;
++		target = &uptr->u.ext;
++		size = sizeof(inti->ext);
++		break;
++	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
++		source = &inti->io;
++		target = &uptr->u.io;
++		size = sizeof(inti->io);
++		break;
++	case KVM_S390_MCHK:
++		source = &inti->mchk;
++		target = &uptr->u.mchk;
++		size = sizeof(inti->mchk);
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	r = put_user(inti->type, (u64 __user *) &uptr->type);
++	if (copy_to_user(target, source, size))
++		r = -EFAULT;
++
++	return r;
++}
++
++static int dequeue_floating_irq(struct kvm *kvm, __u64 addr)
++{
++	struct kvm_s390_interrupt_info *inti;
++	struct kvm_s390_float_interrupt *fi;
++	int r = 0;
++
++
++	mutex_lock(&kvm->lock);
++	fi = &kvm->arch.float_int;
++	spin_lock(&fi->lock);
++	if (list_empty(&fi->list)) {
++		mutex_unlock(&kvm->lock);
++		spin_unlock(&fi->lock);
++		return -ENODATA;
++	}
++	inti = list_first_entry(&fi->list, struct kvm_s390_interrupt_info, list);
++	list_del(&inti->list);
++	spin_unlock(&fi->lock);
++	mutex_unlock(&kvm->lock);
++
++	r = copy_irq_to_user(inti, addr);
++
++	kfree(inti);
++	return r;
++}
++
++static int flic_get_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
++{
++	int r;
++
++	switch (attr->group) {
++	case KVM_DEV_FLIC_DEQUEUE:
++		r = dequeue_floating_irq(dev->kvm, attr->addr);
++		break;
++	default:
++		r = -EINVAL;
++	}
++
++	return r;
++}
++
++static inline int copy_irq_from_user(struct kvm_s390_interrupt_info *inti,
++				     u64 addr)
++{
++	struct kvm_s390_irq __user *uptr = (struct kvm_s390_irq __user *) addr;
++	void *target = NULL;
++	void __user *source;
++	u64 size;
++	int r = 0;
++
++	if (get_user(inti->type, (u64 __user *)addr))
++		return -EFAULT;
++	switch (inti->type) {
++	case KVM_S390_INT_VIRTIO:
++	case KVM_S390_INT_SERVICE:
++		target = (void *) &inti->ext;
++		source = &uptr->u.ext;
++		size = sizeof(inti->ext);
++		break;
++	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
++		target = (void *) &inti->io;
++		source = &uptr->u.io;
++		size = sizeof(inti->io);
++		break;
++	case KVM_S390_MCHK:
++		target = (void *) &inti->mchk;
++		source = &uptr->u.mchk;
++		size = sizeof(inti->mchk);
++		break;
++	default:
++		r = -EINVAL;
++		return r;
++	}
++
++	if (copy_from_user(target, source, size))
++		r = -EFAULT;
++
++	return r;
++}
++
++static int enqueue_floating_irq(struct kvm_device *dev,
++				 struct kvm_device_attr *attr)
++{
++	struct kvm_s390_interrupt_info *inti = NULL;
++	int r = 0;
++
++	inti = kzalloc(sizeof(*inti), GFP_KERNEL);
++	if (!inti)
++		return -ENOMEM;
++
++	r = copy_irq_from_user(inti, attr->addr);
++	if (r) {
++		kfree(inti);
++		return r;
++	}
++	__inject_vm(dev->kvm, inti);
++
++	return r;
++}
++
++static int flic_set_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
++{
++	int r = 0;
++
++	switch (attr->group) {
++	case KVM_DEV_FLIC_ENQUEUE:
++		r = enqueue_floating_irq(dev, attr);
++		break;
++	case KVM_DEV_FLIC_CLEAR_IRQS:
++		r = 0;
++		clear_floating_interrupts(dev->kvm);
++		break;
++	default:
++		r = -EINVAL;
++	}
++
++	return r;
++}
++
++static int flic_create(struct kvm_device *dev, u32 type)
++{
++	if (!dev)
++		return -EINVAL;
++	if (dev->kvm->arch.flic)
++		return -EINVAL;
++	dev->kvm->arch.flic = dev;
++	return 0;
++}
++
++static void flic_destroy(struct kvm_device *dev)
++{
++	dev->kvm->arch.flic = NULL;
++}
++
++/* s390 floating irq controller (flic) */
++struct kvm_device_ops kvm_flic_ops = {
++	.name = "kvm-flic",
++	.get_attr = flic_get_attr,
++	.set_attr = flic_set_attr,
++	.create = flic_create,
++	.destroy = flic_destroy,
++};
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 1e4e7b9..30e2c9a 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -157,6 +157,7 @@ int kvm_dev_ioctl_check_extension(long ext)
+ 	case KVM_CAP_ENABLE_CAP:
+ 	case KVM_CAP_S390_CSS_SUPPORT:
+ 	case KVM_CAP_IOEVENTFD:
++	case KVM_CAP_DEVICE_CTRL:
+ 		r = 1;
+ 		break;
+ 	case KVM_CAP_NR_VCPUS:
 diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 2077dd0..b4e8666 100644
+index 7c961e1..2077dd0 100644
 --- a/include/linux/kvm_host.h
 +++ b/include/linux/kvm_host.h
-@@ -194,7 +194,7 @@ struct kvm_async_pf {
+@@ -1065,6 +1065,7 @@ struct kvm_device *kvm_device_from_filp(struct file *filp);
  
- void kvm_clear_async_pf_completion_queue(struct kvm_vcpu *vcpu);
- void kvm_check_async_pf_completion(struct kvm_vcpu *vcpu);
--int kvm_setup_async_pf(struct kvm_vcpu *vcpu, gva_t gva, gfn_t gfn,
-+int kvm_setup_async_pf(struct kvm_vcpu *vcpu, gva_t gva, unsigned long hva,
- 		       struct kvm_arch_async_pf *arch);
- int kvm_async_pf_wakeup_all(struct kvm_vcpu *vcpu);
+ extern struct kvm_device_ops kvm_mpic_ops;
+ extern struct kvm_device_ops kvm_xics_ops;
++extern struct kvm_device_ops kvm_flic_ops;
+ 
+ #ifdef CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT
+ 
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 450fae8..fa59f1a 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -906,6 +906,7 @@ struct kvm_device_attr {
+ #define KVM_DEV_TYPE_FSL_MPIC_20	1
+ #define KVM_DEV_TYPE_FSL_MPIC_42	2
+ #define KVM_DEV_TYPE_XICS		3
++#define KVM_DEV_TYPE_FLIC		5
+ 
+ /*
+  * ioctls for VM fds
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index d469114..dd2cc28 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2270,6 +2270,11 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
+ 		ops = &kvm_xics_ops;
+ 		break;
  #endif
-diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
-index 779262f..0774495 100644
---- a/virt/kvm/Kconfig
-+++ b/virt/kvm/Kconfig
-@@ -22,6 +22,10 @@ config KVM_MMIO
- config KVM_ASYNC_PF
-        bool
- 
-+# Toggle to switch between direct notification and batch job
-+config KVM_ASYNC_PF_SYNC
-+       bool
-+
- config HAVE_KVM_MSI
-        bool
- 
-diff --git a/virt/kvm/async_pf.c b/virt/kvm/async_pf.c
-index b197950..8f57d63 100644
---- a/virt/kvm/async_pf.c
-+++ b/virt/kvm/async_pf.c
-@@ -28,6 +28,21 @@
- #include "async_pf.h"
- #include <trace/events/kvm.h>
- 
-+static inline void kvm_async_page_present_sync(struct kvm_vcpu *vcpu,
-+					       struct kvm_async_pf *work)
-+{
-+#ifdef CONFIG_KVM_ASYNC_PF_SYNC
-+	kvm_arch_async_page_present(vcpu, work);
++#ifdef CONFIG_S390
++	case KVM_DEV_TYPE_FLIC:
++		ops = &kvm_flic_ops;
++		break;
 +#endif
-+}
-+static inline void kvm_async_page_present_async(struct kvm_vcpu *vcpu,
-+						struct kvm_async_pf *work)
-+{
-+#ifndef CONFIG_KVM_ASYNC_PF_SYNC
-+	kvm_arch_async_page_present(vcpu, work);
-+#endif
-+}
-+
- static struct kmem_cache *async_pf_cache;
- 
- int kvm_async_pf_init(void)
-@@ -70,6 +85,7 @@ static void async_pf_execute(struct work_struct *work)
- 	down_read(&mm->mmap_sem);
- 	get_user_pages(current, mm, addr, 1, 1, 0, &page, NULL);
- 	up_read(&mm->mmap_sem);
-+	kvm_async_page_present_sync(vcpu, apf);
- 	unuse_mm(mm);
- 
- 	spin_lock(&vcpu->async_pf.lock);
-@@ -135,7 +151,7 @@ void kvm_check_async_pf_completion(struct kvm_vcpu *vcpu)
- 
- 		if (work->page)
- 			kvm_arch_async_page_ready(vcpu, work);
--		kvm_arch_async_page_present(vcpu, work);
-+		kvm_async_page_present_async(vcpu, work);
- 
- 		list_del(&work->queue);
- 		vcpu->async_pf.queued--;
-@@ -145,7 +161,7 @@ void kvm_check_async_pf_completion(struct kvm_vcpu *vcpu)
+ 	default:
+ 		return -ENODEV;
  	}
- }
- 
--int kvm_setup_async_pf(struct kvm_vcpu *vcpu, gva_t gva, gfn_t gfn,
-+int kvm_setup_async_pf(struct kvm_vcpu *vcpu, gva_t gva, unsigned long hva,
- 		       struct kvm_arch_async_pf *arch)
- {
- 	struct kvm_async_pf *work;
-@@ -166,7 +182,7 @@ int kvm_setup_async_pf(struct kvm_vcpu *vcpu, gva_t gva, gfn_t gfn,
- 	work->page = NULL;
- 	work->vcpu = vcpu;
- 	work->gva = gva;
--	work->addr = gfn_to_hva(vcpu->kvm, gfn);
-+	work->addr = hva;
- 	work->arch = *arch;
- 	work->mm = current->mm;
- 	atomic_inc(&work->mm->mm_count);
 -- 
 1.8.3.1
