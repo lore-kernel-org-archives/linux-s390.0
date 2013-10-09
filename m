@@ -1,53 +1,47 @@
-From: Himanshu Madhani <himanshu.madhani@qlogic.com>
-Subject: RE: [PATCH RFC 63/77] qlcnic: Update MSI/MSI-X interrupts
- enablement code
-Date: Tue, 8 Oct 2013 22:46:51 +0000
-Message-ID: <ADFE82A996F10145934E45547759F7638C923C26@avmb3.qlogic.org>
+From: Michael Ellerman <michael@ellerman.id.au>
+Subject: Re: [PATCH RFC 00/77] Re-design MSI/MSI-X interrupts enablement
+ pattern
+Date: Wed, 9 Oct 2013 12:34:37 +1100
+Message-ID: <20131009013437.GC23780@concordia>
 References: <cover.1380703262.git.agordeev@redhat.com>
- <c92efbde96541d08f37510422c096d543bb01279.1380703263.git.agordeev@redhat.com>
+ <20131008043330.GF31666@concordia>
+ <20131008073301.GC10669@dhcp-26-207.brq.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <c92efbde96541d08f37510422c096d543bb01279.1380703263.git.agordeev@redhat.com>
-Content-Language: en-US
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-ide-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20131008073301.GC10669@dhcp-26-207.brq.redhat.com>
+Sender: linux-ide-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-ide/>
 List-Post: <mailto:linux-ide@vger.kernel.org>
-To: Alexander Gordeev <agordeev@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, Ralf Baechle <ralf@linux-mips.org>, Michael Ellerman <michael@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Tejun Heo <tj@kernel.org>, Dan Williams <dan.j.williams@intel.com>, Andy King <acking@vmware.com>, Jon Mason <jon.mason@intel.com>, Matt Porter <mporter@kernel.crashing.org>, linux-pci <linux-pci@vger.kernel.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux390@de.ibm.com" <linux390@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+To: Alexander Gordeev <agordeev@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Ralf Baechle <ralf@linux-mips.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Tejun Heo <tj@kernel.org>, Dan Williams <dan.j.williams@intel.com>, Andy King <acking@vmware.com>, Jon Mason <jon.mason@intel.com>, Matt Porter <mporter@kernel.crashing.org>, linux-pci@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, x86@kernel.org, linux-ide@vger.kernel.org, iss_storagedev@hp.com, linux-nvme@lists.infradead.org, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, e1000-devel@lists.sourceforge.net, linux-driver@qlogic.com, Solarflare linux maintainers <linux-net-drivers@solarflare.com>, "VMware, Inc." <pv-drivers@vmware.com>, linux-scsi@vger.kernel.or
 List-ID: <linux-s390.vger.kernel.org>
 
-> -----Original Message-----
-> From: Alexander Gordeev [mailto:agordeev@redhat.com]
-> Sent: Wednesday, October 02, 2013 3:49 AM
-> To: linux-kernel
-> Cc: Alexander Gordeev; Bjorn Helgaas; Ralf Baechle; Michael Ellerman;
-> Benjamin Herrenschmidt; Martin Schwidefsky; Ingo Molnar; Tejun Heo; Dan
-> Williams; Andy King; Jon Mason; Matt Porter; linux-pci; linux-mips@linux-
-> mips.org; linuxppc-dev@lists.ozlabs.org; linux390@de.ibm.com; linux-
-> s390@vger.kernel.org; x86@kernel.org; linux-ide@vger.kernel.org;
-> iss_storagedev@hp.com; linux-nvme@lists.infradead.org; linux-
-> rdma@vger.kernel.org; netdev; e1000-devel@lists.sourceforge.net; Dept-
-> Eng Linux Driver; Solarflare linux maintainers; VMware, Inc.; linux-scsi
-> Subject: [PATCH RFC 63/77] qlcnic: Update MSI/MSI-X interrupts enablement
-> code
+On Tue, Oct 08, 2013 at 09:33:02AM +0200, Alexander Gordeev wrote:
+> On Tue, Oct 08, 2013 at 03:33:30PM +1100, Michael Ellerman wrote:
+> > On Wed, Oct 02, 2013 at 12:29:04PM +0200, Alexander Gordeev wrote:
+> > > This technique proved to be confusing and error-prone. Vast share
+> > > of device drivers simply fail to follow the described guidelines.
+> > 
+> > To clarify "Vast share of device drivers":
+> > 
+> >  - 58 drivers call pci_enable_msix()
+> >  - 24 try a single allocation and then fallback to MSI/LSI
+> >  - 19 use the loop style allocation as above
+> >  - 14 try an allocation, and if it fails retry once
+> >  - 1  incorrectly continues when pci_enable_msix() returns > 0
+> > 
+> > So 33 drivers (> 50%) successfully make use of the "confusing and
+> > error-prone" return value.
 > 
-> As result of recent re-design of the MSI/MSI-X interrupts enabling pattern
-> this driver has to be updated to use the new technique to obtain a optimal
-> number of MSI/MSI-X interrupts required.
-> 
- "We will test this change for the driver and provide feedback."
+> Ok, you caught me - 'vast share' is incorrect and is a subject to
+> rewording. But out of 19/58 how many drivers tested fallbacks on the
+> real hardware? IOW, which drivers are affected by the pSeries quota?
 
-> Signed-off-by: Alexander Gordeev <agordeev@redhat.com>
+It's not 19/58, it's 33/58.
 
-Thanks,
-Himanshu
+As to how many we care about on powerpc I can't say, so you have a point
+there. But I still think the interface is not actually that terrible.
+
+cheers
