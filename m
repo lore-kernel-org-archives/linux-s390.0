@@ -1,72 +1,90 @@
-From: Alexander Gordeev <agordeev@redhat.com>
-Subject: [PATCH RFC 46/77] mlx4: Update MSI/MSI-X interrupts enablement code
-Date: Wed,  2 Oct 2013 12:49:02 +0200
-Message-ID: <b0a9f6f455aa03b7769e6d9cc2e7fdbc06732b2f.1380703263.git.agordeev@redhat.com>
-References: <cover.1380703262.git.agordeev@redhat.com>
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <cover.1380703262.git.agordeev@redhat.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-List-Archive: <https://lore.kernel.org/linux-ide/>
-List-Post: <mailto:linux-ide@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Alexander Gordeev <agordeev@redhat.com>, Bjorn Helgaas <bhelgaas@google.com>, Ralf Baechle <ralf@linux-mips.org>, Michael Ellerman <michael@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Tejun Heo <tj@kernel.org>, Dan Williams <dan.j.williams@intel.com>, Andy King <acking@vmware.com>, Jon Mason <jon.mason@intel.com>, Matt Porter <mporter@kernel.crashing.org>, linux-pci@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, x86@kernel.org, linux-ide@vger.kernel.org, iss_storagedev@hp.com, linux-nvme@lists.infradead.org, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, e1000-devel@lists.sourceforge.ne
+Return-Path: <benh@kernel.crashing.org>
+Message-ID: <1381475711.5630.67.camel@pasglop>
+Subject: Re: [PATCH 1/2] tty/hvc_console: Add DTR/RTS callback to handle
+ HUPCL control
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Date: Fri, 11 Oct 2013 18:15:11 +1100
+In-Reply-To: <1372777635-10423-2-git-send-email-brueckner@linux.vnet.ibm.com>
+References: <1372777635-10423-1-git-send-email-brueckner@linux.vnet.ibm.com>
+ <1372777635-10423-2-git-send-email-brueckner@linux.vnet.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linuxppc-dev/>
+To: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, gregkh@linuxfoundation.org, heiko.carstens@de.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, brueckner@linux.vnet.com, schwidefsky@de.ibm.com, jslaby@suse.cz
 List-ID: <linux-s390.vger.kernel.org>
 
-As result of recent re-design of the MSI/MSI-X interrupts enabling
-pattern this driver has to be updated to use the new technique to
-obtain a optimal number of MSI/MSI-X interrupts required.
+On Tue, 2013-07-02 at 17:07 +0200, Hendrik Brueckner wrote:
+> Introduce a new callback to explicitly handle the HUPCL termios control flag.
+> This prepares for a follow-up commit for the hvc_iucv device driver to
+> improve handling when to drop an established network connection.
+> 
+> The callback naming is based on the recently added tty_port interface to
+> facilitate a potential refactoring of the hvc_console to use tty_port
+> functions.
 
-Signed-off-by: Alexander Gordeev <agordeev@redhat.com>
----
- drivers/net/ethernet/mellanox/mlx4/main.c |   17 ++++++++---------
- 1 files changed, 8 insertions(+), 9 deletions(-)
+I only just noticed that ... oops. Why add those dtr_rts() calls ? We
+already have tiocmset in there which is used to set DTR on HVSI consoles
+such as hvc_opal when using hvsi_lib...
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/main.c b/drivers/net/ethernet/mellanox/mlx4/main.c
-index 60c9f4f..377a5ea 100644
---- a/drivers/net/ethernet/mellanox/mlx4/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/main.c
-@@ -1852,8 +1852,16 @@ static void mlx4_enable_msi_x(struct mlx4_dev *dev)
- 	int i;
- 
- 	if (msi_x) {
-+		err = pci_msix_table_size(dev->pdev);
-+		if (err < 0)
-+			goto no_msi;
-+
-+		/* Try if at least 2 vectors are available */
- 		nreq = min_t(int, dev->caps.num_eqs - dev->caps.reserved_eqs,
- 			     nreq);
-+		nreq = min_t(int, nreq, err);
-+		if (nreq < 2)
-+			goto no_msi;
- 
- 		entries = kcalloc(nreq, sizeof *entries, GFP_KERNEL);
- 		if (!entries)
-@@ -1862,17 +1870,8 @@ static void mlx4_enable_msi_x(struct mlx4_dev *dev)
- 		for (i = 0; i < nreq; ++i)
- 			entries[i].entry = i;
- 
--	retry:
- 		err = pci_enable_msix(dev->pdev, entries, nreq);
- 		if (err) {
--			/* Try again if at least 2 vectors are available */
--			if (err > 1) {
--				mlx4_info(dev, "Requested %d vectors, "
--					  "but only %d MSI-X vectors available, "
--					  "trying again\n", nreq, err);
--				nreq = err;
--				goto retry;
--			}
- 			kfree(entries);
- 			goto no_msi;
- 		}
--- 
-1.7.7.6
+Any reason why a separate callback was needed ?
+
+Cheers,
+Ben.
+
+> Signed-off-by: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+> ---
+>  drivers/tty/hvc/hvc_console.c |   11 ++++++++++-
+>  drivers/tty/hvc/hvc_console.h |    3 +++
+>  2 files changed, 13 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
+> index eb255e8..9eba119 100644
+> --- a/drivers/tty/hvc/hvc_console.c
+> +++ b/drivers/tty/hvc/hvc_console.c
+> @@ -361,7 +361,12 @@ static int hvc_open(struct tty_struct *tty, struct file * filp)
+>  		tty->driver_data = NULL;
+>  		tty_port_put(&hp->port);
+>  		printk(KERN_ERR "hvc_open: request_irq failed with rc %d.\n", rc);
+> -	}
+> +	} else
+> +		/* We are ready... raise DTR/RTS */
+> +		if (C_BAUD(tty))
+> +			if (hp->ops->dtr_rts)
+> +				hp->ops->dtr_rts(hp, 1);
+> +
+>  	/* Force wakeup of the polling thread */
+>  	hvc_kick();
+>  
+> @@ -393,6 +398,10 @@ static void hvc_close(struct tty_struct *tty, struct file * filp)
+>  		/* We are done with the tty pointer now. */
+>  		tty_port_tty_set(&hp->port, NULL);
+>  
+> +		if (C_HUPCL(tty))
+> +			if (hp->ops->dtr_rts)
+> +				hp->ops->dtr_rts(hp, 0);
+> +
+>  		if (hp->ops->notifier_del)
+>  			hp->ops->notifier_del(hp, hp->data);
+>  
+> diff --git a/drivers/tty/hvc/hvc_console.h b/drivers/tty/hvc/hvc_console.h
+> index 674d23c..9131019 100644
+> --- a/drivers/tty/hvc/hvc_console.h
+> +++ b/drivers/tty/hvc/hvc_console.h
+> @@ -75,6 +75,9 @@ struct hv_ops {
+>  	/* tiocmget/set implementation */
+>  	int (*tiocmget)(struct hvc_struct *hp);
+>  	int (*tiocmset)(struct hvc_struct *hp, unsigned int set, unsigned int clear);
+> +
+> +	/* Callbacks to handle tty ports */
+> +	void (*dtr_rts)(struct hvc_struct *hp, int raise);
+>  };
+>  
+>  /* Register a vterm and a slot index for use as a console (console_init) */
