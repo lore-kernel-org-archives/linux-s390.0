@@ -1,7 +1,7 @@
 From: Gleb Natapov <gleb@redhat.com>
 Subject: Re: [Patchv5 2/7] KVM: s390: add floating irq controller
-Date: Mon, 14 Oct 2013 14:31:04 +0300
-Message-ID: <20131014113104.GR15657@redhat.com>
+Date: Mon, 14 Oct 2013 16:35:12 +0300
+Message-ID: <20131014133512.GV15657@redhat.com>
 References: <1381244100-59056-1-git-send-email-borntraeger@de.ibm.com>
  <1381244100-59056-3-git-send-email-borntraeger@de.ibm.com>
  <20131013083954.GB15657@redhat.com>
@@ -101,10 +101,8 @@ On Mon, Oct 14, 2013 at 01:13:30PM +0200, Jens Freimann wrote:
 > Inspection is a requirement that we didn't have in mind when we designed 
 > this. But yes, it should be non-destructive in that case.
 > 
-> Christian and I agree that we should defer these patches for now. It would
-> be good if we could discuss this interface next week at the KVM Forum.
-> 
-Of course.
+BTW, not destructive interface is better for migration too. What if
+migration fails and src needs to be restarted?
 
 --
 			Gleb.
