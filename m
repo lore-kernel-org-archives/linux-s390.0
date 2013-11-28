@@ -1,71 +1,84 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PULL 0/9] KVM: s390: some patches for kvm-next
-Date: Thu, 28 Nov 2013 15:31:19 +0100
-Message-ID: <529753B7.6020108@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PULL 1/9] KVM: s390: Removed SIE_INTERCEPT_UCONTROL
+Date: Thu, 28 Nov 2013 15:06:50 +0100
+Message-ID: <1385647618-15541-2-git-send-email-cornelia.huck@de.ibm.com>
 References: <1385647618-15541-1-git-send-email-cornelia.huck@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1385647618-15541-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Gleb Natapov <gleb@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: Gleb Natapov <gleb@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Thomas Huth <thuth@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Il 28/11/2013 15:06, Cornelia Huck ha scritto:
-> Gleb, Paolo,
-> 
-> here's a pull request for some fixes/cleanups that have accumulated
-> on our side. As this is my first pull request via kernel.org, feel
-> free to tell me whether I messed up :)
-> 
-> 
-> The following changes since commit 0a00a775d2a49d16efba721c786859844184599c:
-> 
->   KVM: Change maintainer email address (2013-11-27 17:56:36 +0100)
-> 
-> are available in the git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-20131128
-> 
-> for you to fetch changes up to 36daca9bb36f0395755817d1b0c45ab6fbf0441b:
-> 
->   KVM: s390: Removed kvm_s390_inject_sigp_stop() (2013-11-28 11:08:17 +0100)
-> 
-> ----------------------------------------------------------------
-> Several fixes for kvm-next.
-> 
-> The diagnose decoding and the missing store status are more major (can
-> cause the host to execute different things than the guest wanted resp.
-> produce unusable dumps when something breaks). The other patches contain
-> more minor fixes and cleanups.
-> 
-> ----------------------------------------------------------------
-> Heiko Carstens (1):
->   KVM: s390: fix diagnose code extraction
-> 
-> Thomas Huth (8):
->   KVM: s390: Removed SIE_INTERCEPT_UCONTROL
->   KVM: s390: Removed VIRTIODESCSPACE
->   KVM: s390: Fix access to CR6 in TPI handler
->   KVM: s390: Do not set CC3 for EQBS and SQBS
->   KVM: s390: Always store status during SIGP STOP_AND_STORE_STATUS
->   KVM: s390: Fix clock comparator field for STORE STATUS
->   KVM: s390: Add SIGP store-status-at-address order
->   KVM: s390: Removed kvm_s390_inject_sigp_stop()
-> 
->  arch/s390/kvm/diag.c     |    2 +-
->  arch/s390/kvm/kvm-s390.c |   53 ++++++++++++++++++++-----------------------
->  arch/s390/kvm/kvm-s390.h |   10 ++-------
->  arch/s390/kvm/priv.c     |    4 +---
->  arch/s390/kvm/sigp.c     |   56 ++++++++++++++++++++++++++++++++++++++++------
->  arch/s390/kvm/trace.h    |    1 +
->  6 files changed, 78 insertions(+), 48 deletions(-)
-> 
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-Pulled, thanks.
+The SIE_INTERCEPT_UCONTROL can be removed by moving the related code
+from kvm_arch_vcpu_ioctl_run() to vcpu_post_run().
 
-Paolo
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c |   24 ++++++------------------
+ arch/s390/kvm/kvm-s390.h |    2 --
+ 2 files changed, 6 insertions(+), 20 deletions(-)
+
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 569494e..7f47835 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -732,14 +732,12 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
+ 
+ 	if (exit_reason >= 0) {
+ 		rc = 0;
+-	} else {
+-		if (kvm_is_ucontrol(vcpu->kvm)) {
+-			rc = SIE_INTERCEPT_UCONTROL;
+-		} else {
+-			VCPU_EVENT(vcpu, 3, "%s", "fault in sie instruction");
+-			trace_kvm_s390_sie_fault(vcpu);
+-			rc = kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+-		}
++	} else if (kvm_is_ucontrol(vcpu->kvm)) {
++		vcpu->run->exit_reason = KVM_EXIT_S390_UCONTROL;
++		vcpu->run->s390_ucontrol.trans_exc_code =
++						current->thread.gmap_addr;
++		vcpu->run->s390_ucontrol.pgm_code = 0x10;
++		rc = -EREMOTE;
+ 	}
+ 
+ 	memcpy(&vcpu->run->s.regs.gprs[14], &vcpu->arch.sie_block->gg14, 16);
+@@ -833,16 +831,6 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 		rc = -EINTR;
+ 	}
+ 
+-#ifdef CONFIG_KVM_S390_UCONTROL
+-	if (rc == SIE_INTERCEPT_UCONTROL) {
+-		kvm_run->exit_reason = KVM_EXIT_S390_UCONTROL;
+-		kvm_run->s390_ucontrol.trans_exc_code =
+-			current->thread.gmap_addr;
+-		kvm_run->s390_ucontrol.pgm_code = 0x10;
+-		rc = 0;
+-	}
+-#endif
+-
+ 	if (rc == -EOPNOTSUPP) {
+ 		/* intercept cannot be handled in-kernel, prepare kvm-run */
+ 		kvm_run->exit_reason         = KVM_EXIT_S390_SIEIC;
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index b44912a..aad541f 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -27,8 +27,6 @@ typedef int (*intercept_handler_t)(struct kvm_vcpu *vcpu);
+ /* declare vfacilities extern */
+ extern unsigned long *vfacilities;
+ 
+-/* negativ values are error codes, positive values for internal conditions */
+-#define SIE_INTERCEPT_UCONTROL		(1<<0)
+ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu);
+ 
+ #define VM_EVENT(d_kvm, d_loglevel, d_string, d_args...)\
+-- 
+1.7.9.5
