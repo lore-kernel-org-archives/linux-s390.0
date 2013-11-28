@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PULL 5/9] KVM: s390: Always store status during SIGP STOP_AND_STORE_STATUS
-Date: Thu, 28 Nov 2013 15:06:54 +0100
-Message-ID: <1385647618-15541-6-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PULL 6/9] KVM: s390: Fix clock comparator field for STORE STATUS
+Date: Thu, 28 Nov 2013 15:06:55 +0100
+Message-ID: <1385647618-15541-7-git-send-email-cornelia.huck@de.ibm.com>
 References: <1385647618-15541-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1385647618-15541-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -9,138 +9,43 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Gleb Natapov <gleb@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Thomas Huth <thuth@linux.vnet.ibm.com>, stable@vger.kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Thomas Huth <thuth@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-The SIGP order STOP_AND_STORE_STATUS is defined to stop a CPU and store
-its status. However, we only stored the status if the CPU was still
-running, so make sure that the status is now also stored if the CPU was
-already stopped. This fixes the problem that the CPU information was
-not stored correctly in kdump files, rendering them unreadable.
+Only the most 7 significant bytes of the clock comparator must be
+saved to the status area, and the byte at offset 304 has to be zero.
 
 Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: stable@vger.kernel.org
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c |   25 +++++++++++++++----------
- arch/s390/kvm/kvm-s390.h |    4 ++--
- arch/s390/kvm/sigp.c     |   15 ++++++++++++++-
- 3 files changed, 31 insertions(+), 13 deletions(-)
+ arch/s390/kvm/kvm-s390.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 7f47835..55eb8de 100644
+index 55eb8de..1bb1dda 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -873,7 +873,7 @@ static int __guestcopy(struct kvm_vcpu *vcpu, u64 guestdest, void *from,
-  * KVM_S390_STORE_STATUS_NOADDR: -> 0x1200 on 64 bit
-  * KVM_S390_STORE_STATUS_PREFIXED: -> prefix
-  */
--int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr)
-+int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr)
+@@ -877,6 +877,7 @@ int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr)
  {
  	unsigned char archmode = 1;
  	int prefix;
-@@ -891,15 +891,6 @@ int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr)
- 	} else
- 		prefix = 0;
++	u64 clkcomp;
  
--	/*
--	 * The guest FPRS and ACRS are in the host FPRS/ACRS due to the lazy
--	 * copying in vcpu load/put. Lets update our copies before we save
--	 * it into the save area
--	 */
--	save_fp_ctl(&vcpu->arch.guest_fpregs.fpc);
--	save_fp_regs(vcpu->arch.guest_fpregs.fprs);
--	save_access_regs(vcpu->run->s.regs.acrs);
--
- 	if (__guestcopy(vcpu, addr + offsetof(struct save_area, fp_regs),
- 			vcpu->arch.guest_fpregs.fprs, 128, prefix))
+ 	if (addr == KVM_S390_STORE_STATUS_NOADDR) {
+ 		if (copy_to_guest_absolute(vcpu, 163ul, &archmode, 1))
+@@ -920,8 +921,9 @@ int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr)
+ 			&vcpu->arch.sie_block->cputm, 8, prefix))
  		return -EFAULT;
-@@ -944,6 +935,20 @@ int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr)
- 	return 0;
- }
  
-+int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr)
-+{
-+	/*
-+	 * The guest FPRS and ACRS are in the host FPRS/ACRS due to the lazy
-+	 * copying in vcpu load/put. Lets update our copies before we save
-+	 * it into the save area
-+	 */
-+	save_fp_ctl(&vcpu->arch.guest_fpregs.fpc);
-+	save_fp_regs(vcpu->arch.guest_fpregs.fprs);
-+	save_access_regs(vcpu->run->s.regs.acrs);
-+
-+	return kvm_s390_store_status_unloaded(vcpu, addr);
-+}
-+
- static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
- 				     struct kvm_enable_cap *cap)
- {
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index fcd25b4..36f6b18 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -145,8 +145,8 @@ int kvm_s390_handle_eb(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
++	clkcomp = vcpu->arch.sie_block->ckc >> 8;
+ 	if (__guestcopy(vcpu, addr + offsetof(struct save_area, clk_cmp),
+-			&vcpu->arch.sie_block->ckc, 8, prefix))
++			&clkcomp, 8, prefix))
+ 		return -EFAULT;
  
- /* implemented in kvm-s390.c */
--int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu,
--				 unsigned long addr);
-+int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr);
-+int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr);
- void s390_vcpu_block(struct kvm_vcpu *vcpu);
- void s390_vcpu_unblock(struct kvm_vcpu *vcpu);
- void exit_sie(struct kvm_vcpu *vcpu);
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index bec398c..6805601 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -130,6 +130,7 @@ unlock:
- static int __inject_sigp_stop(struct kvm_s390_local_interrupt *li, int action)
- {
- 	struct kvm_s390_interrupt_info *inti;
-+	int rc = SIGP_CC_ORDER_CODE_ACCEPTED;
- 
- 	inti = kzalloc(sizeof(*inti), GFP_ATOMIC);
- 	if (!inti)
-@@ -139,6 +140,8 @@ static int __inject_sigp_stop(struct kvm_s390_local_interrupt *li, int action)
- 	spin_lock_bh(&li->lock);
- 	if ((atomic_read(li->cpuflags) & CPUSTAT_STOPPED)) {
- 		kfree(inti);
-+		if ((action & ACTION_STORE_ON_STOP) != 0)
-+			rc = -ESHUTDOWN;
- 		goto out;
- 	}
- 	list_add_tail(&inti->list, &li->list);
-@@ -150,7 +153,7 @@ static int __inject_sigp_stop(struct kvm_s390_local_interrupt *li, int action)
- out:
- 	spin_unlock_bh(&li->lock);
- 
--	return SIGP_CC_ORDER_CODE_ACCEPTED;
-+	return rc;
- }
- 
- static int __sigp_stop(struct kvm_vcpu *vcpu, u16 cpu_addr, int action)
-@@ -174,6 +177,16 @@ static int __sigp_stop(struct kvm_vcpu *vcpu, u16 cpu_addr, int action)
- unlock:
- 	spin_unlock(&fi->lock);
- 	VCPU_EVENT(vcpu, 4, "sent sigp stop to cpu %x", cpu_addr);
-+
-+	if ((action & ACTION_STORE_ON_STOP) != 0 && rc == -ESHUTDOWN) {
-+		/* If the CPU has already been stopped, we still have
-+		 * to save the status when doing stop-and-store. This
-+		 * has to be done after unlocking all spinlocks. */
-+		struct kvm_vcpu *dst_vcpu = kvm_get_vcpu(vcpu->kvm, cpu_addr);
-+		rc = kvm_s390_store_status_unloaded(dst_vcpu,
-+						KVM_S390_STORE_STATUS_NOADDR);
-+	}
-+
- 	return rc;
- }
- 
+ 	if (__guestcopy(vcpu, addr + offsetof(struct save_area, acc_regs),
 -- 
 1.7.9.5
