@@ -1,42 +1,47 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PULL 2/9] KVM: s390: Removed VIRTIODESCSPACE
-Date: Thu, 28 Nov 2013 15:06:51 +0100
-Message-ID: <1385647618-15541-3-git-send-email-cornelia.huck@de.ibm.com>
-References: <1385647618-15541-1-git-send-email-cornelia.huck@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1385647618-15541-1-git-send-email-cornelia.huck@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Gleb Natapov <gleb@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Thomas Huth <thuth@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Xose Vazquez Perez <xose.vazquez@gmail.com>
+Subject: [PATCH -rc1] s390: increase the NR_CPUS limit
+Date: Fri, 29 Nov 2013 16:33:02 +0100
+Message-Id: <1385739182-3687-1-git-send-email-xose.vazquez@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+Cc: Xose Vazquez Perez <xose.vazquez@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
+In current models, maximum number of active cores is 101.
 
-VIRTIODESCSPACE is completely unused nowadays and thus can be removed
-without any problems.
-
-Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: <linux390@de.ibm.com>
+Cc: <linux-s390@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+Signed-off-by: Xose Vazquez Perez <xose.vazquez@gmail.com>
 ---
- arch/s390/kvm/kvm-s390.h |    3 ---
- 1 file changed, 3 deletions(-)
+ arch/s390/Kconfig | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index aad541f..fcd25b4 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -19,9 +19,6 @@
- #include <linux/kvm.h>
- #include <linux/kvm_host.h>
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 314fced..87afb9a 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -347,14 +347,14 @@ config SMP
+ 	  Even if you don't know what to do here, say Y.
  
--/* The current code can have up to 256 pages for virtio */
--#define VIRTIODESCSPACE (256ul * 4096ul)
--
- typedef int (*intercept_handler_t)(struct kvm_vcpu *vcpu);
+ config NR_CPUS
+-	int "Maximum number of CPUs (2-64)"
+-	range 2 64
++	int "Maximum number of CPUs (2-101)"
++	range 2 101
+ 	depends on SMP
+ 	default "32" if !64BIT
+ 	default "64" if 64BIT
+ 	help
+ 	  This allows you to specify the maximum number of CPUs which this
+-	  kernel will support.  The maximum supported value is 64 and the
++	  kernel will support.  The maximum supported value is 101 and the
+ 	  minimum value which makes sense is 2.
  
- /* declare vfacilities extern */
+ 	  This is purely to save memory - each supported CPU adds
 -- 
-1.7.9.5
+1.8.3.1
