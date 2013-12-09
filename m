@@ -1,14 +1,10 @@
-From: Stefan Raspl <raspl@linux.vnet.ibm.com>
-Subject: Re: [PATCH ethtool 0/3] Display adjacent switch port's attributes
-Date: Thu, 12 Dec 2013 10:24:57 +0100
-Message-ID: <52A980E9.6030901@linux.vnet.ibm.com>
+From: raspl@linux.vnet.ibm.com
+Subject: [PATCH ethtool 3/3] qeth: Display adjacent switch port attributes in ethtool
+Date: Mon, 09 Dec 2013 09:11:43 +0100
+Message-ID: <20131209081252.509748283@linux.vnet.ibm.com>
 References: <20131209081140.196136547@linux.vnet.ibm.com>
-Reply-To: raspl@linux.vnet.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20131209081140.196136547@linux.vnet.ibm.com>
+Content-Disposition: inline; filename=qeth_add_ethtool_query_switch_port_attributes_support.patch
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -16,37 +12,199 @@ To: Ben Hutchings <bhutchings@solarflare.com>, Stefan Raspl <raspl@linux.vnet.ib
 Cc: David Miller <davem@davemloft.net>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Am 09.12.2013 09:11, schrieb raspl@linux.vnet.ibm.com:
-> This patch series adds a new option to ethtool to display the adjacen=
-t switch
-> port's attributes, as perceived by the NIC, e.g. through respective L=
-LDP
-> message exchanges.
-> A patch for the qeth device driver provides a sample exploiter for th=
-e new
-> functionality.
->=20
-> Best regards,
-> Stefan Raspl
->=20
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->=20
+Add support for get_switch_port_attrs() callback in ethtool to display
+adjacent switch port's attributes.
 
-Please ignore this stray patch series - the one posted 12/12 is the
-real thing.
+Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
+Acked-by: Frank Blaschka <blaschka@linux.vnet.ibm.com>
 
-Regards
-Stefan Raspl
+---
+ drivers/s390/net/qeth_core.h      |    2 
+ drivers/s390/net/qeth_core_main.c |   79 ++++++++++++++++++++++++++++++++++++++
+ drivers/s390/net/qeth_core_mpc.h  |   17 ++++++++
+ drivers/s390/net/qeth_l2_main.c   |    1 
+ drivers/s390/net/qeth_l3_main.c   |    1 
+ 5 files changed, 100 insertions(+)
 
-
---=20
-Linux on System z & Virtualization Development
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Martina Koederitz
-Gesch=E4ftsf=FChrer: Dirk Wittkopp
-Sitz der Gesellschaft: B=F6blingen
-Registergericht: Amtsgericht Stuttgart, HRB 243294
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -914,6 +914,8 @@ struct qeth_cmd_buffer *qeth_wait_for_bu
+ int qeth_mdio_read(struct net_device *, int, int);
+ int qeth_snmp_command(struct qeth_card *, char __user *);
+ int qeth_query_oat_command(struct qeth_card *, char __user *);
++int qeth_core_ethtool_get_switch_port_attrs(struct net_device *,
++						struct ethtool_swport_attrs *);
+ int qeth_send_control_data(struct qeth_card *, int, struct qeth_cmd_buffer *,
+ 	int (*reply_cb)(struct qeth_card *, struct qeth_reply*, unsigned long),
+ 	void *reply_param);
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -3036,6 +3036,42 @@ int qeth_query_ipassists(struct qeth_car
+ }
+ EXPORT_SYMBOL_GPL(qeth_query_ipassists);
+ 
++static int qeth_query_switch_port_attributes_cb(struct qeth_card *card,
++				struct qeth_reply *reply, unsigned long data)
++{
++	struct qeth_ipa_cmd *cmd;
++	struct qeth_switch_info *sw_info;
++	struct qeth_query_switch_attributes *attrs;
++
++	QETH_CARD_TEXT(card, 2, "qsqiatcb");
++	cmd = (struct qeth_ipa_cmd *) data;
++	sw_info = (struct qeth_switch_info *)reply->param;
++	if (cmd->data.setadapterparms.hdr.return_code == 0) {
++		attrs = &cmd->data.setadapterparms.data.query_switch_attributes;
++		sw_info->capabilities = attrs->capabilities;
++		sw_info->settings = attrs->settings;
++	}
++	qeth_default_setadapterparms_cb(card, reply, (unsigned long) cmd);
++
++	return 0;
++}
++
++static int qeth_query_switch_port_attributes(struct qeth_card *card,
++					struct qeth_switch_info *sw_info)
++{
++	struct qeth_cmd_buffer *iob;
++
++	QETH_CARD_TEXT(card, 2, "qswiattr");
++	if (!qeth_adp_supported(card, IPA_SETADP_QUERY_SWITCH_ATTRIBUTES))
++		return -EOPNOTSUPP;
++	if (!netif_carrier_ok(card->dev))
++		return -ENOMEDIUM;
++	iob = qeth_get_adapter_cmd(card, IPA_SETADP_QUERY_SWITCH_ATTRIBUTES,
++				sizeof(struct qeth_ipacmd_setadpparms_hdr));
++	return qeth_send_ipa_cmd(card, iob,
++				qeth_query_switch_port_attributes_cb, sw_info);
++}
++
+ static int qeth_query_setdiagass_cb(struct qeth_card *card,
+ 		struct qeth_reply *reply, unsigned long data)
+ {
+@@ -5696,6 +5732,49 @@ int qeth_core_ethtool_get_settings(struc
+ }
+ EXPORT_SYMBOL_GPL(qeth_core_ethtool_get_settings);
+ 
++int qeth_core_ethtool_get_switch_port_attrs(struct net_device *netdev,
++					struct ethtool_swport_attrs *attrs)
++{
++	int rc, i;
++	struct qeth_card *card = netdev->ml_priv;
++	struct qeth_switch_info sw_info;
++	static const struct {
++		int qeth_cap;
++		int etht_cap_sup;
++		int etht_cap_enbl;
++	} qattrs[] = {
++		{ QETH_SWITCH_FORW_802_1, SUPPORTED_SP_FWD_802_1,
++		  ENABLED_SP_FWD_802_1 },
++		{ QETH_SWITCH_FORW_REFL_RELAY, SUPPORTED_SP_FWD_RR,
++		  ENABLED_SP_FWD_RR },
++		{ QETH_SWITCH_CAP_RTE, SUPPORTED_SP_CAP_RTE,
++		  ENABLED_SP_CAP_RTE },
++		{ QETH_SWITCH_CAP_ECP, SUPPORTED_SP_CAP_ECP,
++		  ENABLED_SP_CAP_ECP },
++		{ QETH_SWITCH_CAP_VDP, SUPPORTED_SP_CAP_VDP,
++		  ENABLED_SP_CAP_VDP }
++	};
++
++	rc = qeth_query_switch_port_attributes(card, &sw_info);
++	if (rc)
++		return rc;
++
++	if (!sw_info.capabilities) {
++		attrs->port_rc = GPORT_RC_LLDP_UNSUP;
++		return 0;
++	}
++	for (i = 0; i < ARRAY_SIZE(qattrs); i++) {
++		if (sw_info.capabilities & qattrs[i].qeth_cap) {
++			attrs->supported |= qattrs[i].etht_cap_sup;
++			if (sw_info.settings & qattrs[i].qeth_cap)
++				attrs->enabled |= qattrs[i].etht_cap_enbl;
++		}
++	}
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(qeth_core_ethtool_get_switch_port_attrs);
++
+ static int __init qeth_core_init(void)
+ {
+ 	int rc;
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -240,6 +240,7 @@ enum qeth_ipa_setadp_cmd {
+ 	IPA_SETADP_SET_DIAG_ASSIST		= 0x00002000L,
+ 	IPA_SETADP_SET_ACCESS_CONTROL		= 0x00010000L,
+ 	IPA_SETADP_QUERY_OAT			= 0x00080000L,
++	IPA_SETADP_QUERY_SWITCH_ATTRIBUTES	= 0x00100000L,
+ };
+ enum qeth_ipa_mac_ops {
+ 	CHANGE_ADDR_READ_MAC		= 0,
+@@ -404,6 +405,21 @@ struct qeth_qoat_priv {
+ 	char *buffer;
+ };
+ 
++#define QETH_SWITCH_FORW_802_1		0x00000001
++#define QETH_SWITCH_FORW_REFL_RELAY	0x00000002
++#define QETH_SWITCH_CAP_RTE		0x00000004
++#define QETH_SWITCH_CAP_ECP		0x00000008
++#define QETH_SWITCH_CAP_VDP		0x00000010
++
++struct qeth_query_switch_attributes {
++	__u8  version;
++	__u8  reserved1;
++	__u16 reserved2;
++	__u32 capabilities;
++	__u32 settings;
++	__u8  reserved3[8];
++};
++
+ struct qeth_ipacmd_setadpparms_hdr {
+ 	__u32 supp_hw_cmds;
+ 	__u32 reserved1;
+@@ -424,6 +440,7 @@ struct qeth_ipacmd_setadpparms {
+ 		struct qeth_snmp_cmd snmp;
+ 		struct qeth_set_access_ctrl set_access_ctrl;
+ 		struct qeth_query_oat query_oat;
++		struct qeth_query_switch_attributes query_switch_attributes;
+ 		__u32 mode;
+ 	} data;
+ } __attribute__ ((packed));
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -911,6 +911,7 @@ static const struct ethtool_ops qeth_l2_
+ 	.get_sset_count = qeth_core_get_sset_count,
+ 	.get_drvinfo = qeth_core_get_drvinfo,
+ 	.get_settings = qeth_core_ethtool_get_settings,
++	.get_switch_port_attrs = qeth_core_ethtool_get_switch_port_attrs,
+ };
+ 
+ static const struct ethtool_ops qeth_l2_osn_ops = {
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -3198,6 +3198,7 @@ static const struct ethtool_ops qeth_l3_
+ 	.get_sset_count = qeth_core_get_sset_count,
+ 	.get_drvinfo = qeth_core_get_drvinfo,
+ 	.get_settings = qeth_core_ethtool_get_settings,
++	.get_switch_port_attrs = qeth_core_ethtool_get_switch_port_attrs,
+ };
+ 
+ /*
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 41ef943..3f85f19 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -738,6 +738,11 @@ struct qeth_rx {
+ 	int qdio_err;
+ };
+ 
++struct qeth_switch_info {
++        __u32 capabilities;
++        __u32 settings;
++};
++
+ #define QETH_NAPI_WEIGHT NAPI_POLL_WEIGHT
+ 
+ struct qeth_card {
