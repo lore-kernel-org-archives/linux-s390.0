@@ -1,70 +1,144 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Jiang Liu <liuj97@gmail.com>
-Subject: [RFC PATCH v3 13/19] smp, s390: prepare for killing generic_smp_call_function_single_interrupt()
-Date: Thu,  5 Dec 2013 00:13:04 +0800
-Message-ID: <1386173591-28514-14-git-send-email-liuj97@gmail.com>
-In-Reply-To: <1386173591-28514-1-git-send-email-liuj97@gmail.com>
-References: <1386173591-28514-1-git-send-email-liuj97@gmail.com>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20131204161304.HPcC7-tkvEW-TBB8JWH9j33eHddFuoGG3F721THfl_8@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Shaohua Li <shli@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Thomas Gleixner <tglx@linutronix.de>, Paul Gortmaker <paul.gortmaker@windriver.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Jiang Liu <liuj97@gmail.com>, Ingo Molnar <mingo@elte.hu>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Steven Rostedt <rostedt@goodmis.org>, Jiri Kosina <trivial@kernel.org>, Wang YanQing <udknight@gmail.com>, linux-arch@vger.kernel.org
+From: raspl@linux.vnet.ibm.com
+Subject: [PATCH ethtool 1/3] ethtool: Add callback to indicate adjacent switch port attributes
+Date: Mon, 09 Dec 2013 09:11:41 +0100
+Message-ID: <20131209081252.296317035@linux.vnet.ibm.com>
+References: <20131209081140.196136547@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=ethtool_add_query_swport_settings.patch
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: Ben Hutchings <bhutchings@solarflare.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>
+Cc: David Miller <davem@davemloft.net>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Shaohua Li <shli@kernel.org>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Jiri Kosina <trivial@kernel.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux390@de.ibm.com
-Signed-off-by: Jiang Liu <liuj97@gmail.com>
----
- arch/s390/kernel/smp.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+Switches supporting LLDP can communicate port attributes to connected devices.
+Device drivers capable of accessing this information from the devices can use
+the new callback get_switch_port_attrs() to report supported and enabled
+settings in the card's adjacent switch port for display in ethtool.
+Implementors have to use the respective SUPPORTED_SP_* and ENABLED_SP_* defines
+to indicate the current settings.
 
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index dc4a534..e550afd 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -49,7 +49,7 @@
+Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
+
+---
+ include/linux/ethtool.h      |    3 +++
+ include/uapi/linux/ethtool.h |   35 +++++++++++++++++++++++++++++++++++
+ net/core/ethtool.c           |   22 ++++++++++++++++++++++
+ 3 files changed, 60 insertions(+)
+
+--- a/include/linux/ethtool.h
++++ b/include/linux/ethtool.h
+@@ -177,6 +177,7 @@ static inline u32 ethtool_rxfh_indir_def
+  * @get_module_eeprom: Get the eeprom information from the plug-in module
+  * @get_eee: Get Energy-Efficient (EEE) supported and status.
+  * @set_eee: Set EEE status (enable/disable) as well as LPI timers.
++ * @get_switch_port_attrs: Get adjacent switch port attributes.
+  *
+  * All operations are optional (i.e. the function pointer may be set
+  * to %NULL) and callers must take this into account.  Callers must
+@@ -245,6 +246,8 @@ struct ethtool_ops {
+ 				     struct ethtool_eeprom *, u8 *);
+ 	int	(*get_eee)(struct net_device *, struct ethtool_eee *);
+ 	int	(*set_eee)(struct net_device *, struct ethtool_eee *);
++	int     (*get_switch_port_attrs)(struct net_device *,
++					 struct ethtool_swport_attrs *);
  
- enum {
- 	ec_schedule = 0,
--	ec_call_function_single,
-+	ec_call_function,
- 	ec_stop_cpu,
+ 
+ };
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -136,6 +136,22 @@ struct ethtool_eeprom {
  };
  
-@@ -437,8 +437,8 @@ static void smp_handle_ext_call(void)
- 		smp_stop_cpu();
- 	if (test_bit(ec_schedule, &bits))
- 		scheduler_ipi();
--	if (test_bit(ec_call_function_single, &bits))
--		generic_smp_call_function_single_interrupt();
-+	if (test_bit(ec_call_function, &bits))
-+		generic_smp_call_function_interrupt();
+ /**
++ * struct ethtool_swport_attrs - query adjacent switch port attributes
++ * @cmd: ETHTOOL_GPORT
++ * @port_rc: Use GPORT_RC_* as appropriate.
++ * @supported: Forwarding modes and capabilities supported by the switch port,
++ *	see SUPPORTED_SP_* flags.
++ * @enabled: Forwarding modes and capabilities currently activated at the
++ *	adjacent switch port, see ENABLED_SP_* flags.
++ */
++struct ethtool_swport_attrs {
++	__u32	cmd;
++	__u32	port_rc;
++	__u32	supported;
++	__u32	enabled;
++};
++
++/**
+  * struct ethtool_eee - Energy Efficient Ethernet information
+  * @cmd: ETHTOOL_{G,S}EEE
+  * @supported: Mask of %SUPPORTED_* flags for the speed/duplex combinations
+@@ -900,6 +916,7 @@ enum ethtool_sfeatures_retval_bits {
+ #define ETHTOOL_GMODULEEEPROM	0x00000043 /* Get plug-in module eeprom */
+ #define ETHTOOL_GEEE		0x00000044 /* Get EEE settings */
+ #define ETHTOOL_SEEE		0x00000045 /* Set EEE settings */
++#define ETHTOOL_GPORT		0x00000046 /* Get switch port attributes */
+ 
+ /* compatibility with older code */
+ #define SPARC_ETH_GSET		ETHTOOL_GSET
+@@ -1067,6 +1084,24 @@ enum ethtool_sfeatures_retval_bits {
+ #define ETH_MODULE_SFF_8472		0x2
+ #define ETH_MODULE_SFF_8472_LEN		512
+ 
++/* Bad return codes for switch ports */
++#define GPORT_RC_LLDP_UNSUP	1	/* switch port doesn't support */
++					/* required LLDP EVB TLV       */
++
++/* Indicates what features the adjacent switch port supports. */
++#define SUPPORTED_SP_FWD_802_1	(1 << 0)
++#define SUPPORTED_SP_FWD_RR	(1 << 1)
++#define SUPPORTED_SP_CAP_RTE	(1 << 9)
++#define SUPPORTED_SP_CAP_ECP	(1 << 10)
++#define SUPPORTED_SP_CAP_VDP	(1 << 11)
++
++/* Indicates what features the adjacent switch port has enabled. */
++#define ENABLED_SP_FWD_802_1	(1 << 0)
++#define ENABLED_SP_FWD_RR	(1 << 1)
++#define ENABLED_SP_CAP_RTE	(1 << 9)
++#define ENABLED_SP_CAP_ECP	(1 << 10)
++#define ENABLED_SP_CAP_VDP	(1 << 11)
++
+ /* Reset flags */
+ /* The reset() operation must clear the flags for the components which
+  * were actually reset.  On successful return, the flags indicate the
+--- a/net/core/ethtool.c
++++ b/net/core/ethtool.c
+@@ -1446,6 +1446,25 @@ static int ethtool_get_module_eeprom(str
+ 				      modinfo.eeprom_len);
  }
  
- static void do_ext_call_interrupt(struct ext_code ext_code,
-@@ -453,12 +453,12 @@ void arch_send_call_function_ipi_mask(const struct cpumask *mask)
- 	int cpu;
++static int ethtool_get_switch_port_attrs(struct net_device *dev,
++							void __user *useraddr)
++{
++	struct ethtool_swport_attrs attrs = { ETHTOOL_GPORT };
++	int rc;
++
++	if (!dev->ethtool_ops->get_switch_port_attrs)
++		return -EOPNOTSUPP;
++
++	rc = dev->ethtool_ops->get_switch_port_attrs(dev, &attrs);
++	if (rc)
++		return rc;
++
++	if (copy_to_user(useraddr, &attrs, sizeof(attrs)))
++		return -EFAULT;
++
++	return 0;
++}
++
+ /* The main entry point in this file.  Called from net/core/dev_ioctl.c */
  
- 	for_each_cpu(cpu, mask)
--		pcpu_ec_call(pcpu_devices + cpu, ec_call_function_single);
-+		pcpu_ec_call(pcpu_devices + cpu, ec_call_function);
- }
- 
- void arch_send_call_function_single_ipi(int cpu)
- {
--	pcpu_ec_call(pcpu_devices + cpu, ec_call_function_single);
-+	pcpu_ec_call(pcpu_devices + cpu, ec_call_function);
- }
- 
- #ifndef CONFIG_64BIT
--- 
-1.8.1.2
+ int dev_ethtool(struct net *net, struct ifreq *ifr)
+@@ -1675,6 +1694,9 @@ int dev_ethtool(struct net *net, struct
+ 	case ETHTOOL_GMODULEEEPROM:
+ 		rc = ethtool_get_module_eeprom(dev, useraddr);
+ 		break;
++	case ETHTOOL_GPORT:
++		rc = ethtool_get_switch_port_attrs(dev, useraddr);
++		break;
+ 	default:
+ 		rc = -EOPNOTSUPP;
+ 	}
