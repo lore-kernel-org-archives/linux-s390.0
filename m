@@ -1,210 +1,235 @@
-From: raspl@linux.vnet.ibm.com
-Subject: [PATCH ethtool 3/3] qeth: Display adjacent switch port attributes in ethtool
-Date: Mon, 09 Dec 2013 09:11:43 +0100
-Message-ID: <20131209081252.509748283@linux.vnet.ibm.com>
-References: <20131209081140.196136547@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=qeth_add_ethtool_query_switch_port_attributes_support.patch
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: Ben Hutchings <bhutchings@solarflare.com>, Stefan Raspl <raspl@linux.vnet.ibm.com>
-Cc: David Miller <davem@davemloft.net>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 10 Dec 2013 09:08:27 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for 3.13-rc4
+Message-ID: <20131210090827.52735ab4@mschwide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Add support for get_switch_port_attrs() callback in ethtool to display
-adjacent switch port's attributes.
+Hi Linus,
 
-Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
-Acked-by: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+please pull from the 'for-linus' branch of
 
----
- drivers/s390/net/qeth_core.h      |    2 
- drivers/s390/net/qeth_core_main.c |   79 ++++++++++++++++++++++++++++++++++++++
- drivers/s390/net/qeth_core_mpc.h  |   17 ++++++++
- drivers/s390/net/qeth_l2_main.c   |    1 
- drivers/s390/net/qeth_l3_main.c   |    1 
- 5 files changed, 100 insertions(+)
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -914,6 +914,8 @@ struct qeth_cmd_buffer *qeth_wait_for_bu
- int qeth_mdio_read(struct net_device *, int, int);
- int qeth_snmp_command(struct qeth_card *, char __user *);
- int qeth_query_oat_command(struct qeth_card *, char __user *);
-+int qeth_core_ethtool_get_switch_port_attrs(struct net_device *,
-+						struct ethtool_swport_attrs *);
- int qeth_send_control_data(struct qeth_card *, int, struct qeth_cmd_buffer *,
- 	int (*reply_cb)(struct qeth_card *, struct qeth_reply*, unsigned long),
- 	void *reply_param);
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3036,6 +3036,42 @@ int qeth_query_ipassists(struct qeth_car
- }
- EXPORT_SYMBOL_GPL(qeth_query_ipassists);
+to receive the following updates:
+One patch to increase the number of possible CPUs to 256, with the latest
+machine a single LPAR can have up to 101 CPUs. Plus a number of bug fixes,
+the clock_gettime patch fixes a regression added in the 3.13 merge window.
+
+Heiko Carstens (2):
+      s390/smp,sclp: fix size of sclp_cpu_info structure
+      s390/vdso: fix access-list entry initialization
+
+Hendrik Brueckner (1):
+      s390/sclp: replace uninitialized early_event_mask_sccb variable with sccb_early
+
+Martin Schwidefsky (2):
+      s390/vdso: ectg gettime support for CLOCK_THREAD_CPUTIME_ID
+      s390/time,vdso: fix clock_gettime for CLOCK_MONOTONIC
+
+Stefan Weinhuber (1):
+      s390/dasd: fix memory leak caused by dangling references to request_queue
+
+Xose Vazquez Perez (1):
+      s390: increase CONFIG_NR_CPUS limit
+
+ arch/s390/Kconfig                       |    6 +++---
+ arch/s390/include/asm/sclp.h            |    3 ++-
+ arch/s390/kernel/asm-offsets.c          |    1 +
+ arch/s390/kernel/vdso.c                 |    2 +-
+ arch/s390/kernel/vdso32/clock_gettime.S |    9 ++-------
+ arch/s390/kernel/vdso64/clock_getres.S  |    4 +++-
+ arch/s390/kernel/vdso64/clock_gettime.S |   10 +++++-----
+ drivers/s390/block/dasd_genhd.c         |    1 -
+ drivers/s390/char/sclp_early.c          |    5 ++---
+ 9 files changed, 19 insertions(+), 22 deletions(-)
+
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 5877e71..1e1a03d 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -347,14 +347,14 @@ config SMP
+ 	  Even if you don't know what to do here, say Y.
  
-+static int qeth_query_switch_port_attributes_cb(struct qeth_card *card,
-+				struct qeth_reply *reply, unsigned long data)
-+{
-+	struct qeth_ipa_cmd *cmd;
-+	struct qeth_switch_info *sw_info;
-+	struct qeth_query_switch_attributes *attrs;
-+
-+	QETH_CARD_TEXT(card, 2, "qsqiatcb");
-+	cmd = (struct qeth_ipa_cmd *) data;
-+	sw_info = (struct qeth_switch_info *)reply->param;
-+	if (cmd->data.setadapterparms.hdr.return_code == 0) {
-+		attrs = &cmd->data.setadapterparms.data.query_switch_attributes;
-+		sw_info->capabilities = attrs->capabilities;
-+		sw_info->settings = attrs->settings;
-+	}
-+	qeth_default_setadapterparms_cb(card, reply, (unsigned long) cmd);
-+
-+	return 0;
-+}
-+
-+static int qeth_query_switch_port_attributes(struct qeth_card *card,
-+					struct qeth_switch_info *sw_info)
-+{
-+	struct qeth_cmd_buffer *iob;
-+
-+	QETH_CARD_TEXT(card, 2, "qswiattr");
-+	if (!qeth_adp_supported(card, IPA_SETADP_QUERY_SWITCH_ATTRIBUTES))
-+		return -EOPNOTSUPP;
-+	if (!netif_carrier_ok(card->dev))
-+		return -ENOMEDIUM;
-+	iob = qeth_get_adapter_cmd(card, IPA_SETADP_QUERY_SWITCH_ATTRIBUTES,
-+				sizeof(struct qeth_ipacmd_setadpparms_hdr));
-+	return qeth_send_ipa_cmd(card, iob,
-+				qeth_query_switch_port_attributes_cb, sw_info);
-+}
-+
- static int qeth_query_setdiagass_cb(struct qeth_card *card,
- 		struct qeth_reply *reply, unsigned long data)
+ config NR_CPUS
+-	int "Maximum number of CPUs (2-64)"
+-	range 2 64
++	int "Maximum number of CPUs (2-256)"
++	range 2 256
+ 	depends on SMP
+ 	default "32" if !64BIT
+ 	default "64" if 64BIT
+ 	help
+ 	  This allows you to specify the maximum number of CPUs which this
+-	  kernel will support.  The maximum supported value is 64 and the
++	  kernel will support. The maximum supported value is 256 and the
+ 	  minimum value which makes sense is 2.
+ 
+ 	  This is purely to save memory - each supported CPU adds
+diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
+index 30ef748..2f39095 100644
+--- a/arch/s390/include/asm/sclp.h
++++ b/arch/s390/include/asm/sclp.h
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/types.h>
+ #include <asm/chpid.h>
++#include <asm/cpu.h>
+ 
+ #define SCLP_CHP_INFO_MASK_SIZE		32
+ 
+@@ -37,7 +38,7 @@ struct sclp_cpu_info {
+ 	unsigned int standby;
+ 	unsigned int combined;
+ 	int has_cpu_type;
+-	struct sclp_cpu_entry cpu[255];
++	struct sclp_cpu_entry cpu[MAX_CPU_ADDRESS + 1];
+ };
+ 
+ int sclp_get_cpu_info(struct sclp_cpu_info *info);
+diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
+index 496116c..e4c99a1 100644
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -72,6 +72,7 @@ int main(void)
+ 	/* constants used by the vdso */
+ 	DEFINE(__CLOCK_REALTIME, CLOCK_REALTIME);
+ 	DEFINE(__CLOCK_MONOTONIC, CLOCK_MONOTONIC);
++	DEFINE(__CLOCK_THREAD_CPUTIME_ID, CLOCK_THREAD_CPUTIME_ID);
+ 	DEFINE(__CLOCK_REALTIME_RES, MONOTONIC_RES_NSEC);
+ 	BLANK();
+ 	/* idle data offsets */
+diff --git a/arch/s390/kernel/vdso.c b/arch/s390/kernel/vdso.c
+index a84476f..6136490 100644
+--- a/arch/s390/kernel/vdso.c
++++ b/arch/s390/kernel/vdso.c
+@@ -125,7 +125,7 @@ int vdso_alloc_per_cpu(struct _lowcore *lowcore)
+ 		psal[i] = 0x80000000;
+ 
+ 	lowcore->paste[4] = (u32)(addr_t) psal;
+-	psal[0] = 0x20000000;
++	psal[0] = 0x02000000;
+ 	psal[2] = (u32)(addr_t) aste;
+ 	*(unsigned long *) (aste + 2) = segment_table +
+ 		_ASCE_TABLE_LENGTH + _ASCE_USER_BITS + _ASCE_TYPE_SEGMENT;
+diff --git a/arch/s390/kernel/vdso32/clock_gettime.S b/arch/s390/kernel/vdso32/clock_gettime.S
+index 5be8e47..65fc397 100644
+--- a/arch/s390/kernel/vdso32/clock_gettime.S
++++ b/arch/s390/kernel/vdso32/clock_gettime.S
+@@ -46,18 +46,13 @@ __kernel_clock_gettime:
+ 	jnm	3f
+ 	a	%r0,__VDSO_TK_MULT(%r5)
+ 3:	alr	%r0,%r2
+-	al	%r0,__VDSO_XTIME_NSEC(%r5)	/*  + tk->xtime_nsec */
+-	al	%r1,__VDSO_XTIME_NSEC+4(%r5)
+-	brc	12,4f
+-	ahi	%r0,1
+-4:	al	%r0,__VDSO_WTOM_NSEC(%r5)	/*  + wall_to_monotonic.nsec */
++	al	%r0,__VDSO_WTOM_NSEC(%r5)
+ 	al	%r1,__VDSO_WTOM_NSEC+4(%r5)
+ 	brc	12,5f
+ 	ahi	%r0,1
+ 5:	l	%r2,__VDSO_TK_SHIFT(%r5)	/* Timekeeper shift */
+ 	srdl	%r0,0(%r2)			/*  >> tk->shift */
+-	l	%r2,__VDSO_XTIME_SEC+4(%r5)
+-	al	%r2,__VDSO_WTOM_SEC+4(%r5)
++	l	%r2,__VDSO_WTOM_SEC+4(%r5)
+ 	cl	%r4,__VDSO_UPD_COUNT+4(%r5)	/* check update counter */
+ 	jne	1b
+ 	basr	%r5,0
+diff --git a/arch/s390/kernel/vdso64/clock_getres.S b/arch/s390/kernel/vdso64/clock_getres.S
+index 176e1f7..34deba7 100644
+--- a/arch/s390/kernel/vdso64/clock_getres.S
++++ b/arch/s390/kernel/vdso64/clock_getres.S
+@@ -23,7 +23,9 @@ __kernel_clock_getres:
+ 	je	0f
+ 	cghi	%r2,__CLOCK_MONOTONIC
+ 	je	0f
+-	cghi	%r2,-2		/* CLOCK_THREAD_CPUTIME_ID for this thread */
++	cghi	%r2,__CLOCK_THREAD_CPUTIME_ID
++	je	0f
++	cghi	%r2,-2		/* Per-thread CPUCLOCK with PID=0, VIRT=1 */
+ 	jne	2f
+ 	larl	%r5,_vdso_data
+ 	icm	%r0,15,__LC_ECTG_OK(%r5)
+diff --git a/arch/s390/kernel/vdso64/clock_gettime.S b/arch/s390/kernel/vdso64/clock_gettime.S
+index 0add107..91940ed 100644
+--- a/arch/s390/kernel/vdso64/clock_gettime.S
++++ b/arch/s390/kernel/vdso64/clock_gettime.S
+@@ -22,7 +22,9 @@ __kernel_clock_gettime:
+ 	larl	%r5,_vdso_data
+ 	cghi	%r2,__CLOCK_REALTIME
+ 	je	4f
+-	cghi	%r2,-2		/* CLOCK_THREAD_CPUTIME_ID for this thread */
++	cghi	%r2,__CLOCK_THREAD_CPUTIME_ID
++	je	9f
++	cghi	%r2,-2		/* Per-thread CPUCLOCK with PID=0, VIRT=1 */
+ 	je	9f
+ 	cghi	%r2,__CLOCK_MONOTONIC
+ 	jne	12f
+@@ -35,13 +37,11 @@ __kernel_clock_gettime:
+ 	jnz	0b
+ 	stck	48(%r15)			/* Store TOD clock */
+ 	lgf	%r2,__VDSO_TK_SHIFT(%r5)	/* Timekeeper shift */
+-	lg	%r0,__VDSO_XTIME_SEC(%r5)	/* tk->xtime_sec */
+-	alg	%r0,__VDSO_WTOM_SEC(%r5)	/*  + wall_to_monotonic.sec */
++	lg	%r0,__VDSO_WTOM_SEC(%r5)
+ 	lg	%r1,48(%r15)
+ 	sg	%r1,__VDSO_XTIME_STAMP(%r5)	/* TOD - cycle_last */
+ 	msgf	%r1,__VDSO_TK_MULT(%r5)		/*  * tk->mult */
+-	alg	%r1,__VDSO_XTIME_NSEC(%r5)	/*  + tk->xtime_nsec */
+-	alg	%r1,__VDSO_WTOM_NSEC(%r5)	/*  + wall_to_monotonic.nsec */
++	alg	%r1,__VDSO_WTOM_NSEC(%r5)
+ 	srlg	%r1,%r1,0(%r2)			/*  >> tk->shift */
+ 	clg	%r4,__VDSO_UPD_COUNT(%r5)	/* check update counter */
+ 	jne	0b
+diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
+index f649217..f224d59 100644
+--- a/drivers/s390/block/dasd_genhd.c
++++ b/drivers/s390/block/dasd_genhd.c
+@@ -87,7 +87,6 @@ void dasd_gendisk_free(struct dasd_block *block)
  {
-@@ -5696,6 +5732,49 @@ int qeth_core_ethtool_get_settings(struc
- }
- EXPORT_SYMBOL_GPL(qeth_core_ethtool_get_settings);
+ 	if (block->gdp) {
+ 		del_gendisk(block->gdp);
+-		block->gdp->queue = NULL;
+ 		block->gdp->private_data = NULL;
+ 		put_disk(block->gdp);
+ 		block->gdp = NULL;
+diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+index f7aa080..1465e95 100644
+--- a/drivers/s390/char/sclp_early.c
++++ b/drivers/s390/char/sclp_early.c
+@@ -35,7 +35,6 @@ struct read_info_sccb {
+ 	u8	_reserved5[4096 - 112];	/* 112-4095 */
+ } __packed __aligned(PAGE_SIZE);
  
-+int qeth_core_ethtool_get_switch_port_attrs(struct net_device *netdev,
-+					struct ethtool_swport_attrs *attrs)
-+{
-+	int rc, i;
-+	struct qeth_card *card = netdev->ml_priv;
-+	struct qeth_switch_info sw_info;
-+	static const struct {
-+		int qeth_cap;
-+		int etht_cap_sup;
-+		int etht_cap_enbl;
-+	} qattrs[] = {
-+		{ QETH_SWITCH_FORW_802_1, SUPPORTED_SP_FWD_802_1,
-+		  ENABLED_SP_FWD_802_1 },
-+		{ QETH_SWITCH_FORW_REFL_RELAY, SUPPORTED_SP_FWD_RR,
-+		  ENABLED_SP_FWD_RR },
-+		{ QETH_SWITCH_CAP_RTE, SUPPORTED_SP_CAP_RTE,
-+		  ENABLED_SP_CAP_RTE },
-+		{ QETH_SWITCH_CAP_ECP, SUPPORTED_SP_CAP_ECP,
-+		  ENABLED_SP_CAP_ECP },
-+		{ QETH_SWITCH_CAP_VDP, SUPPORTED_SP_CAP_VDP,
-+		  ENABLED_SP_CAP_VDP }
-+	};
-+
-+	rc = qeth_query_switch_port_attributes(card, &sw_info);
-+	if (rc)
-+		return rc;
-+
-+	if (!sw_info.capabilities) {
-+		attrs->port_rc = GPORT_RC_LLDP_UNSUP;
-+		return 0;
-+	}
-+	for (i = 0; i < ARRAY_SIZE(qattrs); i++) {
-+		if (sw_info.capabilities & qattrs[i].qeth_cap) {
-+			attrs->supported |= qattrs[i].etht_cap_sup;
-+			if (sw_info.settings & qattrs[i].qeth_cap)
-+				attrs->enabled |= qattrs[i].etht_cap_enbl;
-+		}
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(qeth_core_ethtool_get_switch_port_attrs);
-+
- static int __init qeth_core_init(void)
+-static __initdata struct init_sccb early_event_mask_sccb __aligned(PAGE_SIZE);
+ static __initdata struct read_info_sccb early_read_info_sccb;
+ static __initdata char sccb_early[PAGE_SIZE] __aligned(PAGE_SIZE);
+ static unsigned long sclp_hsa_size;
+@@ -113,7 +112,7 @@ static void __init sclp_facilities_detect(void)
+ 
+ bool __init sclp_has_linemode(void)
  {
- 	int rc;
---- a/drivers/s390/net/qeth_core_mpc.h
-+++ b/drivers/s390/net/qeth_core_mpc.h
-@@ -240,6 +240,7 @@ enum qeth_ipa_setadp_cmd {
- 	IPA_SETADP_SET_DIAG_ASSIST		= 0x00002000L,
- 	IPA_SETADP_SET_ACCESS_CONTROL		= 0x00010000L,
- 	IPA_SETADP_QUERY_OAT			= 0x00080000L,
-+	IPA_SETADP_QUERY_SWITCH_ATTRIBUTES	= 0x00100000L,
- };
- enum qeth_ipa_mac_ops {
- 	CHANGE_ADDR_READ_MAC		= 0,
-@@ -404,6 +405,21 @@ struct qeth_qoat_priv {
- 	char *buffer;
- };
+-	struct init_sccb *sccb = &early_event_mask_sccb;
++	struct init_sccb *sccb = (void *) &sccb_early;
  
-+#define QETH_SWITCH_FORW_802_1		0x00000001
-+#define QETH_SWITCH_FORW_REFL_RELAY	0x00000002
-+#define QETH_SWITCH_CAP_RTE		0x00000004
-+#define QETH_SWITCH_CAP_ECP		0x00000008
-+#define QETH_SWITCH_CAP_VDP		0x00000010
-+
-+struct qeth_query_switch_attributes {
-+	__u8  version;
-+	__u8  reserved1;
-+	__u16 reserved2;
-+	__u32 capabilities;
-+	__u32 settings;
-+	__u8  reserved3[8];
-+};
-+
- struct qeth_ipacmd_setadpparms_hdr {
- 	__u32 supp_hw_cmds;
- 	__u32 reserved1;
-@@ -424,6 +440,7 @@ struct qeth_ipacmd_setadpparms {
- 		struct qeth_snmp_cmd snmp;
- 		struct qeth_set_access_ctrl set_access_ctrl;
- 		struct qeth_query_oat query_oat;
-+		struct qeth_query_switch_attributes query_switch_attributes;
- 		__u32 mode;
- 	} data;
- } __attribute__ ((packed));
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -911,6 +911,7 @@ static const struct ethtool_ops qeth_l2_
- 	.get_sset_count = qeth_core_get_sset_count,
- 	.get_drvinfo = qeth_core_get_drvinfo,
- 	.get_settings = qeth_core_ethtool_get_settings,
-+	.get_switch_port_attrs = qeth_core_ethtool_get_switch_port_attrs,
- };
+ 	if (sccb->header.response_code != 0x20)
+ 		return 0;
+@@ -126,7 +125,7 @@ bool __init sclp_has_linemode(void)
  
- static const struct ethtool_ops qeth_l2_osn_ops = {
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -3198,6 +3198,7 @@ static const struct ethtool_ops qeth_l3_
- 	.get_sset_count = qeth_core_get_sset_count,
- 	.get_drvinfo = qeth_core_get_drvinfo,
- 	.get_settings = qeth_core_ethtool_get_settings,
-+	.get_switch_port_attrs = qeth_core_ethtool_get_switch_port_attrs,
- };
+ bool __init sclp_has_vt220(void)
+ {
+-	struct init_sccb *sccb = &early_event_mask_sccb;
++	struct init_sccb *sccb = (void *) &sccb_early;
  
- /*
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 41ef943..3f85f19 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -738,6 +738,11 @@ struct qeth_rx {
- 	int qdio_err;
- };
- 
-+struct qeth_switch_info {
-+        __u32 capabilities;
-+        __u32 settings;
-+};
-+
- #define QETH_NAPI_WEIGHT NAPI_POLL_WEIGHT
- 
- struct qeth_card {
+ 	if (sccb->header.response_code != 0x20)
+ 		return 0;
