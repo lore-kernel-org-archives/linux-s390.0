@@ -1,57 +1,151 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 2 Dec 2013 09:22:26 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH -rc1] s390: increase the NR_CPUS limit
-Message-ID: <20131202082226.GA3690@osiris>
-References: <1385739182-3687-1-git-send-email-xose.vazquez@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1385739182-3687-1-git-send-email-xose.vazquez@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Stefan Raspl <raspl@linux.vnet.ibm.com>
+Subject: [PATCH 1/2] ethtool: Add callback to indicate adjacent switch port attributes
+Date: Wed, 11 Dec 2013 14:28:59 +0100
+Message-ID: <1386768540-48188-2-git-send-email-raspl@linux.vnet.ibm.com>
+References: <1386768540-48188-1-git-send-email-raspl@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1386768540-48188-1-git-send-email-raspl@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: bhutchings@solarflare.com, blaschka@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, Stefan Raspl <raspl@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Nov 29, 2013 at 04:33:02PM +0100, Xose Vazquez Perez wrote:
-> In current models, maximum number of active cores is 101.
-> 
-> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Cc: <linux390@de.ibm.com>
-> Cc: <linux-s390@vger.kernel.org>
-> Cc: <linux-kernel@vger.kernel.org>
-> Signed-off-by: Xose Vazquez Perez <xose.vazquez@gmail.com>
-> ---
->  arch/s390/Kconfig | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index 314fced..87afb9a 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -347,14 +347,14 @@ config SMP
->  	  Even if you don't know what to do here, say Y.
-> 
->  config NR_CPUS
-> -	int "Maximum number of CPUs (2-64)"
-> -	range 2 64
-> +	int "Maximum number of CPUs (2-101)"
-> +	range 2 101
->  	depends on SMP
->  	default "32" if !64BIT
->  	default "64" if 64BIT
->  	help
->  	  This allows you to specify the maximum number of CPUs which this
-> -	  kernel will support.  The maximum supported value is 64 and the
-> +	  kernel will support.  The maximum supported value is 101 and the
->  	  minimum value which makes sense is 2.
+Switches supporting LLDP can communicate port attributes to connected devices.
+Device drivers capable of accessing this information from the devices can use
+the new callback get_switch_port_attrs() to report supported and enabled
+settings in the card's adjacent switch port for display in ethtool.
+Implementors have to use the respective SUPPORTED_SP_* and ENABLED_SP_* defines
+to indicate the current settings.
 
-Hi Xose,
+Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
+---
+ include/linux/ethtool.h      |  3 +++
+ include/uapi/linux/ethtool.h | 35 +++++++++++++++++++++++++++++++++++
+ net/core/ethtool.c           | 22 ++++++++++++++++++++++
+ 3 files changed, 60 insertions(+)
 
-I modified your patch and applied a version which changes the maximum
-value to 256 instead.
-
-Thanks!
+diff --git a/include/linux/ethtool.h b/include/linux/ethtool.h
+index c8e3e7e3..940c7b1 100644
+--- a/include/linux/ethtool.h
++++ b/include/linux/ethtool.h
+@@ -177,6 +177,7 @@ static inline u32 ethtool_rxfh_indir_default(u32 index, u32 n_rx_rings)
+  * @get_module_eeprom: Get the eeprom information from the plug-in module
+  * @get_eee: Get Energy-Efficient (EEE) supported and status.
+  * @set_eee: Set EEE status (enable/disable) as well as LPI timers.
++ * @get_switch_port_attrs: Get adjacent switch port attributes.
+  *
+  * All operations are optional (i.e. the function pointer may be set
+  * to %NULL) and callers must take this into account.  Callers must
+@@ -245,6 +246,8 @@ struct ethtool_ops {
+ 				     struct ethtool_eeprom *, u8 *);
+ 	int	(*get_eee)(struct net_device *, struct ethtool_eee *);
+ 	int	(*set_eee)(struct net_device *, struct ethtool_eee *);
++	int     (*get_switch_port_attrs)(struct net_device *,
++					 struct ethtool_swport_attrs *);
+ 
+ 
+ };
+diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
+index 38dbafa..f5843ac 100644
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -136,6 +136,22 @@ struct ethtool_eeprom {
+ };
+ 
+ /**
++ * struct ethtool_swport_attrs - query adjacent switch port attributes
++ * @cmd: ETHTOOL_GPORT
++ * @port_rc: Use GPORT_RC_* as appropriate.
++ * @supported: Forwarding modes and capabilities supported by the switch port,
++ *	see SUPPORTED_SP_* flags.
++ * @enabled: Forwarding modes and capabilities currently activated at the
++ *	adjacent switch port, see ENABLED_SP_* flags.
++ */
++struct ethtool_swport_attrs {
++	__u32	cmd;
++	__u32	port_rc;
++	__u32	supported;
++	__u32	enabled;
++};
++
++/**
+  * struct ethtool_eee - Energy Efficient Ethernet information
+  * @cmd: ETHTOOL_{G,S}EEE
+  * @supported: Mask of %SUPPORTED_* flags for the speed/duplex combinations
+@@ -900,6 +916,7 @@ enum ethtool_sfeatures_retval_bits {
+ #define ETHTOOL_GMODULEEEPROM	0x00000043 /* Get plug-in module eeprom */
+ #define ETHTOOL_GEEE		0x00000044 /* Get EEE settings */
+ #define ETHTOOL_SEEE		0x00000045 /* Set EEE settings */
++#define ETHTOOL_GPORT		0x00000046 /* Get switch port attributes */
+ 
+ /* compatibility with older code */
+ #define SPARC_ETH_GSET		ETHTOOL_GSET
+@@ -1067,6 +1084,24 @@ enum ethtool_sfeatures_retval_bits {
+ #define ETH_MODULE_SFF_8472		0x2
+ #define ETH_MODULE_SFF_8472_LEN		512
+ 
++/* Bad return codes for switch ports */
++#define GPORT_RC_LLDP_UNSUP	1	/* switch port doesn't support */
++					/* required LLDP EVB TLV       */
++
++/* Indicates what features the adjacent switch port supports. */
++#define SUPPORTED_SP_FWD_802_1	(1 << 0)
++#define SUPPORTED_SP_FWD_RR	(1 << 1)
++#define SUPPORTED_SP_CAP_RTE	(1 << 9)
++#define SUPPORTED_SP_CAP_ECP	(1 << 10)
++#define SUPPORTED_SP_CAP_VDP	(1 << 11)
++
++/* Indicates what features the adjacent switch port has enabled. */
++#define ENABLED_SP_FWD_802_1	(1 << 0)
++#define ENABLED_SP_FWD_RR	(1 << 1)
++#define ENABLED_SP_CAP_RTE	(1 << 9)
++#define ENABLED_SP_CAP_ECP	(1 << 10)
++#define ENABLED_SP_CAP_VDP	(1 << 11)
++
+ /* Reset flags */
+ /* The reset() operation must clear the flags for the components which
+  * were actually reset.  On successful return, the flags indicate the
+diff --git a/net/core/ethtool.c b/net/core/ethtool.c
+index 30071de..84f69f1 100644
+--- a/net/core/ethtool.c
++++ b/net/core/ethtool.c
+@@ -1446,6 +1446,25 @@ static int ethtool_get_module_eeprom(struct net_device *dev,
+ 				      modinfo.eeprom_len);
+ }
+ 
++static int ethtool_get_switch_port_attrs(struct net_device *dev,
++							void __user *useraddr)
++{
++	struct ethtool_swport_attrs attrs = { ETHTOOL_GPORT };
++	int rc;
++
++	if (!dev->ethtool_ops->get_switch_port_attrs)
++		return -EOPNOTSUPP;
++
++	rc = dev->ethtool_ops->get_switch_port_attrs(dev, &attrs);
++	if (rc)
++		return rc;
++
++	if (copy_to_user(useraddr, &attrs, sizeof(attrs)))
++		return -EFAULT;
++
++	return 0;
++}
++
+ /* The main entry point in this file.  Called from net/core/dev_ioctl.c */
+ 
+ int dev_ethtool(struct net *net, struct ifreq *ifr)
+@@ -1675,6 +1694,9 @@ int dev_ethtool(struct net *net, struct ifreq *ifr)
+ 	case ETHTOOL_GMODULEEEPROM:
+ 		rc = ethtool_get_module_eeprom(dev, useraddr);
+ 		break;
++	case ETHTOOL_GPORT:
++		rc = ethtool_get_switch_port_attrs(dev, useraddr);
++		break;
+ 	default:
+ 		rc = -EOPNOTSUPP;
+ 	}
+-- 
+1.8.3.4
