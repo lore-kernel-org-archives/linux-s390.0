@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PULL 1/6] KVM: s390: diagnose call documentation
-Date: Wed, 11 Dec 2013 19:57:44 +0100
-Message-ID: <1386788269-20249-2-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PULL 3/6] KVM: s390: Add the SIGP order CONDITIONAL EMERGENCY SIGNAL
+Date: Wed, 11 Dec 2013 19:57:46 +0100
+Message-ID: <1386788269-20249-4-git-send-email-cornelia.huck@de.ibm.com>
 References: <1386788269-20249-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1386788269-20249-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -9,118 +9,96 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Gleb Natapov <gleb@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Thomas Huth <thuth@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Add some further documentation on the DIAGNOSE calls we support.
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+This patch adds the missing SIGP order "conditional emergency
+signal" by calling the "emergency signal" SIGP handler if the
+required conditions are met.
+
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- Documentation/virtual/kvm/hypercalls.txt |    3 ++
- Documentation/virtual/kvm/s390-diag.txt  |   80 ++++++++++++++++++++++++++++++
- 2 files changed, 83 insertions(+)
- create mode 100644 Documentation/virtual/kvm/s390-diag.txt
+ arch/s390/include/asm/sigp.h |    1 +
+ arch/s390/kvm/sigp.c         |   37 ++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 37 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/virtual/kvm/hypercalls.txt b/Documentation/virtual/kvm/hypercalls.txt
-index 022198e..d922d73 100644
---- a/Documentation/virtual/kvm/hypercalls.txt
-+++ b/Documentation/virtual/kvm/hypercalls.txt
-@@ -17,6 +17,9 @@ S390:
-   S390 uses diagnose instruction as hypercall (0x500) along with hypercall
-   number in R1.
+diff --git a/arch/s390/include/asm/sigp.h b/arch/s390/include/asm/sigp.h
+index 5a87d16..c002cd5 100644
+--- a/arch/s390/include/asm/sigp.h
++++ b/arch/s390/include/asm/sigp.h
+@@ -12,6 +12,7 @@
+ #define SIGP_SET_PREFIX		     13
+ #define SIGP_STORE_STATUS_AT_ADDRESS 14
+ #define SIGP_SET_ARCHITECTURE	     18
++#define SIGP_COND_EMERGENCY_SIGNAL   19
+ #define SIGP_SENSE_RUNNING	     21
  
-+  For further information on the S390 diagnose call as supported by KVM,
-+  refer to Documentation/virtual/kvm/s390-diag.txt.
+ /* SIGP condition codes */
+diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+index bc0d85a..eee1402 100644
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -1,7 +1,7 @@
+ /*
+  * handling interprocessor communication
+  *
+- * Copyright IBM Corp. 2008, 2009
++ * Copyright IBM Corp. 2008, 2013
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License (version 2 only)
+@@ -89,6 +89,37 @@ unlock:
+ 	return rc;
+ }
+ 
++static int __sigp_conditional_emergency(struct kvm_vcpu *vcpu, u16 cpu_addr,
++					u16 asn, u64 *reg)
++{
++	struct kvm_vcpu *dst_vcpu = NULL;
++	const u64 psw_int_mask = PSW_MASK_IO | PSW_MASK_EXT;
++	u16 p_asn, s_asn;
++	psw_t *psw;
++	u32 flags;
 +
-  PowerPC:
-   It uses R3-R10 and hypercall number in R11. R4-R11 are used as output registers.
-   Return value is placed in R3.
-diff --git a/Documentation/virtual/kvm/s390-diag.txt b/Documentation/virtual/kvm/s390-diag.txt
-new file mode 100644
-index 0000000..f1de4fb
---- /dev/null
-+++ b/Documentation/virtual/kvm/s390-diag.txt
-@@ -0,0 +1,80 @@
-+The s390 DIAGNOSE call on KVM
-+=============================
++	if (cpu_addr < KVM_MAX_VCPUS)
++		dst_vcpu = kvm_get_vcpu(vcpu->kvm, cpu_addr);
++	if (!dst_vcpu)
++		return SIGP_CC_NOT_OPERATIONAL;
++	flags = atomic_read(&dst_vcpu->arch.sie_block->cpuflags);
++	psw = &dst_vcpu->arch.sie_block->gpsw;
++	p_asn = dst_vcpu->arch.sie_block->gcr[4] & 0xffff;  /* Primary ASN */
++	s_asn = dst_vcpu->arch.sie_block->gcr[3] & 0xffff;  /* Secondary ASN */
 +
-+KVM on s390 supports the DIAGNOSE call for making hypercalls, both for
-+native hypercalls and for selected hypercalls found on other s390
-+hypervisors.
++	/* Deliver the emergency signal? */
++	if (!(flags & CPUSTAT_STOPPED)
++	    || (psw->mask & psw_int_mask) != psw_int_mask
++	    || ((flags & CPUSTAT_WAIT) && psw->addr != 0)
++	    || (!(flags & CPUSTAT_WAIT) && (asn == p_asn || asn == s_asn))) {
++		return __sigp_emergency(vcpu, cpu_addr);
++	} else {
++		*reg &= 0xffffffff00000000UL;
++		*reg |= SIGP_STATUS_INCORRECT_STATE;
++		return SIGP_CC_STATUS_STORED;
++	}
++}
 +
-+Note that bits are numbered as by the usual s390 convention (most significant
-+bit on the left).
-+
-+
-+General remarks
-+---------------
-+
-+DIAGNOSE calls by the guest cause a mandatory intercept. This implies
-+all supported DIAGNOSE calls need to be handled by either KVM or its
-+userspace.
-+
-+All DIAGNOSE calls supported by KVM use the RS-a format:
-+
-+--------------------------------------
-+|  '83'  | R1 | R3 | B2 |     D2     |
-+--------------------------------------
-+0        8    12   16   20           31
-+
-+The second-operand address (obtained by the base/displacement calculation)
-+is not used to address data. Instead, bits 48-63 of this address specify
-+the function code, and bits 0-47 are ignored.
-+
-+The supported DIAGNOSE function codes vary by the userspace used. For
-+DIAGNOSE function codes not specific to KVM, please refer to the
-+documentation for the s390 hypervisors defining them.
-+
-+
-+DIAGNOSE function code 'X'500' - KVM virtio functions
-+-----------------------------------------------------
-+
-+If the function code specifies 0x500, various virtio-related functions
-+are performed.
-+
-+General register 1 contains the virtio subfunction code. Supported
-+virtio subfunctions depend on KVM's userspace. Generally, userspace
-+provides either s390-virtio (subcodes 0-2) or virtio-ccw (subcode 3).
-+
-+Upon completion of the DIAGNOSE instruction, general register 2 contains
-+the function's return code, which is either a return code or a subcode
-+specific value.
-+
-+Subcode 0 - s390-virtio notification and early console printk
-+    Handled by userspace.
-+
-+Subcode 1 - s390-virtio reset
-+    Handled by userspace.
-+
-+Subcode 2 - s390-virtio set status
-+    Handled by userspace.
-+
-+Subcode 3 - virtio-ccw notification
-+    Handled by either userspace or KVM (ioeventfd case).
-+
-+    General register 2 contains a subchannel-identification word denoting
-+    the subchannel of the virtio-ccw proxy device to be notified.
-+
-+    General register 3 contains the number of the virtqueue to be notified.
-+
-+    General register 4 contains a 64bit identifier for KVM usage (the
-+    kvm_io_bus cookie). If general register 4 does not contain a valid
-+    identifier, it is ignored.
-+
-+    After completion of the DIAGNOSE call, general register 2 may contain
-+    a 64bit identifier (in the kvm_io_bus cookie case).
-+
-+    See also the virtio standard for a discussion of this hypercall.
-+
-+
-+DIAGNOSE function code 'X'501 - KVM breakpoint
-+----------------------------------------------
-+
-+If the function code specifies 0x501, breakpoint functions may be performed.
-+This function code is handled by userspace.
+ static int __sigp_external_call(struct kvm_vcpu *vcpu, u16 cpu_addr)
+ {
+ 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
+@@ -417,6 +448,10 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu)
+ 		rc = __sigp_set_prefix(vcpu, cpu_addr, parameter,
+ 				       &vcpu->run->s.regs.gprs[r1]);
+ 		break;
++	case SIGP_COND_EMERGENCY_SIGNAL:
++		rc = __sigp_conditional_emergency(vcpu, cpu_addr, parameter,
++						  &vcpu->run->s.regs.gprs[r1]);
++		break;
+ 	case SIGP_SENSE_RUNNING:
+ 		vcpu->stat.instruction_sigp_sense_running++;
+ 		rc = __sigp_sense_running(vcpu, cpu_addr,
 -- 
 1.7.9.5
