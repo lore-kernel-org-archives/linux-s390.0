@@ -1,10 +1,10 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Tejun Heo <tj@kernel.org>
-Subject: [PATCH 11/12] s390: use device_remove_file_self() instead of device_schedule_callback()
-Date: Tue,  7 Jan 2014 12:59:49 -0500
-Message-Id: <1389117590-25705-12-git-send-email-tj@kernel.org>
-In-Reply-To: <1389117590-25705-1-git-send-email-tj@kernel.org>
-References: <1389117590-25705-1-git-send-email-tj@kernel.org>
+Subject: [PATCH 13/14] s390: use device_remove_file_self() instead of device_schedule_callback()
+Date: Fri, 10 Jan 2014 08:57:30 -0500
+Message-Id: <1389362251-8128-14-git-send-email-tj@kernel.org>
+In-Reply-To: <1389362251-8128-1-git-send-email-tj@kernel.org>
+References: <1389362251-8128-1-git-send-email-tj@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
