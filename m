@@ -1,167 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 2 Jan 2014 09:35:51 +0100
+Date: Mon, 13 Jan 2014 16:52:05 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 3.13-rc7
-Message-ID: <20140102093551.50f166b2@mschwide>
+Subject: Re: [PATCH] s390: delete new instances of __cpuinit usage
+Message-ID: <20140113165205.3d81070b@mschwide>
+In-Reply-To: <1389366050-25210-1-git-send-email-paul.gortmaker@windriver.com>
+References: <1389366050-25210-1-git-send-email-paul.gortmaker@windriver.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+On Fri, 10 Jan 2014 10:00:50 -0500
+Paul Gortmaker <paul.gortmaker@windriver.com> wrote:
 
-happy new year.. and please pull from the 'for-linus' branch of
+> Commit 8c069ff4bd6063a3f15e606c882e03f75c7e7711 ("s390/perf: add
+> support for the CPU-Measurement Sampling Facility") added a new
+> instance of the __cpuinit macro usage.
+> 
+> We removed this a couple versions ago; we now want to remove
+> the compat no-op stubs.  Introducing new users is not what
+> we want to see at this point in time, as it will break once
+> the stubs are gone.
+> 
+> Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+> ---
+> 
+> [Patch based on today's linux-next tree, so if s390 next content
+>  gets rebased, then the above commit ID will be invalidated; if it
+>  _does_ get rebased, then feel free to squash this fix into the orig.]
+> 
+>  arch/s390/kernel/perf_cpum_sf.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+> index 3c3bc8d7b220..ce3a1d9c521b 100644
+> --- a/arch/s390/kernel/perf_cpum_sf.c
+> +++ b/arch/s390/kernel/perf_cpum_sf.c
+> @@ -1512,7 +1512,7 @@ static void cpumf_measurement_alert(struct ext_code ext_code,
+>  	}
+>  }
+> 
+> -static int __cpuinit cpumf_pmu_notifier(struct notifier_block *self,
+> +static int cpumf_pmu_notifier(struct notifier_block *self,
+>  					unsigned long action, void *hcpu)
+>  {
+>  	unsigned int cpu = (long) hcpu;
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+Applied to linux-s390 for the next merge window. Thanks.
 
-to receive the following updates:
-Two small bug fixes and a follow-up to the CONFIG_NR_CPUS change. A kernel
-compiled with CONFIG_NR_CPUS=256 will waste quite a bit of memory for the
-per-cpu arrays. Under z/VM the maximum number of CPUs is 64, the code
-now limits the possible cpu mask to 64 if running under z/VM.
+-- 
+blue skies,
+   Martin.
 
-Heiko Carstens (1):
-      s390/smp: improve setup of possible cpu mask
-
-Martin Schwidefsky (1):
-      s390/3270: fix allocation of tty3270_screen structure
-
-Sebastian Ott (1):
-      s390/pci: obtain function handle in hotplug notifier
-
- arch/s390/Kconfig           |    1 -
- arch/s390/include/asm/smp.h |    2 ++
- arch/s390/kernel/setup.c    |    1 +
- arch/s390/kernel/smp.c      |   25 ++++++++++++++++---------
- arch/s390/pci/pci_event.c   |    2 ++
- drivers/s390/char/tty3270.c |    2 +-
- 6 files changed, 22 insertions(+), 11 deletions(-)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 1e1a03d..e9f3125 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -135,7 +135,6 @@ config S390
- 	select HAVE_SYSCALL_TRACEPOINTS
- 	select HAVE_UID16 if 32BIT
- 	select HAVE_VIRT_CPU_ACCOUNTING
--	select INIT_ALL_POSSIBLE
- 	select KTIME_SCALAR if 32BIT
- 	select MODULES_USE_ELF_RELA
- 	select OLD_SIGACTION
-diff --git a/arch/s390/include/asm/smp.h b/arch/s390/include/asm/smp.h
-index ac9bed8..1607793 100644
---- a/arch/s390/include/asm/smp.h
-+++ b/arch/s390/include/asm/smp.h
-@@ -31,6 +31,7 @@ extern void smp_yield(void);
- extern void smp_stop_cpu(void);
- extern void smp_cpu_set_polarization(int cpu, int val);
- extern int smp_cpu_get_polarization(int cpu);
-+extern void smp_fill_possible_mask(void);
- 
- #else /* CONFIG_SMP */
- 
-@@ -50,6 +51,7 @@ static inline int smp_vcpu_scheduled(int cpu) { return 1; }
- static inline void smp_yield_cpu(int cpu) { }
- static inline void smp_yield(void) { }
- static inline void smp_stop_cpu(void) { }
-+static inline void smp_fill_possible_mask(void) { }
- 
- #endif /* CONFIG_SMP */
- 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 4444875..0f3d44e 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -1023,6 +1023,7 @@ void __init setup_arch(char **cmdline_p)
- 	setup_vmcoreinfo();
- 	setup_lowcore();
- 
-+	smp_fill_possible_mask();
-         cpu_init();
- 	s390_init_cpu_topology();
- 
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index dc4a534..9587047 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -721,18 +721,14 @@ int __cpu_up(unsigned int cpu, struct task_struct *tidle)
- 	return 0;
- }
- 
--static int __init setup_possible_cpus(char *s)
--{
--	int max, cpu;
-+static unsigned int setup_possible_cpus __initdata;
- 
--	if (kstrtoint(s, 0, &max) < 0)
--		return 0;
--	init_cpu_possible(cpumask_of(0));
--	for (cpu = 1; cpu < max && cpu < nr_cpu_ids; cpu++)
--		set_cpu_possible(cpu, true);
-+static int __init _setup_possible_cpus(char *s)
-+{
-+	get_option(&s, &setup_possible_cpus);
- 	return 0;
- }
--early_param("possible_cpus", setup_possible_cpus);
-+early_param("possible_cpus", _setup_possible_cpus);
- 
- #ifdef CONFIG_HOTPLUG_CPU
- 
-@@ -775,6 +771,17 @@ void __noreturn cpu_die(void)
- 
- #endif /* CONFIG_HOTPLUG_CPU */
- 
-+void __init smp_fill_possible_mask(void)
-+{
-+	unsigned int possible, cpu;
-+
-+	possible = setup_possible_cpus;
-+	if (!possible)
-+		possible = MACHINE_IS_VM ? 64 : nr_cpu_ids;
-+	for (cpu = 0; cpu < possible && cpu < nr_cpu_ids; cpu++)
-+		set_cpu_possible(cpu, true);
-+}
-+
- void __init smp_prepare_cpus(unsigned int max_cpus)
- {
- 	/* request the 0x1201 emergency signal external interrupt */
-diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-index 800f064..0696072 100644
---- a/arch/s390/pci/pci_event.c
-+++ b/arch/s390/pci/pci_event.c
-@@ -75,6 +75,7 @@ void zpci_event_availability(void *data)
- 		if (!zdev || zdev->state == ZPCI_FN_STATE_CONFIGURED)
- 			break;
- 		zdev->state = ZPCI_FN_STATE_CONFIGURED;
-+		zdev->fh = ccdf->fh;
- 		ret = zpci_enable_device(zdev);
- 		if (ret)
- 			break;
-@@ -101,6 +102,7 @@ void zpci_event_availability(void *data)
- 		if (pdev)
- 			pci_stop_and_remove_bus_device(pdev);
- 
-+		zdev->fh = ccdf->fh;
- 		zpci_disable_device(zdev);
- 		zdev->state = ZPCI_FN_STATE_STANDBY;
- 		break;
-diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-index 3f4ca4e..34629ea 100644
---- a/drivers/s390/char/tty3270.c
-+++ b/drivers/s390/char/tty3270.c
-@@ -942,7 +942,7 @@ static int tty3270_install(struct tty_driver *driver, struct tty_struct *tty)
- 		return rc;
- 	}
- 
--	tp->screen = tty3270_alloc_screen(tp->view.cols, tp->view.rows);
-+	tp->screen = tty3270_alloc_screen(tp->view.rows, tp->view.cols);
- 	if (IS_ERR(tp->screen)) {
- 		rc = PTR_ERR(tp->screen);
- 		raw3270_put_view(&tp->view);
+"Reality continues to ruin my life." - Calvin.
