@@ -1,88 +1,144 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] kvm/irqchip: Speed up KVM_SET_GSI_ROUTING
-Date: Thu, 16 Jan 2014 12:24:54 +0100
-Message-ID: <52D7C186.1070700@redhat.com>
-References: <1389864219-47412-1-git-send-email-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCHv2/RFC] kvm/irqchip: Speed up KVM_SET_GSI_ROUTING
+Date: Thu, 16 Jan 2014 13:44:20 +0100
+Message-ID: <1389876260-46636-1-git-send-email-borntraeger@de.ibm.com>
+References: <52D7C186.1070700@redhat.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1389864219-47412-1-git-send-email-borntraeger@de.ibm.com>
+In-Reply-To: <52D7C186.1070700@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Gleb Natapov <gleb@minantech.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, agraf@suse.de
+To: Gleb Natapov <gleb@minantech.com>, Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, agraf@suse.de, mst@redhat.com, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Il 16/01/2014 10:23, Christian Borntraeger ha scritto:
-> When starting lots of dataplane devices the bootup takes very long on my
-> s390 system(prototype irqfd code). With larger setups we are even able to
-> trigger some timeouts in some components.
-> Turns out that the KVM_SET_GSI_ROUTING ioctl takes very
-> long (strace claims up to 0.1 sec) when having multiple CPUs.
-> This is caused by the  synchronize_rcu and the HZ=100 of s390.
-> We can defer the freeing outside of the ioctl path by using kfree_rcu.
-> 
-> Please note that we now have to check for a NULL pointer, since
-> the underlying call_rcu in kfree_rcu cannot handle broken rcu
-> callbacks.
-> 
-> This patch reduces the boot time till mounting root from 8 to 2 seconds
-> on my s390 guest with 100 disks.
-> 
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+When starting lots of dataplane devices the bootup takes very long on my
+s390 system(prototype irqfd code). With larger setups we are even able
+to
+trigger some timeouts in some components.
+Turns out that the KVM_SET_GSI_ROUTING ioctl takes very
+long (strace claims up to 0.1 sec) when having multiple CPUs.
+This is caused by the  synchronize_rcu and the HZ=100 of s390.
+By changing the code to use a private srcu we can speed things up.
 
-Hi Christian,
+This patch reduces the boot time till mounting root from 8 to 2
+seconds on my s390 guest with 100 disks.
 
-please take a look at the thread at
-http://permalink.gmane.org/gmane.comp.emulators.kvm.devel/116933 - uses
-of call_rcu need to be rate limited, otherwise the guest can allocate
-arbitrarily large amounts of memory.
+I converted most of the rcu routines to srcu. Review for the unconverted
+use of hlist_for_each_entry_rcu, hlist_add_head_rcu, hlist_del_init_rcu
+is necessary, though. They look fine to me since they are protected by
+outer functions.
 
-Can you check if using a dedicated SRCU (possibly with
-synchronize_srcu_expedited in kvm_set_irq_routing) speeds up
-KVM_SET_GSI_ROUTING enough?  Back-of-the-envelope, the latency should be
-on the order of tens of microseconds.
+In addition, we should also discuss if a global srcu (for all guests) is
+fine.
 
-Thanks,
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ virt/kvm/irqchip.c | 31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
 
-Paolo
-
-> ---
->  include/linux/kvm_host.h | 1 +
->  virt/kvm/irqchip.c       | 5 ++---
->  2 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-> index 3d1b0e6..2f19079 100644
-> --- a/include/linux/kvm_host.h
-> +++ b/include/linux/kvm_host.h
-> @@ -327,6 +327,7 @@ struct kvm_kernel_irq_routing_entry {
->  #ifdef CONFIG_HAVE_KVM_IRQ_ROUTING
->  
->  struct kvm_irq_routing_table {
-> +	struct rcu_head	rcu;
->  	int chip[KVM_NR_IRQCHIPS][KVM_IRQCHIP_NUM_PINS];
->  	struct kvm_kernel_irq_routing_entry *rt_entries;
->  	u32 nr_rt_entries;
-> diff --git a/virt/kvm/irqchip.c b/virt/kvm/irqchip.c
-> index 20dc9e4..3e2ebed 100644
-> --- a/virt/kvm/irqchip.c
-> +++ b/virt/kvm/irqchip.c
-> @@ -226,12 +226,11 @@ int kvm_set_irq_routing(struct kvm *kvm,
->  	kvm_irq_routing_update(kvm, new);
->  	mutex_unlock(&kvm->irq_lock);
->  
-> -	synchronize_rcu();
-> -
->  	new = old;
->  	r = 0;
->  
->  out:
-> -	kfree(new);
-> +	if (new)
-> +		kfree_rcu(new, rcu);
->  	return r;
->  }
-> 
+diff --git a/virt/kvm/irqchip.c b/virt/kvm/irqchip.c
+index 20dc9e4..5283eb8 100644
+--- a/virt/kvm/irqchip.c
++++ b/virt/kvm/irqchip.c
+@@ -26,17 +26,20 @@
+ 
+ #include <linux/kvm_host.h>
+ #include <linux/slab.h>
++#include <linux/srcu.h>
+ #include <linux/export.h>
+ #include <trace/events/kvm.h>
+ #include "irq.h"
+ 
++DEFINE_STATIC_SRCU(irq_srcu);
++
+ bool kvm_irq_has_notifier(struct kvm *kvm, unsigned irqchip, unsigned pin)
+ {
+ 	struct kvm_irq_ack_notifier *kian;
+-	int gsi;
++	int gsi, idx;
+ 
+-	rcu_read_lock();
+-	gsi = rcu_dereference(kvm->irq_routing)->chip[irqchip][pin];
++	idx = srcu_read_lock(&irq_srcu);
++	gsi = srcu_dereference(kvm->irq_routing, &irq_srcu)->chip[irqchip][pin];
+ 	if (gsi != -1)
+ 		hlist_for_each_entry_rcu(kian, &kvm->irq_ack_notifier_list,
+ 					 link)
+@@ -45,7 +48,7 @@ bool kvm_irq_has_notifier(struct kvm *kvm, unsigned irqchip, unsigned pin)
+ 				return true;
+ 			}
+ 
+-	rcu_read_unlock();
++	srcu_read_unlock(&irq_srcu, idx);
+ 
+ 	return false;
+ }
+@@ -54,18 +57,18 @@ EXPORT_SYMBOL_GPL(kvm_irq_has_notifier);
+ void kvm_notify_acked_irq(struct kvm *kvm, unsigned irqchip, unsigned pin)
+ {
+ 	struct kvm_irq_ack_notifier *kian;
+-	int gsi;
++	int gsi, idx;
+ 
+ 	trace_kvm_ack_irq(irqchip, pin);
+ 
+-	rcu_read_lock();
+-	gsi = rcu_dereference(kvm->irq_routing)->chip[irqchip][pin];
++	idx = srcu_read_lock(&irq_srcu);
++	gsi = srcu_dereference(kvm->irq_routing, &irq_srcu)->chip[irqchip][pin];
+ 	if (gsi != -1)
+ 		hlist_for_each_entry_rcu(kian, &kvm->irq_ack_notifier_list,
+ 					 link)
+ 			if (kian->gsi == gsi)
+ 				kian->irq_acked(kian);
+-	rcu_read_unlock();
++	srcu_read_unlock(&irq_srcu, idx);
+ }
+ 
+ void kvm_register_irq_ack_notifier(struct kvm *kvm,
+@@ -85,7 +88,7 @@ void kvm_unregister_irq_ack_notifier(struct kvm *kvm,
+ 	mutex_lock(&kvm->irq_lock);
+ 	hlist_del_init_rcu(&kian->link);
+ 	mutex_unlock(&kvm->irq_lock);
+-	synchronize_rcu();
++	synchronize_srcu_expedited(&irq_srcu);
+ #ifdef __KVM_HAVE_IOAPIC
+ 	kvm_vcpu_request_scan_ioapic(kvm);
+ #endif
+@@ -115,7 +118,7 @@ int kvm_set_irq(struct kvm *kvm, int irq_source_id, u32 irq, int level,
+ 		bool line_status)
+ {
+ 	struct kvm_kernel_irq_routing_entry *e, irq_set[KVM_NR_IRQCHIPS];
+-	int ret = -1, i = 0;
++	int ret = -1, i = 0, idx;
+ 	struct kvm_irq_routing_table *irq_rt;
+ 
+ 	trace_kvm_set_irq(irq, level, irq_source_id);
+@@ -124,12 +127,12 @@ int kvm_set_irq(struct kvm *kvm, int irq_source_id, u32 irq, int level,
+ 	 * IOAPIC.  So set the bit in both. The guest will ignore
+ 	 * writes to the unused one.
+ 	 */
+-	rcu_read_lock();
+-	irq_rt = rcu_dereference(kvm->irq_routing);
++	idx = srcu_read_lock(&irq_srcu);
++	irq_rt = srcu_dereference(kvm->irq_routing, &irq_srcu);
+ 	if (irq < irq_rt->nr_rt_entries)
+ 		hlist_for_each_entry(e, &irq_rt->map[irq], link)
+ 			irq_set[i++] = *e;
+-	rcu_read_unlock();
++	srcu_read_unlock(&irq_srcu, idx);
+ 
+ 	while(i--) {
+ 		int r;
+@@ -226,7 +229,7 @@ int kvm_set_irq_routing(struct kvm *kvm,
+ 	kvm_irq_routing_update(kvm, new);
+ 	mutex_unlock(&kvm->irq_lock);
+ 
+-	synchronize_rcu();
++	synchronize_srcu_expedited(&irq_srcu);
+ 
+ 	new = old;
+ 	r = 0;
+-- 
+1.8.4.2
