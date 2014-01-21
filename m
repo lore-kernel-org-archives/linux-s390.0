@@ -1,207 +1,203 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tejun Heo <tj@kernel.org>
-Subject: [PATCH 13/14] s390: use device_remove_file_self() instead of device_schedule_callback()
-Date: Fri, 10 Jan 2014 08:57:30 -0500
-Message-Id: <1389362251-8128-14-git-send-email-tj@kernel.org>
-In-Reply-To: <1389362251-8128-1-git-send-email-tj@kernel.org>
-References: <1389362251-8128-1-git-send-email-tj@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: gregkh@linuxfoundation.org
-Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, stern@rowland.harvard.edu, JBottomley@parallels.com, bhelgaas@google.com, Tejun Heo <tj@kernel.org>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: [PATCH 36/73] s390: delete non-required instances of include <linux/init.h>
+Date: Tue, 21 Jan 2014 16:22:39 -0500
+Message-ID: <1390339396-3479-37-git-send-email-paul.gortmaker@windriver.com>
+References: <1390339396-3479-1-git-send-email-paul.gortmaker@windriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <1390339396-3479-1-git-send-email-paul.gortmaker@windriver.com>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-arch@vger.kernel.org, Paul Gortmaker <paul.gortmaker@windriver.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ursula.braun@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, Steffen Maier <maier@linux.vnet.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-driver-core now supports synchrnous self-deletion of attributes and
-the asynchrnous removal mechanism is scheduled for removal.  Use it
-instead of device_schedule_callback().
+None of these files are actually using any __init type directives
+and hence don't need to include <linux/init.h>.  Most are just a
+left over from __devinit and __cpuinit removal, or simply due to
+code getting copied from one driver to the next.
 
-* Conversions in arch/s390/pci/pci_sysfs.c and
-  drivers/s390/block/dcssblk.c are straightforward.
-
-* drivers/s390/cio/ccwgroup.c is a bit more tricky because
-  ccwgroup_notifier() was (ab)using device_schedule_callback() to
-  purely obtain a process context to kick off ungroup operation which
-  may block from a notifier callback.
-
-  Rename ccwgroup_ungroup_callback() to ccwgroup_ungroup() and make it
-  take ccwgroup_device * instead.  The new function is now called
-  directly from ccwgroup_ungroup_store().
-
-  ccwgroup_notifier() chain is updated to explicitly bounce through
-  ccwgroup_device->ungroup_work.  This also removes possible failure
-  from memory pressure.
-
-Only compile-tested.
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Ursula Braun <ursula.braun@de.ibm.com>
+Cc: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+Cc: Steffen Maier <maier@linux.vnet.ibm.com>
 Cc: linux390@de.ibm.com
 Cc: linux-s390@vger.kernel.org
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
 ---
- arch/s390/include/asm/ccwgroup.h |  1 +
- arch/s390/pci/pci_sysfs.c        | 18 ++++++++----------
- drivers/s390/block/dcssblk.c     | 14 +++++++-------
- drivers/s390/cio/ccwgroup.c      | 26 ++++++++++++++++----------
- 4 files changed, 32 insertions(+), 27 deletions(-)
+ drivers/s390/block/dasd_erp.c    | 1 -
+ drivers/s390/char/tape_34xx.c    | 1 -
+ drivers/s390/char/tape_3590.c    | 1 -
+ drivers/s390/char/tape_class.h   | 1 -
+ drivers/s390/char/tape_core.c    | 1 -
+ drivers/s390/cio/airq.c          | 1 -
+ drivers/s390/cio/device_ops.c    | 1 -
+ drivers/s390/cio/device_status.c | 1 -
+ drivers/s390/net/ctcm_dbug.c     | 1 -
+ drivers/s390/net/ctcm_fsms.c     | 1 -
+ drivers/s390/net/ctcm_fsms.h     | 1 -
+ drivers/s390/net/ctcm_mpc.c      | 1 -
+ drivers/s390/scsi/zfcp_def.h     | 1 -
+ 13 files changed, 13 deletions(-)
 
-diff --git a/arch/s390/include/asm/ccwgroup.h b/arch/s390/include/asm/ccwgroup.h
-index 23723ce..6e670f8 100644
---- a/arch/s390/include/asm/ccwgroup.h
-+++ b/arch/s390/include/asm/ccwgroup.h
-@@ -23,6 +23,7 @@ struct ccwgroup_device {
- 	unsigned int count;
- 	struct device	dev;
- 	struct ccw_device *cdev[0];
-+	struct work_struct ungroup_work;
- };
+diff --git a/drivers/s390/block/dasd_erp.c b/drivers/s390/block/dasd_erp.c
+index e1e8848..0b9f823 100644
+--- a/drivers/s390/block/dasd_erp.c
++++ b/drivers/s390/block/dasd_erp.c
+@@ -11,7 +11,6 @@
+ #define KMSG_COMPONENT "dasd"
  
- /**
-diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
-index cf8a12f..ab4a913 100644
---- a/arch/s390/pci/pci_sysfs.c
-+++ b/arch/s390/pci/pci_sysfs.c
-@@ -48,29 +48,27 @@ static ssize_t show_pfgid(struct device *dev, struct device_attribute *attr,
- }
- static DEVICE_ATTR(pfgid, S_IRUGO, show_pfgid, NULL);
+ #include <linux/ctype.h>
+-#include <linux/init.h>
  
--static void recover_callback(struct device *dev)
-+static ssize_t store_recover(struct device *dev, struct device_attribute *attr,
-+			     const char *buf, size_t count)
- {
- 	struct pci_dev *pdev = to_pci_dev(dev);
- 	struct zpci_dev *zdev = get_zdev(pdev);
- 	int ret;
+ #include <asm/debug.h>
+ #include <asm/ebcdic.h>
+diff --git a/drivers/s390/char/tape_34xx.c b/drivers/s390/char/tape_34xx.c
+index 9aa7970..2e3eb6a 100644
+--- a/drivers/s390/char/tape_34xx.c
++++ b/drivers/s390/char/tape_34xx.c
+@@ -11,7 +11,6 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
  
-+	if (!device_remove_file_self(dev, attr))
-+		return count;
-+
- 	pci_stop_and_remove_bus_device(pdev);
- 	ret = zpci_disable_device(zdev);
- 	if (ret)
--		return;
-+		return ret;
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/bio.h>
+ #include <linux/workqueue.h>
+ #include <linux/slab.h>
+diff --git a/drivers/s390/char/tape_3590.c b/drivers/s390/char/tape_3590.c
+index 327cb19..e979c76 100644
+--- a/drivers/s390/char/tape_3590.c
++++ b/drivers/s390/char/tape_3590.c
+@@ -12,7 +12,6 @@
  
- 	ret = zpci_enable_device(zdev);
- 	if (ret)
--		return;
-+		return ret;
+ #include <linux/module.h>
+ #include <linux/slab.h>
+-#include <linux/init.h>
+ #include <linux/bio.h>
+ #include <asm/ebcdic.h>
  
- 	pci_rescan_bus(zdev->bus);
--}
--
--static ssize_t store_recover(struct device *dev, struct device_attribute *attr,
--			     const char *buf, size_t count)
--{
--	int rc = device_schedule_callback(dev, recover_callback);
--	return rc ? rc : count;
-+	return count;
- }
- static DEVICE_ATTR(recover, S_IWUSR, NULL, store_recover);
+diff --git a/drivers/s390/char/tape_class.h b/drivers/s390/char/tape_class.h
+index a332c10..444ffdf 100644
+--- a/drivers/s390/char/tape_class.h
++++ b/drivers/s390/char/tape_class.h
+@@ -9,7 +9,6 @@
+ #ifndef __TAPE_CLASS_H__
+ #define __TAPE_CLASS_H__
  
-diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-index 6eca019..2e2f454 100644
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -304,12 +304,6 @@ dcssblk_load_segment(char *name, struct segment_info **seg_info)
- 	return rc;
- }
+-#include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/fs.h>
+ #include <linux/major.h>
+diff --git a/drivers/s390/char/tape_core.c b/drivers/s390/char/tape_core.c
+index f3b5123..6edf6ae 100644
+--- a/drivers/s390/char/tape_core.c
++++ b/drivers/s390/char/tape_core.c
+@@ -14,7 +14,6 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
  
--static void dcssblk_unregister_callback(struct device *dev)
--{
--	device_unregister(dev);
--	put_device(dev);
--}
--
- /*
-  * device attribute for switching shared/nonshared (exclusive)
-  * operation (show + store)
-@@ -397,7 +391,13 @@ removeseg:
- 	blk_cleanup_queue(dev_info->dcssblk_queue);
- 	dev_info->gd->queue = NULL;
- 	put_disk(dev_info->gd);
--	rc = device_schedule_callback(dev, dcssblk_unregister_callback);
-+	up_write(&dcssblk_devices_sem);
-+
-+	if (device_remove_file_self(dev, attr)) {
-+		device_unregister(dev);
-+		put_device(dev);
-+	}
-+	return rc;
- out:
- 	up_write(&dcssblk_devices_sem);
- 	return rc;
-diff --git a/drivers/s390/cio/ccwgroup.c b/drivers/s390/cio/ccwgroup.c
-index 959135a..67b9dc9 100644
---- a/drivers/s390/cio/ccwgroup.c
-+++ b/drivers/s390/cio/ccwgroup.c
-@@ -168,14 +168,12 @@ static ssize_t ccwgroup_online_show(struct device *dev,
-  * Provide an 'ungroup' attribute so the user can remove group devices no
-  * longer needed or accidentially created. Saves memory :)
+ #include <linux/module.h>
+-#include <linux/init.h>	     // for kernel parameters
+ #include <linux/kmod.h>	     // for requesting modules
+ #include <linux/spinlock.h>  // for locks
+ #include <linux/vmalloc.h>
+diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
+index f055df0..897209a 100644
+--- a/drivers/s390/cio/airq.c
++++ b/drivers/s390/cio/airq.c
+@@ -8,7 +8,6 @@
+  *		 Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
   */
--static void ccwgroup_ungroup_callback(struct device *dev)
-+static void ccwgroup_ungroup(struct ccwgroup_device *gdev)
- {
--	struct ccwgroup_device *gdev = to_ccwgroupdev(dev);
--
- 	mutex_lock(&gdev->reg_mutex);
- 	if (device_is_registered(&gdev->dev)) {
- 		__ccwgroup_remove_symlinks(gdev);
--		device_unregister(dev);
-+		device_unregister(&gdev->dev);
- 		__ccwgroup_remove_cdev_refs(gdev);
- 	}
- 	mutex_unlock(&gdev->reg_mutex);
-@@ -195,10 +193,9 @@ static ssize_t ccwgroup_ungroup_store(struct device *dev,
- 		rc = -EINVAL;
- 		goto out;
- 	}
--	/* Note that we cannot unregister the device from one of its
--	 * attribute methods, so we have to use this roundabout approach.
--	 */
--	rc = device_schedule_callback(dev, ccwgroup_ungroup_callback);
-+
-+	if (device_remove_file_self(dev, attr))
-+		ccwgroup_ungroup(gdev);
- out:
- 	if (rc) {
- 		if (rc != -EAGAIN)
-@@ -224,6 +221,14 @@ static const struct attribute_group *ccwgroup_attr_groups[] = {
- 	NULL,
- };
  
-+static void ccwgroup_ungroup_workfn(struct work_struct *work)
-+{
-+	struct ccwgroup_device *gdev =
-+		container_of(work, struct ccwgroup_device, ungroup_work);
-+
-+	ccwgroup_ungroup(gdev);
-+}
-+
- static void ccwgroup_release(struct device *dev)
- {
- 	kfree(to_ccwgroupdev(dev));
-@@ -323,6 +328,7 @@ int ccwgroup_create_dev(struct device *parent, struct ccwgroup_driver *gdrv,
- 	atomic_set(&gdev->onoff, 0);
- 	mutex_init(&gdev->reg_mutex);
- 	mutex_lock(&gdev->reg_mutex);
-+	INIT_WORK(&gdev->ungroup_work, ccwgroup_ungroup_workfn);
- 	gdev->count = num_devices;
- 	gdev->dev.bus = &ccwgroup_bus_type;
- 	gdev->dev.parent = parent;
-@@ -404,10 +410,10 @@ EXPORT_SYMBOL(ccwgroup_create_dev);
- static int ccwgroup_notifier(struct notifier_block *nb, unsigned long action,
- 			     void *data)
- {
--	struct device *dev = data;
-+	struct ccwgroup_device *gdev = to_ccwgroupdev(data);
+-#include <linux/init.h>
+ #include <linux/irq.h>
+ #include <linux/kernel_stat.h>
+ #include <linux/module.h>
+diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
+index 4845d64..09de935 100644
+--- a/drivers/s390/cio/device_ops.c
++++ b/drivers/s390/cio/device_ops.c
+@@ -5,7 +5,6 @@
+  *	      Cornelia Huck (cornelia.huck@de.ibm.com)
+  */
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/slab.h>
+ #include <linux/list.h>
+diff --git a/drivers/s390/cio/device_status.c b/drivers/s390/cio/device_status.c
+index 15b56a1..323fa37 100644
+--- a/drivers/s390/cio/device_status.c
++++ b/drivers/s390/cio/device_status.c
+@@ -7,7 +7,6 @@
+  */
  
- 	if (action == BUS_NOTIFY_UNBIND_DRIVER)
--		device_schedule_callback(dev, ccwgroup_ungroup_callback);
-+		schedule_work(&gdev->ungroup_work);
+ #include <linux/module.h>
+-#include <linux/init.h>
  
- 	return NOTIFY_OK;
- }
+ #include <asm/ccwdev.h>
+ #include <asm/cio.h>
+diff --git a/drivers/s390/net/ctcm_dbug.c b/drivers/s390/net/ctcm_dbug.c
+index 8363f1c9..7fc399a 100644
+--- a/drivers/s390/net/ctcm_dbug.c
++++ b/drivers/s390/net/ctcm_dbug.c
+@@ -11,7 +11,6 @@
+ #include <linux/ctype.h>
+ #include <linux/sysctl.h>
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/fs.h>
+ #include <linux/debugfs.h>
+ #include "ctcm_dbug.h"
+diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
+index fb92524..0d64046 100644
+--- a/drivers/s390/net/ctcm_fsms.c
++++ b/drivers/s390/net/ctcm_fsms.c
+@@ -15,7 +15,6 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ 
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/errno.h>
+diff --git a/drivers/s390/net/ctcm_fsms.h b/drivers/s390/net/ctcm_fsms.h
+index c963d04..0ae2e8c 100644
+--- a/drivers/s390/net/ctcm_fsms.h
++++ b/drivers/s390/net/ctcm_fsms.h
+@@ -10,7 +10,6 @@
+ #define _CTCM_FSMS_H_
+ 
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/errno.h>
+diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
+index 2dbc77b..f39bd3c 100644
+--- a/drivers/s390/net/ctcm_mpc.c
++++ b/drivers/s390/net/ctcm_mpc.c
+@@ -21,7 +21,6 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ 
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/errno.h>
+diff --git a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
+index d91173f..553eba9 100644
+--- a/drivers/s390/scsi/zfcp_def.h
++++ b/drivers/s390/scsi/zfcp_def.h
+@@ -11,7 +11,6 @@
+ 
+ /*************************** INCLUDES *****************************************/
+ 
+-#include <linux/init.h>
+ #include <linux/moduleparam.h>
+ #include <linux/major.h>
+ #include <linux/blkdev.h>
 -- 
-1.8.4.2
+1.8.4.1
