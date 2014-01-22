@@ -1,66 +1,54 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH] kvm/irqchip: Speed up KVM_SET_GSI_ROUTING
-Date: Thu, 16 Jan 2014 10:23:39 +0100
-Message-ID: <1389864219-47412-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Gleb Natapov <gleb@minantech.com>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, agraf@suse.de, Christian Borntraeger <borntraeger@de.ibm.com>
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Wed, 22 Jan 2014 18:30:29 +0000
+Subject: Re: linux-3.10+: unable to boot 31bit builds
+Message-Id: <201401221330.30404.vapier@gentoo.org>
+In-Reply-To: <20140122075536.GA4202@osiris>
+References: <20140122075536.GA4202@osiris>
+MIME-Version: 1
+Content-Type: multipart/mixed; boundary="--nextPart1423859.M7Oc5BVCEB"
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-When starting lots of dataplane devices the bootup takes very long on my
-s390 system(prototype irqfd code). With larger setups we are even able to
-trigger some timeouts in some components.
-Turns out that the KVM_SET_GSI_ROUTING ioctl takes very
-long (strace claims up to 0.1 sec) when having multiple CPUs.
-This is caused by the  synchronize_rcu and the HZ=100 of s390.
-We can defer the freeing outside of the ioctl path by using kfree_rcu.
+--nextPart1423859.M7Oc5BVCEB
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Please note that we now have to check for a NULL pointer, since
-the underlying call_rcu in kfree_rcu cannot handle broken rcu
-callbacks.
+On Wednesday 22 January 2014 02:55:36 Heiko Carstens wrote:
+> With all three patches within this thread s390 with CONFIG_64BIT=3Dn ipl's
+> again, and the 32 bit native statfs64 syscall works as well.
 
-This patch reduces the boot time till mounting root from 8 to 2 seconds
-on my s390 guest with 100 disks.
+indeed, with those in hand, my system now boots :)
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- include/linux/kvm_host.h | 1 +
- virt/kvm/irqchip.c       | 5 ++---
- 2 files changed, 3 insertions(+), 3 deletions(-)
+> However I would strongly suggest to use CONFIG_64BIT=3Dy with CONFIG_COMP=
+AT=3Dy
+> instead for (now) obvious reasons ;)
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 3d1b0e6..2f19079 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -327,6 +327,7 @@ struct kvm_kernel_irq_routing_entry {
- #ifdef CONFIG_HAVE_KVM_IRQ_ROUTING
- 
- struct kvm_irq_routing_table {
-+	struct rcu_head	rcu;
- 	int chip[KVM_NR_IRQCHIPS][KVM_IRQCHIP_NUM_PINS];
- 	struct kvm_kernel_irq_routing_entry *rt_entries;
- 	u32 nr_rt_entries;
-diff --git a/virt/kvm/irqchip.c b/virt/kvm/irqchip.c
-index 20dc9e4..3e2ebed 100644
---- a/virt/kvm/irqchip.c
-+++ b/virt/kvm/irqchip.c
-@@ -226,12 +226,11 @@ int kvm_set_irq_routing(struct kvm *kvm,
- 	kvm_irq_routing_update(kvm, new);
- 	mutex_unlock(&kvm->irq_lock);
- 
--	synchronize_rcu();
--
- 	new = old;
- 	r = 0;
- 
- out:
--	kfree(new);
-+	if (new)
-+		kfree_rcu(new, rcu);
- 	return r;
- }
--- 
-1.8.4.2
+this VM is meant for development, so if it helps catch bugs like this, i th=
+ink=20
+i'll keep it as-is.  thanks!
+=2Dmike
+
+--nextPart1423859.M7Oc5BVCEB
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iQIcBAABAgAGBQJS4A5GAAoJEEFjO5/oN/WBmdEP/iFnfTLmUtcifURlje231qBA
+KOfEhcmMO+rP/Tno1xLgkPz1bMQcDWHG8ORLsfv61ZMJumzhqdjd0Xud3nH97iM9
+2qMZljIzH+C+ppVSmvgRxkkK4dCX2jWTEavipz6FsUwzZaJJorfMybm/rDYli3Yh
+dkgEAPUhjkYjmmzaoaudKugXtp3TOqiJccP14aIsX5C+vY4gWxSPjSh6yfWx/+C4
+bVNQwGxM4MwXnjNQG8DY5Uze9X87E+FvAnXZtQa/omTC4zQxK0kqrJJZeoz+r/f8
+lX2C0s1vifi0Q4LWbf7ONlioEkWFKy7GxwnbD84rxtpSYd9XdJGeT34NzJGfbR7I
+ttXga3KOKV7Wgz+tvh5J3XE1v06KvbGFX3qz7EZi96A/OhReiYcHLArJ7Xj8F1Dy
+vmnE3vyK10jO4nf/3jSI5XxC5Mv33j1D0o5HYgvbfACoU5jp17n7skfruwR6nTAL
+uv1MTDeTiEUV1Kx720EjytrpwURQUYjl5F85kHXIIYDwmr0859dZJGmWXqCmQDHy
+6AaU2NRVszk83qrZncPw3WFj2g6HKgE1SrN7V0Yb6Vv/k70zfe2Hw4QVqxWocWM6
+T0aePeqOCJDdQ6QvutrJRnbTfGsk5yGTfu45OuG5h4gkJpvrN35fgaUhh4hAUW3K
+sxsgPm65Fo4WPcQv7Jle
+=/dvf
+-----END PGP SIGNATURE-----
+
+--nextPart1423859.M7Oc5BVCEB--
