@@ -1,10 +1,8 @@
 Return-Path: <owner-linux-mm@kvack.org>
 From: Alex Thorlton <athorlton@sgi.com>
 Subject: [PATCHv3 0/3] Add mm flag to control THP
-Date: Fri, 31 Jan 2014 12:23:42 -0600
-Message-Id: <1391192628-113858-2-git-send-email-athorlton@sgi.com>
-In-Reply-To: <1391192628-113858-1-git-send-email-athorlton@sgi.com>
-References: <1391192628-113858-1-git-send-email-athorlton@sgi.com>
+Date: Fri, 31 Jan 2014 12:23:41 -0600
+Message-Id: <1391192628-113858-1-git-send-email-athorlton@sgi.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
@@ -122,11 +120,6 @@ http://oss.sgi.com/projects/memtests/thp_pthread_mmprctlv3.tar.gz
 
 Let me know if anybody has any further suggestions here.  Thanks!
 
-Alex Thorlton (3):
-  Revert "thp: make MADV_HUGEPAGE check for mm->def_flags"
-  Add VM_INIT_DEF_MASK and PRCTL_THP_DISABLE
-  exec: kill the unnecessary mm->def_flags setting in load_elf_binary()
-
 Cc: Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>
@@ -148,6 +141,11 @@ Cc: linux-fsdevel@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org
 Cc: linux-s390@vger.kernel.org
+
+Alex Thorlton (3):
+  Revert "thp: make MADV_HUGEPAGE check for mm->def_flags"
+  Add VM_INIT_DEF_MASK and PRCTL_THP_DISABLE
+  exec: kill the unnecessary mm->def_flags setting in load_elf_binary()
 
  arch/s390/mm/pgtable.c     |  3 +++
  fs/binfmt_elf.c            |  4 ----
