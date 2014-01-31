@@ -1,8 +1,8 @@
 Return-Path: <owner-linux-mm@kvack.org>
 From: Alex Thorlton <athorlton@sgi.com>
 Subject: [PATCH 1/3] Revert "thp: make MADV_HUGEPAGE check for mm->def_flags"
-Date: Fri, 31 Jan 2014 12:23:43 -0600
-Message-Id: <1391192628-113858-3-git-send-email-athorlton@sgi.com>
+Date: Fri, 31 Jan 2014 12:23:44 -0600
+Message-Id: <1391192628-113858-4-git-send-email-athorlton@sgi.com>
 In-Reply-To: <1391192628-113858-1-git-send-email-athorlton@sgi.com>
 References: <1391192628-113858-1-git-send-email-athorlton@sgi.com>
 Sender: owner-linux-mm@kvack.org
@@ -20,7 +20,6 @@ when VM_NOHUGEPAGE is set, which will break subsequent chunks of this
 patch set.
 
 Signed-off-by: Alex Thorlton <athorlton@sgi.com>
-Suggested-by: Oleg Nesterov <oleg@redhat.com>
 Cc: Oleg Nesterov <oleg@redhat.com>
 Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
