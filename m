@@ -1,54 +1,207 @@
-From: Mike Frysinger <vapier@gentoo.org>
-Date: Wed, 22 Jan 2014 18:30:29 +0000
-Subject: Re: linux-3.10+: unable to boot 31bit builds
-Message-Id: <201401221330.30404.vapier@gentoo.org>
-In-Reply-To: <20140122075536.GA4202@osiris>
-References: <20140122075536.GA4202@osiris>
-MIME-Version: 1
-Content-Type: multipart/mixed; boundary="--nextPart1423859.M7Oc5BVCEB"
-To: linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Tejun Heo <tj@kernel.org>
+Subject: [PATCH 11/12] s390: use device_remove_file_self() instead of device_schedule_callback()
+Date: Mon,  3 Feb 2014 14:03:04 -0500
+Message-Id: <1391454185-32143-12-git-send-email-tj@kernel.org>
+In-Reply-To: <1391454185-32143-1-git-send-email-tj@kernel.org>
+References: <1391454185-32143-1-git-send-email-tj@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: gregkh@linuxfoundation.org
+Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, stern@rowland.harvard.edu, JBottomley@parallels.com, bhelgaas@google.com, Tejun Heo <tj@kernel.org>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
---nextPart1423859.M7Oc5BVCEB
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+driver-core now supports synchrnous self-deletion of attributes and
+the asynchrnous removal mechanism is scheduled for removal.  Use it
+instead of device_schedule_callback().
 
-On Wednesday 22 January 2014 02:55:36 Heiko Carstens wrote:
-> With all three patches within this thread s390 with CONFIG_64BIT=3Dn ipl's
-> again, and the 32 bit native statfs64 syscall works as well.
+* Conversions in arch/s390/pci/pci_sysfs.c and
+  drivers/s390/block/dcssblk.c are straightforward.
 
-indeed, with those in hand, my system now boots :)
+* drivers/s390/cio/ccwgroup.c is a bit more tricky because
+  ccwgroup_notifier() was (ab)using device_schedule_callback() to
+  purely obtain a process context to kick off ungroup operation which
+  may block from a notifier callback.
 
-> However I would strongly suggest to use CONFIG_64BIT=3Dy with CONFIG_COMP=
-AT=3Dy
-> instead for (now) obvious reasons ;)
+  Rename ccwgroup_ungroup_callback() to ccwgroup_ungroup() and make it
+  take ccwgroup_device * instead.  The new function is now called
+  directly from ccwgroup_ungroup_store().
 
-this VM is meant for development, so if it helps catch bugs like this, i th=
-ink=20
-i'll keep it as-is.  thanks!
-=2Dmike
+  ccwgroup_notifier() chain is updated to explicitly bounce through
+  ccwgroup_device->ungroup_work.  This also removes possible failure
+  from memory pressure.
 
---nextPart1423859.M7Oc5BVCEB
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+Only compile-tested.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux390@de.ibm.com
+Cc: linux-s390@vger.kernel.org
+---
+ arch/s390/include/asm/ccwgroup.h |  1 +
+ arch/s390/pci/pci_sysfs.c        | 18 ++++++++----------
+ drivers/s390/block/dcssblk.c     | 14 +++++++-------
+ drivers/s390/cio/ccwgroup.c      | 26 ++++++++++++++++----------
+ 4 files changed, 32 insertions(+), 27 deletions(-)
 
-iQIcBAABAgAGBQJS4A5GAAoJEEFjO5/oN/WBmdEP/iFnfTLmUtcifURlje231qBA
-KOfEhcmMO+rP/Tno1xLgkPz1bMQcDWHG8ORLsfv61ZMJumzhqdjd0Xud3nH97iM9
-2qMZljIzH+C+ppVSmvgRxkkK4dCX2jWTEavipz6FsUwzZaJJorfMybm/rDYli3Yh
-dkgEAPUhjkYjmmzaoaudKugXtp3TOqiJccP14aIsX5C+vY4gWxSPjSh6yfWx/+C4
-bVNQwGxM4MwXnjNQG8DY5Uze9X87E+FvAnXZtQa/omTC4zQxK0kqrJJZeoz+r/f8
-lX2C0s1vifi0Q4LWbf7ONlioEkWFKy7GxwnbD84rxtpSYd9XdJGeT34NzJGfbR7I
-ttXga3KOKV7Wgz+tvh5J3XE1v06KvbGFX3qz7EZi96A/OhReiYcHLArJ7Xj8F1Dy
-vmnE3vyK10jO4nf/3jSI5XxC5Mv33j1D0o5HYgvbfACoU5jp17n7skfruwR6nTAL
-uv1MTDeTiEUV1Kx720EjytrpwURQUYjl5F85kHXIIYDwmr0859dZJGmWXqCmQDHy
-6AaU2NRVszk83qrZncPw3WFj2g6HKgE1SrN7V0Yb6Vv/k70zfe2Hw4QVqxWocWM6
-T0aePeqOCJDdQ6QvutrJRnbTfGsk5yGTfu45OuG5h4gkJpvrN35fgaUhh4hAUW3K
-sxsgPm65Fo4WPcQv7Jle
-=/dvf
------END PGP SIGNATURE-----
-
---nextPart1423859.M7Oc5BVCEB--
+diff --git a/arch/s390/include/asm/ccwgroup.h b/arch/s390/include/asm/ccwgroup.h
+index 23723ce..6e670f8 100644
+--- a/arch/s390/include/asm/ccwgroup.h
++++ b/arch/s390/include/asm/ccwgroup.h
+@@ -23,6 +23,7 @@ struct ccwgroup_device {
+ 	unsigned int count;
+ 	struct device	dev;
+ 	struct ccw_device *cdev[0];
++	struct work_struct ungroup_work;
+ };
+ 
+ /**
+diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
+index cf8a12f..ab4a913 100644
+--- a/arch/s390/pci/pci_sysfs.c
++++ b/arch/s390/pci/pci_sysfs.c
+@@ -48,29 +48,27 @@ static ssize_t show_pfgid(struct device *dev, struct device_attribute *attr,
+ }
+ static DEVICE_ATTR(pfgid, S_IRUGO, show_pfgid, NULL);
+ 
+-static void recover_callback(struct device *dev)
++static ssize_t store_recover(struct device *dev, struct device_attribute *attr,
++			     const char *buf, size_t count)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(dev);
+ 	struct zpci_dev *zdev = get_zdev(pdev);
+ 	int ret;
+ 
++	if (!device_remove_file_self(dev, attr))
++		return count;
++
+ 	pci_stop_and_remove_bus_device(pdev);
+ 	ret = zpci_disable_device(zdev);
+ 	if (ret)
+-		return;
++		return ret;
+ 
+ 	ret = zpci_enable_device(zdev);
+ 	if (ret)
+-		return;
++		return ret;
+ 
+ 	pci_rescan_bus(zdev->bus);
+-}
+-
+-static ssize_t store_recover(struct device *dev, struct device_attribute *attr,
+-			     const char *buf, size_t count)
+-{
+-	int rc = device_schedule_callback(dev, recover_callback);
+-	return rc ? rc : count;
++	return count;
+ }
+ static DEVICE_ATTR(recover, S_IWUSR, NULL, store_recover);
+ 
+diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
+index ebf41e2..ee0e85a 100644
+--- a/drivers/s390/block/dcssblk.c
++++ b/drivers/s390/block/dcssblk.c
+@@ -304,12 +304,6 @@ dcssblk_load_segment(char *name, struct segment_info **seg_info)
+ 	return rc;
+ }
+ 
+-static void dcssblk_unregister_callback(struct device *dev)
+-{
+-	device_unregister(dev);
+-	put_device(dev);
+-}
+-
+ /*
+  * device attribute for switching shared/nonshared (exclusive)
+  * operation (show + store)
+@@ -397,7 +391,13 @@ removeseg:
+ 	blk_cleanup_queue(dev_info->dcssblk_queue);
+ 	dev_info->gd->queue = NULL;
+ 	put_disk(dev_info->gd);
+-	rc = device_schedule_callback(dev, dcssblk_unregister_callback);
++	up_write(&dcssblk_devices_sem);
++
++	if (device_remove_file_self(dev, attr)) {
++		device_unregister(dev);
++		put_device(dev);
++	}
++	return rc;
+ out:
+ 	up_write(&dcssblk_devices_sem);
+ 	return rc;
+diff --git a/drivers/s390/cio/ccwgroup.c b/drivers/s390/cio/ccwgroup.c
+index fd3367a1..dfd7bc6 100644
+--- a/drivers/s390/cio/ccwgroup.c
++++ b/drivers/s390/cio/ccwgroup.c
+@@ -168,14 +168,12 @@ static ssize_t ccwgroup_online_show(struct device *dev,
+  * Provide an 'ungroup' attribute so the user can remove group devices no
+  * longer needed or accidentially created. Saves memory :)
+  */
+-static void ccwgroup_ungroup_callback(struct device *dev)
++static void ccwgroup_ungroup(struct ccwgroup_device *gdev)
+ {
+-	struct ccwgroup_device *gdev = to_ccwgroupdev(dev);
+-
+ 	mutex_lock(&gdev->reg_mutex);
+ 	if (device_is_registered(&gdev->dev)) {
+ 		__ccwgroup_remove_symlinks(gdev);
+-		device_unregister(dev);
++		device_unregister(&gdev->dev);
+ 		__ccwgroup_remove_cdev_refs(gdev);
+ 	}
+ 	mutex_unlock(&gdev->reg_mutex);
+@@ -195,10 +193,9 @@ static ssize_t ccwgroup_ungroup_store(struct device *dev,
+ 		rc = -EINVAL;
+ 		goto out;
+ 	}
+-	/* Note that we cannot unregister the device from one of its
+-	 * attribute methods, so we have to use this roundabout approach.
+-	 */
+-	rc = device_schedule_callback(dev, ccwgroup_ungroup_callback);
++
++	if (device_remove_file_self(dev, attr))
++		ccwgroup_ungroup(gdev);
+ out:
+ 	if (rc) {
+ 		if (rc != -EAGAIN)
+@@ -224,6 +221,14 @@ static const struct attribute_group *ccwgroup_attr_groups[] = {
+ 	NULL,
+ };
+ 
++static void ccwgroup_ungroup_workfn(struct work_struct *work)
++{
++	struct ccwgroup_device *gdev =
++		container_of(work, struct ccwgroup_device, ungroup_work);
++
++	ccwgroup_ungroup(gdev);
++}
++
+ static void ccwgroup_release(struct device *dev)
+ {
+ 	kfree(to_ccwgroupdev(dev));
+@@ -323,6 +328,7 @@ int ccwgroup_create_dev(struct device *parent, struct ccwgroup_driver *gdrv,
+ 	atomic_set(&gdev->onoff, 0);
+ 	mutex_init(&gdev->reg_mutex);
+ 	mutex_lock(&gdev->reg_mutex);
++	INIT_WORK(&gdev->ungroup_work, ccwgroup_ungroup_workfn);
+ 	gdev->count = num_devices;
+ 	gdev->dev.bus = &ccwgroup_bus_type;
+ 	gdev->dev.parent = parent;
+@@ -404,10 +410,10 @@ EXPORT_SYMBOL(ccwgroup_create_dev);
+ static int ccwgroup_notifier(struct notifier_block *nb, unsigned long action,
+ 			     void *data)
+ {
+-	struct device *dev = data;
++	struct ccwgroup_device *gdev = to_ccwgroupdev(data);
+ 
+ 	if (action == BUS_NOTIFY_UNBIND_DRIVER)
+-		device_schedule_callback(dev, ccwgroup_ungroup_callback);
++		schedule_work(&gdev->ungroup_work);
+ 
+ 	return NOTIFY_OK;
+ }
+-- 
+1.8.5.3
