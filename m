@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Subject: [PATCH 10/51] s390, cacheinfo: Fix CPU hotplug callback registration
-Date: Thu, 06 Feb 2014 03:36:23 +0530
-Message-ID: <20140205220623.19080.86941.stgit@srivatsabhat.in.ibm.com>
+Subject: [PATCH 11/51] s390, smp: Fix CPU hotplug callback registration
+Date: Thu, 06 Feb 2014 03:36:33 +0530
+Message-ID: <20140205220632.19080.94177.stgit@srivatsabhat.in.ibm.com>
 In-Reply-To: <20140205220251.19080.92336.stgit@srivatsabhat.in.ibm.com>
 References: <20140205220251.19080.92336.stgit@srivatsabhat.in.ibm.com>
 MIME-Version: 1.0
@@ -46,33 +46,48 @@ registration is:
 	cpu_maps_update_done();
 
 
-Fix the cacheinfo code in s390 by using this latter form of callback
-registration.
+Fix the smp code in s390 by using this latter form of callback registration.
 
 Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: linux-s390@vger.kernel.org
 Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
 ---
 
- arch/s390/kernel/cache.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/s390/kernel/smp.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kernel/cache.c b/arch/s390/kernel/cache.c
-index 3a414c0..075af62 100644
---- a/arch/s390/kernel/cache.c
-+++ b/arch/s390/kernel/cache.c
-@@ -378,9 +378,12 @@ static int __init cache_init(void)
- 	if (!test_facility(34))
- 		return 0;
- 	cache_build_info();
-+
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index a7125b6..415a44e 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -1057,19 +1057,24 @@ static DEVICE_ATTR(rescan, 0200, NULL, rescan_store);
+ 
+ static int __init s390_smp_init(void)
+ {
+-	int cpu, rc;
++	int cpu, rc = 0;
+ 
+-	hotcpu_notifier(smp_cpu_notify, 0);
+ #ifdef CONFIG_HOTPLUG_CPU
+ 	rc = device_create_file(cpu_subsys.dev_root, &dev_attr_rescan);
+ 	if (rc)
+ 		return rc;
+ #endif
 +	cpu_maps_update_begin();
- 	for_each_online_cpu(cpu)
- 		cache_add_cpu(cpu);
--	hotcpu_notifier(cache_hotplug, 0);
-+	__hotcpu_notifier(cache_hotplug, 0);
+ 	for_each_present_cpu(cpu) {
+ 		rc = smp_add_present_cpu(cpu);
+ 		if (rc)
+-			return rc;
++			goto out;
+ 	}
+-	return 0;
++
++	__hotcpu_notifier(smp_cpu_notify, 0);
++
++out:
 +	cpu_maps_update_done();
- 	return 0;
++	return rc;
  }
- device_initcall(cache_init);
+ subsys_initcall(s390_smp_init);
