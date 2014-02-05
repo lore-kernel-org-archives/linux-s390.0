@@ -1,74 +1,78 @@
-Return-Path: <owner-linux-mm@kvack.org>
-Date: Mon, 3 Feb 2014 11:14:12 -0600
-From: Alex Thorlton <athorlton@sgi.com>
-Subject: Re: [PATCH 1/3] Revert "thp: make MADV_HUGEPAGE check for
- mm->def_flags"
-Message-ID: <20140203171412.GA3034@sgi.com>
-References: <1391192628-113858-1-git-send-email-athorlton@sgi.com>
- <1391192628-113858-3-git-send-email-athorlton@sgi.com>
- <20140131145224.7f8efc67d882a2e1a89b0778@linux-foundation.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
+Subject: [PATCH 10/51] s390, cacheinfo: Fix CPU hotplug callback registration
+Date: Thu, 06 Feb 2014 03:36:23 +0530
+Message-ID: <20140205220623.19080.86941.stgit@srivatsabhat.in.ibm.com>
+In-Reply-To: <20140205220251.19080.92336.stgit@srivatsabhat.in.ibm.com>
+References: <20140205220251.19080.92336.stgit@srivatsabhat.in.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140131145224.7f8efc67d882a2e1a89b0778@linux-foundation.org>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Mel Gorman <mgorman@suse.de>, Rik van Riel <riel@redhat.com>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Sasha Levin <sasha.levin@oracle.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-mm@kvack.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: paulus@samba.org, oleg@redhat.com, rusty@rustcorp.com.au, peterz@infradead.org, tglx@linutronix.de, akpm@linux-foundation.org
+Cc: mingo@kernel.org, paulmck@linux.vnet.ibm.com, tj@kernel.org, walken@google.com, ego@linux.vnet.ibm.com, linux@arm.linux.org.uk, linux-kernel@vger.kernel.org, srivatsa.bhat@linux.vnet.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org"Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Jan 31, 2014 at 02:52:24PM -0800, Andrew Morton wrote:
-> On Fri, 31 Jan 2014 12:23:43 -0600 Alex Thorlton <athorlton@sgi.com> wrote:
-> 
-> > This reverts commit 8e72033f2a489b6c98c4e3c7cc281b1afd6cb85cm, and adds
-> 
-> 'm' is not a hex digit ;)
+Subsystems that want to register CPU hotplug callbacks, as well as perform
+initialization for the CPUs that are already online, often do it as shown
+below:
 
-My mistake!  Sorry about that.
+	get_online_cpus();
 
-> > in code to fix up any issues caused by the revert.
-> > 
-> > The revert is necessary because hugepage_madvise would return -EINVAL
-> > when VM_NOHUGEPAGE is set, which will break subsequent chunks of this
-> > patch set.
-> 
-> This is a bit skimpy.  Why doesn't the patch re-break kvm-on-s390?
-> 
-> it would be nice to have a lot more detail here, please.  What was the
-> intent of 8e72033f2a48, how this patch retains 8e72033f2a48's behavior,
-> etc.
+	for_each_online_cpu(cpu)
+		init_cpu(cpu);
 
-I'm actually not too sure about this, off hand.  I just know that we
-couldn't have it in there because of the check for VM_NOHUGEPAGE.  The
-s390 guys approved the revert, as long as we added in the following
-piece:
+	register_cpu_notifier(&foobar_cpu_notifier);
 
-> > --- a/arch/s390/mm/pgtable.c
-> > +++ b/arch/s390/mm/pgtable.c
-> > @@ -504,6 +504,9 @@ static int gmap_connect_pgtable(unsigned long address, unsigned long segment,
-> >  	if (!pmd_present(*pmd) &&
-> >  	    __pte_alloc(mm, vma, pmd, vmaddr))
-> >  		return -ENOMEM;
-> > +	/* large pmds cannot yet be handled */
-> > +	if (pmd_large(*pmd))
-> > +		return -EFAULT;
-> 
-> This bit wasn't in 8e72033f2a48.
+	put_online_cpus();
 
-I added the fix-up code in with the revert, so that it would all be in
-one place; wasn't sure what the standard was for this sort of thing.  If
-it's preferable to see this code in a separate patch, that's easy enough
-to do.
+This is wrong, since it is prone to ABBA deadlocks involving the
+cpu_add_remove_lock and the cpu_hotplug.lock (when running concurrently
+with CPU hotplug operations).
 
-I'll look into exactly what the original commit was intended to do, and
-get a better description of what's going on here.  Let me know if I
-should split the two changes into separate patches.
+Instead, the correct and race-free way of performing the callback
+registration is:
 
-- Alex
+	cpu_maps_update_begin();
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+	for_each_online_cpu(cpu)
+		init_cpu(cpu);
+
+	/* Note the use of the double underscored version of the API */
+	__register_cpu_notifier(&foobar_cpu_notifier);
+
+	cpu_maps_update_done();
+
+
+Fix the cacheinfo code in s390 by using this latter form of callback
+registration.
+
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
+---
+
+ arch/s390/kernel/cache.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/arch/s390/kernel/cache.c b/arch/s390/kernel/cache.c
+index 3a414c0..075af62 100644
+--- a/arch/s390/kernel/cache.c
++++ b/arch/s390/kernel/cache.c
+@@ -378,9 +378,12 @@ static int __init cache_init(void)
+ 	if (!test_facility(34))
+ 		return 0;
+ 	cache_build_info();
++
++	cpu_maps_update_begin();
+ 	for_each_online_cpu(cpu)
+ 		cache_add_cpu(cpu);
+-	hotcpu_notifier(cache_hotplug, 0);
++	__hotcpu_notifier(cache_hotplug, 0);
++	cpu_maps_update_done();
+ 	return 0;
+ }
+ device_initcall(cache_init);
