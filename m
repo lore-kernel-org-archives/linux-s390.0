@@ -1,9 +1,9 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 10 Feb 2014 10:50:20 +0100
+Date: Mon, 10 Feb 2014 12:30:19 +0100
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 Subject: Re: [PATCH RFC/RFT v2 3/8] s390: move cacheinfo sysfs to generic
  cacheinfo infrastructure
-Message-ID: <20140210095020.GB19013@osiris>
+Message-ID: <20140210113019.GC19013@osiris>
 References: <1391791763-28518-1-git-send-email-sudeep.holla@arm.com>
  <1391791763-28518-4-git-send-email-sudeep.holla@arm.com>
 MIME-Version: 1.0
@@ -24,25 +24,31 @@ On Fri, Feb 07, 2014 at 04:49:18PM +0000, Sudeep Holla wrote:
 > the newly introduced generic cacheinfo infrastructure.
 > 
 > Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Cc: linux390@de.ibm.com
-> Cc: linux-s390@vger.kernel.org
-> ---
 
 [...]
 
-> diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
-> index 2461202..1f875db 100644
-> --- a/arch/s390/kernel/processor.c
-> +++ b/arch/s390/kernel/processor.c
-> @@ -58,7 +58,6 @@ static int show_cpuinfo(struct seq_file *m, void *v)
->  			if (hwcap_str[i] && (elf_hwcap & (1UL << i)))
->  				seq_printf(m, "%s ", hwcap_str[i]);
->  		seq_puts(m, "\n");
-> -		show_cacheinfo(m);
->  	}
->  	get_online_cpus();
->  	if (cpu_online(n)) {
+> -static ssize_t shared_cpu_map_func(struct kobject *kobj, int type, char *buf)
+> -{
+> -	struct cache_index_dir *index;
+> -	int len;
+> +	this_leaf->level = level + 1;
+> +	this_leaf->type = type;
+> +	this_leaf->coherency_line_size = ecag(EXTRACT_LINE_SIZE, level, ti);
+> +	this_leaf->ways_of_associativity = ecag(EXTRACT_ASSOCIATIVITY,
+> +						level, ti);
+> +	this_leaf->size = ecag(EXTRACT_SIZE, level, ti);
+> +	if (private)
+> +		cpumask_set_cpu(cpu, &this_leaf->shared_cpu_map);
+> +	else /* System wide */
+> +		cpumask_copy(&this_leaf->shared_cpu_map, cpu_online_mask);
 
-You can't remove that. It's a user space visible change.
+FWIW, this also seems to be wrong: on s390 we only expose cpu private
+caches via sysfs. Shared caches are not exposed (and simply saying they are
+system wide would be wrong).
+Please have a look at these two commits which should describe why things
+are as they are on s390:
+
+881730ad365130f64b5c70c40904b04eb3b79de3
+ "s390/cache: expose cpu cache topology via sysfs"
+6668022c7bde3fdc96d3d257294a7216c7a46829
+ "s390/cache: add cpu cache information to /proc/cpuinfo"
