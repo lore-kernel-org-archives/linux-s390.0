@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH/RFC 1/3] kvm: Introduction of kvm_arch_vcpu_dont_yield()
-Date: Tue, 11 Feb 2014 12:45:30 +0100
-Message-ID: <1392119132-50182-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH/RFC 2/3] s390/kvm: Platform specific kvm_arch_vcpu_dont_yield
+Date: Tue, 11 Feb 2014 12:45:31 +0100
+Message-ID: <1392119132-50182-3-git-send-email-borntraeger@de.ibm.com>
 References: <1392119132-50182-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1392119132-50182-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,64 +14,52 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-The function kvm_arch_vcpu_dont_yield() allows the platform dependant
-extension of the heuristic being used to identify unsuitable virtual cpus
-during undirected yield processing.
+Commit "s390/kvm: Use common waitqueue" caused a performance regression
+on s390. It turned out that a yield candidate was missed by just a simple
+test on its non-empty waitqueue. If an interrupt is outstanding, the candidate
+might be suitable. kvm_arch_vcpu_dont_yield is extended by a test that
+additionally tests for not yet delivered interrupts.
 
-The default implementation used the existing waitqueue check.
+Significant performance measurement work and code analysis to solve
+this issue was provided by Mao Chuan Li and his team in Beijing.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- include/linux/kvm_host.h | 9 +++++++++
- virt/kvm/Kconfig         | 3 +++
- virt/kvm/kvm_main.c      | 2 +-
- 3 files changed, 13 insertions(+), 1 deletion(-)
+ arch/s390/kvm/Kconfig    | 1 +
+ arch/s390/kvm/kvm-s390.c | 7 +++++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index f5937b8..3e979a2 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -686,6 +686,15 @@ static inline wait_queue_head_t *kvm_arch_vcpu_wq(struct kvm_vcpu *vcpu)
- #endif
+diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+index c8bacbc..e44adef 100644
+--- a/arch/s390/kvm/Kconfig
++++ b/arch/s390/kvm/Kconfig
+@@ -25,6 +25,7 @@ config KVM
+ 	select HAVE_KVM_EVENTFD
+ 	select KVM_ASYNC_PF
+ 	select KVM_ASYNC_PF_SYNC
++	select HAVE_KVM_ARCH_VCPU_DONT_YIELD
+ 	---help---
+ 	  Support hosting paravirtualized guest machines using the SIE
+ 	  virtualization capability on the mainframe. This should work
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index a5da2cc..1a33e1e 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1231,6 +1231,13 @@ int kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf)
+ 	return VM_FAULT_SIGBUS;
  }
  
-+#ifndef CONFIG_HAVE_KVM_ARCH_VCPU_DONT_YIELD
-+static inline bool kvm_arch_vcpu_dont_yield(struct kvm_vcpu *vcpu)
++#ifdef CONFIG_HAVE_KVM_ARCH_VCPU_DONT_YIELD
++bool kvm_arch_vcpu_dont_yield(struct kvm_vcpu *vcpu)
 +{
-+	return waitqueue_active(kvm_arch_vcpu_wq(vcpu));
++	return waitqueue_active(&vcpu->wq) && !kvm_cpu_has_interrupt(vcpu);
 +}
-+#else
-+bool kvm_arch_vcpu_dont_yield(struct kvm_vcpu *vcpu);
 +#endif
 +
- int kvm_arch_init_vm(struct kvm *kvm, unsigned long type);
- void kvm_arch_destroy_vm(struct kvm *kvm);
- void kvm_arch_sync_events(struct kvm *kvm);
-diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
-index 13f2d19..e1e46a8 100644
---- a/virt/kvm/Kconfig
-+++ b/virt/kvm/Kconfig
-@@ -34,3 +34,6 @@ config HAVE_KVM_CPU_RELAX_INTERCEPT
- 
- config KVM_VFIO
-        bool
-+
-+config HAVE_KVM_ARCH_VCPU_DONT_YIELD
-+       bool
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index a9e999a..6829e6f 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1804,7 +1804,7 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me)
- 				continue;
- 			if (vcpu == me)
- 				continue;
--			if (waitqueue_active(&vcpu->wq))
-+			if (kvm_arch_vcpu_dont_yield(vcpu))
- 				continue;
- 			if (!kvm_vcpu_eligible_for_directed_yield(vcpu))
- 				continue;
+ void kvm_arch_free_memslot(struct kvm *kvm, struct kvm_memory_slot *free,
+ 			   struct kvm_memory_slot *dont)
+ {
 -- 
 1.8.4.2
