@@ -1,51 +1,57 @@
-From: Shuah Khan <shuah.kh@samsung.com>
-Subject: [RFT][PATCH 00/12] change drivers power management to use dev_pm_ops
-Date: Mon, 10 Feb 2014 09:12:23 -0700
-Message-ID: <cover.1392040064.git.shuah.kh@samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+MIME-Version: 1.0
+In-Reply-To: <52FCA253.3030703@msgid.tls.msk.ru>
+References: <20140212092935.GA14964@osiris>
+	<52FCA253.3030703@msgid.tls.msk.ru>
+Date: Thu, 13 Feb 2014 11:56:20 +0100
+Message-ID: <CAFLxGvxvDLqFhDyKA8pkAQa+xHa9SqP7PMvvTSiG1BZGpfqS9A@mail.gmail.com>
+Subject: Re: [ANNOUNCE] s390 31 bit kernel support removal
+From: Richard Weinberger <richard.weinberger@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-pm/>
-List-Post: <mailto:linux-pm@vger.kernel.org>
-To: rjw@rjwysocki.net
-Cc: Shuah Khan <shuah.kh@samsung.com>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org, benh@kernel.crashing.org, linuxppc-dev@lists.ozlabs.org, manuel.lauss@gmail.com, chris@printf.net, linux-mmc@vger.kernel.org, sonic.zhang@analog.com, adi-buildroot-devel@lists.sourceforge.net, mirq-linux@rere.qmqm.pl, davidb@codeaurora.org, dwalker@fifo99.com, linux-arm-msm@vger.kernel.org, ian@mnementh.co.uk, gregkh@linuxfoundation.org, linux-pcmcia@lists.infradead.org, ingo.tuchscherer@de.ibm.com, linux390@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, shuahkhan@gmail.com
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, LKML <linux-kernel@vger.kernel.org>, linux-390@vm.marist.edu, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Change drivers to register pm ops using dev_pm_ops instead of legacy pm_ops.
-.pm hooks call existing legacy suspend and resume interfaces by passing in
-the right pm state. Bus drivers suspend and resume routines call .pm driver
-hooks if found.
+On Thu, Feb 13, 2014 at 11:45 AM, Michael Tokarev <mjt@tls.msk.ru> wrote:
+> 12.02.2014 13:29, Heiko Carstens wrote:
+>> We want to remove s390 31 bit kernel support with Linux kernel 3.16.
+>
+> Maybe you can send a patch for Documentation/feature-removal-schedule.txt
+> about this now?
 
-Shuah Khan (12):
-  arm: change locomo platform and bus power management to use
-    dev_pm_ops
-  arm: change sa1111 platform and bus power management to use
-    dev_pm_ops
-  arm: change scoop platform power management to use dev_pm_ops
-  drivers/macintosh/adb: change platform power managemnet to use
-    dev_pm_ops
-  mmc: change au1xmmc platform power management to use dev_pm_ops
-  mmc: change bfin_sdh platform power management to use dev_pm_ops
-  isa: change isa bus power managemnet to use dev_pm_ops
-  mmc: change cb710-mmc platform power management to use dev_pm_ops
-  mmc: change msm_sdcc platform power management to use dev_pm_ops
-  mmc: change tmio_mmc platform power management to use dev_pm_ops
-  drivers/pcmcia: change ds driver power management to use dev_pm_ops
-  drivers/s390/crypto: change ap_bus driver power management to use
-    dev_pm_ops
+This file is gone.
 
- arch/arm/common/locomo.c     |   93 +++++++++++++++++++++++++++++++++++-------
- arch/arm/common/sa1111.c     |   88 +++++++++++++++++++++++++++++++--------
- arch/arm/common/scoop.c      |   44 ++++++++++++++++----
- drivers/base/isa.c           |   30 ++++++++++++--
- drivers/macintosh/adb.c      |   41 ++++++++++++++++---
- drivers/mmc/host/au1xmmc.c   |   43 +++++++++++++++----
- drivers/mmc/host/bfin_sdh.c  |   40 +++++++++++++++---
- drivers/mmc/host/cb710-mmc.c |   37 +++++++++++++++--
- drivers/mmc/host/msm_sdcc.c  |   42 +++++++++++++++----
- drivers/mmc/host/tmio_mmc.c  |   42 +++++++++++++++----
- drivers/pcmcia/ds.c          |   36 +++++++++++++---
- drivers/s390/crypto/ap_bus.c |   30 ++++++++++++--
- 12 files changed, 481 insertions(+), 85 deletions(-)
+commit 9c0ece069b32e8e122aea71aa47181c10eb85ba7
+Author: Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Mon Oct 1 15:21:43 2012 -0700
+
+    Get rid of Documentation/feature-removal.txt
+
+    This file has turned out to be a pure write-only file that causes merge
+    conflicts and has no actual redeeming features.
+
+    There is never any reason to add stuff to this idiotic file.  Either
+    something isn't getting used, and you should just remove it, or there is
+    no excuse for removing it in the first place.  Just stop the idiocy.
+
+    It has also been the excuse for just plain bad behavior ("Hey, I don't
+    like xyz, so let's mark it for removal" followed by "Hey, look, it been
+    in feature-removal.txt for six months now, so we should remove it").
+
+    The recent bogus setitimer() ABI change request was just the most recent
+    example of pointless and incorrect mental masturbation involving this
+    file, and I'm tired of the silly and pointless conflicts in the file.
+
+    This removal was discussed during the recent kernel summit, and while
+    Steven Rostedt suggested we should just enter the file itself in the
+    feature-removal schedule (to see if anybody who edits the file actually
+    looks at it), that's cute but non-productive.
+
+    Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
 -- 
-1.7.10.4
+Thanks,
+//richard
