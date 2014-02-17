@@ -1,60 +1,43 @@
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: Re: [PATCH/RFC 2/3] s390/kvm: Platform specific
- kvm_arch_vcpu_dont_yield
-Date: Mon, 24 Feb 2014 15:22:05 +0100
-Message-ID: <20140224152205.0e1be9f6@bee>
-References: <1392119132-50182-1-git-send-email-borntraeger@de.ibm.com>
-	<1392119132-50182-3-git-send-email-borntraeger@de.ibm.com>
-	<52FD4913.3000107@redhat.com>
-	<52FD4D17.10307@de.ibm.com>
-	<52FD5608.2050808@redhat.com>
-	<52FDE813.5050809@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <1392628578.10966.28.camel@x220>
+Subject: Re: [PATCH] s390: remove HAVE_MARCH_Z9?0_FEATURES
+From: Paul Bolle <pebolle@tiscali.nl>
+Date: Mon, 17 Feb 2014 10:16:18 +0100
+In-Reply-To: <20140217091021.GB4651@osiris>
+References: <1392570927.28866.12.camel@x220> <20140217082035.GA4651@osiris>
+	 <1392627040.10966.18.camel@x220> <20140217091021.GB4651@osiris>
+Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <52FDE813.5050809@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 14 Feb 2014 10:55:31 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+On Mon, 2014-02-17 at 10:10 +0100, Heiko Carstens wrote:
+> On Mon, Feb 17, 2014 at 09:50:40AM +0100, Paul Bolle wrote:
+> > Completeness of what?
+> 
+> Each cpu generation we support is supposed to have a
+> "HAVE_MARCH_<GENERATION>_FEATURES" config symbol.
 
-> On 14/02/14 00:32, Paolo Bonzini wrote:
-> > Il 13/02/2014 23:54, Christian Borntraeger ha scritto:
-> >> We had several variants but in the end we tried to come up with a patch that does not
-> >> influence other architectures. Your proposal would certainly be fine for s390,
-> >> but what impact does it have on x86, arm, arm64? Will it cause performance regressions?
-> > 
-> > It may also have the same advantages you got on s390.
-> > 
-> >> So I think that the patch as is is probably the safest choice until we have some
-> >> data from x86, arm, arm64, no?
-> > 
-> > No, using an existing API is always better than inventing a new one.
-> 
-> OK. 
-> Michael can you rework the series to simply use 
-> " if (waitqueue_active(&vcpu->wq) && !kvm_arch_vcpu_runnable(vcpu)" in kvm_vcpu_on_spin
-> 
-> and make kvm_arch_vcpu_runnable  kvm_cpu_has_interrupt(vcpu) in s390 code?
-> That should be equivalent for s390 with even simpler code.
-> It might also help x86 and others.
+But apparently these two generations can do fine without it.
 
-Ok, I will adapt the patch accordingly...
+> > Anyhow, perhaps you can comment this stuff out if you want to have it in
+> > the tree. See, these symbols will pop up each time that people run their
+> > scripts to discover problems in the kconfig space. I suppose this was
+> > probably not the first time these two were reported. And people not
+> > aware of this thread might do that again, and again...
+> 
+> What script did you use?
 
-> 
-> 
-> > If you post the new patch series, and describe the benchmark you were using, we can reproduce
-> > it on x86.
-> 
-> The benchmark was some workload doing lots of semaphore up/down with hundreds
-> of processes. Will see if I can come up with a minimal test.
-> 
-> 
-> 
-> 
+A local piece of perl.
+
+It started rather cute but it has grown quite big now. I never let it
+leaves its cage. I just push some food between the bars every now and
+then.
+
+
+Paul Bolle
