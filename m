@@ -1,32 +1,35 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Andrew Theurer <atheurer@redhat.com>
 Subject: Re: [PATCHv2/RFC] kvm/irqchip: Speed up KVM_SET_GSI_ROUTING
-Date: Wed, 19 Feb 2014 23:23:32 +0100
-Message-ID: <53052EE4.6000509@redhat.com>
-References: <52D7C186.1070700@redhat.com> <1389876260-46636-1-git-send-email-borntraeger@de.ibm.com> <52D7D7A2.2080409@redhat.com> <52D7D95F.5040600@de.ibm.com> <52D7D987.8060305@redhat.com> <20140116185638.GD29522@redhat.com> <52D8E9E6.5040507@de.ibm.com>
+Date: Thu, 20 Feb 2014 23:59:12 -0500 (EST)
+Message-ID: <709522298.5197281.1392958752521.JavaMail.zimbra@redhat.com>
+References: <52D7C186.1070700@redhat.com> <1389876260-46636-1-git-send-email-borntraeger@de.ibm.com> <52D7D7A2.2080409@redhat.com> <52D7D95F.5040600@de.ibm.com> <52D7D987.8060305@redhat.com> <20140116185638.GD29522@redhat.com> <52D8E9E6.5040507@de.ibm.com> <53052EE4.6000509@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <52D8E9E6.5040507@de.ibm.com>
+In-Reply-To: <53052EE4.6000509@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Gleb Natapov <gleb@minantech.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, agraf@suse.de, Andrew Theurer <atheurer@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Gleb Natapov <gleb@minantech.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, agraf@suse.de
 List-ID: <linux-s390.vger.kernel.org>
 
-Il 17/01/2014 09:29, Christian Borntraeger ha scritto:
-> Michael,
-> do you have a quick way to check if srcu has a noticeable impact on int
-> injection on your systems? I am happy with either v2 or v3 of the patch,
-> but srcu_synchronize_expedited seems to have less latency impact on the
-> full system than rcu_synchronize_expedited. This might give Paolo a hint
-> which of the patches is the right way to go.
 
-Hi all,
+> Il 17/01/2014 09:29, Christian Borntraeger ha scritto:
+> > Michael,
+> > do you have a quick way to check if srcu has a noticeable impact on int
+> > injection on your systems? I am happy with either v2 or v3 of the patch,
+> > but srcu_synchronize_expedited seems to have less latency impact on the
+> > full system than rcu_synchronize_expedited. This might give Paolo a hint
+> > which of the patches is the right way to go.
+> 
+> Hi all,
+> 
+> I've asked Andrew Theurer to run network tests on a 10G connection (TCP
+> request/response to check for performance, TCP streaming for host CPU
+> utilization).
 
-I've asked Andrew Theurer to run network tests on a 10G connection (TCP 
-request/response to check for performance, TCP streaming for host CPU 
-utilization).
+I am hoping to have some results some time tomorrow (Friday).
 
-Paolo
+-Andrew
