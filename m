@@ -1,35 +1,53 @@
-From: Andrew Theurer <atheurer@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: [PATCHv2/RFC] kvm/irqchip: Speed up KVM_SET_GSI_ROUTING
-Date: Thu, 20 Feb 2014 23:59:12 -0500 (EST)
-Message-ID: <709522298.5197281.1392958752521.JavaMail.zimbra@redhat.com>
-References: <52D7C186.1070700@redhat.com> <1389876260-46636-1-git-send-email-borntraeger@de.ibm.com> <52D7D7A2.2080409@redhat.com> <52D7D95F.5040600@de.ibm.com> <52D7D987.8060305@redhat.com> <20140116185638.GD29522@redhat.com> <52D8E9E6.5040507@de.ibm.com> <53052EE4.6000509@redhat.com>
+Date: Fri, 21 Feb 2014 18:35:49 +0100
+Message-ID: <53078E75.2040603@redhat.com>
+References: <52D7C186.1070700@redhat.com> <1389876260-46636-1-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <53052EE4.6000509@redhat.com>
+In-Reply-To: <1389876260-46636-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Gleb Natapov <gleb@minantech.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, agraf@suse.de
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Gleb Natapov <gleb@minantech.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, agraf@suse.de, mst@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
+Il 16/01/2014 13:44, Christian Borntraeger ha scritto:
+> +DEFINE_STATIC_SRCU(irq_srcu);
+> +
+>  bool kvm_irq_has_notifier(struct kvm *kvm, unsigned irqchip, unsigned pin)
+>  {
+>  	struct kvm_irq_ack_notifier *kian;
+> -	int gsi;
+> +	int gsi, idx;
+>  
+> -	rcu_read_lock();
+> -	gsi = rcu_dereference(kvm->irq_routing)->chip[irqchip][pin];
+> +	idx = srcu_read_lock(&irq_srcu);
+> +	gsi = srcu_dereference(kvm->irq_routing, &irq_srcu)->chip[irqchip][pin];
+>  	if (gsi != -1)
+>  		hlist_for_each_entry_rcu(kian, &kvm->irq_ack_notifier_list,
+>  					 link)
+> @@ -45,7 +48,7 @@ bool kvm_irq_has_notifier(struct kvm *kvm, unsigned irqchip, unsigned pin)
+>  				return true;
+>  			}
+>  
+> -	rcu_read_unlock();
+> +	srcu_read_unlock(&irq_srcu, idx);
 
-> Il 17/01/2014 09:29, Christian Borntraeger ha scritto:
-> > Michael,
-> > do you have a quick way to check if srcu has a noticeable impact on int
-> > injection on your systems? I am happy with either v2 or v3 of the patch,
-> > but srcu_synchronize_expedited seems to have less latency impact on the
-> > full system than rcu_synchronize_expedited. This might give Paolo a hint
-> > which of the patches is the right way to go.
-> 
-> Hi all,
-> 
-> I've asked Andrew Theurer to run network tests on a 10G connection (TCP
-> request/response to check for performance, TCP streaming for host CPU
-> utilization).
+Missing hunk here:
 
-I am hoping to have some results some time tomorrow (Friday).
+@@ -44,7 +44,7 @@ bool kvm_irq_has_notifier(struct kvm *kvm, unsigned irqchip, unsigned pin)
+ 		hlist_for_each_entry_rcu(kian, &kvm->irq_ack_notifier_list,
+ 					 link)
+ 			if (kian->gsi == gsi) {
+-				rcu_read_unlock();
++				srcu_read_unlock(&irq_srcu, idx);
+ 				return true;
+ 			}
+ 
 
--Andrew
+Paolo
