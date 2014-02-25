@@ -1,10 +1,8 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 2/6] linux-headers: add new interfaces
-Date: Tue, 25 Feb 2014 18:25:16 +0100
-Message-ID: <1393349120-18228-3-git-send-email-cornelia.huck@de.ibm.com>
-References: <1393349120-18228-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 0/6] qemu: irqfds for s390x
+Date: Tue, 25 Feb 2014 18:25:14 +0100
+Message-ID: <1393349120-18228-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1393349120-18228-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,105 +10,62 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: borntraeger@de.ibm.com, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Per-vm capability enablement, adapter interrupt sources, irq routing on s390.
+Hi,
 
-Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- linux-headers/asm-s390/kvm.h |   22 ++++++++++++++++++++++
- linux-headers/linux/kvm.h    |   16 ++++++++++++++++
- 2 files changed, 38 insertions(+)
+here's the companion patchset to "KVM: irqfds for s390", based on
+Christian's s390-next branch.
 
-diff --git a/linux-headers/asm-s390/kvm.h b/linux-headers/asm-s390/kvm.h
-index cb4c1eb..a0761e2 100644
---- a/linux-headers/asm-s390/kvm.h
-+++ b/linux-headers/asm-s390/kvm.h
-@@ -22,6 +22,8 @@
- #define KVM_DEV_FLIC_CLEAR_IRQS		3
- #define KVM_DEV_FLIC_APF_ENABLE		4
- #define KVM_DEV_FLIC_APF_DISABLE_WAIT	5
-+#define KVM_DEV_FLIC_ADAPTER_REGISTER	6
-+#define KVM_DEV_FLIC_ADAPTER_MODIFY	7
- /*
-  * We can have up to 4*64k pending subchannels + 8 adapter interrupts,
-  * as well as up  to ASYNC_PF_PER_VCPU*KVM_MAX_VCPUS pfault done interrupts.
-@@ -32,6 +34,26 @@
- #define KVM_S390_MAX_FLOAT_IRQS	266250
- #define KVM_S390_FLIC_MAX_BUFFER	0x2000000
- 
-+struct kvm_s390_io_adapter {
-+	__u32 id;
-+	__u8 isc;
-+	__u8 maskable;
-+	__u8 swap;
-+	__u8 pad;
-+};
-+
-+#define KVM_S390_IO_ADAPTER_MASK 1
-+#define KVM_S390_IO_ADAPTER_MAP 2
-+#define KVM_S390_IO_ADAPTER_UNMAP 3
-+
-+struct kvm_s390_io_adapter_req {
-+	__u32 id;
-+	__u8 type;
-+	__u8 mask;
-+	__u16 pad0;
-+	__u64 addr;
-+};
-+
- /* for KVM_GET_REGS and KVM_SET_REGS */
- struct kvm_regs {
- 	/* general purpose regs for s390 */
-diff --git a/linux-headers/linux/kvm.h b/linux-headers/linux/kvm.h
-index e27a4b3..820b250 100644
---- a/linux-headers/linux/kvm.h
-+++ b/linux-headers/linux/kvm.h
-@@ -740,6 +740,8 @@ struct kvm_ppc_smmu_info {
- #define KVM_CAP_SPAPR_MULTITCE 94
- #define KVM_CAP_EXT_EMUL_CPUID 95
- #define KVM_CAP_HYPERV_TIME 96
-+#define KVM_CAP_ENABLE_CAP_VM 97
-+#define KVM_CAP_S390_IRQCHIP 98
- 
- #ifdef KVM_CAP_IRQ_ROUTING
- 
-@@ -755,9 +757,18 @@ struct kvm_irq_routing_msi {
- 	__u32 pad;
- };
- 
-+struct kvm_irq_routing_s390_adapter {
-+	__u64 ind_addr;
-+	__u64 summary_addr;
-+	__u64 ind_offset;
-+	__u32 summary_offset;
-+	__u32 adapter_id;
-+};
-+
- /* gsi routing entry types */
- #define KVM_IRQ_ROUTING_IRQCHIP 1
- #define KVM_IRQ_ROUTING_MSI 2
-+#define KVM_IRQ_ROUTING_S390_ADAPTER 3
- 
- struct kvm_irq_routing_entry {
- 	__u32 gsi;
-@@ -767,6 +778,7 @@ struct kvm_irq_routing_entry {
- 	union {
- 		struct kvm_irq_routing_irqchip irqchip;
- 		struct kvm_irq_routing_msi msi;
-+		struct kvm_irq_routing_s390_adapter adapter;
- 		__u32 pad[8];
- 	} u;
- };
-@@ -1075,6 +1087,10 @@ struct kvm_s390_ucas_mapping {
- /* Available with KVM_CAP_DEBUGREGS */
- #define KVM_GET_DEBUGREGS         _IOR(KVMIO,  0xa1, struct kvm_debugregs)
- #define KVM_SET_DEBUGREGS         _IOW(KVMIO,  0xa2, struct kvm_debugregs)
-+/*
-+ * vcpu version available with KVM_ENABLE_CAP
-+ * vm version available with KVM_CAP_ENABLE_CAP_VM
-+ */
- #define KVM_ENABLE_CAP            _IOW(KVMIO,  0xa3, struct kvm_enable_cap)
- /* Available with KVM_CAP_XSAVE */
- #define KVM_GET_XSAVE		  _IOR(KVMIO,  0xa4, struct kvm_xsave)
+Patch 1 adds support for adapter interrupts to virtio-ccw. This has been
+posted before, modulo some fixes.
+
+Patch 2 grabs the interfaces introduced by the kernel patchset. Will be
+replaced by a normal headers update.
+
+Patch 3 introduces simple wrappers for enabling capabilities. We can convert
+existing users later on.
+
+Patch 4 registers an I/O adapter when we enable adapter interrupts for a
+device. We just have one virtio-ccw adapter for one interruption subclass.
+
+Patch 5 adds reference counting for indicators. This is needed because we
+want to map and pin indicator pages and drop them again when the last user
+is gone.
+
+Patch 6 finally enables irqfds via irq routing on s390x/virtio-ccw. We've
+done most of the work in qemu already, so the kernel basically only needs
+to write to the correct memory location and inject an interrupt.
+
+A git branch with the patches is available at
+
+https://github.com/cohuck/qemu.git s390x-irqfd
+
+
+Cornelia Huck (6):
+  s390x/virtio-ccw: Adapter interrupt support.
+  linux-headers: add new interfaces
+  kvm: add kvm_enable_cap_{vm,vcpu}
+  s390x: Add I/O adapter registration.
+  s390x/virtio-ccw: reference-counted indicators
+  s390x/virtio-ccw: Wire up irq routing and irqfds.
+
+ hw/intc/s390_flic.c          |   66 +++++++++
+ hw/s390x/css.c               |   61 ++++++++
+ hw/s390x/css.h               |    6 +
+ hw/s390x/virtio-ccw.c        |  325 +++++++++++++++++++++++++++++++++++++++---
+ hw/s390x/virtio-ccw.h        |   18 ++-
+ include/hw/s390x/adapter.h   |   23 +++
+ include/qemu/typedefs.h      |    1 +
+ include/sysemu/kvm.h         |    6 +
+ kvm-all.c                    |   57 +++++++-
+ kvm-stub.c                   |    5 +
+ linux-headers/asm-s390/kvm.h |   22 +++
+ linux-headers/linux/kvm.h    |   16 +++
+ target-s390x/cpu.h           |   33 +++++
+ target-s390x/ioinst.h        |    2 +
+ target-s390x/kvm.c           |   13 +-
+ trace-events                 |    1 +
+ 16 files changed, 627 insertions(+), 28 deletions(-)
+ create mode 100644 include/hw/s390x/adapter.h
+
 -- 
 1.7.9.5
