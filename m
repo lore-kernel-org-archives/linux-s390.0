@@ -1,459 +1,157 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 2/7] KVM: s390: virtio-ccw adapter interrupt
-	support.
-Date: Tue, 25 Feb 2014 18:24:40 +0100
-Message-ID: <1393349085-18122-3-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 1/7] s390/airq: add support for irq ranges
+Date: Tue, 25 Feb 2014 18:24:39 +0100
+Message-ID: <1393349085-18122-2-git-send-email-cornelia.huck@de.ibm.com>
 References: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
-Cc: gleb@kernel.org, borntraeger@de.ibm.com, Cornelia Huck <cornelia.huck@de.ibm.com>, agraf@suse.de, pbonzini@redhat.com
+Cc: borntraeger@de.ibm.com, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Implement the new CCW_CMD_SET_IND_ADAPTER command and try to enable
-adapter interrupts for every device on the first startup. If the host
-does not support adapter interrupts, fall back to normal I/O interrupts.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-virtio-ccw adapter interrupts use the same isc as normal I/O subchannels
-and share a summary indicator for all devices sharing the same indicator
-area.
+Add airq_iv_alloc and airq_iv_free to allocate and free consecutive
+ranges of irqs from the interrupt vector.
 
-Indicator bits for the individual virtqueues may be contained in the same
-indicator area for different devices.
-
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/include/asm/irq.h   |    1 +
- arch/s390/kernel/irq.c        |    1 +
- drivers/s390/kvm/virtio_ccw.c |  276 +++++++++++++++++++++++++++++++++++++++--
- 3 files changed, 268 insertions(+), 10 deletions(-)
+ arch/s390/include/asm/airq.h |   14 +++++++--
+ drivers/s390/cio/airq.c      |   66 ++++++++++++++++++++++++++----------------
+ 2 files changed, 53 insertions(+), 27 deletions(-)
 
-diff --git a/arch/s390/include/asm/irq.h b/arch/s390/include/asm/irq.h
-index 5f8bcc5..35f0faa 100644
---- a/arch/s390/include/asm/irq.h
-+++ b/arch/s390/include/asm/irq.h
-@@ -53,6 +53,7 @@ enum interruption_class {
- 	IRQIO_PCI,
- 	IRQIO_MSI,
- 	IRQIO_VIR,
-+	IRQIO_VAI,
- 	NMI_NMI,
- 	CPU_RST,
- 	NR_ARCH_IRQS
-diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
-index bb27a26..c288ef7 100644
---- a/arch/s390/kernel/irq.c
-+++ b/arch/s390/kernel/irq.c
-@@ -84,6 +84,7 @@ static const struct irq_class irqclass_sub_desc[NR_ARCH_IRQS] = {
- 	[IRQIO_PCI]  = {.name = "PCI", .desc = "[I/O] PCI Interrupt" },
- 	[IRQIO_MSI]  = {.name = "MSI", .desc = "[I/O] MSI Interrupt" },
- 	[IRQIO_VIR]  = {.name = "VIR", .desc = "[I/O] Virtual I/O Devices"},
-+	[IRQIO_VAI]  = {.name = "VAI", .desc = "[I/O] Virtual I/O Devices AI"},
- 	[NMI_NMI]    = {.name = "NMI", .desc = "[NMI] Machine Check"},
- 	[CPU_RST]    = {.name = "RST", .desc = "[CPU] CPU Restart"},
- };
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 0fc5848..09afefe 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -1,7 +1,7 @@
- /*
-  * ccw based virtio transport
-  *
-- * Copyright IBM Corp. 2012
-+ * Copyright IBM Corp. 2012,2014
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License (version 2 only)
-@@ -32,6 +32,8 @@
- #include <asm/cio.h>
- #include <asm/ccwdev.h>
- #include <asm/virtio-ccw.h>
-+#include <asm/isc.h>
-+#include <asm/airq.h>
+diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
+index 4bbb595..bd93ff6 100644
+--- a/arch/s390/include/asm/airq.h
++++ b/arch/s390/include/asm/airq.h
+@@ -44,11 +44,21 @@ struct airq_iv {
  
- /*
-  * virtio related functions
-@@ -58,6 +60,8 @@ struct virtio_ccw_device {
- 	unsigned long indicators;
- 	unsigned long indicators2;
- 	struct vq_config_block *config_block;
-+	bool is_thinint;
-+	void *airq_info;
- };
+ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags);
+ void airq_iv_release(struct airq_iv *iv);
+-unsigned long airq_iv_alloc_bit(struct airq_iv *iv);
+-void airq_iv_free_bit(struct airq_iv *iv, unsigned long bit);
++unsigned long airq_iv_alloc(struct airq_iv *iv, unsigned long num);
++void airq_iv_free(struct airq_iv *iv, unsigned long bit, unsigned long num);
+ unsigned long airq_iv_scan(struct airq_iv *iv, unsigned long start,
+ 			   unsigned long end);
  
- struct vq_info_block {
-@@ -72,15 +76,38 @@ struct virtio_feature_desc {
- 	__u8 index;
- } __packed;
- 
-+struct virtio_thinint_area {
-+	unsigned long summary_indicator;
-+	unsigned long indicator;
-+	u64 bit_nr;
-+	u8 isc;
-+} __packed;
-+
- struct virtio_ccw_vq_info {
- 	struct virtqueue *vq;
- 	int num;
- 	void *queue;
- 	struct vq_info_block *info_block;
-+	int bit_nr;
- 	struct list_head node;
- 	long cookie;
- };
- 
-+#define VIRTIO_AIRQ_ISC IO_SCH_ISC /* inherit from subchannel */
-+
-+#define VIRTIO_IV_BITS (L1_CACHE_BYTES * 8)
-+#define MAX_AIRQ_AREAS 20
-+
-+static int virtio_ccw_use_airq = 1;
-+
-+struct airq_info {
-+	rwlock_t lock;
-+	u8 summary_indicator;
-+	struct airq_struct airq;
-+	struct airq_iv *aiv;
-+};
-+static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
-+
- #define CCW_CMD_SET_VQ 0x13
- #define CCW_CMD_VDEV_RESET 0x33
- #define CCW_CMD_SET_IND 0x43
-@@ -91,6 +118,7 @@ struct virtio_ccw_vq_info {
- #define CCW_CMD_WRITE_CONF 0x21
- #define CCW_CMD_WRITE_STATUS 0x31
- #define CCW_CMD_READ_VQ_CONF 0x32
-+#define CCW_CMD_SET_IND_ADAPTER 0x73
- 
- #define VIRTIO_CCW_DOING_SET_VQ 0x00010000
- #define VIRTIO_CCW_DOING_RESET 0x00040000
-@@ -102,6 +130,7 @@ struct virtio_ccw_vq_info {
- #define VIRTIO_CCW_DOING_SET_IND 0x01000000
- #define VIRTIO_CCW_DOING_READ_VQ_CONF 0x02000000
- #define VIRTIO_CCW_DOING_SET_CONF_IND 0x04000000
-+#define VIRTIO_CCW_DOING_SET_IND_ADAPTER 0x08000000
- #define VIRTIO_CCW_INTPARM_MASK 0xffff0000
- 
- static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
-@@ -109,6 +138,125 @@ static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
- 	return container_of(vdev, struct virtio_ccw_device, vdev);
- }
- 
-+static void drop_airq_indicator(struct virtqueue *vq, struct airq_info *info)
++static inline unsigned long airq_iv_alloc_bit(struct airq_iv *iv)
 +{
-+	unsigned long i, flags;
-+
-+	write_lock_irqsave(&info->lock, flags);
-+	for (i = 0; i < airq_iv_end(info->aiv); i++) {
-+		if (vq == (void *)airq_iv_get_ptr(info->aiv, i)) {
-+			airq_iv_free_bit(info->aiv, i);
-+			airq_iv_set_ptr(info->aiv, i, 0);
-+			break;
-+		}
-+	}
-+	write_unlock_irqrestore(&info->lock, flags);
++	return airq_iv_alloc(iv, 1);
 +}
 +
-+static void virtio_airq_handler(struct airq_struct *airq)
++static inline void airq_iv_free_bit(struct airq_iv *iv, unsigned long bit)
 +{
-+	struct airq_info *info = container_of(airq, struct airq_info, airq);
-+	unsigned long ai;
-+
-+	inc_irq_stat(IRQIO_VAI);
-+	read_lock(&info->lock);
-+	/* Walk through indicators field, summary indicator active. */
-+	for (ai = 0;;) {
-+		ai = airq_iv_scan(info->aiv, ai, airq_iv_end(info->aiv));
-+		if (ai == -1UL)
-+			break;
-+		vring_interrupt(0, (void *)airq_iv_get_ptr(info->aiv, ai));
-+	}
-+	info->summary_indicator = 0;
-+	smp_wmb();
-+	/* Walk through indicators field, summary indicator not active. */
-+	for (ai = 0;;) {
-+		ai = airq_iv_scan(info->aiv, ai, airq_iv_end(info->aiv));
-+		if (ai == -1UL)
-+			break;
-+		vring_interrupt(0, (void *)airq_iv_get_ptr(info->aiv, ai));
-+	}
-+	read_unlock(&info->lock);
++	airq_iv_free(iv, bit, 1);
 +}
 +
-+static struct airq_info *new_airq_info(void)
-+{
-+	struct airq_info *info;
-+	int rc;
-+
-+	info = kzalloc(sizeof(*info), GFP_KERNEL);
-+	if (!info)
-+		return NULL;
-+	rwlock_init(&info->lock);
-+	info->aiv = airq_iv_create(VIRTIO_IV_BITS, AIRQ_IV_ALLOC | AIRQ_IV_PTR);
-+	if (!info->aiv) {
-+		kfree(info);
-+		return NULL;
-+	}
-+	info->airq.handler = virtio_airq_handler;
-+	info->airq.lsi_ptr = &info->summary_indicator;
-+	info->airq.lsi_mask = 0xff;
-+	info->airq.isc = VIRTIO_AIRQ_ISC;
-+	rc = register_adapter_interrupt(&info->airq);
-+	if (rc) {
-+		airq_iv_release(info->aiv);
-+		kfree(info);
-+		return NULL;
-+	}
-+	return info;
-+}
-+
-+static void destroy_airq_info(struct airq_info *info)
-+{
-+	if (!info)
-+		return;
-+
-+	unregister_adapter_interrupt(&info->airq);
-+	airq_iv_release(info->aiv);
-+	kfree(info);
-+}
-+
-+static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
-+					u64 *first, void **airq_info)
-+{
-+	int i, j;
-+	struct airq_info *info;
-+	unsigned long indicator_addr = 0;
-+	unsigned long bit, flags;
-+
-+	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
-+		if (!airq_areas[i])
-+			airq_areas[i] = new_airq_info();
-+		info = airq_areas[i];
-+		if (!info)
-+			return 0;
-+		write_lock_irqsave(&info->lock, flags);
-+		bit = airq_iv_alloc(info->aiv, nvqs);
-+		if (bit == -1UL) {
-+			/* Not enough vacancies. */
-+			write_unlock_irqrestore(&info->lock, flags);
-+			continue;
-+		}
-+		*first = bit;
-+		*airq_info = info;
-+		indicator_addr = (unsigned long)info->aiv->vector;
-+		for (j = 0; j < nvqs; j++) {
-+			airq_iv_set_ptr(info->aiv, bit + j,
-+					(unsigned long)vqs[j]);
-+		}
-+		write_unlock_irqrestore(&info->lock, flags);
-+	}
-+	return indicator_addr;
-+}
-+
-+static void virtio_ccw_drop_indicators(struct virtio_ccw_device *vcdev)
-+{
-+	struct virtio_ccw_vq_info *info;
-+
-+	list_for_each_entry(info, &vcdev->virtqueues, node)
-+		drop_airq_indicator(info->vq, vcdev->airq_info);
-+}
-+
- static int doing_io(struct virtio_ccw_device *vcdev, __u32 flag)
+ static inline unsigned long airq_iv_end(struct airq_iv *iv)
  {
- 	unsigned long flags;
-@@ -145,6 +293,51 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
- 	return ret ? ret : vcdev->err;
- }
+ 	return iv->end;
+diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
+index f055df0..445564c 100644
+--- a/drivers/s390/cio/airq.c
++++ b/drivers/s390/cio/airq.c
+@@ -186,55 +186,71 @@ void airq_iv_release(struct airq_iv *iv)
+ EXPORT_SYMBOL(airq_iv_release);
  
-+static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
-+				      struct ccw1 *ccw)
-+{
-+	int ret;
-+	unsigned long *indicatorp = NULL;
-+	struct virtio_thinint_area *thinint_area = NULL;
-+	struct airq_info *airq_info = vcdev->airq_info;
-+
-+	if (vcdev->is_thinint) {
-+		thinint_area = kzalloc(sizeof(*thinint_area),
-+				       GFP_DMA | GFP_KERNEL);
-+		if (!thinint_area)
-+			return;
-+		thinint_area->summary_indicator =
-+			(unsigned long) &airq_info->summary_indicator;
-+		thinint_area->isc = VIRTIO_AIRQ_ISC;
-+		ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
-+		ccw->count = sizeof(*thinint_area);
-+		ccw->cda = (__u32)(unsigned long) thinint_area;
-+	} else {
-+		indicatorp = kmalloc(sizeof(&vcdev->indicators),
-+				     GFP_DMA | GFP_KERNEL);
-+		if (!indicatorp)
-+			return;
-+		*indicatorp = 0;
-+		ccw->cmd_code = CCW_CMD_SET_IND;
-+		ccw->count = sizeof(vcdev->indicators);
-+		ccw->cda = (__u32)(unsigned long) indicatorp;
-+	}
-+	/* Deregister indicators from host. */
-+	vcdev->indicators = 0;
-+	ccw->flags = 0;
-+	ret = ccw_io_helper(vcdev, ccw,
-+			    vcdev->is_thinint ?
-+			    VIRTIO_CCW_DOING_SET_IND_ADAPTER :
-+			    VIRTIO_CCW_DOING_SET_IND);
-+	if (ret && (ret != -ENODEV))
-+		dev_info(&vcdev->cdev->dev,
-+			 "Failed to deregister indicators (%d)\n", ret);
-+	else if (vcdev->is_thinint)
-+		virtio_ccw_drop_indicators(vcdev);
-+	kfree(indicatorp);
-+	kfree(thinint_area);
-+}
-+
- static inline long do_kvm_notify(struct subchannel_id schid,
- 				 unsigned long queue_index,
- 				 long cookie)
-@@ -232,11 +425,13 @@ static void virtio_ccw_del_vqs(struct virtio_device *vdev)
+ /**
+- * airq_iv_alloc_bit - allocate an irq bit from an interrupt vector
++ * airq_iv_alloc - allocate irq bits from an interrupt vector
+  * @iv: pointer to an interrupt vector structure
++ * @num: number of consecutive irq bits to allocate
+  *
+- * Returns the bit number of the allocated irq, or -1UL if no bit
+- * is available or the AIRQ_IV_ALLOC flag has not been specified
++ * Returns the bit number of the first irq in the allocated block of irqs,
++ * or -1UL if no bit is available or the AIRQ_IV_ALLOC flag has not been
++ * specified
+  */
+-unsigned long airq_iv_alloc_bit(struct airq_iv *iv)
++unsigned long airq_iv_alloc(struct airq_iv *iv, unsigned long num)
  {
- 	struct virtqueue *vq, *n;
- 	struct ccw1 *ccw;
-+	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+-	unsigned long bit;
++	unsigned long bit, i;
  
- 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
- 	if (!ccw)
+-	if (!iv->avail)
++	if (!iv->avail || num == 0)
+ 		return -1UL;
+ 	spin_lock(&iv->lock);
+ 	bit = find_first_bit_inv(iv->avail, iv->bits);
+-	if (bit < iv->bits) {
+-		clear_bit_inv(bit, iv->avail);
+-		if (bit >= iv->end)
+-			iv->end = bit + 1;
+-	} else
++	while (bit + num <= iv->bits) {
++		for (i = 1; i < num; i++)
++			if (!test_bit_inv(bit + i, iv->avail))
++				break;
++		if (i >= num) {
++			/* Found a suitable block of irqs */
++			for (i = 0; i < num; i++)
++				clear_bit_inv(bit + i, iv->avail);
++			if (bit + num >= iv->end)
++				iv->end = bit + num + 1;
++			break;
++		}
++		bit = find_next_bit_inv(iv->avail, iv->bits, bit + i + 1);
++	}
++	if (bit + num > iv->bits)
+ 		bit = -1UL;
+ 	spin_unlock(&iv->lock);
+ 	return bit;
+ 
+ }
+-EXPORT_SYMBOL(airq_iv_alloc_bit);
++EXPORT_SYMBOL(airq_iv_alloc);
+ 
+ /**
+- * airq_iv_free_bit - free an irq bit of an interrupt vector
++ * airq_iv_free - free irq bits of an interrupt vector
+  * @iv: pointer to interrupt vector structure
+- * @bit: number of the irq bit to free
++ * @bit: number of the first irq bit to free
++ * @num: number of consecutive irq bits to free
+  */
+-void airq_iv_free_bit(struct airq_iv *iv, unsigned long bit)
++void airq_iv_free(struct airq_iv *iv, unsigned long bit, unsigned long num)
+ {
+-	if (!iv->avail)
++	unsigned long i;
++
++	if (!iv->avail || num == 0)
  		return;
- 
-+	virtio_ccw_drop_indicator(vcdev, ccw);
- 
- 	list_for_each_entry_safe(vq, n, &vdev->vqs, list)
- 		virtio_ccw_del_vq(vq, ccw);
-@@ -326,6 +521,52 @@ out_err:
- 	return ERR_PTR(err);
- }
- 
-+static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
-+					   struct virtqueue *vqs[], int nvqs,
-+					   struct ccw1 *ccw)
-+{
-+	int ret;
-+	struct virtio_thinint_area *thinint_area = NULL;
-+	struct airq_info *info;
-+
-+	thinint_area = kzalloc(sizeof(*thinint_area), GFP_DMA | GFP_KERNEL);
-+	if (!thinint_area) {
-+		ret = -ENOMEM;
-+		goto out;
+ 	spin_lock(&iv->lock);
+-	/* Clear (possibly left over) interrupt bit */
+-	clear_bit_inv(bit, iv->vector);
+-	/* Make the bit position available again */
+-	set_bit_inv(bit, iv->avail);
+-	if (bit == iv->end - 1) {
++	for (i = 0; i < num; i++) {
++		/* Clear (possibly left over) interrupt bit */
++		clear_bit_inv(bit + i, iv->vector);
++		/* Make the bit positions available again */
++		set_bit_inv(bit + i, iv->avail);
 +	}
-+	/* Try to get an indicator. */
-+	thinint_area->indicator = get_airq_indicator(vqs, nvqs,
-+						     &thinint_area->bit_nr,
-+						     &vcdev->airq_info);
-+	if (!thinint_area->indicator) {
-+		ret = -ENOSPC;
-+		goto out;
-+	}
-+	info = vcdev->airq_info;
-+	thinint_area->summary_indicator =
-+		(unsigned long) &info->summary_indicator;
-+	thinint_area->isc = VIRTIO_AIRQ_ISC;
-+	ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
-+	ccw->flags = CCW_FLAG_SLI;
-+	ccw->count = sizeof(*thinint_area);
-+	ccw->cda = (__u32)(unsigned long)thinint_area;
-+	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_IND_ADAPTER);
-+	if (ret) {
-+		dev_warn(&vcdev->cdev->dev,
-+			 "enabling adapter interrupts = %d\n", ret);
-+		if (ret == -EOPNOTSUPP)
-+			/*
-+			 * The host does not support adapter interrupts
-+			 * for virtio-ccw, stop trying.
-+			 */
-+			virtio_ccw_use_airq = 0;
-+		virtio_ccw_drop_indicators(vcdev);
-+	}
-+out:
-+	kfree(thinint_area);
-+	return ret;
-+}
-+
- static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			       struct virtqueue *vqs[],
- 			       vq_callback_t *callbacks[],
-@@ -355,15 +596,23 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	if (!indicatorp)
- 		goto out;
- 	*indicatorp = (unsigned long) &vcdev->indicators;
--	/* Register queue indicators with host. */
--	vcdev->indicators = 0;
--	ccw->cmd_code = CCW_CMD_SET_IND;
--	ccw->flags = 0;
--	ccw->count = sizeof(vcdev->indicators);
--	ccw->cda = (__u32)(unsigned long) indicatorp;
--	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_IND);
--	if (ret)
--		goto out;
-+	if (vcdev->is_thinint) {
-+		ret = virtio_ccw_register_adapter_ind(vcdev, vqs, nvqs, ccw);
-+		if (ret)
-+			/* no error, just fall back to legacy interrupts */
-+			vcdev->is_thinint = 0;
-+	}
-+	if (!vcdev->is_thinint) {
-+		/* Register queue indicators with host. */
-+		vcdev->indicators = 0;
-+		ccw->cmd_code = CCW_CMD_SET_IND;
-+		ccw->flags = 0;
-+		ccw->count = sizeof(vcdev->indicators);
-+		ccw->cda = (__u32)(unsigned long) indicatorp;
-+		ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_IND);
-+		if (ret)
-+			goto out;
-+	}
- 	/* Register indicators2 with host for config changes */
- 	*indicatorp = (unsigned long) &vcdev->indicators2;
- 	vcdev->indicators2 = 0;
-@@ -663,6 +912,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
- 		case VIRTIO_CCW_DOING_SET_CONF_IND:
- 		case VIRTIO_CCW_DOING_RESET:
- 		case VIRTIO_CCW_DOING_READ_VQ_CONF:
-+		case VIRTIO_CCW_DOING_SET_IND_ADAPTER:
- 			vcdev->curr_io &= ~activity;
- 			wake_up(&vcdev->wait_q);
- 			break;
-@@ -778,6 +1028,8 @@ static int virtio_ccw_online(struct ccw_device *cdev)
- 		goto out_free;
++	if (bit + num >= iv->end) {
+ 		/* Find new end of bit-field */
+-		while (--iv->end > 0)
+-			if (!test_bit_inv(iv->end - 1, iv->avail))
+-				break;
++		while (iv->end > 0 && !test_bit_inv(iv->end - 1, iv->avail))
++			iv->end--;
  	}
- 
-+	vcdev->is_thinint = virtio_ccw_use_airq; /* at least try */
-+
- 	vcdev->vdev.dev.parent = &cdev->dev;
- 	vcdev->vdev.dev.release = virtio_ccw_release_dev;
- 	vcdev->vdev.config = &virtio_ccw_config_ops;
-@@ -935,6 +1187,10 @@ module_init(virtio_ccw_init);
- 
- static void __exit virtio_ccw_exit(void)
- {
-+	int i;
-+
- 	ccw_driver_unregister(&virtio_ccw_driver);
-+	for (i = 0; i < MAX_AIRQ_AREAS; i++)
-+		destroy_airq_info(airq_areas[i]);
+ 	spin_unlock(&iv->lock);
  }
- module_exit(virtio_ccw_exit);
+-EXPORT_SYMBOL(airq_iv_free_bit);
++EXPORT_SYMBOL(airq_iv_free);
+ 
+ /**
+  * airq_iv_scan - scan interrupt vector for non-zero bits
 -- 
 1.7.9.5
