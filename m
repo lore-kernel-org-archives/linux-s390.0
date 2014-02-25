@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 4/7] KVM: Add per-vm capability enablement.
-Date: Tue, 25 Feb 2014 18:24:42 +0100
-Message-ID: <1393349085-18122-5-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 7/7] KVM: Bump KVM_MAX_IRQ_ROUTES for s390
+Date: Tue, 25 Feb 2014 18:24:45 +0100
+Message-ID: <1393349085-18122-8-git-send-email-cornelia.huck@de.ibm.com>
 References: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,115 +12,37 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: borntraeger@de.ibm.com, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Allow KVM_ENABLE_CAP to act on a vm as well as on a vcpu. This makes more
-sense when the caller wants to enable a vm-related capability.
+The maximum number for irq routes is currently 1024, which is a bit on
+the small size for s390: We support up to 4 x 64k virtual devices with
+up to 64 queues, and we need one route for each of the queues if we want
+to operate it via irqfd.
 
-s390 will be the first user; wire it up.
+Let's bump this to 4k on s390 for now, as this at least covers the saner
+setups.
 
-Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+We need to find a more general solution, though, as we can't just grow
+the routing table indefinitly.
+
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- Documentation/virtual/kvm/api.txt |    6 ++++--
- arch/s390/kvm/kvm-s390.c          |   24 ++++++++++++++++++++++++
- include/uapi/linux/kvm.h          |    5 +++++
- 3 files changed, 33 insertions(+), 2 deletions(-)
+ include/linux/kvm_host.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index 6cd63a9..7c6a578 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -918,9 +918,9 @@ documentation when it pops into existence).
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index da7510b..7d21cf9 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -922,7 +922,11 @@ static inline int mmu_notifier_retry(struct kvm *kvm, unsigned long mmu_seq)
  
- 4.37 KVM_ENABLE_CAP
+ #ifdef CONFIG_HAVE_KVM_IRQ_ROUTING
  
--Capability: KVM_CAP_ENABLE_CAP
-+Capability: KVM_CAP_ENABLE_CAP, KVM_CAP_ENABLE_CAP_VM
- Architectures: ppc, s390
--Type: vcpu ioctl
-+Type: vcpu ioctl, vm ioctl (with KVM_CAP_ENABLE_CAP_VM)
- Parameters: struct kvm_enable_cap (in)
- Returns: 0 on success; -1 on error
++#ifdef CONFIG_S390
++#define KVM_MAX_IRQ_ROUTES 4096 //FIXME: we can have more than that...
++#else
+ #define KVM_MAX_IRQ_ROUTES 1024
++#endif
  
-@@ -951,6 +951,8 @@ function properly, this is the place to put them.
-        __u8  pad[64];
- };
- 
-+The vcpu ioctl should be used for vcpu-specific capabilities, the vm ioctl
-+for vm-wide capabilities.
- 
- 4.38 KVM_GET_MP_STATE
- 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index a5da2cc..aef92b1 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -159,6 +159,7 @@ int kvm_dev_ioctl_check_extension(long ext)
- 	case KVM_CAP_S390_CSS_SUPPORT:
- 	case KVM_CAP_IOEVENTFD:
- 	case KVM_CAP_DEVICE_CTRL:
-+	case KVM_CAP_ENABLE_CAP_VM:
- 		r = 1;
- 		break;
- 	case KVM_CAP_NR_VCPUS:
-@@ -187,6 +188,21 @@ int kvm_vm_ioctl_get_dirty_log(struct kvm *kvm,
- 	return 0;
- }
- 
-+static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
-+{
-+	int r;
-+
-+	if (cap->flags)
-+		return -EINVAL;
-+
-+	switch (cap->cap) {
-+	default:
-+		r = -EINVAL;
-+		break;
-+	}
-+	return r;
-+}
-+
- long kvm_arch_vm_ioctl(struct file *filp,
- 		       unsigned int ioctl, unsigned long arg)
- {
-@@ -204,6 +220,14 @@ long kvm_arch_vm_ioctl(struct file *filp,
- 		r = kvm_s390_inject_vm(kvm, &s390int);
- 		break;
- 	}
-+	case KVM_ENABLE_CAP: {
-+		struct kvm_enable_cap cap;
-+		r = -EFAULT;
-+		if (copy_from_user(&cap, argp, sizeof(cap)))
-+			break;
-+		r = kvm_vm_ioctl_enable_cap(kvm, &cap);
-+		break;
-+	}
- 	default:
- 		r = -ENOTTY;
- 	}
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 7d76401..48bc6db 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -740,6 +740,7 @@ struct kvm_ppc_smmu_info {
- #define KVM_CAP_SPAPR_MULTITCE 94
- #define KVM_CAP_EXT_EMUL_CPUID 95
- #define KVM_CAP_HYPERV_TIME 96
-+#define KVM_CAP_ENABLE_CAP_VM 97
- 
- #ifdef KVM_CAP_IRQ_ROUTING
- 
-@@ -1075,6 +1076,10 @@ struct kvm_s390_ucas_mapping {
- /* Available with KVM_CAP_DEBUGREGS */
- #define KVM_GET_DEBUGREGS         _IOR(KVMIO,  0xa1, struct kvm_debugregs)
- #define KVM_SET_DEBUGREGS         _IOW(KVMIO,  0xa2, struct kvm_debugregs)
-+/*
-+ * vcpu version available with KVM_ENABLE_CAP
-+ * vm version available with KVM_CAP_ENABLE_CAP_VM
-+ */
- #define KVM_ENABLE_CAP            _IOW(KVMIO,  0xa3, struct kvm_enable_cap)
- /* Available with KVM_CAP_XSAVE */
- #define KVM_GET_XSAVE		  _IOR(KVMIO,  0xa4, struct kvm_xsave)
+ int kvm_setup_default_irq_routing(struct kvm *kvm);
+ int kvm_set_irq_routing(struct kvm *kvm,
 -- 
 1.7.9.5
