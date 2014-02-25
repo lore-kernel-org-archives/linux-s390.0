@@ -1,10 +1,10 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 3/7] KVM: eventfd: Fix lock order inversion.
-Date: Tue, 25 Feb 2014 18:24:41 +0100
-Message-ID: <1393349085-18122-4-git-send-email-cornelia.huck@de.ibm.com>
-References: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 5/6] s390x/virtio-ccw: reference-counted indicators
+Date: Tue, 25 Feb 2014 18:25:19 +0100
+Message-ID: <1393349120-18228-6-git-send-email-cornelia.huck@de.ibm.com>
+References: <1393349120-18228-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <1393349120-18228-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,50 +12,211 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: borntraeger@de.ibm.com, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-When registering a new irqfd, we call its ->poll method to collect any
-event that might have previously been pending so that we can trigger it.
-This is done under the kvm->irqfds.lock, which means the eventfd's ctx
-lock is taken under it.
+Make code using the same indicators point to a single allocated structure
+that is freed when the last user goes away.
 
-However, if we get a POLLHUP in irqfd_wakeup, we will be called with the
-ctx lock held before getting the irqfds.lock to deactivate the irqfd,
-causing lockdep to complain.
+This will be used by the irqfd code to unmap addresses after the last user
+is gone.
 
-Calling the ->poll method does not really need the irqfds.lock, so let's
-just move it after we've given up the irqfds.lock in kvm_irqfd_assign().
-
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- virt/kvm/eventfd.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ hw/s390x/virtio-ccw.c |   80 ++++++++++++++++++++++++++++++++++++++-----------
+ hw/s390x/virtio-ccw.h |   13 ++++++--
+ 2 files changed, 73 insertions(+), 20 deletions(-)
 
-diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
-index abe4d60..29c2a04 100644
---- a/virt/kvm/eventfd.c
-+++ b/virt/kvm/eventfd.c
-@@ -391,19 +391,19 @@ kvm_irqfd_assign(struct kvm *kvm, struct kvm_irqfd *args)
- 					   lockdep_is_held(&kvm->irqfds.lock));
- 	irqfd_update(kvm, irqfd, irq_rt);
+diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
+index 4125100..c218acd 100644
+--- a/hw/s390x/virtio-ccw.c
++++ b/hw/s390x/virtio-ccw.c
+@@ -27,6 +27,38 @@
+ #include "virtio-ccw.h"
+ #include "trace.h"
  
--	events = f.file->f_op->poll(f.file, &irqfd->pt);
--
- 	list_add_tail(&irqfd->list, &kvm->irqfds.items);
- 
-+	spin_unlock_irq(&kvm->irqfds.lock);
++static QTAILQ_HEAD(, IndAddr) indicator_addresses =
++    QTAILQ_HEAD_INITIALIZER(indicator_addresses);
 +
- 	/*
- 	 * Check if there was an event already pending on the eventfd
- 	 * before we registered, and trigger it as if we didn't miss it.
- 	 */
-+	events = f.file->f_op->poll(f.file, &irqfd->pt);
++static IndAddr *get_indicator(hwaddr ind_addr, int len)
++{
++    IndAddr *indicator;
 +
- 	if (events & POLLIN)
- 		schedule_work(&irqfd->inject);
++    QTAILQ_FOREACH(indicator, &indicator_addresses, sibling) {
++        if (indicator->addr == ind_addr) {
++            indicator->refcnt++;
++            return indicator;
++        }
++    }
++    indicator = g_new0(IndAddr, 1);
++    indicator->addr = ind_addr;
++    indicator->len = len;
++    indicator->refcnt = 1;
++    QTAILQ_INSERT_TAIL(&indicator_addresses, indicator, sibling);
++    return indicator;
++}
++
++static void release_indicator(IndAddr *indicator)
++{
++    assert(indicator->refcnt > 0);
++    indicator->refcnt--;
++    if (indicator->refcnt > 0) {
++        return;
++    }
++    QTAILQ_REMOVE(&indicator_addresses, indicator, sibling);
++    g_free(indicator);
++}
++
+ static void virtio_ccw_bus_new(VirtioBusState *bus, size_t bus_size,
+                                VirtioCcwDevice *dev);
  
--	spin_unlock_irq(&kvm->irqfds.lock);
--
- 	/*
- 	 * do not drop the file until the irqfd is fully initialized, otherwise
- 	 * we might race against the POLLHUP
+@@ -445,7 +477,7 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+             ret = -EFAULT;
+         } else {
+             indicators = ldq_phys(&address_space_memory, ccw.cda);
+-            dev->indicators = indicators;
++            dev->indicators = get_indicator(indicators, sizeof(uint64_t));
+             sch->curr_status.scsw.count = ccw.count - sizeof(indicators);
+             ret = 0;
+         }
+@@ -465,7 +497,7 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+             ret = -EFAULT;
+         } else {
+             indicators = ldq_phys(&address_space_memory, ccw.cda);
+-            dev->indicators2 = indicators;
++            dev->indicators2 = get_indicator(indicators, sizeof(uint64_t));
+             sch->curr_status.scsw.count = ccw.count - sizeof(indicators);
+             ret = 0;
+         }
+@@ -517,8 +549,10 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+                 ret = -EFAULT;
+             } else {
+                 len = hw_len;
+-                dev->summary_indicator = thinint->summary_indicator;
+-                dev->indicators = thinint->device_indicator;
++                dev->summary_indicator =
++                    get_indicator(thinint->summary_indicator, sizeof(uint8_t));
++                dev->indicators = get_indicator(thinint->device_indicator,
++                                                thinint->ind_bit / 8 + 1);
+                 dev->thinint_isc = thinint->isc;
+                 dev->ind_bit = thinint->ind_bit;
+                 cpu_physical_memory_unmap(thinint, hw_len, 0, hw_len);
+@@ -526,8 +560,8 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+                                               dev->thinint_isc, true, false,
+                                               &dev->adapter_id);
+                 assert(ret == 0);
+-                sch->thinint_active = ((dev->indicators != 0) &&
+-                                       (dev->summary_indicator != 0));
++                sch->thinint_active = ((dev->indicators != NULL) &&
++                                       (dev->summary_indicator != NULL));
+                 sch->curr_status.scsw.count = ccw.count - len;
+                 ret = 0;
+             }
+@@ -558,7 +592,7 @@ static int virtio_ccw_device_init(VirtioCcwDevice *dev, VirtIODevice *vdev)
+     sch->driver_data = dev;
+     dev->sch = sch;
+ 
+-    dev->indicators = 0;
++    dev->indicators = NULL;
+ 
+     /* Initialize subchannel structure. */
+     sch->channel_prog = 0x0;
+@@ -698,7 +732,10 @@ static int virtio_ccw_exit(VirtioCcwDevice *dev)
+         css_subch_assign(sch->cssid, sch->ssid, sch->schid, sch->devno, NULL);
+         g_free(sch);
+     }
+-    dev->indicators = 0;
++    if (dev->indicators) {
++        release_indicator(dev->indicators);
++        dev->indicators = NULL;
++    }
+     return 0;
+ }
+ 
+@@ -955,17 +992,17 @@ static void virtio_ccw_notify(DeviceState *d, uint16_t vector)
+              * ind_bit indicates the start of the indicators in a big
+              * endian notation.
+              */
+-            virtio_set_ind_atomic(sch, dev->indicators +
++            virtio_set_ind_atomic(sch, dev->indicators->addr +
+                                   (dev->ind_bit + vector) / 8,
+                                   0x80 >> ((dev->ind_bit + vector) % 8));
+-            if (!virtio_set_ind_atomic(sch, dev->summary_indicator,
++            if (!virtio_set_ind_atomic(sch, dev->summary_indicator->addr,
+                                        0x01)) {
+                 css_adapter_interrupt(dev->thinint_isc);
+             }
+         } else {
+-            indicators = ldq_phys(&address_space_memory, dev->indicators);
++            indicators = ldq_phys(&address_space_memory, dev->indicators->addr);
+             indicators |= 1ULL << vector;
+-            stq_phys(&address_space_memory, dev->indicators, indicators);
++            stq_phys(&address_space_memory, dev->indicators->addr, indicators);
+             css_conditional_io_interrupt(sch);
+         }
+     } else {
+@@ -973,9 +1010,9 @@ static void virtio_ccw_notify(DeviceState *d, uint16_t vector)
+             return;
+         }
+         vector = 0;
+-        indicators = ldq_phys(&address_space_memory, dev->indicators2);
++        indicators = ldq_phys(&address_space_memory, dev->indicators2->addr);
+         indicators |= 1ULL << vector;
+-        stq_phys(&address_space_memory, dev->indicators2, indicators);
++        stq_phys(&address_space_memory, dev->indicators2->addr, indicators);
+         css_conditional_io_interrupt(sch);
+     }
+ }
+@@ -996,9 +1033,18 @@ static void virtio_ccw_reset(DeviceState *d)
+     virtio_ccw_stop_ioeventfd(dev);
+     virtio_reset(vdev);
+     css_reset_sch(dev->sch);
+-    dev->indicators = 0;
+-    dev->indicators2 = 0;
+-    dev->summary_indicator = 0;
++    if (dev->indicators) {
++        release_indicator(dev->indicators);
++        dev->indicators = NULL;
++    }
++    if (dev->indicators2) {
++        release_indicator(dev->indicators2);
++        dev->indicators2 = NULL;
++    }
++    if (dev->summary_indicator) {
++        release_indicator(dev->summary_indicator);
++        dev->summary_indicator = NULL;
++    }
+ }
+ 
+ static void virtio_ccw_vmstate_change(DeviceState *d, bool running)
+diff --git a/hw/s390x/virtio-ccw.h b/hw/s390x/virtio-ccw.h
+index 0b70b91..d340bf4 100644
+--- a/hw/s390x/virtio-ccw.h
++++ b/hw/s390x/virtio-ccw.h
+@@ -75,6 +75,13 @@ typedef struct VirtIOCCWDeviceClass {
+ #define VIRTIO_CCW_FLAG_USE_IOEVENTFD_BIT 1
+ #define VIRTIO_CCW_FLAG_USE_IOEVENTFD   (1 << VIRTIO_CCW_FLAG_USE_IOEVENTFD_BIT)
+ 
++typedef struct IndAddr {
++    hwaddr addr;
++    unsigned long refcnt;
++    int len;
++    QTAILQ_ENTRY(IndAddr) sibling;
++} IndAddr;
++
+ struct VirtioCcwDevice {
+     DeviceState parent_obj;
+     SubchDev *sch;
+@@ -87,9 +94,9 @@ struct VirtioCcwDevice {
+     uint8_t thinint_isc;
+     uint32_t adapter_id;
+     /* Guest provided values: */
+-    hwaddr indicators;
+-    hwaddr indicators2;
+-    hwaddr summary_indicator;
++    IndAddr *indicators;
++    IndAddr *indicators2;
++    IndAddr *summary_indicator;
+     uint64_t ind_bit;
+ };
+ 
 -- 
 1.7.9.5
