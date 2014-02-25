@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 1/7] s390/airq: add support for irq ranges
-Date: Tue, 25 Feb 2014 18:24:39 +0100
-Message-ID: <1393349085-18122-2-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 3/7] KVM: eventfd: Fix lock order inversion.
+Date: Tue, 25 Feb 2014 18:24:41 +0100
+Message-ID: <1393349085-18122-4-git-send-email-cornelia.huck@de.ibm.com>
 References: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -9,149 +9,53 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
-Cc: borntraeger@de.ibm.com, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: borntraeger@de.ibm.com, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+When registering a new irqfd, we call its ->poll method to collect any
+event that might have previously been pending so that we can trigger it.
+This is done under the kvm->irqfds.lock, which means the eventfd's ctx
+lock is taken under it.
 
-Add airq_iv_alloc and airq_iv_free to allocate and free consecutive
-ranges of irqs from the interrupt vector.
+However, if we get a POLLHUP in irqfd_wakeup, we will be called with the
+ctx lock held before getting the irqfds.lock to deactivate the irqfd,
+causing lockdep to complain.
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Calling the ->poll method does not really need the irqfds.lock, so let's
+just move it after we've given up the irqfds.lock in kvm_irqfd_assign().
+
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/include/asm/airq.h |   14 +++++++--
- drivers/s390/cio/airq.c      |   66 ++++++++++++++++++++++++++----------------
- 2 files changed, 53 insertions(+), 27 deletions(-)
+ virt/kvm/eventfd.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
-index 4bbb595..bd93ff6 100644
---- a/arch/s390/include/asm/airq.h
-+++ b/arch/s390/include/asm/airq.h
-@@ -44,11 +44,21 @@ struct airq_iv {
+diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
+index abe4d60..29c2a04 100644
+--- a/virt/kvm/eventfd.c
++++ b/virt/kvm/eventfd.c
+@@ -391,19 +391,19 @@ kvm_irqfd_assign(struct kvm *kvm, struct kvm_irqfd *args)
+ 					   lockdep_is_held(&kvm->irqfds.lock));
+ 	irqfd_update(kvm, irqfd, irq_rt);
  
- struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags);
- void airq_iv_release(struct airq_iv *iv);
--unsigned long airq_iv_alloc_bit(struct airq_iv *iv);
--void airq_iv_free_bit(struct airq_iv *iv, unsigned long bit);
-+unsigned long airq_iv_alloc(struct airq_iv *iv, unsigned long num);
-+void airq_iv_free(struct airq_iv *iv, unsigned long bit, unsigned long num);
- unsigned long airq_iv_scan(struct airq_iv *iv, unsigned long start,
- 			   unsigned long end);
+-	events = f.file->f_op->poll(f.file, &irqfd->pt);
+-
+ 	list_add_tail(&irqfd->list, &kvm->irqfds.items);
  
-+static inline unsigned long airq_iv_alloc_bit(struct airq_iv *iv)
-+{
-+	return airq_iv_alloc(iv, 1);
-+}
++	spin_unlock_irq(&kvm->irqfds.lock);
 +
-+static inline void airq_iv_free_bit(struct airq_iv *iv, unsigned long bit)
-+{
-+	airq_iv_free(iv, bit, 1);
-+}
+ 	/*
+ 	 * Check if there was an event already pending on the eventfd
+ 	 * before we registered, and trigger it as if we didn't miss it.
+ 	 */
++	events = f.file->f_op->poll(f.file, &irqfd->pt);
 +
- static inline unsigned long airq_iv_end(struct airq_iv *iv)
- {
- 	return iv->end;
-diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
-index f055df0..445564c 100644
---- a/drivers/s390/cio/airq.c
-+++ b/drivers/s390/cio/airq.c
-@@ -186,55 +186,71 @@ void airq_iv_release(struct airq_iv *iv)
- EXPORT_SYMBOL(airq_iv_release);
+ 	if (events & POLLIN)
+ 		schedule_work(&irqfd->inject);
  
- /**
-- * airq_iv_alloc_bit - allocate an irq bit from an interrupt vector
-+ * airq_iv_alloc - allocate irq bits from an interrupt vector
-  * @iv: pointer to an interrupt vector structure
-+ * @num: number of consecutive irq bits to allocate
-  *
-- * Returns the bit number of the allocated irq, or -1UL if no bit
-- * is available or the AIRQ_IV_ALLOC flag has not been specified
-+ * Returns the bit number of the first irq in the allocated block of irqs,
-+ * or -1UL if no bit is available or the AIRQ_IV_ALLOC flag has not been
-+ * specified
-  */
--unsigned long airq_iv_alloc_bit(struct airq_iv *iv)
-+unsigned long airq_iv_alloc(struct airq_iv *iv, unsigned long num)
- {
--	unsigned long bit;
-+	unsigned long bit, i;
- 
--	if (!iv->avail)
-+	if (!iv->avail || num == 0)
- 		return -1UL;
- 	spin_lock(&iv->lock);
- 	bit = find_first_bit_inv(iv->avail, iv->bits);
--	if (bit < iv->bits) {
--		clear_bit_inv(bit, iv->avail);
--		if (bit >= iv->end)
--			iv->end = bit + 1;
--	} else
-+	while (bit + num <= iv->bits) {
-+		for (i = 1; i < num; i++)
-+			if (!test_bit_inv(bit + i, iv->avail))
-+				break;
-+		if (i >= num) {
-+			/* Found a suitable block of irqs */
-+			for (i = 0; i < num; i++)
-+				clear_bit_inv(bit + i, iv->avail);
-+			if (bit + num >= iv->end)
-+				iv->end = bit + num + 1;
-+			break;
-+		}
-+		bit = find_next_bit_inv(iv->avail, iv->bits, bit + i + 1);
-+	}
-+	if (bit + num > iv->bits)
- 		bit = -1UL;
- 	spin_unlock(&iv->lock);
- 	return bit;
- 
- }
--EXPORT_SYMBOL(airq_iv_alloc_bit);
-+EXPORT_SYMBOL(airq_iv_alloc);
- 
- /**
-- * airq_iv_free_bit - free an irq bit of an interrupt vector
-+ * airq_iv_free - free irq bits of an interrupt vector
-  * @iv: pointer to interrupt vector structure
-- * @bit: number of the irq bit to free
-+ * @bit: number of the first irq bit to free
-+ * @num: number of consecutive irq bits to free
-  */
--void airq_iv_free_bit(struct airq_iv *iv, unsigned long bit)
-+void airq_iv_free(struct airq_iv *iv, unsigned long bit, unsigned long num)
- {
--	if (!iv->avail)
-+	unsigned long i;
-+
-+	if (!iv->avail || num == 0)
- 		return;
- 	spin_lock(&iv->lock);
--	/* Clear (possibly left over) interrupt bit */
--	clear_bit_inv(bit, iv->vector);
--	/* Make the bit position available again */
--	set_bit_inv(bit, iv->avail);
--	if (bit == iv->end - 1) {
-+	for (i = 0; i < num; i++) {
-+		/* Clear (possibly left over) interrupt bit */
-+		clear_bit_inv(bit + i, iv->vector);
-+		/* Make the bit positions available again */
-+		set_bit_inv(bit + i, iv->avail);
-+	}
-+	if (bit + num >= iv->end) {
- 		/* Find new end of bit-field */
--		while (--iv->end > 0)
--			if (!test_bit_inv(iv->end - 1, iv->avail))
--				break;
-+		while (iv->end > 0 && !test_bit_inv(iv->end - 1, iv->avail))
-+			iv->end--;
- 	}
- 	spin_unlock(&iv->lock);
- }
--EXPORT_SYMBOL(airq_iv_free_bit);
-+EXPORT_SYMBOL(airq_iv_free);
- 
- /**
-  * airq_iv_scan - scan interrupt vector for non-zero bits
+-	spin_unlock_irq(&kvm->irqfds.lock);
+-
+ 	/*
+ 	 * do not drop the file until the irqfd is fully initialized, otherwise
+ 	 * we might race against the POLLHUP
 -- 
 1.7.9.5
