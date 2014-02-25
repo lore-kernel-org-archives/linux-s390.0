@@ -1,8 +1,10 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 0/7] KVM: irqfds for s390
-Date: Tue, 25 Feb 2014 18:24:38 +0100
-Message-ID: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 4/7] KVM: Add per-vm capability enablement.
+Date: Tue, 25 Feb 2014 18:24:42 +0100
+Message-ID: <1393349085-18122-5-git-send-email-cornelia.huck@de.ibm.com>
+References: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,81 +12,115 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: borntraeger@de.ibm.com, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+Allow KVM_ENABLE_CAP to act on a vm as well as on a vcpu. This makes more
+sense when the caller wants to enable a vm-related capability.
 
-here's my current patchset enabling irqfds for s390, based on current
-kvm/queue.
+s390 will be the first user; wire it up.
 
-It introduces adapter interrupts for virtio-ccw (these have been specced
-for virtio-1.0 in the virtio oasis standard that is currently under work).
-We use two-staged indicators for the queue indicator area (summary indicator)
-and the queue indicators. Mainly fixes compared to the last time I posted
-this as an RFC (it has been some time...)
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ Documentation/virtual/kvm/api.txt |    6 ++++--
+ arch/s390/kvm/kvm-s390.c          |   24 ++++++++++++++++++++++++
+ include/uapi/linux/kvm.h          |    5 +++++
+ 3 files changed, 33 insertions(+), 2 deletions(-)
 
-For implementing irqfds, we exploit the common infrastructure via adding
-a new interrupt routing type for adapter interrupts. Each of these routes
-contains several parameters like the matching I/O adapter and the locations
-of the summary and queue indicators - one route per virtqueue.
-
-Patches 1 and 2 are relevant for guest support for adapter interrupts.
-Patch 1 will be pushed upstream via the s390 architecture tree.
-
-Patch 3 tries to fix a problem in the common irqfd code I managed to trigger;
-it might make sense to push this on its own.
-
-Patch 4 introduces infrastructure to enable capabilities on a per-vm basis
-(instead of only per-vcpu). It might be of common interest, but will be
-used in this patchset to introduce a s390-specific irqchip capability that
-needs to be enabled by userspace.
-
-Patch 5 introduces the concept of I/O adapters that act as adapter interrupt
-sources. They contain various characteristics, not all of them relevant for
-virtio-ccw but of general use for other types of adapter interrupts. They
-are registered and modified via the new s390 floating interrupt controller.
-
-Patch 6 finally wires up irqfds for virtio-ccw adapter interrupts. The
-capability for this needs to be explicitly enabled by userspace to avoid
-older qemus choking on newer kernels.
-
-Patch 7 is providing a stop-gap measure to let us run not-quite-as-small
-guests: we gobble up irqroutes fairly quickly. There must be a better way.
-
-A git branch with the patches is available at
-
-git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git kvms390-irqfd
-
-
-Cornelia Huck (6):
-  KVM: s390: virtio-ccw adapter interrupt support.
-  KVM: eventfd: Fix lock order inversion.
-  KVM: Add per-vm capability enablement.
-  KVM: s390: adapter interrupt sources
-  KVM: s390: irq routing for adapter interrupts.
-  KVM: Bump KVM_MAX_IRQ_ROUTES for s390
-
-Martin Schwidefsky (1):
-  s390/airq: add support for irq ranges
-
- Documentation/virtual/kvm/api.txt               |   27 ++-
- Documentation/virtual/kvm/devices/s390_flic.txt |   45 ++++
- arch/s390/include/asm/airq.h                    |   14 +-
- arch/s390/include/asm/irq.h                     |    1 +
- arch/s390/include/asm/kvm_host.h                |   30 +++
- arch/s390/include/uapi/asm/kvm.h                |   22 ++
- arch/s390/kernel/irq.c                          |    1 +
- arch/s390/kvm/Kconfig                           |    2 +
- arch/s390/kvm/Makefile                          |    2 +-
- arch/s390/kvm/interrupt.c                       |  287 ++++++++++++++++++++++-
- arch/s390/kvm/irq.h                             |   22 ++
- arch/s390/kvm/kvm-s390.c                        |   42 ++++
- arch/s390/kvm/kvm-s390.h                        |    2 +
- drivers/s390/cio/airq.c                         |   66 ++++--
- drivers/s390/kvm/virtio_ccw.c                   |  276 +++++++++++++++++++++-
- include/linux/kvm_host.h                        |   13 +
- include/uapi/linux/kvm.h                        |   16 ++
- virt/kvm/eventfd.c                              |    8 +-
- 18 files changed, 827 insertions(+), 49 deletions(-)
- create mode 100644 arch/s390/kvm/irq.h
-
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index 6cd63a9..7c6a578 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -918,9 +918,9 @@ documentation when it pops into existence).
+ 
+ 4.37 KVM_ENABLE_CAP
+ 
+-Capability: KVM_CAP_ENABLE_CAP
++Capability: KVM_CAP_ENABLE_CAP, KVM_CAP_ENABLE_CAP_VM
+ Architectures: ppc, s390
+-Type: vcpu ioctl
++Type: vcpu ioctl, vm ioctl (with KVM_CAP_ENABLE_CAP_VM)
+ Parameters: struct kvm_enable_cap (in)
+ Returns: 0 on success; -1 on error
+ 
+@@ -951,6 +951,8 @@ function properly, this is the place to put them.
+        __u8  pad[64];
+ };
+ 
++The vcpu ioctl should be used for vcpu-specific capabilities, the vm ioctl
++for vm-wide capabilities.
+ 
+ 4.38 KVM_GET_MP_STATE
+ 
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index a5da2cc..aef92b1 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -159,6 +159,7 @@ int kvm_dev_ioctl_check_extension(long ext)
+ 	case KVM_CAP_S390_CSS_SUPPORT:
+ 	case KVM_CAP_IOEVENTFD:
+ 	case KVM_CAP_DEVICE_CTRL:
++	case KVM_CAP_ENABLE_CAP_VM:
+ 		r = 1;
+ 		break;
+ 	case KVM_CAP_NR_VCPUS:
+@@ -187,6 +188,21 @@ int kvm_vm_ioctl_get_dirty_log(struct kvm *kvm,
+ 	return 0;
+ }
+ 
++static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
++{
++	int r;
++
++	if (cap->flags)
++		return -EINVAL;
++
++	switch (cap->cap) {
++	default:
++		r = -EINVAL;
++		break;
++	}
++	return r;
++}
++
+ long kvm_arch_vm_ioctl(struct file *filp,
+ 		       unsigned int ioctl, unsigned long arg)
+ {
+@@ -204,6 +220,14 @@ long kvm_arch_vm_ioctl(struct file *filp,
+ 		r = kvm_s390_inject_vm(kvm, &s390int);
+ 		break;
+ 	}
++	case KVM_ENABLE_CAP: {
++		struct kvm_enable_cap cap;
++		r = -EFAULT;
++		if (copy_from_user(&cap, argp, sizeof(cap)))
++			break;
++		r = kvm_vm_ioctl_enable_cap(kvm, &cap);
++		break;
++	}
+ 	default:
+ 		r = -ENOTTY;
+ 	}
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 7d76401..48bc6db 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -740,6 +740,7 @@ struct kvm_ppc_smmu_info {
+ #define KVM_CAP_SPAPR_MULTITCE 94
+ #define KVM_CAP_EXT_EMUL_CPUID 95
+ #define KVM_CAP_HYPERV_TIME 96
++#define KVM_CAP_ENABLE_CAP_VM 97
+ 
+ #ifdef KVM_CAP_IRQ_ROUTING
+ 
+@@ -1075,6 +1076,10 @@ struct kvm_s390_ucas_mapping {
+ /* Available with KVM_CAP_DEBUGREGS */
+ #define KVM_GET_DEBUGREGS         _IOR(KVMIO,  0xa1, struct kvm_debugregs)
+ #define KVM_SET_DEBUGREGS         _IOW(KVMIO,  0xa2, struct kvm_debugregs)
++/*
++ * vcpu version available with KVM_ENABLE_CAP
++ * vm version available with KVM_CAP_ENABLE_CAP_VM
++ */
+ #define KVM_ENABLE_CAP            _IOW(KVMIO,  0xa3, struct kvm_enable_cap)
+ /* Available with KVM_CAP_XSAVE */
+ #define KVM_GET_XSAVE		  _IOR(KVMIO,  0xa4, struct kvm_xsave)
 -- 
 1.7.9.5
