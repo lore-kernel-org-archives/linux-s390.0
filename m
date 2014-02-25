@@ -1,479 +1,459 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 6/7] KVM: s390: irq routing for adapter interrupts.
-Date: Tue, 25 Feb 2014 18:24:44 +0100
-Message-ID: <1393349085-18122-7-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 2/7] KVM: s390: virtio-ccw adapter interrupt
+	support.
+Date: Tue, 25 Feb 2014 18:24:40 +0100
+Message-ID: <1393349085-18122-3-git-send-email-cornelia.huck@de.ibm.com>
 References: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
 In-Reply-To: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
-Cc: borntraeger@de.ibm.com, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: gleb@kernel.org, borntraeger@de.ibm.com, Cornelia Huck <cornelia.huck@de.ibm.com>, agraf@suse.de, pbonzini@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Introduce a new interrupt class for s390 adapter interrupts and enable
-irqfds for s390.
+Implement the new CCW_CMD_SET_IND_ADAPTER command and try to enable
+adapter interrupts for every device on the first startup. If the host
+does not support adapter interrupts, fall back to normal I/O interrupts.
 
-This is depending on a new s390 specific vm capability, KVM_CAP_S390_IRQCHIP,
-that needs to be enabled by userspace.
+virtio-ccw adapter interrupts use the same isc as normal I/O subchannels
+and share a summary indicator for all devices sharing the same indicator
+area.
+
+Indicator bits for the individual virtqueues may be contained in the same
+indicator area for different devices.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- Documentation/virtual/kvm/api.txt               |   21 +++-
- Documentation/virtual/kvm/devices/s390_flic.txt |    6 +-
- arch/s390/include/asm/kvm_host.h                |   10 ++
- arch/s390/kvm/Kconfig                           |    2 +
- arch/s390/kvm/Makefile                          |    2 +-
- arch/s390/kvm/interrupt.c                       |  132 ++++++++++++++++++++++-
- arch/s390/kvm/irq.h                             |   22 ++++
- arch/s390/kvm/kvm-s390.c                        |   17 +++
- include/linux/kvm_host.h                        |    9 ++
- include/uapi/linux/kvm.h                        |   11 ++
- 10 files changed, 222 insertions(+), 10 deletions(-)
- create mode 100644 arch/s390/kvm/irq.h
+ arch/s390/include/asm/irq.h   |    1 +
+ arch/s390/kernel/irq.c        |    1 +
+ drivers/s390/kvm/virtio_ccw.c |  276 +++++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 268 insertions(+), 10 deletions(-)
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index 7c6a578..f084e29 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -586,8 +586,8 @@ struct kvm_fpu {
+diff --git a/arch/s390/include/asm/irq.h b/arch/s390/include/asm/irq.h
+index 5f8bcc5..35f0faa 100644
+--- a/arch/s390/include/asm/irq.h
++++ b/arch/s390/include/asm/irq.h
+@@ -53,6 +53,7 @@ enum interruption_class {
+ 	IRQIO_PCI,
+ 	IRQIO_MSI,
+ 	IRQIO_VIR,
++	IRQIO_VAI,
+ 	NMI_NMI,
+ 	CPU_RST,
+ 	NR_ARCH_IRQS
+diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
+index bb27a26..c288ef7 100644
+--- a/arch/s390/kernel/irq.c
++++ b/arch/s390/kernel/irq.c
+@@ -84,6 +84,7 @@ static const struct irq_class irqclass_sub_desc[NR_ARCH_IRQS] = {
+ 	[IRQIO_PCI]  = {.name = "PCI", .desc = "[I/O] PCI Interrupt" },
+ 	[IRQIO_MSI]  = {.name = "MSI", .desc = "[I/O] MSI Interrupt" },
+ 	[IRQIO_VIR]  = {.name = "VIR", .desc = "[I/O] Virtual I/O Devices"},
++	[IRQIO_VAI]  = {.name = "VAI", .desc = "[I/O] Virtual I/O Devices AI"},
+ 	[NMI_NMI]    = {.name = "NMI", .desc = "[NMI] Machine Check"},
+ 	[CPU_RST]    = {.name = "RST", .desc = "[CPU] CPU Restart"},
+ };
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 0fc5848..09afefe 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -1,7 +1,7 @@
+ /*
+  * ccw based virtio transport
+  *
+- * Copyright IBM Corp. 2012
++ * Copyright IBM Corp. 2012,2014
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License (version 2 only)
+@@ -32,6 +32,8 @@
+ #include <asm/cio.h>
+ #include <asm/ccwdev.h>
+ #include <asm/virtio-ccw.h>
++#include <asm/isc.h>
++#include <asm/airq.h>
  
- 4.24 KVM_CREATE_IRQCHIP
+ /*
+  * virtio related functions
+@@ -58,6 +60,8 @@ struct virtio_ccw_device {
+ 	unsigned long indicators;
+ 	unsigned long indicators2;
+ 	struct vq_config_block *config_block;
++	bool is_thinint;
++	void *airq_info;
+ };
  
--Capability: KVM_CAP_IRQCHIP
--Architectures: x86, ia64, ARM, arm64
-+Capability: KVM_CAP_IRQCHIP, KVM_CAP_S390_IRQCHIP (s390)
-+Architectures: x86, ia64, ARM, arm64, s390
- Type: vm ioctl
- Parameters: none
- Returns: 0 on success, -1 on error
-@@ -596,7 +596,10 @@ Creates an interrupt controller model in the kernel.  On x86, creates a virtual
- ioapic, a virtual PIC (two PICs, nested), and sets up future vcpus to have a
- local APIC.  IRQ routing for GSIs 0-15 is set to both PIC and IOAPIC; GSI 16-23
- only go to the IOAPIC.  On ia64, a IOSAPIC is created. On ARM/arm64, a GIC is
--created.
-+created. On s390, a dummy irq routing table is created.
+ struct vq_info_block {
+@@ -72,15 +76,38 @@ struct virtio_feature_desc {
+ 	__u8 index;
+ } __packed;
+ 
++struct virtio_thinint_area {
++	unsigned long summary_indicator;
++	unsigned long indicator;
++	u64 bit_nr;
++	u8 isc;
++} __packed;
 +
-+Note that on s390 the KVM_CAP_S390_IRQCHIP vm capability needs to be enabled
-+before KVM_CREATE_IRQCHIP can be used.
- 
- 
- 4.25 KVM_IRQ_LINE
-@@ -1322,7 +1325,7 @@ KVM_ASSIGN_DEV_IRQ. Partial deassignment of host or guest IRQ is allowed.
- 4.52 KVM_SET_GSI_ROUTING
- 
- Capability: KVM_CAP_IRQ_ROUTING
--Architectures: x86 ia64
-+Architectures: x86 ia64 s390
- Type: vm ioctl
- Parameters: struct kvm_irq_routing (in)
- Returns: 0 on success, -1 on error
-@@ -1345,6 +1348,7 @@ struct kvm_irq_routing_entry {
- 	union {
- 		struct kvm_irq_routing_irqchip irqchip;
- 		struct kvm_irq_routing_msi msi;
-+		struct kvm_irq_routing_s390_adapter adapter;
- 		__u32 pad[8];
- 	} u;
- };
-@@ -1352,6 +1356,7 @@ struct kvm_irq_routing_entry {
- /* gsi routing entry types */
- #define KVM_IRQ_ROUTING_IRQCHIP 1
- #define KVM_IRQ_ROUTING_MSI 2
-+#define KVM_IRQ_ROUTING_S390_ADAPTER 3
- 
- No flags are specified so far, the corresponding field must be set to zero.
- 
-@@ -1367,6 +1372,14 @@ struct kvm_irq_routing_msi {
- 	__u32 pad;
+ struct virtio_ccw_vq_info {
+ 	struct virtqueue *vq;
+ 	int num;
+ 	void *queue;
+ 	struct vq_info_block *info_block;
++	int bit_nr;
+ 	struct list_head node;
+ 	long cookie;
  };
  
-+struct kvm_irq_routing_s390_adapter {
-+	__u64 ind_addr;
-+	__u64 summary_addr;
-+	__u64 ind_offset;
-+	__u32 summary_offset;
-+	__u32 adapter_id;
++#define VIRTIO_AIRQ_ISC IO_SCH_ISC /* inherit from subchannel */
++
++#define VIRTIO_IV_BITS (L1_CACHE_BYTES * 8)
++#define MAX_AIRQ_AREAS 20
++
++static int virtio_ccw_use_airq = 1;
++
++struct airq_info {
++	rwlock_t lock;
++	u8 summary_indicator;
++	struct airq_struct airq;
++	struct airq_iv *aiv;
 +};
++static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
 +
+ #define CCW_CMD_SET_VQ 0x13
+ #define CCW_CMD_VDEV_RESET 0x33
+ #define CCW_CMD_SET_IND 0x43
+@@ -91,6 +118,7 @@ struct virtio_ccw_vq_info {
+ #define CCW_CMD_WRITE_CONF 0x21
+ #define CCW_CMD_WRITE_STATUS 0x31
+ #define CCW_CMD_READ_VQ_CONF 0x32
++#define CCW_CMD_SET_IND_ADAPTER 0x73
  
- 4.53 KVM_ASSIGN_SET_MSIX_NR
+ #define VIRTIO_CCW_DOING_SET_VQ 0x00010000
+ #define VIRTIO_CCW_DOING_RESET 0x00040000
+@@ -102,6 +130,7 @@ struct virtio_ccw_vq_info {
+ #define VIRTIO_CCW_DOING_SET_IND 0x01000000
+ #define VIRTIO_CCW_DOING_READ_VQ_CONF 0x02000000
+ #define VIRTIO_CCW_DOING_SET_CONF_IND 0x04000000
++#define VIRTIO_CCW_DOING_SET_IND_ADAPTER 0x08000000
+ #define VIRTIO_CCW_INTPARM_MASK 0xffff0000
  
-diff --git a/Documentation/virtual/kvm/devices/s390_flic.txt b/Documentation/virtual/kvm/devices/s390_flic.txt
-index db16111..4ceef53 100644
---- a/Documentation/virtual/kvm/devices/s390_flic.txt
-+++ b/Documentation/virtual/kvm/devices/s390_flic.txt
-@@ -82,8 +82,10 @@ struct kvm_s390_io_adapter_req {
-       mask or unmask the adapter, as specified in mask
- 
-     KVM_S390_IO_ADAPTER_MAP
--      pin a userspace page for the address provided in addr and add it to the
-+      perform a gmap translation for the guest address provided in addr,
-+      pin a userspace page for the translated address and add it to the
-       list of mappings
- 
-     KVM_S390_IO_ADAPTER_UNMAP
--      release a userspace page as specified in addr from the list of mappings
-+      release a userspace page for the translated address specified in addr
-+      from the list of mappings
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 83aa94b..3d7bce8 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -24,6 +24,14 @@
- #define KVM_MAX_VCPUS 64
- #define KVM_USER_MEM_SLOTS 32
- 
-+/*
-+ * These seem to be used for allocating ->chip in the routing table,
-+ * which we don't use. 4096 is an out-of-thin-air value. If we need
-+ * to look at ->chip later on, we'll need to revisit this.
-+ */
-+#define KVM_NR_IRQCHIPS 1
-+#define KVM_IRQCHIP_NUM_PINS 4096
-+
- struct sca_entry {
- 	atomic_t scn;
- 	__u32	reserved;
-@@ -247,6 +255,7 @@ struct kvm_arch_memory_slot {
- 
- struct s390_map_info {
- 	struct list_head list;
-+	__u64 guest_addr;
- 	__u64 addr;
- 	struct page *page;
- };
-@@ -270,6 +279,7 @@ struct kvm_arch{
- 	struct kvm_device *flic;
- 	struct gmap *gmap;
- 	int css_support;
-+	int use_irqchip;
- 	struct s390_io_adapter *adapters[MAX_S390_IO_ADAPTERS];
- };
- 
-diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
-index c8bacbc..10d529a 100644
---- a/arch/s390/kvm/Kconfig
-+++ b/arch/s390/kvm/Kconfig
-@@ -25,6 +25,8 @@ config KVM
- 	select HAVE_KVM_EVENTFD
- 	select KVM_ASYNC_PF
- 	select KVM_ASYNC_PF_SYNC
-+	select HAVE_KVM_IRQCHIP
-+	select HAVE_KVM_IRQ_ROUTING
- 	---help---
- 	  Support hosting paravirtualized guest machines using the SIE
- 	  virtualization capability on the mainframe. This should work
-diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
-index a47d2c3..d3adb37 100644
---- a/arch/s390/kvm/Makefile
-+++ b/arch/s390/kvm/Makefile
-@@ -7,7 +7,7 @@
- # as published by the Free Software Foundation.
- 
- KVM := ../../../virt/kvm
--common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  $(KVM)/async_pf.o
-+common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  $(KVM)/async_pf.o $(KVM)/irqchip.o
- 
- ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
- 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index bfe59be..e4af3c4 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -13,6 +13,7 @@
- #include <linux/interrupt.h>
- #include <linux/kvm_host.h>
- #include <linux/hrtimer.h>
-+#include <linux/mmu_context.h>
- #include <linux/signal.h>
- #include <linux/slab.h>
- #include <asm/asm-offsets.h>
-@@ -1115,8 +1116,13 @@ static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
- 		goto out;
- 	}
- 	INIT_LIST_HEAD(&map->list);
--	map->addr = addr;
--	ret = get_user_pages_fast(addr, 1, 1, &map->page);
-+	map->guest_addr = addr;
-+	map->addr = gmap_translate(addr, kvm->arch.gmap);
-+	if (map->addr == -EFAULT) {
-+		ret = -EFAULT;
-+		goto out;
-+	}
-+	ret = get_user_pages_fast(map->addr, 1, 1, &map->page);
- 	if (ret < 0)
- 		goto out;
- 	BUG_ON(ret != 1);
-@@ -1141,7 +1147,7 @@ static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
- 
- 	down_write(&adapter->maps_lock);
- 	list_for_each_entry_safe(map, tmp, &adapter->maps, list) {
--		if (map->addr == addr) {
-+		if (map->guest_addr == addr) {
- 			found = 1;
- 			list_del(&map->list);
- 			put_page(map->page);
-@@ -1269,3 +1275,123 @@ struct kvm_device_ops kvm_flic_ops = {
- 	.create = flic_create,
- 	.destroy = flic_destroy,
- };
-+
-+static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
-+{
-+	unsigned long bit;
-+
-+	bit = bit_nr + (addr % PAGE_SIZE) * 8;
-+
-+	return swap ? (bit ^ (BITS_PER_LONG - 1)) : bit;
-+}
-+
-+static struct s390_map_info *get_map_info(struct s390_io_adapter *adapter,
-+					  u64 addr)
-+{
-+	struct s390_map_info *map;
-+
-+	if (!adapter)
-+		return NULL;
-+
-+	list_for_each_entry(map, &adapter->maps, list) {
-+		if (map->guest_addr == addr)
-+			return map;
-+	}
-+	return NULL;
-+}
-+
-+static int adapter_indicators_set(struct kvm *kvm,
-+				  struct s390_io_adapter *adapter,
-+				  struct kvm_s390_adapter_int *adapter_int)
-+{
-+	unsigned long bit;
-+	int summary_set, idx;
-+	struct s390_map_info *info;
-+	void *map;
-+
-+	info = get_map_info(adapter, adapter_int->ind_addr);
-+	if (!info)
-+		return -1;
-+	map = page_address(info->page);
-+	bit = get_ind_bit(info->addr, adapter_int->ind_offset, adapter->swap);
-+	set_bit(bit, map);
-+	idx = srcu_read_lock(&kvm->srcu);
-+	mark_page_dirty(kvm, info->guest_addr >> PAGE_SHIFT);
-+	set_page_dirty_lock(info->page);
-+	info = get_map_info(adapter, adapter_int->summary_addr);
-+	if (!info) {
-+		srcu_read_unlock(&kvm->srcu, idx);
-+		return -1;
-+	}
-+	map = page_address(info->page);
-+	bit = get_ind_bit(info->addr, adapter_int->summary_offset,
-+			  adapter->swap);
-+	summary_set = test_and_set_bit(bit, map);
-+	mark_page_dirty(kvm, info->guest_addr >> PAGE_SHIFT);
-+	set_page_dirty_lock(info->page);
-+	srcu_read_unlock(&kvm->srcu, idx);
-+	return summary_set ? 0 : 1;
-+}
-+
-+/*
-+ * < 0 - not injected due to error
-+ * = 0 - coalesced, summary indicator already active
-+ * > 0 - injected interrupt
-+ */
-+static int set_adapter_int(struct kvm_kernel_irq_routing_entry *e,
-+			   struct kvm *kvm, int irq_source_id, int level,
-+			   bool line_status)
-+{
-+	int ret;
-+	struct s390_io_adapter *adapter;
-+
-+	/* We're only interested in the 0->1 transition. */
-+	if (!level)
-+		return 0;
-+	adapter = get_io_adapter(kvm, e->adapter.adapter_id);
-+	if (!adapter)
-+		return -1;
-+	down_read(&adapter->maps_lock);
-+	ret = adapter_indicators_set(kvm, adapter, &e->adapter);
-+	up_read(&adapter->maps_lock);
-+	if ((ret > 0) && !adapter->masked) {
-+		struct kvm_s390_interrupt s390int = {
-+			.type = KVM_S390_INT_IO(1, 0, 0, 0),
-+			.parm = 0,
-+			.parm64 = (adapter->isc << 27) | 0x80000000,
-+		};
-+		ret = kvm_s390_inject_vm(kvm, &s390int);
-+		if (ret == 0)
-+			ret = 1;
-+	}
-+	return ret;
-+}
-+
-+int kvm_set_routing_entry(struct kvm_irq_routing_table *rt,
-+			  struct kvm_kernel_irq_routing_entry *e,
-+			  const struct kvm_irq_routing_entry *ue)
-+{
-+	int ret;
-+
-+	switch (ue->type) {
-+	case KVM_IRQ_ROUTING_S390_ADAPTER:
-+		e->set = set_adapter_int;
-+		e->adapter.summary_addr = ue->u.adapter.summary_addr;
-+		e->adapter.ind_addr = ue->u.adapter.ind_addr;
-+		e->adapter.summary_offset = ue->u.adapter.summary_offset;
-+		e->adapter.ind_offset = ue->u.adapter.ind_offset;
-+		e->adapter.adapter_id = ue->u.adapter.adapter_id;
-+		ret = 0;
-+		break;
-+	default:
-+		ret = -EINVAL;
-+	}
-+
-+	return ret;
-+}
-+
-+int kvm_set_msi(struct kvm_kernel_irq_routing_entry *e, struct kvm *kvm,
-+		int irq_source_id, int level, bool line_status)
-+{
-+	return -EINVAL;
-+}
-diff --git a/arch/s390/kvm/irq.h b/arch/s390/kvm/irq.h
-new file mode 100644
-index 0000000..d98e415
---- /dev/null
-+++ b/arch/s390/kvm/irq.h
-@@ -0,0 +1,22 @@
-+/*
-+ * s390 irqchip routines
-+ *
-+ * Copyright IBM Corp. 2014
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License (version 2 only)
-+ * as published by the Free Software Foundation.
-+ *
-+ *    Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
-+ */
-+#ifndef __KVM_IRQ_H
-+#define __KVM_IRQ_H
-+
-+#include <linux/kvm_host.h>
-+
-+static inline int irqchip_in_kernel(struct kvm *kvm)
-+{
-+	return 1;
-+}
-+
-+#endif
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f0ff213..216317a 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -196,6 +196,10 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
- 		return -EINVAL;
- 
- 	switch (cap->cap) {
-+	case KVM_CAP_S390_IRQCHIP:
-+		kvm->arch.use_irqchip = 1;
-+		r = 0;
-+		break;
- 	default:
- 		r = -EINVAL;
- 		break;
-@@ -228,6 +232,18 @@ long kvm_arch_vm_ioctl(struct file *filp,
- 		r = kvm_vm_ioctl_enable_cap(kvm, &cap);
- 		break;
- 	}
-+	case KVM_CREATE_IRQCHIP: {
-+		struct kvm_irq_routing_entry routing;
-+
-+		r = -EINVAL;
-+		if (kvm->arch.use_irqchip) {
-+			/* Set up dummy routing. */
-+			memset(&routing, 0, sizeof(routing));
-+			kvm_set_irq_routing(kvm, &routing, 0, 0);
-+			r = 0;
-+		}
-+		break;
-+	}
- 	default:
- 		r = -ENOTTY;
- 	}
-@@ -284,6 +300,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	}
- 
- 	kvm->arch.css_support = 0;
-+	kvm->arch.use_irqchip = 0;
- 
- 	return 0;
- out_nogmap:
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 9816b68..da7510b 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -297,6 +297,14 @@ static inline unsigned long kvm_dirty_bitmap_bytes(struct kvm_memory_slot *memsl
- 	return ALIGN(memslot->npages, BITS_PER_LONG) / 8;
+ static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
+@@ -109,6 +138,125 @@ static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
+ 	return container_of(vdev, struct virtio_ccw_device, vdev);
  }
  
-+struct kvm_s390_adapter_int {
-+	u64 ind_addr;
-+	u64 summary_addr;
-+	u64 ind_offset;
-+	u32 summary_offset;
-+	u32 adapter_id;
-+};
++static void drop_airq_indicator(struct virtqueue *vq, struct airq_info *info)
++{
++	unsigned long i, flags;
 +
- struct kvm_kernel_irq_routing_entry {
- 	u32 gsi;
- 	u32 type;
-@@ -309,6 +317,7 @@ struct kvm_kernel_irq_routing_entry {
- 			unsigned pin;
- 		} irqchip;
- 		struct msi_msg msi;
-+		struct kvm_s390_adapter_int adapter;
- 	};
- 	struct hlist_node link;
- };
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 48bc6db..4a0387b 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -741,6 +741,7 @@ struct kvm_ppc_smmu_info {
- #define KVM_CAP_EXT_EMUL_CPUID 95
- #define KVM_CAP_HYPERV_TIME 96
- #define KVM_CAP_ENABLE_CAP_VM 97
-+#define KVM_CAP_S390_IRQCHIP 98
- 
- #ifdef KVM_CAP_IRQ_ROUTING
- 
-@@ -756,9 +757,18 @@ struct kvm_irq_routing_msi {
- 	__u32 pad;
- };
- 
-+struct kvm_irq_routing_s390_adapter {
-+	__u64 ind_addr;
-+	__u64 summary_addr;
-+	__u64 ind_offset;
-+	__u32 summary_offset;
-+	__u32 adapter_id;
-+};
++	write_lock_irqsave(&info->lock, flags);
++	for (i = 0; i < airq_iv_end(info->aiv); i++) {
++		if (vq == (void *)airq_iv_get_ptr(info->aiv, i)) {
++			airq_iv_free_bit(info->aiv, i);
++			airq_iv_set_ptr(info->aiv, i, 0);
++			break;
++		}
++	}
++	write_unlock_irqrestore(&info->lock, flags);
++}
 +
- /* gsi routing entry types */
- #define KVM_IRQ_ROUTING_IRQCHIP 1
- #define KVM_IRQ_ROUTING_MSI 2
-+#define KVM_IRQ_ROUTING_S390_ADAPTER 3
++static void virtio_airq_handler(struct airq_struct *airq)
++{
++	struct airq_info *info = container_of(airq, struct airq_info, airq);
++	unsigned long ai;
++
++	inc_irq_stat(IRQIO_VAI);
++	read_lock(&info->lock);
++	/* Walk through indicators field, summary indicator active. */
++	for (ai = 0;;) {
++		ai = airq_iv_scan(info->aiv, ai, airq_iv_end(info->aiv));
++		if (ai == -1UL)
++			break;
++		vring_interrupt(0, (void *)airq_iv_get_ptr(info->aiv, ai));
++	}
++	info->summary_indicator = 0;
++	smp_wmb();
++	/* Walk through indicators field, summary indicator not active. */
++	for (ai = 0;;) {
++		ai = airq_iv_scan(info->aiv, ai, airq_iv_end(info->aiv));
++		if (ai == -1UL)
++			break;
++		vring_interrupt(0, (void *)airq_iv_get_ptr(info->aiv, ai));
++	}
++	read_unlock(&info->lock);
++}
++
++static struct airq_info *new_airq_info(void)
++{
++	struct airq_info *info;
++	int rc;
++
++	info = kzalloc(sizeof(*info), GFP_KERNEL);
++	if (!info)
++		return NULL;
++	rwlock_init(&info->lock);
++	info->aiv = airq_iv_create(VIRTIO_IV_BITS, AIRQ_IV_ALLOC | AIRQ_IV_PTR);
++	if (!info->aiv) {
++		kfree(info);
++		return NULL;
++	}
++	info->airq.handler = virtio_airq_handler;
++	info->airq.lsi_ptr = &info->summary_indicator;
++	info->airq.lsi_mask = 0xff;
++	info->airq.isc = VIRTIO_AIRQ_ISC;
++	rc = register_adapter_interrupt(&info->airq);
++	if (rc) {
++		airq_iv_release(info->aiv);
++		kfree(info);
++		return NULL;
++	}
++	return info;
++}
++
++static void destroy_airq_info(struct airq_info *info)
++{
++	if (!info)
++		return;
++
++	unregister_adapter_interrupt(&info->airq);
++	airq_iv_release(info->aiv);
++	kfree(info);
++}
++
++static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
++					u64 *first, void **airq_info)
++{
++	int i, j;
++	struct airq_info *info;
++	unsigned long indicator_addr = 0;
++	unsigned long bit, flags;
++
++	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
++		if (!airq_areas[i])
++			airq_areas[i] = new_airq_info();
++		info = airq_areas[i];
++		if (!info)
++			return 0;
++		write_lock_irqsave(&info->lock, flags);
++		bit = airq_iv_alloc(info->aiv, nvqs);
++		if (bit == -1UL) {
++			/* Not enough vacancies. */
++			write_unlock_irqrestore(&info->lock, flags);
++			continue;
++		}
++		*first = bit;
++		*airq_info = info;
++		indicator_addr = (unsigned long)info->aiv->vector;
++		for (j = 0; j < nvqs; j++) {
++			airq_iv_set_ptr(info->aiv, bit + j,
++					(unsigned long)vqs[j]);
++		}
++		write_unlock_irqrestore(&info->lock, flags);
++	}
++	return indicator_addr;
++}
++
++static void virtio_ccw_drop_indicators(struct virtio_ccw_device *vcdev)
++{
++	struct virtio_ccw_vq_info *info;
++
++	list_for_each_entry(info, &vcdev->virtqueues, node)
++		drop_airq_indicator(info->vq, vcdev->airq_info);
++}
++
+ static int doing_io(struct virtio_ccw_device *vcdev, __u32 flag)
+ {
+ 	unsigned long flags;
+@@ -145,6 +293,51 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
+ 	return ret ? ret : vcdev->err;
+ }
  
- struct kvm_irq_routing_entry {
- 	__u32 gsi;
-@@ -768,6 +778,7 @@ struct kvm_irq_routing_entry {
- 	union {
- 		struct kvm_irq_routing_irqchip irqchip;
- 		struct kvm_irq_routing_msi msi;
-+		struct kvm_irq_routing_s390_adapter adapter;
- 		__u32 pad[8];
- 	} u;
- };
++static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
++				      struct ccw1 *ccw)
++{
++	int ret;
++	unsigned long *indicatorp = NULL;
++	struct virtio_thinint_area *thinint_area = NULL;
++	struct airq_info *airq_info = vcdev->airq_info;
++
++	if (vcdev->is_thinint) {
++		thinint_area = kzalloc(sizeof(*thinint_area),
++				       GFP_DMA | GFP_KERNEL);
++		if (!thinint_area)
++			return;
++		thinint_area->summary_indicator =
++			(unsigned long) &airq_info->summary_indicator;
++		thinint_area->isc = VIRTIO_AIRQ_ISC;
++		ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
++		ccw->count = sizeof(*thinint_area);
++		ccw->cda = (__u32)(unsigned long) thinint_area;
++	} else {
++		indicatorp = kmalloc(sizeof(&vcdev->indicators),
++				     GFP_DMA | GFP_KERNEL);
++		if (!indicatorp)
++			return;
++		*indicatorp = 0;
++		ccw->cmd_code = CCW_CMD_SET_IND;
++		ccw->count = sizeof(vcdev->indicators);
++		ccw->cda = (__u32)(unsigned long) indicatorp;
++	}
++	/* Deregister indicators from host. */
++	vcdev->indicators = 0;
++	ccw->flags = 0;
++	ret = ccw_io_helper(vcdev, ccw,
++			    vcdev->is_thinint ?
++			    VIRTIO_CCW_DOING_SET_IND_ADAPTER :
++			    VIRTIO_CCW_DOING_SET_IND);
++	if (ret && (ret != -ENODEV))
++		dev_info(&vcdev->cdev->dev,
++			 "Failed to deregister indicators (%d)\n", ret);
++	else if (vcdev->is_thinint)
++		virtio_ccw_drop_indicators(vcdev);
++	kfree(indicatorp);
++	kfree(thinint_area);
++}
++
+ static inline long do_kvm_notify(struct subchannel_id schid,
+ 				 unsigned long queue_index,
+ 				 long cookie)
+@@ -232,11 +425,13 @@ static void virtio_ccw_del_vqs(struct virtio_device *vdev)
+ {
+ 	struct virtqueue *vq, *n;
+ 	struct ccw1 *ccw;
++	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+ 
+ 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+ 	if (!ccw)
+ 		return;
+ 
++	virtio_ccw_drop_indicator(vcdev, ccw);
+ 
+ 	list_for_each_entry_safe(vq, n, &vdev->vqs, list)
+ 		virtio_ccw_del_vq(vq, ccw);
+@@ -326,6 +521,52 @@ out_err:
+ 	return ERR_PTR(err);
+ }
+ 
++static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
++					   struct virtqueue *vqs[], int nvqs,
++					   struct ccw1 *ccw)
++{
++	int ret;
++	struct virtio_thinint_area *thinint_area = NULL;
++	struct airq_info *info;
++
++	thinint_area = kzalloc(sizeof(*thinint_area), GFP_DMA | GFP_KERNEL);
++	if (!thinint_area) {
++		ret = -ENOMEM;
++		goto out;
++	}
++	/* Try to get an indicator. */
++	thinint_area->indicator = get_airq_indicator(vqs, nvqs,
++						     &thinint_area->bit_nr,
++						     &vcdev->airq_info);
++	if (!thinint_area->indicator) {
++		ret = -ENOSPC;
++		goto out;
++	}
++	info = vcdev->airq_info;
++	thinint_area->summary_indicator =
++		(unsigned long) &info->summary_indicator;
++	thinint_area->isc = VIRTIO_AIRQ_ISC;
++	ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
++	ccw->flags = CCW_FLAG_SLI;
++	ccw->count = sizeof(*thinint_area);
++	ccw->cda = (__u32)(unsigned long)thinint_area;
++	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_IND_ADAPTER);
++	if (ret) {
++		dev_warn(&vcdev->cdev->dev,
++			 "enabling adapter interrupts = %d\n", ret);
++		if (ret == -EOPNOTSUPP)
++			/*
++			 * The host does not support adapter interrupts
++			 * for virtio-ccw, stop trying.
++			 */
++			virtio_ccw_use_airq = 0;
++		virtio_ccw_drop_indicators(vcdev);
++	}
++out:
++	kfree(thinint_area);
++	return ret;
++}
++
+ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 			       struct virtqueue *vqs[],
+ 			       vq_callback_t *callbacks[],
+@@ -355,15 +596,23 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 	if (!indicatorp)
+ 		goto out;
+ 	*indicatorp = (unsigned long) &vcdev->indicators;
+-	/* Register queue indicators with host. */
+-	vcdev->indicators = 0;
+-	ccw->cmd_code = CCW_CMD_SET_IND;
+-	ccw->flags = 0;
+-	ccw->count = sizeof(vcdev->indicators);
+-	ccw->cda = (__u32)(unsigned long) indicatorp;
+-	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_IND);
+-	if (ret)
+-		goto out;
++	if (vcdev->is_thinint) {
++		ret = virtio_ccw_register_adapter_ind(vcdev, vqs, nvqs, ccw);
++		if (ret)
++			/* no error, just fall back to legacy interrupts */
++			vcdev->is_thinint = 0;
++	}
++	if (!vcdev->is_thinint) {
++		/* Register queue indicators with host. */
++		vcdev->indicators = 0;
++		ccw->cmd_code = CCW_CMD_SET_IND;
++		ccw->flags = 0;
++		ccw->count = sizeof(vcdev->indicators);
++		ccw->cda = (__u32)(unsigned long) indicatorp;
++		ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_IND);
++		if (ret)
++			goto out;
++	}
+ 	/* Register indicators2 with host for config changes */
+ 	*indicatorp = (unsigned long) &vcdev->indicators2;
+ 	vcdev->indicators2 = 0;
+@@ -663,6 +912,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+ 		case VIRTIO_CCW_DOING_SET_CONF_IND:
+ 		case VIRTIO_CCW_DOING_RESET:
+ 		case VIRTIO_CCW_DOING_READ_VQ_CONF:
++		case VIRTIO_CCW_DOING_SET_IND_ADAPTER:
+ 			vcdev->curr_io &= ~activity;
+ 			wake_up(&vcdev->wait_q);
+ 			break;
+@@ -778,6 +1028,8 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+ 		goto out_free;
+ 	}
+ 
++	vcdev->is_thinint = virtio_ccw_use_airq; /* at least try */
++
+ 	vcdev->vdev.dev.parent = &cdev->dev;
+ 	vcdev->vdev.dev.release = virtio_ccw_release_dev;
+ 	vcdev->vdev.config = &virtio_ccw_config_ops;
+@@ -935,6 +1187,10 @@ module_init(virtio_ccw_init);
+ 
+ static void __exit virtio_ccw_exit(void)
+ {
++	int i;
++
+ 	ccw_driver_unregister(&virtio_ccw_driver);
++	for (i = 0; i < MAX_AIRQ_AREAS; i++)
++		destroy_airq_info(airq_areas[i]);
+ }
+ module_exit(virtio_ccw_exit);
 -- 
 1.7.9.5
