@@ -1,346 +1,331 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 5/7] KVM: s390: adapter interrupt sources
-Date: Tue, 25 Feb 2014 18:24:43 +0100
-Message-ID: <1393349085-18122-6-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH 6/7] KVM: s390: irq routing for adapter interrupts.
+Date: Tue, 25 Feb 2014 18:24:44 +0100
+Message-ID: <1393349085-18122-7-git-send-email-cornelia.huck@de.ibm.com>
 References: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1393349085-18122-1-git-send-email-cornelia.huck@de.ibm.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
-Cc: gleb@kernel.org, borntraeger@de.ibm.com, Cornelia Huck <cornelia.huck@de.ibm.com>, agraf@suse.de, pbonzini@redhat.com
+Cc: borntraeger@de.ibm.com, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Add a new interface to register/deregister sources of adapter interrupts
-identified by an unique id via the flic. Adapters may also be maskable
-and carry a list of pinned pages.
+Introduce a new interrupt class for s390 adapter interrupts and enable
+irqfds for s390.
 
-These adapters will be used by irq routing later.
+This is depending on a new s390 specific vm capability, KVM_CAP_S390_IRQCHIP,
+that needs to be enabled by userspace.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- Documentation/virtual/kvm/devices/s390_flic.txt |   43 ++++++
- arch/s390/include/asm/kvm_host.h                |   20 +++
- arch/s390/include/uapi/asm/kvm.h                |   22 ++++
- arch/s390/kvm/interrupt.c                       |  161 ++++++++++++++++++++++-
- arch/s390/kvm/kvm-s390.c                        |    1 +
- arch/s390/kvm/kvm-s390.h                        |    2 +
- 6 files changed, 248 insertions(+), 1 deletion(-)
+ Documentation/virtual/kvm/api.txt               |   21 +++-
+ Documentation/virtual/kvm/devices/s390_flic.txt |    6 +-
+ arch/s390/include/asm/kvm_host.h                |   10 ++
+ arch/s390/kvm/Kconfig                           |    2 +
+ arch/s390/kvm/Makefile                          |    2 +-
+ arch/s390/kvm/interrupt.c                       |  132 ++++++++++++++++++++++-
+ arch/s390/kvm/irq.h                             |   22 ++++
+ arch/s390/kvm/kvm-s390.c                        |   17 +++
+ include/linux/kvm_host.h                        |    9 ++
+ include/uapi/linux/kvm.h                        |   11 ++
+ 10 files changed, 222 insertions(+), 10 deletions(-)
+ create mode 100644 arch/s390/kvm/irq.h
 
-diff --git a/Documentation/virtual/kvm/devices/s390_flic.txt b/Documentation/virtual/kvm/devices/s390_flic.txt
-index 410fa67..db16111 100644
---- a/Documentation/virtual/kvm/devices/s390_flic.txt
-+++ b/Documentation/virtual/kvm/devices/s390_flic.txt
-@@ -12,6 +12,7 @@ FLIC provides support to
- - inspect currently pending interrupts (KVM_FLIC_GET_ALL_IRQS)
- - purge all pending floating interrupts (KVM_DEV_FLIC_CLEAR_IRQS)
- - enable/disable for the guest transparent async page faults
-+- register and modify adapter interrupt sources (KVM_DEV_FLIC_ADAPTER_*)
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index 7c6a578..f084e29 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -586,8 +586,8 @@ struct kvm_fpu {
  
- Groups:
-   KVM_DEV_FLIC_ENQUEUE
-@@ -44,3 +45,45 @@ Groups:
-     Disables async page faults for the guest and waits until already pending
-     async page faults are done. This is necessary to trigger a completion interrupt
-     for every init interrupt before migrating the interrupt list.
-+
-+  KVM_DEV_FLIC_ADAPTER_REGISTER
-+    Register an I/O adapter interrupt source. Takes a kvm_s390_io_adapter
-+    describing the adapter to register:
-+
-+struct kvm_s390_io_adapter {
-+	__u32 id;
-+	__u8 isc;
-+	__u8 maskable;
-+	__u8 swap;
-+	__u8 pad;
-+};
-+
-+   id contains the unique id for the adapter, isc the I/O interruption subclass
-+   to use, maskable whether this adapter may be masked (interrupts turned off)
-+   and swap whether the indicators need to be byte swapped.
-+
-+
-+  KVM_DEV_FLIC_ADAPTER_MODIFY
-+    Modifies attributes of an existing I/O adapter interrupt source. Takes
-+    a kvm_s390_io_adapter_req specifiying the adapter and the operation:
-+
-+struct kvm_s390_io_adapter_req {
-+	__u32 id;
-+	__u8 type;
-+	__u8 mask;
-+	__u16 pad0;
-+	__u64 addr;
-+};
-+
-+    id specifies the adapter and type the operation. The supported operations
-+    are:
-+
-+    KVM_S390_IO_ADAPTER_MASK
-+      mask or unmask the adapter, as specified in mask
-+
-+    KVM_S390_IO_ADAPTER_MAP
-+      pin a userspace page for the address provided in addr and add it to the
-+      list of mappings
-+
-+    KVM_S390_IO_ADAPTER_UNMAP
-+      release a userspace page as specified in addr from the list of mappings
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 2c69ba2..83aa94b 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -19,6 +19,7 @@
- #include <linux/kvm.h>
- #include <asm/debug.h>
- #include <asm/cpu.h>
-+#include <asm/isc.h>
+ 4.24 KVM_CREATE_IRQCHIP
  
- #define KVM_MAX_VCPUS 64
- #define KVM_USER_MEM_SLOTS 32
-@@ -244,6 +245,24 @@ struct kvm_vm_stat {
- struct kvm_arch_memory_slot {
+-Capability: KVM_CAP_IRQCHIP
+-Architectures: x86, ia64, ARM, arm64
++Capability: KVM_CAP_IRQCHIP, KVM_CAP_S390_IRQCHIP (s390)
++Architectures: x86, ia64, ARM, arm64, s390
+ Type: vm ioctl
+ Parameters: none
+ Returns: 0 on success, -1 on error
+@@ -596,7 +596,10 @@ Creates an interrupt controller model in the kernel.  On x86, creates a virtual
+ ioapic, a virtual PIC (two PICs, nested), and sets up future vcpus to have a
+ local APIC.  IRQ routing for GSIs 0-15 is set to both PIC and IOAPIC; GSI 16-23
+ only go to the IOAPIC.  On ia64, a IOSAPIC is created. On ARM/arm64, a GIC is
+-created.
++created. On s390, a dummy irq routing table is created.
++
++Note that on s390 the KVM_CAP_S390_IRQCHIP vm capability needs to be enabled
++before KVM_CREATE_IRQCHIP can be used.
+ 
+ 
+ 4.25 KVM_IRQ_LINE
+@@ -1322,7 +1325,7 @@ KVM_ASSIGN_DEV_IRQ. Partial deassignment of host or guest IRQ is allowed.
+ 4.52 KVM_SET_GSI_ROUTING
+ 
+ Capability: KVM_CAP_IRQ_ROUTING
+-Architectures: x86 ia64
++Architectures: x86 ia64 s390
+ Type: vm ioctl
+ Parameters: struct kvm_irq_routing (in)
+ Returns: 0 on success, -1 on error
+@@ -1345,6 +1348,7 @@ struct kvm_irq_routing_entry {
+ 	union {
+ 		struct kvm_irq_routing_irqchip irqchip;
+ 		struct kvm_irq_routing_msi msi;
++		struct kvm_irq_routing_s390_adapter adapter;
+ 		__u32 pad[8];
+ 	} u;
+ };
+@@ -1352,6 +1356,7 @@ struct kvm_irq_routing_entry {
+ /* gsi routing entry types */
+ #define KVM_IRQ_ROUTING_IRQCHIP 1
+ #define KVM_IRQ_ROUTING_MSI 2
++#define KVM_IRQ_ROUTING_S390_ADAPTER 3
+ 
+ No flags are specified so far, the corresponding field must be set to zero.
+ 
+@@ -1367,6 +1372,14 @@ struct kvm_irq_routing_msi {
+ 	__u32 pad;
  };
  
-+struct s390_map_info {
-+	struct list_head list;
-+	__u64 addr;
-+	struct page *page;
++struct kvm_irq_routing_s390_adapter {
++	__u64 ind_addr;
++	__u64 summary_addr;
++	__u64 ind_offset;
++	__u32 summary_offset;
++	__u32 adapter_id;
 +};
 +
-+struct s390_io_adapter {
-+	unsigned int id;
-+	int isc;
-+	bool maskable;
-+	bool masked;
-+	bool swap;
-+	struct rw_semaphore maps_lock;
-+	struct list_head maps;
-+};
+ 
+ 4.53 KVM_ASSIGN_SET_MSIX_NR
+ 
+diff --git a/Documentation/virtual/kvm/devices/s390_flic.txt b/Documentation/virtual/kvm/devices/s390_flic.txt
+index db16111..4ceef53 100644
+--- a/Documentation/virtual/kvm/devices/s390_flic.txt
++++ b/Documentation/virtual/kvm/devices/s390_flic.txt
+@@ -82,8 +82,10 @@ struct kvm_s390_io_adapter_req {
+       mask or unmask the adapter, as specified in mask
+ 
+     KVM_S390_IO_ADAPTER_MAP
+-      pin a userspace page for the address provided in addr and add it to the
++      perform a gmap translation for the guest address provided in addr,
++      pin a userspace page for the translated address and add it to the
+       list of mappings
+ 
+     KVM_S390_IO_ADAPTER_UNMAP
+-      release a userspace page as specified in addr from the list of mappings
++      release a userspace page for the translated address specified in addr
++      from the list of mappings
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 83aa94b..3d7bce8 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -24,6 +24,14 @@
+ #define KVM_MAX_VCPUS 64
+ #define KVM_USER_MEM_SLOTS 32
+ 
++/*
++ * These seem to be used for allocating ->chip in the routing table,
++ * which we don't use. 4096 is an out-of-thin-air value. If we need
++ * to look at ->chip later on, we'll need to revisit this.
++ */
++#define KVM_NR_IRQCHIPS 1
++#define KVM_IRQCHIP_NUM_PINS 4096
 +
-+#define MAX_S390_IO_ADAPTERS (MAX_ISC + 1) * 8
-+
- struct kvm_arch{
- 	struct sca_block *sca;
- 	debug_info_t *dbf;
-@@ -251,6 +270,7 @@ struct kvm_arch{
+ struct sca_entry {
+ 	atomic_t scn;
+ 	__u32	reserved;
+@@ -247,6 +255,7 @@ struct kvm_arch_memory_slot {
+ 
+ struct s390_map_info {
+ 	struct list_head list;
++	__u64 guest_addr;
+ 	__u64 addr;
+ 	struct page *page;
+ };
+@@ -270,6 +279,7 @@ struct kvm_arch{
  	struct kvm_device *flic;
  	struct gmap *gmap;
  	int css_support;
-+	struct s390_io_adapter *adapters[MAX_S390_IO_ADAPTERS];
++	int use_irqchip;
+ 	struct s390_io_adapter *adapters[MAX_S390_IO_ADAPTERS];
  };
  
- #define KVM_HVA_ERR_BAD		(-1UL)
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index cb4c1eb8..a0761e2 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -22,6 +22,8 @@
- #define KVM_DEV_FLIC_CLEAR_IRQS		3
- #define KVM_DEV_FLIC_APF_ENABLE		4
- #define KVM_DEV_FLIC_APF_DISABLE_WAIT	5
-+#define KVM_DEV_FLIC_ADAPTER_REGISTER	6
-+#define KVM_DEV_FLIC_ADAPTER_MODIFY	7
- /*
-  * We can have up to 4*64k pending subchannels + 8 adapter interrupts,
-  * as well as up  to ASYNC_PF_PER_VCPU*KVM_MAX_VCPUS pfault done interrupts.
-@@ -32,6 +34,26 @@
- #define KVM_S390_MAX_FLOAT_IRQS	266250
- #define KVM_S390_FLIC_MAX_BUFFER	0x2000000
+diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+index c8bacbc..10d529a 100644
+--- a/arch/s390/kvm/Kconfig
++++ b/arch/s390/kvm/Kconfig
+@@ -25,6 +25,8 @@ config KVM
+ 	select HAVE_KVM_EVENTFD
+ 	select KVM_ASYNC_PF
+ 	select KVM_ASYNC_PF_SYNC
++	select HAVE_KVM_IRQCHIP
++	select HAVE_KVM_IRQ_ROUTING
+ 	---help---
+ 	  Support hosting paravirtualized guest machines using the SIE
+ 	  virtualization capability on the mainframe. This should work
+diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
+index a47d2c3..d3adb37 100644
+--- a/arch/s390/kvm/Makefile
++++ b/arch/s390/kvm/Makefile
+@@ -7,7 +7,7 @@
+ # as published by the Free Software Foundation.
  
-+struct kvm_s390_io_adapter {
-+	__u32 id;
-+	__u8 isc;
-+	__u8 maskable;
-+	__u8 swap;
-+	__u8 pad;
-+};
-+
-+#define KVM_S390_IO_ADAPTER_MASK 1
-+#define KVM_S390_IO_ADAPTER_MAP 2
-+#define KVM_S390_IO_ADAPTER_UNMAP 3
-+
-+struct kvm_s390_io_adapter_req {
-+	__u32 id;
-+	__u8 type;
-+	__u8 mask;
-+	__u16 pad0;
-+	__u64 addr;
-+};
-+
- /* for KVM_GET_REGS and KVM_SET_REGS */
- struct kvm_regs {
- 	/* general purpose regs for s390 */
+ KVM := ../../../virt/kvm
+-common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  $(KVM)/async_pf.o
++common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  $(KVM)/async_pf.o $(KVM)/irqchip.o
+ 
+ ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
+ 
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 1848080..bfe59be 100644
+index bfe59be..e4af3c4 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -1,7 +1,7 @@
- /*
-  * handling kvm guest interrupts
-  *
-- * Copyright IBM Corp. 2008
-+ * Copyright IBM Corp. 2008,2014
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License (version 2 only)
-@@ -1051,6 +1051,159 @@ static int enqueue_floating_irq(struct kvm_device *dev,
- 	return r;
- }
+@@ -13,6 +13,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/kvm_host.h>
+ #include <linux/hrtimer.h>
++#include <linux/mmu_context.h>
+ #include <linux/signal.h>
+ #include <linux/slab.h>
+ #include <asm/asm-offsets.h>
+@@ -1115,8 +1116,13 @@ static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
+ 		goto out;
+ 	}
+ 	INIT_LIST_HEAD(&map->list);
+-	map->addr = addr;
+-	ret = get_user_pages_fast(addr, 1, 1, &map->page);
++	map->guest_addr = addr;
++	map->addr = gmap_translate(addr, kvm->arch.gmap);
++	if (map->addr == -EFAULT) {
++		ret = -EFAULT;
++		goto out;
++	}
++	ret = get_user_pages_fast(map->addr, 1, 1, &map->page);
+ 	if (ret < 0)
+ 		goto out;
+ 	BUG_ON(ret != 1);
+@@ -1141,7 +1147,7 @@ static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
  
-+static struct s390_io_adapter *get_io_adapter(struct kvm *kvm, unsigned int id)
+ 	down_write(&adapter->maps_lock);
+ 	list_for_each_entry_safe(map, tmp, &adapter->maps, list) {
+-		if (map->addr == addr) {
++		if (map->guest_addr == addr) {
+ 			found = 1;
+ 			list_del(&map->list);
+ 			put_page(map->page);
+@@ -1269,3 +1275,123 @@ struct kvm_device_ops kvm_flic_ops = {
+ 	.create = flic_create,
+ 	.destroy = flic_destroy,
+ };
++
++static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
 +{
-+	if (id >= MAX_S390_IO_ADAPTERS)
-+		return NULL;
-+	return kvm->arch.adapters[id];
++	unsigned long bit;
++
++	bit = bit_nr + (addr % PAGE_SIZE) * 8;
++
++	return swap ? (bit ^ (BITS_PER_LONG - 1)) : bit;
 +}
 +
-+static int register_io_adapter(struct kvm_device *dev,
-+			       struct kvm_device_attr *attr)
++static struct s390_map_info *get_map_info(struct s390_io_adapter *adapter,
++					  u64 addr)
 +{
-+	struct s390_io_adapter *adapter;
-+	struct kvm_s390_io_adapter adapter_info;
-+
-+	if (copy_from_user(&adapter_info,
-+			   (void __user *)attr->addr, sizeof(adapter_info)))
-+		return -EFAULT;
-+
-+	if ((adapter_info.id >= MAX_S390_IO_ADAPTERS) ||
-+	    (dev->kvm->arch.adapters[adapter_info.id] != NULL))
-+		return -EINVAL;
-+
-+	adapter = kzalloc(sizeof(*adapter), GFP_KERNEL);
-+	if (!adapter)
-+		return -ENOMEM;
-+
-+	INIT_LIST_HEAD(&adapter->maps);
-+	init_rwsem(&adapter->maps_lock);
-+	adapter->id = adapter_info.id;
-+	adapter->isc = adapter_info.isc;
-+	adapter->maskable = adapter_info.maskable;
-+	adapter->masked = false;
-+	adapter->swap = adapter_info.swap;
-+	dev->kvm->arch.adapters[adapter->id] = adapter;
-+
-+	return 0;
-+}
-+
-+int kvm_s390_mask_adapter(struct kvm *kvm, unsigned int id, bool masked)
-+{
-+	int ret;
-+	struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
-+
-+	if (!adapter || !adapter->maskable)
-+		return -EINVAL;
-+	ret = adapter->masked;
-+	adapter->masked = masked;
-+	return ret;
-+}
-+
-+static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
-+{
-+	struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
 +	struct s390_map_info *map;
-+	int ret;
 +
-+	if (!adapter || !addr)
-+		return -EINVAL;
++	if (!adapter)
++		return NULL;
 +
-+	map = kzalloc(sizeof(*map), GFP_KERNEL);
-+	if (!map) {
-+		ret = -ENOMEM;
-+		goto out;
++	list_for_each_entry(map, &adapter->maps, list) {
++		if (map->guest_addr == addr)
++			return map;
 +	}
-+	INIT_LIST_HEAD(&map->list);
-+	map->addr = addr;
-+	ret = get_user_pages_fast(addr, 1, 1, &map->page);
-+	if (ret < 0)
-+		goto out;
-+	BUG_ON(ret != 1);
-+	down_write(&adapter->maps_lock);
-+	list_add_tail(&map->list, &adapter->maps);
-+	up_write(&adapter->maps_lock);
-+	ret = 0;
-+out:
-+	if (ret)
-+		kfree(map);
++	return NULL;
++}
++
++static int adapter_indicators_set(struct kvm *kvm,
++				  struct s390_io_adapter *adapter,
++				  struct kvm_s390_adapter_int *adapter_int)
++{
++	unsigned long bit;
++	int summary_set, idx;
++	struct s390_map_info *info;
++	void *map;
++
++	info = get_map_info(adapter, adapter_int->ind_addr);
++	if (!info)
++		return -1;
++	map = page_address(info->page);
++	bit = get_ind_bit(info->addr, adapter_int->ind_offset, adapter->swap);
++	set_bit(bit, map);
++	idx = srcu_read_lock(&kvm->srcu);
++	mark_page_dirty(kvm, info->guest_addr >> PAGE_SHIFT);
++	set_page_dirty_lock(info->page);
++	info = get_map_info(adapter, adapter_int->summary_addr);
++	if (!info) {
++		srcu_read_unlock(&kvm->srcu, idx);
++		return -1;
++	}
++	map = page_address(info->page);
++	bit = get_ind_bit(info->addr, adapter_int->summary_offset,
++			  adapter->swap);
++	summary_set = test_and_set_bit(bit, map);
++	mark_page_dirty(kvm, info->guest_addr >> PAGE_SHIFT);
++	set_page_dirty_lock(info->page);
++	srcu_read_unlock(&kvm->srcu, idx);
++	return summary_set ? 0 : 1;
++}
++
++/*
++ * < 0 - not injected due to error
++ * = 0 - coalesced, summary indicator already active
++ * > 0 - injected interrupt
++ */
++static int set_adapter_int(struct kvm_kernel_irq_routing_entry *e,
++			   struct kvm *kvm, int irq_source_id, int level,
++			   bool line_status)
++{
++	int ret;
++	struct s390_io_adapter *adapter;
++
++	/* We're only interested in the 0->1 transition. */
++	if (!level)
++		return 0;
++	adapter = get_io_adapter(kvm, e->adapter.adapter_id);
++	if (!adapter)
++		return -1;
++	down_read(&adapter->maps_lock);
++	ret = adapter_indicators_set(kvm, adapter, &e->adapter);
++	up_read(&adapter->maps_lock);
++	if ((ret > 0) && !adapter->masked) {
++		struct kvm_s390_interrupt s390int = {
++			.type = KVM_S390_INT_IO(1, 0, 0, 0),
++			.parm = 0,
++			.parm64 = (adapter->isc << 27) | 0x80000000,
++		};
++		ret = kvm_s390_inject_vm(kvm, &s390int);
++		if (ret == 0)
++			ret = 1;
++	}
 +	return ret;
 +}
 +
-+static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
++int kvm_set_routing_entry(struct kvm_irq_routing_table *rt,
++			  struct kvm_kernel_irq_routing_entry *e,
++			  const struct kvm_irq_routing_entry *ue)
 +{
-+	struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
-+	struct s390_map_info *map, *tmp;
-+	int found = 0;
-+
-+	if (!adapter || !addr)
-+		return -EINVAL;
-+
-+	down_write(&adapter->maps_lock);
-+	list_for_each_entry_safe(map, tmp, &adapter->maps, list) {
-+		if (map->addr == addr) {
-+			found = 1;
-+			list_del(&map->list);
-+			put_page(map->page);
-+			kfree(map);
-+			break;
-+		}
-+	}
-+	up_write(&adapter->maps_lock);
-+
-+	return found ? 0 : -EINVAL;
-+}
-+
-+void kvm_s390_destroy_adapters(struct kvm *kvm)
-+{
-+	int i;
-+	struct s390_map_info *map, *tmp;
-+
-+	for (i = 0; i < MAX_S390_IO_ADAPTERS; i++) {
-+		if (!kvm->arch.adapters[i])
-+			continue;
-+		list_for_each_entry_safe(map, tmp,
-+					 &kvm->arch.adapters[i]->maps, list) {
-+			list_del(&map->list);
-+			put_page(map->page);
-+			kfree(map);
-+		}
-+		kfree(kvm->arch.adapters[i]);
-+	}
-+}
-+
-+static int modify_io_adapter(struct kvm_device *dev,
-+			     struct kvm_device_attr *attr)
-+{
-+	struct kvm_s390_io_adapter_req req;
-+	struct s390_io_adapter *adapter;
 +	int ret;
 +
-+	if (copy_from_user(&req, (void __user *)attr->addr, sizeof(req)))
-+		return -EFAULT;
-+
-+	adapter = get_io_adapter(dev->kvm, req.id);
-+	if (!adapter)
-+		return -EINVAL;
-+	switch (req.type) {
-+	case KVM_S390_IO_ADAPTER_MASK:
-+		ret = kvm_s390_mask_adapter(dev->kvm, req.id, req.mask);
-+		if (ret > 0)
-+			ret = 0;
-+		break;
-+	case KVM_S390_IO_ADAPTER_MAP:
-+		ret = kvm_s390_adapter_map(dev->kvm, req.id, req.addr);
-+		break;
-+	case KVM_S390_IO_ADAPTER_UNMAP:
-+		ret = kvm_s390_adapter_unmap(dev->kvm, req.id, req.addr);
++	switch (ue->type) {
++	case KVM_IRQ_ROUTING_S390_ADAPTER:
++		e->set = set_adapter_int;
++		e->adapter.summary_addr = ue->u.adapter.summary_addr;
++		e->adapter.ind_addr = ue->u.adapter.ind_addr;
++		e->adapter.summary_offset = ue->u.adapter.summary_offset;
++		e->adapter.ind_offset = ue->u.adapter.ind_offset;
++		e->adapter.adapter_id = ue->u.adapter.adapter_id;
++		ret = 0;
 +		break;
 +	default:
 +		ret = -EINVAL;
@@ -349,52 +334,146 @@ index 1848080..bfe59be 100644
 +	return ret;
 +}
 +
- static int flic_set_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
- {
- 	int r = 0;
-@@ -1079,6 +1232,12 @@ static int flic_set_attr(struct kvm_device *dev, struct kvm_device_attr *attr)
- 		kvm_for_each_vcpu(i, vcpu, dev->kvm)
- 			kvm_clear_async_pf_completion_queue(vcpu);
- 		break;
-+	case KVM_DEV_FLIC_ADAPTER_REGISTER:
-+		r = register_io_adapter(dev, attr);
-+		break;
-+	case KVM_DEV_FLIC_ADAPTER_MODIFY:
-+		r = modify_io_adapter(dev, attr);
++int kvm_set_msi(struct kvm_kernel_irq_routing_entry *e, struct kvm *kvm,
++		int irq_source_id, int level, bool line_status)
++{
++	return -EINVAL;
++}
+diff --git a/arch/s390/kvm/irq.h b/arch/s390/kvm/irq.h
+new file mode 100644
+index 0000000..d98e415
+--- /dev/null
++++ b/arch/s390/kvm/irq.h
+@@ -0,0 +1,22 @@
++/*
++ * s390 irqchip routines
++ *
++ * Copyright IBM Corp. 2014
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License (version 2 only)
++ * as published by the Free Software Foundation.
++ *
++ *    Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
++ */
++#ifndef __KVM_IRQ_H
++#define __KVM_IRQ_H
++
++#include <linux/kvm_host.h>
++
++static inline int irqchip_in_kernel(struct kvm *kvm)
++{
++	return 1;
++}
++
++#endif
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index f0ff213..216317a 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -196,6 +196,10 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
+ 		return -EINVAL;
+ 
+ 	switch (cap->cap) {
++	case KVM_CAP_S390_IRQCHIP:
++		kvm->arch.use_irqchip = 1;
++		r = 0;
 +		break;
  	default:
  		r = -EINVAL;
+ 		break;
+@@ -228,6 +232,18 @@ long kvm_arch_vm_ioctl(struct file *filp,
+ 		r = kvm_vm_ioctl_enable_cap(kvm, &cap);
+ 		break;
  	}
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index aef92b1..f0ff213 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -343,6 +343,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
- 	debug_unregister(kvm->arch.dbf);
- 	if (!kvm_is_ucontrol(kvm))
- 		gmap_free(kvm->arch.gmap);
-+	kvm_s390_destroy_adapters(kvm);
++	case KVM_CREATE_IRQCHIP: {
++		struct kvm_irq_routing_entry routing;
++
++		r = -EINVAL;
++		if (kvm->arch.use_irqchip) {
++			/* Set up dummy routing. */
++			memset(&routing, 0, sizeof(routing));
++			kvm_set_irq_routing(kvm, &routing, 0, 0);
++			r = 0;
++		}
++		break;
++	}
+ 	default:
+ 		r = -ENOTTY;
+ 	}
+@@ -284,6 +300,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 	}
+ 
+ 	kvm->arch.css_support = 0;
++	kvm->arch.use_irqchip = 0;
+ 
+ 	return 0;
+ out_nogmap:
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 9816b68..da7510b 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -297,6 +297,14 @@ static inline unsigned long kvm_dirty_bitmap_bytes(struct kvm_memory_slot *memsl
+ 	return ALIGN(memslot->npages, BITS_PER_LONG) / 8;
  }
  
- /* Section: vcpu related */
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index ed4750a..5502cc95 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -136,6 +136,7 @@ int __must_check kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
- int __must_check kvm_s390_inject_program_int(struct kvm_vcpu *vcpu, u16 code);
- struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
- 						    u64 cr6, u64 schid);
-+int kvm_s390_mask_adapter(struct kvm *kvm, unsigned int id, bool masked);
++struct kvm_s390_adapter_int {
++	u64 ind_addr;
++	u64 summary_addr;
++	u64 ind_offset;
++	u32 summary_offset;
++	u32 adapter_id;
++};
++
+ struct kvm_kernel_irq_routing_entry {
+ 	u32 gsi;
+ 	u32 type;
+@@ -309,6 +317,7 @@ struct kvm_kernel_irq_routing_entry {
+ 			unsigned pin;
+ 		} irqchip;
+ 		struct msi_msg msi;
++		struct kvm_s390_adapter_int adapter;
+ 	};
+ 	struct hlist_node link;
+ };
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 48bc6db..4a0387b 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -741,6 +741,7 @@ struct kvm_ppc_smmu_info {
+ #define KVM_CAP_EXT_EMUL_CPUID 95
+ #define KVM_CAP_HYPERV_TIME 96
+ #define KVM_CAP_ENABLE_CAP_VM 97
++#define KVM_CAP_S390_IRQCHIP 98
  
- /* implemented in priv.c */
- int kvm_s390_handle_b2(struct kvm_vcpu *vcpu);
-@@ -162,5 +163,6 @@ int kvm_s390_handle_diag(struct kvm_vcpu *vcpu);
- /* implemented in interrupt.c */
- int kvm_cpu_has_interrupt(struct kvm_vcpu *vcpu);
- int psw_extint_disabled(struct kvm_vcpu *vcpu);
-+void kvm_s390_destroy_adapters(struct kvm *kvm);
+ #ifdef KVM_CAP_IRQ_ROUTING
  
- #endif
+@@ -756,9 +757,18 @@ struct kvm_irq_routing_msi {
+ 	__u32 pad;
+ };
+ 
++struct kvm_irq_routing_s390_adapter {
++	__u64 ind_addr;
++	__u64 summary_addr;
++	__u64 ind_offset;
++	__u32 summary_offset;
++	__u32 adapter_id;
++};
++
+ /* gsi routing entry types */
+ #define KVM_IRQ_ROUTING_IRQCHIP 1
+ #define KVM_IRQ_ROUTING_MSI 2
++#define KVM_IRQ_ROUTING_S390_ADAPTER 3
+ 
+ struct kvm_irq_routing_entry {
+ 	__u32 gsi;
+@@ -768,6 +778,7 @@ struct kvm_irq_routing_entry {
+ 	union {
+ 		struct kvm_irq_routing_irqchip irqchip;
+ 		struct kvm_irq_routing_msi msi;
++		struct kvm_irq_routing_s390_adapter adapter;
+ 		__u32 pad[8];
+ 	} u;
+ };
 -- 
 1.7.9.5
