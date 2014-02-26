@@ -1,58 +1,42 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 4/6] s390x: Add I/O adapter registration.
-Date: Wed, 26 Feb 2014 09:37:05 +0100
-Message-ID: <20140226093705.3d111f2f.cornelia.huck@de.ibm.com>
-References: <1393349120-18228-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1393349120-18228-5-git-send-email-cornelia.huck@de.ibm.com>
-	<530DA5D8.6040909@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 1/3] KVM: s390: implementation of kvm_arch_vcpu_runnable()
+Date: Wed, 26 Feb 2014 16:14:17 +0100
+Message-ID: <1393427659-42501-2-git-send-email-borntraeger@de.ibm.com>
+References: <1393427659-42501-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <530DA5D8.6040909@de.ibm.com>
+In-Reply-To: <1393427659-42501-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 26 Feb 2014 09:29:12 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-> On 25/02/14 18:25, Cornelia Huck wrote:
-> 
-> > +int kvm_s390_io_adapter_map(uint32_t id, uint64_t map_addr, bool do_map)
-> > +{
-> > +    struct kvm_s390_io_adapter_req req = {
-> > +        .id = id,
-> > +        .type = do_map ? KVM_S390_IO_ADAPTER_MAP : KVM_S390_IO_ADAPTER_UNMAP,
-> > +        .addr = map_addr,
-> > +    };
-> > +    KVMS390FLICState *flic = s390_get_flic();
-> > +    struct kvm_device_attr attr;
-> 
-> Can we use designated initializer for attr, e.g.
->     struct kvm_device_attr attr = {
->         .group = KVM_DEV_FLIC_ADAPTER_MODIFY,
->         .addr = (uint64_t)&req,
->     }
-> 
-> > +    int r;
-> > +
-> > +    if (!flic) {
-> > +        return -ENOSYS;
-> > +    }
-> > +    if (!kvm_check_extension(kvm_state, KVM_CAP_IRQ_ROUTING)) {
-> > +        return -ENOSYS;
-> > +    }
-> > +
-> > +    attr.group = KVM_DEV_FLIC_ADAPTER_MODIFY;
-> > +    attr.addr = (uint64_t)&req;
-> 
-> and not do it here. That will zero out the other fields of attr.
-> 
-> Same for the register code.
-> 
+A vcpu is defined to be runnable if an interrupt is pending.
 
-Hm, yes, I missed that. I'll change it for the next version.
+Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index a5da2cc..18959bb 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -483,9 +483,7 @@ out:
+ 
+ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu)
+ {
+-	/* kvm common code refers to this, but never calls it */
+-	BUG();
+-	return 0;
++	return kvm_cpu_has_interrupt(vcpu);
+ }
+ 
+ void s390_vcpu_block(struct kvm_vcpu *vcpu)
+-- 
+1.8.4.2
