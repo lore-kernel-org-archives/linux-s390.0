@@ -1,42 +1,47 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/3] KVM: add kvm_arch_vcpu_runnable() test to kvm_vcpu_on_spin() loop
-Date: Wed, 26 Feb 2014 16:14:18 +0100
-Message-ID: <1393427659-42501-3-git-send-email-borntraeger@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 0/3] Improved yield performance
+Date: Wed, 26 Feb 2014 16:16:00 +0100
+Message-ID: <530E0530.3060809@redhat.com>
 References: <1393427659-42501-1-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1393427659-42501-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
+Il 26/02/2014 16:14, Christian Borntraeger ha scritto:
+> Paolo,
+>
+> here is the reworked yield heuristics series against kvm/queue with
+> your suggested changes.
+>
+> Attached is a minimized testcase that reproduces the performance
+> win  (runtime 0:50 instead of 1:00). The constants and the setup
+> seem a bit artificial but these seem to reproduce the problem on my
+> test system: as soon as there is contention from other guests the
+> patch improves the runtime of belows testcase. The original test
+> had 8 competing guests with 4 cpus, I simplified that a bit to have
+> one big guest as cpu stealer.
+>
+>                            host 20 cpus
+> GUEST1 (20vCPUS)			GUEST2(40vCPUS)
+> runs the test				all 40 CPUs cpu bound
+>
+>
+> The testcase stresses the IPC system call, since that creates a lot
+> of diag44 exits on s390 if contended.
+>
+> Some other spinlock tests like fio on guest tmpfs seem to be unaffected.
+>
+> Please consider for kvm/queue. If you have some performance tests
+> a regression run on x86 is welcome.
 
-Use the arch specific function kvm_arch_vcpu_runnable() to add a further
-criterium to identify a suitable vcpu to yield to during undirected yield
-processing.
+Yes, will apply as soon as kvm/queue moves to kvm/next (1 hour or so).
 
-Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- virt/kvm/kvm_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index f5668a4..5fd4cf8 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1801,7 +1801,7 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me)
- 				continue;
- 			if (vcpu == me)
- 				continue;
--			if (waitqueue_active(&vcpu->wq))
-+			if (waitqueue_active(&vcpu->wq) && !kvm_arch_vcpu_runnable(vcpu))
- 				continue;
- 			if (!kvm_vcpu_eligible_for_directed_yield(vcpu))
- 				continue;
--- 
-1.8.4.2
+Paolo
