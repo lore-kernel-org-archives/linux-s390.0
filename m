@@ -1,37 +1,34 @@
-From: Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH 3/3] exec: kill the unnecessary mm->def_flags setting
- in load_elf_binary()
-Date: Tue, 25 Feb 2014 18:03:29 -0500
-Message-ID: <530D2141.50707@redhat.com>
-References: <cover.1392009759.rs.git.athorlton@sgi.com> <ad2c5e30c22c6398acb62641c054588f105cb4f4.1392009760.git.athorlton@sgi.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390: select CONFIG_TTY for use of tty in unconditional
+ keyboard driver
+Date: Thu, 27 Feb 2014 08:07:46 +0100
+Message-ID: <20140227070746.GA4343@osiris>
+References: <20140226191627.9adf3c8e1548e2016c16557c@canb.auug.org.au>
+ <20140226100234.GA23064@thin>
+ <20140227100026.1cc909f2722b16b6d11a7b91@canb.auug.org.au>
+ <20140226231916.GB17589@jtriplet-mobl1>
+ <20140227104211.b2a4a5a1066fcf8ac2640ce3@canb.auug.org.au>
+ <20140227021305.GA23659@thin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <ad2c5e30c22c6398acb62641c054588f105cb4f4.1392009760.git.athorlton@sgi.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-api/>
-List-Post: <mailto:linux-api@vger.kernel.org>
-To: Alex Thorlton <athorlton@sgi.com>, linux-kernel@vger.kernel.org
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Paolo Bonzini <pbonzini@redhat.com>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Mel Gorman <mgorman@suse.de>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Andrea Arcangeli <aarcange@redhat.com>, Oleg Nesterov <oleg@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Alexander Viro <viro@zeniv.linux.org.uk>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-api@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20140227021305.GA23659@thin>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Josh Triplett <josh@joshtriplett.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Andrew Morton <akpm@linux-foundation.org>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/25/2014 03:54 PM, Alex Thorlton wrote:
-> load_elf_binary() sets current->mm->def_flags = def_flags and
-> def_flags is always zero. Not only this looks strange, this is
-> unnecessary because mm_init() has already set ->def_flags = 0. 
+On Wed, Feb 26, 2014 at 06:13:06PM -0800, Josh Triplett wrote:
+> The unconditionally built keyboard driver, drivers/s390/char/keyboard.c,
+> requires CONFIG_TTY, so select it from CONFIG_S390 to prevent a build
+> error.
 > 
-> Signed-off-by: Alex Thorlton <athorlton@sgi.com>
-> Suggested-by: Oleg Nesterov <oleg@redhat.com>
+> Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+> ---
+>  arch/s390/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
 
-Acked-by: Rik van Riel <riel@redhat.com>
-
-
--- 
-All rights reversed
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+Applied, thanks!
