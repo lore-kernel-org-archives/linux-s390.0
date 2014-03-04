@@ -1,157 +1,90 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PULL 7/8] s390/airq: add support for irq ranges
-Date: Tue,  4 Mar 2014 12:27:17 +0100
-Message-ID: <1393932438-58848-8-git-send-email-borntraeger@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PULL 0/8] KVM: s390,virtio-ccw: Features, cleanups and fixes
+Date: Tue, 04 Mar 2014 12:34:04 +0100
+Message-ID: <5315BA2C.80802@redhat.com>
 References: <1393932438-58848-1-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1393932438-58848-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heinz Graalfs <graalfs@linux.vnet.ibm.com>, Thomas Huth <thuth@linux.vnet.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heinz Graalfs <graalfs@linux.vnet.ibm.com>, Thomas Huth <thuth@linux.vnet.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Il 04/03/2014 12:27, Christian Borntraeger ha scritto:
+> Paolo,
+>
+> The following changes since commit d3714010c307d26df251c45be9cd12ab6d41f0c4:
+>
+>   KVM: x86: emulator_cmpxchg_emulated should mark_page_dirty (2014-02-26 10:11:08 +0100)
+>
+> are available in the git repository at:
+>
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-20140304
+>
+> for you to fetch changes up to 96b14536d935848cffd904f583f67c66169002d8:
+>
+>   virtio-ccw: virtio-ccw adapter interrupt support. (2014-03-04 10:41:04 +0100)
+>
+> The pull target is kvm/queue.
+>
+> ----------------------------------------------------------------
+> this is the next round of patches for KVM: s390:
+> - It contains the guest kernel part for adapter interrupt support
+>   for virtio-ccw, no irqfd yet
+> - cleanups, getting rid of some interrupt data structure
+> - ONEREG access to GBEA and PP
+> - Fixes for virtio-ccw, sigp
+>
+> ----------------------------------------------------------------
+> Christian Borntraeger (2):
+>       KVM: s390: Provide access to program parameter
+>       KVM: s390: expose gbea register to userspace
+>
+> Cornelia Huck (1):
+>       virtio-ccw: virtio-ccw adapter interrupt support.
+>
+> Heinz Graalfs (1):
+>       virtio_ccw: fix vcdev pointer handling issues
+>
+> Jens Freimann (2):
+>       KVM: s390: Simplify online vcpus counting for stsi
+>       KVM: s390: get rid of local_int array
+>
+> Martin Schwidefsky (1):
+>       s390/airq: add support for irq ranges
+>
+> Michael Mueller (3):
+>       KVM: s390: implementation of kvm_arch_vcpu_runnable()
+>       KVM: add kvm_arch_vcpu_runnable() test to kvm_vcpu_on_spin() loop
+>       KVM/s390: Set preempted flag during vcpu wakeup and interrupt delivery
+>
+> Takuya Yoshikawa (1):
+>       KVM: x86: Break kvm_for_each_vcpu loop after finding the VP_INDEX
+>
+> Thomas Huth (1):
+>       KVM: s390: Fixed CC of SIGP SET_PREFIX handler
+>
+>  arch/s390/include/asm/airq.h     |  14 +-
+>  arch/s390/include/asm/irq.h      |   1 +
+>  arch/s390/include/asm/kvm_host.h |   5 +-
+>  arch/s390/include/uapi/asm/kvm.h |   2 +
+>  arch/s390/kernel/irq.c           |   1 +
+>  arch/s390/kvm/interrupt.c        |   9 +-
+>  arch/s390/kvm/kvm-s390.c         |  26 +++-
+>  arch/s390/kvm/priv.c             |   7 +-
+>  arch/s390/kvm/sigp.c             | 148 ++++++++----------
+>  arch/x86/kvm/x86.c               |   7 +-
+>  drivers/s390/cio/airq.c          |  66 +++++----
+>  drivers/s390/kvm/virtio_ccw.c    | 313 ++++++++++++++++++++++++++++++++++++---
+>  virt/kvm/kvm_main.c              |   2 +-
+>  13 files changed, 448 insertions(+), 153 deletions(-)
+>
 
-Add airq_iv_alloc and airq_iv_free to allocate and free consecutive
-ranges of irqs from the interrupt vector.
+Pulled to kvm/queue, thanks.
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/airq.h | 14 ++++++++--
- drivers/s390/cio/airq.c      | 66 +++++++++++++++++++++++++++-----------------
- 2 files changed, 53 insertions(+), 27 deletions(-)
-
-diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
-index 4bbb595..bd93ff6 100644
---- a/arch/s390/include/asm/airq.h
-+++ b/arch/s390/include/asm/airq.h
-@@ -44,11 +44,21 @@ struct airq_iv {
- 
- struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags);
- void airq_iv_release(struct airq_iv *iv);
--unsigned long airq_iv_alloc_bit(struct airq_iv *iv);
--void airq_iv_free_bit(struct airq_iv *iv, unsigned long bit);
-+unsigned long airq_iv_alloc(struct airq_iv *iv, unsigned long num);
-+void airq_iv_free(struct airq_iv *iv, unsigned long bit, unsigned long num);
- unsigned long airq_iv_scan(struct airq_iv *iv, unsigned long start,
- 			   unsigned long end);
- 
-+static inline unsigned long airq_iv_alloc_bit(struct airq_iv *iv)
-+{
-+	return airq_iv_alloc(iv, 1);
-+}
-+
-+static inline void airq_iv_free_bit(struct airq_iv *iv, unsigned long bit)
-+{
-+	airq_iv_free(iv, bit, 1);
-+}
-+
- static inline unsigned long airq_iv_end(struct airq_iv *iv)
- {
- 	return iv->end;
-diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
-index f055df0..445564c 100644
---- a/drivers/s390/cio/airq.c
-+++ b/drivers/s390/cio/airq.c
-@@ -186,55 +186,71 @@ void airq_iv_release(struct airq_iv *iv)
- EXPORT_SYMBOL(airq_iv_release);
- 
- /**
-- * airq_iv_alloc_bit - allocate an irq bit from an interrupt vector
-+ * airq_iv_alloc - allocate irq bits from an interrupt vector
-  * @iv: pointer to an interrupt vector structure
-+ * @num: number of consecutive irq bits to allocate
-  *
-- * Returns the bit number of the allocated irq, or -1UL if no bit
-- * is available or the AIRQ_IV_ALLOC flag has not been specified
-+ * Returns the bit number of the first irq in the allocated block of irqs,
-+ * or -1UL if no bit is available or the AIRQ_IV_ALLOC flag has not been
-+ * specified
-  */
--unsigned long airq_iv_alloc_bit(struct airq_iv *iv)
-+unsigned long airq_iv_alloc(struct airq_iv *iv, unsigned long num)
- {
--	unsigned long bit;
-+	unsigned long bit, i;
- 
--	if (!iv->avail)
-+	if (!iv->avail || num == 0)
- 		return -1UL;
- 	spin_lock(&iv->lock);
- 	bit = find_first_bit_inv(iv->avail, iv->bits);
--	if (bit < iv->bits) {
--		clear_bit_inv(bit, iv->avail);
--		if (bit >= iv->end)
--			iv->end = bit + 1;
--	} else
-+	while (bit + num <= iv->bits) {
-+		for (i = 1; i < num; i++)
-+			if (!test_bit_inv(bit + i, iv->avail))
-+				break;
-+		if (i >= num) {
-+			/* Found a suitable block of irqs */
-+			for (i = 0; i < num; i++)
-+				clear_bit_inv(bit + i, iv->avail);
-+			if (bit + num >= iv->end)
-+				iv->end = bit + num + 1;
-+			break;
-+		}
-+		bit = find_next_bit_inv(iv->avail, iv->bits, bit + i + 1);
-+	}
-+	if (bit + num > iv->bits)
- 		bit = -1UL;
- 	spin_unlock(&iv->lock);
- 	return bit;
- 
- }
--EXPORT_SYMBOL(airq_iv_alloc_bit);
-+EXPORT_SYMBOL(airq_iv_alloc);
- 
- /**
-- * airq_iv_free_bit - free an irq bit of an interrupt vector
-+ * airq_iv_free - free irq bits of an interrupt vector
-  * @iv: pointer to interrupt vector structure
-- * @bit: number of the irq bit to free
-+ * @bit: number of the first irq bit to free
-+ * @num: number of consecutive irq bits to free
-  */
--void airq_iv_free_bit(struct airq_iv *iv, unsigned long bit)
-+void airq_iv_free(struct airq_iv *iv, unsigned long bit, unsigned long num)
- {
--	if (!iv->avail)
-+	unsigned long i;
-+
-+	if (!iv->avail || num == 0)
- 		return;
- 	spin_lock(&iv->lock);
--	/* Clear (possibly left over) interrupt bit */
--	clear_bit_inv(bit, iv->vector);
--	/* Make the bit position available again */
--	set_bit_inv(bit, iv->avail);
--	if (bit == iv->end - 1) {
-+	for (i = 0; i < num; i++) {
-+		/* Clear (possibly left over) interrupt bit */
-+		clear_bit_inv(bit + i, iv->vector);
-+		/* Make the bit positions available again */
-+		set_bit_inv(bit + i, iv->avail);
-+	}
-+	if (bit + num >= iv->end) {
- 		/* Find new end of bit-field */
--		while (--iv->end > 0)
--			if (!test_bit_inv(iv->end - 1, iv->avail))
--				break;
-+		while (iv->end > 0 && !test_bit_inv(iv->end - 1, iv->avail))
-+			iv->end--;
- 	}
- 	spin_unlock(&iv->lock);
- }
--EXPORT_SYMBOL(airq_iv_free_bit);
-+EXPORT_SYMBOL(airq_iv_free);
- 
- /**
-  * airq_iv_scan - scan interrupt vector for non-zero bits
--- 
-1.8.4.2
+Paolo
