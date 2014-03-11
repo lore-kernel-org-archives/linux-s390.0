@@ -1,16 +1,38 @@
-From: "Linux parisc" <csanders@sefcoelectric.com>
-Subject: My husband loves Jacob & Co
-Date: Sun, 30 Mar 2014 09:24:41 +0200
-Message-ID: <AF12BDC1.1DB94AAD@sefcoelectric.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Return-path: <linux-serial-owner@vger.kernel.org>
-List-Archive: <https://lore.kernel.org/linux-parisc/>
-List-Post: <mailto:linux-parisc@vger.kernel.org>
-To: linux-parisc@vger.kernel.org
-Cc: linux-pci@vger.kernel.org, linux-pm@vger.kernel.org, linux-ppp@vger.kernel.org, linux-ppp-owner@vger.kernel.org, linux-raid@vger.kernel.org, linux-raid-owner@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org, linux-sh@vger.kernel.org, linux-smp@vger.kernel.org, linux-smp-owner@vger.kernel.org, linux-sound-owner@vger.kernel.org, linux-usb@vger.kernel.org, linux-userfs@vger.kernel.org, linux-wireless@vger.kernel.org, majordomo@vger.kernel.org, net@vger.kernel.org, netdev@vger.kernel.org, netfilter@vger.kernel.org, netfilter-devel@vger.kernel.org, platform-driver-x86@vger.kernel.org, postmaster@vger.kernel.org, reiserfs-devel@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Dongsheng Yang <yangds.fnst@cn.fujitsu.com>
+Subject: [PATCH 11/16] drivers/s390: Replace hardcoding of 19 with MAX_NICE.
+Date: Tue, 11 Mar 2014 17:20:32 +0800
+Message-Id: <bfe03593d7573212466292424be53f3970a6429b.1394529373.git.yangds.fnst@cn.fujitsu.com>
+In-Reply-To: <cover.1394529373.git.yangds.fnst@cn.fujitsu.com>
+References: <cover.1394529373.git.yangds.fnst@cn.fujitsu.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: joe@perches.com, peterz@infradead.org, mingo@kernel.org, tglx@linutronix.de, heiko.carstens@de.ibm.com, Dongsheng Yang <yangds.fnst@cn.fujitsu.com>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Tuchscherer <ingo.tuchscherer@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Give her the gift of her lifetime without using your lifetime's savings.
-http://stalvandriel.com/umyvxyp.php
+Signed-off-by: Dongsheng Yang <yangds.fnst@cn.fujitsu.com>
+cc: linux-s390@vger.kernel.org
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: Ingo Tuchscherer <ingo.tuchscherer@de.ibm.com>
+---
+ drivers/s390/crypto/ap_bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index ab3baa7..8eec165 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -1803,7 +1803,7 @@ static int ap_poll_thread(void *data)
+ 	int requests;
+ 	struct ap_device *ap_dev;
+ 
+-	set_user_nice(current, 19);
++	set_user_nice(current, MAX_NICE);
+ 	while (1) {
+ 		if (ap_suspend_flag)
+ 			return 0;
+-- 
+1.8.2.1
