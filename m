@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20140323150752.843705144@linutronix.de>
-Date: Sun, 23 Mar 2014 15:09:25 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 03/16] s390: net: lcs: Add missing destroy_timer_on_stack()
-References: <20140323150557.288925975@linutronix.de>
-Content-Disposition: inline;
- filename=s390-net-lcs-add-missing-destroy-timer-on-stack.patch
+From: Dongsheng Yang <yangds.fnst@cn.fujitsu.com>
+Subject: [PATCH 11/15] drivers/s390: Replace hardcoding of 19 with MAX_NICE.
+Date: Tue, 11 Mar 2014 12:59:26 +0800
+Message-Id: <218fc526ce96a71a2e1cc186762cfca7ed0bdc04.1394513466.git.yangds.fnst@cn.fujitsu.com>
+In-Reply-To: <cover.1394513466.git.yangds.fnst@cn.fujitsu.com>
+References: <cover.1394513466.git.yangds.fnst@cn.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Julia Lawall <Julia.Lawall@lip6.fr>, Andrew Morton <akpm@linux-foundation.org>, Ursula Braun <ursula.braun@de.ibm.com>, s390 <linux-s390@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: joe@perches.com, peterz@infradead.org, mingo@kernel.org, tglx@linutronix.de, Dongsheng Yang <yangds.fnst@cn.fujitsu.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Tuchscherer <ingo.tuchscherer@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Otherwise we leak a tracking object when DEBUG_OBJECTS is enabled.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ursula Braun <ursula.braun@de.ibm.com>
-Cc: s390 <linux-s390@vger.kernel.org>
+Signed-off-by: Dongsheng Yang <yangds.fnst@cn.fujitsu.com>
+cc: linux-s390@vger.kernel.org
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: Ingo Tuchscherer <ingo.tuchscherer@de.ibm.com>
 ---
- drivers/s390/net/lcs.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/crypto/ap_bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Index: tip/drivers/s390/net/lcs.c
-===================================================================
---- tip.orig/drivers/s390/net/lcs.c
-+++ tip/drivers/s390/net/lcs.c
-@@ -899,6 +899,7 @@ lcs_send_lancmd(struct lcs_card *card, s
- 	add_timer(&timer);
- 	wait_event(reply->wait_q, reply->received);
- 	del_timer_sync(&timer);
-+	destroy_timer_on_stack(&timer);
- 	LCS_DBF_TEXT_(4, trace, "rc:%d",reply->rc);
- 	rc = reply->rc;
- 	lcs_put_reply(reply);
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index ab3baa7..8eec165 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -1803,7 +1803,7 @@ static int ap_poll_thread(void *data)
+ 	int requests;
+ 	struct ap_device *ap_dev;
+ 
+-	set_user_nice(current, 19);
++	set_user_nice(current, MAX_NICE);
+ 	while (1) {
+ 		if (ap_suspend_flag)
+ 			return 0;
+-- 
+1.8.2.1
