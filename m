@@ -1,94 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 18 Mar 2014 14:34:07 +0100
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Subject: Re: [PATCH] s390: correct misuses of module_put in
- appldata_generic_handler.
-Message-ID: <20140318143407.0df4457f@thinkpad>
-In-Reply-To: <CAABZP2zrLqTRu4sTbYSQ58G1SHGR_YhdGC7365aVmyq6q1n_dg@mail.gmail.com>
-References: <1394890540-2435-1-git-send-email-zhouzhouyi@gmail.com>
-	<20140317142851.50e5f533@thinkpad>
-	<CAABZP2zrLqTRu4sTbYSQ58G1SHGR_YhdGC7365aVmyq6q1n_dg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Dongsheng Yang <yangds.fnst@cn.fujitsu.com>
+Subject: [PATCH 12/17] drivers/s390: Replace hardcoding of 19 with MAX_NICE.
+Date: Tue, 11 Mar 2014 18:09:20 +0800
+Message-Id: <e9f9fafe2a1756d0c78de96e19d07284cae71e67.1394532288.git.yangds.fnst@cn.fujitsu.com>
+In-Reply-To: <cover.1394532288.git.yangds.fnst@cn.fujitsu.com>
+References: <cover.1394532288.git.yangds.fnst@cn.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Zhouyi Zhou <zhouzhouyi@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, joe@perches.com, gang.chen@asianux.com, linux390@de.ibm.com, heiko.carstens@de.ibm.com, schwidefsky@de.ibm.com, Zhouyi Zhou <yizhouzhou@ict.ac.cn>
+To: linux-kernel@vger.kernel.org
+Cc: peterz@infradead.org, joe@perches.com, mingo@kernel.org, tglx@linutronix.de, heiko.carstens@de.ibm.com, Dongsheng Yang <yangds.fnst@cn.fujitsu.com>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Tuchscherer <ingo.tuchscherer@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 18 Mar 2014 09:24:55 +0800
-Zhouyi Zhou <zhouzhouyi@gmail.com> wrote:
+Signed-off-by: Dongsheng Yang <yangds.fnst@cn.fujitsu.com>
+cc: linux-s390@vger.kernel.org
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: Ingo Tuchscherer <ingo.tuchscherer@de.ibm.com>
+---
+ drivers/s390/crypto/ap_bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Thanks Gerald for reviewing and sorry for not elaborated it in the e-mail.
-> 
-> Firstly, I think you can't call module_put after fail try_module_get
-
-There is another try_module_get() in this function before that, so I need
-to call module_put() once if the second try_module_get() fails.
-
-The first try_module_get() is only needed within the function, while the
-second one is needed to prevent a module from being unloaded while its
-callback is registered, so that reference is kept as long as the module
-is active.
-
-> 
-> Secondly, there exists duplicate module_put on the program path (the last
-> one is before return 0)
-
-There is one module_put() for every try_module_get(). If "1" is written
-to the sysctl, the function exits with one "missing" module_put(), which
-is held to protect the callback. When "0" is written, this reference
-is returned again with an "extra" module_put().
-
-> 
-> On Mon, Mar 17, 2014 at 9:28 PM, Gerald Schaefer
-> <gerald.schaefer@de.ibm.com> wrote:
-> > On Sat, 15 Mar 2014 21:35:40 +0800
-> > Zhouyi Zhou <zhouzhouyi@gmail.com> wrote:
-> >
-> >> correct misuses of module_put in  appldata_generic_handler
-> >
-> > Sorry, I don't see any misuse, could you elaborate?
-> >
-> >>
-> >> Signed-off-by: Zhouyi Zhou <yizhouzhou@ict.ac.cn>
-> >> ---
-> >>  arch/s390/appldata/appldata_base.c | 3 ---
-> >>  1 file changed, 3 deletions(-)
-> >>
-> >> diff --git a/arch/s390/appldata/appldata_base.c b/arch/s390/appldata/appldata_base.c
-> >> index 47c8630..683e0282 100644
-> >> --- a/arch/s390/appldata/appldata_base.c
-> >> +++ b/arch/s390/appldata/appldata_base.c
-> >> @@ -343,7 +343,6 @@ appldata_generic_handler(struct ctl_table *ctl, int write,
-> >>               // protect work queue callback
-> >>               if (!try_module_get(ops->owner)) {
-> >>                       mutex_unlock(&appldata_ops_mutex);
-> >> -                     module_put(ops->owner);
-> >>                       return -ENODEV;
-> >>               }
-> >>               ops->callback(ops->data);       // init record
-> >> @@ -354,7 +353,6 @@ appldata_generic_handler(struct ctl_table *ctl, int write,
-> >>               if (rc != 0) {
-> >>                       pr_err("Starting the data collection for %s "
-> >>                              "failed with rc=%d\n", ops->name, rc);
-> >> -                     module_put(ops->owner);
-> >>               } else
-> >>                       ops->active = 1;
-> >>       } else if ((buf[0] == '0') && (ops->active == 1)) {
-> >> @@ -365,7 +363,6 @@ appldata_generic_handler(struct ctl_table *ctl, int write,
-> >>               if (rc != 0)
-> >>                       pr_err("Stopping the data collection for %s "
-> >>                              "failed with rc=%d\n", ops->name, rc);
-> >> -             module_put(ops->owner);
-> >>       }
-> >>       mutex_unlock(&appldata_ops_mutex);
-> >>  out:
-> >
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-s390" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index ab3baa7..8eec165 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -1803,7 +1803,7 @@ static int ap_poll_thread(void *data)
+ 	int requests;
+ 	struct ap_device *ap_dev;
+ 
+-	set_user_nice(current, 19);
++	set_user_nice(current, MAX_NICE);
+ 	while (1) {
+ 		if (ap_suspend_flag)
+ 			return 0;
+-- 
+1.8.2.1
