@@ -1,239 +1,104 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Subject: [PATCH v3 52/52] net/iucv/iucv.c: Fix CPU hotplug callback
- registration
-Date: Tue, 11 Mar 2014 02:12:57 +0530
-Message-ID: <20140310204257.10746.50242.stgit@srivatsabhat.in.ibm.com>
-In-Reply-To: <20140310203312.10746.310.stgit@srivatsabhat.in.ibm.com>
-References: <20140310203312.10746.310.stgit@srivatsabhat.in.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 14 Mar 2014 10:56:28 +0000
+From: =?iso-8859-1?Q?Lu=EDs?= Henriques <luis.henriques@canonical.com>
+Subject: Re: 3.10.33 stable lockdep warning
+Message-ID: <20140314105628.GA3117@hercules>
+References: <5321B378.9000603@borntraeger.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20140310204257.X6pwZS2eyWvAGsf8960jo1HFJd8X_UjcK5N_vxHHZbA@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: paulus@samba.org, oleg@redhat.com, mingo@kernel.org, rjw@rjwysocki.net, rusty@rustcorp.com.au, peterz@infradead.org, tglx@linutronix.de, akpm@linux-foundation.org
-Cc: paulmck@linux.vnet.ibm.com, tj@kernel.org, walken@google.com, ego@linux.vnet.ibm.com, linux@arm.linux.org.uk, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-pm@vger.kernel.org, linuxppc-dev@ozlabs.org, srivatsa.bhat@linux.vnet.ibm.com, Ursula Braun <ursula.braun@de.ibm.com>, linux-s390@vger.kernel.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>"Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <5321B378.9000603@borntraeger.net>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Christian Borntraeger <christian@borntraeger.net>
+Cc: stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Jens Axboe <axboe@kernel.dk>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Subsystems that want to register CPU hotplug callbacks, as well as perform
-initialization for the CPUs that are already online, often do it as shown
-below:
+On Thu, Mar 13, 2014 at 02:32:40PM +0100, Christian Borntraeger wrote:
+> 3.10.33 spits the following warning:
+>=20
+> [   14.463408] ------------[ cut here ]------------
+> [   14.463411] WARNING: at block/elevator.c:193
+> [   14.463413] Modules linked in: vhost_net macvtap macvlan kvm dasd_eckd=
+_mod dasd_mod zfcp scsi_transport_fc scsi_tgt qeth qdio ccwgroup dm_multipa=
+th sunrpc
+> [   14.463430] CPU: 10 PID: 18762 Comm: dasdconf.sh Tainted: G        W  =
+  3.10.33+ #344
+> [   14.463433] task: 00000004a4020000 ti: 00000004cfca8000 task.ti: 00000=
+004cfca8000
+> [   14.463435] Krnl PSW : 0704c00180000000 00000000003c6d56 (elevator_ini=
+t+0xfe/0x144)
+> [   14.463441]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 P=
+M:0 EA:3
+> Krnl GPRS: 0000000000000000 00000004a4020000 0000000000000000 00000004d19=
+9f028
+> [   14.463446]            000000000019b4ae 0000000000000f13 0000000000000=
+000 00000004ddcbb038
+> [   14.463449]            00000004ddcbb000 ffffffff00000000 00000004bfcfd=
+850 00000004b820c800
+> [   14.463451]            000003ff801bcd2a 00000004d199e440 00000000003c6=
+d4c 00000004cfcabb10
+> [   14.463460] Krnl Code: 00000000003c6d46: c0e5ffeea38f	brasl	%r14,19b464
+>            00000000003c6d4c: ec26ff9f007e	cij	%r2,0,6,3c6c8a
+>           #00000000003c6d52: a7f40001		brc	15,3c6d54
+>           >00000000003c6d56: a7f4ff9a		brc	15,3c6c8a
+>            00000000003c6d5a: c020008b0327	larl	%r2,15273a8
+>            00000000003c6d60: a7390000		lghi	%r3,0
+>            00000000003c6d64: c0e5fffffb58	brasl	%r14,3c6414
+>            00000000003c6d6a: b9040012		lgr	%r1,%r2
+> [   14.463481] Call Trace:
+> [   14.463482] ([<00000000003c6d4c>] elevator_init+0xf4/0x144)
+> [   14.463486]  [<000003ff801b4daa>] dasd_change_state+0x36a/0xbe0 [dasd_=
+mod]
+> [   14.463492]  [<000003ff801b56b6>] dasd_set_target_state+0x96/0x110 [da=
+sd_mod]
+> [   14.463498]  [<000003ff801b5bc8>] dasd_generic_set_online+0xc4/0x2e4 [=
+dasd_mod]
+> [   14.463503]  [<00000000004d2ecc>] ccw_device_set_online+0xcc/0x4e0
+> [   14.463507]  [<00000000004d3336>] online_store_recog_and_online+0x56/0=
+x12c
+> [   14.463510]  [<00000000004d58fa>] online_store+0x1b2/0x248
+> [   14.463514]  [<00000000002f1b38>] sysfs_write_file+0xe4/0x188
+> [   14.463517]  [<0000000000270a26>] vfs_write+0xa6/0x1cc
+> [   14.463520]  [<0000000000270f68>] SyS_write+0x60/0xac
+> [   14.463523]  [<0000000000636a9c>] sysc_nr_ok+0x22/0x28
+> [   14.463526]  [<000003fffd6a8984>] 0x3fffd6a8984
+> [   14.463529] 4 locks held by dasdconf.sh/18762:
+> [   14.463531]  #0:  (sb_writers#3){.+.+.+}, at: [<0000000000270b3e>] vfs=
+_write+0x1be/0x1cc
+> [   14.463539]  #1:  (&buffer->mutex){+.+.+.}, at: [<00000000002f1a9a>] s=
+ysfs_write_file+0x46/0x188
+> [   14.463546]  #2:  (s_active#28){.+.+.+}, at: [<00000000002f1b16>] sysf=
+s_write_file+0xc2/0x188
+> [   14.463554]  #3:  (&device->state_mutex){+.+.+.}, at: [<000003ff801b56=
+6c>] dasd_set_target_state+0x4c/0x110 [dasd_mod]
+> [   14.463563] Last Breaking-Event-Address:
+> [   14.463565]  [<00000000003c6d52>] elevator_init+0xfa/0x144
+> [   14.463568] ---[ end trace 3ec4802a2d4e0d3e ]---
+>=20
+> So I guess we should pull in
+> commit ef0899410ff630b2e75306da49996dbbfa318165
+> Author:     Heiko Carstens <heiko.carstens@de.ibm.com>
+> AuthorDate: Thu Oct 31 13:24:28 2013 +0100
+> Commit:     Jens Axboe <axboe@kernel.dk>
+> CommitDate: Fri Nov 8 09:10:29 2013 -0700
+>=20
+>     s390/dasd: hold request queue sysfs lock when calling elevator_init()
+>=20
+> for 3.10.34 or later.
+> I can confirm that this patch fixes the issue.
+> Thanks
+>=20
+> Christian
+> --
+> To unsubscribe from this list: send the line "unsubscribe stable" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-	get_online_cpus();
+Thanks Christian, I will queue this patch for the 3.11 kernel.
 
-	for_each_online_cpu(cpu)
-		init_cpu(cpu);
-
-	register_cpu_notifier(&foobar_cpu_notifier);
-
-	put_online_cpus();
-
-This is wrong, since it is prone to ABBA deadlocks involving the
-cpu_add_remove_lock and the cpu_hotplug.lock (when running concurrently
-with CPU hotplug operations).
-
-Instead, the correct and race-free way of performing the callback
-registration is:
-
-	cpu_notifier_register_begin();
-
-	for_each_online_cpu(cpu)
-		init_cpu(cpu);
-
-	/* Note the use of the double underscored version of the API */
-	__register_cpu_notifier(&foobar_cpu_notifier);
-
-	cpu_notifier_register_done();
-
-
-Fix the code in net/iucv/iucv.c by using this latter form of callback
-registration. Also, provide helper functions to perform the common memory
-allocations and frees, to condense repetitive code.
-
-Cc: Ursula Braun <ursula.braun@de.ibm.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: linux-s390@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Acked-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
----
-
- net/iucv/iucv.c |  121 ++++++++++++++++++++++++++-----------------------------
- 1 file changed, 57 insertions(+), 64 deletions(-)
-
-diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-index cd5b8ec..79a0ce9 100644
---- a/net/iucv/iucv.c
-+++ b/net/iucv/iucv.c
-@@ -621,6 +621,42 @@ static void iucv_disable(void)
- 	put_online_cpus();
- }
- 
-+static void free_iucv_data(int cpu)
-+{
-+	kfree(iucv_param_irq[cpu]);
-+	iucv_param_irq[cpu] = NULL;
-+	kfree(iucv_param[cpu]);
-+	iucv_param[cpu] = NULL;
-+	kfree(iucv_irq_data[cpu]);
-+	iucv_irq_data[cpu] = NULL;
-+}
-+
-+static int alloc_iucv_data(int cpu)
-+{
-+	/* Note: GFP_DMA used to get memory below 2G */
-+	iucv_irq_data[cpu] = kmalloc_node(sizeof(struct iucv_irq_data),
-+			     GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
-+	if (!iucv_irq_data[cpu])
-+		goto out_free;
-+
-+	/* Allocate parameter blocks. */
-+	iucv_param[cpu] = kmalloc_node(sizeof(union iucv_param),
-+			  GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
-+	if (!iucv_param[cpu])
-+		goto out_free;
-+
-+	iucv_param_irq[cpu] = kmalloc_node(sizeof(union iucv_param),
-+			  GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
-+	if (!iucv_param_irq[cpu])
-+		goto out_free;
-+
-+	return 0;
-+
-+out_free:
-+	free_iucv_data(cpu);
-+	return -ENOMEM;
-+}
-+
- static int iucv_cpu_notify(struct notifier_block *self,
- 				     unsigned long action, void *hcpu)
- {
-@@ -630,38 +666,14 @@ static int iucv_cpu_notify(struct notifier_block *self,
- 	switch (action) {
- 	case CPU_UP_PREPARE:
- 	case CPU_UP_PREPARE_FROZEN:
--		iucv_irq_data[cpu] = kmalloc_node(sizeof(struct iucv_irq_data),
--					GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
--		if (!iucv_irq_data[cpu])
--			return notifier_from_errno(-ENOMEM);
--
--		iucv_param[cpu] = kmalloc_node(sizeof(union iucv_param),
--				     GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
--		if (!iucv_param[cpu]) {
--			kfree(iucv_irq_data[cpu]);
--			iucv_irq_data[cpu] = NULL;
-+		if (alloc_iucv_data(cpu))
- 			return notifier_from_errno(-ENOMEM);
--		}
--		iucv_param_irq[cpu] = kmalloc_node(sizeof(union iucv_param),
--					GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
--		if (!iucv_param_irq[cpu]) {
--			kfree(iucv_param[cpu]);
--			iucv_param[cpu] = NULL;
--			kfree(iucv_irq_data[cpu]);
--			iucv_irq_data[cpu] = NULL;
--			return notifier_from_errno(-ENOMEM);
--		}
- 		break;
- 	case CPU_UP_CANCELED:
- 	case CPU_UP_CANCELED_FROZEN:
- 	case CPU_DEAD:
- 	case CPU_DEAD_FROZEN:
--		kfree(iucv_param_irq[cpu]);
--		iucv_param_irq[cpu] = NULL;
--		kfree(iucv_param[cpu]);
--		iucv_param[cpu] = NULL;
--		kfree(iucv_irq_data[cpu]);
--		iucv_irq_data[cpu] = NULL;
-+		free_iucv_data(cpu);
- 		break;
- 	case CPU_ONLINE:
- 	case CPU_ONLINE_FROZEN:
-@@ -2025,33 +2037,20 @@ static int __init iucv_init(void)
- 		goto out_int;
- 	}
- 
--	for_each_online_cpu(cpu) {
--		/* Note: GFP_DMA used to get memory below 2G */
--		iucv_irq_data[cpu] = kmalloc_node(sizeof(struct iucv_irq_data),
--				     GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
--		if (!iucv_irq_data[cpu]) {
--			rc = -ENOMEM;
--			goto out_free;
--		}
-+	cpu_notifier_register_begin();
- 
--		/* Allocate parameter blocks. */
--		iucv_param[cpu] = kmalloc_node(sizeof(union iucv_param),
--				  GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
--		if (!iucv_param[cpu]) {
--			rc = -ENOMEM;
--			goto out_free;
--		}
--		iucv_param_irq[cpu] = kmalloc_node(sizeof(union iucv_param),
--				  GFP_KERNEL|GFP_DMA, cpu_to_node(cpu));
--		if (!iucv_param_irq[cpu]) {
-+	for_each_online_cpu(cpu) {
-+		if (alloc_iucv_data(cpu)) {
- 			rc = -ENOMEM;
- 			goto out_free;
- 		}
--
- 	}
--	rc = register_hotcpu_notifier(&iucv_cpu_notifier);
-+	rc = __register_hotcpu_notifier(&iucv_cpu_notifier);
- 	if (rc)
- 		goto out_free;
-+
-+	cpu_notifier_register_done();
-+
- 	rc = register_reboot_notifier(&iucv_reboot_notifier);
- 	if (rc)
- 		goto out_cpu;
-@@ -2069,16 +2068,14 @@ static int __init iucv_init(void)
- out_reboot:
- 	unregister_reboot_notifier(&iucv_reboot_notifier);
- out_cpu:
--	unregister_hotcpu_notifier(&iucv_cpu_notifier);
-+	cpu_notifier_register_begin();
-+	__unregister_hotcpu_notifier(&iucv_cpu_notifier);
- out_free:
--	for_each_possible_cpu(cpu) {
--		kfree(iucv_param_irq[cpu]);
--		iucv_param_irq[cpu] = NULL;
--		kfree(iucv_param[cpu]);
--		iucv_param[cpu] = NULL;
--		kfree(iucv_irq_data[cpu]);
--		iucv_irq_data[cpu] = NULL;
--	}
-+	for_each_possible_cpu(cpu)
-+		free_iucv_data(cpu);
-+
-+	cpu_notifier_register_done();
-+
- 	root_device_unregister(iucv_root);
- out_int:
- 	unregister_external_interrupt(0x4000, iucv_external_interrupt);
-@@ -2105,15 +2102,11 @@ static void __exit iucv_exit(void)
- 		kfree(p);
- 	spin_unlock_irq(&iucv_queue_lock);
- 	unregister_reboot_notifier(&iucv_reboot_notifier);
--	unregister_hotcpu_notifier(&iucv_cpu_notifier);
--	for_each_possible_cpu(cpu) {
--		kfree(iucv_param_irq[cpu]);
--		iucv_param_irq[cpu] = NULL;
--		kfree(iucv_param[cpu]);
--		iucv_param[cpu] = NULL;
--		kfree(iucv_irq_data[cpu]);
--		iucv_irq_data[cpu] = NULL;
--	}
-+	cpu_notifier_register_begin();
-+	__unregister_hotcpu_notifier(&iucv_cpu_notifier);
-+	for_each_possible_cpu(cpu)
-+		free_iucv_data(cpu);
-+	cpu_notifier_register_done();
- 	root_device_unregister(iucv_root);
- 	bus_unregister(&iucv_bus);
- 	unregister_external_interrupt(0x4000, iucv_external_interrupt);
+Cheers,
+--
+Lu=EDs
