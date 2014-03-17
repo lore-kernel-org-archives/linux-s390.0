@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH v2 1/5] KVM: eventfd: Fix lock order inversion.
-Date: Mon, 17 Mar 2014 19:11:35 +0100
-Message-ID: <1395079899-29239-2-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH v2 5/5] KVM: Bump KVM_MAX_IRQ_ROUTES for s390
+Date: Mon, 17 Mar 2014 19:11:39 +0100
+Message-ID: <1395079899-29239-6-git-send-email-cornelia.huck@de.ibm.com>
 References: <1395079899-29239-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1395079899-29239-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,50 +12,37 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: borntraeger@de.ibm.com, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-When registering a new irqfd, we call its ->poll method to collect any
-event that might have previously been pending so that we can trigger it.
-This is done under the kvm->irqfds.lock, which means the eventfd's ctx
-lock is taken under it.
+The maximum number for irq routes is currently 1024, which is a bit on
+the small size for s390: We support up to 4 x 64k virtual devices with
+up to 64 queues, and we need one route for each of the queues if we want
+to operate it via irqfd.
 
-However, if we get a POLLHUP in irqfd_wakeup, we will be called with the
-ctx lock held before getting the irqfds.lock to deactivate the irqfd,
-causing lockdep to complain.
+Let's bump this to 4k on s390 for now, as this at least covers the saner
+setups.
 
-Calling the ->poll method does not really need the irqfds.lock, so let's
-just move it after we've given up the irqfds.lock in kvm_irqfd_assign().
+We need to find a more general solution, though, as we can't just grow
+the routing table indefinitly.
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- virt/kvm/eventfd.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ include/linux/kvm_host.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
-index abe4d60..29c2a04 100644
---- a/virt/kvm/eventfd.c
-+++ b/virt/kvm/eventfd.c
-@@ -391,19 +391,19 @@ kvm_irqfd_assign(struct kvm *kvm, struct kvm_irqfd *args)
- 					   lockdep_is_held(&kvm->irqfds.lock));
- 	irqfd_update(kvm, irqfd, irq_rt);
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index da7510b..7d21cf9 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -922,7 +922,11 @@ static inline int mmu_notifier_retry(struct kvm *kvm, unsigned long mmu_seq)
  
--	events = f.file->f_op->poll(f.file, &irqfd->pt);
--
- 	list_add_tail(&irqfd->list, &kvm->irqfds.items);
+ #ifdef CONFIG_HAVE_KVM_IRQ_ROUTING
  
-+	spin_unlock_irq(&kvm->irqfds.lock);
-+
- 	/*
- 	 * Check if there was an event already pending on the eventfd
- 	 * before we registered, and trigger it as if we didn't miss it.
- 	 */
-+	events = f.file->f_op->poll(f.file, &irqfd->pt);
-+
- 	if (events & POLLIN)
- 		schedule_work(&irqfd->inject);
++#ifdef CONFIG_S390
++#define KVM_MAX_IRQ_ROUTES 4096 //FIXME: we can have more than that...
++#else
+ #define KVM_MAX_IRQ_ROUTES 1024
++#endif
  
--	spin_unlock_irq(&kvm->irqfds.lock);
--
- 	/*
- 	 * do not drop the file until the irqfd is fully initialized, otherwise
- 	 * we might race against the POLLHUP
+ int kvm_setup_default_irq_routing(struct kvm *kvm);
+ int kvm_set_irq_routing(struct kvm *kvm,
 -- 
 1.7.9.5
