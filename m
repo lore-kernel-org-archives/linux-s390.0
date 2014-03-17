@@ -1,7 +1,7 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH v2 5/5] s390x/virtio-ccw: Wire up irq routing and irqfds.
-Date: Mon, 17 Mar 2014 19:12:01 +0100
-Message-ID: <1395079921-29325-6-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH v2 3/5] s390x: Add I/O adapter registration.
+Date: Mon, 17 Mar 2014 19:11:59 +0100
+Message-ID: <1395079921-29325-4-git-send-email-cornelia.huck@de.ibm.com>
 References: <1395079921-29325-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1395079921-29325-1-git-send-email-cornelia.huck@de.ibm.com>
@@ -12,460 +12,282 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: borntraeger@de.ibm.com, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Make use of the new s390 adapter irq routing support to enable real
-in-kernel irqfds for virtio-ccw with adapter interrupts.
-
-Note that s390 doesn't provide the common KVM_CAP_IRQCHIP capability, but
-rather needs KVM_CAP_S390_IRQCHIP to be enabled. This is to ensure backward
-compatibility.
+Register an I/O adapter interrupt source for when virtio-ccw devices start
+using adapter interrupts.
 
 Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- hw/s390x/virtio-ccw.c      |  167 ++++++++++++++++++++++++++++++++++++++++----
- hw/s390x/virtio-ccw.h      |    2 +
- include/hw/s390x/adapter.h |   23 ++++++
- include/qemu/typedefs.h    |    1 +
- include/sysemu/kvm.h       |    2 +
- kvm-all.c                  |   38 +++++++++-
- kvm-stub.c                 |    5 ++
- target-s390x/kvm.c         |    5 ++
- 8 files changed, 230 insertions(+), 13 deletions(-)
- create mode 100644 include/hw/s390x/adapter.h
+ hw/intc/s390_flic.c   |   66 +++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/s390x/css.c        |   51 ++++++++++++++++++++++++++++++++++++++
+ hw/s390x/css.h        |    4 +++
+ hw/s390x/virtio-ccw.c |    4 +++
+ hw/s390x/virtio-ccw.h |    1 +
+ target-s390x/cpu.h    |   33 +++++++++++++++++++++++++
+ 6 files changed, 159 insertions(+)
 
-diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
-index c218acd..29f9762 100644
---- a/hw/s390x/virtio-ccw.c
-+++ b/hw/s390x/virtio-ccw.c
-@@ -21,6 +21,7 @@
- #include "hw/sysbus.h"
- #include "qemu/bitops.h"
- #include "hw/virtio/virtio-bus.h"
-+#include "hw/s390x/adapter.h"
+diff --git a/hw/intc/s390_flic.c b/hw/intc/s390_flic.c
+index b2ef3e3..2232767 100644
+--- a/hw/intc/s390_flic.c
++++ b/hw/intc/s390_flic.c
+@@ -21,6 +21,18 @@
+ #define FLIC_FAILED (-1UL)
+ #define FLIC_SAVEVM_VERSION 1
  
- #include "ioinst.h"
- #include "css.h"
-@@ -48,7 +49,7 @@ static IndAddr *get_indicator(hwaddr ind_addr, int len)
-     return indicator;
- }
- 
--static void release_indicator(IndAddr *indicator)
-+static void release_indicator(uint32_t adapter_id, IndAddr *indicator)
++static KVMS390FLICState *s390_get_flic(void)
++{
++    ObjectProperty *op = object_property_find(qdev_get_machine(),
++                                              "s390-flic", NULL);
++
++    if (op) {
++        return op->opaque;
++    } else {
++        return NULL;
++    }
++}
++
+ void s390_flic_init(void)
  {
-     assert(indicator->refcnt > 0);
-     indicator->refcnt--;
-@@ -56,9 +57,33 @@ static void release_indicator(IndAddr *indicator)
-         return;
-     }
-     QTAILQ_REMOVE(&indicator_addresses, indicator, sibling);
-+    if (indicator->map) {
-+        s390_io_adapter_map(adapter_id,
-+                            (uint64_t)(unsigned long)indicator->map, false);
-+    }
-     g_free(indicator);
- }
- 
-+static int map_indicator(uint32_t adapter_id, IndAddr *indicator)
-+{
-+    int ret;
-+
-+    if (indicator->map) {
-+        return 0; /* already mapped is not an error */
-+    }
-+    indicator->map = (void *)indicator->addr;
-+    ret = s390_io_adapter_map(adapter_id,
-+                              (uint64_t)(unsigned long)indicator->map, true);
-+    if ((ret != 0) && (ret != -ENOSYS)) {
-+        goto out_err;
-+    }
-+    return 0;
-+
-+out_err:
-+    indicator->map = 0;
-+    return -EFAULT;
-+}
-+
- static void virtio_ccw_bus_new(VirtioBusState *bus, size_t bus_size,
-                                VirtioCcwDevice *dev);
- 
-@@ -733,7 +758,7 @@ static int virtio_ccw_exit(VirtioCcwDevice *dev)
-         g_free(sch);
-     }
-     if (dev->indicators) {
--        release_indicator(dev->indicators);
-+        release_indicator(dev->adapter_id, dev->indicators);
-         dev->indicators = NULL;
-     }
-     return 0;
-@@ -1034,15 +1059,15 @@ static void virtio_ccw_reset(DeviceState *d)
-     virtio_reset(vdev);
-     css_reset_sch(dev->sch);
-     if (dev->indicators) {
--        release_indicator(dev->indicators);
-+        release_indicator(dev->adapter_id, dev->indicators);
-         dev->indicators = NULL;
-     }
-     if (dev->indicators2) {
--        release_indicator(dev->indicators2);
-+        release_indicator(dev->adapter_id, dev->indicators2);
-         dev->indicators2 = NULL;
-     }
-     if (dev->summary_indicator) {
--        release_indicator(dev->summary_indicator);
-+        release_indicator(dev->adapter_id, dev->summary_indicator);
-         dev->summary_indicator = NULL;
-     }
- }
-@@ -1078,6 +1103,100 @@ static int virtio_ccw_set_host_notifier(DeviceState *d, int n, bool assign)
-     return virtio_ccw_set_guest2host_notifier(dev, n, assign, false);
- }
- 
-+static int virtio_ccw_get_adapter_info(VirtioCcwDevice *dev,
-+                                       AdapterInfo *adapter)
-+{
-+    int r;
-+
-+    if (!dev->sch->thinint_active) {
-+        return -EINVAL;
-+    }
-+
-+    r = map_indicator(dev->adapter_id, dev->summary_indicator);
-+    if (r) {
-+        return r;
-+    }
-+    r = map_indicator(dev->adapter_id, dev->indicators);
-+    if (r) {
-+        return r;
-+    }
-+    adapter->summary_addr = (unsigned long)dev->summary_indicator->map;
-+    adapter->ind_addr = (unsigned long)dev->indicators->map;
-+    adapter->ind_offset = dev->ind_bit;
-+    adapter->summary_offset = 7;
-+    adapter->adapter_id = dev->adapter_id;
-+
-+    return 0;
-+}
-+
-+static int virtio_ccw_setup_irqroutes(VirtioCcwDevice *dev, int nvqs)
-+{
-+    int i;
-+    VirtIODevice *vdev = virtio_bus_get_device(&dev->bus);
-+    int ret;
-+    AdapterInfo adapter;
-+
-+    ret = virtio_ccw_get_adapter_info(dev, &adapter);
-+    if (ret) {
-+        return ret;
-+    }
-+    for (i = 0; i < nvqs; i++) {
-+        if (!virtio_queue_get_num(vdev, i)) {
-+            break;
-+        }
-+        ret = kvm_irqchip_add_adapter_route(kvm_state, &adapter);
-+        if (ret < 0) {
-+            goto out_undo;
-+        }
-+        dev->gsi[i] = ret;
-+        adapter.ind_offset++;
-+    }
-+    return 0;
-+out_undo:
-+    while (--i >= 0) {
-+        kvm_irqchip_release_virq(kvm_state, dev->gsi[i]);
-+        dev->gsi[i] = -1;
-+    }
-+    return ret;
-+}
-+
-+static void virtio_ccw_release_irqroutes(VirtioCcwDevice *dev, int nvqs)
-+{
-+    int i;
-+    VirtIODevice *vdev = virtio_bus_get_device(&dev->bus);
-+
-+    for (i = 0; i < nvqs; i++) {
-+        if (!virtio_queue_get_num(vdev, i)) {
-+            break;
-+        }
-+        if (dev->gsi[i] >= 0) {
-+            kvm_irqchip_release_virq(kvm_state, dev->gsi[i]);
-+            dev->gsi[i] = -1;
-+        }
-+    }
-+}
-+
-+static int virtio_ccw_add_irqfd(VirtioCcwDevice *dev, int n)
-+{
-+    VirtIODevice *vdev = virtio_bus_get_device(&dev->bus);
-+    VirtQueue *vq = virtio_get_queue(vdev, n);
-+    EventNotifier *notifier = virtio_queue_get_guest_notifier(vq);
-+
-+    return kvm_irqchip_add_irqfd_notifier(kvm_state, notifier, NULL,
-+                                          dev->gsi[n]);
-+}
-+
-+static void virtio_ccw_remove_irqfd(VirtioCcwDevice *dev, int n)
-+{
-+    VirtIODevice *vdev = virtio_bus_get_device(&dev->bus);
-+    VirtQueue *vq = virtio_get_queue(vdev, n);
-+    EventNotifier *notifier = virtio_queue_get_guest_notifier(vq);
-+    int ret;
-+
-+    ret = kvm_irqchip_remove_irqfd_notifier(kvm_state, notifier, dev->gsi[n]);
-+    assert(ret == 0);
-+}
-+
- static int virtio_ccw_set_guest_notifier(VirtioCcwDevice *dev, int n,
-                                          bool assign, bool with_irqfd)
- {
-@@ -1093,11 +1212,17 @@ static int virtio_ccw_set_guest_notifier(VirtioCcwDevice *dev, int n,
-             return r;
-         }
-         virtio_queue_set_guest_notifier_fd_handler(vq, true, with_irqfd);
--        /* We do not support irqfd for classic I/O interrupts, because the
--         * classic interrupts are intermixed with the subchannel status, that
--         * is queried with test subchannel. We want to use vhost, though.
--         * Lets make sure to have vhost running and wire up the irq fd to
--         * land in qemu (and only the irq fd) in this code.
-+        if (with_irqfd) {
-+            r = virtio_ccw_add_irqfd(dev, n);
-+            if (r) {
-+                virtio_queue_set_guest_notifier_fd_handler(vq, false,
-+                                                           with_irqfd);
-+                return r;
-+            }
-+        }
-+        /*
-+         * We do not support individual masking for channel devices, so we
-+         * need to manually trigger any guest masking callbacks here.
-          */
-         if (k->guest_notifier_mask) {
-             k->guest_notifier_mask(vdev, n, false);
-@@ -1111,6 +1236,9 @@ static int virtio_ccw_set_guest_notifier(VirtioCcwDevice *dev, int n,
-         if (k->guest_notifier_mask) {
-             k->guest_notifier_mask(vdev, n, true);
-         }
-+        if (with_irqfd) {
-+            virtio_ccw_remove_irqfd(dev, n);
-+        }
-         virtio_queue_set_guest_notifier_fd_handler(vq, false, with_irqfd);
-         event_notifier_cleanup(notifier);
-     }
-@@ -1122,24 +1250,39 @@ static int virtio_ccw_set_guest_notifiers(DeviceState *d, int nvqs,
- {
-     VirtioCcwDevice *dev = VIRTIO_CCW_DEVICE(d);
-     VirtIODevice *vdev = virtio_bus_get_device(&dev->bus);
-+    bool with_irqfd = dev->sch->thinint_active && kvm_irqfds_enabled();
-     int r, n;
- 
-+    if (with_irqfd && assigned) {
-+        /* irq routes need to be set up before assigning irqfds */
-+        r = virtio_ccw_setup_irqroutes(dev, nvqs);
-+        if (r < 0) {
-+            goto irqroute_error;
-+        }
-+    }
-     for (n = 0; n < nvqs; n++) {
-         if (!virtio_queue_get_num(vdev, n)) {
-             break;
-         }
--        /* false -> true, as soon as irqfd works */
--        r = virtio_ccw_set_guest_notifier(dev, n, assigned, false);
-+        r = virtio_ccw_set_guest_notifier(dev, n, assigned, with_irqfd);
-         if (r < 0) {
-             goto assign_error;
-         }
-     }
-+    if (with_irqfd && !assigned) {
-+        /* release irq routes after irqfds have been released */
-+        virtio_ccw_release_irqroutes(dev, nvqs);
-+    }
-     return 0;
- 
- assign_error:
-     while (--n >= 0) {
-         virtio_ccw_set_guest_notifier(dev, n, !assigned, false);
-     }
-+irqroute_error:
-+    if (with_irqfd && assigned) {
-+        virtio_ccw_release_irqroutes(dev, nvqs);
-+    }
+     DeviceState *dev;
+@@ -148,6 +160,60 @@ static int __get_all_irqs(KVMS390FLICState *flic,
      return r;
  }
  
-diff --git a/hw/s390x/virtio-ccw.h b/hw/s390x/virtio-ccw.h
-index d340bf4..7977a3e 100644
---- a/hw/s390x/virtio-ccw.h
-+++ b/hw/s390x/virtio-ccw.h
-@@ -77,6 +77,7 @@ typedef struct VirtIOCCWDeviceClass {
- 
- typedef struct IndAddr {
-     hwaddr addr;
-+    void *map;
-     unsigned long refcnt;
-     int len;
-     QTAILQ_ENTRY(IndAddr) sibling;
-@@ -93,6 +94,7 @@ struct VirtioCcwDevice {
-     uint32_t flags;
-     uint8_t thinint_isc;
-     uint32_t adapter_id;
-+    int gsi[VIRTIO_PCI_QUEUE_MAX];
-     /* Guest provided values: */
-     IndAddr *indicators;
-     IndAddr *indicators2;
-diff --git a/include/hw/s390x/adapter.h b/include/hw/s390x/adapter.h
-new file mode 100644
-index 0000000..7e56724
---- /dev/null
-+++ b/include/hw/s390x/adapter.h
-@@ -0,0 +1,23 @@
-+/*
-+ * s390 adapter definitions
-+ *
-+ * Copyright 2013 IBM Corp.
-+ * Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version 2 or (at
-+ * your option) any later version. See the COPYING file in the top-level
-+ * directory.
-+ */
-+
-+#ifndef S390X_ADAPTER_H
-+#define S390X_ADAPTER_H
-+
-+struct AdapterInfo {
-+    uint64_t ind_addr;
-+    uint64_t summary_addr;
-+    uint64_t ind_offset;
-+    uint32_t summary_offset;
-+    uint32_t adapter_id;
-+};
-+
-+#endif
-diff --git a/include/qemu/typedefs.h b/include/qemu/typedefs.h
-index bf8daac..1e36fc4 100644
---- a/include/qemu/typedefs.h
-+++ b/include/qemu/typedefs.h
-@@ -73,5 +73,6 @@ typedef struct SHPCDevice SHPCDevice;
- typedef struct FWCfgState FWCfgState;
- typedef struct PcGuestInfo PcGuestInfo;
- typedef struct Range Range;
-+typedef struct AdapterInfo AdapterInfo;
- 
- #endif /* QEMU_TYPEDEFS_H */
-diff --git a/include/sysemu/kvm.h b/include/sysemu/kvm.h
-index d89911c..324aec4 100644
---- a/include/sysemu/kvm.h
-+++ b/include/sysemu/kvm.h
-@@ -339,6 +339,8 @@ int kvm_irqchip_add_msi_route(KVMState *s, MSIMessage msg);
- int kvm_irqchip_update_msi_route(KVMState *s, int virq, MSIMessage msg);
- void kvm_irqchip_release_virq(KVMState *s, int virq);
- 
-+int kvm_irqchip_add_adapter_route(KVMState *s, AdapterInfo *adapter);
-+
- int kvm_irqchip_add_irqfd_notifier(KVMState *s, EventNotifier *n,
-                                    EventNotifier *rn, int virq);
- int kvm_irqchip_remove_irqfd_notifier(KVMState *s, EventNotifier *n, int virq);
-diff --git a/kvm-all.c b/kvm-all.c
-index 658690f..f2f585d 100644
---- a/kvm-all.c
-+++ b/kvm-all.c
-@@ -27,6 +27,7 @@
- #include "sysemu/sysemu.h"
- #include "hw/hw.h"
- #include "hw/pci/msi.h"
-+#include "hw/s390x/adapter.h"
- #include "exec/gdbstub.h"
- #include "sysemu/kvm.h"
- #include "qemu/bswap.h"
-@@ -1264,6 +1265,35 @@ static int kvm_irqchip_assign_irqfd(KVMState *s, int fd, int rfd, int virq,
-     return kvm_vm_ioctl(s, KVM_IRQFD, &irqfd);
- }
- 
-+int kvm_irqchip_add_adapter_route(KVMState *s, AdapterInfo *adapter)
++int kvm_s390_register_io_adapter(uint32_t id, uint8_t isc, bool swap,
++                                 bool is_maskable)
 +{
-+    struct kvm_irq_routing_entry kroute;
-+    int virq;
++    struct kvm_s390_io_adapter adapter = {
++        .id = id,
++        .isc = isc,
++        .maskable = is_maskable,
++        .swap = swap,
++    };
++    KVMS390FLICState *flic = s390_get_flic();
++    int r, ret;
++    struct kvm_device_attr attr = {
++        .group = KVM_DEV_FLIC_ADAPTER_REGISTER,
++        .addr = (uint64_t)&adapter,
++    };
 +
-+    if (!kvm_gsi_routing_enabled()) {
++    if (!flic) {
++        return -ENOSYS;
++    }
++    if (!kvm_check_extension(kvm_state, KVM_CAP_IRQ_ROUTING)) {
 +        return -ENOSYS;
 +    }
 +
-+    virq = kvm_irqchip_get_virq(s);
-+    if (virq < 0) {
-+        return virq;
++    r = ioctl(flic->fd, KVM_SET_DEVICE_ATTR, &attr);
++
++    ret = r ? -errno : 0;
++    return ret;
++}
++
++int kvm_s390_io_adapter_map(uint32_t id, uint64_t map_addr, bool do_map)
++{
++    struct kvm_s390_io_adapter_req req = {
++        .id = id,
++        .type = do_map ? KVM_S390_IO_ADAPTER_MAP : KVM_S390_IO_ADAPTER_UNMAP,
++        .addr = map_addr,
++    };
++    KVMS390FLICState *flic = s390_get_flic();
++    struct kvm_device_attr attr = {
++        .group = KVM_DEV_FLIC_ADAPTER_MODIFY,
++        .addr = (uint64_t)&req,
++    };
++    int r;
++
++    if (!flic) {
++        return -ENOSYS;
++    }
++    if (!kvm_check_extension(kvm_state, KVM_CAP_IRQ_ROUTING)) {
++        return -ENOSYS;
 +    }
 +
-+    kroute.gsi = virq;
-+    kroute.type = KVM_IRQ_ROUTING_S390_ADAPTER;
-+    kroute.flags = 0;
-+    kroute.u.adapter.summary_addr = adapter->summary_addr;
-+    kroute.u.adapter.ind_addr = adapter->ind_addr;
-+    kroute.u.adapter.summary_offset = adapter->summary_offset;
-+    kroute.u.adapter.ind_offset = adapter->ind_offset;
-+    kroute.u.adapter.adapter_id = adapter->adapter_id;
-+
-+    kvm_add_routing_entry(s, &kroute);
-+    kvm_irqchip_commit_routes(s);
-+
-+    return virq;
++    r = ioctl(flic->fd, KVM_SET_DEVICE_ATTR, &attr);
++    return r ? -errno : 0;
 +}
 +
- #else /* !KVM_CAP_IRQ_ROUTING */
+ /**
+  * kvm_flic_save - Save pending floating interrupts
+  * @f: QEMUFile containing migration state
+diff --git a/hw/s390x/css.c b/hw/s390x/css.c
+index 7074d2b..a6d173f 100644
+--- a/hw/s390x/css.c
++++ b/hw/s390x/css.c
+@@ -39,6 +39,13 @@ typedef struct CssImage {
+     ChpInfo chpids[MAX_CHPID + 1];
+ } CssImage;
  
- void kvm_init_irq_routing(KVMState *s)
-@@ -1284,6 +1314,11 @@ int kvm_irqchip_add_msi_route(KVMState *s, MSIMessage msg)
-     return -ENOSYS;
++typedef struct IoAdapter {
++    uint32_t id;
++    uint8_t type;
++    uint8_t isc;
++    QTAILQ_ENTRY(IoAdapter) sibling;
++} IoAdapter;
++
+ typedef struct ChannelSubSys {
+     QTAILQ_HEAD(, CrwContainer) pending_crws;
+     bool do_crw_mchk;
+@@ -49,6 +56,7 @@ typedef struct ChannelSubSys {
+     uint64_t chnmon_area;
+     CssImage *css[MAX_CSSID + 1];
+     uint8_t default_cssid;
++    QTAILQ_HEAD(, IoAdapter) io_adapters;
+ } ChannelSubSys;
+ 
+ static ChannelSubSys *channel_subsys;
+@@ -69,6 +77,48 @@ int css_create_css_image(uint8_t cssid, bool default_image)
+     return 0;
  }
  
-+int kvm_irqchip_add_adapter_route(KVMState *s, AdapterInfo *adapter)
++int css_register_io_adapter(uint8_t type, uint8_t isc, bool swap,
++                            bool maskable, uint32_t *id)
 +{
-+    return -ENOSYS;
-+}
++    IoAdapter *adapter;
++    bool found = false;
++    int ret;
 +
- static int kvm_irqchip_assign_irqfd(KVMState *s, int fd, int virq, bool assign)
- {
-     abort();
-@@ -1313,7 +1348,8 @@ static int kvm_irqchip_create(KVMState *s)
-     int ret;
- 
-     if (!qemu_opt_get_bool(qemu_get_machine_opts(), "kernel_irqchip", true) ||
--        !kvm_check_extension(s, KVM_CAP_IRQCHIP)) {
-+        (!kvm_check_extension(s, KVM_CAP_IRQCHIP) &&
-+         kvm_enable_cap_vm(s, KVM_CAP_S390_IRQCHIP))) {
-         return 0;
-     }
- 
-diff --git a/kvm-stub.c b/kvm-stub.c
-index ccdba62..b83f56e 100644
---- a/kvm-stub.c
-+++ b/kvm-stub.c
-@@ -136,6 +136,11 @@ int kvm_irqchip_update_msi_route(KVMState *s, int virq, MSIMessage msg)
-     return -ENOSYS;
- }
- 
-+int kvm_irqchip_add_adapter_route(KVMState *s, AdapterInfo *adapter)
-+{
-+    return -ENOSYS;
-+}
-+
- int kvm_irqchip_add_irqfd_notifier(KVMState *s, EventNotifier *n,
-                                    EventNotifier *rn, int virq)
- {
-diff --git a/target-s390x/kvm.c b/target-s390x/kvm.c
-index 56b9af7..d12f180 100644
---- a/target-s390x/kvm.c
-+++ b/target-s390x/kvm.c
-@@ -921,6 +921,11 @@ void kvm_s390_enable_css_support(S390CPU *cpu)
- 
- void kvm_arch_init_irq_routing(KVMState *s)
- {
-+    if (kvm_check_extension(s, KVM_CAP_IRQ_ROUTING)) {
-+        kvm_irqfds_allowed = true;
-+        kvm_gsi_routing_allowed = true;
-+        kvm_halt_in_kernel_allowed = false;
++    *id = 0;
++    QTAILQ_FOREACH(adapter, &channel_subsys->io_adapters, sibling) {
++        if ((adapter->type == type) && (adapter->isc == isc)) {
++            *id = adapter->id;
++            found = true;
++            ret = 0;
++            break;
++        }
++        if (adapter->id >= *id) {
++            *id = adapter->id + 1;
++        }
 +    }
++    if (found) {
++        goto out;
++    }
++    adapter = g_new0(IoAdapter, 1);
++    ret = s390_register_io_adapter(*id, isc, swap, maskable);
++    if (ret == -ENOSYS) {
++        /* Keep adapter even if we didn't register it anywhere. */
++        ret = 0;
++    }
++    if (ret == 0) {
++        adapter->id = *id;
++        adapter->isc = isc;
++        adapter->type = type;
++        QTAILQ_INSERT_TAIL(&channel_subsys->io_adapters, adapter, sibling);
++    } else {
++        g_free(adapter);
++        fprintf(stderr, "Unexpected error %d when registering adapter %d\n",
++                ret, *id);
++    }
++out:
++    return ret;
++}
++
+ uint16_t css_build_subchannel_id(SubchDev *sch)
+ {
+     if (channel_subsys->max_cssid > 0) {
+@@ -1239,6 +1289,7 @@ static void css_init(void)
+     channel_subsys->do_crw_mchk = true;
+     channel_subsys->crws_lost = false;
+     channel_subsys->chnmon_active = false;
++    QTAILQ_INIT(&channel_subsys->io_adapters);
  }
+ machine_init(css_init);
  
+diff --git a/hw/s390x/css.h b/hw/s390x/css.h
+index e9b4405..380e8e7 100644
+--- a/hw/s390x/css.h
++++ b/hw/s390x/css.h
+@@ -99,4 +99,8 @@ void css_generate_sch_crws(uint8_t cssid, uint8_t ssid, uint16_t schid,
+                            int hotplugged, int add);
+ void css_generate_chp_crws(uint8_t cssid, uint8_t chpid);
+ void css_adapter_interrupt(uint8_t isc);
++
++#define CSS_IO_ADAPTER_VIRTIO 1
++int css_register_io_adapter(uint8_t type, uint8_t isc, bool swap,
++                            bool maskable, uint32_t *id);
+ #endif
+diff --git a/hw/s390x/virtio-ccw.c b/hw/s390x/virtio-ccw.c
+index a01801e..4125100 100644
+--- a/hw/s390x/virtio-ccw.c
++++ b/hw/s390x/virtio-ccw.c
+@@ -522,6 +522,10 @@ static int virtio_ccw_cb(SubchDev *sch, CCW1 ccw)
+                 dev->thinint_isc = thinint->isc;
+                 dev->ind_bit = thinint->ind_bit;
+                 cpu_physical_memory_unmap(thinint, hw_len, 0, hw_len);
++                ret = css_register_io_adapter(CSS_IO_ADAPTER_VIRTIO,
++                                              dev->thinint_isc, true, false,
++                                              &dev->adapter_id);
++                assert(ret == 0);
+                 sch->thinint_active = ((dev->indicators != 0) &&
+                                        (dev->summary_indicator != 0));
+                 sch->curr_status.scsw.count = ccw.count - len;
+diff --git a/hw/s390x/virtio-ccw.h b/hw/s390x/virtio-ccw.h
+index 4393e44..0b70b91 100644
+--- a/hw/s390x/virtio-ccw.h
++++ b/hw/s390x/virtio-ccw.h
+@@ -85,6 +85,7 @@ struct VirtioCcwDevice {
+     bool ioeventfd_disabled;
+     uint32_t flags;
+     uint8_t thinint_isc;
++    uint32_t adapter_id;
+     /* Guest provided values: */
+     hwaddr indicators;
+     hwaddr indicators2;
+diff --git a/target-s390x/cpu.h b/target-s390x/cpu.h
+index f332d41..53391fd 100644
+--- a/target-s390x/cpu.h
++++ b/target-s390x/cpu.h
+@@ -1062,6 +1062,9 @@ void kvm_s390_enable_css_support(S390CPU *cpu);
  int kvm_s390_assign_subch_ioeventfd(EventNotifier *notifier, uint32_t sch,
+                                     int vq, bool assign);
+ int kvm_s390_cpu_restart(S390CPU *cpu);
++int kvm_s390_register_io_adapter(uint32_t id, uint8_t isc, bool swap,
++                                 bool maskable);
++int kvm_s390_io_adapter_map(uint32_t id, uint64_t map_addr, bool do_map);
+ #else
+ static inline void kvm_s390_io_interrupt(S390CPU *cpu,
+                                         uint16_t subchannel_id,
+@@ -1086,6 +1089,16 @@ static inline int kvm_s390_cpu_restart(S390CPU *cpu)
+ {
+     return -ENOSYS;
+ }
++static inline int kvm_s390_register_io_adapter(uint32_t id, uint8_t isc,
++                                               bool swap, bool maskable)
++{
++    return -ENOSYS;
++}
++static inline int kvm_s390_io_adapter_map(uint32_t id, uint64_t map_addr,
++                                          bool do_map)
++{
++    return -ENOSYS;
++}
+ #endif
+ 
+ static inline int s390_cpu_restart(S390CPU *cpu)
+@@ -1131,4 +1144,24 @@ static inline int s390_assign_subch_ioeventfd(EventNotifier *notifier,
+     }
+ }
+ 
++static inline int s390_register_io_adapter(uint32_t id, uint8_t isc, bool swap,
++                                           bool is_maskable)
++{
++    if (kvm_enabled()) {
++        return kvm_s390_register_io_adapter(id, isc, swap, is_maskable);
++    } else {
++        return -ENOSYS;
++    }
++}
++
++static inline int s390_io_adapter_map(uint32_t id, uint64_t map_addr,
++                                      bool do_map)
++{
++    if (kvm_enabled()) {
++        return kvm_s390_io_adapter_map(id, map_addr, do_map);
++    } else {
++        return -ENOSYS;
++    }
++}
++
+ #endif
 -- 
 1.7.9.5
