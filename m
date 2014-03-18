@@ -1,47 +1,53 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v2 1/5] KVM: eventfd: Fix lock order inversion.
-Date: Tue, 18 Mar 2014 10:18:25 +0100
-Message-ID: <20140318101825.6e2b9f7c.cornelia.huck@de.ibm.com>
-References: <1395079899-29239-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1395079899-29239-2-git-send-email-cornelia.huck@de.ibm.com>
-	<53276F65.4070501@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v2 5/5] KVM: Bump KVM_MAX_IRQ_ROUTES for s390
+Date: Tue, 18 Mar 2014 17:07:35 +0100
+Message-ID: <53286F47.2020100@redhat.com>
+References: <1395079899-29239-1-git-send-email-cornelia.huck@de.ibm.com> <1395079899-29239-6-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <53276F65.4070501@de.ibm.com>
+In-Reply-To: <1395079899-29239-6-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
+Cc: borntraeger@de.ibm.com, agraf@suse.de, gleb@kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 17 Mar 2014 22:55:49 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+Il 17/03/2014 19:11, Cornelia Huck ha scritto:
+> The maximum number for irq routes is currently 1024, which is a bit on
+> the small size for s390: We support up to 4 x 64k virtual devices with
+> up to 64 queues, and we need one route for each of the queues if we want
+> to operate it via irqfd.
+>
+> Let's bump this to 4k on s390 for now, as this at least covers the saner
+> setups.
+>
+> We need to find a more general solution, though, as we can't just grow
+> the routing table indefinitly.
+>
+> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> ---
+>  include/linux/kvm_host.h |    4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+> index da7510b..7d21cf9 100644
+> --- a/include/linux/kvm_host.h
+> +++ b/include/linux/kvm_host.h
+> @@ -922,7 +922,11 @@ static inline int mmu_notifier_retry(struct kvm *kvm, unsigned long mmu_seq)
+>
+>  #ifdef CONFIG_HAVE_KVM_IRQ_ROUTING
+>
+> +#ifdef CONFIG_S390
+> +#define KVM_MAX_IRQ_ROUTES 4096 //FIXME: we can have more than that...
+> +#else
+>  #define KVM_MAX_IRQ_ROUTES 1024
+> +#endif
+>
+>  int kvm_setup_default_irq_routing(struct kvm *kvm);
+>  int kvm_set_irq_routing(struct kvm *kvm,
+>
 
-> On 17/03/14 19:11, Cornelia Huck wrote:
-> > When registering a new irqfd, we call its ->poll method to collect any
-> > event that might have previously been pending so that we can trigger it.
-> > This is done under the kvm->irqfds.lock, which means the eventfd's ctx
-> > lock is taken under it.
-> > 
-> > However, if we get a POLLHUP in irqfd_wakeup, we will be called with the
-> > ctx lock held before getting the irqfds.lock to deactivate the irqfd,
-> > causing lockdep to complain.
-> > 
-> > Calling the ->poll method does not really need the irqfds.lock, so let's
-> > just move it after we've given up the irqfds.lock in kvm_irqfd_assign().
-> > 
-> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> Do you still have the lockdep message somewhere? 
-
-Unfortunately not, and it does not seem to be readily triggerable.
-
-> Looking at the patch and the description this makes sense. Even without
-> irqfd for s390:
-> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> 
-> Paolo, maybe this patch can go in independently from s390?
-> 
-> Christian
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
