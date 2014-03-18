@@ -1,15 +1,16 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v2 3/5] s390x: Add I/O adapter registration.
-Date: Tue, 18 Mar 2014 18:13:40 +0100
-Message-ID: <20140318181340.28aa8a2d.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v2 5/5] s390x/virtio-ccw: Wire up irq routing and
+ irqfds.
+Date: Tue, 18 Mar 2014 18:14:11 +0100
+Message-ID: <20140318181411.32d7aac1.cornelia.huck@de.ibm.com>
 References: <1395079921-29325-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1395079921-29325-4-git-send-email-cornelia.huck@de.ibm.com>
-	<53286FF9.6050602@redhat.com>
+	<1395079921-29325-6-git-send-email-cornelia.huck@de.ibm.com>
+	<53287090.10105@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <53286FF9.6050602@redhat.com>
+In-Reply-To: <53287090.10105@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -17,22 +18,15 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org, borntraeger@de.ibm.com, agraf@suse.de, gleb@kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 18 Mar 2014 17:10:33 +0100
+On Tue, 18 Mar 2014 17:13:04 +0100
 Paolo Bonzini <pbonzini@redhat.com> wrote:
 
-> Il 17/03/2014 19:11, Cornelia Huck ha scritto:
-> > +static KVMS390FLICState *s390_get_flic(void)
-> > +{
-> > +    ObjectProperty *op = object_property_find(qdev_get_machine(),
-> > +                                              "s390-flic", NULL);
-> > +
-> > +    if (op) {
-> > +        return op->opaque;
-> > +    } else {
-> > +        return NULL;
-> > +    }
-> > +}
+> Il 17/03/2014 19:12, Cornelia Huck ha scritto:
+> >      if (!qemu_opt_get_bool(qemu_get_machine_opts(), "kernel_irqchip", true) ||
+> > -        !kvm_check_extension(s, KVM_CAP_IRQCHIP)) {
+> > +        (!kvm_check_extension(s, KVM_CAP_IRQCHIP) &&
+> > +         kvm_enable_cap_vm(s, KVM_CAP_S390_IRQCHIP))) {
 > 
-> You can use object_resolve_path("/machine/s390-flic", NULL) instead.
-
-Will do.
+> Please add a "< 0" here for clarity.
+>
+OK, makes sense.
