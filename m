@@ -1,47 +1,23 @@
-From: frank.blaschka@de.ibm.com
-Subject: [patch 4/4] qeth: Fix IP version detection for VLAN traffic
-Date: Wed, 19 Mar 2014 07:58:02 +0100
-Message-ID: <20140319065813.642817087@de.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/4] s390: network patches for net-next
+Date: Thu, 20 Mar 2014 00:07:11 -0400 (EDT)
+Message-ID: <20140320.000711.1929997997668145930.davem@davemloft.net>
 References: <20140319065758.841490297@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline; filename=603-qeth-ip-version-vlan.diff
+In-Reply-To: <20140319065758.841490297@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Stefan Raspl <raspl@linux.vnet.ibm.com>
+To: frank.blaschka@de.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Stefan Raspl <raspl@linux.vnet.ibm.com>
+From: frank.blaschka@de.ibm.com
+Date: Wed, 19 Mar 2014 07:57:58 +0100
 
-The current code would always return 0 for VLAN-encapsulated IP traffic.
-One notable side effect was that VLAN traffic would never get prioritized
-on OSD and OSX devices when priority queueing modes prio_queueing_tos or
-prio_queueing_prec were enabled.
+> here are some s390 related patches for net-next
 
-Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
- drivers/s390/net/qeth_core.h | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index a0de045..5333b2c 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -854,8 +854,11 @@ static inline int qeth_get_micros(void)
- 
- static inline int qeth_get_ip_version(struct sk_buff *skb)
- {
--	struct ethhdr *ehdr = (struct ethhdr *)skb->data;
--	switch (ehdr->h_proto) {
-+	__be16 *p = &((struct ethhdr *)skb->data)->h_proto;
-+
-+	if (*p == ETH_P_8021Q)
-+		p += 2;
-+	switch (*p) {
- 	case ETH_P_IPV6:
- 		return 6;
- 	case ETH_P_IP:
+Series applied, thank you.
