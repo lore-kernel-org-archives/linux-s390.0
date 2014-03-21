@@ -1,10 +1,8 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH v3 4/4] KVM: Bump KVM_MAX_IRQ_ROUTES for s390
-Date: Fri, 21 Mar 2014 13:52:21 +0100
-Message-ID: <1395406341-14698-5-git-send-email-cornelia.huck@de.ibm.com>
-References: <1395406341-14698-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: [PATCH v3 0/4] KVM: irqfds for s390
+Date: Fri, 21 Mar 2014 13:52:17 +0100
+Message-ID: <1395406341-14698-1-git-send-email-cornelia.huck@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1395406341-14698-1-git-send-email-cornelia.huck@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,38 +10,45 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, qemu-devel@nongnu.org
 Cc: borntraeger@de.ibm.com, agraf@suse.de, pbonzini@redhat.com, gleb@kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The maximum number for irq routes is currently 1024, which is a bit on
-the small size for s390: We support up to 4 x 64k virtual devices with
-up to 64 queues, and we need one route for each of the queues if we want
-to operate it via irqfd.
+Hi,
 
-Let's bump this to 4k on s390 for now, as this at least covers the saner
-setups.
+here's the next iteration of my patchset introducing irqfds for s390.
 
-We need to find a more general solution, though, as we can't just grow
-the routing table indefinitly.
+Changes from v2:
+- rebased against current kvm/queue
+- kvm common code lock fix is already in queue
+- move some changes that belonged in patch 2 from patch 3
+- add a limit for mapped pages to patch 2
+- collected some acks
 
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- include/linux/kvm_host.h |    4 ++++
- 1 file changed, 4 insertions(+)
+Changes from v1:
+- rebased against current kvm/queue, bumping capability numbers
+- guest adapter interrupt support is already in the kvm tree
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index da7510b..7d21cf9 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -922,7 +922,11 @@ static inline int mmu_notifier_retry(struct kvm *kvm, unsigned long mmu_seq)
- 
- #ifdef CONFIG_HAVE_KVM_IRQ_ROUTING
- 
-+#ifdef CONFIG_S390
-+#define KVM_MAX_IRQ_ROUTES 4096 //FIXME: we can have more than that...
-+#else
- #define KVM_MAX_IRQ_ROUTES 1024
-+#endif
- 
- int kvm_setup_default_irq_routing(struct kvm *kvm);
- int kvm_set_irq_routing(struct kvm *kvm,
+Again, find it on
+
+git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git kvms390-irqfd
+
+Cornelia Huck (4):
+  KVM: Add per-vm capability enablement.
+  KVM: s390: adapter interrupt sources
+  KVM: s390: irq routing for adapter interrupts.
+  KVM: Bump KVM_MAX_IRQ_ROUTES for s390
+
+ Documentation/virtual/kvm/api.txt               |   27 ++-
+ Documentation/virtual/kvm/devices/s390_flic.txt |   45 ++++
+ arch/s390/include/asm/kvm_host.h                |   32 +++
+ arch/s390/include/uapi/asm/kvm.h                |   22 ++
+ arch/s390/kvm/Kconfig                           |    2 +
+ arch/s390/kvm/Makefile                          |    2 +-
+ arch/s390/kvm/interrupt.c                       |  294 ++++++++++++++++++++++-
+ arch/s390/kvm/irq.h                             |   22 ++
+ arch/s390/kvm/kvm-s390.c                        |   42 ++++
+ arch/s390/kvm/kvm-s390.h                        |    2 +
+ include/linux/kvm_host.h                        |   13 +
+ include/uapi/linux/kvm.h                        |   16 ++
+ 12 files changed, 511 insertions(+), 8 deletions(-)
+ create mode 100644 arch/s390/kvm/irq.h
+
 -- 
 1.7.9.5
