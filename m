@@ -1,58 +1,41 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PULL 1/4] KVM: s390: randomize sca address
-Date: Tue, 25 Mar 2014 15:04:22 +0100
-Message-ID: <53318CE6.6040605@de.ibm.com>
-References: <1395754523-43697-1-git-send-email-borntraeger@de.ibm.com> <1395754523-43697-2-git-send-email-borntraeger@de.ibm.com> <53318A74.9010504@redhat.com>
+Subject: Re: [PULL 4/4] KVM: s390: clear local interrupts at cpu initial reset
+Date: Tue, 25 Mar 2014 15:18:12 +0100
+Message-ID: <53319024.1030306@de.ibm.com>
+References: <1395754523-43697-1-git-send-email-borntraeger@de.ibm.com> <1395754523-43697-5-git-send-email-borntraeger@de.ibm.com> <53318B25.9070805@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <53318A74.9010504@redhat.com>
+In-Reply-To: <53318B25.9070805@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 25/03/14 14:53, Paolo Bonzini wrote:
+On 25/03/14 14:56, Paolo Bonzini wrote:
 > Il 25/03/2014 14:35, Christian Borntraeger ha scritto:
->> We allocate a page for the 2k sca, so lets use the space to improve
->> hit rate of some internal cpu caches. No need to change the freeing
->> of the page, as this will shift away the page offset bits anyway.
->>
->> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
->> ---
->>  arch/s390/kvm/kvm-s390.c | 5 +++++
->>  1 file changed, 5 insertions(+)
->>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index 7337c57..a02979f 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -215,6 +215,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
->>  {
->>      int rc;
->>      char debug_name[16];
->> +    static unsigned long sca_offset;
->>
->>      rc = -EINVAL;
->>  #ifdef CONFIG_KVM_S390_UCONTROL
->> @@ -236,6 +237,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
->>      kvm->arch.sca = (struct sca_block *) get_zeroed_page(GFP_KERNEL);
->>      if (!kvm->arch.sca)
->>          goto out_err;
->> +    spin_lock(&kvm_lock);
->> +    sca_offset = (sca_offset + 16) & 0x7f0;
->> +    kvm->arch.sca = (struct sca_block *) ((char *) kvm->arch.sca + sca_offset);
->> +    spin_unlock(&kvm_lock);
->>
->>      sprintf(debug_name, "kvm-%u", current->pid);
->>
->>
+>> +    spin_lock_bh(&li->lock);
+>> +    list_for_each_entry_safe(inti, n, &li->list, list) {
+>> +        list_del(&inti->list);
+>> +        kfree(inti);
+>> +    }
+>> +    atomic_set(&li->active, 0);
+>> +    spin_unlock_bh(&li->lock);
+>> +}
 > 
-> Does this have to remain the same across migration?
+> Out of curiosity, why the _bh?
 
-Nope, the sca address is just an internal _host_ detail and does not belong/influence
-the guest.
+Probably just copied from all other accesses. We normally protect against the hrtimer 
+wakeup bottom half(see kvm_s390_tasklet). For normal guests/userspace this should not
+happen, (after all we are resetting the CPU only on startup or during reset when the vCPUS
+are nor running) but the KVM interface allows to trigger this while the CPU is waiting
+for a timer.
+
+In fact I think your question just made me realize that this code needs some more
+fixes, e.g. resetting the timer on initial reset and getting the CPU out of wait.
+Will investigate.
+
+Christian
