@@ -1,58 +1,47 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PULL 0/4] KVM: s390: last fixes for next merge window
-Date: Tue, 25 Mar 2014 14:35:19 +0100
-Message-ID: <1395754523-43697-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [PULL 2/4] KVM: s390: fix calculation of idle_mask array size
+Date: Tue, 25 Mar 2014 14:35:21 +0100
+Message-ID: <1395754523-43697-3-git-send-email-borntraeger@de.ibm.com>
+References: <1395754523-43697-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1395754523-43697-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo,
+From: Jens Freimann <jfrei@linux.vnet.ibm.com>
 
-The following changes since commit 94b3ffcd41a90d2cb0b32ca23aa58a01111d5dc0:
+We need BITS_TO_LONGS, not sizeof(long) to calculate
+the correct size.
 
-  Merge tag 'kvm-s390-20140317' of git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux into HEAD (2014-03-17 12:21:35 +0100)
+idle_mask is a bitmask, each bit representing the state
+of a cpu. The desired outcome is an array of unsigned long
+fields that can fit KVM_MAX_VCPUS bits. We should not use
+sizeof(long) which returnes the size in bytes, but BITS_TO_LONGS
 
-are available in the git repository at:
+Signed-off-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/include/asm/kvm_host.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-20140325
-
-for you to fetch changes up to 2ed10cc15e7edf2daf22ce807a877a1266e97711:
-
-  KVM: s390: clear local interrupts at cpu initial reset (2014-03-25 13:27:12 +0100)
-
-I have verfied that there is no merge conflict with the irqfd
-patches from Cornelia.
-
-Christian
-
-----------------------------------------------------------------
-3 fixes
-- memory leak on certain SIGP conditions
-- wrong size for idle bitmap (always too big)
-- clear local interrupts on initial CPU reset
-
-1 performance improvement
-- improve performance with many guests on certain workloads
-
-----------------------------------------------------------------
-Christian Borntraeger (1):
-      KVM: s390: randomize sca address
-
-Jens Freimann (2):
-      KVM: s390: fix calculation of idle_mask array size
-      KVM: s390: clear local interrupts at cpu initial reset
-
-Thomas Huth (1):
-      KVM: s390: Fix possible memory leak in SIGP functions
-
- arch/s390/include/asm/kvm_host.h |  3 +--
- arch/s390/kvm/interrupt.c        | 14 ++++++++++++++
- arch/s390/kvm/kvm-s390.c         |  6 ++++++
- arch/s390/kvm/kvm-s390.h         |  1 +
- arch/s390/kvm/sigp.c             | 14 ++++++--------
- 5 files changed, 28 insertions(+), 10 deletions(-)
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 734d302..c36cd35 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -213,8 +213,7 @@ struct kvm_s390_float_interrupt {
+ 	struct list_head list;
+ 	atomic_t active;
+ 	int next_rr_cpu;
+-	unsigned long idle_mask[(KVM_MAX_VCPUS + sizeof(long) - 1)
+-				/ sizeof(long)];
++	unsigned long idle_mask[BITS_TO_LONGS(KVM_MAX_VCPUS)];
+ 	unsigned int irq_count;
+ };
+ 
+-- 
+1.8.4.2
