@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PULL 1/4] KVM: s390: randomize sca address
-Date: Tue, 25 Mar 2014 14:35:20 +0100
-Message-ID: <1395754523-43697-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [PULL 3/4] KVM: s390: Fix possible memory leak in SIGP functions
+Date: Tue, 25 Mar 2014 14:35:22 +0100
+Message-ID: <1395754523-43697-4-git-send-email-borntraeger@de.ibm.com>
 References: <1395754523-43697-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1395754523-43697-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,41 +9,68 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Thomas Huth <thuth@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-We allocate a page for the 2k sca, so lets use the space to improve
-hit rate of some internal cpu caches. No need to change the freeing
-of the page, as this will shift away the page offset bits anyway.
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
+When kvm_get_vcpu() returned NULL for the destination CPU in
+__sigp_emergency() or __sigp_external_call(), the memory for the
+"inti" structure was not released anymore. This patch fixes this
+issue by moving the check for !dst_vcpu before the kzalloc() call.
+
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/s390/kvm/sigp.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 7337c57..a02979f 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -215,6 +215,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- {
- 	int rc;
- 	char debug_name[16];
-+	static unsigned long sca_offset;
+diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+index 3fe44c4..26caeb5 100644
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -58,7 +58,9 @@ static int __sigp_emergency(struct kvm_vcpu *vcpu, u16 cpu_addr)
+ 	struct kvm_s390_interrupt_info *inti;
+ 	struct kvm_vcpu *dst_vcpu = NULL;
  
- 	rc = -EINVAL;
- #ifdef CONFIG_KVM_S390_UCONTROL
-@@ -236,6 +237,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	kvm->arch.sca = (struct sca_block *) get_zeroed_page(GFP_KERNEL);
- 	if (!kvm->arch.sca)
- 		goto out_err;
-+	spin_lock(&kvm_lock);
-+	sca_offset = (sca_offset + 16) & 0x7f0;
-+	kvm->arch.sca = (struct sca_block *) ((char *) kvm->arch.sca + sca_offset);
-+	spin_unlock(&kvm_lock);
+-	if (cpu_addr >= KVM_MAX_VCPUS)
++	if (cpu_addr < KVM_MAX_VCPUS)
++		dst_vcpu = kvm_get_vcpu(vcpu->kvm, cpu_addr);
++	if (!dst_vcpu)
+ 		return SIGP_CC_NOT_OPERATIONAL;
  
- 	sprintf(debug_name, "kvm-%u", current->pid);
+ 	inti = kzalloc(sizeof(*inti), GFP_KERNEL);
+@@ -68,9 +70,6 @@ static int __sigp_emergency(struct kvm_vcpu *vcpu, u16 cpu_addr)
+ 	inti->type = KVM_S390_INT_EMERGENCY;
+ 	inti->emerg.code = vcpu->vcpu_id;
  
+-	dst_vcpu = kvm_get_vcpu(vcpu->kvm, cpu_addr);
+-	if (!dst_vcpu)
+-		return SIGP_CC_NOT_OPERATIONAL;
+ 	li = &dst_vcpu->arch.local_int;
+ 	spin_lock_bh(&li->lock);
+ 	list_add_tail(&inti->list, &li->list);
+@@ -121,7 +120,9 @@ static int __sigp_external_call(struct kvm_vcpu *vcpu, u16 cpu_addr)
+ 	struct kvm_s390_interrupt_info *inti;
+ 	struct kvm_vcpu *dst_vcpu = NULL;
+ 
+-	if (cpu_addr >= KVM_MAX_VCPUS)
++	if (cpu_addr < KVM_MAX_VCPUS)
++		dst_vcpu = kvm_get_vcpu(vcpu->kvm, cpu_addr);
++	if (!dst_vcpu)
+ 		return SIGP_CC_NOT_OPERATIONAL;
+ 
+ 	inti = kzalloc(sizeof(*inti), GFP_KERNEL);
+@@ -131,9 +132,6 @@ static int __sigp_external_call(struct kvm_vcpu *vcpu, u16 cpu_addr)
+ 	inti->type = KVM_S390_INT_EXTERNAL_CALL;
+ 	inti->extcall.code = vcpu->vcpu_id;
+ 
+-	dst_vcpu = kvm_get_vcpu(vcpu->kvm, cpu_addr);
+-	if (!dst_vcpu)
+-		return SIGP_CC_NOT_OPERATIONAL;
+ 	li = &dst_vcpu->arch.local_int;
+ 	spin_lock_bh(&li->lock);
+ 	list_add_tail(&inti->list, &li->list);
 -- 
 1.8.4.2
