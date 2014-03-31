@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Dongsheng Yang <yangds.fnst@cn.fujitsu.com>
-Subject: [PATCH 11/16] drivers/s390: Replace hardcoding of 19 with MAX_NICE.
-Date: Tue, 11 Mar 2014 17:20:32 +0800
-Message-Id: <bfe03593d7573212466292424be53f3970a6429b.1394529373.git.yangds.fnst@cn.fujitsu.com>
-In-Reply-To: <cover.1394529373.git.yangds.fnst@cn.fujitsu.com>
-References: <cover.1394529373.git.yangds.fnst@cn.fujitsu.com>
+MIME-Version: 1.0
+In-Reply-To: <20140331092400.17071766@mschwide>
+References: <20140331092400.17071766@mschwide>
+Date: Mon, 31 Mar 2014 14:45:32 -0700
+Message-ID: <CA+55aFzPP6kBzWrcvps6NVu=f-FUtrfs1U6DyRpdwX6hH6PM-Q@mail.gmail.com>
+Subject: Re: [GIT PULL] s390 patches for the 3.15 merge window
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: joe@perches.com, peterz@infradead.org, mingo@kernel.org, tglx@linutronix.de, heiko.carstens@de.ibm.com, Dongsheng Yang <yangds.fnst@cn.fujitsu.com>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Tuchscherer <ingo.tuchscherer@de.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Ingo Molnar <mingo@kernel.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Dongsheng Yang <yangds.fnst@cn.fujitsu.com>
-cc: linux-s390@vger.kernel.org
-cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: Ingo Tuchscherer <ingo.tuchscherer@de.ibm.com>
----
- drivers/s390/crypto/ap_bus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Mon, Mar 31, 2014 at 12:24 AM, Martin Schwidefsky
+<schwidefsky@de.ibm.com> wrote:
+>
+> There are two memory management related changes, the CMMA support for
+> KVM to avoid swap-in of freed pages and the split page table lock for
+> the PMD level. These two come with common code changes in mm/.
 
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index ab3baa7..8eec165 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -1803,7 +1803,7 @@ static int ap_poll_thread(void *data)
- 	int requests;
- 	struct ap_device *ap_dev;
- 
--	set_user_nice(current, 19);
-+	set_user_nice(current, MAX_NICE);
- 	while (1) {
- 		if (ap_suspend_flag)
- 			return 0;
--- 
-1.8.2.1
+Ugh. I pulled it, but things like this makes me want to dig my eyes
+out with a spoon:
+
+  +#ifdef finish_arch_post_lock_switch
+  +        finish_arch_post_lock_switch();
+  +#endif
+
+when I think the proper thing to do would have been to move the
+#ifndef that creates an empty finish_arch_post_lock_switch() from
+kernel/sched/sched.h to some common file, or possibly even just
+duplicate it.
+
+I detest #ifdef's in the middle of code. Yes, we do have them, but we
+should try to avoid adding more of them.
+
+Maybe we could have a <linux/mmu_context.h> that includes the
+<asm/mmu_context.h> and then does that "let's add the dummy function
+for architectures that don't need it"?
+
+Added Ingo to the cc, since this ends up intersecting with the
+scheduler code that now does the wrapper on its own.
+
+              Linus
