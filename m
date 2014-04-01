@@ -1,371 +1,100 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH] mm: split 'tlb_flush_mmu()' into tlb flushing and memory
- freeing parts
-Date: Fri, 25 Apr 2014 16:21:22 -0700 (PDT)
-Message-ID: <alpine.LFD.2.11.1404251615320.11259@i7.linux-foundation.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 1 Apr 2014 08:52:18 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [GIT PULL] s390 patches for the 3.15 merge window
+Message-ID: <20140401085218.72f67e51@mschwide>
+In-Reply-To: <CA+55aFzPP6kBzWrcvps6NVu=f-FUtrfs1U6DyRpdwX6hH6PM-Q@mail.gmail.com>
+References: <20140331092400.17071766@mschwide>
+	<CA+55aFzPP6kBzWrcvps6NVu=f-FUtrfs1U6DyRpdwX6hH6PM-Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <owner-linux-mm@kvack.org>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Dave Hansen <dave.hansen@intel.com>, Hugh Dickins <hughd@google.com>
-Cc: Peter Anvin <hpa@zytor.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-arch@vger.kernel.org, linux-mm@kvack.org, Russell King <linux@arm.linux.org.uk>, Tony Luck <tony.luck@intel.com>, Michal Hocko <mhocko@suse.cz>, linux-sh@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Ingo Molnar <mingo@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Mon, 31 Mar 2014 14:45:32 -0700
+Linus Torvalds <torvalds@linux-foundation.org> wrote:
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Fri, 25 Apr 2014 16:05:40 -0700
-Subject: [PATCH] mm: split 'tlb_flush_mmu()' into tlb flushing and memory freeing parts
+> On Mon, Mar 31, 2014 at 12:24 AM, Martin Schwidefsky
+> <schwidefsky@de.ibm.com> wrote:
+> >
+> > There are two memory management related changes, the CMMA support for
+> > KVM to avoid swap-in of freed pages and the split page table lock for
+> > the PMD level. These two come with common code changes in mm/.
+> 
+> Ugh. I pulled it, but things like this makes me want to dig my eyes
+> out with a spoon:
+> 
+>   +#ifdef finish_arch_post_lock_switch
+>   +        finish_arch_post_lock_switch();
+>   +#endif
+> 
+> when I think the proper thing to do would have been to move the
+> #ifndef that creates an empty finish_arch_post_lock_switch() from
+> kernel/sched/sched.h to some common file, or possibly even just
+> duplicate it.
+> 
+> I detest #ifdef's in the middle of code. Yes, we do have them, but we
+> should try to avoid adding more of them.
+> 
+> Maybe we could have a <linux/mmu_context.h> that includes the
+> <asm/mmu_context.h> and then does that "let's add the dummy function
+> for architectures that don't need it"?
+> 
+> Added Ingo to the cc, since this ends up intersecting with the
+> scheduler code that now does the wrapper on its own.
 
-The mmu-gather operation 'tlb_flush_mmu()' has done two things: the
-actual tlb flush operation, and the batched freeing of the pages that
-the TLB entries pointed at.
+Yes, I feel the pain. I actually tried to move the finish_arch_post_lock_switch
+to linux/mmu_context.h but it turned out that this does not work. It broke
+the corgi_defconfig, this is what I got from the friendly kbuild test robot:
 
-This splits the operation into separate phases, so that the forced
-batched flushing done by zap_pte_range() can now do the actual TLB flush
-while still holding the page table lock, but delay the batched freeing
-of all the pages to after the lock has been dropped.
+-- snip
 
-This in turn allows us to avoid a race condition between
-set_page_dirty() (as called by zap_pte_range() when it finds a dirty
-shared memory pte) and page_mkclean(): because we now flush all the
-dirty page data from the TLB's while holding the pte lock,
-page_mkclean() will be held up walking the (recently cleaned) page
-tables until after the TLB entries have been flushed from all CPU's.
+tree:   git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+head:   05bb2956f28ff01a102bf16702ba7bcb116ecf72
+commit: 8f6d84ba48d8d4377c61477803c8ff2cd4b007b7 [10/14] sched/mm: call finish_arch_post_lock_switch in idle_task_exit and use_mm
+config: make ARCH=arm corgi_defconfig
 
-Reported-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Tested-by: Dave Hansen <dave.hansen@intel.com>
-Acked-by: Hugh Dickins <hughd@google.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
----
+All error/warnings:
 
-Ok, this is now tentatively committed to my tree. I decided to just go 
-ahead and do the ARM/ia64/sh parts blindly, since the splitup was fairly 
-trivial (ia64 being slightly more complicated). I tested the UM one, at 
-least as far as compiling. The others are totally untested, it would be 
-good to make sure I didn't screw anything up.
+   In file included from include/linux/mmu_context.h:5:0,
+                    from drivers/usb/gadget/inode.c:27:
+   arch/arm/include/asm/mmu_context.h: In function 'finish_arch_post_lock_switch':
+>> arch/arm/include/asm/mmu_context.h:82:3: error: implicit declaration of function 'preempt_enable_no_resched' [-Werror=implicit-function-declaration]  
+   cc1: some warnings being treated as errors
 
-The x86 and generic parts are the same that DaveH already tested and that 
-got sent out a few days ago.
+vim +/preempt_enable_no_resched +82 arch/arm/include/asm/mmu_context.h
 
- arch/arm/include/asm/tlb.h  | 12 +++++++++-
- arch/ia64/include/asm/tlb.h | 42 ++++++++++++++++++++++++++---------
- arch/s390/include/asm/tlb.h | 13 ++++++++++-
- arch/sh/include/asm/tlb.h   |  8 +++++++
- arch/um/include/asm/tlb.h   | 16 ++++++++++++--
- mm/memory.c                 | 53 +++++++++++++++++++++++++++++----------------
- 6 files changed, 111 insertions(+), 33 deletions(-)
+bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23  76  		 */
+bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23  77  		preempt_disable();
+bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23  78  		if (mm->context.switch_pending) {
+bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23  79  			mm->context.switch_pending = 0;
+bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23  80  			cpu_switch_mm(mm->pgd, mm);
+bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23  81  		}
+bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23 @82  		preempt_enable_no_resched();
+b9d4d42a arch/arm/include/asm/mmu_context.h Catalin Marinas 2011-11-28  83  	}
+b9d4d42a arch/arm/include/asm/mmu_context.h Catalin Marinas 2011-11-28  84  }
+^1da177e include/asm-arm/mmu_context.h      Linus Torvalds  2005-04-16  85  
 
-diff --git a/arch/arm/include/asm/tlb.h b/arch/arm/include/asm/tlb.h
-index 0baf7f0d9394..f1a0dace3efe 100644
---- a/arch/arm/include/asm/tlb.h
-+++ b/arch/arm/include/asm/tlb.h
-@@ -98,15 +98,25 @@ static inline void __tlb_alloc_page(struct mmu_gather *tlb)
- 	}
- }
- 
--static inline void tlb_flush_mmu(struct mmu_gather *tlb)
-+static inline void tlb_flush_mmu_tlbonly(struct mmu_gather *tlb)
- {
- 	tlb_flush(tlb);
-+}
-+
-+static inline void tlb_flush_mmu_free(struct mmu_gather *tlb)
-+{
- 	free_pages_and_swap_cache(tlb->pages, tlb->nr);
- 	tlb->nr = 0;
- 	if (tlb->pages == tlb->local)
- 		__tlb_alloc_page(tlb);
- }
- 
-+static inline void tlb_flush_mmu(struct mmu_gather *tlb)
-+{
-+	tlb_flush_mmu_tlbonly(tlb);
-+	tlb_flush_mmu_free(tlb);
-+}
-+
- static inline void
- tlb_gather_mmu(struct mmu_gather *tlb, struct mm_struct *mm, unsigned long start, unsigned long end)
- {
-diff --git a/arch/ia64/include/asm/tlb.h b/arch/ia64/include/asm/tlb.h
-index bc5efc7c3f3f..39d64e0df1de 100644
---- a/arch/ia64/include/asm/tlb.h
-+++ b/arch/ia64/include/asm/tlb.h
-@@ -91,18 +91,9 @@ extern struct ia64_tr_entry *ia64_idtrs[NR_CPUS];
- #define RR_RID_MASK	0x00000000ffffff00L
- #define RR_TO_RID(val) 	((val >> 8) & 0xffffff)
- 
--/*
-- * Flush the TLB for address range START to END and, if not in fast mode, release the
-- * freed pages that where gathered up to this point.
-- */
- static inline void
--ia64_tlb_flush_mmu (struct mmu_gather *tlb, unsigned long start, unsigned long end)
-+ia64_tlb_flush_mmu_tlbonly(struct mmu_gather *tlb, unsigned long start, unsigned long end)
- {
--	unsigned long i;
--	unsigned int nr;
--
--	if (!tlb->need_flush)
--		return;
- 	tlb->need_flush = 0;
- 
- 	if (tlb->fullmm) {
-@@ -135,6 +126,14 @@ ia64_tlb_flush_mmu (struct mmu_gather *tlb, unsigned long start, unsigned long e
- 		flush_tlb_range(&vma, ia64_thash(start), ia64_thash(end));
- 	}
- 
-+}
-+
-+static inline void
-+ia64_tlb_flush_mmu_free(struct mmu_gather *tlb)
-+{
-+	unsigned long i;
-+	unsigned int nr;
-+
- 	/* lastly, release the freed pages */
- 	nr = tlb->nr;
- 
-@@ -144,6 +143,19 @@ ia64_tlb_flush_mmu (struct mmu_gather *tlb, unsigned long start, unsigned long e
- 		free_page_and_swap_cache(tlb->pages[i]);
- }
- 
-+/*
-+ * Flush the TLB for address range START to END and, if not in fast mode, release the
-+ * freed pages that where gathered up to this point.
-+ */
-+static inline void
-+ia64_tlb_flush_mmu (struct mmu_gather *tlb, unsigned long start, unsigned long end)
-+{
-+	if (!tlb->need_flush)
-+		return;
-+	ia64_tlb_flush_mmu_tlbonly(tlb, start, end);
-+	ia64_tlb_flush_mmu_free(tlb);
-+}
-+
- static inline void __tlb_alloc_page(struct mmu_gather *tlb)
- {
- 	unsigned long addr = __get_free_pages(GFP_NOWAIT | __GFP_NOWARN, 0);
-@@ -206,6 +218,16 @@ static inline int __tlb_remove_page(struct mmu_gather *tlb, struct page *page)
- 	return tlb->max - tlb->nr;
- }
- 
-+static inline void tlb_flush_mmu_tlbonly(struct mmu_gather *tlb)
-+{
-+	ia64_tlb_flush_mmu_tlbonly(tlb, tlb->start_addr, tlb->end_addr);
-+}
-+
-+static inline void tlb_flush_mmu_free(struct mmu_gather *tlb)
-+{
-+	ia64_tlb_flush_mmu_free(tlb);
-+}
-+
- static inline void tlb_flush_mmu(struct mmu_gather *tlb)
- {
- 	ia64_tlb_flush_mmu(tlb, tlb->start_addr, tlb->end_addr);
-diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
-index c544b6f05d95..a25f09fbaf36 100644
---- a/arch/s390/include/asm/tlb.h
-+++ b/arch/s390/include/asm/tlb.h
-@@ -59,12 +59,23 @@ static inline void tlb_gather_mmu(struct mmu_gather *tlb,
- 	tlb->batch = NULL;
- }
- 
--static inline void tlb_flush_mmu(struct mmu_gather *tlb)
-+static inline void tlb_flush_mmu_tlbonly(struct mmu_gather *tlb)
- {
- 	__tlb_flush_mm_lazy(tlb->mm);
-+}
-+
-+static inline void tlb_flush_mmu_free(struct mmu_gather *tlb)
-+{
- 	tlb_table_flush(tlb);
- }
- 
-+
-+static inline void tlb_flush_mmu(struct mmu_gather *tlb)
-+{
-+	tlb_flush_mmu_tlbonly(tlb);
-+	tlb_flush_mmu_free(tlb);
-+}
-+
- static inline void tlb_finish_mmu(struct mmu_gather *tlb,
- 				  unsigned long start, unsigned long end)
- {
-diff --git a/arch/sh/include/asm/tlb.h b/arch/sh/include/asm/tlb.h
-index 362192ed12fe..62f80d2a9df9 100644
---- a/arch/sh/include/asm/tlb.h
-+++ b/arch/sh/include/asm/tlb.h
-@@ -86,6 +86,14 @@ tlb_end_vma(struct mmu_gather *tlb, struct vm_area_struct *vma)
- 	}
- }
- 
-+static inline void tlb_flush_mmu_tlbonly(struct mmu_gather *tlb)
-+{
-+}
-+
-+static inline void tlb_flush_mmu_free(struct mmu_gather *tlb)
-+{
-+}
-+
- static inline void tlb_flush_mmu(struct mmu_gather *tlb)
- {
- }
-diff --git a/arch/um/include/asm/tlb.h b/arch/um/include/asm/tlb.h
-index 29b0301c18aa..16eb63fac57d 100644
---- a/arch/um/include/asm/tlb.h
-+++ b/arch/um/include/asm/tlb.h
-@@ -59,13 +59,25 @@ extern void flush_tlb_mm_range(struct mm_struct *mm, unsigned long start,
- 			       unsigned long end);
- 
- static inline void
-+tlb_flush_mmu_tlbonly(struct mmu_gather *tlb)
-+{
-+	flush_tlb_mm_range(tlb->mm, tlb->start, tlb->end);
-+}
-+
-+static inline void
-+tlb_flush_mmu_free(struct mmu_gather *tlb)
-+{
-+	init_tlb_gather(tlb);
-+}
-+
-+static inline void
- tlb_flush_mmu(struct mmu_gather *tlb)
- {
- 	if (!tlb->need_flush)
- 		return;
- 
--	flush_tlb_mm_range(tlb->mm, tlb->start, tlb->end);
--	init_tlb_gather(tlb);
-+	tlb_flush_mmu_tlbonly(tlb);
-+	tlb_flush_mmu_free(tlb);
- }
- 
- /* tlb_finish_mmu
-diff --git a/mm/memory.c b/mm/memory.c
-index 93e332d5ed77..037b812a9531 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -232,17 +232,18 @@ void tlb_gather_mmu(struct mmu_gather *tlb, struct mm_struct *mm, unsigned long
- #endif
- }
- 
--void tlb_flush_mmu(struct mmu_gather *tlb)
-+static void tlb_flush_mmu_tlbonly(struct mmu_gather *tlb)
- {
--	struct mmu_gather_batch *batch;
--
--	if (!tlb->need_flush)
--		return;
- 	tlb->need_flush = 0;
- 	tlb_flush(tlb);
- #ifdef CONFIG_HAVE_RCU_TABLE_FREE
- 	tlb_table_flush(tlb);
- #endif
-+}
-+
-+static void tlb_flush_mmu_free(struct mmu_gather *tlb)
-+{
-+	struct mmu_gather_batch *batch;
- 
- 	for (batch = &tlb->local; batch; batch = batch->next) {
- 		free_pages_and_swap_cache(batch->pages, batch->nr);
-@@ -251,6 +252,14 @@ void tlb_flush_mmu(struct mmu_gather *tlb)
- 	tlb->active = &tlb->local;
- }
- 
-+void tlb_flush_mmu(struct mmu_gather *tlb)
-+{
-+	if (!tlb->need_flush)
-+		return;
-+	tlb_flush_mmu_tlbonly(tlb);
-+	tlb_flush_mmu_free(tlb);
-+}
-+
- /* tlb_finish_mmu
-  *	Called at the end of the shootdown operation to free up any resources
-  *	that were required.
-@@ -1127,8 +1136,10 @@ again:
- 			if (PageAnon(page))
- 				rss[MM_ANONPAGES]--;
- 			else {
--				if (pte_dirty(ptent))
-+				if (pte_dirty(ptent)) {
-+					force_flush = 1;
- 					set_page_dirty(page);
-+				}
- 				if (pte_young(ptent) &&
- 				    likely(!(vma->vm_flags & VM_SEQ_READ)))
- 					mark_page_accessed(page);
-@@ -1137,9 +1148,10 @@ again:
- 			page_remove_rmap(page);
- 			if (unlikely(page_mapcount(page) < 0))
- 				print_bad_pte(vma, addr, ptent, page);
--			force_flush = !__tlb_remove_page(tlb, page);
--			if (force_flush)
-+			if (unlikely(!__tlb_remove_page(tlb, page))) {
-+				force_flush = 1;
- 				break;
-+			}
- 			continue;
- 		}
- 		/*
-@@ -1174,18 +1186,11 @@ again:
- 
- 	add_mm_rss_vec(mm, rss);
- 	arch_leave_lazy_mmu_mode();
--	pte_unmap_unlock(start_pte, ptl);
- 
--	/*
--	 * mmu_gather ran out of room to batch pages, we break out of
--	 * the PTE lock to avoid doing the potential expensive TLB invalidate
--	 * and page-free while holding it.
--	 */
-+	/* Do the actual TLB flush before dropping ptl */
- 	if (force_flush) {
- 		unsigned long old_end;
- 
--		force_flush = 0;
--
- 		/*
- 		 * Flush the TLB just for the previous segment,
- 		 * then update the range to be the remaining
-@@ -1193,11 +1198,21 @@ again:
- 		 */
- 		old_end = tlb->end;
- 		tlb->end = addr;
--
--		tlb_flush_mmu(tlb);
--
-+		tlb_flush_mmu_tlbonly(tlb);
- 		tlb->start = addr;
- 		tlb->end = old_end;
-+	}
-+	pte_unmap_unlock(start_pte, ptl);
-+
-+	/*
-+	 * If we forced a TLB flush (either due to running out of
-+	 * batch buffers or because we needed to flush dirty TLB
-+	 * entries before releasing the ptl), free the batched
-+	 * memory too. Restart if we didn't do everything.
-+	 */
-+	if (force_flush) {
-+		force_flush = 0;
-+		tlb_flush_mmu_free(tlb);
- 
- 		if (addr != end)
- 			goto again;
+:::::: The code at line 82 was first introduced by commit
+:::::: bdae73cd374e28db544fdd9b77de689a36e3c129 ARM: 7790/1: Fix deferred mm switch on VIVT processors
+
+:::::: TO: Catalin Marinas <catalin.marinas@arm.com>
+:::::: CC: Russell King <rmk+kernel@arm.linux.org.uk>
+
+-- snip
+
+I gave up after a few hours trying to solve the header dependencies, the two
+trouble makes are alpha with the task_thread_info call in mmu_context.h and
+arm with the preempt_enable_no_resched call. Welcome to include file hell.
+
+
 -- 
-2.0.0.rc1
+blue skies,
+   Martin.
 
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+"Reality continues to ruin my life." - Calvin.
