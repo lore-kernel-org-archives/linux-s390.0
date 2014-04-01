@@ -1,100 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 1 Apr 2014 08:52:18 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Tue, 1 Apr 2014 08:40:41 -0700 (PDT)
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [GIT PULL] s390 patches for the 3.15 merge window
-Message-ID: <20140401085218.72f67e51@mschwide>
-In-Reply-To: <CA+55aFzPP6kBzWrcvps6NVu=f-FUtrfs1U6DyRpdwX6hH6PM-Q@mail.gmail.com>
-References: <20140331092400.17071766@mschwide>
-	<CA+55aFzPP6kBzWrcvps6NVu=f-FUtrfs1U6DyRpdwX6hH6PM-Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20140401085218.72f67e51@mschwide>
+Message-ID: <alpine.LFD.2.11.1404010827140.26309@i7.linux-foundation.org>
+References: <20140331092400.17071766@mschwide> <CA+55aFzPP6kBzWrcvps6NVu=f-FUtrfs1U6DyRpdwX6hH6PM-Q@mail.gmail.com> <20140401085218.72f67e51@mschwide>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Ingo Molnar <mingo@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 31 Mar 2014 14:45:32 -0700
-Linus Torvalds <torvalds@linux-foundation.org> wrote:
 
-> On Mon, Mar 31, 2014 at 12:24 AM, Martin Schwidefsky
-> <schwidefsky@de.ibm.com> wrote:
-> >
-> > There are two memory management related changes, the CMMA support for
-> > KVM to avoid swap-in of freed pages and the split page table lock for
-> > the PMD level. These two come with common code changes in mm/.
+
+On Tue, 1 Apr 2014, Martin Schwidefsky wrote:
 > 
-> Ugh. I pulled it, but things like this makes me want to dig my eyes
-> out with a spoon:
-> 
->   +#ifdef finish_arch_post_lock_switch
->   +        finish_arch_post_lock_switch();
->   +#endif
-> 
-> when I think the proper thing to do would have been to move the
-> #ifndef that creates an empty finish_arch_post_lock_switch() from
-> kernel/sched/sched.h to some common file, or possibly even just
-> duplicate it.
-> 
-> I detest #ifdef's in the middle of code. Yes, we do have them, but we
-> should try to avoid adding more of them.
-> 
-> Maybe we could have a <linux/mmu_context.h> that includes the
-> <asm/mmu_context.h> and then does that "let's add the dummy function
-> for architectures that don't need it"?
-> 
-> Added Ingo to the cc, since this ends up intersecting with the
-> scheduler code that now does the wrapper on its own.
+> I gave up after a few hours trying to solve the header dependencies, the two
+> trouble makes are alpha with the task_thread_info call in mmu_context.h and
+> arm with the preempt_enable_no_resched call. Welcome to include file hell.
 
-Yes, I feel the pain. I actually tried to move the finish_arch_post_lock_switch
-to linux/mmu_context.h but it turned out that this does not work. It broke
-the corgi_defconfig, this is what I got from the friendly kbuild test robot:
+I don't understand. The only file <asm/mmu_context.h> should need is 
+<linux/mm.h>. Maybe <kernel/sched.h>.
 
--- snip
+Look at mm/mmu_context.c, for example. It includes <asm/mmu_context.h> 
+without having included very many header files at all. So we *know* that 
+that small set is sufficient. 
 
-tree:   git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-head:   05bb2956f28ff01a102bf16702ba7bcb116ecf72
-commit: 8f6d84ba48d8d4377c61477803c8ff2cd4b007b7 [10/14] sched/mm: call finish_arch_post_lock_switch in idle_task_exit and use_mm
-config: make ARCH=arm corgi_defconfig
+And there aren't very many users of <linux/mmu_context.h> and none of them 
+are other header files, so there's no point in trying to religiously avoid 
+including one or two header files from it.
 
-All error/warnings:
+So I'm thinking something like this should work. It's untested, and maybe 
+some architecture really needs some other header file, but it looks quite 
+likely to work. No?
 
-   In file included from include/linux/mmu_context.h:5:0,
-                    from drivers/usb/gadget/inode.c:27:
-   arch/arm/include/asm/mmu_context.h: In function 'finish_arch_post_lock_switch':
->> arch/arm/include/asm/mmu_context.h:82:3: error: implicit declaration of function 'preempt_enable_no_resched' [-Werror=implicit-function-declaration]  
-   cc1: some warnings being treated as errors
+              Linus
 
-vim +/preempt_enable_no_resched +82 arch/arm/include/asm/mmu_context.h
+---
+ include/linux/mmu_context.h | 8 +++++++-
+ kernel/sched/core.c         | 2 +-
+ kernel/sched/sched.h        | 3 ---
+ mm/mmu_context.c            | 4 ----
+ 4 files changed, 8 insertions(+), 9 deletions(-)
 
-bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23  76  		 */
-bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23  77  		preempt_disable();
-bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23  78  		if (mm->context.switch_pending) {
-bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23  79  			mm->context.switch_pending = 0;
-bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23  80  			cpu_switch_mm(mm->pgd, mm);
-bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23  81  		}
-bdae73cd arch/arm/include/asm/mmu_context.h Catalin Marinas 2013-07-23 @82  		preempt_enable_no_resched();
-b9d4d42a arch/arm/include/asm/mmu_context.h Catalin Marinas 2011-11-28  83  	}
-b9d4d42a arch/arm/include/asm/mmu_context.h Catalin Marinas 2011-11-28  84  }
-^1da177e include/asm-arm/mmu_context.h      Linus Torvalds  2005-04-16  85  
-
-:::::: The code at line 82 was first introduced by commit
-:::::: bdae73cd374e28db544fdd9b77de689a36e3c129 ARM: 7790/1: Fix deferred mm switch on VIVT processors
-
-:::::: TO: Catalin Marinas <catalin.marinas@arm.com>
-:::::: CC: Russell King <rmk+kernel@arm.linux.org.uk>
-
--- snip
-
-I gave up after a few hours trying to solve the header dependencies, the two
-trouble makes are alpha with the task_thread_info call in mmu_context.h and
-arm with the preempt_enable_no_resched call. Welcome to include file hell.
-
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+diff --git a/include/linux/mmu_context.h b/include/linux/mmu_context.h
+index 70fffeba7495..843bbc2abec0 100644
+--- a/include/linux/mmu_context.h
++++ b/include/linux/mmu_context.h
+@@ -1,7 +1,13 @@
+ #ifndef _LINUX_MMU_CONTEXT_H
+ #define _LINUX_MMU_CONTEXT_H
+ 
+-struct mm_struct;
++#include <linux/mm.h>
++#include <linux/sched.h>
++#include <asm/mmu_context.h>
++
++#ifndef finish_arch_post_lock_switch
++#  define finish_arch_post_lock_switch() do { } while (0)
++#endif
+ 
+ void use_mm(struct mm_struct *mm);
+ void unuse_mm(struct mm_struct *mm);
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index a47902c687ae..20fc1bd8aec4 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -32,7 +32,7 @@
+ #include <linux/init.h>
+ #include <linux/uaccess.h>
+ #include <linux/highmem.h>
+-#include <asm/mmu_context.h>
++#include <linux/mmu_context.h>
+ #include <linux/interrupt.h>
+ #include <linux/capability.h>
+ #include <linux/completion.h>
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index f2de7a175620..5eafd5e8c236 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -960,9 +960,6 @@ static inline int task_running(struct rq *rq, struct task_struct *p)
+ #ifndef finish_arch_switch
+ # define finish_arch_switch(prev)	do { } while (0)
+ #endif
+-#ifndef finish_arch_post_lock_switch
+-# define finish_arch_post_lock_switch()	do { } while (0)
+-#endif
+ 
+ #ifndef __ARCH_WANT_UNLOCKED_CTXSW
+ static inline void prepare_lock_switch(struct rq *rq, struct task_struct *next)
+diff --git a/mm/mmu_context.c b/mm/mmu_context.c
+index f802c2d216a7..56ecbbdbf364 100644
+--- a/mm/mmu_context.c
++++ b/mm/mmu_context.c
+@@ -8,8 +8,6 @@
+ #include <linux/export.h>
+ #include <linux/sched.h>
+ 
+-#include <asm/mmu_context.h>
+-
+ /*
+  * use_mm
+  *	Makes the calling kernel thread take on the specified
+@@ -31,9 +29,7 @@ void use_mm(struct mm_struct *mm)
+ 	tsk->mm = mm;
+ 	switch_mm(active_mm, mm, tsk);
+ 	task_unlock(tsk);
+-#ifdef finish_arch_post_lock_switch
+ 	finish_arch_post_lock_switch();
+-#endif
+ 
+ 	if (active_mm != mm)
+ 		mmdrop(active_mm);
