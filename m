@@ -1,54 +1,41 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH/RFC] s390: Provide a configuration and control device
-Date: Tue,  1 Apr 2014 16:47:41 +0200
-Message-ID: <1396363663-50450-1-git-send-email-borntraeger@de.ibm.com>
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: [PATCH/RFC] KVM: s390: Add S390 configuration and control kvm
+ device
+Date: Tue, 01 Apr 2014 16:58:53 +0200
+Message-ID: <533AD42D.8060504@suse.de>
+References: <1396363663-50450-1-git-send-email-borntraeger@de.ibm.com> <1396363663-50450-2-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1396363663-50450-2-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: qemu-devel <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Alexander Graf <agraf@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>, Ekaterina Tumanova <tumanova@linux.vnet.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: qemu-devel <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Ekaterina Tumanova <tumanova@linux.vnet.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-We want to configure several things in KVM that go beyond what
-ENABLE_CAP (we need payload) or ONE_REG (we need it for the VM
-and we need to do more complex actions) can provide. Instead of
-adding several s390 specific ioctls, lets provide a configuration
-and control device that encapsulates different commands into
-groups of the same area (MEMORY, CPU, ..)
+On 04/01/2014 04:47 PM, Christian Borntraeger wrote:
+> From: Ekaterina Tumanova <tumanova@linux.vnet.ibm.com>
+>
+> Add KVM_DEV_TYPE_S390_CONFIG kvm device that contains
+> configuration and control attributes of particular vm.
+> The device is created by KVM_CREATE_DEVICE ioctl.
+> The attributes may be retrieved and stored by calling
+> KVM_GET_DEVICE_ATTR and KVM_SET_DEVICE_ATTR ioctls.
+>
+> Signed-off-by: Ekaterina Tumanova <tumanova@linux.vnet.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-We also provide an initial nameless base group, with a simple first
-user to set the guest name. We need that name in the kernel for
-the emulation of STSI (which provides the guest name to the guest)
-but we need to implement the emulation in supervisor mode, as it
-also provides the underlying levels of hipervisors.
+I don't think a device is particularly the best fit. A device can 
+usually be instantiated multiple times. The configuration device can 
+only be created once. A device also gets created by user space which 
+enables it to receive the fd to drive it. Your device has to be created 
+during VM creation.
 
-Currently we have the following GROUPS and ATTRs pending, which
-configure some memory management related function or allow to set
-the guest facilities, cpuids etc:
-
-#define KVM_DEV_CONFIG_GROUP            0
-#define KVM_DEV_CONFIG_NAME             0
-
-#define KVM_DEV_CONFIG_GROUP_MEM        1
-#define KVM_DEV_CONFIG_MEM_ENABLE_CMMA  0
-#define KVM_DEV_CONFIG_MEM_CLR_CMMA     1
-#define KVM_DEV_CONFIG_MEM_CLR_PAGES    2
-
-#define KVM_DEV_CONFIG_GROUP_CPU        2
-#define KVM_DEV_CONFIG_CPU_TYPE         0
-#define KVM_DEV_CONFIG_CPU_FAC          1
-#define KVM_DEV_CONFIG_CPU_FAC_MASK     2
-#define KVM_DEV_CONFIG_CPU_IBC          3
-#define KVM_DEV_CONFIG_CPU_IBC_RANGE    4
+I think VM configuration is common enough to just make this a separate 
+interface.
 
 
-
-In addition other groups like 
-#define KVM_DEV_CONFIG_GROUP_CRYPTO 
-are under consideration to configure crypto acceleration.
-
-Unless there is a major concern, I will add this to the next
-s390 PULL requests for KVM.
-
-Christian
+Alex
