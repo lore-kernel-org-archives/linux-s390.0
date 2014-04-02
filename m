@@ -1,72 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 2 Apr 2014 09:14:45 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [GIT PULL] s390 patches for the 3.15 merge window
-Message-ID: <20140402091445.65c6b660@mschwide>
-In-Reply-To: <alpine.LFD.2.11.1404010827140.26309@i7.linux-foundation.org>
+MIME-Version: 1.0
+In-Reply-To: <20140402091445.65c6b660@mschwide>
 References: <20140331092400.17071766@mschwide>
 	<CA+55aFzPP6kBzWrcvps6NVu=f-FUtrfs1U6DyRpdwX6hH6PM-Q@mail.gmail.com>
 	<20140401085218.72f67e51@mschwide>
 	<alpine.LFD.2.11.1404010827140.26309@i7.linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	<20140402091445.65c6b660@mschwide>
+Date: Wed, 2 Apr 2014 13:19:36 -0700
+Message-ID: <CA+55aFzJw4DrsMnr-D-gC18UJZsFB9kC_7F1PAYJA5X8Yb4+QQ@mail.gmail.com>
+Subject: Re: [GIT PULL] s390 patches for the 3.15 merge window
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Ingo Molnar <mingo@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 1 Apr 2014 08:40:41 -0700 (PDT)
-Linus Torvalds <torvalds@linux-foundation.org> wrote:
+On Wed, Apr 2, 2014 at 12:14 AM, Martin Schwidefsky
+<schwidefsky@de.ibm.com> wrote:
+>
+> Part of the problem is this lovely piece from include/linux/preempt.h:
 
-> 
-> 
-> On Tue, 1 Apr 2014, Martin Schwidefsky wrote:
-> > 
-> > I gave up after a few hours trying to solve the header dependencies, the two
-> > trouble makes are alpha with the task_thread_info call in mmu_context.h and
-> > arm with the preempt_enable_no_resched call. Welcome to include file hell.
-> 
-> I don't understand. The only file <asm/mmu_context.h> should need is 
-> <linux/mm.h>. Maybe <kernel/sched.h>.
-> 
-> Look at mm/mmu_context.c, for example. It includes <asm/mmu_context.h> 
-> without having included very many header files at all. So we *know* that 
-> that small set is sufficient. 
-> 
-> And there aren't very many users of <linux/mmu_context.h> and none of them 
-> are other header files, so there's no point in trying to religiously avoid 
-> including one or two header files from it.
-> 
-> So I'm thinking something like this should work. It's untested, and maybe 
-> some architecture really needs some other header file, but it looks quite 
-> likely to work. No?
+Oh, the pain. That's annoying. Oh well. I guess we'll live with the
+ugliness for now.
 
-I had a patch quite similar to yours and I ended up with the error report
-from the kbuild robot. Just tried yours with the corgi_defconfig and got
-this:
-
-In file included from include/linux/mmu_context.h:6,
-                 from drivers/usb/gadget/inode.c:27:
-/home4/mschwide/linux/arch/arm/include/asm/mmu_context.h: In function 'finish_arch_post_lock_switch':
-/home4/mschwide/linux/arch/arm/include/asm/mmu_context.h:82: error: implicit declaration of function 'preempt_enable_no_resched'
-
-Part of the problem is this lovely piece from include/linux/preempt.h:
-
-#ifdef MODULE
-/*
- * Modules have no business playing preemption tricks.
- */
-#undef sched_preempt_enable_no_resched
-#undef preempt_enable_no_resched
-#undef preempt_enable_no_resched_notrace
-#undef preempt_check_resched
-#endif
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+         Linus
