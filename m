@@ -1,84 +1,41 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 4/5] KVM: s390: Allow skeys to be enabled for the current process
-Date: Wed,  2 Apr 2014 11:24:47 +0200
-Message-ID: <1396430688-53629-5-git-send-email-borntraeger@de.ibm.com>
-References: <1396430688-53629-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 0/5] cmma and lazy sske
+Date: Wed,  2 Apr 2014 11:24:43 +0200
+Message-ID: <1396430688-53629-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1396430688-53629-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Martin,
 
-Introduce a new function s390_enable_skey(), which enables storage key
-handling via setting the use_skey flag in the mmu context.
+shall we send out patch 1 via your tree or kvm? Should be still in for 3.15
 
-This function is only useful within the context of kvm.
+Can you ACK patches 2-5?
 
-Note that enabling storage keys will cause a one-time hickup when
-walking the page table; however, it saves us special effort for cases
-like clear reset while making it possible for us to be architecture
-conform.
 
-s390_enable_skey() takes the page table lock to prevent reseting
-storage keys triggered from multiple vcpus.
+Dominik Dingel (5):
+  KVM: s390: make cmma usage conditionally
+  KVM: s390: Adding skey bit to mmu context
+  KVM: s390: Clear storage keys
+  KVM: s390: Allow skeys to be enabled for the current process
+  KVM: s390: Don't enable skeys by default
 
-Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/pgtable.h |  1 +
- arch/s390/mm/pgtable.c          | 23 +++++++++++++++++++++++
- 2 files changed, 24 insertions(+)
+ arch/s390/include/asm/kvm_host.h    |  4 ++
+ arch/s390/include/asm/mmu.h         |  2 +
+ arch/s390/include/asm/mmu_context.h |  1 +
+ arch/s390/include/asm/pgalloc.h     |  3 +-
+ arch/s390/include/asm/pgtable.h     | 42 +++++++++++------
+ arch/s390/kvm/diag.c                |  6 ---
+ arch/s390/kvm/kvm-s390.c            | 61 +++++++++++++++---------
+ arch/s390/kvm/kvm-s390.h            |  6 ++-
+ arch/s390/kvm/priv.c                | 94 +++++++++++++++++++++----------------
+ arch/s390/kvm/trace.h               | 14 ++++++
+ arch/s390/mm/pgtable.c              | 61 +++++++++++++++++++-----
+ 11 files changed, 199 insertions(+), 95 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index a82678e..1852389 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1678,6 +1678,7 @@ static inline pte_t mk_swap_pte(unsigned long type, unsigned long offset)
- extern int vmem_add_mapping(unsigned long start, unsigned long size);
- extern int vmem_remove_mapping(unsigned long start, unsigned long size);
- extern int s390_enable_sie(void);
-+extern void s390_enable_skey(void);
- 
- /*
-  * No page table caches to initialise
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 02a3575..2ed28bc 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -1369,6 +1369,29 @@ int s390_enable_sie(void)
- }
- EXPORT_SYMBOL_GPL(s390_enable_sie);
- 
-+/*
-+ * Enable storage key handling from now on and initialize the storage
-+ * keys with the default key.
-+ */
-+void s390_enable_skey(void)
-+{
-+	/*
-+	 * To avoid races between multiple vcpus, ending in calling
-+	 * page_table_reset twice or more,
-+	 * the page_table_lock is taken for serialization.
-+	 */
-+	spin_lock(&current->mm->page_table_lock);
-+	if (mm_use_skey(current->mm)) {
-+		spin_unlock(&current->mm->page_table_lock);
-+		return;
-+	}
-+
-+	current->mm->context.use_skey = 1;
-+	spin_unlock(&current->mm->page_table_lock);
-+	page_table_reset_pgste(current->mm, 0, TASK_SIZE, true);
-+}
-+EXPORT_SYMBOL_GPL(s390_enable_skey);
-+
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- int pmdp_clear_flush_young(struct vm_area_struct *vma, unsigned long address,
- 			   pmd_t *pmdp)
 -- 
 1.8.4.2
