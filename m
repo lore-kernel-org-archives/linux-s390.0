@@ -1,276 +1,111 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 6/6] KVM: s390: enable IBS for single running VCPUs
-Date: Tue, 29 Apr 2014 15:36:48 +0200
-Message-ID: <1398778608-3887-7-git-send-email-borntraeger@de.ibm.com>
-References: <1398778608-3887-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1398778608-3887-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 8 Apr 2014 08:54:33 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for the 3.15 merge window #2
+Message-ID: <20140408085433.290230eb@mschwide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Hi Linus,
 
-This patch enables the IBS facility when a single VCPU is running.
-The facility is dynamically turned on/off as soon as other VCPUs
-enter/leave the stopped state.
+please pull from the 'for-linus' branch of
 
-When this facility is operating, some instructions can be executed
-faster for single-cpu guests.
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Reviewed-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |   2 +
- arch/s390/kvm/kvm-s390.c         | 123 ++++++++++++++++++++++++++++++++++++++-
- arch/s390/kvm/trace-s390.h       |  22 +++++++
- include/linux/kvm_host.h         |   2 +
- 4 files changed, 147 insertions(+), 2 deletions(-)
+to receive the following updates:
+The second part of Heikos uaccess rework, the page table walker for uaccess
+is now a thing of the past (yay!)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 0d45f6f..f0a1dc5 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -72,6 +72,7 @@ struct sca_block {
- #define CPUSTAT_ZARCH      0x00000800
- #define CPUSTAT_MCDS       0x00000100
- #define CPUSTAT_SM         0x00000080
-+#define CPUSTAT_IBS        0x00000040
- #define CPUSTAT_G          0x00000008
- #define CPUSTAT_GED        0x00000004
- #define CPUSTAT_J          0x00000002
-@@ -411,6 +412,7 @@ struct kvm_arch{
- 	int use_cmma;
- 	struct s390_io_adapter *adapters[MAX_S390_IO_ADAPTERS];
- 	wait_queue_head_t ipte_wq;
-+	spinlock_t start_stop_lock;
- };
- 
- #define KVM_HVA_ERR_BAD		(-1UL)
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 6c972d2..0a01744 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -458,6 +458,8 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	kvm->arch.css_support = 0;
- 	kvm->arch.use_irqchip = 0;
- 
-+	spin_lock_init(&kvm->arch.start_stop_lock);
-+
- 	return 0;
- out_nogmap:
- 	debug_unregister(kvm->arch.dbf);
-@@ -996,8 +998,15 @@ bool kvm_s390_cmma_enabled(struct kvm *kvm)
- 	return true;
- }
- 
-+static bool ibs_enabled(struct kvm_vcpu *vcpu)
-+{
-+	return atomic_read(&vcpu->arch.sie_block->cpuflags) & CPUSTAT_IBS;
-+}
-+
- static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
- {
-+retry:
-+	s390_vcpu_unblock(vcpu);
- 	/*
- 	 * We use MMU_RELOAD just to re-arm the ipte notifier for the
- 	 * guest prefix page. gmap_ipte_notify will wait on the ptl lock.
-@@ -1005,15 +1014,34 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
- 	 * already finished. We might race against a second unmapper that
- 	 * wants to set the blocking bit. Lets just retry the request loop.
- 	 */
--	while (kvm_check_request(KVM_REQ_MMU_RELOAD, vcpu)) {
-+	if (kvm_check_request(KVM_REQ_MMU_RELOAD, vcpu)) {
- 		int rc;
- 		rc = gmap_ipte_notify(vcpu->arch.gmap,
- 				      vcpu->arch.sie_block->prefix,
- 				      PAGE_SIZE * 2);
- 		if (rc)
- 			return rc;
--		s390_vcpu_unblock(vcpu);
-+		goto retry;
-+	}
-+
-+	if (kvm_check_request(KVM_REQ_ENABLE_IBS, vcpu)) {
-+		if (!ibs_enabled(vcpu)) {
-+			trace_kvm_s390_enable_disable_ibs(vcpu->vcpu_id, 1);
-+			atomic_set_mask(CPUSTAT_IBS,
-+					&vcpu->arch.sie_block->cpuflags);
-+		}
-+		goto retry;
- 	}
-+
-+	if (kvm_check_request(KVM_REQ_DISABLE_IBS, vcpu)) {
-+		if (ibs_enabled(vcpu)) {
-+			trace_kvm_s390_enable_disable_ibs(vcpu->vcpu_id, 0);
-+			atomic_clear_mask(CPUSTAT_IBS,
-+					  &vcpu->arch.sie_block->cpuflags);
-+		}
-+		goto retry;
-+	}
-+
- 	return 0;
- }
- 
-@@ -1362,16 +1390,107 @@ int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr)
- 	return kvm_s390_store_status_unloaded(vcpu, addr);
- }
- 
-+static inline int is_vcpu_stopped(struct kvm_vcpu *vcpu)
-+{
-+	return atomic_read(&(vcpu)->arch.sie_block->cpuflags) & CPUSTAT_STOPPED;
-+}
-+
-+static void __disable_ibs_on_vcpu(struct kvm_vcpu *vcpu)
-+{
-+	kvm_check_request(KVM_REQ_ENABLE_IBS, vcpu);
-+	kvm_make_request(KVM_REQ_DISABLE_IBS, vcpu);
-+	exit_sie_sync(vcpu);
-+}
-+
-+static void __disable_ibs_on_all_vcpus(struct kvm *kvm)
-+{
-+	unsigned int i;
-+	struct kvm_vcpu *vcpu;
-+
-+	kvm_for_each_vcpu(i, vcpu, kvm) {
-+		__disable_ibs_on_vcpu(vcpu);
-+	}
-+}
-+
-+static void __enable_ibs_on_vcpu(struct kvm_vcpu *vcpu)
-+{
-+	kvm_check_request(KVM_REQ_DISABLE_IBS, vcpu);
-+	kvm_make_request(KVM_REQ_ENABLE_IBS, vcpu);
-+	exit_sie_sync(vcpu);
-+}
-+
- void kvm_s390_vcpu_start(struct kvm_vcpu *vcpu)
- {
-+	int i, online_vcpus, started_vcpus = 0;
-+
-+	if (!is_vcpu_stopped(vcpu))
-+		return;
-+
- 	trace_kvm_s390_vcpu_start_stop(vcpu->vcpu_id, 1);
-+	/* Only one cpu at a time may enter/leave the STOPPED state. */
-+	spin_lock_bh(&vcpu->kvm->arch.start_stop_lock);
-+	online_vcpus = atomic_read(&vcpu->kvm->online_vcpus);
-+
-+	for (i = 0; i < online_vcpus; i++) {
-+		if (!is_vcpu_stopped(vcpu->kvm->vcpus[i]))
-+			started_vcpus++;
-+	}
-+
-+	if (started_vcpus == 0) {
-+		/* we're the only active VCPU -> speed it up */
-+		__enable_ibs_on_vcpu(vcpu);
-+	} else if (started_vcpus == 1) {
-+		/*
-+		 * As we are starting a second VCPU, we have to disable
-+		 * the IBS facility on all VCPUs to remove potentially
-+		 * oustanding ENABLE requests.
-+		 */
-+		__disable_ibs_on_all_vcpus(vcpu->kvm);
-+	}
-+
- 	atomic_clear_mask(CPUSTAT_STOPPED, &vcpu->arch.sie_block->cpuflags);
-+	/*
-+	 * Another VCPU might have used IBS while we were offline.
-+	 * Let's play safe and flush the VCPU at startup.
-+	 */
-+	vcpu->arch.sie_block->ihcpu  = 0xffff;
-+	spin_unlock_bh(&vcpu->kvm->arch.start_stop_lock);
-+	return;
- }
- 
- void kvm_s390_vcpu_stop(struct kvm_vcpu *vcpu)
- {
-+	int i, online_vcpus, started_vcpus = 0;
-+	struct kvm_vcpu *started_vcpu = NULL;
-+
-+	if (is_vcpu_stopped(vcpu))
-+		return;
-+
- 	trace_kvm_s390_vcpu_start_stop(vcpu->vcpu_id, 0);
-+	/* Only one cpu at a time may enter/leave the STOPPED state. */
-+	spin_lock_bh(&vcpu->kvm->arch.start_stop_lock);
-+	online_vcpus = atomic_read(&vcpu->kvm->online_vcpus);
-+
- 	atomic_set_mask(CPUSTAT_STOPPED, &vcpu->arch.sie_block->cpuflags);
-+	__disable_ibs_on_vcpu(vcpu);
-+
-+	for (i = 0; i < online_vcpus; i++) {
-+		if (!is_vcpu_stopped(vcpu->kvm->vcpus[i])) {
-+			started_vcpus++;
-+			started_vcpu = vcpu->kvm->vcpus[i];
-+		}
-+	}
-+
-+	if (started_vcpus == 1) {
-+		/*
-+		 * As we only have one VCPU left, we want to enable the
-+		 * IBS facility for that VCPU to speed it up.
-+		 */
-+		__enable_ibs_on_vcpu(started_vcpu);
-+	}
-+
-+	spin_unlock_bh(&vcpu->kvm->arch.start_stop_lock);
-+	return;
- }
- 
- static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
-diff --git a/arch/s390/kvm/trace-s390.h b/arch/s390/kvm/trace-s390.h
-index 34d4f8a..647e9d6 100644
---- a/arch/s390/kvm/trace-s390.h
-+++ b/arch/s390/kvm/trace-s390.h
-@@ -244,6 +244,28 @@ TRACE_EVENT(kvm_s390_enable_css,
- 		      __entry->kvm)
- 	);
- 
-+/*
-+ * Trace point for enabling and disabling interlocking-and-broadcasting
-+ * suppression.
-+ */
-+TRACE_EVENT(kvm_s390_enable_disable_ibs,
-+	    TP_PROTO(unsigned int id, int state),
-+	    TP_ARGS(id, state),
-+
-+	    TP_STRUCT__entry(
-+		    __field(unsigned int, id)
-+		    __field(int, state)
-+		    ),
-+
-+	    TP_fast_assign(
-+		    __entry->id = id;
-+		    __entry->state = state;
-+		    ),
-+
-+	    TP_printk("%s ibs on cpu %d",
-+		      __entry->state ? "enabling" : "disabling", __entry->id)
-+	);
-+
- 
- #endif /* _TRACE_KVMS390_H */
- 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 820fc2e..1e125b0 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -134,6 +134,8 @@ static inline bool is_error_page(struct page *page)
- #define KVM_REQ_EPR_EXIT          20
- #define KVM_REQ_SCAN_IOAPIC       21
- #define KVM_REQ_GLOBAL_CLOCK_UPDATE 22
-+#define KVM_REQ_ENABLE_IBS        23
-+#define KVM_REQ_DISABLE_IBS       24
- 
- #define KVM_USERSPACE_IRQ_SOURCE_ID		0
- #define KVM_IRQFD_RESAMPLE_IRQ_SOURCE_ID	1
--- 
-1.8.4.2
+The code change to fix the theoretical TLB flush problem allows us to
+add a TLB flush optimization for zEC12, this machine has new instructions
+that allow to do CPU local TLB flushes for single pages and for all pages
+of a specific address space.
+
+Plus the usual bug fixing and some more cleanup.
+
+Christian Borntraeger (1):
+      kvm/s390: also set guest pages back to stable on kexec/kdump
+
+Gerald Schaefer (1):
+      s390/sclp: add timeout for queued requests
+
+Heiko Carstens (2):
+      s390/bitops,atomic: add missing memory barriers
+      s390/uaccess: rework uaccess code - fix locking issues
+
+Ingo Tuchscherer (1):
+      s390/zcrypt: add length check for aligned data to avoid overflow in msg-type 6
+
+Martin Schwidefsky (3):
+      s390/3270: fix crash with multiple reset device requests
+      s390/mm,tlb: safeguard against speculative TLB creation
+      s390/mm,tlb: optimize TLB flushing for zEC12
+
+Thomas Gleixner (3):
+      s390/tape: Use del_timer_sync()
+      s390/tape: Add missing destroy_timer_on_stack()
+      lcs: Add missing destroy_timer_on_stack()
+
+Thomas Huth (2):
+      s390/irq: Add defines for external interruption codes
+      s390/irq: Use defines for external interruption codes
+
+ arch/s390/include/asm/atomic.h        |   70 +++--
+ arch/s390/include/asm/bitops.h        |   41 +--
+ arch/s390/include/asm/futex.h         |   66 ++++-
+ arch/s390/include/asm/irq.h           |   17 +-
+ arch/s390/include/asm/mmu.h           |    2 +
+ arch/s390/include/asm/mmu_context.h   |   45 +++-
+ arch/s390/include/asm/pgtable.h       |  128 ++++++---
+ arch/s390/include/asm/setup.h         |    3 +
+ arch/s390/include/asm/switch_to.h     |    1 +
+ arch/s390/include/asm/thread_info.h   |    2 +
+ arch/s390/include/asm/tlb.h           |   14 +-
+ arch/s390/include/asm/tlbflush.h      |  115 ++++++--
+ arch/s390/include/asm/uaccess.h       |    2 -
+ arch/s390/kernel/asm-offsets.c        |    1 +
+ arch/s390/kernel/early.c              |    2 +
+ arch/s390/kernel/entry.S              |   24 +-
+ arch/s390/kernel/entry64.S            |   24 +-
+ arch/s390/kernel/irq.c                |   10 +-
+ arch/s390/kernel/perf_cpum_cf.c       |    6 +-
+ arch/s390/kernel/perf_cpum_sf.c       |    6 +-
+ arch/s390/kernel/runtime_instr.c      |    3 +-
+ arch/s390/kernel/sclp.S               |    5 +-
+ arch/s390/kernel/smp.c                |   10 +-
+ arch/s390/kernel/time.c               |    6 +-
+ arch/s390/kvm/diag.c                  |    4 +
+ arch/s390/lib/Makefile                |    2 +-
+ arch/s390/lib/uaccess.c               |  407 ++++++++++++++++++++++++++++
+ arch/s390/lib/uaccess.h               |   16 --
+ arch/s390/lib/uaccess_mvcos.c         |  263 ------------------
+ arch/s390/lib/uaccess_pt.c            |  471 ---------------------------------
+ arch/s390/mm/fault.c                  |   53 ++--
+ arch/s390/mm/hugetlbpage.c            |    5 +-
+ arch/s390/mm/init.c                   |    7 +-
+ arch/s390/mm/pgtable.c                |   12 +-
+ arch/s390/mm/vmem.c                   |    2 -
+ arch/s390/oprofile/hwsampler.c        |    4 +-
+ drivers/s390/block/dasd_diag.c        |    4 +-
+ drivers/s390/char/raw3270.c           |    9 +-
+ drivers/s390/char/sclp.c              |   88 +++++-
+ drivers/s390/char/sclp.h              |    9 +
+ drivers/s390/char/sclp_cmd.c          |   17 +-
+ drivers/s390/char/tape_std.c          |    3 +-
+ drivers/s390/crypto/zcrypt_api.c      |    4 +-
+ drivers/s390/crypto/zcrypt_msgtype6.c |   18 +-
+ drivers/s390/kvm/kvm_virtio.c         |    2 +-
+ drivers/s390/net/lcs.c                |    1 +
+ net/iucv/iucv.c                       |    6 +-
+ 47 files changed, 1031 insertions(+), 979 deletions(-)
+ create mode 100644 arch/s390/lib/uaccess.c
+ delete mode 100644 arch/s390/lib/uaccess.h
+ delete mode 100644 arch/s390/lib/uaccess_mvcos.c
+ delete mode 100644 arch/s390/lib/uaccess_pt.c
