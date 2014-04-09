@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PULL 2/8] KVM: s390: Adding skey bit to mmu context
-Date: Wed,  9 Apr 2014 12:44:52 +0200
-Message-ID: <1397040298-59306-3-git-send-email-borntraeger@de.ibm.com>
+Subject: [PULL 3/8] KVM: s390: Clear storage keys
+Date: Wed,  9 Apr 2014 12:44:53 +0200
+Message-ID: <1397040298-59306-4-git-send-email-borntraeger@de.ibm.com>
 References: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,185 +14,152 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Dominik Dingel <dingel@linux.vnet.ibm.com>
 
-For lazy storage key handling, we need a mechanism to track if the
-process ever issued a storage key operation.
+page_table_reset_pgste() already does a complete page table walk to
+reset the pgste. Enhance it to initialize the storage keys to
+PAGE_DEFAULT_KEY if requested by the caller. This will be used
+for lazy storage key handling.
 
-This patch adds the basic infrastructure for making the storage
-key handling optional, but still leaves it enabled for now by default.
+Lets adopt the current code (diag 308) to not clear the keys.
 
 Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/mmu.h         |  2 ++
- arch/s390/include/asm/mmu_context.h |  1 +
- arch/s390/include/asm/pgtable.h     | 41 ++++++++++++++++++++++++-------------
- 3 files changed, 30 insertions(+), 14 deletions(-)
+ arch/s390/include/asm/pgalloc.h |  3 ++-
+ arch/s390/kvm/diag.c            |  6 +++---
+ arch/s390/mm/pgtable.c          | 38 +++++++++++++++++++++++++++-----------
+ 3 files changed, 32 insertions(+), 15 deletions(-)
 
-diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
-index ff132ac..665cfb3 100644
---- a/arch/s390/include/asm/mmu.h
-+++ b/arch/s390/include/asm/mmu.h
-@@ -14,6 +14,8 @@ typedef struct {
- 	unsigned long vdso_base;
- 	/* The mmu context has extended page tables. */
- 	unsigned int has_pgste:1;
-+	/* The mmu context uses storage keys. */
-+	unsigned int use_skey:1;
- } mm_context_t;
+diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
+index 884017c..9e18a61 100644
+--- a/arch/s390/include/asm/pgalloc.h
++++ b/arch/s390/include/asm/pgalloc.h
+@@ -22,7 +22,8 @@ unsigned long *page_table_alloc(struct mm_struct *, unsigned long);
+ void page_table_free(struct mm_struct *, unsigned long *);
+ void page_table_free_rcu(struct mmu_gather *, unsigned long *);
  
- #define INIT_MM_CONTEXT(name)						      \
-diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
-index 38149b6..768e05a 100644
---- a/arch/s390/include/asm/mmu_context.h
-+++ b/arch/s390/include/asm/mmu_context.h
-@@ -22,6 +22,7 @@ static inline int init_new_context(struct task_struct *tsk,
- 	mm->context.asce_bits |= _ASCE_TYPE_REGION3;
- #endif
- 	mm->context.has_pgste = 0;
-+	mm->context.use_skey = 1;
- 	mm->context.asce_limit = STACK_TOP_MAX;
- 	crst_table_init((unsigned long *) mm->pgd, pgd_entry_type(mm));
- 	return 0;
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 50a75d9..818ab0f 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -466,6 +466,16 @@ static inline int mm_has_pgste(struct mm_struct *mm)
- #endif
- 	return 0;
+-void page_table_reset_pgste(struct mm_struct *, unsigned long, unsigned long);
++void page_table_reset_pgste(struct mm_struct *, unsigned long, unsigned long,
++			    bool init_skey);
+ int set_guest_storage_key(struct mm_struct *mm, unsigned long addr,
+ 			  unsigned long key, bool nq);
+ 
+diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+index 08dfc83..44dcfa8 100644
+--- a/arch/s390/kvm/diag.c
++++ b/arch/s390/kvm/diag.c
+@@ -169,15 +169,15 @@ static int __diag_ipl_functions(struct kvm_vcpu *vcpu)
+ 	switch (subcode) {
+ 	case 0:
+ 	case 1:
+-		page_table_reset_pgste(current->mm, 0, TASK_SIZE);
++		page_table_reset_pgste(current->mm, 0, TASK_SIZE, false);
+ 		return -EOPNOTSUPP;
+ 	case 3:
+ 		vcpu->run->s390_reset_flags = KVM_S390_RESET_CLEAR;
+-		page_table_reset_pgste(current->mm, 0, TASK_SIZE);
++		page_table_reset_pgste(current->mm, 0, TASK_SIZE, false);
+ 		break;
+ 	case 4:
+ 		vcpu->run->s390_reset_flags = 0;
+-		page_table_reset_pgste(current->mm, 0, TASK_SIZE);
++		page_table_reset_pgste(current->mm, 0, TASK_SIZE, false);
+ 		break;
+ 	default:
+ 		return -EOPNOTSUPP;
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index 796c932..5f5d643 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -878,8 +878,8 @@ static inline void page_table_free_pgste(unsigned long *table)
+ 	__free_page(page);
  }
+ 
+-static inline unsigned long page_table_reset_pte(struct mm_struct *mm,
+-			pmd_t *pmd, unsigned long addr, unsigned long end)
++static inline unsigned long page_table_reset_pte(struct mm_struct *mm, pmd_t *pmd,
++			unsigned long addr, unsigned long end, bool init_skey)
+ {
+ 	pte_t *start_pte, *pte;
+ 	spinlock_t *ptl;
+@@ -890,6 +890,22 @@ static inline unsigned long page_table_reset_pte(struct mm_struct *mm,
+ 	do {
+ 		pgste = pgste_get_lock(pte);
+ 		pgste_val(pgste) &= ~_PGSTE_GPS_USAGE_MASK;
++		if (init_skey) {
++			unsigned long address;
 +
-+static inline int mm_use_skey(struct mm_struct *mm)
-+{
-+#ifdef CONFIG_PGSTE
-+	if (mm->context.use_skey)
-+		return 1;
-+#endif
-+	return 0;
-+}
++			pgste_val(pgste) &= ~(PGSTE_ACC_BITS | PGSTE_FP_BIT |
++					      PGSTE_GR_BIT | PGSTE_GC_BIT);
 +
- /*
-  * pgd/pmd/pte query functions
-  */
-@@ -699,12 +709,13 @@ static inline void pgste_set(pte_t *ptep, pgste_t pgste)
- #endif
++			/* skip invalid and not writable pages */
++			if (pte_val(*pte) & _PAGE_INVALID ||
++			    !(pte_val(*pte) & _PAGE_WRITE)) {
++				pgste_set_unlock(pte, pgste);
++				continue;
++			}
++
++			address = pte_val(*pte) & PAGE_MASK;
++			page_set_storage_key(address, PAGE_DEFAULT_KEY, 1);
++		}
+ 		pgste_set_unlock(pte, pgste);
+ 	} while (pte++, addr += PAGE_SIZE, addr != end);
+ 	pte_unmap_unlock(start_pte, ptl);
+@@ -897,8 +913,8 @@ static inline unsigned long page_table_reset_pte(struct mm_struct *mm,
+ 	return addr;
  }
  
--static inline pgste_t pgste_update_all(pte_t *ptep, pgste_t pgste)
-+static inline pgste_t pgste_update_all(pte_t *ptep, pgste_t pgste,
-+				       struct mm_struct *mm)
+-static inline unsigned long page_table_reset_pmd(struct mm_struct *mm,
+-			pud_t *pud, unsigned long addr, unsigned long end)
++static inline unsigned long page_table_reset_pmd(struct mm_struct *mm, pud_t *pud,
++			unsigned long addr, unsigned long end, bool init_skey)
  {
- #ifdef CONFIG_PGSTE
- 	unsigned long address, bits, skey;
+ 	unsigned long next;
+ 	pmd_t *pmd;
+@@ -908,14 +924,14 @@ static inline unsigned long page_table_reset_pmd(struct mm_struct *mm,
+ 		next = pmd_addr_end(addr, end);
+ 		if (pmd_none_or_clear_bad(pmd))
+ 			continue;
+-		next = page_table_reset_pte(mm, pmd, addr, next);
++		next = page_table_reset_pte(mm, pmd, addr, next, init_skey);
+ 	} while (pmd++, addr = next, addr != end);
  
--	if (pte_val(*ptep) & _PAGE_INVALID)
-+	if (!mm_use_skey(mm) || pte_val(*ptep) & _PAGE_INVALID)
- 		return pgste;
- 	address = pte_val(*ptep) & PAGE_MASK;
- 	skey = (unsigned long) page_get_storage_key(address);
-@@ -729,10 +740,11 @@ static inline pgste_t pgste_update_all(pte_t *ptep, pgste_t pgste)
- 
+ 	return addr;
  }
  
--static inline pgste_t pgste_update_young(pte_t *ptep, pgste_t pgste)
-+static inline pgste_t pgste_update_young(pte_t *ptep, pgste_t pgste,
-+					 struct mm_struct *mm)
+-static inline unsigned long page_table_reset_pud(struct mm_struct *mm,
+-			pgd_t *pgd, unsigned long addr, unsigned long end)
++static inline unsigned long page_table_reset_pud(struct mm_struct *mm, pgd_t *pgd,
++			unsigned long addr, unsigned long end, bool init_skey)
  {
- #ifdef CONFIG_PGSTE
--	if (pte_val(*ptep) & _PAGE_INVALID)
-+	if (!mm_use_skey(mm) || pte_val(*ptep) & _PAGE_INVALID)
- 		return pgste;
- 	/* Get referenced bit from storage key */
- 	if (page_reset_referenced(pte_val(*ptep) & PAGE_MASK))
-@@ -741,13 +753,14 @@ static inline pgste_t pgste_update_young(pte_t *ptep, pgste_t pgste)
- 	return pgste;
+ 	unsigned long next;
+ 	pud_t *pud;
+@@ -925,14 +941,14 @@ static inline unsigned long page_table_reset_pud(struct mm_struct *mm,
+ 		next = pud_addr_end(addr, end);
+ 		if (pud_none_or_clear_bad(pud))
+ 			continue;
+-		next = page_table_reset_pmd(mm, pud, addr, next);
++		next = page_table_reset_pmd(mm, pud, addr, next, init_skey);
+ 	} while (pud++, addr = next, addr != end);
+ 
+ 	return addr;
  }
  
--static inline void pgste_set_key(pte_t *ptep, pgste_t pgste, pte_t entry)
-+static inline void pgste_set_key(pte_t *ptep, pgste_t pgste, pte_t entry,
-+				 struct mm_struct *mm)
+-void page_table_reset_pgste(struct mm_struct *mm,
+-			unsigned long start, unsigned long end)
++void page_table_reset_pgste(struct mm_struct *mm, unsigned long start,
++			    unsigned long end, bool init_skey)
  {
- #ifdef CONFIG_PGSTE
- 	unsigned long address;
- 	unsigned long nkey;
- 
--	if (pte_val(entry) & _PAGE_INVALID)
-+	if (!mm_use_skey(mm) || pte_val(entry) & _PAGE_INVALID)
- 		return;
- 	VM_BUG_ON(!(pte_val(*ptep) & _PAGE_INVALID));
- 	address = pte_val(entry) & PAGE_MASK;
-@@ -870,7 +883,7 @@ static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
- 	if (mm_has_pgste(mm)) {
- 		pgste = pgste_get_lock(ptep);
- 		pgste_val(pgste) &= ~_PGSTE_GPS_ZERO;
--		pgste_set_key(ptep, pgste, entry);
-+		pgste_set_key(ptep, pgste, entry, mm);
- 		pgste_set_pte(ptep, entry);
- 		pgste_set_unlock(ptep, pgste);
- 	} else {
-@@ -1028,7 +1041,7 @@ static inline int ptep_test_and_clear_user_dirty(struct mm_struct *mm,
- 
- 	if (mm_has_pgste(mm)) {
- 		pgste = pgste_get_lock(ptep);
--		pgste = pgste_update_all(ptep, pgste);
-+		pgste = pgste_update_all(ptep, pgste, mm);
- 		dirty = !!(pgste_val(pgste) & PGSTE_HC_BIT);
- 		pgste_val(pgste) &= ~PGSTE_HC_BIT;
- 		pgste_set_unlock(ptep, pgste);
-@@ -1048,7 +1061,7 @@ static inline int ptep_test_and_clear_user_young(struct mm_struct *mm,
- 
- 	if (mm_has_pgste(mm)) {
- 		pgste = pgste_get_lock(ptep);
--		pgste = pgste_update_young(ptep, pgste);
-+		pgste = pgste_update_young(ptep, pgste, mm);
- 		young = !!(pgste_val(pgste) & PGSTE_HR_BIT);
- 		pgste_val(pgste) &= ~PGSTE_HR_BIT;
- 		pgste_set_unlock(ptep, pgste);
-@@ -1159,7 +1172,7 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm,
- 	pte_val(*ptep) = _PAGE_INVALID;
- 
- 	if (mm_has_pgste(mm)) {
--		pgste = pgste_update_all(&pte, pgste);
-+		pgste = pgste_update_all(&pte, pgste, mm);
- 		pgste_set_unlock(ptep, pgste);
- 	}
- 	return pte;
-@@ -1182,7 +1195,7 @@ static inline pte_t ptep_modify_prot_start(struct mm_struct *mm,
- 	ptep_flush_lazy(mm, address, ptep);
- 
- 	if (mm_has_pgste(mm)) {
--		pgste = pgste_update_all(&pte, pgste);
-+		pgste = pgste_update_all(&pte, pgste, mm);
- 		pgste_set(ptep, pgste);
- 	}
- 	return pte;
-@@ -1196,7 +1209,7 @@ static inline void ptep_modify_prot_commit(struct mm_struct *mm,
- 
- 	if (mm_has_pgste(mm)) {
- 		pgste = pgste_get(ptep);
--		pgste_set_key(ptep, pgste, pte);
-+		pgste_set_key(ptep, pgste, pte, mm);
- 		pgste_set_pte(ptep, pte);
- 		pgste_set_unlock(ptep, pgste);
- 	} else
-@@ -1223,7 +1236,7 @@ static inline pte_t ptep_clear_flush(struct vm_area_struct *vma,
- 		if ((pgste_val(pgste) & _PGSTE_GPS_USAGE_MASK) ==
- 		    _PGSTE_GPS_USAGE_UNUSED)
- 			pte_val(pte) |= _PAGE_UNUSED;
--		pgste = pgste_update_all(&pte, pgste);
-+		pgste = pgste_update_all(&pte, pgste, vma->vm_mm);
- 		pgste_set_unlock(ptep, pgste);
- 	}
- 	return pte;
-@@ -1255,7 +1268,7 @@ static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm,
- 	pte_val(*ptep) = _PAGE_INVALID;
- 
- 	if (!full && mm_has_pgste(mm)) {
--		pgste = pgste_update_all(&pte, pgste);
-+		pgste = pgste_update_all(&pte, pgste, mm);
- 		pgste_set_unlock(ptep, pgste);
- 	}
- 	return pte;
+ 	unsigned long addr, next;
+ 	pgd_t *pgd;
+@@ -944,7 +960,7 @@ void page_table_reset_pgste(struct mm_struct *mm,
+ 		next = pgd_addr_end(addr, end);
+ 		if (pgd_none_or_clear_bad(pgd))
+ 			continue;
+-		next = page_table_reset_pud(mm, pgd, addr, next);
++		next = page_table_reset_pud(mm, pgd, addr, next, init_skey);
+ 	} while (pgd++, addr = next, addr != end);
+ 	up_read(&mm->mmap_sem);
+ }
 -- 
 1.8.4.2
