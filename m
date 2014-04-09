@@ -1,10 +1,8 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PULL 1/8] KVM: s390: also set guest pages back to stable on kexec/kdump
-Date: Wed,  9 Apr 2014 12:44:51 +0200
-Message-ID: <1397040298-59306-2-git-send-email-borntraeger@de.ibm.com>
-References: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [PULL 0/8] KVM: s390: memory management and migration
+Date: Wed,  9 Apr 2014 12:44:50 +0200
+Message-ID: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,29 +10,72 @@ To: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, 
 Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-We need to reset the usage state of the pages on kexec/kdump,
-which use subcode 0 and 1. We will only do the cmma reset in
-the kernel, everything else is done in userspace as before.
+Marcelo, Gleb, (Paolo,)
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/diag.c | 4 ++++
- 1 file changed, 4 insertions(+)
+The following changes since commit 7cbb39d4d4d530dff12f2ff06ed6c85c504ba91a:
 
-diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
-index 03a05ff..08dfc83 100644
---- a/arch/s390/kvm/diag.c
-+++ b/arch/s390/kvm/diag.c
-@@ -167,6 +167,10 @@ static int __diag_ipl_functions(struct kvm_vcpu *vcpu)
- 
- 	VCPU_EVENT(vcpu, 5, "diag ipl functions, subcode %lx", subcode);
- 	switch (subcode) {
-+	case 0:
-+	case 1:
-+		page_table_reset_pgste(current->mm, 0, TASK_SIZE);
-+		return -EOPNOTSUPP;
- 	case 3:
- 		vcpu->run->s390_reset_flags = KVM_S390_RESET_CLEAR;
- 		page_table_reset_pgste(current->mm, 0, TASK_SIZE);
--- 
-1.8.4.2
+  Merge tag 'kvm-3.15-1' of git://git.kernel.org/pub/scm/virt/kvm/kvm (2014-04-02 14:50:10 -0700)
+
+are available in the git repository at:
+
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-20140409
+
+for you to fetch changes up to 384ee3e2a18893f9de84ce2f00cf786ad81fe08e:
+
+  KVM: s390: Add proper dirty bitmap support to S390 kvm. (2014-04-09 11:12:15 +0200)
+
+----------------------------------------------------------------
+here are two changes for KVM on s390:
+- newer Linux version don't use the storage keys for dirty and
+  reference tracking. We can optimize the guest handling for
+  those guests for faults as well as page-in and page-out by
+  simply not caring about the guest visible storage key. We trap
+  guest storage key instruction to enable  those keys only on demand.
+- Migration bitmap: Until now s390 never provided a proper dirty
+  bitmap.  Let's provide a proper migration bitmap for s390. We also
+  change the user dirty tracking to a fault based mechanism. This
+  makes the host completely independent from the storage keys. Long
+  term this will allow us to back guest memory with large pages.
+
+Please note:
+The first patch commit 60bfdc8cd150  (KVM: s390: also set guest pages
+back to stable on kexec/kdump) is only included to avoid a compile
+error in the calls to page_table_reset_pgste. This commit already made
+its way into Linus git as commit id 1b6a19b34d54d3d56b9042 and we need
+to adopt the new call as well.
+The merge conflict between Linus tree and kvm tree is easy to solve.
+(kvm tree has the final result)
+
+All patches that touch s390 memory management are either ACKed or
+written by the s390 maintainers.
+
+----------------------------------------------------------------
+Christian Borntraeger (1):
+      KVM: s390: also set guest pages back to stable on kexec/kdump
+
+Dominik Dingel (5):
+      KVM: s390: Adding skey bit to mmu context
+      KVM: s390: Clear storage keys
+      KVM: s390: Allow skeys to be enabled for the current process
+      KVM: s390: Don't enable skeys by default
+      KVM: s390/mm: new gmap_test_and_clear_dirty function
+
+Jason J. Herne (1):
+      KVM: s390: Add proper dirty bitmap support to S390 kvm.
+
+Martin Schwidefsky (1):
+      KVM: s390/mm: use software dirty bit detection for user dirty tracking
+
+ arch/s390/include/asm/kvm_host.h    |   3 +
+ arch/s390/include/asm/mmu.h         |   2 +
+ arch/s390/include/asm/mmu_context.h |   1 +
+ arch/s390/include/asm/pgalloc.h     |   3 +-
+ arch/s390/include/asm/pgtable.h     | 169 +++++++++++++++++-------------------
+ arch/s390/kvm/diag.c                |   8 +-
+ arch/s390/kvm/kvm-s390.c            |  52 ++++++++++-
+ arch/s390/kvm/priv.c                |  14 +++
+ arch/s390/kvm/trace.h               |  14 +++
+ arch/s390/mm/pgtable.c              |  88 ++++++++++++++++---
+ virt/kvm/kvm_main.c                 |   2 -
+ 11 files changed, 248 insertions(+), 108 deletions(-)
