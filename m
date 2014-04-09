@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PULL 4/8] KVM: s390: Allow skeys to be enabled for the current process
-Date: Wed,  9 Apr 2014 12:44:54 +0200
-Message-ID: <1397040298-59306-5-git-send-email-borntraeger@de.ibm.com>
+Subject: [PULL 5/8] KVM: s390: Don't enable skeys by default
+Date: Wed,  9 Apr 2014 12:44:55 +0200
+Message-ID: <1397040298-59306-6-git-send-email-borntraeger@de.ibm.com>
 References: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,72 +14,119 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Dominik Dingel <dingel@linux.vnet.ibm.com>
 
-Introduce a new function s390_enable_skey(), which enables storage key
-handling via setting the use_skey flag in the mmu context.
+The first invocation of storage key operations on a given cpu will be intercepted.
 
-This function is only useful within the context of kvm.
-
-Note that enabling storage keys will cause a one-time hickup when
-walking the page table; however, it saves us special effort for cases
-like clear reset while making it possible for us to be architecture
-conform.
-
-s390_enable_skey() takes the page table lock to prevent resetting
-storage keys triggered from multiple vcpus.
+On these intercepts we will enable storage keys for the guest and remove the
+previously added intercepts.
 
 Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h |  1 +
- arch/s390/mm/pgtable.c          | 23 +++++++++++++++++++++++
- 2 files changed, 24 insertions(+)
+ arch/s390/include/asm/kvm_host.h    |  3 +++
+ arch/s390/include/asm/mmu_context.h |  2 +-
+ arch/s390/kvm/kvm-s390.c            |  1 +
+ arch/s390/kvm/priv.c                | 14 ++++++++++++++
+ arch/s390/kvm/trace.h               | 14 ++++++++++++++
+ 5 files changed, 33 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 818ab0f..bc4eb35 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1691,6 +1691,7 @@ static inline pte_t mk_swap_pte(unsigned long type, unsigned long offset)
- extern int vmem_add_mapping(unsigned long start, unsigned long size);
- extern int vmem_remove_mapping(unsigned long start, unsigned long size);
- extern int s390_enable_sie(void);
-+extern void s390_enable_skey(void);
- 
- /*
-  * No page table caches to initialise
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 5f5d643..25e4a2a 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -1368,6 +1368,29 @@ int s390_enable_sie(void)
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 154b600..a993b6f 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -89,6 +89,9 @@ struct kvm_s390_sie_block {
+ 	__u16   lctl;			/* 0x0044 */
+ 	__s16	icpua;			/* 0x0046 */
+ #define ICTL_LPSW 0x00400000
++#define ICTL_ISKE 0x00004000
++#define ICTL_SSKE 0x00002000
++#define ICTL_RRBE 0x00001000
+ 	__u32	ictl;			/* 0x0048 */
+ 	__u32	eca;			/* 0x004c */
+ 	__u8	icptcode;		/* 0x0050 */
+diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
+index 768e05a..00a6b74 100644
+--- a/arch/s390/include/asm/mmu_context.h
++++ b/arch/s390/include/asm/mmu_context.h
+@@ -22,7 +22,7 @@ static inline int init_new_context(struct task_struct *tsk,
+ 	mm->context.asce_bits |= _ASCE_TYPE_REGION3;
+ #endif
+ 	mm->context.has_pgste = 0;
+-	mm->context.use_skey = 1;
++	mm->context.use_skey = 0;
+ 	mm->context.asce_limit = STACK_TOP_MAX;
+ 	crst_table_init((unsigned long *) mm->pgd, pgd_entry_type(mm));
+ 	return 0;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index b3ecb8f..b767ec9 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -465,6 +465,7 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
+ 	vcpu->arch.sie_block->ecb2  = 8;
+ 	vcpu->arch.sie_block->eca   = 0xC1002001U;
+ 	vcpu->arch.sie_block->fac   = (int) (long) vfacilities;
++	vcpu->arch.sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
+ 	if (kvm_enabled_cmma()) {
+ 		cbrl = alloc_page(GFP_KERNEL | __GFP_ZERO);
+ 		if (cbrl) {
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 476e9e2..8a63e99 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -147,8 +147,21 @@ static int handle_store_cpu_address(struct kvm_vcpu *vcpu)
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(s390_enable_sie);
  
-+/*
-+ * Enable storage key handling from now on and initialize the storage
-+ * keys with the default key.
-+ */
-+void s390_enable_skey(void)
++static void __skey_check_enable(struct kvm_vcpu *vcpu)
 +{
-+	/*
-+	 * To avoid races between multiple vcpus, ending in calling
-+	 * page_table_reset twice or more,
-+	 * the page_table_lock is taken for serialization.
-+	 */
-+	spin_lock(&current->mm->page_table_lock);
-+	if (mm_use_skey(current->mm)) {
-+		spin_unlock(&current->mm->page_table_lock);
++	if (!(vcpu->arch.sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)))
 +		return;
-+	}
 +
-+	current->mm->context.use_skey = 1;
-+	spin_unlock(&current->mm->page_table_lock);
-+	page_table_reset_pgste(current->mm, 0, TASK_SIZE, true);
++	s390_enable_skey();
++	trace_kvm_s390_skey_related_inst(vcpu);
++	vcpu->arch.sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
 +}
-+EXPORT_SYMBOL_GPL(s390_enable_skey);
 +
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- int pmdp_clear_flush_young(struct vm_area_struct *vma, unsigned long address,
- 			   pmd_t *pmdp)
++
+ static int handle_skey(struct kvm_vcpu *vcpu)
+ {
++	__skey_check_enable(vcpu);
++
+ 	vcpu->stat.instruction_storage_key++;
+ 
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+@@ -618,6 +631,7 @@ static int handle_pfmf(struct kvm_vcpu *vcpu)
+ 		}
+ 
+ 		if (vcpu->run->s.regs.gprs[reg1] & PFMF_SK) {
++			__skey_check_enable(vcpu);
+ 			if (set_guest_storage_key(current->mm, useraddr,
+ 					vcpu->run->s.regs.gprs[reg1] & PFMF_KEY,
+ 					vcpu->run->s.regs.gprs[reg1] & PFMF_NQ))
+diff --git a/arch/s390/kvm/trace.h b/arch/s390/kvm/trace.h
+index e8e7213..a4bf7d7 100644
+--- a/arch/s390/kvm/trace.h
++++ b/arch/s390/kvm/trace.h
+@@ -30,6 +30,20 @@
+ 	TP_printk("%02d[%016lx-%016lx]: " p_str, __entry->id,		\
+ 		  __entry->pswmask, __entry->pswaddr, p_args)
+ 
++TRACE_EVENT(kvm_s390_skey_related_inst,
++	    TP_PROTO(VCPU_PROTO_COMMON),
++	    TP_ARGS(VCPU_ARGS_COMMON),
++
++	    TP_STRUCT__entry(
++		    VCPU_FIELD_COMMON
++		    ),
++
++	    TP_fast_assign(
++		    VCPU_ASSIGN_COMMON
++		    ),
++	    VCPU_TP_PRINTK("%s", "first instruction related to skeys on vcpu")
++	);
++
+ TRACE_EVENT(kvm_s390_major_guest_pfault,
+ 	    TP_PROTO(VCPU_PROTO_COMMON),
+ 	    TP_ARGS(VCPU_ARGS_COMMON),
 -- 
 1.8.4.2
