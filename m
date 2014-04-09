@@ -1,81 +1,76 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PULL 0/8] KVM: s390: memory management and migration
-Date: Wed,  9 Apr 2014 12:44:50 +0200
-Message-ID: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [PULL 7/8] KVM: s390/mm: new gmap_test_and_clear_dirty function
+Date: Wed,  9 Apr 2014 12:44:57 +0200
+Message-ID: <1397040298-59306-8-git-send-email-borntraeger@de.ibm.com>
+References: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@kernel.org>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Marcelo, Gleb, (Paolo,)
+From: Dominik Dingel <dingel@linux.vnet.ibm.com>
 
-The following changes since commit 7cbb39d4d4d530dff12f2ff06ed6c85c504ba91a:
+For live migration kvm needs to test and clear the dirty bit of guest pages.
 
-  Merge tag 'kvm-3.15-1' of git://git.kernel.org/pub/scm/virt/kvm/kvm (2014-04-02 14:50:10 -0700)
+Lets provide ptep_test_and_clear_user_dirty in architecture specific
+memory management code, since we need proper locking.
 
-are available in the git repository at:
+Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/include/asm/pgtable.h |  2 ++
+ arch/s390/mm/pgtable.c          | 21 +++++++++++++++++++++
+ 2 files changed, 23 insertions(+)
 
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-20140409
-
-for you to fetch changes up to 384ee3e2a18893f9de84ce2f00cf786ad81fe08e:
-
-  KVM: s390: Add proper dirty bitmap support to S390 kvm. (2014-04-09 11:12:15 +0200)
-
-----------------------------------------------------------------
-here are two changes for KVM on s390:
-- newer Linux version don't use the storage keys for dirty and
-  reference tracking. We can optimize the guest handling for
-  those guests for faults as well as page-in and page-out by
-  simply not caring about the guest visible storage key. We trap
-  guest storage key instruction to enable  those keys only on demand.
-- Migration bitmap: Until now s390 never provided a proper dirty
-  bitmap.  Let's provide a proper migration bitmap for s390. We also
-  change the user dirty tracking to a fault based mechanism. This
-  makes the host completely independent from the storage keys. Long
-  term this will allow us to back guest memory with large pages.
-
-Please note:
-The first patch commit 60bfdc8cd150  (KVM: s390: also set guest pages
-back to stable on kexec/kdump) is only included to avoid a compile
-error in the calls to page_table_reset_pgste. This commit already made
-its way into Linus git as commit id 1b6a19b34d54d3d56b9042 and we need
-to adopt the new call as well.
-The merge conflict between Linus tree and kvm tree is easy to solve.
-(kvm tree has the final result)
-
-All patches that touch s390 memory management are either ACKed or
-written by the s390 maintainers.
-
-----------------------------------------------------------------
-Christian Borntraeger (1):
-      KVM: s390: also set guest pages back to stable on kexec/kdump
-
-Dominik Dingel (5):
-      KVM: s390: Adding skey bit to mmu context
-      KVM: s390: Clear storage keys
-      KVM: s390: Allow skeys to be enabled for the current process
-      KVM: s390: Don't enable skeys by default
-      KVM: s390/mm: new gmap_test_and_clear_dirty function
-
-Jason J. Herne (1):
-      KVM: s390: Add proper dirty bitmap support to S390 kvm.
-
-Martin Schwidefsky (1):
-      KVM: s390/mm: use software dirty bit detection for user dirty tracking
-
- arch/s390/include/asm/kvm_host.h    |   3 +
- arch/s390/include/asm/mmu.h         |   2 +
- arch/s390/include/asm/mmu_context.h |   1 +
- arch/s390/include/asm/pgalloc.h     |   3 +-
- arch/s390/include/asm/pgtable.h     | 169 +++++++++++++++++-------------------
- arch/s390/kvm/diag.c                |   8 +-
- arch/s390/kvm/kvm-s390.c            |  52 ++++++++++-
- arch/s390/kvm/priv.c                |  14 +++
- arch/s390/kvm/trace.h               |  14 +++
- arch/s390/mm/pgtable.c              |  88 ++++++++++++++++---
- virt/kvm/kvm_main.c                 |   2 -
- 11 files changed, 248 insertions(+), 108 deletions(-)
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index d75eb76..ab65035 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -838,6 +838,8 @@ unsigned long __gmap_fault(unsigned long address, struct gmap *);
+ unsigned long gmap_fault(unsigned long address, struct gmap *);
+ void gmap_discard(unsigned long from, unsigned long to, struct gmap *);
+ void __gmap_zap(unsigned long address, struct gmap *);
++bool gmap_test_and_clear_dirty(unsigned long address, struct gmap *);
++
+ 
+ void gmap_register_ipte_notifier(struct gmap_notifier *);
+ void gmap_unregister_ipte_notifier(struct gmap_notifier *);
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index 442a266..8979847 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -1391,6 +1391,27 @@ void s390_enable_skey(void)
+ }
+ EXPORT_SYMBOL_GPL(s390_enable_skey);
+ 
++/*
++ * Test and reset if a guest page is dirty
++ */
++bool gmap_test_and_clear_dirty(unsigned long address, struct gmap *gmap)
++{
++	pte_t *pte;
++	spinlock_t *ptl;
++	bool dirty = false;
++
++	pte = get_locked_pte(gmap->mm, address, &ptl);
++	if (unlikely(!pte))
++		return false;
++
++	if (ptep_test_and_clear_user_dirty(gmap->mm, address, pte))
++		dirty = true;
++
++	spin_unlock(ptl);
++	return dirty;
++}
++EXPORT_SYMBOL_GPL(gmap_test_and_clear_dirty);
++
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ int pmdp_clear_flush_young(struct vm_area_struct *vma, unsigned long address,
+ 			   pmd_t *pmdp)
+-- 
+1.8.4.2
