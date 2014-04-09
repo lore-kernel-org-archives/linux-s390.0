@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PULL 7/8] KVM: s390/mm: new gmap_test_and_clear_dirty function
-Date: Wed,  9 Apr 2014 12:44:57 +0200
-Message-ID: <1397040298-59306-8-git-send-email-borntraeger@de.ibm.com>
+Subject: [PULL 8/8] KVM: s390: Add proper dirty bitmap support to S390 kvm.
+Date: Wed,  9 Apr 2014 12:44:58 +0200
+Message-ID: <1397040298-59306-9-git-send-email-borntraeger@de.ibm.com>
 References: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,68 +9,118 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@kernel.org>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "Jason J. Herne" <jjherne@us.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+From: "Jason J. Herne" <jjherne@us.ibm.com>
 
-For live migration kvm needs to test and clear the dirty bit of guest pages.
+Replace the kvm_s390_sync_dirty_log() stub with code to construct the KVM
+dirty_bitmap from S390 memory change bits.  Also add code to properly clear
+the dirty_bitmap size when clearing the bitmap.
 
-Lets provide ptep_test_and_clear_user_dirty in architecture specific
-memory management code, since we need proper locking.
-
-Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Jason J. Herne <jjherne@us.ibm.com>
+CC: Dominik Dingel <dingel@linux.vnet.ibm.com>
+[Dominik Dingel: use gmap_test_and_clear_dirty, locking fixes]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h |  2 ++
- arch/s390/mm/pgtable.c          | 21 +++++++++++++++++++++
- 2 files changed, 23 insertions(+)
+ arch/s390/kvm/kvm-s390.c | 51 +++++++++++++++++++++++++++++++++++++++++++++++-
+ virt/kvm/kvm_main.c      |  2 --
+ 2 files changed, 50 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index d75eb76..ab65035 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -838,6 +838,8 @@ unsigned long __gmap_fault(unsigned long address, struct gmap *);
- unsigned long gmap_fault(unsigned long address, struct gmap *);
- void gmap_discard(unsigned long from, unsigned long to, struct gmap *);
- void __gmap_zap(unsigned long address, struct gmap *);
-+bool gmap_test_and_clear_dirty(unsigned long address, struct gmap *);
-+
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index b767ec9..346a347 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -11,6 +11,7 @@
+  *               Christian Borntraeger <borntraeger@de.ibm.com>
+  *               Heiko Carstens <heiko.carstens@de.ibm.com>
+  *               Christian Ehrhardt <ehrhardt@de.ibm.com>
++ *               Jason J. Herne <jjherne@us.ibm.com>
+  */
  
- void gmap_register_ipte_notifier(struct gmap_notifier *);
- void gmap_unregister_ipte_notifier(struct gmap_notifier *);
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 442a266..8979847 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -1391,6 +1391,27 @@ void s390_enable_skey(void)
+ #include <linux/compiler.h>
+@@ -179,6 +180,25 @@ int kvm_dev_ioctl_check_extension(long ext)
+ 	return r;
  }
- EXPORT_SYMBOL_GPL(s390_enable_skey);
  
-+/*
-+ * Test and reset if a guest page is dirty
-+ */
-+bool gmap_test_and_clear_dirty(unsigned long address, struct gmap *gmap)
++static void kvm_s390_sync_dirty_log(struct kvm *kvm,
++					struct kvm_memory_slot *memslot)
 +{
-+	pte_t *pte;
-+	spinlock_t *ptl;
-+	bool dirty = false;
++	gfn_t cur_gfn, last_gfn;
++	unsigned long address;
++	struct gmap *gmap = kvm->arch.gmap;
 +
-+	pte = get_locked_pte(gmap->mm, address, &ptl);
-+	if (unlikely(!pte))
-+		return false;
++	down_read(&gmap->mm->mmap_sem);
++	/* Loop over all guest pages */
++	last_gfn = memslot->base_gfn + memslot->npages;
++	for (cur_gfn = memslot->base_gfn; cur_gfn <= last_gfn; cur_gfn++) {
++		address = gfn_to_hva_memslot(memslot, cur_gfn);
 +
-+	if (ptep_test_and_clear_user_dirty(gmap->mm, address, pte))
-+		dirty = true;
-+
-+	spin_unlock(ptl);
-+	return dirty;
++		if (gmap_test_and_clear_dirty(address, gmap))
++			mark_page_dirty(kvm, cur_gfn);
++	}
++	up_read(&gmap->mm->mmap_sem);
 +}
-+EXPORT_SYMBOL_GPL(gmap_test_and_clear_dirty);
 +
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- int pmdp_clear_flush_young(struct vm_area_struct *vma, unsigned long address,
- 			   pmd_t *pmdp)
+ /* Section: vm related */
+ /*
+  * Get (and clear) the dirty memory log for a memory slot.
+@@ -186,7 +206,36 @@ int kvm_dev_ioctl_check_extension(long ext)
+ int kvm_vm_ioctl_get_dirty_log(struct kvm *kvm,
+ 			       struct kvm_dirty_log *log)
+ {
+-	return 0;
++	int r;
++	unsigned long n;
++	struct kvm_memory_slot *memslot;
++	int is_dirty = 0;
++
++	mutex_lock(&kvm->slots_lock);
++
++	r = -EINVAL;
++	if (log->slot >= KVM_USER_MEM_SLOTS)
++		goto out;
++
++	memslot = id_to_memslot(kvm->memslots, log->slot);
++	r = -ENOENT;
++	if (!memslot->dirty_bitmap)
++		goto out;
++
++	kvm_s390_sync_dirty_log(kvm, memslot);
++	r = kvm_get_dirty_log(kvm, log, &is_dirty);
++	if (r)
++		goto out;
++
++	/* Clear the dirty log */
++	if (is_dirty) {
++		n = kvm_dirty_bitmap_bytes(memslot);
++		memset(memslot->dirty_bitmap, 0, n);
++	}
++	r = 0;
++out:
++	mutex_unlock(&kvm->slots_lock);
++	return r;
+ }
+ 
+ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 56baae8..7facdb1 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -637,14 +637,12 @@ static int kvm_vm_release(struct inode *inode, struct file *filp)
+  */
+ static int kvm_create_dirty_bitmap(struct kvm_memory_slot *memslot)
+ {
+-#ifndef CONFIG_S390
+ 	unsigned long dirty_bytes = 2 * kvm_dirty_bitmap_bytes(memslot);
+ 
+ 	memslot->dirty_bitmap = kvm_kvzalloc(dirty_bytes);
+ 	if (!memslot->dirty_bitmap)
+ 		return -ENOMEM;
+ 
+-#endif /* !CONFIG_S390 */
+ 	return 0;
+ }
+ 
 -- 
 1.8.4.2
