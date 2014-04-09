@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PULL 5/8] KVM: s390: Don't enable skeys by default
-Date: Wed,  9 Apr 2014 12:44:55 +0200
-Message-ID: <1397040298-59306-6-git-send-email-borntraeger@de.ibm.com>
+Subject: [PULL 2/8] KVM: s390: Adding skey bit to mmu context
+Date: Wed,  9 Apr 2014 12:44:52 +0200
+Message-ID: <1397040298-59306-3-git-send-email-borntraeger@de.ibm.com>
 References: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1397040298-59306-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,119 +14,185 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Dominik Dingel <dingel@linux.vnet.ibm.com>
 
-The first invocation of storage key operations on a given cpu will be intercepted.
+For lazy storage key handling, we need a mechanism to track if the
+process ever issued a storage key operation.
 
-On these intercepts we will enable storage keys for the guest and remove the
-previously added intercepts.
+This patch adds the basic infrastructure for making the storage
+key handling optional, but still leaves it enabled for now by default.
 
 Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h    |  3 +++
- arch/s390/include/asm/mmu_context.h |  2 +-
- arch/s390/kvm/kvm-s390.c            |  1 +
- arch/s390/kvm/priv.c                | 14 ++++++++++++++
- arch/s390/kvm/trace.h               | 14 ++++++++++++++
- 5 files changed, 33 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/mmu.h         |  2 ++
+ arch/s390/include/asm/mmu_context.h |  1 +
+ arch/s390/include/asm/pgtable.h     | 41 ++++++++++++++++++++++++-------------
+ 3 files changed, 30 insertions(+), 14 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 154b600..a993b6f 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -89,6 +89,9 @@ struct kvm_s390_sie_block {
- 	__u16   lctl;			/* 0x0044 */
- 	__s16	icpua;			/* 0x0046 */
- #define ICTL_LPSW 0x00400000
-+#define ICTL_ISKE 0x00004000
-+#define ICTL_SSKE 0x00002000
-+#define ICTL_RRBE 0x00001000
- 	__u32	ictl;			/* 0x0048 */
- 	__u32	eca;			/* 0x004c */
- 	__u8	icptcode;		/* 0x0050 */
+diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
+index ff132ac..665cfb3 100644
+--- a/arch/s390/include/asm/mmu.h
++++ b/arch/s390/include/asm/mmu.h
+@@ -14,6 +14,8 @@ typedef struct {
+ 	unsigned long vdso_base;
+ 	/* The mmu context has extended page tables. */
+ 	unsigned int has_pgste:1;
++	/* The mmu context uses storage keys. */
++	unsigned int use_skey:1;
+ } mm_context_t;
+ 
+ #define INIT_MM_CONTEXT(name)						      \
 diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
-index 768e05a..00a6b74 100644
+index 38149b6..768e05a 100644
 --- a/arch/s390/include/asm/mmu_context.h
 +++ b/arch/s390/include/asm/mmu_context.h
-@@ -22,7 +22,7 @@ static inline int init_new_context(struct task_struct *tsk,
+@@ -22,6 +22,7 @@ static inline int init_new_context(struct task_struct *tsk,
  	mm->context.asce_bits |= _ASCE_TYPE_REGION3;
  #endif
  	mm->context.has_pgste = 0;
--	mm->context.use_skey = 1;
-+	mm->context.use_skey = 0;
++	mm->context.use_skey = 1;
  	mm->context.asce_limit = STACK_TOP_MAX;
  	crst_table_init((unsigned long *) mm->pgd, pgd_entry_type(mm));
  	return 0;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index b3ecb8f..b767ec9 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -465,6 +465,7 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
- 	vcpu->arch.sie_block->ecb2  = 8;
- 	vcpu->arch.sie_block->eca   = 0xC1002001U;
- 	vcpu->arch.sie_block->fac   = (int) (long) vfacilities;
-+	vcpu->arch.sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
- 	if (kvm_enabled_cmma()) {
- 		cbrl = alloc_page(GFP_KERNEL | __GFP_ZERO);
- 		if (cbrl) {
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 476e9e2..8a63e99 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -147,8 +147,21 @@ static int handle_store_cpu_address(struct kvm_vcpu *vcpu)
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 50a75d9..818ab0f 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -466,6 +466,16 @@ static inline int mm_has_pgste(struct mm_struct *mm)
+ #endif
  	return 0;
  }
- 
-+static void __skey_check_enable(struct kvm_vcpu *vcpu)
-+{
-+	if (!(vcpu->arch.sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)))
-+		return;
 +
-+	s390_enable_skey();
-+	trace_kvm_s390_skey_related_inst(vcpu);
-+	vcpu->arch.sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
++static inline int mm_use_skey(struct mm_struct *mm)
++{
++#ifdef CONFIG_PGSTE
++	if (mm->context.use_skey)
++		return 1;
++#endif
++	return 0;
 +}
 +
-+
- static int handle_skey(struct kvm_vcpu *vcpu)
+ /*
+  * pgd/pmd/pte query functions
+  */
+@@ -699,12 +709,13 @@ static inline void pgste_set(pte_t *ptep, pgste_t pgste)
+ #endif
+ }
+ 
+-static inline pgste_t pgste_update_all(pte_t *ptep, pgste_t pgste)
++static inline pgste_t pgste_update_all(pte_t *ptep, pgste_t pgste,
++				       struct mm_struct *mm)
  {
-+	__skey_check_enable(vcpu);
-+
- 	vcpu->stat.instruction_storage_key++;
+ #ifdef CONFIG_PGSTE
+ 	unsigned long address, bits, skey;
  
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
-@@ -618,6 +631,7 @@ static int handle_pfmf(struct kvm_vcpu *vcpu)
- 		}
+-	if (pte_val(*ptep) & _PAGE_INVALID)
++	if (!mm_use_skey(mm) || pte_val(*ptep) & _PAGE_INVALID)
+ 		return pgste;
+ 	address = pte_val(*ptep) & PAGE_MASK;
+ 	skey = (unsigned long) page_get_storage_key(address);
+@@ -729,10 +740,11 @@ static inline pgste_t pgste_update_all(pte_t *ptep, pgste_t pgste)
  
- 		if (vcpu->run->s.regs.gprs[reg1] & PFMF_SK) {
-+			__skey_check_enable(vcpu);
- 			if (set_guest_storage_key(current->mm, useraddr,
- 					vcpu->run->s.regs.gprs[reg1] & PFMF_KEY,
- 					vcpu->run->s.regs.gprs[reg1] & PFMF_NQ))
-diff --git a/arch/s390/kvm/trace.h b/arch/s390/kvm/trace.h
-index e8e7213..a4bf7d7 100644
---- a/arch/s390/kvm/trace.h
-+++ b/arch/s390/kvm/trace.h
-@@ -30,6 +30,20 @@
- 	TP_printk("%02d[%016lx-%016lx]: " p_str, __entry->id,		\
- 		  __entry->pswmask, __entry->pswaddr, p_args)
+ }
  
-+TRACE_EVENT(kvm_s390_skey_related_inst,
-+	    TP_PROTO(VCPU_PROTO_COMMON),
-+	    TP_ARGS(VCPU_ARGS_COMMON),
-+
-+	    TP_STRUCT__entry(
-+		    VCPU_FIELD_COMMON
-+		    ),
-+
-+	    TP_fast_assign(
-+		    VCPU_ASSIGN_COMMON
-+		    ),
-+	    VCPU_TP_PRINTK("%s", "first instruction related to skeys on vcpu")
-+	);
-+
- TRACE_EVENT(kvm_s390_major_guest_pfault,
- 	    TP_PROTO(VCPU_PROTO_COMMON),
- 	    TP_ARGS(VCPU_ARGS_COMMON),
+-static inline pgste_t pgste_update_young(pte_t *ptep, pgste_t pgste)
++static inline pgste_t pgste_update_young(pte_t *ptep, pgste_t pgste,
++					 struct mm_struct *mm)
+ {
+ #ifdef CONFIG_PGSTE
+-	if (pte_val(*ptep) & _PAGE_INVALID)
++	if (!mm_use_skey(mm) || pte_val(*ptep) & _PAGE_INVALID)
+ 		return pgste;
+ 	/* Get referenced bit from storage key */
+ 	if (page_reset_referenced(pte_val(*ptep) & PAGE_MASK))
+@@ -741,13 +753,14 @@ static inline pgste_t pgste_update_young(pte_t *ptep, pgste_t pgste)
+ 	return pgste;
+ }
+ 
+-static inline void pgste_set_key(pte_t *ptep, pgste_t pgste, pte_t entry)
++static inline void pgste_set_key(pte_t *ptep, pgste_t pgste, pte_t entry,
++				 struct mm_struct *mm)
+ {
+ #ifdef CONFIG_PGSTE
+ 	unsigned long address;
+ 	unsigned long nkey;
+ 
+-	if (pte_val(entry) & _PAGE_INVALID)
++	if (!mm_use_skey(mm) || pte_val(entry) & _PAGE_INVALID)
+ 		return;
+ 	VM_BUG_ON(!(pte_val(*ptep) & _PAGE_INVALID));
+ 	address = pte_val(entry) & PAGE_MASK;
+@@ -870,7 +883,7 @@ static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
+ 	if (mm_has_pgste(mm)) {
+ 		pgste = pgste_get_lock(ptep);
+ 		pgste_val(pgste) &= ~_PGSTE_GPS_ZERO;
+-		pgste_set_key(ptep, pgste, entry);
++		pgste_set_key(ptep, pgste, entry, mm);
+ 		pgste_set_pte(ptep, entry);
+ 		pgste_set_unlock(ptep, pgste);
+ 	} else {
+@@ -1028,7 +1041,7 @@ static inline int ptep_test_and_clear_user_dirty(struct mm_struct *mm,
+ 
+ 	if (mm_has_pgste(mm)) {
+ 		pgste = pgste_get_lock(ptep);
+-		pgste = pgste_update_all(ptep, pgste);
++		pgste = pgste_update_all(ptep, pgste, mm);
+ 		dirty = !!(pgste_val(pgste) & PGSTE_HC_BIT);
+ 		pgste_val(pgste) &= ~PGSTE_HC_BIT;
+ 		pgste_set_unlock(ptep, pgste);
+@@ -1048,7 +1061,7 @@ static inline int ptep_test_and_clear_user_young(struct mm_struct *mm,
+ 
+ 	if (mm_has_pgste(mm)) {
+ 		pgste = pgste_get_lock(ptep);
+-		pgste = pgste_update_young(ptep, pgste);
++		pgste = pgste_update_young(ptep, pgste, mm);
+ 		young = !!(pgste_val(pgste) & PGSTE_HR_BIT);
+ 		pgste_val(pgste) &= ~PGSTE_HR_BIT;
+ 		pgste_set_unlock(ptep, pgste);
+@@ -1159,7 +1172,7 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm,
+ 	pte_val(*ptep) = _PAGE_INVALID;
+ 
+ 	if (mm_has_pgste(mm)) {
+-		pgste = pgste_update_all(&pte, pgste);
++		pgste = pgste_update_all(&pte, pgste, mm);
+ 		pgste_set_unlock(ptep, pgste);
+ 	}
+ 	return pte;
+@@ -1182,7 +1195,7 @@ static inline pte_t ptep_modify_prot_start(struct mm_struct *mm,
+ 	ptep_flush_lazy(mm, address, ptep);
+ 
+ 	if (mm_has_pgste(mm)) {
+-		pgste = pgste_update_all(&pte, pgste);
++		pgste = pgste_update_all(&pte, pgste, mm);
+ 		pgste_set(ptep, pgste);
+ 	}
+ 	return pte;
+@@ -1196,7 +1209,7 @@ static inline void ptep_modify_prot_commit(struct mm_struct *mm,
+ 
+ 	if (mm_has_pgste(mm)) {
+ 		pgste = pgste_get(ptep);
+-		pgste_set_key(ptep, pgste, pte);
++		pgste_set_key(ptep, pgste, pte, mm);
+ 		pgste_set_pte(ptep, pte);
+ 		pgste_set_unlock(ptep, pgste);
+ 	} else
+@@ -1223,7 +1236,7 @@ static inline pte_t ptep_clear_flush(struct vm_area_struct *vma,
+ 		if ((pgste_val(pgste) & _PGSTE_GPS_USAGE_MASK) ==
+ 		    _PGSTE_GPS_USAGE_UNUSED)
+ 			pte_val(pte) |= _PAGE_UNUSED;
+-		pgste = pgste_update_all(&pte, pgste);
++		pgste = pgste_update_all(&pte, pgste, vma->vm_mm);
+ 		pgste_set_unlock(ptep, pgste);
+ 	}
+ 	return pte;
+@@ -1255,7 +1268,7 @@ static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm,
+ 	pte_val(*ptep) = _PAGE_INVALID;
+ 
+ 	if (!full && mm_has_pgste(mm)) {
+-		pgste = pgste_update_all(&pte, pgste);
++		pgste = pgste_update_all(&pte, pgste, mm);
+ 		pgste_set_unlock(ptep, pgste);
+ 	}
+ 	return pte;
 -- 
 1.8.4.2
