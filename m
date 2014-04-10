@@ -1,44 +1,80 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 0/3]  Introduce per-vm kvm device attributes
-Date: Thu, 10 Apr 2014 13:16:41 +0200
-Message-ID: <1397128604-50161-1-git-send-email-borntraeger@de.ibm.com>
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: [PATCH 1/3] kvm: s390: Per-vm kvm device controls
+Date: Thu, 10 Apr 2014 13:29:43 +0200
+Message-ID: <534680A7.7090404@suse.de>
+References: <1397128604-50161-1-git-send-email-borntraeger@de.ibm.com> <1397128604-50161-2-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1397128604-50161-2-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@kernel.org>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Marcelo, Gleb, Alex,
 
-this is a followup to the recent discussion (re config device)
+On 10.04.14 13:16, Christian Borntraeger wrote:
+> From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+>
+> We sometimes need to get/set attributes specific to a virtual machine
+> and so need something else than ONE_REG.
+>
+> Let's copy the KVM_DEVICE approach, and define the respective ioctls
+> for the vm file descriptor.
+>
+> Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>   Documentation/virtual/kvm/api.txt        |  8 ++---
+>   Documentation/virtual/kvm/devices/vm.txt |  6 ++++
+>   arch/s390/kvm/kvm-s390.c                 | 54 ++++++++++++++++++++++++++++++++
+>   include/uapi/linux/kvm.h                 |  1 +
+>   4 files changed, 65 insertions(+), 4 deletions(-)
+>   create mode 100644 Documentation/virtual/kvm/devices/vm.txt
+>
+> diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+> index c24211d..f69731a 100644
+> --- a/Documentation/virtual/kvm/api.txt
+> +++ b/Documentation/virtual/kvm/api.txt
+> @@ -2314,8 +2314,8 @@ struct kvm_create_device {
+>   
+>   4.80 KVM_SET_DEVICE_ATTR/KVM_GET_DEVICE_ATTR
+>   
+> -Capability: KVM_CAP_DEVICE_CTRL
+> -Type: device ioctl
+> +Capability: KVM_CAP_DEVICE_CTRL, KVM_CAP_VM_ATTRIBUTES for vm device
+> +Type: device ioctl, vm ioctl
+>   Parameters: struct kvm_device_attr
+>   Returns: 0 on success, -1 on error
+>   Errors:
+> @@ -2340,8 +2340,8 @@ struct kvm_device_attr {
+>   
+>   4.81 KVM_HAS_DEVICE_ATTR
+>   
+> -Capability: KVM_CAP_DEVICE_CTRL
+> -Type: device ioctl
+> +Capability: KVM_CAP_DEVICE_CTRL, KVM_CAP_VM_ATTRIBUTES for vm device
+> +Type: device ioctl, vm ioctl
+>   Parameters: struct kvm_device_attr
+>   Returns: 0 on success, -1 on error
+>   Errors:
+> diff --git a/Documentation/virtual/kvm/devices/vm.txt b/Documentation/virtual/kvm/devices/vm.txt
+> new file mode 100644
+> index 0000000..4fe1532
+> --- /dev/null
+> +++ b/Documentation/virtual/kvm/devices/vm.txt
+> @@ -0,0 +1,6 @@
+> +Generic vm interface
+> +====================================
+> +
+> +The interface handles per-vm attributes, such as CMMA status on s390 and is
+> +similar in way to ONE_REG, but targeting the whole vm instead of one vcpu
+> +alone. It is available with KVM_CAP_VM_ATTRIBUTES.
 
-To avoid a bunch of new ioctl, lets reuse the device attributes on
-the "VM device". All of these attributes are architecture specific.
-Patch1 introduces the interface,
-Patch2 makes CMMA configurable
-Patch3 uses the interface introduced in patch1
+This document doesn't sound impressively useful :).
 
-Marcelo, Gleb, Alex, are you ok with the approach of patch 1? Then we
-will continue using that for VM specific controls instead of adding
-new ioctls. (Otherwise we will continue with new ioctl).
 
-Dominik Dingel (3):
-  kvm: s390: Per-vm kvm device controls
-  kvm: s390: make cmma usage conditionally
-  kvm: s390: Exploiting generic userspace interface for cmma
-
- Documentation/virtual/kvm/api.txt        |   8 +-
- Documentation/virtual/kvm/devices/vm.txt |  24 +++++
- arch/s390/include/asm/kvm_host.h         |   1 +
- arch/s390/include/uapi/asm/kvm.h         |   7 ++
- arch/s390/kvm/kvm-s390.c                 | 155 ++++++++++++++++++++++++++-----
- arch/s390/kvm/kvm-s390.h                 |   7 +-
- arch/s390/kvm/priv.c                     |   2 +-
- include/uapi/linux/kvm.h                 |   1 +
- 8 files changed, 176 insertions(+), 29 deletions(-)
- create mode 100644 Documentation/virtual/kvm/devices/vm.txt
-
--- 
-1.8.4.2
+Alex
