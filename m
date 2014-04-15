@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 22/47] KVM: s390: convert handle_set_clock()
-Date: Tue, 15 Apr 2014 14:00:25 +0200
-Message-ID: <1397563250-3089-23-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 23/47] KVM: s390: convert handle_store_prefix()
+Date: Tue, 15 Apr 2014 14:00:26 +0200
+Message-ID: <1397563250-3089-24-git-send-email-borntraeger@de.ibm.com>
 References: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,40 +14,38 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Convert handle_set_clock() to new guest access functions.
+Convert handle_store_prefix() to new guest access functions.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/priv.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/s390/kvm/priv.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index dd6ad84..9648504 100644
+index 9648504..306caa2 100644
 --- a/arch/s390/kvm/priv.c
 +++ b/arch/s390/kvm/priv.c
-@@ -35,8 +35,8 @@ static int handle_set_clock(struct kvm_vcpu *vcpu)
+@@ -106,6 +106,7 @@ static int handle_store_prefix(struct kvm_vcpu *vcpu)
  {
- 	struct kvm_vcpu *cpup;
- 	s64 hostclk, val;
-+	int i, rc;
- 	u64 op2;
--	int i;
+ 	u64 operand2;
+ 	u32 address;
++	int rc;
  
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-@@ -44,8 +44,9 @@ static int handle_set_clock(struct kvm_vcpu *vcpu)
- 	op2 = kvm_s390_get_base_disp_s(vcpu);
- 	if (op2 & 7)	/* Operand must be on a doubleword boundary */
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
--	if (get_guest(vcpu, val, (u64 __user *) op2))
+ 	vcpu->stat.instruction_stpx++;
+ 
+@@ -122,8 +123,9 @@ static int handle_store_prefix(struct kvm_vcpu *vcpu)
+ 	address = address & 0x7fffe000u;
+ 
+ 	/* get the value */
+-	if (put_guest(vcpu, address, (u32 __user *)operand2))
 -		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+	rc = read_guest(vcpu, op2, &val, sizeof(val));
++	rc = write_guest(vcpu, operand2, &address, sizeof(address));
 +	if (rc)
 +		return kvm_s390_inject_prog_cond(vcpu, rc);
  
- 	if (store_tod_clock(&hostclk)) {
- 		kvm_s390_set_psw_cc(vcpu, 3);
+ 	VCPU_EVENT(vcpu, 5, "storing prefix to %x", address);
+ 	trace_kvm_s390_handle_prefix(vcpu, 0, address);
 -- 
 1.8.4.2
