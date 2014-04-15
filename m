@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 20/47] KVM: s390: convert kvm_s390_store_status_unloaded()
-Date: Tue, 15 Apr 2014 14:00:23 +0200
-Message-ID: <1397563250-3089-21-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 13/47] KVM: s390/sclp: correctly set eca siif bit
+Date: Tue, 15 Apr 2014 14:00:16 +0200
+Message-ID: <1397563250-3089-14-git-send-email-borntraeger@de.ibm.com>
 References: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,133 +14,116 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Convert kvm_s390_store_status_unloaded() to new guest access functions.
+Check if siif is available before setting.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 95 ++++++++++++++++--------------------------------
- 1 file changed, 31 insertions(+), 64 deletions(-)
+ arch/s390/include/asm/sclp.h   |  7 ++++++-
+ arch/s390/kvm/kvm-s390.c       |  4 +++-
+ drivers/s390/char/sclp_early.c | 22 +++++++++++++++++++++-
+ 3 files changed, 30 insertions(+), 3 deletions(-)
 
+diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
+index 2f5e993..943d434 100644
+--- a/arch/s390/include/asm/sclp.h
++++ b/arch/s390/include/asm/sclp.h
+@@ -28,7 +28,11 @@ struct sclp_ipl_info {
+ 
+ struct sclp_cpu_entry {
+ 	u8 address;
+-	u8 reserved0[13];
++	u8 reserved0[2];
++	u8 : 3;
++	u8 siif : 1;
++	u8 : 4;
++	u8 reserved2[10];
+ 	u8 type;
+ 	u8 reserved1;
+ } __attribute__((packed));
+@@ -61,5 +65,6 @@ int sclp_pci_deconfigure(u32 fid);
+ int memcpy_hsa(void *dest, unsigned long src, size_t count, int mode);
+ unsigned long sclp_get_hsa_size(void);
+ void sclp_early_detect(void);
++int sclp_has_siif(void);
+ 
+ #endif /* _ASM_S390_SCLP_H */
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 6cee19c..ae7c126 100644
+index 4b1df68..927ba73 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -1249,83 +1249,50 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	return rc;
- }
+@@ -625,7 +625,9 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.sie_block->ecb |= 0x10;
  
--static int __guestcopy(struct kvm_vcpu *vcpu, u64 guestdest, void *from,
--		       unsigned long n, int prefix)
--{
--	if (prefix)
--		return copy_to_guest(vcpu, guestdest, from, n);
--	else
--		return copy_to_guest_absolute(vcpu, guestdest, from, n);
--}
--
- /*
-  * store status at address
-  * we use have two special cases:
-  * KVM_S390_STORE_STATUS_NOADDR: -> 0x1200 on 64 bit
-  * KVM_S390_STORE_STATUS_PREFIXED: -> prefix
-  */
--int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr)
-+int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long gpa)
+ 	vcpu->arch.sie_block->ecb2  = 8;
+-	vcpu->arch.sie_block->eca   = 0xC1002001U;
++	vcpu->arch.sie_block->eca   = 0xC1002000U;
++	if (sclp_has_siif())
++		vcpu->arch.sie_block->eca |= 1;
+ 	vcpu->arch.sie_block->fac   = (int) (long) vfacilities;
+ 	vcpu->arch.sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
+ 	if (kvm_s390_cmma_enabled(vcpu->kvm)) {
+diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+index 14196ea..b57fe0e 100644
+--- a/drivers/s390/char/sclp_early.c
++++ b/drivers/s390/char/sclp_early.c
+@@ -22,7 +22,8 @@ struct read_info_sccb {
+ 	u8	rnsize;			/* 10 */
+ 	u8	_reserved0[16 - 11];	/* 11-15 */
+ 	u16	ncpurl;			/* 16-17 */
+-	u8	_reserved7[24 - 18];	/* 18-23 */
++	u16	cpuoff;			/* 18-19 */
++	u8	_reserved7[24 - 20];	/* 20-23 */
+ 	u8	loadparm[8];		/* 24-31 */
+ 	u8	_reserved1[48 - 32];	/* 32-47 */
+ 	u64	facilities;		/* 48-55 */
+@@ -45,6 +46,7 @@ static unsigned int sclp_con_has_linemode __initdata;
+ static unsigned long sclp_hsa_size;
+ static unsigned int sclp_max_cpu;
+ static struct sclp_ipl_info sclp_ipl_info;
++static unsigned char sclp_siif;
+ 
+ u64 sclp_facilities;
+ u8 sclp_fac84;
+@@ -96,6 +98,9 @@ static int __init sclp_read_info_early(struct read_info_sccb *sccb)
+ 
+ static void __init sclp_facilities_detect(struct read_info_sccb *sccb)
  {
- 	unsigned char archmode = 1;
--	int prefix;
- 	u64 clkcomp;
-+	int rc;
++	struct sclp_cpu_entry *cpue;
++	u16 boot_cpu_address, cpu;
++
+ 	if (sclp_read_info_early(sccb))
+ 		return;
  
--	if (addr == KVM_S390_STORE_STATUS_NOADDR) {
--		if (copy_to_guest_absolute(vcpu, 163ul, &archmode, 1))
-+	if (gpa == KVM_S390_STORE_STATUS_NOADDR) {
-+		if (write_guest_abs(vcpu, 163, &archmode, 1))
- 			return -EFAULT;
--		addr = SAVE_AREA_BASE;
--		prefix = 0;
--	} else if (addr == KVM_S390_STORE_STATUS_PREFIXED) {
--		if (copy_to_guest(vcpu, 163ul, &archmode, 1))
-+		gpa = SAVE_AREA_BASE;
-+	} else if (gpa == KVM_S390_STORE_STATUS_PREFIXED) {
-+		if (write_guest_real(vcpu, 163, &archmode, 1))
- 			return -EFAULT;
--		addr = SAVE_AREA_BASE;
--		prefix = 1;
--	} else
--		prefix = 0;
--
--	if (__guestcopy(vcpu, addr + offsetof(struct save_area, fp_regs),
--			vcpu->arch.guest_fpregs.fprs, 128, prefix))
--		return -EFAULT;
--
--	if (__guestcopy(vcpu, addr + offsetof(struct save_area, gp_regs),
--			vcpu->run->s.regs.gprs, 128, prefix))
--		return -EFAULT;
--
--	if (__guestcopy(vcpu, addr + offsetof(struct save_area, psw),
--			&vcpu->arch.sie_block->gpsw, 16, prefix))
--		return -EFAULT;
--
--	if (__guestcopy(vcpu, addr + offsetof(struct save_area, pref_reg),
--			&vcpu->arch.sie_block->prefix, 4, prefix))
--		return -EFAULT;
--
--	if (__guestcopy(vcpu,
--			addr + offsetof(struct save_area, fp_ctrl_reg),
--			&vcpu->arch.guest_fpregs.fpc, 4, prefix))
--		return -EFAULT;
--
--	if (__guestcopy(vcpu, addr + offsetof(struct save_area, tod_reg),
--			&vcpu->arch.sie_block->todpr, 4, prefix))
--		return -EFAULT;
--
--	if (__guestcopy(vcpu, addr + offsetof(struct save_area, timer),
--			&vcpu->arch.sie_block->cputm, 8, prefix))
--		return -EFAULT;
--
-+		gpa = kvm_s390_real_to_abs(vcpu, SAVE_AREA_BASE);
+@@ -116,6 +121,15 @@ static void __init sclp_facilities_detect(struct read_info_sccb *sccb)
+ 		sclp_max_cpu = sccb->hcpua + 1;
+ 	}
+ 
++	boot_cpu_address = stap();
++	cpue = (void *)sccb + sccb->cpuoff;
++	for (cpu = 0; cpu < sccb->ncpurl; cpue++, cpu++) {
++		if (boot_cpu_address != cpue->address)
++			continue;
++		sclp_siif = cpue->siif;
++		break;
 +	}
-+	rc = write_guest_abs(vcpu, gpa + offsetof(struct save_area, fp_regs),
-+			     vcpu->arch.guest_fpregs.fprs, 128);
-+	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, gp_regs),
-+			      vcpu->run->s.regs.gprs, 128);
-+	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, psw),
-+			      &vcpu->arch.sie_block->gpsw, 16);
-+	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, pref_reg),
-+			      &vcpu->arch.sie_block->prefix, 4);
-+	rc |= write_guest_abs(vcpu,
-+			      gpa + offsetof(struct save_area, fp_ctrl_reg),
-+			      &vcpu->arch.guest_fpregs.fpc, 4);
-+	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, tod_reg),
-+			      &vcpu->arch.sie_block->todpr, 4);
-+	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, timer),
-+			      &vcpu->arch.sie_block->cputm, 8);
- 	clkcomp = vcpu->arch.sie_block->ckc >> 8;
--	if (__guestcopy(vcpu, addr + offsetof(struct save_area, clk_cmp),
--			&clkcomp, 8, prefix))
--		return -EFAULT;
--
--	if (__guestcopy(vcpu, addr + offsetof(struct save_area, acc_regs),
--			&vcpu->run->s.regs.acrs, 64, prefix))
--		return -EFAULT;
--
--	if (__guestcopy(vcpu,
--			addr + offsetof(struct save_area, ctrl_regs),
--			&vcpu->arch.sie_block->gcr, 128, prefix))
--		return -EFAULT;
--	return 0;
-+	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, clk_cmp),
-+			      &clkcomp, 8);
-+	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, acc_regs),
-+			      &vcpu->run->s.regs.acrs, 64);
-+	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, ctrl_regs),
-+			      &vcpu->arch.sie_block->gcr, 128);
-+	return rc ? -EFAULT : 0;
++
+ 	/* Save IPL information */
+ 	sclp_ipl_info.is_valid = 1;
+ 	if (sccb->flags & 0x2)
+@@ -148,6 +162,12 @@ unsigned int sclp_get_max_cpu(void)
+ 	return sclp_max_cpu;
  }
  
- int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr)
++int sclp_has_siif(void)
++{
++	return sclp_siif;
++}
++EXPORT_SYMBOL(sclp_has_siif);
++
+ /*
+  * This function will be called after sclp_facilities_detect(), which gets
+  * called from early.c code. The sclp_facilities_detect() function retrieves
 -- 
 1.8.4.2
