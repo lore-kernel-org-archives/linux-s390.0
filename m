@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 39/47] KVM: s390: emulate stctl and stctg
-Date: Tue, 15 Apr 2014 14:00:42 +0200
-Message-ID: <1397563250-3089-40-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 36/47] s390: add fields to lowcore definition
+Date: Tue, 15 Apr 2014 14:00:39 +0200
+Message-ID: <1397563250-3089-37-git-send-email-borntraeger@de.ibm.com>
 References: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,203 +9,58 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@kernel.org>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+From: Jens Freimann <jfrei@linux.vnet.ibm.com>
 
-Introduce the methods to emulate the stctl and stctg instruction. Added tracing
-code.
+This patch adds fields which are currently missing but needed for the correct
+injection of interrupts.
 
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+This is based on a patch by David Hildenbrand
+
+Signed-off-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |  2 ++
- arch/s390/kvm/intercept.c        |  1 +
- arch/s390/kvm/kvm-s390.c         |  2 ++
- arch/s390/kvm/kvm-s390.h         |  1 +
- arch/s390/kvm/priv.c             | 73 ++++++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/trace.h            | 25 ++++++++++++++
- 6 files changed, 104 insertions(+)
+ arch/s390/kernel/asm-offsets.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 5e5a14d..5d96489 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -175,6 +175,8 @@ struct kvm_vcpu_stat {
- 	u32 exit_instruction;
- 	u32 instruction_lctl;
- 	u32 instruction_lctlg;
-+	u32 instruction_stctl;
-+	u32 instruction_stctg;
- 	u32 exit_program_interruption;
- 	u32 exit_instr_and_program;
- 	u32 deliver_external_call;
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 4c3311e..c0e6b49 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -29,6 +29,7 @@ static const intercept_handler_t instruction_handlers[256] = {
- 	[0x83] = kvm_s390_handle_diag,
- 	[0xae] = kvm_s390_handle_sigp,
- 	[0xb2] = kvm_s390_handle_b2,
-+	[0xb6] = kvm_s390_handle_stctl,
- 	[0xb7] = kvm_s390_handle_lctl,
- 	[0xb9] = kvm_s390_handle_b9,
- 	[0xe5] = kvm_s390_handle_e5,
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ae7c126..7ae8c26 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -52,6 +52,8 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
- 	{ "exit_instr_and_program_int", VCPU_STAT(exit_instr_and_program) },
- 	{ "instruction_lctlg", VCPU_STAT(instruction_lctlg) },
- 	{ "instruction_lctl", VCPU_STAT(instruction_lctl) },
-+	{ "instruction_stctl", VCPU_STAT(instruction_stctl) },
-+	{ "instruction_stctg", VCPU_STAT(instruction_stctg) },
- 	{ "deliver_emergency_signal", VCPU_STAT(deliver_emergency_signal) },
- 	{ "deliver_external_call", VCPU_STAT(deliver_external_call) },
- 	{ "deliver_service_signal", VCPU_STAT(deliver_service_signal) },
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index dc506f3..5f00fc1 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -147,6 +147,7 @@ int kvm_s390_handle_e5(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_01(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_b9(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_lpsw(struct kvm_vcpu *vcpu);
-+int kvm_s390_handle_stctl(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_lctl(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_eb(struct kvm_vcpu *vcpu);
- 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 5fb503a..27f9051 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -789,6 +789,42 @@ int kvm_s390_handle_lctl(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
-+int kvm_s390_handle_stctl(struct kvm_vcpu *vcpu)
-+{
-+	int reg1 = (vcpu->arch.sie_block->ipa & 0x00f0) >> 4;
-+	int reg3 = vcpu->arch.sie_block->ipa & 0x000f;
-+	u64 ga;
-+	u32 val;
-+	int reg, rc;
-+
-+	vcpu->stat.instruction_stctl++;
-+
-+	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
-+		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-+
-+	ga = kvm_s390_get_base_disp_rs(vcpu);
-+
-+	if (ga & 3)
-+		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+
-+	VCPU_EVENT(vcpu, 5, "stctl r1:%x, r3:%x, addr:%llx", reg1, reg3, ga);
-+	trace_kvm_s390_handle_stctl(vcpu, 0, reg1, reg3, ga);
-+
-+	reg = reg1;
-+	do {
-+		val = vcpu->arch.sie_block->gcr[reg] &  0x00000000fffffffful;
-+		rc = write_guest(vcpu, ga, &val, sizeof(val));
-+		if (rc)
-+			return kvm_s390_inject_prog_cond(vcpu, rc);
-+		ga += 4;
-+		if (reg == reg3)
-+			break;
-+		reg = (reg + 1) % 16;
-+	} while (1);
-+
-+	return 0;
-+}
-+
- static int handle_lctlg(struct kvm_vcpu *vcpu)
- {
- 	int reg1 = (vcpu->arch.sie_block->ipa & 0x00f0) >> 4;
-@@ -825,8 +861,45 @@ static int handle_lctlg(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
-+static int handle_stctg(struct kvm_vcpu *vcpu)
-+{
-+	int reg1 = (vcpu->arch.sie_block->ipa & 0x00f0) >> 4;
-+	int reg3 = vcpu->arch.sie_block->ipa & 0x000f;
-+	u64 ga, val;
-+	int reg, rc;
-+
-+	vcpu->stat.instruction_stctg++;
-+
-+	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
-+		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-+
-+	ga = kvm_s390_get_base_disp_rsy(vcpu);
-+
-+	if (ga & 7)
-+		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+
-+	reg = reg1;
-+
-+	VCPU_EVENT(vcpu, 5, "stctg r1:%x, r3:%x, addr:%llx", reg1, reg3, ga);
-+	trace_kvm_s390_handle_stctl(vcpu, 1, reg1, reg3, ga);
-+
-+	do {
-+		val = vcpu->arch.sie_block->gcr[reg];
-+		rc = write_guest(vcpu, ga, &val, sizeof(val));
-+		if (rc)
-+			return kvm_s390_inject_prog_cond(vcpu, rc);
-+		ga += 8;
-+		if (reg == reg3)
-+			break;
-+		reg = (reg + 1) % 16;
-+	} while (1);
-+
-+	return 0;
-+}
-+
- static const intercept_handler_t eb_handlers[256] = {
- 	[0x2f] = handle_lctlg,
-+	[0x25] = handle_stctg,
- };
- 
- int kvm_s390_handle_eb(struct kvm_vcpu *vcpu)
-diff --git a/arch/s390/kvm/trace.h b/arch/s390/kvm/trace.h
-index a4bf7d7..abf6ba5 100644
---- a/arch/s390/kvm/trace.h
-+++ b/arch/s390/kvm/trace.h
-@@ -315,6 +315,31 @@ TRACE_EVENT(kvm_s390_handle_lctl,
- 			   __entry->reg1, __entry->reg3, __entry->addr)
- 	);
- 
-+TRACE_EVENT(kvm_s390_handle_stctl,
-+	    TP_PROTO(VCPU_PROTO_COMMON, int g, int reg1, int reg3, u64 addr),
-+	    TP_ARGS(VCPU_ARGS_COMMON, g, reg1, reg3, addr),
-+
-+	    TP_STRUCT__entry(
-+		    VCPU_FIELD_COMMON
-+		    __field(int, g)
-+		    __field(int, reg1)
-+		    __field(int, reg3)
-+		    __field(u64, addr)
-+		    ),
-+
-+	    TP_fast_assign(
-+		    VCPU_ASSIGN_COMMON
-+		    __entry->g = g;
-+		    __entry->reg1 = reg1;
-+		    __entry->reg3 = reg3;
-+		    __entry->addr = addr;
-+		    ),
-+
-+	    VCPU_TP_PRINTK("%s: storing cr %x-%x to %016llx",
-+			   __entry->g ? "stctg" : "stctl",
-+			   __entry->reg1, __entry->reg3, __entry->addr)
-+	);
-+
- TRACE_EVENT(kvm_s390_handle_prefix,
- 	    TP_PROTO(VCPU_PROTO_COMMON, int set, u32 address),
- 	    TP_ARGS(VCPU_ARGS_COMMON, set, address),
+diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
+index 32a284d..5e55d2a 100644
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -89,17 +89,22 @@ int main(void)
+ 	DEFINE(__LC_PGM_ILC, offsetof(struct _lowcore, pgm_ilc));
+ 	DEFINE(__LC_PGM_INT_CODE, offsetof(struct _lowcore, pgm_code));
+ 	DEFINE(__LC_TRANS_EXC_CODE, offsetof(struct _lowcore, trans_exc_code));
++	DEFINE(__LC_MON_CLASS_NR, offsetof(struct _lowcore, mon_class_num));
+ 	DEFINE(__LC_PER_CODE, offsetof(struct _lowcore, per_code));
+ 	DEFINE(__LC_PER_ATMID, offsetof(struct _lowcore, per_atmid));
+ 	DEFINE(__LC_PER_ADDRESS, offsetof(struct _lowcore, per_address));
++	DEFINE(__LC_EXC_ACCESS_ID, offsetof(struct _lowcore, exc_access_id));
+ 	DEFINE(__LC_PER_ACCESS_ID, offsetof(struct _lowcore, per_access_id));
++	DEFINE(__LC_OP_ACCESS_ID, offsetof(struct _lowcore, op_access_id));
+ 	DEFINE(__LC_AR_MODE_ID, offsetof(struct _lowcore, ar_mode_id));
++	DEFINE(__LC_MON_CODE, offsetof(struct _lowcore, monitor_code));
+ 	DEFINE(__LC_SUBCHANNEL_ID, offsetof(struct _lowcore, subchannel_id));
+ 	DEFINE(__LC_SUBCHANNEL_NR, offsetof(struct _lowcore, subchannel_nr));
+ 	DEFINE(__LC_IO_INT_PARM, offsetof(struct _lowcore, io_int_parm));
+ 	DEFINE(__LC_IO_INT_WORD, offsetof(struct _lowcore, io_int_word));
+ 	DEFINE(__LC_STFL_FAC_LIST, offsetof(struct _lowcore, stfl_fac_list));
+ 	DEFINE(__LC_MCCK_CODE, offsetof(struct _lowcore, mcck_interruption_code));
++	DEFINE(__LC_MCCK_EXT_DAM_CODE, offsetof(struct _lowcore, external_damage_code));
+ 	DEFINE(__LC_RST_OLD_PSW, offsetof(struct _lowcore, restart_old_psw));
+ 	DEFINE(__LC_EXT_OLD_PSW, offsetof(struct _lowcore, external_old_psw));
+ 	DEFINE(__LC_SVC_OLD_PSW, offsetof(struct _lowcore, svc_old_psw));
+@@ -156,6 +161,8 @@ int main(void)
+ #ifdef CONFIG_32BIT
+ 	DEFINE(SAVE_AREA_BASE, offsetof(struct _lowcore, extended_save_area_addr));
+ #else /* CONFIG_32BIT */
++	DEFINE(__LC_DATA_EXC_CODE, offsetof(struct _lowcore, data_exc_code));
++	DEFINE(__LC_MCCK_FAIL_STOR_ADDR, offsetof(struct _lowcore, failing_storage_address));
+ 	DEFINE(__LC_EXT_PARAMS2, offsetof(struct _lowcore, ext_params2));
+ 	DEFINE(SAVE_AREA_BASE, offsetof(struct _lowcore, floating_pt_save_area));
+ 	DEFINE(__LC_PASTE, offsetof(struct _lowcore, paste));
 -- 
 1.8.4.2
