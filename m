@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 33/47] KVM: s390: cleanup kvm_s390_real_to_abs()
-Date: Tue, 15 Apr 2014 14:00:36 +0200
-Message-ID: <1397563250-3089-34-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 40/47] KVM: s390: kernel header addition for guest debugging
+Date: Tue, 15 Apr 2014 14:00:43 +0200
+Message-ID: <1397563250-3089-41-git-send-email-borntraeger@de.ibm.com>
 References: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,57 +9,55 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@kernel.org>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Add kerneldoc comment to kvm_s390_real_to_abs() and change the code
-so it matches the coding style of the rest of gaccess.h.
+This patch adds the structs to the kernel headers needed to pass information
+from/to userspace in order to debug a guest on s390 with hardware support.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/gaccess.h | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ arch/s390/include/uapi/asm/kvm.h | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index ed4749e..1079c8f 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -19,16 +19,24 @@
- #include <linux/ptrace.h>
- #include "kvm-s390.h"
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index e35c798..b8c0f07 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -79,11 +79,31 @@ struct kvm_fpu {
+ 	__u64 fprs[16];
+ };
  
--/* Convert real to absolute address by applying the prefix of the CPU */
-+/**
-+ * kvm_s390_real_to_abs - convert guest real address to guest absolute address
-+ * @vcpu - guest virtual cpu
-+ * @gra - guest real address
-+ *
-+ * Returns the guest absolute address that corresponds to the passed guest real
-+ * address @gra of a virtual guest cpu by applying its prefix.
-+ */
- static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
--						 unsigned long gaddr)
-+						 unsigned long gra)
- {
--	unsigned long prefix  = vcpu->arch.sie_block->prefix;
--	if (gaddr < 2 * PAGE_SIZE)
--		gaddr += prefix;
--	else if (gaddr >= prefix && gaddr < prefix + 2 * PAGE_SIZE)
--		gaddr -= prefix;
--	return gaddr;
-+	unsigned long prefix = vcpu->arch.sie_block->prefix;
++#define KVM_GUESTDBG_USE_HW_BP		0x00010000
 +
-+	if (gra < 2 * PAGE_SIZE)
-+		gra += prefix;
-+	else if (gra >= prefix && gra < prefix + 2 * PAGE_SIZE)
-+		gra -= prefix;
-+	return gra;
- }
++#define KVM_HW_BP			1
++#define KVM_HW_WP_WRITE			2
++#define KVM_SINGLESTEP			4
++
+ struct kvm_debug_exit_arch {
++	__u64 addr;
++	__u8 type;
++	__u8 pad[7]; /* Should be set to 0 */
++};
++
++struct kvm_hw_breakpoint {
++	__u64 addr;
++	__u64 phys_addr;
++	__u64 len;
++	__u8 type;
++	__u8 pad[7]; /* Should be set to 0 */
+ };
  
- /**
+ /* for KVM_SET_GUEST_DEBUG */
+ struct kvm_guest_debug_arch {
++	__u32 nr_hw_bp;
++	__u32 pad; /* Should be set to 0 */
++	struct kvm_hw_breakpoint __user *hw_bp;
+ };
+ 
+ #define KVM_SYNC_PREFIX (1UL << 0)
 -- 
 1.8.4.2
