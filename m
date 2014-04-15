@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 17/47] KVM: s390: convert handle_stfl()
-Date: Tue, 15 Apr 2014 14:00:20 +0200
-Message-ID: <1397563250-3089-18-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 24/47] KVM: s390: convert handle_store_cpu_address()
+Date: Tue, 15 Apr 2014 14:00:27 +0200
+Message-ID: <1397563250-3089-25-git-send-email-borntraeger@de.ibm.com>
 References: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,32 +14,52 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Convert handle_stfl() to new guest access functions.
+Convert handle_store_cpu_address() to new guest access functions.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/priv.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/kvm/priv.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
 diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 4792f1d..7066fc5 100644
+index 306caa2..36c34cf 100644
 --- a/arch/s390/kvm/priv.c
 +++ b/arch/s390/kvm/priv.c
-@@ -318,10 +318,10 @@ static int handle_stfl(struct kvm_vcpu *vcpu)
+@@ -134,23 +134,26 @@ static int handle_store_prefix(struct kvm_vcpu *vcpu)
+ 
+ static int handle_store_cpu_address(struct kvm_vcpu *vcpu)
+ {
+-	u64 useraddr;
++	u16 vcpu_id = vcpu->vcpu_id;
++	u64 ga;
++	int rc;
+ 
+ 	vcpu->stat.instruction_stap++;
+ 
  	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
  		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
  
--	rc = copy_to_guest(vcpu, offsetof(struct _lowcore, stfl_fac_list),
--			   vfacilities, 4);
-+	rc = write_guest_lc(vcpu, offsetof(struct _lowcore, stfl_fac_list),
-+			    vfacilities, 4);
- 	if (rc)
+-	useraddr = kvm_s390_get_base_disp_s(vcpu);
++	ga = kvm_s390_get_base_disp_s(vcpu);
+ 
+-	if (useraddr & 1)
++	if (ga & 1)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+ 
+-	if (put_guest(vcpu, vcpu->vcpu_id, (u16 __user *)useraddr))
 -		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+		return rc;
- 	VCPU_EVENT(vcpu, 5, "store facility list value %x",
- 		   *(unsigned int *) vfacilities);
- 	trace_kvm_s390_handle_stfl(vcpu, *(unsigned int *) vfacilities);
++	rc = write_guest(vcpu, ga, &vcpu_id, sizeof(vcpu_id));
++	if (rc)
++		return kvm_s390_inject_prog_cond(vcpu, rc);
+ 
+-	VCPU_EVENT(vcpu, 5, "storing cpu address to %llx", useraddr);
+-	trace_kvm_s390_handle_stap(vcpu, useraddr);
++	VCPU_EVENT(vcpu, 5, "storing cpu address to %llx", ga);
++	trace_kvm_s390_handle_stap(vcpu, ga);
+ 	return 0;
+ }
+ 
 -- 
 1.8.4.2
