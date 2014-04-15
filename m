@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 34/47] s390: fix name of lowcore field at offset 0xa3
-Date: Tue, 15 Apr 2014 14:00:37 +0200
-Message-ID: <1397563250-3089-35-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 31/47] KVM: s390: convert handle_stsi()
+Date: Tue, 15 Apr 2014 14:00:34 +0200
+Message-ID: <1397563250-3089-32-git-send-email-borntraeger@de.ibm.com>
 References: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,57 +9,46 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@kernel.org>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Jens Freimann <jfrei@linux.vnet.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-According to the Principles of Operation, at offset 0xA3
-in the lowcore we have the "Architectural-Mode identification",
-not an "access identification".
+Convert handle_stsi() to new guest access functions.
 
-Signed-off-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/lowcore.h | 4 ++--
- arch/s390/kernel/asm-offsets.c  | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/kvm/priv.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
-index bbf8141..edfa89b 100644
---- a/arch/s390/include/asm/lowcore.h
-+++ b/arch/s390/include/asm/lowcore.h
-@@ -62,7 +62,7 @@ struct _lowcore {
- 	__u8	exc_access_id;			/* 0x00a0 */
- 	__u8	per_access_id;			/* 0x00a1 */
- 	__u8	op_access_id;			/* 0x00a2 */
--	__u8	ar_access_id;			/* 0x00a3 */
-+	__u8	ar_mode_id;			/* 0x00a3 */
- 	__u8	pad_0x00a4[0x00b8-0x00a4];	/* 0x00a4 */
- 	__u16	subchannel_id;			/* 0x00b8 */
- 	__u16	subchannel_nr;			/* 0x00ba */
-@@ -201,7 +201,7 @@ struct _lowcore {
- 	__u8	exc_access_id;			/* 0x00a0 */
- 	__u8	per_access_id;			/* 0x00a1 */
- 	__u8	op_access_id;			/* 0x00a2 */
--	__u8	ar_access_id;			/* 0x00a3 */
-+	__u8	ar_mode_id;			/* 0x00a3 */
- 	__u8	pad_0x00a4[0x00a8-0x00a4];	/* 0x00a4 */
- 	__u64	trans_exc_code;			/* 0x00a8 */
- 	__u64	monitor_code;			/* 0x00b0 */
-diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
-index e4c99a1..6a6b93a 100644
---- a/arch/s390/kernel/asm-offsets.c
-+++ b/arch/s390/kernel/asm-offsets.c
-@@ -92,7 +92,7 @@ int main(void)
- 	DEFINE(__LC_PER_CAUSE, offsetof(struct _lowcore, per_perc_atmid));
- 	DEFINE(__LC_PER_ADDRESS, offsetof(struct _lowcore, per_address));
- 	DEFINE(__LC_PER_PAID, offsetof(struct _lowcore, per_access_id));
--	DEFINE(__LC_AR_MODE_ID, offsetof(struct _lowcore, ar_access_id));
-+	DEFINE(__LC_AR_MODE_ID, offsetof(struct _lowcore, ar_mode_id));
- 	DEFINE(__LC_SUBCHANNEL_ID, offsetof(struct _lowcore, subchannel_id));
- 	DEFINE(__LC_SUBCHANNEL_NR, offsetof(struct _lowcore, subchannel_nr));
- 	DEFINE(__LC_IO_INT_PARM, offsetof(struct _lowcore, io_int_parm));
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 44ff220..5fb503a 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -530,9 +530,10 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+ 		break;
+ 	}
+ 
+-	if (copy_to_guest_absolute(vcpu, operand2, (void *) mem, PAGE_SIZE)) {
+-		rc = kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+-		goto out_exception;
++	rc = write_guest(vcpu, operand2, (void *)mem, PAGE_SIZE);
++	if (rc) {
++		rc = kvm_s390_inject_prog_cond(vcpu, rc);
++		goto out;
+ 	}
+ 	trace_kvm_s390_handle_stsi(vcpu, fc, sel1, sel2, operand2);
+ 	free_page(mem);
+@@ -541,7 +542,7 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+ 	return 0;
+ out_no_data:
+ 	kvm_s390_set_psw_cc(vcpu, 3);
+-out_exception:
++out:
+ 	free_page(mem);
+ 	return rc;
+ }
 -- 
 1.8.4.2
