@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 47/47] KVM: s390: Factor out handle_itdb to handle TX aborts
-Date: Tue, 15 Apr 2014 14:00:50 +0200
-Message-ID: <1397563250-3089-48-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 29/47] KVM: s390: convert handle_stidp()
+Date: Tue, 15 Apr 2014 14:00:32 +0200
+Message-ID: <1397563250-3089-30-git-send-email-borntraeger@de.ibm.com>
 References: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,85 +9,45 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@kernel.org>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Factor out the new function handle_itdb(), which copies the ITDB into
-guest lowcore to fully handle a TX abort.
+Convert handle_stidp() to new guest access functions.
 
-Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/intercept.c | 39 +++++++++++++++++++++++++++------------
- 1 file changed, 27 insertions(+), 12 deletions(-)
+ arch/s390/kvm/priv.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index f391604..94194e9 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -171,12 +171,34 @@ static void __extract_prog_irq(struct kvm_vcpu *vcpu,
- 	}
- }
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 2de7454..bc96972 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -428,7 +428,9 @@ static int handle_lpswe(struct kvm_vcpu *vcpu)
  
-+/*
-+ * restore ITDB to program-interruption TDB in guest lowcore
-+ * and set TX abort indication if required
-+*/
-+static int handle_itdb(struct kvm_vcpu *vcpu,
-+		       struct kvm_s390_pgm_info *pgm_info)
-+{
-+	struct kvm_s390_itdb *itdb;
-+	int rc;
-+
-+	if (!IS_TE_ENABLED(vcpu) || !IS_ITDB_VALID(vcpu))
-+		return 0;
-+	if (current->thread.per_flags & PER_FLAG_NO_TE)
-+		return 0;
-+	itdb = (struct kvm_s390_itdb *)vcpu->arch.sie_block->itdba;
-+	rc = write_guest_lc(vcpu, __LC_PGM_TDB, itdb, sizeof(*itdb));
-+	if (rc)
-+		return rc;
-+	memset(itdb, 0, sizeof(*itdb));
-+
-+	return 0;
-+}
-+
- #define per_event(vcpu) (vcpu->arch.sie_block->iprcc & PGM_PER)
- 
- static int handle_prog(struct kvm_vcpu *vcpu)
+ static int handle_stidp(struct kvm_vcpu *vcpu)
  {
- 	struct kvm_s390_pgm_info pgm_info;
--	struct kvm_s390_itdb *itdb;
- 	int rc;
++	u64 stidp_data = vcpu->arch.stidp_data;
+ 	u64 operand2;
++	int rc;
  
- 	vcpu->stat.exit_program_interruption++;
-@@ -188,20 +210,13 @@ static int handle_prog(struct kvm_vcpu *vcpu)
- 			return 0;
- 	}
+ 	vcpu->stat.instruction_stidp++;
  
--	/* Restore ITDB to Program-Interruption TDB in guest memory */
--	if (!IS_TE_ENABLED(vcpu) || !IS_ITDB_VALID(vcpu))
--		goto skip_itdb;
--	if (current->thread.per_flags & PER_FLAG_NO_TE)
--		goto skip_itdb;
--	itdb = (struct kvm_s390_itdb *)vcpu->arch.sie_block->itdba;
--	rc = write_guest_lc(vcpu, __LC_PGM_TDB, itdb, sizeof(*itdb));
--	if (rc)
--		return rc;
--	memset(itdb, 0, sizeof(*itdb));
--skip_itdb:
- 	trace_kvm_s390_intercept_prog(vcpu, vcpu->arch.sie_block->iprcc);
- 	__extract_prog_irq(vcpu, &pgm_info);
+@@ -440,8 +442,9 @@ static int handle_stidp(struct kvm_vcpu *vcpu)
+ 	if (operand2 & 7)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
  
-+	rc = handle_itdb(vcpu, &pgm_info);
+-	if (put_guest(vcpu, vcpu->arch.stidp_data, (u64 __user *)operand2))
+-		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++	rc = write_guest(vcpu, operand2, &stidp_data, sizeof(stidp_data));
 +	if (rc)
-+		return rc;
-+
- 	return kvm_s390_inject_prog_irq(vcpu, &pgm_info);
- }
++		return kvm_s390_inject_prog_cond(vcpu, rc);
  
+ 	VCPU_EVENT(vcpu, 5, "%s", "store cpu id");
+ 	return 0;
 -- 
 1.8.4.2
