@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 03/47] KVM: s390: Exploiting generic userspace interface for cmma
-Date: Tue, 15 Apr 2014 14:00:06 +0200
-Message-ID: <1397563250-3089-4-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 20/47] KVM: s390: convert kvm_s390_store_status_unloaded()
+Date: Tue, 15 Apr 2014 14:00:23 +0200
+Message-ID: <1397563250-3089-21-git-send-email-borntraeger@de.ibm.com>
 References: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,131 +9,138 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@kernel.org>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-To enable CMMA and to reset its state we use the vm kvm_device ioctls,
-encapsulating attributes within the KVM_S390_VM_MEM_CTRL group.
+Convert kvm_s390_store_status_unloaded() to new guest access functions.
 
-Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- Documentation/virtual/kvm/devices/vm.txt | 18 +++++++++++++
- arch/s390/include/uapi/asm/kvm.h         |  7 ++++++
- arch/s390/kvm/kvm-s390.c                 | 43 ++++++++++++++++++++++++++++++++
- 3 files changed, 68 insertions(+)
+ arch/s390/kvm/kvm-s390.c | 95 ++++++++++++++++--------------------------------
+ 1 file changed, 31 insertions(+), 64 deletions(-)
 
-diff --git a/Documentation/virtual/kvm/devices/vm.txt b/Documentation/virtual/kvm/devices/vm.txt
-index 4fe1532..ff495f5 100644
---- a/Documentation/virtual/kvm/devices/vm.txt
-+++ b/Documentation/virtual/kvm/devices/vm.txt
-@@ -4,3 +4,21 @@ Generic vm interface
- The interface handles per-vm attributes, such as CMMA status on s390 and is
- similar in way to ONE_REG, but targeting the whole vm instead of one vcpu
- alone. It is available with KVM_CAP_VM_ATTRIBUTES.
-+
-+Following groups and attributes are supported by this interface:
-+
-+1. GROUP: KVM_S390_VM_MEM_CTRL
-+Architectures: s390
-+
-+1.1. ATTRIBUTE: KVM_S390_VM_MEM_CTRL
-+Parameters: none
-+Returns: -EBUSY if already a vcpus is defined, otherwise 0
-+
-+Enables CMMA for the virtual machine
-+
-+1.2. ATTRIBUTE: KVM_S390_VM_CLR_CMMA
-+Parameteres: none
-+Returns: 0
-+
-+Clear the CMMA status for all guest pages, so any pages the guest marked
-+as unused are again used any may not be reclaimed by the host.
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index c003c6a..e35c798 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -54,6 +54,13 @@ struct kvm_s390_io_adapter_req {
- 	__u64 addr;
- };
- 
-+/* kvm attr_group  on vm fd */
-+#define KVM_S390_VM_MEM_CTRL		0
-+
-+/* kvm attributes for mem_ctrl */
-+#define KVM_S390_VM_MEM_ENABLE_CMMA	0
-+#define KVM_S390_VM_MEM_CLR_CMMA	1
-+
- /* for KVM_GET_REGS and KVM_SET_REGS */
- struct kvm_regs {
- 	/* general purpose regs for s390 */
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index fc2fe49..fe2396c 100644
+index 6cee19c..ae7c126 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -258,11 +258,43 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
- 	return r;
+@@ -1249,83 +1249,50 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 	return rc;
  }
  
-+static int kvm_s390_mem_control(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	int ret;
-+	unsigned int idx;
-+	switch (attr->attr) {
-+	case KVM_S390_VM_MEM_ENABLE_CMMA:
-+		ret = -EBUSY;
-+		mutex_lock(&kvm->lock);
-+		if (atomic_read(&kvm->online_vcpus) == 0) {
-+			kvm->arch.use_cmma = 1;
-+			ret = 0;
-+		}
-+		mutex_unlock(&kvm->lock);
-+		break;
-+	case KVM_S390_VM_MEM_CLR_CMMA:
-+		mutex_lock(&kvm->lock);
-+		idx = srcu_read_lock(&kvm->srcu);
-+		page_table_reset_pgste(kvm->arch.gmap->mm, 0, TASK_SIZE, false);
-+		srcu_read_unlock(&kvm->srcu, idx);
-+		mutex_unlock(&kvm->lock);
-+		ret = 0;
-+		break;
-+	default:
-+		ret = -ENXIO;
-+		break;
-+	}
-+	return ret;
-+}
-+
- static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+-static int __guestcopy(struct kvm_vcpu *vcpu, u64 guestdest, void *from,
+-		       unsigned long n, int prefix)
+-{
+-	if (prefix)
+-		return copy_to_guest(vcpu, guestdest, from, n);
+-	else
+-		return copy_to_guest_absolute(vcpu, guestdest, from, n);
+-}
+-
+ /*
+  * store status at address
+  * we use have two special cases:
+  * KVM_S390_STORE_STATUS_NOADDR: -> 0x1200 on 64 bit
+  * KVM_S390_STORE_STATUS_PREFIXED: -> prefix
+  */
+-int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr)
++int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long gpa)
  {
- 	int ret;
+ 	unsigned char archmode = 1;
+-	int prefix;
+ 	u64 clkcomp;
++	int rc;
  
- 	switch (attr->group) {
-+	case KVM_S390_VM_MEM_CTRL:
-+		ret = kvm_s390_mem_control(kvm, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -281,6 +313,17 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	int ret;
+-	if (addr == KVM_S390_STORE_STATUS_NOADDR) {
+-		if (copy_to_guest_absolute(vcpu, 163ul, &archmode, 1))
++	if (gpa == KVM_S390_STORE_STATUS_NOADDR) {
++		if (write_guest_abs(vcpu, 163, &archmode, 1))
+ 			return -EFAULT;
+-		addr = SAVE_AREA_BASE;
+-		prefix = 0;
+-	} else if (addr == KVM_S390_STORE_STATUS_PREFIXED) {
+-		if (copy_to_guest(vcpu, 163ul, &archmode, 1))
++		gpa = SAVE_AREA_BASE;
++	} else if (gpa == KVM_S390_STORE_STATUS_PREFIXED) {
++		if (write_guest_real(vcpu, 163, &archmode, 1))
+ 			return -EFAULT;
+-		addr = SAVE_AREA_BASE;
+-		prefix = 1;
+-	} else
+-		prefix = 0;
+-
+-	if (__guestcopy(vcpu, addr + offsetof(struct save_area, fp_regs),
+-			vcpu->arch.guest_fpregs.fprs, 128, prefix))
+-		return -EFAULT;
+-
+-	if (__guestcopy(vcpu, addr + offsetof(struct save_area, gp_regs),
+-			vcpu->run->s.regs.gprs, 128, prefix))
+-		return -EFAULT;
+-
+-	if (__guestcopy(vcpu, addr + offsetof(struct save_area, psw),
+-			&vcpu->arch.sie_block->gpsw, 16, prefix))
+-		return -EFAULT;
+-
+-	if (__guestcopy(vcpu, addr + offsetof(struct save_area, pref_reg),
+-			&vcpu->arch.sie_block->prefix, 4, prefix))
+-		return -EFAULT;
+-
+-	if (__guestcopy(vcpu,
+-			addr + offsetof(struct save_area, fp_ctrl_reg),
+-			&vcpu->arch.guest_fpregs.fpc, 4, prefix))
+-		return -EFAULT;
+-
+-	if (__guestcopy(vcpu, addr + offsetof(struct save_area, tod_reg),
+-			&vcpu->arch.sie_block->todpr, 4, prefix))
+-		return -EFAULT;
+-
+-	if (__guestcopy(vcpu, addr + offsetof(struct save_area, timer),
+-			&vcpu->arch.sie_block->cputm, 8, prefix))
+-		return -EFAULT;
+-
++		gpa = kvm_s390_real_to_abs(vcpu, SAVE_AREA_BASE);
++	}
++	rc = write_guest_abs(vcpu, gpa + offsetof(struct save_area, fp_regs),
++			     vcpu->arch.guest_fpregs.fprs, 128);
++	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, gp_regs),
++			      vcpu->run->s.regs.gprs, 128);
++	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, psw),
++			      &vcpu->arch.sie_block->gpsw, 16);
++	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, pref_reg),
++			      &vcpu->arch.sie_block->prefix, 4);
++	rc |= write_guest_abs(vcpu,
++			      gpa + offsetof(struct save_area, fp_ctrl_reg),
++			      &vcpu->arch.guest_fpregs.fpc, 4);
++	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, tod_reg),
++			      &vcpu->arch.sie_block->todpr, 4);
++	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, timer),
++			      &vcpu->arch.sie_block->cputm, 8);
+ 	clkcomp = vcpu->arch.sie_block->ckc >> 8;
+-	if (__guestcopy(vcpu, addr + offsetof(struct save_area, clk_cmp),
+-			&clkcomp, 8, prefix))
+-		return -EFAULT;
+-
+-	if (__guestcopy(vcpu, addr + offsetof(struct save_area, acc_regs),
+-			&vcpu->run->s.regs.acrs, 64, prefix))
+-		return -EFAULT;
+-
+-	if (__guestcopy(vcpu,
+-			addr + offsetof(struct save_area, ctrl_regs),
+-			&vcpu->arch.sie_block->gcr, 128, prefix))
+-		return -EFAULT;
+-	return 0;
++	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, clk_cmp),
++			      &clkcomp, 8);
++	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, acc_regs),
++			      &vcpu->run->s.regs.acrs, 64);
++	rc |= write_guest_abs(vcpu, gpa + offsetof(struct save_area, ctrl_regs),
++			      &vcpu->arch.sie_block->gcr, 128);
++	return rc ? -EFAULT : 0;
+ }
  
- 	switch (attr->group) {
-+	case KVM_S390_VM_MEM_CTRL:
-+		switch (attr->attr) {
-+		case KVM_S390_VM_MEM_ENABLE_CMMA:
-+		case KVM_S390_VM_MEM_CLR_CMMA:
-+			ret = 0;
-+			break;
-+		default:
-+			ret = -ENXIO;
-+			break;
-+		}
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
+ int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr)
 -- 
 1.8.4.2
