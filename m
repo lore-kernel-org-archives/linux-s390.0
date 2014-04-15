@@ -1,170 +1,171 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 01/47] KVM: s390: Per-vm kvm device controls
-Date: Tue, 15 Apr 2014 14:00:04 +0200
-Message-ID: <1397563250-3089-2-git-send-email-borntraeger@de.ibm.com>
-References: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 00/47] KVM: s390: additional features and fixes
+Date: Tue, 15 Apr 2014 14:00:03 +0200
+Message-ID: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@kernel.org>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Marcelo, Gleb, Paolo,
 
-We sometimes need to get/set attributes specific to a virtual machine
-and so need something else than ONE_REG.
+on top of the latest patch set "v2 KVM: s390: memory management and
+migration", we have the following bunch of patches ready for kvm/next
+(after being re-opened on top of 3.15-rc1) targetting 3.16.
 
-Let's copy the KVM_DEVICE approach, and define the respective ioctls
-for the vm file descriptor.
+I will send a pull request after kvm/next is ready (either to Marcelo
+or to Paolo when he is back) if there are no concerns.
 
-Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Acked-by: Alexander Graf <agraf@suse.de>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- Documentation/virtual/kvm/api.txt        |  8 ++---
- Documentation/virtual/kvm/devices/vm.txt |  6 ++++
- arch/s390/kvm/kvm-s390.c                 | 54 ++++++++++++++++++++++++++++++++
- include/uapi/linux/kvm.h                 |  1 +
- 4 files changed, 65 insertions(+), 4 deletions(-)
+Please let me know if I should send a combined PULL request (this 47 
+changes + the 8 from KVM: s390: memory management and migration) or
+a 2nd PULL request.
+
+Whats in there:
+
+per-VM device attributes
+------------------------
+To avoid the introduction of new ioctls, let's provide the
+attribute semanantic also on the VM-"device".
+
+Userspace controlled CMMA
+-------------------------
+The CMMA assist is changed from "always on" to "on if requested" via
+per-VM device attributes. In addition a callback to reset all usage
+states is provided.
+
+Proper guest DAT handling for intercepts
+----------------------------------------
+While instructions handled by SIE take care of all addressing aspects,
+KVM/s390 currently does not care about guest address translation of
+intercepts. This worked out fine, because
+- the s390 Linux kernel has a 1:1 mapping between kernel virtual<->real
+ for all pages up to memory size
+- intercepts happen only for a small amount of cases
+- all of these intercepts happen to be in the kernel text for current
+  distros
+
+Of course we need to be better for other intercepts, kernel modules etc.
+We provide the infrastructure and rework all in-kernel intercepts to work
+on logical addresses (paging etc) instead of real ones. The code has
+been running internally for several months now, so it is time for going
+public.
+
+GDB support
+-----------
+We provide breakpoints, single stepping and watchpoints.
+
+Fixes/Cleanups
+--------------
+- Improve program check delivery
+- Factor out the handling of transactional memory  on program checks
+- Use the existing define __LC_PGM_TDB
+- Several cleanups in the lowcore structure
+- Documentation
+
+NOTES
+-----
+- All patches touching base s390 are either ACKed or written by the s390
+  maintainers
+- One base KVM patch "KVM: add kvm_is_error_gpa() helper"
+
+Christian
+
+
+Christian Borntraeger (1):
+  KVM: s390: Drop pending interrupts on guest exit
+
+Cornelia Huck (1):
+  KVM: s390: reinject io interrupt on tpi failure
+
+David Hildenbrand (8):
+  KVM: s390: extract irq parameters of intercepted program irqs
+  KVM: s390: deliver program irq parameters and use correct ilc
+  KVM: s390: emulate stctl and stctg
+  KVM: s390: kernel header addition for guest debugging
+  KVM: s390: hardware support for guest debugging
+  KVM: s390: add documentation for diag 501
+  KVM: s390: move timer interrupt checks into own functions
+  KVM: s390: no timer interrupts when single-stepping a guest
+
+Dominik Dingel (3):
+  KVM: s390: Per-vm kvm device controls
+  KVM: s390: make cmma usage conditionally
+  KVM: s390: Exploiting generic userspace interface for cmma
+
+Heiko Carstens (27):
+  KVM: add kvm_is_error_gpa() helper
+  KVM: s390: export test_vfacility()
+  s390/ptrace: add struct psw and accessor function
+  s390/ctl_reg: add union type for control register 0
+  KVM: s390: add kvm_s390_logical_to_effective() helper
+  KVM: s390: add 'pgm' member to kvm_vcpu_arch and helper function
+  KVM: s390: add lowcore access functions
+  KVM: s390: add architecture compliant guest access functions
+  KVM: s390/sclp: correctly set eca siif bit
+  KVM: s390: make use of ipte lock
+  KVM: s390: convert __do_deliver_interrupt()
+  KVM: s390: convert handle_stfl()
+  KVM: s390: convert pfault code
+  KVM: s390: convert handle_prog()
+  KVM: s390: convert kvm_s390_store_status_unloaded()
+  KVM: s390: convert __sigp_set_prefix()/handle_set_prefix()
+  KVM: s390: convert handle_set_clock()
+  KVM: s390: convert handle_store_prefix()
+  KVM: s390: convert handle_store_cpu_address()
+  KVM: s390: convert handle_test_block()
+  KVM: s390: convert handle_tpi()
+  KVM: s390: convert handle_lpsw[e]()
+  KVM: s390: convert handle_stidp()
+  KVM: s390: convert handle lctl[g]()
+  KVM: s390: convert handle_stsi()
+  KVM: s390: remove old guest access functions
+  KVM: s390: cleanup kvm_s390_real_to_abs()
+
+Jens Freimann (5):
+  KVM: s390: allow injecting every kind of interrupt
+  KVM: s390: convert local irqs in  __do_deliver_interrupt()
+  s390: fix name of lowcore field at offset 0xa3
+  s390: rename and split lowcore field per_perc_atmid
+  s390: add fields to lowcore definition
+
+Michael Mueller (2):
+  KVM: s390: replace TDB_ADDR by __LC_PGM_TDB
+  KVM: s390: Factor out handle_itdb to handle TX aborts
+
+ Documentation/virtual/kvm/api.txt        |   8 +-
+ Documentation/virtual/kvm/devices/vm.txt |  24 ++
+ Documentation/virtual/kvm/s390-diag.txt  |   2 +
+ arch/s390/include/asm/ctl_reg.h          |  14 +
+ arch/s390/include/asm/kvm_host.h         | 152 +++++++-
+ arch/s390/include/asm/lowcore.h          |  10 +-
+ arch/s390/include/asm/ptrace.h           |  44 +++
+ arch/s390/include/asm/sclp.h             |   7 +-
+ arch/s390/include/uapi/asm/kvm.h         |  28 ++
+ arch/s390/kernel/asm-offsets.c           |  14 +-
+ arch/s390/kernel/entry.S                 |   4 +-
+ arch/s390/kernel/entry64.S               |   4 +-
+ arch/s390/kvm/Makefile                   |   4 +-
+ arch/s390/kvm/diag.c                     |  15 +-
+ arch/s390/kvm/gaccess.c                  | 645 +++++++++++++++++++++++++++++++
+ arch/s390/kvm/gaccess.h                  | 373 ++++++++++++++----
+ arch/s390/kvm/guestdbg.c                 | 481 +++++++++++++++++++++++
+ arch/s390/kvm/intercept.c                | 111 +++++-
+ arch/s390/kvm/interrupt.c                | 339 +++++++++++-----
+ arch/s390/kvm/kvm-s390.c                 | 321 ++++++++++-----
+ arch/s390/kvm/kvm-s390.h                 |  59 ++-
+ arch/s390/kvm/priv.c                     | 258 +++++++++----
+ arch/s390/kvm/sigp.c                     |  12 +-
+ arch/s390/kvm/trace.h                    |  25 ++
+ drivers/s390/char/sclp_early.c           |  22 +-
+ include/linux/kvm_host.h                 |   7 +
+ include/uapi/linux/kvm.h                 |   1 +
+ 27 files changed, 2586 insertions(+), 398 deletions(-)
  create mode 100644 Documentation/virtual/kvm/devices/vm.txt
+ create mode 100644 arch/s390/kvm/gaccess.c
+ create mode 100644 arch/s390/kvm/guestdbg.c
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index c24211d..f69731a 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -2314,8 +2314,8 @@ struct kvm_create_device {
- 
- 4.80 KVM_SET_DEVICE_ATTR/KVM_GET_DEVICE_ATTR
- 
--Capability: KVM_CAP_DEVICE_CTRL
--Type: device ioctl
-+Capability: KVM_CAP_DEVICE_CTRL, KVM_CAP_VM_ATTRIBUTES for vm device
-+Type: device ioctl, vm ioctl
- Parameters: struct kvm_device_attr
- Returns: 0 on success, -1 on error
- Errors:
-@@ -2340,8 +2340,8 @@ struct kvm_device_attr {
- 
- 4.81 KVM_HAS_DEVICE_ATTR
- 
--Capability: KVM_CAP_DEVICE_CTRL
--Type: device ioctl
-+Capability: KVM_CAP_DEVICE_CTRL, KVM_CAP_VM_ATTRIBUTES for vm device
-+Type: device ioctl, vm ioctl
- Parameters: struct kvm_device_attr
- Returns: 0 on success, -1 on error
- Errors:
-diff --git a/Documentation/virtual/kvm/devices/vm.txt b/Documentation/virtual/kvm/devices/vm.txt
-new file mode 100644
-index 0000000..4fe1532
---- /dev/null
-+++ b/Documentation/virtual/kvm/devices/vm.txt
-@@ -0,0 +1,6 @@
-+Generic vm interface
-+====================================
-+
-+The interface handles per-vm attributes, such as CMMA status on s390 and is
-+similar in way to ONE_REG, but targeting the whole vm instead of one vcpu
-+alone. It is available with KVM_CAP_VM_ATTRIBUTES.
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 346a347..c335a2e 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -162,6 +162,7 @@ int kvm_dev_ioctl_check_extension(long ext)
- 	case KVM_CAP_IOEVENTFD:
- 	case KVM_CAP_DEVICE_CTRL:
- 	case KVM_CAP_ENABLE_CAP_VM:
-+	case KVM_CAP_VM_ATTRIBUTES:
- 		r = 1;
- 		break;
- 	case KVM_CAP_NR_VCPUS:
-@@ -257,11 +258,43 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
- 	return r;
- }
- 
-+static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	int ret;
-+
-+	switch (attr->group) {
-+	default:
-+		ret = -ENXIO;
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
-+static int kvm_s390_vm_get_attr(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	return -ENXIO;
-+}
-+
-+static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	int ret;
-+
-+	switch (attr->group) {
-+	default:
-+		ret = -ENXIO;
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
- long kvm_arch_vm_ioctl(struct file *filp,
- 		       unsigned int ioctl, unsigned long arg)
- {
- 	struct kvm *kvm = filp->private_data;
- 	void __user *argp = (void __user *)arg;
-+	struct kvm_device_attr attr;
- 	int r;
- 
- 	switch (ioctl) {
-@@ -294,6 +327,27 @@ long kvm_arch_vm_ioctl(struct file *filp,
- 		}
- 		break;
- 	}
-+	case KVM_SET_DEVICE_ATTR: {
-+		r = -EFAULT;
-+		if (copy_from_user(&attr, (void __user *)arg, sizeof(attr)))
-+			break;
-+		r = kvm_s390_vm_set_attr(kvm, &attr);
-+		break;
-+	}
-+	case KVM_GET_DEVICE_ATTR: {
-+		r = -EFAULT;
-+		if (copy_from_user(&attr, (void __user *)arg, sizeof(attr)))
-+			break;
-+		r = kvm_s390_vm_get_attr(kvm, &attr);
-+		break;
-+	}
-+	case KVM_HAS_DEVICE_ATTR: {
-+		r = -EFAULT;
-+		if (copy_from_user(&attr, (void __user *)arg, sizeof(attr)))
-+			break;
-+		r = kvm_s390_vm_has_attr(kvm, &attr);
-+		break;
-+	}
- 	default:
- 		r = -ENOTTY;
- 	}
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index a8f4ee5..90acfe4 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -743,6 +743,7 @@ struct kvm_ppc_smmu_info {
- #define KVM_CAP_IOAPIC_POLARITY_IGNORED 97
- #define KVM_CAP_ENABLE_CAP_VM 98
- #define KVM_CAP_S390_IRQCHIP 99
-+#define KVM_CAP_VM_ATTRIBUTES 100
- 
- #ifdef KVM_CAP_IRQ_ROUTING
- 
 -- 
 1.8.4.2
