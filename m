@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 10/47] KVM: s390: add 'pgm' member to kvm_vcpu_arch and helper function
-Date: Tue, 15 Apr 2014 14:00:13 +0200
-Message-ID: <1397563250-3089-11-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 15/47] KVM: s390: convert __do_deliver_interrupt()
+Date: Tue, 15 Apr 2014 14:00:18 +0200
+Message-ID: <1397563250-3089-16-git-send-email-borntraeger@de.ibm.com>
 References: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1397563250-3089-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,76 +14,139 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Add a 'struct kvm_s390_pgm_info pgm' member to kvm_vcpu_arch. This
-structure will be used if during instruction emulation in the context
-of a vcpu exception data needs to be stored somewhere.
-
-Also add a helper function kvm_s390_inject_prog_cond() which can inject
-vcpu's last exception if needed.
+Convert __do_deliver_interrupt() to new guest access functions.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |  1 +
- arch/s390/kvm/kvm-s390.h         | 33 +++++++++++++++++++++++++++++++++
- 2 files changed, 34 insertions(+)
+ arch/s390/kvm/interrupt.c | 82 +++++++++++++++++++++++++----------------------
+ 1 file changed, 44 insertions(+), 38 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 90905ca..c290d44 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -286,6 +286,7 @@ struct kvm_vcpu_arch {
- 	struct kvm_s390_local_interrupt local_int;
- 	struct hrtimer    ckc_timer;
- 	struct tasklet_struct tasklet;
-+	struct kvm_s390_pgm_info pgm;
- 	union  {
- 		struct cpuid	cpu_id;
- 		u64		stidp_data;
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index f3ab9fc..11ed0a5 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -170,6 +170,39 @@ int kvm_s390_handle_diag(struct kvm_vcpu *vcpu);
- int kvm_s390_inject_prog_irq(struct kvm_vcpu *vcpu,
- 			     struct kvm_s390_pgm_info *pgm_info);
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index a44c689..cb782e3 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -213,13 +213,14 @@ static void __do_deliver_interrupt(struct kvm_vcpu *vcpu,
+ 		vcpu->stat.deliver_service_signal++;
+ 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, inti->type,
+ 						 inti->ext.ext_params, 0);
+-		rc  = put_guest(vcpu, 0x2401, (u16 __user *)__LC_EXT_INT_CODE);
+-		rc |= copy_to_guest(vcpu, __LC_EXT_OLD_PSW,
++		rc  = put_guest_lc(vcpu, 0x2401, (u16 *)__LC_EXT_INT_CODE);
++		rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
++				     &vcpu->arch.sie_block->gpsw,
++				     sizeof(psw_t));
++		rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
+ 				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+-		rc |= copy_from_guest(vcpu, &vcpu->arch.sie_block->gpsw,
+-				      __LC_EXT_NEW_PSW, sizeof(psw_t));
+-		rc |= put_guest(vcpu, inti->ext.ext_params,
+-				(u32 __user *)__LC_EXT_PARAMS);
++		rc |= put_guest_lc(vcpu, inti->ext.ext_params,
++				   (u32 *)__LC_EXT_PARAMS);
+ 		break;
+ 	case KVM_S390_INT_PFAULT_INIT:
+ 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, inti->type, 0,
+@@ -236,14 +237,15 @@ static void __do_deliver_interrupt(struct kvm_vcpu *vcpu,
+ 	case KVM_S390_INT_PFAULT_DONE:
+ 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, inti->type, 0,
+ 						 inti->ext.ext_params2);
+-		rc  = put_guest(vcpu, 0x2603, (u16 __user *) __LC_EXT_INT_CODE);
+-		rc |= put_guest(vcpu, 0x0680, (u16 __user *) __LC_EXT_CPU_ADDR);
+-		rc |= copy_to_guest(vcpu, __LC_EXT_OLD_PSW,
++		rc  = put_guest_lc(vcpu, 0x2603, (u16 *)__LC_EXT_INT_CODE);
++		rc |= put_guest_lc(vcpu, 0x0680, (u16 *)__LC_EXT_CPU_ADDR);
++		rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
++				     &vcpu->arch.sie_block->gpsw,
++				     sizeof(psw_t));
++		rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
+ 				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+-		rc |= copy_from_guest(vcpu, &vcpu->arch.sie_block->gpsw,
+-				      __LC_EXT_NEW_PSW, sizeof(psw_t));
+-		rc |= put_guest(vcpu, inti->ext.ext_params2,
+-				(u64 __user *) __LC_EXT_PARAMS2);
++		rc |= put_guest_lc(vcpu, inti->ext.ext_params2,
++				   (u64 *)__LC_EXT_PARAMS2);
+ 		break;
+ 	case KVM_S390_INT_VIRTIO:
+ 		VCPU_EVENT(vcpu, 4, "interrupt: virtio parm:%x,parm64:%llx",
+@@ -252,16 +254,17 @@ static void __do_deliver_interrupt(struct kvm_vcpu *vcpu,
+ 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, inti->type,
+ 						 inti->ext.ext_params,
+ 						 inti->ext.ext_params2);
+-		rc  = put_guest(vcpu, 0x2603, (u16 __user *)__LC_EXT_INT_CODE);
+-		rc |= put_guest(vcpu, 0x0d00, (u16 __user *)__LC_EXT_CPU_ADDR);
+-		rc |= copy_to_guest(vcpu, __LC_EXT_OLD_PSW,
++		rc  = put_guest_lc(vcpu, 0x2603, (u16 *)__LC_EXT_INT_CODE);
++		rc |= put_guest_lc(vcpu, 0x0d00, (u16 *)__LC_EXT_CPU_ADDR);
++		rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
++				     &vcpu->arch.sie_block->gpsw,
++				     sizeof(psw_t));
++		rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
+ 				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+-		rc |= copy_from_guest(vcpu, &vcpu->arch.sie_block->gpsw,
+-				      __LC_EXT_NEW_PSW, sizeof(psw_t));
+-		rc |= put_guest(vcpu, inti->ext.ext_params,
+-				(u32 __user *)__LC_EXT_PARAMS);
+-		rc |= put_guest(vcpu, inti->ext.ext_params2,
+-				(u64 __user *)__LC_EXT_PARAMS2);
++		rc |= put_guest_lc(vcpu, inti->ext.ext_params,
++				   (u32 *)__LC_EXT_PARAMS);
++		rc |= put_guest_lc(vcpu, inti->ext.ext_params2,
++				   (u64 *)__LC_EXT_PARAMS2);
+ 		break;
+ 	case KVM_S390_SIGP_STOP:
+ 		VCPU_EVENT(vcpu, 4, "%s", "interrupt: cpu stop");
+@@ -317,11 +320,12 @@ static void __do_deliver_interrupt(struct kvm_vcpu *vcpu,
+ 						 inti->mchk.mcic);
+ 		rc  = kvm_s390_vcpu_store_status(vcpu,
+ 						 KVM_S390_STORE_STATUS_PREFIXED);
+-		rc |= put_guest(vcpu, inti->mchk.mcic, (u64 __user *) __LC_MCCK_CODE);
+-		rc |= copy_to_guest(vcpu, __LC_MCK_OLD_PSW,
++		rc |= put_guest_lc(vcpu, inti->mchk.mcic, (u64 *)__LC_MCCK_CODE);
++		rc |= write_guest_lc(vcpu, __LC_MCK_OLD_PSW,
++				     &vcpu->arch.sie_block->gpsw,
++				     sizeof(psw_t));
++		rc |= read_guest_lc(vcpu, __LC_MCK_NEW_PSW,
+ 				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+-		rc |= copy_from_guest(vcpu, &vcpu->arch.sie_block->gpsw,
+-				      __LC_MCK_NEW_PSW, sizeof(psw_t));
+ 		break;
  
-+/**
-+ * kvm_s390_inject_prog_cond - conditionally inject a program check
-+ * @vcpu: virtual cpu
-+ * @rc: original return/error code
-+ *
-+ * This function is supposed to be used after regular guest access functions
-+ * failed, to conditionally inject a program check to a vcpu. The typical
-+ * pattern would look like
-+ *
-+ * rc = write_guest(vcpu, addr, data, len);
-+ * if (rc)
-+ *	return kvm_s390_inject_prog_cond(vcpu, rc);
-+ *
-+ * A negative return code from guest access functions implies an internal error
-+ * like e.g. out of memory. In these cases no program check should be injected
-+ * to the guest.
-+ * A positive value implies that an exception happened while accessing a guest's
-+ * memory. In this case all data belonging to the corresponding program check
-+ * has been stored in vcpu->arch.pgm and can be injected with
-+ * kvm_s390_inject_prog_irq().
-+ *
-+ * Returns: - the original @rc value if @rc was negative (internal error)
-+ *	    - zero if @rc was already zero
-+ *	    - zero or error code from injecting if @rc was positive
-+ *	      (program check injected to @vcpu)
-+ */
-+static inline int kvm_s390_inject_prog_cond(struct kvm_vcpu *vcpu, int rc)
-+{
-+	if (rc <= 0)
-+		return rc;
-+	return kvm_s390_inject_prog_irq(vcpu, &vcpu->arch.pgm);
-+}
-+
- /* implemented in interrupt.c */
- int kvm_cpu_has_interrupt(struct kvm_vcpu *vcpu);
- int psw_extint_disabled(struct kvm_vcpu *vcpu);
+ 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
+@@ -334,18 +338,20 @@ static void __do_deliver_interrupt(struct kvm_vcpu *vcpu,
+ 		vcpu->stat.deliver_io_int++;
+ 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, inti->type,
+ 						 param0, param1);
+-		rc  = put_guest(vcpu, inti->io.subchannel_id,
+-				(u16 __user *) __LC_SUBCHANNEL_ID);
+-		rc |= put_guest(vcpu, inti->io.subchannel_nr,
+-				(u16 __user *) __LC_SUBCHANNEL_NR);
+-		rc |= put_guest(vcpu, inti->io.io_int_parm,
+-				(u32 __user *) __LC_IO_INT_PARM);
+-		rc |= put_guest(vcpu, inti->io.io_int_word,
+-				(u32 __user *) __LC_IO_INT_WORD);
+-		rc |= copy_to_guest(vcpu, __LC_IO_OLD_PSW,
+-				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+-		rc |= copy_from_guest(vcpu, &vcpu->arch.sie_block->gpsw,
+-				      __LC_IO_NEW_PSW, sizeof(psw_t));
++		rc  = put_guest_lc(vcpu, inti->io.subchannel_id,
++				   (u16 *)__LC_SUBCHANNEL_ID);
++		rc |= put_guest_lc(vcpu, inti->io.subchannel_nr,
++				   (u16 *)__LC_SUBCHANNEL_NR);
++		rc |= put_guest_lc(vcpu, inti->io.io_int_parm,
++				   (u32 *)__LC_IO_INT_PARM);
++		rc |= put_guest_lc(vcpu, inti->io.io_int_word,
++				   (u32 *)__LC_IO_INT_WORD);
++		rc |= write_guest_lc(vcpu, __LC_IO_OLD_PSW,
++				     &vcpu->arch.sie_block->gpsw,
++				     sizeof(psw_t));
++		rc |= read_guest_lc(vcpu, __LC_IO_NEW_PSW,
++				    &vcpu->arch.sie_block->gpsw,
++				    sizeof(psw_t));
+ 		break;
+ 	}
+ 	default:
 -- 
 1.8.4.2
