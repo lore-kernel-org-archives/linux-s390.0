@@ -1,43 +1,48 @@
-Date: Wed, 30 Apr 2014 23:19:03 +0200
-From: Alexander Gordeev <agordeev@redhat.com>
-Subject: Re: [PATCH 2/2] PCI/MSI: Phase out pci_enable_msi_block()
-Message-ID: <20140430211902.GA5550@dhcp-26-207.brq.redhat.com>
-References: <cover.1397458024.git.agordeev@redhat.com>
- <0b08613dc17cd608c1babc1f42b8919f60e1093f.1397458024.git.agordeev@redhat.com>
- <20140414120921.GA32132@dhcp-26-207.brq.redhat.com>
- <20140414132834.GA9164@dhcp-26-207.brq.redhat.com>
-MIME-Version: 1.0
+From: Jiri Olsa <jolsa@redhat.com>
+Subject: Re: [PATCH] perf/tool: Fix usage of trace events with '-' in trace
+ system name.
+Date: Thu, 17 Apr 2014 13:32:21 +0200
+Message-ID: <20140417113221.GA7422@krava.brq.redhat.com>
+References: <1395694140-43447-1-git-send-email-borntraeger@de.ibm.com>
+ <53315741.9010508@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140414132834.GA9164@dhcp-26-207.brq.redhat.com>
-Return-Path: <agordeev@redhat.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-pci@vger.kernel.org
+In-Reply-To: <53315741.9010508@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org, Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Apr 14, 2014 at 03:28:34PM +0200, Alexander Gordeev wrote:
-> There are no users of pci_enable_msi_block() function have
-> left. Obsolete it in favor of pci_enable_msi_range() and
-> pci_enable_msi_exact() functions.
+On Tue, Mar 25, 2014 at 11:15:29AM +0100, Paolo Bonzini wrote:
+> Il 24/03/2014 21:49, Christian Borntraeger ha scritto:
+> > event_legacy_tracepoint:
+> >+PE_NAME '-' PE_NAME ':' PE_NAME
+> >+{
+> >+	struct parse_events_evlist *data = _data;
+> >+	struct list_head *list;
+> >+	char sys_name[strlen($1) + strlen($3) + 2];
+> >+	sprintf(&sys_name, "%s-%s", $1, $3);
+> >+
+> >+	ALLOC_LIST(list);
+> >+	ABORT_ON(parse_events_add_tracepoint(list, &data->idx, &sys_name, $5));
+> >+	$$ = list;
+> >+}
+> 
+> Why isn't '-' part of PE_NAME?
 
-Hi Bjorn,
+hi Paolo ;-)
 
-How about this one?
+because it screws cache events parsing.. we need some code factoring
+in this part
 
-Thanks!
+Acked-by: Jiri Olsa <jolsa@redhat.com>
 
--- 
-Regards,
-Alexander Gordeev
-agordeev@redhat.com
+it'd be nice to add test to tests/parse-events.c, probably s390 specific,
+because the parsing code touches the tracepoint format file
+
+thanks,
+jirka
