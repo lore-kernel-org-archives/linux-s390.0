@@ -1,68 +1,75 @@
 From: Jiri Olsa <jolsa@redhat.com>
 Subject: Re: [PATCH] perf/tool: Fix usage of trace events with '-' in trace
  system name.
-Date: Thu, 17 Apr 2014 13:45:59 +0200
-Message-ID: <20140417114559.GB7422@krava.brq.redhat.com>
+Date: Thu, 17 Apr 2014 16:40:19 +0200
+Message-ID: <20140417144019.GF7422@krava.brq.redhat.com>
 References: <1395694140-43447-1-git-send-email-borntraeger@de.ibm.com>
- <53315741.9010508@redhat.com>
- <20140417113221.GA7422@krava.brq.redhat.com>
- <534FBE04.9000501@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <534FBE04.9000501@de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <1395694140-43447-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org, Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org, Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Apr 17, 2014 at 01:41:56PM +0200, Christian Borntraeger wrote:
-> On 17/04/14 13:32, Jiri Olsa wrote:
-> > On Tue, Mar 25, 2014 at 11:15:29AM +0100, Paolo Bonzini wrote:
-> >> Il 24/03/2014 21:49, Christian Borntraeger ha scritto:
-> >>> event_legacy_tracepoint:
-> >>> +PE_NAME '-' PE_NAME ':' PE_NAME
-> >>> +{
-> >>> +	struct parse_events_evlist *data = _data;
-> >>> +	struct list_head *list;
-> >>> +	char sys_name[strlen($1) + strlen($3) + 2];
-> >>> +	sprintf(&sys_name, "%s-%s", $1, $3);
-> >>> +
-> >>> +	ALLOC_LIST(list);
-> >>> +	ABORT_ON(parse_events_add_tracepoint(list, &data->idx, &sys_name, $5));
-> >>> +	$$ = list;
-> >>> +}
-> >>
-> >> Why isn't '-' part of PE_NAME?
-> > 
-> > hi Paolo ;-)
-> > 
-> > because it screws cache events parsing.. we need some code factoring
-> > in this part
-> > 
-> > Acked-by: Jiri Olsa <jolsa@redhat.com>
+On Mon, Mar 24, 2014 at 09:49:00PM +0100, Christian Borntraeger wrote:
+> From: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 > 
-> Jiri,
+> Trace events potentially can have a '-' in their trace system name,
+> e.g. kvm on s390 defines kvm-s390:* tracepoints.
+> tools/perf could not parse them, because there was no rule for this:
+> $ sudo ./perf top -e "kvm-s390:*"
+> invalid or unsupported event: 'kvm-s390:*'
 > 
-> can you handle this patch + "perf-kvm: fix of 'Min time' counting in report command" in your tree?
+> This patch adds an extra rule to event_legacy_tracepoint which handles
+> those cases. Without the patch, perf will not accept such tracepoints in
+> the -e option.
+> 
+> Signed-off-by: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  tools/perf/util/parse-events.y | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+> 
+> diff --git a/tools/perf/util/parse-events.y b/tools/perf/util/parse-events.y
+> index 4eb67ec..dbbb01c 100644
+> --- a/tools/perf/util/parse-events.y
+> +++ b/tools/perf/util/parse-events.y
+> @@ -299,6 +299,18 @@ PE_PREFIX_MEM PE_VALUE sep_dc
+>  }
+>  
+>  event_legacy_tracepoint:
+> +PE_NAME '-' PE_NAME ':' PE_NAME
+> +{
+> +	struct parse_events_evlist *data = _data;
+> +	struct list_head *list;
+> +	char sys_name[strlen($1) + strlen($3) + 2];
 
-yep, I queued both of them
+hum, could you limit the size of sys_name array with some
+sane value? those strlens make me nervous :-\
 
+thanks,
 jirka
 
+> +	sprintf(&sys_name, "%s-%s", $1, $3);
+> +
+> +	ALLOC_LIST(list);
+> +	ABORT_ON(parse_events_add_tracepoint(list, &data->idx, &sys_name, $5));
+> +	$$ = list;
+> +}
+> +|
+>  PE_NAME ':' PE_NAME
+>  {
+>  	struct parse_events_evlist *data = _data;
+> -- 
+> 1.8.4.2
 > 
-> > 
-> > it'd be nice to add test to tests/parse-events.c, probably s390 specific,
-> > because the parsing code touches the tracepoint format file
-> 
-> Alexander,
-> 
-> can you have a look to provide a simple test for perf that checks that trace events like kvm-s390 are handled properly?
-> 
-> Thanks
-> 
-> Christian
-> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
