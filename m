@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 10/54] KVM: s390: Exploiting generic userspace interface for cmma
-Date: Tue, 22 Apr 2014 13:32:11 +0200
-Message-ID: <1398166331-50704-3-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 08/54] KVM: s390: Per-vm kvm device controls
+Date: Tue, 22 Apr 2014 13:32:10 +0200
+Message-ID: <1398166331-50704-2-git-send-email-borntraeger@de.ibm.com>
 References: <1398166331-50704-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1398166331-50704-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,124 +14,161 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Dominik Dingel <dingel@linux.vnet.ibm.com>
 
-To enable CMMA and to reset its state we use the vm kvm_device ioctls,
-encapsulating attributes within the KVM_S390_VM_MEM_CTRL group.
+We sometimes need to get/set attributes specific to a virtual machine
+and so need something else than ONE_REG.
+
+Let's copy the KVM_DEVICE approach, and define the respective ioctls
+for the vm file descriptor.
 
 Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Acked-by: Alexander Graf <agraf@suse.de>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- Documentation/virtual/kvm/devices/vm.txt | 16 ++++++++++++
- arch/s390/include/uapi/asm/kvm.h         |  7 ++++++
- arch/s390/kvm/kvm-s390.c                 | 43 ++++++++++++++++++++++++++++++++
- 3 files changed, 66 insertions(+)
+ Documentation/virtual/kvm/api.txt        |  8 ++---
+ Documentation/virtual/kvm/devices/vm.txt | 10 ++++++
+ arch/s390/kvm/kvm-s390.c                 | 54 ++++++++++++++++++++++++++++++++
+ include/uapi/linux/kvm.h                 |  1 +
+ 4 files changed, 69 insertions(+), 4 deletions(-)
+ create mode 100644 Documentation/virtual/kvm/devices/vm.txt
 
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index a9380ba5..2014ff1 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -2314,8 +2314,8 @@ struct kvm_create_device {
+ 
+ 4.80 KVM_SET_DEVICE_ATTR/KVM_GET_DEVICE_ATTR
+ 
+-Capability: KVM_CAP_DEVICE_CTRL
+-Type: device ioctl
++Capability: KVM_CAP_DEVICE_CTRL, KVM_CAP_VM_ATTRIBUTES for vm device
++Type: device ioctl, vm ioctl
+ Parameters: struct kvm_device_attr
+ Returns: 0 on success, -1 on error
+ Errors:
+@@ -2340,8 +2340,8 @@ struct kvm_device_attr {
+ 
+ 4.81 KVM_HAS_DEVICE_ATTR
+ 
+-Capability: KVM_CAP_DEVICE_CTRL
+-Type: device ioctl
++Capability: KVM_CAP_DEVICE_CTRL, KVM_CAP_VM_ATTRIBUTES for vm device
++Type: device ioctl, vm ioctl
+ Parameters: struct kvm_device_attr
+ Returns: 0 on success, -1 on error
+ Errors:
 diff --git a/Documentation/virtual/kvm/devices/vm.txt b/Documentation/virtual/kvm/devices/vm.txt
-index 562bee6..0d16f96 100644
---- a/Documentation/virtual/kvm/devices/vm.txt
+new file mode 100644
+index 0000000..562bee6
+--- /dev/null
 +++ b/Documentation/virtual/kvm/devices/vm.txt
-@@ -8,3 +8,19 @@ and controls.
- 
- The groups and attributes per virtual machine, if any, are architecture
- specific.
+@@ -0,0 +1,10 @@
++Generic vm interface
++====================================
 +
-+1. GROUP: KVM_S390_VM_MEM_CTRL
-+Architectures: s390
++The virtual machine "device" also accepts the ioctls KVM_SET_DEVICE_ATTR,
++KVM_GET_DEVICE_ATTR, and KVM_HAS_DEVICE_ATTR. The interface uses the same
++struct kvm_device_attr as other devices, but targets VM-wide settings
++and controls.
 +
-+1.1. ATTRIBUTE: KVM_S390_VM_MEM_CTRL
-+Parameters: none
-+Returns: -EBUSY if already a vcpus is defined, otherwise 0
-+
-+Enables CMMA for the virtual machine
-+
-+1.2. ATTRIBUTE: KVM_S390_VM_CLR_CMMA
-+Parameteres: none
-+Returns: 0
-+
-+Clear the CMMA status for all guest pages, so any pages the guest marked
-+as unused are again used any may not be reclaimed by the host.
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index c003c6a..e35c798 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -54,6 +54,13 @@ struct kvm_s390_io_adapter_req {
- 	__u64 addr;
- };
- 
-+/* kvm attr_group  on vm fd */
-+#define KVM_S390_VM_MEM_CTRL		0
-+
-+/* kvm attributes for mem_ctrl */
-+#define KVM_S390_VM_MEM_ENABLE_CMMA	0
-+#define KVM_S390_VM_MEM_CLR_CMMA	1
-+
- /* for KVM_GET_REGS and KVM_SET_REGS */
- struct kvm_regs {
- 	/* general purpose regs for s390 */
++The groups and attributes per virtual machine, if any, are architecture
++specific.
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index fc2fe49..fe2396c 100644
+index 346a347..c335a2e 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -258,11 +258,43 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
+@@ -162,6 +162,7 @@ int kvm_dev_ioctl_check_extension(long ext)
+ 	case KVM_CAP_IOEVENTFD:
+ 	case KVM_CAP_DEVICE_CTRL:
+ 	case KVM_CAP_ENABLE_CAP_VM:
++	case KVM_CAP_VM_ATTRIBUTES:
+ 		r = 1;
+ 		break;
+ 	case KVM_CAP_NR_VCPUS:
+@@ -257,11 +258,43 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
  	return r;
  }
  
-+static int kvm_s390_mem_control(struct kvm *kvm, struct kvm_device_attr *attr)
++static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
 +{
 +	int ret;
-+	unsigned int idx;
-+	switch (attr->attr) {
-+	case KVM_S390_VM_MEM_ENABLE_CMMA:
-+		ret = -EBUSY;
-+		mutex_lock(&kvm->lock);
-+		if (atomic_read(&kvm->online_vcpus) == 0) {
-+			kvm->arch.use_cmma = 1;
-+			ret = 0;
-+		}
-+		mutex_unlock(&kvm->lock);
-+		break;
-+	case KVM_S390_VM_MEM_CLR_CMMA:
-+		mutex_lock(&kvm->lock);
-+		idx = srcu_read_lock(&kvm->srcu);
-+		page_table_reset_pgste(kvm->arch.gmap->mm, 0, TASK_SIZE, false);
-+		srcu_read_unlock(&kvm->srcu, idx);
-+		mutex_unlock(&kvm->lock);
-+		ret = 0;
-+		break;
++
++	switch (attr->group) {
 +	default:
 +		ret = -ENXIO;
 +		break;
 +	}
++
 +	return ret;
 +}
 +
- static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
++static int kvm_s390_vm_get_attr(struct kvm *kvm, struct kvm_device_attr *attr)
++{
++	return -ENXIO;
++}
++
++static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
++{
++	int ret;
++
++	switch (attr->group) {
++	default:
++		ret = -ENXIO;
++		break;
++	}
++
++	return ret;
++}
++
+ long kvm_arch_vm_ioctl(struct file *filp,
+ 		       unsigned int ioctl, unsigned long arg)
  {
- 	int ret;
+ 	struct kvm *kvm = filp->private_data;
+ 	void __user *argp = (void __user *)arg;
++	struct kvm_device_attr attr;
+ 	int r;
  
- 	switch (attr->group) {
-+	case KVM_S390_VM_MEM_CTRL:
-+		ret = kvm_s390_mem_control(kvm, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
+ 	switch (ioctl) {
+@@ -294,6 +327,27 @@ long kvm_arch_vm_ioctl(struct file *filp,
+ 		}
  		break;
-@@ -281,6 +313,17 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	int ret;
+ 	}
++	case KVM_SET_DEVICE_ATTR: {
++		r = -EFAULT;
++		if (copy_from_user(&attr, (void __user *)arg, sizeof(attr)))
++			break;
++		r = kvm_s390_vm_set_attr(kvm, &attr);
++		break;
++	}
++	case KVM_GET_DEVICE_ATTR: {
++		r = -EFAULT;
++		if (copy_from_user(&attr, (void __user *)arg, sizeof(attr)))
++			break;
++		r = kvm_s390_vm_get_attr(kvm, &attr);
++		break;
++	}
++	case KVM_HAS_DEVICE_ATTR: {
++		r = -EFAULT;
++		if (copy_from_user(&attr, (void __user *)arg, sizeof(attr)))
++			break;
++		r = kvm_s390_vm_has_attr(kvm, &attr);
++		break;
++	}
+ 	default:
+ 		r = -ENOTTY;
+ 	}
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index a8f4ee5..90acfe4 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -743,6 +743,7 @@ struct kvm_ppc_smmu_info {
+ #define KVM_CAP_IOAPIC_POLARITY_IGNORED 97
+ #define KVM_CAP_ENABLE_CAP_VM 98
+ #define KVM_CAP_S390_IRQCHIP 99
++#define KVM_CAP_VM_ATTRIBUTES 100
  
- 	switch (attr->group) {
-+	case KVM_S390_VM_MEM_CTRL:
-+		switch (attr->attr) {
-+		case KVM_S390_VM_MEM_ENABLE_CMMA:
-+		case KVM_S390_VM_MEM_CLR_CMMA:
-+			ret = 0;
-+			break;
-+		default:
-+			ret = -ENXIO;
-+			break;
-+		}
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
+ #ifdef KVM_CAP_IRQ_ROUTING
+ 
 -- 
 1.8.4.2
