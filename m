@@ -1,248 +1,55 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 01/11] s390: add sie exit reasons tables
-Date: Fri, 25 Apr 2014 11:12:23 +0200
-Message-ID: <1398417153-57347-2-git-send-email-borntraeger@de.ibm.com>
-References: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH/RFC 00/11] perf/s390/kvm: trace events, perf kvm stat
+Date: Fri, 25 Apr 2014 11:12:22 +0200
+Message-ID: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, Jiri Olsa <jolsa@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+The goal of this series is to
+- enable perf kvm stat on s390
+- get rid of a perf warning "insn_to_mnemonic not found" when it tries to
+  decode s390 perf trace events
 
-This patch defines tables of reasons for exiting from SIE mode
-in a new sie.h header file. Tables contain SIE intercepted codes,
-intercepted instructions and program interruptions codes.
+Review feedback is welcome.
+In addition, The patch set touches s390/kvm code and perf code.
+So any feedback on which tree to use for this series is also 
+welcome.
 
-Signed-off-by: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/uapi/asm/sie.h | 212 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 212 insertions(+)
+Christian
+
+
+Alexander Yarygin (11):
+  s390: add sie exit reasons tables
+  KVM: s390: Use trace tables from sie.h.
+  KVM: s390: decoder of SIE intercepted instructions
+  KVM: s390: Use intercept_insn decoder in trace event
+  perf kvm: Intoduce HAVE_KVM_STAT_SUPPORT flag
+  perf kvm: simplify of exit reasons tables definitions
+  perf kvm: Refactoring of cpu_isa_config()
+  perf kvm: allow for variable string sizes
+  perf kvm: use defines of kvm events
+  perf: allow to use cpuinfo on s390
+  perf kvm: add stat support on s390
+
+ arch/s390/include/uapi/asm/kvm.h   |   7 +
+ arch/s390/include/uapi/asm/sie.h   | 245 ++++++++++++++++++++++++++++++++++
+ arch/s390/kvm/trace.h              |  39 +-----
+ arch/x86/include/uapi/asm/kvm.h    |   8 ++
+ tools/perf/MANIFEST                |   3 +
+ tools/perf/arch/s390/Makefile      |   2 +
+ tools/perf/arch/s390/util/header.c |  17 +++
+ tools/perf/arch/x86/Makefile       |   1 +
+ tools/perf/builtin-kvm.c           | 263 +++++++++++++++++++++++++++++--------
+ tools/perf/config/Makefile         |   4 +
+ tools/perf/perf.h                  |   1 +
+ 11 files changed, 499 insertions(+), 91 deletions(-)
  create mode 100644 arch/s390/include/uapi/asm/sie.h
+ create mode 100644 tools/perf/arch/s390/util/header.c
 
-diff --git a/arch/s390/include/uapi/asm/sie.h b/arch/s390/include/uapi/asm/sie.h
-new file mode 100644
-index 0000000..5f942a2
---- /dev/null
-+++ b/arch/s390/include/uapi/asm/sie.h
-@@ -0,0 +1,212 @@
-+#ifndef _UAPI_ASM_S390_SIE_H
-+#define _UAPI_ASM_S390_SIE_H
-+
-+#include <asm/sigp.h>
-+
-+#define diagnose_codes						\
-+	{ 0x10, "DIAG (0x10) release pages" },			\
-+	{ 0x44, "DIAG (0x44) time slice end" },			\
-+	{ 0x9c, "DIAG (0x9c) time slice end directed" },	\
-+	{ 0x204, "DIAG (0x204) logical-cpu utilization" },	\
-+	{ 0x258, "DIAG (0x258) page-reference services" },	\
-+	{ 0x308, "DIAG (0x308) ipl functions" },		\
-+	{ 0x500, "DIAG (0x500) KVM virtio functions" },		\
-+	{ 0x501, "DIAG (0x501) KVM breakpoint" }
-+
-+#define sigp_order_codes                                                \
-+	{ SIGP_SENSE, "SIGP sense" },					\
-+	{ SIGP_EXTERNAL_CALL, "SIGP external call" },			\
-+	{ SIGP_EMERGENCY_SIGNAL, "SIGP emergency signal" },		\
-+	{ SIGP_STOP, "SIGP stop" },					\
-+	{ SIGP_STOP_AND_STORE_STATUS, "SIGP stop and store status" },	\
-+	{ SIGP_SET_ARCHITECTURE, "SIGP set architecture" },		\
-+	{ SIGP_SET_PREFIX, "SIGP set prefix" },				\
-+	{ SIGP_SENSE_RUNNING, "SIGP sense running" },			\
-+	{ SIGP_RESTART, "SIGP restart" },				\
-+	{ SIGP_INITIAL_CPU_RESET, "SIGP initial cpu reset" },		\
-+	{ SIGP_STORE_STATUS_AT_ADDRESS, "SIGP store status at address" }
-+
-+#define icpt_prog_codes						\
-+	{ 0x0001, "Prog Operation" },				\
-+	{ 0x0002, "Prog Privileged Operation" },		\
-+	{ 0x0003, "Prog Execute" },				\
-+	{ 0x0004, "Prog Protection" },				\
-+	{ 0x0005, "Prog Addressing" },				\
-+	{ 0x0006, "Prog Specification" },			\
-+	{ 0x0007, "Prog Data" },				\
-+	{ 0x0008, "Prog Fixedpoint overflow" },			\
-+	{ 0x0009, "Prog Fixedpoint divide" },			\
-+	{ 0x000A, "Prog Decimal overflow" },			\
-+	{ 0x000B, "Prog Decimal divide" },			\
-+	{ 0x000C, "Prog HFP exponent overflow" },		\
-+	{ 0x000D, "Prog HFP exponent underflow" },		\
-+	{ 0x000E, "Prog HFP significance" },			\
-+	{ 0x000F, "Prog HFP divide" },				\
-+	{ 0x0010, "Prog Segment translation" },			\
-+	{ 0x0011, "Prog Page translation" },			\
-+	{ 0x0012, "Prog Translation specification" },		\
-+	{ 0x0013, "Prog Special operation" },			\
-+	{ 0x0015, "Prog Operand" },				\
-+	{ 0x0016, "Prog Trace table" },				\
-+	{ 0x0017, "Prog ASNtranslation specification" },	\
-+	{ 0x001C, "Prog Spaceswitch event" },			\
-+	{ 0x001D, "Prog HFP square root" },			\
-+	{ 0x001F, "Prog PCtranslation specification" },		\
-+	{ 0x0020, "Prog AFX translation" },			\
-+	{ 0x0021, "Prog ASX translation" },			\
-+	{ 0x0022, "Prog LX translation" },			\
-+	{ 0x0023, "Prog EX translation" },			\
-+	{ 0x0024, "Prog Primary authority" },			\
-+	{ 0x0025, "Prog Secondary authority" },			\
-+	{ 0x0026, "Prog LFXtranslation exception" },		\
-+	{ 0x0027, "Prog LSXtranslation exception" },		\
-+	{ 0x0028, "Prog ALET specification" },			\
-+	{ 0x0029, "Prog ALEN translation" },			\
-+	{ 0x002A, "Prog ALE sequence" },			\
-+	{ 0x002B, "Prog ASTE validity" },			\
-+	{ 0x002C, "Prog ASTE sequence" },			\
-+	{ 0x002D, "Prog Extended authority" },			\
-+	{ 0x002E, "Prog LSTE sequence" },			\
-+	{ 0x002F, "Prog ASTE instance" },			\
-+	{ 0x0030, "Prog Stack full" },				\
-+	{ 0x0031, "Prog Stack empty" },				\
-+	{ 0x0032, "Prog Stack specification" },			\
-+	{ 0x0033, "Prog Stack type" },				\
-+	{ 0x0034, "Prog Stack operation" },			\
-+	{ 0x0039, "Prog Region first translation" },		\
-+	{ 0x003A, "Prog Region second translation" },		\
-+	{ 0x003B, "Prog Region third translation" },		\
-+	{ 0x0040, "Prog Monitor event" },			\
-+	{ 0x0080, "Prog PER event" },				\
-+	{ 0x0119, "Prog Crypto operation" }
-+
-+#define exit_code_ipa0(ipa0, opcode, mnemonic)		\
-+	{ (ipa0 << 8 | opcode), #ipa0 " " mnemonic }
-+#define exit_code(opcode, mnemonic)			\
-+	{ opcode, mnemonic }
-+
-+#define icpt_insn_codes				\
-+	exit_code_ipa0(0x01, 0x01, "PR"),	\
-+	exit_code_ipa0(0x01, 0x04, "PTFF"),	\
-+	exit_code_ipa0(0x01, 0x07, "SCKPF"),	\
-+	exit_code_ipa0(0xAA, 0x00, "RINEXT"),	\
-+	exit_code_ipa0(0xAA, 0x01, "RION"),	\
-+	exit_code_ipa0(0xAA, 0x02, "TRIC"),	\
-+	exit_code_ipa0(0xAA, 0x03, "RIOFF"),	\
-+	exit_code_ipa0(0xAA, 0x04, "RIEMIT"),	\
-+	exit_code_ipa0(0xB2, 0x02, "STIDP"),	\
-+	exit_code_ipa0(0xB2, 0x04, "SCK"),	\
-+	exit_code_ipa0(0xB2, 0x05, "STCK"),	\
-+	exit_code_ipa0(0xB2, 0x06, "SCKC"),	\
-+	exit_code_ipa0(0xB2, 0x07, "STCKC"),	\
-+	exit_code_ipa0(0xB2, 0x08, "SPT"),	\
-+	exit_code_ipa0(0xB2, 0x09, "STPT"),	\
-+	exit_code_ipa0(0xB2, 0x0d, "PTLB"),	\
-+	exit_code_ipa0(0xB2, 0x10, "SPX"),	\
-+	exit_code_ipa0(0xB2, 0x11, "STPX"),	\
-+	exit_code_ipa0(0xB2, 0x12, "STAP"),	\
-+	exit_code_ipa0(0xB2, 0x14, "SIE"),	\
-+	exit_code_ipa0(0xB2, 0x16, "SETR"),	\
-+	exit_code_ipa0(0xB2, 0x17, "STETR"),	\
-+	exit_code_ipa0(0xB2, 0x18, "PC"),	\
-+	exit_code_ipa0(0xB2, 0x20, "SERVC"),	\
-+	exit_code_ipa0(0xB2, 0x28, "PT"),	\
-+	exit_code_ipa0(0xB2, 0x29, "ISKE"),	\
-+	exit_code_ipa0(0xB2, 0x2a, "RRBE"),	\
-+	exit_code_ipa0(0xB2, 0x2b, "SSKE"),	\
-+	exit_code_ipa0(0xB2, 0x2c, "TB"),	\
-+	exit_code_ipa0(0xB2, 0x2e, "PGIN"),	\
-+	exit_code_ipa0(0xB2, 0x2f, "PGOUT"),	\
-+	exit_code_ipa0(0xB2, 0x30, "CSCH"),	\
-+	exit_code_ipa0(0xB2, 0x31, "HSCH"),	\
-+	exit_code_ipa0(0xB2, 0x32, "MSCH"),	\
-+	exit_code_ipa0(0xB2, 0x33, "SSCH"),	\
-+	exit_code_ipa0(0xB2, 0x34, "STSCH"),	\
-+	exit_code_ipa0(0xB2, 0x35, "TSCH"),	\
-+	exit_code_ipa0(0xB2, 0x36, "TPI"),	\
-+	exit_code_ipa0(0xB2, 0x37, "SAL"),	\
-+	exit_code_ipa0(0xB2, 0x38, "RSCH"),	\
-+	exit_code_ipa0(0xB2, 0x39, "STCRW"),	\
-+	exit_code_ipa0(0xB2, 0x3a, "STCPS"),	\
-+	exit_code_ipa0(0xB2, 0x3b, "RCHP"),	\
-+	exit_code_ipa0(0xB2, 0x3c, "SCHM"),	\
-+	exit_code_ipa0(0xB2, 0x40, "BAKR"),	\
-+	exit_code_ipa0(0xB2, 0x48, "PALB"),	\
-+	exit_code_ipa0(0xB2, 0x4c, "TAR"),	\
-+	exit_code_ipa0(0xB2, 0x50, "CSP"),	\
-+	exit_code_ipa0(0xB2, 0x54, "MVPG"),	\
-+	exit_code_ipa0(0xB2, 0x58, "BSG"),	\
-+	exit_code_ipa0(0xB2, 0x5a, "BSA"),	\
-+	exit_code_ipa0(0xB2, 0x5f, "CHSC"),	\
-+	exit_code_ipa0(0xB2, 0x74, "SIGA"),	\
-+	exit_code_ipa0(0xB2, 0x76, "XSCH"),	\
-+	exit_code_ipa0(0xB2, 0x78, "STCKE"),	\
-+	exit_code_ipa0(0xB2, 0x7c, "STCKF"),	\
-+	exit_code_ipa0(0xB2, 0x7d, "STSI"),	\
-+	exit_code_ipa0(0xB2, 0xb0, "STFLE"),	\
-+	exit_code_ipa0(0xB2, 0xb1, "STFL"),	\
-+	exit_code_ipa0(0xB2, 0xb2, "LPSWE"),	\
-+	exit_code_ipa0(0xB2, 0xf8, "TEND"),	\
-+	exit_code_ipa0(0xB2, 0xfc, "TABORT"),	\
-+	exit_code_ipa0(0xB9, 0x1e, "KMAC"),	\
-+	exit_code_ipa0(0xB9, 0x28, "PCKMO"),	\
-+	exit_code_ipa0(0xB9, 0x2a, "KMF"),	\
-+	exit_code_ipa0(0xB9, 0x2b, "KMO"),	\
-+	exit_code_ipa0(0xB9, 0x2d, "KMCTR"),	\
-+	exit_code_ipa0(0xB9, 0x2e, "KM"),	\
-+	exit_code_ipa0(0xB9, 0x2f, "KMC"),	\
-+	exit_code_ipa0(0xB9, 0x3e, "KIMD"),	\
-+	exit_code_ipa0(0xB9, 0x3f, "KLMD"),	\
-+	exit_code_ipa0(0xB9, 0x8a, "CSPG"),	\
-+	exit_code_ipa0(0xB9, 0x8d, "EPSW"),	\
-+	exit_code_ipa0(0xB9, 0x8e, "IDTE"),	\
-+	exit_code_ipa0(0xB9, 0x8f, "CRDTE"),	\
-+	exit_code_ipa0(0xB9, 0x9c, "EQBS"),	\
-+	exit_code_ipa0(0xB9, 0xa2, "PTF"),	\
-+	exit_code_ipa0(0xB9, 0xab, "ESSA"),	\
-+	exit_code_ipa0(0xB9, 0xae, "RRBM"),	\
-+	exit_code_ipa0(0xB9, 0xaf, "PFMF"),	\
-+	exit_code_ipa0(0xE3, 0x03, "LRAG"),	\
-+	exit_code_ipa0(0xE3, 0x13, "LRAY"),	\
-+	exit_code_ipa0(0xE3, 0x25, "NTSTG"),	\
-+	exit_code_ipa0(0xE5, 0x00, "LASP"),	\
-+	exit_code_ipa0(0xE5, 0x01, "TPROT"),	\
-+	exit_code_ipa0(0xE5, 0x60, "TBEGIN"),	\
-+	exit_code_ipa0(0xE5, 0x61, "TBEGINC"),	\
-+	exit_code_ipa0(0xEB, 0x25, "STCTG"),	\
-+	exit_code_ipa0(0xEB, 0x2f, "LCTLG"),	\
-+	exit_code_ipa0(0xEB, 0x60, "LRIC"),	\
-+	exit_code_ipa0(0xEB, 0x61, "STRIC"),	\
-+	exit_code_ipa0(0xEB, 0x62, "MRIC"),	\
-+	exit_code_ipa0(0xEB, 0x8a, "SQBS"),	\
-+	exit_code_ipa0(0xC8, 0x01, "ECTG"),	\
-+	exit_code(0x0a, "SVC"),			\
-+	exit_code(0x80, "SSM"),			\
-+	exit_code(0x82, "LPSW"),		\
-+	exit_code(0x83, "DIAG"),		\
-+	exit_code(0xae, "SIGP"),		\
-+	exit_code(0xac, "STNSM"),		\
-+	exit_code(0xad, "STOSM"),		\
-+	exit_code(0xb1, "LRA"),			\
-+	exit_code(0xb6, "STCTL"),		\
-+	exit_code(0xb7, "LCTL"),		\
-+	exit_code(0xee, "PLO")
-+
-+#define sie_intercept_code					\
-+	{ 0x00, "Host interruption" },				\
-+	{ 0x04, "Instruction" },				\
-+	{ 0x08, "Program interruption" },			\
-+	{ 0x0c, "Instruction and program interruption" },	\
-+	{ 0x10, "External request" },				\
-+	{ 0x14, "External interruption" },			\
-+	{ 0x18, "I/O request" },				\
-+	{ 0x1c, "Wait state" },					\
-+	{ 0x20, "Validity" },					\
-+	{ 0x28, "Stop request" },				\
-+	{ 0x2c, "Operation exception" },			\
-+	{ 0x38, "Partial-execution" },				\
-+	{ 0x3c, "I/O interruption" },				\
-+	{ 0x40, "I/O instruction" },				\
-+	{ 0x48, "Timing subset" }
-+
-+#endif /* _UAPI_ASM_S390_SIE_H */
 -- 
 1.8.4.2
