@@ -1,99 +1,54 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 07/11] perf kvm: Refactoring of cpu_isa_config()
-Date: Fri, 25 Apr 2014 11:12:29 +0200
-Message-ID: <1398417153-57347-8-git-send-email-borntraeger@de.ibm.com>
-References: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+From: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+Subject: [PATCH 1/3] perf tools: parse tracepooints with '-' in system name
+Date: Fri, 25 Apr 2014 17:34:05 +0200
+Message-ID: <1398440047-6641-2-git-send-email-yarygin@linux.vnet.ibm.com>
+References: <1398440047-6641-1-git-send-email-yarygin@linux.vnet.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1398440047-6641-1-git-send-email-yarygin@linux.vnet.ibm.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, Jiri Olsa <jolsa@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Jiri Olsa <jolsa@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org, Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+Trace events potentially can have a '-' in their trace system name,
+e.g. kvm on s390 defines kvm-s390:* tracepoints.
+tools/perf could not parse them, because there was no rule for this:
+$ sudo ./perf top -e "kvm-s390:*"
+invalid or unsupported event: 'kvm-s390:*'
 
-cpu_isa_config() does two different things: searching for cpuid and
-initializing perf_kvm_stat struct with proper parameters.
-
-Let's move initialization to a separate function cpu_isa_init(), which
-is used to initialize all possible ISAs and can be used to init
-arch-depended things.
+This patch adds an extra rule to event_legacy_tracepoint which handles
+those cases. Without the patch, perf will not accept such tracepoints in
+the -e option.
 
 Signed-off-by: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- tools/perf/builtin-kvm.c | 37 +++++++++++++++++++++----------------
- 1 file changed, 21 insertions(+), 16 deletions(-)
+ tools/perf/util/parse-events.y |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/tools/perf/builtin-kvm.c b/tools/perf/builtin-kvm.c
-index 9b97737..922706c 100644
---- a/tools/perf/builtin-kvm.c
-+++ b/tools/perf/builtin-kvm.c
-@@ -834,10 +834,26 @@ static int process_sample_event(struct perf_tool *tool,
- 	return 0;
+diff --git a/tools/perf/util/parse-events.y b/tools/perf/util/parse-events.y
+index 4eb67ec..ac9db9f 100644
+--- a/tools/perf/util/parse-events.y
++++ b/tools/perf/util/parse-events.y
+@@ -299,6 +299,18 @@ PE_PREFIX_MEM PE_VALUE sep_dc
  }
  
-+static int cpu_isa_init(struct perf_kvm_stat *kvm, const char *cpuid)
+ event_legacy_tracepoint:
++PE_NAME '-' PE_NAME ':' PE_NAME
 +{
-+	if (strstr(cpuid, "Intel")) {
-+		kvm->exit_reasons = vmx_exit_reasons;
-+		kvm->exit_reasons_isa = "VMX";
-+	} else if (strstr(cpuid, "AMD")) {
-+		kvm->exit_reasons = svm_exit_reasons;
-+		kvm->exit_reasons_isa = "SVM";
-+	} else {
-+		pr_err("CPU %s is not supported.\n", cpuid);
-+		return -ENOTSUP;
-+	}
++	struct parse_events_evlist *data = _data;
++	struct list_head *list;
++	char sys_name[128];
++	snprintf(&sys_name, 128, "%s-%s", $1, $3);
 +
-+	return 0;
++	ALLOC_LIST(list);
++	ABORT_ON(parse_events_add_tracepoint(list, &data->idx, &sys_name, $5));
++	$$ = list;
 +}
-+
- static int cpu_isa_config(struct perf_kvm_stat *kvm)
++|
+ PE_NAME ':' PE_NAME
  {
- 	char buf[64], *cpuid;
--	int err, isa;
-+	int err;
- 
- 	if (kvm->live) {
- 		err = get_cpuid(buf, sizeof(buf));
-@@ -849,21 +865,12 @@ static int cpu_isa_config(struct perf_kvm_stat *kvm)
- 	} else
- 		cpuid = kvm->session->header.env.cpuid;
- 
--	if (strstr(cpuid, "Intel"))
--		isa = 1;
--	else if (strstr(cpuid, "AMD"))
--		isa = 0;
--	else {
--		pr_err("CPU %s is not supported.\n", cpuid);
--		return -ENOTSUP;
--	}
--
--	if (isa == 1) {
--		kvm->exit_reasons = vmx_exit_reasons;
--		kvm->exit_reasons_isa = "VMX";
-+	if (!cpuid) {
-+		pr_err("Failed to look up CPU type\n");
-+		return -EINVAL;
- 	}
- 
--	return 0;
-+	return cpu_isa_init(kvm, cpuid);
- }
- 
- static bool verify_vcpu(int vcpu)
-@@ -1582,8 +1589,6 @@ static int kvm_cmd_stat(const char *file_name, int argc, const char **argv)
- 		.report_event	= "vmexit",
- 		.sort_key	= "sample",
- 
--		.exit_reasons = svm_exit_reasons,
--		.exit_reasons_isa = "SVM",
- 	};
- 
- 	if (argc == 1) {
+ 	struct parse_events_evlist *data = _data;
 -- 
-1.8.4.2
+1.7.9.5
