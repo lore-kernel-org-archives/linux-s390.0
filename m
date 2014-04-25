@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 02/11] KVM: s390: Use trace tables from sie.h.
-Date: Fri, 25 Apr 2014 11:12:24 +0200
-Message-ID: <1398417153-57347-3-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 05/11] perf kvm: Intoduce HAVE_KVM_STAT_SUPPORT flag
+Date: Fri, 25 Apr 2014 11:12:27 +0200
+Message-ID: <1398417153-57347-6-git-send-email-borntraeger@de.ibm.com>
 References: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,80 +14,73 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 
-Use the symbolic translation tables from sie.h for decoding diag, sigp
-and sie exit codes.
+kvm stat support is currently conditional on i386/x86_64. Let's
+abstract this into a HAVE_KVM_STAT_SUPPORT flag, so that other
+architectures can support kvm stat as well.
 
 Signed-off-by: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/trace.h | 32 +-------------------------------
- 1 file changed, 1 insertion(+), 31 deletions(-)
+ tools/perf/arch/x86/Makefile | 1 +
+ tools/perf/builtin-kvm.c     | 6 +++---
+ tools/perf/config/Makefile   | 4 ++++
+ 3 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kvm/trace.h b/arch/s390/kvm/trace.h
-index abf6ba5..00f57a5 100644
---- a/arch/s390/kvm/trace.h
-+++ b/arch/s390/kvm/trace.h
-@@ -2,7 +2,7 @@
- #define _TRACE_KVM_H
+diff --git a/tools/perf/arch/x86/Makefile b/tools/perf/arch/x86/Makefile
+index 1641542..d393901 100644
+--- a/tools/perf/arch/x86/Makefile
++++ b/tools/perf/arch/x86/Makefile
+@@ -15,3 +15,4 @@ endif
+ LIB_OBJS += $(OUTPUT)arch/$(ARCH)/util/header.o
+ LIB_OBJS += $(OUTPUT)arch/$(ARCH)/util/tsc.o
+ LIB_H += arch/$(ARCH)/util/tsc.h
++HAVE_KVM_STAT_SUPPORT := 1
+diff --git a/tools/perf/builtin-kvm.c b/tools/perf/builtin-kvm.c
+index 21c164b..202b9b0 100644
+--- a/tools/perf/builtin-kvm.c
++++ b/tools/perf/builtin-kvm.c
+@@ -29,7 +29,7 @@
+ #include <pthread.h>
+ #include <math.h>
  
- #include <linux/tracepoint.h>
--#include <asm/sigp.h>
-+#include <asm/sie.h>
- #include <asm/debug.h>
- #include <asm/dis.h>
+-#if defined(__i386__) || defined(__x86_64__)
++#ifdef HAVE_KVM_STAT_SUPPORT
+ #include <asm/svm.h>
+ #include <asm/vmx.h>
+ #include <asm/kvm.h>
+@@ -1608,7 +1608,7 @@ static int kvm_cmd_stat(const char *file_name, int argc, const char **argv)
+ perf_stat:
+ 	return cmd_stat(argc, argv, NULL);
+ }
+-#endif
++#endif /* HAVE_KVM_STAT_SUPPORT */
  
-@@ -125,17 +125,6 @@ TRACE_EVENT(kvm_s390_sie_fault,
- 	    VCPU_TP_PRINTK("%s", "fault in sie instruction")
- 	);
+ static int __cmd_record(const char *file_name, int argc, const char **argv)
+ {
+@@ -1725,7 +1725,7 @@ int cmd_kvm(int argc, const char **argv, const char *prefix __maybe_unused)
+ 		return cmd_top(argc, argv, NULL);
+ 	else if (!strncmp(argv[0], "buildid-list", 12))
+ 		return __cmd_buildid_list(file_name, argc, argv);
+-#if defined(__i386__) || defined(__x86_64__)
++#ifdef HAVE_KVM_STAT_SUPPORT
+ 	else if (!strncmp(argv[0], "stat", 4))
+ 		return kvm_cmd_stat(file_name, argc, argv);
+ #endif
+diff --git a/tools/perf/config/Makefile b/tools/perf/config/Makefile
+index c234182..6251d6b 100644
+--- a/tools/perf/config/Makefile
++++ b/tools/perf/config/Makefile
+@@ -562,6 +562,10 @@ ifndef NO_LIBNUMA
+   endif
+ endif
  
--#define sie_intercept_code				\
--	{0x04, "Instruction"},				\
--	{0x08, "Program interruption"},			\
--	{0x0C, "Instruction and program interruption"},	\
--	{0x10, "External request"},			\
--	{0x14, "External interruption"},		\
--	{0x18, "I/O request"},				\
--	{0x1C, "Wait state"},				\
--	{0x20, "Validity"},				\
--	{0x28, "Stop request"}
--
- TRACE_EVENT(kvm_s390_sie_exit,
- 	    TP_PROTO(VCPU_PROTO_COMMON, u8 icptcode),
- 	    TP_ARGS(VCPU_ARGS_COMMON, icptcode),
-@@ -227,18 +216,6 @@ TRACE_EVENT(kvm_s390_intercept_validity,
-  * Trace points for instructions that are of special interest.
-  */
- 
--#define sigp_order_codes					\
--	{SIGP_SENSE, "sense"},					\
--	{SIGP_EXTERNAL_CALL, "external call"},			\
--	{SIGP_EMERGENCY_SIGNAL, "emergency signal"},		\
--	{SIGP_STOP, "stop"},					\
--	{SIGP_STOP_AND_STORE_STATUS, "stop and store status"},	\
--	{SIGP_SET_ARCHITECTURE, "set architecture"},		\
--	{SIGP_SET_PREFIX, "set prefix"},			\
--	{SIGP_STORE_STATUS_AT_ADDRESS, "store status at addr"},	\
--	{SIGP_SENSE_RUNNING, "sense running"},			\
--	{SIGP_RESTART, "restart"}
--
- TRACE_EVENT(kvm_s390_handle_sigp,
- 	    TP_PROTO(VCPU_PROTO_COMMON, __u8 order_code, __u16 cpu_addr, \
- 		     __u32 parameter),
-@@ -265,13 +242,6 @@ TRACE_EVENT(kvm_s390_handle_sigp,
- 			   __entry->cpu_addr, __entry->parameter)
- 	);
- 
--#define diagnose_codes				\
--	{0x10, "release pages"},		\
--	{0x44, "time slice end"},		\
--	{0x308, "ipl functions"},		\
--	{0x500, "kvm hypercall"},		\
--	{0x501, "kvm breakpoint"}
--
- TRACE_EVENT(kvm_s390_handle_diag,
- 	    TP_PROTO(VCPU_PROTO_COMMON, __u16 code),
- 	    TP_ARGS(VCPU_ARGS_COMMON, code),
++ifdef HAVE_KVM_STAT_SUPPORT
++    CFLAGS += -DHAVE_KVM_STAT_SUPPORT
++endif
++
+ # Among the variables below, these:
+ #   perfexecdir
+ #   template_dir
 -- 
 1.8.4.2
