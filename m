@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 10/11] perf: allow to use cpuinfo on s390
-Date: Fri, 25 Apr 2014 11:12:32 +0200
-Message-ID: <1398417153-57347-11-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 07/11] perf kvm: Refactoring of cpu_isa_config()
+Date: Fri, 25 Apr 2014 11:12:29 +0200
+Message-ID: <1398417153-57347-8-git-send-email-borntraeger@de.ibm.com>
 References: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,61 +14,86 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 
-This patch defines CPUINFO_PROC for s390 and implements get_cpuid().
+cpu_isa_config() does two different things: searching for cpuid and
+initializing perf_kvm_stat struct with proper parameters.
+
+Let's move initialization to a separate function cpu_isa_init(), which
+is used to initialize all possible ISAs and can be used to init
+arch-depended things.
 
 Signed-off-by: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- tools/perf/arch/s390/Makefile      |  1 +
- tools/perf/arch/s390/util/header.c | 17 +++++++++++++++++
- tools/perf/perf.h                  |  1 +
- 3 files changed, 19 insertions(+)
- create mode 100644 tools/perf/arch/s390/util/header.c
+ tools/perf/builtin-kvm.c | 37 +++++++++++++++++++++----------------
+ 1 file changed, 21 insertions(+), 16 deletions(-)
 
-diff --git a/tools/perf/arch/s390/Makefile b/tools/perf/arch/s390/Makefile
-index 15130b5..744e629 100644
---- a/tools/perf/arch/s390/Makefile
-+++ b/tools/perf/arch/s390/Makefile
-@@ -2,3 +2,4 @@ ifndef NO_DWARF
- PERF_HAVE_DWARF_REGS := 1
- LIB_OBJS += $(OUTPUT)arch/$(ARCH)/util/dwarf-regs.o
- endif
-+LIB_OBJS += $(OUTPUT)arch/$(ARCH)/util/header.o
-diff --git a/tools/perf/arch/s390/util/header.c b/tools/perf/arch/s390/util/header.c
-new file mode 100644
-index 0000000..8b2ed46
---- /dev/null
-+++ b/tools/perf/arch/s390/util/header.c
-@@ -0,0 +1,17 @@
-+#include <sys/types.h>
-+#include <unistd.h>
-+#include <stdio.h>
-+#include <string.h>
-+
-+#include "../../util/header.h"
-+
-+int get_cpuid(char *buffer, size_t sz)
+diff --git a/tools/perf/builtin-kvm.c b/tools/perf/builtin-kvm.c
+index 9b97737..922706c 100644
+--- a/tools/perf/builtin-kvm.c
++++ b/tools/perf/builtin-kvm.c
+@@ -834,10 +834,26 @@ static int process_sample_event(struct perf_tool *tool,
+ 	return 0;
+ }
+ 
++static int cpu_isa_init(struct perf_kvm_stat *kvm, const char *cpuid)
 +{
-+	const char *cpuid = "IBM/S390";
++	if (strstr(cpuid, "Intel")) {
++		kvm->exit_reasons = vmx_exit_reasons;
++		kvm->exit_reasons_isa = "VMX";
++	} else if (strstr(cpuid, "AMD")) {
++		kvm->exit_reasons = svm_exit_reasons;
++		kvm->exit_reasons_isa = "SVM";
++	} else {
++		pr_err("CPU %s is not supported.\n", cpuid);
++		return -ENOTSUP;
++	}
 +
-+	if (strlen(cpuid) + 1 > sz)
-+		return -1;
-+
-+	strcpy(buffer, cpuid);
 +	return 0;
 +}
-diff --git a/tools/perf/perf.h b/tools/perf/perf.h
-index 5c11eca..6f6772d 100644
---- a/tools/perf/perf.h
-+++ b/tools/perf/perf.h
-@@ -43,6 +43,7 @@
- #define mb()		asm volatile("bcr 15,0" ::: "memory")
- #define wmb()		asm volatile("bcr 15,0" ::: "memory")
- #define rmb()		asm volatile("bcr 15,0" ::: "memory")
-+#define CPUINFO_PROC	"vendor_id"
- #endif
++
+ static int cpu_isa_config(struct perf_kvm_stat *kvm)
+ {
+ 	char buf[64], *cpuid;
+-	int err, isa;
++	int err;
  
- #ifdef __sh__
+ 	if (kvm->live) {
+ 		err = get_cpuid(buf, sizeof(buf));
+@@ -849,21 +865,12 @@ static int cpu_isa_config(struct perf_kvm_stat *kvm)
+ 	} else
+ 		cpuid = kvm->session->header.env.cpuid;
+ 
+-	if (strstr(cpuid, "Intel"))
+-		isa = 1;
+-	else if (strstr(cpuid, "AMD"))
+-		isa = 0;
+-	else {
+-		pr_err("CPU %s is not supported.\n", cpuid);
+-		return -ENOTSUP;
+-	}
+-
+-	if (isa == 1) {
+-		kvm->exit_reasons = vmx_exit_reasons;
+-		kvm->exit_reasons_isa = "VMX";
++	if (!cpuid) {
++		pr_err("Failed to look up CPU type\n");
++		return -EINVAL;
+ 	}
+ 
+-	return 0;
++	return cpu_isa_init(kvm, cpuid);
+ }
+ 
+ static bool verify_vcpu(int vcpu)
+@@ -1582,8 +1589,6 @@ static int kvm_cmd_stat(const char *file_name, int argc, const char **argv)
+ 		.report_event	= "vmexit",
+ 		.sort_key	= "sample",
+ 
+-		.exit_reasons = svm_exit_reasons,
+-		.exit_reasons_isa = "SVM",
+ 	};
+ 
+ 	if (argc == 1) {
 -- 
 1.8.4.2
