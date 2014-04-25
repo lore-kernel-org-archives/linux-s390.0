@@ -1,174 +1,103 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 08/54] KVM: s390: Per-vm kvm device controls
-Date: Tue, 22 Apr 2014 13:32:10 +0200
-Message-ID: <1398166331-50704-2-git-send-email-borntraeger@de.ibm.com>
-References: <1398166331-50704-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1398166331-50704-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Subject: [PATCH 09/11] perf kvm: use defines of kvm events
+Date: Fri, 25 Apr 2014 11:12:31 +0200
+Message-ID: <1398417153-57347-10-git-send-email-borntraeger@de.ibm.com>
+References: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Gleb Natapov <gleb@kernel.org>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, Jiri Olsa <jolsa@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+From: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 
-We sometimes need to get/set attributes specific to a virtual machine
-and so need something else than ONE_REG.
+Currently perf-kvm uses string literals for kvm event names,
+but it works only for x86, because other architectures may have
+other names for those events.
 
-Let's copy the KVM_DEVICE approach, and define the respective ioctls
-for the vm file descriptor.
+This patch introduces defines for kvm_entry and kvm_exit events
+and lets perf-kvm replace literals.
 
-Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Signed-off-by: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Acked-by: Alexander Graf <agraf@suse.de>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- Documentation/virtual/kvm/api.txt        |  8 ++---
- Documentation/virtual/kvm/devices/vm.txt | 10 ++++++
- arch/s390/kvm/kvm-s390.c                 | 54 ++++++++++++++++++++++++++++++++
- include/uapi/linux/kvm.h                 |  1 +
- 4 files changed, 69 insertions(+), 4 deletions(-)
- create mode 100644 Documentation/virtual/kvm/devices/vm.txt
+ arch/x86/include/uapi/asm/kvm.h |  8 ++++++++
+ tools/perf/builtin-kvm.c        | 10 ++++------
+ 2 files changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index a9380ba5..2014ff1 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -2314,8 +2314,8 @@ struct kvm_create_device {
+diff --git a/arch/x86/include/uapi/asm/kvm.h b/arch/x86/include/uapi/asm/kvm.h
+index d3a8778..88c0099 100644
+--- a/arch/x86/include/uapi/asm/kvm.h
++++ b/arch/x86/include/uapi/asm/kvm.h
+@@ -8,6 +8,8 @@
  
- 4.80 KVM_SET_DEVICE_ATTR/KVM_GET_DEVICE_ATTR
+ #include <linux/types.h>
+ #include <linux/ioctl.h>
++#include <asm/svm.h>
++#include <asm/vmx.h>
  
--Capability: KVM_CAP_DEVICE_CTRL
--Type: device ioctl
-+Capability: KVM_CAP_DEVICE_CTRL, KVM_CAP_VM_ATTRIBUTES for vm device
-+Type: device ioctl, vm ioctl
- Parameters: struct kvm_device_attr
- Returns: 0 on success, -1 on error
- Errors:
-@@ -2340,8 +2340,8 @@ struct kvm_device_attr {
+ #define DE_VECTOR 0
+ #define DB_VECTOR 1
+@@ -342,4 +344,10 @@ struct kvm_xcrs {
+ struct kvm_sync_regs {
+ };
  
- 4.81 KVM_HAS_DEVICE_ATTR
- 
--Capability: KVM_CAP_DEVICE_CTRL
--Type: device ioctl
-+Capability: KVM_CAP_DEVICE_CTRL, KVM_CAP_VM_ATTRIBUTES for vm device
-+Type: device ioctl, vm ioctl
- Parameters: struct kvm_device_attr
- Returns: 0 on success, -1 on error
- Errors:
-diff --git a/Documentation/virtual/kvm/devices/vm.txt b/Documentation/virtual/kvm/devices/vm.txt
-new file mode 100644
-index 0000000..562bee6
---- /dev/null
-+++ b/Documentation/virtual/kvm/devices/vm.txt
-@@ -0,0 +1,10 @@
-+Generic vm interface
-+====================================
++#define VCPU_ID "vcpu_id"
 +
-+The virtual machine "device" also accepts the ioctls KVM_SET_DEVICE_ATTR,
-+KVM_GET_DEVICE_ATTR, and KVM_HAS_DEVICE_ATTR. The interface uses the same
-+struct kvm_device_attr as other devices, but targets VM-wide settings
-+and controls.
++#define KVM_ENTRY "kvm:kvm_entry"
++#define KVM_EXIT "kvm:kvm_exit"
++#define KVM_EXIT_REASON "exit_reason"
 +
-+The groups and attributes per virtual machine, if any, are architecture
-+specific.
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 346a347..c335a2e 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -162,6 +162,7 @@ int kvm_dev_ioctl_check_extension(long ext)
- 	case KVM_CAP_IOEVENTFD:
- 	case KVM_CAP_DEVICE_CTRL:
- 	case KVM_CAP_ENABLE_CAP_VM:
-+	case KVM_CAP_VM_ATTRIBUTES:
- 		r = 1;
- 		break;
- 	case KVM_CAP_NR_VCPUS:
-@@ -257,11 +258,43 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
- 	return r;
+ #endif /* _ASM_X86_KVM_H */
+diff --git a/tools/perf/builtin-kvm.c b/tools/perf/builtin-kvm.c
+index 806c0e4..9a162ae 100644
+--- a/tools/perf/builtin-kvm.c
++++ b/tools/perf/builtin-kvm.c
+@@ -30,8 +30,6 @@
+ #include <math.h>
+ 
+ #ifdef HAVE_KVM_STAT_SUPPORT
+-#include <asm/svm.h>
+-#include <asm/vmx.h>
+ #include <asm/kvm.h>
+ 
+ struct event_key {
+@@ -130,12 +128,12 @@ static void exit_event_get_key(struct perf_evsel *evsel,
+ 			       struct event_key *key)
+ {
+ 	key->info = 0;
+-	key->key = perf_evsel__intval(evsel, sample, "exit_reason");
++	key->key = perf_evsel__intval(evsel, sample, KVM_EXIT_REASON);
  }
  
-+static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	int ret;
-+
-+	switch (attr->group) {
-+	default:
-+		ret = -ENXIO;
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
-+static int kvm_s390_vm_get_attr(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	return -ENXIO;
-+}
-+
-+static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	int ret;
-+
-+	switch (attr->group) {
-+	default:
-+		ret = -ENXIO;
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
- long kvm_arch_vm_ioctl(struct file *filp,
- 		       unsigned int ioctl, unsigned long arg)
+ static bool kvm_exit_event(struct perf_evsel *evsel)
  {
- 	struct kvm *kvm = filp->private_data;
- 	void __user *argp = (void __user *)arg;
-+	struct kvm_device_attr attr;
- 	int r;
+-	return !strcmp(evsel->name, "kvm:kvm_exit");
++	return !strcmp(evsel->name, KVM_EXIT);
+ }
  
- 	switch (ioctl) {
-@@ -294,6 +327,27 @@ long kvm_arch_vm_ioctl(struct file *filp,
+ static bool exit_event_begin(struct perf_evsel *evsel,
+@@ -151,7 +149,7 @@ static bool exit_event_begin(struct perf_evsel *evsel,
+ 
+ static bool kvm_entry_event(struct perf_evsel *evsel)
+ {
+-	return !strcmp(evsel->name, "kvm:kvm_entry");
++	return !strcmp(evsel->name, KVM_ENTRY);
+ }
+ 
+ static bool exit_event_end(struct perf_evsel *evsel,
+@@ -557,7 +555,7 @@ struct vcpu_event_record *per_vcpu_record(struct thread *thread,
+ 			return NULL;
  		}
- 		break;
- 	}
-+	case KVM_SET_DEVICE_ATTR: {
-+		r = -EFAULT;
-+		if (copy_from_user(&attr, (void __user *)arg, sizeof(attr)))
-+			break;
-+		r = kvm_s390_vm_set_attr(kvm, &attr);
-+		break;
-+	}
-+	case KVM_GET_DEVICE_ATTR: {
-+		r = -EFAULT;
-+		if (copy_from_user(&attr, (void __user *)arg, sizeof(attr)))
-+			break;
-+		r = kvm_s390_vm_get_attr(kvm, &attr);
-+		break;
-+	}
-+	case KVM_HAS_DEVICE_ATTR: {
-+		r = -EFAULT;
-+		if (copy_from_user(&attr, (void __user *)arg, sizeof(attr)))
-+			break;
-+		r = kvm_s390_vm_has_attr(kvm, &attr);
-+		break;
-+	}
- 	default:
- 		r = -ENOTTY;
- 	}
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index a8f4ee5..90acfe4 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -743,6 +743,7 @@ struct kvm_ppc_smmu_info {
- #define KVM_CAP_IOAPIC_POLARITY_IGNORED 97
- #define KVM_CAP_ENABLE_CAP_VM 98
- #define KVM_CAP_S390_IRQCHIP 99
-+#define KVM_CAP_VM_ATTRIBUTES 100
  
- #ifdef KVM_CAP_IRQ_ROUTING
+-		vcpu_record->vcpu_id = perf_evsel__intval(evsel, sample, "vcpu_id");
++		vcpu_record->vcpu_id = perf_evsel__intval(evsel, sample, VCPU_ID);
+ 		thread->priv = vcpu_record;
+ 	}
  
 -- 
 1.8.4.2
