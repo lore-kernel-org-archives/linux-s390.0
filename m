@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH] s390/ccwgroup: Fix memory corruption
-Date: Wed, 23 Apr 2014 20:58:45 +0200
-Message-Id: <1398279525-2837-1-git-send-email-borntraeger@de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Tejun Heo <tj@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
+From: frank.blaschka@de.ibm.com
+Subject: [patch 1/7] qeth: Fix default queue setting in priority queueing
+Date: Mon, 28 Apr 2014 10:05:05 +0200
+Message-ID: <20140428080532.845276976@de.ibm.com>
+References: <20140428080504.925649066@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline; filename=600-qeth-default-settings.diff
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Stefan Raspl <raspl@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-commit 0b60f9ead5d4816e7e3d6e28f4a0d22d4a1b2513 (s390: use
-device_remove_file_self() instead of device_schedule_callback())
+From: Stefan Raspl <raspl@linux.vnet.ibm.com>
 
-caused random memory corruption on my s390 box. Turns out that the
-last element of the ccwgroup structure is of dynamic size, so we
-must move the newly introduced work structure _before_ the zero
-length array.
+The default queue for queueing modes prio_queueing_prec and
+prio_queueing_tos is supposed to be QETH_DEFAULT_QUEUE. However, neither
+mode will reset the default default_out_queue value when enabled, leaving
+a previously set value activate as the default.
+E.g. enabling one of the fixed queueing modes, e.g. no_prio_queueing:0,
+and successively switching to any of the prio_queueing_* modes will
+leave default_out_queue at the previous (wrong) value 0.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-CC: Tejun Heo <tj@kernel.org>
-CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
-CC: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: Sebastian Ott <sebott@linux.vnet.ibm.com>
-CC: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
+Signed-off-by: Stefan Raspl <raspl@linux.vnet.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
- arch/s390/include/asm/ccwgroup.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/net/qeth_core_sys.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/include/asm/ccwgroup.h b/arch/s390/include/asm/ccwgroup.h
-index 6e670f8..ebc2913 100644
---- a/arch/s390/include/asm/ccwgroup.h
-+++ b/arch/s390/include/asm/ccwgroup.h
-@@ -22,8 +22,8 @@ struct ccwgroup_device {
- /* public: */
- 	unsigned int count;
- 	struct device	dev;
--	struct ccw_device *cdev[0];
- 	struct work_struct ungroup_work;
-+	struct ccw_device *cdev[0];
- };
+diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
+index 425c0ec..8547de8 100644
+--- a/drivers/s390/net/qeth_core_sys.c
++++ b/drivers/s390/net/qeth_core_sys.c
+@@ -250,11 +250,13 @@ static ssize_t qeth_dev_prioqing_store(struct device *dev,
+ 	}
  
- /**
--- 
-1.8.4.2
+ 	tmp = strsep((char **) &buf, "\n");
+-	if (!strcmp(tmp, "prio_queueing_prec"))
++	if (!strcmp(tmp, "prio_queueing_prec")) {
+ 		card->qdio.do_prio_queueing = QETH_PRIO_Q_ING_PREC;
+-	else if (!strcmp(tmp, "prio_queueing_tos"))
++		card->qdio.default_out_queue = QETH_DEFAULT_QUEUE;
++	} else if (!strcmp(tmp, "prio_queueing_tos")) {
+ 		card->qdio.do_prio_queueing = QETH_PRIO_Q_ING_TOS;
+-	else if (!strcmp(tmp, "no_prio_queueing:0")) {
++		card->qdio.default_out_queue = QETH_DEFAULT_QUEUE;
++	} else if (!strcmp(tmp, "no_prio_queueing:0")) {
+ 		card->qdio.do_prio_queueing = QETH_NO_PRIO_QUEUEING;
+ 		card->qdio.default_out_queue = 0;
+ 	} else if (!strcmp(tmp, "no_prio_queueing:1")) {
