@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/6] KVM: s390: Add a function for checking the low-address protection
-Date: Tue, 29 Apr 2014 15:36:44 +0200
-Message-ID: <1398778608-3887-3-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/6] KVM: s390: Handle MVPG partial execution interception
+Date: Tue, 29 Apr 2014 15:36:43 +0200
+Message-ID: <1398778608-3887-2-git-send-email-borntraeger@de.ibm.com>
 References: <1398778608-3887-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1398778608-3887-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,66 +14,98 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-The s390 architecture has a special protection mechanism that can
-be used to prevent write access to the vital data in the low-core
-memory area. This patch adds a new helper function that can be used
-to check for such write accesses and in case of protection, it also
-sets up the exception data accordingly.
+When the guest executes the MVPG instruction with DAT disabled,
+and the source or destination page is not mapped in the host,
+the so-called partial execution interception occurs. We need to
+handle this event by setting up a mapping for the corresponding
+user pages.
 
 Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/gaccess.c | 28 ++++++++++++++++++++++++++++
- arch/s390/kvm/gaccess.h |  1 +
- 2 files changed, 29 insertions(+)
+ arch/s390/kvm/intercept.c | 55 ++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 54 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 691fdb7..db608c3 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -643,3 +643,31 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
- 	}
- 	return rc;
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 30e1c5e..54313fe 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -1,7 +1,7 @@
+ /*
+  * in-kernel handling for sie intercepts
+  *
+- * Copyright IBM Corp. 2008, 2009
++ * Copyright IBM Corp. 2008, 2014
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License (version 2 only)
+@@ -234,6 +234,58 @@ static int handle_instruction_and_prog(struct kvm_vcpu *vcpu)
+ 	return rc2;
  }
-+
+ 
 +/**
-+ * kvm_s390_check_low_addr_protection - check for low-address protection
-+ * @ga: Guest address
++ * Handle MOVE PAGE partial execution interception.
 + *
-+ * Checks whether an address is subject to low-address protection and set
-+ * up vcpu->arch.pgm accordingly if necessary.
-+ *
-+ * Return: 0 if no protection exception, or PGM_PROTECTION if protected.
++ * This interception can only happen for guests with DAT disabled and
++ * addresses that are currently not mapped in the host. Thus we try to
++ * set up the mappings for the corresponding user pages here (or throw
++ * addressing exceptions in case of illegal guest addresses).
 + */
-+int kvm_s390_check_low_addr_protection(struct kvm_vcpu *vcpu, unsigned long ga)
++static int handle_mvpg_pei(struct kvm_vcpu *vcpu)
 +{
-+	struct kvm_s390_pgm_info *pgm = &vcpu->arch.pgm;
++	unsigned long hostaddr, srcaddr, dstaddr;
 +	psw_t *psw = &vcpu->arch.sie_block->gpsw;
-+	struct trans_exc_code_bits *tec_bits;
++	struct mm_struct *mm = current->mm;
++	int reg1, reg2, rc;
 +
-+	if (!is_low_address(ga) || !low_address_protection_enabled(vcpu))
-+		return 0;
++	kvm_s390_get_regs_rre(vcpu, &reg1, &reg2);
++	srcaddr = kvm_s390_real_to_abs(vcpu, vcpu->run->s.regs.gprs[reg2]);
++	dstaddr = kvm_s390_real_to_abs(vcpu, vcpu->run->s.regs.gprs[reg1]);
 +
-+	memset(pgm, 0, sizeof(*pgm));
-+	tec_bits = (struct trans_exc_code_bits *)&pgm->trans_exc_code;
-+	tec_bits->fsi = FSI_STORE;
-+	tec_bits->as = psw_bits(*psw).as;
-+	tec_bits->addr = ga >> PAGE_SHIFT;
-+	pgm->code = PGM_PROTECTION;
++	/* Make sure that the source is paged-in */
++	hostaddr = gmap_fault(srcaddr, vcpu->arch.gmap);
++	if (IS_ERR_VALUE(hostaddr))
++		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++	down_read(&mm->mmap_sem);
++	rc = get_user_pages(current, mm, hostaddr, 1, 0, 0, NULL, NULL);
++	up_read(&mm->mmap_sem);
++	if (rc < 0)
++		return rc;
 +
-+	return pgm->code;
++	/* Make sure that the destination is paged-in */
++	hostaddr = gmap_fault(dstaddr, vcpu->arch.gmap);
++	if (IS_ERR_VALUE(hostaddr))
++		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
++	down_read(&mm->mmap_sem);
++	rc = get_user_pages(current, mm, hostaddr, 1, 1, 0, NULL, NULL);
++	up_read(&mm->mmap_sem);
++	if (rc < 0)
++		return rc;
++
++	psw->addr = __rewind_psw(*psw, 4);
++
++	return 0;
 +}
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index 1079c8f..68db43e 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -325,5 +325,6 @@ int read_guest_real(struct kvm_vcpu *vcpu, unsigned long gra, void *data,
- }
++
++static int handle_partial_execution(struct kvm_vcpu *vcpu)
++{
++	if (vcpu->arch.sie_block->ipa == 0xb254)	/* MVPG */
++		return handle_mvpg_pei(vcpu);
++
++	return -EOPNOTSUPP;
++}
++
+ static const intercept_handler_t intercept_funcs[] = {
+ 	[0x00 >> 2] = handle_noop,
+ 	[0x04 >> 2] = handle_instruction,
+@@ -245,6 +297,7 @@ static const intercept_handler_t intercept_funcs[] = {
+ 	[0x1C >> 2] = kvm_s390_handle_wait,
+ 	[0x20 >> 2] = handle_validity,
+ 	[0x28 >> 2] = handle_stop,
++	[0x38 >> 2] = handle_partial_execution,
+ };
  
- int ipte_lock_held(struct kvm_vcpu *vcpu);
-+int kvm_s390_check_low_addr_protection(struct kvm_vcpu *vcpu, unsigned long ga);
- 
- #endif /* __KVM_S390_GACCESS_H */
+ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
 -- 
 1.8.4.2
