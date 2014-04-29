@@ -1,67 +1,79 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 1/3] perf tools: parse tracepooints with '-' in system
- name
-Date: Mon, 28 Apr 2014 09:27:54 +0200
-Message-ID: <535E02FA.9050909@de.ibm.com>
-References: <1398440047-6641-1-git-send-email-yarygin@linux.vnet.ibm.com> <1398440047-6641-2-git-send-email-yarygin@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1398440047-6641-2-git-send-email-yarygin@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [GIT PULL 2/6] KVM: s390: Add a function for checking the low-address protection
+Date: Tue, 29 Apr 2014 15:36:44 +0200
+Message-ID: <1398778608-3887-3-git-send-email-borntraeger@de.ibm.com>
+References: <1398778608-3887-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1398778608-3887-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Yarygin <yarygin@linux.vnet.ibm.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Thomas Huth <thuth@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 25/04/14 17:34, Alexander Yarygin wrote:
-> Trace events potentially can have a '-' in their trace system name,
-> e.g. kvm on s390 defines kvm-s390:* tracepoints.
-> tools/perf could not parse them, because there was no rule for this:
-> $ sudo ./perf top -e "kvm-s390:*"
-> invalid or unsupported event: 'kvm-s390:*'
-> 
-> This patch adds an extra rule to event_legacy_tracepoint which handles
-> those cases. Without the patch, perf will not accept such tracepoints in
-> the -e option.
-> 
-> Signed-off-by: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
-Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-Jiri, please review and handle via your tree if ok.
+The s390 architecture has a special protection mechanism that can
+be used to prevent write access to the vital data in the low-core
+memory area. This patch adds a new helper function that can be used
+to check for such write accesses and in case of protection, it also
+sets up the exception data accordingly.
 
-I gave the other two patches also a quick test on my s390 box. Seems to work fine.
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/gaccess.c | 28 ++++++++++++++++++++++++++++
+ arch/s390/kvm/gaccess.h |  1 +
+ 2 files changed, 29 insertions(+)
 
-
-
-> ---
->  tools/perf/util/parse-events.y |   12 ++++++++++++
->  1 file changed, 12 insertions(+)
-> 
-> diff --git a/tools/perf/util/parse-events.y b/tools/perf/util/parse-events.y
-> index 4eb67ec..ac9db9f 100644
-> --- a/tools/perf/util/parse-events.y
-> +++ b/tools/perf/util/parse-events.y
-> @@ -299,6 +299,18 @@ PE_PREFIX_MEM PE_VALUE sep_dc
->  }
-> 
->  event_legacy_tracepoint:
-> +PE_NAME '-' PE_NAME ':' PE_NAME
-> +{
-> +	struct parse_events_evlist *data = _data;
-> +	struct list_head *list;
-> +	char sys_name[128];
-> +	snprintf(&sys_name, 128, "%s-%s", $1, $3);
-> +
-> +	ALLOC_LIST(list);
-> +	ABORT_ON(parse_events_add_tracepoint(list, &data->idx, &sys_name, $5));
-> +	$$ = list;
-> +}
-> +|
->  PE_NAME ':' PE_NAME
->  {
->  	struct parse_events_evlist *data = _data;
-> 
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 691fdb7..db608c3 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -643,3 +643,31 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
+ 	}
+ 	return rc;
+ }
++
++/**
++ * kvm_s390_check_low_addr_protection - check for low-address protection
++ * @ga: Guest address
++ *
++ * Checks whether an address is subject to low-address protection and set
++ * up vcpu->arch.pgm accordingly if necessary.
++ *
++ * Return: 0 if no protection exception, or PGM_PROTECTION if protected.
++ */
++int kvm_s390_check_low_addr_protection(struct kvm_vcpu *vcpu, unsigned long ga)
++{
++	struct kvm_s390_pgm_info *pgm = &vcpu->arch.pgm;
++	psw_t *psw = &vcpu->arch.sie_block->gpsw;
++	struct trans_exc_code_bits *tec_bits;
++
++	if (!is_low_address(ga) || !low_address_protection_enabled(vcpu))
++		return 0;
++
++	memset(pgm, 0, sizeof(*pgm));
++	tec_bits = (struct trans_exc_code_bits *)&pgm->trans_exc_code;
++	tec_bits->fsi = FSI_STORE;
++	tec_bits->as = psw_bits(*psw).as;
++	tec_bits->addr = ga >> PAGE_SHIFT;
++	pgm->code = PGM_PROTECTION;
++
++	return pgm->code;
++}
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index 1079c8f..68db43e 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -325,5 +325,6 @@ int read_guest_real(struct kvm_vcpu *vcpu, unsigned long gra, void *data,
+ }
+ 
+ int ipte_lock_held(struct kvm_vcpu *vcpu);
++int kvm_s390_check_low_addr_protection(struct kvm_vcpu *vcpu, unsigned long ga);
+ 
+ #endif /* __KVM_S390_GACCESS_H */
+-- 
+1.8.4.2
