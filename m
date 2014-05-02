@@ -1,121 +1,95 @@
-Date: Thu, 1 May 2014 18:07:39 +0200
-From: Alexander Gordeev <agordeev@redhat.com>
-Subject: Re: [PATCH 2/2] PCI/MSI: Phase out pci_enable_msi_block()
-Message-ID: <20140501160738.GA10407@dhcp-26-207.brq.redhat.com>
-References: <cover.1397458024.git.agordeev@redhat.com>
- <0b08613dc17cd608c1babc1f42b8919f60e1093f.1397458024.git.agordeev@redhat.com>
- <20140414120921.GA32132@dhcp-26-207.brq.redhat.com>
- <20140414132834.GA9164@dhcp-26-207.brq.redhat.com>
- <20140430234933.GB31315@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140430234933.GB31315@google.com>
-Return-Path: <agordeev@redhat.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-pci@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 2 May 2014 13:20:29 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for 3.15-rc4
+Message-ID: <20140502132029.0fea742b@mschwide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Apr 30, 2014 at 05:49:33PM -0600, Bjorn Helgaas wrote:
-> I mistakenly assumed this would have to wait because I thought there were
-> other pci_enable_msi_block() users that wouldn't be removed until the v3.16
-> merge window.  But I think I was wrong: I put your GenWQE patch in my tree,
-> and I think that was the last use, so I can just add this patch on top.
+Hi Linus,
 
-That is right, GenWQE is the last one.
+please pull from the 'for-linus' branch of
 
-> But I need a little help understanding the changelog:
-> 
-> > Up until now, when enabling MSI mode for a device a single
-> > successful call to arch_msi_check_device() was followed by
-> > a single call to arch_setup_msi_irqs() function.
-> 
-> I understand this part; the following two paths call
-> arch_msi_check_device() once and then arch_setup_msi_irqs() once:
-> 
->   pci_enable_msi_block
->     pci_msi_check_device
->       arch_msi_check_device
->     msi_capability_init
->       arch_setup_msi_irqs
-> 
->   pci_enable_msix
->     pci_msi_check_device
->       arch_msi_check_device
->     msix_capability_init
->       arch_setup_msi_irqs
-> 
-> > Yet, if arch_msi_check_device() returned success we should be
-> > able to call arch_setup_msi_irqs() multiple times - while it
-> > returns a number of MSI vectors that could have been allocated
-> > (a third state).
-> 
-> I don't know what you mean by "a third state."
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-That is "a number of MSI vectors that could have been allocated", which
-is neither success nor failure. In previous conversations someone branded
-it this as "third state".
+to receive the following updates:
+Two bug fixes, one to fix a potential information leak in the BPF jit
+and common-io-layer fix for old firmware levels.
 
-> Previously we only called arch_msi_check_device() once.  After your patch,
-> pci_enable_msi_range() can call it several times.  The only non-trivial
-> implementation of arch_msi_check_device() is in powerpc, and all the
-> ppc_md.msi_check_device() possibilities look safe to call multiple times.
+Martin Schwidefsky (1):
+      s390/bpf,jit: initialize A register if 1st insn is BPF_S_LDX_B_MSH
 
-Yep, I see it the same way.
+Sebastian Ott (1):
+      s390/chsc: fix SEI usage on old FW levels
 
-> After your patch, the pci_enable_msi_range() path can also call
-> arch_setup_msi_irqs() several times.  I don't see a problem with that --
-> even if the first call succeeds and allocates something, then a subsequent
-> call fails, I assume the allocations will be cleaned up when
-> msi_capability_init() calls free_msi_irqs().
+ arch/s390/net/bpf_jit_comp.c |    1 -
+ drivers/s390/cio/chsc.c      |   22 +++++++++++++++++-----
+ 2 files changed, 17 insertions(+), 6 deletions(-)
 
-Well, the potential problem related to the fact arch_msi_check_device()
-could be called with 'nvec1' while arch_setup_msi_irqs() could be called
-with 'nvec2', where 'nvec1' > 'nvec2'.
-
-While it is not a problem with current implementations, in therory it is
-possible free_msi_irqs() could be called with 'nvec2' and fail to clean
-up 'nvec1' - 'nvec2' number of resources.
-
-The only assumption that makes the above scenario impossible is if
-arch_msi_check_device() is stateless.
-
-Again, that is purely theoretical with no particular architecture in mind.
-
-> > This update makes use of the assumption described above. It
-> > could have broke things had the architectures done any pre-
-> > allocations or switch to some state in a call to function
-> > arch_msi_check_device(). But because arch_msi_check_device()
-> > is expected stateless and MSI resources are allocated in a
-> > follow-up call to arch_setup_msi_irqs() we should be fine.
-> 
-> I guess you mean that your patch assumes arch_msi_check_device() is
-> stateless.  That looks like a safe assumption to me.
-
-Moreover, if arch_msi_check_device() was not stateless then it would
-be superfluous, since all state switches and allocations are done in
-arch_setup_msi_irqs() anyway.
-
-In fact, I think arch_msi_check_device() could be eliminated, but I
-do not want to engage with PPC folks at this stage ;)
-
-> arch_setup_msi_irqs() is clearly not stateless, but I assume
-> free_msi_irqs() is enough to clean up any state if we fail.
-> 
-> Bjorn
-
--- 
-Regards,
-Alexander Gordeev
-agordeev@redhat.com
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index 9c36dc3..452d3eb 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -276,7 +276,6 @@ static void bpf_jit_noleaks(struct bpf_jit *jit, struct sock_filter *filter)
+ 	case BPF_S_LD_W_IND:
+ 	case BPF_S_LD_H_IND:
+ 	case BPF_S_LD_B_IND:
+-	case BPF_S_LDX_B_MSH:
+ 	case BPF_S_LD_IMM:
+ 	case BPF_S_LD_MEM:
+ 	case BPF_S_MISC_TXA:
+diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
+index 9f0ea6c..e3bf885 100644
+--- a/drivers/s390/cio/chsc.c
++++ b/drivers/s390/cio/chsc.c
+@@ -541,18 +541,27 @@ static void chsc_process_sei_nt0(struct chsc_sei_nt0_area *sei_area)
+ 
+ static void chsc_process_event_information(struct chsc_sei *sei, u64 ntsm)
+ {
+-	do {
++	static int ntsm_unsupported;
++
++	while (true) {
+ 		memset(sei, 0, sizeof(*sei));
+ 		sei->request.length = 0x0010;
+ 		sei->request.code = 0x000e;
+-		sei->ntsm = ntsm;
++		if (!ntsm_unsupported)
++			sei->ntsm = ntsm;
+ 
+ 		if (chsc(sei))
+ 			break;
+ 
+ 		if (sei->response.code != 0x0001) {
+-			CIO_CRW_EVENT(2, "chsc: sei failed (rc=%04x)\n",
+-				      sei->response.code);
++			CIO_CRW_EVENT(2, "chsc: sei failed (rc=%04x, ntsm=%llx)\n",
++				      sei->response.code, sei->ntsm);
++
++			if (sei->response.code == 3 && sei->ntsm) {
++				/* Fallback for old firmware. */
++				ntsm_unsupported = 1;
++				continue;
++			}
+ 			break;
+ 		}
+ 
+@@ -568,7 +577,10 @@ static void chsc_process_event_information(struct chsc_sei *sei, u64 ntsm)
+ 			CIO_CRW_EVENT(2, "chsc: unhandled nt: %d\n", sei->nt);
+ 			break;
+ 		}
+-	} while (sei->u.nt0_area.flags & 0x80);
++
++		if (!(sei->u.nt0_area.flags & 0x80))
++			break;
++	}
+ }
+ 
+ /*
