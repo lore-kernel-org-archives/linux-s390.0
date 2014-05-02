@@ -1,42 +1,70 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Fri, 11 Apr 2014 11:48:07 +0000
-Subject: Re: [PATCH] s390/sclp: replace PTR_RET with PTR_ERR_OR_ZERO
-Message-Id: <20140411134807.393a135b@mschwide>
-In-Reply-To: <1397210706-28665-1-git-send-email-duanj.fnst@cn.fujitsu.com>
-References: <1397210706-28665-1-git-send-email-duanj.fnst@cn.fujitsu.com>
-To: linux-s390@vger.kernel.org
+From: Jiri Olsa <jolsa@redhat.com>
+Subject: Re: [PATCH/RFC 00/11] perf/s390/kvm: trace events, perf kvm stat
+Date: Fri, 2 May 2014 11:16:38 +0200
+Message-ID: <20140502091638.GA6327@krava.redhat.com>
+References: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>, David Ahern <dsahern@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 11 Apr 2014 18:05:06 +0800
-Duan Jiong <duanj.fnst@cn.fujitsu.com> wrote:
+On Fri, Apr 25, 2014 at 11:12:22AM +0200, Christian Borntraeger wrote:
+> The goal of this series is to
+> - enable perf kvm stat on s390
+> - get rid of a perf warning "insn_to_mnemonic not found" when it tries to
+>   decode s390 perf trace events
 
-> PTR_RET is deprecated. Do not recommend its usage anymore.
-> Use PTR_ERR_OR_ZERO instead.
+perf tools changes look good to me
+
 > 
-> Signed-off-by: Duan Jiong <duanj.fnst@cn.fujitsu.com>
-> ---
->  drivers/s390/char/sclp_cmd.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Review feedback is welcome.
+
+CC-ing David Ahern
+
+jirka
+
+> In addition, The patch set touches s390/kvm code and perf code.
+> So any feedback on which tree to use for this series is also 
+> welcome.
 > 
-> diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
-> index 6e8f90f..6e14999 100644
-> --- a/drivers/s390/char/sclp_cmd.c
-> +++ b/drivers/s390/char/sclp_cmd.c
-> @@ -515,7 +515,7 @@ static int __init sclp_detect_standby_memory(void)
->  	if (rc)
->  		goto out;
->  	sclp_pdev = platform_device_register_simple("sclp_mem", -1, NULL, 0);
-> -	rc = PTR_RET(sclp_pdev);
-> +	rc = PTR_ERR_OR_ZERO(sclp_pdev);
->  	if (rc)
->  		goto out_driver;
->  	sclp_add_standby_memory();
-
-Applied to our internal tree and will be added to the linux-s390 tree.
-Thanks.
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+> Christian
+> 
+> 
+> Alexander Yarygin (11):
+>   s390: add sie exit reasons tables
+>   KVM: s390: Use trace tables from sie.h.
+>   KVM: s390: decoder of SIE intercepted instructions
+>   KVM: s390: Use intercept_insn decoder in trace event
+>   perf kvm: Intoduce HAVE_KVM_STAT_SUPPORT flag
+>   perf kvm: simplify of exit reasons tables definitions
+>   perf kvm: Refactoring of cpu_isa_config()
+>   perf kvm: allow for variable string sizes
+>   perf kvm: use defines of kvm events
+>   perf: allow to use cpuinfo on s390
+>   perf kvm: add stat support on s390
+> 
+>  arch/s390/include/uapi/asm/kvm.h   |   7 +
+>  arch/s390/include/uapi/asm/sie.h   | 245 ++++++++++++++++++++++++++++++++++
+>  arch/s390/kvm/trace.h              |  39 +-----
+>  arch/x86/include/uapi/asm/kvm.h    |   8 ++
+>  tools/perf/MANIFEST                |   3 +
+>  tools/perf/arch/s390/Makefile      |   2 +
+>  tools/perf/arch/s390/util/header.c |  17 +++
+>  tools/perf/arch/x86/Makefile       |   1 +
+>  tools/perf/builtin-kvm.c           | 263 +++++++++++++++++++++++++++++--------
+>  tools/perf/config/Makefile         |   4 +
+>  tools/perf/perf.h                  |   1 +
+>  11 files changed, 499 insertions(+), 91 deletions(-)
+>  create mode 100644 arch/s390/include/uapi/asm/sie.h
+>  create mode 100644 tools/perf/arch/s390/util/header.c
+> 
+> -- 
+> 1.8.4.2
+> 
