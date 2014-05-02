@@ -1,70 +1,60 @@
-From: Jiri Olsa <jolsa@redhat.com>
+From: David Ahern <dsahern@gmail.com>
 Subject: Re: [PATCH/RFC 00/11] perf/s390/kvm: trace events, perf kvm stat
-Date: Fri, 2 May 2014 11:16:38 +0200
-Message-ID: <20140502091638.GA6327@krava.redhat.com>
-References: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
+Date: Fri, 02 May 2014 12:14:19 -0600
+Message-ID: <5363E07B.7040805@gmail.com>
+References: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com> <20140502091638.GA6327@krava.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com>
+In-Reply-To: <20140502091638.GA6327@krava.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>, David Ahern <dsahern@gmail.com>
+To: Jiri Olsa <jolsa@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Apr 25, 2014 at 11:12:22AM +0200, Christian Borntraeger wrote:
-> The goal of this series is to
-> - enable perf kvm stat on s390
-> - get rid of a perf warning "insn_to_mnemonic not found" when it tries to
->   decode s390 perf trace events
+On 5/2/14, 3:16 AM, Jiri Olsa wrote:
+> On Fri, Apr 25, 2014 at 11:12:22AM +0200, Christian Borntraeger wrote:
+>> The goal of this series is to
+>> - enable perf kvm stat on s390
+>> - get rid of a perf warning "insn_to_mnemonic not found" when it tries to
+>>    decode s390 perf trace events
+>
+> perf tools changes look good to me
+>
+>>
+>> Review feedback is welcome.
+>
+> CC-ing David Ahern
+>
+I don't have the original emails, but looking at
+https://lkml.org/lkml/2014/4/25/331
 
-perf tools changes look good to me
 
-> 
-> Review feedback is welcome.
+[PATCH 01/11] s390: add sie exit reasons tables
+[PATCH 02/11] KVM: s390: Use trace tables from sie.h
+[PATCH 03/11] KVM: s390: decoder of SIE intercepted instructions
+[PATCH 04/11] KVM: s390: Use intercept_insn decoder in trace event
+- not perf related
 
-CC-ing David Ahern
 
-jirka
+[PATCH 05/11] perf kvm: Intoduce HAVE_KVM_STAT_SUPPORT flag
+[PATCH 06/11] perf kvm: simplify of exit reasons tables definitions
+[PATCH 07/11] perf kvm: Refactoring of cpu_isa_config()
+[PATCH 10/11] perf: allow to use cpuinfo on s390
+Reviewed-by: David Ahern <dsahern@gmail.com>
 
-> In addition, The patch set touches s390/kvm code and perf code.
-> So any feedback on which tree to use for this series is also 
-> welcome.
-> 
-> Christian
-> 
-> 
-> Alexander Yarygin (11):
->   s390: add sie exit reasons tables
->   KVM: s390: Use trace tables from sie.h.
->   KVM: s390: decoder of SIE intercepted instructions
->   KVM: s390: Use intercept_insn decoder in trace event
->   perf kvm: Intoduce HAVE_KVM_STAT_SUPPORT flag
->   perf kvm: simplify of exit reasons tables definitions
->   perf kvm: Refactoring of cpu_isa_config()
->   perf kvm: allow for variable string sizes
->   perf kvm: use defines of kvm events
->   perf: allow to use cpuinfo on s390
->   perf kvm: add stat support on s390
-> 
->  arch/s390/include/uapi/asm/kvm.h   |   7 +
->  arch/s390/include/uapi/asm/sie.h   | 245 ++++++++++++++++++++++++++++++++++
->  arch/s390/kvm/trace.h              |  39 +-----
->  arch/x86/include/uapi/asm/kvm.h    |   8 ++
->  tools/perf/MANIFEST                |   3 +
->  tools/perf/arch/s390/Makefile      |   2 +
->  tools/perf/arch/s390/util/header.c |  17 +++
->  tools/perf/arch/x86/Makefile       |   1 +
->  tools/perf/builtin-kvm.c           | 263 +++++++++++++++++++++++++++++--------
->  tools/perf/config/Makefile         |   4 +
->  tools/perf/perf.h                  |   1 +
->  11 files changed, 499 insertions(+), 91 deletions(-)
->  create mode 100644 arch/s390/include/uapi/asm/sie.h
->  create mode 100644 tools/perf/arch/s390/util/header.c
-> 
-> -- 
-> 1.8.4.2
-> 
+
+[PATCH 09/11] perf kvm: use defines of kvm events
+- KVM team should ack kvm.h change
+- perf side looks fine to me
+
+[PATCH 11/11] perf kvm: add stat support on s390
+- like to see the arch bits moved to arch/x86 and arch/s390 rather than 
+adding #ifdefs
+- disabling ioport and mmio options is ok, but if you are going to 
+compile it out update the documentation accordingly.
+
+David
