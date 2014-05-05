@@ -1,40 +1,52 @@
-From: David Laight <David.Laight@ACULAB.COM>
-Subject: RE: [patch 4/4] s390/net: fix format string mismatches
-Date: Tue, 27 May 2014 09:34:20 +0000
-Message-ID: <063D6719AE5E284EB5DD2968C1650D6D1724E324@AcuExch.aculab.com>
-References: <20140527091341.417448231@de.ibm.com>
- <20140527091400.422890684@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [patch] KVM: s390: return -EFAULT if copy_from_user() fails
+Date: Mon, 05 May 2014 09:30:31 +0200
+Message-ID: <53673E17.6040705@de.ibm.com>
+References: <20140503201811.GA32753@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20140527091400.422890684@de.ibm.com>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: "'frank.blaschka@de.ibm.com'" <frank.blaschka@de.ibm.com>, "davem@davemloft.net" <davem@davemloft.net>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Ursula Braun <ursula.braun@de.ibm.com>, Toralf Foerster <toralf.foerster@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20140503201811.GA32753@mwanda>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, linux390@de.ibm.com, Gleb Natapov <gleb@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-RnJvbTogZnJhbmsuYmxhc2Noa2FAZGUuaWJtLmNvbQ0KPiBGcm9tOiBVcnN1bGEgQnJhdW4gPHVy
-c3VsYS5icmF1bkBkZS5pYm0uY29tPg0KPiANCj4gY3BwY2hlY2sgYmxhbWVkIHNvbWUgaXNzdWVz
-IGluIGRyaXZlcnMvczM5MC9uZXQvLi4uDQo+IFRoZXkgYXJlIGZpeGVkIGhlcmUuDQouLi4NCj4g
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvczM5MC9uZXQvY3RjbV9zeXNmcy5jIGIvZHJpdmVycy9zMzkw
-L25ldC9jdGNtX3N5c2ZzLmMNCj4gaW5kZXggOTg1YjVkYy4uODgzZjcxMyAxMDA2NDQNCj4gLS0t
-IGEvZHJpdmVycy9zMzkwL25ldC9jdGNtX3N5c2ZzLmMNCj4gKysrIGIvZHJpdmVycy9zMzkwL25l
-dC9jdGNtX3N5c2ZzLmMNCj4gQEAgLTM0LDggKzM0LDkgQEAgc3RhdGljIHNzaXplX3QgY3RjbV9i
-dWZmZXJfd3JpdGUoc3RydWN0IGRldmljZSAqZGV2LA0KPiAgCQlzdHJ1Y3QgZGV2aWNlX2F0dHJp
-YnV0ZSAqYXR0ciwgY29uc3QgY2hhciAqYnVmLCBzaXplX3QgY291bnQpDQo+ICB7DQo+ICAJc3Ry
-dWN0IG5ldF9kZXZpY2UgKm5kZXY7DQo+IC0JaW50IGJzMTsNCj4gKwl1bnNpZ25lZCBpbnQgYnMx
-Ow0KPiAgCXN0cnVjdCBjdGNtX3ByaXYgKnByaXYgPSBkZXZfZ2V0X2RydmRhdGEoZGV2KTsNCj4g
-KwlpbnQgcmM7DQo+IA0KPiAgCW5kZXYgPSBwcml2LT5jaGFubmVsW0NUQ01fUkVBRF0tPm5ldGRl
-djsNCj4gIAlpZiAoIShwcml2ICYmIHByaXYtPmNoYW5uZWxbQ1RDTV9SRUFEXSAmJiBuZGV2KSkg
-ew0KPiBAQCAtNDMsNyArNDQsOSBAQCBzdGF0aWMgc3NpemVfdCBjdGNtX2J1ZmZlcl93cml0ZShz
-dHJ1Y3QgZGV2aWNlICpkZXYsDQo+ICAJCXJldHVybiAtRU5PREVWOw0KPiAgCX0NCj4gDQo+IC0J
-c3NjYW5mKGJ1ZiwgIiV1IiwgJmJzMSk7DQo+ICsJcmMgPSAgc3NjYW5mKGJ1ZiwgIiV1IiwgJmJz
-MSk7DQoNClRoZXJlIGlzIGEgc3BhcmUgJyAnIGhlcmUuDQpJJ2QgaGF2ZSB0aG91Z2h0IHRoYXQg
-dGhlcmUgaXMgYSBzdHJ0b3VsKCkgZnVuY3Rpb24gdGhhdCBnaXZlcw0KbXVjaCBjbGVhcmVyIGVy
-cm9yIGRldGVjdGlvbiB0aGFuIHNzY2FuZigpLg0KDQo+ICsJaWYgKHJjICE9IDEpDQo+ICsJCQkJ
-CWdvdG8gZWludmFsOw0KDQphbmQgc29tZXRoaW5nIG9kZCB3aXRoIHRoZSBpbmRlbnRhdGlvbiBo
-ZXJlLg0KYW5kIHNvbWUgdGFiL3NwYWNlIGZ1YmFyIGxhdGVyIG9uLi4uDQoNCglEYXZpZA0KDQo=
+On 03/05/14 22:18, Dan Carpenter wrote:
+> When copy_from_user() fails, this code returns the number of bytes
+> remaining instead of a negative error code.  The positive number is
+> returned to the user but otherwise it is harmless.
+> 
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+
+Thanks. Applied to KVM/s390 fix queue.
+
+
+> ---
+> I am not able to compile this.
+> 
+> diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
+> index 757ccef..3e8d409 100644
+> --- a/arch/s390/kvm/guestdbg.c
+> +++ b/arch/s390/kvm/guestdbg.c
+> @@ -223,9 +223,10 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+>  		goto error;
+>  	}
+> 
+> -	ret = copy_from_user(bp_data, dbg->arch.hw_bp, size);
+> -	if (ret)
+> +	if (copy_from_user(bp_data, dbg->arch.hw_bp, size)) {
+> +		ret = -EFAULT;
+>  		goto error;
+> +	}
+> 
+>  	for (i = 0; i < dbg->arch.nr_hw_bp; i++) {
+>  		switch (bp_data[i].type) {
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-s390" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
