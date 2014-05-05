@@ -1,118 +1,41 @@
-From: David Ahern <dsahern@gmail.com>
-Subject: Re: [PATCH 08/11] perf kvm: allow for variable string sizes
-Date: Mon, 05 May 2014 09:29:47 -0600
-Message-ID: <5367AE6B.8050303@gmail.com>
-References: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com> <1398417153-57347-9-git-send-email-borntraeger@de.ibm.com> <536767AF.3000907@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 11/11] perf kvm: add stat support on s390
+Date: Mon, 05 May 2014 12:43:12 +0200
+Message-ID: <53676B40.1050609@de.ibm.com>
+References: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com> <1398417153-57347-12-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <536767AF.3000907@de.ibm.com>
+In-Reply-To: <1398417153-57347-12-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Jiri Olsa <jolsa@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Jiri Olsa <jolsa@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>, David Ahern <dsahern@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 5/5/14, 4:27 AM, Christian Borntraeger wrote:
->> diff --git a/tools/perf/builtin-kvm.c b/tools/perf/builtin-kvm.c
->> index 922706c..806c0e4 100644
->> --- a/tools/perf/builtin-kvm.c
->> +++ b/tools/perf/builtin-kvm.c
->> @@ -75,7 +75,7 @@ struct kvm_events_ops {
->>   	bool (*is_end_event)(struct perf_evsel *evsel,
->>   			     struct perf_sample *sample, struct event_key *key);
->>   	void (*decode_key)(struct perf_kvm_stat *kvm, struct event_key *key,
->> -			   char decode[20]);
->> +			   char *decode);
->>   	const char *name;
->>   };
->>
->> @@ -84,6 +84,8 @@ struct exit_reasons_table {
->>   	const char *reason;
->>   };
->>
->> +#define DECODE_STR_LEN_MAX 80
->> +
->>   #define EVENTS_BITS		12
->>   #define EVENTS_CACHE_SIZE	(1UL << EVENTS_BITS)
->>
->> @@ -101,6 +103,8 @@ struct perf_kvm_stat {
->>   	struct exit_reasons_table *exit_reasons;
->>   	const char *exit_reasons_isa;
->>
->> +	int decode_str_len;
->> +
+On 25/04/14 11:12, Christian Borntraeger wrote:
+> +#if defined(__i386__) || defined(__x86_64__)
+>  	else if (!strcmp(kvm->report_event, "mmio"))
+>  		kvm->events_ops = &mmio_events;
+>  	else if (!strcmp(kvm->report_event, "ioport"))
+>  		kvm->events_ops = &ioport_events;
+> +#endif
 
-This should not be a part of the perf_kvm_stat struct. Just leave it as 
-a macro and use DECODE_STR_LEN_MAX in place of 20. Which means 
-DECODE_STR_LEN_MAX needs to be 20 in this patch, and arch specific in 
-the follow up patch.
+To address Davids review, the next version will have this hunk as well:
 
->>   	struct kvm_events_ops *events_ops;
->>   	key_cmp_fun compare;
->>   	struct list_head kvm_events_cache[EVENTS_CACHE_SIZE];
->> @@ -182,12 +186,12 @@ static const char *get_exit_reason(struct perf_kvm_stat *kvm,
->>
->>   static void exit_event_decode_key(struct perf_kvm_stat *kvm,
->>   				  struct event_key *key,
->> -				  char decode[20])
->> +				  char *decode)
->>   {
->>   	const char *exit_reason = get_exit_reason(kvm, kvm->exit_reasons,
->>   						  key->key);
->>
->> -	scnprintf(decode, 20, "%s", exit_reason);
->> +	scnprintf(decode, kvm->decode_str_len, "%s", exit_reason);
->>   }
->>
->>   static struct kvm_events_ops exit_events = {
->> @@ -249,10 +253,11 @@ static bool mmio_event_end(struct perf_evsel *evsel, struct perf_sample *sample,
->>
->>   static void mmio_event_decode_key(struct perf_kvm_stat *kvm __maybe_unused,
->>   				  struct event_key *key,
->> -				  char decode[20])
->> +				  char *decode)
->>   {
->> -	scnprintf(decode, 20, "%#lx:%s", (unsigned long)key->key,
->> -				key->info == KVM_TRACE_MMIO_WRITE ? "W" : "R");
->> +	scnprintf(decode, kvm->decode_str_len, "%#lx:%s",
->> +		  (unsigned long)key->key,
->> +		  key->info == KVM_TRACE_MMIO_WRITE ? "W" : "R");
->>   }
->>
->>   static struct kvm_events_ops mmio_events = {
->> @@ -292,10 +297,11 @@ static bool ioport_event_end(struct perf_evsel *evsel,
->>
->>   static void ioport_event_decode_key(struct perf_kvm_stat *kvm __maybe_unused,
->>   				    struct event_key *key,
->> -				    char decode[20])
->> +				    char *decode)
->>   {
->> -	scnprintf(decode, 20, "%#llx:%s", (unsigned long long)key->key,
->> -				key->info ? "POUT" : "PIN");
->> +	scnprintf(decode, kvm->decode_str_len, "%#llx:%s",
->> +		  (unsigned long long)key->key,
->> +		  key->info ? "POUT" : "PIN");
->>   }
->>
->>   static struct kvm_events_ops ioport_events = {
->> @@ -523,13 +529,13 @@ static bool handle_end_event(struct perf_kvm_stat *kvm,
->>   	time_diff = sample->time - time_begin;
->>
->>   	if (kvm->duration && time_diff > kvm->duration) {
->> -		char decode[32];
->> +		char decode[DECODE_STR_LEN_MAX];
->>
->>   		kvm->events_ops->decode_key(kvm, &event->key, decode);
->>   		if (strcmp(decode, "HLT")) {
->> -			pr_info("%" PRIu64 " VM %d, vcpu %d: %s event took %" PRIu64 "usec\n",
->> +			pr_info("%" PRIu64 " VM %d, vcpu %d: %*s event took %" PRIu64 "usec\n",
->>   				 sample->time, sample->pid, vcpu_record->vcpu_id,
->> -				 decode, time_diff/1000);
->> +				 32, decode, time_diff/1000);
-
-This pr_info does not need the length.
-
-David
+diff --git a/tools/perf/Documentation/perf-kvm.txt b/tools/perf/Documentation/perf-kvm.txt
+index 52276a6..e974749 100644
+--- a/tools/perf/Documentation/perf-kvm.txt
++++ b/tools/perf/Documentation/perf-kvm.txt
+@@ -103,8 +103,8 @@ STAT REPORT OPTIONS
+        analyze events which occures on this vcpu. (default: all vcpus)
+ 
+ --event=<value>::
+-       event to be analyzed. Possible values: vmexit, mmio, ioport.
+-       (default: vmexit)
++       event to be analyzed. Possible values: vmexit, mmio (x86 only),
++       ioport (x86 only). (default: vmexit)
+ -k::
+ --key=<value>::
+        Sorting key. Possible values: sample (default, sort by samples
