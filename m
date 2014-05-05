@@ -1,60 +1,172 @@
-From: David Ahern <dsahern@gmail.com>
-Subject: Re: [PATCH/RFC 00/11] perf/s390/kvm: trace events, perf kvm stat
-Date: Fri, 02 May 2014 12:14:19 -0600
-Message-ID: <5363E07B.7040805@gmail.com>
-References: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com> <20140502091638.GA6327@krava.redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 08/11] perf kvm: allow for variable string sizes
+Date: Mon, 05 May 2014 12:27:59 +0200
+Message-ID: <536767AF.3000907@de.ibm.com>
+References: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com> <1398417153-57347-9-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140502091638.GA6327@krava.redhat.com>
+In-Reply-To: <1398417153-57347-9-git-send-email-borntraeger@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Jiri Olsa <jolsa@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+To: David Ahern <dsahern@gmail.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Jiri Olsa <jolsa@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 5/2/14, 3:16 AM, Jiri Olsa wrote:
-> On Fri, Apr 25, 2014 at 11:12:22AM +0200, Christian Borntraeger wrote:
->> The goal of this series is to
->> - enable perf kvm stat on s390
->> - get rid of a perf warning "insn_to_mnemonic not found" when it tries to
->>    decode s390 perf trace events
->
-> perf tools changes look good to me
->
->>
->> Review feedback is welcome.
->
-> CC-ing David Ahern
->
-I don't have the original emails, but looking at
-https://lkml.org/lkml/2014/4/25/331
+David,
 
+thanks for the review. 
 
-[PATCH 01/11] s390: add sie exit reasons tables
-[PATCH 02/11] KVM: s390: Use trace tables from sie.h
-[PATCH 03/11] KVM: s390: decoder of SIE intercepted instructions
-[PATCH 04/11] KVM: s390: Use intercept_insn decoder in trace event
-- not perf related
+Are you ok with this change as well? The alternative is to shorten our descriptions (in 1/11 s390: add sie exit reasons tables), which would make the trace output less comprehensible, though.
 
+Christian
 
-[PATCH 05/11] perf kvm: Intoduce HAVE_KVM_STAT_SUPPORT flag
-[PATCH 06/11] perf kvm: simplify of exit reasons tables definitions
-[PATCH 07/11] perf kvm: Refactoring of cpu_isa_config()
-[PATCH 10/11] perf: allow to use cpuinfo on s390
-Reviewed-by: David Ahern <dsahern@gmail.com>
-
-
-[PATCH 09/11] perf kvm: use defines of kvm events
-- KVM team should ack kvm.h change
-- perf side looks fine to me
-
-[PATCH 11/11] perf kvm: add stat support on s390
-- like to see the arch bits moved to arch/x86 and arch/s390 rather than 
-adding #ifdefs
-- disabling ioport and mmio options is ok, but if you are going to 
-compile it out update the documentation accordingly.
-
-David
+On 25/04/14 11:12, Christian Borntraeger wrote:
+> From: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+> 
+> This makes it possible for other architectures to decode to different
+> string lengths.
+> 
+> Needed by follow-up patch "perf kvm: add stat support on s390".
+> 
+> Signed-off-by: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  tools/perf/builtin-kvm.c | 38 +++++++++++++++++++++++---------------
+>  1 file changed, 23 insertions(+), 15 deletions(-)
+> 
+> diff --git a/tools/perf/builtin-kvm.c b/tools/perf/builtin-kvm.c
+> index 922706c..806c0e4 100644
+> --- a/tools/perf/builtin-kvm.c
+> +++ b/tools/perf/builtin-kvm.c
+> @@ -75,7 +75,7 @@ struct kvm_events_ops {
+>  	bool (*is_end_event)(struct perf_evsel *evsel,
+>  			     struct perf_sample *sample, struct event_key *key);
+>  	void (*decode_key)(struct perf_kvm_stat *kvm, struct event_key *key,
+> -			   char decode[20]);
+> +			   char *decode);
+>  	const char *name;
+>  };
+> 
+> @@ -84,6 +84,8 @@ struct exit_reasons_table {
+>  	const char *reason;
+>  };
+> 
+> +#define DECODE_STR_LEN_MAX 80
+> +
+>  #define EVENTS_BITS		12
+>  #define EVENTS_CACHE_SIZE	(1UL << EVENTS_BITS)
+> 
+> @@ -101,6 +103,8 @@ struct perf_kvm_stat {
+>  	struct exit_reasons_table *exit_reasons;
+>  	const char *exit_reasons_isa;
+> 
+> +	int decode_str_len;
+> +
+>  	struct kvm_events_ops *events_ops;
+>  	key_cmp_fun compare;
+>  	struct list_head kvm_events_cache[EVENTS_CACHE_SIZE];
+> @@ -182,12 +186,12 @@ static const char *get_exit_reason(struct perf_kvm_stat *kvm,
+> 
+>  static void exit_event_decode_key(struct perf_kvm_stat *kvm,
+>  				  struct event_key *key,
+> -				  char decode[20])
+> +				  char *decode)
+>  {
+>  	const char *exit_reason = get_exit_reason(kvm, kvm->exit_reasons,
+>  						  key->key);
+> 
+> -	scnprintf(decode, 20, "%s", exit_reason);
+> +	scnprintf(decode, kvm->decode_str_len, "%s", exit_reason);
+>  }
+> 
+>  static struct kvm_events_ops exit_events = {
+> @@ -249,10 +253,11 @@ static bool mmio_event_end(struct perf_evsel *evsel, struct perf_sample *sample,
+> 
+>  static void mmio_event_decode_key(struct perf_kvm_stat *kvm __maybe_unused,
+>  				  struct event_key *key,
+> -				  char decode[20])
+> +				  char *decode)
+>  {
+> -	scnprintf(decode, 20, "%#lx:%s", (unsigned long)key->key,
+> -				key->info == KVM_TRACE_MMIO_WRITE ? "W" : "R");
+> +	scnprintf(decode, kvm->decode_str_len, "%#lx:%s",
+> +		  (unsigned long)key->key,
+> +		  key->info == KVM_TRACE_MMIO_WRITE ? "W" : "R");
+>  }
+> 
+>  static struct kvm_events_ops mmio_events = {
+> @@ -292,10 +297,11 @@ static bool ioport_event_end(struct perf_evsel *evsel,
+> 
+>  static void ioport_event_decode_key(struct perf_kvm_stat *kvm __maybe_unused,
+>  				    struct event_key *key,
+> -				    char decode[20])
+> +				    char *decode)
+>  {
+> -	scnprintf(decode, 20, "%#llx:%s", (unsigned long long)key->key,
+> -				key->info ? "POUT" : "PIN");
+> +	scnprintf(decode, kvm->decode_str_len, "%#llx:%s",
+> +		  (unsigned long long)key->key,
+> +		  key->info ? "POUT" : "PIN");
+>  }
+> 
+>  static struct kvm_events_ops ioport_events = {
+> @@ -523,13 +529,13 @@ static bool handle_end_event(struct perf_kvm_stat *kvm,
+>  	time_diff = sample->time - time_begin;
+> 
+>  	if (kvm->duration && time_diff > kvm->duration) {
+> -		char decode[32];
+> +		char decode[DECODE_STR_LEN_MAX];
+> 
+>  		kvm->events_ops->decode_key(kvm, &event->key, decode);
+>  		if (strcmp(decode, "HLT")) {
+> -			pr_info("%" PRIu64 " VM %d, vcpu %d: %s event took %" PRIu64 "usec\n",
+> +			pr_info("%" PRIu64 " VM %d, vcpu %d: %*s event took %" PRIu64 "usec\n",
+>  				 sample->time, sample->pid, vcpu_record->vcpu_id,
+> -				 decode, time_diff/1000);
+> +				 32, decode, time_diff/1000);
+>  		}
+>  	}
+> 
+> @@ -738,7 +744,7 @@ static void show_timeofday(void)
+> 
+>  static void print_result(struct perf_kvm_stat *kvm)
+>  {
+> -	char decode[20];
+> +	char decode[DECODE_STR_LEN_MAX];
+>  	struct kvm_event *event;
+>  	int vcpu = kvm->trace_vcpu;
+> 
+> @@ -749,7 +755,7 @@ static void print_result(struct perf_kvm_stat *kvm)
+> 
+>  	pr_info("\n\n");
+>  	print_vcpu_info(kvm);
+> -	pr_info("%20s ", kvm->events_ops->name);
+> +	pr_info("%*s ", kvm->decode_str_len, kvm->events_ops->name);
+>  	pr_info("%10s ", "Samples");
+>  	pr_info("%9s ", "Samples%");
+> 
+> @@ -768,7 +774,7 @@ static void print_result(struct perf_kvm_stat *kvm)
+>  		min = get_event_min(event, vcpu);
+> 
+>  		kvm->events_ops->decode_key(kvm, &event->key, decode);
+> -		pr_info("%20s ", decode);
+> +		pr_info("%*s ", kvm->decode_str_len, decode);
+>  		pr_info("%10llu ", (unsigned long long)ecount);
+>  		pr_info("%8.2f%% ", (double)ecount / kvm->total_count * 100);
+>  		pr_info("%8.2f%% ", (double)etime / kvm->total_time * 100);
+> @@ -839,9 +845,11 @@ static int cpu_isa_init(struct perf_kvm_stat *kvm, const char *cpuid)
+>  	if (strstr(cpuid, "Intel")) {
+>  		kvm->exit_reasons = vmx_exit_reasons;
+>  		kvm->exit_reasons_isa = "VMX";
+> +		kvm->decode_str_len = 20;
+>  	} else if (strstr(cpuid, "AMD")) {
+>  		kvm->exit_reasons = svm_exit_reasons;
+>  		kvm->exit_reasons_isa = "SVM";
+> +		kvm->decode_str_len = 20;
+>  	} else {
+>  		pr_err("CPU %s is not supported.\n", cpuid);
+>  		return -ENOTSUP;
+> 
