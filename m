@@ -1,72 +1,45 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH/RFC 00/11] perf/s390/kvm: trace events, perf kvm stat
-Date: Mon, 05 May 2014 12:36:23 +0200
-Message-ID: <536769A7.4050000@de.ibm.com>
-References: <1398417153-57347-1-git-send-email-borntraeger@de.ibm.com> <20140502091638.GA6327@krava.redhat.com> <5363E07B.7040805@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Subject: [GIT PULL 1/3] KVM: s390: return -EFAULT if copy_from_user() fails
+Date: Tue,  6 May 2014 15:58:27 +0200
+Message-ID: <1399384709-21339-2-git-send-email-borntraeger@de.ibm.com>
+References: <1399384709-21339-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <5363E07B.7040805@gmail.com>
+In-Reply-To: <1399384709-21339-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Dan Carpenter <dan.carpenter@oracle.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/05/14 20:14, David Ahern wrote:
-> On 5/2/14, 3:16 AM, Jiri Olsa wrote:
-[...]
->> CC-ing David Ahern
->>
-> I don't have the original emails, but looking at
-> https://lkml.org/lkml/2014/4/25/331
-> 
-> 
-> [PATCH 01/11] s390: add sie exit reasons tables
-> [PATCH 02/11] KVM: s390: Use trace tables from sie.h
-> [PATCH 03/11] KVM: s390: decoder of SIE intercepted instructions
-> [PATCH 04/11] KVM: s390: Use intercept_insn decoder in trace event
-> - not perf related
-> 
-> 
-> [PATCH 05/11] perf kvm: Intoduce HAVE_KVM_STAT_SUPPORT flag
-> [PATCH 06/11] perf kvm: simplify of exit reasons tables definitions
-> [PATCH 07/11] perf kvm: Refactoring of cpu_isa_config()
-> [PATCH 10/11] perf: allow to use cpuinfo on s390
-> Reviewed-by: David Ahern <dsahern@gmail.com>
-> 
-> 
-> [PATCH 09/11] perf kvm: use defines of kvm events
-> - KVM team should ack kvm.h change
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-Paolo,
-any chance to ack these changes?
+When copy_from_user() fails, this code returns the number of bytes
+remaining instead of a negative error code.  The positive number is
+returned to the user but otherwise it is harmless.
 
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/guestdbg.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-> - perf side looks fine to me
-> 
-> [PATCH 11/11] perf kvm: add stat support on s390
-> - like to see the arch bits moved to arch/x86 and arch/s390 rather than adding #ifdefs
-> - disabling ioport and mmio options is ok, but if you are going to compile it out update the documentation accordingly.
-> 
-> David
-> 
-
-Thanks.
-
-Question is now how to proceed:
-
-Patch 1-4 are s390/kvm specific. I am s390/kvm maintainer, so I can hereby Ack them.
-Patch 5-10 are perf specific
-Patch 11 is s390/kvm/perf specific and needs both patch series as a base.
-
-I see several variants for the next submission:
-
-a: all patches via Paolos KVM tree
-b: all patches via perf tree  (e.g. via Jiri)
-c: via both trees. (e.g. I prepare a git branch based on 3.15-rc1 so that during next merge window the common history should make most things work out fine)
-d: patch 1-4 via KVM, patch 5-10 via perf, patch 11 after both trees are merged into Linus
-
-Christian
+diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
+index 757ccef..3e8d409 100644
+--- a/arch/s390/kvm/guestdbg.c
++++ b/arch/s390/kvm/guestdbg.c
+@@ -223,9 +223,10 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+ 		goto error;
+ 	}
+ 
+-	ret = copy_from_user(bp_data, dbg->arch.hw_bp, size);
+-	if (ret)
++	if (copy_from_user(bp_data, dbg->arch.hw_bp, size)) {
++		ret = -EFAULT;
+ 		goto error;
++	}
+ 
+ 	for (i = 0; i < dbg->arch.nr_hw_bp; i++) {
+ 		switch (bp_data[i].type) {
+-- 
+1.8.4.2
