@@ -1,27 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Vincent Guittot <vincent.guittot@linaro.org>
 Subject: sched: fix: initialization of sched_domain_topology for NUMA
-Date: Tue, 13 May 2014 11:11:01 +0200
-Message-Id: <1399972261-25693-1-git-send-email-vincent.guittot@linaro.org>
-In-Reply-To: <20140513082609.GA2485@laptop.programming.kicks-ass.net>
-References: <20140513082609.GA2485@laptop.programming.kicks-ass.net>
+Date: Mon, 12 May 2014 23:16:16 +0200
+Message-Id: <1399929376-4597-1-git-send-email-vincent.guittot@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: peterz@infradead.org, mingo@kernel.org
-Cc: jet.chen@intel.com, fengguang.wu@intel.com, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vincent Guittot <vincent.guittot@linaro.org>
+To: mingo@kernel.org, peterz@infradead.org, jet.chen@intel.com
+Cc: fengguang.wu@intel.com, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vincent Guittot <vincent.guittot@linaro.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Jet Chen has reported a kernel panics when booting qemu-system-x86_64 with
-kvm64 cpu. A panic occured while building the sched_domain.
-
-In sched_init_numa, we create a new topology table in which both default
-levels and numa levels are copied. The last row of the table must have a null
-pointer in the mask field.
-
-The current implementation doesn't add this last row in the computation of the
-table size. So we add 1 row in the allocation size that will be used as the
-last row of the table. The kzalloc will ensure that the mask field is NULL.
+sched_domain_topology table is a null terminated array. 
+Add 1 row in the allocation size that will be used as the last row of the
+table.
 
 Reported-by: Jet Chen <jet.chen@intel.com>
 Tested-by: Jet Chen <jet.chen@intel.com>
@@ -30,9 +21,9 @@ link: https://lkml.org/lkml/2014/5/12/130
 
 ---
 
-Hi Peter,
+Hi Ingo and Peter,
 
-Does this commit message contain enough information ?
+This patch fixes the problem that has been reported by Jet Chen 
 
 Regards,
 Vincent
