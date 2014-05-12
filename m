@@ -1,38 +1,42 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH net] af_iucv: wrong mapping of sent and confirmed skbs
-Date: Mon, 12 May 2014 17:56:08 +0400
-Message-ID: <5370D2F8.60300@cogentembedded.com>
-References: <20140512110139.GA38070@tuxmaker.boeblingen.de.ibm.com>
+From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+Subject: [PATCH net] af_iucv: wrong mapping of sent and confirmed skbs
+Date: Mon, 12 May 2014 13:01:39 +0200
+Message-ID: <20140512110139.GA38070@tuxmaker.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20140512110139.GA38070@tuxmaker.boeblingen.de.ibm.com>
-Sender: stable-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: Frank Blaschka <blaschka@linux.vnet.ibm.com>, davem@davemloft.net
+To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello.
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-On 05/12/2014 03:01 PM, Frank Blaschka wrote:
+When sending data through IUCV a MESSAGE COMPLETE interrupt
+signals that sent data memory can be freed or reused again.
+With commit f9c41a62bba3f3f7ef3541b2a025e3371bcbba97 the
+MESSAGE COMPLETE callback iucv_callback_txdone() identifies
+the wrong skb as being confirmed, which leads to data corruption.
+This patch fixes the skb mapping logic in iucv_callback_txdone().
 
-> From: Ursula Braun <ursula.braun@de.ibm.com>
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+Cc: <stable@vger.kernel.org>
+---
+ net/iucv/af_iucv.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> When sending data through IUCV a MESSAGE COMPLETE interrupt
-> signals that sent data memory can be freed or reused again.
-> With commit f9c41a62bba3f3f7ef3541b2a025e3371bcbba97 the
-
-    Please also specify that commit's summary line in parens.
-
-> MESSAGE COMPLETE callback iucv_callback_txdone() identifies
-> the wrong skb as being confirmed, which leads to data corruption.
-> This patch fixes the skb mapping logic in iucv_callback_txdone().
-
-> Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-> Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
-> Cc: <stable@vger.kernel.org>
-
-WBR, Sergei
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -1830,7 +1830,7 @@ static void iucv_callback_txdone(struct
+ 		spin_lock_irqsave(&list->lock, flags);
+ 
+ 		while (list_skb != (struct sk_buff *)list) {
+-			if (msg->tag != IUCV_SKB_CB(list_skb)->tag) {
++			if (msg->tag == IUCV_SKB_CB(list_skb)->tag) {
+ 				this = list_skb;
+ 				break;
+ 			}
