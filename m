@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v1 RFC 01/10] QEMU: introduce function cpudesc_avail
-Date: Tue, 13 May 2014 17:00:13 +0200
-Message-ID: <1399993222-16339-2-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v1 RFC 08/10] QEMU: s390: cpu model QMP query-cpu-definitions
+Date: Tue, 13 May 2014 17:00:20 +0200
+Message-ID: <1399993222-16339-9-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1399993222-16339-1-git-send-email-mimu@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1399993222-16339-1-git-send-email-mimu@linux.vnet.ibm.com>
@@ -12,63 +12,205 @@ To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linu
 Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Alexander Graf <agraf@suse.de>, Gleb Natapov <gleb@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, mimu@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch introduces the function cpudesc_avail() which returns by
-default true if not architecture specific implemented. Its intention
-is to indicate if the cpu model description is available for display
-by list_cpus(). This change allows cpu model descriptions to become
-dynamically created by evaluating the runtime context.
+This patch implements the QMP command "query-cpu-definitions" in the S390
+context. The command returns a descending sorted list of cpu model names
+derived from the currently (in the current host context) supported set of
+cpu classes. That means a consumer can successfully request each reported
+cpu model. Implicitly, the first reported cpu model is the host cpu model.
+
+request: {"execute": "query-cpu-definitions"}
+answer:  {"return":  [{"name": "2827-ga1"}, {"name": "2818-ga1"}, {"name": "2817-ga2"},
+{"name": "2817-ga1"}, {"name": "2098-ga2"}, {"name": "2098-ga1"}, {"name": "2097-ga3"},
+{"name": "2097-ga2"}, {"name": "2097-ga1"}, {"name": "2096-ga2"}, {"name": "2096-ga1"},
+{"name": "2094-ga3"}, {"name": "2094-ga2"}, {"name": "2094-ga1"}, {"name": "2086-ga3"},
+{"name": "2086-ga2"}, {"name": "2086-ga1"}, {"name": "2084-ga5"}, {"name": "2084-ga4"},
+{"name": "2084-ga3"}, {"name": "2084-ga2"}, {"name": "2084-ga1"}, {"name": "2068-ga1"},
+{"name": "2064-ga3"}, {"name": "2064-ga2"}, {"name": "2064-ga1"}]}
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch_init.c                | 8 ++++++++
- include/sysemu/arch_init.h | 1 +
- vl.c                       | 2 +-
- 3 files changed, 10 insertions(+), 1 deletion(-)
+ target-s390x/cpu-models.c | 16 ++++++++
+ target-s390x/cpu-models.h |  3 ++
+ target-s390x/cpu.c        | 96 +++++++++++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 111 insertions(+), 4 deletions(-)
 
-diff --git a/arch_init.c b/arch_init.c
-index 995f56d..207d720 100644
---- a/arch_init.c
-+++ b/arch_init.c
-@@ -1346,6 +1346,14 @@ int xen_available(void)
- #endif
+diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
+index 19bbb30..ed087cb 100644
+--- a/target-s390x/cpu-models.c
++++ b/target-s390x/cpu-models.c
+@@ -123,6 +123,7 @@ typedef struct ArgTG {
+ GSList *s390_cpu_aliases;
+ bool s390_cpu_classes_prepared;
+ bool s390_use_sofl;
++bool s390_cpu_model_mode;
+ 
+ static inline unsigned long bit_in_word(unsigned int nr)
+ {
+@@ -218,6 +219,21 @@ int set_s390_cpu_alias(const char *name, const char *model)
+     return 0;
  }
  
-+bool cpudesc_avail(void)
++/* compare order of two cpu classes for descending sort */
++gint s390_cpu_class_desc_order_compare(gconstpointer a, gconstpointer b)
 +{
-+    bool is_avail = true;
-+#if defined(cpudesc_ready)
-+    is_avail = cpudesc_ready();
-+#endif
-+    return is_avail;
++    S390CPUClass *cc_a = S390_CPU_CLASS((ObjectClass *) a);
++    S390CPUClass *cc_b = S390_CPU_CLASS((ObjectClass *) b);
++
++    if (cc_a->mach->order < cc_b->mach->order) {
++        return 1;
++    }
++    if (cc_a->mach->order > cc_b->mach->order) {
++        return -1;
++    }
++    return 0;
 +}
- 
- TargetInfo *qmp_query_target(Error **errp)
++
+ /* return machine class for specific machine type */
+ static void s390_machine_class_test_cpu_class(gpointer data, gpointer user_data)
  {
-diff --git a/include/sysemu/arch_init.h b/include/sysemu/arch_init.h
-index 182d48d..cadcedc 100644
---- a/include/sysemu/arch_init.h
-+++ b/include/sysemu/arch_init.h
-@@ -35,6 +35,7 @@ void audio_init(void);
- int tcg_available(void);
- int kvm_available(void);
- int xen_available(void);
-+bool cpudesc_avail(void);
+diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
+index cc917d4..c2675cb 100644
+--- a/target-s390x/cpu-models.h
++++ b/target-s390x/cpu-models.h
+@@ -88,6 +88,8 @@ typedef struct S390MachineProps {
  
- CpuDefinitionInfoList *arch_query_cpu_definitions(Error **errp);
+ /* indicates the cpu classes have been successfully updated */
+ extern bool s390_cpu_classes_prepared;
++/* indicates qemu is running without cpu models */
++extern bool s390_cpu_model_mode;
  
-diff --git a/vl.c b/vl.c
-index 73e0661..ddd98f7 100644
---- a/vl.c
-+++ b/vl.c
-@@ -4009,7 +4009,7 @@ int main(int argc, char **argv, char **envp)
-      */
-     cpudef_init();
+ /* indicates use of soft facilities is requested */
+ extern bool s390_use_sofl;
+@@ -100,6 +102,7 @@ int s390_setup_cpu_classes(S390MachineProps *prop);
+ gint s390_cpu_class_asc_order_compare(gconstpointer a, gconstpointer b);
+ void s390_cpu_list_entry(gpointer data, gpointer user_data);
+ void s390_update_cpu_class_properties(S390CPUClass *dst, S390CPUClass *src);
++gint s390_cpu_class_desc_order_compare(gconstpointer a, gconstpointer b);
  
--    if (cpu_model && is_help_option(cpu_model)) {
-+    if (cpudesc_avail() && cpu_model && is_help_option(cpu_model)) {
-         list_cpus(stdout, &fprintf, cpu_model);
-         exit(0);
-     }
+ /*
+  * bits 0-7   : CMOS generation
+diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
+index 741f3ce..6479659 100644
+--- a/target-s390x/cpu.c
++++ b/target-s390x/cpu.c
+@@ -37,6 +37,13 @@
+ #define CR0_RESET       0xE0UL
+ #define CR14_RESET      0xC2000000UL;
+ 
++#ifdef CONFIG_KVM
++typedef struct CpuDefinition {
++    CpuDefinitionInfoList *head;
++    CpuDefinitionInfoList *tail;
++} CpuDefinition;
++#endif
++
+ /* generate CPU information for cpu -? */
+ void s390_cpu_list(FILE *f, fprintf_function cpu_fprintf)
+ {
+@@ -70,18 +77,99 @@ bool s390_cpudesc_ready(void)
+ }
+ 
+ #ifndef CONFIG_USER_ONLY
++#ifdef CONFIG_KVM
++static void s390_query_cpu_definition(gpointer data, gpointer user_data)
++{
++    S390CPUClass *cc = S390_CPU_CLASS((ObjectClass *) data);
++    char model[16];
++    CpuDefinition *cpu_definition = user_data;
++    CpuDefinitionInfo *info;
++    CpuDefinitionInfoList *entry;
++
++    if (!cc->is_active) {
++        return;
++    }
++
++    info = g_try_malloc0(sizeof(*info));
++    if (!info) {
++        goto out_info;
++    }
++
++    snprintf(model, sizeof(model), "%04x-ga%u", cc->proc->type, cc->mach->ga);
++    info->name = g_strdup(model);
++    if (!info->name) {
++        goto out_name;
++    }
++
++    entry = g_try_malloc0(sizeof(*entry));
++    if (!entry) {
++        goto out_entry;
++    }
++    entry->value = info;
++    entry->next = NULL;
++
++    if (cpu_definition->tail) {
++        cpu_definition->tail->next = entry;
++        cpu_definition->tail = cpu_definition->tail->next;
++    } else {
++        cpu_definition->head = cpu_definition->tail = entry;
++    }
++    return;
++
++out_entry:
++    g_free(info->name);
++out_name:
++    g_free(info);
++out_info:
++    return;
++}
++#endif
++
+ CpuDefinitionInfoList *arch_query_cpu_definitions(Error **errp)
+ {
+     CpuDefinitionInfoList *entry;
+     CpuDefinitionInfo *info;
+ 
+-    info = g_malloc0(sizeof(*info));
+-    info->name = g_strdup("host");
++#ifdef CONFIG_KVM
++    GSList *list;
++    CpuDefinition cpu_definition;
+ 
+-    entry = g_malloc0(sizeof(*entry));
+-    entry->value = info;
++    /* There are no valid cpu classes defined in this case. */
++    if (!s390_cpu_model_mode) {
++        return NULL;
++    }
+ 
++    list = object_class_get_list(TYPE_S390_CPU, false);
++    list = g_slist_sort(list, s390_cpu_class_desc_order_compare);
++    cpu_definition.head = NULL;
++    cpu_definition.tail = NULL;
++    g_slist_foreach(list, s390_query_cpu_definition, &cpu_definition);
++    g_slist_free(list);
++
++    return cpu_definition.head;
++#endif
++
++    info = g_try_malloc0(sizeof(*info));
++    if (!info) {
++        goto out_info;
++    }
++    info->name = g_strdup("host");
++    if (!info->name) {
++        goto out_name;
++    }
++    entry = g_try_malloc0(sizeof(*entry));
++    if (!entry) {
++        goto out_entry;
++    }
++    entry->value = info;
+     return entry;
++
++out_entry:
++    g_free(info->name);
++out_name:
++    g_free(info);
++out_info:
++    return NULL;
+ }
+ #endif
+ 
 -- 
 1.8.3.1
