@@ -1,116 +1,73 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: Re: [Qemu-devel] [PATCH v1 RFC 09/10] QEMU: s390: cpu model QMP
- query-cpu-model
-Date: Wed, 14 May 2014 11:07:46 +0200
-Message-ID: <20140514110746.42b6b814@bee>
-References: <1399993222-16339-1-git-send-email-mimu@linux.vnet.ibm.com>
-	<1399993222-16339-10-git-send-email-mimu@linux.vnet.ibm.com>
-	<53723A61.4020601@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
- boundary="Sig_/C/Ftq.Q4daj=rjN5fcS=J4="; protocol="application/pgp-signature"
+Subject: [PATCH v1 RFC 00/10] QEMU: s390: cpu model implementation
+Date: Tue, 13 May 2014 17:00:12 +0200
+Message-ID: <1399993222-16339-1-git-send-email-mimu@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <53723A61.4020601@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Eric Blake <eblake@redhat.com>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
+To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Alexander Graf <agraf@suse.de>, Gleb Natapov <gleb@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, mimu@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
---Sig_/C/Ftq.Q4daj=rjN5fcS=J4=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+This patch set in combination with its kernel kvm patch set proposes an
+implementation of S390 cpu models. The origin of this item is to provide
+a means for management interfaces like libvirt to draw decisions if life
+guest migration to a target hypervisor is reasonable.
 
-On Tue, 13 May 2014 09:29:37 -0600
-Eric Blake <eblake@redhat.com> wrote:
+A migration constraint is that a target hypervisor is capable to run a
+guest with the same S390 cpu model as the source hypervisor does. To
+verify this condition, the administration interface employes the existing
+QMP command "query-cpu-definitions" which returns a list of all currently
+supported S390 cpu models of a given host system. Together with the newly
+defined QMP command "query-cpu-model", which returns the current active
+S390 cpu model of a guest, a conclusion can be drawn if a migration is
+possible.
 
-Hi Eric,
+A S390 cpu model is defined as a triple of machine type, cpu facility set
+and IBC value. Each historic, current and future triple receives a name
+composed of the machine type and its general availability counter. This name
+forms the cpu model name (e.g.: "2817-GA2".)
 
-> On 05/13/2014 09:00 AM, Michael Mueller wrote:
-> > This patch implements a new QMP request named "query-cpu-model". It ret=
-urns
-> > the cpu model of cpu 0. eg:
-> >=20
-> > request: '{"execute" : "query-cpu-model" }
-> > answer:  '{"return" : {"name": "2827-ga2"}}
-> >=20
-> > Alias names are resolved to their respective machine type and GA names
-> > already during cpu instantiation. Thus, also a cpu name like "host",
-> > which is implemented as alias, will return its normalized cpu model nam=
-e.
-> >=20
->=20
-> > +    }
-> > +    cpu_model =3D g_try_malloc0(sizeof(*cpu_model));
->=20
-> It's simpler to just use g_malloc0 and rely on glibc's exit-on-OOM
-> behavior than to try and deal with NULL - this isn't user input (so
-> unlikely to be so huge as to cause OOM), and would be more in line with
-> what most other QMP code does.  But that said...
->=20
-> > +    if (!cpu_model) {
-> > +        goto out_no_mem;
-> > +    }
-> > +    cpu_model->name =3D g_try_malloc0(CPU_MODEL_NAME_LEN);
-> > +    if (!cpu_model->name) {
-> > +        goto out_no_mem;
-> > +    }
-> > +    snprintf(cpu_model->name, CPU_MODEL_NAME_LEN - 1, "%04x-ga%u",
-> > +             cc->proc->type, cc->mach->ga);
->=20
-> ...why not just use g_strdup_printf() instead of trying to size a buffer
-> yourself?  In other words, skip the g_try_malloc0 to begin with.
+With means of the Instruction Blocking Control feature (IBC), the instruction
+set available to a given guest is limitable.
 
-I will use that function and I think I can use it with "query-cpu-definitio=
-ns"
-as well.
+Michael Mueller (10):
+  QEMU: introduce function cpudesc_avail
+  QEMU: s390: cpu model cpu class definition
+  QEMU: s390: cpu model facilities support
+  QEMU: s390: cpu model alias support
+  s390: update linux-headers for kvm VM device attributes
+  QEMU: s390: cpu model kvm VM attr interface routines
+  QEMU: s390: cpu model class initialization
+  QEMU: s390: cpu model QMP query-cpu-definitions
+  QEMU: s390: cpu model QMP query-cpu-model
+  QEMU: s390: cpu model enablement
 
->=20
-> The fact that you are packing two pieces of information into one string
-> is a bit worrisome - that means that the client of the QMP command has
-> to parse the string back into two pieces of information if they ever
-> need either item in isolation.  If the user never has a need to split
-> the name down into parts, you are okay; I don't know S390 well enough to
+ arch_init.c                  |   8 +
+ hw/s390x/s390-virtio-ccw.c   |   2 +
+ hw/s390x/s390-virtio.c       | 104 ++++++++
+ hw/s390x/s390-virtio.h       |   1 +
+ include/sysemu/arch_init.h   |   2 +
+ linux-headers/asm-s390/kvm.h |  26 ++
+ linux-headers/linux/kvm.h    |   1 +
+ qapi-schema.json             |  23 ++
+ qmp-commands.hx              |   6 +
+ qmp.c                        |   5 +
+ stubs/Makefile.objs          |   1 +
+ stubs/arch-query-cpu-mod.c   |   9 +
+ target-s390x/Makefile.objs   |   1 +
+ target-s390x/cpu-models.c    | 586 +++++++++++++++++++++++++++++++++++++++++++
+ target-s390x/cpu-models.h    | 362 ++++++++++++++++++++++++++
+ target-s390x/cpu-qom.h       |  22 ++
+ target-s390x/cpu.c           | 171 ++++++++++++-
+ target-s390x/cpu.h           |   3 +
+ target-s390x/kvm.c           |  66 +++++
+ vl.c                         |   2 +-
+ 20 files changed, 1395 insertions(+), 6 deletions(-)
+ create mode 100644 stubs/arch-query-cpu-mod.c
+ create mode 100644 target-s390x/cpu-models.c
+ create mode 100644 target-s390x/cpu-models.h
 
-I see your point, but I consider it as a name only, which needs to be unique
-to identify different configurations but has no meaning on the management
-interface level.
-
-> know whether anyone will care about type separate from ga.  But if
-> someone DOES care, then the QMP command should return the parts already
-> split, as in { "type": 2827, "ga": 2 }, or even as convenience provide
-> both split and combined forms: { "name": "2827-ga2", "type": 2827, "ga": =
-2 }
->=20
-
-Offering both options seems to be desirable but I have to talk with libvirt=
- if that
-could be done in a transparent form for them.
-
-Thanks a lot for your comments
-Michael
-
---Sig_/C/Ftq.Q4daj=rjN5fcS=J4=
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTczJiAAoJELPcPLQSJsKQI5kP/39fScXk99oIs042U7nhoDsQ
-T6MEgzPGy0RgO+PsFPABtrhBxIvMtVf6DxUMTHOBnJ6NKnUZt1q5HAmgm2n9KIBC
-+Eb5JTphsRxh7jWzmr3Q9RQW40Atbh3aMzVZNCvSmoQ5AyxHGUnCu/ZqQNbOa7SI
-iK6dNok9ZsLkPcnVgjvvDnmuDKWBH4vpI5G4sMY1NQUB783RrRp2itiYQTnZDaL7
-IrIw68RzFMe2RVXyHQCKFj/YivzXpMSbvyIosX0Cv2cAEViOeQJPqqqY20upMr+m
-CCh8KZOy7martSg1p/8tDZV/hFfFftTqPwSDC2XPLgHGxIl57X0ezfdZAN+1gep8
-3CbRFJdw0P3QgBAL2NSN2oNSD3BRlUQTarzUEe2ETqdmjYWw0ygkPxjgrFRvfeZm
-HpFayYK3JQYzGo5E1Sf8F68d0S+YVLwiYM1xBZMbqmqUtIKJsnFFHR7v4rAcWBnt
-Eo10FLz2mFjn/P0Yq3HwDyJ/Xxrfwbs8Rgs/NG6bLmCtGJqrE4HrnUs1myuizXg3
-cRbOnm2BlhLcjg/o9aNdZDmVeLbSc3RYpea6yPkM1obAVY3wbH1YBKsRIlGRfs34
-FlDFPK4SopESIKQODeNT35Kbm0S+wpzeR0Y3ygd28gwy3BvlUlQ5hg/zT+nJs9IN
-WWpNv0YgURWHHqPD31iX
-=uWfH
------END PGP SIGNATURE-----
-
---Sig_/C/Ftq.Q4daj=rjN5fcS=J4=--
+-- 
+1.8.3.1
