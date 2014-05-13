@@ -1,202 +1,105 @@
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v1 RFC 09/10] QEMU: s390: cpu model QMP query-cpu-model
-Date: Tue, 13 May 2014 17:00:21 +0200
-Message-ID: <1399993222-16339-10-git-send-email-mimu@linux.vnet.ibm.com>
+From: Eric Blake <eblake@redhat.com>
+Subject: Re: [PATCH v1 RFC 09/10] QEMU: s390: cpu model QMP
+	query-cpu-model
+Date: Tue, 13 May 2014 09:29:37 -0600
+Message-ID: <53723A61.4020601@redhat.com>
 References: <1399993222-16339-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1399993222-16339-1-git-send-email-mimu@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+	<1399993222-16339-10-git-send-email-mimu@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature";
+	boundary="oh9VwbwkUM0iwPL7Ie6cxfo4E6tjX6AHW"
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+In-Reply-To: <1399993222-16339-10-git-send-email-mimu@linux.vnet.ibm.com>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Alexander Graf <agraf@suse.de>, Gleb Natapov <gleb@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, mimu@linux.vnet.ibm.com
+To: Michael Mueller <mimu@linux.vnet.ibm.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implements a new QMP request named "query-cpu-model". It returns
-the cpu model of cpu 0. eg:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--oh9VwbwkUM0iwPL7Ie6cxfo4E6tjX6AHW
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-request: '{"execute" : "query-cpu-model" }
-answer:  '{"return" : {"name": "2827-ga2"}}
+On 05/13/2014 09:00 AM, Michael Mueller wrote:
+> This patch implements a new QMP request named "query-cpu-model". It ret=
+urns
+> the cpu model of cpu 0. eg:
+>=20
+> request: '{"execute" : "query-cpu-model" }
+> answer:  '{"return" : {"name": "2827-ga2"}}
+>=20
+> Alias names are resolved to their respective machine type and GA names
+> already during cpu instantiation. Thus, also a cpu name like "host",
+> which is implemented as alias, will return its normalized cpu model nam=
+e.
+>=20
 
-Alias names are resolved to their respective machine type and GA names
-already during cpu instantiation. Thus, also a cpu name like "host",
-which is implemented as alias, will return its normalized cpu model name.
+> +    }
+> +    cpu_model =3D g_try_malloc0(sizeof(*cpu_model));
 
-Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- include/sysemu/arch_init.h |  1 +
- qapi-schema.json           | 23 +++++++++++++++++++++++
- qmp-commands.hx            |  6 ++++++
- qmp.c                      |  5 +++++
- stubs/Makefile.objs        |  1 +
- stubs/arch-query-cpu-mod.c |  9 +++++++++
- target-s390x/cpu.c         | 42 ++++++++++++++++++++++++++++++++++++++++++
- 7 files changed, 87 insertions(+)
- create mode 100644 stubs/arch-query-cpu-mod.c
+It's simpler to just use g_malloc0 and rely on glibc's exit-on-OOM
+behavior than to try and deal with NULL - this isn't user input (so
+unlikely to be so huge as to cause OOM), and would be more in line with
+what most other QMP code does.  But that said...
 
-diff --git a/include/sysemu/arch_init.h b/include/sysemu/arch_init.h
-index cadcedc..dcdb1ed 100644
---- a/include/sysemu/arch_init.h
-+++ b/include/sysemu/arch_init.h
-@@ -38,5 +38,6 @@ int xen_available(void);
- bool cpudesc_avail(void);
- 
- CpuDefinitionInfoList *arch_query_cpu_definitions(Error **errp);
-+CpuModelInfo *arch_query_cpu_model(Error **errp);
- 
- #endif
-diff --git a/qapi-schema.json b/qapi-schema.json
-index 36cb964..0a95f7b 100644
---- a/qapi-schema.json
-+++ b/qapi-schema.json
-@@ -3460,6 +3460,29 @@
- ##
- { 'command': 'query-cpu-definitions', 'returns': ['CpuDefinitionInfo'] }
- 
-+##
-+# @CpuModelInfo:
-+#
-+# Virtual CPU model definition.
-+#
-+# @name: the name of the CPU model definition
-+#
-+# Since: 2.1.0
-+##
-+{ 'type': 'CpuModelInfo',
-+  'data': { 'name': 'str' } }
-+
-+##
-+# @query-cpu-model:
-+#
-+# Return to current virtual CPU model
-+#
-+# Returns: CpuModelInfo
-+#
-+# Since: 2.1.0
-+##
-+{ 'command': 'query-cpu-model', 'returns': 'CpuModelInfo' }
-+
- # @AddfdInfo:
- #
- # Information about a file descriptor that was added to an fd set.
-diff --git a/qmp-commands.hx b/qmp-commands.hx
-index cae890e..e56d3a9 100644
---- a/qmp-commands.hx
-+++ b/qmp-commands.hx
-@@ -3247,6 +3247,12 @@ EQMP
-     },
- 
-     {
-+        .name       = "query-cpu-model",
-+        .args_type  = "",
-+        .mhandler.cmd_new = qmp_marshal_input_query_cpu_model,
-+    },
-+
-+    {
-         .name       = "query-target",
-         .args_type  = "",
-         .mhandler.cmd_new = qmp_marshal_input_query_target,
-diff --git a/qmp.c b/qmp.c
-index a7f432b..1903db1 100644
---- a/qmp.c
-+++ b/qmp.c
-@@ -486,6 +486,11 @@ CpuDefinitionInfoList *qmp_query_cpu_definitions(Error **errp)
-     return arch_query_cpu_definitions(errp);
- }
- 
-+CpuModelInfo *qmp_query_cpu_model(Error **errp)
-+{
-+    return arch_query_cpu_model(errp);
-+}
-+
- void qmp_add_client(const char *protocol, const char *fdname,
-                     bool has_skipauth, bool skipauth, bool has_tls, bool tls,
-                     Error **errp)
-diff --git a/stubs/Makefile.objs b/stubs/Makefile.objs
-index d99e2b9..f6db116 100644
---- a/stubs/Makefile.objs
-+++ b/stubs/Makefile.objs
-@@ -1,4 +1,5 @@
- stub-obj-y += arch-query-cpu-def.o
-+stub-obj-y += arch-query-cpu-mod.o
- stub-obj-y += clock-warp.o
- stub-obj-y += cpu-get-clock.o
- stub-obj-y += cpu-get-icount.o
-diff --git a/stubs/arch-query-cpu-mod.c b/stubs/arch-query-cpu-mod.c
-new file mode 100644
-index 0000000..90ebd08
---- /dev/null
-+++ b/stubs/arch-query-cpu-mod.c
-@@ -0,0 +1,9 @@
-+#include "qemu-common.h"
-+#include "sysemu/arch_init.h"
-+#include "qapi/qmp/qerror.h"
-+
-+CpuModelInfo *arch_query_cpu_model(Error **errp)
-+{
-+    error_set(errp, QERR_UNSUPPORTED);
-+    return NULL;
-+}
-diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
-index 6479659..132b468 100644
---- a/target-s390x/cpu.c
-+++ b/target-s390x/cpu.c
-@@ -37,6 +37,8 @@
- #define CR0_RESET       0xE0UL
- #define CR14_RESET      0xC2000000UL;
- 
-+#define CPU_MODEL_NAME_LEN 32
-+
- #ifdef CONFIG_KVM
- typedef struct CpuDefinition {
-     CpuDefinitionInfoList *head;
-@@ -171,6 +173,46 @@ out_name:
- out_info:
-     return NULL;
- }
-+
-+CpuModelInfo *arch_query_cpu_model(Error **errp)
-+{
-+    CpuModelInfo *cpu_model;
-+    S390CPUClass *cc;
-+    S390CPU *cpu;
-+
-+    cpu = s390_cpu_addr2state(0);
-+    if (!cpu) {
-+        goto out_no_cpu;
-+    }
-+    cc = S390_CPU_GET_CLASS(cpu);
-+    if (!cc) {
-+        goto out_no_cpu;
-+    }
-+    if (!cc->proc->type) {
-+        goto out_no_cpu;
-+    }
-+    cpu_model = g_try_malloc0(sizeof(*cpu_model));
-+    if (!cpu_model) {
-+        goto out_no_mem;
-+    }
-+    cpu_model->name = g_try_malloc0(CPU_MODEL_NAME_LEN);
-+    if (!cpu_model->name) {
-+        goto out_no_mem;
-+    }
-+    snprintf(cpu_model->name, CPU_MODEL_NAME_LEN - 1, "%04x-ga%u",
-+             cc->proc->type, cc->mach->ga);
-+    if (s390_use_sofl) {
-+        strncat(cpu_model->name, ",+sofl", CPU_MODEL_NAME_LEN - 1);
-+    }
-+    return cpu_model;
-+
-+out_no_mem:
-+    if (cpu_model) {
-+        g_free(cpu_model);
-+    }
-+out_no_cpu:
-+    return NULL;
-+}
- #endif
- 
- static void s390_cpu_set_pc(CPUState *cs, vaddr value)
--- 
-1.8.3.1
+> +    if (!cpu_model) {
+> +        goto out_no_mem;
+> +    }
+> +    cpu_model->name =3D g_try_malloc0(CPU_MODEL_NAME_LEN);
+> +    if (!cpu_model->name) {
+> +        goto out_no_mem;
+> +    }
+> +    snprintf(cpu_model->name, CPU_MODEL_NAME_LEN - 1, "%04x-ga%u",
+> +             cc->proc->type, cc->mach->ga);
+
+=2E..why not just use g_strdup_printf() instead of trying to size a buffe=
+r
+yourself?  In other words, skip the g_try_malloc0 to begin with.
+
+The fact that you are packing two pieces of information into one string
+is a bit worrisome - that means that the client of the QMP command has
+to parse the string back into two pieces of information if they ever
+need either item in isolation.  If the user never has a need to split
+the name down into parts, you are okay; I don't know S390 well enough to
+know whether anyone will care about type separate from ga.  But if
+someone DOES care, then the QMP command should return the parts already
+split, as in { "type": 2827, "ga": 2 }, or even as convenience provide
+both split and combined forms: { "name": "2827-ga2", "type": 2827, "ga": =
+2 }
+
+--=20
+Eric Blake   eblake redhat com    +1-919-301-3266
+Libvirt virtualization library http://libvirt.org
+
+
+--oh9VwbwkUM0iwPL7Ie6cxfo4E6tjX6AHW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+Comment: Public key at http://people.redhat.com/eblake/eblake.gpg
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iQEcBAEBCAAGBQJTcjpiAAoJEKeha0olJ0NqnqAH/A6ztyI9nzH1EOf/s5Yee37D
+jyRuVXqSoNuzppMo8k+8sqSk0ViMsD0jTgK5fI21WFpAWXWK0wfL1//E0ai8lUXZ
+jO8s2/Zzg/9CrIDlkJ3kVdCD+st7/Jf6R4ArSn1fk/hL7Z9ARW4PiH6q1IWPXYxL
+eQ4coAP4LenLJOkE4WhxgfLd2SCPVKB8W+hGil+OVZFBRlBNGIx1eiU1Tb4aq3Bx
+9hJCcB4zoaakzSZhtci/D0yokZJKWyq97GZFAkHVan/sxyIN3LlkwDBq64C5zl8R
+RFaB0M1lodptG3FhLESkcvuyNv64/Lf8bzBzjNNAxKFwSS+qVp+0HNw/djXeqn8=
+=+08T
+-----END PGP SIGNATURE-----
+
+--oh9VwbwkUM0iwPL7Ie6cxfo4E6tjX6AHW--
