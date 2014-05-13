@@ -1,95 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 2 May 2014 13:20:29 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 3.15-rc4
-Message-ID: <20140502132029.0fea742b@mschwide>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Tue, 13 May 2014 12:15:20 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: sched: fix: initialization of sched_domain_topology for NUMA
+Message-ID: <20140513101520.GX30445@twins.programming.kicks-ass.net>
+References: <20140513082609.GA2485@laptop.programming.kicks-ass.net>
+ <1399972261-25693-1-git-send-email-vincent.guittot@linaro.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="efFJd/fQ0cD5Wc37"
+Content-Disposition: inline
+In-Reply-To: <1399972261-25693-1-git-send-email-vincent.guittot@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: mingo@kernel.org, jet.chen@intel.com, fengguang.wu@intel.com, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
 
-please pull from the 'for-linus' branch of
+--efFJd/fQ0cD5Wc37
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+On Tue, May 13, 2014 at 11:11:01AM +0200, Vincent Guittot wrote:
+> Jet Chen has reported a kernel panics when booting qemu-system-x86_64 with
+> kvm64 cpu. A panic occured while building the sched_domain.
+>=20
+> In sched_init_numa, we create a new topology table in which both default
+> levels and numa levels are copied. The last row of the table must have a =
+null
+> pointer in the mask field.
+>=20
+> The current implementation doesn't add this last row in the computation o=
+f the
+> table size. So we add 1 row in the allocation size that will be used as t=
+he
+> last row of the table. The kzalloc will ensure that the mask field is NUL=
+L.
+>=20
+> Reported-by: Jet Chen <jet.chen@intel.com>
+> Tested-by: Jet Chen <jet.chen@intel.com>
+> Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+> link: https://lkml.org/lkml/2014/5/12/130
+>=20
+> ---
+>=20
+> Hi Peter,
+>=20
+> Does this commit message contain enough information ?
 
-to receive the following updates:
-Two bug fixes, one to fix a potential information leak in the BPF jit
-and common-io-layer fix for old firmware levels.
+Yes, thanks!
 
-Martin Schwidefsky (1):
-      s390/bpf,jit: initialize A register if 1st insn is BPF_S_LDX_B_MSH
+--efFJd/fQ0cD5Wc37
+Content-Type: application/pgp-signature
 
-Sebastian Ott (1):
-      s390/chsc: fix SEI usage on old FW levels
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
- arch/s390/net/bpf_jit_comp.c |    1 -
- drivers/s390/cio/chsc.c      |   22 +++++++++++++++++-----
- 2 files changed, 17 insertions(+), 6 deletions(-)
+iQIcBAEBAgAGBQJTcfC4AAoJEHZH4aRLwOS6MbQP/3ITpIvBcySpDxr9QxrywGsi
+N4Bbhf/9ThpuEcLmZ11Cx7Ka7XAVzBXpLJm9aPBLysV6e8r/dhl0hXPT/WtBVJ+H
+8gDPMtGRwdpxSo/t5X7fTiwODSJf29pQ2vxR2gbMPWe96b+0wkKLWlfpC8E/9Zpk
+nycPwC+G4l80WD75mUXA6ZtpOwku+25iBsenPxbK9vjGDiZ4L4r2myQ4Rq9BrAzm
+xyLsz0gZURAcgIPbdrZoJmmeQfnx0WuDQL7h0R7XMkRoYHeawBMBmSXXHIJtHyPx
+SBKF7nQ+5RYILwByy75szX2Wr4J9nSdwHDq1FcpB9ueSa1JQ5RSUkaAvSJNJN+Hy
+4aaMfrcqo2GBAOXDD1S3afzFQRpLD4SA6x9OfvHqSPBU463fGlNpHb8ueS3rZi1N
+bvHPVpFrWGxvJQoSsapzqCu4fSprNFTjQuSV5q0sYgFMLAsTbISc5I7LnFfcEpBA
++uVs5GqHKECnhoLFiDr/998fKGvzEeZHKjyL4v+6vprOoBtnUXky7hy0gFt6clOd
+oeD9pwnuR5OkZKMy2Dy0bbsr6gcbY6eUR6Mm9X3gf67wEaAwwHuc9F1LJVP7XKx5
+QyoBmXfN8kIro/OMkj6PlEO/zvllIxSV2wh94UjCY/ixB9rNTXNF359JeToP9H3D
+VDDm1qbYHsHTe+kLJXI5
+=o8Mv
+-----END PGP SIGNATURE-----
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 9c36dc3..452d3eb 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -276,7 +276,6 @@ static void bpf_jit_noleaks(struct bpf_jit *jit, struct sock_filter *filter)
- 	case BPF_S_LD_W_IND:
- 	case BPF_S_LD_H_IND:
- 	case BPF_S_LD_B_IND:
--	case BPF_S_LDX_B_MSH:
- 	case BPF_S_LD_IMM:
- 	case BPF_S_LD_MEM:
- 	case BPF_S_MISC_TXA:
-diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
-index 9f0ea6c..e3bf885 100644
---- a/drivers/s390/cio/chsc.c
-+++ b/drivers/s390/cio/chsc.c
-@@ -541,18 +541,27 @@ static void chsc_process_sei_nt0(struct chsc_sei_nt0_area *sei_area)
- 
- static void chsc_process_event_information(struct chsc_sei *sei, u64 ntsm)
- {
--	do {
-+	static int ntsm_unsupported;
-+
-+	while (true) {
- 		memset(sei, 0, sizeof(*sei));
- 		sei->request.length = 0x0010;
- 		sei->request.code = 0x000e;
--		sei->ntsm = ntsm;
-+		if (!ntsm_unsupported)
-+			sei->ntsm = ntsm;
- 
- 		if (chsc(sei))
- 			break;
- 
- 		if (sei->response.code != 0x0001) {
--			CIO_CRW_EVENT(2, "chsc: sei failed (rc=%04x)\n",
--				      sei->response.code);
-+			CIO_CRW_EVENT(2, "chsc: sei failed (rc=%04x, ntsm=%llx)\n",
-+				      sei->response.code, sei->ntsm);
-+
-+			if (sei->response.code == 3 && sei->ntsm) {
-+				/* Fallback for old firmware. */
-+				ntsm_unsupported = 1;
-+				continue;
-+			}
- 			break;
- 		}
- 
-@@ -568,7 +577,10 @@ static void chsc_process_event_information(struct chsc_sei *sei, u64 ntsm)
- 			CIO_CRW_EVENT(2, "chsc: unhandled nt: %d\n", sei->nt);
- 			break;
- 		}
--	} while (sei->u.nt0_area.flags & 0x80);
-+
-+		if (!(sei->u.nt0_area.flags & 0x80))
-+			break;
-+	}
- }
- 
- /*
+--efFJd/fQ0cD5Wc37--
