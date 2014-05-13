@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Vincent Guittot <vincent.guittot@linaro.org>
-Subject: sched: fix: initialization of sched_domain_topology for NUMA
-Date: Mon, 12 May 2014 23:16:16 +0200
-Message-Id: <1399929376-4597-1-git-send-email-vincent.guittot@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: mingo@kernel.org, peterz@infradead.org, jet.chen@intel.com
-Cc: fengguang.wu@intel.com, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vincent Guittot <vincent.guittot@linaro.org>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] [resend] net: get rid of SET_ETHTOOL_OPS
+Date: Tue, 13 May 2014 17:43:45 -0400 (EDT)
+Message-ID: <20140513.174345.406760552060437774.davem@davemloft.net>
+References: <20140511001231.GC7875@kaos.lebenslange-mailadresse.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <bridge-bounces@lists.linux-foundation.org>
+In-Reply-To: <20140511001231.GC7875@kaos.lebenslange-mailadresse.de>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>,
+	<mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/bridge/>
+List-Post: <mailto:bridge@lists.linux-foundation.org>
+List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
+	<mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
+Sender: bridge-bounces@lists.linux-foundation.org
+Errors-To: bridge-bounces@lists.linux-foundation.org
+List-Archive: <https://lore.kernel.org/linux-rdma/>
+List-Post: <mailto:linux-rdma@vger.kernel.org>
+To: w-lkml@lebenslange-mailadresse.de
+Cc: devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org, trivial@kernel.org, xen-devel@lists.xenproject.org, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, e1000-devel@lists.sourceforge.net, bridge@lists.linux-foundation.org, devel@linuxdriverproject.org, nios2-dev@lists.rocketboards.org, dev@openvswitch.org, linuxppc-dev@lists.ozlabs.org, linux-acenic@sunsite.dk
 List-ID: <linux-s390.vger.kernel.org>
 
-sched_domain_topology table is a null terminated array. 
-Add 1 row in the allocation size that will be used as the last row of the
-table.
+From: Wilfried Klaebe <w-lkml@lebenslange-mailadresse.de>
+Date: Sun, 11 May 2014 00:12:32 +0000
 
-Reported-by: Jet Chen <jet.chen@intel.com>
-Tested-by: Jet Chen <jet.chen@intel.com>
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-link: https://lkml.org/lkml/2014/5/12/130
+> net: get rid of SET_ETHTOOL_OPS
+> 
+> Dave Miller mentioned he'd like to see SET_ETHTOOL_OPS gone.
+> This does that.
+> 
+> Mostly done via coccinelle script:
+> @@
+> struct ethtool_ops *ops;
+> struct net_device *dev;
+> @@
+> -       SET_ETHTOOL_OPS(dev, ops);
+> +       dev->ethtool_ops = ops;
+> 
+> Compile tested only, but I'd seriously wonder if this broke anything.
+> 
+> Suggested-by: Dave Miller <davem@davemloft.net>
+> Signed-off-by: Wilfried Klaebe <w-lkml@lebenslange-mailadresse.de>
 
----
-
-Hi Ingo and Peter,
-
-This patch fixes the problem that has been reported by Jet Chen 
-
-Regards,
-Vincent
-
- kernel/sched/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 4ea7b3f..205fa17 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6234,7 +6234,7 @@ static void sched_init_numa(void)
- 	/* Compute default topology size */
- 	for (i = 0; sched_domain_topology[i].mask; i++);
- 
--	tl = kzalloc((i + level) *
-+	tl = kzalloc((i + level + 1) *
- 			sizeof(struct sched_domain_topology_level), GFP_KERNEL);
- 	if (!tl)
- 		return;
--- 
-1.9.1
+Applied to net-next, thanks.
