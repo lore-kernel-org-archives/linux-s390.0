@@ -1,129 +1,91 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/3] KVM: s390: Add clock comparator and CPU timer IRQ injection
-Date: Tue,  6 May 2014 15:58:28 +0200
-Message-ID: <1399384709-21339-3-git-send-email-borntraeger@de.ibm.com>
-References: <1399384709-21339-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1399384709-21339-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+From: Michael Mueller <mimu@linux.vnet.ibm.com>
+Subject: [PATCH v1 RFC 1/6] s390/sclp: add sclp_get_ibc function
+Date: Tue, 13 May 2014 16:58:29 +0200
+Message-ID: <1399993114-15333-2-git-send-email-mimu@linux.vnet.ibm.com>
+References: <1399993114-15333-1-git-send-email-mimu@linux.vnet.ibm.com>
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+In-Reply-To: <1399993114-15333-1-git-send-email-mimu@linux.vnet.ibm.com>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Thomas Huth <thuth@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: mimu@linux.vnet.ibm.com, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
+The patch adds functionality to retrieve the IBC configuration
+by means of function sclp_get_ibc().
 
-Add an interface to inject clock comparator and CPU timer interrupts
-into the guest. This is needed for handling the external interrupt
-interception.
-
-Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- Documentation/virtual/kvm/api.txt |  2 ++
- arch/s390/kvm/interrupt.c         | 32 ++++++++++++++++++++++++++++++++
- include/uapi/linux/kvm.h          |  2 ++
- 3 files changed, 36 insertions(+)
+ arch/s390/include/asm/sclp.h   |  1 +
+ drivers/s390/char/sclp_early.c | 12 +++++++++++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index 2014ff1..0581f6c 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -2211,6 +2211,8 @@ KVM_S390_SIGP_STOP (vcpu) - sigp restart
- KVM_S390_PROGRAM_INT (vcpu) - program check; code in parm
- KVM_S390_SIGP_SET_PREFIX (vcpu) - sigp set prefix; prefix address in parm
- KVM_S390_RESTART (vcpu) - restart
-+KVM_S390_INT_CLOCK_COMP (vcpu) - clock comparator interrupt
-+KVM_S390_INT_CPU_TIMER (vcpu) - CPU timer interrupt
- KVM_S390_INT_VIRTIO (vm) - virtio external interrupt; external interrupt
- 			   parameters in parm and parm64
- KVM_S390_INT_SERVICE (vm) - sclp external interrupt; sclp parameter in parm
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index d9526bb..75cd321 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -27,6 +27,8 @@
- #define IOINT_CSSID_MASK 0x03fc0000
- #define IOINT_AI_MASK 0x04000000
+diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
+index 943d434..1aba89b 100644
+--- a/arch/s390/include/asm/sclp.h
++++ b/arch/s390/include/asm/sclp.h
+@@ -66,5 +66,6 @@ int memcpy_hsa(void *dest, unsigned long src, size_t count, int mode);
+ unsigned long sclp_get_hsa_size(void);
+ void sclp_early_detect(void);
+ int sclp_has_siif(void);
++unsigned int sclp_get_ibc(void);
  
-+static void deliver_ckc_interrupt(struct kvm_vcpu *vcpu);
+ #endif /* _ASM_S390_SCLP_H */
+diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+index b57fe0e..1918d9d 100644
+--- a/drivers/s390/char/sclp_early.c
++++ b/drivers/s390/char/sclp_early.c
+@@ -27,7 +27,9 @@ struct read_info_sccb {
+ 	u8	loadparm[8];		/* 24-31 */
+ 	u8	_reserved1[48 - 32];	/* 32-47 */
+ 	u64	facilities;		/* 48-55 */
+-	u8	_reserved2[84 - 56];	/* 56-83 */
++	u8	_reserved2a[76 - 56];	/* 56-75 */
++	u32	ibc;			/* 76-79 */
++	u8	_reserved2b[84 - 80];	/* 80-83 */
+ 	u8	fac84;			/* 84 */
+ 	u8	fac85;			/* 85 */
+ 	u8	_reserved3[91 - 86];	/* 86-90 */
+@@ -47,6 +49,7 @@ static unsigned long sclp_hsa_size;
+ static unsigned int sclp_max_cpu;
+ static struct sclp_ipl_info sclp_ipl_info;
+ static unsigned char sclp_siif;
++static u32 sclp_ibc;
+ 
+ u64 sclp_facilities;
+ u8 sclp_fac84;
+@@ -111,6 +114,7 @@ static void __init sclp_facilities_detect(struct read_info_sccb *sccb)
+ 	sclp_rnmax = sccb->rnmax ? sccb->rnmax : sccb->rnmax2;
+ 	sclp_rzm = sccb->rnsize ? sccb->rnsize : sccb->rnsize2;
+ 	sclp_rzm <<= 20;
++	sclp_ibc = sccb->ibc;
+ 
+ 	if (!sccb->hcpua) {
+ 		if (MACHINE_IS_VM)
+@@ -168,6 +172,12 @@ int sclp_has_siif(void)
+ }
+ EXPORT_SYMBOL(sclp_has_siif);
+ 
++unsigned int sclp_get_ibc(void)
++{
++	return sclp_ibc;
++}
++EXPORT_SYMBOL(sclp_get_ibc);
 +
- static int is_ioint(u64 type)
- {
- 	return ((type & 0xfffe0000u) != 0xfffe0000u);
-@@ -89,6 +91,14 @@ static int __interrupt_is_deliverable(struct kvm_vcpu *vcpu,
- 		if (vcpu->arch.sie_block->gcr[0] & 0x4000ul)
- 			return 1;
- 		return 0;
-+	case KVM_S390_INT_CLOCK_COMP:
-+		return ckc_interrupts_enabled(vcpu);
-+	case KVM_S390_INT_CPU_TIMER:
-+		if (psw_extint_disabled(vcpu))
-+			return 0;
-+		if (vcpu->arch.sie_block->gcr[0] & 0x400ul)
-+			return 1;
-+		return 0;
- 	case KVM_S390_INT_SERVICE:
- 	case KVM_S390_INT_PFAULT_INIT:
- 	case KVM_S390_INT_PFAULT_DONE:
-@@ -166,6 +176,8 @@ static void __set_intercept_indicator(struct kvm_vcpu *vcpu,
- 	case KVM_S390_INT_PFAULT_INIT:
- 	case KVM_S390_INT_PFAULT_DONE:
- 	case KVM_S390_INT_VIRTIO:
-+	case KVM_S390_INT_CLOCK_COMP:
-+	case KVM_S390_INT_CPU_TIMER:
- 		if (psw_extint_disabled(vcpu))
- 			__set_cpuflag(vcpu, CPUSTAT_EXT_INT);
- 		else
-@@ -326,6 +338,24 @@ static void __do_deliver_interrupt(struct kvm_vcpu *vcpu,
- 				    &vcpu->arch.sie_block->gpsw,
- 				    sizeof(psw_t));
- 		break;
-+	case KVM_S390_INT_CLOCK_COMP:
-+		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, inti->type,
-+						 inti->ext.ext_params, 0);
-+		deliver_ckc_interrupt(vcpu);
-+		break;
-+	case KVM_S390_INT_CPU_TIMER:
-+		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, inti->type,
-+						 inti->ext.ext_params, 0);
-+		rc  = put_guest_lc(vcpu, EXT_IRQ_CPU_TIMER,
-+				   (u16 *)__LC_EXT_INT_CODE);
-+		rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
-+				     &vcpu->arch.sie_block->gpsw,
-+				     sizeof(psw_t));
-+		rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
-+				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+		rc |= put_guest_lc(vcpu, inti->ext.ext_params,
-+				   (u32 *)__LC_EXT_PARAMS);
-+		break;
- 	case KVM_S390_INT_SERVICE:
- 		VCPU_EVENT(vcpu, 4, "interrupt: sclp parm:%x",
- 			   inti->ext.ext_params);
-@@ -984,6 +1014,8 @@ int kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
- 		break;
- 	case KVM_S390_SIGP_STOP:
- 	case KVM_S390_RESTART:
-+	case KVM_S390_INT_CLOCK_COMP:
-+	case KVM_S390_INT_CPU_TIMER:
- 		VCPU_EVENT(vcpu, 3, "inject: type %x", s390int->type);
- 		inti->type = s390int->type;
- 		break;
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 836e15b..2b83cf3 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -416,6 +416,8 @@ struct kvm_s390_psw {
- #define KVM_S390_INT_PFAULT_INIT	0xfffe0004u
- #define KVM_S390_INT_PFAULT_DONE	0xfffe0005u
- #define KVM_S390_MCHK			0xfffe1000u
-+#define KVM_S390_INT_CLOCK_COMP		0xffff1004u
-+#define KVM_S390_INT_CPU_TIMER		0xffff1005u
- #define KVM_S390_INT_VIRTIO		0xffff2603u
- #define KVM_S390_INT_SERVICE		0xffff2401u
- #define KVM_S390_INT_EMERGENCY		0xffff1201u
+ /*
+  * This function will be called after sclp_facilities_detect(), which gets
+  * called from early.c code. The sclp_facilities_detect() function retrieves
 -- 
-1.8.4.2
+1.8.3.1
