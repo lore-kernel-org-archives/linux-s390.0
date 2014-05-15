@@ -1,216 +1,55 @@
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v1 RFC 08/10] QEMU: s390: cpu model QMP query-cpu-definitions
-Date: Tue, 13 May 2014 17:00:20 +0200
-Message-ID: <1399993222-16339-9-git-send-email-mimu@linux.vnet.ibm.com>
-References: <1399993222-16339-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1399993222-16339-1-git-send-email-mimu@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/1] KVM: s390: announce irqfd capability
+Date: Thu, 15 May 2014 11:02:51 +0200
+Message-ID: <1400144571-17011-2-git-send-email-borntraeger@de.ibm.com>
+References: <1400144571-17011-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1400144571-17011-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Alexander Graf <agraf@suse.de>, Gleb Natapov <gleb@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, mimu@linux.vnet.ibm.com
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implements the QMP command "query-cpu-definitions" in the S390
-context. The command returns a descending sorted list of cpu model names
-derived from the currently (in the current host context) supported set of
-cpu classes. That means a consumer can successfully request each reported
-cpu model. Implicitly, the first reported cpu model is the host cpu model.
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-request: {"execute": "query-cpu-definitions"}
-answer:  {"return":  [{"name": "2827-ga1"}, {"name": "2818-ga1"}, {"name": "2817-ga2"},
-{"name": "2817-ga1"}, {"name": "2098-ga2"}, {"name": "2098-ga1"}, {"name": "2097-ga3"},
-{"name": "2097-ga2"}, {"name": "2097-ga1"}, {"name": "2096-ga2"}, {"name": "2096-ga1"},
-{"name": "2094-ga3"}, {"name": "2094-ga2"}, {"name": "2094-ga1"}, {"name": "2086-ga3"},
-{"name": "2086-ga2"}, {"name": "2086-ga1"}, {"name": "2084-ga5"}, {"name": "2084-ga4"},
-{"name": "2084-ga3"}, {"name": "2084-ga2"}, {"name": "2084-ga1"}, {"name": "2068-ga1"},
-{"name": "2064-ga3"}, {"name": "2064-ga2"}, {"name": "2064-ga1"}]}
+s390 has acquired irqfd support with commit "KVM: s390: irq routing for
+adapter interrupts" (84223598778ba08041f4297fda485df83414d57e) but
+failed to announce it. Let's fix that.
 
-Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- target-s390x/cpu-models.c | 16 ++++++++
- target-s390x/cpu-models.h |  3 ++
- target-s390x/cpu.c        | 96 +++++++++++++++++++++++++++++++++++++++++++++--
- 3 files changed, 111 insertions(+), 4 deletions(-)
+ Documentation/virtual/kvm/api.txt | 2 +-
+ arch/s390/kvm/kvm-s390.c          | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
-index 19bbb30..ed087cb 100644
---- a/target-s390x/cpu-models.c
-+++ b/target-s390x/cpu-models.c
-@@ -123,6 +123,7 @@ typedef struct ArgTG {
- GSList *s390_cpu_aliases;
- bool s390_cpu_classes_prepared;
- bool s390_use_sofl;
-+bool s390_cpu_model_mode;
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index a9380ba5..b4f5365 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -2126,7 +2126,7 @@ into the hash PTE second double word).
+ 4.75 KVM_IRQFD
  
- static inline unsigned long bit_in_word(unsigned int nr)
- {
-@@ -218,6 +219,21 @@ int set_s390_cpu_alias(const char *name, const char *model)
-     return 0;
- }
- 
-+/* compare order of two cpu classes for descending sort */
-+gint s390_cpu_class_desc_order_compare(gconstpointer a, gconstpointer b)
-+{
-+    S390CPUClass *cc_a = S390_CPU_CLASS((ObjectClass *) a);
-+    S390CPUClass *cc_b = S390_CPU_CLASS((ObjectClass *) b);
-+
-+    if (cc_a->mach->order < cc_b->mach->order) {
-+        return 1;
-+    }
-+    if (cc_a->mach->order > cc_b->mach->order) {
-+        return -1;
-+    }
-+    return 0;
-+}
-+
- /* return machine class for specific machine type */
- static void s390_machine_class_test_cpu_class(gpointer data, gpointer user_data)
- {
-diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
-index cc917d4..c2675cb 100644
---- a/target-s390x/cpu-models.h
-+++ b/target-s390x/cpu-models.h
-@@ -88,6 +88,8 @@ typedef struct S390MachineProps {
- 
- /* indicates the cpu classes have been successfully updated */
- extern bool s390_cpu_classes_prepared;
-+/* indicates qemu is running without cpu models */
-+extern bool s390_cpu_model_mode;
- 
- /* indicates use of soft facilities is requested */
- extern bool s390_use_sofl;
-@@ -100,6 +102,7 @@ int s390_setup_cpu_classes(S390MachineProps *prop);
- gint s390_cpu_class_asc_order_compare(gconstpointer a, gconstpointer b);
- void s390_cpu_list_entry(gpointer data, gpointer user_data);
- void s390_update_cpu_class_properties(S390CPUClass *dst, S390CPUClass *src);
-+gint s390_cpu_class_desc_order_compare(gconstpointer a, gconstpointer b);
- 
- /*
-  * bits 0-7   : CMOS generation
-diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
-index 741f3ce..6479659 100644
---- a/target-s390x/cpu.c
-+++ b/target-s390x/cpu.c
-@@ -37,6 +37,13 @@
- #define CR0_RESET       0xE0UL
- #define CR14_RESET      0xC2000000UL;
- 
-+#ifdef CONFIG_KVM
-+typedef struct CpuDefinition {
-+    CpuDefinitionInfoList *head;
-+    CpuDefinitionInfoList *tail;
-+} CpuDefinition;
-+#endif
-+
- /* generate CPU information for cpu -? */
- void s390_cpu_list(FILE *f, fprintf_function cpu_fprintf)
- {
-@@ -70,18 +77,99 @@ bool s390_cpudesc_ready(void)
- }
- 
- #ifndef CONFIG_USER_ONLY
-+#ifdef CONFIG_KVM
-+static void s390_query_cpu_definition(gpointer data, gpointer user_data)
-+{
-+    S390CPUClass *cc = S390_CPU_CLASS((ObjectClass *) data);
-+    char model[16];
-+    CpuDefinition *cpu_definition = user_data;
-+    CpuDefinitionInfo *info;
-+    CpuDefinitionInfoList *entry;
-+
-+    if (!cc->is_active) {
-+        return;
-+    }
-+
-+    info = g_try_malloc0(sizeof(*info));
-+    if (!info) {
-+        goto out_info;
-+    }
-+
-+    snprintf(model, sizeof(model), "%04x-ga%u", cc->proc->type, cc->mach->ga);
-+    info->name = g_strdup(model);
-+    if (!info->name) {
-+        goto out_name;
-+    }
-+
-+    entry = g_try_malloc0(sizeof(*entry));
-+    if (!entry) {
-+        goto out_entry;
-+    }
-+    entry->value = info;
-+    entry->next = NULL;
-+
-+    if (cpu_definition->tail) {
-+        cpu_definition->tail->next = entry;
-+        cpu_definition->tail = cpu_definition->tail->next;
-+    } else {
-+        cpu_definition->head = cpu_definition->tail = entry;
-+    }
-+    return;
-+
-+out_entry:
-+    g_free(info->name);
-+out_name:
-+    g_free(info);
-+out_info:
-+    return;
-+}
-+#endif
-+
- CpuDefinitionInfoList *arch_query_cpu_definitions(Error **errp)
- {
-     CpuDefinitionInfoList *entry;
-     CpuDefinitionInfo *info;
- 
--    info = g_malloc0(sizeof(*info));
--    info->name = g_strdup("host");
-+#ifdef CONFIG_KVM
-+    GSList *list;
-+    CpuDefinition cpu_definition;
- 
--    entry = g_malloc0(sizeof(*entry));
--    entry->value = info;
-+    /* There are no valid cpu classes defined in this case. */
-+    if (!s390_cpu_model_mode) {
-+        return NULL;
-+    }
- 
-+    list = object_class_get_list(TYPE_S390_CPU, false);
-+    list = g_slist_sort(list, s390_cpu_class_desc_order_compare);
-+    cpu_definition.head = NULL;
-+    cpu_definition.tail = NULL;
-+    g_slist_foreach(list, s390_query_cpu_definition, &cpu_definition);
-+    g_slist_free(list);
-+
-+    return cpu_definition.head;
-+#endif
-+
-+    info = g_try_malloc0(sizeof(*info));
-+    if (!info) {
-+        goto out_info;
-+    }
-+    info->name = g_strdup("host");
-+    if (!info->name) {
-+        goto out_name;
-+    }
-+    entry = g_try_malloc0(sizeof(*entry));
-+    if (!entry) {
-+        goto out_entry;
-+    }
-+    entry->value = info;
-     return entry;
-+
-+out_entry:
-+    g_free(info->name);
-+out_name:
-+    g_free(info);
-+out_info:
-+    return NULL;
- }
- #endif
- 
+ Capability: KVM_CAP_IRQFD
+-Architectures: x86
++Architectures: x86 s390
+ Type: vm ioctl
+ Parameters: struct kvm_irqfd (in)
+ Returns: 0 on success, -1 on error
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index b3ecb8f..9ae6664 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -158,6 +158,7 @@ int kvm_dev_ioctl_check_extension(long ext)
+ 	case KVM_CAP_ONE_REG:
+ 	case KVM_CAP_ENABLE_CAP:
+ 	case KVM_CAP_S390_CSS_SUPPORT:
++	case KVM_CAP_IRQFD:
+ 	case KVM_CAP_IOEVENTFD:
+ 	case KVM_CAP_DEVICE_CTRL:
+ 	case KVM_CAP_ENABLE_CAP_VM:
 -- 
-1.8.3.1
+1.8.4.2
