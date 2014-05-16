@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 03/12] KVM: s390: Avoid endless loops of specification exceptions
-Date: Fri, 16 May 2014 16:09:39 +0200
-Message-ID: <1400249388-3969-4-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 07/12] KVM: s390: Use trace tables from sie.h.
+Date: Fri, 16 May 2014 16:09:43 +0200
+Message-ID: <1400249388-3969-8-git-send-email-borntraeger@de.ibm.com>
 References: <1400249388-3969-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1400249388-3969-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,50 +9,85 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Thomas Huth <thuth@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
+From: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
 
-If the new PSW for program interrupts is invalid, the VM ends up
-in an endless loop of specification exceptions. Since there is not
-much left we can do in this case, we should better drop to userspace
-instead so that the crash can be reported to the user.
+Use the symbolic translation tables from sie.h for decoding diag, sigp
+and sie exit codes.
 
-Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Signed-off-by: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/intercept.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/s390/kvm/trace.h | 32 +-------------------------------
+ 1 file changed, 1 insertion(+), 31 deletions(-)
 
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index bd607cf..ddc69f5 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -195,6 +195,7 @@ static int handle_itdb(struct kvm_vcpu *vcpu)
- static int handle_prog(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_pgm_info pgm_info;
-+	psw_t psw;
- 	int rc;
+diff --git a/arch/s390/kvm/trace.h b/arch/s390/kvm/trace.h
+index abf6ba5..00f57a5 100644
+--- a/arch/s390/kvm/trace.h
++++ b/arch/s390/kvm/trace.h
+@@ -2,7 +2,7 @@
+ #define _TRACE_KVM_H
  
- 	vcpu->stat.exit_program_interruption++;
-@@ -207,7 +208,14 @@ static int handle_prog(struct kvm_vcpu *vcpu)
- 	}
+ #include <linux/tracepoint.h>
+-#include <asm/sigp.h>
++#include <asm/sie.h>
+ #include <asm/debug.h>
+ #include <asm/dis.h>
  
- 	trace_kvm_s390_intercept_prog(vcpu, vcpu->arch.sie_block->iprcc);
+@@ -125,17 +125,6 @@ TRACE_EVENT(kvm_s390_sie_fault,
+ 	    VCPU_TP_PRINTK("%s", "fault in sie instruction")
+ 	);
+ 
+-#define sie_intercept_code				\
+-	{0x04, "Instruction"},				\
+-	{0x08, "Program interruption"},			\
+-	{0x0C, "Instruction and program interruption"},	\
+-	{0x10, "External request"},			\
+-	{0x14, "External interruption"},		\
+-	{0x18, "I/O request"},				\
+-	{0x1C, "Wait state"},				\
+-	{0x20, "Validity"},				\
+-	{0x28, "Stop request"}
 -
-+	if (vcpu->arch.sie_block->iprcc == PGM_SPECIFICATION) {
-+		rc = read_guest_lc(vcpu, __LC_PGM_NEW_PSW, &psw, sizeof(psw_t));
-+		if (rc)
-+			return rc;
-+		/* Avoid endless loops of specification exceptions */
-+		if (!is_valid_psw(&psw))
-+			return -EOPNOTSUPP;
-+	}
- 	rc = handle_itdb(vcpu);
- 	if (rc)
- 		return rc;
+ TRACE_EVENT(kvm_s390_sie_exit,
+ 	    TP_PROTO(VCPU_PROTO_COMMON, u8 icptcode),
+ 	    TP_ARGS(VCPU_ARGS_COMMON, icptcode),
+@@ -227,18 +216,6 @@ TRACE_EVENT(kvm_s390_intercept_validity,
+  * Trace points for instructions that are of special interest.
+  */
+ 
+-#define sigp_order_codes					\
+-	{SIGP_SENSE, "sense"},					\
+-	{SIGP_EXTERNAL_CALL, "external call"},			\
+-	{SIGP_EMERGENCY_SIGNAL, "emergency signal"},		\
+-	{SIGP_STOP, "stop"},					\
+-	{SIGP_STOP_AND_STORE_STATUS, "stop and store status"},	\
+-	{SIGP_SET_ARCHITECTURE, "set architecture"},		\
+-	{SIGP_SET_PREFIX, "set prefix"},			\
+-	{SIGP_STORE_STATUS_AT_ADDRESS, "store status at addr"},	\
+-	{SIGP_SENSE_RUNNING, "sense running"},			\
+-	{SIGP_RESTART, "restart"}
+-
+ TRACE_EVENT(kvm_s390_handle_sigp,
+ 	    TP_PROTO(VCPU_PROTO_COMMON, __u8 order_code, __u16 cpu_addr, \
+ 		     __u32 parameter),
+@@ -265,13 +242,6 @@ TRACE_EVENT(kvm_s390_handle_sigp,
+ 			   __entry->cpu_addr, __entry->parameter)
+ 	);
+ 
+-#define diagnose_codes				\
+-	{0x10, "release pages"},		\
+-	{0x44, "time slice end"},		\
+-	{0x308, "ipl functions"},		\
+-	{0x500, "kvm hypercall"},		\
+-	{0x501, "kvm breakpoint"}
+-
+ TRACE_EVENT(kvm_s390_handle_diag,
+ 	    TP_PROTO(VCPU_PROTO_COMMON, __u16 code),
+ 	    TP_ARGS(VCPU_ARGS_COMMON, code),
 -- 
 1.8.4.2
