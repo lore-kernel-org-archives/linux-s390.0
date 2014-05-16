@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 04/12] KVM: s390: Introduce helper function for faulting-in a guest page
-Date: Fri, 16 May 2014 16:09:40 +0200
-Message-ID: <1400249388-3969-5-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 11/12] s390/sclp: add sclp_get_ibc function
+Date: Fri, 16 May 2014 16:09:47 +0200
+Message-ID: <1400249388-3969-12-git-send-email-borntraeger@de.ibm.com>
 References: <1400249388-3969-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1400249388-3969-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,91 +9,77 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Thomas Huth <thuth@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
+From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-Rework the function kvm_arch_fault_in_sync() to become a proper helper
-function for faulting-in a guest page. Now it takes the guest address as
-a parameter and does not ignore the possible error code from gmap_fault()
-anymore (which could cause undetected error conditions before).
+The patch adds functionality to retrieve the IBC configuration
+by means of function sclp_get_ibc().
 
-Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 32 +++++++++++++++++++++++++-------
- arch/s390/kvm/kvm-s390.h |  1 +
- 2 files changed, 26 insertions(+), 7 deletions(-)
+ arch/s390/include/asm/sclp.h   |  1 +
+ drivers/s390/char/sclp_early.c | 12 +++++++++++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 0a01744..d91feb2 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1045,15 +1045,30 @@ retry:
- 	return 0;
+diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
+index 943d434..1aba89b 100644
+--- a/arch/s390/include/asm/sclp.h
++++ b/arch/s390/include/asm/sclp.h
+@@ -66,5 +66,6 @@ int memcpy_hsa(void *dest, unsigned long src, size_t count, int mode);
+ unsigned long sclp_get_hsa_size(void);
+ void sclp_early_detect(void);
+ int sclp_has_siif(void);
++unsigned int sclp_get_ibc(void);
+ 
+ #endif /* _ASM_S390_SCLP_H */
+diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+index b57fe0e..1918d9d 100644
+--- a/drivers/s390/char/sclp_early.c
++++ b/drivers/s390/char/sclp_early.c
+@@ -27,7 +27,9 @@ struct read_info_sccb {
+ 	u8	loadparm[8];		/* 24-31 */
+ 	u8	_reserved1[48 - 32];	/* 32-47 */
+ 	u64	facilities;		/* 48-55 */
+-	u8	_reserved2[84 - 56];	/* 56-83 */
++	u8	_reserved2a[76 - 56];	/* 56-75 */
++	u32	ibc;			/* 76-79 */
++	u8	_reserved2b[84 - 80];	/* 80-83 */
+ 	u8	fac84;			/* 84 */
+ 	u8	fac85;			/* 85 */
+ 	u8	_reserved3[91 - 86];	/* 86-90 */
+@@ -47,6 +49,7 @@ static unsigned long sclp_hsa_size;
+ static unsigned int sclp_max_cpu;
+ static struct sclp_ipl_info sclp_ipl_info;
+ static unsigned char sclp_siif;
++static u32 sclp_ibc;
+ 
+ u64 sclp_facilities;
+ u8 sclp_fac84;
+@@ -111,6 +114,7 @@ static void __init sclp_facilities_detect(struct read_info_sccb *sccb)
+ 	sclp_rnmax = sccb->rnmax ? sccb->rnmax : sccb->rnmax2;
+ 	sclp_rzm = sccb->rnsize ? sccb->rnsize : sccb->rnsize2;
+ 	sclp_rzm <<= 20;
++	sclp_ibc = sccb->ibc;
+ 
+ 	if (!sccb->hcpua) {
+ 		if (MACHINE_IS_VM)
+@@ -168,6 +172,12 @@ int sclp_has_siif(void)
  }
+ EXPORT_SYMBOL(sclp_has_siif);
  
--static long kvm_arch_fault_in_sync(struct kvm_vcpu *vcpu)
-+/**
-+ * kvm_arch_fault_in_page - fault-in guest page if necessary
-+ * @vcpu: The corresponding virtual cpu
-+ * @gpa: Guest physical address
-+ * @writable: Whether the page should be writable or not
-+ *
-+ * Make sure that a guest page has been faulted-in on the host.
-+ *
-+ * Return: Zero on success, negative error code otherwise.
-+ */
-+long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable)
- {
--	long rc;
--	hva_t fault = gmap_fault(current->thread.gmap_addr, vcpu->arch.gmap);
- 	struct mm_struct *mm = current->mm;
-+	hva_t hva;
-+	long rc;
++unsigned int sclp_get_ibc(void)
++{
++	return sclp_ibc;
++}
++EXPORT_SYMBOL(sclp_get_ibc);
 +
-+	hva = gmap_fault(gpa, vcpu->arch.gmap);
-+	if (IS_ERR_VALUE(hva))
-+		return (long)hva;
- 	down_read(&mm->mmap_sem);
--	rc = get_user_pages(current, mm, fault, 1, 1, 0, NULL, NULL);
-+	rc = get_user_pages(current, mm, hva, 1, writable, 0, NULL, NULL);
- 	up_read(&mm->mmap_sem);
--	return rc;
-+
-+	return rc < 0 ? rc : 0;
- }
- 
- static void __kvm_inject_pfault_token(struct kvm_vcpu *vcpu, bool start_token,
-@@ -1191,9 +1206,12 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
- 	} else if (current->thread.gmap_pfault) {
- 		trace_kvm_s390_major_guest_pfault(vcpu);
- 		current->thread.gmap_pfault = 0;
--		if (kvm_arch_setup_async_pf(vcpu) ||
--		    (kvm_arch_fault_in_sync(vcpu) >= 0))
-+		if (kvm_arch_setup_async_pf(vcpu)) {
- 			rc = 0;
-+		} else {
-+			gpa_t gpa = current->thread.gmap_addr;
-+			rc = kvm_arch_fault_in_page(vcpu, gpa, 1);
-+		}
- 	}
- 
- 	if (rc == -1) {
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 38b589d..e489945 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -156,6 +156,7 @@ int kvm_s390_handle_eb(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
- 
- /* implemented in kvm-s390.c */
-+long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
- int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr);
- int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr);
- void kvm_s390_vcpu_start(struct kvm_vcpu *vcpu);
+ /*
+  * This function will be called after sclp_facilities_detect(), which gets
+  * called from early.c code. The sclp_facilities_detect() function retrieves
 -- 
 1.8.4.2
