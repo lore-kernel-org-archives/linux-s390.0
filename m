@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 07/12] KVM: s390: Use trace tables from sie.h.
-Date: Fri, 16 May 2014 16:09:43 +0200
-Message-ID: <1400249388-3969-8-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 05/12] KVM: s390: Improved MVPG partial execution handler
+Date: Fri, 16 May 2014 16:09:41 +0200
+Message-ID: <1400249388-3969-6-git-send-email-borntraeger@de.ibm.com>
 References: <1400249388-3969-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1400249388-3969-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,85 +9,69 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Thomas Huth <thuth@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-Use the symbolic translation tables from sie.h for decoding diag, sigp
-and sie exit codes.
+Use the new helper function kvm_arch_fault_in_page() for faulting-in
+the guest pages and only inject addressing errors when we've really
+hit a bad address (and return other error codes to userspace instead).
 
-Signed-off-by: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/trace.h | 32 +-------------------------------
- 1 file changed, 1 insertion(+), 31 deletions(-)
+ arch/s390/kvm/intercept.c | 25 +++++++++----------------
+ 1 file changed, 9 insertions(+), 16 deletions(-)
 
-diff --git a/arch/s390/kvm/trace.h b/arch/s390/kvm/trace.h
-index abf6ba5..00f57a5 100644
---- a/arch/s390/kvm/trace.h
-+++ b/arch/s390/kvm/trace.h
-@@ -2,7 +2,7 @@
- #define _TRACE_KVM_H
- 
- #include <linux/tracepoint.h>
--#include <asm/sigp.h>
-+#include <asm/sie.h>
- #include <asm/debug.h>
- #include <asm/dis.h>
- 
-@@ -125,17 +125,6 @@ TRACE_EVENT(kvm_s390_sie_fault,
- 	    VCPU_TP_PRINTK("%s", "fault in sie instruction")
- 	);
- 
--#define sie_intercept_code				\
--	{0x04, "Instruction"},				\
--	{0x08, "Program interruption"},			\
--	{0x0C, "Instruction and program interruption"},	\
--	{0x10, "External request"},			\
--	{0x14, "External interruption"},		\
--	{0x18, "I/O request"},				\
--	{0x1C, "Wait state"},				\
--	{0x20, "Validity"},				\
--	{0x28, "Stop request"}
--
- TRACE_EVENT(kvm_s390_sie_exit,
- 	    TP_PROTO(VCPU_PROTO_COMMON, u8 icptcode),
- 	    TP_ARGS(VCPU_ARGS_COMMON, icptcode),
-@@ -227,18 +216,6 @@ TRACE_EVENT(kvm_s390_intercept_validity,
-  * Trace points for instructions that are of special interest.
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index ddc69f5..147b87f 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -292,33 +292,26 @@ static int handle_external_interrupt(struct kvm_vcpu *vcpu)
   */
+ static int handle_mvpg_pei(struct kvm_vcpu *vcpu)
+ {
+-	unsigned long hostaddr, srcaddr, dstaddr;
+ 	psw_t *psw = &vcpu->arch.sie_block->gpsw;
+-	struct mm_struct *mm = current->mm;
++	unsigned long srcaddr, dstaddr;
+ 	int reg1, reg2, rc;
  
--#define sigp_order_codes					\
--	{SIGP_SENSE, "sense"},					\
--	{SIGP_EXTERNAL_CALL, "external call"},			\
--	{SIGP_EMERGENCY_SIGNAL, "emergency signal"},		\
--	{SIGP_STOP, "stop"},					\
--	{SIGP_STOP_AND_STORE_STATUS, "stop and store status"},	\
--	{SIGP_SET_ARCHITECTURE, "set architecture"},		\
--	{SIGP_SET_PREFIX, "set prefix"},			\
--	{SIGP_STORE_STATUS_AT_ADDRESS, "store status at addr"},	\
--	{SIGP_SENSE_RUNNING, "sense running"},			\
--	{SIGP_RESTART, "restart"}
--
- TRACE_EVENT(kvm_s390_handle_sigp,
- 	    TP_PROTO(VCPU_PROTO_COMMON, __u8 order_code, __u16 cpu_addr, \
- 		     __u32 parameter),
-@@ -265,13 +242,6 @@ TRACE_EVENT(kvm_s390_handle_sigp,
- 			   __entry->cpu_addr, __entry->parameter)
- 	);
+ 	kvm_s390_get_regs_rre(vcpu, &reg1, &reg2);
+-	srcaddr = kvm_s390_real_to_abs(vcpu, vcpu->run->s.regs.gprs[reg2]);
+-	dstaddr = kvm_s390_real_to_abs(vcpu, vcpu->run->s.regs.gprs[reg1]);
  
--#define diagnose_codes				\
--	{0x10, "release pages"},		\
--	{0x44, "time slice end"},		\
--	{0x308, "ipl functions"},		\
--	{0x500, "kvm hypercall"},		\
--	{0x501, "kvm breakpoint"}
--
- TRACE_EVENT(kvm_s390_handle_diag,
- 	    TP_PROTO(VCPU_PROTO_COMMON, __u16 code),
- 	    TP_ARGS(VCPU_ARGS_COMMON, code),
+ 	/* Make sure that the source is paged-in */
+-	hostaddr = gmap_fault(srcaddr, vcpu->arch.gmap);
+-	if (IS_ERR_VALUE(hostaddr))
++	srcaddr = kvm_s390_real_to_abs(vcpu, vcpu->run->s.regs.gprs[reg2]);
++	if (kvm_is_error_gpa(vcpu->kvm, srcaddr))
+ 		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+-	down_read(&mm->mmap_sem);
+-	rc = get_user_pages(current, mm, hostaddr, 1, 0, 0, NULL, NULL);
+-	up_read(&mm->mmap_sem);
+-	if (rc < 0)
++	rc = kvm_arch_fault_in_page(vcpu, srcaddr, 0);
++	if (rc != 0)
+ 		return rc;
+ 
+ 	/* Make sure that the destination is paged-in */
+-	hostaddr = gmap_fault(dstaddr, vcpu->arch.gmap);
+-	if (IS_ERR_VALUE(hostaddr))
++	dstaddr = kvm_s390_real_to_abs(vcpu, vcpu->run->s.regs.gprs[reg1]);
++	if (kvm_is_error_gpa(vcpu->kvm, dstaddr))
+ 		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+-	down_read(&mm->mmap_sem);
+-	rc = get_user_pages(current, mm, hostaddr, 1, 1, 0, NULL, NULL);
+-	up_read(&mm->mmap_sem);
+-	if (rc < 0)
++	rc = kvm_arch_fault_in_page(vcpu, dstaddr, 1);
++	if (rc != 0)
+ 		return rc;
+ 
+ 	psw->addr = __rewind_psw(*psw, 4);
 -- 
 1.8.4.2
