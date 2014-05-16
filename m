@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 06/12] KVM: s390: add sie exit reasons tables
-Date: Fri, 16 May 2014 16:09:42 +0200
-Message-ID: <1400249388-3969-7-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 10/12] KVM: s390: interpretive execution of SIGP EXTERNAL CALL
+Date: Fri, 16 May 2014 16:09:46 +0200
+Message-ID: <1400249388-3969-11-git-send-email-borntraeger@de.ibm.com>
 References: <1400249388-3969-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1400249388-3969-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,240 +9,253 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Yarygin <yarygin@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Thomas Huth <thuth@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-This patch defines tables of reasons for exiting from SIE mode
-in a new sie.h header file. Tables contain SIE intercepted codes,
-intercepted instructions and program interruptions codes.
+If the sigp interpretation facility is installed, most SIGP EXTERNAL CALL
+operations will be interpreted instead of intercepted. A partial execution
+interception will occurr at the sending cpu only if the target cpu is in the
+wait state ("W" bit in the cpuflags set). Instruction interception will only
+happen in error cases (e.g. cpu addr invalid).
 
-Signed-off-by: Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+As a sending cpu might set the external call interrupt pending flags at the
+target cpu at every point in time, we can't handle this kind of interrupt using
+our kvm interrupt injection mechanism. The injection will be done automatically
+by the SIE when preparing the start of the target cpu.
+
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+CC: Thomas Huth <thuth@linux.vnet.ibm.com>
+[Adopt external call injection to check for sigp interpretion]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/uapi/asm/sie.h | 212 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 212 insertions(+)
- create mode 100644 arch/s390/include/uapi/asm/sie.h
+ arch/s390/include/asm/kvm_host.h |  4 +++-
+ arch/s390/kvm/intercept.c        |  4 ++++
+ arch/s390/kvm/interrupt.c        | 30 ++++++++++++++++++++++++++----
+ arch/s390/kvm/kvm-s390.c         |  2 +-
+ arch/s390/kvm/kvm-s390.h         |  2 ++
+ arch/s390/kvm/sigp.c             | 35 +++++++++++++++++++++++++++++++++++
+ arch/s390/kvm/trace.h            | 23 +++++++++++++++++++++++
+ 7 files changed, 94 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/include/uapi/asm/sie.h b/arch/s390/include/uapi/asm/sie.h
-new file mode 100644
-index 0000000..ec793e1
---- /dev/null
-+++ b/arch/s390/include/uapi/asm/sie.h
-@@ -0,0 +1,212 @@
-+#ifndef _UAPI_ASM_S390_SIE_H
-+#define _UAPI_ASM_S390_SIE_H
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 96b8a67..dc182a5 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -32,8 +32,10 @@
+ #define KVM_NR_IRQCHIPS 1
+ #define KVM_IRQCHIP_NUM_PINS 4096
+ 
++#define SIGP_CTRL_C	0x00800000
 +
-+#include <asm/sigp.h>
+ struct sca_entry {
+-	atomic_t scn;
++	atomic_t ctrl;
+ 	__u32	reserved;
+ 	__u64	sda;
+ 	__u64	reserved2[2];
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 147b87f..a0b586c 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -272,6 +272,8 @@ static int handle_external_interrupt(struct kvm_vcpu *vcpu)
+ 		irq.type = KVM_S390_INT_CPU_TIMER;
+ 		break;
+ 	case EXT_IRQ_EXTERNAL_CALL:
++		if (kvm_s390_si_ext_call_pending(vcpu))
++			return 0;
+ 		irq.type = KVM_S390_INT_EXTERNAL_CALL;
+ 		irq.parm = vcpu->arch.sie_block->extcpuaddr;
+ 		break;
+@@ -323,6 +325,8 @@ static int handle_partial_execution(struct kvm_vcpu *vcpu)
+ {
+ 	if (vcpu->arch.sie_block->ipa == 0xb254)	/* MVPG */
+ 		return handle_mvpg_pei(vcpu);
++	if (vcpu->arch.sie_block->ipa >> 8 == 0xae)	/* SIGP */
++		return kvm_s390_handle_sigp_pei(vcpu);
+ 
+ 	return -EOPNOTSUPP;
+ }
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 75cd321..bf0d9bc 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -148,9 +148,8 @@ static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
+ 
+ static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
+ {
+-	atomic_clear_mask(CPUSTAT_ECALL_PEND |
+-		CPUSTAT_IO_INT | CPUSTAT_EXT_INT | CPUSTAT_STOP_INT,
+-		&vcpu->arch.sie_block->cpuflags);
++	atomic_clear_mask(CPUSTAT_IO_INT | CPUSTAT_EXT_INT | CPUSTAT_STOP_INT,
++			  &vcpu->arch.sie_block->cpuflags);
+ 	vcpu->arch.sie_block->lctl = 0x0000;
+ 	vcpu->arch.sie_block->ictl &= ~(ICTL_LPSW | ICTL_STCTL | ICTL_PINT);
+ 
+@@ -524,6 +523,20 @@ static void deliver_ckc_interrupt(struct kvm_vcpu *vcpu)
+ 	}
+ }
+ 
++/* Check whether SIGP interpretation facility has an external call pending */
++int kvm_s390_si_ext_call_pending(struct kvm_vcpu *vcpu)
++{
++	atomic_t *sigp_ctrl = &vcpu->kvm->arch.sca->cpu[vcpu->vcpu_id].ctrl;
 +
-+#define diagnose_codes						\
-+	{ 0x10, "DIAG (0x10) release pages" },			\
-+	{ 0x44, "DIAG (0x44) time slice end" },			\
-+	{ 0x9c, "DIAG (0x9c) time slice end directed" },	\
-+	{ 0x204, "DIAG (0x204) logical-cpu utilization" },	\
-+	{ 0x258, "DIAG (0x258) page-reference services" },	\
-+	{ 0x308, "DIAG (0x308) ipl functions" },		\
-+	{ 0x500, "DIAG (0x500) KVM virtio functions" },		\
-+	{ 0x501, "DIAG (0x501) KVM breakpoint" }
++	if (!psw_extint_disabled(vcpu) &&
++	    (vcpu->arch.sie_block->gcr[0] & 0x2000ul) &&
++	    (atomic_read(sigp_ctrl) & SIGP_CTRL_C) &&
++	    (atomic_read(&vcpu->arch.sie_block->cpuflags) & CPUSTAT_ECALL_PEND))
++		return 1;
 +
-+#define sigp_order_codes						\
-+	{ SIGP_SENSE, "SIGP sense" },					\
-+	{ SIGP_EXTERNAL_CALL, "SIGP external call" },			\
-+	{ SIGP_EMERGENCY_SIGNAL, "SIGP emergency signal" },		\
-+	{ SIGP_STOP, "SIGP stop" },					\
-+	{ SIGP_STOP_AND_STORE_STATUS, "SIGP stop and store status" },	\
-+	{ SIGP_SET_ARCHITECTURE, "SIGP set architecture" },		\
-+	{ SIGP_SET_PREFIX, "SIGP set prefix" },				\
-+	{ SIGP_SENSE_RUNNING, "SIGP sense running" },			\
-+	{ SIGP_RESTART, "SIGP restart" },				\
-+	{ SIGP_INITIAL_CPU_RESET, "SIGP initial cpu reset" },		\
-+	{ SIGP_STORE_STATUS_AT_ADDRESS, "SIGP store status at address" }
++	return 0;
++}
 +
-+#define icpt_prog_codes						\
-+	{ 0x0001, "Prog Operation" },				\
-+	{ 0x0002, "Prog Privileged Operation" },		\
-+	{ 0x0003, "Prog Execute" },				\
-+	{ 0x0004, "Prog Protection" },				\
-+	{ 0x0005, "Prog Addressing" },				\
-+	{ 0x0006, "Prog Specification" },			\
-+	{ 0x0007, "Prog Data" },				\
-+	{ 0x0008, "Prog Fixedpoint overflow" },			\
-+	{ 0x0009, "Prog Fixedpoint divide" },			\
-+	{ 0x000A, "Prog Decimal overflow" },			\
-+	{ 0x000B, "Prog Decimal divide" },			\
-+	{ 0x000C, "Prog HFP exponent overflow" },		\
-+	{ 0x000D, "Prog HFP exponent underflow" },		\
-+	{ 0x000E, "Prog HFP significance" },			\
-+	{ 0x000F, "Prog HFP divide" },				\
-+	{ 0x0010, "Prog Segment translation" },			\
-+	{ 0x0011, "Prog Page translation" },			\
-+	{ 0x0012, "Prog Translation specification" },		\
-+	{ 0x0013, "Prog Special operation" },			\
-+	{ 0x0015, "Prog Operand" },				\
-+	{ 0x0016, "Prog Trace table" },				\
-+	{ 0x0017, "Prog ASNtranslation specification" },	\
-+	{ 0x001C, "Prog Spaceswitch event" },			\
-+	{ 0x001D, "Prog HFP square root" },			\
-+	{ 0x001F, "Prog PCtranslation specification" },		\
-+	{ 0x0020, "Prog AFX translation" },			\
-+	{ 0x0021, "Prog ASX translation" },			\
-+	{ 0x0022, "Prog LX translation" },			\
-+	{ 0x0023, "Prog EX translation" },			\
-+	{ 0x0024, "Prog Primary authority" },			\
-+	{ 0x0025, "Prog Secondary authority" },			\
-+	{ 0x0026, "Prog LFXtranslation exception" },		\
-+	{ 0x0027, "Prog LSXtranslation exception" },		\
-+	{ 0x0028, "Prog ALET specification" },			\
-+	{ 0x0029, "Prog ALEN translation" },			\
-+	{ 0x002A, "Prog ALE sequence" },			\
-+	{ 0x002B, "Prog ASTE validity" },			\
-+	{ 0x002C, "Prog ASTE sequence" },			\
-+	{ 0x002D, "Prog Extended authority" },			\
-+	{ 0x002E, "Prog LSTE sequence" },			\
-+	{ 0x002F, "Prog ASTE instance" },			\
-+	{ 0x0030, "Prog Stack full" },				\
-+	{ 0x0031, "Prog Stack empty" },				\
-+	{ 0x0032, "Prog Stack specification" },			\
-+	{ 0x0033, "Prog Stack type" },				\
-+	{ 0x0034, "Prog Stack operation" },			\
-+	{ 0x0039, "Prog Region first translation" },		\
-+	{ 0x003A, "Prog Region second translation" },		\
-+	{ 0x003B, "Prog Region third translation" },		\
-+	{ 0x0040, "Prog Monitor event" },			\
-+	{ 0x0080, "Prog PER event" },				\
-+	{ 0x0119, "Prog Crypto operation" }
+ int kvm_cpu_has_interrupt(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+@@ -554,6 +567,9 @@ int kvm_cpu_has_interrupt(struct kvm_vcpu *vcpu)
+ 	if (!rc && kvm_cpu_has_pending_timer(vcpu))
+ 		rc = 1;
+ 
++	if (!rc && kvm_s390_si_ext_call_pending(vcpu))
++		rc = 1;
 +
-+#define exit_code_ipa0(ipa0, opcode, mnemonic)		\
-+	{ (ipa0 << 8 | opcode), #ipa0 " " mnemonic }
-+#define exit_code(opcode, mnemonic)			\
-+	{ opcode, mnemonic }
+ 	return rc;
+ }
+ 
+@@ -610,7 +626,8 @@ no_timer:
+ 	while (list_empty(&vcpu->arch.local_int.list) &&
+ 		list_empty(&vcpu->arch.local_int.float_int->list) &&
+ 		(!vcpu->arch.local_int.timer_due) &&
+-		!signal_pending(current)) {
++		!signal_pending(current) &&
++		!kvm_s390_si_ext_call_pending(vcpu)) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		spin_unlock_bh(&vcpu->arch.local_int.lock);
+ 		spin_unlock(&vcpu->arch.local_int.float_int->lock);
+@@ -667,6 +684,11 @@ void kvm_s390_clear_local_irqs(struct kvm_vcpu *vcpu)
+ 	}
+ 	atomic_set(&li->active, 0);
+ 	spin_unlock_bh(&li->lock);
 +
-+#define icpt_insn_codes				\
-+	exit_code_ipa0(0x01, 0x01, "PR"),	\
-+	exit_code_ipa0(0x01, 0x04, "PTFF"),	\
-+	exit_code_ipa0(0x01, 0x07, "SCKPF"),	\
-+	exit_code_ipa0(0xAA, 0x00, "RINEXT"),	\
-+	exit_code_ipa0(0xAA, 0x01, "RION"),	\
-+	exit_code_ipa0(0xAA, 0x02, "TRIC"),	\
-+	exit_code_ipa0(0xAA, 0x03, "RIOFF"),	\
-+	exit_code_ipa0(0xAA, 0x04, "RIEMIT"),	\
-+	exit_code_ipa0(0xB2, 0x02, "STIDP"),	\
-+	exit_code_ipa0(0xB2, 0x04, "SCK"),	\
-+	exit_code_ipa0(0xB2, 0x05, "STCK"),	\
-+	exit_code_ipa0(0xB2, 0x06, "SCKC"),	\
-+	exit_code_ipa0(0xB2, 0x07, "STCKC"),	\
-+	exit_code_ipa0(0xB2, 0x08, "SPT"),	\
-+	exit_code_ipa0(0xB2, 0x09, "STPT"),	\
-+	exit_code_ipa0(0xB2, 0x0d, "PTLB"),	\
-+	exit_code_ipa0(0xB2, 0x10, "SPX"),	\
-+	exit_code_ipa0(0xB2, 0x11, "STPX"),	\
-+	exit_code_ipa0(0xB2, 0x12, "STAP"),	\
-+	exit_code_ipa0(0xB2, 0x14, "SIE"),	\
-+	exit_code_ipa0(0xB2, 0x16, "SETR"),	\
-+	exit_code_ipa0(0xB2, 0x17, "STETR"),	\
-+	exit_code_ipa0(0xB2, 0x18, "PC"),	\
-+	exit_code_ipa0(0xB2, 0x20, "SERVC"),	\
-+	exit_code_ipa0(0xB2, 0x28, "PT"),	\
-+	exit_code_ipa0(0xB2, 0x29, "ISKE"),	\
-+	exit_code_ipa0(0xB2, 0x2a, "RRBE"),	\
-+	exit_code_ipa0(0xB2, 0x2b, "SSKE"),	\
-+	exit_code_ipa0(0xB2, 0x2c, "TB"),	\
-+	exit_code_ipa0(0xB2, 0x2e, "PGIN"),	\
-+	exit_code_ipa0(0xB2, 0x2f, "PGOUT"),	\
-+	exit_code_ipa0(0xB2, 0x30, "CSCH"),	\
-+	exit_code_ipa0(0xB2, 0x31, "HSCH"),	\
-+	exit_code_ipa0(0xB2, 0x32, "MSCH"),	\
-+	exit_code_ipa0(0xB2, 0x33, "SSCH"),	\
-+	exit_code_ipa0(0xB2, 0x34, "STSCH"),	\
-+	exit_code_ipa0(0xB2, 0x35, "TSCH"),	\
-+	exit_code_ipa0(0xB2, 0x36, "TPI"),	\
-+	exit_code_ipa0(0xB2, 0x37, "SAL"),	\
-+	exit_code_ipa0(0xB2, 0x38, "RSCH"),	\
-+	exit_code_ipa0(0xB2, 0x39, "STCRW"),	\
-+	exit_code_ipa0(0xB2, 0x3a, "STCPS"),	\
-+	exit_code_ipa0(0xB2, 0x3b, "RCHP"),	\
-+	exit_code_ipa0(0xB2, 0x3c, "SCHM"),	\
-+	exit_code_ipa0(0xB2, 0x40, "BAKR"),	\
-+	exit_code_ipa0(0xB2, 0x48, "PALB"),	\
-+	exit_code_ipa0(0xB2, 0x4c, "TAR"),	\
-+	exit_code_ipa0(0xB2, 0x50, "CSP"),	\
-+	exit_code_ipa0(0xB2, 0x54, "MVPG"),	\
-+	exit_code_ipa0(0xB2, 0x58, "BSG"),	\
-+	exit_code_ipa0(0xB2, 0x5a, "BSA"),	\
-+	exit_code_ipa0(0xB2, 0x5f, "CHSC"),	\
-+	exit_code_ipa0(0xB2, 0x74, "SIGA"),	\
-+	exit_code_ipa0(0xB2, 0x76, "XSCH"),	\
-+	exit_code_ipa0(0xB2, 0x78, "STCKE"),	\
-+	exit_code_ipa0(0xB2, 0x7c, "STCKF"),	\
-+	exit_code_ipa0(0xB2, 0x7d, "STSI"),	\
-+	exit_code_ipa0(0xB2, 0xb0, "STFLE"),	\
-+	exit_code_ipa0(0xB2, 0xb1, "STFL"),	\
-+	exit_code_ipa0(0xB2, 0xb2, "LPSWE"),	\
-+	exit_code_ipa0(0xB2, 0xf8, "TEND"),	\
-+	exit_code_ipa0(0xB2, 0xfc, "TABORT"),	\
-+	exit_code_ipa0(0xB9, 0x1e, "KMAC"),	\
-+	exit_code_ipa0(0xB9, 0x28, "PCKMO"),	\
-+	exit_code_ipa0(0xB9, 0x2a, "KMF"),	\
-+	exit_code_ipa0(0xB9, 0x2b, "KMO"),	\
-+	exit_code_ipa0(0xB9, 0x2d, "KMCTR"),	\
-+	exit_code_ipa0(0xB9, 0x2e, "KM"),	\
-+	exit_code_ipa0(0xB9, 0x2f, "KMC"),	\
-+	exit_code_ipa0(0xB9, 0x3e, "KIMD"),	\
-+	exit_code_ipa0(0xB9, 0x3f, "KLMD"),	\
-+	exit_code_ipa0(0xB9, 0x8a, "CSPG"),	\
-+	exit_code_ipa0(0xB9, 0x8d, "EPSW"),	\
-+	exit_code_ipa0(0xB9, 0x8e, "IDTE"),	\
-+	exit_code_ipa0(0xB9, 0x8f, "CRDTE"),	\
-+	exit_code_ipa0(0xB9, 0x9c, "EQBS"),	\
-+	exit_code_ipa0(0xB9, 0xa2, "PTF"),	\
-+	exit_code_ipa0(0xB9, 0xab, "ESSA"),	\
-+	exit_code_ipa0(0xB9, 0xae, "RRBM"),	\
-+	exit_code_ipa0(0xB9, 0xaf, "PFMF"),	\
-+	exit_code_ipa0(0xE3, 0x03, "LRAG"),	\
-+	exit_code_ipa0(0xE3, 0x13, "LRAY"),	\
-+	exit_code_ipa0(0xE3, 0x25, "NTSTG"),	\
-+	exit_code_ipa0(0xE5, 0x00, "LASP"),	\
-+	exit_code_ipa0(0xE5, 0x01, "TPROT"),	\
-+	exit_code_ipa0(0xE5, 0x60, "TBEGIN"),	\
-+	exit_code_ipa0(0xE5, 0x61, "TBEGINC"),	\
-+	exit_code_ipa0(0xEB, 0x25, "STCTG"),	\
-+	exit_code_ipa0(0xEB, 0x2f, "LCTLG"),	\
-+	exit_code_ipa0(0xEB, 0x60, "LRIC"),	\
-+	exit_code_ipa0(0xEB, 0x61, "STRIC"),	\
-+	exit_code_ipa0(0xEB, 0x62, "MRIC"),	\
-+	exit_code_ipa0(0xEB, 0x8a, "SQBS"),	\
-+	exit_code_ipa0(0xC8, 0x01, "ECTG"),	\
-+	exit_code(0x0a, "SVC"),			\
-+	exit_code(0x80, "SSM"),			\
-+	exit_code(0x82, "LPSW"),		\
-+	exit_code(0x83, "DIAG"),		\
-+	exit_code(0xae, "SIGP"),		\
-+	exit_code(0xac, "STNSM"),		\
-+	exit_code(0xad, "STOSM"),		\
-+	exit_code(0xb1, "LRA"),			\
-+	exit_code(0xb6, "STCTL"),		\
-+	exit_code(0xb7, "LCTL"),		\
-+	exit_code(0xee, "PLO")
++	/* clear pending external calls set by sigp interpretation facility */
++	atomic_clear_mask(CPUSTAT_ECALL_PEND, &vcpu->arch.sie_block->cpuflags);
++	atomic_clear_mask(SIGP_CTRL_C,
++			  &vcpu->kvm->arch.sca->cpu[vcpu->vcpu_id].ctrl);
+ }
+ 
+ void kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index d91feb2..2c24312 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -633,7 +633,7 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.sie_block->ecb |= 0x10;
+ 
+ 	vcpu->arch.sie_block->ecb2  = 8;
+-	vcpu->arch.sie_block->eca   = 0xC1002000U;
++	vcpu->arch.sie_block->eca   = 0xD1002000U;
+ 	if (sclp_has_siif())
+ 		vcpu->arch.sie_block->eca |= 1;
+ 	vcpu->arch.sie_block->fac   = (int) (long) vfacilities;
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index e489945..87edfc9 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -154,6 +154,7 @@ int kvm_s390_handle_eb(struct kvm_vcpu *vcpu);
+ 
+ /* implemented in sigp.c */
+ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
++int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu);
+ 
+ /* implemented in kvm-s390.c */
+ long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
+@@ -214,6 +215,7 @@ static inline int kvm_s390_inject_prog_cond(struct kvm_vcpu *vcpu, int rc)
+ int kvm_cpu_has_interrupt(struct kvm_vcpu *vcpu);
+ int psw_extint_disabled(struct kvm_vcpu *vcpu);
+ void kvm_s390_destroy_adapters(struct kvm *kvm);
++int kvm_s390_si_ext_call_pending(struct kvm_vcpu *vcpu);
+ 
+ /* implemented in guestdbg.c */
+ void kvm_s390_backup_guest_per_regs(struct kvm_vcpu *vcpu);
+diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+index c0b99e0..d0341d2 100644
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -458,3 +458,38 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu)
+ 	kvm_s390_set_psw_cc(vcpu, rc);
+ 	return 0;
+ }
 +
-+#define sie_intercept_code					\
-+	{ 0x00, "Host interruption" },				\
-+	{ 0x04, "Instruction" },				\
-+	{ 0x08, "Program interruption" },			\
-+	{ 0x0c, "Instruction and program interruption" },	\
-+	{ 0x10, "External request" },				\
-+	{ 0x14, "External interruption" },			\
-+	{ 0x18, "I/O request" },				\
-+	{ 0x1c, "Wait state" },					\
-+	{ 0x20, "Validity" },					\
-+	{ 0x28, "Stop request" },				\
-+	{ 0x2c, "Operation exception" },			\
-+	{ 0x38, "Partial-execution" },				\
-+	{ 0x3c, "I/O interruption" },				\
-+	{ 0x40, "I/O instruction" },				\
-+	{ 0x48, "Timing subset" }
++/*
++ * Handle SIGP partial execution interception.
++ *
++ * This interception will occur at the source cpu when a source cpu sends an
++ * external call to a target cpu and the target cpu has the WAIT bit set in
++ * its cpuflags. Interception will occurr after the interrupt indicator bits at
++ * the target cpu have been set. All error cases will lead to instruction
++ * interception, therefore nothing is to be checked or prepared.
++ */
++int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu)
++{
++	int r3 = vcpu->arch.sie_block->ipa & 0x000f;
++	u16 cpu_addr = vcpu->run->s.regs.gprs[r3];
++	struct kvm_vcpu *dest_vcpu;
++	u8 order_code = kvm_s390_get_base_disp_rs(vcpu);
 +
-+#endif /* _UAPI_ASM_S390_SIE_H */
++	trace_kvm_s390_handle_sigp_pei(vcpu, order_code, cpu_addr);
++
++	if (order_code == SIGP_EXTERNAL_CALL) {
++		dest_vcpu = kvm_get_vcpu(vcpu->kvm, cpu_addr);
++		BUG_ON(dest_vcpu == NULL);
++
++		spin_lock_bh(&dest_vcpu->arch.local_int.lock);
++		if (waitqueue_active(&dest_vcpu->wq))
++			wake_up_interruptible(&dest_vcpu->wq);
++		dest_vcpu->preempted = true;
++		spin_unlock_bh(&dest_vcpu->arch.local_int.lock);
++
++		kvm_s390_set_psw_cc(vcpu, SIGP_CC_ORDER_CODE_ACCEPTED);
++		return 0;
++	}
++
++	return -EOPNOTSUPP;
++}
+diff --git a/arch/s390/kvm/trace.h b/arch/s390/kvm/trace.h
+index 579b42a..916834d 100644
+--- a/arch/s390/kvm/trace.h
++++ b/arch/s390/kvm/trace.h
+@@ -239,6 +239,29 @@ TRACE_EVENT(kvm_s390_handle_sigp,
+ 			   __entry->cpu_addr, __entry->parameter)
+ 	);
+ 
++TRACE_EVENT(kvm_s390_handle_sigp_pei,
++	    TP_PROTO(VCPU_PROTO_COMMON, __u8 order_code, __u16 cpu_addr),
++	    TP_ARGS(VCPU_ARGS_COMMON, order_code, cpu_addr),
++
++	    TP_STRUCT__entry(
++		    VCPU_FIELD_COMMON
++		    __field(__u8, order_code)
++		    __field(__u16, cpu_addr)
++		    ),
++
++	    TP_fast_assign(
++		    VCPU_ASSIGN_COMMON
++		    __entry->order_code = order_code;
++		    __entry->cpu_addr = cpu_addr;
++		    ),
++
++	    VCPU_TP_PRINTK("handle sigp pei order %02x (%s), cpu address %04x",
++			   __entry->order_code,
++			   __print_symbolic(__entry->order_code,
++					    sigp_order_codes),
++			   __entry->cpu_addr)
++	);
++
+ TRACE_EVENT(kvm_s390_handle_diag,
+ 	    TP_PROTO(VCPU_PROTO_COMMON, __u16 code),
+ 	    TP_ARGS(VCPU_ARGS_COMMON, code),
 -- 
 1.8.4.2
