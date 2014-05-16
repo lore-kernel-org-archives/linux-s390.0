@@ -1,55 +1,58 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/1] KVM: s390: announce irqfd capability
-Date: Thu, 15 May 2014 11:02:51 +0200
-Message-ID: <1400144571-17011-2-git-send-email-borntraeger@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [GIT PULL 0/1] KVM: s390: Fix for 3.15
+Date: Fri, 16 May 2014 10:30:12 +0200
+Message-ID: <5375CC94.7040403@redhat.com>
 References: <1400144571-17011-1-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1400144571-17011-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Gleb Natapov <gleb@kernel.org>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Il 15/05/2014 11:02, Christian Borntraeger ha scritto:
+> Paolo,
+>
+> here is a fix for kvm/master targetting 3.15
+>
+> The following changes since commit 5367742ad5321dd38058420adb4750ed9c7ead1e:
+>
+>   Merge tag 'signed-for-3.15' of git://github.com/agraf/linux-2.6 into kvm-master (2014-05-13 18:15:16 +0200)
+>
+> are available in the git repository at:
+>
+>
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-for-3.15-1
+>
+> for you to fetch changes up to ebc3226202d5956a5963185222982d435378b899:
+>
+>   KVM: s390: announce irqfd capability (2014-05-15 10:55:10 +0200)
+>
+> ----------------------------------------------------------------
+> Here is a fix that aligns the irqfd code changes for 3.15
+> with the right capability number. irqfd for s390x was
+> introduced with 3.15-rc1, so this fix should still go into
+> Linus tree for 3.15
+>
+> ----------------------------------------------------------------
+> Cornelia Huck (1):
+>       KVM: s390: announce irqfd capability
+>
+>  Documentation/virtual/kvm/api.txt | 2 +-
+>  arch/s390/kvm/kvm-s390.c          | 1 +
+>  2 files changed, 2 insertions(+), 1 deletion(-)
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-s390 has acquired irqfd support with commit "KVM: s390: irq routing for
-adapter interrupts" (84223598778ba08041f4297fda485df83414d57e) but
-failed to announce it. Let's fix that.
+Pulled, thanks.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- Documentation/virtual/kvm/api.txt | 2 +-
- arch/s390/kvm/kvm-s390.c          | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index a9380ba5..b4f5365 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -2126,7 +2126,7 @@ into the hash PTE second double word).
- 4.75 KVM_IRQFD
- 
- Capability: KVM_CAP_IRQFD
--Architectures: x86
-+Architectures: x86 s390
- Type: vm ioctl
- Parameters: struct kvm_irqfd (in)
- Returns: 0 on success, -1 on error
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index b3ecb8f..9ae6664 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -158,6 +158,7 @@ int kvm_dev_ioctl_check_extension(long ext)
- 	case KVM_CAP_ONE_REG:
- 	case KVM_CAP_ENABLE_CAP:
- 	case KVM_CAP_S390_CSS_SUPPORT:
-+	case KVM_CAP_IRQFD:
- 	case KVM_CAP_IOEVENTFD:
- 	case KVM_CAP_DEVICE_CTRL:
- 	case KVM_CAP_ENABLE_CAP_VM:
--- 
-1.8.4.2
+Paolo
