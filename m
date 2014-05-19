@@ -1,43 +1,60 @@
-From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
-Subject: [PATCH net v1] af_iucv: wrong mapping of sent and confirmed skbs
-Date: Tue, 13 May 2014 14:38:02 +0200
-Message-ID: <20140513123802.GA60198@tuxmaker.boeblingen.de.ibm.com>
-Mime-Version: 1.0
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 19 May 2014 08:03:18 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 13/13] s390/irq: make return of 0 explicit
+Message-ID: <20140519060318.GA4459@osiris>
+References: <1400473875-22228-1-git-send-email-Julia.Lawall@lip6.fr>
+ <1400473875-22228-14-git-send-email-Julia.Lawall@lip6.fr>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: stable-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org
+In-Reply-To: <1400473875-22228-14-git-send-email-Julia.Lawall@lip6.fr>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Julia Lawall <Julia.Lawall@lip6.fr>
+Cc: Robert Richter <rric@kernel.org>, kernel-janitors@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, oprofile-list@lists.sf.net, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
+On Mon, May 19, 2014 at 06:31:15AM +0200, Julia Lawall wrote:
+> From: Julia Lawall <Julia.Lawall@lip6.fr>
+> 
+> Delete unnecessary local variable whose value is always 0 and that hides
+> the fact that the result is always 0.
+> 
+> A simplified version of the semantic patch that fixes this problem is as
+> follows: (http://coccinelle.lip6.fr/)
+> 
+> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+> 
+> ---
+>  arch/s390/oprofile/hwsampler.c |    6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/s390/oprofile/hwsampler.c b/arch/s390/oprofile/hwsampler.c
+> index 276f2e2..28b2760 100644
+> --- a/arch/s390/oprofile/hwsampler.c
+> +++ b/arch/s390/oprofile/hwsampler.c
+> @@ -212,10 +212,8 @@ static void init_all_cpu_buffers(void)
+>  static int prepare_cpu_buffers(void)
+>  {
+>  	int cpu;
+> -	int rc;
+>  	struct hws_cpu_buffer *cb;
+> 
+> -	rc = 0;
+>  	for_each_online_cpu(cpu) {
+>  		cb = &per_cpu(sampler_cpu_buffer, cpu);
+>  		atomic_set(&cb->ext_params, 0);
+> @@ -231,7 +229,7 @@ static int prepare_cpu_buffers(void)
+>  		cb->stop_mode = 0;
+>  	}
+> 
+> -	return rc;
+> +	return 0;
+>  }
 
-When sending data through IUCV a MESSAGE COMPLETE interrupt
-signals that sent data memory can be freed or reused again.
-With commit f9c41a62bba3f3f7ef3541b2a025e3371bcbba97
-"af_iucv: fix recvmsg by replacing skb_pull() function" the
-MESSAGE COMPLETE callback iucv_callback_txdone() identifies
-the wrong skb as being confirmed, which leads to data corruption.
-This patch fixes the skb mapping logic in iucv_callback_txdone().
+Thanks Julia,
 
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
-Cc: <stable@vger.kernel.org>
----
- net/iucv/af_iucv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -1830,7 +1830,7 @@ static void iucv_callback_txdone(struct
- 		spin_lock_irqsave(&list->lock, flags);
- 
- 		while (list_skb != (struct sk_buff *)list) {
--			if (msg->tag != IUCV_SKB_CB(list_skb)->tag) {
-+			if (msg->tag == IUCV_SKB_CB(list_skb)->tag) {
- 				this = list_skb;
- 				break;
- 			}
+I applied a slightly different version which also turns prepare_cpu_buffers
+into a void returning function.
