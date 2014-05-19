@@ -1,304 +1,268 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: Re: [PATCH v1 RFC 6/6] KVM: s390: add cpu model support
-Date: Mon, 19 May 2014 12:53:39 +0200
-Message-ID: <20140519125339.09840b9e@bee>
+Subject: Re: [Qemu-devel] [PATCH v1 RFC 3/6] KVM: s390: use facilities and
+ cpu_id per KVM
+Date: Mon, 19 May 2014 13:29:33 +0200
+Message-ID: <20140519132933.408a441f@bee>
 References: <1399993114-15333-1-git-send-email-mimu@linux.vnet.ibm.com>
-	<1399993114-15333-7-git-send-email-mimu@linux.vnet.ibm.com>
-	<5375FFB8.90504@suse.de>
-	<20140516173907.3b1c4efa@bee>
-	<53767590.2090605@suse.de>
+	<1399993114-15333-4-git-send-email-mimu@linux.vnet.ibm.com>
+	<5375FCBD.7010700@suse.de>
+	<20140516164645.57f22213@bee>
+	<53762581.30708@suse.de>
+	<20140516180945.588563ec@bee>
+	<53767696.7050905@suse.de>
+	<20140519121320.0db01521@bee>
+	<5379DFE9.90207@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <53767590.2090605@suse.de>
+In-Reply-To: <5379DFE9.90207@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Alexander Graf <agraf@suse.de>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gleb Natapov <gleb@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 16 May 2014 22:31:12 +0200
+On Mon, 19 May 2014 12:41:45 +0200
 Alexander Graf <agraf@suse.de> wrote:
 
 > 
-> On 16.05.14 17:39, Michael Mueller wrote:
-> > On Fri, 16 May 2014 14:08:24 +0200
+> On 19.05.14 12:13, Michael Mueller wrote:
+> > On Fri, 16 May 2014 22:35:34 +0200
 > > Alexander Graf <agraf@suse.de> wrote:
 > >
-> >> On 13.05.14 16:58, Michael Mueller wrote:
-> >>> This patch enables cpu model support in kvm/s390 via the vm attribute
-> >>> interface.
+> >> On 16.05.14 18:09, Michael Mueller wrote:
+> >>> On Fri, 16 May 2014 16:49:37 +0200
+> >>> Alexander Graf <agraf@suse.de> wrote:
 > >>>
-> >>> During KVM initialization, the host properties cpuid, IBC value and the
-> >>> facility list are stored in the architecture specific cpu model structure.
+> >>>> On 16.05.14 16:46, Michael Mueller wrote:
+> >>>>> On Fri, 16 May 2014 13:55:41 +0200
+> >>>>> Alexander Graf <agraf@suse.de> wrote:
+> >>>>>
+> >>>>>> On 13.05.14 16:58, Michael Mueller wrote:
+> >>>>>>> The patch introduces facilities and cpu_ids per virtual machine.
+> >>>>>>> Different virtual machines may want to expose different facilities and
+> >>>>>>> cpu ids to the guest, so let's make them per-vm instead of global.
+> >>>>>>>
+> >>>>>>> In addition this patch renames all ocurrences of *facilities to *fac_list
+> >>>>>>> smilar to the already exiting symbol stfl_fac_list in lowcore.
+> >>>>>>>
+> >>>>>>> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+> >>>>>>> Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> >>>>>>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> >>>>>>> ---
+> >>>>>>>      arch/s390/include/asm/kvm_host.h |   7 +++
+> >>>>>>>      arch/s390/kvm/gaccess.c          |   4 +-
+> >>>>>>>      arch/s390/kvm/kvm-s390.c         | 107 +++++++++++++++++++++++++++------------
+> >>>>>>>      arch/s390/kvm/kvm-s390.h         |  23 +++++++--
+> >>>>>>>      arch/s390/kvm/priv.c             |  13 +++--
+> >>>>>>>      5 files changed, 113 insertions(+), 41 deletions(-)
+> >>>>>>>
+> >>>>>>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> >>>>>>> index 38d487a..b4751ba 100644
+> >>>>>>> --- a/arch/s390/include/asm/kvm_host.h
+> >>>>>>> +++ b/arch/s390/include/asm/kvm_host.h
+> >>>>>>> @@ -414,6 +414,12 @@ struct kvm_s390_config {
+> >>>>>>>      	struct kvm_s390_attr_name name;
+> >>>>>>>      };
+> >>>>>>>      
+> >>>>>>> +struct kvm_s390_cpu_model {
+> >>>>>>> +	unsigned long *sie_fac;
+> >>>>>>> +	struct cpuid cpu_id;
+> >>>>>>> +	unsigned long *fac_list;
+> >>>>>>> +};
+> >>>>>>> +
+> >>>>>>>      struct kvm_arch{
+> >>>>>>>      	struct sca_block *sca;
+> >>>>>>>      	debug_info_t *dbf;
+> >>>>>>> @@ -427,6 +433,7 @@ struct kvm_arch{
+> >>>>>>>      	wait_queue_head_t ipte_wq;
+> >>>>>>>      	struct kvm_s390_config *cfg;
+> >>>>>>>      	spinlock_t start_stop_lock;
+> >>>>>>> +	struct kvm_s390_cpu_model model;
+> >>>>>>>      };
+> >>>>>>>      
+> >>>>>>>      #define KVM_HVA_ERR_BAD		(-1UL)
+> >>>>>>> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+> >>>>>>> index db608c3..4c7ca40 100644
+> >>>>>>> --- a/arch/s390/kvm/gaccess.c
+> >>>>>>> +++ b/arch/s390/kvm/gaccess.c
+> >>>>>>> @@ -358,8 +358,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned
+> >>>>>>> long gva, union asce asce;
+> >>>>>>>      
+> >>>>>>>      	ctlreg0.val = vcpu->arch.sie_block->gcr[0];
+> >>>>>>> -	edat1 = ctlreg0.edat && test_vfacility(8);
+> >>>>>>> -	edat2 = edat1 && test_vfacility(78);
+> >>>>>>> +	edat1 = ctlreg0.edat && test_kvm_facility(vcpu->kvm, 8);
+> >>>>>>> +	edat2 = edat1 && test_kvm_facility(vcpu->kvm, 78);
+> >>>>>>>      	asce.val = get_vcpu_asce(vcpu);
+> >>>>>>>      	if (asce.r)
+> >>>>>>>      		goto real_address;
+> >>>>>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> >>>>>>> index 01a5212..a53652f 100644
+> >>>>>>> --- a/arch/s390/kvm/kvm-s390.c
+> >>>>>>> +++ b/arch/s390/kvm/kvm-s390.c
+> >>>>>>> @@ -1,5 +1,5 @@
+> >>>>>>>      /*
+> >>>>>>> - * hosting zSeries kernel virtual machines
+> >>>>>>> + * Hosting zSeries kernel virtual machines
+> >>>>>>>       *
+> >>>>>>>       * Copyright IBM Corp. 2008, 2009
+> >>>>>>>       *
+> >>>>>>> @@ -30,7 +30,6 @@
+> >>>>>>>      #include <asm/pgtable.h>
+> >>>>>>>      #include <asm/nmi.h>
+> >>>>>>>      #include <asm/switch_to.h>
+> >>>>>>> -#include <asm/facility.h>
+> >>>>>>>      #include <asm/sclp.h>
+> >>>>>>>      #include<asm/timex.h>
+> >>>>>>>      #include "kvm-s390.h"
+> >>>>>>> @@ -92,15 +91,33 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
+> >>>>>>>      	{ NULL }
+> >>>>>>>      };
+> >>>>>>>      
+> >>>>>>> -unsigned long *vfacilities;
+> >>>>>>> -static struct gmap_notifier gmap_notifier;
+> >>>>>>> +/* upper facilities limit for kvm */
+> >>>>>>> +unsigned long kvm_s390_fac_list_mask[] = {
+> >>>>>>> +	0xff82fff3f47c2000UL,
+> >>>>>>> +	0x005c000000000000UL,
+> >>>>>>> +};
+> >>>>>>> +
+> >>>>>>> +unsigned long kvm_s390_fac_list_mask_size(void)
+> >>>>>>> +{
+> >>>>>>> +	BUILD_BUG_ON(ARRAY_SIZE(kvm_s390_fac_list_mask) >
+> >>>>>>> +		     S390_ARCH_FAC_MASK_SIZE_U64);
+> >>>>>>> +	return ARRAY_SIZE(kvm_s390_fac_list_mask);
+> >>>>>>> +}
+> >>>>>>>      
+> >>>>>>> -/* test availability of vfacility */
+> >>>>>>> -int test_vfacility(unsigned long nr)
+> >>>>>>> +void kvm_s390_apply_fac_list_mask(unsigned long fac_list[])
+> >>>>>>>      {
+> >>>>>>> -	return __test_facility(nr, (void *) vfacilities);
+> >>>>>>> +	unsigned int i;
+> >>>>>>> +
+> >>>>>>> +	for (i = 0; i < S390_ARCH_FAC_LIST_SIZE_U64; i++) {
+> >>>>>>> +		if (i < kvm_s390_fac_list_mask_size())
+> >>>>>>> +			fac_list[i] &= kvm_s390_fac_list_mask[i];
+> >>>>>>> +		else
+> >>>>>>> +			fac_list[i] &= 0UL;
+> >>>>>>> +	}
+> >>>>>>>      }
+> >>>>>>>      
+> >>>>>>> +static struct gmap_notifier gmap_notifier;
+> >>>>>>> +
+> >>>>>>>      /* Section: not file related */
+> >>>>>>>      int kvm_arch_hardware_enable(void *garbage)
+> >>>>>>>      {
+> >>>>>>> @@ -485,6 +502,30 @@ long kvm_arch_vm_ioctl(struct file *filp,
+> >>>>>>>      	return r;
+> >>>>>>>      }
+> >>>>>>>      
+> >>>>>>> +/* make sure the memory used for fac_list is zeroed */
+> >>>>>>> +void kvm_s390_get_hard_fac_list(unsigned long *fac_list, int size)
+> >>>>>> Hard? Wouldn't "host" make more sense here?
+> >>>>> Renaming "*hard_fac_list" with "*host_fac_list" here and wherever it appears is ok with
+> >>>>> me.
+> >>>>>
+> >>>>>> I also think it makes sense to expose the native host facility list to
+> >>>>>> user space via an ioctl somehow.
+> >>>>>>
+> >>>>> In which situation do you need the full facility list. Do you have an example?
+> >>>> If you want to just implement -cpu host to get the exact feature set
+> >>>> that the host gives you, how do you know which set that is?
+> >>> During qemu machine initalization I call:
 > >>>
-> >>> During vcpu setup, these properties are taken to initialize the related SIE
-> >>> state. This mechanism allows to adjust the properties from user space and thus
-> >>> to implement different selectable cpu models.
+> >>> kvm_s390_get_machine_props(&mach);
 > >>>
-> >>> This patch uses the IBC functionality to block instructions that have not
-> >>> been implemented at the requested CPU type and GA level compared to the
-> >>> full host capability.
+> >>> which returns the following information:
 > >>>
-> >>> Userspace has to initialize the cpu model before vcpu creation. A cpu model
-> >>> change of running vcpus is currently not possible.
-> >> Why is this VM global? It usually fits a lot better modeling wise when
-> >> CPU types are vcpu properties.
-> > It simplifies the code substantially because it inherently guarantees the vcpus being
-> > configured identical. In addition, there is no S390 hardware implementation containing
-> > inhomogeneous processor types. Thus I consider the properties as machine specific.
-> >
-> >>> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-> >>> ---
-> >>>    arch/s390/include/asm/kvm_host.h |   4 +-
-> >>>    arch/s390/include/uapi/asm/kvm.h |  23 ++++++
-> >>>    arch/s390/kvm/kvm-s390.c         | 146 ++++++++++++++++++++++++++++++++++++++-
-> >>>    arch/s390/kvm/kvm-s390.h         |   1 +
-> >>>    4 files changed, 172 insertions(+), 2 deletions(-)
-> >>>
-> >>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> >>> index b4751ba..6b826cb 100644
-> >>> --- a/arch/s390/include/asm/kvm_host.h
-> >>> +++ b/arch/s390/include/asm/kvm_host.h
-> >>> @@ -84,7 +84,8 @@ struct kvm_s390_sie_block {
-> >>>    	atomic_t cpuflags;		/* 0x0000 */
-> >>>    	__u32 : 1;			/* 0x0004 */
-> >>>    	__u32 prefix : 18;
-> >>> -	__u32 : 13;
-> >>> +	__u32 : 1;
-> >>> +	__u32 ibc : 12;
-> >>>    	__u8	reserved08[4];		/* 0x0008 */
-> >>>    #define PROG_IN_SIE (1<<0)
-> >>>    	__u32	prog0c;			/* 0x000c */
-> >>> @@ -418,6 +419,7 @@ struct kvm_s390_cpu_model {
-> >>>    	unsigned long *sie_fac;
-> >>>    	struct cpuid cpu_id;
-> >>>    	unsigned long *fac_list;
-> >>> +	unsigned short ibc;
-> >>>    };
-> >>>    
-> >>>    struct kvm_arch{
-> >>> diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-> >>> index 313100a..82ef1b5 100644
-> >>> --- a/arch/s390/include/uapi/asm/kvm.h
-> >>> +++ b/arch/s390/include/uapi/asm/kvm.h
-> >>> @@ -58,12 +58,35 @@ struct kvm_s390_io_adapter_req {
-> >>>    
-> >>>    /* kvm attr_group  on vm fd */
-> >>>    #define KVM_S390_VM_MEM_CTRL		0
-> >>> +#define KVM_S390_VM_CPU_MODEL		1
-> >>>    
-> >>>    /* kvm attributes for mem_ctrl */
-> >>>    #define KVM_S390_VM_MEM_ENABLE_CMMA	0
-> >>>    #define KVM_S390_VM_MEM_CLR_CMMA	1
-> >>>    #define KVM_S390_VM_MEM_CLR_PAGES	2
-> >>>    
-> >>> +/* kvm attributes for cpu_model */
-> >>> +
-> >>> +/* the s390 processor related attributes are r/w */
-> >>> +#define KVM_S390_VM_CPU_PROCESSOR	0
-> >>> +struct kvm_s390_vm_cpu_processor {
-> >>> +	__u64 cpuid;
-> >>> +	__u16 ibc;
-> >>> +	__u8  pad[6];
-> >>> +	__u64 fac_list[256];
-> >>> +};
-> >>> +
-> >>> +/* the machine related attributes are read only */
-> >>> +#define KVM_S390_VM_CPU_MACHINE		1
-> >>> +struct kvm_s390_vm_cpu_machine {
-> >>> +	__u64 cpuid;
-> >>> +	__u32 ibc_range;
-> >>> +	__u8  pad[4];
-> >>> +	__u64 fac_mask[256];
-> >>> +	__u64 hard_fac_list[256];
-> >>> +	__u64 soft_fac_list[256];
-> >>> +};
-> >>> +
-> >>>    /* for KVM_GET_REGS and KVM_SET_REGS */
-> >>>    struct kvm_regs {
-> >>>    	/* general purpose regs for s390 */
-> >>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> >>> index a53652f..9965d8b 100644
-> >>> --- a/arch/s390/kvm/kvm-s390.c
-> >>> +++ b/arch/s390/kvm/kvm-s390.c
-> >>> @@ -369,6 +369,110 @@ static int kvm_s390_mem_control(struct kvm *kvm, struct
-> >>> kvm_device_attr *attr) return ret;
-> >>>    }
-> >>>    
-> >>> +static int kvm_s390_set_processor(struct kvm *kvm, struct kvm_device_attr *attr)
-> >>> +{
-> >>> +	struct kvm_s390_vm_cpu_processor *proc;
-> >>> +
-> >>> +	if (atomic_read(&kvm->online_vcpus))
-> >>> +		return -EBUSY;
-> >>> +
-> >>> +	proc = kzalloc(sizeof(*proc), GFP_KERNEL);
-> >>> +	if (!proc)
-> >>> +		return -ENOMEM;
-> >>> +
-> >>> +	if (copy_from_user(proc, (void __user *)attr->addr,
-> >>> +			   sizeof(*proc))) {
-> >>> +		kfree(proc);
-> >>> +		return -EFAULT;
-> >>> +	}
-> >>> +
-> >>> +	mutex_lock(&kvm->lock);
-> >>> +	memcpy(&kvm->arch.model.cpu_id, &proc->cpuid,
-> >>> +	       sizeof(struct cpuid));
-> >>> +	kvm->arch.model.ibc = proc->ibc;
-> >>> +	kvm_s390_apply_fac_list_mask((long unsigned *)proc->fac_list);
-> >>> +	memcpy(kvm->arch.model.fac_list, proc->fac_list,
-> >>> +	       S390_ARCH_FAC_LIST_SIZE_BYTE);
-> >>> +	mutex_unlock(&kvm->lock);
-> >>> +	kfree(proc);
-> >>> +
-> >>> +	return 0;
-> >>> +}
-> >>> +
-> >>> +static int kvm_s390_set_cpu_model(struct kvm *kvm, struct kvm_device_attr *attr)
-> >>> +{
-> >>> +	int ret = -ENXIO;
-> >>> +
-> >>> +	switch (attr->attr) {
-> >>> +	case KVM_S390_VM_CPU_PROCESSOR:
-> >>> +		ret = kvm_s390_set_processor(kvm, attr);
-> >>> +		break;
-> >>> +	}
-> >>> +	return ret;
-> >>> +}
-> >>> +
-> >>> +static int kvm_s390_get_processor(struct kvm *kvm, struct kvm_device_attr *attr)
-> >>> +{
-> >>> +	struct kvm_s390_vm_cpu_processor *proc;
-> >>> +	int rc = 0;
-> >>> +
-> >>> +	proc = kzalloc(sizeof(*proc), GFP_KERNEL);
-> >>> +	if (!proc) {
-> >>> +		rc = -ENOMEM;
-> >>> +		goto out;
-> >>> +	}
-> >>> +	memcpy(&proc->cpuid, &kvm->arch.model.cpu_id, sizeof(struct cpuid));
-> >>> +	proc->ibc = kvm->arch.model.ibc;
-> >>> +	memcpy(&proc->fac_list, kvm->arch.model.fac_list,
-> >>> +	       S390_ARCH_FAC_LIST_SIZE_BYTE);
-> >>> +	if (copy_to_user((void __user *)attr->addr, proc, sizeof(*proc)))
-> >>> +		rc = -EFAULT;
-> >>> +	kfree(proc);
-> >>> +out:
-> >>> +	return rc;
-> >>> +}
-> >>> +
-> >>> +static int kvm_s390_get_machine(struct kvm *kvm, struct kvm_device_attr *attr)
-> >>> +{
-> >>> +	struct kvm_s390_vm_cpu_machine *mach;
-> >>> +	int rc = 0;
-> >>> +
-> >>> +	mach = kzalloc(sizeof(*mach), GFP_KERNEL);
-> >>> +	if (!mach) {
-> >>> +		rc = -ENOMEM;
-> >>> +		goto out;
-> >>> +	}
-> >>> +	get_cpu_id((struct cpuid *) &mach->cpuid);
-> >>> +	mach->ibc_range = kvm_s390_lowest_ibc() << 16;
-> >>> +	mach->ibc_range |= kvm_s390_latest_ibc();
-> >>> +	memcpy(&mach->fac_mask, kvm_s390_fac_list_mask,
-> >>> +	       kvm_s390_fac_list_mask_size() * sizeof(u64));
-> >>> +	kvm_s390_get_hard_fac_list((long unsigned int *) &mach->hard_fac_list,
-> >>> +				   S390_ARCH_FAC_LIST_SIZE_U64);
-> >>> +	kvm_s390_get_soft_fac_list((long unsigned int *) &mach->soft_fac_list,
-> >>> +				   S390_ARCH_FAC_LIST_SIZE_U64);
-> >> I really have a hard time grasping what hard and soft means.
-> > Hard facilities are those that are implemented by the CPU itself, either through processor
-> > logic or be means of firmware micro code. That's the list returned by the STFL/STFLE
-> > instruction. In addition to that, one can imagine that in future some of that features are
-> > emulated on KVM side. These will be placed in the soft facility list and are optionally to
-> > request by user space.
-> 
-> I don't see why we would have to differentiate between the two. User 
-> space wants features enabled. Whether they are done in hardware or in 
-> software doesn't matter.
-
-I've tried to make my point on that in last answer of patch 3/6. It's a mistake
-to think that user space just wants to have features, they come with different
-qualities! 
-
-> 
-> So all we need is a list of "features the guest sees available" which is 
-> the same as "features user space wants the guest to see" which then gets 
-> masked through "features the host can do in hardware".
-> 
-> For emulation we can just check on the global feature availability on 
-> whether we should emulate them or not.
-> 
-> >
-> >> Also, if user space wants to make sure that its feature list is actually
-> >> workable on the host kernel, it needs to set and get the features again
-> >> and then compare that with the ones it set? That's different from x86's
-> >> cpuid implementation but probably workable.
-> > User space will probe what facilities are available and match them with the predefined cpu
-> > model set. Only those models which use a partial or full subset of the hard/host facility
-> > list are selectable.
-> 
-> Why?
-
-If a host does not offer the features required for a model it is not able to
-run efficiently.
-
-> 
-> Please take a look at how x86 does cpuid masking :).
-> 
-> In fact, I'm not 100% convinced that it's a good idea to link cpuid / 
-> feature list exposure to the guest and actual feature implementation 
-> inside the guest together. On POWER there is a patch set pending that 
-> implements these two things separately - admittedly mostly because 
-> hardware sucks and we can't change the PVR.
-
-That is maybe the big difference with s390. The cpuid in the S390 case is not
-directly comparable with the processor version register of POWER.
-
-In the S390 world we have a well defined CPU model room spanned by the machine
-type and its GA count. Thus we can define a bijective mapping between
-(type, ga) <-> (cpuid, ibc, facility set). From type and ga we form the model
-name which BTW is meaningful also for a human user.
-
-By means of this name, a management interface (libvirt) will draw decisions if
-migration to a remote hypervisor is a good idea or not. For that it just needs
-to compare if the current model of the guest on the source hypervisor
-("query-cpu-model"), is contained in the supported model list of the target
-hypervisor ("query-cpu-definitions").
-
-> 
-> >
-> >> I also don't quite grasp what the story behind IBC is. Do you actually
-> >> block instructions? Where do you match instructions that have to get
-> >> blocked with instructions that user space wants to see exposed?
+> >>> typedef struct S390MachineProps {
+> >>>       uint64_t cpuid;
+> >>>       uint32_t ibc_range;
+> >>>       uint8_t  pad[4];
+> >>>       uint64_t fac_mask[S390_ARCH_FAC_MASK_SIZE_UINT64];
+> >>>       uint64_t hard_fac_list[S390_ARCH_FAC_LIST_SIZE_UINT64];
+> >>>       uint64_t soft_fac_list[S390_ARCH_FAC_LIST_SIZE_UINT64];
+> >>> } S390MachineProps;
+> >> Ah, ok, I missed that part. So "kvm_s390_get_machine_props()" basically
+> >> gets us the full facility list the host supports. That makes sense.
 > >>
-> > Instruction Blocking Control is a feature that was first introduced with the 2097 (IBM System
-> > z10.) The IBC value is part of the SIE state. Just consider it as a kind of parameter, that
-> > allows only instructions that have been implemented up to a certain cpu type and GA level to
-> > become executed, all other op codes will end in an illegal opcode abort. E.g. take the
-> > "Transactional Memory" instructions, they are implemented since type 2827, GA1
-> > (IBM zEnterprise EC12.). The IBC value has 12 bits 8 for the type and 4 for the GA level.
-> > 0x001 means its a z10, GA1. The value 0x021 means it's a 2827 (CMOS generation 12 is 0x02) and
-> > GA1 and so forth. A guest running with IBC value 0x012 (z196 GA2) will not be able to use
-> > TE instructions in contrast to a guest running with IBC value 0x022 given the host supports
-> > it.
+> >> I still don't know whether we should care about hard/soft, but I suppose
+> >> the rest makes sense.
+> > The reason why I differentiate between hardware and software implemented
+> > facilities has several reasons.
+> >
+> > First, one should understand that both lists represent the same set of
+> > features, there is no software feature not being implemented as hardware
+> > feature on an existing S390 system. An optional implementation of a software
+> > feature is usable on back-level hardware to implement functionality, not
+> > quality or performance! That means, on OS and it's application is capable to
+> > run most efficiently on the given hardware without that software feature.
+> > If a system has the same facility in soft- and hardware implemented, KVM
+> > always privileges the hardware implementation.
+> >
+> > Second, separating both features allow user space to differentiate between
+> > hardware and software implemented features and to give up on SW features
+> > if not explicitly requested by the CPU model option "+sofl".
 > 
-> That sounds very similar to the "compat" cpu property that Alexey is 
-> introducing for POWER. Maybe we can model it identically?
+> Why? User space has a set of features it wants to expose to the guest.
 
-I think it is something different. With "compat" one might be able the express some kind
-of compatibility between two processors of the some different generations, upon which
-the management interface can draw conclusions if migration makes sense or not.
+You are talking about a different interface here. That is not the intension
+of software / hardware facilities of KVM. They are never implemented in user
+space!
 
-The IBC works totally different. It enforces that the instruction set defined for TYPE-GA. 
+> If the kernel can handle all of them, fine. If it can't, it can either 
+> decide that the VM can't run on that host or disable features and 
+> *remember it did so* so that on migration it can warn the target host.
+> 
+> > Third, and very important, the main reason for CPU model implementation
+> > is to guarantee an identical environment on source and target side comprised
+> > of facilities, instruction set and CPU id. The capability for migration is
+> 
+> Yes, exactly :).
+> 
+> > lost as soon software implemented facilities become activated!
+> 
+> Why? When something is done in software, I can surely migrate the state?
 
+Sure, but in the former case it could be implemented in the source in HW and
+the target in SW.
+
+> 
+> > Once again the method Qemu uses to define the set of requested facilities.
+> >
+> > The machine properties ioctl provides FMh, HFh, and SFh, ie. the mask and
+> > hardware/software implemented facility sets of the hosts.
+> >
+> > Qemu has knowledge on all real existing CPU models (TYPE-GA), particularly
+> > on the facility set of these model (Fm)
+> >   
+> > During startup, Qemu retrives FMh, HFh and SFh. Then for all CPU models Qemu
+> > is aware off, it calculates (Fm & FMh). If that is a subset of HFh, the model
+> > is a supportable model on this host. If the user has specified to allow
+> > software implemented facilities (-cpu <model>,+sofl), The facilities to
+> > request are calculated like (Fm & FMh | SFh).
+> 
+> Why so complicated? What's the difference between -cpu 
+> z9,cpu-id=z10,+featureA,+featureB,+featureC where A, B and C are the new 
+> features between z9 and z10?
+
+I absolutely want to avoid a facility room of 2**14 bit being specified on the
+command line by an administrator who is even unaware of facilities at all!
+Also libvirt must not be scared by this facility flood when making migration
+decisions. This is what I think would make things complicate.
+
+I consider an soft defined KVM facility as exception and not the rule.
+
+Michael
+
+> 
+> There really shouldn't be any difference between those 2 different 
+> invocation types IMHO.
 > 
 > 
 > Alex
 > 
-
-Michael
