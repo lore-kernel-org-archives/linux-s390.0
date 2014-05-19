@@ -1,125 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH 0/13] make return of 0 explicit
-Date: Mon, 19 May 2014 06:31:02 +0200
-Message-Id: <1400473875-22228-1-git-send-email-Julia.Lawall@lip6.fr>
+Date: Mon, 19 May 2014 10:30:10 +0200
+From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+Subject: Re: [PATCH] s390: net: qeth_core_main.c:  Fix for possible null
+	pointer dereference
+Message-ID: <20140519083010.GA44089@tuxmaker.boeblingen.de.ibm.com>
+References: <1400429068-10607-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1400429068-10607-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: brcm80211-dev-list@broadcom.com
-Cc: kernel-janitors@vger.kernel.org, alsa-devel@alsa-project.org, coreteam@netfilter.org, netfilter@vger.kernel.org, netfilter-devel@vger.kernel.org, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org, libertas-dev@lists.infradead.org, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org, devel@driverdev.osuosl.org, linux-raid@vger.kernel.org, oprofile-list@lists.sf.net, linux-s390@vger.kernel.org
+To: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+Cc: Ursula Braun <ursula.braun@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Sometimes a local variable is used as a return value in a case where the
-return value is always 0.  The result is more apparent if this variable is
-just replaced by 0.  This is done by the following semantic patch, although
-some cleanups may be needed. (http://coccinelle.lip6.fr/)
+On Sun, May 18, 2014 at 06:04:27PM +0200, Rickard Strandqvist wrote:
+> There is otherwise a risk of a possible null pointer dereference.
+> 
+> Was largely found by using a static code analysis program called cppcheck.
+> 
+> Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
 
-// <smpl>
-@r exists@
-local idexpression ret;
-identifier reti;
-expression e;
-position p;
-@@
+Added to my patch queue. Thx!
 
-ret@reti = 0;
-... when != \(ret = e\|ret &= e\|ret |= e\|ret += e\|ret -= e\|ret *= e\|ret ^= e\)
-    when != \(++ret\|--ret\|ret++\|ret--\)
-    when != &ret
-return ret;@p
-
-@bad1 exists@
-expression e != 0;
-local idexpression r.ret;
-position r.p;
-@@
-
- \(ret = e\|ret &= e\|ret |= e\|ret += e\|ret -= e\|ret *= e\|ret ^= e\|++ret\|--ret\|ret++\|ret--\|&ret\)
- ...
- return ret;@p
-
-@bad2 exists@
-identifier r.reti;
-position r.p;
-identifier f;
-type T;
-@@
-
-f(...,T reti,...) {
- ...
- return reti;@p
-}
-
-@change depends on !bad1 && !bad2@
-position r.p;
-local idexpression r.ret;
-identifier f;
-@@
-
-f(...) { <+...
-return 
--ret
-+0
-;@p
-...+> }
-
-@rewrite@
-local idexpression r.ret;
-expression e;
-position p;
-identifier change.f;
-@@
-
-f(...) { <+...
- \(ret@p = e\|&ret@p\)
-...+> }
-
-@depends on change@
-local idexpression r.ret;
-position p != rewrite.p;
-identifier change.f;
-@@
-
-f(...) { <+...
-(
-break;
-|
-ret = 0;
-... when exists
-ret@p
-... when any
-|
-- ret = 0;
-)
-...+> }
-
-@depends on change@
-identifier r.reti;
-type T;
-constant C;
-identifier change.f;
-@@
-
-f(...) { ... when any
--T reti = C;
- ... when != reti
-     when strict
- }
-
-@depends on change@
-identifier r.reti;
-type T;
-identifier change.f;
-@@
-
-f(...) { ... when any
--T reti;
- ... when != reti
-     when strict
- }
-// </smpl>
-
-The first four rules detect cases where only 0 reaches a return.  The
-remaining rules clean up any variable initializations or declarations that
-are made unnecessary by this change.
+> ---
+>  drivers/s390/net/qeth_core_main.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+> index 22470a3..5562665 100644
+> --- a/drivers/s390/net/qeth_core_main.c
+> +++ b/drivers/s390/net/qeth_core_main.c
+> @@ -1012,7 +1012,7 @@ static long __qeth_check_irb_error(struct ccw_device *cdev,
+> 
+>  	card = CARD_FROM_CDEV(cdev);
+> 
+> -	if (!IS_ERR(irb))
+> +	if (!card || !IS_ERR(irb))
+>  		return 0;
+> 
+>  	switch (PTR_ERR(irb)) {
+> @@ -1028,7 +1028,7 @@ static long __qeth_check_irb_error(struct ccw_device *cdev,
+>  		QETH_CARD_TEXT(card, 2, "ckirberr");
+>  		QETH_CARD_TEXT_(card, 2, "  rc%d", -ETIMEDOUT);
+>  		if (intparm == QETH_RCD_PARM) {
+> -			if (card && (card->data.ccwdev == cdev)) {
+> +			if (card->data.ccwdev == cdev) {
+>  				card->data.state = CH_STATE_DOWN;
+>  				wake_up(&card->wait_q);
+>  			}
+> -- 
+> 1.7.10.4
+> 
