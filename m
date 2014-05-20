@@ -1,42 +1,20 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Vincent Guittot <vincent.guittot@linaro.org>
-Subject: RE: [sched] BUG: unable to handle kernel paging request at 093cd001
-Date: Mon, 12 May 2014 11:52:04 +0200
-Message-Id: <1399888324-2007-1-git-send-email-vincent.guittot@linaro.org>
-In-Reply-To: <53708067.7050700@intel.com>
-References: <53708067.7050700@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: jet.chen@intel.com
-Cc: mingo@kernel.org, fengguang.wu@intel.com, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vincent Guittot <vincent.guittot@linaro.org>
+From: =?UTF-8?B?VG9yYWxmIEbDtnJzdGVy?= <toralf.foerster@gmx.de>
+Date: Tue, 20 May 2014 09:04:35 +0000
+Subject: Re: format string mismatch
+Message-Id: <537B1AA3.2030002@gmx.de>
+In-Reply-To: <1400575849.17323.9.camel@BR9GV9YG.de.ibm.com>
+References: <1400575849.17323.9.camel@BR9GV9YG.de.ibm.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+On 05/20/2014 10:50 AM, Ursula Braun wrote:
+> thanks for reporting these inconsistencies in our drivers. Patches are
+> welcome, if you can spend the time. Otherwise we will take care about
+> them. I suggest to keep the "unsigned int" format in lcs.c and
+> ctcm_sysfs.c, but move to a "u8" format in qeth_l3_main.c.
 
-Does this patch solve your issue ?
+Well, still in charge with other patches of this kind, so if you have a
+solution, I'm completely fine if your team fixes this.
 
-A null line is missing at the end of the array for NUMA case.
-My test was passed thanks to a null data after the allocated array 
-
-regards,
-Vincent
----
- kernel/sched/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 4ea7b3f..941da33 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6232,7 +6232,7 @@ static void sched_init_numa(void)
- 	}
- 
- 	/* Compute default topology size */
--	for (i = 0; sched_domain_topology[i].mask; i++);
-+	for (i = 1; sched_domain_topology[i].mask; i++);
- 
- 	tl = kzalloc((i + level) *
- 			sizeof(struct sched_domain_topology_level), GFP_KERNEL);
 -- 
-1.9.1
+Toralf
