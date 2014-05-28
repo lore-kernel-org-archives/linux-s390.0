@@ -1,69 +1,51 @@
-From: =?UTF-8?B?VG9yYWxmIEbDtnJzdGVy?= <toralf.foerster@gmx.de>
-Date: Tue, 20 May 2014 09:19:45 +0000
-Subject: Fwd: RE: [E1000-devel] [PATCH] fix format mismatch in drivers/net/ethernet/intel/i40e/i40e_debugfs.c
-Message-Id: <537B1E31.1030206@gmx.de>
+From: Stefan Weinhuber <WEIN@de.ibm.com>
+Date: Wed, 28 May 2014 14:46:06 +0000
+Subject: Re: dasd HDIO_GETGEO
+Message-Id: <OF4579C1BF.AC54EC3B-ONC1257CE6.004F1653-C1257CE6.00512046@de.ibm.com>
+In-Reply-To: <20140528121208.GE385@x2.net.home>
+References: <20140528121208.GE385@x2.net.home>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+Hi Karel,
 
-Ursuly,
-
-related to the usage of u8 versus int/unsigned I forward here an comment from Jeffrey:
-
--------- Original Message --------
-Subject: RE: [E1000-devel] [PATCH] fix format mismatch in drivers/net/ethernet/intel/i40e/i40e_debugfs.c
-Date: Tue, 20 May 2014 00:17:07 +0000
-From: Nelson, Shannon <shannon.nelson@intel.com>
-To: Kirsher, Jeffrey T <jeffrey.t.kirsher@intel.com>, Toralf F�rster <toralf.foerster@gmx.de>
-CC: Brandeburg, Jesse <jesse.brandeburg@intel.com>, e1000-devel@lists.sourceforge.net <e1000-devel@lists.sourceforge.net>, netdev@vger.kernel.org <netdev@vger.kernel.org>
-
-> From: Kirsher, Jeffrey T
+Karel Zak <kzak@redhat.com> wrote on 2014-05-28 14:12:08:
 > 
-> On Mon, 2014-05-19 at 14:04 +0200, Toralf F�rster wrote:
-> > spotted by cppcheck
-> >
-> > Signed-off-by: Toralf F�rster <toralf.foerster@gmx.de>
-> > ---
-> >  drivers/net/ethernet/intel/i40e/i40e_debugfs.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
+>  but only dasd driver overwrites this default and reports in native
+>  sectors:
 > 
-> I will add your patch to my queue and will hold off on making my
-> suggested change below until Shannon and Jesse have had time to review
-> your patch.
+>  drivers/s390/block/dasd.c: dasd_getgeo():
 > 
-> >
-> > diff --git a/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
-> b/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
-> > index 3c37386..1bc35a2 100644
-> > --- a/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
-> > +++ b/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
-> > @@ -1239,7 +1239,7 @@ static ssize_t i40e_dbg_command_write(struct
-> file *filp,
-> >  	} else if (strncmp(cmd_buf, "add pvid", 8) == 0) {
-> >  		i40e_status ret;
-> >  		u16 vid;
-> > -		int v;
-> > +		unsigned int v;
+>            geo->start = get_start_sect(bdev) >> base->block->s2b_shift;
 > 
-> Maybe u16 instead...
+> 
+>  So, for normal SCSI I always get start sector independently on disk
+>  sector size, but for dasd... 
+> 
+>  Is it expected behavior? It's painful for userspace to care about 
+>  driver type. 
 
-sscanf() can be a tricksie little beastie, and I'm more comfortable with giving it an int of some sort rather than a u16, otherwise this would have just used vid from the start.  I can live with Toralf's suggestion.
+I looked up that line in old change logs, and apparently this was
+changed in 2002 during the Kernel 2.5 development phase with the
+commit message
 
-sln
+Fixed HDIO_GETGEO to meet 2.4 semantics
 
+So this was an intentional change to remain compatible with older
+versions of this ioctl.
 
 > 
-> >
-> >  		cnt = sscanf(&cmd_buf[8], "%i %u", &vsi_seid, &v);
-> >  		if (cnt != 2) {
-> > @@ -1255,7 +1255,7 @@ static ssize_t i40e_dbg_command_write(struct
-> file *filp,
-> >  			goto command_write_done;
-> >  		}
-> >
-> > -		vid = (unsigned)v;
-> > +		vid = v;
-> >  		ret = i40e_vsi_add_pvid(vsi, vid);
-> >  		if (!ret)
-> >  			dev_info(&pf->pdev->dev,
 > 
+>  (Well, HDIO_GETGEO sucks in many ways, so recommendation is to read
+>   /sys/dev/block/<maj:min>/start rather than depends on this ioctl.)
+> 
+>     Karel
+> 
+> -- 
+>  Karel Zak  <kzak@redhat.com>
+>  http://karelzak.blogspot.com
+> 
+
+Mit freundlichen Gr��en / Kind regards
+ 
+Stefan Weinhuber
