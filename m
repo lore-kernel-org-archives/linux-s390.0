@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/6] KVM: s390: Add a generic function for translating guest addresses
-Date: Fri, 30 May 2014 11:00:07 +0200
-Message-ID: <1401440412-20472-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 3/6] KVM: s390: clean up interrupt injection in sigp code
+Date: Fri, 30 May 2014 11:00:09 +0200
+Message-ID: <1401440412-20472-4-git-send-email-borntraeger@de.ibm.com>
 References: <1401440412-20472-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1401440412-20472-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,98 +9,116 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Thomas Huth <thuth@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thomas Huth <thuth@linux.vnet.ibm.com>
+From: Jens Freimann <jfrei@linux.vnet.ibm.com>
 
-This patch adds a function for translating logical guest addresses into
-physical guest addresses without touching the memory at the given location.
+We have all the logic to inject interrupts available in
+kvm_s390_inject_vcpu(), so let's use it instead of
+injecting irqs manually to the list in sigp code.
 
-Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+SIGP stop is special because we have to check the
+action_flags before injecting the interrupt. As
+the action_flags are not available in kvm_s390_inject_vcpu()
+we leave the code for the stop order code untouched for now.
+
+Signed-off-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/kvm/gaccess.c | 53 +++++++++++++++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/gaccess.h |  3 +++
- 2 files changed, 56 insertions(+)
+ arch/s390/kvm/sigp.c | 56 +++++++++++++++++-----------------------------------
+ 1 file changed, 18 insertions(+), 38 deletions(-)
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index db608c3..5f73826 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -645,6 +645,59 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
+diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+index d0341d2..43079a4 100644
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -54,33 +54,23 @@ static int __sigp_sense(struct kvm_vcpu *vcpu, u16 cpu_addr,
+ 
+ static int __sigp_emergency(struct kvm_vcpu *vcpu, u16 cpu_addr)
+ {
+-	struct kvm_s390_local_interrupt *li;
+-	struct kvm_s390_interrupt_info *inti;
++	struct kvm_s390_interrupt s390int = {
++		.type = KVM_S390_INT_EMERGENCY,
++		.parm = vcpu->vcpu_id,
++	};
+ 	struct kvm_vcpu *dst_vcpu = NULL;
++	int rc = 0;
+ 
+ 	if (cpu_addr < KVM_MAX_VCPUS)
+ 		dst_vcpu = kvm_get_vcpu(vcpu->kvm, cpu_addr);
+ 	if (!dst_vcpu)
+ 		return SIGP_CC_NOT_OPERATIONAL;
+ 
+-	inti = kzalloc(sizeof(*inti), GFP_KERNEL);
+-	if (!inti)
+-		return -ENOMEM;
+-
+-	inti->type = KVM_S390_INT_EMERGENCY;
+-	inti->emerg.code = vcpu->vcpu_id;
++	rc = kvm_s390_inject_vcpu(dst_vcpu, &s390int);
++	if (!rc)
++		VCPU_EVENT(vcpu, 4, "sent sigp emerg to cpu %x", cpu_addr);
+ 
+-	li = &dst_vcpu->arch.local_int;
+-	spin_lock_bh(&li->lock);
+-	list_add_tail(&inti->list, &li->list);
+-	atomic_set(&li->active, 1);
+-	atomic_set_mask(CPUSTAT_EXT_INT, li->cpuflags);
+-	if (waitqueue_active(li->wq))
+-		wake_up_interruptible(li->wq);
+-	spin_unlock_bh(&li->lock);
+-	VCPU_EVENT(vcpu, 4, "sent sigp emerg to cpu %x", cpu_addr);
+-
+-	return SIGP_CC_ORDER_CODE_ACCEPTED;
++	return rc ? rc : SIGP_CC_ORDER_CODE_ACCEPTED;
  }
  
- /**
-+ * guest_translate_address - translate guest logical into guest absolute address
-+ *
-+ * Parameter semantics are the same as the ones from guest_translate.
-+ * The memory contents at the guest address are not changed.
-+ *
-+ * Note: The IPTE lock is not taken during this function, so the caller
-+ * has to take care of this.
-+ */
-+int guest_translate_address(struct kvm_vcpu *vcpu, unsigned long gva,
-+			    unsigned long *gpa, int write)
-+{
-+	struct kvm_s390_pgm_info *pgm = &vcpu->arch.pgm;
-+	psw_t *psw = &vcpu->arch.sie_block->gpsw;
-+	struct trans_exc_code_bits *tec;
-+	union asce asce;
+ static int __sigp_conditional_emergency(struct kvm_vcpu *vcpu, u16 cpu_addr,
+@@ -116,33 +106,23 @@ static int __sigp_conditional_emergency(struct kvm_vcpu *vcpu, u16 cpu_addr,
+ 
+ static int __sigp_external_call(struct kvm_vcpu *vcpu, u16 cpu_addr)
+ {
+-	struct kvm_s390_local_interrupt *li;
+-	struct kvm_s390_interrupt_info *inti;
++	struct kvm_s390_interrupt s390int = {
++		.type = KVM_S390_INT_EXTERNAL_CALL,
++		.parm = vcpu->vcpu_id,
++	};
+ 	struct kvm_vcpu *dst_vcpu = NULL;
 +	int rc;
-+
-+	/* Access register mode is not supported yet. */
-+	if (psw_bits(*psw).t && psw_bits(*psw).as == PSW_AS_ACCREG)
-+		return -EOPNOTSUPP;
-+
-+	gva = kvm_s390_logical_to_effective(vcpu, gva);
-+	memset(pgm, 0, sizeof(*pgm));
-+	tec = (struct trans_exc_code_bits *)&pgm->trans_exc_code;
-+	tec->as = psw_bits(*psw).as;
-+	tec->fsi = write ? FSI_STORE : FSI_FETCH;
-+	tec->addr = gva >> PAGE_SHIFT;
-+	if (is_low_address(gva) && low_address_protection_enabled(vcpu)) {
-+		if (write) {
-+			rc = pgm->code = PGM_PROTECTION;
-+			return rc;
-+		}
-+	}
-+
-+	asce.val = get_vcpu_asce(vcpu);
-+	if (psw_bits(*psw).t && !asce.r) {	/* Use DAT? */
-+		rc = guest_translate(vcpu, gva, gpa, write);
-+		if (rc > 0) {
-+			if (rc == PGM_PROTECTION)
-+				tec->b61 = 1;
-+			pgm->code = rc;
-+		}
-+	} else {
-+		rc = 0;
-+		*gpa = kvm_s390_real_to_abs(vcpu, gva);
-+		if (kvm_is_error_gpa(vcpu->kvm, *gpa))
-+			rc = pgm->code = PGM_ADDRESSING;
-+	}
-+
-+	return rc;
-+}
-+
-+/**
-  * kvm_s390_check_low_addr_protection - check for low-address protection
-  * @ga: Guest address
-  *
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index a07ee08..2d37a46 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -155,6 +155,9 @@ int read_guest_lc(struct kvm_vcpu *vcpu, unsigned long gra, void *data,
- 	return kvm_read_guest(vcpu->kvm, gpa, data, len);
+ 
+ 	if (cpu_addr < KVM_MAX_VCPUS)
+ 		dst_vcpu = kvm_get_vcpu(vcpu->kvm, cpu_addr);
+ 	if (!dst_vcpu)
+ 		return SIGP_CC_NOT_OPERATIONAL;
+ 
+-	inti = kzalloc(sizeof(*inti), GFP_KERNEL);
+-	if (!inti)
+-		return -ENOMEM;
+-
+-	inti->type = KVM_S390_INT_EXTERNAL_CALL;
+-	inti->extcall.code = vcpu->vcpu_id;
+-
+-	li = &dst_vcpu->arch.local_int;
+-	spin_lock_bh(&li->lock);
+-	list_add_tail(&inti->list, &li->list);
+-	atomic_set(&li->active, 1);
+-	atomic_set_mask(CPUSTAT_EXT_INT, li->cpuflags);
+-	if (waitqueue_active(li->wq))
+-		wake_up_interruptible(li->wq);
+-	spin_unlock_bh(&li->lock);
+-	VCPU_EVENT(vcpu, 4, "sent sigp ext call to cpu %x", cpu_addr);
++	rc = kvm_s390_inject_vcpu(dst_vcpu, &s390int);
++	if (!rc)
++		VCPU_EVENT(vcpu, 4, "sent sigp ext call to cpu %x", cpu_addr);
+ 
+-	return SIGP_CC_ORDER_CODE_ACCEPTED;
++	return rc ? rc : SIGP_CC_ORDER_CODE_ACCEPTED;
  }
  
-+int guest_translate_address(struct kvm_vcpu *vcpu, unsigned long gva,
-+			    unsigned long *gpa, int write);
-+
- int access_guest(struct kvm_vcpu *vcpu, unsigned long ga, void *data,
- 		 unsigned long len, int write);
- 
+ static int __inject_sigp_stop(struct kvm_s390_local_interrupt *li, int action)
 -- 
 1.8.4.2
