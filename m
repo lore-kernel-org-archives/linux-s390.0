@@ -1,32 +1,24 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [patch 4/4] s390/net: fix format string mismatches
-Date: Wed, 28 May 2014 09:22:31 -0700
-Message-ID: <1401294151.19335.6.camel@joe-AO725>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/4] s390: network patches for net-next V1
+Date: Fri, 30 May 2014 17:35:51 -0700 (PDT)
+Message-ID: <20140530.173551.1946621198713041334.davem@davemloft.net>
 References: <20140528082227.024995099@de.ibm.com>
-	 <20140528082239.994360709@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20140528082239.994360709@de.ibm.com>
+In-Reply-To: <20140528082227.024995099@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: frank.blaschka@de.ibm.com
-Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>, Toralf Foerster <toralf.foerster@gmx.de>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Frank:
+From: frank.blaschka@de.ibm.com
+Date: Wed, 28 May 2014 10:22:27 +0200
 
-A trivial note:
+> here are some s390 related patches for net-next
+> Added some style fixing reported by David Laight.
 
-On Wed, 2014-05-28 at 10:22 +0200, frank.blaschka@de.ibm.com wrote:
-
-(submitting a patch containing changes like)
-
-+	rc = sscanf(buf, "%u", &bs1);
-+	if (rc != 1)
-+		goto einval;
-
-All of these single var sscanf uses could be
-changed to kstrto<foo>
+Series applied, thanks Frank.
