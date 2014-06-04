@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <20140604215912.GA3702@osiris>
-References: <1401917471-2869-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
-	<20140604215912.GA3702@osiris>
-Date: Thu, 5 Jun 2014 00:22:13 +0200
-Message-ID: <CAFo99gagsUNqSoa5q8ANRV_ZagUGhS72s8fQdagZ4DzUaGkc3Q@mail.gmail.com>
-Subject: Re: [PATCH] s390: scsi: zfcp_aux.c: Cleaning up missing
- null-terminate after strncpy call
 From: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH] s390: scsi: zfcp_aux.c:  Cleaning up missing null-terminate after strncpy call
+Date: Wed,  4 Jun 2014 23:31:11 +0200
+Message-Id: <1401917471-2869-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Steffen Maier <maier@linux.vnet.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Steffen Maier <maier@linux.vnet.ibm.com>, linux390@de.ibm.com
+Cc: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi
+Added a guaranteed null-terminate after call to strncpy.
 
-A little embarrassing, but I actually did not know that there was a
-better replacement for strncpy.
+This was partly found using a static code analysis program called cppcheck.
 
-Sorry, but I will send a new platch based on strlcpy instead then.
+Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+---
+ drivers/s390/scsi/zfcp_aux.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-
-Best regards
-Rickard Strandqvist
-
-
-2014-06-04 23:59 GMT+02:00 Heiko Carstens <heiko.carstens@de.ibm.com>:
-> On Wed, Jun 04, 2014 at 11:31:11PM +0200, Rickard Strandqvist wrote:
->> Added a guaranteed null-terminate after call to strncpy.
->>
->> This was partly found using a static code analysis program called cppcheck.
->>
->> Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
->> ---
->>  drivers/s390/scsi/zfcp_aux.c |    1 +
->>  1 file changed, 1 insertion(+)
->>
->> diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
->> index 8004b07..138b84a 100644
->> --- a/drivers/s390/scsi/zfcp_aux.c
->> +++ b/drivers/s390/scsi/zfcp_aux.c
->> @@ -102,6 +102,7 @@ static void __init zfcp_init_device_setup(char *devstr)
->>       if (!token || strlen(token) >= ZFCP_BUS_ID_SIZE)
->>               goto err_out;
->>       strncpy(busid, token, ZFCP_BUS_ID_SIZE);
->> +     busid[sizeof(busid) - 1] = '\0';
->
-> Erm.. with
->         char busid[ZFCP_BUS_ID_SIZE];
-> just a couple of lines above this seems to be rather pointless.
-> However _if_ we change the code then replacing strncpy() with strlcpy()
-> would be the way to go.
->
+diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
+index 8004b07..138b84a 100644
+--- a/drivers/s390/scsi/zfcp_aux.c
++++ b/drivers/s390/scsi/zfcp_aux.c
+@@ -102,6 +102,7 @@ static void __init zfcp_init_device_setup(char *devstr)
+ 	if (!token || strlen(token) >= ZFCP_BUS_ID_SIZE)
+ 		goto err_out;
+ 	strncpy(busid, token, ZFCP_BUS_ID_SIZE);
++	busid[sizeof(busid) - 1] = '\0';
+ 
+ 	token = strsep(&str, ",");
+ 	if (!token || kstrtoull(token, 0, (unsigned long long *) &wwpn))
+-- 
+1.7.10.4
