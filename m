@@ -1,67 +1,42 @@
-Return-path: <ath10k-bounces+kvalo=adurom.com@lists.infradead.org>
-Date: Wed, 4 Jun 2014 15:12:23 +0200 (CEST)
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH 0/10] use safer test on the result of find_first_zero_bit
-In-Reply-To: <CAMuHMdV2wP43Lxf-UtCum37HyMPSboRb6RLNTHzm_ZNOBeJR0g@mail.gmail.com>
-Message-ID: <alpine.DEB.2.10.1406041510520.2441@hadrien>
-References: <1401872880-23685-1-git-send-email-Julia.Lawall@lip6.fr>
- <CAMuHMdXsoFUXj4jLMWN6NY7Um19KwWO9Rhx=9=gqWu_K5Ev2kQ@mail.gmail.com>
- <alpine.DEB.2.10.1406041137270.2441@hadrien>
- <063D6719AE5E284EB5DD2968C1650D6D1725705F@AcuExch.aculab.com>
- <alpine.DEB.2.10.1406041148590.2441@hadrien>
- <CAMuHMdXPBQTYA0c=1hkC7943-_J59TVSFaEKsfY1F2ogV=Ld+A@mail.gmail.com>
- <alpine.DEB.2.10.1406041258200.2441@hadrien>
- <CAMuHMdV2wP43Lxf-UtCum37HyMPSboRb6RLNTHzm_ZNOBeJR0g@mail.gmail.com>
-MIME-Version: 1.0
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/ath10k>,
- <mailto:ath10k-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/ath10k/>
-List-Post: <mailto:ath10k@lists.infradead.org>
-List-Help: <mailto:ath10k-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/ath10k>,
- <mailto:ath10k-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Sender: "ath10k" <ath10k-bounces@lists.infradead.org>
-Errors-To: ath10k-bounces+kvalo=adurom.com@lists.infradead.org
-List-Archive: <https://lore.kernel.org/ath10k/>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: driverdevel <devel@driverdev.osuosl.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux Fbdev development list <linux-fbdev@vger.kernel.org>, scsi <linux-scsi@vger.kernel.org>, "iss_storagedev@hp.com" <iss_storagedev@hp.com>, Linux-sh list <linux-sh@vger.kernel.org>, linux-rdma <linux-rdma@vger.kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "ath10k@lists.infradead.org" <ath10k@lists.infradead.org>, "adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>, Julia Lawall <julia.lawall@lip6.fr>, David Laight <David.Laight@aculab.com>, Arnd Bergmann <arnd@arndb.de>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, sebott@linux.vnet.ibm.com
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Ken Helias <kenhelias@web.de>
+Subject: [PATCH 12/13] s390: Use list_add_(before|after) macros
+Date: Fri,  6 Jun 2014 19:34:31 +0200
+Message-Id: <1402076072-4044-12-git-send-email-kenhelias@web.de>
+In-Reply-To: <1402076072-4044-1-git-send-email-kenhelias@web.de>
+References: <1402076072-4044-1-git-send-email-kenhelias@web.de>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, Ken Helias <kenhelias@firemail.de>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Ken Helias <kenhelias@firemail.de>
 
+Many places in the code uses list_add_tail/list_add to insert an entry
+before/after another entry. This confuses the reader because these are usually
+used to add an item to a list_head and not an entry. Better use the self
+explaining function name.
 
-On Wed, 4 Jun 2014, Geert Uytterhoeven wrote:
+Signed-off-by: Ken Helias <kenhelias@firemail.de>
+Cc: linux-s390@vger.kernel.org
+---
+ drivers/s390/block/dasd_3990_erp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Hi Julia,
->
-> On Wed, Jun 4, 2014 at 1:00 PM, Julia Lawall <julia.lawall@lip6.fr> wrote:
-> > OK, thanks.  I was only looking at the C code.
-> >
-> > But the C code contains a loop that is followed by:
-> >
-> >         if (!size)
-> >                 return result;
-> >         tmp = *p;
-> >
-> > found_first:
-> >         tmp |= ~0UL << size;
-> >         if (tmp == ~0UL)        /* Are any bits zero? */
-> >                 return result + size;   /* Nope. */
-> >
-> > In the first return, it would seem that result == size.  Could the second
-> > one be changed to just return size?  It should not hurt performance.
->
-> "size" may have been changed between function entry and this line.
-> So you have to store it in a temporary.
-
-Sorry, after reflection it seems that indeed size + result is always the
-original size, so it is actually all of the code that uses >= that is
-doing something unnecessary.  == for the failure test is fine.
-
-julia
-
-_______________________________________________
-ath10k mailing list
-ath10k@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/ath10k
+diff --git a/drivers/s390/block/dasd_3990_erp.c b/drivers/s390/block/dasd_3990_erp.c
+index d261347..2189e45 100644
+--- a/drivers/s390/block/dasd_3990_erp.c
++++ b/drivers/s390/block/dasd_3990_erp.c
+@@ -2761,7 +2761,7 @@ dasd_3990_erp_action(struct dasd_ccw_req * cqr)
+ 	if (list_empty(&erp->blocklist)) {
+ 		cqr->status = DASD_CQR_IN_ERP;
+ 		/* add erp request before the cqr */
+-		list_add_tail(&erp->blocklist, &cqr->blocklist);
++		list_add_before(&erp->blocklist, &cqr->blocklist);
+ 	}
+ 
+ 
+-- 
+2.0.0
