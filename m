@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
-Subject: [PATCH] s390: scsi: zfcp_aux.c:  Cleaning up missing null-terminate after strncpy call
-Date: Wed,  4 Jun 2014 23:31:11 +0200
-Message-Id: <1401917471-2869-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+Date: Wed, 11 Jun 2014 09:13:03 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390: avoid format strings leaking into names
+Message-ID: <20140611071303.GA4296@osiris>
+References: <20140610174620.GA30139@www.outflux.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20140610174620.GA30139@www.outflux.net>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Steffen Maier <maier@linux.vnet.ibm.com>, linux390@de.ibm.com
-Cc: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>
+Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, Ingo Tuchscherer <ingo.tuchscherer@de.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kent Overstreet <kmo@daterainc.com>, Tejun Heo <tj@kernel.org>, Geoff Levand <geoff@infradead.org>, Stefan Weinhuber <wein@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Added a guaranteed null-terminate after call to strncpy.
+On Tue, Jun 10, 2014 at 10:46:20AM -0700, Kees Cook wrote:
+> This makes sure format strings can't accidentally leak into kernel
+> interface names.
+> 
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
+>  drivers/s390/block/dcssblk.c     |    2 +-
+>  drivers/s390/char/vmlogrdr.c     |    2 +-
+>  drivers/s390/crypto/zcrypt_api.c |    2 +-
+>  3 files changed, 3 insertions(+), 3 deletions(-)
 
-This was partly found using a static code analysis program called cppcheck.
-
-Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
----
- drivers/s390/scsi/zfcp_aux.c |    1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
-index 8004b07..138b84a 100644
---- a/drivers/s390/scsi/zfcp_aux.c
-+++ b/drivers/s390/scsi/zfcp_aux.c
-@@ -102,6 +102,7 @@ static void __init zfcp_init_device_setup(char *devstr)
- 	if (!token || strlen(token) >= ZFCP_BUS_ID_SIZE)
- 		goto err_out;
- 	strncpy(busid, token, ZFCP_BUS_ID_SIZE);
-+	busid[sizeof(busid) - 1] = '\0';
- 
- 	token = strsep(&str, ",");
- 	if (!token || kstrtoull(token, 0, (unsigned long long *) &wwpn))
--- 
-1.7.10.4
+Applied, thanks!
