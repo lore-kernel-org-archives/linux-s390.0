@@ -1,10 +1,12 @@
-From: Alexander Gordeev <agordeev@redhat.com>
-Subject: [PATCH 1/3] PCI/MSI: Add pci_enable_msi_partial()
-Date: Tue, 10 Jun 2014 15:10:30 +0200
-Message-ID: <4fef62a2e647a7c38e9f2a1ea4244b3506a85e2b.1402405331.git.agordeev@redhat.com>
-References: <cover.1402405331.git.agordeev@redhat.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: [RFC 1/5] seccomp,x86,arm,mips,s390: Remove nr parameter from secure_computing
+Date: Wed, 11 Jun 2014 13:22:58 -0700
+Message-ID: <4b5a6a6f58965ac02b84c074b939a3b6240ddb31.1402517933.git.luto@amacapital.net>
+References: <cover.1402517933.git.luto@amacapital.net>
 Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <cover.1402405331.git.agordeev@redhat.com>
+In-Reply-To: <cover.1402517933.git.luto@amacapital.net>
+In-Reply-To: <cover.1402517933.git.luto@amacapital.net>
+References: <cover.1402517933.git.luto@amacapital.net>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 List-help: <mailto:ecartis@linux-mips.org?Subject=help>
@@ -14,387 +16,275 @@ List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
 List-owner: <mailto:ralf@linux-mips.org>
 List-post: <mailto:linux-mips@linux-mips.org>
 List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-List-Archive: <https://lore.kernel.org/linux-ide/>
-List-Post: <mailto:linux-ide@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Alexander Gordeev <agordeev@redhat.com>, linux-doc@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, xen-devel@lists.xenproject.org, iommu@lists.linux-foundation.org, linux-ide@vger.kernel.org, linux-pci@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, Kees Cook <keescook@chromium.org>, Will Drewry <wad@chromium.org>
+Cc: Oleg Nesterov <oleg@redhat.com>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, linux-arch@vger.kernel.org, linux-security-module@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>, Russell King <linux@arm.linux.org.uk>, Ralf Baechle <ralf@linux-mips.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-There are PCI devices that require a particular value written
-to the Multiple Message Enable (MME) register while aligned on
-power of 2 boundary value of actually used MSI vectors 'nvec'
-is a lesser of that MME value:
+The secure_computing function took a syscall number parameter, but
+it only paid any attention to that parameter if seccomp mode 1 was
+enabled.  Rather than coming up with a kludge to get the parameter
+to work in mode 2, just remove the parameter.
 
-	roundup_pow_of_two(nvec) < 'Multiple Message Enable'
+To avoid churn in arches that don't have seccomp filters (and may
+not even support syscall_get_nr right now), this leaves the
+parameter in secure_computing_strict, which is now a real function.
 
-However the existing pci_enable_msi_block() interface is not
-able to configure such devices, since the value written to the
-MME register is calculated from the number of requested MSIs
-'nvec':
+For ARM, this is a bit ugly due to the fact that ARM conditionally
+supports seccomp filters.  Fixing that is probably only be a couple
+of lines of code, but it should be coordinated with the audit
+maintainers.
 
-	'Multiple Message Enable' = roundup_pow_of_two(nvec)
+This will be a slight slowdown on some arches.  The right fix is to
+pass in all of seccomp_data instead of trying to make just the
+syscall nr part be fast.
 
-In this case the result written to the MME register may not
-satisfy the aforementioned PCI devices requirement and therefore
-the PCI functions will not operate in a desired mode.
+I'm working on a big seccomp speedup for x86, but I'd like to remove
+this wart first.
 
-This update introduces pci_enable_msi_partial() extension to
-pci_enable_msi_block() interface that accepts extra 'nvec_mme'
-argument which is then written to MME register while the value
-of 'nvec' is still used to setup as many interrupts as requested.
-
-As result of this change, architecture-specific callbacks
-arch_msi_check_device() and arch_setup_msi_irqs() get an extra
-'nvec_mme' parameter as well, but it is ignored for now.
-Therefore, this update is a placeholder for architectures that
-wish to support pci_enable_msi_partial() function in the future.
-
-Cc: linux-doc@vger.kernel.org
+Cc: Russell King <linux@arm.linux.org.uk>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: Ralf Baechle <ralf@linux-mips.org>
 Cc: linux-mips@linux-mips.org
-Cc: linuxppc-dev@lists.ozlabs.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 Cc: linux-s390@vger.kernel.org
 Cc: x86@kernel.org
-Cc: xen-devel@lists.xenproject.org
-Cc: iommu@lists.linux-foundation.org
-Cc: linux-ide@vger.kernel.org
-Cc: linux-pci@vger.kernel.org
-Signed-off-by: Alexander Gordeev <agordeev@redhat.com>
+Cc: Kees Cook <keescook@chromium.org>
+Signed-off-by: Andy Lutomirski <luto@amacapital.net>
 ---
- Documentation/PCI/MSI-HOWTO.txt |   36 ++++++++++++++--
- arch/mips/pci/msi-octeon.c      |    2 +-
- arch/powerpc/kernel/msi.c       |    4 +-
- arch/s390/pci/pci.c             |    2 +-
- arch/x86/kernel/x86_init.c      |    2 +-
- drivers/pci/msi.c               |   83 ++++++++++++++++++++++++++++++++++-----
- include/linux/msi.h             |    5 +-
- include/linux/pci.h             |    3 +
- 8 files changed, 115 insertions(+), 22 deletions(-)
+ arch/arm/kernel/ptrace.c      |  7 ++++-
+ arch/mips/kernel/ptrace.c     |  2 +-
+ arch/s390/kernel/ptrace.c     |  2 +-
+ arch/x86/kernel/ptrace.c      |  2 +-
+ arch/x86/kernel/vsyscall_64.c |  2 +-
+ include/linux/seccomp.h       | 21 ++++++++-------
+ kernel/seccomp.c              | 63 ++++++++++++++++++++++++++++++-------------
+ 7 files changed, 65 insertions(+), 34 deletions(-)
 
-diff --git a/Documentation/PCI/MSI-HOWTO.txt b/Documentation/PCI/MSI-HOWTO.txt
-index 10a9369..c8a8503 100644
---- a/Documentation/PCI/MSI-HOWTO.txt
-+++ b/Documentation/PCI/MSI-HOWTO.txt
-@@ -195,14 +195,40 @@ By contrast with pci_enable_msi_range() function, pci_enable_msi_exact()
- returns zero in case of success, which indicates MSI interrupts have been
- successfully allocated.
+diff --git a/arch/arm/kernel/ptrace.c b/arch/arm/kernel/ptrace.c
+index 0dd3b79..f79c9cc 100644
+--- a/arch/arm/kernel/ptrace.c
++++ b/arch/arm/kernel/ptrace.c
+@@ -934,8 +934,13 @@ asmlinkage int syscall_trace_enter(struct pt_regs *regs, int scno)
+ 	current_thread_info()->syscall = scno;
  
--4.2.4 pci_disable_msi
-+4.2.4 pci_enable_msi_partial
-+
-+int pci_enable_msi_partial(struct pci_dev *dev, int nvec, int nvec_mme)
-+
-+This variation on pci_enable_msi_exact() call allows a device driver to
-+setup 'nvec_mme' number of multiple MSIs with the PCI function, while
-+setup only 'nvec' (which could be a lesser of 'nvec_mme') number of MSIs
-+in operating system. The MSI specification only allows 'nvec_mme' to be
-+allocated in powers of two, up to a maximum of 2^5 (32).
-+
-+This function could be used when a PCI function is known to send 'nvec'
-+MSIs, but still requires a particular number of MSIs 'nvec_mme' to be
-+initialized with. As result, 'nvec_mme' - 'nvec' number of unused MSIs
-+do not waste system resources.
-+
-+If this function returns 0, it has succeeded in allocating 'nvec_mme'
-+interrupts and setting up 'nvec' interrupts. In this case, the function
-+enables MSI on this device and updates dev->irq to be the lowest of the
-+new interrupts assigned to it.  The other interrupts assigned to the
-+device are in the range dev->irq to dev->irq + nvec - 1.
-+
-+If this function returns a negative number, it indicates an error and
-+the driver should not attempt to request any more MSI interrupts for
-+this device.
-+
-+4.2.5 pci_disable_msi
+ 	/* Do the secure computing check first; failures should be fast. */
+-	if (secure_computing(scno) == -1)
++#ifdef CONFIG_HAVE_ARCH_SECCOMP_FILTER
++	if (secure_computing() == -1)
+ 		return -1;
++#else
++	/* XXX: remove this once OABI gets fixed */
++	secure_computing_strict(scno);
++#endif
  
- void pci_disable_msi(struct pci_dev *dev)
+ 	if (test_thread_flag(TIF_SYSCALL_TRACE))
+ 		scno = tracehook_report_syscall(regs, PTRACE_SYSCALL_ENTER);
+diff --git a/arch/mips/kernel/ptrace.c b/arch/mips/kernel/ptrace.c
+index f639ccd..808bafc 100644
+--- a/arch/mips/kernel/ptrace.c
++++ b/arch/mips/kernel/ptrace.c
+@@ -639,7 +639,7 @@ asmlinkage long syscall_trace_enter(struct pt_regs *regs, long syscall)
+ 	long ret = 0;
+ 	user_exit();
  
--This function should be used to undo the effect of pci_enable_msi_range().
--Calling it restores dev->irq to the pin-based interrupt number and frees
--the previously allocated MSIs.  The interrupts may subsequently be assigned
--to another device, so drivers should not cache the value of dev->irq.
-+This function should be used to undo the effect of pci_enable_msi_range()
-+or pci_enable_msi_partial(). Calling it restores dev->irq to the pin-based
-+interrupt number and frees the previously allocated MSIs.  The interrupts
-+may subsequently be assigned to another device, so drivers should not cache
-+the value of dev->irq.
+-	if (secure_computing(syscall) == -1)
++	if (secure_computing() == -1)
+ 		return -1;
  
- Before calling this function, a device driver must always call free_irq()
- on any interrupt for which it previously called request_irq().
-diff --git a/arch/mips/pci/msi-octeon.c b/arch/mips/pci/msi-octeon.c
-index 2b91b0e..2be7979 100644
---- a/arch/mips/pci/msi-octeon.c
-+++ b/arch/mips/pci/msi-octeon.c
-@@ -178,7 +178,7 @@ msi_irq_allocated:
- 	return 0;
- }
+ 	if (test_thread_flag(TIF_SYSCALL_TRACE) &&
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index 1c82619..20f1998 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -795,7 +795,7 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
+ 	long ret = 0;
  
--int arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
-+int arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int nvec_mme, int type)
- {
- 	struct msi_desc *entry;
- 	int ret;
-diff --git a/arch/powerpc/kernel/msi.c b/arch/powerpc/kernel/msi.c
-index 8bbc12d..c60aee3 100644
---- a/arch/powerpc/kernel/msi.c
-+++ b/arch/powerpc/kernel/msi.c
-@@ -13,7 +13,7 @@
+ 	/* Do the secure computing check first. */
+-	if (secure_computing(regs->gprs[2])) {
++	if (secure_computing()) {
+ 		/* seccomp failures shouldn't expose any additional code. */
+ 		ret = -1;
+ 		goto out;
+diff --git a/arch/x86/kernel/ptrace.c b/arch/x86/kernel/ptrace.c
+index 678c0ad..93c182a 100644
+--- a/arch/x86/kernel/ptrace.c
++++ b/arch/x86/kernel/ptrace.c
+@@ -1471,7 +1471,7 @@ long syscall_trace_enter(struct pt_regs *regs)
+ 		regs->flags |= X86_EFLAGS_TF;
  
- #include <asm/machdep.h>
- 
--int arch_msi_check_device(struct pci_dev* dev, int nvec, int type)
-+int arch_msi_check_device(struct pci_dev *dev, int nvec, int nvec_mme, int type)
- {
- 	if (!ppc_md.setup_msi_irqs || !ppc_md.teardown_msi_irqs) {
- 		pr_debug("msi: Platform doesn't provide MSI callbacks.\n");
-@@ -32,7 +32,7 @@ int arch_msi_check_device(struct pci_dev* dev, int nvec, int type)
-         return 0;
- }
- 
--int arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
-+int arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int nvec_mme, int type)
- {
- 	return ppc_md.setup_msi_irqs(dev, nvec, type);
- }
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 9ddc51e..3cf38a8 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -398,7 +398,7 @@ static void zpci_irq_handler(struct airq_struct *airq)
- 	}
- }
- 
--int arch_setup_msi_irqs(struct pci_dev *pdev, int nvec, int type)
-+int arch_setup_msi_irqs(struct pci_dev *pdev, int nvec, int nvec_mme, int type)
- {
- 	struct zpci_dev *zdev = get_zdev(pdev);
- 	unsigned int hwirq, msi_vecs;
-diff --git a/arch/x86/kernel/x86_init.c b/arch/x86/kernel/x86_init.c
-index e48b674..b65bf95 100644
---- a/arch/x86/kernel/x86_init.c
-+++ b/arch/x86/kernel/x86_init.c
-@@ -121,7 +121,7 @@ struct x86_msi_ops x86_msi = {
+ 	/* do the secure computing check first */
+-	if (secure_computing(regs->orig_ax)) {
++	if (secure_computing()) {
+ 		/* seccomp failures shouldn't expose any additional code. */
+ 		ret = -1L;
+ 		goto out;
+diff --git a/arch/x86/kernel/vsyscall_64.c b/arch/x86/kernel/vsyscall_64.c
+index 8b3b3eb..47a4123 100644
+--- a/arch/x86/kernel/vsyscall_64.c
++++ b/arch/x86/kernel/vsyscall_64.c
+@@ -216,7 +216,7 @@ bool emulate_vsyscall(struct pt_regs *regs, unsigned long address)
+ 	 */
+ 	regs->orig_ax = syscall_nr;
+ 	regs->ax = -ENOSYS;
+-	tmp = secure_computing(syscall_nr);
++	tmp = secure_computing();
+ 	if ((!tmp && regs->orig_ax != syscall_nr) || regs->ip != address) {
+ 		warn_bad_vsyscall(KERN_DEBUG, regs,
+ 				  "seccomp tried to change syscall nr or ip");
+diff --git a/include/linux/seccomp.h b/include/linux/seccomp.h
+index 4054b09..6e655a6 100644
+--- a/include/linux/seccomp.h
++++ b/include/linux/seccomp.h
+@@ -25,19 +25,17 @@ struct seccomp {
+ 	struct seccomp_filter *filter;
  };
  
- /* MSI arch specific hooks */
--int arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
-+int arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int nvec_mme, int type)
+-extern int __secure_computing(int);
+-static inline int secure_computing(int this_syscall)
++#ifdef CONFIG_HAVE_ARCH_SECCOMP_FILTER
++extern int __secure_computing(void);
++static inline int secure_computing(void)
  {
- 	return x86_msi.setup_msi_irqs(dev, nvec, type);
+ 	if (unlikely(test_thread_flag(TIF_SECCOMP)))
+-		return  __secure_computing(this_syscall);
++		return  __secure_computing();
+ 	return 0;
  }
-diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
-index 27a7e67..0410d9b 100644
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -56,7 +56,8 @@ void __weak arch_teardown_msi_irq(unsigned int irq)
- 	chip->teardown_irq(chip, irq);
- }
+-
+-/* A wrapper for architectures supporting only SECCOMP_MODE_STRICT. */
+-static inline void secure_computing_strict(int this_syscall)
+-{
+-	BUG_ON(secure_computing(this_syscall) != 0);
+-}
++#else
++extern void secure_computing_strict(int this_syscall);
++#endif
  
--int __weak arch_msi_check_device(struct pci_dev *dev, int nvec, int type)
-+int __weak arch_msi_check_device(struct pci_dev *dev,
-+				 int nvec, int nvec_mme, int type)
+ extern long prctl_get_seccomp(void);
+ extern long prctl_set_seccomp(unsigned long, char __user *);
+@@ -54,8 +52,11 @@ static inline int seccomp_mode(struct seccomp *s)
+ struct seccomp { };
+ struct seccomp_filter { };
+ 
+-static inline int secure_computing(int this_syscall) { return 0; }
++#ifdef CONFIG_HAVE_ARCH_SECCOMP_FILTER
++static inline int secure_computing(void) { return 0; }
++#else
+ static inline void secure_computing_strict(int this_syscall) { return; }
++#endif
+ 
+ static inline long prctl_get_seccomp(void)
  {
- 	struct msi_chip *chip = dev->bus->msi;
+diff --git a/kernel/seccomp.c b/kernel/seccomp.c
+index b35c215..4af399a 100644
+--- a/kernel/seccomp.c
++++ b/kernel/seccomp.c
+@@ -21,8 +21,11 @@
  
-@@ -66,7 +67,8 @@ int __weak arch_msi_check_device(struct pci_dev *dev, int nvec, int type)
- 	return chip->check_device(chip, dev, nvec, type);
- }
+ /* #define SECCOMP_DEBUG 1 */
  
--int __weak arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
-+int __weak arch_setup_msi_irqs(struct pci_dev *dev,
-+			       int nvec, int nvec_mme, int type)
- {
- 	struct msi_desc *entry;
- 	int ret;
-@@ -598,6 +600,7 @@ error_attrs:
-  * msi_capability_init - configure device's MSI capability structure
-  * @dev: pointer to the pci_dev data structure of MSI device function
-  * @nvec: number of interrupts to allocate
-+ * @nvec_mme: number of interrupts to write to Multiple Message Enable register
+-#ifdef CONFIG_SECCOMP_FILTER
++#ifdef CONFIG_HAVE_ARCH_SECCOMP_FILTER
+ #include <asm/syscall.h>
++#endif
++
++#ifdef CONFIG_SECCOMP_FILTER
+ #include <linux/filter.h>
+ #include <linux/ptrace.h>
+ #include <linux/security.h>
+@@ -172,7 +175,7 @@ static int seccomp_check_filter(struct sock_filter *filter, unsigned int flen)
   *
-  * Setup the MSI capability structure of the device with the requested
-  * number of interrupts.  A return value of zero indicates the successful
-@@ -605,7 +608,7 @@ error_attrs:
-  * an error, and a positive return value indicates the number of interrupts
-  * which could have been allocated.
+  * Returns valid seccomp BPF response codes.
   */
--static int msi_capability_init(struct pci_dev *dev, int nvec)
-+static int msi_capability_init(struct pci_dev *dev, int nvec, int nvec_mme)
+-static u32 seccomp_run_filters(int syscall)
++static u32 seccomp_run_filters(void)
  {
- 	struct msi_desc *entry;
- 	int ret;
-@@ -640,7 +643,7 @@ static int msi_capability_init(struct pci_dev *dev, int nvec)
- 	list_add_tail(&entry->list, &dev->msi_list);
+ 	struct seccomp_filter *f;
+ 	struct seccomp_data sd;
+@@ -372,32 +375,53 @@ static int mode1_syscalls_32[] = {
+ };
+ #endif
  
- 	/* Configure MSI capability structure */
--	ret = arch_setup_msi_irqs(dev, nvec, PCI_CAP_ID_MSI);
-+	ret = arch_setup_msi_irqs(dev, nvec, nvec_mme, PCI_CAP_ID_MSI);
- 	if (ret) {
- 		msi_mask_irq(entry, mask, ~mask);
- 		free_msi_irqs(dev);
-@@ -758,7 +761,8 @@ static int msix_capability_init(struct pci_dev *dev,
- 	if (ret)
- 		return ret;
- 
--	ret = arch_setup_msi_irqs(dev, nvec, PCI_CAP_ID_MSIX);
-+	/* Parameter 'nvec_mme' does not make sense in case of MSI-X */
-+	ret = arch_setup_msi_irqs(dev, nvec, 0, PCI_CAP_ID_MSIX);
- 	if (ret)
- 		goto out_avail;
- 
-@@ -812,13 +816,15 @@ out_free:
-  * pci_msi_check_device - check whether MSI may be enabled on a device
-  * @dev: pointer to the pci_dev data structure of MSI device function
-  * @nvec: how many MSIs have been requested ?
-+ * @nvec_mme: how many MSIs write to Multiple Message Enable register ?
-  * @type: are we checking for MSI or MSI-X ?
-  *
-  * Look at global flags, the device itself, and its parent buses
-  * to determine if MSI/-X are supported for the device. If MSI/-X is
-  * supported return 0, else return an error code.
-  **/
--static int pci_msi_check_device(struct pci_dev *dev, int nvec, int type)
-+static int pci_msi_check_device(struct pci_dev *dev,
-+				int nvec, int nvec_mme, int type)
- {
- 	struct pci_bus *bus;
- 	int ret;
-@@ -846,7 +852,7 @@ static int pci_msi_check_device(struct pci_dev *dev, int nvec, int type)
- 		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
- 			return -EINVAL;
- 
--	ret = arch_msi_check_device(dev, nvec, type);
-+	ret = arch_msi_check_device(dev, nvec, nvec_mme, type);
- 	if (ret)
- 		return ret;
- 
-@@ -878,6 +884,62 @@ int pci_msi_vec_count(struct pci_dev *dev)
- }
- EXPORT_SYMBOL(pci_msi_vec_count);
- 
-+/**
-+ * pci_enable_msi_partial - configure device's MSI capability structure
-+ * @dev: device to configure
-+ * @nvec: number of interrupts to configure
-+ * @nvec_mme: number of interrupts to write to Multiple Message Enable register
-+ *
-+ * This function tries to allocate @nvec number of interrupts while setup
-+ * device's Multiple Message Enable register with @nvec_mme interrupts.
-+ * It returns a negative errno if an error occurs. If it succeeds, it returns
-+ * zero and updates the @dev's irq member to the lowest new interrupt number;
-+ * the other interrupt numbers allocated to this device are consecutive.
-+ */
-+int pci_enable_msi_partial(struct pci_dev *dev, int nvec, int nvec_mme)
+-int __secure_computing(int this_syscall)
++static void __secure_computing_strict(int this_syscall)
 +{
-+	int maxvec;
-+	int rc;
++	int *syscall_whitelist = mode1_syscalls;
++#ifdef CONFIG_COMPAT
++	if (is_compat_task())
++		syscall_whitelist = mode1_syscalls_32;
++#endif
++	do {
++		if (*syscall_whitelist == this_syscall)
++			return;
++	} while (*++syscall_whitelist);
 +
-+	if (dev->current_state != PCI_D0)
-+		return -EINVAL;
-+
-+	WARN_ON(!!dev->msi_enabled);
-+
-+	/* Check whether driver already requested MSI-X irqs */
-+	if (dev->msix_enabled) {
-+		dev_info(&dev->dev, "can't enable MSI "
-+			 "(MSI-X already enabled)\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!is_power_of_2(nvec_mme))
-+		return -EINVAL;
-+	if (nvec > nvec_mme)
-+		return -EINVAL;
-+
-+	maxvec = pci_msi_vec_count(dev);
-+	if (maxvec < 0)
-+		return maxvec;
-+	else if (nvec_mme > maxvec)
-+		return -EINVAL;
-+
-+	rc = pci_msi_check_device(dev, nvec, nvec_mme, PCI_CAP_ID_MSI);
-+	if (rc < 0)
-+		return rc;
-+	else if (rc > 0)
-+		return -ENOSPC;
-+
-+	rc = msi_capability_init(dev, nvec, nvec_mme);
-+	if (rc < 0)
-+		return rc;
-+	else if (rc > 0)
-+		return -ENOSPC;
-+
-+	return 0;
++#ifdef SECCOMP_DEBUG
++	dump_stack();
++#endif
++	audit_seccomp(this_syscall, SIGKILL, SECCOMP_RET_KILL);
++	do_exit(SIGKILL);
 +}
-+EXPORT_SYMBOL(pci_enable_msi_partial);
 +
- void pci_msi_shutdown(struct pci_dev *dev)
++#ifndef CONFIG_HAVE_ARCH_SECCOMP_FILTER
++void secure_computing_strict(int this_syscall)
++{
++	int mode = current->seccomp.mode;
++	if (mode == 0)
++		return;
++	else if (mode == SECCOMP_MODE_STRICT)
++		__secure_computing_strict(this_syscall);
++	else
++		BUG();
++}
++#else
++int __secure_computing(void)
  {
- 	struct msi_desc *desc;
-@@ -957,7 +1019,7 @@ int pci_enable_msix(struct pci_dev *dev, struct msix_entry *entries, int nvec)
- 	if (!entries || !dev->msix_cap || dev->current_state != PCI_D0)
- 		return -EINVAL;
+ 	int mode = current->seccomp.mode;
++	struct pt_regs *regs = task_pt_regs(current);
++	int this_syscall = syscall_get_nr(current, regs);
+ 	int exit_sig = 0;
+-	int *syscall;
+ 	u32 ret;
  
--	status = pci_msi_check_device(dev, nvec, PCI_CAP_ID_MSIX);
-+	status = pci_msi_check_device(dev, nvec, 0, PCI_CAP_ID_MSIX);
- 	if (status)
- 		return status;
+ 	switch (mode) {
+ 	case SECCOMP_MODE_STRICT:
+-		syscall = mode1_syscalls;
+-#ifdef CONFIG_COMPAT
+-		if (is_compat_task())
+-			syscall = mode1_syscalls_32;
+-#endif
+-		do {
+-			if (*syscall == this_syscall)
+-				return 0;
+-		} while (*++syscall);
+-		exit_sig = SIGKILL;
+-		ret = SECCOMP_RET_KILL;
+-		break;
++		__secure_computing_strict(this_syscall);
++		return 0;
+ #ifdef CONFIG_SECCOMP_FILTER
+ 	case SECCOMP_MODE_FILTER: {
+ 		int data;
+-		struct pt_regs *regs = task_pt_regs(current);
+-		ret = seccomp_run_filters(this_syscall);
++		ret = seccomp_run_filters();
+ 		data = ret & SECCOMP_RET_DATA;
+ 		ret &= SECCOMP_RET_ACTION;
+ 		switch (ret) {
+@@ -455,9 +479,10 @@ int __secure_computing(int this_syscall)
+ #ifdef CONFIG_SECCOMP_FILTER
+ skip:
+ 	audit_seccomp(this_syscall, exit_sig, ret);
+-#endif
+ 	return -1;
++#endif
+ }
++#endif /* CONFIG_HAVE_ARCH_SECCOMP_FILTER */
  
-@@ -1110,7 +1172,8 @@ int pci_enable_msi_range(struct pci_dev *dev, int minvec, int maxvec)
- 		nvec = maxvec;
- 
- 	do {
--		rc = pci_msi_check_device(dev, nvec, PCI_CAP_ID_MSI);
-+		rc = pci_msi_check_device(dev, nvec, roundup_pow_of_two(nvec),
-+					  PCI_CAP_ID_MSI);
- 		if (rc < 0) {
- 			return rc;
- 		} else if (rc > 0) {
-@@ -1121,7 +1184,7 @@ int pci_enable_msi_range(struct pci_dev *dev, int minvec, int maxvec)
- 	} while (rc);
- 
- 	do {
--		rc = msi_capability_init(dev, nvec);
-+		rc = msi_capability_init(dev, nvec, roundup_pow_of_two(nvec));
- 		if (rc < 0) {
- 			return rc;
- 		} else if (rc > 0) {
-diff --git a/include/linux/msi.h b/include/linux/msi.h
-index 92a2f99..b9f89ee 100644
---- a/include/linux/msi.h
-+++ b/include/linux/msi.h
-@@ -57,9 +57,10 @@ struct msi_desc {
-  */
- int arch_setup_msi_irq(struct pci_dev *dev, struct msi_desc *desc);
- void arch_teardown_msi_irq(unsigned int irq);
--int arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type);
-+int arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int nvec_mme, int type);
- void arch_teardown_msi_irqs(struct pci_dev *dev);
--int arch_msi_check_device(struct pci_dev* dev, int nvec, int type);
-+int arch_msi_check_device(struct pci_dev *dev,
-+			  int nvec, int nvec_mme, int type);
- void arch_restore_msi_irqs(struct pci_dev *dev);
- 
- void default_teardown_msi_irqs(struct pci_dev *dev);
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 71d9673..7360bd2 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -1184,6 +1184,7 @@ void pci_disable_msix(struct pci_dev *dev);
- void msi_remove_pci_irq_vectors(struct pci_dev *dev);
- void pci_restore_msi_state(struct pci_dev *dev);
- int pci_msi_enabled(void);
-+int pci_enable_msi_partial(struct pci_dev *dev, int nvec, int nvec_mme);
- int pci_enable_msi_range(struct pci_dev *dev, int minvec, int maxvec);
- static inline int pci_enable_msi_exact(struct pci_dev *dev, int nvec)
+ long prctl_get_seccomp(void)
  {
-@@ -1215,6 +1216,8 @@ static inline void pci_disable_msix(struct pci_dev *dev) { }
- static inline void msi_remove_pci_irq_vectors(struct pci_dev *dev) { }
- static inline void pci_restore_msi_state(struct pci_dev *dev) { }
- static inline int pci_msi_enabled(void) { return 0; }
-+static int pci_enable_msi_partial(struct pci_dev *dev, int nvec, int nvec_mme)
-+{ return -ENOSYS; }
- static inline int pci_enable_msi_range(struct pci_dev *dev, int minvec,
- 				       int maxvec)
- { return -ENOSYS; }
 -- 
-1.7.7.6
+1.9.3
