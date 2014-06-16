@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 10 Jun 2014 10:46:20 -0700
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH] s390: avoid format strings leaking into names
-Message-ID: <20140610174620.GA30139@www.outflux.net>
-MIME-Version: 1.0
+From: Jesper Nilsson <jesper.nilsson@axis.com>
+Subject: Re: [PATCH tty-next 17/22] tty: Remove ASYNC_CLOSING
+Date: Mon, 16 Jun 2014 15:52:51 +0200
+Message-ID: <20140616135251.GK732@axis.com>
+References: <1402924639-5164-1-git-send-email-peter@hurleysoftware.com>
+ <1402924639-5164-18-git-send-email-peter@hurleysoftware.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <1402924639-5164-18-git-send-email-peter@hurleysoftware.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Ingo Tuchscherer <ingo.tuchscherer@de.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kent Overstreet <kmo@daterainc.com>, Tejun Heo <tj@kernel.org>, Geoff Levand <geoff@infradead.org>, Stefan Weinhuber <wein@de.ibm.com>, linux-s390@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-serial/>
+List-Post: <mailto:linux-serial@vger.kernel.org>
+To: Peter Hurley <peter@hurleysoftware.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Mikael Starvik <starvik@axis.com>, Jesper Nilsson <jespern@axis.com>, linux-cris-kernel@axis.com, Samuel Ortiz <samuel@sortiz.org>, "David S. Miller" <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-This makes sure format strings can't accidentally leak into kernel
-interface names.
+On Mon, Jun 16, 2014 at 09:17:14AM -0400, Peter Hurley wrote:
+> Since at least before 2.6.30, tty drivers that do not drop the tty lock
+> while closing cannot observe ASYNC_CLOSING set while holding the
+> tty lock; this includes the tty driver's open() and hangup() methods,
+> since the tty core calls these methods holding the tty lock.
+> 
+> For these drivers, waiting for ASYNC_CLOSING to clear while opening
+> is not required, since this condition cannot occur. Similarly, even
+> when the open() method drops and reacquires the tty lock after
+> blocking, ASYNC_CLOSING cannot be set (again, for drivers that
+> do not drop the tty lock while closing).
+> 
+> Now that tty port drivers no longer drop the tty lock while closing
+> (since 'tty: Remove tty_wait_until_sent_from_close()'), the same
+> conditions apply: waiting for ASYNC_CLOSING to clear while opening
+> is not required, nor is re-checking ASYNC_CLOSING after dropping and
+> reacquiring the tty lock while blocking (eg., in *_block_til_ready()).
+> 
+> Since ASYNC_CLOSING is not tested elsewhere, it is safe to remove
+> the flag.
+> 
+> CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> CC: Heiko Carstens <heiko.carstens@de.ibm.com>
+> CC: linux-s390@vger.kernel.org
+> CC: Mikael Starvik <starvik@axis.com>
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- drivers/s390/block/dcssblk.c     |    2 +-
- drivers/s390/char/vmlogrdr.c     |    2 +-
- drivers/s390/crypto/zcrypt_api.c |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+For the CRIS part:
 
-diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-index ee0e85abe1fd..0f471750327e 100644
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -593,7 +593,7 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char
- 	dev_info->start = dcssblk_find_lowest_addr(dev_info);
- 	dev_info->end = dcssblk_find_highest_addr(dev_info);
- 
--	dev_set_name(&dev_info->dev, dev_info->segment_name);
-+	dev_set_name(&dev_info->dev, "%s", dev_info->segment_name);
- 	dev_info->dev.release = dcssblk_release_segment;
- 	dev_info->dev.groups = dcssblk_dev_attr_groups;
- 	INIT_LIST_HEAD(&dev_info->lh);
-diff --git a/drivers/s390/char/vmlogrdr.c b/drivers/s390/char/vmlogrdr.c
-index cf31d3321dab..a8848db7b09d 100644
---- a/drivers/s390/char/vmlogrdr.c
-+++ b/drivers/s390/char/vmlogrdr.c
-@@ -761,7 +761,7 @@ static int vmlogrdr_register_device(struct vmlogrdr_priv_t *priv)
- 
- 	dev = kzalloc(sizeof(struct device), GFP_KERNEL);
- 	if (dev) {
--		dev_set_name(dev, priv->internal_name);
-+		dev_set_name(dev, "%s", priv->internal_name);
- 		dev->bus = &iucv_bus;
- 		dev->parent = iucv_root;
- 		dev->driver = &vmlogrdr_driver;
-diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
-index 5222ebe15705..0e18c5dcd91f 100644
---- a/drivers/s390/crypto/zcrypt_api.c
-+++ b/drivers/s390/crypto/zcrypt_api.c
-@@ -356,7 +356,7 @@ struct zcrypt_ops *zcrypt_msgtype_request(unsigned char *name, int variant)
- 
- 	zops = __ops_lookup(name, variant);
- 	if (!zops) {
--		request_module(name);
-+		request_module("%s", name);
- 		zops = __ops_lookup(name, variant);
- 	}
- 	if ((!zops) || (!try_module_get(zops->owner)))
+Acked-by: Jesper Nilsson <jesper.nilsson@axis.com>
+
+> CC: linux-cris-kernel@axis.com
+> CC: Samuel Ortiz <samuel@sortiz.org>
+> CC: "David S. Miller" <davem@davemloft.net>
+> Signed-off-by: Peter Hurley <peter@hurleysoftware.com>
+
+/^JN - Jesper Nilsson
 -- 
-1.7.9.5
-
-
--- 
-Kees Cook
-Chrome OS Security
+               Jesper Nilsson -- jesper.nilsson@axis.com
