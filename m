@@ -1,91 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sudeep Holla <sudeep.holla@arm.com>
-Subject: [PATCH 0/9] drivers: cacheinfo support
-Date: Wed, 25 Jun 2014 18:30:35 +0100
-Message-Id: <1403717444-23559-1-git-send-email-sudeep.holla@arm.com>
+Date: Wed, 25 Jun 2014 23:23:56 +0100
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCH 2/9] drivers: base: support cpu cache information
+	interface to userspace via sysfs
+Message-ID: <20140625222355.GK32514@n2100.arm.linux.org.uk>
+References: <1403717444-23559-1-git-send-email-sudeep.holla@arm.com> <1403717444-23559-3-git-send-email-sudeep.holla@arm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1403717444-23559-3-git-send-email-sudeep.holla@arm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: sudeep.holla@arm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-ia64@vger.kernel.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+To: Sudeep Holla <sudeep.holla@arm.com>
+Cc: linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>, linux-s390@vger.kernel.org, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, x86@kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+On Wed, Jun 25, 2014 at 06:30:37PM +0100, Sudeep Holla wrote:
+> +		coherency_line_size: the minimum amount of data that gets transferred
 
-This series adds a generic cacheinfo support similar to topology. The
-implementation is based on x86 cacheinfo support. Currently x86, powerpc,
-ia64 and s390 have their own implementations. While adding similar support
-to ARM and ARM64, here is the attempt to make it generic quite similar to
-topology info support. It also adds the missing ABI documentation for
-the cacheinfo sysfs which is already being used.
-
-It moves all the existing different implementations on x86, ia64, powerpc
-and s390 to use the generic cacheinfo infrastructure introduced here.
-These changes on non-ARM platforms are only compile tested and tested on x86.
-
-This series also adds support for ARM and ARM64 architectures based on
-the generic support.
-
-Since there was no objection to the idea in RFC, I am posting non-RFC
-version here.
-
-The code can be fetched from:
- git://linux-arm.org/linux-skn cacheinfo
-
-Previous RFCs:
-[1] https://lkml.org/lkml/2014/1/8/523
-[2] https://lkml.org/lkml/2014/2/7/654
-[3] https://lkml.org/lkml/2014/2/19/391
-
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-ia64@vger.kernel.org
-Cc: linux390@de.ibm.com
-Cc: linux-s390@vger.kernel.org
-Cc: x86@kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-arm-kernel@lists.infradead.org
-
----
-Sudeep Holla (9):
-  drivers: base: add new class "cpu" to group cpu devices
-  drivers: base: support cpu cache information interface to userspace
-    via sysfs
-  ia64: move cacheinfo sysfs to generic cacheinfo infrastructure
-  s390: move cacheinfo sysfs to generic cacheinfo infrastructure
-  x86: move cacheinfo sysfs to generic cacheinfo infrastructure
-  powerpc: move cacheinfo sysfs to generic cacheinfo infrastructure
-  ARM64: kernel: add support for cpu cache information
-  ARM: kernel: add support for cpu cache information
-  ARM: kernel: add outer cache support for cacheinfo implementation
-
- Documentation/ABI/testing/sysfs-devices-system-cpu |  41 ++
- arch/arm/include/asm/outercache.h                  |  13 +
- arch/arm/kernel/Makefile                           |   1 +
- arch/arm/kernel/cacheinfo.c                        | 249 +++++++
- arch/arm/mm/Kconfig                                |  13 +
- arch/arm/mm/cache-l2x0.c                           |  10 +
- arch/arm/mm/cache-tauros2.c                        |  34 +
- arch/arm/mm/cache-xsc3l2.c                         |  15 +
- arch/arm64/kernel/Makefile                         |   3 +-
- arch/arm64/kernel/cacheinfo.c                      | 135 ++++
- arch/ia64/kernel/topology.c                        | 401 ++--------
- arch/powerpc/kernel/cacheinfo.c                    | 813 +++------------------
- arch/powerpc/kernel/cacheinfo.h                    |   8 -
- arch/powerpc/kernel/sysfs.c                        |  12 +-
- arch/s390/kernel/cache.c                           | 388 +++-------
- arch/x86/kernel/cpu/intel_cacheinfo.c              | 655 ++++-------------
- drivers/base/Makefile                              |   2 +-
- drivers/base/cacheinfo.c                           | 564 ++++++++++++++
- drivers/base/core.c                                |  39 +-
- drivers/base/cpu.c                                 |   7 +
- include/linux/cacheinfo.h                          |  56 ++
- include/linux/cpu.h                                |   2 +
- 22 files changed, 1590 insertions(+), 1871 deletions(-)
- create mode 100644 arch/arm/kernel/cacheinfo.c
- create mode 100644 arch/arm64/kernel/cacheinfo.c
- delete mode 100644 arch/powerpc/kernel/cacheinfo.h
- create mode 100644 drivers/base/cacheinfo.c
- create mode 100644 include/linux/cacheinfo.h
+So, what value to do envision this taking for a CPU where the cache
+line size is 32 bytes, but each cache line has two dirty bits which
+allow it to only evict either the upper or lower 16 bytes depending
+on which are dirty?
 
 -- 
-1.8.3.2
+FTTC broadband for 0.8mile line: now at 9.7Mbps down 460kbps up... slowly
+improving, and getting towards what was expected from it.
