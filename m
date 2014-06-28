@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH 8/10] s390/pci: use safer test on the result of find_first_zero_bit
-Date: Wed,  4 Jun 2014 11:07:58 +0200
-Message-Id: <1401872880-23685-9-git-send-email-Julia.Lawall@lip6.fr>
-In-Reply-To: <1401872880-23685-1-git-send-email-Julia.Lawall@lip6.fr>
-References: <1401872880-23685-1-git-send-email-Julia.Lawall@lip6.fr>
+Date: Sun, 29 Jun 2014 00:18:18 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+Subject: [PATCH] sched.h: Remove useless `const' from function return type
+Message-ID: <alpine.LFD.2.11.1406242149270.23403@eddie.linux-mips.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Cc: kernel-janitors@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>, Preeti U Murthy <preeti@linux.vnet.ibm.com>Dietmar Eggemann <dietmar.eggemann@arm.com>, Peter Zijlstra <peterz@infradead.org>, Andrew Morton <akpm@linux-foundation.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Bjorn Helgaas <bhelgaas@google.com>, Chris Metcalf <cmetcalf@tilera.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Fenghua Yu <fenghua.yu@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Hanjun Guo <hanjun.guo@linaro.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Jason Low <jason.low2@hp.com>, Linus Torvalds <torvalds@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Tony Luck <tony.luck@intel.com>, linux390@de.ibm.com, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julia Lawall <Julia.Lawall@lip6.fr>
+This fixes:
 
-Find_first_zero_bit considers BITS_PER_LONG bits at a time, and thus may
-return a larger number than the maximum position argument if that position
-is not a multiple of BITS_PER_LONG.
+cc1: warnings being treated as errors
+In file included from include/linux/ptrace.h:5,
+                 from arch/mips/kernel/cpu-probe.c:16:
+include/linux/sched.h:1002: warning: type qualifiers ignored on function return type
+make[2]: *** [arch/mips/kernel/cpu-probe.o] Error 1
 
-The semantic match that finds this problem is as follows:
-(http://coccinelle.lip6.fr/)
+This is a regression introduced with commit 
+143e1e28cb40bed836b0a06567208bd7347c9672 [sched: Rework sched_domain 
+topology definition].  The warning itself is benign except in places like 
+the arch/mips subtree where we use `-Werror' to enforce good coding 
+practices.  Apparently the warning is GCC-version specific, some versions 
+produce it and some do not.
 
-// <smpl>
-@@
-expression e1,e2,e3;
-statement S1,S2;
-@@
-
-e1 = find_first_zero_bit(e2,e3)
-...
-if (e1 
-- ==
-+ >=
-  e3)
-S1 else S2
-// </smpl>
-
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-
+Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
 ---
- arch/s390/pci/pci.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Vincent,
 
-diff -u -p a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -566,7 +566,7 @@ static int zpci_alloc_iomap(struct zpci_
+ Did you mean:
+
+typedef int __attribute__((const)) (*sched_domain_flags_f)(void);
+
+by any chance?
+
+  Maciej
+
+linux-sched-domain-flags-type.patch
+Index: linux-20140623-swarm64/include/linux/sched.h
+===================================================================
+--- linux-20140623-swarm64.orig/include/linux/sched.h
++++ linux-20140623-swarm64/include/linux/sched.h
+@@ -999,7 +999,7 @@ void free_sched_domains(cpumask_var_t do
+ bool cpus_share_cache(int this_cpu, int that_cpu);
  
- 	spin_lock(&zpci_iomap_lock);
- 	entry = find_first_zero_bit(zpci_iomap, ZPCI_IOMAP_MAX_ENTRIES);
--	if (entry == ZPCI_IOMAP_MAX_ENTRIES) {
-+	if (entry >= ZPCI_IOMAP_MAX_ENTRIES) {
- 		spin_unlock(&zpci_iomap_lock);
- 		return -ENOSPC;
- 	}
-@@ -746,7 +746,7 @@ static int zpci_alloc_domain(struct zpci
- {
- 	spin_lock(&zpci_domain_lock);
- 	zdev->domain = find_first_zero_bit(zpci_domain, ZPCI_NR_DEVICES);
--	if (zdev->domain == ZPCI_NR_DEVICES) {
-+	if (zdev->domain >= ZPCI_NR_DEVICES) {
- 		spin_unlock(&zpci_domain_lock);
- 		return -ENOSPC;
- 	}
+ typedef const struct cpumask *(*sched_domain_mask_f)(int cpu);
+-typedef const int (*sched_domain_flags_f)(void);
++typedef int (*sched_domain_flags_f)(void);
+ 
+ #define SDTL_OVERLAP	0x01
+ 
