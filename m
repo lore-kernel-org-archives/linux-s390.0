@@ -1,10 +1,10 @@
 From: Minchan Kim <minchan@kernel.org>
-Subject: [PATCH v11 5/7] s390: add pmd_[dirty|mkclean] for THP
-Date: Tue,  8 Jul 2014 15:03:42 +0900
-Message-ID: <1404799424-1120-6-git-send-email-minchan@kernel.org>
-References: <1404799424-1120-1-git-send-email-minchan@kernel.org>
+Subject: [PATCH v12 5/8] s390: add pmd_[dirty|mkclean] for THP
+Date: Wed,  9 Jul 2014 15:22:26 +0900
+Message-ID: <1404886949-17695-6-git-send-email-minchan@kernel.org>
+References: <1404886949-17695-1-git-send-email-minchan@kernel.org>
 Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1404799424-1120-1-git-send-email-minchan@kernel.org>
+In-Reply-To: <1404886949-17695-1-git-send-email-minchan@kernel.org>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
