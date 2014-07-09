@@ -1,42 +1,88 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v1 4/5] parisc: use seq_hex_dump() to dump buffers
-Date: Wed, 9 Jul 2014 23:40:51 +0300
-Message-ID: <CAHp75Ve-qhEn7emqqwf_nWSPiw-m-HJy42QapJoDhTeuBsoqZg@mail.gmail.com>
-References: <1404919470-26668-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	<1404919470-26668-5-git-send-email-andriy.shevchenko@linux.intel.com>
-	<1404930382.932.143.camel@joe-AO725>
+From: Marek Vasut <marex@denx.de>
+Subject: Re: [PATCH v1 1/5] seq_file: provide an analogue of print_hex_dump()
+Date: Wed, 9 Jul 2014 22:39:30 +0200
+Message-ID: <201407092239.30561.marex@denx.de>
+References: <1404919470-26668-1-git-send-email-andriy.shevchenko@linux.intel.com> <1404919470-26668-2-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-fsdevel-owner@vger.kernel.org>
-In-Reply-To: <1404930382.932.143.camel@joe-AO725>
-Sender: linux-fsdevel-owner@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-crypto-owner@vger.kernel.org>
+In-Reply-To: <1404919470-26668-2-git-send-email-andriy.shevchenko@linux.intel.com>
+Sender: linux-crypto-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-crypto/>
 List-Post: <mailto:linux-crypto@vger.kernel.org>
-To: Joe Perches <joe@perches.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Tadeusz Struk <tadeusz.struk@intel.com>, Herbert Xu <herbert@gondor.apana.org.au>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Helge Deller <deller@gmx.de>, Ingo Tuchscherer <ingo.tuchscherer@de.ibm.com>, linux390@de.ibm.com, Alexander Viro <viro@zeniv.linux.org.uk>, qat-linux@intel.com, linux-crypto@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Tadeusz Struk <tadeusz.struk@intel.com>, Herbert Xu <herbert@gondor.apana.org.au>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Helge Deller <deller@gmx.de>, Ingo Tuchscherer <ingo.tuchscherer@de.ibm.com>, linux390@de.ibm.com, Alexander Viro <viro@zeniv.linux.org.uk>, qat-linux@intel.com, linux-crypto@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-In one case indeed it does, in another - no, though it seems it prints
-same data (by meaning) in both cases. I would like driver maintainer
-to say a word what they think about it.
+On Wednesday, July 09, 2014 at 05:24:26 PM, Andy Shevchenko wrote:
+> The new seq_hex_dump() is a complete analogue of print_hex_dump().
+> 
+> We have few users of this functionality already. It allows to reduce their
+> codebase.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  fs/seq_file.c            | 35 +++++++++++++++++++++++++++++++++++
+>  include/linux/seq_file.h |  4 ++++
+>  2 files changed, 39 insertions(+)
+> 
+> diff --git a/fs/seq_file.c b/fs/seq_file.c
+> index 3857b72..fec4a6b 100644
+> --- a/fs/seq_file.c
+> +++ b/fs/seq_file.c
+> @@ -12,6 +12,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/cred.h>
+>  #include <linux/mm.h>
+> +#include <linux/printk.h>
+> 
+>  #include <asm/uaccess.h>
+>  #include <asm/page.h>
+> @@ -794,6 +795,40 @@ void seq_pad(struct seq_file *m, char c)
+>  }
+>  EXPORT_SYMBOL(seq_pad);
+> 
+> +/* Analogue of print_hex_dump() */
+> +void seq_hex_dump(struct seq_file *m, const char *prefix_str, int
+> prefix_type, +		  int rowsize, int groupsize, const void *buf, 
+size_t len,
+> +		  bool ascii)
+> +{
+> +	const u8 *ptr = buf;
+> +	int i, linelen, remaining = len;
+> +	unsigned char linebuf[32 * 3 + 2 + 32 + 1];
+> +
+> +	if (rowsize != 16 && rowsize != 32)
+> +		rowsize = 16;
+> +
+> +	for (i = 0; i < len; i += rowsize) {
+> +		linelen = min(remaining, rowsize);
+> +		remaining -= rowsize;
+> +
+> +		hex_dump_to_buffer(ptr + i, linelen, rowsize, groupsize,
+> +				   linebuf, sizeof(linebuf), ascii);
+> +
+> +		switch (prefix_type) {
+> +		case DUMP_PREFIX_ADDRESS:
+> +			seq_printf(m, "%s%p: %s\n", prefix_str, ptr + i, 
+linebuf);
+> +			break;
+> +		case DUMP_PREFIX_OFFSET:
+> +			seq_printf(m, "%s%.8x: %s\n", prefix_str, i, linebuf);
+> +			break;
+> +		default:
+> +			seq_printf(m, "%s%s\n", prefix_str, linebuf);
+> +			break;
+> +		}
+> +	}
+> +}
+> +EXPORT_SYMBOL(seq_hex_dump);
 
-On Wed, Jul 9, 2014 at 9:26 PM, Joe Perches <joe@perches.com> wrote:
-> On Wed, 2014-07-09 at 18:24 +0300, Andy Shevchenko wrote:
->> Instead of custom approach let's use recently introduced seq_hex_dump() helper.
->
-> Doesn't this also change the output from
->    1111111122222222333333334444444455555555666666667777777788888888
-> to
->    11111111 22222222 33333333 44444444 55555555 66666666 77777777 88888888
->
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-media" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The above function looks like almost verbatim copy of print_hex_dump(). The only 
+difference I can spot is that it's calling seq_printf() instead of printk(). Can 
+you not instead generalize print_hex_dump() and based on it's invocation, make 
+it call either seq_printf() or printk() ?
 
-
-
--- 
-With Best Regards,
-Andy Shevchenko
+Best regards,
