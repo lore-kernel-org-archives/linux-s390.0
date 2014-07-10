@@ -1,8 +1,8 @@
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Subject: Re: [PATCH/RFC 0/5] s390x/kvm: track the logical cpu state in QEMU
  and propagate it to kvm
-Date: Thu, 10 Jul 2014 15:14:12 +0200
-Message-ID: <20140710151412.6ed9cf1c@thinkpad-w530>
+Date: Thu, 10 Jul 2014 15:14:31 +0200
+Message-ID: <20140710151431.0b7e3c34@thinkpad-w530>
 References: <1404997839-29038-1-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -39,4 +39,4 @@ List-ID: <linux-s390.vger.kernel.org>
 >  8 files changed, 179 insertions(+), 67 deletions(-)
 > 
 
-Looks good to me.
+Looks good to me
