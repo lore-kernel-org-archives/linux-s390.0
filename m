@@ -1,290 +1,179 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: [PATCH 1/7] seccomp,x86,arm,mips,s390: Remove nr parameter from secure_computing
-Date: Tue, 15 Jul 2014 12:32:30 -0700
-Message-ID: <0c440c74556b2a408ec3afa5b79216d043545ba6.1405452484.git.luto@amacapital.net>
-References: <cover.1405452484.git.luto@amacapital.net>
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <cover.1405452484.git.luto@amacapital.net>
-In-Reply-To: <cover.1405452484.git.luto@amacapital.net>
-References: <cover.1405452484.git.luto@amacapital.net>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, Kees Cook <keescook@chromium.org>, Will Drewry <wad@chromium.org>, James Morris <james.l.morris@oracle.com>
-Cc: Oleg Nesterov <oleg@redhat.com>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, linux-arch@vger.kernel.org, linux-security-module@vger.kernel.org, Alexei Starovoitov <ast@plumgrid.com>, Andy Lutomirski <luto@amacapital.net>, Russell King <linux@arm.linux.org.uk>, Ralf Baechle <ralf@linux-mips.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 9 Jul 2014 17:09:05 -0700
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 2/9] drivers: base: support cpu cache information
+ interface to userspace via sysfs
+Message-ID: <20140710000905.GA18025@kroah.com>
+References: <1403717444-23559-1-git-send-email-sudeep.holla@arm.com>
+ <1403717444-23559-3-git-send-email-sudeep.holla@arm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1403717444-23559-3-git-send-email-sudeep.holla@arm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Sudeep Holla <sudeep.holla@arm.com>
+Cc: linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, Rob Herring <robh@kernel.org>, linux-doc@vger.kernel.org, linux-ia64@vger.kernel.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The secure_computing function took a syscall number parameter, but
-it only paid any attention to that parameter if seccomp mode 1 was
-enabled.  Rather than coming up with a kludge to get the parameter
-to work in mode 2, just remove the parameter.
+On Wed, Jun 25, 2014 at 06:30:37PM +0100, Sudeep Holla wrote:
+> +static const struct device_attribute *cache_optional_attrs[] = {
+> +	&dev_attr_coherency_line_size,
+> +	&dev_attr_ways_of_associativity,
+> +	&dev_attr_number_of_sets,
+> +	&dev_attr_size,
+> +	&dev_attr_attributes,
+> +	&dev_attr_physical_line_partition,
+> +	NULL
+> +};
+> +
+> +static int device_add_attrs(struct device *dev,
+> +			    const struct device_attribute **dev_attrs)
+> +{
+> +	int i, error = 0;
+> +	struct device_attribute *dev_attr;
+> +	char *buf;
+> +
+> +	if (!dev_attrs)
+> +		return 0;
+> +
+> +	buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
+> +	if (!buf)
+> +		return -ENOMEM;
+> +
+> +	for (i = 0; dev_attrs[i]; i++) {
+> +		dev_attr = (struct device_attribute *)dev_attrs[i];
+> +
+> +		/* create attributes that provides meaningful value */
+> +		if (dev_attr->show(dev, dev_attr, buf) < 0)
+> +			continue;
+> +
+> +		error = device_create_file(dev, dev_attrs[i]);
+> +		if (error) {
+> +			while (--i >= 0)
+> +				device_remove_file(dev, dev_attrs[i]);
+> +			break;
+> +		}
+> +	}
+> +
+> +	kfree(buf);
+> +	return error;
+> +}
 
-To avoid churn in arches that don't have seccomp filters (and may
-not even support syscall_get_nr right now), this leaves the
-parameter in secure_computing_strict, which is now a real function.
+Ick, why create your own function for this when the driver core has this
+functionality built into it?  Look at the is_visible() callback, and how
+it is use for an attribute group please.
 
-For ARM, this is a bit ugly due to the fact that ARM conditionally
-supports seccomp filters.  Fixing that would probably only be a
-couple of lines of code, but it should be coordinated with the audit
-maintainers.
+> +static void device_remove_attrs(struct device *dev,
+> +				const struct device_attribute **dev_attrs)
+> +{
+> +	int i;
+> +
+> +	if (!dev_attrs)
+> +		return;
+> +
+> +	for (i = 0; dev_attrs[i]; dev_attrs++, i++)
+> +		device_remove_file(dev, dev_attrs[i]);
+> +}
 
-This will be a slight slowdown on some arches.  The right fix is to
-pass in all of seccomp_data instead of trying to make just the
-syscall nr part be fast.
+You should just remove a whole group at once, not individually.
 
-This is a prerequisite for making two-phase seccomp work cleanly.
+> +
+> +const struct device_attribute **
+> +__weak cache_get_priv_attr(struct device *cache_idx_dev)
+> +{
+> +	return NULL;
+> +}
+> +
+> +/* Add/Remove cache interface for CPU device */
+> +static void cpu_cache_sysfs_exit(unsigned int cpu)
+> +{
+> +	int i;
+> +	struct device *tmp_dev;
+> +	const struct device_attribute **ci_priv_attr;
+> +
+> +	if (per_cpu_index_dev(cpu)) {
+> +		for (i = 0; i < cache_leaves(cpu); i++) {
+> +			tmp_dev = per_cache_index_dev(cpu, i);
+> +			if (!tmp_dev)
+> +				continue;
+> +			ci_priv_attr = cache_get_priv_attr(tmp_dev);
+> +			device_remove_attrs(tmp_dev, ci_priv_attr);
+> +			device_remove_attrs(tmp_dev, cache_optional_attrs);
+> +			device_unregister(tmp_dev);
+> +		}
+> +		kfree(per_cpu_index_dev(cpu));
+> +		per_cpu_index_dev(cpu) = NULL;
+> +	}
+> +	device_unregister(per_cpu_cache_dev(cpu));
+> +	per_cpu_cache_dev(cpu) = NULL;
+> +}
+> +
+> +static int cpu_cache_sysfs_init(unsigned int cpu)
+> +{
+> +	struct device *dev = get_cpu_device(cpu);
+> +
+> +	if (per_cpu_cacheinfo(cpu) == NULL)
+> +		return -ENOENT;
+> +
+> +	per_cpu_cache_dev(cpu) = device_create(dev->class, dev, cpu,
+> +					       NULL, "cache");
+> +	if (IS_ERR_OR_NULL(per_cpu_cache_dev(cpu)))
+> +		return PTR_ERR(per_cpu_cache_dev(cpu));
+> +
+> +	/* Allocate all required memory */
+> +	per_cpu_index_dev(cpu) = kzalloc(sizeof(struct device *) *
+> +					 cache_leaves(cpu), GFP_KERNEL);
+> +	if (unlikely(per_cpu_index_dev(cpu) == NULL))
+> +		goto err_out;
+> +
+> +	return 0;
+> +
+> +err_out:
+> +	cpu_cache_sysfs_exit(cpu);
+> +	return -ENOMEM;
+> +}
+> +
+> +static int cache_add_dev(unsigned int cpu)
+> +{
+> +	unsigned short i;
+> +	int rc;
+> +	struct device *tmp_dev, *parent;
+> +	struct cacheinfo *this_leaf;
+> +	const struct device_attribute **ci_priv_attr;
+> +	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+> +
+> +	rc = cpu_cache_sysfs_init(cpu);
+> +	if (unlikely(rc < 0))
+> +		return rc;
+> +
+> +	parent = per_cpu_cache_dev(cpu);
+> +	for (i = 0; i < cache_leaves(cpu); i++) {
+> +		this_leaf = this_cpu_ci->info_list + i;
+> +		if (this_leaf->disable_sysfs)
+> +			continue;
+> +		tmp_dev = device_create_with_groups(parent->class, parent, i,
+> +						    this_leaf,
+> +						    cache_default_groups,
+> +						    "index%1u", i);
+> +		if (IS_ERR_OR_NULL(tmp_dev)) {
+> +			rc = PTR_ERR(tmp_dev);
+> +			goto err;
+> +		}
+> +
+> +		rc = device_add_attrs(tmp_dev, cache_optional_attrs);
+> +		if (unlikely(rc))
+> +			goto err;
+> +
+> +		ci_priv_attr = cache_get_priv_attr(tmp_dev);
+> +		rc = device_add_attrs(tmp_dev, ci_priv_attr);
+> +		if (unlikely(rc))
+> +			goto err;
 
-Cc: Russell King <linux@arm.linux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips@linux-mips.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: x86@kernel.org
-Cc: Kees Cook <keescook@chromium.org>
-Signed-off-by: Andy Lutomirski <luto@amacapital.net>
----
- arch/arm/kernel/ptrace.c      |  7 ++++-
- arch/mips/kernel/ptrace.c     |  2 +-
- arch/s390/kernel/ptrace.c     |  2 +-
- arch/x86/kernel/ptrace.c      |  2 +-
- arch/x86/kernel/vsyscall_64.c |  2 +-
- include/linux/seccomp.h       | 21 +++++++-------
- kernel/seccomp.c              | 64 ++++++++++++++++++++++++++++++-------------
- 7 files changed, 66 insertions(+), 34 deletions(-)
+You just raced with userspace here, creating these files _after_ the
+device was announced to userspace, causing problems with anyone wanting
+to read these attributes :(
 
-diff --git a/arch/arm/kernel/ptrace.c b/arch/arm/kernel/ptrace.c
-index 0c27ed6..5e772a2 100644
---- a/arch/arm/kernel/ptrace.c
-+++ b/arch/arm/kernel/ptrace.c
-@@ -933,8 +933,13 @@ asmlinkage int syscall_trace_enter(struct pt_regs *regs, int scno)
- 	current_thread_info()->syscall = scno;
- 
- 	/* Do the secure computing check first; failures should be fast. */
--	if (secure_computing(scno) == -1)
-+#ifdef CONFIG_HAVE_ARCH_SECCOMP_FILTER
-+	if (secure_computing() == -1)
- 		return -1;
-+#else
-+	/* XXX: remove this once OABI gets fixed */
-+	secure_computing_strict(scno);
-+#endif
- 
- 	if (test_thread_flag(TIF_SYSCALL_TRACE))
- 		tracehook_report_syscall(regs, PTRACE_SYSCALL_ENTER);
-diff --git a/arch/mips/kernel/ptrace.c b/arch/mips/kernel/ptrace.c
-index f639ccd..808bafc 100644
---- a/arch/mips/kernel/ptrace.c
-+++ b/arch/mips/kernel/ptrace.c
-@@ -639,7 +639,7 @@ asmlinkage long syscall_trace_enter(struct pt_regs *regs, long syscall)
- 	long ret = 0;
- 	user_exit();
- 
--	if (secure_computing(syscall) == -1)
-+	if (secure_computing() == -1)
- 		return -1;
- 
- 	if (test_thread_flag(TIF_SYSCALL_TRACE) &&
-diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-index 2d716734..7ab8b91 100644
---- a/arch/s390/kernel/ptrace.c
-+++ b/arch/s390/kernel/ptrace.c
-@@ -795,7 +795,7 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
- 	long ret = 0;
- 
- 	/* Do the secure computing check first. */
--	if (secure_computing(regs->gprs[2])) {
-+	if (secure_computing()) {
- 		/* seccomp failures shouldn't expose any additional code. */
- 		ret = -1;
- 		goto out;
-diff --git a/arch/x86/kernel/ptrace.c b/arch/x86/kernel/ptrace.c
-index 678c0ad..93c182a 100644
---- a/arch/x86/kernel/ptrace.c
-+++ b/arch/x86/kernel/ptrace.c
-@@ -1471,7 +1471,7 @@ long syscall_trace_enter(struct pt_regs *regs)
- 		regs->flags |= X86_EFLAGS_TF;
- 
- 	/* do the secure computing check first */
--	if (secure_computing(regs->orig_ax)) {
-+	if (secure_computing()) {
- 		/* seccomp failures shouldn't expose any additional code. */
- 		ret = -1L;
- 		goto out;
-diff --git a/arch/x86/kernel/vsyscall_64.c b/arch/x86/kernel/vsyscall_64.c
-index ea5b570..23c0c23 100644
---- a/arch/x86/kernel/vsyscall_64.c
-+++ b/arch/x86/kernel/vsyscall_64.c
-@@ -216,7 +216,7 @@ bool emulate_vsyscall(struct pt_regs *regs, unsigned long address)
- 	 */
- 	regs->orig_ax = syscall_nr;
- 	regs->ax = -ENOSYS;
--	tmp = secure_computing(syscall_nr);
-+	tmp = secure_computing();
- 	if ((!tmp && regs->orig_ax != syscall_nr) || regs->ip != address) {
- 		warn_bad_vsyscall(KERN_DEBUG, regs,
- 				  "seccomp tried to change syscall nr or ip");
-diff --git a/include/linux/seccomp.h b/include/linux/seccomp.h
-index 4054b09..6e655a6 100644
---- a/include/linux/seccomp.h
-+++ b/include/linux/seccomp.h
-@@ -25,19 +25,17 @@ struct seccomp {
- 	struct seccomp_filter *filter;
- };
- 
--extern int __secure_computing(int);
--static inline int secure_computing(int this_syscall)
-+#ifdef CONFIG_HAVE_ARCH_SECCOMP_FILTER
-+extern int __secure_computing(void);
-+static inline int secure_computing(void)
- {
- 	if (unlikely(test_thread_flag(TIF_SECCOMP)))
--		return  __secure_computing(this_syscall);
-+		return  __secure_computing();
- 	return 0;
- }
--
--/* A wrapper for architectures supporting only SECCOMP_MODE_STRICT. */
--static inline void secure_computing_strict(int this_syscall)
--{
--	BUG_ON(secure_computing(this_syscall) != 0);
--}
-+#else
-+extern void secure_computing_strict(int this_syscall);
-+#endif
- 
- extern long prctl_get_seccomp(void);
- extern long prctl_set_seccomp(unsigned long, char __user *);
-@@ -54,8 +52,11 @@ static inline int seccomp_mode(struct seccomp *s)
- struct seccomp { };
- struct seccomp_filter { };
- 
--static inline int secure_computing(int this_syscall) { return 0; }
-+#ifdef CONFIG_HAVE_ARCH_SECCOMP_FILTER
-+static inline int secure_computing(void) { return 0; }
-+#else
- static inline void secure_computing_strict(int this_syscall) { return; }
-+#endif
- 
- static inline long prctl_get_seccomp(void)
- {
-diff --git a/kernel/seccomp.c b/kernel/seccomp.c
-index 301bbc2..15ee9d6 100644
---- a/kernel/seccomp.c
-+++ b/kernel/seccomp.c
-@@ -21,8 +21,11 @@
- 
- /* #define SECCOMP_DEBUG 1 */
- 
--#ifdef CONFIG_SECCOMP_FILTER
-+#ifdef CONFIG_HAVE_ARCH_SECCOMP_FILTER
- #include <asm/syscall.h>
-+#endif
-+
-+#ifdef CONFIG_SECCOMP_FILTER
- #include <linux/filter.h>
- #include <linux/ptrace.h>
- #include <linux/security.h>
-@@ -170,7 +173,7 @@ static int seccomp_check_filter(struct sock_filter *filter, unsigned int flen)
-  *
-  * Returns valid seccomp BPF response codes.
-  */
--static u32 seccomp_run_filters(int syscall)
-+static u32 seccomp_run_filters(void)
- {
- 	struct seccomp_filter *f;
- 	struct seccomp_data sd;
-@@ -380,32 +383,54 @@ static int mode1_syscalls_32[] = {
- };
- #endif
- 
--int __secure_computing(int this_syscall)
-+static void __secure_computing_strict(int this_syscall)
-+{
-+	int *syscall_whitelist = mode1_syscalls;
-+#ifdef CONFIG_COMPAT
-+	if (is_compat_task())
-+		syscall_whitelist = mode1_syscalls_32;
-+#endif
-+	do {
-+		if (*syscall_whitelist == this_syscall)
-+			return;
-+	} while (*++syscall_whitelist);
-+
-+#ifdef SECCOMP_DEBUG
-+	dump_stack();
-+#endif
-+	audit_seccomp(this_syscall, SIGKILL, SECCOMP_RET_KILL);
-+	do_exit(SIGKILL);
-+}
-+
-+#ifndef CONFIG_HAVE_ARCH_SECCOMP_FILTER
-+void secure_computing_strict(int this_syscall)
-+{
-+	int mode = current->seccomp.mode;
-+
-+	if (mode == 0)
-+		return;
-+	else if (mode == SECCOMP_MODE_STRICT)
-+		__secure_computing_strict(this_syscall);
-+	else
-+		BUG();
-+}
-+#else
-+int __secure_computing(void)
- {
- 	int mode = current->seccomp.mode;
-+	struct pt_regs *regs = task_pt_regs(current);
-+	int this_syscall = syscall_get_nr(current, regs);
- 	int exit_sig = 0;
--	int *syscall;
- 	u32 ret;
- 
- 	switch (mode) {
- 	case SECCOMP_MODE_STRICT:
--		syscall = mode1_syscalls;
--#ifdef CONFIG_COMPAT
--		if (is_compat_task())
--			syscall = mode1_syscalls_32;
--#endif
--		do {
--			if (*syscall == this_syscall)
--				return 0;
--		} while (*++syscall);
--		exit_sig = SIGKILL;
--		ret = SECCOMP_RET_KILL;
--		break;
-+		__secure_computing_strict(this_syscall);
-+		return 0;
- #ifdef CONFIG_SECCOMP_FILTER
- 	case SECCOMP_MODE_FILTER: {
- 		int data;
--		struct pt_regs *regs = task_pt_regs(current);
--		ret = seccomp_run_filters(this_syscall);
-+		ret = seccomp_run_filters();
- 		data = ret & SECCOMP_RET_DATA;
- 		ret &= SECCOMP_RET_ACTION;
- 		switch (ret) {
-@@ -463,9 +488,10 @@ int __secure_computing(int this_syscall)
- #ifdef CONFIG_SECCOMP_FILTER
- skip:
- 	audit_seccomp(this_syscall, exit_sig, ret);
--#endif
- 	return -1;
-+#endif
- }
-+#endif /* CONFIG_HAVE_ARCH_SECCOMP_FILTER */
- 
- long prctl_get_seccomp(void)
- {
--- 
-1.9.3
+I think if you fix up the is_visible() thing above, these calls will go
+away, right?
