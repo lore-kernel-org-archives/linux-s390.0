@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH/RFC 1/5] KVM: s390: allow only one SIGP STOP (AND STORE STATUS) at a time
-Date: Thu, 10 Jul 2014 15:09:31 +0200
-Message-ID: <1404997775-28929-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH/RFC 4/5] KVM: prepare for KVM_(S|G)ET_MP_STATE on other architectures
+Date: Thu, 10 Jul 2014 15:09:34 +0200
+Message-ID: <1404997775-28929-5-git-send-email-borntraeger@de.ibm.com>
 References: <1404997775-28929-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1404997775-28929-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,52 +14,80 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-A SIGP STOP (AND STORE STATUS) order is complete as soon as the VCPU has been
-stopped. This patch makes sure that only one SIGP STOP (AND STORE STATUS) may
-be pending at a time (as defined by the architecture). If the action_bits are
-still set, a SIGP STOP has been issued but not completed yet. The VCPU is busy
-for further SIGP STOP orders.
+Highlight the aspects of the ioctls that are actually specific to x86
+and ia64. As defined restrictions (irqchip) and mp states may not apply
+to other architectures, these parts are flagged to belong to x86 and ia64.
 
-Also set the CPUSTAT_STOP_INT after the action_bits variable has been modified
-(the same order that is used when injecting a KVM_S390_SIGP_STOP from
-userspace).
-
-Both changes are needed in preparation for a user space driven VCPU state change
-(to avoid race conditions).
+In preparation for the use of KVM_(S|G)ET_MP_STATE by s390.
+Fix a spelling error (KVM_SET_MP_STATE vs. KVM_SET_MPSTATE) on the way.
 
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/sigp.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ Documentation/virtual/kvm/api.txt | 21 ++++++++++++---------
+ include/uapi/linux/kvm.h          |  3 ++-
+ 2 files changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index 43079a4..fd7fb5c 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -136,6 +136,11 @@ static int __inject_sigp_stop(struct kvm_s390_local_interrupt *li, int action)
- 	inti->type = KVM_S390_SIGP_STOP;
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index 0fe3649..904c61c 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -988,18 +988,20 @@ uniprocessor guests).
  
- 	spin_lock_bh(&li->lock);
-+	if (li->action_bits & ACTION_STOP_ON_STOP) {
-+		/* another SIGP STOP is pending */
-+		rc = SIGP_CC_BUSY;
-+		goto out;
-+	}
- 	if ((atomic_read(li->cpuflags) & CPUSTAT_STOPPED)) {
- 		kfree(inti);
- 		if ((action & ACTION_STORE_ON_STOP) != 0)
-@@ -144,8 +149,8 @@ static int __inject_sigp_stop(struct kvm_s390_local_interrupt *li, int action)
- 	}
- 	list_add_tail(&inti->list, &li->list);
- 	atomic_set(&li->active, 1);
--	atomic_set_mask(CPUSTAT_STOP_INT, li->cpuflags);
- 	li->action_bits |= action;
-+	atomic_set_mask(CPUSTAT_STOP_INT, li->cpuflags);
- 	if (waitqueue_active(li->wq))
- 		wake_up_interruptible(li->wq);
- out:
+ Possible values are:
+ 
+- - KVM_MP_STATE_RUNNABLE:        the vcpu is currently running
++ - KVM_MP_STATE_RUNNABLE:        the vcpu is currently running [x86, ia64]
+  - KVM_MP_STATE_UNINITIALIZED:   the vcpu is an application processor (AP)
+-                                 which has not yet received an INIT signal
++                                 which has not yet received an INIT signal [x86,
++                                 ia64]
+  - KVM_MP_STATE_INIT_RECEIVED:   the vcpu has received an INIT signal, and is
+-                                 now ready for a SIPI
++                                 now ready for a SIPI [x86, ia64]
+  - KVM_MP_STATE_HALTED:          the vcpu has executed a HLT instruction and
+-                                 is waiting for an interrupt
++                                 is waiting for an interrupt [x86, ia64]
+  - KVM_MP_STATE_SIPI_RECEIVED:   the vcpu has just received a SIPI (vector
+-                                 accessible via KVM_GET_VCPU_EVENTS)
++                                 accessible via KVM_GET_VCPU_EVENTS) [x86, ia64]
+ 
+-This ioctl is only useful after KVM_CREATE_IRQCHIP.  Without an in-kernel
+-irqchip, the multiprocessing state must be maintained by userspace.
++On x86 and ia64, this ioctl is only useful after KVM_CREATE_IRQCHIP. Without an
++in-kernel irqchip, the multiprocessing state must be maintained by userspace on
++these architectures.
+ 
+ 
+ 4.39 KVM_SET_MP_STATE
+@@ -1013,8 +1015,9 @@ Returns: 0 on success; -1 on error
+ Sets the vcpu's current "multiprocessing state"; see KVM_GET_MP_STATE for
+ arguments.
+ 
+-This ioctl is only useful after KVM_CREATE_IRQCHIP.  Without an in-kernel
+-irqchip, the multiprocessing state must be maintained by userspace.
++On x86 and ia64, this ioctl is only useful after KVM_CREATE_IRQCHIP. Without an
++in-kernel irqchip, the multiprocessing state must be maintained by userspace on
++these architectures.
+ 
+ 
+ 4.40 KVM_SET_IDENTITY_MAP_ADDR
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index e11d8f1..37d4ec6 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -399,8 +399,9 @@ struct kvm_vapic_addr {
+ 	__u64 vapic_addr;
+ };
+ 
+-/* for KVM_SET_MPSTATE */
++/* for KVM_SET_MP_STATE */
+ 
++/* not all states are valid on all architectures */
+ #define KVM_MP_STATE_RUNNABLE          0
+ #define KVM_MP_STATE_UNINITIALIZED     1
+ #define KVM_MP_STATE_INIT_RECEIVED     2
 -- 
 1.8.4.2
