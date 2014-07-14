@@ -1,65 +1,33 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH/RFC 4/5] s390x/kvm: test whether a cpu is STOPPED when checking "has_work"
-Date: Thu, 10 Jul 2014 15:10:38 +0200
-Message-ID: <1404997839-29038-5-git-send-email-borntraeger@de.ibm.com>
-References: <1404997839-29038-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1404997839-29038-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: KVM <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Alexander Graf <agraf@suse.de>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Fabian Frederick <fabf@skynet.be>
+Subject: [PATCH 04/16] af_iucv: remove unnecessary break after goto
+Date: Mon, 14 Jul 2014 18:30:54 +0200
+Message-Id: <1405355467-7350-5-git-send-email-fabf@skynet.be>
+In-Reply-To: <1405355467-7350-1-git-send-email-fabf@skynet.be>
+References: <1405355467-7350-1-git-send-email-fabf@skynet.be>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: davem@davemloft.net, joe@perches.com, Fabian Frederick <fabf@skynet.be>, Ursula Braun <ursula.braun@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
-
-If a cpu is stopped, it must never be allowed to run and no interrupt may wake it
-up. A cpu also has to be unhalted if it is halted and has work to do - this
-scenario wasn't hit in kvm case yet, as only "disabled wait" is processed within
-QEMU.
-
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Fabian Frederick <fabf@skynet.be>
 ---
- target-s390x/cpu.c | 6 ++++++
- target-s390x/kvm.c | 5 +++++
- 2 files changed, 11 insertions(+)
+ net/iucv/af_iucv.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
-index c5ab98f..1d32f5a 100644
---- a/target-s390x/cpu.c
-+++ b/target-s390x/cpu.c
-@@ -72,6 +72,12 @@ static bool s390_cpu_has_work(CPUState *cs)
-     S390CPU *cpu = S390_CPU(cs);
-     CPUS390XState *env = &cpu->env;
- 
-+    /* stopped cpus can never run */
-+    if (env->cpu_state == CPU_STATE_STOPPED ||
-+        env->cpu_state == CPU_STATE_CHECK_STOP) {
-+        return false;
-+    }
-+
-     return (cs->interrupt_request & CPU_INTERRUPT_HARD) &&
-            (env->psw.mask & PSW_MASK_EXT);
- }
-diff --git a/target-s390x/kvm.c b/target-s390x/kvm.c
-index db2e42c..00125f1 100644
---- a/target-s390x/kvm.c
-+++ b/target-s390x/kvm.c
-@@ -553,6 +553,11 @@ void kvm_arch_post_run(CPUState *cpu, struct kvm_run *run)
- 
- int kvm_arch_process_async_events(CPUState *cs)
- {
-+    if (cs->halted && CPU_GET_CLASS(cs)->has_work(cs)) {
-+        /* has_work will take care of stopped cpus */
-+        s390_cpu_unhalt(S390_CPU(cs));
-+    }
-+
-     return cs->halted;
- }
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index 7a95fa4..d79f5fb 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -1103,7 +1103,6 @@ static int iucv_sock_sendmsg(struct kiocb *iocb, struct socket *sock,
+ 		default:
+ 			err = -EINVAL;
+ 			goto out;
+-			break;
+ 		}
+ 	}
  
 -- 
-1.8.4.2
+1.8.4.5
