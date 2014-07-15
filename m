@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 3/5] KVM: s390: remove __cpu_is_stopped and expose is_vcpu_stopped
-Date: Tue, 15 Jul 2014 15:27:53 +0200
-Message-ID: <1405430875-40722-4-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 4/5] KVM: prepare for KVM_(S|G)ET_MP_STATE on other architectures
+Date: Tue, 15 Jul 2014 15:27:54 +0200
+Message-ID: <1405430875-40722-5-git-send-email-borntraeger@de.ibm.com>
 References: <1405430875-40722-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1405430875-40722-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,61 +14,80 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-The function "__cpu_is_stopped" is not used any more. Let's remove it and
-expose the function "is_vcpu_stopped" instead, which is actually what we want.
+Highlight the aspects of the ioctls that are actually specific to x86
+and ia64. As defined restrictions (irqchip) and mp states may not apply
+to other architectures, these parts are flagged to belong to x86 and ia64.
 
-This patch also converts an open coded check for CPUSTAT_STOPPED to
-is_vcpu_stopped().
+In preparation for the use of KVM_(S|G)ET_MP_STATE by s390.
+Fix a spelling error (KVM_SET_MP_STATE vs. KVM_SET_MPSTATE) on the way.
 
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 7 +------
- arch/s390/kvm/kvm-s390.h | 4 ++--
- 2 files changed, 3 insertions(+), 8 deletions(-)
+ Documentation/virtual/kvm/api.txt | 21 ++++++++++++---------
+ include/uapi/linux/kvm.h          |  3 ++-
+ 2 files changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index c507789..3428953 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -926,7 +926,7 @@ static int kvm_arch_vcpu_ioctl_set_initial_psw(struct kvm_vcpu *vcpu, psw_t psw)
- {
- 	int rc = 0;
+diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
+index 0fe3649..904c61c 100644
+--- a/Documentation/virtual/kvm/api.txt
++++ b/Documentation/virtual/kvm/api.txt
+@@ -988,18 +988,20 @@ uniprocessor guests).
  
--	if (!(atomic_read(&vcpu->arch.sie_block->cpuflags) & CPUSTAT_STOPPED))
-+	if (!is_vcpu_stopped(vcpu))
- 		rc = -EBUSY;
- 	else {
- 		vcpu->run->psw_mask = psw.mask;
-@@ -1413,11 +1413,6 @@ int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr)
- 	return kvm_s390_store_status_unloaded(vcpu, addr);
- }
+ Possible values are:
  
--static inline int is_vcpu_stopped(struct kvm_vcpu *vcpu)
--{
--	return atomic_read(&(vcpu)->arch.sie_block->cpuflags) & CPUSTAT_STOPPED;
--}
--
- static void __disable_ibs_on_vcpu(struct kvm_vcpu *vcpu)
- {
- 	kvm_check_request(KVM_REQ_ENABLE_IBS, vcpu);
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index a8655ed..77ed846 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -45,9 +45,9 @@ do { \
- 	  d_args); \
- } while (0)
+- - KVM_MP_STATE_RUNNABLE:        the vcpu is currently running
++ - KVM_MP_STATE_RUNNABLE:        the vcpu is currently running [x86, ia64]
+  - KVM_MP_STATE_UNINITIALIZED:   the vcpu is an application processor (AP)
+-                                 which has not yet received an INIT signal
++                                 which has not yet received an INIT signal [x86,
++                                 ia64]
+  - KVM_MP_STATE_INIT_RECEIVED:   the vcpu has received an INIT signal, and is
+-                                 now ready for a SIPI
++                                 now ready for a SIPI [x86, ia64]
+  - KVM_MP_STATE_HALTED:          the vcpu has executed a HLT instruction and
+-                                 is waiting for an interrupt
++                                 is waiting for an interrupt [x86, ia64]
+  - KVM_MP_STATE_SIPI_RECEIVED:   the vcpu has just received a SIPI (vector
+-                                 accessible via KVM_GET_VCPU_EVENTS)
++                                 accessible via KVM_GET_VCPU_EVENTS) [x86, ia64]
  
--static inline int __cpu_is_stopped(struct kvm_vcpu *vcpu)
-+static inline int is_vcpu_stopped(struct kvm_vcpu *vcpu)
- {
--	return atomic_read(&vcpu->arch.sie_block->cpuflags) & CPUSTAT_STOP_INT;
-+	return atomic_read(&vcpu->arch.sie_block->cpuflags) & CPUSTAT_STOPPED;
- }
+-This ioctl is only useful after KVM_CREATE_IRQCHIP.  Without an in-kernel
+-irqchip, the multiprocessing state must be maintained by userspace.
++On x86 and ia64, this ioctl is only useful after KVM_CREATE_IRQCHIP. Without an
++in-kernel irqchip, the multiprocessing state must be maintained by userspace on
++these architectures.
  
- static inline int kvm_is_ucontrol(struct kvm *kvm)
+ 
+ 4.39 KVM_SET_MP_STATE
+@@ -1013,8 +1015,9 @@ Returns: 0 on success; -1 on error
+ Sets the vcpu's current "multiprocessing state"; see KVM_GET_MP_STATE for
+ arguments.
+ 
+-This ioctl is only useful after KVM_CREATE_IRQCHIP.  Without an in-kernel
+-irqchip, the multiprocessing state must be maintained by userspace.
++On x86 and ia64, this ioctl is only useful after KVM_CREATE_IRQCHIP. Without an
++in-kernel irqchip, the multiprocessing state must be maintained by userspace on
++these architectures.
+ 
+ 
+ 4.40 KVM_SET_IDENTITY_MAP_ADDR
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index e11d8f1..37d4ec6 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -399,8 +399,9 @@ struct kvm_vapic_addr {
+ 	__u64 vapic_addr;
+ };
+ 
+-/* for KVM_SET_MPSTATE */
++/* for KVM_SET_MP_STATE */
+ 
++/* not all states are valid on all architectures */
+ #define KVM_MP_STATE_RUNNABLE          0
+ #define KVM_MP_STATE_UNINITIALIZED     1
+ #define KVM_MP_STATE_INIT_RECEIVED     2
 -- 
 1.8.4.2
