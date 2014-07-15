@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Fabian Frederick <fabf@skynet.be>
-Subject: [PATCH 00/16] net: remove unnecessary break after goto/return
-Date: Mon, 14 Jul 2014 18:30:50 +0200
-Message-Id: <1405355467-7350-1-git-send-email-fabf@skynet.be>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: davem@davemloft.net, joe@perches.com, Fabian Frederick <fabf@skynet.be>, v9fs-developer@lists.sourceforge.net, netdev@vger.kernel.org, linux-zigbee-devel@lists.sourceforge.net, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-s390@vger.kernel.org, linux-wireless@vger.kernel.org, linux-nfc@ml01.01.org, linux-sctp@vger.kernel.org, tipc-discussion@lists.sourceforge.net
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/5] KVM: s390: allow only one SIGP STOP (AND STORE STATUS) at a time
+Date: Tue, 15 Jul 2014 15:27:51 +0200
+Message-ID: <1405430875-40722-2-git-send-email-borntraeger@de.ibm.com>
+References: <1405430875-40722-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1405430875-40722-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Small patchset addressing break redundancy on net branch
-(suggested by Joe Perches).
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Fabian Frederick (16):
-  packet: remove unnecessary break after return
-  tipc: remove unnecessary break after return
-  9P: remove unnecessary break after return
-  af_iucv: remove unnecessary break after goto
-  netlabel: remove unnecessary break after goto
-  pktgen: remove unnecessary break after goto
-  drop_monitor: remove unnecessary break after return
-  mac80211: remove unnecessary break after return
-  af_key: remove unnecessary break after return
-  netfilter: remove unnecessary break after return
-  ipv6: remove unnecessary break after return
-  NFC: remove unnecessary break after goto
-  caif: remove unnecessary break after goto
-  irda: remove unnecessary break after return
-  ieee802154: remove unnecessary break after goto
-  net: sctp: remove unnecessary break after return/goto
+A SIGP STOP (AND STORE STATUS) order is complete as soon as the VCPU has been
+stopped. This patch makes sure that only one SIGP STOP (AND STORE STATUS) may
+be pending at a time (as defined by the architecture). If the action_bits are
+still set, a SIGP STOP has been issued but not completed yet. The VCPU is busy
+for further SIGP STOP orders.
 
- net/9p/client.c                      | 1 -
- net/caif/cfctrl.c                    | 1 -
- net/core/drop_monitor.c              | 2 --
- net/core/pktgen.c                    | 1 -
- net/ieee802154/6lowpan_iphc.c        | 1 -
- net/ipv6/ipv6_sockglue.c             | 1 -
- net/ipv6/netfilter/ip6t_ipv6header.c | 1 -
- net/irda/af_irda.c                   | 1 -
- net/irda/irlan/irlan_common.c        | 1 -
- net/iucv/af_iucv.c                   | 1 -
- net/key/af_key.c                     | 3 ---
- net/mac80211/mesh_hwmp.c             | 1 -
- net/netlabel/netlabel_kapi.c         | 1 -
- net/nfc/digital_dep.c                | 2 --
- net/packet/af_packet.c               | 2 --
- net/sctp/outqueue.c                  | 1 -
- net/sctp/sm_statefuns.c              | 4 ----
- net/tipc/socket.c                    | 1 -
- 18 files changed, 26 deletions(-)
+Also set the CPUSTAT_STOP_INT after the action_bits variable has been modified
+(the same order that is used when injecting a KVM_S390_SIGP_STOP from
+userspace).
 
+Both changes are needed in preparation for a user space driven VCPU state change
+(to avoid race conditions).
+
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/sigp.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+index 43079a4..fd7fb5c 100644
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -136,6 +136,11 @@ static int __inject_sigp_stop(struct kvm_s390_local_interrupt *li, int action)
+ 	inti->type = KVM_S390_SIGP_STOP;
+ 
+ 	spin_lock_bh(&li->lock);
++	if (li->action_bits & ACTION_STOP_ON_STOP) {
++		/* another SIGP STOP is pending */
++		rc = SIGP_CC_BUSY;
++		goto out;
++	}
+ 	if ((atomic_read(li->cpuflags) & CPUSTAT_STOPPED)) {
+ 		kfree(inti);
+ 		if ((action & ACTION_STORE_ON_STOP) != 0)
+@@ -144,8 +149,8 @@ static int __inject_sigp_stop(struct kvm_s390_local_interrupt *li, int action)
+ 	}
+ 	list_add_tail(&inti->list, &li->list);
+ 	atomic_set(&li->active, 1);
+-	atomic_set_mask(CPUSTAT_STOP_INT, li->cpuflags);
+ 	li->action_bits |= action;
++	atomic_set_mask(CPUSTAT_STOP_INT, li->cpuflags);
+ 	if (waitqueue_active(li->wq))
+ 		wake_up_interruptible(li->wq);
+ out:
 -- 
-1.8.4.5
+1.8.4.2
