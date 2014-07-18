@@ -1,103 +1,66 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/5] KVM: s390: move finalization of SIGP STOP orders to kvm_s390_vcpu_stop
-Date: Tue, 15 Jul 2014 15:27:52 +0200
-Message-ID: <1405430875-40722-3-git-send-email-borntraeger@de.ibm.com>
-References: <1405430875-40722-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1405430875-40722-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+From: Minchan Kim <minchan@kernel.org>
+Subject: [PATCH v13 5/8] s390: add pmd_[dirty|mkclean] for THP
+Date: Fri, 18 Jul 2014 15:53:03 +0900
+Message-ID: <1405666386-15095-6-git-send-email-minchan@kernel.org>
+References: <1405666386-15095-1-git-send-email-minchan@kernel.org>
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1405666386-15095-1-git-send-email-minchan@kernel.org>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-api/>
+List-Post: <mailto:linux-api@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, Michael Kerrisk <mtk.manpages@gmail.com>, Linux API <linux-api@vger.kernel.org>, Hugh Dickins <hughd@google.com>, Johannes Weiner <hannes@cmpxchg.org>, Rik van Riel <riel@redhat.com>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Mel Gorman <mgorman@suse.de>, Jason Evans <je@fb.com>, Zhang Yanfei <zhangyanfei@cn.fujitsu.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Minchan Kim <minchan@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+MADV_FREE needs pmd_dirty and pmd_mkclean for detecting recent
+overwrite of the contents since MADV_FREE syscall is called for
+THP page but for s390 pmds only referenced bit is available
+because there is no free bit left in the pmd entry for the
+software dirty bit so this patch adds dumb pmd_dirty which
+returns always true by suggesting by Martin.
 
-Let's move the finalization of SIGP STOP and SIGP STOP AND STORE STATUS orders to
-the point where the VCPU is actually stopped.
+They finally find a solution in future.
+http://marc.info/?l=linux-api&m=140440328820808&w=2
 
-This change is needed to prepare for a user space driven VCPU state change. The
-action_bits may only be cleared when setting the cpu state to STOPPED while
-holding the local irq lock.
-
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Acked-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: Minchan Kim <minchan@kernel.org>
 ---
- arch/s390/kvm/intercept.c | 31 ++++++++++++-------------------
- arch/s390/kvm/kvm-s390.c  |  8 ++++++++
- 2 files changed, 20 insertions(+), 19 deletions(-)
+ arch/s390/include/asm/pgtable.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index a0b586c..ac6b325 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -56,32 +56,25 @@ static int handle_noop(struct kvm_vcpu *vcpu)
- static int handle_stop(struct kvm_vcpu *vcpu)
- {
- 	int rc = 0;
-+	unsigned int action_bits;
- 
- 	vcpu->stat.exit_stop_request++;
--	spin_lock_bh(&vcpu->arch.local_int.lock);
--
- 	trace_kvm_s390_stop_request(vcpu->arch.local_int.action_bits);
- 
--	if (vcpu->arch.local_int.action_bits & ACTION_STOP_ON_STOP) {
--		kvm_s390_vcpu_stop(vcpu);
--		vcpu->arch.local_int.action_bits &= ~ACTION_STOP_ON_STOP;
--		VCPU_EVENT(vcpu, 3, "%s", "cpu stopped");
--		rc = -EOPNOTSUPP;
--	}
-+	action_bits = vcpu->arch.local_int.action_bits;
- 
--	if (vcpu->arch.local_int.action_bits & ACTION_STORE_ON_STOP) {
--		vcpu->arch.local_int.action_bits &= ~ACTION_STORE_ON_STOP;
--		/* store status must be called unlocked. Since local_int.lock
--		 * only protects local_int.* and not guest memory we can give
--		 * up the lock here */
--		spin_unlock_bh(&vcpu->arch.local_int.lock);
-+	if (!(action_bits & ACTION_STOP_ON_STOP))
-+		return 0;
-+
-+	if (action_bits & ACTION_STORE_ON_STOP) {
- 		rc = kvm_s390_vcpu_store_status(vcpu,
- 						KVM_S390_STORE_STATUS_NOADDR);
--		if (rc >= 0)
--			rc = -EOPNOTSUPP;
--	} else
--		spin_unlock_bh(&vcpu->arch.local_int.lock);
--	return rc;
-+		if (rc)
-+			return rc;
-+	}
-+
-+	kvm_s390_vcpu_stop(vcpu);
-+	return -EOPNOTSUPP;
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index fcba5e03839f..9862fcb0592b 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -1586,6 +1586,18 @@ static inline pmd_t pmd_mkdirty(pmd_t pmd)
+ 	return pmd;
  }
  
- static int handle_validity(struct kvm_vcpu *vcpu)
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 2f3e14f..c507789 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1494,7 +1494,15 @@ void kvm_s390_vcpu_stop(struct kvm_vcpu *vcpu)
- 	spin_lock_bh(&vcpu->kvm->arch.start_stop_lock);
- 	online_vcpus = atomic_read(&vcpu->kvm->online_vcpus);
- 
-+	/* Need to lock access to action_bits to avoid a SIGP race condition */
-+	spin_lock_bh(&vcpu->arch.local_int.lock);
- 	atomic_set_mask(CPUSTAT_STOPPED, &vcpu->arch.sie_block->cpuflags);
++static inline int pmd_dirty(pmd_t pmd)
++{
++	/* No dirty bit in the segment table entry */
++	return 1;
++}
 +
-+	/* SIGP STOP and SIGP STOP AND STORE STATUS has been fully processed */
-+	vcpu->arch.local_int.action_bits &=
-+				 ~(ACTION_STOP_ON_STOP | ACTION_STORE_ON_STOP);
-+	spin_unlock_bh(&vcpu->arch.local_int.lock);
++static inline pmd_t pmd_mkclean(pmd_t pmd)
++{
++	/* No dirty bit in the segment table entry */
++	return pmd;
++}
 +
- 	__disable_ibs_on_vcpu(vcpu);
- 
- 	for (i = 0; i < online_vcpus; i++) {
+ #define __HAVE_ARCH_PMDP_TEST_AND_CLEAR_YOUNG
+ static inline int pmdp_test_and_clear_young(struct vm_area_struct *vma,
+ 					    unsigned long address, pmd_t *pmdp)
 -- 
-1.8.4.2
+2.0.0
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
