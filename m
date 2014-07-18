@@ -1,222 +1,78 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 5/5] KVM: s390: implement KVM_(S|G)ET_MP_STATE for user space state control
-Date: Tue, 15 Jul 2014 15:27:55 +0200
-Message-ID: <1405430875-40722-6-git-send-email-borntraeger@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [GIT PULL 0/5] KVM: s390: Let user space control the cpu states
+Date: Fri, 18 Jul 2014 16:49:15 +0200
+Message-ID: <53C933EB.9020707@redhat.com>
 References: <1405430875-40722-1-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1405430875-40722-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Il 15/07/2014 15:27, Christian Borntraeger ha scritto:
+> Paolo,
+> 
+> The following changes since commit 9f6226a762c7ae02f6a23a3d4fc552dafa57ea23:
+> 
+>   arch: x86: kvm: x86.c: Cleaning up variable is set more than once (2014-06-30 16:52:04 +0200)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-20140715
+> 
+> for you to fetch changes up to 6352e4d2dd9a349024a41356148eced553e1dce4:
+> 
+>   KVM: s390: implement KVM_(S|G)ET_MP_STATE for user space state control (2014-07-10 14:11:17 +0200)
+> 
+> ----------------------------------------------------------------
+> This series enables the "KVM_(S|G)ET_MP_STATE" ioctls on s390 to make
+> the cpu state settable by user space.
+> 
+> This is necessary to avoid races in s390 SIGP/reset handling which
+> happen because some SIGPs are handled in QEMU, while others are
+> handled in the kernel. Together with the busy conditions as return
+> value of SIGP races happen especially in areas like starting and
+> stopping of CPUs. (For example, there is a program 'cpuplugd', that
+> runs on several s390 distros which does automatic onlining and
+> offlining on cpus.)
+> 
+> As soon as the MPSTATE interface is used, user space takes complete
+> control of the cpu states. Otherwise the kernel will use the old way.
+> 
+> Therefore, the new kernel continues to work fine with old QEMUs.
+> 
+> ----------------------------------------------------------------
+> David Hildenbrand (5):
+>       KVM: s390: allow only one SIGP STOP (AND STORE STATUS) at a time
+>       KVM: s390: move finalization of SIGP STOP orders to kvm_s390_vcpu_stop
+>       KVM: s390: remove __cpu_is_stopped and expose is_vcpu_stopped
+>       KVM: prepare for KVM_(S|G)ET_MP_STATE on other architectures
+>       KVM: s390: implement KVM_(S|G)ET_MP_STATE for user space state control
+> 
+>  Documentation/virtual/kvm/api.txt | 31 ++++++++++++++---------
+>  arch/s390/include/asm/kvm_host.h  |  1 +
+>  arch/s390/kvm/diag.c              |  3 ++-
+>  arch/s390/kvm/intercept.c         | 32 ++++++++++--------------
+>  arch/s390/kvm/kvm-s390.c          | 52 +++++++++++++++++++++++++++++++--------
+>  arch/s390/kvm/kvm-s390.h          | 10 ++++++--
+>  arch/s390/kvm/sigp.c              |  7 +++++-
+>  include/uapi/linux/kvm.h          |  7 +++++-
+>  8 files changed, 98 insertions(+), 45 deletions(-)
+> 
 
-This patch
-- adds s390 specific MP states to linux headers and documents them
-- implements the KVM_{SET,GET}_MP_STATE ioctls
-- enables KVM_CAP_MP_STATE
-- allows user space to control the VCPU state on s390.
+Alex, wdyt about this patch series?  Does it make sense to use
+KVM_GET/SET_MP_STATE or should the one-reg interface be a better match?
 
-If user space sets the VCPU state using the ioctl KVM_SET_MP_STATE, we can disable
-manual changing of the VCPU state and trust user space to do the right thing.
+It's a bit weird that running and halted map to the same mp_state on
+s390.  I would be more confident that KVM_GET/SET_MP_STATE is the right
+choice if it had at least the KVM_MP_STATE_RUNNABLE and
+KVM_MP_STATE_HALTED.  Christian, where is the halted state stored, is it
+in the PSW?
 
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- Documentation/virtual/kvm/api.txt | 10 ++++++++--
- arch/s390/include/asm/kvm_host.h  |  1 +
- arch/s390/kvm/diag.c              |  3 ++-
- arch/s390/kvm/intercept.c         |  3 ++-
- arch/s390/kvm/kvm-s390.c          | 37 +++++++++++++++++++++++++++++++++----
- arch/s390/kvm/kvm-s390.h          |  6 ++++++
- include/uapi/linux/kvm.h          |  4 ++++
- 7 files changed, 56 insertions(+), 8 deletions(-)
-
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index 904c61c..a41465b 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -974,7 +974,7 @@ for vm-wide capabilities.
- 4.38 KVM_GET_MP_STATE
- 
- Capability: KVM_CAP_MP_STATE
--Architectures: x86, ia64
-+Architectures: x86, ia64, s390
- Type: vcpu ioctl
- Parameters: struct kvm_mp_state (out)
- Returns: 0 on success; -1 on error
-@@ -998,6 +998,12 @@ Possible values are:
-                                  is waiting for an interrupt [x86, ia64]
-  - KVM_MP_STATE_SIPI_RECEIVED:   the vcpu has just received a SIPI (vector
-                                  accessible via KVM_GET_VCPU_EVENTS) [x86, ia64]
-+ - KVM_MP_STATE_STOPPED:         the vcpu is stopped [s390]
-+ - KVM_MP_STATE_CHECK_STOP:      the vcpu is in a special error state [s390]
-+ - KVM_MP_STATE_OPERATING:       the vcpu is operating (running or halted)
-+                                 [s390]
-+ - KVM_MP_STATE_LOAD:            the vcpu is in a special load/startup state
-+                                 [s390]
- 
- On x86 and ia64, this ioctl is only useful after KVM_CREATE_IRQCHIP. Without an
- in-kernel irqchip, the multiprocessing state must be maintained by userspace on
-@@ -1007,7 +1013,7 @@ these architectures.
- 4.39 KVM_SET_MP_STATE
- 
- Capability: KVM_CAP_MP_STATE
--Architectures: x86, ia64
-+Architectures: x86, ia64, s390
- Type: vcpu ioctl
- Parameters: struct kvm_mp_state (in)
- Returns: 0 on success; -1 on error
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 4181d7b..c2ba020 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -418,6 +418,7 @@ struct kvm_arch{
- 	int css_support;
- 	int use_irqchip;
- 	int use_cmma;
-+	int user_cpu_state_ctrl;
- 	struct s390_io_adapter *adapters[MAX_S390_IO_ADAPTERS];
- 	wait_queue_head_t ipte_wq;
- 	spinlock_t start_stop_lock;
-diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
-index 0161675..59bd8f9 100644
---- a/arch/s390/kvm/diag.c
-+++ b/arch/s390/kvm/diag.c
-@@ -176,7 +176,8 @@ static int __diag_ipl_functions(struct kvm_vcpu *vcpu)
- 		return -EOPNOTSUPP;
- 	}
- 
--	kvm_s390_vcpu_stop(vcpu);
-+	if (!kvm_s390_user_cpu_state_ctrl(vcpu->kvm))
-+		kvm_s390_vcpu_stop(vcpu);
- 	vcpu->run->s390_reset_flags |= KVM_S390_RESET_SUBSYSTEM;
- 	vcpu->run->s390_reset_flags |= KVM_S390_RESET_IPL;
- 	vcpu->run->s390_reset_flags |= KVM_S390_RESET_CPU_INIT;
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index ac6b325..eaf4629 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -73,7 +73,8 @@ static int handle_stop(struct kvm_vcpu *vcpu)
- 			return rc;
- 	}
- 
--	kvm_s390_vcpu_stop(vcpu);
-+	if (!kvm_s390_user_cpu_state_ctrl(vcpu->kvm))
-+		kvm_s390_vcpu_stop(vcpu);
- 	return -EOPNOTSUPP;
- }
- 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 3428953..fdf88f7 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -167,6 +167,7 @@ int kvm_dev_ioctl_check_extension(long ext)
- 	case KVM_CAP_DEVICE_CTRL:
- 	case KVM_CAP_ENABLE_CAP_VM:
- 	case KVM_CAP_VM_ATTRIBUTES:
-+	case KVM_CAP_MP_STATE:
- 		r = 1;
- 		break;
- 	case KVM_CAP_NR_VCPUS:
-@@ -595,7 +596,8 @@ static void kvm_s390_vcpu_initial_reset(struct kvm_vcpu *vcpu)
- 	vcpu->arch.sie_block->pp = 0;
- 	vcpu->arch.pfault_token = KVM_S390_PFAULT_TOKEN_INVALID;
- 	kvm_clear_async_pf_completion_queue(vcpu);
--	kvm_s390_vcpu_stop(vcpu);
-+	if (!kvm_s390_user_cpu_state_ctrl(vcpu->kvm))
-+		kvm_s390_vcpu_stop(vcpu);
- 	kvm_s390_clear_local_irqs(vcpu);
- }
- 
-@@ -980,13 +982,34 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
- int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
- {
--	return -EINVAL; /* not implemented yet */
-+	/* CHECK_STOP and LOAD are not supported yet */
-+	return is_vcpu_stopped(vcpu) ? KVM_MP_STATE_STOPPED :
-+				       KVM_MP_STATE_OPERATING;
- }
- 
- int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
- {
--	return -EINVAL; /* not implemented yet */
-+	int rc = 0;
-+
-+	/* user space knows about this interface - let it control the state */
-+	vcpu->kvm->arch.user_cpu_state_ctrl = 1;
-+
-+	switch (mp_state->mp_state) {
-+	case KVM_MP_STATE_STOPPED:
-+		kvm_s390_vcpu_stop(vcpu);
-+		break;
-+	case KVM_MP_STATE_OPERATING:
-+		kvm_s390_vcpu_start(vcpu);
-+		break;
-+	case KVM_MP_STATE_LOAD:
-+	case KVM_MP_STATE_CHECK_STOP:
-+		/* fall through - CHECK_STOP and LOAD are not supported yet */
-+	default:
-+		rc = -ENXIO;
-+	}
-+
-+	return rc;
- }
- 
- bool kvm_s390_cmma_enabled(struct kvm *kvm)
-@@ -1284,7 +1307,13 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	if (vcpu->sigset_active)
- 		sigprocmask(SIG_SETMASK, &vcpu->sigset, &sigsaved);
- 
--	kvm_s390_vcpu_start(vcpu);
-+	if (!kvm_s390_user_cpu_state_ctrl(vcpu->kvm)) {
-+		kvm_s390_vcpu_start(vcpu);
-+	} else if (is_vcpu_stopped(vcpu)) {
-+		pr_err_ratelimited("kvm-s390: can't run stopped vcpu %d\n",
-+				   vcpu->vcpu_id);
-+		return -EINVAL;
-+	}
- 
- 	switch (kvm_run->exit_reason) {
- 	case KVM_EXIT_S390_SIEIC:
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 77ed846..33a0e4b 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -129,6 +129,12 @@ static inline void kvm_s390_set_psw_cc(struct kvm_vcpu *vcpu, unsigned long cc)
- 	vcpu->arch.sie_block->gpsw.mask |= cc << 44;
- }
- 
-+/* are cpu states controlled by user space */
-+static inline int kvm_s390_user_cpu_state_ctrl(struct kvm *kvm)
-+{
-+	return kvm->arch.user_cpu_state_ctrl != 0;
-+}
-+
- int kvm_s390_handle_wait(struct kvm_vcpu *vcpu);
- enum hrtimer_restart kvm_s390_idle_wakeup(struct hrtimer *timer);
- void kvm_s390_tasklet(unsigned long parm);
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 37d4ec6..9b744af 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -407,6 +407,10 @@ struct kvm_vapic_addr {
- #define KVM_MP_STATE_INIT_RECEIVED     2
- #define KVM_MP_STATE_HALTED            3
- #define KVM_MP_STATE_SIPI_RECEIVED     4
-+#define KVM_MP_STATE_STOPPED           5
-+#define KVM_MP_STATE_CHECK_STOP        6
-+#define KVM_MP_STATE_OPERATING         7
-+#define KVM_MP_STATE_LOAD              8
- 
- struct kvm_mp_state {
- 	__u32 mp_state;
--- 
-1.8.4.2
+Paolo
