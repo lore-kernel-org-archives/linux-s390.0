@@ -1,52 +1,64 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [GIT PULL 8/9] KVM: s390: advertise KVM_CAP_S390_IRQCHIP
-Date: Tue, 22 Jul 2014 20:21:29 +0200
-Message-ID: <53CEABA9.9040706@de.ibm.com>
-References: <1405970065-3740-1-git-send-email-borntraeger@de.ibm.com> <1405970065-3740-9-git-send-email-borntraeger@de.ibm.com> <53CE218C.5020505@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Subject: [GIT PULL 0/9] KVM: s390: Fixes and cleanups for 3.17
+Date: Mon, 21 Jul 2014 21:14:16 +0200
+Message-ID: <1405970065-3740-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <53CE218C.5020505@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 22/07/14 10:32, Paolo Bonzini wrote:
-> Il 21/07/2014 21:14, Christian Borntraeger ha scritto:
->> From: Cornelia Huck <cornelia.huck@de.ibm.com>
->>
->> We should advertise all capabilities, including those that can
->> be enabled.
->>
->> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
->> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> ---
->>  arch/s390/kvm/kvm-s390.c | 1 +
->>  1 file changed, 1 insertion(+)
->>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index dd902e6..339b34a 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -166,6 +166,7 @@ int kvm_dev_ioctl_check_extension(long ext)
->>  	case KVM_CAP_IOEVENTFD:
->>  	case KVM_CAP_DEVICE_CTRL:
->>  	case KVM_CAP_ENABLE_CAP_VM:
->> +	case KVM_CAP_S390_IRQCHIP:
->>  	case KVM_CAP_VM_ATTRIBUTES:
->>  	case KVM_CAP_MP_STATE:
->>  		r = 1;
->>
-> 
-> Should I apply this to 3.16 as well (or Cc: stable)?
-> 
-Hmm, userspace currently does not care. But Cc: stable 3.15 and 3.16 might be "the right thing to do".
+Paolo,
 
-Thanks for noticing.
+this should be the last bunch of s390 patches for 3.17 (on top of the
+mp_state changes). Please consider to apply.
 
-Christian
+The following changes since commit 6352e4d2dd9a349024a41356148eced553e1dce4:
+
+  KVM: s390: implement KVM_(S|G)ET_MP_STATE for user space state control (2014-07-10 14:11:17 +0200)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-20140721
+
+for you to fetch changes up to e59d120f96687a606db0513c427f10e30a427cc4:
+
+  KVM: s390: add ipte to trace event decoding (2014-07-21 13:22:47 +0200)
+
+----------------------------------------------------------------
+Bugfixes
+--------
+- add IPTE to trace event decoder
+- document and advertise KVM_CAP_S390_IRQCHIP
+
+Cleanups
+--------
+- Reuse kvm_vcpu_block for s390
+- Get rid of tasklet for wakup processing
+
+----------------------------------------------------------------
+Christian Borntraeger (1):
+      KVM: s390: add ipte to trace event decoding
+
+Cornelia Huck (3):
+      KVM: document target of capability enablement
+      KVM: s390: document KVM_CAP_S390_IRQCHIP
+      KVM: s390: advertise KVM_CAP_S390_IRQCHIP
+
+David Hildenbrand (5):
+      KVM: s390: cleanup handle_wait by reusing kvm_vcpu_block
+      KVM: s390: remove _bh locking from local_int.lock
+      KVM: s390: remove _bh locking from start_stop_lock
+      KVM: s390: move vcpu wakeup code to a central point
+      KVM: s390: remove the tasklet used by the hrtimer
+
+ Documentation/virtual/kvm/api.txt |  27 ++++++++--
+ arch/s390/include/asm/kvm_host.h  |   2 -
+ arch/s390/include/uapi/asm/sie.h  |   1 +
+ arch/s390/kvm/interrupt.c         | 100 ++++++++++++--------------------------
+ arch/s390/kvm/kvm-s390.c          |  18 ++++---
+ arch/s390/kvm/kvm-s390.h          |   2 +-
+ arch/s390/kvm/sigp.c              |  36 ++++++--------
+ 7 files changed, 82 insertions(+), 104 deletions(-)
