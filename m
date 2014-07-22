@@ -1,146 +1,72 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/9] KVM: s390: cleanup handle_wait by reusing kvm_vcpu_block
-Date: Mon, 21 Jul 2014 21:14:17 +0200
-Message-ID: <1405970065-3740-2-git-send-email-borntraeger@de.ibm.com>
-References: <1405970065-3740-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1405970065-3740-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Return-Path: <owner-linux-mm@kvack.org>
+From: "Jerome Marchand" <jmarchan@redhat.com>
+Subject: [PATCH RESEND 0/5] mm, shmem: Enhance per-process accounting of shared memory
+Date: Tue, 22 Jul 2014 15:43:47 +0200
+Message-Id: <1406036632-26552-1-git-send-email-jmarchan@redhat.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org, Hugh Dickins <hughd@google.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, linux390@de.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Randy Dunlap <rdunlap@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+There are several shortcomings with the accounting of shared memory
+(sysV shm, shared anonymous mapping, mapping to a tmpfs file). The
+values in /proc/<pid>/status and statm don't allow to distinguish
+between shmem memory and a shared mapping to a regular file, even
+though theirs implication on memory usage are quite different: at
+reclaim, file mapping can be dropped or write back on disk while shmem
+needs a place in swap. As for shmem pages that are swapped-out or in
+swap cache, they aren't accounted at all.
 
-This patch cleans up the code in handle_wait by reusing the common code
-function kvm_vcpu_block.
+This series addresses these issues by adding new fields to status and
+smaps file in /proc/<pid>/. The accounting of resident shared memory is
+made in the same way as it's currently done for resident memory and
+general swap (a counter in mm_rss_stat), but this approach proved
+impractical for paged-out shared memory (it would requires a rmap walk
+each time a page is paged-in).
 
-signal_pending(), kvm_cpu_has_pending_timer() and kvm_arch_vcpu_runnable() are
-sufficient for checking if we need to wake-up that VCPU. kvm_vcpu_block
-uses these functions, so no checks are lost.
+/proc/<pid>/smaps also lacks proper accounting of shared memory since
+shmem subsystem hides all implementation detail to generic mm code.
+This series adds the shmem_locate() function that returns the location
+of a particular page (resident, in swap or swap cache). Called from
+smaps code, it allows to show more detailled accounting of shmem
+mappings in smaps.
 
-The flag "timer_due" can be removed - kvm_cpu_has_pending_timer() tests whether
-the timer is pending, thus the vcpu is correctly woken up.
+Patch 1 adds a counter to keep track of resident shmem memory.
+Patch 2 adds a function to allow generic code to know the physical
+location of a shmem page.
+Patch 3 adds simple helper function.
+Patch 4 accounts swapped-out shmem in /proc/<pid>/status.
+Patch 5 adds shmem specific fields to /proc/<pid>/smaps.
 
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |  1 -
- arch/s390/kvm/interrupt.c        | 41 +++++-----------------------------------
- arch/s390/kvm/kvm-s390.c         |  3 +++
- 3 files changed, 8 insertions(+), 37 deletions(-)
+Thanks,
+Jerome
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index c2ba020..b3acf28 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -305,7 +305,6 @@ struct kvm_s390_local_interrupt {
- 	struct list_head list;
- 	atomic_t active;
- 	struct kvm_s390_float_interrupt *float_int;
--	int timer_due; /* event indicator for waitqueue below */
- 	wait_queue_head_t *wq;
- 	atomic_t *cpuflags;
- 	unsigned int action_bits;
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 90c8de2..5fd11ce 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -585,60 +585,32 @@ int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu)
- int kvm_s390_handle_wait(struct kvm_vcpu *vcpu)
- {
- 	u64 now, sltime;
--	DECLARE_WAITQUEUE(wait, current);
- 
- 	vcpu->stat.exit_wait_state++;
--	if (kvm_cpu_has_interrupt(vcpu))
--		return 0;
- 
--	__set_cpu_idle(vcpu);
--	spin_lock_bh(&vcpu->arch.local_int.lock);
--	vcpu->arch.local_int.timer_due = 0;
--	spin_unlock_bh(&vcpu->arch.local_int.lock);
-+	/* fast path */
-+	if (kvm_cpu_has_pending_timer(vcpu) || kvm_arch_vcpu_runnable(vcpu))
-+		return 0;
- 
- 	if (psw_interrupts_disabled(vcpu)) {
- 		VCPU_EVENT(vcpu, 3, "%s", "disabled wait");
--		__unset_cpu_idle(vcpu);
- 		return -EOPNOTSUPP; /* disabled wait */
- 	}
- 
-+	__set_cpu_idle(vcpu);
- 	if (!ckc_interrupts_enabled(vcpu)) {
- 		VCPU_EVENT(vcpu, 3, "%s", "enabled wait w/o timer");
- 		goto no_timer;
- 	}
- 
- 	now = get_tod_clock_fast() + vcpu->arch.sie_block->epoch;
--	if (vcpu->arch.sie_block->ckc < now) {
--		__unset_cpu_idle(vcpu);
--		return 0;
--	}
--
- 	sltime = tod_to_ns(vcpu->arch.sie_block->ckc - now);
--
- 	hrtimer_start(&vcpu->arch.ckc_timer, ktime_set (0, sltime) , HRTIMER_MODE_REL);
- 	VCPU_EVENT(vcpu, 5, "enabled wait via clock comparator: %llx ns", sltime);
- no_timer:
- 	srcu_read_unlock(&vcpu->kvm->srcu, vcpu->srcu_idx);
--	spin_lock(&vcpu->arch.local_int.float_int->lock);
--	spin_lock_bh(&vcpu->arch.local_int.lock);
--	add_wait_queue(&vcpu->wq, &wait);
--	while (list_empty(&vcpu->arch.local_int.list) &&
--		list_empty(&vcpu->arch.local_int.float_int->list) &&
--		(!vcpu->arch.local_int.timer_due) &&
--		!signal_pending(current) &&
--		!kvm_s390_si_ext_call_pending(vcpu)) {
--		set_current_state(TASK_INTERRUPTIBLE);
--		spin_unlock_bh(&vcpu->arch.local_int.lock);
--		spin_unlock(&vcpu->arch.local_int.float_int->lock);
--		schedule();
--		spin_lock(&vcpu->arch.local_int.float_int->lock);
--		spin_lock_bh(&vcpu->arch.local_int.lock);
--	}
-+	kvm_vcpu_block(vcpu);
- 	__unset_cpu_idle(vcpu);
--	__set_current_state(TASK_RUNNING);
--	remove_wait_queue(&vcpu->wq, &wait);
--	spin_unlock_bh(&vcpu->arch.local_int.lock);
--	spin_unlock(&vcpu->arch.local_int.float_int->lock);
- 	vcpu->srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
- 
- 	hrtimer_try_to_cancel(&vcpu->arch.ckc_timer);
-@@ -649,11 +621,8 @@ void kvm_s390_tasklet(unsigned long parm)
- {
- 	struct kvm_vcpu *vcpu = (struct kvm_vcpu *) parm;
- 
--	spin_lock(&vcpu->arch.local_int.lock);
--	vcpu->arch.local_int.timer_due = 1;
- 	if (waitqueue_active(&vcpu->wq))
- 		wake_up_interruptible(&vcpu->wq);
--	spin_unlock(&vcpu->arch.local_int.lock);
- }
- 
- /*
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index fdf88f7..ecb1357 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1068,6 +1068,9 @@ retry:
- 		goto retry;
- 	}
- 
-+	/* nothing to do, just clear the request */
-+	clear_bit(KVM_REQ_UNHALT, &vcpu->requests);
-+
- 	return 0;
- }
- 
+Jerome Marchand (5):
+  mm, shmem: Add shmem resident memory accounting
+  mm, shmem: Add shmem_locate function
+  mm, shmem: Add shmem_vma() helper
+  mm, shmem: Add shmem swap memory accounting
+  mm, shmem: Show location of non-resident shmem pages in smaps
+
+ Documentation/filesystems/proc.txt |  15 ++++
+ arch/s390/mm/pgtable.c             |   2 +-
+ fs/proc/task_mmu.c                 | 139 +++++++++++++++++++++++++++++++++++--
+ include/linux/mm.h                 |  20 ++++++
+ include/linux/mm_types.h           |   7 +-
+ kernel/events/uprobes.c            |   2 +-
+ mm/filemap_xip.c                   |   2 +-
+ mm/memory.c                        |  37 ++++++++--
+ mm/rmap.c                          |   8 +--
+ mm/shmem.c                         |  37 ++++++++++
+ 10 files changed, 249 insertions(+), 20 deletions(-)
+
 -- 
-1.8.4.2
+1.9.3
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
