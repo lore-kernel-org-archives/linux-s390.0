@@ -1,13 +1,13 @@
 From: Andy Lutomirski <luto@amacapital.net>
-Subject: [PATCH v2 1/7] seccomp,x86,arm,mips,s390: Remove nr parameter from secure_computing
-Date: Fri, 18 Jul 2014 14:18:09 -0700
-Message-ID: <4a3c579b031c42179f52e0f6de9b8c0ed4150aab.1405717901.git.luto@amacapital.net>
-References: <cover.1405717901.git.luto@amacapital.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1405717901.git.luto@amacapital.net>
-In-Reply-To: <cover.1405717901.git.luto@amacapital.net>
-References: <cover.1405717901.git.luto@amacapital.net>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH v3 1/8] seccomp,x86,arm,mips,s390: Remove nr parameter from secure_computing
+Date: Mon, 21 Jul 2014 18:49:14 -0700
+Message-ID: <4a3c579b031c42179f52e0f6de9b8c0ed4150aab.1405992946.git.luto@amacapital.net>
+References: <cover.1405992946.git.luto@amacapital.net>
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <cover.1405992946.git.luto@amacapital.net>
+In-Reply-To: <cover.1405992946.git.luto@amacapital.net>
+References: <cover.1405992946.git.luto@amacapital.net>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, Kees Cook <keescook@chromium.org>, Will Drewry <wad@chromium.org>
