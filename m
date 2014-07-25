@@ -1,198 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <53BE9713.8090700@arm.com>
-Date: Thu, 10 Jul 2014 14:37:23 +0100
 From: Sudeep Holla <sudeep.holla@arm.com>
-MIME-Version: 1.0
-Subject: Re: [PATCH 2/9] drivers: base: support cpu cache information interface
- to userspace via sysfs
-References: <1403717444-23559-1-git-send-email-sudeep.holla@arm.com> <1403717444-23559-3-git-send-email-sudeep.holla@arm.com> <20140710000905.GA18025@kroah.com>
-In-Reply-To: <20140710000905.GA18025@kroah.com>
-Content-Type: text/plain; charset=WINDOWS-1252; format=flowed
-Content-Transfer-Encoding: 8BIT
+Subject: [PATCH v2 0/9] drivers: cacheinfo support
+Date: Fri, 25 Jul 2014 17:44:43 +0100
+Message-Id: <1406306692-7135-1-git-send-email-sudeep.holla@arm.com>
+In-Reply-To: <1403717444-23559-1-git-send-email-sudeep.holla@arm.com>
+References: <1403717444-23559-1-git-send-email-sudeep.holla@arm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Sudeep Holla <sudeep.holla@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, Rob Herring <robh@kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux390@de.ibm.com" <linux390@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: sudeep.holla@arm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-ia64@vger.kernel.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Greg,
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-Thanks for reviewing this.
+This series adds a generic cacheinfo support similar to topology. The
+implementation is based on x86 cacheinfo support. Currently x86, powerpc,
+ia64 and s390 have their own implementations. While adding similar support
+to ARM and ARM64, here is the attempt to make it generic quite similar to
+topology info support. It also adds the missing ABI documentation for
+the cacheinfo sysfs which is already being used.
 
-On 10/07/14 01:09, Greg Kroah-Hartman wrote:
-> On Wed, Jun 25, 2014 at 06:30:37PM +0100, Sudeep Holla wrote:
->> +static const struct device_attribute *cache_optional_attrs[] = {
->> +	&dev_attr_coherency_line_size,
->> +	&dev_attr_ways_of_associativity,
->> +	&dev_attr_number_of_sets,
->> +	&dev_attr_size,
->> +	&dev_attr_attributes,
->> +	&dev_attr_physical_line_partition,
->> +	NULL
->> +};
->> +
->> +static int device_add_attrs(struct device *dev,
->> +			    const struct device_attribute **dev_attrs)
->> +{
->> +	int i, error = 0;
->> +	struct device_attribute *dev_attr;
->> +	char *buf;
->> +
->> +	if (!dev_attrs)
->> +		return 0;
->> +
->> +	buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
->> +	if (!buf)
->> +		return -ENOMEM;
->> +
->> +	for (i = 0; dev_attrs[i]; i++) {
->> +		dev_attr = (struct device_attribute *)dev_attrs[i];
->> +
->> +		/* create attributes that provides meaningful value */
->> +		if (dev_attr->show(dev, dev_attr, buf) < 0)
->> +			continue;
->> +
->> +		error = device_create_file(dev, dev_attrs[i]);
->> +		if (error) {
->> +			while (--i >= 0)
->> +				device_remove_file(dev, dev_attrs[i]);
->> +			break;
->> +		}
->> +	}
->> +
->> +	kfree(buf);
->> +	return error;
->> +}
->
-> Ick, why create your own function for this when the driver core has this
-> functionality built into it?  Look at the is_visible() callback, and how
-> it is use for an attribute group please.
->
+It moves all the existing different implementations on x86, ia64, powerpc
+and s390 to use the generic cacheinfo infrastructure introduced here.
+These changes on non-ARM platforms are only compile tested and tested on x86.
 
-I agree even I added this function hesitantly as didn't realize that I can use
-is_visible for this purpose. Thanks for pointing that out I will have a look
-at it.
+This series also adds support for ARM and ARM64 architectures based on
+the generic support.
 
->> +static void device_remove_attrs(struct device *dev,
->> +				const struct device_attribute **dev_attrs)
->> +{
->> +	int i;
->> +
->> +	if (!dev_attrs)
->> +		return;
->> +
->> +	for (i = 0; dev_attrs[i]; dev_attrs++, i++)
->> +		device_remove_file(dev, dev_attrs[i]);
->> +}
->
-> You should just remove a whole group at once, not individually.
->
+Since there was no objection to the idea in RFC, I am posting non-RFC
+version here.
 
-Right, I must be able to get rid of these 2 functions once I use
-is_visible callback.
+The code can be fetched from:
+ git://linux-arm.org/linux-skn cacheinfo
 
->> +
->> +const struct device_attribute **
->> +__weak cache_get_priv_attr(struct device *cache_idx_dev)
->> +{
->> +	return NULL;
->> +}
->> +
->> +/* Add/Remove cache interface for CPU device */
->> +static void cpu_cache_sysfs_exit(unsigned int cpu)
->> +{
->> +	int i;
->> +	struct device *tmp_dev;
->> +	const struct device_attribute **ci_priv_attr;
->> +
->> +	if (per_cpu_index_dev(cpu)) {
->> +		for (i = 0; i < cache_leaves(cpu); i++) {
->> +			tmp_dev = per_cache_index_dev(cpu, i);
->> +			if (!tmp_dev)
->> +				continue;
->> +			ci_priv_attr = cache_get_priv_attr(tmp_dev);
->> +			device_remove_attrs(tmp_dev, ci_priv_attr);
->> +			device_remove_attrs(tmp_dev, cache_optional_attrs);
->> +			device_unregister(tmp_dev);
->> +		}
->> +		kfree(per_cpu_index_dev(cpu));
->> +		per_cpu_index_dev(cpu) = NULL;
->> +	}
->> +	device_unregister(per_cpu_cache_dev(cpu));
->> +	per_cpu_cache_dev(cpu) = NULL;
->> +}
->> +
->> +static int cpu_cache_sysfs_init(unsigned int cpu)
->> +{
->> +	struct device *dev = get_cpu_device(cpu);
->> +
->> +	if (per_cpu_cacheinfo(cpu) == NULL)
->> +		return -ENOENT;
->> +
->> +	per_cpu_cache_dev(cpu) = device_create(dev->class, dev, cpu,
->> +					       NULL, "cache");
->> +	if (IS_ERR_OR_NULL(per_cpu_cache_dev(cpu)))
->> +		return PTR_ERR(per_cpu_cache_dev(cpu));
->> +
->> +	/* Allocate all required memory */
->> +	per_cpu_index_dev(cpu) = kzalloc(sizeof(struct device *) *
->> +					 cache_leaves(cpu), GFP_KERNEL);
->> +	if (unlikely(per_cpu_index_dev(cpu) == NULL))
->> +		goto err_out;
->> +
->> +	return 0;
->> +
->> +err_out:
->> +	cpu_cache_sysfs_exit(cpu);
->> +	return -ENOMEM;
->> +}
->> +
->> +static int cache_add_dev(unsigned int cpu)
->> +{
->> +	unsigned short i;
->> +	int rc;
->> +	struct device *tmp_dev, *parent;
->> +	struct cacheinfo *this_leaf;
->> +	const struct device_attribute **ci_priv_attr;
->> +	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
->> +
->> +	rc = cpu_cache_sysfs_init(cpu);
->> +	if (unlikely(rc < 0))
->> +		return rc;
->> +
->> +	parent = per_cpu_cache_dev(cpu);
->> +	for (i = 0; i < cache_leaves(cpu); i++) {
->> +		this_leaf = this_cpu_ci->info_list + i;
->> +		if (this_leaf->disable_sysfs)
->> +			continue;
->> +		tmp_dev = device_create_with_groups(parent->class, parent, i,
->> +						    this_leaf,
->> +						    cache_default_groups,
->> +						    "index%1u", i);
->> +		if (IS_ERR_OR_NULL(tmp_dev)) {
->> +			rc = PTR_ERR(tmp_dev);
->> +			goto err;
->> +		}
->> +
->> +		rc = device_add_attrs(tmp_dev, cache_optional_attrs);
->> +		if (unlikely(rc))
->> +			goto err;
->> +
->> +		ci_priv_attr = cache_get_priv_attr(tmp_dev);
->> +		rc = device_add_attrs(tmp_dev, ci_priv_attr);
->> +		if (unlikely(rc))
->> +			goto err;
->
-> You just raced with userspace here, creating these files _after_ the
-> device was announced to userspace, causing problems with anyone wanting
-> to read these attributes :(
->
-> I think if you fix up the is_visible() thing above, these calls will go
-> away, right?
->
 
-Yes I agree.
+Changes v1->v2:
+- removed custom device_{add,remove}_attrs, using is_visible callback
+  instead(suggested by GregKH)
+- arm64: changes as per MarkR review comments
+- Moved smp_call_function_single to architectures using it(arm, arm64,
+  x86) (suggested by Stephen Boyd)
+- arm (mostly changes as per RMK's review comments)
+	- fixed to allow v7 + v6 build
+	- l2 cache changes to remove extra structure
+	- populated CTR for few StrongARM CPU's not implementing CTR
 
-Regards,
-Sudeep
+Previous RFCs:
+[1] https://lkml.org/lkml/2014/1/8/523
+[2] https://lkml.org/lkml/2014/2/7/654
+[3] https://lkml.org/lkml/2014/2/19/391
+
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-ia64@vger.kernel.org
+Cc: linux390@de.ibm.com
+Cc: linux-s390@vger.kernel.org
+Cc: x86@kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+
+Sudeep Holla (9):
+  drivers: base: add new class "cpu" to group cpu devices
+  drivers: base: support cpu cache information interface to userspace
+    via sysfs
+  ia64: move cacheinfo sysfs to generic cacheinfo infrastructure
+  s390: move cacheinfo sysfs to generic cacheinfo infrastructure
+  x86: move cacheinfo sysfs to generic cacheinfo infrastructure
+  powerpc: move cacheinfo sysfs to generic cacheinfo infrastructure
+  ARM64: kernel: add support for cpu cache information
+  ARM: kernel: add support for cpu cache information
+  ARM: kernel: add outer cache support for cacheinfo implementation
+
+ Documentation/ABI/testing/sysfs-devices-system-cpu |  41 ++
+ arch/arm/include/asm/outercache.h                  |   9 +
+ arch/arm/kernel/Makefile                           |   1 +
+ arch/arm/kernel/cacheinfo.c                        | 284 +++++++
+ arch/arm/mm/Kconfig                                |  13 +
+ arch/arm/mm/cache-l2x0.c                           |  35 +-
+ arch/arm/mm/cache-tauros2.c                        |  35 +
+ arch/arm/mm/cache-xsc3l2.c                         |  16 +
+ arch/arm64/kernel/Makefile                         |   3 +-
+ arch/arm64/kernel/cacheinfo.c                      | 142 ++++
+ arch/ia64/kernel/topology.c                        | 401 ++--------
+ arch/powerpc/kernel/cacheinfo.c                    | 813 +++------------------
+ arch/powerpc/kernel/cacheinfo.h                    |   8 -
+ arch/powerpc/kernel/sysfs.c                        |  12 +-
+ arch/s390/kernel/cache.c                           | 388 +++-------
+ arch/x86/kernel/cpu/intel_cacheinfo.c              | 680 +++++------------
+ drivers/base/Makefile                              |   2 +-
+ drivers/base/cacheinfo.c                           | 539 ++++++++++++++
+ drivers/base/core.c                                |  39 +-
+ drivers/base/cpu.c                                 |   7 +
+ include/linux/cacheinfo.h                          |  73 ++
+ include/linux/cpu.h                                |   2 +
+ 22 files changed, 1660 insertions(+), 1883 deletions(-)
+ create mode 100644 arch/arm/kernel/cacheinfo.c
+ create mode 100644 arch/arm64/kernel/cacheinfo.c
+ delete mode 100644 arch/powerpc/kernel/cacheinfo.h
+ create mode 100644 drivers/base/cacheinfo.c
+ create mode 100644 include/linux/cacheinfo.h
+
+-- 
+1.8.3.2
