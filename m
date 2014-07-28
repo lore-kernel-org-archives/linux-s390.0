@@ -1,23 +1,41 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [patch 0/2] s390: network patches for net-next
-Date: Mon, 21 Jul 2014 20:22:11 -0700 (PDT)
-Message-ID: <20140721.202211.282870799264210058.davem@davemloft.net>
-References: <20140721105442.533889716@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20140721105442.533889716@de.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: frank.blaschka@de.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 28 Jul 2014 21:00:09 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390: char: sclp_async.c:  Cleaning up missing
+ null-terminate in conjunction with strncpy
+Message-ID: <20140728190009.GB3769@osiris>
+References: <1406385047-2942-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1406385047-2942-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: frank.blaschka@de.ibm.com
-Date: Mon, 21 Jul 2014 12:54:42 +0200
+On Sat, Jul 26, 2014 at 04:30:47PM +0200, Rickard Strandqvist wrote:
+> Replacing strncpy with strlcpy to avoid strings that lacks null terminate.
+> 
+> Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+> ---
+>  drivers/s390/char/sclp_async.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/char/sclp_async.c b/drivers/s390/char/sclp_async.c
+> index 5f9f929..585de0a 100644
+> --- a/drivers/s390/char/sclp_async.c
+> +++ b/drivers/s390/char/sclp_async.c
+> @@ -132,12 +132,12 @@ static int sclp_async_send_wait(char *message)
+>  	request->command = SCLP_CMDW_WRITE_EVENT_DATA;
+>  	request->sccb = sccb;
+>  	request->status = SCLP_REQ_FILLED;
+> -	strncpy(sccb->evbuf.data, message, sizeof(sccb->evbuf.data));
+> +	strlcpy(sccb->evbuf.data, message, sizeof(sccb->evbuf.data));
 
-> here are some s390 related patches for net-next
-
-Series applied, thanks.
+Do your patches actually fix any bugs? E.g. this line fills a hardware data
+structure, which must not necessarily be null terminated. Actually you even
+could have introduced a bug here.
+So, please state which of your patches actually do fix bugs.
