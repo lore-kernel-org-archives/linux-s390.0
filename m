@@ -1,127 +1,64 @@
-Return-Path: <linux-pci-owner@vger.kernel.org>
-Date: Fri, 11 Jul 2014 09:46:12 +0200 (CEST)
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 2/6] s390/MSI: Use standard mask and unmask funtions
-In-Reply-To: <1404785285-6408-1-git-send-email-wangyijing@huawei.com>
-Message-ID: <alpine.LFD.2.11.1407110942310.1620@denkbrett>
-References: <1404785285-6408-1-git-send-email-wangyijing@huawei.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <53D65D53.8000602@linux.vnet.ibm.com>
+Date: Mon, 28 Jul 2014 16:25:23 +0200
+From: Steffen Maier <maier@linux.vnet.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Sender: linux-pci-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-pci/>
-List-Post: <mailto:linux-pci@vger.kernel.org>
-To: Yijing Wang <wangyijing@huawei.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-pci@vger.kernel.org, Wuyun <wuyun.wu@huawei.com>
+Subject: Re: [PATCH] s390: scsi: zfcp_aux.c:  Cleaning up missing null-terminate
+ in conjunction with strncpy
+References: <1406385418-3393-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+In-Reply-To: <1406385418-3393-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+Content-Type: text/plain; charset="windows-1252"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>, linux390@de.ibm.com
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello,
-
-On Tue, 8 Jul 2014, Yijing Wang wrote:
-> MSI irqchip in s390 has its own mask and unmask MSI irq
-> functions, zpci_enable_irq() and zpci_disable_irq().
-> They mask and unmask MSI irq in standard ways, no arch
-> special. MSI driver provides two global standard functions
-> mask_msi_irq() and unmask_msi_irq(). Local zpci_enable_irq()
-> and zpci_disable_irq() are almost the same as the standard
-> two. the difference is local mask/unmask functions
-> read the mask status before mask and unmask everytime.
-> Then change the value and rewrite to hardware. In standard
-> functions, save the mask status after mask and unmask msi
-> irq, and use the cached status to change the mask status.
-> When we mask or unmask a MSI irq, we always cache its
-> mask status except we know need not to cache it, like in
-> pci_msi_shutdown. So use the standard functions to replace
-> the local is safe.
-
-Patch applied! (I had to fix another inverted pair in struct irq_chip
-first.)
-Thanks again,
-Sebastian
-
-> 
-> Signed-off-by: Yijing Wang <wangyijing@huawei.com>
+On 07/26/2014 04:36 PM, Rickard Strandqvist wrote:
+> Replacing strncpy with strlcpy to avoid strings that lacks null terminate.
+>
+> Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.s=
+e>
 > ---
->  arch/s390/pci/pci.c |   49 ++++++-------------------------------------------
->  1 files changed, 6 insertions(+), 43 deletions(-)
-> 
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index 9ddc51e..f715031 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-> @@ -48,13 +48,10 @@
->  static LIST_HEAD(zpci_list);
->  static DEFINE_SPINLOCK(zpci_list_lock);
-> 
-> -static void zpci_enable_irq(struct irq_data *data);
-> -static void zpci_disable_irq(struct irq_data *data);
-> -
->  static struct irq_chip zpci_irq_chip = {
->  	.name = "zPCI",
-> -	.irq_unmask = zpci_enable_irq,
-> -	.irq_mask = zpci_disable_irq,
-> +	.irq_unmask = mask_msi_irq,
-> +	.irq_mask = unmask_msi_irq,
->  };
-> 
->  static DECLARE_BITMAP(zpci_domain, ZPCI_NR_DEVICES);
-> @@ -244,43 +241,6 @@ static int zpci_cfg_store(struct zpci_dev *zdev, int offset, u32 val, u8 len)
->  	return rc;
->  }
-> 
-> -static int zpci_msi_set_mask_bits(struct msi_desc *msi, u32 mask, u32 flag)
-> -{
-> -	int offset, pos;
-> -	u32 mask_bits;
-> -
-> -	if (msi->msi_attrib.is_msix) {
-> -		offset = msi->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE +
-> -			PCI_MSIX_ENTRY_VECTOR_CTRL;
-> -		msi->masked = readl(msi->mask_base + offset);
-> -		writel(flag, msi->mask_base + offset);
-> -	} else if (msi->msi_attrib.maskbit) {
-> -		pos = (long) msi->mask_base;
-> -		pci_read_config_dword(msi->dev, pos, &mask_bits);
-> -		mask_bits &= ~(mask);
-> -		mask_bits |= flag & mask;
-> -		pci_write_config_dword(msi->dev, pos, mask_bits);
-> -	} else
-> -		return 0;
-> -
-> -	msi->msi_attrib.maskbit = !!flag;
-> -	return 1;
-> -}
-> -
-> -static void zpci_enable_irq(struct irq_data *data)
-> -{
-> -	struct msi_desc *msi = irq_get_msi_desc(data->irq);
-> -
-> -	zpci_msi_set_mask_bits(msi, 1, 0);
-> -}
-> -
-> -static void zpci_disable_irq(struct irq_data *data)
-> -{
-> -	struct msi_desc *msi = irq_get_msi_desc(data->irq);
-> -
-> -	zpci_msi_set_mask_bits(msi, 1, 1);
-> -}
-> -
->  void pcibios_fixup_bus(struct pci_bus *bus)
->  {
->  }
-> @@ -487,7 +447,10 @@ void arch_teardown_msi_irqs(struct pci_dev *pdev)
-> 
->  	/* Release MSI interrupts */
->  	list_for_each_entry(msi, &pdev->msi_list, list) {
-> -		zpci_msi_set_mask_bits(msi, 1, 1);
-> +		if (msi->msi_attrib.is_msix)
-> +			default_msix_mask_irq(msi, 1);
-> +		else
-> +			default_msi_mask_irq(msi, 1, 1);
->  		irq_set_msi_desc(msi->irq, NULL);
->  		irq_free_desc(msi->irq);
->  		msi->msg.address_lo = 0;
-> -- 
-> 1.7.1
-> 
-> 
-> 
+>   drivers/s390/scsi/zfcp_aux.c |    2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
+> index 8004b07..a23ba76 100644
+> --- a/drivers/s390/scsi/zfcp_aux.c
+> +++ b/drivers/s390/scsi/zfcp_aux.c
+> @@ -101,7 +101,7 @@ static void __init zfcp_init_device_setup(char *devst=
+r)
+>   	token =3D strsep(&str, ",");
+>   	if (!token || strlen(token) >=3D ZFCP_BUS_ID_SIZE)
+>   		goto err_out;
+
+Due to the check for strlen(token) >=3D ZFCP_BUS_ID_SIZE we should be safe =
+
+even with strlcpy because we would reject any user string that does not=20
+fit into busid including the trailing zero character.
+
+Since it works either way, we can change it though,
+
+Acked-by: Steffen Maier <maier@linux.vnet.ibm.com>
+
+> -	strncpy(busid, token, ZFCP_BUS_ID_SIZE);
+> +	strlcpy(busid, token, ZFCP_BUS_ID_SIZE);
+>
+>   	token =3D strsep(&str, ",");
+>   	if (!token || kstrtoull(token, 0, (unsigned long long *) &wwpn))
+>
+
+--=20
+Mit freundlichen Gr=FC=DFen / Kind regards
+Steffen Maier
+
+Linux on System z Development
+
+IBM Deutschland Research & Development GmbH
+Vorsitzende des Aufsichtsrats: Martina Koederitz
+Geschaeftsfuehrung: Dirk Wittkopp
+Sitz der Gesellschaft: Boeblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
