@@ -1,64 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <53D65D53.8000602@linux.vnet.ibm.com>
-Date: Mon, 28 Jul 2014 16:25:23 +0200
-From: Steffen Maier <maier@linux.vnet.ibm.com>
 MIME-Version: 1.0
-Subject: Re: [PATCH] s390: scsi: zfcp_aux.c:  Cleaning up missing null-terminate
- in conjunction with strncpy
+In-Reply-To: <53D65D53.8000602@linux.vnet.ibm.com>
 References: <1406385418-3393-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
-In-Reply-To: <1406385418-3393-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
-Content-Type: text/plain; charset="windows-1252"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
+ <53D65D53.8000602@linux.vnet.ibm.com>
+From: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+Date: Tue, 29 Jul 2014 23:35:27 +0200
+Message-ID: <CAFo99gY-L+jDCLWw=DusJFowpmFj1unAqspNku5J3g-SgbHUdA@mail.gmail.com>
+Subject: Re: [PATCH] s390: scsi: zfcp_aux.c: Cleaning up missing
+ null-terminate in conjunction with strncpy
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>, linux390@de.ibm.com
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Steffen Maier <maier@linux.vnet.ibm.com>
+Cc: linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/26/2014 04:36 PM, Rickard Strandqvist wrote:
-> Replacing strncpy with strlcpy to avoid strings that lacks null terminate.
+2014-07-28 16:25 GMT+02:00 Steffen Maier <maier@linux.vnet.ibm.com>:
+> On 07/26/2014 04:36 PM, Rickard Strandqvist wrote:
+>>
+>> Replacing strncpy with strlcpy to avoid strings that lacks null terminate.
+>>
+>> Signed-off-by: Rickard Strandqvist
+>> <rickard_strandqvist@spectrumdigital.se>
+>> ---
+>>   drivers/s390/scsi/zfcp_aux.c |    2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
+>> index 8004b07..a23ba76 100644
+>> --- a/drivers/s390/scsi/zfcp_aux.c
+>> +++ b/drivers/s390/scsi/zfcp_aux.c
+>> @@ -101,7 +101,7 @@ static void __init zfcp_init_device_setup(char
+>> *devstr)
+>>         token = strsep(&str, ",");
+>>         if (!token || strlen(token) >= ZFCP_BUS_ID_SIZE)
+>>                 goto err_out;
 >
-> Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.s=
-e>
-> ---
->   drivers/s390/scsi/zfcp_aux.c |    2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
-> index 8004b07..a23ba76 100644
-> --- a/drivers/s390/scsi/zfcp_aux.c
-> +++ b/drivers/s390/scsi/zfcp_aux.c
-> @@ -101,7 +101,7 @@ static void __init zfcp_init_device_setup(char *devst=
-r)
->   	token =3D strsep(&str, ",");
->   	if (!token || strlen(token) >=3D ZFCP_BUS_ID_SIZE)
->   		goto err_out;
-
-Due to the check for strlen(token) >=3D ZFCP_BUS_ID_SIZE we should be safe =
-
-even with strlcpy because we would reject any user string that does not=20
-fit into busid including the trailing zero character.
-
-Since it works either way, we can change it though,
-
-Acked-by: Steffen Maier <maier@linux.vnet.ibm.com>
-
-> -	strncpy(busid, token, ZFCP_BUS_ID_SIZE);
-> +	strlcpy(busid, token, ZFCP_BUS_ID_SIZE);
+> Due to the check for strlen(token) >= ZFCP_BUS_ID_SIZE we should be safe
+> even with strlcpy because we would reject any user string that does not fit
+> into busid including the trailing zero character.
 >
->   	token =3D strsep(&str, ",");
->   	if (!token || kstrtoull(token, 0, (unsigned long long *) &wwpn))
+> Since it works either way, we can change it though,
 >
+> Acked-by: Steffen Maier <maier@linux.vnet.ibm.com>
+>
+>
+>> -       strncpy(busid, token, ZFCP_BUS_ID_SIZE);
+>> +       strlcpy(busid, token, ZFCP_BUS_ID_SIZE);
+>>
+>>         token = strsep(&str, ",");
+>>         if (!token || kstrtoull(token, 0, (unsigned long long *) &wwpn))
+>>
 
---=20
-Mit freundlichen Gr=FC=DFen / Kind regards
-Steffen Maier
+Hi
 
-Linux on System z Development
+Always fun to get a patch included :)
 
-IBM Deutschland Research & Development GmbH
-Vorsitzende des Aufsichtsrats: Martina Koederitz
-Geschaeftsfuehrung: Dirk Wittkopp
-Sitz der Gesellschaft: Boeblingen
-Registergericht: Amtsgericht Stuttgart, HRB 243294
+It would be possible to change it to:
+
+    if (!token || strlcpy(busid, token, ZFCP_BUS_ID_SIZE) >= ZFCP_BUS_ID_SIZE)
+        goto err_out;
+
+
+But I doubt if this does not degrade the clarity quite a lot however :-/
+
+But tell me otherwise if you want a patch like that instead :-)
+
+
+Kind regards
+Rickard Strandqvist
