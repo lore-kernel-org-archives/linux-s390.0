@@ -1,49 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1406639463.13705.9.camel@BR9GV9YG.de.ibm.com>
-Subject: Re: [PATCH] s390: net: ctcm_main.c:  Cleaning up missing
+Date: Tue, 29 Jul 2014 16:35:32 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390: net: ctcm_main.c: Cleaning up missing
  null-terminate in conjunction with strncpy
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Tue, 29 Jul 2014 15:11:03 +0200
-In-Reply-To: <1406385234-3123-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+Message-ID: <20140729143532.GB4202@osiris>
 References: <1406385234-3123-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
+ <1406639463.13705.9.camel@BR9GV9YG.de.ibm.com>
+ <CAFo99gb2sSHVhDG0x6FzYi+YcKT7hQnu7qmUG=kaXyNaq4vKzw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAFo99gb2sSHVhDG0x6FzYi+YcKT7hQnu7qmUG=kaXyNaq4vKzw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
-Cc: Ursula Braun <ursula.braun@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ursula Braun <ubraun@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux390@de.ibm.com, Ursula Braun <ursula.braun@de.ibm.com>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, 2014-07-26 at 16:33 +0200, Rickard Strandqvist wrote:
-> Replacing strncpy with strlcpy to avoid strings that lacks null terminate.
+On Tue, Jul 29, 2014 at 03:19:47PM +0200, Rickard Strandqvist wrote:
+> > It is guaranteed that the string ch->id always fits into CTCM_ID_SIZE.
+> > What's in this case the benefit of replacing strncpy() by strlcpy()
+> > here?
 > 
-> Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
-> ---
->  drivers/s390/net/ctcm_main.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-> index 03b6ad0..670fa7d 100644
-> --- a/drivers/s390/net/ctcm_main.c
-> +++ b/drivers/s390/net/ctcm_main.c
-> @@ -204,8 +204,8 @@ static void channel_remove(struct channel *ch)
-> 
->  	if (ch == NULL)
->  		return;
-> -	else
-> -		strncpy(chid, ch->id, CTCM_ID_SIZE);
-> +
-> +	strlcpy(chid, ch->id, CTCM_ID_SIZE);
-> 
->  	channel_free(ch);
->  	while (*c) {
+> If it is really so! It can just as well replacing it with strcpy...
 
-It is guaranteed that the string ch->id always fits into CTCM_ID_SIZE.
-What's in this case the benefit of replacing strncpy() by strlcpy()
-here?
-
-I agree to remove the useless "else".
-
- 
+Or.. just leave the code alone.
