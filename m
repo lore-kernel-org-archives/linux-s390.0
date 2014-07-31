@@ -1,71 +1,39 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
-Subject: [PATCH] s390: net: claw.c:  Cleaning up possible error if incorrect in parameter
-Date: Wed, 30 Jul 2014 22:32:52 +0200
-Message-Id: <1406752372-19743-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ursula Braun <ursula.braun@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>
-Cc: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/2] KVM: s390: Fix memory leak on busy SIGP stop
+Date: Thu, 31 Jul 2014 09:59:01 +0200
+Message-ID: <1406793542-3043-2-git-send-email-borntraeger@de.ibm.com>
+References: <1406793542-3043-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1406793542-3043-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Gleb Natapov <gleb@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Possible error if incorrect in parameter, count = 0.
-And clarified what the code actually does significantly.
+commit 7dfc63cf977447e09b1072911c22564f900fc578
+(KVM: s390: allow only one SIGP STOP (AND STORE STATUS) at a time)
+introduced a memory leak if a sigp stop is already pending. Free
+the allocated inti structure.
 
-Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 ---
- drivers/s390/net/claw.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ arch/s390/kvm/sigp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/s390/net/claw.c b/drivers/s390/net/claw.c
-index d837c3c..8d5b7b6 100644
---- a/drivers/s390/net/claw.c
-+++ b/drivers/s390/net/claw.c
-@@ -3070,10 +3070,10 @@ claw_hname_write(struct device *dev, struct device_attribute *attr,
- 	p_env = priv->p_env;
- 	if (count > MAX_NAME_LEN+1)
- 		return -EINVAL;
--	memset(p_env->host_name, 0x20, MAX_NAME_LEN);
--	strncpy(p_env->host_name,buf, count);
--	p_env->host_name[count-1] = 0x20;  /* clear extra 0x0a */
--	p_env->host_name[MAX_NAME_LEN] = 0x00;
-+	strlcpy(p_env->host_name, buf,
-+			sizeof(p_env->host_name));
-+	strlcat(p_env->host_name, "        ",
-+			sizeof(p_env->host_name));
- 	CLAW_DBF_TEXT(2, setup, "HstnSet");
- 	CLAW_DBF_TEXT_(2, setup, "%s", p_env->host_name);
- 
-@@ -3108,10 +3108,10 @@ claw_adname_write(struct device *dev, struct device_attribute *attr,
- 	p_env = priv->p_env;
- 	if (count > MAX_NAME_LEN+1)
- 		return -EINVAL;
--	memset(p_env->adapter_name, 0x20, MAX_NAME_LEN);
--	strncpy(p_env->adapter_name,buf, count);
--	p_env->adapter_name[count-1] = 0x20; /* clear extra 0x0a */
--	p_env->adapter_name[MAX_NAME_LEN] = 0x00;
-+	strlcpy(p_env->adapter_name, buf,
-+			sizeof(p_env->adapter_name));
-+	strlcat(p_env->adapter_name, "        ",
-+			sizeof(p_env->adapter_name));
- 	CLAW_DBF_TEXT(2, setup, "AdnSet");
- 	CLAW_DBF_TEXT_(2, setup, "%s", p_env->adapter_name);
- 
-@@ -3147,10 +3147,10 @@ claw_apname_write(struct device *dev, struct device_attribute *attr,
- 	p_env = priv->p_env;
- 	if (count > MAX_NAME_LEN+1)
- 		return -EINVAL;
--	memset(p_env->api_type, 0x20, MAX_NAME_LEN);
--	strncpy(p_env->api_type,buf, count);
--	p_env->api_type[count-1] = 0x20;  /* we get a loose 0x0a */
--	p_env->api_type[MAX_NAME_LEN] = 0x00;
-+	strlcpy(p_env->api_type, buf,
-+			sizeof(p_env->api_type));
-+	strlcat(p_env->api_type, "        ",
-+			sizeof(p_env->api_type));
- 	if(strncmp(p_env->api_type,WS_APPL_NAME_PACKED,6) == 0) {
- 		p_env->read_size=DEF_PACK_BUFSIZE;
- 		p_env->write_size=DEF_PACK_BUFSIZE;
+diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+index c6f1c2b..cf243ba 100644
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -139,6 +139,7 @@ static int __inject_sigp_stop(struct kvm_vcpu *dst_vcpu, int action)
+ 	spin_lock(&li->lock);
+ 	if (li->action_bits & ACTION_STOP_ON_STOP) {
+ 		/* another SIGP STOP is pending */
++		kfree(inti);
+ 		rc = SIGP_CC_BUSY;
+ 		goto out;
+ 	}
 -- 
-1.7.10.4
+1.8.4.2
