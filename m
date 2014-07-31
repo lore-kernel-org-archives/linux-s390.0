@@ -1,65 +1,64 @@
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Subject: Re: [Qemu-devel] [PATCH/RFC 4/5] s390x/kvm: test whether a cpu is
  STOPPED when checking "has_work"
-Date: Tue, 29 Jul 2014 17:06:36 +0200
-Message-ID: <20140729170636.01866f94@thinkpad-w530>
+Date: Thu, 31 Jul 2014 09:45:01 +0200
+Message-ID: <20140731094501.31d8a047@thinkpad-w530>
 References: <1404997839-29038-1-git-send-email-borntraeger@de.ibm.com>
 	<1404997839-29038-5-git-send-email-borntraeger@de.ibm.com>
 	<53D654D2.40308@suse.de>
 	<20140728161644.00c09b3f@thinkpad-w530>
 	<2B39547D-B9A3-4509-808C-B0808067ED54@suse.de>
-	<20140728170318.1eb8ed64@thinkpad-w530>
-	<53D7A700.8090207@redhat.com>
+	<53D78937.3010307@de.ibm.com>
+	<53D78A44.1060706@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <53D7A700.8090207@redhat.com>
+In-Reply-To: <53D78A44.1060706@suse.de>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Alexander Graf <agraf@suse.de>, linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Alexander Graf <agraf@suse.de>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-> Il 28/07/2014 17:03, David Hildenbrand ha scritto:
-> > Well the difference is, that a STOPPED vcpu can be woken up by non-interrupt
-> > like things (SIGP START) AND a special interrupt (SIGP RESTART - which is like
-> > a "SIPI"++ as it performs a psw exchange - "NMI"). So we basically have two
-> > paths that can lead to a state change.  All interrupt bits may be in any
-> > combination (SIGP RESTART interrupts can't be masked out, nor can SIGP START be
-> > denied).
-> > 
-> > The other thing may be that on s390, each vcpu (including itself) can put
-> > another vcpu into the STOPPED state - I assume that this is different for x86 "
-> > INIT_RECEIVED". For this reason we have to watch out for bad race conditions
-> > (e.g. multiple vcpus working on another vcpu)...
+> > We have
+> > - wait (wait bit in PSW)
+> > - disabled wait (wait bit and interrupt fencing in PSW)
+> > - STOPPED (not related to PSW, state change usually handled via service processor or hypervisor)
+> >
+> > I think we have to differentiate between KVM/TCG. On KVM we always do in kernel halt and qemu sees a halted only for STOPPED or disabled wait. TCG has to take care of the normal wait as well.
+> >
+> >  From a first glimpse, a disabled wait and STOPPED look similar, but there are (important) differences, e.g. other CPUs get a different a different result from a SIGP SENSE. This makes a big difference, e.g. for Linux guests, that send a SIGP STOP, followed by a SIGP SENSE loop until the CPU is down on hotplug (and shutdown, kexec..) So I think we agree, that handling the cpu states natively makes sense.
+> >
+> > The question is now only how to model it correctly without breaking TCG/KVM and reuse as much common code as possible. Correct?
+> >
+> > Do I understand you correctly, that your collapsing of stopped and halted is only in the qemu coding sense, IOW maybe we could just modify kvm_arch_process_async_events to consider the STOPPED state, as TCGs sigp implementation does not support SMP anyway?
 > 
-> You can do that in x86 by sending an INIT inter-processor interrupt.  A
-> SIPI is ignored if the CPU is not in INIT_RECEIVED state.
+> That works for me, yes.
 > 
-> Commit 66450a21f99636af4fafac2afd33f1a40631bc3a introduced the current
-> implementation.
 > 
-> - an INIT cancels a previous SIPI;
-> 
-> - if both INIT and SIPI are sent, on real hardware you need to have a
-> few hundred microseconds between them, but KVM will reliably process
-> INIT before SIPI.
-> 
-> See commit 299018f44ac553dce3caf84df1d14c4764faa279 for an example of
-> the races that can happen.
-> 
-> Note that x86 has KVM_MP_STATE_SIPI_RECEIVED state but it is obsolete,
-> we go straight from KVM_MP_STATE_INIT_RECEIVED to KVM_MP_STATE_RUNNABLE.
+> Alex
 > 
 
-Thanks for the explanation Paolo!
+I had a look at it yesterday and it seems like we can totally drop this patch:
 
-Looks like from an interrupt point of view, the states have a lot in common.
-The major thing that differs on s390 is probably the way these interrupts are
-generated and what else they influence (all the power of the SIGP facility :)
-+ special check-stop state that can't be left by an interrupt, only by SIGP
-  CPU resets).
+1. TCG doesn't support multiple CPUs and the TCG SIGP implementation isn't
+ready for proper STOP/START/SENSE. Testing for STOPPED cpus in cpu_has_work()
+can be dropped. To be able to support TCG was the main reason for this patch -
+as we don't want to do so for now, we can leave it as is. We can still decide
+to support the cpu states later using a mechanism suggest by Alex
+(interrupt_requests).
+
+Even if cpu_has_work() would make cpu.c:cpu_thread_is_idle() return false,
+kvm_arch_process_async_events() called by kvm-all.c:kvm_cpu_exec() would make
+it go back to sleep. Therefore a stopped VCPU will never be able to run in the
+KVM case (because it always has cs->halted = true).
+
+2. The unhalt in kvm_arch_process_async_events is for a special case where a
+VCPU is in disabled wait and receives e.g. a machine-check interrupt. These
+might happen in the future, for now we will never see them (the only
+way to get a vcpu out of disabled wait are SIGP RESTART/CPU RESET - so we
+don't break anything at that point).
 
 David
