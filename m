@@ -1,118 +1,123 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sudeep Holla <sudeep.holla@arm.com>
-Subject: [PATCH v3 00/11] drivers: cacheinfo support
-Date: Thu, 21 Aug 2014 11:59:43 +0100
-Message-Id: <1408618794-28497-1-git-send-email-sudeep.holla@arm.com>
-In-Reply-To: <1406306692-7135-1-git-send-email-sudeep.holla@arm.com>
-References: <1406306692-7135-1-git-send-email-sudeep.holla@arm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: sudeep.holla@arm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, Stephen Boyd <sboyd@codeaurora.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-ia64@vger.kernel.org, linux390@de.ibm.com, linux-s390@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+Return-Path: <owner-linux-mm@kvack.org>
+Date: Thu, 31 Jul 2014 22:01:14 -0700 (PDT)
+From: Hugh Dickins <hughd@google.com>
+Subject: Re: [PATCH 1/5] mm, shmem: Add shmem resident memory accounting
+In-Reply-To: <1406036632-26552-2-git-send-email-jmarchan@redhat.com>
+Message-ID: <alpine.LSU.2.11.1407312159180.3912@eggly.anvils>
+References: <1406036632-26552-1-git-send-email-jmarchan@redhat.com> <1406036632-26552-2-git-send-email-jmarchan@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Jerome Marchand <jmarchan@redhat.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org, Hugh Dickins <hughd@google.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, linux390@de.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Randy Dunlap <rdunlap@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+On Tue, 22 Jul 2014, Jerome Marchand wrote:
 
-This series adds a generic cacheinfo support similar to topology. The
-implementation is based on x86 cacheinfo support. Currently x86, powerpc,
-ia64 and s390 have their own implementations. While adding similar support
-to ARM and ARM64, here is the attempt to make it generic quite similar to
-topology info support. It also adds the missing ABI documentation for
-the cacheinfo sysfs which is already being used.
+> Currently looking at /proc/<pid>/status or statm, there is no way to
+> distinguish shmem pages from pages mapped to a regular file (shmem
+> pages are mapped to /dev/zero), even though their implication in
+> actual memory use is quite different.
+> This patch adds MM_SHMEMPAGES counter to mm_rss_stat. It keeps track of
+> resident shmem memory size. Its value is exposed in the new VmShm line
+> of /proc/<pid>/status.
 
-It moves all the existing different implementations on x86, ia64, powerpc
-and s390 to use the generic cacheinfo infrastructure introduced here.
-These changes on non-ARM platforms are only compile tested and tested on x86.
+I like adding this info to /proc/<pid>/status - thank you -
+but I think you can make the patch much better in a couple of ways.
 
-This series also adds support for ARM and ARM64 architectures based on
-the generic support.
+> 
+> Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
+> ---
+>  Documentation/filesystems/proc.txt |  2 ++
+>  arch/s390/mm/pgtable.c             |  2 +-
+>  fs/proc/task_mmu.c                 |  9 ++++++---
+>  include/linux/mm.h                 |  7 +++++++
+>  include/linux/mm_types.h           |  7 ++++---
+>  kernel/events/uprobes.c            |  2 +-
+>  mm/filemap_xip.c                   |  2 +-
+>  mm/memory.c                        | 37 +++++++++++++++++++++++++++++++------
+>  mm/rmap.c                          |  8 ++++----
+>  9 files changed, 57 insertions(+), 19 deletions(-)
+> 
+> diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
+> index ddc531a..1c49957 100644
+> --- a/Documentation/filesystems/proc.txt
+> +++ b/Documentation/filesystems/proc.txt
+> @@ -171,6 +171,7 @@ read the file /proc/PID/status:
+>    VmLib:      1412 kB
+>    VmPTE:        20 kb
+>    VmSwap:        0 kB
+> +  VmShm:         0 kB
+>    Threads:        1
+>    SigQ:   0/28578
+>    SigPnd: 0000000000000000
+> @@ -228,6 +229,7 @@ Table 1-2: Contents of the status files (as of 2.6.30-rc7)
+>   VmLib                       size of shared library code
+>   VmPTE                       size of page table entries
+>   VmSwap                      size of swap usage (the number of referred swapents)
+> + VmShm	                      size of resident shmem memory
 
-The code can be fetched from:
- git://linux-arm.org/linux-skn cacheinfo
+Needs to say that includes mappings of tmpfs, and needs to say that
+it's a subset of VmRSS.  Better placed immediately after VmRSS...
 
-Changes v2->v3:
-	- Added {allocation,write}_policy instead of single attributes sysfs
-	  (attributes retained on ia64 privately as it was used only on that)
-	- factored out show_cpumap into separate helper in cpumask.h
-	- populate cpu_{map,list} for non-DT system if they are not populated
-	  by arch specific callbacks
-	- removed use of sysfs *_show callback in cache_attrs_is_visible
-	- all the review comments from Stephen Boyd implemented
+...but now that I look through what's in /proc/<pid>/status, it appears
+that we have to defer to /proc/<pid>/statm to see MM_FILEPAGES (third
+field) and MM_ANONPAGES (subtract third field from second field).
 
-Changes v1->v2:
-	- removed custom device_{add,remove}_attrs, using is_visible callback
-	  instead(suggested by GregKH)
-	- arm64: changes as per MarkR review comments
-	- Moved smp_call_function_single to architectures using it(arm, arm64,
-	  x86) (suggested by Stephen Boyd)
-	- arm (mostly changes as per RMK's review comments)
-		- fixed to allow v7 + v6 build
-		- l2 cache changes to remove extra structure
-		- populated CTR for few StrongARM CPU's not implementing CTR
+That's not a very friendly interface.  If you're going to help by
+exposing MM_SHMPAGES separately, please help even more by exposing
+VmFile and VmAnon here in /proc/<pid>/status too.
 
-[v1] https://lkml.org/lkml/2014/6/25/603
-[v2] https://lkml.org/lkml/2014/7/25/467
+VmRSS, VmAnon, VmShm, VmFile?  I'm not sure what's the best order:
+here I'm thinking that anon comes before file in /proc/meminfo, and
+shm should be halfway between anon and file.  You may have another idea.
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-ia64@vger.kernel.org
-Cc: linux390@de.ibm.com
-Cc: linux-s390@vger.kernel.org
-Cc: x86@kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-arm-kernel@lists.infradead.org
+And of course the VmFile count here should exclude VmShm: I think it
+will work out least confusingly if you account MM_FILEPAGES separately
+from MM_SHMPAGES, but add them together where needed e.g. for statm.
 
-Sudeep Holla (11):
-  cpumask: factor out show_cpumap into separate helper function
-  topology: replace custom attribute macros with standard DEVICE_ATTR*
-  drivers: base: add new class "cpu" to group cpu devices
-  drivers: base: support cpu cache information interface to userspace
-    via sysfs
-  ia64: move cacheinfo sysfs to generic cacheinfo infrastructure
-  s390: move cacheinfo sysfs to generic cacheinfo infrastructure
-  x86: move cacheinfo sysfs to generic cacheinfo infrastructure
-  powerpc: move cacheinfo sysfs to generic cacheinfo infrastructure
-  ARM64: kernel: add support for cpu cache information
-  ARM: kernel: add support for cpu cache information
-  ARM: kernel: add outer cache support for cacheinfo implementation
+>   Threads                     number of threads
+>   SigQ                        number of signals queued/max. number for queue
+>   SigPnd                      bitmap of pending signals for the thread
+> diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+> index 37b8241..9fe31b0 100644
+> --- a/arch/s390/mm/pgtable.c
+> +++ b/arch/s390/mm/pgtable.c
+> @@ -612,7 +612,7 @@ static void gmap_zap_swap_entry(swp_entry_t entry, struct mm_struct *mm)
+>  		if (PageAnon(page))
+>  			dec_mm_counter(mm, MM_ANONPAGES);
+>  		else
+> -			dec_mm_counter(mm, MM_FILEPAGES);
+> +			dec_mm_file_counters(mm, page);
+>  	}
 
- Documentation/ABI/testing/sysfs-devices-system-cpu |  47 ++
- arch/arm/include/asm/outercache.h                  |   9 +
- arch/arm/kernel/Makefile                           |   1 +
- arch/arm/kernel/cacheinfo.c                        | 287 ++++++++
- arch/arm/mm/Kconfig                                |  13 +
- arch/arm/mm/cache-l2x0.c                           |  35 +-
- arch/arm/mm/cache-tauros2.c                        |  36 +
- arch/arm/mm/cache-xsc3l2.c                         |  17 +
- arch/arm64/kernel/Makefile                         |   2 +-
- arch/arm64/kernel/cacheinfo.c                      | 142 ++++
- arch/ia64/kernel/topology.c                        | 421 +++--------
- arch/powerpc/kernel/cacheinfo.c                    | 812 +++------------------
- arch/powerpc/kernel/cacheinfo.h                    |   8 -
- arch/powerpc/kernel/sysfs.c                        |  12 +-
- arch/s390/kernel/cache.c                           | 388 +++-------
- arch/x86/kernel/cpu/intel_cacheinfo.c              | 709 +++++-------------
- arch/x86/kernel/cpu/perf_event_amd_iommu.c         |   5 +-
- arch/x86/kernel/cpu/perf_event_amd_uncore.c        |   6 +-
- arch/x86/kernel/cpu/perf_event_intel_rapl.c        |   6 +-
- arch/x86/kernel/cpu/perf_event_intel_uncore.c      |   6 +-
- drivers/acpi/acpi_pad.c                            |   6 +-
- drivers/base/Makefile                              |   2 +-
- drivers/base/cacheinfo.c                           | 543 ++++++++++++++
- drivers/base/core.c                                |  39 +-
- drivers/base/cpu.c                                 |  12 +-
- drivers/base/node.c                                |  14 +-
- drivers/base/topology.c                            |  71 +-
- drivers/pci/pci-sysfs.c                            |  39 +-
- include/linux/cacheinfo.h                          | 100 +++
- include/linux/cpu.h                                |   2 +
- include/linux/cpumask.h                            |  27 +
- 31 files changed, 1826 insertions(+), 1991 deletions(-)
- create mode 100644 arch/arm/kernel/cacheinfo.c
- create mode 100644 arch/arm64/kernel/cacheinfo.c
- delete mode 100644 arch/powerpc/kernel/cacheinfo.h
- create mode 100644 drivers/base/cacheinfo.c
- create mode 100644 include/linux/cacheinfo.h
+That is a recurring pattern: please try putting
 
--- 
-1.8.3.2
+static inline int mm_counter(struct page *page)
+{
+	if (PageAnon(page))
+		return MM_ANONPAGES;
+	if (PageSwapBacked(page))
+		return MM_SHMPAGES;
+	return MM_FILEPAGES;
+}
+
+in include/linux/mm.h.
+
+Then dec_mm_counter(mm, mm_counter(page)) here, and wherever you can,
+use mm_counter(page) to simplify the code throughout.
+
+I say "try" because I think factoring out mm_counter() will simplify
+the most code, given the profusion of different accessors, particularly
+in mm/memory.c.  But I'm not sure how much bloat having it as an inline
+function will add, versus how much overhead it would add if not inline.
+
+Hugh
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
