@@ -1,137 +1,178 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Thu, 31 Jul 2014 22:06:16 -0700 (PDT)
-From: Hugh Dickins <hughd@google.com>
-Subject: Re: [PATCH 5/5] mm, shmem: Show location of non-resident shmem pages
- in smaps
-In-Reply-To: <1406036632-26552-6-git-send-email-jmarchan@redhat.com>
-Message-ID: <alpine.LSU.2.11.1407312205170.3912@eggly.anvils>
-References: <1406036632-26552-1-git-send-email-jmarchan@redhat.com> <1406036632-26552-6-git-send-email-jmarchan@redhat.com>
+Message-ID: <53DBA604.1090204@redhat.com>
+Date: Fri, 01 Aug 2014 16:36:52 +0200
+From: Jerome Marchand <jmarchan@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH 1/5] mm, shmem: Add shmem resident memory accounting
+References: <1406036632-26552-1-git-send-email-jmarchan@redhat.com> <1406036632-26552-2-git-send-email-jmarchan@redhat.com> <alpine.LSU.2.11.1407312159180.3912@eggly.anvils>
+In-Reply-To: <alpine.LSU.2.11.1407312159180.3912@eggly.anvils>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="lxVGKElGwxXE45ip0IhXLqN9P4K6qCS4C"
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Jerome Marchand <jmarchan@redhat.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org, Hugh Dickins <hughd@google.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, linux390@de.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Randy Dunlap <rdunlap@infradead.org>
+To: Hugh Dickins <hughd@google.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, linux390@de.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Randy Dunlap <rdunlap@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 22 Jul 2014, Jerome Marchand wrote:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--lxVGKElGwxXE45ip0IhXLqN9P4K6qCS4C
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> Adds ShmOther, ShmOrphan, ShmSwapCache and ShmSwap lines to
-> /proc/<pid>/smaps for shmem mappings.
-> 
-> ShmOther: amount of memory that is currently resident in memory, not
-> present in the page table of this process but present in the page
-> table of an other process.
-> ShmOrphan: amount of memory that is currently resident in memory but
-> not present in any process page table. This can happens when a process
-> unmaps a shared mapping it has accessed before or exits. Despite being
-> resident, this memory is not currently accounted to any process.
-> ShmSwapcache: amount of memory currently in swap cache
-> ShmSwap: amount of memory that is paged out on disk.
-> 
-> Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
+On 08/01/2014 07:01 AM, Hugh Dickins wrote:
+> On Tue, 22 Jul 2014, Jerome Marchand wrote:
+>=20
+>> Currently looking at /proc/<pid>/status or statm, there is no way to
+>> distinguish shmem pages from pages mapped to a regular file (shmem
+>> pages are mapped to /dev/zero), even though their implication in
+>> actual memory use is quite different.
+>> This patch adds MM_SHMEMPAGES counter to mm_rss_stat. It keeps track o=
+f
+>> resident shmem memory size. Its value is exposed in the new VmShm line=
 
-You will have to do a much better job of persuading me that these
-numbers are of any interest.  Okay, maybe not me, I'm not that keen
-on /proc/<pid>/smaps at the best of times.  But you will need to show
-plausible cases where having these numbers available would have made
-a real difference, and drum up support for their inclusion from
-/proc/<pid>/smaps devotees.
+>> of /proc/<pid>/status.
+>=20
+> I like adding this info to /proc/<pid>/status - thank you -
+> but I think you can make the patch much better in a couple of ways.
+>=20
+>>
+>> Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
+>> ---
+>>  Documentation/filesystems/proc.txt |  2 ++
+>>  arch/s390/mm/pgtable.c             |  2 +-
+>>  fs/proc/task_mmu.c                 |  9 ++++++---
+>>  include/linux/mm.h                 |  7 +++++++
+>>  include/linux/mm_types.h           |  7 ++++---
+>>  kernel/events/uprobes.c            |  2 +-
+>>  mm/filemap_xip.c                   |  2 +-
+>>  mm/memory.c                        | 37 +++++++++++++++++++++++++++++=
+++------
+>>  mm/rmap.c                          |  8 ++++----
+>>  9 files changed, 57 insertions(+), 19 deletions(-)
+>>
+>> diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesy=
+stems/proc.txt
+>> index ddc531a..1c49957 100644
+>> --- a/Documentation/filesystems/proc.txt
+>> +++ b/Documentation/filesystems/proc.txt
+>> @@ -171,6 +171,7 @@ read the file /proc/PID/status:
+>>    VmLib:      1412 kB
+>>    VmPTE:        20 kb
+>>    VmSwap:        0 kB
+>> +  VmShm:         0 kB
+>>    Threads:        1
+>>    SigQ:   0/28578
+>>    SigPnd: 0000000000000000
+>> @@ -228,6 +229,7 @@ Table 1-2: Contents of the status files (as of 2.6=
+=2E30-rc7)
+>>   VmLib                       size of shared library code
+>>   VmPTE                       size of page table entries
+>>   VmSwap                      size of swap usage (the number of referr=
+ed swapents)
+>> + VmShm	                      size of resident shmem memory
+>=20
+> Needs to say that includes mappings of tmpfs, and needs to say that
+> it's a subset of VmRSS.  Better placed immediately after VmRSS...
+>=20
+> ...but now that I look through what's in /proc/<pid>/status, it appears=
 
-Do you have a customer, who has underprovisioned with swap,
-and wants these numbers to work out how much more is needed?
+> that we have to defer to /proc/<pid>/statm to see MM_FILEPAGES (third
+> field) and MM_ANONPAGES (subtract third field from second field).
+>=20
+> That's not a very friendly interface.  If you're going to help by
+> exposing MM_SHMPAGES separately, please help even more by exposing
+> VmFile and VmAnon here in /proc/<pid>/status too.
+>=20
 
-As it is, they appear to be numbers that you found you could provide,
-and so you're adding them into /proc/<pid>/smaps, but having great
-difficulty in finding good names to describe them - which is itself
-an indicator that they're probably not the most useful statistics
-a sysadmin is wanting.
+Good point.
 
-(Google is a /proc/<pid>/smaps user: let's take a look to see if
-we have been driven to add in stats of this kind: no, not at all.)
+> VmRSS, VmAnon, VmShm, VmFile?  I'm not sure what's the best order:
+> here I'm thinking that anon comes before file in /proc/meminfo, and
+> shm should be halfway between anon and file.  You may have another idea=
+=2E
+>=20
+> And of course the VmFile count here should exclude VmShm: I think it
+> will work out least confusingly if you account MM_FILEPAGES separately
+> from MM_SHMPAGES, but add them together where needed e.g. for statm.
 
-The more numbers we add to /proc/<pid>/smaps, the longer it will take to
-print, the longer mmap_sem will be held, and the more it will interfere
-with proper system operation - that's the concern I more often see.
+I chose not to change MM_FILEPAGES to avoid to break anything, but it
+might indeed look better not to have MM_SHMPAGES included in
+MM_FILEPAGES. I'll look into it.
 
-> ---
->  Documentation/filesystems/proc.txt | 11 ++++++++
->  fs/proc/task_mmu.c                 | 56 +++++++++++++++++++++++++++++++++++++-
->  2 files changed, 66 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
-> index 1a15c56..a65ab59 100644
-> --- a/Documentation/filesystems/proc.txt
-> +++ b/Documentation/filesystems/proc.txt
-> @@ -422,6 +422,10 @@ Swap:                  0 kB
->  KernelPageSize:        4 kB
->  MMUPageSize:           4 kB
->  Locked:              374 kB
-> +ShmOther:            124 kB
-> +ShmOrphan:             0 kB
-> +ShmSwapCache:         12 kB
-> +ShmSwap:              36 kB
->  VmFlags: rd ex mr mw me de
->  
->  the first of these lines shows the same information as is displayed for the
-> @@ -437,6 +441,13 @@ a mapping associated with a file may contain anonymous pages: when MAP_PRIVATE
->  and a page is modified, the file page is replaced by a private anonymous copy.
->  "Swap" shows how much would-be-anonymous memory is also used, but out on
->  swap.
-> +The ShmXXX lines only appears for shmem mapping. They show the amount of memory
-> +from the mapping that is currently:
-> + - resident in RAM, not present in the page table of this process but present
-> + in the page table of an other process (ShmOther)
+>=20
+>>   Threads                     number of threads
+>>   SigQ                        number of signals queued/max. number for=
+ queue
+>>   SigPnd                      bitmap of pending signals for the thread=
 
-We don't show that for files of any other filesystem, why for shmem?
-Perhaps you are too focussed on SysV SHM, and I am too focussed on tmpfs.
+>> diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+>> index 37b8241..9fe31b0 100644
+>> --- a/arch/s390/mm/pgtable.c
+>> +++ b/arch/s390/mm/pgtable.c
+>> @@ -612,7 +612,7 @@ static void gmap_zap_swap_entry(swp_entry_t entry,=
+ struct mm_struct *mm)
+>>  		if (PageAnon(page))
+>>  			dec_mm_counter(mm, MM_ANONPAGES);
+>>  		else
+>> -			dec_mm_counter(mm, MM_FILEPAGES);
+>> +			dec_mm_file_counters(mm, page);
+>>  	}
+>=20
+> That is a recurring pattern: please try putting
+>=20
+> static inline int mm_counter(struct page *page)
+> {
+> 	if (PageAnon(page))
+> 		return MM_ANONPAGES;
+> 	if (PageSwapBacked(page))
+> 		return MM_SHMPAGES;
+> 	return MM_FILEPAGES;
+> }
+>=20
+> in include/linux/mm.h.
+>=20
+> Then dec_mm_counter(mm, mm_counter(page)) here, and wherever you can,
+> use mm_counter(page) to simplify the code throughout.
+>=20
+> I say "try" because I think factoring out mm_counter() will simplify
+> the most code, given the profusion of different accessors, particularly=
 
-It is a very specialized statistic, and therefore hard to name: I don't
-think ShmOther is a good name, but doubt any would do.  ShmOtherMapped?
+> in mm/memory.c.  But I'm not sure how much bloat having it as an inline=
 
-> + - resident in RAM but not present in the page table of any process (ShmOrphan)
+> function will add, versus how much overhead it would add if not inline.=
 
-We don't show that for files of any other filesystem, why for shmem?
 
-Orphan?  We do use the word "orphan" to describe pages which have been
-truncated off a file, but somehow not yet removed from pagecache.  We
-don't use the the word "orphan" to describe pagecache pages which are
-not mapped into userspace - they are known as "pagecache pages which
-are not mapped into userspace".  ShmNotMapped?
+I'll look into that.
 
-> + - in swap cache (ShmSwapCache)
+Jerome
 
-Is this interesting?  It's a transitional state: either memory pressure
-has forced the page to swapcache, but not yet freed it from memory; or
-swapin_readahead has brought this page back in when bringing in a nearby
-page of swap.
+>=20
+> Hugh
+>=20
 
-I can understand that we might want better stats on the behaviour of
-swapin_readahead; better stats on shmem objects and swap; better stats
-on duplication between pagecache and swap; but I'm not convinced that
-/proc/<pid>/smaps is the right place for those.
 
-Against all that, of course, we do have mincore() showing these pages
-as incore, where /proc/<pid>/smaps does not.  But I think that is
-justified by mincore()'s mission to show what's incore.
 
-> + - paged out on swap (ShmSwap).
+--lxVGKElGwxXE45ip0IhXLqN9P4K6qCS4C
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-This one has the best case for inclusion: we do show Swap for the anon
-pages which are out on swap, but not for the shmem areas, where swap
-entry does not go into page table.  But there is good reason for that:
-this is shared memory, files, objects commonly shared between
-processes, so it's a poor fit then to account them by processes.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-(We have "df" and "du" showing the occupancy of mounted tmpfs
-filesystems: it would be nice if we had something like those,
-which showed also the swap occupancy, and for the non-user-mounts.)
+iQEcBAEBAgAGBQJT26YEAAoJEHTzHJCtsuoCGpYH/RD+1RP2S7K9/aMTE34PatN3
+/lnBqiFH6/ibJmVBZm0gzR3AR6dH7DgYZIVznbybDsE+2QNosSXQ7h2IGJqBdUJE
+kj6grHZmZdTa4ISVJXFawEwk+Jg+mq+CoO9FJqA7833/PxtdDI2/84kILFAMmZSN
+PFyldr6vZ1AxxzBHnAahQkbxx4Mwp+5QtQLUDHjMLGVGCa3efHWcD7z3oAICT50R
+sy4u34ZqyS3EwMNkC0cTyOsl0u5PHQIBnstU2gd+15irka0bwEHkTO2+gZI1XQEt
+QPIZeGPwVHkbVg4VayWODjAWGwrd1xlMIlSHXavFWN1mGTqxuBm8Y9xir8Py1+I=
+=HVkx
+-----END PGP SIGNATURE-----
 
-I need much more convincing on this patch: I expect you will drop
-some of the numbers, and provide an argument for others.
-
-Hugh
+--lxVGKElGwxXE45ip0IhXLqN9P4K6qCS4C--
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
