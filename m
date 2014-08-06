@@ -1,135 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 15 Aug 2014 14:01:02 +0200
+Date: Wed, 6 Aug 2014 10:34:53 +0200
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 5/5] s390/ftrace: enforce DYNAMIC_FTRACE if FUNCTION_TRACER
- is selected
-Message-ID: <20140815120102.GF4215@osiris>
-References: <20140703120046.GA10664@suse.cz>
- <20140708080740.GA4491@osiris>
- <20140815115753.GA4215@osiris>
+Subject: Re: [PATCH] s390/locking: Reenable optimistic spinning
+Message-ID: <20140806083453.GA4983@osiris>
+References: <1407225471-14875-1-git-send-email-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20140815115753.GA4215@osiris>
+In-Reply-To: <1407225471-14875-1-git-send-email-borntraeger@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Vojtech Pavlik <vojtech@suse.cz>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Steven Rostedt <rostedt@goodmis.org>, Jiri Kosina <jkosina@suse.cz>, Jiri Slaby <jslaby@suse.cz>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, mingo@kernel.org, Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-We have too many combinations for function tracing. Lets simply stick to
-the most advanced option, so we don't have to care of other combinations.
+On Tue, Aug 05, 2014 at 09:57:51AM +0200, Christian Borntraeger wrote:
+> commit 4badad352a6bb202ec68afa7a574c0bb961e5ebc (locking/mutex: Disable
+> optimistic spinning on some architectures) fenced spinning for
+> architectures without proper cmpxchg.
+> There is no need to disable mutex spinning on s390, though:
+> The instructions CS,CSG and friends provide the proper guarantees.
+> (We dont implement cmpxchg with locks).
+> 
+> Please note: This is a quick fix for s390, suitable for stable
+> as 3.16 unintenionally disabled optimistic spinning.
+> 
+> The proper fix is probably to use ARCH_HAVE_NMI_SAFE_CMPXCHG
+> instead of introducing ARCH_SUPPORTS_ATOMIC_RMW.
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> CC: <mingo@kernel.org>
+> CC: Peter Zijlstra <peterz@infradead.org>
+> CC: stable@vger.kernel.org
+> ---
+>  arch/s390/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index 9a0ea87..eab3c32 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -63,6 +63,7 @@ config S390
+>  	select ARCH_HAS_ATOMIC64_DEC_IF_POSITIVE
+>  	select ARCH_HAS_DEBUG_STRICT_USER_COPY_CHECKS
+>  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
+> +	select ARCH_SUPPORTS_ATOMIC_RMW
+>  	select ARCH_INLINE_READ_LOCK
+>  	select ARCH_INLINE_READ_LOCK_BH
+>  	select ARCH_INLINE_READ_LOCK_IRQ
 
-This means we always select DYNAMIC_FTRACE if FUNCTION_TRACER is selected.
-
-In the s390 Makefile also remove CONFIG_FTRACE_SYSCALLS since that
-functionality got moved to architecture independent code in the meantime.
-
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- arch/s390/Kconfig           | 1 +
- arch/s390/kernel/Makefile   | 4 +---
- arch/s390/kernel/ftrace.c   | 6 ------
- arch/s390/kernel/mcount.S   | 2 --
- arch/s390/kernel/mcount64.S | 2 --
- 5 files changed, 2 insertions(+), 13 deletions(-)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 2d935cb77393..a8cbc72837d0 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -99,6 +99,7 @@ config S390
- 	select ARCH_WANT_IPC_PARSE_VERSION
- 	select BUILDTIME_EXTABLE_SORT
- 	select CLONE_BACKWARDS2
-+	select DYNAMIC_FTRACE if FUNCTION_TRACER
- 	select GENERIC_CLOCKEVENTS
- 	select GENERIC_CPU_DEVICES if !SMP
- 	select GENERIC_FIND_FIRST_BIT
-diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
-index a95c4ca99617..d44245d4df37 100644
---- a/arch/s390/kernel/Makefile
-+++ b/arch/s390/kernel/Makefile
-@@ -53,9 +53,7 @@ obj-$(CONFIG_COMPAT)		+= compat_wrapper.o $(compat-obj-y)
- obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
- obj-$(CONFIG_KPROBES)		+= kprobes.o
- obj-$(CONFIG_FUNCTION_TRACER)	+= $(if $(CONFIG_64BIT),mcount64.o,mcount.o)
--obj-$(CONFIG_DYNAMIC_FTRACE)	+= ftrace.o
--obj-$(CONFIG_FUNCTION_GRAPH_TRACER) += ftrace.o
--obj-$(CONFIG_FTRACE_SYSCALLS)  += ftrace.o
-+obj-$(CONFIG_FUNCTION_TRACER)	+= ftrace.o
- obj-$(CONFIG_CRASH_DUMP)	+= crash_dump.o
- 
- ifdef CONFIG_64BIT
-diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
-index 69eb49ccf8a4..40d4da7c9f8a 100644
---- a/arch/s390/kernel/ftrace.c
-+++ b/arch/s390/kernel/ftrace.c
-@@ -17,8 +17,6 @@
- #include <asm/asm-offsets.h>
- #include "entry.h"
- 
--#ifdef CONFIG_DYNAMIC_FTRACE
--
- void ftrace_disable_code(void);
- void ftrace_enable_insn(void);
- 
-@@ -140,8 +138,6 @@ int __init ftrace_dyn_arch_init(void)
- 	return 0;
- }
- 
--#endif /* CONFIG_DYNAMIC_FTRACE */
--
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
- /*
-  * Hook the return address and push it in the stack of return addresses
-@@ -167,7 +163,6 @@ out:
- 	return parent;
- }
- 
--#ifdef CONFIG_DYNAMIC_FTRACE
- /*
-  * Patch the kernel code at ftrace_graph_caller location. The instruction
-  * there is branch relative and save to prepare_ftrace_return. To disable
-@@ -217,5 +212,4 @@ int ftrace_disable_ftrace_graph_caller(void)
- }
- 
- #endif /* CONFIG_64BIT */
--#endif /* CONFIG_DYNAMIC_FTRACE */
- #endif /* CONFIG_FUNCTION_GRAPH_TRACER */
-diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
-index 433c6dbfa442..be6dbd9a81a7 100644
---- a/arch/s390/kernel/mcount.S
-+++ b/arch/s390/kernel/mcount.S
-@@ -15,11 +15,9 @@ ENTRY(ftrace_stub)
- 	br	%r14
- 
- ENTRY(_mcount)
--#ifdef CONFIG_DYNAMIC_FTRACE
- 	br	%r14
- 
- ENTRY(ftrace_caller)
--#endif
- 	stm	%r2,%r5,16(%r15)
- 	bras	%r1,1f
- 0:	.long	ftrace_trace_function
-diff --git a/arch/s390/kernel/mcount64.S b/arch/s390/kernel/mcount64.S
-index 92f8994f37b8..5c7b506ef44d 100644
---- a/arch/s390/kernel/mcount64.S
-+++ b/arch/s390/kernel/mcount64.S
-@@ -21,13 +21,11 @@ ENTRY(ftrace_stub)
- #define STACK_PTREGS_GPRS (STACK_PTREGS + __PT_GPRS)
- 
- ENTRY(_mcount)
--#ifdef CONFIG_DYNAMIC_FTRACE
- 	br	%r14
- 
- ENTRY(ftrace_caller)
- 	.globl	ftrace_regs_caller
- 	.set	ftrace_regs_caller,ftrace_caller
--#endif
- 	lgr	%r1,%r15
- 	aghi	%r15,-STACK_FRAME_SIZE
- 	stg	%r1,__SF_BACKCHAIN(%r15)
--- 
-1.8.5.5
+This can go in via the s390 tree. I applied your patch and changed
+it a bit to keep Kconfig sorted.
+Thanks!
