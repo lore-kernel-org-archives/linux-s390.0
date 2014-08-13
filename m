@@ -1,12 +1,12 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH v4 4/8] [IA64] Change xlate_dev_{kmem,mem}_ptr() prototypes
-Date: Wed, 13 Aug 2014 12:28:54 +0200
-Message-ID: <1407925738-26170-5-git-send-email-thierry.reding@gmail.com>
+Subject: [PATCH v4 2/8] serial: sunzilog: Remove unnecessary volatile keyword
+Date: Wed, 13 Aug 2014 12:28:52 +0200
+Message-ID: <1407925738-26170-3-git-send-email-thierry.reding@gmail.com>
 In-Reply-To: <1407925738-26170-1-git-send-email-thierry.reding@gmail.com>
 References: <1407925738-26170-1-git-send-email-thierry.reding@gmail.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20140813102854.T3Omz7wyee4oiDVS_yRm0aW6gxU1KUgxxN94foHxi1g@z>
+Message-ID: <20140813102852.oLzkBxzEXEqbDLa02SNY_r5kInRdHZFkT0FCcW1xr3I@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Arnd Bergmann <arnd@arndb.de>
@@ -15,65 +15,36 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Thierry Reding <treding@nvidia.com>
 
-xlate_dev_mem_ptr() is used to convert a physical address to an uncached
-kernel virtual address mapping, so make it use phys_addr_t as type for
-the physical address and return void * for the kernel virtual address.
-
-xlate_dev_kmem_ptr() converts a cached kernel virtual address mapping to
-an uncached kernel virtual address mapping, so make it use void * for
-both the input parameter and return value.
+The field annotated with volatile are all accessed through I/O accessors
+so they don't need to be explicitly marked. The accessors will take care
+of it.
 
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
 Changes in v4:
 - new patch
 
- arch/ia64/include/asm/uaccess.h | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/tty/serial/sunzilog.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/ia64/include/asm/uaccess.h b/arch/ia64/include/asm/uaccess.h
-index 449c8c0fa2bd..103bedc59644 100644
---- a/arch/ia64/include/asm/uaccess.h
-+++ b/arch/ia64/include/asm/uaccess.h
-@@ -365,15 +365,15 @@ ia64_done_with_exception (struct pt_regs *regs)
- }
+diff --git a/drivers/tty/serial/sunzilog.h b/drivers/tty/serial/sunzilog.h
+index 5dec7b47cc38..de2850c1ab57 100644
+--- a/drivers/tty/serial/sunzilog.h
++++ b/drivers/tty/serial/sunzilog.h
+@@ -2,10 +2,10 @@
+ #define _SUNZILOG_H
  
- #define ARCH_HAS_TRANSLATE_MEM_PTR	1
--static __inline__ char *
--xlate_dev_mem_ptr (unsigned long p)
-+static __inline__ void *
-+xlate_dev_mem_ptr(phys_addr_t p)
- {
- 	struct page *page;
--	char * ptr;
-+	void *ptr;
+ struct zilog_channel {
+-	volatile unsigned char control;
+-	volatile unsigned char __pad1;
+-	volatile unsigned char data;
+-	volatile unsigned char __pad2;
++	unsigned char control;
++	unsigned char __pad1;
++	unsigned char data;
++	unsigned char __pad2;
+ };
  
- 	page = pfn_to_page(p >> PAGE_SHIFT);
- 	if (PageUncached(page))
--		ptr = (char *)p + __IA64_UNCACHED_OFFSET;
-+		ptr = (void *)p + __IA64_UNCACHED_OFFSET;
- 	else
- 		ptr = __va(p);
- 
-@@ -383,15 +383,15 @@ xlate_dev_mem_ptr (unsigned long p)
- /*
-  * Convert a virtual cached kernel memory pointer to an uncached pointer
-  */
--static __inline__ char *
--xlate_dev_kmem_ptr (char * p)
-+static __inline__ void *
-+xlate_dev_kmem_ptr(void *p)
- {
- 	struct page *page;
--	char * ptr;
-+	void *ptr;
- 
- 	page = virt_to_page((unsigned long)p);
- 	if (PageUncached(page))
--		ptr = (char *)__pa(p) + __IA64_UNCACHED_OFFSET;
-+		ptr = (void *)__pa(p) + __IA64_UNCACHED_OFFSET;
- 	else
- 		ptr = p;
- 
+ struct zilog_layout {
 -- 
 2.0.4
