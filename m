@@ -1,7 +1,7 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH v4 1/8] ARC: Remove redundant PCI_IOBASE declaration
-Date: Wed, 13 Aug 2014 12:28:51 +0200
-Message-ID: <1407925738-26170-2-git-send-email-thierry.reding@gmail.com>
+Subject: [PATCH v4 3/8] sparc: Remove unnecessary volatile usage
+Date: Wed, 13 Aug 2014 12:28:53 +0200
+Message-ID: <1407925738-26170-4-git-send-email-thierry.reding@gmail.com>
 References: <1407925738-26170-1-git-send-email-thierry.reding@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,30 +25,64 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Thierry Reding <treding@nvidia.com>
 
-ARC's asm/io.h includes the asm-generic/io.h which already defines the
-PCI_IOBASE variable in exactly the same way, so it can be dropped from
-the architecture specific header.
+The volatile keyword is only necessary in accessors that immediately
+perform memory accesses. Wrappers around such accessors, such as the
+_memset_io() and _memcpy_{to,from}io() functions don't need them.
 
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
 Changes in v4:
 - new patch
 
- arch/arc/include/asm/io.h | 2 --
- 1 file changed, 2 deletions(-)
+ arch/sparc/include/asm/io_32.h | 18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arc/include/asm/io.h b/arch/arc/include/asm/io.h
-index 334ce7017a18..cabd518cb253 100644
---- a/arch/arc/include/asm/io.h
-+++ b/arch/arc/include/asm/io.h
-@@ -13,8 +13,6 @@
- #include <asm/byteorder.h>
- #include <asm/page.h>
+diff --git a/arch/sparc/include/asm/io_32.h b/arch/sparc/include/asm/io_32.h
+index 9f532902627c..49267f2575d7 100644
+--- a/arch/sparc/include/asm/io_32.h
++++ b/arch/sparc/include/asm/io_32.h
+@@ -16,18 +16,15 @@
  
--#define PCI_IOBASE ((void __iomem *)0)
+ #include <asm-generic/io.h>
+ 
+-static inline void _memset_io(volatile void __iomem *dst,
+-                              int c, __kernel_size_t n)
++static inline void _memset_io(void __iomem *dst, int c, __kernel_size_t n)
+ {
+-	volatile void __iomem *d = dst;
 -
- extern void __iomem *ioremap(unsigned long physaddr, unsigned long size);
- extern void __iomem *ioremap_prot(phys_addr_t offset, unsigned long size,
- 				  unsigned long flags);
+ 	while (n--) {
+-		writeb(c, d);
+-		d++;
++		writeb(c, dst);
++		dst++;
+ 	}
+ }
+ 
+-static inline void _memcpy_fromio(void *dst, const volatile void __iomem *src,
++static inline void _memcpy_fromio(void *dst, const void __iomem *src,
+                                   __kernel_size_t n)
+ {
+ 	char *d = dst;
+@@ -39,16 +36,15 @@ static inline void _memcpy_fromio(void *dst, const volatile void __iomem *src,
+ 	}
+ }
+ 
+-static inline void _memcpy_toio(volatile void __iomem *dst, const void *src,
++static inline void _memcpy_toio(void __iomem *dst, const void *src,
+                                 __kernel_size_t n)
+ {
+ 	const char *s = src;
+-	volatile void __iomem *d = dst;
+ 
+ 	while (n--) {
+ 		char tmp = *s++;
+-		writeb(tmp, d);
+-		d++;
++		writeb(tmp, dst);
++		dst++;
+ 	}
+ }
+ 
 -- 
 2.0.4
