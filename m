@@ -1,140 +1,265 @@
+Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH v4 0/8] asm-generic/io.h overhaul
-Date: Mon, 25 Aug 2014 15:37:53 +0200
-Message-ID: <20140825133752.GI4163@ulmo.nvidia.com>
+Subject: [PATCH v4 8/8] arm64: Use include/asm-generic/io.h
+Date: Wed, 13 Aug 2014 12:28:58 +0200
+Message-ID: <1407925738-26170-9-git-send-email-thierry.reding@gmail.com>
+In-Reply-To: <1407925738-26170-1-git-send-email-thierry.reding@gmail.com>
 References: <1407925738-26170-1-git-send-email-thierry.reding@gmail.com>
- <CAFLxGvyyW5J0En1bFwonZiMwoJK+XDgtHvC2PQOhqgvyF4F-uQ@mail.gmail.com>
- <20140825122734.GD4163@ulmo.nvidia.com>
- <53FB3189.10109@nod.at>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="D6z0c4W1rkZNF4Vu"
-Return-path: <linux-ia64-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <53FB3189.10109@nod.at>
-Sender: linux-ia64-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20140813102858.YATfwRsx7DgSDc4Az7LEZxDGyGNGvdYyYDsxwzKuSjw@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Richard Weinberger <richard@nod.at>
-Cc: Arnd Bergmann <arnd@arndb.de>, Russell King <linux@arm.linux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Stephen Boyd <sboyd@codeaurora.org>, Sam Ravnborg <sam@ravnborg.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-ia64@vger.kernel.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, sparclinux@vger.kernel.org, "x86@kernel.org" <x86@kernel.org>, linux-serial@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Russell King <linux@arm.linux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Stephen Boyd <sboyd@codeaurora.org>, Sam Ravnborg <sam@ravnborg.org>, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linux-serial@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+From: Thierry Reding <treding@nvidia.com>
 
---D6z0c4W1rkZNF4Vu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Include the generic I/O header file so that duplicate implementations
+can be removed. This will also help to establish consistency across more
+architectures regarding which accessors they support.
 
-On Mon, Aug 25, 2014 at 02:52:25PM +0200, Richard Weinberger wrote:
-> Am 25.08.2014 14:27, schrieb Thierry Reding:
-> > On Mon, Aug 25, 2014 at 01:53:30PM +0200, Richard Weinberger wrote:
-> >> On Wed, Aug 13, 2014 at 12:28 PM, Thierry Reding
-> >> <thierry.reding@gmail.com> wrote:
-> >>> From: Thierry Reding <treding@nvidia.com>
-> >>>
-> >>> Hi,
-> >>>
-> >>> Here is the fourth version of a series that started out as an attempt=
- to
-> >>> provide string versions of the read*() and write*() accessors to more
-> >>> architectures so that drivers can use them portably. The series has
-> >>> since evolved into a more general cleanup of asm-generic/io.h and the
-> >>> functions defined therein.
-> >>>
-> >>> Patch 1 is trivial and removes a redundant redefinition of PCI_IOBASE
-> >>> from the asm/io.h header on ARC. Patches 2 and 3 remove unnecessary
-> >>> volatile keywoards from some functions, which is a prerequisite to cl=
-ean
-> >>> up some of the functions in subsequent patches.
-> >>>
-> >>> The xlate_dev_{kmem,mem}_ptr() functions are used to map memory when =
-the
-> >>> /dev/mem device is accessed. Patches 4 and 5 use more consistent data
-> >>> types for these functions, which will get a "standard" prototype in t=
-he
-> >>> asm-generic/io.h header in a subsequent patch.
-> >>>
-> >>> Patch 6 is the bulk of this series. It implements the string variants=
- of
-> >>> the read*() and write*() accessors and cleans up various other parts =
-of
-> >>> the asm-generic/io.h header file. Macros are converted to static inli=
-ne
-> >>> functions for better type checking. Overriding generic implementations
-> >>> in architectures is handled more consistently.
-> >>>
-> >>> Patches 7 and 8, finally, make use of the asm-generic/io.h header on =
-the
-> >>> 32-bit and 64-bit ARM architectures.
-> >>>
-> >>> This is compile- and runtime-tested on 32-bit and 64-bit ARM and comp=
-ile
-> >>> tested on IA64, Microblaze, s390, SPARC, x86 and Xtensa. For ARC,
-> >>> Blackfin, Metag, OpenRISC, Score and Unicore32 which also use
-> >>> asm-generic/io.h I couldn't find or build a cross-compiler that would
-> >>> run on my system. But by code inspection they shouldn't break with th=
-is
-> >>> patch.
-> >>>
-> >>> To ensure bisectability I built multi_v7_defconfig on 32-bit ARM and =
-the
-> >>> defconfig for 64-bit ARM, IA64, Microblaze, s390, SPARC, x86 and Xten=
-sa
-> >>> after each commit and verified that the series does not introduce any
-> >>> build errors or warnings.
-> >>>
-> >>> Provided there are no objections to the patches there's still the mat=
-ter
-> >>> of how to merge them. Patch 6 depends on patches 1-5 to avoid warnings
-> >>> and/or errors during the build. Patches 7 and 8 depend on patch 6. In=
- my
-> >>> opinion it doesn't make much sense to split them up, so I guess we'll
-> >>> need a volunteer to take them all into one tree. Ideally that tree wo=
-uld
-> >>> feed into linux-next so that we can get as much build and test-covera=
-ge
-> >>> as possible during the 3.17 release cycle so that these patches can go
-> >>> into 3.18.
-> >>>
-> >>> Arnd, I'm opportunistically sending this To: you in the hopes that you
-> >>> can take it into your asm-generic tree which seems like the best fit =
-for
-> >>> this.
-> >>
-> >> Do you have a git tree for that?
-> >> Would be nice for testing UML, it depends also on generic io.
-> >=20
-> > Yes, it's all here:
-> >=20
-> > 	https://github.com/thierryreding/linux.git staging/asm-generic-io
-> >=20
-> > That branch is based on today's linux-next (next-20140825).
->=20
-> Looks good, UML builds and boots fine here.
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+---
+Changes in v4:
+- define xlate_dev_{kmem,mem}_ptr() before asm-generic/io.h include
 
-Excellent, thanks for testing.
+Changes in v3:
+- add io{read,write}{16,32}be() to match what 32-bit ARM does
 
-Thierry
+ arch/arm64/Kconfig              |   1 -
+ arch/arm64/include/asm/io.h     | 122 ++++++++--------------------------------
+ arch/arm64/include/asm/memory.h |   2 +
+ 3 files changed, 27 insertions(+), 98 deletions(-)
 
---D6z0c4W1rkZNF4Vu
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBAgAGBQJT+zwwAAoJEN0jrNd/PrOhM74P/RHwzwkWYaRikhqvRspDINeq
-GdhqxZBdnSO9z/rve+wSTc7QSSMHi63xRy1JIqJ2kWhdTz1KSu8VbTQl/BsUx52u
-M9x992vmoXViW5+KQWli2Q4S9uUbCjUgJdU7u8CqOUvEx+N05dgv5VwCRwS3ZsdI
-dzZr10A36mzleYKAAjt2ckvV+ppMWSACDJsPy+HU8MqkRFS4u66IVESvnvVhq5YO
-wHONAU37xdtgij9jvlPz0mqxdAeCacTeZGH3ahEvzlj96x2ryWs26cOIkbgyW00K
-7JjhMA7Ie/ndVal6JjE1jKsXmyuIfW6rq2obpyc+4ACUXZ676sp8r+1z6tTX/1k7
-v2F4lj16dgh/jaEO9Mgv+e7oVrEu1PhsCG91d1UcwHweRoOWZM1iK1tBdYYqa4CE
-jQdXkZcmOrbeuhEfznOsy9ggLxMGlmFTzlitZOqWbCF0FY44yWxGulBqg+v7WwPm
-/lfXhmIiqg79mDTmJgaR7SMw43y/cu2gk9VUPass58uW0ry5CVqBAU3XZi25W++w
-BcLHjIFayoyctYcAvVGEfDNBUffVObVEp8NJjqCh1ngJrBOO8asYu2dK0NVUuSok
-vnrzKoeYFIavo+u+vpZAMLjRjRdDbyKTfNfDYmAFT1ERNi/JyHSvey0uBWnRhEum
-XcXEBj2dACyCi2Au+eFt
-=Jr4q
------END PGP SIGNATURE-----
-
---D6z0c4W1rkZNF4Vu--
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 62b4ae1c5bbf..c06bd0b67865 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -23,7 +23,6 @@ config ARM64
+ 	select GENERIC_CLOCKEVENTS_BROADCAST if SMP
+ 	select GENERIC_CPU_AUTOPROBE
+ 	select GENERIC_EARLY_IOREMAP
+-	select GENERIC_IOMAP
+ 	select GENERIC_IRQ_PROBE
+ 	select GENERIC_IRQ_SHOW
+ 	select GENERIC_SCHED_CLOCK
+diff --git a/arch/arm64/include/asm/io.h b/arch/arm64/include/asm/io.h
+index e0ecdcf6632d..a8e7a717c360 100644
+--- a/arch/arm64/include/asm/io.h
++++ b/arch/arm64/include/asm/io.h
+@@ -34,26 +34,31 @@
+ /*
+  * Generic IO read/write.  These perform native-endian accesses.
+  */
++#define __raw_writeb __raw_writeb
+ static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
+ {
+ 	asm volatile("strb %w0, [%1]" : : "r" (val), "r" (addr));
+ }
+ 
++#define __raw_writew __raw_writew
+ static inline void __raw_writew(u16 val, volatile void __iomem *addr)
+ {
+ 	asm volatile("strh %w0, [%1]" : : "r" (val), "r" (addr));
+ }
+ 
++#define __raw_writel __raw_writel
+ static inline void __raw_writel(u32 val, volatile void __iomem *addr)
+ {
+ 	asm volatile("str %w0, [%1]" : : "r" (val), "r" (addr));
+ }
+ 
++#define __raw_writeq __raw_writeq
+ static inline void __raw_writeq(u64 val, volatile void __iomem *addr)
+ {
+ 	asm volatile("str %0, [%1]" : : "r" (val), "r" (addr));
+ }
+ 
++#define __raw_readb __raw_readb
+ static inline u8 __raw_readb(const volatile void __iomem *addr)
+ {
+ 	u8 val;
+@@ -61,6 +66,7 @@ static inline u8 __raw_readb(const volatile void __iomem *addr)
+ 	return val;
+ }
+ 
++#define __raw_readw __raw_readw
+ static inline u16 __raw_readw(const volatile void __iomem *addr)
+ {
+ 	u16 val;
+@@ -68,6 +74,7 @@ static inline u16 __raw_readw(const volatile void __iomem *addr)
+ 	return val;
+ }
+ 
++#define __raw_readl __raw_readl
+ static inline u32 __raw_readl(const volatile void __iomem *addr)
+ {
+ 	u32 val;
+@@ -75,6 +82,7 @@ static inline u32 __raw_readl(const volatile void __iomem *addr)
+ 	return val;
+ }
+ 
++#define __raw_readq __raw_readq
+ static inline u64 __raw_readq(const volatile void __iomem *addr)
+ {
+ 	u64 val;
+@@ -124,94 +132,6 @@ static inline u64 __raw_readq(const volatile void __iomem *addr)
+ #define IO_SPACE_LIMIT		0xffff
+ #define PCI_IOBASE		((void __iomem *)(MODULES_VADDR - SZ_32M))
+ 
+-static inline u8 inb(unsigned long addr)
+-{
+-	return readb(addr + PCI_IOBASE);
+-}
+-
+-static inline u16 inw(unsigned long addr)
+-{
+-	return readw(addr + PCI_IOBASE);
+-}
+-
+-static inline u32 inl(unsigned long addr)
+-{
+-	return readl(addr + PCI_IOBASE);
+-}
+-
+-static inline void outb(u8 b, unsigned long addr)
+-{
+-	writeb(b, addr + PCI_IOBASE);
+-}
+-
+-static inline void outw(u16 b, unsigned long addr)
+-{
+-	writew(b, addr + PCI_IOBASE);
+-}
+-
+-static inline void outl(u32 b, unsigned long addr)
+-{
+-	writel(b, addr + PCI_IOBASE);
+-}
+-
+-#define inb_p(addr)	inb(addr)
+-#define inw_p(addr)	inw(addr)
+-#define inl_p(addr)	inl(addr)
+-
+-#define outb_p(x, addr)	outb((x), (addr))
+-#define outw_p(x, addr)	outw((x), (addr))
+-#define outl_p(x, addr)	outl((x), (addr))
+-
+-static inline void insb(unsigned long addr, void *buffer, int count)
+-{
+-	u8 *buf = buffer;
+-	while (count--)
+-		*buf++ = __raw_readb(addr + PCI_IOBASE);
+-}
+-
+-static inline void insw(unsigned long addr, void *buffer, int count)
+-{
+-	u16 *buf = buffer;
+-	while (count--)
+-		*buf++ = __raw_readw(addr + PCI_IOBASE);
+-}
+-
+-static inline void insl(unsigned long addr, void *buffer, int count)
+-{
+-	u32 *buf = buffer;
+-	while (count--)
+-		*buf++ = __raw_readl(addr + PCI_IOBASE);
+-}
+-
+-static inline void outsb(unsigned long addr, const void *buffer, int count)
+-{
+-	const u8 *buf = buffer;
+-	while (count--)
+-		__raw_writeb(*buf++, addr + PCI_IOBASE);
+-}
+-
+-static inline void outsw(unsigned long addr, const void *buffer, int count)
+-{
+-	const u16 *buf = buffer;
+-	while (count--)
+-		__raw_writew(*buf++, addr + PCI_IOBASE);
+-}
+-
+-static inline void outsl(unsigned long addr, const void *buffer, int count)
+-{
+-	const u32 *buf = buffer;
+-	while (count--)
+-		__raw_writel(*buf++, addr + PCI_IOBASE);
+-}
+-
+-#define insb_p(port,to,len)	insb(port,to,len)
+-#define insw_p(port,to,len)	insw(port,to,len)
+-#define insl_p(port,to,len)	insl(port,to,len)
+-
+-#define outsb_p(port,from,len)	outsb(port,from,len)
+-#define outsw_p(port,from,len)	outsw(port,from,len)
+-#define outsl_p(port,from,len)	outsl(port,from,len)
+-
+ /*
+  * String version of I/O memory access operations.
+  */
+@@ -235,18 +155,14 @@ extern void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size);
+ #define ioremap_wc(addr, size)		__ioremap((addr), (size), __pgprot(PROT_NORMAL_NC))
+ #define iounmap				__iounmap
+ 
+-#define ARCH_HAS_IOREMAP_WC
+-#include <asm-generic/iomap.h>
+-
+ /*
+- * More restrictive address range checking than the default implementation
+- * (PHYS_OFFSET and PHYS_MASK taken into account).
++ * io{read,write}{16,32}be() macros
+  */
+-#define ARCH_HAS_VALID_PHYS_ADDR_RANGE
+-extern int valid_phys_addr_range(unsigned long addr, size_t size);
+-extern int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
++#define ioread16be(p)		({ __u16 __v = be16_to_cpu((__force __be16)__raw_readw(p)); __iormb(); __v; })
++#define ioread32be(p)		({ __u32 __v = be32_to_cpu((__force __be32)__raw_readl(p)); __iormb(); __v; })
+ 
+-extern int devmem_is_allowed(unsigned long pfn);
++#define iowrite16be(v,p)	({ __iowmb(); __raw_writew((__force __u16)cpu_to_be16(v), p); })
++#define iowrite32be(v,p)	({ __iowmb(); __raw_writew((__force __u32)cpu_to_be32(v), p); })
+ 
+ /*
+  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
+@@ -259,6 +175,18 @@ extern int devmem_is_allowed(unsigned long pfn);
+  */
+ #define xlate_dev_kmem_ptr(p)	p
+ 
++#include <asm-generic/io.h>
++
++/*
++ * More restrictive address range checking than the default implementation
++ * (PHYS_OFFSET and PHYS_MASK taken into account).
++ */
++#define ARCH_HAS_VALID_PHYS_ADDR_RANGE
++extern int valid_phys_addr_range(unsigned long addr, size_t size);
++extern int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
++
++extern int devmem_is_allowed(unsigned long pfn);
++
+ struct bio_vec;
+ extern bool xen_biovec_phys_mergeable(const struct bio_vec *vec1,
+ 				      const struct bio_vec *vec2);
+diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
+index ccc7087d3c4e..a40a4d7e830f 100644
+--- a/arch/arm64/include/asm/memory.h
++++ b/arch/arm64/include/asm/memory.h
+@@ -120,11 +120,13 @@ extern phys_addr_t		memstart_addr;
+  * translation for translating DMA addresses.  Use the driver
+  * DMA support - see dma-mapping.h.
+  */
++#define virt_to_phys virt_to_phys
+ static inline phys_addr_t virt_to_phys(const volatile void *x)
+ {
+ 	return __virt_to_phys((unsigned long)(x));
+ }
+ 
++#define phys_to_virt phys_to_virt
+ static inline void *phys_to_virt(phys_addr_t x)
+ {
+ 	return (void *)(__phys_to_virt(x));
+-- 
+2.0.4
