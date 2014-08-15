@@ -1,151 +1,60 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: [PATCH v3 3/5] virtio_net: Stop doing DMA from the stack
-Date: Thu, 28 Aug 2014 16:51:42 -0700
-Message-ID: <4781dea2e9f77be4b31c43b1905866ac9c5402f2.1409269667.git.luto@amacapital.net>
-References: <cover.1409269667.git.luto@amacapital.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1409269667.git.luto@amacapital.net>
-In-Reply-To: <cover.1409269667.git.luto@amacapital.net>
-References: <cover.1409269667.git.luto@amacapital.net>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/virtualization/>
-List-Post: <mailto:virtualization@lists.linuxfoundation.org>
-To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux390@de.ibm.com, Andy Lutomirski <luto@amacapital.net>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 15 Aug 2014 13:57:53 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390: add support for DYNAMIC_FTRACE_WITH_REGS
+Message-ID: <20140815115753.GA4215@osiris>
+References: <20140703120046.GA10664@suse.cz>
+ <20140708080740.GA4491@osiris>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20140708080740.GA4491@osiris>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Vojtech Pavlik <vojtech@suse.cz>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Steven Rostedt <rostedt@goodmis.org>, Jiri Kosina <jkosina@suse.cz>, Jiri Slaby <jslaby@suse.cz>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Now that virtio supports real DMA, drivers should play by the rules.
-For virtio_net, that means that DMA should be done to and from
-dynamically-allocated memory, not the kernel stack.
+On Tue, Jul 08, 2014 at 10:07:40AM +0200, Heiko Carstens wrote:
+> On Thu, Jul 03, 2014 at 02:00:46PM +0200, Vojtech Pavlik wrote:
+> > Add support for DYNAMIC_FTRACE_WITH_REGS to 64-bit and 31-bit s390
+> > architectures. This is required for kGraft and kpatch to work on s390.
+> > 
+> > It's done by adding a _regs variant of ftrace_caller that preserves
+> > registers and puts them on stack in a struct pt_regs layout and
+> > allows modification of return address by changing the PSW (instruction
+> > pointer) member od struct pt_regs. 
+> >
+> > Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+> > Reviewed-by: Jiri Kosina <jkosina@suse.cz>
+> > Cc: Steven Rostedt <rostedt@goodmis.org>
+> 
+> So I assume you use the instruction_pointer() macro to access the
+> return address then?
+> 
+> All of this seems a bit of a hack to me.. the natural place of the
+> return address of a function would be register 14, and not the
+> psw member of the pt_regs structure.
+> 
+> It's then also inconsistent to only save register r0-r13 to the
+> gprs member.. well, you can't save r14, since what should
+> happen if both r14 in the gprs member of pt_regs and in the psw
+> part would have been changed?
+> 
+> Besides that a couple more comments below.
 
-This should have no effect on any performance-critical code paths.
+[...]
 
-Signed-off-by: Andy Lutomirski <luto@amacapital.net>
----
- drivers/net/virtio_net.c | 53 ++++++++++++++++++++++++++++++++----------------
- 1 file changed, 36 insertions(+), 17 deletions(-)
+> Some objections: this code assumes that sizeof(struct pt_regs) does not
+> change, which is not correct. So as soon as we touch struct pt_regs this
+> code would be broken. Also the order of the members within struct pt_regs
+> is not necessarily static (pt_regs is not ABI).
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 59caa06f34a6..960a2172b07a 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -966,31 +966,43 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
- 				 struct scatterlist *out)
- {
- 	struct scatterlist *sgs[4], hdr, stat;
--	struct virtio_net_ctrl_hdr ctrl;
--	virtio_net_ctrl_ack status = ~0;
-+
-+	struct {
-+		struct virtio_net_ctrl_hdr ctrl;
-+		virtio_net_ctrl_ack status;
-+	} *buf;
-+
- 	unsigned out_num = 0, tmp;
-+	bool ret;
- 
- 	/* Caller should know better */
- 	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
- 
--	ctrl.class = class;
--	ctrl.cmd = cmd;
-+	buf = kmalloc(sizeof(*buf), GFP_ATOMIC);
-+	if (!buf)
-+		return false;
-+	buf->status = ~0;
-+
-+	buf->ctrl.class = class;
-+	buf->ctrl.cmd = cmd;
- 	/* Add header */
--	sg_init_one(&hdr, &ctrl, sizeof(ctrl));
-+	sg_init_one(&hdr, &buf->ctrl, sizeof(buf->ctrl));
- 	sgs[out_num++] = &hdr;
- 
- 	if (out)
- 		sgs[out_num++] = out;
- 
- 	/* Add return status. */
--	sg_init_one(&stat, &status, sizeof(status));
-+	sg_init_one(&stat, &buf->status, sizeof(buf->status));
- 	sgs[out_num] = &stat;
- 
- 	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
- 	virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATOMIC);
- 
--	if (unlikely(!virtqueue_kick(vi->cvq)))
--		return status == VIRTIO_NET_OK;
-+	if (unlikely(!virtqueue_kick(vi->cvq))) {
-+		ret = (buf->status == VIRTIO_NET_OK);
-+		goto out;
-+	}
- 
- 	/* Spin for a response, the kick causes an ioport write, trapping
- 	 * into the hypervisor, so the request should be handled immediately.
-@@ -999,7 +1011,11 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
- 	       !virtqueue_is_broken(vi->cvq))
- 		cpu_relax();
- 
--	return status == VIRTIO_NET_OK;
-+	ret = (buf->status == VIRTIO_NET_OK);
-+
-+out:
-+	kfree(buf);
-+	return ret;
- }
- 
- static int virtnet_set_mac_address(struct net_device *dev, void *p)
-@@ -1140,7 +1156,7 @@ static void virtnet_set_rx_mode(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	struct scatterlist sg[2];
--	u8 promisc, allmulti;
-+	u8 *cmdbyte;
- 	struct virtio_net_ctrl_mac *mac_data;
- 	struct netdev_hw_addr *ha;
- 	int uc_count;
-@@ -1152,22 +1168,25 @@ static void virtnet_set_rx_mode(struct net_device *dev)
- 	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
- 		return;
- 
--	promisc = ((dev->flags & IFF_PROMISC) != 0);
--	allmulti = ((dev->flags & IFF_ALLMULTI) != 0);
-+	cmdbyte = kmalloc(sizeof(*cmdbyte), GFP_ATOMIC);
-+	if (!cmdbyte)
-+		return;
- 
--	sg_init_one(sg, &promisc, sizeof(promisc));
-+	sg_init_one(sg, cmdbyte, sizeof(*cmdbyte));
- 
-+	*cmdbyte = ((dev->flags & IFF_PROMISC) != 0);
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
- 				  VIRTIO_NET_CTRL_RX_PROMISC, sg))
- 		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
--			 promisc ? "en" : "dis");
--
--	sg_init_one(sg, &allmulti, sizeof(allmulti));
-+			 *cmdbyte ? "en" : "dis");
- 
-+	*cmdbyte = ((dev->flags & IFF_ALLMULTI) != 0);
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
- 				  VIRTIO_NET_CTRL_RX_ALLMULTI, sg))
- 		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
--			 allmulti ? "en" : "dis");
-+			 *cmdbyte ? "en" : "dis");
-+
-+	kfree(cmdbyte);
- 
- 	uc_count = netdev_uc_count(dev);
- 	mc_count = netdev_mc_count(dev);
--- 
-1.9.3
+FWIW, this already happened with d3a73acbc26a4a81a01a35fd162973e53d0386f5
+"s390: split TIF bits into CIF, PIF and TIF bits".
+
+Anyway, since I didn't got any response from you during the last couple of
+weeks, I changed the ftrace code so it should fit your needs.
+I will send five patches in reply to this mail - patch 4 of 5 is the one
+that implements the DYNAMIC_FTRACE_WITH_REGS functionality, how differently
+to your patch, especially possible return address changing.
