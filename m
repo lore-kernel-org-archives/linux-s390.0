@@ -1,169 +1,136 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH v4 5/8] /dev/mem: Use more consistent data types
-Date: Wed, 13 Aug 2014 12:28:55 +0200
-Message-ID: <1407925738-26170-6-git-send-email-thierry.reding@gmail.com>
+Subject: Re: [PATCH v4 0/8] asm-generic/io.h overhaul
+Date: Mon, 25 Aug 2014 13:26:33 +0200
+Message-ID: <20140825112630.GA4163@ulmo.nvidia.com>
 References: <1407925738-26170-1-git-send-email-thierry.reding@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
+Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <1407925738-26170-1-git-send-email-thierry.reding@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Arnd Bergmann <arnd@arndb.de>
 Cc: Russell King <linux@arm.linux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Stephen Boyd <sboyd@codeaurora.org>, Sam Ravnborg <sam@ravnborg.org>, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linux-serial@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thierry Reding <treding@nvidia.com>
 
-The xlate_dev_{kmem,mem}_ptr() functions take either a physical address
-or a kernel virtual address, so data types should be phys_addr_t and
-void *. They both return a kernel virtual address which is only ever
-used in calls to copy_{from,to}_user(), so make variables that store it
-void * rather than char * for consistency.
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Also only define a weak unxlate_dev_mem_ptr() function if architectures
-haven't overridden them in the asm/io.h header file.
+On Wed, Aug 13, 2014 at 12:28:50PM +0200, Thierry Reding wrote:
+> From: Thierry Reding <treding@nvidia.com>
+>=20
+> Hi,
+>=20
+> Here is the fourth version of a series that started out as an attempt to
+> provide string versions of the read*() and write*() accessors to more
+> architectures so that drivers can use them portably. The series has
+> since evolved into a more general cleanup of asm-generic/io.h and the
+> functions defined therein.
+>=20
+> Patch 1 is trivial and removes a redundant redefinition of PCI_IOBASE
+> from the asm/io.h header on ARC. Patches 2 and 3 remove unnecessary
+> volatile keywoards from some functions, which is a prerequisite to clean
+> up some of the functions in subsequent patches.
+>=20
+> The xlate_dev_{kmem,mem}_ptr() functions are used to map memory when the
+> /dev/mem device is accessed. Patches 4 and 5 use more consistent data
+> types for these functions, which will get a "standard" prototype in the
+> asm-generic/io.h header in a subsequent patch.
+>=20
+> Patch 6 is the bulk of this series. It implements the string variants of
+> the read*() and write*() accessors and cleans up various other parts of
+> the asm-generic/io.h header file. Macros are converted to static inline
+> functions for better type checking. Overriding generic implementations
+> in architectures is handled more consistently.
+>=20
+> Patches 7 and 8, finally, make use of the asm-generic/io.h header on the
+> 32-bit and 64-bit ARM architectures.
+>=20
+> This is compile- and runtime-tested on 32-bit and 64-bit ARM and compile
+> tested on IA64, Microblaze, s390, SPARC, x86 and Xtensa. For ARC,
+> Blackfin, Metag, OpenRISC, Score and Unicore32 which also use
+> asm-generic/io.h I couldn't find or build a cross-compiler that would
+> run on my system. But by code inspection they shouldn't break with this
+> patch.
+>=20
+> To ensure bisectability I built multi_v7_defconfig on 32-bit ARM and the
+> defconfig for 64-bit ARM, IA64, Microblaze, s390, SPARC, x86 and Xtensa
+> after each commit and verified that the series does not introduce any
+> build errors or warnings.
+>=20
+> Provided there are no objections to the patches there's still the matter
+> of how to merge them. Patch 6 depends on patches 1-5 to avoid warnings
+> and/or errors during the build. Patches 7 and 8 depend on patch 6. In my
+> opinion it doesn't make much sense to split them up, so I guess we'll
+> need a volunteer to take them all into one tree. Ideally that tree would
+> feed into linux-next so that we can get as much build and test-coverage
+> as possible during the 3.17 release cycle so that these patches can go
+> into 3.18.
+>=20
+> Arnd, I'm opportunistically sending this To: you in the hopes that you
+> can take it into your asm-generic tree which seems like the best fit for
+> this.
+>=20
+> Thierry
+>=20
+> Thierry Reding (8):
+>   ARC: Remove redundant PCI_IOBASE declaration
+>   serial: sunzilog: Remove unnecessary volatile keyword
+>   sparc: Remove unnecessary volatile usage
+>   [IA64] Change xlate_dev_{kmem,mem}_ptr() prototypes
+>   /dev/mem: Use more consistent data types
+>   asm-generic/io.h: Implement generic {read,write}s*()
+>   ARM: Use include/asm-generic/io.h
+>   arm64: Use include/asm-generic/io.h
+>=20
+>  arch/arc/include/asm/io.h       |   2 -
+>  arch/arm/include/asm/io.h       |  75 ++---
+>  arch/arm/include/asm/memory.h   |   2 +
+>  arch/arm64/Kconfig              |   1 -
+>  arch/arm64/include/asm/io.h     | 122 ++-----
+>  arch/arm64/include/asm/memory.h |   2 +
+>  arch/ia64/include/asm/uaccess.h |  16 +-
+>  arch/s390/include/asm/io.h      |   5 +-
+>  arch/s390/mm/maccess.c          |   4 +-
+>  arch/sparc/include/asm/io_32.h  |  18 +-
+>  arch/x86/include/asm/io.h       |   4 +-
+>  arch/x86/mm/ioremap.c           |   4 +-
+>  drivers/char/mem.c              |  13 +-
+>  drivers/tty/serial/sunzilog.h   |   8 +-
+>  include/asm-generic/io.h        | 683 ++++++++++++++++++++++++++++++++--=
+------
+>  15 files changed, 647 insertions(+), 312 deletions(-)
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
----
-Changes in v4:
-- new patch
+Arnd, do you think this looks good to take for test-driving in
+linux-next?
 
- arch/s390/include/asm/io.h |  5 +++--
- arch/s390/mm/maccess.c     |  4 ++--
- arch/x86/include/asm/io.h  |  4 ++--
- arch/x86/mm/ioremap.c      |  4 ++--
- drivers/char/mem.c         | 13 ++++++++-----
- 5 files changed, 17 insertions(+), 13 deletions(-)
+Thierry
 
-diff --git a/arch/s390/include/asm/io.h b/arch/s390/include/asm/io.h
-index cd6b9ee7b69c..d22c2eeae78f 100644
---- a/arch/s390/include/asm/io.h
-+++ b/arch/s390/include/asm/io.h
-@@ -13,9 +13,10 @@
- #include <asm/page.h>
- #include <asm/pci_io.h>
- 
--void *xlate_dev_mem_ptr(unsigned long phys);
- #define xlate_dev_mem_ptr xlate_dev_mem_ptr
--void unxlate_dev_mem_ptr(unsigned long phys, void *addr);
-+void *xlate_dev_mem_ptr(phys_addr_t phys);
-+#define unxlate_dev_mem_ptr unxlate_dev_mem_ptr
-+void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
- 
- /*
-  * Convert a virtual cached pointer to an uncached pointer
-diff --git a/arch/s390/mm/maccess.c b/arch/s390/mm/maccess.c
-index 2a2e35416d2f..2eb34bdfc613 100644
---- a/arch/s390/mm/maccess.c
-+++ b/arch/s390/mm/maccess.c
-@@ -176,7 +176,7 @@ static int is_swapped(unsigned long addr)
-  * For swapped prefix pages a new buffer is returned that contains a copy of
-  * the absolute memory. The buffer size is maximum one page large.
-  */
--void *xlate_dev_mem_ptr(unsigned long addr)
-+void *xlate_dev_mem_ptr(phys_addr_t addr)
- {
- 	void *bounce = (void *) addr;
- 	unsigned long size;
-@@ -197,7 +197,7 @@ void *xlate_dev_mem_ptr(unsigned long addr)
- /*
-  * Free converted buffer for /dev/mem access (if necessary)
-  */
--void unxlate_dev_mem_ptr(unsigned long addr, void *buf)
-+void unxlate_dev_mem_ptr(phys_addr_t addr, void *buf)
- {
- 	if ((void *) addr != buf)
- 		free_page((unsigned long) buf);
-diff --git a/arch/x86/include/asm/io.h b/arch/x86/include/asm/io.h
-index b8237d8a1e0c..ae2b593e7c6e 100644
---- a/arch/x86/include/asm/io.h
-+++ b/arch/x86/include/asm/io.h
-@@ -310,8 +310,8 @@ BUILDIO(b, b, char)
- BUILDIO(w, w, short)
- BUILDIO(l, , int)
- 
--extern void *xlate_dev_mem_ptr(unsigned long phys);
--extern void unxlate_dev_mem_ptr(unsigned long phys, void *addr);
-+extern void *xlate_dev_mem_ptr(phys_addr_t phys);
-+extern void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
- 
- extern int ioremap_change_attr(unsigned long vaddr, unsigned long size,
- 				unsigned long prot_val);
-diff --git a/arch/x86/mm/ioremap.c b/arch/x86/mm/ioremap.c
-index baff1da354e0..6d9cc45123e5 100644
---- a/arch/x86/mm/ioremap.c
-+++ b/arch/x86/mm/ioremap.c
-@@ -315,7 +315,7 @@ EXPORT_SYMBOL(iounmap);
-  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
-  * access
-  */
--void *xlate_dev_mem_ptr(unsigned long phys)
-+void *xlate_dev_mem_ptr(phys_addr_t phys)
- {
- 	void *addr;
- 	unsigned long start = phys & PAGE_MASK;
-@@ -331,7 +331,7 @@ void *xlate_dev_mem_ptr(unsigned long phys)
- 	return addr;
- }
- 
--void unxlate_dev_mem_ptr(unsigned long phys, void *addr)
-+void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr)
- {
- 	if (page_is_ram(phys >> PAGE_SHIFT))
- 		return;
-diff --git a/drivers/char/mem.c b/drivers/char/mem.c
-index 917403fe10da..a304e8a6ebf2 100644
---- a/drivers/char/mem.c
-+++ b/drivers/char/mem.c
-@@ -84,9 +84,12 @@ static inline int range_is_allowed(unsigned long pfn, unsigned long size)
- }
- #endif
- 
--void __weak unxlate_dev_mem_ptr(unsigned long phys, void *addr)
-+#ifndef unxlate_dev_mem_ptr
-+#define unxlate_dev_mem_ptr unxlate_dev_mem_ptr
-+void __weak unxlate_dev_mem_ptr(phys_addr_t phys, void *addr)
- {
- }
-+#endif
- 
- /*
-  * This funcion reads the *physical* memory. The f_pos points directly to the
-@@ -97,7 +100,7 @@ static ssize_t read_mem(struct file *file, char __user *buf,
- {
- 	phys_addr_t p = *ppos;
- 	ssize_t read, sz;
--	char *ptr;
-+	void *ptr;
- 
- 	if (p != *ppos)
- 		return 0;
-@@ -400,7 +403,7 @@ static ssize_t read_kmem(struct file *file, char __user *buf,
- 			 * uncached, then it must also be accessed uncached
- 			 * by the kernel or data corruption may occur
- 			 */
--			kbuf = xlate_dev_kmem_ptr((char *)p);
-+			kbuf = xlate_dev_kmem_ptr((void *)p);
- 
- 			if (copy_to_user(buf, kbuf, sz))
- 				return -EFAULT;
-@@ -461,7 +464,7 @@ static ssize_t do_write_kmem(unsigned long p, const char __user *buf,
- #endif
- 
- 	while (count > 0) {
--		char *ptr;
-+		void *ptr;
- 
- 		sz = size_inside_page(p, count);
- 
-@@ -470,7 +473,7 @@ static ssize_t do_write_kmem(unsigned long p, const char __user *buf,
- 		 * it must also be accessed uncached by the kernel or data
- 		 * corruption may occur.
- 		 */
--		ptr = xlate_dev_kmem_ptr((char *)p);
-+		ptr = xlate_dev_kmem_ptr((void *)p);
- 
- 		copied = copy_from_user(ptr, buf, sz);
- 		if (copied) {
--- 
-2.0.4
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBAgAGBQJT+x1mAAoJEN0jrNd/PrOhB6cP/3hBN9312AUPTbkDv6xnddM7
+Z519rK6er4jx7i1+fwNgZIzpZ36XlgFavja3Gj12Md/tPi/p/GtRFbZTm62QkOs8
+AqMX4b/2/S8iWeCmCBM8Cp/GOQmpRDqv7lbDZHpNGeQE4bL36cLpFi47+MklEUug
+cUydGG9BrNVN0Y4bMlvBNbiq7vzZPbM0YTGyJ2VjeKduuJYkIA1nVM4QW2e9cJ/4
+HbLSKFU5OKkHCuXSYAE6wd+xlYxz6pZMb6NQTtQnw4VPFBYaQf/89vsXGIAh7T/i
+LbiyJH7nGZRFUmGIwtq8FTgNayydZJBfP8Oqxcb3gh0sSG25L3Mc3a2d0JqbTYJF
+jjX8O2KGKFWLolhOWEAOmEkvsSx6j8CchPfInRF7GD70Fy7Kclo5VV/XMIJMED46
+kQ/PyCxokdRmJERlPaIIuUItBIQ5GHrNeeUtUjetQoFI45js9Lkm+s71MBFeNAzh
+xzxin7A3IRbH4zFXTtm4NrQLxL9PS9VPCubK9cGYETKDCFjrO6CnD52ZuilTNrrK
+dktw7vcBGUX0nVcVEAceweCLOVutQVGSxvasGT3aYdMHqp6yIvIzUdtiwpi3njsp
+XlYBj7DhrT7IK4IF/foZDulcfn4M7ULkuswVMwJG2FLczrG7RjinEQfsezqF47ta
+i/k8tEowx0DE21ZTa6a1
+=6o5v
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--
