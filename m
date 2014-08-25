@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/2] KVM: s390: Fix user triggerable bug in dead code
-Date: Mon, 25 Aug 2014 15:10:10 +0200
-Message-ID: <1408972211-27122-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 2/2] KVM: s390/mm: try a cow on read only pages for key ops
+Date: Mon, 25 Aug 2014 15:10:11 +0200
+Message-ID: <1408972211-27122-3-git-send-email-borntraeger@de.ibm.com>
 References: <1408972211-27122-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1408972211-27122-1-git-send-email-borntraeger@de.ibm.com>
@@ -12,47 +12,42 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-In the early days, we had some special handling for the
-KVM_EXIT_S390_SIEIC exit, but this was gone in 2009 with commit
-d7b0b5eb3000 (KVM: s390: Make psw available on all exits, not
-just a subset).
-
-Now this switch statement is just a sanity check for userspace
-not messing with the kvm_run structure. Unfortunately, this
-allows userspace to trigger a kernel BUG. Let's just remove
-this switch statement.
+The PFMF instruction handler  blindly wrote the storage key even if
+the page was mapped R/O in the host. Lets try a COW before continuing
+and bail out in case of errors.
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Reviewed-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 Cc: stable@vger.kernel.org
 ---
- arch/s390/kvm/kvm-s390.c | 13 -------------
- 1 file changed, 13 deletions(-)
+ arch/s390/mm/pgtable.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ce81eb2..81b0e11 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1317,19 +1317,6 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 		return -EINVAL;
- 	}
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index 19daa53..5404a62 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -986,11 +986,21 @@ int set_guest_storage_key(struct mm_struct *mm, unsigned long addr,
+ 	pte_t *ptep;
  
--	switch (kvm_run->exit_reason) {
--	case KVM_EXIT_S390_SIEIC:
--	case KVM_EXIT_UNKNOWN:
--	case KVM_EXIT_INTR:
--	case KVM_EXIT_S390_RESET:
--	case KVM_EXIT_S390_UCONTROL:
--	case KVM_EXIT_S390_TSCH:
--	case KVM_EXIT_DEBUG:
--		break;
--	default:
--		BUG();
--	}
--
- 	vcpu->arch.sie_block->gpsw.mask = kvm_run->psw_mask;
- 	vcpu->arch.sie_block->gpsw.addr = kvm_run->psw_addr;
- 	if (kvm_run->kvm_dirty_regs & KVM_SYNC_PREFIX) {
+ 	down_read(&mm->mmap_sem);
++retry:
+ 	ptep = get_locked_pte(current->mm, addr, &ptl);
+ 	if (unlikely(!ptep)) {
+ 		up_read(&mm->mmap_sem);
+ 		return -EFAULT;
+ 	}
++	if (!(pte_val(*ptep) & _PAGE_INVALID) &&
++	     (pte_val(*ptep) & _PAGE_PROTECT)) {
++			pte_unmap_unlock(*ptep, ptl);
++			if (fixup_user_fault(current, mm, addr, FAULT_FLAG_WRITE)) {
++				up_read(&mm->mmap_sem);
++				return -EFAULT;
++			}
++			goto retry;
++		}
+ 
+ 	new = old = pgste_get_lock(ptep);
+ 	pgste_val(new) &= ~(PGSTE_GR_BIT | PGSTE_GC_BIT |
 -- 
 1.8.4.2
