@@ -1,97 +1,58 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH v4 0/8] asm-generic/io.h overhaul
-Date: Wed, 13 Aug 2014 12:28:50 +0200
-Message-ID: <1407925738-26170-1-git-send-email-thierry.reding@gmail.com>
-Return-path: <linux-arch-owner@vger.kernel.org>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Russell King <linux@arm.linux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Stephen Boyd <sboyd@codeaurora.org>, Sam Ravnborg <sam@ravnborg.org>, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linux-serial@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/2] KVM: s390: Fix user triggerable bug in dead code
+Date: Mon, 25 Aug 2014 15:10:10 +0200
+Message-ID: <1408972211-27122-2-git-send-email-borntraeger@de.ibm.com>
+References: <1408972211-27122-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1408972211-27122-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thierry Reding <treding@nvidia.com>
+In the early days, we had some special handling for the
+KVM_EXIT_S390_SIEIC exit, but this was gone in 2009 with commit
+d7b0b5eb3000 (KVM: s390: Make psw available on all exits, not
+just a subset).
 
-Hi,
+Now this switch statement is just a sanity check for userspace
+not messing with the kvm_run structure. Unfortunately, this
+allows userspace to trigger a kernel BUG. Let's just remove
+this switch statement.
 
-Here is the fourth version of a series that started out as an attempt to
-provide string versions of the read*() and write*() accessors to more
-architectures so that drivers can use them portably. The series has
-since evolved into a more general cleanup of asm-generic/io.h and the
-functions defined therein.
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org
+---
+ arch/s390/kvm/kvm-s390.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
-Patch 1 is trivial and removes a redundant redefinition of PCI_IOBASE
-from the asm/io.h header on ARC. Patches 2 and 3 remove unnecessary
-volatile keywoards from some functions, which is a prerequisite to clean
-up some of the functions in subsequent patches.
-
-The xlate_dev_{kmem,mem}_ptr() functions are used to map memory when the
-/dev/mem device is accessed. Patches 4 and 5 use more consistent data
-types for these functions, which will get a "standard" prototype in the
-asm-generic/io.h header in a subsequent patch.
-
-Patch 6 is the bulk of this series. It implements the string variants of
-the read*() and write*() accessors and cleans up various other parts of
-the asm-generic/io.h header file. Macros are converted to static inline
-functions for better type checking. Overriding generic implementations
-in architectures is handled more consistently.
-
-Patches 7 and 8, finally, make use of the asm-generic/io.h header on the
-32-bit and 64-bit ARM architectures.
-
-This is compile- and runtime-tested on 32-bit and 64-bit ARM and compile
-tested on IA64, Microblaze, s390, SPARC, x86 and Xtensa. For ARC,
-Blackfin, Metag, OpenRISC, Score and Unicore32 which also use
-asm-generic/io.h I couldn't find or build a cross-compiler that would
-run on my system. But by code inspection they shouldn't break with this
-patch.
-
-To ensure bisectability I built multi_v7_defconfig on 32-bit ARM and the
-defconfig for 64-bit ARM, IA64, Microblaze, s390, SPARC, x86 and Xtensa
-after each commit and verified that the series does not introduce any
-build errors or warnings.
-
-Provided there are no objections to the patches there's still the matter
-of how to merge them. Patch 6 depends on patches 1-5 to avoid warnings
-and/or errors during the build. Patches 7 and 8 depend on patch 6. In my
-opinion it doesn't make much sense to split them up, so I guess we'll
-need a volunteer to take them all into one tree. Ideally that tree would
-feed into linux-next so that we can get as much build and test-coverage
-as possible during the 3.17 release cycle so that these patches can go
-into 3.18.
-
-Arnd, I'm opportunistically sending this To: you in the hopes that you
-can take it into your asm-generic tree which seems like the best fit for
-this.
-
-Thierry
-
-Thierry Reding (8):
-  ARC: Remove redundant PCI_IOBASE declaration
-  serial: sunzilog: Remove unnecessary volatile keyword
-  sparc: Remove unnecessary volatile usage
-  [IA64] Change xlate_dev_{kmem,mem}_ptr() prototypes
-  /dev/mem: Use more consistent data types
-  asm-generic/io.h: Implement generic {read,write}s*()
-  ARM: Use include/asm-generic/io.h
-  arm64: Use include/asm-generic/io.h
-
- arch/arc/include/asm/io.h       |   2 -
- arch/arm/include/asm/io.h       |  75 ++---
- arch/arm/include/asm/memory.h   |   2 +
- arch/arm64/Kconfig              |   1 -
- arch/arm64/include/asm/io.h     | 122 ++-----
- arch/arm64/include/asm/memory.h |   2 +
- arch/ia64/include/asm/uaccess.h |  16 +-
- arch/s390/include/asm/io.h      |   5 +-
- arch/s390/mm/maccess.c          |   4 +-
- arch/sparc/include/asm/io_32.h  |  18 +-
- arch/x86/include/asm/io.h       |   4 +-
- arch/x86/mm/ioremap.c           |   4 +-
- drivers/char/mem.c              |  13 +-
- drivers/tty/serial/sunzilog.h   |   8 +-
- include/asm-generic/io.h        | 683 ++++++++++++++++++++++++++++++++--------
- 15 files changed, 647 insertions(+), 312 deletions(-)
-
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index ce81eb2..81b0e11 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1317,19 +1317,6 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 		return -EINVAL;
+ 	}
+ 
+-	switch (kvm_run->exit_reason) {
+-	case KVM_EXIT_S390_SIEIC:
+-	case KVM_EXIT_UNKNOWN:
+-	case KVM_EXIT_INTR:
+-	case KVM_EXIT_S390_RESET:
+-	case KVM_EXIT_S390_UCONTROL:
+-	case KVM_EXIT_S390_TSCH:
+-	case KVM_EXIT_DEBUG:
+-		break;
+-	default:
+-		BUG();
+-	}
+-
+ 	vcpu->arch.sie_block->gpsw.mask = kvm_run->psw_mask;
+ 	vcpu->arch.sie_block->gpsw.addr = kvm_run->psw_addr;
+ 	if (kvm_run->kvm_dirty_regs & KVM_SYNC_PREFIX) {
 -- 
-2.0.4
+1.8.4.2
