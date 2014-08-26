@@ -1,50 +1,90 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 04/15] KVM: s390: clear kvm_dirty_regs when dropping to user space
-Date: Tue, 26 Aug 2014 10:28:16 +0200
-Message-ID: <1409041707-39938-5-git-send-email-borntraeger@de.ibm.com>
-References: <1409041707-39938-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 00/15] KVM: s390: Features and fixes for next (3.18)
+Date: Tue, 26 Aug 2014 10:28:12 +0200
+Message-ID: <1409041707-39938-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1409041707-39938-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Paolo,
 
-We should make sure that all kvm_dirty_regs bits are cleared before dropping
-to user space. Until now, some would remain pending.
+The following changes since commit ab3f285f227fec62868037e9b1b1fd18294a83b8:
 
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+  KVM: s390/mm: try a cow on read only pages for key ops (2014-08-25 14:35:28 +0200)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 81b0e11..f00d0b0 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1319,15 +1319,13 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 
- 	vcpu->arch.sie_block->gpsw.mask = kvm_run->psw_mask;
- 	vcpu->arch.sie_block->gpsw.addr = kvm_run->psw_addr;
--	if (kvm_run->kvm_dirty_regs & KVM_SYNC_PREFIX) {
--		kvm_run->kvm_dirty_regs &= ~KVM_SYNC_PREFIX;
-+	if (kvm_run->kvm_dirty_regs & KVM_SYNC_PREFIX)
- 		kvm_s390_set_prefix(vcpu, kvm_run->s.regs.prefix);
--	}
- 	if (kvm_run->kvm_dirty_regs & KVM_SYNC_CRS) {
--		kvm_run->kvm_dirty_regs &= ~KVM_SYNC_CRS;
- 		memcpy(&vcpu->arch.sie_block->gcr, &kvm_run->s.regs.crs, 128);
- 		kvm_s390_set_prefix(vcpu, kvm_run->s.regs.prefix);
- 	}
-+	kvm_run->kvm_dirty_regs = 0;
- 
- 	might_fault();
- 	rc = __vcpu_run(vcpu);
--- 
-1.8.4.2
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-20140825
+
+for you to fetch changes up to f079e9521464aa522d56af2a58a1666ca126bf6f:
+
+  KVM: s390/mm: remove outdated gmap data structures (2014-08-26 10:09:03 +0200)
+
+
+NOTE:
+There is one non-s390 change in patch " KVM: clarify the idea of kvm_dirty_regs"
+to Documentation/virtual/kvm/api.txt but this is actually an interface that is 
+currently only used for s390. This update better describes the way it was intended
+(and implemented) some years ago.
+
+----------------------------------------------------------------
+KVM: s390: Fixes and features for 3.18 part 1
+
+1. The usual cleanups: get rid of duplicate code, use defines, factor
+   out the sync_reg handling, additional docs for sync_regs, better
+   error handling on interrupt injection
+2. We use KVM_REQ_TLB_FLUSH instead of open coding tlb flushes
+3. Additional registers for kvm_run sync regs. This is usually not
+   needed in the fast path due to eventfd/irqfd, but kvm stat claims
+   that we reduced the overhead of console output by ~50% on my system
+4. A rework of the gmap infrastructure. This is the 2nd step towards
+   host large page support (after getting rid of the storage key
+   dependency). We introduces two radix trees to store the guest-to-host
+   and host-to-guest translations. This gets us rid of most of
+   the page-table walks in the gmap code. Only one in __gmap_link is left,
+   this one is required to link the shadow page table to the process page
+   table. Finally this contains the plumbing to support gmap page tables
+   with less than 5 levels.
+
+----------------------------------------------------------------
+Christian Borntraeger (1):
+      KVM: s390: no special machine check delivery
+
+David Hildenbrand (4):
+      KVM: clarify the idea of kvm_dirty_regs
+      KVM: s390: clear kvm_dirty_regs when dropping to user space
+      KVM: s390: synchronize more registers with kvm_run
+      KVM: s390: implement KVM_REQ_TLB_FLUSH and make use of it
+
+Jens Freimann (4):
+      KVM: s390: add defines for pfault init delivery code
+      KVM: s390: factor out get_ilc() function
+      KVM: s390: return -EFAULT if lowcore is not mapped during irq delivery
+      KVM: s390: don't use kvm lock in interrupt injection code
+
+Martin Schwidefsky (6):
+      KVM: s390/mm: readd address parameter to pgste_ipte_notify
+      KVM: s390/mm: readd address parameter to gmap_do_ipte_notify
+      KVM: s390/mm: cleanup gmap function arguments, variable names
+      KVM: s390/mm: use radix trees for guest to host mappings
+      KVM: s390/mm: support gmap page tables with less than 5 levels
+      KVM: s390/mm: remove outdated gmap data structures
+
+ Documentation/virtual/kvm/api.txt |   4 +
+ arch/s390/include/asm/pgalloc.h   |   8 +-
+ arch/s390/include/asm/pgtable.h   |  72 ++--
+ arch/s390/include/asm/tlb.h       |   2 +-
+ arch/s390/include/uapi/asm/kvm.h  |  10 +
+ arch/s390/kvm/diag.c              |   8 +-
+ arch/s390/kvm/interrupt.c         | 145 +++-----
+ arch/s390/kvm/kvm-s390.c          |  99 ++++--
+ arch/s390/kvm/kvm-s390.h          |   5 +-
+ arch/s390/kvm/priv.c              |  11 +-
+ arch/s390/mm/fault.c              |  25 +-
+ arch/s390/mm/pgtable.c            | 695 ++++++++++++++++++--------------------
+ arch/s390/mm/vmem.c               |   2 +-
+ 13 files changed, 501 insertions(+), 585 deletions(-)
