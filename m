@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 09/15] KVM: s390: don't use kvm lock in interrupt injection code
-Date: Tue, 26 Aug 2014 10:28:21 +0200
-Message-ID: <1409041707-39938-10-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 02/15] KVM: s390: factor out get_ilc() function
+Date: Tue, 26 Aug 2014 10:28:14 +0200
+Message-ID: <1409041707-39938-3-git-send-email-borntraeger@de.ibm.com>
 References: <1409041707-39938-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1409041707-39938-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,37 +14,78 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Jens Freimann <jfrei@linux.vnet.ibm.com>
 
-The kvm lock protects us against vcpus going away, but they only go
-away when the virtual machine is shut down. We don't need this
-mutex here, so let's get rid of it.
+Let's make this a reusable function.
 
 Signed-off-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/s390/kvm/interrupt.c | 41 +++++++++++++++++++++--------------------
+ 1 file changed, 21 insertions(+), 20 deletions(-)
 
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index e2f6240..ba89bbb 100644
+index 6c9428e..71bf7e7 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -991,7 +991,6 @@ int kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
- 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, s390int->type, s390int->parm,
- 				   s390int->parm64, 2);
- 
--	mutex_lock(&vcpu->kvm->lock);
- 	li = &vcpu->arch.local_int;
- 	spin_lock(&li->lock);
- 	if (inti->type == KVM_S390_PROGRAM_INT)
-@@ -1003,7 +1002,6 @@ int kvm_s390_inject_vcpu(struct kvm_vcpu *vcpu,
- 		li->action_bits |= ACTION_STOP_ON_STOP;
- 	atomic_set_mask(CPUSTAT_EXT_INT, li->cpuflags);
- 	spin_unlock(&li->lock);
--	mutex_unlock(&vcpu->kvm->lock);
- 	kvm_s390_vcpu_wakeup(vcpu);
- 	return 0;
+@@ -206,11 +206,30 @@ static void __set_intercept_indicator(struct kvm_vcpu *vcpu,
+ 	}
  }
+ 
++static u16 get_ilc(struct kvm_vcpu *vcpu)
++{
++	const unsigned short table[] = { 2, 4, 4, 6 };
++
++	switch (vcpu->arch.sie_block->icptcode) {
++	case ICPT_INST:
++	case ICPT_INSTPROGI:
++	case ICPT_OPEREXC:
++	case ICPT_PARTEXEC:
++	case ICPT_IOINST:
++		/* last instruction only stored for these icptcodes */
++		return table[vcpu->arch.sie_block->ipa >> 14];
++	case ICPT_PROGI:
++		return vcpu->arch.sie_block->pgmilc;
++	default:
++		return 0;
++	}
++}
++
+ static int __deliver_prog_irq(struct kvm_vcpu *vcpu,
+ 			      struct kvm_s390_pgm_info *pgm_info)
+ {
+-	const unsigned short table[] = { 2, 4, 4, 6 };
+ 	int rc = 0;
++	u16 ilc = get_ilc(vcpu);
+ 
+ 	switch (pgm_info->code & ~PGM_PER) {
+ 	case PGM_AFX_TRANSLATION:
+@@ -277,25 +296,7 @@ static int __deliver_prog_irq(struct kvm_vcpu *vcpu,
+ 				   (u8 *) __LC_PER_ACCESS_ID);
+ 	}
+ 
+-	switch (vcpu->arch.sie_block->icptcode) {
+-	case ICPT_INST:
+-	case ICPT_INSTPROGI:
+-	case ICPT_OPEREXC:
+-	case ICPT_PARTEXEC:
+-	case ICPT_IOINST:
+-		/* last instruction only stored for these icptcodes */
+-		rc |= put_guest_lc(vcpu, table[vcpu->arch.sie_block->ipa >> 14],
+-				   (u16 *) __LC_PGM_ILC);
+-		break;
+-	case ICPT_PROGI:
+-		rc |= put_guest_lc(vcpu, vcpu->arch.sie_block->pgmilc,
+-				   (u16 *) __LC_PGM_ILC);
+-		break;
+-	default:
+-		rc |= put_guest_lc(vcpu, 0,
+-				   (u16 *) __LC_PGM_ILC);
+-	}
+-
++	rc |= put_guest_lc(vcpu, ilc, (u16 *) __LC_PGM_ILC);
+ 	rc |= put_guest_lc(vcpu, pgm_info->code,
+ 			   (u16 *)__LC_PGM_INT_CODE);
+ 	rc |= write_guest_lc(vcpu, __LC_PGM_OLD_PSW,
 -- 
 1.8.4.2
