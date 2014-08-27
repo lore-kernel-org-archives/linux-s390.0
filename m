@@ -1,7 +1,7 @@
 From: Andy Lutomirski <luto@amacapital.net>
-Subject: [PATCH v2 3/4] virtio_pci: Use the DMA API for virtqueues
-Date: Wed, 27 Aug 2014 14:50:56 -0700
-Message-ID: <0121c33fc39f3e0a1156b18bb2ec03b2ff53ed8c.1409176034.git.luto@amacapital.net>
+Subject: [PATCH v2 4/4] virtio_net: Stop doing DMA from the stack
+Date: Wed, 27 Aug 2014 14:50:57 -0700
+Message-ID: <ed955c4471cb62a7cce90c090bf82b4c7ae00617.1409176034.git.luto@amacapital.net>
 References: <cover.1409176034.git.luto@amacapital.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,95 +25,127 @@ To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-s390@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Andy Lutomirski <luto@amacapital.net>, virtio-dev@lists.oasis-open.org
 List-ID: <linux-s390.vger.kernel.org>
 
-A virtqueue is a coherent DMA mapping.  Use the DMA API for it.
-This fixes virtio_pci on Xen.
+Now that virtio supports real DMA, drivers should play by the rules.
+For virtio_net, that means that DMA should be done to and from
+dynamically-allocated memory, not the kernel stack.
+
+This should have no effect on any performance-critical code paths.
 
 Signed-off-by: Andy Lutomirski <luto@amacapital.net>
 ---
- drivers/virtio/virtio_pci.c | 34 +++++++++++++++++++++++++---------
- 1 file changed, 25 insertions(+), 9 deletions(-)
+ drivers/net/virtio_net.c | 53 ++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 36 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index a1f299fa4626..d0eee85496b5 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -80,8 +80,9 @@ struct virtio_pci_vq_info
- 	/* the number of entries in the queue */
- 	int num;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 59caa06f34a6..960a2172b07a 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -966,31 +966,43 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+ 				 struct scatterlist *out)
+ {
+ 	struct scatterlist *sgs[4], hdr, stat;
+-	struct virtio_net_ctrl_hdr ctrl;
+-	virtio_net_ctrl_ack status = ~0;
++
++	struct {
++		struct virtio_net_ctrl_hdr ctrl;
++		virtio_net_ctrl_ack status;
++	} *buf;
++
+ 	unsigned out_num = 0, tmp;
++	bool ret;
  
--	/* the virtual address of the ring queue */
--	void *queue;
-+	/* the ring queue */
-+	void *queue;			/* virtual address */
-+	dma_addr_t queue_dma_addr;	/* bus address */
+ 	/* Caller should know better */
+ 	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
  
- 	/* the list node for the virtqueues list */
- 	struct list_head node;
-@@ -417,20 +418,26 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
- 	info->num = num;
- 	info->msix_vector = msix_vec;
+-	ctrl.class = class;
+-	ctrl.cmd = cmd;
++	buf = kmalloc(sizeof(*buf), GFP_ATOMIC);
++	if (!buf)
++		return false;
++	buf->status = ~0;
++
++	buf->ctrl.class = class;
++	buf->ctrl.cmd = cmd;
+ 	/* Add header */
+-	sg_init_one(&hdr, &ctrl, sizeof(ctrl));
++	sg_init_one(&hdr, &buf->ctrl, sizeof(buf->ctrl));
+ 	sgs[out_num++] = &hdr;
  
--	size = PAGE_ALIGN(vring_size(num, VIRTIO_PCI_VRING_ALIGN));
--	info->queue = alloc_pages_exact(size, GFP_KERNEL|__GFP_ZERO);
-+	size = vring_size(num, VIRTIO_PCI_VRING_ALIGN);
-+	info->queue = dma_zalloc_coherent(vdev->dev.parent, size,
-+					  &info->queue_dma_addr, GFP_KERNEL);
- 	if (info->queue == NULL) {
- 		err = -ENOMEM;
- 		goto out_info;
- 	}
+ 	if (out)
+ 		sgs[out_num++] = out;
  
- 	/* activate the queue */
--	iowrite32(virt_to_phys(info->queue) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
-+	iowrite32(info->queue_dma_addr >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
- 		  vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
+ 	/* Add return status. */
+-	sg_init_one(&stat, &status, sizeof(status));
++	sg_init_one(&stat, &buf->status, sizeof(buf->status));
+ 	sgs[out_num] = &stat;
  
--	/* create the vring */
-+	/*
-+	 * create the vring.  If there is an IOMMU of any sort, including
-+	 * Xen paravirt's ersatz IOMMU, use it.  If the host wants physical
-+	 * addresses instead of bus addresses, the host shouldn't expose
-+	 * an IOMMU.
-+	 */
- 	vq = vring_new_virtqueue(index, info->num, VIRTIO_PCI_VRING_ALIGN, vdev,
--				 true, false, info->queue,
-+				 true, true, info->queue,
- 				 vp_notify, callback, name);
- 	if (!vq) {
- 		err = -ENOMEM;
-@@ -463,7 +470,8 @@ out_assign:
- 	vring_del_virtqueue(vq);
- out_activate_queue:
- 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
--	free_pages_exact(info->queue, size);
-+	dma_free_coherent(vdev->dev.parent, size,
-+			  info->queue, info->queue_dma_addr);
- out_info:
- 	kfree(info);
- 	return ERR_PTR(err);
-@@ -494,7 +502,8 @@ static void vp_del_vq(struct virtqueue *vq)
- 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
+ 	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
+ 	virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATOMIC);
  
- 	size = PAGE_ALIGN(vring_size(info->num, VIRTIO_PCI_VRING_ALIGN));
--	free_pages_exact(info->queue, size);
-+	dma_free_coherent(vq->vdev->dev.parent, size,
-+			  info->queue, info->queue_dma_addr);
- 	kfree(info);
+-	if (unlikely(!virtqueue_kick(vi->cvq)))
+-		return status == VIRTIO_NET_OK;
++	if (unlikely(!virtqueue_kick(vi->cvq))) {
++		ret = (buf->status == VIRTIO_NET_OK);
++		goto out;
++	}
+ 
+ 	/* Spin for a response, the kick causes an ioport write, trapping
+ 	 * into the hypervisor, so the request should be handled immediately.
+@@ -999,7 +1011,11 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+ 	       !virtqueue_is_broken(vi->cvq))
+ 		cpu_relax();
+ 
+-	return status == VIRTIO_NET_OK;
++	ret = (buf->status == VIRTIO_NET_OK);
++
++out:
++	kfree(buf);
++	return ret;
  }
  
-@@ -713,6 +722,13 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- 	if (err)
- 		goto out;
+ static int virtnet_set_mac_address(struct net_device *dev, void *p)
+@@ -1140,7 +1156,7 @@ static void virtnet_set_rx_mode(struct net_device *dev)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	struct scatterlist sg[2];
+-	u8 promisc, allmulti;
++	u8 *cmdbyte;
+ 	struct virtio_net_ctrl_mac *mac_data;
+ 	struct netdev_hw_addr *ha;
+ 	int uc_count;
+@@ -1152,22 +1168,25 @@ static void virtnet_set_rx_mode(struct net_device *dev)
+ 	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
+ 		return;
  
-+	err = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
-+	if (err)
-+		err = dma_set_mask_and_coherent(&pci_dev->dev,
-+						DMA_BIT_MASK(32));
-+	if (err)
-+		dev_warn(&pci_dev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
+-	promisc = ((dev->flags & IFF_PROMISC) != 0);
+-	allmulti = ((dev->flags & IFF_ALLMULTI) != 0);
++	cmdbyte = kmalloc(sizeof(*cmdbyte), GFP_ATOMIC);
++	if (!cmdbyte)
++		return;
+ 
+-	sg_init_one(sg, &promisc, sizeof(promisc));
++	sg_init_one(sg, cmdbyte, sizeof(*cmdbyte));
+ 
++	*cmdbyte = ((dev->flags & IFF_PROMISC) != 0);
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+ 				  VIRTIO_NET_CTRL_RX_PROMISC, sg))
+ 		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
+-			 promisc ? "en" : "dis");
+-
+-	sg_init_one(sg, &allmulti, sizeof(allmulti));
++			 *cmdbyte ? "en" : "dis");
+ 
++	*cmdbyte = ((dev->flags & IFF_ALLMULTI) != 0);
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+ 				  VIRTIO_NET_CTRL_RX_ALLMULTI, sg))
+ 		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
+-			 allmulti ? "en" : "dis");
++			 *cmdbyte ? "en" : "dis");
 +
- 	err = pci_request_regions(pci_dev, "virtio-pci");
- 	if (err)
- 		goto out_enable_device;
++	kfree(cmdbyte);
+ 
+ 	uc_count = netdev_uc_count(dev);
+ 	mc_count = netdev_mc_count(dev);
 -- 
 1.9.3
