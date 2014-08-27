@@ -1,20 +1,16 @@
 From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH 0/3] virtio: Clean up scatterlists and use the DMA API
-Date: Wed, 27 Aug 2014 10:37:54 -0700
-Message-ID: <CALCETrUGka4jpDUKkQwATYOe-FwOwprom8yEBtWR0w0y-nrdZw@mail.gmail.com>
+Subject: Re: [PATCH 2/3] virtio_ring: Use DMA APIs
+Date: Wed, 27 Aug 2014 10:39:52 -0700
+Message-ID: <CALCETrWDZ7fRQi2bD4y=H6OMh-ePUwrCMH+9MnNw-eoVftAyWw@mail.gmail.com>
 References: <cover.1409087794.git.luto@amacapital.net>
-	<CAJSP0QUcXQ+JV0wys2Mr-+OsFKt=hTGbUxNqfpk-JuyULiQABQ@mail.gmail.com>
-	<CALCETrUWR8p7XSiTALd19LL4mTgkXu_XEewobouz6Jbkb4KjLw@mail.gmail.com>
-	<20140827154537.GB18900@redhat.com>
-	<CALCETrVUg3fCQS0rjOD1BbauXHfnydPyP3mNMeiGu4NqBgLK6A@mail.gmail.com>
-	<53FE03C3.90309@codeaurora.org>
-	<CALCETrWcMO_zkNEuXBeqSAt6FSvUaFve+_5JC-rk5vObvBZWSg@mail.gmail.com>
-	<53FE16C2.4010104@codeaurora.org>
+	<24470d6ef6f915f9235a49b986ae181be7661681.1409087794.git.luto@amacapital.net>
+	<53FD88E0.9020208@de.ibm.com>
+	<20140827173552.GC5379@laptop.dumpdata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <53FE16C2.4010104@codeaurora.org>
+In-Reply-To: <20140827173552.GC5379@laptop.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,63 +22,55 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/virtualization/>
 List-Post: <mailto:virtualization@lists.linuxfoundation.org>
-To: Christopher Covington <cov@codeaurora.org>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Aug 27, 2014 at 10:34 AM, Christopher Covington
-<cov@codeaurora.org> wrote:
-> On 08/27/2014 12:19 PM, Andy Lutomirski wrote:
->> On Wed, Aug 27, 2014 at 9:13 AM, Christopher Covington
->> <cov@codeaurora.org> wrote:
+On Wed, Aug 27, 2014 at 10:35 AM, Konrad Rzeszutek Wilk
+<konrad.wilk@oracle.com> wrote:
+> On Wed, Aug 27, 2014 at 09:29:36AM +0200, Christian Borntraeger wrote:
+>> On 26/08/14 23:17, Andy Lutomirski wrote:
+>> > virtio_ring currently sends the device (usually a hypervisor)
+>> > physical addresses of its I/O buffers.  This is okay when DMA
+>> > addresses and physical addresses are the same thing, but this isn't
+>> > always the case.  For example, this never works on Xen guests, and
+>> > it is likely to fail if a physical "virtio" device ever ends up
+>> > behind an IOMMU or swiotlb.
+>> >
+>> > The immediate use case for me is to enable virtio on Xen guests.
+>> > For that to work, we need this fix as well as a corresponding
+>> > fix to virtio_pci or to another driver.
+>> >
+>> > With this patch, virtfs survives kmemleak and CONFIG_DMA_API_DEBUG.
+>> > virtio-net warns (correctly) about DMA from the stack in
+>> > virtnet_set_rx_mode.
+>> >
+>> > This breaks s390's defconfig.  The default configuration for s390
+>> > does virtio through a KVM-specific interface, but that configuration
+>> > does not support DMA.  I could modify this patch to stub out the DMA
+>> > API calls if !CONFIG_HAS_DMA, but it seems to me that it would be
+>> > much nicer to make s390 support DMA unconditionally.
+>>
+>> s390 has no DMA per se. Newest systems have a PCI-like  I/O attach in
+>> addition to the classic channel I/O, and for that we enable the DMA code
+>> just for that transport to be able to reuse some of the existing PCI
+>> drivers. (only some because, we differ in some aspects from how PCI
+>> looks like) But the architecture itself (and the virtio interface) does
+>> not provide the DMA interface as you know it:
 >
-> Virtme looks interesting. If it's any use, here is my modest QEMU command line
-> collection.
->
-> $dir/bin/x86_64-linux-gnu/qemu-system-x86_64 \
->   -m 1024 \
->   -kernel $dir/boot/x86_64-linux-gnu/bzImage-x86_64 \
->   -append 'root=/dev/root init=/sbin/x86_64-linux-gnu/init rootfstype=9p
-> rootflags=trans=virtio,version=9p2000.L ro console=ttyS0' \
->   -serial stdio \
->   -fsdev local,id=root,path=$dir,security_model=none \
->   -device virtio-9p-pci,fsdev=root,mount_tag=/dev/root \
->   -monitor none
-
-This is similar to what virtme does, except that virtme will give you
-a much more functional system at the cost of a small fraction of a
-second of additional boot time.  And virtme sometimes supports modules
-:)
-
->
-> $dir/bin/x86_64-linux-gnu/qemu-system-arm \
->   -M virt \
->   -cpu cortex-a15 \
->   -m 1024 \
->   -kernel $dir/boot/arm-linux-gnueabihf/Image \
->   -append 'root=/dev/root init=/sbin/arm-linux-gnueabihf/init rootfstype=9p
-> rootflags=trans=virtio,version=9p2000.L ro console=ttyAMA0' \
->   -serial stdio \
->   -fsdev local,id=root,path=$dir,security_model=none \
->   -device virtio-9p-device,fsdev=root,mount_tag=/dev/root \
->   -monitor none
-
-Can you give me some hints as to how to configure a kernel for this?
-I tried to get anything other than versatilepb working and gave up.
-
->
-> $dir/bin/x86_64-linux-gnu/qemu-system-aarch64 \
->   -M virt \
->   -cpu cortex-a57 \
->   -m 1024 \
->   -kernel $dir/boot/aarch64-linux-gnu/Image \
->   -append 'root=/dev/root init=/sbin/aarch64-linux-gnu/init rootfstype=9p
-> rootflags=trans=virtio,version=9p2000.L ro console=ttyAMA0' \
->   -serial stdio \
->   -fsdev local,id=root,path=$dir,security_model=none \
->   -device virtio-9p-device,fsdev=root,mount_tag=/dev/root -monitor none
+> Don't most of those DMA_API end up then being nops? As in, we do
+> have in the dma-api file the #ifdef case when a platform does not do
+> DMA which ends up with all functions stubbed out.
 >
 
-Ooh, thanks!  I'll add support for this to virtme.
+This doesn't work on s390.  It fails to link.
+
+This was my initial thought, too -- it would be nice if s390 set up
+no-op DMA ops its virtio device.  But this might be overkill, if
+virtio is the *only* device on s390 that does anything that looks like
+DMA.
+
+Anyway, v2 (coming soon) adds a switch in virtio, so s390 should
+continue to work.
 
 --Andy
