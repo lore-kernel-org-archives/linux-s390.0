@@ -1,19 +1,11 @@
 From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [virtio-dev] Re: [PATCH v2 0/4] virtio: Clean up scatterlists and
-	use the DMA API
-Date: Thu, 28 Aug 2014 14:16:43 -0700
-Message-ID: <CALCETrWeMMAqYVsaFX=vjwsbpus1JUwZ7QV5f0j6K2cCH5cPdg@mail.gmail.com>
-References: <cover.1409176034.git.luto@amacapital.net>
-	<53FEDDF5.3030903@de.ibm.com>
-	<CALCETrXxFJQsZyLmbrjYyXK6LKmRuBK=KMas2Db8vCVaBwe9yQ@mail.gmail.com>
-	<53FF751D.2040006@de.ibm.com> <53FF7B1A.2050307@redhat.com>
-	<CALCETrUb__cfwx1N-ZrrYJz0ffvD8jgRPwXOY3_oSb-8MCb3-Q@mail.gmail.com>
-	<53FF8096.6020005@de.ibm.com>
+Subject: [PATCH v2 0/4] virtio: Clean up scatterlists and use the DMA API
+Date: Wed, 27 Aug 2014 14:50:53 -0700
+Message-ID: <cover.1409176034.git.luto@amacapital.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <53FF8096.6020005@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,60 +17,54 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/virtualization/>
 List-Post: <mailto:virtualization@lists.linuxfoundation.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Paolo Bonzini <pbonzini@redhat.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-s390@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Andy Lutomirski <luto@amacapital.net>, virtio-dev@lists.oasis-open.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Aug 28, 2014 at 12:18 PM, Christian Borntraeger
-<borntraeger@de.ibm.com> wrote:
-> On 28/08/14 21:03, Andy Lutomirski wrote:
->> [removed virtio-dev -- I'm sick of bounces]
->>
->> On Thu, Aug 28, 2014 at 11:55 AM, Paolo Bonzini <pbonzini@redhat.com> wrote:
->>> Il 28/08/2014 20:29, Christian Borntraeger ha scritto:
->>>>>>>> block seems to work, with net a simple ping works, iperf causes this:
->>>>>>
->>>>>> I neither see the bug, nor can I reproduce it on x86_64 on KVM.  I
->>>>>> doubt that dma vs. non-dma is relevant.  I tried -net user a -net tap
->>>>>> with iperf running in both directions.  I also tried switching
->>>>>> virtio_pci into non-DMA-API mode.  No errors.
->>>>>>
->>>>>> Is there any chance that you could instrument that BUG_ON to print n,
->>>>>> i, in_sgs, out_sgs, total_sg, total_in, and total_out?  I assume this
->>>>>> is some oddity with patch 1, but I'm mystified.
->>>> Yes, its triggered by patch 1.
->>>
->>> What version of QEMU?  Can you two cat the "features" file in the
->>> virtio-net device's sysfs directory?
->>
->> With vhost=on:
->>
->> # cat /sys/class/net/eth0/device/features
->> 0000011000000001111101010001110000000000000000000000000000000000
->   >
->> Without vhost=on:
->>
->> # cat /sys/class/net/eth0/device/features
->> 0000011000000001111101010001110000000000000000000000000000000000
->>
->> Instrumenting the code says that indirect=1.
->>
->> --Andy
->>
->
-> I have
->
-> 1100011111111111111101010001110000000000000000000000000000000000
->
+This fixes virtio on Xen guests as well as on any other platform
+that uses virtio_pci on which physical addresses don't match bus
+addresses.
 
-I still can't reproduce it, but I think I see the problem.  I'm going
-to rearrange the patch series so that patch 1 is at the end in case it
-causes additional issues.
+This can be tested with:
 
-v3 coming soon.
+    virtme-run --xen xen --kimg arch/x86/boot/bzImage --console
 
---Andy
+using virtme from here:
+
+    https://git.kernel.org/cgit/utils/kernel/virtme/virtme.git
+
+Without these patches, the guest hangs forever.  With these patches,
+everything works.
+
+This should be safe on all platforms that I'm aware of.  That
+doesn't mean that there isn't anything that I missed.
+
+Changes from v1:
+ - Using the DMA API is optional now.  It would be nice to improve the
+   DMA API to the point that it could be used unconditionally, but s390
+   proves that we're not there yet.
+ - Includes patch 4, which fixes DMA debugging warnings from virtio_net.
+
+Andy Lutomirski (4):
+  virtio_ring: Remove sg_next indirection
+  virtio_ring: Support DMA APIs if requested
+  virtio_pci: Use the DMA API for virtqueues
+  virtio_net: Stop doing DMA from the stack
+
+ drivers/lguest/lguest_device.c         |   3 +-
+ drivers/misc/mic/card/mic_virtio.c     |   2 +-
+ drivers/net/virtio_net.c               |  53 +++++---
+ drivers/remoteproc/remoteproc_virtio.c |   4 +-
+ drivers/s390/kvm/kvm_virtio.c          |   2 +-
+ drivers/s390/kvm/virtio_ccw.c          |   4 +-
+ drivers/virtio/virtio_mmio.c           |   5 +-
+ drivers/virtio/virtio_pci.c            |  35 ++++--
+ drivers/virtio/virtio_ring.c           | 219 ++++++++++++++++++++++++++-------
+ include/linux/virtio_ring.h            |   1 +
+ tools/virtio/linux/virtio.h            |   1 +
+ tools/virtio/virtio_test.c             |   2 +-
+ tools/virtio/vringh_test.c             |   3 +-
+ 13 files changed, 253 insertions(+), 81 deletions(-)
 
 -- 
-Andy Lutomirski
-AMA Capital Management, LLC
+1.9.3
