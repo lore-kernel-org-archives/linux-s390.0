@@ -1,216 +1,137 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 26 Aug 2014 09:47:39 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for the 3.17-rc3
-Message-ID: <20140826094739.0af5a26a@mschwide>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH 3/3] virtio_pci: Use the DMA API for virtqueues
+Date: Wed, 27 Aug 2014 14:52:48 -0400
+Message-ID: <20140827185248.GA6568@laptop.dumpdata.com>
+References: <cover.1409087794.git.luto@amacapital.net>
+	<3bf33716d8c9808c91ac9f38d967f97153383375.1409087794.git.luto@amacapital.net>
+	<20140827173244.GB5379@laptop.dumpdata.com>
+	<CALCETrV8sbqvbQk7+JRyE4FxQ=o+RoEMh4hgA3-yNUegGgF08Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <CALCETrV8sbqvbQk7+JRyE4FxQ=o+RoEMh4hgA3-yNUegGgF08Q@mail.gmail.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+List-Archive: <https://lore.kernel.org/virtualization/>
+List-Post: <mailto:virtualization@lists.linuxfoundation.org>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "linux390@de.ibm.com" <linux390@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+On Wed, Aug 27, 2014 at 10:35:10AM -0700, Andy Lutomirski wrote:
+> On Wed, Aug 27, 2014 at 10:32 AM, Konrad Rzeszutek Wilk
+> <konrad.wilk@oracle.com> wrote:
+> > On Tue, Aug 26, 2014 at 02:17:02PM -0700, Andy Lutomirski wrote:
+> >> A virtqueue is a coherent DMA mapping.  Use the DMA API for it.
+> >> This fixes virtio_pci on Xen.
+> >>
+> >> Signed-off-by: Andy Lutomirski <luto@amacapital.net>
+> >> ---
+> >>  drivers/virtio/virtio_pci.c | 25 ++++++++++++++++++-------
+> >>  1 file changed, 18 insertions(+), 7 deletions(-)
+> >>
+> >> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+> >> index 3d1463c6b120..19039c5bec24 100644
+> >> --- a/drivers/virtio/virtio_pci.c
+> >> +++ b/drivers/virtio/virtio_pci.c
+> >> @@ -80,8 +80,9 @@ struct virtio_pci_vq_info
+> >>       /* the number of entries in the queue */
+> >>       int num;
+> >>
+> >> -     /* the virtual address of the ring queue */
+> >> -     void *queue;
+> >> +     /* the ring queue */
+> >> +     void *queue;                    /* virtual address */
+> >> +     dma_addr_t queue_dma_addr;      /* bus address */
+> >>
+> >>       /* the list node for the virtqueues list */
+> >>       struct list_head node;
+> >> @@ -417,15 +418,16 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
+> >>       info->num = num;
+> >>       info->msix_vector = msix_vec;
+> >>
+> >> -     size = PAGE_ALIGN(vring_size(num, VIRTIO_PCI_VRING_ALIGN));
+> >> -     info->queue = alloc_pages_exact(size, GFP_KERNEL|__GFP_ZERO);
+> >> +     size = vring_size(num, VIRTIO_PCI_VRING_ALIGN);
+> >> +     info->queue = dma_zalloc_coherent(vdev->dev.parent, size,
+> >> +                                       &info->queue_dma_addr, GFP_KERNEL);
+> >>       if (info->queue == NULL) {
+> >>               err = -ENOMEM;
+> >>               goto out_info;
+> >>       }
+> >>
+> >>       /* activate the queue */
+> >> -     iowrite32(virt_to_phys(info->queue) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
+> >> +     iowrite32(info->queue_dma_addr >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
+> >>                 vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
+> >>
+> >>       /* create the vring */
+> >> @@ -462,7 +464,8 @@ out_assign:
+> >>       vring_del_virtqueue(vq);
+> >>  out_activate_queue:
+> >>       iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
+> >> -     free_pages_exact(info->queue, size);
+> >> +     dma_free_coherent(vdev->dev.parent, size,
+> >> +                       info->queue, info->queue_dma_addr);
+> >>  out_info:
+> >>       kfree(info);
+> >>       return ERR_PTR(err);
+> >> @@ -493,7 +496,8 @@ static void vp_del_vq(struct virtqueue *vq)
+> >>       iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
+> >>
+> >>       size = PAGE_ALIGN(vring_size(info->num, VIRTIO_PCI_VRING_ALIGN));
+> >> -     free_pages_exact(info->queue, size);
+> >> +     dma_free_coherent(vq->vdev->dev.parent, size,
+> >> +                       info->queue, info->queue_dma_addr);
+> >>       kfree(info);
+> >>  }
+> >>
+> >> @@ -712,6 +716,13 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+> >>       if (err)
+> >>               goto out;
+> >>
+> >> +     /*
+> >> +      * We support 64-bit DMA.  If this fails (e.g. some bridge
+> >> +      * or PV code doesn't or DAC is disabled), then we're okay
+> >> +      * with 32-bit DMA.
+> >
+> > <scratches his head>
+> >
+> > I am having a hard time parsing that. Could you expand a bit the
+> > faulting use-case please?
+> >
+> >> +      */
+> >> +     dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
+> >
+> > The usual process is:
+> >
+> >         ret = dma_set_mask_and_coherent(..)
+> >         if (ret)
+> >                 ret = dma_set_mask_and_coherent(.., DMA_BIT_MASK(32))
+> >
+> >         if (ret)
+> >                 pr_warn("We are truly screwed. Good luck!\n");
+> >
+> 
+> I assumed that, if dma_set_mask_and_coherent(..., DMA_BIT_BASK(64))
+> fails, then we can still do DMA, just not 64-bit DMA.  This driver
+> should be fine with that -- it'll just be a bit slower.
 
-please pull from the 'for-linus' branch of
+Right. It should fail back to 32-bit (the default on PCI bus).
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
-
-to receive the following updates:
-Wire up the system calls seccomp, getrandom and memfd_create.
-Use static system information as input to add_device_randomness.
-And three bug fixes.
-
-Heiko Carstens (2):
-      s390: wire up seccomp and getrandom syscalls
-      s390: wire up memfd_create syscall
-
-Martin Schwidefsky (3):
-      s390: add system information as device randomness
-      s390/3215: fix tty output containing tabs
-      s390/sclp: remove unnecessary XTABS flag
-
-Michael Holzheu (1):
-      s390/kdump: Clear subchannel ID to signal non-CCW/SCSI IPL
-
- arch/s390/include/uapi/asm/unistd.h |    5 ++++-
- arch/s390/kernel/compat_wrapper.c   |    3 +++
- arch/s390/kernel/ipl.c              |    7 +++++++
- arch/s390/kernel/setup.c            |   19 +++++++++++++++++++
- arch/s390/kernel/syscalls.S         |    3 +++
- drivers/s390/char/con3215.c         |   20 +++++++++++++++++---
- drivers/s390/char/sclp_tty.c        |    2 +-
- 7 files changed, 54 insertions(+), 5 deletions(-)
-
-diff --git a/arch/s390/include/uapi/asm/unistd.h b/arch/s390/include/uapi/asm/unistd.h
-index 3802d2d..940ac49 100644
---- a/arch/s390/include/uapi/asm/unistd.h
-+++ b/arch/s390/include/uapi/asm/unistd.h
-@@ -283,7 +283,10 @@
- #define __NR_sched_setattr	345
- #define __NR_sched_getattr	346
- #define __NR_renameat2		347
--#define NR_syscalls 348
-+#define __NR_seccomp		348
-+#define __NR_getrandom		349
-+#define __NR_memfd_create	350
-+#define NR_syscalls 351
- 
- /* 
-  * There are some system calls that are not present on 64 bit, some
-diff --git a/arch/s390/kernel/compat_wrapper.c b/arch/s390/kernel/compat_wrapper.c
-index 45cdb37..faf6caa 100644
---- a/arch/s390/kernel/compat_wrapper.c
-+++ b/arch/s390/kernel/compat_wrapper.c
-@@ -214,3 +214,6 @@ COMPAT_SYSCALL_WRAP3(finit_module, int, fd, const char __user *, uargs, int, fla
- COMPAT_SYSCALL_WRAP3(sched_setattr, pid_t, pid, struct sched_attr __user *, attr, unsigned int, flags);
- COMPAT_SYSCALL_WRAP4(sched_getattr, pid_t, pid, struct sched_attr __user *, attr, unsigned int, size, unsigned int, flags);
- COMPAT_SYSCALL_WRAP5(renameat2, int, olddfd, const char __user *, oldname, int, newdfd, const char __user *, newname, unsigned int, flags);
-+COMPAT_SYSCALL_WRAP3(seccomp, unsigned int, op, unsigned int, flags, const char __user *, uargs)
-+COMPAT_SYSCALL_WRAP3(getrandom, char __user *, buf, size_t, count, unsigned int, flags)
-+COMPAT_SYSCALL_WRAP2(memfd_create, const char __user *, uname, unsigned int, flags)
-diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-index 633ca75..22aac58 100644
---- a/arch/s390/kernel/ipl.c
-+++ b/arch/s390/kernel/ipl.c
-@@ -2060,6 +2060,13 @@ void s390_reset_system(void (*func)(void *), void *data)
- 	S390_lowcore.program_new_psw.addr =
- 		PSW_ADDR_AMODE | (unsigned long) s390_base_pgm_handler;
- 
-+	/*
-+	 * Clear subchannel ID and number to signal new kernel that no CCW or
-+	 * SCSI IPL has been done (for kexec and kdump)
-+	 */
-+	S390_lowcore.subchannel_id = 0;
-+	S390_lowcore.subchannel_nr = 0;
-+
- 	/* Store status at absolute zero */
- 	store_status();
- 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index ae1d5be..82bc113 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -24,6 +24,7 @@
- #include <linux/stddef.h>
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
-+#include <linux/random.h>
- #include <linux/user.h>
- #include <linux/tty.h>
- #include <linux/ioport.h>
-@@ -61,6 +62,7 @@
- #include <asm/diag.h>
- #include <asm/os_info.h>
- #include <asm/sclp.h>
-+#include <asm/sysinfo.h>
- #include "entry.h"
- 
- /*
-@@ -766,6 +768,7 @@ static void __init setup_hwcaps(void)
- #endif
- 
- 	get_cpu_id(&cpu_id);
-+	add_device_randomness(&cpu_id, sizeof(cpu_id));
- 	switch (cpu_id.machine) {
- 	case 0x9672:
- #if !defined(CONFIG_64BIT)
-@@ -804,6 +807,19 @@ static void __init setup_hwcaps(void)
- }
- 
- /*
-+ * Add system information as device randomness
-+ */
-+static void __init setup_randomness(void)
-+{
-+	struct sysinfo_3_2_2 *vmms;
-+
-+	vmms = (struct sysinfo_3_2_2 *) alloc_page(GFP_KERNEL);
-+	if (vmms && stsi(vmms, 3, 2, 2) == 0 && vmms->count)
-+		add_device_randomness(&vmms, vmms->count);
-+	free_page((unsigned long) vmms);
-+}
-+
-+/*
-  * Setup function called from init/main.c just after the banner
-  * was printed.
-  */
-@@ -901,6 +917,9 @@ void __init setup_arch(char **cmdline_p)
- 
- 	/* Setup zfcpdump support */
- 	setup_zfcpdump();
-+
-+	/* Add system specific data to the random pool */
-+	setup_randomness();
- }
- 
- #ifdef CONFIG_32BIT
-diff --git a/arch/s390/kernel/syscalls.S b/arch/s390/kernel/syscalls.S
-index fe5cdf2..6fe886a 100644
---- a/arch/s390/kernel/syscalls.S
-+++ b/arch/s390/kernel/syscalls.S
-@@ -356,3 +356,6 @@ SYSCALL(sys_finit_module,sys_finit_module,compat_sys_finit_module)
- SYSCALL(sys_sched_setattr,sys_sched_setattr,compat_sys_sched_setattr) /* 345 */
- SYSCALL(sys_sched_getattr,sys_sched_getattr,compat_sys_sched_getattr)
- SYSCALL(sys_renameat2,sys_renameat2,compat_sys_renameat2)
-+SYSCALL(sys_seccomp,sys_seccomp,compat_sys_seccomp)
-+SYSCALL(sys_getrandom,sys_getrandom,compat_sys_getrandom)
-+SYSCALL(sys_memfd_create,sys_memfd_create,compat_sys_memfd_create) /* 350 */
-diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
-index a6d47e5..c43aca6 100644
---- a/drivers/s390/char/con3215.c
-+++ b/drivers/s390/char/con3215.c
-@@ -1035,12 +1035,26 @@ static int tty3215_write(struct tty_struct * tty,
- 			 const unsigned char *buf, int count)
- {
- 	struct raw3215_info *raw;
-+	int i, written;
- 
- 	if (!tty)
- 		return 0;
- 	raw = (struct raw3215_info *) tty->driver_data;
--	raw3215_write(raw, buf, count);
--	return count;
-+	written = count;
-+	while (count > 0) {
-+		for (i = 0; i < count; i++)
-+			if (buf[i] == '\t' || buf[i] == '\n')
-+				break;
-+		raw3215_write(raw, buf, i);
-+		count -= i;
-+		buf += i;
-+		if (count > 0) {
-+			raw3215_putchar(raw, *buf);
-+			count--;
-+			buf++;
-+		}
-+	}
-+	return written;
- }
- 
- /*
-@@ -1188,7 +1202,7 @@ static int __init tty3215_init(void)
- 	driver->subtype = SYSTEM_TYPE_TTY;
- 	driver->init_termios = tty_std_termios;
- 	driver->init_termios.c_iflag = IGNBRK | IGNPAR;
--	driver->init_termios.c_oflag = ONLCR | XTABS;
-+	driver->init_termios.c_oflag = ONLCR;
- 	driver->init_termios.c_lflag = ISIG;
- 	driver->flags = TTY_DRIVER_REAL_RAW;
- 	tty_set_operations(driver, &tty3215_ops);
-diff --git a/drivers/s390/char/sclp_tty.c b/drivers/s390/char/sclp_tty.c
-index 7ed7a59..0036632 100644
---- a/drivers/s390/char/sclp_tty.c
-+++ b/drivers/s390/char/sclp_tty.c
-@@ -559,7 +559,7 @@ sclp_tty_init(void)
- 	driver->subtype = SYSTEM_TYPE_TTY;
- 	driver->init_termios = tty_std_termios;
- 	driver->init_termios.c_iflag = IGNBRK | IGNPAR;
--	driver->init_termios.c_oflag = ONLCR | XTABS;
-+	driver->init_termios.c_oflag = ONLCR;
- 	driver->init_termios.c_lflag = ISIG | ECHO;
- 	driver->flags = TTY_DRIVER_REAL_RAW;
- 	tty_set_operations(driver, &sclp_ops);
+I was merely thinking of the error reporting might be useful
+but on second thought - saying that the user is screwed - is
+a bad idea.
+> 
+> If that's not a safe assumption, I can change it.
+> 
+> --Andy
