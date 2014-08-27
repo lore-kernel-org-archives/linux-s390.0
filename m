@@ -1,21 +1,15 @@
-From: Christopher Covington <cov@codeaurora.org>
+From: Stefan Hajnoczi <stefanha@gmail.com>
 Subject: Re: [PATCH 0/3] virtio: Clean up scatterlists and use the DMA API
-Date: Wed, 27 Aug 2014 13:50:08 -0400
-Message-ID: <53FE1A50.3050408@codeaurora.org>
+Date: Wed, 27 Aug 2014 19:10:20 +0100
+Message-ID: <CAJSP0QVS-qCsKNDetoV4nEUvpv-14aDJzinYoM1t2pd4_5Q5Hg@mail.gmail.com>
 References: <cover.1409087794.git.luto@amacapital.net>
 	<CAJSP0QUcXQ+JV0wys2Mr-+OsFKt=hTGbUxNqfpk-JuyULiQABQ@mail.gmail.com>
-	<CALCETrUWR8p7XSiTALd19LL4mTgkXu_XEewobouz6Jbkb4KjLw@mail.gmail.com>
-	<20140827154537.GB18900@redhat.com>
-	<CALCETrVUg3fCQS0rjOD1BbauXHfnydPyP3mNMeiGu4NqBgLK6A@mail.gmail.com>
-	<53FE03C3.90309@codeaurora.org>
-	<CALCETrWcMO_zkNEuXBeqSAt6FSvUaFve+_5JC-rk5vObvBZWSg@mail.gmail.com>
-	<53FE16C2.4010104@codeaurora.org>
-	<CALCETrUGka4jpDUKkQwATYOe-FwOwprom8yEBtWR0w0y-nrdZw@mail.gmail.com>
+	<20140827172716.GA5379@laptop.dumpdata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrUGka4jpDUKkQwATYOe-FwOwprom8yEBtWR0w0y-nrdZw@mail.gmail.com>
+In-Reply-To: <20140827172716.GA5379@laptop.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,73 +21,29 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/virtualization/>
 List-Post: <mailto:virtualization@lists.linuxfoundation.org>
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, linux390@de.ibm.com, Andy Lutomirski <luto@amacapital.net>, virtio-dev@lists.oasis-open.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 08/27/2014 01:37 PM, Andy Lutomirski wrote:
-> On Wed, Aug 27, 2014 at 10:34 AM, Christopher Covington
-> <cov@codeaurora.org> wrote:
->> On 08/27/2014 12:19 PM, Andy Lutomirski wrote:
->>> On Wed, Aug 27, 2014 at 9:13 AM, Christopher Covington
->>> <cov@codeaurora.org> wrote:
+On Wed, Aug 27, 2014 at 6:27 PM, Konrad Rzeszutek Wilk
+<konrad.wilk@oracle.com> wrote:
+> On Wed, Aug 27, 2014 at 07:46:46AM +0100, Stefan Hajnoczi wrote:
+>> On Tue, Aug 26, 2014 at 10:16 PM, Andy Lutomirski <luto@amacapital.net> wrote:
+>> > There are two outstanding issues.  virtio_net warns if DMA debugging
+>> > is on because it does DMA from the stack.  (The warning is correct.)
+>> > This also is likely to do something unpleasant to s390.
+>> > (Maintainers are cc'd -- I don't know what to do about it.)
 >>
->> Virtme looks interesting. If it's any use, here is my modest QEMU command line
->> collection.
->>
->> $dir/bin/x86_64-linux-gnu/qemu-system-x86_64 \
->>   -m 1024 \
->>   -kernel $dir/boot/x86_64-linux-gnu/bzImage-x86_64 \
->>   -append 'root=/dev/root init=/sbin/x86_64-linux-gnu/init rootfstype=9p
->> rootflags=trans=virtio,version=9p2000.L ro console=ttyS0' \
->>   -serial stdio \
->>   -fsdev local,id=root,path=$dir,security_model=none \
->>   -device virtio-9p-pci,fsdev=root,mount_tag=/dev/root \
->>   -monitor none
-> 
-> This is similar to what virtme does, except that virtme will give you
-> a much more functional system at the cost of a small fraction of a
-> second of additional boot time.  And virtme sometimes supports modules
-> :)
-> 
->>
->> $dir/bin/x86_64-linux-gnu/qemu-system-arm \
->>   -M virt \
->>   -cpu cortex-a15 \
->>   -m 1024 \
->>   -kernel $dir/boot/arm-linux-gnueabihf/Image \
->>   -append 'root=/dev/root init=/sbin/arm-linux-gnueabihf/init rootfstype=9p
->> rootflags=trans=virtio,version=9p2000.L ro console=ttyAMA0' \
->>   -serial stdio \
->>   -fsdev local,id=root,path=$dir,security_model=none \
->>   -device virtio-9p-device,fsdev=root,mount_tag=/dev/root \
->>   -monitor none
-> 
-> Can you give me some hints as to how to configure a kernel for this?
-> I tried to get anything other than versatilepb working and gave up.
+>> This changes the semantics of vring and breaks existing guests when
+>> bus address != physical address.
+>
+> Isn't that what this is suppose to fix? Right now the semantics of the
+> vring is that bus address == physical address.
 
-I think you can just use vexpress_defconfig. If you want to from there you can
-unselect CONFIG_ARCH_VEXPRESS and set CONFIG_ARCH_VIRT=y, but I don't think
-that's strictly necessary.
+Today the assumption is that the device emulation code has access to
+guest physical memory (no translation necessary).
 
->> $dir/bin/x86_64-linux-gnu/qemu-system-aarch64 \
->>   -M virt \
->>   -cpu cortex-a57 \
->>   -m 1024 \
->>   -kernel $dir/boot/aarch64-linux-gnu/Image \
->>   -append 'root=/dev/root init=/sbin/aarch64-linux-gnu/init rootfstype=9p
->> rootflags=trans=virtio,version=9p2000.L ro console=ttyAMA0' \
->>   -serial stdio \
->>   -fsdev local,id=root,path=$dir,security_model=none \
->>   -device virtio-9p-device,fsdev=root,mount_tag=/dev/root -monitor none
->>
-> 
-> Ooh, thanks!  I'll add support for this to virtme.
+Changing the semantics breaks today's guests.  You need to make this
+change in a way so that existing guests don't break.
 
-Cheers,
-Christopher
-
--- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by the Linux Foundation.
+Stefan
