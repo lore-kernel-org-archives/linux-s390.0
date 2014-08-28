@@ -1,7 +1,8 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH v2 0/4] virtio: Clean up scatterlists and use the DMA API
-Date: Thu, 28 Aug 2014 11:51:58 -0700
-Message-ID: <CALCETrWtZ8ZRDvcg8cCxS53zmUPZCpqKFuAEdurSXdR2yXsJSQ@mail.gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH v2 0/4] virtio: Clean up scatterlists
+	and use the DMA API
+Date: Thu, 28 Aug 2014 20:55:22 +0200
+Message-ID: <53FF7B1A.2050307__36742.8566249602$1409252159$gmane$org@redhat.com>
 References: <cover.1409176034.git.luto@amacapital.net>
 	<53FEDDF5.3030903@de.ibm.com>
 	<CALCETrXxFJQsZyLmbrjYyXK6LKmRuBK=KMas2Db8vCVaBwe9yQ@mail.gmail.com>
@@ -22,44 +23,24 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/virtualization/>
 List-Post: <mailto:virtualization@lists.linuxfoundation.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@amacapital.net>
 Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "linux390@de.ibm.com" <linux390@de.ibm.com>, virtio-dev@lists.oasis-open.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Aug 28, 2014 at 11:29 AM, Christian Borntraeger
-<borntraeger@de.ibm.com> wrote:
-> On 28/08/14 20:06, Andy Lutomirski wrote:
-> [...]
->>> block seems to work, with net a simple ping works, iperf causes this:
->>
->> I neither see the bug, nor can I reproduce it on x86_64 on KVM.  I
->> doubt that dma vs. non-dma is relevant.  I tried -net user a -net tap
->> with iperf running in both directions.  I also tried switching
->> virtio_pci into non-DMA-API mode.  No errors.
->>
->> Is there any chance that you could instrument that BUG_ON to print n,
->> i, in_sgs, out_sgs, total_sg, total_in, and total_out?  I assume this
->> is some oddity with patch 1, but I'm mystified.
->
+Il 28/08/2014 20:29, Christian Borntraeger ha scritto:
+>>> >> block seems to work, with net a simple ping works, iperf causes this:
+>> > 
+>> > I neither see the bug, nor can I reproduce it on x86_64 on KVM.  I
+>> > doubt that dma vs. non-dma is relevant.  I tried -net user a -net tap
+>> > with iperf running in both directions.  I also tried switching
+>> > virtio_pci into non-DMA-API mode.  No errors.
+>> > 
+>> > Is there any chance that you could instrument that BUG_ON to print n,
+>> > i, in_sgs, out_sgs, total_sg, total_in, and total_out?  I assume this
+>> > is some oddity with patch 1, but I'm mystified.
 > Yes, its triggered by patch 1.
 
-I must be doing something wrong, since virtio_net isn't sending me
-through that code path at all.  This may be related to ethtool
-refusing to enable scatter-gather on my NIC.  This happens on
-vhost-net and QEMU's implementation.  Grr.
+What version of QEMU?  Can you two cat the "features" file in the
+virtio-net device's sysfs directory?
 
-Can you change the code to something like:
-
-        if (i != total_sg) {
-                printk(KERN_ERR "i=%d total_sg=%u total_out=%u total_in=%u out_\
-sgs=%u in_sgs=%u\n",
-                       i, total_sg, total_out, total_in, out_sgs, in_sgs);
-        }
-        BUG_ON(i != total_sg);
-
-and try to capture another oops?
-
-Sorry to ask for debugging help for something that's explicitly
-designed not to affect your arch :-/
-
---Andy
+Paolo
