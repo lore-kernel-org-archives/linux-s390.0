@@ -1,15 +1,13 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: [PATCH v4 4/4] virtio_net: Stop doing DMA from the stack
-Date: Mon,  1 Sep 2014 10:39:35 -0700
-Message-ID: <d7c147bdc1dc6b603cd4079dda1f401df4699af0.1409593066.git.luto@amacapital.net>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
+Date: Tue, 02 Sep 2014 08:16:54 +1000
+Message-ID: <1409609814.30640.11.camel@pasglop>
 References: <cover.1409593066.git.luto@amacapital.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <cover.1409593066.git.luto@amacapital.net>
-In-Reply-To: <cover.1409593066.git.luto@amacapital.net>
-References: <cover.1409593066.git.luto@amacapital.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,131 +19,38 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/virtualization/>
 List-Post: <mailto:virtualization@lists.linuxfoundation.org>
-To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux390@de.ibm.com, Andy Lutomirski <luto@amacapital.net>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: linux-s390@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux390@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Now that virtio supports real DMA, drivers should play by the rules.
-For virtio_net, that means that DMA should be done to and from
-dynamically-allocated memory, not the kernel stack.
+On Mon, 2014-09-01 at 10:39 -0700, Andy Lutomirski wrote:
+> Changes from v1:
+>  - Using the DMA API is optional now.  It would be nice to improve the
+>    DMA API to the point that it could be used unconditionally, but s390
+>    proves that we're not there yet.
+>  - Includes patch 4, which fixes DMA debugging warnings from virtio_net.
 
-This should have no effect on any performance-critical code paths.
+I'm not sure if you saw my reply on the other thread but I have a few
+comments based on the above "it would be nice if ..."
 
-Signed-off-by: Andy Lutomirski <luto@amacapital.net>
----
- drivers/net/virtio_net.c | 53 ++++++++++++++++++++++++++++++++----------------
- 1 file changed, 36 insertions(+), 17 deletions(-)
+So here we have both a yes and a no :-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index c90466a4fab0..25703fd2df28 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -966,31 +966,43 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
- 				 struct scatterlist *out)
- {
- 	struct scatterlist *sgs[4], hdr, stat;
--	struct virtio_net_ctrl_hdr ctrl;
--	virtio_net_ctrl_ack status = ~0;
-+
-+	struct {
-+		struct virtio_net_ctrl_hdr ctrl;
-+		virtio_net_ctrl_ack status;
-+	} *buf;
-+
- 	unsigned out_num = 0, tmp;
-+	bool ret;
- 
- 	/* Caller should know better */
- 	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
- 
--	ctrl.class = class;
--	ctrl.cmd = cmd;
-+	buf = kmalloc(sizeof(*buf), GFP_ATOMIC);
-+	if (!buf)
-+		return false;
-+	buf->status = ~0;
-+
-+	buf->ctrl.class = class;
-+	buf->ctrl.cmd = cmd;
- 	/* Add header */
--	sg_init_one(&hdr, &ctrl, sizeof(ctrl));
-+	sg_init_one(&hdr, &buf->ctrl, sizeof(buf->ctrl));
- 	sgs[out_num++] = &hdr;
- 
- 	if (out)
- 		sgs[out_num++] = out;
- 
- 	/* Add return status. */
--	sg_init_one(&stat, &status, sizeof(status));
-+	sg_init_one(&stat, &buf->status, sizeof(buf->status));
- 	sgs[out_num] = &stat;
- 
- 	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
- 	virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATOMIC);
- 
--	if (unlikely(!virtqueue_kick(vi->cvq)))
--		return status == VIRTIO_NET_OK;
-+	if (unlikely(!virtqueue_kick(vi->cvq))) {
-+		ret = (buf->status == VIRTIO_NET_OK);
-+		goto out;
-+	}
- 
- 	/* Spin for a response, the kick causes an ioport write, trapping
- 	 * into the hypervisor, so the request should be handled immediately.
-@@ -999,7 +1011,11 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
- 	       !virtqueue_is_broken(vi->cvq))
- 		cpu_relax();
- 
--	return status == VIRTIO_NET_OK;
-+	ret = (buf->status == VIRTIO_NET_OK);
-+
-+out:
-+	kfree(buf);
-+	return ret;
- }
- 
- static int virtnet_set_mac_address(struct net_device *dev, void *p)
-@@ -1140,7 +1156,7 @@ static void virtnet_set_rx_mode(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	struct scatterlist sg[2];
--	u8 promisc, allmulti;
-+	u8 *cmdbyte;
- 	struct virtio_net_ctrl_mac *mac_data;
- 	struct netdev_hw_addr *ha;
- 	int uc_count;
-@@ -1152,22 +1168,25 @@ static void virtnet_set_rx_mode(struct net_device *dev)
- 	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
- 		return;
- 
--	promisc = ((dev->flags & IFF_PROMISC) != 0);
--	allmulti = ((dev->flags & IFF_ALLMULTI) != 0);
-+	cmdbyte = kmalloc(sizeof(*cmdbyte), GFP_ATOMIC);
-+	if (!cmdbyte)
-+		return;
- 
--	sg_init_one(sg, &promisc, sizeof(promisc));
-+	sg_init_one(sg, cmdbyte, sizeof(*cmdbyte));
- 
-+	*cmdbyte = ((dev->flags & IFF_PROMISC) != 0);
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
- 				  VIRTIO_NET_CTRL_RX_PROMISC, sg))
- 		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
--			 promisc ? "en" : "dis");
--
--	sg_init_one(sg, &allmulti, sizeof(allmulti));
-+			 *cmdbyte ? "en" : "dis");
- 
-+	*cmdbyte = ((dev->flags & IFF_ALLMULTI) != 0);
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
- 				  VIRTIO_NET_CTRL_RX_ALLMULTI, sg))
- 		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
--			 allmulti ? "en" : "dis");
-+			 *cmdbyte ? "en" : "dis");
-+
-+	kfree(cmdbyte);
- 
- 	uc_count = netdev_uc_count(dev);
- 	mc_count = netdev_mc_count(dev);
--- 
-1.9.3
+It would be nice to avoid those if () games all over and indeed just
+use the DMA API, *however* we most certainly don't want to actually
+create IOMMU mappings for the KVM virio case. This would be a massive
+loss in performances on several platforms and generally doesn't make
+much sense.
+
+However, we can still use the API without that on any architecture
+where the dma mapping API ends up calling the generic dma_map_ops,
+it becomes just a matter of virtio setting up some special "nop" ops
+when needed.
+
+The difficulty here resides in the fact that we have never completely
+made the dma_map_ops generic. The ops themselves are defined generically
+as are the dma_map_* interfaces based on them, but the location of the
+ops pointer is still more/less arch specific and some architectures
+still chose not to use that indirection at all I believe.
+
+Cheers,
+Ben.
