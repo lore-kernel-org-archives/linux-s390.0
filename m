@@ -1,32 +1,35 @@
-From: Christoffer Dall <christoffer.dall@linaro.org>
-Subject: Re: [PATCH 2/2] KVM: remove garbage arg to *hardware_{en,dis}able
-Date: Mon, 1 Sep 2014 11:23:30 +0200
-Message-ID: <20140901092330.GE19836@cbox>
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: [PATCH 0/2] KVM: minor cleanup and optimizations
+Date: Tue, 02 Sep 2014 00:46:05 +0200
+Message-ID: <5404F72D.8030402@suse.de>
 References: <1409231583-7048-1-git-send-email-rkrcmar@redhat.com>
- <1409231583-7048-3-git-send-email-rkrcmar@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <kvm-ppc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1409231583-7048-3-git-send-email-rkrcmar@redhat.com>
+In-Reply-To: <1409231583-7048-1-git-send-email-rkrcmar@redhat.com>
 Sender: kvm-ppc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, kvm-ppc@vger.kernel.org, kvm-ia64@vger.kernel.org, linux-s390@vger.kernel.org, kvmarm@lists.cs.columbia.edu, Paolo Bonzini <pbonzini@redhat.com>, Gleb Natapov <gleb@kernel.org>
+To: =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, kvm-ppc@vger.kernel.org, kvm-ia64@vger.kernel.org, linux-s390@vger.kernel.org, kvmarm@lists.cs.columbia.edu, Paolo Bonzini <pbonzini@redhat.com>, Gleb Natapov <gleb@kernel.org>, Christoffer Dall <christoffer.dall@linaro.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Aug 28, 2014 at 03:13:03PM +0200, Radim Kr=C4=8Dm=C3=A1=C5=99 w=
-rote:
-> In the beggining was on_each_cpu(), which required an unused argument=
- to
-> kvm_arch_ops.hardware_{en,dis}able, but this was soon forgotten.
->=20
-> Remove unnecessary arguments that stem from this.
->=20
-> Signed-off-by: Radim Kr=C4=8Dm=C3=A1=C5=99 <rkrcmar@redhat.com>
 
-=46or the arm/arm64 part:
 
-Acked-by: Christoffer Dall <christoffer.dall@linaro.org>
+On 28.08.14 15:13, Radim Kr=C4=8Dm=C3=A1=C5=99 wrote:
+> The first patch answers a demand for inline arch functions.
+> (There is a lot of constant functions that could be inlined as well.)
+>=20
+> Second patch digs a bit into the history of KVM and removes a useless
+> argument that seemed suspicious when preparing the first patch.
+>=20
+>=20
+> Radim Kr=C4=8Dm=C3=A1=C5=99 (2):
+>   KVM: static inline empty kvm_arch functions
+>   KVM: remove garbage arg to *hardware_{en,dis}able
+
+Acked-by: Alexander Graf <agraf@suse.de>
+
+
+Alex
