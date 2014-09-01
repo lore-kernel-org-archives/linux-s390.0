@@ -1,7 +1,8 @@
 From: Andy Lutomirski <luto@amacapital.net>
-Subject: [PATCH v4 2/4] virtio_pci: Use the DMA API for virtqueues
-Date: Mon,  1 Sep 2014 10:39:33 -0700
-Message-ID: <858947eee710b0008dfc0f029ff66d180e8cbe48.1409593066.git.luto@amacapital.net>
+Subject: [PATCH v4 3/4] virtio_net: Don't set the end flag on reusable sg
+	entries
+Date: Mon,  1 Sep 2014 10:39:34 -0700
+Message-ID: <249957db4075baae1dc68ca48c539f2b2cc0b896.1409593066.git.luto@amacapital.net>
 References: <cover.1409593066.git.luto@amacapital.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,106 +26,44 @@ To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-s390@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux390@de.ibm.com, Andy Lutomirski <luto@amacapital.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-A virtqueue is a coherent DMA mapping.  Use the DMA API for it.
-This fixes virtio_pci on Xen.
-
-As an optimization, this only enables asks virtio_ring to use the
-DMA API if !PCI_DMA_BUS_IS_PHYS.  Eventually, once the DMA API is
-known to be efficient on all relevant architectures, this
-optimization can be removed.
+Every time virtio_net calls skb_to_sgvec, an end flag gets set
+somewhere on the queue's scatterlist and never gets cleared.  As
+soon as a larger request happens, virtio_net sends the virtqueue a
+scatterlist with an end mark set in the middle.  Once the vring code
+starts using for_each_sg, this will blow up.
 
 Signed-off-by: Andy Lutomirski <luto@amacapital.net>
 ---
- drivers/virtio/virtio_pci.c | 40 +++++++++++++++++++++++++++++++---------
- 1 file changed, 31 insertions(+), 9 deletions(-)
+ drivers/net/virtio_net.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index a1f299fa4626..226b46b08727 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -80,8 +80,9 @@ struct virtio_pci_vq_info
- 	/* the number of entries in the queue */
- 	int num;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 59caa06f34a6..c90466a4fab0 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -548,7 +548,7 @@ static int add_recvbuf_small(struct receive_queue *rq, gfp_t gfp)
+ 	hdr = skb_vnet_hdr(skb);
+ 	sg_set_buf(rq->sg, &hdr->hdr, sizeof hdr->hdr);
  
--	/* the virtual address of the ring queue */
--	void *queue;
-+	/* the ring queue */
-+	void *queue;			/* virtual address */
-+	dma_addr_t queue_dma_addr;	/* bus address */
+-	skb_to_sgvec(skb, rq->sg + 1, 0, skb->len);
++	skb_to_sgvec_nomark(skb, rq->sg + 1, 0, skb->len);
  
- 	/* the list node for the virtqueues list */
- 	struct list_head node;
-@@ -417,20 +418,32 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
- 	info->num = num;
- 	info->msix_vector = msix_vec;
+ 	err = virtqueue_add_inbuf(rq->vq, rq->sg, 2, skb, gfp);
+ 	if (err < 0)
+@@ -901,12 +901,12 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
  
--	size = PAGE_ALIGN(vring_size(num, VIRTIO_PCI_VRING_ALIGN));
--	info->queue = alloc_pages_exact(size, GFP_KERNEL|__GFP_ZERO);
-+	size = vring_size(num, VIRTIO_PCI_VRING_ALIGN);
-+	info->queue = dma_zalloc_coherent(vdev->dev.parent, size,
-+					  &info->queue_dma_addr, GFP_KERNEL);
- 	if (info->queue == NULL) {
- 		err = -ENOMEM;
- 		goto out_info;
+ 	if (can_push) {
+ 		__skb_push(skb, hdr_len);
+-		num_sg = skb_to_sgvec(skb, sq->sg, 0, skb->len);
++		num_sg = skb_to_sgvec_nomark(skb, sq->sg, 0, skb->len);
+ 		/* Pull header back to avoid skew in tx bytes calculations. */
+ 		__skb_pull(skb, hdr_len);
+ 	} else {
+ 		sg_set_buf(sq->sg, hdr, hdr_len);
+-		num_sg = skb_to_sgvec(skb, sq->sg + 1, 0, skb->len) + 1;
++		num_sg = skb_to_sgvec_nomark(skb, sq->sg + 1, 0, skb->len) + 1;
  	}
- 
- 	/* activate the queue */
--	iowrite32(virt_to_phys(info->queue) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
-+	iowrite32(info->queue_dma_addr >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
- 		  vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
- 
--	/* create the vring */
-+	/*
-+	 * Create the vring.  If there is an IOMMU of any sort, including
-+	 * Xen paravirt's ersatz IOMMU, use it.  If the host wants physical
-+	 * addresses instead of bus addresses, the host shouldn't expose
-+	 * an IOMMU.
-+	 *
-+	 * As an optimization, if the platform promises to have physical
-+	 * PCI DMA, we turn off DMA mapping in virtio_ring.  If the
-+	 * platform's DMA API implementation is well optimized, this
-+	 * should have almost no effect, but that's a dangerous thing to
-+	 * rely on.
-+	 */
- 	vq = vring_new_virtqueue(index, info->num, VIRTIO_PCI_VRING_ALIGN, vdev,
--				 true, false, info->queue,
-+				 true, !PCI_DMA_BUS_IS_PHYS, info->queue,
- 				 vp_notify, callback, name);
- 	if (!vq) {
- 		err = -ENOMEM;
-@@ -463,7 +476,8 @@ out_assign:
- 	vring_del_virtqueue(vq);
- out_activate_queue:
- 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
--	free_pages_exact(info->queue, size);
-+	dma_free_coherent(vdev->dev.parent, size,
-+			  info->queue, info->queue_dma_addr);
- out_info:
- 	kfree(info);
- 	return ERR_PTR(err);
-@@ -494,7 +508,8 @@ static void vp_del_vq(struct virtqueue *vq)
- 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
- 
- 	size = PAGE_ALIGN(vring_size(info->num, VIRTIO_PCI_VRING_ALIGN));
--	free_pages_exact(info->queue, size);
-+	dma_free_coherent(vq->vdev->dev.parent, size,
-+			  info->queue, info->queue_dma_addr);
- 	kfree(info);
+ 	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOMIC);
  }
- 
-@@ -713,6 +728,13 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- 	if (err)
- 		goto out;
- 
-+	err = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
-+	if (err)
-+		err = dma_set_mask_and_coherent(&pci_dev->dev,
-+						DMA_BIT_MASK(32));
-+	if (err)
-+		dev_warn(&pci_dev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
-+
- 	err = pci_request_regions(pci_dev, "virtio-pci");
- 	if (err)
- 		goto out_enable_device;
 -- 
 1.9.3
