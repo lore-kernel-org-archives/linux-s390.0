@@ -1,17 +1,15 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 0/3] virtio: Clean up scatterlists and use the DMA API
-Date: Wed, 27 Aug 2014 22:52:46 +0200
-Message-ID: <53FE451E.9090906@de.ibm.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH 1/3] virtio_ring: Remove sg_next indirection
+Date: Sun, 31 Aug 2014 18:42:38 -0700
+Message-ID: <CALCETrVd5F50vFzBD5FeH7EynnZ3+EFr3MT_22DmZWKDWfCfiQ@mail.gmail.com>
 References: <cover.1409087794.git.luto@amacapital.net>
-	<CAJSP0QUcXQ+JV0wys2Mr-+OsFKt=hTGbUxNqfpk-JuyULiQABQ@mail.gmail.com>
-	<CALCETrUWR8p7XSiTALd19LL4mTgkXu_XEewobouz6Jbkb4KjLw@mail.gmail.com>
-	<20140827154537.GB18900@redhat.com>
-	<CALCETrVUg3fCQS0rjOD1BbauXHfnydPyP3mNMeiGu4NqBgLK6A@mail.gmail.com>
+	<37f797f9f79ae57f88b6b5ca9d0b28ce56f7e701.1409087794.git.luto@amacapital.net>
+	<87fvgckvg0.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrVUg3fCQS0rjOD1BbauXHfnydPyP3mNMeiGu4NqBgLK6A@mail.gmail.com>
+In-Reply-To: <87fvgckvg0.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,77 +21,63 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/virtualization/>
 List-Post: <mailto:virtualization@lists.linuxfoundation.org>
-To: Andy Lutomirski <luto@amacapital.net>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "linux390@de.ibm.com" <linux390@de.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "linux390@de.ibm.com" <linux390@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 27/08/14 17:50, Andy Lutomirski wrote:
-> On Wed, Aug 27, 2014 at 8:45 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> On Wed, Aug 27, 2014 at 08:11:15AM -0700, Andy Lutomirski wrote:
->>> On Aug 26, 2014 11:46 PM, "Stefan Hajnoczi" <stefanha@gmail.com> wrote:
->>>>
->>>> On Tue, Aug 26, 2014 at 10:16 PM, Andy Lutomirski <luto@amacapital.net> wrote:
->>>>> There are two outstanding issues.  virtio_net warns if DMA debugging
->>>>> is on because it does DMA from the stack.  (The warning is correct.)
->>>>> This also is likely to do something unpleasant to s390.
->>>>> (Maintainers are cc'd -- I don't know what to do about it.)
->>>>
->>>> This changes the semantics of vring and breaks existing guests when
->>>> bus address != physical address.
->>>>
->>>> Can you use a transport feature bit to indicate that bus addresses are
->>>> used?  That way both approaches can be supported.
->>>
->>> I can try to support both styles of addressing, but I don't think that
->>> this can be negotiated between the device (i.e. host or physical
->>> virtio-speaking device) and the guest.  In the Xen case that I care
->>> about (Linux on Xen on KVM), the host doesn't know about the
->>> translation at all -- Xen is an intermediate layer that only the guest
->>> is aware of.  In this case, there are effectively two layers of
->>> virtualization, and only the inner one (Xen) knows about the
->>> translation despite the fact that the the outer layer is the one
->>> providing the virtio device.
->>>
->>> I could change virtio_ring to use the DMA API only if requested by the
->>> lower driver (virtio_pci, etc) and to have only virtio_pci enable that
->>> feature.  Will that work for all cases?
->>>
->>> On s390, this shouldn't work just like the current code.  On x86, I
->>> think that if QEMU ever starts exposing an IOMMU attached to a
->>> virtio-pci device, then QEMU should expect that IOMMU to be used.  If
->>> QEMU expects to see physical addresses, then it shouldn't advertise an
->>> IOMMU.  Since QEMU doesn't currently support guest IOMMUs, this should
->>> be fine for everything that uses QEMU.
->>>
->>> At least x86's implementation of the DMA ops for devices that aren't
->>> behind an IOMMU should be very fast.
->>>
->>> Are there any other weird cases for which this might be a problem?
->>>
->>>>
->>>> Please also update the virtio specification:
->>>> https://tools.oasis-open.org/version-control/browse/wsvn/virtio/
->>>>
->>>
->>> I'm not sure it will need an update.  Perhaps a note in the PCI
->>> section indicating that, if the host expects the guest to program an
->>> IOMMU, then it should use the appropriate platform-specific mechanism
->>> to expose that IOMMU.
->>>
->>> --Andy
+On Sun, Aug 31, 2014 at 5:58 PM, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> Andy Lutomirski <luto@amacapital.net> writes:
+>> The only unusual thing about virtio's use of scatterlists is that
+>> two of the APIs accept scatterlists that might not be terminated.
+>> Using function pointers to handle this case is overkill; for_each_sg
+>> can do it.
 >>
->> If there's no virtio mechanism to negotate enabling/disabling
->> translations, then specification does not need an extension.
-> 
-> It wouldn't shock me if someone wants to negotiate this for
-> virtio_mmio some day, but that might be more of a device tree thing.
-> I have no idea how that works, but I think it can wait until someone
-> wants it.
-> 
-> I updated the patches, and I'll send them out after I try to test-boot
-> s390 under QEMU :)
+>> There's a small subtlely here: for_each_sg assumes that the provided
+>> count is correct, but, because of the way that virtio_ring handles
+>> multiple scatterlists at once, the count is only an upper bound if
+>> there is more than one scatterlist.  This is easily solved by
+>> checking the sg pointer for NULL on each iteration.
+>
+> Hi Andy,
+>
+>         (Sorry for the delayed response; I was still catching up from
+> my week at KS.)
 
-The emulation of several parts of s390 including the ccw stuff is currently 
-broken in QEMU. I can test new version.
+No problem.  In the grand scheme of maintainer response time, I think
+you're near the top. :)
 
-Christian
+>
+> Unfortunately the reason we dance through so many hoops here is that
+> it has a measurable performance impact :(  Those indirect calls get inlined.
+
+gcc inlines that?  That must nearly double the size of the object file. :-/
+
+>
+> There's only one place which actually uses a weirdly-formed sg now,
+> and that's virtio_net.  It's pretty trivial to fix.
+>
+> However, vring_bench drops 15% when we do this.  There's a larger
+> question as to how much difference that makes in Real Life, of course.
+> I'll measure that today.
+
+Weird.  sg_next shouldn't be nearly that slow.  Weird.
+
+>
+> Here are my two patches, back-to-back (it cam out of of an earlier
+> concern about reducing stack usage, hence the stack measurements).
+>
+
+I like your version better than mine, except that I suspect that your
+version will blow up for the same reason that my v2 patches blow up:
+you probably need the skb_to_sgvec_nomark fix, too.
+
+IOW, what happens if you apply patches 1-4 from my v3 series and then
+apply your patches on top of that?
+
+There'll be a hit on some virtio_pci machines due to use of the DMA
+API.  I would argue that, if this is measurable, the right fix is to
+prod the DMA API maintainers, whoever they are, to fix it.  The DMA
+API really out to be very fast on identity-mapped devices, but I don't
+know whether it is in practice.
+
+--Andy
