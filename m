@@ -1,75 +1,36 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH v4 6/8] asm-generic/io.h: Implement generic
- {read,write}s*()
-Date: Tue, 30 Sep 2014 12:51:19 +0200
-Message-ID: <20140930105118.GA27560@ulmo>
-References: <1407925738-26170-1-git-send-email-thierry.reding@gmail.com>
- <CAMo8BfJ9VJ24zsn_6VwNrAntmDqdJu11O79OyMd8eThv3UaaUw@mail.gmail.com>
- <CAMo8Bf+u8er_KF4nJPSPNf9OmKZHu4y0x3Pcb7DU17y5ocBJqw@mail.gmail.com>
- <1799506.5Clfp6gmMu@wuerfel>
+From: Christoffer Dall <christoffer.dall@linaro.org>
+Subject: Re: [PATCH 1/2] KVM: static inline empty kvm_arch functions
+Date: Mon, 1 Sep 2014 11:21:49 +0200
+Message-ID: <20140901092149.GD19836@cbox>
+References: <1409231583-7048-1-git-send-email-rkrcmar@redhat.com>
+ <1409231583-7048-2-git-send-email-rkrcmar@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
-Return-path: <sparclinux-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1799506.5Clfp6gmMu@wuerfel>
-Sender: sparclinux-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Max Filippov <jcmvbkbc@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, the arch/x86 maintainers <x86@kernel.org>, Stephen Boyd <sboyd@codeaurora.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-serial@vger.kernel.org, sparclinux <sparclinux@vger.kernel.org>, Russell King <linux@arm.linux.org.uk>, Sam Ravnborg <sam@ravnborg.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+In-Reply-To: <1409231583-7048-2-git-send-email-rkrcmar@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, kvm-ppc@vger.kernel.org, kvm-ia64@vger.kernel.org, linux-s390@vger.kernel.org, kvmarm@lists.cs.columbia.edu, Paolo Bonzini <pbonzini@redhat.com>, Gleb Natapov <gleb@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-
---ew6BAiZeqk4r7MaW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Sep 30, 2014 at 12:39:37PM +0200, Arnd Bergmann wrote:
-> On Tuesday 30 September 2014 14:26:20 Max Filippov wrote:
-> > On Tue, Sep 30, 2014 at 2:22 PM, Max Filippov <jcmvbkbc@gmail.com> wrot=
-e:
-> > > Hi Thierry,
-> > >
-> > >> I think this can be fixed by including linux/string.h for memset() a=
-nd
-> > >> memcpy() in include/asm-generic/io.h.
-> > >
-> > > Will you send that fix or do I need to do it?
-> >=20
-> > Never mind, found that it's fixed in today's next.
-> >=20
-> >=20
+On Thu, Aug 28, 2014 at 03:13:02PM +0200, Radim Kr=C4=8Dm=C3=A1=C5=99 w=
+rote:
+> Using static inline is going to save few bytes and cycles.
+> For example on powerpc, the difference is 700 B after stripping.
+> (5 kB before)
 >=20
+> This patch also deals with two overlooked empty functions:
+> kvm_arch_flush_shadow was not removed from arch/mips/kvm/mips.c
+>   2df72e9bc KVM: split kvm_arch_flush_shadow
+> and kvm_arch_sched_in never made it into arch/ia64/kvm/kvm-ia64.c.
+>   e790d9ef6 KVM: add kvm_arch_sched_in
 >=20
-> Actually I just backed out the original patches, the problem is still
-> there in my tree.
+> Signed-off-by: Radim Kr=C4=8Dm=C3=A1=C5=99 <rkrcmar@redhat.com>
 
-I'll integrate the fix for this in my series, so this should be gone
-with v5.
+=46or the arm/arm64 part:
 
-Thierry
-
---ew6BAiZeqk4r7MaW
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBAgAGBQJUKosmAAoJEN0jrNd/PrOhrE8QAK/BmvywtJzQDgITRXV6OmlR
-zGytBnkrGNB6GPzrir+o11WlOAira8bcr17OWn0JasMkvH8rN1tS0uC91XPt3IPL
-EHxFZl2I7AkNvdv2/Iwi/UntwkPBBbBNNeIl+b9ueKeNAEMB7BvzUiYZ00q7plqg
-Kkmy09cqoOAOGxaMY5r57/bhitoy8+OM72mamqU/JKApmuJ08jIkRHSWZkWlPq2F
-aPd8E0lD/E/skDQ9RDUYPDUl58pSsfiM4YFYZvsaLgJyDua/8dFwVg8QehbegrOh
-+hBfs7Kzk5ZMwzfyv+pj/64+Ub3l7i8hVb5h1LIS91xPdCBSr74FeYLp6qgEc/Mp
-ina5Oh7+Cv34Us0hvBX1NJRsAA3bgmUnt1XeEGbm2V2p+tq+I5XtYIJTkg7R39YR
-51u1oJGL9zjpFk0p5QtnIWl75t/po9TPoxyhW1HXr4XyWRicPE46Si4gA2/y/FWI
-PmCy5HLR38yOGNNQFB02lSRdPSGKRoggpMeu2cQEOTFf37D2OphxmSR1LMsCbLml
-fqrIbqJqXah4S8wmbaAT81LOBB+/5g/r7BLbYn+tvw2ckxroY9Jyd+UjaiByJ/aZ
-6fOGyBc6/jy36Ox6QZCI75pZf+XSgsuva5yBbkdSqKQCrWsKYHrhcaAc3w6fxJAt
-NZQ3rK42O9a/3d6wyzTx
-=yVff
------END PGP SIGNATURE-----
-
---ew6BAiZeqk4r7MaW--
+Acked-by: Christoffer Dall <christoffer.dall@linaro.org>
