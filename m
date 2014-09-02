@@ -1,16 +1,17 @@
-From: Andy Lutomirski <luto@amacapital.net>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
-Date: Tue, 2 Sep 2014 14:49:55 -0700
-Message-ID: <CALCETrUdT8PeJagFJM4EhKWq=w-niEJ7B0WyqQrjHhTJCF4UXA@mail.gmail.com>
+Date: Wed, 03 Sep 2014 08:10:10 +1000
+Message-ID: <1409695810.30640.57.camel@pasglop>
 References: <cover.1409593066.git.luto@amacapital.net>
 	<1409609814.30640.11.camel@pasglop>
 	<CALCETrVHSjaCe5TN6+Gr9W9uT8XEZC97ne_dZUazMDyLr0Wetw@mail.gmail.com>
-	<20140902211023.GB25231@redhat.com>
+	<1409691213.30640.37.camel@pasglop>
+	<CALCETrWNqksZWjotVXfWVWOaJ-tN=uBuMaRe+JmmPjacb6KDOg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140902211023.GB25231@redhat.com>
+In-Reply-To: <CALCETrWNqksZWjotVXfWVWOaJ-tN=uBuMaRe+JmmPjacb6KDOg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,97 +23,88 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/virtualization/>
 List-Post: <mailto:virtualization@lists.linuxfoundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Sep 2, 2014 at 2:10 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Mon, Sep 01, 2014 at 10:55:29PM -0700, Andy Lutomirski wrote:
->> On Mon, Sep 1, 2014 at 3:16 PM, Benjamin Herrenschmidt
->> <benh@kernel.crashing.org> wrote:
->> > On Mon, 2014-09-01 at 10:39 -0700, Andy Lutomirski wrote:
->> >> Changes from v1:
->> >>  - Using the DMA API is optional now.  It would be nice to improve the
->> >>    DMA API to the point that it could be used unconditionally, but s390
->> >>    proves that we're not there yet.
->> >>  - Includes patch 4, which fixes DMA debugging warnings from virtio_net.
->> >
->> > I'm not sure if you saw my reply on the other thread but I have a few
->> > comments based on the above "it would be nice if ..."
->> >
->>
->> Yeah, sorry, I sort of thought I responded, but I didn't do a very good job.
->>
->> > So here we have both a yes and a no :-)
->> >
->> > It would be nice to avoid those if () games all over and indeed just
->> > use the DMA API, *however* we most certainly don't want to actually
->> > create IOMMU mappings for the KVM virio case. This would be a massive
->> > loss in performances on several platforms and generally doesn't make
->> > much sense.
->> >
->> > However, we can still use the API without that on any architecture
->> > where the dma mapping API ends up calling the generic dma_map_ops,
->> > it becomes just a matter of virtio setting up some special "nop" ops
->> > when needed.
->>
->> I'm not quite convinced that this is a good idea.  I think that there
->> are three relevant categories of virtio devices:
->>
->> a) Any virtio device where the normal DMA ops are nops.  This includes
->> x86 without an IOMMU (e.g. in a QEMU/KVM guest), 32-bit ARM, and
->> probably many other architectures.  In this case, what we do only
->> matters for performance, not for correctness.  Ideally the arch DMA
->> ops are fast.
->>
->> b) Virtio devices that use physical addressing on systems where DMA
->> ops either don't exist at all (most s390) or do something nontrivial.
->> In this case, we must either override the DMA ops or just not use
->> them.
->>
->> c) Virtio devices that use bus addressing.  This includes everything
->> on Xen (because the "physical" addresses are nonsense) and any actual
->> physical PCI device that speaks virtio on a system with an IOMMU.  In
->> this case, we must use the DMA ops.
->>
->> The issue is that, on systems with DMA ops that do something, we need
->> to make sure that we know whether we're in case (b) or (c).  In these
->> patches, I've made the assumption that, if the virtio devices lives on
->> the PCI bus, then it uses the same type of addressing that any other
->> device on that PCI bus would use.
->>
->> On x86, at least, I doubt that we'll ever see a physically addressed
->> PCI virtio device for which ACPI advertises an IOMMU, since any sane
->> hypervisor will just not advertise an IOMMU for the virtio device.
->
-> How exactly does one not advertise an IOMMU for a specific
-> device? Could you please clarify?
+On Tue, 2014-09-02 at 14:37 -0700, Andy Lutomirski wrote:
 
-See https://software.intel.com/en-us/blogs/2009/09/11/decoding-the-dmar-tables-in-acpiiommu-part-2
+> Let's take a step back from from the implementation.  What is a driver
+> for a virtio PCI device (i.e. a PCI device with vendor 0x1af4)
+> supposed to do on ppc64?
 
-I think that all that needs to happen is for ACPI to not list the
-device in the scope of any drhd unit.  I don't know whether this works
-correctly, but it looks like the iommu_dummy and the
-init_no_remapping_devices code in intel-iommu.c exists for almost
-exactly this purpose.
+Today, it's supposed to send guest physical addresses. We can make that
+optional via some nego or capabilities to support more esoteric setups
+but for backward compatibility, this must remain the default behaviour.
 
->
->> But are there arm64 or PPC guests that use virtio_pci, that have
->> IOMMUs, and that will malfunction if the virtio_pci driver ends up
->> using the IOMMU?  I certainly hope not, since these systems might be
->> very hard-pressed to work right if someone plugged in a physical
->> virtio-speaking PCI device.
->
-> One simple fix is to defer this all until virtio 1.0.
-> virtio 1.0 has an alternative set of IDs for virtio pci,
-> that can be used if you are making an incompatible change.
-> We can use that if there's an iommu.
+> It can send the device physical addresses and ignore the normal PCI
+> DMA semantics, which is what the current virtio_pci driver does.  This
+> seems like a layering violation, and this won't work if the device is
+> a real PCI device.
 
-How?  If someone builds a physical device compliant with the virtio
-1.0 specification, how do can that device know whether it's behind an
-IOMMU?  The IOMMU is part of the host (or Xen, sort of), not the PCI
-device.  I suppose that virtio 1.0 could add a bit indicating that the
-virtio device is a physical piece of hardware (presumably this should
-be PCI-specific).
+Correct, it's an original virtio implementation choice for maximum
+performances.
 
---Andy
+>   Alternatively, it can treat the device like any
+> other PCI device and use the IOMMU.  This is a bit slower, and it is
+> also incompatible with current hypervisors.
+
+This is a potentially a LOT slower and is backward incompatible with
+current qemu/KVM and kvmtool yes.
+
+The slowness can be alleviated using various techniques, for example on
+ppc64 we can create a DMA window that contains a permanent mapping of
+the entire guest space, so we could use such a thing for virtio.
+
+Another think we could do potentially is advertize via the device-tree
+that such a bus uses a direct mapping and have the guest use appropriate
+"direct map" dma_ops.
+
+But we need to keep backward compatibility with existing
+guest/hypervisors so the default must remain as it is.
+
+> There really are virtio devices that are pieces of silicon and not
+> figments of a hypervisor's imagination [1].
+
+I am aware of that. There are also attempts at using virtio to make two
+machines communicate via a PCIe link (either with one as endpoint of the
+other or via a non-transparent switch).
+
+Which is why I'm not objecting to what you are trying to do ;-)
+
+My suggestion was that it might be a cleaner approach to do that by
+having the individual virtio drivers always use the dma_map_* API, and
+limiting the kludgery to a combination of virtio_pci "core" and arch
+code by selecting an appropriate set of dma_map_ops, defaulting with a
+"transparent" (or direct) one as our current default case (and thus
+overriding the iommu ones provided by the arch).
+
+>   We could teach virtio_pci
+> to use physical addressing on ppc64, but that seems like a pretty
+> awful hack, and it'll start needing quirks as soon as someone tries to
+> plug a virtio-speaking PCI card into a ppc64 machine.
+
+But x86_64 is the same no ? The day it starts growing an iommu emulation
+in qemu (and I've heard it's happening) it will still want to do direct
+bypass for virtio for performance.
+
+> Ideas?  x86 and arm seem to be safe here, since AFAIK there is no such
+> thing as a physically addressed virtio "PCI" device on a bus with an
+> IOMMU on x86, arm, or arm64.
+
+Today .... I wouldn't bet on it to remain that way. The qemu
+implementation of virtio is physically addressed and you don't
+necessarily have a choice of which device gets an iommu and which not.
+
+Cheers,
+Ben.
+
+> [1] https://lwn.net/Articles/580186/
+> 
+> > Cheers,
+> > Ben.
+> >
+> >
+> 
+> 
+> 
