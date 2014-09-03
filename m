@@ -1,20 +1,22 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
-Date: Wed, 03 Sep 2014 09:43:59 +0200
-Message-ID: <5406C6BF.8040908@redhat.com>
+Date: Wed, 03 Sep 2014 09:47:07 +0200
+Message-ID: <5406C77B.1000809@redhat.com>
 References: <cover.1409593066.git.luto@amacapital.net>	
 	<1409609814.30640.11.camel@pasglop>	
 	<CALCETrVHSjaCe5TN6+Gr9W9uT8XEZC97ne_dZUazMDyLr0Wetw@mail.gmail.com>	
 	<1409691213.30640.37.camel@pasglop>	
 	<CALCETrWNqksZWjotVXfWVWOaJ-tN=uBuMaRe+JmmPjacb6KDOg@mail.gmail.com>	
 	<1409695810.30640.57.camel@pasglop>	
-	<CALCETrXA0Po5mhLWDn41_sT+zBwbo7Rzm5Nqxdmao-MbtfKvmQ@mail.gmail.com>
-	<1409700010.30640.67.camel@pasglop>
+	<CALCETrXA0Po5mhLWDn41_sT+zBwbo7Rzm5Nqxdmao-MbtfKvmQ@mail.gmail.com>	
+	<1409700010.30640.67.camel@pasglop>	
+	<CALCETrWTwoBLj6onvNWOrwvY_n3-rWx0KifR0xP7091Vd-xHbg@mail.gmail.com>
+	<1409703942.30640.71.camel@pasglop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1409700010.30640.67.camel@pasglop>
+In-Reply-To: <1409703942.30640.71.camel@pasglop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -30,18 +32,24 @@ To: Benjamin Herrenschmidt <benh@au1.ibm.com>, Andy Lutomirski <luto@amacapital.
 Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Il 03/09/2014 01:20, Benjamin Herrenschmidt ha scritto:
-> I wouldn't be so certain, as I said, the way virtio is implemented in
-> qemu bypass the DMA layer which is where IOMMUs sit. The fact that
-> currently x86 doesn't put an IOMMU there is not even garanteed, is it ?
-> What happens if you try to mix and match virtio and other emulated
-> devices that require the iommu on the same bus ?
+Il 03/09/2014 02:25, Benjamin Herrenschmidt ha scritto:
+> > But there aren't any ACPI systems with both virtio-pci and IOMMUs,
+> > right?  So we could say that, henceforth, ACPI systems must declare
+> > whether virtio-pci devices live behind IOMMUs without breaking
+> > backward compatibility.
+> 
+> I don't know for sure whether that's the case and whether we can rely on
+> that not happening, we'll need x86 folks opinion here.
 
-As far as QEMU is concerned, it's trivial to add a property like
-"direct-ram-access" that selects whether to bypass the IOMMU or not.
-And it would have zero performance cost if direct RAM access is enabled,
-compared to the current code.
+IOMMU support for x86 is going to go in this week.
 
-If possible, I would quirk it in the PPC code.
+However, it is and likely will remain niche enough that I don't really
+care about performance loss from IOMMU support.  If you enable it, you
+want it.
+
+So from the QEMU point of view we can simply add the direct-ram-access
+property, and have the pseries machine turn it on by default (while
+other machines can leave it off by default---they have no IOMMU and thus
+no performance cost).
 
 Paolo
