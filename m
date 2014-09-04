@@ -1,12 +1,12 @@
 From: frank.blaschka@de.ibm.com
-Subject: [RFC][patch 3/6] KVM: s390: Add GISA support
-Date: Thu, 04 Sep 2014 12:52:26 +0200
-Message-ID: <20140904105337.081387456@de.ibm.com>
+Subject: [RFC][patch 6/6] s390: Add PCI pass-through device support
+Date: Thu, 04 Sep 2014 12:52:29 +0200
+Message-ID: <20140904105337.440966290@de.ibm.com>
 References: <20140904105223.336503578@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline; filename=004-s390_kvm_gisa-3.16.patch
+Content-Disposition: inline; filename=102-qemu_s390pci.patch
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -16,378 +16,412 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Frank Blaschka <frank.blaschka@de.ibm.com>
 
-This patch adds GISA (Guest Interrupt State Area) support
-to s390 kvm. GISA can be used for exitless interrupts. The
-patch provides a set of functions for GISA related operations
-like accessing GISA fields or registering ISCs for alert.
-Exploiters of GISA will follow with additional patches.
+This patch adds a new device class handling s390 pci pass-through device
+assignment. The approach is very similar to the x86 device assignment.
+The device executes the KVM_ASSIGN_PCI_DEVICE ioctl to create a proxy instance
+in the kernel KVM and connect this instance to the host pci device.
 
 Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |   72 ++++++++++++++++
- arch/s390/kvm/kvm-s390.c         |  167 +++++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.h         |   28 ++++++
- 3 files changed, 265 insertions(+), 2 deletions(-)
+ hw/s390x/Makefile.objs  |    2 
+ hw/s390x/s390-pci-bus.c |   14 +-
+ hw/s390x/s390_pci.c     |  321 ++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/s390x/s390_pci.h     |   31 ++++
+ 4 files changed, 365 insertions(+), 3 deletions(-)
 
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -129,11 +129,12 @@ struct kvm_s390_sie_block {
- 	__u8	reserved60;		/* 0x0060 */
- 	__u8	ecb;			/* 0x0061 */
- 	__u8    ecb2;                   /* 0x0062 */
--	__u8    reserved63[1];          /* 0x0063 */
-+	__u8    ecb3;			/* 0x0063 */
- 	__u32	scaol;			/* 0x0064 */
- 	__u8	reserved68[4];		/* 0x0068 */
- 	__u32	todpr;			/* 0x006c */
--	__u8	reserved70[32];		/* 0x0070 */
-+	__u32   gd;                     /* 0x0070 */
-+	__u8    reserved74[28];         /* 0x0074 */
- 	psw_t	gpsw;			/* 0x0090 */
- 	__u64	gg14;			/* 0x00a0 */
- 	__u64	gg15;			/* 0x00a8 */
-@@ -300,6 +301,70 @@ struct kvm_s390_interrupt_info {
- #define ACTION_STORE_ON_STOP		(1<<0)
- #define ACTION_STOP_ON_STOP		(1<<1)
+--- a/hw/s390x/Makefile.objs
++++ b/hw/s390x/Makefile.objs
+@@ -8,4 +8,4 @@ obj-y += ipl.o
+ obj-y += css.o
+ obj-y += s390-virtio-ccw.o
+ obj-y += virtio-ccw.o
+-obj-$(CONFIG_KVM) += s390-pci-bus.o
++obj-$(CONFIG_KVM) += s390-pci-bus.o s390_pci.o
+--- a/hw/s390x/s390-pci-bus.c
++++ b/hw/s390x/s390-pci-bus.c
+@@ -16,6 +16,7 @@
+ #include <hw/s390x/sclp.h>
+ #include "qemu/error-report.h"
+ #include "s390-pci-bus.h"
++#include "s390_pci.h"
  
-+#define KVM_S390_GISA_FORMAT_0	0
-+#define KVM_S390_GISA_FORMAT_1	1
+ /* #define DEBUG_S390PCI_BUS */
+ #ifdef DEBUG_S390PCI_BUS
+@@ -219,8 +220,17 @@ static void s390_pcihost_hot_plug(Hotplu
+     pbdev->pdev = pci_dev;
+     pbdev->configured = true;
+ 
+-    pbdev->fh = s390_pci_get_pfh(pci_dev);
+-    pbdev->is_virt = 1;
++    if (!strcmp(pci_dev->name, "s390-pci")) {
++        S390PCIDevice *sdev = DO_UPCAST(S390PCIDevice, pdev, pci_dev);
++        pbdev->fh = s390_pci_get_fh(sdev->host);
++        if (!pbdev->fh) {
++            g_free(pbdev);
++            return;
++        }
++    } else {
++        pbdev->fh = s390_pci_get_pfh(pci_dev);
++        pbdev->is_virt = 1;
++    }
+ 
+     QTAILQ_INSERT_TAIL(&device_list, pbdev, next);
+     if (dev->hotplugged) {
+--- /dev/null
++++ b/hw/s390x/s390_pci.c
+@@ -0,0 +1,321 @@
++/*
++ * s390 PCI pass-through device assignment
++ *
++ * Copyright 2014 IBM Corp.
++ * Author(s): Frank Blaschka <frank.blaschka@de.ibm.com>
++ *            Hong Bo Li <lihbbj@cn.ibm.com>
++ *            Yi Min Zhao <zyimin@cn.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or (at
++ * your option) any later version. See the COPYING file in the top-level
++ * directory.
++ */
 +
-+struct kvm_s390_gisa_f0 {
-+	u32 next_alert;
-+	u8 ipm;
-+	u16 rsv0:14;
-+	u16 g:1;
-+	u16 c:1;
-+	u8 iam;
-+	u32 rsv1;
-+	u32 count;
-+} __packed;
++#include <hw/pci/pci.h>
++#include <hw/pci/pci_host.h>
++#include <hw/pci/pci_bus.h>
++#include <net/net.h>
++#include <hw/s390x/css.h>
++#include <hw/s390x/sclp.h>
++#include "exec/exec-all.h"
++#include "sysemu/sysemu.h"
++#include "exec/address-spaces.h"
++#include "qemu/error-report.h"
++#include "qapi/qmp/qerror.h"
 +
-+struct kvm_s390_gisa_f1 {
-+	u32 next_alert;
-+	u8 ipm;
-+	u8 simm;
-+	u8 nimm;
-+	u8 iam;
-+	u64 aisma;
-+	u32 rsv0:6;
-+	u32 g:1;
-+	u32 c:1;
-+	u32 rsv1:24;
-+	u64 rsv2;
-+	u32 count;
-+} __packed;
++#include "s390_pci.h"
++#include "s390-pci-bus.h"
 +
-+union kvm_s390_gisa {
-+	struct kvm_s390_gisa_f0 f0;
-+	struct kvm_s390_gisa_f1 f1;
++/* #define DEBUG_S390PCI */
++#ifdef DEBUG_S390PCI
++#define DPRINTF(fmt, ...) \
++    do { fprintf(stderr, "s390pci: " fmt, ## __VA_ARGS__); } while (0)
++#else
++#define DPRINTF(fmt, ...) \
++    do { } while (0)
++#endif
++
++#define ASSIGN_FLAG_HOSTIRQ 0x1
++
++uint32_t s390_pci_get_fh(PCIHostDeviceAddress host)
++{
++    char fh_path[128];
++    struct stat st;
++    FILE *fd;
++    uint32_t fh;
++
++    snprintf(fh_path, sizeof(fh_path),
++        "/sys/bus/pci/devices/%04x:%02x:%02x.%x/function_handle",
++        host.domain, host.bus, host.slot, host.function);
++
++    if (stat(fh_path, &st)) {
++        error_report("get function handle faild: no host device specified");
++        return -1;
++    }
++
++    fd = fopen(fh_path, "r");
++    if (fd == NULL) {
++        error_report("%s: %s: %m", __func__, fh_path);
++        return 0;
++    }
++    if (fscanf(fd, "%x", &fh) != 1) {
++        fclose(fd);
++        return 0;
++    }
++    fclose(fd);
++    return fh;
++}
++
++uint32_t s390_pci_get_fid(PCIHostDeviceAddress host)
++{
++    char fid_path[128];
++    struct stat st;
++    FILE *fd;
++    uint32_t fid;
++
++    snprintf(fid_path, sizeof(fid_path),
++        "/sys/bus/pci/devices/%04x:%02x:%02x.%x/function_id",
++        host.domain, host.bus, host.slot, host.function);
++
++    if (stat(fid_path, &st)) {
++        error_report("get function id faild: no host device specified");
++        return -1;
++    }
++
++    fd = fopen(fid_path, "r");
++    if (fd == NULL) {
++        error_report("%s: %s: %m", __func__, fid_path);
++        return -1;
++    }
++    if (fscanf(fd, "%x", &fid) != 1) {
++        fclose(fd);
++        return -1;
++    }
++    fclose(fd);
++    return fid;
++}
++
++static int get_real_id(const char *devpath, const char *idname, uint16_t *val)
++{
++    FILE *f;
++    char name[128];
++    long id;
++
++    snprintf(name, sizeof(name), "%s%s", devpath, idname);
++    f = fopen(name, "r");
++    if (f == NULL) {
++        error_report("%s: %s: %m", __func__, name);
++        return -1;
++    }
++    if (fscanf(f, "%li\n", &id) == 1) {
++        *val = id;
++    } else {
++        fclose(f);
++        return -1;
++    }
++    fclose(f);
++
++    return 0;
++}
++
++static int get_real_vendor_id(const char *devpath, uint16_t *val)
++{
++    return get_real_id(devpath, "vendor", val);
++}
++
++static int get_real_device_id(const char *devpath, uint16_t *val)
++{
++    return get_real_id(devpath, "device", val);
++}
++
++static void assign_failed_examine(S390PCIDevice *dev)
++{
++    char name[PATH_MAX], dir[PATH_MAX], driver[PATH_MAX] = {}, *ns;
++    uint16_t vendor_id, device_id;
++    int rc;
++
++    snprintf(dir, sizeof(dir), "/sys/bus/pci/devices/%04x:%02x:%02x.%01x/",
++            dev->host.domain, dev->host.bus, dev->host.slot,
++            dev->host.function);
++
++    snprintf(name, sizeof(name), "%sdriver", dir);
++
++    rc = readlink(name, driver, sizeof(driver));
++    if ((rc <= 0) || rc >= sizeof(driver)) {
++        goto fail;
++    }
++
++    driver[rc] = 0;
++    ns = strrchr(driver, '/');
++    if (!ns) {
++        goto fail;
++    }
++
++    ns++;
++
++    if (get_real_vendor_id(dir, &vendor_id) ||
++        get_real_device_id(dir, &device_id)) {
++        goto fail;
++    }
++
++    error_printf("*** The driver '%s' is occupying your device "
++        "%04x:%02x:%02x.%x.\n"
++        "***\n"
++        "*** You can try the following commands to free it:\n"
++        "***\n"
++        "*** $ echo \"%04x %04x\" > /sys/bus/pci/drivers/pci-stub/new_id\n"
++        "*** $ echo \"%04x:%02x:%02x.%x\" > /sys/bus/pci/drivers/%s/unbind\n"
++        "*** $ echo \"%04x:%02x:%02x.%x\" > /sys/bus/pci/drivers/"
++        "pci-stub/bind\n"
++        "*** $ echo \"%04x %04x\" > /sys/bus/pci/drivers/pci-stub/remove_id\n"
++        "***\n",
++        ns, dev->host.domain, dev->host.bus, dev->host.slot,
++        dev->host.function, vendor_id, device_id,
++        dev->host.domain, dev->host.bus, dev->host.slot, dev->host.function,
++        ns, dev->host.domain, dev->host.bus, dev->host.slot,
++        dev->host.function, vendor_id, device_id);
++
++    return;
++
++fail:
++    error_report("Couldn't find out why.");
++}
++
++static int s390_initfn(PCIDevice *pdev)
++{
++    char dir[128], name[128];
++    struct stat st;
++    int cfd;
++    int rc;
++    S390PCIDevice *vdev = DO_UPCAST(S390PCIDevice, pdev, pdev);
++    struct kvm_assigned_pci_dev dev_data = {
++        .segnr = vdev->host.domain,
++        .busnr = vdev->host.bus,
++        .devfn = PCI_DEVFN(vdev->host.slot, vdev->host.function),
++        .flags = 0,
++    };
++
++    if (!kvm_enabled()) {
++        error_report("s390pci-assign: error: requires KVM support");
++        return -1;
++    }
++
++    snprintf(dir, sizeof(dir),
++        "/sys/bus/pci/devices/%04x:%02x:%02x.%x/",
++        vdev->host.domain, vdev->host.bus, vdev->host.slot,
++        vdev->host.function);
++
++    if (stat(dir, &st)) {
++        error_report("s390pci-assign: error: no host device specified");
++        return -1;
++    }
++
++    snprintf(name, sizeof(name), "%sconfig", dir);
++
++    cfd = open(name, O_RDWR);
++    if (cfd == -1) {
++        error_report("%s: %s: %m", __func__, name);
++        return -1;
++    }
++
++    do {
++        rc = read(cfd, pdev->config, pci_config_size(pdev));
++        if (rc >= 0) {
++            break;
++        }
++    } while (errno == EINTR || errno == EAGAIN);
++
++    if (rc < 0) {
++        error_report("%s: read failed, errno = %d", __func__, errno);
++    }
++    close(cfd);
++
++    dev_data.assigned_dev_id =
++        (vdev->host.domain << 16) | (vdev->host.bus << 8) | dev_data.devfn;
++
++    DPRINTF("%04x:%02x:%02x.%x fid 0x%x fh 0x%x dev_id 0x%x\n",
++        vdev->host.domain, vdev->host.bus, vdev->host.slot,
++        vdev->host.function, s390_pci_get_fid(vdev->host),
++        s390_pci_get_fh(vdev->host), dev_data.assigned_dev_id);
++
++    if (vdev->hostirq) {
++        dev_data.flags |= ASSIGN_FLAG_HOSTIRQ;
++    }
++
++    rc = kvm_vm_ioctl(kvm_state, KVM_ASSIGN_PCI_DEVICE, &dev_data);
++    if (rc) {
++        error_report("Failed to assign device \"0x%x\" : %s",
++                     dev_data.assigned_dev_id, strerror(-rc));
++        switch (rc) {
++        case -EBUSY:
++            assign_failed_examine(vdev);
++            break;
++        default:
++            break;
++        }
++        return rc;
++    }
++
++    vdev->dev_id = dev_data.assigned_dev_id;
++    return rc;
++}
++
++static void s390_exitfn(PCIDevice *pdev)
++{
++    int rc;
++
++    S390PCIDevice *vdev = DO_UPCAST(S390PCIDevice, pdev, pdev);
++    struct kvm_assigned_pci_dev dev_data = {
++        .assigned_dev_id = vdev->dev_id,
++    };
++
++    DPRINTF("%s(%04x:%02x:%02x.%x)\n", __func__, vdev->host.domain,
++            vdev->host.bus, vdev->host.slot, vdev->host.function);
++
++    rc = kvm_vm_ioctl(kvm_state, KVM_DEASSIGN_PCI_DEVICE, &dev_data);
++    assert(rc == 0);
++}
++
++static void s390_pci_reset(DeviceState *dev)
++{
++    return;
++}
++
++static Property s390_pci_dev_properties[] = {
++    DEFINE_PROP_PCI_HOST_DEVADDR("host", S390PCIDevice, host),
++    DEFINE_PROP_UINT32("hostirq", S390PCIDevice, hostirq, 0),
++    DEFINE_PROP_END_OF_LIST(),
 +};
 +
-+struct kvm_s390_gait {
-+	u32 gd;
-+	u16      : 5;
-+	u16 gisc : 3;
-+	u16 rpu  : 8;
-+	u16        : 10;
-+	u16 gaisbo :  6;
-+	u64 gaisba;
-+} __packed;
++static const VMStateDescription s390_pci_vmstate = {
++    .name = "s390-pci",
++    .unmigratable = 1,
++};
 +
-+struct kvm_s390_aifte {
-+	u64 faisba;
-+	u64 gaita;
-+	u16 simm : 8;
-+	u16      : 5;
-+	u16 afi  : 3;
-+	u16 reserved1;
-+	u16 reserved2;
-+	u16 faal;
-+} __packed;
-+
-+struct kvm_s390_gib {
-+	u32 alo;
-+	u32 reserved1;
-+	u32      : 5;
-+	u32 nisc : 3;
-+	u32      : 24;
-+	u8 reserverd2[20];
-+} __packed;
-+
- struct kvm_s390_local_interrupt {
- 	spinlock_t lock;
- 	struct list_head list;
-@@ -420,6 +485,9 @@ struct kvm_arch{
- 	struct s390_io_adapter *adapters[MAX_S390_IO_ADAPTERS];
- 	wait_queue_head_t ipte_wq;
- 	spinlock_t start_stop_lock;
-+	union kvm_s390_gisa *gisa;
-+	unsigned long iam;
-+	atomic_t in_sie;
- };
- 
- #define KVM_HVA_ERR_BAD		(-1UL)
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -404,6 +404,16 @@ long kvm_arch_vm_ioctl(struct file *filp
- 	return r;
- }
- 
-+static u8 kvm_s390_gisa_get_alert_mask(struct kvm *kvm)
++static void s390_pci_dev_class_init(ObjectClass *klass, void *data)
 +{
-+	return (u8)ACCESS_ONCE(kvm->arch.iam);
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    PCIDeviceClass *pdc = PCI_DEVICE_CLASS(klass);
++
++    dc->reset = s390_pci_reset;
++    dc->props = s390_pci_dev_properties;
++    dc->vmsd = &s390_pci_vmstate;
++    dc->desc = "s390-based PCI device assignment";
++    pdc->init = s390_initfn;
++    pdc->exit = s390_exitfn;
++    pdc->is_express = 1;
 +}
 +
-+static void kvm_s390_gisa_set_alert_mask(struct kvm *kvm, u8 iam)
++static const TypeInfo s390_pci_dev_info = {
++    .name = "s390-pci",
++    .parent = TYPE_PCI_DEVICE,
++    .instance_size = sizeof(S390PCIDevice),
++    .class_init = s390_pci_dev_class_init,
++};
++
++static void register_s390_pci_dev_type(void)
 +{
-+	xchg(&kvm->arch.iam, iam);
++    type_register_static(&s390_pci_dev_info);
 +}
 +
- int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- {
- 	int rc;
-@@ -461,6 +471,14 @@ int kvm_arch_init_vm(struct kvm *kvm, un
- 	kvm->arch.css_support = 0;
- 	kvm->arch.use_irqchip = 0;
- 
-+	kvm->arch.gisa = (union kvm_s390_gisa *)get_zeroed_page(
-+			GFP_KERNEL | GFP_DMA);
-+	if (!kvm->arch.gisa)
-+		goto out_nogmap;
-+	kvm_s390_gisa_set_next_alert(kvm, (u32)(unsigned long)kvm->arch.gisa);
-+	kvm_s390_gisa_set_alert_mask(kvm, 0);
-+	atomic_set(&kvm->arch.in_sie, 0);
++type_init(register_s390_pci_dev_type)
+--- /dev/null
++++ b/hw/s390x/s390_pci.h
+@@ -0,0 +1,31 @@
++/*
++ * s390 PCI pass-through device assignment definitions
++ *
++ * Copyright 2014 IBM Corp.
++ * Author(s): Frank Blaschka <frank.blaschka@de.ibm.com>
++ *            Hong Bo Li <lihbbj@cn.ibm.com>
++ *            Yi Min Zhao <zyimin@cn.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or (at
++ * your option) any later version. See the COPYING file in the top-level
++ * directory.
++ */
 +
- 	spin_lock_init(&kvm->arch.start_stop_lock);
- 
- 	return 0;
-@@ -520,6 +538,7 @@ void kvm_arch_sync_events(struct kvm *kv
- 
- void kvm_arch_destroy_vm(struct kvm *kvm)
- {
-+	free_page((unsigned long)kvm->arch.gisa);
- 	kvm_free_vcpus(kvm);
- 	free_page((unsigned long)(kvm->arch.sca));
- 	debug_unregister(kvm->arch.dbf);
-@@ -656,6 +675,19 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu
- 	return rc;
- }
- 
-+u32 kvm_s390_gisa_get_fmt(void)
-+{
-+	if (test_facility(70) || test_facility(72))
-+		return KVM_S390_GISA_FORMAT_1;
-+	else
-+		return KVM_S390_GISA_FORMAT_0;
-+}
++#ifndef HW_S390_PCI_H
++#define HW_S390_PCI_H
 +
-+static u32 kvm_s390_build_gd(struct kvm *kvm)
-+{
-+	return (u32)(unsigned long)kvm->arch.gisa | kvm_s390_gisa_get_fmt();
-+}
++#include <hw/pci/pci.h>
 +
- struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
- 				      unsigned int id)
- {
-@@ -699,6 +731,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(st
- 	vcpu->arch.local_int.float_int = &kvm->arch.float_int;
- 	vcpu->arch.local_int.wq = &vcpu->wq;
- 	vcpu->arch.local_int.cpuflags = &vcpu->arch.sie_block->cpuflags;
-+	vcpu->arch.sie_block->gd = kvm_s390_build_gd(kvm);
- 
- 	rc = kvm_vcpu_init(vcpu, kvm, id);
- 	if (rc)
-@@ -749,6 +782,132 @@ void exit_sie_sync(struct kvm_vcpu *vcpu
- 	exit_sie(vcpu);
- }
- 
-+void kvm_s390_gisa_register_alert(struct kvm *kvm, u32 gisc)
-+{
-+	int bito = BITS_PER_BYTE * 7 + gisc;
++typedef struct S390PCIDevice {
++    PCIDevice pdev;
++    PCIHostDeviceAddress host;
++    QLIST_ENTRY(s390PCIDevice) next;
++    uint32_t dev_id;
++    uint32_t fid;
++    uint32_t hostirq;
++} S390PCIDevice;
 +
-+	set_bit(bito ^ (BITS_PER_LONG - 1), &kvm->arch.iam);
-+}
++uint32_t s390_pci_get_fh(PCIHostDeviceAddress host);
++uint32_t s390_pci_get_fid(PCIHostDeviceAddress host);
 +
-+void kvm_s390_gisa_unregister_alert(struct kvm *kvm, u32 gisc)
-+{
-+	int bito = BITS_PER_BYTE * 7 + gisc;
-+
-+	clear_bit(bito ^ (BITS_PER_LONG - 1), &kvm->arch.iam);
-+}
-+
-+u32 __kvm_s390_gisa_get_next_alert(union kvm_s390_gisa *gisa)
-+{
-+	return ACCESS_ONCE(gisa->f0.next_alert);
-+}
-+
-+u32 kvm_s390_gisa_get_next_alert(struct kvm *kvm)
-+{
-+	return __kvm_s390_gisa_get_next_alert(
-+		(union kvm_s390_gisa *)kvm->arch.gisa);
-+}
-+
-+void __kvm_s390_gisa_set_next_alert(union kvm_s390_gisa *gisa, u32 val)
-+{
-+	xchg(&gisa->f0.next_alert, val);
-+}
-+
-+void kvm_s390_gisa_set_next_alert(struct kvm *kvm, u32 val)
-+{
-+	__kvm_s390_gisa_set_next_alert(kvm->arch.gisa, val);
-+}
-+
-+u8 kvm_s390_gisa_get_iam(struct kvm *kvm)
-+{
-+	return ACCESS_ONCE(kvm->arch.gisa->f0.iam);
-+}
-+
-+void kvm_s390_gisa_set_iam(struct kvm *kvm, u8 iam)
-+{
-+	xchg(&kvm->arch.gisa->f0.iam, iam);
-+}
-+
-+int kvm_s390_gisa_test_iam_gisc(struct kvm *kvm, u32 gisc)
-+{
-+	int bito = BITS_PER_BYTE * 7 + gisc;
-+	unsigned long *addr = (unsigned long *)kvm->arch.gisa;
-+
-+	return test_bit(bito ^ (BITS_PER_LONG - 1), addr);
-+}
-+
-+u8 kvm_s390_gisa_get_ipm(struct kvm *kvm)
-+{
-+	return ACCESS_ONCE(kvm->arch.gisa->f0.ipm);
-+}
-+
-+void kvm_s390_gisa_set_ipm(struct kvm *kvm, u8 ipm)
-+{
-+	xchg(&kvm->arch.gisa->f0.ipm, ipm);
-+}
-+
-+int kvm_s390_gisa_test_ipm_gisc(struct kvm *kvm, u32 gisc)
-+{
-+	int bito = BITS_PER_BYTE * 4 + gisc;
-+	unsigned long *addr = (unsigned long *)kvm->arch.gisa;
-+
-+	return test_bit(bito ^ (BITS_PER_LONG - 1), addr);
-+}
-+
-+void kvm_s390_gisa_set_ipm_gisc(struct kvm *kvm, u32 gisc)
-+{
-+	int bito = gisc + 32;
-+	unsigned long *addr = (unsigned long *)kvm->arch.gisa;
-+
-+	set_bit(bito ^ (BITS_PER_LONG - 1), addr);
-+}
-+
-+u32 kvm_s390_gisa_get_g(struct kvm *kvm)
-+{
-+	u32 fmt, bito;
-+	unsigned long *addr;
-+
-+	fmt = kvm_s390_gisa_get_fmt();
-+	if (fmt == KVM_S390_GISA_FORMAT_0) {
-+		addr = (unsigned long *)kvm->arch.gisa;
-+		bito = BITS_PER_BYTE * 6 + 6;
-+	} else {
-+		addr = (unsigned long *)((u8 *)kvm->arch.gisa + 16);
-+		bito = 6;
-+	}
-+
-+	return test_bit(bito ^ (BITS_PER_LONG - 1), addr);
-+}
-+
-+u32 kvm_s390_gisa_get_c(struct kvm *kvm)
-+{
-+	u32 fmt, bito;
-+	unsigned long *addr;
-+
-+	fmt = kvm_s390_gisa_get_fmt();
-+	if (fmt == KVM_S390_GISA_FORMAT_0) {
-+		addr = (unsigned long *)kvm->arch.gisa;
-+		bito = BITS_PER_BYTE * 6 + 7;
-+	} else {
-+		addr = (unsigned long *)((u8 *)kvm->arch.gisa + 16);
-+		bito = 7;
-+	}
-+
-+	return test_bit(bito ^ (BITS_PER_LONG - 1), addr);
-+}
-+
-+u32 kvm_s390_gisa_get_count(struct kvm *kvm)
-+{
-+	u32 fmt, cnt;
-+
-+	fmt = kvm_s390_gisa_get_fmt();
-+	if (fmt == KVM_S390_GISA_FORMAT_0)
-+		cnt = ACCESS_ONCE(kvm->arch.gisa->f0.count);
-+	else
-+		cnt = ACCESS_ONCE(kvm->arch.gisa->f1.count);
-+
-+	return cnt;
-+}
-+
- static void kvm_gmap_notifier(struct gmap *gmap, unsigned long address)
- {
- 	int i;
-@@ -1284,8 +1443,16 @@ static int __vcpu_run(struct kvm_vcpu *v
- 		preempt_disable();
- 		kvm_guest_enter();
- 		preempt_enable();
-+
-+		atomic_inc(&vcpu->kvm->arch.in_sie);
-+		kvm_s390_gisa_set_iam(vcpu->kvm, 0);
-+
- 		exit_reason = sie64a(vcpu->arch.sie_block,
- 				     vcpu->run->s.regs.gprs);
-+		if (atomic_dec_and_test(&vcpu->kvm->arch.in_sie))
-+			kvm_s390_gisa_set_iam(vcpu->kvm,
-+				kvm_s390_gisa_get_alert_mask(vcpu->kvm));
-+
- 		kvm_guest_exit();
- 		vcpu->srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
- 
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -122,6 +122,17 @@ static inline u64 kvm_s390_get_base_disp
- 	return (base2 ? vcpu->run->s.regs.gprs[base2] : 0) + disp2;
- }
- 
-+static inline u64 kvm_s390_get_base_disp_rxy(struct kvm_vcpu *vcpu)
-+{
-+	u32 x2 = (vcpu->arch.sie_block->ipa & 0x000f);
-+	u32 base2 = vcpu->arch.sie_block->ipb >> 28;
-+	u32 disp2 = ((vcpu->arch.sie_block->ipb & 0x0fff0000) >> 16) +
-+		((vcpu->arch.sie_block->ipb & 0xff00) << 4);
-+
-+	return (base2 ? vcpu->run->s.regs.gprs[base2] : 0) +
-+		(x2 ? vcpu->run->s.regs.gprs[x2] : 0) + (u64)disp2;
-+}
-+
- /* Set the condition code in the guest program status word */
- static inline void kvm_s390_set_psw_cc(struct kvm_vcpu *vcpu, unsigned long cc)
- {
-@@ -180,6 +191,23 @@ void exit_sie(struct kvm_vcpu *vcpu);
- void exit_sie_sync(struct kvm_vcpu *vcpu);
- int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu);
- void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu);
-+u32 kvm_s390_gisa_get_fmt(void);
-+void kvm_s390_gisa_register_alert(struct kvm *kvm, u32 gisc);
-+void kvm_s390_gisa_unregister_alert(struct kvm *kvm, u32 gisc);
-+u32 __kvm_s390_gisa_get_next_alert(union kvm_s390_gisa *gisa);
-+u32 kvm_s390_gisa_get_next_alert(struct kvm *kvm);
-+void __kvm_s390_gisa_set_next_alert(union kvm_s390_gisa *gisa, u32 val);
-+void kvm_s390_gisa_set_next_alert(struct kvm *kvm, u32 val);
-+u8 kvm_s390_gisa_get_iam(struct kvm *kvm);
-+void kvm_s390_gisa_set_iam(struct kvm *kvm, u8 value);
-+int kvm_s390_gisa_test_iam_gisc(struct kvm *kvm, u32 gisc);
-+u8 kvm_s390_gisa_get_ipm(struct kvm *kvm);
-+void kvm_s390_gisa_set_ipm(struct kvm *kvm, u8 value);
-+int kvm_s390_gisa_test_ipm_gisc(struct kvm *kvm, u32 gisc);
-+void kvm_s390_gisa_set_ipm_gisc(struct kvm *kvm, u32 gisc);
-+u32 kvm_s390_gisa_get_g(struct kvm *kvm);
-+u32 kvm_s390_gisa_get_c(struct kvm *kvm);
-+u32 kvm_s390_gisa_get_count(struct kvm *kvm);
- /* is cmma enabled */
- bool kvm_s390_cmma_enabled(struct kvm *kvm);
- int test_vfacility(unsigned long nr);
++#endif
