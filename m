@@ -1,95 +1,101 @@
-From: frank.blaschka@de.ibm.com
-Subject: [RFC][patch 1/6] s390: cio: chsc function to register GIB
-Date: Thu, 04 Sep 2014 12:52:24 +0200
-Message-ID: <20140904105336.864332732@de.ibm.com>
+From: Alex Williamson <alex.williamson@redhat.com>
+Subject: Re: [RFC][patch 0/6] pci pass-through support for qemu/KVM on s390
+Date: Thu, 04 Sep 2014 07:16:24 -0600
+Message-ID: <1409836584.3804.268.camel@ul30vt.home>
 References: <20140904105223.336503578@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline; filename=002-s390_chsc_gib-3.16.patch
+In-Reply-To: <20140904105223.336503578@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: qemu-devel@nongnu.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: aik@ozlabs.ru, pbonzini@redhat.com, agraf@suse.de
+To: frank.blaschka@de.ibm.com
+Cc: qemu-devel@nongnu.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, aik@ozlabs.ru, pbonzini@redhat.com, agraf@suse.de
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Frank Blaschka <frank.blaschka@de.ibm.com>
+On Thu, 2014-09-04 at 12:52 +0200, frank.blaschka@de.ibm.com wrote:
+> This set of patches implements pci pass-through support for qemu/KVM on s390.
+> PCI support on s390 is very different from other platforms.
+> Major differences are:
+> 
+> 1) all PCI operations are driven by special s390 instructions
 
-This patch provides a new chsc function to register/unregister
-a GIB (Guest Information Block).
+Generating config cycles is always arch specific.
 
-Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
----
- arch/s390/include/asm/cio.h |    1 
- drivers/s390/cio/chsc.c     |   50 ++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 51 insertions(+)
+> 2) all s390 PCI instructions are privileged
 
---- a/arch/s390/include/asm/cio.h
-+++ b/arch/s390/include/asm/cio.h
-@@ -311,5 +311,6 @@ extern int cio_get_iplinfo(struct cio_ip
- /* Function from drivers/s390/cio/chsc.c */
- int chsc_sstpc(void *page, unsigned int op, u16 ctrl);
- int chsc_sstpi(void *page, void *result, size_t size);
-+int chsc_sgib(u32 gibo);
- 
- #endif
---- a/drivers/s390/cio/chsc.c
-+++ b/drivers/s390/cio/chsc.c
-@@ -1188,6 +1188,56 @@ out:
- EXPORT_SYMBOL_GPL(chsc_siosl);
- 
- /**
-+ * chsc_sgib() - register guest information block
-+ * @gibo: guest information block
-+ *
-+ * gibo must be allocated in low memory
-+ *
-+ * Returns 0 on success.
-+ */
-+int chsc_sgib(u32 gibo)
-+{
-+	struct {
-+		struct chsc_header request;
-+		u16 operation_code;
-+		u16 : 16;
-+		u32 : 4;
-+		u32 fmt : 4;
-+		u32 : 24;
-+		u32 : 32;
-+		u32 : 32;
-+		u32 gibo;
-+		u64 : 64;
-+		u32 : 16;
-+		u32 aix : 8;
-+		u32 : 8;
-+		u32 reserved[1007];
-+		struct chsc_header response;
-+	} __packed *scssc;
-+	unsigned long flags;
-+	int rc;
-+
-+	spin_lock_irqsave(&chsc_page_lock, flags);
-+	memset(chsc_page, 0, PAGE_SIZE);
-+	scssc = chsc_page;
-+
-+	scssc->request.length = 0x0fe0;
-+	scssc->request.code = 0x0021;
-+	scssc->operation_code = 1;
-+	scssc->gibo = gibo;
-+
-+	rc = chsc(scssc);
-+	if (rc)
-+		rc = -EIO;
-+	else
-+		rc = chsc_error_from_response(scssc->response.code);
-+
-+	spin_unlock_irqrestore(&chsc_page_lock, flags);
-+	return rc;
-+}
-+EXPORT_SYMBOL_GPL(chsc_sgib);
-+
-+/**
-  * chsc_scm_info() - store SCM information (SSI)
-  * @scm_area: request and response block for SSI
-  * @token: continuation token
+While the operations to generate config cycles on x86 are not
+privileged, they must be arbitrated between accesses, so in a sense
+they're privileged.
+
+> 3) PCI config and memory spaces can not be mmap'ed
+
+VFIO has mapping flags that allow any region to specify mmap support.
+
+> 4) no classic interrupts (INTX, MSI). The pci hw understands the concept
+>    of requesting MSIX irqs but irqs are delivered as s390 adapter irqs.
+
+VFIO delivers interrupts as eventfds regardless of the underlying
+platform mechanism.
+
+> 5) For DMA access there is always an IOMMU required.
+
+x86 requires the same.
+
+>  s390 pci implementation
+>    does not support a complete memory to iommu mapping, dma mappings are
+>    created on request.
+
+Sounds like POWER.
+
+> 6) The OS does not get any informations about the physical layout
+>    of the PCI bus.
+
+If that means that every device is isolated (seems unlikely for
+multifunction devices) then that makes IOMMU group support really easy.
+
+> 7) To take advantage of system z specific virtualization features
+>    we need to access the SIE control block residing in the kernel KVM
+
+The KVM-VFIO device allows interaction between VFIO devices and KVM.
+
+> 8) To enable system z specific virtualization features we have to manipulate
+>    the zpci device in kernel.
+
+VFIO supports different device backends, currently pci_dev and working
+towards platform devices.  zpci might just be an extension to standard
+pci.
+
+> For this reasons I decided to implement a kernel based approach similar
+> to x86 device assignment. There is a new qemu device (s390-pci) representing a
+> pass through device on the host. Here is a sample qemu device configuration:
+> 
+> -device s390-pci,host=0000:00:00.0
+> 
+> The device executes the KVM_ASSIGN_PCI_DEVICE ioctl to create a proxy instance
+> in the kernel KVM and connect this instance to the host pci device.
+> 
+> kernel patches apply to linux-kvm
+> 
+> s390: cio: chsc function to register GIB
+> s390: pci: export pci functions for pass-through usage
+> KVM: s390: Add GISA support
+> KVM: s390: Add PCI pass-through support
+> 
+> qemu patches apply to qemu-master
+> 
+> s390: Add PCI bus support
+> s390: Add PCI pass-through device support
+> 
+> Feedback and discussion is highly welcome ...
+
+KVM-based device assignment needs to go away.  It's a horrible model for
+devices, it offers very little protection to the kernel, assumes every
+device is fully isolated and visible to the IOMMU, relies on smattering
+of sysfs files to operate, etc.  x86, POWER, and ARM are all moving to
+VFIO-based device assignment.  Why is s390 special enough to repeat all
+the mistakes that x86 did?  Thanks,
+
+Alex
