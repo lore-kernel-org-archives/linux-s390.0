@@ -1,50 +1,50 @@
 From: Yijing Wang <wangyijing@huawei.com>
-Subject: [PATCH v1 02/21] PCI/MSI: Remove useless bus->msi assignment
-Date: Fri, 5 Sep 2014 18:09:47 +0800
-Message-ID: <1409911806-10519-3-git-send-email-wangyijing@huawei.com>
+Subject: [PATCH v1 12/21] MIPS/Xlp: Remove the dead function destroy_irq() to fix build error
+Date: Fri, 5 Sep 2014 18:09:57 +0800
+Message-ID: <1409911806-10519-13-git-send-email-wangyijing@huawei.com>
 References: <1409911806-10519-1-git-send-email-wangyijing@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-mips-bounce@linux-mips.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
 In-Reply-To: <1409911806-10519-1-git-send-email-wangyijing@huawei.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+Sender: sparclinux-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-pci@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, "David S. Miller" <davem>
+Cc: Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-pci@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently, PCI drivers will initialize bus->msi in
-pcibios_add_bus(). pcibios_add_bus() will be called
-in every pci bus initialization. So the bus->msi
-assignment in pci_alloc_child_bus() is useless.
+Commit 465665f78a7 ("mips: Kill pointless destroy_irq()") removed
+the destroy_irq(). So remove the leftover one in xlp_setup_msix()
+to fix build error.
 
-Signed-off-by: Yijing Wang <wangyijing@huawei.com>
-CC: Thierry Reding <thierry.reding@avionic-design.de>
-CC: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+arch/mips/pci/msi-xlp.c: In function 'xlp_setup_msix':
+arch/mips/pci/msi-xlp.c:447:3: error: implicit declaration of function 'destroy_irq'..
+cc1: some warnings being treated as errors
+make[1]: *** [arch/mips/pci/msi-xlp.o] Error 1
+make: *** [arch/mips/pci/] Error 2
+
+Signed-off-by: Yijing Wang <wangyiijng@huawei.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
 ---
- drivers/pci/probe.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ arch/mips/pci/msi-xlp.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index e3cf8a2..8296576 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -677,7 +677,6 @@ static struct pci_bus *pci_alloc_child_bus(struct pci_bus *parent,
+diff --git a/arch/mips/pci/msi-xlp.c b/arch/mips/pci/msi-xlp.c
+index fa374fe..e469dc7 100644
+--- a/arch/mips/pci/msi-xlp.c
++++ b/arch/mips/pci/msi-xlp.c
+@@ -443,10 +443,8 @@ static int xlp_setup_msix(uint64_t lnkbase, int node, int link,
+ 	msg.data = 0xc00 | msixvec;
  
- 	child->parent = parent;
- 	child->ops = parent->ops;
--	child->msi = parent->msi;
- 	child->sysdata = parent->sysdata;
- 	child->bus_flags = parent->bus_flags;
+ 	ret = irq_set_msi_desc(xirq, desc);
+-	if (ret < 0) {
+-		destroy_irq(xirq);
++	if (ret < 0)
+ 		return ret;
+-	}
  
+ 	write_msi_msg(xirq, &msg);
+ 	return 0;
 -- 
 1.7.1
