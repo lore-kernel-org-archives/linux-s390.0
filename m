@@ -1,48 +1,47 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-References: <1409911806-10519-1-git-send-email-wangyijing@huawei.com> <1409911806-10519-10-git-send-email-wangyijing@huawei.com> <540993B3.1000701@cogentembedded.com>
+References: <1409911806-10519-1-git-send-email-wangyijing@huawei.com> <1409911806-10519-16-git-send-email-wangyijing@huawei.com> <540994D4.6040500@cogentembedded.com>
 Mime-Version: 1.0 (1.0)
-In-Reply-To: <540993B3.1000701@cogentembedded.com>
+In-Reply-To: <540994D4.6040500@cogentembedded.com>
 Content-Type: text/plain; charset="gb2312"
 Content-Transfer-Encoding: base64
-Message-ID: <58C2E84C-7080-4FDA-8684-5D0B2DAD7C20@gmail.com>
+Message-ID: <43412AE0-85BB-4B4B-A4EA-2C6D3B8B85D7@gmail.com>
 From: wangyijing <wangyijing0307@gmail.com>
-Subject: Re: [PATCH v1 09/21] Irq_remapping/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-Date: Fri, 5 Sep 2014 19:30:01 +0800
+Subject: Re: [PATCH v1 15/21] Powerpc/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+Date: Fri, 5 Sep 2014 19:33:08 +0800
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20140905113001.Tc_GzNVyAzEjvsL38Rmq6EOPmx3xjWxT4E36fM7EqxI@z>
+Message-ID: <20140905113308.ztwLuQ2P7tZtSGk4FlYBiNL1WJVY8k7PNkjKe1QxQ6g@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 Cc: Yijing Wang <wangyijing@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Russell King <linux@arm.linux.org.uk>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "arnab.basu@freescale.com" <arnab.basu@freescale.com>, "Bharat.Bhushan@freescale.com" <Bharat.Bhushan@freescale.com>, "x86@kernel.org" <x86@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Joerg Roedel <joro@8bytes.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, Chris Metcalf <cmetcalf@tilera.com>, Ralf Baechle <ralf@linux-mips.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Cj4g1NogMjAxNMTqOdTCNcjVo6wxODo0MqOsU2VyZ2VpIFNodHlseW92IDxzZXJnZWkuc2h0eWx5
-b3ZAY29nZW50ZW1iZWRkZWQuY29tPiDQtLXAo7oKPiAKPiBIZWxsby4KPiAKPj4gT24gOS81LzIw
-MTQgMjowOSBQTSwgWWlqaW5nIFdhbmcgd3JvdGU6Cj4+IAo+PiBVc2UgTVNJIGNoaXAgZnJhbWV3
-b3JrIGluc3RlYWQgb2YgYXJjaCBNU0kgZnVuY3Rpb25zIHRvIGNvbmZpZ3VyZQo+PiBNU0kvTVNJ
-LVggaXJxLiBTbyB3ZSBjYW4gbWFuYWdlIE1TSS9NU0ktWCBpcnEgaW4gYSB1bmlmaWVkIGZyYW1l
-d29yay4KPiAKPj4gU2lnbmVkLW9mZi1ieTogWWlqaW5nIFdhbmcgPHdhbmd5aWppbmdAaHVhd2Vp
-LmNvbT4KPj4gLS0tCj4+ICBkcml2ZXJzL2lvbW11L2lycV9yZW1hcHBpbmcuYyB8ICAgIDggKysr
-KysrKy0KPj4gIDEgZmlsZXMgY2hhbmdlZCwgNyBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9ucygt
-KQo+IAo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pb21tdS9pcnFfcmVtYXBwaW5nLmMgYi9kcml2
-ZXJzL2lvbW11L2lycV9yZW1hcHBpbmcuYwo+PiBpbmRleCAzM2M0Mzk1Li5lNzUwMjZlIDEwMDY0
-NAo+PiAtLS0gYS9kcml2ZXJzL2lvbW11L2lycV9yZW1hcHBpbmcuYwo+PiArKysgYi9kcml2ZXJz
-L2lvbW11L2lycV9yZW1hcHBpbmcuYwo+IFsuLi5dCj4+IEBAIC0xNjUsOSArMTcwLDEwIEBAIHN0
-YXRpYyB2b2lkIF9faW5pdCBpcnFfcmVtYXBwaW5nX21vZGlmeV94ODZfb3BzKHZvaWQpCj4+ICAg
-ICAgeDg2X2lvX2FwaWNfb3BzLnNldF9hZmZpbml0eSAgICA9IHNldF9yZW1hcHBlZF9pcnFfYWZm
-aW5pdHk7Cj4+ICAgICAgeDg2X2lvX2FwaWNfb3BzLnNldHVwX2VudHJ5ICAgID0gc2V0dXBfaW9h
-cGljX3JlbWFwcGVkX2VudHJ5Owo+PiAgICAgIHg4Nl9pb19hcGljX29wcy5lb2lfaW9hcGljX3Bp
-biAgICA9IGVvaV9pb2FwaWNfcGluX3JlbWFwcGVkOwo+PiAtICAgIHg4Nl9tc2kuc2V0dXBfbXNp
-X2lycXMgICAgICAgID0gaXJxX3JlbWFwcGluZ19zZXR1cF9tc2lfaXJxczsKPj4gKyAgICB4ODZf
-bXNpLnNldHVwX21zaV9pcnFzICAgICAgICAgID0gaXJxX3JlbWFwcGluZ19zZXR1cF9tc2lfaXJx
-czsKPiAKPiAgIEFGQUlDUywgdGhpcyBjaGFuZ2Ugb25seSBjb252ZXJ0cyB0YWJzIHRvIHNwYWNl
-cywgc28gbm90IG5lZWRlZCBhdCBhbGwuCgpXaWxsIHVwZGF0ZSwgIHRoYW5rcy4KCj4gCj4+ICAg
-ICAgeDg2X21zaS5zZXR1cF9ocGV0X21zaSAgICAgICAgPSBzZXR1cF9ocGV0X21zaV9yZW1hcHBl
-ZDsKPj4gICAgICB4ODZfbXNpLmNvbXBvc2VfbXNpX21zZyAgICAgICAgPSBjb21wb3NlX3JlbWFw
-cGVkX21zaV9tc2c7Cj4+ICsgICAgeDg2X21zaV9jaGlwID0gJnJlbWFwX21zaV9jaGlwOwo+IAo+
-ICAgUGxlYXNlIGFsaWduID0gd2l0aCB0aGUgcmVzdCBvZiBhc3NpZ25tZW50cy4KCk9rLgoKVGhh
-bmtzIQpZaWppbmcuCgo+IAo+IFdCUiwgU2VyZ2VpCj4gCj4gLS0KPiBUbyB1bnN1YnNjcmliZSBm
-cm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgbGludXgtcGNpIiBpbgo+
-IHRoZSBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnCj4gTW9y
-ZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpvcmRvbW8taW5m
-by5odG1sCg==
+Cgo+INTaIDIwMTTE6jnUwjXI1aOsMTg6NDejrFNlcmdlaSBTaHR5bHlvdiA8c2VyZ2VpLnNodHls
+eW92QGNvZ2VudGVtYmVkZGVkLmNvbT4g0LS1wKO6Cj4gCj4gSGVsbG8uCj4gCj4+IE9uIDkvNS8y
+MDE0IDI6MTAgUE0sIFlpamluZyBXYW5nIHdyb3RlOgo+PiAKPj4gVXNlIE1TSSBjaGlwIGZyYW1l
+d29yayBpbnN0ZWFkIG9mIGFyY2ggTVNJIGZ1bmN0aW9ucyB0byBjb25maWd1cmUKPj4gTVNJL01T
+SS1YIGlycS4gU28gd2UgY2FuIG1hbmFnZSBNU0kvTVNJLVggaXJxIGluIGEgdW5pZmllZCBmcmFt
+ZXdvcmsuCj4gCj4+IFNpZ25lZC1vZmYtYnk6IFlpamluZyBXYW5nIDx3YW5neWlqaW5nQGh1YXdl
+aS5jb20+Cj4+IC0tLQo+PiAgYXJjaC9wb3dlcnBjL2tlcm5lbC9tc2kuYyB8ICAgMTQgKysrKysr
+KysrKysrLS0KPj4gIDEgZmlsZXMgY2hhbmdlZCwgMTIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlv
+bnMoLSkKPiAKPj4gZGlmZiAtLWdpdCBhL2FyY2gvcG93ZXJwYy9rZXJuZWwvbXNpLmMgYi9hcmNo
+L3Bvd2VycGMva2VybmVsL21zaS5jCj4+IGluZGV4IDcxYmQxNjEuLjAxNzgxYTQgMTAwNjQ0Cj4+
+IC0tLSBhL2FyY2gvcG93ZXJwYy9rZXJuZWwvbXNpLmMKPj4gKysrIGIvYXJjaC9wb3dlcnBjL2tl
+cm5lbC9tc2kuYwo+IFsuLi5dCj4+IEBAIC0yNyw3ICsyNywxNyBAQCBpbnQgYXJjaF9zZXR1cF9t
+c2lfaXJxcyhzdHJ1Y3QgcGNpX2RldiAqZGV2LCBpbnQgbnZlYywgaW50IHR5cGUpCj4+ICAgICAg
+cmV0dXJuIHBwY19tZC5zZXR1cF9tc2lfaXJxcyhkZXYsIG52ZWMsIHR5cGUpOwo+PiAgfQo+PiAK
+Pj4gLXZvaWQgYXJjaF90ZWFyZG93bl9tc2lfaXJxcyhzdHJ1Y3QgcGNpX2RldiAqZGV2KQo+PiAr
+c3RhdGljIHZvaWQgcHBjX3RlYXJkb3duX21zaV9pcnFzKHN0cnVjdCBwY2lfZGV2ICpkZXYpCj4g
+Cj4gICBTaG91bGRuJ3QgdGhpcyBmdW5jdGlvbiB0YWtlIElSUSAjIGluc3RlYWQ/CgpUaGlzIGZ1
+bmN0aW9uIG5lZWQgdG8gdGVhcmRvd24gYWxsIG1zaSBpcnFzIG9mIHRoZSBwY2kgZGV2LCB3ZSBz
+aG91bGQgcGFzcyB0aGUgcGNpIGRldiBhcyBhcmd1bWVudCAuCgpUaGFua3MhCllpamluZy4KCj4g
+Cj4+ICB7Cj4+ICAgICAgcHBjX21kLnRlYXJkb3duX21zaV9pcnFzKGRldik7Cj4+ICB9Cj4+ICsK
+Pj4gK3N0YXRpYyBzdHJ1Y3QgbXNpX2NoaXAgcHBjX21zaV9jaGlwID0gewo+PiArICAgIC5zZXR1
+cF9pcnFzID0gcHBjX3NldHVwX21zaV9pcnFzLAo+PiArICAgIC50ZWFyZG93bl9pcnFzID0gcHBj
+X3RlYXJkb3duX21zaV9pcnFzLAo+PiArfTsKPj4gKwo+PiArc3RydWN0IG1zaV9jaGlwICphcmNo
+X2ZpbmRfbXNpX2NoaXAoc3RydWN0IHBjaV9kZXYgKmRldikKPj4gK3sKPj4gKyAgICByZXR1cm4g
+JnBwY19tc2lfY2hpcDsKPj4gK30KPiAKPiBXQlIsIFNlcmdlaQo+IAo+IC0tCj4gVG8gdW5zdWJz
+Y3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGxpbnV4LXBj
+aSIgaW4KPiB0aGUgYm9keSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9y
+Zwo+IE1vcmUgbWFqb3Jkb21vIGluZm8gYXQgIGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jk
+b21vLWluZm8uaHRtbAo=
