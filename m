@@ -1,19 +1,19 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
-Date: Fri, 05 Sep 2014 12:02:45 +0930
-Message-ID: <87k35ikd9u.fsf@rustcorp.com.au>
+Date: Fri, 05 Sep 2014 12:01:33 +0930
+Message-ID: <87lhpykdbu.fsf@rustcorp.com.au>
 References: <cover.1409593066.git.luto@amacapital.net>
 	<1409609814.30640.11.camel@pasglop>
 	<CALCETrVHSjaCe5TN6+Gr9W9uT8XEZC97ne_dZUazMDyLr0Wetw@mail.gmail.com>
 	<1409691213.30640.37.camel@pasglop>
 	<CALCETrWNqksZWjotVXfWVWOaJ-tN=uBuMaRe+JmmPjacb6KDOg@mail.gmail.com>
 	<874mwpkxxi.fsf@rustcorp.com.au>
-	<20140903125111.GA14901@redhat.com>
+	<CALCETrWMc6TQy02kLXLcLwMJbPkpY4yv7U-As6jv0Frx34nuww@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140903125111.GA14901@redhat.com>
+In-Reply-To: <CALCETrWMc6TQy02kLXLcLwMJbPkpY4yv7U-As6jv0Frx34nuww@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,70 +25,96 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/virtualization/>
 List-Post: <mailto:virtualization@lists.linuxfoundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Andy Lutomirski <luto@amacapital.net>, virtio-dev@lists.oasis-open.org
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: virtio-dev@lists.oasis-open.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> On Wed, Sep 03, 2014 at 04:12:01PM +0930, Rusty Russell wrote:
+Andy Lutomirski <luto@amacapital.net> writes:
+> On Sep 2, 2014 11:53 PM, "Rusty Russell" <rusty@rustcorp.com.au> wrote:
+>>
 >> Andy Lutomirski <luto@amacapital.net> writes:
 >> > There really are virtio devices that are pieces of silicon and not
 >> > figments of a hypervisor's imagination [1].
->> 
+>>
 >> Hi Andy,
->> 
+>>
 >>         As you're discovering, there's a reason no one has done the DMA
 >> API before.
->> 
+>>
 >> So the problem is that ppc64's IOMMU is a platform thing, not a bus
 >> thing.  They really do carve out an exception for virtio devices,
 >> because performance (LOTS of performance).  It remains to be seen if
 >> other platforms have the same performance issues, but in absence of
 >> other evidence, the answer is yes.
->> 
+>>
 >> It's a hack.  But having specific virtual-only devices are an even
 >> bigger hack.
->> 
+>>
 >> Physical virtio devices have been talked about, but don't actually exist
 >> in Real Life.  And someone a virtio PCI card is going to have serious
 >> performance issues: mainly because they'll want the rings in the card's
->> MMIO region, not allocated by the driver.
->
-> Why? What's wrong with rings in memory?
-
-AFAICT, the card would have to access guest memory to read it, using
-multiple DMA cycles.  That's going to be slow.
-
->>  Being broken on PPC is really
+>> MMIO region, not allocated by the driver.  Being broken on PPC is really
 >> the least of their problems.
->> 
+>>
 >> So, what do we do?  It'd be nice if Linux virtio Just Worked under Xen,
 >> though Xen's IOMMU is outside the virtio spec.  Since virtio_pci can be
 >> a module, obvious hacks like having xen_arch_setup initialize a dma_ops pointer
 >> exposed by virtio_pci.c is out.
 >
-> Well virtio could probe for xen, it's not a lot of code.
-
-We could, but I think this is going to be a more general problem in
-future.  x86 is heading down the IOMMU path, and they're likely to
-suffer similarly.
-
+> Xen does expose dma_ops.  The trick is knowing when to use it.
+>
+>>
 >> I think the best approach is to have a new feature bit (25 is free),
 >> VIRTIO_F_USE_BUS_MAPPING which indicates that a device really wants to
 >> use the mapping for the bus it is on.  A real device would set this,
 >> or it won't work behind an IOMMU.  A Xen device would also set this.
->> 
->> Thoughts?
->> Rusty.
 >
-> OK and it should then be active even if guest does not ack
-> the feature (so in fact, it would have to be a mandatory feature).
-> That can work, but I still find this a bit inelegant: this is
-> a property of the platform, not of the device.
+> The devices I care about aren't actually Xen devices.  They're devices
+> supplied by QEMU/KVM, booting a Xen hypervisor, which in turn passes
+> the virtio device (along with every other PCI device) through to dom0.
+> So this is exactly the same virtio device that regular x86 KVM guests
+> would see.  The reason that current code fails is that Xen guest
+> physical addresses aren't the same as the addresses seen by the outer
+> hypervisor.
+>
+> These devices don't know that physical addresses != bus addresses, so
+> they can't advertise that fact.
 
-True.  If a device needs it though, we're no worse of having a device
-which doesn't work if the driver understand the feature than we were
-before.
+Ah, I see.  Then we will need a Xen-specific hack.
+
+> Grr.  This is mostly a result of the fact that virtio_pci devices
+> aren't really PCI devices.  I still think that virtio_pci shouldn't
+> have to worry about this; ideally this would all be handled higher up
+> in the device hierarchy.  x86 already gets this right.
+
+Yes.  Adding a feature to say "I am a real PCI device" is possible, but
+has other issues (particularly as Michael Tsirkin pointed out, what do
+you do if the driver doesn't understand the feature).
+
+> Are there any hypervisors except PPC that use virtio_pci, have IOMMUs
+> on the pci slot that virtio_pci lives in, and that use physical
+> addressing?  If not, I think that just quirking PPC will work (at
+> least until someone wants IOMMU support in virtio_pci on PPC, in which
+> case doing something using devicetree seems like a reasonable
+> solution).
+
+We can either patch to make PPC weird or make Xen weird.  I'm on the
+fence.
+
+Two questions for Paulo:
+1) When QEMU support IOMMU on x86, will the virtio devices behind it
+   respect the IOMMU (do they use the right memory access primitives?).
+
+2) Are we really going to be able to exclude virtio devices from using
+   the x86 IOMMU in a portable way which will always work?  If it's
+   per-bus granularity, will qemu really put them on their own PCI bus
+   and get this right?  Or will it sometimes get it wrong and users will
+   end up using virtio devices via IOMMU by accident?
+
+If the answers are both "yes", then x86 is going to be able to use
+virtio+IOMMU, so PPC looks like the odd one out.  Otherwise it looks
+like we're really going to want to stick with the "ignore IOMMU" rule
+until (handwave future), and we make an exception for Xen.
 
 Cheers,
 Rusty.
