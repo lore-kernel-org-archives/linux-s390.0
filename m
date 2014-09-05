@@ -1,7 +1,7 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
-Date: Fri, 05 Sep 2014 15:20:51 +1000
-Message-ID: <1409894451.4246.116.camel@pasglop>
+Date: Fri, 05 Sep 2014 09:33:28 +0200
+Message-ID: <54096748.6000306__43271.2884307422$1409902432$gmane$org@de.ibm.com>
 References: <cover.1409593066.git.luto@amacapital.net>
 	<1409609814.30640.11.camel@pasglop>
 	<CALCETrVHSjaCe5TN6+Gr9W9uT8XEZC97ne_dZUazMDyLr0Wetw@mail.gmail.com>
@@ -27,13 +27,11 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/virtualization/>
 List-Post: <mailto:virtualization@lists.linuxfoundation.org>
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: virtio-dev@lists.oasis-open.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael
-	S. Tsirkin" <mst@redhat.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Andy Lutomirski <luto@amacapital.net>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtio-dev@lists.oasis-open.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 2014-09-04 at 19:57 -0700, Andy Lutomirski wrote:
-
+On 05/09/14 04:57, Andy Lutomirski wrote:
 > There's a third option: try to make virtio-mmio work everywhere
 > (except s390), at least in the long run.  This other benefits: it
 > makes minimal hypervisors simpler, I think it'll get rid of the limits
@@ -41,14 +39,7 @@ On Thu, 2014-09-04 at 19:57 -0700, Andy Lutomirski wrote:
 > this direction, and I imagine that PPC support would be
 > straightforward (it's already using devicetree).
 
-PCI has advantages though. Management stacks know about PCI and nothing
-else really. We already have all the infra to do hotplug with PCI,
-etc...
+Well this chance is gone.
+When virtio was first introduced we though about abstraction (mmio,hypercalls, pci ops depending on the platform as part of the transport. There was even a virtio over serial line as potential implementation), but we had to do a fully PCI variant to please windows guests IIRC.
 
-> Does virtio-mmio have any reasonable way of doing hotplug?  It could
-> also eventually make sense to have a standard for virtio on virtio.
-
-That would be very platform specific.
-
-Cheers,
-Ben.
+Christian
