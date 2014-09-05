@@ -1,126 +1,144 @@
 From: Alexander Graf <agraf@suse.de>
 Subject: Re: [RFC][patch 0/6] pci pass-through support for qemu/KVM on s390
-Date: Sat, 06 Sep 2014 01:03:29 +0200
-Message-ID: <540A4141.3060703@suse.de>
-References: <20140904105223.336503578@de.ibm.com> <1409836584.3804.268.camel@ul30vt.home> <20140905074651.GA43812@tuxmaker.boeblingen.de.ibm.com> <540975EF.8090504@suse.de> <20140905115501.GC17325@tuxmaker.boeblingen.de.ibm.com>
+Date: Sat, 06 Sep 2014 01:19:14 +0200
+Message-ID: <540A44F2.3040803@suse.de>
+References: <20140904105223.336503578@de.ibm.com> <54097287.1000006@suse.de> <20140905113954.GB17325@tuxmaker.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 8bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20140905115501.GC17325@tuxmaker.boeblingen.de.ibm.com>
+In-Reply-To: <20140905113954.GB17325@tuxmaker.boeblingen.de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Frank Blaschka <blaschka@linux.vnet.ibm.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>, frank.blaschka@de.ibm.com, qemu-devel@nongnu.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, aik@ozlabs.ru, pbonzini@redhat.com
+Cc: frank.blaschka@de.ibm.com, qemu-devel@nongnu.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, aik@ozlabs.ru, pbonzini@redhat.com, Alex Williamson <alex.williamson@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 05.09.14 13:55, Frank Blaschka wrote:
-> On Fri, Sep 05, 2014 at 10:35:59AM +0200, Alexander Graf wrote:
+On 05.09.14 13:39, Frank Blaschka wrote:
+> On Fri, Sep 05, 2014 at 10:21:27AM +0200, Alexander Graf wrote:
 >>
 >>
->> On 05.09.14 09:46, Frank Blaschka wrote:
->>> On Thu, Sep 04, 2014 at 07:16:24AM -0600, Alex Williamson wrote:
->>>> On Thu, 2014-09-04 at 12:52 +0200, frank.blaschka@de.ibm.com wrote:
->>>>> This set of patches implements pci pass-through support for qemu/KVM on s390.
->>>>> PCI support on s390 is very different from other platforms.
->>>>> Major differences are:
->>>>>
->>>>> 1) all PCI operations are driven by special s390 instructions
->>>>
->>>> Generating config cycles is always arch specific.
->>>>
->>>>> 2) all s390 PCI instructions are privileged
->>>>
->>>> While the operations to generate config cycles on x86 are not
->>>> privileged, they must be arbitrated between accesses, so in a sense
->>>> they're privileged.
->>>>
->>>>> 3) PCI config and memory spaces can not be mmap'ed
->>>>
->>>> VFIO has mapping flags that allow any region to specify mmap support.
->>>>
+>> On 04.09.14 12:52, frank.blaschka@de.ibm.com wrote:
+>>> This set of patches implements pci pass-through support for qemu/KVM on s390.
+>>> PCI support on s390 is very different from other platforms.
+>>> Major differences are:
 >>>
->>> Hi Alex,
->>>
->>> thx for your reply.
->>>
->>> Let me elaborate a little bit ore on 1 - 3. Config and memory space can not
->>> be accessed via memory operations. You have to use special s390 instructions.
->>> This instructions can not be executed in user space. So there is no other
->>> way than executing this instructions in kernel. Yes vfio does support a
->>> slow path via ioctrl we could use, but this seems suboptimal from performance
->>> point of view.
+>>> 1) all PCI operations are driven by special s390 instructions
+>>> 2) all s390 PCI instructions are privileged
+>>> 3) PCI config and memory spaces can not be mmap'ed
 >>
->> Ah, I missed the "memory spaces" part ;). I agree that it's "suboptimal"
->> to call into the kernel for every PCI access, but I still think that
->> VFIO provides the correct abstraction layer for us to use. If nothing
->> else, it would at least give us identical configuration to x86 and nice
->> debugability en par with the other platforms.
+>> That's ok, vfio abstracts config space anyway.
 >>
->>>  
->>>>> 4) no classic interrupts (INTX, MSI). The pci hw understands the concept
->>>>>    of requesting MSIX irqs but irqs are delivered as s390 adapter irqs.
->>>>
->>>> VFIO delivers interrupts as eventfds regardless of the underlying
->>>> platform mechanism.
->>>>
->>>
->>> yes that's right, but then we have to do platform specific stuff to present
->>> the irq to the guest. I do not say this is impossible but we have add s390
->>> specific code to vfio. 
+>>> 4) no classic interrupts (INTX, MSI). The pci hw understands the concept
+>>>    of requesting MSIX irqs but irqs are delivered as s390 adapter irqs.
 >>
->> Not at all - interrupt delivery is completely transparent to VFIO.
+>> This is in line with other implementations. Interrupts go from
+>>
+>>   device -> PHB -> PIC -> CPU
+>>
+>> (some times you can have another converter device in between)
+>>
+>> In your case, the PHB converts INTX and MSI interrupts to Adapter
+>> interrupts to go to the floating interrupt controller. Same thing as
+>> everyone else really.
 >>
 > 
-> interrupt yes, but MSIX no
+> Yes, I think this can be done, but we need s390 specific changes in vfio.
+> 
+>>> 5) For DMA access there is always an IOMMU required. s390 pci implementation
+>>>    does not support a complete memory to iommu mapping, dma mappings are
+>>>    created on request.
+>>
+>> Sounds great :). So I suppose we should implement a guest facing IOMMU?
+>>
+>>> 6) The OS does not get any informations about the physical layout
+>>>    of the PCI bus.
+>>
+>> So how does it know whether different devices are behind the same IOMMU
+>> context? Or can we assume that every device has its own context?
+> 
+> Actually yes
+
+That greatly simplifies things. Awesome :).
+
+> 
+>>
+>>> 7) To take advantage of system z specific virtualization features
+>>>    we need to access the SIE control block residing in the kernel KVM
+>>
+>> Pleas elaborate.
+>>
+>>> 8) To enable system z specific virtualization features we have to manipulate
+>>>    the zpci device in kernel.
+>>
+>> Why?
+>>
+> 
+> We have following s390 specific virtualization features:
+> 
+> 1) interpretive execution of pci load/store instruction. If we use this function
+>    pci access does not get intercepted (no SIE exit) but is handled via microcode.
+>    To enable this we have to disable zpci device and enable it again with information
+>    from the SIE control block.
+
+Hrm. So how about you create a special vm ioctl for KVM that allows you
+to attach a VFIO device fd into the KVM VM context? Then the default
+would stay "accessible by mmap traps", but we could accelerate it with KVM.
+
+>    Further in qemu problem is: vfio traps access to
+>    MSIX table so we have to find another way programming msix if we do not get
+>    intercepts for memory space access.
+
+We trap access to the MSIX table because it's a shared resource. If it's
+not shared for you, there's no need to trap it.
+
+> 2) Adapter event forwarding (with alerting). This is a mechanism the adpater event (irq)
+>    is directly forwarded to the guest. To set this up we also need to manipulate
+>    the zpci device (in kernel) with information form the SIE block. Exploiting
+>    GISA is only one part of this mechanism.
+
+How does this work when the VM is not running (because it's idle)?
+
+Either way, we have a very similar thing on x86. It's called "posted
+interrupts" there. I'm not sure everything's in place for VFIO and
+posted interrupts to work properly, but whatever we do it sounds like
+the interfaces and configuration flow should be identical.
+
+> Both might be possible with some more or less nice looking vfio extensions. As I said
+> before we have to dig more into. Also this can be further optimazation steps later
+> if we have a running vfio implementation on the platform. 
+
+Yup :). That's the nice part about it.
+
 >  
 >>>
->>>>> 5) For DMA access there is always an IOMMU required.
->>>>
->>>> x86 requires the same.
->>>>
->>>>>  s390 pci implementation
->>>>>    does not support a complete memory to iommu mapping, dma mappings are
->>>>>    created on request.
->>>>
->>>> Sounds like POWER.
->>>
->>> Don't know the details from power, maybe it is similar but not the same.
->>> We might be able to extend vfio to have a new interface allowing
->>> us to do DMA mappings on request.
+>>> For this reasons I decided to implement a kernel based approach similar
+>>> to x86 device assignment. There is a new qemu device (s390-pci) representing a
 >>
->> We already have that.
+>> I fail to see the rationale and I definitely don't want to see anything
+>> even remotely similar to the legacy x86 device assignment on s390 ;).
+>>
+>> Can't we just enhance VFIO?
 >>
 > 
-> Great, can you give me some pointers how to use? Thx!
+> Probably yes, but we need some vfio changes (kernel and qemu)
 
-Sure! :)
+We need changes either way ;). So let's better do the right ones.
 
-So on POWER (sPAPR) you get a list of page entries that describe the
-device -> ram mapping. Every time you want to modify any of these
-entries, you need to invoke a hypercall (H_PUT_TCE).
+> 
+>> Also, I think we'll get the cleanest model if we start off with an
+>> implementation that allows us to add emulated PCI devices to an s390x
+>> machine and only then follow on with physical ones.
+>>
+> 
+> I can already do this. With some more s390 intercepts a device can be detected and
+> guest is able to access config/memory space. Unfortunately s390 platform does not
+> support I/O bars so non of the emulated devices will work on the platform ...
 
-So every time the guest wants to runtime add a DMA window, we trap into
-put_tce_emu() in hw/ppc/spapr_iommu.c. Here we call
-memory_region_notify_iommu().
-
-This call goes either to an emulated IOMMU context for emulated devices
-or to the special VFIO IOMMU context for VFIO devices.
-
-In the VFIO case, we end up in vfio_iommu_map_notify() at hw/misc/vfio.c
-which calls ioctl(VFIO_IOMMU_MAP_DMA) at the end of the day. The
-in-kernel implementation of the host IOMMU provider uses this map to
-create the virtual DMA window map.
-
-Basically, VFIO *only* supports "DMA mappings on request" as you call
-them. Prepopulated DMA windows are just a coincidence that may or may
-not happen.
-
-I hope that makes it slightly more clear what the path looks like :). If
-you have more questions on this, don't hesitate to ask.
+Oh? How about "nec-usb-xhci" or "intel-hda"?
 
 
 Alex
