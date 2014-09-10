@@ -1,52 +1,53 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Message-ID: <5409A174.3050205@cogentembedded.com>
-Date: Fri, 05 Sep 2014 15:41:40 +0400
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Message-ID: <54104641.7020007@citrix.com>
+Date: Wed, 10 Sep 2014 13:38:25 +0100
+From: David Vrabel <david.vrabel@citrix.com>
 MIME-Version: 1.0
-Subject: Re: [PATCH v1 15/21] Powerpc/MSI: Use MSI chip framework to configure
- MSI/MSI-X irq
-References: <1409911806-10519-1-git-send-email-wangyijing@huawei.com> <1409911806-10519-16-git-send-email-wangyijing@huawei.com> <540994D4.6040500@cogentembedded.com> <43412AE0-85BB-4B4B-A4EA-2C6D3B8B85D7@gmail.com>
-In-Reply-To: <43412AE0-85BB-4B4B-A4EA-2C6D3B8B85D7@gmail.com>
-Content-Type: text/plain; charset=gbk; format=flowed
+Subject: Re: [Xen-devel] [PATCH v1 08/21] x86/xen/MSI: Use MSI chip framework
+ to configure MSI/MSI-X irq
+References: <1409911806-10519-1-git-send-email-wangyijing@huawei.com>	<1409911806-10519-9-git-send-email-wangyijing@huawei.com>	<5409C8C0.8020200@citrix.com> <540E6095.8030409@huawei.com>
+In-Reply-To: <540E6095.8030409@huawei.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20140905114140.THj5vg8KXB3nJw_aAC4G2mhDL4o3MyqsCk1jBecXICk@z>
+Message-ID: <20140910123825.FJwcJBT21-s0jqLMpvWJbL8wmaKucBtOPRi00RHdyy4@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: wangyijing <wangyijing0307@gmail.com>
-Cc: Yijing Wang <wangyijing@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Russell King <linux@arm.linux.org.uk>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "arnab.basu@freescale.com" <arnab.basu@freescale.com>, "Bharat.Bhushan@freescale.com" <Bharat.Bhushan@freescale.com>, "x86@kernel.org" <x86@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Joerg Roedel <joro@8bytes.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, Chris Metcalf <cmetcalf@tilera.com>, Ralf Baechle <ralf@linux-mips.org>
+To: Yijing Wang <wangyijing@huawei.com>, David Vrabel <david.vrabel@citrix.com>, Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-pci@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, Joerg Roedel <joro@8bytes.org>, x86@kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, xen-devel@lists.xenproject.org, arnab.basu@freescale.com, Arnd Bergmann <arnd@arndb.de>, Chris Metcalf <cmetcalf@tilera.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Bharat.Bhushan@freescale.com, Tony Luck <tony.luck@intel.com>, Ralf Baechle <ralf@linux-mips.org>, iommu@lists.linux-foundation.org, Wuyun <wuyun.wu@huawei.com>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 9/5/2014 3:33 PM, wangyijing wrote:
-
+On 09/09/14 03:06, Yijing Wang wrote:
+> On 2014/9/5 22:29, David Vrabel wrote:
+>> On 05/09/14 11:09, Yijing Wang wrote:
 >>> Use MSI chip framework instead of arch MSI functions to configure
 >>> MSI/MSI-X irq. So we can manage MSI/MSI-X irq in a unified framework.
-
->>> Signed-off-by: Yijing Wang <wangyijing@huawei.com>
->>> ---
->>>   arch/powerpc/kernel/msi.c |   14 ++++++++++++--
->>>   1 files changed, 12 insertions(+), 2 deletions(-)
-
->>> diff --git a/arch/powerpc/kernel/msi.c b/arch/powerpc/kernel/msi.c
->>> index 71bd161..01781a4 100644
->>> --- a/arch/powerpc/kernel/msi.c
->>> +++ b/arch/powerpc/kernel/msi.c
 >> [...]
->>> @@ -27,7 +27,17 @@ int arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
->>>       return ppc_md.setup_msi_irqs(dev, nvec, type);
->>>   }
->>>
->>> -void arch_teardown_msi_irqs(struct pci_dev *dev)
->>> +static void ppc_teardown_msi_irqs(struct pci_dev *dev)
+>>> --- a/arch/x86/pci/xen.c
+>>> +++ b/arch/x86/pci/xen.c
+>> [...]
+>>> @@ -418,9 +430,9 @@ int __init pci_xen_init(void)
+>>>  #endif
+>>>  
+>>>  #ifdef CONFIG_PCI_MSI
+>>> -	x86_msi.setup_msi_irqs = xen_setup_msi_irqs;
+>>> -	x86_msi.teardown_msi_irq = xen_teardown_msi_irq;
+>>> -	x86_msi.teardown_msi_irqs = xen_teardown_msi_irqs;
+>>> +	xen_msi_chip.setup_irqs = xen_setup_msi_irqs;
+>>> +	xen_msi_chip.teardown_irqs = xen_teardown_msi_irqs;
+>>> +	x86_msi_chip = &xen_msi_chip;
+>>>  	msi_chip.irq_mask = xen_nop_msi_mask;
+>>>  	msi_chip.irq_unmask = xen_nop_msi_mask;
+>>
+>> Why have these not been changed to set the x86_msi_chip.mask/unmask
+>> fields instead?
+> 
+> Hi David, x86_msi_chip here is struct msi_chip data type, used to configure MSI/MSI-X
+> irq. msi_chip above is struct irq_chip data type, represent the MSI irq controller. They are
+> not the same object. Their name easily confusing people.
 
->>    Shouldn't this function take IRQ # instead?
+Ok, it all makes sense now.
 
-> This function need to teardown all msi irqs of the pci dev, we should pass the pci dev as argument .
+Acked-by: David Vrabel <david.vrabel@citrix.com>
 
-    Ah, I've mixed up the teardown_irqs() method with teardown_irq()! Too 
-similar. :-)
-
-> Thanks!
-> Yijing.
-
-WBR, Sergei
+David
