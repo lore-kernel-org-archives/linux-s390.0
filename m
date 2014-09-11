@@ -1,58 +1,44 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: Re: [PATCH] mm: export symbol dependencies of is_zero_pfn()
-Date: Fri, 12 Sep 2014 23:19:27 +0200
-Message-ID: <CAKv+Gu8=9tVmKtp5s_SyXF7mGjZ7r9x4iBYnyYfNpBogA9ShVg@mail.gmail.com>
-References: <1410553043-575-1-git-send-email-ard.biesheuvel@linaro.org>
-	<20140912141429.17d570d1a7e1cb99ec73f0f7@linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20140912141429.17d570d1a7e1cb99ec73f0f7@linux-foundation.org>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: kvm@vger.kernel.org, pbonzini@redhat.com, Christoffer Dall <christoffer.dall@linaro.org>, linux-mm@kvack.org, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-mips@linux-mips.org, ralf@linux-mips.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Message-ID: <54119ED2.3070802@citrix.com>
+Date: Thu, 11 Sep 2014 14:08:34 +0100
+From: David Vrabel <david.vrabel@citrix.com>
+MIME-Version: 1.0
+Subject: Re: [Xen-devel] [PATCH v1 04/21] x86/xen/MSI: Eliminate arch_msix_mask_irq()
+ and arch_msi_mask_irq()
+References: <1409911806-10519-1-git-send-email-wangyijing@huawei.com>	<1409911806-10519-5-git-send-email-wangyijing@huawei.com>	<541045BE.9050804@citrix.com> <5410F955.80609@huawei.com>
+In-Reply-To: <5410F955.80609@huawei.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20140911130834.uHk0SDHbKvpfH0yDjq1LA_T1GqxCPscV_hnDTl6di24@z>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Yijing Wang <wangyijing@huawei.com>, David Vrabel <david.vrabel@citrix.com>, Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-pci@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, Joerg Roedel <joro@8bytes.org>, x86@kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, xen-devel@lists.xenproject.org, arnab.basu@freescale.com, Arnd Bergmann <arnd@arndb.de>, Chris Metcalf <cmetcalf@tilera.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Bharat.Bhushan@freescale.com, Tony Luck <tony.luck@intel.com>, Ralf Baechle <ralf@linux-mips.org>, iommu@lists.linux-foundation.org, Wuyun <wuyun.wu@huawei.com>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 12 September 2014 23:14, Andrew Morton <akpm@linux-foundation.org> wrote:
-> On Fri, 12 Sep 2014 22:17:23 +0200 Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
->
->> In order to make the static inline function is_zero_pfn() callable by
->> modules, export its symbol dependencies 'zero_pfn' and (for s390 and
->> mips) 'zero_page_mask'.
->
-> So hexagon and score get the export if/when needed.
->
-
-Exactly.
-
->> We need this for KVM, as CONFIG_KVM is a tristate for all supported
->> architectures except ARM and arm64, and testing a pfn whether it refers
->> to the zero page is required to correctly distinguish the zero page
->> from other special RAM ranges that may also have the PG_reserved bit
->> set, but need to be treated as MMIO memory.
+On 11/09/14 02:22, Yijing Wang wrote:
+> On 2014/9/10 20:36, David Vrabel wrote:
+>> On 05/09/14 11:09, Yijing Wang wrote:
+>>> Commit 0e4ccb150 added two __weak arch functions arch_msix_mask_irq()
+>>> and arch_msi_mask_irq() to fix a bug found when running xen in x86.
+>>> Introduced these two funcntions make MSI code complex. And mask/unmask
+>>> is the irq actions related to interrupt controller, should not use
+>>> weak arch functions to override mask/unmask interfaces. This patch
+>>> reverted commit 0e4ccb150 and export struct irq_chip msi_chip, modify
+>>> msi_chip->irq_mask/irq_unmask() in xen init functions to fix this
+>>> bug for simplicity. Also this is preparation for using struct
+>>> msi_chip instead of weak arch MSI functions in all platforms.
 >>
->> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
->> ---
->>  arch/mips/mm/init.c | 1 +
->>  arch/s390/mm/init.c | 1 +
->>  mm/memory.c         | 2 ++
->
-> Looks OK to me.  Please include the patch in whichever tree is is that
-> needs it, and merge it up via that tree.
->
+>> Acked-by: David Vrabel <david.vrabel@citrix.com>
+>>
+>> But I wonder if it would be better the Xen subsystem to provide its own
+>> struct irq_chip instead of adjusting the fields in the generic x86 one.
+> 
+> Thanks! Currently, Xen and the bare x86 system only have the different irq_chip->irq_mask/irq_unmask.
+> So I chose to override the two ops of bare x86 irq_chip in xen. Konrad Rzeszutek Wilk has been tested it
+> ok in his platform, so I think we could use its own irq_chip for xen later if the difference become large.
 
-Thanks.
+This sounds reasonable.
 
-@Paolo: could you please take this (with Andrew's ack), and put it
-before the patch you took earlier today?
-
-Thanks,
-Ard.
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+David
