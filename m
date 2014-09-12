@@ -1,57 +1,71 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] mm: export symbol dependencies of is_zero_pfn()
-Date: Sun, 14 Sep 2014 16:23:27 +0200
-Message-ID: <5415A4DF.90706@redhat.com>
-References: <1410553043-575-1-git-send-email-ard.biesheuvel@linaro.org>	<20140912141429.17d570d1a7e1cb99ec73f0f7@linux-foundation.org> <CAKv+Gu8=9tVmKtp5s_SyXF7mGjZ7r9x4iBYnyYfNpBogA9ShVg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH] mm: export symbol dependencies of is_zero_pfn()
+Date: Fri, 12 Sep 2014 22:17:23 +0200
+Message-ID: <1410553043-575-1-git-send-email-ard.biesheuvel@linaro.org>
 Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <CAKv+Gu8=9tVmKtp5s_SyXF7mGjZ7r9x4iBYnyYfNpBogA9ShVg@mail.gmail.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: kvm@vger.kernel.org, Christoffer Dall <christoffer.dall@linaro.org>, linux-mm@kvack.org, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-mips@linux-mips.org, ralf@linux-mips.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+To: kvm@vger.kernel.org, pbonzini@redhat.com, christoffer.dall@linaro.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, ralf@linux-mips.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, akpm@linux-foundation.org
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Il 12/09/2014 23:19, Ard Biesheuvel ha scritto:
-> On 12 September 2014 23:14, Andrew Morton <akpm@linux-foundation.org> wrote:
->> On Fri, 12 Sep 2014 22:17:23 +0200 Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
->>
->>> In order to make the static inline function is_zero_pfn() callable by
->>> modules, export its symbol dependencies 'zero_pfn' and (for s390 and
->>> mips) 'zero_page_mask'.
->>
->> So hexagon and score get the export if/when needed.
->>
-> 
-> Exactly.
-> 
->>> We need this for KVM, as CONFIG_KVM is a tristate for all supported
->>> architectures except ARM and arm64, and testing a pfn whether it refers
->>> to the zero page is required to correctly distinguish the zero page
->>> from other special RAM ranges that may also have the PG_reserved bit
->>> set, but need to be treated as MMIO memory.
->>>
->>> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
->>> ---
->>>  arch/mips/mm/init.c | 1 +
->>>  arch/s390/mm/init.c | 1 +
->>>  mm/memory.c         | 2 ++
->>
->> Looks OK to me.  Please include the patch in whichever tree is is that
->> needs it, and merge it up via that tree.
->>
-> 
-> Thanks.
-> 
-> @Paolo: could you please take this (with Andrew's ack), and put it
-> before the patch you took earlier today?
+In order to make the static inline function is_zero_pfn() callable by
+modules, export its symbol dependencies 'zero_pfn' and (for s390 and
+mips) 'zero_page_mask'.
 
-Yes, will do.
+We need this for KVM, as CONFIG_KVM is a tristate for all supported
+architectures except ARM and arm64, and testing a pfn whether it refers
+to the zero page is required to correctly distinguish the zero page
+from other special RAM ranges that may also have the PG_reserved bit
+set, but need to be treated as MMIO memory.
 
-Paolo
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+---
+ arch/mips/mm/init.c | 1 +
+ arch/s390/mm/init.c | 1 +
+ mm/memory.c         | 2 ++
+ 3 files changed, 4 insertions(+)
+
+diff --git a/arch/mips/mm/init.c b/arch/mips/mm/init.c
+index 571aab064936..f42e35e42790 100644
+--- a/arch/mips/mm/init.c
++++ b/arch/mips/mm/init.c
+@@ -53,6 +53,7 @@
+  */
+ unsigned long empty_zero_page, zero_page_mask;
+ EXPORT_SYMBOL_GPL(empty_zero_page);
++EXPORT_SYMBOL(zero_page_mask);
+ 
+ /*
+  * Not static inline because used by IP27 special magic initialization code
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 0c1073ed1e84..c7235e01fd67 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -43,6 +43,7 @@ pgd_t swapper_pg_dir[PTRS_PER_PGD] __attribute__((__aligned__(PAGE_SIZE)));
+ 
+ unsigned long empty_zero_page, zero_page_mask;
+ EXPORT_SYMBOL(empty_zero_page);
++EXPORT_SYMBOL(zero_page_mask);
+ 
+ static void __init setup_zero_pages(void)
+ {
+diff --git a/mm/memory.c b/mm/memory.c
+index adeac306610f..d17f1bcd2a91 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -118,6 +118,8 @@ __setup("norandmaps", disable_randmaps);
+ unsigned long zero_pfn __read_mostly;
+ unsigned long highest_memmap_pfn __read_mostly;
+ 
++EXPORT_SYMBOL(zero_pfn);
++
+ /*
+  * CONFIG_MMU architectures set up ZERO_PAGE in their paging_init()
+  */
+-- 
+1.8.3.2
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
