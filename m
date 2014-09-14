@@ -1,53 +1,60 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Message-ID: <54104641.7020007@citrix.com>
-Date: Wed, 10 Sep 2014 13:38:25 +0100
-From: David Vrabel <david.vrabel@citrix.com>
-MIME-Version: 1.0
-Subject: Re: [Xen-devel] [PATCH v1 08/21] x86/xen/MSI: Use MSI chip framework
- to configure MSI/MSI-X irq
-References: <1409911806-10519-1-git-send-email-wangyijing@huawei.com>	<1409911806-10519-9-git-send-email-wangyijing@huawei.com>	<5409C8C0.8020200@citrix.com> <540E6095.8030409@huawei.com>
-In-Reply-To: <540E6095.8030409@huawei.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH] mm: export symbol dependencies of is_zero_pfn()
+Date: Sun, 14 Sep 2014 16:23:27 +0200
+Message-ID: <5415A4DF.90706@redhat.com>
+References: <1410553043-575-1-git-send-email-ard.biesheuvel@linaro.org>	<20140912141429.17d570d1a7e1cb99ec73f0f7@linux-foundation.org> <CAKv+Gu8=9tVmKtp5s_SyXF7mGjZ7r9x4iBYnyYfNpBogA9ShVg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20140910123825.FJwcJBT21-s0jqLMpvWJbL8wmaKucBtOPRi00RHdyy4@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Yijing Wang <wangyijing@huawei.com>, David Vrabel <david.vrabel@citrix.com>, Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-pci@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, Joerg Roedel <joro@8bytes.org>, x86@kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, xen-devel@lists.xenproject.org, arnab.basu@freescale.com, Arnd Bergmann <arnd@arndb.de>, Chris Metcalf <cmetcalf@tilera.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Bharat.Bhushan@freescale.com, Tony Luck <tony.luck@intel.com>, Ralf Baechle <ralf@linux-mips.org>, iommu@lists.linux-foundation.org, Wuyun <wuyun.wu@huawei.com>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <CAKv+Gu8=9tVmKtp5s_SyXF7mGjZ7r9x4iBYnyYfNpBogA9ShVg@mail.gmail.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: kvm@vger.kernel.org, Christoffer Dall <christoffer.dall@linaro.org>, linux-mm@kvack.org, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-mips@linux-mips.org, ralf@linux-mips.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 09/09/14 03:06, Yijing Wang wrote:
-> On 2014/9/5 22:29, David Vrabel wrote:
->> On 05/09/14 11:09, Yijing Wang wrote:
->>> Use MSI chip framework instead of arch MSI functions to configure
->>> MSI/MSI-X irq. So we can manage MSI/MSI-X irq in a unified framework.
->> [...]
->>> --- a/arch/x86/pci/xen.c
->>> +++ b/arch/x86/pci/xen.c
->> [...]
->>> @@ -418,9 +430,9 @@ int __init pci_xen_init(void)
->>>  #endif
->>>  
->>>  #ifdef CONFIG_PCI_MSI
->>> -	x86_msi.setup_msi_irqs = xen_setup_msi_irqs;
->>> -	x86_msi.teardown_msi_irq = xen_teardown_msi_irq;
->>> -	x86_msi.teardown_msi_irqs = xen_teardown_msi_irqs;
->>> +	xen_msi_chip.setup_irqs = xen_setup_msi_irqs;
->>> +	xen_msi_chip.teardown_irqs = xen_teardown_msi_irqs;
->>> +	x86_msi_chip = &xen_msi_chip;
->>>  	msi_chip.irq_mask = xen_nop_msi_mask;
->>>  	msi_chip.irq_unmask = xen_nop_msi_mask;
+Il 12/09/2014 23:19, Ard Biesheuvel ha scritto:
+> On 12 September 2014 23:14, Andrew Morton <akpm@linux-foundation.org> wrote:
+>> On Fri, 12 Sep 2014 22:17:23 +0200 Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
 >>
->> Why have these not been changed to set the x86_msi_chip.mask/unmask
->> fields instead?
+>>> In order to make the static inline function is_zero_pfn() callable by
+>>> modules, export its symbol dependencies 'zero_pfn' and (for s390 and
+>>> mips) 'zero_page_mask'.
+>>
+>> So hexagon and score get the export if/when needed.
+>>
 > 
-> Hi David, x86_msi_chip here is struct msi_chip data type, used to configure MSI/MSI-X
-> irq. msi_chip above is struct irq_chip data type, represent the MSI irq controller. They are
-> not the same object. Their name easily confusing people.
+> Exactly.
+> 
+>>> We need this for KVM, as CONFIG_KVM is a tristate for all supported
+>>> architectures except ARM and arm64, and testing a pfn whether it refers
+>>> to the zero page is required to correctly distinguish the zero page
+>>> from other special RAM ranges that may also have the PG_reserved bit
+>>> set, but need to be treated as MMIO memory.
+>>>
+>>> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+>>> ---
+>>>  arch/mips/mm/init.c | 1 +
+>>>  arch/s390/mm/init.c | 1 +
+>>>  mm/memory.c         | 2 ++
+>>
+>> Looks OK to me.  Please include the patch in whichever tree is is that
+>> needs it, and merge it up via that tree.
+>>
+> 
+> Thanks.
+> 
+> @Paolo: could you please take this (with Andrew's ack), and put it
+> before the patch you took earlier today?
 
-Ok, it all makes sense now.
+Yes, will do.
 
-Acked-by: David Vrabel <david.vrabel@citrix.com>
+Paolo
 
-David
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
