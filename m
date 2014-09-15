@@ -1,97 +1,104 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/7] KVM: s390: add __must_check to interrupt deliver functions
-Date: Wed, 10 Sep 2014 15:53:49 +0200
-Message-ID: <1410357234-8937-3-git-send-email-borntraeger@de.ibm.com>
-References: <1410357234-8937-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1410357234-8937-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+Return-Path: <owner-linux-mm@kvack.org>
+From: "Jerome Marchand" <jmarchan@redhat.com>
+Subject: [RFC PATCH v2 2/5] mm, procfs: Display VmAnon, VmFile and VmShm in /proc/pid/status
+Date: Mon, 15 Sep 2014 16:24:34 +0200
+Message-Id: <1410791077-5300-3-git-send-email-jmarchan@redhat.com>
+In-Reply-To: <1410791077-5300-1-git-send-email-jmarchan@redhat.com>
+References: <1410791077-5300-1-git-send-email-jmarchan@redhat.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: linux-mm@kvack.org
+Cc: Randy Dunlap <rdunlap@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Hugh Dickins <hughd@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-We now propagate interrupt injection errors back to the ioctl. We
-should mark functions that might fail with __must_check.
+It's currently inconvenient to retrieve MM_ANONPAGES value from status
+and statm files and there is no way to separate MM_FILEPAGES and
+MM_SHMEMPAGES. Add VmAnon, VmFile and VmShm lines in /proc/<pid>/status
+to solve these issues.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
+Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
 ---
- arch/s390/kvm/interrupt.c | 12 ++++++------
- arch/s390/kvm/kvm-s390.h  |  2 +-
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ Documentation/filesystems/proc.txt | 10 +++++++++-
+ fs/proc/task_mmu.c                 | 11 ++++++++++-
+ 2 files changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 60a5cf4..d56da1d 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -28,7 +28,7 @@
- #define IOINT_AI_MASK 0x04000000
- #define PFAULT_INIT 0x0600
+diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
+index 154a345..ffd4a7f 100644
+--- a/Documentation/filesystems/proc.txt
++++ b/Documentation/filesystems/proc.txt
+@@ -165,6 +165,9 @@ read the file /proc/PID/status:
+   VmLck:         0 kB
+   VmHWM:       476 kB
+   VmRSS:       476 kB
++  VmAnon:      352 kB
++  VmFile:      124 kB
++  VmShm:         4 kB
+   VmData:      156 kB
+   VmStk:        88 kB
+   VmExe:        68 kB
+@@ -221,7 +224,12 @@ Table 1-2: Contents of the status files (as of 2.6.30-rc7)
+  VmSize                      total program size
+  VmLck                       locked memory size
+  VmHWM                       peak resident set size ("high water mark")
+- VmRSS                       size of memory portions
++ VmRSS                       size of memory portions. It contains the three
++                             following parts (VmRSS = VmAnon + VmFile + VmShm)
++ VmAnon                      size of resident anonymous memory
++ VmFile                      size of resident file mappings
++ VmShm                       size of resident shmem memory (includes SysV shm,
++                             mapping of tmpfs and shared anonymous mappings)
+  VmData                      size of data, stack, and text segments
+  VmStk                       size of data, stack, and text segments
+  VmExe                       size of text segment
+diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+index 32657e3..762257f 100644
+--- a/fs/proc/task_mmu.c
++++ b/fs/proc/task_mmu.c
+@@ -21,7 +21,7 @@
  
--static int deliver_ckc_interrupt(struct kvm_vcpu *vcpu);
-+static int __must_check deliver_ckc_interrupt(struct kvm_vcpu *vcpu);
- 
- static int is_ioint(u64 type)
+ void task_mem(struct seq_file *m, struct mm_struct *mm)
  {
-@@ -77,7 +77,7 @@ static u64 int_word_to_isc_bits(u32 int_word)
- 	return (0x80 >> isc) << 24;
- }
+-	unsigned long data, text, lib, swap;
++	unsigned long data, text, lib, swap, anon, file, shmem;
+ 	unsigned long hiwater_vm, total_vm, hiwater_rss, total_rss;
  
--static int __interrupt_is_deliverable(struct kvm_vcpu *vcpu,
-+static int __must_check __interrupt_is_deliverable(struct kvm_vcpu *vcpu,
- 				      struct kvm_s390_interrupt_info *inti)
- {
- 	switch (inti->type) {
-@@ -225,7 +225,7 @@ static u16 get_ilc(struct kvm_vcpu *vcpu)
- 	}
- }
+ 	/*
+@@ -38,6 +38,9 @@ void task_mem(struct seq_file *m, struct mm_struct *mm)
+ 	if (hiwater_rss < mm->hiwater_rss)
+ 		hiwater_rss = mm->hiwater_rss;
  
--static int __deliver_prog_irq(struct kvm_vcpu *vcpu,
-+static int __must_check __deliver_prog_irq(struct kvm_vcpu *vcpu,
- 			      struct kvm_s390_pgm_info *pgm_info)
- {
- 	int rc = 0;
-@@ -307,7 +307,7 @@ static int __deliver_prog_irq(struct kvm_vcpu *vcpu,
- 	return rc;
- }
- 
--static int __do_deliver_interrupt(struct kvm_vcpu *vcpu,
-+static int __must_check __do_deliver_interrupt(struct kvm_vcpu *vcpu,
- 				   struct kvm_s390_interrupt_info *inti)
- {
- 	const unsigned short table[] = { 2, 4, 4, 6 };
-@@ -508,7 +508,7 @@ static int __do_deliver_interrupt(struct kvm_vcpu *vcpu,
- 	return rc;
- }
- 
--static int deliver_ckc_interrupt(struct kvm_vcpu *vcpu)
-+static int __must_check deliver_ckc_interrupt(struct kvm_vcpu *vcpu)
- {
- 	int rc;
- 
-@@ -657,7 +657,7 @@ void kvm_s390_clear_local_irqs(struct kvm_vcpu *vcpu)
- 			  &vcpu->kvm->arch.sca->cpu[vcpu->vcpu_id].ctrl);
- }
- 
--int kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
-+int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
- 	struct kvm_s390_float_interrupt *fi = vcpu->arch.local_int.float_int;
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 99abcb5..b1a7766 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -138,7 +138,7 @@ static inline int kvm_s390_user_cpu_state_ctrl(struct kvm *kvm)
- int kvm_s390_handle_wait(struct kvm_vcpu *vcpu);
- void kvm_s390_vcpu_wakeup(struct kvm_vcpu *vcpu);
- enum hrtimer_restart kvm_s390_idle_wakeup(struct hrtimer *timer);
--int kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu);
-+int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu);
- void kvm_s390_clear_local_irqs(struct kvm_vcpu *vcpu);
- void kvm_s390_clear_float_irqs(struct kvm *kvm);
- int __must_check kvm_s390_inject_vm(struct kvm *kvm,
++	anon = get_mm_counter(mm, MM_ANONPAGES);
++	file = get_mm_counter(mm, MM_FILEPAGES);
++	shmem = get_mm_counter(mm, MM_SHMEMPAGES);
+ 	data = mm->total_vm - mm->shared_vm - mm->stack_vm;
+ 	text = (PAGE_ALIGN(mm->end_code) - (mm->start_code & PAGE_MASK)) >> 10;
+ 	lib = (mm->exec_vm << (PAGE_SHIFT-10)) - text;
+@@ -49,6 +52,9 @@ void task_mem(struct seq_file *m, struct mm_struct *mm)
+ 		"VmPin:\t%8lu kB\n"
+ 		"VmHWM:\t%8lu kB\n"
+ 		"VmRSS:\t%8lu kB\n"
++		"VmAnon:\t%8lu kB\n"
++		"VmFile:\t%8lu kB\n"
++		"VmShm:\t%8lu kB\n"
+ 		"VmData:\t%8lu kB\n"
+ 		"VmStk:\t%8lu kB\n"
+ 		"VmExe:\t%8lu kB\n"
+@@ -61,6 +67,9 @@ void task_mem(struct seq_file *m, struct mm_struct *mm)
+ 		mm->pinned_vm << (PAGE_SHIFT-10),
+ 		hiwater_rss << (PAGE_SHIFT-10),
+ 		total_rss << (PAGE_SHIFT-10),
++		anon << (PAGE_SHIFT-10),
++		file << (PAGE_SHIFT-10),
++		shmem << (PAGE_SHIFT-10),
+ 		data << (PAGE_SHIFT-10),
+ 		mm->stack_vm << (PAGE_SHIFT-10), text, lib,
+ 		(PTRS_PER_PTE * sizeof(pte_t) *
 -- 
-1.8.4.2
+1.9.3
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
