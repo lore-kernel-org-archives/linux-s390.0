@@ -1,70 +1,53 @@
-Return-Path: <owner-linux-mm@kvack.org>
-Date: Mon, 15 Sep 2014 19:29:24 +0200
-From: Oleg Nesterov <oleg@redhat.com>
-Subject: Re: [RFC PATCH v2 5/5] mm, shmem: Show location of non-resident
-	shmem pages in smaps
-Message-ID: <20140915172923.GA26275@redhat.com>
-References: <1410791077-5300-1-git-send-email-jmarchan@redhat.com> <1410791077-5300-6-git-send-email-jmarchan@redhat.com> <20140915162131.GA22768@redhat.com> <54171829.3090108@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <54171829.3090108@redhat.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: Jerome Marchand <jmarchan@redhat.com>
-Cc: linux-mm@kvack.org, Randy Dunlap <rdunlap@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Hugh Dickins <hughd@google.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Subject: [PATCH 19/22] s390/cio: Replace strnicmp with strncasecmp
+Date: Tue, 16 Sep 2014 22:51:33 +0200
+Message-Id: <1410900696-6481-20-git-send-email-linux@rasmusvillemoes.dk>
+In-Reply-To: <1410900696-6481-1-git-send-email-linux@rasmusvillemoes.dk>
+References: <1410900696-6481-1-git-send-email-linux@rasmusvillemoes.dk>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 09/15, Jerome Marchand wrote:
->
-> On 09/15/2014 06:21 PM, Oleg Nesterov wrote:
-> > Hi Jerome,
-> >
-> > Not sure I understand this patch correctly, will try to read it later.
-> > But a couple of nits/questions anyway,
-> >
-> > On 09/15, Jerome Marchand wrote:
-> >>
-> >> +The ShmXXX lines only appears for shmem mapping. They show the amount of memory
-> >> +from the mapping that is currently:
-> >> + - resident in RAM but not mapped into any process (ShmNotMapped)
-> >
-> > But how can we know that it is not mapped by another process?
->
-> Its mapcount is zero.
+The kernel used to contain two functions for length-delimited,
+case-insensitive string comparison, strnicmp with correct semantics
+and a slightly buggy strncasecmp. The latter is the POSIX name, so
+strnicmp was renamed to strncasecmp, and strnicmp made into a wrapper
+for the new strncasecmp to avoid breaking existing users.
 
-Ah, yes, I missed the "!count" check. Thanks!
+To allow the compat wrapper strnicmp to be removed at some point in
+the future, and to avoid the extra indirection cost, do
+s/strnicmp/strncasecmp/g.
 
-> > And in fact "not mapped" looks confusing (at least to me).
->
-> "Not mapped" as "not present in a page table". It does belong to a
-> userspace mapping though. I wonder if there is a less ambiguous terminology.
+Cc: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Cc: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
+Cc: linux390@de.ibm.com
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+---
+ drivers/s390/cio/chp.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-To me "not present in page tables" looks more understandable, but I won't
-insist.
-
-> > IIUC it is actually
-> > mapped even by this process, just it never tried to fault these (resident or
-> > swapped) pages in. Right?
->
-> No these pages are in the page cache. This can happen when the only
-> process which have accessed these exits or munmap() the mapping.
-
-Yes, yes, I meant that this process didn't touch these pages and thus
-pte_none() == T.
-
-> > And I am not sure why we ignore SHMEM_SWAPCACHE...
->
-> Hugh didn't like it as it is a small and transient value.
-
-OK, but perhaps update_shmem_stats() should treat it as SHMEM_SWAP.
-Nevermind, I leave this to you and Hugh.
-
-Oleg.
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+diff --git a/drivers/s390/cio/chp.c b/drivers/s390/cio/chp.c
+index d497aa0..c692dfe 100644
+--- a/drivers/s390/cio/chp.c
++++ b/drivers/s390/cio/chp.c
+@@ -257,11 +257,11 @@ static ssize_t chp_status_write(struct device *dev,
+ 	if (!num_args)
+ 		return count;
+ 
+-	if (!strnicmp(cmd, "on", 2) || !strcmp(cmd, "1")) {
++	if (!strncasecmp(cmd, "on", 2) || !strcmp(cmd, "1")) {
+ 		mutex_lock(&cp->lock);
+ 		error = s390_vary_chpid(cp->chpid, 1);
+ 		mutex_unlock(&cp->lock);
+-	} else if (!strnicmp(cmd, "off", 3) || !strcmp(cmd, "0")) {
++	} else if (!strncasecmp(cmd, "off", 3) || !strcmp(cmd, "0")) {
+ 		mutex_lock(&cp->lock);
+ 		error = s390_vary_chpid(cp->chpid, 0);
+ 		mutex_unlock(&cp->lock);
+-- 
+2.0.4
