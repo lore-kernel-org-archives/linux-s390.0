@@ -1,8 +1,12 @@
 From: frank.blaschka@de.ibm.com
-Subject: [RFC patch 0/6] vfio based pci pass-through for qemu/KVM on s390
-Date: Fri, 19 Sep 2014 13:54:29 +0200
-Message-ID: <20140919115429.557279920@de.ibm.com>
+Subject: [RFC patch 1/6] KVM: s390: Enable PCI instructions
+Date: Fri, 19 Sep 2014 13:54:30 +0200
+Message-ID: <20140919115940.023551043@de.ibm.com>
+References: <20140919115429.557279920@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline; filename=005-s390_kvm_enable_pci.patch
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,36 +14,21 @@ To: qemu-devel@nongnu.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 Cc: alex.williamson@redhat.com, pbonzini@redhat.com, agraf@suse.de
 List-ID: <linux-s390.vger.kernel.org>
 
-This set of patches implements a vfio based solution for pci
-pass-through on the s390 platform. The kernel stuff is pretty
-much straight forward, but qemu needs more work.
+Enable PCI instructions for s390 KVM.
 
-Most interesting patch is:
-  vfio: make vfio run on s390 platform
+Signed-off-by: Frank Blaschka <frank.blaschka@de.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I hope Alex & Alex can give me some guidance how to do the changes
-in an appropriate way. After creating a separate iommmu address space
-for each attached PCI device I can successfully run the vfio type1
-iommu. So If we could extend type1 not registering all guest memory
-(see patch) I think we do not need a special vfio iommu for s390
-for the moment.
-
-The patches implement the base pass-through support. s390 specific
-virtualization functions are currently not included. This would
-be a second step after the base support is done.
-
-kernel patches apply to linux-kvm-next
-
-KVM: s390: Enable PCI instructions
-iommu: add iommu for s390 platform
-vfio: make vfio build on s390
-
-qemu patches apply to qemu-master
-
-s390: Add PCI bus support
-s390: implement pci instruction
-vfio: make vfio run on s390 platform
-
-Thx for feedback and review comments
-
-Frank
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1787,7 +1787,7 @@ static int __init kvm_s390_init(void)
+ 	}
+ 	memcpy(vfacilities, S390_lowcore.stfle_fac_list, 16);
+ 	vfacilities[0] &= 0xff82fff3f4fc2000UL;
+-	vfacilities[1] &= 0x005c000000000000UL;
++	vfacilities[1] &= 0x07dc000000000000UL;
+ 	return 0;
+ }
+ 
