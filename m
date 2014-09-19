@@ -1,14 +1,18 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH v5 0/3] virtio: Use the DMA API when appropriate
-Date: Fri, 19 Sep 2014 14:25:47 -0400
-Message-ID: <20140919182547.GA11449@laptop.dumpdata.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH v5 2/3] virtio_pci: Use the DMA API for virtqueues when
+	possible
+Date: Sat, 20 Sep 2014 07:28:33 +1000
+Message-ID: <1411162113.30672.60.camel@pasglop>
 References: <cover.1410931077.git.luto@amacapital.net>
+	<6c31406005160303a7ee291a933c267f8e55fa85.1410931077.git.luto@amacapital.net>
+	<1410955351.30672.27.camel@pasglop> <20140917141639.GA13684@redhat.com>
+	<CALCETrULv=zj_+rA2sRgf0Pxw3P6RDBzmM5C40=OHWwpYtEuJQ@mail.gmail.com>
+	<1410972571.12562.24.camel@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1410931077.git.luto@amacapital.net>
+In-Reply-To: <1410972571.12562.24.camel@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,82 +24,72 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/virtualization/>
 List-Post: <mailto:virtualization@lists.linuxfoundation.org>
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux390@de.ibm.com
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Sep 16, 2014 at 10:22:25PM -0700, Andy Lutomirski wrote:
-> This fixes virtio on Xen guests as well as on any other platform
-> that uses virtio_pci on which physical addresses don't match bus
-> addresses.
+On Wed, 2014-09-17 at 09:49 -0700, David Woodhouse wrote:
+> On Wed, 2014-09-17 at 09:07 -0700, Andy Lutomirski wrote:
+> > 
+> > I still think that this is a property of the bus, not the device.  x86
+> > has such a mechanism, and this patch uses it transparently.
+> 
+> Right. A device driver should use the DMA API. Always.
 
-I can do 'Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>'
-but not sure through whom this patch should go through?
+I do agree, and that's why I suggested that instead of doing what it
+does, that patch should instead:
 
+  - Always use dma_map_*
 
+  - Make the dma "ops" of the virtio bus/device point to a set of "null
+ops" when necessary.
+
+This would also make my life easier on powerpc since I will too have
+cases where I will want virtio to use the dma mapping API, it's just
+that the *current* implementation is such that qemu always bypasses
+iommus and we want to keep that mode of operations as an option (even
+the default) for performances.
+
+But qemu isn't the only other implementation of virtio ...
+ 
+> The platform's implementation of the DMA API is then free to observe
+> that the device in question isn't actually served by any IOMMU and give
+> a trivial 1:1 mapping.
+
+Right.
+
+> > > > The virtio device should advertise whether it's using that bypass
+> > > > mode of operation and virtio_pci should react accordingly.
+> > >
+> > > Well if there's a way to detect that - that's outside the
+> > > device, then we probably shouldn't use device-specific
+> > > interfaces for this capability.
+> > 
+> > (NB: According to David Woodhouse about ten minutes ago, this should
+> > work with a bit of care right now on x86 via ACPI as long as QEMU
+> > configures the tables correctly.)
 > 
-> This can be tested with:
+> Well, we don't currently expose a virtual IOMMU to x86 guests at the
+> moment although we're going to want to in the near future.
 > 
->     virtme-run --xen xen --kimg arch/x86/boot/bzImage --console
+> My answer was based on the assumption that it'll actually be an Intel
+> IOMMU that we expose, rather than some paravirtualised IOMMU interface
+> which allows us to support both AMD and Intel hosts. That may not be a
+> valid assumption; I don't think we've really explored this at all.
 > 
-> using virtme from here:
+> But *given* that assumption, the VT-d ACPI tables allow a given IOMMU
+> unit to be associated either with a list of specific devices, *or* to
+> have a 'catch-all' bit set which means that it owns all
+> otherwise-unmatched devices in that PCI domain.
 > 
->     https://git.kernel.org/cgit/utils/kernel/virtme/virtme.git
-> 
-> Without these patches, the guest hangs forever.  With these patches,
-> everything works.
-> 
-> This should be safe on all platforms that I'm aware of.  That
-> doesn't mean that there isn't anything that I missed.
-> 
-> Applies to net-next.
-> 
-> Changes from v4:
->  - Rebased onto net-next.
->  - Dropped the sg end mark changes from virtio_net, as that issue
->    is solved differently in net-next.
->  - virtio_pci does not use the DMA API on powerpc, for reasons that
->    are explained in a detailed comment in virtio_ring.
-> 
-> Changes from v3:
->  - virtio_pci only asks virtio_ring to use the DMA API if
->    !PCI_DMA_BUS_IS_PHYS.
->  - Reduce tools/virtio breakage.  It's now merely as broken as before
->    instead of being even more broken.
->  - Drop the sg_next changes -- Rusty's version is better.
-> 
-> Changes from v2:
->  - Reordered patches.
->  - Fixed a virtio_net OOPS.
-> 
-> Changes from v1:
->  - Using the DMA API is optional now.  It would be nice to improve the
->    DMA API to the point that it could be used unconditionally, but s390
->    proves that we're not there yet.
->  - Includes patch 4, which fixes DMA debugging warnings from virtio_net.
-> 
-> Andy Lutomirski (3):
->   virtio_ring: Support DMA APIs if requested
->   virtio_pci: Use the DMA API for virtqueues when possible
->   virtio_net: Stop doing DMA from the stack
-> 
->  drivers/lguest/lguest_device.c         |   3 +-
->  drivers/misc/mic/card/mic_virtio.c     |   2 +-
->  drivers/net/virtio_net.c               |  53 ++++++---
->  drivers/remoteproc/remoteproc_virtio.c |   4 +-
->  drivers/s390/kvm/kvm_virtio.c          |   2 +-
->  drivers/s390/kvm/virtio_ccw.c          |   4 +-
->  drivers/virtio/virtio_mmio.c           |   5 +-
->  drivers/virtio/virtio_pci.c            |  91 ++++++++++++++--
->  drivers/virtio/virtio_ring.c           | 194 +++++++++++++++++++++++++++------
->  include/linux/virtio_ring.h            |   1 +
->  tools/virtio/linux/dma-mapping.h       |  17 +++
->  tools/virtio/linux/virtio.h            |   1 +
->  tools/virtio/virtio_test.c             |   2 +-
->  tools/virtio/vringh_test.c             |   3 +-
->  14 files changed, 314 insertions(+), 68 deletions(-)
->  create mode 100644 tools/virtio/linux/dma-mapping.h
-> 
-> -- 
-> 1.9.3
-> 
+> So... if you want some devices to be seen as *not* behind an IOMMU then
+> they need to be in a PCI domain which *doesn't* have a catch-all IOMMU
+> unit. So either you put them in a separate PCI domain all by themselves,
+> or you explicitly list all (possible) PCI BDFs under the IOMMU unit and
+> don't use the catch-all facility.
+>  
+> Having said that... don't. Just put the damn thing behind an IOMMU. The
+> guest OS doesn't *have* to use it; it either eschew the IOMMU completely
+> or it can choose to use pass-through mode for specific devices.
+
+Ben.
