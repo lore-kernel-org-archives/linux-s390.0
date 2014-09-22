@@ -1,44 +1,184 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Message-ID: <5417CD50.7010803@huawei.com>
-Date: Tue, 16 Sep 2014 13:40:32 +0800
-From: Yijing Wang <wangyijing@huawei.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <54200BD2.3040204@de.ibm.com>
+Date: Mon, 22 Sep 2014 13:45:22 +0200
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 MIME-Version: 1.0
-Subject: Re: [PATCH v1 15/21] Powerpc/MSI: Use MSI chip framework to configure
- MSI/MSI-X irq
-References: <1409911806-10519-1-git-send-email-wangyijing@huawei.com>	 <1409911806-10519-16-git-send-email-wangyijing@huawei.com> <1410845317.12488.2.camel@concordia>
-In-Reply-To: <1410845317.12488.2.camel@concordia>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] virtio: unify config_changed handling
+References: <1411370391-12291-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1411370391-12291-1-git-send-email-mst@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20140916054032.iMxbSodX2-Qw-N8MiX3ZZcP1jFymBHOJLKb3RgjVmMU@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-pci@vger.kernel.org, Bharat.Bhushan@freescale.com, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, Joerg Roedel <joro@8bytes.org>, x86@kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, xen-devel@lists.xenproject.org, arnab.basu@freescale.com, Arnd Bergmann <arnd@arndb.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Chris Metcalf <cmetcalf@tilera.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Xinwei Hu <huxinwei@huawei.com>, Tony Luck <tony.luck@intel.com>, Ralf Baechle <ralf@linux-mips.org>, iommu@lists.linux-foundation.org, Wuyun <wuyun.wu@huawei.com>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sudeep Dutt <sudeep.dutt@intel.com>, Nikhil Rao <nikhil.rao@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>, Wolfram Sang <wsa@the-dreams.de>, Siva Yerramreddy <yshivakrishna@gmail.com>, Heinz Graalfs <graalfs@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 2014/9/16 13:28, Michael Ellerman wrote:
-> On Fri, 2014-09-05 at 18:10 +0800, Yijing Wang wrote:
->> Use MSI chip framework instead of arch MSI functions to configure
->> MSI/MSI-X irq. So we can manage MSI/MSI-X irq in a unified framework.
->>
->> Signed-off-by: Yijing Wang <wangyijing@huawei.com>
+On 09/22/2014 09:20 AM, Michael S. Tsirkin wrote:
+> Replace duplicated code in all transports with a single wrapper in
+> virtio.c.
 > 
-> This looks fine and seems to boot OK.
+> The only functional change is in virtio_mmio.c: if a buggy device sends
+> us an interrupt before driver is set, we previously returned IRQ_NONE,
+> now we return IRQ_HANDLED.
 > 
-> Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+> As this must not happen in practice, this does not look like a big deal.
+> 
+> See also commit 3fff0179e33cd7d0a688dab65700c46ad089e934
+> 	virtio-pci: do not oops on config change if driver not loaded.
+> for the original motivation behind the driver check.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Thanks very much!
+please fold in the whitespace fix, 
 
-> 
-> cheers
-> 
-> 
-> 
-> .
-> 
+Reviewed-by: Christian Borntraeger <borntraeger@d.ibm.com> # s390 parts
 
-
--- 
-Thanks!
-Yijing
+> ---
+>  include/linux/virtio.h             |  2 ++
+>  drivers/misc/mic/card/mic_virtio.c |  6 +-----
+>  drivers/s390/kvm/kvm_virtio.c      |  9 +--------
+>  drivers/s390/kvm/virtio_ccw.c      |  6 +-----
+>  drivers/virtio/virtio.c            | 10 ++++++++++
+>  drivers/virtio/virtio_mmio.c       |  7 ++-----
+>  drivers/virtio/virtio_pci.c        |  6 +-----
+>  7 files changed, 18 insertions(+), 28 deletions(-)
+> 
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index b46671e..3c19bd3 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -108,6 +108,8 @@ void unregister_virtio_device(struct virtio_device *dev);
+> 
+>  void virtio_break_device(struct virtio_device *dev);
+> 
+> +void virtio_config_changed(struct virtio_device *dev);
+> +
+>  /**
+>   * virtio_driver - operations for a virtio I/O driver
+>   * @driver: underlying device driver (populate name and owner).
+> diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
+> index f14b600..e647947 100644
+> --- a/drivers/misc/mic/card/mic_virtio.c
+> +++ b/drivers/misc/mic/card/mic_virtio.c
+> @@ -462,16 +462,12 @@ static void mic_handle_config_change(struct mic_device_desc __iomem *d,
+>  	struct mic_device_ctrl __iomem *dc
+>  		= (void __iomem *)d + mic_aligned_desc_size(d);
+>  	struct mic_vdev *mvdev = (struct mic_vdev *)ioread64(&dc->vdev);
+> -	struct virtio_driver *drv;
+> 
+>  	if (ioread8(&dc->config_change) != MIC_VIRTIO_PARAM_CONFIG_CHANGED)
+>  		return;
+> 
+>  	dev_dbg(mdrv->dev, "%s %d\n", __func__, __LINE__);
+> -	drv = container_of(mvdev->vdev.dev.driver,
+> -				struct virtio_driver, driver);
+> -	if (drv->config_changed)
+> -		drv->config_changed(&mvdev->vdev);
+> +	virtio_config_changed(&mvdev->vdev);
+>  	iowrite8(1, &dc->guest_ack);
+>  }
+> 
+> diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+> index a134965..6431290 100644
+> --- a/drivers/s390/kvm/kvm_virtio.c
+> +++ b/drivers/s390/kvm/kvm_virtio.c
+> @@ -406,15 +406,8 @@ static void kvm_extint_handler(struct ext_code ext_code,
+> 
+>  	switch (param) {
+>  	case VIRTIO_PARAM_CONFIG_CHANGED:
+> -	{
+> -		struct virtio_driver *drv;
+> -		drv = container_of(vq->vdev->dev.driver,
+> -				   struct virtio_driver, driver);
+> -		if (drv->config_changed)
+> -			drv->config_changed(vq->vdev);
+> -
+> +		virtio_config_changed(vq->vdev);
+>  		break;
+> -	}
+>  	case VIRTIO_PARAM_DEV_ADD:
+>  		schedule_work(&hotplug_work);
+>  		break;
+> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> index d2c0b44..6cbe6ef 100644
+> --- a/drivers/s390/kvm/virtio_ccw.c
+> +++ b/drivers/s390/kvm/virtio_ccw.c
+> @@ -940,11 +940,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+>  		vring_interrupt(0, vq);
+>  	}
+>  	if (test_bit(0, &vcdev->indicators2)) {
+> -		drv = container_of(vcdev->vdev.dev.driver,
+> -				   struct virtio_driver, driver);
+> -
+> -		if (drv && drv->config_changed)
+> -			drv->config_changed(&vcdev->vdev);
+> +		virtio_config_changed(&vcdev->vdev);
+>  		clear_bit(0, &vcdev->indicators2);
+>  	}
+>  }
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index fed0ce1..470b74f 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -239,6 +239,16 @@ void unregister_virtio_device(struct virtio_device *dev)
+>  }
+>  EXPORT_SYMBOL_GPL(unregister_virtio_device);
+> 
+> +void virtio_config_changed(struct virtio_device *dev)
+> +{
+> +        struct virtio_driver *drv = container_of(dev->dev.driver,
+> +						 struct virtio_driver, driver);
+> +
+> +	if (drv && drv->config_changed)
+> +		drv->config_changed(dev);
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_config_changed);
+> +
+>  static int virtio_init(void)
+>  {
+>  	if (bus_register(&virtio_bus) != 0)
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index c600ccf..ef9a165 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -234,8 +234,6 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
+>  {
+>  	struct virtio_mmio_device *vm_dev = opaque;
+>  	struct virtio_mmio_vq_info *info;
+> -	struct virtio_driver *vdrv = container_of(vm_dev->vdev.dev.driver,
+> -			struct virtio_driver, driver);
+>  	unsigned long status;
+>  	unsigned long flags;
+>  	irqreturn_t ret = IRQ_NONE;
+> @@ -244,9 +242,8 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
+>  	status = readl(vm_dev->base + VIRTIO_MMIO_INTERRUPT_STATUS);
+>  	writel(status, vm_dev->base + VIRTIO_MMIO_INTERRUPT_ACK);
+> 
+> -	if (unlikely(status & VIRTIO_MMIO_INT_CONFIG)
+> -			&& vdrv && vdrv->config_changed) {
+> -		vdrv->config_changed(&vm_dev->vdev);
+> +	if (unlikely(status & VIRTIO_MMIO_INT_CONFIG)) {
+> +		virtio_config_changed(&vm_dev->vdev);
+>  		ret = IRQ_HANDLED;
+>  	}
+> 
+> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+> index 3d1463c..58f7e45 100644
+> --- a/drivers/virtio/virtio_pci.c
+> +++ b/drivers/virtio/virtio_pci.c
+> @@ -211,12 +211,8 @@ static bool vp_notify(struct virtqueue *vq)
+>  static irqreturn_t vp_config_changed(int irq, void *opaque)
+>  {
+>  	struct virtio_pci_device *vp_dev = opaque;
+> -	struct virtio_driver *drv;
+> -	drv = container_of(vp_dev->vdev.dev.driver,
+> -			   struct virtio_driver, driver);
+> 
+> -	if (drv && drv->config_changed)
+> -		drv->config_changed(&vp_dev->vdev);
+> +	virtio_config_changed(&vp_dev->vdev);
+>  	return IRQ_HANDLED;
+>  }
+> 
