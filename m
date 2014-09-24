@@ -1,94 +1,132 @@
-From: Alexander Graf <agraf@suse.de>
-Subject: Re: [RFC patch 0/6] vfio based pci pass-through for
+From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+Subject: Re: [Qemu-devel] [RFC patch 0/6] vfio based pci pass-through for
 	qemu/KVM on s390
-Date: Tue, 23 Sep 2014 10:33:27 +0200
-Message-ID: <54213057.2040801@suse.de>
-References: <20140919115429.557279920@de.ibm.com>	
-	<1411418851.1199.137.camel@ul30vt.home> <54209DD8.50506@suse.de>
-	<1411424936.1199.181.camel@ul30vt.home>
+Date: Wed, 24 Sep 2014 10:47:27 +0200
+Message-ID: <20140924084727.GA17378@tuxmaker.boeblingen.de.ibm.com>
+References: <20140919115429.557279920@de.ibm.com> <1411418851.1199.137.camel@ul30vt.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
-In-Reply-To: <1411424936.1199.181.camel@ul30vt.home>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1411418851.1199.137.camel@ul30vt.home>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Alex Williamson <alex.williamson@redhat.com>
-Cc: linux-s390@vger.kernel.org, frank.blaschka@de.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, pbonzini@redhat.com
+Cc: frank.blaschka@de.ibm.com, linux-s390@vger.kernel.org, agraf@suse.de, qemu-devel@nongnu.org, kvm@vger.kernel.org, pbonzini@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 23.09.14 00:28, Alex Williamson wrote:
-> On Tue, 2014-09-23 at 00:08 +0200, Alexander Graf wrote:
->>
->> On 22.09.14 22:47, Alex Williamson wrote:
->>> On Fri, 2014-09-19 at 13:54 +0200, frank.blaschka@de.ibm.com wrote:
->>>> This set of patches implements a vfio based solution for pci
->>>> pass-through on the s390 platform. The kernel stuff is pretty
->>>> much straight forward, but qemu needs more work.
->>>>
->>>> Most interesting patch is:
->>>>   vfio: make vfio run on s390 platform
->>>>
->>>> I hope Alex & Alex can give me some guidance how to do the changes
->>>> in an appropriate way. After creating a separate iommmu address space
->>>> for each attached PCI device I can successfully run the vfio type1
->>>> iommu. So If we could extend type1 not registering all guest memory
->>>> (see patch) I think we do not need a special vfio iommu for s390
->>>> for the moment.
->>>>
->>>> The patches implement the base pass-through support. s390 specific
->>>> virtualization functions are currently not included. This would
->>>> be a second step after the base support is done.
->>>>
->>>> kernel patches apply to linux-kvm-next
->>>>
->>>> KVM: s390: Enable PCI instructions
->>>> iommu: add iommu for s390 platform
->>>> vfio: make vfio build on s390
->>>>
->>>> qemu patches apply to qemu-master
->>>>
->>>> s390: Add PCI bus support
->>>> s390: implement pci instruction
->>>> vfio: make vfio run on s390 platform
->>>>
->>>> Thx for feedback and review comments
->>>
->>> Sending patches as attachments makes it difficult to comment inline.
->>>
->>> 2/6
->>>  - careful of the namespace as you're changing functions from static and
->>> exporting them
->>>  - doesn't seem like functions need to be exported, just non-static to
->>> call from s390-iommu.c
->>>
->>> 6/6
->>>  - We shouldn't need to globally disable mmap, each VFIO region reports
->>> whether it supports mmap and vfio-pci on s390 should indicate mmap is
->>> not supported on the platform.
->>
->> Can we emulate MMIO on mmap'ed regions by routing every memory access
->> via the kernel? It'd be slow, but at least make existing VFIO code
->> compatible.
+On Mon, Sep 22, 2014 at 02:47:31PM -0600, Alex Williamson wrote:
+> On Fri, 2014-09-19 at 13:54 +0200, frank.blaschka@de.ibm.com wrote:
+> > This set of patches implements a vfio based solution for pci
+> > pass-through on the s390 platform. The kernel stuff is pretty
+> > much straight forward, but qemu needs more work.
+> > 
+> > Most interesting patch is:
+> >   vfio: make vfio run on s390 platform
+> > 
+> > I hope Alex & Alex can give me some guidance how to do the changes
+> > in an appropriate way. After creating a separate iommmu address space
+> > for each attached PCI device I can successfully run the vfio type1
+> > iommu. So If we could extend type1 not registering all guest memory
+> > (see patch) I think we do not need a special vfio iommu for s390
+> > for the moment.
+> > 
+> > The patches implement the base pass-through support. s390 specific
+> > virtualization functions are currently not included. This would
+> > be a second step after the base support is done.
+> > 
+> > kernel patches apply to linux-kvm-next
+> > 
+> > KVM: s390: Enable PCI instructions
+> > iommu: add iommu for s390 platform
+> > vfio: make vfio build on s390
+> > 
+> > qemu patches apply to qemu-master
+> > 
+> > s390: Add PCI bus support
+> > s390: implement pci instruction
+> > vfio: make vfio run on s390 platform
+> > 
+> > Thx for feedback and review comments
 > 
-> Isn't that effectively what we do when we use memory_region_init_io() vs
-> memory_region_init_ram_ptr() or are you suggesting something that can
-> handle the MMIO without bouncing out to QEMU?  VFIO is already
-> compatible with regions that cannot be mmap'd, the kernel just needs to
-> report it as such.  Thanks,
+> Sending patches as attachments makes it difficult to comment inline.
+>
+Sorry, don't understand this. I sent every patch as separate email so
+you can comment directly on the patch. What do you prefer?
+ 
+> 2/6
+>  - careful of the namespace as you're changing functions from static and
+> exporting them
+>  - doesn't seem like functions need to be exported, just non-static to
+> call from s390-iommu.c
+> 
+Ok, will change this.
 
-Ah, cool. I guess I missed that part :). Then all is well.
+> 6/6
+>  - We shouldn't need to globally disable mmap, each VFIO region reports
+> whether it supports mmap and vfio-pci on s390 should indicate mmap is
+> not supported on the platform.
+Yes, this is even better to let the kernel announce a BAR can not be
+mmap'ed. Checking the kernel code I realized the BARs are valid for
+mmap'ing but the s390 platform does simply not allow this. So I feal we
+have to introduce a platform switch in kernel. How about this ...
 
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -377,9 +377,11 @@ static long vfio_pci_ioctl(void *device_
 
-Alex
+                        info.flags = VFIO_REGION_INFO_FLAG_READ |
+                                     VFIO_REGION_INFO_FLAG_WRITE;
++#ifndef CONFIG_S390
+                        if (pci_resource_flags(pdev, info.index) &
+                            IORESOURCE_MEM && info.size >= PAGE_SIZE)
+                                info.flags |= VFIO_REGION_INFO_FLAG_MMAP;
++#endif
+                        break;
+                case VFIO_PCI_ROM_REGION_INDEX:
+                {
+
+>  - INTx should be done the same way, the interrupt index for INTx should
+> report 0 count.  The current code likely doesn't handle this, but it
+> should be easy to fix.
+The current code is fine. Problem is the card reports an interrupt index
+(PCI_INTERRUPT_PIN) but again the platform does not support INTx at all.
+So we need a platform switch as well. 
+
+>  - s390_msix_notify() vs msix_notify() should be abstracted somewhere
+
+Platform does not have have an apic so there is nothing we could emulate
+in qemu to make the existing msix_notify() work.
+
+> else.  How would an emulated PCI device with MSI-X support work?
+>  - same for add_msi_route
+Same here, we have to setup an adapter route due to the fact MSIX
+notifications are delivered as adapter/thin IRQs on the platform.
+
+Any suggestion or idea how a better abstraction could look like?
+
+With all the platform constraints I was not able to find a suitable
+emulated device. Remember s390:
+- does not support IO BARs
+- does not support INTx only MSIX
+- in reality currently there is only a PCI network card available
+- platform does not support fancy I/O like usb or audio :-)
+  So we don't even have kernel (host and guest) support for this
+  kind of devices.
+
+>  - We can probably come up with a better way to determine which address
+> space to connect to the memory listener.
+Any suggestion or idea for that?
+
+> 
+> Looks like a reasonable first pass, good re-use of vfio code.  Thanks,
+> 
+> Alex
+> 
+
+Thx,
+
+Frank
+
+> 
