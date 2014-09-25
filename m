@@ -1,17 +1,16 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH v2 06/22] PCI/MSI: Introduce weak arch_find_msi_chip() to
- find MSI chip
-Date: Thu, 25 Sep 2014 09:26:20 +0200
-Message-ID: <20140925072619.GI12423@ulmo>
+Subject: Re: [PATCH v2 00/22] Use MSI chip framework to configure MSI/MSI-X
+ in all platforms
+Date: Thu, 25 Sep 2014 09:42:36 +0200
+Message-ID: <20140925074235.GN12423@ulmo>
 References: <1411614872-4009-1-git-send-email-wangyijing@huawei.com>
- <1411614872-4009-7-git-send-email-wangyijing@huawei.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wZdghQXYJzyo6AGC"
-Return-path: <linux-pci-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="O27Gs9jTTFWz3gAR"
+Return-path: <linux-ia64-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1411614872-4009-7-git-send-email-wangyijing@huawei.com>
-Sender: linux-pci-owner@vger.kernel.org
+In-Reply-To: <1411614872-4009-1-git-send-email-wangyijing@huawei.com>
+Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Yijing Wang <wangyijing@huawei.com>
@@ -19,48 +18,49 @@ Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, linux-kernel
 List-ID: <linux-s390.vger.kernel.org>
 
 
---wZdghQXYJzyo6AGC
+--O27Gs9jTTFWz3gAR
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 25, 2014 at 11:14:16AM +0800, Yijing Wang wrote:
-> Introduce weak arch_find_msi_chip() to find the match msi_chip.
-> Currently, MSI chip associates pci bus to msi_chip. Because in
-> ARM platform, there may be more than one MSI controller in system.
-> Associate pci bus to msi_chip help pci device to find the match
-> msi_chip and setup MSI/MSI-X irq correctly. But in other platform,
-> like in x86. we only need one MSI chip, because all device use
-> the same MSI address/data and irq etc. So it's no need to associate
-> pci bus to MSI chip, just use a arch function, arch_find_msi_chip()
-> to return the MSI chip for simplicity. The default weak
-> arch_find_msi_chip() used in ARM platform, find the MSI chip
-> by pci bus.
+On Thu, Sep 25, 2014 at 11:14:10AM +0800, Yijing Wang wrote:
+> This series is based Bjorn's pci/msi branch
+> git://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git pci/msi
+>=20
+> Currently, there are a lot of weak arch functions in MSI code.
+> Thierry Reding Introduced MSI chip framework to configure MSI/MSI-X in ar=
+m.
+> This series use MSI chip framework to refactor MSI code across all platfo=
+rms
+> to eliminate weak arch functions. Then all MSI irqs will be managed in a=
+=20
+> unified framework. Because this series changed a lot of ARCH MSI code,
+> so tests in the platforms which MSI code modified are warmly welcomed!
 
-Can't x86 simply set the bus' .msi field anyway? It would seem to be
-easy to do and unifies the code rather than driving it further apart
-using even more of the __weak functions.
+Apart from the comments to the individual patches I very much like where
+this is going. Thanks for taking care of this.
 
 Thierry
 
---wZdghQXYJzyo6AGC
+--O27Gs9jTTFWz3gAR
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBAgAGBQJUI8ObAAoJEN0jrNd/PrOhuC4P/jIBmvnDAEtAA8p9/uMyo4ub
-35EbcR8vyvkUOhtovW5OYqkxRnKAfsYNHAbYYijRRWopeBkmqYj1EiW8F3M3MbKT
-FD+87Kx/0mNqy1mNdoPnIttpaCyY9igbhmeWhE5gFFqI4L715gT4AVg7tG79gsas
-BObGQrGqdsEcdHsMae9wIm6X46Q2HcECiOp5T619C7P6/4DRXoQ6CreiwtWgh8GN
-HdDemrevFvVZI72ceWPPPSY813vykzLhvxbiMhjhiYtZSbtqmYJoNQBbeQIlhfYV
-mdIBuGWQlSAyy4+IZq/IBJ/lO4BtU4zevDvSCOnKhCUlHAZ7qNpxLtDXaZmxRQ1W
-/9BeZHt+IDeev7rXTA97oQXAwzbAabafN1FWyCUWZEq28xIYmAqQZeFA9+KKRQQm
-QMs10F3xpcayjlUXPNp7pLoWgcffcb0g8YocMo4DdMgMFQ9Pnx7jIrQ9Z46n4o+i
-u2Qb275YAwisvL1ol3S2lZ+19CdVEwp+ly/66aYviHzVYeDm2C11myPCbfCbNcPg
-M/qS6KwZzn+LyyCiLT0dmcm90UTIPZ7uw0sbwcVbq80skjhZxLT5NS7xHYnP/znG
-62a/6pxngsPcnk+b7pv2htjbxkKDjJkpn8kXGiR6sGwun0b7HheNwzanLbDPs/7B
-3QkCbl7txteq7GjETQqt
-=LNzZ
+iQIcBAEBAgAGBQJUI8drAAoJEN0jrNd/PrOhRSAQALsX6+rt+ih0Gd1v6P/pa7qN
+OXrKB5iUQqBdwt1YLNoZ55Ojb03D1gWrXOV4DE2Ot+oWcChhDHqOflN7mOfNHLwj
+94ZiLJMuHN97GQPNxto1U+ExV52tdbA8FIUIxXgeIV+PeDB55N/NQjJPXOLsLj/3
+8yDXEOE3ZTdLDCNCFPBO4NFSRSvzTMkl4He0IOcMTDqom0YZfHzLb+pJR0DPNq0n
+gpUb03/YTMlSgjIM9Ltq2wb5AdttZeJ4+MG7k/gyLJjFJr178R1szKz23l7cYZfq
+7TowM+iBQV/g3v5l/TabQOeBQDYqIl/2iSJAxc17ECtoxrW1SqSckRJfTqcPmcPi
+r0vplvHDqRXBrv+NH92zhjSts8N5nPZMjiDdSknrOJwJUFFQku8U/2A/XMX3SRxn
+H+BbOXdut+fvidu7HPtrEqlfUIK9Lvh0l8XfnBoeZdLOnZoQV4wI9NBSH4D4HLpA
+o/H5Cq5xh6o2xQFABJHoFOIdMEz5NoWZ8BPiqQJ5nWn9ErGrBmbKcll6S2rIRqZP
+/UhLXKnd3ju7cQF1kH6gu2zL8l2mWIEISUZWJ1dPsc51Y4164W6olvTZ95BGmLQc
+QunHexGBsu0mVlTLtcfVey5K9+m8zcJQel6KThgh2MSBNt54p6IEuLT4fS3e4mXE
+VE4kNZ+YiwcZhdZXalp+
+=IFC0
 -----END PGP SIGNATURE-----
 
---wZdghQXYJzyo6AGC--
+--O27Gs9jTTFWz3gAR--
