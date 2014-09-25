@@ -1,95 +1,59 @@
 From: Yijing Wang <wangyijing@huawei.com>
-Subject: [PATCH v2 00/22] Use MSI chip framework to configure MSI/MSI-X in all platforms
-Date: Thu, 25 Sep 2014 11:14:10 +0800
-Message-ID: <1411614872-4009-1-git-send-email-wangyijing@huawei.com>
+Subject: [PATCH v2 16/22] Powerpc/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+Date: Thu, 25 Sep 2014 11:14:26 +0800
+Message-ID: <1411614872-4009-17-git-send-email-wangyijing@huawei.com>
+References: <1411614872-4009-1-git-send-email-wangyijing@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-mips-bounce@linux-mips.org>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1411614872-4009-1-git-send-email-wangyijing@huawei.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org
+Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Chris Metcalf <cmetcalf@til>
 List-ID: <linux-s390.vger.kernel.org>
 
-This series is based Bjorn's pci/msi branch
-git://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git pci/msi
+Use MSI chip framework instead of arch MSI functions to configure
+MSI/MSI-X irq. So we can manage MSI/MSI-X irq in a unified framework.
 
-Currently, there are a lot of weak arch functions in MSI code.
-Thierry Reding Introduced MSI chip framework to configure MSI/MSI-X in arm.
-This series use MSI chip framework to refactor MSI code across all platforms
-to eliminate weak arch functions. Then all MSI irqs will be managed in a 
-unified framework. Because this series changed a lot of ARCH MSI code,
-so tests in the platforms which MSI code modified are warmly welcomed!
+Signed-off-by: Yijing Wang <wangyijing@huawei.com>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+---
+ arch/powerpc/kernel/msi.c |   14 ++++++++++++--
+ 1 files changed, 12 insertions(+), 2 deletions(-)
 
-v1->v2:
-Add a patch to make s390 MSI code build happy between patch "x86/xen/MSI: E.."
-and "s390/MSI: Use MSI..". Fix several typo problems found by Lucas.
-
-RFC->v1: 
-Updated "[patch 4/21] x86/xen/MSI: Eliminate...", export msi_chip instead
-of #ifdef to fix MSI bug in xen running in x86. 
-Rename arch_get_match_msi_chip() to arch_find_msi_chip().
-Drop use struct device as the msi_chip argument, we will do that
-later in another patchset.
-
-Yijing Wang (22):
-  PCI/MSI: Clean up struct msi_chip argument
-  PCI/MSI: Remove useless bus->msi assignment
-  MSI: Remove the redundant irq_set_chip_data()
-  x86/xen/MSI: Eliminate arch_msix_mask_irq() and arch_msi_mask_irq()
-  s390/MSI: Use __msi_mask_irq() instead of default_msi_mask_irq()
-  PCI/MSI: Introduce weak arch_find_msi_chip() to find MSI chip
-  PCI/MSI: Refactor struct msi_chip to make it become more common
-  x86/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-  x86/xen/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-  Irq_remapping/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-  x86/MSI: Remove unused MSI weak arch functions
-  MIPS/Octeon/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-  MIPS/Xlp: Remove the dead function destroy_irq() to fix build error
-  MIPS/Xlp/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-  MIPS/Xlr/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-  Powerpc/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-  s390/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-  arm/iop13xx/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-  IA64/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-  Sparc/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-  tile/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-  PCI/MSI: Clean up unused MSI arch functions
-
- arch/arm/mach-iop13xx/include/mach/pci.h |    2 +
- arch/arm/mach-iop13xx/iq81340mc.c        |    1 +
- arch/arm/mach-iop13xx/iq81340sc.c        |    1 +
- arch/arm/mach-iop13xx/msi.c              |    9 ++-
- arch/arm/mach-iop13xx/pci.c              |    6 ++
- arch/ia64/kernel/msi_ia64.c              |   18 ++++-
- arch/mips/pci/msi-octeon.c               |   35 ++++++----
- arch/mips/pci/msi-xlp.c                  |   18 ++++--
- arch/mips/pci/pci-xlr.c                  |   15 ++++-
- arch/powerpc/kernel/msi.c                |   14 +++-
- arch/s390/pci/pci.c                      |   18 ++++-
- arch/sparc/kernel/pci.c                  |   14 +++-
- arch/tile/kernel/pci_gx.c                |   14 +++-
- arch/x86/include/asm/apic.h              |    4 +
- arch/x86/include/asm/pci.h               |    4 +-
- arch/x86/include/asm/x86_init.h          |    7 --
- arch/x86/kernel/apic/io_apic.c           |   16 ++++-
- arch/x86/kernel/x86_init.c               |   34 ---------
- arch/x86/pci/xen.c                       |   60 +++++++++-------
- drivers/iommu/irq_remapping.c            |    9 ++-
- drivers/irqchip/irq-armada-370-xp.c      |    8 +--
- drivers/pci/host/pci-tegra.c             |    8 ++-
- drivers/pci/host/pcie-designware.c       |    4 +-
- drivers/pci/host/pcie-rcar.c             |    8 ++-
- drivers/pci/msi.c                        |  114 ++++++++++++++----------------
- drivers/pci/probe.c                      |    1 -
- include/linux/msi.h                      |   26 ++-----
- 27 files changed, 266 insertions(+), 202 deletions(-)
+diff --git a/arch/powerpc/kernel/msi.c b/arch/powerpc/kernel/msi.c
+index 71bd161..01781a4 100644
+--- a/arch/powerpc/kernel/msi.c
++++ b/arch/powerpc/kernel/msi.c
+@@ -13,7 +13,7 @@
+ 
+ #include <asm/machdep.h>
+ 
+-int arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
++static int ppc_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
+ {
+ 	if (!ppc_md.setup_msi_irqs || !ppc_md.teardown_msi_irqs) {
+ 		pr_debug("msi: Platform doesn't provide MSI callbacks.\n");
+@@ -27,7 +27,17 @@ int arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
+ 	return ppc_md.setup_msi_irqs(dev, nvec, type);
+ }
+ 
+-void arch_teardown_msi_irqs(struct pci_dev *dev)
++static void ppc_teardown_msi_irqs(struct pci_dev *dev)
+ {
+ 	ppc_md.teardown_msi_irqs(dev);
+ }
++
++static struct msi_chip ppc_msi_chip = {
++	.setup_irqs = ppc_setup_msi_irqs,
++	.teardown_irqs = ppc_teardown_msi_irqs,
++};
++
++struct msi_chip *arch_find_msi_chip(struct pci_dev *dev)
++{
++	return &ppc_msi_chip;
++}
+-- 
+1.7.1
