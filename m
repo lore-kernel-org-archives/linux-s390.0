@@ -1,54 +1,88 @@
+Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Yijing Wang <wangyijing@huawei.com>
-Subject: Re: [PATCH v2 00/22] Use MSI chip framework to configure MSI/MSI-X
- in all platforms
-Date: Mon, 29 Sep 2014 18:13:17 +0800
-Message-ID: <542930BD.2090907@huawei.com>
-References: <1411614872-4009-1-git-send-email-wangyijing@huawei.com>	 <20140925074235.GN12423@ulmo> <20140925144855.GB31157@bart.dudau.co.uk>	 <20140925164937.GB30382@ulmo> <20140925171612.GC31157@bart.dudau.co.uk>	 <542505B3.7040208@huawei.com> <20140926085430.GG31106@ulmo>	 <20140926090537.GH31106@ulmo> <54277327.6070500@huawei.com>	 <5427A6A0.5040703@huawei.com> <1411979850.2625.7.camel@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
-In-Reply-To: <1411979850.2625.7.camel@pengutronix.de>
-Sender: linux-ia64-owner@vger.kernel.org
+Subject: [PATCH v2 07/22] PCI/MSI: Refactor struct msi_chip to make it become more common
+Date: Thu, 25 Sep 2014 11:14:17 +0800
+Message-ID: <1411614872-4009-8-git-send-email-wangyijing@huawei.com>
+In-Reply-To: <1411614872-4009-1-git-send-email-wangyijing@huawei.com>
+References: <1411614872-4009-1-git-send-email-wangyijing@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20140925031417.Kbpt8j5SM-pvG0FENHexW1zps6gDjyJmcBdh71iJJfI@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Lucas Stach <l.stach@pengutronix.de>
-Cc: Thierry Reding <thierry.reding@gmail.com>, Liviu Dudau <liviu@dudau.co.uk>, Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vg
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, Ralf Baechle <ralf@linux-mips.org>, Lucas Stach <l.stach@pengutronix.de>, David Vrabel <david.vrabel@citrix.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Michael Ellerman <mpe@ellerman.id.au>, Thierry Reding <thierry.reding@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Yijing Wang <wangyijing@huawei.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 2014/9/29 16:37, Lucas Stach wrote:
-> Am Sonntag, den 28.09.2014, 14:11 +0800 schrieb Yijing Wang:
->> On 2014/9/28 10:32, Yijing Wang wrote:
->>> On 2014/9/26 17:05, Thierry Reding wrote:
->>>> On Fri, Sep 26, 2014 at 10:54:32AM +0200, Thierry Reding wrote:
->>>> [...]
->>>>> At least for Tegra it's trivial to just hook it up in tegra_pcie_scan_bus()
->>>>> directly (patch attached).
->>>>
->>>> Really attached this time.
->>>>
->>>> Thierry
->>>>
->>>
->>> It looks good to me, so I will update the arm pci hostbridge driver to assign
->>> pci root bus the msi chip instead of current pcibios_add_bus(). But for other
->>> platforms which only have a one msi chip, I will kept the arch_find_msi_chip()
->>> temporarily for more comments, especially from Bjorn.
->>
->> Oh, sorry, I found designware and rcar use pci_scan_root_bus(), so we can not simply
->> assign msi chip to root bus in all host drivers's scan functions.
-> 
-> Designware will switch away from pci_scan_root_bus() in the 3.18 cycle
-> and I would think it would be no problem to to the same with rcar.
+Now there are a lot of __weak arch functions in MSI code.
+These functions make MSI driver complex. Thierry Reding Introduced
+a new MSI chip framework to configure MSI/MSI-X irq in ARM. Use
+the new MSI chip framework to refactor all other platform MSI
+arch code to eliminate weak arch MSI functions. This patch add
+.restore_irq() and .setup_irqs() to make it become more common.
 
-Good.
+Signed-off-by: Yijing Wang <wangyijing@huawei.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+---
+ drivers/pci/msi.c   |   15 +++++++++++++++
+ include/linux/msi.h |    3 +++
+ 2 files changed, 18 insertions(+), 0 deletions(-)
 
-> 
-> Regards,
-> Lucas
-> 
-
-
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index 3acbe65..d10edee 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -64,6 +64,11 @@ int __weak arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
+ {
+ 	struct msi_desc *entry;
+ 	int ret;
++	struct msi_chip *chip;
++
++	chip = arch_find_msi_chip(dev);
++	if (chip && chip->setup_irqs)
++		return chip->setup_irqs(dev, nvec, type);
+ 
+ 	/*
+ 	 * If an architecture wants to support multiple MSI, it needs to
+@@ -106,6 +111,11 @@ void default_teardown_msi_irqs(struct pci_dev *dev)
+ 
+ void __weak arch_teardown_msi_irqs(struct pci_dev *dev)
+ {
++	struct msi_chip *chip = arch_find_msi_chip(dev);
++
++	if (chip && chip->teardown_irqs)
++		return chip->teardown_irqs(dev);
++
+ 	return default_teardown_msi_irqs(dev);
+ }
+ 
+@@ -129,6 +139,11 @@ static void default_restore_msi_irq(struct pci_dev *dev, int irq)
+ 
+ void __weak arch_restore_msi_irqs(struct pci_dev *dev)
+ {
++	struct msi_chip *chip = arch_find_msi_chip(dev);
++
++	if (chip && chip->restore_irqs)
++		return chip->restore_irqs(dev);
++
+ 	return default_restore_msi_irqs(dev);
+ }
+ 
+diff --git a/include/linux/msi.h b/include/linux/msi.h
+index 6fdc5c6..4cf1f31 100644
+--- a/include/linux/msi.h
++++ b/include/linux/msi.h
+@@ -69,7 +69,10 @@ struct msi_chip {
+ 	struct list_head list;
+ 
+ 	int (*setup_irq)(struct pci_dev *dev, struct msi_desc *desc);
++	int (*setup_irqs)(struct pci_dev *dev, int nvec, int type);
+ 	void (*teardown_irq)(unsigned int irq);
++	void (*teardown_irqs)(struct pci_dev *dev);
++	void (*restore_irqs)(struct pci_dev *dev);
+ };
+ 
+ #endif /* LINUX_MSI_H */
 -- 
-Thanks!
-Yijing
+1.7.1
