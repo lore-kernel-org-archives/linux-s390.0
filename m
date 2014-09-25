@@ -1,43 +1,128 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 22 Sep 2014 11:03:31 +0300
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio: refactor to use drv_to_virtio
-Message-ID: <1411372905-12649-1-git-send-email-mst@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sudeep Dutt <sudeep.dutt@intel.com>, Nikhil Rao <nikhil.rao@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>, Wolfram Sang <wsa@the-dreams.de>, Siva Yerramreddy <yshivakrishna@gmail.com>, Heinz Graalfs <graalfs@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+From: Yijing Wang <wangyijing@huawei.com>
+Subject: [PATCH v2 09/22] x86/xen/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+Date: Thu, 25 Sep 2014 11:14:19 +0800
+Message-ID: <1411614872-4009-10-git-send-email-wangyijing@huawei.com>
+References: <1411614872-4009-1-git-send-email-wangyijing@huawei.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <1411614872-4009-1-git-send-email-wangyijing@huawei.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Use drv_to_virtio instead of open-coding it.
-Fix whitespace damage introduced by
-	virtio: unify config_changed handling
+Use MSI chip framework instead of arch MSI functions to configure
+MSI/MSI-X irq. So we can manage MSI/MSI-X irq in a unified framework.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Tested-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Yijing Wang <wangyijing@huawei.com>
+Acked-by: David Vrabel <david.vrabel@citrix.com>
+Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+CC: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 ---
+ arch/x86/pci/xen.c |   46 ++++++++++++++++++++++++++++++----------------
+ 1 files changed, 30 insertions(+), 16 deletions(-)
 
-Note: I'll probably smash this into the previous patch.
-
- drivers/virtio/virtio.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 470b74f..3980687 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -241,8 +241,7 @@ EXPORT_SYMBOL_GPL(unregister_virtio_device);
+diff --git a/arch/x86/pci/xen.c b/arch/x86/pci/xen.c
+index 84c2fce..e669ee4 100644
+--- a/arch/x86/pci/xen.c
++++ b/arch/x86/pci/xen.c
+@@ -376,6 +376,11 @@ static void xen_initdom_restore_msi_irqs(struct pci_dev *dev)
+ }
+ #endif
  
- void virtio_config_changed(struct virtio_device *dev)
++static void xen_teardown_msi_irq(unsigned int irq)
++{
++	xen_destroy_irq(irq);
++}
++
+ static void xen_teardown_msi_irqs(struct pci_dev *dev)
  {
--        struct virtio_driver *drv = container_of(dev->dev.driver,
--						 struct virtio_driver, driver);
-+	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+ 	struct msi_desc *msidesc;
+@@ -385,19 +390,26 @@ static void xen_teardown_msi_irqs(struct pci_dev *dev)
+ 		xen_pci_frontend_disable_msix(dev);
+ 	else
+ 		xen_pci_frontend_disable_msi(dev);
+-
+-	/* Free the IRQ's and the msidesc using the generic code. */
+-	default_teardown_msi_irqs(dev);
+-}
+-
+-static void xen_teardown_msi_irq(unsigned int irq)
+-{
+-	xen_destroy_irq(irq);
++	
++	list_for_each_entry(msidesc, &dev->msi_list, list) {
++		int i, nvec;
++		if (msidesc->irq == 0)
++			continue;
++		if (msidesc->nvec_used)
++			nvec = msidesc->nvec_used;
++		else
++			nvec = 1 << msidesc->msi_attrib.multiple;
++		for (i = 0; i < nvec; i++)
++			xen_teardown_msi_irq(msidesc->irq + i);
++	}
+ }
  
- 	if (drv && drv->config_changed)
- 		drv->config_changed(dev);
+ void xen_nop_msi_mask(struct irq_data *data)
+ {
+ }
++
++struct msi_chip xen_msi_chip;
++
+ #endif
+ 
+ int __init pci_xen_init(void)
+@@ -418,9 +430,9 @@ int __init pci_xen_init(void)
+ #endif
+ 
+ #ifdef CONFIG_PCI_MSI
+-	x86_msi.setup_msi_irqs = xen_setup_msi_irqs;
+-	x86_msi.teardown_msi_irq = xen_teardown_msi_irq;
+-	x86_msi.teardown_msi_irqs = xen_teardown_msi_irqs;
++	xen_msi_chip.setup_irqs = xen_setup_msi_irqs;
++	xen_msi_chip.teardown_irqs = xen_teardown_msi_irqs;
++	x86_msi_chip = &xen_msi_chip;
+ 	msi_chip.irq_mask = xen_nop_msi_mask;
+ 	msi_chip.irq_unmask = xen_nop_msi_mask;
+ #endif
+@@ -441,8 +453,9 @@ int __init pci_xen_hvm_init(void)
+ #endif
+ 
+ #ifdef CONFIG_PCI_MSI
+-	x86_msi.setup_msi_irqs = xen_hvm_setup_msi_irqs;
+-	x86_msi.teardown_msi_irq = xen_teardown_msi_irq;
++	xen_msi_chip.setup_irqs = xen_hvm_setup_msi_irqs;
++	xen_msi_chip.teardown_irq = xen_teardown_msi_irq;
++	x86_msi_chip = &xen_msi_chip;
+ #endif
+ 	return 0;
+ }
+@@ -499,9 +512,10 @@ int __init pci_xen_initial_domain(void)
+ 	int irq;
+ 
+ #ifdef CONFIG_PCI_MSI
+-	x86_msi.setup_msi_irqs = xen_initdom_setup_msi_irqs;
+-	x86_msi.teardown_msi_irq = xen_teardown_msi_irq;
+-	x86_msi.restore_msi_irqs = xen_initdom_restore_msi_irqs;
++	xen_msi_chip.setup_irqs = xen_initdom_setup_msi_irqs;
++	xen_msi_chip.teardown_irq = xen_teardown_msi_irq;
++	xen_msi_chip.restore_irqs = xen_initdom_restore_msi_irqs;
++	x86_msi_chip = &xen_msi_chip;
+ 	msi_chip.irq_mask = xen_nop_msi_mask;
+ 	msi_chip.irq_unmask = xen_nop_msi_mask;
+ #endif
 -- 
-MST
+1.7.1
