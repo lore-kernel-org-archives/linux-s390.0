@@ -1,17 +1,17 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Thu, 25 Sep 2014 09:06:01 +0200
+Date: Thu, 25 Sep 2014 09:15:38 +0200
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH v2 02/22] PCI/MSI: Remove useless bus->msi assignment
-Message-ID: <20140925070601.GF12423@ulmo>
+Subject: Re: [PATCH v2 01/22] PCI/MSI: Clean up struct msi_chip argument
+Message-ID: <20140925071536.GG12423@ulmo>
 References: <1411614872-4009-1-git-send-email-wangyijing@huawei.com>
- <1411614872-4009-3-git-send-email-wangyijing@huawei.com>
+ <1411614872-4009-2-git-send-email-wangyijing@huawei.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kbCYTQG2MZjuOjyn"
+	protocol="application/pgp-signature"; boundary="EDJsL2R9iCFAt7IV"
 Content-Disposition: inline
-In-Reply-To: <1411614872-4009-3-git-send-email-wangyijing@huawei.com>
+In-Reply-To: <1411614872-4009-2-git-send-email-wangyijing@huawei.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20140925070601.4gyRz-1LY-1vzx8Zu6ZcQk1Zbx4cbNqBACw-DIPcQKc@z>
+Message-ID: <20140925071538.LQW4BOf7xzTHdCu_4RuOALhF2_sTfvYngQuFJCRnTTI@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Yijing Wang <wangyijing@huawei.com>
@@ -19,46 +19,50 @@ Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, linux-kernel
 List-ID: <linux-s390.vger.kernel.org>
 
 
---kbCYTQG2MZjuOjyn
+--EDJsL2R9iCFAt7IV
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 25, 2014 at 11:14:12AM +0800, Yijing Wang wrote:
-> Currently, PCI drivers will initialize bus->msi in
-> pcibios_add_bus(). pcibios_add_bus() will be called
-> in every pci bus initialization. So the bus->msi
-> assignment in pci_alloc_child_bus() is useless.
+On Thu, Sep 25, 2014 at 11:14:11AM +0800, Yijing Wang wrote:
+> Msi_chip functions setup_irq/teardown_irq rarely use msi_chip
+> argument.
 
-I think this should be the other way around. The default should be to
-inherit bus->msi from the parent. That way drivers don't typically have
-to do it, yet they can still opt to override it if they need to.
+That's not true. Out of the four drivers that you modify two use the
+parameter. And the two that don't probably should be using it too.
 
-For Tegra for example I think it would work if we assigned the MSI chip
-to the root bus (in tegra_pcie_scan_bus()) and then have it propagated
-to child busses in pci_alloc_child_bus() so that tegra_pcie_add_bus()
-can be removed altogether.
+50% is not "rarely". =3D)
+
+>           We can look up msi_chip pointer by the device pointer
+> or irq number, so clean up msi_chip argument.
+
+I don't like this particular change. The idea was to keep the API object
+oriented so that drivers wouldn't have to know where to get the MSI chip
+=66rom. It also makes it more resilient against code reorganizations since
+the core code is the only place that needs to know where to get the chip
+=66rom.
 
 Thierry
 
---kbCYTQG2MZjuOjyn
+--EDJsL2R9iCFAt7IV
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBAgAGBQJUI77YAAoJEN0jrNd/PrOhZ/IQAMCSt26z+T6Q8TozfHBY40d1
-VjyfIqF++JMHsJp9JBnJk7W/SdKcW+ClXvgZjtR4hqvTRlYUBPk6Sn3JWpi3RslY
-GHt/y1pNGzk05qLADjlA8CAGVjq0Vspw5WO5SLjzu10gfvcddAX7YKRcWz5vW9uv
-TcG+NFcDyGRaNg+ATkJ8Ep4rVN3eIkh9te9CE/pG5zQAV+NEZkaN4v9hRFubWIPy
-HUXyDu+8aTJ3YUyhrXkbGR23i0lLzcWsqhrcjbbbQj0swxngijMgBbzJU2jJ0rxx
-5CjTbs0mgvqKfsX1WQ3Df61rSN/krlMiZeD66YuMTuWdlzZkGJqpHCDkKdx2rITZ
-o2IXg6faK1OARr8JfubrXil2utfpJkvBJR2fWmH0j37ZkEb249skTCAnb2yroyhJ
-Mz3BmS+nAgPJkQUTTVZigeR+90KASb/WQrFPZhvOPK/ioMy0UyGy6uvNYm4rLXK+
-gWN2TjIaniEFM60xJLFPgsVuf9XXKUZ0REybeTiDM65mofLUSkxtMbK/mrcBdHgF
-kdO+JJ93hN6vnnqpqA/QjKNJebZm0PUjSTZvXIlzBs/v+gOh4bWewATJLbcgll/g
-w85vBMPaceGBcjBIBul927T7Uf+2pLOmJHmM+eCzXSdxAyQ8qx75Su9uWOY3sX3Q
-JDxVrWb34Dj7sIqL36a3
-=f2MC
+iQIcBAEBAgAGBQJUI8EYAAoJEN0jrNd/PrOhKe8P+wRzEsusQS8lMmL8zyqvg5wy
+x0Q4+eSI5aEkUEQz6Mtcld6eIwACphFOHeoDrAFauuxrjVqWslHdYAIAKbYoxG0e
+xV9PJoc5PY24v4vnR5BvWEHxBfzfJ8QmFlDZGRvy3lqTPhTBOzLIbNUMO1gaoH1Q
+MIzSjgl631075wZns41KNNx1TjCaXNeDwjkAyyX4bjJ7SL6ymrsxGo/zhCRCpZSk
+2ks9AFoqFQoIOFeziuAW7WAx8BM9ah1ba5tc3oVZ6LC3JHrvoHZ5KCjITV75Geqb
+dFzQh7Rx0yFdXVmNOX+O6XtFVvb7hNFELV1SAzQQXWl0Hyid6Dp0ZShKLSumNdG8
+WvJFtUil25Prid9JVvpq+PrRGlbOucv0U+wi2cbdrE9/7UwtYoxAHNj/aTXdWwIv
+d6ble8v0UT7l5Sk8QIFMI3VbatPqL/i+Mz8NijIKaMRug9/XmXZIN0Q05JhlbJ2b
+/AWyYKLGAwYMrZcDU2v8CajO/NGUQ9D+mkqcN0NDsxmvP5woL6GC2tQzZABaAipF
+LlbM5T6PfjxRfOvYNAIOJnttoirlQ4UI8CjVEeotPrchQalN7ZESvaHK0z2/Wrv1
+kSvUiqTvOPtRaQn4rIs5MTi7tw5NBsG2MyWfy90WkITpn5vEYrX4JQITTUpa/x9B
+IKT68Y/8ZFK3ksbjHtIe
+=LSxe
 -----END PGP SIGNATURE-----
 
---kbCYTQG2MZjuOjyn--
+--EDJsL2R9iCFAt7IV--
