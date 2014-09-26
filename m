@@ -1,178 +1,89 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 22 Sep 2014 10:20:17 +0300
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio: unify config_changed handling
-Message-ID: <1411370391-12291-1-git-send-email-mst@redhat.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Fri, 26 Sep 2014 10:09:49 +0200
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH v2 03/22] MSI: Remove the redundant irq_set_chip_data()
+Message-ID: <20140926080949.GF31106@ulmo>
+References: <1411614872-4009-1-git-send-email-wangyijing@huawei.com>
+ <1411614872-4009-4-git-send-email-wangyijing@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5CUMAwwhRxlRszMD"
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sudeep Dutt <sudeep.dutt@intel.com>, Nikhil Rao <nikhil.rao@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>, Wolfram Sang <wsa@the-dreams.de>, Siva Yerramreddy <yshivakrishna@gmail.com>, Heinz Graalfs <graalfs@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <1411614872-4009-4-git-send-email-wangyijing@huawei.com>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20140926080949.H1QMtT72Ync66YW9pYc0K1oHlig5ZtNcM2AdTWLxQEI@z>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Yijing Wang <wangyijing@huawei.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, Ralf Baechle <ralf@linux-mips.org>, Lucas Stach <l.stach@pengutronix.de>, David Vrabel <david.vrabel@citrix.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Michael Ellerman <mpe@ellerman.id.au>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Replace duplicated code in all transports with a single wrapper in
-virtio.c.
 
-The only functional change is in virtio_mmio.c: if a buggy device sends
-us an interrupt before driver is set, we previously returned IRQ_NONE,
-now we return IRQ_HANDLED.
+--5CUMAwwhRxlRszMD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-As this must not happen in practice, this does not look like a big deal.
+On Thu, Sep 25, 2014 at 11:14:13AM +0800, Yijing Wang wrote:
+> Currently, pcie-designware, pcie-rcar, pci-tegra drivers
+> use irq chip_data to save the msi_chip pointer. They
+> already call irq_set_chip_data() in their own MSI irq map
+> functions. So irq_set_chip_data() in arch_setup_msi_irq()
+> is useless.
+>=20
+> Signed-off-by: Yijing Wang <wangyijing@huawei.com>
+> ---
+>  drivers/pci/msi.c |    5 ++---
+>  1 files changed, 2 insertions(+), 3 deletions(-)
 
-See also commit 3fff0179e33cd7d0a688dab65700c46ad089e934
-	virtio-pci: do not oops on config change if driver not loaded.
-for the original motivation behind the driver check.
+Reviewed-by: Thierry Reding <treding@nvidia.com>
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/linux/virtio.h             |  2 ++
- drivers/misc/mic/card/mic_virtio.c |  6 +-----
- drivers/s390/kvm/kvm_virtio.c      |  9 +--------
- drivers/s390/kvm/virtio_ccw.c      |  6 +-----
- drivers/virtio/virtio.c            | 10 ++++++++++
- drivers/virtio/virtio_mmio.c       |  7 ++-----
- drivers/virtio/virtio_pci.c        |  6 +-----
- 7 files changed, 18 insertions(+), 28 deletions(-)
+>=20
+> diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+> index 51d7e62..50f67a3 100644
+> --- a/drivers/pci/msi.c
+> +++ b/drivers/pci/msi.c
+> @@ -41,14 +41,13 @@ int __weak arch_setup_msi_irq(struct pci_dev *dev, st=
+ruct msi_desc *desc)
+>  	if (err < 0)
+>  		return err;
+> =20
+> -	irq_set_chip_data(desc->irq, chip);
+> -
+>  	return 0;
+>  }
+> =20
+>  void __weak arch_teardown_msi_irq(unsigned int irq)
+>  {
+> -	struct msi_chip *chip =3D irq_get_chip_data(irq);
+> +	struct msi_desc *entry =3D irq_get_msi_desc(irq);
+> +	struct msi_chip *chip =3D entry->dev->bus->msi;
+> =20
+>  	if (!chip || !chip->teardown_irq)
+>  		return;
+> --=20
+> 1.7.1
+>=20
 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index b46671e..3c19bd3 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -108,6 +108,8 @@ void unregister_virtio_device(struct virtio_device *dev);
- 
- void virtio_break_device(struct virtio_device *dev);
- 
-+void virtio_config_changed(struct virtio_device *dev);
-+
- /**
-  * virtio_driver - operations for a virtio I/O driver
-  * @driver: underlying device driver (populate name and owner).
-diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
-index f14b600..e647947 100644
---- a/drivers/misc/mic/card/mic_virtio.c
-+++ b/drivers/misc/mic/card/mic_virtio.c
-@@ -462,16 +462,12 @@ static void mic_handle_config_change(struct mic_device_desc __iomem *d,
- 	struct mic_device_ctrl __iomem *dc
- 		= (void __iomem *)d + mic_aligned_desc_size(d);
- 	struct mic_vdev *mvdev = (struct mic_vdev *)ioread64(&dc->vdev);
--	struct virtio_driver *drv;
- 
- 	if (ioread8(&dc->config_change) != MIC_VIRTIO_PARAM_CONFIG_CHANGED)
- 		return;
- 
- 	dev_dbg(mdrv->dev, "%s %d\n", __func__, __LINE__);
--	drv = container_of(mvdev->vdev.dev.driver,
--				struct virtio_driver, driver);
--	if (drv->config_changed)
--		drv->config_changed(&mvdev->vdev);
-+	virtio_config_changed(&mvdev->vdev);
- 	iowrite8(1, &dc->guest_ack);
- }
- 
-diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
-index a134965..6431290 100644
---- a/drivers/s390/kvm/kvm_virtio.c
-+++ b/drivers/s390/kvm/kvm_virtio.c
-@@ -406,15 +406,8 @@ static void kvm_extint_handler(struct ext_code ext_code,
- 
- 	switch (param) {
- 	case VIRTIO_PARAM_CONFIG_CHANGED:
--	{
--		struct virtio_driver *drv;
--		drv = container_of(vq->vdev->dev.driver,
--				   struct virtio_driver, driver);
--		if (drv->config_changed)
--			drv->config_changed(vq->vdev);
--
-+		virtio_config_changed(vq->vdev);
- 		break;
--	}
- 	case VIRTIO_PARAM_DEV_ADD:
- 		schedule_work(&hotplug_work);
- 		break;
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index d2c0b44..6cbe6ef 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -940,11 +940,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
- 		vring_interrupt(0, vq);
- 	}
- 	if (test_bit(0, &vcdev->indicators2)) {
--		drv = container_of(vcdev->vdev.dev.driver,
--				   struct virtio_driver, driver);
--
--		if (drv && drv->config_changed)
--			drv->config_changed(&vcdev->vdev);
-+		virtio_config_changed(&vcdev->vdev);
- 		clear_bit(0, &vcdev->indicators2);
- 	}
- }
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index fed0ce1..470b74f 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -239,6 +239,16 @@ void unregister_virtio_device(struct virtio_device *dev)
- }
- EXPORT_SYMBOL_GPL(unregister_virtio_device);
- 
-+void virtio_config_changed(struct virtio_device *dev)
-+{
-+        struct virtio_driver *drv = container_of(dev->dev.driver,
-+						 struct virtio_driver, driver);
-+
-+	if (drv && drv->config_changed)
-+		drv->config_changed(dev);
-+}
-+EXPORT_SYMBOL_GPL(virtio_config_changed);
-+
- static int virtio_init(void)
- {
- 	if (bus_register(&virtio_bus) != 0)
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index c600ccf..ef9a165 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -234,8 +234,6 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
- {
- 	struct virtio_mmio_device *vm_dev = opaque;
- 	struct virtio_mmio_vq_info *info;
--	struct virtio_driver *vdrv = container_of(vm_dev->vdev.dev.driver,
--			struct virtio_driver, driver);
- 	unsigned long status;
- 	unsigned long flags;
- 	irqreturn_t ret = IRQ_NONE;
-@@ -244,9 +242,8 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
- 	status = readl(vm_dev->base + VIRTIO_MMIO_INTERRUPT_STATUS);
- 	writel(status, vm_dev->base + VIRTIO_MMIO_INTERRUPT_ACK);
- 
--	if (unlikely(status & VIRTIO_MMIO_INT_CONFIG)
--			&& vdrv && vdrv->config_changed) {
--		vdrv->config_changed(&vm_dev->vdev);
-+	if (unlikely(status & VIRTIO_MMIO_INT_CONFIG)) {
-+		virtio_config_changed(&vm_dev->vdev);
- 		ret = IRQ_HANDLED;
- 	}
- 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 3d1463c..58f7e45 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -211,12 +211,8 @@ static bool vp_notify(struct virtqueue *vq)
- static irqreturn_t vp_config_changed(int irq, void *opaque)
- {
- 	struct virtio_pci_device *vp_dev = opaque;
--	struct virtio_driver *drv;
--	drv = container_of(vp_dev->vdev.dev.driver,
--			   struct virtio_driver, driver);
- 
--	if (drv && drv->config_changed)
--		drv->config_changed(&vp_dev->vdev);
-+	virtio_config_changed(&vp_dev->vdev);
- 	return IRQ_HANDLED;
- }
- 
--- 
-MST
+--5CUMAwwhRxlRszMD
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBAgAGBQJUJR9NAAoJEN0jrNd/PrOh5cAP/2aYAkwGt796/z3rQsXfEXhG
+hPI6dXwueP4Re7P03WrSfn6JEowEsDYFLqLJJYQLwlDQa96WTd85jidBUhQRniqy
+GPHoUY+c4qiQjJak+b2y4jMMNqJnWoLw57Wd1Nmy2g2pocWKwiKA1VEem2ZZPaxR
+QxhYqhwK8IxOu092oPpVV8m2GtFSUzbuOoE0a3muYP+gExweDN6v485fm+PKfIVU
+rmCMnmkkT9oUVNYUlQDSf0xXb+t0PNJDbGZHPM3rKQFQA45Xhadzs2D/nk1CSwoj
+7EO8sq/qkfHnyXvxpvazxq2V1xsGkG63RTRmhIzP2VGDj/AI6G9AlM5dFOzPctSf
+8v8FNLESIHmHKyp9IKT1pCWg6jbRHFlhL9be5+uudiDYgvXiGjtco4Jta1hlgHNk
+Qd7zRsH6Y+ocewQ2sqDMrwkOEzetOfnGmjjtb3q6VaeahtwPdRKWhQcjfO//zIW3
+83yoON4lx7AS1aDMRywNXbk8A6ja8ndVS2amfm6TJCbIVy6A78AnCRx4n/ShluFl
+WD1TekKOyh2u2JtRagRSb0xxFwwsqzlYrOElj00zxCZJAKihIzjMf4ogfxnj2OOn
+ZEF1WTMpjTpy+QB7r22R0qFX9yVBBCgRM8heGbQXeVMPD/AvmVhx803Ry2r6SmcU
+iefPiqiqqocKKcpN4rMB
+=jw7p
+-----END PGP SIGNATURE-----
+
+--5CUMAwwhRxlRszMD--
