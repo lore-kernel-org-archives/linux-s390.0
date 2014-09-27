@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <542A3F7C.5000308@free-electrons.com>
-Date: Tue, 30 Sep 2014 07:28:28 +0200
 From: Michael Opdenacker <michael.opdenacker@free-electrons.com>
-MIME-Version: 1.0
-Subject: Re: [PATCH] s390: remove unused Kconfig params
-References: <1411799130-17875-1-git-send-email-michael.opdenacker@free-electrons.com> <20140927075701.GA6926@osiris>
-In-Reply-To: <20140927075701.GA6926@osiris>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] s390: remove unused Kconfig params
+Date: Sat, 27 Sep 2014 08:25:30 +0200
+Message-Id: <1411799130-17875-1-git-send-email-michael.opdenacker@free-electrons.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: schwidefsky@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+Cc: linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Opdenacker <michael.opdenacker@free-electrons.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Heiko,
+Remove the below Kconfig parameters, which are no longer
+used anywhere in the source code and Makefiles:
 
-On 09/27/2014 09:57 AM, Heiko Carstens wrote:
-> On Sat, Sep 27, 2014 at 08:25:30AM +0200, Michael Opdenacker wrote:
->> Remove the below Kconfig parameters, which are no longer
->> used anywhere in the source code and Makefiles:
->>
->> HAVE_MARCH_Z900_FEATURES
->> HAVE_MARCH_Z990_FEATURES
->>
->> Signed-off-by: Michael Opdenacker <michael.opdenacker@free-electrons.com>
-> What I wrote you a year ago is still true:
->
-> https://lkml.org/lkml/2013/11/4/69
+HAVE_MARCH_Z900_FEATURES
+HAVE_MARCH_Z990_FEATURES
 
-Thanks for your reply. I forgot about my earlier submission, as I only
-keep track of patches that haven't been accepted yet. I will keep track
-of "hopeless" rejected patches too...
+Signed-off-by: Michael Opdenacker <michael.opdenacker@free-electrons.com>
+---
+ arch/s390/Kconfig | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-There are multiple opinions about whether adding stuff not needed yet,
-or adding stuff only once they are needed. Anyway, as a maintainer, the
-decision is yours!
-
-Cheers,
-
-Michael.
-
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 05c78bb5f570..d8085a9e9ebd 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -156,16 +156,8 @@ source "kernel/Kconfig.freezer"
+ 
+ menu "Processor type and features"
+ 
+-config HAVE_MARCH_Z900_FEATURES
+-	def_bool n
+-
+-config HAVE_MARCH_Z990_FEATURES
+-	def_bool n
+-	select HAVE_MARCH_Z900_FEATURES
+-
+ config HAVE_MARCH_Z9_109_FEATURES
+ 	def_bool n
+-	select HAVE_MARCH_Z990_FEATURES
+ 
+ config HAVE_MARCH_Z10_FEATURES
+ 	def_bool n
+@@ -192,7 +184,6 @@ config MARCH_G5
+ 
+ config MARCH_Z900
+ 	bool "IBM zSeries model z800 and z900"
+-	select HAVE_MARCH_Z900_FEATURES if 64BIT
+ 	help
+ 	  Select this to enable optimizations for model z800/z900 (2064 and
+ 	  2066 series). This will enable some optimizations that are not
+@@ -200,7 +191,6 @@ config MARCH_Z900
+ 
+ config MARCH_Z990
+ 	bool "IBM zSeries model z890 and z990"
+-	select HAVE_MARCH_Z990_FEATURES if 64BIT
+ 	help
+ 	  Select this to enable optimizations for model z890/z990 (2084 and
+ 	  2086 series). The kernel will be slightly faster but will not work
 -- 
-Michael Opdenacker, CEO, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-+33 484 258 098
+1.9.1
