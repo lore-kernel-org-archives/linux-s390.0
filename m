@@ -1,26 +1,16 @@
 From: Andy Lutomirski <luto@amacapital.net>
 Subject: Re: [PATCH v5 2/3] virtio_pci: Use the DMA API for virtqueues when
 	possible
-Date: Wed, 24 Sep 2014 15:49:53 -0700
-Message-ID: <CALCETrUwCzxD=25W_nS+JqU8sNMxQCjPmXhFrKURx-QKO3u=3w@mail.gmail.com>
+Date: Mon, 29 Sep 2014 11:55:45 -0700
+Message-ID: <CALCETrW1mD5EuPbJDhnQPDSJwy9L=dh6rSSTj_wEOmFJNHBeUQ@mail.gmail.com>
 References: <cover.1410931077.git.luto@amacapital.net>
 	<6c31406005160303a7ee291a933c267f8e55fa85.1410931077.git.luto@amacapital.net>
 	<1410955351.30672.27.camel@pasglop> <20140917141639.GA13684@redhat.com>
-	<CALCETrULv=zj_+rA2sRgf0Pxw3P6RDBzmM5C40=OHWwpYtEuJQ@mail.gmail.com>
-	<1411162406.30672.64.camel@pasglop>
-	<CALCETrUSRXv9wPoNF54GuXT+kKnLAdJmRPEsOjeFNfSE4QueoA@mail.gmail.com>
-	<1411275788.30672.79.camel@pasglop> <1411275943.30672.81.camel@pasglop>
-	<CALCETrUDMxsdPsZjRZj-T-Tc4OH697mGH1r4Vj6hPu8tjvmfew@mail.gmail.com>
-	<1411595404.4184.48.camel@pasglop>
-	<CALCETrWRfrLs5Se+mbiGhEbt=WM8fGd2bt6XWskPEYOq2tq-qg@mail.gmail.com>
-	<1411596297.4184.50.camel@pasglop>
-	<CALCETrUGRCNT-bhfeYoVuFA1TAwjtadCEOLMbAQ_xN6A0GVPaQ@mail.gmail.com>
-	<1411598299.4184.53.camel@pasglop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1411598299.4184.53.camel@pasglop>
+In-Reply-To: <20140917141639.GA13684@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -32,74 +22,62 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/virtualization/>
 List-Post: <mailto:virtualization@lists.linuxfoundation.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Sep 24, 2014 at 3:38 PM, Benjamin Herrenschmidt
-<benh@kernel.crashing.org> wrote:
-> On Wed, 2014-09-24 at 15:15 -0700, Andy Lutomirski wrote:
->> On Wed, Sep 24, 2014 at 3:04 PM, Benjamin Herrenschmidt
->> <benh@kernel.crashing.org> wrote:
->> > On Wed, 2014-09-24 at 14:59 -0700, Andy Lutomirski wrote:
+On Wed, Sep 17, 2014 at 7:16 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Wed, Sep 17, 2014 at 08:02:31AM -0400, Benjamin Herrenschmidt wrote:
+>> On Tue, 2014-09-16 at 22:22 -0700, Andy Lutomirski wrote:
+>> > On non-PPC systems, virtio_pci should use the DMA API.  This fixes
+>> > virtio_pci on Xen.  On PPC, using the DMA API would break things, so
+>> > we need to preserve the old behavior.
 >> >
->> >> Scratch that idea, then.
->> >>
->> >> The best that I can currently come up with is to say that pre-1.0
->> >> devices on PPC bypass the IOMMU and that 1.0 devices on PPC and all
->> >> devices on all other architectures do not bypass the IOMMU.
->> >
->> > Well, the thing is, we *want* them to bypass the IOMMU for performance
->> > reasons in the long run. Today we have no ways to tell our guests that
->> > a PCI bus doesn't have an IOMMU, they always do !
+>> > The big comment in this patch explains the considerations in more
+>> > detail.
 >>
->> Alternatively, the IOMMU could be extended to allow an efficient
->> identity map of the entire physical address space.
->
-> We have that option, but I'm a bit reluctant to rely on it, it has its
-> issues, but it's something we can look into.
->
->> > Also qemu can mix and match devices on a given PCI bus so making this a
->> > bus property wouldn't work either.
->> >
->> >> I agree that this is far from ideal.  Any ideas?  Is there any other
->> >> channel that QEMU can use to signal to a PPC guest that a specific PCI
->> >> virtio device isn't really behind an IOMMU?
->> >
->> > Any reason why this can't be a virtio capability ?
->> >
+>> I still disagree with using CONFIG_PPC as a trigger here.
 >>
->> For Xen.
+>> Fundamentally, the qemu implementation today bypasses IOMMUs on all
+>> platforms as far as I can tell.
+>>
+>> If that changes, we'll have a backward compatibility problem.
+>>
+>> The virtio device should advertise whether it's using that bypass
+>> mode of operation and virtio_pci should react accordingly.
 >
-> And ? I don't see the problem... When running Xen, you don't put the
-> capability in. They are negociated... Why can't qemu set the capability
-> accordingly based on whether it's using KVM or Xen ? It's not like we
-> care about backward compat of ppc on Xen anyway...
+> Well if there's a way to detect that - that's outside the
+> device, then we probably shouldn't use device-specific
+> interfaces for this capability.
 >
+>
+>> There is a demand for being able to operate on top of an IOMMU on
+>> powerpc as well for some embedded stuff using PCI as a transport so your
+>> patch precludes that.
+>>
+>> Cheers,
+>> Ben.
+>
+> As far as I can see, nothing changes on PPC so this patch
+> does not preclude anything that was working?
 
-QEMU doesn't know that Xen is running.  I can do qemu-system-x86_64
--kernel /path/to/xen (virtme-run --xen does this) or
-qemu-system-x86_64 -hda disk_with_xen.img and Xen will run.
+Rusty and Michael, what's the status of this?
 
->
->  .../...
->
->> a) IOMMU should be used.
->> b) Device is trusted but the IOMMU still works.  The guest may want to
->> set up an identity map.
->> c) (PPC only) Device bypasses the IOMMU.  There's no security issue
->> here: a malicious device wouldn't be able to bypass the IOMMU, so it
->> would be unable to do DMA at all.
->
-> I wouldn't make it "ppc only" at this point but yes. Also keep in mind
-> that we do have ppc cases where we will want to use the iommu (in which
-> case the capability would be enforced by the other half).
+I think that (aside from the trivial DMI/DMA typo) the only real issue
+here is that the situation on PPC is ugly.  We're failing to enable
+physical virtio hardware on PPC with these patches, but that never
+worked anyway.  I don't think that there are any regressions other
+than ugliness.
 
-The only reason I say "PPC only" is because I don't think that other
-architectures would want to choose c.
+My preference would be to apply the patches as is (or with "DMA"
+spelled correctly), and then to:
 
-We could plausibly use paravirt tricks for this, but that gets messy,
-since e.g. the KVM kernel code might not even know what QEMU wants to
-do.
+ - Make sure that all virtio-mmio systems have working DMA ops so that
+virtio-mmio can the DMA API
+
+ - Fix the DMA API on s390 (probably easy) and on PPC (not necessarily so easy)
+
+ - Remove the non-DMA-API code, which would be a very small change on
+top of these patches.
 
 --Andy
