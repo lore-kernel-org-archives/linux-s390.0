@@ -1,213 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 1 Nov 2014 02:16:14 +0200
-From: Aya Mahfouz <mahfouz.saif.elyazal@gmail.com>
-Subject: [PATCH v3] drivers: s390: net: ctcm: migrate variables to handle
- y2038 problem
-Message-ID: <20141101001614.GA9494@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date: Mon, 6 Oct 2014 11:20:16 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 02/16] virtio: unify config_changed handling
+Message-ID: <20141006112016.0227d0d3.cornelia.huck@de.ibm.com>
+In-Reply-To: <1412525038-15871-3-git-send-email-mst@redhat.com>
+References: <1412525038-15871-1-git-send-email-mst@redhat.com>
+	<1412525038-15871-3-git-send-email-mst@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: ursula.braun@de.ibm.com, blaschka@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
-Cc: linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de, opw-kernel@googlegroups.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Sudeep Dutt <sudeep.dutt@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Nikhil Rao <nikhil.rao@intel.com>, Wolfram Sang <wsa@the-dreams.de>, Siva Yerramreddy <yshivakrishna@gmail.com>, Heinz Graalfs <graalfs@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch is concerned with migrating the time variables for the s390
-network driver. The changes handle the y2038 problem where timespec will
-overflow in the year 2038. timespec was replaced by unsigned long and
-all time variables get their values from the jiffies global variable.
-This was done for the sake of speed and efficiency.
+On Sun, 5 Oct 2014 19:06:52 +0300
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Signed-off-by: Aya Mahfouz <mahfouz.saif.elyazal@gmail.com>
----
-v1: Arnd has advised me to provide you with options for time
-    calculation. The first option: "accuracy" is used in this
-    patch. The second option: "speed" can be done through
-    jiffies.
+> Replace duplicated code in all transports with a single wrapper in
+> virtio.c.
+> 
+> The only functional change is in virtio_mmio.c: if a buggy device sends
+> us an interrupt before driver is set, we previously returned IRQ_NONE,
+> now we return IRQ_HANDLED.
+> 
+> As this must not happen in practice, this does not look like a big deal.
+> 
+> See also commit 3fff0179e33cd7d0a688dab65700c46ad089e934
+> 	virtio-pci: do not oops on config change if driver not loaded.
+> for the original motivation behind the driver check.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  include/linux/virtio.h             |  2 ++
+>  drivers/misc/mic/card/mic_virtio.c |  6 +-----
+>  drivers/s390/kvm/kvm_virtio.c      |  9 +--------
+>  drivers/s390/kvm/virtio_ccw.c      |  6 +-----
+>  drivers/virtio/virtio.c            | 10 ++++++++++
+>  drivers/virtio/virtio_mmio.c       |  7 ++-----
+>  drivers/virtio/virtio_pci.c        |  6 +-----
+>  7 files changed, 18 insertions(+), 28 deletions(-)
 
-v2: Moved on to the speed option. Let me know if I explicitly
-    need to include the jiffies header. The module compiles with
-    no problems on my side.
-
-v3: Handled the error pointed out by Ursula. The current version
-    does not handle overflows. There are two solutions for this.
-    The first is to use jiffies_64 since s/390 is a 64-bit
-    architecture after all. The second is to use wrapper functions
-    like time_before and time_after. Two files were added too. 
-    They are: ctcm_main.c and netiucv.c. This patch could be sent
-    as a patchset in its final version for convenience. 
-
- drivers/s390/net/ctcm_fsms.c | 19 ++++++++-----------
- drivers/s390/net/ctcm_main.c |  5 +++--
- drivers/s390/net/ctcm_main.h |  4 +++-
- drivers/s390/net/netiucv.c   |  8 +++++---
- 4 files changed, 19 insertions(+), 17 deletions(-)
-
-diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
-index fb92524..86ed7bf 100644
---- a/drivers/s390/net/ctcm_fsms.c
-+++ b/drivers/s390/net/ctcm_fsms.c
-@@ -23,6 +23,7 @@
- #include <linux/interrupt.h>
- #include <linux/timer.h>
- #include <linux/bitops.h>
-+#include <linux/jiffies.h>
- 
- #include <linux/signal.h>
- #include <linux/string.h>
-@@ -251,13 +252,11 @@ static void chx_txdone(fsm_instance *fi, int event, void *arg)
- 	int first = 1;
- 	int i;
- 	unsigned long duration;
--	struct timespec done_stamp = current_kernel_time(); /* xtime */
-+	unsigned long done_stamp = jiffies;
- 
- 	CTCM_PR_DEBUG("%s(%s): %s\n", __func__, ch->id, dev->name);
- 
--	duration =
--	    (done_stamp.tv_sec - ch->prof.send_stamp.tv_sec) * 1000000 +
--	    (done_stamp.tv_nsec - ch->prof.send_stamp.tv_nsec) / 1000;
-+	duration =  jiffies_to_usecs(done_stamp - ch->prof.send_stamp);
- 	if (duration > ch->prof.tx_time)
- 		ch->prof.tx_time = duration;
- 
-@@ -307,7 +306,7 @@ static void chx_txdone(fsm_instance *fi, int event, void *arg)
- 		spin_unlock(&ch->collect_lock);
- 		ch->ccw[1].count = ch->trans_skb->len;
- 		fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
--		ch->prof.send_stamp = current_kernel_time(); /* xtime */
-+		ch->prof.send_stamp = jiffies;
- 		rc = ccw_device_start(ch->cdev, &ch->ccw[0],
- 						(unsigned long)ch, 0xff, 0);
- 		ch->prof.doios_multi++;
-@@ -1229,14 +1228,12 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
- 	int		rc;
- 	struct th_header *header;
- 	struct pdu	*p_header;
--	struct timespec done_stamp = current_kernel_time(); /* xtime */
-+	unsigned long done_stamp = jiffies;
- 
- 	CTCM_PR_DEBUG("Enter %s: %s cp:%i\n",
- 			__func__, dev->name, smp_processor_id());
- 
--	duration =
--		(done_stamp.tv_sec - ch->prof.send_stamp.tv_sec) * 1000000 +
--		(done_stamp.tv_nsec - ch->prof.send_stamp.tv_nsec) / 1000;
-+	duration =  jiffies_to_usecs(done_stamp - ch->prof.send_stamp);
- 	if (duration > ch->prof.tx_time)
- 		ch->prof.tx_time = duration;
- 
-@@ -1361,7 +1358,7 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
- 
- 	ch->ccw[1].count = ch->trans_skb->len;
- 	fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
--	ch->prof.send_stamp = current_kernel_time(); /* xtime */
-+	ch->prof.send_stamp = jiffies;
- 	if (do_debug_ccw)
- 		ctcmpc_dumpit((char *)&ch->ccw[0], sizeof(struct ccw1) * 3);
- 	rc = ccw_device_start(ch->cdev, &ch->ccw[0],
-@@ -1827,7 +1824,7 @@ static void ctcmpc_chx_send_sweep(fsm_instance *fsm, int event, void *arg)
- 	fsm_newstate(wch->fsm, CTC_STATE_TX);
- 
- 	spin_lock_irqsave(get_ccwdev_lock(wch->cdev), saveflags);
--	wch->prof.send_stamp = current_kernel_time(); /* xtime */
-+	wch->prof.send_stamp = jiffies;
- 	rc = ccw_device_start(wch->cdev, &wch->ccw[3],
- 					(unsigned long) wch, 0xff, 0);
- 	spin_unlock_irqrestore(get_ccwdev_lock(wch->cdev), saveflags);
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index e056dd4..5dd68d9 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -31,6 +31,7 @@
- #include <linux/interrupt.h>
- #include <linux/timer.h>
- #include <linux/bitops.h>
-+#include <linux/jiffies.h>
- 
- #include <linux/signal.h>
- #include <linux/string.h>
-@@ -567,7 +568,7 @@ static int ctcm_transmit_skb(struct channel *ch, struct sk_buff *skb)
- 	fsm_newstate(ch->fsm, CTC_STATE_TX);
- 	fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
- 	spin_lock_irqsave(get_ccwdev_lock(ch->cdev), saveflags);
--	ch->prof.send_stamp = current_kernel_time(); /* xtime */
-+	ch->prof.send_stamp = jiffies;
- 	rc = ccw_device_start(ch->cdev, &ch->ccw[ccw_idx],
- 					(unsigned long)ch, 0xff, 0);
- 	spin_unlock_irqrestore(get_ccwdev_lock(ch->cdev), saveflags);
-@@ -831,7 +832,7 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
- 					sizeof(struct ccw1) * 3);
- 
- 	spin_lock_irqsave(get_ccwdev_lock(ch->cdev), saveflags);
--	ch->prof.send_stamp = current_kernel_time(); /* xtime */
-+	ch->prof.send_stamp = jiffies;
- 	rc = ccw_device_start(ch->cdev, &ch->ccw[ccw_idx],
- 					(unsigned long)ch, 0xff, 0);
- 	spin_unlock_irqrestore(get_ccwdev_lock(ch->cdev), saveflags);
-diff --git a/drivers/s390/net/ctcm_main.h b/drivers/s390/net/ctcm_main.h
-index 477c933..c036e43 100644
---- a/drivers/s390/net/ctcm_main.h
-+++ b/drivers/s390/net/ctcm_main.h
-@@ -10,6 +10,8 @@
- #include <asm/ccwdev.h>
- #include <asm/ccwgroup.h>
- 
-+#include <linux/jiffies.h>
-+
- #include <linux/skbuff.h>
- #include <linux/netdevice.h>
- 
-@@ -121,7 +123,7 @@ struct ctcm_profile {
- 	unsigned long doios_multi;
- 	unsigned long txlen;
- 	unsigned long tx_time;
--	struct timespec send_stamp;
-+	unsigned long send_stamp;
- };
- 
- /*
-diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
-index 0a87809..5ea43fb 100644
---- a/drivers/s390/net/netiucv.c
-+++ b/drivers/s390/net/netiucv.c
-@@ -49,6 +49,8 @@
- #include <linux/interrupt.h>
- #include <linux/timer.h>
- #include <linux/bitops.h>
-+#include <linux/jiffies.h>
-+
- 
- #include <linux/signal.h>
- #include <linux/string.h>
-@@ -178,7 +180,7 @@ struct connection_profile {
- 	unsigned long doios_multi;
- 	unsigned long txlen;
- 	unsigned long tx_time;
--	struct timespec send_stamp;
-+	unsigned long send_stamp;
- 	unsigned long tx_pending;
- 	unsigned long tx_max_pending;
- };
-@@ -786,7 +788,7 @@ static void conn_action_txdone(fsm_instance *fi, int event, void *arg)
- 
- 	header.next = 0;
- 	memcpy(skb_put(conn->tx_buff, NETIUCV_HDRLEN), &header, NETIUCV_HDRLEN);
--	conn->prof.send_stamp = current_kernel_time();
-+	conn->prof.send_stamp = jiffies;
- 	txmsg.class = 0;
- 	txmsg.tag = 0;
- 	rc = iucv_message_send(conn->path, &txmsg, 0, 0,
-@@ -1220,7 +1222,7 @@ static int netiucv_transmit_skb(struct iucv_connection *conn,
- 		memcpy(skb_put(nskb, NETIUCV_HDRLEN), &header,  NETIUCV_HDRLEN);
- 
- 		fsm_newstate(conn->fsm, CONN_STATE_TX);
--		conn->prof.send_stamp = current_kernel_time();
-+		conn->prof.send_stamp = jiffies;
- 
- 		msg.tag = 1;
- 		msg.class = 0;
--- 
-1.9.3
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
