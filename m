@@ -1,12 +1,12 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 2/9] ARM: ebsa110: Properly override I/O accessors
-Date: Mon,  6 Oct 2014 15:52:34 +0200
-Message-ID: <1412603561-27653-3-git-send-email-thierry.reding@gmail.com>
+Subject: [PATCH 4/9] [IA64] Change xlate_dev_{kmem,mem}_ptr() prototypes
+Date: Mon,  6 Oct 2014 15:52:36 +0200
+Message-ID: <1412603561-27653-5-git-send-email-thierry.reding@gmail.com>
 In-Reply-To: <1412603561-27653-1-git-send-email-thierry.reding@gmail.com>
 References: <1412603561-27653-1-git-send-email-thierry.reding@gmail.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20141006135234.tJ7G9ou43OlfBExP8eV1RaJV-zrSgprUaMUzunfNTFE@z>
+Message-ID: <20141006135236.jtbAT2aJwGyBnBTRsppMpLIgIZmJCcIBKmkhNr0qO5w@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>, Fengguang Wu <fengguang.wu@intel.com>
@@ -15,50 +15,62 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Thierry Reding <treding@nvidia.com>
 
-In order to override accessors properly they must be #define'd so that
-subsequent generic headers (the one for ARM and finally the architecture
-independent one) can properly detect it.
+xlate_dev_mem_ptr() is used to convert a physical address to an uncached
+kernel virtual address mapping, so make it use phys_addr_t as type for
+the physical address and return void * for the kernel virtual address.
+
+xlate_dev_kmem_ptr() converts a cached kernel virtual address mapping to
+an uncached kernel virtual address mapping, so make it use void * for
+both the input parameter and return value.
 
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
- arch/arm/mach-ebsa110/include/mach/io.h | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/ia64/include/asm/uaccess.h | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/mach-ebsa110/include/mach/io.h b/arch/arm/mach-ebsa110/include/mach/io.h
-index 11bb0799424b..c15c1a89cb13 100644
---- a/arch/arm/mach-ebsa110/include/mach/io.h
-+++ b/arch/arm/mach-ebsa110/include/mach/io.h
-@@ -62,20 +62,31 @@ void __writel(u32 val, void __iomem *addr);
- #define writew(v,b)		__writew(v,b)
- #define writel(v,b)		__writel(v,b)
+diff --git a/arch/ia64/include/asm/uaccess.h b/arch/ia64/include/asm/uaccess.h
+index 449c8c0fa2bd..103bedc59644 100644
+--- a/arch/ia64/include/asm/uaccess.h
++++ b/arch/ia64/include/asm/uaccess.h
+@@ -365,15 +365,15 @@ ia64_done_with_exception (struct pt_regs *regs)
+ }
  
-+#define insb insb
- extern void insb(unsigned int port, void *buf, int sz);
-+#define insw insw
- extern void insw(unsigned int port, void *buf, int sz);
-+#define insl insl
- extern void insl(unsigned int port, void *buf, int sz);
+ #define ARCH_HAS_TRANSLATE_MEM_PTR	1
+-static __inline__ char *
+-xlate_dev_mem_ptr (unsigned long p)
++static __inline__ void *
++xlate_dev_mem_ptr(phys_addr_t p)
+ {
+ 	struct page *page;
+-	char * ptr;
++	void *ptr;
  
-+#define outsb outsb
- extern void outsb(unsigned int port, const void *buf, int sz);
-+#define outsw outsw
- extern void outsw(unsigned int port, const void *buf, int sz);
-+#define outsl outsl
- extern void outsl(unsigned int port, const void *buf, int sz);
+ 	page = pfn_to_page(p >> PAGE_SHIFT);
+ 	if (PageUncached(page))
+-		ptr = (char *)p + __IA64_UNCACHED_OFFSET;
++		ptr = (void *)p + __IA64_UNCACHED_OFFSET;
+ 	else
+ 		ptr = __va(p);
  
- /* can't support writesb atm */
-+#define writesw writesw
- extern void writesw(void __iomem *addr, const void *data, int wordlen);
-+#define writesl writesl
- extern void writesl(void __iomem *addr, const void *data, int longlen);
+@@ -383,15 +383,15 @@ xlate_dev_mem_ptr (unsigned long p)
+ /*
+  * Convert a virtual cached kernel memory pointer to an uncached pointer
+  */
+-static __inline__ char *
+-xlate_dev_kmem_ptr (char * p)
++static __inline__ void *
++xlate_dev_kmem_ptr(void *p)
+ {
+ 	struct page *page;
+-	char * ptr;
++	void *ptr;
  
- /* can't support readsb atm */
-+#define readsw readsw
- extern void readsw(const void __iomem *addr, void *data, int wordlen);
-+
-+#define readsl readsl
- extern void readsl(const void __iomem *addr, void *data, int longlen);
+ 	page = virt_to_page((unsigned long)p);
+ 	if (PageUncached(page))
+-		ptr = (char *)__pa(p) + __IA64_UNCACHED_OFFSET;
++		ptr = (void *)__pa(p) + __IA64_UNCACHED_OFFSET;
+ 	else
+ 		ptr = p;
  
- #endif
 -- 
 2.1.0
