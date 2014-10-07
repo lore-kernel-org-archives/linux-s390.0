@@ -1,7 +1,7 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 16/44] mfd: tps6586x: Register with kernel poweroff handler
-Date: Mon,  6 Oct 2014 22:28:18 -0700
-Message-ID: <1412659726-29957-17-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 18/44] mfd: twl4030-power: Register with kernel poweroff handler
+Date: Mon,  6 Oct 2014 22:28:20 -0700
+Message-ID: <1412659726-29957-19-git-send-email-linux@roeck-us.net>
 References: <1412659726-29957-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-alpha-owner@vger.kernel.org>
 In-Reply-To: <1412659726-29957-1-git-send-email-linux@roeck-us.net>
@@ -16,88 +16,103 @@ Register with kernel poweroff handler instead of setting pm_power_off
 directly. Register with a low priority value of 64 to reflect that
 the original code only sets pm_power_off if it was not already set.
 
+Make twl4030_power_off static as it is only called from the twl4030-power
+driver.
+
 Cc: Samuel Ortiz <sameo@linux.intel.com>
 Cc: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/mfd/tps6586x.c | 31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ drivers/mfd/twl4030-power.c | 25 +++++++++++++++++++++----
+ include/linux/i2c/twl.h     |  1 -
+ 2 files changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mfd/tps6586x.c b/drivers/mfd/tps6586x.c
-index 8e1dbc4..bc14509 100644
---- a/drivers/mfd/tps6586x.c
-+++ b/drivers/mfd/tps6586x.c
-@@ -21,10 +21,12 @@
- #include <linux/kernel.h>
+diff --git a/drivers/mfd/twl4030-power.c b/drivers/mfd/twl4030-power.c
+index 4d3ff37..bd6b830 100644
+--- a/drivers/mfd/twl4030-power.c
++++ b/drivers/mfd/twl4030-power.c
+@@ -25,9 +25,10 @@
+  */
+ 
  #include <linux/module.h>
- #include <linux/mutex.h>
+-#include <linux/pm.h>
 +#include <linux/notifier.h>
- #include <linux/slab.h>
- #include <linux/err.h>
- #include <linux/i2c.h>
+ #include <linux/i2c/twl.h>
  #include <linux/platform_device.h>
 +#include <linux/pm.h>
- #include <linux/regmap.h>
  #include <linux/of.h>
+ #include <linux/of_device.h>
  
-@@ -133,6 +135,8 @@ struct tps6586x {
- 	u32			irq_en;
- 	u8			mask_reg[5];
- 	struct irq_domain	*irq_domain;
-+
-+	struct notifier_block	poweroff_nb;
- };
- 
- static inline struct tps6586x *dev_to_tps6586x(struct device *dev)
-@@ -472,13 +476,18 @@ static const struct regmap_config tps6586x_regmap_config = {
- 	.cache_type = REGCACHE_RBTREE,
- };
- 
--static struct device *tps6586x_dev;
--static void tps6586x_power_off(void)
-+static int tps6586x_power_off(struct notifier_block *this,
-+			      unsigned long unused1, void *unused2)
+@@ -611,7 +612,8 @@ twl4030_power_configure_resources(const struct twl4030_power_data *pdata)
+  * After a successful execution, TWL shuts down the power to the SoC
+  * and all peripherals connected to it.
+  */
+-void twl4030_power_off(void)
++static int twl4030_power_off(struct notifier_block *this, unsigned long unused1,
++			     void *unused2)
  {
--	if (tps6586x_clr_bits(tps6586x_dev, TPS6586X_SUPPLYENE, EXITSLREQ_BIT))
--		return;
-+	struct tps6586x *tps6586x = container_of(this, struct tps6586x,
-+						 poweroff_nb);
-+
-+	if (tps6586x_clr_bits(tps6586x->dev, TPS6586X_SUPPLYENE, EXITSLREQ_BIT))
-+		return NOTIFY_DONE;
+ 	int err;
  
--	tps6586x_set_bits(tps6586x_dev, TPS6586X_SUPPLYENE, SLEEP_MODE_BIT);
-+	tps6586x_set_bits(tps6586x->dev, TPS6586X_SUPPLYENE, SLEEP_MODE_BIT);
+@@ -619,8 +621,15 @@ void twl4030_power_off(void)
+ 			       TWL4030_PM_MASTER_P1_SW_EVENTS);
+ 	if (err)
+ 		pr_err("TWL4030 Unable to power off\n");
 +
 +	return NOTIFY_DONE;
  }
  
- static void tps6586x_print_version(struct i2c_client *client, int version)
-@@ -575,9 +584,13 @@ static int tps6586x_i2c_probe(struct i2c_client *client,
- 		goto err_add_devs;
- 	}
- 
--	if (pdata->pm_off && !pm_power_off) {
--		tps6586x_dev = &client->dev;
--		pm_power_off = tps6586x_power_off;
-+	if (pdata->pm_off) {
-+		tps6586x->poweroff_nb.notifier_call = tps6586x_power_off;
-+		tps6586x->poweroff_nb.priority = 64;
-+		ret = register_poweroff_handler(&tps6586x->poweroff_nb);
-+		if (ret)
-+			dev_err(&client->dev,
-+				"failed to register poweroff handler\n");
- 	}
- 
- 	return 0;
-@@ -594,6 +607,8 @@ static int tps6586x_i2c_remove(struct i2c_client *client)
- {
- 	struct tps6586x *tps6586x = i2c_get_clientdata(client);
- 
-+	unregister_poweroff_handler(&tps6586x->poweroff_nb);
++static struct notifier_block twl4030_poweroff_nb = {
++	.notifier_call = twl4030_power_off,
++	.priority = 64,
++};
 +
- 	tps6586x_remove_subdevs(tps6586x);
- 	mfd_remove_devices(tps6586x->dev);
- 	if (client->irq)
+ static bool twl4030_power_use_poweroff(const struct twl4030_power_data *pdata,
+ 					struct device_node *node)
+ {
+@@ -836,7 +845,7 @@ static int twl4030_power_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* Board has to be wired properly to use this feature */
+-	if (twl4030_power_use_poweroff(pdata, node) && !pm_power_off) {
++	if (twl4030_power_use_poweroff(pdata, node)) {
+ 		/* Default for SEQ_OFFSYNC is set, lets ensure this */
+ 		err = twl_i2c_read_u8(TWL_MODULE_PM_MASTER, &val,
+ 				      TWL4030_PM_MASTER_CFG_P123_TRANSITION);
+@@ -853,7 +862,13 @@ static int twl4030_power_probe(struct platform_device *pdev)
+ 			}
+ 		}
+ 
+-		pm_power_off = twl4030_power_off;
++		err = register_poweroff_handler(&twl4030_poweroff_nb);
++		if (err) {
++			dev_err(&pdev->dev,
++				"Failed to register poweroff handler\n");
++			/* Not a fatal error */
++			err = 0;
++		}
+ 	}
+ 
+ relock:
+@@ -869,6 +884,8 @@ relock:
+ 
+ static int twl4030_power_remove(struct platform_device *pdev)
+ {
++	unregister_poweroff_handler(&twl4030_poweroff_nb);
++
+ 	return 0;
+ }
+ 
+diff --git a/include/linux/i2c/twl.h b/include/linux/i2c/twl.h
+index 8cfb50f..f8544f1 100644
+--- a/include/linux/i2c/twl.h
++++ b/include/linux/i2c/twl.h
+@@ -680,7 +680,6 @@ struct twl4030_power_data {
+ };
+ 
+ extern int twl4030_remove_script(u8 flags);
+-extern void twl4030_power_off(void);
+ 
+ struct twl4030_codec_data {
+ 	unsigned int digimic_delay; /* in ms */
 -- 
 1.9.1
