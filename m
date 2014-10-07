@@ -1,38 +1,60 @@
-From: Guenter Roeck <linux@roeck-us.net>
+From: David Daney <ddaney.cavm@gmail.com>
 Subject: Re: [PATCH 05/44] mfd: as3722: Drop reference to pm_power_off from
  devicetree bindings
-Date: Tue, 7 Oct 2014 09:31:31 -0700
-Message-ID: <20141007163131.GE28835@roeck-us.net>
+Date: Tue, 07 Oct 2014 09:59:29 -0700
+Message-ID: <54341BF1.9020001@gmail.com>
 References: <1412659726-29957-1-git-send-email-linux@roeck-us.net>
  <1412659726-29957-6-git-send-email-linux@roeck-us.net>
- <543412F7.8040909@landley.net>
+ <543412F7.8040909@landley.net> <20141007163131.GE28835@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <543412F7.8040909@landley.net>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20141007163131.GE28835@roeck-us.net>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Rob Landley <rob@landley.net>
-Cc: linux-kernel@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, devel@driverdev.osuosl.org, devicetree@vger.kernel.org, lguest@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org, linux-am33-list@redhat.com, linux-cris-kernel@axis.com, linux-efi@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m32r-ja@ml.linux-m32r.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, linux-xtensa@linux-xtensa.org, openipmi-developer@lists.sourceforge.net, user-mode-linux-devel@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org, linux-sh@vger.kernel.org, xen-devel@lists.xenproject.org, Rob Herring <robh+>
+To: Guenter Roeck <linux@roeck-us.net>, Rob Landley <rob@landley.net>
+Cc: linux-m32r-ja@ml.linux-m32r.org, linux-mips@linux-mips.org, linux-efi@vger.kernel.org, linux-ia64@vger.kernel.org, linux-xtensa@linux-xtensa.org, Mark Rutland <mark.rutland@arm.com>, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-sh@vger.kernel.org, linux-acpi@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, xen-devel@lists.xenproject.org, devicetree@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, linux-pm@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, linux-m68k@lists.linux-m68k.org, linux-am33-list@redhat.com, linux-tegra@vger.kernel.org, openipmi-developer@lists.sourceforge.net, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Oct 07, 2014 at 11:21:11AM -0500, Rob Landley wrote:
-> On 10/07/14 00:28, Guenter Roeck wrote:
-> > Devicetree bindings are supposed to be operating system independent
-> > and should thus not describe how a specific functionality is implemented
-> > in Linux.
-> 
-> So your argument is that linux/Documentation/devicetree/bindings should
-> not be specific to Linux. Merely hosted in the Linux kernel source
-> repository.
-> 
-> Well that's certainly a point of view.
-> 
-Not specifically my argument, really, and nothing new either. But, yes, I do
-think that devicetree bindings descriptions should not include implementation
-details, especially since those may change over time (as is the case here).
+On 10/07/2014 09:31 AM, Guenter Roeck wrote:
+> On Tue, Oct 07, 2014 at 11:21:11AM -0500, Rob Landley wrote:
+>> On 10/07/14 00:28, Guenter Roeck wrote:
+>>> Devicetree bindings are supposed to be operating system independent
+>>> and should thus not describe how a specific functionality is implemented
+>>> in Linux.
+>>
+>> So your argument is that linux/Documentation/devicetree/bindings should
+>> not be specific to Linux. Merely hosted in the Linux kernel source
+>> repository.
+>>
+>> Well that's certainly a point of view.
+>>
+> Not specifically my argument, really, and nothing new either. But, yes, I do
+> think that devicetree bindings descriptions should not include implementation
+> details, especially since those may change over time (as is the case here).
+>
 
-Thanks,
-Guenter
+I fully agree.
+
+Many device trees come from outside the kernel (i.e. they are supplied 
+by the system boot environment).  Obviously these device trees cannot be 
+changed at the whim of kernel developers, *and* it is perfectly 
+reasonable to think that software other than the Linux kernel will run 
+on this type of system too.
+
+So yes, it is really true, device trees are not a Linux kernel private 
+implementation detail, they are really an external ABI that, although 
+documented in the kernel source tree, cannot be changed in incompatible 
+ways as time progresses.
+
+David Daney
