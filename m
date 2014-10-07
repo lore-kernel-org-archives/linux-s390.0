@@ -1,89 +1,126 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH v5 0/9] asm-generic/io.h overhaul
-Date: Mon,  6 Oct 2014 15:52:32 +0200
-Message-ID: <1412603561-27653-1-git-send-email-thierry.reding@gmail.com>
-Return-path: <linux-arch-owner@vger.kernel.org>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>, Fengguang Wu <fengguang.wu@intel.com>
-Cc: Russell King <linux@arm.linux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Stephen Boyd <sboyd@codeaurora.org>, Sam Ravnborg <sam@ravnborg.org>, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linux-serial@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 09/44] mfd: palmas: Register with kernel poweroff handler
+Date: Mon,  6 Oct 2014 22:28:11 -0700
+Message-ID: <1412659726-29957-10-git-send-email-linux@roeck-us.net>
+References: <1412659726-29957-1-git-send-email-linux@roeck-us.net>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1412659726-29957-1-git-send-email-linux@roeck-us.net>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-acpi/>
+List-Post: <mailto:linux-acpi@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: adi-buildroot-devel@lists.sourceforge.net, devel@driverdev.osuosl.org, devicetree@vger.kernel.org, lguest@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org, linux-am33-list@redhat.com, linux-cris-kernel@axis.com, linux-efi@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m32r-ja@ml.linux-m32r.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, linux-xtensa@linux-xtensa.org, openipmi-developer@lists.sourceforge.net, user-mode-linux-devel@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org, linux-sh@vger.kernel.org, xen-devel@lists.xenproject.org, Guenter Roeck <linux@roeck-us.net>, Samuel
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Thierry Reding <treding@nvidia.com>
+Register with kernel poweroff handler instead of setting pm_power_off
+directly. Register with a low priority value of 64 to reflect that
+the original code only sets pm_power_off if it was not already set.
 
-Hi,
+Cc: Samuel Ortiz <sameo@linux.intel.com>
+Cc: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/mfd/palmas.c       | 30 +++++++++++++++++-------------
+ include/linux/mfd/palmas.h |  3 +++
+ 2 files changed, 20 insertions(+), 13 deletions(-)
 
-Here is the fifth version of a series that started out as an attempt to
-provide string versions of the read*() and write*() accessors to more
-architectures so that drivers can use them portably. The series has
-since evolved into a more general cleanup of asm-generic/io.h and the
-functions defined therein.
-
-Patch 1 is trivial and removes a redundant redefinition of PCI_IOBASE
-from the asm/io.h header on ARC. Patches 2 and 3 remove unnecessary
-volatile keywoards from some functions, which is a prerequisite to clean
-up some of the functions in subsequent patches.
-
-The xlate_dev_{kmem,mem}_ptr() functions are used to map memory when the
-/dev/mem device is accessed. Patches 4 and 5 use more consistent data
-types for these functions, which will get a "standard" prototype in the
-asm-generic/io.h header in a subsequent patch.
-
-Patch 6 is the bulk of this series. It cleans up various parts of the
-asm-generic/io.h header file. Macros are converted to static inline
-functions for better type checking. Overriding generic implementations
-in architectures is handled more consistently.
-
-Patch 7 implements the string variants of the read*() and write*()
-accessors.
-
-Patches 8 and 9, finally, make use of the asm-generic/io.h header on the
-32-bit and 64-bit ARM architectures.
-
-This is compile- and runtime-tested on 32-bit and 64-bit ARM and compile
-tested on IA64, Microblaze, s390, SPARC, x86 and Xtensa. For ARC,
-Blackfin, Metag, OpenRISC, Score and Unicore32 which also use
-asm-generic/io.h I couldn't find or build a cross-compiler that would
-run on my system. But by code inspection they shouldn't break with this
-patch.
-
-I'm sending this to Olof and Fengguang in the hopes that they can help
-in getting more compile coverage of the series. I've uploaded the series
-to a branch here[0]. Are there instructions somewhere on how to submit a
-branch to your builder? If possible it would also be nice to get the
-series tested for possible bisectability issues.
-
-[0]: https://github.com/thierryreding/linux.git#asm-generic-io
-
-Thierry
-
-Thierry Reding (8):
-  ARC: Remove redundant PCI_IOBASE declaration
-  serial: sunzilog: Remove unnecessary volatile keyword
-  sparc: Remove unnecessary volatile usage
-  [IA64] Change xlate_dev_{kmem,mem}_ptr() prototypes
-  /dev/mem: Use more consistent data types
-  asm-generic/io.h: Implement generic {read,write}s*()
-  ARM: Use include/asm-generic/io.h
-  arm64: Use include/asm-generic/io.h
-
- arch/arc/include/asm/io.h       |   2 -
- arch/arm/include/asm/io.h       |  75 ++---
- arch/arm/include/asm/memory.h   |   2 +
- arch/arm64/Kconfig              |   1 -
- arch/arm64/include/asm/io.h     | 122 ++-----
- arch/arm64/include/asm/memory.h |   2 +
- arch/ia64/include/asm/uaccess.h |  16 +-
- arch/s390/include/asm/io.h      |   5 +-
- arch/s390/mm/maccess.c          |   4 +-
- arch/sparc/include/asm/io_32.h  |  18 +-
- arch/x86/include/asm/io.h       |   4 +-
- arch/x86/mm/ioremap.c           |   4 +-
- drivers/char/mem.c              |  13 +-
- drivers/tty/serial/sunzilog.h   |   8 +-
- include/asm-generic/io.h        | 683 ++++++++++++++++++++++++++++++++--------
- 15 files changed, 647 insertions(+), 312 deletions(-)
-
+diff --git a/drivers/mfd/palmas.c b/drivers/mfd/palmas.c
+index 28cb048..4d78847 100644
+--- a/drivers/mfd/palmas.c
++++ b/drivers/mfd/palmas.c
+@@ -19,6 +19,7 @@
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
++#include <linux/pm.h>
+ #include <linux/regmap.h>
+ #include <linux/err.h>
+ #include <linux/mfd/core.h>
+@@ -425,20 +426,18 @@ static void palmas_dt_to_pdata(struct i2c_client *i2c,
+ 			"ti,system-power-controller");
+ }
+ 
+-static struct palmas *palmas_dev;
+-static void palmas_power_off(void)
++static int palmas_power_off(struct notifier_block *this, unsigned long unused1,
++			    void *unused2)
+ {
++	struct palmas *palmas = container_of(this, struct palmas, poweroff_nb);
+ 	unsigned int addr;
+ 	int ret, slave;
+ 
+-	if (!palmas_dev)
+-		return;
+-
+ 	slave = PALMAS_BASE_TO_SLAVE(PALMAS_PMU_CONTROL_BASE);
+ 	addr = PALMAS_BASE_TO_REG(PALMAS_PMU_CONTROL_BASE, PALMAS_DEV_CTRL);
+ 
+ 	ret = regmap_update_bits(
+-			palmas_dev->regmap[slave],
++			palmas->regmap[slave],
+ 			addr,
+ 			PALMAS_DEV_CTRL_DEV_ON,
+ 			0);
+@@ -446,6 +445,8 @@ static void palmas_power_off(void)
+ 	if (ret)
+ 		pr_err("%s: Unable to write to DEV_CTRL_DEV_ON: %d\n",
+ 				__func__, ret);
++
++	return NOTIFY_DONE;
+ }
+ 
+ static unsigned int palmas_features = PALMAS_PMIC_FEATURE_SMPS10_BOOST;
+@@ -668,9 +669,15 @@ no_irq:
+ 		ret = of_platform_populate(node, NULL, NULL, &i2c->dev);
+ 		if (ret < 0) {
+ 			goto err_irq;
+-		} else if (pdata->pm_off && !pm_power_off) {
+-			palmas_dev = palmas;
+-			pm_power_off = palmas_power_off;
++		} else if (pdata->pm_off) {
++			palmas->poweroff_nb.notifier_call = palmas_power_off;
++			palmas->poweroff_nb.priority = 64;
++			ret = register_poweroff_handler(&palmas->poweroff_nb);
++			if (ret) {
++				dev_err(palmas->dev,
++					"Failed to register poweroff handler");
++				ret = 0;
++			}
+ 		}
+ 	}
+ 
+@@ -698,10 +705,7 @@ static int palmas_i2c_remove(struct i2c_client *i2c)
+ 			i2c_unregister_device(palmas->i2c_clients[i]);
+ 	}
+ 
+-	if (palmas == palmas_dev) {
+-		pm_power_off = NULL;
+-		palmas_dev = NULL;
+-	}
++	unregister_poweroff_handler(&palmas->poweroff_nb);
+ 
+ 	return 0;
+ }
+diff --git a/include/linux/mfd/palmas.h b/include/linux/mfd/palmas.h
+index fb0390a..4715057 100644
+--- a/include/linux/mfd/palmas.h
++++ b/include/linux/mfd/palmas.h
+@@ -18,6 +18,7 @@
+ 
+ #include <linux/usb/otg.h>
+ #include <linux/leds.h>
++#include <linux/notifier.h>
+ #include <linux/regmap.h>
+ #include <linux/regulator/driver.h>
+ #include <linux/extcon.h>
+@@ -68,6 +69,8 @@ struct palmas {
+ 	struct i2c_client *i2c_clients[PALMAS_NUM_CLIENTS];
+ 	struct regmap *regmap[PALMAS_NUM_CLIENTS];
+ 
++	struct notifier_block poweroff_nb;
++
+ 	/* Stored chip id */
+ 	int id;
+ 
 -- 
-2.0.4
+1.9.1
