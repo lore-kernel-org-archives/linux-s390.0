@@ -1,83 +1,44 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH 44/44] kernel: Remove pm_power_off
-Date: Wed, 08 Oct 2014 01:43:07 +0200
-Message-ID: <1469166.g4FqVc5SJX@vostro.rjw.lan>
-References: <1412659726-29957-1-git-send-email-linux@roeck-us.net> <1412659726-29957-45-git-send-email-linux@roeck-us.net>
+From: =?gbk?B?WHVldGFvIEd1YW4g?= <gxt@pku.edu.cn>
+Subject: =?utf-8?Q?=E5=9B=9E=E5=A4=8D=EF=BC=9A_[PATCH_08/44]_kernel:_Mov?=
+ =?utf-8?Q?e_pm=5Fpower=5Foff_to_common_code?=
+Date: Wed, 8 Oct 2014 19:06:32 +0800 (CST)
+Message-ID: <218135571.28324.1412766392198.JavaMail.root@bj-mail03.pku.edu.cn>
+References: <1412659726-29957-9-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-m68k-owner@vger.kernel.org>
-In-Reply-To: <1412659726-29957-45-git-send-email-linux@roeck-us.net>
-Sender: linux-m68k-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <1412659726-29957-9-git-send-email-linux@roeck-us.net>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, devel@driverdev.osuosl.org, devicetree@vger.kernel.org, lguest@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org, linux-am33-list@redhat.com, linux-cris-kernel@axis.com, linux-efi@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m32r-ja@ml.linux-m32r.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, linux-xtensa@linux-xtensa.org, openipmi-developer@lists.sourceforge.net, user-mode-linux-devel@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org, linux-sh@vger.kernel.org, xen-devel@lists.xenproject.org, Pavel Machek <pave>
+Cc: linux-kernel@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, devel@driverdev.osuosl.org, devicetree@vger.kernel.org, lguest@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org, linux-am33-list@redhat.com, linux-cris-kernel@axis.com, linux-efi@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m32r-ja@ml.linux-m32r.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, linux-xtensa@linux-xtensa.org, openipmi-developer@lists.sourceforge.net, user-mode-linux-devel@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@vger.kernel.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linux-pm@vg
 List-ID: <linux-s390.vger.kernel.org>
 
-On Monday, October 06, 2014 10:28:46 PM Guenter Roeck wrote:
-> No users of pm_power_off are left, so it is safe to remove the function.
-> 
-> Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
-> Cc: Pavel Machek <pavel@ucw.cz>
-> Cc: Len Brown <len.brown@intel.com>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 
-ACK
+----- Guenter Roeck <linux@roeck-us.net> =E5=86=99=E9=81=93=EF=BC=9A
+> pm_power_off is defined for all architectures. Move it to common code=
+=2E
+>=20
+> Have all architectures call do_kernel_poweroff instead of pm_power_of=
+f.
+> Some architectures point pm_power_off to machine_power_off. For those=
+,
+> call do_kernel_poweroff from machine_power_off instead.
+>=20
 
-> ---
->  include/linux/pm.h              |  1 -
->  kernel/power/poweroff_handler.c | 10 +---------
->  2 files changed, 1 insertion(+), 10 deletions(-)
-> 
-> diff --git a/include/linux/pm.h b/include/linux/pm.h
-> index 45271b5..fce7645 100644
-> --- a/include/linux/pm.h
-> +++ b/include/linux/pm.h
-> @@ -31,7 +31,6 @@
->  /*
->   * Callbacks for platform drivers to implement.
->   */
-> -extern void (*pm_power_off)(void);
->  extern void (*pm_power_off_prepare)(void);
->  
->  /*
-> diff --git a/kernel/power/poweroff_handler.c b/kernel/power/poweroff_handler.c
-> index 96f59ef..01a3a39 100644
-> --- a/kernel/power/poweroff_handler.c
-> +++ b/kernel/power/poweroff_handler.c
-> @@ -20,12 +20,6 @@
->  #include <linux/types.h>
->  
->  /*
-> - * If set, calling this function will power off the system immediately.
-> - */
-> -void (*pm_power_off)(void);
-> -EXPORT_SYMBOL(pm_power_off);
-> -
-> -/*
->   *	Notifier list for kernel code which wants to be called
->   *	to power off the system.
->   */
-> @@ -163,8 +157,6 @@ int register_poweroff_handler_simple(void (*handler)(void), int priority)
->   */
->  void do_kernel_poweroff(void)
->  {
-> -	if (pm_power_off)
-> -		pm_power_off();
->  	atomic_notifier_call_chain(&poweroff_handler_list, 0, NULL);
->  }
->  
-> @@ -175,6 +167,6 @@ void do_kernel_poweroff(void)
->   */
->  bool have_kernel_poweroff(void)
->  {
-> -	return pm_power_off != NULL || poweroff_handler_list.head != NULL;
-> +	return poweroff_handler_list.head != NULL;
->  }
->  EXPORT_SYMBOL(have_kernel_poweroff);
-> 
+=46or UniCore32 part,
 
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+Acked-by: Xuetao Guan <gxt@mprc.pku.edu.cn>
+
+Thanks
+Xuetao
