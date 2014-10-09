@@ -1,90 +1,71 @@
-From: Pavel Machek <pavel@denx.de>
-Subject: Re: [PATCH 08/44] kernel: Move pm_power_off to common code
-Date: Thu, 9 Oct 2014 12:38:47 +0200
-Message-ID: <20141009103847.GC6787@amd>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 12/44] mfd: ab8500-sysctrl: Register with kernel poweroff
+ handler
+Date: Thu, 9 Oct 2014 11:49:27 +0100
+Message-ID: <20141009104927.GN20647@lee--X1>
 References: <1412659726-29957-1-git-send-email-linux@roeck-us.net>
- <1412659726-29957-9-git-send-email-linux@roeck-us.net>
+ <1412659726-29957-13-git-send-email-linux@roeck-us.net>
+ <20141007080048.GB25331@lee--X1>
+ <20141009103656.GF17836@e104818-lin.cambridge.arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1412659726-29957-9-git-send-email-linux@roeck-us.net>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20141009103656.GF17836@e104818-lin.cambridge.arm.com>
+Sender: linux-acpi-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-acpi/>
 List-Post: <mailto:linux-acpi@vger.kernel.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-m32r-ja@ml.linux-m32r.org, linux-mips@linux-mips.org, linux-efi@vger.kernel.org, linux-ia64@vger.kernel.org, Steven Miao <realmz6@gmail.com>, linux-xtensa@linux-xtensa.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, David Howells <dhowells@redhat.com>, Max Filippov <jcmvbkbc@gmail.com>, Paul Mackerras <paulus@samba.org>, Ralf Baechle <ralf@linux-mips.org>, "H. Peter Anvin" <hpa@zytor.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Thomas Gleixner <tglx@linutronix.de>, Lennox Wu <lennox.wu@gmail.com>, Hans-Christian Egtvedt <egtvedt@samfundet.no>, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, Jesper Nilsson <jesper.nilsson@axis.com>, lguest@lists.ozlabs.org, Russell King <linux@arm.linux.org.uk>, linux-c6x-dev@linux-c6x.org, Len Brown <len.brown@intel.com>, "David S. Miller" <davem@d>
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, "linux-m32r-ja@ml.linux-m32r.org" <linux-m32r-ja@ml.linux-m32r.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>, Linus Walleij <linus.walleij@linaro.org>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "lguest@lists.ozlabs.org" <lguest@lists.ozlabs.org>, "linux-c6x-dev@linux-c6x.org" <linux-c6x-dev@linux-c6x.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, devicetree@vger.k
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi!
+On Thu, 09 Oct 2014, Catalin Marinas wrote:
 
-> @@ -184,6 +179,8 @@ machine_halt(void)
->  void
->  machine_power_off(void)
->  {
-> +	do_kernel_poweroff();
-> +
+> On Tue, Oct 07, 2014 at 09:00:48AM +0100, Lee Jones wrote:
+> > On Mon, 06 Oct 2014, Guenter Roeck wrote:
+> > > --- a/drivers/mfd/ab8500-sysctrl.c
+> > > +++ b/drivers/mfd/ab8500-sysctrl.c
+> > > @@ -6,6 +6,7 @@
+> >=20
+> > [...]
+> >=20
+> > > +static int ab8500_power_off(struct notifier_block *this, unsigne=
+d long unused1,
+> > > +			    void *unused2)
+> > >  {
+> > >  	sigset_t old;
+> > >  	sigset_t all;
+> > > @@ -34,11 +36,6 @@ static void ab8500_power_off(void)
+> > >  	struct power_supply *psy;
+> > >  	int ret;
+> > > =20
+> > > -	if (sysctrl_dev =3D=3D NULL) {
+> > > -		pr_err("%s: sysctrl not initialized\n", __func__);
+> > > -		return;
+> > > -	}
+> >=20
+> > Can you explain the purpose of this change please?
+>=20
+> I guess it's because the sysctrl_dev is already initialised when
+> registering the power_off handler, so there isn't a way to call the
+> above function with a NULL sysctrl_dev. Probably even with the origin=
+al
+> code you didn't need this check (after some race fix in
+> ab8500_sysctrl_remove but races is one of the things Guenter's patche=
+s
+> try to address).
 
-poweroff -> power_off for consistency.
+Sounds reasonable, although I think this change should be part of
+another patch.
 
-
-> index c4f50a3..1da27d1 100644
-> --- a/arch/blackfin/kernel/reboot.c
-> +++ b/arch/blackfin/kernel/reboot.c
-> @@ -106,6 +107,7 @@ void machine_halt(void)
->  __attribute__((weak))
->  void native_machine_power_off(void)
->  {
-> +	do_kernel_poweroff();
->  	idle_with_irq_disabled();
->  }
->
-
-So here we handle do_kernel_poweroff() returning,
-
-> diff --git a/arch/cris/kernel/process.c b/arch/cris/kernel/process.c
-> index b78498e..eaafad0 100644
-> --- a/arch/cris/kernel/process.c
-> +++ b/arch/cris/kernel/process.c
-> @@ -60,6 +57,7 @@ void machine_halt(void)
->  
->  void machine_power_off(void)
->  {
-> +	do_kernel_poweroff();
->  }
->
-
-
-Here we don't.
-
-> diff --git a/arch/frv/kernel/process.c b/arch/frv/kernel/process.c
-> index 5d40aeb77..a673725 100644
-> --- a/arch/frv/kernel/process.c
-> +++ b/arch/frv/kernel/process.c
-> @@ -107,6 +104,8 @@ void machine_power_off(void)
->  	gdbstub_exit(0);
->  #endif
->  
-> +	do_kernel_poweroff();
-> +
->  	for (;;);
->  }
->  
-
-And here we do.
-
-What is right?
-								Pavel
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
