@@ -1,122 +1,64 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <5453C98C.90105@users.sourceforge.net>
-Date: Fri, 31 Oct 2014 18:40:28 +0100
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-MIME-Version: 1.0
-Subject: Re: [PATCH 1/1] s390/net: Deletion of unnecessary checks before two
- function calls
-References: <5307CAA2.8060406@users.sourceforge.net> <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6> <530A086E.8010901@users.sourceforge.net> <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6> <530A72AA.3000601@users.sourceforge.net> <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6> <530B5FB6.6010207@users.sourceforge.net> <alpine.DEB.2.10.1402241710370.2074@hadrien> <530C5E18.1020800@users.sourceforge.net> <alpine.DEB.2.10.1402251014170.2080@hadrien> <530CD2C4.4050903@users.sourceforge.net> <alpine.DEB.2.10.1402251840450.7035@hadrien> <530CF8FF.8080600@users.sourceforge.net> <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6> <530DD06F.4090703@users.sourceforge.net> <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6> <5317A59D.4@users.sourceforge.net>
-In-Reply-To: <5317A59D.4@users.sourceforge.net>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ursula Braun <ursula.braun@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, trivial@kernel.org, Coccinelle <cocci@systeme.lip6.fr>
+From: Alexey Ishchuk <aishchuk@linux.vnet.ibm.com>
+Date: Fri, 10 Oct 2014 09:40:22 +0000
+Subject: [PATCH 0/3] DAPL support on s390x platform
+Message-Id: <1412934025-56018-1-git-send-email-aishchuk@linux.vnet.ibm.com>
+In-Reply-To: <1412933657-52641-1-git-send-email-aishchuk@linux.vnet.ibm.com>
+References: <1412933657-52641-1-git-send-email-aishchuk@linux.vnet.ibm.com>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The functions debug_unregister() and kfree_fsm() test whether their argument
-is NULL and then return immediately. Thus the test around the call
-is not needed.
+The s390 kernel maintainer is going to include the new system calls for
+PCI I/O memory access into the s390 Linux kernel. To make the final
+decision we would like to receive feedback from the libmlx4 and libibverbs
+user space library maintainers with direct answer to the question: will
+those system calls be used in the libmlx4 user space library to provide
+support for the s390x platform?
+This patch series contains the changes to kernel and users pace libraries
+required to provide support for the DAPL API on s390x platform.
+The current implementation of Infiniband verbs uses mapped memory areas to
+directly access the device UAR and Blueflame pages, which are located in
+the PCI I/O memory, from user space. On the s390x platform the PCI I/O
+memory can be accessed only using special privileged CPU instructions that
+cannot be used directly in user space programs. This restricts the usage of
+mapped memory areas to access the PCI I/O memory on s390x platform.
+This version of changes introduces two new kernel system calls which allow
+to execute the privileged CPU instructions in kernel space on request from
+user space programs. One system call allows the user space programs to
+write data to a PCI I/O memory page and the second one can be used to read
+data from PCI I/O memory to user space program buffer using mapped memory
+area addresses as arguments.
+This approach of the DAPL API support on s390x platform has the following
+advantages:
+	* the current Infiniband and mlx4 support kernel modules remain
+	  unchanged;
+	* the changes are separated into the special kernel platform
+	  specific directory;
+	* no conditional compilation directives are used in the kernel
+	  source code;
+	* no changes required to the kernel virtual memory management;
+	* only minor changes are required in the user space DAPL API
+	  components.
+There are 1 patch for the Linux kernel and 2 patches for the DAPL API user
+space components. The kernel patch is not changed since the previous post
+and is included into this patch series just for reference. The patches for
+the perftest and dapl packages are not included into this series because
+those changes have been already applied to corresponding packages by the
+maintainers.
+	[PATCH 1/3] s390/kernel: add system calls for access PCI memory
+This patch contains the new system call implementation required for the PCI
+I/O memory access from user space programs on s390x platform.
+	[PATCH 2/3] libibverbs: add support for the s390x plaform
+This patch contains the changes to the libibverbs user space library to
+provide support of the s390x platform.
+	[PATCH 3/3] libmlx4: add support for the s390x platform
+This patch contains the changes to the libmlx4 user space library intended
+to provide the PCI I/O memory access on the s390x platform. The direct
+access to mapped memory areas is replaced by appropriate system call
+invocation.
 
-This issue was detected by using the Coccinelle software.
-
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/s390/net/claw.c      |  6 ++----
- drivers/s390/net/ctcm_main.c |  6 ++----
- drivers/s390/net/lcs.c       |  6 ++----
- drivers/s390/net/netiucv.c   | 12 ++++--------
- 4 files changed, 10 insertions(+), 20 deletions(-)
-
-diff --git a/drivers/s390/net/claw.c b/drivers/s390/net/claw.c
-index 213e54e..d609ca0 100644
---- a/drivers/s390/net/claw.c
-+++ b/drivers/s390/net/claw.c
-@@ -109,10 +109,8 @@ static debug_info_t *claw_dbf_trace;
- static void
- claw_unregister_debug_facility(void)
- {
--	if (claw_dbf_setup)
--		debug_unregister(claw_dbf_setup);
--	if (claw_dbf_trace)
--		debug_unregister(claw_dbf_trace);
-+	debug_unregister(claw_dbf_setup);
-+	debug_unregister(claw_dbf_trace);
- }
-
- static int
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index e056dd4..34dc0f3 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -1074,8 +1074,7 @@ static void ctcm_free_netdevice(struct net_device *dev)
- 	if (priv) {
- 		grp = priv->mpcg;
- 		if (grp) {
--			if (grp->fsm)
--				kfree_fsm(grp->fsm);
-+			kfree_fsm(grp->fsm);
- 			if (grp->xid_skb)
- 				dev_kfree_skb(grp->xid_skb);
- 			if (grp->rcvd_xid_skb)
-@@ -1672,8 +1671,7 @@ static int ctcm_shutdown_device(struct ccwgroup_device *cgdev)
- 		ctcm_free_netdevice(dev);
- 	}
-
--	if (priv->fsm)
--		kfree_fsm(priv->fsm);
-+	kfree_fsm(priv->fsm);
-
- 	ccw_device_set_offline(cgdev->cdev[1]);
- 	ccw_device_set_offline(cgdev->cdev[0]);
-diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
-index 0a7d87c..5dfa7dd 100644
---- a/drivers/s390/net/lcs.c
-+++ b/drivers/s390/net/lcs.c
-@@ -88,10 +88,8 @@ static debug_info_t *lcs_dbf_trace;
- static void
- lcs_unregister_debug_facility(void)
- {
--	if (lcs_dbf_setup)
--		debug_unregister(lcs_dbf_setup);
--	if (lcs_dbf_trace)
--		debug_unregister(lcs_dbf_trace);
-+	debug_unregister(lcs_dbf_setup);
-+	debug_unregister(lcs_dbf_trace);
- }
-
- static int
-diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
-index 0a87809..bdcc3fe 100644
---- a/drivers/s390/net/netiucv.c
-+++ b/drivers/s390/net/netiucv.c
-@@ -487,12 +487,9 @@ DEFINE_PER_CPU(char[256], iucv_dbf_txt_buf);
-
- static void iucv_unregister_dbf_views(void)
- {
--	if (iucv_dbf_setup)
--		debug_unregister(iucv_dbf_setup);
--	if (iucv_dbf_data)
--		debug_unregister(iucv_dbf_data);
--	if (iucv_dbf_trace)
--		debug_unregister(iucv_dbf_trace);
-+	debug_unregister(iucv_dbf_setup);
-+	debug_unregister(iucv_dbf_data);
-+	debug_unregister(iucv_dbf_trace);
- }
- static int iucv_register_dbf_views(void)
- {
-@@ -1975,8 +1972,7 @@ static void netiucv_free_netdevice(struct net_device *dev)
- 	if (privptr) {
- 		if (privptr->conn)
- 			netiucv_remove_connection(privptr->conn);
--		if (privptr->fsm)
--			kfree_fsm(privptr->fsm);
-+		kfree_fsm(privptr->fsm);
- 		privptr->conn = NULL; privptr->fsm = NULL;
- 		/* privptr gets freed by free_netdev() */
- 	}
+Alexey Ishchuk (3):
+  s390/kernel: add system calls for access PCI memory
+  libibverbs: add s390x platform support
+  libmlx4: add s390x platform support
 -- 
-2.1.3
+1.8.5.5
