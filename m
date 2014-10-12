@@ -1,131 +1,62 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 04/44] m68k: Replace mach_power_off with pm_power_off
-Date: Mon,  6 Oct 2014 22:28:06 -0700
-Message-ID: <1412659726-29957-5-git-send-email-linux@roeck-us.net>
-References: <1412659726-29957-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-alpha-owner@vger.kernel.org>
-In-Reply-To: <1412659726-29957-1-git-send-email-linux@roeck-us.net>
-Sender: linux-alpha-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-acpi/>
-List-Post: <mailto:linux-acpi@vger.kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v3 09/25] virtio_net: minor cleanup
+Date: Sun, 12 Oct 2014 14:47:12 +0300
+Message-ID: <1413114332-626-10-git-send-email-mst@redhat.com>
+References: <1413114332-626-1-git-send-email-mst@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1413114332-626-1-git-send-email-mst@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: adi-buildroot-devel@lists.sourceforge.net, devel@driverdev.osuosl.org, devicetree@vger.kernel.org, lguest@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org, linux-am33-list@redhat.com, linux-cris-kernel@axis.com, linux-efi@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m32r-ja@ml.linux-m32r.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, linux-xtensa@linux-xtensa.org, openipmi-developer@lists.sourceforge.net, user-mode-linux-devel@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org, linux-sh@vger.kernel.org, xen-devel@lists.xenproject.org, Guenter Roeck <linux@roeck-us.net>, Geert
+Cc: Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, v9fs-developer@lists.sourceforge.net, netdev@vger.kernel.org, kvm@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Paolo Bonzini <pbonzini@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Replace mach_power_off with pm_power_off to simplify the subsequent
-move of pm_power_off to generic code.
+	goto done;
+done:
+	return;
+is ugly, it was put there to make diff review easier.
+replace by open-coded return.
 
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Greg Ungerer <gerg@uclinux.org>
-Cc: Joshua Thompson <funaho@jurai.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/m68k/emu/natfeat.c         | 3 ++-
- arch/m68k/include/asm/machdep.h | 1 -
- arch/m68k/kernel/process.c      | 5 +++--
- arch/m68k/kernel/setup_mm.c     | 1 -
- arch/m68k/kernel/setup_no.c     | 1 -
- arch/m68k/mac/config.c          | 3 ++-
- 6 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/virtio_net.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/arch/m68k/emu/natfeat.c b/arch/m68k/emu/natfeat.c
-index 71b78ec..91e2ae7 100644
---- a/arch/m68k/emu/natfeat.c
-+++ b/arch/m68k/emu/natfeat.c
-@@ -15,6 +15,7 @@
- #include <linux/string.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/pm.h>
- #include <linux/io.h>
- #include <asm/machdep.h>
- #include <asm/natfeat.h>
-@@ -90,5 +91,5 @@ void __init nf_init(void)
- 	pr_info("NatFeats found (%s, %lu.%lu)\n", buf, version >> 16,
- 		version & 0xffff);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 23e4a69..ef04d23 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1403,7 +1403,7 @@ static void virtnet_config_changed_work(struct work_struct *work)
  
--	mach_power_off = nf_poweroff;
-+	pm_power_off = nf_poweroff;
- }
-diff --git a/arch/m68k/include/asm/machdep.h b/arch/m68k/include/asm/machdep.h
-index 953ca21..f9fac51 100644
---- a/arch/m68k/include/asm/machdep.h
-+++ b/arch/m68k/include/asm/machdep.h
-@@ -24,7 +24,6 @@ extern int (*mach_set_rtc_pll)(struct rtc_pll_info *);
- extern int (*mach_set_clock_mmss)(unsigned long);
- extern void (*mach_reset)( void );
- extern void (*mach_halt)( void );
--extern void (*mach_power_off)( void );
- extern unsigned long (*mach_hd_init) (unsigned long, unsigned long);
- extern void (*mach_hd_setup)(char *, int *);
- extern long mach_max_dma_address;
-diff --git a/arch/m68k/kernel/process.c b/arch/m68k/kernel/process.c
-index c55ff71..afe3d6e 100644
---- a/arch/m68k/kernel/process.c
-+++ b/arch/m68k/kernel/process.c
-@@ -22,6 +22,7 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/user.h>
-+#include <linux/pm.h>
- #include <linux/reboot.h>
- #include <linux/init_task.h>
- #include <linux/mqueue.h>
-@@ -77,8 +78,8 @@ void machine_halt(void)
+ 	if (virtio_cread_feature(vi->vdev, VIRTIO_NET_F_STATUS,
+ 				 struct virtio_net_config, status, &v) < 0)
+-		goto done;
++		return;
  
- void machine_power_off(void)
- {
--	if (mach_power_off)
--		mach_power_off();
-+	if (pm_power_off)
-+		pm_power_off();
- 	for (;;);
+ 	if (v & VIRTIO_NET_S_ANNOUNCE) {
+ 		netdev_notify_peers(vi->dev);
+@@ -1414,7 +1414,7 @@ static void virtnet_config_changed_work(struct work_struct *work)
+ 	v &= VIRTIO_NET_S_LINK_UP;
+ 
+ 	if (vi->status == v)
+-		goto done;
++		return;
+ 
+ 	vi->status = v;
+ 
+@@ -1425,8 +1425,6 @@ static void virtnet_config_changed_work(struct work_struct *work)
+ 		netif_carrier_off(vi->dev);
+ 		netif_tx_stop_all_queues(vi->dev);
+ 	}
+-done:
+-	return;
  }
  
-diff --git a/arch/m68k/kernel/setup_mm.c b/arch/m68k/kernel/setup_mm.c
-index 5b8ec4d..002fea6 100644
---- a/arch/m68k/kernel/setup_mm.c
-+++ b/arch/m68k/kernel/setup_mm.c
-@@ -96,7 +96,6 @@ EXPORT_SYMBOL(mach_get_rtc_pll);
- EXPORT_SYMBOL(mach_set_rtc_pll);
- void (*mach_reset)( void );
- void (*mach_halt)( void );
--void (*mach_power_off)( void );
- long mach_max_dma_address = 0x00ffffff; /* default set to the lower 16MB */
- #ifdef CONFIG_HEARTBEAT
- void (*mach_heartbeat) (int);
-diff --git a/arch/m68k/kernel/setup_no.c b/arch/m68k/kernel/setup_no.c
-index 88c27d9..1520156 100644
---- a/arch/m68k/kernel/setup_no.c
-+++ b/arch/m68k/kernel/setup_no.c
-@@ -55,7 +55,6 @@ int (*mach_hwclk) (int, struct rtc_time*);
- /* machine dependent reboot functions */
- void (*mach_reset)(void);
- void (*mach_halt)(void);
--void (*mach_power_off)(void);
- 
- #ifdef CONFIG_M68000
- #if defined(CONFIG_M68328)
-diff --git a/arch/m68k/mac/config.c b/arch/m68k/mac/config.c
-index a471eab..677913ff 100644
---- a/arch/m68k/mac/config.c
-+++ b/arch/m68k/mac/config.c
-@@ -16,6 +16,7 @@
- #include <linux/tty.h>
- #include <linux/console.h>
- #include <linux/interrupt.h>
-+#include <linux/pm.h>
- /* keyb */
- #include <linux/random.h>
- #include <linux/delay.h>
-@@ -159,7 +160,7 @@ void __init config_mac(void)
- 	mach_set_clock_mmss = mac_set_clock_mmss;
- 	mach_reset = mac_reset;
- 	mach_halt = mac_poweroff;
--	mach_power_off = mac_poweroff;
-+	pm_power_off = mac_poweroff;
- 	mach_max_dma_address = 0xffffffff;
- #if defined(CONFIG_INPUT_M68K_BEEP) || defined(CONFIG_INPUT_M68K_BEEP_MODULE)
- 	mach_beep = mac_mksound;
+ static void virtnet_config_changed(struct virtio_device *vdev)
 -- 
-1.9.1
+MST
