@@ -1,188 +1,226 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 02/15] virtio: unify config_changed handling
-Date: Mon, 6 Oct 2014 18:10:44 +0300
-Message-ID: <1412608214-31944-3-git-send-email-mst@redhat.com>
-References: <1412608214-31944-1-git-send-email-mst@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 13 Oct 2014 12:53:32 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for the 3.18 merge window
+Message-ID: <20141013125332.2bbd316d@mschwide>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1412608214-31944-1-git-send-email-mst@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Siva Yerramreddy <yshivakrishna@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sudeep Dutt <sudeep.dutt@intel.com>, virtualization@lists.linux-foundation.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Replace duplicated code in all transports with a single wrapper in
-virtio.c.
+Hi Linus,
 
-The only functional change is in virtio_mmio.c: if a buggy device sends
-us an interrupt before driver is set, we previously returned IRQ_NONE,
-now we return IRQ_HANDLED.
+please pull from the 'for-linus' branch of
 
-As this must not happen in practice, this does not look like a big deal.
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
 
-See also commit 3fff0179e33cd7d0a688dab65700c46ad089e934
-	virtio-pci: do not oops on config change if driver not loaded.
-for the original motivation behind the driver check.
+to receive the following updates:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/linux/virtio.h             | 2 ++
- drivers/misc/mic/card/mic_virtio.c | 6 +-----
- drivers/s390/kvm/kvm_virtio.c      | 9 +--------
- drivers/s390/kvm/virtio_ccw.c      | 6 +-----
- drivers/virtio/virtio.c            | 9 +++++++++
- drivers/virtio/virtio_mmio.c       | 7 ++-----
- drivers/virtio/virtio_pci.c        | 6 +-----
- 7 files changed, 17 insertions(+), 28 deletions(-)
+This patch set contains the main portion of the changes for 3.18 in regard
+to the s390 architecture. It is a bit bigger than usual, mainly because of
+a new driver and the vector extension patches.
 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index b46671e..3c19bd3 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -108,6 +108,8 @@ void unregister_virtio_device(struct virtio_device *dev);
- 
- void virtio_break_device(struct virtio_device *dev);
- 
-+void virtio_config_changed(struct virtio_device *dev);
-+
- /**
-  * virtio_driver - operations for a virtio I/O driver
-  * @driver: underlying device driver (populate name and owner).
-diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
-index f14b600..e647947 100644
---- a/drivers/misc/mic/card/mic_virtio.c
-+++ b/drivers/misc/mic/card/mic_virtio.c
-@@ -462,16 +462,12 @@ static void mic_handle_config_change(struct mic_device_desc __iomem *d,
- 	struct mic_device_ctrl __iomem *dc
- 		= (void __iomem *)d + mic_aligned_desc_size(d);
- 	struct mic_vdev *mvdev = (struct mic_vdev *)ioread64(&dc->vdev);
--	struct virtio_driver *drv;
- 
- 	if (ioread8(&dc->config_change) != MIC_VIRTIO_PARAM_CONFIG_CHANGED)
- 		return;
- 
- 	dev_dbg(mdrv->dev, "%s %d\n", __func__, __LINE__);
--	drv = container_of(mvdev->vdev.dev.driver,
--				struct virtio_driver, driver);
--	if (drv->config_changed)
--		drv->config_changed(&mvdev->vdev);
-+	virtio_config_changed(&mvdev->vdev);
- 	iowrite8(1, &dc->guest_ack);
- }
- 
-diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
-index a134965..6431290 100644
---- a/drivers/s390/kvm/kvm_virtio.c
-+++ b/drivers/s390/kvm/kvm_virtio.c
-@@ -406,15 +406,8 @@ static void kvm_extint_handler(struct ext_code ext_code,
- 
- 	switch (param) {
- 	case VIRTIO_PARAM_CONFIG_CHANGED:
--	{
--		struct virtio_driver *drv;
--		drv = container_of(vq->vdev->dev.driver,
--				   struct virtio_driver, driver);
--		if (drv->config_changed)
--			drv->config_changed(vq->vdev);
--
-+		virtio_config_changed(vq->vdev);
- 		break;
--	}
- 	case VIRTIO_PARAM_DEV_ADD:
- 		schedule_work(&hotplug_work);
- 		break;
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index d2c0b44..6cbe6ef 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -940,11 +940,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
- 		vring_interrupt(0, vq);
- 	}
- 	if (test_bit(0, &vcdev->indicators2)) {
--		drv = container_of(vcdev->vdev.dev.driver,
--				   struct virtio_driver, driver);
--
--		if (drv && drv->config_changed)
--			drv->config_changed(&vcdev->vdev);
-+		virtio_config_changed(&vcdev->vdev);
- 		clear_bit(0, &vcdev->indicators2);
- 	}
- }
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index fed0ce1..3980687 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -239,6 +239,15 @@ void unregister_virtio_device(struct virtio_device *dev)
- }
- EXPORT_SYMBOL_GPL(unregister_virtio_device);
- 
-+void virtio_config_changed(struct virtio_device *dev)
-+{
-+	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-+
-+	if (drv && drv->config_changed)
-+		drv->config_changed(dev);
-+}
-+EXPORT_SYMBOL_GPL(virtio_config_changed);
-+
- static int virtio_init(void)
- {
- 	if (bus_register(&virtio_bus) != 0)
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index c600ccf..ef9a165 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -234,8 +234,6 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
- {
- 	struct virtio_mmio_device *vm_dev = opaque;
- 	struct virtio_mmio_vq_info *info;
--	struct virtio_driver *vdrv = container_of(vm_dev->vdev.dev.driver,
--			struct virtio_driver, driver);
- 	unsigned long status;
- 	unsigned long flags;
- 	irqreturn_t ret = IRQ_NONE;
-@@ -244,9 +242,8 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
- 	status = readl(vm_dev->base + VIRTIO_MMIO_INTERRUPT_STATUS);
- 	writel(status, vm_dev->base + VIRTIO_MMIO_INTERRUPT_ACK);
- 
--	if (unlikely(status & VIRTIO_MMIO_INT_CONFIG)
--			&& vdrv && vdrv->config_changed) {
--		vdrv->config_changed(&vm_dev->vdev);
-+	if (unlikely(status & VIRTIO_MMIO_INT_CONFIG)) {
-+		virtio_config_changed(&vm_dev->vdev);
- 		ret = IRQ_HANDLED;
- 	}
- 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 0f2db51..58cbf6e 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -211,12 +211,8 @@ static bool vp_notify(struct virtqueue *vq)
- static irqreturn_t vp_config_changed(int irq, void *opaque)
- {
- 	struct virtio_pci_device *vp_dev = opaque;
--	struct virtio_driver *drv;
--	drv = container_of(vp_dev->vdev.dev.driver,
--			   struct virtio_driver, driver);
- 
--	if (drv && drv->config_changed)
--		drv->config_changed(&vp_dev->vdev);
-+	virtio_config_changed(&vp_dev->vdev);
- 	return IRQ_HANDLED;
- }
- 
--- 
-MST
+The interesting bits are:
+ - Quite a bit of work on the tracing front. Uprobes is enabled and
+   the ftrace code is reworked to get some of the lost performance back
+   if CONFIG_FTRACE is enabled.
+ - To improve boot time with CONFIG_DEBIG_PAGEALLOC, support for the 
+   IPTE range facility is added.
+ - The rwlock code is re-factored to improve writer fairness and to be
+   able to use the interlocked-access instructions.
+ - The kernel part for the support of the vector extension is added.
+ - The device driver to access the CD/DVD on the HMC is added, this
+   will hopefully come in handy to improve the installation process.
+ - Add support for control-unit initiated reconfiguration.
+ - The crypto device driver is enhanced to enable the additional AP
+   domains and to allow the new crypto hardware to be used.
+ - Bug fixes.
+
+Christian Borntraeger (1):
+      s390/head.s: use zero as address for stfl
+
+Heiko Carstens (14):
+      s390: remove unused MACHINE_FLAG_RRBM
+      Documentation/kprobes: add s390 to list of supported architectures
+      s390: pass march flag to assembly files as well
+      s390/ftrace: optimize function graph caller code
+      s390/ftrace: add HAVE_DYNAMIC_FTRACE_WITH_REGS support
+      s390/ftrace: enforce DYNAMIC_FTRACE if FUNCTION_TRACER is selected
+      s390/kprobes: remove unused jprobe_return_end()
+      s390/ftrace: optimize mcount code
+      s390/spinlock: optimize spin_unlock code
+      s390/vmemmap: remove memset call from vmemmap_populate()
+      s390/mm: remove change bit override support
+      s390/mm: make use of ipte range facility
+      s390/ftrace: remove 31 bit ftrace support
+      s390/ftrace: simplify enabling/disabling of ftrace_graph_caller
+
+Ingo Tuchscherer (3):
+      s390/zcrypt: support for extended number of ap domains
+      s390/zcrypt: Fixed possible race condition in zcrypt module handling
+      s390/zcrypt: Toleration of new crypto hardware
+
+Jan Willeke (2):
+      s390/uprobes: common library for kprobes and uprobes
+      s390/uprobes: architecture backend for uprobes
+
+Martin Schwidefsky (14):
+      s390/vdso: replace stck with stcke
+      s390/vdso: add vdso support for coarse clocks
+      s390/sclp: reduce dependency on event type masks
+      s390/rwlock: use directed yield for write-locked rwlocks
+      s390/rwlock: remove interrupt-enabling rwlock variant.
+      s390/rwlock: improve writer fairness
+      s390/rwlock: use the interlocked-access facility 1 instructions
+      s390/topology: call set_sched_topology early
+      s390/setup: correct 4-level kernel page table detection
+      s390/vtime: do not reset idle data on CPU hotplug
+      s390/nohz: use a per-cpu flag for arch_needs_cpu
+      s390/idle: consolidate idle functions and definitions
+      s390: add support for vector extension
+      s390/disassembler: add vector instructions
+
+Michael Holzheu (1):
+      s390/kdump: add support for vector extension
+
+Ralf Hoppe (1):
+      s390/hmcdrv: HMC drive CD/DVD access
+
+Stefan Haberland (3):
+      s390/tape: fix MTIOCGET ioctl to report blocksize
+      s390/dasd: fix infinite loop during format
+      s390/dasd: add support for control unit initiated reconfiguration
+
+ Documentation/kprobes.txt               |   1 +
+ arch/s390/Kconfig                       |  11 +-
+ arch/s390/Makefile                      |  17 +-
+ arch/s390/include/asm/barrier.h         |   6 +-
+ arch/s390/include/asm/cputime.h         |  26 +--
+ arch/s390/include/asm/dis.h             |  13 +-
+ arch/s390/include/asm/elf.h             |   3 +-
+ arch/s390/include/asm/ftrace.h          |   9 +-
+ arch/s390/include/asm/idle.h            |  26 +++
+ arch/s390/include/asm/ipl.h             |   4 +-
+ arch/s390/include/asm/irq.h             |   1 +
+ arch/s390/include/asm/kprobes.h         |   4 +
+ arch/s390/include/asm/lowcore.h         |  21 +-
+ arch/s390/include/asm/nmi.h             |   2 +-
+ arch/s390/include/asm/pgtable.h         |  25 ++-
+ arch/s390/include/asm/processor.h       |  12 +-
+ arch/s390/include/asm/ptrace.h          |   6 +
+ arch/s390/include/asm/setup.h           |   6 +-
+ arch/s390/include/asm/sigp.h            |   6 +-
+ arch/s390/include/asm/smp.h             |   2 -
+ arch/s390/include/asm/spinlock.h        | 135 +++++++++---
+ arch/s390/include/asm/spinlock_types.h  |   1 +
+ arch/s390/include/asm/switch_to.h       |  61 +++++-
+ arch/s390/include/asm/thread_info.h     |   3 +
+ arch/s390/include/asm/uprobes.h         |  42 ++++
+ arch/s390/include/asm/vdso.h            |  18 +-
+ arch/s390/include/asm/vtimer.h          |   2 -
+ arch/s390/include/uapi/asm/sigcontext.h |  20 +-
+ arch/s390/include/uapi/asm/types.h      |   4 +
+ arch/s390/include/uapi/asm/ucontext.h   |  15 +-
+ arch/s390/kernel/Makefile               |   8 +-
+ arch/s390/kernel/asm-offsets.c          |   9 +-
+ arch/s390/kernel/compat_linux.h         |   9 +
+ arch/s390/kernel/compat_signal.c        | 212 +++++++++++++-----
+ arch/s390/kernel/crash_dump.c           |  58 ++++-
+ arch/s390/kernel/dis.c                  | 245 ++++++++++++++++++++-
+ arch/s390/kernel/early.c                |   4 +-
+ arch/s390/kernel/entry.h                |   6 +-
+ arch/s390/kernel/entry64.S              |  17 +-
+ arch/s390/kernel/ftrace.c               | 139 +++++-------
+ arch/s390/kernel/head.S                 |   2 +-
+ arch/s390/kernel/idle.c                 | 124 +++++++++++
+ arch/s390/kernel/irq.c                  |   3 +-
+ arch/s390/kernel/kprobes.c              | 159 +-------------
+ arch/s390/kernel/machine_kexec.c        |   8 +-
+ arch/s390/kernel/mcount.S               |  86 ++++----
+ arch/s390/kernel/mcount64.S             |  62 ------
+ arch/s390/kernel/nmi.c                  |  16 ++
+ arch/s390/kernel/pgm_check.S            |   2 +-
+ arch/s390/kernel/process.c              |  24 ---
+ arch/s390/kernel/processor.c            |   4 +-
+ arch/s390/kernel/ptrace.c               | 254 +++++++++++++++++-----
+ arch/s390/kernel/setup.c                |  13 +-
+ arch/s390/kernel/signal.c               | 296 +++++++++++++++++++------
+ arch/s390/kernel/smp.c                  |  80 +++----
+ arch/s390/kernel/time.c                 |  13 ++
+ arch/s390/kernel/topology.c             |  18 +-
+ arch/s390/kernel/traps.c                | 115 +++++++++-
+ arch/s390/kernel/uprobes.c              | 332 ++++++++++++++++++++++++++++
+ arch/s390/kernel/vdso32/clock_getres.S  |  11 +-
+ arch/s390/kernel/vdso32/clock_gettime.S |  32 ++-
+ arch/s390/kernel/vdso32/gettimeofday.S  |   4 +-
+ arch/s390/kernel/vdso64/clock_getres.S  |   8 +-
+ arch/s390/kernel/vdso64/clock_gettime.S |  32 ++-
+ arch/s390/kernel/vdso64/gettimeofday.S  |   4 +-
+ arch/s390/kernel/vtime.c                |  77 +------
+ arch/s390/lib/Makefile                  |   2 +
+ arch/s390/lib/delay.c                   |   4 +-
+ arch/s390/lib/probes.c                  | 159 ++++++++++++++
+ arch/s390/lib/spinlock.c                | 105 +++++----
+ arch/s390/mm/dump_pagetables.c          |   5 +-
+ arch/s390/mm/hugetlbpage.c              |   2 +-
+ arch/s390/mm/pageattr.c                 |  38 +++-
+ arch/s390/mm/vmem.c                     |   8 +-
+ drivers/s390/block/dasd.c               |  33 ++-
+ drivers/s390/block/dasd_devmap.c        |  24 +++
+ drivers/s390/block/dasd_eckd.c          | 372 +++++++++++++++++++++++++++++++-
+ drivers/s390/block/dasd_eckd.h          |  63 +++++-
+ drivers/s390/block/dasd_int.h           |  10 +-
+ drivers/s390/char/Kconfig               |  13 ++
+ drivers/s390/char/Makefile              |   3 +
+ drivers/s390/char/diag_ftp.c            | 237 ++++++++++++++++++++
+ drivers/s390/char/diag_ftp.h            |  21 ++
+ drivers/s390/char/hmcdrv_cache.c        | 252 ++++++++++++++++++++++
+ drivers/s390/char/hmcdrv_cache.h        |  24 +++
+ drivers/s390/char/hmcdrv_dev.c          | 370 +++++++++++++++++++++++++++++++
+ drivers/s390/char/hmcdrv_dev.h          |  14 ++
+ drivers/s390/char/hmcdrv_ftp.c          | 343 +++++++++++++++++++++++++++++
+ drivers/s390/char/hmcdrv_ftp.h          |  63 ++++++
+ drivers/s390/char/hmcdrv_mod.c          |  64 ++++++
+ drivers/s390/char/sclp.h                |   2 +
+ drivers/s390/char/sclp_diag.h           |  89 ++++++++
+ drivers/s390/char/sclp_early.c          |   2 +-
+ drivers/s390/char/sclp_ftp.c            | 275 +++++++++++++++++++++++
+ drivers/s390/char/sclp_ftp.h            |  21 ++
+ drivers/s390/char/sclp_rw.c             |  13 +-
+ drivers/s390/char/sclp_vt220.c          |   4 -
+ drivers/s390/char/tape_char.c           |   4 +-
+ drivers/s390/char/zcore.c               |  18 +-
+ drivers/s390/cio/airq.c                 |   2 +-
+ drivers/s390/cio/cio.c                  |   2 +-
+ drivers/s390/crypto/ap_bus.c            |  30 ++-
+ drivers/s390/crypto/ap_bus.h            |   7 +-
+ drivers/s390/crypto/zcrypt_api.c        |   7 +-
+ include/linux/tick.h                    |   2 +-
+ include/uapi/linux/elf.h                |   2 +
+ kernel/time/tick-sched.c                |   2 +-
+ scripts/recordmcount.c                  |   4 -
+ scripts/recordmcount.pl                 |   7 -
+ 109 files changed, 4738 insertions(+), 972 deletions(-)
+ create mode 100644 arch/s390/include/asm/idle.h
+ create mode 100644 arch/s390/include/asm/uprobes.h
+ create mode 100644 arch/s390/kernel/idle.c
+ delete mode 100644 arch/s390/kernel/mcount64.S
+ create mode 100644 arch/s390/kernel/uprobes.c
+ create mode 100644 arch/s390/lib/probes.c
+ create mode 100644 drivers/s390/char/diag_ftp.c
+ create mode 100644 drivers/s390/char/diag_ftp.h
+ create mode 100644 drivers/s390/char/hmcdrv_cache.c
+ create mode 100644 drivers/s390/char/hmcdrv_cache.h
+ create mode 100644 drivers/s390/char/hmcdrv_dev.c
+ create mode 100644 drivers/s390/char/hmcdrv_dev.h
+ create mode 100644 drivers/s390/char/hmcdrv_ftp.c
+ create mode 100644 drivers/s390/char/hmcdrv_ftp.h
+ create mode 100644 drivers/s390/char/hmcdrv_mod.c
+ create mode 100644 drivers/s390/char/sclp_diag.h
+ create mode 100644 drivers/s390/char/sclp_ftp.c
+ create mode 100644 drivers/s390/char/sclp_ftp.h
