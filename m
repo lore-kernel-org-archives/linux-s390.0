@@ -1,65 +1,118 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Yijing Wang <wangyijing@huawei.com>
-Subject: [PATCH v3 14/27] Irq_remapping/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-Date: Wed, 15 Oct 2014 11:07:02 +0800
-Message-ID: <1413342435-7876-15-git-send-email-wangyijing@huawei.com>
+Subject: [PATCH v3 09/27] arm/PCI: Clean unused pcibios_add_bus() and pcibios_remove_bus()
+Date: Wed, 15 Oct 2014 11:06:57 +0800
+Message-ID: <1413342435-7876-10-git-send-email-wangyijing@huawei.com>
 In-Reply-To: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 References: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20141015030702.y_husK0PruksbunrJzVFh1lBNnGe_zpXHqps_ZFokpI@z>
+Message-ID: <20141015030657.4DLkkTVGSsZE7nDcqe2EJnR-Awc83h76oDgzmlmW9rQ@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Bjorn Helgaas <bhelgaas@google.com>
 Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, Ralf Baechle <ralf@linux-mips.org>, Lucas Stach <l.stach@pengutronix.de>, David Vrabel <david.vrabel@citrix.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Michael Ellerman <mpe@ellerman.id.au>, Thierry Reding <thierry.reding@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Liviu Dudau <liviu@dudau.co.uk>, Yijing Wang <wangyijing@huawei.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Use MSI chip framework instead of arch MSI functions to configure
-MSI/MSI-X irq. So we can manage MSI/MSI-X irq in a unified framework.
+MSI chip will be saved in pci_sys_data, now we can
+clean up pcibios_add_bus() and pcibios_remove_bus()
+in arm, and use pci_find_msi_chip() to get msi chip
+in core MSI code.
 
 Signed-off-by: Yijing Wang <wangyijing@huawei.com>
 ---
- drivers/iommu/irq_remapping.c |   11 ++++++++---
- 1 files changed, 8 insertions(+), 3 deletions(-)
+ arch/arm/include/asm/mach/pci.h |    4 ----
+ arch/arm/kernel/bios32.c        |   16 ----------------
+ drivers/pci/msi.c               |   11 +++--------
+ 3 files changed, 3 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/iommu/irq_remapping.c b/drivers/iommu/irq_remapping.c
-index 33c4395..48d57e9 100644
---- a/drivers/iommu/irq_remapping.c
-+++ b/drivers/iommu/irq_remapping.c
-@@ -139,8 +139,8 @@ error:
- 	return ret;
- }
+diff --git a/arch/arm/include/asm/mach/pci.h b/arch/arm/include/asm/mach/pci.h
+index 59b0d87..230b2c9 100644
+--- a/arch/arm/include/asm/mach/pci.h
++++ b/arch/arm/include/asm/mach/pci.h
+@@ -39,8 +39,6 @@ struct hw_pci {
+ 					  resource_size_t start,
+ 					  resource_size_t size,
+ 					  resource_size_t align);
+-	void		(*add_bus)(struct pci_bus *bus);
+-	void		(*remove_bus)(struct pci_bus *bus);
+ };
  
--static int irq_remapping_setup_msi_irqs(struct pci_dev *dev,
--					int nvec, int type)
-+static int irq_remapping_setup_msi_irqs(struct msi_chip *chip,
-+		struct pci_dev *dev, int nvec, int type)
+ /*
+@@ -71,8 +69,6 @@ struct pci_sys_data {
+ 					  resource_size_t start,
+ 					  resource_size_t size,
+ 					  resource_size_t align);
+-	void		(*add_bus)(struct pci_bus *bus);
+-	void		(*remove_bus)(struct pci_bus *bus);
+ 	void		*private_data;	/* platform controller private data	*/
+ };
+ 
+diff --git a/arch/arm/kernel/bios32.c b/arch/arm/kernel/bios32.c
+index a19038d..b1b872e 100644
+--- a/arch/arm/kernel/bios32.c
++++ b/arch/arm/kernel/bios32.c
+@@ -360,20 +360,6 @@ void pcibios_fixup_bus(struct pci_bus *bus)
+ }
+ EXPORT_SYMBOL(pcibios_fixup_bus);
+ 
+-void pcibios_add_bus(struct pci_bus *bus)
+-{
+-	struct pci_sys_data *sys = bus->sysdata;
+-	if (sys->add_bus)
+-		sys->add_bus(bus);
+-}
+-
+-void pcibios_remove_bus(struct pci_bus *bus)
+-{
+-	struct pci_sys_data *sys = bus->sysdata;
+-	if (sys->remove_bus)
+-		sys->remove_bus(bus);
+-}
+-
+ /*
+  * Swizzle the device pin each time we cross a bridge.  If a platform does
+  * not provide a swizzle function, we perform the standard PCI swizzling.
+@@ -478,8 +464,6 @@ static void pcibios_init_hw(struct device *parent, struct hw_pci *hw,
+ 		sys->swizzle = hw->swizzle;
+ 		sys->map_irq = hw->map_irq;
+ 		sys->align_resource = hw->align_resource;
+-		sys->add_bus = hw->add_bus;
+-		sys->remove_bus = hw->remove_bus;
+ 		INIT_LIST_HEAD(&sys->resources);
+ 
+ 		if (hw->private_data)
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index f11108c..56e54ad 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -32,12 +32,10 @@ int pci_msi_ignore_mask;
+ 
+ int __weak arch_setup_msi_irq(struct pci_dev *dev, struct msi_desc *desc)
  {
- 	if (type == PCI_CAP_ID_MSI)
- 		return do_setup_msi_irqs(dev, nvec);
-@@ -148,6 +148,11 @@ static int irq_remapping_setup_msi_irqs(struct pci_dev *dev,
- 		return do_setup_msix_irqs(dev, nvec);
- }
+-	struct msi_chip *chip = dev->bus->msi;
++	struct msi_chip *chip;
+ 	int err;
  
-+static struct msi_chip remap_msi_chip = {
-+	.setup_irqs = irq_remapping_setup_msi_irqs,
-+	.teardown_irq = native_teardown_msi_irq,
-+};
-+
- static void eoi_ioapic_pin_remapped(int apic, int pin, int vector)
+-	if (!chip)
+-		chip = pci_msi_chip(dev->bus);
+-
++	chip = pci_msi_chip(dev->bus);
+ 	if (!chip || !chip->setup_irq)
+ 		return -EINVAL;
+ 
+@@ -51,10 +49,7 @@ int __weak arch_setup_msi_irq(struct pci_dev *dev, struct msi_desc *desc)
+ void __weak arch_teardown_msi_irq(unsigned int irq)
  {
- 	/*
-@@ -165,9 +170,9 @@ static void __init irq_remapping_modify_x86_ops(void)
- 	x86_io_apic_ops.set_affinity	= set_remapped_irq_affinity;
- 	x86_io_apic_ops.setup_entry	= setup_ioapic_remapped_entry;
- 	x86_io_apic_ops.eoi_ioapic_pin	= eoi_ioapic_pin_remapped;
--	x86_msi.setup_msi_irqs		= irq_remapping_setup_msi_irqs;
- 	x86_msi.setup_hpet_msi		= setup_hpet_msi_remapped;
- 	x86_msi.compose_msi_msg		= compose_remapped_msi_msg;
-+	x86_msi_chip = &remap_msi_chip;
- }
+ 	struct msi_desc *entry = irq_get_msi_desc(irq);
+-	struct msi_chip *chip = entry->dev->bus->msi;
+-
+-	if (!chip)
+-		chip = pci_msi_chip(entry->dev->bus);
++	struct msi_chip *chip = pci_msi_chip(entry->dev->bus);
  
- static __init int setup_nointremap(char *str)
+ 	if (!chip || !chip->teardown_irq)
+ 		return;
 -- 
 1.7.1
