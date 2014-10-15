@@ -1,62 +1,59 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Yijing Wang <wangyijing@huawei.com>
-Subject: [PATCH v3 07/27] PCI: rcar: Save msi chip in pci_sys_data
-Date: Wed, 15 Oct 2014 11:06:55 +0800
-Message-ID: <1413342435-7876-8-git-send-email-wangyijing@huawei.com>
+Subject: [PATCH v3 03/27] s390/MSI: Use __msi_mask_irq() instead of default_msi_mask_irq()
+Date: Wed, 15 Oct 2014 11:06:51 +0800
+Message-ID: <1413342435-7876-4-git-send-email-wangyijing@huawei.com>
 In-Reply-To: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 References: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20141015030655.J112oULO0pVc68yZHN-KteBgObCNA4Z19x8qUUdhWlE@z>
+Message-ID: <20141015030651.JfGtQaknfxXSAjAIJR12Ck9JJFVkoxjU64IH9cIuV9g@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Bjorn Helgaas <bhelgaas@google.com>
 Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, Ralf Baechle <ralf@linux-mips.org>, Lucas Stach <l.stach@pengutronix.de>, David Vrabel <david.vrabel@citrix.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Michael Ellerman <mpe@ellerman.id.au>, Thierry Reding <thierry.reding@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Liviu Dudau <liviu@dudau.co.uk>, Yijing Wang <wangyijing@huawei.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Save msi chip in pci_sys_data instead of assign
-msi chip to every pci bus in .add_bus().
+Now only s390/MSI use default_msi_mask_irq() and
+default_msix_mask_irq(), replace them with the common
+msi mask irq functions __msi_mask_irq() and __msix_mask_irq().
+Remove default_msi_mask_irq() and default_msix_mask_irq().
 
 Signed-off-by: Yijing Wang <wangyijing@huawei.com>
 ---
- drivers/pci/host/pcie-rcar.c |   13 +++----------
- 1 files changed, 3 insertions(+), 10 deletions(-)
+ arch/s390/pci/pci.c |    4 ++--
+ include/linux/msi.h |    2 --
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pci/host/pcie-rcar.c b/drivers/pci/host/pcie-rcar.c
-index 61158e0..c999c7e 100644
---- a/drivers/pci/host/pcie-rcar.c
-+++ b/drivers/pci/host/pcie-rcar.c
-@@ -380,20 +380,10 @@ static int rcar_pcie_setup(int nr, struct pci_sys_data *sys)
- 	return 1;
- }
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index 2fa7b14..552b990 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -448,9 +448,9 @@ void arch_teardown_msi_irqs(struct pci_dev *pdev)
+ 	/* Release MSI interrupts */
+ 	list_for_each_entry(msi, &pdev->msi_list, list) {
+ 		if (msi->msi_attrib.is_msix)
+-			default_msix_mask_irq(msi, 1);
++			__msix_mask_irq(msi, 1);
+ 		else
+-			default_msi_mask_irq(msi, 1, 1);
++			__msi_mask_irq(msi, 1, 1);
+ 		irq_set_msi_desc(msi->irq, NULL);
+ 		irq_free_desc(msi->irq);
+ 		msi->msg.address_lo = 0;
+diff --git a/include/linux/msi.h b/include/linux/msi.h
+index 9ac1e3b..175aa21 100644
+--- a/include/linux/msi.h
++++ b/include/linux/msi.h
+@@ -65,8 +65,6 @@ void arch_restore_msi_irqs(struct pci_dev *dev);
  
--static void rcar_pcie_add_bus(struct pci_bus *bus)
--{
--	if (IS_ENABLED(CONFIG_PCI_MSI)) {
--		struct rcar_pcie *pcie = sys_to_pcie(bus->sysdata);
--
--		bus->msi = &pcie->msi.chip;
--	}
--}
--
- struct hw_pci rcar_pci = {
- 	.setup          = rcar_pcie_setup,
- 	.map_irq        = of_irq_parse_and_map_pci,
- 	.ops            = &rcar_pcie_ops,
--	.add_bus        = rcar_pcie_add_bus,
- };
+ void default_teardown_msi_irqs(struct pci_dev *dev);
+ void default_restore_msi_irqs(struct pci_dev *dev);
+-#define default_msi_mask_irq	__msi_mask_irq
+-#define default_msix_mask_irq	__msix_mask_irq
  
- static void rcar_pcie_enable(struct rcar_pcie *pcie)
-@@ -402,6 +392,9 @@ static void rcar_pcie_enable(struct rcar_pcie *pcie)
- 
- 	rcar_pci.nr_controllers = 1;
- 	rcar_pci.private_data = (void **)&pcie;
-+#ifdef CONFIG_PCI_MSI
-+	rcar_pci.msi_chip = &pcie->msi.chip;
-+#endif
- 
- 	pci_common_init_dev(&pdev->dev, &rcar_pci);
- #ifdef CONFIG_PCI_DOMAINS
+ struct msi_chip {
+ 	struct module *owner;
 -- 
 1.7.1
