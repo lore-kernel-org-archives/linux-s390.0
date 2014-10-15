@@ -1,74 +1,97 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v4 08/25] virtio-net: drop config_mutex
-Date: Mon, 13 Oct 2014 10:50:23 +0300
-Message-ID: <1413114332-626-9-git-send-email-mst-v4@redhat.com>
-References: <1413114332-626-1-git-send-email-mst-v4@redhat.com>
+From: Yijing Wang <wangyijing@huawei.com>
+Subject: [PATCH v3 11/27] PCI/MSI: Refactor struct msi_chip to make it become more common
+Date: Wed, 15 Oct 2014 11:06:59 +0800
+Message-ID: <1413342435-7876-12-git-send-email-wangyijing@huawei.com>
+References: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1413114332-626-1-git-send-email-mst-v4@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, v9fs-developer@lists.sourceforge.net, netdev@vger.kernel.org, kvm@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Paolo Bonzini <pbonzini@redhat.com>
+Content-Type: text/plain
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-config_mutex served two purposes: prevent multiple concurrent config
-change handlers, and synchronize access to config_enable flag.
+Now there are a lot of __weak arch functions in MSI code.
+These functions make MSI driver complex. Thierry introduced
+MSI chip framework to configure MSI/MSI-X irq in arm. Use
+MSI chip framework to refactor all other platform MSI
+code to eliminate weak arch MSI functions. This patch add
+.restore_irqs(), .teardown_irqs() and .setup_irqs() to make it
+become more common.
 
-Since commit dbf2576e37da0fcc7aacbfbb9fd5d3de7888a3c1
-    workqueue: make all workqueues non-reentrant
-all workqueues are non-reentrant, and config_enable
-is now gone.
-
-Get rid of the unnecessary lock.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Yijing Wang <wangyijing@huawei.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
 ---
- drivers/net/virtio_net.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/pci/msi.c   |   15 +++++++++++++++
+ include/linux/msi.h |    4 ++++
+ 2 files changed, 19 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 743fb04..23e4a69 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -132,9 +132,6 @@ struct virtnet_info {
- 	/* Work struct for config space updates */
- 	struct work_struct config_work;
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index 56e54ad..5cbd774 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -61,6 +61,11 @@ int __weak arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
+ {
+ 	struct msi_desc *entry;
+ 	int ret;
++	struct msi_chip *chip;
++
++	chip = pci_msi_chip(dev->bus);
++	if (chip && chip->setup_irqs)
++		return chip->setup_irqs(chip, dev, nvec, type);
  
--	/* Lock for config space updates */
--	struct mutex config_lock;
--
- 	/* Does the affinity hint is set for virtqueues? */
- 	bool affinity_hint_set;
+ 	/*
+ 	 * If an architecture wants to support multiple MSI, it needs to
+@@ -103,6 +108,11 @@ void default_teardown_msi_irqs(struct pci_dev *dev)
  
-@@ -1404,7 +1401,6 @@ static void virtnet_config_changed_work(struct work_struct *work)
- 		container_of(work, struct virtnet_info, config_work);
- 	u16 v;
- 
--	mutex_lock(&vi->config_lock);
- 	if (virtio_cread_feature(vi->vdev, VIRTIO_NET_F_STATUS,
- 				 struct virtio_net_config, status, &v) < 0)
- 		goto done;
-@@ -1430,7 +1426,7 @@ static void virtnet_config_changed_work(struct work_struct *work)
- 		netif_tx_stop_all_queues(vi->dev);
- 	}
- done:
--	mutex_unlock(&vi->config_lock);
-+	return;
+ void __weak arch_teardown_msi_irqs(struct pci_dev *dev)
+ {
++	struct msi_chip *chip = pci_msi_chip(dev->bus);
++
++	if (chip && chip->teardown_irqs)
++		return chip->teardown_irqs(chip, dev);
++
+ 	return default_teardown_msi_irqs(dev);
  }
  
- static void virtnet_config_changed(struct virtio_device *vdev)
-@@ -1751,7 +1747,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		u64_stats_init(&virtnet_stats->rx_syncp);
- 	}
+@@ -126,6 +136,11 @@ static void default_restore_msi_irq(struct pci_dev *dev, int irq)
  
--	mutex_init(&vi->config_lock);
- 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+ void __weak arch_restore_msi_irqs(struct pci_dev *dev)
+ {
++	struct msi_chip *chip = pci_msi_chip(dev->bus);
++
++	if (chip && chip->restore_irqs)
++             return chip->restore_irqs(chip, dev);
++
+ 	return default_restore_msi_irqs(dev);
+ }
  
- 	/* If we can receive ANY GSO packets, we must allocate large ones. */
+diff --git a/include/linux/msi.h b/include/linux/msi.h
+index 175aa21..eb5ae36 100644
+--- a/include/linux/msi.h
++++ b/include/linux/msi.h
+@@ -74,7 +74,11 @@ struct msi_chip {
+ 
+ 	int (*setup_irq)(struct msi_chip *chip, struct pci_dev *dev,
+ 			 struct msi_desc *desc);
++	int (*setup_irqs)(struct msi_chip *chip, struct pci_dev *dev,
++			int nvec, int type);
+ 	void (*teardown_irq)(struct msi_chip *chip, unsigned int irq);
++	void (*teardown_irqs)(struct msi_chip *chip, struct pci_dev *dev);
++	void (*restore_irqs)(struct msi_chip *chip, struct pci_dev *dev);
+ };
+ 
+ #endif /* LINUX_MSI_H */
 -- 
-MST
+1.7.1
