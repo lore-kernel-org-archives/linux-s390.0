@@ -1,153 +1,29 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 20 Oct 2014 09:45:18 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 3.18-rc2
-Message-ID: <20141020094518.409b6d54@mschwide>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Tue, 14 Oct 2014 22:36:41 -0400 (EDT)
+Message-ID: <20141014.223641.1750858832286185881.davem@davemloft.net>
+Subject: Re: [PATCH v3 25/27] Sparc/MSI: Use MSI chip framework to
+ configure MSI/MSI-X irq
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1413342435-7876-26-git-send-email-wangyijing@huawei.com>
+References: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
+	<1413342435-7876-26-git-send-email-wangyijing@huawei.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20141015023641.ml7O0UOM-LymA0FZYPp3udTiZSm-mn9jOXEouT4CxLQ@z>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: wangyijing@huawei.com
+Cc: bhelgaas@google.com, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, huxinwei@huawei.com, wuyun.wu@huawei.com, linux-arm-kernel@lists.infradead.org, linux@arm.linux.org.uk, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, arnd@arndb.de, tglx@linutronix.de, konrad.wilk@oracle.com, xen-devel@lists.xenproject.org, joro@8bytes.org, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, benh@kernel.crashing.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sebott@linux.vnet.ibm.com, tony.luck@intel.com, linux-ia64@vger.kernel.org, sparclinux@vger.kernel.org, cmetcalf@tilera.com, ralf@linux-mips.org, l.stach@pengutronix.de, david.vrabel@citrix.com, sergei.shtylyov@cogentembedded.com, mpe@ellerman.id.au, thierry.reding@gmail.com, thomas.petazzoni@free-electrons.com, liviu@dudau.co.uk
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+From: Yijing Wang <wangyijing@huawei.com>
+Date: Wed, 15 Oct 2014 11:07:13 +0800
 
-please pull from the 'for-linus' branch of
+> Use MSI chip framework instead of arch MSI functions to configure
+> MSI/MSI-X irq. So we can manage MSI/MSI-X irq in a unified framework.
+> 
+> Signed-off-by: Yijing Wang <wangyijing@huawei.com>
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
-
-to receive the following updates:
-One patch to enable the BPF system call and three more bug fixes.
-
-Dominik Dingel (1):
-      s390/mm: fixing calls of pte_unmap_unlock
-
-Heiko Carstens (1):
-      s390: wire up bpf syscall
-
-Jan Willeke (1):
-      s390/uprobes: fix kprobes dependency
-
-Josh Boyer (1):
-      s390/hmcdrv: Restrict s390 HMC driver to S390 arch
-
- arch/s390/include/uapi/asm/unistd.h | 3 ++-
- arch/s390/kernel/compat_wrapper.c   | 1 +
- arch/s390/kernel/syscalls.S         | 1 +
- arch/s390/kernel/uprobes.c          | 2 +-
- arch/s390/lib/probes.c              | 2 +-
- arch/s390/mm/pgtable.c              | 6 +++---
- drivers/s390/char/Kconfig           | 2 +-
- 7 files changed, 10 insertions(+), 7 deletions(-)
-
-diff --git a/arch/s390/include/uapi/asm/unistd.h b/arch/s390/include/uapi/asm/unistd.h
-index 940ac49..4197c89 100644
---- a/arch/s390/include/uapi/asm/unistd.h
-+++ b/arch/s390/include/uapi/asm/unistd.h
-@@ -286,7 +286,8 @@
- #define __NR_seccomp		348
- #define __NR_getrandom		349
- #define __NR_memfd_create	350
--#define NR_syscalls 351
-+#define __NR_bpf		351
-+#define NR_syscalls 352
- 
- /* 
-  * There are some system calls that are not present on 64 bit, some
-diff --git a/arch/s390/kernel/compat_wrapper.c b/arch/s390/kernel/compat_wrapper.c
-index faf6caa..c4f7a3d 100644
---- a/arch/s390/kernel/compat_wrapper.c
-+++ b/arch/s390/kernel/compat_wrapper.c
-@@ -217,3 +217,4 @@ COMPAT_SYSCALL_WRAP5(renameat2, int, olddfd, const char __user *, oldname, int,
- COMPAT_SYSCALL_WRAP3(seccomp, unsigned int, op, unsigned int, flags, const char __user *, uargs)
- COMPAT_SYSCALL_WRAP3(getrandom, char __user *, buf, size_t, count, unsigned int, flags)
- COMPAT_SYSCALL_WRAP2(memfd_create, const char __user *, uname, unsigned int, flags)
-+COMPAT_SYSCALL_WRAP3(bpf, int, cmd, union bpf_attr *, attr, unsigned int, size);
-diff --git a/arch/s390/kernel/syscalls.S b/arch/s390/kernel/syscalls.S
-index 6fe886a..9f7087f 100644
---- a/arch/s390/kernel/syscalls.S
-+++ b/arch/s390/kernel/syscalls.S
-@@ -359,3 +359,4 @@ SYSCALL(sys_renameat2,sys_renameat2,compat_sys_renameat2)
- SYSCALL(sys_seccomp,sys_seccomp,compat_sys_seccomp)
- SYSCALL(sys_getrandom,sys_getrandom,compat_sys_getrandom)
- SYSCALL(sys_memfd_create,sys_memfd_create,compat_sys_memfd_create) /* 350 */
-+SYSCALL(sys_bpf,sys_bpf,compat_sys_bpf)
-diff --git a/arch/s390/kernel/uprobes.c b/arch/s390/kernel/uprobes.c
-index 956f4f7..f6b3cd0 100644
---- a/arch/s390/kernel/uprobes.c
-+++ b/arch/s390/kernel/uprobes.c
-@@ -5,13 +5,13 @@
-  *    Author(s): Jan Willeke,
-  */
- 
--#include <linux/kprobes.h>
- #include <linux/uaccess.h>
- #include <linux/uprobes.h>
- #include <linux/compat.h>
- #include <linux/kdebug.h>
- #include <asm/switch_to.h>
- #include <asm/facility.h>
-+#include <asm/kprobes.h>
- #include <asm/dis.h>
- #include "entry.h"
- 
-diff --git a/arch/s390/lib/probes.c b/arch/s390/lib/probes.c
-index c5d64a0..ae90e1a 100644
---- a/arch/s390/lib/probes.c
-+++ b/arch/s390/lib/probes.c
-@@ -4,7 +4,7 @@
-  *    Copyright IBM Corp. 2014
-  */
- 
--#include <linux/kprobes.h>
-+#include <asm/kprobes.h>
- #include <asm/dis.h>
- 
- int probe_is_prohibited_opcode(u16 *insn)
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 296b61a..1b79ca6 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -656,7 +656,7 @@ void __gmap_zap(struct gmap *gmap, unsigned long gaddr)
- 	}
- 	pgste_set_unlock(ptep, pgste);
- out_pte:
--	pte_unmap_unlock(*ptep, ptl);
-+	pte_unmap_unlock(ptep, ptl);
- }
- EXPORT_SYMBOL_GPL(__gmap_zap);
- 
-@@ -943,7 +943,7 @@ retry:
- 	}
- 	if (!(pte_val(*ptep) & _PAGE_INVALID) &&
- 	     (pte_val(*ptep) & _PAGE_PROTECT)) {
--		pte_unmap_unlock(*ptep, ptl);
-+		pte_unmap_unlock(ptep, ptl);
- 		if (fixup_user_fault(current, mm, addr, FAULT_FLAG_WRITE)) {
- 			up_read(&mm->mmap_sem);
- 			return -EFAULT;
-@@ -974,7 +974,7 @@ retry:
- 		pgste_val(new) |= PGSTE_UC_BIT;
- 
- 	pgste_set_unlock(ptep, new);
--	pte_unmap_unlock(*ptep, ptl);
-+	pte_unmap_unlock(ptep, ptl);
- 	up_read(&mm->mmap_sem);
- 	return 0;
- }
-diff --git a/drivers/s390/char/Kconfig b/drivers/s390/char/Kconfig
-index dc24ecf..db2cb1f 100644
---- a/drivers/s390/char/Kconfig
-+++ b/drivers/s390/char/Kconfig
-@@ -105,7 +105,7 @@ config SCLP_ASYNC
- config HMC_DRV
- 	def_tristate m
- 	prompt "Support for file transfers from HMC drive CD/DVD-ROM"
--	depends on 64BIT
-+	depends on S390 && 64BIT
- 	select CRC16
- 	help
- 	  This option enables support for file transfers from a Hardware
+Acked-by: David S. Miller <davem@davemloft.net>
