@@ -1,14 +1,14 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Yijing Wang <wangyijing@huawei.com>
-Subject: [PATCH v3 22/27] s390/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-Date: Wed, 15 Oct 2014 11:07:10 +0800
-Message-ID: <1413342435-7876-23-git-send-email-wangyijing@huawei.com>
+Subject: [PATCH v3 14/27] Irq_remapping/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+Date: Wed, 15 Oct 2014 11:07:02 +0800
+Message-ID: <1413342435-7876-15-git-send-email-wangyijing@huawei.com>
 In-Reply-To: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 References: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20141015030710.cZARsjFphhVoqHDWwq35sHDLnumGRpAKlhBNQnrXWoY@z>
+Message-ID: <20141015030702.y_husK0PruksbunrJzVFh1lBNnGe_zpXHqps_ZFokpI@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Bjorn Helgaas <bhelgaas@google.com>
@@ -20,84 +20,46 @@ MSI/MSI-X irq. So we can manage MSI/MSI-X irq in a unified framework.
 
 Signed-off-by: Yijing Wang <wangyijing@huawei.com>
 ---
-Hi Sebastian,
-   I dropped the Acked-by , because this version has a
-lot changes compared to last. So, I guess you may want to check it again.
----
- arch/s390/include/asm/pci.h |    9 +++++++++
- arch/s390/pci/pci.c         |   12 ++++++++++--
- 2 files changed, 19 insertions(+), 2 deletions(-)
+ drivers/iommu/irq_remapping.c |   11 ++++++++---
+ 1 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index c030900..4d41f08 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -88,6 +88,8 @@ struct zpci_dev {
- 	u32 uid;			/* user defined id */
- 	u8 util_str[CLP_UTIL_STR_LEN];	/* utility string */
- 
-+	struct msi_chip *msi_chip;
-+
- 	/* IRQ stuff */
- 	u64		msi_addr;	/* MSI address */
- 	struct airq_iv *aibv;		/* adapter interrupt bit vector */
-@@ -121,6 +123,13 @@ struct zpci_dev {
- 	struct dentry	*debugfs_perf;
- };
- 
-+static inline struct msi_chip *pci_msi_chip(struct pci_bus *bus)
-+{
-+	struct zpci_dev *zpci = bus->sysdata;
-+
-+	return zpci->msi_chip;
-+}
-+
- static inline bool zdev_enabled(struct zpci_dev *zdev)
- {
- 	return (zdev->fh & (1UL << 31)) ? true : false;
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 552b990..bf6732f 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -358,7 +358,8 @@ static void zpci_irq_handler(struct airq_struct *airq)
- 	}
+diff --git a/drivers/iommu/irq_remapping.c b/drivers/iommu/irq_remapping.c
+index 33c4395..48d57e9 100644
+--- a/drivers/iommu/irq_remapping.c
++++ b/drivers/iommu/irq_remapping.c
+@@ -139,8 +139,8 @@ error:
+ 	return ret;
  }
  
--int arch_setup_msi_irqs(struct pci_dev *pdev, int nvec, int type)
-+static int zpci_setup_msi_irqs(struct msi_chip *chip,
-+		struct pci_dev *pdev, int nvec, int type)
+-static int irq_remapping_setup_msi_irqs(struct pci_dev *dev,
+-					int nvec, int type)
++static int irq_remapping_setup_msi_irqs(struct msi_chip *chip,
++		struct pci_dev *dev, int nvec, int type)
  {
- 	struct zpci_dev *zdev = get_zdev(pdev);
- 	unsigned int hwirq, msi_vecs;
-@@ -434,7 +435,8 @@ out:
- 	return rc;
+ 	if (type == PCI_CAP_ID_MSI)
+ 		return do_setup_msi_irqs(dev, nvec);
+@@ -148,6 +148,11 @@ static int irq_remapping_setup_msi_irqs(struct pci_dev *dev,
+ 		return do_setup_msix_irqs(dev, nvec);
  }
  
--void arch_teardown_msi_irqs(struct pci_dev *pdev)
-+static void zpci_teardown_msi_irqs(struct msi_chip *chip,
-+		struct pci_dev *pdev)
- {
- 	struct zpci_dev *zdev = get_zdev(pdev);
- 	struct msi_desc *msi;
-@@ -464,6 +466,11 @@ void arch_teardown_msi_irqs(struct pci_dev *pdev)
- 	airq_iv_free_bit(zpci_aisb_iv, zdev->aisb);
- }
- 
-+static struct msi_chip zpci_msi_chip = {
-+	.setup_irqs = zpci_setup_msi_irqs,
-+	.teardown_irqs = zpci_teardown_msi_irqs,
++static struct msi_chip remap_msi_chip = {
++	.setup_irqs = irq_remapping_setup_msi_irqs,
++	.teardown_irq = native_teardown_msi_irq,
 +};
 +
- static void zpci_map_resources(struct zpci_dev *zdev)
+ static void eoi_ioapic_pin_remapped(int apic, int pin, int vector)
  {
- 	struct pci_dev *pdev = zdev->pdev;
-@@ -749,6 +756,7 @@ static int zpci_scan_bus(struct zpci_dev *zdev)
- 	if (ret)
- 		return ret;
+ 	/*
+@@ -165,9 +170,9 @@ static void __init irq_remapping_modify_x86_ops(void)
+ 	x86_io_apic_ops.set_affinity	= set_remapped_irq_affinity;
+ 	x86_io_apic_ops.setup_entry	= setup_ioapic_remapped_entry;
+ 	x86_io_apic_ops.eoi_ioapic_pin	= eoi_ioapic_pin_remapped;
+-	x86_msi.setup_msi_irqs		= irq_remapping_setup_msi_irqs;
+ 	x86_msi.setup_hpet_msi		= setup_hpet_msi_remapped;
+ 	x86_msi.compose_msi_msg		= compose_remapped_msi_msg;
++	x86_msi_chip = &remap_msi_chip;
+ }
  
-+	zdev->msi_chip = &zpci_msi_chip;
- 	zdev->bus = pci_scan_root_bus(NULL, ZPCI_BUS_NR, &pci_root_ops,
- 				      zdev, &resources);
- 	if (!zdev->bus) {
+ static __init int setup_nointremap(char *str)
 -- 
 1.7.1
