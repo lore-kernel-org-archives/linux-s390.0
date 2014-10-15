@@ -1,12 +1,10 @@
 From: Yijing Wang <wangyijing@huawei.com>
-Subject: [PATCH v3 04/27] arm/MSI: Save MSI chip in pci_sys_data
-Date: Wed, 15 Oct 2014 11:06:52 +0800
-Message-ID: <1413342435-7876-5-git-send-email-wangyijing@huawei.com>
-References: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
+Subject: [PATCH v3 00/27] Use MSI chip framework to configure MSI/MSI-X in all platforms
+Date: Wed, 15 Oct 2014 11:06:48 +0800
+Message-ID: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 List-help: <mailto:ecartis@linux-mips.org?Subject=help>
@@ -22,127 +20,113 @@ To: Bjorn Helgaas <bhelgaas@google.com>
 Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Saving msi chip in pci_sys_data can make pci bus and
-devices don't need to know msi chip detail, it also
-make pci enumeration code be decoupled from msi chip.
-In fact, all pci devices under the same pci hostbridge
-share same msi chip. So msi chip should be seen as one
-of resources or attributes to be initialized in pci host
-bridge driver. Currently, pci hostbridge drivers create
-pci_host_bridge in pci_create_root_bus(), and pass arch
-specific pci sysdata to core pci scan functions. So pci
-arch sysdata is good place to save msi chip.
+Now there are a lot of weak arch functions in MSI code.
+Thierry Reding Introduced MSI chip framework to configure MSI/MSI-X in arm,
+that's a better solution than overriding lots of existing weak arch functionsin. 
+This series use MSI chip framework to refactor MSI code across all platforms 
+to eliminate weak arch functions. Then all MSI irqs will be managed in a 
+unified framework. Because this series changed a lot of ARCH MSI code, 
+so tests in the related platforms are warmly welcomed!
 
-Signed-off-by: Yijing Wang <wangyijing@huawei.com>
----
- arch/arm/include/asm/mach/pci.h |    6 ++++++
- arch/arm/include/asm/pci.h      |    9 +++++++++
- arch/arm/kernel/bios32.c        |    3 +++
- drivers/pci/msi.c               |    6 ++++++
- include/linux/pci.h             |    9 +++++++++
- 5 files changed, 33 insertions(+), 0 deletions(-)
+And you may access it at:
+https://github.com/YijingWang/msi-chip-v3.git master
 
-diff --git a/arch/arm/include/asm/mach/pci.h b/arch/arm/include/asm/mach/pci.h
-index 7fc4278..59b0d87 100644
---- a/arch/arm/include/asm/mach/pci.h
-+++ b/arch/arm/include/asm/mach/pci.h
-@@ -22,6 +22,9 @@ struct hw_pci {
- #ifdef CONFIG_PCI_DOMAINS
- 	int		domain;
- #endif
-+#ifdef CONFIG_PCI_MSI
-+	struct msi_chip *msi_chip;
-+#endif
- 	struct pci_ops	*ops;
- 	int		nr_controllers;
- 	void		**private_data;
-@@ -47,6 +50,9 @@ struct pci_sys_data {
- #ifdef CONFIG_PCI_DOMAINS
- 	int		domain;
- #endif
-+#ifdef CONFIG_PCI_MSI
-+	struct msi_chip *msi_chip;
-+#endif
- 	struct list_head node;
- 	int		busnr;		/* primary bus number			*/
- 	u64		mem_offset;	/* bus->cpu memory mapping offset	*/
-diff --git a/arch/arm/include/asm/pci.h b/arch/arm/include/asm/pci.h
-index 7e95d85..b562c09 100644
---- a/arch/arm/include/asm/pci.h
-+++ b/arch/arm/include/asm/pci.h
-@@ -31,6 +31,15 @@ static inline int pci_proc_domain(struct pci_bus *bus)
- }
- #endif /* CONFIG_PCI_DOMAINS */
- 
-+#ifdef CONFIG_PCI_MSI
-+static inline struct msi_chip *pci_msi_chip(struct pci_bus *bus)
-+{
-+	struct pci_sys_data *root = bus->sysdata;
-+
-+	return root->msi_chip;
-+}
-+#endif
-+
- /*
-  * The PCI address space does equal the physical memory address space.
-  * The networking and block device layers use this boolean for bounce
-diff --git a/arch/arm/kernel/bios32.c b/arch/arm/kernel/bios32.c
-index 17a26c1..a19038d 100644
---- a/arch/arm/kernel/bios32.c
-+++ b/arch/arm/kernel/bios32.c
-@@ -471,6 +471,9 @@ static void pcibios_init_hw(struct device *parent, struct hw_pci *hw,
- #ifdef CONFIG_PCI_DOMAINS
- 		sys->domain  = hw->domain;
- #endif
-+#ifdef CONFIG_PCI_MSI
-+		sys->msi_chip = hw->msi_chip;
-+#endif
- 		sys->busnr   = busnr;
- 		sys->swizzle = hw->swizzle;
- 		sys->map_irq = hw->map_irq;
-diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
-index 22e413c..f11108c 100644
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -35,6 +35,9 @@ int __weak arch_setup_msi_irq(struct pci_dev *dev, struct msi_desc *desc)
- 	struct msi_chip *chip = dev->bus->msi;
- 	int err;
- 
-+	if (!chip)
-+		chip = pci_msi_chip(dev->bus);
-+
- 	if (!chip || !chip->setup_irq)
- 		return -EINVAL;
- 
-@@ -50,6 +53,9 @@ void __weak arch_teardown_msi_irq(unsigned int irq)
- 	struct msi_desc *entry = irq_get_msi_desc(irq);
- 	struct msi_chip *chip = entry->dev->bus->msi;
- 
-+	if (!chip)
-+		chip = pci_msi_chip(entry->dev->bus);
-+
- 	if (!chip || !chip->teardown_irq)
- 		return;
- 
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 9cd2721..7a48b40 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -1433,6 +1433,15 @@ static inline int pci_get_new_domain_nr(void) { return -ENOSYS; }
- 
- #include <asm/pci.h>
- 
-+/* Just avoid compile error, will be clean up later */
-+#ifdef CONFIG_PCI_MSI
-+
-+#ifndef pci_msi_chip
-+#define pci_msi_chip(bus)	NULL
-+#endif
-+
-+#endif
-+
- /* these helpers provide future and backwards compatibility
-  * for accessing popular PCI BAR info */
- #define pci_resource_start(dev, bar)	((dev)->resource[(bar)].start)
--- 
-1.7.1
+v2->v3:
+1. For patch "x86/xen/MSI: Eliminate...", introduce a new global flag "pci_msi_ignore_mask"
+to control the msi mask instead of replacing the irqchip->mask with nop function,
+the latter method has problem pointed out by Konrad Rzeszutek Wilk.
+2. Save msi chip in arch pci sysdata instead of associating msi chip to pci bus.
+Because pci devices under same host share the same msi chip, so I think associate
+msi chip to pci host/pci sysdata is better than to bother every pci bus/devices.
+A better solution suggested by Liviu is to rip out pci_host_bridge from pci_create_root_bus(), 
+then we can save some pci host common attributes like domain_nr, msi_chip, resources,
+into the generic pci_host_bridge. Because this changes to pci host bridge is also 
+a large series, so I think we should go step by step, I will try to post it in another
+series later.
+4. Clean up arm pcibios_add_bus() and pcibios_remove_bus() which were used to associate
+msi chip to pci bus.
+
+v1->v2:
+Add a patch to make s390 MSI code build happy between patch "x86/xen/MSI: E.."
+and "s390/MSI: Use MSI..". Fix several typo problems found by Lucas.
+
+RFC->v1: 
+Updated "[patch 4/21] x86/xen/MSI: Eliminate...", export msi_chip instead
+of #ifdef to fix MSI bug in xen running in x86. 
+Rename arch_get_match_msi_chip() to arch_find_msi_chip().
+Drop use struct device as the msi_chip argument, we will do that
+later in another patchset.
+
+Yijing Wang (27):
+  MSI: Remove the redundant irq_set_chip_data()
+  x86/xen/MSI: Eliminate arch_msix_mask_irq() and arch_msi_mask_irq()
+  s390/MSI: Use __msi_mask_irq() instead of default_msi_mask_irq()
+  arm/MSI: Save MSI chip in pci_sys_data
+  PCI: tegra: Save msi chip in pci_sys_data
+  PCI: designware: Save msi chip in pci_sys_data
+  PCI: rcar: Save msi chip in pci_sys_data
+  PCI: mvebu: Save msi chip in pci_sys_data
+  arm/PCI: Clean unused pcibios_add_bus() and pcibios_remove_bus()
+  PCI/MSI: Remove useless bus->msi assignment
+  PCI/MSI: Refactor struct msi_chip to make it become more common
+  x86/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+  x86/xen/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+  Irq_remapping/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+  x86/MSI: Remove unused MSI weak arch functions
+  Mips/MSI: Save msi chip in pci sysdata
+  MIPS/Octeon/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+  MIPS/Xlp: Remove the dead function destroy_irq() to fix build error
+  MIPS/Xlp/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+  MIPS/Xlr/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+  Powerpc/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+  s390/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+  arm/iop13xx/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+  IA64/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+  Sparc/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+  tile/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+  PCI/MSI: Clean up unused MSI arch functions
+
+ arch/arm/include/asm/mach/pci.h                 |   10 +-
+ arch/arm/include/asm/pci.h                      |    9 ++
+ arch/arm/kernel/bios32.c                        |   19 +---
+ arch/arm/mach-iop13xx/include/mach/pci.h        |    4 +
+ arch/arm/mach-iop13xx/iq81340mc.c               |    3 +
+ arch/arm/mach-iop13xx/iq81340sc.c               |    5 +-
+ arch/arm/mach-iop13xx/msi.c                     |   11 ++-
+ arch/ia64/include/asm/pci.h                     |   10 ++
+ arch/ia64/kernel/msi_ia64.c                     |   14 ++-
+ arch/ia64/pci/pci.c                             |    1 +
+ arch/mips/include/asm/netlogic/xlp-hal/pcibus.h |    1 +
+ arch/mips/include/asm/octeon/pci-octeon.h       |    4 +
+ arch/mips/include/asm/pci.h                     |   14 +++
+ arch/mips/pci/msi-octeon.c                      |   31 +++---
+ arch/mips/pci/msi-xlp.c                         |   15 ++-
+ arch/mips/pci/pci-octeon.c                      |    3 +
+ arch/mips/pci/pci-xlp.c                         |    3 +
+ arch/mips/pci/pci-xlr.c                         |   17 +++-
+ arch/powerpc/include/asm/pci-bridge.h           |   15 +++
+ arch/powerpc/kernel/msi.c                       |   12 ++-
+ arch/powerpc/kernel/pci-common.c                |    3 +
+ arch/s390/include/asm/pci.h                     |    9 ++
+ arch/s390/pci/pci.c                             |   16 ++-
+ arch/sparc/kernel/pci.c                         |   14 ++-
+ arch/sparc/kernel/pci_impl.h                    |   12 ++
+ arch/tile/include/asm/pci.h                     |   10 ++
+ arch/tile/kernel/pci_gx.c                       |   13 ++-
+ arch/x86/include/asm/pci.h                      |   18 +++-
+ arch/x86/include/asm/x86_init.h                 |    7 --
+ arch/x86/kernel/apic/io_apic.c                  |   12 ++-
+ arch/x86/kernel/x86_init.c                      |   34 ------
+ arch/x86/pci/acpi.c                             |    1 +
+ arch/x86/pci/common.c                           |    3 +
+ arch/x86/pci/xen.c                              |   72 +++++++------
+ drivers/iommu/irq_remapping.c                   |   13 ++-
+ drivers/pci/host/pci-mvebu.c                    |   10 +--
+ drivers/pci/host/pci-tegra.c                    |   13 +--
+ drivers/pci/host/pcie-designware.c              |   15 +--
+ drivers/pci/host/pcie-rcar.c                    |   13 +--
+ drivers/pci/msi.c                               |  133 ++++++++++-------------
+ drivers/pci/probe.c                             |    1 -
+ include/linux/msi.h                             |   24 ++---
+ include/linux/pci.h                             |    1 +
+ 43 files changed, 379 insertions(+), 269 deletions(-)
