@@ -1,14 +1,14 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Yijing Wang <wangyijing@huawei.com>
-Subject: [PATCH v3 26/27] tile/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-Date: Wed, 15 Oct 2014 11:07:14 +0800
-Message-ID: <1413342435-7876-27-git-send-email-wangyijing@huawei.com>
+Subject: [PATCH v3 24/27] IA64/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+Date: Wed, 15 Oct 2014 11:07:12 +0800
+Message-ID: <1413342435-7876-25-git-send-email-wangyijing@huawei.com>
 In-Reply-To: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 References: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20141015030714.NLZNAKgnxXkWfZFTXwC8Vzz_9_PMRnQIDE6oey5-zf8@z>
+Message-ID: <20141015030712.g8ZpgIgdgpbV1djWc0M71DHIuM4q9lElWdsXUX-5nxk@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Bjorn Helgaas <bhelgaas@google.com>
@@ -20,73 +20,87 @@ MSI/MSI-X irq. So we can manage MSI/MSI-X irq in a unified framework.
 
 Signed-off-by: Yijing Wang <wangyijing@huawei.com>
 ---
- arch/tile/include/asm/pci.h |   10 ++++++++++
- arch/tile/kernel/pci_gx.c   |   13 +++++++++++--
- 2 files changed, 21 insertions(+), 2 deletions(-)
+ arch/ia64/include/asm/pci.h |   10 ++++++++++
+ arch/ia64/kernel/msi_ia64.c |   14 ++++++++++----
+ arch/ia64/pci/pci.c         |    1 +
+ 3 files changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/arch/tile/include/asm/pci.h b/arch/tile/include/asm/pci.h
-index dfedd7a..d27d9ec 100644
---- a/arch/tile/include/asm/pci.h
-+++ b/arch/tile/include/asm/pci.h
-@@ -152,6 +152,7 @@ struct pci_controller {
- 	int pio_io_index;	/* PIO region index for I/O space access */
- #endif
+diff --git a/arch/ia64/include/asm/pci.h b/arch/ia64/include/asm/pci.h
+index 52af5ed..907dcba 100644
+--- a/arch/ia64/include/asm/pci.h
++++ b/arch/ia64/include/asm/pci.h
+@@ -94,6 +94,7 @@ struct pci_controller {
+ 	int segment;
+ 	int node;		/* nearest node with memory or NUMA_NO_NODE for global allocation */
  
 +	struct msi_chip *msi_chip;
- 	/*
- 	 * Mem-Map regions for all the memory controllers so that Linux can
- 	 * map all of its physical memory space to the PCI bus.
-@@ -179,6 +180,15 @@ struct pci_controller {
- 	int irq_intx_table[4];
+ 	void *platform_data;
  };
  
-+extern struct msi_chip tilegx_msi;
+@@ -101,6 +102,15 @@ struct pci_controller {
+ #define PCI_CONTROLLER(busdev) ((struct pci_controller *) busdev->sysdata)
+ #define pci_domain_nr(busdev)    (PCI_CONTROLLER(busdev)->segment)
+ 
++extern struct msi_chip chip;
 +
 +static inline struct msi_chip *pci_msi_chip(struct pci_bus *bus)
 +{
-+	struct pci_controller *controller = bus->sysdata;
++	struct pci_controller *ctrl = bus->sysdata;
 +
-+	return controller->msi_chip;
++	return ctrl->msi_chip;
 +}
 +
- extern struct pci_controller pci_controllers[TILEGX_NUM_TRIO * TILEGX_TRIO_PCIES];
- extern gxio_trio_context_t trio_contexts[TILEGX_NUM_TRIO];
- extern int num_trio_shims;
-diff --git a/arch/tile/kernel/pci_gx.c b/arch/tile/kernel/pci_gx.c
-index e39f9c5..ba66517 100644
---- a/arch/tile/kernel/pci_gx.c
-+++ b/arch/tile/kernel/pci_gx.c
-@@ -887,6 +887,7 @@ int __init pcibios_init(void)
- 					controller->mem_offset);
- 		pci_add_resource(&resources, &controller->io_space);
- 		controller->first_busno = next_busno;
-+		controller->msi_chip = &tilegx_msi;
- 		bus = pci_scan_root_bus(NULL, next_busno, controller->ops,
- 					controller, &resources);
- 		controller->root_bus = bus;
-@@ -1485,7 +1486,8 @@ static struct irq_chip tilegx_msi_chip = {
- 	/* TBD: support set_affinity. */
+ extern struct pci_ops pci_root_ops;
+ 
+ static inline int pci_proc_domain(struct pci_bus *bus)
+diff --git a/arch/ia64/kernel/msi_ia64.c b/arch/ia64/kernel/msi_ia64.c
+index 8c3730c..401fc98 100644
+--- a/arch/ia64/kernel/msi_ia64.c
++++ b/arch/ia64/kernel/msi_ia64.c
+@@ -112,15 +112,16 @@ static struct irq_chip ia64_msi_chip = {
  };
  
+ 
 -int arch_setup_msi_irq(struct pci_dev *pdev, struct msi_desc *desc)
-+static int tile_setup_msi_irq(struct msi_chip *chip,
-+		struct pci_dev *pdev, struct msi_desc *desc)
++static int arch_ia64_setup_msi_irq(struct msi_chip *chip,
++		struct pci_dev *dev, struct msi_desc *desc)
  {
- 	struct pci_controller *controller;
- 	gxio_trio_context_t *trio_context;
-@@ -1604,7 +1606,12 @@ is_64_failure:
- 	return ret;
+ 	if (platform_setup_msi_irq)
+-		return platform_setup_msi_irq(pdev, desc);
++		return platform_setup_msi_irq(dev, desc);
+ 
+-	return ia64_setup_msi_irq(pdev, desc);
++	return ia64_setup_msi_irq(dev, desc);
  }
  
 -void arch_teardown_msi_irq(unsigned int irq)
-+static void tile_teardown_msi_irq(struct msi_chip *chip, unsigned int irq)
++static void arch_ia64_teardown_msi_irq(struct msi_chip *chip, unsigned int irq)
  {
- 	irq_free_hwirq(irq);
+ 	if (platform_teardown_msi_irq)
+ 		return platform_teardown_msi_irq(irq);
+@@ -128,6 +129,11 @@ void arch_teardown_msi_irq(unsigned int irq)
+ 	return ia64_teardown_msi_irq(irq);
  }
-+
-+struct msi_chip tilegx_msi = {
-+	.setup_irq = tile_setup_msi_irq,
-+	.teardown_irq = tile_teardown_msi_irq,
+ 
++struct msi_chip chip = {
++	.setup_irq = arch_ia64_setup_msi_irq,
++	.teardown_irq = arch_ia64_teardown_msi_irq,
 +};
++
+ #ifdef CONFIG_INTEL_IOMMU
+ #ifdef CONFIG_SMP
+ static int dmar_msi_set_affinity(struct irq_data *data,
+diff --git a/arch/ia64/pci/pci.c b/arch/ia64/pci/pci.c
+index 291a582..299b67d 100644
+--- a/arch/ia64/pci/pci.c
++++ b/arch/ia64/pci/pci.c
+@@ -437,6 +437,7 @@ struct pci_bus *pci_acpi_scan_root(struct acpi_pci_root *root)
+ 
+ 	controller->companion = device;
+ 	controller->node = acpi_get_node(device->handle);
++	controller->msi_chip = &chip;
+ 
+ 	info = kzalloc(sizeof(*info), GFP_KERNEL);
+ 	if (!info) {
 -- 
 1.7.1
