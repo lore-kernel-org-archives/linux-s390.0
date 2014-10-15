@@ -1,103 +1,163 @@
 From: Yijing Wang <wangyijing@huawei.com>
-Subject: [PATCH v3 23/27] arm/iop13xx/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-Date: Wed, 15 Oct 2014 11:07:11 +0800
-Message-ID: <1413342435-7876-24-git-send-email-wangyijing@huawei.com>
+Subject: [PATCH v3 13/27] x86/xen/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+Date: Wed, 15 Oct 2014 11:07:01 +0800
+Message-ID: <1413342435-7876-14-git-send-email-wangyijing@huawei.com>
 References: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <sparclinux-owner@vger.kernel.org>
+Return-path: <linux-mips-bounce@linux-mips.org>
 In-Reply-To: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
-Sender: sparclinux-owner@vger.kernel.org
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Chris Metcalf <cmetcalf@til>
+Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 Use MSI chip framework instead of arch MSI functions to configure
 MSI/MSI-X irq. So we can manage MSI/MSI-X irq in a unified framework.
 
 Signed-off-by: Yijing Wang <wangyijing@huawei.com>
+Acked-by: David Vrabel <david.vrabel@citrix.com>
+CC: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 ---
- arch/arm/mach-iop13xx/include/mach/pci.h |    4 ++++
- arch/arm/mach-iop13xx/iq81340mc.c        |    3 +++
- arch/arm/mach-iop13xx/iq81340sc.c        |    5 ++++-
- arch/arm/mach-iop13xx/msi.c              |   11 +++++++++--
- 4 files changed, 20 insertions(+), 3 deletions(-)
+ arch/x86/pci/xen.c |   58 +++++++++++++++++++++++++++++++++++-----------------
+ 1 files changed, 39 insertions(+), 19 deletions(-)
 
-diff --git a/arch/arm/mach-iop13xx/include/mach/pci.h b/arch/arm/mach-iop13xx/include/mach/pci.h
-index 59f42b5..c87ac3a 100644
---- a/arch/arm/mach-iop13xx/include/mach/pci.h
-+++ b/arch/arm/mach-iop13xx/include/mach/pci.h
-@@ -11,6 +11,10 @@ void iop13xx_atu_select(struct hw_pci *plat_pci);
- void iop13xx_pci_init(void);
- void iop13xx_map_pci_memory(void);
+diff --git a/arch/x86/pci/xen.c b/arch/x86/pci/xen.c
+index e5b8b78..75067ca 100644
+--- a/arch/x86/pci/xen.c
++++ b/arch/x86/pci/xen.c
+@@ -157,7 +157,8 @@ static int acpi_register_gsi_xen(struct device *dev, u32 gsi,
+ struct xen_pci_frontend_ops *xen_pci_frontend;
+ EXPORT_SYMBOL_GPL(xen_pci_frontend);
  
-+#ifdef CONFIG_PCI_MSI
-+extern struct msi_chip iop13xx_msi_chip;
-+#endif
-+
- #define IOP_PCI_STATUS_ERROR (PCI_STATUS_PARITY |	     \
- 			       PCI_STATUS_SIG_TARGET_ABORT | \
- 			       PCI_STATUS_REC_TARGET_ABORT | \
-diff --git a/arch/arm/mach-iop13xx/iq81340mc.c b/arch/arm/mach-iop13xx/iq81340mc.c
-index 9cd07d3..1f499b6 100644
---- a/arch/arm/mach-iop13xx/iq81340mc.c
-+++ b/arch/arm/mach-iop13xx/iq81340mc.c
-@@ -59,6 +59,9 @@ static struct hw_pci iq81340mc_pci __initdata = {
- 	.map_irq	= iq81340mc_pcix_map_irq,
- 	.scan		= iop13xx_scan_bus,
- 	.preinit	= iop13xx_pci_init,
-+#ifdef CONFIG_PCI_MSI
-+	.msi_chip	= &iop13xx_msi_chip,
-+#endif
- };
- 
- static int __init iq81340mc_pci_init(void)
-diff --git a/arch/arm/mach-iop13xx/iq81340sc.c b/arch/arm/mach-iop13xx/iq81340sc.c
-index b3ec11c..8bdfdc5 100644
---- a/arch/arm/mach-iop13xx/iq81340sc.c
-+++ b/arch/arm/mach-iop13xx/iq81340sc.c
-@@ -60,7 +60,10 @@ static struct hw_pci iq81340sc_pci __initdata = {
- 	.setup		= iop13xx_pci_setup,
- 	.scan		= iop13xx_scan_bus,
- 	.map_irq	= iq81340sc_atux_map_irq,
--	.preinit	= iop13xx_pci_init
-+	.preinit	= iop13xx_pci_init,
-+#ifdef CONFIG_PCI_MSI
-+	.msi_chip	= &iop13xx_msi_chip,
-+#endif
- };
- 
- static int __init iq81340sc_pci_init(void)
-diff --git a/arch/arm/mach-iop13xx/msi.c b/arch/arm/mach-iop13xx/msi.c
-index e7730cf..3135a63 100644
---- a/arch/arm/mach-iop13xx/msi.c
-+++ b/arch/arm/mach-iop13xx/msi.c
-@@ -132,7 +132,8 @@ static struct irq_chip iop13xx_msi_chip = {
- 	.irq_unmask = unmask_msi_irq,
- };
- 
--int arch_setup_msi_irq(struct pci_dev *pdev, struct msi_desc *desc)
-+static int iop13xx_setup_msi_irq(struct msi_chip *chip,
-+		struct pci_dev *dev, struct msi_desc *desc)
+-static int xen_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
++static int xen_setup_msi_irqs(struct msi_chip *chip,
++		struct pci_dev *dev, int nvec, int type)
  {
- 	int id, irq = irq_alloc_desc_from(IRQ_IOP13XX_MSI_0, -1);
- 	struct msi_msg msg;
-@@ -159,7 +160,13 @@ int arch_setup_msi_irq(struct pci_dev *pdev, struct msi_desc *desc)
+ 	int irq, ret, i;
+ 	struct msi_desc *msidesc;
+@@ -219,7 +220,8 @@ static void xen_msi_compose_msg(struct pci_dev *pdev, unsigned int pirq,
+ 	msg->data = XEN_PIRQ_MSI_DATA;
+ }
+ 
+-static int xen_hvm_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
++static int xen_hvm_setup_msi_irqs(struct msi_chip *chip,
++		struct pci_dev *dev, int nvec, int type)
+ {
+ 	int irq, pirq;
+ 	struct msi_desc *msidesc;
+@@ -267,7 +269,8 @@ error:
+ #ifdef CONFIG_XEN_DOM0
+ static bool __read_mostly pci_seg_supported = true;
+ 
+-static int xen_initdom_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
++static int xen_initdom_setup_msi_irqs(struct msi_chip *chip,
++		struct pci_dev *dev, int nvec, int type)
+ {
+ 	int ret = 0;
+ 	struct msi_desc *msidesc;
+@@ -349,7 +352,8 @@ out:
+ 	return ret;
+ }
+ 
+-static void xen_initdom_restore_msi_irqs(struct pci_dev *dev)
++static void xen_initdom_restore_msi_irqs(struct msi_chip *chip,
++		struct pci_dev *dev)
+ {
+ 	int ret = 0;
+ 
+@@ -376,7 +380,13 @@ static void xen_initdom_restore_msi_irqs(struct pci_dev *dev)
+ }
+ #endif
+ 
+-static void xen_teardown_msi_irqs(struct pci_dev *dev)
++static void xen_teardown_msi_irq(struct msi_chip *chip, unsigned int irq)
++{
++	xen_destroy_irq(irq);
++}
++
++static void xen_teardown_msi_irqs(struct msi_chip *chip,
++		struct pci_dev *dev)
+ {
+ 	struct msi_desc *msidesc;
+ 
+@@ -386,14 +396,22 @@ static void xen_teardown_msi_irqs(struct pci_dev *dev)
+ 	else
+ 		xen_pci_frontend_disable_msi(dev);
+ 
+-	/* Free the IRQ's and the msidesc using the generic code. */
+-	default_teardown_msi_irqs(dev);
+-}
++	list_for_each_entry(msidesc, &dev->msi_list, list) {
++		int i, nvec;
++		if (msidesc->irq == 0)
++			continue;
++		if (msidesc->nvec_used)
++			nvec = msidesc->nvec_used;
++		else
++			nvec = 1 << msidesc->msi_attrib.multiple;
++		for (i = 0; i < nvec; i++)
++			xen_teardown_msi_irq(chip, msidesc->irq + i);
++	}
+ 
+-static void xen_teardown_msi_irq(unsigned int irq)
+-{
+-	xen_destroy_irq(irq);
+ }
++
++struct msi_chip xen_msi_chip;
++
+ #endif
+ 
+ int __init pci_xen_init(void)
+@@ -414,9 +432,9 @@ int __init pci_xen_init(void)
+ #endif
+ 
+ #ifdef CONFIG_PCI_MSI
+-	x86_msi.setup_msi_irqs = xen_setup_msi_irqs;
+-	x86_msi.teardown_msi_irq = xen_teardown_msi_irq;
+-	x86_msi.teardown_msi_irqs = xen_teardown_msi_irqs;
++	xen_msi_chip.setup_irqs = xen_setup_msi_irqs;
++	xen_msi_chip.teardown_irqs = xen_teardown_msi_irqs;
++	x86_msi_chip = &xen_msi_chip;
+ 	pci_msi_ignore_mask = 1;
+ #endif
+ 	return 0;
+@@ -436,8 +454,9 @@ int __init pci_xen_hvm_init(void)
+ #endif
+ 
+ #ifdef CONFIG_PCI_MSI
+-	x86_msi.setup_msi_irqs = xen_hvm_setup_msi_irqs;
+-	x86_msi.teardown_msi_irq = xen_teardown_msi_irq;
++	xen_msi_chip.setup_irqs = xen_hvm_setup_msi_irqs;
++	xen_msi_chip.teardown_irq = xen_teardown_msi_irq;
++	x86_msi_chip = &xen_msi_chip;
+ #endif
  	return 0;
  }
+@@ -494,9 +513,10 @@ int __init pci_xen_initial_domain(void)
+ 	int irq;
  
--void arch_teardown_msi_irq(unsigned int irq)
-+static void iop13xx_teardown_msi_irq(struct msi_chip *chip,
-+		unsigned int irq)
- {
- 	irq_free_desc(irq);
- }
-+
-+struct msi_chip iop13xx_chip = {
-+	.setup_irq = iop13xx_setup_msi_irq,
-+	.teardown_irq = iop13xx_teardown_msi_irq,
-+};
+ #ifdef CONFIG_PCI_MSI
+-	x86_msi.setup_msi_irqs = xen_initdom_setup_msi_irqs;
+-	x86_msi.teardown_msi_irq = xen_teardown_msi_irq;
+-	x86_msi.restore_msi_irqs = xen_initdom_restore_msi_irqs;
++	xen_msi_chip.setup_irqs = xen_initdom_setup_msi_irqs;
++	xen_msi_chip.teardown_irq = xen_teardown_msi_irq;
++	xen_msi_chip.restore_irqs = xen_initdom_restore_msi_irqs;
++	x86_msi_chip = &xen_msi_chip;
+ 	pci_msi_ignore_mask = 1;
+ #endif
+ 	xen_setup_acpi_sci();
 -- 
 1.7.1
