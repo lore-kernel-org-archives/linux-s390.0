@@ -1,62 +1,52 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Yijing Wang <wangyijing@huawei.com>
-Subject: [PATCH v3 05/27] PCI: tegra: Save msi chip in pci_sys_data
-Date: Wed, 15 Oct 2014 11:06:53 +0800
-Message-ID: <1413342435-7876-6-git-send-email-wangyijing@huawei.com>
+Subject: [PATCH v3 01/27] MSI: Remove the redundant irq_set_chip_data()
+Date: Wed, 15 Oct 2014 11:06:49 +0800
+Message-ID: <1413342435-7876-2-git-send-email-wangyijing@huawei.com>
 In-Reply-To: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 References: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20141015030653.oBc430R7cC45h6IBEIur0SIUhGf2R_A_qTKTgM3-kUk@z>
+Message-ID: <20141015030649.0rCrDTXV3VFtksDwggBW53cc5b_vPOeWhIE9qfFzAek@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Bjorn Helgaas <bhelgaas@google.com>
 Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, Ralf Baechle <ralf@linux-mips.org>, Lucas Stach <l.stach@pengutronix.de>, David Vrabel <david.vrabel@citrix.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Michael Ellerman <mpe@ellerman.id.au>, Thierry Reding <thierry.reding@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Liviu Dudau <liviu@dudau.co.uk>, Yijing Wang <wangyijing@huawei.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Save msi chip in pci_sys_data instead of assign
-msi chip to every pci bus in .add_bus().
+Currently, pcie-designware, pcie-rcar and pci-tegra drivers
+use irq chip_data to save the msi_chip pointer. They
+already call irq_set_chip_data() in their own MSI irq map
+functions. And chip_data is an opaque pointer, how to use
+it is arch dependent. It should not be placed in MSI core.
 
 Signed-off-by: Yijing Wang <wangyijing@huawei.com>
+Reviewed-by: Thierry Reding <treding@nvidia.com>
 ---
- drivers/pci/host/pci-tegra.c |   13 +++----------
- 1 files changed, 3 insertions(+), 10 deletions(-)
+ drivers/pci/msi.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/host/pci-tegra.c b/drivers/pci/host/pci-tegra.c
-index 3d43874..5af0525 100644
---- a/drivers/pci/host/pci-tegra.c
-+++ b/drivers/pci/host/pci-tegra.c
-@@ -694,15 +694,6 @@ static int tegra_pcie_map_irq(const struct pci_dev *pdev, u8 slot, u8 pin)
- 	return irq;
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index 2f7c92c..ecb92a5 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -41,14 +41,13 @@ int __weak arch_setup_msi_irq(struct pci_dev *dev, struct msi_desc *desc)
+ 	if (err < 0)
+ 		return err;
+ 
+-	irq_set_chip_data(desc->irq, chip);
+-
+ 	return 0;
  }
  
--static void tegra_pcie_add_bus(struct pci_bus *bus)
--{
--	if (IS_ENABLED(CONFIG_PCI_MSI)) {
--		struct tegra_pcie *pcie = sys_to_pcie(bus->sysdata);
--
--		bus->msi = &pcie->msi.chip;
--	}
--}
--
- static struct pci_bus *tegra_pcie_scan_bus(int nr, struct pci_sys_data *sys)
+ void __weak arch_teardown_msi_irq(unsigned int irq)
  {
- 	struct tegra_pcie *pcie = sys_to_pcie(sys);
-@@ -1881,11 +1872,13 @@ static int tegra_pcie_enable(struct tegra_pcie *pcie)
+-	struct msi_chip *chip = irq_get_chip_data(irq);
++	struct msi_desc *entry = irq_get_msi_desc(irq);
++	struct msi_chip *chip = entry->dev->bus->msi;
  
- 	memset(&hw, 0, sizeof(hw));
- 
-+#ifdef CONFIG_PCI_MSI
-+	hw.msi_chip = &pcie->msi.chip;
-+#endif
- 	hw.nr_controllers = 1;
- 	hw.private_data = (void **)&pcie;
- 	hw.setup = tegra_pcie_setup;
- 	hw.map_irq = tegra_pcie_map_irq;
--	hw.add_bus = tegra_pcie_add_bus;
- 	hw.scan = tegra_pcie_scan_bus;
- 	hw.ops = &tegra_pcie_ops;
- 
+ 	if (!chip || !chip->teardown_irq)
+ 		return;
 -- 
 1.7.1
