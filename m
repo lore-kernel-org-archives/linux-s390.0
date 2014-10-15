@@ -1,14 +1,14 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Yijing Wang <wangyijing@huawei.com>
-Subject: [PATCH v3 25/27] Sparc/MSI: Use MSI chip framework to configure MSI/MSI-X irq
-Date: Wed, 15 Oct 2014 11:07:13 +0800
-Message-ID: <1413342435-7876-26-git-send-email-wangyijing@huawei.com>
+Subject: [PATCH v3 22/27] s390/MSI: Use MSI chip framework to configure MSI/MSI-X irq
+Date: Wed, 15 Oct 2014 11:07:10 +0800
+Message-ID: <1413342435-7876-23-git-send-email-wangyijing@huawei.com>
 In-Reply-To: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 References: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20141015030713.0QBTTvAuQwx0Td8RA5fgP0X4ADOuM6d5ap2UrjRzuqE@z>
+Message-ID: <20141015030710.cZARsjFphhVoqHDWwq35sHDLnumGRpAKlhBNQnrXWoY@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Bjorn Helgaas <bhelgaas@google.com>
@@ -20,92 +20,84 @@ MSI/MSI-X irq. So we can manage MSI/MSI-X irq in a unified framework.
 
 Signed-off-by: Yijing Wang <wangyijing@huawei.com>
 ---
- arch/sparc/kernel/pci.c      |   14 ++++++++++++--
- arch/sparc/kernel/pci_impl.h |   12 ++++++++++++
- 2 files changed, 24 insertions(+), 2 deletions(-)
+Hi Sebastian,
+   I dropped the Acked-by , because this version has a
+lot changes compared to last. So, I guess you may want to check it again.
+---
+ arch/s390/include/asm/pci.h |    9 +++++++++
+ arch/s390/pci/pci.c         |   12 ++++++++++--
+ 2 files changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/arch/sparc/kernel/pci.c b/arch/sparc/kernel/pci.c
-index b36365f..a46a148 100644
---- a/arch/sparc/kernel/pci.c
-+++ b/arch/sparc/kernel/pci.c
-@@ -656,6 +656,9 @@ struct pci_bus *pci_scan_one_pbm(struct pci_pbm_info *pbm,
+diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+index c030900..4d41f08 100644
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -88,6 +88,8 @@ struct zpci_dev {
+ 	u32 uid;			/* user defined id */
+ 	u8 util_str[CLP_UTIL_STR_LEN];	/* utility string */
  
- 	printk("PCI: Scanning PBM %s\n", node->full_name);
- 
-+#ifdef CONFIG_PCI_MSI
-+	pbm->msi_chip = &sparc_msi_chip;
-+#endif
- 	pci_add_resource_offset(&resources, &pbm->io_space,
- 				pbm->io_space.start);
- 	pci_add_resource_offset(&resources, &pbm->mem_space,
-@@ -905,7 +908,8 @@ int pci_domain_nr(struct pci_bus *pbus)
- EXPORT_SYMBOL(pci_domain_nr);
- 
- #ifdef CONFIG_PCI_MSI
--int arch_setup_msi_irq(struct pci_dev *pdev, struct msi_desc *desc)
-+static int sparc_setup_msi_irq(struct msi_chip *chip,
-+		struct pci_dev *pdev, struct msi_desc *desc)
- {
- 	struct pci_pbm_info *pbm = pdev->dev.archdata.host_controller;
- 	unsigned int irq;
-@@ -916,7 +920,7 @@ int arch_setup_msi_irq(struct pci_dev *pdev, struct msi_desc *desc)
- 	return pbm->setup_msi_irq(&irq, pdev, desc);
- }
- 
--void arch_teardown_msi_irq(unsigned int irq)
-+static void sparc_teardown_msi_irq(struct msi_chip *chip, unsigned int irq)
- {
- 	struct msi_desc *entry = irq_get_msi_desc(irq);
- 	struct pci_dev *pdev = entry->dev;
-@@ -925,6 +929,12 @@ void arch_teardown_msi_irq(unsigned int irq)
- 	if (pbm->teardown_msi_irq)
- 		pbm->teardown_msi_irq(irq, pdev);
- }
-+
-+struct msi_chip sparc_msi_chip = {
-+	.setup_irq = sparc_setup_msi_irq,
-+	.teardown_irq = sparc_teardown_msi_irq,
-+};
-+
- #endif /* !(CONFIG_PCI_MSI) */
- 
- static void ali_sound_dma_hack(struct pci_dev *pdev, int set_bit)
-diff --git a/arch/sparc/kernel/pci_impl.h b/arch/sparc/kernel/pci_impl.h
-index 75803c7..073bb4e 100644
---- a/arch/sparc/kernel/pci_impl.h
-+++ b/arch/sparc/kernel/pci_impl.h
-@@ -55,6 +55,8 @@ struct sparc64_msiq_cookie {
- 	struct pci_pbm_info *pbm;
- 	unsigned long msiqid;
- };
-+
-+extern struct msi_chip sparc_msi_chip;
- #endif
- 
- struct pci_pbm_info {
-@@ -132,6 +134,7 @@ struct pci_pbm_info {
- 	void				*msi_queues;
- 	unsigned long			*msi_bitmap;
- 	unsigned int			*msi_irq_table;
 +	struct msi_chip *msi_chip;
- 	int (*setup_msi_irq)(unsigned int *irq_p, struct pci_dev *pdev,
- 			     struct msi_desc *entry);
- 	void (*teardown_msi_irq)(unsigned int irq, struct pci_dev *pdev);
-@@ -153,6 +156,15 @@ struct pci_pbm_info {
- 	int				numa_node;
++
+ 	/* IRQ stuff */
+ 	u64		msi_addr;	/* MSI address */
+ 	struct airq_iv *aibv;		/* adapter interrupt bit vector */
+@@ -121,6 +123,13 @@ struct zpci_dev {
+ 	struct dentry	*debugfs_perf;
  };
  
-+#ifdef CONFIG_PCI_MSI
 +static inline struct msi_chip *pci_msi_chip(struct pci_bus *bus)
 +{
-+	struct pci_pbm_info *pbm = bus->sysdata;
++	struct zpci_dev *zpci = bus->sysdata;
 +
-+	return pbm->msi_chip;
++	return zpci->msi_chip;
 +}
-+#endif
 +
- extern struct pci_pbm_info *pci_pbm_root;
+ static inline bool zdev_enabled(struct zpci_dev *zdev)
+ {
+ 	return (zdev->fh & (1UL << 31)) ? true : false;
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index 552b990..bf6732f 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -358,7 +358,8 @@ static void zpci_irq_handler(struct airq_struct *airq)
+ 	}
+ }
  
- extern int pci_num_pbms;
+-int arch_setup_msi_irqs(struct pci_dev *pdev, int nvec, int type)
++static int zpci_setup_msi_irqs(struct msi_chip *chip,
++		struct pci_dev *pdev, int nvec, int type)
+ {
+ 	struct zpci_dev *zdev = get_zdev(pdev);
+ 	unsigned int hwirq, msi_vecs;
+@@ -434,7 +435,8 @@ out:
+ 	return rc;
+ }
+ 
+-void arch_teardown_msi_irqs(struct pci_dev *pdev)
++static void zpci_teardown_msi_irqs(struct msi_chip *chip,
++		struct pci_dev *pdev)
+ {
+ 	struct zpci_dev *zdev = get_zdev(pdev);
+ 	struct msi_desc *msi;
+@@ -464,6 +466,11 @@ void arch_teardown_msi_irqs(struct pci_dev *pdev)
+ 	airq_iv_free_bit(zpci_aisb_iv, zdev->aisb);
+ }
+ 
++static struct msi_chip zpci_msi_chip = {
++	.setup_irqs = zpci_setup_msi_irqs,
++	.teardown_irqs = zpci_teardown_msi_irqs,
++};
++
+ static void zpci_map_resources(struct zpci_dev *zdev)
+ {
+ 	struct pci_dev *pdev = zdev->pdev;
+@@ -749,6 +756,7 @@ static int zpci_scan_bus(struct zpci_dev *zdev)
+ 	if (ret)
+ 		return ret;
+ 
++	zdev->msi_chip = &zpci_msi_chip;
+ 	zdev->bus = pci_scan_root_bus(NULL, ZPCI_BUS_NR, &pci_root_ops,
+ 				      zdev, &resources);
+ 	if (!zdev->bus) {
 -- 
 1.7.1
