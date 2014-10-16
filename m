@@ -1,13 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 16 Oct 2014 09:23:07 +0200
+Date: Thu, 16 Oct 2014 09:23:38 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH v1 09/10] memory-hotplug: Remove "weak" from
- memory_block_size_bytes() declaration
-Message-ID: <20141016092307.4a5981f7@mschwide>
-In-Reply-To: <CAErSpo4fS1fdNvur13LZVYomWdmjZnYO49Gc9BJv_BRxAXX3GA@mail.gmail.com>
+Subject: Re: [PATCH v1 07/10] vmcore: Remove "weak" from function
+ declarations
+Message-ID: <20141016092338.2d3bc32b@mschwide>
+In-Reply-To: <CAErSpo5f_HgiyKS3Ho1DHbdvBo200RSFokEw3wmQ7k-1FuNzkw@mail.gmail.com>
 References: <20141015165957.4063.66741.stgit@bhelgaas-glaptop2.roam.corp.google.com>
-	<20141015170644.4063.6843.stgit@bhelgaas-glaptop2.roam.corp.google.com>
-	<CAErSpo4fS1fdNvur13LZVYomWdmjZnYO49Gc9BJv_BRxAXX3GA@mail.gmail.com>
+	<20141015170631.4063.50854.stgit@bhelgaas-glaptop2.roam.corp.google.com>
+	<CAErSpo7zzofNsoGHuzfgfSEODyfkRs2FmyU-r3GjGDnNUF_0gw@mail.gmail.com>
+	<CAErSpo5f_HgiyKS3Ho1DHbdvBo200RSFokEw3wmQ7k-1FuNzkw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -15,55 +16,77 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Jason Wessel <jason.wessel@windriver.com>, Ralf Baechle <ralf@linux-mips.org>, Ingo Molnar <mingo@redhat.com>, John Stultz <john.stultz@linaro.org>, Eric Paris <eparis@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rashika Kheria <rashika.kheria@gmail.com>, Nathan Fontenot <nfont@austin.ibm.com>, Anton Blanchard <anton@au1.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yinghai Lu <yinghai@kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
+Cc: Jason Wessel <jason.wessel@windriver.com>, Ralf Baechle <ralf@linux-mips.org>, Ingo Molnar <mingo@redhat.com>, John Stultz <john.stultz@linaro.org>, Eric Paris <eparis@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, Vivek Goyal <vgoyal@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 15 Oct 2014 17:38:02 -0600
+On Wed, 15 Oct 2014 17:44:29 -0600
 Bjorn Helgaas <bhelgaas@google.com> wrote:
 
-> [+cc Rashika, Nathan, Anton, Blanchard, Heiko, Yinghai, Martin,
-> linux-s390; sorry, I botched my "stg mail" so you weren't included the
-> first time.  s390 and x86 define their own memory_block_size_bytes()
-> and are at risk for this problem.]
+> [+cc Martin, Heiko, linux-s390, since s390 could see issues from this.
+> Sorry for all the spam; I should have gotten this right the first
+> time.]
 > 
-> On Wed, Oct 15, 2014 at 11:06 AM, Bjorn Helgaas <bhelgaas@google.com> wrote:
-> > drivers/base/memory.c provides a default memory_block_size_bytes()
-> > definition explicitly marked "weak".  Several architectures provide their
-> > own definitions intended to override the default, but the "weak" attribute
-> > on the declaration applied to the arch definitions as well, so the linker
-> > chose one based on link order (see 10629d711ed7 ("PCI: Remove __weak
-> > annotation from pcibios_get_phb_of_node decl")).
+> On Wed, Oct 15, 2014 at 5:31 PM, Bjorn Helgaas <bhelgaas@google.com> wrote:
+> > [+cc Michael, Vivek; sorry, I botched my "stg mail" so you weren't
+> > included the first time]
 > >
-> > Remove the "weak" attribute from the declaration so we always prefer a
-> > non-weak definition over the weak one, independent of link order.
-> >
-> > Fixes: 41f107266b19 ("drivers: base: Add prototype declaration to the header file")
-> > Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-> > CC: Rashika Kheria <rashika.kheria@gmail.com>
-> > CC: Nathan Fontenot <nfont@austin.ibm.com>
-> > CC: Anton Blanchard <anton@au1.ibm.com>
-> > CC: Heiko Carstens <heiko.carstens@de.ibm.com>
-> > CC: Yinghai Lu <yinghai@kernel.org>
-> > ---
-> >  include/linux/memory.h |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/include/linux/memory.h b/include/linux/memory.h
-> > index bb7384e3c3d8..8b8d8d12348e 100644
-> > --- a/include/linux/memory.h
-> > +++ b/include/linux/memory.h
-> > @@ -35,7 +35,7 @@ struct memory_block {
-> >  };
-> >
-> >  int arch_get_memory_phys_device(unsigned long start_pfn);
-> > -unsigned long __weak memory_block_size_bytes(void);
-> > +unsigned long memory_block_size_bytes(void);
-> >
-> >  /* These states are exposed to userspace as text strings in sysfs */
-> >  #define        MEM_ONLINE              (1<<0) /* exposed to userspace */
-> >
+> > On Wed, Oct 15, 2014 at 11:06 AM, Bjorn Helgaas <bhelgaas@google.com> wrote:
+> >> For the following functions:
+> >>
+> >>   elfcorehdr_alloc()
+> >>   elfcorehdr_free()
+> >>   elfcorehdr_read()
+> >>   elfcorehdr_read_notes()
+> >>   remap_oldmem_pfn_range()
+> >>
+> >> fs/proc/vmcore.c provides default definitions explicitly marked "weak".
+> >> arch/s390 provides its own definitions intended to override the default
+> >> ones, but the "weak" attribute on the declarations applied to the s390
+> >> definitions as well, so the linker chose one based on link order (see
+> >> 10629d711ed7 ("PCI: Remove __weak annotation from pcibios_get_phb_of_node
+> >> decl")).
+> >>
+> >> Remove the "weak" attribute from the declarations so we always prefer a
+> >> non-weak definition over the weak one, independent of link order.
+> >>
+> >> Fixes: be8a8d069e50 ("vmcore: introduce ELF header in new memory feature")
+> >> Fixes: 9cb218131de1 ("vmcore: introduce remap_oldmem_pfn_range()")
+> >> Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+> >> CC: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> >> CC: Vivek Goyal <vgoyal@redhat.com>
+> >> ---
+> >>  include/linux/crash_dump.h |   15 +++++++--------
+> >>  1 file changed, 7 insertions(+), 8 deletions(-)
+> >>
+> >> diff --git a/include/linux/crash_dump.h b/include/linux/crash_dump.h
+> >> index 72ab536ad3de..3849fce7ecfe 100644
+> >> --- a/include/linux/crash_dump.h
+> >> +++ b/include/linux/crash_dump.h
+> >> @@ -14,14 +14,13 @@
+> >>  extern unsigned long long elfcorehdr_addr;
+> >>  extern unsigned long long elfcorehdr_size;
+> >>
+> >> -extern int __weak elfcorehdr_alloc(unsigned long long *addr,
+> >> -                                  unsigned long long *size);
+> >> -extern void __weak elfcorehdr_free(unsigned long long addr);
+> >> -extern ssize_t __weak elfcorehdr_read(char *buf, size_t count, u64 *ppos);
+> >> -extern ssize_t __weak elfcorehdr_read_notes(char *buf, size_t count, u64 *ppos);
+> >> -extern int __weak remap_oldmem_pfn_range(struct vm_area_struct *vma,
+> >> -                                        unsigned long from, unsigned long pfn,
+> >> -                                        unsigned long size, pgprot_t prot);
+> >> +extern int elfcorehdr_alloc(unsigned long long *addr, unsigned long long *size);
+> >> +extern void elfcorehdr_free(unsigned long long addr);
+> >> +extern ssize_t elfcorehdr_read(char *buf, size_t count, u64 *ppos);
+> >> +extern ssize_t elfcorehdr_read_notes(char *buf, size_t count, u64 *ppos);
+> >> +extern int remap_oldmem_pfn_range(struct vm_area_struct *vma,
+> >> +                                 unsigned long from, unsigned long pfn,
+> >> +                                 unsigned long size, pgprot_t prot);
+> >>
+> >>  extern ssize_t copy_oldmem_page(unsigned long, char *, size_t,
+> >>                                                 unsigned long, int);
+> >>
  
-s390 works fine with the __weak on memory_bloc_size_bytes.
+These __weak attributes can be removed as well without ill effect for s390.
 
 -- 
 blue skies,
