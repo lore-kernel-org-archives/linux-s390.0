@@ -1,150 +1,56 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Yijing Wang <wangyijing@huawei.com>
-Subject: [PATCH v3 15/27] x86/MSI: Remove unused MSI weak arch functions
-Date: Wed, 15 Oct 2014 11:07:03 +0800
-Message-ID: <1413342435-7876-16-git-send-email-wangyijing@huawei.com>
-In-Reply-To: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
-References: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20141015030703.W-vpIM2UkWE4pfnjXEcTx-i2J86wxU0GkoJgU5yMR_I@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, Ralf Baechle <ralf@linux-mips.org>, Lucas Stach <l.stach@pengutronix.de>, David Vrabel <david.vrabel@citrix.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Michael Ellerman <mpe@ellerman.id.au>, Thierry Reding <thierry.reding@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Liviu Dudau <liviu@dudau.co.uk>, Yijing Wang <wangyijing@huawei.com>
+From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Subject: [PATCH 0/4] mm: new flag to forbid zero page mappings for a vma
+Date: Fri, 17 Oct 2014 16:09:46 +0200
+Message-ID: <1413554990-48512-1-git-send-email-dingel@linux.vnet.ibm.com>
+Return-path: <owner-linux-mm@kvack.org>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@suse.cz>, Rik van Riel <riel@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>, Bob Liu <lliubbo@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Gleb Natapov <gleb@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@linux.intel.com>, Hugh Dickins <hughd@google.com>, Ingo Molnar <mingo@kernel.org>, Jianyu Zhan <nasa4836@gmail.com>, Johannes Weiner <hannes@cmpxchg.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Konstantin Weitz <konstantin.weitz@gmail.com>, kvm@vger.kernel.org, linux390@de.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Now we can clean up MSI weak arch functions in x86.
+s390 has the special notion of storage keys which are some sort of page flags
+associated with physical pages and live outside of direct addressable memory.
+These storage keys can be queried and changed with a special set of instructions.
+The mentioned instructions behave quite nicely under virtualization, if there is: 
+- an invalid pte, then the instructions will work on some memory reserved in the host page table
+- a valid pte, then the instructions will work with the real storage key
 
-Signed-off-by: Yijing Wang <wangyijing@huawei.com>
----
- arch/x86/include/asm/pci.h      |    5 +----
- arch/x86/include/asm/x86_init.h |    4 ----
- arch/x86/kernel/apic/io_apic.c  |   21 +++++----------------
- arch/x86/kernel/x86_init.c      |   24 ------------------------
- 4 files changed, 6 insertions(+), 48 deletions(-)
+Thanks to Martin with his software reference and dirty bit tracking, the kernel does not issue any 
+storage key instructions as now a software based approach will be taken, on the other hand 
+distributions in the wild are currently using them.
 
-diff --git a/arch/x86/include/asm/pci.h b/arch/x86/include/asm/pci.h
-index f41b58a..3a5cf19 100644
---- a/arch/x86/include/asm/pci.h
-+++ b/arch/x86/include/asm/pci.h
-@@ -108,14 +108,11 @@ extern void pci_iommu_alloc(void);
- #ifdef CONFIG_PCI_MSI
- /* implemented in arch/x86/kernel/apic/io_apic. */
- struct msi_desc;
--int native_setup_msi_irqs(struct pci_dev *dev, int nvec, int type);
--void native_teardown_msi_irq(unsigned int irq);
--void native_restore_msi_irqs(struct pci_dev *dev);
-+void native_teardown_msi_irq(struct msi_chip *chip, unsigned int irq);
- int setup_msi_irq(struct pci_dev *dev, struct msi_desc *msidesc,
- 		  unsigned int irq_base, unsigned int irq_offset);
- extern struct msi_chip *x86_msi_chip;
- #else
--#define native_setup_msi_irqs		NULL
- #define native_teardown_msi_irq		NULL
- #endif
- 
-diff --git a/arch/x86/include/asm/x86_init.h b/arch/x86/include/asm/x86_init.h
-index f58a9c7..2514f67 100644
---- a/arch/x86/include/asm/x86_init.h
-+++ b/arch/x86/include/asm/x86_init.h
-@@ -174,13 +174,9 @@ struct pci_dev;
- struct msi_msg;
- 
- struct x86_msi_ops {
--	int (*setup_msi_irqs)(struct pci_dev *dev, int nvec, int type);
- 	void (*compose_msi_msg)(struct pci_dev *dev, unsigned int irq,
- 				unsigned int dest, struct msi_msg *msg,
- 			       u8 hpet_id);
--	void (*teardown_msi_irq)(unsigned int irq);
--	void (*teardown_msi_irqs)(struct pci_dev *dev);
--	void (*restore_msi_irqs)(struct pci_dev *dev);
- 	int  (*setup_hpet_msi)(unsigned int irq, unsigned int id);
- };
- 
-diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
-index ec79b38..11d353f 100644
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -3200,7 +3200,8 @@ int setup_msi_irq(struct pci_dev *dev, struct msi_desc *msidesc,
- 	return 0;
- }
- 
--int native_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
-+static int native_setup_msi_irqs(struct msi_chip *chip,
-+		struct pci_dev *dev, int nvec, int type)
- {
- 	struct msi_desc *msidesc;
- 	unsigned int irq;
-@@ -3227,26 +3228,14 @@ int native_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
- 	return 0;
- }
- 
--static int __native_setup_msi_irqs(struct msi_chip *chip, 
--		struct pci_dev *dev, int nvec, int type)
--{
--	return native_setup_msi_irqs(dev, nvec, type);
--}
--
--void native_teardown_msi_irq(unsigned int irq)
-+void native_teardown_msi_irq(struct msi_chip *chip, unsigned int irq)
- {
- 	irq_free_hwirq(irq);
- }
- 
--static void __native_teardown_msi_irq(struct msi_chip *chip, 
--		unsigned int irq)
--{
--	native_teardown_msi_irq(irq);
--}
--
- static struct msi_chip native_msi_chip = {
--	.setup_irqs = __native_setup_msi_irqs,
--	.teardown_irq = __native_teardown_msi_irq,
-+	.setup_irqs = native_setup_msi_irqs,
-+	.teardown_irq = native_teardown_msi_irq,
- };
- 
- struct msi_chip *x86_msi_chip = &native_msi_chip;
-diff --git a/arch/x86/kernel/x86_init.c b/arch/x86/kernel/x86_init.c
-index 234b072..cc32568 100644
---- a/arch/x86/kernel/x86_init.c
-+++ b/arch/x86/kernel/x86_init.c
-@@ -110,34 +110,10 @@ EXPORT_SYMBOL_GPL(x86_platform);
- 
- #if defined(CONFIG_PCI_MSI)
- struct x86_msi_ops x86_msi = {
--	.setup_msi_irqs		= native_setup_msi_irqs,
- 	.compose_msi_msg	= native_compose_msi_msg,
--	.teardown_msi_irq	= native_teardown_msi_irq,
--	.teardown_msi_irqs	= default_teardown_msi_irqs,
--	.restore_msi_irqs	= default_restore_msi_irqs,
- 	.setup_hpet_msi		= default_setup_hpet_msi,
- };
- 
--/* MSI arch specific hooks */
--int arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
--{
--	return x86_msi.setup_msi_irqs(dev, nvec, type);
--}
--
--void arch_teardown_msi_irqs(struct pci_dev *dev)
--{
--	x86_msi.teardown_msi_irqs(dev);
--}
--
--void arch_teardown_msi_irq(unsigned int irq)
--{
--	x86_msi.teardown_msi_irq(irq);
--}
--
--void arch_restore_msi_irqs(struct pci_dev *dev)
--{
--	x86_msi.restore_msi_irqs(dev);
--}
- #endif
- 
- struct x86_io_apic_ops x86_io_apic_ops = {
+However, for virtualized guests we still have a problem with guest pages mapped to zero pages
+and the kernel same page merging.  WIth each one multiple guest pages will point to the same 
+physical page and share the same storage key.
+
+Let's fix this by introducing a new flag which will forbid new zero page mappings.
+If the guest issues a storage key related instruction we flag all vmas and drop existing 
+zero page mappings and unmerge the guest memory.
+
+Dominik Dingel (4):
+  s390/mm: recfactor global pgste updates
+  mm: introduce new VM_NOZEROPAGE flag
+  s390/mm: prevent and break zero page mappings in case of storage keys
+  s390/mm: disable KSM for storage key enabled pages
+
+ arch/s390/Kconfig               |   3 +
+ arch/s390/include/asm/pgalloc.h |   2 -
+ arch/s390/include/asm/pgtable.h |   3 +-
+ arch/s390/kvm/kvm-s390.c        |   2 +-
+ arch/s390/kvm/priv.c            |  17 ++--
+ arch/s390/mm/pgtable.c          | 181 ++++++++++++++++++----------------------
+ include/linux/mm.h              |  13 ++-
+ mm/huge_memory.c                |   2 +-
+ mm/memory.c                     |   2 +-
+ 9 files changed, 112 insertions(+), 113 deletions(-)
+
 -- 
-1.7.1
+1.8.5.5
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
