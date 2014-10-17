@@ -1,137 +1,46 @@
-From: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Subject: [PATCH 4/4] s390/mm: disable KSM for storage key enabled pages
-Date: Fri, 17 Oct 2014 16:09:50 +0200
-Message-ID: <1413554990-48512-5-git-send-email-dingel@linux.vnet.ibm.com>
-References: <1413554990-48512-1-git-send-email-dingel@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1413554990-48512-1-git-send-email-dingel@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+From: Dave Hansen <dave.hansen@intel.com>
+Subject: Re: [PATCH 2/4] mm: introduce new VM_NOZEROPAGE flag
+Date: Fri, 17 Oct 2014 15:04:21 -0700
+Message-ID: <54419265.9000000@intel.com>
+References: <1413554990-48512-1-git-send-email-dingel@linux.vnet.ibm.com> <1413554990-48512-3-git-send-email-dingel@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1413554990-48512-3-git-send-email-dingel@linux.vnet.ibm.com>
+Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@suse.cz>, Rik van Riel <riel@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>, Bob Liu <lliubbo@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Gleb Natapov <gleb@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@linux.intel.com>, Hugh Dickins <hughd@google.com>, Ingo Molnar <mingo@kernel.org>, Jianyu Zhan <nasa4836@gmail.com>, Johannes Weiner <hannes@cmpxchg.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Konstantin Weitz <konstantin.weitz@gmail.com>, kvm@vger.kernel.org, linux390@de.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Sasha Levin <sasha.levin@oracle.com>, Dominik
+To: Dominik Dingel <dingel@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@suse.cz>, Rik van Riel <riel@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>, Bob Liu <lliubbo@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Gleb Natapov <gleb@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@linux.intel.com>, Hugh Dickins <hughd@google.com>, Ingo Molnar <mingo@kernel.org>, Jianyu Zhan <nasa4836@gmail.com>, Johannes Weiner <hannes@cmpxchg.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Konstantin Weitz <konstantin.weitz@gmail.com>, kvm@vger.kernel.org, linux390@de.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Sasha Levin <sasha.levin@oracle.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-When storage keys are enabled unmerge already merged pages and prevent
-new pages from being merged.
+On 10/17/2014 07:09 AM, Dominik Dingel wrote:
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index cd33ae2..8f09c91 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -113,7 +113,7 @@ extern unsigned int kobjsize(const void *objp);
+>  #define VM_GROWSDOWN	0x00000100	/* general info on the segment */
+>  #define VM_PFNMAP	0x00000400	/* Page-ranges managed without "struct page", just pure PFN */
+>  #define VM_DENYWRITE	0x00000800	/* ETXTBSY on write attempts.. */
+> -
+> +#define VM_NOZEROPAGE	0x00001000	/* forbid new zero page mappings */
+>  #define VM_LOCKED	0x00002000
+>  #define VM_IO           0x00004000	/* Memory mapped I/O or similar */
 
-Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
- arch/s390/include/asm/pgtable.h |  2 +-
- arch/s390/kvm/priv.c            | 17 ++++++++++++-----
- arch/s390/mm/pgtable.c          | 15 +++++++++++++--
- 3 files changed, 26 insertions(+), 8 deletions(-)
+This seems like an awfully obscure use for a very constrained resource
+(VM_ flags).
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 1e991f6a..a5362e4 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1749,7 +1749,7 @@ static inline pte_t mk_swap_pte(unsigned long type, unsigned long offset)
- extern int vmem_add_mapping(unsigned long start, unsigned long size);
- extern int vmem_remove_mapping(unsigned long start, unsigned long size);
- extern int s390_enable_sie(void);
--extern void s390_enable_skey(void);
-+extern int s390_enable_skey(void);
- extern void s390_reset_cmma(struct mm_struct *mm);
- 
- /*
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index f89c1cd..e0967fd 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -156,21 +156,25 @@ static int handle_store_cpu_address(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
--static void __skey_check_enable(struct kvm_vcpu *vcpu)
-+static int __skey_check_enable(struct kvm_vcpu *vcpu)
- {
-+	int rc = 0;
- 	if (!(vcpu->arch.sie_block->ictl & (ICTL_ISKE | ICTL_SSKE | ICTL_RRBE)))
--		return;
-+		return rc;
- 
--	s390_enable_skey();
-+	rc = s390_enable_skey();
- 	trace_kvm_s390_skey_related_inst(vcpu);
- 	vcpu->arch.sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
-+	return rc;
- }
- 
- 
- static int handle_skey(struct kvm_vcpu *vcpu)
- {
--	__skey_check_enable(vcpu);
-+	int rc = __skey_check_enable(vcpu);
- 
-+	if (rc)
-+		return rc;
- 	vcpu->stat.instruction_storage_key++;
- 
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
-@@ -692,7 +696,10 @@ static int handle_pfmf(struct kvm_vcpu *vcpu)
- 		}
- 
- 		if (vcpu->run->s.regs.gprs[reg1] & PFMF_SK) {
--			__skey_check_enable(vcpu);
-+			int rc = __skey_check_enable(vcpu);
-+
-+			if (rc)
-+				return rc;
- 			if (set_guest_storage_key(current->mm, useraddr,
- 					vcpu->run->s.regs.gprs[reg1] & PFMF_KEY,
- 					vcpu->run->s.regs.gprs[reg1] & PFMF_NQ))
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 6321692..b3311c1 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -18,6 +18,8 @@
- #include <linux/rcupdate.h>
- #include <linux/slab.h>
- #include <linux/swapops.h>
-+#include <linux/ksm.h>
-+#include <linux/mman.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -1328,18 +1330,26 @@ static int __s390_enable_skey(pte_t *pte, unsigned long addr,
- 	return 0;
- }
- 
--void s390_enable_skey(void)
-+int s390_enable_skey(void)
- {
- 	struct mm_walk walk = { .pte_entry = __s390_enable_skey };
- 	struct mm_struct *mm = current->mm;
- 	struct vm_area_struct *vma;
-+	int rc = 0;
- 
- 	down_write(&mm->mmap_sem);
- 	if (mm_use_skey(mm))
- 		goto out_up;
- 
--	for (vma = mm->mmap; vma; vma = vma->vm_next)
-+	for (vma = mm->mmap; vma; vma = vma->vm_next) {
-+		if (ksm_madvise(vma, vma->vm_start, vma->vm_end,
-+				MADV_UNMERGEABLE, &vma->vm_flags)) {
-+			rc = -ENOMEM;
-+			goto out_up;
-+		}
- 		vma->vm_flags |= VM_NOZEROPAGE;
-+	}
-+	mm->def_flags &= ~VM_MERGEABLE;
- 	mm->def_flags |= VM_NOZEROPAGE;
- 
- 	walk.mm = mm;
-@@ -1348,6 +1358,7 @@ void s390_enable_skey(void)
- 
- out_up:
- 	up_write(&mm->mmap_sem);
-+	return rc;
- }
- EXPORT_SYMBOL_GPL(s390_enable_skey);
- 
--- 
-1.8.5.5
+Is there ever a time where the VMAs under an mm have mixed VM_NOZEROPAGE
+status?  Reading the patches, it _looks_ like it might be an all or
+nothing thing.
+
+Full disclosure: I've got an x86-specific feature I want to steal a flag
+for.  Maybe we should just define another VM_ARCH bit.
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
