@@ -1,169 +1,313 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Wed, 22 Oct 2014 23:43:26 -0600
-From: Bjorn Helgaas <bhelgaas@google.com>
-Subject: Re: [PATCH v3 00/27] Use MSI chip framework to configure MSI/MSI-X
- in all platforms
-Message-ID: <20141023054326.GF4795@google.com>
-References: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20141023054326.9lEjnRh5iX_rFGIRd3WoWI7v0RwcevDwwhtBb9hChqw@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Yijing Wang <wangyijing@huawei.com>
-Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, Ralf Baechle <ralf@linux-mips.org>, Lucas Stach <l.stach@pengutronix.de>, David Vrabel <david.vrabel@citrix.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Michael Ellerman <mpe@ellerman.id.au>, Thierry Reding <thierry.reding@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Liviu Dudau <liviu@dudau.co.uk>
+From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+Subject: [PATCH linux-next] iommu: add iommu for s390 platform
+Date: Tue, 21 Oct 2014 13:57:25 +0200
+Message-ID: <1413892645-37657-1-git-send-email-blaschka@linux.vnet.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-iommu/>
+List-Post: <mailto:iommu@lists.linux-foundation.org>
+To: joro@8bytes.org, schwidefsky@de.ibm.com
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, sebott@linux.vnet.ibm.com, gerald.schaefer@de.ibm.com, Frank Blaschka <blaschka@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Oct 15, 2014 at 11:06:48AM +0800, Yijing Wang wrote:
-> Now there are a lot of weak arch functions in MSI code.
-> Thierry Reding Introduced MSI chip framework to configure MSI/MSI-X in arm,
-> that's a better solution than overriding lots of existing weak arch functionsin. 
-> This series use MSI chip framework to refactor MSI code across all platforms 
-> to eliminate weak arch functions. Then all MSI irqs will be managed in a 
-> unified framework. Because this series changed a lot of ARCH MSI code, 
-> so tests in the related platforms are warmly welcomed!
-> 
-> And you may access it at:
-> https://github.com/YijingWang/msi-chip-v3.git master
-> 
-> v2->v3:
-> 1. For patch "x86/xen/MSI: Eliminate...", introduce a new global flag "pci_msi_ignore_mask"
-> to control the msi mask instead of replacing the irqchip->mask with nop function,
-> the latter method has problem pointed out by Konrad Rzeszutek Wilk.
-> 2. Save msi chip in arch pci sysdata instead of associating msi chip to pci bus.
-> Because pci devices under same host share the same msi chip, so I think associate
-> msi chip to pci host/pci sysdata is better than to bother every pci bus/devices.
-> A better solution suggested by Liviu is to rip out pci_host_bridge from pci_create_root_bus(), 
-> then we can save some pci host common attributes like domain_nr, msi_chip, resources,
-> into the generic pci_host_bridge. Because this changes to pci host bridge is also 
-> a large series, so I think we should go step by step, I will try to post it in another
-> series later.
-> 4. Clean up arm pcibios_add_bus() and pcibios_remove_bus() which were used to associate
-> msi chip to pci bus.
-> 
-> v1->v2:
-> Add a patch to make s390 MSI code build happy between patch "x86/xen/MSI: E.."
-> and "s390/MSI: Use MSI..". Fix several typo problems found by Lucas.
-> 
-> RFC->v1: 
-> Updated "[patch 4/21] x86/xen/MSI: Eliminate...", export msi_chip instead
-> of #ifdef to fix MSI bug in xen running in x86. 
-> Rename arch_get_match_msi_chip() to arch_find_msi_chip().
-> Drop use struct device as the msi_chip argument, we will do that
-> later in another patchset.
-> 
-> Yijing Wang (27):
+Add a basic iommu for the s390 platform. The code is pretty simple
+since on s390 each PCI device has its own virtual io address space
+starting at the same vio address. For this a domain could hold only
+one pci device. Also there is no relation between pci devices so each
+device belongs to a separate iommu group.
 
-This is a lot of stuff, and it's not all related, so putting it all
-together in one series makes it hard for me to deal with it.
+Signed-off-by: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+---
+ MAINTAINERS                 |   8 ++
+ arch/s390/include/asm/pci.h |   3 +
+ arch/s390/pci/pci_dma.c     |  19 ++++-
+ drivers/iommu/Kconfig       |   9 +++
+ drivers/iommu/Makefile      |   1 +
+ drivers/iommu/s390-iommu.c  | 179 ++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 217 insertions(+), 2 deletions(-)
+ create mode 100644 drivers/iommu/s390-iommu.c
 
->   MSI: Remove the redundant irq_set_chip_data()
-
-This doesn't seem related to eliminating weak functions.
-
->   x86/xen/MSI: Eliminate arch_msix_mask_irq() and arch_msi_mask_irq()
->   s390/MSI: Use __msi_mask_irq() instead of default_msi_mask_irq()
-
-These two seem to go together.
-
->   arm/MSI: Save MSI chip in pci_sys_data
->   PCI: tegra: Save msi chip in pci_sys_data
->   PCI: designware: Save msi chip in pci_sys_data
->   PCI: rcar: Save msi chip in pci_sys_data
->   PCI: mvebu: Save msi chip in pci_sys_data
->   arm/PCI: Clean unused pcibios_add_bus() and pcibios_remove_bus()
->   PCI/MSI: Remove useless bus->msi assignment
-
-These seem to go together (it'd be nice if they were all capitalized the
-same).
-
-I don't like the "msi_chip" name because the "chip" part doesn't convey
-much information, other than telling us that apparently some sort of
-semiconductor integrated circuit is involved.  I sort of assumed that
-much :)
-
-Something like "msi_controller" would be more descriptive since we're
-talking about an interrupt controller that accepts writes from a device and
-turns them into CPU interrupts, e.g., a LAPIC.
-
->   PCI/MSI: Refactor struct msi_chip to make it become more common
->   x86/MSI: Use MSI chip framework to configure MSI/MSI-X irq
->   x86/xen/MSI: Use MSI chip framework to configure MSI/MSI-X irq
->   Irq_remapping/MSI: Use MSI chip framework to configure MSI/MSI-X irq
->   x86/MSI: Remove unused MSI weak arch functions
->   Mips/MSI: Save msi chip in pci sysdata
->   MIPS/Octeon/MSI: Use MSI chip framework to configure MSI/MSI-X irq
->   MIPS/Xlp: Remove the dead function destroy_irq() to fix build error
->   MIPS/Xlp/MSI: Use MSI chip framework to configure MSI/MSI-X irq
->   MIPS/Xlr/MSI: Use MSI chip framework to configure MSI/MSI-X irq
->   Powerpc/MSI: Use MSI chip framework to configure MSI/MSI-X irq
->   s390/MSI: Use MSI chip framework to configure MSI/MSI-X irq
->   arm/iop13xx/MSI: Use MSI chip framework to configure MSI/MSI-X irq
->   IA64/MSI: Use MSI chip framework to configure MSI/MSI-X irq
->   Sparc/MSI: Use MSI chip framework to configure MSI/MSI-X irq
->   tile/MSI: Use MSI chip framework to configure MSI/MSI-X irq
->   PCI/MSI: Clean up unused MSI arch functions
-> 
->  arch/arm/include/asm/mach/pci.h                 |   10 +-
->  arch/arm/include/asm/pci.h                      |    9 ++
->  arch/arm/kernel/bios32.c                        |   19 +---
->  arch/arm/mach-iop13xx/include/mach/pci.h        |    4 +
->  arch/arm/mach-iop13xx/iq81340mc.c               |    3 +
->  arch/arm/mach-iop13xx/iq81340sc.c               |    5 +-
->  arch/arm/mach-iop13xx/msi.c                     |   11 ++-
->  arch/ia64/include/asm/pci.h                     |   10 ++
->  arch/ia64/kernel/msi_ia64.c                     |   14 ++-
->  arch/ia64/pci/pci.c                             |    1 +
->  arch/mips/include/asm/netlogic/xlp-hal/pcibus.h |    1 +
->  arch/mips/include/asm/octeon/pci-octeon.h       |    4 +
->  arch/mips/include/asm/pci.h                     |   14 +++
->  arch/mips/pci/msi-octeon.c                      |   31 +++---
->  arch/mips/pci/msi-xlp.c                         |   15 ++-
->  arch/mips/pci/pci-octeon.c                      |    3 +
->  arch/mips/pci/pci-xlp.c                         |    3 +
->  arch/mips/pci/pci-xlr.c                         |   17 +++-
->  arch/powerpc/include/asm/pci-bridge.h           |   15 +++
->  arch/powerpc/kernel/msi.c                       |   12 ++-
->  arch/powerpc/kernel/pci-common.c                |    3 +
->  arch/s390/include/asm/pci.h                     |    9 ++
->  arch/s390/pci/pci.c                             |   16 ++-
->  arch/sparc/kernel/pci.c                         |   14 ++-
->  arch/sparc/kernel/pci_impl.h                    |   12 ++
->  arch/tile/include/asm/pci.h                     |   10 ++
->  arch/tile/kernel/pci_gx.c                       |   13 ++-
->  arch/x86/include/asm/pci.h                      |   18 +++-
->  arch/x86/include/asm/x86_init.h                 |    7 --
->  arch/x86/kernel/apic/io_apic.c                  |   12 ++-
->  arch/x86/kernel/x86_init.c                      |   34 ------
->  arch/x86/pci/acpi.c                             |    1 +
->  arch/x86/pci/common.c                           |    3 +
->  arch/x86/pci/xen.c                              |   72 +++++++------
->  drivers/iommu/irq_remapping.c                   |   13 ++-
->  drivers/pci/host/pci-mvebu.c                    |   10 +--
->  drivers/pci/host/pci-tegra.c                    |   13 +--
->  drivers/pci/host/pcie-designware.c              |   15 +--
->  drivers/pci/host/pcie-rcar.c                    |   13 +--
->  drivers/pci/msi.c                               |  133 ++++++++++-------------
->  drivers/pci/probe.c                             |    1 -
->  include/linux/msi.h                             |   24 ++---
->  include/linux/pci.h                             |    1 +
->  43 files changed, 379 insertions(+), 269 deletions(-)
-
-Huh.  I was hoping this was going to simplify things, and maybe it does
-somehow, but it's unfortunate that it adds 110 lines of code overall.  Does
-that seem right to you?  Why does it add code?
-
-Who do you want to apply this?  I can take it if that makes the most sense,
-but I'd like acks from the architecture folks for their pieces, and
-especially one from Thomas for the overall direction and the x86 parts.
-
-If you want me to take this, can you refresh it to be based on v3.18-rc1?
-I tried to apply it on v3.18-rc1, but [15/27] didn't apply because of
-conflicts in arch/x86/kernel/apic/io_apic.c.
-
-I'll look at these more tomorrow, I'm getting bleary-eyed tonight.
-
-Bjorn
+diff --git a/MAINTAINERS b/MAINTAINERS
+index bc69ca4..a3ba11b 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -7935,6 +7935,14 @@ F:	drivers/s390/net/*iucv*
+ F:	include/net/iucv/
+ F:	net/iucv/
+ 
++S390 IOMMU
++M:      Frank Blaschka <blaschka@linux.vnet.ibm.com>
++M:      linux390@de.ibm.com
++L:      linux-s390@vger.kernel.org
++W:      http://www.ibm.com/developerworks/linux/linux390/
++S:      Supported
++F:      drivers/iommu/s390-iommu.c
++
+ S3C24XX SD/MMC Driver
+ M:	Ben Dooks <ben-linux@fluff.org>
+ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+index c030900..6790d0d 100644
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -177,6 +177,9 @@ struct zpci_dev *get_zdev_by_fid(u32);
+ /* DMA */
+ int zpci_dma_init(void);
+ void zpci_dma_exit(void);
++int dma_update_trans(struct zpci_dev *zdev, unsigned long pa,
++		     dma_addr_t dma_addr, size_t size, int flags);
++void dma_purge_rto_entries(struct zpci_dev *zdev);
+ 
+ /* FMB */
+ int zpci_fmb_enable_device(struct zpci_dev *);
+diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
+index 4cbb29a..a4db33e 100644
+--- a/arch/s390/pci/pci_dma.c
++++ b/arch/s390/pci/pci_dma.c
+@@ -139,8 +139,8 @@ static void dma_update_cpu_trans(struct zpci_dev *zdev, void *page_addr,
+ 		entry_clr_protected(entry);
+ }
+ 
+-static int dma_update_trans(struct zpci_dev *zdev, unsigned long pa,
+-			    dma_addr_t dma_addr, size_t size, int flags)
++int dma_update_trans(struct zpci_dev *zdev, unsigned long pa,
++		     dma_addr_t dma_addr, size_t size, int flags)
+ {
+ 	unsigned int nr_pages = PAGE_ALIGN(size) >> PAGE_SHIFT;
+ 	u8 *page_addr = (u8 *) (pa & PAGE_MASK);
+@@ -210,6 +210,21 @@ static void dma_cleanup_tables(struct zpci_dev *zdev)
+ 	zdev->dma_table = NULL;
+ }
+ 
++void dma_purge_rto_entries(struct zpci_dev *zdev)
++{
++	unsigned long *table;
++	int rtx;
++
++	if (!zdev || !zdev->dma_table)
++		return;
++	table = zdev->dma_table;
++	for (rtx = 0; rtx < ZPCI_TABLE_ENTRIES; rtx++)
++		if (reg_entry_isvalid(table[rtx])) {
++			dma_free_seg_table(table[rtx]);
++			invalidate_table_entry(&table[rtx]);
++		}
++}
++
+ static unsigned long __dma_alloc_iommu(struct zpci_dev *zdev,
+ 				       unsigned long start, int size)
+ {
+diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
+index dd51122..545e3fd 100644
+--- a/drivers/iommu/Kconfig
++++ b/drivers/iommu/Kconfig
+@@ -302,4 +302,13 @@ config ARM_SMMU
+ 	  Say Y here if your SoC includes an IOMMU device implementing
+ 	  the ARM SMMU architecture.
+ 
++config S390_IOMMU
++        bool "s390 IOMMU Support"
++        depends on S390 && PCI
++        select IOMMU_API
++        help
++          Support for the IBM s/390 IOMMU
++
++          If unsure, say N here.
++
+ endif # IOMMU_SUPPORT
+diff --git a/drivers/iommu/Makefile b/drivers/iommu/Makefile
+index 16edef7..1278aad 100644
+--- a/drivers/iommu/Makefile
++++ b/drivers/iommu/Makefile
+@@ -19,3 +19,4 @@ obj-$(CONFIG_EXYNOS_IOMMU) += exynos-iommu.o
+ obj-$(CONFIG_SHMOBILE_IOMMU) += shmobile-iommu.o
+ obj-$(CONFIG_SHMOBILE_IPMMU) += shmobile-ipmmu.o
+ obj-$(CONFIG_FSL_PAMU) += fsl_pamu.o fsl_pamu_domain.o
++obj-$(CONFIG_S390_IOMMU) += s390-iommu.o
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+new file mode 100644
+index 0000000..f9f048d
+--- /dev/null
++++ b/drivers/iommu/s390-iommu.c
+@@ -0,0 +1,179 @@
++#include <linux/io.h>
++#include <linux/interrupt.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++#include <linux/pm_runtime.h>
++#include <linux/clk.h>
++#include <linux/err.h>
++#include <linux/mm.h>
++#include <linux/iommu.h>
++#include <linux/errno.h>
++#include <linux/list.h>
++#include <linux/memblock.h>
++#include <linux/export.h>
++#include <linux/pci.h>
++#include <linux/sizes.h>
++#include <asm/pci_dma.h>
++
++#define S390_IOMMU_PGSIZES SZ_4K
++
++struct s390_domain {
++	struct zpci_dev *zdev;
++};
++
++static int s390_iommu_domain_init(struct iommu_domain *domain)
++{
++	struct s390_domain *priv;
++
++	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	domain->priv = priv;
++	return 0;
++}
++
++static void s390_iommu_domain_destroy(struct iommu_domain *domain)
++{
++	kfree(domain->priv);
++	domain->priv = NULL;
++}
++
++static int s390_iommu_attach_device(struct iommu_domain *domain,
++				    struct device *dev)
++{
++	struct s390_domain *priv = domain->priv;
++
++	if (priv->zdev)
++		return -EEXIST;
++
++	priv->zdev = (struct zpci_dev *)to_pci_dev(dev)->sysdata;
++	return 0;
++}
++
++static void s390_iommu_detach_device(struct iommu_domain *domain,
++				     struct device *dev)
++{
++	struct s390_domain *priv = domain->priv;
++
++	dma_purge_rto_entries(priv->zdev);
++	priv->zdev = NULL;
++}
++
++static int s390_iommu_map(struct iommu_domain *domain, unsigned long iova,
++			  phys_addr_t paddr, size_t size, int prot)
++{
++	struct s390_domain *priv = domain->priv;
++	int flags = 0;
++	int rc;
++
++	if (!priv->zdev)
++		return -ENODEV;
++
++	rc = dma_update_trans(priv->zdev, (unsigned long)paddr, iova, size,
++			      flags);
++
++	return rc;
++}
++
++static phys_addr_t s390_iommu_iova_to_phys(struct iommu_domain *domain,
++					   dma_addr_t iova)
++{
++	struct s390_domain *priv = domain->priv;
++	phys_addr_t phys = 0;
++	unsigned long *sto, *pto, *rto;
++	unsigned int rtx, sx, px;
++
++	if (!priv->zdev)
++		return -ENODEV;
++
++	rtx = calc_rtx(iova);
++	sx = calc_sx(iova);
++	px = calc_px(iova);
++	rto = priv->zdev->dma_table;
++
++	if (reg_entry_isvalid(rto[rtx])) {
++		sto = get_rt_sto(rto[rtx]);
++		if (reg_entry_isvalid(sto[sx])) {
++			pto = get_st_pto(sto[sx]);
++			if ((pto[px] & ZPCI_PTE_VALID_MASK) == ZPCI_PTE_VALID)
++				phys = pto[px] & ZPCI_PTE_ADDR_MASK;
++		}
++	}
++
++	return phys;
++}
++
++static size_t s390_iommu_unmap(struct iommu_domain *domain,
++			       unsigned long iova, size_t size)
++{
++	struct s390_domain *priv = domain->priv;
++	int flags = ZPCI_PTE_INVALID;
++	phys_addr_t paddr;
++	int rc;
++
++	if (!priv->zdev)
++		goto out;
++
++	paddr = s390_iommu_iova_to_phys(domain, iova);
++	if (!paddr)
++		goto out;
++
++	rc = dma_update_trans(priv->zdev, (unsigned long)paddr, iova, size,
++			      flags);
++out:
++	return size;
++}
++
++static bool s390_iommu_capable(enum iommu_cap cap)
++{
++	switch (cap) {
++	case IOMMU_CAP_CACHE_COHERENCY:
++		return true;
++	case IOMMU_CAP_INTR_REMAP:
++		return true;
++	}
++
++	return false;
++}
++
++static int s390_iommu_add_device(struct device *dev)
++{
++	struct iommu_group *group;
++	int ret;
++
++	group = iommu_group_alloc();
++	if (IS_ERR(group)) {
++		dev_err(dev, "Failed to allocate IOMMU group\n");
++		return PTR_ERR(group);
++	}
++
++	ret = iommu_group_add_device(group, dev);
++	return ret;
++}
++
++static void s390_iommu_remove_device(struct device *dev)
++{
++	iommu_group_remove_device(dev);
++}
++
++static struct iommu_ops s390_iommu_ops = {
++	.capable = s390_iommu_capable,
++	.domain_init = s390_iommu_domain_init,
++	.domain_destroy = s390_iommu_domain_destroy,
++	.attach_dev = s390_iommu_attach_device,
++	.detach_dev = s390_iommu_detach_device,
++	.map = s390_iommu_map,
++	.unmap = s390_iommu_unmap,
++	.iova_to_phys = s390_iommu_iova_to_phys,
++	.add_device = s390_iommu_add_device,
++	.remove_device = s390_iommu_remove_device,
++	.pgsize_bitmap = S390_IOMMU_PGSIZES,
++};
++
++static int __init s390_iommu_init(void)
++{
++	bus_set_iommu(&pci_bus_type, &s390_iommu_ops);
++	return 0;
++}
++subsys_initcall(s390_iommu_init);
+-- 
+1.8.5.5
