@@ -1,59 +1,38 @@
-From: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Subject: [PATCH v2 0/4] mm: new function to forbid zeropage mappings for a process
-Date: Wed, 22 Oct 2014 10:30:20 +0200
-Message-ID: <1413966624-12447-1-git-send-email-dingel@linux.vnet.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 3/4] s390/mm: prevent and break zero page mappings in
+ case of storage keys
+Date: Wed, 22 Oct 2014 12:09:31 +0200
+Message-ID: <5447825B.5040608@redhat.com>
+References: <1413966624-12447-1-git-send-email-dingel@linux.vnet.ibm.com> <1413966624-12447-4-git-send-email-dingel@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1413966624-12447-4-git-send-email-dingel@linux.vnet.ibm.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@suse.cz>, Paolo Bonzini <pbonzini@redhat.com>, Dave Hansen <dave.hansen@intel.com>, Rik van Riel <riel@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>, Bob Liu <lliubbo@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Gleb Natapov <gleb@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@linux.intel.com>, Hugh Dickins <hughd@google.com>, Ingo Molnar <mingo@kernel.org>, Jianyu Zhan <nasa4836@gmail.com>, Johannes Weiner <hannes@cmpxchg.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Konstantin Weitz <konstantin.weitz@gmail.com>, kvm@vger.kernel.org, linux390@de.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>Peter
+To: Dominik Dingel <dingel@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@suse.cz>, Dave Hansen <dave.hansen@intel.com>, Rik van Riel <riel@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>, Bob Liu <lliubbo@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Gleb Natapov <gleb@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@linux.intel.com>, Hugh Dickins <hughd@google.com>, Ingo Molnar <mingo@kernel.org>, Jianyu Zhan <nasa4836@gmail.com>, Johannes Weiner <hannes@cmpxchg.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Konstantin Weitz <konstantin.weitz@gmail.com>, kvm@vger.kernel.org, linux390@de.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-s390 has the special notion of storage keys which are some sort of page flags
-associated with physical pages and live outside of direct addressable memory.
-These storage keys can be queried and changed with a special set of instructions.
-The mentioned instructions behave quite nicely under virtualization, if there is: 
-- an invalid pte, then the instructions will work on memory in the host page table
-- a valid pte, then the instructions will work with the real storage key
+On 10/22/2014 10:30 AM, Dominik Dingel wrote:
+> As use_skey is already the condition on which we call s390_enable_skey
+> we need to introduce a new flag for the mm->context on which we decide
+> if zero page mapping is allowed.
 
-Thanks to Martin with his software reference and dirty bit tracking,
-the kernel does not issue any storage key instructions as now a 
-software based approach will be taken, on the other hand distributions 
-in the wild are currently using them.
+Can you explain better why "mm->context.use_skey = 1" cannot be done
+before the walk_page_range?  Where does the walk or __s390_enable_skey
+or (after the next patch) ksm_madvise rely on
+"mm->context.forbids_zeropage && !mm->context.use_skey"?
 
-However, for virtualized guests we still have a problem with guest pages 
-mapped to zero pages and the kernel same page merging.  
-With each one multiple guest pages will point to the same physical page
-and share the same storage key.
+The only reason I can think of, is that the next patch does not reset
+"mm->context.forbids_zeropage" to 0 if the ksm_madvise fails.  Why
+doesn't it do that---or is it a bug?
 
-Let's fix this by introducing a new function which s390 will define to
-forbid new zero page mappings.  If the guest issues a storage key related 
-instruction we flag the mm_struct, drop existing zero page mappings
-and unmerge the guest memory.
+Thanks, and sorry for the flurry of questions! :)
 
-v1 -> v2: 
- - Following Dave and Paolo suggestion removing the vma flag
-
-Dominik Dingel (4):
-  s390/mm: recfactor global pgste updates
-  mm: introduce mm_forbids_zeropage function
-  s390/mm: prevent and break zero page mappings in case of storage keys
-  s390/mm: disable KSM for storage key enabled pages
-
- arch/s390/include/asm/mmu.h     |   2 +
- arch/s390/include/asm/pgalloc.h |   2 -
- arch/s390/include/asm/pgtable.h |  17 +++-
- arch/s390/kvm/kvm-s390.c        |   2 +-
- arch/s390/kvm/priv.c            |  17 ++--
- arch/s390/mm/pgtable.c          | 180 ++++++++++++++++++----------------------
- include/linux/mm.h              |   4 +
- mm/huge_memory.c                |   2 +-
- mm/memory.c                     |   2 +-
- 9 files changed, 117 insertions(+), 111 deletions(-)
-
--- 
-1.8.5.5
+Paolo
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
