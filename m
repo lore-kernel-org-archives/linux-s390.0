@@ -1,41 +1,150 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 3/4] s390/mm: prevent and break zero page mappings in
- case of storage keys
-Date: Wed, 22 Oct 2014 12:09:31 +0200
-Message-ID: <5447825B.5040608@redhat.com>
-References: <1413966624-12447-1-git-send-email-dingel@linux.vnet.ibm.com> <1413966624-12447-4-git-send-email-dingel@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1413966624-12447-4-git-send-email-dingel@linux.vnet.ibm.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Dominik Dingel <dingel@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@suse.cz>, Dave Hansen <dave.hansen@intel.com>, Rik van Riel <riel@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>, Bob Liu <lliubbo@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Gleb Natapov <gleb@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@linux.intel.com>, Hugh Dickins <hughd@google.com>, Ingo Molnar <mingo@kernel.org>, Jianyu Zhan <nasa4836@gmail.com>, Johannes Weiner <hannes@cmpxchg.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Konstantin Weitz <konstantin.weitz@gmail.com>, kvm@vger.kernel.org, linux390@de.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+Subject: [PATCH 1/6] qeth: qeth_core_main make local functions static
+Date: Wed, 22 Oct 2014 12:18:02 +0200
+Message-ID: <1413973087-18740-2-git-send-email-blaschka@linux.vnet.ibm.com>
+References: <1413973087-18740-1-git-send-email-blaschka@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1413973087-18740-1-git-send-email-blaschka@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Thomas Richter <tmricht@linux.vnet.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 10/22/2014 10:30 AM, Dominik Dingel wrote:
-> As use_skey is already the condition on which we call s390_enable_skey
-> we need to introduce a new flag for the mm->context on which we decide
-> if zero page mapping is allowed.
+From: Thomas Richter <tmricht@linux.vnet.ibm.com>
 
-Can you explain better why "mm->context.use_skey = 1" cannot be done
-before the walk_page_range?  Where does the walk or __s390_enable_skey
-or (after the next patch) ksm_madvise rely on
-"mm->context.forbids_zeropage && !mm->context.use_skey"?
+This patch makes some global functions static and removes
+the prototypes from the header file.
+Also function qeth_query_card_info is not exported anymore,
+there is no external user for it, this function should never
+have been exported in the first place.
 
-The only reason I can think of, is that the next patch does not reset
-"mm->context.forbids_zeropage" to 0 if the ksm_madvise fails.  Why
-doesn't it do that---or is it a bug?
+Signed-off-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
+Signed-off-by: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+---
+ drivers/s390/net/qeth_core.h      | 16 ----------------
+ drivers/s390/net/qeth_core_main.c | 18 +++++++++++++++---
+ 2 files changed, 15 insertions(+), 19 deletions(-)
 
-Thanks, and sorry for the flurry of questions! :)
-
-Paolo
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index e7646ce..7a8bb9f 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -380,11 +380,6 @@ enum qeth_header_ids {
+ #define QETH_HDR_EXT_CSUM_TRANSP_REQ  0x20
+ #define QETH_HDR_EXT_UDP	      0x40 /*bit off for TCP*/
+ 
+-static inline int qeth_is_last_sbale(struct qdio_buffer_element *sbale)
+-{
+-	return (sbale->eflags & SBAL_EFLAGS_LAST_ENTRY);
+-}
+-
+ enum qeth_qdio_buffer_states {
+ 	/*
+ 	 * inbound: read out by driver; owned by hardware in order to be filled
+@@ -843,13 +838,6 @@ struct qeth_trap_id {
+ /*some helper functions*/
+ #define QETH_CARD_IFNAME(card) (((card)->dev)? (card)->dev->name : "")
+ 
+-static inline struct qeth_card *CARD_FROM_CDEV(struct ccw_device *cdev)
+-{
+-	struct qeth_card *card = dev_get_drvdata(&((struct ccwgroup_device *)
+-		dev_get_drvdata(&cdev->dev))->dev);
+-	return card;
+-}
+-
+ static inline int qeth_get_micros(void)
+ {
+ 	return (int) (get_tod_clock() >> 12);
+@@ -894,7 +882,6 @@ const char *qeth_get_cardname_short(struct qeth_card *);
+ int qeth_realloc_buffer_pool(struct qeth_card *, int);
+ int qeth_core_load_discipline(struct qeth_card *, enum qeth_discipline_id);
+ void qeth_core_free_discipline(struct qeth_card *);
+-void qeth_buffer_reclaim_work(struct work_struct *);
+ 
+ /* exports for qeth discipline device drivers */
+ extern struct qeth_card_list_struct qeth_core_card_list;
+@@ -913,7 +900,6 @@ int qeth_core_hardsetup_card(struct qeth_card *);
+ void qeth_print_status_message(struct qeth_card *);
+ int qeth_init_qdio_queues(struct qeth_card *);
+ int qeth_send_startlan(struct qeth_card *);
+-int qeth_send_stoplan(struct qeth_card *);
+ int qeth_send_ipa_cmd(struct qeth_card *, struct qeth_cmd_buffer *,
+ 		  int (*reply_cb)
+ 		  (struct qeth_card *, struct qeth_reply *, unsigned long),
+@@ -954,8 +940,6 @@ int qeth_snmp_command(struct qeth_card *, char __user *);
+ int qeth_query_oat_command(struct qeth_card *, char __user *);
+ int qeth_query_switch_attributes(struct qeth_card *card,
+ 				  struct qeth_switch_info *sw_info);
+-int qeth_query_card_info(struct qeth_card *card,
+-	struct carrier_info *carrier_info);
+ int qeth_send_control_data(struct qeth_card *, int, struct qeth_cmd_buffer *,
+ 	int (*reply_cb)(struct qeth_card *, struct qeth_reply*, unsigned long),
+ 	void *reply_param);
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index fd22c81..098bb0f 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -718,6 +718,13 @@ static int qeth_check_idx_response(struct qeth_card *card,
+ 	return 0;
+ }
+ 
++static struct qeth_card *CARD_FROM_CDEV(struct ccw_device *cdev)
++{
++	struct qeth_card *card = dev_get_drvdata(&((struct ccwgroup_device *)
++		dev_get_drvdata(&cdev->dev))->dev);
++	return card;
++}
++
+ static void qeth_setup_ccw(struct qeth_channel *channel, unsigned char *iob,
+ 		__u32 len)
+ {
+@@ -1431,6 +1438,7 @@ static void qeth_start_kernel_thread(struct work_struct *work)
+ 	}
+ }
+ 
++static void qeth_buffer_reclaim_work(struct work_struct *);
+ static int qeth_setup_card(struct qeth_card *card)
+ {
+ 
+@@ -3232,7 +3240,7 @@ int qeth_check_qdio_errors(struct qeth_card *card, struct qdio_buffer *buf,
+ }
+ EXPORT_SYMBOL_GPL(qeth_check_qdio_errors);
+ 
+-void qeth_buffer_reclaim_work(struct work_struct *work)
++static void qeth_buffer_reclaim_work(struct work_struct *work)
+ {
+ 	struct qeth_card *card = container_of(work, struct qeth_card,
+ 		buffer_reclaim_work.work);
+@@ -4717,7 +4725,7 @@ static int qeth_query_card_info_cb(struct qeth_card *card,
+ 	return 0;
+ }
+ 
+-int qeth_query_card_info(struct qeth_card *card,
++static int qeth_query_card_info(struct qeth_card *card,
+ 				struct carrier_info *carrier_info)
+ {
+ 	struct qeth_cmd_buffer *iob;
+@@ -4730,7 +4738,6 @@ int qeth_query_card_info(struct qeth_card *card,
+ 	return qeth_send_ipa_cmd(card, iob, qeth_query_card_info_cb,
+ 					(void *)carrier_info);
+ }
+-EXPORT_SYMBOL_GPL(qeth_query_card_info);
+ 
+ static inline int qeth_get_qdio_q_format(struct qeth_card *card)
+ {
+@@ -5113,6 +5120,11 @@ static inline int qeth_create_skb_frag(struct qeth_qdio_buffer *qethbuffer,
+ 	return 0;
+ }
+ 
++static inline int qeth_is_last_sbale(struct qdio_buffer_element *sbale)
++{
++	return (sbale->eflags & SBAL_EFLAGS_LAST_ENTRY);
++}
++
+ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
+ 		struct qeth_qdio_buffer *qethbuffer,
+ 		struct qdio_buffer_element **__element, int *__offset,
+-- 
+1.8.5.5
