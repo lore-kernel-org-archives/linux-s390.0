@@ -1,135 +1,122 @@
-From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
-Subject: [PATCH linux-next] vfio: make vfio build and run on s390
-Date: Tue, 21 Oct 2014 14:04:28 +0200
-Message-ID: <1413893068-45404-1-git-send-email-blaschka@linux.vnet.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
+From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Subject: [PATCH 3/4] s390/mm: prevent and break zero page mappings in case of storage keys
+Date: Wed, 22 Oct 2014 10:30:23 +0200
+Message-ID: <1413966624-12447-4-git-send-email-dingel@linux.vnet.ibm.com>
+References: <1413966624-12447-1-git-send-email-dingel@linux.vnet.ibm.com>
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1413966624-12447-1-git-send-email-dingel@linux.vnet.ibm.com>
+Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: alex.williamson@redhat.com, schwidefsky@de.ibm.com
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, sebott@linux.vnet.ibm.com, gerald.schaefer@de.ibm.com, kvm@vger.kernel.org, agraf@suse.de, Frank Blaschka <blaschka@linux.vnet.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@suse.cz>, Paolo Bonzini <pbonzini@redhat.com>, Dave Hansen <dave.hansen@intel.com>, Rik van Riel <riel@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>, Bob Liu <lliubbo@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Gleb Natapov <gleb@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@linux.intel.com>, Hugh Dickins <hughd@google.com>, Ingo Molnar <mingo@kernel.org>, Jianyu Zhan <nasa4836@gmail.com>, Johannes Weiner <hannes@cmpxchg.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Konstantin Weitz <konstantin.weitz@gmail.com>, kvm@vger.kernel.org, linux390@de.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>Peter
 List-ID: <linux-s390.vger.kernel.org>
 
-Introduce platform functions to let vfio announce if INTx is available and
-if PCI BARs are mapable. Also take care vfio_pci_vga_rw is building on
-platforms which do not support I/O ports.
+As soon as storage keys are enabled we need to stop working on zero page
+mappings to prevent inconsistencies between storage keys and pgste.
 
-Signed-off-by: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+Otherwise following data corruption could happen:
+1) guest enables storage key
+2) guest sets storage key for not mapped page X
+   -> change goes to PGSTE
+3) guest reads from page X
+   -> as X was not dirty before, the page will be zero page backed,
+      storage key from PGSTE for X will go to storage key for zero page
+4) guest sets storage key for not mapped page Y (same logic as above
+5) guest reads from page Y
+   -> as Y was not dirty before, the page will be zero page backed,
+      storage key from PGSTE for Y will got to storage key for zero page
+      overwriting storage key for X
+
+While holding the mmap sem, we are safe against changes on entries we
+already fixed, as every fault would need to take the mmap_sem (read).
+As sske and host large pages are also mutual exclusive we do not even
+need to retry the fixup_user_fault.
+
+As use_skey is already the condition on which we call s390_enable_skey
+we need to introduce a new flag for the mm->context on which we decide
+if zero page mapping is allowed.
+
+Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 ---
- arch/s390/include/asm/pci.h      |  3 +++
- drivers/vfio/Kconfig             |  2 +-
- drivers/vfio/pci/vfio_pci.c      | 33 ++++++++++++++++++++++++++++-----
- drivers/vfio/pci/vfio_pci_rdwr.c |  4 ++++
- 4 files changed, 36 insertions(+), 6 deletions(-)
+ arch/s390/include/asm/mmu.h     |  2 ++
+ arch/s390/include/asm/pgtable.h | 14 ++++++++++++++
+ arch/s390/mm/pgtable.c          | 12 ++++++++++++
+ 3 files changed, 28 insertions(+)
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 6790d0d..0ca2008 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -12,6 +12,9 @@
- #include <asm/pci_clp.h>
- #include <asm/pci_debug.h>
+diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
+index a5e6562..0f38469 100644
+--- a/arch/s390/include/asm/mmu.h
++++ b/arch/s390/include/asm/mmu.h
+@@ -18,6 +18,8 @@ typedef struct {
+ 	unsigned int has_pgste:1;
+ 	/* The mmu context uses storage keys. */
+ 	unsigned int use_skey:1;
++	/* The mmu context forbids zeropage mappings. */
++	unsigned int forbids_zeropage:1;
+ } mm_context_t;
  
-+#define __ARCH_PCI_NO_BARMAP
-+#define __ARCH_PCI_NO_INTX
-+
- #define PCIBIOS_MIN_IO		0x1000
- #define PCIBIOS_MIN_MEM		0x10000000
- 
-diff --git a/drivers/vfio/Kconfig b/drivers/vfio/Kconfig
-index d8c5763..b93c259 100644
---- a/drivers/vfio/Kconfig
-+++ b/drivers/vfio/Kconfig
-@@ -16,7 +16,7 @@ config VFIO_SPAPR_EEH
- menuconfig VFIO
- 	tristate "VFIO Non-Privileged userspace driver framework"
- 	depends on IOMMU_API
--	select VFIO_IOMMU_TYPE1 if X86
-+	select VFIO_IOMMU_TYPE1 if (X86 || S390)
- 	select VFIO_IOMMU_SPAPR_TCE if (PPC_POWERNV || PPC_PSERIES)
- 	select VFIO_SPAPR_EEH if (PPC_POWERNV || PPC_PSERIES)
- 	select ANON_INODES
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 9558da3..808072f 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -210,12 +210,25 @@ error:
- 	return ret;
+ #define INIT_MM_CONTEXT(name)						      \
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 1e991f6a..fe3cfdf 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -481,6 +481,20 @@ static inline int mm_has_pgste(struct mm_struct *mm)
+ 	return 0;
  }
  
-+static int vfio_pci_intx_available(struct pci_dev *pdev)
++/*
++ * In the case that a guest uses storage keys
++ * faults should no longer be backed by zero pages
++ */
++#define mm_forbids_zeropage mm_forbids_zeropage
++static inline int mm_forbids_zeropage(struct mm_struct *mm)
 +{
-+#ifdef __ARCH_PCI_NO_INTX
-+	return 0;
-+#else
-+	u8 pin;
-+	int rc = 0;
-+
-+	pci_read_config_byte(pdev, PCI_INTERRUPT_PIN, &pin);
-+	if (pin)
-+		rc = 1;
-+	return rc;
++#ifdef CONFIG_PGSTE
++	if (mm->context.forbids_zeropage)
++		return 1;
 +#endif
++	return 0;
 +}
 +
- static int vfio_pci_get_irq_count(struct vfio_pci_device *vdev, int irq_type)
+ static inline int mm_use_skey(struct mm_struct *mm)
  {
- 	if (irq_type == VFIO_PCI_INTX_IRQ_INDEX) {
--		u8 pin;
--		pci_read_config_byte(vdev->pdev, PCI_INTERRUPT_PIN, &pin);
--		if (pin)
-+		if (vfio_pci_intx_available(vdev->pdev))
- 			return 1;
+ #ifdef CONFIG_PGSTE
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index ab55ba8..1e06fbc 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -1309,6 +1309,15 @@ static int __s390_enable_skey(pte_t *pte, unsigned long addr,
+ 	pgste_t pgste;
  
- 	} else if (irq_type == VFIO_PCI_MSI_IRQ_INDEX) {
-@@ -350,6 +363,16 @@ static int vfio_pci_for_each_slot_or_bus(struct pci_dev *pdev,
- 	return walk.ret;
- }
- 
-+static int vfio_pci_bar_mapable(struct pci_dev *pdev, __u32 index, __u64 size)
-+{
-+#ifdef __ARCH_PCI_NO_BARMAP
-+	return 0;
-+#else
-+	return (pci_resource_flags(pdev, index) &
-+		IORESOURCE_MEM && size >= PAGE_SIZE);
-+#endif
-+}
+ 	pgste = pgste_get_lock(pte);
++	/*
++	 * Remove all zero page mappings,
++	 * after establishing a policy to forbid zero page mappings
++	 * following faults for that page will get fresh anonymous pages
++	 */
++	if (is_zero_pfn(pte_pfn(*pte))) {
++		ptep_flush_direct(walk->mm, addr, pte);
++		pte_val(*pte) = _PAGE_INVALID;
++	}
+ 	/* Clear storage key */
+ 	pgste_val(pgste) &= ~(PGSTE_ACC_BITS | PGSTE_FP_BIT |
+ 			      PGSTE_GR_BIT | PGSTE_GC_BIT);
+@@ -1327,6 +1336,9 @@ void s390_enable_skey(void)
+ 	down_write(&mm->mmap_sem);
+ 	if (mm_use_skey(mm))
+ 		goto out_up;
 +
- static long vfio_pci_ioctl(void *device_data,
- 			   unsigned int cmd, unsigned long arg)
- {
-@@ -406,9 +429,9 @@ static long vfio_pci_ioctl(void *device_data,
- 
- 			info.flags = VFIO_REGION_INFO_FLAG_READ |
- 				     VFIO_REGION_INFO_FLAG_WRITE;
--			if (pci_resource_flags(pdev, info.index) &
--			    IORESOURCE_MEM && info.size >= PAGE_SIZE)
-+			if (vfio_pci_bar_mapable(pdev, info.index, info.size))
- 				info.flags |= VFIO_REGION_INFO_FLAG_MMAP;
++	mm->context.forbids_zeropage = 1;
 +
- 			break;
- 		case VFIO_PCI_ROM_REGION_INDEX:
- 		{
-diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
-index 210db24..02c5623 100644
---- a/drivers/vfio/pci/vfio_pci_rdwr.c
-+++ b/drivers/vfio/pci/vfio_pci_rdwr.c
-@@ -180,6 +180,9 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_device *vdev, char __user *buf,
- ssize_t vfio_pci_vga_rw(struct vfio_pci_device *vdev, char __user *buf,
- 			       size_t count, loff_t *ppos, bool iswrite)
- {
-+#ifdef CONFIG_NO_IOPORT_MAP
-+	return -EINVAL;
-+#else
- 	int ret;
- 	loff_t off, pos = *ppos & VFIO_PCI_OFFSET_MASK;
- 	void __iomem *iomem = NULL;
-@@ -235,4 +238,5 @@ ssize_t vfio_pci_vga_rw(struct vfio_pci_device *vdev, char __user *buf,
- 		*ppos += done;
- 
- 	return done;
-+#endif
- }
+ 	walk.mm = mm;
+ 	walk_page_range(0, TASK_SIZE, &walk);
+ 	mm->context.use_skey = 1;
 -- 
 1.8.5.5
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
