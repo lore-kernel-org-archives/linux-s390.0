@@ -1,25 +1,53 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 0/6 resend] s390: network patches for net-next
-Date: Fri, 24 Oct 2014 01:05:03 -0400 (EDT)
-Message-ID: <20141024.010503.541526517323840988.davem@davemloft.net>
+From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+Subject: [PATCH 6/6] ctcm: replace sscanf by kstrto function
+Date: Wed, 22 Oct 2014 12:18:07 +0200
+Message-ID: <1413973087-18740-7-git-send-email-blaschka@linux.vnet.ibm.com>
 References: <1413973087-18740-1-git-send-email-blaschka@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <1413973087-18740-1-git-send-email-blaschka@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: blaschka@linux.vnet.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Thomas Richter <tmricht@linux.vnet.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Frank Blaschka <blaschka@linux.vnet.ibm.com>
-Date: Wed, 22 Oct 2014 12:18:01 +0200
+From: Thomas Richter <tmricht@linux.vnet.ibm.com>
 
-> looks like there was a problem with my previous posting. Hope this time
-> it will work. Sorry for any inconvenience. The patches are mostly
-> cleanups and small enhancements for net-next
+Since a single integer value is read from the supplied buffer
+use the kstrto functions instead of sscanf.
 
-Series applied, thanks.
+Signed-off-by: Thomas Richter <tmricht@linux.vnet.ibm.com>
+Signed-off-by: Frank Blaschka <blaschka@linux.vnet.ibm.com>
+---
+ drivers/s390/net/ctcm_sysfs.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/s390/net/ctcm_sysfs.c b/drivers/s390/net/ctcm_sysfs.c
+index 6bcfbbb..47773c4 100644
+--- a/drivers/s390/net/ctcm_sysfs.c
++++ b/drivers/s390/net/ctcm_sysfs.c
+@@ -44,8 +44,8 @@ static ssize_t ctcm_buffer_write(struct device *dev,
+ 		return -ENODEV;
+ 	}
+ 
+-	rc = sscanf(buf, "%u", &bs1);
+-	if (rc != 1)
++	rc = kstrtouint(buf, 0, &bs1);
++	if (rc)
+ 		goto einval;
+ 	if (bs1 > CTCM_BUFSIZE_LIMIT)
+ 					goto einval;
+@@ -151,8 +151,8 @@ static ssize_t ctcm_proto_store(struct device *dev,
+ 
+ 	if (!priv)
+ 		return -ENODEV;
+-	rc = sscanf(buf, "%d", &value);
+-	if ((rc != 1) ||
++	rc = kstrtoint(buf, 0, &value);
++	if (rc ||
+ 	    !((value == CTCM_PROTO_S390)  ||
+ 	      (value == CTCM_PROTO_LINUX) ||
+ 	      (value == CTCM_PROTO_MPC) ||
+-- 
+1.8.5.5
