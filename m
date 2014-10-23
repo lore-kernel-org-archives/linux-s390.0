@@ -1,130 +1,81 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Wed, 22 Oct 2014 17:53:45 -0600
+Date: Wed, 22 Oct 2014 23:18:31 -0600
 From: Bjorn Helgaas <bhelgaas@google.com>
-Subject: Re: [PATCH v3 24/27] IA64/MSI: Use MSI chip framework to configure
- MSI/MSI-X irq
-Message-ID: <20141022235345.GE4795@google.com>
+Subject: Re: [PATCH v3 05/27] PCI: tegra: Save msi chip in pci_sys_data
+Message-ID: <20141023051831.GB11770@google.com>
 References: <1413342435-7876-1-git-send-email-wangyijing@huawei.com>
- <1413342435-7876-25-git-send-email-wangyijing@huawei.com>
+ <1413342435-7876-6-git-send-email-wangyijing@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1413342435-7876-25-git-send-email-wangyijing@huawei.com>
+In-Reply-To: <1413342435-7876-6-git-send-email-wangyijing@huawei.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20141022235345.azYRGvBtk45q20hMBtBimJLUrDFppVxMUiLImVYp1io@z>
+Message-ID: <20141023051831.ns2a6H8BVg0cS5FdXi3VnFIZZjpzfzESRcYS3S6dJWw@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Yijing Wang <wangyijing@huawei.com>
 Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, Xinwei Hu <huxinwei@huawei.com>, Wuyun <wuyun.wu@huawei.com>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, linux-arch@vger.kernel.org, arnab.basu@freescale.com, Bharat.Bhushan@freescale.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, Ralf Baechle <ralf@linux-mips.org>, Lucas Stach <l.stach@pengutronix.de>, David Vrabel <david.vrabel@citrix.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Michael Ellerman <mpe@ellerman.id.au>, Thierry Reding <thierry.reding@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Liviu Dudau <liviu@dudau.co.uk>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Oct 15, 2014 at 11:07:12AM +0800, Yijing Wang wrote:
-> Use MSI chip framework instead of arch MSI functions to configure
-> MSI/MSI-X irq. So we can manage MSI/MSI-X irq in a unified framework.
-
-This needs slightly more detail.  You're using the MSI chip framework
-"instead of arch MSI functions".  Well, there are still arch-specific
-functions, i.e., arch_ia64_setup_msi_irq() and
-arch_ia64_teardown_msi_irq().
-
-We used to have arch_setup_msi_irq() which had a weak default
-implementation, and a strong arch-specific implementation here, and you're
-replacing that model with the new "msi-ops" model.  I don't know how you
-want to write that, but it's not that you're getting rid of the
-arch-specific code; you're keeping arch-specific code but structuring it
-differently.
-
+On Wed, Oct 15, 2014 at 11:06:53AM +0800, Yijing Wang wrote:
+> Save msi chip in pci_sys_data instead of assign
+> msi chip to every pci bus in .add_bus().
+> 
 > Signed-off-by: Yijing Wang <wangyijing@huawei.com>
 > ---
->  arch/ia64/include/asm/pci.h |   10 ++++++++++
->  arch/ia64/kernel/msi_ia64.c |   14 ++++++++++----
->  arch/ia64/pci/pci.c         |    1 +
->  3 files changed, 21 insertions(+), 4 deletions(-)
+>  drivers/pci/host/pci-tegra.c |   13 +++----------
+>  1 files changed, 3 insertions(+), 10 deletions(-)
 > 
-> diff --git a/arch/ia64/include/asm/pci.h b/arch/ia64/include/asm/pci.h
-> index 52af5ed..907dcba 100644
-> --- a/arch/ia64/include/asm/pci.h
-> +++ b/arch/ia64/include/asm/pci.h
-> @@ -94,6 +94,7 @@ struct pci_controller {
->  	int segment;
->  	int node;		/* nearest node with memory or NUMA_NO_NODE for global allocation */
->  
-> +	struct msi_chip *msi_chip;
->  	void *platform_data;
->  };
->  
-> @@ -101,6 +102,15 @@ struct pci_controller {
->  #define PCI_CONTROLLER(busdev) ((struct pci_controller *) busdev->sysdata)
->  #define pci_domain_nr(busdev)    (PCI_CONTROLLER(busdev)->segment)
->  
-> +extern struct msi_chip chip;
-
-Please make this name more descriptive.  "chip" is way too generic for a
-global name.
-
-> +static inline struct msi_chip *pci_msi_chip(struct pci_bus *bus)
-> +{
-> +	struct pci_controller *ctrl = bus->sysdata;
-> +
-> +	return ctrl->msi_chip;
-> +}
-> +
->  extern struct pci_ops pci_root_ops;
->  
->  static inline int pci_proc_domain(struct pci_bus *bus)
-> diff --git a/arch/ia64/kernel/msi_ia64.c b/arch/ia64/kernel/msi_ia64.c
-> index 8c3730c..401fc98 100644
-> --- a/arch/ia64/kernel/msi_ia64.c
-> +++ b/arch/ia64/kernel/msi_ia64.c
-> @@ -112,15 +112,16 @@ static struct irq_chip ia64_msi_chip = {
->  };
->  
->  
-> -int arch_setup_msi_irq(struct pci_dev *pdev, struct msi_desc *desc)
-> +static int arch_ia64_setup_msi_irq(struct msi_chip *chip,
-> +		struct pci_dev *dev, struct msi_desc *desc)
->  {
->  	if (platform_setup_msi_irq)
-> -		return platform_setup_msi_irq(pdev, desc);
-> +		return platform_setup_msi_irq(dev, desc);
->  
-> -	return ia64_setup_msi_irq(pdev, desc);
-> +	return ia64_setup_msi_irq(dev, desc);
-
-Please don't make gratuitous changes ("pdev" -> "dev") at the same time,
-especially since the rest of the file still uses "pdev".
-
+> diff --git a/drivers/pci/host/pci-tegra.c b/drivers/pci/host/pci-tegra.c
+> index 3d43874..5af0525 100644
+> --- a/drivers/pci/host/pci-tegra.c
+> +++ b/drivers/pci/host/pci-tegra.c
+> @@ -694,15 +694,6 @@ static int tegra_pcie_map_irq(const struct pci_dev *pdev, u8 slot, u8 pin)
+>  	return irq;
 >  }
 >  
-> -void arch_teardown_msi_irq(unsigned int irq)
-> +static void arch_ia64_teardown_msi_irq(struct msi_chip *chip, unsigned int irq)
+> -static void tegra_pcie_add_bus(struct pci_bus *bus)
+> -{
+> -	if (IS_ENABLED(CONFIG_PCI_MSI)) {
+> -		struct tegra_pcie *pcie = sys_to_pcie(bus->sysdata);
+> -
+> -		bus->msi = &pcie->msi.chip;
+> -	}
+> -}
+> -
+>  static struct pci_bus *tegra_pcie_scan_bus(int nr, struct pci_sys_data *sys)
 >  {
->  	if (platform_teardown_msi_irq)
->  		return platform_teardown_msi_irq(irq);
-> @@ -128,6 +129,11 @@ void arch_teardown_msi_irq(unsigned int irq)
->  	return ia64_teardown_msi_irq(irq);
->  }
+>  	struct tegra_pcie *pcie = sys_to_pcie(sys);
+> @@ -1881,11 +1872,13 @@ static int tegra_pcie_enable(struct tegra_pcie *pcie)
 >  
-> +struct msi_chip chip = {
-> +	.setup_irq = arch_ia64_setup_msi_irq,
-> +	.teardown_irq = arch_ia64_teardown_msi_irq,
-> +};
-> +
->  #ifdef CONFIG_INTEL_IOMMU
->  #ifdef CONFIG_SMP
->  static int dmar_msi_set_affinity(struct irq_data *data,
-> diff --git a/arch/ia64/pci/pci.c b/arch/ia64/pci/pci.c
-> index 291a582..299b67d 100644
-> --- a/arch/ia64/pci/pci.c
-> +++ b/arch/ia64/pci/pci.c
-> @@ -437,6 +437,7 @@ struct pci_bus *pci_acpi_scan_root(struct acpi_pci_root *root)
+>  	memset(&hw, 0, sizeof(hw));
 >  
->  	controller->companion = device;
->  	controller->node = acpi_get_node(device->handle);
-> +	controller->msi_chip = &chip;
+> +#ifdef CONFIG_PCI_MSI
+> +	hw.msi_chip = &pcie->msi.chip;
+> +#endif
+
+Why did you use "#ifdef CONFIG_PCI_MSI" instead of the
+"IS_ENABLED(CONFIG_PCI_MSI)" used previously?
+
+It's true that CONFIG_PCI_MSI will never be a tristate symbol, so we don't
+really *need* the extra smarts of IS_ENABLED(), but I'm fairly sympathetic
+to James' argument [1] that we should just use IS_ENABLED() all the time
+because it's simpler overall.
+
+If you want to change the #ifdef to IS_ENABLED(), that should be a separate
+patch from your msi_chip change, and we can debate the merits of that by
+itself.
+
+[1] http://lkml.iu.edu//hypermail/linux/kernel/1204.3/00081.html
+
+>  	hw.nr_controllers = 1;
+>  	hw.private_data = (void **)&pcie;
+>  	hw.setup = tegra_pcie_setup;
+>  	hw.map_irq = tegra_pcie_map_irq;
+> -	hw.add_bus = tegra_pcie_add_bus;
+>  	hw.scan = tegra_pcie_scan_bus;
+>  	hw.ops = &tegra_pcie_ops;
 >  
->  	info = kzalloc(sizeof(*info), GFP_KERNEL);
->  	if (!info) {
 > -- 
 > 1.7.1
 > 
