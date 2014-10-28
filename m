@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 7/9] KVM: s390: sigp: instruction counters for all sigp orders
-Date: Tue, 28 Oct 2014 20:39:57 +0100
-Message-ID: <1414525199-53989-8-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/9] KVM: s390: Make the simple ipte mutex specific to a VM instead of global
+Date: Tue, 28 Oct 2014 20:39:51 +0100
+Message-ID: <1414525199-53989-2-git-send-email-borntraeger@de.ibm.com>
 References: <1414525199-53989-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1414525199-53989-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,116 +9,114 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-This patch introduces instruction counters for all known sigp orders and also a
-separate one for unknown orders that are passed to user space.
+The ipte-locking should be done for each VM seperately, not globally.
+This way we avoid possible congestions when the simple ipte-lock is used
+and multiple VMs are running.
 
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Suggested-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h | 7 +++++++
- arch/s390/kvm/kvm-s390.c         | 7 +++++++
- arch/s390/kvm/sigp.c             | 8 +++++++-
- 3 files changed, 21 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/kvm_host.h |  2 ++
+ arch/s390/kvm/gaccess.c          | 20 +++++++++-----------
+ arch/s390/kvm/kvm-s390.c         |  1 +
+ 3 files changed, 12 insertions(+), 11 deletions(-)
 
 diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 584b820..7e02d77 100644
+index 2175f911..584b820 100644
 --- a/arch/s390/include/asm/kvm_host.h
 +++ b/arch/s390/include/asm/kvm_host.h
-@@ -226,10 +226,17 @@ struct kvm_vcpu_stat {
- 	u32 instruction_sigp_sense_running;
- 	u32 instruction_sigp_external_call;
- 	u32 instruction_sigp_emergency;
-+	u32 instruction_sigp_cond_emergency;
-+	u32 instruction_sigp_start;
- 	u32 instruction_sigp_stop;
-+	u32 instruction_sigp_stop_store_status;
-+	u32 instruction_sigp_store_status;
- 	u32 instruction_sigp_arch;
- 	u32 instruction_sigp_prefix;
- 	u32 instruction_sigp_restart;
-+	u32 instruction_sigp_init_cpu_reset;
-+	u32 instruction_sigp_cpu_reset;
-+	u32 instruction_sigp_unknown;
- 	u32 diagnose_10;
- 	u32 diagnose_44;
- 	u32 diagnose_9c;
+@@ -434,6 +434,8 @@ struct kvm_arch{
+ 	int user_cpu_state_ctrl;
+ 	struct s390_io_adapter *adapters[MAX_S390_IO_ADAPTERS];
+ 	wait_queue_head_t ipte_wq;
++	int ipte_lock_count;
++	struct mutex ipte_mutex;
+ 	spinlock_t start_stop_lock;
+ 	struct kvm_s390_crypto crypto;
+ };
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 0f961a1..c1424e8 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -207,8 +207,6 @@ union raddress {
+ 	unsigned long pfra : 52; /* Page-Frame Real Address */
+ };
+ 
+-static int ipte_lock_count;
+-static DEFINE_MUTEX(ipte_mutex);
+ 
+ int ipte_lock_held(struct kvm_vcpu *vcpu)
+ {
+@@ -216,16 +214,16 @@ int ipte_lock_held(struct kvm_vcpu *vcpu)
+ 
+ 	if (vcpu->arch.sie_block->eca & 1)
+ 		return ic->kh != 0;
+-	return ipte_lock_count != 0;
++	return vcpu->kvm->arch.ipte_lock_count != 0;
+ }
+ 
+ static void ipte_lock_simple(struct kvm_vcpu *vcpu)
+ {
+ 	union ipte_control old, new, *ic;
+ 
+-	mutex_lock(&ipte_mutex);
+-	ipte_lock_count++;
+-	if (ipte_lock_count > 1)
++	mutex_lock(&vcpu->kvm->arch.ipte_mutex);
++	vcpu->kvm->arch.ipte_lock_count++;
++	if (vcpu->kvm->arch.ipte_lock_count > 1)
+ 		goto out;
+ 	ic = &vcpu->kvm->arch.sca->ipte_control;
+ 	do {
+@@ -238,16 +236,16 @@ static void ipte_lock_simple(struct kvm_vcpu *vcpu)
+ 		new.k = 1;
+ 	} while (cmpxchg(&ic->val, old.val, new.val) != old.val);
+ out:
+-	mutex_unlock(&ipte_mutex);
++	mutex_unlock(&vcpu->kvm->arch.ipte_mutex);
+ }
+ 
+ static void ipte_unlock_simple(struct kvm_vcpu *vcpu)
+ {
+ 	union ipte_control old, new, *ic;
+ 
+-	mutex_lock(&ipte_mutex);
+-	ipte_lock_count--;
+-	if (ipte_lock_count)
++	mutex_lock(&vcpu->kvm->arch.ipte_mutex);
++	vcpu->kvm->arch.ipte_lock_count--;
++	if (vcpu->kvm->arch.ipte_lock_count)
+ 		goto out;
+ 	ic = &vcpu->kvm->arch.sca->ipte_control;
+ 	do {
+@@ -256,7 +254,7 @@ static void ipte_unlock_simple(struct kvm_vcpu *vcpu)
+ 	} while (cmpxchg(&ic->val, old.val, new.val) != old.val);
+ 	wake_up(&vcpu->kvm->arch.ipte_wq);
+ out:
+-	mutex_unlock(&ipte_mutex);
++	mutex_unlock(&vcpu->kvm->arch.ipte_mutex);
+ }
+ 
+ static void ipte_lock_siif(struct kvm_vcpu *vcpu)
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 3e83d4b..06878bd 100644
+index 55aade4..3e83d4b 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -81,10 +81,17 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
- 	{ "instruction_sigp_sense_running", VCPU_STAT(instruction_sigp_sense_running) },
- 	{ "instruction_sigp_external_call", VCPU_STAT(instruction_sigp_external_call) },
- 	{ "instruction_sigp_emergency", VCPU_STAT(instruction_sigp_emergency) },
-+	{ "instruction_sigp_cond_emergency", VCPU_STAT(instruction_sigp_cond_emergency) },
-+	{ "instruction_sigp_start", VCPU_STAT(instruction_sigp_start) },
- 	{ "instruction_sigp_stop", VCPU_STAT(instruction_sigp_stop) },
-+	{ "instruction_sigp_stop_store_status", VCPU_STAT(instruction_sigp_stop_store_status) },
-+	{ "instruction_sigp_store_status", VCPU_STAT(instruction_sigp_store_status) },
- 	{ "instruction_sigp_set_arch", VCPU_STAT(instruction_sigp_arch) },
- 	{ "instruction_sigp_set_prefix", VCPU_STAT(instruction_sigp_prefix) },
- 	{ "instruction_sigp_restart", VCPU_STAT(instruction_sigp_restart) },
-+	{ "instruction_sigp_cpu_reset", VCPU_STAT(instruction_sigp_cpu_reset) },
-+	{ "instruction_sigp_init_cpu_reset", VCPU_STAT(instruction_sigp_init_cpu_reset) },
-+	{ "instruction_sigp_unknown", VCPU_STAT(instruction_sigp_unknown) },
- 	{ "diagnose_10", VCPU_STAT(diagnose_10) },
- 	{ "diagnose_44", VCPU_STAT(diagnose_44) },
- 	{ "diagnose_9c", VCPU_STAT(diagnose_9c) },
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index a9e1739..9ee63e4 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -344,11 +344,12 @@ static int handle_sigp_dst(struct kvm_vcpu *vcpu, u8 order_code,
- 		rc = __sigp_stop(vcpu, dst_vcpu, ACTION_STOP_ON_STOP);
- 		break;
- 	case SIGP_STOP_AND_STORE_STATUS:
--		vcpu->stat.instruction_sigp_stop++;
-+		vcpu->stat.instruction_sigp_stop_store_status++;
- 		rc = __sigp_stop(vcpu, dst_vcpu, ACTION_STORE_ON_STOP |
- 						 ACTION_STOP_ON_STOP);
- 		break;
- 	case SIGP_STORE_STATUS_AT_ADDRESS:
-+		vcpu->stat.instruction_sigp_store_status++;
- 		rc = __sigp_store_status_at_addr(vcpu, dst_vcpu, parameter,
- 						 status_reg);
- 		break;
-@@ -357,6 +358,7 @@ static int handle_sigp_dst(struct kvm_vcpu *vcpu, u8 order_code,
- 		rc = __sigp_set_prefix(vcpu, dst_vcpu, parameter, status_reg);
- 		break;
- 	case SIGP_COND_EMERGENCY_SIGNAL:
-+		vcpu->stat.instruction_sigp_cond_emergency++;
- 		rc = __sigp_conditional_emergency(vcpu, dst_vcpu, parameter,
- 						  status_reg);
- 		break;
-@@ -365,6 +367,7 @@ static int handle_sigp_dst(struct kvm_vcpu *vcpu, u8 order_code,
- 		rc = __sigp_sense_running(vcpu, dst_vcpu, status_reg);
- 		break;
- 	case SIGP_START:
-+		vcpu->stat.instruction_sigp_start++;
- 		rc = __prepare_sigp_re_start(vcpu, dst_vcpu, order_code);
- 		break;
- 	case SIGP_RESTART:
-@@ -372,12 +375,15 @@ static int handle_sigp_dst(struct kvm_vcpu *vcpu, u8 order_code,
- 		rc = __prepare_sigp_re_start(vcpu, dst_vcpu, order_code);
- 		break;
- 	case SIGP_INITIAL_CPU_RESET:
-+		vcpu->stat.instruction_sigp_init_cpu_reset++;
- 		rc = __prepare_sigp_cpu_reset(vcpu, dst_vcpu, order_code);
- 		break;
- 	case SIGP_CPU_RESET:
-+		vcpu->stat.instruction_sigp_cpu_reset++;
- 		rc = __prepare_sigp_cpu_reset(vcpu, dst_vcpu, order_code);
- 		break;
- 	default:
-+		vcpu->stat.instruction_sigp_unknown++;
- 		rc = __prepare_sigp_unknown(vcpu, dst_vcpu);
- 	}
+@@ -453,6 +453,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 	spin_lock_init(&kvm->arch.float_int.lock);
+ 	INIT_LIST_HEAD(&kvm->arch.float_int.list);
+ 	init_waitqueue_head(&kvm->arch.ipte_wq);
++	mutex_init(&kvm->arch.ipte_mutex);
  
+ 	debug_register_view(kvm->arch.dbf, &debug_sprintf_view);
+ 	VM_EVENT(kvm, 3, "%s", "vm created");
 -- 
 1.9.3
