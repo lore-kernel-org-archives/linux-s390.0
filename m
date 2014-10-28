@@ -1,144 +1,61 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 4/9] KVM: s390: sigp: dispatch orders with one target in a separate function
-Date: Tue, 28 Oct 2014 20:39:54 +0100
-Message-ID: <1414525199-53989-5-git-send-email-borntraeger@de.ibm.com>
-References: <1414525199-53989-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 0/9] KVM: s390: Fixes and cleanups for kvm/next (3.19)
+Date: Tue, 28 Oct 2014 20:39:50 +0100
+Message-ID: <1414525199-53989-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1414525199-53989-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Paolo,
 
-All sigp orders except SIGP SET ARCHITECTURE target exactly one vcpu.
+the first bunch on s390 change for next:
 
-Let's move the dispatch code for these orders into a separate function to
-prepare for cleaner target availability checks.
+The following changes since commit cac7f2429872d3733dc3f9915857b1691da2eb2f:
 
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/sigp.c | 74 ++++++++++++++++++++++++++++++----------------------
- 1 file changed, 43 insertions(+), 31 deletions(-)
+  Linux 3.18-rc2 (2014-10-26 16:48:41 -0700)
 
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index cf243ba..5e259bd 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -349,32 +349,15 @@ static int sigp_check_callable(struct kvm_vcpu *vcpu, u16 cpu_addr)
- 	return rc;
- }
- 
--int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu)
-+static int handle_sigp_dst(struct kvm_vcpu *vcpu, u8 order_code,
-+			   u16 cpu_addr, u32 parameter, u64 *status_reg)
- {
--	int r1 = (vcpu->arch.sie_block->ipa & 0x00f0) >> 4;
--	int r3 = vcpu->arch.sie_block->ipa & 0x000f;
--	u32 parameter;
--	u16 cpu_addr = vcpu->run->s.regs.gprs[r3];
--	u8 order_code;
- 	int rc;
- 
--	/* sigp in userspace can exit */
--	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
--		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
--
--	order_code = kvm_s390_get_base_disp_rs(vcpu);
--
--	if (r1 % 2)
--		parameter = vcpu->run->s.regs.gprs[r1];
--	else
--		parameter = vcpu->run->s.regs.gprs[r1 + 1];
--
--	trace_kvm_s390_handle_sigp(vcpu, order_code, cpu_addr, parameter);
- 	switch (order_code) {
- 	case SIGP_SENSE:
- 		vcpu->stat.instruction_sigp_sense++;
--		rc = __sigp_sense(vcpu, cpu_addr,
--				  &vcpu->run->s.regs.gprs[r1]);
-+		rc = __sigp_sense(vcpu, cpu_addr, status_reg);
- 		break;
- 	case SIGP_EXTERNAL_CALL:
- 		vcpu->stat.instruction_sigp_external_call++;
-@@ -395,25 +378,19 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu)
- 		break;
- 	case SIGP_STORE_STATUS_AT_ADDRESS:
- 		rc = __sigp_store_status_at_addr(vcpu, cpu_addr, parameter,
--						 &vcpu->run->s.regs.gprs[r1]);
--		break;
--	case SIGP_SET_ARCHITECTURE:
--		vcpu->stat.instruction_sigp_arch++;
--		rc = __sigp_set_arch(vcpu, parameter);
-+						 status_reg);
- 		break;
- 	case SIGP_SET_PREFIX:
- 		vcpu->stat.instruction_sigp_prefix++;
--		rc = __sigp_set_prefix(vcpu, cpu_addr, parameter,
--				       &vcpu->run->s.regs.gprs[r1]);
-+		rc = __sigp_set_prefix(vcpu, cpu_addr, parameter, status_reg);
- 		break;
- 	case SIGP_COND_EMERGENCY_SIGNAL:
- 		rc = __sigp_conditional_emergency(vcpu, cpu_addr, parameter,
--						  &vcpu->run->s.regs.gprs[r1]);
-+						  status_reg);
- 		break;
- 	case SIGP_SENSE_RUNNING:
- 		vcpu->stat.instruction_sigp_sense_running++;
--		rc = __sigp_sense_running(vcpu, cpu_addr,
--					  &vcpu->run->s.regs.gprs[r1]);
-+		rc = __sigp_sense_running(vcpu, cpu_addr, status_reg);
- 		break;
- 	case SIGP_START:
- 		rc = sigp_check_callable(vcpu, cpu_addr);
-@@ -432,7 +409,42 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu)
- 		}
- 		break;
- 	default:
--		return -EOPNOTSUPP;
-+		rc = -EOPNOTSUPP;
-+	}
-+
-+	return rc;
-+}
-+
-+int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu)
-+{
-+	int r1 = (vcpu->arch.sie_block->ipa & 0x00f0) >> 4;
-+	int r3 = vcpu->arch.sie_block->ipa & 0x000f;
-+	u32 parameter;
-+	u16 cpu_addr = vcpu->run->s.regs.gprs[r3];
-+	u8 order_code;
-+	int rc;
-+
-+	/* sigp in userspace can exit */
-+	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
-+		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-+
-+	order_code = kvm_s390_get_base_disp_rs(vcpu);
-+
-+	if (r1 % 2)
-+		parameter = vcpu->run->s.regs.gprs[r1];
-+	else
-+		parameter = vcpu->run->s.regs.gprs[r1 + 1];
-+
-+	trace_kvm_s390_handle_sigp(vcpu, order_code, cpu_addr, parameter);
-+	switch (order_code) {
-+	case SIGP_SET_ARCHITECTURE:
-+		vcpu->stat.instruction_sigp_arch++;
-+		rc = __sigp_set_arch(vcpu, parameter);
-+		break;
-+	default:
-+		rc = handle_sigp_dst(vcpu, order_code, cpu_addr,
-+				     parameter,
-+				     &vcpu->run->s.regs.gprs[r1]);
- 	}
- 
- 	if (rc < 0)
--- 
-1.9.3
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-20141028
+
+for you to fetch changes up to a6cc3108567e0adc06c4a8031186f84ad1e1e194:
+
+  KVM: s390: sigp: split handling of SIGP STOP (AND STORE STATUS) (2014-10-28 13:09:14 +0100)
+
+----------------------------------------------------------------
+KVM: s390: Fixes and cleanups
+
+1. A small fix regarding program check handling (cc stable as it
+   overwrites the wrong guest memory)
+2. Improve the ipte interlock scalability for older hardware
+3. current->mm to mm cleanup (currently a no-op)
+4. several SIGP rework patches (more to come)
+
+----------------------------------------------------------------
+David Hildenbrand (6):
+      KVM: s390: sigp: dispatch orders with one target in a separate function
+      KVM: s390: sigp: move target cpu checks into dispatcher
+      KVM: s390: sigp: separate preparation handlers
+      KVM: s390: sigp: instruction counters for all sigp orders
+      KVM: s390: sigp: inject emergency calls in a separate function
+      KVM: s390: sigp: split handling of SIGP STOP (AND STORE STATUS)
+
+Jason J. Herne (1):
+      KVM: s390: Cleanup usage of current->mm in set_guest_storage_key
+
+Thomas Huth (2):
+      KVM: s390: Make the simple ipte mutex specific to a VM instead of global
+      KVM: s390: Fix size of monitor-class number field
+
+ arch/s390/include/asm/kvm_host.h |   9 ++
+ arch/s390/include/asm/sigp.h     |   1 +
+ arch/s390/kvm/gaccess.c          |  20 ++-
+ arch/s390/kvm/interrupt.c        |   2 +-
+ arch/s390/kvm/kvm-s390.c         |   8 ++
+ arch/s390/kvm/sigp.c             | 269 ++++++++++++++++++++-------------------
+ arch/s390/mm/pgtable.c           |   2 +-
+ 7 files changed, 168 insertions(+), 143 deletions(-)
