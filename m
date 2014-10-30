@@ -1,70 +1,126 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 8/9] KVM: s390: sigp: inject emergency calls in a separate function
-Date: Tue, 28 Oct 2014 20:39:58 +0100
-Message-ID: <1414525199-53989-9-git-send-email-borntraeger@de.ibm.com>
-References: <1414525199-53989-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1414525199-53989-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <1414659789.10491.9.camel@BR9GV9YG.de.ibm.com>
+Subject: Re: [PATCH] drivers: s390: net: ctcm: migrate variables to handle
+ y2038 problem
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Thu, 30 Oct 2014 10:03:09 +0100
+In-Reply-To: <20141029160234.GA5003@localhost.localdomain>
+References: <20141029160234.GA5003@localhost.localdomain>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Aya Mahfouz <mahfouz.saif.elyazal@gmail.com>
+Cc: ursula.braun@de.ibm.com, blaschka@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de, opw-kernel@googlegroups.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Aya,
 
-In preparation for further code changes, this patch moves the injection of
-emergency calls into a separate function and uses it for the processing of
-SIGP EMERGENCY CALL and SIGP CONDITIONAL EMERGENCY CALL.
+thanks for this patch and thanks for calling our attention to this
+future problem in our code. Here you come up with a solution optimized
+for "accuracy", but you mention already an alternative solution
+optimized for "speed". In ctcm the time stamps are just used to deliver
+a statistic value. Since the time stamps are used in the hot traffic
+path of the ctcm-driver, I prefer the "speed" optimized solution based
+on jiffies here.
 
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/sigp.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+Regards, Ursula Braun
 
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index 9ee63e4..1b330d4 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -46,7 +46,8 @@ static int __sigp_sense(struct kvm_vcpu *vcpu, struct kvm_vcpu *dst_vcpu,
- 	return rc;
- }
- 
--static int __sigp_emergency(struct kvm_vcpu *vcpu, struct kvm_vcpu *dst_vcpu)
-+static int __inject_sigp_emergency(struct kvm_vcpu *vcpu,
-+				    struct kvm_vcpu *dst_vcpu)
- {
- 	struct kvm_s390_interrupt s390int = {
- 		.type = KVM_S390_INT_EMERGENCY,
-@@ -62,6 +63,11 @@ static int __sigp_emergency(struct kvm_vcpu *vcpu, struct kvm_vcpu *dst_vcpu)
- 	return rc ? rc : SIGP_CC_ORDER_CODE_ACCEPTED;
- }
- 
-+static int __sigp_emergency(struct kvm_vcpu *vcpu, struct kvm_vcpu *dst_vcpu)
-+{
-+	return __inject_sigp_emergency(vcpu, dst_vcpu);
-+}
-+
- static int __sigp_conditional_emergency(struct kvm_vcpu *vcpu,
- 					struct kvm_vcpu *dst_vcpu,
- 					u16 asn, u64 *reg)
-@@ -76,12 +82,12 @@ static int __sigp_conditional_emergency(struct kvm_vcpu *vcpu,
- 	p_asn = dst_vcpu->arch.sie_block->gcr[4] & 0xffff;  /* Primary ASN */
- 	s_asn = dst_vcpu->arch.sie_block->gcr[3] & 0xffff;  /* Secondary ASN */
- 
--	/* Deliver the emergency signal? */
-+	/* Inject the emergency signal? */
- 	if (!(flags & CPUSTAT_STOPPED)
- 	    || (psw->mask & psw_int_mask) != psw_int_mask
- 	    || ((flags & CPUSTAT_WAIT) && psw->addr != 0)
- 	    || (!(flags & CPUSTAT_WAIT) && (asn == p_asn || asn == s_asn))) {
--		return __sigp_emergency(vcpu, dst_vcpu);
-+		return __inject_sigp_emergency(vcpu, dst_vcpu);
- 	} else {
- 		*reg &= 0xffffffff00000000UL;
- 		*reg |= SIGP_STATUS_INCORRECT_STATE;
--- 
-1.9.3
+On Wed, 2014-10-29 at 18:02 +0200, Aya Mahfouz wrote:
+> This patch is concerned with migrating the time variables for the s390
+> network driver. The changes handle the y2038 problem where timespec will
+> overflow in the year 2038. timespec64 and unsigned long long were used
+> instead of timespec and unsigned long respectively in two files.
+> All timespec variables use monotonic time values through the function
+> ktime_get_ts64(). This is to make sure that all the time values
+> are calculated from a fixed point.
+> 
+> Signed-off-by: Aya Mahfouz <mahfouz.saif.elyazal@gmail.com>
+> ---
+> v1: Arnd has advised me to provide you with options for time 
+>     calculation. The first option: "accuracy" is used in this
+>     patch. The second option: "speed" can be done through
+>     jiffies and current_kernel_time().
+> 
+>  drivers/s390/net/ctcm_fsms.c | 18 +++++++++++-------
+>  drivers/s390/net/ctcm_main.h |  4 ++--
+>  2 files changed, 13 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
+> index fb92524..233aef8 100644
+> --- a/drivers/s390/net/ctcm_fsms.c
+> +++ b/drivers/s390/net/ctcm_fsms.c
+> @@ -250,8 +250,10 @@ static void chx_txdone(fsm_instance *fi, int event, void *arg)
+>  	struct sk_buff *skb;
+>  	int first = 1;
+>  	int i;
+> -	unsigned long duration;
+> -	struct timespec done_stamp = current_kernel_time(); /* xtime */
+> +	unsigned long long duration;
+> +	struct timespec64 done_stamp;
+> +
+> +	ktime_get_ts64(&done_stamp);
+> 
+>  	CTCM_PR_DEBUG("%s(%s): %s\n", __func__, ch->id, dev->name);
+> 
+> @@ -307,7 +309,7 @@ static void chx_txdone(fsm_instance *fi, int event, void *arg)
+>  		spin_unlock(&ch->collect_lock);
+>  		ch->ccw[1].count = ch->trans_skb->len;
+>  		fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
+> -		ch->prof.send_stamp = current_kernel_time(); /* xtime */
+> +		ktime_get_ts64(&ch->prof.sendstamp);
+>  		rc = ccw_device_start(ch->cdev, &ch->ccw[0],
+>  						(unsigned long)ch, 0xff, 0);
+>  		ch->prof.doios_multi++;
+> @@ -1224,12 +1226,14 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
+>  	int		first = 1;
+>  	int		i;
+>  	__u32		data_space;
+> -	unsigned long	duration;
+> +	unsigned long long	duration;
+>  	struct sk_buff	*peekskb;
+>  	int		rc;
+>  	struct th_header *header;
+>  	struct pdu	*p_header;
+> -	struct timespec done_stamp = current_kernel_time(); /* xtime */
+> +	struct timespec64 done_stamp;
+> +
+> +	ktime_get_ts64(&done_stamp);
+> 
+>  	CTCM_PR_DEBUG("Enter %s: %s cp:%i\n",
+>  			__func__, dev->name, smp_processor_id());
+> @@ -1361,7 +1365,7 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
+> 
+>  	ch->ccw[1].count = ch->trans_skb->len;
+>  	fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
+> -	ch->prof.send_stamp = current_kernel_time(); /* xtime */
+> +	ktime_get_ts64(&ch->prof.send_stamp);
+>  	if (do_debug_ccw)
+>  		ctcmpc_dumpit((char *)&ch->ccw[0], sizeof(struct ccw1) * 3);
+>  	rc = ccw_device_start(ch->cdev, &ch->ccw[0],
+> @@ -1827,7 +1831,7 @@ static void ctcmpc_chx_send_sweep(fsm_instance *fsm, int event, void *arg)
+>  	fsm_newstate(wch->fsm, CTC_STATE_TX);
+> 
+>  	spin_lock_irqsave(get_ccwdev_lock(wch->cdev), saveflags);
+> -	wch->prof.send_stamp = current_kernel_time(); /* xtime */
+> +	ktime_get_ts64(&wch->prof.send_stamp);
+>  	rc = ccw_device_start(wch->cdev, &wch->ccw[3],
+>  					(unsigned long) wch, 0xff, 0);
+>  	spin_unlock_irqrestore(get_ccwdev_lock(wch->cdev), saveflags);
+> diff --git a/drivers/s390/net/ctcm_main.h b/drivers/s390/net/ctcm_main.h
+> index 477c933..ed7d44a 100644
+> --- a/drivers/s390/net/ctcm_main.h
+> +++ b/drivers/s390/net/ctcm_main.h
+> @@ -120,8 +120,8 @@ struct ctcm_profile {
+>  	unsigned long doios_single;
+>  	unsigned long doios_multi;
+>  	unsigned long txlen;
+> -	unsigned long tx_time;
+> -	struct timespec send_stamp;
+> +	unsigned long long tx_time;
+> +	struct timespec64 send_stamp;
+>  };
+> 
+>  /*
