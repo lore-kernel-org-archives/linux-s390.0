@@ -1,126 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1414762715.14369.5.camel@BR9GV9YG.de.ibm.com>
-Subject: Re: [PATCH v2] drivers: s390: net: ctcm: migrate variables to
- handle y2038 problem
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Fri, 31 Oct 2014 14:38:35 +0100
-In-Reply-To: <20141031091850.GA2582@localhost.localdomain>
-References: <20141031091850.GA2582@localhost.localdomain>
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <5453C98C.90105@users.sourceforge.net>
+Date: Fri, 31 Oct 2014 18:40:28 +0100
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+MIME-Version: 1.0
+Subject: Re: [PATCH 1/1] s390/net: Deletion of unnecessary checks before two
+ function calls
+References: <5307CAA2.8060406@users.sourceforge.net> <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6> <530A086E.8010901@users.sourceforge.net> <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6> <530A72AA.3000601@users.sourceforge.net> <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6> <530B5FB6.6010207@users.sourceforge.net> <alpine.DEB.2.10.1402241710370.2074@hadrien> <530C5E18.1020800@users.sourceforge.net> <alpine.DEB.2.10.1402251014170.2080@hadrien> <530CD2C4.4050903@users.sourceforge.net> <alpine.DEB.2.10.1402251840450.7035@hadrien> <530CF8FF.8080600@users.sourceforge.net> <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6> <530DD06F.4090703@users.sourceforge.net> <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6> <5317A59D.4@users.sourceforge.net>
+In-Reply-To: <5317A59D.4@users.sourceforge.net>
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Aya Mahfouz <mahfouz.saif.elyazal@gmail.com>
-Cc: ursula.braun@de.ibm.com, blaschka@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de, opw-kernel@googlegroups.com
+To: Ursula Braun <ursula.braun@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, trivial@kernel.org, Coccinelle <cocci@systeme.lip6.fr>
 List-ID: <linux-s390.vger.kernel.org>
 
-thanks, Aya. I miss drivers/s390/net/ctcm_main.c in your patch. And
-"time_before()" is not the right function to use here, because it
-returns a Bool value. Purpose of the ctcm timespec stuff is to determine
-the time interval between triggering the send operation and receiving
-the confirmation of the send operation. The maximum value is saved and
-can be displayed in the statistics.
+The functions debug_unregister() and kfree_fsm() test whether their argument
+is NULL and then return immediately. Thus the test around the call
+is not needed.
 
-Regards, Ursula Braun
+This issue was detected by using the Coccinelle software.
 
-On Fri, 2014-10-31 at 11:18 +0200, Aya Mahfouz wrote:
-> This patch is concerned with migrating the time variables for the s390
-> network driver. The changes handle the y2038 problem where timespec will
-> overflow in the year 2038. timespec was replaced by unsigned long and
-> all time variables get their values from the jiffies global variable.
-> This was done for the sake of speed and efficiency.
-> 
-> Signed-off-by: Aya Mahfouz <mahfouz.saif.elyazal@gmail.com>
-> ---
-> v1: Arnd has advised me to provide you with options for time
->     calculation. The first option: "accuracy" is used in this
->     patch. The second option: "speed" can be done through
->     jiffies.
-> 
-> v2: Moved on to the speed option. Let me know if I explicitly
->     need to include the jiffies header. The module compiles with
->     no problems on my side.
-> 
->  drivers/s390/net/ctcm_fsms.c | 18 +++++++-----------
->  drivers/s390/net/ctcm_main.h |  2 +-
->  2 files changed, 8 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
-> index fb92524..34b9820 100644
-> --- a/drivers/s390/net/ctcm_fsms.c
-> +++ b/drivers/s390/net/ctcm_fsms.c
-> @@ -251,13 +251,11 @@ static void chx_txdone(fsm_instance *fi, int event, void *arg)
->  	int first = 1;
->  	int i;
->  	unsigned long duration;
-> -	struct timespec done_stamp = current_kernel_time(); /* xtime */
-> +	unsigned long done_stamp = jiffies;
-> 
->  	CTCM_PR_DEBUG("%s(%s): %s\n", __func__, ch->id, dev->name);
-> 
-> -	duration =
-> -	    (done_stamp.tv_sec - ch->prof.send_stamp.tv_sec) * 1000000 +
-> -	    (done_stamp.tv_nsec - ch->prof.send_stamp.tv_nsec) / 1000;
-> +	duration = time_before(done_stamp, ch->prof.send_stamp);
->  	if (duration > ch->prof.tx_time)
->  		ch->prof.tx_time = duration;
-> 
-> @@ -307,7 +305,7 @@ static void chx_txdone(fsm_instance *fi, int event, void *arg)
->  		spin_unlock(&ch->collect_lock);
->  		ch->ccw[1].count = ch->trans_skb->len;
->  		fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
-> -		ch->prof.send_stamp = current_kernel_time(); /* xtime */
-> +		ch->prof.send_stamp = jiffies;
->  		rc = ccw_device_start(ch->cdev, &ch->ccw[0],
->  						(unsigned long)ch, 0xff, 0);
->  		ch->prof.doios_multi++;
-> @@ -1229,14 +1227,12 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
->  	int		rc;
->  	struct th_header *header;
->  	struct pdu	*p_header;
-> -	struct timespec done_stamp = current_kernel_time(); /* xtime */
-> +	unsigned long done_stamp = jiffies;
-> 
->  	CTCM_PR_DEBUG("Enter %s: %s cp:%i\n",
->  			__func__, dev->name, smp_processor_id());
-> 
-> -	duration =
-> -		(done_stamp.tv_sec - ch->prof.send_stamp.tv_sec) * 1000000 +
-> -		(done_stamp.tv_nsec - ch->prof.send_stamp.tv_nsec) / 1000;
-> +	duration = time_before(done_stamp, ch->prof.send_stamp);
->  	if (duration > ch->prof.tx_time)
->  		ch->prof.tx_time = duration;
-> 
-> @@ -1361,7 +1357,7 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
-> 
->  	ch->ccw[1].count = ch->trans_skb->len;
->  	fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
-> -	ch->prof.send_stamp = current_kernel_time(); /* xtime */
-> +	ch->prof.send_stamp = jiffies;
->  	if (do_debug_ccw)
->  		ctcmpc_dumpit((char *)&ch->ccw[0], sizeof(struct ccw1) * 3);
->  	rc = ccw_device_start(ch->cdev, &ch->ccw[0],
-> @@ -1827,7 +1823,7 @@ static void ctcmpc_chx_send_sweep(fsm_instance *fsm, int event, void *arg)
->  	fsm_newstate(wch->fsm, CTC_STATE_TX);
-> 
->  	spin_lock_irqsave(get_ccwdev_lock(wch->cdev), saveflags);
-> -	wch->prof.send_stamp = current_kernel_time(); /* xtime */
-> +	wch->prof.send_stamp = jiffies;
->  	rc = ccw_device_start(wch->cdev, &wch->ccw[3],
->  					(unsigned long) wch, 0xff, 0);
->  	spin_unlock_irqrestore(get_ccwdev_lock(wch->cdev), saveflags);
-> diff --git a/drivers/s390/net/ctcm_main.h b/drivers/s390/net/ctcm_main.h
-> index 477c933..6f4417c 100644
-> --- a/drivers/s390/net/ctcm_main.h
-> +++ b/drivers/s390/net/ctcm_main.h
-> @@ -121,7 +121,7 @@ struct ctcm_profile {
->  	unsigned long doios_multi;
->  	unsigned long txlen;
->  	unsigned long tx_time;
-> -	struct timespec send_stamp;
-> +	unsigned long send_stamp;
->  };
-> 
->  /*
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/s390/net/claw.c      |  6 ++----
+ drivers/s390/net/ctcm_main.c |  6 ++----
+ drivers/s390/net/lcs.c       |  6 ++----
+ drivers/s390/net/netiucv.c   | 12 ++++--------
+ 4 files changed, 10 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/s390/net/claw.c b/drivers/s390/net/claw.c
+index 213e54e..d609ca0 100644
+--- a/drivers/s390/net/claw.c
++++ b/drivers/s390/net/claw.c
+@@ -109,10 +109,8 @@ static debug_info_t *claw_dbf_trace;
+ static void
+ claw_unregister_debug_facility(void)
+ {
+-	if (claw_dbf_setup)
+-		debug_unregister(claw_dbf_setup);
+-	if (claw_dbf_trace)
+-		debug_unregister(claw_dbf_trace);
++	debug_unregister(claw_dbf_setup);
++	debug_unregister(claw_dbf_trace);
+ }
+
+ static int
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index e056dd4..34dc0f3 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -1074,8 +1074,7 @@ static void ctcm_free_netdevice(struct net_device *dev)
+ 	if (priv) {
+ 		grp = priv->mpcg;
+ 		if (grp) {
+-			if (grp->fsm)
+-				kfree_fsm(grp->fsm);
++			kfree_fsm(grp->fsm);
+ 			if (grp->xid_skb)
+ 				dev_kfree_skb(grp->xid_skb);
+ 			if (grp->rcvd_xid_skb)
+@@ -1672,8 +1671,7 @@ static int ctcm_shutdown_device(struct ccwgroup_device *cgdev)
+ 		ctcm_free_netdevice(dev);
+ 	}
+
+-	if (priv->fsm)
+-		kfree_fsm(priv->fsm);
++	kfree_fsm(priv->fsm);
+
+ 	ccw_device_set_offline(cgdev->cdev[1]);
+ 	ccw_device_set_offline(cgdev->cdev[0]);
+diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+index 0a7d87c..5dfa7dd 100644
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -88,10 +88,8 @@ static debug_info_t *lcs_dbf_trace;
+ static void
+ lcs_unregister_debug_facility(void)
+ {
+-	if (lcs_dbf_setup)
+-		debug_unregister(lcs_dbf_setup);
+-	if (lcs_dbf_trace)
+-		debug_unregister(lcs_dbf_trace);
++	debug_unregister(lcs_dbf_setup);
++	debug_unregister(lcs_dbf_trace);
+ }
+
+ static int
+diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
+index 0a87809..bdcc3fe 100644
+--- a/drivers/s390/net/netiucv.c
++++ b/drivers/s390/net/netiucv.c
+@@ -487,12 +487,9 @@ DEFINE_PER_CPU(char[256], iucv_dbf_txt_buf);
+
+ static void iucv_unregister_dbf_views(void)
+ {
+-	if (iucv_dbf_setup)
+-		debug_unregister(iucv_dbf_setup);
+-	if (iucv_dbf_data)
+-		debug_unregister(iucv_dbf_data);
+-	if (iucv_dbf_trace)
+-		debug_unregister(iucv_dbf_trace);
++	debug_unregister(iucv_dbf_setup);
++	debug_unregister(iucv_dbf_data);
++	debug_unregister(iucv_dbf_trace);
+ }
+ static int iucv_register_dbf_views(void)
+ {
+@@ -1975,8 +1972,7 @@ static void netiucv_free_netdevice(struct net_device *dev)
+ 	if (privptr) {
+ 		if (privptr->conn)
+ 			netiucv_remove_connection(privptr->conn);
+-		if (privptr->fsm)
+-			kfree_fsm(privptr->fsm);
++		kfree_fsm(privptr->fsm);
+ 		privptr->conn = NULL; privptr->fsm = NULL;
+ 		/* privptr gets freed by free_netdev() */
+ 	}
+-- 
+2.1.3
