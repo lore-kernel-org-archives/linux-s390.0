@@ -1,42 +1,140 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <544FFC9C.60908@de.ibm.com>
-Date: Tue, 28 Oct 2014 21:29:16 +0100
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Fri, 31 Oct 2014 16:34:51 +0200
+From: Aya Mahfouz <mahfouz.saif.elyazal@gmail.com>
+Subject: Re: [PATCH v2] drivers: s390: net: ctcm: migrate variables to handle
+ y2038 problem
+Message-ID: <20141031143451.GB4166@localhost.localdomain>
+References: <20141031091850.GA2582@localhost.localdomain>
+ <1414762715.14369.5.camel@BR9GV9YG.de.ibm.com>
 MIME-Version: 1.0
-Subject: Re: blk-mq vs cpu hotplug performance (due to percpu_ref_put performance)
-References: <544FF00B.8050403@de.ibm.com> <20141028200055.GA8205@htj.dyndns.org> <544FFAA7.1060705@de.ibm.com> <20141028202255.GB8205@htj.dyndns.org>
-In-Reply-To: <20141028202255.GB8205@htj.dyndns.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1414762715.14369.5.camel@BR9GV9YG.de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Tejun Heo <tj@kernel.org>
-Cc: Kent Overstreet <kmo@daterainc.com>, Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>, "linux-kernel@vger.kernel.org >> Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+To: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Cc: blaschka@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de, opw-kernel@googlegroups.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Am 28.10.2014 21:22, schrieb Tejun Heo:
-> On Tue, Oct 28, 2014 at 09:20:55PM +0100, Christian Borntraeger wrote:
->> I have not verified this, but I guess what happens is:
->> hotplug
->> -> notify
->> -> blk_mq_queue_reinit_notify
->> -> blk_mq_queue_reinit
->> -> blk_mq_freeze_queue
->> -> percpu_ref_kill
->> -> percpu_ref_kill_and_confirm
->> -> __percpu_ref_switch_to_atomic
->> -> call_rcu_sched  
+On Fri, Oct 31, 2014 at 02:38:35PM +0100, Ursula Braun wrote:
+> thanks, Aya. I miss drivers/s390/net/ctcm_main.c in your patch. And
+
+Hello Ursula,
+ ok. I will see what needs to do in it. I did not change it.
+
+> "time_before()" is not the right function to use here, because it
+> returns a Bool value. Purpose of the ctcm timespec stuff is to determine
+> the time interval between triggering the send operation and receiving
+> the confirmation of the send operation. The maximum value is saved and
+> can be displayed in the statistics.
+
+Yes, you're right. I will fix that. Sorry!
 > 
-> But call_rcu_sched() wouldn't show up as latency.  It's an async call
-> unlike synchronize_*().
+> Regards, Ursula Braun
+> 
 
-Right, but
+Kind Regards,
+Aya Saif El-yazal Mahfouz
 
-blk_mq_freeze_queue
-
-also contains
-
-wait_event(q->mq_freeze_wq, percpu_ref_is_zero(&q->mq_usage_counter));
-
-Isnt that wait_event woken up at the end of the call_rcu_sched?
+> On Fri, 2014-10-31 at 11:18 +0200, Aya Mahfouz wrote:
+> > This patch is concerned with migrating the time variables for the s390
+> > network driver. The changes handle the y2038 problem where timespec will
+> > overflow in the year 2038. timespec was replaced by unsigned long and
+> > all time variables get their values from the jiffies global variable.
+> > This was done for the sake of speed and efficiency.
+> > 
+> > Signed-off-by: Aya Mahfouz <mahfouz.saif.elyazal@gmail.com>
+> > ---
+> > v1: Arnd has advised me to provide you with options for time
+> >     calculation. The first option: "accuracy" is used in this
+> >     patch. The second option: "speed" can be done through
+> >     jiffies.
+> > 
+> > v2: Moved on to the speed option. Let me know if I explicitly
+> >     need to include the jiffies header. The module compiles with
+> >     no problems on my side.
+> > 
+> >  drivers/s390/net/ctcm_fsms.c | 18 +++++++-----------
+> >  drivers/s390/net/ctcm_main.h |  2 +-
+> >  2 files changed, 8 insertions(+), 12 deletions(-)
+> > 
+> > diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
+> > index fb92524..34b9820 100644
+> > --- a/drivers/s390/net/ctcm_fsms.c
+> > +++ b/drivers/s390/net/ctcm_fsms.c
+> > @@ -251,13 +251,11 @@ static void chx_txdone(fsm_instance *fi, int event, void *arg)
+> >  	int first = 1;
+> >  	int i;
+> >  	unsigned long duration;
+> > -	struct timespec done_stamp = current_kernel_time(); /* xtime */
+> > +	unsigned long done_stamp = jiffies;
+> > 
+> >  	CTCM_PR_DEBUG("%s(%s): %s\n", __func__, ch->id, dev->name);
+> > 
+> > -	duration =
+> > -	    (done_stamp.tv_sec - ch->prof.send_stamp.tv_sec) * 1000000 +
+> > -	    (done_stamp.tv_nsec - ch->prof.send_stamp.tv_nsec) / 1000;
+> > +	duration = time_before(done_stamp, ch->prof.send_stamp);
+> >  	if (duration > ch->prof.tx_time)
+> >  		ch->prof.tx_time = duration;
+> > 
+> > @@ -307,7 +305,7 @@ static void chx_txdone(fsm_instance *fi, int event, void *arg)
+> >  		spin_unlock(&ch->collect_lock);
+> >  		ch->ccw[1].count = ch->trans_skb->len;
+> >  		fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
+> > -		ch->prof.send_stamp = current_kernel_time(); /* xtime */
+> > +		ch->prof.send_stamp = jiffies;
+> >  		rc = ccw_device_start(ch->cdev, &ch->ccw[0],
+> >  						(unsigned long)ch, 0xff, 0);
+> >  		ch->prof.doios_multi++;
+> > @@ -1229,14 +1227,12 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
+> >  	int		rc;
+> >  	struct th_header *header;
+> >  	struct pdu	*p_header;
+> > -	struct timespec done_stamp = current_kernel_time(); /* xtime */
+> > +	unsigned long done_stamp = jiffies;
+> > 
+> >  	CTCM_PR_DEBUG("Enter %s: %s cp:%i\n",
+> >  			__func__, dev->name, smp_processor_id());
+> > 
+> > -	duration =
+> > -		(done_stamp.tv_sec - ch->prof.send_stamp.tv_sec) * 1000000 +
+> > -		(done_stamp.tv_nsec - ch->prof.send_stamp.tv_nsec) / 1000;
+> > +	duration = time_before(done_stamp, ch->prof.send_stamp);
+> >  	if (duration > ch->prof.tx_time)
+> >  		ch->prof.tx_time = duration;
+> > 
+> > @@ -1361,7 +1357,7 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
+> > 
+> >  	ch->ccw[1].count = ch->trans_skb->len;
+> >  	fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
+> > -	ch->prof.send_stamp = current_kernel_time(); /* xtime */
+> > +	ch->prof.send_stamp = jiffies;
+> >  	if (do_debug_ccw)
+> >  		ctcmpc_dumpit((char *)&ch->ccw[0], sizeof(struct ccw1) * 3);
+> >  	rc = ccw_device_start(ch->cdev, &ch->ccw[0],
+> > @@ -1827,7 +1823,7 @@ static void ctcmpc_chx_send_sweep(fsm_instance *fsm, int event, void *arg)
+> >  	fsm_newstate(wch->fsm, CTC_STATE_TX);
+> > 
+> >  	spin_lock_irqsave(get_ccwdev_lock(wch->cdev), saveflags);
+> > -	wch->prof.send_stamp = current_kernel_time(); /* xtime */
+> > +	wch->prof.send_stamp = jiffies;
+> >  	rc = ccw_device_start(wch->cdev, &wch->ccw[3],
+> >  					(unsigned long) wch, 0xff, 0);
+> >  	spin_unlock_irqrestore(get_ccwdev_lock(wch->cdev), saveflags);
+> > diff --git a/drivers/s390/net/ctcm_main.h b/drivers/s390/net/ctcm_main.h
+> > index 477c933..6f4417c 100644
+> > --- a/drivers/s390/net/ctcm_main.h
+> > +++ b/drivers/s390/net/ctcm_main.h
+> > @@ -121,7 +121,7 @@ struct ctcm_profile {
+> >  	unsigned long doios_multi;
+> >  	unsigned long txlen;
+> >  	unsigned long tx_time;
+> > -	struct timespec send_stamp;
+> > +	unsigned long send_stamp;
+> >  };
+> > 
+> >  /*
+> 
+> 
