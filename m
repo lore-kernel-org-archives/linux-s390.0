@@ -1,100 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sun, 30 Nov 2014 17:09:40 +0200
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v7 06/46] virtio_ccw: add support for 64 bit features.
-Message-ID: <1417359787-10138-7-git-send-email-mst@redhat.com>
-References: <1417359787-10138-1-git-send-email-mst@redhat.com>
+Date: Tue, 4 Nov 2014 13:52:27 -0500
+From: Tejun Heo <tj@kernel.org>
+Subject: [PATCH block/for-linus] blk-mq: make mq_queue_reinit_notify() freeze
+ queues in parallel
+Message-ID: <20141104185227.GH14459@htj.dyndns.org>
+References: <544FF00B.8050403@de.ibm.com>
+ <20141028200055.GA8205@htj.dyndns.org>
+ <544FFAA7.1060705@de.ibm.com>
+ <20141028202255.GB8205@htj.dyndns.org>
+ <544FFC9C.60908@de.ibm.com>
+ <20141028203040.GD8205@htj.dyndns.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1417359787-10138-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20141028203040.GD8205@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: David Miller <davem@davemloft.net>, cornelia.huck@de.ibm.com, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, dahi@linux.vnet.ibm.com, Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Kent Overstreet <kmo@daterainc.com>, Christoph Hellwig <hch@lst.de>, "linux-kernel@vger.kernel.org >> Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Negotiate full 64 bit features.
-Change u32 to u64, make sure to use 1ULL everywhere.
+q->mq_usage_counter is a percpu_ref which is killed and drained when
+the queue is frozen.  On a CPU hotplug event, blk_mq_queue_reinit()
+which involves freezing the queue is invoked on all existing queues.
+Because percpu_ref killing and draining involve a RCU grace period,
+doing the above on one queue after another may take a long time if
+there are many queues on the system.
 
-Note: devices guarantee that VERSION_1 is clear unless
-revision 1 is negotiated.
+This patch splits out initiation of freezing and waiting for its
+completion, and updates blk_mq_queue_reinit_notify() so that the
+queues are frozen in parallel instead of one after another.  Note that
+freezing and unfreezing are moved from blk_mq_queue_reinit() to
+blk_mq_queue_reinit_notify().
 
-Note: We don't need to re-setup the ccw, but we do it
-for clarity.
-
-Based on patches by Rusty, Thomas Huth and Cornelia.
-
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/s390/kvm/virtio_ccw.c | 30 +++++++++++++++++++++++-------
- 1 file changed, 23 insertions(+), 7 deletions(-)
+Christian, can you please verify that this resolves the latency issue
+that you're seeing?  Jens, can you please route this patch once
+Christian confirms it?
 
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 244d611..65d0c80 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -664,7 +664,8 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+Thanks!
+
+ block/blk-mq.c |   41 +++++++++++++++++++++++++++++++++--------
+ 1 file changed, 33 insertions(+), 8 deletions(-)
+
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -107,11 +107,7 @@ static void blk_mq_usage_counter_release
+ 	wake_up_all(&q->mq_freeze_wq);
+ }
+ 
+-/*
+- * Guarantee no request is in use, so we can change any data structure of
+- * the queue afterward.
+- */
+-void blk_mq_freeze_queue(struct request_queue *q)
++static void blk_mq_freeze_queue_start(struct request_queue *q)
  {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
- 	struct virtio_feature_desc *features;
--	int ret, rc;
-+	int ret;
-+	u64 rc;
- 	struct ccw1 *ccw;
+ 	bool freeze;
  
- 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-@@ -677,7 +678,6 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
- 		goto out_free;
+@@ -123,9 +119,23 @@ void blk_mq_freeze_queue(struct request_
+ 		percpu_ref_kill(&q->mq_usage_counter);
+ 		blk_mq_run_queues(q, false);
  	}
- 	/* Read the feature bits from the host. */
--	/* TODO: Features > 32 bits */
- 	features->index = 0;
- 	ccw->cmd_code = CCW_CMD_READ_FEAT;
- 	ccw->flags = 0;
-@@ -691,6 +691,16 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
- 
- 	rc = le32_to_cpu(features->features);
- 
-+	/* Read second half of the feature bits from the host. */
-+	features->index = 1;
-+	ccw->cmd_code = CCW_CMD_READ_FEAT;
-+	ccw->flags = 0;
-+	ccw->count = sizeof(*features);
-+	ccw->cda = (__u32)(unsigned long)features;
-+	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_FEAT);
-+	if (ret == 0)
-+		rc |= (u64)le32_to_cpu(features->features) << 32;
++}
 +
- out_free:
- 	kfree(features);
- 	kfree(ccw);
-@@ -714,12 +724,18 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
++static void blk_mq_freeze_queue_wait(struct request_queue *q)
++{
+ 	wait_event(q->mq_freeze_wq, percpu_ref_is_zero(&q->mq_usage_counter));
+ }
  
--	/* Make sure we don't have any features > 32 bits! */
--	BUG_ON((u32)vdev->features != vdev->features);
++/*
++ * Guarantee no request is in use, so we can change any data structure of
++ * the queue afterward.
++ */
++void blk_mq_freeze_queue(struct request_queue *q)
++{
++	blk_mq_freeze_queue_start(q);
++	blk_mq_freeze_queue_wait(q);
++}
++
+ static void blk_mq_unfreeze_queue(struct request_queue *q)
+ {
+ 	bool wake;
+@@ -1921,7 +1931,7 @@ void blk_mq_free_queue(struct request_qu
+ /* Basically redo blk_mq_init_queue with queue frozen */
+ static void blk_mq_queue_reinit(struct request_queue *q)
+ {
+-	blk_mq_freeze_queue(q);
++	WARN_ON_ONCE(!q->mq_freeze_depth);
+ 
+ 	blk_mq_sysfs_unregister(q);
+ 
+@@ -1936,8 +1946,6 @@ static void blk_mq_queue_reinit(struct r
+ 	blk_mq_map_swqueue(q);
+ 
+ 	blk_mq_sysfs_register(q);
 -
- 	features->index = 0;
--	features->features = cpu_to_le32(vdev->features);
--	/* Write the feature bits to the host. */
-+	features->features = cpu_to_le32((u32)vdev->features);
-+	/* Write the first half of the feature bits to the host. */
-+	ccw->cmd_code = CCW_CMD_WRITE_FEAT;
-+	ccw->flags = 0;
-+	ccw->count = sizeof(*features);
-+	ccw->cda = (__u32)(unsigned long)features;
-+	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
+-	blk_mq_unfreeze_queue(q);
+ }
+ 
+ static int blk_mq_queue_reinit_notify(struct notifier_block *nb,
+@@ -1956,8 +1964,25 @@ static int blk_mq_queue_reinit_notify(st
+ 		return NOTIFY_OK;
+ 
+ 	mutex_lock(&all_q_mutex);
 +
-+	features->index = 1;
-+	features->features = cpu_to_le32(vdev->features >> 32);
-+	/* Write the second half of the feature bits to the host. */
- 	ccw->cmd_code = CCW_CMD_WRITE_FEAT;
- 	ccw->flags = 0;
- 	ccw->count = sizeof(*features);
--- 
-MST
++	/*
++	 * We need to freeze and reinit all existing queues.  Freezing
++	 * involves synchronous wait for an RCU grace period and doing it
++	 * one by one may take a long time.  Start freezing all queues in
++	 * one swoop and then wait for the completions so that freezing can
++	 * take place in parallel.
++	 */
++	list_for_each_entry(q, &all_q_list, all_q_node)
++		blk_mq_freeze_queue_start(q);
++	list_for_each_entry(q, &all_q_list, all_q_node)
++		blk_mq_freeze_queue_wait(q);
++
+ 	list_for_each_entry(q, &all_q_list, all_q_node)
+ 		blk_mq_queue_reinit(q);
++
++	list_for_each_entry(q, &all_q_list, all_q_node)
++		blk_mq_unfreeze_queue(q);
++
+ 	mutex_unlock(&all_q_mutex);
+ 	return NOTIFY_OK;
+ }
