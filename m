@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/4] KVM: s390: Fix ipte locking
-Date: Fri,  7 Nov 2014 12:45:13 +0100
-Message-ID: <1415360716-9670-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 2/4] KVM: s390: flush CPU on load control
+Date: Fri,  7 Nov 2014 12:45:14 +0100
+Message-ID: <1415360716-9670-3-git-send-email-borntraeger@de.ibm.com>
 References: <1415360716-9670-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <stable-owner@vger.kernel.org>
 In-Reply-To: <1415360716-9670-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,147 +9,44 @@ Sender: stable-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, stable@vger.kernel.org, #@tuxmaker.boeblingen.de.ibm.com, v3.16+@tuxmaker.boeblingen.de.ibm.com
+Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-ipte_unlock_siif uses cmpxchg to replace the in-memory data of the ipte
-lock together with ACCESS_ONCE for the intial read.
-
-union ipte_control {
-        unsigned long val;
-        struct {
-                unsigned long k  : 1;
-                unsigned long kh : 31;
-                unsigned long kg : 32;
-        };
-};
-[...]
-static void ipte_unlock_siif(struct kvm_vcpu *vcpu)
-{
-        union ipte_control old, new, *ic;
-
-        ic = &vcpu->kvm->arch.sca->ipte_control;
-        do {
-                new = old = ACCESS_ONCE(*ic);
-                new.kh--;
-                if (!new.kh)
-                        new.k = 0;
-        } while (cmpxchg(&ic->val, old.val, new.val) != old.val);
-        if (!new.kh)
-                wake_up(&vcpu->kvm->arch.ipte_wq);
-}
-
-The new value, is loaded twice from memory with gcc 4.7.2 of
-fedora 18, despite the ACCESS_ONCE:
-
---->
-
-l       %r4,0(%r3)      <--- load first 32 bit of lock (k and kh) in r4
-alfi    %r4,2147483647  <--- add -1 to r4
-llgtr   %r4,%r4         <--- zero out the sign bit of r4
-lg      %r1,0(%r3)      <--- load all 64 bit of lock into new
-lgr     %r2,%r1         <--- load the same into old
-risbg   %r1,%r4,1,31,32 <--- shift and insert r4 into the bits 1-31 of
-new
-llihf   %r4,2147483647
-ngrk    %r4,%r1,%r4
-jne     aa0 <ipte_unlock+0xf8>
-nihh    %r1,32767
-lgr     %r4,%r2
-csg     %r4,%r1,0(%r3)
-cgr     %r2,%r4
-jne     a70 <ipte_unlock+0xc8>
-
-If the memory value changes between the first load (l) and the second
-load (lg) we are broken. If that happens VCPU threads will hang
-(unkillable) in handle_ipte_interlock.
-
-Andreas Krebbel analyzed this and tracked it down to a compiler bug in
-that version:
-"while it is not that obvious the C99 standard basically forbids
-duplicating the memory access also in that case. For an argumentation of
-a similiar case please see:
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=22278#c43
-
-For the implementation-defined cases regarding volatile there are some
-GCC-specific clarifications which can be found here:
-https://gcc.gnu.org/onlinedocs/gcc/Volatiles.html#Volatiles
-
-I've tracked down the problem with a reduced testcase. The problem was
-that during a tree level optimization (SRA - scalar replacement of
-aggregates) the volatile marker is lost. And an RTL level optimizer (CSE
-- common subexpression elimination) then propagated the memory read into
-  its second use introducing another access to the memory location. So
-indeed Christian's suspicion that the union access has something to do
-with it is correct (since it triggered the SRA optimization).
-
-This issue has been reported and fixed in the GCC 4.8 development cycle:
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58145"
-
-This patch replaces the ACCESS_ONCE scheme with a barrier() based scheme
-that should work for all supported compilers.
+some control register changes will flush some aspects of the CPU, e.g.
+POP explicitely mentions that for CR9-CR11 "TLBs may be cleared".
+Instead of trying to be clever and only flush on specific CRs, let
+play safe and flush on all lctl(g) as future machines might define
+new bits in CRs. Load control intercept should not happen that often.
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: stable@vger.kernel.org # v3.16+
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org
 ---
- arch/s390/kvm/gaccess.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ arch/s390/kvm/priv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 0f961a1..6dc0ad9 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -229,10 +229,12 @@ static void ipte_lock_simple(struct kvm_vcpu *vcpu)
- 		goto out;
- 	ic = &vcpu->kvm->arch.sca->ipte_control;
- 	do {
--		old = ACCESS_ONCE(*ic);
-+		old = *ic;
-+		barrier();
- 		while (old.k) {
- 			cond_resched();
--			old = ACCESS_ONCE(*ic);
-+			old = *ic;
-+			barrier();
- 		}
- 		new = old;
- 		new.k = 1;
-@@ -251,7 +253,9 @@ static void ipte_unlock_simple(struct kvm_vcpu *vcpu)
- 		goto out;
- 	ic = &vcpu->kvm->arch.sca->ipte_control;
- 	do {
--		new = old = ACCESS_ONCE(*ic);
-+		old = *ic;
-+		barrier();
-+		new = old;
- 		new.k = 0;
- 	} while (cmpxchg(&ic->val, old.val, new.val) != old.val);
- 	wake_up(&vcpu->kvm->arch.ipte_wq);
-@@ -265,10 +269,12 @@ static void ipte_lock_siif(struct kvm_vcpu *vcpu)
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 72bb2dd..9c565b6 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -791,7 +791,7 @@ int kvm_s390_handle_lctl(struct kvm_vcpu *vcpu)
+ 			break;
+ 		reg = (reg + 1) % 16;
+ 	} while (1);
+-
++	kvm_make_request(KVM_REQ_TLB_FLUSH, vcpu);
+ 	return 0;
+ }
  
- 	ic = &vcpu->kvm->arch.sca->ipte_control;
- 	do {
--		old = ACCESS_ONCE(*ic);
-+		old = *ic;
-+		barrier();
- 		while (old.kg) {
- 			cond_resched();
--			old = ACCESS_ONCE(*ic);
-+			old = *ic;
-+			barrier();
- 		}
- 		new = old;
- 		new.k = 1;
-@@ -282,7 +288,9 @@ static void ipte_unlock_siif(struct kvm_vcpu *vcpu)
+@@ -863,7 +863,7 @@ static int handle_lctlg(struct kvm_vcpu *vcpu)
+ 			break;
+ 		reg = (reg + 1) % 16;
+ 	} while (1);
+-
++	kvm_make_request(KVM_REQ_TLB_FLUSH, vcpu);
+ 	return 0;
+ }
  
- 	ic = &vcpu->kvm->arch.sca->ipte_control;
- 	do {
--		new = old = ACCESS_ONCE(*ic);
-+		old = *ic;
-+		barrier();
-+		new = old;
- 		new.kh--;
- 		if (!new.kh)
- 			new.k = 0;
 -- 
 1.9.3
