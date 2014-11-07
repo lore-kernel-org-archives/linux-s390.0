@@ -1,50 +1,51 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 0/4] KVM: s390: Fixes for kvm/next (3.19) and stable
-Date: Fri,  7 Nov 2014 12:45:12 +0100
-Message-ID: <1415360716-9670-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 4/4] KVM: fix vm device attribute documentation
+Date: Fri,  7 Nov 2014 12:45:16 +0100
+Message-ID: <1415360716-9670-5-git-send-email-borntraeger@de.ibm.com>
+References: <1415360716-9670-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1415360716-9670-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo,
+From: Dominik Dingel <dingel@linux.vnet.ibm.com>
 
-here are some fixes for KVM on s390 for kvm/next. The first two patches
-have a stable tag and could also go via kvm/master - if you like.
+Documentation uses incorrect attribute names for some vm device
+attributes: fix this.
 
-The following changes since commit 0df1f2487d2f0d04703f142813d53615d62a1da4:
+Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ Documentation/virtual/kvm/devices/vm.txt | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-  Linux 3.18-rc3 (2014-11-02 15:01:51 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-20141107
-
-for you to fetch changes up to 365dc1633521a32d55d839f56b41bb9a531d957a:
-
-----------------------------------------------------------------
-KVM: s390: Fixes for kvm/next (3.19) and stable
-
-1. We should flush TLBs for load control instruction emulation (stable)
-2. A workaround for a compiler bug that renders ACCESS_ONCE broken (stable)
-3. Fix program check handling for load control
-4. Documentation Fix
-
-----------------------------------------------------------------
-Christian Borntraeger (2):
-      KVM: s390: Fix ipte locking
-      KVM: s390: flush CPU on load control
-
-Dominik Dingel (1):
-      KVM: fix vm device attribute documentation
-
-Heiko Carstens (1):
-      KVM: s390: fix handling of lctl[g]/stctl[g]
-
- Documentation/virtual/kvm/devices/vm.txt | 10 ++---
- arch/s390/kvm/gaccess.c                  | 20 ++++++---
- arch/s390/kvm/priv.c                     | 72 +++++++++++++++-----------------
- 3 files changed, 53 insertions(+), 49 deletions(-)
+diff --git a/Documentation/virtual/kvm/devices/vm.txt b/Documentation/virtual/kvm/devices/vm.txt
+index 0d16f96..d426fc8 100644
+--- a/Documentation/virtual/kvm/devices/vm.txt
++++ b/Documentation/virtual/kvm/devices/vm.txt
+@@ -12,14 +12,14 @@ specific.
+ 1. GROUP: KVM_S390_VM_MEM_CTRL
+ Architectures: s390
+ 
+-1.1. ATTRIBUTE: KVM_S390_VM_MEM_CTRL
++1.1. ATTRIBUTE: KVM_S390_VM_MEM_ENABLE_CMMA
+ Parameters: none
+-Returns: -EBUSY if already a vcpus is defined, otherwise 0
++Returns: -EBUSY if a vcpu is already defined, otherwise 0
+ 
+-Enables CMMA for the virtual machine
++Enables Collaborative Memory Management Assist (CMMA) for the virtual machine.
+ 
+-1.2. ATTRIBUTE: KVM_S390_VM_CLR_CMMA
+-Parameteres: none
++1.2. ATTRIBUTE: KVM_S390_VM_MEM_CLR_CMMA
++Parameters: none
+ Returns: 0
+ 
+ Clear the CMMA status for all guest pages, so any pages the guest marked
+-- 
+1.9.3
