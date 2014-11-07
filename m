@@ -1,207 +1,155 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 5 Nov 2014 21:04:43 +0200
-From: Aya Mahfouz <mahfouz.saif.elyazal@gmail.com>
-Subject: [PATCH v5] drivers: s390: net: ctcm: migrate variables to handle
- y2038 problem
-Message-ID: <20141105190443.GA3868@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: ursula.braun@de.ibm.com, blaschka@linux.vnet.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
-Cc: linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/4] KVM: s390: Fix ipte locking
+Date: Fri,  7 Nov 2014 12:45:13 +0100
+Message-ID: <1415360716-9670-2-git-send-email-borntraeger@de.ibm.com>
+References: <1415360716-9670-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1415360716-9670-1-git-send-email-borntraeger@de.ibm.com>
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, stable@vger.kernel.org, #@tuxmaker.boeblingen.de.ibm.com, v3.16+@tuxmaker.boeblingen.de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch is concerned with migrating the time variables for the s390
-network driver. The changes handle the y2038 problem where timespec will
-overflow in the year 2038. timespec was replaced by unsigned long and
-all time variables get their values from the jiffies global variable.
-This was done for the sake of speed and efficiency.
+ipte_unlock_siif uses cmpxchg to replace the in-memory data of the ipte
+lock together with ACCESS_ONCE for the intial read.
 
-ch->prof.tx_time will now hold the difference between two jiffies'
-values instead of the difference between two xtime values
-represented in microseconds.
+union ipte_control {
+        unsigned long val;
+        struct {
+                unsigned long k  : 1;
+                unsigned long kh : 31;
+                unsigned long kg : 32;
+        };
+};
+[...]
+static void ipte_unlock_siif(struct kvm_vcpu *vcpu)
+{
+        union ipte_control old, new, *ic;
 
-Signed-off-by: Aya Mahfouz <mahfouz.saif.elyazal@gmail.com>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
+        ic = &vcpu->kvm->arch.sca->ipte_control;
+        do {
+                new = old = ACCESS_ONCE(*ic);
+                new.kh--;
+                if (!new.kh)
+                        new.k = 0;
+        } while (cmpxchg(&ic->val, old.val, new.val) != old.val);
+        if (!new.kh)
+                wake_up(&vcpu->kvm->arch.ipte_wq);
+}
+
+The new value, is loaded twice from memory with gcc 4.7.2 of
+fedora 18, despite the ACCESS_ONCE:
+
+--->
+
+l       %r4,0(%r3)      <--- load first 32 bit of lock (k and kh) in r4
+alfi    %r4,2147483647  <--- add -1 to r4
+llgtr   %r4,%r4         <--- zero out the sign bit of r4
+lg      %r1,0(%r3)      <--- load all 64 bit of lock into new
+lgr     %r2,%r1         <--- load the same into old
+risbg   %r1,%r4,1,31,32 <--- shift and insert r4 into the bits 1-31 of
+new
+llihf   %r4,2147483647
+ngrk    %r4,%r1,%r4
+jne     aa0 <ipte_unlock+0xf8>
+nihh    %r1,32767
+lgr     %r4,%r2
+csg     %r4,%r1,0(%r3)
+cgr     %r2,%r4
+jne     a70 <ipte_unlock+0xc8>
+
+If the memory value changes between the first load (l) and the second
+load (lg) we are broken. If that happens VCPU threads will hang
+(unkillable) in handle_ipte_interlock.
+
+Andreas Krebbel analyzed this and tracked it down to a compiler bug in
+that version:
+"while it is not that obvious the C99 standard basically forbids
+duplicating the memory access also in that case. For an argumentation of
+a similiar case please see:
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=22278#c43
+
+For the implementation-defined cases regarding volatile there are some
+GCC-specific clarifications which can be found here:
+https://gcc.gnu.org/onlinedocs/gcc/Volatiles.html#Volatiles
+
+I've tracked down the problem with a reduced testcase. The problem was
+that during a tree level optimization (SRA - scalar replacement of
+aggregates) the volatile marker is lost. And an RTL level optimizer (CSE
+- common subexpression elimination) then propagated the memory read into
+  its second use introducing another access to the memory location. So
+indeed Christian's suspicion that the union access has something to do
+with it is correct (since it triggered the SRA optimization).
+
+This issue has been reported and fixed in the GCC 4.8 development cycle:
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58145"
+
+This patch replaces the ACCESS_ONCE scheme with a barrier() based scheme
+that should work for all supported compilers.
+
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: stable@vger.kernel.org # v3.16+
 ---
-v1: Arnd has advised me to provide you with options for time
-    calculation. The first option: "accuracy" is used in this
-    patch. The second option: "speed" can be done through
-    jiffies.
+ arch/s390/kvm/gaccess.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-v2: Moved on to the speed option. Let me know if I explicitly
-    need to include the jiffies header. The module compiles with
-    no problems on my side.
-
-v3: Handled the error pointed out by Ursula. The current version
-    does not handle overflows. There are two solutions for this.
-    The first is to use jiffies_64 since s/390 is a 64-bit
-    architecture after all. The second is to use wrapper functions
-    like time_before and time_after. Two files were added too.
-    They are: ctcm_main.c and netiucv.c. This patch could be sent
-    as a patchset in its final version for convenience.
-
-v4: removed #include <linux/jiffies.h> per Ursula's feedback.
-    Changed duration to hold the difference between jiffies
-    instead of difference between microsecond values per Arnd's
-    suggestion.
-
-v5: added changes written by Ursula to handle missed modifications.
-
- drivers/s390/net/ctcm_fsms.c  | 18 +++++++-----------
- drivers/s390/net/ctcm_main.c  |  4 ++--
- drivers/s390/net/ctcm_main.h  |  2 +-
- drivers/s390/net/ctcm_sysfs.c |  4 ++--
- drivers/s390/net/netiucv.c    |  6 +++---
- 5 files changed, 15 insertions(+), 19 deletions(-)
-
-diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
-index fb92524..49143c3 100644
---- a/drivers/s390/net/ctcm_fsms.c
-+++ b/drivers/s390/net/ctcm_fsms.c
-@@ -251,13 +251,11 @@ static void chx_txdone(fsm_instance *fi, int event, void *arg)
- 	int first = 1;
- 	int i;
- 	unsigned long duration;
--	struct timespec done_stamp = current_kernel_time(); /* xtime */
-+	unsigned long done_stamp jiffies;
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 0f961a1..6dc0ad9 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -229,10 +229,12 @@ static void ipte_lock_simple(struct kvm_vcpu *vcpu)
+ 		goto out;
+ 	ic = &vcpu->kvm->arch.sca->ipte_control;
+ 	do {
+-		old = ACCESS_ONCE(*ic);
++		old = *ic;
++		barrier();
+ 		while (old.k) {
+ 			cond_resched();
+-			old = ACCESS_ONCE(*ic);
++			old = *ic;
++			barrier();
+ 		}
+ 		new = old;
+ 		new.k = 1;
+@@ -251,7 +253,9 @@ static void ipte_unlock_simple(struct kvm_vcpu *vcpu)
+ 		goto out;
+ 	ic = &vcpu->kvm->arch.sca->ipte_control;
+ 	do {
+-		new = old = ACCESS_ONCE(*ic);
++		old = *ic;
++		barrier();
++		new = old;
+ 		new.k = 0;
+ 	} while (cmpxchg(&ic->val, old.val, new.val) != old.val);
+ 	wake_up(&vcpu->kvm->arch.ipte_wq);
+@@ -265,10 +269,12 @@ static void ipte_lock_siif(struct kvm_vcpu *vcpu)
  
- 	CTCM_PR_DEBUG("%s(%s): %s\n", __func__, ch->id, dev->name);
+ 	ic = &vcpu->kvm->arch.sca->ipte_control;
+ 	do {
+-		old = ACCESS_ONCE(*ic);
++		old = *ic;
++		barrier();
+ 		while (old.kg) {
+ 			cond_resched();
+-			old = ACCESS_ONCE(*ic);
++			old = *ic;
++			barrier();
+ 		}
+ 		new = old;
+ 		new.k = 1;
+@@ -282,7 +288,9 @@ static void ipte_unlock_siif(struct kvm_vcpu *vcpu)
  
--	duration =
--	    (done_stamp.tv_sec - ch->prof.send_stamp.tv_sec) * 1000000 +
--	    (done_stamp.tv_nsec - ch->prof.send_stamp.tv_nsec) / 1000;
-+	duration = done_stamp -ch->prof.send_stamp;
- 	if (duration > ch->prof.tx_time)
- 		ch->prof.tx_time = duration;
- 
-@@ -307,7 +305,7 @@ static void chx_txdone(fsm_instance *fi, int event, void *arg)
- 		spin_unlock(&ch->collect_lock);
- 		ch->ccw[1].count = ch->trans_skb->len;
- 		fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
--		ch->prof.send_stamp = current_kernel_time(); /* xtime */
-+		ch->prof.send_stamp = jiffies;
- 		rc = ccw_device_start(ch->cdev, &ch->ccw[0],
- 						(unsigned long)ch, 0xff, 0);
- 		ch->prof.doios_multi++;
-@@ -1229,14 +1227,12 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
- 	int		rc;
- 	struct th_header *header;
- 	struct pdu	*p_header;
--	struct timespec done_stamp = current_kernel_time(); /* xtime */
-+	unsigned long done_stamp = jiffies;
- 
- 	CTCM_PR_DEBUG("Enter %s: %s cp:%i\n",
- 			__func__, dev->name, smp_processor_id());
- 
--	duration =
--		(done_stamp.tv_sec - ch->prof.send_stamp.tv_sec) * 1000000 +
--		(done_stamp.tv_nsec - ch->prof.send_stamp.tv_nsec) / 1000;
-+	duration = done_stamp -ch->prof.send_stamp;
- 	if (duration > ch->prof.tx_time)
- 		ch->prof.tx_time = duration;
- 
-@@ -1361,7 +1357,7 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
- 
- 	ch->ccw[1].count = ch->trans_skb->len;
- 	fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
--	ch->prof.send_stamp = current_kernel_time(); /* xtime */
-+	ch->prof.send_stamp = jiffies;
- 	if (do_debug_ccw)
- 		ctcmpc_dumpit((char *)&ch->ccw[0], sizeof(struct ccw1) * 3);
- 	rc = ccw_device_start(ch->cdev, &ch->ccw[0],
-@@ -1827,7 +1823,7 @@ static void ctcmpc_chx_send_sweep(fsm_instance *fsm, int event, void *arg)
- 	fsm_newstate(wch->fsm, CTC_STATE_TX);
- 
- 	spin_lock_irqsave(get_ccwdev_lock(wch->cdev), saveflags);
--	wch->prof.send_stamp = current_kernel_time(); /* xtime */
-+	wch->prof.send_stamp = jiffies;
- 	rc = ccw_device_start(wch->cdev, &wch->ccw[3],
- 					(unsigned long) wch, 0xff, 0);
- 	spin_unlock_irqrestore(get_ccwdev_lock(wch->cdev), saveflags);
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index e056dd4..05c37d6 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -567,7 +567,7 @@ static int ctcm_transmit_skb(struct channel *ch, struct sk_buff *skb)
- 	fsm_newstate(ch->fsm, CTC_STATE_TX);
- 	fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
- 	spin_lock_irqsave(get_ccwdev_lock(ch->cdev), saveflags);
--	ch->prof.send_stamp = current_kernel_time(); /* xtime */
-+	ch->prof.send_stamp = jiffies;
- 	rc = ccw_device_start(ch->cdev, &ch->ccw[ccw_idx],
- 					(unsigned long)ch, 0xff, 0);
- 	spin_unlock_irqrestore(get_ccwdev_lock(ch->cdev), saveflags);
-@@ -831,7 +831,7 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
- 					sizeof(struct ccw1) * 3);
- 
- 	spin_lock_irqsave(get_ccwdev_lock(ch->cdev), saveflags);
--	ch->prof.send_stamp = current_kernel_time(); /* xtime */
-+	ch->prof.send_stamp = jiffies;
- 	rc = ccw_device_start(ch->cdev, &ch->ccw[ccw_idx],
- 					(unsigned long)ch, 0xff, 0);
- 	spin_unlock_irqrestore(get_ccwdev_lock(ch->cdev), saveflags);
-diff --git a/drivers/s390/net/ctcm_main.h b/drivers/s390/net/ctcm_main.h
-index 477c933..6f4417c 100644
---- a/drivers/s390/net/ctcm_main.h
-+++ b/drivers/s390/net/ctcm_main.h
-@@ -121,7 +121,7 @@ struct ctcm_profile {
- 	unsigned long doios_multi;
- 	unsigned long txlen;
- 	unsigned long tx_time;
--	struct timespec send_stamp;
-+	unsigned long send_stamp;
- };
- 
- /*
-diff --git a/drivers/s390/net/ctcm_sysfs.c b/drivers/s390/net/ctcm_sysfs.c
-index 6bcfbbb..c88f465 100644
---- a/drivers/s390/net/ctcm_sysfs.c
-+++ b/drivers/s390/net/ctcm_sysfs.c
-@@ -100,8 +100,8 @@ static void ctcm_print_statistics(struct ctcm_priv *priv)
- 		     priv->channel[WRITE]->prof.doios_multi);
- 	p += sprintf(p, "  Netto bytes written: %ld\n",
- 		     priv->channel[WRITE]->prof.txlen);
--	p += sprintf(p, "  Max. TX IO-time: %ld\n",
--		     priv->channel[WRITE]->prof.tx_time);
-+	p += sprintf(p, "  Max. TX IO-time: %u\n",
-+		jiffies_to_usecs(priv->channel[WRITE]->prof.tx_time));
- 
- 	printk(KERN_INFO "Statistics for %s:\n%s",
- 				priv->channel[CTCM_WRITE]->netdev->name, sbuf);
-diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
-index 0a87809..7e91f54 100644
---- a/drivers/s390/net/netiucv.c
-+++ b/drivers/s390/net/netiucv.c
-@@ -178,7 +178,7 @@ struct connection_profile {
- 	unsigned long doios_multi;
- 	unsigned long txlen;
- 	unsigned long tx_time;
--	struct timespec send_stamp;
-+	unsigned long send_stamp;
- 	unsigned long tx_pending;
- 	unsigned long tx_max_pending;
- };
-@@ -786,7 +786,7 @@ static void conn_action_txdone(fsm_instance *fi, int event, void *arg)
- 
- 	header.next = 0;
- 	memcpy(skb_put(conn->tx_buff, NETIUCV_HDRLEN), &header, NETIUCV_HDRLEN);
--	conn->prof.send_stamp = current_kernel_time();
-+	conn->prof.send_stamp = jiffies;
- 	txmsg.class = 0;
- 	txmsg.tag = 0;
- 	rc = iucv_message_send(conn->path, &txmsg, 0, 0,
-@@ -1220,7 +1220,7 @@ static int netiucv_transmit_skb(struct iucv_connection *conn,
- 		memcpy(skb_put(nskb, NETIUCV_HDRLEN), &header,  NETIUCV_HDRLEN);
- 
- 		fsm_newstate(conn->fsm, CONN_STATE_TX);
--		conn->prof.send_stamp = current_kernel_time();
-+		conn->prof.send_stamp = jiffies;
- 
- 		msg.tag = 1;
- 		msg.class = 0;
+ 	ic = &vcpu->kvm->arch.sca->ipte_control;
+ 	do {
+-		new = old = ACCESS_ONCE(*ic);
++		old = *ic;
++		barrier();
++		new = old;
+ 		new.kh--;
+ 		if (!new.kh)
+ 			new.k = 0;
 -- 
 1.9.3
