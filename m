@@ -1,45 +1,59 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH/RFC 7/7] kernel: Force ACCESS_ONCE to work only on scalar types
-Date: Mon, 24 Nov 2014 10:35:39 -0800
-Message-ID: <CA+55aFxc72VsGTw4yFdeC1Sq65RUjYLKPD1ORnXB2d18WBMzvg@mail.gmail.com>
-References: <1416834210-61738-1-git-send-email-borntraeger@de.ibm.com>
-	<1416834210-61738-8-git-send-email-borntraeger@de.ibm.com>
-	<15567.1416835858@warthog.procyon.org.uk>
-	<CAADnVQJQydX9OU_rem+BObR0eWc-jrrwirUYVKH9rnN=Z8LG6A@mail.gmail.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH/RFC 6/7] arm64: Replace ACCESS_ONCE for spinlock code
+ with barriers
+Date: Mon, 24 Nov 2014 19:50:33 +0100
+Message-ID: <54737DF9.20009@de.ibm.com>
+References: <1416834210-61738-1-git-send-email-borntraeger@de.ibm.com> <1416834210-61738-7-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAADnVQJQydX9OU_rem+BObR0eWc-jrrwirUYVKH9rnN=Z8LG6A@mail.gmail.com>
+In-Reply-To: <1416834210-61738-7-git-send-email-borntraeger@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: David Howells <dhowells@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, linux-mips <linux-mips@linux-mips.org>, linux-x86_64@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-arch@vger.kernel.org, linux-mips@linux-mips.org, linux-x86_64@vger.kernel.org, linux-s390@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, paulmck@linux.vnet.ibm.com, mingo@kernel.org, torvalds@linux-foundation.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Nov 24, 2014 at 10:02 AM, Alexei Starovoitov
-<alexei.starovoitov@gmail.com> wrote:
->
-> If the goal is to catch non-scalar users, the following is shorter:
-> #define ACCESS_ONCE(x) (((typeof(x))0) + *(volatile typeof(x) *)&(x))
+Am 24.11.2014 um 14:03 schrieb Christian Borntraeger:
+> ACCESS_ONCE does not work reliably on non-scalar types. For
+> example gcc 4.6 and 4.7 might remove the volatile tag for such
+> accesses during the SRA (scalar replacement of aggregates) step
+> (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58145)
+> 
+> Change the spinlock code to access the lock with a barrier.
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/arm64/include/asm/spinlock.h | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/arm64/include/asm/spinlock.h b/arch/arm64/include/asm/spinlock.h
+> index c45b7b1..f72dc64 100644
+> --- a/arch/arm64/include/asm/spinlock.h
+> +++ b/arch/arm64/include/asm/spinlock.h
+> @@ -99,12 +99,15 @@ static inline int arch_spin_value_unlocked(arch_spinlock_t lock)
+> 
+>  static inline int arch_spin_is_locked(arch_spinlock_t *lock)
+>  {
+> -	return !arch_spin_value_unlocked(ACCESS_ONCE(*lock));
+> +	arch_spinlock_t lockval = *lock;
+> +	barrier();
+> +	return !arch_spin_value_unlocked(lockval);
+>  }
+> 
+>  static inline int arch_spin_is_contended(arch_spinlock_t *lock)
+>  {
+> -	arch_spinlock_t lockval = ACCESS_ONCE(*lock);
+> +	arch_spinlock_t lockval = *lock;
+> +	barrier();
+>  	return (lockval.next - lockval.owner) > 1;
+>  }
+>  #define arch_spin_is_contended	arch_spin_is_contended
+> 
+FWIW,
 
-Me likey. It probably works well in practice, although I think
+we could also make this with ACCESS_ONCE, but this requires to change the definition of arch_spinlock_t for arm64 to be a union. I am a bit reluctant to do these changes without being able to test. Let me know if this is preferred and if somebody else can test.
 
- - the "(typeof(x))0)" seems unnecessary and wrong. Why not just "0"?
-The typeof is not just longer, but it is incorrect for pointer types
-(you can add 0 to a pointer, but you cannot add two pointers together)
-
- - it does mean that the resulting type ends up being upgraded to
-"int", for the usual C type reasons.
-
-Note that the "upgraded to 'int'" is true with or without the
-"(typeof(x))0". If you add two 'char' values, the addition is still
-done in 'int'.
-
-Maybe you *meant* that typeof to fix the second problem, like so:
-
-  (typeof(x)) (0 + *(volatile typeof(x) *)&(x))
-
-Hmm? That casts the result of the addition, not the zero.
-
-             Linus
+Christian
