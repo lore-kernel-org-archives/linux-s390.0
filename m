@@ -1,44 +1,31 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 24 Nov 2014 13:53:48 +0200
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 16/41] KVM: s390: enable virtio-ccw revision 1
-Message-ID: <1416829787-14252-17-git-send-email-mst@redhat.com>
-References: <1416829787-14252-1-git-send-email-mst@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1416829787-14252-1-git-send-email-mst@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: David Miller <davem@davemloft.net>, cornelia.huck@de.ibm.com, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+From: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH/RFC 7/7] kernel: Force ACCESS_ONCE to work only on scalar types
+Date: Mon, 24 Nov 2014 13:30:58 +0000
+Message-ID: <15567.1416835858@warthog.procyon.org.uk>
+References: <1416834210-61738-8-git-send-email-borntraeger@de.ibm.com> <1416834210-61738-1-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <1416834210-61738-8-git-send-email-borntraeger@de.ibm.com>
+Content-ID: <15470.1416835748.1@warthog.procyon.org.uk>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-mips@linux-mips.org, linux-x86_64@vger.kernel.org, linux-s390@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, paulmck@linux.vnet.ibm.com, mingo@kernel.org, torvalds@linux-foundation.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-Now that virtio-ccw has everything needed to support virtio 1.0 in
-place, try to enable it if the host supports it.
+> +#define get_scalar_volatile_pointer(x) ({ \
+> +	typeof(x) *__p = &(x); \
+> +	volatile typeof(x) *__vp = __p; \
+> +	(void)(long)*__p; __vp; })
+> +#define ACCESS_ONCE(x) (*get_scalar_volatile_pointer(x))
 
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/s390/kvm/virtio_ccw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Might this cause two loads from memory under some conditions?  Once for the
+fourth line and once for the fifth?
 
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 79f6737..8ec68dd 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -103,7 +103,7 @@ struct virtio_rev_info {
- };
- 
- /* the highest virtio-ccw revision we support */
--#define VIRTIO_CCW_REV_MAX 0
-+#define VIRTIO_CCW_REV_MAX 1
- 
- struct virtio_ccw_vq_info {
- 	struct virtqueue *vq;
--- 
-MST
+(Apologies if this has already been discussed)
+
+David
