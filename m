@@ -1,66 +1,69 @@
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH/RFC 7/7] kernel: Force ACCESS_ONCE to work only on scalar
  types
-Date: Mon, 24 Nov 2014 12:46:14 -0800
-Message-ID: <20141124204614.GU5050@linux.vnet.ibm.com>
-References: <1416834210-61738-1-git-send-email-borntraeger@de.ibm.com>
- <1416834210-61738-8-git-send-email-borntraeger@de.ibm.com>
- <15567.1416835858@warthog.procyon.org.uk>
- <CAADnVQJQydX9OU_rem+BObR0eWc-jrrwirUYVKH9rnN=Z8LG6A@mail.gmail.com>
- <CA+55aFxc72VsGTw4yFdeC1Sq65RUjYLKPD1ORnXB2d18WBMzvg@mail.gmail.com>
- <547381D7.2070404@de.ibm.com>
- <CA+55aFy+dunTcdgB4-BXsYiLDk9pf8b_L74ky-dMixpbX3JQQA@mail.gmail.com>
- <20141124194200.GR5050@linux.vnet.ibm.com>
- <CA+55aFwJEqMv00zkwHmp_LOg74RU3e30-oo6RaYb=yGjgGr2cg@mail.gmail.com>
-Reply-To: paulmck@linux.vnet.ibm.com
+Date: Mon, 24 Nov 2014 21:53:06 +0100
+Message-ID: <54739AB2.8030002@de.ibm.com>
+References: <1416834210-61738-1-git-send-email-borntraeger@de.ibm.com> <1416834210-61738-8-git-send-email-borntraeger@de.ibm.com> <15567.1416835858@warthog.procyon.org.uk> <CAADnVQJQydX9OU_rem+BObR0eWc-jrrwirUYVKH9rnN=Z8LG6A@mail.gmail.com> <CA+55aFxc72VsGTw4yFdeC1Sq65RUjYLKPD1ORnXB2d18WBMzvg@mail.gmail.com> <547381D7.2070404@de.ibm.com>	<12209.1416859494@warthog.procyon.org.uk> <CA+55aFwHJyyo1y=-u=t798PFTeZN796hnwd9-XzEnL=JaqVmDw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-arch-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CA+55aFwJEqMv00zkwHmp_LOg74RU3e30-oo6RaYb=yGjgGr2cg@mail.gmail.com>
+In-Reply-To: <CA+55aFwHJyyo1y=-u=t798PFTeZN796hnwd9-XzEnL=JaqVmDw@mail.gmail.com>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Alexei Starovoitov <alexei.starovoitov@gmail.com>, David Howells <dhowells@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, linux-mips <linux-mips@linux-mips.org>, linux-x86_64@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>, David Howells <dhowells@redhat.com>
+Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, linux-mips <linux-mips@linux-mips.org>, linux-x86_64@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Nov 24, 2014 at 12:19:11PM -0800, Linus Torvalds wrote:
-> On Mon, Nov 24, 2014 at 11:42 AM, Paul E. McKenney
-> <paulmck@linux.vnet.ibm.com> wrote:
-> >
-> > OK, how about the following?
+Am 24.11.2014 um 21:34 schrieb Linus Torvalds:
+> On Mon, Nov 24, 2014 at 12:04 PM, David Howells <dhowells@redhat.com> wrote:
+>>
+>> Reserve ACCESS_ONCE() for reading and add an ASSIGN_ONCE() or something like
+>> that for writing?
 > 
-> Ugh. Disgusting.
+> I wouldn't mind that. We've had situations where reading and writing
+> isn't really similar - like alpha where reading a byte is atomic, but
+> writing one isn't.
 > 
-> Why the heck isn't it just "sizeof(*__vp) <= sizeof(long)"?
+> Then we could also make it have the "get_user()/put_user()" kind of
+> semantics - .and then use the same "sizeopf()" tricks that we use for
+> get_user/put_user.
 > 
-> If the architecture has a 3-byte scalar type, then it probably has a
-> 3-byte load.
-
-Because I was allowing for the possibility of a 3-byte struct, which
-as you point out below...
-
-> > It complains if the variable is too large, for example, long long on
-> > 32-bit systems or large structures.  It is OK loading from and storing
-> > to small structures as well, which I am having a hard time thinking of
-> > as a disadvantage.
+> That would actually work around the gcc bug a completely different way:
 > 
-> .. but that's *exactly* the gcc bug in question. It's a word-sized
-> struct that gcc loads twice.
+>   #define ACCESS_ONCE(p) \
+>       ({ typeof(*p) __val; __read_once_size(p, &__val, sizeof(__val)); __val; })
+> 
+> and then we can do things like this:
+> 
+>   static __always_inline void __read_once_size(volatile void *p, void
+> *res, int size)
+>   {
+>        switch (size) {
+>        case 1: *(u8 *)res = *(volatile u8 *)p; break;
+>        case 2: *(u16 *)res = *(volatile u16 *)p; break;
+>        case 4: *(u32 *)res = *(volatile u32 *)p; break;
+> #ifdef CONFIG_64BIT
+>        case 8: *(u64 *)res = *(volatile u64 *)p; break;
+> #endif
+>        }
+>   }
+> 
+> and same for ASSIGN_ONCE(val, p).
+> 
+> That also hopefully avoids the whole "oops, gcc has a bug", because
+> the actual volatile access is always done using a scalar type, even if
+> the type of "__val" may in fact be a structure.
+> 
+> Christian, how painful would that be? Sorry to try to make you do a
+> totally different approach..
 
-...was a stupid thought anyway.
+That looks like a lot of changes all over ACCESS_ONCE -> ASSIGN_ONCE:
+git grep "ACCESS_ONCE.*=.*" 
+gives me 200 placea not in Documentation.
 
-OK, how about the attempt below?  The initialization of __p complains
-for structures and unions, but gets optimized out.
+Then there is still the 64bit accesses on 32bit via ACCESS_ONCE problem, which we could detect with a default cause in your code. We would need to audit and fix all places :-/
 
-							Thanx, Paul
 
--------------------------------------------------------------------------
-
-#define get_scalar_volatile_pointer(x) ({ \
-	typeof(x) __maybe_unused __p = 0; \
-	volatile typeof(x) *__vp = &(x); \
-	BUILD_BUG_ON(sizeof(*__vp) > sizeof(long)); \
-	__vp; })
-#define ACCESS_ONCE(x) (*get_scalar_volatile_pointer(x))
+So the last proposal from Alexei, seems easier (for me at least :-) )
