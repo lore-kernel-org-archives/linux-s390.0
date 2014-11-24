@@ -1,298 +1,151 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH 1/3] [RFC] tcp: introduce TCP experimental option for SMC
-Date: Fri, 21 Nov 2014 21:08:02 +0100
-Message-ID: <1416600484-55631-2-git-send-email-ubraun@linux.vnet.ibm.com>
-References: <1416600484-55631-1-git-send-email-ubraun@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1416600484-55631-1-git-send-email-ubraun@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: netdev@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, davem@davemloft.net, utz.bacher@de.ibm.com, ogerlitz@mellanox.com, monis@mellanox.com, fowlerja@us.ibm.com, heiko.carstens@de.ibm.com, frank.blaschka@de.ibm.com, ursula.braun@de.ibm.com, ubraun@linux.vnet.ibm.com
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 24 Nov 2014 13:53:34 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v3 13/41] KVM: s390: Set virtio-ccw transport revision
+Message-ID: <1416829787-14252-14-git-send-email-mst@redhat.com>
+References: <1416829787-14252-1-git-send-email-mst@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1416829787-14252-1-git-send-email-mst@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: David Miller <davem@davemloft.net>, cornelia.huck@de.ibm.com, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, Thomas Huth <thuth@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-The SMC-R protocol defines dynamic discovery of peers. This is done by
-implementing experimental TCP options as defined in RFC6994. The TCP code needs
-to be extended to support RFC6994.
+With the new SET-VIRTIO-REVISION command of the virtio 1.0 standard, we
+can now negotiate the virtio-ccw revision after setting a channel online.
 
-I would like to receive feedback:
-  - if the proposed implementation of using the RFC6994 (TCP Experimental [1])
-    option is considered implemented at the right level by the Linux kernel
-    community.
-  - and if not so, how the RFC can be implemented otherwise more
-    appropriately.
-  - if certain aspects prevent inclusion into the Linux kernel.
+Note that we don't negotiate version 1 yet.
 
-Setting TCP experimental option SMC-R will be triggered from kernel
-exploiters like our new SMC-R socket family by setting a new
-flag "syn_smc" on struct tcp_sock of the connecting and the listening
-socket. If the client peer is SMC-R capable, flag syn_smc is kept on the
-connecting socket after the 3-way TCP handshake, otherwise it is reset.
-If the server peer is SMC-R capable, the new connected TCP socket has
-the new flag set, otherwise not.
-
-Code snippet client:
-  tcp_sk(sock->sk)->syn_smc = 1;
-  rc = kernel_connect(sock, addr, alen, flags);
-  if (tcp_sk(sock->sk)->syn_smc) {
-          /* switch to smc for this connection */
-
-Code snippet server:
-  tcp_sk(sock->sk)->syn_smc = 1;
-  rc = kernel_listen(sock, backlog);
-  rc = kernel_accept(sock, &newsock, 0);
-  if (tcp_sk(newsock->sk)->syn_smc) {
-          /* switch to smc for this connection */
-
-References:
-[1] Shared Use of TCP Experimental Options RFC 6994:
-    https://tools.ietf.org/rfc/rfc6994.txt
-[2] IANA ExID SMCR:
-    http://www.iana.org/assignments/tcp-parameters/tcp-parameters.xhtml#tcp-exids
-
-This patch has already been posted in June 2013, but Dave Miller has postponed
-applying till the user of the new flags, ie. the entire SMC-R protocol stack is
-implemented.
-
-Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+[Cornelia Huck: reworked revision loop a bit]
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/linux/tcp.h        |  5 ++++-
- include/net/request_sock.h |  3 ++-
- include/net/tcp.h          |  4 ++++
- net/ipv4/tcp_input.c       | 41 ++++++++++++++++++++++++++++-------------
- net/ipv4/tcp_minisocks.c   |  4 ++++
- net/ipv4/tcp_output.c      | 26 ++++++++++++++++++++++++++
- 6 files changed, 68 insertions(+), 15 deletions(-)
+ drivers/s390/kvm/virtio_ccw.c | 63 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 63 insertions(+)
 
-diff --git a/include/linux/tcp.h b/include/linux/tcp.h
-index f566b85..f3edcea 100644
---- a/include/linux/tcp.h
-+++ b/include/linux/tcp.h
-@@ -89,6 +89,7 @@ struct tcp_options_received {
- 		sack_ok : 4,	/* SACK seen on SYN packet		*/
- 		snd_wscale : 4,	/* Window scaling received from sender	*/
- 		rcv_wscale : 4;	/* Window scaling to send to receiver	*/
-+	u8	smc_capability:1; /* SMC capability			*/
- 	u8	num_sacks;	/* Number of SACK blocks		*/
- 	u16	user_mss;	/* mss requested by user in ioctl	*/
- 	u16	mss_clamp;	/* Maximal mss, negotiated at connection setup */
-@@ -98,6 +99,7 @@ static inline void tcp_clear_options(struct tcp_options_received *rx_opt)
- {
- 	rx_opt->tstamp_ok = rx_opt->sack_ok = 0;
- 	rx_opt->wscale_ok = rx_opt->snd_wscale = 0;
-+	rx_opt->smc_capability = 0;
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index abba04d..193e8f1 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -55,6 +55,7 @@ struct virtio_ccw_device {
+ 	struct ccw_device *cdev;
+ 	__u32 curr_io;
+ 	int err;
++	unsigned int revision; /* Transport revision */
+ 	wait_queue_head_t wait_q;
+ 	spinlock_t lock;
+ 	struct list_head virtqueues;
+@@ -86,6 +87,15 @@ struct virtio_thinint_area {
+ 	u8 isc;
+ } __packed;
+ 
++struct virtio_rev_info {
++	__u16 revision;
++	__u16 length;
++	__u8 data[];
++};
++
++/* the highest virtio-ccw revision we support */
++#define VIRTIO_CCW_REV_MAX 0
++
+ struct virtio_ccw_vq_info {
+ 	struct virtqueue *vq;
+ 	int num;
+@@ -122,6 +132,7 @@ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
+ #define CCW_CMD_WRITE_STATUS 0x31
+ #define CCW_CMD_READ_VQ_CONF 0x32
+ #define CCW_CMD_SET_IND_ADAPTER 0x73
++#define CCW_CMD_SET_VIRTIO_REV 0x83
+ 
+ #define VIRTIO_CCW_DOING_SET_VQ 0x00010000
+ #define VIRTIO_CCW_DOING_RESET 0x00040000
+@@ -134,6 +145,7 @@ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
+ #define VIRTIO_CCW_DOING_READ_VQ_CONF 0x02000000
+ #define VIRTIO_CCW_DOING_SET_CONF_IND 0x04000000
+ #define VIRTIO_CCW_DOING_SET_IND_ADAPTER 0x08000000
++#define VIRTIO_CCW_DOING_SET_VIRTIO_REV 0x10000000
+ #define VIRTIO_CCW_INTPARM_MASK 0xffff0000
+ 
+ static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
+@@ -933,6 +945,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+ 		case VIRTIO_CCW_DOING_RESET:
+ 		case VIRTIO_CCW_DOING_READ_VQ_CONF:
+ 		case VIRTIO_CCW_DOING_SET_IND_ADAPTER:
++		case VIRTIO_CCW_DOING_SET_VIRTIO_REV:
+ 			vcdev->curr_io &= ~activity;
+ 			wake_up(&vcdev->wait_q);
+ 			break;
+@@ -1048,6 +1061,51 @@ static int virtio_ccw_offline(struct ccw_device *cdev)
+ 	return 0;
  }
  
- /* This is the max number of SACKS that we'll generate and process. It's safe
-@@ -187,7 +189,8 @@ struct tcp_sock {
- 		syn_data:1,	/* SYN includes data */
- 		syn_fastopen:1,	/* SYN includes Fast Open option */
- 		syn_data_acked:1,/* data in SYN is acked by SYN-ACK */
--		is_cwnd_limited:1;/* forward progress limited by snd_cwnd? */
-+		is_cwnd_limited:1,/* forward progress limited by snd_cwnd? */
-+		syn_smc:1;	/* SYN include SMC			*/
- 	u32	tlp_high_seq;	/* snd_nxt at the time of TLP retransmit. */
- 
- /* RTT measurement */
-diff --git a/include/net/request_sock.h b/include/net/request_sock.h
-index 7f830ff..11307a3 100644
---- a/include/net/request_sock.h
-+++ b/include/net/request_sock.h
-@@ -52,7 +52,8 @@ struct request_sock {
- 	struct request_sock		*dl_next;
- 	u16				mss;
- 	u8				num_retrans; /* number of retransmits */
--	u8				cookie_ts:1; /* syncookie: encode tcpopts in timestamp */
-+	u8				cookie_ts:1, /* syncookie: encode tcpopts in timestamp */
-+					smc_capability:1;
- 	u8				num_timeout:7; /* number of timeouts */
- 	/* The following two fields can be easily recomputed I think -AK */
- 	u32				window_clamp; /* window clamp at creation time */
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index f50f29faf..a25c220 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -178,6 +178,7 @@ void tcp_time_wait(struct sock *sk, int state, int timeo);
-  * experimental options. See draft-ietf-tcpm-experimental-options-00.txt
-  */
- #define TCPOPT_FASTOPEN_MAGIC	0xF989
-+#define TCPOPT_SMC_MAGIC	0xE2D4C3D9
- 
- /*
-  *     TCP option lengths
-@@ -189,6 +190,7 @@ void tcp_time_wait(struct sock *sk, int state, int timeo);
- #define TCPOLEN_TIMESTAMP      10
- #define TCPOLEN_MD5SIG         18
- #define TCPOLEN_EXP_FASTOPEN_BASE  4
-+#define TCPOLEN_EXP_SMC_BASE   6
- 
- /* But this is what stacks really send out. */
- #define TCPOLEN_TSTAMP_ALIGNED		12
-@@ -199,6 +201,7 @@ void tcp_time_wait(struct sock *sk, int state, int timeo);
- #define TCPOLEN_SACK_PERBLOCK		8
- #define TCPOLEN_MD5SIG_ALIGNED		20
- #define TCPOLEN_MSS_ALIGNED		4
-+#define TCPOLEN_EXP_SMC_BASE_ALIGNED    8
- 
- /* Flags in tp->nonagle */
- #define TCP_NAGLE_OFF		1	/* Nagle's algo is disabled */
-@@ -1121,6 +1124,7 @@ static inline void tcp_openreq_init(struct request_sock *req,
- 
- 	req->rcv_wnd = 0;		/* So that tcp_send_synack() knows! */
- 	req->cookie_ts = 0;
-+	req->smc_capability = 0;
- 	tcp_rsk(req)->rcv_isn = TCP_SKB_CB(skb)->seq;
- 	tcp_rsk(req)->rcv_nxt = TCP_SKB_CB(skb)->seq + 1;
- 	tcp_rsk(req)->snt_synack = tcp_time_stamp;
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index d91436b..eb435e5 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -3650,20 +3650,29 @@ void tcp_parse_options(const struct sk_buff *skb,
- 				break;
- #endif
- 			case TCPOPT_EXP:
--				/* Fast Open option shares code 254 using a
--				 * 16 bits magic number. It's valid only in
--				 * SYN or SYN-ACK with an even size.
--				 */
--				if (opsize < TCPOLEN_EXP_FASTOPEN_BASE ||
--				    get_unaligned_be16(ptr) != TCPOPT_FASTOPEN_MAGIC ||
--				    foc == NULL || !th->syn || (opsize & 1))
-+				if (!th->syn || (opsize & 1) ||
-+				    (opsize < TCPOLEN_EXP_FASTOPEN_BASE))
-+					break;
-+				if (get_unaligned_be16(ptr) == TCPOPT_FASTOPEN_MAGIC) {
-+					if (foc == NULL)
-+						break;
-+					/* Fast Open option shares code 254 using a
-+					 * 16 bits magic number. It's valid only in
-+					 * SYN or SYN-ACK with an even size.
-+					 */
-+					foc->len = opsize - TCPOLEN_EXP_FASTOPEN_BASE;
-+					if (foc->len >= TCP_FASTOPEN_COOKIE_MIN &&
-+					    foc->len <= TCP_FASTOPEN_COOKIE_MAX)
-+						memcpy(foc->val, ptr + 2, foc->len);
-+					else if (foc->len != 0)
-+						foc->len = -1;
-+					break;
-+				} else if (opsize < TCPOLEN_EXP_SMC_BASE) {
- 					break;
--				foc->len = opsize - TCPOLEN_EXP_FASTOPEN_BASE;
--				if (foc->len >= TCP_FASTOPEN_COOKIE_MIN &&
--				    foc->len <= TCP_FASTOPEN_COOKIE_MAX)
--					memcpy(foc->val, ptr + 2, foc->len);
--				else if (foc->len != 0)
--					foc->len = -1;
-+				} else if (get_unaligned_be32(ptr) == TCPOPT_SMC_MAGIC) {
-+					opt_rx->smc_capability = 1;
-+					break;
-+				}
- 				break;
- 
- 			}
-@@ -5457,6 +5466,9 @@ static int tcp_rcv_synsent_state_process(struct sock *sk, struct sk_buff *skb,
- 		 * is initialized. */
- 		tp->copied_seq = tp->rcv_nxt;
- 
-+		if (tp->syn_smc && !tp->rx_opt.smc_capability)
-+			tp->syn_smc = 0;
++static int virtio_ccw_set_transport_rev(struct virtio_ccw_device *vcdev)
++{
++	struct virtio_rev_info *rev;
++	struct ccw1 *ccw;
++	int ret;
 +
- 		smp_mb();
- 
- 		tcp_finish_connect(sk, skb);
-@@ -5953,6 +5965,9 @@ int tcp_conn_request(struct request_sock_ops *rsk_ops,
- 	tmp_opt.tstamp_ok = tmp_opt.saw_tstamp;
- 	tcp_openreq_init(req, &tmp_opt, skb, sk);
- 
-+	if (tmp_opt.smc_capability)
-+		req->smc_capability = 1;
-+
- 	af_ops->init_req(req, sk, skb);
- 
- 	if (security_inet_conn_request(sk, skb, req))
-diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
-index 63d2680..1fd1f7e 100644
---- a/net/ipv4/tcp_minisocks.c
-+++ b/net/ipv4/tcp_minisocks.c
-@@ -414,6 +414,10 @@ struct sock *tcp_create_openreq_child(struct sock *sk, struct request_sock *req,
- 		struct tcp_request_sock *treq = tcp_rsk(req);
- 		struct inet_connection_sock *newicsk = inet_csk(newsk);
- 		struct tcp_sock *newtp = tcp_sk(newsk);
-+		struct tcp_sock *oldtp = tcp_sk(sk);
-+
-+		if (oldtp->syn_smc && !req->smc_capability)
-+			newtp->syn_smc = 0;
- 
- 		/* Now setup tcp_sock */
- 		newtp->pred_flags = 0;
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index f5bd4bd..ba242d0 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -424,6 +424,7 @@ static inline bool tcp_urg_mode(const struct tcp_sock *tp)
- #define OPTION_MD5		(1 << 2)
- #define OPTION_WSCALE		(1 << 3)
- #define OPTION_FAST_OPEN_COOKIE	(1 << 8)
-+#define OPTION_SMC		(1 << 9)
- 
- struct tcp_out_options {
- 	u16 options;		/* bit field of OPTION_* */
-@@ -533,6 +534,14 @@ static void tcp_options_write(__be32 *ptr, struct tcp_sock *tp,
- 		}
- 		ptr += (foc->len + 3) >> 2;
- 	}
-+
-+	if (unlikely(OPTION_SMC & options)) {
-+		*ptr++ = htonl((TCPOPT_NOP  << 24) |
-+			       (TCPOPT_NOP  << 16) |
-+			       (TCPOPT_EXP <<  8) |
-+			       (TCPOLEN_EXP_SMC_BASE));
-+		*ptr++ = htonl(TCPOPT_SMC_MAGIC);
++	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
++	if (!ccw)
++		return -ENOMEM;
++	rev = kzalloc(sizeof(*rev), GFP_DMA | GFP_KERNEL);
++	if (!rev) {
++		kfree(ccw);
++		return -ENOMEM;
 +	}
- }
- 
- /* Compute TCP options for SYN packets. This is not the final
-@@ -596,6 +605,14 @@ static unsigned int tcp_syn_options(struct sock *sk, struct sk_buff *skb,
- 		}
- 	}
- 
-+	if (tp->syn_smc) {
-+		u32 need = TCPOLEN_EXP_SMC_BASE_ALIGNED;
-+		if (remaining >= need) {
-+			opts->options |= OPTION_SMC;
-+			remaining -= need;
++
++	/* Set transport revision */
++	ccw->cmd_code = CCW_CMD_SET_VIRTIO_REV;
++	ccw->flags = 0;
++	ccw->count = sizeof(*rev);
++	ccw->cda = (__u32)(unsigned long)rev;
++
++	vcdev->revision = VIRTIO_CCW_REV_MAX;
++	do {
++		rev->revision = vcdev->revision;
++		/* none of our supported revisions carry payload */
++		rev->length = 0;
++		ret = ccw_io_helper(vcdev, ccw,
++				    VIRTIO_CCW_DOING_SET_VIRTIO_REV);
++		if (ret == -EOPNOTSUPP) {
++			if (vcdev->revision == 0)
++				/*
++				 * The host device does not support setting
++				 * the revision: let's operate it in legacy
++				 * mode.
++				 */
++				ret = 0;
++			else
++				vcdev->revision--;
 +		}
-+	}
++	} while (ret == -EOPNOTSUPP);
 +
- 	return MAX_TCP_OPTION_SPACE - remaining;
- }
++	kfree(ccw);
++	kfree(rev);
++	return ret;
++}
  
-@@ -608,6 +625,7 @@ static unsigned int tcp_synack_options(struct sock *sk,
- 				   struct tcp_fastopen_cookie *foc)
+ static int virtio_ccw_online(struct ccw_device *cdev)
  {
- 	struct inet_request_sock *ireq = inet_rsk(req);
-+	struct tcp_sock *tp = tcp_sk(sk);
- 	unsigned int remaining = MAX_TCP_OPTION_SPACE;
- 
- #ifdef CONFIG_TCP_MD5SIG
-@@ -657,6 +675,14 @@ static unsigned int tcp_synack_options(struct sock *sk,
- 		}
- 	}
- 
-+	if (tp->syn_smc && req->smc_capability) {
-+		u32 need = TCPOLEN_EXP_SMC_BASE_ALIGNED;
-+		if (remaining >= need) {
-+			opts->options |= OPTION_SMC;
-+			remaining -= need;
-+		}
-+	}
+@@ -1088,6 +1146,11 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+ 	spin_unlock_irqrestore(get_ccwdev_lock(cdev), flags);
+ 	vcdev->vdev.id.vendor = cdev->id.cu_type;
+ 	vcdev->vdev.id.device = cdev->id.cu_model;
 +
- 	return MAX_TCP_OPTION_SPACE - remaining;
- }
- 
++	ret = virtio_ccw_set_transport_rev(vcdev);
++	if (ret)
++		goto out_free;
++
+ 	ret = register_virtio_device(&vcdev->vdev);
+ 	if (ret) {
+ 		dev_warn(&cdev->dev, "Failed to register virtio device: %d\n",
 -- 
-1.8.5.5
+MST
