@@ -1,145 +1,151 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCHv3 00/10] ACCESS_ONCE and non-scalar accesses
-Date: Wed, 26 Nov 2014 20:20:23 +0100
-Message-ID: <547627F7.2070901@de.ibm.com>
-References: <1416919117-50652-1-git-send-email-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1416919117-50652-1-git-send-email-borntraeger@de.ibm.com>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: torvalds@linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-mips@linux-mips.org, linux-x86_64@vger.kernel.org, linux-s390@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, paulmck@linux.vnet.ibm.com, mingo@kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Alexei Starovoitov <alexei.starovoitov@gmail.com>, David Howells <dhowells@redhat.com>, Russell King <linux@arm.linux.org.uk>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 25 Nov 2014 18:42:23 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v4 14/42] KVM: s390: Set virtio-ccw transport revision
+Message-ID: <1416933600-21398-15-git-send-email-mst@redhat.com>
+References: <1416933600-21398-1-git-send-email-mst@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1416933600-21398-1-git-send-email-mst@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: David Miller <davem@davemloft.net>, cornelia.huck@de.ibm.com, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, Thomas Huth <thuth@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Linus, 
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-I have changed the code as below (diff to v2). m68k and sparc do compile now. I changed the rmap.c code to use a barrier as the requirement of the code should be trivial. I also use a linker error for the default case. (rmap.c was the only case, so it might be easier to just fix the callers. Furthermore, memcpy did not work that well in compiler.h....) Below is git request pull output if somebody wants to look at the tree. How to proceed? Shall we add this to linux-next and merge in the next cycle if there are no issues? Send around another bunch of patches?
+With the new SET-VIRTIO-REVISION command of the virtio 1.0 standard, we
+can now negotiate the virtio-ccw revision after setting a channel online.
 
-Christian
+Note that we don't negotiate version 1 yet.
 
---------------------------------- snip----------------------
-diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index af6e673..12a69b4 100644
---- a/arch/x86/include/asm/spinlock.h
-+++ b/arch/x86/include/asm/spinlock.h
-@@ -92,7 +92,7 @@ static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
- 		unsigned count = SPIN_THRESHOLD;
+[Cornelia Huck: reworked revision loop a bit]
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/s390/kvm/virtio_ccw.c | 63 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 63 insertions(+)
+
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 08536f0..68709fa 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -55,6 +55,7 @@ struct virtio_ccw_device {
+ 	struct ccw_device *cdev;
+ 	__u32 curr_io;
+ 	int err;
++	unsigned int revision; /* Transport revision */
+ 	wait_queue_head_t wait_q;
+ 	spinlock_t lock;
+ 	struct list_head virtqueues;
+@@ -86,6 +87,15 @@ struct virtio_thinint_area {
+ 	u8 isc;
+ } __packed;
  
- 		do {
--			if (ASSIGN_ONCE(inc.tail, lock->tickets.head))
-+			if (READ_ONCE(lock->tickets.head) == inc.tail)
- 				goto out;
- 			cpu_relax();
- 		} while (--count);
-diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-index 7265a6c..4434255 100644
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -188,6 +188,7 @@ void ftrace_likely_update(struct ftrace_branch_data *f, int val, int expect);
++struct virtio_rev_info {
++	__u16 revision;
++	__u16 length;
++	__u8 data[];
++};
++
++/* the highest virtio-ccw revision we support */
++#define VIRTIO_CCW_REV_MAX 0
++
+ struct virtio_ccw_vq_info {
+ 	struct virtqueue *vq;
+ 	int num;
+@@ -122,6 +132,7 @@ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
+ #define CCW_CMD_WRITE_STATUS 0x31
+ #define CCW_CMD_READ_VQ_CONF 0x32
+ #define CCW_CMD_SET_IND_ADAPTER 0x73
++#define CCW_CMD_SET_VIRTIO_REV 0x83
  
- #include <linux/types.h>
+ #define VIRTIO_CCW_DOING_SET_VQ 0x00010000
+ #define VIRTIO_CCW_DOING_RESET 0x00040000
+@@ -134,6 +145,7 @@ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
+ #define VIRTIO_CCW_DOING_READ_VQ_CONF 0x02000000
+ #define VIRTIO_CCW_DOING_SET_CONF_IND 0x04000000
+ #define VIRTIO_CCW_DOING_SET_IND_ADAPTER 0x08000000
++#define VIRTIO_CCW_DOING_SET_VIRTIO_REV 0x10000000
+ #define VIRTIO_CCW_INTPARM_MASK 0xffff0000
  
-+extern void invalid_size_for_ASSIGN_ONCE(void);
- static __always_inline void __assign_once_size(volatile void *p, void *res, int size)
- {
- 	switch (size) {
-@@ -197,13 +198,14 @@ static __always_inline void __assign_once_size(volatile void *p, void *res, int
- #ifdef CONFIG_64BIT
- 	case 8: *(volatile u64 *)p = *(u64 *)res; break;
- #endif
-+	default: invalid_size_for_ASSIGN_ONCE();
- 	}
+ static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
+@@ -934,6 +946,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+ 		case VIRTIO_CCW_DOING_RESET:
+ 		case VIRTIO_CCW_DOING_READ_VQ_CONF:
+ 		case VIRTIO_CCW_DOING_SET_IND_ADAPTER:
++		case VIRTIO_CCW_DOING_SET_VIRTIO_REV:
+ 			vcdev->curr_io &= ~activity;
+ 			wake_up(&vcdev->wait_q);
+ 			break;
+@@ -1049,6 +1062,51 @@ static int virtio_ccw_offline(struct ccw_device *cdev)
+ 	return 0;
  }
  
- #define ASSIGN_ONCE(val, p) \
-       ({ typeof(p) __val; __val = val; __assign_once_size(&p, &__val, sizeof(__val)); __val; })
++static int virtio_ccw_set_transport_rev(struct virtio_ccw_device *vcdev)
++{
++	struct virtio_rev_info *rev;
++	struct ccw1 *ccw;
++	int ret;
++
++	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
++	if (!ccw)
++		return -ENOMEM;
++	rev = kzalloc(sizeof(*rev), GFP_DMA | GFP_KERNEL);
++	if (!rev) {
++		kfree(ccw);
++		return -ENOMEM;
++	}
++
++	/* Set transport revision */
++	ccw->cmd_code = CCW_CMD_SET_VIRTIO_REV;
++	ccw->flags = 0;
++	ccw->count = sizeof(*rev);
++	ccw->cda = (__u32)(unsigned long)rev;
++
++	vcdev->revision = VIRTIO_CCW_REV_MAX;
++	do {
++		rev->revision = vcdev->revision;
++		/* none of our supported revisions carry payload */
++		rev->length = 0;
++		ret = ccw_io_helper(vcdev, ccw,
++				    VIRTIO_CCW_DOING_SET_VIRTIO_REV);
++		if (ret == -EOPNOTSUPP) {
++			if (vcdev->revision == 0)
++				/*
++				 * The host device does not support setting
++				 * the revision: let's operate it in legacy
++				 * mode.
++				 */
++				ret = 0;
++			else
++				vcdev->revision--;
++		}
++	} while (ret == -EOPNOTSUPP);
++
++	kfree(ccw);
++	kfree(rev);
++	return ret;
++}
  
--
-+extern void invalid_size_for_READ_ONCE(void);
- static __always_inline void __read_once_size(volatile void *p, void *res, int size)
+ static int virtio_ccw_online(struct ccw_device *cdev)
  {
- 	switch (size) {
-@@ -213,6 +215,7 @@ static __always_inline void __read_once_size(volatile void *p, void *res, int si
- #ifdef CONFIG_64BIT
- 	case 8: *(u64 *)res = *(volatile u64 *)p; break;
- #endif
-+	default: invalid_size_for_READ_ONCE();
- 	}
- }
- 
-diff --git a/mm/rmap.c b/mm/rmap.c
-index 3152a9c..1e54274 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -581,7 +581,8 @@ pmd_t *mm_find_pmd(struct mm_struct *mm, unsigned long address)
- 	 * without holding anon_vma lock for write.  So when looking for a
- 	 * genuine pmde (in which to find pte), test present and !THP together.
- 	 */
--	pmde = READ_ONCE(*pmd);
-+	pmde = *pmd;
-+	barrier();
- 	if (!pmd_present(pmde) || pmd_trans_huge(pmde))
- 		pmd = NULL;
- out:
-
---------------------------------- snip----------------------
-
-
-
-The following changes since commit 0df1f2487d2f0d04703f142813d53615d62a1da4:
-
-  Linux 3.18-rc3 (2014-11-02 15:01:51 -0800)
-
-are available in the git repository at:
-  git://git.kernel.org/pub/scm/linux/kernel/git/borntraeger/linux.git tags/access_once
-
-for you to fetch changes up to fbb7eba5b777691dd1f0e106433b78de588ed16e:
-
-  KVM: s390: change ipte lock from barrier to READ_ONCE (2014-11-26 12:30:10 +0100)
-
-----------------------------------------------------------------
-As discussed on LKML http://marc.info/?i=54611D86.4040306%40de.ibm.com
-ACCESS_ONCE might fail with specific compiler for non-scalar accesses.
-
-Here is a set of patches to tackle that problem.
-
-We first introduce READ_ONCE/ASSIGN_ONCE as suggested by Linus. These
-wrappers will make all accesses via scalar wrappers and will also check
-that accesses are <= the word size of the system.
-The next changes will modify current users of ACCESS_ONCE on non-scalar
-types to use READ_ONCE/ASSIGN_ONCE or barrier where necessary.
-The 2nd to last patch will force ACCESS_ONCE to error-out if it is used
-on non-scalar accesses.
-
-The series is cross-compiled the resulting kernel with defconfig for
-microblaze, m68k, alpha, s390,x86_64, i686, sparc, sparc64, mips,
-ia64, arm and arm64.
-
-----------------------------------------------------------------
-Christian Borntraeger (10):
-      KVM: s390: Fix ipte locking
-      kernel: Provide READ_ONCE and ASSIGN_ONCE
-      mm: replace ACCESS_ONCE with READ_ONCE or barriers
-      x86/spinlock: Replace ACCESS_ONCE with READ_ONCE
-      x86: Replace ACCESS_ONCE in gup with READ_ONCE
-      mips: Replace ACCESS_ONCE in gup with READ_ONCE
-      arm64: Replace ACCESS_ONCE for spinlock code with READ_ONCE
-      arm: Replace ACCESS_ONCE for spinlock code with READ_ONCE
-      tighten rules for ACCESS ONCE
-      KVM: s390: change ipte lock from barrier to READ_ONCE
-
- arch/arm/include/asm/spinlock.h   |  4 ++--
- arch/arm64/include/asm/spinlock.h |  4 ++--
- arch/mips/mm/gup.c                |  2 +-
- arch/s390/kvm/gaccess.c           | 14 ++++++++------
- arch/x86/include/asm/spinlock.h   |  8 ++++----
- arch/x86/mm/gup.c                 |  2 +-
- include/linux/compiler.h          | 46 +++++++++++++++++++++++++++++++++++++++++++++-
- mm/gup.c                          |  2 +-
- mm/memory.c                       |  2 +-
- mm/rmap.c                         |  3 ++-
- 10 files changed, 67 insertions(+), 20 deletions(-)
+@@ -1089,6 +1147,11 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+ 	spin_unlock_irqrestore(get_ccwdev_lock(cdev), flags);
+ 	vcdev->vdev.id.vendor = cdev->id.cu_type;
+ 	vcdev->vdev.id.device = cdev->id.cu_model;
++
++	ret = virtio_ccw_set_transport_rev(vcdev);
++	if (ret)
++		goto out_free;
++
+ 	ret = register_virtio_device(&vcdev->vdev);
+ 	if (ret) {
+ 		dev_warn(&cdev->dev, "Failed to register virtio device: %d\n",
+-- 
+MST
