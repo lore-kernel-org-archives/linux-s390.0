@@ -1,57 +1,104 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 24 Nov 2014 20:06:49 +0100 (CET)
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Subject: Re: [PATCH 1/1] s390/pci: Deletion of unnecessary checks before the
- function call "debug_unregister"
-In-Reply-To: <54709827.4050408@users.sourceforge.net>
-Message-ID: <alpine.LFD.2.11.1411242004590.1608@denkbrett>
-References: <5307CAA2.8060406@users.sourceforge.net> <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6> <530A086E.8010901@users.sourceforge.net> <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6> <530A72AA.3000601@users.sourceforge.net>
- <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6> <530B5FB6.6010207@users.sourceforge.net> <alpine.DEB.2.10.1402241710370.2074@hadrien> <530C5E18.1020800@users.sourceforge.net> <alpine.DEB.2.10.1402251014170.2080@hadrien> <530CD2C4.4050903@users.sourceforge.net>
- <alpine.DEB.2.10.1402251840450.7035@hadrien> <530CF8FF.8080600@users.sourceforge.net> <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6> <530DD06F.4090703@users.sourceforge.net> <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
- <5317A59D.4@users.sourceforge.net> <54709827.4050408@users.sourceforge.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
+From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Subject: Re: [PATCH/RFC 7/7] kernel: Force ACCESS_ONCE to work only on scalar types
+Date: Mon, 24 Nov 2014 18:28:03 -0800
+Message-ID: <CAADnVQJc-RO9EdBY2-Q0mONSLYxsryD3cP8+LPXTaKbjbqtvtg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-arch-owner@vger.kernel.org>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: David Howells <dhowells@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, linux-mips <linux-mips@linux-mips.org>, linux-x86_64@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, 22 Nov 2014, SF Markus Elfring wrote:
+On Mon, Nov 24, 2014 at 4:00 PM, Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+> On Mon, Nov 24, 2014 at 2:58 PM, Alexei Starovoitov
+> <alexei.starovoitov@gmail.com> wrote:
+>>
+>> I've changed gcc pr58145-1.c reproducer to use
+>> __read_once_size() approach above
+>
+> I don't think you did.
+>
+>> modified reproducer:
+>> struct S { unsigned int data; };
+>> void bar(int val)
+>> {
+>>   struct S _s = { .data = val };
+>>   *(volatile struct S *) 0x880000UL = ACCESS_ONCE(&_s);
+>> }
+>
+> My approach never had "volatile struct S *". The only volatile
+> pointers were the actual byte/word/etc pointers, and those generated
 
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sat, 22 Nov 2014 15:00:55 +0100
-> 
-> The debug_unregister() function performs also input parameter validation.
-> Thus the test around the call is not needed.
-> 
-> This issue was detected by using the Coccinelle software.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-> ---
->  arch/s390/pci/pci_debug.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
-> index eec598c..18403a7 100644
-> --- a/arch/s390/pci/pci_debug.c
-> +++ b/arch/s390/pci/pci_debug.c
-> @@ -158,10 +158,8 @@ int __init zpci_debug_init(void)
-> 
->  void zpci_debug_exit(void)
->  {
-> -	if (pci_debug_msg_id)
-> -		debug_unregister(pci_debug_msg_id);
-> -	if (pci_debug_err_id)
-> -		debug_unregister(pci_debug_err_id);
-> +	debug_unregister(pci_debug_msg_id);
-> +	debug_unregister(pci_debug_err_id);
-> 
->  	debugfs_remove(debugfs_root);
->  }
+you're right. In my invalid snippet above the ACCESS_ONCE
+to struct on stack gets optimized away and only 'volatile struct *'
+in left hand side is triggering the bug.
 
-Applied.
+Have tried the following which blends your proposal
+with original code from Christian:
+/* bad
+#define ACCESS_ONCE(x) *((volatile typeof(x) *)&(x))
+*/
 
-Thanks,
-Sebastian
+/* good */
+#define ACCESS_ONCE(p) \
+      ({ typeof(*p) __val; __read_once_size(p, &__val, sizeof(__val)); __val; })
+
+static __always_inline void __read_once_size(volatile void *p, void
+*res, int size)
+{
+     switch (size) {
+     case 1: *(u8 *)res = *(volatile u8 *)p; break;
+     case 2: *(u16 *)res = *(volatile u16 *)p; break;
+     case 4: *(u32 *)res = *(volatile u32 *)p; break;
+     case 8: *(u64 *)res = *(volatile u64 *)p; break;
+     }
+}
+
+union ipte_control {
+        unsigned long val;
+        struct {
+                unsigned long k  : 1;
+                unsigned long kh : 31;
+                unsigned long kg : 32;
+        };
+};
+
+struct kvm_vcpu {
+        union ipte_control ic;
+};
+
+void ipte_unlock_siif(struct kvm_vcpu *vcpu)
+{
+        union ipte_control old, new, *ic;
+
+        ic = &vcpu->ic;
+        do {
+                new = old = ACCESS_ONCE(ic);
+                new.kh--;
+                if (!new.kh)
+                        new.k = 0;
+        } while (cmpxchg(&ic->val, old.val, new.val) != old.val);
+}
+
+generated code looks correct with and without strict-aliasing
+and volatile marking is preserved properly.
+(to check for volatile marks add -fdump-tree-optimized
+ and look for {v} in *.optimized)
+
+> Pretty? No. But then, the standard C aliasing rules are so broken that
+> "pretty" doesn't really come into play..
+
+Agree. I don't see any warnings or code generation issues with and
+without strict-aliasing with your original __read_once_size(), so no need
+to play union tricks. Initially I was worried that extra always_inline
+function will make generated code worse in critical paths where
+ACCESS_ONCE is used, but after looking close enough, it seems
+all should be fine.
+
+Note, with unmodified ACCESS_ONCE all architectures (even x64)
+are missing volatile markings with gcc 4.6.3, 4.7.2 for Christian's
+use case.
