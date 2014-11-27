@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 27 Nov 2014 22:07:55 +0200
+Date: Thu, 27 Nov 2014 22:09:19 +0200
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v6 04/46] virtio: add support for 64 bit features.
-Message-ID: <1417118789-18231-5-git-send-email-mst@redhat.com>
+Subject: [PATCH v6 18/46] KVM: s390: virtio-ccw revision 1 SET_VQ
+Message-ID: <1417118789-18231-19-git-send-email-mst@redhat.com>
 References: <1417118789-18231-1-git-send-email-mst@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -12,239 +12,117 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: David Miller <davem@davemloft.net>, cornelia.huck@de.ibm.com, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, dahi@linux.vnet.ibm.com, Rusty Russell <rusty@rustcorp.com.au>, Ohad Ben-Cohen <ohad@wizery.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Siva Yerramreddy <yshivakrishna@gmail.com>, Joel Stanley <joel@jms.id.au>, lguest@lists.ozlabs.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: David Miller <davem@davemloft.net>, cornelia.huck@de.ibm.com, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, dahi@linux.vnet.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Change u32 to u64, and use BIT_ULL and 1ULL everywhere.
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Note: transports are unchanged, and only set low 32 bit.
-This guarantees that no transport sets e.g. VERSION_1
-by mistake without proper support.
+The CCW_CMD_SET_VQ command has a different format for revision 1+
+devices, allowing to specify a more complex virtqueue layout. For
+now, we stay however with the old layout and simply use the new
+command format for virtio-1 devices.
 
-Based on patch by Rusty.
-
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/linux/virtio.h                 |  2 +-
- include/linux/virtio_config.h          | 20 ++++++++++----------
- tools/virtio/linux/virtio.h            |  2 +-
- drivers/lguest/lguest_device.c         |  2 +-
- drivers/misc/mic/card/mic_virtio.c     |  2 +-
- drivers/remoteproc/remoteproc_virtio.c |  2 +-
- drivers/s390/kvm/kvm_virtio.c          |  2 +-
- drivers/s390/kvm/virtio_ccw.c          |  2 +-
- drivers/virtio/virtio.c                |  8 ++++----
- drivers/virtio/virtio_mmio.c           |  2 +-
- drivers/virtio/virtio_pci.c            |  2 +-
- 11 files changed, 23 insertions(+), 23 deletions(-)
+ drivers/s390/kvm/virtio_ccw.c | 54 +++++++++++++++++++++++++++++++++----------
+ 1 file changed, 42 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 7828a7f..149284e 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -101,7 +101,7 @@ struct virtio_device {
- 	const struct virtio_config_ops *config;
- 	const struct vringh_config_ops *vringh_config;
- 	struct list_head vqs;
--	u32 features;
-+	u64 features;
- 	void *priv;
- };
- 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 1761106..b465c3f 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -66,7 +66,7 @@ struct virtio_config_ops {
- 			vq_callback_t *callbacks[],
- 			const char *names[]);
- 	void (*del_vqs)(struct virtio_device *);
--	u32 (*get_features)(struct virtio_device *vdev);
-+	u64 (*get_features)(struct virtio_device *vdev);
- 	void (*finalize_features)(struct virtio_device *vdev);
- 	const char *(*bus_name)(struct virtio_device *vdev);
- 	int (*set_vq_affinity)(struct virtqueue *vq, int cpu);
-@@ -88,11 +88,11 @@ static inline bool __virtio_test_bit(const struct virtio_device *vdev,
- {
- 	/* Did you forget to fix assumptions on max features? */
- 	if (__builtin_constant_p(fbit))
--		BUILD_BUG_ON(fbit >= 32);
-+		BUILD_BUG_ON(fbit >= 64);
- 	else
--		BUG_ON(fbit >= 32);
-+		BUG_ON(fbit >= 64);
- 
--	return vdev->features & BIT(fbit);
-+	return vdev->features & BIT_ULL(fbit);
- }
- 
- /**
-@@ -105,11 +105,11 @@ static inline void __virtio_set_bit(struct virtio_device *vdev,
- {
- 	/* Did you forget to fix assumptions on max features? */
- 	if (__builtin_constant_p(fbit))
--		BUILD_BUG_ON(fbit >= 32);
-+		BUILD_BUG_ON(fbit >= 64);
- 	else
--		BUG_ON(fbit >= 32);
-+		BUG_ON(fbit >= 64);
- 
--	vdev->features |= BIT(fbit);
-+	vdev->features |= BIT_ULL(fbit);
- }
- 
- /**
-@@ -122,11 +122,11 @@ static inline void __virtio_clear_bit(struct virtio_device *vdev,
- {
- 	/* Did you forget to fix assumptions on max features? */
- 	if (__builtin_constant_p(fbit))
--		BUILD_BUG_ON(fbit >= 32);
-+		BUILD_BUG_ON(fbit >= 64);
- 	else
--		BUG_ON(fbit >= 32);
-+		BUG_ON(fbit >= 64);
- 
--	vdev->features &= ~BIT(fbit);
-+	vdev->features &= ~BIT_ULL(fbit);
- }
- 
- /**
-diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
-index 72bff70..8eb6421 100644
---- a/tools/virtio/linux/virtio.h
-+++ b/tools/virtio/linux/virtio.h
-@@ -10,7 +10,7 @@
- 
- struct virtio_device {
- 	void *dev;
--	u32 features;
-+	u64 features;
- };
- 
- struct virtqueue {
-diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
-index 97aeb7d..d81170a 100644
---- a/drivers/lguest/lguest_device.c
-+++ b/drivers/lguest/lguest_device.c
-@@ -94,7 +94,7 @@ static unsigned desc_size(const struct lguest_device_desc *desc)
- }
- 
- /* This gets the device's feature bits. */
--static u32 lg_get_features(struct virtio_device *vdev)
-+static u64 lg_get_features(struct virtio_device *vdev)
- {
- 	unsigned int i;
- 	u32 features = 0;
-diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
-index d5da9ff..f5e7561 100644
---- a/drivers/misc/mic/card/mic_virtio.c
-+++ b/drivers/misc/mic/card/mic_virtio.c
-@@ -68,7 +68,7 @@ static inline struct device *mic_dev(struct mic_vdev *mvdev)
- }
- 
- /* This gets the device's feature bits. */
--static u32 mic_get_features(struct virtio_device *vdev)
-+static u64 mic_get_features(struct virtio_device *vdev)
- {
- 	unsigned int i, bits;
- 	u32 features = 0;
-diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-index dafaf38..62897db 100644
---- a/drivers/remoteproc/remoteproc_virtio.c
-+++ b/drivers/remoteproc/remoteproc_virtio.c
-@@ -207,7 +207,7 @@ static void rproc_virtio_reset(struct virtio_device *vdev)
- }
- 
- /* provide the vdev features as retrieved from the firmware */
--static u32 rproc_virtio_get_features(struct virtio_device *vdev)
-+static u64 rproc_virtio_get_features(struct virtio_device *vdev)
- {
- 	struct rproc_vdev *rvdev = vdev_to_rvdev(vdev);
- 	struct fw_rsc_vdev *rsc;
-diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
-index fcd312d..2336c7e 100644
---- a/drivers/s390/kvm/kvm_virtio.c
-+++ b/drivers/s390/kvm/kvm_virtio.c
-@@ -80,7 +80,7 @@ static unsigned desc_size(const struct kvm_device_desc *desc)
- }
- 
- /* This gets the device's feature bits. */
--static u32 kvm_get_features(struct virtio_device *vdev)
-+static u64 kvm_get_features(struct virtio_device *vdev)
- {
- 	unsigned int i;
- 	u32 features = 0;
 diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 1dbee95..56d7895 100644
+index 193e8f1..ad06e11 100644
 --- a/drivers/s390/kvm/virtio_ccw.c
 +++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -660,7 +660,7 @@ static void virtio_ccw_reset(struct virtio_device *vdev)
- 	kfree(ccw);
- }
+@@ -68,13 +68,22 @@ struct virtio_ccw_device {
+ 	void *airq_info;
+ };
  
--static u32 virtio_ccw_get_features(struct virtio_device *vdev)
-+static u64 virtio_ccw_get_features(struct virtio_device *vdev)
- {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
- 	struct virtio_feature_desc *features;
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 2b9aafb..746d350 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -159,7 +159,7 @@ static int virtio_dev_probe(struct device *_d)
- 	int err, i;
- 	struct virtio_device *dev = dev_to_virtio(_d);
- 	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
--	u32 device_features;
-+	u64 device_features;
+-struct vq_info_block {
++struct vq_info_block_legacy {
+ 	__u64 queue;
+ 	__u32 align;
+ 	__u16 index;
+ 	__u16 num;
+ } __packed;
  
- 	/* We have a driver! */
- 	add_status(dev, VIRTIO_CONFIG_S_DRIVER);
-@@ -171,14 +171,14 @@ static int virtio_dev_probe(struct device *_d)
- 	dev->features = 0;
- 	for (i = 0; i < drv->feature_table_size; i++) {
- 		unsigned int f = drv->feature_table[i];
--		BUG_ON(f >= 32);
--		if (device_features & (1 << f))
-+		BUG_ON(f >= 64);
-+		if (device_features & (1ULL << f))
- 			__virtio_set_bit(dev, f);
++struct vq_info_block {
++	__u64 desc;
++	__u32 res0;
++	__u16 index;
++	__u16 num;
++	__u64 avail;
++	__u64 used;
++} __packed;
++
+ struct virtio_feature_desc {
+ 	__u32 features;
+ 	__u8 index;
+@@ -100,7 +109,10 @@ struct virtio_ccw_vq_info {
+ 	struct virtqueue *vq;
+ 	int num;
+ 	void *queue;
+-	struct vq_info_block *info_block;
++	union {
++		struct vq_info_block s;
++		struct vq_info_block_legacy l;
++	} *info_block;
+ 	int bit_nr;
+ 	struct list_head node;
+ 	long cookie;
+@@ -411,13 +423,22 @@ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
+ 	spin_unlock_irqrestore(&vcdev->lock, flags);
+ 
+ 	/* Release from host. */
+-	info->info_block->queue = 0;
+-	info->info_block->align = 0;
+-	info->info_block->index = index;
+-	info->info_block->num = 0;
++	if (vcdev->revision == 0) {
++		info->info_block->l.queue = 0;
++		info->info_block->l.align = 0;
++		info->info_block->l.index = index;
++		info->info_block->l.num = 0;
++		ccw->count = sizeof(info->info_block->l);
++	} else {
++		info->info_block->s.desc = 0;
++		info->info_block->s.index = index;
++		info->info_block->s.num = 0;
++		info->info_block->s.avail = 0;
++		info->info_block->s.used = 0;
++		ccw->count = sizeof(info->info_block->s);
++	}
+ 	ccw->cmd_code = CCW_CMD_SET_VQ;
+ 	ccw->flags = 0;
+-	ccw->count = sizeof(*info->info_block);
+ 	ccw->cda = (__u32)(unsigned long)(info->info_block);
+ 	ret = ccw_io_helper(vcdev, ccw,
+ 			    VIRTIO_CCW_DOING_SET_VQ | index);
+@@ -500,13 +521,22 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
  	}
  
- 	/* Transport features always preserved to pass to finalize_features. */
- 	for (i = VIRTIO_TRANSPORT_F_START; i < VIRTIO_TRANSPORT_F_END; i++)
--		if (device_features & (1 << i))
-+		if (device_features & (1ULL << i))
- 			__virtio_set_bit(dev, i);
- 
- 	dev->config->finalize_features(dev);
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index eb5b0e2..c63d0ef 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -142,7 +142,7 @@ struct virtio_mmio_vq_info {
- 
- /* Configuration interface */
- 
--static u32 vm_get_features(struct virtio_device *vdev)
-+static u64 vm_get_features(struct virtio_device *vdev)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
- 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index ab95a4c..80be24a 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -102,7 +102,7 @@ static struct virtio_pci_device *to_vp_device(struct virtio_device *vdev)
- }
- 
- /* virtio config->get_features() implementation */
--static u32 vp_get_features(struct virtio_device *vdev)
-+static u64 vp_get_features(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 
+ 	/* Register it with the host. */
+-	info->info_block->queue = (__u64)info->queue;
+-	info->info_block->align = KVM_VIRTIO_CCW_RING_ALIGN;
+-	info->info_block->index = i;
+-	info->info_block->num = info->num;
++	if (vcdev->revision == 0) {
++		info->info_block->l.queue = (__u64)info->queue;
++		info->info_block->l.align = KVM_VIRTIO_CCW_RING_ALIGN;
++		info->info_block->l.index = i;
++		info->info_block->l.num = info->num;
++		ccw->count = sizeof(info->info_block->l);
++	} else {
++		info->info_block->s.desc = (__u64)info->queue;
++		info->info_block->s.index = i;
++		info->info_block->s.num = info->num;
++		info->info_block->s.avail = (__u64)virtqueue_get_avail(vq);
++		info->info_block->s.used = (__u64)virtqueue_get_used(vq);
++		ccw->count = sizeof(info->info_block->s);
++	}
+ 	ccw->cmd_code = CCW_CMD_SET_VQ;
+ 	ccw->flags = 0;
+-	ccw->count = sizeof(*info->info_block);
+ 	ccw->cda = (__u32)(unsigned long)(info->info_block);
+ 	err = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_VQ | i);
+ 	if (err) {
 -- 
 MST
