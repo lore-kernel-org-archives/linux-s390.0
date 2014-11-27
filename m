@@ -1,31 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 27 Nov 2014 17:34:14 +0100
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Subject: Re: [PATCH v5 01/45] virtio: use u32, not bitmap for struct
- virtio_device's features
-Message-ID: <20141127173414.20424b62@thinkpad-w530>
-In-Reply-To: <20141127162804.GB27124@redhat.com>
+Date: Thu, 27 Nov 2014 14:30:28 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v5 05/45] virtio_ccw: add support for 64 bit features.
+Message-ID: <1417091078-24611-6-git-send-email-mst@redhat.com>
 References: <1417091078-24611-1-git-send-email-mst@redhat.com>
-	<1417091078-24611-2-git-send-email-mst@redhat.com>
-	<20141127171542.3dbb2bc2@thinkpad-w530>
-	<20141127162804.GB27124@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1417091078-24611-1-git-send-email-mst@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, cornelia.huck@de.ibm.com, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, Rusty Russell <rusty@rustcorp.com.au>, Brian Swetland <swetland@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Pawel Moll <pawel.moll@arm.com>, Ohad Ben-Cohen <ohad@wizery.com>, Amit Shah <amit.shah@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Sudeep Dutt <sudeep.dutt@intel.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, Joel Stanley <joel@jms.id.au>, virtualization@lists.linux-foundation.org, lguest@lists.ozlabs.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: David Miller <davem@davemloft.net>, cornelia.huck@de.ibm.com, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, dahi@linux.vnet.ibm.com, Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-> That's the whole reason for the patch.
-> 
-> I guess you disagree with it, but it's much easier
-> to deal with simple integers.
-> 
+Negotiate full 64 bit features.
+Change u32 to u64, make sure to use 1ULL everywhere.
 
-Well, I can live with it :)
+Note: devices guarantee that VERSION_1 is clear unless
+revision 1 is negotiated.
 
-clear_bit() and friends are just easier to understand when scanning the code
-(at least for me).
+Based on patches by Rusty, Thomas Huth and Cornelia.
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/s390/kvm/virtio_ccw.c | 30 +++++++++++++++++++++++-------
+ 1 file changed, 23 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 244d611..abba04d 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -664,7 +664,8 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+ {
+ 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+ 	struct virtio_feature_desc *features;
+-	int ret, rc;
++	int ret;
++	u64 rc;
+ 	struct ccw1 *ccw;
+ 
+ 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+@@ -677,7 +678,6 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+ 		goto out_free;
+ 	}
+ 	/* Read the feature bits from the host. */
+-	/* TODO: Features > 32 bits */
+ 	features->index = 0;
+ 	ccw->cmd_code = CCW_CMD_READ_FEAT;
+ 	ccw->flags = 0;
+@@ -691,6 +691,16 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+ 
+ 	rc = le32_to_cpu(features->features);
+ 
++	/* Read second half feature bits from the host. */
++	features->index = 1;
++	ccw->cmd_code = CCW_CMD_READ_FEAT;
++	ccw->flags = 0;
++	ccw->count = sizeof(*features);
++	ccw->cda = (__u32)(unsigned long)features;
++	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_FEAT);
++	if (ret == 0)
++		rc |= (u64)le32_to_cpu(features->features) << 32;
++
+ out_free:
+ 	kfree(features);
+ 	kfree(ccw);
+@@ -714,12 +724,18 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	/* Give virtio_ring a chance to accept features. */
+ 	vring_transport_features(vdev);
+ 
+-	/* Make sure we don't have any features > 32 bits! */
+-	BUG_ON((u32)vdev->features != vdev->features);
+-
+ 	features->index = 0;
+-	features->features = cpu_to_le32(vdev->features);
+-	/* Write the feature bits to the host. */
++	features->features = cpu_to_le32((u32)vdev->features);
++	/* Write the first half of the feature bits to the host. */
++	ccw->cmd_code = CCW_CMD_WRITE_FEAT;
++	ccw->flags = 0;
++	ccw->count = sizeof(*features);
++	ccw->cda = (__u32)(unsigned long)features;
++	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
++
++	features->index = 1;
++	features->features = cpu_to_le32(vdev->features >> 32);
++	/* Write the second half of the feature bits to the host. */
+ 	ccw->cmd_code = CCW_CMD_WRITE_FEAT;
+ 	ccw->flags = 0;
+ 	ccw->count = sizeof(*features);
+-- 
+MST
