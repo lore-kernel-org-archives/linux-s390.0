@@ -1,58 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 26 Nov 2014 18:56:53 +0200
+Date: Thu, 27 Nov 2014 12:54:34 +0200
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 02/42] virtio: add support for 64 bit features.
-Message-ID: <20141126165653.GB11202@redhat.com>
+Subject: Re: [PATCH v4 04/42] virtio: disable virtio 1.0 in transports
+Message-ID: <20141127105434.GA10037@redhat.com>
 References: <1416933600-21398-1-git-send-email-mst@redhat.com>
- <1416933600-21398-3-git-send-email-mst@redhat.com>
- <20141126174809.24f6be4d@bahia.local>
+ <1416933600-21398-5-git-send-email-mst@redhat.com>
+ <20141125182942.3890fe7b.cornelia.huck@de.ibm.com>
+ <20141125212011.GA22343@redhat.com>
+ <20141126100954.3811e594.cornelia.huck@de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20141126174809.24f6be4d@bahia.local>
+In-Reply-To: <20141126100954.3811e594.cornelia.huck@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Greg Kurz <gkurz@linux.vnet.ibm.com>
-Cc: linux-kernel@vger.kernel.org, rusty@au1.ibm.com, Heiko Carstens <heiko.carstens@de.ibm.com>, Sudeep Dutt <sudeep.dutt@intel.com>, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, Pawel Moll <pawel.moll@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Joel Stanley <joel@jms.id.au>, Arnd Bergmann <arnd@arndb.de>, Siva Yerramreddy <yshivakrishna@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, pbonzini@redhat.com, Brian Swetland <swetland@google.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit.shah@redhat.com>, linux390@de.ibm.com, David Miller <davem@davemloft.net>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Pawel Moll <pawel.moll@arm.com>, Ohad Ben-Cohen <ohad@wizery.com>, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Nikhil Rao <nikhil.rao@intel.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, lguest@lists.ozlabs.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Nov 26, 2014 at 05:48:09PM +0100, Greg Kurz wrote:
-> On Tue, 25 Nov 2014 18:41:22 +0200
+On Wed, Nov 26, 2014 at 10:09:54AM +0100, Cornelia Huck wrote:
+> On Tue, 25 Nov 2014 23:20:11 +0200
 > "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > 
-> > From: Rusty Russell <rusty@rustcorp.com.au>
+> > On Tue, Nov 25, 2014 at 06:29:42PM +0100, Cornelia Huck wrote:
+> > > On Tue, 25 Nov 2014 18:41:35 +0200
+> > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > 
+> > > > disable virtio 1.0 in transports that don't
+> > > > support it yet.
+> > > 
+> > > I'd prefer if you disabled it for _every_ transport in this patch,
+> > > until the needed infrastructure is in place. Else this is a bit
+> > > confusing.
 > > 
-> > Change the u32 to a u64, and make sure to use 1ULL everywhere!
+> > Well the only transports left are pci and rpoc, and these only
+> > read the low 32 bit of the features from the device -
+> > so there's nothing to clear.
 > > 
-> > Cc: Brian Swetland <swetland@google.com>
-> > Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> > [Thomas Huth: fix up virtio-ccw get_features]
-> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > Acked-by: Pawel Moll <pawel.moll@arm.com>
-> > Acked-by: Ohad Ben-Cohen <ohad@wizery.com>
+> > E.g. the following would be even more confusing, would it not:
 > > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-...
-
-> > @@ -86,14 +86,14 @@ static inline bool virtio_has_feature(const struct virtio_device *vdev,
-> >  {
-> >  	/* Did you forget to fix assumptions on max features? */
-> >  	if (__builtin_constant_p(fbit))
-> > -		BUILD_BUG_ON(fbit >= 32);
-> > +		BUILD_BUG_ON(fbit >= 64);
+> > 	u32 features;
+> > 	....
+> > 	features &= ~BIT_ULL(VIRTIO_F_VERSION_1);
+> > 
+> > Agree?
 > 
+> Maybe you should tweak the patch description a bit and mention that you
+> only disable virtio 1.0 for transports where it is actually needed?
 > 
-> While you're here, maybe you could derive the max value from the .features field ?
+> (...)
+
+Yes, I did that now.
+
+> > > FWIW, as negotiating a revision >= 1 is a pre-req for virtio 1.0
+> > > support on ccw, virtio 1.0 is already implicitly disabled.
+> > 
+> > Ah, you mean device guarantees that VIRTIO_F_VERSION_1 isn't set
+> > if guest sets revision to 0?
 > 
-> -               BUILD_BUG_ON(fbit >= 64);
-> +               BUILD_BUG_ON(fbit >= (sizeof(vdev->features) << 3));
+> Yes, the bit will not be offered if the revision is 0 or has not been
+> set at all.
+> 
+> > In that case it's probably best to drop this from both ccw
+> > devices.
+> 
+> There's only one ccw transport :)
+> 
+> The old s390 virtio transport in kvm_virtio.c is not part of virtio 1.0.
 
-I don't see how that will help.
-All that 1ULL math only works up to 64 bit.
-So this only makes it look like we support any size,
-but doesn't really.
+It might or might not be a good idea to add code in kvm_virtio.c
+blacklisting VIRTIO_F_VERSION_1, just in case there's a buggy device
+that sets it.
+As correct devices won't set it, I don't think we need to
+worry about it too much. We can make it a patch on top later
+if we want.
 
-No?
+-- 
+MST
