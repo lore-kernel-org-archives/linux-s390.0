@@ -1,13 +1,13 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [GIT PULL 05/11] KVM: s390: refactor interrupt injection code
-Date: Fri, 28 Nov 2014 18:16:03 +0100
-Message-ID: <5478ADD3.10307@redhat.com>
-References: <1417181139-25623-1-git-send-email-borntraeger@de.ibm.com> <1417181139-25623-6-git-send-email-borntraeger@de.ibm.com>
+Subject: Re: [GIT PULL 08/11] KVM: s390: refactor interrupt delivery code
+Date: Fri, 28 Nov 2014 18:17:16 +0100
+Message-ID: <5478AE1C.5090700@redhat.com>
+References: <1417181139-25623-1-git-send-email-borntraeger@de.ibm.com> <1417181139-25623-9-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1417181139-25623-6-git-send-email-borntraeger@de.ibm.com>
+In-Reply-To: <1417181139-25623-9-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -18,11 +18,10 @@ List-ID: <linux-s390.vger.kernel.org>
 
 
 On 28/11/2014 14:25, Christian Borntraeger wrote:
->  
-> +static int __inject_prog_irq(struct kvm_vcpu *vcpu,
-> +			     struct kvm_s390_interrupt_info *inti)
+> +static int __must_check __deliver_cpu_timer(struct kvm_vcpu *vcpu)
 > +{
+> +	int rc;
 
-Why the __s? :)
+Same here...
 
 Paolo
