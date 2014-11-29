@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 28 Nov 2014 13:56:00 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v6 06/46] virtio_ccw: add support for 64 bit features.
-Message-ID: <20141128135600.594dd74e.cornelia.huck@de.ibm.com>
-In-Reply-To: <1417118789-18231-7-git-send-email-mst@redhat.com>
+Date: Sat, 29 Nov 2014 19:31:07 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v6 20/46] KVM: s390: enable virtio-ccw revision 1
+Message-ID: <20141129173107.GF22746@redhat.com>
 References: <1417118789-18231-1-git-send-email-mst@redhat.com>
-	<1417118789-18231-7-git-send-email-mst@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+ <1417118789-18231-21-git-send-email-mst@redhat.com>
+ <20141128110910.123a1c62.cornelia.huck@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20141128110910.123a1c62.cornelia.huck@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, dahi@linux.vnet.ibm.com, Rusty Russell <rusty@rustcorp.com.au>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, dahi@linux.vnet.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 27 Nov 2014 22:08:09 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> Negotiate full 64 bit features.
-> Change u32 to u64, make sure to use 1ULL everywhere.
+On Fri, Nov 28, 2014 at 11:09:10AM +0100, Cornelia Huck wrote:
+> On Thu, 27 Nov 2014 22:09:30 +0200
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > 
-> Note: devices guarantee that VERSION_1 is clear unless
-> revision 1 is negotiated.
+> > From: Cornelia Huck <cornelia.huck@de.ibm.com>
+> > 
+> > Now that virtio-ccw has everything needed to support virtio 1.0 in
+> > place, try to enable it if the host supports it.
+> > 
+> > MST: enable virtio 1.0 feature bit
 > 
-> Based on patches by Rusty, Thomas Huth and Cornelia.
-> 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/s390/kvm/virtio_ccw.c | 30 +++++++++++++++++++++++-------
->  1 file changed, 23 insertions(+), 7 deletions(-)
-> 
+> Stale comment?
 
-> @@ -691,6 +691,16 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
-> 
->  	rc = le32_to_cpu(features->features);
-> 
-> +	/* Read second half feature bits from the host. */
+Sure, thanks.
 
-s/half feature bits/half of the feature bits/
-
-> +	features->index = 1;
-> +	ccw->cmd_code = CCW_CMD_READ_FEAT;
-> +	ccw->flags = 0;
-> +	ccw->count = sizeof(*features);
-> +	ccw->cda = (__u32)(unsigned long)features;
-
-We don't need to re-setup the ccw, but it probably doesn't hurt for
-clarity.
-
-> +	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_FEAT);
-> +	if (ret == 0)
-> +		rc |= (u64)le32_to_cpu(features->features) << 32;
-> +
->  out_free:
->  	kfree(features);
->  	kfree(ccw);
-
-Looks good.
+> > 
+> > Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  drivers/s390/kvm/virtio_ccw.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> > index 79f6737..8ec68dd 100644
+> > --- a/drivers/s390/kvm/virtio_ccw.c
+> > +++ b/drivers/s390/kvm/virtio_ccw.c
+> > @@ -103,7 +103,7 @@ struct virtio_rev_info {
+> >  };
+> > 
+> >  /* the highest virtio-ccw revision we support */
+> > -#define VIRTIO_CCW_REV_MAX 0
+> > +#define VIRTIO_CCW_REV_MAX 1
+> > 
+> >  struct virtio_ccw_vq_info {
+> >  	struct virtqueue *vq;
