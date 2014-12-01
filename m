@@ -1,40 +1,52 @@
-Return-Path: <peterz@infradead.org>
-Date: Tue, 30 Dec 2014 20:07:40 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2] srcu: Isolate srcu sections using CONFIG_SRCU
-Message-ID: <20141230190740.GC23965@worktop.programming.kicks-ass.net>
-References: <1419918382-4758-1-git-send-email-bobby.prani@gmail.com>
- <1419918382-4758-2-git-send-email-bobby.prani@gmail.com>
- <20141230185008.GA23965@worktop.programming.kicks-ass.net>
- <CAJhHMCDsxOsBKphPrH8N5ymPgdN_OVSujQWQt5CB52TK2PO9cA@mail.gmail.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 1 Dec 2014 12:49:13 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 last minute patch for 3.18
+Message-ID: <20141201124913.351d8590@mschwide>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAJhHMCDsxOsBKphPrH8N5ymPgdN_OVSujQWQt5CB52TK2PO9cA@mail.gmail.com>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Pranith Kumar <bobby.prani@gmail.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Tiejun Chen <tiejun.chen@windriver.com>, Paul Mackerras <paulus@samba.org>, Daniel Walter <dwalter@google.com>, Ingo Molnar <mingo@kernel.org>, "open list:S390" <linux-s390@vger.kernel.org>, Vincent Guittot <vincent.guittot@linaro.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Josh Triplett <josh@joshtriplett.org>, Steven Rostedt <rostedt@goodmis.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Anton Blanchard <anton@samba.org>, Scott Wood <scottwood@freescale.com>, Lai Jiangshan <laijs@cn.fujitsu.com>, Li Zhong <zhong@linux.vnet.ibm.com>, Nishanth Aravamudan <nacc@linux.vnet.ibm.com>, open list <linux-kernel@vger.kernel.org>, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "supporter:S390" <linux390@de.ibm.com>, "open list:LINUX FOR POWERPC..." <linuxppc-dev@lists.ozlabs.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Dec 30, 2014 at 01:54:07PM -0500, Pranith Kumar wrote:
-> On Tue, Dec 30, 2014 at 1:50 PM, Peter Zijlstra <peterz@infradead.org> wrote:
-> > On Tue, Dec 30, 2014 at 12:46:22AM -0500, Pranith Kumar wrote:
-> >> Isolate the SRCU functions and data structures within CONFIG_SRCU so that there
-> >> is a compile time failure if srcu is used when not enabled. This was decided to
-> >> be better than waiting until link time for a failure to occur.
-> >
-> > Why?
-> 
-> This is part of the kernel tinification efforts. The first patch was
-> posted here: https://lkml.org/lkml/2014/12/4/848. This patch enables a
-> compile time failure instead of a link time failure.
+Hi Linus,
 
-can't be arsed to click. again, why does it matter when it fails,
-neither stages produces a working kernel so tinification cannot be the
-purpose.
+please pull from the 'for-linus' branch of
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+
+to receive the following updates:
+
+A single but important fix for the machine check handling. The big
+per-cpu cleanup from Christoph causes the code to do nothing after
+receiving a machine check condition.
+
+Sebastian Ott (1):
+      s390: fix machine check handling
+
+ arch/s390/kernel/nmi.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
+index dd1c24c..3f51cf4 100644
+--- a/arch/s390/kernel/nmi.c
++++ b/arch/s390/kernel/nmi.c
+@@ -54,12 +54,8 @@ void s390_handle_mcck(void)
+ 	 */
+ 	local_irq_save(flags);
+ 	local_mcck_disable();
+-	/*
+-	 * Ummm... Does this make sense at all? Copying the percpu struct
+-	 * and then zapping it one statement later?
+-	 */
+-	memcpy(&mcck, this_cpu_ptr(&cpu_mcck), sizeof(mcck));
+-	memset(&mcck, 0, sizeof(struct mcck_struct));
++	mcck = *this_cpu_ptr(&cpu_mcck);
++	memset(this_cpu_ptr(&cpu_mcck), 0, sizeof(mcck));
+ 	clear_cpu_flag(CIF_MCCK_PENDING);
+ 	local_mcck_enable();
+ 	local_irq_restore(flags);
