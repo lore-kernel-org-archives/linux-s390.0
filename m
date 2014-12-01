@@ -1,43 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 4 Dec 2014 17:19:00 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v8 17/50] KVM: s390: Set virtio-ccw transport revision
-Message-ID: <20141204171900.3c31bfbe.cornelia.huck@de.ibm.com>
-In-Reply-To: <20141204161022.GA23199@redhat.com>
+Date: Mon, 1 Dec 2014 18:03:10 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v8 05/50] virtio: assert 32 bit features in transports
+Message-ID: <1417449619-24896-6-git-send-email-mst@redhat.com>
 References: <1417449619-24896-1-git-send-email-mst@redhat.com>
-	<1417449619-24896-18-git-send-email-mst@redhat.com>
-	<20141204161022.GA23199@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1417449619-24896-1-git-send-email-mst@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, David Miller <davem@davemloft.net>, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, dahi@linux.vnet.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: David Miller <davem@davemloft.net>, cornelia.huck@de.ibm.com, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, dahi@linux.vnet.ibm.com, Rusty Russell <rusty@rustcorp.com.au>, Ohad Ben-Cohen <ohad@wizery.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, lguest@lists.ozlabs.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 4 Dec 2014 18:10:22 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+At this point, no transports set any of the high 32 feature bits.
+Since transports generally can't (yet) cope with such bits, add BUG_ON
+checks to make sure they are not set by mistake.
 
-> On Mon, Dec 01, 2014 at 06:04:11PM +0200, Michael S. Tsirkin wrote:
-> > From: Thomas Huth <thuth@linux.vnet.ibm.com>
-> > 
-> > With the new SET-VIRTIO-REVISION command of the virtio 1.0 standard, we
-> > can now negotiate the virtio-ccw revision after setting a channel online.
-> > 
-> > Note that we don't negotiate version 1 yet.
-> > 
-> > [Cornelia Huck: reworked revision loop a bit]
-> > Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-> > Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-> > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> Looking at this some more: to me it looks
-> like this command should be repeated whenever we reset
-> the device.
-> 
-> No?
+Based on rproc patch by Rusty.
 
-It should, when we re-setup.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ drivers/lguest/lguest_device.c         | 3 +++
+ drivers/misc/mic/card/mic_virtio.c     | 3 +++
+ drivers/remoteproc/remoteproc_virtio.c | 3 +++
+ drivers/s390/kvm/kvm_virtio.c          | 3 +++
+ drivers/s390/kvm/virtio_ccw.c          | 3 +++
+ drivers/virtio/virtio_mmio.c           | 3 +++
+ drivers/virtio/virtio_pci.c            | 3 +++
+ 7 files changed, 21 insertions(+)
+
+diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
+index d81170a..9b77b66 100644
+--- a/drivers/lguest/lguest_device.c
++++ b/drivers/lguest/lguest_device.c
+@@ -136,6 +136,9 @@ static void lg_finalize_features(struct virtio_device *vdev)
+ 	/* Give virtio_ring a chance to accept features. */
+ 	vring_transport_features(vdev);
+ 
++	/* Make sure we don't have any features > 32 bits! */
++	BUG_ON((u32)vdev->features != vdev->features);
++
+ 	/*
+ 	 * Since lguest is currently x86-only, we're little-endian.  That
+ 	 * means we could just memcpy.  But it's not time critical, and in
+diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
+index f5e7561..d027d29 100644
+--- a/drivers/misc/mic/card/mic_virtio.c
++++ b/drivers/misc/mic/card/mic_virtio.c
+@@ -96,6 +96,9 @@ static void mic_finalize_features(struct virtio_device *vdev)
+ 	/* Give virtio_ring a chance to accept features. */
+ 	vring_transport_features(vdev);
+ 
++	/* Make sure we don't have any features > 32 bits! */
++	BUG_ON((u32)vdev->features != vdev->features);
++
+ 	memset_io(out_features, 0, feature_len);
+ 	bits = min_t(unsigned, feature_len,
+ 		sizeof(vdev->features)) * 8;
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index 62897db..627737e 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -227,6 +227,9 @@ static void rproc_virtio_finalize_features(struct virtio_device *vdev)
+ 	/* Give virtio_ring a chance to accept features */
+ 	vring_transport_features(vdev);
+ 
++	/* Make sure we don't have any features > 32 bits! */
++	BUG_ON((u32)vdev->features != vdev->features);
++
+ 	/*
+ 	 * Remember the finalized features of our vdev, and provide it
+ 	 * to the remote processor once it is powered on.
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+index 2336c7e..f5575cc 100644
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -103,6 +103,9 @@ static void kvm_finalize_features(struct virtio_device *vdev)
+ 	/* Give virtio_ring a chance to accept features. */
+ 	vring_transport_features(vdev);
+ 
++	/* Make sure we don't have any features > 32 bits! */
++	BUG_ON((u32)vdev->features != vdev->features);
++
+ 	memset(out_features, 0, desc->feature_len);
+ 	bits = min_t(unsigned, desc->feature_len, sizeof(vdev->features)) * 8;
+ 	for (i = 0; i < bits; i++) {
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 56d7895..244d611 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -714,6 +714,9 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	/* Give virtio_ring a chance to accept features. */
+ 	vring_transport_features(vdev);
+ 
++	/* Make sure we don't have any features > 32 bits! */
++	BUG_ON((u32)vdev->features != vdev->features);
++
+ 	features->index = 0;
+ 	features->features = cpu_to_le32(vdev->features);
+ 	/* Write the feature bits to the host. */
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index c63d0ef..aec1dae 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -159,6 +159,9 @@ static void vm_finalize_features(struct virtio_device *vdev)
+ 	/* Give virtio_ring a chance to accept features. */
+ 	vring_transport_features(vdev);
+ 
++	/* Make sure we don't have any features > 32 bits! */
++	BUG_ON((u32)vdev->features != vdev->features);
++
+ 	writel(0, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SEL);
+ 	writel(vdev->features, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
+ }
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 7e0efa7..dd6df97 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -119,6 +119,9 @@ static void vp_finalize_features(struct virtio_device *vdev)
+ 	/* Give virtio_ring a chance to accept features. */
+ 	vring_transport_features(vdev);
+ 
++	/* Make sure we don't have any features > 32 bits! */
++	BUG_ON((u32)vdev->features != vdev->features);
++
+ 	/* We only support 32 feature bits. */
+ 	iowrite32(vdev->features, vp_dev->ioaddr + VIRTIO_PCI_GUEST_FEATURES);
+ }
+-- 
+MST
