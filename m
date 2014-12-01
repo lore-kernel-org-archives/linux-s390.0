@@ -1,104 +1,32 @@
-From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Subject: Re: [PATCH/RFC 7/7] kernel: Force ACCESS_ONCE to work only on scalar types
-Date: Mon, 24 Nov 2014 18:28:03 -0800
-Message-ID: <CAADnVQJc-RO9EdBY2-Q0mONSLYxsryD3cP8+LPXTaKbjbqtvtg@mail.gmail.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [GIT PULL 05/11] KVM: s390: refactor interrupt injection code
+Date: Mon, 01 Dec 2014 09:00:28 +0100
+Message-ID: <547C201C.7010004@de.ibm.com>
+References: <1417181139-25623-1-git-send-email-borntraeger@de.ibm.com> <1417181139-25623-6-git-send-email-borntraeger@de.ibm.com> <5478ADD3.10307@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-arch-owner@vger.kernel.org>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: David Howells <dhowells@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, linux-mips <linux-mips@linux-mips.org>, linux-x86_64@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <5478ADD3.10307@redhat.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Nov 24, 2014 at 4:00 PM, Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
-> On Mon, Nov 24, 2014 at 2:58 PM, Alexei Starovoitov
-> <alexei.starovoitov@gmail.com> wrote:
->>
->> I've changed gcc pr58145-1.c reproducer to use
->> __read_once_size() approach above
->
-> I don't think you did.
->
->> modified reproducer:
->> struct S { unsigned int data; };
->> void bar(int val)
->> {
->>   struct S _s = { .data = val };
->>   *(volatile struct S *) 0x880000UL = ACCESS_ONCE(&_s);
->> }
->
-> My approach never had "volatile struct S *". The only volatile
-> pointers were the actual byte/word/etc pointers, and those generated
+Am 28.11.2014 um 18:16 schrieb Paolo Bonzini:
+> 
+> 
+> On 28/11/2014 14:25, Christian Borntraeger wrote:
+>>  
+>> +static int __inject_prog_irq(struct kvm_vcpu *vcpu,
+>> +			     struct kvm_s390_interrupt_info *inti)
+>> +{
+> 
+> Why the __s? :)
 
-you're right. In my invalid snippet above the ACCESS_ONCE
-to struct on stack gets optimized away and only 'volatile struct *'
-in left hand side is triggering the bug.
+In this case because its called with a lock already held. (from kvm_s390_inject_vcpu).
+I usually extend the usage of the __ prefix to "heho, pay attention. YOu are calling this function, but you are maybe supposed to do something else).
 
-Have tried the following which blends your proposal
-with original code from Christian:
-/* bad
-#define ACCESS_ONCE(x) *((volatile typeof(x) *)&(x))
-*/
-
-/* good */
-#define ACCESS_ONCE(p) \
-      ({ typeof(*p) __val; __read_once_size(p, &__val, sizeof(__val)); __val; })
-
-static __always_inline void __read_once_size(volatile void *p, void
-*res, int size)
-{
-     switch (size) {
-     case 1: *(u8 *)res = *(volatile u8 *)p; break;
-     case 2: *(u16 *)res = *(volatile u16 *)p; break;
-     case 4: *(u32 *)res = *(volatile u32 *)p; break;
-     case 8: *(u64 *)res = *(volatile u64 *)p; break;
-     }
-}
-
-union ipte_control {
-        unsigned long val;
-        struct {
-                unsigned long k  : 1;
-                unsigned long kh : 31;
-                unsigned long kg : 32;
-        };
-};
-
-struct kvm_vcpu {
-        union ipte_control ic;
-};
-
-void ipte_unlock_siif(struct kvm_vcpu *vcpu)
-{
-        union ipte_control old, new, *ic;
-
-        ic = &vcpu->ic;
-        do {
-                new = old = ACCESS_ONCE(ic);
-                new.kh--;
-                if (!new.kh)
-                        new.k = 0;
-        } while (cmpxchg(&ic->val, old.val, new.val) != old.val);
-}
-
-generated code looks correct with and without strict-aliasing
-and volatile marking is preserved properly.
-(to check for volatile marks add -fdump-tree-optimized
- and look for {v} in *.optimized)
-
-> Pretty? No. But then, the standard C aliasing rules are so broken that
-> "pretty" doesn't really come into play..
-
-Agree. I don't see any warnings or code generation issues with and
-without strict-aliasing with your original __read_once_size(), so no need
-to play union tricks. Initially I was worried that extra always_inline
-function will make generated code worse in critical paths where
-ACCESS_ONCE is used, but after looking close enough, it seems
-all should be fine.
-
-Note, with unmodified ACCESS_ONCE all architectures (even x64)
-are missing volatile markings with gcc 4.6.3, 4.7.2 for Christian's
-use case.
+Christian
