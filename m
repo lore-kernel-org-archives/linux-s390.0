@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 1 Dec 2014 18:03:10 +0200
+Date: Mon, 1 Dec 2014 18:04:11 +0200
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v8 05/50] virtio: assert 32 bit features in transports
-Message-ID: <1417449619-24896-6-git-send-email-mst@redhat.com>
+Subject: [PATCH v8 17/50] KVM: s390: Set virtio-ccw transport revision
+Message-ID: <1417449619-24896-18-git-send-email-mst@redhat.com>
 References: <1417449619-24896-1-git-send-email-mst@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -12,126 +12,140 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: David Miller <davem@davemloft.net>, cornelia.huck@de.ibm.com, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, dahi@linux.vnet.ibm.com, Rusty Russell <rusty@rustcorp.com.au>, Ohad Ben-Cohen <ohad@wizery.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, lguest@lists.ozlabs.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: David Miller <davem@davemloft.net>, cornelia.huck@de.ibm.com, rusty@au1.ibm.com, nab@linux-iscsi.org, pbonzini@redhat.com, thuth@linux.vnet.ibm.com, dahi@linux.vnet.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-At this point, no transports set any of the high 32 feature bits.
-Since transports generally can't (yet) cope with such bits, add BUG_ON
-checks to make sure they are not set by mistake.
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
 
-Based on rproc patch by Rusty.
+With the new SET-VIRTIO-REVISION command of the virtio 1.0 standard, we
+can now negotiate the virtio-ccw revision after setting a channel online.
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Note that we don't negotiate version 1 yet.
+
+[Cornelia Huck: reworked revision loop a bit]
 Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/lguest/lguest_device.c         | 3 +++
- drivers/misc/mic/card/mic_virtio.c     | 3 +++
- drivers/remoteproc/remoteproc_virtio.c | 3 +++
- drivers/s390/kvm/kvm_virtio.c          | 3 +++
- drivers/s390/kvm/virtio_ccw.c          | 3 +++
- drivers/virtio/virtio_mmio.c           | 3 +++
- drivers/virtio/virtio_pci.c            | 3 +++
- 7 files changed, 21 insertions(+)
+ drivers/s390/kvm/virtio_ccw.c | 63 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 63 insertions(+)
 
-diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
-index d81170a..9b77b66 100644
---- a/drivers/lguest/lguest_device.c
-+++ b/drivers/lguest/lguest_device.c
-@@ -136,6 +136,9 @@ static void lg_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
- 
-+	/* Make sure we don't have any features > 32 bits! */
-+	BUG_ON((u32)vdev->features != vdev->features);
-+
- 	/*
- 	 * Since lguest is currently x86-only, we're little-endian.  That
- 	 * means we could just memcpy.  But it's not time critical, and in
-diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
-index f5e7561..d027d29 100644
---- a/drivers/misc/mic/card/mic_virtio.c
-+++ b/drivers/misc/mic/card/mic_virtio.c
-@@ -96,6 +96,9 @@ static void mic_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
- 
-+	/* Make sure we don't have any features > 32 bits! */
-+	BUG_ON((u32)vdev->features != vdev->features);
-+
- 	memset_io(out_features, 0, feature_len);
- 	bits = min_t(unsigned, feature_len,
- 		sizeof(vdev->features)) * 8;
-diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-index 62897db..627737e 100644
---- a/drivers/remoteproc/remoteproc_virtio.c
-+++ b/drivers/remoteproc/remoteproc_virtio.c
-@@ -227,6 +227,9 @@ static void rproc_virtio_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features */
- 	vring_transport_features(vdev);
- 
-+	/* Make sure we don't have any features > 32 bits! */
-+	BUG_ON((u32)vdev->features != vdev->features);
-+
- 	/*
- 	 * Remember the finalized features of our vdev, and provide it
- 	 * to the remote processor once it is powered on.
-diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
-index 2336c7e..f5575cc 100644
---- a/drivers/s390/kvm/kvm_virtio.c
-+++ b/drivers/s390/kvm/kvm_virtio.c
-@@ -103,6 +103,9 @@ static void kvm_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
- 
-+	/* Make sure we don't have any features > 32 bits! */
-+	BUG_ON((u32)vdev->features != vdev->features);
-+
- 	memset(out_features, 0, desc->feature_len);
- 	bits = min_t(unsigned, desc->feature_len, sizeof(vdev->features)) * 8;
- 	for (i = 0; i < bits; i++) {
 diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 56d7895..244d611 100644
+index 65d0c80..f6eb47b 100644
 --- a/drivers/s390/kvm/virtio_ccw.c
 +++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -714,6 +714,9 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
+@@ -55,6 +55,7 @@ struct virtio_ccw_device {
+ 	struct ccw_device *cdev;
+ 	__u32 curr_io;
+ 	int err;
++	unsigned int revision; /* Transport revision */
+ 	wait_queue_head_t wait_q;
+ 	spinlock_t lock;
+ 	struct list_head virtqueues;
+@@ -86,6 +87,15 @@ struct virtio_thinint_area {
+ 	u8 isc;
+ } __packed;
  
-+	/* Make sure we don't have any features > 32 bits! */
-+	BUG_ON((u32)vdev->features != vdev->features);
++struct virtio_rev_info {
++	__u16 revision;
++	__u16 length;
++	__u8 data[];
++};
 +
- 	features->index = 0;
- 	features->features = cpu_to_le32(vdev->features);
- 	/* Write the feature bits to the host. */
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index c63d0ef..aec1dae 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -159,6 +159,9 @@ static void vm_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
++/* the highest virtio-ccw revision we support */
++#define VIRTIO_CCW_REV_MAX 0
++
+ struct virtio_ccw_vq_info {
+ 	struct virtqueue *vq;
+ 	int num;
+@@ -122,6 +132,7 @@ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
+ #define CCW_CMD_WRITE_STATUS 0x31
+ #define CCW_CMD_READ_VQ_CONF 0x32
+ #define CCW_CMD_SET_IND_ADAPTER 0x73
++#define CCW_CMD_SET_VIRTIO_REV 0x83
  
-+	/* Make sure we don't have any features > 32 bits! */
-+	BUG_ON((u32)vdev->features != vdev->features);
-+
- 	writel(0, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SEL);
- 	writel(vdev->features, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
+ #define VIRTIO_CCW_DOING_SET_VQ 0x00010000
+ #define VIRTIO_CCW_DOING_RESET 0x00040000
+@@ -134,6 +145,7 @@ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
+ #define VIRTIO_CCW_DOING_READ_VQ_CONF 0x02000000
+ #define VIRTIO_CCW_DOING_SET_CONF_IND 0x04000000
+ #define VIRTIO_CCW_DOING_SET_IND_ADAPTER 0x08000000
++#define VIRTIO_CCW_DOING_SET_VIRTIO_REV 0x10000000
+ #define VIRTIO_CCW_INTPARM_MASK 0xffff0000
+ 
+ static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
+@@ -933,6 +945,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+ 		case VIRTIO_CCW_DOING_RESET:
+ 		case VIRTIO_CCW_DOING_READ_VQ_CONF:
+ 		case VIRTIO_CCW_DOING_SET_IND_ADAPTER:
++		case VIRTIO_CCW_DOING_SET_VIRTIO_REV:
+ 			vcdev->curr_io &= ~activity;
+ 			wake_up(&vcdev->wait_q);
+ 			break;
+@@ -1048,6 +1061,51 @@ static int virtio_ccw_offline(struct ccw_device *cdev)
+ 	return 0;
  }
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 7e0efa7..dd6df97 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -119,6 +119,9 @@ static void vp_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
  
-+	/* Make sure we don't have any features > 32 bits! */
-+	BUG_ON((u32)vdev->features != vdev->features);
++static int virtio_ccw_set_transport_rev(struct virtio_ccw_device *vcdev)
++{
++	struct virtio_rev_info *rev;
++	struct ccw1 *ccw;
++	int ret;
 +
- 	/* We only support 32 feature bits. */
- 	iowrite32(vdev->features, vp_dev->ioaddr + VIRTIO_PCI_GUEST_FEATURES);
- }
++	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
++	if (!ccw)
++		return -ENOMEM;
++	rev = kzalloc(sizeof(*rev), GFP_DMA | GFP_KERNEL);
++	if (!rev) {
++		kfree(ccw);
++		return -ENOMEM;
++	}
++
++	/* Set transport revision */
++	ccw->cmd_code = CCW_CMD_SET_VIRTIO_REV;
++	ccw->flags = 0;
++	ccw->count = sizeof(*rev);
++	ccw->cda = (__u32)(unsigned long)rev;
++
++	vcdev->revision = VIRTIO_CCW_REV_MAX;
++	do {
++		rev->revision = vcdev->revision;
++		/* none of our supported revisions carry payload */
++		rev->length = 0;
++		ret = ccw_io_helper(vcdev, ccw,
++				    VIRTIO_CCW_DOING_SET_VIRTIO_REV);
++		if (ret == -EOPNOTSUPP) {
++			if (vcdev->revision == 0)
++				/*
++				 * The host device does not support setting
++				 * the revision: let's operate it in legacy
++				 * mode.
++				 */
++				ret = 0;
++			else
++				vcdev->revision--;
++		}
++	} while (ret == -EOPNOTSUPP);
++
++	kfree(ccw);
++	kfree(rev);
++	return ret;
++}
+ 
+ static int virtio_ccw_online(struct ccw_device *cdev)
+ {
+@@ -1088,6 +1146,11 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+ 	spin_unlock_irqrestore(get_ccwdev_lock(cdev), flags);
+ 	vcdev->vdev.id.vendor = cdev->id.cu_type;
+ 	vcdev->vdev.id.device = cdev->id.cu_model;
++
++	ret = virtio_ccw_set_transport_rev(vcdev);
++	if (ret)
++		goto out_free;
++
+ 	ret = register_virtio_device(&vcdev->vdev);
+ 	if (ret) {
+ 		dev_warn(&cdev->dev, "Failed to register virtio device: %d\n",
 -- 
 MST
