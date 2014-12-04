@@ -1,48 +1,73 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 0/3] KVM: s390: Fixups for kvm/next (3.19)
-Date: Thu,  4 Dec 2014 17:14:02 +0100
-Message-ID: <1417709645-63747-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 4 Dec 2014 20:44:38 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH RFC v2 2/4] virtio_ccw: legacy: don't negotiate rev 1/features
+Message-ID: <1417718645-25678-2-git-send-email-mst@redhat.com>
+References: <1417718645-25678-1-git-send-email-mst@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1417718645-25678-1-git-send-email-mst@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>, David Hildenbrand <dahi@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo,
+Legacy balloon device doesn't pretend to support revision 1 or 64 bit
+features.
 
-some last minute changes for 3.19 as followup for the latest interrupt
-rework + a small architectural compliance fix.
+But just in case someone implements a broken one that does, let's not
+even try to drive legacy only devices using revision 1, and let's not
+give them a chance to say they support VIRTIO_F_VERSION_1 by not reading
+high feature bits.
 
-Christian
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/s390/kvm/virtio_ccw.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-The following changes since commit be06b6bece19be5b167d863fd6c5271e4ec8f1fa:
-
-  Merge tag 'kvm-s390-next-20141128' of git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux into HEAD (2014-12-03 15:20:11 +0100)
-
-are available in the git repository at:
-
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-20141204
-
-for you to fetch changes up to 99e20009aeee47049900ac152d7a88d4f68697d3:
-
-  KVM: s390: clean up return code handling in irq delivery code (2014-12-04 16:39:00 +0100)
-
-----------------------------------------------------------------
-KVM: s390: Fixups for kvm/next (3.19)
-
-Here we have two fixups of the latest interrupt rework and
-one architectural fixup.
-
-----------------------------------------------------------------
-David Hildenbrand (1):
-      KVM: s390: some ext irqs have to clear the ext cpu addr
-
-Jens Freimann (2):
-      KVM: s390: use atomic bitops to access pending_irqs bitmap
-      KVM: s390: clean up return code handling in irq delivery code
-
- arch/s390/kvm/interrupt.c | 33 ++++++++++++++++++---------------
- 1 file changed, 18 insertions(+), 15 deletions(-)
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 4a3e6e5..c792b5f 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -733,6 +733,9 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+ 
+ 	rc = le32_to_cpu(features->features);
+ 
++	if (vcdev->revision == 0)
++		goto out_free;
++
+ 	/* Read second half of the feature bits from the host. */
+ 	features->index = 1;
+ 	ccw->cmd_code = CCW_CMD_READ_FEAT;
+@@ -775,6 +778,9 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	ccw->cda = (__u32)(unsigned long)features;
+ 	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
+ 
++	if (vcdev->revision == 0)
++		goto out_free;
++
+ 	features->index = 1;
+ 	features->features = cpu_to_le32(vdev->features >> 32);
+ 	/* Write the second half of the feature bits to the host. */
+@@ -1182,9 +1188,13 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+ 	vcdev->vdev.id.vendor = cdev->id.cu_type;
+ 	vcdev->vdev.id.device = cdev->id.cu_model;
+ 
+-	ret = virtio_ccw_set_transport_rev(vcdev);
+-	if (ret)
+-		goto out_free;
++	if (virtio_device_is_legacy_only(vcdev->vdev.id)) {
++		vcdev->revision = 0;
++	} else {
++		ret = virtio_ccw_set_transport_rev(vcdev);
++		if (ret)
++			goto out_free;
++	}
+ 
+ 	ret = register_virtio_device(&vcdev->vdev);
+ 	if (ret) {
+-- 
+MST
