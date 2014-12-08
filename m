@@ -1,51 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 10 Dec 2014 09:41:39 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v3 4/6] virtio_ccw: rev 1 devices set VIRTIO_F_VERSION_1
-Message-ID: <20141210094139.7f2e2d01.cornelia.huck@de.ibm.com>
-In-Reply-To: <20141209194052.GA21095@redhat.com>
+Date: Mon, 8 Dec 2014 15:05:54 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v3 2/6] virtio_ccw: legacy: don't negotiate rev 1/features
+Message-ID: <1418042769-25539-3-git-send-email-mst@redhat.com>
 References: <1418042769-25539-1-git-send-email-mst@redhat.com>
-	<1418042769-25539-5-git-send-email-mst@redhat.com>
-	<20141209120123.117ccfac.cornelia.huck@de.ibm.com>
-	<20141209122118.GF3993@redhat.com>
-	<20141209182319.20ce2dec.cornelia.huck@de.ibm.com>
-	<20141209194052.GA21095@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1418042769-25539-1-git-send-email-mst@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, dahi@linux.vnet.ibm.com, rusty@rustcorp.com.au, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: dahi@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, rusty@rustcorp.com.au, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 9 Dec 2014 21:40:52 +0200
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+Legacy balloon device doesn't pretend to support revision 1 or 64 bit
+features.
 
-> On Tue, Dec 09, 2014 at 06:23:19PM +0100, Cornelia Huck wrote:
-> > On Tue, 9 Dec 2014 14:21:18 +0200
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > On Tue, Dec 09, 2014 at 12:01:23PM +0100, Cornelia Huck wrote:
-> > > > On Mon, 8 Dec 2014 15:06:03 +0200
-> > > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > > > diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-> > > > > index 789275f..f9f87ba 100644
-> > > > > --- a/drivers/s390/kvm/virtio_ccw.c
-> > > > > +++ b/drivers/s390/kvm/virtio_ccw.c
-> > > > > @@ -758,6 +758,13 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
-> > > > >  	struct virtio_feature_desc *features;
-> > > > >  	struct ccw1 *ccw;
-> > 
-> > This needs
-> > 
-> > +	struct virtio_device *vdev = &vcdev->vdev;
-> > 
-> > to make it compile :)
-> 
-> In fact why does it?
-> vdev is a parameter.
+But just in case someone implements a broken one that does, let's not
+even try to drive legacy only devices using revision 1, and let's not
+give them a chance to say they support VIRTIO_F_VERSION_1 by not reading
+high feature bits.
 
-Never mind, messed up tree on my side.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/s390/kvm/virtio_ccw.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 4a3e6e5..c792b5f 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -733,6 +733,9 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+ 
+ 	rc = le32_to_cpu(features->features);
+ 
++	if (vcdev->revision == 0)
++		goto out_free;
++
+ 	/* Read second half of the feature bits from the host. */
+ 	features->index = 1;
+ 	ccw->cmd_code = CCW_CMD_READ_FEAT;
+@@ -775,6 +778,9 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	ccw->cda = (__u32)(unsigned long)features;
+ 	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
+ 
++	if (vcdev->revision == 0)
++		goto out_free;
++
+ 	features->index = 1;
+ 	features->features = cpu_to_le32(vdev->features >> 32);
+ 	/* Write the second half of the feature bits to the host. */
+@@ -1182,9 +1188,13 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+ 	vcdev->vdev.id.vendor = cdev->id.cu_type;
+ 	vcdev->vdev.id.device = cdev->id.cu_model;
+ 
+-	ret = virtio_ccw_set_transport_rev(vcdev);
+-	if (ret)
+-		goto out_free;
++	if (virtio_device_is_legacy_only(vcdev->vdev.id)) {
++		vcdev->revision = 0;
++	} else {
++		ret = virtio_ccw_set_transport_rev(vcdev);
++		if (ret)
++			goto out_free;
++	}
+ 
+ 	ret = register_virtio_device(&vcdev->vdev);
+ 	if (ret) {
+-- 
+MST
