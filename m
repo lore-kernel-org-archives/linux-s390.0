@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 8 Dec 2014 15:05:54 +0200
+Date: Mon, 8 Dec 2014 15:06:03 +0200
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 2/6] virtio_ccw: legacy: don't negotiate rev 1/features
-Message-ID: <1418042769-25539-3-git-send-email-mst@redhat.com>
+Subject: [PATCH v3 4/6] virtio_ccw: rev 1 devices set VIRTIO_F_VERSION_1
+Message-ID: <1418042769-25539-5-git-send-email-mst@redhat.com>
 References: <1418042769-25539-1-git-send-email-mst@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -15,59 +15,35 @@ To: linux-kernel@vger.kernel.org
 Cc: dahi@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, rusty@rustcorp.com.au, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Legacy balloon device doesn't pretend to support revision 1 or 64 bit
-features.
+What does it mean if rev 1 device does not set
+VIRTIO_F_VERSION_1? E.g. is it native endian?
 
-But just in case someone implements a broken one that does, let's not
-even try to drive legacy only devices using revision 1, and let's not
-give them a chance to say they support VIRTIO_F_VERSION_1 by not reading
-high feature bits.
+Let's not even try to drive such devices:
+fail attempts to finalize features.
+virtio core will detect this and bail out.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/s390/kvm/virtio_ccw.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/s390/kvm/virtio_ccw.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 4a3e6e5..c792b5f 100644
+index 789275f..f9f87ba 100644
 --- a/drivers/s390/kvm/virtio_ccw.c
 +++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -733,6 +733,9 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+@@ -758,6 +758,13 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	struct virtio_feature_desc *features;
+ 	struct ccw1 *ccw;
  
- 	rc = le32_to_cpu(features->features);
- 
-+	if (vcdev->revision == 0)
-+		goto out_free;
-+
- 	/* Read second half of the feature bits from the host. */
- 	features->index = 1;
- 	ccw->cmd_code = CCW_CMD_READ_FEAT;
-@@ -775,6 +778,9 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
- 	ccw->cda = (__u32)(unsigned long)features;
- 	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
- 
-+	if (vcdev->revision == 0)
-+		goto out_free;
-+
- 	features->index = 1;
- 	features->features = cpu_to_le32(vdev->features >> 32);
- 	/* Write the second half of the feature bits to the host. */
-@@ -1182,9 +1188,13 @@ static int virtio_ccw_online(struct ccw_device *cdev)
- 	vcdev->vdev.id.vendor = cdev->id.cu_type;
- 	vcdev->vdev.id.device = cdev->id.cu_model;
- 
--	ret = virtio_ccw_set_transport_rev(vcdev);
--	if (ret)
--		goto out_free;
-+	if (virtio_device_is_legacy_only(vcdev->vdev.id)) {
-+		vcdev->revision = 0;
-+	} else {
-+		ret = virtio_ccw_set_transport_rev(vcdev);
-+		if (ret)
-+			goto out_free;
++	if (vcdev->revision == 1 &&
++	    !__virtio_test_bit(vdev, VIRTIO_F_VERSION_1)) {
++		dev_err(&vdev->dev, "virtio: device uses revision 1 "
++			"but does not have VIRTIO_F_VERSION_1\n");
++		return -EINVAL;
 +	}
- 
- 	ret = register_virtio_device(&vcdev->vdev);
- 	if (ret) {
++
+ 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+ 	if (!ccw)
+ 		return 0;
 -- 
 MST
