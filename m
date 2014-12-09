@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 9 Dec 2014 20:55:16 +0200
+Date: Tue, 9 Dec 2014 21:40:52 +0200
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v3 4/6] virtio_ccw: rev 1 devices set VIRTIO_F_VERSION_1
-Message-ID: <20141209185516.GB19260@redhat.com>
+Message-ID: <20141209194052.GA21095@redhat.com>
 References: <1418042769-25539-1-git-send-email-mst@redhat.com>
  <1418042769-25539-5-git-send-email-mst@redhat.com>
  <20141209120123.117ccfac.cornelia.huck@de.ibm.com>
@@ -40,7 +40,10 @@ On Tue, Dec 09, 2014 at 06:23:19PM +0100, Cornelia Huck wrote:
 > +	struct virtio_device *vdev = &vcdev->vdev;
 > 
 > to make it compile :)
-> 
+
+In fact why does it?
+vdev is a parameter.
+
 > > > > 
 > > > > +	if (vcdev->revision == 1 &&
 > > > 
@@ -80,9 +83,3 @@ On Tue, Dec 09, 2014 at 06:23:19PM +0100, Cornelia Huck wrote:
 > 
 > OK, with your qemu patch on the host side this seems to be fine. No
 > further objections from me for now.
-
-
-I fixed up my tree and pushed, so it should be good for testing now.
-
--- 
-MST
