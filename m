@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 9 Dec 2014 13:56:12 +0100
+Date: Tue, 9 Dec 2014 18:23:19 +0100
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v3 3/6] virtio: allow finalize_features to fail
-Message-ID: <20141209135612.0827f70d.cornelia.huck@de.ibm.com>
-In-Reply-To: <20141209120754.GE3993@redhat.com>
+Subject: Re: [PATCH v3 4/6] virtio_ccw: rev 1 devices set VIRTIO_F_VERSION_1
+Message-ID: <20141209182319.20ce2dec.cornelia.huck@de.ibm.com>
+In-Reply-To: <20141209122118.GF3993@redhat.com>
 References: <1418042769-25539-1-git-send-email-mst@redhat.com>
-	<1418042769-25539-4-git-send-email-mst@redhat.com>
-	<20141209114659.5b0fdea0.cornelia.huck@de.ibm.com>
-	<20141209120754.GE3993@redhat.com>
+	<1418042769-25539-5-git-send-email-mst@redhat.com>
+	<20141209120123.117ccfac.cornelia.huck@de.ibm.com>
+	<20141209122118.GF3993@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -15,129 +15,66 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, dahi@linux.vnet.ibm.com, rusty@rustcorp.com.au, Ohad Ben-Cohen <ohad@wizery.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sudeep Dutt <sudeep.dutt@intel.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, lguest@lists.ozlabs.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, dahi@linux.vnet.ibm.com, rusty@rustcorp.com.au, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 9 Dec 2014 14:07:54 +0200
+On Tue, 9 Dec 2014 14:21:18 +0200
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> On Tue, Dec 09, 2014 at 11:46:59AM +0100, Cornelia Huck wrote:
-> > On Mon, 8 Dec 2014 15:05:58 +0200
+> On Tue, Dec 09, 2014 at 12:01:23PM +0100, Cornelia Huck wrote:
+> > On Mon, 8 Dec 2014 15:06:03 +0200
 > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > This will make it easy for transports to validate features and return
-> > > failure.
-> > > 
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > ---
-> > >  include/linux/virtio_config.h          |  3 ++-
-> > >  drivers/lguest/lguest_device.c         |  4 +++-
-> > >  drivers/misc/mic/card/mic_virtio.c     |  4 +++-
-> > >  drivers/remoteproc/remoteproc_virtio.c |  4 +++-
-> > >  drivers/s390/kvm/kvm_virtio.c          |  4 +++-
-> > >  drivers/s390/kvm/virtio_ccw.c          |  6 ++++--
-> > >  drivers/virtio/virtio.c                | 21 ++++++++++++++-------
-> > >  drivers/virtio/virtio_mmio.c           |  4 +++-
-> > >  drivers/virtio/virtio_pci.c            |  4 +++-
-> > >  9 files changed, 38 insertions(+), 16 deletions(-)
-> > > 
-> > 
+
 > > > diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-> > > index c792b5f..789275f 100644
+> > > index 789275f..f9f87ba 100644
 > > > --- a/drivers/s390/kvm/virtio_ccw.c
 > > > +++ b/drivers/s390/kvm/virtio_ccw.c
-> > > @@ -752,7 +752,7 @@ out_free:
-> > >  	return rc;
-> > >  }
-> > > 
-> > > -static void virtio_ccw_finalize_features(struct virtio_device *vdev)
-> > > +static int virtio_ccw_finalize_features(struct virtio_device *vdev)
-> > >  {
-> > >  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+> > > @@ -758,6 +758,13 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
 > > >  	struct virtio_feature_desc *features;
-> > > @@ -760,7 +760,7 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
+> > >  	struct ccw1 *ccw;
+
+This needs
+
++	struct virtio_device *vdev = &vcdev->vdev;
+
+to make it compile :)
+
 > > > 
+> > > +	if (vcdev->revision == 1 &&
+> > 
+> > If we decide to keep this check, it should be for rev >= 1, though.
+> 
+> Fine, though this is theoretical, right?
+> Ican change this with a patch on top.
+> 
+> > > +	    !__virtio_test_bit(vdev, VIRTIO_F_VERSION_1)) {
+> > > +		dev_err(&vdev->dev, "virtio: device uses revision 1 "
+> > > +			"but does not have VIRTIO_F_VERSION_1\n");
+> > > +		return -EINVAL;
+> > > +	}
+> > > +
 > > >  	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
 > > >  	if (!ccw)
-> > > -		return;
-> > > +		return 0;
+> > >  		return 0;
 > > 
-> > I think we'll want to return an error in this case as well to fail
-> > probing. Also for the other places where something can go wrong.
-> > Something like this:
+> > I'm still not convinced by this change: I'd prefer to allow rev 1
+> > without VERSION_1, especially as the core makes all its decisions based
+> > upon VERSION_1.
+> 
+> At the moment, but this is an implementation detail.
+> This is exactly why I want this hard requirement in code.
 > 
 > 
-> I guess the fact this previously failed silently is a bug in original
-> code?
-
-Not really a bug; it simply was not possible to fail it.
-
-> 
-> Can you please send your S.O.B so I can add this patch on top?
-
-Sure. Code below is
-
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-
-> 
-> We might also need to Cc stable.
-
-Not sure whether this is stable-worthy, as these are largely
-pathological cases (and for the one non-pathological case, device going
-away, we're already fine).
-
+> > Unless someone else has a good argument in favour of
+> > this change.
 > 
 > 
-> > diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-> > index 789275f..bc6e671 100644
-> > --- a/drivers/s390/kvm/virtio_ccw.c
-> > +++ b/drivers/s390/kvm/virtio_ccw.c
-> > @@ -757,15 +757,17 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
-> >  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-> >  	struct virtio_feature_desc *features;
-> >  	struct ccw1 *ccw;
-> > +	int ret;
-> >  
-> >  	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-> >  	if (!ccw)
-> > -		return 0;
-> > +		return -ENOMEM;
-> >  
-> >  	features = kzalloc(sizeof(*features), GFP_DMA | GFP_KERNEL);
-> > -	if (!features)
-> > +	if (!features) {
-> > +		ret = -ENOMEM;
-> >  		goto out_free;
-> > -
-> > +	}
-> >  	/* Give virtio_ring a chance to accept features. */
-> >  	vring_transport_features(vdev);
-> >  
-> > @@ -776,7 +778,9 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
-> >  	ccw->flags = 0;
-> >  	ccw->count = sizeof(*features);
-> >  	ccw->cda = (__u32)(unsigned long)features;
-> > -	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
-> > +	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
-> > +	if (ret)
-> > +		goto out_free;
-> >  
-> >  	if (vcdev->revision == 0)
-> >  		goto out_free;
-> > @@ -788,13 +792,13 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
-> >  	ccw->flags = 0;
-> >  	ccw->count = sizeof(*features);
-> >  	ccw->cda = (__u32)(unsigned long)features;
-> > -	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
-> > +	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
-> >  
-> >  out_free:
-> >  	kfree(features);
-> >  	kfree(ccw);
-> >  
-> > -	return 0;
-> > +	return ret;
-> >  }
-> >  
-> >  static void virtio_ccw_get_config(struct virtio_device *vdev,
+> Let's not commit to something we are not sure we
+> can support.
 > 
+> We can always remove this code, but once we release
+> guest we won't be able to drop it.
+> 
+
+OK, with your qemu patch on the host side this seems to be fine. No
+further objections from me for now.
