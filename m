@@ -1,274 +1,179 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 8 Dec 2014 15:05:58 +0200
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 3/6] virtio: allow finalize_features to fail
-Message-ID: <1418042769-25539-4-git-send-email-mst@redhat.com>
-References: <1418042769-25539-1-git-send-email-mst@redhat.com>
+Date: Wed, 10 Dec 2014 10:03:27 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [GIT PULL] s390 patches for the 3.19 merge window, 2nd try with
+ diffstat
+Message-ID: <20141210100327.55b645ea@mschwide>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1418042769-25539-1-git-send-email-mst@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: dahi@linux.vnet.ibm.com, cornelia.huck@de.ibm.com, rusty@rustcorp.com.au, Ohad Ben-Cohen <ohad@wizery.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sudeep Dutt <sudeep.dutt@intel.com>, Siva Yerramreddy <yshivakrishna@gmail.com>, lguest@lists.ozlabs.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This will make it easy for transports to validate features and return
-failure.
+Hi Linus,
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/linux/virtio_config.h          |  3 ++-
- drivers/lguest/lguest_device.c         |  4 +++-
- drivers/misc/mic/card/mic_virtio.c     |  4 +++-
- drivers/remoteproc/remoteproc_virtio.c |  4 +++-
- drivers/s390/kvm/kvm_virtio.c          |  4 +++-
- drivers/s390/kvm/virtio_ccw.c          |  6 ++++--
- drivers/virtio/virtio.c                | 21 ++++++++++++++-------
- drivers/virtio/virtio_mmio.c           |  4 +++-
- drivers/virtio/virtio_pci.c            |  4 +++-
- 9 files changed, 38 insertions(+), 16 deletions(-)
+please pull from the 'for-linus' branch of
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 1fa5faa..7979f85 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -47,6 +47,7 @@
-  *	vdev: the virtio_device
-  *	This gives the final feature bits for the device: it can change
-  *	the dev->feature bits if it wants.
-+ *	Returns 0 on success or error status
-  * @bus_name: return the bus name associated with the device
-  *	vdev: the virtio_device
-  *      This returns a pointer to the bus name a la pci_name from which
-@@ -68,7 +69,7 @@ struct virtio_config_ops {
- 			const char *names[]);
- 	void (*del_vqs)(struct virtio_device *);
- 	u64 (*get_features)(struct virtio_device *vdev);
--	void (*finalize_features)(struct virtio_device *vdev);
-+	int (*finalize_features)(struct virtio_device *vdev);
- 	const char *(*bus_name)(struct virtio_device *vdev);
- 	int (*set_vq_affinity)(struct virtqueue *vq, int cpu);
- };
-diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
-index 9b77b66..89088d6 100644
---- a/drivers/lguest/lguest_device.c
-+++ b/drivers/lguest/lguest_device.c
-@@ -126,7 +126,7 @@ static void status_notify(struct virtio_device *vdev)
-  * sorted out, this routine is called so we can tell the Host which features we
-  * understand and accept.
-  */
--static void lg_finalize_features(struct virtio_device *vdev)
-+static int lg_finalize_features(struct virtio_device *vdev)
- {
- 	unsigned int i, bits;
- 	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
-@@ -153,6 +153,8 @@ static void lg_finalize_features(struct virtio_device *vdev)
- 
- 	/* Tell Host we've finished with this device's feature negotiation */
- 	status_notify(vdev);
-+
-+	return 0;
- }
- 
- /* Once they've found a field, getting a copy of it is easy. */
-diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
-index d027d29..e486a0c 100644
---- a/drivers/misc/mic/card/mic_virtio.c
-+++ b/drivers/misc/mic/card/mic_virtio.c
-@@ -84,7 +84,7 @@ static u64 mic_get_features(struct virtio_device *vdev)
- 	return features;
- }
- 
--static void mic_finalize_features(struct virtio_device *vdev)
-+static int mic_finalize_features(struct virtio_device *vdev)
- {
- 	unsigned int i, bits;
- 	struct mic_device_desc __iomem *desc = to_micvdev(vdev)->desc;
-@@ -107,6 +107,8 @@ static void mic_finalize_features(struct virtio_device *vdev)
- 			iowrite8(ioread8(&out_features[i / 8]) | (1 << (i % 8)),
- 				 &out_features[i / 8]);
- 	}
-+
-+	return 0;
- }
- 
- /*
-diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-index 627737e..e1a1023 100644
---- a/drivers/remoteproc/remoteproc_virtio.c
-+++ b/drivers/remoteproc/remoteproc_virtio.c
-@@ -217,7 +217,7 @@ static u64 rproc_virtio_get_features(struct virtio_device *vdev)
- 	return rsc->dfeatures;
- }
- 
--static void rproc_virtio_finalize_features(struct virtio_device *vdev)
-+static int rproc_virtio_finalize_features(struct virtio_device *vdev)
- {
- 	struct rproc_vdev *rvdev = vdev_to_rvdev(vdev);
- 	struct fw_rsc_vdev *rsc;
-@@ -235,6 +235,8 @@ static void rproc_virtio_finalize_features(struct virtio_device *vdev)
- 	 * to the remote processor once it is powered on.
- 	 */
- 	rsc->gfeatures = vdev->features;
-+
-+	return 0;
- }
- 
- static void rproc_virtio_get(struct virtio_device *vdev, unsigned offset,
-diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
-index f5575cc..dd65c8b 100644
---- a/drivers/s390/kvm/kvm_virtio.c
-+++ b/drivers/s390/kvm/kvm_virtio.c
-@@ -93,7 +93,7 @@ static u64 kvm_get_features(struct virtio_device *vdev)
- 	return features;
- }
- 
--static void kvm_finalize_features(struct virtio_device *vdev)
-+static int kvm_finalize_features(struct virtio_device *vdev)
- {
- 	unsigned int i, bits;
- 	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
-@@ -112,6 +112,8 @@ static void kvm_finalize_features(struct virtio_device *vdev)
- 		if (__virtio_test_bit(vdev, i))
- 			out_features[i / 8] |= (1 << (i % 8));
- 	}
-+
-+	return 0;
- }
- 
- /*
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index c792b5f..789275f 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -752,7 +752,7 @@ out_free:
- 	return rc;
- }
- 
--static void virtio_ccw_finalize_features(struct virtio_device *vdev)
-+static int virtio_ccw_finalize_features(struct virtio_device *vdev)
- {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
- 	struct virtio_feature_desc *features;
-@@ -760,7 +760,7 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
- 
- 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
- 	if (!ccw)
--		return;
-+		return 0;
- 
- 	features = kzalloc(sizeof(*features), GFP_DMA | GFP_KERNEL);
- 	if (!features)
-@@ -793,6 +793,8 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
- out_free:
- 	kfree(features);
- 	kfree(ccw);
-+
-+	return 0;
- }
- 
- static void virtio_ccw_get_config(struct virtio_device *vdev,
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 224f854..e1673a5 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -212,7 +212,9 @@ static int virtio_dev_probe(struct device *_d)
- 		if (device_features & (1ULL << i))
- 			__virtio_set_bit(dev, i);
- 
--	dev->config->finalize_features(dev);
-+	err = dev->config->finalize_features(dev);
-+	if (err)
-+		goto err;
- 
- 	if (virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
- 		add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
-@@ -354,6 +356,7 @@ EXPORT_SYMBOL_GPL(virtio_device_freeze);
- int virtio_device_restore(struct virtio_device *dev)
- {
- 	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-+	int ret;
- 
- 	/* We always start by resetting the device, in case a previous
- 	 * driver messed it up. */
-@@ -373,14 +376,14 @@ int virtio_device_restore(struct virtio_device *dev)
- 	/* We have a driver! */
- 	add_status(dev, VIRTIO_CONFIG_S_DRIVER);
- 
--	dev->config->finalize_features(dev);
-+	ret = dev->config->finalize_features(dev);
-+	if (ret)
-+		goto err;
- 
- 	if (drv->restore) {
--		int ret = drv->restore(dev);
--		if (ret) {
--			add_status(dev, VIRTIO_CONFIG_S_FAILED);
--			return ret;
--		}
-+		ret = drv->restore(dev);
-+		if (ret)
-+			goto err;
- 	}
- 
- 	/* Finally, tell the device we're all set */
-@@ -389,6 +392,10 @@ int virtio_device_restore(struct virtio_device *dev)
- 	virtio_config_enable(dev);
- 
- 	return 0;
-+
-+err:
-+	add_status(dev, VIRTIO_CONFIG_S_FAILED);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(virtio_device_restore);
- #endif
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index aec1dae..5219210 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -152,7 +152,7 @@ static u64 vm_get_features(struct virtio_device *vdev)
- 	return readl(vm_dev->base + VIRTIO_MMIO_HOST_FEATURES);
- }
- 
--static void vm_finalize_features(struct virtio_device *vdev)
-+static int vm_finalize_features(struct virtio_device *vdev)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
- 
-@@ -164,6 +164,8 @@ static void vm_finalize_features(struct virtio_device *vdev)
- 
- 	writel(0, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SEL);
- 	writel(vdev->features, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
-+
-+	return 0;
- }
- 
- static void vm_get(struct virtio_device *vdev, unsigned offset,
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index dd6df97..9be59d9 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -112,7 +112,7 @@ static u64 vp_get_features(struct virtio_device *vdev)
- }
- 
- /* virtio config->finalize_features() implementation */
--static void vp_finalize_features(struct virtio_device *vdev)
-+static int vp_finalize_features(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 
-@@ -124,6 +124,8 @@ static void vp_finalize_features(struct virtio_device *vdev)
- 
- 	/* We only support 32 feature bits. */
- 	iowrite32(vdev->features, vp_dev->ioaddr + VIRTIO_PCI_GUEST_FEATURES);
-+
-+	return 0;
- }
- 
- /* virtio config->get() implementation */
--- 
-MST
+	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+
+to receive the following updates:
+The most notable change for this pull request is the ftrace rework
+from Heiko. It brings a small performance improvement and the ground
+work to support a new gcc option to replace the mcount blocks with
+a single nop. 
+
+Two new s390 specific system calls are added to emulate user space mmio
+for PCI, an artifact of the how PCI memory is accessed.
+
+Two patches for the memory management with changes to common code.
+For KVM mm_forbids_zeropage is added which disables the empty zero
+page for an mm that is used by a KVM process. And an optimization,
+pmdp_get_and_clear_full is added analog to ptep_get_and_clear_full.
+
+Some micro optimization for the cmpxchg and the spinlock code.
+
+And as usual bug fixes and cleanups.
+
+Alexey Ishchuk (1):
+      s390/kernel: add system calls for PCI memory access
+
+Christian Borntraeger (1):
+      s390/debug: avoid function call for debug_sprintf_*
+
+Dominik Dingel (5):
+      s390/mm: recfactor global pgste updates
+      mm: introduce mm_forbids_zeropage function
+      s390/mm: prevent and break zero page mappings in case of storage keys
+      s390/mm: disable KSM for storage key enabled pages
+      s390/mm: missing pte for gmap_ipte_notify should trigger a VM_BUG
+
+Frank Blaschka (1):
+      s390/io: add ioport_map stubs
+
+Frederic Weisbecker (2):
+      s390/idle: convert open coded idle time seqcount
+      s390: translate cputime magic constants to macros
+
+Heiko Carstens (9):
+      kprobes: introduce weak arch_check_ftrace_location() helper function
+      s390/ftrace,kprobes: allow to patch first instruction
+      s390/kprobes: make use of NOKPROBE_SYMBOL()
+      s390/traps: print interrupt code and instruction length code
+      s390/traps: die on translation exceptions
+      s390/ftrace: provide working ftrace_return_address()
+      s390: remove diag 44 calls from cpu_relax()
+      s390/kprobes: fix instruction copy for out of line execution
+      s390/idle: add missing irq off lockdep annotation
+
+Hendrik Brueckner (1):
+      s390/cpum_sf: Remove initialization of PMU event index
+
+Markus Elfring (1):
+      s390/pci: Deletion of unnecessary checks before the function call "debug_unregister"
+
+Martin Schwidefsky (12):
+      s390/mm: pmdp_get_and_clear_full optimization
+      s390/cmpxchg: use compiler builtins
+      s390/pci: add sparse annotations
+      s390/mm: use correct unlock function in gmap_ipte_notify
+      s390/signal: add sparse annotations
+      s390: fix ptrace of user area if the inferior uses vector registers
+      s390/sclp_async: add Kconfig option to specify the component id
+      s390/simd: clear vector register pointer on fork/clone
+      s390/ptrace: always include vector registers in core files
+      s390: use local symbol names in entry[64].S
+      s390/mm: fix memory leak of ptlock in pmd_free_tlb
+      s390/cputime: fix 31-bit compile
+
+Sebastian Ott (7):
+      s390/pci: improve irq number check for msix
+      s390/irq: use irq 0
+      s390/eadm: change timeout value
+      s390/scm_block: use mempool to manage aidaw requests
+      s390/scm_block: allocate aidaw pages only when necessary
+      s390/scm_block: handle multiple requests in one HW request
+      s390/scm_block: make the number of reqs per HW req configurable
+
+Stefan Haberland (4):
+      s390/dasd: remove unused code
+      s390/dasd: fix infinite term I/O loop
+      s390/dasd: fix list corruption for sleep_on requests
+      s390/dasd: retry partition detection
+
+Thomas Huth (2):
+      s390/docs: Fix the documentation of the address spaces
+      s390/docs: Remove sections that are not related to s390
+
+ Documentation/s390/Debugging390.txt  | 462 +++++------------------------------
+ arch/s390/include/asm/cmpxchg.h      | 240 ++----------------
+ arch/s390/include/asm/cputime.h      |  46 ++--
+ arch/s390/include/asm/debug.h        |  29 ++-
+ arch/s390/include/asm/ftrace.h       |  54 +++-
+ arch/s390/include/asm/idle.h         |   3 +-
+ arch/s390/include/asm/io.h           |   9 +
+ arch/s390/include/asm/irq.h          |  11 +-
+ arch/s390/include/asm/kprobes.h      |   1 +
+ arch/s390/include/asm/lowcore.h      |   4 +-
+ arch/s390/include/asm/pci.h          |   5 +-
+ arch/s390/include/asm/pci_io.h       |   6 +-
+ arch/s390/include/asm/pgalloc.h      |   2 -
+ arch/s390/include/asm/pgtable.h      |  33 ++-
+ arch/s390/include/asm/processor.h    |   2 -
+ arch/s390/include/asm/spinlock.h     |   9 +-
+ arch/s390/include/asm/tlb.h          |   1 +
+ arch/s390/include/uapi/asm/unistd.h  |   4 +-
+ arch/s390/kernel/asm-offsets.c       |   5 +-
+ arch/s390/kernel/compat_signal.c     |   2 +-
+ arch/s390/kernel/compat_wrapper.c    |   2 +
+ arch/s390/kernel/debug.c             |  12 +-
+ arch/s390/kernel/dumpstack.c         |   3 +-
+ arch/s390/kernel/early.c             |   4 -
+ arch/s390/kernel/entry.S             | 424 ++++++++++++++++----------------
+ arch/s390/kernel/entry.h             |   2 +
+ arch/s390/kernel/entry64.S           | 372 ++++++++++++++--------------
+ arch/s390/kernel/ftrace.c            | 136 +++++++----
+ arch/s390/kernel/idle.c              |  29 +--
+ arch/s390/kernel/irq.c               |   5 +-
+ arch/s390/kernel/kprobes.c           | 178 +++++++++-----
+ arch/s390/kernel/mcount.S            |   1 +
+ arch/s390/kernel/perf_cpum_sf.c      |   1 -
+ arch/s390/kernel/process.c           |   3 +-
+ arch/s390/kernel/ptrace.c            | 115 ++++++---
+ arch/s390/kernel/setup.c             |   2 -
+ arch/s390/kernel/signal.c            |   2 +-
+ arch/s390/kernel/smp.c               |   1 -
+ arch/s390/kernel/syscalls.S          |   2 +
+ arch/s390/kernel/time.c              |   3 +-
+ arch/s390/kernel/traps.c             |  25 +-
+ arch/s390/kvm/kvm-s390.c             |   2 +-
+ arch/s390/kvm/priv.c                 |  17 +-
+ arch/s390/mm/fault.c                 |  10 +-
+ arch/s390/mm/pgtable.c               | 185 +++++++-------
+ arch/s390/pci/Makefile               |   2 +-
+ arch/s390/pci/pci.c                  |   9 +-
+ arch/s390/pci/pci_clp.c              |   1 +
+ arch/s390/pci/pci_debug.c            |   7 +-
+ arch/s390/pci/pci_mmio.c             | 115 +++++++++
+ drivers/s390/block/dasd.c            |  31 +--
+ drivers/s390/block/dasd_genhd.c      |  26 +-
+ drivers/s390/block/scm_blk.c         | 222 +++++++++++++----
+ drivers/s390/block/scm_blk.h         |   6 +-
+ drivers/s390/block/scm_blk_cluster.c |  69 ++++--
+ drivers/s390/char/Kconfig            |  10 +
+ drivers/s390/char/sclp_async.c       |   3 +-
+ drivers/s390/cio/eadm_sch.c          |   2 +-
+ include/asm-generic/pgtable.h        |  11 +
+ include/linux/kprobes.h              |   1 +
+ include/linux/mm.h                   |  11 +
+ kernel/kprobes.c                     |  18 +-
+ kernel/sys_ni.c                      |   2 +
+ mm/huge_memory.c                     |   5 +-
+ mm/memory.c                          |   2 +-
+ scripts/recordmcount.c               |   2 +-
+ scripts/recordmcount.pl              |   2 +-
+ 67 files changed, 1521 insertions(+), 1500 deletions(-)
+ create mode 100644 arch/s390/pci/pci_mmio.c
