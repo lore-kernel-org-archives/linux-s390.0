@@ -1,46 +1,142 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH/RFC] s390/kernel: use stnsm instead of stosm
-Date: Tue, 16 Dec 2014 10:31:59 +0100
-Message-ID: <548FFC0F.9010605@de.ibm.com>
-References: <1418722232-37902-1-git-send-email-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Date: Fri, 19 Dec 2014 15:13:29 +0000
+Subject: Re: [PATCH RFC 2/5] s390: add pci_iomap_range
+Message-Id: <alpine.LFD.2.11.1412191549510.1794@denkbrett>
+References: <1418679168-1011-1-git-send-email-mst@redhat.com> <1418679168-1011-3-git-send-email-mst@redhat.com> <alpine.LFD.2.11.1412191456480.1794@denkbrett> <20141219142829.GA13440@redhat.com>
+In-Reply-To: <20141219142829.GA13440@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1418722232-37902-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, heiko.carstens@de.ibm.com, schwidefsky@de.ibm.com
+List-Archive: <https://lore.kernel.org/linux-sh/>
+List-Post: <mailto:linux-sh@vger.kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, linux-sh@vger.kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo,
-
-
-sorry, should have only go to Martin and Heiko. 
-Nothing to worry about from your side. :-)
-
-
-Am 16.12.2014 um 10:30 schrieb Christian Borntraeger:
-> At least on z196 stnsm is faster than stosm.
+On Fri, 19 Dec 2014, Michael S. Tsirkin wrote:
+> On Fri, Dec 19, 2014 at 03:13:37PM +0100, Sebastian Ott wrote:
+> > On Mon, 15 Dec 2014, Michael S. Tsirkin wrote:
+> > > From: Michael S Tsirkin <mst@redhat.com>
+> > > 
+> > > Virtio drivers should map the part of the range they need, not
+> > > necessarily all of it.
+> > > To this end, support mapping ranges within BAR on s390.
+> > > Since multiple ranges can now be mapped within a BAR, we keep track of
+> > > the number of mappings created, and only clear out the mapping for a BAR
+> > > when this number reaches 0.
+> > > 
+> > 
+> > I can't say much about the users of this interface but in principle I'm
+> > OK with such a change.
 > 
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> ---
->  arch/s390/include/asm/irqflags.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> I don't have an s390 system with pci for testing - could you help me out
+> by testing this and confirming it doesn't break things?
+
+I did some minor tests and nothing broke...
+
 > 
-> diff --git a/arch/s390/include/asm/irqflags.h b/arch/s390/include/asm/irqflags.h
-> index 37b9091..16aa0c7 100644
-> --- a/arch/s390/include/asm/irqflags.h
-> +++ b/arch/s390/include/asm/irqflags.h
-> @@ -36,7 +36,7 @@ static inline notrace void __arch_local_irq_ssm(unsigned long flags)
+> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > ---
+> > >  arch/s390/include/asm/pci_io.h |  1 +
+> > >  arch/s390/pci/pci.c            | 34 +++++++++++++++++++++++++++-------
+> > >  2 files changed, 28 insertions(+), 7 deletions(-)
+> > > 
+> > > diff --git a/arch/s390/include/asm/pci_io.h b/arch/s390/include/asm/pci_io.h
+> > > index d194d54..25228b3 100644
+> > > --- a/arch/s390/include/asm/pci_io.h
+> > > +++ b/arch/s390/include/asm/pci_io.h
+> > > @@ -16,6 +16,7 @@
+> > >  struct zpci_iomap_entry {
+> > >  	u32 fh;
+> > >  	u8 bar;
+> > > +	u16 count;
+> > >  };
+> > > 
+> > >  extern struct zpci_iomap_entry *zpci_iomap_start;
+> > > diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> > > index 2fa7b14..51cb653 100644
+> > > --- a/arch/s390/pci/pci.c
+> > > +++ b/arch/s390/pci/pci.c
+> > > @@ -259,7 +259,10 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
+> > >  }
+> > > 
+> > >  /* Create a virtual mapping cookie for a PCI BAR */
+> > > -void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
+> > > +void __iomem *pci_iomap_range(struct pci_dev *pdev,
+> > > +			      int bar,
+> > > +			      unsigned long offset,
+> > > +			      unsigned long max)
+> > >  {
+> > >  	struct zpci_dev *zdev =	get_zdev(pdev);
+> > >  	u64 addr;
+> > > @@ -270,14 +273,27 @@ void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
+> > > 
+> > >  	idx = zdev->bars[bar].map_idx;
+> > >  	spin_lock(&zpci_iomap_lock);
+> > > -	zpci_iomap_start[idx].fh = zdev->fh;
+> > > -	zpci_iomap_start[idx].bar = bar;
+> > > +	if (zpci_iomap_start[idx].count++) {
+> > > +		BUG_ON(zpci_iomap_start[idx].fh != zdev->fh ||
+> > > +		       zpci_iomap_start[idx].bar != bar);
+> > > +	} else {
+> > > +		zpci_iomap_start[idx].fh = zdev->fh;
+> > > +		zpci_iomap_start[idx].bar = bar;
+> > > +	}
+> > > +	/* Detect overrun */
+> > > +	BUG_ON(!zpci_iomap_start[idx].count);
+> > >  	spin_unlock(&zpci_iomap_lock);
+> > > 
+> > >  	addr = ZPCI_IOMAP_ADDR_BASE | ((u64) idx << 48);
+> > > -	return (void __iomem *) addr;
+> > > +	return (void __iomem *) addr + offset;
+> > >  }
+> > > -EXPORT_SYMBOL_GPL(pci_iomap);
+> > > +EXPORT_SYMBOL_GPL(pci_iomap_range);
+> > > +
+> > > +void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
+> > > +{
+> > > +	return pci_iomap_range(dev, bar, 0, maxlen);
+> > > +}
+> > > +EXPORT_SYMBOL(pci_iomap);
+> > 
+> > This was EXPORT_SYMBOL_GPL. I guess, for this patch, it should stay that
+> > way. ...Hm, everyone else has this stuff as EXPORT_SYMBOL looks like we
+> > should use that too.
+> > 
+> > Regards,
+> > Sebastian
 > 
->  static inline notrace unsigned long arch_local_save_flags(void)
->  {
-> -	return __arch_local_irq_stosm(0x00);
-> +	return __arch_local_irq_stnsm(0xff);
->  }
+> OK, so you want two patches: one with new functionality,
+> one switching to EXPORT_SYMBOL?
+
+Either that or at least add a note in the patch description.
+
+Regards,
+Sebastian
+
 > 
->  static inline notrace unsigned long arch_local_irq_save(void)
+> 
+> > > 
+> > >  void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
+> > >  {
+> > > @@ -285,8 +301,12 @@ void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
+> > > 
+> > >  	idx = (((__force u64) addr) & ~ZPCI_IOMAP_ADDR_BASE) >> 48;
+> > >  	spin_lock(&zpci_iomap_lock);
+> > > -	zpci_iomap_start[idx].fh = 0;
+> > > -	zpci_iomap_start[idx].bar = 0;
+> > > +	/* Detect underrun */
+> > > +	BUG_ON(!zpci_iomap_start[idx].count);
+> > > +	if (!--zpci_iomap_start[idx].count) {
+> > > +		zpci_iomap_start[idx].fh = 0;
+> > > +		zpci_iomap_start[idx].bar = 0;
+> > > +	}
+> > >  	spin_unlock(&zpci_iomap_lock);
+> > >  }
+> > >  EXPORT_SYMBOL_GPL(pci_iounmap);
+> > > -- 
+> > > MST
+> > > 
+> > > 
+> 
 > 
