@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Fabian Frederick <fabf@skynet.be>
-Subject: [PATCH 11/11 linux-next] s390/hmcdrv: remove unnecessary version.h inclusion
-Date: Mon, 29 Dec 2014 15:34:39 +0100
-Message-Id: <1419863679-24430-1-git-send-email-fabf@skynet.be>
-In-Reply-To: <1419863387-24233-1-git-send-email-fabf@skynet.be>
-References: <1419863387-24233-1-git-send-email-fabf@skynet.be>
+Subject: [PATCH 00/11 linux-next] drivers: remove unnecessary version.h inclusion
+Date: Mon, 29 Dec 2014 15:29:34 +0100
+Message-Id: <1419863387-24233-1-git-send-email-fabf@skynet.be>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Fabian Frederick <fabf@skynet.be>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Fabian Frederick <fabf@skynet.be>, openipmi-developer@lists.sourceforge.net, linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Based on versioncheck.
+This small patchset removes unnecessary version.h includes detected by
+versioncheck in drivers branch.
 
-Signed-off-by: Fabian Frederick <fabf@skynet.be>
----
- drivers/s390/char/hmcdrv_mod.c | 1 -
- 1 file changed, 1 deletion(-)
+Fabian Frederick (11):
+  rsxx: remove unnecessary version.h inclusion
+  skd: remove unnecessary version.h inclusion
+  ipmi: remove unnecessary version.h inclusion
+  input: remove unnecessary version.h inclusion
+  [media] tw68: remove unnecessary version.h inclusion
+  [media] s5p-g2d: remove unnecessary version.h inclusion
+  [media] s5p-mfc: remove unnecessary version.h inclusion
+  [media] vivid: remove unnecessary version.h inclusion
+  [media] uvcvideo: remove unnecessary version.h inclusion
+  GenWQE: remove unnecessary version.h inclusion
+  s390/hmcdrv: remove unnecessary version.h inclusion
 
-diff --git a/drivers/s390/char/hmcdrv_mod.c b/drivers/s390/char/hmcdrv_mod.c
-index 505c6a7..251a318 100644
---- a/drivers/s390/char/hmcdrv_mod.c
-+++ b/drivers/s390/char/hmcdrv_mod.c
-@@ -11,7 +11,6 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
--#include <linux/version.h>
- #include <linux/stat.h>
- 
- #include "hmcdrv_ftp.h"
+ drivers/block/rsxx/rsxx_priv.h               | 1 -
+ drivers/block/skd_main.c                     | 1 -
+ drivers/char/ipmi/ipmi_ssif.c                | 1 -
+ drivers/input/touchscreen/elants_i2c.c       | 2 --
+ drivers/media/pci/tw68/tw68.h                | 1 -
+ drivers/media/platform/s5p-g2d/g2d.c         | 1 -
+ drivers/media/platform/s5p-mfc/s5p_mfc_dec.c | 1 -
+ drivers/media/platform/s5p-mfc/s5p_mfc_enc.c | 1 -
+ drivers/media/platform/vivid/vivid-tpg.h     | 1 -
+ drivers/media/usb/uvc/uvc_v4l2.c             | 1 -
+ drivers/misc/genwqe/card_base.h              | 1 -
+ drivers/misc/genwqe/card_sysfs.c             | 1 -
+ drivers/s390/char/hmcdrv_mod.c               | 1 -
+ 13 files changed, 14 deletions(-)
+
 -- 
 2.1.0
