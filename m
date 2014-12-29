@@ -1,92 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Subject: [PATCH] lib: Remove strnicmp
-Date: Thu, 11 Dec 2014 10:39:32 +0100
-Message-Id: <1418290772-5578-1-git-send-email-linux@rasmusvillemoes.dk>
+From: Fabian Frederick <fabf@skynet.be>
+Subject: [PATCH 11/11 linux-next] s390/hmcdrv: remove unnecessary version.h inclusion
+Date: Mon, 29 Dec 2014 15:34:39 +0100
+Message-Id: <1419863679-24430-1-git-send-email-fabf@skynet.be>
+In-Reply-To: <1419863387-24233-1-git-send-email-fabf@skynet.be>
+References: <1419863387-24233-1-git-send-email-fabf@skynet.be>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: David Howells <dhowells@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Fabian Frederick <fabf@skynet.be>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Now that all in-tree users of strnicmp have been converted to
-strncasecmp, the wrapper can be removed.
+Based on versioncheck.
 
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Signed-off-by: Fabian Frederick <fabf@skynet.be>
 ---
+ drivers/s390/char/hmcdrv_mod.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Notes:
-    For 3.20.
-    
-    The "#undef __HAVE_ARCH_STRNICMP" in arch/s390/include/asm/string.h is
-    a no-op, so removing it should be ok. I'm less certain about the
-    change in arch/frv/, so please speak up if it should stay. (The patch
-    hunk doesn't show it, but it is in a !__KERNEL__ section, so doesn't
-    affect kernel builds.)
-
- arch/frv/include/asm/string.h  | 1 -
- arch/s390/include/asm/string.h | 1 -
- include/linux/string.h         | 3 ---
- lib/string.c                   | 8 --------
- 4 files changed, 13 deletions(-)
-
-diff --git a/arch/frv/include/asm/string.h b/arch/frv/include/asm/string.h
-index 5ed310f64b7e..1f6c35990439 100644
---- a/arch/frv/include/asm/string.h
-+++ b/arch/frv/include/asm/string.h
-@@ -33,7 +33,6 @@ extern void *memcpy(void *, const void *, __kernel_size_t);
- #define __HAVE_ARCH_STRNCAT 1
- #define __HAVE_ARCH_STRCMP 1
- #define __HAVE_ARCH_STRNCMP 1
--#define __HAVE_ARCH_STRNICMP 1
- #define __HAVE_ARCH_STRCHR 1
- #define __HAVE_ARCH_STRRCHR 1
- #define __HAVE_ARCH_STRSTR 1
-diff --git a/arch/s390/include/asm/string.h b/arch/s390/include/asm/string.h
-index 7e2dcd7c57ef..8662f5c8e17f 100644
---- a/arch/s390/include/asm/string.h
-+++ b/arch/s390/include/asm/string.h
-@@ -44,7 +44,6 @@ extern char *strstr(const char *, const char *);
- #undef __HAVE_ARCH_STRCHR
- #undef __HAVE_ARCH_STRNCHR
- #undef __HAVE_ARCH_STRNCMP
--#undef __HAVE_ARCH_STRNICMP
- #undef __HAVE_ARCH_STRPBRK
- #undef __HAVE_ARCH_STRSEP
- #undef __HAVE_ARCH_STRSPN
-diff --git a/include/linux/string.h b/include/linux/string.h
-index 2e22a2e58f3a..b9bc9a5d9e21 100644
---- a/include/linux/string.h
-+++ b/include/linux/string.h
-@@ -40,9 +40,6 @@ extern int strcmp(const char *,const char *);
- #ifndef __HAVE_ARCH_STRNCMP
- extern int strncmp(const char *,const char *,__kernel_size_t);
- #endif
--#ifndef __HAVE_ARCH_STRNICMP
--#define strnicmp strncasecmp
--#endif
- #ifndef __HAVE_ARCH_STRCASECMP
- extern int strcasecmp(const char *s1, const char *s2);
- #endif
-diff --git a/lib/string.c b/lib/string.c
-index 10063300b830..3206d0178296 100644
---- a/lib/string.c
-+++ b/lib/string.c
-@@ -58,14 +58,6 @@ int strncasecmp(const char *s1, const char *s2, size_t len)
- }
- EXPORT_SYMBOL(strncasecmp);
- #endif
--#ifndef __HAVE_ARCH_STRNICMP
--#undef strnicmp
--int strnicmp(const char *s1, const char *s2, size_t len)
--{
--	return strncasecmp(s1, s2, len);
--}
--EXPORT_SYMBOL(strnicmp);
--#endif
+diff --git a/drivers/s390/char/hmcdrv_mod.c b/drivers/s390/char/hmcdrv_mod.c
+index 505c6a7..251a318 100644
+--- a/drivers/s390/char/hmcdrv_mod.c
++++ b/drivers/s390/char/hmcdrv_mod.c
+@@ -11,7 +11,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+-#include <linux/version.h>
+ #include <linux/stat.h>
  
- #ifndef __HAVE_ARCH_STRCASECMP
- int strcasecmp(const char *s1, const char *s2)
+ #include "hmcdrv_ftp.h"
 -- 
-2.1.3
+2.1.0
