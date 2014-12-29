@@ -1,132 +1,60 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Fri, 19 Dec 2014 14:28:29 +0000
-Subject: Re: [PATCH RFC 2/5] s390: add pci_iomap_range
-Message-Id: <20141219142829.GA13440@redhat.com>
-References: <1418679168-1011-1-git-send-email-mst@redhat.com>
- <1418679168-1011-3-git-send-email-mst@redhat.com>
- <alpine.LFD.2.11.1412191456480.1794@denkbrett>
-In-Reply-To: <alpine.LFD.2.11.1412191456480.1794@denkbrett>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-List-Archive: <https://lore.kernel.org/linux-sh/>
-List-Post: <mailto:linux-sh@vger.kernel.org>
-To: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, linux-sh@vger.kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org
+From: Ben Hutchings <ben@decadent.org.uk>
+Date: Mon, 29 Dec 2014 18:54:15 +0000
+Subject: [stable] 3215 fixes for 3.16 and earlier
+Message-Id: <1419879255.5686.31.camel@decadent.org.uk>
+MIME-Version: 1
+Content-Type: multipart/mixed; boundary="--=-FZny5iNNY+7CqbmGb3Hv"
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Dec 19, 2014 at 03:13:37PM +0100, Sebastian Ott wrote:
-> On Mon, 15 Dec 2014, Michael S. Tsirkin wrote:
-> > From: Michael S Tsirkin <mst@redhat.com>
-> > 
-> > Virtio drivers should map the part of the range they need, not
-> > necessarily all of it.
-> > To this end, support mapping ranges within BAR on s390.
-> > Since multiple ranges can now be mapped within a BAR, we keep track of
-> > the number of mappings created, and only clear out the mapping for a BAR
-> > when this number reaches 0.
-> > 
-> 
-> I can't say much about the users of this interface but in principle I'm
-> OK with such a change.
 
-I don't have an s390 system with pci for testing - could you help me out
-by testing this and confirming it doesn't break things?
+--=-FZny5iNNY+7CqbmGb3Hv
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  arch/s390/include/asm/pci_io.h |  1 +
-> >  arch/s390/pci/pci.c            | 34 +++++++++++++++++++++++++++-------
-> >  2 files changed, 28 insertions(+), 7 deletions(-)
-> > 
-> > diff --git a/arch/s390/include/asm/pci_io.h b/arch/s390/include/asm/pci_io.h
-> > index d194d54..25228b3 100644
-> > --- a/arch/s390/include/asm/pci_io.h
-> > +++ b/arch/s390/include/asm/pci_io.h
-> > @@ -16,6 +16,7 @@
-> >  struct zpci_iomap_entry {
-> >  	u32 fh;
-> >  	u8 bar;
-> > +	u16 count;
-> >  };
-> > 
-> >  extern struct zpci_iomap_entry *zpci_iomap_start;
-> > diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> > index 2fa7b14..51cb653 100644
-> > --- a/arch/s390/pci/pci.c
-> > +++ b/arch/s390/pci/pci.c
-> > @@ -259,7 +259,10 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
-> >  }
-> > 
-> >  /* Create a virtual mapping cookie for a PCI BAR */
-> > -void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
-> > +void __iomem *pci_iomap_range(struct pci_dev *pdev,
-> > +			      int bar,
-> > +			      unsigned long offset,
-> > +			      unsigned long max)
-> >  {
-> >  	struct zpci_dev *zdev =	get_zdev(pdev);
-> >  	u64 addr;
-> > @@ -270,14 +273,27 @@ void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
-> > 
-> >  	idx = zdev->bars[bar].map_idx;
-> >  	spin_lock(&zpci_iomap_lock);
-> > -	zpci_iomap_start[idx].fh = zdev->fh;
-> > -	zpci_iomap_start[idx].bar = bar;
-> > +	if (zpci_iomap_start[idx].count++) {
-> > +		BUG_ON(zpci_iomap_start[idx].fh != zdev->fh ||
-> > +		       zpci_iomap_start[idx].bar != bar);
-> > +	} else {
-> > +		zpci_iomap_start[idx].fh = zdev->fh;
-> > +		zpci_iomap_start[idx].bar = bar;
-> > +	}
-> > +	/* Detect overrun */
-> > +	BUG_ON(!zpci_iomap_start[idx].count);
-> >  	spin_unlock(&zpci_iomap_lock);
-> > 
-> >  	addr = ZPCI_IOMAP_ADDR_BASE | ((u64) idx << 48);
-> > -	return (void __iomem *) addr;
-> > +	return (void __iomem *) addr + offset;
-> >  }
-> > -EXPORT_SYMBOL_GPL(pci_iomap);
-> > +EXPORT_SYMBOL_GPL(pci_iomap_range);
-> > +
-> > +void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
-> > +{
-> > +	return pci_iomap_range(dev, bar, 0, maxlen);
-> > +}
-> > +EXPORT_SYMBOL(pci_iomap);
-> 
-> This was EXPORT_SYMBOL_GPL. I guess, for this patch, it should stay that
-> way. ...Hm, everyone else has this stuff as EXPORT_SYMBOL looks like we
-> should use that too.
-> 
-> Regards,
-> Sebastian
+I cherry-picked these commits from 3.17 for Debian's 3.16 branch, but
+they should also apply to some earlier versions:
 
-OK, so you want two patches: one with new functionality,
-one switching to EXPORT_SYMBOL?
+commit 26d766c60f4ea08cd14f0f3435a6db3d6cc2ae96
+Author: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date:   Tue Jul 15 17:53:12 2014 +0200
 
+    s390/3215: fix hanging console issue
+[Stephen reported this against 3.10 initially]
 
-> > 
-> >  void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
-> >  {
-> > @@ -285,8 +301,12 @@ void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
-> > 
-> >  	idx = (((__force u64) addr) & ~ZPCI_IOMAP_ADDR_BASE) >> 48;
-> >  	spin_lock(&zpci_iomap_lock);
-> > -	zpci_iomap_start[idx].fh = 0;
-> > -	zpci_iomap_start[idx].bar = 0;
-> > +	/* Detect underrun */
-> > +	BUG_ON(!zpci_iomap_start[idx].count);
-> > +	if (!--zpci_iomap_start[idx].count) {
-> > +		zpci_iomap_start[idx].fh = 0;
-> > +		zpci_iomap_start[idx].bar = 0;
-> > +	}
-> >  	spin_unlock(&zpci_iomap_lock);
-> >  }
-> >  EXPORT_SYMBOL_GPL(pci_iounmap);
-> > -- 
-> > MST
-> > 
-> > 
+commit e512d56c799517f33b301d81e9a5e0ebf30c2d1e
+Author: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date:   Wed Aug 13 12:01:30 2014 +0200
+
+    s390/3215: fix tty output containing tabs
+[the commit message mentions a regression in 2.6.31]
+
+Ben.
+
+--=20
+Ben Hutchings
+Anthony's Law of Force: Don't force it, get a larger hammer.
+
+--=-FZny5iNNY+7CqbmGb3Hv
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIVAwUAVKGjXOe/yOyVhhEJAQpTmBAAzJZroGHQhAcadsnhtKCaoCk2Pn9iKKVe
+yPAaWYr5ufBCVT76XSmmdGe3eJmqH+PTDiH9gdOXID3McixlT3h2EZOm62r0kynr
+SsMChQ6538bCYFr2CY/0PtLHIu2C+bkKUUsSwkSA79HGUwf7Fopjf9wSmgb3RiKg
+ILRiw1TAJbK3onSNncPoV5eFklUcJ3XmgQSK23wBVCMFA4ME5KNvYiINIlYHlPPp
+jM3p5dMkrKK5onBaN3S4gMKX/+e6f27qMVH6njskqyoTxrDcPZRlCKbiHLspGWQZ
+m3F9VM0qQGnGUfVClYa24NrN7mkZSTHW6BfKZwWxjKZw1O8S3DDSiWJsW6RrK/jI
+3yQbFNBTULUdAjbXmt36w4231js89Vby7UKxKM8P0AVnaTbmjCHt4tMnBLyMp61f
+SQcKW++E5whbk7hT5qWW4B0drXZbY+GaVwzZporjyxTKgzBUvY+MYV7YcCtkLT1H
+bA3iWCosfqVJMCxaMKJcaXuNDgRoMQCLid7y4ShUyfA/rKXrYCN8Av+gsiFi7FgU
+NMVqYNQmbOINbV9TBJ8mC+qTPtO4tfy8V3CzXNf/gPhLxJU2Q6zOa43d8kl0wlkH
+O/jiJi7/mPRSWC8DM5mzPZ7fIcYry94C8+VSgE2RBW2tdWKaGLyp7f/pIhdOuxcQ
+yAoB1xzg6R0=
+=SyHN
+-----END PGP SIGNATURE-----
+
+--=-FZny5iNNY+7CqbmGb3Hv--
