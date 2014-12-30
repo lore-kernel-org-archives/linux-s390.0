@@ -1,109 +1,79 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 30 Dec 2014 18:35:39 +0200
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC v2 3/7] s390: add pci_iomap_range
-Message-ID: <1419957310-26009-4-git-send-email-mst@redhat.com>
-References: <1419957310-26009-1-git-send-email-mst@redhat.com>
+Return-Path: <scottwood@freescale.com>
+Message-ID: <1419968672.4961.4.camel@freescale.com>
+Subject: Re: [PATCH] srcu: Isolate srcu sections using CONFIG_SRCU
+From: Scott Wood <scottwood@freescale.com>
+Date: Tue, 30 Dec 2014 13:44:32 -0600
+In-Reply-To: <CAJhHMCDan+qaaZjVUucA-sUS8A3vSTYuVHg8XQv4rsHXxAzKLw@mail.gmail.com>
+References: <1419700667-24888-1-git-send-email-bobby.prani@gmail.com>
+ <20141229110324.50f1339b@mschwide>
+ <CAJhHMCDan+qaaZjVUucA-sUS8A3vSTYuVHg8XQv4rsHXxAzKLw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1419957310-26009-1-git-send-email-mst@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Rusty Russell <rusty@rustcorp.com.au>, cornelia.huck@de.ibm.com, Michael S Tsirkin <mst@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Sebastian Ott <sebott@linux.vnet.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linuxppc-dev/>
+To: Pranith Kumar <bobby.prani@gmail.com>
+Cc: "open list:S390" <linux-s390@vger.kernel.org>, Lai Jiangshan <laijs@cn.fujitsu.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "open list:LINUX FOR POWERPC..." <linuxppc-dev@lists.ozlabs.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Josh Triplett <josh@joshtriplett.org>, Steven Rostedt <rostedt@goodmis.org>, open list <linux-kernel@vger.kernel.org>, Tiejun Chen <tiejun.chen@windriver.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>, Andy Fleming <afleming@freescale.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "supporter:S390" <linux390@de.ibm.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Daniel Walter <dwalter@google.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael S Tsirkin <mst@redhat.com>
+On Mon, 2014-12-29 at 23:32 -0500, Pranith Kumar wrote:
+> On Mon, Dec 29, 2014 at 5:03 AM, Martin Schwidefsky
+> <schwidefsky@de.ibm.com> wrote:
+> > On Sat, 27 Dec 2014 12:17:43 -0500
+> > Pranith Kumar <bobby.prani@gmail.com> wrote:
+> >
+> >> @@ -65,10 +65,13 @@
+> >>  #include <asm/kexec.h>
+> >>  #include <asm/mmu_context.h>
+> >>  #include <asm/code-patching.h>
+> >> -#include <asm/kvm_ppc.h>
+> >>  #include <asm/hugetlb.h>
+> >>  #include <asm/epapr_hcalls.h>
+> >>
+> >> +#if IS_ENABLED(CONFIG_KVM)
+> >> +#include <asm/kvm_ppc.h>
+> >> +#endif
+> >> +
+> >>  #ifdef DEBUG
+> >>  #define DBG(fmt...) udbg_printf(fmt)
+> >>  #else
+> >
+> > I always cringe when I see an include protected by an #ifdef.
+> > Is this really necessary? All that is done in asm-offsets.c is
+> > to calculate offsets, the code where the two offsets in question
+> > are used (entry64.S) does have the #ifdef for CONFIG_KVM.
+> 
+> I agree that this is not the ideal way to do this. But, it has been
+> the way things were already being done. If you see
+> arch/powerpc/kernel/asm-offsets.c, there are quite some includes which
+> are within ifdefs.
 
-Virtio drivers should map the part of the range they need, not
-necessarily all of it.
-To this end, support mapping ranges within BAR on s390.
-Since multiple ranges can now be mapped within a BAR, we keep track of
-the number of mappings created, and only clear out the mapping for a BAR
-when this number reaches 0.
+asm-offsets.c is unusual in that respect, and I think most of those
+ifdefs could go away without breaking anything (head_booke.h is not a
+normal header file, and kvm_book3s.h should just be removed as it will
+be pulled in by kvm_ppc.h if applicable).
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- arch/s390/include/asm/pci_io.h |  1 +
- arch/s390/pci/pci.c            | 34 +++++++++++++++++++++++++++-------
- 2 files changed, 28 insertions(+), 7 deletions(-)
+> I've considered other alternatives (though not in-depth) and found
+> that they will require quite some refactoring. One simple idea is to
+> move this #ifdef to within kvm_ppc.h. That should make the inclusion
+> of this file a no-op in all the places where this is being included
+> without KVM being enabled. But I am not 100% sure of that approach.
+> 
+> Any suggestions are welcome.
 
-diff --git a/arch/s390/include/asm/pci_io.h b/arch/s390/include/asm/pci_io.h
-index f664e96..1a9a98d 100644
---- a/arch/s390/include/asm/pci_io.h
-+++ b/arch/s390/include/asm/pci_io.h
-@@ -16,6 +16,7 @@
- struct zpci_iomap_entry {
- 	u32 fh;
- 	u8 bar;
-+	u16 count;
- };
- 
- extern struct zpci_iomap_entry *zpci_iomap_start;
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 3290f11..753a567 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -259,7 +259,10 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
- }
- 
- /* Create a virtual mapping cookie for a PCI BAR */
--void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
-+void __iomem *pci_iomap_range(struct pci_dev *pdev,
-+			      int bar,
-+			      unsigned long offset,
-+			      unsigned long max)
- {
- 	struct zpci_dev *zdev =	get_zdev(pdev);
- 	u64 addr;
-@@ -270,14 +273,27 @@ void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
- 
- 	idx = zdev->bars[bar].map_idx;
- 	spin_lock(&zpci_iomap_lock);
--	zpci_iomap_start[idx].fh = zdev->fh;
--	zpci_iomap_start[idx].bar = bar;
-+	if (zpci_iomap_start[idx].count++) {
-+		BUG_ON(zpci_iomap_start[idx].fh != zdev->fh ||
-+		       zpci_iomap_start[idx].bar != bar);
-+	} else {
-+		zpci_iomap_start[idx].fh = zdev->fh;
-+		zpci_iomap_start[idx].bar = bar;
-+	}
-+	/* Detect overrun */
-+	BUG_ON(!zpci_iomap_start[idx].count);
- 	spin_unlock(&zpci_iomap_lock);
- 
- 	addr = ZPCI_IOMAP_ADDR_BASE | ((u64) idx << 48);
--	return (void __iomem *) addr;
-+	return (void __iomem *) addr + offset;
- }
--EXPORT_SYMBOL_GPL(pci_iomap);
-+EXPORT_SYMBOL_GPL(pci_iomap_range);
-+
-+void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
-+{
-+	return pci_iomap_range(dev, bar, 0, maxlen);
-+}
-+EXPORT_SYMBOL(pci_iomap);
- 
- void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
- {
-@@ -285,8 +301,12 @@ void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
- 
- 	idx = (((__force u64) addr) & ~ZPCI_IOMAP_ADDR_BASE) >> 48;
- 	spin_lock(&zpci_iomap_lock);
--	zpci_iomap_start[idx].fh = 0;
--	zpci_iomap_start[idx].bar = 0;
-+	/* Detect underrun */
-+	BUG_ON(!zpci_iomap_start[idx].count);
-+	if (!--zpci_iomap_start[idx].count) {
-+		zpci_iomap_start[idx].fh = 0;
-+		zpci_iomap_start[idx].bar = 0;
-+	}
- 	spin_unlock(&zpci_iomap_lock);
- }
- EXPORT_SYMBOL_GPL(pci_iounmap);
--- 
-MST
+As I suggested elsewhere in the thread, why not be more fine-grained in
+what you ifdef in the srcu header?  How will that require excessive
+refactoring?
+
+Or, just stick with the linker error.
+
+I also wonder if this is worthwhile just to save around 2000 bytes.
+What other core synchronization mechanisms are optional?  What
+real-world configs will actually have this disabled?
+
+-Scott
