@@ -1,45 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Fabian Frederick <fabf@skynet.be>
-Subject: [PATCH 00/11 linux-next] drivers: remove unnecessary version.h inclusion
-Date: Mon, 29 Dec 2014 15:29:34 +0100
-Message-Id: <1419863387-24233-1-git-send-email-fabf@skynet.be>
+Date: Tue, 30 Dec 2014 18:35:39 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH RFC v2 3/7] s390: add pci_iomap_range
+Message-ID: <1419957310-26009-4-git-send-email-mst@redhat.com>
+References: <1419957310-26009-1-git-send-email-mst@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1419957310-26009-1-git-send-email-mst@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Fabian Frederick <fabf@skynet.be>, openipmi-developer@lists.sourceforge.net, linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org
+Cc: Rusty Russell <rusty@rustcorp.com.au>, cornelia.huck@de.ibm.com, Michael S Tsirkin <mst@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Sebastian Ott <sebott@linux.vnet.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This small patchset removes unnecessary version.h includes detected by
-versioncheck in drivers branch.
+From: Michael S Tsirkin <mst@redhat.com>
 
-Fabian Frederick (11):
-  rsxx: remove unnecessary version.h inclusion
-  skd: remove unnecessary version.h inclusion
-  ipmi: remove unnecessary version.h inclusion
-  input: remove unnecessary version.h inclusion
-  [media] tw68: remove unnecessary version.h inclusion
-  [media] s5p-g2d: remove unnecessary version.h inclusion
-  [media] s5p-mfc: remove unnecessary version.h inclusion
-  [media] vivid: remove unnecessary version.h inclusion
-  [media] uvcvideo: remove unnecessary version.h inclusion
-  GenWQE: remove unnecessary version.h inclusion
-  s390/hmcdrv: remove unnecessary version.h inclusion
+Virtio drivers should map the part of the range they need, not
+necessarily all of it.
+To this end, support mapping ranges within BAR on s390.
+Since multiple ranges can now be mapped within a BAR, we keep track of
+the number of mappings created, and only clear out the mapping for a BAR
+when this number reaches 0.
 
- drivers/block/rsxx/rsxx_priv.h               | 1 -
- drivers/block/skd_main.c                     | 1 -
- drivers/char/ipmi/ipmi_ssif.c                | 1 -
- drivers/input/touchscreen/elants_i2c.c       | 2 --
- drivers/media/pci/tw68/tw68.h                | 1 -
- drivers/media/platform/s5p-g2d/g2d.c         | 1 -
- drivers/media/platform/s5p-mfc/s5p_mfc_dec.c | 1 -
- drivers/media/platform/s5p-mfc/s5p_mfc_enc.c | 1 -
- drivers/media/platform/vivid/vivid-tpg.h     | 1 -
- drivers/media/usb/uvc/uvc_v4l2.c             | 1 -
- drivers/misc/genwqe/card_base.h              | 1 -
- drivers/misc/genwqe/card_sysfs.c             | 1 -
- drivers/s390/char/hmcdrv_mod.c               | 1 -
- 13 files changed, 14 deletions(-)
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ arch/s390/include/asm/pci_io.h |  1 +
+ arch/s390/pci/pci.c            | 34 +++++++++++++++++++++++++++-------
+ 2 files changed, 28 insertions(+), 7 deletions(-)
 
+diff --git a/arch/s390/include/asm/pci_io.h b/arch/s390/include/asm/pci_io.h
+index f664e96..1a9a98d 100644
+--- a/arch/s390/include/asm/pci_io.h
++++ b/arch/s390/include/asm/pci_io.h
+@@ -16,6 +16,7 @@
+ struct zpci_iomap_entry {
+ 	u32 fh;
+ 	u8 bar;
++	u16 count;
+ };
+ 
+ extern struct zpci_iomap_entry *zpci_iomap_start;
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index 3290f11..753a567 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -259,7 +259,10 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
+ }
+ 
+ /* Create a virtual mapping cookie for a PCI BAR */
+-void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
++void __iomem *pci_iomap_range(struct pci_dev *pdev,
++			      int bar,
++			      unsigned long offset,
++			      unsigned long max)
+ {
+ 	struct zpci_dev *zdev =	get_zdev(pdev);
+ 	u64 addr;
+@@ -270,14 +273,27 @@ void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
+ 
+ 	idx = zdev->bars[bar].map_idx;
+ 	spin_lock(&zpci_iomap_lock);
+-	zpci_iomap_start[idx].fh = zdev->fh;
+-	zpci_iomap_start[idx].bar = bar;
++	if (zpci_iomap_start[idx].count++) {
++		BUG_ON(zpci_iomap_start[idx].fh != zdev->fh ||
++		       zpci_iomap_start[idx].bar != bar);
++	} else {
++		zpci_iomap_start[idx].fh = zdev->fh;
++		zpci_iomap_start[idx].bar = bar;
++	}
++	/* Detect overrun */
++	BUG_ON(!zpci_iomap_start[idx].count);
+ 	spin_unlock(&zpci_iomap_lock);
+ 
+ 	addr = ZPCI_IOMAP_ADDR_BASE | ((u64) idx << 48);
+-	return (void __iomem *) addr;
++	return (void __iomem *) addr + offset;
+ }
+-EXPORT_SYMBOL_GPL(pci_iomap);
++EXPORT_SYMBOL_GPL(pci_iomap_range);
++
++void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
++{
++	return pci_iomap_range(dev, bar, 0, maxlen);
++}
++EXPORT_SYMBOL(pci_iomap);
+ 
+ void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
+ {
+@@ -285,8 +301,12 @@ void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
+ 
+ 	idx = (((__force u64) addr) & ~ZPCI_IOMAP_ADDR_BASE) >> 48;
+ 	spin_lock(&zpci_iomap_lock);
+-	zpci_iomap_start[idx].fh = 0;
+-	zpci_iomap_start[idx].bar = 0;
++	/* Detect underrun */
++	BUG_ON(!zpci_iomap_start[idx].count);
++	if (!--zpci_iomap_start[idx].count) {
++		zpci_iomap_start[idx].fh = 0;
++		zpci_iomap_start[idx].bar = 0;
++	}
+ 	spin_unlock(&zpci_iomap_lock);
+ }
+ EXPORT_SYMBOL_GPL(pci_iounmap);
 -- 
-2.1.0
+MST
