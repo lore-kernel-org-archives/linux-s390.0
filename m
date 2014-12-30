@@ -1,13 +1,10 @@
 Return-Path: <bobby.prani@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <1419894305.4961.2.camel@freescale.com>
-References: <1419700667-24888-1-git-send-email-bobby.prani@gmail.com>
- <1419894305.4961.2.camel@freescale.com>
 From: Pranith Kumar <bobby.prani@gmail.com>
-Date: Tue, 30 Dec 2014 00:06:22 -0500
-Message-ID: <CAJhHMCBTYOsfZOH92KhTAbqH+UqsjuBNUGzxRwUT+Ah7P0eJ2g@mail.gmail.com>
-Subject: Re: [PATCH] srcu: Isolate srcu sections using CONFIG_SRCU
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH v2] srcu: Isolate srcu sections using CONFIG_SRCU
+Date: Tue, 30 Dec 2014 00:46:22 -0500
+Message-Id: <1419918382-4758-2-git-send-email-bobby.prani@gmail.com>
+In-Reply-To: <1419918382-4758-1-git-send-email-bobby.prani@gmail.com>
+References: <1419918382-4758-1-git-send-email-bobby.prani@gmail.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -16,74 +13,255 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Scott Wood <scottwood@freescale.com>
-Cc: "open list:S390" <linux-s390@vger.kernel.org>, Lai Jiangshan <laijs@cn.fujitsu.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "open list:LINUX FOR POWERPC..." <linuxppc-dev@lists.ozlabs.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Josh Triplett <josh@joshtriplett.org>, Steven Rostedt <rostedt@goodmis.org>, open list <linux-kernel@vger.kernel.org>, Tiejun Chen <tiejun.chen@windriver.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>, Andy Fleming <afleming@freescale.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "supporter:S390" <linux390@de.ibm.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Daniel Walter <dwalter@google.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "supporter:S390" <linux390@de.ibm.com>, Lai Jiangshan <laijs@cn.fujitsu.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Josh Triplett <josh@joshtriplett.org>, Steven Rostedt <rostedt@goodmis.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Scott Wood <scottwood@freescale.com>, Anton Blanchard <anton@samba.org>, Daniel Walter <dwalter@google.com>, Tiejun Chen <tiejun.chen@windriver.com>, Nishanth Aravamudan <nacc@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, Vincent Guittot <vincent.guittot@linaro.org>, Li Zhong <zhong@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, "open list:LINUX FOR POWERPC..." <linuxppc-dev@lists.ozlabs.org>, open list <linux-kernel@vger.kernel.org>, "open list:S390" <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Dec 29, 2014 at 6:05 PM, Scott Wood <scottwood@freescale.com> wrote:
-> On Sat, 2014-12-27 at 12:17 -0500, Pranith Kumar wrote:
->> Isolate the SRCU functions and data structures within CONFIG_SRCU so that there
->> is a compile time failure if srcu is used when not enabled. This was decided to
->> be better than waiting until link time for a failure to occur.
->
-> Yes, false positives and extra ifdefs are so much better. :-P
->
-> Why not just ifdef the functions/macros, and leave the types alone?  If
-> you're worried about direct access to struct members, you could even
-> ifdef the members away while leaving the struct itself.  It is not
-> normal practice in Linux to need ifdefs around #includes.
+Isolate the SRCU functions and data structures within CONFIG_SRCU so that there
+is a compile time failure if srcu is used when not enabled. This was decided to
+be better than waiting until link time for a failure to occur.
 
-Yup, totally agree that this is not ideal. The idea here is to not
-even compile the structure for tinification purposes. ifdefs for
-headers are ugly, but given the current code structure, I was not able
-to figure out any other way around it without major overhaul.
+There are places which include kvm headers and utilize kvm data structures
+without checking if KVM is enabled. In two such archs(s390, ppc64), the current
+patch makes the uses of KVM conditional on KVM being enabled. The other option,
+which is to enable KVM unconditionally seemed a bit too much as we could easily
+figure out KVM only parts and enclose them in ifdefs.
 
->
->> There are places which include kvm headers and utilize kvm data structures
->> without checking if KVM is enabled. In two such archs(s390, ppc64), the current
->> patch makes the uses of KVM conditional on KVM being enabled. The other option,
->> which is to enable KVM unconditionally seemed a bit too much as we could easily
->> figure out KVM only parts and enclose them in ifdefs.
->
-> Maybe not so easy (mpc85xx_smp_defconfig with NOTIFY stuff turned off so
-> that SRCU gets deselected):
->
-> In file included from /home/scott/fsl/git/linux/upstream/arch/powerpc/include/asm/kvm_ppc.h:30:0,
->                  from /home/scott/fsl/git/linux/upstream/arch/powerpc/kernel/smp.c:39:
-> /home/scott/fsl/git/linux/upstream/include/linux/kvm_host.h:366:21: error: field 'srcu' has incomplete type
-> /home/scott/fsl/git/linux/upstream/include/linux/kvm_host.h:367:21: error: field 'irq_srcu' has incomplete type
-> /home/scott/fsl/git/linux/upstream/scripts/Makefile.build:257: recipe for target 'arch/powerpc/kernel/smp.o' failed
-> make[2]: *** [arch/powerpc/kernel/smp.o] Error 1
-> /home/scott/fsl/git/linux/upstream/Makefile:955: recipe for target 'arch/powerpc/kernel' failed
-> make[1]: *** [arch/powerpc/kernel] Error 2
-> make[1]: *** Waiting for unfinished jobs....
->
-> Are you sure KVM is the only SRCU user so impacted?  It's also likely
-> that new such problems get introduced, because most people are going to
-> have SRCU enabled and thus not notice the breakage they're adding.
+Signed-off-by: Pranith Kumar <bobby.prani@gmail.com>
+CC: Scott Wood <scottwood@freescale.com>
+---
+v2:
+ - fix build failures reported by Scott Wood
 
-Well, it is the major one which I encountered until now. There might
-be other problems lurking which I will gladly try to fix if and when
-they are reported.
+ arch/powerpc/kernel/setup_64.c |  7 ++++++-
+ arch/powerpc/kernel/smp.c      |  9 +++++++-
+ arch/s390/kernel/asm-offsets.c |  7 ++++++-
+ include/linux/notifier.h       | 47 ++++++++++++++++++++++++------------------
+ include/linux/srcu.h           |  6 +++++-
+ 5 files changed, 52 insertions(+), 24 deletions(-)
 
->
-> There's also at least one place that needs to be fixed, that currently
-> expects to get other headers indirectly via srcu.h:
->
-> /home/scott/fsl/git/linux/upstream/lib/assoc_array.c: In function 'assoc_array_apply_edit':
-> /home/scott/fsl/git/linux/upstream/lib/assoc_array.c:1425:2: error: implicit declaration of function 'call_rcu' [-Werror=implicit-function-declaration]
-> cc1: some warnings being treated as errors
-> /home/scott/fsl/git/linux/upstream/scripts/Makefile.build:257: recipe for target 'lib/assoc_array.o' failed
-
-I will send a patch fixing this(need to use rcupdate.h here
-explicitly). Thanks for reporting these!
-
->
-> -Scott
->
->
-
-
-
+diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_64.c
+index 4f3cfe1..f55302f 100644
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -65,10 +65,13 @@
+ #include <asm/kexec.h>
+ #include <asm/mmu_context.h>
+ #include <asm/code-patching.h>
+-#include <asm/kvm_ppc.h>
+ #include <asm/hugetlb.h>
+ #include <asm/epapr_hcalls.h>
+ 
++#if IS_ENABLED(CONFIG_KVM)
++#include <asm/kvm_ppc.h>
++#endif
++
+ #ifdef DEBUG
+ #define DBG(fmt...) udbg_printf(fmt)
+ #else
+@@ -286,8 +289,10 @@ void __init early_setup(unsigned long dt_ptr)
+ 	 */
+ 	cpu_ready_for_interrupts();
+ 
++#if IS_ENABLED(CONFIG_KVM)
+ 	/* Reserve large chunks of memory for use by CMA for KVM */
+ 	kvm_cma_reserve();
++#endif
+ 
+ 	/*
+ 	 * Reserve any gigantic pages requested on the command line.
+diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
+index 71e186d..0001daa 100644
+--- a/arch/powerpc/kernel/smp.c
++++ b/arch/powerpc/kernel/smp.c
+@@ -36,7 +36,6 @@
+ #include <linux/atomic.h>
+ #include <asm/irq.h>
+ #include <asm/hw_irq.h>
+-#include <asm/kvm_ppc.h>
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+ #include <asm/prom.h>
+@@ -54,6 +53,10 @@
+ #include <asm/debug.h>
+ #include <asm/kexec.h>
+ 
++#if IS_ENABLED(CONFIG_KVM)
++#include <asm/kvm_ppc.h>
++#endif
++
+ #ifdef DEBUG
+ #include <asm/udbg.h>
+ #define DBG(fmt...) udbg_printf(fmt)
+@@ -470,7 +473,11 @@ int generic_check_cpu_restart(unsigned int cpu)
+ 
+ static bool secondaries_inhibited(void)
+ {
++#if IS_ENABLED(CONFIG_KVM)
+ 	return kvm_hv_mode_active();
++#else
++	return false;
++#endif
+ }
+ 
+ #else /* HOTPLUG_CPU */
+diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
+index ef279a1..2813a3c 100644
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -7,12 +7,15 @@
+ #define ASM_OFFSETS_C
+ 
+ #include <linux/kbuild.h>
+-#include <linux/kvm_host.h>
+ #include <linux/sched.h>
+ #include <asm/idle.h>
+ #include <asm/vdso.h>
+ #include <asm/pgtable.h>
+ 
++#if IS_ENABLED(CONFIG_KVM)
++#include <linux/kvm_host.h>
++#endif
++
+ /*
+  * Make sure that the compiler is new enough. We want a compiler that
+  * is known to work with the "Q" assembler constraint.
+@@ -182,8 +185,10 @@ int main(void)
+ 	DEFINE(__LC_PGM_TDB, offsetof(struct _lowcore, pgm_tdb));
+ 	DEFINE(__THREAD_trap_tdb, offsetof(struct task_struct, thread.trap_tdb));
+ 	DEFINE(__GMAP_ASCE, offsetof(struct gmap, asce));
++#if IS_ENABLED(CONFIG_KVM)
+ 	DEFINE(__SIE_PROG0C, offsetof(struct kvm_s390_sie_block, prog0c));
+ 	DEFINE(__SIE_PROG20, offsetof(struct kvm_s390_sie_block, prog20));
++#endif /* CONFIG_KVM */
+ #endif /* CONFIG_32BIT */
+ 	return 0;
+ }
+diff --git a/include/linux/notifier.h b/include/linux/notifier.h
+index d14a4c3..fe4f02a 100644
+--- a/include/linux/notifier.h
++++ b/include/linux/notifier.h
+@@ -47,6 +47,8 @@
+  * runtime initialization.
+  */
+ 
++struct notifier_block;
++
+ typedef	int (*notifier_fn_t)(struct notifier_block *nb,
+ 			unsigned long action, void *data);
+ 
+@@ -70,12 +72,6 @@ struct raw_notifier_head {
+ 	struct notifier_block __rcu *head;
+ };
+ 
+-struct srcu_notifier_head {
+-	struct mutex mutex;
+-	struct srcu_struct srcu;
+-	struct notifier_block __rcu *head;
+-};
+-
+ #define ATOMIC_INIT_NOTIFIER_HEAD(name) do {	\
+ 		spin_lock_init(&(name)->lock);	\
+ 		(name)->head = NULL;		\
+@@ -88,11 +84,6 @@ struct srcu_notifier_head {
+ 		(name)->head = NULL;		\
+ 	} while (0)
+ 
+-/* srcu_notifier_heads must be initialized and cleaned up dynamically */
+-extern void srcu_init_notifier_head(struct srcu_notifier_head *nh);
+-#define srcu_cleanup_notifier_head(name)	\
+-		cleanup_srcu_struct(&(name)->srcu);
+-
+ #define ATOMIC_NOTIFIER_INIT(name) {				\
+ 		.lock = __SPIN_LOCK_UNLOCKED(name.lock),	\
+ 		.head = NULL }
+@@ -101,7 +92,6 @@ extern void srcu_init_notifier_head(struct srcu_notifier_head *nh);
+ 		.head = NULL }
+ #define RAW_NOTIFIER_INIT(name)	{				\
+ 		.head = NULL }
+-/* srcu_notifier_heads cannot be initialized statically */
+ 
+ #define ATOMIC_NOTIFIER_HEAD(name)				\
+ 	struct atomic_notifier_head name =			\
+@@ -121,8 +111,6 @@ extern int blocking_notifier_chain_register(struct blocking_notifier_head *nh,
+ 		struct notifier_block *nb);
+ extern int raw_notifier_chain_register(struct raw_notifier_head *nh,
+ 		struct notifier_block *nb);
+-extern int srcu_notifier_chain_register(struct srcu_notifier_head *nh,
+-		struct notifier_block *nb);
+ 
+ extern int blocking_notifier_chain_cond_register(
+ 		struct blocking_notifier_head *nh,
+@@ -134,8 +122,6 @@ extern int blocking_notifier_chain_unregister(struct blocking_notifier_head *nh,
+ 		struct notifier_block *nb);
+ extern int raw_notifier_chain_unregister(struct raw_notifier_head *nh,
+ 		struct notifier_block *nb);
+-extern int srcu_notifier_chain_unregister(struct srcu_notifier_head *nh,
+-		struct notifier_block *nb);
+ 
+ extern int atomic_notifier_call_chain(struct atomic_notifier_head *nh,
+ 		unsigned long val, void *v);
+@@ -149,10 +135,6 @@ extern int raw_notifier_call_chain(struct raw_notifier_head *nh,
+ 		unsigned long val, void *v);
+ extern int __raw_notifier_call_chain(struct raw_notifier_head *nh,
+ 	unsigned long val, void *v, int nr_to_call, int *nr_calls);
+-extern int srcu_notifier_call_chain(struct srcu_notifier_head *nh,
+-		unsigned long val, void *v);
+-extern int __srcu_notifier_call_chain(struct srcu_notifier_head *nh,
+-	unsigned long val, void *v, int nr_to_call, int *nr_calls);
+ 
+ #define NOTIFY_DONE		0x0000		/* Don't care */
+ #define NOTIFY_OK		0x0001		/* Suits me */
+@@ -211,5 +193,30 @@ static inline int notifier_to_errno(int ret)
+ 
+ extern struct blocking_notifier_head reboot_notifier_list;
+ 
++#ifdef CONFIG_SRCU
++
++struct srcu_notifier_head {
++	struct mutex mutex;
++	struct srcu_struct srcu;
++	struct notifier_block __rcu *head;
++};
++
++/* srcu_notifier_heads must be initialized and cleaned up dynamically
++ * srcu_notifier_heads cannot be initialized statically
++ */
++extern void srcu_init_notifier_head(struct srcu_notifier_head *nh);
++#define srcu_cleanup_notifier_head(name) cleanup_srcu_struct(&(name)->srcu)
++
++extern int srcu_notifier_chain_register(struct srcu_notifier_head *nh,
++		struct notifier_block *nb);
++extern int srcu_notifier_chain_unregister(struct srcu_notifier_head *nh,
++		struct notifier_block *nb);
++extern int srcu_notifier_call_chain(struct srcu_notifier_head *nh,
++		unsigned long val, void *v);
++extern int __srcu_notifier_call_chain(struct srcu_notifier_head *nh,
++	unsigned long val, void *v, int nr_to_call, int *nr_calls);
++
++#endif /* CONFIG_SRCU */
++
+ #endif /* __KERNEL__ */
+ #endif /* _LINUX_NOTIFIER_H */
+diff --git a/include/linux/srcu.h b/include/linux/srcu.h
+index 9cfd962..ed9c389 100644
+--- a/include/linux/srcu.h
++++ b/include/linux/srcu.h
+@@ -26,6 +26,8 @@
+  *
+  */
+ 
++#ifdef CONFIG_SRCU
++
+ #ifndef _LINUX_SRCU_H
+ #define _LINUX_SRCU_H
+ 
+@@ -249,4 +251,6 @@ static inline void smp_mb__after_srcu_read_unlock(void)
+ 	/* __srcu_read_unlock has smp_mb() internally so nothing to do here. */
+ }
+ 
+-#endif
++#endif /* _LINUX_SRCU_H */
++
++#endif /* CONFIG_SRCU */
 -- 
-Pranith
+1.9.1
