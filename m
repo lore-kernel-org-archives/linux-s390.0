@@ -1,82 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <54B046F0.8030808@sunrus.com.cn>
-Date: Sat, 10 Jan 2015 05:24:00 +0800
-From: Chen Gang S <gang.chen@sunrus.com.cn>
+Message-ID: <54A55954.6000002@sunrus.com.cn>
+Date: Thu, 01 Jan 2015 22:27:32 +0800
+From: Chen Gang <gang.chen@sunrus.com.cn>
 MIME-Version: 1.0
-Subject: Re: [PATCH] s390: include: timex: Use macro CLOCK_STORE_SIZE instead
+Subject: [PATCH] s390: include: timex: Use macro CLOCK_STORE_SIZE instead
  of hard code number
-References: <54A55954.6000002@sunrus.com.cn>	<20150102094625.GA4059@osiris>	<54A76584.6020700@sunrus.com.cn>	<20150105095948.0612e7bc@mschwide>	<54AD4677.6040009@sunrus.com.cn> <20150107163617.190b5992@mschwide>
-In-Reply-To: <20150107163617.190b5992@mschwide>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, holzheu@linux.vnet.ibm.com, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+Cc: linux390@de.ibm.com, holzheu@linux.vnet.ibm.com, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 1/7/15 23:36, Martin Schwidefsky wrote:
-> On Wed, 07 Jan 2015 22:45:11 +0800
-> Chen Gang S <gang.chen@sunrus.com.cn> wrote:
-> 
->> On 01/05/2015 04:59 PM, Martin Schwidefsky wrote:
->>> On Sat, 03 Jan 2015 11:44:04 +0800
->>> Chen Gang <gang.chen@sunrus.com.cn> wrote:
->>>
->>>>
->>>> Thank you for your work.
->>>>
->>>> In honest, originally, I was not sure whether it would cause bug (do not
->>>> know gcc would generic incorrect code for it). :-)
->>>
->>> Even if the code happened to be correct it does not matter. The intention
->>> of the sizeof() has been to get to the correct 16, not 8. The fix is
->>> fine as it is.
->>>
->>
->> Excuse me, my English is not quite well, I am not quite sure about what
->> you said (might misunderstand what you said), so I provide the related
->> information below for confirmation, please check, thanks.
->>
->> sizeof(clk) is for a pointer, not for an array (for C language, it
->> treats array parameter as a pointer), the related demo is below:
-> 
-> And your patch fixes this problem. My comment was in regard to the
-> impact of the original bug. As the typeof construct is used to
-> prevent the compiler from over-optimizing, the code can come out
-> correct even if the bug is present.
-> 
+For C language, it treats array parameter as a pointer, so sizeof for an
+array parameter is equal to sizeof for a pointer, which causes compiler
+warning (with allmodconfig by gcc 5):
 
-OK, thank you for your reply.
+    CC      arch/s390/kernel/asm-offsets.s
+  In file included from include/linux/timex.h:65:0,
+                   from include/linux/sched.h:19,
+                   from include/linux/kvm_host.h:15,
+                   from arch/s390/kernel/asm-offsets.c:10:
+  ./arch/s390/include/asm/timex.h: In function 'get_tod_clock_ext':
+  ./arch/s390/include/asm/timex.h:76:32: warning: 'sizeof' on array function parameter 'clk' will return size of 'char *' [-Wsizeof-array-argument]
+    typedef struct { char _[sizeof(clk)]; } addrtype;
+                                  ^
 
-In honest, I still not quite understand your meaning, I guess it is only
-because of my poor English, and it doesn't matter for others members, so
-not need additional reply for it (but welcome reply).
+Can use macro CLOCK_STORE_SIZE instead of all related hard code numbers,
+which also can avoid this warning. And also add a tab to CLOCK_TICK_RATE
+definition to match coding styles.
 
-For details (please check, if still interest):
+Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
+---
+ arch/s390/hypfs/hypfs_vm.c    |    2 +-
+ arch/s390/include/asm/timex.h |    9 +++++----
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-  > And your patch fixes this problem. My comment was in regard to the
-  > impact of the original bug.
-
-    I can understand the 2 contents above.
-
-  >                             As the typeof construct is used to
-  > prevent the compiler from over-optimizing,
-
-    I can understand, yeah, typeof() is useful for declaring an array.
-
-  >                                            the code can come out
-  > correct even if the bug is present.
-  > 
-
-    Sorry, I can not understand: I know every words, and it seems I can
-    understand the whole sentence, but for me, it seems have a conflict
-    meaning with the original sentences.
-
-
-Thanks.
+diff --git a/arch/s390/hypfs/hypfs_vm.c b/arch/s390/hypfs/hypfs_vm.c
+index 32040ac..344b622 100644
+--- a/arch/s390/hypfs/hypfs_vm.c
++++ b/arch/s390/hypfs/hypfs_vm.c
+@@ -231,7 +231,7 @@ failed:
+ struct dbfs_d2fc_hdr {
+ 	u64	len;		/* Length of d2fc buffer without header */
+ 	u16	version;	/* Version of header */
+-	char	tod_ext[16];	/* TOD clock for d2fc */
++	char	tod_ext[CLOCK_STORE_SIZE]; /* TOD clock for d2fc */
+ 	u64	count;		/* Number of VM guests in d2fc buffer */
+ 	char	reserved[30];
+ } __attribute__ ((packed));
+diff --git a/arch/s390/include/asm/timex.h b/arch/s390/include/asm/timex.h
+index 8beee1c..2d2fab6 100644
+--- a/arch/s390/include/asm/timex.h
++++ b/arch/s390/include/asm/timex.h
+@@ -67,20 +67,21 @@ static inline void local_tick_enable(unsigned long long comp)
+ 	set_clock_comparator(S390_lowcore.clock_comparator);
+ }
+ 
+-#define CLOCK_TICK_RATE	1193180 /* Underlying HZ */
++#define CLOCK_TICK_RATE		1193180 /* Underlying HZ */
++#define CLOCK_STORE_SIZE	16 /* store size for clock */
+ 
+ typedef unsigned long long cycles_t;
+ 
+-static inline void get_tod_clock_ext(char clk[16])
++static inline void get_tod_clock_ext(char clk[CLOCK_STORE_SIZE])
+ {
+-	typedef struct { char _[sizeof(clk)]; } addrtype;
++	typedef struct { char _[CLOCK_STORE_SIZE]; } addrtype;
+ 
+ 	asm volatile("stcke %0" : "=Q" (*(addrtype *) clk) : : "cc");
+ }
+ 
+ static inline unsigned long long get_tod_clock(void)
+ {
+-	unsigned char clk[16];
++	unsigned char clk[CLOCK_STORE_SIZE];
+ 	get_tod_clock_ext(clk);
+ 	return *((unsigned long long *)&clk[1]);
+ }
 -- 
-Chen Gang
-
-Open, share, and attitude like air, water, and life which God blessed
+1.7.9.5
