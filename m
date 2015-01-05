@@ -1,28 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <54A7BB35.9020604@sunrus.com.cn>
-Date: Sat, 03 Jan 2015 17:49:41 +0800
-From: Chen Gang <gang.chen@sunrus.com.cn>
-MIME-Version: 1.0
+Date: Mon, 5 Jan 2015 10:21:05 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 Subject: Re: [PATCH] s390: boot: compressed: misc: Express the return value
  of _sclp_print_early()
+Message-ID: <20150105092105.GA4281@osiris>
 References: <54A7B663.3010507@sunrus.com.cn>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <54A7B663.3010507@sunrus.com.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
-Cc: linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Chen Gang <gang.chen@sunrus.com.cn>
+Cc: schwidefsky@de.ibm.com, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-
-Our s390 can pass allmodconfig at present (although it is still has
-various warnings).
-
-Thanks.
-
-On 01/03/2015 05:29 PM, Chen Gang wrote:
+On Sat, Jan 03, 2015 at 05:29:07PM +0800, Chen Gang wrote:
 > _sclp_print_early() has return value: at present, return 0 for OK, 1 for
 > failure. It returns '%r2', so use 'long' as return value (upper caller
 > can check '%r2' directly). The related warning:
@@ -50,12 +44,5 @@ On 01/03/2015 05:29 PM, Chen Gang wrote:
 >  
 > -extern _sclp_print_early(const char *);
 > +extern long _sclp_print_early(const char *);
->  
->  static int puts(const char *s)
->  {
-> 
 
--- 
-Chen Gang
-
-Open, share, and attitude like air, water, and life which God blessed
+Thanks, applied. However I moved the declaration to the sclp header file.
