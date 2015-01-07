@@ -1,52 +1,66 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390: crypto: aes_s390: Remove 'const' to avoid compiler
- warnings
-Date: Wed, 7 Jan 2015 09:24:14 +0100
-Message-ID: <20150107082414.GA4365@osiris>
-References: <54A56002.3000301@sunrus.com.cn>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 38/40] s390: macro whitespace fixes
+Date: Wed, 7 Jan 2015 11:07:31 +0200
+Message-ID: <20150107090731.GB24298@redhat.com>
+References: <1420558883-10131-1-git-send-email-mst@redhat.com>
+ <1420558883-10131-39-git-send-email-mst@redhat.com>
+ <20150107083339.GB4365@osiris>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-crypto-owner@vger.kernel.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <54A56002.3000301@sunrus.com.cn>
-Sender: linux-crypto-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-crypto/>
-List-Post: <mailto:linux-crypto@vger.kernel.org>
-To: Chen Gang <gang.chen@sunrus.com.cn>
-Cc: herbert@gondor.apana.org.au, davem@davemloft.net, schwidefsky@de.ibm.com, linux390@de.ibm.com, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20150107083339.GB4365@osiris>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jan 01, 2015 at 10:56:02PM +0800, Chen Gang wrote:
-> In aes_encrypt() and aes_decrypt(), need let 'sctx->key' be modified,
-> so remove 'const' for it. The related warnings:
-...
+On Wed, Jan 07, 2015 at 09:33:39AM +0100, Heiko Carstens wrote:
+> On Tue, Jan 06, 2015 at 05:45:38PM +0200, Michael S. Tsirkin wrote:
+> > While working on arch/s390/include/asm/uaccess.h, I noticed
+> > that a couple of macros within this header are made harder to read
+> > because they violate a coding style rule: space is missing after comma.
+> > 
+> > Fix it up.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  arch/s390/include/asm/uaccess.h | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+> > index cd4c68e..71b9c40 100644
+> > --- a/arch/s390/include/asm/uaccess.h
+> > +++ b/arch/s390/include/asm/uaccess.h
+> > @@ -46,7 +46,7 @@
+> >  	__ctl_load(__pto, 7, 7);					\
+> >  })
+> > 
+> > -#define segment_eq(a,b) ((a).ar4 == (b).ar4)
+> > +#define segment_eq(a, b) ((a).ar4 == (b).ar4)
+> > 
+> >  static inline int __range_ok(unsigned long addr, unsigned long size)
+> >  {
+> > @@ -147,7 +147,7 @@ unsigned long __must_check __copy_to_user(void __user *to, const void *from,
+> >  		"3:	lhi	%0,%5\n"			\
+> >  		"	jg	2b\n"				\
+> >  		".popsection\n"					\
+> > -		EX_TABLE(0b,3b) EX_TABLE(1b,3b)			\
+> > +		EX_TABLE(0b, 3b) EX_TABLE(1b, 3b)		\
 > 
-> Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
-> ---
->  arch/s390/crypto/aes_s390.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> Most EX_TABLE() usages within s390 are without space after comma.
+> No need to change that. Also I don't like the change of the seqment_eq()
+> macro.
+> I won't apply trivial whitespace patches, since this would make 'git blame'
+> useless and in addition invite more people to send whitespace patches.
 > 
-> diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
-> index 1f272b2..5566ce8 100644
-> --- a/arch/s390/crypto/aes_s390.c
-> +++ b/arch/s390/crypto/aes_s390.c
-> @@ -134,7 +134,7 @@ static int aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
-> 
->  static void aes_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
->  {
-> -	const struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
-> +	struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
-> 
->  	if (unlikely(need_fallback(sctx->key_len))) {
->  		crypto_cipher_encrypt_one(sctx->fallback.cip, out, in);
-> @@ -159,7 +159,7 @@ static void aes_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
-> 
->  static void aes_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
->  {
-> -	const struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
-> +	struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
-> 
->  	if (unlikely(need_fallback(sctx->key_len))) {
->  		crypto_cipher_decrypt_one(sctx->fallback.cip, out, in);
+> Thanks,
+> Heiko
 
-Applied, thanks.
+There's always git blame -w. Anyway, I'll drop s390 patches.
+Fix it up yourself if you wish.
+
+-- 
+MST
