@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Philipp Hachtmann <phacht@linux.vnet.ibm.com>
-Subject: [RFC] [PATCH 0/3] sched: Support for real CPU runtime and SMT scaling
-Date: Fri, 30 Jan 2015 15:02:39 +0100
-Message-Id: <1422626562-6966-1-git-send-email-phacht@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: mingo@redhat.com, peterz@infradead.org, linux-kernel@vger.kernel.org
-Cc: heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, Philipp Hachtmann <phacht@linux.vnet.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390: crypto: aes_s390: Remove 'const' to avoid compiler
+ warnings
+Date: Wed, 7 Jan 2015 09:24:14 +0100
+Message-ID: <20150107082414.GA4365@osiris>
+References: <54A56002.3000301@sunrus.com.cn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-crypto-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <54A56002.3000301@sunrus.com.cn>
+Sender: linux-crypto-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-crypto/>
+List-Post: <mailto:linux-crypto@vger.kernel.org>
+To: Chen Gang <gang.chen@sunrus.com.cn>
+Cc: herbert@gondor.apana.org.au, davem@davemloft.net, schwidefsky@de.ibm.com, linux390@de.ibm.com, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello,
+On Thu, Jan 01, 2015 at 10:56:02PM +0800, Chen Gang wrote:
+> In aes_encrypt() and aes_decrypt(), need let 'sctx->key' be modified,
+> so remove 'const' for it. The related warnings:
+...
+> 
+> Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
+> ---
+>  arch/s390/crypto/aes_s390.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
+> index 1f272b2..5566ce8 100644
+> --- a/arch/s390/crypto/aes_s390.c
+> +++ b/arch/s390/crypto/aes_s390.c
+> @@ -134,7 +134,7 @@ static int aes_set_key(struct crypto_tfm *tfm, const u8 *in_key,
+> 
+>  static void aes_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
+>  {
+> -	const struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
+> +	struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
+> 
+>  	if (unlikely(need_fallback(sctx->key_len))) {
+>  		crypto_cipher_encrypt_one(sctx->fallback.cip, out, in);
+> @@ -159,7 +159,7 @@ static void aes_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
+> 
+>  static void aes_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
+>  {
+> -	const struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
+> +	struct s390_aes_ctx *sctx = crypto_tfm_ctx(tfm);
+> 
+>  	if (unlikely(need_fallback(sctx->key_len))) {
+>  		crypto_cipher_decrypt_one(sctx->fallback.cip, out, in);
 
-when using "real" processors the scheduler can make its decisions based
-on wall time. But CPUs under hypervisor control are sometimes
-unavailable without further notice to the guest operating system.
-Using wall time for scheduling decisions in this case will lead to
-unfair decisions and erroneous distribution of CPU bandwidth when
-using cgroups.
-On (at least) S390 every CPU has a timer that counts the real execution
-time from IPL. When the hypervisor has sheduled out the CPU, the timer
-is stopped. So it is desirable to use this timer as a source for the
-scheduler's rq runtime calculations.
-
-On SMT systems the consumed runtime of a task might be worth  more
-or less depending on the fact that the task can have run alone or not
-during the last delta. This should be scalable based on the current
-CPU utilization.
-
-The first patch introduces two little hooks to the optional architecture
-funtions cpu_exec_time and scale_rq_clock_delta.
-Calls to cpu_exec_time replace calls to sched_clock_cpu a few times but
-are mapped back to sched_clock_cpu if architecture does not define
-cpu_exec_time. The call to scale_rq_clock_delta is added into
-update_rq_clock (sched/core.c) and defaults to a NOP when not defined
-by architecture code.
-
-Regards
-
-Philipp
-
-
-Philipp Hachtmann (3):
-  sched: Support for CPU runtime and SMT based adaption
-  s390/cputime: Provide CPU runtime since IPL
-  s390/cputime: SMT based scaling of CPU runtime deltas
-
- arch/s390/include/asm/cputime.h | 31 +++++++++++++++++++++++++++++++
- arch/s390/kernel/vtime.c        |  4 ++--
- kernel/sched/core.c             |  4 +++-
- kernel/sched/fair.c             |  8 ++++----
- kernel/sched/sched.h            |  8 ++++++++
- 5 files changed, 48 insertions(+), 7 deletions(-)
-
--- 
-2.1.4
+Applied, thanks.
