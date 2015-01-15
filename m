@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH/RFC 16/21] KVM: s390: no need to hold the kvm->mutex for floating interrupts
-Date: Thu, 15 Jan 2015 14:43:29 +0100
-Message-ID: <1421329414-76826-17-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH/RFC 07/21] KVM: s390: forward hrtimer if guest ckc not pending yet
+Date: Thu, 15 Jan 2015 14:43:20 +0100
+Message-ID: <1421329414-76826-8-git-send-email-borntraeger@de.ibm.com>
 References: <1421329414-76826-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1421329414-76826-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,89 +9,80 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, stable@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The kvm mutex was (probably) used to protect against cpu hotplug.
-The current code no longer needs to protect against that, as we only
-rely on CPU data structures that are guaranteed to be available
-if we can access the CPU. (e.g. vcpu_create will put the cpu
-in the array AFTER the cpu is ready).
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Patch 0759d0681cae ("KVM: s390: cleanup handle_wait by reusing
+kvm_vcpu_block") changed the way pending guest clock comparator
+interrupts are detected. It was assumed that as soon as the hrtimer
+wakes up, the condition for the guest ckc is satisfied.
+
+This is however only true as long as adjclock() doesn't speed
+up the monotonic clock. Reason is that the hrtimer is based on
+CLOCK_MONOTONIC, the guest clock comparator detection is based
+on the raw TOD clock. If CLOCK_MONOTONIC runs faster than the
+TOD clock, the hrtimer wakes the target VCPU up too early and
+the target VCPU will not detect any pending interrupts, therefore
+going back to sleep. It will never be woken up again because the
+hrtimer has finished. The VCPU is stuck.
+
+As a quick fix, we have to forward the hrtimer until the guest
+clock comparator is really due, to guarantee properly timed wake
+ups.
+
+As the hrtimer callback might be triggered on another cpu, we
+have to make sure that the timer is really stopped and not currently
+executing the callback on another cpu. This can happen if the vcpu
+thread is scheduled onto another physical cpu, but the timer base
+is not migrated. So lets use hrtimer_cancel instead of try_to_cancel.
+
+A proper fix might be to introduce a RAW based hrtimer.
+
+Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Reviewed-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 8 --------
- 1 file changed, 8 deletions(-)
+ arch/s390/kvm/interrupt.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 0ad1f75..8ebae29 100644
+index 5744303..7fbbcbc 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -1182,7 +1182,6 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
+@@ -826,7 +826,7 @@ no_timer:
+ 	__unset_cpu_idle(vcpu);
+ 	vcpu->srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
  
- 	if ((!schid && !cr6) || (schid && cr6))
- 		return NULL;
--	mutex_lock(&kvm->lock);
- 	fi = &kvm->arch.float_int;
- 	spin_lock(&fi->lock);
- 	inti = NULL;
-@@ -1210,7 +1209,6 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
- 	if (list_empty(&fi->list))
- 		atomic_set(&fi->active, 0);
- 	spin_unlock(&fi->lock);
--	mutex_unlock(&kvm->lock);
- 	return inti;
+-	hrtimer_try_to_cancel(&vcpu->arch.ckc_timer);
++	hrtimer_cancel(&vcpu->arch.ckc_timer);
+ 	return 0;
  }
  
-@@ -1223,7 +1221,6 @@ static int __inject_vm(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 	int sigcpu;
- 	int rc = 0;
+@@ -846,10 +846,20 @@ void kvm_s390_vcpu_wakeup(struct kvm_vcpu *vcpu)
+ enum hrtimer_restart kvm_s390_idle_wakeup(struct hrtimer *timer)
+ {
+ 	struct kvm_vcpu *vcpu;
++	u64 now, sltime;
  
--	mutex_lock(&kvm->lock);
- 	fi = &kvm->arch.float_int;
- 	spin_lock(&fi->lock);
- 	if (fi->irq_count >= KVM_S390_MAX_FLOAT_IRQS) {
-@@ -1274,7 +1271,6 @@ static int __inject_vm(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 	kvm_s390_vcpu_wakeup(kvm_get_vcpu(kvm, sigcpu));
- unlock_fi:
- 	spin_unlock(&fi->lock);
--	mutex_unlock(&kvm->lock);
- 	return rc;
+ 	vcpu = container_of(timer, struct kvm_vcpu, arch.ckc_timer);
+-	kvm_s390_vcpu_wakeup(vcpu);
++	now = get_tod_clock_fast() + vcpu->arch.sie_block->epoch;
++	sltime = tod_to_ns(vcpu->arch.sie_block->ckc - now);
+ 
++	/*
++	 * If the monotonic clock runs faster than the tod clock we might be
++	 * woken up too early and have to go back to sleep to avoid deadlocks.
++	 */
++	if (vcpu->arch.sie_block->ckc > now &&
++	    hrtimer_forward_now(timer, ns_to_ktime(sltime)))
++		return HRTIMER_RESTART;
++	kvm_s390_vcpu_wakeup(vcpu);
+ 	return HRTIMER_NORESTART;
  }
  
-@@ -1444,7 +1440,6 @@ void kvm_s390_clear_float_irqs(struct kvm *kvm)
- 	struct kvm_s390_float_interrupt *fi;
- 	struct kvm_s390_interrupt_info	*n, *inti = NULL;
- 
--	mutex_lock(&kvm->lock);
- 	fi = &kvm->arch.float_int;
- 	spin_lock(&fi->lock);
- 	list_for_each_entry_safe(inti, n, &fi->list, list) {
-@@ -1454,7 +1449,6 @@ void kvm_s390_clear_float_irqs(struct kvm *kvm)
- 	fi->irq_count = 0;
- 	atomic_set(&fi->active, 0);
- 	spin_unlock(&fi->lock);
--	mutex_unlock(&kvm->lock);
- }
- 
- static inline int copy_irq_to_user(struct kvm_s390_interrupt_info *inti,
-@@ -1494,7 +1488,6 @@ static int get_all_floating_irqs(struct kvm *kvm, __u8 *buf, __u64 len)
- 	int ret = 0;
- 	int n = 0;
- 
--	mutex_lock(&kvm->lock);
- 	fi = &kvm->arch.float_int;
- 	spin_lock(&fi->lock);
- 
-@@ -1513,7 +1506,6 @@ static int get_all_floating_irqs(struct kvm *kvm, __u8 *buf, __u64 len)
- 	}
- 
- 	spin_unlock(&fi->lock);
--	mutex_unlock(&kvm->lock);
- 
- 	return ret < 0 ? ret : n;
- }
 -- 
 1.9.3
