@@ -1,132 +1,176 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH/RFC 00/21] KVM: s390: fixes and features for kvm/next (3.20)
-Date: Thu, 15 Jan 2015 14:43:13 +0100
-Message-ID: <1421329414-76826-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH/RFC 04/21] KVM: s390: Allow userspace to limit guest memory size
+Date: Thu, 15 Jan 2015 14:43:17 +0100
+Message-ID: <1421329414-76826-5-git-send-email-borntraeger@de.ibm.com>
+References: <1421329414-76826-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1421329414-76826-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo,
+From: Dominik Dingel <dingel@linux.vnet.ibm.com>
 
-I will send a pull request for the below patches next week. Since some of
-these patches add new interfaces, I want to give people some days to
-complain if anything doesn't look right.
+With commit c6c956b80bdf ("KVM: s390/mm: support gmap page tables with less
+than 5 levels") we are able to define a limit for the guest memory size.
 
-There is one interesting problem that popped up when we acidentially
-enabled ntp. All KVM architectures use hrtimers for wakeups. These
-timers follow adjclock of the host, causing several interesting issues.
+As we round up the guest size in respect to the levels of page tables
+we get to guest limits of: 2048 MB, 4096 GB, 8192 TB and 16384 PB.
+We currently limit the guest size to 16 TB, which means we end up
+creating a page table structure supporting guest sizes up to 8192 TB.
 
-Providing a RAW variant of these timers might be the right thing to do.
-David will look into this. For now we will just make sure that things
-don't break on s390. (x86 seems to have no hangs, but wakeups might
-be too early or too late there as well).
+This patch introduces an interface that allows userspace to tune
+this limit. This may bring performance improvements for small guests.
 
-Christian
+Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ Documentation/virtual/kvm/devices/vm.txt | 14 +++++++
+ arch/s390/include/uapi/asm/kvm.h         |  1 +
+ arch/s390/kvm/kvm-s390.c                 | 65 ++++++++++++++++++++++++++++++--
+ 3 files changed, 77 insertions(+), 3 deletions(-)
 
-The following changes since commit bab5bb398273bb37547a185f7b344b37c700d0b9:
-
-  kvm: x86: Remove kvm_make_request from lapic.c (2015-01-08 22:48:08 +0100)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-20150115
-
-for you to fetch changes up to 68f78d77fb1a2bae65d6d567b18f59c2515971d0:
-
-  KVM: s390/cpacf: Enable/disable protected key functions for kvm guest (2015-01-15 12:48:58 +0100)
-
-----------------------------------------------------------------
-KVM: s390: fixes and features for kvm/next (3.20)
-
-1. Generic
-- sparse warning (make function static)
-- optimize locking
-- bugfixes for interrupt injection
-- fix MVPG addressing modes
-
-2. hrtimer/wakeup fun
-A recent change can cause KVM hangs if adjtime is used in the host.
-The hrtimer might wake up too early or too late. Too early is fatal
-as vcpu_block will see that the wakeup condition is not met and
-sleep again. This CPU might never wake up again.
-This series addresses this problem. adjclock slowing down the host
-clock will result in too late wakeups. This will require more work.
-In addition to that we also change the hrtimer from REALTIME to
-MONOTONIC to avoid similar problems with timedatectl set-time.
-
-3. sigp rework
-We will move all "slow" sigps to QEMU (protected with a capability that
-can be enabled) to avoid several races between concurrent SIGP orders.
-
-4. Optimize the shadow page table
-Provide an interface to announce the maximum guest size. The kernel
-will use that to make the pagetable 2,3,4 (or theoretically) 5 levels.
-
-5. Provide an interface to set the guest TOD
-We now use two vm attributes instead of two oneregs, as oneregs are
-vcpu ioctl and we don't want to call them from other threads.
-
-6. Protected key functions
-The real HMC allows to enable/disable protected key CPACF functions.
-Lets provide an implementation + an interface for QEMU to activate
-this.
-
-----------------------------------------------------------------
-Christian Borntraeger (2):
-      KVM: s390: make local function static
-      KVM: s390: no need to hold the kvm->mutex for floating interrupts
-
-David Hildenbrand (11):
-      KVM: s390: prevent sleep duration underflows in handle_wait()
-      KVM: s390: base hrtimer on a monotonic clock
-      KVM: s390: forward hrtimer if guest ckc not pending yet
-      KVM: s390: new parameter for SIGP STOP irqs
-      KVM: s390: handle stop irqs without action_bits
-      KVM: s390: a VCPU may only stop when no interrupts are left pending
-      KVM: s390: SIGP SET PREFIX cleanup
-      s390/sclp: introduce check for the SIGP Interpretation Facility
-      KVM: s390: only one external call may be pending at a time
-      KVM: s390: clear the pfault queue if user space sets the invalid token
-      KVM: s390: forward most SIGP orders to user space
-
-Dominik Dingel (3):
-      KVM: remove unneeded return value of vcpu_postcreate
-      KVM: s390: move vcpu specific initalization to a later point
-      KVM: s390: Allow userspace to limit guest memory size
-
-Jason J. Herne (1):
-      KVM: s390: Provide guest TOD Clock Get/Set Controls
-
-Jens Freimann (2):
-      KVM: s390: fix bug in sigp emergency signal injection
-      KVM: s390: trace correct values for set prefix and machine checks
-
-Thomas Huth (1):
-      KVM: s390: Take addressing mode into account for MVPG interception
-
-Tony Krowiak (1):
-      KVM: s390/cpacf: Enable/disable protected key functions for kvm guest
-
- Documentation/virtual/kvm/api.txt        |  22 ++-
- Documentation/virtual/kvm/devices/vm.txt |  14 ++
- arch/arm/kvm/arm.c                       |   3 +-
- arch/mips/kvm/mips.c                     |   3 +-
- arch/powerpc/kvm/powerpc.c               |   3 +-
- arch/s390/include/asm/kvm_host.h         |  28 +--
- arch/s390/include/asm/sclp.h             |   4 +-
- arch/s390/include/uapi/asm/kvm.h         |  16 ++
- arch/s390/kvm/intercept.c                |  41 ++--
- arch/s390/kvm/interrupt.c                | 178 ++++++++++++-----
- arch/s390/kvm/kvm-s390.c                 | 324 ++++++++++++++++++++++++++++---
- arch/s390/kvm/kvm-s390.h                 |   6 +-
- arch/s390/kvm/sigp.c                     | 160 ++++++++-------
- arch/s390/kvm/trace-s390.h               |  14 +-
- arch/x86/kvm/x86.c                       |  10 +-
- drivers/s390/char/sclp_early.c           |   8 +
- include/linux/kvm_host.h                 |   2 +-
- include/uapi/linux/kvm.h                 |   7 +
- 18 files changed, 649 insertions(+), 194 deletions(-)
+diff --git a/Documentation/virtual/kvm/devices/vm.txt b/Documentation/virtual/kvm/devices/vm.txt
+index d426fc8..c3b17c6 100644
+--- a/Documentation/virtual/kvm/devices/vm.txt
++++ b/Documentation/virtual/kvm/devices/vm.txt
+@@ -24,3 +24,17 @@ Returns: 0
+ 
+ Clear the CMMA status for all guest pages, so any pages the guest marked
+ as unused are again used any may not be reclaimed by the host.
++
++1.3. ATTRIBUTE KVM_S390_VM_MEM_LIMIT_SIZE
++Parameters: in attr->addr the address for the new limit of guest memory
++Returns: -EFAULT if the given address is not accessible
++         -EINVAL if the virtual machine is of type UCONTROL
++         -E2BIG if the given guest memory is to big for that machine
++         -EBUSY if a vcpu is already defined
++         -ENOMEM if not enough memory is available for a new shadow guest mapping
++          0 otherwise
++
++Allows userspace to query the actual limit and set a new limit for
++the maximum guest memory size. The limit will be rounded up to
++2048 MB, 4096 GB, 8192 TB respectively, as this limit is governed by
++the number of page table levels.
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index 48eda3a..9c01159 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -61,6 +61,7 @@ struct kvm_s390_io_adapter_req {
+ /* kvm attributes for mem_ctrl */
+ #define KVM_S390_VM_MEM_ENABLE_CMMA	0
+ #define KVM_S390_VM_MEM_CLR_CMMA	1
++#define KVM_S390_VM_MEM_LIMIT_SIZE	2
+ 
+ /* for KVM_GET_REGS and KVM_SET_REGS */
+ struct kvm_regs {
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 529f7905..14cdf1c 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -261,7 +261,24 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
+ 	return r;
+ }
+ 
+-static int kvm_s390_mem_control(struct kvm *kvm, struct kvm_device_attr *attr)
++static int kvm_s390_get_mem_control(struct kvm *kvm, struct kvm_device_attr *attr)
++{
++	int ret;
++
++	switch (attr->attr) {
++	case KVM_S390_VM_MEM_LIMIT_SIZE:
++		ret = 0;
++		if (put_user(kvm->arch.gmap->asce_end, (u64 __user *)attr->addr))
++			ret = -EFAULT;
++		break;
++	default:
++		ret = -ENXIO;
++		break;
++	}
++	return ret;
++}
++
++static int kvm_s390_set_mem_control(struct kvm *kvm, struct kvm_device_attr *attr)
+ {
+ 	int ret;
+ 	unsigned int idx;
+@@ -283,6 +300,36 @@ static int kvm_s390_mem_control(struct kvm *kvm, struct kvm_device_attr *attr)
+ 		mutex_unlock(&kvm->lock);
+ 		ret = 0;
+ 		break;
++	case KVM_S390_VM_MEM_LIMIT_SIZE: {
++		unsigned long new_limit;
++
++		if (kvm_is_ucontrol(kvm))
++			return -EINVAL;
++
++		if (get_user(new_limit, (u64 __user *)attr->addr))
++			return -EFAULT;
++
++		if (new_limit > kvm->arch.gmap->asce_end)
++			return -E2BIG;
++
++		ret = -EBUSY;
++		mutex_lock(&kvm->lock);
++		if (atomic_read(&kvm->online_vcpus) == 0) {
++			/* gmap_alloc will round the limit up */
++			struct gmap *new = gmap_alloc(current->mm, new_limit);
++
++			if (!new) {
++				ret = -ENOMEM;
++			} else {
++				gmap_free(kvm->arch.gmap);
++				new->private = kvm;
++				kvm->arch.gmap = new;
++				ret = 0;
++			}
++		}
++		mutex_unlock(&kvm->lock);
++		break;
++	}
+ 	default:
+ 		ret = -ENXIO;
+ 		break;
+@@ -296,7 +343,7 @@ static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+ 
+ 	switch (attr->group) {
+ 	case KVM_S390_VM_MEM_CTRL:
+-		ret = kvm_s390_mem_control(kvm, attr);
++		ret = kvm_s390_set_mem_control(kvm, attr);
+ 		break;
+ 	default:
+ 		ret = -ENXIO;
+@@ -308,7 +355,18 @@ static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+ 
+ static int kvm_s390_vm_get_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+ {
+-	return -ENXIO;
++	int ret;
++
++	switch (attr->group) {
++	case KVM_S390_VM_MEM_CTRL:
++		ret = kvm_s390_get_mem_control(kvm, attr);
++		break;
++	default:
++		ret = -ENXIO;
++		break;
++	}
++
++	return ret;
+ }
+ 
+ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+@@ -320,6 +378,7 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+ 		switch (attr->attr) {
+ 		case KVM_S390_VM_MEM_ENABLE_CMMA:
+ 		case KVM_S390_VM_MEM_CLR_CMMA:
++		case KVM_S390_VM_MEM_LIMIT_SIZE:
+ 			ret = 0;
+ 			break;
+ 		default:
+-- 
+1.9.3
