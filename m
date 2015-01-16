@@ -1,88 +1,179 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH/RFC 03/21] KVM: s390: move vcpu specific initalization to a later point
-Date: Thu, 15 Jan 2015 14:43:16 +0100
-Message-ID: <1421329414-76826-4-git-send-email-borntraeger@de.ibm.com>
-References: <1421329414-76826-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1421329414-76826-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 1/5] s390/ctcm,netiucv: migrate variables to handle y2038 problem
+Date: Fri, 16 Jan 2015 14:05:45 +0100
+Message-ID: <1421413549-56937-2-git-send-email-ubraun@linux.vnet.ibm.com>
+References: <1421413549-56937-1-git-send-email-ubraun@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1421413549-56937-1-git-send-email-ubraun@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com, ubraun@linux.vnet.ibm.com, Aya Mahfouz <mahfouz.saif.elyazal@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+From: Aya Mahfouz <mahfouz.saif.elyazal@gmail.com>
 
-As we will allow in a later patch to recreate gmaps with new limits,
-we need to make sure that vcpus get their reference for that gmap
-after they increased the online_vcpu counter, so there is no possible race.
+This patch is concerned with migrating the time variables for the s390
+network drivers. The changes handle the y2038 problem where timespec will
+overflow in the year 2038. timespec was replaced by unsigned long and
+all time variables get their values from the jiffies global variable.
+This was done for the sake of speed and efficiency.
 
-While we are doing this, we also can simplify the vcpu_init function, by
-moving ucontrol specifics to an own function.
-That way we also start now setting the kvm_valid_regs for the ucontrol path.
-
-Reviewed-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Aya Mahfouz <mahfouz.saif.elyazal@gmail.com>
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ drivers/s390/net/ctcm_fsms.c  | 18 +++++++-----------
+ drivers/s390/net/ctcm_main.c  |  4 ++--
+ drivers/s390/net/ctcm_main.h  |  2 +-
+ drivers/s390/net/ctcm_sysfs.c |  4 ++--
+ drivers/s390/net/netiucv.c    |  6 +++---
+ 5 files changed, 15 insertions(+), 19 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ec004f8..529f7905 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -546,25 +546,30 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
- }
+diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
+index fb92524..fd5944b 100644
+--- a/drivers/s390/net/ctcm_fsms.c
++++ b/drivers/s390/net/ctcm_fsms.c
+@@ -251,13 +251,11 @@ static void chx_txdone(fsm_instance *fi, int event, void *arg)
+ 	int first = 1;
+ 	int i;
+ 	unsigned long duration;
+-	struct timespec done_stamp = current_kernel_time(); /* xtime */
++	unsigned long done_stamp = jiffies;
  
- /* Section: vcpu related */
-+static int __kvm_ucontrol_vcpu_init(struct kvm_vcpu *vcpu)
-+{
-+	vcpu->arch.gmap = gmap_alloc(current->mm, -1UL);
-+	if (!vcpu->arch.gmap)
-+		return -ENOMEM;
-+	vcpu->arch.gmap->private = vcpu->kvm;
-+
-+	return 0;
-+}
-+
- int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
- {
- 	vcpu->arch.pfault_token = KVM_S390_PFAULT_TOKEN_INVALID;
- 	kvm_clear_async_pf_completion_queue(vcpu);
--	if (kvm_is_ucontrol(vcpu->kvm)) {
--		vcpu->arch.gmap = gmap_alloc(current->mm, -1UL);
--		if (!vcpu->arch.gmap)
--			return -ENOMEM;
--		vcpu->arch.gmap->private = vcpu->kvm;
--		return 0;
--	}
--
--	vcpu->arch.gmap = vcpu->kvm->arch.gmap;
- 	vcpu->run->kvm_valid_regs = KVM_SYNC_PREFIX |
- 				    KVM_SYNC_GPRS |
- 				    KVM_SYNC_ACRS |
- 				    KVM_SYNC_CRS |
- 				    KVM_SYNC_ARCH0 |
- 				    KVM_SYNC_PFAULT;
-+
-+	if (kvm_is_ucontrol(vcpu->kvm))
-+		return __kvm_ucontrol_vcpu_init(vcpu);
-+
- 	return 0;
- }
+ 	CTCM_PR_DEBUG("%s(%s): %s\n", __func__, ch->id, dev->name);
  
-@@ -617,6 +622,8 @@ static void kvm_s390_vcpu_initial_reset(struct kvm_vcpu *vcpu)
+-	duration =
+-	    (done_stamp.tv_sec - ch->prof.send_stamp.tv_sec) * 1000000 +
+-	    (done_stamp.tv_nsec - ch->prof.send_stamp.tv_nsec) / 1000;
++	duration = done_stamp - ch->prof.send_stamp;
+ 	if (duration > ch->prof.tx_time)
+ 		ch->prof.tx_time = duration;
  
- void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
- {
-+	if (!kvm_is_ucontrol(vcpu->kvm))
-+		vcpu->arch.gmap = vcpu->kvm->arch.gmap;
- }
+@@ -307,7 +305,7 @@ static void chx_txdone(fsm_instance *fi, int event, void *arg)
+ 		spin_unlock(&ch->collect_lock);
+ 		ch->ccw[1].count = ch->trans_skb->len;
+ 		fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
+-		ch->prof.send_stamp = current_kernel_time(); /* xtime */
++		ch->prof.send_stamp = jiffies;
+ 		rc = ccw_device_start(ch->cdev, &ch->ccw[0],
+ 						(unsigned long)ch, 0xff, 0);
+ 		ch->prof.doios_multi++;
+@@ -1229,14 +1227,12 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
+ 	int		rc;
+ 	struct th_header *header;
+ 	struct pdu	*p_header;
+-	struct timespec done_stamp = current_kernel_time(); /* xtime */
++	unsigned long done_stamp = jiffies;
  
- static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
+ 	CTCM_PR_DEBUG("Enter %s: %s cp:%i\n",
+ 			__func__, dev->name, smp_processor_id());
+ 
+-	duration =
+-		(done_stamp.tv_sec - ch->prof.send_stamp.tv_sec) * 1000000 +
+-		(done_stamp.tv_nsec - ch->prof.send_stamp.tv_nsec) / 1000;
++	duration = done_stamp - ch->prof.send_stamp;
+ 	if (duration > ch->prof.tx_time)
+ 		ch->prof.tx_time = duration;
+ 
+@@ -1361,7 +1357,7 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
+ 
+ 	ch->ccw[1].count = ch->trans_skb->len;
+ 	fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
+-	ch->prof.send_stamp = current_kernel_time(); /* xtime */
++	ch->prof.send_stamp = jiffies;
+ 	if (do_debug_ccw)
+ 		ctcmpc_dumpit((char *)&ch->ccw[0], sizeof(struct ccw1) * 3);
+ 	rc = ccw_device_start(ch->cdev, &ch->ccw[0],
+@@ -1827,7 +1823,7 @@ static void ctcmpc_chx_send_sweep(fsm_instance *fsm, int event, void *arg)
+ 	fsm_newstate(wch->fsm, CTC_STATE_TX);
+ 
+ 	spin_lock_irqsave(get_ccwdev_lock(wch->cdev), saveflags);
+-	wch->prof.send_stamp = current_kernel_time(); /* xtime */
++	wch->prof.send_stamp = jiffies;
+ 	rc = ccw_device_start(wch->cdev, &wch->ccw[3],
+ 					(unsigned long) wch, 0xff, 0);
+ 	spin_unlock_irqrestore(get_ccwdev_lock(wch->cdev), saveflags);
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index e056dd4..05c37d6 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -567,7 +567,7 @@ static int ctcm_transmit_skb(struct channel *ch, struct sk_buff *skb)
+ 	fsm_newstate(ch->fsm, CTC_STATE_TX);
+ 	fsm_addtimer(&ch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, ch);
+ 	spin_lock_irqsave(get_ccwdev_lock(ch->cdev), saveflags);
+-	ch->prof.send_stamp = current_kernel_time(); /* xtime */
++	ch->prof.send_stamp = jiffies;
+ 	rc = ccw_device_start(ch->cdev, &ch->ccw[ccw_idx],
+ 					(unsigned long)ch, 0xff, 0);
+ 	spin_unlock_irqrestore(get_ccwdev_lock(ch->cdev), saveflags);
+@@ -831,7 +831,7 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
+ 					sizeof(struct ccw1) * 3);
+ 
+ 	spin_lock_irqsave(get_ccwdev_lock(ch->cdev), saveflags);
+-	ch->prof.send_stamp = current_kernel_time(); /* xtime */
++	ch->prof.send_stamp = jiffies;
+ 	rc = ccw_device_start(ch->cdev, &ch->ccw[ccw_idx],
+ 					(unsigned long)ch, 0xff, 0);
+ 	spin_unlock_irqrestore(get_ccwdev_lock(ch->cdev), saveflags);
+diff --git a/drivers/s390/net/ctcm_main.h b/drivers/s390/net/ctcm_main.h
+index 477c933..6f4417c 100644
+--- a/drivers/s390/net/ctcm_main.h
++++ b/drivers/s390/net/ctcm_main.h
+@@ -121,7 +121,7 @@ struct ctcm_profile {
+ 	unsigned long doios_multi;
+ 	unsigned long txlen;
+ 	unsigned long tx_time;
+-	struct timespec send_stamp;
++	unsigned long send_stamp;
+ };
+ 
+ /*
+diff --git a/drivers/s390/net/ctcm_sysfs.c b/drivers/s390/net/ctcm_sysfs.c
+index 47773c4..ddb0aa3 100644
+--- a/drivers/s390/net/ctcm_sysfs.c
++++ b/drivers/s390/net/ctcm_sysfs.c
+@@ -100,8 +100,8 @@ static void ctcm_print_statistics(struct ctcm_priv *priv)
+ 		     priv->channel[WRITE]->prof.doios_multi);
+ 	p += sprintf(p, "  Netto bytes written: %ld\n",
+ 		     priv->channel[WRITE]->prof.txlen);
+-	p += sprintf(p, "  Max. TX IO-time: %ld\n",
+-		     priv->channel[WRITE]->prof.tx_time);
++	p += sprintf(p, "  Max. TX IO-time: %u\n",
++		     jiffies_to_usecs(priv->channel[WRITE]->prof.tx_time));
+ 
+ 	printk(KERN_INFO "Statistics for %s:\n%s",
+ 				priv->channel[CTCM_WRITE]->netdev->name, sbuf);
+diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
+index 0a87809..7e91f54 100644
+--- a/drivers/s390/net/netiucv.c
++++ b/drivers/s390/net/netiucv.c
+@@ -178,7 +178,7 @@ struct connection_profile {
+ 	unsigned long doios_multi;
+ 	unsigned long txlen;
+ 	unsigned long tx_time;
+-	struct timespec send_stamp;
++	unsigned long send_stamp;
+ 	unsigned long tx_pending;
+ 	unsigned long tx_max_pending;
+ };
+@@ -786,7 +786,7 @@ static void conn_action_txdone(fsm_instance *fi, int event, void *arg)
+ 
+ 	header.next = 0;
+ 	memcpy(skb_put(conn->tx_buff, NETIUCV_HDRLEN), &header, NETIUCV_HDRLEN);
+-	conn->prof.send_stamp = current_kernel_time();
++	conn->prof.send_stamp = jiffies;
+ 	txmsg.class = 0;
+ 	txmsg.tag = 0;
+ 	rc = iucv_message_send(conn->path, &txmsg, 0, 0,
+@@ -1220,7 +1220,7 @@ static int netiucv_transmit_skb(struct iucv_connection *conn,
+ 		memcpy(skb_put(nskb, NETIUCV_HDRLEN), &header,  NETIUCV_HDRLEN);
+ 
+ 		fsm_newstate(conn->fsm, CONN_STATE_TX);
+-		conn->prof.send_stamp = current_kernel_time();
++		conn->prof.send_stamp = jiffies;
+ 
+ 		msg.tag = 1;
+ 		msg.class = 0;
 -- 
-1.9.3
+2.1.4
