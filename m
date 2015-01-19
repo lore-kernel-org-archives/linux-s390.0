@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1421400905.15194.15.camel@x220>
-Subject: [PATCH] [linux-next] s390: Dump check for CONFIG_ZFCPDUMP
-From: Paul Bolle <pebolle@tiscali.nl>
-Date: Fri, 16 Jan 2015 10:35:05 +0100
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Date: Mon, 19 Jan 2015 10:55:19 -0800
+From: Brian Norris <computersforpeace@gmail.com>
+Subject: Re: [PATCH 1/1] s390/net: Deletion of unnecessary checks before two
+ function calls
+Message-ID: <20150119185519.GK9759@ld-irv-0074>
+References: <530C5E18.1020800@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251014170.2080@hadrien>
+ <530CD2C4.4050903@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251840450.7035@hadrien>
+ <530CF8FF.8080600@users.sourceforge.net>
+ <20141103095059.GL6879@mwanda>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20141103095059.GL6879@mwanda>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Valentin Rothberg <valentinrothberg@gmail.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>, SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: Ursula Braun <ursula.braun@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Frank Blaschka <blaschka@linux.vnet.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Commit 725908110a1f ("s390: add SMT support") added a check for
-CONFIG_ZFCPDUMP. But the Kconfig symbol ZFCPDUMP was removed in v3.16
-through commit bf28a5970de3 ("s390/dump: Remove CONFIG_ZFCPDUMP"). So
-this check will always evaluate to false. No one noticed probably
-because the code also checks for CONFIG_CRASH_DUMP which "also enables
-s390 zfcpdump".
+I went digging through some of Markus's old patch history, and noticed
+this...
 
-Dump the unneeded check.
+On Mon, Nov 03, 2014 at 12:50:59PM +0300, Dan Carpenter wrote:
+> This one is buggy.
+> 
+> I'm sorry, but please stop sending these.
 
-Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
----
-This trivial issue popped up in next-20150116. If s390 commits can still
-be altered after they've hit linux-next this might just as well be
-folded into commit 725908110a1f ("s390: add SMT support").
+I'm tending to concur.
 
-Entirely untested!
+> For kfree(), at least we all know that kfree() accepts NULL pointer.
+> But for this one:
+> 1) I don't know what the functions do so I have to look at the code.
+> 2) It's in a arch that I don't compile so cscope isn't set up meaning
+>    it's hard to find the functions.
+> 
+> You're sending a lot of patches and they are all hard to review and some
+> of them are buggy and none of them really add any value.  It's a waste
+> of your time and it's a waste of my time.
 
- arch/s390/kernel/smp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+And you're still sending buggy patches that exhibit the same qualities.
+They're still wasting Dan's time, and now they're wasting mine.
 
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 370ff3a092a3..fd4a9308f95f 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -762,7 +762,7 @@ static void __init smp_detect_cpus(void)
- 			panic("Could not find boot CPU type");
- 	}
- 
--#if defined(CONFIG_ZFCPDUMP) || defined(CONFIG_CRASH_DUMP)
-+#if defined(CONFIG_CRASH_DUMP)
- 	/* Collect CPU state of previous system */
- 	smp_store_cpu_states(info);
- #endif
--- 
-1.9.3
+I appreciate automated checkers where they provide added value, but I
+really feel you haven't done your diligence on them.
+
+Regards,
+Brian
