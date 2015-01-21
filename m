@@ -1,60 +1,41 @@
-From: Hans-Christian Egtvedt <egtvedt@samfundet.no>
-Subject: Re: [PATCH 1/3] module_arch_freeing_init(): new hook for archs
- before module->module_init freed.
-Date: Thu, 8 Jan 2015 08:55:24 +0100
-Message-ID: <20150108075524.GA24522@samfundet.no>
-References: <1420678687-30548-1-git-send-email-rusty@rustcorp.com.au>
- <1420678687-30548-2-git-send-email-rusty@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-parisc-owner@vger.kernel.org>
-In-Reply-To: <1420678687-30548-2-git-send-email-rusty@rustcorp.com.au>
-List-Archive: <https://lore.kernel.org/linux-parisc/>
-List-Post: <mailto:linux-parisc@vger.kernel.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, Chris Metcalf <cmetcalf@ezchip.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org
+Return-Path: <linux-pci-owner@vger.kernel.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v3 10/16] s390: add pci_iomap_range
+In-Reply-To: <alpine.LFD.2.11.1501161051380.1742@denkbrett>
+References: <1421256142-11512-1-git-send-email-mst@redhat.com> <1421256142-11512-11-git-send-email-mst@redhat.com> <alpine.LFD.2.11.1501161051380.1742@denkbrett>
+Date: Wed, 21 Jan 2015 11:13:14 +1030
+Message-ID: <87fvb5arq5.fsf@rustcorp.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain
+Sender: linux-pci-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-pci/>
+List-Post: <mailto:linux-pci@vger.kernel.org>
+To: Sebastian Ott <sebott@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Cornelia Huck <cornelia.huck@de.ibm.com>, Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Around Thu 08 Jan 2015 11:28:05 +1030 or thereabout, Rusty Russell wrote:
-> Archs have been abusing module_free() to clean up their arch-specific
-> allocations.  Since module_free() is also (ab)used by BPF and trace code,
-> let's keep it to simple allocations, and provide a hook called before
-> that.
-> 
-> This means that avr32, ia64, parisc and s390 no longer need to implement
-> their own module_free() at all.  avr32 doesn't need module_finalize()
-> either.
+Sebastian Ott <sebott@linux.vnet.ibm.com> writes:
+> On Wed, 14 Jan 2015, Michael S. Tsirkin wrote:
+>>  }
+>> -EXPORT_SYMBOL_GPL(pci_iomap);
+>> +EXPORT_SYMBOL_GPL(pci_iomap_range);
+>> +
+>> +void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
+>> +{
+>> +	return pci_iomap_range(dev, bar, 0, maxlen);
+>> +}
+>> +EXPORT_SYMBOL(pci_iomap);
+>
+> As discussed earlier, could you please leave that as EXPORT_SYMBOL_GPL.
+> If there's a reason to have these interfaces as EXPORT_SYMBOL, we could
+> change all of them in an extra patch.
+>
+> With this change integrated you can add
+> Acked-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
 
-At a glance it looks sane.
+OK, I've gone back and rebased virtio-next to fix this (I don't really
+want to think too hard about the legal consequences of having a version
+which isn't EXPORT_SYMBOL_GPL).
 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: Chris Metcalf <cmetcalf@ezchip.com>
-> Cc: Haavard Skinnemoen <hskinnemoen@gmail.com>
-> Cc: Hans-Christian Egtvedt <egtvedt@samfundet.no>
-> Cc: Tony Luck <tony.luck@intel.com>
-> Cc: Fenghua Yu <fenghua.yu@intel.com>
-> Cc: "James E.J. Bottomley" <jejb@parisc-linux.org>
-> Cc: Helge Deller <deller@gmx.de>
-> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Cc: linux-kernel@vger.kernel.org
-> Cc: linux-ia64@vger.kernel.org
-> Cc: linux-parisc@vger.kernel.org
-> Cc: linux-s390@vger.kernel.org
-
-Acked-by: Hans-Christian Egtvedt <egtvedt@samfundet.no>
-
-> ---
->  arch/avr32/kernel/module.c   | 13 +------------
->  arch/ia64/kernel/module.c    |  6 ++----
->  arch/parisc/kernel/module.c  |  6 +-----
->  arch/s390/kernel/module.c    | 10 +++-------
->  arch/tile/kernel/module.c    |  2 +-
->  include/linux/moduleloader.h |  2 ++
->  kernel/module.c              |  7 +++++++
->  7 files changed, 17 insertions(+), 29 deletions(-)
-
-<snipp diff>
-
--- 
-HcE
+Thanks,
+Rusty.
