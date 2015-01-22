@@ -1,113 +1,27 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 14 Jan 2015 19:27:59 +0200
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 10/16] s390: add pci_iomap_range
-Message-ID: <1421256142-11512-11-git-send-email-mst@redhat.com>
-References: <1421256142-11512-1-git-send-email-mst@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1421256142-11512-1-git-send-email-mst@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-pci/>
-List-Post: <mailto:linux-pci@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Rusty Russell <rusty@rustcorp.com.au>, cornelia.huck@de.ibm.com, Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Sebastian Ott <sebott@linux.vnet.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org
+From: Christopher Li <sparse@chrisli.org>
+Subject: Re: [PATCH] s390x: add the proper defines for data types
+Date: Thu, 22 Jan 2015 09:52:56 -0800
+Message-ID: <CANeU7Qn9jD-ZX2CjSkVTyTu92b9qwM4XZqTOSUB5NDVpAdVMSQ@mail.gmail.com>
+References: <1421920310-1499-1-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sparse-owner@vger.kernel.org>
+In-Reply-To: <1421920310-1499-1-git-send-email-borntraeger@de.ibm.com>
+Sender: linux-sparse-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-sparse/>
+List-Post: <mailto:linux-sparse@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Linux-Sparse <linux-sparse@vger.kernel.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Virtio drivers should map the part of the range they need, not
-necessarily all of it.
-To this end, support mapping ranges within BAR on s390.
-Since multiple ranges can now be mapped within a BAR, we keep track of
-the number of mappings created, and only clear out the mapping for a BAR
-when this number reaches 0.
+On Thu, Jan 22, 2015 at 1:51 AM, Christian Borntraeger
+<borntraeger@de.ibm.com> wrote:
+> This patch fixes several issues when compiling code under s390x
+> (64bit) with cgcc, e.g.
+> /usr/include/gnu/stubs.h:8:12: error: unable to open 'gnu/stubs-32.h'
+> by providing the proper defines.
 
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org
-Tested-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
 
-Heiko, Martin, can you please ack merging this through the virtio tree?
-This was lightly tested by Sebastian Ott.
+The change looks good. Will apply.
 
- arch/s390/include/asm/pci_io.h |  1 +
- arch/s390/pci/pci.c            | 34 +++++++++++++++++++++++++++-------
- 2 files changed, 28 insertions(+), 7 deletions(-)
-
-diff --git a/arch/s390/include/asm/pci_io.h b/arch/s390/include/asm/pci_io.h
-index f664e96..1a9a98d 100644
---- a/arch/s390/include/asm/pci_io.h
-+++ b/arch/s390/include/asm/pci_io.h
-@@ -16,6 +16,7 @@
- struct zpci_iomap_entry {
- 	u32 fh;
- 	u8 bar;
-+	u16 count;
- };
- 
- extern struct zpci_iomap_entry *zpci_iomap_start;
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 3290f11..753a567 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -259,7 +259,10 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
- }
- 
- /* Create a virtual mapping cookie for a PCI BAR */
--void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
-+void __iomem *pci_iomap_range(struct pci_dev *pdev,
-+			      int bar,
-+			      unsigned long offset,
-+			      unsigned long max)
- {
- 	struct zpci_dev *zdev =	get_zdev(pdev);
- 	u64 addr;
-@@ -270,14 +273,27 @@ void __iomem *pci_iomap(struct pci_dev *pdev, int bar, unsigned long max)
- 
- 	idx = zdev->bars[bar].map_idx;
- 	spin_lock(&zpci_iomap_lock);
--	zpci_iomap_start[idx].fh = zdev->fh;
--	zpci_iomap_start[idx].bar = bar;
-+	if (zpci_iomap_start[idx].count++) {
-+		BUG_ON(zpci_iomap_start[idx].fh != zdev->fh ||
-+		       zpci_iomap_start[idx].bar != bar);
-+	} else {
-+		zpci_iomap_start[idx].fh = zdev->fh;
-+		zpci_iomap_start[idx].bar = bar;
-+	}
-+	/* Detect overrun */
-+	BUG_ON(!zpci_iomap_start[idx].count);
- 	spin_unlock(&zpci_iomap_lock);
- 
- 	addr = ZPCI_IOMAP_ADDR_BASE | ((u64) idx << 48);
--	return (void __iomem *) addr;
-+	return (void __iomem *) addr + offset;
- }
--EXPORT_SYMBOL_GPL(pci_iomap);
-+EXPORT_SYMBOL_GPL(pci_iomap_range);
-+
-+void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
-+{
-+	return pci_iomap_range(dev, bar, 0, maxlen);
-+}
-+EXPORT_SYMBOL(pci_iomap);
- 
- void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
- {
-@@ -285,8 +301,12 @@ void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
- 
- 	idx = (((__force u64) addr) & ~ZPCI_IOMAP_ADDR_BASE) >> 48;
- 	spin_lock(&zpci_iomap_lock);
--	zpci_iomap_start[idx].fh = 0;
--	zpci_iomap_start[idx].bar = 0;
-+	/* Detect underrun */
-+	BUG_ON(!zpci_iomap_start[idx].count);
-+	if (!--zpci_iomap_start[idx].count) {
-+		zpci_iomap_start[idx].fh = 0;
-+		zpci_iomap_start[idx].bar = 0;
-+	}
- 	spin_unlock(&zpci_iomap_lock);
- }
- EXPORT_SYMBOL_GPL(pci_iounmap);
--- 
-MST
+Chris
