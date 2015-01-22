@@ -1,101 +1,60 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <54C212A6.5030702@linux.intel.com>
-Date: Fri, 23 Jan 2015 17:21:42 +0800
-From: Jiang Liu <jiang.liu@linux.intel.com>
-MIME-Version: 1.0
-Subject: Re: [Resend Patch v4 14/16] smp, s390: Kill SMP single function call
- interrupt
-References: <1421991416-20297-1-git-send-email-jiang.liu@linux.intel.com> <1421991416-20297-15-git-send-email-jiang.liu@linux.intel.com> <20150123065410.GA5101@osiris>
-In-Reply-To: <20150123065410.GA5101@osiris>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, Michael Holzheu <holzheu@linux.vnet.ibm.com>, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, Borislav Petkov <bp@alien8.de>, Tony Luck <tony.luck@intel.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: kvms390 tree for Linux next
+Date: Fri, 23 Jan 2015 09:59:02 +1100
+Message-ID: <20150123095902.2181ce5b@canb.auug.org.au>
+References: <54C0FCD0.7080108@de.ibm.com>
+	<20150123083924.77942630@canb.auug.org.au>
+	<54C171B1.8030505@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/XlXfnT8=GICFsnHX.u/AMQH"; protocol="application/pgp-signature"
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <54C171B1.8030505@de.ibm.com>
+Sender: linux-next-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, linux-next <linux-next@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 2015/1/23 14:54, Heiko Carstens wrote:
-> On Fri, Jan 23, 2015 at 01:36:53PM +0800, Jiang Liu wrote:
->> Commit 9a46ad6d6df3b54 "smp: make smp_call_function_many() use logic
->> similar to smp_call_function_single()" has unified the way to handle
->> single and multiple cross-CPU function calls. Now only one interrupt
->> is needed for architecture specific code to support generic SMP function
->> call interfaces, so kill the redundant single function call interrupt.
->>
->> Signed-off-by: Jiang Liu <jiang.liu@linux.intel.com>
->> Acked-by: Heiko Carstens <heiko.carst...@de.ibm.com>
-> 
-> Is this really the patch I acked, whenever that was? Because the patch
-> description doesn't match what your patch does.
-> All it does is renaming ec_call_function_single to ec_call_function,
-> nothing else.
-> 
-> Could you please resend with a proper patch description?
-> Thanks!
-> 
->> ---
->>  arch/s390/kernel/smp.c |   10 +++++-----
->>  1 file changed, 5 insertions(+), 5 deletions(-)
->>
->> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
->> index 0b499f5cbe19..5b89eabc3a01 100644
->> --- a/arch/s390/kernel/smp.c
->> +++ b/arch/s390/kernel/smp.c
->> @@ -50,7 +50,7 @@
->>
->>  enum {
->>  	ec_schedule = 0,
->> -	ec_call_function_single,
->> +	ec_call_function,
->>  	ec_stop_cpu,
->>  };
->>
->> @@ -416,8 +416,8 @@ static void smp_handle_ext_call(void)
->>  		smp_stop_cpu();
->>  	if (test_bit(ec_schedule, &bits))
->>  		scheduler_ipi();
->> -	if (test_bit(ec_call_function_single, &bits))
->> -		generic_smp_call_function_single_interrupt();
-HI Heiko,
-	The background is that the generic smp_call_xxx() interfaces
-only use on interrupt now, previously it used two (FUNC_CALL and
-FUNC_CALL_SINGLE). So the whole patch set is to kill
-FUNC_CALL_SINGLE from all architectures.
-	Above code kills generic_smp_call_function_single_interrupt().
-We also replaces ec_call_function_single with ec_call_function so
-only one interrupt will be used to support smp_call_xxx().
-Regards!
-Gerry
+--Sig_/XlXfnT8=GICFsnHX.u/AMQH
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
->> +	if (test_bit(ec_call_function, &bits))
->> +		generic_smp_call_function_interrupt();
->>  }
->>
->>  static void do_ext_call_interrupt(struct ext_code ext_code,
->> @@ -432,12 +432,12 @@ void arch_send_call_function_ipi_mask(const struct cpumask *mask)
->>  	int cpu;
->>
->>  	for_each_cpu(cpu, mask)
->> -		pcpu_ec_call(pcpu_devices + cpu, ec_call_function_single);
->> +		pcpu_ec_call(pcpu_devices + cpu, ec_call_function);
->>  }
->>
->>  void arch_send_call_function_single_ipi(int cpu)
->>  {
->> -	pcpu_ec_call(pcpu_devices + cpu, ec_call_function_single);
->> +	pcpu_ec_call(pcpu_devices + cpu, ec_call_function);
->>  }
->>
->>  #ifndef CONFIG_64BIT
->> -- 
->> 1.7.10.4
->>
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Hi Christian,
+
+On Thu, 22 Jan 2015 22:54:57 +0100 Christian Borntraeger <borntraeger@de.ib=
+m.com> wrote:
+>
+> Please also add=20
+> "Cornelia Huck <cornelia.huck@de.ibm.com>"
+
+Done.
+
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+
+--Sig_/XlXfnT8=GICFsnHX.u/AMQH
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJUwYC/AAoJEMDTa8Ir7ZwVnWIP/jnvkiqfexd4KLwxae51HdQc
+BxwJ2q1O/UvmFicZB5vO3M02Rtf/eJ8CYRq/qnEiNt/Y3afWwiKmSuWCaExUX5h2
+tPqDQS9hUUpKcksI3XrDX17fvUb/VTTRekUIyXCijTSYXzBOIN2+EINuRTVVgp2t
+wcso3fUA+9nSvNkrbFqkboLGRoki1IRevuyud6zx1YnJK6+Z13pnxs3XeOoXn+f2
+ZNLsa+7vncvck6/fdoUM9rjjSts5fGtXBwyieFiwNQFayf4RDd4guYamBZEH/LB5
+qIel7se1Yy2ggiKIjwqLxGnFYZ5BhVb0rIhoqO2CGIQ/X7JOuoZx1OiadAuOu5oE
+OWGfLFCUz0QVwcaXaKwqTSx2N+hzEELyzxJn1r7SPyKioHlvf9EOmO46VofwEDPH
+pm6SjITwErhBJMYxe7gMCcD9XKlboKLHK/Q3j4YeIcPfU+rCxRdAPhH3Usk1ifP4
+I0p8VqtA7vnDQK6Msr3fzz0c7Bkmk5zeYWmurdDU9U58NWm0Wmvp0ebLLYme4H9u
+vXvYTdVJ8v0YzwF/LsL1S/wYMVWAk1YPRq1Nxo4P3UoT0vd19fR3rds3q9tFsxqq
+j1hIBcxYAfjQYtVSGrW7N+3r4R6+m6IB4r6JVcKjtQOIs2Zd1i3zZVK+87RH7/fm
+FMEpUl5rTHxOZnNaW20+
+=XxfG
+-----END PGP SIGNATURE-----
+
+--Sig_/XlXfnT8=GICFsnHX.u/AMQH--
