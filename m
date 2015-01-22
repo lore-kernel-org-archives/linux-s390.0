@@ -1,30 +1,40 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH/RFC 14/21] KVM: s390: clear the pfault queue if user space
- sets the invalid token
-Date: Mon, 19 Jan 2015 09:19:27 +0100
-Message-ID: <54BCBE0F.3050604@de.ibm.com>
-References: <1421329414-76826-1-git-send-email-borntraeger@de.ibm.com> <1421329414-76826-15-git-send-email-borntraeger@de.ibm.com> <20150117105009.GA12539@osiris>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH/RFC 01/21] KVM: remove unneeded return value of vcpu_postcreate
+Date: Thu, 22 Jan 2015 17:55:39 +0100
+Message-ID: <54C12B8B.7080506@redhat.com>
+References: <1421329414-76826-1-git-send-email-borntraeger@de.ibm.com> <1421329414-76826-2-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20150117105009.GA12539@osiris>
+In-Reply-To: <1421329414-76826-2-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Dominik Dingel <dingel@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Am 17.01.2015 um 11:50 schrieb Heiko Carstens:
-[...]
->> +/* for KVM_SYNC_PFAULT and KVM_REG_S390_PFTOKEN */
->> +#define KVM_S390_PFAULT_TOKEN_INVALID	0xffffffffffffffffUL
+
+
+On 15/01/2015 14:43, Christian Borntraeger wrote:
+> From: Dominik Dingel <dingel@linux.vnet.ibm.com>
 > 
-> uapi is for both 64 bit and (theoretically) also 32 bit. So this
-> should be 0xfff...ffULL instead of UL to prevent a different compat
-> ABI.
+> Only x86 and s390 provides such vcpu_postcreate implementation.
+> On s390 it can't fail and on x86 a fail is also impossible.
+> Additionally common code didn't care about return value.
+> So we just get rid of it.
 
-Thanks. Will fix up.
+s390 doesn't provide it as of this patch.  Perhaps clarify:
 
-Christian
+The return value of kvm_arch_vcpu_postcreate is not checked in its
+caller.  This is okay, because only x86 provides vcpu_postcreate right
+now and it could only fail if vcpu_load failed.  But that is not
+possible during KVM_CREATE_VCPU (kvm_arch_vcpu_load is void, too), so
+just get rid of the unchecked return value.
+
+Paolo
+
+> Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+> Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
