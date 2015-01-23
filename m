@@ -1,31 +1,82 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net 0/2] s390/qeth patches for net
-Date: Wed, 21 Jan 2015 13:39:08 +0100
-Message-ID: <1421843950-58220-1-git-send-email-ubraun@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com, ubraun@linux.vnet.ibm.com
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 14/24] KVM: s390: clear the pfault queue if user space sets the invalid token
+Date: Fri, 23 Jan 2015 13:37:19 +0100
+Message-ID: <1422016642-52513-3-git-send-email-borntraeger@de.ibm.com>
+References: <1422016642-52513-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1422016642-52513-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Alexander Graf <agraf@suse.de>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Hi Dave,
+We need a way to clear the async pfault queue from user space (e.g.
+for resets and SIGP SET ARCHITECTURE).
 
-here are two s390/qeth patches built for net.
-One patch is quite large, but we would like to fix the locking warning
-seen in recent kernels as soon as possible. But if you want me to submit
-these patches for net-next, I will do.
+This patch simply clears the queue as soon as user space sets the
+invalid pfault token. The definition of the invalid token is moved
+to uapi.
 
-shortlog:
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/include/asm/kvm_host.h | 1 -
+ arch/s390/include/uapi/asm/kvm.h | 3 +++
+ arch/s390/kvm/kvm-s390.c         | 4 ++++
+ 3 files changed, 7 insertions(+), 1 deletion(-)
 
-Eugene Crosser (1)
-qeth: clean up error handling
-
-Thomas-Mich Richter (1)
-qeth: Fix locking warning during qeth device setup
-
-Thanks,
-        Ursula
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 4de479e..b617052 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -469,7 +469,6 @@ struct kvm_vcpu_arch {
+ 	};
+ 	struct gmap *gmap;
+ 	struct kvm_guestdbg_info_arch guestdbg;
+-#define KVM_S390_PFAULT_TOKEN_INVALID	(-1UL)
+ 	unsigned long pfault_token;
+ 	unsigned long pfault_select;
+ 	unsigned long pfault_compare;
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index 9c01159..7e9165e 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -108,6 +108,9 @@ struct kvm_guest_debug_arch {
+ 	struct kvm_hw_breakpoint __user *hw_bp;
+ };
+ 
++/* for KVM_SYNC_PFAULT and KVM_REG_S390_PFTOKEN */
++#define KVM_S390_PFAULT_TOKEN_INVALID	0xffffffffffffffffULL
++
+ #define KVM_SYNC_PREFIX (1UL << 0)
+ #define KVM_SYNC_GPRS   (1UL << 1)
+ #define KVM_SYNC_ACRS   (1UL << 2)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 9bdc9f9..bfb2b99 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -936,6 +936,8 @@ static int kvm_arch_vcpu_ioctl_set_one_reg(struct kvm_vcpu *vcpu,
+ 	case KVM_REG_S390_PFTOKEN:
+ 		r = get_user(vcpu->arch.pfault_token,
+ 			     (u64 __user *)reg->addr);
++		if (vcpu->arch.pfault_token == KVM_S390_PFAULT_TOKEN_INVALID)
++			kvm_clear_async_pf_completion_queue(vcpu);
+ 		break;
+ 	case KVM_REG_S390_PFCOMPARE:
+ 		r = get_user(vcpu->arch.pfault_compare,
+@@ -1408,6 +1410,8 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 		vcpu->arch.pfault_token = kvm_run->s.regs.pft;
+ 		vcpu->arch.pfault_select = kvm_run->s.regs.pfs;
+ 		vcpu->arch.pfault_compare = kvm_run->s.regs.pfc;
++		if (vcpu->arch.pfault_token == KVM_S390_PFAULT_TOKEN_INVALID)
++			kvm_clear_async_pf_completion_queue(vcpu);
+ 	}
+ 	kvm_run->kvm_dirty_regs = 0;
+ }
+-- 
+1.9.3
