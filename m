@@ -1,136 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 22 Jan 2015 12:41:02 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for 3.19-rc6
-Message-ID: <20150122124102.20fa57f9@mschwide>
+Date: Fri, 23 Jan 2015 10:32:00 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [Resend Patch v4 14/16] smp, s390: Kill SMP single function call
+ interrupt
+Message-ID: <20150123093200.GB5101@osiris>
+References: <1421991416-20297-1-git-send-email-jiang.liu@linux.intel.com>
+ <1421991416-20297-15-git-send-email-jiang.liu@linux.intel.com>
+ <20150123065410.GA5101@osiris>
+ <54C212A6.5030702@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <54C212A6.5030702@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Jiang Liu <jiang.liu@linux.intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, Michael Holzheu <holzheu@linux.vnet.ibm.com>, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, Borislav Petkov <bp@alien8.de>, Tony Luck <tony.luck@intel.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+On Fri, Jan 23, 2015 at 05:21:42PM +0800, Jiang Liu wrote:
+> On 2015/1/23 14:54, Heiko Carstens wrote:
+> > On Fri, Jan 23, 2015 at 01:36:53PM +0800, Jiang Liu wrote:
+> >> Commit 9a46ad6d6df3b54 "smp: make smp_call_function_many() use logic
+> >> similar to smp_call_function_single()" has unified the way to handle
+> >> single and multiple cross-CPU function calls. Now only one interrupt
+> >> is needed for architecture specific code to support generic SMP function
+> >> call interfaces, so kill the redundant single function call interrupt.
+> >>
+> >> Signed-off-by: Jiang Liu <jiang.liu@linux.intel.com>
+> >> Acked-by: Heiko Carstens <heiko.carst...@de.ibm.com>
+> > 
+> > Is this really the patch I acked, whenever that was? Because the patch
+> > description doesn't match what your patch does.
+> > All it does is renaming ec_call_function_single to ec_call_function,
+> > nothing else.
+> > 
+> > Could you please resend with a proper patch description?
+> > Thanks!
+> > 
+> >> ---
+> >>  arch/s390/kernel/smp.c |   10 +++++-----
+> >>  1 file changed, 5 insertions(+), 5 deletions(-)
+> >>
+> >> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+> >> index 0b499f5cbe19..5b89eabc3a01 100644
+> >> --- a/arch/s390/kernel/smp.c
+> >> +++ b/arch/s390/kernel/smp.c
+> >> @@ -50,7 +50,7 @@
+> >>
+> >>  enum {
+> >>  	ec_schedule = 0,
+> >> -	ec_call_function_single,
+> >> +	ec_call_function,
+> >>  	ec_stop_cpu,
+> >>  };
+> >>
+> >> @@ -416,8 +416,8 @@ static void smp_handle_ext_call(void)
+> >>  		smp_stop_cpu();
+> >>  	if (test_bit(ec_schedule, &bits))
+> >>  		scheduler_ipi();
+> >> -	if (test_bit(ec_call_function_single, &bits))
+> >> -		generic_smp_call_function_single_interrupt();
+> HI Heiko,
+> 	The background is that the generic smp_call_xxx() interfaces
+> only use on interrupt now, previously it used two (FUNC_CALL and
+> FUNC_CALL_SINGLE). So the whole patch set is to kill
+> FUNC_CALL_SINGLE from all architectures.
+> 	Above code kills generic_smp_call_function_single_interrupt().
+> We also replaces ec_call_function_single with ec_call_function so
+> only one interrupt will be used to support smp_call_xxx().
 
-please pull from the 'for-linus' branch of
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
-
-to receive the following updates:
-
-Five more bug fixes from Michael for the s390 BPF jit.
-
-Michael Holzheu (5):
-      s390/bpf: Fix JMP_JGE_K (A >= K) and JMP_JGT_K (A > K)
-      s390/bpf: Fix skb_copy_bits() parameter passing
-      s390/bpf: Fix offset parameter for skb_copy_bits()
-      s390/bpf: Fix sk_load_byte_msh()
-      s390/bpf: Zero extend parameters before calling C function
-
- arch/s390/net/bpf_jit.S      | 28 ++++++++++++++++------------
- arch/s390/net/bpf_jit_comp.c |  9 +++------
- 2 files changed, 19 insertions(+), 18 deletions(-)
-
-diff --git a/arch/s390/net/bpf_jit.S b/arch/s390/net/bpf_jit.S
-index 7e45d13..ba44c9f 100644
---- a/arch/s390/net/bpf_jit.S
-+++ b/arch/s390/net/bpf_jit.S
-@@ -22,8 +22,8 @@
-  * skb_copy_bits takes 4 parameters:
-  *   %r2 = skb pointer
-  *   %r3 = offset into skb data
-- *   %r4 = length to copy
-- *   %r5 = pointer to temp buffer
-+ *   %r4 = pointer to temp buffer
-+ *   %r5 = length to copy
-  */
- #define SKBDATA	%r8
- 
-@@ -44,8 +44,9 @@ ENTRY(sk_load_word)
- 
- sk_load_word_slow:
- 	lgr	%r9,%r2			# save %r2
--	lhi	%r4,4			# 4 bytes
--	la	%r5,160(%r15)		# pointer to temp buffer
-+	lgr	%r3,%r1			# offset
-+	la	%r4,160(%r15)		# pointer to temp buffer
-+	lghi	%r5,4			# 4 bytes
- 	brasl	%r14,skb_copy_bits	# get data from skb
- 	l	%r5,160(%r15)		# load result from temp buffer
- 	ltgr	%r2,%r2			# set cc to (%r2 != 0)
-@@ -69,8 +70,9 @@ ENTRY(sk_load_half)
- 
- sk_load_half_slow:
- 	lgr	%r9,%r2			# save %r2
--	lhi	%r4,2			# 2 bytes
--	la	%r5,162(%r15)		# pointer to temp buffer
-+	lgr	%r3,%r1			# offset
-+	la	%r4,162(%r15)		# pointer to temp buffer
-+	lghi	%r5,2			# 2 bytes
- 	brasl	%r14,skb_copy_bits	# get data from skb
- 	xc	160(2,%r15),160(%r15)
- 	l	%r5,160(%r15)		# load result from temp buffer
-@@ -95,8 +97,9 @@ ENTRY(sk_load_byte)
- 
- sk_load_byte_slow:
- 	lgr	%r9,%r2			# save %r2
--	lhi	%r4,1			# 1 bytes
--	la	%r5,163(%r15)		# pointer to temp buffer
-+	lgr	%r3,%r1			# offset
-+	la	%r4,163(%r15)		# pointer to temp buffer
-+	lghi	%r5,1			# 1 byte
- 	brasl	%r14,skb_copy_bits	# get data from skb
- 	xc	160(3,%r15),160(%r15)
- 	l	%r5,160(%r15)		# load result from temp buffer
-@@ -104,11 +107,11 @@ sk_load_byte_slow:
- 	lgr	%r2,%r9			# restore %r2
- 	br	%r8
- 
--	/* A = (*(u8 *)(skb->data+K) & 0xf) << 2 */
-+	/* X = (*(u8 *)(skb->data+K) & 0xf) << 2 */
- ENTRY(sk_load_byte_msh)
- 	llgfr	%r1,%r3			# extend offset
- 	clr	%r11,%r3		# hlen < offset ?
--	jle	sk_load_byte_slow
-+	jle	sk_load_byte_msh_slow
- 	lhi	%r12,0
- 	ic	%r12,0(%r1,%r10)	# get byte from skb
- 	nill	%r12,0x0f
-@@ -118,8 +121,9 @@ ENTRY(sk_load_byte_msh)
- 
- sk_load_byte_msh_slow:
- 	lgr	%r9,%r2			# save %r2
--	lhi	%r4,2			# 2 bytes
--	la	%r5,162(%r15)		# pointer to temp buffer
-+	lgr	%r3,%r1			# offset
-+	la	%r4,163(%r15)		# pointer to temp buffer
-+	lghi	%r5,1			# 1 byte
- 	brasl	%r14,skb_copy_bits	# get data from skb
- 	xc	160(3,%r15),160(%r15)
- 	l	%r12,160(%r15)		# load result from temp buffer
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 524496d..bbd1981 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -448,15 +448,12 @@ static int bpf_jit_insn(struct bpf_jit *jit, struct sock_filter *filter,
- 		mask = 0x800000; /* je */
- kbranch:	/* Emit compare if the branch targets are different */
- 		if (filter->jt != filter->jf) {
--			if (K <= 16383)
--				/* chi %r5,<K> */
--				EMIT4_IMM(0xa75e0000, K);
--			else if (test_facility(21))
-+			if (test_facility(21))
- 				/* clfi %r5,<K> */
- 				EMIT6_IMM(0xc25f0000, K);
- 			else
--				/* c %r5,<d(K)>(%r13) */
--				EMIT4_DISP(0x5950d000, EMIT_CONST(K));
-+				/* cl %r5,<d(K)>(%r13) */
-+				EMIT4_DISP(0x5550d000, EMIT_CONST(K));
- 		}
- branch:		if (filter->jt == filter->jf) {
- 			if (filter->jt == 0)
+Ah right, I missed that while looking at your patch. Apologies!
