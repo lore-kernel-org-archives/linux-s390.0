@@ -1,49 +1,114 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 23/24] KVM: s390: fix bug in interrupt parameter check
-Date: Fri, 23 Jan 2015 13:37:21 +0100
-Message-ID: <1422016642-52513-5-git-send-email-borntraeger@de.ibm.com>
-References: <1422016642-52513-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1422016642-52513-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Philipp Hachtmann <phacht@linux.vnet.ibm.com>
+Subject: [PATCH 1/3] sched: Support for CPU runtime and SMT based adaption
+Date: Fri, 30 Jan 2015 15:02:40 +0100
+Message-Id: <1422626562-6966-2-git-send-email-phacht@linux.vnet.ibm.com>
+In-Reply-To: <1422626562-6966-1-git-send-email-phacht@linux.vnet.ibm.com>
+References: <1422626562-6966-1-git-send-email-phacht@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: mingo@redhat.com, peterz@infradead.org, linux-kernel@vger.kernel.org
+Cc: heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, Philipp Hachtmann <phacht@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Jens Freimann <jfrei@linux.vnet.ibm.com>
+On virtualized systems like s390 the CPU runtimes used for the
+scheduler's calculations must be adapted to correctly represent real cpu
+working time instead of slices of wall time.
+Furthermore this real cpu runtime may have to be further adapted on SMT
+CPUs depending on the number of threads (Linux: CPUs) being active in
+the same core.
 
-When we convert interrupt data from struct kvm_s390_interrupt to
-struct kvm_s390_irq we need to check the data in the input parameter
-not the output parameter.
+This patch changes some calls to sched_clock_cpu into calls to cpu_exec_time.
+cpu_exec_time is defined as sched_clock_cpu by default but can be overridden
+by architecture code to provide precise CPU runtime timestamps.
 
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+One might think that it would be better to override the weak symbol sched_clock
+instead of adding something new. This seems to be impossible because
+sched_clock is used by other facilities (like printk timestamping) which assume
+it to deliver wall time instead of some pure virtual time stamp which differs
+from CPU to CPU.
+
+The second hook is a call to an architecture function scale_rq_clock_delta
+which additionally scales the calculated delta by an SMT based factor.
+
+Signed-off-by: Philipp Hachtmann <phacht@linux.vnet.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/sched/core.c  | 4 +++-
+ kernel/sched/fair.c  | 8 ++++----
+ kernel/sched/sched.h | 8 ++++++++
+ 3 files changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 6d7513e..60d9edd0 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1354,12 +1354,12 @@ int s390int_to_s390irq(struct kvm_s390_interrupt *s390int,
- 		irq->u.stop.flags = s390int->parm;
- 		break;
- 	case KVM_S390_INT_EXTERNAL_CALL:
--		if (irq->u.extcall.code & 0xffff0000)
-+		if (s390int->parm & 0xffff0000)
- 			return -EINVAL;
- 		irq->u.extcall.code = s390int->parm;
- 		break;
- 	case KVM_S390_INT_EMERGENCY:
--		if (irq->u.emerg.code & 0xffff0000)
-+		if (s390int->parm & 0xffff0000)
- 			return -EINVAL;
- 		irq->u.emerg.code = s390int->parm;
- 		break;
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 89e7283..c611055 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -122,9 +122,11 @@ void update_rq_clock(struct rq *rq)
+ 	if (rq->skip_clock_update > 0)
+ 		return;
+ 
+-	delta = sched_clock_cpu(cpu_of(rq)) - rq->clock;
++	delta = cpu_exec_time(cpu_of(rq)) - rq->clock;
+ 	if (delta < 0)
+ 		return;
++
++	scale_rq_clock_delta(&delta);
+ 	rq->clock += delta;
+ 	update_rq_clock_task(rq, delta);
+ }
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index ef2b104..4921d1d 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3180,7 +3180,7 @@ static inline u64 sched_cfs_bandwidth_slice(void)
+ 
+ /*
+  * Replenish runtime according to assigned quota and update expiration time.
+- * We use sched_clock_cpu directly instead of rq->clock to avoid adding
++ * We use cpu_exec_time directly instead of rq->clock to avoid adding
+  * additional synchronization around rq->lock.
+  *
+  * requires cfs_b->lock
+@@ -3192,7 +3192,7 @@ void __refill_cfs_bandwidth_runtime(struct cfs_bandwidth *cfs_b)
+ 	if (cfs_b->quota == RUNTIME_INF)
+ 		return;
+ 
+-	now = sched_clock_cpu(smp_processor_id());
++	now = cpu_exec_time(smp_processor_id());
+ 	cfs_b->runtime = cfs_b->quota;
+ 	cfs_b->runtime_expires = now + ktime_to_ns(cfs_b->period);
+ }
+@@ -6969,13 +6969,13 @@ static int idle_balance(struct rq *this_rq)
+ 		}
+ 
+ 		if (sd->flags & SD_BALANCE_NEWIDLE) {
+-			t0 = sched_clock_cpu(this_cpu);
++			t0 = cpu_exec_time(this_cpu);
+ 
+ 			pulled_task = load_balance(this_cpu, this_rq,
+ 						   sd, CPU_NEWLY_IDLE,
+ 						   &continue_balancing);
+ 
+-			domain_cost = sched_clock_cpu(this_cpu) - t0;
++			domain_cost = cpu_exec_time(this_cpu) - t0;
+ 			if (domain_cost > sd->max_newidle_lb_cost)
+ 				sd->max_newidle_lb_cost = domain_cost;
+ 
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 2df8ef0..720664f 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -1569,3 +1569,11 @@ static inline u64 irq_time_read(int cpu)
+ }
+ #endif /* CONFIG_64BIT */
+ #endif /* CONFIG_IRQ_TIME_ACCOUNTING */
++
++#ifndef cpu_exec_time
++#define cpu_exec_time sched_clock_cpu
++#endif
++
++#ifndef scale_rq_clock_delta
++#define scale_rq_clock_delta(arg)
++#endif
 -- 
-1.9.3
+2.1.4
