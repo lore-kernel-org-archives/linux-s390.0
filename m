@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 7/7] KVM: s390: Create ioctl for Getting/Setting guest storage keys
-Date: Wed,  4 Feb 2015 10:44:52 +0100
-Message-ID: <1423043092-34044-8-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 5/7] KVM: s390: use facilities and cpu_id per KVM
+Date: Wed,  4 Feb 2015 10:44:50 +0100
+Message-ID: <1423043092-34044-6-git-send-email-borntraeger@de.ibm.com>
 References: <1423043092-34044-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1423043092-34044-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,277 +9,358 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Alexander Graf <agraf@suse.de>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Alexander Graf <agraf@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: "Jason J. Herne" <jjherne@linux.vnet.ibm.com>
+From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-Provide the KVM_S390_GET_SKEYS and KVM_S390_SET_SKEYS ioctl which can be used
-to get/set guest storage keys. This functionality is needed for live migration
-of s390 guests that use storage keys.
+The patch introduces facilities and cpu_ids per virtual machine.
+Different virtual machines may want to expose different facilities and
+cpu ids to the guest, so let's make them per-vm instead of global.
 
-Signed-off-by: Jason J. Herne <jjherne@linux.vnet.ibm.com>
+Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- Documentation/virtual/kvm/api.txt |  58 ++++++++++++++++++
- arch/s390/kvm/kvm-s390.c          | 121 ++++++++++++++++++++++++++++++++++++++
- include/uapi/linux/kvm.h          |  14 +++++
- 3 files changed, 193 insertions(+)
+ arch/s390/include/asm/kvm_host.h | 21 +++++++++
+ arch/s390/kvm/gaccess.c          |  4 +-
+ arch/s390/kvm/kvm-s390.c         | 92 +++++++++++++++++++++++++---------------
+ arch/s390/kvm/kvm-s390.h         | 13 ++++--
+ arch/s390/kvm/priv.c             | 13 ++++--
+ 5 files changed, 99 insertions(+), 44 deletions(-)
 
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index b112efc..20c0dac 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -2716,6 +2716,64 @@ The fields in each entry are defined as follows:
-    eax, ebx, ecx, edx: the values returned by the cpuid instruction for
-          this function/index combination
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 09b6c1f..995a598 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -505,6 +505,26 @@ struct s390_io_adapter {
+ #define MAX_S390_IO_ADAPTERS ((MAX_ISC + 1) * 8)
+ #define MAX_S390_ADAPTER_MAPS 256
  
-+4.89 KVM_S390_GET_SKEYS
++/* maximum size of facilities and facility mask is 2k bytes */
++#define S390_ARCH_FAC_LIST_SIZE_BYTE (1<<11)
++#define S390_ARCH_FAC_LIST_SIZE_U64 \
++	(S390_ARCH_FAC_LIST_SIZE_BYTE / sizeof(u64))
++#define S390_ARCH_FAC_MASK_SIZE_BYTE S390_ARCH_FAC_LIST_SIZE_BYTE
++#define S390_ARCH_FAC_MASK_SIZE_U64 \
++	(S390_ARCH_FAC_MASK_SIZE_BYTE / sizeof(u64))
 +
-+Capability: KVM_CAP_S390_SKEYS
-+Architectures: s390
-+Type: vm ioctl
-+Parameters: struct kvm_s390_skeys
-+Returns: 0 on success, KVM_S390_GET_KEYS_NONE if guest is not using storage
-+         keys, negative value on error
-+
-+This ioctl is used to get guest storage key values on the s390
-+architecture. The ioctl takes parameters via the kvm_s390_skeys struct.
-+
-+struct kvm_s390_skeys {
-+	__u64 start_gfn;
-+	__u64 count;
-+	__u64 skeydata_addr;
-+	__u32 flags;
-+	__u32 reserved[9];
++struct s390_model_fac {
++	/* facilities used in SIE context */
++	__u64 sie[S390_ARCH_FAC_LIST_SIZE_U64];
++	/* subset enabled by kvm */
++	__u64 kvm[S390_ARCH_FAC_LIST_SIZE_U64];
 +};
 +
-+The start_gfn field is the number of the first guest frame whose storage keys
-+you want to get.
++struct kvm_s390_cpu_model {
++	struct s390_model_fac *fac;
++	struct cpuid cpu_id;
++};
 +
-+The count field is the number of consecutive frames (starting from start_gfn)
-+whose storage keys to get. The count field must be at least 1 and the maximum
-+allowed value is defined as KVM_S390_SKEYS_ALLOC_MAX. Values outside this range
-+will cause the ioctl to return -EINVAL.
-+
-+The skeydata_addr field is the address to a buffer large enough to hold count
-+bytes. This buffer will be filled with storage key data by the ioctl.
-+
-+4.90 KVM_S390_SET_SKEYS
-+
-+Capability: KVM_CAP_S390_SKEYS
-+Architectures: s390
-+Type: vm ioctl
-+Parameters: struct kvm_s390_skeys
-+Returns: 0 on success, negative value on error
-+
-+This ioctl is used to set guest storage key values on the s390
-+architecture. The ioctl takes parameters via the kvm_s390_skeys struct.
-+See section on KVM_S390_GET_SKEYS for struct definition.
-+
-+The start_gfn field is the number of the first guest frame whose storage keys
-+you want to set.
-+
-+The count field is the number of consecutive frames (starting from start_gfn)
-+whose storage keys to get. The count field must be at least 1 and the maximum
-+allowed value is defined as KVM_S390_SKEYS_ALLOC_MAX. Values outside this range
-+will cause the ioctl to return -EINVAL.
-+
-+The skeydata_addr field is the address to a buffer containing count bytes of
-+storage keys. Each byte in the buffer will be set as the storage key for a
-+single frame starting at start_gfn for count frames.
-+
-+Note: If any architecturally invalid key value is found in the given data then
-+the ioctl will return -EINVAL.
-+
- 5. The kvm_run structure
- ------------------------
+ struct kvm_s390_crypto {
+ 	struct kvm_s390_crypto_cb *crycb;
+ 	__u32 crycbd;
+@@ -535,6 +555,7 @@ struct kvm_arch{
+ 	int ipte_lock_count;
+ 	struct mutex ipte_mutex;
+ 	spinlock_t start_stop_lock;
++	struct kvm_s390_cpu_model model;
+ 	struct kvm_s390_crypto crypto;
+ 	u64 epoch;
+ };
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 8a1be90..267523c 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -357,8 +357,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
+ 	union asce asce;
  
+ 	ctlreg0.val = vcpu->arch.sie_block->gcr[0];
+-	edat1 = ctlreg0.edat && test_vfacility(8);
+-	edat2 = edat1 && test_vfacility(78);
++	edat1 = ctlreg0.edat && test_kvm_facility(vcpu->kvm, 8);
++	edat2 = edat1 && test_kvm_facility(vcpu->kvm, 78);
+ 	asce.val = get_vcpu_asce(vcpu);
+ 	if (asce.r)
+ 		goto real_address;
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 9da937a..97c9795 100644
+index 57ba533..ab8b016 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -25,6 +25,7 @@
- #include <linux/random.h>
- #include <linux/slab.h>
- #include <linux/timer.h>
-+#include <linux/vmalloc.h>
- #include <asm/asm-offsets.h>
- #include <asm/lowcore.h>
+@@ -30,7 +30,6 @@
  #include <asm/pgtable.h>
-@@ -708,6 +709,106 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	return ret;
+ #include <asm/nmi.h>
+ #include <asm/switch_to.h>
+-#include <asm/facility.h>
+ #include <asm/sclp.h>
+ #include "kvm-s390.h"
+ #include "gaccess.h"
+@@ -99,15 +98,20 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
+ 	{ NULL }
+ };
+ 
+-unsigned long *vfacilities;
+-static struct gmap_notifier gmap_notifier;
++/* upper facilities limit for kvm */
++unsigned long kvm_s390_fac_list_mask[] = {
++	0xff82fffbf4fc2000UL,
++	0x005c000000000000UL,
++};
+ 
+-/* test availability of vfacility */
+-int test_vfacility(unsigned long nr)
++unsigned long kvm_s390_fac_list_mask_size(void)
+ {
+-	return __test_facility(nr, (void *) vfacilities);
++	BUILD_BUG_ON(ARRAY_SIZE(kvm_s390_fac_list_mask) > S390_ARCH_FAC_MASK_SIZE_U64);
++	return ARRAY_SIZE(kvm_s390_fac_list_mask);
  }
  
-+static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
-+{
-+	uint8_t *keys;
-+	uint64_t hva;
-+	unsigned long curkey;
-+	int i, r = 0;
++static struct gmap_notifier gmap_notifier;
 +
-+	if (args->flags != 0)
-+		return -EINVAL;
-+
-+	/* Is this guest using storage keys? */
-+	if (!mm_use_skey(current->mm))
-+		return KVM_S390_GET_SKEYS_NONE;
-+
-+	/* Enforce sane limit on memory allocation */
-+	if (args->count < 1 || args->count > KVM_S390_SKEYS_MAX)
-+		return -EINVAL;
-+
-+	keys = kmalloc_array(args->count, sizeof(uint8_t), GFP_KERNEL);
-+	if (!keys)
-+		keys = vmalloc(sizeof(uint8_t) * args->count);
-+	if (!keys)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < args->count; i++) {
-+		hva = gfn_to_hva(kvm, args->start_gfn + i);
-+		if (kvm_is_error_hva(hva)) {
-+			r = -EFAULT;
-+			goto out;
-+		}
-+
-+		curkey = get_guest_storage_key(current->mm, hva);
-+		if (IS_ERR_VALUE(curkey)) {
-+			r = curkey;
-+			goto out;
-+		}
-+		keys[i] = curkey;
-+	}
-+
-+	r = copy_to_user((uint8_t __user *)args->skeydata_addr, keys,
-+			 sizeof(uint8_t) * args->count);
-+	if (r)
-+		r = -EFAULT;
-+out:
-+	kvfree(keys);
-+	return r;
-+}
-+
-+static long kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
-+{
-+	uint8_t *keys;
-+	uint64_t hva;
-+	int i, r = 0;
-+
-+	if (args->flags != 0)
-+		return -EINVAL;
-+
-+	/* Enforce sane limit on memory allocation */
-+	if (args->count < 1 || args->count > KVM_S390_SKEYS_MAX)
-+		return -EINVAL;
-+
-+	keys = kmalloc_array(args->count, sizeof(uint8_t), GFP_KERNEL);
-+	if (!keys)
-+		keys = vmalloc(sizeof(uint8_t) * args->count);
-+	if (!keys)
-+		return -ENOMEM;
-+
-+	r = copy_from_user(keys, (uint8_t __user *)args->skeydata_addr,
-+			   sizeof(uint8_t) * args->count);
-+	if (r) {
-+		r = -EFAULT;
-+		goto out;
-+	}
-+
-+	/* Enable storage key handling for the guest */
-+	s390_enable_skey();
-+
-+	for (i = 0; i < args->count; i++) {
-+		hva = gfn_to_hva(kvm, args->start_gfn + i);
-+		if (kvm_is_error_hva(hva)) {
-+			r = -EFAULT;
-+			goto out;
-+		}
-+
-+		/* Lowest order bit is reserved */
-+		if (keys[i] & 0x01) {
-+			r = -EINVAL;
-+			goto out;
-+		}
-+
-+		r = set_guest_storage_key(current->mm, hva,
-+					  (unsigned long)keys[i], 0);
-+		if (r)
-+			goto out;
-+	}
-+out:
-+	kvfree(keys);
-+	return r;
-+}
-+
- long kvm_arch_vm_ioctl(struct file *filp,
- 		       unsigned int ioctl, unsigned long arg)
+ /* Section: not file related */
+ int kvm_arch_hardware_enable(void)
  {
-@@ -767,6 +868,26 @@ long kvm_arch_vm_ioctl(struct file *filp,
- 		r = kvm_s390_vm_has_attr(kvm, &attr);
- 		break;
- 	}
-+	case KVM_S390_GET_SKEYS: {
-+		struct kvm_s390_skeys args;
+@@ -350,7 +354,7 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	struct kvm_vcpu *vcpu;
+ 	int i;
+ 
+-	if (!test_vfacility(76))
++	if (!test_kvm_facility(kvm, 76))
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&kvm->lock);
+@@ -699,9 +703,15 @@ static void kvm_s390_set_crycb_format(struct kvm *kvm)
+ 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
+ }
+ 
++static void kvm_s390_get_cpu_id(struct cpuid *cpu_id)
++{
++	get_cpu_id(cpu_id);
++	cpu_id->version = 0xff;
++}
 +
-+		r = -EFAULT;
-+		if (copy_from_user(&args, argp,
-+				   sizeof(struct kvm_s390_skeys)))
-+			break;
-+		r = kvm_s390_get_skeys(kvm, &args);
-+		break;
+ static int kvm_s390_crypto_init(struct kvm *kvm)
+ {
+-	if (!test_vfacility(76))
++	if (!test_kvm_facility(kvm, 76))
+ 		return 0;
+ 
+ 	kvm->arch.crypto.crycb = kzalloc(sizeof(*kvm->arch.crypto.crycb),
+@@ -720,7 +730,7 @@ static int kvm_s390_crypto_init(struct kvm *kvm)
+ 
+ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ {
+-	int rc;
++	int i, rc;
+ 	char debug_name[16];
+ 	static unsigned long sca_offset;
+ 
+@@ -755,6 +765,34 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 	if (!kvm->arch.dbf)
+ 		goto out_nodbf;
+ 
++	/*
++	 * The architectural maximum amount of facilities is 16 kbit. To store
++	 * this amount, 2 kbyte of memory is required. Thus we need a full
++	 * page to hold the active copy (arch.model.fac->sie) and the current
++	 * facilities set (arch.model.fac->kvm). Its address size has to be
++	 * 31 bits and word aligned.
++	 */
++	kvm->arch.model.fac =
++		(struct s390_model_fac *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
++	if (!kvm->arch.model.fac)
++		goto out_nofac;
++
++	memcpy(kvm->arch.model.fac->kvm, S390_lowcore.stfle_fac_list,
++	       S390_ARCH_FAC_LIST_SIZE_U64);
++
++	/*
++	 * Apply the kvm facility mask to limit the kvm supported/tolerated
++	 * facility list.
++	 */
++	for (i = 0; i < S390_ARCH_FAC_LIST_SIZE_U64; i++) {
++		if (i < kvm_s390_fac_list_mask_size())
++			kvm->arch.model.fac->kvm[i] &= kvm_s390_fac_list_mask[i];
++		else
++			kvm->arch.model.fac->kvm[i] = 0UL;
 +	}
-+	case KVM_S390_SET_SKEYS: {
-+		struct kvm_s390_skeys args;
 +
-+		r = -EFAULT;
-+		if (copy_from_user(&args, argp,
-+				   sizeof(struct kvm_s390_skeys)))
-+			break;
-+		r = kvm_s390_set_skeys(kvm, &args);
-+		break;
-+	}
- 	default:
- 		r = -ENOTTY;
++	kvm_s390_get_cpu_id(&kvm->arch.model.cpu_id);
++
+ 	if (kvm_s390_crypto_init(kvm) < 0)
+ 		goto out_crypto;
+ 
+@@ -786,6 +824,8 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ out_nogmap:
+ 	kfree(kvm->arch.crypto.crycb);
+ out_crypto:
++	free_page((unsigned long)kvm->arch.model.fac);
++out_nofac:
+ 	debug_unregister(kvm->arch.dbf);
+ out_nodbf:
+ 	free_page((unsigned long)(kvm->arch.sca));
+@@ -838,6 +878,7 @@ static void kvm_free_vcpus(struct kvm *kvm)
+ void kvm_arch_destroy_vm(struct kvm *kvm)
+ {
+ 	kvm_free_vcpus(kvm);
++	free_page((unsigned long)kvm->arch.model.fac);
+ 	free_page((unsigned long)(kvm->arch.sca));
+ 	debug_unregister(kvm->arch.dbf);
+ 	kfree(kvm->arch.crypto.crycb);
+@@ -933,7 +974,7 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
+ 
+ static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
+ {
+-	if (!test_vfacility(76))
++	if (!test_kvm_facility(vcpu->kvm, 76))
+ 		return;
+ 
+ 	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
+@@ -972,7 +1013,7 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
+ 						    CPUSTAT_STOPPED |
+ 						    CPUSTAT_GED);
+ 	vcpu->arch.sie_block->ecb   = 6;
+-	if (test_vfacility(50) && test_vfacility(73))
++	if (test_kvm_facility(vcpu->kvm, 50) && test_kvm_facility(vcpu->kvm, 73))
+ 		vcpu->arch.sie_block->ecb |= 0x10;
+ 
+ 	vcpu->arch.sie_block->ecb2  = 8;
+@@ -981,7 +1022,6 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.sie_block->eca |= 1;
+ 	if (sclp_has_sigpif())
+ 		vcpu->arch.sie_block->eca |= 0x10000000U;
+-	vcpu->arch.sie_block->fac   = (int) (long) vfacilities;
+ 	vcpu->arch.sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE |
+ 				      ICTL_TPROT;
+ 
+@@ -992,8 +1032,10 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
  	}
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 8055706..e1d696b 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -147,6 +147,16 @@ struct kvm_pit_config {
- 
- #define KVM_PIT_SPEAKER_DUMMY     1
- 
-+struct kvm_s390_skeys {
-+	__u64 start_gfn;
-+	__u64 count;
-+	__u64 skeydata_addr;
-+	__u32 flags;
-+	__u32 reserved[9];
-+};
-+#define KVM_S390_GET_SKEYS_NONE   1
-+#define KVM_S390_SKEYS_MAX        1048576
+ 	hrtimer_init(&vcpu->arch.ckc_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+ 	vcpu->arch.ckc_timer.function = kvm_s390_idle_wakeup;
+-	get_cpu_id(&vcpu->arch.cpu_id);
+-	vcpu->arch.cpu_id.version = 0xff;
 +
- #define KVM_EXIT_UNKNOWN          0
- #define KVM_EXIT_EXCEPTION        1
- #define KVM_EXIT_IO               2
-@@ -760,6 +770,7 @@ struct kvm_ppc_smmu_info {
- #define KVM_CAP_PPC_ENABLE_HCALL 104
- #define KVM_CAP_CHECK_EXTENSION_VM 105
- #define KVM_CAP_S390_USER_SIGP 106
-+#define KVM_CAP_S390_SKEYS 107
++	vcpu->arch.cpu_id = vcpu->kvm->arch.model.cpu_id;
++	memcpy(vcpu->kvm->arch.model.fac->sie, vcpu->kvm->arch.model.fac->kvm,
++	       S390_ARCH_FAC_LIST_SIZE_BYTE);
  
- #ifdef KVM_CAP_IRQ_ROUTING
+ 	kvm_s390_vcpu_crypto_setup(vcpu);
  
-@@ -1135,6 +1146,9 @@ struct kvm_s390_ucas_mapping {
- #define KVM_ARM_VCPU_INIT	  _IOW(KVMIO,  0xae, struct kvm_vcpu_init)
- #define KVM_ARM_PREFERRED_TARGET  _IOR(KVMIO,  0xaf, struct kvm_vcpu_init)
- #define KVM_GET_REG_LIST	  _IOWR(KVMIO, 0xb0, struct kvm_reg_list)
-+/* Available with KVM_CAP_S390_SKEYS */
-+#define KVM_S390_GET_SKEYS      _IOW(KVMIO, 0xb1, struct kvm_s390_skeys)
-+#define KVM_S390_SET_SKEYS      _IOW(KVMIO, 0xb2, struct kvm_s390_skeys)
+@@ -1037,6 +1079,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
+ 		vcpu->arch.sie_block->scaol = (__u32)(__u64)kvm->arch.sca;
+ 		set_bit(63 - id, (unsigned long *) &kvm->arch.sca->mcn);
+ 	}
++	vcpu->arch.sie_block->fac = (int) (long) kvm->arch.model.fac->sie;
  
- #define KVM_DEV_ASSIGN_ENABLE_IOMMU	(1 << 0)
- #define KVM_DEV_ASSIGN_PCI_2_3		(1 << 1)
+ 	spin_lock_init(&vcpu->arch.local_int.lock);
+ 	vcpu->arch.local_int.float_int = &kvm->arch.float_int;
+@@ -2102,30 +2145,11 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
+ 
+ static int __init kvm_s390_init(void)
+ {
+-	int ret;
+-	ret = kvm_init(NULL, sizeof(struct kvm_vcpu), 0, THIS_MODULE);
+-	if (ret)
+-		return ret;
+-
+-	/*
+-	 * guests can ask for up to 255+1 double words, we need a full page
+-	 * to hold the maximum amount of facilities. On the other hand, we
+-	 * only set facilities that are known to work in KVM.
+-	 */
+-	vfacilities = (unsigned long *) get_zeroed_page(GFP_KERNEL|GFP_DMA);
+-	if (!vfacilities) {
+-		kvm_exit();
+-		return -ENOMEM;
+-	}
+-	memcpy(vfacilities, S390_lowcore.stfle_fac_list, 16);
+-	vfacilities[0] &= 0xff82fffbf4fc2000UL;
+-	vfacilities[1] &= 0x005c000000000000UL;
+-	return 0;
++	return kvm_init(NULL, sizeof(struct kvm_vcpu), 0, THIS_MODULE);
+ }
+ 
+ static void __exit kvm_s390_exit(void)
+ {
+-	free_page((unsigned long) vfacilities);
+ 	kvm_exit();
+ }
+ 
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index c22dce8..985c211 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -18,12 +18,10 @@
+ #include <linux/hrtimer.h>
+ #include <linux/kvm.h>
+ #include <linux/kvm_host.h>
++#include <asm/facility.h>
+ 
+ typedef int (*intercept_handler_t)(struct kvm_vcpu *vcpu);
+ 
+-/* declare vfacilities extern */
+-extern unsigned long *vfacilities;
+-
+ /* Transactional Memory Execution related macros */
+ #define IS_TE_ENABLED(vcpu)	((vcpu->arch.sie_block->ecb & 0x10))
+ #define TDB_FORMAT1		1
+@@ -127,6 +125,12 @@ static inline void kvm_s390_set_psw_cc(struct kvm_vcpu *vcpu, unsigned long cc)
+ 	vcpu->arch.sie_block->gpsw.mask |= cc << 44;
+ }
+ 
++/* test availability of facility in a kvm intance */
++static inline int test_kvm_facility(struct kvm *kvm, unsigned long nr)
++{
++	return __test_facility(nr, kvm->arch.model.fac->kvm);
++}
++
+ /* are cpu states controlled by user space */
+ static inline int kvm_s390_user_cpu_state_ctrl(struct kvm *kvm)
+ {
+@@ -183,7 +187,8 @@ int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu);
+ void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu);
+ /* is cmma enabled */
+ bool kvm_s390_cmma_enabled(struct kvm *kvm);
+-int test_vfacility(unsigned long nr);
++unsigned long kvm_s390_fac_list_mask_size(void);
++extern unsigned long kvm_s390_fac_list_mask[];
+ 
+ /* implemented in diag.c */
+ int kvm_s390_handle_diag(struct kvm_vcpu *vcpu);
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 1be578d..bdd9b5b 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -337,19 +337,24 @@ static int handle_io_inst(struct kvm_vcpu *vcpu)
+ static int handle_stfl(struct kvm_vcpu *vcpu)
+ {
+ 	int rc;
++	unsigned int fac;
+ 
+ 	vcpu->stat.instruction_stfl++;
+ 
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+ 
++	/*
++	 * We need to shift the lower 32 facility bits (bit 0-31) from a u64
++	 * into a u32 memory representation. They will remain bits 0-31.
++	 */
++	fac = *vcpu->kvm->arch.model.fac->sie >> 32;
+ 	rc = write_guest_lc(vcpu, offsetof(struct _lowcore, stfl_fac_list),
+-			    vfacilities, 4);
++			    &fac, sizeof(fac));
+ 	if (rc)
+ 		return rc;
+-	VCPU_EVENT(vcpu, 5, "store facility list value %x",
+-		   *(unsigned int *) vfacilities);
+-	trace_kvm_s390_handle_stfl(vcpu, *(unsigned int *) vfacilities);
++	VCPU_EVENT(vcpu, 5, "store facility list value %x", fac);
++	trace_kvm_s390_handle_stfl(vcpu, fac);
+ 	return 0;
+ }
+ 
 -- 
 1.9.3
