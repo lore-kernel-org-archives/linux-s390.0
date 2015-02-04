@@ -1,44 +1,61 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 3/7] s390/kernel: Update /proc/sysinfo file with Extended
- Name and UUID
-Date: Thu, 05 Feb 2015 12:13:23 +0100
-Message-ID: <54D35053.2020900@redhat.com>
-References: <1423043092-34044-1-git-send-email-borntraeger@de.ibm.com> <1423043092-34044-4-git-send-email-borntraeger@de.ibm.com> <54D21757.7020300@redhat.com> <54D2182B.9090800@de.ibm.com> <54D218B8.7050201@redhat.com> <54D273B4.1080009@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 0/7] KVM: s390: fixes and features for kvm/next (3.20)
+Date: Wed,  4 Feb 2015 10:44:45 +0100
+Message-ID: <1423043092-34044-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <54D273B4.1080009@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Alexander Graf <agraf@suse.de>, Ekaterina Tumanova <tumanova@linux.vnet.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+Paolo,
 
+here is my remaining bunch of patches for 3.20 for review. All patches
+have been in linux-next via
+git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git next
+(well a tiny fix went in today, so the commit id for the last 3 patches
+has changed)
 
-On 04/02/2015 20:32, Christian Borntraeger wrote:
-> 
-> A new architecture extends STSI 3.2.2 with UUID and long names. KVM will
-> provide the first implementation. This patch adds the additional data 
-> fields (Extended Name and UUID) from the 4KB block returned by the STSI 
-> 3.2.2 command and reflect this information in the /proc/sysinfo file
-> accordingly. 
+I think it makes sense to give some of these patches some more days
+for external review. Is it ok to send a pull request early next week
+or do you want it before 3.19?
 
-Great.
+There is one non-KVM s390 patch, but it has an ACK from Heiko Carstens
 
-> This is is non-KVM code, but developed by the KVM team. The patch is 
-> acked by Heiko Carstens to go over the KVM tree.
+Christian Borntraeger (1):
+  KVM: s390: reenable LPP facility
 
-The last two lines are not even necessary (the explanation of "why" is
-in the first paragraph, the explanation of "how" is in the
-Signed-off-bys and Acked-by).
+David Hildenbrand (1):
+  KVM: s390: floating irqs: fix user triggerable endless loop
 
-Paolo
+Ekaterina Tumanova (1):
+  s390/kernel: Update /proc/sysinfo file with Extended Name and UUID
 
-> Signed-off-by: Ekaterina Tumanova <tumanova@linux.vnet.ibm.com>
-> Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-> Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Jason J. Herne (1):
+  KVM: s390: Create ioctl for Getting/Setting guest storage keys
+
+Michael Mueller (2):
+  KVM: s390: use facilities and cpu_id per KVM
+  KVM: s390: add cpu model support
+
+Tony Krowiak (1):
+  KVM: s390/CPACF: Choose crypto control block format
+
+ Documentation/virtual/kvm/api.txt        |  58 +++++
+ Documentation/virtual/kvm/devices/vm.txt |  45 ++++
+ arch/s390/include/asm/kvm_host.h         |  27 ++-
+ arch/s390/include/asm/sysinfo.h          |  10 +-
+ arch/s390/include/uapi/asm/kvm.h         |  21 ++
+ arch/s390/kernel/sysinfo.c               |  29 +++
+ arch/s390/kvm/gaccess.c                  |   4 +-
+ arch/s390/kvm/interrupt.c                |   2 +
+ arch/s390/kvm/kvm-s390.c                 | 394 ++++++++++++++++++++++++++++---
+ arch/s390/kvm/kvm-s390.h                 |  13 +-
+ arch/s390/kvm/priv.c                     |  13 +-
+ include/uapi/linux/kvm.h                 |  14 ++
+ 12 files changed, 580 insertions(+), 50 deletions(-)
+
+-- 
+1.9.3
