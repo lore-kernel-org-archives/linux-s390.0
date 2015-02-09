@@ -1,118 +1,79 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 4/7] KVM: s390/CPACF: Choose crypto control block format
-Date: Mon,  9 Feb 2015 13:33:44 +0100
-Message-ID: <1423485227-51721-5-git-send-email-borntraeger@de.ibm.com>
-References: <1423485227-51721-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 0/7] KVM: s390: fixes and features for kvm/next (3.20)
+Date: Mon,  9 Feb 2015 13:33:40 +0100
+Message-ID: <1423485227-51721-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1423485227-51721-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Alexander Graf <agraf@suse.de>, Tony Krowiak <akrowiak@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
+Paolo,
 
-We need to specify a different format for the crypto control block
-depending on whether the APXA facility is installed or not. Let's
-test for it by executing the PQAP(QCI) function and use either a
-format-1 or a format-2 crypto control block accordingly. This is a
-host only change for z13 and does not affect the guest view.
+some minor changes since last posting
+- I dropped the storage key interface due to some review comments
+- added the removal of compat support on s390
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |  2 ++
- arch/s390/kvm/kvm-s390.c         | 49 ++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 49 insertions(+), 2 deletions(-)
+The following changes since commit f7819512996361280b86259222456fcf15aad926:
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index f79058e..77ae014 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -163,6 +163,7 @@ struct kvm_s390_sie_block {
- 	__u64	tecmc;			/* 0x00e8 */
- 	__u8	reservedf0[12];		/* 0x00f0 */
- #define CRYCB_FORMAT1 0x00000001
-+#define CRYCB_FORMAT2 0x00000003
- 	__u32	crycbd;			/* 0x00fc */
- 	__u64	gcr[16];		/* 0x0100 */
- 	__u64	gbea;			/* 0x0180 */
-@@ -516,6 +517,7 @@ struct kvm_s390_crypto_cb {
- 	__u8    reserved00[72];                 /* 0x0000 */
- 	__u8    dea_wrapping_key_mask[24];      /* 0x0048 */
- 	__u8    aes_wrapping_key_mask[32];      /* 0x0060 */
-+	__u8    reserved80[128];                /* 0x0080 */
- };
- 
- struct kvm_arch{
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 3acf08b..deac473 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -654,6 +654,52 @@ long kvm_arch_vm_ioctl(struct file *filp,
- 	return r;
- }
- 
-+static int kvm_s390_query_ap_config(u8 *config)
-+{
-+	u32 fcn_code = 0x04000000UL;
-+	u32 cc;
-+
-+	asm volatile(
-+		"lgr 0,%1\n"
-+		"lgr 2,%2\n"
-+		".long 0xb2af0000\n"		/* PQAP(QCI) */
-+		"ipm %0\n"
-+		"srl %0,28\n"
-+		: "=r" (cc)
-+		: "r" (fcn_code), "r" (config)
-+		: "cc", "0", "2", "memory"
-+	);
-+
-+	return cc;
-+}
-+
-+static int kvm_s390_apxa_installed(void)
-+{
-+	u8 config[128];
-+	int cc;
-+
-+	if (test_facility(2) && test_facility(12)) {
-+		cc = kvm_s390_query_ap_config(config);
-+
-+		if (cc)
-+			pr_err("PQAP(QCI) failed with cc=%d", cc);
-+		else
-+			return config[0] & 0x40;
-+	}
-+
-+	return 0;
-+}
-+
-+static void kvm_s390_set_crycb_format(struct kvm *kvm)
-+{
-+	kvm->arch.crypto.crycbd = (__u32)(unsigned long) kvm->arch.crypto.crycb;
-+
-+	if (kvm_s390_apxa_installed())
-+		kvm->arch.crypto.crycbd |= CRYCB_FORMAT2;
-+	else
-+		kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
-+}
-+
- static int kvm_s390_crypto_init(struct kvm *kvm)
- {
- 	if (!test_vfacility(76))
-@@ -664,8 +710,7 @@ static int kvm_s390_crypto_init(struct kvm *kvm)
- 	if (!kvm->arch.crypto.crycb)
- 		return -ENOMEM;
- 
--	kvm->arch.crypto.crycbd = (__u32) (unsigned long) kvm->arch.crypto.crycb |
--				  CRYCB_FORMAT1;
-+	kvm_s390_set_crycb_format(kvm);
- 
- 	/* Disable AES/DEA protected key functions by default */
- 	kvm->arch.crypto.aes_kw = 0;
--- 
-1.9.3
+  kvm: add halt_poll_ns module parameter (2015-02-06 13:08:37 +0100)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-20150209
+
+for you to fetch changes up to de8e5d744051568c8aad35c1c2dcf8fd137d10c9:
+
+  KVM: Disable compat ioctl for s390 (2015-02-09 12:44:14 +0100)
+
+----------------------------------------------------------------
+KVM: s390: fixes and features for kvm/next (3.20)
+
+1. Fixes
+- Fix user triggerable endless loop
+- reenable LPP facility
+- disable KVM compat ioctl on s390 (untested and broken)
+
+2. cpu models for s390
+- provide facilities and instruction blocking per VM
+- add s390 specific vm attributes for setting values
+
+3. crypto
+- toleration patch for z13 support
+
+4. add uuid and long name to /proc/sysinfo (stsi 322)
+- patch Acked by Heiko Carstens (touches non-kvm s390 code)
+
+----------------------------------------------------------------
+Christian Borntraeger (2):
+      KVM: s390: reenable LPP facility
+      KVM: Disable compat ioctl for s390
+
+David Hildenbrand (1):
+      KVM: s390: floating irqs: fix user triggerable endless loop
+
+Ekaterina Tumanova (1):
+      s390/kernel: Update /proc/sysinfo file with Extended Name and UUID
+
+Michael Mueller (2):
+      KVM: s390: use facilities and cpu_id per KVM
+      KVM: s390: add cpu model support
+
+Tony Krowiak (1):
+      KVM: s390/CPACF: Choose crypto control block format
+
+ Documentation/virtual/kvm/devices/vm.txt |  45 +++++
+ arch/s390/include/asm/kvm_host.h         |  27 ++-
+ arch/s390/include/asm/sysinfo.h          |  10 +-
+ arch/s390/include/uapi/asm/kvm.h         |  21 +++
+ arch/s390/kernel/sysinfo.c               |  29 ++++
+ arch/s390/kvm/gaccess.c                  |   4 +-
+ arch/s390/kvm/interrupt.c                |   2 +
+ arch/s390/kvm/kvm-s390.c                 | 273 +++++++++++++++++++++++++++----
+ arch/s390/kvm/kvm-s390.h                 |  13 +-
+ arch/s390/kvm/priv.c                     |  13 +-
+ virt/kvm/Kconfig                         |   4 +
+ virt/kvm/kvm_main.c                      |  12 +-
+ 12 files changed, 397 insertions(+), 56 deletions(-)
