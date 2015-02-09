@@ -1,10 +1,10 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 4/7] KVM: s390/CPACF: Choose crypto control block format
-Date: Wed,  4 Feb 2015 10:44:49 +0100
-Message-ID: <1423043092-34044-5-git-send-email-borntraeger@de.ibm.com>
-References: <1423043092-34044-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 4/7] KVM: s390/CPACF: Choose crypto control block format
+Date: Mon,  9 Feb 2015 13:33:44 +0100
+Message-ID: <1423485227-51721-5-git-send-email-borntraeger@de.ibm.com>
+References: <1423485227-51721-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1423043092-34044-1-git-send-email-borntraeger@de.ibm.com>
+In-Reply-To: <1423485227-51721-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -15,9 +15,10 @@ List-ID: <linux-s390.vger.kernel.org>
 From: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 
 We need to specify a different format for the crypto control block
-depending on whether the APXA facility is installed or not. Let's test
-for it by executing the PQAP(QCI) function and use either a format-1 or
-a format-2 crypto control block accordingly.
+depending on whether the APXA facility is installed or not. Let's
+test for it by executing the PQAP(QCI) function and use either a
+format-1 or a format-2 crypto control block accordingly. This is a
+host only change for z13 and does not affect the guest view.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
@@ -27,7 +28,7 @@ Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
  2 files changed, 49 insertions(+), 2 deletions(-)
 
 diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index d1ecc7f..09b6c1f 100644
+index f79058e..77ae014 100644
 --- a/arch/s390/include/asm/kvm_host.h
 +++ b/arch/s390/include/asm/kvm_host.h
 @@ -163,6 +163,7 @@ struct kvm_s390_sie_block {
@@ -38,7 +39,7 @@ index d1ecc7f..09b6c1f 100644
  	__u32	crycbd;			/* 0x00fc */
  	__u64	gcr[16];		/* 0x0100 */
  	__u64	gbea;			/* 0x0180 */
-@@ -515,6 +516,7 @@ struct kvm_s390_crypto_cb {
+@@ -516,6 +517,7 @@ struct kvm_s390_crypto_cb {
  	__u8    reserved00[72];                 /* 0x0000 */
  	__u8    dea_wrapping_key_mask[24];      /* 0x0048 */
  	__u8    aes_wrapping_key_mask[32];      /* 0x0060 */
@@ -47,10 +48,10 @@ index d1ecc7f..09b6c1f 100644
  
  struct kvm_arch{
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 57f5538..57ba533 100644
+index 3acf08b..deac473 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -653,6 +653,52 @@ long kvm_arch_vm_ioctl(struct file *filp,
+@@ -654,6 +654,52 @@ long kvm_arch_vm_ioctl(struct file *filp,
  	return r;
  }
  
@@ -103,7 +104,7 @@ index 57f5538..57ba533 100644
  static int kvm_s390_crypto_init(struct kvm *kvm)
  {
  	if (!test_vfacility(76))
-@@ -663,8 +709,7 @@ static int kvm_s390_crypto_init(struct kvm *kvm)
+@@ -664,8 +710,7 @@ static int kvm_s390_crypto_init(struct kvm *kvm)
  	if (!kvm->arch.crypto.crycb)
  		return -ENOMEM;
  
