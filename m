@@ -1,366 +1,263 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 5/7] KVM: s390: use facilities and cpu_id per KVM
-Date: Mon,  9 Feb 2015 13:33:45 +0100
-Message-ID: <1423485227-51721-6-git-send-email-borntraeger@de.ibm.com>
-References: <1423485227-51721-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1423485227-51721-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+From: Michael Mueller <mimu@linux.vnet.ibm.com>
+Subject: [RFC PATCH v2 11/15] cpu-model/s390: Add QMP command
+	query-cpu-model
+Date: Tue, 17 Feb 2015 15:24:09 +0100
+Message-ID: <1424183053-4310-12-git-send-email-mimu@linux.vnet.ibm.com>
+References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+In-Reply-To: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Alexander Graf <agraf@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Michael Mueller <mimu@linux.vnet.ibm.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
+This patch implements a new QMP request named 'query-cpu-model'.
+It returns the cpu model of cpu 0 and its backing accelerator.
 
-The patch introduces facilities and cpu_ids per virtual machine.
-Different virtual machines may want to expose different facilities and
-cpu ids to the guest, so let's make them per-vm instead of global.
+request:
+  {"execute" : "query-cpu-model" }
+
+answer:
+  {"return" : {"name": "2827-ga2", "accelerator": "kvm" }}
+
+Alias names are resolved to their respective machine type and GA names
+already during cpu instantiation. Thus, also a cpu model like 'host'
+which is implemented as alias will return its normalized cpu model name.
+
+Furthermore the patch implements the following functions:
+
+- s390_cpu_typename(), returns the currently selected cpu type name or NULL
+- s390_cpu_models_used(), returns true if S390 cpu models are in use
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h | 21 +++++++++
- arch/s390/kvm/gaccess.c          |  4 +-
- arch/s390/kvm/kvm-s390.c         | 92 +++++++++++++++++++++++++---------------
- arch/s390/kvm/kvm-s390.h         | 13 ++++--
- arch/s390/kvm/priv.c             | 13 ++++--
- 5 files changed, 99 insertions(+), 44 deletions(-)
+ include/sysemu/arch_init.h |  1 +
+ qapi-schema.json           | 23 +++++++++++++++++++++++
+ qmp-commands.hx            |  6 ++++++
+ qmp.c                      |  5 +++++
+ stubs/Makefile.objs        |  1 +
+ stubs/arch-query-cpu-mod.c |  9 +++++++++
+ target-s390x/cpu-models.c  | 25 +++++++++++++++++++++++++
+ target-s390x/cpu-models.h  |  2 ++
+ target-s390x/cpu.c         | 32 ++++++++++++++++++++++++++++++++
+ 9 files changed, 104 insertions(+)
+ create mode 100644 stubs/arch-query-cpu-mod.c
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 77ae014..79dc3b0 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -506,6 +506,26 @@ struct s390_io_adapter {
- #define MAX_S390_IO_ADAPTERS ((MAX_ISC + 1) * 8)
- #define MAX_S390_ADAPTER_MAPS 256
+diff --git a/include/sysemu/arch_init.h b/include/sysemu/arch_init.h
+index 54b36c1..86344a2 100644
+--- a/include/sysemu/arch_init.h
++++ b/include/sysemu/arch_init.h
+@@ -37,5 +37,6 @@ int kvm_available(void);
+ int xen_available(void);
  
-+/* maximum size of facilities and facility mask is 2k bytes */
-+#define S390_ARCH_FAC_LIST_SIZE_BYTE (1<<11)
-+#define S390_ARCH_FAC_LIST_SIZE_U64 \
-+	(S390_ARCH_FAC_LIST_SIZE_BYTE / sizeof(u64))
-+#define S390_ARCH_FAC_MASK_SIZE_BYTE S390_ARCH_FAC_LIST_SIZE_BYTE
-+#define S390_ARCH_FAC_MASK_SIZE_U64 \
-+	(S390_ARCH_FAC_MASK_SIZE_BYTE / sizeof(u64))
+ CpuDefinitionInfoList *arch_query_cpu_definitions(Error **errp);
++CpuModelInfo *arch_query_cpu_model(Error **errp);
+ 
+ #endif
+diff --git a/qapi-schema.json b/qapi-schema.json
+index 4d237c8..9431fc2 100644
+--- a/qapi-schema.json
++++ b/qapi-schema.json
+@@ -2507,6 +2507,29 @@
+ ##
+ { 'command': 'query-cpu-definitions', 'returns': ['CpuDefinitionInfo'] }
+ 
++##
++# @CpuModelInfo:
++#
++# Virtual CPU model definition.
++#
++# @name: the name of the CPU model definition
++#
++# Since: 2.3.0
++##
++{ 'type': 'CpuModelInfo',
++  'data': { 'name': 'str', '*accelerator': 'AccelId' } }
 +
-+struct s390_model_fac {
-+	/* facilities used in SIE context */
-+	__u64 sie[S390_ARCH_FAC_LIST_SIZE_U64];
-+	/* subset enabled by kvm */
-+	__u64 kvm[S390_ARCH_FAC_LIST_SIZE_U64];
-+};
++##
++# @query-cpu-model:
++#
++# Return to current virtual CPU model
++#
++# Returns: CpuModelInfo
++#
++# Since: 2.3.0
++##
++{ 'command': 'query-cpu-model', 'returns': 'CpuModelInfo' }
 +
-+struct kvm_s390_cpu_model {
-+	struct s390_model_fac *fac;
-+	struct cpuid cpu_id;
-+};
+ # @AddfdInfo:
+ #
+ # Information about a file descriptor that was added to an fd set.
+diff --git a/qmp-commands.hx b/qmp-commands.hx
+index a85d847..98bfedd 100644
+--- a/qmp-commands.hx
++++ b/qmp-commands.hx
+@@ -3392,6 +3392,12 @@ EQMP
+     },
+ 
+     {
++        .name       = "query-cpu-model",
++        .args_type  = "",
++        .mhandler.cmd_new = qmp_marshal_input_query_cpu_model,
++    },
 +
- struct kvm_s390_crypto {
- 	struct kvm_s390_crypto_cb *crycb;
- 	__u32 crycbd;
-@@ -536,6 +556,7 @@ struct kvm_arch{
- 	int ipte_lock_count;
- 	struct mutex ipte_mutex;
- 	spinlock_t start_stop_lock;
-+	struct kvm_s390_cpu_model model;
- 	struct kvm_s390_crypto crypto;
- 	u64 epoch;
- };
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 8a1be90..267523c 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -357,8 +357,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
- 	union asce asce;
- 
- 	ctlreg0.val = vcpu->arch.sie_block->gcr[0];
--	edat1 = ctlreg0.edat && test_vfacility(8);
--	edat2 = edat1 && test_vfacility(78);
-+	edat1 = ctlreg0.edat && test_kvm_facility(vcpu->kvm, 8);
-+	edat2 = edat1 && test_kvm_facility(vcpu->kvm, 78);
- 	asce.val = get_vcpu_asce(vcpu);
- 	if (asce.r)
- 		goto real_address;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index deac473..8c538a1 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -30,7 +30,6 @@
- #include <asm/pgtable.h>
- #include <asm/nmi.h>
- #include <asm/switch_to.h>
--#include <asm/facility.h>
- #include <asm/sclp.h>
- #include "kvm-s390.h"
- #include "gaccess.h"
-@@ -100,15 +99,20 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
- 	{ NULL }
- };
- 
--unsigned long *vfacilities;
--static struct gmap_notifier gmap_notifier;
-+/* upper facilities limit for kvm */
-+unsigned long kvm_s390_fac_list_mask[] = {
-+	0xff82fffbf4fc2000UL,
-+	0x005c000000000000UL,
-+};
- 
--/* test availability of vfacility */
--int test_vfacility(unsigned long nr)
-+unsigned long kvm_s390_fac_list_mask_size(void)
- {
--	return __test_facility(nr, (void *) vfacilities);
-+	BUILD_BUG_ON(ARRAY_SIZE(kvm_s390_fac_list_mask) > S390_ARCH_FAC_MASK_SIZE_U64);
-+	return ARRAY_SIZE(kvm_s390_fac_list_mask);
++    {
+         .name       = "query-target",
+         .args_type  = "",
+         .mhandler.cmd_new = qmp_marshal_input_query_target,
+diff --git a/qmp.c b/qmp.c
+index 6b2c4be..d32abbc 100644
+--- a/qmp.c
++++ b/qmp.c
+@@ -568,6 +568,11 @@ CpuDefinitionInfoList *qmp_query_cpu_definitions(Error **errp)
+     return arch_query_cpu_definitions(errp);
  }
  
-+static struct gmap_notifier gmap_notifier;
-+
- /* Section: not file related */
- int kvm_arch_hardware_enable(void)
- {
-@@ -351,7 +355,7 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
- 	struct kvm_vcpu *vcpu;
- 	int i;
- 
--	if (!test_vfacility(76))
-+	if (!test_kvm_facility(kvm, 76))
- 		return -EINVAL;
- 
- 	mutex_lock(&kvm->lock);
-@@ -700,9 +704,15 @@ static void kvm_s390_set_crycb_format(struct kvm *kvm)
- 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
- }
- 
-+static void kvm_s390_get_cpu_id(struct cpuid *cpu_id)
++CpuModelInfo *qmp_query_cpu_model(Error **errp)
 +{
-+	get_cpu_id(cpu_id);
-+	cpu_id->version = 0xff;
++    return arch_query_cpu_model(errp);
 +}
 +
- static int kvm_s390_crypto_init(struct kvm *kvm)
- {
--	if (!test_vfacility(76))
-+	if (!test_kvm_facility(kvm, 76))
- 		return 0;
- 
- 	kvm->arch.crypto.crycb = kzalloc(sizeof(*kvm->arch.crypto.crycb),
-@@ -721,7 +731,7 @@ static int kvm_s390_crypto_init(struct kvm *kvm)
- 
- int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- {
--	int rc;
-+	int i, rc;
- 	char debug_name[16];
- 	static unsigned long sca_offset;
- 
-@@ -756,6 +766,34 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	if (!kvm->arch.dbf)
- 		goto out_nodbf;
- 
-+	/*
-+	 * The architectural maximum amount of facilities is 16 kbit. To store
-+	 * this amount, 2 kbyte of memory is required. Thus we need a full
-+	 * page to hold the active copy (arch.model.fac->sie) and the current
-+	 * facilities set (arch.model.fac->kvm). Its address size has to be
-+	 * 31 bits and word aligned.
-+	 */
-+	kvm->arch.model.fac =
-+		(struct s390_model_fac *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+	if (!kvm->arch.model.fac)
-+		goto out_nofac;
+ void qmp_add_client(const char *protocol, const char *fdname,
+                     bool has_skipauth, bool skipauth, bool has_tls, bool tls,
+                     Error **errp)
+diff --git a/stubs/Makefile.objs b/stubs/Makefile.objs
+index fd7a489..45daa92 100644
+--- a/stubs/Makefile.objs
++++ b/stubs/Makefile.objs
+@@ -1,4 +1,5 @@
+ stub-obj-y += arch-query-cpu-def.o
++stub-obj-y += arch-query-cpu-mod.o
+ stub-obj-y += bdrv-commit-all.o
+ stub-obj-y += chr-baum-init.o
+ stub-obj-y += chr-msmouse.o
+diff --git a/stubs/arch-query-cpu-mod.c b/stubs/arch-query-cpu-mod.c
+new file mode 100644
+index 0000000..90ebd08
+--- /dev/null
++++ b/stubs/arch-query-cpu-mod.c
+@@ -0,0 +1,9 @@
++#include "qemu-common.h"
++#include "sysemu/arch_init.h"
++#include "qapi/qmp/qerror.h"
 +
-+	memcpy(kvm->arch.model.fac->kvm, S390_lowcore.stfle_fac_list,
-+	       S390_ARCH_FAC_LIST_SIZE_U64);
-+
-+	/*
-+	 * Apply the kvm facility mask to limit the kvm supported/tolerated
-+	 * facility list.
-+	 */
-+	for (i = 0; i < S390_ARCH_FAC_LIST_SIZE_U64; i++) {
-+		if (i < kvm_s390_fac_list_mask_size())
-+			kvm->arch.model.fac->kvm[i] &= kvm_s390_fac_list_mask[i];
-+		else
-+			kvm->arch.model.fac->kvm[i] = 0UL;
-+	}
-+
-+	kvm_s390_get_cpu_id(&kvm->arch.model.cpu_id);
-+
- 	if (kvm_s390_crypto_init(kvm) < 0)
- 		goto out_crypto;
- 
-@@ -787,6 +825,8 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- out_nogmap:
- 	kfree(kvm->arch.crypto.crycb);
- out_crypto:
-+	free_page((unsigned long)kvm->arch.model.fac);
-+out_nofac:
- 	debug_unregister(kvm->arch.dbf);
- out_nodbf:
- 	free_page((unsigned long)(kvm->arch.sca));
-@@ -839,6 +879,7 @@ static void kvm_free_vcpus(struct kvm *kvm)
- void kvm_arch_destroy_vm(struct kvm *kvm)
- {
- 	kvm_free_vcpus(kvm);
-+	free_page((unsigned long)kvm->arch.model.fac);
- 	free_page((unsigned long)(kvm->arch.sca));
- 	debug_unregister(kvm->arch.dbf);
- 	kfree(kvm->arch.crypto.crycb);
-@@ -934,7 +975,7 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
- 
- static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
- {
--	if (!test_vfacility(76))
-+	if (!test_kvm_facility(vcpu->kvm, 76))
- 		return;
- 
- 	vcpu->arch.sie_block->ecb3 &= ~(ECB3_AES | ECB3_DEA);
-@@ -973,7 +1014,7 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
- 						    CPUSTAT_STOPPED |
- 						    CPUSTAT_GED);
- 	vcpu->arch.sie_block->ecb   = 6;
--	if (test_vfacility(50) && test_vfacility(73))
-+	if (test_kvm_facility(vcpu->kvm, 50) && test_kvm_facility(vcpu->kvm, 73))
- 		vcpu->arch.sie_block->ecb |= 0x10;
- 
- 	vcpu->arch.sie_block->ecb2  = 8;
-@@ -982,7 +1023,6 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
- 		vcpu->arch.sie_block->eca |= 1;
- 	if (sclp_has_sigpif())
- 		vcpu->arch.sie_block->eca |= 0x10000000U;
--	vcpu->arch.sie_block->fac   = (int) (long) vfacilities;
- 	vcpu->arch.sie_block->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE |
- 				      ICTL_TPROT;
- 
-@@ -993,8 +1033,10 @@ int kvm_arch_vcpu_setup(struct kvm_vcpu *vcpu)
- 	}
- 	hrtimer_init(&vcpu->arch.ckc_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
- 	vcpu->arch.ckc_timer.function = kvm_s390_idle_wakeup;
--	get_cpu_id(&vcpu->arch.cpu_id);
--	vcpu->arch.cpu_id.version = 0xff;
-+
-+	vcpu->arch.cpu_id = vcpu->kvm->arch.model.cpu_id;
-+	memcpy(vcpu->kvm->arch.model.fac->sie, vcpu->kvm->arch.model.fac->kvm,
-+	       S390_ARCH_FAC_LIST_SIZE_BYTE);
- 
- 	kvm_s390_vcpu_crypto_setup(vcpu);
- 
-@@ -1038,6 +1080,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
- 		vcpu->arch.sie_block->scaol = (__u32)(__u64)kvm->arch.sca;
- 		set_bit(63 - id, (unsigned long *) &kvm->arch.sca->mcn);
- 	}
-+	vcpu->arch.sie_block->fac = (int) (long) kvm->arch.model.fac->sie;
- 
- 	spin_lock_init(&vcpu->arch.local_int.lock);
- 	vcpu->arch.local_int.float_int = &kvm->arch.float_int;
-@@ -2103,30 +2146,11 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
- 
- static int __init kvm_s390_init(void)
- {
--	int ret;
--	ret = kvm_init(NULL, sizeof(struct kvm_vcpu), 0, THIS_MODULE);
--	if (ret)
--		return ret;
--
--	/*
--	 * guests can ask for up to 255+1 double words, we need a full page
--	 * to hold the maximum amount of facilities. On the other hand, we
--	 * only set facilities that are known to work in KVM.
--	 */
--	vfacilities = (unsigned long *) get_zeroed_page(GFP_KERNEL|GFP_DMA);
--	if (!vfacilities) {
--		kvm_exit();
--		return -ENOMEM;
--	}
--	memcpy(vfacilities, S390_lowcore.stfle_fac_list, 16);
--	vfacilities[0] &= 0xff82fffbf4fc2000UL;
--	vfacilities[1] &= 0x005c000000000000UL;
--	return 0;
-+	return kvm_init(NULL, sizeof(struct kvm_vcpu), 0, THIS_MODULE);
- }
- 
- static void __exit kvm_s390_exit(void)
- {
--	free_page((unsigned long) vfacilities);
- 	kvm_exit();
- }
- 
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index c22dce8..985c211 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -18,12 +18,10 @@
- #include <linux/hrtimer.h>
- #include <linux/kvm.h>
- #include <linux/kvm_host.h>
-+#include <asm/facility.h>
- 
- typedef int (*intercept_handler_t)(struct kvm_vcpu *vcpu);
- 
--/* declare vfacilities extern */
--extern unsigned long *vfacilities;
--
- /* Transactional Memory Execution related macros */
- #define IS_TE_ENABLED(vcpu)	((vcpu->arch.sie_block->ecb & 0x10))
- #define TDB_FORMAT1		1
-@@ -127,6 +125,12 @@ static inline void kvm_s390_set_psw_cc(struct kvm_vcpu *vcpu, unsigned long cc)
- 	vcpu->arch.sie_block->gpsw.mask |= cc << 44;
- }
- 
-+/* test availability of facility in a kvm intance */
-+static inline int test_kvm_facility(struct kvm *kvm, unsigned long nr)
++CpuModelInfo *arch_query_cpu_model(Error **errp)
 +{
-+	return __test_facility(nr, kvm->arch.model.fac->kvm);
++    error_set(errp, QERR_UNSUPPORTED);
++    return NULL;
++}
+diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
+index 9f40998..4d03adc 100644
+--- a/target-s390x/cpu-models.c
++++ b/target-s390x/cpu-models.c
+@@ -110,6 +110,7 @@ typedef struct ParmAddrAddrAccel {
+ } ParmAddrAddrAccel;
+ 
+ static GSList *s390_cpu_aliases;
++static const char *selected_cpu_typename;
+ 
+ /* compare order of two cpu classes for ascending sort */
+ gint s390_cpu_class_asc_order_compare(gconstpointer a, gconstpointer b)
+@@ -631,3 +632,27 @@ bool s390_probe_mode(void)
+     return false;
+ }
+ 
++/**
++ * s390_cpu_typename - get name of selected cpu class type
++ *
++ * Returns: address to name of selected cpu class type
++ *          NULL if no cpu class type has been selected yet
++ */
++const char *s390_cpu_typename(void)
++{
++    return selected_cpu_typename;
 +}
 +
- /* are cpu states controlled by user space */
- static inline int kvm_s390_user_cpu_state_ctrl(struct kvm *kvm)
++/**
++ * s390_cpu_models_used - indicates that cpus with model properties
++ *                        are in use
++ *
++ * Returns: true  if a cpu model type name has been selected
++ *          false if either no cpu class type was selected yet or the
++ *                selected type is TYPE_S390_CPU
++ */
++bool s390_cpu_models_used(void)
++{
++    return s390_cpu_typename() && strcmp(s390_cpu_typename(), TYPE_S390_CPU);
++}
++
+diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
+index be94667..23ac2c4 100644
+--- a/target-s390x/cpu-models.h
++++ b/target-s390x/cpu-models.h
+@@ -110,6 +110,8 @@ void s390_cpu_list_entry(gpointer data, gpointer user_data);
+ bool s390_cpu_classes_initialized(void);
+ bool s390_test_facility(S390CPUClass *cc, unsigned long nr);
+ bool s390_probe_mode(void);
++const char *s390_cpu_typename(void);
++bool s390_cpu_models_used(void);
+ 
+ /*
+  * bits 0-7   : CMOS generation
+diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
+index d27832b..d98578b 100644
+--- a/target-s390x/cpu.c
++++ b/target-s390x/cpu.c
+@@ -37,6 +37,11 @@
+ #define CR0_RESET       0xE0UL
+ #define CR14_RESET      0xC2000000UL;
+ 
++static inline char *strdup_s390_cpu_name(S390CPUClass *cc)
++{
++    return g_strdup_printf("%04x-ga%u", cc->proc->type, cc->mach->ga);
++}
++
+ /* generate CPU information for cpu -? */
+ void s390_cpu_list(FILE *f, fprintf_function cpu_fprintf)
  {
-@@ -183,7 +187,8 @@ int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu);
- void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu);
- /* is cmma enabled */
- bool kvm_s390_cmma_enabled(struct kvm *kvm);
--int test_vfacility(unsigned long nr);
-+unsigned long kvm_s390_fac_list_mask_size(void);
-+extern unsigned long kvm_s390_fac_list_mask[];
+@@ -74,6 +79,33 @@ CpuDefinitionInfoList *arch_query_cpu_definitions(Error **errp)
  
- /* implemented in diag.c */
- int kvm_s390_handle_diag(struct kvm_vcpu *vcpu);
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 1be578d..bdd9b5b 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -337,19 +337,24 @@ static int handle_io_inst(struct kvm_vcpu *vcpu)
- static int handle_stfl(struct kvm_vcpu *vcpu)
- {
- 	int rc;
-+	unsigned int fac;
- 
- 	vcpu->stat.instruction_stfl++;
- 
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
- 
-+	/*
-+	 * We need to shift the lower 32 facility bits (bit 0-31) from a u64
-+	 * into a u32 memory representation. They will remain bits 0-31.
-+	 */
-+	fac = *vcpu->kvm->arch.model.fac->sie >> 32;
- 	rc = write_guest_lc(vcpu, offsetof(struct _lowcore, stfl_fac_list),
--			    vfacilities, 4);
-+			    &fac, sizeof(fac));
- 	if (rc)
- 		return rc;
--	VCPU_EVENT(vcpu, 5, "store facility list value %x",
--		   *(unsigned int *) vfacilities);
--	trace_kvm_s390_handle_stfl(vcpu, *(unsigned int *) vfacilities);
-+	VCPU_EVENT(vcpu, 5, "store facility list value %x", fac);
-+	trace_kvm_s390_handle_stfl(vcpu, fac);
- 	return 0;
+     return entry;
  }
++
++CpuModelInfo *arch_query_cpu_model(Error **errp)
++{
++    CpuModelInfo *info;
++    S390CPUClass *cc;
++
++    if (!s390_cpu_models_used()) {
++        return NULL;
++    }
++    info = g_try_new0(CpuModelInfo, 1);
++    if (!info) {
++        return NULL;
++    }
++    cc = S390_CPU_CLASS(object_class_by_name(s390_cpu_typename()));
++    info->name = strdup_s390_cpu_name(cc);
++    if (!info->name) {
++        g_free(info);
++        return NULL;
++    }
++    info->accelerator = ACCEL_ID_MAX;
++    if (kvm_enabled()) {
++        info->accelerator = ACCEL_ID_KVM;
++    }
++    info->has_accelerator = (info->accelerator != ACCEL_ID_MAX);
++
++    return info;
++}
+ #endif
  
+ static void s390_cpu_set_pc(CPUState *cs, vaddr value)
 -- 
-1.9.3
+1.8.3.1
