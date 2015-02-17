@@ -1,69 +1,135 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [RFC PATCH v2 15/15] cpu-model/s390: Enable S390 cpu model
-Date: Tue, 17 Feb 2015 15:24:13 +0100
-Message-ID: <1424183053-4310-16-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [RFC PATCH v2 02/15] cpu-model: Introduce option
+	--probe to switch into probe mode
+Date: Tue, 17 Feb 2015 15:24:00 +0100
+Message-ID: <1424183053-4310-3-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
 In-Reply-To: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Michael Mueller <mimu@linux.vnet.ibm.com>
+Cc: Michael Mueller <mimu@linux.vnet.ibm.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch enables QEMU to instantiate S390 CPUs with cpu model types.
+The option --probe allows to switch into probe mode also for machines
+different from none. If one or more accelerators are specified these
+accelerators are used to provide probable properties. If no accelerator
+is given a list of accellerators that support probing is used.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
- hw/s390x/s390-virtio.c | 6 ++++++
- target-s390x/helper.c  | 3 ++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ accel.c                | 13 ++++++++-----
+ include/sysemu/accel.h |  2 +-
+ qemu-options.hx        |  8 ++++++++
+ vl.c                   |  7 ++++++-
+ 4 files changed, 23 insertions(+), 7 deletions(-)
 
-diff --git a/hw/s390x/s390-virtio.c b/hw/s390x/s390-virtio.c
-index c215cd8..aabd772 100644
---- a/hw/s390x/s390-virtio.c
-+++ b/hw/s390x/s390-virtio.c
-@@ -32,6 +32,7 @@
- #include "hw/virtio/virtio.h"
- #include "hw/sysbus.h"
- #include "sysemu/kvm.h"
-+#include "sysemu/cpus.h"
- #include "exec/address-spaces.h"
+diff --git a/accel.c b/accel.c
+index 260b009..4ed6df8 100644
+--- a/accel.c
++++ b/accel.c
+@@ -81,7 +81,7 @@ static int accel_init_machine(AccelClass *acc, MachineState *ms,
+     return ret;
+ }
  
- #include "hw/s390x/s390-virtio-bus.h"
-@@ -152,6 +153,11 @@ void s390_init_cpus(const char *cpu_model, uint8_t *storage_keys)
-         cpu_model = "host";
+-int configure_accelerator(MachineState *ms)
++int configure_accelerator(MachineState *ms, int probe)
+ {
+     const char *p, *name;
+     char buf[10];
+@@ -90,13 +90,16 @@ int configure_accelerator(MachineState *ms)
+     bool init_failed = false;
+     AccelClass *acc = NULL;
+     ObjectClass *oc;
+-    bool probe_mode = false;
++    bool probe_mode;
+ 
++    probe_mode = probe != 0;
+     p = qemu_opt_get(qemu_get_machine_opts(), "accel");
+     if (p == NULL) {
+-        oc = (ObjectClass *) MACHINE_GET_CLASS(current_machine);
+-        name = object_class_get_name(oc);
+-        probe_mode = !strcmp(name, "none" TYPE_MACHINE_SUFFIX);
++        if (!probe_mode) {
++            oc = (ObjectClass *) MACHINE_GET_CLASS(current_machine);
++            name = object_class_get_name(oc);
++            probe_mode = !strcmp(name, "none" TYPE_MACHINE_SUFFIX);
++        }
+         if (probe_mode) {
+             /* Use these accelerators in probe mode, tcg should be last */
+             p = probe_mode_accels;
+diff --git a/include/sysemu/accel.h b/include/sysemu/accel.h
+index 997720f..3adb6ba 100644
+--- a/include/sysemu/accel.h
++++ b/include/sysemu/accel.h
+@@ -57,6 +57,6 @@ typedef struct AccelClass {
+ 
+ extern int tcg_tb_size;
+ 
+-int configure_accelerator(MachineState *ms);
++int configure_accelerator(MachineState *ms, int probe);
+ 
+ #endif
+diff --git a/qemu-options.hx b/qemu-options.hx
+index 85ca3ad..22e7544 100644
+--- a/qemu-options.hx
++++ b/qemu-options.hx
+@@ -2847,6 +2847,14 @@ STEXI
+ Do not start CPU at startup (you must type 'c' in the monitor).
+ ETEXI
+ 
++DEF("probe", 0, QEMU_OPTION_probe, \
++    "-probe          startup in probe mode, option -S is selected as well\n", QEMU_ARCH_ALL)
++STEXI
++@item -probe
++@findex -probe
++Startup in probe mode.
++ETEXI
++
+ DEF("realtime", HAS_ARG, QEMU_OPTION_realtime,
+     "-realtime [mlock=on|off]\n"
+     "                run qemu with realtime features\n"
+diff --git a/vl.c b/vl.c
+index 8c8f142..0fabc0b 100644
+--- a/vl.c
++++ b/vl.c
+@@ -138,6 +138,7 @@ bool enable_mlock = false;
+ int nb_nics;
+ NICInfo nd_table[MAX_NICS];
+ int autostart;
++int probe;
+ static int rtc_utc = 1;
+ static int rtc_date_offset = -1; /* -1 means no change */
+ QEMUClockType rtc_clock;
+@@ -3148,6 +3149,10 @@ int main(int argc, char **argv, char **envp)
+             case QEMU_OPTION_S:
+                 autostart = 0;
+                 break;
++            case QEMU_OPTION_probe:
++                probe = 1;
++                autostart = 0;
++                break;
+             case QEMU_OPTION_k:
+                 keyboard_layout = optarg;
+                 break;
+@@ -4027,7 +4032,7 @@ int main(int argc, char **argv, char **envp)
+         exit(1);
      }
  
-+    if (is_help_option(cpu_model)) {
-+        list_cpus(stdout, &fprintf, cpu_model);
-+        exit(0);
-+    }
-+
-     ipi_states = g_malloc(sizeof(S390CPU *) * smp_cpus);
+-    configure_accelerator(current_machine);
++    configure_accelerator(current_machine, probe);
  
-     for (i = 0; i < smp_cpus; i++) {
-diff --git a/target-s390x/helper.c b/target-s390x/helper.c
-index 5958343..568428d 100644
---- a/target-s390x/helper.c
-+++ b/target-s390x/helper.c
-@@ -22,6 +22,7 @@
- #include "exec/gdbstub.h"
- #include "qemu/timer.h"
- #include "exec/cpu_ldst.h"
-+#include "cpu-models.h"
- #ifndef CONFIG_USER_ONLY
- #include "sysemu/sysemu.h"
- #endif
-@@ -75,7 +76,7 @@ S390CPU *cpu_s390x_init(const char *cpu_model)
- {
-     S390CPU *cpu;
- 
--    cpu = S390_CPU(object_new(TYPE_S390_CPU));
-+    cpu = S390_CPU(object_new(s390_select_cpu_model(cpu_model)));
- 
-     object_property_set_bool(OBJECT(cpu), true, "realized", NULL);
- 
+     if (qtest_chrdev) {
+         Error *local_err = NULL;
 -- 
 1.8.3.1
