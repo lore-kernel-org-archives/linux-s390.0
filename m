@@ -1,68 +1,177 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [Qemu-devel] [RFC PATCH v2 04/15] cpu-model/s390: Introduce S390
- CPU models
-Date: Mon, 23 Feb 2015 14:27:10 +0100
-Message-ID: <54EB2AAE.3010009@de.ibm.com>
-References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com> <1424183053-4310-5-git-send-email-mimu@linux.vnet.ibm.com> <54E73C8F.7000202@suse.de> <20150220160046.4743acc8@bee> <89E3550E-9E2B-4D95-A809-B7C64EBCD7C5@suse.de> <54EB2399.5090500@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+From: Michael Mueller <mimu@linux.vnet.ibm.com>
+Subject: [RFC PATCH v2 01/15] cpu-model: Introduce probe mode for machine none
+Date: Tue, 17 Feb 2015 15:23:59 +0100
+Message-ID: <1424183053-4310-2-git-send-email-mimu@linux.vnet.ibm.com>
+References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <54EB2399.5090500@de.ibm.com>
+In-Reply-To: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Alexander Graf <agraf@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>
-Cc: "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
+To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Am 23.02.2015 um 13:56 schrieb Christian Borntraeger:
-> Am 20.02.2015 um 16:22 schrieb Alexander Graf:
->>
->>
->>
->>> Am 20.02.2015 um 16:00 schrieb Michael Mueller <mimu@linux.vnet.ibm.com>:
->>>
->>> On Fri, 20 Feb 2015 14:54:23 +0100
->>> Alexander Graf <agraf@suse.de> wrote:
->>>
->>>>>
->>>>> +/* machine related properties */
->>>>> +typedef struct S390CPUMachineProps {
->>>>> +    uint16_t class;      /* machine class */
->>>>> +    uint16_t ga;         /* availability number of machine */
->>>>> +    uint16_t order;      /* order of availability */
->>>>> +} S390CPUMachineProps;
->>>>> +
->>>>> +/* processor related properties */
->>>>> +typedef struct S390CPUProcessorProps {
->>>>> +    uint16_t gen;        /* S390 CMOS generation */
->>>>> +    uint16_t ver;        /* version of processor */
->>>>> +    uint32_t id;         /* processor identification*/
->>>>> +    uint16_t type;       /* machine type */
->>>>> +    uint16_t ibc;        /* IBC value */
->>>>> +    uint64_t *fac_list;  /* list of facilities */  
->>>>
->>>> Just make this uint64_t fac_list[2]. That way we don't have to track any
->>>> messy allocations.
->>>
->>> It will be something like "uint64_t fac_list[S390_CPU_FAC_LIST_SIZE_UINT64]" and in total 2KB not
->>> just 16 bytes but I will change it. 
->>
->> Why? Do we actually need that many? This is a qemu internal struct.
-> 
-> The kernel already enabled the 3rd word for z13 support, 
-> https://git.kernel.org/cgit/linux/kernel/git/s390/linux.git/commit/?id=f8b2dcbd9e6d1479b9b5a9e9e78bbaf783bde819
-> 
-> so make it at least 3.
+QEMU now switches into "probe mode" when the selected machine is "none" and no
+specific accelerator(s) has been requested (i.e.: "-machine none").
 
+In probe mode a by "<ARCH>_CONFIG" defines predefined list of accelerators run
+their init() methods.
 
-This should have been 
+Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+---
+ accel.c              | 31 +++++++++++++++++++++++++------
+ include/hw/boards.h  |  1 +
+ include/sysemu/kvm.h | 10 ++++++++++
+ kvm-all.c            |  3 +++
+ 4 files changed, 39 insertions(+), 6 deletions(-)
 
-commit 8070361799ae1e3f4ef347bd10f0a508ac10acfb
-Author: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date:   Mon Oct 6 17:53:53 2014 +0200
-
-    s390: add support for vector extension
-
-which uses bit 129.
+diff --git a/accel.c b/accel.c
+index 74e41da..260b009 100644
+--- a/accel.c
++++ b/accel.c
+@@ -36,6 +36,9 @@
+ 
+ int tcg_tb_size;
+ static bool tcg_allowed = true;
++static const char *probe_mode_accels =
++    "kvm:"
++    "tcg";
+ 
+ static int tcg_init(MachineState *ms)
+ {
+@@ -59,13 +62,15 @@ static AccelClass *accel_find(const char *opt_name)
+     return ac;
+ }
+ 
+-static int accel_init_machine(AccelClass *acc, MachineState *ms)
++static int accel_init_machine(AccelClass *acc, MachineState *ms,
++                              bool probe_mode)
+ {
+     ObjectClass *oc = OBJECT_CLASS(acc);
+     const char *cname = object_class_get_name(oc);
+     AccelState *accel = ACCEL(object_new(cname));
+     int ret;
+     ms->accelerator = accel;
++    ms->probe_mode = probe_mode;
+     *(acc->allowed) = true;
+     ret = acc->init_machine(ms);
+     if (ret < 0) {
+@@ -78,20 +83,30 @@ static int accel_init_machine(AccelClass *acc, MachineState *ms)
+ 
+ int configure_accelerator(MachineState *ms)
+ {
+-    const char *p;
++    const char *p, *name;
+     char buf[10];
+     int ret;
+     bool accel_initialised = false;
+     bool init_failed = false;
+     AccelClass *acc = NULL;
++    ObjectClass *oc;
++    bool probe_mode = false;
+ 
+     p = qemu_opt_get(qemu_get_machine_opts(), "accel");
+     if (p == NULL) {
+-        /* Use the default "accelerator", tcg */
+-        p = "tcg";
++        oc = (ObjectClass *) MACHINE_GET_CLASS(current_machine);
++        name = object_class_get_name(oc);
++        probe_mode = !strcmp(name, "none" TYPE_MACHINE_SUFFIX);
++        if (probe_mode) {
++            /* Use these accelerators in probe mode, tcg should be last */
++            p = probe_mode_accels;
++        } else {
++            /* Use the default "accelerator", tcg */
++            p = "tcg";
++        }
+     }
+ 
+-    while (!accel_initialised && *p != '\0') {
++    while ((probe_mode || !accel_initialised) && *p != '\0') {
+         if (*p == ':') {
+             p++;
+         }
+@@ -106,7 +121,7 @@ int configure_accelerator(MachineState *ms)
+                    acc->name);
+             continue;
+         }
+-        ret = accel_init_machine(acc, ms);
++        ret = accel_init_machine(acc, ms, probe_mode);
+         if (ret < 0) {
+             init_failed = true;
+             fprintf(stderr, "failed to initialize %s: %s\n",
+@@ -128,6 +143,10 @@ int configure_accelerator(MachineState *ms)
+         fprintf(stderr, "Back to %s accelerator.\n", acc->name);
+     }
+ 
++    if (probe_mode) {
++        accel_initialised = false;
++    }
++
+     return !accel_initialised;
+ }
+ 
+diff --git a/include/hw/boards.h b/include/hw/boards.h
+index 3ddc449..3253fa5 100644
+--- a/include/hw/boards.h
++++ b/include/hw/boards.h
+@@ -135,6 +135,7 @@ struct MachineState {
+     bool usb;
+     char *firmware;
+     bool iommu;
++    bool probe_mode;
+ 
+     ram_addr_t ram_size;
+     ram_addr_t maxram_size;
+diff --git a/include/sysemu/kvm.h b/include/sysemu/kvm.h
+index 30cb84d..fbc18c8 100644
+--- a/include/sysemu/kvm.h
++++ b/include/sysemu/kvm.h
+@@ -50,6 +50,7 @@ extern bool kvm_msi_via_irqfd_allowed;
+ extern bool kvm_gsi_routing_allowed;
+ extern bool kvm_gsi_direct_mapping;
+ extern bool kvm_readonly_mem_allowed;
++extern bool kvm_probe_mode;
+ 
+ #if defined CONFIG_KVM || !defined NEED_CPU_H
+ #define kvm_enabled()           (kvm_allowed)
+@@ -143,6 +144,15 @@ extern bool kvm_readonly_mem_allowed;
+  */
+ #define kvm_readonly_mem_enabled() (kvm_readonly_mem_allowed)
+ 
++/**
++ * kvm_probe_mode_enabled:
++ *
++ * Returns: true if KVM is initialized for a machine type that
++ * has its probe_mode attribute set (ie QEMU was started in probe
++ * mode)
++ */
++#define kvm_probe_mode_enabled() (kvm_probe_mode)
++
+ #else
+ #define kvm_enabled()           (0)
+ #define kvm_irqchip_in_kernel() (false)
+diff --git a/kvm-all.c b/kvm-all.c
+index 05a79c2..f9e4434 100644
+--- a/kvm-all.c
++++ b/kvm-all.c
+@@ -126,6 +126,7 @@ bool kvm_gsi_routing_allowed;
+ bool kvm_gsi_direct_mapping;
+ bool kvm_allowed;
+ bool kvm_readonly_mem_allowed;
++bool kvm_probe_mode;
+ 
+ static const KVMCapabilityInfo kvm_required_capabilites[] = {
+     KVM_CAP_INFO(USER_MEMORY),
+@@ -1471,6 +1472,8 @@ static int kvm_init(MachineState *ms)
+         goto err;
+     }
+ 
++    kvm_probe_mode = ms->probe_mode;
++
+     s->nr_slots = kvm_check_extension(s, KVM_CAP_NR_MEMSLOTS);
+ 
+     /* If unspecified, use the default value */
+-- 
+1.8.3.1
