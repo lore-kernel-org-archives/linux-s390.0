@@ -1,135 +1,135 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [RFC PATCH v2 02/15] cpu-model: Introduce option
-	--probe to switch into probe mode
-Date: Tue, 17 Feb 2015 15:24:00 +0100
-Message-ID: <1424183053-4310-3-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [RFC PATCH v2 14/15] cpu-model/s390: Add cpu model selection routine
+Date: Tue, 17 Feb 2015 15:24:12 +0100
+Message-ID: <1424183053-4310-15-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Michael Mueller <mimu@linux.vnet.ibm.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
+Cc: Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The option --probe allows to switch into probe mode also for machines
-different from none. If one or more accelerators are specified these
-accelerators are used to provide probable properties. If no accelerator
-is given a list of accellerators that support probing is used.
+This patch basically implements the routine:
+
+- s390_select_cpu_model()
+
+It tests if the the cpu classes have been initialized and the requested
+cpu model is either a valid model or a valid alias. If these conditions
+are met, the associated cpu model properties (cpu identifier, ibc value,
+cpu facilities) are established with the current accelerator. If also this
+step was successful, QEMU stores the related cpu model type name to be
+returned by subsequent calls to this routine. This will guarantee all
+cpus will use the same model.
+
+Here an example of a returned cpu type name: '2827-ga2-s390-cpu'
+
+If one of the priviously mentioned steps fail, QEMU stores and returns the
+default cpu model type name: 's390-cpu'.
+
+The function has a trace point.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
- accel.c                | 13 ++++++++-----
- include/sysemu/accel.h |  2 +-
- qemu-options.hx        |  8 ++++++++
- vl.c                   |  7 ++++++-
- 4 files changed, 23 insertions(+), 7 deletions(-)
+ target-s390x/cpu-models.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ target-s390x/cpu-models.h |  4 ++++
+ trace-events              |  3 +++
+ 3 files changed, 52 insertions(+)
 
-diff --git a/accel.c b/accel.c
-index 260b009..4ed6df8 100644
---- a/accel.c
-+++ b/accel.c
-@@ -81,7 +81,7 @@ static int accel_init_machine(AccelClass *acc, MachineState *ms,
-     return ret;
+diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
+index 9bc4d89..bd36d10 100644
+--- a/target-s390x/cpu-models.c
++++ b/target-s390x/cpu-models.c
+@@ -13,6 +13,7 @@
+ #include "qemu-common.h"
+ #include "cpu-models.h"
+ #include "qemu/error-report.h"
++#include "trace.h"
+ 
+ #define S390_FAC_NAME(n, _cpu_id) glue(glue(glue(FAC, n), _), _cpu_id)
+ 
+@@ -707,3 +708,47 @@ bool s390_cpu_models_used(void)
+     return s390_cpu_typename() && strcmp(s390_cpu_typename(), TYPE_S390_CPU);
  }
  
--int configure_accelerator(MachineState *ms)
-+int configure_accelerator(MachineState *ms, int probe)
- {
-     const char *p, *name;
-     char buf[10];
-@@ -90,13 +90,16 @@ int configure_accelerator(MachineState *ms)
-     bool init_failed = false;
-     AccelClass *acc = NULL;
-     ObjectClass *oc;
--    bool probe_mode = false;
-+    bool probe_mode;
- 
-+    probe_mode = probe != 0;
-     p = qemu_opt_get(qemu_get_machine_opts(), "accel");
-     if (p == NULL) {
--        oc = (ObjectClass *) MACHINE_GET_CLASS(current_machine);
--        name = object_class_get_name(oc);
--        probe_mode = !strcmp(name, "none" TYPE_MACHINE_SUFFIX);
-+        if (!probe_mode) {
-+            oc = (ObjectClass *) MACHINE_GET_CLASS(current_machine);
-+            name = object_class_get_name(oc);
-+            probe_mode = !strcmp(name, "none" TYPE_MACHINE_SUFFIX);
-+        }
-         if (probe_mode) {
-             /* Use these accelerators in probe mode, tcg should be last */
-             p = probe_mode_accels;
-diff --git a/include/sysemu/accel.h b/include/sysemu/accel.h
-index 997720f..3adb6ba 100644
---- a/include/sysemu/accel.h
-+++ b/include/sysemu/accel.h
-@@ -57,6 +57,6 @@ typedef struct AccelClass {
- 
- extern int tcg_tb_size;
- 
--int configure_accelerator(MachineState *ms);
-+int configure_accelerator(MachineState *ms, int probe);
- 
- #endif
-diff --git a/qemu-options.hx b/qemu-options.hx
-index 85ca3ad..22e7544 100644
---- a/qemu-options.hx
-+++ b/qemu-options.hx
-@@ -2847,6 +2847,14 @@ STEXI
- Do not start CPU at startup (you must type 'c' in the monitor).
- ETEXI
- 
-+DEF("probe", 0, QEMU_OPTION_probe, \
-+    "-probe          startup in probe mode, option -S is selected as well\n", QEMU_ARCH_ALL)
-+STEXI
-+@item -probe
-+@findex -probe
-+Startup in probe mode.
-+ETEXI
++/**
++ * s390_select_cpu_model - select the cpu model to be used by QEMU
++ * @model: the cpu model name
++ *
++ * Returns: the cpu class type name (<type>-<ga>-s390-cpu) associated
++ *          to the requested cpu model
++ *          TYPE_S390_CPU in case the requested model is invalid or
++ *          cannot be requested for the currently used accelerator
++ */
++const char *s390_select_cpu_model(const char *model)
++{
++    S390ProcessorProps proc;
++    const char *typename;
++    S390CPUClass *cc;
 +
- DEF("realtime", HAS_ARG, QEMU_OPTION_realtime,
-     "-realtime [mlock=on|off]\n"
-     "                run qemu with realtime features\n"
-diff --git a/vl.c b/vl.c
-index 8c8f142..0fabc0b 100644
---- a/vl.c
-+++ b/vl.c
-@@ -138,6 +138,7 @@ bool enable_mlock = false;
- int nb_nics;
- NICInfo nd_table[MAX_NICS];
- int autostart;
-+int probe;
- static int rtc_utc = 1;
- static int rtc_date_offset = -1; /* -1 means no change */
- QEMUClockType rtc_clock;
-@@ -3148,6 +3149,10 @@ int main(int argc, char **argv, char **envp)
-             case QEMU_OPTION_S:
-                 autostart = 0;
-                 break;
-+            case QEMU_OPTION_probe:
-+                probe = 1;
-+                autostart = 0;
-+                break;
-             case QEMU_OPTION_k:
-                 keyboard_layout = optarg;
-                 break;
-@@ -4027,7 +4032,7 @@ int main(int argc, char **argv, char **envp)
-         exit(1);
-     }
++    /* return already selected cpu typename */
++    typename = s390_cpu_typename();
++    if (typename) {
++        goto out;
++    }
++
++    /* return standard cpu typename when cpu models are unavailable */
++    typename = TYPE_S390_CPU;
++    if (!s390_cpu_classes_initialized() || !model) {
++        goto out;
++    }
++    cc = S390_CPU_CLASS(s390_cpu_class_by_name(model));
++    if (!cc) {
++        goto out;
++    }
++    proc.cpuid = cpuid(cc->proc);
++    proc.ibc = cc->proc->ibc;
++    memcpy(proc.fac_list, cc->fac_list, S390_FAC_LIST_SIZE_BYTE);
++    if (s390_set_processor_props(&proc)) {
++        goto out;
++    }
++
++    /* return requested cpu typename in success case */
++    typename = object_class_get_name((ObjectClass *) cc);
++out:
++    selected_cpu_typename = typename;
++    trace_select_cpu_model(model, typename);
++    return typename;
++}
+diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
+index bc478d8..254e1ef 100644
+--- a/target-s390x/cpu-models.h
++++ b/target-s390x/cpu-models.h
+@@ -44,6 +44,9 @@
+ #define type_cpuid(x)     ((uint64_t)((x) & 0xffff) << 16)
+ #define id_cpuid(x)       ((uint64_t)((x) & 0xffffff) << 32)
+ #define ver_cpuid(x)      ((uint64_t)((x) & 0xff) << 56)
++#define cpuid(x)          (ver_cpuid(x->ver) |  \
++                           id_cpuid(x->id) |    \
++                           type_cpuid(x->type))
  
--    configure_accelerator(current_machine);
-+    configure_accelerator(current_machine, probe);
+ #define oldest_ibc(x)     (((uint32_t)(x) >> 16) & 0xfff)
+ #define newest_ibc(x)     ((uint32_t)(x) & 0xfff)
+@@ -115,6 +118,7 @@ bool s390_test_facility(S390CPUClass *cc, unsigned long nr);
+ bool s390_probe_mode(void);
+ const char *s390_cpu_typename(void);
+ bool s390_cpu_models_used(void);
++const char *s390_select_cpu_model(const char *model);
  
-     if (qtest_chrdev) {
-         Error *local_err = NULL;
+ /*
+  * bits 0-7   : CMOS generation
+diff --git a/trace-events b/trace-events
+index f39f879..014fa12 100644
+--- a/trace-events
++++ b/trace-events
+@@ -1588,3 +1588,6 @@ i8257_unregistered_dma(int nchan, int dma_pos, int dma_len) "unregistered DMA ch
+ cpu_set_state(int cpu_index, uint8_t state) "setting cpu %d state to %" PRIu8
+ cpu_halt(int cpu_index) "halting cpu %d"
+ cpu_unhalt(int cpu_index) "unhalting cpu %d"
++
++# target-s390x/cpu-model.c
++select_cpu_model(const char *model, const char *typename) "CPU-MODEL: requested: %s selected: %s"
 -- 
 1.8.3.1
