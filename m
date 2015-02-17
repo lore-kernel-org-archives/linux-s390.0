@@ -1,90 +1,107 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [RFC PATCH v2 13/15] cpu-model/s390: Add processor property routines
-Date: Tue, 17 Feb 2015 15:24:11 +0100
-Message-ID: <1424183053-4310-14-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [RFC PATCH v2 05/15] cpu-model/s390: Introduce S390 CPU facilities
+Date: Tue, 17 Feb 2015 15:24:03 +0100
+Message-ID: <1424183053-4310-6-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implements the functions:
-
-- s390_get_proceccor_props()
-- s390_set_proceccor_props()
-
-They can be used to request or retrieve processor related information from an accelerator.
-That information comprises the cpu identifier, the ICB value and the facility lists.
+The patch introduces S390 CPU facilities bit numbers and names as well as
+the architectural facility size limit in bytes.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
- target-s390x/cpu-models.c | 36 ++++++++++++++++++++++++++++++++++++
- target-s390x/cpu-models.h |  2 ++
- 2 files changed, 38 insertions(+)
+ target-s390x/cpu-facilities.h | 76 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 76 insertions(+)
+ create mode 100644 target-s390x/cpu-facilities.h
 
-diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
-index c63b4c2..9bc4d89 100644
---- a/target-s390x/cpu-models.c
-+++ b/target-s390x/cpu-models.c
-@@ -579,6 +579,42 @@ void s390_cpu_list_entry(gpointer data, gpointer user_data)
- }
- 
- /**
-+ * s390_get_processor_props - retrieves processor properties from
-+ *                            from the currently used accelerator
-+ * @prop: address to processor property structure to store the
-+ *        retrieved processor properties
+diff --git a/target-s390x/cpu-facilities.h b/target-s390x/cpu-facilities.h
+new file mode 100644
+index 0000000..593b978
+--- /dev/null
++++ b/target-s390x/cpu-facilities.h
+@@ -0,0 +1,76 @@
++/*
++ * CPU facilities for s390
 + *
-+ * Returns: 0 in case of success
-+ *          -ENOSYS in case the current accelerator has no processor
-+ *           properties implemented
-+ */
-+int s390_get_processor_props(S390ProcessorProps *prop)
-+{
-+    if (kvm_enabled()) {
-+        return kvm_s390_get_processor_props(prop);
-+    }
-+    return -ENOSYS;
-+}
-+
-+/**
-+ * s390_set_processor_props - stores processor properties in the
-+ *                            currently used accelerator
-+ * @prop: address to processor property structure to store the
-+ *        retrieved processor properties
++ * Copyright 2015 IBM Corp.
 + *
-+ * Returns: 0 in case of success
-+ *          -ENOSYS in case the current accelerator has no processor
-+ *           properties implemented
++ * Author(s): Michael Mueller <mimu@linux.vnet.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or (at
++ * your option) any later version. See the COPYING file in the top-level
++ * directory.
 + */
-+int s390_set_processor_props(S390ProcessorProps *prop)
-+{
-+    if (kvm_enabled()) {
-+        return kvm_s390_set_processor_props(prop);
-+    }
-+    return -ENOSYS;
-+}
 +
-+/**
-  * s390_cpu_classes_initialized - indicates if the all cpu classes and
-  *                                their properties have been initialized
-  *
-diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
-index d41fc37..bc478d8 100644
---- a/target-s390x/cpu-models.h
-+++ b/target-s390x/cpu-models.h
-@@ -108,6 +108,8 @@ int s390_setup_cpu_classes(AccelId accel, S390MachineProps *prop);
- gint s390_cpu_class_asc_order_compare(gconstpointer a, gconstpointer b);
- gint s390_cpu_class_desc_order_compare(gconstpointer a, gconstpointer b);
- void s390_cpu_list_entry(gpointer data, gpointer user_data);
-+int s390_get_processor_props(S390ProcessorProps *prop);
-+int s390_set_processor_props(S390ProcessorProps *prop);
- bool s390_cpu_classes_initialized(void);
- bool s390_test_facility(S390CPUClass *cc, unsigned long nr);
- bool s390_probe_mode(void);
++#ifndef TARGET_S390X_CPU_FACILITIES_H
++#define TARGET_S390X_CPU_FACILITIES_H
++
++/* architectural size of facilities is 2KB */
++#define S390_ARCH_FAC_LIST_SIZE (1<<11)
++
++/* CPU facility bits */
++typedef enum {
++    FAC_N3                              = 0,
++    FAC_ZARCH                           = 1,
++    FAC_ZARCH_ACTIVE                    = 2,
++    FAC_DAT_ENH                         = 3,
++    FAC_ASN_LX_REUSE                    = 6,
++    FAC_STFLE                           = 7,
++    FAC_ENHANCED_DAT_1                  = 8,
++    FAC_SENSE_RUNNING_STATUS            = 9,
++    FAC_CONDITIONAL_SSKE                = 10,
++    FAC_CONFIGURATION_TOPOLOGY          = 11,
++    FAC_IPTE_RANGE                      = 13,
++    FAC_NONQ_KEY_SETTING                = 14,
++    FAC_EXTENDED_TRANSLATION_2          = 16,
++    FAC_MESSAGE_SECURITY_ASSIST         = 17,
++    FAC_LONG_DISPLACEMENT               = 18,
++    FAC_LONG_DISPLACEMENT_FAST          = 19,
++    FAC_HFP_MADDSUB                     = 20,
++    FAC_EXTENDED_IMMEDIATE              = 21,
++    FAC_EXTENDED_TRANSLATION_3          = 22,
++    FAC_HFP_UNNORMALIZED_EXT            = 23,
++    FAC_ETF2_ENH                        = 24,
++    FAC_STORE_CLOCK_FAST                = 25,
++    FAC_PARSING_ENH                     = 26,
++    FAC_MOVE_WITH_OPTIONAL_SPEC         = 27,
++    FAC_TOD_CLOCK_STEERING              = 28,
++    FAC_ETF3_ENH                        = 30,
++    FAC_EXTRACT_CPU_TIME                = 31,
++    FAC_COMPARE_AND_SWAP_AND_STORE      = 32,
++    FAC_COMPARE_AND_SWAP_AND_STORE_2    = 33,
++    FAC_GENERAL_INSTRUCTIONS_EXT        = 34,
++    FAC_EXECUTE_EXT                     = 35,
++    FAC_ENHANCED_MONITOR                = 36,
++    FAC_FLOATING_POINT_EXT              = 37,
++    FAC_LOAD_PROGRAM_PARAMETERS         = 40,
++    FAC_FLOATING_POINT_SUPPPORT_ENH     = 41,
++    FAC_DFP                             = 42,
++    FAC_DFP_FAST                        = 43,
++    FAC_PFPO                            = 44,
++    FAC_MULTI_45                        = 45,
++    FAC_CMPSC_ENH                       = 47,
++    FAC_DFP_ZONED_CONVERSION            = 48,
++    FAC_MULTI_49                        = 49,
++    FAC_CONSTRAINT_TRANSACTIONAL_EXE    = 50,
++    FAC_LOCAL_TLB_CLEARING              = 51,
++    FAC_INTERLOCKED_ACCESS_2            = 52,
++    FAC_RESET_REFERENCE_BITS_MULTIPLE   = 66,
++    FAC_CPU_MEASUREMENT_COUNTER         = 67,
++    FAC_CPU_MEASUREMENT_SAMPLING        = 68,
++    FAC_TRANSACTIONAL_EXE               = 73,
++    FAC_ACCESS_EXCEPTION_FS_INDICATION  = 75,
++    FAC_MESSAGE_SECURITY_ASSIST_3       = 76,
++    FAC_MESSAGE_SECURITY_ASSIST_4       = 77,
++    FAC_ENHANCED_DAT_2                  = 78,
++} S390Facility;
++
++#endif
 -- 
 1.8.3.1
