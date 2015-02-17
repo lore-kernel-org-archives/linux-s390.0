@@ -1,8 +1,8 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [RFC PATCH v2 11/15] cpu-model/s390: Add QMP command
-	query-cpu-model
-Date: Tue, 17 Feb 2015 15:24:09 +0100
-Message-ID: <1424183053-4310-12-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [RFC PATCH v2 10/15] cpu-model/s390: Add cpu class
+	initialization routines
+Date: Tue, 17 Feb 2015 15:24:08 +0100
+Message-ID: <1424183053-4310-11-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
 Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
 In-Reply-To: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
@@ -21,243 +21,615 @@ To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linu
 Cc: Michael Mueller <mimu@linux.vnet.ibm.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implements a new QMP request named 'query-cpu-model'.
-It returns the cpu model of cpu 0 and its backing accelerator.
+This patch provides routines to dynamically update the previously defined
+S390 cpu classes in the current host context. The main function performing
+this process is s390_setup_cpu_classes(). It takes the current host context
+as parameter to setup the classes accordingly. It basically performs the
+following sub-tasks:
 
-request:
-  {"execute" : "query-cpu-model" }
+- Update of cpu classes with accelerator specific host and QEMU properties
+- Mark adequate cpu class as default cpu class to be used for cpu model 'host'
+- Invalidate cpu classes not supported by this hosting machine
+- Define machine type aliases to latest GA number of a processor model
+- Define aliases for common cpu model names
+- Set cpu model alias 'host' to default cpu class
 
-answer:
-  {"return" : {"name": "2827-ga2", "accelerator": "kvm" }}
+Forthermore the patch provides the following routines:
 
-Alias names are resolved to their respective machine type and GA names
-already during cpu instantiation. Thus, also a cpu model like 'host'
-which is implemented as alias will return its normalized cpu model name.
-
-Furthermore the patch implements the following functions:
-
-- s390_cpu_typename(), returns the currently selected cpu type name or NULL
-- s390_cpu_models_used(), returns true if S390 cpu models are in use
+- cpu_desc_avail(), s390 specific stub indicating that list_cpus() can run
+- s390_cpu_classes_initialized(), test if cpu classes have been initialized
+- s390_test_facility(), facility bit probe function for QEMU land
+- s390_probe_mode, test if running in probe mode
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
- include/sysemu/arch_init.h |  1 +
- qapi-schema.json           | 23 +++++++++++++++++++++++
- qmp-commands.hx            |  6 ++++++
- qmp.c                      |  5 +++++
- stubs/Makefile.objs        |  1 +
- stubs/arch-query-cpu-mod.c |  9 +++++++++
- target-s390x/cpu-models.c  | 25 +++++++++++++++++++++++++
- target-s390x/cpu-models.h  |  2 ++
- target-s390x/cpu.c         | 32 ++++++++++++++++++++++++++++++++
- 9 files changed, 104 insertions(+)
- create mode 100644 stubs/arch-query-cpu-mod.c
+ target-s390x/cpu-models.c | 464 ++++++++++++++++++++++++++++++++++++++++++++++
+ target-s390x/cpu-models.h |  27 +++
+ target-s390x/cpu.c        |  17 +-
+ target-s390x/kvm.c        |   4 +-
+ 4 files changed, 510 insertions(+), 2 deletions(-)
 
-diff --git a/include/sysemu/arch_init.h b/include/sysemu/arch_init.h
-index 54b36c1..86344a2 100644
---- a/include/sysemu/arch_init.h
-+++ b/include/sysemu/arch_init.h
-@@ -37,5 +37,6 @@ int kvm_available(void);
- int xen_available(void);
- 
- CpuDefinitionInfoList *arch_query_cpu_definitions(Error **errp);
-+CpuModelInfo *arch_query_cpu_model(Error **errp);
- 
- #endif
-diff --git a/qapi-schema.json b/qapi-schema.json
-index 4d237c8..9431fc2 100644
---- a/qapi-schema.json
-+++ b/qapi-schema.json
-@@ -2507,6 +2507,29 @@
- ##
- { 'command': 'query-cpu-definitions', 'returns': ['CpuDefinitionInfo'] }
- 
-+##
-+# @CpuModelInfo:
-+#
-+# Virtual CPU model definition.
-+#
-+# @name: the name of the CPU model definition
-+#
-+# Since: 2.3.0
-+##
-+{ 'type': 'CpuModelInfo',
-+  'data': { 'name': 'str', '*accelerator': 'AccelId' } }
-+
-+##
-+# @query-cpu-model:
-+#
-+# Return to current virtual CPU model
-+#
-+# Returns: CpuModelInfo
-+#
-+# Since: 2.3.0
-+##
-+{ 'command': 'query-cpu-model', 'returns': 'CpuModelInfo' }
-+
- # @AddfdInfo:
- #
- # Information about a file descriptor that was added to an fd set.
-diff --git a/qmp-commands.hx b/qmp-commands.hx
-index a85d847..98bfedd 100644
---- a/qmp-commands.hx
-+++ b/qmp-commands.hx
-@@ -3392,6 +3392,12 @@ EQMP
-     },
- 
-     {
-+        .name       = "query-cpu-model",
-+        .args_type  = "",
-+        .mhandler.cmd_new = qmp_marshal_input_query_cpu_model,
-+    },
-+
-+    {
-         .name       = "query-target",
-         .args_type  = "",
-         .mhandler.cmd_new = qmp_marshal_input_query_target,
-diff --git a/qmp.c b/qmp.c
-index 6b2c4be..d32abbc 100644
---- a/qmp.c
-+++ b/qmp.c
-@@ -568,6 +568,11 @@ CpuDefinitionInfoList *qmp_query_cpu_definitions(Error **errp)
-     return arch_query_cpu_definitions(errp);
- }
- 
-+CpuModelInfo *qmp_query_cpu_model(Error **errp)
-+{
-+    return arch_query_cpu_model(errp);
-+}
-+
- void qmp_add_client(const char *protocol, const char *fdname,
-                     bool has_skipauth, bool skipauth, bool has_tls, bool tls,
-                     Error **errp)
-diff --git a/stubs/Makefile.objs b/stubs/Makefile.objs
-index fd7a489..45daa92 100644
---- a/stubs/Makefile.objs
-+++ b/stubs/Makefile.objs
-@@ -1,4 +1,5 @@
- stub-obj-y += arch-query-cpu-def.o
-+stub-obj-y += arch-query-cpu-mod.o
- stub-obj-y += bdrv-commit-all.o
- stub-obj-y += chr-baum-init.o
- stub-obj-y += chr-msmouse.o
-diff --git a/stubs/arch-query-cpu-mod.c b/stubs/arch-query-cpu-mod.c
-new file mode 100644
-index 0000000..90ebd08
---- /dev/null
-+++ b/stubs/arch-query-cpu-mod.c
-@@ -0,0 +1,9 @@
-+#include "qemu-common.h"
-+#include "sysemu/arch_init.h"
-+#include "qapi/qmp/qerror.h"
-+
-+CpuModelInfo *arch_query_cpu_model(Error **errp)
-+{
-+    error_set(errp, QERR_UNSUPPORTED);
-+    return NULL;
-+}
 diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
-index 9f40998..4d03adc 100644
+index 8d2c2e2..9f40998 100644
 --- a/target-s390x/cpu-models.c
 +++ b/target-s390x/cpu-models.c
-@@ -110,6 +110,7 @@ typedef struct ParmAddrAddrAccel {
- } ParmAddrAddrAccel;
+@@ -12,6 +12,7 @@
  
+ #include "qemu-common.h"
+ #include "cpu-models.h"
++#include "qemu/error-report.h"
+ 
+ #define S390_FAC_NAME(n, _cpu_id) glue(glue(glue(FAC, n), _), _cpu_id)
+ 
+@@ -90,8 +91,41 @@ S390_PROC_DEF("2827-ga1", CPU_S390_2827_GA1, "IBM zEnterprise EC12 GA1")
+ S390_PROC_DEF("2827-ga2", CPU_S390_2827_GA2, "IBM zEnterprise EC12 GA2")
+ S390_PROC_DEF("2828-ga1", CPU_S390_2828_GA1, "IBM zEnterprise BC12 GA1")
+ 
++/* some types for calls to g_list_foreach() with parameters */
++typedef struct ParmBoolShortShortAccel {
++    bool valid;
++    unsigned short type;
++    union {
++        unsigned short class;
++        unsigned short gen;
++        unsigned short ga;
++    };
++    AccelId accel;
++} ParmBoolShortShortAccel;
++
++typedef struct ParmAddrAddrAccel {
++    S390MachineProps *prop;
++    S390CPUClass *host_cc;
++    AccelId accel;
++} ParmAddrAddrAccel;
++
  static GSList *s390_cpu_aliases;
-+static const char *selected_cpu_typename;
  
- /* compare order of two cpu classes for ascending sort */
- gint s390_cpu_class_asc_order_compare(gconstpointer a, gconstpointer b)
-@@ -631,3 +632,27 @@ bool s390_probe_mode(void)
-     return false;
++/* compare order of two cpu classes for ascending sort */
++gint s390_cpu_class_asc_order_compare(gconstpointer a, gconstpointer b)
++{
++    S390CPUClass *cc_a = S390_CPU_CLASS((ObjectClass *) a);
++    S390CPUClass *cc_b = S390_CPU_CLASS((ObjectClass *) b);
++
++    if (cc_a->mach->order < cc_b->mach->order) {
++        return -1;
++    }
++    if (cc_a->mach->order > cc_b->mach->order) {
++        return 1;
++    }
++    return 0;
++}
++
+ static gint s390_cpu_compare_class_name(gconstpointer a, gconstpointer b)
+ {
+     const char *aname = object_class_get_name((ObjectClass *) a);
+@@ -167,3 +201,433 @@ int set_s390_cpu_alias(const char *name, const char *model)
+     return 0;
  }
  
-+/**
-+ * s390_cpu_typename - get name of selected cpu class type
-+ *
-+ * Returns: address to name of selected cpu class type
-+ *          NULL if no cpu class type has been selected yet
-+ */
-+const char *s390_cpu_typename(void)
++/* return machine class for specific machine type */
++static void s390_machine_class_test_cpu_class(gpointer data, gpointer user_data)
 +{
-+    return selected_cpu_typename;
++    S390CPUClass *cc = S390_CPU_CLASS((ObjectClass *) data);
++    ParmBoolShortShortAccel *parm = user_data;
++
++    if (parm->valid || !cc->proc->type || parm->type != cc->proc->type) {
++        return;
++    }
++
++    parm->class = cc->mach->class;
++    parm->valid = true;
++}
++
++/* return machine class by machine type */
++static unsigned short machine_class(unsigned short type, void *user_data)
++{
++    GSList *list = object_class_get_list(TYPE_S390_CPU, false);
++    ParmBoolShortShortAccel parm_class, *parm = user_data;
++
++    if (parm->type != type) {
++        parm->class = 0;
++    }
++    if (!parm->class) {
++        parm_class.type = type;
++        parm_class.class = 0;
++        parm_class.valid = false;
++        g_slist_foreach(list, (GFunc) s390_machine_class_test_cpu_class,
++                        &parm_class);
++        g_slist_free(list);
++        if (parm_class.valid) {
++            parm->class = parm_class.class;
++        }
++    }
++    parm->type = type;
++
++    return parm->class;
++}
++
++/* return CMOS generation for specific machine type */
++static void s390_machine_class_test_cpu_gen(gpointer data, gpointer user_data)
++{
++    S390CPUClass *cc = S390_CPU_CLASS((ObjectClass *) data);
++    ParmBoolShortShortAccel *parm = user_data;
++
++    if (parm->valid) {
++        return;
++    }
++
++    if (parm->type == cc->proc->type) {
++        parm->gen = cc->proc->gen;
++        parm->valid = true;
++    }
++}
++
++/* return CMOS generation by machine type */
++static uint16_t machine_gen(unsigned short type)
++{
++    GSList *list = object_class_get_list(TYPE_S390_CPU, false);
++    ParmBoolShortShortAccel parm;
++
++    parm.type = type;
++    parm.gen = 0;
++    parm.valid = false;
++    g_slist_foreach(list, (GFunc) s390_machine_class_test_cpu_gen, &parm);
++    g_slist_free(list);
++
++    return parm.gen;
++}
++
++/* mark cpu class, used in host cpu model case */
++static void s390_mark_host_cpu_class(gpointer data, gpointer user_data)
++{
++    S390CPUClass *cc = S390_CPU_CLASS((ObjectClass *) data);
++    ParmAddrAddrAccel *parm = user_data;
++    ParmBoolShortShortAccel parm_tc;
++
++    if (!cc->is_active[parm->accel]) {
++        return;
++    }
++
++    parm_tc.type = 0;
++    parm_tc.class = 0;
++    if (cc->mach->class != machine_class(cpuid_type(parm->prop->cpuid),
++                                         &parm_tc)) {
++        /* sort out machines that differ from host machine class */
++        return;
++    }
++    if (!parm->host_cc) {
++        /* use first matching machine type */
++        cc->is_host[parm->accel] = true;
++        parm->host_cc = cc;
++        return;
++    }
++    if (cc->proc->gen > machine_gen(cpuid_type(parm->prop->cpuid))) {
++        /* sort out CMOS generations later than hosts generation */
++        cc->is_active[parm->accel] = false;
++        return;
++    }
++    if (cc->mach->order > parm->host_cc->mach->order) {
++        /* select later machine as host */
++        parm->host_cc->is_host[parm->accel] = false;
++        cc->is_host[parm->accel] = true;
++        parm->host_cc = cc;
++    }
++}
++
++/* update a specific cpu model class with host retrieved configuration */
++static void s390_update_cpu_class(gpointer data, gpointer user_data)
++{
++    ObjectClass *oc = data;
++    ParmAddrAddrAccel *parm = user_data;
++    S390CPUClass *cc = S390_CPU_CLASS(oc);
++    unsigned int i;
++
++    if (!cc->proc->type) {
++        return;
++    }
++
++    /* Set processor identifier */
++    cc->proc->id = cpuid_id(parm->prop->cpuid);
++
++    /*
++     * Define model specific IBC value in current host context.
++     * IBC was introduced with CMOS version 10 i.e. type 2097.
++     * For older CPUs it is assumed to be 0x000. The BC system
++     * has always the same IBC version as the previous EC system.
++     * If the host supports IBC but not the requested type, it
++     * will be set to the oldest supported value.
++     */
++    if (has_ibc(parm->prop->ibc_range)) {
++        if (cc->proc->gen >= S390_CMOS_G10) {
++            cc->proc->ibc = ((cc->proc->gen - S390_CMOS_G10) << 4);
++            cc->proc->ibc += cc->mach->ga;
++            if (cc->mach->class == S390_BC) {
++                cc->proc->ibc++;
++            }
++            if (cc->proc->ibc < oldest_ibc(parm->prop->ibc_range)) {
++                cc->proc->ibc = oldest_ibc(parm->prop->ibc_range);
++            }
++            if (cc->proc->ibc > newest_ibc(parm->prop->ibc_range)) {
++                cc->proc->ibc = newest_ibc(parm->prop->ibc_range);
++            }
++        } else {
++            cc->proc->ibc = oldest_ibc(parm->prop->ibc_range);
++        }
++    }
++
++    /*
++     * Processor generation and GA level specific facility properties:
++     *
++     * - cc->fac_list (RFL):
++     *       resulting facility list to be requested for guest cpus
++     * - cc->proc->fac_list (PFL):
++     *       facility list defined per processor generation and GA level
++     *
++     * Machine specific facility properties reported by the host:
++     *
++     * - parm->prop->fac_list (MFL):
++     *       host specifc facility list, might be reduced by some facilities
++     *       in case the host is backed by z/VM and not a LPAR
++     * - parm->prop->fac_list_mask (MFM):
++     *       host specific facility list mask containing facilities
++     *
++     * QEMU defined properties:
++     *
++     *  - qemu_s390_fac_list_mask (QFM):
++     *        locally defined facilities, they are added to the set of
++     *        facilities requested for a guest vcpu. They are visible in
++     *        the guest and require qemu side instruction handling
++     *
++     * The calculation for the vcpu specific facility list (RFL) from the
++     * above defined lists/masks works as follows:
++     *
++     * RFL = PFL & (QFM | MFM)
++     *
++     * Set resulting/desired facilities of given cpu class
++     */
++    for (i = 0; i < S390_FAC_LIST_SIZE_UINT64; i++) {
++        cc->fac_list[i] = cc->proc->fac_list[i] &
++            (qemu_s390_fac_list_mask[i] | parm->prop->fac_list_mask[i]);
++    }
++
++    /*
++     * Finally, mark the cpu class inactive if not all resulting/desired
++     * facilities are offered by the host.
++     * (RFL & MFL) != RFL
++     */
++    for (i = 0; i < S390_ARCH_FAC_LIST_SIZE_UINT64 &&
++                cc->is_active[parm->accel]; i++) {
++        if ((cc->fac_list[i] & parm->prop->fac_list[i]) != cc->fac_list[i]) {
++            cc->is_active[parm->accel] = false;
++        }
++    }
++}
++
++/* a cpu class that is newer then the current host */
++static void s390_set_not_supported_cpu_class(gpointer data, gpointer user_data)
++{
++    S390CPUClass *cc = S390_CPU_CLASS((ObjectClass *) data);
++    ParmAddrAddrAccel *parm = user_data;
++
++    if (!cc->is_active[parm->accel]) {
++        return;
++    }
++    if (cc->mach->order > parm->host_cc->mach->order) {
++        cc->is_active[parm->accel] = false;
++    }
++}
++
++/* set alias by type and ga */
++static int set_s390_cpu_alias_by_type_ga(unsigned short type, unsigned short ga)
++{
++    char name[8], model[16];
++
++    snprintf(name, sizeof(name), "%04x", type);
++    snprintf(model, sizeof(model), "%04x-ga%u", type, ga);
++
++    return set_s390_cpu_alias(name, model);
++}
++
++/* set alias if system has latest ga of a type */
++static void s390_set_ga_alias(gpointer data, gpointer user_data)
++{
++    S390CPUClass *cc = S390_CPU_CLASS((ObjectClass *) data);
++    ParmBoolShortShortAccel *parm = user_data;
++
++    if (!cc->is_active[parm->accel]) {
++        return;
++    }
++    if (!parm->type) {
++        parm->type = cc->proc->type;
++    }
++    if (cc->proc->type == parm->type) {
++        parm->ga = cc->mach->ga;
++        return;
++    }
++    set_s390_cpu_alias_by_type_ga(parm->type, parm->ga);
++    parm->type = cc->proc->type;
++    parm->ga = cc->mach->ga;
++}
++
++/* set host marked cpu class as alias to respective class */
++static void s390_set_host_alias_from_cpu_class(gpointer data,
++                                               gpointer user_data)
++{
++    S390CPUClass *cc = S390_CPU_CLASS((ObjectClass *) data);
++    ParmAddrAddrAccel *parm = user_data;
++
++    char model[16];
++
++    if (!cc->is_active[parm->accel] || !cc->is_host[parm->accel]) {
++        return;
++    }
++    snprintf(model, sizeof(model), "%04x-ga%u", cc->proc->type, cc->mach->ga);
++    set_s390_cpu_alias("host", model);
 +}
 +
 +/**
-+ * s390_cpu_models_used - indicates that cpus with model properties
-+ *                        are in use
++ * s390_setup_cpu_classes - initialize the cpu classes for a given accelerator
++ *                          type, mark the default cpu model and define aliases
++ * @accel: the accelerator id
++ * @prop: the addresd to a machine property structure initialized with
++ *        machine related properties of the hosting machine
 + *
-+ * Returns: true  if a cpu model type name has been selected
-+ *          false if either no cpu class type was selected yet or the
-+ *                selected type is TYPE_S390_CPU
++ * Returns: 0 in case of success
++ *          -EINVAL in case no valid default model was identified
 + */
-+bool s390_cpu_models_used(void)
++int s390_setup_cpu_classes(AccelId accel, S390MachineProps *prop)
 +{
-+    return s390_cpu_typename() && strcmp(s390_cpu_typename(), TYPE_S390_CPU);
++    GSList *list;
++    ParmAddrAddrAccel parm;
++    ParmBoolShortShortAccel parm_alias;
++
++    list = object_class_get_list(TYPE_S390_CPU, false);
++    list = g_slist_sort(list, s390_cpu_class_asc_order_compare);
++
++    /* update cpu classes with accellerator properties */
++    parm.accel = accel;
++    parm.prop = prop;
++    g_slist_foreach(list, (GFunc) s390_update_cpu_class, (gpointer) &parm);
++
++    /* define cpu model "host" */
++    parm.host_cc = NULL;
++    g_slist_foreach(list, (GFunc) s390_mark_host_cpu_class, (gpointer) &parm);
++
++    if (!parm.host_cc) {
++        error_report("Failed to mark host cpu class");
++        return -EINVAL;
++    }
++
++    /* inactivate cpu classes not supported by this host */
++    g_slist_foreach(list, (GFunc) s390_set_not_supported_cpu_class, &parm);
++
++    /* set machine type aliases to latest ga of model (e.g. 2064 -> 2064-ga3) */
++    parm_alias.accel = accel;
++    parm_alias.type = 0;
++    parm_alias.ga = 0;
++    g_slist_foreach(list, (GFunc) s390_set_ga_alias, &parm_alias);
++    set_s390_cpu_alias_by_type_ga(parm_alias.type, parm_alias.ga);
++
++    /* set aliases for common model names to machine types */
++    set_s390_cpu_alias("z900",   "2064");
++    set_s390_cpu_alias("z800",   "2066");
++    set_s390_cpu_alias("z990",   "2084");
++    set_s390_cpu_alias("z890",   "2086");
++    set_s390_cpu_alias("z9-109", "2094-ga1");
++    set_s390_cpu_alias("z9",     "2094");
++    set_s390_cpu_alias("z9-ec",  "2094");
++    set_s390_cpu_alias("z9-bc",  "2096");
++    set_s390_cpu_alias("z10",    "2097");
++    set_s390_cpu_alias("z10-ec", "2097");
++    set_s390_cpu_alias("z10-bc", "2098");
++    set_s390_cpu_alias("z196",   "2817");
++    set_s390_cpu_alias("z114",   "2818");
++    set_s390_cpu_alias("zEC12",  "2827");
++    set_s390_cpu_alias("zBC12",  "2828");
++
++    /* set alias for cpu model "host" at end of list */
++    g_slist_foreach(list, (GFunc) s390_set_host_alias_from_cpu_class, &parm);
++
++    g_slist_free(list);
++    return 0;
++}
++
++/* list all supported cpu models and alias names */
++void s390_cpu_list_entry(gpointer data, gpointer user_data)
++{
++    ObjectClass *alias_oc, *oc = data;
++    CPUListState *s = user_data;
++    DeviceClass  *dc = DEVICE_CLASS(oc);
++    S390CPUClass *cc = S390_CPU_CLASS(oc);
++    const char *typename = object_class_get_name(oc);
++    S390CPUAlias *alias;
++    AccelId accel;
++    GSList *item;
++    char *name;
++
++    if (!kvm_enabled()) {
++        return;
++    }
++    accel = ACCEL_ID_KVM;
++    if (!cc->is_active[accel]) {
++        return;
++    }
++    name = g_strndup(typename, strlen(typename) - strlen("-" TYPE_S390_CPU));
++    (*s->cpu_fprintf)(s->file, "s390 %-10s %s\n", name, dc->desc);
++
++    for (item = s390_cpu_aliases; item != NULL; item = item->next) {
++        alias = (S390CPUAlias *) item->data;
++        alias_oc = s390_cpu_class_by_name(alias->model);
++        if (alias_oc != oc) {
++            continue;
++        }
++        (*s->cpu_fprintf)(s->file, "s390 %-10s (alias for %s)\n",
++                          alias->name, name);
++    }
++
++    g_free(name);
++}
++
++/**
++ * s390_cpu_classes_initialized - indicates if the all cpu classes and
++ *                                their properties have been initialized
++ *
++ * Returns: true in case they are initialized
++ *          false in case they are not iniialized
++ */
++bool s390_cpu_classes_initialized(void)
++{
++    if (kvm_enabled()) {
++        return kvm_s390_cpu_classes_initialized();
++    }
++    return false;
++}
++
++bool cpu_desc_avail(void)
++{
++    return s390_cpu_classes_initialized();
++}
++
++static inline uint64_t big_endian_bit(unsigned long nr)
++{
++    return 1ul << (BITS_PER_LONG - (nr % BITS_PER_LONG));
++};
++
++static inline int test_facility(unsigned long nr, uint64_t *fac_list)
++{
++    uint64_t *ptr;
++
++    if (nr >= S390_ARCH_FAC_LIST_SIZE_BYTE * BITS_PER_BYTE) {
++        return 0;
++    }
++    ptr = fac_list + (nr / BITS_PER_LONG);
++
++    return !!(*ptr & big_endian_bit(nr));
++}
++
++/**
++ * s390_test_facility - test if given facility bit is set facility list
++ *                      of given cpu class
++ * @class: address of cpu class to test
++ * @nr: bit number to test
++ *
++ * Returns: true in case it is set
++ *          false in case it is not set
++ */
++bool s390_test_facility(S390CPUClass *cc, unsigned long nr)
++{
++    if (cc) {
++        return test_facility(nr, cc->fac_list) ? true : false;
++    }
++    return false;
++}
++
++/**
++ * s390_probe_mode - indicates that the current machine was initialized
++ *                   in probe mode
++ *
++ * Returns: true  if in probe mode
++ *          false if in standard mode
++ */
++bool s390_probe_mode(void)
++{
++    if (kvm_enabled() && kvm_s390_probe_mode()) {
++        return true;
++    }
++    return false;
 +}
 +
 diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
-index be94667..23ac2c4 100644
+index 76b3456..be94667 100644
 --- a/target-s390x/cpu-models.h
 +++ b/target-s390x/cpu-models.h
-@@ -110,6 +110,8 @@ void s390_cpu_list_entry(gpointer data, gpointer user_data);
- bool s390_cpu_classes_initialized(void);
- bool s390_test_facility(S390CPUClass *cc, unsigned long nr);
- bool s390_probe_mode(void);
-+const char *s390_cpu_typename(void);
-+bool s390_cpu_models_used(void);
+@@ -28,12 +28,32 @@
+ #define S390_DEF_ID      0xdecade
+ #define S390_DEF_TYPE    0x2064
  
- /*
-  * bits 0-7   : CMOS generation
-diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
-index d27832b..d98578b 100644
---- a/target-s390x/cpu.c
-+++ b/target-s390x/cpu.c
-@@ -37,6 +37,11 @@
- #define CR0_RESET       0xE0UL
- #define CR14_RESET      0xC2000000UL;
- 
-+static inline char *strdup_s390_cpu_name(S390CPUClass *cc)
-+{
-+    return g_strdup_printf("%04x-ga%u", cc->proc->type, cc->mach->ga);
-+}
++/* first s390 CMOS generation supporting IBC */
++#define S390_CMOS_G10    0xa
 +
- /* generate CPU information for cpu -? */
- void s390_cpu_list(FILE *f, fprintf_function cpu_fprintf)
- {
-@@ -74,6 +79,33 @@ CpuDefinitionInfoList *arch_query_cpu_definitions(Error **errp)
+ #define cpu_type(x)       (((x) >>  0) & 0xffff)
+ #define cpu_order(x)      (((x) >> 16) & 0xffff)
+ #define cpu_ga(x)         (((x) >> 16) & 0xf)
+ #define cpu_class(x)      (((x) >> 20) & 0x3)
+ #define cpu_generation(x) (((x) >> 24) & 0xff)
  
-     return entry;
++#define cpuid_type(x)     (((x) >> 16) & 0xffff)
++#define cpuid_id(x)       (((x) >> 32) & 0xffffff)
++#define cpuid_ver(x)      (((x) >> 56) & 0xff)
++
++#define type_cpuid(x)     ((uint64_t)((x) & 0xffff) << 16)
++#define id_cpuid(x)       ((uint64_t)((x) & 0xffffff) << 32)
++#define ver_cpuid(x)      ((uint64_t)((x) & 0xff) << 56)
++
++#define oldest_ibc(x)     (((uint32_t)(x) >> 16) & 0xfff)
++#define newest_ibc(x)     ((uint32_t)(x) & 0xfff)
++#define has_ibc(x)        (oldest_ibc(x) != 0)
++
++#define S390_DEF_CPUID             \
++    (ver_cpuid(S390_DEF_VERSION) | \
++     id_cpuid(S390_DEF_ID) |       \
++     type_cpuid(S390_DEF_TYPE))
++
+ ObjectClass *s390_cpu_class_by_name(const char *name);
+ int set_s390_cpu_alias(const char *name, const char *model);
+ 
+@@ -84,6 +104,13 @@ static inline bool kvm_s390_probe_mode(void)
  }
-+
-+CpuModelInfo *arch_query_cpu_model(Error **errp)
-+{
-+    CpuModelInfo *info;
-+    S390CPUClass *cc;
-+
-+    if (!s390_cpu_models_used()) {
-+        return NULL;
-+    }
-+    info = g_try_new0(CpuModelInfo, 1);
-+    if (!info) {
-+        return NULL;
-+    }
-+    cc = S390_CPU_CLASS(object_class_by_name(s390_cpu_typename()));
-+    info->name = strdup_s390_cpu_name(cc);
-+    if (!info->name) {
-+        g_free(info);
-+        return NULL;
-+    }
-+    info->accelerator = ACCEL_ID_MAX;
-+    if (kvm_enabled()) {
-+        info->accelerator = ACCEL_ID_KVM;
-+    }
-+    info->has_accelerator = (info->accelerator != ACCEL_ID_MAX);
-+
-+    return info;
-+}
  #endif
  
- static void s390_cpu_set_pc(CPUState *cs, vaddr value)
++int s390_setup_cpu_classes(AccelId accel, S390MachineProps *prop);
++gint s390_cpu_class_asc_order_compare(gconstpointer a, gconstpointer b);
++void s390_cpu_list_entry(gpointer data, gpointer user_data);
++bool s390_cpu_classes_initialized(void);
++bool s390_test_facility(S390CPUClass *cc, unsigned long nr);
++bool s390_probe_mode(void);
++
+ /*
+  * bits 0-7   : CMOS generation
+  * bits 8-9   : reserved
+diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
+index f30856e..d27832b 100644
+--- a/target-s390x/cpu.c
++++ b/target-s390x/cpu.c
+@@ -41,7 +41,22 @@
+ void s390_cpu_list(FILE *f, fprintf_function cpu_fprintf)
+ {
+ #ifdef CONFIG_KVM
+-    (*cpu_fprintf)(f, "s390 %16s\n", "host");
++    CPUListState s = {
++        .file = f,
++        .cpu_fprintf = cpu_fprintf,
++    };
++    GSList *list;
++
++    if (kvm_enabled() && s390_cpu_classes_initialized()) {
++        list = object_class_get_list(TYPE_S390_CPU, false);
++        list = g_slist_sort(list, s390_cpu_class_asc_order_compare);
++        g_slist_foreach(list, s390_cpu_list_entry, &s);
++        g_slist_free(list);
++    } else {
++#endif
++        (*cpu_fprintf)(f, "s390 host\n");
++#ifdef CONFIG_KVM
++    }
+ #endif
+ }
+ 
+diff --git a/target-s390x/kvm.c b/target-s390x/kvm.c
+index c518489..ce2392a 100644
+--- a/target-s390x/kvm.c
++++ b/target-s390x/kvm.c
+@@ -232,7 +232,9 @@ static void kvm_s390_setup_cpu_classes(KVMState *s)
+     S390MachineProps mach;
+ 
+     if (!kvm_s390_get_machine_props(s, &mach)) {
+-        cpu_classes_initialized = false;
++        if (!s390_setup_cpu_classes(ACCEL_ID_KVM, &mach)) {
++            cpu_classes_initialized = true;
++        }
+     }
+ }
+ 
 -- 
 1.8.3.1
