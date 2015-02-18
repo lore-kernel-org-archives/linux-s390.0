@@ -1,77 +1,73 @@
-From: Eric Blake <eblake@redhat.com>
-Subject: Re: [RFC PATCH v2 02/15] cpu-model: Introduce option
- --probe to switch into probe mode
-Date: Tue, 17 Feb 2015 12:16:20 -0700
-Message-ID: <54E39384.6000308@redhat.com>
+From: Michael Mueller <mimu@linux.vnet.ibm.com>
+Subject: Re: [Qemu-devel] [RFC PATCH v2 11/15] cpu-model/s390: Add QMP
+ command query-cpu-model
+Date: Wed, 18 Feb 2015 09:39:59 +0100
+Message-ID: <20150218093959.31982d1c@bee>
 References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
-	<1424183053-4310-3-git-send-email-mimu@linux.vnet.ibm.com>
+	<1424183053-4310-12-git-send-email-mimu@linux.vnet.ibm.com>
+	<54E3825F.7080701@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature";
-	boundary="s4ofQgLFQKxuu22LXFGNFiRn5fJOftGLd"
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
-In-Reply-To: <1424183053-4310-3-git-send-email-mimu@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <54E3825F.7080701@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Michael Mueller <mimu@linux.vnet.ibm.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
+To: Eric Blake <eblake@redhat.com>
+Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---s4ofQgLFQKxuu22LXFGNFiRn5fJOftGLd
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-
-On 02/17/2015 07:24 AM, Michael Mueller wrote:
-> The option --probe allows to switch into probe mode also for machines
-> different from none. If one or more accelerators are specified these
-> accelerators are used to provide probable properties. If no accelerator=
-
-> is given a list of accellerators that support probing is used.
-
-s/accellerators/accelerators/
-
->=20
-> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-> ---
->  accel.c                | 13 ++++++++-----
->  include/sysemu/accel.h |  2 +-
->  qemu-options.hx        |  8 ++++++++
->  vl.c                   |  7 ++++++-
->  4 files changed, 23 insertions(+), 7 deletions(-)
->=20
-
---=20
-Eric Blake   eblake redhat com    +1-919-301-3266
-Libvirt virtualization library http://libvirt.org
-
-
---s4ofQgLFQKxuu22LXFGNFiRn5fJOftGLd
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-Comment: Public key at http://people.redhat.com/eblake/eblake.gpg
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQEcBAEBCAAGBQJU45OEAAoJEKeha0olJ0NqyWsH+wV+yxv2ghyVHqoLxNIG+f2+
-y36C9k8c46wcZfvUtpOmfU93cFwEqnO8NL1RUt3h2Yz16P9UZ+rx+vB2/gDKztll
-UE7Oagg+CjCHWDO7+Yu0Virkp2qHSk1cxeubMoxYaojAFo8x58NI9PBPDlsLzvSt
-FJlRVt4dvtnpdmh2XiFX/Xvcu7uMLQe+upsNUMVIaJfe6TBFu6IDAgI+CNqUM4wd
-qLcbrPuTPf7b8xjjJmlaCbb+4cxJr37mEN4/l0SFkNoWOH9lAweaZ6HixX1wCocE
-BhMarkh1LcE7gwDAwIVZ/Xgz/fpNmS5rf7KQjgI38g0gbtup1emOcPpiSDaiYOo=
-=6G06
------END PGP SIGNATURE-----
-
---s4ofQgLFQKxuu22LXFGNFiRn5fJOftGLd--
+LS0tLS1CRUdJTiBQR1AgU0lHTkVEIE1FU1NBR0UtLS0tLQ0KSGFzaDogU0hBMQ0KDQpPbiBUdWUs
+IDE3IEZlYiAyMDE1IDExOjAzOjExIC0wNzAwDQpFcmljIEJsYWtlIDxlYmxha2VAcmVkaGF0LmNv
+bT4gd3JvdGU6DQoNCj4gT24gMDIvMTcvMjAxNSAwNzoyNCBBTSwgTWljaGFlbCBNdWVsbGVyIHdy
+b3RlOg0KPiA+IFRoaXMgcGF0Y2ggaW1wbGVtZW50cyBhIG5ldyBRTVAgcmVxdWVzdCBuYW1lZCAn
+cXVlcnktY3B1LW1vZGVsJy4NCj4gPiBJdCByZXR1cm5zIHRoZSBjcHUgbW9kZWwgb2YgY3B1IDAg
+YW5kIGl0cyBiYWNraW5nIGFjY2VsZXJhdG9yLg0KPiA+IA0KPiA+IHJlcXVlc3Q6DQo+ID4gICB7
+ImV4ZWN1dGUiIDogInF1ZXJ5LWNwdS1tb2RlbCIgfQ0KPiA+IA0KPiA+IGFuc3dlcjoNCj4gPiAg
+IHsicmV0dXJuIiA6IHsibmFtZSI6ICIyODI3LWdhMiIsICJhY2NlbGVyYXRvciI6ICJrdm0iIH19
+DQo+ID4gDQo+ID4gQWxpYXMgbmFtZXMgYXJlIHJlc29sdmVkIHRvIHRoZWlyIHJlc3BlY3RpdmUg
+bWFjaGluZSB0eXBlIGFuZCBHQSBuYW1lcw0KPiA+IGFscmVhZHkgZHVyaW5nIGNwdSBpbnN0YW50
+aWF0aW9uLiBUaHVzLCBhbHNvIGEgY3B1IG1vZGVsIGxpa2UgJ2hvc3QnDQo+ID4gd2hpY2ggaXMg
+aW1wbGVtZW50ZWQgYXMgYWxpYXMgd2lsbCByZXR1cm4gaXRzIG5vcm1hbGl6ZWQgY3B1IG1vZGVs
+IG5hbWUuDQo+ID4gDQo+ID4gRnVydGhlcm1vcmUgdGhlIHBhdGNoIGltcGxlbWVudHMgdGhlIGZv
+bGxvd2luZyBmdW5jdGlvbnM6DQo+ID4gDQo+ID4gLSBzMzkwX2NwdV90eXBlbmFtZSgpLCByZXR1
+cm5zIHRoZSBjdXJyZW50bHkgc2VsZWN0ZWQgY3B1IHR5cGUgbmFtZSBvciBOVUxMDQo+ID4gLSBz
+MzkwX2NwdV9tb2RlbHNfdXNlZCgpLCByZXR1cm5zIHRydWUgaWYgUzM5MCBjcHUgbW9kZWxzIGFy
+ZSBpbiB1c2UNCj4gPiANCj4gPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIE11ZWxsZXIgPG1pbXVA
+bGludXgudm5ldC5pYm0uY29tPg0KPiA+IC0tLQ0KPiA+ICANCj4gPiArIyMNCj4gPiArIyBAQ3B1
+TW9kZWxJbmZvOg0KPiA+ICsjDQo+ID4gKyMgVmlydHVhbCBDUFUgbW9kZWwgZGVmaW5pdGlvbi4N
+Cj4gPiArIw0KPiA+ICsjIEBuYW1lOiB0aGUgbmFtZSBvZiB0aGUgQ1BVIG1vZGVsIGRlZmluaXRp
+b24NCj4gPiArIw0KPiA+ICsjIFNpbmNlOiAyLjMuMA0KPiA+ICsjIw0KPiA+ICt7ICd0eXBlJzog
+J0NwdU1vZGVsSW5mbycsDQo+ID4gKyAgJ2RhdGEnOiB7ICduYW1lJzogJ3N0cicsICcqYWNjZWxl
+cmF0b3InOiAnQWNjZWxJZCcgfSB9DQo+IA0KPiBZb3UgZGlkbid0IGRvY3VtZW50ICcqYWNjZWxl
+cmF0b3InLCBpbmNsdWRpbmcgbWVudGlvbiB0aGF0IGl0IGlzDQo+IG9wdGlvbmFsICh3aHkgd291
+bGQgaXQgbm90IGJlIG91dHB1dCBhbHdheXM/KS4NCg0KUmlnaHQsIGFzIGl0IGlzIGEgbmV3IGNv
+bW1hbmQgYW5kIGFsbCBjcHVzIG9uY2UgaW1wbGVtZW50aW5nIGl0IGhhdmUgYW4gYXNzb2NpYXRl
+ZCBhY2NlbGVyYXRvcg0KdGhlcmUgaXMgbm8gcG9pbnQgaW4gbWFraW5nIGl0IG9wdGlvbmFsLiBX
+aWxsIGFkZCBhIGNvbW1lbnQgYXMgd2VsbC4NCj4gDQo+ID4gKw0KPiA+ICsjIw0KPiA+ICsjIEBx
+dWVyeS1jcHUtbW9kZWw6DQo+ID4gKyMNCj4gPiArIyBSZXR1cm4gdG8gY3VycmVudCB2aXJ0dWFs
+IENQVSBtb2RlbA0KPiANCj4gcy90by90aGUvDQoNCnllcA0KDQo+IA0KPiA+ICsjDQo+ID4gKyMg
+UmV0dXJuczogQ3B1TW9kZWxJbmZvDQo+ID4gKyMNCj4gPiArIyBTaW5jZTogMi4zLjANCj4gDQo+
+IFdlIGFyZW4ndCB2ZXJ5IGNvbnNpc3RlbnQgb24gJzIuMycgdnMuICcyLjMuMCcsIHNvIEkgd29u
+J3QgY29tcGxhaW4NCj4gYWJvdXQgdGhhdC4NCg0KQnV0IHlvdSBzZWVtIHRvIHByZWZlciBtYWpv
+ciBhbmQgbWlub3Igb25seSwgc28gSSB3aWxsIHNraXAgdGhlIHRyYWlsaW5nIDAuDQoNCj4gDQo+
+ID4gKyMjDQo+ID4gK3sgJ2NvbW1hbmQnOiAncXVlcnktY3B1LW1vZGVsJywgJ3JldHVybnMnOiAn
+Q3B1TW9kZWxJbmZvJyB9DQo+IA0KPiBTZWVtcyByZWFzb25hYmxlIGZyb20gdGhlIGludGVyZmFj
+ZSBwb2ludCBvZiB2aWV3OyBJIGhhdmUgbm90IGNsb3NlbHkNCj4gcmV2aWV3ZWQgdGhlIGltcGxl
+bWVudGF0aW9uLg0KPiANCg0KVGhhbmtzDQpNaWNoYWVsDQotLS0tLUJFR0lOIFBHUCBTSUdOQVRV
+UkUtLS0tLQ0KVmVyc2lvbjogR251UEcgdjENCg0KaVFJY0JBRUJBZ0FHQlFKVTVFL2ZBQW9KRUxQ
+Y1BMUVNKc0tRWWtzUC9pbldoY1NuUUY2V2dOVGFGMnFzRXF5Rw0KNmtSeUF3ZlZJRDlrMFJoMUVo
+M2ZES2JERHJ0WGUxcEIzZGJIbFg2SldXckRDUUN6ZkZ4YlJERWxLM2xYNGsxZw0KcnlBaTlaUlBa
+N1RCODhlR0lTNjZ2UTRKL085V1dlL0k3dHpvWDJ5ZUZjTVJOYTkrOGRweWx1UEhXTlliZU42Zg0K
+S2t6UXkxNVBhYkNpZ2d3UXVEZm0rWDRqaVY3SHRJZHhSVk51T0pWNGoyVThwNldwNVlhWk1FcDhN
+SlEydERNZQ0KVWlvbjkxVloyaXpMUS9ybitRSWIxRjI4b20wM0xXZmg0N3NLemFtOWw5b29tRmds
+R2htSFhrRWt0TCtLQ1FUSw0KTVNVUU9pSUszclN6WmlGcTVkc2pJQU9vMWJrcmpZcFB4VWZ4cTB4
+RGpyZUpvR2tkMXNidFE2NjNRSEcwUlVUVA0KMUcwQk5LSHhOZ2dreG94eUNoYUVZV29wTnlaMndN
+RW4zWEJhVkh2bmZEcUR5eW1zV28zbkFRVldJTXdGcEh0aA0KdlNmQkxZM0NKbkFXNEhuRGlhVjMr
+c05EbEZabHR0elBFNWpWWGliUjk4c0NkUU9STkVwQ3Q5ZnJkdTFBVG9HQg0KTUNpQXdKTWMxcWVz
+Y0pNZ2hzb2dDVXpHOUVsQTd3YnZHSXYrZS91RUdqN0xCLzFIMFpNSXBOL1FVOU5EZDNGaQ0KWHBs
+ZEd2UExJV1JKcTcvbDhjNi9LTmc4U2JUbjFwcnRHWjFwS05PbGttbitCZUVRamNpaEVtR09TdG9X
+bnk0OA0KMWhUMDhlbmhCSjlza1h2V2xHVHZZQmxvaFE2dkVSd1o1QjlFNHRtU2VMUlFHKzRZa0Uz
+SlR5YjBGSkpTY0JvVg0KbDFYK1Btd2lUMkFmZVhMbERIbG0NCj02UW1pDQotLS0tLUVORCBQR1Ag
+U0lHTkFUVVJFLS0tLS0NCg==
