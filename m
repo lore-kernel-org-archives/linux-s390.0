@@ -1,54 +1,53 @@
 From: Joseph Myers <joseph@codesourcery.com>
-Date: Fri, 06 Feb 2015 18:03:13 +0000
+Date: Thu, 19 Feb 2015 18:40:34 +0000
 Subject: Re: [PATCH RFC] Update kernel math-emu code from current glibc soft-fp
-Message-Id: <alpine.DEB.2.10.1502061748060.27832@digraph.polyomino.org.uk>
+Message-Id: <alpine.DEB.2.10.1502191835490.22905@digraph.polyomino.org.uk>
+MIME-Version: 1
+Content-Type: multipart/mixed; boundary="-1152306461-273902004-1424371234=:22905"
 References: <alpine.DEB.2.10.1502061719210.27832@digraph.polyomino.org.uk>
- <54D4FCC9.80704@infradead.org>
-In-Reply-To: <54D4FCC9.80704@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+ <20150219.132122.204795202277130266.davem@davemloft.net>
+In-Reply-To: <20150219.132122.204795202277130266.davem@davemloft.net>
 List-Archive: <https://lore.kernel.org/linux-sh/>
 List-Post: <mailto:linux-sh@vger.kernel.org>
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: David Miller <davem@davemloft.net>
+Cc: linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, kkojima@rr.iij4u.or.jp
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 6 Feb 2015, Randy Dunlap wrote:
+---1152306461-273902004-1424371234=:22905
+Content-Type: text/plain; charset="iso-8859-7"
+Content-Transfer-Encoding: base64
 
-> On 02/06/15 09:25, Joseph Myers wrote:
-> > At this point this patch is an RFC rather than yet being ready for
-> > inclusion, because I've only tested it for powerpc (both e500 and
-> > emulation of classic hard float); it's quite likely there are bugs in
-> > the changes for other architectures, quite possibly breaking the
-> > build.  I've also posted it to libc-alpha
-> > <https://sourceware.org/ml/libc-alpha/2015-02/msg00107.html> with a
-> > call for testing and notes on what testing might be appropriate.
-> 
-> Is there a test suite?
+T24gVGh1LCAxOSBGZWIgMjAxNSwgRGF2aWQgTWlsbGVyIHdyb3RlOgoKPiBGcm9tOiBKb3NlcGgg
+TXllcnMgPGpvc2VwaEBjb2Rlc291cmNlcnkuY29tPgo+IERhdGU6IEZyaSwgNiBGZWIgMjAxNSAx
+NzoyNToyOSArMDAwMAo+IAo+ID4gKiBPbiBTUEFSQywgY29tcGFyaXNvbnMgbm93IHVzZSByYXcg
+dW5wYWNraW5nICh0aGlzIHNob3VsZCBub3QgaW4gZmFjdAo+ID4gICBjaGFuZ2UgaG93IHRoZSBl
+bXVsYXRpb24gYmVoYXZlcywganVzdCBtYWtlIGl0IG1vcmUgZWZmaWNpZW50KS4KPiAKPiBJIGRp
+ZCBhIHNwYXJjNjQgdGVzdCBidWlsZCBhbmQgaXQgZmFpbGVkIGxpa2Ugc286Cj4gCj4gYXJjaC9z
+cGFyYy9tYXRoLWVtdS9tYXRoXzY0LmM6IEluIGZ1bmN0aW9uIKFkb19tYXRoZW11ojoKPiBhcmNo
+L3NwYXJjL21hdGgtZW11L21hdGhfNjQuYzo0ODc6MTogZXJyb3I6IGV4cGVjdGVkIGV4cHJlc3Np
+b24gYmVmb3JlIKFyZXR1cm6iCj4gYXJjaC9zcGFyYy9tYXRoLWVtdS9tYXRoXzY0LmM6NDg4OjE6
+IGVycm9yOiBleHBlY3RlZCBleHByZXNzaW9uIGJlZm9yZSChcmV0dXJuogo+IGFyY2gvc3BhcmMv
+bWF0aC1lbXUvbWF0aF82NC5jOjQ5MDoxOiBlcnJvcjogZXhwZWN0ZWQgZXhwcmVzc2lvbiBiZWZv
+cmUgoXJldHVybqIKPiBhcmNoL3NwYXJjL21hdGgtZW11L21hdGhfNjQuYzo0OTE6MTogZXJyb3I6
+IGV4cGVjdGVkIGV4cHJlc3Npb24gYmVmb3JlIKFyZXR1cm6iCj4gYXJjaC9zcGFyYy9tYXRoLWVt
+dS9tYXRoXzY0LmM6NDk1OjE6IGVycm9yOiBleHBlY3RlZCBleHByZXNzaW9uIGJlZm9yZSChcmV0
+dXJuogo+IAo+IEknbSBhdHRhY2hpbmcgYSBDUFAgcHJvY2Vzc2VkIG1hdGhfNjQuYyBmb3IgeW91
+ciBjb252ZW5pZW5jZToKClBsZWFzZSB0cnkgdGhpcyBwYXRjaCBvbiB0b3Agb2YgdGhlIHByZXZp
+b3VzIG9uZS4gIFRoZSB3YXkgYWJvcnQgaXMgCnJlZGVmaW5lZCBpbiB0aGUga2VybmVsIGNvZGUg
+ZG9lc24ndCB3b3JrIGZvciBvbmUgcGxhY2UgdXNpbmcgaXQgaW4gYW4gCmV4cHJlc3Npb247IHRo
+aXMgcGF0Y2ggY2hhbmdlcyBhIGNvbW1hIGV4cHJlc3Npb24gdG8gYSBzdGF0ZW1lbnQgCmV4cHJl
+c3Npb24uICBUaGlzIGRpZG4ndCBhcHBlYXIgaW4gbXkgcG93ZXJwYyB0ZXN0aW5nIGJlY2F1c2Ug
+dGhlIHBvd2VycGMgCmVtdWxhdGlvbiBuZXZlciB1c2VzIEZQX0ZST01fSU5UOyBJJ20gbm90IHN1
+cmUgaG93IEtheidzIHNoIHRlc3RpbmcgCmF2b2lkZWQgdGhlIHByb2JsZW0gYXBwZWFyaW5nIHRo
+ZXJlLgoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbWF0aC1lbXUvb3AtY29tbW9uLmggYi9pbmNsdWRl
+L21hdGgtZW11L29wLWNvbW1vbi5oCmluZGV4IGI5ZjVlMWEuLjhjMDU5YzMgMTAwNjQ0Ci0tLSBh
+L2luY2x1ZGUvbWF0aC1lbXUvb3AtY29tbW9uLmgKKysrIGIvaW5jbHVkZS9tYXRoLWVtdS9vcC1j
+b21tb24uaApAQCAtMTgxOCw3ICsxODE4LDcgQEAKIAkJCSBYIyNfZSA9IChfRlBfRVhQQklBU18j
+I2ZzICsgMiAqIF9GUF9XX1RZUEVfU0laRSAtIDEgXAogCQkJCSAgLSBfRlBfRlJPTV9JTlRfbHop
+OwkJCVwKIAkJICAgICAgIH0pCQkJCQkJXAotCQkgICAgIDogKGFib3J0ICgpLCAwKSkpOwkJCQkJ
+XAorCQkgICAgIDogKHsgYWJvcnQgKCk7IDA7IH0pKSk7CQkJCVwKIAkJCQkJCQkJCVwKIAkgIGlm
+ICgocnNpemUpIC0gMSArIF9GUF9FWFBCSUFTXyMjZnMgPj0gX0ZQX0VYUE1BWF8jI2ZzCQlcCiAJ
+ICAgICAgJiYgWCMjX2UgPj0gX0ZQX0VYUE1BWF8jI2ZzKQkJCQlcCgotLSAKSm9zZXBoIFMuIE15
+ZXJzCmpvc2VwaEBjb2Rlc291cmNlcnkuY29t
 
-In practice, the current glibc testsuite ("make math/tests" then look in 
-math/subdir-tests.sum for FAILs and examine those in more detail - some 
-may well be pre-existing and appear without my patch) provides pretty 
-thorough coverage of basic floating-point operations.  There are at least 
-two pre-existing bugs in the powerpc emulation that show up that way 
-(running the testsuite, built for classic hard-float, on a processor where 
-classic hard-float isn't supported in hardware), but as they are 
-independent of this update I put them on my list of issues to look at 
-later.  Various of the issues I fixed in Nov/Dec 2013 with the powerpc 
-e500 SPE float emulation were also found through the glibc testsuite.
-
-People have also used other testsuites such as TestFloat and ucbtest in 
-the past to validate floating-point emulation (ucbtest was used to 
-validate some of the past soft-fp changes, for example).  All of these end 
-up testing some combination of compiler, library, hardware and kernel so 
-it's not always immediately obvious where a failure is coming from.  If 
-there are architectural tests of instruction semantics available, those 
-could be used and might validate choices of results where they aren't 
-fully specified by IEEE 754 (of course, the existing code may not always 
-make such choices in a way that matches the hardware, either).  There 
-isn't a testsuite specific to soft-fp.
-
--- 
-Joseph S. Myers
-joseph@codesourcery.com
+---1152306461-273902004-1424371234=:22905--
