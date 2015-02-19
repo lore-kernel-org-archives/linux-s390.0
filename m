@@ -1,53 +1,45 @@
-From: Joseph Myers <joseph@codesourcery.com>
-Date: Thu, 19 Feb 2015 18:40:34 +0000
+From: David Miller <davem@davemloft.net>
+Date: Thu, 19 Feb 2015 19:10:28 +0000
 Subject: Re: [PATCH RFC] Update kernel math-emu code from current glibc soft-fp
-Message-Id: <alpine.DEB.2.10.1502191835490.22905@digraph.polyomino.org.uk>
-MIME-Version: 1
-Content-Type: multipart/mixed; boundary="-1152306461-273902004-1424371234=:22905"
+Message-Id: <20150219.141028.571019196212537944.davem@davemloft.net>
 References: <alpine.DEB.2.10.1502061719210.27832@digraph.polyomino.org.uk>
  <20150219.132122.204795202277130266.davem@davemloft.net>
-In-Reply-To: <20150219.132122.204795202277130266.davem@davemloft.net>
+ <alpine.DEB.2.10.1502191835490.22905@digraph.polyomino.org.uk>
+In-Reply-To: <alpine.DEB.2.10.1502191835490.22905@digraph.polyomino.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 List-Archive: <https://lore.kernel.org/linux-sh/>
 List-Post: <mailto:linux-sh@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
+To: joseph@codesourcery.com
 Cc: linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, kkojima@rr.iij4u.or.jp
 List-ID: <linux-s390.vger.kernel.org>
 
----1152306461-273902004-1424371234=:22905
-Content-Type: text/plain; charset="iso-8859-7"
-Content-Transfer-Encoding: base64
+From: Joseph Myers <joseph@codesourcery.com>
+Date: Thu, 19 Feb 2015 18:40:34 +0000
 
-T24gVGh1LCAxOSBGZWIgMjAxNSwgRGF2aWQgTWlsbGVyIHdyb3RlOgoKPiBGcm9tOiBKb3NlcGgg
-TXllcnMgPGpvc2VwaEBjb2Rlc291cmNlcnkuY29tPgo+IERhdGU6IEZyaSwgNiBGZWIgMjAxNSAx
-NzoyNToyOSArMDAwMAo+IAo+ID4gKiBPbiBTUEFSQywgY29tcGFyaXNvbnMgbm93IHVzZSByYXcg
-dW5wYWNraW5nICh0aGlzIHNob3VsZCBub3QgaW4gZmFjdAo+ID4gICBjaGFuZ2UgaG93IHRoZSBl
-bXVsYXRpb24gYmVoYXZlcywganVzdCBtYWtlIGl0IG1vcmUgZWZmaWNpZW50KS4KPiAKPiBJIGRp
-ZCBhIHNwYXJjNjQgdGVzdCBidWlsZCBhbmQgaXQgZmFpbGVkIGxpa2Ugc286Cj4gCj4gYXJjaC9z
-cGFyYy9tYXRoLWVtdS9tYXRoXzY0LmM6IEluIGZ1bmN0aW9uIKFkb19tYXRoZW11ojoKPiBhcmNo
-L3NwYXJjL21hdGgtZW11L21hdGhfNjQuYzo0ODc6MTogZXJyb3I6IGV4cGVjdGVkIGV4cHJlc3Np
-b24gYmVmb3JlIKFyZXR1cm6iCj4gYXJjaC9zcGFyYy9tYXRoLWVtdS9tYXRoXzY0LmM6NDg4OjE6
-IGVycm9yOiBleHBlY3RlZCBleHByZXNzaW9uIGJlZm9yZSChcmV0dXJuogo+IGFyY2gvc3BhcmMv
-bWF0aC1lbXUvbWF0aF82NC5jOjQ5MDoxOiBlcnJvcjogZXhwZWN0ZWQgZXhwcmVzc2lvbiBiZWZv
-cmUgoXJldHVybqIKPiBhcmNoL3NwYXJjL21hdGgtZW11L21hdGhfNjQuYzo0OTE6MTogZXJyb3I6
-IGV4cGVjdGVkIGV4cHJlc3Npb24gYmVmb3JlIKFyZXR1cm6iCj4gYXJjaC9zcGFyYy9tYXRoLWVt
-dS9tYXRoXzY0LmM6NDk1OjE6IGVycm9yOiBleHBlY3RlZCBleHByZXNzaW9uIGJlZm9yZSChcmV0
-dXJuogo+IAo+IEknbSBhdHRhY2hpbmcgYSBDUFAgcHJvY2Vzc2VkIG1hdGhfNjQuYyBmb3IgeW91
-ciBjb252ZW5pZW5jZToKClBsZWFzZSB0cnkgdGhpcyBwYXRjaCBvbiB0b3Agb2YgdGhlIHByZXZp
-b3VzIG9uZS4gIFRoZSB3YXkgYWJvcnQgaXMgCnJlZGVmaW5lZCBpbiB0aGUga2VybmVsIGNvZGUg
-ZG9lc24ndCB3b3JrIGZvciBvbmUgcGxhY2UgdXNpbmcgaXQgaW4gYW4gCmV4cHJlc3Npb247IHRo
-aXMgcGF0Y2ggY2hhbmdlcyBhIGNvbW1hIGV4cHJlc3Npb24gdG8gYSBzdGF0ZW1lbnQgCmV4cHJl
-c3Npb24uICBUaGlzIGRpZG4ndCBhcHBlYXIgaW4gbXkgcG93ZXJwYyB0ZXN0aW5nIGJlY2F1c2Ug
-dGhlIHBvd2VycGMgCmVtdWxhdGlvbiBuZXZlciB1c2VzIEZQX0ZST01fSU5UOyBJJ20gbm90IHN1
-cmUgaG93IEtheidzIHNoIHRlc3RpbmcgCmF2b2lkZWQgdGhlIHByb2JsZW0gYXBwZWFyaW5nIHRo
-ZXJlLgoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbWF0aC1lbXUvb3AtY29tbW9uLmggYi9pbmNsdWRl
-L21hdGgtZW11L29wLWNvbW1vbi5oCmluZGV4IGI5ZjVlMWEuLjhjMDU5YzMgMTAwNjQ0Ci0tLSBh
-L2luY2x1ZGUvbWF0aC1lbXUvb3AtY29tbW9uLmgKKysrIGIvaW5jbHVkZS9tYXRoLWVtdS9vcC1j
-b21tb24uaApAQCAtMTgxOCw3ICsxODE4LDcgQEAKIAkJCSBYIyNfZSA9IChfRlBfRVhQQklBU18j
-I2ZzICsgMiAqIF9GUF9XX1RZUEVfU0laRSAtIDEgXAogCQkJCSAgLSBfRlBfRlJPTV9JTlRfbHop
-OwkJCVwKIAkJICAgICAgIH0pCQkJCQkJXAotCQkgICAgIDogKGFib3J0ICgpLCAwKSkpOwkJCQkJ
-XAorCQkgICAgIDogKHsgYWJvcnQgKCk7IDA7IH0pKSk7CQkJCVwKIAkJCQkJCQkJCVwKIAkgIGlm
-ICgocnNpemUpIC0gMSArIF9GUF9FWFBCSUFTXyMjZnMgPj0gX0ZQX0VYUE1BWF8jI2ZzCQlcCiAJ
-ICAgICAgJiYgWCMjX2UgPj0gX0ZQX0VYUE1BWF8jI2ZzKQkJCQlcCgotLSAKSm9zZXBoIFMuIE15
-ZXJzCmpvc2VwaEBjb2Rlc291cmNlcnkuY29t
+> On Thu, 19 Feb 2015, David Miller wrote:
+> 
+>> From: Joseph Myers <joseph@codesourcery.com>
+>> Date: Fri, 6 Feb 2015 17:25:29 +0000
+>> 
+>> > * On SPARC, comparisons now use raw unpacking (this should not in fact
+>> >   change how the emulation behaves, just make it more efficient).
+>> 
+>> I did a sparc64 test build and it failed like so:
+ ...
+> Please try this patch on top of the previous one.  The way abort is 
+> redefined in the kernel code doesn't work for one place using it in an 
+> expression; this patch changes a comma expression to a statement 
+> expression.  This didn't appear in my powerpc testing because the powerpc 
+> emulation never uses FP_FROM_INT; I'm not sure how Kaz's sh testing 
+> avoided the problem appearing there.
+> 
+> diff --git a/include/math-emu/op-common.h b/include/math-emu/op-common.h
+> index b9f5e1a..8c059c3 100644
+> --- a/include/math-emu/op-common.h
+> +++ b/include/math-emu/op-common.h
 
----1152306461-273902004-1424371234=:22905--
+That fixes the build for 64-bit sparc, thanks Joseph.
+
+I'll try to do some functional testing now.
