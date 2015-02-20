@@ -1,106 +1,268 @@
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: Re: [Qemu-devel] [RFC PATCH v2 12/15] cpu-model/s390: Extend QMP
- command query-cpu-definitions
-Date: Wed, 18 Feb 2015 10:29:29 +0100
-Message-ID: <20150218102929.04dfc6cf@bee>
-References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
-	<1424183053-4310-13-git-send-email-mimu@linux.vnet.ibm.com>
-	<54E383DE.5060902@redhat.com>
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: [RFC PATCH v2 04/15] cpu-model/s390: Introduce S390 CPU models
+Date: Fri, 20 Feb 2015 14:54:23 +0100
+Message-ID: <54E73C8F.7000202@suse.de>
+References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com> <1424183053-4310-5-git-send-email-mimu@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <54E383DE.5060902@redhat.com>
+In-Reply-To: <1424183053-4310-5-git-send-email-mimu@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Eric Blake <eblake@redhat.com>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
+To: Michael Mueller <mimu@linux.vnet.ibm.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Gleb Natapov <gleb@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-LS0tLS1CRUdJTiBQR1AgU0lHTkVEIE1FU1NBR0UtLS0tLQ0KSGFzaDogU0hBMQ0KDQpPbiBUdWUs
-IDE3IEZlYiAyMDE1IDExOjA5OjM0IC0wNzAwDQpFcmljIEJsYWtlIDxlYmxha2VAcmVkaGF0LmNv
-bT4gd3JvdGU6DQoNCj4gT24gMDIvMTcvMjAxNSAwNzoyNCBBTSwgTWljaGFlbCBNdWVsbGVyIHdy
-b3RlOg0KPiA+IFRoaXMgcGF0Y2ggaW1wbGVtZW50cyB0aGUgUU1QIGNvbW1hbmQgJ3F1ZXJ5LWNw
-dS1kZWZpbml0aW9ucycgaW4gdGhlIFMzOTANCj4gPiBjb250ZXh0LiBUaGUgY29tbWFuZCByZXR1
-cm5zIGEgaW4gdGVybXMgb2YgbWFjaGluZSByZWxlYXNlIGRhdGUgZGVzY2VuZGluZw0KPiA+IHNv
-cnRlZCBsaXN0IG9mIGNwdSBtb2RlbCBuYW1lcyBpbiB0aGUgY3VycmVudCBob3N0IGNvbnRleHQu
-DQo+IA0KPiByZXR1cm5zIGEgbGlzdCBvZiBjcHUgbW9kZWwgbmFtZXMgc29ydGVkIGJ5IGRlc2Nl
-bmRpbmcgcmVsZWFzZSBkYXRlcy4NCj4gDQo+IERvZXMgZ3VhcmFudGVlaW5nIHRoZSBzb3J0aW5n
-IGFzIHBhcnQgb2YgdGhlIGludGVyZmFjZSByZWFsbHkgbWF0dGVyLCBvcg0KPiB3b3VsZCBpdCBi
-ZSBiZXR0ZXIgdG8ganVzdCByZXR1cm4gdGhlIGxpc3Qgd2l0aCBubyBkb2N1bWVudGVkIHNvcnRp
-bmcNCj4gKHdoZXJlIGNhbGxlcnMgdHJlYXQgaXQgYXMgdW5zb3J0ZWQpPw0KDQpZZXAsIHRoYXQg
-aXMgYW4gaW1wbGVtZW50YXRpb24gZGV0YWlsIGFuZCBJIGRvbid0IGRlcGVuZCBvbiB0aGF0LiBJ
-ZiBhIHNlcXVlbmNlIHdvdWxkIGJlIHJlcXVpcmVkDQpvbmUgY29sZCBtb2RlbCBhIGZpZWxkIG5h
-bWVkICJvcmRlciIuIEJ1dCBhcyBzYWlkLCBJIGRvbid0IHJlcXVpcmUgdGhhdCBhbmQgd2lsbCB1
-cGRhdGUgdGhlDQpjb21tZW50IGJ5IGRyb3BwaW5nIHRoZSAic29ydGVkIGxpc3QiIHBhcnQuDQoN
-Cj4gDQo+ID4gQSBjb25zdW1lciBtYXkNCj4gPiBzdWNjZXNzZnVsbHkgcmVxdWVzdCBlYWNoIGxp
-c3RlZCBjcHUgbW9kZWwgYXMgbG9uZyBmb3IgYSBnaXZlbiBhY2NlbGVyYXRvcg0KPiA+IHRoaXMg
-bW9kZWwgaXMgcnVubmFibGUuDQo+ID4gDQo+ID4gVGh5IFFNUCB0eXBlIEFjY2VsQ3B1TW9kZWxJ
-bmZvIGlzIGludHJvZHVjZWQgYW5kIHRoZSB0eXBlIENwdURlZmluaXRpb25JbmZvDQo+ID4gaXMg
-ZXh0ZW5kZWQgYnkgdGhlIG9wdGlvbmFsIGZpZWxkICdhY2NlbGVyYXRvcnMnLiBJdCBjb250YWlu
-cyBhIGxpc3Qgb2YgbmFtZWQNCj4gPiBhY2NlbGVyYXRvcnMgYW5kIHNvbWUgaW5kaWNhdGlvbiB3
-aGV0aGVyIHRoZSBhc3NvY2lhdGVkIGNwdSBtb2RlbCBpcyBydW5uYWJsZQ0KPiA+IG9yIHRoZSBk
-ZWZhdWx0IGNwdSBtb2RlbC4gVGhlIGRlZmF1bHQgY3B1IG1vZGVsIGlzIHVzZWQgZWl0aGVyIG5v
-IHNwZWNpZmljIGNwdQ0KPiA+IHdhcyByZXF1ZXN0ZWQgZHVyaW5nIFFFTVUgc3RhcnR1cCBvciB0
-aGUgY3B1IG1vZGVsIHdpdGggbmFtZWQgJ2hvc3QnLg0KPiA+IA0KPiA+IHJlcXVlc3Q6DQo+ID4g
-ICB7ImV4ZWN1dGUiOiAicXVlcnktY3B1LWRlZmluaXRpb25zIn0NCj4gPiANCj4gPiBhbnN3ZXI6
-DQo+ID4gICB7InJldHVybiI6DQo+ID4gICAgIFt7Im5hbWUiOiIyOTY0LWdhMSIsImFjY2VsZXJh
-dG9ycyI6W3sibmFtZSI6Imt2bSIsInJ1bm5hYmxlIjpmYWxzZSwiZGVmYXVsdCI6ZmFsc2V9XX0s
-DQo+ID4gICAgICB7Im5hbWUiOiIyODI4LWdhMSIsImFjY2VsZXJhdG9ycyI6W3sibmFtZSI6Imt2
-bSIsInJ1bm5hYmxlIjpmYWxzZSwiZGVmYXVsdCI6ZmFsc2V9XX0sDQo+ID4gICAgICB7Im5hbWUi
-OiIyODI3LWdhMiIsImFjY2VsZXJhdG9ycyI6W3sibmFtZSI6Imt2bSIsInJ1bm5hYmxlIjp0cnVl
-LCJkZWZhdWx0Ijp0cnVlfV19LA0KPiA+ICAgICAgeyJuYW1lIjoiMjgyNy1nYTEiLCJhY2NlbGVy
-YXRvcnMiOlt7Im5hbWUiOiJrdm0iLCJydW5uYWJsZSI6dHJ1ZSwiZGVmYXVsdCI6ZmFsc2V9XX0s
-DQo+ID4gICAgICB7Im5hbWUiOiIyODE4LWdhMSIsImFjY2VsZXJhdG9ycyI6W3sibmFtZSI6Imt2
-bSIsInJ1bm5hYmxlIjp0cnVlLCJkZWZhdWx0IjpmYWxzZX1dfSwNCj4gPiAgICAgIC4uLg0KPiA+
-ICAgICAgeyJuYW1lIjoiMjA2NC1nYTEiLCJhY2NlbGVyYXRvcnMiOlt7InJ1bm5hYmxlIjp0cnVl
-LCJuYW1lIjoia3ZtIiwiZGVmYXVsdCI6ZmFsc2V9XX0NCj4gPiAgICAgXQ0KPiA+ICAgIH0NCj4g
-PiANCj4gDQo+IExvb2tzIG9rYXkgZnJvbSBhbiBpbnRlcmZhY2UgcGVyc3BlY3RpdmUuDQo+IA0K
-PiA+IFNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgTXVlbGxlciA8bWltdUBsaW51eC52bmV0LmlibS5j
-b20+DQo+ID4gLS0tDQo+ID4gIHFhcGktc2NoZW1hLmpzb24gICAgICAgICAgfCAgMjEgKysrKysr
-KysrLQ0KPiA+ICB0YXJnZXQtczM5MHgvY3B1LW1vZGVscy5jIHwgIDE1ICsrKysrKysNCj4gPiAg
-dGFyZ2V0LXMzOTB4L2NwdS1tb2RlbHMuaCB8ICAgMSArDQo+ID4gIHRhcmdldC1zMzkweC9jcHUu
-YyAgICAgICAgfCAxMDAgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-Ky0tLQ0KPiA+ICA0IGZpbGVzIGNoYW5nZWQsIDEzMCBpbnNlcnRpb25zKCspLCA3IGRlbGV0aW9u
-cygtKQ0KPiA+IA0KPiA+IGRpZmYgLS1naXQgYS9xYXBpLXNjaGVtYS5qc29uIGIvcWFwaS1zY2hl
-bWEuanNvbg0KPiA+IGluZGV4IDk0MzFmYzIuLmE1ZDM4YWUgMTAwNjQ0DQo+ID4gLS0tIGEvcWFw
-aS1zY2hlbWEuanNvbg0KPiA+ICsrKyBiL3FhcGktc2NoZW1hLmpzb24NCj4gPiBAQCAtMjQ4NSwx
-NiArMjQ4NSwzNSBAQA0KPiA+ICAgICdkYXRhJzogWydxdGVzdCcsICd0Y2cnLCAna3ZtJywgJ3hl
-bicgIF0gfQ0KPiA+ICANCj4gPiAgIyMNCj4gPiArIyBAQWNjZWxDcHVNb2RlbEluZm86DQo+ID4g
-KyMNCj4gPiArIyBBY2NlbGVyYXRvciBzcGVjaWZpYyBDUFUgbW9kZWwgZGF0YQ0KPiA+ICsjDQo+
-ID4gKyMgQGlkOiB0aGUgYWNjZWxlcmF0b3IgaWQNCj4gPiArIw0KPiANCj4gVGhlcmUgaXMgbm8g
-J2lkJyBmaWVsZCBiZWxvdywgZGlkIHlvdSBtZWFuICduYW1lJz8NCg0KSSBkaWQgcmVuYW1lIHRo
-YXQgb25lIHRpbWUgdG8gb2Z0ZW4gOi0pLCB3aWxsIHMvaWQvbmFtZS9nIC4uLg0KDQo+IA0KPiA+
-ICsjIEBkZWZhdWx0OiBjcHUgbW9kZWwgZm9yICdob3N0Jw0KPiA+ICsjDQo+ID4gKyMgQHJ1bm5h
-YmxlOiBjcHUgbW9kZWwgY2FuIGJlIGFjdGl2YXRlZCBvbiBob3N0aW5nIG1hY2hpbmUNCj4gPiAr
-Iw0KPiA+ICsjIFNpbmNlOiAyLjMuMA0KPiA+ICsjDQo+ID4gKyMjDQo+ID4gK3sgJ3R5cGUnOiAn
-QWNjZWxDcHVNb2RlbEluZm8nLA0KPiA+ICsgICdkYXRhJzogeyAnbmFtZSc6ICdBY2NlbElkJywg
-J2RlZmF1bHQnOiAnYm9vbCcsICdydW5uYWJsZSc6ICdib29sJyB9IH0NCj4gPiArDQo+ID4gKyMj
-DQo+ID4gICMgQENwdURlZmluaXRpb25JbmZvOg0KPiA+ICAjDQo+ID4gICMgVmlydHVhbCBDUFUg
-ZGVmaW5pdGlvbi4NCj4gPiAgIw0KPiA+ICAjIEBuYW1lOiB0aGUgbmFtZSBvZiB0aGUgQ1BVIGRl
-ZmluaXRpb24NCj4gPiAgIw0KPiA+ICsjIEBhY2NlbGVyYXRvcnM6ICNvcHRpb25hbCBjcHUgbW9k
-ZWwgb2ZmZXJlZCBwZXIgYWNjZWxlcmF0b3IgKHNpbmNlIDIuMy4wKQ0KPiA+ICsjDQo+IA0KPiBN
-dXN0IHRoZSBmaWVsZCBiZSBvcHRpb25hbCwgb3Igd2lsbCB3ZSBhbHdheXMgcHJvdmlkZSBpdD8g
-IFNpbmNlIHRoaXMgaXMNCj4gYW4gb3V0cHV0LW9ubHkgZmllbGQsIGl0IGlzIG9rYXkgZm9yIGJh
-Y2stY29tcGF0IHRvIG1ha2UgdGhlIG5ldyBmaWVsZA0KPiB1bmNvbmRpdGlvbmFsLg0KDQpJdCB3
-aWxsIGJlIGFsd2F5cyBwcm92aWRlZCB3aGVuIGFuIGFjY2VsZXJhdG9yIHN1cHBvcnRzIGNwdSBt
-b2RlbHMgYW5kIGltcGxlbWVudHMgdGhlDQpwcm9iaW5nIG1vZGUuIEFzIEknbSBjdXJyZW50bHkg
-YWRvcHRpbmcgaXQgZm9yIHMzOTAva3ZtIG9ubHksIEkgY2FuJ3QgZW5mb3JjZSBpdCBmb3IgYWxs
-DQpvdGhlciBhcmNoL2FjY2VsZXJhdG9yIGNvbWJpbmF0aW9ucyBhcyBpdCBpcyBhbiBleHRlbnNp
-b24gb2YgYW4gZXhpc3RpbmcgY29tbWFuZC4uLg0KDQpUaGFua3MNCk1pY2hhZWwNCg0KPiANCg0K
-LS0tLS1CRUdJTiBQR1AgU0lHTkFUVVJFLS0tLS0NClZlcnNpb246IEdudVBHIHYxDQoNCmlRSWNC
-QUVCQWdBR0JRSlU1RnQ1QUFvSkVMUGNQTFFTSnNLUTUyMFAvQTNFUXF5WTdidWhCWld3VkRRY0E0
-OUoNCkZTemp5RXQySkFKbVpBbE1GTWF4YlZEd0pjbTVQWEViQ0hSMStOdURYdXlFWXNQeHFHN1R4
-dlArM3lMUjJsTGENClFidWNIR2Q5TTc4OVRnMGh5MllQaWZJSUI5M0xZNUtiM1NOeGhMNTJvbHlJ
-cm5zb3ZIb0JDYmJvTWxtbUtUazcNCkt5SDZxMktYZGRqV3RaYkh5OVdHUVk5MXI1NnlNZHNiZkl4
-YllNSnVKYkovOUhyMGxoMHhCNlc3N21MOEdJclYNCmRiVVJqYVpYd2dvR2VjVkFseUVRY3BJblMy
-Zmw2WFNYN1kyckNBcTlKcC85Wk5mU1FkT2FpMTlNZDJjUTFKTGkNCjkycVl3Z1Q4WFY2YlpPSEox
-RTh4YzcrS2xKUlJINE12WWJXVE5DVkhFQTNld0U1cllrc3BlOTJmRWo4MkdabmMNCmVKVitoalpj
-cTljTmFPRjhidmhwankrOXpXOFdkcndzUUtiWE5FZUpEekRtblloYWFLY2RLUmE2cVVEd1lMUVcN
-CmVnK1RBZk8rRzlZTllmRXBKSDVva0NvM3Q3ZWxwWWxrZGNPdk50ajFYMmdGQW1wamtiZVZPVVdT
-RDFKbXRKNXUNCitzM1hVYWd2UWR6b0lkcHN6aW9iME5FcExVNjJRRmNxQWEzWk5TWS9GRTdpdFRN
-blpzMitydmJZVXhHeVJqcXoNCkJiRXdQRG9BTWNGQ082Q2RLL2hvWnhWOFJiQ1JIK01vRHkrb0xL
-WGJ4c0YxckpjRmZlNVZHVVFCVGJZSlVORU8NCmw4N3NVSkJ3NUFxY1U1L1ZwbnVRbi91blZDdXBR
-eG91cjYzVDZXeHpvYnZGVCtycE1JUjhtVVFYYUFFZTlSZkoNCjhHOEE1VlhuOEM0enJDMkFtNUc1
-DQo9Y3Bmbw0KLS0tLS1FTkQgUEdQIFNJR05BVFVSRS0tLS0tDQo=
+
+
+On 17.02.15 15:24, Michael Mueller wrote:
+> This patch implements the static part of the s390 cpu class definitions.
+> It defines s390 cpu models by means of virtual cpu ids (enum) which contain
+> information on the cpu generation, the machine class, the GA number and
+> the machine type. The cpu id is used to instantiate a cpu class per cpu
+> model.
+> 
+> In addition the patch introduces the QMP enumeration AccelId. It is used
+> to index certain cpu model poperties per accelerator.
+> 
+> Furthermore it extends the existing S390CPUClass by model related properties.
+> 
+> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+> Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+> ---
+>  qapi-schema.json           | 11 +++++++
+>  target-s390x/Makefile.objs |  1 +
+>  target-s390x/cpu-models.c  | 79 ++++++++++++++++++++++++++++++++++++++++++++++
+>  target-s390x/cpu-models.h  | 71 +++++++++++++++++++++++++++++++++++++++++
+>  target-s390x/cpu-qom.h     | 22 +++++++++++++
+>  target-s390x/cpu.c         |  2 ++
+>  6 files changed, 186 insertions(+)
+>  create mode 100644 target-s390x/cpu-models.c
+>  create mode 100644 target-s390x/cpu-models.h
+> 
+> diff --git a/qapi-schema.json b/qapi-schema.json
+> index e16f8eb..4d237c8 100644
+> --- a/qapi-schema.json
+> +++ b/qapi-schema.json
+> @@ -2473,6 +2473,17 @@
+>  ##
+>  { 'command': 'query-machines', 'returns': ['MachineInfo'] }
+>  
+> +
+> +##
+> +# @AccelId
+> +#
+> +# Defines accelerator ids
+> +#
+> +# Since: 2.3.0
+> +##
+> +{ 'enum': 'AccelId',
+> +  'data': ['qtest', 'tcg', 'kvm', 'xen'  ] }
+> +
+>  ##
+>  # @CpuDefinitionInfo:
+>  #
+> diff --git a/target-s390x/Makefile.objs b/target-s390x/Makefile.objs
+> index 2c57494..9f55140 100644
+> --- a/target-s390x/Makefile.objs
+> +++ b/target-s390x/Makefile.objs
+> @@ -1,5 +1,6 @@
+>  obj-y += translate.o helper.o cpu.o interrupt.o
+>  obj-y += int_helper.o fpu_helper.o cc_helper.o mem_helper.o misc_helper.o
+>  obj-y += gdbstub.o
+> +obj-y += cpu-models.o
+>  obj-$(CONFIG_SOFTMMU) += machine.o ioinst.o arch_dump.o
+>  obj-$(CONFIG_KVM) += kvm.o
+> diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
+> new file mode 100644
+> index 0000000..4841553
+> --- /dev/null
+> +++ b/target-s390x/cpu-models.c
+> @@ -0,0 +1,79 @@
+> +/*
+> + * CPU models for s390
+> + *
+> + * Copyright 2014,2015 IBM Corp.
+> + *
+> + * Author(s): Michael Mueller <mimu@linux.vnet.ibm.com>
+> + *
+> + * This work is licensed under the terms of the GNU GPL, version 2 or (at
+> + * your option) any later version. See the COPYING file in the top-level
+> + * directory.
+> + */
+> +
+> +#include "qemu-common.h"
+> +#include "cpu-models.h"
+> +
+> +#define S390_PROC_DEF(_name, _cpu_id, _desc)                            \
+> +    static void                                                         \
+> +    glue(_cpu_id, _cpu_class_init)                                      \
+> +    (ObjectClass *oc, void *data)                                       \
+> +    {                                                                   \
+> +        DeviceClass *dc = DEVICE_CLASS(oc);                             \
+> +        S390CPUClass *cc = S390_CPU_CLASS(oc);                          \
+> +                                                                        \
+> +        cc->is_active[ACCEL_ID_KVM] = true;                             \
+> +        cc->mach        = g_malloc0(sizeof(S390CPUMachineProps));       \
+> +        cc->mach->ga    = cpu_ga(_cpu_id);                              \
+> +        cc->mach->class = cpu_class(_cpu_id);                           \
+> +        cc->mach->order = cpu_order(_cpu_id);                           \
+> +        cc->proc        = g_malloc0(sizeof(S390CPUProcessorProps));     \
+> +        cc->proc->gen   = cpu_generation(_cpu_id);                      \
+> +        cc->proc->ver   = S390_DEF_VERSION;                             \
+> +        cc->proc->id    = S390_DEF_ID;                                  \
+> +        cc->proc->type  = cpu_type(_cpu_id);                            \
+> +        cc->proc->ibc   = S390_DEF_IBC;                                 \
+> +        dc->desc        = _desc;                                        \
+> +    }                                                                   \
+> +    static const TypeInfo                                               \
+> +    glue(_cpu_id, _cpu_type_info) = {                                   \
+> +        .name       = _name "-" TYPE_S390_CPU,                          \
+> +        .parent     = TYPE_S390_CPU,                                    \
+> +        .class_init = glue(_cpu_id, _cpu_class_init),                   \
+> +    };                                                                  \
+> +    static void                                                         \
+> +    glue(_cpu_id, _cpu_register_types)(void)                            \
+> +    {                                                                   \
+> +        type_register_static(                                           \
+> +            &glue(_cpu_id, _cpu_type_info));                            \
+> +    }                                                                   \
+> +    type_init(glue(_cpu_id, _cpu_register_types))
+> +
+> +/* define S390 CPU model classes */
+> +S390_PROC_DEF("2064-ga1", CPU_S390_2064_GA1, "IBM zSeries 900 GA1")
+> +S390_PROC_DEF("2064-ga2", CPU_S390_2064_GA2, "IBM zSeries 900 GA2")
+> +S390_PROC_DEF("2064-ga3", CPU_S390_2064_GA3, "IBM zSeries 900 GA3")
+> +S390_PROC_DEF("2066-ga1", CPU_S390_2066_GA1, "IBM zSeries 800 GA1")
+> +S390_PROC_DEF("2084-ga1", CPU_S390_2084_GA1, "IBM zSeries 990 GA1")
+> +S390_PROC_DEF("2084-ga2", CPU_S390_2084_GA2, "IBM zSeries 990 GA2")
+> +S390_PROC_DEF("2084-ga3", CPU_S390_2084_GA3, "IBM zSeries 990 GA3")
+> +S390_PROC_DEF("2084-ga4", CPU_S390_2084_GA4, "IBM zSeries 990 GA4")
+> +S390_PROC_DEF("2084-ga5", CPU_S390_2084_GA5, "IBM zSeries 990 GA5")
+> +S390_PROC_DEF("2086-ga1", CPU_S390_2086_GA1, "IBM zSeries 890 GA1")
+> +S390_PROC_DEF("2086-ga2", CPU_S390_2086_GA2, "IBM zSeries 890 GA2")
+> +S390_PROC_DEF("2086-ga3", CPU_S390_2086_GA3, "IBM zSeries 890 GA3")
+> +S390_PROC_DEF("2094-ga1", CPU_S390_2094_GA1, "IBM System z9 EC GA1")
+> +S390_PROC_DEF("2094-ga2", CPU_S390_2094_GA2, "IBM System z9 EC GA2")
+> +S390_PROC_DEF("2094-ga3", CPU_S390_2094_GA3, "IBM System z9 EC GA3")
+> +S390_PROC_DEF("2096-ga1", CPU_S390_2096_GA1, "IBM System z9 BC GA1")
+> +S390_PROC_DEF("2096-ga2", CPU_S390_2096_GA2, "IBM System z9 BC GA2")
+> +S390_PROC_DEF("2097-ga1", CPU_S390_2097_GA1, "IBM System z10 EC GA1")
+> +S390_PROC_DEF("2097-ga2", CPU_S390_2097_GA2, "IBM System z10 EC GA2")
+> +S390_PROC_DEF("2097-ga3", CPU_S390_2097_GA3, "IBM System z10 EC GA3")
+> +S390_PROC_DEF("2098-ga1", CPU_S390_2098_GA1, "IBM System z10 BC GA1")
+> +S390_PROC_DEF("2098-ga2", CPU_S390_2098_GA2, "IBM System z10 BC GA2")
+> +S390_PROC_DEF("2817-ga1", CPU_S390_2817_GA1, "IBM zEnterprise 196 GA1")
+> +S390_PROC_DEF("2817-ga2", CPU_S390_2817_GA2, "IBM zEnterprise 196 GA2")
+> +S390_PROC_DEF("2818-ga1", CPU_S390_2818_GA1, "IBM zEnterprise 114 GA1")
+> +S390_PROC_DEF("2827-ga1", CPU_S390_2827_GA1, "IBM zEnterprise EC12 GA1")
+> +S390_PROC_DEF("2827-ga2", CPU_S390_2827_GA2, "IBM zEnterprise EC12 GA2")
+> +S390_PROC_DEF("2828-ga1", CPU_S390_2828_GA1, "IBM zEnterprise BC12 GA1")
+> diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
+> new file mode 100644
+> index 0000000..db681bf
+> --- /dev/null
+> +++ b/target-s390x/cpu-models.h
+> @@ -0,0 +1,71 @@
+> +/*
+> + * CPU models for s390
+> + *
+> + * Copyright 2014,2015 IBM Corp.
+> + *
+> + * Author(s): Michael Mueller <mimu@linux.vnet.ibm.com>
+> + *
+> + * This work is licensed under the terms of the GNU GPL, version 2 or (at
+> + * your option) any later version. See the COPYING file in the top-level
+> + * directory.
+> + */
+> +
+> +#ifndef TARGET_S390X_CPU_MODELS_H
+> +#define TARGET_S390X_CPU_MODELS_H
+> +
+> +#define S390_EC 0x1
+> +#define S390_BC 0x2
+> +
+> +#define S390_DEF_VERSION 0xff
+> +#define S390_DEF_IBC     0x0
+> +#define S390_DEF_ID      0xdecade
+> +#define S390_DEF_TYPE    0x2064
+> +
+> +#define cpu_type(x)       (((x) >>  0) & 0xffff)
+> +#define cpu_order(x)      (((x) >> 16) & 0xffff)
+> +#define cpu_ga(x)         (((x) >> 16) & 0xf)
+> +#define cpu_class(x)      (((x) >> 20) & 0x3)
+> +#define cpu_generation(x) (((x) >> 24) & 0xff)
+> +
+> +/*
+> + * bits 0-7   : CMOS generation
+> + * bits 8-9   : reserved
+> + * bits 10-11 : machine class 0=unknown 1=EC 2=BC
+> + * bits 12-15 : GA
+> + * bits 16-31 : machine type
+> + *
+> + * note: bits are named according to s390
+> + *       architecture specific endienness
+> + */
+> +enum {
+> +    CPU_S390_2064_GA1 = 0x07112064,
+> +    CPU_S390_2064_GA2 = 0x07122064,
+> +    CPU_S390_2064_GA3 = 0x07132064,
+> +    CPU_S390_2066_GA1 = 0x07212066,
+> +    CPU_S390_2084_GA1 = 0x08112084,
+> +    CPU_S390_2084_GA2 = 0x08122084,
+> +    CPU_S390_2084_GA3 = 0x08132084,
+> +    CPU_S390_2084_GA4 = 0x08142084,
+> +    CPU_S390_2084_GA5 = 0x08152084,
+> +    CPU_S390_2086_GA1 = 0x08212086,
+> +    CPU_S390_2086_GA2 = 0x08222086,
+> +    CPU_S390_2086_GA3 = 0x08232086,
+> +    CPU_S390_2094_GA1 = 0x09112094,
+> +    CPU_S390_2094_GA2 = 0x09122094,
+> +    CPU_S390_2094_GA3 = 0x09132094,
+> +    CPU_S390_2096_GA1 = 0x09212096,
+> +    CPU_S390_2096_GA2 = 0x09222096,
+> +    CPU_S390_2097_GA1 = 0x0a112097,
+> +    CPU_S390_2097_GA2 = 0x0a122097,
+> +    CPU_S390_2097_GA3 = 0x0a132097,
+> +    CPU_S390_2098_GA1 = 0x0a212098,
+> +    CPU_S390_2098_GA2 = 0x0a222098,
+> +    CPU_S390_2817_GA1 = 0x0b112817,
+> +    CPU_S390_2817_GA2 = 0x0b122817,
+> +    CPU_S390_2818_GA1 = 0x0b212818,
+> +    CPU_S390_2827_GA1 = 0x0c112827,
+> +    CPU_S390_2827_GA2 = 0x0c122827,
+> +    CPU_S390_2828_GA1 = 0x0c212828,
+> +};
+> +
+> +#endif
+> diff --git a/target-s390x/cpu-qom.h b/target-s390x/cpu-qom.h
+> index 8b376df..1332147 100644
+> --- a/target-s390x/cpu-qom.h
+> +++ b/target-s390x/cpu-qom.h
+> @@ -32,6 +32,23 @@
+>  #define S390_CPU_GET_CLASS(obj) \
+>      OBJECT_GET_CLASS(S390CPUClass, (obj), TYPE_S390_CPU)
+>  
+> +/* machine related properties */
+> +typedef struct S390CPUMachineProps {
+> +    uint16_t class;      /* machine class */
+> +    uint16_t ga;         /* availability number of machine */
+> +    uint16_t order;      /* order of availability */
+> +} S390CPUMachineProps;
+> +
+> +/* processor related properties */
+> +typedef struct S390CPUProcessorProps {
+> +    uint16_t gen;        /* S390 CMOS generation */
+> +    uint16_t ver;        /* version of processor */
+> +    uint32_t id;         /* processor identification*/
+> +    uint16_t type;       /* machine type */
+> +    uint16_t ibc;        /* IBC value */
+> +    uint64_t *fac_list;  /* list of facilities */
+
+Just make this uint64_t fac_list[2]. That way we don't have to track any
+messy allocations.
+
+
+Alex
