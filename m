@@ -1,14 +1,14 @@
 From: Alexander Graf <agraf@suse.de>
 Subject: Re: [RFC PATCH v2 04/15] cpu-model/s390: Introduce S390 CPU models
-Date: Fri, 20 Feb 2015 14:54:23 +0100
-Message-ID: <54E73C8F.7000202@suse.de>
+Date: Fri, 20 Feb 2015 14:55:32 +0100
+Message-ID: <54E73CD4.8080506@suse.de>
 References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com> <1424183053-4310-5-git-send-email-mimu@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1424183053-4310-5-git-send-email-mimu@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Michael Mueller <mimu@linux.vnet.ibm.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -260,9 +260,22 @@ On 17.02.15 15:24, Michael Mueller wrote:
 > +    uint16_t type;       /* machine type */
 > +    uint16_t ibc;        /* IBC value */
 > +    uint64_t *fac_list;  /* list of facilities */
+> +} S390CPUProcessorProps;
+> +
+>  /**
+>   * S390CPUClass:
+>   * @parent_realize: The parent class' realize handler.
+> @@ -52,6 +69,11 @@ typedef struct S390CPUClass {
+>      void (*load_normal)(CPUState *cpu);
+>      void (*cpu_reset)(CPUState *cpu);
+>      void (*initial_cpu_reset)(CPUState *cpu);
+> +    bool is_active[ACCEL_ID_MAX]; /* model enabled for given host and accel */
+> +    bool is_host[ACCEL_ID_MAX];   /* model markes host for given accel */
+> +    uint64_t *fac_list;           /* active facility list */
+> +    S390CPUMachineProps   *mach;  /* machine specific properties */
+> +    S390CPUProcessorProps *proc;  /* processor specific properties */
 
-Just make this uint64_t fac_list[2]. That way we don't have to track any
-messy allocations.
+Sorry, same here. Just put the structs straight into the class struct.
 
 
 Alex
