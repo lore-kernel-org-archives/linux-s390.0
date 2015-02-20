@@ -1,14 +1,14 @@
 From: Alexander Graf <agraf@suse.de>
-Subject: Re: [Qemu-devel] [RFC PATCH v2 09/15] cpu-model/s390: Add KVM VM
- attribute interface routines
-Date: Fri, 20 Feb 2015 17:59:14 +0100
-Message-ID: <54E767E2.4060100@suse.de>
-References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>	<1424183053-4310-10-git-send-email-mimu@linux.vnet.ibm.com>	<54E73DB8.20902@suse.de> <20150220161805.3d04097a@bee>
+Subject: Re: [Qemu-devel] [RFC PATCH v2 13/15] cpu-model/s390: Add processor
+ property routines
+Date: Fri, 20 Feb 2015 18:00:19 +0100
+Message-ID: <54E76823.9000106@suse.de>
+References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>	<1424183053-4310-14-git-send-email-mimu@linux.vnet.ibm.com>	<54E73EB2.6050700@suse.de> <20150220163209.4e082e0b@bee>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150220161805.3d04097a@bee>
+In-Reply-To: <20150220163209.4e082e0b@bee>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -18,55 +18,52 @@ List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 20.02.15 16:18, Michael Mueller wrote:
-> On Fri, 20 Feb 2015 14:59:20 +0100
+On 20.02.15 16:32, Michael Mueller wrote:
+> On Fri, 20 Feb 2015 15:03:30 +0100
 > Alexander Graf <agraf@suse.de> wrote:
 > 
->>> +typedef struct S390ProcessorProps {
->>> +    uint64_t cpuid;
->>> +    uint16_t ibc;
->>> +    uint8_t  pad[6];
->>> +    uint64_t fac_list[S390_ARCH_FAC_LIST_SIZE_UINT64];
->>> +} S390ProcessorProps;
->>> +
->>> +typedef struct S390MachineProps {
->>> +    uint64_t cpuid;
->>> +    uint32_t ibc_range;
->>> +    uint8_t  pad[4];
->>> +    uint64_t fac_list_mask[S390_ARCH_FAC_LIST_SIZE_UINT64];
->>> +    uint64_t fac_list[S390_ARCH_FAC_LIST_SIZE_UINT64];
->>> +} S390MachineProps;  
+>>>
+>>> - s390_get_proceccor_props()
+>>> - s390_set_proceccor_props()
+>>>
+>>> They can be used to request or retrieve processor related information from an accelerator.
+>>> That information comprises the cpu identifier, the ICB value and the facility lists.
+>>>
+>>> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>  
 >>
->> What are those structs there for? To convert between a kvm facing
->> interface to an internal interface?
+>> Hrm, I still seem to miss the point of this interface. What do you need
+>> it for?
 > 
-> Yes, that's their current use, but if the interface structs: 
+> These functions make the internal s390 cpu model API independent from a specific accelerator:  
 > 
-> +struct kvm_s390_vm_cpu_processor {
-> +       __u64 cpuid;
-> +       __u16 ibc;
-> +       __u8  pad[6];
-> +       __u64 fac_list[256];
-> +};
-> +
-> +/* kvm S390 machine related attributes are r/o */
-> +#define KVM_S390_VM_CPU_MACHINE                1
-> +struct kvm_s390_vm_cpu_machine {
-> +       __u64 cpuid;
-> +       __u32 ibc_range;
-> +       __u8  pad[4];
-> +       __u64 fac_mask[256];
-> +       __u64 fac_list[256];
-> +};
+> int s390_set_processor_props(S390ProcessorProps *prop)
+> {
+>     if (kvm_enabled()) {
+>         return kvm_s390_set_processor_props(prop);
+>     }
+>     return -ENOSYS;
+> }
 > 
-> are visible here, I'll reuse them... But stop, that will not work in the 
-> --disable-kvm case... I need them!
+> It's called by:
+> 
+> s390_select_cpu_model(const char *model)
+> 
+> which is itself called by:
+> 
+> S390CPU *cpu_s390x_init(const char *cpu_model)
+> {
+>     S390CPU *cpu;
+> 
+>     cpu = S390_CPU(object_new(s390_select_cpu_model(cpu_model)));
+> 
+>     object_property_set_bool(OBJECT(cpu), true, "realized", NULL);
+> 
+>     return cpu;
+> }
+> 
+> So above s390_set/get_processor_props() the code is accelerator independent.
 
-I meant it the other way around - do KVM specific patching of the cpu
-types from kvm.c.
-
-But please give a nutshell explanation on what exactly you're patching
-at all here.
+Any particular reason you can't do it like PPC?
 
 
 Alex
