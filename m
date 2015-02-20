@@ -1,16 +1,16 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
 Subject: Re: [Qemu-devel] [RFC PATCH v2 04/15] cpu-model/s390: Introduce
  S390 CPU models
-Date: Fri, 20 Feb 2015 16:00:46 +0100
-Message-ID: <20150220160046.4743acc8@bee>
+Date: Fri, 20 Feb 2015 16:02:22 +0100
+Message-ID: <20150220160222.4a7817d7@bee>
 References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>
 	<1424183053-4310-5-git-send-email-mimu@linux.vnet.ibm.com>
-	<54E73C8F.7000202@suse.de>
+	<54E73CD4.8080506@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <54E73C8F.7000202@suse.de>
+In-Reply-To: <54E73CD4.8080506@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -18,28 +18,22 @@ To: Alexander Graf <agraf@suse.de>
 Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 20 Feb 2015 14:54:23 +0100
+On Fri, 20 Feb 2015 14:55:32 +0100
 Alexander Graf <agraf@suse.de> wrote:
 
-> >  
-> > +/* machine related properties */
-> > +typedef struct S390CPUMachineProps {
-> > +    uint16_t class;      /* machine class */
-> > +    uint16_t ga;         /* availability number of machine */
-> > +    uint16_t order;      /* order of availability */
-> > +} S390CPUMachineProps;
-> > +
-> > +/* processor related properties */
-> > +typedef struct S390CPUProcessorProps {
-> > +    uint16_t gen;        /* S390 CMOS generation */
-> > +    uint16_t ver;        /* version of processor */
-> > +    uint32_t id;         /* processor identification*/
-> > +    uint16_t type;       /* machine type */
-> > +    uint16_t ibc;        /* IBC value */
-> > +    uint64_t *fac_list;  /* list of facilities */  
+> >  /**
+> >   * S390CPUClass:
+> >   * @parent_realize: The parent class' realize handler.
+> > @@ -52,6 +69,11 @@ typedef struct S390CPUClass {
+> >      void (*load_normal)(CPUState *cpu);
+> >      void (*cpu_reset)(CPUState *cpu);
+> >      void (*initial_cpu_reset)(CPUState *cpu);
+> > +    bool is_active[ACCEL_ID_MAX]; /* model enabled for given host and accel */
+> > +    bool is_host[ACCEL_ID_MAX];   /* model markes host for given accel */
+> > +    uint64_t *fac_list;           /* active facility list */
+> > +    S390CPUMachineProps   *mach;  /* machine specific properties */
+> > +    S390CPUProcessorProps *proc;  /* processor specific properties */  
 > 
-> Just make this uint64_t fac_list[2]. That way we don't have to track any
-> messy allocations.
+> Sorry, same here. Just put the structs straight into the class struct.
 
-It will be something like "uint64_t fac_list[S390_CPU_FAC_LIST_SIZE_UINT64]" and in total 2KB not
-just 16 bytes but I will change it. 
+Yep, consistent.
