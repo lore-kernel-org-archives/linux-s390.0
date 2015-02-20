@@ -1,45 +1,72 @@
 From: Alexander Graf <agraf@suse.de>
-Subject: Re: [Qemu-devel] [RFC PATCH v2 04/15] cpu-model/s390: Introduce S390
- CPU models
-Date: Fri, 20 Feb 2015 17:57:52 +0100
-Message-ID: <54E76790.1030700@suse.de>
-References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>	<1424183053-4310-5-git-send-email-mimu@linux.vnet.ibm.com>	<54E73C8F.7000202@suse.de>	<20150220160046.4743acc8@bee>	<89E3550E-9E2B-4D95-A809-B7C64EBCD7C5@suse.de> <20150220164944.4eb4eeb3@bee>
+Subject: Re: [Qemu-devel] [RFC PATCH v2 09/15] cpu-model/s390: Add KVM VM
+ attribute interface routines
+Date: Fri, 20 Feb 2015 17:59:14 +0100
+Message-ID: <54E767E2.4060100@suse.de>
+References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>	<1424183053-4310-10-git-send-email-mimu@linux.vnet.ibm.com>	<54E73DB8.20902@suse.de> <20150220161805.3d04097a@bee>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150220164944.4eb4eeb3@bee>
+In-Reply-To: <20150220161805.3d04097a@bee>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Michael Mueller <mimu@linux.vnet.ibm.com>
-Cc: "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
+Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 20.02.15 16:49, Michael Mueller wrote:
-> On Fri, 20 Feb 2015 16:22:20 +0100
+On 20.02.15 16:18, Michael Mueller wrote:
+> On Fri, 20 Feb 2015 14:59:20 +0100
 > Alexander Graf <agraf@suse.de> wrote:
 > 
->>>>
->>>> Just make this uint64_t fac_list[2]. That way we don't have to track any
->>>> messy allocations.  
->>>
->>> It will be something like "uint64_t fac_list[S390_CPU_FAC_LIST_SIZE_UINT64]" and in total 2KB
->>> not just 16 bytes but I will change it.   
+>>> +typedef struct S390ProcessorProps {
+>>> +    uint64_t cpuid;
+>>> +    uint16_t ibc;
+>>> +    uint8_t  pad[6];
+>>> +    uint64_t fac_list[S390_ARCH_FAC_LIST_SIZE_UINT64];
+>>> +} S390ProcessorProps;
+>>> +
+>>> +typedef struct S390MachineProps {
+>>> +    uint64_t cpuid;
+>>> +    uint32_t ibc_range;
+>>> +    uint8_t  pad[4];
+>>> +    uint64_t fac_list_mask[S390_ARCH_FAC_LIST_SIZE_UINT64];
+>>> +    uint64_t fac_list[S390_ARCH_FAC_LIST_SIZE_UINT64];
+>>> +} S390MachineProps;  
 >>
->> Why? Do we actually need that many? This is a qemu internal struct.
+>> What are those structs there for? To convert between a kvm facing
+>> interface to an internal interface?
 > 
-> How do you know that 2 is a good size?
+> Yes, that's their current use, but if the interface structs: 
+> 
+> +struct kvm_s390_vm_cpu_processor {
+> +       __u64 cpuid;
+> +       __u16 ibc;
+> +       __u8  pad[6];
+> +       __u64 fac_list[256];
+> +};
+> +
+> +/* kvm S390 machine related attributes are r/o */
+> +#define KVM_S390_VM_CPU_MACHINE                1
+> +struct kvm_s390_vm_cpu_machine {
+> +       __u64 cpuid;
+> +       __u32 ibc_range;
+> +       __u8  pad[4];
+> +       __u64 fac_mask[256];
+> +       __u64 fac_list[256];
+> +};
+> 
+> are visible here, I'll reuse them... But stop, that will not work in the 
+> --disable-kvm case... I need them!
 
-Because all CPUs we have in our list only expose 128 bits?
+I meant it the other way around - do KVM specific patching of the cpu
+types from kvm.c.
 
-> I want to have this independent from a future machine of the z/Arch. The kernel stores the full
-> facility set, KVM does and there is no good reason for QEMU not to do. If other accelerators
-> decide to just implement 64 or 128 bits of facilities that's ok...
-
-So you want to support CPUs that are not part of the list?
+But please give a nutshell explanation on what exactly you're patching
+at all here.
 
 
 Alex
