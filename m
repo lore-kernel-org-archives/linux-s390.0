@@ -1,69 +1,56 @@
-From: Alexander Graf <agraf@suse.de>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [Qemu-devel] [RFC PATCH v2 04/15] cpu-model/s390: Introduce S390
  CPU models
-Date: Fri, 20 Feb 2015 20:55:11 +0100
-Message-ID: <54E7911F.3030901@suse.de>
-References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com>	<1424183053-4310-5-git-send-email-mimu@linux.vnet.ibm.com>	<54E73C8F.7000202@suse.de>	<20150220160046.4743acc8@bee>	<89E3550E-9E2B-4D95-A809-B7C64EBCD7C5@suse.de>	<20150220164944.4eb4eeb3@bee>	<54E76790.1030700@suse.de>	<20150220183748.45b32e11@bee>	<2049D8E0-FE03-4E84-94D0-E23B695BC865@suse.de> <20150220204303.4f20f54e@bee>
+Date: Mon, 23 Feb 2015 13:56:57 +0100
+Message-ID: <54EB2399.5090500@de.ibm.com>
+References: <1424183053-4310-1-git-send-email-mimu@linux.vnet.ibm.com> <1424183053-4310-5-git-send-email-mimu@linux.vnet.ibm.com> <54E73C8F.7000202@suse.de> <20150220160046.4743acc8@bee> <89E3550E-9E2B-4D95-A809-B7C64EBCD7C5@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150220204303.4f20f54e@bee>
+In-Reply-To: <89E3550E-9E2B-4D95-A809-B7C64EBCD7C5@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Michael Mueller <mimu@linux.vnet.ibm.com>
-Cc: "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
+To: Alexander Graf <agraf@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>
+Cc: "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Gleb Natapov <gleb@kernel.org>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 20.02.15 20:43, Michael Mueller wrote:
-> On Fri, 20 Feb 2015 18:50:20 +0100
-> Alexander Graf <agraf@suse.de> wrote:
+Am 20.02.2015 um 16:22 schrieb Alexander Graf:
 > 
->>
->>
->>
->>> Am 20.02.2015 um 18:37 schrieb Michael Mueller <mimu@linux.vnet.ibm.com>:
->>>
->>> On Fri, 20 Feb 2015 17:57:52 +0100
->>> Alexander Graf <agraf@suse.de> wrote:
->>>
->>>> Because all CPUs we have in our list only expose 128 bits?
->>>
->>> Here a STFLE result on a EC12 GA2, already more than 128 bits... Is that model on the list?
->>
->> If that model has 3 elements, yes, the array should span 3.
->>
->> I hope it's in the list. Every model wecare about should be, no?
->>
 > 
-> On my list? Yes!
 > 
->>>
->>> [mimu@p57lp59 s390xfac]$ ./s390xfac -b
->>> fac[0] = 0xfbfffffbfcfff840
->>> fac[1] = 0xffde000000000000
->>> fac[2] = 0x1800000000000000
+>> Am 20.02.2015 um 16:00 schrieb Michael Mueller <mimu@linux.vnet.ibm.com>:
+>>
+>> On Fri, 20 Feb 2015 14:54:23 +0100
+>> Alexander Graf <agraf@suse.de> wrote:
+>>
 >>>>
->>>>> I want to have this independent from a future machine of the z/Arch. The kernel stores the
->>>>> full facility set, KVM does and there is no good reason for QEMU not to do. If other
->>>>> accelerators decide to just implement 64 or 128 bits of facilities that's ok...  
->>>>
->>>> So you want to support CPUs that are not part of the list?
+>>>> +/* machine related properties */
+>>>> +typedef struct S390CPUMachineProps {
+>>>> +    uint16_t class;      /* machine class */
+>>>> +    uint16_t ga;         /* availability number of machine */
+>>>> +    uint16_t order;      /* order of availability */
+>>>> +} S390CPUMachineProps;
+>>>> +
+>>>> +/* processor related properties */
+>>>> +typedef struct S390CPUProcessorProps {
+>>>> +    uint16_t gen;        /* S390 CMOS generation */
+>>>> +    uint16_t ver;        /* version of processor */
+>>>> +    uint32_t id;         /* processor identification*/
+>>>> +    uint16_t type;       /* machine type */
+>>>> +    uint16_t ibc;        /* IBC value */
+>>>> +    uint64_t *fac_list;  /* list of facilities */  
 >>>
->>> The architecture at least defines more than 2 or 3. Do you want me to limit it to an arbitrary
->>> size?. Only in QEMU or also in the KVM interface?
+>>> Just make this uint64_t fac_list[2]. That way we don't have to track any
+>>> messy allocations.
 >>
->> Only internally in QEMU. The kvm interface should definitely be as big as the spec allows!
+>> It will be something like "uint64_t fac_list[S390_CPU_FAC_LIST_SIZE_UINT64]" and in total 2KB not
+>> just 16 bytes but I will change it. 
 > 
-> Right, now we're on the same page again. That can be taken in consideration. ... Although it's
-> just and optimization. :-)
+> Why? Do we actually need that many? This is a qemu internal struct.
 
-Yeah. You could also consider using the QEMU built-in bitmap type and
-functions and just convert from there. That would give you native
-support for bit values > 64.
+The kernel already enabled the 3rd word for z13 support, 
+https://git.kernel.org/cgit/linux/kernel/git/s390/linux.git/commit/?id=f8b2dcbd9e6d1479b9b5a9e9e78bbaf783bde819
 
-
-Alex
+so make it at least 3.
