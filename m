@@ -1,131 +1,44 @@
-From: Michael Kerrisk <mtk.manpages@gmail.com>
-Subject: Re: [PATCH 4/4] mm, procfs: Display VmAnon, VmFile and VmShm in /proc/pid/status
-Date: Fri, 27 Feb 2015 11:38:47 +0100
-Message-ID: <CAHO5Pa3HvRX5+tQUGXcRhf0=nep5K2aYkiJm8Lxzu6zA3NzABg@mail.gmail.com>
-References: <1424958666-18241-1-git-send-email-vbabka@suse.cz> <1424958666-18241-5-git-send-email-vbabka@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1424958666-18241-5-git-send-email-vbabka@suse.cz>
+Return-Path: <owner-linux-mm@kvack.org>
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: [PATCH 1/4] mm, documentation: clarify /proc/pid/status VmSwap limitations
+Date: Thu, 26 Feb 2015 14:51:03 +0100
+Message-Id: <1424958666-18241-2-git-send-email-vbabka@suse.cz>
+In-Reply-To: <1424958666-18241-1-git-send-email-vbabka@suse.cz>
+References: <1424958666-18241-1-git-send-email-vbabka@suse.cz>
 Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-api/>
-List-Post: <mailto:linux-api@vger.kernel.org>
-To: Vlastimil Babka <vbabka@suse.cz>
-Cc: linux-mm <linux-mm@kvack.org>, Jerome Marchand <jmarchan@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-doc <linux-doc@vger.kernel.org>, Hugh Dickins <hughd@google.com>, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Linux API <linux-api@vger.kernel.org>
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: linux-mm@kvack.org, Jerome Marchand <jmarchan@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-doc@vger.kernel.org, Hugh Dickins <hughd@google.com>, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Vlastimil Babka <vbabka@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-[CC += linux-api@]
+The documentation for /proc/pid/status does not mention that the value of
+VmSwap counts only swapped out anonymous private pages and not shmem. This is
+not obvious, so document this limitation.
 
-On Thu, Feb 26, 2015 at 2:51 PM, Vlastimil Babka <vbabka@suse.cz> wrote:
-> From: Jerome Marchand <jmarchan@redhat.com>
->
-> It's currently inconvenient to retrieve MM_ANONPAGES value from status
-> and statm files and there is no way to separate MM_FILEPAGES and
-> MM_SHMEMPAGES. Add VmAnon, VmFile and VmShm lines in /proc/<pid>/status
-> to solve these issues.
->
-> Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
-> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-> ---
->  Documentation/filesystems/proc.txt | 10 +++++++++-
->  fs/proc/task_mmu.c                 | 13 +++++++++++--
->  2 files changed, 20 insertions(+), 3 deletions(-)
->
-> diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
-> index 8b30543..c777adb 100644
-> --- a/Documentation/filesystems/proc.txt
-> +++ b/Documentation/filesystems/proc.txt
-> @@ -168,6 +168,9 @@ read the file /proc/PID/status:
->    VmLck:         0 kB
->    VmHWM:       476 kB
->    VmRSS:       476 kB
-> +  VmAnon:      352 kB
-> +  VmFile:      120 kB
-> +  VmShm:         4 kB
->    VmData:      156 kB
->    VmStk:        88 kB
->    VmExe:        68 kB
-> @@ -224,7 +227,12 @@ Table 1-2: Contents of the status files (as of 2.6.30-rc7)
->   VmSize                      total program size
->   VmLck                       locked memory size
->   VmHWM                       peak resident set size ("high water mark")
-> - VmRSS                       size of memory portions
-> + VmRSS                       size of memory portions. It contains the three
-> +                             following parts (VmRSS = VmAnon + VmFile + VmShm)
-> + VmAnon                      size of resident anonymous memory
-> + VmFile                      size of resident file mappings
-> + VmShm                       size of resident shmem memory (includes SysV shm,
-> +                             mapping of tmpfs and shared anonymous mappings)
->   VmData                      size of data, stack, and text segments
->   VmStk                       size of data, stack, and text segments
->   VmExe                       size of text segment
-> diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-> index d70334c..a77a3ac 100644
-> --- a/fs/proc/task_mmu.c
-> +++ b/fs/proc/task_mmu.c
-> @@ -22,7 +22,7 @@
->
->  void task_mem(struct seq_file *m, struct mm_struct *mm)
->  {
-> -       unsigned long data, text, lib, swap, ptes, pmds;
-> +       unsigned long data, text, lib, swap, ptes, pmds, anon, file, shmem;
->         unsigned long hiwater_vm, total_vm, hiwater_rss, total_rss;
->
->         /*
-> @@ -39,6 +39,9 @@ void task_mem(struct seq_file *m, struct mm_struct *mm)
->         if (hiwater_rss < mm->hiwater_rss)
->                 hiwater_rss = mm->hiwater_rss;
->
-> +       anon = get_mm_counter(mm, MM_ANONPAGES);
-> +       file = get_mm_counter(mm, MM_FILEPAGES);
-> +       shmem = get_mm_counter_shmem(mm);
->         data = mm->total_vm - mm->shared_vm - mm->stack_vm;
->         text = (PAGE_ALIGN(mm->end_code) - (mm->start_code & PAGE_MASK)) >> 10;
->         lib = (mm->exec_vm << (PAGE_SHIFT-10)) - text;
-> @@ -52,6 +55,9 @@ void task_mem(struct seq_file *m, struct mm_struct *mm)
->                 "VmPin:\t%8lu kB\n"
->                 "VmHWM:\t%8lu kB\n"
->                 "VmRSS:\t%8lu kB\n"
-> +               "VmAnon:\t%8lu kB\n"
-> +               "VmFile:\t%8lu kB\n"
-> +               "VmShm:\t%8lu kB\n"
->                 "VmData:\t%8lu kB\n"
->                 "VmStk:\t%8lu kB\n"
->                 "VmExe:\t%8lu kB\n"
-> @@ -65,6 +71,9 @@ void task_mem(struct seq_file *m, struct mm_struct *mm)
->                 mm->pinned_vm << (PAGE_SHIFT-10),
->                 hiwater_rss << (PAGE_SHIFT-10),
->                 total_rss << (PAGE_SHIFT-10),
-> +               anon << (PAGE_SHIFT-10),
-> +               file << (PAGE_SHIFT-10),
-> +               shmem << (PAGE_SHIFT-10),
->                 data << (PAGE_SHIFT-10),
->                 mm->stack_vm << (PAGE_SHIFT-10), text, lib,
->                 ptes >> 10,
-> @@ -82,7 +91,7 @@ unsigned long task_statm(struct mm_struct *mm,
->                          unsigned long *data, unsigned long *resident)
->  {
->         *shared = get_mm_counter(mm, MM_FILEPAGES) +
-> -               get_mm_counter(mm, MM_SHMEMPAGES);
-> +               get_mm_counter_shmem(mm);
->         *text = (PAGE_ALIGN(mm->end_code) - (mm->start_code & PAGE_MASK))
->                                                                 >> PAGE_SHIFT;
->         *data = mm->total_vm - mm->shared_vm;
-> --
-> 2.1.4
->
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-mm' in
-> the body to majordomo@kvack.org.  For more info on Linux MM,
-> see: http://www.linux-mm.org/ .
-> Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+---
+I've noticed that proc(5) manpage is currently missing the VmSwap field
+altogether.
 
+ Documentation/filesystems/proc.txt | 2 ++
+ 1 file changed, 2 insertions(+)
 
-
+diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
+index a07ba61..d4f56ec 100644
+--- a/Documentation/filesystems/proc.txt
++++ b/Documentation/filesystems/proc.txt
+@@ -231,6 +231,8 @@ Table 1-2: Contents of the status files (as of 2.6.30-rc7)
+  VmLib                       size of shared library code
+  VmPTE                       size of page table entries
+  VmSwap                      size of swap usage (the number of referred swapents)
++                             by anonymous private data (shmem swap usage is not
++                             included)
+  Threads                     number of threads
+  SigQ                        number of signals queued/max. number for queue
+  SigPnd                      bitmap of pending signals for the thread
 -- 
-Michael Kerrisk Linux man-pages maintainer;
-http://www.kernel.org/doc/man-pages/
-Author of "The Linux Programming Interface", http://blog.man7.org/
+2.1.4
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
