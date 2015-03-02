@@ -1,242 +1,75 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v3 13/16] target-s390x: New QMP command
-	query-cpu-model
-Date: Mon,  2 Mar 2015 13:44:05 +0100
-Message-ID: <1425300248-40277-14-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v3 15/16] target-s390x: Introduce facility test routine
+Date: Mon,  2 Mar 2015 13:44:07 +0100
+Message-ID: <1425300248-40277-16-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1425300248-40277-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1425300248-40277-1-git-send-email-mimu@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
+Cc: Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Eduardo Habkost <ehabkost@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implements a new QMP request named 'query-cpu-model'.
-It returns the cpu model of cpu 0 and its backing accelerator.
-
-request:
-  {"execute" : "query-cpu-model" }
-
-answer:
-  {"return" : {"name": "2827-ga2", "accelerator": "kvm" }}
-
-Alias names are resolved to their respective machine type and GA names
-already during cpu instantiation. Thus, also a cpu model like 'host'
-which is implemented as alias will return its normalized cpu model name.
-
-Furthermore the patch implements the following functions:
-
-- s390_cpu_typename(), returns the currently selected cpu type name or NULL
-- s390_cpu_models_used(), returns true if S390 cpu models are in use
+The patch introduces routine s390_facility_test() which allows to
+verify a specific facility bit is set.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
- include/sysemu/arch_init.h |  1 +
- qapi-schema.json           | 25 +++++++++++++++++++++++++
- qmp-commands.hx            |  6 ++++++
- qmp.c                      |  5 +++++
- stubs/Makefile.objs        |  1 +
- stubs/arch-query-cpu-mod.c |  9 +++++++++
- target-s390x/cpu-models.c  | 13 +++++++++++++
- target-s390x/cpu-models.h  |  1 +
- target-s390x/cpu.c         | 29 +++++++++++++++++++++++++++++
- 9 files changed, 90 insertions(+)
- create mode 100644 stubs/arch-query-cpu-mod.c
+ target-s390x/cpu-models.c | 30 ++++++++++++++++++++++++++++++
+ target-s390x/cpu-models.h |  1 +
+ 2 files changed, 31 insertions(+)
 
-diff --git a/include/sysemu/arch_init.h b/include/sysemu/arch_init.h
-index 54b36c1..86344a2 100644
---- a/include/sysemu/arch_init.h
-+++ b/include/sysemu/arch_init.h
-@@ -37,5 +37,6 @@ int kvm_available(void);
- int xen_available(void);
- 
- CpuDefinitionInfoList *arch_query_cpu_definitions(Error **errp);
-+CpuModelInfo *arch_query_cpu_model(Error **errp);
- 
- #endif
-diff --git a/qapi-schema.json b/qapi-schema.json
-index ea436ec..e9b213f 100644
---- a/qapi-schema.json
-+++ b/qapi-schema.json
-@@ -2507,6 +2507,31 @@
- ##
- { 'command': 'query-cpu-definitions', 'returns': ['CpuDefinitionInfo'] }
- 
-+##
-+# @CpuModelInfo:
-+#
-+# Virtual CPU model definition.
-+#
-+# @name: the name of the CPU model definition
-+#
-+# @accelerator: AccelId (name) of this cpu models acceletaror
-+#
-+# Since: 2.3
-+##
-+{ 'type': 'CpuModelInfo',
-+  'data': { 'name': 'str', 'accelerator': 'AccelId' } }
-+
-+##
-+# @query-cpu-model:
-+#
-+# Return the current virtual CPU model
-+#
-+# Returns: CpuModelInfo
-+#
-+# Since: 2.3
-+##
-+{ 'command': 'query-cpu-model', 'returns': 'CpuModelInfo' }
-+
- # @AddfdInfo:
- #
- # Information about a file descriptor that was added to an fd set.
-diff --git a/qmp-commands.hx b/qmp-commands.hx
-index a85d847..98bfedd 100644
---- a/qmp-commands.hx
-+++ b/qmp-commands.hx
-@@ -3392,6 +3392,12 @@ EQMP
-     },
- 
-     {
-+        .name       = "query-cpu-model",
-+        .args_type  = "",
-+        .mhandler.cmd_new = qmp_marshal_input_query_cpu_model,
-+    },
-+
-+    {
-         .name       = "query-target",
-         .args_type  = "",
-         .mhandler.cmd_new = qmp_marshal_input_query_target,
-diff --git a/qmp.c b/qmp.c
-index d701cff..11b6172 100644
---- a/qmp.c
-+++ b/qmp.c
-@@ -573,6 +573,11 @@ CpuDefinitionInfoList *qmp_query_cpu_definitions(Error **errp)
-     return arch_query_cpu_definitions(errp);
- }
- 
-+CpuModelInfo *qmp_query_cpu_model(Error **errp)
-+{
-+    return arch_query_cpu_model(errp);
-+}
-+
- void qmp_add_client(const char *protocol, const char *fdname,
-                     bool has_skipauth, bool skipauth, bool has_tls, bool tls,
-                     Error **errp)
-diff --git a/stubs/Makefile.objs b/stubs/Makefile.objs
-index fd7a489..45daa92 100644
---- a/stubs/Makefile.objs
-+++ b/stubs/Makefile.objs
-@@ -1,4 +1,5 @@
- stub-obj-y += arch-query-cpu-def.o
-+stub-obj-y += arch-query-cpu-mod.o
- stub-obj-y += bdrv-commit-all.o
- stub-obj-y += chr-baum-init.o
- stub-obj-y += chr-msmouse.o
-diff --git a/stubs/arch-query-cpu-mod.c b/stubs/arch-query-cpu-mod.c
-new file mode 100644
-index 0000000..90ebd08
---- /dev/null
-+++ b/stubs/arch-query-cpu-mod.c
-@@ -0,0 +1,9 @@
-+#include "qemu-common.h"
-+#include "sysemu/arch_init.h"
-+#include "qapi/qmp/qerror.h"
-+
-+CpuModelInfo *arch_query_cpu_model(Error **errp)
-+{
-+    error_set(errp, QERR_UNSUPPORTED);
-+    return NULL;
-+}
 diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
-index c6c1771..116dbcc 100644
+index 7ad61df..5c4eac5 100644
 --- a/target-s390x/cpu-models.c
 +++ b/target-s390x/cpu-models.c
-@@ -670,3 +670,16 @@ void s390_cpu_model_init(S390CPUClass *cc)
-     }
+@@ -698,3 +698,33 @@ bool s390_cpu_models_used(void)
+ {
+     return cpu_models_used;
  }
- 
++
++static inline int test_facility(uint64_t *fac_list, uint16_t nr)
++{
++    uint16_t word = nr / BITS_PER_LONG;
++    uint16_t be_bit = (BITS_PER_LONG - 1) - (nr % BITS_PER_LONG);
++
++    return (nr < FAC_LIST_CPU_S390_SIZE_UINT1) ?
++        (fac_list[word] >> be_bit) & __UINT64_C(1) : 0;
++}
++
 +/**
-+ * s390_cpu_models_used:
++ * s390_test_facility:
++ * @nr: facility bit number to test
++ * @cc: cpu class to test
 + *
-+ * This function indicates if cpus with model properties are in use.
++ * The functions tests if the cpu facility identified by bit @nr is available
++ * to the cpu class @cc.
 + *
 + * Returns: a boolean value.
 + *
 + * Since: 2.3
 + */
-+bool s390_cpu_models_used(void)
++bool s390_test_facility(S390CPUClass *cc, uint16_t nr)
 +{
-+    return cpu_models_used;
++    if (!cc) {
++        return false;
++    }
++    return test_facility(cc->fac_list, nr) ? true : false;
 +}
++
 diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
-index f3f914a..51db298 100644
+index 3605aa4..557f5e5 100644
 --- a/target-s390x/cpu-models.h
 +++ b/target-s390x/cpu-models.h
-@@ -114,6 +114,7 @@ void s390_cpu_list_entry(gpointer data, gpointer user_data);
- bool s390_cpu_classes_initialized(void);
+@@ -116,6 +116,7 @@ bool s390_cpu_classes_initialized(void);
  bool s390_probe_mode(void);
  void s390_cpu_model_init(S390CPUClass *cc);
-+bool s390_cpu_models_used(void);
+ bool s390_cpu_models_used(void);
++bool s390_test_facility(S390CPUClass *cc, uint16_t nr);
  
  /*
   * bits 0-7   : CMOS generation
-diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
-index 2f4192e..cefaff1 100644
---- a/target-s390x/cpu.c
-+++ b/target-s390x/cpu.c
-@@ -37,6 +37,11 @@
- #define CR0_RESET       0xE0UL
- #define CR14_RESET      0xC2000000UL;
- 
-+static inline char *strdup_s390_cpu_name(S390CPUClass *cc)
-+{
-+    return g_strdup_printf("%04x-ga%u", cc->proc.type, cc->mach.ga);
-+}
-+
- /* generate CPU information for cpu -? */
- void s390_cpu_list(FILE *f, fprintf_function cpu_fprintf)
- {
-@@ -74,6 +79,30 @@ CpuDefinitionInfoList *arch_query_cpu_definitions(Error **errp)
- 
-     return entry;
- }
-+
-+CpuModelInfo *arch_query_cpu_model(Error **errp)
-+{
-+    CpuModelInfo *info;
-+    S390CPUClass *cc;
-+
-+    if (!s390_cpu_models_used()) {
-+        return NULL;
-+    }
-+    info = g_try_new0(CpuModelInfo, 1);
-+    if (!info) {
-+        return NULL;
-+    }
-+    cc = S390_CPU_GET_CLASS(s390_cpu_addr2state(0));
-+    info->name = strdup_s390_cpu_name(cc);
-+    if (!info->name) {
-+        g_free(info);
-+        return NULL;
-+    }
-+    if (kvm_enabled()) {
-+        info->accelerator = ACCEL_ID_KVM;
-+    }
-+    return info;
-+}
- #endif
- 
- static void s390_cpu_set_pc(CPUState *cs, vaddr value)
 -- 
 1.8.3.1
