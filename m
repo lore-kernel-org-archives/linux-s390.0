@@ -1,126 +1,78 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v3 02/16] Introduce option --probe to switch into probe mode
-Date: Mon,  2 Mar 2015 13:43:54 +0100
-Message-ID: <1425300248-40277-3-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v3 03/16] Introduce stub routine cpu_desc_avail
+Date: Mon,  2 Mar 2015 13:43:55 +0100
+Message-ID: <1425300248-40277-4-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1425300248-40277-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1425300248-40277-1-git-send-email-mimu@linux.vnet.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Eduardo Habkost <ehabkost@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The option --probe allows to switch into probe mode also for machines
-different from none. If one or more accelerators are specified these
-accelerators are used to provide probable properties. If no accelerator
-is given a list of accelerators that support probing is used.
+This patch introduces the function cpu_desc_avail() which returns by
+default true if not architecture specific implemented. Its intention
+is to indicate if the cpu model description is available for display
+by list_cpus(). This change allows cpu model descriptions to become
+dynamically created by evaluating the runtime context instead of
+putting static cpu model information at display.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 ---
- accel.c                | 13 ++++++++-----
- include/sysemu/accel.h |  2 +-
- qemu-options.hx        |  8 ++++++++
- vl.c                   |  7 ++++++-
- 4 files changed, 23 insertions(+), 7 deletions(-)
+ include/qemu-common.h  | 2 ++
+ stubs/Makefile.objs    | 1 +
+ stubs/cpu-desc-avail.c | 6 ++++++
+ vl.c                   | 2 +-
+ 4 files changed, 10 insertions(+), 1 deletion(-)
+ create mode 100644 stubs/cpu-desc-avail.c
 
-diff --git a/accel.c b/accel.c
-index 260b009..4ed6df8 100644
---- a/accel.c
-+++ b/accel.c
-@@ -81,7 +81,7 @@ static int accel_init_machine(AccelClass *acc, MachineState *ms,
-     return ret;
- }
+diff --git a/include/qemu-common.h b/include/qemu-common.h
+index 644b46d..45040f9 100644
+--- a/include/qemu-common.h
++++ b/include/qemu-common.h
+@@ -481,4 +481,6 @@ int parse_debug_env(const char *name, int max, int initial);
  
--int configure_accelerator(MachineState *ms)
-+int configure_accelerator(MachineState *ms, int probe)
- {
-     const char *p, *name;
-     char buf[10];
-@@ -90,13 +90,16 @@ int configure_accelerator(MachineState *ms)
-     bool init_failed = false;
-     AccelClass *acc = NULL;
-     ObjectClass *oc;
--    bool probe_mode = false;
-+    bool probe_mode;
+ const char *qemu_ether_ntoa(const MACAddr *mac);
  
-+    probe_mode = probe != 0;
-     p = qemu_opt_get(qemu_get_machine_opts(), "accel");
-     if (p == NULL) {
--        oc = (ObjectClass *) MACHINE_GET_CLASS(current_machine);
--        name = object_class_get_name(oc);
--        probe_mode = !strcmp(name, "none" TYPE_MACHINE_SUFFIX);
-+        if (!probe_mode) {
-+            oc = (ObjectClass *) MACHINE_GET_CLASS(current_machine);
-+            name = object_class_get_name(oc);
-+            probe_mode = !strcmp(name, "none" TYPE_MACHINE_SUFFIX);
-+        }
-         if (probe_mode) {
-             /* Use these accelerators in probe mode, tcg should be last */
-             p = probe_mode_accels;
-diff --git a/include/sysemu/accel.h b/include/sysemu/accel.h
-index 997720f..3adb6ba 100644
---- a/include/sysemu/accel.h
-+++ b/include/sysemu/accel.h
-@@ -57,6 +57,6 @@ typedef struct AccelClass {
- 
- extern int tcg_tb_size;
- 
--int configure_accelerator(MachineState *ms);
-+int configure_accelerator(MachineState *ms, int probe);
- 
- #endif
-diff --git a/qemu-options.hx b/qemu-options.hx
-index 85ca3ad..22e7544 100644
---- a/qemu-options.hx
-+++ b/qemu-options.hx
-@@ -2847,6 +2847,14 @@ STEXI
- Do not start CPU at startup (you must type 'c' in the monitor).
- ETEXI
- 
-+DEF("probe", 0, QEMU_OPTION_probe, \
-+    "-probe          startup in probe mode, option -S is selected as well\n", QEMU_ARCH_ALL)
-+STEXI
-+@item -probe
-+@findex -probe
-+Startup in probe mode.
-+ETEXI
++bool cpu_desc_avail(void);
 +
- DEF("realtime", HAS_ARG, QEMU_OPTION_realtime,
-     "-realtime [mlock=on|off]\n"
-     "                run qemu with realtime features\n"
+ #endif
+diff --git a/stubs/Makefile.objs b/stubs/Makefile.objs
+index 5e347d0..fd7a489 100644
+--- a/stubs/Makefile.objs
++++ b/stubs/Makefile.objs
+@@ -40,3 +40,4 @@ stub-obj-$(CONFIG_WIN32) += fd-register.o
+ stub-obj-y += cpus.o
+ stub-obj-y += kvm.o
+ stub-obj-y += qmp_pc_dimm_device_list.o
++stub-obj-y += cpu-desc-avail.o
+diff --git a/stubs/cpu-desc-avail.c b/stubs/cpu-desc-avail.c
+new file mode 100644
+index 0000000..0cd594e
+--- /dev/null
++++ b/stubs/cpu-desc-avail.c
+@@ -0,0 +1,6 @@
++#include "qemu-common.h"
++
++bool cpu_desc_avail(void)
++{
++    return true;
++}
 diff --git a/vl.c b/vl.c
-index e1ffd0a..ba1730c 100644
+index ba1730c..d337a74 100644
 --- a/vl.c
 +++ b/vl.c
-@@ -138,6 +138,7 @@ bool enable_mlock = false;
- int nb_nics;
- NICInfo nd_table[MAX_NICS];
- int autostart;
-+int probe;
- static int rtc_utc = 1;
- static int rtc_date_offset = -1; /* -1 means no change */
- QEMUClockType rtc_clock;
-@@ -3144,6 +3145,10 @@ int main(int argc, char **argv, char **envp)
-             case QEMU_OPTION_S:
-                 autostart = 0;
-                 break;
-+            case QEMU_OPTION_probe:
-+                probe = 1;
-+                autostart = 0;
-+                break;
-             case QEMU_OPTION_k:
-                 keyboard_layout = optarg;
-                 break;
-@@ -4023,7 +4028,7 @@ int main(int argc, char **argv, char **envp)
-         exit(1);
+@@ -3815,7 +3815,7 @@ int main(int argc, char **argv, char **envp)
+      */
+     cpudef_init();
+ 
+-    if (cpu_model && is_help_option(cpu_model)) {
++    if (cpu_model && cpu_desc_avail() && is_help_option(cpu_model)) {
+         list_cpus(stdout, &fprintf, cpu_model);
+         exit(0);
      }
- 
--    configure_accelerator(current_machine);
-+    configure_accelerator(current_machine, probe);
- 
-     if (qtest_chrdev) {
-         Error *local_err = NULL;
 -- 
 1.8.3.1
