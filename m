@@ -1,120 +1,231 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v3 07/16] target-s390x: Define cpu model
-	specific facility lists
-Date: Mon,  2 Mar 2015 13:43:59 +0100
-Message-ID: <1425300248-40277-8-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v3 10/16] target-s390x: Add KVM VM attribute interface for cpu models
+Date: Mon,  2 Mar 2015 13:44:02 +0100
+Message-ID: <1425300248-40277-11-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1425300248-40277-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1425300248-40277-1-git-send-email-mimu@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
+Cc: Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Eduardo Habkost <ehabkost@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch defines S390 cpu facilities and their presence at the
-different cpu model levels. Beside defining a base which facilities
-have to be requested per cpu model, these sets are associated to the
-defined cpu classes and used to calculate the list of supported
-cpu models in context of the current hosting machine model.
-
-The also defined qemu side facility mask allows to implement and enable
-facilities in QEMU land.
+The patch implements routines to set and retrieve processor configuration
+data and to retrieve machine configuration data. The machine related data
+is used together with the cpu model facility lists to determine the list of
+supported cpu models of this host. The above mentioned routines have QEMU
+trace point instrumentation.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
- target-s390x/cpu-models.c | 12 ++++++++++++
- target-s390x/cpu-models.h |  8 ++++++++
- target-s390x/cpu.c        |  1 +
- 3 files changed, 21 insertions(+)
+ target-s390x/cpu-models.h |  39 ++++++++++++++++++
+ target-s390x/kvm.c        | 102 ++++++++++++++++++++++++++++++++++++++++++++++
+ trace-events              |   3 ++
+ 3 files changed, 144 insertions(+)
 
-diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
-index 3520691..bd9f0bc 100644
---- a/target-s390x/cpu-models.c
-+++ b/target-s390x/cpu-models.c
-@@ -12,6 +12,7 @@
- 
- #include "qemu-common.h"
- #include "cpu-models.h"
-+#include "gen-facilities.h"
- 
- #define S390_PROC_DEF(_name, _cpu_id, _desc)                            \
-     static void                                                         \
-@@ -20,6 +21,10 @@
-     {                                                                   \
-         DeviceClass *dc = DEVICE_CLASS(oc);                             \
-         S390CPUClass *cc = S390_CPU_CLASS(oc);                          \
-+        uint64_t nbits = FAC_LIST_CPU_S390_SIZE_UINT1;                  \
-+        uint64_t fac_list[FAC_LIST_CPU_S390_SIZE_UINT64] = {            \
-+            glue(FAC_LIST_, _cpu_id)                                    \
-+        };                                                              \
-                                                                         \
-         cc->is_active[ACCEL_ID_KVM] = true;                             \
-         cc->mach.ga    = cpu_ga(_cpu_id);                               \
-@@ -30,6 +35,7 @@
-         cc->proc.id    = S390_DEF_ID;                                   \
-         cc->proc.type  = cpu_type(_cpu_id);                             \
-         cc->proc.ibc   = S390_DEF_IBC;                                  \
-+        bitmap_copy(cc->proc.fac_list, fac_list, nbits);                \
-         dc->desc       = _desc;                                         \
-     }                                                                   \
-     static const TypeInfo                                               \
-@@ -46,6 +52,11 @@
-     }                                                                   \
-     type_init(glue(_cpu_id, _cpu_register_types))
- 
-+/* facilities implemented by qemu */
-+uint64_t qemu_s390_fac_list_mask[FAC_LIST_CPU_S390_SIZE_UINT64] = {
-+    FAC_LIST_CPU_S390_MASK_QEMU
-+};
-+
- /* define S390 CPU model classes */
- S390_PROC_DEF("2064-ga1", CPU_S390_2064_GA1, "IBM zSeries 900 GA1")
- S390_PROC_DEF("2064-ga2", CPU_S390_2064_GA2, "IBM zSeries 900 GA2")
-@@ -75,3 +86,4 @@ S390_PROC_DEF("2818-ga1", CPU_S390_2818_GA1, "IBM zEnterprise 114 GA1")
- S390_PROC_DEF("2827-ga1", CPU_S390_2827_GA1, "IBM zEnterprise EC12 GA1")
- S390_PROC_DEF("2827-ga2", CPU_S390_2827_GA2, "IBM zEnterprise EC12 GA2")
- S390_PROC_DEF("2828-ga1", CPU_S390_2828_GA1, "IBM zEnterprise BC12 GA1")
-+
 diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
-index db681bf..d5f0b59 100644
+index a32f559..b6b57d4 100644
 --- a/target-s390x/cpu-models.h
 +++ b/target-s390x/cpu-models.h
-@@ -13,6 +13,14 @@
- #ifndef TARGET_S390X_CPU_MODELS_H
- #define TARGET_S390X_CPU_MODELS_H
+@@ -46,6 +46,45 @@ typedef struct S390CPUAlias {
+     char *model;
+ } S390CPUAlias;
  
-+#include "cpu-facilities.h"
-+#include "gen-facilities.h"
++typedef struct S390ProcessorProps {
++    uint64_t cpuid;
++    uint16_t ibc;
++    uint8_t  pad[6];
++    uint64_t fac_list[FAC_LIST_ARCH_S390_SIZE_UINT64];
++} S390ProcessorProps;
 +
-+#define FAC_LIST_ARCH_S390_SIZE_UINT1 \
-+    (FAC_LIST_ARCH_S390_SIZE_UINT8 * BITS_PER_BYTE)
-+#define FAC_LIST_ARCH_S390_SIZE_UINT64 \
-+    (FAC_LIST_ARCH_S390_SIZE_UINT8 / sizeof(uint64_t))
++typedef struct S390MachineProps {
++    uint64_t cpuid;
++    uint32_t ibc_range;
++    uint8_t  pad[4];
++    uint64_t fac_list_mask[FAC_LIST_ARCH_S390_SIZE_UINT64];
++    uint64_t fac_list[FAC_LIST_ARCH_S390_SIZE_UINT64];
++} S390MachineProps;
 +
- #define S390_EC 0x1
- #define S390_BC 0x2
- 
-diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
-index d2f6312..7a26b91 100644
---- a/target-s390x/cpu.c
-+++ b/target-s390x/cpu.c
-@@ -29,6 +29,7 @@
- #include "qemu/error-report.h"
- #include "hw/hw.h"
- #include "trace.h"
++#ifdef CONFIG_KVM
++int kvm_s390_get_processor_props(S390ProcessorProps *prop);
++int kvm_s390_set_processor_props(S390ProcessorProps *prop);
++bool kvm_s390_cpu_classes_initialized(void);
++bool kvm_s390_probe_mode(void);
++#else
++static inline int kvm_s390_get_processor_props(S390ProcessorProps *prob)
++{
++    return -ENOSYS;
++}
++static inline int kvm_s390_set_processor_props(S390ProcessorProps *prob)
++{
++    return -ENOSYS;
++}
++static inline bool kvm_s390_cpu_classes_initialized(void)
++{
++    return false;
++}
++static inline bool kvm_s390_probe_mode(void)
++{
++    return false;
++}
++#endif
++
+ /*
+  * bits 0-7   : CMOS generation
+  * bits 8-9   : reserved
+diff --git a/target-s390x/kvm.c b/target-s390x/kvm.c
+index d7c57d9..5404137 100644
+--- a/target-s390x/kvm.c
++++ b/target-s390x/kvm.c
+@@ -43,6 +43,7 @@
+ #include "hw/s390x/s390-pci-inst.h"
+ #include "hw/s390x/s390-pci-bus.h"
+ #include "hw/s390x/ipl.h"
 +#include "cpu-models.h"
- #ifndef CONFIG_USER_ONLY
- #include "sysemu/arch_init.h"
- #endif
+ 
+ /* #define DEBUG_KVM */
+ 
+@@ -118,6 +119,7 @@ const KVMCapabilityInfo kvm_arch_required_capabilities[] = {
+ 
+ static int cap_sync_regs;
+ static int cap_async_pf;
++static bool cpu_classes_initialized;
+ 
+ static void *legacy_s390_alloc(size_t size, uint64_t *align);
+ 
+@@ -173,6 +175,68 @@ static void kvm_s390_enable_cmma(KVMState *s)
+     trace_kvm_enable_cmma(rc);
+ }
+ 
++static int cpu_model_get(KVMState *s, uint64_t attr, uint64_t addr)
++{
++    struct kvm_device_attr dev_attr = {
++        .group = KVM_S390_VM_CPU_MODEL,
++        .attr = attr,
++        .addr = addr,
++    };
++
++    return kvm_vm_ioctl(s, KVM_GET_DEVICE_ATTR, &dev_attr);
++}
++
++static int cpu_model_set(KVMState *s, uint64_t attr, uint64_t addr)
++{
++    struct kvm_device_attr dev_attr = {
++        .group = KVM_S390_VM_CPU_MODEL,
++        .attr = attr,
++        .addr = addr,
++    };
++
++    return kvm_vm_ioctl(s, KVM_SET_DEVICE_ATTR, &dev_attr);
++}
++
++static int has_cpu_model_call(KVMState *s, uint64_t attr)
++{
++    int rc;
++    struct kvm_device_attr dev_attr = {
++        .group = KVM_S390_VM_CPU_MODEL,
++        .attr = attr,
++    };
++
++    if (kvm_check_extension(s, KVM_CAP_VM_ATTRIBUTES) == 0) {
++        return -ENOSYS;
++    }
++
++    rc = kvm_vm_ioctl(s, KVM_HAS_DEVICE_ATTR, &dev_attr);
++    if (rc == 0) {
++        return 0;
++    }
++    return -EFAULT;
++}
++
++static int kvm_s390_get_machine_props(KVMState *s, S390MachineProps *prop)
++{
++    int rc;
++
++    rc = has_cpu_model_call(s, KVM_S390_VM_CPU_MACHINE);
++    if (!rc) {
++        rc = cpu_model_get(s, KVM_S390_VM_CPU_MACHINE, (uint64_t) prop);
++    }
++    trace_kvm_get_machine_props(rc, prop->cpuid, prop->ibc_range);
++    return rc;
++}
++
++static void kvm_s390_setup_cpu_classes(KVMState *s)
++{
++    S390MachineProps mach;
++
++    if (!kvm_s390_get_machine_props(s, &mach)) {
++        cpu_classes_initialized = false;
++    }
++}
++
+ int kvm_arch_init(KVMState *s)
+ {
+     cap_sync_regs = kvm_check_extension(s, KVM_CAP_SYNC_REGS);
+@@ -186,6 +250,8 @@ int kvm_arch_init(KVMState *s)
+         || !kvm_check_extension(s, KVM_CAP_S390_COW)) {
+         phys_mem_set_alloc(legacy_s390_alloc);
+     }
++
++    kvm_s390_setup_cpu_classes(s);
+     return 0;
+ }
+ 
+@@ -1578,3 +1644,39 @@ int kvm_arch_fixup_msi_route(struct kvm_irq_routing_entry *route,
+     route->u.adapter.adapter_id = pbdev->routes.adapter.adapter_id;
+     return 0;
+ }
++
++int kvm_s390_get_processor_props(S390ProcessorProps *prop)
++{
++    int rc;
++
++    rc = has_cpu_model_call(kvm_state, KVM_S390_VM_CPU_PROCESSOR);
++    if (!rc) {
++        rc = cpu_model_get(kvm_state,
++                           KVM_S390_VM_CPU_PROCESSOR, (uint64_t) prop);
++    }
++    trace_kvm_get_processor_props(rc, prop->cpuid, prop->ibc);
++    return rc;
++}
++
++int kvm_s390_set_processor_props(S390ProcessorProps *prop)
++{
++    int rc;
++
++    rc = has_cpu_model_call(kvm_state, KVM_S390_VM_CPU_PROCESSOR);
++    if (!rc) {
++        rc = cpu_model_set(kvm_state,
++                           KVM_S390_VM_CPU_PROCESSOR, (uint64_t) prop);
++    }
++    trace_kvm_set_processor_props(rc);
++    return rc;
++}
++
++bool kvm_s390_cpu_classes_initialized(void)
++{
++    return cpu_classes_initialized;
++}
++
++bool kvm_s390_probe_mode(void)
++{
++    return kvm_probe_mode_enabled();
++}
+diff --git a/trace-events b/trace-events
+index f87b077..f39f879 100644
+--- a/trace-events
++++ b/trace-events
+@@ -1577,6 +1577,9 @@ mhp_pc_dimm_assigned_address(uint64_t addr) "0x%"PRIx64
+ kvm_enable_cmma(int rc) "CMMA: enabling with result code %d"
+ kvm_clear_cmma(int rc) "CMMA: clearing with result code %d"
+ kvm_failed_cpu_state_set(int cpu_index, uint8_t state, const char *msg) "Warning: Unable to set cpu %d state %" PRIu8 " to KVM: %s"
++kvm_get_machine_props(int rc, uint64_t cpuid, uint16_t ibc) "CPU-MODEL: fetching machine properties rc=%d cpuid=0x%"PRIx64" ibc=0x%"PRIx16
++kvm_get_processor_props(int rc, uint64_t cpuid, uint32_t ibc_range) "CPU-MODEL: fetching processor properties rc=%d cpuid=0x%"PRIx64" ibc_range=0x%"PRIx32
++kvm_set_processor_props(int rc) "CPU-MODEL: requesting processor properties rc=%d"
+ 
+ # hw/dma/i8257.c
+ i8257_unregistered_dma(int nchan, int dma_pos, int dma_len) "unregistered DMA channel used nchan=%d dma_pos=%d dma_len=%d"
 -- 
 1.8.3.1
