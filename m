@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 27 Mar 2015 14:58:48 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH 1/1] livepatch: add support on s390
-Message-ID: <20150327135848.GB4379@osiris>
-References: <1427361017-23354-1-git-send-email-jslaby@suse.cz>
- <alpine.LNX.2.00.1503261924430.6781@pobox.suse.cz>
- <20150327091900.GA4379@osiris>
- <alpine.LNX.2.00.1503271020470.6781@pobox.suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1503271020470.6781@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jiri Slaby <jslaby@suse.cz>, jpoimboe@redhat.com, sjenning@redhat.com, vojtech@suse.cz, live-patching@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Mon, 02 Mar 2015 19:51:45 +0000
+Subject: Re: sigsegv/sigbus not setting si_addr correctly for insn faults
+Message-Id: <54F4BF51.2010504@de.ibm.com>
+In-Reply-To: <20150302171835.GI8519@vapier>
+References: <20150302171835.GI8519@vapier>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Mar 27, 2015 at 10:29:28AM +0100, Jiri Kosina wrote:
-> On Fri, 27 Mar 2015, Heiko Carstens wrote:
+Am 02.03.2015 um 18:18 schrieb Mike Frysinger:
+> On 02 Mar 2015 09:56, Christian Borntraeger wrote:
+>> Am 28.02.2015 um 22:24 schrieb Mike Frysinger:
+>>> when running strace tests, we noticed that si_addr appears to be wrong.  the 
+>>> attached test shows the problem -- si_addr isn't set to the faulting address.
+>>>
+>>> i hacked arch/s390/mm/fault.c:do_sigsegv to load regs->psw.addr (sans mask),
+>>> and it worked for insn based crashes.  but obviously that doesn't work for
+>>> data based ones.  i'm not familiar with how regs->int_parm_long works though,
+>>> so maybe it's supposed to be loaded indirectly.  the use of __FAIL_ADDR_MASK
+>>> blindly is most certainly incorrect ...
+>>>
+>>> whatever the fix, do_sigbus probably needs it too.
+>>
+>> The problem is that all faults on s390 give the address only on page
+>> granularity (HW-wise)
+>> e.g. if you use 0x123456 as fail address you get si_addr == 0x123000
 > 
-> > On Thu, Mar 26, 2015 at 07:24:58PM +0100, Jiri Kosina wrote:
-> > > On Thu, 26 Mar 2015, Jiri Slaby wrote:
-> > > 
-> > > > This is a trivial port from kGraft. Module relocations are not
-> > > > supported.
-> > > > 
-> > > > Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-> > > > ---
-> > > > [v2] return ENOSYS
-> > > > [v3] proper return value from klp_check_compiler_support
-> > > 
-> > > Applied to for-4.1/core.
-> > 
-> > Hello Jiri,
-> > 
-> > while I do appreciate your work on the s390 architecture backend for
-> > livepatching:  this should go upstream only via the s390 tree or with
-> > an Ack from Martin or me.
-> 
-> Fair enough; I merged it because I was convinced that we have your Ack for 
-> the very same patch in our tree for kGraft, but now that I look again, we 
-> apparently don't. So sorry for that. What is your standpoint on this one 
-> then, please?
+> can't you detect when the fault is data-vs-code access ?  you could at least 
+> make the code fault exact.
+> -mike
 
-I thought there was more available then the simple testcase within the kernel.
-But since the testcase works:
+There is no indication which part caused the fault. Worst case: there can be
+3 sources: instruction address, address1 and address 2 (for example the MVC
+instruction). Now, we could start with "guessing", but what happens if 2 or
+3 of the addresses are in the same page (e.g. some trampoline code on the
+stack). Or we could start walking page tables: this would require us to decode
+~1000 instructions just to race against other kernel code that does invalidation,
+e.g. vmscan/swap. IMHO the proper solution is to accept that translation faults 
+are on the page, unless the maintainers Martin or Heiko have a clever idea.
 
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Christian
+
+PS: Programs that need the fault address might need special handling. For an example
+have a look at valgrind: https://github.com/svn2github/valgrind/blob/master/coregrind/m_signals.c
+line 2385 fault_mask
