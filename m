@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v3 15/16] target-s390x: Introduce facility test routine
-Date: Mon,  2 Mar 2015 13:44:07 +0100
-Message-ID: <1425300248-40277-16-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v3 16/16] target-s390x: Enable cpu model usage
+Date: Mon,  2 Mar 2015 13:44:08 +0100
+Message-ID: <1425300248-40277-17-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1425300248-40277-1-git-send-email-mimu@linux.vnet.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1425300248-40277-1-git-send-email-mimu@linux.vnet.ibm.com>
@@ -12,64 +12,77 @@ To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linu
 Cc: Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Eduardo Habkost <ehabkost@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The patch introduces routine s390_facility_test() which allows to
-verify a specific facility bit is set.
+This patch enables QEMU to instantiate S390 CPUs with cpu model types.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
- target-s390x/cpu-models.c | 30 ++++++++++++++++++++++++++++++
- target-s390x/cpu-models.h |  1 +
- 2 files changed, 31 insertions(+)
+ hw/s390x/s390-virtio.c | 12 +++++++++++-
+ target-s390x/helper.c  |  9 ++-------
+ 2 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
-index 7ad61df..5c4eac5 100644
---- a/target-s390x/cpu-models.c
-+++ b/target-s390x/cpu-models.c
-@@ -698,3 +698,33 @@ bool s390_cpu_models_used(void)
- {
-     return cpu_models_used;
- }
-+
-+static inline int test_facility(uint64_t *fac_list, uint16_t nr)
-+{
-+    uint16_t word = nr / BITS_PER_LONG;
-+    uint16_t be_bit = (BITS_PER_LONG - 1) - (nr % BITS_PER_LONG);
-+
-+    return (nr < FAC_LIST_CPU_S390_SIZE_UINT1) ?
-+        (fac_list[word] >> be_bit) & __UINT64_C(1) : 0;
-+}
-+
-+/**
-+ * s390_test_facility:
-+ * @nr: facility bit number to test
-+ * @cc: cpu class to test
-+ *
-+ * The functions tests if the cpu facility identified by bit @nr is available
-+ * to the cpu class @cc.
-+ *
-+ * Returns: a boolean value.
-+ *
-+ * Since: 2.3
-+ */
-+bool s390_test_facility(S390CPUClass *cc, uint16_t nr)
-+{
-+    if (!cc) {
-+        return false;
-+    }
-+    return test_facility(cc->fac_list, nr) ? true : false;
-+}
-+
-diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
-index 3605aa4..557f5e5 100644
---- a/target-s390x/cpu-models.h
-+++ b/target-s390x/cpu-models.h
-@@ -116,6 +116,7 @@ bool s390_cpu_classes_initialized(void);
- bool s390_probe_mode(void);
- void s390_cpu_model_init(S390CPUClass *cc);
- bool s390_cpu_models_used(void);
-+bool s390_test_facility(S390CPUClass *cc, uint16_t nr);
+diff --git a/hw/s390x/s390-virtio.c b/hw/s390x/s390-virtio.c
+index 412e49b..0bf7632 100644
+--- a/hw/s390x/s390-virtio.c
++++ b/hw/s390x/s390-virtio.c
+@@ -32,6 +32,7 @@
+ #include "hw/virtio/virtio.h"
+ #include "hw/sysbus.h"
+ #include "sysemu/kvm.h"
++#include "sysemu/cpus.h"
+ #include "exec/address-spaces.h"
  
- /*
-  * bits 0-7   : CMOS generation
+ #include "hw/s390x/s390-virtio-bus.h"
+@@ -153,7 +154,12 @@ void s390_init_cpus(const char *cpu_model, uint8_t *storage_keys)
+     int i;
+ 
+     if (cpu_model == NULL) {
+-        cpu_model = "host";
++        cpu_model = "none";
++    }
++
++    if (is_help_option(cpu_model)) {
++        list_cpus(stdout, &fprintf, cpu_model);
++        exit(0);
+     }
+ 
+     ipi_states = g_malloc(sizeof(S390CPU *) * smp_cpus);
+@@ -163,6 +169,10 @@ void s390_init_cpus(const char *cpu_model, uint8_t *storage_keys)
+         CPUState *cs;
+ 
+         cpu = cpu_s390x_init(cpu_model);
++        if (cpu == NULL) {
++            fprintf(stderr, "Unable to find CPU definition\n");
++            exit(1);
++        }
+         cs = CPU(cpu);
+ 
+         ipi_states[i] = cpu;
+diff --git a/target-s390x/helper.c b/target-s390x/helper.c
+index e0fd8fc..5b6bad2 100644
+--- a/target-s390x/helper.c
++++ b/target-s390x/helper.c
+@@ -22,6 +22,7 @@
+ #include "exec/gdbstub.h"
+ #include "qemu/timer.h"
+ #include "exec/cpu_ldst.h"
++#include "cpu-models.h"
+ #ifndef CONFIG_USER_ONLY
+ #include "sysemu/sysemu.h"
+ #endif
+@@ -66,13 +67,7 @@ void s390x_cpu_timer(void *opaque)
+ 
+ S390CPU *cpu_s390x_init(const char *cpu_model)
+ {
+-    S390CPU *cpu;
+-
+-    cpu = S390_CPU(object_new(TYPE_S390_CPU));
+-
+-    object_property_set_bool(OBJECT(cpu), true, "realized", NULL);
+-
+-    return cpu;
++    return S390_CPU(cpu_generic_init(TYPE_S390_CPU, cpu_model));
+ }
+ 
+ #if defined(CONFIG_USER_ONLY)
 -- 
 1.8.3.1
