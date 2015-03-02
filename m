@@ -1,8 +1,8 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v3 12/16] target-s390x: Prepare accelerator
-	during cpu object realization
-Date: Mon,  2 Mar 2015 13:44:04 +0100
-Message-ID: <1425300248-40277-13-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v3 13/16] target-s390x: New QMP command
+	query-cpu-model
+Date: Mon,  2 Mar 2015 13:44:05 +0100
+Message-ID: <1425300248-40277-14-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1425300248-40277-1-git-send-email-mimu@linux.vnet.ibm.com>
 Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
 In-Reply-To: <1425300248-40277-1-git-send-email-mimu@linux.vnet.ibm.com>
@@ -21,102 +21,222 @@ To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linu
 Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implements routine s390_cpu_model_init(). It is called by the
-realize function during instantiation of an cpu object. Its task is to
-initialize the current accelerator with the properties of the selected
-processor model.
+This patch implements a new QMP request named 'query-cpu-model'.
+It returns the cpu model of cpu 0 and its backing accelerator.
+
+request:
+  {"execute" : "query-cpu-model" }
+
+answer:
+  {"return" : {"name": "2827-ga2", "accelerator": "kvm" }}
+
+Alias names are resolved to their respective machine type and GA names
+already during cpu instantiation. Thus, also a cpu model like 'host'
+which is implemented as alias will return its normalized cpu model name.
+
+Furthermore the patch implements the following functions:
+
+- s390_cpu_typename(), returns the currently selected cpu type name or NULL
+- s390_cpu_models_used(), returns true if S390 cpu models are in use
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
- target-s390x/cpu-models.c | 36 ++++++++++++++++++++++++++++++++++++
- target-s390x/cpu-models.h |  4 ++++
- target-s390x/cpu.c        |  1 +
- 3 files changed, 41 insertions(+)
+ include/sysemu/arch_init.h |  1 +
+ qapi-schema.json           | 25 +++++++++++++++++++++++++
+ qmp-commands.hx            |  6 ++++++
+ qmp.c                      |  5 +++++
+ stubs/Makefile.objs        |  1 +
+ stubs/arch-query-cpu-mod.c |  9 +++++++++
+ target-s390x/cpu-models.c  | 13 +++++++++++++
+ target-s390x/cpu-models.h  |  1 +
+ target-s390x/cpu.c         | 29 +++++++++++++++++++++++++++++
+ 9 files changed, 90 insertions(+)
+ create mode 100644 stubs/arch-query-cpu-mod.c
 
+diff --git a/include/sysemu/arch_init.h b/include/sysemu/arch_init.h
+index 54b36c1..86344a2 100644
+--- a/include/sysemu/arch_init.h
++++ b/include/sysemu/arch_init.h
+@@ -37,5 +37,6 @@ int kvm_available(void);
+ int xen_available(void);
+ 
+ CpuDefinitionInfoList *arch_query_cpu_definitions(Error **errp);
++CpuModelInfo *arch_query_cpu_model(Error **errp);
+ 
+ #endif
+diff --git a/qapi-schema.json b/qapi-schema.json
+index ea436ec..e9b213f 100644
+--- a/qapi-schema.json
++++ b/qapi-schema.json
+@@ -2507,6 +2507,31 @@
+ ##
+ { 'command': 'query-cpu-definitions', 'returns': ['CpuDefinitionInfo'] }
+ 
++##
++# @CpuModelInfo:
++#
++# Virtual CPU model definition.
++#
++# @name: the name of the CPU model definition
++#
++# @accelerator: AccelId (name) of this cpu models acceletaror
++#
++# Since: 2.3
++##
++{ 'type': 'CpuModelInfo',
++  'data': { 'name': 'str', 'accelerator': 'AccelId' } }
++
++##
++# @query-cpu-model:
++#
++# Return the current virtual CPU model
++#
++# Returns: CpuModelInfo
++#
++# Since: 2.3
++##
++{ 'command': 'query-cpu-model', 'returns': 'CpuModelInfo' }
++
+ # @AddfdInfo:
+ #
+ # Information about a file descriptor that was added to an fd set.
+diff --git a/qmp-commands.hx b/qmp-commands.hx
+index a85d847..98bfedd 100644
+--- a/qmp-commands.hx
++++ b/qmp-commands.hx
+@@ -3392,6 +3392,12 @@ EQMP
+     },
+ 
+     {
++        .name       = "query-cpu-model",
++        .args_type  = "",
++        .mhandler.cmd_new = qmp_marshal_input_query_cpu_model,
++    },
++
++    {
+         .name       = "query-target",
+         .args_type  = "",
+         .mhandler.cmd_new = qmp_marshal_input_query_target,
+diff --git a/qmp.c b/qmp.c
+index d701cff..11b6172 100644
+--- a/qmp.c
++++ b/qmp.c
+@@ -573,6 +573,11 @@ CpuDefinitionInfoList *qmp_query_cpu_definitions(Error **errp)
+     return arch_query_cpu_definitions(errp);
+ }
+ 
++CpuModelInfo *qmp_query_cpu_model(Error **errp)
++{
++    return arch_query_cpu_model(errp);
++}
++
+ void qmp_add_client(const char *protocol, const char *fdname,
+                     bool has_skipauth, bool skipauth, bool has_tls, bool tls,
+                     Error **errp)
+diff --git a/stubs/Makefile.objs b/stubs/Makefile.objs
+index fd7a489..45daa92 100644
+--- a/stubs/Makefile.objs
++++ b/stubs/Makefile.objs
+@@ -1,4 +1,5 @@
+ stub-obj-y += arch-query-cpu-def.o
++stub-obj-y += arch-query-cpu-mod.o
+ stub-obj-y += bdrv-commit-all.o
+ stub-obj-y += chr-baum-init.o
+ stub-obj-y += chr-msmouse.o
+diff --git a/stubs/arch-query-cpu-mod.c b/stubs/arch-query-cpu-mod.c
+new file mode 100644
+index 0000000..90ebd08
+--- /dev/null
++++ b/stubs/arch-query-cpu-mod.c
+@@ -0,0 +1,9 @@
++#include "qemu-common.h"
++#include "sysemu/arch_init.h"
++#include "qapi/qmp/qerror.h"
++
++CpuModelInfo *arch_query_cpu_model(Error **errp)
++{
++    error_set(errp, QERR_UNSUPPORTED);
++    return NULL;
++}
 diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
-index 83e590a..c6c1771 100644
+index c6c1771..116dbcc 100644
 --- a/target-s390x/cpu-models.c
 +++ b/target-s390x/cpu-models.c
-@@ -107,6 +107,7 @@ typedef struct ParmAddrAddrAccel {
- } ParmAddrAddrAccel;
- 
- static GSList *s390_cpu_aliases;
-+static bool cpu_models_used;
- 
- /* compare order of two cpu classes for ascending sort */
- gint s390_cpu_class_asc_order_compare(gconstpointer a, gconstpointer b)
-@@ -634,3 +635,38 @@ bool s390_probe_mode(void)
-     return false;
+@@ -670,3 +670,16 @@ void s390_cpu_model_init(S390CPUClass *cc)
+     }
  }
  
 +/**
-+ * s390_cpu_model_init:
-+ * @cc: S390 CPU class
++ * s390_cpu_models_used:
 + *
-+ * This function intitializes the current accelerator with processor
-+ * related properties.
++ * This function indicates if cpus with model properties are in use.
++ *
++ * Returns: a boolean value.
 + *
 + * Since: 2.3
 + */
-+void s390_cpu_model_init(S390CPUClass *cc)
++bool s390_cpu_models_used(void)
 +{
-+    S390ProcessorProps proc;
-+
-+    /* none cpu model case */
-+    if (!strcmp(object_class_get_name(OBJECT_CLASS(cc)), TYPE_S390_CPU)) {
-+        return;
-+    }
-+
-+    /* accelerator already prepared */
-+    if (cpu_models_used) {
-+        return;
-+    }
-+
-+    proc.cpuid = cpuid(cc->proc);
-+    proc.ibc = cc->proc.ibc;
-+    bitmap_zero(proc.fac_list, FAC_LIST_ARCH_S390_SIZE_UINT1);
-+    bitmap_copy(proc.fac_list, cc->fac_list, FAC_LIST_CPU_S390_SIZE_UINT1);
-+
-+    if (kvm_enabled()) {
-+        if (!kvm_s390_set_processor_props(&proc)) {
-+            cpu_models_used = true;
-+        }
-+    }
++    return cpu_models_used;
 +}
-+
 diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
-index aa81c9b..f3f914a 100644
+index f3f914a..51db298 100644
 --- a/target-s390x/cpu-models.h
 +++ b/target-s390x/cpu-models.h
-@@ -45,6 +45,9 @@
- #define type_cpuid(x)     ((uint64_t)((x) & 0xffff) << 16)
- #define id_cpuid(x)       ((uint64_t)((x) & 0xffffff) << 32)
- #define ver_cpuid(x)      ((uint64_t)((x) & 0xff) << 56)
-+#define cpuid(x)          (ver_cpuid(x.ver) |  \
-+                           id_cpuid(x.id) |    \
-+                           type_cpuid(x.type))
- 
- #define oldest_ibc(x)     (((uint32_t)(x) >> 16) & 0xfff)
- #define newest_ibc(x)     ((uint32_t)(x) & 0xfff)
-@@ -110,6 +113,7 @@ gint s390_cpu_class_asc_order_compare(gconstpointer a, gconstpointer b);
- void s390_cpu_list_entry(gpointer data, gpointer user_data);
+@@ -114,6 +114,7 @@ void s390_cpu_list_entry(gpointer data, gpointer user_data);
  bool s390_cpu_classes_initialized(void);
  bool s390_probe_mode(void);
-+void s390_cpu_model_init(S390CPUClass *cc);
+ void s390_cpu_model_init(S390CPUClass *cc);
++bool s390_cpu_models_used(void);
  
  /*
   * bits 0-7   : CMOS generation
 diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
-index c9200ee..2f4192e 100644
+index 2f4192e..cefaff1 100644
 --- a/target-s390x/cpu.c
 +++ b/target-s390x/cpu.c
-@@ -178,6 +178,7 @@ static void s390_cpu_realizefn(DeviceState *dev, Error **errp)
-     CPUState *cs = CPU(dev);
-     S390CPUClass *scc = S390_CPU_GET_CLASS(dev);
+@@ -37,6 +37,11 @@
+ #define CR0_RESET       0xE0UL
+ #define CR14_RESET      0xC2000000UL;
  
-+    s390_cpu_model_init(scc);
-     s390_cpu_gdb_init(cs);
-     qemu_init_vcpu(cs);
- #if !defined(CONFIG_USER_ONLY)
++static inline char *strdup_s390_cpu_name(S390CPUClass *cc)
++{
++    return g_strdup_printf("%04x-ga%u", cc->proc.type, cc->mach.ga);
++}
++
+ /* generate CPU information for cpu -? */
+ void s390_cpu_list(FILE *f, fprintf_function cpu_fprintf)
+ {
+@@ -74,6 +79,30 @@ CpuDefinitionInfoList *arch_query_cpu_definitions(Error **errp)
+ 
+     return entry;
+ }
++
++CpuModelInfo *arch_query_cpu_model(Error **errp)
++{
++    CpuModelInfo *info;
++    S390CPUClass *cc;
++
++    if (!s390_cpu_models_used()) {
++        return NULL;
++    }
++    info = g_try_new0(CpuModelInfo, 1);
++    if (!info) {
++        return NULL;
++    }
++    cc = S390_CPU_GET_CLASS(s390_cpu_addr2state(0));
++    info->name = strdup_s390_cpu_name(cc);
++    if (!info->name) {
++        g_free(info);
++        return NULL;
++    }
++    if (kvm_enabled()) {
++        info->accelerator = ACCEL_ID_KVM;
++    }
++    return info;
++}
+ #endif
+ 
+ static void s390_cpu_set_pc(CPUState *cs, vaddr value)
 -- 
 1.8.3.1
