@@ -1,158 +1,165 @@
-From: Eduardo Habkost <ehabkost@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v3 01/16] Introduce probe mode for machine
- type none
-Date: Thu, 5 Mar 2015 12:07:26 -0300
-Message-ID: <20150305150726.GV3513@thinpad.lan.raisama.net>
-References: <1425300248-40277-1-git-send-email-mimu@linux.vnet.ibm.com>
- <1425300248-40277-2-git-send-email-mimu@linux.vnet.ibm.com>
- <54F46C41.3000201@suse.de>
- <20150302174352.3715f1e4@bee>
- <54F4965D.7000701@suse.de>
- <20150303115524.40bd40b0@bee>
- <20150304191925.GD13041@thinpad.lan.raisama.net>
- <20150305155603.356b5ae7@bee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Michael Mueller <mimu@linux.vnet.ibm.com>
+Subject: [PATCH v3 00/16] s390x cpu model implementation
+Date: Mon,  2 Mar 2015 13:43:52 +0100
+Message-ID: <1425300248-40277-1-git-send-email-mimu@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150305155603.356b5ae7@bee>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Michael Mueller <mimu@linux.vnet.ibm.com>
-Cc: Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>, linux-s390@vger.kernel.org, Peter Crosthwaite <peter.crosthwaite@xilinx.com>, kvm@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, "Edgar E. Iglesias" <edgar.iglesias@gmail.com>, Alistair Francis <alistair.francis@xilinx.com>, Richard Henderson <rth@twiddle.net>
+To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Eduardo Habkost <ehabkost@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Mar 05, 2015 at 03:56:03PM +0100, Michael Mueller wrote:
-> On Wed, 4 Mar 2015 16:19:25 -0300
-> Eduardo Habkost <ehabkost@redhat.com> wrote:
->=20
-> > On Tue, Mar 03, 2015 at 11:55:24AM +0100, Michael Mueller wrote:
-> > > On Mon, 02 Mar 2015 17:57:01 +0100
-> > > Andreas F=E4rber <afaerber@suse.de> wrote:
-> > >=20
-> > > > Am 02.03.2015 um 17:43 schrieb Michael Mueller:
-> > > > > On Mon, 02 Mar 2015 14:57:21 +0100
-> > > > > Andreas F=E4rber <afaerber@suse.de> wrote:
-> > > > >=20
-> > > > >>>  int configure_accelerator(MachineState *ms)
-> > > > >>>  {
-> > > > >>> -    const char *p;
-> > > > >>> +    const char *p, *name;
-> > > > >>>      char buf[10];
-> > > > >>>      int ret;
-> > > > >>>      bool accel_initialised =3D false;
-> > > > >>>      bool init_failed =3D false;
-> > > > >>>      AccelClass *acc =3D NULL;
-> > > > >>> +    ObjectClass *oc;
-> > > > >>> +    bool probe_mode =3D false;
-> > > > >>> =20
-> > > > >>>      p =3D qemu_opt_get(qemu_get_machine_opts(), "accel");
-> > > > >>>      if (p =3D=3D NULL) {
-> > > > >>> -        /* Use the default "accelerator", tcg */
-> > > > >>> -        p =3D "tcg";
-> > > > >>> +        oc =3D (ObjectClass *) MACHINE_GET_CLASS(current_m=
-achine);
-> > > > >>> +        name =3D object_class_get_name(oc);
-> > > > >>> +        probe_mode =3D !strcmp(name, "none" TYPE_MACHINE_S=
-UFFIX);
-> > > > >>> +        if (probe_mode) {
-> > > > >>> +            /* Use these accelerators in probe mode, tcg s=
-hould be last */
-> > > > >>> +            p =3D probe_mode_accels;
-> > > > >>> +        } else {
-> > > > >>> +            /* Use the default "accelerator", tcg */
-> > > > >>> +            p =3D "tcg";
-> > > > >>> +        }
-> > > > >>>      } =20
-> > > > >>
-> > > > >> Can't we instead use an explicit ,accel=3Dprobe or ,accel=3D=
-auto?
-> > > > >> That would then obsolete the next patch.
-> > > > >=20
-> > > > > How would you express the following with the accel=3D<pseudo-=
-accel> approach?
-> > > > >=20
-> > > > > -probe -machine s390-ccw,accel=3Dkvm=20
-> > > > >=20
-> > > > > Using machine "none" as default with tcg as last accelerator =
-initialized should not break
-> > > > > anything.
-> > > > >=20
-> > > > > -M none
-> > > >=20
-> > > > Let me ask differently: What does -machine none or -M none have=
- to do
-> > > > with probing? It reads as if you are introducing two probe mode=
-s. Why do
-> > >=20
-> > > The machine none? nothing directly, I guess. What are real world =
-use cases for that
-> > > machine type?
-> > >=20
-> > > > you need both? If we have -probe, isn't that independent of whi=
-ch
-> > >=20
-> > > It is just two different means to switch on the same mode.
-> > >=20
-> > > > machine we specify? Who is going to call either, with which res=
-pective goal?
-> > >=20
-> > > -probe itself would be sufficient but I currently do not want to =
-enforce the use of
-> > > a new parameter. Best would be not to have that mode at all if po=
-ssible.=20
-> > >=20
-> > > The intended use case is driven by management interfaces that nee=
-d to draw decisions
-> > > on, in this particular case runnable cpu models, with information=
- originated by qemu.
-> > >=20
-> > > Let me walk through Eduardo's suggestion first and crosscheck it =
-with my requirements
-> > > before we enter in a maybe afterwards obsolete discussion.
-> >=20
-> > I have been working on some changes to implement x86 CPU probing co=
-de
-> > that creates accel objects on the fly, that may be useful. See:
-> >   https://github.com/ehabkost/qemu-hacks/tree/work/user-accel-init
-> >=20
-> > Especially the commit:
-> >   kvm: Move /dev/kvm opening/closing to open/close methods
-> >=20
->=20
-> So the idea is to use kvm_open/close() in the query-cpu-definitions c=
-allback on the fly without
-> to disturb the KVM-side data structures for the machine probe instead=
- of going through kvm_init()
-> during accelerator configuration?
+This patch set in combination with its kernel kvm patch set proposes an
+implementation of S390 cpu models. The origin of this item is to provide
+a means for management interfaces like libvirt to draw decisions if life
+guest migration to a target hypervisor is reasonable.
 
-If by KVM-side data structures you mean globals like kvm_state, yes. Th=
-e
-idea is to not disturb any global state during probe (including
-kvm_state). In the branch above, the open/close methods will affect onl=
-y
-the local AccelState object. Code that will affect MachineState or othe=
-r
-global state will be in the machine_init method.
+A migration constraint is that a target hypervisor is capable to run a
+guest with the same S390 cpu model as the source hypervisor does. To
+verify this condition, the administration interface employes the existing
+QMP command "query-cpu-definitions" which returns a list of all currently
+supported S390 cpu models of a given host system. Together with the newly
+defined QMP command "query-cpu-model", which returns the current active
+S390 cpu model of a guest, a conclusion can be drawn if a migration is
+possible.
 
->=20
->=20
-> > The next steps I plan are: * Create AccelState object on TCG too,
-> >  and somehow pass it as argument to cpu_x86_init() * Change all
-> >  kvm_enabled() occurrences on target-i386/cpu.c to use the provided
-> >  accel object (including x86_cpu_get_supported_feature_word() and
-> >  x86_cpu_filter_features())
-> >  * Use the new
-> >    x86_cpu_get_supported_feature_word()/x86_cpu_filter_features()
-> >    code to implement a is_runnable(X86CPUClass*, AccelState*) check
-> >    * Use the new is_runnable() check to extend query-cpu-definition=
-s
-> >    for x86 too * Add -cpu string and machine-type arguments to the
-> >    is_runnable() check
-> >=20
->=20
+A S390 cpu model is defined as a triple of machine type, cpu facility set
+and IBC value. Each historic, current and future triple receives a name
+composed of the machine type and its general availability counter. This name
+forms the cpu model name (e.g.: "2817-ga2".)
 
---=20
-Eduardo
+With means of the Instruction Blocking Control feature (IBC), the instruction
+set available to a given guest is limitable.
+
+Details:
+- The QMP command query-cpu-model returns the active cpu model and the
+  accellerator it is using:
+
+  {"name":"2066-ga1","accelerator":"kvm"}
+
+Or just the empty model in case an accelerator does not implement cpu
+models yet:
+
+  {}
+
+- A management instance like libvirt may probe by means of the QMP command
+  query-cpu-definitions which models are defined and usable for all
+  supporting accelerators. To implement this the cpu definition info type gets
+  an optional field named 'accelerators' which holds a list defining
+  which cpu model is 'runnable' and in addition which one the 'default'
+  cpu model is (i.e. the model to be used in the 'host' case).
+
+  [{"name":"2964-ga1",
+    "accelerators":[{"name":"kvm","runnable":false,"default":false}]}
+
+Or just 'host' in case an accelerator does not implement cpu models yet:
+
+  [{"name":"host"}]
+
+- For accel=kvm the cpu model initialization takes place in kvm_arch_init()
+
+What's currently a little bit unclear to me is how to best initialize the
+various accelerators for machine 'none'. I played around with different
+options and finally came up with the following sugguestion:
+
+Introduce a QEMU "probe mode" that gets entered in case the current machine
+is "none" and no specific accelerator is requested on the cmd line. When
+in that mode, loop trough a list of acellerators in configure_accelerator
+and invoke all their init methods once. The last accelerator to init shall
+be tcg.
+
+In cpu model context that allows to initialize the S390 CPU classes for
+each single accelertor which supports it. Whence the callback for
+qemu-cpu-definitions allows to populate its answer string according to the
+above sketched extended CpuDefinitionInfo type for multiplaccelerators. 
+
+v2-v3:
+- using GTK-Doc style format now for function descriptions
+- typo fixed (2/16)
+- gen-facilties now used to generate cpu model specific facility lists
+  and the qemu side facility mask during build time (5/16)
+- gen-facilities added to make magic (5/16)
+- element of struct S390CPUMachineProps now statically in cpu class (6/16)
+- element of struct S390CPUProcessorProps now statically in cpu class (6/16)
+- facility list also static now (6/16)
+- typo fixed (7/16)
+- zBC12-ga1 model now active on zEC12-ga2 host (11/16)
+- operations on facility lists use QEMU bitmap API now (11/16)
+- routine s390_cpu_model_init() introduced, called during cpu object
+  realization to prepare the current accelarator (12/16) if a cpu
+  model was selected
+- missing comment added in description of CpuModelInfo type (13/16)
+- accelerator field now mandatory for "query-cpu-model" (13/16)
+- sorted list related comment to "query-cpu-definitions" dropped in
+  commit message (13/16)
+- comment for AccelCpuInfo type updated (13/16)
+- routine s390_facility_test() factored out (15/16)
+
+v1-v2:
+- QEMU-side facility list mask introduced: this allows to enable guest
+  facilities that are handled by instruction interception handlers
+  implemented on qemu side. Similar to the facilities enabled by means
+  of the KVM side facility list mask which are handled by kvm/kernel.
+- Concept of soft facilities has been dropped 
+- Result type of QMP command query-cpu-definitions extended to hold
+  additional information beside the cpu model name including which
+  cpu model is runnable in current accelerator and machine context. 
+
+Michael Mueller (16):
+  Introduce probe mode for machine type none
+  Introduce option --probe to switch into probe mode
+  Introduce stub routine cpu_desc_avail
+  target-s390x: Introduce cpu facilities
+  target-s390x: Generate facility defines per cpu model
+  target-s390x: Introduce cpu models
+  target-s390x: Define cpu model specific facility lists
+  target-s390x: Add cpu model alias definition routines
+  target-s390x: Update linux-headers/asm-s390/kvm.h
+  target-s390x: Add KVM VM attribute interface for cpu models
+  target-s390x: Add cpu class initialization routines
+  target-s390x: Prepare accelerator during cpu object realization
+  target-s390x: New QMP command query-cpu-model
+  target-s390x: Extend QMP command query-cpu-definitions
+  target-s390x: Introduce facility test routine
+  target-s390x: Enable cpu model usage
+
+ Makefile.target               |   2 +-
+ accel.c                       |  36 ++-
+ hw/s390x/s390-virtio.c        |  12 +-
+ include/hw/boards.h           |   1 +
+ include/qemu-common.h         |   2 +
+ include/sysemu/accel.h        |   2 +-
+ include/sysemu/arch_init.h    |   1 +
+ include/sysemu/kvm.h          |  10 +
+ kvm-all.c                     |   3 +
+ linux-headers/asm-s390/kvm.h  |  20 ++
+ qapi-schema.json              |  57 +++-
+ qemu-options.hx               |   8 +
+ qmp-commands.hx               |   6 +
+ qmp.c                         |   5 +
+ rules.mak                     |   3 +
+ stubs/Makefile.objs           |   2 +
+ stubs/arch-query-cpu-mod.c    |   9 +
+ stubs/cpu-desc-avail.c        |   6 +
+ target-s390x/Makefile.objs    |  19 ++
+ target-s390x/cpu-facilities.h |  76 +++++
+ target-s390x/cpu-models.c     | 730 ++++++++++++++++++++++++++++++++++++++++++
+ target-s390x/cpu-models.h     | 162 ++++++++++
+ target-s390x/cpu-qom.h        |  25 ++
+ target-s390x/cpu.c            | 149 ++++++++-
+ target-s390x/gen-facilities.c | 401 +++++++++++++++++++++++
+ target-s390x/helper.c         |   9 +-
+ target-s390x/kvm.c            | 104 ++++++
+ trace-events                  |   3 +
+ vl.c                          |   9 +-
+ 29 files changed, 1845 insertions(+), 27 deletions(-)
+ create mode 100644 stubs/arch-query-cpu-mod.c
+ create mode 100644 stubs/cpu-desc-avail.c
+ create mode 100644 target-s390x/cpu-facilities.h
+ create mode 100644 target-s390x/cpu-models.c
+ create mode 100644 target-s390x/cpu-models.h
+ create mode 100644 target-s390x/gen-facilities.c
+
+-- 
+1.8.3.1
