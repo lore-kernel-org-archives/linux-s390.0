@@ -1,38 +1,48 @@
-From: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: [GIT PULL 0/5] KVM: s390: Fixups for changes in merge window for
- 4.0
-Date: Thu, 5 Mar 2015 14:43:38 -0300
-Message-ID: <20150305174338.GB5396@amt.cnet>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 3/5] KVM: s390: fix in memory copy of facility lists
+Date: Wed,  4 Mar 2015 12:41:52 +0100
+Message-ID: <1425469314-48913-4-git-send-email-borntraeger@de.ibm.com>
 References: <1425469314-48913-1-git-send-email-borntraeger@de.ibm.com>
- <20150305010743.GA10924@amt.cnet>
- <54F83112.2080002@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <54F83112.2080002@redhat.com>
+In-Reply-To: <1425469314-48913-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>
+To: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Mar 05, 2015 at 11:33:54AM +0100, Paolo Bonzini wrote:
-> 
-> 
-> On 05/03/2015 02:07, Marcelo Tosatti wrote:
-> > Can you generate pull against current master?
-> > 
-> > $ git pull --ff-only git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git
-> > tags/kvm-s390-master-20150303   
-> 
-> Why insist that the pull request be ff-only?  By using the tag, the
-> merge commit will include the tag description, so you get more
-> information by not doing a fast forward.
-> 
-> Paolo
+From: Michael Mueller <mimu@linux.vnet.ibm.com>
 
-No reason, in fact. 
+The facility lists were not fully copied.
 
-Pulled.
+Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 18965f9..76894c8 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -579,7 +579,7 @@ static int kvm_s390_get_machine(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	memcpy(&mach->fac_mask, kvm_s390_fac_list_mask,
+ 	       kvm_s390_fac_list_mask_size() * sizeof(u64));
+ 	memcpy((unsigned long *)&mach->fac_list, S390_lowcore.stfle_fac_list,
+-	       S390_ARCH_FAC_LIST_SIZE_U64);
++	       S390_ARCH_FAC_LIST_SIZE_BYTE);
+ 	if (copy_to_user((void __user *)attr->addr, mach, sizeof(*mach)))
+ 		ret = -EFAULT;
+ 	kfree(mach);
+@@ -903,7 +903,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 		goto out_nofac;
+ 
+ 	memcpy(kvm->arch.model.fac->kvm, S390_lowcore.stfle_fac_list,
+-	       S390_ARCH_FAC_LIST_SIZE_U64);
++	       S390_ARCH_FAC_LIST_SIZE_BYTE);
+ 
+ 	/*
+ 	 * If this KVM host runs *not* in a LPAR, relax the facility bits
+-- 
+2.3.0
