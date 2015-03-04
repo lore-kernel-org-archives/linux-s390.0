@@ -1,46 +1,107 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: Re: [PATCH v3 01/16] Introduce probe mode for machine
- type none
-Date: Tue, 3 Mar 2015 11:23:35 +0100
-Message-ID: <20150303112335.0f4bd12b@bee>
+Subject: Re: [Qemu-devel] [PATCH v3 14/16] target-s390x: Extend QMP command
+ query-cpu-definitions
+Date: Wed, 4 Mar 2015 10:00:16 +0100
+Message-ID: <20150304100016.1a011075@bee>
 References: <1425300248-40277-1-git-send-email-mimu@linux.vnet.ibm.com>
-	<1425300248-40277-2-git-send-email-mimu@linux.vnet.ibm.com>
-	<20150302191733.GK3513@thinpad.lan.raisama.net>
+	<1425300248-40277-15-git-send-email-mimu@linux.vnet.ibm.com>
+	<20150302191100.GJ3513@thinpad.lan.raisama.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
-In-Reply-To: <20150302191733.GK3513@thinpad.lan.raisama.net>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150302191100.GJ3513@thinpad.lan.raisama.net>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Eduardo Habkost <ehabkost@redhat.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Alexander Graf <agraf@suse.de>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, linux-kernel@vger.kernel.org, Alexander Graf <agraf@suse.de>, qemu-devel@nongnu.org, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 2 Mar 2015 16:17:33 -0300
+On Mon, 2 Mar 2015 16:11:00 -0300
 Eduardo Habkost <ehabkost@redhat.com> wrote:
 
-> > +        if (probe_mode) {
-> > +            /* Use these accelerators in probe mode, tcg should be last */
-> > +            p = probe_mode_accels;  
+> On Mon, Mar 02, 2015 at 01:44:06PM +0100, Michael Mueller wrote:
+> > This patch implements the QMP command 'query-cpu-definitions' in the S390
+> > context. The command returns a list of cpu model names in the current host
+> > context. A consumer may successfully request each listed cpu model as long
+> > for a given accelerator this model is runnable.
+> > 
+> > The QMP type AccelCpuModelInfo is introduced and the type CpuDefinitionInfo
+> > is extended by the optional field 'accelerators'. It contains a list of named
+> > accelerators and some indication whether the associated cpu model is runnable
+> > or the default cpu model. The default cpu model is used if either no specific
+> > cpu model is requested during QEMU startup or if the cpu model with name
+> > 'host' is requested.
+> > 
+> > request:
+> >   {"execute": "query-cpu-definitions"}
+> > 
+> > answer:
+> >   {"return":
+> >     [{"name":"2964-ga1","accelerators":[{"name":"kvm","runnable":false,"default":false}]},
+> >      {"name":"2828-ga1","accelerators":[{"name":"kvm","runnable":false,"default":false}]},
+> >      {"name":"2827-ga2","accelerators":[{"name":"kvm","runnable":true,"default":true}]},
+> >      {"name":"2827-ga1","accelerators":[{"name":"kvm","runnable":true,"default":false}]},
+> >      {"name":"2818-ga1","accelerators":[{"name":"kvm","runnable":true,"default":false}]},
+> >      ...
+> >      {"name":"2064-ga1","accelerators":[{"runnable":true,"name":"kvm","default":false}]}
+> >     ]
+> >    }
 > 
-> I don't fully understand the purpose of this patch yet (I will discuss
-> it in a reply to the cover letter). But if you really want -machine none
-> to trigger different behavior, why you didn't add a probe_mode field
-> to MachineClass, so you can set it in the mahine_none class code?
+> On x86, being runnable or not is something that depends on the
+> machine-type. I expect that to happen in other machines as soon as they
+> start implementing backwards compatiblity.
+> 
+> I see two options to implement that: 1) adding a "machine-type" argument
+> to query-cpu-definitions; 2) returning a machine-type-based dictionary
+> on the "runnable" property. The former sounds better to me as it won't
+> require enumerating all machine-types every time.
+> 
+> In that case, why we do need to enumerate all accelerators on every
+> query, either? We could have both "machine-type" and "accel" arguments
+> to query-cpu-definitions, so callers will just ask for the
+> acceleratores/machine-types they are interested into.
+> 
+> e.g.:
+> 
+> request:
+>   {"execute": "query-cpu-definitions",
+>    "arguments": {"machine":"s390-virtio", "accel":"kvm"}}
+> 
+> answer:
+>   {"return":
+>     [{"name":"2964-ga1","runnable":true},
+>      {"name":"2828-ga1","runnable":false}
+>      ...
+>     ]
+>   }
 
-I initially had this machine attribute but, when I remember correctly, but wasn't able to
-communicate it down into the target code. But anyhow, the "mode" is eventually obsolete in light
-of the temporarily constructed accelerators.. I will further comment on this as reply to your
-comment on the cover letter to keep it in place.
+I had some discussion with out libvirt people on that. I will compile a patch implementing this
+to see how it fits..
 
-Michael
+> 
+> We can also extend this to other variables, such as extra CPU flags that
+> could make the CPU runnable or not. e.g.: want to know if "-machine
+> foo,accel=bar -cpu xxx,+yyy,-zzz" is runnable? Send this request:
+>   {"execute": "query-cpu-definitions",
+>    "arguments": {"machine":"s390-virtio", "accel":"kvm", "cpu":"xxx,+yyy,-zzz"}}
+> and get this response:
+>   {"return": [{"name":"xxx","runnable":false}]}
+> or maybe being more explicit in the response about the extra CPU flags:
+>   {"return": [{"name":"xxx,+yyy,-zzz","runnable":false}]}
+> 
+> 
+> >   {"execute": "query-cpu-definitions"}
+> > 
+> > answer:
+> >   {"return":
+> >     [{"name":"2964-ga1","accelerators":[{"name":"kvm","runnable":false,"default":false}]},
+> >      {"name":"2828-ga1","accelerators":[{"name":"kvm","runnable":false,"default":false}]},
+> >      {"name":"2827-ga2","accelerators":[{"name":"kvm","runnable":true,"default":true}]},
+> >      {"name":"2827-ga1","accelerators":[{"name":"kvm","runnable":true,"default":false}]},
+> >      {"name":"2818-ga1","accelerators":[{"name":"kvm","runnable":true,"default":false}]},
+> > 
+> > Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+> > [...]
+> 
