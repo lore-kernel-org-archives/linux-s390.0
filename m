@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 02/20] KVM: s390/cpacf: Fix kernel bug under z/VM
-Date: Fri,  6 Mar 2015 14:16:34 +0100
-Message-ID: <1425647812-61838-3-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 18/20] KVM: s390: Add new SIGP order to kernel counters
+Date: Fri,  6 Mar 2015 14:16:50 +0100
+Message-ID: <1425647812-61838-19-git-send-email-borntraeger@de.ibm.com>
 References: <1425647812-61838-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1425647812-61838-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,59 +9,62 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>, Eric Farman <farman@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Under z/VM PQAP might trigger an operation exception if no crypto cards
-are defined via APVIRTUAL or APDEDICATED.
+From: Eric Farman <farman@linux.vnet.ibm.com>
 
-[  386.098666] Kernel BUG at 0000000000135c56 [verbose debug info unavailable]
-[  386.098693] illegal operation: 0001 ilc:2 [#1] SMP
-[...]
-[  386.098751] Krnl PSW : 0704c00180000000 0000000000135c56 (kvm_s390_apxa_installed+0x46/0x98)
-[...]
-[  386.098804]  [<000000000013627c>] kvm_arch_init_vm+0x29c/0x358
-[  386.098806]  [<000000000012d008>] kvm_dev_ioctl+0xc0/0x460
-[  386.098809]  [<00000000002c639a>] do_vfs_ioctl+0x332/0x508
-[  386.098811]  [<00000000002c660e>] SyS_ioctl+0x9e/0xb0
-[  386.098814]  [<000000000070476a>] system_call+0xd6/0x258
-[  386.098815]  [<000003fffc7400a2>] 0x3fffc7400a2
+The new SIGP order Store Additional Status at Address is totally
+handled by user space, but we should still record the occurrence
+of this order in the kernel code.
 
-Lets add an extable entry and provide a zeroed config in that case.
-
-Reported-by: Stefan Zimmermann <stzi@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.vnet.ibm.com>
 Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
-Tested-by: Stefan Zimmermann <stzi@linux.vnet.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/kvm_host.h | 1 +
+ arch/s390/kvm/kvm-s390.c         | 1 +
+ arch/s390/kvm/sigp.c             | 3 +++
+ 3 files changed, 5 insertions(+)
 
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index fb1fd39..3fe2597 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -244,6 +244,7 @@ struct kvm_vcpu_stat {
+ 	u32 instruction_sigp_stop;
+ 	u32 instruction_sigp_stop_store_status;
+ 	u32 instruction_sigp_store_status;
++	u32 instruction_sigp_store_adtl_status;
+ 	u32 instruction_sigp_arch;
+ 	u32 instruction_sigp_prefix;
+ 	u32 instruction_sigp_restart;
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index b4d2030..18965f9 100644
+index a8fe3ab..c0ae03a 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -778,15 +778,18 @@ long kvm_arch_vm_ioctl(struct file *filp,
- static int kvm_s390_query_ap_config(u8 *config)
- {
- 	u32 fcn_code = 0x04000000UL;
--	u32 cc;
-+	u32 cc = 0;
- 
-+	memset(config, 0, 128);
- 	asm volatile(
- 		"lgr 0,%1\n"
- 		"lgr 2,%2\n"
- 		".long 0xb2af0000\n"		/* PQAP(QCI) */
--		"ipm %0\n"
-+		"0: ipm %0\n"
- 		"srl %0,28\n"
--		: "=r" (cc)
-+		"1:\n"
-+		EX_TABLE(0b, 1b)
-+		: "+r" (cc)
- 		: "r" (fcn_code), "r" (config)
- 		: "cc", "0", "2", "memory"
- 	);
+@@ -87,6 +87,7 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
+ 	{ "instruction_sigp_stop", VCPU_STAT(instruction_sigp_stop) },
+ 	{ "instruction_sigp_stop_store_status", VCPU_STAT(instruction_sigp_stop_store_status) },
+ 	{ "instruction_sigp_store_status", VCPU_STAT(instruction_sigp_store_status) },
++	{ "instruction_sigp_store_adtl_status", VCPU_STAT(instruction_sigp_store_adtl_status) },
+ 	{ "instruction_sigp_set_arch", VCPU_STAT(instruction_sigp_arch) },
+ 	{ "instruction_sigp_set_prefix", VCPU_STAT(instruction_sigp_prefix) },
+ 	{ "instruction_sigp_restart", VCPU_STAT(instruction_sigp_restart) },
+diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+index 23b1e86..755a733 100644
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -393,6 +393,9 @@ static int handle_sigp_order_in_user_space(struct kvm_vcpu *vcpu, u8 order_code)
+ 	case SIGP_STORE_STATUS_AT_ADDRESS:
+ 		vcpu->stat.instruction_sigp_store_status++;
+ 		break;
++	case SIGP_STORE_ADDITIONAL_STATUS:
++		vcpu->stat.instruction_sigp_store_adtl_status++;
++		break;
+ 	case SIGP_SET_PREFIX:
+ 		vcpu->stat.instruction_sigp_prefix++;
+ 		break;
 -- 
 2.3.0
