@@ -1,48 +1,32 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 03/20] KVM: s390: fix in memory copy of facility lists
-Date: Fri,  6 Mar 2015 14:16:35 +0100
-Message-ID: <1425647812-61838-4-git-send-email-borntraeger@de.ibm.com>
-References: <1425647812-61838-1-git-send-email-borntraeger@de.ibm.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH trivial] KVM: s390: Spelling s/intance/instance/
+Date: Mon,  9 Mar 2015 21:27:12 +0100
+Message-ID: <1425932832-6244-1-git-send-email-geert+renesas@glider.be>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1425647812-61838-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jiri Kosina <trivial@kernel.org>
+Cc: linux390@de.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
-
-The facility lists were not fully copied.
-
-Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
- arch/s390/kvm/kvm-s390.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kvm/kvm-s390.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 18965f9..76894c8 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -579,7 +579,7 @@ static int kvm_s390_get_machine(struct kvm *kvm, struct kvm_device_attr *attr)
- 	memcpy(&mach->fac_mask, kvm_s390_fac_list_mask,
- 	       kvm_s390_fac_list_mask_size() * sizeof(u64));
- 	memcpy((unsigned long *)&mach->fac_list, S390_lowcore.stfle_fac_list,
--	       S390_ARCH_FAC_LIST_SIZE_U64);
-+	       S390_ARCH_FAC_LIST_SIZE_BYTE);
- 	if (copy_to_user((void __user *)attr->addr, mach, sizeof(*mach)))
- 		ret = -EFAULT;
- 	kfree(mach);
-@@ -903,7 +903,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 		goto out_nofac;
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index fda3f3146eb636d3..83f32a147d72c0f3 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -125,7 +125,7 @@ static inline void kvm_s390_set_psw_cc(struct kvm_vcpu *vcpu, unsigned long cc)
+ 	vcpu->arch.sie_block->gpsw.mask |= cc << 44;
+ }
  
- 	memcpy(kvm->arch.model.fac->kvm, S390_lowcore.stfle_fac_list,
--	       S390_ARCH_FAC_LIST_SIZE_U64);
-+	       S390_ARCH_FAC_LIST_SIZE_BYTE);
- 
- 	/*
- 	 * If this KVM host runs *not* in a LPAR, relax the facility bits
+-/* test availability of facility in a kvm intance */
++/* test availability of facility in a kvm instance */
+ static inline int test_kvm_facility(struct kvm *kvm, unsigned long nr)
+ {
+ 	return __test_facility(nr, kvm->arch.model.fac->mask) &&
 -- 
-2.3.0
+1.9.1
