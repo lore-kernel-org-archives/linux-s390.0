@@ -1,38 +1,110 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Message-ID: <551587D3.3050200@suse.cz>
-Date: Fri, 27 Mar 2015 17:39:47 +0100
-From: Vlastimil Babka <vbabka@suse.cz>
 MIME-Version: 1.0
-Subject: Re: [PATCH 3/4] mm, shmem: Add shmem resident memory accounting
-References: <1424958666-18241-1-git-send-email-vbabka@suse.cz> <1424958666-18241-4-git-send-email-vbabka@suse.cz> <54EF34C5.1090007@redhat.com>
-In-Reply-To: <54EF34C5.1090007@redhat.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1424958666-18241-3-git-send-email-vbabka@suse.cz>
+References: <1424958666-18241-1-git-send-email-vbabka@suse.cz>
+	<1424958666-18241-3-git-send-email-vbabka@suse.cz>
+Date: Wed, 11 Mar 2015 15:30:17 +0300
+Message-ID: <CALYGNiPn-C6AESik_BrQBEJpOsvcy7qG_sacAyf+O24A6P9kyA@mail.gmail.com>
+Subject: Re: [PATCH 2/4] mm, procfs: account for shmem swap in /proc/pid/smaps
+From: Konstantin Khlebnikov <koct9i@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Jerome Marchand <jmarchan@redhat.com>, linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-doc@vger.kernel.org, Hugh Dickins <hughd@google.com>, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>
+To: Vlastimil Babka <vbabka@suse.cz>
+Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, Jerome Marchand <jmarchan@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-doc@vger.kernel.org, Hugh Dickins <hughd@google.com>, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/26/2015 03:59 PM, Jerome Marchand wrote:
-> On 02/26/2015 02:51 PM, Vlastimil Babka wrote:
->>  
->> +/* Optimized variant when page is already known not to be PageAnon */
->> +static inline int mm_counter_file(struct page *page)
-> 
-> Just a nitpick, but I don't like that name as it keeps the confusion we
-> currently have between shmem and file backed pages. I'm not sure what
-> other name to use though. mm_counter_shared() maybe? I'm not sure it is
-> less confusing...
+On Thu, Feb 26, 2015 at 4:51 PM, Vlastimil Babka <vbabka@suse.cz> wrote:
+> Currently, /proc/pid/smaps will always show "Swap: 0 kB" for shmem-backed
+> mappings, even if the mapped portion does contain pages that were swapped out.
+> This is because unlike private anonymous mappings, shmem does not change pte
+> to swap entry, but pte_none when swapping the page out. In the smaps page
+> walk, such page thus looks like it was never faulted in.
 
-I think that's also confusing, but differently. Didn't come up with better name,
-so leaving as it is for v2.
+Maybe just add count of swap entries allocated by mapped shmem into
+swap usage of this vma? That's isn't exactly correct for partially
+mapped shmem but this is something weird anyway.
 
-Thanks
-
-> Jerome
-> 
+>
+> This patch changes smaps_pte_entry() to determine the swap status for such
+> pte_none entries for shmem mappings, similarly to how mincore_page() does it.
+> Swapped out pages are thus accounted for.
+>
+> The accounting is arguably still not as precise as for private anonymous
+> mappings, since now we will count also pages that the process in question never
+> accessed, but only another process populated them and then let them become
+> swapped out. I believe it is still less confusing and subtle than not showing
+> any swap usage by shmem mappings at all. Also, swapped out pages only becomee a
+> performance issue for future accesses, and we cannot predict those for neither
+> kind of mapping.
+>
+> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+> ---
+>  Documentation/filesystems/proc.txt |  3 ++-
+>  fs/proc/task_mmu.c                 | 20 ++++++++++++++++++++
+>  2 files changed, 22 insertions(+), 1 deletion(-)
+>
+> diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
+> index d4f56ec..8b30543 100644
+> --- a/Documentation/filesystems/proc.txt
+> +++ b/Documentation/filesystems/proc.txt
+> @@ -437,7 +437,8 @@ indicates the amount of memory currently marked as referenced or accessed.
+>  a mapping associated with a file may contain anonymous pages: when MAP_PRIVATE
+>  and a page is modified, the file page is replaced by a private anonymous copy.
+>  "Swap" shows how much would-be-anonymous memory is also used, but out on
+> -swap.
+> +swap. For shmem mappings, "Swap" shows how much of the mapped portion of the
+> +underlying shmem object is on swap.
+>
+>  "VmFlags" field deserves a separate description. This member represents the kernel
+>  flags associated with the particular virtual memory area in two letter encoded
+> diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+> index 956b75d..0410309 100644
+> --- a/fs/proc/task_mmu.c
+> +++ b/fs/proc/task_mmu.c
+> @@ -13,6 +13,7 @@
+>  #include <linux/swap.h>
+>  #include <linux/swapops.h>
+>  #include <linux/mmu_notifier.h>
+> +#include <linux/shmem_fs.h>
+>
+>  #include <asm/elf.h>
+>  #include <asm/uaccess.h>
+> @@ -496,6 +497,25 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
+>                         mss->swap += PAGE_SIZE;
+>                 else if (is_migration_entry(swpent))
+>                         page = migration_entry_to_page(swpent);
+> +       } else if (IS_ENABLED(CONFIG_SHMEM) && IS_ENABLED(CONFIG_SWAP) &&
+> +                                       pte_none(*pte) && vma->vm_file) {
+> +               struct address_space *mapping =
+> +                       file_inode(vma->vm_file)->i_mapping;
+> +
+> +               /*
+> +                * shmem does not use swap pte's so we have to consult
+> +                * the radix tree to account for swap
+> +                */
+> +               if (shmem_mapping(mapping)) {
+> +                       page = find_get_entry(mapping, pgoff);
+> +                       if (page) {
+> +                               if (radix_tree_exceptional_entry(page))
+> +                                       mss->swap += PAGE_SIZE;
+> +                               else
+> +                                       page_cache_release(page);
+> +                       }
+> +                       page = NULL;
+> +               }
+>         }
+>
+>         if (!page)
+> --
+> 2.1.4
+>
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-mm' in
+> the body to majordomo@kvack.org.  For more info on Linux MM,
+> see: http://www.linux-mm.org/ .
+> Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
