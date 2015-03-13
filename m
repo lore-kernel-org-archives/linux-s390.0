@@ -1,39 +1,58 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH trivial] KVM: s390: Spelling s/intance/instance/
-Date: Tue, 10 Mar 2015 08:58:36 +0100
-Message-ID: <54FEA42C.9010104@de.ibm.com>
-References: <1425932832-6244-1-git-send-email-geert+renesas@glider.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1425932832-6244-1-git-send-email-geert+renesas@glider.be>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Geert Uytterhoeven <geert+renesas@glider.be>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jiri Kosina <trivial@kernel.org>
-Cc: linux390@de.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Alex Dowad <alexinbeijing@gmail.com>
+Subject: [PATCH 24/32] s390: copy_thread(): rename 'arg' argument to 'kthread_arg'
+Date: Fri, 13 Mar 2015 20:14:47 +0200
+Message-Id: <1426270496-26362-14-git-send-email-alexinbeijing@gmail.com>
+In-Reply-To: <1426270496-26362-1-git-send-email-alexinbeijing@gmail.com>
+References: <1426270496-26362-1-git-send-email-alexinbeijing@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "supporter:S390" <linux390@de.ibm.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, "open list:S390" <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Am 09.03.2015 um 21:27 schrieb Geert Uytterhoeven:
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> ---
->  arch/s390/kvm/kvm-s390.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-> index fda3f3146eb636d3..83f32a147d72c0f3 100644
-> --- a/arch/s390/kvm/kvm-s390.h
-> +++ b/arch/s390/kvm/kvm-s390.h
-> @@ -125,7 +125,7 @@ static inline void kvm_s390_set_psw_cc(struct kvm_vcpu *vcpu, unsigned long cc)
->  	vcpu->arch.sie_block->gpsw.mask |= cc << 44;
->  }
-> 
-> -/* test availability of facility in a kvm intance */
-> +/* test availability of facility in a kvm instance */
->  static inline int test_kvm_facility(struct kvm *kvm, unsigned long nr)
->  {
->  	return __test_facility(nr, kvm->arch.model.fac->mask) &&
-> 
+The 'arg' argument to copy_thread() is only ever used when forking a new
+kernel thread. Hence, rename it to 'kthread_arg' for clarity (and consistency
+with do_fork() and other arch-specific implementations of copy_thread()).
 
-Applied, thanks.
+Signed-off-by: Alex Dowad <alexinbeijing@gmail.com>
+---
+ arch/s390/kernel/process.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
+index 13fc097..a1ca7cf 100644
+--- a/arch/s390/kernel/process.c
++++ b/arch/s390/kernel/process.c
+@@ -87,8 +87,11 @@ void arch_release_task_struct(struct task_struct *tsk)
+ }
+ #endif
+ 
++/*
++ * Copy architecture-specific thread state
++ */
+ int copy_thread(unsigned long clone_flags, unsigned long new_stackp,
+-		unsigned long arg, struct task_struct *p)
++		unsigned long kthread_arg, struct task_struct *p)
+ {
+ 	struct thread_info *ti;
+ 	struct fake_frame
+@@ -127,12 +130,14 @@ int copy_thread(unsigned long clone_flags, unsigned long new_stackp,
+ 		frame->childregs.psw.addr = PSW_ADDR_AMODE |
+ 				(unsigned long) kernel_thread_starter;
+ 		frame->childregs.gprs[9] = new_stackp; /* function */
+-		frame->childregs.gprs[10] = arg;
++		frame->childregs.gprs[10] = kthread_arg;
+ 		frame->childregs.gprs[11] = (unsigned long) do_exit;
+ 		frame->childregs.orig_gpr2 = -1;
+ 
+ 		return 0;
+ 	}
++
++	/* user thread */
+ 	frame->childregs = *current_pt_regs();
+ 	frame->childregs.gprs[2] = 0;	/* child returns 0 on fork. */
+ 	frame->childregs.flags = 0;
+-- 
+2.0.0.GIT
