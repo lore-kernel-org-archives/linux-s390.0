@@ -1,41 +1,83 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Laurent Dufour <ldufour@linux.vnet.ibm.com>
-Subject: [PATCH 0/2] Tracking user space vDSO remaping
-Date: Fri, 20 Mar 2015 16:53:26 +0100
-Message-ID: <cover.1426866405.git.ldufour@linux.vnet.ibm.com>
+Subject: [PATCH 2/2] powerpc/mm: Tracking vDSO remap
+Date: Fri, 20 Mar 2015 16:53:28 +0100
+Message-ID: <462eda8901babf0a08b5ef642684ae1c6303bd5b.1426866405.git.ldufour@linux.vnet.ibm.com>
+In-Reply-To: <cover.1426866405.git.ldufour@linux.vnet.ibm.com>
+References: <cover.1426866405.git.ldufour@linux.vnet.ibm.com>
+In-Reply-To: <cover.1426866405.git.ldufour@linux.vnet.ibm.com>
+References: <cover.1426866405.git.ldufour@linux.vnet.ibm.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150320155326.8_fu9mxiBfLgBgRjSnh-UmVnn4nHeSJQarSLm7XRaPk@z>
+Message-ID: <20150320155328.a79qPMkEM98E-d9ubeQ5BZAFYBzDEMJM5WWWJAs3Ea8@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, linux-arch@vger.kernel.org, linux-mm@kvack.org
 Cc: cov@codeaurora.org, criu@openvz.org
 List-ID: <linux-s390.vger.kernel.org>
 
-CRIU is recreating the process memory layout by remapping the checkpointee
-memory area on top of the current process (criu). This includes remapping
-the vDSO to the place it has at checkpoint time.
+Some processes (CRIU) are moving the vDSO area using the mremap system
+call. As a consequence the kernel reference to the vDSO base address is
+no more valid and the signal return frame built once the vDSO has been
+moved is not pointing to the new sigreturn address.
 
-However some architectures like powerpc are keeping a reference to the vDSO
-base address to build the signal return stack frame by calling the vDSO
-sigreturn service. So once the vDSO has been moved, this reference is no
-more valid and the signal frame built later are not usable.
+This patch handles vDSO remapping and unmapping.
 
-This patch serie is introducing a new mm hook 'arch_remap' which is called
-when mremap is done and the mm lock still hold. The next patch is adding the
-vDSO remap and unmap tracking to the powerpc architecture.
+Signed-off-by: Laurent Dufour <ldufour@linux.vnet.ibm.com>
+---
+ arch/powerpc/include/asm/mmu_context.h | 35 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 34 insertions(+), 1 deletion(-)
 
-Laurent Dufour (2):
-  mm: Introducing arch_remap hook
-  powerpc/mm: Tracking vDSO remap
-
- arch/powerpc/include/asm/mmu_context.h   | 35 +++++++++++++++++++++++++++++++-
- arch/s390/include/asm/mmu_context.h      |  6 ++++++
- arch/um/include/asm/mmu_context.h        |  5 +++++
- arch/unicore32/include/asm/mmu_context.h |  6 ++++++
- arch/x86/include/asm/mmu_context.h       |  6 ++++++
- include/asm-generic/mm_hooks.h           |  6 ++++++
- mm/mremap.c                              |  9 ++++++--
- 7 files changed, 70 insertions(+), 3 deletions(-)
-
+diff --git a/arch/powerpc/include/asm/mmu_context.h b/arch/powerpc/include/asm/mmu_context.h
+index 73382eba02dc..ce7fc93518ee 100644
+--- a/arch/powerpc/include/asm/mmu_context.h
++++ b/arch/powerpc/include/asm/mmu_context.h
+@@ -8,7 +8,6 @@
+ #include <linux/spinlock.h>
+ #include <asm/mmu.h>	
+ #include <asm/cputable.h>
+-#include <asm-generic/mm_hooks.h>
+ #include <asm/cputhreads.h>
+ 
+ /*
+@@ -109,5 +108,39 @@ static inline void enter_lazy_tlb(struct mm_struct *mm,
+ #endif
+ }
+ 
++static inline void arch_dup_mmap(struct mm_struct *oldmm,
++				 struct mm_struct *mm)
++{
++}
++
++static inline void arch_exit_mmap(struct mm_struct *mm)
++{
++}
++
++static inline void arch_unmap(struct mm_struct *mm,
++			struct vm_area_struct *vma,
++			unsigned long start, unsigned long end)
++{
++	if (start <= mm->context.vdso_base && mm->context.vdso_base < end)
++		mm->context.vdso_base = 0;
++}
++
++static inline void arch_bprm_mm_init(struct mm_struct *mm,
++				     struct vm_area_struct *vma)
++{
++}
++
++static inline void arch_remap(struct mm_struct *mm,
++			      unsigned long old_start, unsigned long old_end,
++			      unsigned long new_start, unsigned long new_end)
++{
++	/*
++	 * mremap don't allow moving multiple vma so we can limit the check
++	 * to old_start == vdso_base.
++	 */
++	if (old_start == mm->context.vdso_base)
++		mm->context.vdso_base = new_start;
++}
++
+ #endif /* __KERNEL__ */
+ #endif /* __ASM_POWERPC_MMU_CONTEXT_H */
 -- 
 1.9.1
