@@ -1,17 +1,15 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Thu, 26 Mar 2015 19:55:50 +0100
 From: Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH v4 2/2] powerpc/mm: Tracking vDSO remap
-Message-ID: <20150326185550.GA25547@gmail.com>
-References: <20150326141730.GA23060@gmail.com>
- <cover.1427390952.git.ldufour@linux.vnet.ibm.com>
- <7fdae652993cf88bdd633d65e5a8f81c7ad8a1e3.1427390952.git.ldufour@linux.vnet.ibm.com>
-MIME-Version: 1.0
+Subject: Re: [PATCH 1/2] mm: Introducing arch_remap hook
+Date: Mon, 23 Mar 2015 09:52:09 +0100
+Message-ID: <20150323085209.GA28965@gmail.com>
+References: <cover.1426866405.git.ldufour@linux.vnet.ibm.com>
+ <503499aae380db1c4673f146bcba6ad095021257.1426866405.git.ldufour@linux.vnet.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <7fdae652993cf88bdd633d65e5a8f81c7ad8a1e3.1427390952.git.ldufour@linux.vnet.ibm.com>
+In-Reply-To: <503499aae380db1c4673f146bcba6ad095021257.1426866405.git.ldufour@linux.vnet.ibm.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150326185550.KOrutOh_uY-6WNfkzdJPnfC7ujwxuZRWZRb539bXZ04@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Laurent Dufour <ldufour@linux.vnet.ibm.com>
@@ -21,49 +19,97 @@ List-ID: <linux-s390.vger.kernel.org>
 
 * Laurent Dufour <ldufour@linux.vnet.ibm.com> wrote:
 
+> Some architecture would like to be triggered when a memory area is moved
+> through the mremap system call.
+> 
+> This patch is introducing a new arch_remap mm hook which is placed in the
+> path of mremap, and is called before the old area is unmapped (and the
+> arch_unmap hook is called).
+> 
+> To no break the build, this patch adds the empty hook definition to the
+> architectures that were not using the generic hook's definition.
+> 
+> Signed-off-by: Laurent Dufour <ldufour@linux.vnet.ibm.com>
+> ---
+>  arch/s390/include/asm/mmu_context.h      | 6 ++++++
+>  arch/um/include/asm/mmu_context.h        | 5 +++++
+>  arch/unicore32/include/asm/mmu_context.h | 6 ++++++
+>  arch/x86/include/asm/mmu_context.h       | 6 ++++++
+>  include/asm-generic/mm_hooks.h           | 6 ++++++
+>  mm/mremap.c                              | 9 +++++++--
+>  6 files changed, 36 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
+> index 8fb3802f8fad..ddd861a490ba 100644
+> --- a/arch/s390/include/asm/mmu_context.h
+> +++ b/arch/s390/include/asm/mmu_context.h
+> @@ -131,4 +131,10 @@ static inline void arch_bprm_mm_init(struct mm_struct *mm,
+>  {
+>  }
+>  
+> +static inline void arch_remap(struct mm_struct *mm,
+> +			      unsigned long old_start, unsigned long old_end,
+> +			      unsigned long new_start, unsigned long new_end)
 > +{
-> +	unsigned long vdso_end, vdso_start;
-> +
-> +	if (!mm->context.vdso_base)
-> +		return;
-> +	vdso_start = mm->context.vdso_base;
-> +
-> +#ifdef CONFIG_PPC64
-> +	/* Calling is_32bit_task() implies that we are dealing with the
-> +	 * current process memory. If there is a call path where mm is not
-> +	 * owned by the current task, then we'll have need to store the
-> +	 * vDSO size in the mm->context.
-> +	 */
-> +	BUG_ON(current->mm != mm);
-> +	if (is_32bit_task())
-> +		vdso_end = vdso_start + (vdso32_pages << PAGE_SHIFT);
-> +	else
-> +		vdso_end = vdso_start + (vdso64_pages << PAGE_SHIFT);
-> +#else
-> +	vdso_end = vdso_start + (vdso32_pages << PAGE_SHIFT);
-> +#endif
-> +	vdso_end += (1<<PAGE_SHIFT); /* data page */
-> +
-> +	/* Check if the vDSO is in the range of the remapped area */
-> +	if ((vdso_start <= old_start && old_start < vdso_end) ||
-> +	    (vdso_start < old_end && old_end <= vdso_end)  ||
-> +	    (old_start <= vdso_start && vdso_start < old_end)) {
-> +		/* Update vdso_base if the vDSO is entirely moved. */
-> +		if (old_start == vdso_start && old_end == vdso_end &&
-> +		    (old_end - old_start) == (new_end - new_start))
-> +			mm->context.vdso_base = new_start;
-> +		else
-> +			mm->context.vdso_base = 0;
-> +	}
 > +}
+> +
+>  #endif /* __S390_MMU_CONTEXT_H */
+> diff --git a/arch/um/include/asm/mmu_context.h b/arch/um/include/asm/mmu_context.h
+> index 941527e507f7..f499b017c1f9 100644
+> --- a/arch/um/include/asm/mmu_context.h
+> +++ b/arch/um/include/asm/mmu_context.h
+> @@ -27,6 +27,11 @@ static inline void arch_bprm_mm_init(struct mm_struct *mm,
+>  				     struct vm_area_struct *vma)
+>  {
+>  }
+> +static inline void arch_remap(struct mm_struct *mm,
+> +			      unsigned long old_start, unsigned long old_end,
+> +			      unsigned long new_start, unsigned long new_end)
+> +{
+> +}
+>  /*
+>   * end asm-generic/mm_hooks.h functions
+>   */
+> diff --git a/arch/unicore32/include/asm/mmu_context.h b/arch/unicore32/include/asm/mmu_context.h
+> index 1cb5220afaf9..39a0a553172e 100644
+> --- a/arch/unicore32/include/asm/mmu_context.h
+> +++ b/arch/unicore32/include/asm/mmu_context.h
+> @@ -97,4 +97,10 @@ static inline void arch_bprm_mm_init(struct mm_struct *mm,
+>  {
+>  }
+>  
+> +static inline void arch_remap(struct mm_struct *mm,
+> +			      unsigned long old_start, unsigned long old_end,
+> +			      unsigned long new_start, unsigned long new_end)
+> +{
+> +}
+> +
+>  #endif
+> diff --git a/arch/x86/include/asm/mmu_context.h b/arch/x86/include/asm/mmu_context.h
+> index 883f6b933fa4..75cb71f4be1e 100644
+> --- a/arch/x86/include/asm/mmu_context.h
+> +++ b/arch/x86/include/asm/mmu_context.h
+> @@ -172,4 +172,10 @@ static inline void arch_unmap(struct mm_struct *mm, struct vm_area_struct *vma,
+>  		mpx_notify_unmap(mm, vma, start, end);
+>  }
+>  
+> +static inline void arch_remap(struct mm_struct *mm,
+> +			      unsigned long old_start, unsigned long old_end,
+> +			      unsigned long new_start, unsigned long new_end)
+> +{
+> +}
+> +
+>  #endif /* _ASM_X86_MMU_CONTEXT_H */
 
-Oh my, that really looks awfully complex, as you predicted, and right 
-in every mremap() call.
+So instead of spreading these empty prototypes around mmu_context.h 
+files, why not add something like this to the PPC definition:
 
-I'm fine with your original, imperfect, KISS approach. Sorry about 
-this detour ...
+ #define __HAVE_ARCH_REMAP
 
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
+and define the empty prototype for everyone else? It's a bit like how 
+the __HAVE_ARCH_PTEP_* namespace works.
+
+That should shrink this patch considerably.
 
 Thanks,
 
