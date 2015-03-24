@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <5512C96D.80803@suse.cz>
-Date: Wed, 25 Mar 2015 15:42:53 +0100
+Message-ID: <55117A2D.30308@suse.cz>
+Date: Tue, 24 Mar 2015 15:52:29 +0100
 From: Jiri Slaby <jslaby@suse.cz>
 MIME-Version: 1.0
-Subject: Re: [PATCH v3 1/1] livepatch: add support on s390
-References: <20150324150437.GB24424@treble.redhat.com> <1427215860-13607-1-git-send-email-jslaby@suse.cz> <20150325125705.GD11885@treble.redhat.com>
-In-Reply-To: <20150325125705.GD11885@treble.redhat.com>
-Content-Type: text/plain; charset=utf-8
+Subject: Re: [PATCH 1/1] livepatch: add support on s390
+References: <1427208690-30839-1-git-send-email-jslaby@suse.cz>
+In-Reply-To: <1427208690-30839-1-git-send-email-jslaby@suse.cz>
+Content-Type: text/plain; charset=iso-8859-2
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: jkosina@suse.cz, sjenning@redhat.com, vojtech@suse.cz, live-patching@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jkosina@suse.cz
+Cc: jpoimboe@redhat.com, sjenning@redhat.com, vojtech@suse.cz, live-patching@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 03/25/2015, 01:57 PM, Josh Poimboeuf wrote:
->> +#ifdef CONFIG_LIVEPATCH
->> +static inline int klp_check_compiler_support(void)
->> +{
->> +	return 1;
->> +}
-> 
-> This should actually return 0 on success.
+On 03/24/2015, 03:51 PM, Jiri Slaby wrote:
+> This is a trivial port from kGraft. Module relocations are not
+> supported.
 
-Deja vu as I fixed this once already. Let me runtime test the patch
-before I send it in the next round again.
+Please scratch this one. This one is from a different tree. I will
+resend a proper one.
 
-thanks for spotting,
 -- 
 js
 suse labs
