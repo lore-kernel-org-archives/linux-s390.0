@@ -1,10 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH v2 1/1] livepatch: add support on s390
-Date: Tue, 24 Mar 2015 15:56:34 +0100
-Message-Id: <1427208994-6345-1-git-send-email-jslaby@suse.cz>
-In-Reply-To: <55117A2D.30308@suse.cz>
-References: <55117A2D.30308@suse.cz>
+Subject: [PATCH 1/1] livepatch: add support on s390
+Date: Tue, 24 Mar 2015 15:51:30 +0100
+Message-Id: <1427208690-30839-1-git-send-email-jslaby@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -23,10 +21,10 @@ Signed-off-by: Jiri Slaby <jslaby@suse.cz>
  create mode 100644 arch/s390/include/asm/livepatch.h
 
 diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 5f01f22b4f16..de2726a487b0 100644
+index 6df439c9e13c..e24523bf1b77 100644
 --- a/arch/s390/Kconfig
 +++ b/arch/s390/Kconfig
-@@ -134,6 +134,7 @@ config S390
+@@ -135,6 +135,7 @@ config S390
  	select HAVE_KPROBES
  	select HAVE_KRETPROBES
  	select HAVE_KVM
@@ -34,9 +32,9 @@ index 5f01f22b4f16..de2726a487b0 100644
  	select HAVE_MEMBLOCK
  	select HAVE_MEMBLOCK_NODE_MAP
  	select HAVE_MEMBLOCK_PHYS_MAP
-@@ -164,6 +165,8 @@ source "init/Kconfig"
+@@ -167,6 +168,8 @@ source "kernel/Kconfig.freezer"
  
- source "kernel/Kconfig.freezer"
+ source "kernel/Kconfig.kgraft"
  
 +source "kernel/livepatch/Kconfig"
 +
