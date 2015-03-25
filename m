@@ -1,66 +1,62 @@
-From: Laurent Dufour <ldufour@linux.vnet.ibm.com>
-Subject: [PATCH v3 1/2] mm: Introducing arch_remap hook
-Date: Wed, 25 Mar 2015 14:53:51 +0100
-Message-ID: <fe0cafd7f98ce8cdd4b695de55a8c22dd903e334.1427289960.git.ldufour@linux.vnet.ibm.com>
-References: <cover.1427289960.git.ldufour@linux.vnet.ibm.com>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH v3 2/2] powerpc/mm: Tracking vDSO remap
+Date: Wed, 25 Mar 2015 19:33:16 +0100
+Message-ID: <20150325183316.GA9090@gmail.com>
+References: <20150325121118.GA2542@gmail.com>
+ <cover.1427289960.git.ldufour@linux.vnet.ibm.com>
+ <b6ce07f8e1e0d654371aee70bd8eac310456d0df.1427289960.git.ldufour@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <cover.1427289960.git.ldufour@linux.vnet.ibm.com>
-In-Reply-To: <cover.1427289960.git.ldufour@linux.vnet.ibm.com>
-References: <20150325121118.GA2542@gmail.com> <cover.1427289960.git.ldufour@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <b6ce07f8e1e0d654371aee70bd8eac310456d0df.1427289960.git.ldufour@linux.vnet.ibm.com>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, linux-arch@vger.kernel.org, linux-mm@kvack.org
-Cc: cov@codeaurora.org, criu@openvz.org
+To: Laurent Dufour <ldufour@linux.vnet.ibm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, linux-arch@vger.kernel.org, linux-mm@kvack.org, cov@codeaurora.org, criu@openvz.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Some architecture would like to be triggered when a memory area is moved
-through the mremap system call.
 
-This patch is introducing a new arch_remap mm hook which is placed in the
-path of mremap, and is called before the old area is unmapped (and the
-arch_unmap hook is called).
+* Laurent Dufour <ldufour@linux.vnet.ibm.com> wrote:
 
-The architectures which need to call this hook should define
-__HAVE_ARCH_REMAP in their asm/mmu_context.h and provide the arch_remap
-service with the following prototype:
-void arch_remap(struct mm_struct *mm,
-                unsigned long old_start, unsigned long old_end,
-                unsigned long new_start, unsigned long new_end);
+> +static inline void arch_unmap(struct mm_struct *mm,
+> +			struct vm_area_struct *vma,
+> +			unsigned long start, unsigned long end)
+> +{
+> +	if (start <= mm->context.vdso_base && mm->context.vdso_base < end)
+> +		mm->context.vdso_base = 0;
+> +}
 
-Signed-off-by: Laurent Dufour <ldufour@linux.vnet.ibm.com>
----
- mm/mremap.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+So AFAICS PowerPC can have multi-page vDSOs, right?
 
-diff --git a/mm/mremap.c b/mm/mremap.c
-index 57dadc025c64..bafc234db45c 100644
---- a/mm/mremap.c
-+++ b/mm/mremap.c
-@@ -25,6 +25,7 @@
- 
- #include <asm/cacheflush.h>
- #include <asm/tlbflush.h>
-+#include <asm/mmu_context.h>
- 
- #include "internal.h"
- 
-@@ -286,8 +287,14 @@ static unsigned long move_vma(struct vm_area_struct *vma,
- 		old_len = new_len;
- 		old_addr = new_addr;
- 		new_addr = -ENOMEM;
--	} else if (vma->vm_file && vma->vm_file->f_op->mremap)
--		vma->vm_file->f_op->mremap(vma->vm_file, new_vma);
-+	} else {
-+		if (vma->vm_file && vma->vm_file->f_op->mremap)
-+			vma->vm_file->f_op->mremap(vma->vm_file, new_vma);
-+#ifdef __HAVE_ARCH_REMAP
-+		arch_remap(mm, old_addr, old_addr+old_len,
-+			   new_addr, new_addr+new_len);
-+#endif
-+	}
- 
- 	/* Conceal VM_ACCOUNT so old reservation is not undone */
- 	if (vm_flags & VM_ACCOUNT) {
--- 
-1.9.1
+So what happens if I munmap() the middle or end of the vDSO? The above 
+condition only seems to cover unmaps that affect the first page. I 
+think 'affects any page' ought to be the right condition? (But I know 
+nothing about PowerPC so I might be wrong.)
+
+
+> +#define __HAVE_ARCH_REMAP
+> +static inline void arch_remap(struct mm_struct *mm,
+> +			      unsigned long old_start, unsigned long old_end,
+> +			      unsigned long new_start, unsigned long new_end)
+> +{
+> +	/*
+> +	 * mremap() doesn't allow moving multiple vmas so we can limit the
+> +	 * check to old_start == vdso_base.
+> +	 */
+> +	if (old_start == mm->context.vdso_base)
+> +		mm->context.vdso_base = new_start;
+> +}
+
+mremap() doesn't allow moving multiple vmas, but it allows the 
+movement of multi-page vmas and it also allows partial mremap()s, 
+where it will split up a vma.
+
+In particular, what happens if an mremap() is done with 
+old_start == vdso_base, but a shorter end than the end of the vDSO? 
+(i.e. a partial mremap() with fewer pages than the vDSO size)
+
+Thanks,
+
+	Ingo
