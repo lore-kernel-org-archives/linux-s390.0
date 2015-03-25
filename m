@@ -1,39 +1,40 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 1/2] s390/ebdic: disable gcov on ebcdic.o
-Date: Wed, 25 Mar 2015 14:15:35 +0100
-Message-ID: <1427289336-22883-2-git-send-email-borntraeger@de.ibm.com>
-References: <1427289336-22883-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1427289336-22883-1-git-send-email-borntraeger@de.ibm.com>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-arch@vger.kernel.org, torvalds@linux-foundation.org, paulmck@linux.vnet.ibm.com, linux-s390@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, Christian Borntraeger <borntraeger@de.ibm.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 1/1] s390: fix /proc/interrupts output
+Date: Wed, 25 Mar 2015 16:31:37 +0100
+Message-ID: <1427297497-22104-2-git-send-email-ubraun@linux.vnet.ibm.com>
+References: <1427297497-22104-1-git-send-email-ubraun@linux.vnet.ibm.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1427297497-22104-1-git-send-email-ubraun@linux.vnet.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com, ubraun@linux.vnet.ibm.com, Sebastian Ott <sebott@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-ebcdic.o is also used for the compressed kernel image. The decompressor
-has no gcov support, so better do not add any gcov related functions.
+From: Sebastian Ott <sebott@linux.vnet.ibm.com>
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+The irqclass_sub_desc array and enum interruption_class are out of sync
+thus /proc/interrupts is broken. Remove IRQIO_CLW.
+
+Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
 ---
- arch/s390/kernel/Makefile | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/s390/include/asm/irq.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
-index 31fab26..89352da 100644
---- a/arch/s390/kernel/Makefile
-+++ b/arch/s390/kernel/Makefile
-@@ -8,6 +8,10 @@ CFLAGS_REMOVE_early.o = $(CC_FLAGS_FTRACE)
- CFLAGS_REMOVE_ftrace.o = $(CC_FLAGS_FTRACE)
- endif
- 
-+# ebcdic.o is also used in arch/s390/boot/compressed/ with does not
-+# have gcov support
-+GCOV_PROFILE_ebcdic.o = n
-+
- #
- # Passing null pointers is ok for smp code, since we access the lowcore here.
- #
+diff --git a/arch/s390/include/asm/irq.h b/arch/s390/include/asm/irq.h
+index 343ea7c..ff95d15 100644
+--- a/arch/s390/include/asm/irq.h
++++ b/arch/s390/include/asm/irq.h
+@@ -57,7 +57,6 @@ enum interruption_class {
+ 	IRQIO_TAP,
+ 	IRQIO_VMR,
+ 	IRQIO_LCS,
+-	IRQIO_CLW,
+ 	IRQIO_CTC,
+ 	IRQIO_APB,
+ 	IRQIO_ADM,
 -- 
 2.1.4
