@@ -1,11 +1,9 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/2] compiler.h: Fix word size check for READ/WRITE_ONCE
-Date: Wed, 25 Mar 2015 14:15:36 +0100
-Message-ID: <1427289336-22883-3-git-send-email-borntraeger@de.ibm.com>
-References: <1427289336-22883-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1427289336-22883-1-git-send-email-borntraeger@de.ibm.com>
-Sender: linux-arch-owner@vger.kernel.org
+Subject: [PATCH/RFC 0/2] followup change for READ_ONCE/WRITE_ONCE
+Date: Wed, 25 Mar 2015 14:15:34 +0100
+Message-ID: <1427289336-22883-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
@@ -41,29 +39,16 @@ include/linux/compiler.h:231: warning: call to 'data_access_exceeds_word_size' d
 include/linux/compiler.h: In function '__read_once_size':
 include/linux/compiler.h:214: warning: call to 'data_access_exceeds_word_size' declared with attribute warning: data access exceeds word size and won't be atomic
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- include/linux/compiler.h | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+In addition this also causes a compiler error on s390 allyesconfig
+with GCOV enabled. (fixed in patch 1).
 
-diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-index 1b45e4a..37943c4 100644
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -192,13 +192,10 @@ void ftrace_likely_update(struct ftrace_branch_data *f, int val, int expect);
- 
- #include <uapi/linux/types.h>
- 
--static __always_inline void data_access_exceeds_word_size(void)
- #ifdef __compiletime_warning
- __compiletime_warning("data access exceeds word size and won't be atomic")
- #endif
--;
--
--static __always_inline void data_access_exceeds_word_size(void)
-+__weak notrace void data_access_exceeds_word_size(void)
- {
- }
- 
+Christian Borntraeger (2):
+  s390/ebdic: disable gcov on ebcdic.o
+  compiler.h: Fix word size check for READ/WRITE_ONCE
+
+ arch/s390/kernel/Makefile | 4 ++++
+ include/linux/compiler.h  | 5 +----
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
 -- 
 2.1.4
