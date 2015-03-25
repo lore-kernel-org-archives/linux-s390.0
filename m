@@ -1,40 +1,26 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 1/1] s390: fix /proc/interrupts output
-Date: Wed, 25 Mar 2015 16:31:37 +0100
-Message-ID: <1427297497-22104-2-git-send-email-ubraun@linux.vnet.ibm.com>
-References: <1427297497-22104-1-git-send-email-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 0/1] s390: patch for net-next
+Date: Wed, 25 Mar 2015 16:31:36 +0100
+Message-ID: <1427297497-22104-1-git-send-email-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1427297497-22104-1-git-send-email-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com, ubraun@linux.vnet.ibm.com, Sebastian Ott <sebott@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
+From: Ursula Braun <ursula.braun@de.ibm.com>
 
-The irqclass_sub_desc array and enum interruption_class are out of sync
-thus /proc/interrupts is broken. Remove IRQIO_CLW.
+Hi Dave,
 
-Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
----
- arch/s390/include/asm/irq.h | 1 -
- 1 file changed, 1 deletion(-)
+here is a remaining patch for net-next I have forgotten when removing
+the claw driver
 
-diff --git a/arch/s390/include/asm/irq.h b/arch/s390/include/asm/irq.h
-index 343ea7c..ff95d15 100644
---- a/arch/s390/include/asm/irq.h
-+++ b/arch/s390/include/asm/irq.h
-@@ -57,7 +57,6 @@ enum interruption_class {
- 	IRQIO_TAP,
- 	IRQIO_VMR,
- 	IRQIO_LCS,
--	IRQIO_CLW,
- 	IRQIO_CTC,
- 	IRQIO_APB,
- 	IRQIO_ADM,
--- 
-2.1.4
+shortlog:
+
+Sebastian Ott (1)
+  s390: fix /proc/interrupts output
+
+Thanks,
+       Ursula
