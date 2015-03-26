@@ -1,20 +1,19 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Thu, 26 Mar 2015 10:43:30 +0100
+Date: Thu, 26 Mar 2015 10:48:44 +0100
 From: Ingo Molnar <mingo@kernel.org>
 Subject: Re: [PATCH v3 2/2] powerpc/mm: Tracking vDSO remap
-Message-ID: <20150326094330.GA15407@gmail.com>
+Message-ID: <20150326094844.GB15407@gmail.com>
 References: <20150325121118.GA2542@gmail.com>
  <cover.1427289960.git.ldufour@linux.vnet.ibm.com>
  <b6ce07f8e1e0d654371aee70bd8eac310456d0df.1427289960.git.ldufour@linux.vnet.ibm.com>
  <20150325183316.GA9090@gmail.com>
- <20150325183647.GA9331@gmail.com>
- <1427317867.6468.87.camel@kernel.crashing.org>
+ <1427317797.6468.86.camel@kernel.crashing.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1427317867.6468.87.camel@kernel.crashing.org>
+In-Reply-To: <1427317797.6468.86.camel@kernel.crashing.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150326094330.JaUr7toPts7zX7AfP6t_SjtFiO-lkbuAoXA7NJ96XPo@z>
+Message-ID: <20150326094844.tJ2K6VRyCC97N-ttdhu273qadGby0MxbV417FS5rJYw@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
@@ -24,46 +23,35 @@ List-ID: <linux-s390.vger.kernel.org>
 
 * Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-> On Wed, 2015-03-25 at 19:36 +0100, Ingo Molnar wrote:
-> > * Ingo Molnar <mingo@kernel.org> wrote:
+> > > +#define __HAVE_ARCH_REMAP
+> > > +static inline void arch_remap(struct mm_struct *mm,
+> > > +			      unsigned long old_start, unsigned long old_end,
+> > > +			      unsigned long new_start, unsigned long new_end)
+> > > +{
+> > > +	/*
+> > > +	 * mremap() doesn't allow moving multiple vmas so we can limit the
+> > > +	 * check to old_start == vdso_base.
+> > > +	 */
+> > > +	if (old_start == mm->context.vdso_base)
+> > > +		mm->context.vdso_base = new_start;
+> > > +}
 > > 
-> > > > +#define __HAVE_ARCH_REMAP
-> > > > +static inline void arch_remap(struct mm_struct *mm,
-> > > > +			      unsigned long old_start, unsigned long old_end,
-> > > > +			      unsigned long new_start, unsigned long new_end)
-> > > > +{
-> > > > +	/*
-> > > > +	 * mremap() doesn't allow moving multiple vmas so we can limit the
-> > > > +	 * check to old_start == vdso_base.
-> > > > +	 */
-> > > > +	if (old_start == mm->context.vdso_base)
-> > > > +		mm->context.vdso_base = new_start;
-> > > > +}
-> > > 
-> > > mremap() doesn't allow moving multiple vmas, but it allows the 
-> > > movement of multi-page vmas and it also allows partial mremap()s, 
-> > > where it will split up a vma.
+> > mremap() doesn't allow moving multiple vmas, but it allows the 
+> > movement of multi-page vmas and it also allows partial mremap()s, 
+> > where it will split up a vma.
 > > 
-> > I.e. mremap() supports the shrinking (and growing) of vmas. In that 
-> > case mremap() will unmap the end of the vma and will shrink the 
-> > remaining vDSO vma.
-> > 
-> > Doesn't that result in a non-working vDSO that should zero out 
-> > vdso_base?
+> > In particular, what happens if an mremap() is done with 
+> > old_start == vdso_base, but a shorter end than the end of the vDSO? 
+> > (i.e. a partial mremap() with fewer pages than the vDSO size)
 > 
-> Right. Now we can't completely prevent the user from shooting itself 
-> in the foot I suppose, though there is a legit usage scenario which 
-> is to move the vDSO around which it would be nice to support. I 
-> think it's reasonable to put the onus on the user here to do the 
-> right thing.
+> Is there a way to forbid splitting ? Does x86 deal with that case at 
+> all or it doesn't have to for some other reason ?
 
-I argue we should use the right condition to clear vdso_base: if the 
-vDSO gets at least partially unmapped. Otherwise there's little point 
-in the whole patch: either correctly track whether the vDSO is OK, or 
-don't ...
+So we use _install_special_mapping() - maybe PowerPC does that too? 
+That adds VM_DONTEXPAND which ought to prevent some - but not all - of 
+the VM API weirdnesses.
 
-There's also the question of mprotect(): can users mprotect() the vDSO 
-on PowerPC?
+On x86 we'll just dump core if someone unmaps the vdso.
 
 Thanks,
 
