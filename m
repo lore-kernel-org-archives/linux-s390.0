@@ -1,47 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 27 Mar 2015 15:09:49 +0100 (CET)
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] livepatch: add support on s390
-In-Reply-To: <20150327135848.GB4379@osiris>
-Message-ID: <alpine.LNX.2.00.1503271501210.6781@pobox.suse.cz>
-References: <1427361017-23354-1-git-send-email-jslaby@suse.cz> <alpine.LNX.2.00.1503261924430.6781@pobox.suse.cz> <20150327091900.GA4379@osiris> <alpine.LNX.2.00.1503271020470.6781@pobox.suse.cz> <20150327135848.GB4379@osiris>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 1/1] livepatch: add support on s390
+Date: Thu, 26 Mar 2015 10:10:17 +0100
+Message-Id: <1427361017-23354-1-git-send-email-jslaby@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Jiri Slaby <jslaby@suse.cz>, jpoimboe@redhat.com, sjenning@redhat.com, vojtech@suse.cz, live-patching@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jkosina@suse.cz
+Cc: jpoimboe@redhat.com, sjenning@redhat.com, vojtech@suse.cz, live-patching@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 27 Mar 2015, Heiko Carstens wrote:
+This is a trivial port from kGraft. Module relocations are not
+supported.
 
-> > Fair enough; I merged it because I was convinced that we have your Ack for 
-> > the very same patch in our tree for kGraft, but now that I look again, we 
-> > apparently don't. So sorry for that. What is your standpoint on this one 
-> > then, please?
-> 
-> I thought there was more available then the simple testcase within the kernel.
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+---
+[v2] return ENOSYS
+[v3] proper return value from klp_check_compiler_support
 
-For kGraft we have, and I believe kPatch guys also have patches they are 
-distributing for their own distro.
+ arch/s390/Kconfig                 |  3 +++
+ arch/s390/include/asm/livepatch.h | 43 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 46 insertions(+)
+ create mode 100644 arch/s390/include/asm/livepatch.h
 
-So far we have the simplest testcases working with the in-kernel common 
-infrastructure, and are working on adding more features (called 
-"consistency models" in some discussions) that will allow for more 
-complexity in the patches, so that we ultimately reach (or overcome) the 
-level of complexity we are currently able to handle in kgraft/kpatch.
-
-> But since the testcase works:
-> 
-> Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-
-Thanks a lot, Heiko.
-
-As I am generally never rebasing a published branches, I've split the 
-'for-4.1/core' to two branches and applied the patch ammended with your 
-Ack to 'for-4.1/core-s390'.
-
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 5f01f22b4f16..de2726a487b0 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -134,6 +134,7 @@ config S390
+ 	select HAVE_KPROBES
+ 	select HAVE_KRETPROBES
+ 	select HAVE_KVM
++	select HAVE_LIVEPATCH
+ 	select HAVE_MEMBLOCK
+ 	select HAVE_MEMBLOCK_NODE_MAP
+ 	select HAVE_MEMBLOCK_PHYS_MAP
+@@ -164,6 +165,8 @@ source "init/Kconfig"
+ 
+ source "kernel/Kconfig.freezer"
+ 
++source "kernel/livepatch/Kconfig"
++
+ menu "Processor type and features"
+ 
+ config HAVE_MARCH_Z900_FEATURES
+diff --git a/arch/s390/include/asm/livepatch.h b/arch/s390/include/asm/livepatch.h
+new file mode 100644
+index 000000000000..7aa799134a11
+--- /dev/null
++++ b/arch/s390/include/asm/livepatch.h
+@@ -0,0 +1,43 @@
++/*
++ * livepatch.h - s390-specific Kernel Live Patching Core
++ *
++ *  Copyright (c) 2013-2015 SUSE
++ *   Authors: Jiri Kosina
++ *	      Vojtech Pavlik
++ *	      Jiri Slaby
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#ifndef ASM_LIVEPATCH_H
++#define ASM_LIVEPATCH_H
++
++#include <linux/module.h>
++
++#ifdef CONFIG_LIVEPATCH
++static inline int klp_check_compiler_support(void)
++{
++	return 0;
++}
++
++static inline int klp_write_module_reloc(struct module *mod, unsigned long
++		type, unsigned long loc, unsigned long value)
++{
++	/* not supported yet */
++	return -ENOSYS;
++}
++
++static inline void klp_arch_set_pc(struct pt_regs *regs, unsigned long ip)
++{
++	regs->psw.addr = ip;
++}
++#else
++#error Live patching support is disabled; check CONFIG_LIVEPATCH
++#endif
++
++#endif
 -- 
-Jiri Kosina
-SUSE Labs
+2.3.3
