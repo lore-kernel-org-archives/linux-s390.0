@@ -1,61 +1,70 @@
-From: Laurent Dufour <ldufour@linux.vnet.ibm.com>
+From: Ingo Molnar <mingo@kernel.org>
 Subject: Re: [PATCH v3 2/2] powerpc/mm: Tracking vDSO remap
-Date: Thu, 26 Mar 2015 11:13:53 +0100
-Message-ID: <5513DBE1.4070404@linux.vnet.ibm.com>
-References: <20150325121118.GA2542@gmail.com> <cover.1427289960.git.ldufour@linux.vnet.ibm.com> <b6ce07f8e1e0d654371aee70bd8eac310456d0df.1427289960.git.ldufour@linux.vnet.ibm.com> <20150325183316.GA9090@gmail.com> <1427317797.6468.86.camel@kernel.crashing.org> <20150326094844.GB15407@gmail.com>
+Date: Thu, 26 Mar 2015 15:17:31 +0100
+Message-ID: <20150326141730.GA23060@gmail.com>
+References: <20150325121118.GA2542@gmail.com>
+ <cover.1427289960.git.ldufour@linux.vnet.ibm.com>
+ <b6ce07f8e1e0d654371aee70bd8eac310456d0df.1427289960.git.ldufour@linux.vnet.ibm.com>
+ <20150325183316.GA9090@gmail.com>
+ <20150325183647.GA9331@gmail.com>
+ <1427317867.6468.87.camel@kernel.crashing.org>
+ <20150326094330.GA15407@gmail.com>
+ <5513E16D.1030101@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20150326094844.GB15407@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <5513E16D.1030101@linux.vnet.ibm.com>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Ingo Molnar <mingo@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, linux-arch@vger.kernel.org, linux-mm@kvack.org, cov@codeaurora.org, criu@openvz.org
+To: Laurent Dufour <ldufour@linux.vnet.ibm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, linux-arch@vger.kernel.org, linux-mm@kvack.org, cov@codeaurora.org, criu@openvz.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 26/03/2015 10:48, Ingo Molnar wrote:
+
+* Laurent Dufour <ldufour@linux.vnet.ibm.com> wrote:
+
+> > I argue we should use the right condition to clear vdso_base: if 
+> > the vDSO gets at least partially unmapped. Otherwise there's 
+> > little point in the whole patch: either correctly track whether 
+> > the vDSO is OK, or don't ...
 > 
-> * Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> That's a good option, but it may be hard to achieve in the case the 
+> vDSO area has been splitted in multiple pieces.
+>
+> Not sure there is a right way to handle that, here this is a best 
+> effort, allowing a process to unmap its vDSO and having the 
+> sigreturn call done through the stack area (it has to make it 
+> executable).
 > 
->>>> +#define __HAVE_ARCH_REMAP
->>>> +static inline void arch_remap(struct mm_struct *mm,
->>>> +			      unsigned long old_start, unsigned long old_end,
->>>> +			      unsigned long new_start, unsigned long new_end)
->>>> +{
->>>> +	/*
->>>> +	 * mremap() doesn't allow moving multiple vmas so we can limit the
->>>> +	 * check to old_start == vdso_base.
->>>> +	 */
->>>> +	if (old_start == mm->context.vdso_base)
->>>> +		mm->context.vdso_base = new_start;
->>>> +}
->>>
->>> mremap() doesn't allow moving multiple vmas, but it allows the 
->>> movement of multi-page vmas and it also allows partial mremap()s, 
->>> where it will split up a vma.
->>>
->>> In particular, what happens if an mremap() is done with 
->>> old_start == vdso_base, but a shorter end than the end of the vDSO? 
->>> (i.e. a partial mremap() with fewer pages than the vDSO size)
->>
->> Is there a way to forbid splitting ? Does x86 deal with that case at 
->> all or it doesn't have to for some other reason ?
+> Anyway I'll dig into that, assuming that the vdso_base pointer 
+> should be clear if a part of the vDSO is moved or unmapped. The 
+> patch will be larger since I'll have to get the vDSO size which is 
+> private to the vdso.c file.
+
+At least for munmap() I don't think that's a worry: once unmapped 
+(even if just partially), vdso_base becomes zero and won't ever be set 
+again.
+
+So no need to track the zillion pieces, should there be any: Humpty 
+Dumpty won't be whole again, right?
+
+> > There's also the question of mprotect(): can users mprotect() the 
+> > vDSO on PowerPC?
 > 
-> So we use _install_special_mapping() - maybe PowerPC does that too? 
-> That adds VM_DONTEXPAND which ought to prevent some - but not all - of 
-> the VM API weirdnesses.
+> Yes, mprotect() the vDSO is allowed on PowerPC, as it is on x86, and 
+> certainly all the other architectures. Furthermore, if it is done on 
+> a partial part of the vDSO it is splitting the vma...
 
-The same is done on PowerPC. So calling mremap() to extend the vDSO is
-failing but splitting it or unmapping a part of it is allowed but lead
-to an unusable vDSO.
+btw., CRIU's main purpose here is to reconstruct a vDSO that was 
+originally randomized, but whose address must now be reproduced as-is, 
+right?
 
-> On x86 we'll just dump core if someone unmaps the vdso.
-
-On PowerPC, you'll get the same result.
-
-Should we prevent the user to break its vDSO ?
+In that sense detecting the 'good' mremap() as your patch does should 
+do the trick and is certainly not objectionable IMHO - I was just 
+wondering whether we could make a perfect job very simply.
 
 Thanks,
-Laurent.
+
+	Ingo
