@@ -1,36 +1,41 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH 07/25] s390: Use bool function return values of true/false not 1/0
-Date: Mon, 30 Mar 2015 16:46:05 -0700
-Message-Id: <3b4dd85cf7c16e6c79f98ecb041cd7799ea28c66.1427759009.git.joe@perches.com>
-In-Reply-To: <cover.1427759009.git.joe@perches.com>
-References: <cover.1427759009.git.joe@perches.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+Return-Path: <owner-linux-mm@kvack.org>
+Message-ID: <551587D3.3050200@suse.cz>
+Date: Fri, 27 Mar 2015 17:39:47 +0100
+From: Vlastimil Babka <vbabka@suse.cz>
+MIME-Version: 1.0
+Subject: Re: [PATCH 3/4] mm, shmem: Add shmem resident memory accounting
+References: <1424958666-18241-1-git-send-email-vbabka@suse.cz> <1424958666-18241-4-git-send-email-vbabka@suse.cz> <54EF34C5.1090007@redhat.com>
+In-Reply-To: <54EF34C5.1090007@redhat.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Jerome Marchand <jmarchan@redhat.com>, linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-doc@vger.kernel.org, Hugh Dickins <hughd@google.com>, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Use the normal return values for bool functions
+On 02/26/2015 03:59 PM, Jerome Marchand wrote:
+> On 02/26/2015 02:51 PM, Vlastimil Babka wrote:
+>>  
+>> +/* Optimized variant when page is already known not to be PageAnon */
+>> +static inline int mm_counter_file(struct page *page)
+> 
+> Just a nitpick, but I don't like that name as it keeps the confusion we
+> currently have between shmem and file backed pages. I'm not sure what
+> other name to use though. mm_counter_shared() maybe? I'm not sure it is
+> less confusing...
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- arch/s390/include/asm/dma-mapping.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I think that's also confusing, but differently. Didn't come up with better name,
+so leaving as it is for v2.
 
-diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
-index 709955d..9d39596 100644
---- a/arch/s390/include/asm/dma-mapping.h
-+++ b/arch/s390/include/asm/dma-mapping.h
-@@ -42,7 +42,7 @@ static inline int dma_supported(struct device *dev, u64 mask)
- static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
- {
- 	if (!dev->dma_mask)
--		return 0;
-+		return false;
- 	return addr + size - 1 <= *dev->dma_mask;
- }
- 
--- 
-2.1.2
+Thanks
+
+> Jerome
+> 
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
