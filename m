@@ -1,36 +1,96 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Message-ID: <550CAB0A.8070402@nod.at>
-Date: Sat, 21 Mar 2015 00:19:38 +0100
-From: Richard Weinberger <richard@nod.at>
-MIME-Version: 1.0
-Subject: Re: [PATCH 1/2] mm: Introducing arch_remap hook
-References: <cover.1426866405.git.ldufour@linux.vnet.ibm.com> <503499aae380db1c4673f146bcba6ad095021257.1426866405.git.ldufour@linux.vnet.ibm.com>
-In-Reply-To: <503499aae380db1c4673f146bcba6ad095021257.1426866405.git.ldufour@linux.vnet.ibm.com>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150320231938.f5bUFErwpICbO3VCCXHOliJ_8BhOEhSSMWvWO2o2jZ0@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Laurent Dufour <ldufour@linux.vnet.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Jeff Dike <jdike@addtoit.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, linux-arch@vger.kernel.org, linux-mm@kvack.org
-Cc: cov@codeaurora.org, criu@openvz.org
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: [PATCH v2 0/4] enhance shmem process and swap accounting
+Date: Fri, 27 Mar 2015 17:40:37 +0100
+Message-ID: <1427474441-17708-1-git-send-email-vbabka@suse.cz>
+Return-path: <owner-linux-mm@kvack.org>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-api/>
+List-Post: <mailto:linux-api@vger.kernel.org>
+To: linux-mm@kvack.org, Jerome Marchand <jmarchan@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-doc@vger.kernel.org, Hugh Dickins <hughd@google.com>, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Linux API <linux-api@vger.kernel.org>, Konstantin Khlebnikov <khlebnikov@yandex-team.ru>, Vlastimil Babka <vbabka@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-Am 20.03.2015 um 16:53 schrieb Laurent Dufour:
-> Some architecture would like to be triggered when a memory area is moved
-> through the mremap system call.
-> 
-> This patch is introducing a new arch_remap mm hook which is placed in the
-> path of mremap, and is called before the old area is unmapped (and the
-> arch_unmap hook is called).
-> 
-> To no break the build, this patch adds the empty hook definition to the
-> architectures that were not using the generic hook's definition.
+Changes since v1:
+o In Patch 2, rely on SHMEM_I(inode)->swapped if possible, and fallback to
+  radix tree iterator on partially mapped shmem objects, i.e. decouple shmem
+  swap usage determination from the page walk, for performance reasons.
+  Thanks to Jerome and Konstantin for the tips.
+  The downside is that mm/shmem.c had to be touched.
 
-Just wanted to point out that I like that new hook as UserModeLinux can benefit from it.
-UML has the concept of stub pages where the UML host process can inject commands to guest processes.
-Currently we play nasty games in the TLB code to make all this work.
-arch_unmap() could make this stuff more clear and less error prone.
+This series is based on Jerome Marchand's [1] so let me quote the first
+paragraph from there:
 
-Thanks,
-//richard
+There are several shortcomings with the accounting of shared memory
+(sysV shm, shared anonymous mapping, mapping to a tmpfs file). The
+values in /proc/<pid>/status and statm don't allow to distinguish
+between shmem memory and a shared mapping to a regular file, even
+though theirs implication on memory usage are quite different: at
+reclaim, file mapping can be dropped or write back on disk while shmem
+needs a place in swap. As for shmem pages that are swapped-out or in
+swap cache, they aren't accounted at all.
+
+The original motivation for myself is that a customer found (IMHO rightfully)
+confusing that e.g. top output for process swap usage is unreliable with
+respect to swapped out shmem pages, which are not accounted for.
+
+The fundamental difference between private anonymous and shmem pages is that
+the latter has PTE's converted to pte_none, and not swapents. As such, they are
+not accounted to the number of swapents visible e.g. in /proc/pid/status VmSwap
+row. It might be theoretically possible to use swapents when swapping out shmem
+(without extra cost, as one has to change all mappers anyway), and on swap in
+only convert the swapent for the faulting process, leaving swapents in other
+processes until they also fault (so again no extra cost). But I don't know how
+many assumptions this would break, and it would be too disruptive change for a
+relatively small benefit.
+
+Instead, my approach is to document the limitation of VmSwap, and provide means
+to determine the swap usage for shmem areas for those who are interested and
+willing to pay the price, using /proc/pid/smaps. Because outside of ipcs, I
+don't think it's possible to currently to determine the usage at all.  The
+previous patchset [1] did introduce new shmem-specific fields into smaps
+output, and functions to determine the values. I take a simpler approach,
+noting that smaps output already has a "Swap: X kB" line, where currently X ==
+0 always for shmem areas. I think we can just consider this a bug and provide
+the proper value by consulting the radix tree, as e.g. mincore_page() does. In the
+patch changelog I explain why this is also not perfect (and cannot be without
+swapents), but still arguably much better than showing a 0.
+
+The last two patches are adapted from Jerome's patchset and provide a VmRSS
+breakdown to VmAnon, VmFile and VmShm in /proc/pid/status. Hugh noted that
+this is a welcome addition, and I agree that it might help e.g. debugging
+process memory usage at albeit non-zero, but still rather low cost of extra
+per-mm counter and some page flag checks. I updated these patches to 4.0-rc1,
+made them respect !CONFIG_SHMEM so that tiny systems don't pay the cost, and
+optimized the page flag checking somewhat.
+
+[1] http://lwn.net/Articles/611966/
+
+Jerome Marchand (2):
+  mm, shmem: Add shmem resident memory accounting
+  mm, procfs: Display VmAnon, VmFile and VmShm in /proc/pid/status
+
+Vlastimil Babka (2):
+  mm, documentation: clarify /proc/pid/status VmSwap limitations
+  mm, proc: account for shmem swap in /proc/pid/smaps
+
+ Documentation/filesystems/proc.txt | 15 +++++++++--
+ arch/s390/mm/pgtable.c             |  5 +---
+ fs/proc/task_mmu.c                 | 52 ++++++++++++++++++++++++++++++++++--
+ include/linux/mm.h                 | 28 ++++++++++++++++++++
+ include/linux/mm_types.h           |  9 ++++---
+ include/linux/shmem_fs.h           |  6 +++++
+ kernel/events/uprobes.c            |  2 +-
+ mm/memory.c                        | 30 +++++++--------------
+ mm/oom_kill.c                      |  5 ++--
+ mm/rmap.c                          | 15 +++--------
+ mm/shmem.c                         | 54 ++++++++++++++++++++++++++++++++++++++
+ 11 files changed, 176 insertions(+), 45 deletions(-)
+
+-- 
+2.1.4
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
