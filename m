@@ -1,547 +1,277 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v4 03/15] target-s390x: Generate facility defines per cpu model
-Date: Mon, 30 Mar 2015 16:28:16 +0200
-Message-ID: <1427725708-52100-4-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v4 04/15] target-s390x: Introduce cpu models
+Date: Mon, 30 Mar 2015 16:28:17 +0200
+Message-ID: <1427725708-52100-5-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1427725708-52100-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
 In-Reply-To: <1427725708-52100-1-git-send-email-mimu@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>
+Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch introduces the helper "gen-facilities" which allows to generate
-facility list definitions and masks at compile time. Its flexibility is
-better and the error-proneness is lower when compared to static programming
-time added statements.
+This patch implements the static part of the s390 cpu class definitions.
+It defines s390 cpu models by means of virtual cpu ids (enum) which contain
+information on the cpu generation, the machine class, the GA number and
+the machine type. The cpu id is used to instantiate a cpu class per cpu
+model.
 
-The helper includes "target-s390x/cpu-facilities.h" to be able to use named
-facility bits instead of numbers. Its output will be feed back into the
-cpu model related header file "target-s390x/cpu-models.h" by including
-"target-s390x/gen-facilities.h" to implement model related data structures.
-
-The following defines/symbols are expected to be provided by the cpu-facilities
-header file:
-
-FAC_LIST_ARCH_S390_SIZE_UINT8
-FAC_N3
-FAC_ZARCH
-FAC_ZARCH_ACTIVE
-...
-
-The defines provided by gen-facilities follow the following schema:
-
-FAC_LIST_CPU_S390_SIZE_UINT1 %PRIu32
-FAC_LIST_CPU_S390_SIZE_UINT8 %PRIu32
-FAC_LIST_CPU_S390_SIZE_UINT64 %PRIu32
-FAC_LIST_CPU_S390_MASK_QEMU 0x%016PRIx64,0x%016PRIx64,...
-FAC_LIST_CPU_S390_<TYPE>_GA<n> 0x%016PRIx64,0x%016PRIx64,...
-
-fix: target-s390/Makefile.obj
-
-private build dir now supported, but make clean still has an issue:
-
-[mimu@p57lp59 (bb/mimu/devel-cpu-model-v6+) qemu]$ make clean
-rm -f config.mak op-i386.h opc-i386.h gen-op-i386.h op-arm.h opc-arm.h gen-op-arm.h
-...
-for d in s390x-softmmu s390x-linux-user pc-bios/s390-ccw; do \
-if test -d $d; then make -C $d clean || exit 1; fi; \
-rm -f $d/qemu-options.def; \
-        done
-make[1]: Entering directory `/home/mimu/REPO/qemu/foobuild/s390x-softmmu'
-  CC    gen-facilities
-cc1: error: -I/usr/include/pixman-1: No such file or directory [-Werror]
-cc1: all warnings being treated as errors
-make[1]: *** [/gen-facilities] Error 1
-make[1]: Leaving directory `/home/mimu/REPO/qemu/foobuild/s390x-softmmu'
-make: *** [clean] Error 1
+Furthermore it extends the existing S390CPUClass by model related properties.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Reviewed-by: Thomas Huth <thuth@linux.vnet.ibm.com>
 ---
- Makefile.target               |   2 +-
- rules.mak                     |   1 +
- target-s390x/Makefile.objs    |  20 ++
- target-s390x/gen-facilities.c | 417 ++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 439 insertions(+), 1 deletion(-)
- create mode 100644 target-s390x/gen-facilities.c
+ target-s390x/Makefile.objs |  1 +
+ target-s390x/cpu-models.c  | 77 ++++++++++++++++++++++++++++++++++++++++++++++
+ target-s390x/cpu-models.h  | 72 +++++++++++++++++++++++++++++++++++++++++++
+ target-s390x/cpu-qom.h     | 36 ++++++++++++++++++++++
+ 4 files changed, 186 insertions(+)
+ create mode 100644 target-s390x/cpu-models.c
+ create mode 100644 target-s390x/cpu-models.h
 
-diff --git a/Makefile.target b/Makefile.target
-index 2262d89..58cfc1b 100644
---- a/Makefile.target
-+++ b/Makefile.target
-@@ -190,7 +190,7 @@ hmp-commands.h: $(SRC_PATH)/hmp-commands.hx
- qmp-commands-old.h: $(SRC_PATH)/qmp-commands.hx
- 	$(call quiet-command,sh $(SRC_PATH)/scripts/hxtool -h < $< > $@,"  GEN   $(TARGET_DIR)$@")
- 
--clean:
-+clean: clean-target
- 	rm -f *.a *~ $(PROGS)
- 	rm -f $(shell find . -name '*.[od]')
- 	rm -f hmp-commands.h qmp-commands-old.h gdbstub-xml.c
-diff --git a/rules.mak b/rules.mak
-index 3a05627..43cf05c 100644
---- a/rules.mak
-+++ b/rules.mak
-@@ -12,6 +12,7 @@ MAKEFLAGS += -rR
- %.cpp:
- %.m:
- %.mak:
-+clean-target:
- 
- # Flags for C++ compilation
- QEMU_CXXFLAGS = -D__STDC_LIMIT_MACROS $(filter-out -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wold-style-declaration -Wold-style-definition -Wredundant-decls, $(QEMU_CFLAGS))
 diff --git a/target-s390x/Makefile.objs b/target-s390x/Makefile.objs
-index dd62cbd..997dda4 100644
+index 997dda4..97c4177 100644
 --- a/target-s390x/Makefile.objs
 +++ b/target-s390x/Makefile.objs
-@@ -3,3 +3,23 @@ obj-y += int_helper.o fpu_helper.o cc_helper.o mem_helper.o misc_helper.o
+@@ -1,6 +1,7 @@
+ obj-y += translate.o helper.o cpu.o interrupt.o
+ obj-y += int_helper.o fpu_helper.o cc_helper.o mem_helper.o misc_helper.o
  obj-y += gdbstub.o
++obj-y += cpu-models.o
  obj-$(CONFIG_SOFTMMU) += machine.o ioinst.o arch_dump.o mmu_helper.o
  obj-$(CONFIG_KVM) += kvm.o
-+
-+# build and run facility generator
-+#
-+fac = gen-facilities
-+fac-src = $(SRC_PATH)/target-$(TARGET_BASE_ARCH)
-+fac-dst = $(BUILD_DIR)/$(TARGET_DIR)
-+
-+ifneq ($(MAKECMDGOALS),clean)
-+GENERATED_HEADERS += $(fac-dst)$(fac).h
-+endif
-+
-+$(fac-dst)$(fac).h: $(fac-dst)$(fac)
-+	$(call quiet-command,$< >$@,"  GEN   $(TARGET_DIR)$(fac).h")
-+
-+$(fac-dst)$(fac): $(fac-src)/$(fac).c $(fac-src)/cpu-facilities.h
-+	$(call quiet-command,$(CC) $(QEMU_INCLUDES) $(QEMU_CFLAGS) $(CFLAGS) -o $@ $<,"  CC    $(TARGET_DIR)$(fac)")
-+
-+clean-target:
-+	rm -f $(fac).h
-+	rm -f $(fac)
-diff --git a/target-s390x/gen-facilities.c b/target-s390x/gen-facilities.c
+ 
+diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
 new file mode 100644
-index 0000000..f4f4c57
+index 0000000..908e8eb
 --- /dev/null
-+++ b/target-s390x/gen-facilities.c
-@@ -0,0 +1,417 @@
++++ b/target-s390x/cpu-models.c
+@@ -0,0 +1,77 @@
 +/*
-+ * S390 facility list/mask generator
++ * CPU models for s390
 + *
-+ * Copyright 2015 IBM Corp.
++ * Copyright 2014,2015 IBM Corp.
 + *
 + * Author(s): Michael Mueller <mimu@linux.vnet.ibm.com>
 + *
 + * This work is licensed under the terms of the GNU GPL, version 2 or (at
 + * your option) any later version. See the COPYING file in the top-level
 + * directory.
-+ *
 + */
 +
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <stdint.h>
-+#include <inttypes.h>
-+#include <assert.h>
-+#include <values.h>
-+#include "cpu-facilities.h"
++#include "qemu-common.h"
++#include "cpu-models.h"
 +
-+/***** BEGIN FACILITY DEFS *****/
++#define S390_PROC_DEF(_name, _cpu_id, _desc)                            \
++    static void                                                         \
++    glue(_cpu_id, _cpu_class_init)                                      \
++    (ObjectClass *oc, void *data)                                       \
++    {                                                                   \
++        DeviceClass *dc = DEVICE_CLASS(oc);                             \
++        S390CPUClass *cc = S390_CPU_CLASS(oc);                          \
++                                                                        \
++        cc->mach.ga    = cpu_ga(_cpu_id);                               \
++        cc->mach.class = cpu_class(_cpu_id);                            \
++        cc->mach.order = cpu_order(_cpu_id);                            \
++        cc->proc.gen   = cpu_generation(_cpu_id);                       \
++        cc->proc.ver   = S390_DEF_VERSION;                              \
++        cc->proc.id    = S390_DEF_ID;                                   \
++        cc->proc.type  = cpu_type(_cpu_id);                             \
++        cc->proc.ibc   = S390_DEF_IBC;                                  \
++        dc->desc       = _desc;                                         \
++    }                                                                   \
++    static const TypeInfo                                               \
++    glue(_cpu_id, _cpu_type_info) = {                                   \
++        .name       = _name "-" TYPE_S390_CPU,                          \
++        .parent     = TYPE_S390_CPU,                                    \
++        .class_init = glue(_cpu_id, _cpu_class_init),                   \
++    };                                                                  \
++    static void                                                         \
++    glue(_cpu_id, _cpu_register_types)(void)                            \
++    {                                                                   \
++        type_register_static(                                           \
++            &glue(_cpu_id, _cpu_type_info));                            \
++    }                                                                   \
++    type_init(glue(_cpu_id, _cpu_register_types))
 +
-+/*******************************
-+ * CMOS G7 processors
-+ *******************************/
++/* define S390 CPU model classes */
++S390_PROC_DEF("2064-ga1", CPU_S390_2064_GA1, "IBM zSeries 900 GA1")
++S390_PROC_DEF("2064-ga2", CPU_S390_2064_GA2, "IBM zSeries 900 GA2")
++S390_PROC_DEF("2064-ga3", CPU_S390_2064_GA3, "IBM zSeries 900 GA3")
++S390_PROC_DEF("2066-ga1", CPU_S390_2066_GA1, "IBM zSeries 800 GA1")
++S390_PROC_DEF("2084-ga1", CPU_S390_2084_GA1, "IBM zSeries 990 GA1")
++S390_PROC_DEF("2084-ga2", CPU_S390_2084_GA2, "IBM zSeries 990 GA2")
++S390_PROC_DEF("2084-ga3", CPU_S390_2084_GA3, "IBM zSeries 990 GA3")
++S390_PROC_DEF("2084-ga4", CPU_S390_2084_GA4, "IBM zSeries 990 GA4")
++S390_PROC_DEF("2084-ga5", CPU_S390_2084_GA5, "IBM zSeries 990 GA5")
++S390_PROC_DEF("2086-ga1", CPU_S390_2086_GA1, "IBM zSeries 890 GA1")
++S390_PROC_DEF("2086-ga2", CPU_S390_2086_GA2, "IBM zSeries 890 GA2")
++S390_PROC_DEF("2086-ga3", CPU_S390_2086_GA3, "IBM zSeries 890 GA3")
++S390_PROC_DEF("2094-ga1", CPU_S390_2094_GA1, "IBM System z9 EC GA1")
++S390_PROC_DEF("2094-ga2", CPU_S390_2094_GA2, "IBM System z9 EC GA2")
++S390_PROC_DEF("2094-ga3", CPU_S390_2094_GA3, "IBM System z9 EC GA3")
++S390_PROC_DEF("2096-ga1", CPU_S390_2096_GA1, "IBM System z9 BC GA1")
++S390_PROC_DEF("2096-ga2", CPU_S390_2096_GA2, "IBM System z9 BC GA2")
++S390_PROC_DEF("2097-ga1", CPU_S390_2097_GA1, "IBM System z10 EC GA1")
++S390_PROC_DEF("2097-ga2", CPU_S390_2097_GA2, "IBM System z10 EC GA2")
++S390_PROC_DEF("2097-ga3", CPU_S390_2097_GA3, "IBM System z10 EC GA3")
++S390_PROC_DEF("2098-ga1", CPU_S390_2098_GA1, "IBM System z10 BC GA1")
++S390_PROC_DEF("2098-ga2", CPU_S390_2098_GA2, "IBM System z10 BC GA2")
++S390_PROC_DEF("2817-ga1", CPU_S390_2817_GA1, "IBM zEnterprise 196 GA1")
++S390_PROC_DEF("2817-ga2", CPU_S390_2817_GA2, "IBM zEnterprise 196 GA2")
++S390_PROC_DEF("2818-ga1", CPU_S390_2818_GA1, "IBM zEnterprise 114 GA1")
++S390_PROC_DEF("2827-ga1", CPU_S390_2827_GA1, "IBM zEnterprise EC12 GA1")
++S390_PROC_DEF("2827-ga2", CPU_S390_2827_GA2, "IBM zEnterprise EC12 GA2")
++S390_PROC_DEF("2828-ga1", CPU_S390_2828_GA1, "IBM zEnterprise BC12 GA1")
++S390_PROC_DEF("2964-ga1", CPU_S390_2964_GA1, "IBM z13 GA1")
+diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
+new file mode 100644
+index 0000000..b02c38b
+--- /dev/null
++++ b/target-s390x/cpu-models.h
+@@ -0,0 +1,72 @@
++/*
++ * CPU models for s390
++ *
++ * Copyright 2014,2015 IBM Corp.
++ *
++ * Author(s): Michael Mueller <mimu@linux.vnet.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or (at
++ * your option) any later version. See the COPYING file in the top-level
++ * directory.
++ */
 +
-+/* 2064-GA1 */
-+static uint16_t set_2064_GA1[] = {
-+    FAC_N3,
-+    FAC_ZARCH,
-+    FAC_ZARCH_ACTIVE,
-+};
-+#define clear_2064_GA1 EmptyFacs
++#ifndef TARGET_S390X_CPU_MODELS_H
++#define TARGET_S390X_CPU_MODELS_H
 +
-+/* 2064-GA2 */
-+static uint16_t set_2064_GA2[] = {
-+    FAC_EXTENDED_TRANSLATION_2,
-+};
-+#define clear_2064_GA2 EmptyFacs
++#define S390_EC 0x1
++#define S390_BC 0x2
 +
-+/* 2064-GA3 */
-+#define set_2064_GA3 EmptyFacs
-+#define clear_2064_GA3 EmptyFacs
++#define S390_DEF_VERSION 0xff
++#define S390_DEF_IBC     0x0
++#define S390_DEF_ID      0xdecade
++#define S390_DEF_TYPE    0x2064
 +
-+/* 2066-GA1 */
-+#define set_2066_GA1 EmptyFacs
-+#define clear_2066_GA1 EmptyFacs
++#define cpu_type(x)       (((x) >>  0) & 0xffff)
++#define cpu_order(x)      (((x) >> 16) & 0xffff)
++#define cpu_ga(x)         (((x) >> 16) & 0xf)
++#define cpu_class(x)      (((x) >> 20) & 0x3)
++#define cpu_generation(x) (((x) >> 24) & 0xff)
 +
-+/*******************************
-+ * CMOS G8 processors
-+ *******************************/
-+
-+/* 2084-GA1 */
-+static uint16_t set_2084_GA1[] = {
-+    FAC_DAT_ENH,
-+    FAC_MESSAGE_SECURITY_ASSIST,
-+    FAC_LONG_DISPLACEMENT,
-+    FAC_LONG_DISPLACEMENT_FAST,
-+    FAC_HFP_MADDSUB,
-+};
-+#define clear_2084_GA1 EmptyFacs
-+
-+/* 2084-GA2 */
-+static uint16_t set_2084_GA2[] = {
-+    4,
-+};
-+#define clear_2084_GA2 EmptyFacs
-+
-+/* 2084-GA3 */
-+static uint16_t set_2084_GA3[] = {
-+    FAC_ASN_LX_REUSE,
-+    FAC_EXTENDED_TRANSLATION_3,
-+};
-+#define clear_2084_GA3 EmptyFacs
-+
-+/* 2084-GA4 */
-+#define set_2084_GA4 EmptyFacs
-+#define clear_2084_GA4 EmptyFacs
-+
-+/* 2084-GA5 */
-+static uint16_t set_2084_GA5[] = {
-+    FAC_TOD_CLOCK_STEERING,
-+};
-+#define clear_2084_GA5 EmptyFacs
-+
-+/* 2086-GA1 */
-+#define set_2086_GA1 EmptyFacs
-+#define clear_2086_GA1 EmptyFacs
-+
-+/* 2086-GA2 */
-+#define set_2086_GA2 EmptyFacs
-+#define clear_2086_GA2 EmptyFacs
-+
-+/* 2086-GA3 */
-+#define set_2086_GA3 EmptyFacs
-+#define clear_2086_GA3 EmptyFacs
-+
-+/*******************************
-+ * CMOS G9 processors
-+ *******************************/
-+
-+/* 2094-GA1 */
-+static uint16_t set_2094_GA1[] = {
-+    FAC_STFLE,
-+    FAC_EXTENDED_IMMEDIATE,
-+    FAC_HFP_UNNORMALIZED_EXT,
-+    FAC_ETF2_ENH,
-+    FAC_STORE_CLOCK_FAST,
-+    FAC_ETF3_ENH,
-+    FAC_EXTRACT_CPU_TIME,
-+};
-+#define clear_2094_GA1 EmptyFacs
-+
-+/* 2094-GA2 */
-+static uint16_t set_2094_GA2[] = {
-+    FAC_SENSE_RUNNING_STATUS,
-+    FAC_MOVE_WITH_OPTIONAL_SPEC,
-+    FAC_COMPARE_AND_SWAP_AND_STORE,
-+    FAC_FLOATING_POINT_SUPPPORT_ENH,
-+    FAC_DFP,
-+};
-+#define clear_2094_GA2 EmptyFacs
-+
-+/* 2094-GA3 */
-+static uint16_t set_2094_GA3[] = {
-+    FAC_PFPO,
-+};
-+#define clear_2094_GA3 EmptyFacs
-+
-+/* 2096-GA1 */
-+#define set_2096_GA1 EmptyFacs
-+#define clear_2096_GA1 EmptyFacs
-+
-+/* 2096-GA2 */
-+#define set_2096_GA2 EmptyFacs
-+#define clear_2096_GA2 EmptyFacs
-+
-+/*******************************
-+ * CMOS G10 processors
-+ *******************************/
-+
-+/* 2097-GA1 */
-+static uint16_t set_2097_GA1[] = {
-+    FAC_ENHANCED_DAT_1,
-+    FAC_CONDITIONAL_SSKE,
-+    FAC_CONFIGURATION_TOPOLOGY,
-+    FAC_PARSING_ENH,
-+    FAC_COMPARE_AND_SWAP_AND_STORE_2,
-+    FAC_GENERAL_INSTRUCTIONS_EXT,
-+    FAC_EXECUTE_EXT,
-+    FAC_DFP_FAST,
-+};
-+#define clear_2097_GA1 EmptyFacs
-+
-+/* 2097-GA2 */
-+static uint16_t set_2097_GA2[] = {
-+    65,
-+    FAC_CPU_MEASUREMENT_COUNTER,
-+    FAC_CPU_MEASUREMENT_SAMPLING,
-+};
-+#define clear_2097_GA2 EmptyFacs
-+
-+/* 2097-GA3 */
-+static uint16_t set_2097_GA3[] = {
-+    FAC_LOAD_PROGRAM_PARAMETERS,
-+};
-+#define clear_2097_GA3 EmptyFacs
-+
-+/* 2098-GA1 */
-+#define set_2098_GA1 EmptyFacs
-+#define clear_2098_GA1 EmptyFacs
-+
-+/* 2098-GA2 */
-+#define set_2098_GA2 EmptyFacs
-+#define clear_2098_GA2 EmptyFacs
-+
-+/*******************************
-+ * CMOS G11 processors
-+ *******************************/
-+
-+/* 2817-GA1 */
-+static uint16_t set_2817_GA1[] = {
-+    FAC_ENHANCED_MONITOR,
-+    FAC_FLOATING_POINT_EXT,
-+    FAC_MULTI_45,
-+    46,
-+    FAC_ACCESS_EXCEPTION_FS_INDICATION,
-+};
-+static uint16_t clear_2817_GA1[] = {
-+    65,
++/*
++ * bits 0-7   : CMOS generation
++ * bits 8-9   : reserved
++ * bits 10-11 : machine class 0=unknown 1=EC 2=BC
++ * bits 12-15 : GA
++ * bits 16-31 : machine type
++ *
++ * note: bits are named according to s390
++ *       architecture specific endienness
++ */
++enum {
++    CPU_S390_2064_GA1 = 0x07112064,
++    CPU_S390_2064_GA2 = 0x07122064,
++    CPU_S390_2064_GA3 = 0x07132064,
++    CPU_S390_2066_GA1 = 0x07212066,
++    CPU_S390_2084_GA1 = 0x08112084,
++    CPU_S390_2084_GA2 = 0x08122084,
++    CPU_S390_2084_GA3 = 0x08132084,
++    CPU_S390_2084_GA4 = 0x08142084,
++    CPU_S390_2084_GA5 = 0x08152084,
++    CPU_S390_2086_GA1 = 0x08212086,
++    CPU_S390_2086_GA2 = 0x08222086,
++    CPU_S390_2086_GA3 = 0x08232086,
++    CPU_S390_2094_GA1 = 0x09112094,
++    CPU_S390_2094_GA2 = 0x09122094,
++    CPU_S390_2094_GA3 = 0x09132094,
++    CPU_S390_2096_GA1 = 0x09212096,
++    CPU_S390_2096_GA2 = 0x09222096,
++    CPU_S390_2097_GA1 = 0x0a112097,
++    CPU_S390_2097_GA2 = 0x0a122097,
++    CPU_S390_2097_GA3 = 0x0a132097,
++    CPU_S390_2098_GA1 = 0x0a212098,
++    CPU_S390_2098_GA2 = 0x0a222098,
++    CPU_S390_2817_GA1 = 0x0b112817,
++    CPU_S390_2817_GA2 = 0x0b122817,
++    CPU_S390_2818_GA1 = 0x0b212818,
++    CPU_S390_2827_GA1 = 0x0c112827,
++    CPU_S390_2827_GA2 = 0x0c122827,
++    CPU_S390_2828_GA1 = 0x0c212828,
++    CPU_S390_2964_GA1 = 0x0d112964,
 +};
 +
-+/* 2817-GA2 */
-+static uint16_t set_2817_GA2[] = {
-+    FAC_IPTE_RANGE,
-+    FAC_NONQ_KEY_SETTING,
-+    FAC_CMPSC_ENH,
-+    FAC_RESET_REFERENCE_BITS_MULTIPLE,
-+    FAC_MESSAGE_SECURITY_ASSIST_3,
-+    FAC_MESSAGE_SECURITY_ASSIST_4,
-+};
-+#define clear_2817_GA2 EmptyFacs
++#endif
+diff --git a/target-s390x/cpu-qom.h b/target-s390x/cpu-qom.h
+index 8b376df..250d6d1 100644
+--- a/target-s390x/cpu-qom.h
++++ b/target-s390x/cpu-qom.h
+@@ -22,6 +22,7 @@
+ 
+ #include "qom/cpu.h"
+ #include "cpu.h"
++#include "gen-facilities.h"
+ 
+ #define TYPE_S390_CPU "s390-cpu"
+ 
+@@ -32,6 +33,35 @@
+ #define S390_CPU_GET_CLASS(obj) \
+     OBJECT_GET_CLASS(S390CPUClass, (obj), TYPE_S390_CPU)
+ 
++/*
++ * The accelerator mode is used to parametrize if cpu class setup
++ * is performed for the cmdline selected accelerator or for a
++ * temporarily selected acellerator.
++ */
++typedef enum S390AccelMode {
++    ACCEL_CURRENT = 0,
++    ACCEL_TEMP = 1,
++    ACCEL_MODE_MAX = 2,
++} S390AccelMode;
 +
-+/* 2818-GA1 */
-+#define set_2818_GA1 EmptyFacs
-+#define clear_2818_GA1 EmptyFacs
++/* machine related properties */
++typedef struct S390CPUMachineProps {
++    uint16_t class;      /* machine class */
++    uint16_t ga;         /* availability number of machine */
++    uint16_t order;      /* order of availability */
++} S390CPUMachineProps;
 +
-+/*******************************
-+ * CMOS G12 processors
-+ *******************************/
++/* processor related properties */
++typedef struct S390CPUProcessorProps {
++    uint16_t gen;        /* S390 CMOS generation */
++    uint16_t ver;        /* version of processor */
++    uint32_t id;         /* processor identification*/
++    uint16_t type;       /* machine type */
++    uint16_t ibc;        /* IBC value */
++                         /* processor related facility list */
++    uint64_t fac_list[FAC_LIST_CPU_S390_SIZE_UINT64];
++} S390CPUProcessorProps;
 +
-+/* 2827-GA1 */
-+static uint16_t set_2827_GA1[] = {
-+    FAC_DFP_ZONED_CONVERSION,
-+    FAC_MULTI_49,
-+    FAC_CONSTRAINT_TRANSACTIONAL_EXE,
-+    FAC_LOCAL_TLB_CLEARING,
-+    FAC_INTERLOCKED_ACCESS_2,
-+    FAC_TRANSACTIONAL_EXE,
-+    FAC_ENHANCED_DAT_2,
-+};
-+#define clear_2827_GA1 EmptyFacs
-+
-+/* 2827-GA2 */
-+static uint16_t set_2827_GA2[] = {
-+    FAC_MESSAGE_SECURITY_ASSIST_5,
-+};
-+#define clear_2827_GA2 EmptyFacs
-+
-+/* 2828-GA1 */
-+#define set_2828_GA1 EmptyFacs
-+#define clear_2828_GA1 EmptyFacs
-+
-+/*******************************
-+ * CMOS G13 processors
-+ *******************************/
-+
-+/* 2964-GA1 */
-+static uint16_t set_2964_GA1[] = {
-+    FAC_LOAD_STORE_ON_COND_2,
-+    FAC_DFP_PACKED_CONVERSION,
-+    FAC_VECTOR,
-+    FAC_STORE_CPU_COUNTER_MULTI,
-+};
-+#define clear_2964_GA1 EmptyFacs
-+
-+/****** END FACILITY DEFS ******/
-+
-+#define S390_ARCH_FAC_LIST_SIZE_BYTE \
-+    (S390_ARCH_FAC_LIST_SIZE / 8)
-+
-+#define _YEARS  "2014, 2015"
-+#define _NAME_H "TARGET_S390X_GEN_FACILITIES_H"
-+
-+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
-+
-+#define FAC_INITIALIZER(_name)                         \
-+    {                                                  \
-+        .Name = "FAC_LIST_CPU_S390_" #_name,           \
-+        .SetBits =                                     \
-+            { .Data = set_##_name,                     \
-+              .Length = ARRAY_SIZE(set_##_name) },     \
-+        .ClearBits =                                   \
-+            { .Data = clear_##_name,                   \
-+              .Length = ARRAY_SIZE(clear_##_name) },   \
-+    }
-+
-+enum BitOps {
-+    SetBit,
-+    ClearBit,
-+};
-+
-+typedef struct BitSpec {
-+    uint16_t *Data;
-+    uint32_t Length;
-+} BitSpec;
-+
-+typedef struct FacDefSpec {
-+    const char *Name;
-+    BitSpec SetBits;
-+    BitSpec ClearBits;
-+} FacDefSpec;
-+
-+static uint16_t EmptyFacs[] = {};
-+
-+/*******************************
-+ * processor GA series
-+ *******************************/
-+static FacDefSpec FacDef[] = {
-+    FAC_INITIALIZER(2064_GA1),
-+    FAC_INITIALIZER(2064_GA2),
-+    FAC_INITIALIZER(2064_GA3),
-+    FAC_INITIALIZER(2066_GA1),
-+    FAC_INITIALIZER(2084_GA1),
-+    FAC_INITIALIZER(2084_GA2),
-+    FAC_INITIALIZER(2084_GA3),
-+    FAC_INITIALIZER(2086_GA1),
-+    FAC_INITIALIZER(2084_GA4),
-+    FAC_INITIALIZER(2086_GA2),
-+    FAC_INITIALIZER(2084_GA5),
-+    FAC_INITIALIZER(2086_GA3),
-+    FAC_INITIALIZER(2094_GA1),
-+    FAC_INITIALIZER(2094_GA2),
-+    FAC_INITIALIZER(2094_GA3),
-+    FAC_INITIALIZER(2096_GA1),
-+    FAC_INITIALIZER(2096_GA2),
-+    FAC_INITIALIZER(2097_GA1),
-+    FAC_INITIALIZER(2097_GA2),
-+    FAC_INITIALIZER(2098_GA1),
-+    FAC_INITIALIZER(2097_GA3),
-+    FAC_INITIALIZER(2098_GA2),
-+    FAC_INITIALIZER(2817_GA1),
-+    FAC_INITIALIZER(2817_GA2),
-+    FAC_INITIALIZER(2818_GA1),
-+    FAC_INITIALIZER(2827_GA1),
-+    FAC_INITIALIZER(2827_GA2),
-+    FAC_INITIALIZER(2828_GA1),
-+    FAC_INITIALIZER(2964_GA1),
-+};
-+
-+/*******************************
-+ * QEMU facility list mask
-+ *******************************/
-+#define set_MASK_QEMU EmptyFacs
-+#define clear_MASK_QEMU EmptyFacs
-+
-+static FacDefSpec QemuMaskDef = FAC_INITIALIZER(MASK_QEMU);
-+
-+static void BigEndianBitOps(enum BitOps BitOp, uint64_t Facility[],
-+                            uint32_t MaxWord, BitSpec Bits)
-+{
-+    uint32_t i, Bit, Word, WidthInBits;
-+
-+    WidthInBits = _TYPEBITS(typeof(Facility[0]));
-+    for (i = 0; i < Bits.Length; i++) {
-+        Bit = (WidthInBits - 1) - (Bits.Data[i] & (WidthInBits - 1));
-+        Word = Bits.Data[i] / WidthInBits;
-+        assert(Word < MaxWord);
-+        switch (BitOp) {
-+        case SetBit:
-+            Facility[Word] |= __UINT64_C(1) << Bit;
-+            break;
-+        case ClearBit:
-+            Facility[Word] &= ~(__UINT64_C(1) << Bit);
-+            break;
-+        }
-+    }
-+}
-+
-+static uint32_t PrintFacilityList(uint32_t Model, FacDefSpec FacDef[])
-+{
-+    uint32_t i, Words, Size;
-+    uint64_t Facility[FAC_LIST_ARCH_S390_SIZE_UINT8];
-+
-+    for (Size = ARRAY_SIZE(Facility), i = 0; i < Size; i++) {
-+        Facility[i] = __UINT64_C(0);
-+    }
-+    for (i = 0; i <= Model; i++) {
-+        BigEndianBitOps(SetBit, Facility, Size, FacDef[i].SetBits);
-+        BigEndianBitOps(ClearBit, Facility, Size, FacDef[i].ClearBits);
-+    }
-+    for (Words = 0, i = 0; i < Size; i++) {
-+        if (Facility[i]) {
-+            Words = i;
-+        }
-+    }
-+    printf("#define %s\t", FacDef[Model].Name);
-+    for (i = 0; i <= Words; i++) {
-+        printf("0x%016"PRIx64"%c", Facility[i], i < Words ? ',' : '\n');
-+    }
-+    return ++Words;
-+}
-+
-+static inline uint32_t Max(uint32_t uIntA, uint32_t uIntB)
-+{
-+    if (uIntA > uIntB) {
-+        return uIntA;
-+    }
-+    return uIntB;
-+}
-+
-+static inline void PrintAllFacilityDefs(void)
-+{
-+    uint32_t i, MaxWords, MaxBytes, MaxBits;
-+
-+    printf("\n/* CPU model facility list data */\n");
-+    for (MaxWords = 0, i = 0; i < ARRAY_SIZE(FacDef); i++) {
-+        MaxWords = Max(PrintFacilityList(i, FacDef), MaxWords);
-+    }
-+    printf("\n/* QEMU facility mask data */\n");
-+    MaxWords = Max(PrintFacilityList(0, &QemuMaskDef), MaxWords);
-+    MaxBytes = MaxWords * sizeof(uint64_t);
-+    MaxBits = MaxBytes * CHARBITS;
-+    printf("\n/* facility list/mask sizes */\n");
-+    printf("#define FAC_LIST_CPU_S390_SIZE_UINT1\t%"PRIu32"\n", MaxBits);
-+    printf("#define FAC_LIST_CPU_S390_SIZE_UINT8\t%"PRIu32"\n", MaxBytes);
-+    printf("#define FAC_LIST_CPU_S390_SIZE_UINT64\t%"PRIu32"\n", MaxWords);
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+    printf("/*\n"
-+           " * AUTOMATICALLY GENERATED, DO NOT MODIFY HERE, EDIT\n"
-+           " * SOURCE FILE \"%s\" INSTEAD.\n"
-+           " *\n"
-+           " * Copyright %s IBM Corp.\n"
-+           " *\n"
-+           " * This work is licensed under the terms of the GNU GPL, "
-+           "version 2 or (at\n * your option) any later version. See "
-+           "the COPYING file in the top-level\n * directory.\n"
-+           " */\n\n"
-+           "#ifndef %s\n#define %s\n", __FILE__, _YEARS, _NAME_H, _NAME_H);
-+    PrintAllFacilityDefs();
-+    printf("\n#endif\n");
-+    return 0;
-+}
+ /**
+  * S390CPUClass:
+  * @parent_realize: The parent class' realize handler.
+@@ -52,6 +82,12 @@ typedef struct S390CPUClass {
+     void (*load_normal)(CPUState *cpu);
+     void (*cpu_reset)(CPUState *cpu);
+     void (*initial_cpu_reset)(CPUState *cpu);
++    bool is_active[ACCEL_MODE_MAX]; /* model enabled for given host and accel */
++    bool is_host[ACCEL_MODE_MAX];   /* model markes host for given accel */
++                                     /* active facility list */
++    uint64_t fac_list[ACCEL_MODE_MAX][FAC_LIST_CPU_S390_SIZE_UINT64];
++    S390CPUMachineProps   mach;   /* machine specific properties */
++    S390CPUProcessorProps proc;   /* processor specific properties */
+ } S390CPUClass;
+ 
+ /**
 -- 
 1.8.3.1
