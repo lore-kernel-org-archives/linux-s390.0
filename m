@@ -1,315 +1,212 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v4 13/15] target-s390x: Extend QMP command query-cpu-definitions
-Date: Mon, 30 Mar 2015 16:28:26 +0200
-Message-ID: <1427725708-52100-14-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v4 08/15] target-s390x: Add KVM VM attribute
+	interface for cpu models
+Date: Mon, 30 Mar 2015 16:28:21 +0200
+Message-ID: <1427725708-52100-9-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1427725708-52100-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
 In-Reply-To: <1427725708-52100-1-git-send-email-mimu@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>
+Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implements the QMP command 'query-cpu-definitions' in the S390
-context. The command returns a list of cpu model names in the current host
-context. A consumer may successfully request each listed cpu model as long
-for a given accelerator and machine this model is runnable.
-
-request:
-  {"execute": "query-cpu-definitions",
-              "arguments": { "accel": "kvm",
-                             "machine": "s390-ccw-virtio" }
-  }
-
-answer:
-  {"return": [ {"name":"2964-ga1","runnable":false,"is-default":false},
-               {"name":"2828-ga1","runnable":true,"is-default":false},
-               {"name":"2827-ga2","runnable":true,"is-default":true},
-               {"name":"2827-ga1","runnable":true,"is-default":false},
-               ...
-               {"name":"2064-ga1","runnable":true,"is-default":false} ]
-  }
-
-The request arguments are optional and if omitted only the cpu model names
-are returned without the runnable or is-default attributes.
+The patch implements routines to set and retrieve processor configuration
+data and to retrieve machine configuration data. The machine related data
+is used together with the cpu model facility lists to determine the list of
+supported cpu models of this host. The above mentioned routines have QEMU
+trace point instrumentation.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
- target-s390x/cpu-models.c |  15 ++++++
- target-s390x/cpu-models.h |   7 +++
- target-s390x/cpu.c        | 114 +++++++++++++++++++++++++++++++++++++++++++---
- target-s390x/kvm.c        |  49 +++++++++++++++++++-
- 4 files changed, 177 insertions(+), 8 deletions(-)
+ target-s390x/cpu-models.h | 34 ++++++++++++++++++++
+ target-s390x/kvm.c        | 79 +++++++++++++++++++++++++++++++++++++++++++++++
+ trace-events              |  3 ++
+ 3 files changed, 116 insertions(+)
 
-diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
-index 187d110..aba44dd 100644
---- a/target-s390x/cpu-models.c
-+++ b/target-s390x/cpu-models.c
-@@ -215,6 +215,21 @@ int set_s390_cpu_alias(const char *name, const char *model)
-     return 0;
- }
- 
-+/* compare order of two cpu classes for descending sort */
-+gint s390_cpu_class_desc_order_compare(gconstpointer a, gconstpointer b)
-+{
-+    S390CPUClass *cc_a = S390_CPU_CLASS((ObjectClass *) a);
-+    S390CPUClass *cc_b = S390_CPU_CLASS((ObjectClass *) b);
-+
-+    if (cc_a->mach.order < cc_b->mach.order) {
-+        return 1;
-+    }
-+    if (cc_a->mach.order > cc_b->mach.order) {
-+        return -1;
-+    }
-+    return 0;
-+}
-+
- /* return machine class for specific machine type */
- static void s390_machine_class_test_cpu_class(gpointer data, gpointer user_data)
- {
 diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
-index 67f0519..4734c58 100644
+index 562464f..3b75236 100644
 --- a/target-s390x/cpu-models.h
 +++ b/target-s390x/cpu-models.h
-@@ -85,10 +85,16 @@ typedef struct S390MachineProps {
- } S390MachineProps;
+@@ -46,6 +46,40 @@ typedef struct S390CPUAlias {
+     char *model;
+ } S390CPUAlias;
  
- #ifdef CONFIG_KVM
-+int kvm_s390_get_machine_props(KVMState *s, S390MachineProps *prop);
- int kvm_s390_get_processor_props(S390ProcessorProps *prop);
- int kvm_s390_set_processor_props(S390ProcessorProps *prop);
- bool kvm_s390_cpu_classes_initialized(void);
- #else
-+static inline int kvm_s390_get_machine_props(KVMState *s,
-+                                             S390MachineProps *prop)
++typedef struct S390ProcessorProps {
++    uint64_t cpuid;
++    uint16_t ibc;
++    uint8_t  pad[6];
++    uint64_t fac_list[FAC_LIST_ARCH_S390_SIZE_UINT64];
++} S390ProcessorProps;
++
++typedef struct S390MachineProps {
++    uint64_t cpuid;
++    uint32_t ibc_range;
++    uint8_t  pad[4];
++    uint64_t fac_list_mask[FAC_LIST_ARCH_S390_SIZE_UINT64];
++    uint64_t fac_list[FAC_LIST_ARCH_S390_SIZE_UINT64];
++} S390MachineProps;
++
++#ifdef CONFIG_KVM
++int kvm_s390_get_processor_props(S390ProcessorProps *prop);
++int kvm_s390_set_processor_props(S390ProcessorProps *prop);
++bool kvm_s390_cpu_classes_initialized(void);
++#else
++static inline int kvm_s390_get_processor_props(S390ProcessorProps *prop)
 +{
 +    return -ENOSYS;
 +}
- static inline int kvm_s390_get_processor_props(S390ProcessorProps *prop)
- {
-     return -ENOSYS;
-@@ -107,6 +113,7 @@ void s390_setup_cpu_classes(S390AccelMode mode, S390MachineProps *prop,
-                             uint64_t *fac_list_mask);
- void s390_setup_cpu_aliases(void);
- gint s390_cpu_class_asc_order_compare(gconstpointer a, gconstpointer b);
-+gint s390_cpu_class_desc_order_compare(gconstpointer a, gconstpointer b);
- void s390_cpu_list_entry(gpointer data, gpointer user_data);
- bool s390_cpu_classes_initialized(void);
- uint64_t *s390_fac_list_mask_by_machine(const char *name);
-diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
-index 615173f..0ccacb7 100644
---- a/target-s390x/cpu.c
-+++ b/target-s390x/cpu.c
-@@ -30,13 +30,21 @@
- #include "hw/hw.h"
- #include "trace.h"
- #include "cpu-models.h"
-+#include "sysemu/accel.h"
-+#include "qapi/qmp/qerror.h"
- #ifndef CONFIG_USER_ONLY
-+#include "hw/boards.h"
- #include "sysemu/arch_init.h"
- #endif
- 
- #define CR0_RESET       0xE0UL
- #define CR14_RESET      0xC2000000UL;
- 
-+typedef struct CpuDefParm {
-+    CpuDefinitionInfoList *list;
-+    bool showFullEntry;
-+} CpuDefParm;
-+
- static inline char *strdup_s390_cpu_name(S390CPUClass *cc)
- {
-     return g_strdup_printf("%04x-ga%u", cc->proc.type, cc->mach.ga);
-@@ -66,22 +74,114 @@ void s390_cpu_list(FILE *f, fprintf_function cpu_fprintf)
- }
- 
- #ifndef CONFIG_USER_ONLY
-+static CpuDefinitionInfoList *qmp_query_cpu_definition_host(void)
++static inline int kvm_s390_set_processor_props(S390ProcessorProps *prop)
 +{
-+    CpuDefinitionInfoList *host = NULL;
-+    CpuDefinitionInfo *info;
-+
-+    info = g_try_new0(CpuDefinitionInfo, 1);
-+    if (!info) {
-+        goto out;
-+    }
-+    info->name = g_strdup("host");
-+
-+    host = g_try_new0(CpuDefinitionInfoList, 1);
-+    if (!host) {
-+        g_free(info->name);
-+        g_free(info);
-+        goto out;
-+    }
-+    host->value = info;
-+out:
-+    return host;
++    return -ENOSYS;
 +}
-+
-+static void qmp_query_cpu_definition_entry(gpointer data, gpointer user_data)
++static inline bool kvm_s390_cpu_classes_initialized(void)
 +{
-+    ObjectClass *oc = (ObjectClass *) data;
-+    S390CPUClass *cc = S390_CPU_CLASS(oc);
-+    CpuDefinitionInfoList *entry;
-+    CpuDefinitionInfo *info;
-+    CpuDefParm *parm = user_data;
-+
-+    if (!strcmp(object_class_get_name(oc), TYPE_S390_CPU)) {
-+        return;
-+    }
-+    info = g_try_new0(CpuDefinitionInfo, 1);
-+    if (!info) {
-+        goto out;
-+    }
-+    info->name = strdup_s390_cpu_name(cc);
-+    if (parm->showFullEntry) {
-+        info->runnable = cc->is_active[ACCEL_TEMP];
-+        info->has_runnable = true;
-+        info->is_default = cc->is_host[ACCEL_TEMP];
-+        info->has_is_default = true;
-+    }
-+
-+    entry = g_try_new0(CpuDefinitionInfoList, 1);
-+    if (!entry) {
-+        goto out;
-+    }
-+    entry->value = info;
-+    entry->next = parm->list;
-+    parm->list = entry;
-+    return;
-+out:
-+    if (info) {
-+        g_free(info->name);
-+        g_free(info);
-+    }
++    return false;
 +}
++#endif
 +
- CpuDefinitionInfoList *arch_query_cpu_definitions(bool has_machine,
-                                                   const char *machine,
-                                                   bool has_accel,
-                                                   AccelId accel,
-                                                   Error **errp)
- {
--    CpuDefinitionInfoList *entry;
--    CpuDefinitionInfo *info;
-+    S390MachineProps mach;
-+    GSList *classes;
-+    uint64_t *mask;
-+    CpuDefParm parm = {
-+        .list = NULL,
-+        .showFullEntry = false,
-+    };
- 
--    info = g_malloc0(sizeof(*info));
--    info->name = g_strdup("host");
-+    if (!s390_cpu_models_used()) {
-+        return qmp_query_cpu_definition_host();
-+    }
- 
--    entry = g_malloc0(sizeof(*entry));
--    entry->value = info;
-+    if (!has_accel || !has_machine) {
-+        goto out;
-+    }
-+
-+    switch (accel) {
-+    case ACCEL_ID_KVM:
-+        if (kvm_s390_get_machine_props(NULL, &mach) < 0) {
-+            return qmp_query_cpu_definition_host();
-+        }
-+        break;
-+    default:
-+        goto out_empty;
-+    }
-+
-+    mask = s390_fac_list_mask_by_machine(machine);
-+    if (!mask) {
-+        error_set(errp, QERR_INVALID_PARAMETER_VALUE, "machine",
-+                  "a valid machine type");
-+        goto out_empty;
-+    }
- 
--    return entry;
-+    s390_setup_cpu_classes(ACCEL_TEMP, &mach, mask);
-+    parm.showFullEntry = true;
-+out:
-+    classes = object_class_get_list(TYPE_S390_CPU, false);
-+    classes = g_slist_sort(classes, s390_cpu_class_asc_order_compare);
-+    g_slist_foreach(classes, qmp_query_cpu_definition_entry, &parm);
-+    g_slist_free(classes);
-+out_empty:
-+    return parm.list;
- }
- 
- CpuModelInfo *arch_query_cpu_model(Error **errp)
+ /*
+  * bits 0-7   : CMOS generation
+  * bits 8-9   : reserved
 diff --git a/target-s390x/kvm.c b/target-s390x/kvm.c
-index 9b2cfeb..f40e879 100644
+index b48c643..bde4aaa 100644
 --- a/target-s390x/kvm.c
 +++ b/target-s390x/kvm.c
-@@ -276,12 +276,59 @@ static int cpu_model_set(KVMState *s, uint64_t attr, uint64_t addr)
-     return rc;
+@@ -44,6 +44,7 @@
+ #include "hw/s390x/s390-pci-inst.h"
+ #include "hw/s390x/s390-pci-bus.h"
+ #include "hw/s390x/ipl.h"
++#include "cpu-models.h"
+ 
+ /* #define DEBUG_KVM */
+ 
+@@ -122,6 +123,7 @@ const KVMCapabilityInfo kvm_arch_required_capabilities[] = {
+ 
+ static int cap_sync_regs;
+ static int cap_async_pf;
++static bool cpu_classes_initialized;
+ 
+ static void *legacy_s390_alloc(size_t size, uint64_t *align);
+ 
+@@ -242,6 +244,59 @@ static void kvm_s390_init_crypto(void)
+     kvm_s390_init_dea_kw();
  }
  
--static int kvm_s390_get_machine_props(KVMState *s, S390MachineProps *prop)
-+static int get_machine_props_fallback(S390MachineProps *prop)
++static int cpu_model_get(KVMState *s, uint64_t attr, uint64_t addr)
 +{
-+    struct kvm_device_attr dev_attr;
-+    int rc, kvmfd = -1, vmfd = -1;
++    int rc = -ENOSYS;
++    struct kvm_device_attr dev_attr = {
++        .group = KVM_S390_VM_CPU_MODEL,
++        .attr = attr,
++        .addr = addr,
++    };
 +
-+    rc  = qemu_open("/dev/kvm", O_RDWR);
-+    if (rc < 0) {
-+        goto out_err;
-+    }
-+    kvmfd = rc;
-+
-+    rc = ioctl(kvmfd, KVM_CREATE_VM, 0);
-+    if (rc < 0) {
-+        goto out_err;
-+    }
-+    vmfd = rc;
-+
-+    rc = ioctl(vmfd, KVM_CHECK_EXTENSION, KVM_CAP_VM_ATTRIBUTES);
-+    if (rc < 0) {
-+        rc = -ENOSYS;
-+        goto out_err;
-+    }
-+
-+    dev_attr.group = KVM_S390_VM_CPU_MODEL;
-+    dev_attr.attr = KVM_S390_VM_CPU_MACHINE;
-+    rc = ioctl(vmfd, KVM_HAS_DEVICE_ATTR, &dev_attr);
-+    if (rc < 0) {
-+        rc = -EFAULT;
-+        goto out_err;
-+    }
-+
-+    dev_attr.addr = (uint64_t) prop;
-+    rc = ioctl(vmfd, KVM_GET_DEVICE_ATTR, &dev_attr);
-+
-+out_err:
-+    if (vmfd >= 0) {
-+        close(vmfd);
-+    }
-+    if (kvmfd >= 0) {
-+        close(kvmfd);
++    if (kvm_vm_check_attr(s, dev_attr.group, dev_attr.attr)) {
++        rc = kvm_vm_ioctl(s, KVM_GET_DEVICE_ATTR, &dev_attr);
 +    }
 +
 +    return rc;
 +}
 +
-+int kvm_s390_get_machine_props(KVMState *s, S390MachineProps *prop)
++static int cpu_model_set(KVMState *s, uint64_t attr, uint64_t addr)
++{
++    int rc = -ENOSYS;
++    struct kvm_device_attr dev_attr = {
++        .group = KVM_S390_VM_CPU_MODEL,
++        .attr = attr,
++        .addr = addr,
++    };
++
++    if (kvm_vm_check_attr(s, dev_attr.group, dev_attr.attr)) {
++        rc = kvm_vm_ioctl(s, KVM_SET_DEVICE_ATTR, &dev_attr);
++    }
++
++    return rc;
++}
++
++static int kvm_s390_get_machine_props(KVMState *s, S390MachineProps *prop)
++{
++    int rc = -EFAULT;
++
++    if (s) {
++        rc = cpu_model_get(s, KVM_S390_VM_CPU_MACHINE, (uint64_t) prop);
++    }
++    trace_kvm_get_machine_props(rc, prop->cpuid, prop->ibc_range);
++
++    return rc;
++}
++
++static void kvm_setup_cpu_classes(KVMState *s)
++{
++    S390MachineProps mach;
++
++    if (!kvm_s390_get_machine_props(s, &mach)) {
++        cpu_classes_initialized = false;
++    }
++}
++
+ int kvm_arch_init(MachineState *ms, KVMState *s)
  {
-     int rc = -EFAULT;
- 
-     if (s) {
-         rc = cpu_model_get(s, KVM_S390_VM_CPU_MACHINE, (uint64_t) prop);
-+    } else {
-+        rc = get_machine_props_fallback(prop);
+     cap_sync_regs = kvm_check_extension(s, KVM_CAP_SYNC_REGS);
+@@ -255,6 +310,7 @@ int kvm_arch_init(MachineState *ms, KVMState *s)
      }
-     trace_kvm_get_machine_props(rc, prop->cpuid, prop->ibc_range);
  
+     kvm_vm_enable_cap(s, KVM_CAP_S390_USER_SIGP, 0);
++    kvm_setup_cpu_classes(s);
+ 
+     return 0;
+ }
+@@ -1940,3 +1996,26 @@ int kvm_arch_fixup_msi_route(struct kvm_irq_routing_entry *route,
+     route->u.adapter.adapter_id = pbdev->routes.adapter.adapter_id;
+     return 0;
+ }
++
++int kvm_s390_get_processor_props(S390ProcessorProps *prop)
++{
++    int rc;
++
++    rc = cpu_model_get(kvm_state, KVM_S390_VM_CPU_PROCESSOR, (uint64_t) prop);
++    trace_kvm_get_processor_props(rc, prop->cpuid, prop->ibc);
++    return rc;
++}
++
++int kvm_s390_set_processor_props(S390ProcessorProps *prop)
++{
++    int rc;
++
++    rc = cpu_model_set(kvm_state, KVM_S390_VM_CPU_PROCESSOR, (uint64_t) prop);
++    trace_kvm_set_processor_props(rc);
++    return rc;
++}
++
++bool kvm_s390_cpu_classes_initialized(void)
++{
++    return cpu_classes_initialized;
++}
+diff --git a/trace-events b/trace-events
+index 30eba92..2f1d734 100644
+--- a/trace-events
++++ b/trace-events
+@@ -1582,6 +1582,9 @@ kvm_enable_cmma(int rc) "CMMA: enabling with result code %d"
+ kvm_clear_cmma(int rc) "CMMA: clearing with result code %d"
+ kvm_failed_cpu_state_set(int cpu_index, uint8_t state, const char *msg) "Warning: Unable to set cpu %d state %" PRIu8 " to KVM: %s"
+ kvm_sigp_finished(uint8_t order, int cpu_index, int dst_index, int cc) "SIGP: Finished order %u on cpu %d -> cpu %d with cc=%d"
++kvm_get_machine_props(int rc, uint64_t cpuid, uint16_t ibc) "CPU-MODEL: fetching machine properties rc=%d cpuid=0x%"PRIx64" ibc=0x%"PRIx16
++kvm_get_processor_props(int rc, uint64_t cpuid, uint32_t ibc_range) "CPU-MODEL: fetching processor properties rc=%d cpuid=0x%"PRIx64" ibc_range=0x%"PRIx32
++kvm_set_processor_props(int rc) "CPU-MODEL: requesting processor properties rc=%d"
+ 
+ # hw/dma/i8257.c
+ i8257_unregistered_dma(int nchan, int dma_pos, int dma_len) "unregistered DMA channel used nchan=%d dma_pos=%d dma_len=%d"
 -- 
 1.8.3.1
