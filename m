@@ -1,75 +1,135 @@
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v4 07/15] target-s390x: Update
-	linux-headers/asm-s390/kvm.h
-Date: Mon, 30 Mar 2015 16:28:20 +0200
-Message-ID: <1427725708-52100-8-git-send-email-mimu@linux.vnet.ibm.com>
+From: Eduardo Habkost <ehabkost@redhat.com>
+Subject: Re: [PATCH v4 10/15] target-s390x: Prepare accelerator during cpu
+ object realization
+Date: Mon, 30 Mar 2015 16:33:51 -0300
+Message-ID: <20150330193351.GC7031@thinpad.lan.raisama.net>
 References: <1427725708-52100-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
-In-Reply-To: <1427725708-52100-1-git-send-email-mimu@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+ <1427725708-52100-11-git-send-email-mimu@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1427725708-52100-11-git-send-email-mimu@linux.vnet.ibm.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>
+To: Michael Mueller <mimu@linux.vnet.ibm.com>
+Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
----
- linux-headers/asm-s390/kvm.h | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+On Mon, Mar 30, 2015 at 04:28:23PM +0200, Michael Mueller wrote:
+> This patch implements routine s390_cpu_model_init(). It is called by the
+> realize function during instantiation of an cpu object. Its task is to
+> initialize the current accelerator with the properties of the selected
+> processor model.
+> 
+> Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+> ---
+>  target-s390x/cpu-models.c | 37 +++++++++++++++++++++++++++++++++++++
+>  target-s390x/cpu-models.h |  4 ++++
+>  target-s390x/cpu.c        |  1 +
+>  3 files changed, 42 insertions(+)
+> 
+> diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
+> index 8a877d3..ba873ea 100644
+> --- a/target-s390x/cpu-models.c
+> +++ b/target-s390x/cpu-models.c
+> @@ -111,6 +111,7 @@ typedef struct ParmAddrAddrModeMask {
+>  } ParmAddrAddrModeMask;
+>  
+>  static GSList *s390_cpu_aliases;
+> +static bool cpu_models_used;
+>  
+>  /* compare order of two cpu classes for ascending sort */
+>  gint s390_cpu_class_asc_order_compare(gconstpointer a, gconstpointer b)
+> @@ -670,3 +671,39 @@ uint64_t *s390_current_fac_list_mask(void)
+>      return s390_fac_list_mask_by_machine(mc->name);
+>  }
+>  #endif
+> +
+> +/**
+> + * s390_cpu_model_init:
+> + * @cc: S390 CPU class
+> + *
+> + * This function intitializes the current accelerator with processor
+> + * related properties.
+> + *
+> + * Since: 2.4
+> + */
+> +void s390_cpu_model_init(S390CPUClass *cc)
+> +{
+> +    S390ProcessorProps proc;
+> +
+> +    /* none cpu model case */
+> +    if (!strcmp(object_class_get_name(OBJECT_CLASS(cc)), TYPE_S390_CPU)) {
+> +        return;
+> +    }
 
-diff --git a/linux-headers/asm-s390/kvm.h b/linux-headers/asm-s390/kvm.h
-index c5a93eb..bfe6925 100644
---- a/linux-headers/asm-s390/kvm.h
-+++ b/linux-headers/asm-s390/kvm.h
-@@ -70,8 +70,14 @@ struct kvm_s390_io_adapter_req {
- #define KVM_S390_VM_TOD_LOW		0
- #define KVM_S390_VM_TOD_HIGH		1
- 
-+/* kvm attributes for crypto */
-+#define KVM_S390_VM_CRYPTO_ENABLE_AES_KW	0
-+#define KVM_S390_VM_CRYPTO_ENABLE_DEA_KW	1
-+#define KVM_S390_VM_CRYPTO_DISABLE_AES_KW	2
-+#define KVM_S390_VM_CRYPTO_DISABLE_DEA_KW	3
-+
- /* kvm attributes for KVM_S390_VM_CPU_MODEL */
--/* processor related attributes are r/w */
-+/* kvm S390 processor related attributes are r/w */
- #define KVM_S390_VM_CPU_PROCESSOR	0
- struct kvm_s390_vm_cpu_processor {
- 	__u64 cpuid;
-@@ -80,22 +86,16 @@ struct kvm_s390_vm_cpu_processor {
- 	__u64 fac_list[256];
- };
- 
--/* machine related attributes are r/o */
-+/* kvm S390 machine related attributes are r/o */
- #define KVM_S390_VM_CPU_MACHINE		1
- struct kvm_s390_vm_cpu_machine {
- 	__u64 cpuid;
--	__u32 ibc;
-+	__u32 ibc_range;
- 	__u8  pad[4];
- 	__u64 fac_mask[256];
- 	__u64 fac_list[256];
- };
- 
--/* kvm attributes for crypto */
--#define KVM_S390_VM_CRYPTO_ENABLE_AES_KW	0
--#define KVM_S390_VM_CRYPTO_ENABLE_DEA_KW	1
--#define KVM_S390_VM_CRYPTO_DISABLE_AES_KW	2
--#define KVM_S390_VM_CRYPTO_DISABLE_DEA_KW	3
--
- /* for KVM_GET_REGS and KVM_SET_REGS */
- struct kvm_regs {
- 	/* general purpose regs for s390 */
+Instead of checking the class name, can't you just check a S390CPUClass
+field that may indicate that s390_cpu_model_init() doesn't need to do
+anything for the class? Maybe (cpuid(cc->proc) == 0)?
+
+
+> +
+> +    /* accelerator already prepared */
+> +    if (cpu_models_used) {
+> +        return;
+> +    }
+
+I'm still trying to understand the need for this global. But I will ask
+for more details in the following patches that actually use
+s390_cpu_models_used()?
+
+> +
+> +    proc.cpuid = cpuid(cc->proc);
+> +    proc.ibc = cc->proc.ibc;
+> +    bitmap_zero(proc.fac_list, FAC_LIST_ARCH_S390_SIZE_UINT1);
+> +    bitmap_copy(proc.fac_list, cc->fac_list[ACCEL_CURRENT],
+> +                FAC_LIST_CPU_S390_SIZE_UINT1);
+> +
+> +    if (kvm_enabled()) {
+> +        if (!kvm_s390_set_processor_props(&proc)) {
+> +            cpu_models_used = true;
+> +        }
+> +    }
+> +}
+> diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
+> index 9562088..fe3997f 100644
+> --- a/target-s390x/cpu-models.h
+> +++ b/target-s390x/cpu-models.h
+> @@ -45,6 +45,9 @@
+>  #define type_cpuid(x)     ((uint64_t)((x) & 0xffff) << 16)
+>  #define id_cpuid(x)       ((uint64_t)((x) & 0xffffff) << 32)
+>  #define ver_cpuid(x)      ((uint64_t)((x) & 0xff) << 56)
+> +#define cpuid(x)          (ver_cpuid(x.ver) |  \
+> +                           id_cpuid(x.id) |    \
+> +                           type_cpuid(x.type))
+>  
+>  #define oldest_ibc(x)     (((uint32_t)(x) >> 16) & 0xfff)
+>  #define newest_ibc(x)     ((uint32_t)(x) & 0xfff)
+> @@ -108,6 +111,7 @@ void s390_cpu_list_entry(gpointer data, gpointer user_data);
+>  bool s390_cpu_classes_initialized(void);
+>  uint64_t *s390_fac_list_mask_by_machine(const char *name);
+>  uint64_t *s390_current_fac_list_mask(void);
+> +void s390_cpu_model_init(S390CPUClass *cc);
+>  
+>  extern uint64_t qemu_s390_fac_list_mask[];
+>  
+> diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
+> index c33f05e..829945d 100644
+> --- a/target-s390x/cpu.c
+> +++ b/target-s390x/cpu.c
+> @@ -180,6 +180,7 @@ static void s390_cpu_realizefn(DeviceState *dev, Error **errp)
+>      CPUState *cs = CPU(dev);
+>      S390CPUClass *scc = S390_CPU_GET_CLASS(dev);
+>  
+> +    s390_cpu_model_init(scc);
+>      s390_cpu_gdb_init(cs);
+>      qemu_init_vcpu(cs);
+>  #if !defined(CONFIG_USER_ONLY)
+> -- 
+> 1.8.3.1
+> 
+
 -- 
-1.8.3.1
+Eduardo
