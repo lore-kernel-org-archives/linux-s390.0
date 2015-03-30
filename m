@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v4 15/15] target-s390x: Enable cpu model usage
-Date: Mon, 30 Mar 2015 16:28:28 +0200
-Message-ID: <1427725708-52100-16-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v4 10/15] target-s390x: Prepare accelerator during cpu object realization
+Date: Mon, 30 Mar 2015 16:28:23 +0200
+Message-ID: <1427725708-52100-11-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1427725708-52100-1-git-send-email-mimu@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1427725708-52100-1-git-send-email-mimu@linux.vnet.ibm.com>
@@ -12,77 +12,103 @@ To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linu
 Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch enables QEMU to instantiate S390 CPUs with cpu model types.
+This patch implements routine s390_cpu_model_init(). It is called by the
+realize function during instantiation of an cpu object. Its task is to
+initialize the current accelerator with the properties of the selected
+processor model.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
- hw/s390x/s390-virtio.c | 12 +++++++++++-
- target-s390x/helper.c  |  9 ++-------
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ target-s390x/cpu-models.c | 37 +++++++++++++++++++++++++++++++++++++
+ target-s390x/cpu-models.h |  4 ++++
+ target-s390x/cpu.c        |  1 +
+ 3 files changed, 42 insertions(+)
 
-diff --git a/hw/s390x/s390-virtio.c b/hw/s390x/s390-virtio.c
-index bdb5388..8fda717 100644
---- a/hw/s390x/s390-virtio.c
-+++ b/hw/s390x/s390-virtio.c
-@@ -32,6 +32,7 @@
- #include "hw/virtio/virtio.h"
- #include "hw/sysbus.h"
- #include "sysemu/kvm.h"
-+#include "sysemu/cpus.h"
- #include "exec/address-spaces.h"
+diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
+index 8a877d3..ba873ea 100644
+--- a/target-s390x/cpu-models.c
++++ b/target-s390x/cpu-models.c
+@@ -111,6 +111,7 @@ typedef struct ParmAddrAddrModeMask {
+ } ParmAddrAddrModeMask;
  
- #include "hw/s390x/s390-virtio-bus.h"
-@@ -157,7 +158,12 @@ void s390_init_cpus(const char *cpu_model, uint8_t *storage_keys)
-     int i;
+ static GSList *s390_cpu_aliases;
++static bool cpu_models_used;
  
-     if (cpu_model == NULL) {
--        cpu_model = "host";
-+        cpu_model = "none";
+ /* compare order of two cpu classes for ascending sort */
+ gint s390_cpu_class_asc_order_compare(gconstpointer a, gconstpointer b)
+@@ -670,3 +671,39 @@ uint64_t *s390_current_fac_list_mask(void)
+     return s390_fac_list_mask_by_machine(mc->name);
+ }
+ #endif
++
++/**
++ * s390_cpu_model_init:
++ * @cc: S390 CPU class
++ *
++ * This function intitializes the current accelerator with processor
++ * related properties.
++ *
++ * Since: 2.4
++ */
++void s390_cpu_model_init(S390CPUClass *cc)
++{
++    S390ProcessorProps proc;
++
++    /* none cpu model case */
++    if (!strcmp(object_class_get_name(OBJECT_CLASS(cc)), TYPE_S390_CPU)) {
++        return;
 +    }
 +
-+    if (is_help_option(cpu_model)) {
-+        list_cpus(stdout, &fprintf, cpu_model);
-+        exit(0);
-     }
- 
-     ipi_states = g_malloc(sizeof(S390CPU *) * smp_cpus);
-@@ -167,6 +173,10 @@ void s390_init_cpus(const char *cpu_model, uint8_t *storage_keys)
-         CPUState *cs;
- 
-         cpu = cpu_s390x_init(cpu_model);
-+        if (cpu == NULL) {
-+            fprintf(stderr, "Unable to find CPU definition\n");
-+            exit(1);
++    /* accelerator already prepared */
++    if (cpu_models_used) {
++        return;
++    }
++
++    proc.cpuid = cpuid(cc->proc);
++    proc.ibc = cc->proc.ibc;
++    bitmap_zero(proc.fac_list, FAC_LIST_ARCH_S390_SIZE_UINT1);
++    bitmap_copy(proc.fac_list, cc->fac_list[ACCEL_CURRENT],
++                FAC_LIST_CPU_S390_SIZE_UINT1);
++
++    if (kvm_enabled()) {
++        if (!kvm_s390_set_processor_props(&proc)) {
++            cpu_models_used = true;
 +        }
-         cs = CPU(cpu);
++    }
++}
+diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
+index 9562088..fe3997f 100644
+--- a/target-s390x/cpu-models.h
++++ b/target-s390x/cpu-models.h
+@@ -45,6 +45,9 @@
+ #define type_cpuid(x)     ((uint64_t)((x) & 0xffff) << 16)
+ #define id_cpuid(x)       ((uint64_t)((x) & 0xffffff) << 32)
+ #define ver_cpuid(x)      ((uint64_t)((x) & 0xff) << 56)
++#define cpuid(x)          (ver_cpuid(x.ver) |  \
++                           id_cpuid(x.id) |    \
++                           type_cpuid(x.type))
  
-         ipi_states[i] = cpu;
-diff --git a/target-s390x/helper.c b/target-s390x/helper.c
-index f1060c2..29dabe2 100644
---- a/target-s390x/helper.c
-+++ b/target-s390x/helper.c
-@@ -22,6 +22,7 @@
- #include "exec/gdbstub.h"
- #include "qemu/timer.h"
- #include "exec/cpu_ldst.h"
-+#include "cpu-models.h"
- #ifndef CONFIG_USER_ONLY
- #include "sysemu/sysemu.h"
- #endif
-@@ -66,13 +67,7 @@ void s390x_cpu_timer(void *opaque)
+ #define oldest_ibc(x)     (((uint32_t)(x) >> 16) & 0xfff)
+ #define newest_ibc(x)     ((uint32_t)(x) & 0xfff)
+@@ -108,6 +111,7 @@ void s390_cpu_list_entry(gpointer data, gpointer user_data);
+ bool s390_cpu_classes_initialized(void);
+ uint64_t *s390_fac_list_mask_by_machine(const char *name);
+ uint64_t *s390_current_fac_list_mask(void);
++void s390_cpu_model_init(S390CPUClass *cc);
  
- S390CPU *cpu_s390x_init(const char *cpu_model)
- {
--    S390CPU *cpu;
--
--    cpu = S390_CPU(object_new(TYPE_S390_CPU));
--
--    object_property_set_bool(OBJECT(cpu), true, "realized", NULL);
--
--    return cpu;
-+    return S390_CPU(cpu_generic_init(TYPE_S390_CPU, cpu_model));
- }
+ extern uint64_t qemu_s390_fac_list_mask[];
  
- #if defined(CONFIG_USER_ONLY)
+diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
+index c33f05e..829945d 100644
+--- a/target-s390x/cpu.c
++++ b/target-s390x/cpu.c
+@@ -180,6 +180,7 @@ static void s390_cpu_realizefn(DeviceState *dev, Error **errp)
+     CPUState *cs = CPU(dev);
+     S390CPUClass *scc = S390_CPU_GET_CLASS(dev);
+ 
++    s390_cpu_model_init(scc);
+     s390_cpu_gdb_init(cs);
+     qemu_init_vcpu(cs);
+ #if !defined(CONFIG_USER_ONLY)
 -- 
 1.8.3.1
