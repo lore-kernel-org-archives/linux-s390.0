@@ -1,158 +1,125 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v4 06/15] target-s390x: Add cpu model alias definition routines
-Date: Mon, 30 Mar 2015 16:28:19 +0200
-Message-ID: <1427725708-52100-7-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v4 02/15] target-s390x: Introduce cpu facilities
+Date: Mon, 30 Mar 2015 16:28:15 +0200
+Message-ID: <1427725708-52100-3-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1427725708-52100-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
 In-Reply-To: <1427725708-52100-1-git-send-email-mimu@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>
+Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implements the infrastructure to dynamically add cpu
-model aliases.
+The patch introduces S390 CPU facility bit numbers and names
+as well as the architectural facility size limit in bytes.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- target-s390x/cpu-models.c | 89 +++++++++++++++++++++++++++++++++++++++++++++++
- target-s390x/cpu-models.h | 11 ++++++
- target-s390x/cpu.c        |  1 +
- 3 files changed, 101 insertions(+)
+ target-s390x/cpu-facilities.h | 86 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 86 insertions(+)
+ create mode 100644 target-s390x/cpu-facilities.h
 
-diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
-index 028e3de..f792066 100644
---- a/target-s390x/cpu-models.c
-+++ b/target-s390x/cpu-models.c
-@@ -87,3 +87,92 @@ S390_PROC_DEF("2827-ga2", CPU_S390_2827_GA2, "IBM zEnterprise EC12 GA2")
- S390_PROC_DEF("2828-ga1", CPU_S390_2828_GA1, "IBM zEnterprise BC12 GA1")
- S390_PROC_DEF("2964-ga1", CPU_S390_2964_GA1, "IBM z13 GA1")
- 
-+static GSList *s390_cpu_aliases;
-+
-+static gint s390_cpu_compare_class_name(gconstpointer a, gconstpointer b)
-+{
-+    const char *aname = object_class_get_name((ObjectClass *) a);
-+    const char *bname = b;
-+    int blen;
-+
-+    if (!strcmp(bname, "none") &&
-+        !strcmp(aname, TYPE_S390_CPU)) {
-+        return 0;
-+    }
-+    blen = strlen(bname);
-+    if (!strncasecmp(bname, aname, blen) &&
-+        !strcmp(aname + blen, "-" TYPE_S390_CPU)) {
-+        return 0;
-+    }
-+    return -1;
-+}
-+
-+/**
-+ * s390_cpu_class_by_name:
-+ * @name: a cpu model or alias name
-+ *
-+ * The function searches for the requested cpu model name or an alias
-+ * cpu model name and returns the associated object class.
-+ *
-+ * Returns: reference to object class on success or %NULL elsewise.
-+ *
-+ * Since: 2.4
-+ */
-+ObjectClass *s390_cpu_class_by_name(const char *name)
-+{
-+    GSList *list, *item;
-+    ObjectClass *ret = NULL;
-+    S390CPUAlias *alias;
-+
-+    for (item = s390_cpu_aliases; item != NULL; item = item->next) {
-+        alias = (S390CPUAlias *) item->data;
-+        if (strcmp(alias->name, name) == 0) {
-+            return s390_cpu_class_by_name(alias->model);
-+        }
-+    }
-+    list = object_class_get_list(TYPE_S390_CPU, false);
-+    item = g_slist_find_custom(list, name, s390_cpu_compare_class_name);
-+    if (item) {
-+        ret = OBJECT_CLASS(item->data);
-+    }
-+    g_slist_free(list);
-+    return ret;
-+}
-+
-+/**
-+ * set_s390_cpu_alias:
-+ * @name: the cpu alias name
-+ * @model: the cpu model name
-+ *
-+ * The function registers the alias @name for an existing cpu @model.
-+ *
-+ * Returns: %0 in case of success
-+ *          -%EINVAL if name or model is %NULL or both are idential
-+ *                   or model is not a valid cpu model
-+ *          -%ENOMEM if internal memory allocation fails
-+ *
-+ * Since: 2.4
-+ */
-+int set_s390_cpu_alias(const char *name, const char *model)
-+{
-+    S390CPUAlias *alias;
-+
-+    if (!name || !model) {
-+        return -EINVAL;
-+    }
-+    if (!strcmp(name, model)) {
-+        return -EINVAL;
-+    }
-+    if (!s390_cpu_class_by_name(model)) {
-+        return -EINVAL;
-+    }
-+    alias = g_try_malloc0(sizeof(S390CPUAlias));
-+    if (!alias) {
-+        return -ENOMEM;
-+    }
-+    alias->name = g_strdup(name);
-+    alias->model = g_strdup(model);
-+    s390_cpu_aliases = g_slist_append(s390_cpu_aliases, alias);
-+    return 0;
-+}
-+
-diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
-index 948af10..562464f 100644
---- a/target-s390x/cpu-models.h
-+++ b/target-s390x/cpu-models.h
-@@ -35,6 +35,17 @@
- #define cpu_class(x)      (((x) >> 20) & 0x3)
- #define cpu_generation(x) (((x) >> 24) & 0xff)
- 
-+ObjectClass *s390_cpu_class_by_name(const char *name);
-+int set_s390_cpu_alias(const char *name, const char *model);
-+
+diff --git a/target-s390x/cpu-facilities.h b/target-s390x/cpu-facilities.h
+new file mode 100644
+index 0000000..db1f064
+--- /dev/null
++++ b/target-s390x/cpu-facilities.h
+@@ -0,0 +1,86 @@
 +/*
-+ * S390 cpu aliases will be added dynamically
++ * CPU facilities for s390
++ *
++ * Copyright 2015 IBM Corp.
++ *
++ * Author(s): Michael Mueller <mimu@linux.vnet.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or (at
++ * your option) any later version. See the COPYING file in the top-level
++ * directory.
 + */
-+typedef struct S390CPUAlias {
-+    char *name;
-+    char *model;
-+} S390CPUAlias;
 +
- /*
-  * bits 0-7   : CMOS generation
-  * bits 8-9   : reserved
-diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
-index 0db62c2..2b78e6a 100644
---- a/target-s390x/cpu.c
-+++ b/target-s390x/cpu.c
-@@ -310,6 +310,7 @@ static void s390_cpu_class_init(ObjectClass *oc, void *data)
- #endif
-     scc->cpu_reset = s390_cpu_reset;
-     scc->initial_cpu_reset = s390_cpu_initial_reset;
-+    cc->class_by_name = s390_cpu_class_by_name;
-     cc->reset = s390_cpu_full_reset;
-     cc->has_work = s390_cpu_has_work;
-     cc->do_interrupt = s390_cpu_do_interrupt;
++#ifndef TARGET_S390X_CPU_FACILITIES_H
++#define TARGET_S390X_CPU_FACILITIES_H
++
++/* architectural size of facilities is 2KB */
++#define FAC_LIST_ARCH_S390_SIZE_UINT8 (1<<11)
++
++/* CPU facility bits */
++typedef enum {
++    FAC_N3                              = 0,
++    FAC_ZARCH                           = 1,
++    FAC_ZARCH_ACTIVE                    = 2,
++    FAC_DAT_ENH                         = 3,
++    FAC_ASN_LX_REUSE                    = 6,
++    FAC_STFLE                           = 7,
++    FAC_ENHANCED_DAT_1                  = 8,
++    FAC_SENSE_RUNNING_STATUS            = 9,
++    FAC_CONDITIONAL_SSKE                = 10,
++    FAC_CONFIGURATION_TOPOLOGY          = 11,
++    FAC_IPTE_RANGE                      = 13,
++    FAC_NONQ_KEY_SETTING                = 14,
++    FAC_EXTENDED_TRANSLATION_2          = 16,
++    FAC_MESSAGE_SECURITY_ASSIST         = 17,
++    FAC_LONG_DISPLACEMENT               = 18,
++    FAC_LONG_DISPLACEMENT_FAST          = 19,
++    FAC_HFP_MADDSUB                     = 20,
++    FAC_EXTENDED_IMMEDIATE              = 21,
++    FAC_EXTENDED_TRANSLATION_3          = 22,
++    FAC_HFP_UNNORMALIZED_EXT            = 23,
++    FAC_ETF2_ENH                        = 24,
++    FAC_STORE_CLOCK_FAST                = 25,
++    FAC_PARSING_ENH                     = 26,
++    FAC_MOVE_WITH_OPTIONAL_SPEC         = 27,
++    FAC_TOD_CLOCK_STEERING              = 28,
++    FAC_ETF3_ENH                        = 30,
++    FAC_EXTRACT_CPU_TIME                = 31,
++    FAC_COMPARE_AND_SWAP_AND_STORE      = 32,
++    FAC_COMPARE_AND_SWAP_AND_STORE_2    = 33,
++    FAC_GENERAL_INSTRUCTIONS_EXT        = 34,
++    FAC_EXECUTE_EXT                     = 35,
++    FAC_ENHANCED_MONITOR                = 36,
++    FAC_FLOATING_POINT_EXT              = 37,
++    FAC_LOAD_PROGRAM_PARAMETERS         = 40,
++    FAC_FLOATING_POINT_SUPPPORT_ENH     = 41,
++    FAC_DFP                             = 42,
++    FAC_DFP_FAST                        = 43,
++    FAC_PFPO                            = 44,
++    FAC_MULTI_45                        = 45,
++    FAC_CMPSC_ENH                       = 47,
++    FAC_DFP_ZONED_CONVERSION            = 48,
++    FAC_MULTI_49                        = 49,
++    FAC_CONSTRAINT_TRANSACTIONAL_EXE    = 50,
++    FAC_LOCAL_TLB_CLEARING              = 51,
++    FAC_INTERLOCKED_ACCESS_2            = 52,
++    FAC_LOAD_STORE_ON_COND_2            = 53,
++    FAC_MESSAGE_SECURITY_ASSIST_5       = 57,
++    FAC_RESET_REFERENCE_BITS_MULTIPLE   = 66,
++    FAC_CPU_MEASUREMENT_COUNTER         = 67,
++    FAC_CPU_MEASUREMENT_SAMPLING        = 68,
++    FAC_TRANSACTIONAL_EXE               = 73,
++    /*
++     * The store-hypervisor-information facility #74 is
++     * z/VM related and when added to be handled by QEMU
++     * when hosted on LPAR. (see: SC24-6179-05 page 953)
++     */
++    FAC_ACCESS_EXCEPTION_FS_INDICATION  = 75,
++    FAC_MESSAGE_SECURITY_ASSIST_3       = 76,
++    FAC_MESSAGE_SECURITY_ASSIST_4       = 77,
++    FAC_ENHANCED_DAT_2                  = 78,
++    FAC_DFP_PACKED_CONVERSION           = 80,
++    FAC_VECTOR                          = 129,
++    FAC_STORE_CPU_COUNTER_MULTI         = 142,
++} S390Facility;
++
++#endif
 -- 
 1.8.3.1
