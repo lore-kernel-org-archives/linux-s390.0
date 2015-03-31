@@ -1,106 +1,54 @@
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH 00/25] treewide: Use bool function return values of true/false
- not 1/0
-Date: Mon, 30 Mar 2015 17:07:23 -0700
-Message-ID: <5519E53B.5040504@schaufler-ca.com>
-References: <cover.1427759009.git.joe@perches.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-security-module-owner@vger.kernel.org>
-In-Reply-To: <cover.1427759009.git.joe@perches.com>
-Sender: linux-security-module-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-To: Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, linux-omap@vger.kernel.org, kvm-ppc@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-ide@vger.kernel.org, kgdb-bugreport@lists.sourceforge.net, linux-mm@kvack.org, linux-pm@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, patches@opensource.wolfsonmicro.com
-Cc: linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-scsi@vger.kernel.org, linux-security-module@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/8] KVM: s390: store the breaking-event address on pgm interrupts
+Date: Tue, 31 Mar 2015 15:01:56 +0200
+Message-ID: <1427806923-21910-2-git-send-email-borntraeger@de.ibm.com>
+References: <1427806923-21910-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1427806923-21910-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: KVM <kvm@vger.kernel.org>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 3/30/2015 4:45 PM, Joe Perches wrote:
-> Joe Perches (25):
->   arm: Use bool function return values of true/false not 1/0
->   arm64: Use bool function return values of true/false not 1/0
->   hexagon: Use bool function return values of true/false not 1/0
->   ia64: Use bool function return values of true/false not 1/0
->   mips: Use bool function return values of true/false not 1/0
->   powerpc: Use bool function return values of true/false not 1/0
->   s390: Use bool function return values of true/false not 1/0
->   sparc: Use bool function return values of true/false not 1/0
->   tile: Use bool function return values of true/false not 1/0
->   unicore32: Use bool function return values of true/false not 1/0
->   x86: Use bool function return values of true/false not 1/0
->   virtio_console: Use bool function return values of true/false not 1/0
->   csiostor: Use bool function return values of true/false not 1/0
->   dcache: Use bool function return values of true/false not 1/0
->   nfsd: nfs4state: Use bool function return values of true/false not 1/0
->   include/linux: Use bool function return values of true/false not 1/0
->   sound: Use bool function return values of true/false not 1/0
->   rcu: tree_plugin: Use bool function return values of true/false not 1/0
->   sched: Use bool function return values of true/false not 1/0
->   ftrace: Use bool function return values of true/false not 1/0
->   slub: Use bool function return values of true/false not 1/0
->   bridge: Use bool function return values of true/false not 1/0
->   netfilter: Use bool function return values of true/false not 1/0
->   security: Use bool function return values of true/false not 1/0
->   sound: wm5100-tables: Use bool function return values of true/false not 1/0
->
->  arch/arm/include/asm/dma-mapping.h           |  8 ++--
->  arch/arm/include/asm/kvm_emulate.h           |  2 +-
->  arch/arm/mach-omap2/powerdomain.c            | 14 +++---
->  arch/arm64/include/asm/dma-mapping.h         |  2 +-
->  arch/hexagon/include/asm/dma-mapping.h       |  2 +-
->  arch/ia64/include/asm/dma-mapping.h          |  2 +-
->  arch/mips/include/asm/dma-mapping.h          |  2 +-
->  arch/powerpc/include/asm/dcr-native.h        |  2 +-
->  arch/powerpc/include/asm/dma-mapping.h       |  4 +-
->  arch/powerpc/include/asm/kvm_book3s_64.h     |  4 +-
->  arch/powerpc/sysdev/dcr.c                    |  2 +-
->  arch/s390/include/asm/dma-mapping.h          |  2 +-
->  arch/sparc/mm/init_64.c                      |  8 ++--
->  arch/tile/include/asm/dma-mapping.h          |  2 +-
->  arch/unicore32/include/asm/dma-mapping.h     |  2 +-
->  arch/x86/include/asm/archrandom.h            |  2 +-
->  arch/x86/include/asm/dma-mapping.h           |  2 +-
->  arch/x86/include/asm/kvm_para.h              |  2 +-
->  arch/x86/kvm/cpuid.h                         |  2 +-
->  arch/x86/kvm/vmx.c                           | 72 ++++++++++++++--------------
->  drivers/char/virtio_console.c                |  2 +-
->  drivers/scsi/csiostor/csio_scsi.c            |  4 +-
->  fs/dcache.c                                  | 12 ++---
->  fs/nfsd/nfs4state.c                          |  2 +-
->  include/linux/blkdev.h                       |  2 +-
->  include/linux/ide.h                          |  2 +-
->  include/linux/kgdb.h                         |  2 +-
->  include/linux/mfd/db8500-prcmu.h             |  2 +-
->  include/linux/mm.h                           |  2 +-
->  include/linux/power_supply.h                 |  8 ++--
->  include/linux/ssb/ssb_driver_extif.h         |  2 +-
->  include/linux/ssb/ssb_driver_gige.h          | 16 +++----
->  include/sound/soc.h                          |  4 +-
->  kernel/rcu/tree_plugin.h                     |  4 +-
->  kernel/sched/auto_group.h                    |  2 +-
->  kernel/sched/completion.c                    | 16 ++++---
->  kernel/trace/ftrace.c                        | 10 ++--
->  mm/slub.c                                    | 12 ++---
->  net/bridge/br_private.h                      |  2 +-
->  net/ipv4/netfilter/ipt_ah.c                  |  2 +-
->  net/netfilter/ipset/ip_set_hash_ip.c         |  8 ++--
->  net/netfilter/ipset/ip_set_hash_ipmark.c     |  8 ++--
->  net/netfilter/ipset/ip_set_hash_ipport.c     |  8 ++--
->  net/netfilter/ipset/ip_set_hash_ipportip.c   |  8 ++--
->  net/netfilter/ipset/ip_set_hash_ipportnet.c  |  8 ++--
->  net/netfilter/ipset/ip_set_hash_net.c        |  8 ++--
->  net/netfilter/ipset/ip_set_hash_netiface.c   |  8 ++--
->  net/netfilter/ipset/ip_set_hash_netport.c    |  8 ++--
->  net/netfilter/ipset/ip_set_hash_netportnet.c |  8 ++--
->  net/netfilter/xt_connlimit.c                 |  2 +-
->  net/netfilter/xt_hashlimit.c                 |  2 +-
->  net/netfilter/xt_ipcomp.c                    |  2 +-
->  security/apparmor/file.c                     |  8 ++--
->  security/apparmor/policy.c                   | 10 ++--
->  sound/soc/codecs/wm5100-tables.c             | 12 ++---
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Why, and why these in particular?
+If the PER-3 facility is installed, the breaking-event address is to be
+stored in the low core.
 
->  55 files changed, 178 insertions(+), 176 deletions(-)
->
+There is no facility bit for PER-3 in stfl(e) and Linux always uses the
+value at address 272 no matter if PER-3 is available or not.
+We can't hide its existence from the guest. All program interrupts
+injected via the SIE automatically store this information if the PER-3
+facility is available in the hypervisor. Also the itdb contains the
+address automatically.
+
+As there is no switch to turn this mechanism off, let's simply make it
+consistent and also store the breaking event address in case of manual
+program interrupt injection.
+
+Reviewed-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ arch/s390/kvm/interrupt.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 2afec60..2361b8e 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -585,6 +585,8 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+ 		kvm_s390_rewind_psw(vcpu, ilc);
+ 
+ 	rc |= put_guest_lc(vcpu, ilc, (u16 *) __LC_PGM_ILC);
++	rc |= put_guest_lc(vcpu, vcpu->arch.sie_block->gbea,
++				 (u64 *) __LC_LAST_BREAK);
+ 	rc |= put_guest_lc(vcpu, pgm_info.code,
+ 			   (u16 *)__LC_PGM_INT_CODE);
+ 	rc |= write_guest_lc(vcpu, __LC_PGM_OLD_PSW,
+-- 
+2.3.0
