@@ -1,82 +1,67 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: Re: [PATCH v4 07/15] target-s390x: Update
- linux-headers/asm-s390/kvm.h
-Date: Tue, 31 Mar 2015 09:25:45 +0200
-Message-ID: <20150331092545.2139b79a@bee>
+Subject: Re: [Qemu-devel] [PATCH v4 12/15] Add optional parameters to QMP
+ command query-cpu-definitions
+Date: Tue, 31 Mar 2015 09:42:24 +0200
+Message-ID: <20150331094224.5975c242@bee>
 References: <1427725708-52100-1-git-send-email-mimu@linux.vnet.ibm.com>
-	<1427725708-52100-8-git-send-email-mimu@linux.vnet.ibm.com>
-	<5519A5B6.9090803@de.ibm.com>
+	<1427725708-52100-13-git-send-email-mimu@linux.vnet.ibm.com>
+	<5519B1D1.5060503@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5519A5B6.9090803@de.ibm.com>
+In-Reply-To: <5519B1D1.5060503@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>
+To: Eric Blake <eblake@redhat.com>
+Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 30 Mar 2015 21:36:22 +0200
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-
-> Am 30.03.2015 um 16:28 schrieb Michael Mueller:
-> > Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
-> > ---
-> >  linux-headers/asm-s390/kvm.h | 18 +++++++++---------
-> >  1 file changed, 9 insertions(+), 9 deletions(-)
-> > 
-> 
-> Looks like a leftover. Drop that patch and rename ibc_range to ibc in the other patch.
-
-Will drop the patch and stay with the current name used upstream already.
-> 
-> 
-> > diff --git a/linux-headers/asm-s390/kvm.h b/linux-headers/asm-s390/kvm.h
-> > index c5a93eb..bfe6925 100644
-> > --- a/linux-headers/asm-s390/kvm.h
-> > +++ b/linux-headers/asm-s390/kvm.h
-> > @@ -70,8 +70,14 @@ struct kvm_s390_io_adapter_req {
-> >  #define KVM_S390_VM_TOD_LOW		0
-> >  #define KVM_S390_VM_TOD_HIGH		1
-> > 
-> > +/* kvm attributes for crypto */
-> > +#define KVM_S390_VM_CRYPTO_ENABLE_AES_KW	0
-> > +#define KVM_S390_VM_CRYPTO_ENABLE_DEA_KW	1
-> > +#define KVM_S390_VM_CRYPTO_DISABLE_AES_KW	2
-> > +#define KVM_S390_VM_CRYPTO_DISABLE_DEA_KW	3
-> > +
-> >  /* kvm attributes for KVM_S390_VM_CPU_MODEL */
-> > -/* processor related attributes are r/w */
-> > +/* kvm S390 processor related attributes are r/w */
-> >  #define KVM_S390_VM_CPU_PROCESSOR	0
-> >  struct kvm_s390_vm_cpu_processor {
-> >  	__u64 cpuid;
-> > @@ -80,22 +86,16 @@ struct kvm_s390_vm_cpu_processor {
-> >  	__u64 fac_list[256];
-> >  };
-> > 
-> > -/* machine related attributes are r/o */
-> > +/* kvm S390 machine related attributes are r/o */
-> >  #define KVM_S390_VM_CPU_MACHINE		1
-> >  struct kvm_s390_vm_cpu_machine {
-> >  	__u64 cpuid;
-> > -	__u32 ibc;
-> > +	__u32 ibc_range;
-> >  	__u8  pad[4];
-> >  	__u64 fac_mask[256];
-> >  	__u64 fac_list[256];
-> >  };
-> > 
-> > -/* kvm attributes for crypto */
-> > -#define KVM_S390_VM_CRYPTO_ENABLE_AES_KW	0
-> > -#define KVM_S390_VM_CRYPTO_ENABLE_DEA_KW	1
-> > -#define KVM_S390_VM_CRYPTO_DISABLE_AES_KW	2
-> > -#define KVM_S390_VM_CRYPTO_DISABLE_DEA_KW	3
-> > -
-> >  /* for KVM_GET_REGS and KVM_SET_REGS */
-> >  struct kvm_regs {
-> >  	/* general purpose regs for s390 */
-> > 
-> 
+LS0tLS1CRUdJTiBQR1AgU0lHTkVEIE1FU1NBR0UtLS0tLQ0KSGFzaDogU0hBMQ0KDQpPbiBNb24s
+IDMwIE1hciAyMDE1IDE0OjI4OjAxIC0wNjAwDQpFcmljIEJsYWtlIDxlYmxha2VAcmVkaGF0LmNv
+bT4gd3JvdGU6DQoNCj4gT24gMDMvMzAvMjAxNSAwODoyOCBBTSwgTWljaGFlbCBNdWVsbGVyIHdy
+b3RlOg0KPiA+IFRoZSBwYXRjaCBhZGRzIG9wdGlvbmFsIHBhcmFtZXRlcnMgdG8gdGhlIFFNUCBj
+b21tYW5kIHF1ZXJ5LWNwdS1kZWZpbml0aW9ucy4NCj4gPiBUaHVzIHRoZSBzaWduYXR1cmUgb2Yg
+cm91dGluZSBhcmNoX3F1ZXJ5X2NwdV9kZWZpbml0aW9ucyBuZWVkcyB0byBiZSBjaGFuZ2VkDQo+
+ID4gZm9yIHRoZSBzdHViIGZ1bmN0aW9uIGFuZCBhbGwgdGFyZ2V0IGltcGxlbWVudGF0aW9uczoN
+Cj4gPiANCj4gPiB0YXJnZXQtYXJtDQo+ID4gdGFyZ2V0LWkzODYNCj4gPiB0YXJnZXQtcHBjDQo+
+ID4gdGFyZ2V0LXMzOTANCj4gPiANCj4gPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIE11ZWxsZXIg
+PG1pbXVAbGludXgudm5ldC5pYm0uY29tPg0KPiA+IC0tLQ0KPiANCj4gPiArKysgYi9xYXBpLXNj
+aGVtYS5qc29uDQo+ID4gQEAgLTI1MzIsMjEgKzI1MzIsMzEgQEANCj4gPiAgIw0KPiA+ICAjIEBu
+YW1lOiB0aGUgbmFtZSBvZiB0aGUgQ1BVIGRlZmluaXRpb24NCj4gPiAgIw0KPiA+ICsjIEBkZWZh
+dWx0OiAjb3B0aW9uYWwgZGVmaW5lcyBpZiBjcHUgbW9kZWwgaXMgdGhlIGRlZmF1bHQgKHNpbmNl
+IDIuNCkNCj4gDQo+IFJlYWRzIHBvb3JseS4gIEhvdyBhYm91dDoNCj4gDQo+ICMgQGRlZmF1bHQ6
+ICNvcHRpb25hbCB0cnVlIGlmIGNwdSBtb2RlbCBpcyB0aGUgZGVmYXVsdCwgb21pdHRlZCBpZiBm
+YWxzZQ0KPiAoc2luY2UgMi40KQ0KDQpZZXAsIHdpbGwgY2hhbmdlDQoNCj4gDQo+IA0KPiA+ICsj
+DQo+ID4gKyMgQHJ1bm5hYmxlOiAjb3B0aW9uYWwgZGVmaW5lcyBpZiBjcHUgbW9kZWwgaXMgcnVu
+bmFibGUgKHNpbmNlIDIuNCkNCj4gDQo+IFNpbWlsYXJseToNCj4gDQo+ICMgQHJ1bm5hYmxlOiAj
+b3B0aW9uYWwgdHJ1ZSBpZiBjcHUgbW9kZWwgaXMgcnVubmFibGUsIG9taXR0ZWQgaWYgZmFsc2UN
+Cj4gKHNpbmNlIDIuNCkNCg0KaGVyZSBhcyB3ZWxsDQoNCj4gDQo+ID4gKyMNCj4gPiAgIyBTaW5j
+ZTogMS4yLjANCj4gPiAgIyMNCj4gPiAgeyAndHlwZSc6ICdDcHVEZWZpbml0aW9uSW5mbycsDQo+
+ID4gLSAgJ2RhdGEnOiB7ICduYW1lJzogJ3N0cicgfSB9DQo+ID4gKyAgJ2RhdGEnOiB7ICduYW1l
+JzogJ3N0cicsICcqaXMtZGVmYXVsdCc6ICdib29sJywgJypydW5uYWJsZSc6ICdib29sJyB9IH0N
+Cj4gPiAgDQo+ID4gICMjDQo+ID4gICMgQHF1ZXJ5LWNwdS1kZWZpbml0aW9uczoNCj4gPiAgIw0K
+PiA+ICAjIFJldHVybiBhIGxpc3Qgb2Ygc3VwcG9ydGVkIHZpcnR1YWwgQ1BVIGRlZmluaXRpb25z
+DQo+ID4gICMNCj4gPiArIyBAbWFjaGluZTogI29wdGlvbmFsIG1hY2hpbmUgdHlwZSAoc2luY2Ug
+Mi40KQ0KPiA+ICsjDQo+ID4gKyMgQGFjY2VsOiAjb3B0aW9uYWwgYWNjZWxlcmF0b3IgaWQgKHNp
+bmNlIDIuNCkNCj4gDQo+IE1heWJlIG1lbnRpb24gdGhhdCB0aGVzZSB0d28gZmllbGRzIGFyZSBm
+b3IgZmlsdGVyaW5nIHJlc3VsdHMuDQoNCkkgd2lsbCBhZGQgYSBjb21tZW50IGFzIGl0IGlzIG1v
+cmUgdGhhbiBmaWx0ZXJpbmcsIGl0IGlzIGV4ZWN1dGlvbiBjb250ZXh0IGluZm9ybWF0aW9uIHRo
+YXQgYWxsb3dzDQp0byBkZXRlcm1pbmUgaWYgYSBjcHUgbW9kZWwgaXMgcnVubmFibGUuDQoNClRo
+YW5rcyBhIGxvdCwNCk1pY2hhZWwNCg0KPiANCg0KLS0tLS1CRUdJTiBQR1AgU0lHTkFUVVJFLS0t
+LS0NClZlcnNpb246IEdudVBHIHYxDQoNCmlRSWNCQUVCQWdBR0JRSlZHay9nQUFvSkVMUGNQTFFT
+SnNLUTlxY1FBSmlVUlRYUytOWk8va21LZlAxYUgxOHMNClJDL2JoWHlWNmdWbWZzdloxWDdTMGNI
+NWVPNFo3QWZwTk5UNzNNdzBsWURJWGVpKzk0L01kYnk0QXBsRjdTOHENClJvUFZ1OUt4V1hWNm9N
+MW5pZ0VNdkV4dDVuNkJ4SU0zKy94dkt0MVJrZWY0Y3g4cUlSanUrckNMTmVrbUJkM0UNCnlKdFNz
+M09hc2Z0OExvRys0WlBFdjI2akM3dXZIYTA0YnAxblpzbFhoZ1VtYlVKWnpSdEFyUm9ocDBKQTBr
+ZmwNCkJJenBGU0tKRXZHQi94d3lqNGJ2ZkM0TlFKOW5NdGVsNkJoTzA0b3hIZ1FOWG1wYUpLNHZO
+NWg3d2k2UEcyYWMNCkk3bUtoQy9uTkZQVVh2UVVHUTkxaXRXSC9pcjFmeWltNFJqaHRkMlB2cHEx
+OXdhRWcyTStkSHAyWUtBcWcxeGQNCllySHBBUUEvNk1McWxCcXJzcVl6VlMvTEh6N2p1WFAzdS9z
+WDVhemRiWlk4TFB5bkFYcW5Td3FpTmludmsyYkENCnNjM05HL0p3Wm5idEFTRnJqSkVwbXJ1ZFMy
+OUlYdU5OeWNJU3pHd3JMMDZwd2dtckZhSmtweXpENmdPa0pmbmgNClVCeUlNcVRZc2trM3lQOEc4
+SzRuNjc3NWFsMFp4OHYzOUU3RW4rZFFvekVuVmEvU3hBNVlkakpNVlBPWmlFdDQNCk8vc3prcUNy
+NWtjUUhaSi94NDJTejBZRlo1UUlpZGhNa1g2akVxZWFrN3EwT3cwYXdYZ3JldXhYRW1QWXU2bEcN
+CjV3SG82V1AxaDZ0ZG9nUW5KR255RlhDNWtXenAyaUJZeFZEUDg2LzRhS0xHeVpWaU5QUzFYRFNq
+aGQ5Tkg0WC8NCjlJUGJDSU9KWXdwWkY5bDVHZUcvDQo9SkF3dQ0KLS0tLS1FTkQgUEdQIFNJR05B
+VFVSRS0tLS0tDQo=
