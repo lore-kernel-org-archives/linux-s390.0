@@ -1,64 +1,125 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
 Subject: Re: [Qemu-devel] [PATCH v4 11/15] target-s390x: New QMP command
  query-cpu-model
-Date: Tue, 31 Mar 2015 09:56:43 +0200
-Message-ID: <20150331095643.1f0b93ca@bee>
+Date: Tue, 31 Mar 2015 11:10:43 +0200
+Message-ID: <20150331111043.078443f8@bee>
 References: <1427725708-52100-1-git-send-email-mimu@linux.vnet.ibm.com>
 	<1427725708-52100-12-git-send-email-mimu@linux.vnet.ibm.com>
-	<5519AFCF.2000102@redhat.com>
+	<20150330195020.GD7031@thinpad.lan.raisama.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: base64
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <5519AFCF.2000102@redhat.com>
-Sender: kvm-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150330195020.GD7031@thinpad.lan.raisama.net>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Eric Blake <eblake@redhat.com>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>
+To: Eduardo Habkost <ehabkost@redhat.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, linux-kernel@vger.kernel.org, Alexander Graf <agraf@suse.de>, qemu-devel@nongnu.org, Christian Borntraeger <borntraeger@de.ibm.com>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-LS0tLS1CRUdJTiBQR1AgU0lHTkVEIE1FU1NBR0UtLS0tLQ0KSGFzaDogU0hBMQ0KDQpPbiBNb24s
-IDMwIE1hciAyMDE1IDE0OjE5OjI3IC0wNjAwDQpFcmljIEJsYWtlIDxlYmxha2VAcmVkaGF0LmNv
-bT4gd3JvdGU6DQoNCj4gT24gMDMvMzAvMjAxNSAwODoyOCBBTSwgTWljaGFlbCBNdWVsbGVyIHdy
-b3RlOg0KPiA+IFRoaXMgcGF0Y2ggaW1wbGVtZW50cyBhIG5ldyBRTVAgcmVxdWVzdCBuYW1lZCAn
-cXVlcnktY3B1LW1vZGVsJy4NCj4gPiBJdCByZXR1cm5zIHRoZSBjcHUgbW9kZWwgb2YgY3B1IDAg
-YW5kIGl0cyBiYWNraW5nIGFjY2VsZXJhdG9yLg0KPiA+IA0KPiA+IHJlcXVlc3Q6DQo+ID4gICB7
-ImV4ZWN1dGUiIDogInF1ZXJ5LWNwdS1tb2RlbCIgfQ0KPiA+IA0KPiA+IGFuc3dlcjoNCj4gPiAg
-IHsicmV0dXJuIiA6IHsibmFtZSI6ICIyODI3LWdhMiIsICJhY2NlbCI6ICJrdm0iIH19DQo+ID4g
-DQo+ID4gQWxpYXMgbmFtZXMgYXJlIHJlc29sdmVkIHRvIHRoZWlyIHJlc3BlY3RpdmUgbWFjaGlu
-ZSB0eXBlIGFuZCBHQSBuYW1lcw0KPiA+IGFscmVhZHkgZHVyaW5nIGNwdSBpbnN0YW50aWF0aW9u
-LiBUaHVzLCBhbHNvIGEgY3B1IG1vZGVsIGxpa2UgJ2hvc3QnDQo+ID4gd2hpY2ggaXMgaW1wbGVt
-ZW50ZWQgYXMgYWxpYXMgd2lsbCByZXR1cm4gaXRzIG5vcm1hbGl6ZWQgY3B1IG1vZGVsIG5hbWUu
-DQo+ID4gDQo+ID4gRnVydGhlcm1vcmUgdGhlIHBhdGNoIGltcGxlbWVudHMgdGhlIGZvbGxvd2lu
-ZyBmdW5jdGlvbjoNCj4gPiANCj4gPiAtIHMzOTBfY3B1X21vZGVsc191c2VkKCksIHJldHVybnMg
-dHJ1ZSBpZiBTMzkwIGNwdSBtb2RlbHMgYXJlIGluIHVzZQ0KPiA+IA0KPiA+IFNpZ25lZC1vZmYt
-Ynk6IE1pY2hhZWwgTXVlbGxlciA8bWltdUBsaW51eC52bmV0LmlibS5jb20+DQo+ID4gLS0tDQo+
-IA0KPiA+ICsrKyBiL3FhcGktc2NoZW1hLmpzb24NCj4gPiBAQCAtMjUxNiw2ICsyNTE2LDE2IEBA
-DQo+ID4gIHsgJ2NvbW1hbmQnOiAncXVlcnktbWFjaGluZXMnLCAncmV0dXJucyc6IFsnTWFjaGlu
-ZUluZm8nXSB9DQo+ID4gIA0KPiA+ICAjIw0KPiA+ICsjIEBBY2NlbElkDQo+ID4gKyMNCj4gPiAr
-IyBEZWZpbmVzIGFjY2VsZXJhdG9yIGlkcw0KPiA+ICsjDQo+ID4gKyMgU2luY2U6IDIuNA0KPiA+
-ICsjIw0KPiA+ICt7ICdlbnVtJzogJ0FjY2VsSWQnLA0KPiA+ICsgICdkYXRhJzogWydxdGVzdCcs
-ICd0Y2cnLCAna3ZtJywgJ3hlbicgIF0gfQ0KPiANCj4gVW51c3VhbCBzcGFjaW5nICgwIHNwYWNl
-cyBhZnRlciAnWycgYnV0IDIgc3BhY2VzIGJlZm9yZSBjbG9zaW5nICddJz8pLA0KPiBidXQgbm90
-IG5lY2Vzc2FyaWx5IHdyb25nLg0KPiANCj4gDQo+ID4gKyMjDQo+ID4gKyMgQENwdU1vZGVsSW5m
-bzoNCj4gPiArIw0KPiA+ICsjIFZpcnR1YWwgQ1BVIG1vZGVsIGRlZmluaXRpb24uDQo+ID4gKyMN
-Cj4gPiArIyBAbmFtZTogdGhlIG5hbWUgb2YgdGhlIENQVSBtb2RlbCBkZWZpbml0aW9uDQo+ID4g
-KyMNCj4gPiArIyBAYWNjZWw6IEFjY2VsSWQgKG5hbWUpIG9mIHRoaXMgY3B1IG1vZGVscyBhY2Nl
-bGVyYXRvcg0KPiANCj4gcy9tb2RlbHMvbW9kZWwncy8NCj4gDQo+IA0KDQpXaWxsIGZpeCBib3Ro
-IGZpbmRpbmdzLi4uDQoNClRoYW5rcywNCk1pY2hhZWwNCi0tLS0tQkVHSU4gUEdQIFNJR05BVFVS
-RS0tLS0tDQpWZXJzaW9uOiBHbnVQRyB2MQ0KDQppUUljQkFFQkFnQUdCUUpWR2xNN0FBb0pFTFBj
-UExRU0pzS1FWMUlQLzA3Y3Y4Q0IxZ2d5V0ZxN3BDam8veDRHDQpBNnNqelB6aVc5c1pkcmNhTXNE
-YjJQeDYyZGR5eCs0S3ltbnp6ZGpLVHJLR2VQWkdPQlFOZDB4d0NlSURhbnc5DQpaK2hWQkc4dnpx
-UGl3Qk0yNXhLVU1ZbCtOREM3U1BlcXY2WVNGZWxFQkFjYnNaR3ROYjlDQnF5Y2piYzhBV3RqDQpR
-eThQaUxsYlBRTHhVaUZJdm5UWWUzdW1XNjBDdG5mVW9BaVJYczN3UXlCa1dzVVo3SEk3L1JzbTh3
-UklxMHRFDQpIWDUyL3h1RDc5clF2Z3FlSmkrMnp4SHlCK1dHdjBHcnZPeklCMjJkOTNwZU1PcmRY
-eVFqOUdZTTZSNEZqN3BUDQpYQVNpZlV6enRMWWxVcU5oNk1SWW1yVWFMYnNWMTJFUlVLaXRjZDFD
-dzdsOFQ3dHBJaC9OcGFPaHJtOFZvc1ZoDQpQMVdtOVVXaGExTWZGL3JXL3UvM3NXLzgyUHYrZVE1
-NGE5WFlkNEg0dEQzUEZNTW1JYlpLLzlENjlCcHl4dFNaDQo0NWZlNGppS084N2JyeU10YVlQSDlv
-QWM4Vk9tT1I5RUk5NHA0cS9HSzhzd2FZUTVER05BUGlGbFdsZm1nZzRCDQpWR1htaUhFMFZlSk9I
-NWRoNSt3VC81Z2padTNabVVRTnRxaFQwOXJmRzBqdk1aVlVGVDBxcjV2WFF0WVhXNEdqDQpEYksz
-dWlyMTVvdkhZQkVyZnVuMTF2czE1dFVveTRQVDNPTXNtZ2VsZ1FsMUZRRzhUN0ZEOWFzajcybTN2
-TFVoDQpVVnZSajFLZHVXRVQ0YjRXNVNCZ3pMbE1kUnlUQWNYUlBLdURDY1NDdHFmeEU0K2pzQXAz
-K21ZYkxwQjJ5NUF3DQpRamtsdDAyNWttcjBBN3BOckw0ZA0KPVpCdEYNCi0tLS0tRU5EIFBHUCBT
-SUdOQVRVUkUtLS0tLQ0K
+On Mon, 30 Mar 2015 16:50:20 -0300
+Eduardo Habkost <ehabkost@redhat.com> wrote:
+
+Hello Eduardo,
+
+> On Mon, Mar 30, 2015 at 04:28:24PM +0200, Michael Mueller wrote:
+> [...]
+> > diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
+> > index 829945d..1698b52 100644
+> > --- a/target-s390x/cpu.c
+> > +++ b/target-s390x/cpu.c
+> > @@ -37,6 +37,11 @@
+> >  #define CR0_RESET       0xE0UL
+> >  #define CR14_RESET      0xC2000000UL;
+> >  
+> > +static inline char *strdup_s390_cpu_name(S390CPUClass *cc)
+> > +{
+> > +    return g_strdup_printf("%04x-ga%u", cc->proc.type, cc->mach.ga);
+> > +}
+> > +
+> >  /* generate CPU information for cpu -? */
+> >  void s390_cpu_list(FILE *f, fprintf_function cpu_fprintf)
+> >  {
+> > @@ -74,6 +79,30 @@ CpuDefinitionInfoList *arch_query_cpu_definitions(Error **errp)
+> >  
+> >      return entry;
+> >  }
+> > +
+> > +CpuModelInfo *arch_query_cpu_model(Error **errp)
+> > +{
+> > +    CpuModelInfo *info;
+> > +    S390CPUClass *cc;
+> > +
+> > +    if (!s390_cpu_models_used()) {
+> > +        return NULL;
+> > +    }
+> 
+> First question is: why you don't want to just return
+>   { name: "none", accel: ...  }
+> when TYPE_S390_CPU ("-cpu none") is used?
+
+That's a good idea, indeed! CPU model "none" is used as well in case option -cpu is omitted.
+
+> 
+> Now, assuming that you really want to return NULL if -cpu none is used,
+> why don't you just ask for the first CPU (like you already do below) and
+> check if it is a named CPU model, instead of adding a new global? e.g.:
+> 
+>     static bool s390_cpu_class_is_model(S390CPUClass *cc)
+>     {
+>         return cpuid(cc->proc) != 0;
+>     }
+>     
+>     CpuModelInfo *arch_query_cpu_model(Error **errp)
+>     {
+>         S390CPUClass *cc;
+>         S390CPUClass *cc;
+> 
+>         cc = S390_CPU_GET_CLASS(s390_cpu_addr2state(0));
+>         if (!s390_cpu_class_is_model(cc)) {
+>             return NULL;
+>         }
+>         [...]
+>     }
+> 
+> 
+> > +    info = g_try_new0(CpuModelInfo, 1);
+> > +    if (!info) {
+> > +        return NULL;
+> > +    }
+> > +    cc = S390_CPU_GET_CLASS(s390_cpu_addr2state(0));
+> > +    info->name = strdup_s390_cpu_name(cc);
+> 
+> I don't think the current version of strdup_s390_cpu_name() can ever
+> return NULL. Do you expect it to return NULL in the future?
+
+No I do not expect this. I will drop the NULL test.
+
+> 
+> > +    if (!info->name) {
+> > +        g_free(info);
+> > +        return NULL;
+> > +    }
+> > +    if (kvm_enabled()) {
+> > +        info->accel = ACCEL_ID_KVM;
+> 
+> This could be a CPUState field, added automatically by
+> cpu_generic_init() using current_machine->accel.
+
+I will add a CPUState field and see how it works out...
+
+> 
+> > +    }
+> > +    return info;
+> > +}
+> >  #endif
+> >  
+> >  static void s390_cpu_set_pc(CPUState *cs, vaddr value)
+> > -- 
+> > 1.8.3.1
+> > 
+> 
+
+Thanks a lot,
+Michael
