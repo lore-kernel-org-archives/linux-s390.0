@@ -1,97 +1,88 @@
-From: Eduardo Habkost <ehabkost@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v4 11/15] target-s390x: New QMP command
- query-cpu-model
-Date: Thu, 2 Apr 2015 12:15:38 -0300
-Message-ID: <20150402151538.GO7031@thinpad.lan.raisama.net>
-References: <1427725708-52100-1-git-send-email-mimu@linux.vnet.ibm.com>
- <1427725708-52100-12-git-send-email-mimu@linux.vnet.ibm.com>
- <20150331183526.GJ7031@thinpad.lan.raisama.net>
- <20150331220909.4410e8c0@bee>
- <20150401130113.GL7031@thinpad.lan.raisama.net>
- <20150401183123.7a1f9d6c@bee>
- <20150401165905.GM7031@thinpad.lan.raisama.net>
- <20150401210531.57d2ea98@bee>
- <20150401230524.GN7031@thinpad.lan.raisama.net>
- <20150402090907.5b44018f@bee>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [GIT PULLv2] KVM: s390: Features and fixes for 4.1 (kvm/next)
+Date: Thu, 02 Apr 2015 20:55:19 +0200
+Message-ID: <551D9097.604@redhat.com>
+References: <1427830595-12641-1-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150402090907.5b44018f@bee>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1427830595-12641-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Michael Mueller <mimu@linux.vnet.ibm.com>
-Cc: linux-s390@vger.kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>, kvm@vger.kernel.org, Gleb Natapov <gleb@kernel.org>, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, libvir-list@redhat.com, Christian Borntraeger <borntraeger@de.ibm.com>, Alexander Graf <agraf@suse.de>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Jiri Denemark <jdenemar@redhat.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, KVM <kvm@vger.kernel.org>
+Cc: Marcelo Tosatti <mtosatti@redhat.com>, Alexander Graf <agraf@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Apr 02, 2015 at 09:09:07AM +0200, Michael Mueller wrote:
-> On Wed, 1 Apr 2015 20:05:24 -0300
-> Eduardo Habkost <ehabkost@redhat.com> wrote:
+
+
+On 31/03/2015 21:36, Christian Borntraeger wrote:
+> Paolo, Marcelo,
 > 
-> > > > 
-> > > > If you don't want to encode that knowledge in libvirt or other
-> > > > management software for s390, it looks like you need something like a
-> > > > "stable-abi-safe" field on CpuDefinitionInfo?  
-> > > 
-> > > Exactly that fulfills the "name" field for s390 already in my view.
-> > > 
-> > > And cpu model "none" just means that QEMU does not manage the cpu model. That's also
-> > > the reason why I initially returned an empty "[]" model and not "none". This somewhat
-> > > convinces me to go back to this approach...  
-> > 
-> > I understand the reasons for your approach and it seems to work for
-> > s390, but the only problem I see is that you are adding an additional
-> > (undocumented?) s390-specific constraint to the semantics of
-> > query-cpu-models: that the model name will appear on the list only if it
-> > can be safely migratable. This may prevent us from unifying CPU model
-> > code into generic code later.
+> here is the updated pull request for s390 (tag was updated)
 > 
-> I agree that an aliases is something different compared with the CPU model none as
-> there is a CPU class representing it. And thus, when implicitly or explicitly selected,
-> shall be presented in the CPU definition list as well. If I would set "runnable" to
-> false as it now (bad), it would be sorted out by the "considered for migration" test but it
-> would be misleading as it is always runnable. Though an additional field like "migrate-able"
-> could express that characteristic.
-
-Exactly.
-
+> The changes reflect the comments from Heiko Carstens and Paolo Bonzini,
+> (diff as followup mail)
 > 
-> > 
-> > But if we add a simple stable-abi-safe field to the list (even if s390
-> > set it to to true for all models and omit aliases and "none" in this
-> > first version), we will have clearer semantics that can still be
-> > honoured by other architectures (and by generic code) later.
+> The following changes since commit 18280d8b4bcd4a2b174ee3cd748166c6190acacb:
 > 
-> To be honest I currently don't right get the idea that you follow with that
-> stable-abi-save field... But eventually yes (I wrote this before the section above)
+>   KVM: s390: represent SIMD cap in kvm facility (2015-03-17 16:33:14 +0100)
 > 
-> The stable-abi-save field means: "Take me into account for whatever kind of
-> CPU model related comparison you perform between two running QEMU instances as I
-> represent a well defined aspect.
-
-Yes. "stable-abi-safe" would mean that nothing guest-visible will change
-in the CPU model when running a different QEMU version or running in a
-different host, thus making it safe to live-migrate (as long as you keep
-the same machine+accelerator and don't change other guest-visible
-configuration in the QEMU command-line, of course). That's a constraint
-we already keep in the x86 CPU models, except for "-cpu host".
-
-In other words, it means "as long as the name matches the query-cpus
-output from the source host, it is guaranteed to be safe to
-live-migrate".  Which is the constraint you need, right?
-
-(I am not 100% sure about the naming. Maybe we should call it
-"live-migration-safe"?)
-
+> are available in the git repository at:
 > 
-> Thus CPU model none will be { "name": "none", "runnable: true, "stable-abi-save": false } and
-> the aliases can be represented as { "name": <alias>, "runnable": <true|false>, "stable-abi-save":
-> false } in the s390 case, right?
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-20150331
+> 
+> for you to fetch changes up to 816c7667ea97c61884e014cfeedaede5b67b0e58:
+> 
+>   KVM: s390: migrate vcpu interrupt state (2015-03-31 21:07:31 +0200)
+> 
+> ----------------------------------------------------------------
+> Features and fixes for 4.1 (kvm/next)
+> 
+> 1. Assorted changes
+> 1.1 allow more feature bits for the guest
+> 1.2 Store breaking event address on program interrupts
+> 
+> 2. Interrupt handling rework
+> 2.1 Fix copy_to_user while holding a spinlock (cc stable)
+> 2.2 Rework floating interrupts to follow the priorities
+> 2.3 Allow to inject all local interrupts via new ioctl
+> 2.4 allow to get/set the full local irq state, e.g. for migration
+>     and introspection
+> 
+> ----------------------------------------------------------------
+> Christian Borntraeger (1):
+>       KVM: s390: enable more features that need no hypervisor changes
+> 
+> David Hildenbrand (2):
+>       KVM: s390: store the breaking-event address on pgm interrupts
+>       KVM: s390: cpu timer irq priority
+> 
+> Jens Freimann (5):
+>       KVM: s390: fix get_all_floating_irqs
+>       KVM: s390: deliver floating interrupts in order of priority
+>       KVM: s390: add ioctl to inject local interrupts
+>       KVM: s390: refactor vcpu injection function
+>       KVM: s390: migrate vcpu interrupt state
+> 
+>  Documentation/virtual/kvm/api.txt               |  117 +++
+>  Documentation/virtual/kvm/devices/s390_flic.txt |    3 +
+>  arch/s390/include/asm/kvm_host.h                |   30 +-
+>  arch/s390/kvm/interrupt.c                       | 1073 ++++++++++++++---------
+>  arch/s390/kvm/kvm-s390.c                        |   54 +-
+>  arch/s390/kvm/kvm-s390.h                        |    6 +-
+>  arch/s390/kvm/priv.c                            |    9 +-
+>  include/uapi/linux/kvm.h                        |   14 +
+>  virt/kvm/kvm_main.c                             |    2 +-
+>  9 files changed, 906 insertions(+), 402 deletions(-)
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-Exactly. We don't need to return them in the first version if you don't
-need to (althought I don't see a reason to not return them). It will
-just allow us to return them in the future.
+Pulled, thanks.
 
--- 
-Eduardo
+Paolo
