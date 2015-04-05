@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH 2/6] block: loop: don't hold lo_ctl_mutex in lo_open
-Date: Sun,  5 Apr 2015 15:24:44 +0800
-Message-Id: <1428218688-4092-3-git-send-email-ming.lei@canonical.com>
+Subject: [PATCH 3/6] block: loop: fix another reread part failure
+Date: Sun,  5 Apr 2015 15:24:45 +0800
+Message-Id: <1428218688-4092-4-git-send-email-ming.lei@canonical.com>
 In-Reply-To: <1428218688-4092-1-git-send-email-ming.lei@canonical.com>
 References: <1428218688-4092-1-git-send-email-ming.lei@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -12,148 +12,87 @@ To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, Christoph Hellwi
 Cc: Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Jarod Wilson <jarod@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Markus Pargmann <mpa@pengutronix.de>, nbd-general@lists.sourceforge.net, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, linux-s390@vger.kernel.org, Ming Lei <ming.lei@canonical.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The lo_ctl_mutex is held for running all ioctl handlers, and
-in some ioctl handlers, ioctl_by_bdev(BLKRRPART) is called for
-rereading partitions, which requires bd_mutex.
+loop_clr_fd() can be run piggyback with lo_release(), and
+under this situation, reread partition may always fail because
+of bd_mutex which has been held in release path.
 
-So it is easy to cause failure because trylock(bd_mutex) may
-fail inside blkdev_reread_part(), and follows the lock context:
+This patch detects the situation by the reference count, and
+call blkdev_reread_part_nolock() to avoid acquiring the lock again.
 
-blkid or other application:
-	->open()
-		->mutex_lock(bd_mutex)
-		->lo_open()
-			->mutex_lock(lo_ctl_mutex)
-
-losetup(set fd ioctl):
-	->mutex_lock(lo_ctl_mutex)
-	->ioctl_by_bdev(BLKRRPART)
-		->trylock(bd_mutex)
-
-This patch trys to eliminate the ABBA lock dependency by removing
-lo_ctl_mutext in lo_open() with the following approach:
-
-1) introduce lo_open_mutex to protect lo_refcnt and avoid acquiring
-lo_ctl_mutex in lo_open():
-	- for open vs. add/del loop, no any problem because of loop_index_mutex
-	- lo_open_mutex is used for syncing open() and loop_clr_fd()
-	- both open() and release() have been serialized by bd_mutex already
-
-2) don't hold lo_ctl_mutex for decreasing/checking lo_refcnt in
-lo_release(), then lo_ctl_mutex is only required for the last release.
+In the meantime, this patch switches to new kernel APIs
+of blkdev_reread_part() and blkdev_reread_part_nolock().
 
 Signed-off-by: Ming Lei <ming.lei@canonical.com>
 ---
- drivers/block/loop.c |   32 ++++++++++++++++++++++++++------
- drivers/block/loop.h |    1 +
- 2 files changed, 27 insertions(+), 6 deletions(-)
+ drivers/block/loop.c |   28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index d1f168b..81a6bc1 100644
+index 81a6bc1..80c9d87 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
-@@ -879,14 +879,18 @@ static int loop_clr_fd(struct loop_device *lo)
- 	 * <dev>/do something like mkfs/losetup -d <dev> causing the losetup -d
- 	 * command to fail with EBUSY.
- 	 */
-+	mutex_lock(&lo->lo_open_mutex);
- 	if (lo->lo_refcnt > 1) {
-+		mutex_unlock(&lo->lo_open_mutex);
- 		lo->lo_flags |= LO_FLAGS_AUTOCLEAR;
- 		mutex_unlock(&lo->lo_ctl_mutex);
- 		return 0;
- 	}
+@@ -528,6 +528,26 @@ static int loop_flush(struct loop_device *lo)
+ 	return loop_switch(lo, NULL);
+ }
  
--	if (filp == NULL)
-+	if (filp == NULL) {
-+		mutex_unlock(&lo->lo_open_mutex);
- 		return -EINVAL;
-+	}
- 
- 	spin_lock_irq(&lo->lo_lock);
- 	lo->lo_state = Lo_rundown;
-@@ -919,6 +923,15 @@ static int loop_clr_fd(struct loop_device *lo)
- 	lo->lo_state = Lo_unbound;
- 	/* This is safe: open() is still holding a reference. */
- 	module_put(THIS_MODULE);
++static void loop_reread_partitions(struct loop_device *lo,
++				   struct block_device *bdev)
++{
++	int rc;
++	bool in_release;
 +
-+	/*
-+	 * Unlock open_mutex for avoiding -EBUSY of rereading part:
-+	 * - try to acquire bd_mutex from reread part
-+	 * - another task is opening the loop with holding bd_mutex
-+	 *   and trys to acquire open_mutex
-+	 */
++	mutex_lock(&lo->lo_open_mutex);
++	in_release = lo->lo_refcnt == 0;
 +	mutex_unlock(&lo->lo_open_mutex);
 +
++	/* bd_mutex has been held already in release path */
++	if (in_release)
++		rc = blkdev_reread_part_nolock(bdev);
++	else
++		rc = blkdev_reread_part(bdev);
++	if (rc)
++		pr_warn("%s: partition scan of loop%d (%s) failed (rc=%d)\n",
++			__func__, lo->lo_number, lo->lo_file_name, rc);
++}
++
+ /*
+  * loop_change_fd switched the backing store of a loopback device to
+  * a new file. This is useful for operating system installers to free up
+@@ -576,7 +596,7 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
+ 
+ 	fput(old_file);
+ 	if (lo->lo_flags & LO_FLAGS_PARTSCAN)
+-		ioctl_by_bdev(bdev, BLKRRPART, 0);
++		loop_reread_partitions(lo, bdev);
+ 	return 0;
+ 
+  out_putf:
+@@ -807,7 +827,7 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
+ 	if (part_shift)
+ 		lo->lo_flags |= LO_FLAGS_PARTSCAN;
+ 	if (lo->lo_flags & LO_FLAGS_PARTSCAN)
+-		ioctl_by_bdev(bdev, BLKRRPART, 0);
++		loop_reread_partitions(lo, bdev);
+ 
+ 	/* Grab the block_device to prevent its destruction after we
+ 	 * put /dev/loopXX inode. Later in loop_clr_fd() we bdput(bdev).
+@@ -933,7 +953,7 @@ static int loop_clr_fd(struct loop_device *lo)
+ 	mutex_unlock(&lo->lo_open_mutex);
+ 
  	if (lo->lo_flags & LO_FLAGS_PARTSCAN && bdev)
- 		ioctl_by_bdev(bdev, BLKRRPART, 0);
+-		ioctl_by_bdev(bdev, BLKRRPART, 0);
++		loop_reread_partitions(lo, bdev);
  	lo->lo_flags = 0;
-@@ -1376,9 +1389,9 @@ static int lo_open(struct block_device *bdev, fmode_t mode)
- 		goto out;
+ 	if (!part_shift)
+ 		lo->lo_disk->flags |= GENHD_FL_NO_PART_SCAN;
+@@ -1008,7 +1028,7 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
+ 	     !(lo->lo_flags & LO_FLAGS_PARTSCAN)) {
+ 		lo->lo_flags |= LO_FLAGS_PARTSCAN;
+ 		lo->lo_disk->flags &= ~GENHD_FL_NO_PART_SCAN;
+-		ioctl_by_bdev(lo->lo_device, BLKRRPART, 0);
++		loop_reread_partitions(lo, lo->lo_device);
  	}
  
--	mutex_lock(&lo->lo_ctl_mutex);
-+	mutex_lock(&lo->lo_open_mutex);
- 	lo->lo_refcnt++;
--	mutex_unlock(&lo->lo_ctl_mutex);
-+	mutex_unlock(&lo->lo_open_mutex);
- out:
- 	mutex_unlock(&loop_index_mutex);
- 	return err;
-@@ -1387,13 +1400,16 @@ out:
- static void lo_release(struct gendisk *disk, fmode_t mode)
- {
- 	struct loop_device *lo = disk->private_data;
--	int err;
-+	int err, ref;
- 
--	mutex_lock(&lo->lo_ctl_mutex);
-+	mutex_lock(&lo->lo_open_mutex);
-+	ref = --lo->lo_refcnt;
-+	mutex_unlock(&lo->lo_open_mutex);
- 
--	if (--lo->lo_refcnt)
-+	if (ref)
- 		goto out;
- 
-+	mutex_lock(&lo->lo_ctl_mutex);
- 	if (lo->lo_flags & LO_FLAGS_AUTOCLEAR) {
- 		/*
- 		 * In autoclear mode, stop the loop thread
-@@ -1646,6 +1662,7 @@ static int loop_add(struct loop_device **l, int i)
- 		disk->flags |= GENHD_FL_NO_PART_SCAN;
- 	disk->flags |= GENHD_FL_EXT_DEVT;
- 	mutex_init(&lo->lo_ctl_mutex);
-+	mutex_init(&lo->lo_open_mutex);
- 	lo->lo_number		= i;
- 	spin_lock_init(&lo->lo_lock);
- 	disk->major		= LOOP_MAJOR;
-@@ -1763,11 +1780,14 @@ static long loop_control_ioctl(struct file *file, unsigned int cmd,
- 			mutex_unlock(&lo->lo_ctl_mutex);
- 			break;
- 		}
-+		mutex_lock(&lo->lo_open_mutex);
- 		if (lo->lo_refcnt > 0) {
- 			ret = -EBUSY;
-+			mutex_unlock(&lo->lo_open_mutex);
- 			mutex_unlock(&lo->lo_ctl_mutex);
- 			break;
- 		}
-+		mutex_unlock(&lo->lo_open_mutex);
- 		lo->lo_disk->private_data = NULL;
- 		mutex_unlock(&lo->lo_ctl_mutex);
- 		idr_remove(&loop_index_idr, lo->lo_number);
-diff --git a/drivers/block/loop.h b/drivers/block/loop.h
-index 301c27f..1b4acf2 100644
---- a/drivers/block/loop.h
-+++ b/drivers/block/loop.h
-@@ -59,6 +59,7 @@ struct loop_device {
- 	bool			write_started;
- 	int			lo_state;
- 	struct mutex		lo_ctl_mutex;
-+	struct mutex		lo_open_mutex;
- 
- 	struct request_queue	*lo_queue;
- 	struct blk_mq_tag_set	tag_set;
+ 	lo->lo_encrypt_key_size = info->lo_encrypt_key_size;
 -- 
 1.7.9.5
