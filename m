@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Jarod Wilson <jarod@redhat.com>
-Subject: [PATCH 4/7] block: nbd: convert to blkdev_reread_part()
-Date: Wed,  8 Apr 2015 02:23:43 -0400
-Message-Id: <1428474226-27386-5-git-send-email-jarod@redhat.com>
+Subject: [PATCH 5/7] block: dasd_genhd: convert to blkdev_reread_part
+Date: Wed,  8 Apr 2015 02:23:44 -0400
+Message-Id: <1428474226-27386-6-git-send-email-jarod@redhat.com>
 In-Reply-To: <1428474226-27386-1-git-send-email-jarod@redhat.com>
 References: <1428218688-4092-1-git-send-email-ming.lei@canonical.com>
  <1428474226-27386-1-git-send-email-jarod@redhat.com>
@@ -14,6 +14,8 @@ Cc: Ming Lei <ming.lei@canonical.com>, Christoph Hellwig <hch@infradead.org>, Je
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Ming Lei <ming.lei@canonical.com>
+
+Also remove the obsolete comment.
 
 CC: Christoph Hellwig <hch@infradead.org>
 CC: Jens Axboe <axboe@kernel.dk>
@@ -34,21 +36,39 @@ CC: linux-s390@vger.kernel.org
 Signed-off-by: Ming Lei <ming.lei@canonical.com>
 Signed-off-by: Jarod Wilson <jarod@redhat.com>
 ---
- drivers/block/nbd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/block/dasd_genhd.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index a98c41f..7e9d26e 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -734,7 +734,7 @@ static int __nbd_ioctl(struct block_device *bdev, struct nbd_device *nbd,
- 		bdev->bd_inode->i_size = 0;
- 		set_capacity(nbd->disk, 0);
- 		if (max_part > 0)
--			ioctl_by_bdev(bdev, BLKRRPART, 0);
-+			blkdev_reread_part(bdev);
- 		if (nbd->disconnect) /* user requested, ignore socket errors */
- 			return 0;
- 		return nbd->harderror;
+diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
+index 90f39f7..8026585 100644
+--- a/drivers/s390/block/dasd_genhd.c
++++ b/drivers/s390/block/dasd_genhd.c
+@@ -116,14 +116,11 @@ int dasd_scan_partitions(struct dasd_block *block)
+ 			      rc);
+ 		return -ENODEV;
+ 	}
+-	/*
+-	 * See fs/partition/check.c:register_disk,rescan_partitions
+-	 * Can't call rescan_partitions directly. Use ioctl.
+-	 */
+-	rc = ioctl_by_bdev(bdev, BLKRRPART, 0);
++
++	rc = blkdev_reread_part(bdev);
+ 	while (rc == -EBUSY && retry > 0) {
+ 		schedule();
+-		rc = ioctl_by_bdev(bdev, BLKRRPART, 0);
++		rc = blkdev_reread_part(bdev);
+ 		retry--;
+ 		DBF_DEV_EVENT(DBF_ERR, block->base,
+ 			      "scan partitions error, retry %d rc %d",
+@@ -138,7 +135,7 @@ int dasd_scan_partitions(struct dasd_block *block)
+ 	 * dasd_generic_set_offline). As long as the partition
+ 	 * detection is running no offline should be allowed. That
+ 	 * is why the assignment to device->bdev is done AFTER
+-	 * the BLKRRPART ioctl.
++	 * the blkdev_reread_part() call.
+ 	 */
+ 	block->bdev = bdev;
+ 	return 0;
 -- 
 1.8.3.1
