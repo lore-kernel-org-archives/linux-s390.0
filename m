@@ -1,192 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <1428474226-27386-3-git-send-email-jarod@redhat.com>
-References: <1428218688-4092-1-git-send-email-ming.lei@canonical.com>
-	<1428474226-27386-1-git-send-email-jarod@redhat.com>
-	<1428474226-27386-3-git-send-email-jarod@redhat.com>
-Date: Wed, 8 Apr 2015 14:50:59 +0800
-Message-ID: <CACVXFVPtaG4EDjAJ5G=Qz29fE4Zfp==W0izdCK06ZnJm17jO8Q@mail.gmail.com>
+Date: Wed, 8 Apr 2015 09:40:34 -0400
+From: Jarod Wilson <jarod@redhat.com>
 Subject: Re: [PATCH 2/7] block: loop: don't hold lo_ctl_mutex in lo_open
-From: Ming Lei <ming.lei@canonical.com>
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <20150408134034.GH14217@redhat.com>
+References: <1428218688-4092-1-git-send-email-ming.lei@canonical.com>
+ <1428474226-27386-1-git-send-email-jarod@redhat.com>
+ <1428474226-27386-3-git-send-email-jarod@redhat.com>
+ <CACVXFVPtaG4EDjAJ5G=Qz29fE4Zfp==W0izdCK06ZnJm17jO8Q@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CACVXFVPtaG4EDjAJ5G=Qz29fE4Zfp==W0izdCK06ZnJm17jO8Q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jarod Wilson <jarod@redhat.com>
+To: Ming Lei <ming.lei@canonical.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>, Jens Axboe <axboe@kernel.dk>, Tejun Heo <tj@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Markus Pargmann <mpa@pengutronix.de>, Stefan Weinhuber <wein@de.ibm.com>, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, David Herrmann <dh.herrmann@gmail.com>, Mike Galbraith <bitbucket@online.de>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, "nbd-general@lists.sourceforge.net" <nbd-general@lists.sourceforge.net>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Jarod,
+On Wed, Apr 08, 2015 at 02:50:59PM +0800, Ming Lei wrote:
+> Hi Jarod,
+> 
+> On Wed, Apr 8, 2015 at 2:23 PM, Jarod Wilson <jarod@redhat.com> wrote:
+> > From: Ming Lei <ming.lei@canonical.com>
+> >
+> > The lo_ctl_mutex is held for running all ioctl handlers, and
+> > in some ioctl handlers, ioctl_by_bdev(BLKRRPART) is called for
+> > rereading partitions, which requires bd_mutex.
+> >
+> > So it is easy to cause failure because trylock(bd_mutex) may
+> > fail inside blkdev_reread_part(), and follows the lock context:
+> >
+> > blkid or other application:
+> >         ->open()
+> >                 ->mutex_lock(bd_mutex)
+> >                 ->lo_open()
+> >                         ->mutex_lock(lo_ctl_mutex)
+> >
+> > losetup(set fd ioctl):
+> >         ->mutex_lock(lo_ctl_mutex)
+> >         ->ioctl_by_bdev(BLKRRPART)
+> >                 ->trylock(bd_mutex)
+> >
+> > This patch trys to eliminate the ABBA lock dependency by removing
+> > lo_ctl_mutext in lo_open() with the following approach:
+> >
+> > 1) introduce lo_open_mutex to protect lo_refcnt and avoid acquiring
+> > lo_ctl_mutex in lo_open():
+> 
+> It is a bit quick since I said the lo_open_mutex can be removed,
+> and Christoph agreed that too.
+> 
+> So looks we still need to post another version, :-)
 
-On Wed, Apr 8, 2015 at 2:23 PM, Jarod Wilson <jarod@redhat.com> wrote:
-> From: Ming Lei <ming.lei@canonical.com>
->
-> The lo_ctl_mutex is held for running all ioctl handlers, and
-> in some ioctl handlers, ioctl_by_bdev(BLKRRPART) is called for
-> rereading partitions, which requires bd_mutex.
->
-> So it is easy to cause failure because trylock(bd_mutex) may
-> fail inside blkdev_reread_part(), and follows the lock context:
->
-> blkid or other application:
->         ->open()
->                 ->mutex_lock(bd_mutex)
->                 ->lo_open()
->                         ->mutex_lock(lo_ctl_mutex)
->
-> losetup(set fd ioctl):
->         ->mutex_lock(lo_ctl_mutex)
->         ->ioctl_by_bdev(BLKRRPART)
->                 ->trylock(bd_mutex)
->
-> This patch trys to eliminate the ABBA lock dependency by removing
-> lo_ctl_mutext in lo_open() with the following approach:
->
-> 1) introduce lo_open_mutex to protect lo_refcnt and avoid acquiring
-> lo_ctl_mutex in lo_open():
+Ah. I missed that bit. Just trying to keep up momentum.
 
-It is a bit quick since I said the lo_open_mutex can be removed,
-and Christoph agreed that too.
-
-So looks we still need to post another version, :-)
-
->         - for open vs. add/del loop, no any problem because of loop_index_mutex
->         - lo_open_mutex is used for syncing open() and loop_clr_fd()
->         - both open() and release() have been serialized by bd_mutex already
->
-> 2) don't hold lo_ctl_mutex for decreasing/checking lo_refcnt in
-> lo_release(), then lo_ctl_mutex is only required for the last release.
->
-> CC: Christoph Hellwig <hch@infradead.org>
-> CC: Jens Axboe <axboe@kernel.dk>
-> CC: Tejun Heo <tj@kernel.org>
-> CC: Alexander Viro <viro@zeniv.linux.org.uk>
-> CC: Markus Pargmann <mpa@pengutronix.de>
-> CC: Stefan Weinhuber <wein@de.ibm.com>
-> CC: Stefan Haberland <stefan.haberland@de.ibm.com>
-> CC: Sebastian Ott <sebott@linux.vnet.ibm.com>
-> CC: Fabian Frederick <fabf@skynet.be>
-> CC: Ming Lei <ming.lei@canonical.com>
-> CC: David Herrmann <dh.herrmann@gmail.com>
-> CC: Mike Galbraith <bitbucket@online.de>
-> CC: Andrew Morton <akpm@linux-foundation.org>
-> CC: Peter Zijlstra <peterz@infradead.org>
-> CC: nbd-general@lists.sourceforge.net
-> CC: linux-s390@vger.kernel.org
-> Signed-off-by: Ming Lei <ming.lei@canonical.com>
-> Signed-off-by: Jarod Wilson <jarod@redhat.com>
-> ---
->  drivers/block/loop.c | 32 ++++++++++++++++++++++++++------
->  drivers/block/loop.h |  1 +
->  2 files changed, 27 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-> index d1f168b..81a6bc1 100644
-> --- a/drivers/block/loop.c
-> +++ b/drivers/block/loop.c
-> @@ -879,14 +879,18 @@ static int loop_clr_fd(struct loop_device *lo)
->          * <dev>/do something like mkfs/losetup -d <dev> causing the losetup -d
->          * command to fail with EBUSY.
->          */
-> +       mutex_lock(&lo->lo_open_mutex);
->         if (lo->lo_refcnt > 1) {
-> +               mutex_unlock(&lo->lo_open_mutex);
->                 lo->lo_flags |= LO_FLAGS_AUTOCLEAR;
->                 mutex_unlock(&lo->lo_ctl_mutex);
->                 return 0;
->         }
->
-> -       if (filp == NULL)
-> +       if (filp == NULL) {
-> +               mutex_unlock(&lo->lo_open_mutex);
->                 return -EINVAL;
-> +       }
->
->         spin_lock_irq(&lo->lo_lock);
->         lo->lo_state = Lo_rundown;
-> @@ -919,6 +923,15 @@ static int loop_clr_fd(struct loop_device *lo)
->         lo->lo_state = Lo_unbound;
->         /* This is safe: open() is still holding a reference. */
->         module_put(THIS_MODULE);
-> +
-> +       /*
-> +        * Unlock open_mutex for avoiding -EBUSY of rereading part:
-> +        * - try to acquire bd_mutex from reread part
-> +        * - another task is opening the loop with holding bd_mutex
-> +        *   and trys to acquire open_mutex
-> +        */
-> +       mutex_unlock(&lo->lo_open_mutex);
-> +
->         if (lo->lo_flags & LO_FLAGS_PARTSCAN && bdev)
->                 ioctl_by_bdev(bdev, BLKRRPART, 0);
->         lo->lo_flags = 0;
-> @@ -1376,9 +1389,9 @@ static int lo_open(struct block_device *bdev, fmode_t mode)
->                 goto out;
->         }
->
-> -       mutex_lock(&lo->lo_ctl_mutex);
-> +       mutex_lock(&lo->lo_open_mutex);
->         lo->lo_refcnt++;
-> -       mutex_unlock(&lo->lo_ctl_mutex);
-> +       mutex_unlock(&lo->lo_open_mutex);
->  out:
->         mutex_unlock(&loop_index_mutex);
->         return err;
-> @@ -1387,13 +1400,16 @@ out:
->  static void lo_release(struct gendisk *disk, fmode_t mode)
->  {
->         struct loop_device *lo = disk->private_data;
-> -       int err;
-> +       int err, ref;
->
-> -       mutex_lock(&lo->lo_ctl_mutex);
-> +       mutex_lock(&lo->lo_open_mutex);
-> +       ref = --lo->lo_refcnt;
-> +       mutex_unlock(&lo->lo_open_mutex);
->
-> -       if (--lo->lo_refcnt)
-> +       if (ref)
->                 goto out;
->
-> +       mutex_lock(&lo->lo_ctl_mutex);
->         if (lo->lo_flags & LO_FLAGS_AUTOCLEAR) {
->                 /*
->                  * In autoclear mode, stop the loop thread
-> @@ -1646,6 +1662,7 @@ static int loop_add(struct loop_device **l, int i)
->                 disk->flags |= GENHD_FL_NO_PART_SCAN;
->         disk->flags |= GENHD_FL_EXT_DEVT;
->         mutex_init(&lo->lo_ctl_mutex);
-> +       mutex_init(&lo->lo_open_mutex);
->         lo->lo_number           = i;
->         spin_lock_init(&lo->lo_lock);
->         disk->major             = LOOP_MAJOR;
-> @@ -1763,11 +1780,14 @@ static long loop_control_ioctl(struct file *file, unsigned int cmd,
->                         mutex_unlock(&lo->lo_ctl_mutex);
->                         break;
->                 }
-> +               mutex_lock(&lo->lo_open_mutex);
->                 if (lo->lo_refcnt > 0) {
->                         ret = -EBUSY;
-> +                       mutex_unlock(&lo->lo_open_mutex);
->                         mutex_unlock(&lo->lo_ctl_mutex);
->                         break;
->                 }
-> +               mutex_unlock(&lo->lo_open_mutex);
->                 lo->lo_disk->private_data = NULL;
->                 mutex_unlock(&lo->lo_ctl_mutex);
->                 idr_remove(&loop_index_idr, lo->lo_number);
-> diff --git a/drivers/block/loop.h b/drivers/block/loop.h
-> index 301c27f..1b4acf2 100644
-> --- a/drivers/block/loop.h
-> +++ b/drivers/block/loop.h
-> @@ -59,6 +59,7 @@ struct loop_device {
->         bool                    write_started;
->         int                     lo_state;
->         struct mutex            lo_ctl_mutex;
-> +       struct mutex            lo_open_mutex;
->
->         struct request_queue    *lo_queue;
->         struct blk_mq_tag_set   tag_set;
-> --
-> 1.8.3.1
->
+-- 
+Jarod Wilson
+jarod@redhat.com
