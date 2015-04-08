@@ -1,107 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <20150406134227.GC14217@redhat.com>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: [PATCH 0/7] block: reread partitions improvements
+Date: Wed,  8 Apr 2015 02:23:39 -0400
+Message-Id: <1428474226-27386-1-git-send-email-jarod@redhat.com>
+In-Reply-To: <1428218688-4092-1-git-send-email-ming.lei@canonical.com>
 References: <1428218688-4092-1-git-send-email-ming.lei@canonical.com>
-	<1428218688-4092-2-git-send-email-ming.lei@canonical.com>
-	<20150405161241.GB16886@infradead.org>
-	<CACVXFVP-rokGRrMus_QXju+MVzFPTaFC45oZBe2PEBfbid8nmQ@mail.gmail.com>
-	<20150406134227.GC14217@redhat.com>
-Date: Tue, 7 Apr 2015 10:43:53 +0800
-Message-ID: <CACVXFVMzmFO8SfmNX2C6sSieF877w3LPs=tOOQ7xa3byOZUadQ@mail.gmail.com>
-Subject: Re: [PATCH 1/6] block: export blkdev_reread_part()
-From: Ming Lei <ming.lei@canonical.com>
-Content-Type: text/plain; charset=UTF-8
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jarod Wilson <jarod@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Jens Axboe <axboe@kernel.dk>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, David Herrmann <dh.herrmann@gmail.com>, Markus Pargmann <mpa@pengutronix.de>, "nbd-general@lists.sourceforge.net" <nbd-general@lists.sourceforge.net>, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Jarod Wilson <jarod@redhat.com>, Christoph Hellwig <hch@infradead.org>, Jens Axboe <axboe@kernel.dk>, Tejun Heo <tj@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Markus Pargmann <mpa@pengutronix.de>, Stefan Weinhuber <wein@de.ibm.com>, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, Ming Lei <ming.lei@canonical.com>, David Herrmann <dh.herrmann@gmail.com>, Mike Galbraith <bitbucket@online.de>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, nbd-general@lists.sourceforge.net, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Apr 6, 2015 at 9:42 PM, Jarod Wilson <jarod@redhat.com> wrote:
-> On Mon, Apr 06, 2015 at 12:40:12AM +0800, Ming Lei wrote:
->> On Mon, Apr 6, 2015 at 12:12 AM, Christoph Hellwig <hch@infradead.org> wrote:
->> >> +/*
->> >> + * This is exported as API for block driver, can be called
->> >> + * with requiring bd_mutex or not.
->> >> + */
->> >> +int __blkdev_reread_part(struct block_device *bdev, bool lock)
->> >>  {
->> >>       struct gendisk *disk = bdev->bd_disk;
->> >>       int res;
->> >> @@ -159,12 +163,14 @@ static int blkdev_reread_part(struct block_device *bdev)
->> >>               return -EINVAL;
->> >>       if (!capable(CAP_SYS_ADMIN))
->> >>               return -EACCES;
->> >> -     if (!mutex_trylock(&bdev->bd_mutex))
->> >> +     if (lock && !mutex_trylock(&bdev->bd_mutex))
->> >>               return -EBUSY;
->> >
->> > Please don't add funtions that do conditional locking, instead move
->> > all the code into blkdev_reread_part_nolock, and then wrap it:
->> >
->> > int blkdev_reread_part(struct block_device *bdev)
->> > {
->> >         if (!mutex_trylock(&bdev->bd_mutex))
->> >                 return -EBUSY;
->> >         blkdev_reread_part_nolock(bdev);
->> >         mutex_unlock(&bdev->bd_mutex);
->> > }
->>
->> Yes, it is more clean, but with extra acquiring lock cost for the
->> failure cases, especially when we replace trylock with mutex_lock().
->
-> I was working on a version of this myself over the past few days, I
-> actually removed blkdev_reread_part() entirely, renamed
-> fs/partition-generic.c::reread_partitions() to __reread_partitions(), then
-> moved the locking from blkdev_reread_part() into a new reread_partitions()
-> that wrapped around __reread_partitions(). Same difference, I guess.
->
->> > Please also add a lockdep_assert_held to blkdev_reread_part_nolock to
->> > ensure callers actually do hold the lock.
->>
->> Good point!
->
-> Looks like fs/block_dev.c::__blkdev_get() is the only thing that would be
-> calling the _nolock variant of whichever route, as it handles bd_mutex
-> acquisition within __blkdev_get().
+For loop, the root cause is one ABBA and one AA lock dependency
+issue, and the two are fixed by patch 2 and patch 3 each.
 
-I guess you forget __blkdev_put(), :-)
+Another reason is from the trylock in blkdev_reread_part(), which
+may cause partition scanning failure too sometimes when another task
+is holding the bd_mutex. In the discussion[1], both Tejun and Christoph
+suggests to replace the trylock with mutex_lock in blkdev_reread_part(),
+also Christoph suggests to export blkdev_reread_part.
 
->
-> As an aside, there's a piece of that function that could be worth
-> duplicating over into loop.c as well:
->
->         if (bdev->bd_invalidated) {
->                 if (!ret)
->                         rescan_partitions(bdev);
->                 else if (ret == -ENOMEDIUM)
->                         invalidate_partitions(disk, bdev);
->
-> Might this possibly be put to use to help with the problem commit
-> 8761a3dc1f07b163414e2215a2cadbb4cfe2a107 was trying to solve?
+Following the discussion, this patchset exports blkdev_reread_part(), and
+introduces lockless __blkdev_reread_part() for fixing loop's AA lock issue.
+Then ioctl_by_bdev(BLKRRPART) in loop, nbd and dasd is replaced with
+blkdev_reread_part(). In the last patch, trylock in blkdev_reread_part()
+is replaced with mutex_lock, and some analysis is provided about the
+conversion.
 
-I am wondering if the problem claimed in this commit exists in reality,
-at least fdisk need to run reread partition first before adding partition.
+This is a slightly reworked set from what Ming sent a few days ago,
+based on Christoph's feedback. I've tested this out quite succesfully
+in the scenario that prompted my first patch as well.
 
-- LO_FLAGS_PARTSCAN is set for both 'losetup -P' and max_parts
-- if max_parts isn't set, GENHD_FL_NO_PART_SCAN is set, so user
-can't reread partition successfully because of disk_part_scan_enabled().
 
-If there is really the problem, it can be fixed by exporting
-rescan_partitions or the approach in commit 8761a3dc
-with not acquiring bd_mutex in release().
+[1], https://lkml.org/lkml/2015/1/26/137
+[2], https://lkml.org/lkml/2015/3/31/888
 
-Thanks,
-Ming Lei
+Jarod Wilson (3):
+  block: export blkdev_reread_part() and __blkdev_reread_part()
+  block: loop: fix another reread part failure
+  s390/block/dasd: remove obsolete while -EBUSY loop
 
->
-> --
-> Jarod Wilson
-> jarod@redhat.com
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Ming Lei (4):
+  block: loop: don't hold lo_ctl_mutex in lo_open
+  block: nbd: convert to blkdev_reread_part()
+  block: dasd_genhd: convert to blkdev_reread_part
+  block: replace trylock with mutex_lock in blkdev_reread_part()
+
+ block/ioctl.c                   | 34 +++++++++++++++++++----
+ drivers/block/loop.c            | 60 ++++++++++++++++++++++++++++++++++-------
+ drivers/block/loop.h            |  1 +
+ drivers/block/nbd.c             |  2 +-
+ drivers/s390/block/dasd_genhd.c | 22 +++++----------
+ include/linux/fs.h              |  3 +++
+ 6 files changed, 90 insertions(+), 32 deletions(-)
+
+CC: Christoph Hellwig <hch@infradead.org>
+CC: Jens Axboe <axboe@kernel.dk>
+CC: Tejun Heo <tj@kernel.org>
+CC: Alexander Viro <viro@zeniv.linux.org.uk>
+CC: Markus Pargmann <mpa@pengutronix.de>
+CC: Stefan Weinhuber <wein@de.ibm.com>
+CC: Stefan Haberland <stefan.haberland@de.ibm.com>
+CC: Sebastian Ott <sebott@linux.vnet.ibm.com>
+CC: Fabian Frederick <fabf@skynet.be>
+CC: Ming Lei <ming.lei@canonical.com>
+CC: David Herrmann <dh.herrmann@gmail.com>
+CC: Mike Galbraith <bitbucket@online.de>
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: Peter Zijlstra <peterz@infradead.org>
+CC: nbd-general@lists.sourceforge.net
+CC: linux-s390@vger.kernel.org
+
+-- 
+1.8.3.1
