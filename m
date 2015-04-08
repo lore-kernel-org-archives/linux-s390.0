@@ -1,72 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 8 Apr 2015 11:28:57 -0400
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH 2/7] block: loop: don't hold lo_ctl_mutex in lo_open
-Message-ID: <20150408152857.GK14217@redhat.com>
-References: <1428218688-4092-1-git-send-email-ming.lei@canonical.com>
- <1428474226-27386-1-git-send-email-jarod@redhat.com>
- <1428474226-27386-3-git-send-email-jarod@redhat.com>
- <CACVXFVPtaG4EDjAJ5G=Qz29fE4Zfp==W0izdCK06ZnJm17jO8Q@mail.gmail.com>
- <20150408134034.GH14217@redhat.com>
- <20150408140028.GI14217@redhat.com>
- <CACVXFVM8qXs6nEMGURhAZFJ4cuGNvCc-gM_hryaVvERMTdTfpg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACVXFVM8qXs6nEMGURhAZFJ4cuGNvCc-gM_hryaVvERMTdTfpg@mail.gmail.com>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: [PATCH v1 1/7] block: export blkdev_reread_part() and __blkdev_reread_part()
+Date: Wed,  8 Apr 2015 23:52:58 +0800
+Message-Id: <1428508384-29008-2-git-send-email-ming.lei@canonical.com>
+In-Reply-To: <1428508384-29008-1-git-send-email-ming.lei@canonical.com>
+References: <1428508384-29008-1-git-send-email-ming.lei@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ming Lei <ming.lei@canonical.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>, Jens Axboe <axboe@kernel.dk>, Tejun Heo <tj@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Markus Pargmann <mpa@pengutronix.de>, Stefan Weinhuber <wein@de.ibm.com>, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, David Herrmann <dh.herrmann@gmail.com>, Mike Galbraith <bitbucket@online.de>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, "nbd-general@lists.sourceforge.net" <nbd-general@lists.sourceforge.net>, linux-s390@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, Tejun Heo <tj@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Jarod Wilson <jarod@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Markus Pargmann <mpa@pengutronix.de>, nbd-general@lists.sourceforge.net, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, Peter Zijlstra <peterz@infradead.org>, linux-s390@vger.kernel.org, Stefan Weinhuber <wein@de.ibm.com>, Ming Lei <ming.lei@canonical.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Apr 08, 2015 at 10:20:22PM +0800, Ming Lei wrote:
-> On Wed, Apr 8, 2015 at 10:00 PM, Jarod Wilson <jarod@redhat.com> wrote:
-> > On Wed, Apr 08, 2015 at 09:40:34AM -0400, Jarod Wilson wrote:
-> >> On Wed, Apr 08, 2015 at 02:50:59PM +0800, Ming Lei wrote:
-> >> > Hi Jarod,
-> >> >
-> >> > On Wed, Apr 8, 2015 at 2:23 PM, Jarod Wilson <jarod@redhat.com> wrote:
-> >> > > From: Ming Lei <ming.lei@canonical.com>
-> >> > >
-> >> > > The lo_ctl_mutex is held for running all ioctl handlers, and
-> >> > > in some ioctl handlers, ioctl_by_bdev(BLKRRPART) is called for
-> >> > > rereading partitions, which requires bd_mutex.
-> >> > >
-> >> > > So it is easy to cause failure because trylock(bd_mutex) may
-> >> > > fail inside blkdev_reread_part(), and follows the lock context:
-> >> > >
-> >> > > blkid or other application:
-> >> > >         ->open()
-> >> > >                 ->mutex_lock(bd_mutex)
-> >> > >                 ->lo_open()
-> >> > >                         ->mutex_lock(lo_ctl_mutex)
-> >> > >
-> >> > > losetup(set fd ioctl):
-> >> > >         ->mutex_lock(lo_ctl_mutex)
-> >> > >         ->ioctl_by_bdev(BLKRRPART)
-> >> > >                 ->trylock(bd_mutex)
-> >> > >
-> >> > > This patch trys to eliminate the ABBA lock dependency by removing
-> >> > > lo_ctl_mutext in lo_open() with the following approach:
-> >> > >
-> >> > > 1) introduce lo_open_mutex to protect lo_refcnt and avoid acquiring
-> >> > > lo_ctl_mutex in lo_open():
-> >> >
-> >> > It is a bit quick since I said the lo_open_mutex can be removed,
-> >> > and Christoph agreed that too.
-> >> >
-> >> > So looks we still need to post another version, :-)
-> >>
-> >> Ah. I missed that bit. Just trying to keep up momentum.
-> >
-> > Are you working on that atomic_t version then, or should I dive into it?
-> 
-> It has been ready, and I will post them out once it passes my tests.
+From: Jarod Wilson <jarod@redhat.com>
 
-Okay, I'll hold tight then. Sorry for the noise. :p
+This patch exports blkdev_reread_part() for block drivers, also
+introduce __blkdev_reread_part().
 
+For some drivers, such as loop, reread of partitions can be run
+from the release path, and bd_mutex may already be held prior to
+calling ioctl_by_bdev(bdev, BLKRRPART, 0), so introduce
+__blkdev_reread_part for use in such cases.
+
+CC: Christoph Hellwig <hch@infradead.org>
+CC: Jens Axboe <axboe@kernel.dk>
+CC: Tejun Heo <tj@kernel.org>
+CC: Alexander Viro <viro@zeniv.linux.org.uk>
+CC: Markus Pargmann <mpa@pengutronix.de>
+CC: Stefan Weinhuber <wein@de.ibm.com>
+CC: Stefan Haberland <stefan.haberland@de.ibm.com>
+CC: Sebastian Ott <sebott@linux.vnet.ibm.com>
+CC: Fabian Frederick <fabf@skynet.be>
+CC: Ming Lei <ming.lei@canonical.com>
+CC: David Herrmann <dh.herrmann@gmail.com>
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: Peter Zijlstra <peterz@infradead.org>
+CC: nbd-general@lists.sourceforge.net
+CC: linux-s390@vger.kernel.org
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+Signed-off-by: Ming Lei <ming.lei@canonical.com>
+---
+ block/ioctl.c      |   28 +++++++++++++++++++++++++---
+ include/linux/fs.h |    3 +++
+ 2 files changed, 28 insertions(+), 3 deletions(-)
+
+diff --git a/block/ioctl.c b/block/ioctl.c
+index 7d8befd..203cb4a 100644
+--- a/block/ioctl.c
++++ b/block/ioctl.c
+@@ -150,21 +150,43 @@ static int blkpg_ioctl(struct block_device *bdev, struct blkpg_ioctl_arg __user
+ 	}
+ }
+ 
+-static int blkdev_reread_part(struct block_device *bdev)
++/*
++ * This is an exported API for the block driver, and will not
++ * acquire bd_mutex. This API should be used in case that
++ * caller has held bd_mutex already.
++ */
++int __blkdev_reread_part(struct block_device *bdev)
+ {
+ 	struct gendisk *disk = bdev->bd_disk;
+-	int res;
+ 
+ 	if (!disk_part_scan_enabled(disk) || bdev != bdev->bd_contains)
+ 		return -EINVAL;
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
++
++	lockdep_assert_held(&bdev->bd_mutex);
++
++	return rescan_partitions(disk, bdev);
++}
++EXPORT_SYMBOL(__blkdev_reread_part);
++
++/*
++ * This is an exported API for the block driver, and will
++ * try to acquire bd_mutex. If bd_mutex has been held already
++ * in current context, please call __blkdev_reread_part().
++ */
++int blkdev_reread_part(struct block_device *bdev)
++{
++	int res;
++
+ 	if (!mutex_trylock(&bdev->bd_mutex))
+ 		return -EBUSY;
+-	res = rescan_partitions(disk, bdev);
++	res = __blkdev_reread_part(bdev);
+ 	mutex_unlock(&bdev->bd_mutex);
++
+ 	return res;
+ }
++EXPORT_SYMBOL(blkdev_reread_part);
+ 
+ static int blk_ioctl_discard(struct block_device *bdev, uint64_t start,
+ 			     uint64_t len, int secure)
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 4e858fd..dac6354 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2274,6 +2274,9 @@ extern struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
+ extern struct block_device *blkdev_get_by_dev(dev_t dev, fmode_t mode,
+ 					      void *holder);
+ extern void blkdev_put(struct block_device *bdev, fmode_t mode);
++extern int __blkdev_reread_part(struct block_device *bdev);
++extern int blkdev_reread_part(struct block_device *bdev);
++
+ #ifdef CONFIG_SYSFS
+ extern int bd_link_disk_holder(struct block_device *bdev, struct gendisk *disk);
+ extern void bd_unlink_disk_holder(struct block_device *bdev,
 -- 
-Jarod Wilson
-jarod@redhat.com
+1.7.9.5
