@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH v2 5/7] block: dasd_genhd: convert to blkdev_reread_part
-Date: Sat, 11 Apr 2015 19:30:11 +0800
-Message-Id: <1428751813-25199-6-git-send-email-ming.lei@canonical.com>
+Subject: [PATCH v2 6/7] block: replace trylock with mutex_lock in blkdev_reread_part()
+Date: Sat, 11 Apr 2015 19:30:12 +0800
+Message-Id: <1428751813-25199-7-git-send-email-ming.lei@canonical.com>
 In-Reply-To: <1428751813-25199-1-git-send-email-ming.lei@canonical.com>
 References: <1428751813-25199-1-git-send-email-ming.lei@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -12,37 +12,64 @@ To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, Christoph Hellwi
 Cc: Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Jarod Wilson <jarod@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Markus Pargmann <mpa@pengutronix.de>, nbd-general@lists.sourceforge.net, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, Peter Zijlstra <peterz@infradead.org>, linux-s390@vger.kernel.org, Ming Lei <ming.lei@canonical.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Also remove the obsolete comment.
+The only possible problem of using mutex_lock() instead of trylock
+is about deadlock.
+
+If there aren't any locks held before calling blkdev_reread_part(),
+deadlock can't be caused by this conversion.
+
+If there are locks held before calling blkdev_reread_part(),
+and if these locks arn't required in open, close handler and I/O
+path, deadlock shouldn't be caused too.
+
+Both user space's ioctl(BLKRRPART) and md_setup_drive() from
+init/do_mounts_md.c belongs to the 1st case, so the conversion is safe
+for the two cases.
+
+For loop, the previous patches in this pathset has fixed the ABBA lock
+dependency, so the conversion is OK.
+
+For nbd, tx_lock is held when calling the function:
+
+	- both open and release won't hold the lock
+	- when blkdev_reread_part() is run, I/O thread has been stopped
+	already, so tx_lock won't be acquired in I/O path at that time.
+	- so the conversion won't cause deadlock for nbd
+
+For dasd, both dasd_open(), dasd_release() and request function don't
+acquire any mutex/semphone, so the conversion should be safe.
 
 Tested-by: Jarod Wilson <jarod@redhat.com>
 Acked-by: Jarod Wilson <jarod@redhat.com>
-Acked-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
 Signed-off-by: Ming Lei <ming.lei@canonical.com>
 ---
- drivers/s390/block/dasd_genhd.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ block/ioctl.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
-index 90f39f7..2af4619 100644
---- a/drivers/s390/block/dasd_genhd.c
-+++ b/drivers/s390/block/dasd_genhd.c
-@@ -116,14 +116,11 @@ int dasd_scan_partitions(struct dasd_block *block)
- 			      rc);
- 		return -ENODEV;
- 	}
--	/*
--	 * See fs/partition/check.c:register_disk,rescan_partitions
--	 * Can't call rescan_partitions directly. Use ioctl.
--	 */
--	rc = ioctl_by_bdev(bdev, BLKRRPART, 0);
-+
-+	rc = blkdev_reread_part(bdev);
- 	while (rc == -EBUSY && retry > 0) {
- 		schedule();
--		rc = ioctl_by_bdev(bdev, BLKRRPART, 0);
-+		rc = blkdev_reread_part(bdev);
- 		retry--;
- 		DBF_DEV_EVENT(DBF_ERR, block->base,
- 			      "scan partitions error, retry %d rc %d",
+diff --git a/block/ioctl.c b/block/ioctl.c
+index 203cb4a..8061eba 100644
+--- a/block/ioctl.c
++++ b/block/ioctl.c
+@@ -174,13 +174,18 @@ EXPORT_SYMBOL(__blkdev_reread_part);
+  * This is an exported API for the block driver, and will
+  * try to acquire bd_mutex. If bd_mutex has been held already
+  * in current context, please call __blkdev_reread_part().
++ *
++ * Make sure the held locks in current context aren't required
++ * in open()/close() handler and I/O path for avoiding ABBA deadlock:
++ * - bd_mutex is held before calling block driver's open/close
++ *   handler
++ * - reading partition table may submit I/O to the block device
+  */
+ int blkdev_reread_part(struct block_device *bdev)
+ {
+ 	int res;
+ 
+-	if (!mutex_trylock(&bdev->bd_mutex))
+-		return -EBUSY;
++	mutex_lock(&bdev->bd_mutex);
+ 	res = __blkdev_reread_part(bdev);
+ 	mutex_unlock(&bdev->bd_mutex);
+ 
 -- 
 1.7.9.5
