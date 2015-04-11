@@ -1,52 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH v1 0/7] block: reread partitions changes and fix for loop
-Date: Wed,  8 Apr 2015 23:52:57 +0800
-Message-Id: <1428508384-29008-1-git-send-email-ming.lei@canonical.com>
+Subject: [PATCH v2 1/7] block: export blkdev_reread_part() and __blkdev_reread_part()
+Date: Sat, 11 Apr 2015 19:30:07 +0800
+Message-Id: <1428751813-25199-2-git-send-email-ming.lei@canonical.com>
+In-Reply-To: <1428751813-25199-1-git-send-email-ming.lei@canonical.com>
+References: <1428751813-25199-1-git-send-email-ming.lei@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, Tejun Heo <tj@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Jarod Wilson <jarod@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Markus Pargmann <mpa@pengutronix.de>, nbd-general@lists.sourceforge.net, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, Peter Zijlstra <peterz@infradead.org>, linux-s390@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Jarod Wilson <jarod@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Markus Pargmann <mpa@pengutronix.de>, nbd-general@lists.sourceforge.net, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, Peter Zijlstra <peterz@infradead.org>, linux-s390@vger.kernel.org, Stefan Weinhuber <wein@de.ibm.com>, Ming Lei <ming.lei@canonical.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Guys,
+From: Jarod Wilson <jarod@redhat.com>
 
-Recently there are several reports about loop partition scanning
-failure[1][2].
+This patch exports blkdev_reread_part() for block drivers, also
+introduce __blkdev_reread_part().
 
-For loop, the root cause is one ABBA and one AA lock dependency
-issue, and the two are fixed by patch 2 and patch 3 each.
+For some drivers, such as loop, reread of partitions can be run
+from the release path, and bd_mutex may already be held prior to
+calling ioctl_by_bdev(bdev, BLKRRPART, 0), so introduce
+__blkdev_reread_part for use in such cases.
 
-Another reason is from the trylock in blkdev_reread_part(), which
-may cause partition scanning failure too sometimes when another task
-is holding the bd_mutex. In the discussion[1], both Tejun and Christoph
-suggests to replace the trylock with mutex_lock in blkdev_reread_part(),
-also Christoph suggests to export blkdev_reread_part.
+CC: Christoph Hellwig <hch@infradead.org>
+CC: Jens Axboe <axboe@kernel.dk>
+CC: Tejun Heo <tj@kernel.org>
+CC: Alexander Viro <viro@zeniv.linux.org.uk>
+CC: Markus Pargmann <mpa@pengutronix.de>
+CC: Stefan Weinhuber <wein@de.ibm.com>
+CC: Stefan Haberland <stefan.haberland@de.ibm.com>
+CC: Sebastian Ott <sebott@linux.vnet.ibm.com>
+CC: Fabian Frederick <fabf@skynet.be>
+CC: Ming Lei <ming.lei@canonical.com>
+CC: David Herrmann <dh.herrmann@gmail.com>
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: Peter Zijlstra <peterz@infradead.org>
+CC: nbd-general@lists.sourceforge.net
+CC: linux-s390@vger.kernel.org
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+Signed-off-by: Ming Lei <ming.lei@canonical.com>
+---
+ block/ioctl.c      |   28 +++++++++++++++++++++++++---
+ include/linux/fs.h |    3 +++
+ 2 files changed, 28 insertions(+), 3 deletions(-)
 
-Following the discussion, this patchset exports blkdev_reread_part(), and
-introduces __blkdev_reread_part() for fixing loop's AA lock issue.
-Then ioctl_by_bdev(BLKRRPART) in loop, nbd and dasd is replaced with
-blkdev_reread_part(). In the last patch, trylock in blkdev_reread_part()
-is replaced with mutex_lock, and some analysis is provided about the conversion.
-
-V1:
-	- introduce __blkdev_reread_part(), and use lockdep_assert_held()(1/7)
-	- replace lo_open_mutex with atomic reference count, plus freezing queue(2/7)
-	- add comment about detecting release path(3/7)
-	- remove dead code in dasd(7/7)
-
- block/ioctl.c                   |   37 +++++++++++++++++++++++++----
- drivers/block/loop.c            |   49 +++++++++++++++++++++++++++++----------
- drivers/block/loop.h            |    2 +-
- drivers/block/nbd.c             |    2 +-
- drivers/s390/block/dasd_genhd.c |   20 ++++------------
- include/linux/fs.h              |    3 +++
- 6 files changed, 79 insertions(+), 34 deletions(-)
-
-
-[1], https://lkml.org/lkml/2015/1/26/137
-[2], https://lkml.org/lkml/2015/3/31/888
-
-Thanks,
-Ming Lei
+diff --git a/block/ioctl.c b/block/ioctl.c
+index 7d8befd..203cb4a 100644
+--- a/block/ioctl.c
++++ b/block/ioctl.c
+@@ -150,21 +150,43 @@ static int blkpg_ioctl(struct block_device *bdev, struct blkpg_ioctl_arg __user
+ 	}
+ }
+ 
+-static int blkdev_reread_part(struct block_device *bdev)
++/*
++ * This is an exported API for the block driver, and will not
++ * acquire bd_mutex. This API should be used in case that
++ * caller has held bd_mutex already.
++ */
++int __blkdev_reread_part(struct block_device *bdev)
+ {
+ 	struct gendisk *disk = bdev->bd_disk;
+-	int res;
+ 
+ 	if (!disk_part_scan_enabled(disk) || bdev != bdev->bd_contains)
+ 		return -EINVAL;
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
++
++	lockdep_assert_held(&bdev->bd_mutex);
++
++	return rescan_partitions(disk, bdev);
++}
++EXPORT_SYMBOL(__blkdev_reread_part);
++
++/*
++ * This is an exported API for the block driver, and will
++ * try to acquire bd_mutex. If bd_mutex has been held already
++ * in current context, please call __blkdev_reread_part().
++ */
++int blkdev_reread_part(struct block_device *bdev)
++{
++	int res;
++
+ 	if (!mutex_trylock(&bdev->bd_mutex))
+ 		return -EBUSY;
+-	res = rescan_partitions(disk, bdev);
++	res = __blkdev_reread_part(bdev);
+ 	mutex_unlock(&bdev->bd_mutex);
++
+ 	return res;
+ }
++EXPORT_SYMBOL(blkdev_reread_part);
+ 
+ static int blk_ioctl_discard(struct block_device *bdev, uint64_t start,
+ 			     uint64_t len, int secure)
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 4e858fd..dac6354 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2274,6 +2274,9 @@ extern struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
+ extern struct block_device *blkdev_get_by_dev(dev_t dev, fmode_t mode,
+ 					      void *holder);
+ extern void blkdev_put(struct block_device *bdev, fmode_t mode);
++extern int __blkdev_reread_part(struct block_device *bdev);
++extern int blkdev_reread_part(struct block_device *bdev);
++
+ #ifdef CONFIG_SYSFS
+ extern int bd_link_disk_holder(struct block_device *bdev, struct gendisk *disk);
+ extern void bd_unlink_disk_holder(struct block_device *bdev,
+-- 
+1.7.9.5
