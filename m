@@ -1,113 +1,142 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH v2 1/7] block: export blkdev_reread_part() and __blkdev_reread_part()
-Date: Sat, 11 Apr 2015 19:30:07 +0800
-Message-Id: <1428751813-25199-2-git-send-email-ming.lei@canonical.com>
+Subject: [PATCH v2 2/7] block: loop: don't hold lo_ctl_mutex in lo_open
+Date: Sat, 11 Apr 2015 19:30:08 +0800
+Message-Id: <1428751813-25199-3-git-send-email-ming.lei@canonical.com>
 In-Reply-To: <1428751813-25199-1-git-send-email-ming.lei@canonical.com>
 References: <1428751813-25199-1-git-send-email-ming.lei@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, Tejun Heo <tj@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Jarod Wilson <jarod@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Markus Pargmann <mpa@pengutronix.de>, nbd-general@lists.sourceforge.net, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, Peter Zijlstra <peterz@infradead.org>, linux-s390@vger.kernel.org, Stefan Weinhuber <wein@de.ibm.com>, Ming Lei <ming.lei@canonical.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Jarod Wilson <jarod@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Markus Pargmann <mpa@pengutronix.de>, nbd-general@lists.sourceforge.net, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, Peter Zijlstra <peterz@infradead.org>, linux-s390@vger.kernel.org, Ming Lei <ming.lei@canonical.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Jarod Wilson <jarod@redhat.com>
+The lo_ctl_mutex is held for running all ioctl handlers, and
+in some ioctl handlers, ioctl_by_bdev(BLKRRPART) is called for
+rereading partitions, which requires bd_mutex.
 
-This patch exports blkdev_reread_part() for block drivers, also
-introduce __blkdev_reread_part().
+So it is easy to cause failure because trylock(bd_mutex) may
+fail inside blkdev_reread_part(), and follows the lock context:
 
-For some drivers, such as loop, reread of partitions can be run
-from the release path, and bd_mutex may already be held prior to
-calling ioctl_by_bdev(bdev, BLKRRPART, 0), so introduce
-__blkdev_reread_part for use in such cases.
+blkid or other application:
+	->open()
+		->mutex_lock(bd_mutex)
+		->lo_open()
+			->mutex_lock(lo_ctl_mutex)
 
-CC: Christoph Hellwig <hch@infradead.org>
-CC: Jens Axboe <axboe@kernel.dk>
-CC: Tejun Heo <tj@kernel.org>
-CC: Alexander Viro <viro@zeniv.linux.org.uk>
-CC: Markus Pargmann <mpa@pengutronix.de>
-CC: Stefan Weinhuber <wein@de.ibm.com>
-CC: Stefan Haberland <stefan.haberland@de.ibm.com>
-CC: Sebastian Ott <sebott@linux.vnet.ibm.com>
-CC: Fabian Frederick <fabf@skynet.be>
-CC: Ming Lei <ming.lei@canonical.com>
-CC: David Herrmann <dh.herrmann@gmail.com>
-CC: Andrew Morton <akpm@linux-foundation.org>
-CC: Peter Zijlstra <peterz@infradead.org>
-CC: nbd-general@lists.sourceforge.net
-CC: linux-s390@vger.kernel.org
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
+losetup(set fd ioctl):
+	->mutex_lock(lo_ctl_mutex)
+	->ioctl_by_bdev(BLKRRPART)
+		->trylock(bd_mutex)
+
+This patch trys to eliminate the ABBA lock dependency by removing
+lo_ctl_mutext in lo_open() with the following approach:
+
+1) make lo_refcnt as atomic_t and avoid acquiring lo_ctl_mutex in lo_open():
+	- for open vs. add/del loop, no any problem because of loop_index_mutex
+	- freeze request queue during clr_fd, so I/O can't come until
+	  clearing fd is completed, like the effect of holding lo_ctl_mutex
+	  in lo_open
+	- both open() and release() have been serialized by bd_mutex already
+
+2) don't hold lo_ctl_mutex for decreasing/checking lo_refcnt in
+lo_release(), then lo_ctl_mutex is only required for the last release.
+
+Tested-by: Jarod Wilson <jarod@redhat.com>
+Acked-by: Jarod Wilson <jarod@redhat.com>
 Signed-off-by: Ming Lei <ming.lei@canonical.com>
 ---
- block/ioctl.c      |   28 +++++++++++++++++++++++++---
- include/linux/fs.h |    3 +++
- 2 files changed, 28 insertions(+), 3 deletions(-)
+ drivers/block/loop.c |   19 +++++++++++--------
+ drivers/block/loop.h |    2 +-
+ 2 files changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/block/ioctl.c b/block/ioctl.c
-index 7d8befd..203cb4a 100644
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -150,21 +150,43 @@ static int blkpg_ioctl(struct block_device *bdev, struct blkpg_ioctl_arg __user
- 	}
- }
- 
--static int blkdev_reread_part(struct block_device *bdev)
-+/*
-+ * This is an exported API for the block driver, and will not
-+ * acquire bd_mutex. This API should be used in case that
-+ * caller has held bd_mutex already.
-+ */
-+int __blkdev_reread_part(struct block_device *bdev)
- {
- 	struct gendisk *disk = bdev->bd_disk;
--	int res;
- 
- 	if (!disk_part_scan_enabled(disk) || bdev != bdev->bd_contains)
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index c4fd1e4..0d9f014 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -881,7 +881,7 @@ static int loop_clr_fd(struct loop_device *lo)
+ 	 * <dev>/do something like mkfs/losetup -d <dev> causing the losetup -d
+ 	 * command to fail with EBUSY.
+ 	 */
+-	if (lo->lo_refcnt > 1) {
++	if (atomic_read(&lo->lo_refcnt) > 1) {
+ 		lo->lo_flags |= LO_FLAGS_AUTOCLEAR;
+ 		mutex_unlock(&lo->lo_ctl_mutex);
+ 		return 0;
+@@ -890,6 +890,9 @@ static int loop_clr_fd(struct loop_device *lo)
+ 	if (filp == NULL)
  		return -EINVAL;
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
-+
-+	lockdep_assert_held(&bdev->bd_mutex);
-+
-+	return rescan_partitions(disk, bdev);
-+}
-+EXPORT_SYMBOL(__blkdev_reread_part);
-+
-+/*
-+ * This is an exported API for the block driver, and will
-+ * try to acquire bd_mutex. If bd_mutex has been held already
-+ * in current context, please call __blkdev_reread_part().
-+ */
-+int blkdev_reread_part(struct block_device *bdev)
-+{
-+	int res;
-+
- 	if (!mutex_trylock(&bdev->bd_mutex))
- 		return -EBUSY;
--	res = rescan_partitions(disk, bdev);
-+	res = __blkdev_reread_part(bdev);
- 	mutex_unlock(&bdev->bd_mutex);
-+
- 	return res;
- }
-+EXPORT_SYMBOL(blkdev_reread_part);
  
- static int blk_ioctl_discard(struct block_device *bdev, uint64_t start,
- 			     uint64_t len, int secure)
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 4e858fd..dac6354 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2274,6 +2274,9 @@ extern struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
- extern struct block_device *blkdev_get_by_dev(dev_t dev, fmode_t mode,
- 					      void *holder);
- extern void blkdev_put(struct block_device *bdev, fmode_t mode);
-+extern int __blkdev_reread_part(struct block_device *bdev);
-+extern int blkdev_reread_part(struct block_device *bdev);
++	/* freeze request queue during the transition */
++	blk_mq_freeze_queue(lo->lo_queue);
 +
- #ifdef CONFIG_SYSFS
- extern int bd_link_disk_holder(struct block_device *bdev, struct gendisk *disk);
- extern void bd_unlink_disk_holder(struct block_device *bdev,
+ 	spin_lock_irq(&lo->lo_lock);
+ 	lo->lo_state = Lo_rundown;
+ 	lo->lo_backing_file = NULL;
+@@ -921,6 +924,8 @@ static int loop_clr_fd(struct loop_device *lo)
+ 	lo->lo_state = Lo_unbound;
+ 	/* This is safe: open() is still holding a reference. */
+ 	module_put(THIS_MODULE);
++	blk_mq_unfreeze_queue(lo->lo_queue);
++
+ 	if (lo->lo_flags & LO_FLAGS_PARTSCAN && bdev)
+ 		ioctl_by_bdev(bdev, BLKRRPART, 0);
+ 	lo->lo_flags = 0;
+@@ -1378,9 +1383,7 @@ static int lo_open(struct block_device *bdev, fmode_t mode)
+ 		goto out;
+ 	}
+ 
+-	mutex_lock(&lo->lo_ctl_mutex);
+-	lo->lo_refcnt++;
+-	mutex_unlock(&lo->lo_ctl_mutex);
++	atomic_inc(&lo->lo_refcnt);
+ out:
+ 	mutex_unlock(&loop_index_mutex);
+ 	return err;
+@@ -1391,11 +1394,10 @@ static void lo_release(struct gendisk *disk, fmode_t mode)
+ 	struct loop_device *lo = disk->private_data;
+ 	int err;
+ 
+-	mutex_lock(&lo->lo_ctl_mutex);
+-
+-	if (--lo->lo_refcnt)
++	if (atomic_dec_return(&lo->lo_refcnt))
+ 		goto out;
+ 
++	mutex_lock(&lo->lo_ctl_mutex);
+ 	if (lo->lo_flags & LO_FLAGS_AUTOCLEAR) {
+ 		/*
+ 		 * In autoclear mode, stop the loop thread
+@@ -1648,6 +1650,7 @@ static int loop_add(struct loop_device **l, int i)
+ 		disk->flags |= GENHD_FL_NO_PART_SCAN;
+ 	disk->flags |= GENHD_FL_EXT_DEVT;
+ 	mutex_init(&lo->lo_ctl_mutex);
++	atomic_set(&lo->lo_refcnt, 0);
+ 	lo->lo_number		= i;
+ 	spin_lock_init(&lo->lo_lock);
+ 	disk->major		= LOOP_MAJOR;
+@@ -1765,7 +1768,7 @@ static long loop_control_ioctl(struct file *file, unsigned int cmd,
+ 			mutex_unlock(&lo->lo_ctl_mutex);
+ 			break;
+ 		}
+-		if (lo->lo_refcnt > 0) {
++		if (atomic_read(&lo->lo_refcnt) > 0) {
+ 			ret = -EBUSY;
+ 			mutex_unlock(&lo->lo_ctl_mutex);
+ 			break;
+diff --git a/drivers/block/loop.h b/drivers/block/loop.h
+index 301c27f..ffb6dd6 100644
+--- a/drivers/block/loop.h
++++ b/drivers/block/loop.h
+@@ -28,7 +28,7 @@ struct loop_func_table;
+ 
+ struct loop_device {
+ 	int		lo_number;
+-	int		lo_refcnt;
++	atomic_t	lo_refcnt;
+ 	loff_t		lo_offset;
+ 	loff_t		lo_sizelimit;
+ 	int		lo_flags;
 -- 
 1.7.9.5
