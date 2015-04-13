@@ -1,307 +1,209 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v5 08/17] target-s390x: Introduce S390 CPU
-	models
-Date: Mon, 13 Apr 2015 15:56:27 +0200
-Message-ID: <1428933396-37887-9-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v5 11/17] target-s390x: Add KVM VM attribute interface for S390 CPU models
+Date: Mon, 13 Apr 2015 15:56:30 +0200
+Message-ID: <1428933396-37887-12-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1428933396-37887-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1428933396-37887-1-git-send-email-mimu@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>
+Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implements the static part of the S390 CPU class definitions.
-It defines S390 CPU models by means of virtual CPU ids (enum) which contain
-information on the CPU generation, the machine class, the GA number and
-the machine type. The CPU id is used to instantiate a CPU class per CPU
-model.
-
-Furthermore it extends S390CPUClass by model related properties.
+The patch implements routines to set and retrieve processor configuration
+data and to retrieve machine configuration data. The machine related data
+is used together with the CPU model facility lists to determine the list of
+supported CPU models of this host. The above mentioned routines have QEMU
+trace point instrumentation.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
- target-s390x/Makefile.objs |  1 +
- target-s390x/cpu-models.c  | 78 ++++++++++++++++++++++++++++++++++++++++++++++
- target-s390x/cpu-models.h  | 72 ++++++++++++++++++++++++++++++++++++++++++
- target-s390x/cpu-qom.h     | 49 +++++++++++++++++++++++++++++
- target-s390x/cpu.c         |  2 ++
- 5 files changed, 202 insertions(+)
- create mode 100644 target-s390x/cpu-models.c
- create mode 100644 target-s390x/cpu-models.h
+ target-s390x/cpu-models.h | 36 ++++++++++++++++++++-
+ target-s390x/kvm.c        | 79 +++++++++++++++++++++++++++++++++++++++++++++++
+ trace-events              |  3 ++
+ 3 files changed, 117 insertions(+), 1 deletion(-)
 
-diff --git a/target-s390x/Makefile.objs b/target-s390x/Makefile.objs
-index 997dda4..97c4177 100644
---- a/target-s390x/Makefile.objs
-+++ b/target-s390x/Makefile.objs
-@@ -1,6 +1,7 @@
- obj-y += translate.o helper.o cpu.o interrupt.o
- obj-y += int_helper.o fpu_helper.o cc_helper.o mem_helper.o misc_helper.o
- obj-y += gdbstub.o
-+obj-y += cpu-models.o
- obj-$(CONFIG_SOFTMMU) += machine.o ioinst.o arch_dump.o mmu_helper.o
- obj-$(CONFIG_KVM) += kvm.o
- 
-diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
-new file mode 100644
-index 0000000..147e221
---- /dev/null
-+++ b/target-s390x/cpu-models.c
-@@ -0,0 +1,78 @@
-+/*
-+ * CPU models for s390
-+ *
-+ * Copyright 2014,2015 IBM Corp.
-+ *
-+ * Author(s): Michael Mueller <mimu@linux.vnet.ibm.com>
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version 2 or (at
-+ * your option) any later version. See the COPYING file in the top-level
-+ * directory.
-+ */
-+
-+#include "qemu-common.h"
-+#include "cpu-models.h"
-+
-+#define S390_PROC_DEF(_name, _cpu_id, _desc)                            \
-+    static void                                                         \
-+    glue(_cpu_id, _cpu_class_init)                                      \
-+    (ObjectClass *oc, void *data)                                       \
-+    {                                                                   \
-+        DeviceClass *dc = DEVICE_CLASS(oc);                             \
-+        S390CPUClass *cc = S390_CPU_CLASS(oc);                          \
-+                                                                        \
-+        cc->is_migration_safe = true;                                   \
-+        cc->mach.ga     = cpu_ga(_cpu_id);                              \
-+        cc->mach.class  = cpu_class(_cpu_id);                           \
-+        cc->mach.order  = cpu_order(_cpu_id);                           \
-+        cc->proc.gen    = cpu_generation(_cpu_id);                      \
-+        cc->proc.ver    = S390_DEF_VERSION;                             \
-+        cc->proc.id     = S390_DEF_ID;                                  \
-+        cc->proc.type   = cpu_type(_cpu_id);                            \
-+        cc->proc.ibc    = S390_DEF_IBC;                                 \
-+        dc->desc        = _desc;                                        \
-+    }                                                                   \
-+    static const TypeInfo                                               \
-+    glue(_cpu_id, _cpu_type_info) = {                                   \
-+        .name       = _name "-" TYPE_S390_CPU,                          \
-+        .parent     = TYPE_S390_CPU,                                    \
-+        .class_init = glue(_cpu_id, _cpu_class_init),                   \
-+    };                                                                  \
-+    static void                                                         \
-+    glue(_cpu_id, _cpu_register_types)(void)                            \
-+    {                                                                   \
-+        type_register_static(                                           \
-+            &glue(_cpu_id, _cpu_type_info));                            \
-+    }                                                                   \
-+    type_init(glue(_cpu_id, _cpu_register_types))
-+
-+/* define S390 CPU model classes */
-+S390_PROC_DEF("2064-ga1", CPU_S390_2064_GA1, "IBM zSeries 900 GA1")
-+S390_PROC_DEF("2064-ga2", CPU_S390_2064_GA2, "IBM zSeries 900 GA2")
-+S390_PROC_DEF("2064-ga3", CPU_S390_2064_GA3, "IBM zSeries 900 GA3")
-+S390_PROC_DEF("2066-ga1", CPU_S390_2066_GA1, "IBM zSeries 800 GA1")
-+S390_PROC_DEF("2084-ga1", CPU_S390_2084_GA1, "IBM zSeries 990 GA1")
-+S390_PROC_DEF("2084-ga2", CPU_S390_2084_GA2, "IBM zSeries 990 GA2")
-+S390_PROC_DEF("2084-ga3", CPU_S390_2084_GA3, "IBM zSeries 990 GA3")
-+S390_PROC_DEF("2084-ga4", CPU_S390_2084_GA4, "IBM zSeries 990 GA4")
-+S390_PROC_DEF("2084-ga5", CPU_S390_2084_GA5, "IBM zSeries 990 GA5")
-+S390_PROC_DEF("2086-ga1", CPU_S390_2086_GA1, "IBM zSeries 890 GA1")
-+S390_PROC_DEF("2086-ga2", CPU_S390_2086_GA2, "IBM zSeries 890 GA2")
-+S390_PROC_DEF("2086-ga3", CPU_S390_2086_GA3, "IBM zSeries 890 GA3")
-+S390_PROC_DEF("2094-ga1", CPU_S390_2094_GA1, "IBM System z9 EC GA1")
-+S390_PROC_DEF("2094-ga2", CPU_S390_2094_GA2, "IBM System z9 EC GA2")
-+S390_PROC_DEF("2094-ga3", CPU_S390_2094_GA3, "IBM System z9 EC GA3")
-+S390_PROC_DEF("2096-ga1", CPU_S390_2096_GA1, "IBM System z9 BC GA1")
-+S390_PROC_DEF("2096-ga2", CPU_S390_2096_GA2, "IBM System z9 BC GA2")
-+S390_PROC_DEF("2097-ga1", CPU_S390_2097_GA1, "IBM System z10 EC GA1")
-+S390_PROC_DEF("2097-ga2", CPU_S390_2097_GA2, "IBM System z10 EC GA2")
-+S390_PROC_DEF("2097-ga3", CPU_S390_2097_GA3, "IBM System z10 EC GA3")
-+S390_PROC_DEF("2098-ga1", CPU_S390_2098_GA1, "IBM System z10 BC GA1")
-+S390_PROC_DEF("2098-ga2", CPU_S390_2098_GA2, "IBM System z10 BC GA2")
-+S390_PROC_DEF("2817-ga1", CPU_S390_2817_GA1, "IBM zEnterprise 196 GA1")
-+S390_PROC_DEF("2817-ga2", CPU_S390_2817_GA2, "IBM zEnterprise 196 GA2")
-+S390_PROC_DEF("2818-ga1", CPU_S390_2818_GA1, "IBM zEnterprise 114 GA1")
-+S390_PROC_DEF("2827-ga1", CPU_S390_2827_GA1, "IBM zEnterprise EC12 GA1")
-+S390_PROC_DEF("2827-ga2", CPU_S390_2827_GA2, "IBM zEnterprise EC12 GA2")
-+S390_PROC_DEF("2828-ga1", CPU_S390_2828_GA1, "IBM zEnterprise BC12 GA1")
-+S390_PROC_DEF("2964-ga1", CPU_S390_2964_GA1, "IBM z13 GA1")
 diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
-new file mode 100644
-index 0000000..b02c38b
---- /dev/null
+index 35dde5a..efa255e 100644
+--- a/target-s390x/cpu-models.h
 +++ b/target-s390x/cpu-models.h
-@@ -0,0 +1,72 @@
-+/*
-+ * CPU models for s390
-+ *
-+ * Copyright 2014,2015 IBM Corp.
-+ *
-+ * Author(s): Michael Mueller <mimu@linux.vnet.ibm.com>
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version 2 or (at
-+ * your option) any later version. See the COPYING file in the top-level
-+ * directory.
-+ */
+@@ -43,11 +43,45 @@ typedef struct S390CPUAlias {
+     char *model;
+ } S390CPUAlias;
+ 
+-extern GSList *s390_cpu_aliases;
++typedef struct S390ProcessorProps {
++    uint64_t cpuid;
++    uint16_t ibc;
++    uint8_t  pad[6];
++    uint64_t fac_list[FAC_LIST_ARCH_S390_SIZE_UINT64];
++} S390ProcessorProps;
 +
-+#ifndef TARGET_S390X_CPU_MODELS_H
-+#define TARGET_S390X_CPU_MODELS_H
-+
-+#define S390_EC 0x1
-+#define S390_BC 0x2
-+
-+#define S390_DEF_VERSION 0xff
-+#define S390_DEF_IBC     0x0
-+#define S390_DEF_ID      0xdecade
-+#define S390_DEF_TYPE    0x2064
-+
-+#define cpu_type(x)       (((x) >>  0) & 0xffff)
-+#define cpu_order(x)      (((x) >> 16) & 0xffff)
-+#define cpu_ga(x)         (((x) >> 16) & 0xf)
-+#define cpu_class(x)      (((x) >> 20) & 0x3)
-+#define cpu_generation(x) (((x) >> 24) & 0xff)
-+
-+/*
-+ * bits 0-7   : CMOS generation
-+ * bits 8-9   : reserved
-+ * bits 10-11 : machine class 0=unknown 1=EC 2=BC
-+ * bits 12-15 : GA
-+ * bits 16-31 : machine type
-+ *
-+ * note: bits are named according to s390
-+ *       architecture specific endienness
-+ */
-+enum {
-+    CPU_S390_2064_GA1 = 0x07112064,
-+    CPU_S390_2064_GA2 = 0x07122064,
-+    CPU_S390_2064_GA3 = 0x07132064,
-+    CPU_S390_2066_GA1 = 0x07212066,
-+    CPU_S390_2084_GA1 = 0x08112084,
-+    CPU_S390_2084_GA2 = 0x08122084,
-+    CPU_S390_2084_GA3 = 0x08132084,
-+    CPU_S390_2084_GA4 = 0x08142084,
-+    CPU_S390_2084_GA5 = 0x08152084,
-+    CPU_S390_2086_GA1 = 0x08212086,
-+    CPU_S390_2086_GA2 = 0x08222086,
-+    CPU_S390_2086_GA3 = 0x08232086,
-+    CPU_S390_2094_GA1 = 0x09112094,
-+    CPU_S390_2094_GA2 = 0x09122094,
-+    CPU_S390_2094_GA3 = 0x09132094,
-+    CPU_S390_2096_GA1 = 0x09212096,
-+    CPU_S390_2096_GA2 = 0x09222096,
-+    CPU_S390_2097_GA1 = 0x0a112097,
-+    CPU_S390_2097_GA2 = 0x0a122097,
-+    CPU_S390_2097_GA3 = 0x0a132097,
-+    CPU_S390_2098_GA1 = 0x0a212098,
-+    CPU_S390_2098_GA2 = 0x0a222098,
-+    CPU_S390_2817_GA1 = 0x0b112817,
-+    CPU_S390_2817_GA2 = 0x0b122817,
-+    CPU_S390_2818_GA1 = 0x0b212818,
-+    CPU_S390_2827_GA1 = 0x0c112827,
-+    CPU_S390_2827_GA2 = 0x0c122827,
-+    CPU_S390_2828_GA1 = 0x0c212828,
-+    CPU_S390_2964_GA1 = 0x0d112964,
-+};
-+
++typedef struct S390MachineProps {
++    uint64_t cpuid;
++    uint32_t ibc;
++    uint8_t  pad[4];
++    uint64_t fac_mask[FAC_LIST_ARCH_S390_SIZE_UINT64];
++    uint64_t fac_list[FAC_LIST_ARCH_S390_SIZE_UINT64];
++} S390MachineProps;
+ 
+ ObjectClass *s390_cpu_class_by_name(const char *name);
+ int set_s390_cpu_alias(const char *name, const char *model);
+ 
++#ifdef CONFIG_KVM
++int kvm_s390_get_processor_props(S390ProcessorProps *prop);
++int kvm_s390_set_processor_props(S390ProcessorProps *prop);
++bool kvm_s390_cpu_classes_initialized(void);
++#else
++static inline int kvm_s390_get_processor_props(S390ProcessorProps *prop)
++{
++    return -ENOSYS;
++}
++static inline int kvm_s390_set_processor_props(S390ProcessorProps *prop)
++{
++    return -ENOSYS;
++}
++static inline bool kvm_s390_cpu_classes_initialized(void)
++{
++    return false;
++}
 +#endif
-diff --git a/target-s390x/cpu-qom.h b/target-s390x/cpu-qom.h
-index 8b376df..909450d 100644
---- a/target-s390x/cpu-qom.h
-+++ b/target-s390x/cpu-qom.h
-@@ -22,6 +22,7 @@
- 
- #include "qom/cpu.h"
- #include "cpu.h"
-+#include "gen-facilities.h"
- 
- #define TYPE_S390_CPU "s390-cpu"
- 
-@@ -32,6 +33,35 @@
- #define S390_CPU_GET_CLASS(obj) \
-     OBJECT_GET_CLASS(S390CPUClass, (obj), TYPE_S390_CPU)
- 
-+/*
-+ * The accelerator mode is used to parametrize if cpu class setup
-+ * is performed for the cmdline selected accelerator or for a
-+ * temporarily selected acellerator.
-+ */
-+typedef enum S390AccelMode {
-+    ACCEL_CURRENT = 0,
-+    ACCEL_TEMP = 1,
-+    ACCEL_MODE_MAX = 2,
-+} S390AccelMode;
 +
-+/* machine related properties */
-+typedef struct S390CPUMachineProps {
-+    uint16_t class;      /* machine class */
-+    uint16_t ga;         /* availability number of machine */
-+    uint16_t order;      /* order of availability */
-+} S390CPUMachineProps;
++extern GSList *s390_cpu_aliases;
 +
-+/* processor related properties */
-+typedef struct S390CPUProcessorProps {
-+    uint16_t gen;        /* S390 CMOS generation */
-+    uint16_t ver;        /* version of processor */
-+    uint32_t id;         /* processor identification*/
-+    uint16_t type;       /* machine type */
-+    uint16_t ibc;        /* IBC value */
-+                         /* processor related facility list */
-+    uint64_t fac_list[FAC_LIST_CPU_S390_SIZE_UINT64];
-+} S390CPUProcessorProps;
-+
- /**
-  * S390CPUClass:
-  * @parent_realize: The parent class' realize handler.
-@@ -52,8 +82,27 @@ typedef struct S390CPUClass {
-     void (*load_normal)(CPUState *cpu);
-     void (*cpu_reset)(CPUState *cpu);
-     void (*initial_cpu_reset)(CPUState *cpu);
-+    bool is_migration_safe;         /* model is safely migratable */
-+    bool is_active[ACCEL_MODE_MAX]; /* model enabled for given host and accel */
-+    bool is_host[ACCEL_MODE_MAX];   /* model markes host for given accel */
-+                                     /* active facility list */
-+    uint64_t fac_list[ACCEL_MODE_MAX][FAC_LIST_CPU_S390_SIZE_UINT64];
-+    S390CPUMachineProps   mach;   /* machine specific properties */
-+    S390CPUProcessorProps proc;   /* processor specific properties */
- } S390CPUClass;
+ /*
+  * bits 0-7   : CMOS generation
+  * bits 8-9   : reserved
+diff --git a/target-s390x/kvm.c b/target-s390x/kvm.c
+index b48c643..42f01a8 100644
+--- a/target-s390x/kvm.c
++++ b/target-s390x/kvm.c
+@@ -44,6 +44,7 @@
+ #include "hw/s390x/s390-pci-inst.h"
+ #include "hw/s390x/s390-pci-bus.h"
+ #include "hw/s390x/ipl.h"
++#include "cpu-models.h"
  
-+static inline bool is_cpu_class_none(S390CPUClass *cc)
-+{
-+    return cc->proc.type == 0;
-+}
-+
-+static inline char *strdup_cpu_name(S390CPUClass *cc)
-+{
-+    return is_cpu_class_none(cc) ?
-+        g_strdup("none") :
-+        g_strdup_printf("%04x-ga%u", cc->proc.type, cc->mach.ga);
-+}
-+
- /**
-  * S390CPU:
-  * @env: #CPUS390XState.
-diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
-index 4d43ace..8f49813 100644
---- a/target-s390x/cpu.c
-+++ b/target-s390x/cpu.c
-@@ -331,6 +331,8 @@ static void s390_cpu_class_init(ObjectClass *oc, void *data)
- #endif
-     cc->gdb_num_core_regs = S390_NUM_CORE_REGS;
-     cc->gdb_core_xml_file = "s390x-core64.xml";
-+    scc->is_active[ACCEL_CURRENT] = is_cpu_class_none(scc);
-+    scc->is_active[ACCEL_TEMP] = is_cpu_class_none(scc);
+ /* #define DEBUG_KVM */
+ 
+@@ -122,6 +123,7 @@ const KVMCapabilityInfo kvm_arch_required_capabilities[] = {
+ 
+ static int cap_sync_regs;
+ static int cap_async_pf;
++static bool cpu_classes_initialized;
+ 
+ static void *legacy_s390_alloc(size_t size, uint64_t *align);
+ 
+@@ -242,6 +244,59 @@ static void kvm_s390_init_crypto(void)
+     kvm_s390_init_dea_kw();
  }
  
- static const TypeInfo s390_cpu_type_info = {
++static int cpu_model_get(KVMState *s, uint64_t attr, uint64_t addr)
++{
++    int rc = -ENOSYS;
++    struct kvm_device_attr dev_attr = {
++        .group = KVM_S390_VM_CPU_MODEL,
++        .attr = attr,
++        .addr = addr,
++    };
++
++    if (kvm_vm_check_attr(s, dev_attr.group, dev_attr.attr)) {
++        rc = kvm_vm_ioctl(s, KVM_GET_DEVICE_ATTR, &dev_attr);
++    }
++
++    return rc;
++}
++
++static int cpu_model_set(KVMState *s, uint64_t attr, uint64_t addr)
++{
++    int rc = -ENOSYS;
++    struct kvm_device_attr dev_attr = {
++        .group = KVM_S390_VM_CPU_MODEL,
++        .attr = attr,
++        .addr = addr,
++    };
++
++    if (kvm_vm_check_attr(s, dev_attr.group, dev_attr.attr)) {
++        rc = kvm_vm_ioctl(s, KVM_SET_DEVICE_ATTR, &dev_attr);
++    }
++
++    return rc;
++}
++
++static int kvm_s390_get_machine_props(KVMState *s, S390MachineProps *prop)
++{
++    int rc = -EFAULT;
++
++    if (s) {
++        rc = cpu_model_get(s, KVM_S390_VM_CPU_MACHINE, (uint64_t) prop);
++    }
++    trace_kvm_get_machine_props(rc, prop->cpuid, prop->ibc);
++
++    return rc;
++}
++
++static void kvm_setup_cpu_classes(KVMState *s)
++{
++    S390MachineProps mach;
++
++    if (!kvm_s390_get_machine_props(s, &mach)) {
++        cpu_classes_initialized = false;
++    }
++}
++
+ int kvm_arch_init(MachineState *ms, KVMState *s)
+ {
+     cap_sync_regs = kvm_check_extension(s, KVM_CAP_SYNC_REGS);
+@@ -255,6 +310,7 @@ int kvm_arch_init(MachineState *ms, KVMState *s)
+     }
+ 
+     kvm_vm_enable_cap(s, KVM_CAP_S390_USER_SIGP, 0);
++    kvm_setup_cpu_classes(s);
+ 
+     return 0;
+ }
+@@ -1940,3 +1996,26 @@ int kvm_arch_fixup_msi_route(struct kvm_irq_routing_entry *route,
+     route->u.adapter.adapter_id = pbdev->routes.adapter.adapter_id;
+     return 0;
+ }
++
++int kvm_s390_get_processor_props(S390ProcessorProps *prop)
++{
++    int rc;
++
++    rc = cpu_model_get(kvm_state, KVM_S390_VM_CPU_PROCESSOR, (uint64_t) prop);
++    trace_kvm_get_processor_props(rc, prop->cpuid, prop->ibc);
++    return rc;
++}
++
++int kvm_s390_set_processor_props(S390ProcessorProps *prop)
++{
++    int rc;
++
++    rc = cpu_model_set(kvm_state, KVM_S390_VM_CPU_PROCESSOR, (uint64_t) prop);
++    trace_kvm_set_processor_props(rc);
++    return rc;
++}
++
++bool kvm_s390_cpu_classes_initialized(void)
++{
++    return cpu_classes_initialized;
++}
+diff --git a/trace-events b/trace-events
+index 30eba92..2f1d734 100644
+--- a/trace-events
++++ b/trace-events
+@@ -1582,6 +1582,9 @@ kvm_enable_cmma(int rc) "CMMA: enabling with result code %d"
+ kvm_clear_cmma(int rc) "CMMA: clearing with result code %d"
+ kvm_failed_cpu_state_set(int cpu_index, uint8_t state, const char *msg) "Warning: Unable to set cpu %d state %" PRIu8 " to KVM: %s"
+ kvm_sigp_finished(uint8_t order, int cpu_index, int dst_index, int cc) "SIGP: Finished order %u on cpu %d -> cpu %d with cc=%d"
++kvm_get_machine_props(int rc, uint64_t cpuid, uint16_t ibc) "CPU-MODEL: fetching machine properties rc=%d cpuid=0x%"PRIx64" ibc=0x%"PRIx16
++kvm_get_processor_props(int rc, uint64_t cpuid, uint32_t ibc_range) "CPU-MODEL: fetching processor properties rc=%d cpuid=0x%"PRIx64" ibc_range=0x%"PRIx32
++kvm_set_processor_props(int rc) "CPU-MODEL: requesting processor properties rc=%d"
+ 
+ # hw/dma/i8257.c
+ i8257_unregistered_dma(int nchan, int dma_pos, int dma_len) "unregistered DMA channel used nchan=%d dma_pos=%d dma_len=%d"
 -- 
 1.8.3.1
