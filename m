@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v5 09/17] target-s390x: Define S390 CPU model specific facility lists
-Date: Mon, 13 Apr 2015 15:56:28 +0200
-Message-ID: <1428933396-37887-10-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v5 10/17] target-s390x: Add S390 CPU model alias definition routines
+Date: Mon, 13 Apr 2015 15:56:29 +0200
+Message-ID: <1428933396-37887-11-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1428933396-37887-1-git-send-email-mimu@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1428933396-37887-1-git-send-email-mimu@linux.vnet.ibm.com>
@@ -12,100 +12,142 @@ To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linu
 Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch defines S390 CPU facilities and their presence at the
-different CPU model levels. Beside defining a base which facilities
-have to be requested per CPU model, these sets are associated to the
-defined CPU classes and used to calculate the list of supported
-CPU models in context of the current hosting machine model.
-
-The also defined qemu side facility mask allows to implement and enable
-facilities in QEMU land.
+This patch implements the infrastructure to dynamically add
+CPU model aliases.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- target-s390x/cpu-models.c | 12 ++++++++++++
- target-s390x/cpu-models.h |  8 ++++++++
+ target-s390x/cpu-models.c | 82 +++++++++++++++++++++++++++++++++++++++++++++++
+ target-s390x/cpu-models.h | 13 ++++++++
  target-s390x/cpu.c        |  1 +
- 3 files changed, 21 insertions(+)
+ 3 files changed, 96 insertions(+)
 
 diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
-index 147e221..6cc121b 100644
+index 6cc121b..28251f9 100644
 --- a/target-s390x/cpu-models.c
 +++ b/target-s390x/cpu-models.c
-@@ -12,6 +12,7 @@
- 
- #include "qemu-common.h"
- #include "cpu-models.h"
-+#include "gen-facilities.h"
- 
- #define S390_PROC_DEF(_name, _cpu_id, _desc)                            \
-     static void                                                         \
-@@ -20,6 +21,10 @@
-     {                                                                   \
-         DeviceClass *dc = DEVICE_CLASS(oc);                             \
-         S390CPUClass *cc = S390_CPU_CLASS(oc);                          \
-+        uint64_t nbits = FAC_LIST_CPU_S390_SIZE_UINT1;                  \
-+        uint64_t fac_list[FAC_LIST_CPU_S390_SIZE_UINT64] = {            \
-+            glue(FAC_LIST_, _cpu_id)                                    \
-+        };                                                              \
-                                                                         \
-         cc->is_migration_safe = true;                                   \
-         cc->mach.ga     = cpu_ga(_cpu_id);                              \
-@@ -30,6 +35,7 @@
-         cc->proc.id     = S390_DEF_ID;                                  \
-         cc->proc.type   = cpu_type(_cpu_id);                            \
-         cc->proc.ibc    = S390_DEF_IBC;                                 \
-+        bitmap_copy(cc->proc.fac_list, fac_list, nbits);                \
-         dc->desc        = _desc;                                        \
-     }                                                                   \
-     static const TypeInfo                                               \
-@@ -46,6 +52,11 @@
-     }                                                                   \
-     type_init(glue(_cpu_id, _cpu_register_types))
- 
-+/* facilities implemented by qemu */
-+uint64_t qemu_s390_fac_list_mask[FAC_LIST_CPU_S390_SIZE_UINT64] = {
-+    FAC_LIST_CPU_S390_MASK_QEMU
-+};
-+
- /* define S390 CPU model classes */
- S390_PROC_DEF("2064-ga1", CPU_S390_2064_GA1, "IBM zSeries 900 GA1")
- S390_PROC_DEF("2064-ga2", CPU_S390_2064_GA2, "IBM zSeries 900 GA2")
-@@ -76,3 +87,4 @@ S390_PROC_DEF("2827-ga1", CPU_S390_2827_GA1, "IBM zEnterprise EC12 GA1")
- S390_PROC_DEF("2827-ga2", CPU_S390_2827_GA2, "IBM zEnterprise EC12 GA2")
+@@ -88,3 +88,85 @@ S390_PROC_DEF("2827-ga2", CPU_S390_2827_GA2, "IBM zEnterprise EC12 GA2")
  S390_PROC_DEF("2828-ga1", CPU_S390_2828_GA1, "IBM zEnterprise BC12 GA1")
  S390_PROC_DEF("2964-ga1", CPU_S390_2964_GA1, "IBM z13 GA1")
+ 
++GSList *s390_cpu_aliases;
++
++static gint s390_cpu_compare_name(gconstpointer a, gconstpointer b)
++{
++    char *aname = strdup_cpu_name((S390CPUClass *) a);
++    gint rc;
++
++    rc = strcasecmp(aname, (char *) b);
++    free(aname);
++
++    return rc;
++}
++
++/**
++ * s390_cpu_class_by_name:
++ * @name: a cpu model or alias name
++ *
++ * The function searches for the requested cpu model name or an alias
++ * cpu model name and returns the associated object class.
++ *
++ * Returns: reference to object class on success or %NULL elsewise.
++ *
++ * Since: 2.4
++ */
++ObjectClass *s390_cpu_class_by_name(const char *name)
++{
++    GSList *list, *item;
++    ObjectClass *ret = NULL;
++    S390CPUAlias *alias;
++
++    for (item = s390_cpu_aliases; item != NULL; item = item->next) {
++        alias = (S390CPUAlias *) item->data;
++        if (strcmp(alias->name, name) == 0) {
++            return s390_cpu_class_by_name(alias->model);
++        }
++    }
++    list = object_class_get_list(TYPE_S390_CPU, false);
++    item = g_slist_find_custom(list, name, s390_cpu_compare_name);
++    if (item) {
++        ret = OBJECT_CLASS(item->data);
++    }
++    g_slist_free(list);
++    return ret;
++}
++
++/**
++ * set_s390_cpu_alias:
++ * @name: the cpu alias name
++ * @model: the cpu model name
++ *
++ * The function registers the alias @name for an existing cpu @model.
++ *
++ * Returns: %0 in case of success
++ *          -%EINVAL if name or model is %NULL or both are idential
++ *                   or model is not a valid cpu model
++ *          -%ENOMEM if internal memory allocation fails
++ *
++ * Since: 2.4
++ */
++int set_s390_cpu_alias(const char *name, const char *model)
++{
++    S390CPUAlias *alias;
++
++    if (!name || !model) {
++        return -EINVAL;
++    }
++    if (!strcmp(name, model)) {
++        return -EINVAL;
++    }
++    if (!s390_cpu_class_by_name(model)) {
++        return -EINVAL;
++    }
++    alias = g_try_malloc0(sizeof(S390CPUAlias));
++    if (!alias) {
++        return -ENOMEM;
++    }
++    alias->name = g_strdup(name);
++    alias->model = g_strdup(model);
++    s390_cpu_aliases = g_slist_append(s390_cpu_aliases, alias);
++    return 0;
++}
 +
 diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
-index b02c38b..948af10 100644
+index 948af10..35dde5a 100644
 --- a/target-s390x/cpu-models.h
 +++ b/target-s390x/cpu-models.h
-@@ -13,6 +13,14 @@
- #ifndef TARGET_S390X_CPU_MODELS_H
- #define TARGET_S390X_CPU_MODELS_H
+@@ -36,6 +36,19 @@
+ #define cpu_generation(x) (((x) >> 24) & 0xff)
  
-+#include "cpu-facilities.h"
-+#include "gen-facilities.h"
+ /*
++ * S390 cpu aliases will be added dynamically
++ */
++typedef struct S390CPUAlias {
++    char *name;
++    char *model;
++} S390CPUAlias;
 +
-+#define FAC_LIST_ARCH_S390_SIZE_UINT1 \
-+    (FAC_LIST_ARCH_S390_SIZE_UINT8 * BITS_PER_BYTE)
-+#define FAC_LIST_ARCH_S390_SIZE_UINT64 \
-+    (FAC_LIST_ARCH_S390_SIZE_UINT8 / sizeof(uint64_t))
++extern GSList *s390_cpu_aliases;
 +
- #define S390_EC 0x1
- #define S390_BC 0x2
- 
++ObjectClass *s390_cpu_class_by_name(const char *name);
++int set_s390_cpu_alias(const char *name, const char *model);
++
++/*
+  * bits 0-7   : CMOS generation
+  * bits 8-9   : reserved
+  * bits 10-11 : machine class 0=unknown 1=EC 2=BC
 diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
-index 8f49813..9232a97 100644
+index 9232a97..c081885 100644
 --- a/target-s390x/cpu.c
 +++ b/target-s390x/cpu.c
-@@ -29,6 +29,7 @@
- #include "qemu/error-report.h"
- #include "hw/hw.h"
- #include "trace.h"
-+#include "cpu-models.h"
- #ifndef CONFIG_USER_ONLY
- #include "sysemu/arch_init.h"
+@@ -314,6 +314,7 @@ static void s390_cpu_class_init(ObjectClass *oc, void *data)
  #endif
+     scc->cpu_reset = s390_cpu_reset;
+     scc->initial_cpu_reset = s390_cpu_initial_reset;
++    cc->class_by_name = s390_cpu_class_by_name;
+     cc->reset = s390_cpu_full_reset;
+     cc->has_work = s390_cpu_has_work;
+     cc->do_interrupt = s390_cpu_do_interrupt;
 -- 
 1.8.3.1
