@@ -1,126 +1,88 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v5 06/17] target-s390x: Introduce S390 CPU
-	facilities
-Date: Mon, 13 Apr 2015 15:56:25 +0200
-Message-ID: <1428933396-37887-7-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v5 17/17] target-s390x: Enable S390 CPU model usage
+Date: Mon, 13 Apr 2015 15:56:36 +0200
+Message-ID: <1428933396-37887-18-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1428933396-37887-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1428933396-37887-1-git-send-email-mimu@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
-Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>
+Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The patch introduces S390 CPU facility bit numbers and names
-as well as the architectural facility size limit in bytes.
+This patch enables QEMU to instantiate S390 CPUs with CPU model types.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
- target-s390x/cpu-facilities.h | 86 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 86 insertions(+)
- create mode 100644 target-s390x/cpu-facilities.h
+ hw/s390x/s390-virtio.c | 12 +++++++++++-
+ target-s390x/helper.c  |  9 ++-------
+ 2 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/target-s390x/cpu-facilities.h b/target-s390x/cpu-facilities.h
-new file mode 100644
-index 0000000..db1f064
---- /dev/null
-+++ b/target-s390x/cpu-facilities.h
-@@ -0,0 +1,86 @@
-+/*
-+ * CPU facilities for s390
-+ *
-+ * Copyright 2015 IBM Corp.
-+ *
-+ * Author(s): Michael Mueller <mimu@linux.vnet.ibm.com>
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version 2 or (at
-+ * your option) any later version. See the COPYING file in the top-level
-+ * directory.
-+ */
+diff --git a/hw/s390x/s390-virtio.c b/hw/s390x/s390-virtio.c
+index bdb5388..8fda717 100644
+--- a/hw/s390x/s390-virtio.c
++++ b/hw/s390x/s390-virtio.c
+@@ -32,6 +32,7 @@
+ #include "hw/virtio/virtio.h"
+ #include "hw/sysbus.h"
+ #include "sysemu/kvm.h"
++#include "sysemu/cpus.h"
+ #include "exec/address-spaces.h"
+ 
+ #include "hw/s390x/s390-virtio-bus.h"
+@@ -157,7 +158,12 @@ void s390_init_cpus(const char *cpu_model, uint8_t *storage_keys)
+     int i;
+ 
+     if (cpu_model == NULL) {
+-        cpu_model = "host";
++        cpu_model = "none";
++    }
 +
-+#ifndef TARGET_S390X_CPU_FACILITIES_H
-+#define TARGET_S390X_CPU_FACILITIES_H
-+
-+/* architectural size of facilities is 2KB */
-+#define FAC_LIST_ARCH_S390_SIZE_UINT8 (1<<11)
-+
-+/* CPU facility bits */
-+typedef enum {
-+    FAC_N3                              = 0,
-+    FAC_ZARCH                           = 1,
-+    FAC_ZARCH_ACTIVE                    = 2,
-+    FAC_DAT_ENH                         = 3,
-+    FAC_ASN_LX_REUSE                    = 6,
-+    FAC_STFLE                           = 7,
-+    FAC_ENHANCED_DAT_1                  = 8,
-+    FAC_SENSE_RUNNING_STATUS            = 9,
-+    FAC_CONDITIONAL_SSKE                = 10,
-+    FAC_CONFIGURATION_TOPOLOGY          = 11,
-+    FAC_IPTE_RANGE                      = 13,
-+    FAC_NONQ_KEY_SETTING                = 14,
-+    FAC_EXTENDED_TRANSLATION_2          = 16,
-+    FAC_MESSAGE_SECURITY_ASSIST         = 17,
-+    FAC_LONG_DISPLACEMENT               = 18,
-+    FAC_LONG_DISPLACEMENT_FAST          = 19,
-+    FAC_HFP_MADDSUB                     = 20,
-+    FAC_EXTENDED_IMMEDIATE              = 21,
-+    FAC_EXTENDED_TRANSLATION_3          = 22,
-+    FAC_HFP_UNNORMALIZED_EXT            = 23,
-+    FAC_ETF2_ENH                        = 24,
-+    FAC_STORE_CLOCK_FAST                = 25,
-+    FAC_PARSING_ENH                     = 26,
-+    FAC_MOVE_WITH_OPTIONAL_SPEC         = 27,
-+    FAC_TOD_CLOCK_STEERING              = 28,
-+    FAC_ETF3_ENH                        = 30,
-+    FAC_EXTRACT_CPU_TIME                = 31,
-+    FAC_COMPARE_AND_SWAP_AND_STORE      = 32,
-+    FAC_COMPARE_AND_SWAP_AND_STORE_2    = 33,
-+    FAC_GENERAL_INSTRUCTIONS_EXT        = 34,
-+    FAC_EXECUTE_EXT                     = 35,
-+    FAC_ENHANCED_MONITOR                = 36,
-+    FAC_FLOATING_POINT_EXT              = 37,
-+    FAC_LOAD_PROGRAM_PARAMETERS         = 40,
-+    FAC_FLOATING_POINT_SUPPPORT_ENH     = 41,
-+    FAC_DFP                             = 42,
-+    FAC_DFP_FAST                        = 43,
-+    FAC_PFPO                            = 44,
-+    FAC_MULTI_45                        = 45,
-+    FAC_CMPSC_ENH                       = 47,
-+    FAC_DFP_ZONED_CONVERSION            = 48,
-+    FAC_MULTI_49                        = 49,
-+    FAC_CONSTRAINT_TRANSACTIONAL_EXE    = 50,
-+    FAC_LOCAL_TLB_CLEARING              = 51,
-+    FAC_INTERLOCKED_ACCESS_2            = 52,
-+    FAC_LOAD_STORE_ON_COND_2            = 53,
-+    FAC_MESSAGE_SECURITY_ASSIST_5       = 57,
-+    FAC_RESET_REFERENCE_BITS_MULTIPLE   = 66,
-+    FAC_CPU_MEASUREMENT_COUNTER         = 67,
-+    FAC_CPU_MEASUREMENT_SAMPLING        = 68,
-+    FAC_TRANSACTIONAL_EXE               = 73,
-+    /*
-+     * The store-hypervisor-information facility #74 is
-+     * z/VM related and when added to be handled by QEMU
-+     * when hosted on LPAR. (see: SC24-6179-05 page 953)
-+     */
-+    FAC_ACCESS_EXCEPTION_FS_INDICATION  = 75,
-+    FAC_MESSAGE_SECURITY_ASSIST_3       = 76,
-+    FAC_MESSAGE_SECURITY_ASSIST_4       = 77,
-+    FAC_ENHANCED_DAT_2                  = 78,
-+    FAC_DFP_PACKED_CONVERSION           = 80,
-+    FAC_VECTOR                          = 129,
-+    FAC_STORE_CPU_COUNTER_MULTI         = 142,
-+} S390Facility;
-+
-+#endif
++    if (is_help_option(cpu_model)) {
++        list_cpus(stdout, &fprintf, cpu_model);
++        exit(0);
+     }
+ 
+     ipi_states = g_malloc(sizeof(S390CPU *) * smp_cpus);
+@@ -167,6 +173,10 @@ void s390_init_cpus(const char *cpu_model, uint8_t *storage_keys)
+         CPUState *cs;
+ 
+         cpu = cpu_s390x_init(cpu_model);
++        if (cpu == NULL) {
++            fprintf(stderr, "Unable to find CPU definition\n");
++            exit(1);
++        }
+         cs = CPU(cpu);
+ 
+         ipi_states[i] = cpu;
+diff --git a/target-s390x/helper.c b/target-s390x/helper.c
+index f1060c2..29dabe2 100644
+--- a/target-s390x/helper.c
++++ b/target-s390x/helper.c
+@@ -22,6 +22,7 @@
+ #include "exec/gdbstub.h"
+ #include "qemu/timer.h"
+ #include "exec/cpu_ldst.h"
++#include "cpu-models.h"
+ #ifndef CONFIG_USER_ONLY
+ #include "sysemu/sysemu.h"
+ #endif
+@@ -66,13 +67,7 @@ void s390x_cpu_timer(void *opaque)
+ 
+ S390CPU *cpu_s390x_init(const char *cpu_model)
+ {
+-    S390CPU *cpu;
+-
+-    cpu = S390_CPU(object_new(TYPE_S390_CPU));
+-
+-    object_property_set_bool(OBJECT(cpu), true, "realized", NULL);
+-
+-    return cpu;
++    return S390_CPU(cpu_generic_init(TYPE_S390_CPU, cpu_model));
+ }
+ 
+ #if defined(CONFIG_USER_ONLY)
 -- 
 1.8.3.1
