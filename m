@@ -1,100 +1,126 @@
 From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: [PATCH v5 13/17] target-s390x: Prepare accelerator during S390 CPU object realization
-Date: Mon, 13 Apr 2015 15:56:32 +0200
-Message-ID: <1428933396-37887-14-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: [PATCH v5 06/17] target-s390x: Introduce S390 CPU
+	facilities
+Date: Mon, 13 Apr 2015 15:56:25 +0200
+Message-ID: <1428933396-37887-7-git-send-email-mimu@linux.vnet.ibm.com>
 References: <1428933396-37887-1-git-send-email-mimu@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org>
 In-Reply-To: <1428933396-37887-1-git-send-email-mimu@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
+Sender: qemu-devel-bounces+gceq-qemu-devel=gmane.org@nongnu.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Michael Mueller <mimu@linux.vnet.ibm.com>, Andreas Faerber <afaerber@suse.de>, Richard Henderson <rth@twiddle.net>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>
+Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Daniel Hansel <daniel.hansel@linux.vnet.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Richard Henderson <rth@twiddle.net>, Andreas Faerber <afaerber@suse.de>, Michael Mueller <mimu@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implements routine s390_cpu_model_init(). It is called by the
-realize function during instantiation of an CPU object. Its task is to
-initialize the current accelerator with the properties of the selected
-processor model.
+The patch introduces S390 CPU facility bit numbers and names
+as well as the architectural facility size limit in bytes.
 
 Signed-off-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
- target-s390x/cpu-models.c | 30 ++++++++++++++++++++++++++++++
- target-s390x/cpu-models.h |  4 ++++
- target-s390x/cpu.c        |  1 +
- 3 files changed, 35 insertions(+)
+ target-s390x/cpu-facilities.h | 86 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 86 insertions(+)
+ create mode 100644 target-s390x/cpu-facilities.h
 
-diff --git a/target-s390x/cpu-models.c b/target-s390x/cpu-models.c
-index 07039c0..fa74a8a 100644
---- a/target-s390x/cpu-models.c
-+++ b/target-s390x/cpu-models.c
-@@ -670,3 +670,33 @@ uint64_t *s390_current_fac_list_mask(void)
-     return s390_fac_list_mask_by_machine(mc->name);
- }
- #endif
-+
-+/**
-+ * s390_cpu_model_init:
-+ * @cc: S390 CPU class
+diff --git a/target-s390x/cpu-facilities.h b/target-s390x/cpu-facilities.h
+new file mode 100644
+index 0000000..db1f064
+--- /dev/null
++++ b/target-s390x/cpu-facilities.h
+@@ -0,0 +1,86 @@
++/*
++ * CPU facilities for s390
 + *
-+ * This function intitializes the current accelerator with processor
-+ * related properties.
++ * Copyright 2015 IBM Corp.
 + *
-+ * Since: 2.4
++ * Author(s): Michael Mueller <mimu@linux.vnet.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or (at
++ * your option) any later version. See the COPYING file in the top-level
++ * directory.
 + */
-+void s390_cpu_model_init(S390CPUClass *cc)
-+{
-+    S390ProcessorProps proc = {
-+        .cpuid = cpuid(cc->proc),
-+        .ibc = cc->proc.ibc,
-+    };
 +
-+    /* none cpu model case */
-+    if (!proc.cpuid) {
-+        return;
-+    }
++#ifndef TARGET_S390X_CPU_FACILITIES_H
++#define TARGET_S390X_CPU_FACILITIES_H
 +
-+    bitmap_zero(proc.fac_list, FAC_LIST_ARCH_S390_SIZE_UINT1);
-+    bitmap_copy(proc.fac_list, cc->fac_list[ACCEL_CURRENT],
-+                FAC_LIST_CPU_S390_SIZE_UINT1);
++/* architectural size of facilities is 2KB */
++#define FAC_LIST_ARCH_S390_SIZE_UINT8 (1<<11)
 +
-+    if (kvm_enabled()) {
-+        kvm_s390_set_processor_props(&proc);
-+    }
-+}
-diff --git a/target-s390x/cpu-models.h b/target-s390x/cpu-models.h
-index 00454d3..c24550b 100644
---- a/target-s390x/cpu-models.h
-+++ b/target-s390x/cpu-models.h
-@@ -45,6 +45,9 @@
- #define type_cpuid(x)     ((uint64_t)((x) & 0xffff) << 16)
- #define id_cpuid(x)       ((uint64_t)((x) & 0xffffff) << 32)
- #define ver_cpuid(x)      ((uint64_t)((x) & 0xff) << 56)
-+#define cpuid(x)          (ver_cpuid(x.ver) |  \
-+                           id_cpuid(x.id) |    \
-+                           type_cpuid(x.type))
- 
- #define oldest_ibc(x)     (((uint32_t)(x) >> 16) & 0xfff)
- #define newest_ibc(x)     ((uint32_t)(x) & 0xfff)
-@@ -88,6 +91,7 @@ void s390_cpu_list_entry(gpointer data, gpointer user_data);
- bool s390_cpu_classes_initialized(void);
- uint64_t *s390_fac_list_mask_by_machine(const char *name);
- uint64_t *s390_current_fac_list_mask(void);
-+void s390_cpu_model_init(S390CPUClass *cc);
- 
- #ifdef CONFIG_KVM
- int kvm_s390_get_processor_props(S390ProcessorProps *prop);
-diff --git a/target-s390x/cpu.c b/target-s390x/cpu.c
-index cbab627..65dee3e 100644
---- a/target-s390x/cpu.c
-+++ b/target-s390x/cpu.c
-@@ -184,6 +184,7 @@ static void s390_cpu_realizefn(DeviceState *dev, Error **errp)
-     CPUState *cs = CPU(dev);
-     S390CPUClass *scc = S390_CPU_GET_CLASS(dev);
- 
-+    s390_cpu_model_init(scc);
-     s390_cpu_gdb_init(cs);
-     qemu_init_vcpu(cs);
- #if !defined(CONFIG_USER_ONLY)
++/* CPU facility bits */
++typedef enum {
++    FAC_N3                              = 0,
++    FAC_ZARCH                           = 1,
++    FAC_ZARCH_ACTIVE                    = 2,
++    FAC_DAT_ENH                         = 3,
++    FAC_ASN_LX_REUSE                    = 6,
++    FAC_STFLE                           = 7,
++    FAC_ENHANCED_DAT_1                  = 8,
++    FAC_SENSE_RUNNING_STATUS            = 9,
++    FAC_CONDITIONAL_SSKE                = 10,
++    FAC_CONFIGURATION_TOPOLOGY          = 11,
++    FAC_IPTE_RANGE                      = 13,
++    FAC_NONQ_KEY_SETTING                = 14,
++    FAC_EXTENDED_TRANSLATION_2          = 16,
++    FAC_MESSAGE_SECURITY_ASSIST         = 17,
++    FAC_LONG_DISPLACEMENT               = 18,
++    FAC_LONG_DISPLACEMENT_FAST          = 19,
++    FAC_HFP_MADDSUB                     = 20,
++    FAC_EXTENDED_IMMEDIATE              = 21,
++    FAC_EXTENDED_TRANSLATION_3          = 22,
++    FAC_HFP_UNNORMALIZED_EXT            = 23,
++    FAC_ETF2_ENH                        = 24,
++    FAC_STORE_CLOCK_FAST                = 25,
++    FAC_PARSING_ENH                     = 26,
++    FAC_MOVE_WITH_OPTIONAL_SPEC         = 27,
++    FAC_TOD_CLOCK_STEERING              = 28,
++    FAC_ETF3_ENH                        = 30,
++    FAC_EXTRACT_CPU_TIME                = 31,
++    FAC_COMPARE_AND_SWAP_AND_STORE      = 32,
++    FAC_COMPARE_AND_SWAP_AND_STORE_2    = 33,
++    FAC_GENERAL_INSTRUCTIONS_EXT        = 34,
++    FAC_EXECUTE_EXT                     = 35,
++    FAC_ENHANCED_MONITOR                = 36,
++    FAC_FLOATING_POINT_EXT              = 37,
++    FAC_LOAD_PROGRAM_PARAMETERS         = 40,
++    FAC_FLOATING_POINT_SUPPPORT_ENH     = 41,
++    FAC_DFP                             = 42,
++    FAC_DFP_FAST                        = 43,
++    FAC_PFPO                            = 44,
++    FAC_MULTI_45                        = 45,
++    FAC_CMPSC_ENH                       = 47,
++    FAC_DFP_ZONED_CONVERSION            = 48,
++    FAC_MULTI_49                        = 49,
++    FAC_CONSTRAINT_TRANSACTIONAL_EXE    = 50,
++    FAC_LOCAL_TLB_CLEARING              = 51,
++    FAC_INTERLOCKED_ACCESS_2            = 52,
++    FAC_LOAD_STORE_ON_COND_2            = 53,
++    FAC_MESSAGE_SECURITY_ASSIST_5       = 57,
++    FAC_RESET_REFERENCE_BITS_MULTIPLE   = 66,
++    FAC_CPU_MEASUREMENT_COUNTER         = 67,
++    FAC_CPU_MEASUREMENT_SAMPLING        = 68,
++    FAC_TRANSACTIONAL_EXE               = 73,
++    /*
++     * The store-hypervisor-information facility #74 is
++     * z/VM related and when added to be handled by QEMU
++     * when hosted on LPAR. (see: SC24-6179-05 page 953)
++     */
++    FAC_ACCESS_EXCEPTION_FS_INDICATION  = 75,
++    FAC_MESSAGE_SECURITY_ASSIST_3       = 76,
++    FAC_MESSAGE_SECURITY_ASSIST_4       = 77,
++    FAC_ENHANCED_DAT_2                  = 78,
++    FAC_DFP_PACKED_CONVERSION           = 80,
++    FAC_VECTOR                          = 129,
++    FAC_STORE_CPU_COUNTER_MULTI         = 142,
++} S390Facility;
++
++#endif
 -- 
 1.8.3.1
