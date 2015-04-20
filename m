@@ -1,80 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 20 Apr 2015 10:23:55 +0200
+Date: Mon, 20 Apr 2015 10:32:07 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for the 4.1 merge window #2
-Message-ID: <20150420102355.6250e2c7@mschwide>
+Subject: Re: [PATCH] s390: char: con3215: Free memory in error path
+Message-ID: <20150420103207.7491723c@mschwide>
+In-Reply-To: <1429449456-4050-1-git-send-email-christophe.jaillet@wanadoo.fr>
+References: <1429449456-4050-1-git-send-email-christophe.jaillet@wanadoo.fr>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Christophe Jaillet <christophe.jaillet@wanadoo.fr>
+Cc: heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+On Sun, 19 Apr 2015 15:17:36 +0200
+Christophe Jaillet <christophe.jaillet@wanadoo.fr> wrote:
 
-please pull from the 'for-linus' branch of
+> If one memory allocation fails, there is a memory leak.
+> 
+> Signed-off-by: Christophe Jaillet <christophe.jaillet@wanadoo.fr>
+> ---
+>  drivers/s390/char/con3215.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
+> index c43aca6..0fc3fe5 100644
+> --- a/drivers/s390/char/con3215.c
+> +++ b/drivers/s390/char/con3215.c
+> @@ -667,6 +667,8 @@ static struct raw3215_info *raw3215_alloc_info(void)
+>  	info->buffer = kzalloc(RAW3215_BUFFER_SIZE, GFP_KERNEL | GFP_DMA);
+>  	info->inbuf = kzalloc(RAW3215_INBUF_SIZE, GFP_KERNEL | GFP_DMA);
+>  	if (!info->buffer || !info->inbuf) {
+> +		kfree(info->inbuf);
+> +		kfree(info->buffer);
+>  		kfree(info);
+>  		return NULL;
+>  	}
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+Applied, thanks.
 
-to receive the following updates:
+-- 
+blue skies,
+   Martin.
 
-The big thing in this second merge for s390 is the new eBPF JIT
-from Michael which replaces the old 32-bit backend.
-The remaining commits are bug fixes.
-
-The merge has a small conflict which is easy to resolve:
-
-diff --cc arch/s390/pci/pci_debug.c
-index c22d440,3fc9b4d..4129b0a
---- a/arch/s390/pci/pci_debug.c
-+++ b/arch/s390/pci/pci_debug.c
-@@@ -45,9 -58,11 +58,12 @@@ static int pci_perf_show(struct seq_fil
-  
-  	if (!zdev)
-  		return 0;
-+ 
-+ 	mutex_lock(&zdev->lock);
-  	if (!zdev->fmb) {
-+ 		mutex_unlock(&zdev->lock);
- -		return seq_printf(m, "FMB statistics disabled\n");
- +		seq_puts(m, "FMB statistics disabled\n");
- +		return 0;
-  	}
-  
-  	/* header */
-
-Shortlog:
-
-Joe Perches (1):
-      s390: Use bool function return values of true/false not 1/0
-
-Michael Holzheu (2):
-      s390/bpf: Add s390x eBPF JIT compiler backend
-      s390/mm: Fix memory hotplug for unaligned standby memory
-
-Sebastian Ott (2):
-      s390/pci: extract software counters from fmb
-      s390/pci: add locking for fmb access
-
-Stefan Haberland (3):
-      s390/dasd: fix inability to set a DASD device offline
-      s390/dasd: fix unresumed device after suspend/resume
-      s390/dasd: Fix unresumed device after suspend/resume having no paths
-
- arch/s390/Kconfig                   |    2 +-
- arch/s390/include/asm/dma-mapping.h |    2 +-
- arch/s390/include/asm/pci.h         |   10 +-
- arch/s390/net/bpf_jit.S             |  197 ++--
- arch/s390/net/bpf_jit.h             |   58 ++
- arch/s390/net/bpf_jit_comp.c        | 1780 +++++++++++++++++++++--------------
- arch/s390/pci/pci.c                 |    6 +
- arch/s390/pci/pci_debug.c           |   36 +-
- arch/s390/pci/pci_dma.c             |    8 +-
- drivers/s390/block/dasd.c           |   42 +-
- drivers/s390/block/dasd_eckd.c      |    3 +-
- drivers/s390/char/sclp_cmd.c        |   48 +-
- 12 files changed, 1350 insertions(+), 842 deletions(-)
- create mode 100644 arch/s390/net/bpf_jit.h
+"Reality continues to ruin my life." - Calvin.
