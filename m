@@ -1,194 +1,132 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Baolin Wang <baolin.wang@linaro.org>
-Subject: [PATCH 08/11] time/posix-clock:Convert to the 64bit methods for k_clock and posix_clock_operations structure
-Date: Mon, 20 Apr 2015 13:57:36 +0800
-Message-ID: <1429509459-17068-9-git-send-email-baolin.wang@linaro.org>
+Subject: [PATCH 06/11] char/mmtimer:Convert to the 64bit methods for k_clock callback function
+Date: Mon, 20 Apr 2015 13:57:34 +0800
+Message-ID: <1429509459-17068-7-git-send-email-baolin.wang@linaro.org>
 In-Reply-To: <1429509459-17068-1-git-send-email-baolin.wang@linaro.org>
 References: <1429509459-17068-1-git-send-email-baolin.wang@linaro.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150420055736.W1isun8aSTqY5eHtcjUAGCkW-CFL31iktZYjHMdjq94@z>
+Message-ID: <20150420055734.sXidO6DjEg8nxhrxTuNxhnaBvgbNgq-SwKYTZrDsRTk@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: tglx@linutronix.de
 Cc: arnd@arndb.de, john.stultz@linaro.org, heenasirwani@gmail.com, pang.xunlei@linaro.org, peterz@infradead.org, rafael.j.wysocki@intel.com, gregkh@linuxfoundation.org, richardcochran@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, rth@twiddle.net, riel@redhat.com, cl@linux.com, tj@kernel.org, fweisbec@gmail.com, ahh@google.com, pjt@google.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, baolin.wang@linaro.org, y2038@lists.linaro.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch converts the posix clock operations over to the new methods with
-timespec64/itimerspec64 type to making them ready for 2038, and it is based on
-the ptp patch series.
-
-And also changes to the 64bit methods for k_clock structure, that
-converts the timespec/itimerspec type to timespec64/itimerspec64 type.
+This patch converts to the 64bit methods for k_clock callback
+function, that converts the timespec type to timespec64 type and
+converts the itimerspec type to itimerspec64 type.
 
 Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 ---
- drivers/ptp/ptp_clock.c     |   26 ++++++++------------------
- include/linux/posix-clock.h |   10 +++++-----
- kernel/time/posix-clock.c   |   20 ++++++++++----------
- 3 files changed, 23 insertions(+), 33 deletions(-)
+ drivers/char/mmtimer.c |   36 +++++++++++++++++-------------------
+ 1 file changed, 17 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/ptp/ptp_clock.c b/drivers/ptp/ptp_clock.c
-index bee8270..8c086e7 100644
---- a/drivers/ptp/ptp_clock.c
-+++ b/drivers/ptp/ptp_clock.c
-@@ -97,32 +97,24 @@ static s32 scaled_ppm_to_ppb(long ppm)
+diff --git a/drivers/char/mmtimer.c b/drivers/char/mmtimer.c
+index 3d6c067..213d0bb 100644
+--- a/drivers/char/mmtimer.c
++++ b/drivers/char/mmtimer.c
+@@ -478,18 +478,18 @@ static int sgi_clock_period;
+ static struct timespec sgi_clock_offset;
+ static int sgi_clock_period;
  
- /* posix clock implementation */
+-static int sgi_clock_get(clockid_t clockid, struct timespec *tp)
++static int sgi_clock_get(clockid_t clockid, struct timespec64 *tp)
+ {
+ 	u64 nsec;
  
--static int ptp_clock_getres(struct posix_clock *pc, struct timespec *tp)
-+static int ptp_clock_getres(struct posix_clock *pc, struct timespec64 *tp)
+ 	nsec = rtc_time() * sgi_clock_period
+ 			+ sgi_clock_offset.tv_nsec;
+-	*tp = ns_to_timespec(nsec);
++	*tp = ns_to_timespec64(nsec);
+ 	tp->tv_sec += sgi_clock_offset.tv_sec;
+ 	return 0;
+ };
+ 
+-static int sgi_clock_set(const clockid_t clockid, const struct timespec *tp)
++static int sgi_clock_set(const clockid_t clockid, const struct timespec64 *tp)
+ {
+ 
+ 	u64 nsec;
+@@ -657,7 +657,7 @@ static int sgi_timer_del(struct k_itimer *timr)
+ }
+ 
+ /* Assumption: it_lock is already held with irq's disabled */
+-static void sgi_timer_get(struct k_itimer *timr, struct itimerspec *cur_setting)
++static void sgi_timer_get(struct k_itimer *timr, struct itimerspec64 *cur_setting)
+ {
+ 
+ 	if (timr->it.mmtimer.clock == TIMER_OFF) {
+@@ -668,14 +668,14 @@ static void sgi_timer_get(struct k_itimer *timr, struct itimerspec *cur_setting)
+ 		return;
+ 	}
+ 
+-	cur_setting->it_interval = ns_to_timespec(timr->it.mmtimer.incr * sgi_clock_period);
+-	cur_setting->it_value = ns_to_timespec((timr->it.mmtimer.expires - rtc_time()) * sgi_clock_period);
++	cur_setting->it_interval = ns_to_timespec64(timr->it.mmtimer.incr * sgi_clock_period);
++	cur_setting->it_value = ns_to_timespec64((timr->it.mmtimer.expires - rtc_time()) * sgi_clock_period);
+ }
+ 
+ 
+ static int sgi_timer_set(struct k_itimer *timr, int flags,
+-	struct itimerspec * new_setting,
+-	struct itimerspec * old_setting)
++	struct itimerspec64 *new_setting,
++	struct itimerspec64 *old_setting)
+ {
+ 	unsigned long when, period, irqflags;
+ 	int err = 0;
+@@ -687,8 +687,8 @@ static int sgi_timer_set(struct k_itimer *timr, int flags,
+ 		sgi_timer_get(timr, old_setting);
+ 
+ 	sgi_timer_del(timr);
+-	when = timespec_to_ns(&new_setting->it_value);
+-	period = timespec_to_ns(&new_setting->it_interval);
++	when = timespec64_to_ns(&new_setting->it_value);
++	period = timespec64_to_ns(&new_setting->it_interval);
+ 
+ 	if (when == 0)
+ 		/* Clear timer */
+@@ -699,11 +699,9 @@ static int sgi_timer_set(struct k_itimer *timr, int flags,
+ 		return -ENOMEM;
+ 
+ 	if (flags & TIMER_ABSTIME) {
+-		struct timespec n;
+ 		unsigned long now;
+ 
+-		getnstimeofday(&n);
+-		now = timespec_to_ns(&n);
++		now = ktime_get_real_ns();
+ 		if (when > now)
+ 			when -= now;
+ 		else
+@@ -765,7 +763,7 @@ static int sgi_timer_set(struct k_itimer *timr, int flags,
+ 	return err;
+ }
+ 
+-static int sgi_clock_getres(const clockid_t which_clock, struct timespec *tp)
++static int sgi_clock_getres(const clockid_t which_clock, struct timespec64 *tp)
  {
  	tp->tv_sec = 0;
- 	tp->tv_nsec = 1;
- 	return 0;
+ 	tp->tv_nsec = sgi_clock_period;
+@@ -773,13 +771,13 @@ static int sgi_clock_getres(const clockid_t which_clock, struct timespec *tp)
  }
  
--static int ptp_clock_settime(struct posix_clock *pc, const struct timespec *tp)
-+static int ptp_clock_settime(struct posix_clock *pc,
-+				const struct timespec64 *tp)
- {
- 	struct ptp_clock *ptp = container_of(pc, struct ptp_clock, clock);
--	struct timespec64 ts = timespec_to_timespec64(*tp);
--
--	return ptp->info->settime64(ptp->info, &ts);
-+	return ptp->info->settime64(ptp->info, tp);
- }
- 
--static int ptp_clock_gettime(struct posix_clock *pc, struct timespec *tp)
-+static int ptp_clock_gettime(struct posix_clock *pc, struct timespec64 *tp)
- {
- 	struct ptp_clock *ptp = container_of(pc, struct ptp_clock, clock);
--	struct timespec64 ts;
--	int err;
--
--	err = ptp->info->gettime64(ptp->info, &ts);
--	if (!err)
--		*tp = timespec64_to_timespec(ts);
--
--	return err;
-+	return ptp->info->gettime64(ptp->info, tp);
- }
- 
- static int ptp_clock_adjtime(struct posix_clock *pc, struct timex *tx)
-@@ -134,8 +126,7 @@ static int ptp_clock_adjtime(struct posix_clock *pc, struct timex *tx)
- 	ops = ptp->info;
- 
- 	if (tx->modes & ADJ_SETOFFSET) {
--		struct timespec ts;
--		ktime_t kt;
-+		struct timespec64 ts;
- 		s64 delta;
- 
- 		ts.tv_sec  = tx->time.tv_sec;
-@@ -147,8 +138,7 @@ static int ptp_clock_adjtime(struct posix_clock *pc, struct timex *tx)
- 		if ((unsigned long) ts.tv_nsec >= NSEC_PER_SEC)
- 			return -EINVAL;
- 
--		kt = timespec_to_ktime(ts);
--		delta = ktime_to_ns(kt);
-+		delta = timespec64_to_ns(&ts);
- 		err = ops->adjtime(ops, delta);
- 	} else if (tx->modes & ADJ_FREQUENCY) {
- 		s32 ppb = scaled_ppm_to_ppb(tx->freq);
-diff --git a/include/linux/posix-clock.h b/include/linux/posix-clock.h
-index 34c4498..fd7e22c 100644
---- a/include/linux/posix-clock.h
-+++ b/include/linux/posix-clock.h
-@@ -59,23 +59,23 @@ struct posix_clock_operations {
- 
- 	int  (*clock_adjtime)(struct posix_clock *pc, struct timex *tx);
- 
--	int  (*clock_gettime)(struct posix_clock *pc, struct timespec *ts);
-+	int  (*clock_gettime)(struct posix_clock *pc, struct timespec64 *ts);
- 
--	int  (*clock_getres) (struct posix_clock *pc, struct timespec *ts);
-+	int  (*clock_getres)(struct posix_clock *pc, struct timespec64 *ts);
- 
- 	int  (*clock_settime)(struct posix_clock *pc,
--			      const struct timespec *ts);
-+			      const struct timespec64 *ts);
- 
- 	int  (*timer_create) (struct posix_clock *pc, struct k_itimer *kit);
- 
- 	int  (*timer_delete) (struct posix_clock *pc, struct k_itimer *kit);
- 
- 	void (*timer_gettime)(struct posix_clock *pc,
--			      struct k_itimer *kit, struct itimerspec *tsp);
-+			      struct k_itimer *kit, struct itimerspec64 *tsp);
- 
- 	int  (*timer_settime)(struct posix_clock *pc,
- 			      struct k_itimer *kit, int flags,
--			      struct itimerspec *tsp, struct itimerspec *old);
-+			      struct itimerspec64 *tsp, struct itimerspec64 *old);
- 	/*
- 	 * Optional character device methods:
- 	 */
-diff --git a/kernel/time/posix-clock.c b/kernel/time/posix-clock.c
-index ce033c7..e21e4c1 100644
---- a/kernel/time/posix-clock.c
-+++ b/kernel/time/posix-clock.c
-@@ -297,7 +297,7 @@ out:
- 	return err;
- }
- 
--static int pc_clock_gettime(clockid_t id, struct timespec *ts)
-+static int pc_clock_gettime(clockid_t id, struct timespec64 *ts)
- {
- 	struct posix_clock_desc cd;
- 	int err;
-@@ -316,7 +316,7 @@ static int pc_clock_gettime(clockid_t id, struct timespec *ts)
- 	return err;
- }
- 
--static int pc_clock_getres(clockid_t id, struct timespec *ts)
-+static int pc_clock_getres(clockid_t id, struct timespec64 *ts)
- {
- 	struct posix_clock_desc cd;
- 	int err;
-@@ -335,7 +335,7 @@ static int pc_clock_getres(clockid_t id, struct timespec *ts)
- 	return err;
- }
- 
--static int pc_clock_settime(clockid_t id, const struct timespec *ts)
-+static int pc_clock_settime(clockid_t id, const struct timespec64 *ts)
- {
- 	struct posix_clock_desc cd;
- 	int err;
-@@ -399,7 +399,7 @@ static int pc_timer_delete(struct k_itimer *kit)
- 	return err;
- }
- 
--static void pc_timer_gettime(struct k_itimer *kit, struct itimerspec *ts)
-+static void pc_timer_gettime(struct k_itimer *kit, struct itimerspec64 *ts)
- {
- 	clockid_t id = kit->it_clock;
- 	struct posix_clock_desc cd;
-@@ -414,7 +414,7 @@ static void pc_timer_gettime(struct k_itimer *kit, struct itimerspec *ts)
- }
- 
- static int pc_timer_settime(struct k_itimer *kit, int flags,
--			    struct itimerspec *ts, struct itimerspec *old)
-+			    struct itimerspec64 *ts, struct itimerspec64 *old)
- {
- 	clockid_t id = kit->it_clock;
- 	struct posix_clock_desc cd;
-@@ -435,12 +435,12 @@ static int pc_timer_settime(struct k_itimer *kit, int flags,
- }
- 
- struct k_clock clock_posix_dynamic = {
--	.clock_getres	= pc_clock_getres,
--	.clock_set	= pc_clock_settime,
--	.clock_get	= pc_clock_gettime,
-+	.clock_getres64	= pc_clock_getres,
-+	.clock_set64	= pc_clock_settime,
-+	.clock_get64	= pc_clock_gettime,
- 	.clock_adj	= pc_clock_adjtime,
- 	.timer_create	= pc_timer_create,
--	.timer_set	= pc_timer_settime,
-+	.timer_set64	= pc_timer_settime,
- 	.timer_del	= pc_timer_delete,
--	.timer_get	= pc_timer_gettime,
-+	.timer_get64	= pc_timer_gettime,
+ static struct k_clock sgi_clock = {
+-	.clock_set	= sgi_clock_set,
+-	.clock_get	= sgi_clock_get,
+-	.clock_getres	= sgi_clock_getres,
++	.clock_set64	= sgi_clock_set,
++	.clock_get64	= sgi_clock_get,
++	.clock_getres64	= sgi_clock_getres,
+ 	.timer_create	= sgi_timer_create,
+-	.timer_set	= sgi_timer_set,
++	.timer_set64	= sgi_timer_set,
+ 	.timer_del	= sgi_timer_del,
+-	.timer_get	= sgi_timer_get
++	.timer_get64	= sgi_timer_get
  };
+ 
+ /**
 -- 
 1.7.9.5
