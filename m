@@ -1,80 +1,67 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Baolin Wang <baolin.wang@linaro.org>
-Subject: [PATCH 02/11] timekeeping:Introduce the current_kernel_time64() function with timespec64 type
-Date: Mon, 20 Apr 2015 13:57:30 +0800
-Message-ID: <1429509459-17068-3-git-send-email-baolin.wang@linaro.org>
-In-Reply-To: <1429509459-17068-1-git-send-email-baolin.wang@linaro.org>
-References: <1429509459-17068-1-git-send-email-baolin.wang@linaro.org>
+Subject: [PATCH 00/11] Convert the posix_clock_operations and k_clock structure to ready for 2038
+Date: Mon, 20 Apr 2015 13:57:28 +0800
+Message-ID: <1429509459-17068-1-git-send-email-baolin.wang@linaro.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150420055730.qhmlyjqTzG_9wGigLE3izeTYPY5hsCieEVUnkdK42uY@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: tglx@linutronix.de
 Cc: arnd@arndb.de, john.stultz@linaro.org, heenasirwani@gmail.com, pang.xunlei@linaro.org, peterz@infradead.org, rafael.j.wysocki@intel.com, gregkh@linuxfoundation.org, richardcochran@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, rth@twiddle.net, riel@redhat.com, cl@linux.com, tj@kernel.org, fweisbec@gmail.com, ahh@google.com, pjt@google.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, baolin.wang@linaro.org, y2038@lists.linaro.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch adds current_kernel_time64() function with timespec64 type,
-and makes current_kernel_time() 'static inline' and moves it to timekeeping.h
-file.
+This patch series changes the 32-bit time type (timespec/itimerspec) to the 64-bit one
+(timespec64/itimerspec64), since 32-bit time types will break in the year 2038.
 
-It is convenient for user to get the current kernel time with timespec64 type,
-and delete the current_kernel_time() function easily in timekeeping.h file. That
-is ready for 2038 when get the current time.
+This patch series introduces new methods with timespec64/itimerspec64 type,
+and removes the old ones with timespec/itimerspec type for posix_clock_operations
+and k_clock structure.
 
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
----
- include/linux/timekeeping.h |   10 +++++++++-
- kernel/time/timekeeping.c   |    6 +++---
- 2 files changed, 12 insertions(+), 4 deletions(-)
+Also introduces some new functions with timespec64/itimerspec64 type, like current_kernel_time64(),
+hrtimer_get_res64(), cputime_to_timespec64() and timespec64_to_cputime().
 
-diff --git a/include/linux/timekeeping.h b/include/linux/timekeeping.h
-index 3eaae47..c6d5ae9 100644
---- a/include/linux/timekeeping.h
-+++ b/include/linux/timekeeping.h
-@@ -18,10 +18,18 @@ extern int do_sys_settimeofday(const struct timespec *tv,
-  * Kernel time accessors
-  */
- unsigned long get_seconds(void);
--struct timespec current_kernel_time(void);
-+struct timespec64 current_kernel_time64(void);
- /* does not take xtime_lock */
- struct timespec __current_kernel_time(void);
- 
-+static inline struct timespec current_kernel_time(void)
-+{
-+	struct timespec64 now;
-+
-+	now = current_kernel_time64();
-+	return timespec64_to_timespec(now);
-+}
-+
- /*
-  * timespec based interfaces
-  */
-diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-index 91db941..8ccc02c 100644
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -1721,7 +1721,7 @@ struct timespec __current_kernel_time(void)
- 	return timespec64_to_timespec(tk_xtime(tk));
- }
- 
--struct timespec current_kernel_time(void)
-+struct timespec64 current_kernel_time64(void)
- {
- 	struct timekeeper *tk = &tk_core.timekeeper;
- 	struct timespec64 now;
-@@ -1733,9 +1733,9 @@ struct timespec current_kernel_time(void)
- 		now = tk_xtime(tk);
- 	} while (read_seqcount_retry(&tk_core.seq, seq));
- 
--	return timespec64_to_timespec(now);
-+	return now;
- }
--EXPORT_SYMBOL(current_kernel_time);
-+EXPORT_SYMBOL(current_kernel_time64);
- 
- struct timespec64 get_monotonic_coarse64(void)
- {
+Baolin Wang (11):
+  linux/time64.h:Introduce the 'struct itimerspec64' for 64bit
+  timekeeping:Introduce the current_kernel_time64() function with
+    timespec64 type
+  time/hrtimer:Introduce hrtimer_get_res64() with timespec64 type for
+    getting the timer resolution
+  posix timers:Introduce the 64bit methods with timespec64 type for
+    k_clock structure
+  time/posix-timers:Convert to the 64bit methods for k_clock callback
+    functions
+  char/mmtimer:Convert to the 64bit methods for k_clock callback
+    function
+  time/alarmtimer:Convert to the new methods for k_clock structure
+  time/posix-clock:Convert to the 64bit methods for k_clock and
+    posix_clock_operations structure
+  cputime:Introduce the cputime_to_timespec64/timespec64_to_cputime
+    function
+  time/posix-cpu-timers:Convert to the 64bit methods for k_clock
+    structure
+  k_clock:Remove the 32bit methods with timespec type
+
+ arch/powerpc/include/asm/cputime.h    |    6 +-
+ arch/s390/include/asm/cputime.h       |    8 +-
+ drivers/char/mmtimer.c                |   36 ++++----
+ drivers/ptp/ptp_clock.c               |   26 ++----
+ include/asm-generic/cputime_jiffies.h |   10 +--
+ include/linux/cputime.h               |   15 ++++
+ include/linux/hrtimer.h               |   12 ++-
+ include/linux/jiffies.h               |    3 +
+ include/linux/posix-clock.h           |   10 +--
+ include/linux/posix-timers.h          |   18 ++--
+ include/linux/time64.h                |   13 +++
+ include/linux/timekeeping.h           |   14 ++-
+ kernel/time/alarmtimer.c              |   43 ++++-----
+ kernel/time/hrtimer.c                 |   10 +--
+ kernel/time/posix-clock.c             |   20 ++---
+ kernel/time/posix-cpu-timers.c        |   83 +++++++++--------
+ kernel/time/posix-timers.c            |  157 +++++++++++++++++++--------------
+ kernel/time/time.c                    |   21 +++++
+ kernel/time/timekeeping.c             |    6 +-
+ kernel/time/timekeeping.h             |    2 +-
+ 20 files changed, 302 insertions(+), 211 deletions(-)
+
 -- 
 1.7.9.5
