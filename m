@@ -1,60 +1,72 @@
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [Y2038] [PATCH 04/11] posix timers:Introduce the 64bit methods
  with timespec64 type for k_clock structure
-Date: Tue, 21 Apr 2015 16:14:26 +0200 (CEST)
-Message-ID: <alpine.DEB.2.11.1504211528040.13914@nanos>
-References: <1429509459-17068-1-git-send-email-baolin.wang@linaro.org> <1429509459-17068-5-git-send-email-baolin.wang@linaro.org> <alpine.DEB.2.11.1504202131500.13914@nanos> <3755355.Xf0HbltZXg@wuerfel>
+Date: Tue, 21 Apr 2015 16:57:18 +0200
+Message-ID: <3231171.5TrYVVBLh4@wuerfel>
+References: <1429509459-17068-1-git-send-email-baolin.wang@linaro.org>
+ <3755355.Xf0HbltZXg@wuerfel> <alpine.DEB.2.11.1504211528040.13914@nanos>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <3755355.Xf0HbltZXg@wuerfel>
-Sender: linux-arch-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <alpine.DEB.2.11.1504211528040.13914@nanos>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: y2038@lists.linaro.org, Baolin Wang <baolin.wang@linaro.org>, pang.xunlei@linaro.org, peterz@infradead.org, benh@kernel.crashing.org, heiko.carstens@de.ibm.com, paulus@samba.org, cl@linux.com, heenasirwani@gmail.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, mpe@ellerman.id.au, rafael.j.wysocki@intel.com, ahh@google.com, fweisbec@gmail.com, pjt@google.com, riel@redhat.com, richardcochran@gmail.com, schwidefsky@de.ibm.com, john.stultz@linaro.org, rth@twiddle.net, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, tj@kernel.org, linux390@de.ibm.com, linuxppc-dev@lists.ozlabs.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: pang.xunlei@linaro.org, peterz@infradead.org, heiko.carstens@de.ibm.com, paulus@samba.org, cl@linux.com, heenasirwani@gmail.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, y2038@lists.linaro.org, rafael.j.wysocki@intel.com, ahh@google.com, fweisbec@gmail.com, pjt@google.com, riel@redhat.com, richardcochran@gmail.com, tj@kernel.org, john.stultz@linaro.org, rth@twiddle.net, Baolin Wang <baolin.wang@linaro.org>, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, schwidefsky@de.ibm.com, linux390@de.ibm.com, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 21 Apr 2015, Arnd Bergmann wrote:
-> > COMPAT_SYSCALL_DEFINE2(timer_gettime, timer_t, timer_id,
-> >                        struct compat_itimerspec __user *, setting)
-> 
-> As a side note, I want to kill off the get_fs()/set_fs() calls in
-> the process. These always make me dizzy when I try to work out whether
-> there is a potential security hole (there is not in this case), and
-> they can be slow on some architectures.
-
-Yeah. I have to take a deep breath every time I look at those :)
- 
-> My preferred solution is one where we end up with the same syscalls
-> for both 32-bit and 64-bit, and basically use the
-> compat_sys_timer_gettime() implementation (or a simplified version)
-> for the existing , something like this:
-
-No objections from my side. I was not looking into the syscall magic
-yet. I just wanted to avoid the code churn and have the guts of the
-syscalls factored out for simple reusage.
-
-....
- 
-> Note the use of a separate __kernel_itimerspec64 for the user interface
-> here, which I think will be needed to hide the differences between the
-> normal itimerspec on 64-bit machines, and the new itimerspec on 32-bit
-> platforms that will be defined differently (using 'long long').
-
-Confused.
-
-timespec64 / itimerspec64 should be the same independent of 64bit and
-32bit. So why do we need another variant ?
-
-> I would also prefer not too many people to work on the syscalls, and
-> would rather have Baolin not touch any of the syscall prototypes for
-> the moment.
-
-I did not ask him to change any of the syscall prototypes. I just
-wanted him to split out the guts of the syscall into a seperate static
-function to avoid all that code churn.
-
-Thanks,
-
-	tglx
+T24gVHVlc2RheSAyMSBBcHJpbCAyMDE1IDE2OjE0OjI2IFRob21hcyBHbGVpeG5lciB3cm90ZToK
+PiA+IE5vdGUgdGhlIHVzZSBvZiBhIHNlcGFyYXRlIF9fa2VybmVsX2l0aW1lcnNwZWM2NCBmb3Ig
+dGhlIHVzZXIgaW50ZXJmYWNlCj4gPiBoZXJlLCB3aGljaCBJIHRoaW5rIHdpbGwgYmUgbmVlZGVk
+IHRvIGhpZGUgdGhlIGRpZmZlcmVuY2VzIGJldHdlZW4gdGhlCj4gPiBub3JtYWwgaXRpbWVyc3Bl
+YyBvbiA2NC1iaXQgbWFjaGluZXMsIGFuZCB0aGUgbmV3IGl0aW1lcnNwZWMgb24gMzItYml0Cj4g
+PiBwbGF0Zm9ybXMgdGhhdCB3aWxsIGJlIGRlZmluZWQgZGlmZmVyZW50bHkgKHVzaW5nICdsb25n
+IGxvbmcnKS4KPiAKPiBDb25mdXNlZC4KPiAKPiB0aW1lc3BlYzY0IC8gaXRpbWVyc3BlYzY0IHNo
+b3VsZCBiZSB0aGUgc2FtZSBpbmRlcGVuZGVudCBvZiA2NGJpdCBhbmQKPiAzMmJpdC4gU28gd2h5
+IGRvIHdlIG5lZWQgYW5vdGhlciB2YXJpYW50ID8KClRoZXJlIGFyZSBtdWx0aXBsZSByZWFzb25z
+OgoKKiBPbiA2NC1iaXQgc3lzdGVtcywgdGltZXNwZWM2NCB3b3VsZCBhbHdheXMgYmUgZGVmaW5l
+ZCBpbiB0aGUgc2FtZSB3YXkKICBhcyBzdHJ1Y3QgdGltZXNwZWMgeyBfX2tlcm5lbF90aW1lX3Qg
+dHZfc2VjOyBsb25nIHR2X25zZWM7IH0sIHdpdGgKICBfX2tlcm5lbF90aW1lX3QgYmVpbmcgJ2xv
+bmcnLiBPbiAzMi1iaXQsIHdlIHByb2JhYmx5IG5lZWQgdG8gbWFrZSBib3RoCiAgbWVtYmVycyAn
+bG9uZyBsb25nJyBmb3IgdGhlIHVzZXIgc3BhY2Ugc2lkZSwgaW4gb3JkZXIgdG8gc2hhcmUgdGhl
+CiAgc3lzY2FsbCBpbXBsZW1lbnRhdGlvbiB3aXRoIHRoZSBrZXJuZWwgc2lkZSwgYnV0IHdlIG1h
+eSBhbHNvIHdhbnQgdG8KICBrZWVwIHRoZSBpbnRlcm5hbCB0aW1lc3BlYzY0IHVzaW5nIGEgJ2xv
+bmcnIGZvciB0dl9uc2VjLCBhcyB3ZSBkbwogIHRvZGF5LiBUaGlzIG1lYW5zIHRoYXQgYm90aCB0
+aGUgYmluYXJ5IGxheW91dCAocGFkZGluZyBvciBubyBwYWRkaW5nKQogIGFuZCB0aGUgYmFzaWMg
+dHlwZXMgKGxvbmcgb3IgbG9uZyBsb25nKSBhcmUgZGlmZmVyZW50IGJldHdlZW4gMzItYml0CiAg
+YW5kIDY0LWJpdCwgYW5kIGJldHdlZW4ga2VybmVsIGFuZCB1c2VyIHNwYWNlCiogV2Ugc2hvdWxk
+IG5vdCBwdXQgJ3N0cnVjdCB0aW1lc3BlYzY0JyBpbnRvIHRoZSB1c2VyIHNwYWNlIG5hbWVzcGFj
+ZSwKICBhcyBhcHBsaWNhdGlvbnMgbWlnaHQgYWxyZWFkeSB1c2UgdGhhdCBpZGVudGlmaWVyLiBU
+aGlzIGlzIHNpbWlsYXIKICB0byB0aGUgX191MzIvdTMyIG9yIF9fa2VybmVsX3RpbWVfdC90aW1l
+X3QgdHVwbGUgb2YgdHlwZXMgZm9yIGludGVyZmFjZQogIGFuZCBpbi1rZXJuZWwgdXNlcy4gVGhp
+cyBpcyBwYXJ0aWN1bGFybHkgaW1wb3J0YW50IHdoZW4gZW1iZWRkaW5nIGEKICB0aW1lc3BlYyBp
+biBhbm90aGVyIGRhdGEgc3RydWN0dXJlLgoqIE15IHBsYW4gaXMgdG8gdXNlIGEgdGVtcG9yYXJ5
+IGhhY2sgd2hlcmUgSSBhY3R1YWxseSBkZWZpbmUKICBfX2tlcm5lbF90aW1lc3BlYzY0IHRvIGxv
+b2sgbGlrZSB0aGUgMzItYml0IHZlcnNpb24gb2YgdGltZXNwZWMsCiAgYXMgYW4gaW50ZXJtZWRp
+YXRlIHN0ZXAgd2hlbiBjb252ZXJ0aW5nIGFsbCAzMi1iaXQgYXJjaGl0ZWN0dXJlcyBvdmVyCiAg
+dG8gdXNlIHRoZSBjb21wYXRfKigpIHN5c2NhbGxzIGluIHBsYWNlIG9mIHRoZSBleGlzdGluZyBv
+bmVzLCBzbwogIEkgY2FuIGNoYW5nZSBvdmVyIHRoZSBub3JtYWwgc3lzY2FsbHMgdG8gdXNlIF9f
+a2VybmVsX3RpbWVzcGVjNjQKICB3aXRob3V0IGhhdmluZyB0byBjaGFuZ2UgYWxsIGFyY2hpdGVj
+dHVyZXMgYXQgb25jZSwgb3IgaGF2aW5nIHRvCiAgbW9kaWZ5IGVhY2ggc3lzY2FsbCBtdWx0aXBs
+ZSB0aW1lcy4KCj4gPiBJIHdvdWxkIGFsc28gcHJlZmVyIG5vdCB0b28gbWFueSBwZW9wbGUgdG8g
+d29yayBvbiB0aGUgc3lzY2FsbHMsIGFuZAo+ID4gd291bGQgcmF0aGVyIGhhdmUgQmFvbGluIG5v
+dCB0b3VjaCBhbnkgb2YgdGhlIHN5c2NhbGwgcHJvdG90eXBlcyBmb3IKPiA+IHRoZSBtb21lbnQu
+Cj4gCj4gSSBkaWQgbm90IGFzayBoaW0gdG8gY2hhbmdlIGFueSBvZiB0aGUgc3lzY2FsbCBwcm90
+b3R5cGVzLiBJIGp1c3QKPiB3YW50ZWQgaGltIHRvIHNwbGl0IG91dCB0aGUgZ3V0cyBvZiB0aGUg
+c3lzY2FsbCBpbnRvIGEgc2VwZXJhdGUgc3RhdGljCj4gZnVuY3Rpb24gdG8gYXZvaWQgYWxsIHRo
+YXQgY29kZSBjaHVybi4KCk9rLCBJIHdhc24ndCBzdXJlIGFib3V0IHRoYXQgcGFydCwgdGhhbmtz
+IGZvciBjbGFyaWZ5aW5nLgoKCUFybmQKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KTGludXhwcGMtZGV2IG1haWxpbmcgbGlzdApMaW51eHBwYy1kZXZAbGlz
+dHMub3psYWJzLm9yZwpodHRwczovL2xpc3RzLm96bGFicy5vcmcvbGlzdGluZm8vbGludXhwcGMt
+ZGV2
