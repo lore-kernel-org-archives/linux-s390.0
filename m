@@ -1,14 +1,14 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [Qemu-devel] [PATCH v5 10/17] target-s390x: Add S390 CPU model
- alias definition routines
-Date: Mon, 27 Apr 2015 10:11:33 +0200
-Message-ID: <553DEF35.5000901@de.ibm.com>
-References: <1428933396-37887-1-git-send-email-mimu@linux.vnet.ibm.com> <1428933396-37887-11-git-send-email-mimu@linux.vnet.ibm.com>
+Subject: Re: [Qemu-devel] [PATCH v5 11/17] target-s390x: Add KVM VM attribute
+ interface for S390 CPU models
+Date: Mon, 27 Apr 2015 10:15:47 +0200
+Message-ID: <553DF033.1060405@de.ibm.com>
+References: <1428933396-37887-1-git-send-email-mimu@linux.vnet.ibm.com> <1428933396-37887-12-git-send-email-mimu@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1428933396-37887-11-git-send-email-mimu@linux.vnet.ibm.com>
+In-Reply-To: <1428933396-37887-12-git-send-email-mimu@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -17,35 +17,69 @@ Cc: Eduardo Habkost <ehabkost@redhat.com>, Gleb Natapov <gleb@kernel.org>, Alexa
 List-ID: <linux-s390.vger.kernel.org>
 
 Am 13.04.2015 um 15:56 schrieb Michael Mueller:
-> --- a/target-s390x/cpu-models.c
-> +++ b/target-s390x/cpu-models.c
-> @@ -88,3 +88,85 @@ S390_PROC_DEF("2827-ga2", CPU_S390_2827_GA2, "IBM zEnterprise EC12 GA2")
 [...]
-> +int set_s390_cpu_alias(const char *name, const char *model)
+> +static int cpu_model_get(KVMState *s, uint64_t attr, uint64_t addr)
 > +{
-> +    S390CPUAlias *alias;
+> +    int rc = -ENOSYS;
+> +    struct kvm_device_attr dev_attr = {
+> +        .group = KVM_S390_VM_CPU_MODEL,
+> +        .attr = attr,
+> +        .addr = addr,
+
+Would it make sense to do the cast here....
+> +    };
 > +
-> +    if (!name || !model) {
-> +        return -EINVAL;
+> +    if (kvm_vm_check_attr(s, dev_attr.group, dev_attr.attr)) {
+> +        rc = kvm_vm_ioctl(s, KVM_GET_DEVICE_ATTR, &dev_attr);
 > +    }
-> +    if (!strcmp(name, model)) {
-> +        return -EINVAL;
-> +    }
-> +    if (!s390_cpu_class_by_name(model)) {
-> +        return -EINVAL;
-> +    }
-> +    alias = g_try_malloc0(sizeof(S390CPUAlias));
-> +    if (!alias) {
-> +        return -ENOMEM;
-> +    }
-> +    alias->name = g_strdup(name);
-> +    alias->model = g_strdup(model);
-> +    s390_cpu_aliases = g_slist_append(s390_cpu_aliases, alias);
-> +    return 0;
+> +
+> +    return rc;
 > +}
 > +
+> +static int cpu_model_set(KVMState *s, uint64_t attr, uint64_t addr)
+> +{
+> +    int rc = -ENOSYS;
+> +    struct kvm_device_attr dev_attr = {
+> +        .group = KVM_S390_VM_CPU_MODEL,
+> +        .attr = attr,
+> +        .addr = addr,
 
-Applying: target-s390x: Add S390 CPU model alias definition routines
-/home/cborntra/REPOS/qemu/.git/rebase-apply/patch:96: new blank line at EOF.
-+
-warning: 1 line adds whitespace errors.
+...and here...
+
+> +    };
+> +
+> +    if (kvm_vm_check_attr(s, dev_attr.group, dev_attr.attr)) {
+> +        rc = kvm_vm_ioctl(s, KVM_SET_DEVICE_ATTR, &dev_attr);
+> +    }
+> +
+> +    return rc;
+> +}
+> +
+> +static int kvm_s390_get_machine_props(KVMState *s, S390MachineProps *prop)
+> +{
+> +    int rc = -EFAULT;
+> +
+> +    if (s) {
+> +        rc = cpu_model_get(s, KVM_S390_VM_CPU_MACHINE, (uint64_t) prop);
+
+and pass S390MachineProps as 3rd parameter?
+
+
+> +int kvm_s390_get_processor_props(S390ProcessorProps *prop)
+> +{
+> +    int rc;
+> +
+> +    rc = cpu_model_get(kvm_state, KVM_S390_VM_CPU_PROCESSOR, (uint64_t) prop);
+
+dito
+> +    trace_kvm_get_processor_props(rc, prop->cpuid, prop->ibc);
+> +    return rc;
+> +}
+> +
+> +int kvm_s390_set_processor_props(S390ProcessorProps *prop)
+> +{
+> +    int rc;
+> +
+> +    rc = cpu_model_set(kvm_state, KVM_S390_VM_CPU_PROCESSOR, (uint64_t) prop);
+
+dito
