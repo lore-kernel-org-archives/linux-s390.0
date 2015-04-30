@@ -1,93 +1,83 @@
-Return-Path: <linux@roeck-us.net>
-Message-ID: <5535B6C1.5040502@roeck-us.net>
-Date: Mon, 20 Apr 2015 19:32:33 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-Subject: Re: sparc64: Build failure due to commit f1600e549b94 (sparc: Make
- sparc64 use scalable lib/iommu-common.c functions)
-References: <55348BE1.4010305@roeck-us.net>	
- <20150420.122519.1661605449214047938.davem@davemloft.net>	
- <20150420164431.GA30837@roeck-us.net>	
- <20150420.125050.2036067807685492178.davem@davemloft.net>
- <1429581250.9619.6.camel@ellerman.id.au>
-In-Reply-To: <1429581250.9619.6.camel@ellerman.id.au>
-Content-Type: text/plain; charset=utf-8; format=flowed
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Michael Ellerman <mpe@ellerman.id.au>, David Miller <davem@davemloft.net>
-Cc: linux-s390@vger.kernel.org, aik@au1.ibm.com, sowmini.varadhan@oracle.com, anton@au1.ibm.com, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, paulus@samba.org, sparclinux@vger.kernel.org, linux390@de.ibm.com, linuxppc-dev@lists.ozlabs.org
+From: Baolin Wang <baolin.wang@linaro.org>
+Subject: [PATCH v2 00/15] Convert the posix_clock_operations and k_clock structure to ready for 2038
+Date: Thu, 30 Apr 2015 16:06:25 +0800
+Message-ID: <1430381185-26191-1-git-send-email-baolin.wang@linaro.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: tglx@linutronix.de
+Cc: arnd@arndb.de, john.stultz@linaro.org, heenasirwani@gmail.com, pang.xunlei@linaro.org, peterz@infradead.org, rafael.j.wysocki@intel.com, gregkh@linuxfoundation.org, richardcochran@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, rth@twiddle.net, riel@redhat.com, cl@linux.com, tj@kernel.org, fweisbec@gmail.com, ahh@google.com, pjt@google.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, baolin.wang@linaro.org, y2038@lists.linaro.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 04/20/2015 06:54 PM, Michael Ellerman wrote:
-> On Mon, 2015-04-20 at 12:50 -0400, David Miller wrote:
->> From: Guenter Roeck <linux@roeck-us.net>
->> Date: Mon, 20 Apr 2015 09:44:31 -0700
->>
->>> On Mon, Apr 20, 2015 at 12:25:19PM -0400, David Miller wrote:
->>>> From: Guenter Roeck <linux@roeck-us.net>
->>>> Date: Sun, 19 Apr 2015 22:17:21 -0700
->>>>
->>>>> The debug option is intended for all _other_ architectures, to
->>>>> ensure that changes made for those don't break alpha/s390
->>>>> builds. alpha/s390 have ARCH_NEEDS_WEAK_PER_CPU and don't need the
->>>>> debug option.
->>>>
->>>> Ironically this would not create a build failure for the architectures
->>>> where this matters, because only powerpc has the like named percpu
->>>> symbol.
->>>>
->>>> So it's not really meeting the stated objective in this case.
->>>
->>> Yes, that is correct; it can only find problems in non-architecture
->>> code, and on the downside produces false positives and thus build errors
->>> like this one.
->>>
->>> Which makes the fix a bit philosophical. Rename iommu_pool_hash in
->>> iommu-common, or drop DEBUG_FORCE_WEAK_PER_CPU. I would rename
->>> iommu_pool_hash, but that is just me. Ultimately, I don't really
->>> care one way or another, as long as the problem gets fixed.
->>
->> If nightly builds of s390 and alpha, the two platforms where this
->> matters, are being done as reported in this thread, then I really
->> don't see the value in DEBUG_FORCE_WEAK_PER_CPU.
+This patch series changes the 32-bit time type (timespec/itimerspec) to the 64-bit one
+(timespec64/itimerspec64), since 32-bit time types will break in the year 2038.
 
-Me not either, but, as you say, that is a different discussion.
+This patch series introduces new methods with timespec64/itimerspec64 type,
+and removes the old ones with timespec/itimerspec type for posix_clock_operations
+and k_clock structure.
 
->
-> We do an s390 allmodconfig for every linux-next release:
->
->    http://kisskb.ellerman.id.au/kisskb/target/573/
->
-> And also for Linus' tree:
->
->    http://kisskb.ellerman.id.au/kisskb/target/568/
->
-> We don't have alpha allmodconfig enabled, though we could, but we do build the
-> defconfig:
->
->    http://kisskb.ellerman.id.au/kisskb/target/2499/
->    http://kisskb.ellerman.id.au/kisskb/target/2494/
->
-I cover alpha:allmodconfig in my builds for -next, mainline, as well as all
-kernel.org stable releases and release candidates. This discussion is a good
-argument for enabling s390:allmodconfig as well.
+Also introduces some new functions with timespec64/itimerspec64 type, like current_kernel_time64(),
+hrtimer_get_res64(), cputime_to_timespec64() and timespec64_to_cputime().
 
-> So I think that should be sufficient to catch any percpus that are introduced
-> in generic code with the same name as s390/alpha variables.
->
-Yes, but unfortunately only after the fact, though I don't see a means
-to avoid that.
+Changes since V1:
+	-Split some patch into small patch.
+	-Change the methods for converting the syscall and add some default function for new 64bit methods for syscall function.
+	-Introduce the new function do_sys_settimeofday64() and move do_sys_settimeofday() function to head file.
+	-Modify the EXPORT_SYMPOL issue.
+	-Add new 64bit methods in cputime_nsecs.h file.
+	-Modify some patch logs.
 
->
->> But I guess that's a more involved longer-term discussion and I guess
->> I'll apply Sowmini's patches for now.
->
-Thanks!
+Baolin Wang (15):
+  linux/time64.h:Introduce the 'struct itimerspec64' for 64bit
+  timekeeping:Introduce the current_kernel_time64() function with
+    timespec64 type
+  time/hrtimer:Introduce hrtimer_get_res64() with timespec64 type for
+    getting the timer resolution
+  posix timers:Introduce the 64bit methods with timespec64 type for
+    k_clock structure
+  posix-timers:Split out the guts of the syscall and change the
+    implementation
+  posix-timers:Convert to the 64bit methods for the syscall function
+  time:Introduce the do_sys_settimeofday64() function with timespec64
+    type
+  time/posix-timers:Convert to the 64bit methods for k_clock callback
+    functions
+  char/mmtimer:Convert to the 64bit methods for k_clock callback
+    function
+  time/alarmtimer:Convert to the new methods for k_clock structure
+  time/posix-clock:Convert to the 64bit methods for k_clock and
+    posix_clock_operations structure
+  time/time:Introduce the timespec64_to_jiffies/jiffies_to_timespec64
+    function
+  cputime:Introduce the cputime_to_timespec64/timespec64_to_cputime
+    function
+  time/posix-cpu-timers:Convert to the 64bit methods for k_clock
+    structure
+  k_clock:Remove the 32bit methods with timespec/itimerspec type
 
-Guenter
+ arch/powerpc/include/asm/cputime.h    |    6 +-
+ arch/s390/include/asm/cputime.h       |    8 +-
+ drivers/char/mmtimer.c                |   36 +++--
+ drivers/ptp/ptp_clock.c               |   26 +---
+ include/asm-generic/cputime_jiffies.h |   10 +-
+ include/asm-generic/cputime_nsecs.h   |    4 +-
+ include/linux/cputime.h               |   15 ++
+ include/linux/hrtimer.h               |   12 +-
+ include/linux/jiffies.h               |   21 ++-
+ include/linux/posix-clock.h           |   10 +-
+ include/linux/posix-timers.h          |   18 +--
+ include/linux/time64.h                |   35 +++++
+ include/linux/timekeeping.h           |   26 +++-
+ kernel/time/alarmtimer.c              |   43 +++---
+ kernel/time/hrtimer.c                 |   10 +-
+ kernel/time/posix-clock.c             |   20 +--
+ kernel/time/posix-cpu-timers.c        |   83 +++++-----
+ kernel/time/posix-timers.c            |  269 ++++++++++++++++++++++-----------
+ kernel/time/time.c                    |   22 +--
+ kernel/time/timekeeping.c             |    6 +-
+ kernel/time/timekeeping.h             |    2 +-
+ 21 files changed, 428 insertions(+), 254 deletions(-)
+
+-- 
+1.7.9.5
