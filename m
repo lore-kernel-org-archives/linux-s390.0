@@ -1,95 +1,38 @@
-From: Baolin Wang <baolin.wang@linaro.org>
-Subject: [PATCH v3 00/22] Convert the posix_clock_operations and k_clock structure to ready for 2038
-Date: Mon, 11 May 2015 19:08:38 +0800
-Message-ID: <1431342518-29362-1-git-send-email-baolin.wang@linaro.org>
-Return-path: <linux-arch-owner@vger.kernel.org>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: tglx@linutronix.de
-Cc: arnd@arndb.de, john.stultz@linaro.org, heenasirwani@gmail.com, pang.xunlei@linaro.org, peterz@infradead.org, rafael.j.wysocki@intel.com, gregkh@linuxfoundation.org, richardcochran@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, rth@twiddle.net, riel@redhat.com, cl@linux.com, tj@kernel.org, fweisbec@gmail.com, ahh@google.com, pjt@google.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, baolin.wang@linaro.org, y2038@lists.linaro.org
+From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+Subject: [PATCH 2/3] kvm/x86: report guest steal time in host
+Date: Wed,  6 May 2015 17:26:35 +0530
+Message-ID: <356cdc25b8339ab742b349d1432c69fbdeeb204d.1430913087.git.naveen.n.rao@linux.vnet.ibm.com>
+References: <cover.1430913087.git.naveen.n.rao@linux.vnet.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1430913087.git.naveen.n.rao@linux.vnet.ibm.com>
+In-Reply-To: <cover.1430913087.git.naveen.n.rao@linux.vnet.ibm.com>
+References: <cover.1430913087.git.naveen.n.rao@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, kvm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+Cc: paulus@samba.org, mpe@ellerman.id.au, agraf@suse.de, mingo@redhat.com, ego@linux.vnet.ibm.com, warrier@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch series changes the 32-bit time type (timespec/itimerspec) to the 64-bit one
-(timespec64/itimerspec64), since 32-bit time types will break in the year 2038.
+Report guest steal time in host task statistics. On x86, this is just
+the scheduler run_delay.
 
-This patch series introduces new methods with timespec64/itimerspec64 type,
-and removes the old ones with timespec/itimerspec type for posix_clock_operations
-and k_clock structure.
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+---
+ arch/x86/kvm/x86.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Also introduces some new functions with timespec64/itimerspec64 type, like current_kernel_time64(),
-hrtimer_get_res64(), cputime_to_timespec64() and timespec64_to_cputime().
-
-Changes since v2:
-     	-Split the syscall conversion patch into small some patches.
-
-
-Baolin Wang (22):
-  linux/time64.h:Introduce the 'struct itimerspec64' for 64bit
-  timekeeping:Introduce the current_kernel_time64() function with
-    timespec64 type
-  time/hrtimer:Introduce hrtimer_get_res64() with timespec64 type for
-    getting the timer resolution
-  posix-timers:Split out the guts of the syscall and change the
-    implementation for timer_gettime
-  posix-timers:Convert to the 64bit methods for the timer_gettime
-    syscall function
-  posix-timers:Split out the guts of the syscall and change the
-    implementation for timer_settime
-  posix-timers:Convert to the 64bit methods for the timer_settime
-    syscall function
-  posix-timers:Split out the guts of the syscall and change the
-    implementation for clock_settime
-  posix-timers:Convert to the 64bit methods for the clock_settime
-    syscall function
-  posix-timers:Split out the guts of the syscall and change the
-    implementation for clock_gettime
-  posix-timers:Convert to the 64bit methods for the clock_gettime
-    syscall function
-  posix-timers:Split out the guts of the syscall and change the
-    implementation for clock_getres
-  posix-timers:Convert to the 64bit methods for the clock_getres
-    syscall function
-  time:Introduce the do_sys_settimeofday64() function with timespec64
-    type
-  time/posix-timers:Convert to the 64bit methods for k_clock callback
-    functions
-  char/mmtimer:Convert to the 64bit methods for k_clock callback
-    function
-  time/alarmtimer:Convert to the new 64bit methods for k_clock
-    structure
-  time/posix-clock:Convert to the 64bit methods for k_clock and
-    posix_clock_operations structure
-  time/time:Introduce the timespec64_to_jiffies/jiffies_to_timespec64
-    function
-  cputime:Introduce the cputime_to_timespec64/timespec64_to_cputime
-    function
-  time/posix-cpu-timers:Convert to the 64bit methods for k_clock
-    structure
-  k_clock:Remove the 32bit methods with timespec/itimerspec type
-
- arch/powerpc/include/asm/cputime.h    |    6 +-
- arch/s390/include/asm/cputime.h       |    8 +-
- drivers/char/mmtimer.c                |   36 +++--
- drivers/ptp/ptp_clock.c               |   26 +---
- include/asm-generic/cputime_jiffies.h |   10 +-
- include/asm-generic/cputime_nsecs.h   |    4 +-
- include/linux/cputime.h               |   15 ++
- include/linux/hrtimer.h               |   12 +-
- include/linux/jiffies.h               |   21 ++-
- include/linux/posix-clock.h           |   10 +-
- include/linux/posix-timers.h          |   18 +--
- include/linux/time64.h                |   35 +++++
- include/linux/timekeeping.h           |   26 +++-
- kernel/time/alarmtimer.c              |   43 +++---
- kernel/time/hrtimer.c                 |   10 +-
- kernel/time/posix-clock.c             |   20 +--
- kernel/time/posix-cpu-timers.c        |   83 +++++-----
- kernel/time/posix-timers.c            |  269 ++++++++++++++++++++++-----------
- kernel/time/time.c                    |   22 +--
- kernel/time/timekeeping.c             |    6 +-
- kernel/time/timekeeping.h             |    2 +-
- 21 files changed, 428 insertions(+), 254 deletions(-)
-
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index c73efcd..7107b7d 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -2128,6 +2128,7 @@ static void record_steal_time(struct kvm_vcpu *vcpu)
+ 
+ 	vcpu->arch.st.steal.steal += vcpu->arch.st.accum_steal;
+ 	vcpu->arch.st.steal.version += 2;
++	current->gstime += vcpu->arch.st.accum_steal;
+ 	vcpu->arch.st.accum_steal = 0;
+ 
+ 	kvm_write_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
 -- 
-1.7.9.5
+2.3.7
