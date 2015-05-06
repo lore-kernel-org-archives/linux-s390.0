@@ -1,91 +1,114 @@
-From: Konstantin Khlebnikov <koct9i@gmail.com>
-Subject: Re: [PATCH v2 3/4] mm, shmem: Add shmem resident memory accounting
-Date: Thu, 14 May 2015 16:31:17 +0300
-Message-ID: <CALYGNiOoNz0m_Eb36v2oMkRmAKzX97ZqhFM1kdMaF7bKVsuPHA@mail.gmail.com>
-References: <1427474441-17708-1-git-send-email-vbabka@suse.cz>
-	<1427474441-17708-4-git-send-email-vbabka@suse.cz>
-	<55158EB5.5040301@yandex-team.ru>
-	<5554844F.4070709@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <5554844F.4070709@suse.cz>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-api/>
-List-Post: <mailto:linux-api@vger.kernel.org>
-To: Vlastimil Babka <vbabka@suse.cz>
-Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Jerome Marchand <jmarchan@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-doc@vger.kernel.org, Hugh Dickins <hughd@google.com>, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Linux API <linux-api@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: [PATCH v3 1/7] block: export blkdev_reread_part() and __blkdev_reread_part()
+Date: Wed,  6 May 2015 12:26:22 +0800
+Message-Id: <1430886389-26878-2-git-send-email-ming.lei@canonical.com>
+In-Reply-To: <1430886389-26878-1-git-send-email-ming.lei@canonical.com>
+References: <1430886389-26878-1-git-send-email-ming.lei@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, Tejun Heo <tj@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Jarod Wilson <jarod@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Markus Pargmann <mpa@pengutronix.de>, nbd-general@lists.sourceforge.net, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, Peter Zijlstra <peterz@infradead.org>, linux-s390@vger.kernel.org, Christoph Hellwig <hch@lst.de>, Stefan Weinhuber <wein@de.ibm.com>, Ming Lei <ming.lei@canonical.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, May 14, 2015 at 2:17 PM, Vlastimil Babka <vbabka@suse.cz> wrote:
-> On 03/27/2015 06:09 PM, Konstantin Khlebnikov wrote:
->>
->> On 27.03.2015 19:40, Vlastimil Babka wrote:
->>>
->>> From: Jerome Marchand <jmarchan@redhat.com>
->>>
->>> Currently looking at /proc/<pid>/status or statm, there is no way to
->>> distinguish shmem pages from pages mapped to a regular file (shmem
->>> pages are mapped to /dev/zero), even though their implication in
->>> actual memory use is quite different.
->>> This patch adds MM_SHMEMPAGES counter to mm_rss_stat to account for
->>> shmem pages instead of MM_FILEPAGES.
->>>
->>> Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
->>> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
->>> ---
->>
->>
->>
->>> --- a/include/linux/mm_types.h
->>> +++ b/include/linux/mm_types.h
->>> @@ -327,9 +327,12 @@ struct core_state {
->>>    };
->>>
->>>    enum {
->>> -       MM_FILEPAGES,
->>> -       MM_ANONPAGES,
->>> -       MM_SWAPENTS,
->>> +       MM_FILEPAGES,   /* Resident file mapping pages */
->>> +       MM_ANONPAGES,   /* Resident anonymous pages */
->>> +       MM_SWAPENTS,    /* Anonymous swap entries */
->>> +#ifdef CONFIG_SHMEM
->>> +       MM_SHMEMPAGES,  /* Resident shared memory pages */
->>> +#endif
->>
->>
->> I prefer to keep that counter unconditionally:
->> kernel has MM_SWAPENTS even without CONFIG_SWAP.
->
->
-> Hmm, so just for consistency? I don't see much reason to make life harder
-> for tiny systems, especially when it's not too much effort.
+From: Jarod Wilson <jarod@redhat.com>
 
-Profit is vague, I guess slab anyway will round size to the next
-cacheline or power-of-two.
-That conditional (non)existence just adds unneeded code lines.
+This patch exports blkdev_reread_part() for block drivers, also
+introduce __blkdev_reread_part().
 
->
->>
->>>         NR_MM_COUNTERS
->>>    };
->>>
->>
->> --
->> To unsubscribe, send a message with 'unsubscribe linux-mm' in
->> the body to majordomo@kvack.org.  For more info on Linux MM,
->> see: http://www.linux-mm.org/ .
->> Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
->>
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+For some drivers, such as loop, reread of partitions can be run
+from the release path, and bd_mutex may already be held prior to
+calling ioctl_by_bdev(bdev, BLKRRPART, 0), so introduce
+__blkdev_reread_part for use in such cases.
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+CC: Christoph Hellwig <hch@lst.de>
+CC: Jens Axboe <axboe@kernel.dk>
+CC: Tejun Heo <tj@kernel.org>
+CC: Alexander Viro <viro@zeniv.linux.org.uk>
+CC: Markus Pargmann <mpa@pengutronix.de>
+CC: Stefan Weinhuber <wein@de.ibm.com>
+CC: Stefan Haberland <stefan.haberland@de.ibm.com>
+CC: Sebastian Ott <sebott@linux.vnet.ibm.com>
+CC: Fabian Frederick <fabf@skynet.be>
+CC: Ming Lei <ming.lei@canonical.com>
+CC: David Herrmann <dh.herrmann@gmail.com>
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: Peter Zijlstra <peterz@infradead.org>
+CC: nbd-general@lists.sourceforge.net
+CC: linux-s390@vger.kernel.org
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+Signed-off-by: Ming Lei <ming.lei@canonical.com>
+---
+ block/ioctl.c      | 28 +++++++++++++++++++++++++---
+ include/linux/fs.h |  3 +++
+ 2 files changed, 28 insertions(+), 3 deletions(-)
+
+diff --git a/block/ioctl.c b/block/ioctl.c
+index 7d8befd..203cb4a 100644
+--- a/block/ioctl.c
++++ b/block/ioctl.c
+@@ -150,21 +150,43 @@ static int blkpg_ioctl(struct block_device *bdev, struct blkpg_ioctl_arg __user
+ 	}
+ }
+ 
+-static int blkdev_reread_part(struct block_device *bdev)
++/*
++ * This is an exported API for the block driver, and will not
++ * acquire bd_mutex. This API should be used in case that
++ * caller has held bd_mutex already.
++ */
++int __blkdev_reread_part(struct block_device *bdev)
+ {
+ 	struct gendisk *disk = bdev->bd_disk;
+-	int res;
+ 
+ 	if (!disk_part_scan_enabled(disk) || bdev != bdev->bd_contains)
+ 		return -EINVAL;
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
++
++	lockdep_assert_held(&bdev->bd_mutex);
++
++	return rescan_partitions(disk, bdev);
++}
++EXPORT_SYMBOL(__blkdev_reread_part);
++
++/*
++ * This is an exported API for the block driver, and will
++ * try to acquire bd_mutex. If bd_mutex has been held already
++ * in current context, please call __blkdev_reread_part().
++ */
++int blkdev_reread_part(struct block_device *bdev)
++{
++	int res;
++
+ 	if (!mutex_trylock(&bdev->bd_mutex))
+ 		return -EBUSY;
+-	res = rescan_partitions(disk, bdev);
++	res = __blkdev_reread_part(bdev);
+ 	mutex_unlock(&bdev->bd_mutex);
++
+ 	return res;
+ }
++EXPORT_SYMBOL(blkdev_reread_part);
+ 
+ static int blk_ioctl_discard(struct block_device *bdev, uint64_t start,
+ 			     uint64_t len, int secure)
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 35ec87e..1ef6390 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2279,6 +2279,9 @@ extern struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
+ extern struct block_device *blkdev_get_by_dev(dev_t dev, fmode_t mode,
+ 					      void *holder);
+ extern void blkdev_put(struct block_device *bdev, fmode_t mode);
++extern int __blkdev_reread_part(struct block_device *bdev);
++extern int blkdev_reread_part(struct block_device *bdev);
++
+ #ifdef CONFIG_SYSFS
+ extern int bd_link_disk_holder(struct block_device *bdev, struct gendisk *disk);
+ extern void bd_unlink_disk_holder(struct block_device *bdev,
+-- 
+1.9.1
