@@ -1,30 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <555CA228.1020404@kernel.dk>
-Date: Wed, 20 May 2015 09:03:04 -0600
-From: Jens Axboe <axboe@kernel.dk>
-MIME-Version: 1.0
-Subject: Re: [PATCH v3 0/7] block: reread partitions changes and fix for loop
-References: <1430886389-26878-1-git-send-email-ming.lei@canonical.com>	<20150518161132.GA17390@infradead.org> <CACVXFVPkohpGo0ibJVfV=FbxnG1YRXw9p9cojN2BU0JudDby1A@mail.gmail.com>
-In-Reply-To: <CACVXFVPkohpGo0ibJVfV=FbxnG1YRXw9p9cojN2BU0JudDby1A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Ming Lei <ming.lei@canonical.com>
+Subject: [PATCH v3 0/7] block: reread partitions changes and fix for loop
+Date: Wed,  6 May 2015 12:26:21 +0800
+Message-Id: <1430886389-26878-1-git-send-email-ming.lei@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ming Lei <ming.lei@canonical.com>, Christoph Hellwig <hch@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Jarod Wilson <jarod@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Markus Pargmann <mpa@pengutronix.de>, "nbd-general@lists.sourceforge.net" <nbd-general@lists.sourceforge.net>, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, Peter Zijlstra <peterz@infradead.org>, linux-s390@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, Tejun Heo <tj@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Jarod Wilson <jarod@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Markus Pargmann <mpa@pengutronix.de>, nbd-general@lists.sourceforge.net, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, Peter Zijlstra <peterz@infradead.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/20/2015 03:17 AM, Ming Lei wrote:
-> On Tue, May 19, 2015 at 12:11 AM, Christoph Hellwig <hch@infradead.org> wrote:
->> This series looks good to me,
->>
->> Reviewed-by: Christoph Hellwig <hch@lst.de>
->
-> Jens, last time you said you are OK with v2, and there is only one line
-> change in v3, so would you mind merging v3 in block tree?
+Hi Guys,
 
-I'll merge it for 4.2, thanks.
+Recently there are several reports about loop partition scanning
+failure[1][2].
 
--- 
-Jens Axboe
+For loop, the root cause is one ABBA and one AA lock dependency
+issue, and the two are fixed by patch 2 and patch 3 each.
+
+Another reason is from the trylock in blkdev_reread_part(), which
+may cause partition scanning failure too sometimes when another task
+is holding the bd_mutex. In the discussion[1], both Tejun and Christoph
+suggests to replace the trylock with mutex_lock in blkdev_reread_part(),
+also Christoph suggests to export blkdev_reread_part.
+
+Following the discussion, this patchset exports blkdev_reread_part(), and
+introduces __blkdev_reread_part() for fixing loop's AA lock issue.
+Then ioctl_by_bdev(BLKRRPART) in loop, nbd and dasd is replaced with
+blkdev_reread_part(). In the last patch, trylock in blkdev_reread_part()
+is replaced with mutex_lock, and some analysis is provided about the conversion.
+
+V3:
+	- fix lock unbalance in loop (2/7)
+	- add reviewed-by from Christoph
+	- run xfstest over loop and it passed
+	- enable lockdep for verifying lock changes, and no warning
+	with some common tests over loop block 
+
+V2:
+	- only print debug message in case of error (7/7)
+	- add tested-by, acked-by
+
+V1:
+	- introduce __blkdev_reread_part(), and use lockdep_assert_held()(1/7)
+	- replace lo_open_mutex with atomic reference count, plus freezing queue(2/7)
+	- add comment about detecting release path(3/7)
+	- remove dead code in dasd(7/7)
+
+ block/ioctl.c                   | 37 ++++++++++++++++++++++++++++++++-----
+ drivers/block/loop.c            | 51 ++++++++++++++++++++++++++++++++++++++-------------
+ drivers/block/loop.h            |  2 +-
+ drivers/block/nbd.c             |  2 +-
+ drivers/s390/block/dasd_genhd.c | 19 +++++--------------
+ include/linux/fs.h              |  3 +++
+ 6 files changed, 80 insertions(+), 34 deletions(-)
+
+
+[1], https://lkml.org/lkml/2015/1/26/137
+[2], https://lkml.org/lkml/2015/3/31/888
+
+Thanks,
+Ming Lei
