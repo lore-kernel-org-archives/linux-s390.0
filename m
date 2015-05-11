@@ -1,73 +1,136 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PREVIEW: GIT PULL 0/9] KVM: s390: Fixes and features for 4.2
- (kvm/next)
-Date: Mon, 11 May 2015 14:07:57 +0200
-Message-ID: <55509B9D.1090807@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 8/9] KVM: s390: factor out and optimize floating irq VCPU kick
+Date: Mon, 11 May 2015 10:44:36 +0200
+Message-ID: <1431333877-28700-9-git-send-email-borntraeger@de.ibm.com>
 References: <1431333877-28700-1-git-send-email-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1431333877-28700-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
+This patch factors out the search for a floating irq destination
+VCPU as well as the kicking of the found VCPU. The search is optimized
+in the following ways:
 
-On 11/05/2015 10:44, Christian Borntraeger wrote:
-> Paolo,
-> 
-> the following changes since commit 5ebe6afaf0057ac3eaeb98defd5456894b446d22:
-> 
->   Linux 4.1-rc2 (2015-05-03 19:22:23 -0700)
-> 
-> are available in the git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-20150508
-> 
-> for you to fetch changes up to 06b36753a6466239fc945b6756e12d635621ae5f:
-> 
->   KVM: s390: drop handling of interception code 12 (2015-05-08 15:51:17 +0200)
-> 
-> ----------------------------------------------------------------
-> KVM: s390: Fixes and features for 4.2 (kvm/next)
-> 
-> Mostly a bunch of fixes, reworks and optimizations for s390.
-> There is one new feature (EDAT-2 inside the guest), which boils
-> down to 2GB pages.
-> 
-> ----------------------------------------------------------------
-> Christian Borntraeger (3):
->       KVM: s390: optimize round trip time in request handling
->       KVM: s390: make exit_sie_sync more robust
->       KVM: s390: provide functions for blocking all CPUs
-> 
-> David Hildenbrand (3):
->       KVM: s390: fix external call injection without sigp interpretation
->       KVM: s390: factor out and optimize floating irq VCPU kick
->       KVM: s390: drop handling of interception code 12
-> 
-> Guenther Hutzl (2):
->       KVM: s390: make EDAT1 depend on host support
->       KVM: s390: Enable guest EDAT2 support
-> 
-> Jens Freimann (1):
->       KVM: s390: optimize interrupt handling round trip time
-> 
->  arch/s390/include/asm/kvm_host.h |  4 +-
->  arch/s390/kernel/entry.S         |  2 +-
->  arch/s390/kvm/intercept.c        | 16 --------
->  arch/s390/kvm/interrupt.c        | 87 +++++++++++++++++++++++-----------------
->  arch/s390/kvm/kvm-s390.c         | 51 ++++++++++++++---------
->  arch/s390/kvm/kvm-s390.h         | 25 ++++++++++--
->  arch/s390/kvm/priv.c             |  8 +++-
->  7 files changed, 116 insertions(+), 77 deletions(-)
-> 
+1. stopped VCPUs can't take any floating interrupts, so try to find an
+   operating one. We have to take care of the special case where all
+   VCPUs are stopped and we don't have any valid destination.
 
-Pulled, thanks.
+2. use online_vcpus, not KVM_MAX_VCPU. This speeds up the search
+   especially if KVM_MAX_VCPU is increased one day. As these VCPU
+   objects are initialized prior to increasing online_vcpus, we can be
+   sure that they exist.
 
-Paolo
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Reviewed-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Reviewed-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/interrupt.c | 74 +++++++++++++++++++++++++++++------------------
+ 1 file changed, 46 insertions(+), 28 deletions(-)
+
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index acf4a4e..322ef9c 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -1337,12 +1337,54 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
+ 	return 0;
+ }
+ 
+-static int __inject_vm(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
++/*
++ * Find a destination VCPU for a floating irq and kick it.
++ */
++static void __floating_irq_kick(struct kvm *kvm, u64 type)
+ {
++	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
+ 	struct kvm_s390_local_interrupt *li;
++	struct kvm_vcpu *dst_vcpu;
++	int sigcpu, online_vcpus, nr_tries = 0;
++
++	online_vcpus = atomic_read(&kvm->online_vcpus);
++	if (!online_vcpus)
++		return;
++
++	/* find idle VCPUs first, then round robin */
++	sigcpu = find_first_bit(fi->idle_mask, online_vcpus);
++	if (sigcpu == online_vcpus) {
++		do {
++			sigcpu = fi->next_rr_cpu;
++			fi->next_rr_cpu = (fi->next_rr_cpu + 1) % online_vcpus;
++			/* avoid endless loops if all vcpus are stopped */
++			if (nr_tries++ >= online_vcpus)
++				return;
++		} while (is_vcpu_stopped(kvm_get_vcpu(kvm, sigcpu)));
++	}
++	dst_vcpu = kvm_get_vcpu(kvm, sigcpu);
++
++	/* make the VCPU drop out of the SIE, or wake it up if sleeping */
++	li = &dst_vcpu->arch.local_int;
++	spin_lock(&li->lock);
++	switch (type) {
++	case KVM_S390_MCHK:
++		atomic_set_mask(CPUSTAT_STOP_INT, li->cpuflags);
++		break;
++	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
++		atomic_set_mask(CPUSTAT_IO_INT, li->cpuflags);
++		break;
++	default:
++		atomic_set_mask(CPUSTAT_EXT_INT, li->cpuflags);
++		break;
++	}
++	spin_unlock(&li->lock);
++	kvm_s390_vcpu_wakeup(dst_vcpu);
++}
++
++static int __inject_vm(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
++{
+ 	struct kvm_s390_float_interrupt *fi;
+-	struct kvm_vcpu *dst_vcpu = NULL;
+-	int sigcpu;
+ 	u64 type = READ_ONCE(inti->type);
+ 	int rc;
+ 
+@@ -1370,32 +1412,8 @@ static int __inject_vm(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
+ 	if (rc)
+ 		return rc;
+ 
+-	sigcpu = find_first_bit(fi->idle_mask, KVM_MAX_VCPUS);
+-	if (sigcpu == KVM_MAX_VCPUS) {
+-		do {
+-			sigcpu = fi->next_rr_cpu++;
+-			if (sigcpu == KVM_MAX_VCPUS)
+-				sigcpu = fi->next_rr_cpu = 0;
+-		} while (kvm_get_vcpu(kvm, sigcpu) == NULL);
+-	}
+-	dst_vcpu = kvm_get_vcpu(kvm, sigcpu);
+-	li = &dst_vcpu->arch.local_int;
+-	spin_lock(&li->lock);
+-	switch (type) {
+-	case KVM_S390_MCHK:
+-		atomic_set_mask(CPUSTAT_STOP_INT, li->cpuflags);
+-		break;
+-	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
+-		atomic_set_mask(CPUSTAT_IO_INT, li->cpuflags);
+-		break;
+-	default:
+-		atomic_set_mask(CPUSTAT_EXT_INT, li->cpuflags);
+-		break;
+-	}
+-	spin_unlock(&li->lock);
+-	kvm_s390_vcpu_wakeup(kvm_get_vcpu(kvm, sigcpu));
++	__floating_irq_kick(kvm, type);
+ 	return 0;
+-
+ }
+ 
+ int kvm_s390_inject_vm(struct kvm *kvm,
+-- 
+2.3.0
