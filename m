@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH v3 0/7] block: reread partitions changes and fix for loop
-Date: Wed,  6 May 2015 12:26:21 +0800
-Message-Id: <1430886389-26878-1-git-send-email-ming.lei@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, Tejun Heo <tj@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Jarod Wilson <jarod@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Markus Pargmann <mpa@pengutronix.de>, nbd-general@lists.sourceforge.net, Stefan Haberland <stefan.haberland@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Fabian Frederick <fabf@skynet.be>, Peter Zijlstra <peterz@infradead.org>, linux-s390@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 9/9] KVM: s390: drop handling of interception code 12
+Date: Mon, 11 May 2015 10:44:37 +0200
+Message-ID: <1431333877-28700-10-git-send-email-borntraeger@de.ibm.com>
+References: <1431333877-28700-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1431333877-28700-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Guys,
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Recently there are several reports about loop partition scanning
-failure[1][2].
+Our implementation will never trigger interception code 12 as the
+responsible setting is never enabled - and never will be.
+The handler is dead code. Let's get rid of it.
 
-For loop, the root cause is one ABBA and one AA lock dependency
-issue, and the two are fixed by patch 2 and patch 3 each.
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/intercept.c | 16 ----------------
+ 1 file changed, 16 deletions(-)
 
-Another reason is from the trylock in blkdev_reread_part(), which
-may cause partition scanning failure too sometimes when another task
-is holding the bd_mutex. In the discussion[1], both Tejun and Christoph
-suggests to replace the trylock with mutex_lock in blkdev_reread_part(),
-also Christoph suggests to export blkdev_reread_part.
-
-Following the discussion, this patchset exports blkdev_reread_part(), and
-introduces __blkdev_reread_part() for fixing loop's AA lock issue.
-Then ioctl_by_bdev(BLKRRPART) in loop, nbd and dasd is replaced with
-blkdev_reread_part(). In the last patch, trylock in blkdev_reread_part()
-is replaced with mutex_lock, and some analysis is provided about the conversion.
-
-V3:
-	- fix lock unbalance in loop (2/7)
-	- add reviewed-by from Christoph
-	- run xfstest over loop and it passed
-	- enable lockdep for verifying lock changes, and no warning
-	with some common tests over loop block 
-
-V2:
-	- only print debug message in case of error (7/7)
-	- add tested-by, acked-by
-
-V1:
-	- introduce __blkdev_reread_part(), and use lockdep_assert_held()(1/7)
-	- replace lo_open_mutex with atomic reference count, plus freezing queue(2/7)
-	- add comment about detecting release path(3/7)
-	- remove dead code in dasd(7/7)
-
- block/ioctl.c                   | 37 ++++++++++++++++++++++++++++++++-----
- drivers/block/loop.c            | 51 ++++++++++++++++++++++++++++++++++++++-------------
- drivers/block/loop.h            |  2 +-
- drivers/block/nbd.c             |  2 +-
- drivers/s390/block/dasd_genhd.c | 19 +++++--------------
- include/linux/fs.h              |  3 +++
- 6 files changed, 80 insertions(+), 34 deletions(-)
-
-
-[1], https://lkml.org/lkml/2015/1/26/137
-[2], https://lkml.org/lkml/2015/3/31/888
-
-Thanks,
-Ming Lei
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 9e3779e..7365e8a 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -241,21 +241,6 @@ static int handle_prog(struct kvm_vcpu *vcpu)
+ 	return kvm_s390_inject_prog_irq(vcpu, &pgm_info);
+ }
+ 
+-static int handle_instruction_and_prog(struct kvm_vcpu *vcpu)
+-{
+-	int rc, rc2;
+-
+-	vcpu->stat.exit_instr_and_program++;
+-	rc = handle_instruction(vcpu);
+-	rc2 = handle_prog(vcpu);
+-
+-	if (rc == -EOPNOTSUPP)
+-		vcpu->arch.sie_block->icptcode = 0x04;
+-	if (rc)
+-		return rc;
+-	return rc2;
+-}
+-
+ /**
+  * handle_external_interrupt - used for external interruption interceptions
+  *
+@@ -355,7 +340,6 @@ static const intercept_handler_t intercept_funcs[] = {
+ 	[0x00 >> 2] = handle_noop,
+ 	[0x04 >> 2] = handle_instruction,
+ 	[0x08 >> 2] = handle_prog,
+-	[0x0C >> 2] = handle_instruction_and_prog,
+ 	[0x10 >> 2] = handle_noop,
+ 	[0x14 >> 2] = handle_external_interrupt,
+ 	[0x18 >> 2] = handle_noop,
+-- 
+2.3.0
