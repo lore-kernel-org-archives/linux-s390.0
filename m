@@ -1,38 +1,73 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/9] KVM: s390: optimize round trip time in request handling
-Date: Mon, 11 May 2015 10:44:30 +0200
-Message-ID: <1431333877-28700-3-git-send-email-borntraeger@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PREVIEW: GIT PULL 0/9] KVM: s390: Fixes and features for 4.2
+ (kvm/next)
+Date: Mon, 11 May 2015 14:07:57 +0200
+Message-ID: <55509B9D.1090807@redhat.com>
 References: <1431333877-28700-1-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1431333877-28700-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-The fast path for a sie exit is that no kvm reqest is pending.
-Make an early check to skip all single bit checks.
 
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 8cd8e7b..f5282e6 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1720,6 +1720,8 @@ static bool ibs_enabled(struct kvm_vcpu *vcpu)
- 
- static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
- {
-+	if (!vcpu->requests)
-+		return 0;
- retry:
- 	s390_vcpu_unblock(vcpu);
- 	/*
--- 
-2.3.0
+On 11/05/2015 10:44, Christian Borntraeger wrote:
+> Paolo,
+> 
+> the following changes since commit 5ebe6afaf0057ac3eaeb98defd5456894b446d22:
+> 
+>   Linux 4.1-rc2 (2015-05-03 19:22:23 -0700)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-20150508
+> 
+> for you to fetch changes up to 06b36753a6466239fc945b6756e12d635621ae5f:
+> 
+>   KVM: s390: drop handling of interception code 12 (2015-05-08 15:51:17 +0200)
+> 
+> ----------------------------------------------------------------
+> KVM: s390: Fixes and features for 4.2 (kvm/next)
+> 
+> Mostly a bunch of fixes, reworks and optimizations for s390.
+> There is one new feature (EDAT-2 inside the guest), which boils
+> down to 2GB pages.
+> 
+> ----------------------------------------------------------------
+> Christian Borntraeger (3):
+>       KVM: s390: optimize round trip time in request handling
+>       KVM: s390: make exit_sie_sync more robust
+>       KVM: s390: provide functions for blocking all CPUs
+> 
+> David Hildenbrand (3):
+>       KVM: s390: fix external call injection without sigp interpretation
+>       KVM: s390: factor out and optimize floating irq VCPU kick
+>       KVM: s390: drop handling of interception code 12
+> 
+> Guenther Hutzl (2):
+>       KVM: s390: make EDAT1 depend on host support
+>       KVM: s390: Enable guest EDAT2 support
+> 
+> Jens Freimann (1):
+>       KVM: s390: optimize interrupt handling round trip time
+> 
+>  arch/s390/include/asm/kvm_host.h |  4 +-
+>  arch/s390/kernel/entry.S         |  2 +-
+>  arch/s390/kvm/intercept.c        | 16 --------
+>  arch/s390/kvm/interrupt.c        | 87 +++++++++++++++++++++++-----------------
+>  arch/s390/kvm/kvm-s390.c         | 51 ++++++++++++++---------
+>  arch/s390/kvm/kvm-s390.h         | 25 ++++++++++--
+>  arch/s390/kvm/priv.c             |  8 +++-
+>  7 files changed, 116 insertions(+), 77 deletions(-)
+> 
+
+Pulled, thanks.
+
+Paolo
