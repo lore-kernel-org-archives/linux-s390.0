@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Nicholas Mc Guire <hofrat@osadl.org>
-Subject: [PATCH V2] s390/sclp: pass timeout as HZ independent value
-Date: Fri, 29 May 2015 16:50:55 +0200
-Message-Id: <1432911055-23219-1-git-send-email-hofrat@osadl.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v3 00/22] Convert the posix_clock_operations and
+	k_clock structure to ready for 2038
+Date: Tue, 12 May 2015 11:39:36 +0200
+Message-ID: <2293496.0Ycckx2zYU@wuerfel>
+References: <1431342518-29362-1-git-send-email-baolin.wang@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
+In-Reply-To: <1431342518-29362-1-git-send-email-baolin.wang@linaro.org>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linuxppc-dev@lists.ozlabs.org
+Cc: pang.xunlei@linaro.org, peterz@infradead.org, fweisbec@gmail.com, heiko.carstens@de.ibm.com, paulus@samba.org, cl@linux.com, heenasirwani@gmail.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, y2038@lists.linaro.org, rafael.j.wysocki@intel.com, ahh@google.com, pjt@google.com, riel@redhat.com, richardcochran@gmail.com, tj@kernel.org, john.stultz@linaro.org, tglx@linutronix.de, rth@twiddle.net, Baolin Wang <baolin.wang@linaro.org>, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, schwidefsky@de.ibm.com, linux390@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-schedule_timeout takes a timeout in jiffies but the code currently is
-passing in a constant SDIAS_SLEEP_TICKS, as this is otherwise unused
-it is replaced by 500ms as recommended by Michael Holzheu
-<holzheu@linux.vnet.ibm.com> and converted with msecs_to_jiffies();
-As SDIAS_SLEEP_TICKS was only used in this one location it is dropped.
-
-Patch was compile tested with (s390) defconfig + 
-CONFIG_MARCH_Z10=y, (implies CONFIG_CRASH_DUMP=y)
-
-Patch is against 4.1-rc5 (localversion-next is -next-20150529)
-
-Link: http://lkml.org/lkml/2015/5/29/235
-Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
----
-
-V2: timeout clarified by Heiko Carstens <heiko.carstens@de.ibm.com> and
-    set to 500ms (HZ/2). And thanks for the test-config hints.
-
- drivers/s390/char/sclp_sdias.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/s390/char/sclp_sdias.c b/drivers/s390/char/sclp_sdias.c
-index eb7cb07..7cdd13d 100644
---- a/drivers/s390/char/sclp_sdias.c
-+++ b/drivers/s390/char/sclp_sdias.c
-@@ -21,7 +21,6 @@
- #define TRACE(x...) debug_sprintf_event(sdias_dbf, 1, x)
- 
- #define SDIAS_RETRIES 300
--#define SDIAS_SLEEP_TICKS 50
- 
- static struct debug_info *sdias_dbf;
- 
-@@ -68,7 +67,7 @@ static int sdias_sclp_send(struct sclp_req *req)
- 			/* not initiated, wait some time and retry */
- 			set_current_state(TASK_INTERRUPTIBLE);
- 			TRACE("add request failed: rc = %i\n",rc);
--			schedule_timeout(SDIAS_SLEEP_TICKS);
-+			schedule_timeout(msecs_to_jiffies(500));
- 			continue;
- 		}
- 		/* initiated, wait for completion of service call */
--- 
-1.7.10.4
+T24gTW9uZGF5IDExIE1heSAyMDE1IDE5OjA4OjM4IEJhb2xpbiBXYW5nIHdyb3RlOgo+IFRoaXMg
+cGF0Y2ggc2VyaWVzIGNoYW5nZXMgdGhlIDMyLWJpdCB0aW1lIHR5cGUgKHRpbWVzcGVjL2l0aW1l
+cnNwZWMpIHRvIHRoZSA2NC1iaXQgb25lCj4gKHRpbWVzcGVjNjQvaXRpbWVyc3BlYzY0KSwgc2lu
+Y2UgMzItYml0IHRpbWUgdHlwZXMgd2lsbCBicmVhayBpbiB0aGUgeWVhciAyMDM4Lgo+IAo+IFRo
+aXMgcGF0Y2ggc2VyaWVzIGludHJvZHVjZXMgbmV3IG1ldGhvZHMgd2l0aCB0aW1lc3BlYzY0L2l0
+aW1lcnNwZWM2NCB0eXBlLAo+IGFuZCByZW1vdmVzIHRoZSBvbGQgb25lcyB3aXRoIHRpbWVzcGVj
+L2l0aW1lcnNwZWMgdHlwZSBmb3IgcG9zaXhfY2xvY2tfb3BlcmF0aW9ucwo+IGFuZCBrX2Nsb2Nr
+IHN0cnVjdHVyZS4KPiAKPiBBbHNvIGludHJvZHVjZXMgc29tZSBuZXcgZnVuY3Rpb25zIHdpdGgg
+dGltZXNwZWM2NC9pdGltZXJzcGVjNjQgdHlwZSwgbGlrZSBjdXJyZW50X2tlcm5lbF90aW1lNjQo
+KSwKPiBocnRpbWVyX2dldF9yZXM2NCgpLCBjcHV0aW1lX3RvX3RpbWVzcGVjNjQoKSBhbmQgdGlt
+ZXNwZWM2NF90b19jcHV0aW1lKCkuCj4gCj4gQ2hhbmdlcyBzaW5jZSB2MjoKPiAgICAgIAktU3Bs
+aXQgdGhlIHN5c2NhbGwgY29udmVyc2lvbiBwYXRjaCBpbnRvIHNtYWxsIHNvbWUgcGF0Y2hlcy4K
+PiAKPiAKPiBCYW9saW4gV2FuZyAoMjIpOgo+ICAgbGludXgvdGltZTY0Lmg6SW50cm9kdWNlIHRo
+ZSAnc3RydWN0IGl0aW1lcnNwZWM2NCcgZm9yIDY0Yml0Cj4gICB0aW1la2VlcGluZzpJbnRyb2R1
+Y2UgdGhlIGN1cnJlbnRfa2VybmVsX3RpbWU2NCgpIGZ1bmN0aW9uIHdpdGgKPiAgICAgdGltZXNw
+ZWM2NCB0eXBlCj4gICB0aW1lL2hydGltZXI6SW50cm9kdWNlIGhydGltZXJfZ2V0X3JlczY0KCkg
+d2l0aCB0aW1lc3BlYzY0IHR5cGUgZm9yCj4gICAgIGdldHRpbmcgdGhlIHRpbWVyIHJlc29sdXRp
+b24KPiAgIHBvc2l4LXRpbWVyczpTcGxpdCBvdXQgdGhlIGd1dHMgb2YgdGhlIHN5c2NhbGwgYW5k
+IGNoYW5nZSB0aGUKPiAgICAgaW1wbGVtZW50YXRpb24gZm9yIHRpbWVyX2dldHRpbWUKPiAgIHBv
+c2l4LXRpbWVyczpDb252ZXJ0IHRvIHRoZSA2NGJpdCBtZXRob2RzIGZvciB0aGUgdGltZXJfZ2V0
+dGltZQo+ICAgICBzeXNjYWxsIGZ1bmN0aW9uCgpJIGhhdmUgdHdvIG1vcmUgdmVyeSBnZW5lcmFs
+IGNvbW1lbnRzIGFib3V0IHRoZSBzZXJpZXM6CgphKSBzb21ldGhpbmcgaGFzIGdvbmUgd3Jvbmcg
+d2l0aCB5b3VyIHN1Ym1pc3Npb24gaW4gdjIgYW5kIHYzIGJ1dCB3YXMKICAgd29ya2luZyBlYXJs
+aWVyOiBub3JtYWxseSBhbGwgZW1haWxzIHNob3VsZCBiZSBzZW50IGJ5IGdpdC1zZW5kLWVtYWls
+CiAgIGFzIHJlcGxpZXMgdG8gdGhlIFtwYXRjaCAwMC8yMl0gbWFpbC4gVGhpcyBpcyB0aGUgZGVm
+YXVsdCwgYW5kIGl0CiAgIGlzIGVuYWJsZWQgYnkgdGhlICctLXRocmVhZCAtLW5vLWNoYWluLXJl
+cGx5JyBvcHRpb25zLiBQbGVhc2UgdHJ5CiAgIHRvIGdldCB0aGlzIHRvIHdvcmsgYWdhaW4uCgpi
+KSBpdCB3b3VsZCBiZSBiZXR0ZXIgdG8gaGF2ZSBhIGxpdHRsZSBzaG9ydGVyIHN1YmplY3QgbGlu
+ZXMsIHRvIGF2b2lkCiAgIGxpbmUtd3JhcHBpbmcgaW4gdGhlIGxpc3QgYWJvdmUuIEhlcmUgYXJl
+IHNvbWUgZXhhbXBsZXMgd2hhdCB5b3UgY291bGQKICAgdXNlIHRvIHJlcGxhY2UgdGhlIGxpbmVz
+IGFib3ZlOgoKICAgdGltZWtlZXBpbmc6IGludHJvZHVjZSBzdHJ1Y3QgaXRpbWVyc3BlYzY0CiAg
+IHRpbWVrZWVwaW5nOiBpbnRyb2R1Y2UgY3VycmVudF9rZXJuZWxfdGltZTY0KCkKICAgaHJ0aW1l
+cjogaW50cm9kdWNlIGhydGltZXJfZ2V0X3JlczY0KCkgCiAgIHBvc2l4LXRpbWVyczogc3BsaXQg
+dXAgc3lzX3RpbWVyX2dldHRpbWUoKQogICBwb3NpeC10aW1lcnM6IGNvbnZlcnQgdGltZXJfZ2V0
+dGltZSgpIHRvIHRpbWVzcGVjNjQKCiAgIEluIGdlbmVyYWwsIHRyeSB0byBjb21lIHVwIHdpdGgg
+dGhlIHNob3J0ZXN0IGRlc2NyaXB0aW9uIHRoYXQKICAgdW5pcXVlbHkgZGVzY3JpYmVzIHdoYXQg
+eW91ciBwYXRjaCBkb2VzLCBhbmQgbW92ZSBhbnkgZGV0YWlscyBpbnRvCiAgIHRoZSBsb25nZXIg
+cGF0Y2ggZGVzY3JpcHRpb24uCgoJQXJuZApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpZMjAzOCBtYWlsaW5nIGxpc3QKWTIwMzhAbGlzdHMubGluYXJvLm9y
+ZwpodHRwczovL2xpc3RzLmxpbmFyby5vcmcvbWFpbG1hbi9saXN0aW5mby95MjAzOAo=
