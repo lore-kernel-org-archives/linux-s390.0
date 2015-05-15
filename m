@@ -1,110 +1,59 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <5548C537.4050004@suse.cz>
-Date: Tue, 05 May 2015 15:27:19 +0200
-From: Jiri Slaby <jslaby@suse.cz>
-MIME-Version: 1.0
-Subject: Re: [RFC kgr on klp 4/9] livepatch: add kgr infrastructure
-References: <1430739625-4658-1-git-send-email-jslaby@suse.cz>	<1430739625-4658-4-git-send-email-jslaby@suse.cz> <20150504142301.1405a5c0@mschwide>
-In-Reply-To: <20150504142301.1405a5c0@mschwide>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: live-patching@vger.kernel.org, jpoimboe@redhat.com, sjenning@redhat.com, jkosina@suse.cz, vojtech@suse.cz, mingo@redhat.com, linux-kernel@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Subject: Re: [PATCH v4 02/12] KVM: define common KVM_GUESTDBG_USE_SW/HW_BP bits
+Date: Fri, 15 May 2015 19:46:08 +0200
+Message-ID: <555630E0.8060305@siemens.com>
+References: <1431700035-23479-1-git-send-email-alex.bennee@linaro.org>	<1431700035-23479-3-git-send-email-alex.bennee@linaro.org>	<555613F2.9060204@de.ibm.com>
+ <20150515193315.6d3e82d2@thinkpad-w530>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <kvmarm-bounces@lists.cs.columbia.edu>
+In-Reply-To: <20150515193315.6d3e82d2@thinkpad-w530>
+List-Unsubscribe: <https://lists.cs.columbia.edu/mailman/options/kvmarm>,
+ <mailto:kvmarm-request@lists.cs.columbia.edu?subject=unsubscribe>
+List-Archive: <https://lists.cs.columbia.edu/pipermail/kvmarm>
+List-Post: <mailto:kvmarm@lists.cs.columbia.edu>
+List-Help: <mailto:kvmarm-request@lists.cs.columbia.edu?subject=help>
+List-Subscribe: <https://lists.cs.columbia.edu/mailman/listinfo/kvmarm>,
+ <mailto:kvmarm-request@lists.cs.columbia.edu?subject=subscribe>
+Errors-To: kvmarm-bounces@lists.cs.columbia.edu
+Sender: kvmarm-bounces@lists.cs.columbia.edu
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, =?UTF-8?B?QWxleCBCZW5uw6ll?= <alex.bennee@linaro.org>
+Cc: Tony Krowiak <akrowiak@linux.vnet.ibm.com>, kvm@vger.kernel.org, supporter@lists.cs.columbia.edu, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, kvmarm@lists.cs.columbia.edu, S390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.vnet.ibm.com>, Nadav Amit <namit@cs.technion.ac.il>, Michael Ellerman <mpe@ellerman.id.au>, "maintainer:X86 ARCHITECTURE..." <x86@kernel.org>, Gleb Natapov <gleb@kernel.org>, Ingo Molnar <mingo@redhat.com>, zhichao.huang@linaro.org, r65777@freescale.com, bp@suse.de, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, marc.zyngier@arm.com, pbonzini@redhat.com, Cornelia Huck <cornelia.huck@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Eric Farman <farman@linux.vnet.ibm.com>, list@lists.c
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/04/2015, 02:23 PM, Martin Schwidefsky wrote:
-> On Mon,  4 May 2015 13:40:20 +0200
-> Jiri Slaby <jslaby@suse.cz> wrote:
-> 
->> This means:
->> * add a per-thread flag to indicate whether a task is in the old or in
->>   the new universe,
->> * reset it in _slow_ paths of syscall's entry/exit,
->> * add helpers around the flag to sched.h,
->> * export the status in /proc/<pid>/kgr_in_progress,
-> 
->> @@ -217,6 +226,7 @@ ENTRY(system_call)
->>  	mvc	__PT_INT_CODE(4,%r11),__LC_SVC_ILC
->>  	stg	%r14,__PT_FLAGS(%r11)
->>  .Lsysc_do_svc:
->> +	HANDLE_KGRAFT %r12
->>  	lg	%r10,__TI_sysc_table(%r12)	# address of system call table
->>  	llgh	%r8,__PT_INT_CODE+2(%r11)
->>  	slag	%r8,%r8,2			# shift and test for svc 0
-> 
-> This is not the slow path, .Lsysc_do_svc is on the main svc path. It is
-> "only" two instruction but nevertheless this should be avoided.
-
-Hi,
-
-the commit log says the reset is in the slow path, not the test. But OK,
-we can optimize, see below.
-
-> One way is to combine it with the _TIF_TRACE mechanics:
-> 
-> .Lsysc_nr_ok:
->         xc      __SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
->         stg     %r2,__PT_ORIG_GPR2(%r11)
->         stg     %r7,STACK_FRAME_OVERHEAD(%r15)
->         lgf     %r9,0(%r8,%r10)                 # get system call add.
->  ->     tm      __TI_flags+6(%r12),_TIF_TRACE>>8
->  ->     jnz     .Lsysc_tracesys
->         basr    %r14,%r9                        # call sys_xxxx
->         stg     %r2,__PT_R2(%r11)               # store return value
-> 
-> Add _TIF_KGR_IN_PROGRESS to _TIF_TRACE and branch to a new label,
-> e.g. to .Lsysc_trace. Distinguish between _TIF_KGR_IN_PROGRESS and
-> the other trace reasons and either call s390_handle_kgraft or
-> do_syscall_trace_enter / do_syscall_trace_exit.
-> 
-> The same for the exit work, add _TIF_KGR_IN_PROGRESS to _TIF_WORK
-> and sort out the reason in .Lsysc_work. That avoids another two
-> instructions on the main system call path.
-
-I considered this, but there was no space in the word.
-
-_TIF_WORK is:
-TIF_NOTIFY_RESUME       0
-TIF_SIGPENDING          1
-TIF_NEED_RESCHED        2
-TIF_UPROBE              7
-
-_TIF_TRACE is:
-TIF_SYSCALL_TRACE       3
-TIF_SYSCALL_AUDIT       4
-TIF_SECCOMP             5
-TIF_SYSCALL_TRACEPOINT  6
-
-=====
-
-What I could do is to split them and make this setup:
-
-_TIF_WORK:
-TIF_NOTIFY_RESUME       0
-TIF_SIGPENDING          1
-TIF_NEED_RESCHED        2
-TIF_KGR_IN_PROGRESS_W   3
-TIF_UPROBE              7
-
-_TIF_TRACE:
-TIF_SYSCALL_TRACE       24
-TIF_SYSCALL_AUDIT       25
-TIF_SECCOMP             26
-TIF_SYSCALL_TRACEPOINT  27
-TIF_KGR_IN_PROGRESS_T   28
-
-=====
-
-Then make TIF_KGR_IN_PROGRESS_W fire when "tm"-ing _TIF_WORK in
-"__TI_flags+7". TIF_KGR_IN_PROGRESS_T will work along with _TIF_TRACE
-using "tm" on "__TI_flags+4".
-
-What do you think?
-
-thanks,
--- 
-js
-suse labs
+T24gMjAxNS0wNS0xNSAxOTozMywgRGF2aWQgSGlsZGVuYnJhbmQgd3JvdGU6Cj4+IEFtIDE1LjA1
+LjIwMTUgdW0gMTY6Mjcgc2NocmllYiBBbGV4IEJlbm7DqWU6Cj4+PiArKysgYi9hcmNoL3MzOTAv
+aW5jbHVkZS91YXBpL2FzbS9rdm0uaAo+Pj4gQEAgLTExNCw4ICsxMTQsNiBAQCBzdHJ1Y3Qga3Zt
+X2ZwdSB7Cj4+PiAgCV9fdTY0IGZwcnNbMTZdOwo+Pj4gIH07Cj4+Pgo+Pj4gLSNkZWZpbmUgS1ZN
+X0dVRVNUREJHX1VTRV9IV19CUAkJMHgwMDAxMDAwMAo+PiBbLi4uXQo+Pj4gKysrIGIvaW5jbHVk
+ZS91YXBpL2xpbnV4L2t2bS5oCj4+IFsuLi5dCj4+PiArI2RlZmluZSBLVk1fR1VFU1REQkdfVVNF
+X1NXX0JQCQkoMSA8PCAxNikKPj4+ICsjZGVmaW5lIEtWTV9HVUVTVERCR19VU0VfSFdfQlAJCSgx
+IDw8IDE3KQo+Pgo+PiBUaGlzIGlzIGFuIEFCSSBicmVhayBmb3IgczM5MCwgbm8/Cj4+Cj4+IERh
+dmlkLCBkbyB5b3UgcmVtZW1iZXIgd2h5IHdlIGRvIG5vdCB1c2UgS1ZNX0dVRVNUREJHX1VTRV9T
+V19CUD8KPj4KPiAKPiBXZSBuZXZlciBoYWQgdG8gdGVsbCB0aGUga2VybmVsIGFib3V0IHNvZnR3
+YXJlIGJyZWFrcG9pbnRzIGFzIHRoaXMgaXMgYWxsCj4gaGFuZGxlZCB2aWEgNCBieXRlIERJQUcg
+aW5zdHJ1Y3Rpb25zIHVudGlsIG5vdy4gV2UgZG9uJ3QgaGF2ZSB0byB0dXJuIHRoaXMKPiBtZWNo
+YW5pc20gb24uIFFFTVUgY2FuIGRpcmVjdGx5IGluc2VydCB0aGUgZGVzaXJlZCBESUFHIGluc3Ry
+dWN0aW9ucyBhbmQgZ2V0cwo+IG5vdGlmaWVkIHdoZW4gdGhleSBhcmUgYWJvdXQgdG8gZ2V0IGV4
+ZWN1dGVkLgo+IAo+IChCdXQgd2Ugc3RpbGwgaGF2ZSAyIGJ5dGUgYnJlYWtwb2ludCBzdXBwb3J0
+IHRvZG8gLSBzdGlsbCB0YmQgaG93IGV4YWN0bHkgdGhpcwo+IHdpbGwgYmUgcmVhbGl6ZWQgLSBj
+b3VsZCBiZSB0dXJuZWQgb24gdmlhIHN1Y2ggYSBtZWNoYW5pc20pCj4gCj4gVGhlIHByb2JsZW0g
+aXMsIHRoYXQgdGhlc2UgYml0cyBhcmUgYXJjaCBzcGVjaWZpYywgbm93IEFsZXggd2FudHMgdG8g
+dW5pZnkKPiB0aGVtIGZvciBhbGwgYXJjaHMuCj4gCj4gU28geWVzLCB0aGlzIGlzIGFuIEFCSSBi
+cmVhayBmb3IgdXMgYW5kIGJyZWFrcyBoYXJkd2FyZSBicmVha3BvaW50cy4oSSB0aGluawo+IHRo
+ZSBmaXJzdCB2ZXJzaW9uIG9mIHRoaXMgcGF0Y2ggZGlkbid0IGNvbnRhaW4gdGhpcyBBQkkgYnJl
+YWsgd2hlbiBJIGhhZCBhIGxvb2spCj4gCj4gSSB3b25kZXIgaWYgaXQgd291bGRuJ3QgbWFrZSBt
+b3JlIHNlbnNlIHRvCj4gCj4gLSBpbnRyb2R1Y2UgbmV3IGJpdHMgaW4gdGhlIGFyY2gtdW5zcGVj
+aWZpYyBzZWN0aW9uCj4gLSByZXdvcmsgdGhlIGV4aXN0aW5nIGltcGxlbWVudGVycyB0byBhY2Nl
+cHQgYm90aCBiaXRzCj4gCj4gT3IgdG8gc2ltcGx5IGxlYXZlIHN0dWZmIGFzIGl0IGlzIGFuZCBo
+YW5kbGUgaXQgdmlhIGFyY2ggc3BlY2lmaWMgYml0cy4KCldpdGggb25lIGFyY2ggcHJvdmluZyB0
+aGUgImFsbCBuZWVkIHRoaXMiIHRoZW9yeSB3cm9uZywganVzdCBkcm9wIHRoaXMKcGF0Y2guIEV2
+ZW4gcXVpY2tlciB3aGVuIGl0IGJyZWFrcyBhbiBBQkkuCgpKYW4KCi0tIApTaWVtZW5zIEFHLCBD
+b3Jwb3JhdGUgVGVjaG5vbG9neSwgQ1QgUlRDIElUUCBTRVMtREUKQ29ycG9yYXRlIENvbXBldGVu
+Y2UgQ2VudGVyIEVtYmVkZGVkIExpbnV4Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fCmt2bWFybSBtYWlsaW5nIGxpc3QKa3ZtYXJtQGxpc3RzLmNzLmNvbHVt
+YmlhLmVkdQpodHRwczovL2xpc3RzLmNzLmNvbHVtYmlhLmVkdS9tYWlsbWFuL2xpc3RpbmZvL2t2
+bWFybQo=
