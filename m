@@ -1,46 +1,35 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <554BC1DC.3050303@sr71.net>
-Date: Thu, 07 May 2015 12:49:48 -0700
-From: Dave Hansen <dave@sr71.net>
-MIME-Version: 1.0
-Subject: Re: [PATCH 00/12] [RFC] x86: Memory Protection Keys
-References: <20150507174132.34AF8FAF@viggo.jf.intel.com> <20150507175707.GA22172@gmail.com> <554BAA68.6000508@sr71.net> <554BBB74.70706@de.ibm.com> <554BBD0F.6080209@sr71.net> <554BC0CE.6070900@de.ibm.com>
-In-Reply-To: <554BC0CE.6070900@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [RFC PATCH 00/11] KVM: multiple address spaces (for SMM)
+Date: Wed, 20 May 2015 10:58:09 +0200
+Message-ID: <555C4CA1.3080704@redhat.com>
+References: <1431956923-35602-1-git-send-email-pbonzini@redhat.com> <555C467E.5060106@de.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <555C467E.5060106@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@kernel.org>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-s390 <linux-s390@vger.kernel.org>
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: Xiao Guangrong <guangrong.xiao@linux.intel.com>, rkrcmar@redhat.com, bdas@redhat.com, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 05/07/2015 12:45 PM, Christian Borntraeger wrote:
->>> >> This all looks like s390 storage keys (with the key in pagetables instead
->>> >> of a dedicated place). There we also have 16 values for the key and 4 bits 
->>> >> in the PSW that describe the thread local key both are matched.
->>> >> There is an additional field F (fetch protection) that decides, if the
->>> >> key value is used for stores or for stores+fetches.
->> > 
->> > OK, so a thread can only be in one domain at a time?
-> Via the PSW yes.
-> Actually the docs talk about access key, which is usually the PSW. There are
-> some instructions like MOVE WITH KEY that allow to specify the key for this
-> specific instruction. For compiled code these insructions are not used in 
-> Linux and I can not really see a way to implement that properly. Furthermore
-> enabling these key ops has other implications which are unwanted.
 
-OK, so we have to basic operations that need to be done for
-protection/storage/$FOO keys:
 
-1. Assign a key (or set of keys) to a memory area
-2. Have a thread request the access (read and/or write) to a set of
-   areas be acquired or revoked.
+On 20/05/2015 10:31, Christian Borntraeger wrote:
+> 
+> So in essence this allows to have each vcpu in separate address space if
+> necessary. These address space might overlap or be identical and allow
+> permutations by having different memslots for each address space.
+> And we can have several address spaces per vcpu. Correct?
 
-For (2) on x86, we basically allow any combination of keys and r/w
-permissions.  On s390, we would need to ensure that acces to only one
-key was allowed at a time.
+Yes, exactly.
 
-BTW, do the s390 keys affect instructions and data, or data only?
+I've also posted QEMU patches that may give more insight on how this is
+used.
 
-The x86 ones affect data only.
+Paolo
+
+> This might be useful for kvm on s390 (e.g. we did the ucontrol thing that
+> also has one guest address space per vcpu). I need to have a look at that.
