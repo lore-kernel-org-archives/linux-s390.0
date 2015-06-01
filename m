@@ -1,44 +1,68 @@
+Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Baolin Wang <baolin.wang@linaro.org>
-Subject: Re: [PATCH v4 00/25] Convert the posix_clock_operations and
- k_clock structure to ready for 2038
-Date: Wed, 3 Jun 2015 10:13:24 +0800
-Message-ID: <CAMz4ku+8unOm7EpZyurO+mzUywTJWJng_NFMAfcD8jPMHQAneg@mail.gmail.com>
-References: <1433159093-4548-1-git-send-email-baolin.wang@linaro.org>
- <alpine.DEB.2.11.1506022115240.20347@nanos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-In-Reply-To: <alpine.DEB.2.11.1506022115240.20347@nanos>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+Subject: [PATCH v4 00/25] Convert the posix_clock_operations and k_clock structure to ready for 2038
+Date: Mon,  1 Jun 2015 19:44:53 +0800
+Message-ID: <1433159093-4548-1-git-send-email-baolin.wang@linaro.org>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20150601114453.9cJVfkk16ekR6p5JE4iB1Tlozy1rfsmhxysxjqJ5Djs@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Xunlei Pang <pang.xunlei@linaro.org>, peterz@infradead.org, benh@kernel.crashing.org, heiko.carstens@de.ibm.com, paulus@samba.org, Jeffrey Vander Stoep <jeffv@google.com>, cl@linux.com, mark.d.rustad@intel.com, Heena Sirwani <heenasirwani@gmail.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, y2038 Mailman List <y2038@lists.linaro.org>, mpe@ellerman.id.au, rafael.j.wysocki@intel.com, Andrew Hunter <ahh@google.com>, tiwai@suse.de, Jeffrey Layton <jlayton@primarydata.com>, =?UTF-8?B?RnLDqWTDqXJpYyBXZWlzYmVja2Vy?= <fweisbec@gmail.com>, Paul Turner <pjt@google.com>, serge@hallyn.com, Serge Hallyn <serge.hallyn@canonical.com>, riel@redhat.com, Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>, Richard Cochran <richardcochran@gmail.com>, schwidefsky@de.ibm.com, John Stultz <john.stultz@linaro.org>, james.l.morris@oracle.com, rth@twiddle.net, sds@tyc
+To: tglx@linutronix.de
+Cc: arnd@arndb.de, john.stultz@linaro.org, heenasirwani@gmail.com, pang.xunlei@linaro.org, peterz@infradead.org, rafael.j.wysocki@intel.com, gregkh@linuxfoundation.org, richardcochran@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, rth@twiddle.net, riel@redhat.com, cl@linux.com, tj@kernel.org, fweisbec@gmail.com, ahh@google.com, pjt@google.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serge.hallyn@canonical.com, james.l.morris@oracle.com, serge@hallyn.com, pmoore@redhat.com, tiwai@suse.de, jeffv@google.com, jlayton@primarydata.com, keescook@chromium.org, sds@tycho.nsa.gov, mark.d.rustad@intel.com, linux-security-module@vger.kernel.org, baolin.wang@linaro.org, y2038@lists.linaro.org
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gMyBKdW5lIDIwMTUgYXQgMDM6MjAsIFRob21hcyBHbGVpeG5lciA8dGdseEBsaW51dHJvbml4
-LmRlPiB3cm90ZToKCj4gT24gTW9uLCAxIEp1biAyMDE1LCBCYW9saW4gV2FuZyB3cm90ZToKPgo+
-ID4gVGhpcyBwYXRjaCBzZXJpZXMgY2hhbmdlcyB0aGUgMzItYml0IHRpbWUgdHlwZXMgKHRpbWVz
-cGVjL2l0aW1lcnNwZWMpIHRvCj4gPiB0aGUgNjQtYml0IHR5cGVzICh0aW1lc3BlYzY0L2l0aW1l
-cnNwZWM2NCksIHNpbmNlIDMyLWJpdCB0aW1lIHR5cGVzIHdpbGwKPiA+IGJyZWFrIGluIHRoZSB5
-ZWFyIDIwMzguCj4KPiBUaGF0J3Mgb25seSB0cnVlIGZvciAzMmJpdCBzeXN0ZW1zLgo+Cj4gQWxs
-IGluIGFsbCB0aGUgcGF0Y2ggc2VyaWVzIGxvb2tzIHJhdGhlciByZWFzb25hYmxlIG5vdywgZXhj
-ZXB0IGZvcgo+IHRoZSBzdWJqZWN0IGxpbmVzIGFuZCB0aGUgY2hhbmdlbG9ncy4KPgo+IFRoZSBv
-bmx5IHRlY2huaWNhbCBvYmplY3Rpb24gSSBoYXZlIGlzIHRoZSBtYWNybyBjb252ZXJzaW9uIG1h
-Z2ljIGluCj4gcGF0Y2ggIzYuIFRoaXMgY2FuIGJlIGRvbmUgaW4gYSBsZXNzIGNyeXB0aWMgYW5k
-IG1vcmUgZWZmaWNpZW50IHdheS4KPgo+IFNlZSB0aGUgY29tbWVudHMgdG8gdGhlIHZhcmlvdXMg
-cGF0Y2hlcyBhbmQgcGxlYXNlIGFwcGx5IHRoZW0gdG8gYWxsCj4gb2YgdGhlIHNlcmllcy4KPgo+
-IFRoYW5rcywKPgo+ICAgICAgICAgdGdseAo+Cj4KPgpIaSBUaG9tYXMsCgpUaGFua3MgZm9yIHlv
-dXIgY29tbWVudHMsIGFuZCBpJ2xsIGNoZWNrIGFuZCBmaXggdGhlc2UgcHJvYmxlbXMuCgotLSAK
-QmFvbGluLndhbmcKQmVzdCBSZWdhcmRzCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClkyMDM4IG1haWxpbmcgbGlzdApZMjAzOEBsaXN0cy5saW5hcm8ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGluYXJvLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3kyMDM4Cg==
+This patch series changes the 32-bit time types (timespec/itimerspec) to
+the 64-bit types (timespec64/itimerspec64), since 32-bit time types will
+break in the year 2038.
+
+This patch series introduces new methods with timespec64/itimerspec64 type,
+and removes the old ones with timespec/itimerspec type for posix_clock_operations
+and k_clock structure.
+
+Baolin Wang (25):
+  time:Introduce struct itimerspec64
+  timekeeping:Introduce the current_kernel_time64()
+  hrtimer:Introduce hrtimer_get_res64()
+  security: Introduce security_settime64()
+  time:Introduce the do_sys_settimeofday64()
+  posix-timers:Introduce {get,put}_timespec/{get,put}_itimerspec
+  posix-timers: Split up timer_gettime()/timer_settime()/clock_settime()/
+    clock_gettime()/clock_getres().
+  posix-timers: Convert timer_gettime()/timer_settime()/clock_settime()/
+    clock_gettime()/clock_getres() to timespec64/itimerspec64.
+  mmtimer:Convert to timespec64/itimerspec64
+  alarmtimer:Convert to timespec64/itimerspec64
+  posix-clock:Convert to timespec64/itimerspec64
+  time:Introduce timespec64_to_jiffies()/jiffies_to_timespec64()
+  cputime:Introduce cputime_to_timespec64()/timespec64_to_cputime()
+  posix-cpu-timers:Convert to timespec64/itimerspec64
+  k_clock:Remove timespec/itimerspec
+
+ arch/powerpc/include/asm/cputime.h    |    6 +-
+ arch/s390/include/asm/cputime.h       |    8 +-
+ drivers/char/mmtimer.c                |   36 +++--
+ drivers/ptp/ptp_clock.c               |   26 +---
+ include/asm-generic/cputime_jiffies.h |   10 +-
+ include/asm-generic/cputime_nsecs.h   |    4 +-
+ include/linux/cputime.h               |   16 ++
+ include/linux/hrtimer.h               |   16 +-
+ include/linux/jiffies.h               |   21 ++-
+ include/linux/posix-clock.h           |   10 +-
+ include/linux/posix-timers.h          |   18 +--
+ include/linux/security.h              |   25 +++-
+ include/linux/time64.h                |   35 +++++
+ include/linux/timekeeping.h           |   26 +++-
+ kernel/time/alarmtimer.c              |   43 +++---
+ kernel/time/hrtimer.c                 |   10 +-
+ kernel/time/posix-clock.c             |   20 +--
+ kernel/time/posix-cpu-timers.c        |   84 ++++++-----
+ kernel/time/posix-timers.c            |  259 +++++++++++++++++++++------------
+ kernel/time/time.c                    |   20 +--
+ kernel/time/timekeeping.c             |    6 +-
+ kernel/time/timekeeping.h             |    1 -
+ security/commoncap.c                  |    2 +-
+ security/security.c                   |    2 +-
+ 24 files changed, 437 insertions(+), 267 deletions(-)
+
+-- 
+1.7.9.5
