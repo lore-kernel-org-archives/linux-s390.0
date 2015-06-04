@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 25 Jun 2015 13:37:12 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390/process: Delete an unnecessary check before the
- function call "kfree"
-Message-ID: <20150625113712.GB4069@osiris>
-References: <alpine.DEB.2.10.1402251014170.2080@hadrien>
- <530CD2C4.4050903@users.sourceforge.net>
- <alpine.DEB.2.10.1402251840450.7035@hadrien>
- <530CF8FF.8080600@users.sourceforge.net>
- <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
- <530DD06F.4090703@users.sourceforge.net>
- <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
- <5317A59D.4@users.sourceforge.net>
- <558B1799.8040003@users.sourceforge.net>
- <558BD1B4.4030209@bfs.de>
+Return-Path: <linux-pci-owner@vger.kernel.org>
+Subject: [PATCH 4/7] PCI: Include <linux/pci.h>, not <asm/pci.h>
+From: Bjorn Helgaas <bhelgaas@google.com>
+Date: Thu, 04 Jun 2015 16:49:50 -0500
+Message-ID: <20150604214950.2399.16890.stgit@bhelgaas-glaptop2.roam.corp.google.com>
+In-Reply-To: <20150604214614.2399.5142.stgit@bhelgaas-glaptop2.roam.corp.google.com>
+References: <20150604214614.2399.5142.stgit@bhelgaas-glaptop2.roam.corp.google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <558BD1B4.4030209@bfs.de>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: walter harms <wharms@bfs.de>
-Cc: SF Markus Elfring <elfring@users.sourceforge.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
+Content-Type: text/plain; charset="utf-8"
+Sender: linux-pci-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-pci/>
+List-Post: <mailto:linux-pci@vger.kernel.org>
+To: linux-pci@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jun 25, 2015 at 12:02:28PM +0200, walter harms wrote:
-> 
-> Am 24.06.2015 22:48, schrieb SF Markus Elfring:
-> > From: Markus Elfring <elfring@users.sourceforge.net>
-> > Date: Wed, 24 Jun 2015 22:40:30 +0200
-> > 
-> > The kfree() function tests whether its argument is NULL and then
-> > returns immediately. Thus the test around the call is not needed.
-> > 
-> > This issue was detected by using the Coccinelle software.
-> > 
-> > Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-> > ---
-> >  arch/s390/kernel/process.c | 3 +--
-> >  1 file changed, 1 insertion(+), 2 deletions(-)
-> > 
-> > diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
-> > index dc5edc2..22e6448 100644
-> > --- a/arch/s390/kernel/process.c
-> > +++ b/arch/s390/kernel/process.c
-> > @@ -81,8 +81,7 @@ void release_thread(struct task_struct *dead_task)
-> >  
-> >  void arch_release_task_struct(struct task_struct *tsk)
-> >  {
-> > -	if (tsk->thread.vxrs)
-> > -		kfree(tsk->thread.vxrs);
-> > +	kfree(tsk->thread.vxrs);
-> >  }
+We already include <asm/pci.h> from <linux/pci.h>, so just include
+<linux/pci.h> directly.
 
-This code will be changed soon anyway. So it would be rather pointless
-to apply your patch now. Thanks anyway!
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+CC: linuxppc-dev@lists.ozlabs.org
+CC: linux-s390@vger.kernel.org
+---
+ arch/powerpc/platforms/52xx/mpc52xx_pci.c |    2 +-
+ arch/s390/kernel/suspend.c                |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-> >  int copy_thread(unsigned long clone_flags, unsigned long new_stackp,
-> maybe the intention was to check tsk != NULL ?
-
-No.
+diff --git a/arch/powerpc/platforms/52xx/mpc52xx_pci.c b/arch/powerpc/platforms/52xx/mpc52xx_pci.c
+index e2d401a..6eb3b2a 100644
+--- a/arch/powerpc/platforms/52xx/mpc52xx_pci.c
++++ b/arch/powerpc/platforms/52xx/mpc52xx_pci.c
+@@ -12,7 +12,7 @@
+ 
+ #undef DEBUG
+ 
+-#include <asm/pci.h>
++#include <linux/pci.h>
+ #include <asm/mpc52xx.h>
+ #include <asm/delay.h>
+ #include <asm/machdep.h>
+diff --git a/arch/s390/kernel/suspend.c b/arch/s390/kernel/suspend.c
+index d3236c9..39e2f41 100644
+--- a/arch/s390/kernel/suspend.c
++++ b/arch/s390/kernel/suspend.c
+@@ -9,10 +9,10 @@
+ #include <linux/pfn.h>
+ #include <linux/suspend.h>
+ #include <linux/mm.h>
++#include <linux/pci.h>
+ #include <asm/ctl_reg.h>
+ #include <asm/ipl.h>
+ #include <asm/cio.h>
+-#include <asm/pci.h>
+ #include <asm/sections.h>
+ #include "entry.h"
+ 
