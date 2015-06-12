@@ -1,94 +1,157 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Baolin Wang <baolin.wang@linaro.org>
-Subject: [PATCH v5 00/24] Convert the posix_clock_operations and k_clock structure to ready for 2038
-Date: Fri, 12 Jun 2015 15:19:47 +0800
-Message-ID: <cover.1434079262.git.baolin.wang@linaro.org>
+Subject: [PATCH v5 22/24] cputime: Introduce cputime_to_timespec64()/timespec64_to_cputime()
+Date: Fri, 12 Jun 2015 16:10:32 +0800
+Message-ID: <cc09682885e4883e38c7f89701df343f8e56acdf.1434079263.git.baolin.wang@linaro.org>
 In-Reply-To: <lfywpz1987>
 References: <lfywpz1987>
+In-Reply-To: <cover.1434079262.git.baolin.wang@linaro.org>
+References: <cover.1434079262.git.baolin.wang@linaro.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150612071947.YEUN992l-u1oKNV9rjfFFNONOtSxnxBQMK3AZzqkPsA@z>
+Message-ID: <20150612081032.ur2e4d8zUGI_QhqomXdFXKhUO11a_Fr4b4mwS73ZHFM@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: tglx@linutronix.de
-Cc: arnd@arndb.de, john.stultz@linaro.org, heenasirwani@gmail.com, pang.xunlei@linaro.org, peterz@infradead.org, rafael.j.wysocki@intel.com, gregkh@linuxfoundation.org, richardcochran@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, rth@twiddle.net, riel@redhat.com, cl@linux.com, tj@kernel.org, fweisbec@gmail.com, ahh@google.com, pjt@google.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serge.hallyn@canonical.com, james.l.morris@oracle.com, serge@hallyn.com, pmoore@redhat.com, tiwai@suse.de, jeffv@google.com, jlayton@primarydata.com, keescook@chromium.org, sds@tycho.nsa.gov, mark.d.rustad@intel.com, linux-security-module@vger.kernel.org, baolin.wang@linaro.org, y2038@lists.linaro.org
+To: benh@kernel.crashing.org
+Cc: arnd@arndb.de, peterz@infradead.org, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, rth@twiddle.net, riel@redhat.com, cl@linux.com, tj@kernel.org, fweisbec@gmail.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, baolin.wang@linaro.org, y2038@lists.linaro.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch series changes the 32-bit time types (timespec/itimerspec) to
-the 64-bit types (timespec64/itimerspec64), since 32-bit time types will
-break in the year 2038 on 32bit systems.
+The cputime_to_timespec() and timespec_to_cputime() functions are
+not year 2038 safe on 32bit systems due to the struct timepsec will
+overflow in 2038 year. Introduce cputime_to_timespec64() and
+timespec64_to_cputime() functions which use struct timespec64,
+as well as for arch/s390 and arch/powerpc architecture.
 
-This patch series introduces new methods with timespec64/itimerspec64 type,
-and removes the old ones with timespec/itimerspec type for posix_clock_operations
-and k_clock structure.
+The cputime_to_timespec() and timespec_to_cputime() functions are
+moved to include/linux/cputime.h file as 'static inline' for removing
+conveniently in future.
 
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 ---
-Changes since v4:
-- Rebase the patch series.
-- Modify the subject line and the changelog.
+ arch/powerpc/include/asm/cputime.h    |    6 +++---
+ arch/s390/include/asm/cputime.h       |    8 ++++----
+ include/asm-generic/cputime_jiffies.h |   10 +++++-----
+ include/asm-generic/cputime_nsecs.h   |    6 +++---
+ include/linux/cputime.h               |   16 ++++++++++++++++
+ 5 files changed, 31 insertions(+), 15 deletions(-)
 
-Changes since v3:
-- Fix some introducing bugs.
-
-Changes since v2:
-- Split the syscall conversion patch into small some patches.
-
-Changes since V1:
-- Split some patch into small patch.
-- Add some default function for new 64bit methods for syscall function.
-- Move do_sys_settimeofday() function to head file.
-- Modify the EXPORT_SYMPOL issue.
-- Add new 64bit methods in cputime_nsecs.h file.
----
-
-Baolin Wang (24):
-  time: Introduce struct itimerspec64
-  timekeeping: Introduce current_kernel_time64()
-  security: Introduce security_settime64()
-  time: Introduce do_sys_settimeofday64()
-  posix-timers: Introduce {get,put}_timespec and {get,put}_itimerspec
-  posix-timers: Factor out the guts of 'timer_gettime'
-  posix-timers: Implement y2038 safe timer_get64() callback
-  posix-timers: Factor out the guts of 'timer_settime'
-  posix-timers: Implement y2038 safe timer_set64() callback
-  posix-timers: Factor out the guts of 'clock_settime'
-  posix-timers: Implement y2038 safe clock_set64() callback
-  posix-timers: Factor out the guts of 'clock_gettime'
-  posix-timers: Implement y2038 safe clock_get64() callback
-  posix-timers: Factor out the guts of 'clcok_getres'
-  posix-timers: Implement y2038 safe clock_getres64() callback
-  timekeeping: Change the implementation of timekeeping_clocktai()
-  posix-timers: Convert to y2038 safe callbacks
-  mmtimer: Convert to y2038 safe callbacks
-  alarmtimer: Convert to y2038 safe callbacks
-  posix-clock: Convert to y2038 safe callbacks
-  time: Introduce timespec64_to_jiffies()/jiffies_to_timespec64()
-  cputime: Introduce cputime_to_timespec64()/timespec64_to_cputime()
-  posix-cpu-timers: Convert to y2038 safe callbacks
-  k_clock: Remove y2038 unsafe callbacks
-
- arch/powerpc/include/asm/cputime.h    |    6 +-
- arch/s390/include/asm/cputime.h       |    8 +-
- drivers/char/mmtimer.c                |   36 +++--
- drivers/ptp/ptp_clock.c               |   22 +--
- include/asm-generic/cputime_jiffies.h |   10 +-
- include/asm-generic/cputime_nsecs.h   |    6 +-
- include/linux/cputime.h               |   16 ++
- include/linux/jiffies.h               |   21 ++-
- include/linux/lsm_hooks.h             |    5 +-
- include/linux/posix-clock.h           |   10 +-
- include/linux/posix-timers.h          |   18 +--
- include/linux/security.h              |   20 ++-
- include/linux/time64.h                |   35 +++++
- include/linux/timekeeping.h           |   25 +++-
- kernel/time/alarmtimer.c              |   38 ++---
- kernel/time/posix-clock.c             |   20 +--
- kernel/time/posix-cpu-timers.c        |   84 ++++++-----
- kernel/time/posix-timers.c            |  257 +++++++++++++++++++++------------
- kernel/time/time.c                    |   19 +--
- kernel/time/timekeeping.c             |    6 +-
- security/commoncap.c                  |    2 +-
- security/security.c                   |    2 +-
- 22 files changed, 412 insertions(+), 254 deletions(-)
-
+diff --git a/arch/powerpc/include/asm/cputime.h b/arch/powerpc/include/asm/cputime.h
+index e245255..5dda5c0 100644
+--- a/arch/powerpc/include/asm/cputime.h
++++ b/arch/powerpc/include/asm/cputime.h
+@@ -154,9 +154,9 @@ static inline cputime_t secs_to_cputime(const unsigned long sec)
+ }
+ 
+ /*
+- * Convert cputime <-> timespec
++ * Convert cputime <-> timespec64
+  */
+-static inline void cputime_to_timespec(const cputime_t ct, struct timespec *p)
++static inline void cputime_to_timespec64(const cputime_t ct, struct timespec64 *p)
+ {
+ 	u64 x = (__force u64) ct;
+ 	unsigned int frac;
+@@ -168,7 +168,7 @@ static inline void cputime_to_timespec(const cputime_t ct, struct timespec *p)
+ 	p->tv_nsec = x;
+ }
+ 
+-static inline cputime_t timespec_to_cputime(const struct timespec *p)
++static inline cputime_t timespec64_to_cputime(const struct timespec64 *p)
+ {
+ 	u64 ct;
+ 
+diff --git a/arch/s390/include/asm/cputime.h b/arch/s390/include/asm/cputime.h
+index 221b454..3319b51 100644
+--- a/arch/s390/include/asm/cputime.h
++++ b/arch/s390/include/asm/cputime.h
+@@ -81,16 +81,16 @@ static inline cputime_t secs_to_cputime(const unsigned int s)
+ }
+ 
+ /*
+- * Convert cputime to timespec and back.
++ * Convert cputime to timespec64 and back.
+  */
+-static inline cputime_t timespec_to_cputime(const struct timespec *value)
++static inline cputime_t timespec64_to_cputime(const struct timespec64 *value)
+ {
+ 	unsigned long long ret = value->tv_sec * CPUTIME_PER_SEC;
+ 	return (__force cputime_t)(ret + __div(value->tv_nsec * CPUTIME_PER_USEC, NSEC_PER_USEC));
+ }
+ 
+-static inline void cputime_to_timespec(const cputime_t cputime,
+-				       struct timespec *value)
++static inline void cputime_to_timespec64(const cputime_t cputime,
++					 struct timespec64 *value)
+ {
+ 	unsigned long long __cputime = (__force unsigned long long) cputime;
+ 	value->tv_nsec = (__cputime % CPUTIME_PER_SEC) * NSEC_PER_USEC / CPUTIME_PER_USEC;
+diff --git a/include/asm-generic/cputime_jiffies.h b/include/asm-generic/cputime_jiffies.h
+index fe386fc..54e034c 100644
+--- a/include/asm-generic/cputime_jiffies.h
++++ b/include/asm-generic/cputime_jiffies.h
+@@ -44,12 +44,12 @@ typedef u64 __nocast cputime64_t;
+ #define secs_to_cputime(sec)		jiffies_to_cputime((sec) * HZ)
+ 
+ /*
+- * Convert cputime to timespec and back.
++ * Convert cputime to timespec64 and back.
+  */
+-#define timespec_to_cputime(__val)	\
+-	jiffies_to_cputime(timespec_to_jiffies(__val))
+-#define cputime_to_timespec(__ct,__val)	\
+-	jiffies_to_timespec(cputime_to_jiffies(__ct),__val)
++#define timespec64_to_cputime(__val)	\
++	jiffies_to_cputime(timespec64_to_jiffies(__val))
++#define cputime_to_timespec64(__ct,__val)	\
++	jiffies_to_timespec64(cputime_to_jiffies(__ct),__val)
+ 
+ /*
+  * Convert cputime to timeval and back.
+diff --git a/include/asm-generic/cputime_nsecs.h b/include/asm-generic/cputime_nsecs.h
+index 0419485..c0cafc0 100644
+--- a/include/asm-generic/cputime_nsecs.h
++++ b/include/asm-generic/cputime_nsecs.h
+@@ -71,14 +71,14 @@ typedef u64 __nocast cputime64_t;
+ 	(__force cputime_t)((__secs) * NSEC_PER_SEC)
+ 
+ /*
+- * Convert cputime <-> timespec (nsec)
++ * Convert cputime <-> timespec64 (nsec)
+  */
+-static inline cputime_t timespec_to_cputime(const struct timespec *val)
++static inline cputime_t timespec64_to_cputime(const struct timespec64 *val)
+ {
+ 	u64 ret = val->tv_sec * NSEC_PER_SEC + val->tv_nsec;
+ 	return (__force cputime_t) ret;
+ }
+-static inline void cputime_to_timespec(const cputime_t ct, struct timespec *val)
++static inline void cputime_to_timespec64(const cputime_t ct, struct timespec64 *val)
+ {
+ 	u32 rem;
+ 
+diff --git a/include/linux/cputime.h b/include/linux/cputime.h
+index f2eb2ee..cd638a0 100644
+--- a/include/linux/cputime.h
++++ b/include/linux/cputime.h
+@@ -13,4 +13,20 @@
+ 	usecs_to_cputime((__nsecs) / NSEC_PER_USEC)
+ #endif
+ 
++static inline cputime_t timespec_to_cputime(const struct timespec *ts)
++{
++	struct timespec64 ts64 = timespec_to_timespec64(*ts);
++
++	return timespec64_to_cputime(&ts64);
++}
++
++static inline void cputime_to_timespec(const cputime_t cputime,
++				       struct timespec *value)
++{
++	struct timespec64 ts64;
++
++	cputime_to_timespec64(cputime, &ts64);
++	*value = timespec64_to_timespec(ts64);
++}
++
+ #endif /* __LINUX_CPUTIME_H */
 -- 
 1.7.9.5
