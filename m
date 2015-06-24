@@ -1,39 +1,47 @@
-From: Joseph Myers <joseph@codesourcery.com>
-Date: Tue, 30 Jun 2015 10:48:49 +0000
-Subject: Re: [PATCH RESEND] Update kernel math-emu code from current glibc soft-fp
-Message-Id: <alpine.DEB.2.10.1506301042250.2339@digraph.polyomino.org.uk>
-References: <alpine.DEB.2.10.1505192206580.28384@digraph.polyomino.org.uk>
- <alpine.DEB.2.10.1506221321340.27145@digraph.polyomino.org.uk>
- <1435634913.24866.1.camel@ellerman.id.au>
-In-Reply-To: <1435634913.24866.1.camel@ellerman.id.au>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <558B1799.8040003@users.sourceforge.net>
+Date: Wed, 24 Jun 2015 22:48:25 +0200
+From: SF Markus Elfring <elfring@users.sourceforge.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Subject: [PATCH] s390/process: Delete an unnecessary check before the function
+ call "kfree"
+References: <5307CAA2.8060406@users.sourceforge.net> <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6> <530A086E.8010901@users.sourceforge.net> <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6> <530A72AA.3000601@users.sourceforge.net> <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6> <530B5FB6.6010207@users.sourceforge.net> <alpine.DEB.2.10.1402241710370.2074@hadrien> <530C5E18.1020800@users.sourceforge.net> <alpine.DEB.2.10.1402251014170.2080@hadrien> <530CD2C4.4050903@users.sourceforge.net> <alpine.DEB.2.10.1402251840450.7035@hadrien> <530CF8FF.8080600@users.sourceforge.net> <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6> <530DD06F.4090703@users.sourceforge.net> <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6> <5317A59D.4@users.sourceforge.net>
+In-Reply-To: <5317A59D.4@users.sourceforge.net>
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-List-Archive: <https://lore.kernel.org/linux-sh/>
-List-Post: <mailto:linux-sh@vger.kernel.org>
-To: Michael Ellerman <mpe@ellerman.id.au>
-Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 30 Jun 2015, Michael Ellerman wrote:
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Wed, 24 Jun 2015 22:40:30 +0200
 
-> Is there some way you can imagine of splitting this up into smaller chunks, so
-> that different arches can merge the pieces separately?
+The kfree() function tests whether its argument is NULL and then
+returns immediately. Thus the test around the call is not needed.
 
-Well, it could be split as:
+This issue was detected by using the Coccinelle software.
 
-1. Rename include/math-emu to math-emu-old and update architectures for 
-the renaming (mechanically).
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ arch/s390/kernel/process.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-2. Add new include/math-emu.
-
-3,4,5,6,7. Move each architecture from math-emu-old to math-emu.
-
-8. Remove math-emu-old.
-
-You still have patch 1 affecting all five architectures, but with the 
-per-architecture changes being much simpler.
-
+diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
+index dc5edc2..22e6448 100644
+--- a/arch/s390/kernel/process.c
++++ b/arch/s390/kernel/process.c
+@@ -81,8 +81,7 @@ void release_thread(struct task_struct *dead_task)
+ 
+ void arch_release_task_struct(struct task_struct *tsk)
+ {
+-	if (tsk->thread.vxrs)
+-		kfree(tsk->thread.vxrs);
++	kfree(tsk->thread.vxrs);
+ }
+ 
+ int copy_thread(unsigned long clone_flags, unsigned long new_stackp,
 -- 
-Joseph S. Myers
-joseph@codesourcery.com
+2.4.4
