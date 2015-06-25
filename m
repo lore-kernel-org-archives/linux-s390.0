@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Minfei Huang <mhuang@redhat.com>
-Subject: [PATCH] kexec: Make a pair of reserved pages when kdump fails to start
-Date: Thu, 25 Jun 2015 11:31:22 +0800
-Message-Id: <1435203082-25338-1-git-send-email-mhuang@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: ebiederm@xmission.com, vgoyal@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, holzheu@linux.vnet.ibm.com
-Cc: linux-s390@vger.kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, Minfei Huang <mnfhuang@gmail.com>
+Return-Path: <owner-linux-mm@kvack.org>
+From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Subject: [PATCH] s390/mm: change HPAGE_SHIFT type to int
+Date: Thu, 25 Jun 2015 16:37:01 +0200
+Message-Id: <1435243021-65315-1-git-send-email-dingel@linux.vnet.ibm.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-mm@kvack.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Minfei Huang <mnfhuang@gmail.com>
+With making HPAGE_SHIFT an unsigned integer we also accidentally changed pageblock_order.
+In order to avoid compiler warnings we make HPAGE_SHFIT an int again.
 
-For some arch, kexec shall map the reserved pages, then use them, when
-we try to start the kdump service.
-
-Now kexec will never unmap the reserved pages, once it fails to continue
-starting the kdump service.
-
-Make a pair of reserved pages in kdump starting path, whatever kexec
-fails or not.
-
-Signed-off-by: Minfei Huang <mnfhuang@gmail.com>
+Suggested-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 ---
- kernel/kexec.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/page.h | 2 +-
+ arch/s390/mm/pgtable.c       | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/kexec.c b/kernel/kexec.c
-index 7a36fdc..ab32d59 100644
---- a/kernel/kexec.c
-+++ b/kernel/kexec.c
-@@ -1308,19 +1308,23 @@ SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments,
- 			image->preserve_context = 1;
- 		result = machine_kexec_prepare(image);
- 		if (result)
--			goto out;
-+			goto failure;
+diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+index 0844b78..dd34523 100644
+--- a/arch/s390/include/asm/page.h
++++ b/arch/s390/include/asm/page.h
+@@ -20,7 +20,7 @@
+ #include <asm/setup.h>
+ #ifndef __ASSEMBLY__
  
- 		for (i = 0; i < nr_segments; i++) {
- 			result = kimage_load_segment(image, &image->segment[i]);
- 			if (result)
--				goto out;
-+				goto failure;
- 		}
- 		kimage_terminate(image);
-+
-+failure:
- 		if (flags & KEXEC_ON_CRASH)
- 			crash_unmap_reserved_pages();
- 	}
--	/* Install the new kernel, and  Uninstall the old */
--	image = xchg(dest_image, image);
-+
-+	if (result == 0)
-+		/* Install the new kernel, and  Uninstall the old */
-+		image = xchg(dest_image, image);
+-extern unsigned int HPAGE_SHIFT;
++extern int HPAGE_SHIFT;
+ #define HPAGE_SIZE	(1UL << HPAGE_SHIFT)
+ #define HPAGE_MASK	(~(HPAGE_SIZE - 1))
+ #define HUGETLB_PAGE_ORDER	(HPAGE_SHIFT - PAGE_SHIFT)
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index f76791e..1bae5dd 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -36,7 +36,7 @@
+ #endif
  
- out:
- 	mutex_unlock(&kexec_mutex);
+ 
+-unsigned int HPAGE_SHIFT;
++int HPAGE_SHIFT;
+ 
+ unsigned long *crst_table_alloc(struct mm_struct *mm)
+ {
 -- 
-2.2.2
+2.3.8
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
