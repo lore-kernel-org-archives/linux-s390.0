@@ -1,54 +1,62 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 1/1] KVM: s390: clear floating interrupt bitmap and parameters
-Date: Tue, 23 Jun 2015 16:39:19 +0200
-Message-ID: <55896F97.403@redhat.com>
-References: <1434972012-68554-1-git-send-email-borntraeger@de.ibm.com> <1434972012-68554-2-git-send-email-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1434972012-68554-2-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, stable@vger.kernel.org, #@tuxmaker.boeblingen.de.ibm.com, 4.1@tuxmaker.boeblingen.de.ibm.com
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Minfei Huang <mhuang@redhat.com>
+Subject: [PATCH] kexec: Make a pair of reserved pages when kdump fails to start
+Date: Thu, 25 Jun 2015 11:31:22 +0800
+Message-Id: <1435203082-25338-1-git-send-email-mhuang@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: ebiederm@xmission.com, vgoyal@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, holzheu@linux.vnet.ibm.com
+Cc: linux-s390@vger.kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, Minfei Huang <mnfhuang@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 22/06/2015 13:20, Christian Borntraeger wrote:
-> From: Jens Freimann <jfrei@linux.vnet.ibm.com>
-> 
-> commit 6d3da24141 ("KVM: s390: deliver floating interrupts in order
-> of priority") introduced a regression for the reset handling.
-> 
-> We don't clear the bitmap of pending floating interrupts
-> and interrupt parameters. This could result in stale interrupts
-> even after a reset. Let's fix this by clearing the pending bitmap
-> and the parameters for service and machine check interrupts.
-> 
-> Cc: stable@vger.kernel.org # 4.1
-> Signed-off-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> ---
->  arch/s390/kvm/interrupt.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 322ef9c..480b975 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -1621,6 +1621,9 @@ void kvm_s390_clear_float_irqs(struct kvm *kvm)
->  	int i;
->  
->  	spin_lock(&fi->lock);
-> +	fi->pending_irqs = 0;
-> +	memset(&fi->srv_signal, 0, sizeof(fi->srv_signal));
-> +	memset(&fi->mchk, 0, sizeof(fi->mchk));
->  	for (i = 0; i < FIRQ_LIST_COUNT; i++)
->  		clear_irq_list(&fi->lists[i]);
->  	for (i = 0; i < FIRQ_MAX_COUNT; i++)
-> 
+From: Minfei Huang <mnfhuang@gmail.com>
 
-Applied, thanks.
+For some arch, kexec shall map the reserved pages, then use them, when
+we try to start the kdump service.
 
-Paolo
+Now kexec will never unmap the reserved pages, once it fails to continue
+starting the kdump service.
+
+Make a pair of reserved pages in kdump starting path, whatever kexec
+fails or not.
+
+Signed-off-by: Minfei Huang <mnfhuang@gmail.com>
+---
+ kernel/kexec.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/kernel/kexec.c b/kernel/kexec.c
+index 7a36fdc..ab32d59 100644
+--- a/kernel/kexec.c
++++ b/kernel/kexec.c
+@@ -1308,19 +1308,23 @@ SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments,
+ 			image->preserve_context = 1;
+ 		result = machine_kexec_prepare(image);
+ 		if (result)
+-			goto out;
++			goto failure;
+ 
+ 		for (i = 0; i < nr_segments; i++) {
+ 			result = kimage_load_segment(image, &image->segment[i]);
+ 			if (result)
+-				goto out;
++				goto failure;
+ 		}
+ 		kimage_terminate(image);
++
++failure:
+ 		if (flags & KEXEC_ON_CRASH)
+ 			crash_unmap_reserved_pages();
+ 	}
+-	/* Install the new kernel, and  Uninstall the old */
+-	image = xchg(dest_image, image);
++
++	if (result == 0)
++		/* Install the new kernel, and  Uninstall the old */
++		image = xchg(dest_image, image);
+ 
+ out:
+ 	mutex_unlock(&kexec_mutex);
+-- 
+2.2.2
