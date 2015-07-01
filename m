@@ -1,107 +1,67 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 1 Jul 2015 23:06:50 +0800
-From: Minfei Huang <mnfhuang@gmail.com>
-Subject: Re: [PATCH v2] kexec: Make a pair of map and unmap reserved pages
- when kdump fails to start
-Message-ID: <20150701150650.GA11010@huangminfeis-MacBook-Pro.local>
-References: <1435643086-8555-1-git-send-email-mnfhuang@gmail.com>
- <20150701164023.011988b1@holzheu>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 01 Jul 2015 07:34:11 +0000
+Subject: Re: [PATCH RESEND] Update kernel math-emu code from current glibc soft-fp
+Message-Id: <CAMuHMdV+t0OVYq=VFydRCq6+94E89Rt8AupZApZgCNqZ6mGJSw@mail.gmail.com>
+References: <alpine.DEB.2.10.1505192206580.28384@digraph.polyomino.org.uk>
+ <alpine.DEB.2.10.1506221321340.27145@digraph.polyomino.org.uk>
+ <1435634913.24866.1.camel@ellerman.id.au>
+ <alpine.DEB.2.10.1506301042250.2339@digraph.polyomino.org.uk>
+ <1435702685.24693.3.camel@ellerman.id.au>
+In-Reply-To: <1435702685.24693.3.camel@ellerman.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20150701164023.011988b1@holzheu>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Cc: ebiederm@xmission.com, vgoyal@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+List-Archive: <https://lore.kernel.org/linux-sh/>
+List-Post: <mailto:linux-sh@vger.kernel.org>
+To: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Joseph Myers <joseph@codesourcery.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, alpha <linux-alpha@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, "David S.Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 07/01/15 at 04:40P, Michael Holzheu wrote:
-> Hello Minfei,
-> 
-> Regarding functionality your patch looks ok for me.
-> But the code is not easy to read.
-> 
-> What about replacing the "failure" label with "fail_unmap_pages"?
+On Wed, Jul 1, 2015 at 12:18 AM, Michael Ellerman <mpe@ellerman.id.au> wrote:
+> On Tue, 2015-06-30 at 10:48 +0000, Joseph Myers wrote:
+>> On Tue, 30 Jun 2015, Michael Ellerman wrote:
+>>
+>> > Is there some way you can imagine of splitting this up into smaller chunks, so
+>> > that different arches can merge the pieces separately?
+>>
+>> Well, it could be split as:
+>>
+>> 1. Rename include/math-emu to math-emu-old and update architectures for
+>> the renaming (mechanically).
+>>
+>> 2. Add new include/math-emu.
+>>
+>> 3,4,5,6,7. Move each architecture from math-emu-old to math-emu.
+>>
+>> 8. Remove math-emu-old.
+>>
+>> You still have patch 1 affecting all five architectures, but with the
+>> per-architecture changes being much simpler.
+>
+> OK. That's obviously a bit more churn, but I think it's probably the best
+> approach. Unless someone else has a better idea?
 
-Sure. I will repost v3 to fix it.
+Does it make that much of a difference?
 
-Thanks
-Minfei
+You said:
+| However in it's current form it's not easily mergeable, because it
+touches five
+| architectures and has the potential to cause breakage on all of them.
 
-> 
-> Michael
-> 
-> On Tue, 30 Jun 2015 13:44:46 +0800
-> Minfei Huang <mnfhuang@gmail.com> wrote:
-> 
-> > For some arch, kexec shall map the reserved pages, then use them, when
-> > we try to start the kdump service.
-> > 
-> > Now kexec will never unmap the reserved pages, once it fails to continue
-> > starting the kdump service.
-> > 
-> > Make a pair of reserved pages in kdump starting path, whatever kexec
-> > fails or not.
-> > 
-> > Signed-off-by: Minfei Huang <mnfhuang@gmail.com>
-> > ---
-> >  kernel/kexec.c | 26 ++++++++++++++------------
-> >  1 file changed, 14 insertions(+), 12 deletions(-)
-> > 
-> > diff --git a/kernel/kexec.c b/kernel/kexec.c
-> > index 4589899..68f6dfb 100644
-> > --- a/kernel/kexec.c
-> > +++ b/kernel/kexec.c
-> > @@ -1291,35 +1291,37 @@ SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments,
-> >  			 */
-> > 
-> >  			kimage_free(xchg(&kexec_crash_image, NULL));
-> > -			result = kimage_alloc_init(&image, entry, nr_segments,
-> > -						   segments, flags);
-> > -			crash_map_reserved_pages();
-> > -		} else {
-> > -			/* Loading another kernel to reboot into. */
-> > -
-> > -			result = kimage_alloc_init(&image, entry, nr_segments,
-> > -						   segments, flags);
-> >  		}
-> > +
-> > +		result = kimage_alloc_init(&image, entry, nr_segments,
-> > +				segments, flags);
-> >  		if (result)
-> >  			goto out;
-> > 
-> > +		if (flags & KEXEC_ON_CRASH)
-> > +			crash_map_reserved_pages();
-> > +
-> >  		if (flags & KEXEC_PRESERVE_CONTEXT)
-> >  			image->preserve_context = 1;
-> >  		result = machine_kexec_prepare(image);
-> >  		if (result)
-> > -			goto out;
-> > +			goto failure;
-> > 
-> >  		for (i = 0; i < nr_segments; i++) {
-> >  			result = kimage_load_segment(image, &image->segment[i]);
-> >  			if (result)
-> > -				goto out;
-> > +				goto failure;
-> >  		}
-> >  		kimage_terminate(image);
-> > +
-> > +failure:
-> >  		if (flags & KEXEC_ON_CRASH)
-> >  			crash_unmap_reserved_pages();
-> >  	}
-> > -	/* Install the new kernel, and  Uninstall the old */
-> > -	image = xchg(dest_image, image);
-> > +
-> > +	if (result == 0)
-> > +		/* Install the new kernel, and  Uninstall the old */
-> > +		image = xchg(dest_image, image);
-> > 
-> >  out:
-> >  	mutex_unlock(&kexec_mutex);
-> 
+Patch 1 still touches five architectures.
+Patches 3-7 still have the potential to break an architecture, but only one of
+them at a time.
+
+From a bisectability point of view there's no change.
+Except that patch 1 (and 8) may break something, too ;-)
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
