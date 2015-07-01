@@ -1,87 +1,98 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] MAINTAINERS: separate section for s390 virtio drivers
-Date: Tue, 7 Jul 2015 14:19:41 +0300
-Message-ID: <20150707141919-mutt-send-email-mst@redhat.com>
-References: <5593F756.9080703@redhat.com>
- <1435763737-10350-1-git-send-email-cornelia.huck@de.ibm.com>
- <55940495.9050007@redhat.com>
- <20150707114444.4f40675c.cornelia.huck@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 1 Jul 2015 16:40:23 +0200
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2] kexec: Make a pair of map and unmap reserved pages
+ when kdump fails to start
+Message-ID: <20150701164023.011988b1@holzheu>
+In-Reply-To: <1435643086-8555-1-git-send-email-mnfhuang@gmail.com>
+References: <1435643086-8555-1-git-send-email-mnfhuang@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150707114444.4f40675c.cornelia.huck@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Minfei Huang <mnfhuang@gmail.com>
+Cc: ebiederm@xmission.com, vgoyal@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jul 07, 2015 at 11:44:44AM +0200, Cornelia Huck wrote:
-> On Wed, 1 Jul 2015 17:17:41 +0200
-> Paolo Bonzini <pbonzini@redhat.com> wrote:
-> 
-> > 
-> > 
-> > On 01/07/2015 17:15, Cornelia Huck wrote:
-> > > The s390-specific virtio drivers have probably more to do with virtio
-> > > than with kvm today; let's move them out into a separate section to
-> > > reflect this and to be able to add relevant mailing lists.
-> > > 
-> > > CC: Christian Borntraeger <borntraeger@de.ibm.com>
-> > > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > ---
-> > >  MAINTAINERS | 10 +++++++++-
-> > >  1 file changed, 9 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/MAINTAINERS b/MAINTAINERS
-> > > index 246d9d8..fca5c00 100644
-> > > --- a/MAINTAINERS
-> > > +++ b/MAINTAINERS
-> > > @@ -5766,7 +5766,6 @@ S:	Supported
-> > >  F:	Documentation/s390/kvm.txt
-> > >  F:	arch/s390/include/asm/kvm*
-> > >  F:	arch/s390/kvm/
-> > > -F:	drivers/s390/kvm/
-> > >  
-> > >  KERNEL VIRTUAL MACHINE (KVM) FOR ARM
-> > >  M:	Christoffer Dall <christoffer.dall@linaro.org>
-> > > @@ -10671,6 +10670,15 @@ F:	drivers/block/virtio_blk.c
-> > >  F:	include/linux/virtio_*.h
-> > >  F:	include/uapi/linux/virtio_*.h
-> > >  
-> > > +VIRTIO DRIVERS FOR S390
-> > > +M:	Christian Borntraeger <borntraeger@de.ibm.com>
-> > > +M:	Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > +L:	linux-s390@vger.kernel.org
-> > > +L:	virtualization@lists.linux-foundation.org
-> > > +L:	kvm@vger.kernel.org
-> > 
-> > Keeping the KVM mailing list is probably a good idea.
-> > 
-> > > +S:	Supported
-> > > +F:	drivers/s390/kvm/
-> > 
-> > Since we are at it, do we want to rename the directory to
-> > drivers/s390/virtio?  
-> 
-> Makes sense, just sent a patch.
-> 
-> > Anyway:
-> > 
-> > Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-> > 
-> > Paolo
-> > 
-> > >  VIRTIO HOST (VHOST)
-> > >  M:	"Michael S. Tsirkin" <mst@redhat.com>
-> > >  L:	kvm@vger.kernel.org
-> 
-> OK, how does this go upstream (I guess through the virtio tree)?
-> Michael, will you pick the patches or should I prepare a branch?
+Hello Minfei,
 
-I'll pick these up.
+Regarding functionality your patch looks ok for me.
+But the code is not easy to read.
 
--- 
-MST
+What about replacing the "failure" label with "fail_unmap_pages"?
+
+Michael
+
+On Tue, 30 Jun 2015 13:44:46 +0800
+Minfei Huang <mnfhuang@gmail.com> wrote:
+
+> For some arch, kexec shall map the reserved pages, then use them, when
+> we try to start the kdump service.
+> 
+> Now kexec will never unmap the reserved pages, once it fails to continue
+> starting the kdump service.
+> 
+> Make a pair of reserved pages in kdump starting path, whatever kexec
+> fails or not.
+> 
+> Signed-off-by: Minfei Huang <mnfhuang@gmail.com>
+> ---
+>  kernel/kexec.c | 26 ++++++++++++++------------
+>  1 file changed, 14 insertions(+), 12 deletions(-)
+> 
+> diff --git a/kernel/kexec.c b/kernel/kexec.c
+> index 4589899..68f6dfb 100644
+> --- a/kernel/kexec.c
+> +++ b/kernel/kexec.c
+> @@ -1291,35 +1291,37 @@ SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments,
+>  			 */
+> 
+>  			kimage_free(xchg(&kexec_crash_image, NULL));
+> -			result = kimage_alloc_init(&image, entry, nr_segments,
+> -						   segments, flags);
+> -			crash_map_reserved_pages();
+> -		} else {
+> -			/* Loading another kernel to reboot into. */
+> -
+> -			result = kimage_alloc_init(&image, entry, nr_segments,
+> -						   segments, flags);
+>  		}
+> +
+> +		result = kimage_alloc_init(&image, entry, nr_segments,
+> +				segments, flags);
+>  		if (result)
+>  			goto out;
+> 
+> +		if (flags & KEXEC_ON_CRASH)
+> +			crash_map_reserved_pages();
+> +
+>  		if (flags & KEXEC_PRESERVE_CONTEXT)
+>  			image->preserve_context = 1;
+>  		result = machine_kexec_prepare(image);
+>  		if (result)
+> -			goto out;
+> +			goto failure;
+> 
+>  		for (i = 0; i < nr_segments; i++) {
+>  			result = kimage_load_segment(image, &image->segment[i]);
+>  			if (result)
+> -				goto out;
+> +				goto failure;
+>  		}
+>  		kimage_terminate(image);
+> +
+> +failure:
+>  		if (flags & KEXEC_ON_CRASH)
+>  			crash_unmap_reserved_pages();
+>  	}
+> -	/* Install the new kernel, and  Uninstall the old */
+> -	image = xchg(dest_image, image);
+> +
+> +	if (result == 0)
+> +		/* Install the new kernel, and  Uninstall the old */
+> +		image = xchg(dest_image, image);
+> 
+>  out:
+>  	mutex_unlock(&kexec_mutex);
