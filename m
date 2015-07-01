@@ -1,67 +1,96 @@
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Date: Mon, 08 Jun 2015 13:27:38 +0000
-Subject: Generic kernel features that need architecture(s390) support
-Message-Id: <5575984A.4030705@gmail.com>
-In-Reply-To: <557597A2.1030309@gmail.com>
-References: <557597A2.1030309@gmail.com>
-To: linux-s390@vger.kernel.org
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 1/1] KVM: s390: virtio-ccw: don't overwrite config space
+ values
+Date: Wed, 1 Jul 2015 15:36:13 +0200
+Message-ID: <5593ECCD.8090702@redhat.com>
+References: <1435589041-36194-1-git-send-email-borntraeger@de.ibm.com>
+ <1435589041-36194-2-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1435589041-36194-2-git-send-email-borntraeger@de.ibm.com>
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, mst@redhat.com, Eric Farman <farman@linux.vnet.ibm.com>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
-
-If there is anything wrong, please report it in this thread:
-https://marc.info/?t=143332955700003
 
 
-The meaning of entries in the tables is:
+On 29/06/2015 16:44, Christian Borntraeger wrote:
+> From: Cornelia Huck <cornelia.huck@de.ibm.com>
+> 
+> Eric noticed problems with vhost-scsi and virtio-ccw: vhost-scsi
+> complained about overwriting values in the config space, which
+> was triggered by a broken implementation of virtio-ccw's config
+> get/set routines. It was probably sheer luck that we did not hit
+> this before.
+> 
+> When writing a value to the config space, the WRITE_CONF ccw will
+> always write from the beginning of the config space up to and
+> including the value to be set. If the config space up to the value
+> has not yet been retrieved from the device, however, we'll end up
+> overwriting values. Keep track of the known config space and update
+> if needed to avoid this.
+> 
+> Moreover, READ_CONF will only read the number of bytes it has been
+> instructed to retrieve, so we must not copy more than that to the
+> buffer, or we might overwrite trailing values.
+> 
+> Reported-by: Eric Farman <farman@linux.vnet.ibm.com>
+> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> Reviewed-by: Eric Farman <farman@linux.vnet.ibm.com>
+> Tested-by: Eric Farman <farman@linux.vnet.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/s390/kvm/virtio_ccw.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> index 6f1fa17..f8d8fdb 100644
+> --- a/drivers/s390/kvm/virtio_ccw.c
+> +++ b/drivers/s390/kvm/virtio_ccw.c
+> @@ -65,6 +65,7 @@ struct virtio_ccw_device {
+>  	bool is_thinint;
+>  	bool going_away;
+>  	bool device_lost;
+> +	unsigned int config_ready;
+>  	void *airq_info;
+>  };
+>  
+> @@ -833,8 +834,11 @@ static void virtio_ccw_get_config(struct virtio_device *vdev,
+>  	if (ret)
+>  		goto out_free;
+>  
+> -	memcpy(vcdev->config, config_area, sizeof(vcdev->config));
+> -	memcpy(buf, &vcdev->config[offset], len);
+> +	memcpy(vcdev->config, config_area, offset + len);
+> +	if (buf)
+> +		memcpy(buf, &vcdev->config[offset], len);
+> +	if (vcdev->config_ready < offset + len)
+> +		vcdev->config_ready = offset + len;
+>  
+>  out_free:
+>  	kfree(config_area);
+> @@ -857,6 +861,9 @@ static void virtio_ccw_set_config(struct virtio_device *vdev,
+>  	if (!config_area)
+>  		goto out_free;
+>  
+> +	/* Make sure we don't overwrite fields. */
+> +	if (vcdev->config_ready < offset)
+> +		virtio_ccw_get_config(vdev, 0, NULL, offset);
+>  	memcpy(&vcdev->config[offset], buf, len);
+>  	/* Write the config area to the host. */
+>  	memcpy(config_area, vcdev->config, sizeof(vcdev->config));
+> 
 
-    | ok |  # feature supported by the architecture
-    |TODO|  # feature not yet supported by the architecture
-    | .. |  # feature cannot be supported by the hardware
+Applied (but I think in general virtio-ccw patches should go through
+mst---the exception is when matching changes to KVM are needed, and of
+course the exception was almost always the rule during bringup).
 
-#
-# Kernel feature support matrix of the 's390' architecture:
-#
-     sched/ numa-balancing       :  ..  |        ARCH_SUPPORTS_NUMA_BALANCING #  arch supports NUMA balancing
-      time/ irq-time-acct        :  ..  |            HAVE_IRQ_TIME_ACCOUNTING #  arch supports precise IRQ time accounting
-      core/ BPF-JIT              :  ok  |                        HAVE_BPF_JIT #  arch supports BPF JIT optimizations
-      core/ generic-idle-thread  :  ok  |             GENERIC_SMP_IDLE_THREAD #  arch makes use of the generic SMP idle thread facility
-      core/ jump-labels          :  ok  |                HAVE_ARCH_JUMP_LABEL #  arch supports live patched, high efficiency branches
-      core/ tracehook            :  ok  |                 HAVE_ARCH_TRACEHOOK #  arch supports tracehook (ptrace) register handling APIs
-     debug/ gcov-profile-all     :  ok  |           ARCH_HAS_GCOV_PROFILE_ALL #  arch supports whole-kernel GCOV code coverage profiling
-     debug/ kprobes              :  ok  |                        HAVE_KPROBES #  arch supports live patched kernel probe
-     debug/ kretprobes           :  ok  |                     HAVE_KRETPROBES #  arch supports kernel function-return probes
-     debug/ uprobes              :  ok  |               ARCH_SUPPORTS_UPROBES #  arch supports live patched user probes
-        io/ dma-api-debug        :  ok  |                  HAVE_DMA_API_DEBUG #  arch supports DMA debug facilities
-        io/ dma_map_attrs        :  ok  |                      HAVE_DMA_ATTRS #  arch provides dma_*map*_attrs() APIs
-        io/ sg-chain             :  ok  |                   ARCH_HAS_SG_CHAIN #  arch supports chained scatter-gather lists
-   locking/ cmpxchg-local        :  ok  |                  HAVE_CMPXCHG_LOCAL #  arch supports the this_cpu_cmpxchg() API
-   locking/ lockdep              :  ok  |                     LOCKDEP_SUPPORT #  arch supports the runtime locking correctness debug facility
-   locking/ rwsem-optimized      :  ok  |               Optimized asm/rwsem.h #  arch provides optimized rwsem APIs
-      perf/ kprobes-event        :  ok  |      HAVE_REGS_AND_STACK_ACCESS_API #  arch supports kprobes with perf events
-   seccomp/ seccomp-filter       :  ok  |            HAVE_ARCH_SECCOMP_FILTER #  arch supports seccomp filters
-      time/ clockevents          :  ok  |                 GENERIC_CLOCKEVENTS #  arch support generic clock events
-      time/ modern-timekeeping   :  ok  |            !ARCH_USES_GETTIMEOFFSET #  arch does not use arch_gettimeoffset() anymore
-      time/ virt-cpuacct         :  ok  |            HAVE_VIRT_CPU_ACCOUNTING #  arch supports precise virtual CPU time accounting
-        vm/ ELF-ASLR             :  ok  |              ARCH_HAS_ELF_RANDOMIZE #  arch randomizes the stack, heap and binary images of ELF binaries
-        vm/ numa-memblock        :  ok  |              HAVE_MEMBLOCK_NODE_MAP #  arch supports NUMA aware memblocks
-        vm/ pmdp_splitting_flush :  ok  |    __HAVE_ARCH_PMDP_SPLITTING_FLUSH #  arch supports the pmdp_splitting_flush() VM API
-        vm/ pte_special          :  ok  |             __HAVE_ARCH_PTE_SPECIAL #  arch supports the pte_special()/pte_mkspecial() VM APIs
-        vm/ THP                  :  ok  |      HAVE_ARCH_TRANSPARENT_HUGEPAGE #  arch supports transparent hugepages
-     debug/ KASAN                : TODO |                     HAVE_ARCH_KASAN #  arch supports the KASAN runtime memory checker
-     debug/ kgdb                 : TODO |                      HAVE_ARCH_KGDB #  arch supports the kGDB kernel debugger
-     debug/ kprobes-on-ftrace    : TODO |              HAVE_KPROBES_ON_FTRACE #  arch supports combined kprobes and ftrace live patching
-     debug/ optprobes            : TODO |                      HAVE_OPTPROBES #  arch supports live patched optprobes
-     debug/ stackprotector       : TODO |              HAVE_CC_STACKPROTECTOR #  arch supports compiler driven stack overflow protection
-     debug/ user-ret-profiler    : TODO |           HAVE_USER_RETURN_NOTIFIER #  arch supports user-space return from system call profiler
-        io/ dma-contiguous       : TODO |                 HAVE_DMA_CONTIGUOUS #  arch supports the DMA CMA (continuous memory allocator)
-       lib/ strncasecmp          : TODO |             __HAVE_ARCH_STRNCASECMP #  arch provides an optimized strncasecmp() function
-   locking/ queued-rwlocks       : TODO |             ARCH_USE_QUEUED_RWLOCKS #  arch supports queued rwlocks
-   locking/ queued-spinlocks     : TODO |           ARCH_USE_QUEUED_SPINLOCKS #  arch supports queued spinlocks
-      perf/ perf-regs            : TODO |                      HAVE_PERF_REGS #  arch supports perf events register access
-      perf/ perf-stackdump       : TODO |           HAVE_PERF_USER_STACK_DUMP #  arch supports perf events stack dumps
-      time/ arch-tick-broadcast  : TODO |             ARCH_HAS_TICK_BROADCAST #  arch provides tick_broadcast()
-      time/ context-tracking     : TODO |               HAVE_CONTEXT_TRACKING #  arch supports context tracking for NO_HZ_FULL
-        vm/ huge-vmap            : TODO |                 HAVE_ARCH_HUGE_VMAP #  arch supports the ioremap_pud_enabled() and ioremap_pmd_enabled() VM APIs
-        vm/ ioremap_prot         : TODO |                   HAVE_IOREMAP_PROT #  arch has ioremap_prot()
-        vm/ PG_uncached          : TODO |               ARCH_USES_PG_UNCACHED #  arch supports the PG_uncached page flag
+Thanks,
+
+Paolo
