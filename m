@@ -1,7 +1,7 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH] MAINTAINERS: separate section for s390 virtio drivers
-Date: Wed, 1 Jul 2015 17:17:41 +0200
-Message-ID: <55940495.9050007@redhat.com>
+Date: Thu, 02 Jul 2015 11:45:00 +0200
+Message-ID: <5595081C.8080802@de.ibm.com>
 References: <5593F756.9080703@redhat.com>
 	<1435763737-10350-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
@@ -21,18 +21,19 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cornelia.huck@de.ibm.com>, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 01/07/2015 17:15, Cornelia Huck wrote:
+Am 01.07.2015 um 17:15 schrieb Cornelia Huck:
 > The s390-specific virtio drivers have probably more to do with virtio
 > than with kvm today; let's move them out into a separate section to
 > reflect this and to be able to add relevant mailing lists.
 > 
 > CC: Christian Borntraeger <borntraeger@de.ibm.com>
 > Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
 > ---
 >  MAINTAINERS | 10 +++++++++-
 >  1 file changed, 9 insertions(+), 1 deletion(-)
@@ -46,32 +47,22 @@ On 01/07/2015 17:15, Cornelia Huck wrote:
 >  F:	arch/s390/include/asm/kvm*
 >  F:	arch/s390/kvm/
 > -F:	drivers/s390/kvm/
->  
+> 
 >  KERNEL VIRTUAL MACHINE (KVM) FOR ARM
 >  M:	Christoffer Dall <christoffer.dall@linaro.org>
 > @@ -10671,6 +10670,15 @@ F:	drivers/block/virtio_blk.c
 >  F:	include/linux/virtio_*.h
 >  F:	include/uapi/linux/virtio_*.h
->  
+> 
 > +VIRTIO DRIVERS FOR S390
 > +M:	Christian Borntraeger <borntraeger@de.ibm.com>
 > +M:	Cornelia Huck <cornelia.huck@de.ibm.com>
 > +L:	linux-s390@vger.kernel.org
 > +L:	virtualization@lists.linux-foundation.org
 > +L:	kvm@vger.kernel.org
-
-Keeping the KVM mailing list is probably a good idea.
-
 > +S:	Supported
 > +F:	drivers/s390/kvm/
-
-Since we are at it, do we want to rename the directory to
-drivers/s390/virtio?  Anyway:
-
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-
-Paolo
-
+> +
 >  VIRTIO HOST (VHOST)
 >  M:	"Michael S. Tsirkin" <mst@redhat.com>
 >  L:	kvm@vger.kernel.org
