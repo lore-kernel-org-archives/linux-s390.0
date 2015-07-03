@@ -1,79 +1,54 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Date: Thu, 02 Jul 2015 12:50:07 +0000
-Subject: Re: [PATCH RESEND] Update kernel math-emu code from current glibc soft-fp
-Message-Id: <1435841407.6500.2.camel@ellerman.id.au>
-References: <alpine.DEB.2.10.1505192206580.28384@digraph.polyomino.org.uk>
- <alpine.DEB.2.10.1506221321340.27145@digraph.polyomino.org.uk>
- <1435634913.24866.1.camel@ellerman.id.au>
- <alpine.DEB.2.10.1506301042250.2339@digraph.polyomino.org.uk>
- <1435702685.24693.3.camel@ellerman.id.au>
- <CAMuHMdV+t0OVYq=VFydRCq6+94E89Rt8AupZApZgCNqZ6mGJSw@mail.gmail.com>
-In-Reply-To: <CAMuHMdV+t0OVYq=VFydRCq6+94E89Rt8AupZApZgCNqZ6mGJSw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-List-Archive: <https://lore.kernel.org/linux-sh/>
-List-Post: <mailto:linux-sh@vger.kernel.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Joseph Myers <joseph@codesourcery.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, alpha <linux-alpha@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, "David S.Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
+Return-Path: <owner-linux-mm@kvack.org>
+From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Subject: [PATCH 1/4] Revert "s390/mm: change HPAGE_SHIFT type to int"
+Date: Fri,  3 Jul 2015 14:46:06 +0200
+Message-Id: <1435927569-41132-2-git-send-email-dingel@linux.vnet.ibm.com>
+In-Reply-To: <1435927569-41132-1-git-send-email-dingel@linux.vnet.ibm.com>
+References: <1435927569-41132-1-git-send-email-dingel@linux.vnet.ibm.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-mm@kvack.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2015-07-01 at 09:34 +0200, Geert Uytterhoeven wrote:
-> On Wed, Jul 1, 2015 at 12:18 AM, Michael Ellerman <mpe@ellerman.id.au> wrote:
-> > On Tue, 2015-06-30 at 10:48 +0000, Joseph Myers wrote:
-> >> On Tue, 30 Jun 2015, Michael Ellerman wrote:
-> >>
-> >> > Is there some way you can imagine of splitting this up into smaller chunks, so
-> >> > that different arches can merge the pieces separately?
-> >>
-> >> Well, it could be split as:
-> >>
-> >> 1. Rename include/math-emu to math-emu-old and update architectures for
-> >> the renaming (mechanically).
-> >>
-> >> 2. Add new include/math-emu.
-> >>
-> >> 3,4,5,6,7. Move each architecture from math-emu-old to math-emu.
-> >>
-> >> 8. Remove math-emu-old.
-> >>
-> >> You still have patch 1 affecting all five architectures, but with the
-> >> per-architecture changes being much simpler.
-> >
-> > OK. That's obviously a bit more churn, but I think it's probably the best
-> > approach. Unless someone else has a better idea?
-> 
-> Does it make that much of a difference?
+This reverts commit cf54e2fce51c7ad2479fe8cf213a2ed618a8189b.
+---
+ arch/s390/include/asm/page.h | 2 +-
+ arch/s390/mm/pgtable.c       | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Well yeah?
+diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+index dd34523..0844b78 100644
+--- a/arch/s390/include/asm/page.h
++++ b/arch/s390/include/asm/page.h
+@@ -20,7 +20,7 @@
+ #include <asm/setup.h>
+ #ifndef __ASSEMBLY__
+ 
+-extern int HPAGE_SHIFT;
++extern unsigned int HPAGE_SHIFT;
+ #define HPAGE_SIZE	(1UL << HPAGE_SHIFT)
+ #define HPAGE_MASK	(~(HPAGE_SIZE - 1))
+ #define HUGETLB_PAGE_ORDER	(HPAGE_SHIFT - PAGE_SHIFT)
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index 33082d0..16154720 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -31,7 +31,7 @@
+ #define ALLOC_ORDER	2
+ #define FRAG_MASK	0x03
+ 
+-int HPAGE_SHIFT;
++unsigned int HPAGE_SHIFT;
+ 
+ unsigned long *crst_table_alloc(struct mm_struct *mm)
+ {
+-- 
+2.3.8
 
-> You said:
-> | However in it's current form it's not easily mergeable, because it
-> touches five
-> | architectures and has the potential to cause breakage on all of them.
-> 
-> Patch 1 still touches five architectures.
-
-It does, but it would be mechanical, so in theory at least it should be a safe.
-
-That patch could also go in a full release before the others, giving us the
-maximum opportunity to test.
-
-> Patches 3-7 still have the potential to break an architecture, but only one of
-> them at a time.
-
-Right. But each maintainer could take the patch for their arch and merge it as
-they see fit.
-
-The main advantage though would be if regressions are found we could revert
-just the patch for a particular arch, rather than having to back out the whole
-thing - which would be basically impossible.
-
-> From a bisectability point of view there's no change.
-
-Agreed.
-
-The other problem if it's monolithic is who's tree does it go into? I guess
-Andrews.
-
-cheers
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
