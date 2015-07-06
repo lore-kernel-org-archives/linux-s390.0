@@ -1,62 +1,167 @@
-Return-Path: <owner-linux-mm@kvack.org>
-From: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Subject: [PATCH 3/4] mm: hugetlb: allow hugepages_supported to be architecture specific
-Date: Fri,  3 Jul 2015 14:46:08 +0200
-Message-Id: <1435927569-41132-4-git-send-email-dingel@linux.vnet.ibm.com>
-In-Reply-To: <1435927569-41132-1-git-send-email-dingel@linux.vnet.ibm.com>
-References: <1435927569-41132-1-git-send-email-dingel@linux.vnet.ibm.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-mm@kvack.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 0/3] net: implement SMC-R solution
+Date: Mon,  6 Jul 2015 17:11:48 +0200
+Message-ID: <1436195511-32314-1-git-send-email-ubraun@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: utz.bacher@de.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-s390 has a constant hugepage size, by setting HPAGE_SHIFT we also
-change e.g. the pageblock_order, which should be independent in
-respect to hugepage support.
+=46rom: Ursula Braun <ursula.braun@de.ibm.com>
 
-With this patch every architecture is free to define how to check
-for hugepage support.
+In 2013, IBM introduced an optimized communications solution for the
+IBM zEnterprise EC12 and BC12 (s390 in Linux terminology) that is
+comprised of the IBM 10GbE RoCE Express feature with Shared Memory
+Communications-RDMA (SMC-R) protocol [1].
+SMC-R is designed for the enterprise data center environment and is an =
+open
+protocol as specified in the informational RFC [2]. The final draft
+submitted by IBM has been approved for publication and is in the final
+editorial stage. Another implementation of this protocol is available s=
+ince
+2013 with IBM z/OS Version 2 Release 1.=20
 
-Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
----
- include/linux/hugetlb.h | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+SMC-R provides a =E2=80=9Csockets over RDMA=E2=80=9D solution that leve=
+rages industry
+standard RDMA over Converged Ethernet (RoCE) technology.
 
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index 2050261..d891f94 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -460,15 +460,14 @@ static inline spinlock_t *huge_pte_lockptr(struct hstate *h,
- 	return &mm->page_table_lock;
- }
- 
--static inline bool hugepages_supported(void)
--{
--	/*
--	 * Some platform decide whether they support huge pages at boot
--	 * time. On these, such as powerpc, HPAGE_SHIFT is set to 0 when
--	 * there is no such support
--	 */
--	return HPAGE_SHIFT != 0;
--}
-+#ifndef hugepages_supported
-+/*
-+ * Some platform decide whether they support huge pages at boot
-+ * time. Some of them, such as powerpc, set HPAGE_SHIFT to 0
-+ * when there is no such support
-+ */
-+#define hugepages_supported() (HPAGE_SHIFT != 0)
-+#endif
- 
- #else	/* CONFIG_HUGETLB_PAGE */
- struct hstate {};
--- 
+IBM has developed a Linux implementation of the SMC-R standard. A new
+socket protocol family AF_SMC is introduced. A preload library can be u=
+sed
+to enable TCP-based applications to use SMC-R without changes.=20
+
+Key aspects of SMC-R are:=20
+1. Provides optimized performance compared to standard TCP/IP over Ethe=
+rnet
+   within the data center for both request/response (latency) and strea=
+ming
+   workloads (CPU savings) [3].=20
+   Initial benchmarks on Linux on x86 processors have shown latency
+   reduction of up to 52% with a throughput gain of 111% using SMC-R vs=
+ TCP
+   for request/response message patterns (10 concurrent TCP connections
+   with 16KB    messages) and CPU savings of up to 69% for streaming da=
+ta
+   patterns (single TCP connection with 20MB of data in one direction).
+   [1] is currently updated to contain more detailed information on Lin=
+ux
+   and performance.
+2. In order to preserve the traditional network administrative model th=
+e
+   SMC-R protocol ties into the existing IP addresses and uses TCP's
+   handshake to establish connections. This allows existing management
+   tools and security infrastructure to control the creation of SMC
+   connections.
+3. The SMC-R protocol logically bonds multiple RoCE adapters together
+   providing    redundancy with transparent fail-over for improved high
+   availability, increased bandwidth and load balancing across multiple
+   RDMA-capable devices.
+4. Due to its handshake protocol, SMC-R is compatible with (transparent=
+ to)
+   existing TCP connection load balancers that are commonly used in the
+   enterprise data center environment for multi-tier application worklo=
+ads.
+5. SMC-R's handshake protocol allows for transparent fallback to TCP/IP=
+,
+   should one of the peers not be capable of the protocol.
+
+Additional SMC-R overview and reference materials are available [1]. =20
+
+The SMC-R =E2=80=9Crendezvous" protocol eliminates the need for RDMA-CM=
+ and the
+exchange occurs through an initial TCP connection. Building on a TCP
+connection to establish an SMC-R connection solves many key requirement=
+s,
+including #4 and #5 above.
+The rendezvous process occurs in 2 phases:=20
+1. TCP/IP 3-way exchange:
+   Initiated when both client and server indicate SMC-R capability by
+   including TCP experimental options on the TCP/IP 3-way handshake (sy=
+n
+   flows) as described in RFC6994 [4]. The ExID assigned by IANA is
+   0xE2D4C3D9 [5].=20
+2. SMC-R 3-way exchange:
+   When both partners indicate SMC-R capability then at the completion =
+of
+   the 3-way TCP handshake the SMC-R layers in each peer take control o=
+f
+   the TCP connection and exchange their RDMA credentials. If this 3-wa=
+y
+   exchange    completes successfully the connection continues using SM=
+C-R.
+   If the exchange is not successful the connections falls back to stan=
+dard
+   TCP/IP.=20
+
+References:
+[1] SMC-R Overview and Reference Materials:
+    http://www-01.ibm.com/software/network/commserver/SMCR/=20
+[2] SMC-R Informational RFC:
+    http://tools.ietf.org/html/draft-fox-tcpm-shared-memory-rdma-07
+[3] Linux SMC-R Overview and Performance Summary
+    (archs x86 and s390):
+    http://www-01.ibm.com/software/network/commserver/SMCR/=20
+[4] Shared Use of TCP Experimental Options RFC 6994:
+    https://tools.ietf.org/rfc/rfc6994.txt   =20
+[5] IANA ExID SMCR:=20
+    http://www.iana.org/assignments/tcp-parameters/tcp-parameters.xhtml=
+#tcp-exids
+
+The patch series is prepared to apply to net-next and consists of these
+parts:
+1. net/ipv4/tcp: TCP experimental option
+2. net: definitions to establish new socket family
+3. net/smc: new socket family
+
+In the future, SMC-R will be enhanced to cover:
+- IPv6 support
+- Tracing
+- Statistics support
+
+Thanks,
+        Ursula
+
+Ursula Braun (3):
+  tcp: introduce TCP experimental option for SMC
+  net: introduce socket family constants
+  smc: introduce socket family AF_SMC
+
+ include/linux/socket.h     |    4 +-
+ include/linux/tcp.h        |    5 +-
+ include/net/request_sock.h |    3 +-
+ include/net/smc.h          |   13 +
+ include/net/tcp.h          |    3 +
+ net/Kconfig                |    1 +
+ net/Makefile               |    1 +
+ net/ipv4/tcp_input.c       |   12 +
+ net/ipv4/tcp_minisocks.c   |    4 +
+ net/ipv4/tcp_output.c      |   28 +
+ net/smc/Kconfig            |    9 +
+ net/smc/Makefile           |    3 +
+ net/smc/af_smc.c           | 3142 ++++++++++++++++++++++++++++++++++++=
+++++++
+ net/smc/af_smc.h           |  689 ++++++++++
+ net/smc/smc_core.c         | 3291 ++++++++++++++++++++++++++++++++++++=
+++++++++
+ net/smc/smc_llc.c          | 1597 +++++++++++++++++++++
+ net/smc/smc_llc.h          |  192 +++
+ net/smc/smc_proc.c         |  884 ++++++++++++
+ 18 files changed, 9878 insertions(+), 3 deletions(-)
+ create mode 100644 include/net/smc.h
+ create mode 100644 net/smc/Kconfig
+ create mode 100644 net/smc/Makefile
+ create mode 100644 net/smc/af_smc.c
+ create mode 100644 net/smc/af_smc.h
+ create mode 100644 net/smc/smc_core.c
+ create mode 100644 net/smc/smc_llc.c
+ create mode 100644 net/smc/smc_llc.h
+ create mode 100644 net/smc/smc_proc.c
+
+--=20
 2.3.8
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
