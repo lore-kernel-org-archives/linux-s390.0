@@ -1,81 +1,122 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: 4.1: 9a0e609e3fd ("dm: only run the queue on completion if ....")
- causes significant overhead in osq_lock on ext4/multipath
-Date: Wed, 08 Jul 2015 10:37:34 +0200
-Message-ID: <559CE14E.7010209@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 10 Jul 2015 10:28:50 +0200
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Subject: Re: [PATCH v3] kexec: Make a pair of map and unmap reserved pages
+ when kdump fails to start
+Message-ID: <20150710102850.06041275@holzheu>
+In-Reply-To: <20150710040527.GA3642@dhcp-128-21.nay.redhat.com>
+References: <1435801552-1230-1-git-send-email-mnfhuang@gmail.com>
+	<20150707211840.GA4388@redhat.com>
+	<20150709175411.7037a4fa@holzheu>
+	<20150710040527.GA3642@dhcp-128-21.nay.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/dm-devel/>
-List-Post: <mailto:dm-devel@redhat.com>
-To: Mike Snitzer <snitzer@redhat.com>
-Cc: Alasdair Kergon <agk@redhat.com>, dm-devel@redhat.com, "linux-kernel@vger.kernel.org >> Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, linux-ext4@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Minfei Huang <mnfhuang@gmail.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>, ebiederm@xmission.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-not sure if this actually a mutex/s390/dm or ext4 problem, but it bisects down to a dm commit:
+On Fri, 10 Jul 2015 12:05:27 +0800
+Minfei Huang <mnfhuang@gmail.com> wrote:
 
-Mike,
+> On 07/09/15 at 05:54P, Michael Holzheu wrote:
+> > On Tue, 7 Jul 2015 17:18:40 -0400
+> > Vivek Goyal <vgoyal@redhat.com> wrote:
+> > 
+> > > On Thu, Jul 02, 2015 at 09:45:52AM +0800, Minfei Huang wrote:
+> > 
+> > [snip]
+> > 
+> > > I am thinking of moving kernel loading code in a separate function to
+> > > make things little simpler. Right now it is confusing.
+> > > 
+> > > Can you please test attached patch. I have only compile tested it. This
+> > > is primarily doing what you are doing but in a separate function. It
+> > > seems more readable now.
+> > 
+> > The patch looks good to me. What about the following patch on top
+> > to make things even more readable?
+> > ---
+> >  kernel/kexec.c |   50 +++++++++++++++++---------------------------------
+> >  1 file changed, 17 insertions(+), 33 deletions(-)
+> > 
+> > --- a/kernel/kexec.c
+> > +++ b/kernel/kexec.c
+> > @@ -1236,14 +1236,18 @@ int kexec_load_disabled;
+> >  
+> >  static DEFINE_MUTEX(kexec_mutex);
+> >  
+> > -static int __kexec_load(struct kimage **rimage, unsigned long entry,
+> > -			unsigned long nr_segments,
+> > +static int __kexec_load(unsigned long entry, unsigned long nr_segments,
+> >  			struct kexec_segment __user * segments,
+> >  			unsigned long flags)
+> >  {
+> > +	struct kimage *image, **dest_image;
+> >  	unsigned long i;
+> >  	int result;
+> > -	struct kimage *image;
+> > +
+> > +	dest_image = (flags & KEXEC_ON_CRASH) ? &kexec_crash_image : &kexec_image;
+> > +
+> > +	if (nr_segments == 0)
+> > +		return 0;
+> 
+> It is fine, if nr_segments is 0. So we should deal with this case like
+> original kexec code.
+> 
+> >  
+> >  	if (flags & KEXEC_ON_CRASH) {
+> >  		/*
+> > @@ -1251,7 +1255,6 @@ static int __kexec_load(struct kimage **
+> >  		 * crashes.  Free any current crash dump kernel before
+> >  		 * we corrupt it.
+> >  		 */
+> > -
+> >  		kimage_free(xchg(&kexec_crash_image, NULL));
+> >  	}
+> >  
+> > @@ -1267,30 +1270,29 @@ static int __kexec_load(struct kimage **
+> >  
+> >  	result = machine_kexec_prepare(image);
+> >  	if (result)
+> > -		goto out;
+> > +		goto fail;
+> >  
+> >  	for (i = 0; i < nr_segments; i++) {
+> >  		result = kimage_load_segment(image, &image->segment[i]);
+> >  		if (result)
+> > -			goto out;
+> > +			goto fail;
+> >  	}
+> > -
+> >  	kimage_terminate(image);
+> > -	*rimage = image;
+> > -out:
+> > +	/* Install the new kernel, and  uninstall the old */
+> > +	kimage_free(xchg(dest_image, image));
+> >  	if (flags & KEXEC_ON_CRASH)
+> >  		crash_unmap_reserved_pages();
+> > -
+> > -	/* Free image if there was an error */
+> > -	if (result)
+> > -		kimage_free(image);
+> > +	return 0;
+> > +fail:
+> > +	if (flags & KEXEC_ON_CRASH)
+> > +		crash_unmap_reserved_pages();
+> > +	kimage_free(image);
+> 
+> Kernel release image again
 
-commit 9a0e609e3fd8a95c96629b9fbde6b8c5b9a1456a ("dm: only run the queue on 
-completion if congested or no requests pending") causes a significant overhead
-if multiple processes access the same file on an ext4 file system on multipath,
-with direct io.
+Again? This is only done in the error case.
 
-This actually appeared first with a kvm guest that has I/O on 500 virtio disks that
-are backed up by the same image file (I used this to test something else)
+> , and will crash in here, since we do not
+> assign the image to NULL when we release the image above.
 
-but something like the following (without kvm)
+Good catch, I should have set image=NULL at the beginning of __kexec_load().
 
-for ((d=1; d<500; d++)); do  dd if=fileonmultipathext4 of=/dev/null bs=4096 iflag=direct & done
-
-keeps most CPUs on the osq_lock (optimistic spinning for mutex)
-
-# Overhead  Command         Shared Object        Symbol                                     
-# ........  ..............  ...................  ...........................................
-#
-    73.91%  dd              [kernel.vmlinux]     [k] osq_lock                               
-     3.15%  dd              [kernel.vmlinux]     [k] mutex_spin_on_owner.isra.5             
-     3.03%  swapper         [kernel.vmlinux]     [k] osq_lock                               
-     1.08%  kdmwork-252:28  [kernel.vmlinux]     [k] osq_lock                               
-     0.91%  dd              [kernel.vmlinux]     [k] arch_spin_lock_wait_flags              
-     0.36%  dd              [kernel.vmlinux]     [k] kmem_cache_free                        
-     0.29%  dd              [kernel.vmlinux]     [k] account_system_time                    
-     0.25%  dd              [kernel.vmlinux]     [k] __blockdev_direct_IO                   
-     0.25%  dd              [kernel.vmlinux]     [k] _mix_pool_bytes                        
-     0.22%  dd              [kernel.vmlinux]     [k] __schedule                             
-     0.22%  dd              [kernel.vmlinux]     [k] pcpu_ec_call                           
-     0.21%  dd              [kernel.vmlinux]     [k] enqueue_entity                         
-     0.18%  dd              [kernel.vmlinux]     [k] vtime_account_irq_enter                
-     0.17%  dd              [dm_multipath]       [k] multipath_status                       
-     0.17%  dd              [kernel.vmlinux]     [k] try_to_wake_up                         
-     0.17%  dd              [kernel.vmlinux]     [k] update_cfs_shares                      
-     0.16%  dd              [kernel.vmlinux]     [k] blk_update_request  
-
-With that patch reverted the system is much less contendent on osq_lock
-
-# Overhead  Command         Shared Object      Symbol                                     
-# ........  ..............  .................  ...........................................
-#
-    30.22%  dd              [kernel.vmlinux]   [k] osq_lock                               
-     5.57%  dd              [kernel.vmlinux]   [k] mutex_spin_on_owner.isra.5             
-     5.48%  swapper         [kernel.vmlinux]   [k] osq_lock                               
-     1.61%  dd              [kernel.vmlinux]   [k] arch_spin_lock_wait_flags              
-     1.38%  dd              [kernel.vmlinux]   [k] arch_spin_lock_wait                    
-     1.17%  swapper         [kernel.vmlinux]   [k] mutex_spin_on_owner.isra.5             
-     0.67%  dd              [kernel.vmlinux]   [k] kmem_cache_free                        
-     0.63%  dd              [kernel.vmlinux]   [k] try_to_wake_up                         
-     0.63%  kdmwork-252:22  [kernel.vmlinux]   [k] osq_lock                               
-     0.57%  dd              [kernel.vmlinux]   [k] _mix_pool_bytes                        
-     0.57%  dd              [kernel.vmlinux]   [k] account_system_time                    
-     0.49%  dd              [kernel.vmlinux]   [k] pcpu_ec_call                           
-     0.48%  dd              [kernel.vmlinux]   [k] vtime_account_irq_enter                
-     0.44%  dd              [kernel.vmlinux]   [k] zfcp_fsf_reqid_check                   
-     0.42%  dd              [kernel.vmlinux]   [k] __blockdev_direct_IO                   
-     0.42%  dd              [kernel.vmlinux]   [k] enqueue_entity    
-
-
-Do you have any idea why this patch seems to affect mutex/sem hold times?
-
-Christian
+Michael
