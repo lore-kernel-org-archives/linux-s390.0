@@ -1,9 +1,9 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 10 Jul 2015 07:37:22 +0800
+Date: Fri, 10 Jul 2015 12:05:27 +0800
 From: Minfei Huang <mnfhuang@gmail.com>
 Subject: Re: [PATCH v3] kexec: Make a pair of map and unmap reserved pages
  when kdump fails to start
-Message-ID: <20150709233722.GA2365@huangminfeis-MacBook-Pro.local>
+Message-ID: <20150710040527.GA3642@dhcp-128-21.nay.redhat.com>
 References: <1435801552-1230-1-git-send-email-mnfhuang@gmail.com>
  <20150707211840.GA4388@redhat.com>
  <20150709175411.7037a4fa@holzheu>
@@ -17,16 +17,6 @@ List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
 Cc: Vivek Goyal <vgoyal@redhat.com>, ebiederm@xmission.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, linux-s390@vger.kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-
-Hi, Michael.
-
-Yes, The code is more readable after wrapping the all of function code
-in a function. Since this is a small issue, I think it is better to use
-one patch to fix it. I am glad to repost a patch to merge you and
-Vivek's patches as one patch.
-
-Thanks
-Minfei
 
 On 07/09/15 at 05:54P, Michael Holzheu wrote:
 > On Tue, 7 Jul 2015 17:18:40 -0400
@@ -70,6 +60,10 @@ On 07/09/15 at 05:54P, Michael Holzheu wrote:
 > +
 > +	if (nr_segments == 0)
 > +		return 0;
+
+It is fine, if nr_segments is 0. So we should deal with this case like
+original kexec code.
+
 >  
 >  	if (flags & KEXEC_ON_CRASH) {
 >  		/*
@@ -111,6 +105,13 @@ On 07/09/15 at 05:54P, Michael Holzheu wrote:
 > +	if (flags & KEXEC_ON_CRASH)
 > +		crash_unmap_reserved_pages();
 > +	kimage_free(image);
+
+Kernel release image again, and will crash in here, since we do not
+assign the image to NULL when we release the image above.
+
+Thanks
+Minfei
+
 >  	return result;
 >  }
 >  
