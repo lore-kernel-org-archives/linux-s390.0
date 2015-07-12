@@ -1,47 +1,44 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <alpine.DEB.2.11.1507171558010.18576@nanos>
-References: <20150712215559.7166.33068.stgit@bhelgaas-glaptop2.roam.corp.google.com>
- <20150712220154.7166.48327.stgit@bhelgaas-glaptop2.roam.corp.google.com> <alpine.DEB.2.11.1507171558010.18576@nanos>
 From: Bjorn Helgaas <bhelgaas@google.com>
-Date: Fri, 17 Jul 2015 12:50:05 -0500
-Message-ID: <CAErSpo6HFN1i2cMwrLyFoYGrvaX-QFeVT_bJyRo9wpFLwma49g@mail.gmail.com>
-Subject: Re: [PATCH 1/3] x86, irq: Rename VECTOR_UNDEFINED and
- VECTOR_RETRIGGERED to IRQ_*
-Content-Type: text/plain; charset=UTF-8
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150717175005.2PlYOf0u2qPgVsqTCvNtUs-fPZzf1WtW6hNE2-FoR0I@z>
+Subject: [PATCH 0/3] IRQ trivial clarifications
+Date: Sun, 12 Jul 2015 17:01:45 -0500
+Message-ID: <20150712215559.7166.33068.stgit@bhelgaas-glaptop2.roam.corp.google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-parisc-owner@vger.kernel.org>
+Sender: linux-parisc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Linux-Arch <linux-arch@vger.kernel.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, linux-am33-list@redhat.com, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-c6x-dev@linux-c6x.org, linux-parisc@vger.kernel.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, adi-buildroot-devel@lists.sourceforge.net, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-m68k@lists.linux-m68k.org, linux-alpha@vger.kernel.org, "x86@kernel.org" <x86@kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
+Cc: linux-arch@vger.kernel.org, linux-mips@linux-mips.org, linux-am33-list@redhat.com, linux-ia64@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-alpha@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Jul 17, 2015 at 9:06 AM, Thomas Gleixner <tglx@linutronix.de> wrote:
-> On Sun, 12 Jul 2015, Bjorn Helgaas wrote:
->
->> The per-cpu vector_irq[] table is indexed by CPU vector numbers, and each
->> entry contains an IRQ number.
->>
->> Rename the special values VECTOR_UNDEFINED and VECTOR_RETRIGGERED to
->> IRQ_UNDEFINED and IRQ_RETRIGGERED to indicate that they are in the IRQ
->> number space, not the CPU vector number space.
->
-> Makes some sense, but OTOH vector_irq actually reflects the vector
-> state not the irq number state. The fact that we store the Linux irq
-> number in vector_irq is just an implementation detail.
->
-> VECTOR_UNDEFINED is certainly a misnomer; that should be VECTOR_UNUSED
->
-> VECTOR_RETRIGGERED is pretty accurate. In the case we retrigger an
-> interrupt, we merily use the Linux irq number to figure out which
-> vector to kick. And after we retriggered it, we lose the association
-> to the Linux irq number completely.
->
-> That said, I'm working on storing the irq descriptor pointer in
-> vector_irq instead of the irq number, which has the advantage that we
-> avoid the lookup of the irq descriptor in the interrupt hotpath.
+These don't fix anything at all.  But they might make code understanding
+and debugging slightly easier.
 
-OK, I'll abandon this.  Thanks for taking a look!
+---
 
-Bjorn
+Bjorn Helgaas (3):
+      x86, irq: Rename VECTOR_UNDEFINED and VECTOR_RETRIGGERED to IRQ_*
+      x86, irq: Clarify "No irq handler" message
+      IRQ: Print "unexpected IRQ" messages consistently across architectures
+
+
+ arch/alpha/kernel/irq.c            |    2 +-
+ arch/blackfin/kernel/irqchip.c     |    2 +-
+ arch/c6x/kernel/irq.c              |    2 +-
+ arch/ia64/kernel/irq.c             |    2 +-
+ arch/m68k/include/asm/hardirq.h    |    2 +-
+ arch/mips/kernel/irq.c             |    2 +-
+ arch/mn10300/kernel/irq.c          |    2 +-
+ arch/parisc/include/asm/hardirq.h  |    2 +-
+ arch/powerpc/include/asm/hardirq.h |    2 +-
+ arch/s390/include/asm/hardirq.h    |    2 +-
+ arch/sh/kernel/irq.c               |    2 +-
+ arch/tile/kernel/irq.c             |    2 +-
+ arch/x86/include/asm/hw_irq.h      |    4 ++--
+ arch/x86/kernel/apic/vector.c      |   14 +++++++-------
+ arch/x86/kernel/irq.c              |   19 +++++++++----------
+ arch/x86/kernel/irqinit.c          |    4 ++--
+ include/asm-generic/hardirq.h      |    2 +-
+ 17 files changed, 33 insertions(+), 34 deletions(-)
