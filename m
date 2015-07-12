@@ -1,228 +1,181 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Subject: [PATCH 3/3] IRQ: Print "unexpected IRQ" messages consistently
- across architectures
+Subject: [PATCH 1/3] x86,
+ irq: Rename VECTOR_UNDEFINED and VECTOR_RETRIGGERED to IRQ_*
 From: Bjorn Helgaas <bhelgaas@google.com>
-Date: Sun, 12 Jul 2015 17:02:11 -0500
-Message-ID: <20150712220211.7166.42035.stgit@bhelgaas-glaptop2.roam.corp.google.com>
+Date: Sun, 12 Jul 2015 17:01:54 -0500
+Message-ID: <20150712220154.7166.48327.stgit@bhelgaas-glaptop2.roam.corp.google.com>
 In-Reply-To: <20150712215559.7166.33068.stgit@bhelgaas-glaptop2.roam.corp.google.com>
 References: <20150712215559.7166.33068.stgit@bhelgaas-glaptop2.roam.corp.google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150712220211.Bpjwxxqm9qIh456M5VmuH88Is0DuGm8BXdBwTbSbmjA@z>
+Message-ID: <20150712220154.69FhyRpGu7t7LGxef1_lZLW5DTtjnS9ZftcIRA_u3yM@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Thomas Gleixner <tglx@linutronix.de>
 Cc: linux-arch@vger.kernel.org, linux-mips@linux-mips.org, linux-am33-list@redhat.com, linux-ia64@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-alpha@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Many architectures use a variant of "unexpected IRQ trap at vector %x" to
-log unexpected IRQs.  This is confusing because (a) it prints the Linux IRQ
-number, but "vector" more often refers to a CPU vector number, and (b) it
-prints the IRQ number in hex with no base indication, while Linux IRQ
-numbers are usually printed in decimal.
+The per-cpu vector_irq[] table is indexed by CPU vector numbers, and each
+entry contains an IRQ number.
 
-Print the same text ("unexpected IRQ %d") across all architectures.
+Rename the special values VECTOR_UNDEFINED and VECTOR_RETRIGGERED to
+IRQ_UNDEFINED and IRQ_RETRIGGERED to indicate that they are in the IRQ
+number space, not the CPU vector number space.
 
-No functional change other than the output text.
+No functional change.
 
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 ---
- arch/alpha/kernel/irq.c            |    2 +-
- arch/blackfin/kernel/irqchip.c     |    2 +-
- arch/c6x/kernel/irq.c              |    2 +-
- arch/ia64/kernel/irq.c             |    2 +-
- arch/m68k/include/asm/hardirq.h    |    2 +-
- arch/mips/kernel/irq.c             |    2 +-
- arch/mn10300/kernel/irq.c          |    2 +-
- arch/parisc/include/asm/hardirq.h  |    2 +-
- arch/powerpc/include/asm/hardirq.h |    2 +-
- arch/s390/include/asm/hardirq.h    |    2 +-
- arch/sh/kernel/irq.c               |    2 +-
- arch/tile/kernel/irq.c             |    2 +-
- arch/x86/kernel/irq.c              |    2 +-
- include/asm-generic/hardirq.h      |    2 +-
- 14 files changed, 14 insertions(+), 14 deletions(-)
+ arch/x86/include/asm/hw_irq.h |    4 ++--
+ arch/x86/kernel/apic/vector.c |   14 +++++++-------
+ arch/x86/kernel/irq.c         |   12 ++++++------
+ arch/x86/kernel/irqinit.c     |    4 ++--
+ 4 files changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/arch/alpha/kernel/irq.c b/arch/alpha/kernel/irq.c
-index 51f2c86..9acdc14 100644
---- a/arch/alpha/kernel/irq.c
-+++ b/arch/alpha/kernel/irq.c
-@@ -34,7 +34,7 @@ DEFINE_PER_CPU(unsigned long, irq_pmi_count);
- void ack_bad_irq(unsigned int irq)
- {
- 	irq_err_count++;
--	printk(KERN_CRIT "Unexpected IRQ trap at vector %u\n", irq);
-+	printk(KERN_CRIT "Unexpected IRQ %d\n", irq);
+diff --git a/arch/x86/include/asm/hw_irq.h b/arch/x86/include/asm/hw_irq.h
+index 6615032..b51a1ca 100644
+--- a/arch/x86/include/asm/hw_irq.h
++++ b/arch/x86/include/asm/hw_irq.h
+@@ -182,8 +182,8 @@ extern char irq_entries_start[];
+ #define trace_irq_entries_start irq_entries_start
+ #endif
+ 
+-#define VECTOR_UNDEFINED	(-1)
+-#define VECTOR_RETRIGGERED	(-2)
++#define IRQ_UNDEFINED	(-1)
++#define IRQ_RETRIGGERED	(-2)
+ 
+ typedef int vector_irq_t[NR_VECTORS];
+ DECLARE_PER_CPU(vector_irq_t, vector_irq);
+diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
+index 28eba2d..8ae84b4 100644
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -170,7 +170,7 @@ next:
+ 
+ 		for_each_cpu_and(new_cpu, vector_cpumask, cpu_online_mask) {
+ 			if (per_cpu(vector_irq, new_cpu)[vector] >
+-			    VECTOR_UNDEFINED)
++			    IRQ_UNDEFINED)
+ 				goto next;
+ 		}
+ 		/* Found one! */
+@@ -232,7 +232,7 @@ static void clear_irq_vector(int irq, struct apic_chip_data *data)
+ 
+ 	vector = data->cfg.vector;
+ 	for_each_cpu_and(cpu, data->domain, cpu_online_mask)
+-		per_cpu(vector_irq, cpu)[vector] = VECTOR_UNDEFINED;
++		per_cpu(vector_irq, cpu)[vector] = IRQ_UNDEFINED;
+ 
+ 	data->cfg.vector = 0;
+ 	cpumask_clear(data->domain);
+@@ -247,7 +247,7 @@ static void clear_irq_vector(int irq, struct apic_chip_data *data)
+ 		     vector++) {
+ 			if (per_cpu(vector_irq, cpu)[vector] != irq)
+ 				continue;
+-			per_cpu(vector_irq, cpu)[vector] = VECTOR_UNDEFINED;
++			per_cpu(vector_irq, cpu)[vector] = IRQ_UNDEFINED;
+ 			break;
+ 		}
+ 	}
+@@ -429,12 +429,12 @@ static void __setup_vector_irq(int cpu)
+ 	/* Mark the free vectors */
+ 	for (vector = 0; vector < NR_VECTORS; ++vector) {
+ 		irq = per_cpu(vector_irq, cpu)[vector];
+-		if (irq <= VECTOR_UNDEFINED)
++		if (irq <= IRQ_UNDEFINED)
+ 			continue;
+ 
+ 		data = apic_chip_data(irq_get_irq_data(irq));
+ 		if (!cpumask_test_cpu(cpu, data->domain))
+-			per_cpu(vector_irq, cpu)[vector] = VECTOR_UNDEFINED;
++			per_cpu(vector_irq, cpu)[vector] = IRQ_UNDEFINED;
+ 	}
+ 	raw_spin_unlock(&vector_lock);
  }
+@@ -553,7 +553,7 @@ asmlinkage __visible void smp_irq_move_cleanup_interrupt(void)
  
- #ifdef CONFIG_SMP 
-diff --git a/arch/blackfin/kernel/irqchip.c b/arch/blackfin/kernel/irqchip.c
-index 0ba2576..608741e 100644
---- a/arch/blackfin/kernel/irqchip.c
-+++ b/arch/blackfin/kernel/irqchip.c
-@@ -20,7 +20,7 @@ static atomic_t irq_err_count;
- void ack_bad_irq(unsigned int irq)
- {
- 	atomic_inc(&irq_err_count);
--	printk(KERN_ERR "IRQ: spurious interrupt %d\n", irq);
-+	printk(KERN_ERR "unexpected IRQ %d\n", irq);
- }
+ 		irq = __this_cpu_read(vector_irq[vector]);
  
- static struct irq_desc bad_irq_desc = {
-diff --git a/arch/c6x/kernel/irq.c b/arch/c6x/kernel/irq.c
-index 247e0eb..cd7fb55 100644
---- a/arch/c6x/kernel/irq.c
-+++ b/arch/c6x/kernel/irq.c
-@@ -120,7 +120,7 @@ void __init init_IRQ(void)
+-		if (irq <= VECTOR_UNDEFINED)
++		if (irq <= IRQ_UNDEFINED)
+ 			continue;
  
- void ack_bad_irq(int irq)
- {
--	printk(KERN_ERR "IRQ: spurious interrupt %d\n", irq);
-+	printk(KERN_ERR "unexpected IRQ %d\n", irq);
- 	irq_err_count++;
- }
- 
-diff --git a/arch/ia64/kernel/irq.c b/arch/ia64/kernel/irq.c
-index 812a1e6..b198c69 100644
---- a/arch/ia64/kernel/irq.c
-+++ b/arch/ia64/kernel/irq.c
-@@ -31,7 +31,7 @@
-  */
- void ack_bad_irq(unsigned int irq)
- {
--	printk(KERN_ERR "Unexpected irq vector 0x%x on CPU %u!\n", irq, smp_processor_id());
-+	printk(KERN_ERR "unexpected IRQ %d on CPU %u!\n", irq, smp_processor_id());
- }
- 
- #ifdef CONFIG_IA64_GENERIC
-diff --git a/arch/m68k/include/asm/hardirq.h b/arch/m68k/include/asm/hardirq.h
-index 6c61852..5f0fe98 100644
---- a/arch/m68k/include/asm/hardirq.h
-+++ b/arch/m68k/include/asm/hardirq.h
-@@ -9,7 +9,7 @@
- 
- static inline void ack_bad_irq(unsigned int irq)
- {
--	pr_crit("unexpected IRQ trap at vector %02x\n", irq);
-+	pr_crit("unexpected IRQ %d\n", irq);
- }
- 
- /* entry.S is sensitive to the offsets of these fields */
-diff --git a/arch/mips/kernel/irq.c b/arch/mips/kernel/irq.c
-index 8eb5af8..f6b9ce9 100644
---- a/arch/mips/kernel/irq.c
-+++ b/arch/mips/kernel/irq.c
-@@ -31,7 +31,7 @@
-  */
- void ack_bad_irq(unsigned int irq)
- {
--	printk("unexpected IRQ # %d\n", irq);
-+	printk("unexpected IRQ %d\n", irq);
- }
- 
- atomic_t irq_err_count;
-diff --git a/arch/mn10300/kernel/irq.c b/arch/mn10300/kernel/irq.c
-index 480de70..c7b780d 100644
---- a/arch/mn10300/kernel/irq.c
-+++ b/arch/mn10300/kernel/irq.c
-@@ -197,7 +197,7 @@ static struct irq_chip mn10300_cpu_pic_edge = {
-  */
- void ack_bad_irq(int irq)
- {
--	printk(KERN_WARNING "unexpected IRQ trap at vector %02x\n", irq);
-+	printk(KERN_WARNING "unexpected IRQ %d\n", irq);
- }
- 
- /*
-diff --git a/arch/parisc/include/asm/hardirq.h b/arch/parisc/include/asm/hardirq.h
-index 9b3bd03..c093c4f 100644
---- a/arch/parisc/include/asm/hardirq.h
-+++ b/arch/parisc/include/asm/hardirq.h
-@@ -41,6 +41,6 @@ DECLARE_PER_CPU_SHARED_ALIGNED(irq_cpustat_t, irq_stat);
- 		this_cpu_write(irq_stat.__softirq_pending, (x))
- #define or_softirq_pending(x)	this_cpu_or(irq_stat.__softirq_pending, (x))
- 
--#define ack_bad_irq(irq) WARN(1, "unexpected IRQ trap at vector %02x\n", irq)
-+#define ack_bad_irq(irq) WARN(1, "unexpected IRQ %d\n", irq)
- 
- #endif /* _PARISC_HARDIRQ_H */
-diff --git a/arch/powerpc/include/asm/hardirq.h b/arch/powerpc/include/asm/hardirq.h
-index 8add8b8..aa8ebbb 100644
---- a/arch/powerpc/include/asm/hardirq.h
-+++ b/arch/powerpc/include/asm/hardirq.h
-@@ -30,7 +30,7 @@ DECLARE_PER_CPU_SHARED_ALIGNED(irq_cpustat_t, irq_stat);
- 
- static inline void ack_bad_irq(unsigned int irq)
- {
--	printk(KERN_CRIT "unexpected IRQ trap at vector %02x\n", irq);
-+	printk(KERN_CRIT "unexpected IRQ %d\n", irq);
- }
- 
- extern u64 arch_irq_stat_cpu(unsigned int cpu);
-diff --git a/arch/s390/include/asm/hardirq.h b/arch/s390/include/asm/hardirq.h
-index b7eabaa..08eeacd 100644
---- a/arch/s390/include/asm/hardirq.h
-+++ b/arch/s390/include/asm/hardirq.h
-@@ -20,7 +20,7 @@
- 
- static inline void ack_bad_irq(unsigned int irq)
- {
--	printk(KERN_CRIT "unexpected IRQ trap at vector %02x\n", irq);
-+	printk(KERN_CRIT "unexpected IRQ %d\n", irq);
- }
- 
- #endif /* __ASM_HARDIRQ_H */
-diff --git a/arch/sh/kernel/irq.c b/arch/sh/kernel/irq.c
-index eb10ff8..093e434 100644
---- a/arch/sh/kernel/irq.c
-+++ b/arch/sh/kernel/irq.c
-@@ -30,7 +30,7 @@ atomic_t irq_err_count;
- void ack_bad_irq(unsigned int irq)
- {
- 	atomic_inc(&irq_err_count);
--	printk("unexpected IRQ trap at vector %02x\n", irq);
-+	printk("unexpected IRQ %d\n", irq);
- }
- 
- #if defined(CONFIG_PROC_FS)
-diff --git a/arch/tile/kernel/irq.c b/arch/tile/kernel/irq.c
-index 22044fc..c8e4f88 100644
---- a/arch/tile/kernel/irq.c
-+++ b/arch/tile/kernel/irq.c
-@@ -250,7 +250,7 @@ EXPORT_SYMBOL(tile_irq_activate);
- 
- void ack_bad_irq(unsigned int irq)
- {
--	pr_err("unexpected IRQ trap at vector %02x\n", irq);
-+	pr_err("unexpected IRQ %d\n", irq);
- }
- 
- /*
+ 		desc = irq_to_desc(irq);
+@@ -589,7 +589,7 @@ asmlinkage __visible void smp_irq_move_cleanup_interrupt(void)
+ 			apic->send_IPI_self(IRQ_MOVE_CLEANUP_VECTOR);
+ 			goto unlock;
+ 		}
+-		__this_cpu_write(vector_irq[vector], VECTOR_UNDEFINED);
++		__this_cpu_write(vector_irq[vector], IRQ_UNDEFINED);
+ unlock:
+ 		raw_spin_unlock(&desc->lock);
+ 	}
 diff --git a/arch/x86/kernel/irq.c b/arch/x86/kernel/irq.c
-index 3c6b069..a0d46d2 100644
+index 88b36648..2949c6e 100644
 --- a/arch/x86/kernel/irq.c
 +++ b/arch/x86/kernel/irq.c
-@@ -40,7 +40,7 @@ void (*x86_platform_ipi_callback)(void) = NULL;
- void ack_bad_irq(unsigned int irq)
- {
- 	if (printk_ratelimit())
--		pr_err("unexpected IRQ trap at vector %02x\n", irq);
-+		pr_err("unexpected IRQ %d\n", irq);
+@@ -223,12 +223,12 @@ __visible unsigned int __irq_entry do_IRQ(struct pt_regs *regs)
+ 	if (!handle_irq(irq, regs)) {
+ 		ack_APIC_irq();
  
- 	/*
- 	 * Currently unexpected vectors happen only on SMP and APIC.
-diff --git a/include/asm-generic/hardirq.h b/include/asm-generic/hardirq.h
-index 04d0a97..516ff5f 100644
---- a/include/asm-generic/hardirq.h
-+++ b/include/asm-generic/hardirq.h
-@@ -14,7 +14,7 @@ typedef struct {
- #ifndef ack_bad_irq
- static inline void ack_bad_irq(unsigned int irq)
- {
--	printk(KERN_CRIT "unexpected IRQ trap at vector %02x\n", irq);
-+	printk(KERN_CRIT "unexpected IRQ %d\n", irq);
+-		if (irq != VECTOR_RETRIGGERED) {
++		if (irq != IRQ_RETRIGGERED) {
+ 			pr_emerg_ratelimited("%s: %d.%d No irq handler for vector (irq %d)\n",
+ 					     __func__, smp_processor_id(),
+ 					     vector, irq);
+ 		} else {
+-			__this_cpu_write(vector_irq[vector], VECTOR_UNDEFINED);
++			__this_cpu_write(vector_irq[vector], IRQ_UNDEFINED);
+ 		}
+ 	}
+ 
+@@ -489,7 +489,7 @@ void fixup_irqs(void)
+ 	for (vector = FIRST_EXTERNAL_VECTOR; vector < NR_VECTORS; vector++) {
+ 		unsigned int irr;
+ 
+-		if (__this_cpu_read(vector_irq[vector]) <= VECTOR_UNDEFINED)
++		if (__this_cpu_read(vector_irq[vector]) <= IRQ_UNDEFINED)
+ 			continue;
+ 
+ 		irr = apic_read(APIC_IRR + (vector / 32 * 0x10));
+@@ -502,12 +502,12 @@ void fixup_irqs(void)
+ 			raw_spin_lock(&desc->lock);
+ 			if (chip->irq_retrigger) {
+ 				chip->irq_retrigger(data);
+-				__this_cpu_write(vector_irq[vector], VECTOR_RETRIGGERED);
++				__this_cpu_write(vector_irq[vector], IRQ_RETRIGGERED);
+ 			}
+ 			raw_spin_unlock(&desc->lock);
+ 		}
+-		if (__this_cpu_read(vector_irq[vector]) != VECTOR_RETRIGGERED)
+-			__this_cpu_write(vector_irq[vector], VECTOR_UNDEFINED);
++		if (__this_cpu_read(vector_irq[vector]) != IRQ_RETRIGGERED)
++			__this_cpu_write(vector_irq[vector], IRQ_UNDEFINED);
+ 	}
  }
  #endif
+diff --git a/arch/x86/kernel/irqinit.c b/arch/x86/kernel/irqinit.c
+index a3a5e15..fc1822d 100644
+--- a/arch/x86/kernel/irqinit.c
++++ b/arch/x86/kernel/irqinit.c
+@@ -52,7 +52,7 @@ static struct irqaction irq2 = {
+ };
+ 
+ DEFINE_PER_CPU(vector_irq_t, vector_irq) = {
+-	[0 ... NR_VECTORS - 1] = VECTOR_UNDEFINED,
++	[0 ... NR_VECTORS - 1] = IRQ_UNDEFINED,
+ };
+ 
+ int vector_used_by_percpu_irq(unsigned int vector)
+@@ -60,7 +60,7 @@ int vector_used_by_percpu_irq(unsigned int vector)
+ 	int cpu;
+ 
+ 	for_each_online_cpu(cpu) {
+-		if (per_cpu(vector_irq, cpu)[vector] > VECTOR_UNDEFINED)
++		if (per_cpu(vector_irq, cpu)[vector] > IRQ_UNDEFINED)
+ 			return 1;
+ 	}
  
