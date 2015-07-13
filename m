@@ -1,44 +1,59 @@
 From: Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 0/3] IRQ trivial clarifications
-Date: Sun, 12 Jul 2015 17:01:45 -0500
-Message-ID: <20150712215559.7166.33068.stgit@bhelgaas-glaptop2.roam.corp.google.com>
+Subject: Re: [3/3] IRQ: Print "unexpected IRQ" messages consistently across architectures
+Date: Mon, 13 Jul 2015 13:35:09 -0500
+Message-ID: <CAErSpo52Kk0c=1UHQzxntJc3ph_CX8vcY+QdULBKv-HGUHBK9Q@mail.gmail.com>
+References: <20150712220211.7166.42035.stgit@bhelgaas-glaptop2.roam.corp.google.com>
+ <20150713032303.D49801402B1@ozlabs.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-parisc-owner@vger.kernel.org>
-Sender: linux-parisc-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <20150713032303.D49801402B1@ozlabs.org>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-arch@vger.kernel.org, linux-mips@linux-mips.org, linux-am33-list@redhat.com, linux-ia64@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-alpha@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org
+To: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Linux-Arch <linux-arch@vger.kernel.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, linux-am33-list@redhat.com, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-c6x-dev@linux-c6x.org, linux-parisc@vger.kernel.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, adi-buildroot-devel@lists.sourceforge.net, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-m68k@lists.linux-m68k.org, linux-alpha@vger.kernel.org, "x86@kernel.org" <x86@kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-These don't fix anything at all.  But they might make code understanding
-and debugging slightly easier.
+On Sun, Jul 12, 2015 at 10:23 PM, Michael Ellerman <mpe@ellerman.id.au> wrote:
+> On Sun, 2015-12-07 at 22:02:11 UTC, Bjorn Helgaas wrote:
+>> Many architectures use a variant of "unexpected IRQ trap at vector %x" to
+>> log unexpected IRQs.  This is confusing because (a) it prints the Linux IRQ
+>> number, but "vector" more often refers to a CPU vector number, and (b) it
+>> prints the IRQ number in hex with no base indication, while Linux IRQ
+>> numbers are usually printed in decimal.
+>>
+>> Print the same text ("unexpected IRQ %d") across all architectures.
+>>
+>> No functional change other than the output text.
+>
+> There's already a fallback version in asm-generic, so shouldn't you instead
+> just delete all the versions that are identical to that?
+>
+> eg. on powerpc we have:
+>
+>>  static inline void ack_bad_irq(unsigned int irq)
+>>  {
+>> -     printk(KERN_CRIT "unexpected IRQ trap at vector %02x\n", irq);
+>> +     printk(KERN_CRIT "unexpected IRQ %d\n", irq);
+>>  }
+>
+> And the generic version is:
+>
+>>  #ifndef ack_bad_irq
+>>  static inline void ack_bad_irq(unsigned int irq)
+>>  {
+>> -     printk(KERN_CRIT "unexpected IRQ trap at vector %02x\n", irq);
+>> +     printk(KERN_CRIT "unexpected IRQ %d\n", irq);
+>>  }
+>>  #endif
+>
+> So we can just delete the powerpc version?
 
----
+Wow, I really didn't do my homework here.  Not only is there a generic
+version already, but there's also print_irq_desc(), which prints way
+more information than any of the ack_bad_irq() implementations.
 
-Bjorn Helgaas (3):
-      x86, irq: Rename VECTOR_UNDEFINED and VECTOR_RETRIGGERED to IRQ_*
-      x86, irq: Clarify "No irq handler" message
-      IRQ: Print "unexpected IRQ" messages consistently across architectures
+I'll try again :)
 
-
- arch/alpha/kernel/irq.c            |    2 +-
- arch/blackfin/kernel/irqchip.c     |    2 +-
- arch/c6x/kernel/irq.c              |    2 +-
- arch/ia64/kernel/irq.c             |    2 +-
- arch/m68k/include/asm/hardirq.h    |    2 +-
- arch/mips/kernel/irq.c             |    2 +-
- arch/mn10300/kernel/irq.c          |    2 +-
- arch/parisc/include/asm/hardirq.h  |    2 +-
- arch/powerpc/include/asm/hardirq.h |    2 +-
- arch/s390/include/asm/hardirq.h    |    2 +-
- arch/sh/kernel/irq.c               |    2 +-
- arch/tile/kernel/irq.c             |    2 +-
- arch/x86/include/asm/hw_irq.h      |    4 ++--
- arch/x86/kernel/apic/vector.c      |   14 +++++++-------
- arch/x86/kernel/irq.c              |   19 +++++++++----------
- arch/x86/kernel/irqinit.c          |    4 ++--
- include/asm-generic/hardirq.h      |    2 +-
- 17 files changed, 33 insertions(+), 34 deletions(-)
+Bjorn
