@@ -1,49 +1,52 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
+MIME-Version: 1.0
 In-Reply-To: <20150712220211.7166.42035.stgit@bhelgaas-glaptop2.roam.corp.google.com>
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [3/3] IRQ: Print "unexpected IRQ" messages consistently across architectures
-Message-ID: <20150713032303.D49801402B1@ozlabs.org>
-Date: Mon, 13 Jul 2015 13:23:03 +1000 (AEST)
+References: <20150712215559.7166.33068.stgit@bhelgaas-glaptop2.roam.corp.google.com>
+	<20150712220211.7166.42035.stgit@bhelgaas-glaptop2.roam.corp.google.com>
+Date: Mon, 13 Jul 2015 09:14:42 +0200
+Message-ID: <CAMuHMdWW3uHLm=rwQ8cmhxGff8vwFDx7_-eSmiy3dndpDKk35Q@mail.gmail.com>
+Subject: Re: [PATCH 3/3] IRQ: Print "unexpected IRQ" messages consistently
+ across architectures
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150713032303.WfTEmQh0az1X1qkGyv-NrJ0d47RgMIRNCOGN8pxwRI8@z>
+Message-ID: <20150713071442.QXzbRfa3uYKKOTRlIbXP6BUoTWzN7o1J876ux2kMbgo@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-arch@vger.kernel.org, linux-mips@linux-mips.org, linux-am33-list@redhat.com, linux-ia64@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-alpha@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Linux-Arch <linux-arch@vger.kernel.org>, Linux MIPS Mailing List <linux-mips@linux-mips.org>, "moderated list:PANASONIC MN10300..." <linux-am33-list@redhat.com>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-c6x-dev@linux-c6x.org, Parisc List <linux-parisc@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, "adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, alpha <linux-alpha@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, 2015-12-07 at 22:02:11 UTC, Bjorn Helgaas wrote:
+On Mon, Jul 13, 2015 at 12:02 AM, Bjorn Helgaas <bhelgaas@google.com> wrote:
 > Many architectures use a variant of "unexpected IRQ trap at vector %x" to
 > log unexpected IRQs.  This is confusing because (a) it prints the Linux IRQ
 > number, but "vector" more often refers to a CPU vector number, and (b) it
 > prints the IRQ number in hex with no base indication, while Linux IRQ
 > numbers are usually printed in decimal.
-> 
+>
 > Print the same text ("unexpected IRQ %d") across all architectures.
-> 
+>
 > No functional change other than the output text.
+>
+> Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+> ---
 
-There's already a fallback version in asm-generic, so shouldn't you instead
-just delete all the versions that are identical to that?
+Thanks!
 
-eg. on powerpc we have:
+>  arch/m68k/include/asm/hardirq.h    |    2 +-
 
->  static inline void ack_bad_irq(unsigned int irq)
->  {
-> -	printk(KERN_CRIT "unexpected IRQ trap at vector %02x\n", irq);
-> +	printk(KERN_CRIT "unexpected IRQ %d\n", irq);
->  }
+For m68k:
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-And the generic version is:
+And it looks like m68k can switch to the asm-generic version afterwards...
 
->  #ifndef ack_bad_irq
->  static inline void ack_bad_irq(unsigned int irq)
->  {
-> -	printk(KERN_CRIT "unexpected IRQ trap at vector %02x\n", irq);
-> +	printk(KERN_CRIT "unexpected IRQ %d\n", irq);
->  }
->  #endif
+Gr{oetje,eeting}s,
 
-So we can just delete the powerpc version?
+                        Geert
 
-cheers
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
