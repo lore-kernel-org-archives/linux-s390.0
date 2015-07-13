@@ -1,51 +1,49 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Subject: [PATCH 2/3] x86, irq: Clarify "No irq handler" message
-From: Bjorn Helgaas <bhelgaas@google.com>
-Date: Sun, 12 Jul 2015 17:02:02 -0500
-Message-ID: <20150712220202.7166.22099.stgit@bhelgaas-glaptop2.roam.corp.google.com>
-In-Reply-To: <20150712215559.7166.33068.stgit@bhelgaas-glaptop2.roam.corp.google.com>
-References: <20150712215559.7166.33068.stgit@bhelgaas-glaptop2.roam.corp.google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20150712220211.7166.42035.stgit@bhelgaas-glaptop2.roam.corp.google.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [3/3] IRQ: Print "unexpected IRQ" messages consistently across architectures
+Message-ID: <20150713032303.D49801402B1@ozlabs.org>
+Date: Mon, 13 Jul 2015 13:23:03 +1000 (AEST)
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150712220202.f9KliyDwO6IFU43gC5ZsnEy7raDmWwea-j1X67SBaLE@z>
+Message-ID: <20150713032303.WfTEmQh0az1X1qkGyv-NrJ0d47RgMIRNCOGN8pxwRI8@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
+To: Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>
 Cc: linux-arch@vger.kernel.org, linux-mips@linux-mips.org, linux-am33-list@redhat.com, linux-ia64@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-alpha@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Previously we printed, e.g.,
+On Sun, 2015-12-07 at 22:02:11 UTC, Bjorn Helgaas wrote:
+> Many architectures use a variant of "unexpected IRQ trap at vector %x" to
+> log unexpected IRQs.  This is confusing because (a) it prints the Linux IRQ
+> number, but "vector" more often refers to a CPU vector number, and (b) it
+> prints the IRQ number in hex with no base indication, while Linux IRQ
+> numbers are usually printed in decimal.
+> 
+> Print the same text ("unexpected IRQ %d") across all architectures.
+> 
+> No functional change other than the output text.
 
-  do_IRQ: 0.242 No irq handler for vector (irq -1)
+There's already a fallback version in asm-generic, so shouldn't you instead
+just delete all the versions that are identical to that?
 
-There's no clue about what "0.242" means, and the IRQ number, which is the
-important generic information used by drivers and /proc/interrupts, is
-almost an afterthought.
+eg. on powerpc we have:
 
-Change the format to this:
+>  static inline void ack_bad_irq(unsigned int irq)
+>  {
+> -	printk(KERN_CRIT "unexpected IRQ trap at vector %02x\n", irq);
+> +	printk(KERN_CRIT "unexpected IRQ %d\n", irq);
+>  }
 
-  No handler for IRQ -1 (CPU 0 vector 0xf2)
+And the generic version is:
 
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
----
- arch/x86/kernel/irq.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+>  #ifndef ack_bad_irq
+>  static inline void ack_bad_irq(unsigned int irq)
+>  {
+> -	printk(KERN_CRIT "unexpected IRQ trap at vector %02x\n", irq);
+> +	printk(KERN_CRIT "unexpected IRQ %d\n", irq);
+>  }
+>  #endif
 
-diff --git a/arch/x86/kernel/irq.c b/arch/x86/kernel/irq.c
-index 2949c6e..3c6b069 100644
---- a/arch/x86/kernel/irq.c
-+++ b/arch/x86/kernel/irq.c
-@@ -224,9 +224,8 @@ __visible unsigned int __irq_entry do_IRQ(struct pt_regs *regs)
- 		ack_APIC_irq();
- 
- 		if (irq != IRQ_RETRIGGERED) {
--			pr_emerg_ratelimited("%s: %d.%d No irq handler for vector (irq %d)\n",
--					     __func__, smp_processor_id(),
--					     vector, irq);
-+			pr_emerg_ratelimited("No handler for IRQ %d (CPU %d vector %#x)\n",
-+					     irq, smp_processor_id(), vector);
- 		} else {
- 			__this_cpu_write(vector_irq[vector], IRQ_UNDEFINED);
- 		}
+So we can just delete the powerpc version?
+
+cheers
