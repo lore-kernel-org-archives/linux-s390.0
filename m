@@ -1,104 +1,93 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 2 Jul 2015 15:52:03 +0000
-From: Joseph Myers <joseph@codesourcery.com>
-Subject: [PATCH 5/8] s390/math-emu: Move s390 from math-emu-old to math-emu
-Message-ID: <alpine.DEB.2.10.1507021550520.29415@digraph.polyomino.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, mpe@ellerman.id.au, stli@linux.vnet.ibm.com
+From: Baolin Wang <baolin.wang@linaro.org>
+Subject: Re: [PATCH 6/6] cputime: Introduce cputime_to_timespec64()/timespec64_to_cputime()
+Date: Fri, 17 Jul 2015 16:39:32 +0800
+Message-ID: <CAMz4kuJvgFddRv1DGop-zeYUyR3i1KgU2gLfQ=t2i09PH0m9+A@mail.gmail.com>
+References: <cover.1436511577.git.baolin.wang@linaro.org>
+	<a1bd8d71caeb4051d0be87aad1baae7ababa4df7.1436511577.git.baolin.wang@linaro.org>
+	<alpine.DEB.2.11.1507151226210.18576@nanos>
+	<CAMz4kuLxBj+82trNVXs9qkuecrKvgdbXuJ3dfvDOCfyJwrDX9Q@mail.gmail.com>
+	<alpine.DEB.2.11.1507151345060.18576@nanos>
+	<CAMz4kuKNVACNhwddXMyCqKGpOf_gsoHk=ZFZFuaY=8e4DCRwGw@mail.gmail.com>
+	<alpine.DEB.2.11.1507161230400.18576@nanos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <alpine.DEB.2.11.1507161230400.18576@nanos>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: benh@kernel.crashing.org, Arnd Bergmann <arnd@arndb.de>, John Stultz <john.stultz@linaro.org>, peterz@infradead.org, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, rth@twiddle.net, riel@redhat.com, cl@linux.com, tj@kernel.org, =?UTF-8?B?RnLDqWTDqXJpYyBXZWlzYmVja2Vy?= <fweisbec@gmail.com>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Joseph Myers <joseph@codesourcery.com>
+On 16 July 2015 at 18:43, Thomas Gleixner <tglx@linutronix.de> wrote:
+> On Thu, 16 Jul 2015, Baolin Wang wrote:
+>> On 15 July 2015 at 19:55, Thomas Gleixner <tglx@linutronix.de> wrote:
+>> > On Wed, 15 Jul 2015, Baolin Wang wrote:
+>> >
+>> >> On 15 July 2015 at 18:31, Thomas Gleixner <tglx@linutronix.de> wrote:
+>> >> > On Wed, 15 Jul 2015, Baolin Wang wrote:
+>> >> >
+>> >> >> The cputime_to_timespec() and timespec_to_cputime() functions are
+>> >> >> not year 2038 safe on 32bit systems due to that the struct timepsec
+>> >> >> will overflow in 2038 year.
+>> >> >
+>> >> > And how is this relevant? cputime is not based on wall clock time at
+>> >> > all. So what has 2038 to do with cputime?
+>> >> >
+>> >> > We want proper explanations WHY we need such a change.
+>> >>
+>> >> When converting the posix-cpu-timers, it call the
+>> >> cputime_to_timespec() function. Thus it need a conversion for this
+>> >> function.
+>> >
+>> > There is no requirement to convert posix-cpu-timers on their own. We
+>> > need to adopt the posix cpu timers code because it shares syscalls
+>> > with the other posix timers, but that still does not explain why we
+>> > need these functions.
+>> >
+>>
+>> In posix-cpu-timers, it also defined some 'k_clock struct' variables,
+>> and we need to convert the callbacks of the 'k_clock struct' which are
+>> not year 2038 safe on 32bit systems. Some callbacks which need to
+>> convert call the cputime_to_timespec() function, thus we also want to
+>> convert the cputime_to_timespec() function to a year 2038 safe
+>> function to make all them ready for the year 2038 issue.
+>
+> You are not getting it at all.
+>
+> 1) We need to change k_clock callbacks due to 2038 issues
+>
+> 2) posix cpu timers implement affected callbacks
+>
+> 3) posix cpu timers themself and cputime are NOT affected by 2038
+>
+> So we have 2 options to change the code in posix cpu timers:
+>
+>    A) Do the timespec/timespec64 conversion in the posix cpu timer
+>       callbacks and leave the cputime functions untouched.
+>
+>    B) Implement cputime/timespec64 functions to avoid #A
+>
+>    If you go for #B, you need to provide a reasonable explanation why
+>    it is better than #A. And that explanation has absolutely nothing
+>    to do with 2038 safety.
 
-This patch moves s390 from math-emu-old to math-emu, updating it for
-the API changes.  Thanks to Stefan Liebler <stli@linux.vnet.ibm.com>
-in <https://sourceware.org/ml/libc-alpha/2015-04/msg00154.html> for
-the sysinfo.c changes.
+Very thanks for your explanation, and I'll think about that.
 
-Signed-off-by: Joseph Myers <joseph@codesourcery.com>
+>
+> Not everything is a 2038 issue, just because the only tool you have is
+> a timespec64.
+>
+> Thanks,
+>
+>         tglx
+>
+>
+>
 
----
-
-diff --git a/arch/s390/include/asm/sfp-machine.h b/arch/s390/include/asm/sfp-machine.h
-index 4e16aed..67f9eed 100644
---- a/arch/s390/include/asm/sfp-machine.h
-+++ b/arch/s390/include/asm/sfp-machine.h
-@@ -38,6 +38,13 @@
- #define _FP_MUL_MEAT_Q(R,X,Y)					\
-   _FP_MUL_MEAT_4_wide(_FP_WFRACBITS_Q,R,X,Y,umul_ppmm)
- 
-+#define _FP_MUL_MEAT_DW_S(R,X,Y)				\
-+  _FP_MUL_MEAT_DW_1_wide(_FP_WFRACBITS_S,R,X,Y,umul_ppmm)
-+#define _FP_MUL_MEAT_DW_D(R,X,Y)				\
-+  _FP_MUL_MEAT_DW_2_wide(_FP_WFRACBITS_D,R,X,Y,umul_ppmm)
-+#define _FP_MUL_MEAT_DW_Q(R,X,Y)				\
-+  _FP_MUL_MEAT_DW_4_wide(_FP_WFRACBITS_Q,R,X,Y,umul_ppmm)
-+
- #define _FP_DIV_MEAT_S(R,X,Y)	_FP_DIV_MEAT_1_udiv(S,R,X,Y)
- #define _FP_DIV_MEAT_D(R,X,Y)	_FP_DIV_MEAT_2_udiv(D,R,X,Y)
- #define _FP_DIV_MEAT_Q(R,X,Y)	_FP_DIV_MEAT_4_udiv(Q,R,X,Y)
-@@ -50,6 +57,7 @@
- #define _FP_NANSIGN_Q		0
- 
- #define _FP_KEEPNANFRACP 1
-+#define _FP_QNANNEGATEDP 0
- 
- /*
-  * If one NaN is signaling and the other is not,
-@@ -139,4 +147,6 @@
- /* We write the results always */
- #define FP_INHIBIT_RESULTS 0
- 
-+#define _FP_TININESS_AFTER_ROUNDING 0
-+
- #endif
-diff --git a/arch/s390/kernel/sysinfo.c b/arch/s390/kernel/sysinfo.c
-index c7d8df7..f963474 100644
---- a/arch/s390/kernel/sysinfo.c
-+++ b/arch/s390/kernel/sysinfo.c
-@@ -19,8 +19,8 @@
- 
- /* Sigh, math-emu. Don't ask. */
- #include <asm/sfp-util.h>
--#include <math-emu-old/soft-fp.h>
--#include <math-emu-old/single.h>
-+#include <math-emu/soft-fp.h>
-+#include <math-emu/single.h>
- 
- int topology_max_mnest;
- 
-@@ -418,6 +418,7 @@ void s390_adjust_jiffies(void)
- 	FP_DECL_S(SA); FP_DECL_S(SB); FP_DECL_S(SR);
- 	FP_DECL_EX;
- 	unsigned int capability;
-+	int mode = 0;
- 
- 	info = (void *) get_zeroed_page(GFP_KERNEL);
- 	if (!info)
-@@ -436,11 +437,15 @@ void s390_adjust_jiffies(void)
- 		 * point division .. math-emu here we come :-)
- 		 */
- 		FP_UNPACK_SP(SA, &fmil);
--		if ((info->capability >> 23) == 0)
--			FP_FROM_INT_S(SB, (long) info->capability, 64, long);
-+		if ((info->capability >> 23) == 0) {
-+			long r = info->capability;
-+			FP_FROM_INT_S(SB, r, 64, unsigned long);
-+		}
- 		else
--			FP_UNPACK_SP(SB, &info->capability);
-+			FP_UNPACK_RAW_SP(SB, &info->capability);
-+		_FP_UNPACK_CANONICAL(S, 1, SB);
- 		FP_DIV_S(SR, SA, SB);
-+		_FP_PACK_CANONICAL(S, 1, SR);
- 		FP_TO_INT_S(capability, SR, 32, 0);
- 	} else
- 		/*
 
 
 -- 
-Joseph S. Myers
-joseph@codesourcery.com
+Baolin.wang
+Best Regards
