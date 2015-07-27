@@ -1,8 +1,8 @@
 Return-Path: <sukadev@linux.vnet.ibm.com>
 From: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
-Subject: [PATCH 04/10] perf: Rename perf_event_read_{one,group}, perf_read_hw
-Date: Sun, 26 Jul 2015 22:40:32 -0700
-Message-Id: <1437975638-789-5-git-send-email-sukadev@linux.vnet.ibm.com>
+Subject: [PATCH 03/10] perf: Define perf_event_aggregate()
+Date: Sun, 26 Jul 2015 22:40:31 -0700
+Message-Id: <1437975638-789-4-git-send-email-sukadev@linux.vnet.ibm.com>
 In-Reply-To: <1437975638-789-1-git-send-email-sukadev@linux.vnet.ibm.com>
 References: <1437975638-789-1-git-send-email-sukadev@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -17,78 +17,90 @@ To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Arnal
 Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Move the part of perf_event_read_value() that aggregates the event
+counts and event times into a new function, perf_event_aggregate().
 
-In order to free up the perf_event_read_group() name:
+This would allow us to call perf_event_aggregate() independently.
 
- s/perf_event_read_\(one\|group\)/perf_read_\1/g
- s/perf_read_hw/__perf_read/g
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
 ---
- kernel/events/core.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+Changelog[v4]
+	[Peter Zijlstra] Add missing lockdep_assert(). Rename
+	perf_event_compute() (to perf_event_aggregate()).
+
+Changelog[v3]
+	Rather than move perf_event_read() into callers and then
+	rename, just move the computations into a separate function
+	(redesign to address comment from Peter Zijlstra).
+
+---
+ kernel/events/core.c |   39 ++++++++++++++++++++++++++-------------
+ 1 file changed, 26 insertions(+), 13 deletions(-)
 
 diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 97619ed..a6bd09d 100644
+index f9ca8cb..97619ed 100644
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -3675,7 +3675,7 @@ static void put_event(struct perf_event *event)
- 	 *     see the comment there.
- 	 *
- 	 *  2) there is a lock-inversion with mmap_sem through
--	 *     perf_event_read_group(), which takes faults while
-+	 *     perf_read_group(), which takes faults while
- 	 *     holding ctx->mutex, however this is called after
- 	 *     the last filedesc died, so there is no possibility
- 	 *     to trigger the AB-BA case.
-@@ -3783,7 +3783,7 @@ u64 perf_event_read_value(struct perf_event *event, u64 *enabled, u64 *running)
- }
- EXPORT_SYMBOL_GPL(perf_event_read_value);
- 
--static int perf_event_read_group(struct perf_event *event,
-+static int perf_read_group(struct perf_event *event,
- 				   u64 read_format, char __user *buf)
- {
- 	struct perf_event *leader = event->group_leader, *sub;
-@@ -3831,7 +3831,7 @@ static int perf_event_read_group(struct perf_event *event,
- 	return ret;
+@@ -3704,6 +3704,31 @@ static int perf_release(struct inode *inode, struct file *file)
+ 	return 0;
  }
  
--static int perf_event_read_one(struct perf_event *event,
-+static int perf_read_one(struct perf_event *event,
- 				 u64 read_format, char __user *buf)
- {
- 	u64 enabled, running;
-@@ -3869,7 +3869,7 @@ static bool is_event_hup(struct perf_event *event)
-  * Read the performance event - simple non blocking version for now
++static u64 perf_event_aggregate(struct perf_event *event, u64 *enabled,
++			      u64 *running)
++{
++	struct perf_event *child;
++	u64 total;
++
++	total = perf_event_count(event);
++
++	*enabled += event->total_time_enabled +
++			atomic64_read(&event->child_total_time_enabled);
++	*running += event->total_time_running +
++			atomic64_read(&event->child_total_time_running);
++
++	lockdep_assert_held(&event->child_mutex);
++
++	list_for_each_entry(child, &event->child_list, child_list) {
++		perf_event_read(child);
++		total += perf_event_count(child);
++		*enabled += child->total_time_enabled;
++		*running += child->total_time_running;
++	}
++
++	return total;
++}
++
+ /*
+  * Remove all orphanes events from the context.
   */
- static ssize_t
--perf_read_hw(struct perf_event *event, char __user *buf, size_t count)
-+__perf_read(struct perf_event *event, char __user *buf, size_t count)
+@@ -3742,7 +3767,6 @@ static void orphans_remove_work(struct work_struct *work)
+ 
+ u64 perf_event_read_value(struct perf_event *event, u64 *enabled, u64 *running)
  {
- 	u64 read_format = event->attr.read_format;
- 	int ret;
-@@ -3887,9 +3887,9 @@ perf_read_hw(struct perf_event *event, char __user *buf, size_t count)
+-	struct perf_event *child;
+ 	u64 total = 0;
  
- 	WARN_ON_ONCE(event->ctx->parent_ctx);
- 	if (read_format & PERF_FORMAT_GROUP)
--		ret = perf_event_read_group(event, read_format, buf);
-+		ret = perf_read_group(event, read_format, buf);
- 	else
--		ret = perf_event_read_one(event, read_format, buf);
-+		ret = perf_read_one(event, read_format, buf);
+ 	*enabled = 0;
+@@ -3751,19 +3775,8 @@ u64 perf_event_read_value(struct perf_event *event, u64 *enabled, u64 *running)
+ 	mutex_lock(&event->child_mutex);
  
- 	return ret;
- }
-@@ -3902,7 +3902,7 @@ perf_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
- 	int ret;
+ 	perf_event_read(event);
+-	total += perf_event_count(event);
+-
+-	*enabled += event->total_time_enabled +
+-			atomic64_read(&event->child_total_time_enabled);
+-	*running += event->total_time_running +
+-			atomic64_read(&event->child_total_time_running);
++	total = perf_event_aggregate(event, enabled, running);
  
- 	ctx = perf_event_ctx_lock(event);
--	ret = perf_read_hw(event, buf, count);
-+	ret = __perf_read(event, buf, count);
- 	perf_event_ctx_unlock(event, ctx);
+-	list_for_each_entry(child, &event->child_list, child_list) {
+-		perf_event_read(child);
+-		total += perf_event_count(child);
+-		*enabled += child->total_time_enabled;
+-		*running += child->total_time_running;
+-	}
+ 	mutex_unlock(&event->child_mutex);
  
- 	return ret;
+ 	return total;
 -- 
 1.7.9.5
