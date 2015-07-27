@@ -1,8 +1,8 @@
 Return-Path: <sukadev@linux.vnet.ibm.com>
 From: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
-Subject: [PATCH 10/10] powerpc/perf/hv-24x7: Use PMU_TXN_READ interface
-Date: Sun, 26 Jul 2015 22:40:38 -0700
-Message-Id: <1437975638-789-11-git-send-email-sukadev@linux.vnet.ibm.com>
+Subject: [PATCH 01/10] perf: Add a flags parameter to pmu txn interfaces
+Date: Sun, 26 Jul 2015 22:40:29 -0700
+Message-Id: <1437975638-789-2-git-send-email-sukadev@linux.vnet.ibm.com>
 In-Reply-To: <1437975638-789-1-git-send-email-sukadev@linux.vnet.ibm.com>
 References: <1437975638-789-1-git-send-email-sukadev@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -17,238 +17,421 @@ To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Arnal
 Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The 24x7 counters in Powerpc allow monitoring a large number of counters
-simultaneously. They also allow reading several counters in a single
-HCALL so we can get a more consistent snapshot of the system.
+Currently, the PMU interface allows reading only one counter at a time.
+But some PMUs like the 24x7 counters in Power, support reading several
+counters at once. To leveage this functionality, extend the transaction
+interface to support a "transaction type".
 
-Use the PMU's transaction interface to monitor and read several event
-counters at once. The idea is that users can group several 24x7 events
-into a single group of events. We use the following logic to submit
-the group of events to the PMU and read the values:
+The first type, PERF_PMU_TXN_ADD, refers to the existing transactions,
+i.e. used to _schedule_ all the events on the PMU as a group. A second
+transaction type, PERF_PMU_TXN_READ, will be used in a follow-on patch,
+by the 24x7 counters to read several counters at once.
 
-	pmu->start_txn()		// Initialize before first event
+Extend the transaction interfaces to the PMU to accept a 'txn_flags'
+parameter and use this parameter to ignore any transactions that are
+not of type PERF_PMU_TXN_ADD.
 
-	for each event in group
-		pmu->read(event);	// Queue each event to be read
-
-	pmu->commit_txn()		// Read/update all queuedcounters
-
-The ->commit_txn() also updates the event counts in the respective
-perf_event objects.  The perf subsystem can then directly get the
-event counts from the perf_event and can avoid submitting a new
-->read() request to the PMU.
-
-Thanks to input from Peter Zijlstra.
+Thanks to Peter Zijlstra for his input.
 
 Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
-
 ---
+Changelog[v4]
+	- [Peter Zijlstra] Fix an copy-paste error in power_pmu_cancel_txn().
+	- [Peter Zijlstra] Use __this_cpu_read() and __this_cpu_write().
+
 Changelog[v3]
-	[Peter Zijlstra] Save the transaction state in ->start_txn() and
-	remove the flags parameter from ->commit_txn() and ->cancel_txn().
+	- [Peter Zijlstra] Ensure the nop_txn interfaces disable/enable
+	  PMU only for TXN_ADD transactions.
+	- [Peter Zijlstra] Cache the flags parameter in ->start_txn() and
+	  drop the flags parameter from ->commit_txn() and ->cancel_txn().
 
 ---
- arch/powerpc/perf/hv-24x7.c |  166 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 164 insertions(+), 2 deletions(-)
+ arch/powerpc/perf/core-book3s.c  |   25 ++++++++++++++++++++++++-
+ arch/s390/kernel/perf_cpum_cf.c  |   24 +++++++++++++++++++++++-
+ arch/sparc/kernel/perf_event.c   |   19 ++++++++++++++++++-
+ arch/x86/kernel/cpu/perf_event.c |   27 +++++++++++++++++++++++++--
+ arch/x86/kernel/cpu/perf_event.h |    1 +
+ include/linux/perf_event.h       |   14 +++++++++++---
+ kernel/events/core.c             |   31 ++++++++++++++++++++++++++++---
+ 7 files changed, 130 insertions(+), 11 deletions(-)
 
-diff --git a/arch/powerpc/perf/hv-24x7.c b/arch/powerpc/perf/hv-24x7.c
-index 4d1a8d1..b86121c 100644
---- a/arch/powerpc/perf/hv-24x7.c
-+++ b/arch/powerpc/perf/hv-24x7.c
-@@ -142,6 +142,15 @@ static struct attribute_group event_long_desc_group = {
+diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
+index d90893b..b18efe4 100644
+--- a/arch/powerpc/perf/core-book3s.c
++++ b/arch/powerpc/perf/core-book3s.c
+@@ -50,6 +50,7 @@ struct cpu_hw_events {
  
- static struct kmem_cache *hv_page_cache;
+ 	unsigned int group_flag;
+ 	int n_txn_start;
++	int txn_flags;
  
-+DEFINE_PER_CPU(int, hv_24x7_txn_flags);
-+DEFINE_PER_CPU(int, hv_24x7_txn_err);
-+
-+struct hv_24x7_hw {
-+	struct perf_event *events[255];
-+};
-+
-+DEFINE_PER_CPU(struct hv_24x7_hw, hv_24x7_hw);
-+
- /*
-  * request_buffer and result_buffer are not required to be 4k aligned,
-  * but are not allowed to cross any 4k boundary. Aligning them to 4k is
-@@ -1233,9 +1242,48 @@ static void update_event_count(struct perf_event *event, u64 now)
- static void h_24x7_event_read(struct perf_event *event)
+ 	/* BHRB bits */
+ 	u64				bhrb_filter;	/* BHRB HW branch filter */
+@@ -1586,11 +1587,19 @@ static void power_pmu_stop(struct perf_event *event, int ef_flags)
+  * Start group events scheduling transaction
+  * Set the flag to make pmu::enable() not perform the
+  * schedulability test, it will be performed at commit time
++ *
++ * We only support PERF_PMU_TXN_ADD transactions. Save the
++ * transaction flags but otherwise ignore non-PERF_PMU_TXN_ADD
++ * transactions.
+  */
+-static void power_pmu_start_txn(struct pmu *pmu)
++static void power_pmu_start_txn(struct pmu *pmu, int txn_flags)
  {
- 	u64 now;
-+	struct hv_24x7_request_buffer *request_buffer;
-+	struct hv_24x7_hw *h24x7hw;
+ 	struct cpu_hw_events *cpuhw = this_cpu_ptr(&cpu_hw_events);
+ 
++	cpuhw->txn_flags = txn_flags;
++	if (txn_flags & ~PERF_PMU_TXN_ADD)
++		return;
++
+ 	perf_pmu_disable(pmu);
+ 	cpuhw->group_flag |= PERF_EVENT_TXN;
+ 	cpuhw->n_txn_start = cpuhw->n_events;
+@@ -1604,6 +1613,12 @@ static void power_pmu_start_txn(struct pmu *pmu)
+ static void power_pmu_cancel_txn(struct pmu *pmu)
+ {
+ 	struct cpu_hw_events *cpuhw = this_cpu_ptr(&cpu_hw_events);
 +	int txn_flags;
 +
-+	txn_flags = __this_cpu_read(hv_24x7_txn_flags);
-+
-+	/*
-+	 * If in a READ transaction, add this counter to the list of
-+	 * counters to read during the next HCALL (i.e commit_txn()).
-+	 * If not in a READ transaction, go ahead and make the HCALL
-+	 * to read this counter by itself.
-+	 */
-+
-+	if (txn_flags & PERF_PMU_TXN_READ) {
-+		int i;
-+		int ret;
++	txn_flags = cpuhw->txn_flags;
++	cpuhw->txn_flags = 0;
++	if (txn_flags & ~PERF_PMU_TXN_ADD)
++		return;
  
--	now = h_24x7_get_value(event);
--	update_event_count(event, now);
-+		if (__this_cpu_read(hv_24x7_txn_err))
-+			return;
+ 	cpuhw->group_flag &= ~PERF_EVENT_TXN;
+ 	perf_pmu_enable(pmu);
+@@ -1618,10 +1633,18 @@ static int power_pmu_commit_txn(struct pmu *pmu)
+ {
+ 	struct cpu_hw_events *cpuhw;
+ 	long i, n;
++	int txn_flags;
+ 
+ 	if (!ppmu)
+ 		return -EAGAIN;
 +
-+		request_buffer = (void *)get_cpu_var(hv_24x7_reqb);
+ 	cpuhw = this_cpu_ptr(&cpu_hw_events);
 +
-+		ret = add_event_to_24x7_request(event, request_buffer);
-+		if (ret) {
-+			__this_cpu_write(hv_24x7_txn_err, ret);
-+		} else {
-+			/*
-+			 * Assoicate the event with the HCALL request index,
-+			 * so ->commit_txn() can quickly find/update count.
-+			 */
-+			i = request_buffer->num_requests - 1;
++	txn_flags = cpuhw->txn_flags;
++	cpuhw->txn_flags = 0;
++	if (cpuhw->txn_flags & ~PERF_PMU_TXN_ADD)
++		return 0;
 +
-+			h24x7hw = &get_cpu_var(hv_24x7_hw);
-+			h24x7hw->events[i] = event;
-+			put_cpu_var(h24x7hw);
-+		}
+ 	n = cpuhw->n_events;
+ 	if (check_excludes(cpuhw->event, cpuhw->flags, 0, n))
+ 		return -EAGAIN;
+diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
+index 56fdad4..a6f9e7b 100644
+--- a/arch/s390/kernel/perf_cpum_cf.c
++++ b/arch/s390/kernel/perf_cpum_cf.c
+@@ -72,6 +72,7 @@ struct cpu_hw_events {
+ 	atomic_t		ctr_set[CPUMF_CTR_SET_MAX];
+ 	u64			state, tx_state;
+ 	unsigned int		flags;
++	int			txn_flags;
+ };
+ static DEFINE_PER_CPU(struct cpu_hw_events, cpu_hw_events) = {
+ 	.ctr_set = {
+@@ -82,6 +83,7 @@ static DEFINE_PER_CPU(struct cpu_hw_events, cpu_hw_events) = {
+ 	},
+ 	.state = 0,
+ 	.flags = 0,
++	.txn_flags = 0,
+ };
+ 
+ static int get_counter_set(u64 event)
+@@ -572,11 +574,19 @@ static void cpumf_pmu_del(struct perf_event *event, int flags)
+ /*
+  * Start group events scheduling transaction.
+  * Set flags to perform a single test at commit time.
++ *
++ * We only support PERF_PMU_TXN_ADD transactions. Save the
++ * transaction flags but otherwise ignore non-PERF_PMU_TXN_ADD
++ * transactions.
+  */
+-static void cpumf_pmu_start_txn(struct pmu *pmu)
++static void cpumf_pmu_start_txn(struct pmu *pmu, int txn_flags)
+ {
+ 	struct cpu_hw_events *cpuhw = this_cpu_ptr(&cpu_hw_events);
+ 
++	cpuhw->txn_flags = txn_flags;
++	if (txn_flags & ~PERF_PMU_TXN_ADD)
++		return;
 +
-+		put_cpu_var(hv_24x7_reqb);
-+	} else {
-+		now = h_24x7_get_value(event);
-+		update_event_count(event, now);
-+	}
+ 	perf_pmu_disable(pmu);
+ 	cpuhw->flags |= PERF_EVENT_TXN;
+ 	cpuhw->tx_state = cpuhw->state;
+@@ -589,8 +599,14 @@ static void cpumf_pmu_start_txn(struct pmu *pmu)
+  */
+ static void cpumf_pmu_cancel_txn(struct pmu *pmu)
+ {
++	int txn_flags;
+ 	struct cpu_hw_events *cpuhw = this_cpu_ptr(&cpu_hw_events);
+ 
++	txn_flags = cphw->txn_flags;
++	cpuhw->txn_flags = 0;
++	if (txn_flags & ~PERF_PMU_TXN_ADD)
++		return;
++
+ 	WARN_ON(cpuhw->tx_state != cpuhw->state);
+ 
+ 	cpuhw->flags &= ~PERF_EVENT_TXN;
+@@ -604,9 +620,15 @@ static void cpumf_pmu_cancel_txn(struct pmu *pmu)
+  */
+ static int cpumf_pmu_commit_txn(struct pmu *pmu)
+ {
++	int txn_flags;
+ 	struct cpu_hw_events *cpuhw = this_cpu_ptr(&cpu_hw_events);
+ 	u64 state;
+ 
++	txn_flags = cpuhw->txn_flags;
++	cpuhw->txn_flags = 0;
++	if (txn_flags & ~PERF_PMU_TXN_ADD)
++		return 0;
++
+ 	/* check if the updated state can be scheduled */
+ 	state = cpuhw->state & ~((1 << CPUMF_LCCTL_ENABLE_SHIFT) - 1);
+ 	state >>= CPUMF_LCCTL_ENABLE_SHIFT;
+diff --git a/arch/sparc/kernel/perf_event.c b/arch/sparc/kernel/perf_event.c
+index 689db65..b5fcbce 100644
+--- a/arch/sparc/kernel/perf_event.c
++++ b/arch/sparc/kernel/perf_event.c
+@@ -109,6 +109,7 @@ struct cpu_hw_events {
+ 	int			enabled;
+ 
+ 	unsigned int		group_flag;
++	int			txn_flags;
+ };
+ static DEFINE_PER_CPU(struct cpu_hw_events, cpu_hw_events) = { .enabled = 1, };
+ 
+@@ -1494,10 +1495,14 @@ static int sparc_pmu_event_init(struct perf_event *event)
+  * Set the flag to make pmu::enable() not perform the
+  * schedulability test, it will be performed at commit time
+  */
+-static void sparc_pmu_start_txn(struct pmu *pmu)
++static void sparc_pmu_start_txn(struct pmu *pmu, int txn_flags)
+ {
+ 	struct cpu_hw_events *cpuhw = this_cpu_ptr(&cpu_hw_events);
+ 
++	cpuhw->txn_flags = txn_flags;
++	if (txn_flags & ~PERF_PMU_TXN_ADD)
++		return;
++
+ 	perf_pmu_disable(pmu);
+ 	cpuhw->group_flag |= PERF_EVENT_TXN;
+ }
+@@ -1510,6 +1515,12 @@ static void sparc_pmu_start_txn(struct pmu *pmu)
+ static void sparc_pmu_cancel_txn(struct pmu *pmu)
+ {
+ 	struct cpu_hw_events *cpuhw = this_cpu_ptr(&cpu_hw_events);
++	int txn_flags;
++
++	txn_flags = cpuhw->txn_flags;
++	cpuhw->txn_flags = 0;
++	if (txn_flags & ~PERF_PMU_TXN_ADD)
++		return;
+ 
+ 	cpuhw->group_flag &= ~PERF_EVENT_TXN;
+ 	perf_pmu_enable(pmu);
+@@ -1524,11 +1535,17 @@ static int sparc_pmu_commit_txn(struct pmu *pmu)
+ {
+ 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+ 	int n;
++	int txn_flags;
+ 
+ 	if (!sparc_pmu)
+ 		return -EINVAL;
+ 
+ 	cpuc = this_cpu_ptr(&cpu_hw_events);
++	txn_flags = cpuc->txn_flags;
++	cpuc->txn_flags = 0;
++	if (txn_flags & ~PERF_PMU_TXN_ADD)
++		return 0;
++
+ 	n = cpuc->n_events;
+ 	if (check_excludes(cpuc->event, 0, n))
+ 		return -EINVAL;
+diff --git a/arch/x86/kernel/cpu/perf_event.c b/arch/x86/kernel/cpu/perf_event.c
+index 3658de4..3a7e08f 100644
+--- a/arch/x86/kernel/cpu/perf_event.c
++++ b/arch/x86/kernel/cpu/perf_event.c
+@@ -1748,9 +1748,19 @@ static inline void x86_pmu_read(struct perf_event *event)
+  * Start group events scheduling transaction
+  * Set the flag to make pmu::enable() not perform the
+  * schedulability test, it will be performed at commit time
++ *
++ * We only support PERF_PMU_TXN_ADD transactions. Save the
++ * transaction flags but otherwise ignore non-PERF_PMU_TXN_ADD
++ * transactions.
+  */
+-static void x86_pmu_start_txn(struct pmu *pmu)
++static void x86_pmu_start_txn(struct pmu *pmu, int txn_flags)
+ {
++	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
++
++	cpuc->txn_flags = txn_flags;
++	if (txn_flags & ~PERF_PMU_TXN_ADD)
++		return;
++
+ 	perf_pmu_disable(pmu);
+ 	__this_cpu_or(cpu_hw_events.group_flag, PERF_EVENT_TXN);
+ 	__this_cpu_write(cpu_hw_events.n_txn, 0);
+@@ -1763,6 +1773,14 @@ static void x86_pmu_start_txn(struct pmu *pmu)
+  */
+ static void x86_pmu_cancel_txn(struct pmu *pmu)
+ {
++	int txn_flags;
++	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
++
++	txn_flags = cpuc->txn_flags;
++	cpuc->txn_flags = 0;
++	if (txn_flags & ~PERF_PMU_TXN_ADD)
++		return;
++
+ 	__this_cpu_and(cpu_hw_events.group_flag, ~PERF_EVENT_TXN);
+ 	/*
+ 	 * Truncate collected array by the number of events added in this
+@@ -1784,7 +1802,12 @@ static int x86_pmu_commit_txn(struct pmu *pmu)
+ {
+ 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+ 	int assign[X86_PMC_IDX_MAX];
+-	int n, ret;
++	int n, ret, txn_flags;
++
++	txn_flags = cpuc->txn_flags;
++	cpuc->txn_flags = 0;
++	if (txn_flags & ~PERF_PMU_TXN_ADD)
++		return 0;
+ 
+ 	n = cpuc->n_events;
+ 
+diff --git a/arch/x86/kernel/cpu/perf_event.h b/arch/x86/kernel/cpu/perf_event.h
+index 3e7fd27..87b6bb7 100644
+--- a/arch/x86/kernel/cpu/perf_event.h
++++ b/arch/x86/kernel/cpu/perf_event.h
+@@ -197,6 +197,7 @@ struct cpu_hw_events {
+ 
+ 	unsigned int		group_flag;
+ 	int			is_fake;
++	int			txn_flags;
+ 
+ 	/*
+ 	 * Intel DebugStore bits
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index 2027809..44bf05f 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -168,6 +168,8 @@ struct perf_event;
+  */
+ #define PERF_EVENT_TXN 0x1
+ 
++#define PERF_PMU_TXN_ADD  0x1		/* txn to add/schedule event on PMU */
++
+ /**
+  * pmu::capabilities flags
+  */
+@@ -252,20 +254,26 @@ struct pmu {
+ 	 *
+ 	 * Start the transaction, after this ->add() doesn't need to
+ 	 * do schedulability tests.
++	 *
++	 * Optional.
+ 	 */
+-	void (*start_txn)		(struct pmu *pmu); /* optional */
++	void (*start_txn)		(struct pmu *pmu, int txn_flags);
+ 	/*
+ 	 * If ->start_txn() disabled the ->add() schedulability test
+ 	 * then ->commit_txn() is required to perform one. On success
+ 	 * the transaction is closed. On error the transaction is kept
+ 	 * open until ->cancel_txn() is called.
++	 *
++	 * Optional.
+ 	 */
+-	int  (*commit_txn)		(struct pmu *pmu); /* optional */
++	int  (*commit_txn)		(struct pmu *pmu);
+ 	/*
+ 	 * Will cancel the transaction, assumes ->del() is called
+ 	 * for each successful ->add() during the transaction.
++	 *
++	 * Optional.
+ 	 */
+-	void (*cancel_txn)		(struct pmu *pmu); /* optional */
++	void (*cancel_txn)		(struct pmu *pmu);
+ 
+ 	/*
+ 	 * Will return the value for perf_event_mmap_page::index for this event,
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index d3dae34..4435bf5 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -1913,7 +1913,7 @@ group_sched_in(struct perf_event *group_event,
+ 	if (group_event->state == PERF_EVENT_STATE_OFF)
+ 		return 0;
+ 
+-	pmu->start_txn(pmu);
++	pmu->start_txn(pmu, PERF_PMU_TXN_ADD);
+ 
+ 	if (event_sched_in(group_event, cpuctx, ctx)) {
+ 		pmu->cancel_txn(pmu);
+@@ -7074,24 +7074,49 @@ static void perf_pmu_nop_void(struct pmu *pmu)
+ {
  }
  
- static void h_24x7_event_start(struct perf_event *event, int flags)
-@@ -1257,6 +1305,117 @@ static int h_24x7_event_add(struct perf_event *event, int flags)
++static void perf_pmu_nop_txn(struct pmu *pmu, int flags)
++{
++}
++
+ static int perf_pmu_nop_int(struct pmu *pmu)
+ {
  	return 0;
  }
  
-+/*
-+ * 24x7 counters only support READ transactions. They are
-+ * always counting and dont need/support ADD transactions.
-+ * Cache the flags, but otherwise ignore transactions that
-+ * are not PERF_PMU_TXN_READ.
-+ */
-+static void h_24x7_event_start_txn(struct pmu *pmu, int flags)
-+{
-+	struct hv_24x7_request_buffer *request_buffer;
-+	struct hv_24x7_data_result_buffer *result_buffer;
+-static void perf_pmu_start_txn(struct pmu *pmu)
++DEFINE_PER_CPU(int, nop_txn_flags);
 +
-+	/* We should not be called if we are already in a txn */
-+	WARN_ON_ONCE(__this_cpu_read(hv_24x7_txn_flags));
++static void perf_pmu_start_txn(struct pmu *pmu, int flags)
+ {
++	__this_cpu_write(nop_txn_flags, flags);
 +
-+	__this_cpu_write(hv_24x7_txn_flags, flags);
-+	if (flags & ~PERF_PMU_TXN_READ)
++	if (flags & ~PERF_PMU_TXN_ADD)
 +		return;
 +
-+	request_buffer = (void *)get_cpu_var(hv_24x7_reqb);
-+	result_buffer = (void *)get_cpu_var(hv_24x7_resb);
-+
-+	init_24x7_request(request_buffer, result_buffer);
-+
-+	put_cpu_var(hv_24x7_resb);
-+	put_cpu_var(hv_24x7_reqb);
-+}
-+
-+/*
-+ * Clean up transaction state.
-+ *
-+ * NOTE: Ignore state of request and result buffers for now.
-+ * 	 We will initialize them during the next read/txn.
-+ */
-+static void reset_txn(void)
-+{
-+	__this_cpu_write(hv_24x7_txn_flags, 0);
-+	__this_cpu_write(hv_24x7_txn_err, 0);
-+}
-+
-+/*
-+ * 24x7 counters only support READ transactions. They are always counting
-+ * and dont need/support ADD transactions. Clear ->txn_flags but otherwise
-+ * ignore transactions that are not of type PERF_PMU_TXN_READ.
-+ *
-+ * For READ transactions, submit all pending 24x7 requests (i.e requests
-+ * that were queued by h_24x7_event_read()), to the hypervisor and update
-+ * the event counts.
-+ */
-+static int h_24x7_event_commit_txn(struct pmu *pmu)
-+{
-+	struct hv_24x7_request_buffer *request_buffer;
-+	struct hv_24x7_data_result_buffer *result_buffer;
-+	struct hv_24x7_result *resb;
-+	struct perf_event *event;
-+	u64 count;
-+	int i, ret, txn_flags;
-+	struct hv_24x7_hw *h24x7hw;
-+
-+	txn_flags = __this_cpu_read(hv_24x7_txn_flags);
-+	WARN_ON_ONCE(!txn_flags);
-+
-+	ret = 0;
-+	if (txn_flags & ~PERF_PMU_TXN_READ)
-+		goto out;
-+
-+	ret = __this_cpu_read(hv_24x7_txn_err);
-+	if (ret)
-+		goto out;
-+
-+	request_buffer = (void *)get_cpu_var(hv_24x7_reqb);
-+	result_buffer = (void *)get_cpu_var(hv_24x7_resb);
-+
-+	ret = make_24x7_request(request_buffer, result_buffer);
-+	if (ret) {
-+		log_24x7_hcall(request_buffer, result_buffer, ret);
-+		goto put_reqb;
-+	}
-+
-+	h24x7hw = &get_cpu_var(hv_24x7_hw);
-+
-+	/* Update event counts from hcall */
-+	for (i = 0; i < request_buffer->num_requests; i++) {
-+		resb = &result_buffer->results[i];
-+		count = be64_to_cpu(resb->elements[0].element_data[0]);
-+		event = h24x7hw->events[i];
-+		h24x7hw->events[i] = NULL;
-+		update_event_count(event, count);
-+	}
-+
-+	put_cpu_var(hv_24x7_hw);
-+
-+put_reqb:
-+	put_cpu_var(hv_24x7_resb);
-+	put_cpu_var(hv_24x7_reqb);
-+out:
-+	reset_txn();
-+	return ret;
-+}
-+
-+/*
-+ * 24x7 counters only support READ transactions. They are always counting
-+ * and dont need/support ADD transactions. However, regardless of type
-+ * of transaction, all we need to do is cleanup, so we don't have to check
-+ * the type of transaction.
-+ */
-+static void h_24x7_event_cancel_txn(struct pmu *pmu)
-+{
-+	WARN_ON_ONCE(!__this_cpu_read(hv_24x7_txn_flags));
-+	reset_txn();
-+}
-+
- static struct pmu h_24x7_pmu = {
- 	.task_ctx_nr = perf_invalid_context,
+ 	perf_pmu_disable(pmu);
+ }
  
-@@ -1268,6 +1427,9 @@ static struct pmu h_24x7_pmu = {
- 	.start       = h_24x7_event_start,
- 	.stop        = h_24x7_event_stop,
- 	.read        = h_24x7_event_read,
-+	.start_txn   = h_24x7_event_start_txn,
-+	.commit_txn  = h_24x7_event_commit_txn,
-+	.cancel_txn  = h_24x7_event_cancel_txn,
- };
+ static int perf_pmu_commit_txn(struct pmu *pmu)
+ {
++	int flags = __this_cpu_read(nop_txn_flags);
++
++	__this_cpu_write(nop_txn_flags, 0);
++
++	if (flags & ~PERF_PMU_TXN_ADD)
++		return 0;
++
+ 	perf_pmu_enable(pmu);
+ 	return 0;
+ }
  
- static int hv_24x7_init(void)
+ static void perf_pmu_cancel_txn(struct pmu *pmu)
+ {
++	int flags =  __this_cpu_read(nop_txn_flags);
++
++	__this_cpu_write(nop_txn_flags, 0);
++
++	if (flags & ~PERF_PMU_TXN_ADD)
++		return;
++
+ 	perf_pmu_enable(pmu);
+ }
+ 
+@@ -7330,7 +7355,7 @@ got_cpu_context:
+ 			pmu->commit_txn = perf_pmu_commit_txn;
+ 			pmu->cancel_txn = perf_pmu_cancel_txn;
+ 		} else {
+-			pmu->start_txn  = perf_pmu_nop_void;
++			pmu->start_txn  = perf_pmu_nop_txn;
+ 			pmu->commit_txn = perf_pmu_nop_int;
+ 			pmu->cancel_txn = perf_pmu_nop_void;
+ 		}
 -- 
 1.7.9.5
