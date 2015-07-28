@@ -1,7 +1,7 @@
 From: Andy Lutomirski <luto@amacapital.net>
 Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
-Date: Tue, 28 Jul 2015 14:16:51 -0700
-Message-ID: <CALCETrWZM=1y_nwBW2RcMNqKcPPGa0uqqGS_fKijfJzYJL4L-Q@mail.gmail.com>
+Date: Tue, 28 Jul 2015 15:43:03 -0700
+Message-ID: <CALCETrW+YynS13qgXnUR-Vw9uyve9Js3RQb2RV9NBHxwyft5=w@mail.gmail.com>
 References: <CALCETrU2o27udqjvREDFyoNtKtaKvuHTyYRaK+Qt_1Q3tPWYDQ@mail.gmail.com>
 	<55B73A49.9050206@redhat.com>
 	<1438078345.7562.133.camel@kernel.crashing.org>
@@ -16,11 +16,12 @@ References: <CALCETrU2o27udqjvREDFyoNtKtaKvuHTyYRaK+Qt_1Q3tPWYDQ@mail.gmail.com>
 	<55B7D2A9.6040700@siemens.com>
 	<CALCETrVeT-M+qMxXwDUB50xnFW1B6yu+ofiX-ydvtjaGgRLUNA@mail.gmail.com>
 	<55B7D8F5.1000902@siemens.com>
+	<CALCETrWZM=1y_nwBW2RcMNqKcPPGa0uqqGS_fKijfJzYJL4L-Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <55B7D8F5.1000902@siemens.com>
+In-Reply-To: <CALCETrWZM=1y_nwBW2RcMNqKcPPGa0uqqGS_fKijfJzYJL4L-Q@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -36,112 +37,55 @@ To: Jan Kiszka <jan.kiszka@siemens.com>
 Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, xen-devel <Xen-devel@lists.xen.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jul 28, 2015 at 12:33 PM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
-> On 2015-07-28 21:24, Andy Lutomirski wrote:
->> On Tue, Jul 28, 2015 at 12:06 PM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
->>> On 2015-07-28 20:22, Andy Lutomirski wrote:
->>>> On Tue, Jul 28, 2015 at 10:17 AM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
->>>>> On 2015-07-28 19:10, Andy Lutomirski wrote:
->>>>>> The trouble is that this is really a property of the bus and not of
->>>>>> the device.  If you build a virtio device that physically plugs into a
->>>>>> PCIe slot, the device has no concept of an IOMMU in the first place.
->>>>>
->>>>> If one would build a real virtio device today, it would be broken
->>>>> because every IOMMU would start to translate its requests. Already from
->>>>> that POV, we really need to introduce a feature flag "I will be
->>>>> IOMMU-translated" so that a potential physical implementation can carry
->>>>> it unconditionally.
->>>>>
->>>>
->>>> Except that, with my patches, it would work correctly.  ISTM the thing
->>>
->>> I haven't looked at your patches yet - they make the virtio PCI driver
->>> in Linux IOMMU-compatible? Perfect - except for a compatibility check,
->>> right?
->>
->> Yes.  (virtio_pci_legacy, anyway.  Presumably virtio_pci_modern is
->> easy to adapt, too.)
->>
->>>
->>>> that's broken right now is QEMU and the virtio_pci driver.  My patches
->>>> fix the driver.  Last year that would have been the end of the story
->>>> except for PPC.  Now we have to deal with QEMU.
->>>>
->>>>>> Similarly, if you take an L0-provided IOMMU-supporting device and pass
->>>>>> it through to L2 using current QEMU on L1 (with Q35 emulation and
->>>>>> iommu enabled), then, from L2's perspective, the device is 1:1 no
->>>>>> matter what the device thinks.
->>>>>>
->>>>>> IOW, I think the original design was wrong and now we have to deal
->>>>>> with it.  I think the best solution would be to teach QEMU to fix its
->>>>>> ACPI tables so that 1:1 virtio devices are actually exposed as 1:1.
->>>>>
->>>>> Only the current drivers are broken. And we can easily tell them apart
->>>>> from newer ones via feature flags. Sorry, don't get the problem.
->>>>
->>>> I still don't see how feature flags solve the problem.  Suppose we
->>>> added a feature flag meaning "respects IOMMU".
->>>>
->>>> Bad case 1:  Build a malicious device that advertises
->>>> non-IOMMU-respecting virtio.  Plug it in behind an IOMMU.  Host starts
->>>> leaking physical addresses to the device (and the device doesn't work,
->>>> of course).  Maybe that's only barely a security problem, but still...
->>>
->>> I don't see right now how critical such a hypothetical case could be.
->>> But the OS / its drivers could still decide to refuse talking to such a
->>> device.
->>>
->>
->> How does OS know it's such a device as opposed to a QEMU-supplied thing?
->
-> It can restrict itself to virtio devices exposing the feature if it
-> feels uncomfortable that it might be talking to some evil piece of
-> silicon (instead of the hypervisor, which has to be trusted anyway).
->
->>
->>>>
->>>> Bad case 2: Some hypothetical well-behaved new QEMU provides a virtio
->>>> device that *does* respect the IOMMU and sets the feature flag.  They
->>>> emulate Q35 with an IOMMU.  They boot Linux 4.1.  Data corruption in
->>>> the guest.
->>>
->>> No. In that case, the feature negotiation of "virtio-with-iommu-support"
->>> would have failed for older drivers, and the device would have never
->>> been used by the guest.
->>
->> So are you suggesting that newer virtio devices always provide this
->> feature flag and, if supplied by QEMU with iommu=on, simply refuse to
->> operate of the driver doesn't support that flag?
->
-> Exactly.
->
->>
->> That could work as long as QEMU with the current (broken?) iommu=on
->> never exposes such a device.
->
-> QEMU would have to be adjusted first so that all its virtio-pci device
-> models take IOMMUs into account - if they exist or not. Only then it
-> could expose the feature and expect the guest to acknowledge it.
->
-> For compat reasons, QEMU should still be able to expose virtio devices
-> without the flag set - but then without any IOMMU emulation enabled as
-> well. That would prevent the current setup we are using today, but it's
-> trivial to update the guest kernel to a newer virtio driver which would
-> restore our scenario again.
+Let me try to summarize a proposal:
 
-Seems reasonable.
+Add a feature flag that indicates IOMMU support.
 
->>
->> If we apply something similar enough to my patches, then even old
->> hypervisors (e.g. Amazon's hardware virt systems) will support Xen
->> with virtio devices passed in just fine.
->
-> Then it seems we can make everyone happy - perfect. :)
+New kernels acknowledge that flag on any device that advertises it.
 
-Yay.
+New kernels always respect the IOMMU (except on PowerPC).  New kernels
+optionally refuse to talk to devices that don't have that feature flag
+if the device appears to be behind an IOMMU.  (This presumably
+includes any device whatsoever on an x86 platform with an IOMMU,
+including Xen's fake IOMMU.)
 
-FWIW, I have no intention to touch the QEMU code for this.  I'm
-willing to do the vring bit and the virtio-pci bit as long as it's
-well specified.
+New QEMU always respects the IOMMU, if any, except on PPC.  New QEMU
+always advertises this feature flag.  If iommu=on, QEMU's virtio
+devices refuse to work unless the driver acknowledges the flag.
+
+On PPC, new QEMU will not respect the IOMMU and will not set the flag.
+New kernels will not talk to devices that set the flag.  If someone
+wants to fix that, then they get to figure out how.
+
+This results in:
+
+New kernels work fine with old QEMU unless iommu=on.
+
+New kernels work with new devices (QEMU and physical devices that set
+the flag) under all circumstances, except on PPC where physical
+devices are and remain broken.
+
+Xen works work new QEMU and cleanly refuses to interoperate with old
+QEMU.  (This is worse than with just my patches, but it's better than
+the status quo in which the Xen guest corrupts itself and possibly
+corrupts the Xen hypervisor.)
+
+New kernels with old QEMU with iommu=on optionally refuses to interoperate.
+
+Old kernels are oblivious.  They work exactly the same as they do
+today except that they fail cleanly with new QEMU with iommu=on.  Old
+kernels continue to fail with physical virtio devices if they're
+behind an iommu.
+
+Old physical virtio devices that don't advertise the flag fail cleanly
+if the host uses an iommu.  The driver could optionally whitelist such
+devices.
+
+PPC works as well as it currently does.
+
+I'm unsure about the arm64 situation.
+
+
+Did I get this right?
 
 --Andy
