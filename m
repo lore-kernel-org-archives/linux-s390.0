@@ -1,33 +1,72 @@
-From: Alexei Starovoitov <ast@plumgrid.com>
-Subject: Re: [PATCH net-next 5/5] s390/bpf: recache skb->data/hlen for
- skb_vlan_push/pop
-Date: Tue, 28 Jul 2015 10:19:28 -0700
-Message-ID: <55B7B9A0.5060606@plumgrid.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH net-next 2/5] s390/bpf: Fix multiple macro expansions
+Date: Tue, 28 Jul 2015 20:13:41 -0700
+Message-ID: <1438139621.2529.31.camel@perches.com>
 References: <1438092600-16221-1-git-send-email-holzheu@linux.vnet.ibm.com>
- <1438092600-16221-6-git-send-email-holzheu@linux.vnet.ibm.com>
+	 <1438092600-16221-3-git-send-email-holzheu@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1438092600-16221-6-git-send-email-holzheu@linux.vnet.ibm.com>
+In-Reply-To: <1438092600-16221-3-git-send-email-holzheu@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: Michael Holzheu <holzheu@linux.vnet.ibm.com>, David Miller <davem@davemloft.net>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Cc: David Miller <davem@davemloft.net>, Alexei Starovoitov <ast@plumgrid.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 7/28/15 7:10 AM, Michael Holzheu wrote:
-> Allow eBPF programs attached to TC qdiscs call skb_vlan_push/pop
-> via helper functions. These functions may change skb->data/hlen.
-> This data is cached by s390 JIT to improve performance of ld_abs/ld_ind
-> instructions. Therefore after a change we have to reload the data.
->
-> In case of usage of skb_vlan_push/pop, in the prologue we store
-> the SKB pointer on the stack and restore it after BPF_JMP_CALL
-> to skb_vlan_push/pop.
->
-> Signed-off-by: Michael Holzheu<holzheu@linux.vnet.ibm.com>
+On Tue, 2015-07-28 at 16:09 +0200, Michael Holzheu wrote:
+> The EMIT6_DISP_LH macro passes the "disp" parameter to the _EMIT6_DISP_LH
+> macro. The _EMIT6_DISP_LH macro uses the "disp" parameter twice:
+> 
+>  unsigned int __disp_h = ((u32)disp) & 0xff000;
+>  unsigned int __disp_l = ((u32)disp) & 0x00fff;
+> 
+> The EMIT6_DISP_LH is used several times with EMIT_CONST_U64() as "disp"
+> parameter. Therefore always two constants are created per usage of
+> EMIT6_DISP_LH.
+> 
+> Fix this and add variable "__disp" to avoid multiple expansions.
+> 
+> Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
+> Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> ---
+>  arch/s390/net/bpf_jit_comp.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+> index 01ad166..de0f0bc 100644
+> --- a/arch/s390/net/bpf_jit_comp.c
+> +++ b/arch/s390/net/bpf_jit_comp.c
+> @@ -221,8 +221,9 @@ static inline void reg_set_seen(struct nbpf_jit *jit, u32 b1)
+>  
+>  #define EMIT6_DISP_LH(op1, op2, b1, b2, b3, disp)		\
+>  ({								\
+> +	int __disp = (disp);					\
+>  	_EMIT6_DISP_LH(op1 | reg(b1, b2) << 16 |		\
+> -		       reg_high(b3) << 8, op2, disp);		\
+> +		       reg_high(b3) << 8, op2, __disp);		\
+>  	REG_SET_SEEN(b1);					\
+>  	REG_SET_SEEN(b2);					\
+>  	REG_SET_SEEN(b3);					\
 
-Thanks!
-Acked-by: Alexei Starovoitov <ast@plumgrid.com>
+Perhaps it'd be better to change _EMIT6_DISP_LH
+---
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index 3a15baa..409e206 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -205,8 +205,9 @@ static inline void reg_set_seen(struct bpf_jit *jit,
+u32 b1)
+ 
+ #define _EMIT6_DISP_LH(op1, op2, disp)				\
+ ({								\
+-	unsigned int __disp_h = ((u32)disp) & 0xff000;		\
+-	unsigned int __disp_l = ((u32)disp) & 0x00fff;		\
++	u32 _disp = (u32)disp;					\
++	unsigned int __disp_h = _disp & 0xff000;		\
++	unsigned int __disp_l = _disp & 0x00fff;		\
+ 	_EMIT6(op1 | __disp_l, op2 | __disp_h >> 4);		\
+ })
+ 
