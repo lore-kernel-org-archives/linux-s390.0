@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 08/16] KVM: s390: remove "from (user|kernel)" from irq injection messages
-Date: Wed, 29 Jul 2015 11:05:58 +0200
-Message-ID: <1438160766-108179-9-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 10/16] KVM: s390: Fixup interrupt vcpu event messages and levels
+Date: Wed, 29 Jul 2015 11:06:00 +0200
+Message-ID: <1438160766-108179-11-git-send-email-borntraeger@de.ibm.com>
 References: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,193 +9,230 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+This reworks the debug logging for interrupt related logs.
+Several changes:
+- unify program int/irq
+- improve decoding (e.g. use mcic instead of parm64 for machine
+  check injection)
+- remove useless interrupt type number (the name is enough)
+- rename "interrupt:" to "deliver:" as the other side is called "inject"
+- use log level 3 for state changing and/or seldom events (like machine
+  checks, restart..)
+- use log level 4 for frequent events
+- use 0x prefix for hex numbers
+- add pfault done logging
+- move some tracing outside spinlock
 
-The "from user"/"from kernel" part of the log/trace messages is not
-always correct anymore and therefore not really helpful.
-
-Let's remove that part from the log + trace messages. For program
-interrupts, we can now move the logging/tracing part into the real
-injection function, as already done for the other injection functions.
-
-Reviewed-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Reviewed-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
 ---
- arch/s390/kvm/interrupt.c  | 33 ++++++++++++++-------------------
- arch/s390/kvm/trace-s390.h | 11 +++--------
- 2 files changed, 17 insertions(+), 27 deletions(-)
+ arch/s390/kvm/interrupt.c | 51 +++++++++++++++++++++++++----------------------
+ 1 file changed, 27 insertions(+), 24 deletions(-)
 
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 8b3a117..a5acacc 100644
+index a5acacc..6c98fb6 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -967,6 +967,10 @@ static int __inject_prog(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+@@ -311,8 +311,8 @@ static int __must_check __deliver_pfault_init(struct kvm_vcpu *vcpu)
+ 	li->irq.ext.ext_params2 = 0;
+ 	spin_unlock(&li->lock);
+ 
+-	VCPU_EVENT(vcpu, 4, "interrupt: pfault init parm:%x,parm64:%llx",
+-		   0, ext.ext_params2);
++	VCPU_EVENT(vcpu, 4, "deliver: pfault init token 0x%llx",
++		   ext.ext_params2);
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
+ 					 KVM_S390_INT_PFAULT_INIT,
+ 					 0, ext.ext_params2);
+@@ -368,7 +368,7 @@ static int __must_check __deliver_machine_check(struct kvm_vcpu *vcpu)
+ 	spin_unlock(&fi->lock);
+ 
+ 	if (deliver) {
+-		VCPU_EVENT(vcpu, 4, "interrupt: machine check mcic=%llx",
++		VCPU_EVENT(vcpu, 3, "deliver: machine check mcic 0x%llx",
+ 			   mchk.mcic);
+ 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
+ 						 KVM_S390_MCHK,
+@@ -403,7 +403,7 @@ static int __must_check __deliver_restart(struct kvm_vcpu *vcpu)
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 	int rc;
+ 
+-	VCPU_EVENT(vcpu, 4, "%s", "interrupt: cpu restart");
++	VCPU_EVENT(vcpu, 3, "%s", "deliver: cpu restart");
+ 	vcpu->stat.deliver_restart_signal++;
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_RESTART, 0, 0);
+ 
+@@ -449,7 +449,7 @@ static int __must_check __deliver_emergency_signal(struct kvm_vcpu *vcpu)
+ 		clear_bit(IRQ_PEND_EXT_EMERGENCY, &li->pending_irqs);
+ 	spin_unlock(&li->lock);
+ 
+-	VCPU_EVENT(vcpu, 4, "%s", "interrupt: sigp emerg");
++	VCPU_EVENT(vcpu, 4, "%s", "deliver: sigp emerg");
+ 	vcpu->stat.deliver_emergency_signal++;
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_EMERGENCY,
+ 					 cpu_addr, 0);
+@@ -476,7 +476,7 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
+ 	clear_bit(IRQ_PEND_EXT_EXTERNAL, &li->pending_irqs);
+ 	spin_unlock(&li->lock);
+ 
+-	VCPU_EVENT(vcpu, 4, "%s", "interrupt: sigp ext call");
++	VCPU_EVENT(vcpu, 4, "%s", "deliver: sigp ext call");
+ 	vcpu->stat.deliver_external_call++;
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
+ 					 KVM_S390_INT_EXTERNAL_CALL,
+@@ -505,7 +505,7 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+ 	memset(&li->irq.pgm, 0, sizeof(pgm_info));
+ 	spin_unlock(&li->lock);
+ 
+-	VCPU_EVENT(vcpu, 4, "interrupt: pgm check code:%x, ilc:%x",
++	VCPU_EVENT(vcpu, 3, "deliver: program irq code 0x%x, ilc:%d",
+ 		   pgm_info.code, ilc);
+ 	vcpu->stat.deliver_program_int++;
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
+@@ -621,7 +621,7 @@ static int __must_check __deliver_service(struct kvm_vcpu *vcpu)
+ 	clear_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs);
+ 	spin_unlock(&fi->lock);
+ 
+-	VCPU_EVENT(vcpu, 4, "interrupt: sclp parm:%x",
++	VCPU_EVENT(vcpu, 4, "deliver: sclp parameter 0x%x",
+ 		   ext.ext_params);
+ 	vcpu->stat.deliver_service_signal++;
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_SERVICE,
+@@ -650,9 +650,6 @@ static int __must_check __deliver_pfault_done(struct kvm_vcpu *vcpu)
+ 					struct kvm_s390_interrupt_info,
+ 					list);
+ 	if (inti) {
+-		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
+-				KVM_S390_INT_PFAULT_DONE, 0,
+-				inti->ext.ext_params2);
+ 		list_del(&inti->list);
+ 		fi->counters[FIRQ_CNTR_PFAULT] -= 1;
+ 	}
+@@ -661,6 +658,12 @@ static int __must_check __deliver_pfault_done(struct kvm_vcpu *vcpu)
+ 	spin_unlock(&fi->lock);
+ 
+ 	if (inti) {
++		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
++						 KVM_S390_INT_PFAULT_DONE, 0,
++						 inti->ext.ext_params2);
++		VCPU_EVENT(vcpu, 4, "deliver: pfault done token 0x%llx",
++			   inti->ext.ext_params2);
++
+ 		rc  = put_guest_lc(vcpu, EXT_IRQ_CP_SERVICE,
+ 				(u16 *)__LC_EXT_INT_CODE);
+ 		rc |= put_guest_lc(vcpu, PFAULT_DONE,
+@@ -690,7 +693,7 @@ static int __must_check __deliver_virtio(struct kvm_vcpu *vcpu)
+ 					list);
+ 	if (inti) {
+ 		VCPU_EVENT(vcpu, 4,
+-			   "interrupt: virtio parm:%x,parm64:%llx",
++			   "deliver: virtio parm: 0x%x,parm64: 0x%llx",
+ 			   inti->ext.ext_params, inti->ext.ext_params2);
+ 		vcpu->stat.deliver_virtio_interrupt++;
+ 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
+@@ -740,7 +743,7 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
+ 					struct kvm_s390_interrupt_info,
+ 					list);
+ 	if (inti) {
+-		VCPU_EVENT(vcpu, 4, "interrupt: I/O %llx", inti->type);
++		VCPU_EVENT(vcpu, 4, "deliver: I/O 0x%llx", inti->type);
+ 		vcpu->stat.deliver_io_int++;
+ 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
+ 				inti->type,
+@@ -863,7 +866,7 @@ int kvm_s390_handle_wait(struct kvm_vcpu *vcpu)
+ 
+ 	__set_cpu_idle(vcpu);
+ 	hrtimer_start(&vcpu->arch.ckc_timer, ktime_set (0, sltime) , HRTIMER_MODE_REL);
+-	VCPU_EVENT(vcpu, 5, "enabled wait via clock comparator: %llx ns", sltime);
++	VCPU_EVENT(vcpu, 4, "enabled wait via clock comparator: %llu ns", sltime);
+ no_timer:
+ 	srcu_read_unlock(&vcpu->kvm->srcu, vcpu->srcu_idx);
+ 	kvm_vcpu_block(vcpu);
+@@ -1008,8 +1011,8 @@ static int __inject_pfault_init(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
  {
  	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
  
-+	VCPU_EVENT(vcpu, 3, "inject: program irq code 0x%x", irq->u.pgm.code);
-+	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
-+				   irq->u.pgm.code, 0);
-+
- 	li->irq.pgm = irq->u.pgm;
- 	set_bit(IRQ_PEND_PROG, &li->pending_irqs);
- 	return 0;
-@@ -977,9 +981,6 @@ int kvm_s390_inject_program_int(struct kvm_vcpu *vcpu, u16 code)
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
- 	struct kvm_s390_irq irq;
- 
--	VCPU_EVENT(vcpu, 3, "inject: program check %d (from kernel)", code);
--	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_PROGRAM_INT, code,
--				   0, 1);
- 	spin_lock(&li->lock);
- 	irq.u.pgm.code = code;
- 	__inject_prog(vcpu, &irq);
-@@ -995,10 +996,6 @@ int kvm_s390_inject_prog_irq(struct kvm_vcpu *vcpu,
- 	struct kvm_s390_irq irq;
- 	int rc;
- 
--	VCPU_EVENT(vcpu, 3, "inject: prog irq %d (from kernel)",
--		   pgm_info->code);
--	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
--				   pgm_info->code, 0, 1);
- 	spin_lock(&li->lock);
- 	irq.u.pgm = *pgm_info;
- 	rc = __inject_prog(vcpu, &irq);
-@@ -1015,7 +1012,7 @@ static int __inject_pfault_init(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 		   irq->u.ext.ext_params, irq->u.ext.ext_params2);
+-	VCPU_EVENT(vcpu, 3, "inject: external irq params:%x, params2:%llx",
+-		   irq->u.ext.ext_params, irq->u.ext.ext_params2);
++	VCPU_EVENT(vcpu, 4, "inject: pfault init parameter block at 0x%llx",
++		   irq->u.ext.ext_params2);
  	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_PFAULT_INIT,
  				   irq->u.ext.ext_params,
--				   irq->u.ext.ext_params2, 2);
-+				   irq->u.ext.ext_params2);
+ 				   irq->u.ext.ext_params2);
+@@ -1041,7 +1044,7 @@ static int __inject_extcall(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 	struct kvm_s390_extcall_info *extcall = &li->irq.extcall;
+ 	uint16_t src_id = irq->u.extcall.code;
  
- 	li->irq.ext = irq->u.ext;
- 	set_bit(IRQ_PEND_PFAULT_INIT, &li->pending_irqs);
-@@ -1047,7 +1044,7 @@ static int __inject_extcall(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 	VCPU_EVENT(vcpu, 3, "inject: external call source-cpu:%u",
+-	VCPU_EVENT(vcpu, 3, "inject: external call source-cpu:%u",
++	VCPU_EVENT(vcpu, 4, "inject: external call source-cpu:%u",
  		   src_id);
  	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_EXTERNAL_CALL,
--				   src_id, 0, 2);
-+				   src_id, 0);
- 
- 	/* sending vcpu invalid */
- 	if (src_id >= KVM_MAX_VCPUS ||
-@@ -1069,10 +1066,10 @@ static int __inject_set_prefix(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
- 	struct kvm_s390_prefix_info *prefix = &li->irq.prefix;
- 
--	VCPU_EVENT(vcpu, 3, "inject: set prefix to %x (from user)",
-+	VCPU_EVENT(vcpu, 3, "inject: set prefix to %x",
- 		   irq->u.prefix.address);
- 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_SIGP_SET_PREFIX,
--				   irq->u.prefix.address, 0, 2);
-+				   irq->u.prefix.address, 0);
- 
- 	if (!is_vcpu_stopped(vcpu))
- 		return -EBUSY;
-@@ -1089,7 +1086,7 @@ static int __inject_sigp_stop(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 	struct kvm_s390_stop_info *stop = &li->irq.stop;
- 	int rc = 0;
- 
--	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_SIGP_STOP, 0, 0, 2);
-+	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_SIGP_STOP, 0, 0);
- 
- 	if (irq->u.stop.flags & ~KVM_S390_STOP_SUPP_FLAGS)
- 		return -EINVAL;
-@@ -1114,7 +1111,7 @@ static int __inject_sigp_restart(struct kvm_vcpu *vcpu,
+ 				   src_id, 0);
+@@ -1110,7 +1113,7 @@ static int __inject_sigp_restart(struct kvm_vcpu *vcpu,
+ {
  	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
  
- 	VCPU_EVENT(vcpu, 3, "inject: restart type %llx", irq->type);
--	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_RESTART, 0, 0, 2);
-+	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_RESTART, 0, 0);
+-	VCPU_EVENT(vcpu, 3, "inject: restart type %llx", irq->type);
++	VCPU_EVENT(vcpu, 3, "%s", "inject: restart int");
+ 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_RESTART, 0, 0);
  
  	set_bit(IRQ_PEND_RESTART, &li->pending_irqs);
- 	return 0;
-@@ -1128,7 +1125,7 @@ static int __inject_sigp_emergency(struct kvm_vcpu *vcpu,
- 	VCPU_EVENT(vcpu, 3, "inject: emergency %u\n",
+@@ -1122,7 +1125,7 @@ static int __inject_sigp_emergency(struct kvm_vcpu *vcpu,
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 
+-	VCPU_EVENT(vcpu, 3, "inject: emergency %u\n",
++	VCPU_EVENT(vcpu, 4, "inject: emergency from cpu %u",
  		   irq->u.emerg.code);
  	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_EMERGENCY,
--				   irq->u.emerg.code, 0, 2);
-+				   irq->u.emerg.code, 0);
+ 				   irq->u.emerg.code, 0);
+@@ -1138,7 +1141,7 @@ static int __inject_mchk(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 	struct kvm_s390_mchk_info *mchk = &li->irq.mchk;
  
- 	set_bit(irq->u.emerg.code, li->sigp_emerg_pending);
- 	set_bit(IRQ_PEND_EXT_EMERGENCY, &li->pending_irqs);
-@@ -1144,7 +1141,7 @@ static int __inject_mchk(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 	VCPU_EVENT(vcpu, 5, "inject: machine check parm64:%llx",
+-	VCPU_EVENT(vcpu, 5, "inject: machine check parm64:%llx",
++	VCPU_EVENT(vcpu, 3, "inject: machine check mcic 0x%llx",
  		   irq->u.mchk.mcic);
  	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_MCHK, 0,
--				   irq->u.mchk.mcic, 2);
-+				   irq->u.mchk.mcic);
+ 				   irq->u.mchk.mcic);
+@@ -1168,7 +1171,7 @@ static int __inject_ckc(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
  
- 	/*
- 	 * Because repressible machine checks can be indicated along with
-@@ -1173,7 +1170,7 @@ static int __inject_ckc(struct kvm_vcpu *vcpu)
- 
- 	VCPU_EVENT(vcpu, 3, "inject: type %x", KVM_S390_INT_CLOCK_COMP);
+-	VCPU_EVENT(vcpu, 3, "inject: type %x", KVM_S390_INT_CLOCK_COMP);
++	VCPU_EVENT(vcpu, 3, "%s", "inject: clock comparator external");
  	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_CLOCK_COMP,
--				   0, 0, 2);
-+				   0, 0);
+ 				   0, 0);
  
- 	set_bit(IRQ_PEND_EXT_CLOCK_COMP, &li->pending_irqs);
- 	atomic_set_mask(CPUSTAT_EXT_INT, li->cpuflags);
-@@ -1186,7 +1183,7 @@ static int __inject_cpu_timer(struct kvm_vcpu *vcpu)
+@@ -1181,7 +1184,7 @@ static int __inject_cpu_timer(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
  
- 	VCPU_EVENT(vcpu, 3, "inject: type %x", KVM_S390_INT_CPU_TIMER);
+-	VCPU_EVENT(vcpu, 3, "inject: type %x", KVM_S390_INT_CPU_TIMER);
++	VCPU_EVENT(vcpu, 3, "%s", "inject: cpu timer external");
  	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_CPU_TIMER,
--				   0, 0, 2);
-+				   0, 0);
+ 				   0, 0);
  
- 	set_bit(IRQ_PEND_EXT_CPU_TIMER, &li->pending_irqs);
- 	atomic_set_mask(CPUSTAT_EXT_INT, li->cpuflags);
-@@ -1534,8 +1531,6 @@ static int do_inject_vcpu(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 
- 	switch (irq->type) {
- 	case KVM_S390_PROGRAM_INT:
--		VCPU_EVENT(vcpu, 3, "inject: program check %d (from user)",
--			   irq->u.pgm.code);
- 		rc = __inject_prog(vcpu, irq);
+@@ -1431,14 +1434,14 @@ int kvm_s390_inject_vm(struct kvm *kvm,
+ 		inti->ext.ext_params2 = s390int->parm64;
  		break;
- 	case KVM_S390_SIGP_SET_PREFIX:
-diff --git a/arch/s390/kvm/trace-s390.h b/arch/s390/kvm/trace-s390.h
-index 3208d33..4f373c5 100644
---- a/arch/s390/kvm/trace-s390.h
-+++ b/arch/s390/kvm/trace-s390.h
-@@ -137,16 +137,14 @@ TRACE_EVENT(kvm_s390_inject_vm,
- 	);
- 
- TRACE_EVENT(kvm_s390_inject_vcpu,
--	    TP_PROTO(unsigned int id, __u64 type, __u32 parm, __u64 parm64, \
--		     int who),
--	    TP_ARGS(id, type, parm, parm64, who),
-+	    TP_PROTO(unsigned int id, __u64 type, __u32 parm, __u64 parm64),
-+	    TP_ARGS(id, type, parm, parm64),
- 
- 	    TP_STRUCT__entry(
- 		    __field(int, id)
- 		    __field(__u32, inttype)
- 		    __field(__u32, parm)
- 		    __field(__u64, parm64)
--		    __field(int, who)
- 		    ),
- 
- 	    TP_fast_assign(
-@@ -154,12 +152,9 @@ TRACE_EVENT(kvm_s390_inject_vcpu,
- 		    __entry->inttype = type & 0x00000000ffffffff;
- 		    __entry->parm = parm;
- 		    __entry->parm64 = parm64;
--		    __entry->who = who;
- 		    ),
- 
--	    TP_printk("inject%s (vcpu %d): type:%x (%s) parm:%x parm64:%llx",
--		      (__entry->who == 1) ? " (from kernel)" :
--		      (__entry->who == 2) ? " (from user)" : "",
-+	    TP_printk("inject (vcpu %d): type:%x (%s) parm:%x parm64:%llx",
- 		      __entry->id, __entry->inttype,
- 		      __print_symbolic(__entry->inttype, kvm_s390_int_type),
- 		      __entry->parm, __entry->parm64)
+ 	case KVM_S390_INT_SERVICE:
+-		VM_EVENT(kvm, 5, "inject: sclp parm:%x", s390int->parm);
++		VM_EVENT(kvm, 4, "inject: sclp parm:%x", s390int->parm);
+ 		inti->ext.ext_params = s390int->parm;
+ 		break;
+ 	case KVM_S390_INT_PFAULT_DONE:
+ 		inti->ext.ext_params2 = s390int->parm64;
+ 		break;
+ 	case KVM_S390_MCHK:
+-		VM_EVENT(kvm, 5, "inject: machine check parm64:%llx",
++		VM_EVENT(kvm, 3, "inject: machine check mcic 0x%llx",
+ 			 s390int->parm64);
+ 		inti->mchk.cr14 = s390int->parm; /* upper bits are not used */
+ 		inti->mchk.mcic = s390int->parm64;
 -- 
 2.3.0
