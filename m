@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 10/16] KVM: s390: Fixup interrupt vcpu event messages and levels
-Date: Wed, 29 Jul 2015 11:06:00 +0200
-Message-ID: <1438160766-108179-11-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 15/16] KVM: s390: Provide global debug log
+Date: Wed, 29 Jul 2015 11:06:05 +0200
+Message-ID: <1438160766-108179-16-git-send-email-borntraeger@de.ibm.com>
 References: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
@@ -12,227 +12,116 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This reworks the debug logging for interrupt related logs.
-Several changes:
-- unify program int/irq
-- improve decoding (e.g. use mcic instead of parm64 for machine
-  check injection)
-- remove useless interrupt type number (the name is enough)
-- rename "interrupt:" to "deliver:" as the other side is called "inject"
-- use log level 3 for state changing and/or seldom events (like machine
-  checks, restart..)
-- use log level 4 for frequent events
-- use 0x prefix for hex numbers
-- add pfault done logging
-- move some tracing outside spinlock
+In addition to the per VM debug logs, let's provide a global
+one for KVM-wide events, like new guests or fatal errors.
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Reviewed-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 51 +++++++++++++++++++++++++----------------------
- 1 file changed, 27 insertions(+), 24 deletions(-)
+ arch/s390/include/asm/kvm_host.h |  1 -
+ arch/s390/kvm/kvm-s390.c         | 20 +++++++++++++++++++-
+ arch/s390/kvm/kvm-s390.h         |  7 +++++++
+ 3 files changed, 26 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index a5acacc..6c98fb6 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -311,8 +311,8 @@ static int __must_check __deliver_pfault_init(struct kvm_vcpu *vcpu)
- 	li->irq.ext.ext_params2 = 0;
- 	spin_unlock(&li->lock);
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 764f91e..df4db81 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -633,7 +633,6 @@ extern char sie_exit;
  
--	VCPU_EVENT(vcpu, 4, "interrupt: pfault init parm:%x,parm64:%llx",
--		   0, ext.ext_params2);
-+	VCPU_EVENT(vcpu, 4, "deliver: pfault init token 0x%llx",
-+		   ext.ext_params2);
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
- 					 KVM_S390_INT_PFAULT_INIT,
- 					 0, ext.ext_params2);
-@@ -368,7 +368,7 @@ static int __must_check __deliver_machine_check(struct kvm_vcpu *vcpu)
- 	spin_unlock(&fi->lock);
+ static inline void kvm_arch_hardware_disable(void) {}
+ static inline void kvm_arch_check_processor_compat(void *rtn) {}
+-static inline void kvm_arch_exit(void) {}
+ static inline void kvm_arch_sync_events(struct kvm *kvm) {}
+ static inline void kvm_arch_vcpu_uninit(struct kvm_vcpu *vcpu) {}
+ static inline void kvm_arch_sched_in(struct kvm_vcpu *vcpu, int cpu) {}
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 4c1b5cb..7621036 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -127,6 +127,7 @@ unsigned long kvm_s390_fac_list_mask_size(void)
+ }
  
- 	if (deliver) {
--		VCPU_EVENT(vcpu, 4, "interrupt: machine check mcic=%llx",
-+		VCPU_EVENT(vcpu, 3, "deliver: machine check mcic 0x%llx",
- 			   mchk.mcic);
- 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
- 						 KVM_S390_MCHK,
-@@ -403,7 +403,7 @@ static int __must_check __deliver_restart(struct kvm_vcpu *vcpu)
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
- 	int rc;
+ static struct gmap_notifier gmap_notifier;
++debug_info_t *kvm_s390_dbf;
  
--	VCPU_EVENT(vcpu, 4, "%s", "interrupt: cpu restart");
-+	VCPU_EVENT(vcpu, 3, "%s", "deliver: cpu restart");
- 	vcpu->stat.deliver_restart_signal++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_RESTART, 0, 0);
+ /* Section: not file related */
+ int kvm_arch_hardware_enable(void)
+@@ -151,10 +152,24 @@ void kvm_arch_hardware_unsetup(void)
  
-@@ -449,7 +449,7 @@ static int __must_check __deliver_emergency_signal(struct kvm_vcpu *vcpu)
- 		clear_bit(IRQ_PEND_EXT_EMERGENCY, &li->pending_irqs);
- 	spin_unlock(&li->lock);
- 
--	VCPU_EVENT(vcpu, 4, "%s", "interrupt: sigp emerg");
-+	VCPU_EVENT(vcpu, 4, "%s", "deliver: sigp emerg");
- 	vcpu->stat.deliver_emergency_signal++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_EMERGENCY,
- 					 cpu_addr, 0);
-@@ -476,7 +476,7 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
- 	clear_bit(IRQ_PEND_EXT_EXTERNAL, &li->pending_irqs);
- 	spin_unlock(&li->lock);
- 
--	VCPU_EVENT(vcpu, 4, "%s", "interrupt: sigp ext call");
-+	VCPU_EVENT(vcpu, 4, "%s", "deliver: sigp ext call");
- 	vcpu->stat.deliver_external_call++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
- 					 KVM_S390_INT_EXTERNAL_CALL,
-@@ -505,7 +505,7 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
- 	memset(&li->irq.pgm, 0, sizeof(pgm_info));
- 	spin_unlock(&li->lock);
- 
--	VCPU_EVENT(vcpu, 4, "interrupt: pgm check code:%x, ilc:%x",
-+	VCPU_EVENT(vcpu, 3, "deliver: program irq code 0x%x, ilc:%d",
- 		   pgm_info.code, ilc);
- 	vcpu->stat.deliver_program_int++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
-@@ -621,7 +621,7 @@ static int __must_check __deliver_service(struct kvm_vcpu *vcpu)
- 	clear_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs);
- 	spin_unlock(&fi->lock);
- 
--	VCPU_EVENT(vcpu, 4, "interrupt: sclp parm:%x",
-+	VCPU_EVENT(vcpu, 4, "deliver: sclp parameter 0x%x",
- 		   ext.ext_params);
- 	vcpu->stat.deliver_service_signal++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_SERVICE,
-@@ -650,9 +650,6 @@ static int __must_check __deliver_pfault_done(struct kvm_vcpu *vcpu)
- 					struct kvm_s390_interrupt_info,
- 					list);
- 	if (inti) {
--		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
--				KVM_S390_INT_PFAULT_DONE, 0,
--				inti->ext.ext_params2);
- 		list_del(&inti->list);
- 		fi->counters[FIRQ_CNTR_PFAULT] -= 1;
- 	}
-@@ -661,6 +658,12 @@ static int __must_check __deliver_pfault_done(struct kvm_vcpu *vcpu)
- 	spin_unlock(&fi->lock);
- 
- 	if (inti) {
-+		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
-+						 KVM_S390_INT_PFAULT_DONE, 0,
-+						 inti->ext.ext_params2);
-+		VCPU_EVENT(vcpu, 4, "deliver: pfault done token 0x%llx",
-+			   inti->ext.ext_params2);
+ int kvm_arch_init(void *opaque)
+ {
++	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
++	if (!kvm_s390_dbf)
++		return -ENOMEM;
 +
- 		rc  = put_guest_lc(vcpu, EXT_IRQ_CP_SERVICE,
- 				(u16 *)__LC_EXT_INT_CODE);
- 		rc |= put_guest_lc(vcpu, PFAULT_DONE,
-@@ -690,7 +693,7 @@ static int __must_check __deliver_virtio(struct kvm_vcpu *vcpu)
- 					list);
- 	if (inti) {
- 		VCPU_EVENT(vcpu, 4,
--			   "interrupt: virtio parm:%x,parm64:%llx",
-+			   "deliver: virtio parm: 0x%x,parm64: 0x%llx",
- 			   inti->ext.ext_params, inti->ext.ext_params2);
- 		vcpu->stat.deliver_virtio_interrupt++;
- 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
-@@ -740,7 +743,7 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
- 					struct kvm_s390_interrupt_info,
- 					list);
- 	if (inti) {
--		VCPU_EVENT(vcpu, 4, "interrupt: I/O %llx", inti->type);
-+		VCPU_EVENT(vcpu, 4, "deliver: I/O 0x%llx", inti->type);
- 		vcpu->stat.deliver_io_int++;
- 		trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
- 				inti->type,
-@@ -863,7 +866,7 @@ int kvm_s390_handle_wait(struct kvm_vcpu *vcpu)
++	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
++		debug_unregister(kvm_s390_dbf);
++		return -ENOMEM;
++	}
++
+ 	/* Register floating interrupt controller interface. */
+ 	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
+ }
  
- 	__set_cpu_idle(vcpu);
- 	hrtimer_start(&vcpu->arch.ckc_timer, ktime_set (0, sltime) , HRTIMER_MODE_REL);
--	VCPU_EVENT(vcpu, 5, "enabled wait via clock comparator: %llx ns", sltime);
-+	VCPU_EVENT(vcpu, 4, "enabled wait via clock comparator: %llu ns", sltime);
- no_timer:
- 	srcu_read_unlock(&vcpu->kvm->srcu, vcpu->srcu_idx);
- 	kvm_vcpu_block(vcpu);
-@@ -1008,8 +1011,8 @@ static int __inject_pfault_init(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
++void kvm_arch_exit(void)
++{
++	debug_unregister(kvm_s390_dbf);
++}
++
+ /* Section: device related */
+ long kvm_arch_dev_ioctl(struct file *filp,
+ 			unsigned int ioctl, unsigned long arg)
+@@ -1100,7 +1115,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 	mutex_init(&kvm->arch.ipte_mutex);
  
--	VCPU_EVENT(vcpu, 3, "inject: external irq params:%x, params2:%llx",
--		   irq->u.ext.ext_params, irq->u.ext.ext_params2);
-+	VCPU_EVENT(vcpu, 4, "inject: pfault init parameter block at 0x%llx",
-+		   irq->u.ext.ext_params2);
- 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_PFAULT_INIT,
- 				   irq->u.ext.ext_params,
- 				   irq->u.ext.ext_params2);
-@@ -1041,7 +1044,7 @@ static int __inject_extcall(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 	struct kvm_s390_extcall_info *extcall = &li->irq.extcall;
- 	uint16_t src_id = irq->u.extcall.code;
+ 	debug_register_view(kvm->arch.dbf, &debug_sprintf_view);
+-	VM_EVENT(kvm, 3, "%s", "vm created");
++	VM_EVENT(kvm, 3, "vm created with type %lu", type);
  
--	VCPU_EVENT(vcpu, 3, "inject: external call source-cpu:%u",
-+	VCPU_EVENT(vcpu, 4, "inject: external call source-cpu:%u",
- 		   src_id);
- 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_EXTERNAL_CALL,
- 				   src_id, 0);
-@@ -1110,7 +1113,7 @@ static int __inject_sigp_restart(struct kvm_vcpu *vcpu,
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 	if (type & KVM_VM_S390_UCONTROL) {
+ 		kvm->arch.gmap = NULL;
+@@ -1117,6 +1132,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 	kvm->arch.epoch = 0;
  
--	VCPU_EVENT(vcpu, 3, "inject: restart type %llx", irq->type);
-+	VCPU_EVENT(vcpu, 3, "%s", "inject: restart int");
- 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_RESTART, 0, 0);
+ 	spin_lock_init(&kvm->arch.start_stop_lock);
++	KVM_EVENT(3, "vm 0x%p created by pid %u", kvm, current->pid);
  
- 	set_bit(IRQ_PEND_RESTART, &li->pending_irqs);
-@@ -1122,7 +1125,7 @@ static int __inject_sigp_emergency(struct kvm_vcpu *vcpu,
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 	return 0;
+ out_err:
+@@ -1124,6 +1140,7 @@ out_err:
+ 	free_page((unsigned long)kvm->arch.model.fac);
+ 	debug_unregister(kvm->arch.dbf);
+ 	free_page((unsigned long)(kvm->arch.sca));
++	KVM_EVENT(3, "creation of vm failed: %d", rc);
+ 	return rc;
+ }
  
--	VCPU_EVENT(vcpu, 3, "inject: emergency %u\n",
-+	VCPU_EVENT(vcpu, 4, "inject: emergency from cpu %u",
- 		   irq->u.emerg.code);
- 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_EMERGENCY,
- 				   irq->u.emerg.code, 0);
-@@ -1138,7 +1141,7 @@ static int __inject_mchk(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
- 	struct kvm_s390_mchk_info *mchk = &li->irq.mchk;
+@@ -1180,6 +1197,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+ 		gmap_free(kvm->arch.gmap);
+ 	kvm_s390_destroy_adapters(kvm);
+ 	kvm_s390_clear_float_irqs(kvm);
++	KVM_EVENT(3, "vm 0x%p destroyed", kvm);
+ }
  
--	VCPU_EVENT(vcpu, 5, "inject: machine check parm64:%llx",
-+	VCPU_EVENT(vcpu, 3, "inject: machine check mcic 0x%llx",
- 		   irq->u.mchk.mcic);
- 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_MCHK, 0,
- 				   irq->u.mchk.mcic);
-@@ -1168,7 +1171,7 @@ static int __inject_ckc(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ /* Section: vcpu related */
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 0ee5db1..c446aab 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -27,6 +27,13 @@ typedef int (*intercept_handler_t)(struct kvm_vcpu *vcpu);
+ #define TDB_FORMAT1		1
+ #define IS_ITDB_VALID(vcpu)	((*(char *)vcpu->arch.sie_block->itdba == TDB_FORMAT1))
  
--	VCPU_EVENT(vcpu, 3, "inject: type %x", KVM_S390_INT_CLOCK_COMP);
-+	VCPU_EVENT(vcpu, 3, "%s", "inject: clock comparator external");
- 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_CLOCK_COMP,
- 				   0, 0);
- 
-@@ -1181,7 +1184,7 @@ static int __inject_cpu_timer(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
- 
--	VCPU_EVENT(vcpu, 3, "inject: type %x", KVM_S390_INT_CPU_TIMER);
-+	VCPU_EVENT(vcpu, 3, "%s", "inject: cpu timer external");
- 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_CPU_TIMER,
- 				   0, 0);
- 
-@@ -1431,14 +1434,14 @@ int kvm_s390_inject_vm(struct kvm *kvm,
- 		inti->ext.ext_params2 = s390int->parm64;
- 		break;
- 	case KVM_S390_INT_SERVICE:
--		VM_EVENT(kvm, 5, "inject: sclp parm:%x", s390int->parm);
-+		VM_EVENT(kvm, 4, "inject: sclp parm:%x", s390int->parm);
- 		inti->ext.ext_params = s390int->parm;
- 		break;
- 	case KVM_S390_INT_PFAULT_DONE:
- 		inti->ext.ext_params2 = s390int->parm64;
- 		break;
- 	case KVM_S390_MCHK:
--		VM_EVENT(kvm, 5, "inject: machine check parm64:%llx",
-+		VM_EVENT(kvm, 3, "inject: machine check mcic 0x%llx",
- 			 s390int->parm64);
- 		inti->mchk.cr14 = s390int->parm; /* upper bits are not used */
- 		inti->mchk.mcic = s390int->parm64;
++extern debug_info_t *kvm_s390_dbf;
++#define KVM_EVENT(d_loglevel, d_string, d_args...)\
++do { \
++	debug_sprintf_event(kvm_s390_dbf, d_loglevel, d_string "\n", \
++	  d_args); \
++} while (0)
++
+ #define VM_EVENT(d_kvm, d_loglevel, d_string, d_args...)\
+ do { \
+ 	debug_sprintf_event(d_kvm->arch.dbf, d_loglevel, d_string "\n", \
 -- 
 2.3.0
