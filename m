@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 12/16] KVM: s390: remove outdated documentation
-Date: Wed, 29 Jul 2015 11:06:02 +0200
-Message-ID: <1438160766-108179-13-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 08/16] KVM: s390: remove "from (user|kernel)" from irq injection messages
+Date: Wed, 29 Jul 2015 11:05:58 +0200
+Message-ID: <1438160766-108179-9-git-send-email-borntraeger@de.ibm.com>
 References: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,164 +9,193 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The old Documentation/s390/kvm.txt file is either
-outdated or described in Documentation/virtual/kvm/api.txt.
-Let's get rid of it.
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
+The "from user"/"from kernel" part of the log/trace messages is not
+always correct anymore and therefore not really helpful.
+
+Let's remove that part from the log + trace messages. For program
+interrupts, we can now move the logging/tracing part into the real
+injection function, as already done for the other injection functions.
+
+Reviewed-by: Jens Freimann <jfrei@linux.vnet.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 ---
- Documentation/s390/00-INDEX |   2 -
- Documentation/s390/kvm.txt  | 125 --------------------------------------------
- 2 files changed, 127 deletions(-)
- delete mode 100644 Documentation/s390/kvm.txt
+ arch/s390/kvm/interrupt.c  | 33 ++++++++++++++-------------------
+ arch/s390/kvm/trace-s390.h | 11 +++--------
+ 2 files changed, 17 insertions(+), 27 deletions(-)
 
-diff --git a/Documentation/s390/00-INDEX b/Documentation/s390/00-INDEX
-index 10c874e..9189535 100644
---- a/Documentation/s390/00-INDEX
-+++ b/Documentation/s390/00-INDEX
-@@ -16,8 +16,6 @@ Debugging390.txt
- 	- hints for debugging on s390 systems.
- driver-model.txt
- 	- information on s390 devices and the driver model.
--kvm.txt
--	- ioctl calls to /dev/kvm on s390.
- monreader.txt
- 	- information on accessing the z/VM monitor stream from Linux.
- qeth.txt
-diff --git a/Documentation/s390/kvm.txt b/Documentation/s390/kvm.txt
-deleted file mode 100644
-index 85f3280..0000000
---- a/Documentation/s390/kvm.txt
-+++ /dev/null
-@@ -1,125 +0,0 @@
--*** BIG FAT WARNING ***
--The kvm module is currently in EXPERIMENTAL state for s390. This means that
--the interface to the module is not yet considered to remain stable. Thus, be
--prepared that we keep breaking your userspace application and guest
--compatibility over and over again until we feel happy with the result. Make sure
--your guest kernel, your host kernel, and your userspace launcher are in a
--consistent state.
--
--This Documentation describes the unique ioctl calls to /dev/kvm, the resulting
--kvm-vm file descriptors, and the kvm-vcpu file descriptors that differ from x86.
--
--1. ioctl calls to /dev/kvm
--KVM does support the following ioctls on s390 that are common with other
--architectures and do behave the same:
--KVM_GET_API_VERSION
--KVM_CREATE_VM		(*) see note
--KVM_CHECK_EXTENSION
--KVM_GET_VCPU_MMAP_SIZE
--
--Notes:
--* KVM_CREATE_VM may fail on s390, if the calling process has multiple
--threads and has not called KVM_S390_ENABLE_SIE before.
--
--In addition, on s390 the following architecture specific ioctls are supported:
--ioctl:		KVM_S390_ENABLE_SIE
--args:		none
--see also:	include/linux/kvm.h
--This call causes the kernel to switch on PGSTE in the user page table. This
--operation is needed in order to run a virtual machine, and it requires the
--calling process to be single-threaded. Note that the first call to KVM_CREATE_VM
--will implicitly try to switch on PGSTE if the user process has not called
--KVM_S390_ENABLE_SIE before. User processes that want to launch multiple threads
--before creating a virtual machine have to call KVM_S390_ENABLE_SIE, or will
--observe an error calling KVM_CREATE_VM. Switching on PGSTE is a one-time
--operation, is not reversible, and will persist over the entire lifetime of
--the calling process. It does not have any user-visible effect other than a small
--performance penalty.
--
--2. ioctl calls to the kvm-vm file descriptor
--KVM does support the following ioctls on s390 that are common with other
--architectures and do behave the same:
--KVM_CREATE_VCPU
--KVM_SET_USER_MEMORY_REGION      (*) see note
--KVM_GET_DIRTY_LOG		(**) see note
--
--Notes:
--*  kvm does only allow exactly one memory slot on s390, which has to start
--   at guest absolute address zero and at a user address that is aligned on any
--   page boundary. This hardware "limitation" allows us to have a few unique
--   optimizations. The memory slot doesn't have to be filled
--   with memory actually, it may contain sparse holes. That said, with different
--   user memory layout this does still allow a large flexibility when
--   doing the guest memory setup.
--** KVM_GET_DIRTY_LOG doesn't work properly yet. The user will receive an empty
--log. This ioctl call is only needed for guest migration, and we intend to
--implement this one in the future.
--
--In addition, on s390 the following architecture specific ioctls for the kvm-vm
--file descriptor are supported:
--ioctl:		KVM_S390_INTERRUPT
--args:		struct kvm_s390_interrupt *
--see also:	include/linux/kvm.h
--This ioctl is used to submit a floating interrupt for a virtual machine.
--Floating interrupts may be delivered to any virtual cpu in the configuration.
--Only some interrupt types defined in include/linux/kvm.h make sense when
--submitted as floating interrupts. The following interrupts are not considered
--to be useful as floating interrupts, and a call to inject them will result in
---EINVAL error code: program interrupts and interprocessor signals. Valid
--floating interrupts are:
--KVM_S390_INT_VIRTIO
--KVM_S390_INT_SERVICE
--
--3. ioctl calls to the kvm-vcpu file descriptor
--KVM does support the following ioctls on s390 that are common with other
--architectures and do behave the same:
--KVM_RUN
--KVM_GET_REGS
--KVM_SET_REGS
--KVM_GET_SREGS
--KVM_SET_SREGS
--KVM_GET_FPU
--KVM_SET_FPU
--
--In addition, on s390 the following architecture specific ioctls for the
--kvm-vcpu file descriptor are supported:
--ioctl:		KVM_S390_INTERRUPT
--args:		struct kvm_s390_interrupt *
--see also:	include/linux/kvm.h
--This ioctl is used to submit an interrupt for a specific virtual cpu.
--Only some interrupt types defined in include/linux/kvm.h make sense when
--submitted for a specific cpu. The following interrupts are not considered
--to be useful, and a call to inject them will result in -EINVAL error code:
--service processor calls and virtio interrupts. Valid interrupt types are:
--KVM_S390_PROGRAM_INT
--KVM_S390_SIGP_STOP
--KVM_S390_RESTART
--KVM_S390_SIGP_SET_PREFIX
--KVM_S390_INT_EMERGENCY
--
--ioctl:		KVM_S390_STORE_STATUS
--args:		unsigned long
--see also:	include/linux/kvm.h
--This ioctl stores the state of the cpu at the guest real address given as
--argument, unless one of the following values defined in include/linux/kvm.h
--is given as argument:
--KVM_S390_STORE_STATUS_NOADDR - the CPU stores its status to the save area in
--absolute lowcore as defined by the principles of operation
--KVM_S390_STORE_STATUS_PREFIXED - the CPU stores its status to the save area in
--its prefix page just like the dump tool that comes with zipl. This is useful
--to create a system dump for use with lkcdutils or crash.
--
--ioctl:		KVM_S390_SET_INITIAL_PSW
--args:		struct kvm_s390_psw *
--see also:	include/linux/kvm.h
--This ioctl can be used to set the processor status word (psw) of a stopped cpu
--prior to running it with KVM_RUN. Note that this call is not required to modify
--the psw during sie intercepts that fall back to userspace because struct kvm_run
--does contain the psw, and this value is evaluated during reentry of KVM_RUN
--after the intercept exit was recognized.
--
--ioctl:		KVM_S390_INITIAL_RESET
--args:		none
--see also:	include/linux/kvm.h
--This ioctl can be used to perform an initial cpu reset as defined by the
--principles of operation. The target cpu has to be in stopped state.
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 8b3a117..a5acacc 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -967,6 +967,10 @@ static int __inject_prog(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 
++	VCPU_EVENT(vcpu, 3, "inject: program irq code 0x%x", irq->u.pgm.code);
++	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
++				   irq->u.pgm.code, 0);
++
+ 	li->irq.pgm = irq->u.pgm;
+ 	set_bit(IRQ_PEND_PROG, &li->pending_irqs);
+ 	return 0;
+@@ -977,9 +981,6 @@ int kvm_s390_inject_program_int(struct kvm_vcpu *vcpu, u16 code)
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 	struct kvm_s390_irq irq;
+ 
+-	VCPU_EVENT(vcpu, 3, "inject: program check %d (from kernel)", code);
+-	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_PROGRAM_INT, code,
+-				   0, 1);
+ 	spin_lock(&li->lock);
+ 	irq.u.pgm.code = code;
+ 	__inject_prog(vcpu, &irq);
+@@ -995,10 +996,6 @@ int kvm_s390_inject_prog_irq(struct kvm_vcpu *vcpu,
+ 	struct kvm_s390_irq irq;
+ 	int rc;
+ 
+-	VCPU_EVENT(vcpu, 3, "inject: prog irq %d (from kernel)",
+-		   pgm_info->code);
+-	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
+-				   pgm_info->code, 0, 1);
+ 	spin_lock(&li->lock);
+ 	irq.u.pgm = *pgm_info;
+ 	rc = __inject_prog(vcpu, &irq);
+@@ -1015,7 +1012,7 @@ static int __inject_pfault_init(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 		   irq->u.ext.ext_params, irq->u.ext.ext_params2);
+ 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_PFAULT_INIT,
+ 				   irq->u.ext.ext_params,
+-				   irq->u.ext.ext_params2, 2);
++				   irq->u.ext.ext_params2);
+ 
+ 	li->irq.ext = irq->u.ext;
+ 	set_bit(IRQ_PEND_PFAULT_INIT, &li->pending_irqs);
+@@ -1047,7 +1044,7 @@ static int __inject_extcall(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 	VCPU_EVENT(vcpu, 3, "inject: external call source-cpu:%u",
+ 		   src_id);
+ 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_EXTERNAL_CALL,
+-				   src_id, 0, 2);
++				   src_id, 0);
+ 
+ 	/* sending vcpu invalid */
+ 	if (src_id >= KVM_MAX_VCPUS ||
+@@ -1069,10 +1066,10 @@ static int __inject_set_prefix(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 	struct kvm_s390_prefix_info *prefix = &li->irq.prefix;
+ 
+-	VCPU_EVENT(vcpu, 3, "inject: set prefix to %x (from user)",
++	VCPU_EVENT(vcpu, 3, "inject: set prefix to %x",
+ 		   irq->u.prefix.address);
+ 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_SIGP_SET_PREFIX,
+-				   irq->u.prefix.address, 0, 2);
++				   irq->u.prefix.address, 0);
+ 
+ 	if (!is_vcpu_stopped(vcpu))
+ 		return -EBUSY;
+@@ -1089,7 +1086,7 @@ static int __inject_sigp_stop(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 	struct kvm_s390_stop_info *stop = &li->irq.stop;
+ 	int rc = 0;
+ 
+-	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_SIGP_STOP, 0, 0, 2);
++	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_SIGP_STOP, 0, 0);
+ 
+ 	if (irq->u.stop.flags & ~KVM_S390_STOP_SUPP_FLAGS)
+ 		return -EINVAL;
+@@ -1114,7 +1111,7 @@ static int __inject_sigp_restart(struct kvm_vcpu *vcpu,
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 
+ 	VCPU_EVENT(vcpu, 3, "inject: restart type %llx", irq->type);
+-	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_RESTART, 0, 0, 2);
++	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_RESTART, 0, 0);
+ 
+ 	set_bit(IRQ_PEND_RESTART, &li->pending_irqs);
+ 	return 0;
+@@ -1128,7 +1125,7 @@ static int __inject_sigp_emergency(struct kvm_vcpu *vcpu,
+ 	VCPU_EVENT(vcpu, 3, "inject: emergency %u\n",
+ 		   irq->u.emerg.code);
+ 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_EMERGENCY,
+-				   irq->u.emerg.code, 0, 2);
++				   irq->u.emerg.code, 0);
+ 
+ 	set_bit(irq->u.emerg.code, li->sigp_emerg_pending);
+ 	set_bit(IRQ_PEND_EXT_EMERGENCY, &li->pending_irqs);
+@@ -1144,7 +1141,7 @@ static int __inject_mchk(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 	VCPU_EVENT(vcpu, 5, "inject: machine check parm64:%llx",
+ 		   irq->u.mchk.mcic);
+ 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_MCHK, 0,
+-				   irq->u.mchk.mcic, 2);
++				   irq->u.mchk.mcic);
+ 
+ 	/*
+ 	 * Because repressible machine checks can be indicated along with
+@@ -1173,7 +1170,7 @@ static int __inject_ckc(struct kvm_vcpu *vcpu)
+ 
+ 	VCPU_EVENT(vcpu, 3, "inject: type %x", KVM_S390_INT_CLOCK_COMP);
+ 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_CLOCK_COMP,
+-				   0, 0, 2);
++				   0, 0);
+ 
+ 	set_bit(IRQ_PEND_EXT_CLOCK_COMP, &li->pending_irqs);
+ 	atomic_set_mask(CPUSTAT_EXT_INT, li->cpuflags);
+@@ -1186,7 +1183,7 @@ static int __inject_cpu_timer(struct kvm_vcpu *vcpu)
+ 
+ 	VCPU_EVENT(vcpu, 3, "inject: type %x", KVM_S390_INT_CPU_TIMER);
+ 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_CPU_TIMER,
+-				   0, 0, 2);
++				   0, 0);
+ 
+ 	set_bit(IRQ_PEND_EXT_CPU_TIMER, &li->pending_irqs);
+ 	atomic_set_mask(CPUSTAT_EXT_INT, li->cpuflags);
+@@ -1534,8 +1531,6 @@ static int do_inject_vcpu(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 
+ 	switch (irq->type) {
+ 	case KVM_S390_PROGRAM_INT:
+-		VCPU_EVENT(vcpu, 3, "inject: program check %d (from user)",
+-			   irq->u.pgm.code);
+ 		rc = __inject_prog(vcpu, irq);
+ 		break;
+ 	case KVM_S390_SIGP_SET_PREFIX:
+diff --git a/arch/s390/kvm/trace-s390.h b/arch/s390/kvm/trace-s390.h
+index 3208d33..4f373c5 100644
+--- a/arch/s390/kvm/trace-s390.h
++++ b/arch/s390/kvm/trace-s390.h
+@@ -137,16 +137,14 @@ TRACE_EVENT(kvm_s390_inject_vm,
+ 	);
+ 
+ TRACE_EVENT(kvm_s390_inject_vcpu,
+-	    TP_PROTO(unsigned int id, __u64 type, __u32 parm, __u64 parm64, \
+-		     int who),
+-	    TP_ARGS(id, type, parm, parm64, who),
++	    TP_PROTO(unsigned int id, __u64 type, __u32 parm, __u64 parm64),
++	    TP_ARGS(id, type, parm, parm64),
+ 
+ 	    TP_STRUCT__entry(
+ 		    __field(int, id)
+ 		    __field(__u32, inttype)
+ 		    __field(__u32, parm)
+ 		    __field(__u64, parm64)
+-		    __field(int, who)
+ 		    ),
+ 
+ 	    TP_fast_assign(
+@@ -154,12 +152,9 @@ TRACE_EVENT(kvm_s390_inject_vcpu,
+ 		    __entry->inttype = type & 0x00000000ffffffff;
+ 		    __entry->parm = parm;
+ 		    __entry->parm64 = parm64;
+-		    __entry->who = who;
+ 		    ),
+ 
+-	    TP_printk("inject%s (vcpu %d): type:%x (%s) parm:%x parm64:%llx",
+-		      (__entry->who == 1) ? " (from kernel)" :
+-		      (__entry->who == 2) ? " (from user)" : "",
++	    TP_printk("inject (vcpu %d): type:%x (%s) parm:%x parm64:%llx",
+ 		      __entry->id, __entry->inttype,
+ 		      __print_symbolic(__entry->inttype, kvm_s390_int_type),
+ 		      __entry->parm, __entry->parm64)
 -- 
 2.3.0
