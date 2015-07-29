@@ -1,172 +1,134 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 14/16] KVM: s390: adapt debug entries for instruction handling
-Date: Wed, 29 Jul 2015 11:06:04 +0200
-Message-ID: <1438160766-108179-15-git-send-email-borntraeger@de.ibm.com>
-References: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH v4 0/4] virtio: Clean up scatterlists and use the DMA API
+Date: Wed, 29 Jul 2015 19:21:10 +1000
+Message-ID: <1438161670.15927.9.camel@kernel.crashing.org>
+References: <CALCETrU2o27udqjvREDFyoNtKtaKvuHTyYRaK+Qt_1Q3tPWYDQ@mail.gmail.com>
+	<55B7799C.3060908@redhat.com>
+	<20150728160358-mutt-send-email-mst@redhat.com>
+	<55B77F8C.7010804@siemens.com>
+	<CALCETrVF1-=z60bCtsMBctbd14zjJgpUPNNo+EcJj_fXhww1og@mail.gmail.com>
+	<55B7B15C.4010101@siemens.com>
+	<CALCETrW_7tmUg1zf3m1xYeSruW8njNYP9N4s8tBKJcTGJf_0QA@mail.gmail.com>
+	<55B7B91E.40200@siemens.com>
+	<CALCETrWUVQWQ=mydbdiSJnA0uLSFarVYCnWWKpcgYD0A8hpfXQ@mail.gmail.com>
+	<55B7D2A9.6040700@siemens.com>
+	<CALCETrVeT-M+qMxXwDUB50xnFW1B6yu+ofiX-ydvtjaGgRLUNA@mail.gmail.com>
+	<55B7D8F5.1000902@siemens.com>
+	<CALCETrWZM=1y_nwBW2RcMNqKcPPGa0uqqGS_fKijfJzYJL4L-Q@mail.gmail.com>
+	<CALCETrW+YynS13qgXnUR-Vw9uyve9Js3RQb2RV9NBHxwyft5=w@mail.gmail.com>
+	<1438125694.7562.177.camel@kernel.crashing.org>
+	<CALCETrXFMXCfCWLTdE2nff=gibsu2_2XEwwOxC6T3vQZphGeBg@mail.gmail.com>
+	<1438130185.7562.186.camel@kernel.crashing.org>
+	<CALCETrWrLypYdF3Yhzj=ku9i=EmBJm4Ux5ouJ33MuXf7tEgJ0w@mail.gmail.com>
+	<55B88C0E.9050104@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <55B88C0E.9050104@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+List-Archive: <https://lore.kernel.org/virtualization/>
+List-Post: <mailto:virtualization@lists.linuxfoundation.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, xen-devel <Xen-devel@lists.xen.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Jan Kiszka <jan.kiszka@siemens.com>, "linux390@de.ibm.com" <linux390@de.ibm.com>, Andy Lutomirski <luto@amacapital.net>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Use the default log level 3 for state changing and/or seldom events,
-use 4 for others. Also change some numbers from %x to %d and vice versa
-to match documentation. If hex, let's prepend the numbers with 0x.
+On Wed, 2015-07-29 at 10:17 +0200, Paolo Bonzini wrote:
+> 
+> On 29/07/2015 02:47, Andy Lutomirski wrote:
+> > > > If new kernels ignore the IOMMU for devices that don't set the flag
+> > > > and there are physical devices that already exist and don't set the
+> > > > flag, then those devices won't work reliably on most modern
+> > > > non-virtual platforms, PPC included.
+> > >
+> > > Are there many virtio physical devices out there ? We are talking about
+> > > a virtio flag right ? Or have you been considering something else ?
+> >
+> > Yes, virtio flag.  I dislike having a virtio flag at all, but so far
+> > no one has come up with any better ideas.  If there was a reliable,
+> > cross-platform mechanism for per-device PCI bus properties, I'd be all
+> > for using that instead.
+> 
+> No, a virtio flag doesn't make sense.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- arch/s390/kvm/priv.c | 22 ++++++++++++----------
- arch/s390/kvm/sigp.c | 10 +++++-----
- 2 files changed, 17 insertions(+), 15 deletions(-)
+It wouldn't if we were creating virtio from scratch.
 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 2658a791..afefa3b 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -53,6 +53,7 @@ static int handle_set_clock(struct kvm_vcpu *vcpu)
- 		kvm_s390_set_psw_cc(vcpu, 3);
- 		return 0;
- 	}
-+	VCPU_EVENT(vcpu, 3, "SCK: setting guest TOD to 0x%llx", val);
- 	val = (val - hostclk) & ~0x3fUL;
- 
- 	mutex_lock(&vcpu->kvm->lock);
-@@ -127,7 +128,7 @@ static int handle_store_prefix(struct kvm_vcpu *vcpu)
- 	if (rc)
- 		return kvm_s390_inject_prog_cond(vcpu, rc);
- 
--	VCPU_EVENT(vcpu, 5, "storing prefix to %x", address);
-+	VCPU_EVENT(vcpu, 3, "STPX: storing prefix 0x%x into 0x%llx", address, operand2);
- 	trace_kvm_s390_handle_prefix(vcpu, 0, address);
- 	return 0;
- }
-@@ -153,7 +154,7 @@ static int handle_store_cpu_address(struct kvm_vcpu *vcpu)
- 	if (rc)
- 		return kvm_s390_inject_prog_cond(vcpu, rc);
- 
--	VCPU_EVENT(vcpu, 5, "storing cpu address to %llx", ga);
-+	VCPU_EVENT(vcpu, 3, "STAP: storing cpu address (%u) to 0x%llx", vcpu_id, ga);
- 	trace_kvm_s390_handle_stap(vcpu, ga);
- 	return 0;
- }
-@@ -165,6 +166,7 @@ static int __skey_check_enable(struct kvm_vcpu *vcpu)
- 		return rc;
- 
- 	rc = s390_enable_skey();
-+	VCPU_EVENT(vcpu, 3, "%s", "enabling storage keys for guest");
- 	trace_kvm_s390_skey_related_inst(vcpu);
- 	vcpu->arch.sie_block->ictl &= ~(ICTL_ISKE | ICTL_SSKE | ICTL_RRBE);
- 	return rc;
-@@ -368,7 +370,7 @@ static int handle_stfl(struct kvm_vcpu *vcpu)
- 			    &fac, sizeof(fac));
- 	if (rc)
- 		return rc;
--	VCPU_EVENT(vcpu, 5, "store facility list value %x", fac);
-+	VCPU_EVENT(vcpu, 3, "STFL: store facility list 0x%x", fac);
- 	trace_kvm_s390_handle_stfl(vcpu, fac);
- 	return 0;
- }
-@@ -466,7 +468,7 @@ static int handle_stidp(struct kvm_vcpu *vcpu)
- 	if (rc)
- 		return kvm_s390_inject_prog_cond(vcpu, rc);
- 
--	VCPU_EVENT(vcpu, 5, "%s", "store cpu id");
-+	VCPU_EVENT(vcpu, 3, "STIDP: store cpu id 0x%llx", stidp_data);
- 	return 0;
- }
- 
-@@ -519,7 +521,7 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
- 	ar_t ar;
- 
- 	vcpu->stat.instruction_stsi++;
--	VCPU_EVENT(vcpu, 4, "stsi: fc: %x sel1: %x sel2: %x", fc, sel1, sel2);
-+	VCPU_EVENT(vcpu, 3, "STSI: fc: %u sel1: %u sel2: %u", fc, sel1, sel2);
- 
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-@@ -756,7 +758,7 @@ static int handle_essa(struct kvm_vcpu *vcpu)
- 	struct gmap *gmap;
- 	int i;
- 
--	VCPU_EVENT(vcpu, 5, "cmma release %d pages", entries);
-+	VCPU_EVENT(vcpu, 4, "ESSA: release %d pages", entries);
- 	gmap = vcpu->arch.gmap;
- 	vcpu->stat.instruction_essa++;
- 	if (!vcpu->kvm->arch.use_cmma)
-@@ -827,7 +829,7 @@ int kvm_s390_handle_lctl(struct kvm_vcpu *vcpu)
- 	if (ga & 3)
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
--	VCPU_EVENT(vcpu, 5, "lctl r1:%x, r3:%x, addr:%llx", reg1, reg3, ga);
-+	VCPU_EVENT(vcpu, 4, "LCTL: r1:%d, r3:%d, addr: 0x%llx", reg1, reg3, ga);
- 	trace_kvm_s390_handle_lctl(vcpu, 0, reg1, reg3, ga);
- 
- 	nr_regs = ((reg3 - reg1) & 0xf) + 1;
-@@ -866,7 +868,7 @@ int kvm_s390_handle_stctl(struct kvm_vcpu *vcpu)
- 	if (ga & 3)
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
--	VCPU_EVENT(vcpu, 5, "stctl r1:%x, r3:%x, addr:%llx", reg1, reg3, ga);
-+	VCPU_EVENT(vcpu, 4, "STCTL r1:%d, r3:%d, addr: 0x%llx", reg1, reg3, ga);
- 	trace_kvm_s390_handle_stctl(vcpu, 0, reg1, reg3, ga);
- 
- 	reg = reg1;
-@@ -900,7 +902,7 @@ static int handle_lctlg(struct kvm_vcpu *vcpu)
- 	if (ga & 7)
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
--	VCPU_EVENT(vcpu, 5, "lctlg r1:%x, r3:%x, addr:%llx", reg1, reg3, ga);
-+	VCPU_EVENT(vcpu, 4, "LCTLG: r1:%d, r3:%d, addr: 0x%llx", reg1, reg3, ga);
- 	trace_kvm_s390_handle_lctl(vcpu, 1, reg1, reg3, ga);
- 
- 	nr_regs = ((reg3 - reg1) & 0xf) + 1;
-@@ -938,7 +940,7 @@ static int handle_stctg(struct kvm_vcpu *vcpu)
- 	if (ga & 7)
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
--	VCPU_EVENT(vcpu, 5, "stctg r1:%x, r3:%x, addr:%llx", reg1, reg3, ga);
-+	VCPU_EVENT(vcpu, 4, "STCTG r1:%d, r3:%d, addr: 0x%llx", reg1, reg3, ga);
- 	trace_kvm_s390_handle_stctl(vcpu, 1, reg1, reg3, ga);
- 
- 	reg = reg1;
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index 5318ea3..da690b6 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -368,7 +368,8 @@ static int handle_sigp_dst(struct kvm_vcpu *vcpu, u8 order_code,
- 	return rc;
- }
- 
--static int handle_sigp_order_in_user_space(struct kvm_vcpu *vcpu, u8 order_code)
-+static int handle_sigp_order_in_user_space(struct kvm_vcpu *vcpu, u8 order_code,
-+					   u16 cpu_addr)
- {
- 	if (!vcpu->kvm->arch.user_sigp)
- 		return 0;
-@@ -411,9 +412,8 @@ static int handle_sigp_order_in_user_space(struct kvm_vcpu *vcpu, u8 order_code)
- 	default:
- 		vcpu->stat.instruction_sigp_unknown++;
- 	}
--
--	VCPU_EVENT(vcpu, 4, "sigp order %u: completely handled in user space",
--		   order_code);
-+	VCPU_EVENT(vcpu, 3, "SIGP: order %u for CPU %d handled in userspace",
-+		   order_code, cpu_addr);
- 
- 	return 1;
- }
-@@ -432,7 +432,7 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
- 
- 	order_code = kvm_s390_get_base_disp_rs(vcpu, NULL);
--	if (handle_sigp_order_in_user_space(vcpu, order_code))
-+	if (handle_sigp_order_in_user_space(vcpu, order_code, cpu_addr))
- 		return -EOPNOTSUPP;
- 
- 	if (r1 % 2)
--- 
-2.3.0
+However we have to be realistic here, we are contending with existing
+practices and implementation. The fact is qemu *does* bypass any iommu
+and has been doing so for a long time, *and* the guest drivers are
+written today *also* bypassing all DMA mapping mechanisms and just
+passing everything accross.
+
+So if it's a bug, it's a bug on both sides of the fence. We are no
+longer in "bug fixing" territory here, it's a fundamental change of ABI.
+The ABI might not be what was intended (but that's arguable, see below),
+but it is that way.
+
+Arguably it was even known and considered a *feature* by some (including
+myself) at the time. It somewhat improved performances on archs where
+otherwise every page would have to be mapped/unmapped in guest iommu. In
+fact, it also makes vhost a lot easier.
+
+So I disagree, it's de-facto a feature (even if unintended) of the
+existing virtio implementations and changing that would be a major
+interface change, and thus should be exposed as such.
+
+> Blindly using system memory is a bug in QEMU; it has to be fixed to use
+> the right address space, and then whatever the system provides to
+> describe "the right address space" can be used (like the DMAR table on x86).
+
+Except that it's not so easy.
+
+For example, on PPC PAPR guests, there is no such thing as a "no IOMMU"
+space, the concept doesn't exist. So we have at least three things to
+deal with:
+
+ - Existing guests, so we must preserve the existing behaviour for
+backward compatibility.
+
+ - vhost is made more complex because it now needs to be informed of the
+guest iommu updates
+
+ - New guests have the "new driver" that knows how to map and unmap
+would have a performance loss unless some mechanism to create a "no
+iommu" space exists which for us would need to be added. Either that or
+we rely on DDW which is a way for a guest to create a permanent mapping
+of its entire address space in an IOMMU but that incur a significant
+waste of host kernel memory.
+
+> On PPC I suppose you could use the host bridge's device tree?  If you
+> need a hook, you can add a
+
+No because we can mix and match virtio and other devices on the same
+host bridge. Unless we put a property that only applies to virtio
+children of the host bridge.
+
+> 	bool virtio_should_bypass_iommu(void)
+> 	{
+> 		/* lookup something in the device tree?!? */
+> 	}
+> 	EXPORT_SYMBOL_GPL(virtio_should_bypass_iommu);
+> 
+> in some pseries.c file, and in the driver:
+> 
+> 	static bool virtio_bypass_iommu(void)
+> 	{
+> 		bool (*fn)(void);
+> 	
+> 		fn = symbol_get(virtio_should_bypass_iommu);
+> 		return fn && fn();
+> 	}
+> 
+> Awful, but that's what this thing is.
+
+Ben.
+
+> Paolo
