@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 13/16] KVM: s390: improve debug feature usage
-Date: Wed, 29 Jul 2015 11:06:03 +0200
-Message-ID: <1438160766-108179-14-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 04/16] KVM: s390: only reset CMMA state if it was enabled before
+Date: Wed, 29 Jul 2015 11:05:54 +0200
+Message-ID: <1438160766-108179-5-git-send-email-borntraeger@de.ibm.com>
 References: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,33 +9,34 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-We do not use the exception logger, so the 2nd area is unused.
-Just have one area that is bigger (32 pages).
-At the same time we can limit the debug feature size to 7
-longs, as the largest user has 3 parameters + string + boiler
-plate (vCPU, PSW mask, PSW addr)
+From: Dominik Dingel <dingel@linux.vnet.ibm.com>
 
+There is no point in resetting the CMMA state if it was never enabled.
+
+Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kvm/kvm-s390.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index b623267..4c1b5cb 100644
+index 641639b..3772947 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -1057,7 +1057,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 
- 	sprintf(debug_name, "kvm-%u", current->pid);
- 
--	kvm->arch.dbf = debug_register(debug_name, 8, 2, 8 * sizeof(long));
-+	kvm->arch.dbf = debug_register(debug_name, 32, 1, 7 * sizeof(long));
- 	if (!kvm->arch.dbf)
- 		goto out_err;
- 
+@@ -344,6 +344,10 @@ static int kvm_s390_set_mem_control(struct kvm *kvm, struct kvm_device_attr *att
+ 		mutex_unlock(&kvm->lock);
+ 		break;
+ 	case KVM_S390_VM_MEM_CLR_CMMA:
++		ret = -EINVAL;
++		if (!kvm->arch.use_cmma)
++			break;
++
+ 		mutex_lock(&kvm->lock);
+ 		idx = srcu_read_lock(&kvm->srcu);
+ 		s390_reset_cmma(kvm->arch.gmap->mm);
 -- 
 2.3.0
