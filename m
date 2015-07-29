@@ -1,52 +1,31 @@
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: [PATCH net-next v2 2/5] s390/bpf: Fix multiple macro expansions
-Date: Wed, 29 Jul 2015 21:15:15 +0200
-Message-ID: <1438197318-16903-3-git-send-email-holzheu@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next v2 0/5] s390/bpf: recache skb->data/hlen for
+ skb_vlan_push/pop
+Date: Wed, 29 Jul 2015 15:00:14 -0700 (PDT)
+Message-ID: <20150729.150014.82183966921783124.davem@davemloft.net>
 References: <1438197318-16903-1-git-send-email-holzheu@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <1438197318-16903-1-git-send-email-holzheu@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: Alexei Starovoitov <ast@plumgrid.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Joe Perches <joe@perches.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: holzheu@linux.vnet.ibm.com
+Cc: ast@plumgrid.com, schwidefsky@de.ibm.com, daniel@iogearbox.net, joe@perches.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The EMIT6_DISP_LH macro passes the "disp" parameter to the _EMIT6_DISP_LH
-macro. The _EMIT6_DISP_LH macro uses the "disp" parameter twice:
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Date: Wed, 29 Jul 2015 21:15:13 +0200
 
- unsigned int __disp_h = ((u32)disp) & 0xff000;
- unsigned int __disp_l = ((u32)disp) & 0x00fff;
+> Here the s390 backend for Alexei's patch 4e10df9a60d9 ("bpf: introduce
+> bpf_skb_vlan_push/pop() helpers") plus two bugfixes and two minor
+> improvements.
+> 
+> The first patch "s390/bpf: clear correct BPF accumulator register" will
+> also go upstream via Martin's "fixes" branch.
+> 
+> * v2: Integrated suggestions from Joe Perches
 
-The EMIT6_DISP_LH is used several times with EMIT_CONST_U64() as "disp"
-parameter. Therefore always two constants are created per usage of
-EMIT6_DISP_LH.
-
-Fix this and add variable "_disp" to avoid multiple expansions.
-
-* v2: Move "_disp" to _EMIT6_DISP_LH as suggested by Joe Perches
-
-Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
-Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
----
- arch/s390/net/bpf_jit_comp.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 01ad166..66926ab 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -214,8 +214,9 @@ static inline void reg_set_seen(struct bpf_jit *jit, u32 b1)
- 
- #define _EMIT6_DISP_LH(op1, op2, disp)				\
- ({								\
--	unsigned int __disp_h = ((u32)disp) & 0xff000;		\
--	unsigned int __disp_l = ((u32)disp) & 0x00fff;		\
-+	u32 _disp = (u32) disp;					\
-+	unsigned int __disp_h = _disp & 0xff000;		\
-+	unsigned int __disp_l = _disp & 0x00fff;		\
- 	_EMIT6(op1 | __disp_l, op2 | __disp_h >> 4);		\
- })
- 
--- 
-2.3.8
+Series applied, thanks.
