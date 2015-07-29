@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 16/16] KVM: s390: log capability enablement and vm attribute changes
-Date: Wed, 29 Jul 2015 11:06:06 +0200
-Message-ID: <1438160766-108179-17-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 12/16] KVM: s390: remove outdated documentation
+Date: Wed, 29 Jul 2015 11:06:02 +0200
+Message-ID: <1438160766-108179-13-git-send-email-borntraeger@de.ibm.com>
 References: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
@@ -12,143 +12,161 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Depending on user space, some capabilities and vm attributes are
-enabled at runtime. Let's log those events and while we're at it,
-log querying the vm attributes as well.
+The old Documentation/s390/kvm.txt file is either
+outdated or described in Documentation/virtual/kvm/api.txt.
+Let's get rid of it.
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ Documentation/s390/00-INDEX |   2 -
+ Documentation/s390/kvm.txt  | 125 --------------------------------------------
+ 2 files changed, 127 deletions(-)
+ delete mode 100644 Documentation/s390/kvm.txt
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 7621036..924b1ae 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -299,10 +299,12 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
- 
- 	switch (cap->cap) {
- 	case KVM_CAP_S390_IRQCHIP:
-+		VM_EVENT(kvm, 3, "%s", "ENABLE: CAP_S390_IRQCHIP");
- 		kvm->arch.use_irqchip = 1;
- 		r = 0;
- 		break;
- 	case KVM_CAP_S390_USER_SIGP:
-+		VM_EVENT(kvm, 3, "%s", "ENABLE: CAP_S390_USER_SIGP");
- 		kvm->arch.user_sigp = 1;
- 		r = 0;
- 		break;
-@@ -313,8 +315,11 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
- 			r = 0;
- 		} else
- 			r = -EINVAL;
-+		VM_EVENT(kvm, 3, "ENABLE: CAP_S390_VECTOR_REGISTERS %s",
-+			 r ? "(not available)" : "(success)");
- 		break;
- 	case KVM_CAP_S390_USER_STSI:
-+		VM_EVENT(kvm, 3, "%s", "ENABLE: CAP_S390_USER_STSI");
- 		kvm->arch.user_stsi = 1;
- 		r = 0;
- 		break;
-@@ -332,6 +337,8 @@ static int kvm_s390_get_mem_control(struct kvm *kvm, struct kvm_device_attr *att
- 	switch (attr->attr) {
- 	case KVM_S390_VM_MEM_LIMIT_SIZE:
- 		ret = 0;
-+		VM_EVENT(kvm, 3, "QUERY: max guest memory: %lu bytes",
-+			 kvm->arch.gmap->asce_end);
- 		if (put_user(kvm->arch.gmap->asce_end, (u64 __user *)attr->addr))
- 			ret = -EFAULT;
- 		break;
-@@ -354,6 +361,7 @@ static int kvm_s390_set_mem_control(struct kvm *kvm, struct kvm_device_attr *att
- 			break;
- 
- 		ret = -EBUSY;
-+		VM_EVENT(kvm, 3, "%s", "ENABLE: CMMA support");
- 		mutex_lock(&kvm->lock);
- 		if (atomic_read(&kvm->online_vcpus) == 0) {
- 			kvm->arch.use_cmma = 1;
-@@ -366,6 +374,7 @@ static int kvm_s390_set_mem_control(struct kvm *kvm, struct kvm_device_attr *att
- 		if (!kvm->arch.use_cmma)
- 			break;
- 
-+		VM_EVENT(kvm, 3, "%s", "RESET: CMMA states");
- 		mutex_lock(&kvm->lock);
- 		idx = srcu_read_lock(&kvm->srcu);
- 		s390_reset_cmma(kvm->arch.gmap->mm);
-@@ -401,6 +410,7 @@ static int kvm_s390_set_mem_control(struct kvm *kvm, struct kvm_device_attr *att
- 			}
- 		}
- 		mutex_unlock(&kvm->lock);
-+		VM_EVENT(kvm, 3, "SET: max guest memory: %lu bytes", new_limit);
- 		break;
- 	}
- 	default:
-@@ -427,22 +437,26 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
- 			kvm->arch.crypto.crycb->aes_wrapping_key_mask,
- 			sizeof(kvm->arch.crypto.crycb->aes_wrapping_key_mask));
- 		kvm->arch.crypto.aes_kw = 1;
-+		VM_EVENT(kvm, 3, "%s", "ENABLE: AES keywrapping support");
- 		break;
- 	case KVM_S390_VM_CRYPTO_ENABLE_DEA_KW:
- 		get_random_bytes(
- 			kvm->arch.crypto.crycb->dea_wrapping_key_mask,
- 			sizeof(kvm->arch.crypto.crycb->dea_wrapping_key_mask));
- 		kvm->arch.crypto.dea_kw = 1;
-+		VM_EVENT(kvm, 3, "%s", "ENABLE: DEA keywrapping support");
- 		break;
- 	case KVM_S390_VM_CRYPTO_DISABLE_AES_KW:
- 		kvm->arch.crypto.aes_kw = 0;
- 		memset(kvm->arch.crypto.crycb->aes_wrapping_key_mask, 0,
- 			sizeof(kvm->arch.crypto.crycb->aes_wrapping_key_mask));
-+		VM_EVENT(kvm, 3, "%s", "DISABLE: AES keywrapping support");
- 		break;
- 	case KVM_S390_VM_CRYPTO_DISABLE_DEA_KW:
- 		kvm->arch.crypto.dea_kw = 0;
- 		memset(kvm->arch.crypto.crycb->dea_wrapping_key_mask, 0,
- 			sizeof(kvm->arch.crypto.crycb->dea_wrapping_key_mask));
-+		VM_EVENT(kvm, 3, "%s", "DISABLE: DEA keywrapping support");
- 		break;
- 	default:
- 		mutex_unlock(&kvm->lock);
-@@ -467,6 +481,7 @@ static int kvm_s390_set_tod_high(struct kvm *kvm, struct kvm_device_attr *attr)
- 
- 	if (gtod_high != 0)
- 		return -EINVAL;
-+	VM_EVENT(kvm, 3, "SET: TOD extension: 0x%x\n", gtod_high);
- 
- 	return 0;
- }
-@@ -492,6 +507,7 @@ static int kvm_s390_set_tod_low(struct kvm *kvm, struct kvm_device_attr *attr)
- 		cur_vcpu->arch.sie_block->epoch = kvm->arch.epoch;
- 	kvm_s390_vcpu_unblock_all(kvm);
- 	mutex_unlock(&kvm->lock);
-+	VM_EVENT(kvm, 3, "SET: TOD base: 0x%llx\n", gtod);
- 	return 0;
- }
- 
-@@ -523,6 +539,7 @@ static int kvm_s390_get_tod_high(struct kvm *kvm, struct kvm_device_attr *attr)
- 	if (copy_to_user((void __user *)attr->addr, &gtod_high,
- 					 sizeof(gtod_high)))
- 		return -EFAULT;
-+	VM_EVENT(kvm, 3, "QUERY: TOD extension: 0x%x\n", gtod_high);
- 
- 	return 0;
- }
-@@ -539,6 +556,7 @@ static int kvm_s390_get_tod_low(struct kvm *kvm, struct kvm_device_attr *attr)
- 	gtod = host_tod + kvm->arch.epoch;
- 	if (copy_to_user((void __user *)attr->addr, &gtod, sizeof(gtod)))
- 		return -EFAULT;
-+	VM_EVENT(kvm, 3, "QUERY: TOD base: 0x%llx\n", gtod);
- 
- 	return 0;
- }
-@@ -2360,6 +2378,7 @@ static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
- 	case KVM_CAP_S390_CSS_SUPPORT:
- 		if (!vcpu->kvm->arch.css_support) {
- 			vcpu->kvm->arch.css_support = 1;
-+			VM_EVENT(vcpu->kvm, 3, "%s", "ENABLE: CSS support");
- 			trace_kvm_s390_enable_css(vcpu->kvm);
- 		}
- 		r = 0;
+diff --git a/Documentation/s390/00-INDEX b/Documentation/s390/00-INDEX
+index 10c874e..9189535 100644
+--- a/Documentation/s390/00-INDEX
++++ b/Documentation/s390/00-INDEX
+@@ -16,8 +16,6 @@ Debugging390.txt
+ 	- hints for debugging on s390 systems.
+ driver-model.txt
+ 	- information on s390 devices and the driver model.
+-kvm.txt
+-	- ioctl calls to /dev/kvm on s390.
+ monreader.txt
+ 	- information on accessing the z/VM monitor stream from Linux.
+ qeth.txt
+diff --git a/Documentation/s390/kvm.txt b/Documentation/s390/kvm.txt
+deleted file mode 100644
+index 85f3280..0000000
+--- a/Documentation/s390/kvm.txt
++++ /dev/null
+@@ -1,125 +0,0 @@
+-*** BIG FAT WARNING ***
+-The kvm module is currently in EXPERIMENTAL state for s390. This means that
+-the interface to the module is not yet considered to remain stable. Thus, be
+-prepared that we keep breaking your userspace application and guest
+-compatibility over and over again until we feel happy with the result. Make sure
+-your guest kernel, your host kernel, and your userspace launcher are in a
+-consistent state.
+-
+-This Documentation describes the unique ioctl calls to /dev/kvm, the resulting
+-kvm-vm file descriptors, and the kvm-vcpu file descriptors that differ from x86.
+-
+-1. ioctl calls to /dev/kvm
+-KVM does support the following ioctls on s390 that are common with other
+-architectures and do behave the same:
+-KVM_GET_API_VERSION
+-KVM_CREATE_VM		(*) see note
+-KVM_CHECK_EXTENSION
+-KVM_GET_VCPU_MMAP_SIZE
+-
+-Notes:
+-* KVM_CREATE_VM may fail on s390, if the calling process has multiple
+-threads and has not called KVM_S390_ENABLE_SIE before.
+-
+-In addition, on s390 the following architecture specific ioctls are supported:
+-ioctl:		KVM_S390_ENABLE_SIE
+-args:		none
+-see also:	include/linux/kvm.h
+-This call causes the kernel to switch on PGSTE in the user page table. This
+-operation is needed in order to run a virtual machine, and it requires the
+-calling process to be single-threaded. Note that the first call to KVM_CREATE_VM
+-will implicitly try to switch on PGSTE if the user process has not called
+-KVM_S390_ENABLE_SIE before. User processes that want to launch multiple threads
+-before creating a virtual machine have to call KVM_S390_ENABLE_SIE, or will
+-observe an error calling KVM_CREATE_VM. Switching on PGSTE is a one-time
+-operation, is not reversible, and will persist over the entire lifetime of
+-the calling process. It does not have any user-visible effect other than a small
+-performance penalty.
+-
+-2. ioctl calls to the kvm-vm file descriptor
+-KVM does support the following ioctls on s390 that are common with other
+-architectures and do behave the same:
+-KVM_CREATE_VCPU
+-KVM_SET_USER_MEMORY_REGION      (*) see note
+-KVM_GET_DIRTY_LOG		(**) see note
+-
+-Notes:
+-*  kvm does only allow exactly one memory slot on s390, which has to start
+-   at guest absolute address zero and at a user address that is aligned on any
+-   page boundary. This hardware "limitation" allows us to have a few unique
+-   optimizations. The memory slot doesn't have to be filled
+-   with memory actually, it may contain sparse holes. That said, with different
+-   user memory layout this does still allow a large flexibility when
+-   doing the guest memory setup.
+-** KVM_GET_DIRTY_LOG doesn't work properly yet. The user will receive an empty
+-log. This ioctl call is only needed for guest migration, and we intend to
+-implement this one in the future.
+-
+-In addition, on s390 the following architecture specific ioctls for the kvm-vm
+-file descriptor are supported:
+-ioctl:		KVM_S390_INTERRUPT
+-args:		struct kvm_s390_interrupt *
+-see also:	include/linux/kvm.h
+-This ioctl is used to submit a floating interrupt for a virtual machine.
+-Floating interrupts may be delivered to any virtual cpu in the configuration.
+-Only some interrupt types defined in include/linux/kvm.h make sense when
+-submitted as floating interrupts. The following interrupts are not considered
+-to be useful as floating interrupts, and a call to inject them will result in
+--EINVAL error code: program interrupts and interprocessor signals. Valid
+-floating interrupts are:
+-KVM_S390_INT_VIRTIO
+-KVM_S390_INT_SERVICE
+-
+-3. ioctl calls to the kvm-vcpu file descriptor
+-KVM does support the following ioctls on s390 that are common with other
+-architectures and do behave the same:
+-KVM_RUN
+-KVM_GET_REGS
+-KVM_SET_REGS
+-KVM_GET_SREGS
+-KVM_SET_SREGS
+-KVM_GET_FPU
+-KVM_SET_FPU
+-
+-In addition, on s390 the following architecture specific ioctls for the
+-kvm-vcpu file descriptor are supported:
+-ioctl:		KVM_S390_INTERRUPT
+-args:		struct kvm_s390_interrupt *
+-see also:	include/linux/kvm.h
+-This ioctl is used to submit an interrupt for a specific virtual cpu.
+-Only some interrupt types defined in include/linux/kvm.h make sense when
+-submitted for a specific cpu. The following interrupts are not considered
+-to be useful, and a call to inject them will result in -EINVAL error code:
+-service processor calls and virtio interrupts. Valid interrupt types are:
+-KVM_S390_PROGRAM_INT
+-KVM_S390_SIGP_STOP
+-KVM_S390_RESTART
+-KVM_S390_SIGP_SET_PREFIX
+-KVM_S390_INT_EMERGENCY
+-
+-ioctl:		KVM_S390_STORE_STATUS
+-args:		unsigned long
+-see also:	include/linux/kvm.h
+-This ioctl stores the state of the cpu at the guest real address given as
+-argument, unless one of the following values defined in include/linux/kvm.h
+-is given as argument:
+-KVM_S390_STORE_STATUS_NOADDR - the CPU stores its status to the save area in
+-absolute lowcore as defined by the principles of operation
+-KVM_S390_STORE_STATUS_PREFIXED - the CPU stores its status to the save area in
+-its prefix page just like the dump tool that comes with zipl. This is useful
+-to create a system dump for use with lkcdutils or crash.
+-
+-ioctl:		KVM_S390_SET_INITIAL_PSW
+-args:		struct kvm_s390_psw *
+-see also:	include/linux/kvm.h
+-This ioctl can be used to set the processor status word (psw) of a stopped cpu
+-prior to running it with KVM_RUN. Note that this call is not required to modify
+-the psw during sie intercepts that fall back to userspace because struct kvm_run
+-does contain the psw, and this value is evaluated during reentry of KVM_RUN
+-after the intercept exit was recognized.
+-
+-ioctl:		KVM_S390_INITIAL_RESET
+-args:		none
+-see also:	include/linux/kvm.h
+-This ioctl can be used to perform an initial cpu reset as defined by the
+-principles of operation. The target cpu has to be in stopped state.
 -- 
 2.3.0
