@@ -1,10 +1,8 @@
 From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: [PATCH net-next v2 1/5] s390/bpf: clear correct BPF accumulator register
-Date: Wed, 29 Jul 2015 21:15:14 +0200
-Message-ID: <1438197318-16903-2-git-send-email-holzheu@linux.vnet.ibm.com>
-References: <1438197318-16903-1-git-send-email-holzheu@linux.vnet.ibm.com>
+Subject: [PATCH net-next v2 0/5] s390/bpf: recache skb->data/hlen for skb_vlan_push/pop
+Date: Wed, 29 Jul 2015 21:15:13 +0200
+Message-ID: <1438197318-16903-1-git-send-email-holzheu@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1438197318-16903-1-git-send-email-holzheu@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,50 +10,25 @@ To: David Miller <davem@davemloft.net>
 Cc: Alexei Starovoitov <ast@plumgrid.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Joe Perches <joe@perches.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently we assumed the following BPF to eBPF register mapping:
+Here the s390 backend for Alexei's patch 4e10df9a60d9 ("bpf: introduce
+bpf_skb_vlan_push/pop() helpers") plus two bugfixes and two minor
+improvements.
 
- - BPF_REG_A -> BPF_REG_7
- - BPF_REG_X -> BPF_REG_8
+The first patch "s390/bpf: clear correct BPF accumulator register" will
+also go upstream via Martin's "fixes" branch.
 
-Unfortunately this mapping is wrong. The correct mapping is:
+* v2: Integrated suggestions from Joe Perches
 
- - BPF_REG_A -> BPF_REG_0
- - BPF_REG_X -> BPF_REG_7
+Michael Holzheu (5):
+  s390/bpf: clear correct BPF accumulator register
+  s390/bpf: Fix multiple macro expansions
+  s390/bpf: increase BPF_SIZE_MAX
+  s390/bpf: Only clear A and X for converted BPF programs
+  s390/bpf: recache skb->data/hlen for skb_vlan_push/pop
 
-So clear the correct registers and use the BPF_REG_A and BPF_REG_X
-macros instead of BPF_REG_0/7.
+ arch/s390/net/bpf_jit.h      |  5 ++-
+ arch/s390/net/bpf_jit_comp.c | 93 +++++++++++++++++++++++---------------------
+ 2 files changed, 53 insertions(+), 45 deletions(-)
 
-Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
-Cc: stable@vger.kernel.org # 4.0+
-Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
----
- arch/s390/net/bpf_jit_comp.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 79c731e..01ad166 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -448,13 +448,13 @@ static void bpf_jit_prologue(struct bpf_jit *jit)
- 		EMIT6_DISP_LH(0xe3000000, 0x0004, REG_SKB_DATA, REG_0,
- 			      BPF_REG_1, offsetof(struct sk_buff, data));
- 	}
--	/* BPF compatibility: clear A (%b7) and X (%b8) registers */
--	if (REG_SEEN(BPF_REG_7))
--		/* lghi %b7,0 */
--		EMIT4_IMM(0xa7090000, BPF_REG_7, 0);
--	if (REG_SEEN(BPF_REG_8))
--		/* lghi %b8,0 */
--		EMIT4_IMM(0xa7090000, BPF_REG_8, 0);
-+	/* BPF compatibility: clear A (%b0) and X (%b7) registers */
-+	if (REG_SEEN(BPF_REG_A))
-+		/* lghi %ba,0 */
-+		EMIT4_IMM(0xa7090000, BPF_REG_A, 0);
-+	if (REG_SEEN(BPF_REG_X))
-+		/* lghi %bx,0 */
-+		EMIT4_IMM(0xa7090000, BPF_REG_X, 0);
- }
- 
- /*
 -- 
 2.3.8
