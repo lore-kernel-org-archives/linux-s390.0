@@ -1,84 +1,50 @@
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: Re: [PATCH net-next 2/5] s390/bpf: Fix multiple macro expansions
-Date: Wed, 29 Jul 2015 10:32:05 +0200
-Message-ID: <20150729103205.66b31a9e@holzheu>
-References: <1438092600-16221-1-git-send-email-holzheu@linux.vnet.ibm.com>
-	<1438092600-16221-3-git-send-email-holzheu@linux.vnet.ibm.com>
-	<1438139621.2529.31.camel@perches.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1438139621.2529.31.camel@perches.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: Joe Perches <joe@perches.com>
-Cc: David Miller <davem@davemloft.net>, Alexei Starovoitov <ast@plumgrid.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 09/16] KVM: s390: add more debug data for the pfault diagnoses
+Date: Wed, 29 Jul 2015 11:05:59 +0200
+Message-ID: <1438160766-108179-10-git-send-email-borntraeger@de.ibm.com>
+References: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1438160766-108179-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 28 Jul 2015 20:13:41 -0700
-Joe Perches <joe@perches.com> wrote:
+We're not only interested in the address of the control block, but
+also in the requested subcommand and for the token subcommand, in the
+specified token address and masks.
 
-> On Tue, 2015-07-28 at 16:09 +0200, Michael Holzheu wrote:
-> > The EMIT6_DISP_LH macro passes the "disp" parameter to the _EMIT6_DISP_LH
-> > macro. The _EMIT6_DISP_LH macro uses the "disp" parameter twice:
-> > 
-> >  unsigned int __disp_h = ((u32)disp) & 0xff000;
-> >  unsigned int __disp_l = ((u32)disp) & 0x00fff;
-> > 
-> > The EMIT6_DISP_LH is used several times with EMIT_CONST_U64() as "disp"
-> > parameter. Therefore always two constants are created per usage of
-> > EMIT6_DISP_LH.
-> > 
-> > Fix this and add variable "__disp" to avoid multiple expansions.
-> > 
-> > Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
-> > Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-> > ---
-> >  arch/s390/net/bpf_jit_comp.c | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-> > index 01ad166..de0f0bc 100644
-> > --- a/arch/s390/net/bpf_jit_comp.c
-> > +++ b/arch/s390/net/bpf_jit_comp.c
-> > @@ -221,8 +221,9 @@ static inline void reg_set_seen(struct nbpf_jit *jit, u32 b1)
-> >  
-> >  #define EMIT6_DISP_LH(op1, op2, b1, b2, b3, disp)		\
-> >  ({								\
-> > +	int __disp = (disp);					\
-> >  	_EMIT6_DISP_LH(op1 | reg(b1, b2) << 16 |		\
-> > -		       reg_high(b3) << 8, op2, disp);		\
-> > +		       reg_high(b3) << 8, op2, __disp);		\
-> >  	REG_SET_SEEN(b1);					\
-> >  	REG_SET_SEEN(b2);					\
-> >  	REG_SET_SEEN(b3);					\
-> 
-> Perhaps it'd be better to change _EMIT6_DISP_LH
+Suggested-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+---
+ arch/s390/kvm/diag.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-Looks a bit better. I will send the updated patch.
-
-Thanks!
-Michael
-
-> ---
-> diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-> index 3a15baa..409e206 100644
-> --- a/arch/s390/net/bpf_jit_comp.c
-> +++ b/arch/s390/net/bpf_jit_comp.c
-> @@ -205,8 +205,9 @@ static inline void reg_set_seen(struct bpf_jit *jit,
-> u32 b1)
-> 
->  #define _EMIT6_DISP_LH(op1, op2, disp)				\
->  ({								\
-> -	unsigned int __disp_h = ((u32)disp) & 0xff000;		\
-> -	unsigned int __disp_l = ((u32)disp) & 0x00fff;		\
-> +	u32 _disp = (u32)disp;					\
-> +	unsigned int __disp_h = _disp & 0xff000;		\
-> +	unsigned int __disp_l = _disp & 0x00fff;		\
->  	_EMIT6(op1 | __disp_l, op2 | __disp_h >> 4);		\
->  })
-> 
-> 
-> 
+diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+index 1871754..5fbfb88 100644
+--- a/arch/s390/kvm/diag.c
++++ b/arch/s390/kvm/diag.c
+@@ -88,6 +88,9 @@ static int __diag_page_ref_service(struct kvm_vcpu *vcpu)
+ 
+ 	switch (parm.subcode) {
+ 	case 0: /* TOKEN */
++		VCPU_EVENT(vcpu, 3, "pageref token addr 0x%llx "
++			   "select mask 0x%llx compare mask 0x%llx",
++			   parm.token_addr, parm.select_mask, parm.compare_mask);
+ 		if (vcpu->arch.pfault_token != KVM_S390_PFAULT_TOKEN_INVALID) {
+ 			/*
+ 			 * If the pagefault handshake is already activated,
+@@ -117,6 +120,7 @@ static int __diag_page_ref_service(struct kvm_vcpu *vcpu)
+ 		 * the cancel, therefore to reduce code complexity, we assume
+ 		 * all outstanding tokens are already pending.
+ 		 */
++		VCPU_EVENT(vcpu, 3, "pageref cancel addr 0x%llx", parm.token_addr);
+ 		if (parm.token_addr || parm.select_mask ||
+ 		    parm.compare_mask || parm.zarch)
+ 			return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+-- 
+2.3.0
