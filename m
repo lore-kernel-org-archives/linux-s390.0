@@ -1,73 +1,47 @@
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: [PATCH net-next v2 4/5] s390/bpf: Only clear A and X for converted BPF programs
-Date: Wed, 29 Jul 2015 21:15:17 +0200
-Message-ID: <1438197318-16903-5-git-send-email-holzheu@linux.vnet.ibm.com>
-References: <1438197318-16903-1-git-send-email-holzheu@linux.vnet.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1438197318-16903-1-git-send-email-holzheu@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: Alexei Starovoitov <ast@plumgrid.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Joe Perches <joe@perches.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 0/1] KVM: s390: bugfix for kvm/master (4.2)
+Date: Thu, 30 Jul 2015 13:22:45 +0200
+Message-ID: <1438255366-25805-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Only classic BPF programs that have been converted to eBPF need to clear
-the A and X registers. We can check for converted programs with:
+Paolo,
 
-  bpf_prog->type == BPF_PROG_TYPE_UNSPEC
+The following changes since commit 0da029ed7ee5fdf49a2a0e14160c3e9999be9292:
 
-So add the check and skip initialization for real eBPF programs.
+  KVM: x86: rename quirk constants to KVM_X86_QUIRK_* (2015-07-23 08:24:42 +0200)
 
-Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
----
- arch/s390/net/bpf_jit_comp.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+are available in the git repository at:
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 04af367..3dd0163 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -387,7 +387,7 @@ static void save_restore_regs(struct bpf_jit *jit, int op)
-  * Save registers and create stack frame if necessary.
-  * See stack frame layout desription in "bpf_jit.h"!
-  */
--static void bpf_jit_prologue(struct bpf_jit *jit)
-+static void bpf_jit_prologue(struct bpf_jit *jit, bool is_classic)
- {
- 	if (jit->seen & SEEN_TAIL_CALL) {
- 		/* xc STK_OFF_TCCNT(4,%r15),STK_OFF_TCCNT(%r15) */
-@@ -440,13 +440,15 @@ static void bpf_jit_prologue(struct bpf_jit *jit)
- 		EMIT6_DISP_LH(0xe3000000, 0x0004, REG_SKB_DATA, REG_0,
- 			      BPF_REG_1, offsetof(struct sk_buff, data));
- 	}
--	/* BPF compatibility: clear A (%b0) and X (%b7) registers */
--	if (REG_SEEN(BPF_REG_A))
--		/* lghi %ba,0 */
--		EMIT4_IMM(0xa7090000, BPF_REG_A, 0);
--	if (REG_SEEN(BPF_REG_X))
--		/* lghi %bx,0 */
--		EMIT4_IMM(0xa7090000, BPF_REG_X, 0);
-+	/* Clear A (%b0) and X (%b7) registers for converted BPF programs */
-+	if (is_classic) {
-+		if (REG_SEEN(BPF_REG_A))
-+			/* lghi %ba,0 */
-+			EMIT4_IMM(0xa7090000, BPF_REG_A, 0);
-+		if (REG_SEEN(BPF_REG_X))
-+			/* lghi %bx,0 */
-+			EMIT4_IMM(0xa7090000, BPF_REG_X, 0);
-+	}
- }
- 
- /*
-@@ -1232,7 +1234,7 @@ static int bpf_jit_prog(struct bpf_jit *jit, struct bpf_prog *fp)
- 	jit->lit = jit->lit_start;
- 	jit->prg = 0;
- 
--	bpf_jit_prologue(jit);
-+	bpf_jit_prologue(jit, fp->type == BPF_PROG_TYPE_UNSPEC);
- 	for (i = 0; i < fp->len; i += insn_count) {
- 		insn_count = bpf_jit_insn(jit, fp, i);
- 		if (insn_count < 0)
--- 
-2.3.8
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-20150730
+
+for you to fetch changes up to 586b7ccdb7143b6a9b975d2c6ad52b6ca5c162b9:
+
+  KVM: s390: Fix hang VCPU hang/loop regression (2015-07-30 13:11:13 +0200)
+
+----------------------------------------------------------------
+KVM: s390: bugfix for kvm/master (4.2)
+
+Here is a bugfix for a regression that was introduced after 4.1
+with the commit commit 785dbef407d8 ("KVM: s390: optimize round
+trip time in request handling"). After lots of cpu hotplugs in the
+guest (online/offline) sometimes a guest CPU did loop within host
+KVM code. Reason was that PROG_REQUEST was set in the sie control
+block, but no request was pending. This made commit 785dbef407d8
+the suspect and changing that area to always reset PROG_REQUEST
+did indeed fix the problem.
+
+Special thanks to David Hildenbrand, who helped understanding the
+exact sequence that led to the problem.
+
+----------------------------------------------------------------
+Christian Borntraeger (1):
+      KVM: s390: Fix hang VCPU hang/loop regression
+
+ arch/s390/kvm/kvm-s390.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
