@@ -1,8 +1,10 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 0/1] KVM: s390: bugfix for kvm/master (4.2)
-Date: Thu, 30 Jul 2015 13:22:45 +0200
-Message-ID: <1438255366-25805-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/1] KVM: s390: Fix hang VCPU hang/loop regression
+Date: Thu, 30 Jul 2015 13:22:46 +0200
+Message-ID: <1438255366-25805-2-git-send-email-borntraeger@de.ibm.com>
+References: <1438255366-25805-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1438255366-25805-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,38 +12,46 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo,
+commit 785dbef407d8 ("KVM: s390: optimize round trip time in request
+handling") introduced a regression. This regression was seen with
+CPU hotplug in the guest and switching between 1 or 2 CPUs. This will
+set/reset the IBS control via synced request.
 
-The following changes since commit 0da029ed7ee5fdf49a2a0e14160c3e9999be9292:
+Whenever we make a synced request, we first set the vcpu->requests
+bit and then block the vcpu. The handler, on the other hand, unblocks
+itself, processes vcpu->requests (by clearing them) and unblocks itself
+once again.
 
-  KVM: x86: rename quirk constants to KVM_X86_QUIRK_* (2015-07-23 08:24:42 +0200)
+Now, if the requester sleeps between setting of vcpu->requests and
+blocking, the handler will clear the vcpu->requests bit and try to
+unblock itself (although no bit is set). When the requester wakes up,
+it blocks the VCPU and we have a blocked VCPU without requests.
 
-are available in the git repository at:
+Solution is to always unset the block bit.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-20150730
-
-for you to fetch changes up to 586b7ccdb7143b6a9b975d2c6ad52b6ca5c162b9:
-
-  KVM: s390: Fix hang VCPU hang/loop regression (2015-07-30 13:11:13 +0200)
-
-----------------------------------------------------------------
-KVM: s390: bugfix for kvm/master (4.2)
-
-Here is a bugfix for a regression that was introduced after 4.1
-with the commit commit 785dbef407d8 ("KVM: s390: optimize round
-trip time in request handling"). After lots of cpu hotplugs in the
-guest (online/offline) sometimes a guest CPU did loop within host
-KVM code. Reason was that PROG_REQUEST was set in the sie control
-block, but no request was pending. This made commit 785dbef407d8
-the suspect and changing that area to always reset PROG_REQUEST
-did indeed fix the problem.
-
-Special thanks to David Hildenbrand, who helped understanding the
-exact sequence that led to the problem.
-
-----------------------------------------------------------------
-Christian Borntraeger (1):
-      KVM: s390: Fix hang VCPU hang/loop regression
-
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Fixes: 785dbef407d8 ("KVM: s390: optimize round trip time in request handling")
+---
  arch/s390/kvm/kvm-s390.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 2078f92..f32f843 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1742,10 +1742,10 @@ static bool ibs_enabled(struct kvm_vcpu *vcpu)
+ 
+ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+ {
+-	if (!vcpu->requests)
+-		return 0;
+ retry:
+ 	kvm_s390_vcpu_request_handled(vcpu);
++	if (!vcpu->requests)
++		return 0;
+ 	/*
+ 	 * We use MMU_RELOAD just to re-arm the ipte notifier for the
+ 	 * guest prefix page. gmap_ipte_notify will wait on the ptl lock.
+-- 
+2.3.0
