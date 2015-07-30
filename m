@@ -1,47 +1,62 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [GIT PULL 1/1] KVM: s390: Fix hang VCPU hang/loop regression
-Date: Thu, 30 Jul 2015 13:43:58 +0200
-Message-ID: <55BA0DFE.9080905@de.ibm.com>
-References: <1438255366-25805-1-git-send-email-borntraeger@de.ibm.com> <1438255366-25805-2-git-send-email-borntraeger@de.ibm.com> <55BA0CB5.1090605@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <55BA0CB5.1090605@redhat.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Subject: [RFC PATCH] drivers/base: use cpu->node_id for from_nid
+Date: Thu, 30 Jul 2015 20:35:51 +0200
+Message-Id: <1438281351-56556-1-git-send-email-holzheu@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Am 30.07.2015 um 13:38 schrieb Paolo Bonzini:
-> 
-> 
-> On 30/07/2015 13:22, Christian Borntraeger wrote:
->>  static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
->>  {
->> -	if (!vcpu->requests)
->> -		return 0;
->>  retry:
->>  	kvm_s390_vcpu_request_handled(vcpu);
->> +	if (!vcpu->requests)
->> +		return 0;
->>  	/*
-> 
-> Should kvm_s390_vcpu_request_handled(vcpu); go before the retry label?
-> 
-> It shouldn't be too common to have two requests, and you're doing an 
-> extra atomic operation to clear PROG_REQUEST.
+Hello Greg,
 
-Handling a request is slow path anyway and my last optimization was not
-considering all side effects - so give me some time to comsume your comment 
-to make it better this time....
+Is it possible to use "from_nid = cpu->node_id"?
 
-[...]
-> This of course should be for 4.3
+Background:
 
-yes :-)
+I am currently working on (fake) NUMA support for s390. At startup, for
+"deconfigured" CPUs, we don't know to which nodes the CPUs belong. Therefore
+we always return node 0 for cpu_to_node().
 
+For each present CPU the register_cpu() function is called which sets an
+initial NUMA node via cpu_to_node(), which is then first node 0 for
+"deconfigured" CPUs on s390.
 
-> ---I've pulled your branch into kvm/master.
+After we "configure" a CPU we know to which node it belongs. Then when setting
+a CPU online, the following is done in cpu_subsys_online():
+
+     from_nid = cpu_to_node(cpuid); -> we return node x
+     cpu_up(cpuid);
+     to_nid = cpu_to_node(cpuid);   -> we return node x
+     if (from_nid != to_nid)        -> x != x -> false
+           change_cpu_under_node(cpu, from_nid, to_nid);
+
+The result is that each CPU that was deconfigured at boot time stays in
+node 0 because cpu_to_node() returns the same node before and after
+setting the CPU online.
+
+Using "cpu->node_id" for "from_nid" instead of calling cpu_to_node()
+would help in our case.
+
+Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+---
+ drivers/base/cpu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/base/cpu.c b/drivers/base/cpu.c
+index f160ea4..2dd889c 100644
+--- a/drivers/base/cpu.c
++++ b/drivers/base/cpu.c
+@@ -47,7 +47,7 @@ static int __ref cpu_subsys_online(struct device *dev)
+ 	int from_nid, to_nid;
+ 	int ret;
+ 
+-	from_nid = cpu_to_node(cpuid);
++	from_nid = cpu->node_id;
+ 	if (from_nid == NUMA_NO_NODE)
+ 		return -ENODEV;
+ 
+-- 
+2.3.8
