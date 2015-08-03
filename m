@@ -1,36 +1,29 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH V4 net-next 0/2] net: implement SMC-R solution
-Date: Tue, 25 Aug 2015 11:18:49 -0700 (PDT)
-Message-ID: <20150825.111849.1251755515298926543.davem@davemloft.net>
-References: <20150726.161530.2192841818929026804.davem@davemloft.net>
-	<1440156629-35691-1-git-send-email-ubraun@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1440156629-35691-1-git-send-email-ubraun@linux.vnet.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: ubraun@linux.vnet.ibm.com
-Cc: utz.bacher@de.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ursula.braun@de.ibm.com
+Return-Path: <michael@ozlabs.org>
+In-Reply-To: <1436929315-28520-2-git-send-email-sukadev@linux.vnet.ibm.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [v3,
+ 1/8] powerpc/perf/hv-24x7: Whitespace - fix parameter alignment
+Message-Id: <20150803013504.92AEE140D26@ozlabs.org>
+Date: Mon,  3 Aug 2015 11:35:04 +1000 (AEST)
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linuxppc-dev/>
+To: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Fri, 21 Aug 2015 13:30:27 +0200
+On Wed, 2015-15-07 at 03:01:48 UTC, Sukadev Bhattiprolu wrote:
+> Fix parameter alignment to be consistent with coding style.
+> 
+> Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
 
-> this is V4 of my SMC-R patches:
-> Since you are asking for a solution "100% in our own separate module
-> with our own can of worms", we have to give up the transparent detection
-> whether a communication peer can do SMC-R or not (this has been the
-> purpose of the rejected TCP hooks). Instead, we want just the new
-> self-contained SMC-R socket family added to the kernel.
-> By the way, since August 2015 the SMC-R Informational RFC is no longer
-> a draft, but published as RFC7609.
+Applied to powerpc next, thanks.
 
-The tcp_set_keepalive() layering hack is still beyond what I'm willing
-to apply, sorry.
+https://git.kernel.org/powerpc/c/40386217cd7bc38908d6
 
-Also, as a coding style note, all of your code needs to be adjusted to
-declare local function variables in "reverse christimas tree" order,
-that is longest line to shortest.
+cheers
