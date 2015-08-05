@@ -1,77 +1,114 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 6 Aug 2015 10:32:18 +0200
-From: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Subject: Re: [RFC PATCH] drivers/base: use cpu->node_id for from_nid
-Message-ID: <20150806103218.12189c7b@holzheu>
-In-Reply-To: <20150805205121.GA451@kroah.com>
-References: <1438281351-56556-1-git-send-email-holzheu@linux.vnet.ibm.com>
-	<20150805205121.GA451@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: [PATCH v3 0/4] enhance shmem process and swap accounting
+Date: Wed,  5 Aug 2015 15:01:21 +0200
+Message-ID: <1438779685-5227-1-git-send-email-vbabka@suse.cz>
+Return-path: <owner-linux-mm@kvack.org>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-api/>
+List-Post: <mailto:linux-api@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>, Jerome Marchand <jmarchan@redhat.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>, Hugh Dickins <hughd@google.com>, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Linux API <linux-api@vger.kernel.org>, Konstantin Khlebnikov <khlebnikov@yandex-team.ru>, Minchan Kim <minchan@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 5 Aug 2015 13:51:21 -0700
-Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+Reposting due to lack of feedback in May. I hope at least patches 1 and 2
+could be merged as they are IMHO bugfixes. 3 and 4 is optional but IMHO useful.
 
-> On Thu, Jul 30, 2015 at 08:35:51PM +0200, Michael Holzheu wrote:
-> > Hello Greg,
-> > 
-> > Is it possible to use "from_nid = cpu->node_id"?
-> > 
-> > Background:
-> > 
-> > I am currently working on (fake) NUMA support for s390. At startup, for
-> > "deconfigured" CPUs, we don't know to which nodes the CPUs belong. Therefore
-> > we always return node 0 for cpu_to_node().
-> > 
-> > For each present CPU the register_cpu() function is called which sets an
-> > initial NUMA node via cpu_to_node(), which is then first node 0 for
-> > "deconfigured" CPUs on s390.
-> > 
-> > After we "configure" a CPU we know to which node it belongs. Then when setting
-> > a CPU online, the following is done in cpu_subsys_online():
-> > 
-> >      from_nid = cpu_to_node(cpuid); -> we return node x
-> >      cpu_up(cpuid);
-> >      to_nid = cpu_to_node(cpuid);   -> we return node x
-> >      if (from_nid != to_nid)        -> x != x -> false
-> >            change_cpu_under_node(cpu, from_nid, to_nid);
-> > 
-> > The result is that each CPU that was deconfigured at boot time stays in
-> > node 0 because cpu_to_node() returns the same node before and after
-> > setting the CPU online.
-> > 
-> > Using "cpu->node_id" for "from_nid" instead of calling cpu_to_node()
-> > would help in our case.
-> > 
-> > Signed-off-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-> > ---
-> >  drivers/base/cpu.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/base/cpu.c b/drivers/base/cpu.c
-> > index f160ea4..2dd889c 100644
-> > --- a/drivers/base/cpu.c
-> > +++ b/drivers/base/cpu.c
-> > @@ -47,7 +47,7 @@ static int __ref cpu_subsys_online(struct device *dev)
-> >  	int from_nid, to_nid;
-> >  	int ret;
-> >  
-> > -	from_nid = cpu_to_node(cpuid);
-> > +	from_nid = cpu->node_id;
-> >  	if (from_nid == NUMA_NO_NODE)
-> >  		return -ENODEV;
-> >  
-> 
-> I really have no idea the answer to any of these questions, sorry...
+Changes since v2:
+o Rebase on next-20150805.
+o This means that /proc/pid/maps has the proportional swap share (SwapPss:)
+  field as per https://lkml.org/lkml/2015/6/15/274
+  It's not clear what to do with shmem here so it's 0 for now.
+  - swapped out shmem doesn't have swap entries, so we would have to look at who
+    else has the shmem object (partially) mapped
+  - to be more precise we should also check if his range actually includes 
+    the offset in question, which could get rather involved
+  - or is there some easy way I don't see?
+o Konstantin suggested for patch 3/4 that I drop the CONFIG_SHMEM #ifdefs
+  I didn't see the point in going against tinyfication when the work is
+  already done, but I can do that if more people think it's better and it
+  would block the series.
 
-No problem, in the meantime I found another solution for my problem.
+Changes since v1:
+o In Patch 2, rely on SHMEM_I(inode)->swapped if possible, and fallback to
+  radix tree iterator on partially mapped shmem objects, i.e. decouple shmem
+  swap usage determination from the page walk, for performance reasons.
+  Thanks to Jerome and Konstantin for the tips.
+  The downside is that mm/shmem.c had to be touched.
 
-But thanks for trying :-)
-Michael
+This series is based on Jerome Marchand's [1] so let me quote the first
+paragraph from there:
+
+There are several shortcomings with the accounting of shared memory
+(sysV shm, shared anonymous mapping, mapping to a tmpfs file). The
+values in /proc/<pid>/status and statm don't allow to distinguish
+between shmem memory and a shared mapping to a regular file, even
+though theirs implication on memory usage are quite different: at
+reclaim, file mapping can be dropped or write back on disk while shmem
+needs a place in swap. As for shmem pages that are swapped-out or in
+swap cache, they aren't accounted at all.
+
+The original motivation for myself is that a customer found (IMHO rightfully)
+confusing that e.g. top output for process swap usage is unreliable with
+respect to swapped out shmem pages, which are not accounted for.
+
+The fundamental difference between private anonymous and shmem pages is that
+the latter has PTE's converted to pte_none, and not swapents. As such, they are
+not accounted to the number of swapents visible e.g. in /proc/pid/status VmSwap
+row. It might be theoretically possible to use swapents when swapping out shmem
+(without extra cost, as one has to change all mappers anyway), and on swap in
+only convert the swapent for the faulting process, leaving swapents in other
+processes until they also fault (so again no extra cost). But I don't know how
+many assumptions this would break, and it would be too disruptive change for a
+relatively small benefit.
+
+Instead, my approach is to document the limitation of VmSwap, and provide means
+to determine the swap usage for shmem areas for those who are interested and
+willing to pay the price, using /proc/pid/smaps. Because outside of ipcs, I
+don't think it's possible to currently to determine the usage at all.  The
+previous patchset [1] did introduce new shmem-specific fields into smaps
+output, and functions to determine the values. I take a simpler approach,
+noting that smaps output already has a "Swap: X kB" line, where currently X ==
+0 always for shmem areas. I think we can just consider this a bug and provide
+the proper value by consulting the radix tree, as e.g. mincore_page() does. In the
+patch changelog I explain why this is also not perfect (and cannot be without
+swapents), but still arguably much better than showing a 0.
+
+The last two patches are adapted from Jerome's patchset and provide a VmRSS
+breakdown to VmAnon, VmFile and VmShm in /proc/pid/status. Hugh noted that
+this is a welcome addition, and I agree that it might help e.g. debugging
+process memory usage at albeit non-zero, but still rather low cost of extra
+per-mm counter and some page flag checks. I updated these patches to 4.0-rc1,
+made them respect !CONFIG_SHMEM so that tiny systems don't pay the cost, and
+optimized the page flag checking somewhat.
+
+[1] http://lwn.net/Articles/611966/
+
+Jerome Marchand (2):
+  mm, shmem: Add shmem resident memory accounting
+  mm, procfs: Display VmAnon, VmFile and VmShm in /proc/pid/status
+
+Vlastimil Babka (2):
+  mm, documentation: clarify /proc/pid/status VmSwap limitations
+  mm, proc: account for shmem swap in /proc/pid/smaps
+
+ Documentation/filesystems/proc.txt | 18 ++++++++++---
+ arch/s390/mm/pgtable.c             |  5 +---
+ fs/proc/task_mmu.c                 | 52 ++++++++++++++++++++++++++++++++++--
+ include/linux/mm.h                 | 28 ++++++++++++++++++++
+ include/linux/mm_types.h           |  9 ++++---
+ include/linux/shmem_fs.h           |  6 +++++
+ kernel/events/uprobes.c            |  2 +-
+ mm/memory.c                        | 30 +++++++--------------
+ mm/oom_kill.c                      |  5 ++--
+ mm/rmap.c                          | 15 +++--------
+ mm/shmem.c                         | 54 ++++++++++++++++++++++++++++++++++++++
+ 11 files changed, 178 insertions(+), 46 deletions(-)
+
+-- 
+2.4.6
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
