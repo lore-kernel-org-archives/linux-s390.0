@@ -1,84 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Peter Senna Tschudin <peter.senna@gmail.com>
-Subject: [PATCH 1/2] s390: Remove unneeded semicolon
-Date: Tue,  4 Aug 2015 17:11:15 +0200
-Message-Id: <1438701075-30664-1-git-send-email-peter.senna@gmail.com>
+Date: Wed, 5 Aug 2015 09:05:18 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 2/2] s390: Remove unneeded variables
+Message-ID: <20150805070518.GB4163@osiris>
+References: <1438701107-30727-1-git-send-email-peter.senna@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1438701107-30727-1-git-send-email-peter.senna@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: wein@de.ibm.com, stefan.haberland@de.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, maier@linux.vnet.ibm.com, peter.senna@gmail.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Peter Senna Tschudin <peter.senna@gmail.com>
+Cc: wein@de.ibm.com, stefan.haberland@de.ibm.com, schwidefsky@de.ibm.com, linux390@de.ibm.com, maier@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Remove unneeded semicolon.
+On Tue, Aug 04, 2015 at 05:11:47PM +0200, Peter Senna Tschudin wrote:
+> This patch remove unneeded variables used to store return values.
+> 
+> These issues were detected with the Coccinelle script:
+> scripts/coccinelle/misc/returnvar.cocci
+> 
+> Signed-off-by: Peter Senna Tschudin <peter.senna@gmail.com>
+> ---
+>  static struct css_device_id eadm_subchannel_ids[] = {
+> diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+> index 2e65b98..a79d698 100644
+> --- a/drivers/s390/net/qeth_l2_main.c
+> +++ b/drivers/s390/net/qeth_l2_main.c
+> @@ -392,8 +392,6 @@ static int qeth_l2_vlan_rx_kill_vid(struct net_device *dev,
+> 
+>  static int qeth_l2_stop_card(struct qeth_card *card, int recovery_mode)
+>  {
+> -	int rc = 0;
+> -
+>  	QETH_DBF_TEXT(SETUP , 2, "stopcard");
+>  	QETH_DBF_HEX(SETUP, 2, &card, sizeof(void *));
+> 
+> @@ -427,7 +425,8 @@ static int qeth_l2_stop_card(struct qeth_card *card, int recovery_mode)
+>  		qeth_clear_cmd_buffers(&card->read);
+>  		qeth_clear_cmd_buffers(&card->write);
+>  	}
+> -	return rc;
+> +
+> +	return 0;
+>  }
+> 
+>  static int qeth_l2_process_inbound_buffer(struct qeth_card *card,
+> diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+> index 70eb2f6..ee5e2ac 100644
+> --- a/drivers/s390/net/qeth_l3_main.c
+> +++ b/drivers/s390/net/qeth_l3_main.c
+> @@ -2160,8 +2160,6 @@ static struct qeth_card *qeth_l3_get_card_from_dev(struct net_device *dev)
+> 
+>  static int qeth_l3_stop_card(struct qeth_card *card, int recovery_mode)
+>  {
+> -	int rc = 0;
+> -
+>  	QETH_DBF_TEXT(SETUP, 2, "stopcard");
+>  	QETH_DBF_HEX(SETUP, 2, &card, sizeof(void *));
+> 
+> @@ -2196,7 +2194,8 @@ static int qeth_l3_stop_card(struct qeth_card *card, int recovery_mode)
+>  		qeth_clear_cmd_buffers(&card->read);
+>  		qeth_clear_cmd_buffers(&card->write);
+>  	}
+> -	return rc;
+> +
+> +	return 0;
 
-The semantic patch that detects this change is available
-at scripts/coccinelle/misc/semicolon.cocci.
+Applied. However I changed your patch a bit and made the *_stop_card()
+functions return void instead, since the calling functions didn't care
+anyway.
 
-Signed-off-by: Peter Senna Tschudin <peter.senna@gmail.com>
----
-Tested by cross compilation only.
-
- drivers/s390/block/dasd_alias.c | 6 +++---
- drivers/s390/char/monreader.c   | 2 +-
- drivers/s390/scsi/zfcp_fsf.c    | 2 +-
- 3 files changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/s390/block/dasd_alias.c b/drivers/s390/block/dasd_alias.c
-index a2597e6..19805a72 100644
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -58,7 +58,7 @@ static struct alias_server *_find_server(struct dasd_uid *uid)
- 		    && !strncmp(pos->uid.serial, uid->serial,
- 				sizeof(uid->serial)))
- 			return pos;
--	};
-+	}
- 	return NULL;
- }
- 
-@@ -69,7 +69,7 @@ static struct alias_lcu *_find_lcu(struct alias_server *server,
- 	list_for_each_entry(pos, &server->lculist, lcu) {
- 		if (pos->uid.ssid == uid->ssid)
- 			return pos;
--	};
-+	}
- 	return NULL;
- }
- 
-@@ -97,7 +97,7 @@ static struct alias_pav_group *_find_group(struct alias_lcu *lcu,
- 		if (pos->uid.base_unit_addr == search_unit_addr &&
- 		    !strncmp(pos->uid.vduit, uid->vduit, sizeof(uid->vduit)))
- 			return pos;
--	};
-+	}
- 	return NULL;
- }
- 
-diff --git a/drivers/s390/char/monreader.c b/drivers/s390/char/monreader.c
-index 0da3ae3..b7d6030 100644
---- a/drivers/s390/char/monreader.c
-+++ b/drivers/s390/char/monreader.c
-@@ -95,7 +95,7 @@ static void dcss_mkname(char *ascii_name, char *ebcdic_name)
- 		if (ascii_name[i] == '\0')
- 			break;
- 		ebcdic_name[i] = toupper(ascii_name[i]);
--	};
-+	}
- 	for (; i < 8; i++)
- 		ebcdic_name[i] = ' ';
- 	ASCEBC(ebcdic_name, 8);
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 21ec5e2..4ac73e0 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -204,7 +204,7 @@ static void zfcp_fsf_status_read_link_down(struct zfcp_fsf_req *req)
- 		break;
- 	case FSF_STATUS_READ_SUB_FIRMWARE_UPDATE:
- 		zfcp_fsf_link_down_info_eval(req, NULL);
--	};
-+	}
- }
- 
- static void zfcp_fsf_status_read_handler(struct zfcp_fsf_req *req)
--- 
-2.1.0
+Thanks!
