@@ -1,49 +1,35 @@
-Return-Path: <peterz@infradead.org>
-Date: Thu, 13 Aug 2015 22:47:14 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 09/10] Define PERF_PMU_TXN_READ interface
-Message-ID: <20150813204714.GG16853@twins.programming.kicks-ass.net>
-References: <1437975638-789-1-git-send-email-sukadev@linux.vnet.ibm.com>
- <1437975638-789-10-git-send-email-sukadev@linux.vnet.ibm.com>
- <20150806121029.GQ19282@twins.programming.kicks-ass.net>
- <20150812041400.GA28426@us.ibm.com>
- <20150812084545.GR16853@twins.programming.kicks-ass.net>
- <20150813200428.GA19057@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150813200428.GA19057@us.ibm.com>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
-Cc: Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH V6 2/6] mm: mlock: Add new mlock system call
+Date: Thu, 6 Aug 2015 16:00:33 +0200
+Message-ID: <55C36881.8050301@suse.cz>
+References: <1438184575-10537-1-git-send-email-emunson@akamai.com>
+ <1438184575-10537-3-git-send-email-emunson@akamai.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1438184575-10537-3-git-send-email-emunson@akamai.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-api/>
+List-Post: <mailto:linux-api@vger.kernel.org>
+To: Eric B Munson <emunson@akamai.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.cz>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Catalin Marinas <catalin.marinas@arm.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Guenter Roeck <linux@roeck-us.net>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-cris-kernel@axis.com, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Aug 13, 2015 at 01:04:28PM -0700, Sukadev Bhattiprolu wrote:
+On 07/29/2015 05:42 PM, Eric B Munson wrote:
+> With the refactored mlock code, introduce a new system call for mlock.
+> The new call will allow the user to specify what lock states are being
+> added.  mlock2 is trivial at the moment, but a follow on patch will add
+> a new mlock state making it useful.
+>
+> Signed-off-by: Eric B Munson <emunson@akamai.com>
+> Cc: Michal Hocko <mhocko@suse.cz>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
 
-> | > | +static int perf_read_group(struct perf_event *event,
-> | > | +				   u64 read_format, char __user *buf)
-> | > | +{
-> | > | +	struct perf_event *leader = event->group_leader, *child;
-> | > | +	struct perf_event_context *ctx = leader->ctx;
-> | > | +	int ret = leader->read_size;
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
 
-> One other question, We return leader->read_size but allocate/copy_to_user
-> the sibling's event->read_size. We consistently use read_format from the
-> 'event' being read, rather than its 'group_leader', so we are ok in terms
-> of what we copy into values[] for each event in the group.
-> 
-> But, can the leader's read_format (and hence its read_size) differ from
-> its sibling's read_size? If so, in the current code, we return the event's
-> read_size but in the new code, we return the leader's read_size.
-
-Hmm, good spotting that. I'm fairly sure I didn't do that on purpose.
-
-I think we should use event->read_size there too and have the lot
-consistent. I don't think we require read_format to be uniform across
-siblings.
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
