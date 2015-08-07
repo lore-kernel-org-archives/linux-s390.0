@@ -1,11 +1,11 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] kvm:s390:Fix assumption that kvm_set_irq_routing is
- always run successfully
-Date: Fri, 7 Aug 2015 09:18:15 +0200
-Message-ID: <55C45BB7.6020502@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH] kvm:s390:Fix assumption that kvm_set_irq_routing is always
+ run successfully
+Date: Fri, 07 Aug 2015 11:09:07 +0200
+Message-ID: <55C475B3.1080303@de.ibm.com>
 References: <1438880754-27149-1-git-send-email-xerofoify@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1438880754-27149-1-git-send-email-xerofoify@gmail.com>
@@ -13,12 +13,10 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Nicholas Krause <xerofoify@gmail.com>, gleb@kernel.org
-Cc: borntraeger@de.ibm.com, cornelia.huck@de.ibm.com, linux390@de.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: pbonzini@redhat.com, cornelia.huck@de.ibm.com, linux390@de.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 06/08/2015 19:05, Nicholas Krause wrote:
+Am 06.08.2015 um 19:05 schrieb Nicholas Krause:
 > This fixes the assumption that kvm_set_irq_routing is always run
 > successfully by instead making it equal to the variable r which
 > we use for returning in the function kvm_arch_vm_ioctl instead
@@ -47,6 +45,4 @@ On 06/08/2015 19:05, Nicholas Krause wrote:
 >  	}
 > 
 
-Seems good.
-
-Paolo
+Thanks, applied with changed prefix (KVM: s390:)
