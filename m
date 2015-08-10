@@ -1,78 +1,63 @@
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: Re: [PATCH v3 4/4] mm, procfs: Display VmAnon, VmFile and VmShm in
- /proc/pid/status
-Date: Thu, 27 Aug 2015 09:22:43 +0200
-Message-ID: <55DEBAC3.4050500@suse.cz>
-References: <1438779685-5227-1-git-send-email-vbabka@suse.cz>
- <1438779685-5227-5-git-send-email-vbabka@suse.cz>
- <55C20DDE.1080506@yandex-team.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <55C20DDE.1080506@yandex-team.ru>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-api/>
-List-Post: <mailto:linux-api@vger.kernel.org>
-To: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>, Andrew Morton <akpm@linux-foundation.org>, Jerome Marchand <jmarchan@redhat.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, Hugh Dickins <hughd@google.com>, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Linux API <linux-api@vger.kernel.org>, Minchan Kim <minchan@kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 66/74] s390/time: Migrate to new 'set-state' interface
+Date: Mon, 10 Aug 2015 11:52:23 +0200
+Message-Id: <1439200352-26767-66-git-send-email-daniel.lezcano@linaro.org>
+In-Reply-To: <1439200352-26767-1-git-send-email-daniel.lezcano@linaro.org>
+References: <55C87382.4070309@linaro.org>
+ <1439200352-26767-1-git-send-email-daniel.lezcano@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: mingo@kernel.org
+Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, John Stultz <john.stultz@linaro.org>, Christoph Lameter <cl@linux.com>, Peter Zijlstra <peterz@infradead.org>, Xunlei Pang <pang.xunlei@linaro.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 08/05/2015 03:21 PM, Konstantin Khlebnikov wrote:
-> On 05.08.2015 16:01, Vlastimil Babka wrote:
->> From: Jerome Marchand <jmarchan@redhat.com>
->>
->> It's currently inconvenient to retrieve MM_ANONPAGES value from status
->> and statm files and there is no way to separate MM_FILEPAGES and
->> MM_SHMEMPAGES. Add VmAnon, VmFile and VmShm lines in /proc/<pid>/status
->> to solve these issues.
->>
->> Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
->> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
->> ---
->>    Documentation/filesystems/proc.txt | 10 +++++++++-
->>    fs/proc/task_mmu.c                 | 13 +++++++++++--
->>    2 files changed, 20 insertions(+), 3 deletions(-)
->>
->> diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
->> index fcf67c7..fadd1b3 100644
->> --- a/Documentation/filesystems/proc.txt
->> +++ b/Documentation/filesystems/proc.txt
->> @@ -168,6 +168,9 @@ For example, to get the status information of a process, all you have to do is
->>      VmLck:         0 kB
->>      VmHWM:       476 kB
->>      VmRSS:       476 kB
->> +  VmAnon:      352 kB
->> +  VmFile:      120 kB
->> +  VmShm:         4 kB
->>      VmData:      156 kB
->>      VmStk:        88 kB
->>      VmExe:        68 kB
->> @@ -229,7 +232,12 @@ Table 1-2: Contents of the status files (as of 4.1)
->>     VmSize                      total program size
->>     VmLck                       locked memory size
->>     VmHWM                       peak resident set size ("high water mark")
->> - VmRSS                       size of memory portions
->> + VmRSS                       size of memory portions. It contains the three
->> +                             following parts (VmRSS = VmAnon + VmFile + VmShm)
->> + VmAnon                      size of resident anonymous memory
->> + VmFile                      size of resident file mappings
->> + VmShm                       size of resident shmem memory (includes SysV shm,
->> +                             mapping of tmpfs and shared anonymous mappings)
->
-> "Vm" is an acronym for Virtual Memory, but all these are not virtual.
-> They are real pages. Let's leave VmRSS as is and invent better prefix
-> for new fields: something like "Mem", "Pg", or no prefix at all.
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-No prefix would be IMHO confusing. Mem could work, but it's not exactly 
-consistent with the rest. I think only VmPeak and VmSize talk about 
-virtual memory. The rest of existing counters is about physical memory 
-being mapped into that virtual memory or consumed by supporting it (PTE, 
-PMD) or swapped out. I don't see any difference for the new counters 
-here, they would just stand out oddly with some new prefix IMHO.
+Migrate s390 driver to the new 'set-state' interface provided by
+clockevents core, the earlier 'set-mode' interface is marked obsolete
+now.
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+This also enables us to implement callbacks for new states of clockevent
+devices, for example: ONESHOT_STOPPED.
+
+We weren't doing anything in the ->set_mode() callback. So, this patch
+doesn't provide any set-state callbacks.
+
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux390@de.ibm.com
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+---
+ arch/s390/kernel/time.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+index 9e733d9..0a90d17 100644
+--- a/arch/s390/kernel/time.c
++++ b/arch/s390/kernel/time.c
+@@ -117,11 +117,6 @@ static int s390_next_event(unsigned long delta,
+ 	return 0;
+ }
+ 
+-static void s390_set_mode(enum clock_event_mode mode,
+-			  struct clock_event_device *evt)
+-{
+-}
+-
+ /*
+  * Set up lowcore and control register of the current cpu to
+  * enable TOD clock and clock comparator interrupts.
+@@ -145,7 +140,6 @@ void init_cpu_timer(void)
+ 	cd->rating		= 400;
+ 	cd->cpumask		= cpumask_of(cpu);
+ 	cd->set_next_event	= s390_next_event;
+-	cd->set_mode		= s390_set_mode;
+ 
+ 	clockevents_register_device(cd);
+ 
+-- 
+1.9.1
