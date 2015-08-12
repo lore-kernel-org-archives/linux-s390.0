@@ -1,81 +1,44 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 11/31] sparc/iommu: handle page-less SG entries
-Date: Wed, 12 Aug 2015 09:05:30 +0200
-Message-ID: <1439363150-8661-12-git-send-email-hch@lst.de>
+Subject: [PATCH 26/31] openrisc: handle page-less SG entries
+Date: Wed, 12 Aug 2015 09:05:45 +0200
+Message-ID: <1439363150-8661-27-git-send-email-hch@lst.de>
 References: <1439363150-8661-1-git-send-email-hch@lst.de>
-Return-path: <linux-mips-bounce@linux-mips.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
 In-Reply-To: <1439363150-8661-1-git-send-email-hch@lst.de>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+Sender: sparclinux-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: torvalds@linux-foundation.org, axboe@kernel.dk
 Cc: dan.j.williams@intel.com, vgupta@synopsys.com, hskinnemoen@gmail.com, egtvedt@samfundet.no, realmz6@gmail.com, dhowells@redhat.com, monstr@monstr.eu, x86@kernel.org, dwmw2@infradead.org, alex.williamson@redhat.com, grundler@parisc-linux.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-nvdimm@ml01.01.org, linux-media@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Use sg_phys() instead of __pa(sg_virt(sg)) so that we don't
-require a kernel virtual address.
+Make all cache invalidation conditional on sg_has_page() and use
+sg_phys to get the physical address directly.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/sparc/kernel/iommu.c        | 2 +-
- arch/sparc/kernel/iommu_common.h | 4 +---
- arch/sparc/kernel/pci_sun4v.c    | 2 +-
- 3 files changed, 3 insertions(+), 5 deletions(-)
+ arch/openrisc/kernel/dma.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/sparc/kernel/iommu.c b/arch/sparc/kernel/iommu.c
-index 5320689..2ad89d2 100644
---- a/arch/sparc/kernel/iommu.c
-+++ b/arch/sparc/kernel/iommu.c
-@@ -486,7 +486,7 @@ static int dma_4u_map_sg(struct device *dev, struct scatterlist *sglist,
- 			continue;
- 		}
- 		/* Allocate iommu entries for that segment */
--		paddr = (unsigned long) SG_ENT_PHYS_ADDRESS(s);
-+		paddr = sg_phys(s);
- 		npages = iommu_num_pages(paddr, slen, IO_PAGE_SIZE);
- 		entry = iommu_tbl_range_alloc(dev, &iommu->tbl, npages,
- 					      &handle, (unsigned long)(-1), 0);
-diff --git a/arch/sparc/kernel/iommu_common.h b/arch/sparc/kernel/iommu_common.h
-index b40cec2..8e2c211 100644
---- a/arch/sparc/kernel/iommu_common.h
-+++ b/arch/sparc/kernel/iommu_common.h
-@@ -33,15 +33,13 @@
-  */
- #define IOMMU_PAGE_SHIFT		13
+diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
+index 0b77ddb..94ed052 100644
+--- a/arch/openrisc/kernel/dma.c
++++ b/arch/openrisc/kernel/dma.c
+@@ -184,8 +184,13 @@ or1k_map_sg(struct device *dev, struct scatterlist *sg,
+ 	int i;
  
--#define SG_ENT_PHYS_ADDRESS(SG)	(__pa(sg_virt((SG))))
--
- static inline int is_span_boundary(unsigned long entry,
- 				   unsigned long shift,
- 				   unsigned long boundary_size,
- 				   struct scatterlist *outs,
- 				   struct scatterlist *sg)
- {
--	unsigned long paddr = SG_ENT_PHYS_ADDRESS(outs);
-+	unsigned long paddr = sg_phys(outs);
- 	int nr = iommu_num_pages(paddr, outs->dma_length + sg->length,
- 				 IO_PAGE_SIZE);
+ 	for_each_sg(sg, s, nents, i) {
+-		s->dma_address = or1k_map_page(dev, sg_page(s), s->offset,
+-					       s->length, dir, NULL);
++		if (sg_has_page(s)) {
++			s->dma_address = or1k_map_page(dev, sg_page(s),
++						s->offset, s->length, dir,
++						NULL);
++		} else {
++			s->dma_address = sg_phys(s);
++		}
+ 	}
  
-diff --git a/arch/sparc/kernel/pci_sun4v.c b/arch/sparc/kernel/pci_sun4v.c
-index d2fe57d..a7a6e41 100644
---- a/arch/sparc/kernel/pci_sun4v.c
-+++ b/arch/sparc/kernel/pci_sun4v.c
-@@ -370,7 +370,7 @@ static int dma_4v_map_sg(struct device *dev, struct scatterlist *sglist,
- 			continue;
- 		}
- 		/* Allocate iommu entries for that segment */
--		paddr = (unsigned long) SG_ENT_PHYS_ADDRESS(s);
-+		paddr = sg_phys(s);
- 		npages = iommu_num_pages(paddr, slen, IO_PAGE_SIZE);
- 		entry = iommu_tbl_range_alloc(dev, &iommu->tbl, npages,
- 					      &handle, (unsigned long)(-1), 0);
+ 	return nents;
 -- 
 1.9.1
