@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 16/31] s390: handle page-less SG entries
-Date: Wed, 12 Aug 2015 09:05:35 +0200
-Message-ID: <1439363150-8661-17-git-send-email-hch@lst.de>
+Subject: [PATCH 18/31] nios2: handle page-less SG entries
+Date: Wed, 12 Aug 2015 09:05:37 +0200
+Message-ID: <1439363150-8661-19-git-send-email-hch@lst.de>
 References: <1439363150-8661-1-git-send-email-hch@lst.de>
 Return-path: <linux-mips-bounce@linux-mips.org>
 In-Reply-To: <1439363150-8661-1-git-send-email-hch@lst.de>
@@ -20,70 +20,74 @@ To: torvalds@linux-foundation.org, axboe@kernel.dk
 Cc: dan.j.williams@intel.com, vgupta@synopsys.com, hskinnemoen@gmail.com, egtvedt@samfundet.no, realmz6@gmail.com, dhowells@redhat.com, monstr@monstr.eu, x86@kernel.org, dwmw2@infradead.org, alex.williamson@redhat.com, grundler@parisc-linux.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-nvdimm@ml01.01.org, linux-media@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Use sg_phys() instead of page_to_phys(sg_page(sg)) so that we don't
-require a page structure for all DMA memory.
+Make all cache invalidation conditional on sg_has_page() and use
+sg_phys to get the physical address directly.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/pci/pci_dma.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ arch/nios2/mm/dma-mapping.c | 29 +++++++++++++++--------------
+ 1 file changed, 15 insertions(+), 14 deletions(-)
 
-diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
-index 6fd8d58..aae5a47 100644
---- a/arch/s390/pci/pci_dma.c
-+++ b/arch/s390/pci/pci_dma.c
-@@ -272,14 +272,13 @@ int dma_set_mask(struct device *dev, u64 mask)
- }
- EXPORT_SYMBOL_GPL(dma_set_mask);
+diff --git a/arch/nios2/mm/dma-mapping.c b/arch/nios2/mm/dma-mapping.c
+index ac5da75..1a0a68d 100644
+--- a/arch/nios2/mm/dma-mapping.c
++++ b/arch/nios2/mm/dma-mapping.c
+@@ -64,13 +64,11 @@ int dma_map_sg(struct device *dev, struct scatterlist *sg, int nents,
+ 	BUG_ON(!valid_dma_direction(direction));
  
--static dma_addr_t s390_dma_map_pages(struct device *dev, struct page *page,
--				     unsigned long offset, size_t size,
-+static dma_addr_t s390_dma_map_phys(struct device *dev, unsigned long pa,
-+				     size_t size,
- 				     enum dma_data_direction direction,
- 				     struct dma_attrs *attrs)
- {
- 	struct zpci_dev *zdev = get_zdev(to_pci_dev(dev));
- 	unsigned long nr_pages, iommu_page_index;
--	unsigned long pa = page_to_phys(page) + offset;
- 	int flags = ZPCI_PTE_VALID;
- 	dma_addr_t dma_addr;
- 
-@@ -301,7 +300,7 @@ static dma_addr_t s390_dma_map_pages(struct device *dev, struct page *page,
- 
- 	if (!dma_update_trans(zdev, pa, dma_addr, size, flags)) {
- 		atomic64_add(nr_pages, &zdev->mapped_pages);
--		return dma_addr + (offset & ~PAGE_MASK);
-+		return dma_addr + (pa & ~PAGE_MASK);
+ 	for_each_sg(sg, sg, nents, i) {
+-		void *addr;
+-
+-		addr = sg_virt(sg);
+-		if (addr) {
+-			__dma_sync_for_device(addr, sg->length, direction);
+-			sg->dma_address = sg_phys(sg);
++		if (sg_has_page(sg)) {
++			__dma_sync_for_device(sg_virt(sg), sg->length,
++						direction);
+ 		}
++		sg->dma_address = sg_phys(sg);
  	}
  
- out_free:
-@@ -312,6 +311,16 @@ out_err:
- 	return DMA_ERROR_CODE;
+ 	return nents;
+@@ -113,9 +111,8 @@ void dma_unmap_sg(struct device *dev, struct scatterlist *sg, int nhwentries,
+ 		return;
+ 
+ 	for_each_sg(sg, sg, nhwentries, i) {
+-		addr = sg_virt(sg);
+-		if (addr)
+-			__dma_sync_for_cpu(addr, sg->length, direction);
++		if (sg_has_page(sg))
++			__dma_sync_for_cpu(sg_virt(sg), sg->length, direction);
+ 	}
  }
+ EXPORT_SYMBOL(dma_unmap_sg);
+@@ -166,8 +163,10 @@ void dma_sync_sg_for_cpu(struct device *dev, struct scatterlist *sg, int nelems,
+ 	BUG_ON(!valid_dma_direction(direction));
  
-+static dma_addr_t s390_dma_map_pages(struct device *dev, struct page *page,
-+				     unsigned long offset, size_t size,
-+				     enum dma_data_direction direction,
-+				     struct dma_attrs *attrs)
-+{
-+	unsigned long pa = page_to_phys(page) + offset;
-+
-+	return s390_dma_map_phys(dev, pa, size, direction, attrs);
-+}
-+
- static void s390_dma_unmap_pages(struct device *dev, dma_addr_t dma_addr,
- 				 size_t size, enum dma_data_direction direction,
- 				 struct dma_attrs *attrs)
-@@ -384,8 +393,7 @@ static int s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
- 	int i;
+ 	/* Make sure that gcc doesn't leave the empty loop body.  */
+-	for_each_sg(sg, sg, nelems, i)
+-		__dma_sync_for_cpu(sg_virt(sg), sg->length, direction);
++	for_each_sg(sg, sg, nelems, i) {
++		if (sg_has_page(sg))
++			__dma_sync_for_cpu(sg_virt(sg), sg->length, direction);
++	}
+ }
+ EXPORT_SYMBOL(dma_sync_sg_for_cpu);
  
- 	for_each_sg(sg, s, nr_elements, i) {
--		struct page *page = sg_page(s);
--		s->dma_address = s390_dma_map_pages(dev, page, s->offset,
-+		s->dma_address = s390_dma_map_phys(dev, sg_phys(s),
- 						    s->length, dir, NULL);
- 		if (!dma_mapping_error(dev, s->dma_address)) {
- 			s->dma_length = s->length;
+@@ -179,8 +178,10 @@ void dma_sync_sg_for_device(struct device *dev, struct scatterlist *sg,
+ 	BUG_ON(!valid_dma_direction(direction));
+ 
+ 	/* Make sure that gcc doesn't leave the empty loop body.  */
+-	for_each_sg(sg, sg, nelems, i)
+-		__dma_sync_for_device(sg_virt(sg), sg->length, direction);
+-
++	for_each_sg(sg, sg, nelems, i) {
++		if (sg_has_page(sg))
++			__dma_sync_for_device(sg_virt(sg), sg->length,
++					direction);
++	}
+ }
+ EXPORT_SYMBOL(dma_sync_sg_for_device);
 -- 
 1.9.1
