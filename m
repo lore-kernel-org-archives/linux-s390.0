@@ -1,96 +1,46 @@
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Subject: Re: [PATCH 16/31] s390: handle page-less SG entries
-Date: Wed, 12 Aug 2015 13:51:58 +0200 (CEST)
-Message-ID: <alpine.LFD.2.11.1508121350090.1732@denkbrett>
-References: <1439363150-8661-1-git-send-email-hch@lst.de> <1439363150-8661-17-git-send-email-hch@lst.de>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH 29/31] parisc: handle page-less SG entries
+Date: Wed, 12 Aug 2015 09:01:02 -0700
+Message-ID: <CA+55aFxsH9Lde7wqZi555vqfH2uxeQqC9cjeca9L6Wr=XpyzXA@mail.gmail.com>
+References: <1439363150-8661-1-git-send-email-hch@lst.de>
+	<1439363150-8661-30-git-send-email-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-alpha-owner@vger.kernel.org>
-In-Reply-To: <1439363150-8661-17-git-send-email-hch@lst.de>
-Sender: linux-alpha-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <1439363150-8661-30-git-send-email-hch@lst.de>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Christoph Hellwig <hch@lst.de>
-Cc: torvalds@linux-foundation.org, axboe@kernel.dk, dan.j.williams@intel.com, vgupta@synopsys.com, hskinnemoen@gmail.com, egtvedt@samfundet.no, realmz6@gmail.com, dhowells@redhat.com, monstr@monstr.eu, x86@kernel.org, dwmw2@infradead.org, alex.williamson@redhat.com, grundler@parisc-linux.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-nvdimm@ml01.01.org, linux-media@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>, Dan Williams <dan.j.williams@intel.com>, Vineet Gupta <vgupta@synopsys.com>, =?UTF-8?Q?H=C3=A5vard_Skinnemoen?= <hskinnemoen@gmail.com>, Hans-Christian Egtvedt <egtvedt@samfundet.no>, Miao Steven <realmz6@gmail.com>, David Howells <dhowells@redhat.com>, Michal Simek <monstr@monstr.eu>, the arch/x86 maintainers <x86@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Alex Williamson <alex.williamson@redhat.com>, grundler@parisc-linux.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, linux-alpha@vger.kernel.org, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-metag@vger.kernel.org, linux-mips <linux-mips@linux-mips.org>, Parisc List <linux-parisc@vger.kernel.org>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 12 Aug 2015, Christoph Hellwig wrote:
+On Wed, Aug 12, 2015 at 12:05 AM, Christoph Hellwig <hch@lst.de> wrote:
+> Make all cache invalidation conditional on sg_has_page() and use
+> sg_phys to get the physical address directly.
 
-> Use sg_phys() instead of page_to_phys(sg_page(sg)) so that we don't
-> require a page structure for all DMA memory.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+So this worries me a bit (I'm just reacting to one random patch in the series).
 
-Acked-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+The reason?
 
+I think this wants a big honking comment somewhere saying "non-sg_page
+accesses are not necessarily cache coherent").
 
-> ---
->  arch/s390/pci/pci_dma.c | 20 ++++++++++++++------
->  1 file changed, 14 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
-> index 6fd8d58..aae5a47 100644
-> --- a/arch/s390/pci/pci_dma.c
-> +++ b/arch/s390/pci/pci_dma.c
-> @@ -272,14 +272,13 @@ int dma_set_mask(struct device *dev, u64 mask)
->  }
->  EXPORT_SYMBOL_GPL(dma_set_mask);
->  
-> -static dma_addr_t s390_dma_map_pages(struct device *dev, struct page *page,
-> -				     unsigned long offset, size_t size,
-> +static dma_addr_t s390_dma_map_phys(struct device *dev, unsigned long pa,
-> +				     size_t size,
->  				     enum dma_data_direction direction,
->  				     struct dma_attrs *attrs)
->  {
->  	struct zpci_dev *zdev = get_zdev(to_pci_dev(dev));
->  	unsigned long nr_pages, iommu_page_index;
-> -	unsigned long pa = page_to_phys(page) + offset;
->  	int flags = ZPCI_PTE_VALID;
->  	dma_addr_t dma_addr;
->  
-> @@ -301,7 +300,7 @@ static dma_addr_t s390_dma_map_pages(struct device *dev, struct page *page,
->  
->  	if (!dma_update_trans(zdev, pa, dma_addr, size, flags)) {
->  		atomic64_add(nr_pages, &zdev->mapped_pages);
-> -		return dma_addr + (offset & ~PAGE_MASK);
-> +		return dma_addr + (pa & ~PAGE_MASK);
->  	}
->  
->  out_free:
-> @@ -312,6 +311,16 @@ out_err:
->  	return DMA_ERROR_CODE;
->  }
->  
-> +static dma_addr_t s390_dma_map_pages(struct device *dev, struct page *page,
-> +				     unsigned long offset, size_t size,
-> +				     enum dma_data_direction direction,
-> +				     struct dma_attrs *attrs)
-> +{
-> +	unsigned long pa = page_to_phys(page) + offset;
-> +
-> +	return s390_dma_map_phys(dev, pa, size, direction, attrs);
-> +}
-> +
->  static void s390_dma_unmap_pages(struct device *dev, dma_addr_t dma_addr,
->  				 size_t size, enum dma_data_direction direction,
->  				 struct dma_attrs *attrs)
-> @@ -384,8 +393,7 @@ static int s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
->  	int i;
->  
->  	for_each_sg(sg, s, nr_elements, i) {
-> -		struct page *page = sg_page(s);
-> -		s->dma_address = s390_dma_map_pages(dev, page, s->offset,
-> +		s->dma_address = s390_dma_map_phys(dev, sg_phys(s),
->  						    s->length, dir, NULL);
->  		if (!dma_mapping_error(dev, s->dma_address)) {
->  			s->dma_length = s->length;
-> -- 
-> 1.9.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Now, I don't think that's _wrong_, but it's an important distinction:
+if you look up pages in the page tables directly, there's a very
+subtle difference between then saving just the pfn and saving the
+"struct page" of the result.
+
+On sane architectures, this whole cache flushing thing doesn't matter.
+Which just means that it's going to be even more subtle on the odd
+broken ones..
+
+I'm assuming that anybody who wants to use the page-less
+scatter-gather lists always does so on memory that isn't actually
+virtually mapped at all, or only does so on sane architectures that
+are cache coherent at a physical level, but I'd like that assumption
+*documented* somewhere.
+
+(And maybe it is, and I just didn't get to that patch yet)
+
+                   Linus
