@@ -1,12 +1,12 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 17/31] ia64/sba_iommu: remove sba_sg_address
-Date: Wed, 12 Aug 2015 09:05:36 +0200
-Message-ID: <1439363150-8661-18-git-send-email-hch@lst.de>
+Subject: [PATCH 31/31] dma-mapping-common: skip kmemleak checks for page-less SG entries
+Date: Wed, 12 Aug 2015 09:05:50 +0200
+Message-ID: <1439363150-8661-32-git-send-email-hch@lst.de>
 In-Reply-To: <1439363150-8661-1-git-send-email-hch@lst.de>
 References: <1439363150-8661-1-git-send-email-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150812070536.2E8CajflTRqJfYpr5_kPaSvvL_bFb1NEIGRCmc3Avks@z>
+Message-ID: <20150812070550.1aJYMla-hPqtiGw2j2RultlLA3OrKwQ7aFotz1zyU4o@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: torvalds@linux-foundation.org, axboe@kernel.dk
@@ -15,107 +15,25 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/ia64/hp/common/sba_iommu.c | 22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ include/asm-generic/dma-mapping-common.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/ia64/hp/common/sba_iommu.c b/arch/ia64/hp/common/sba_iommu.c
-index 344387a..9e5aa8e 100644
---- a/arch/ia64/hp/common/sba_iommu.c
-+++ b/arch/ia64/hp/common/sba_iommu.c
-@@ -248,8 +248,6 @@ static int reserve_sba_gart = 1;
- static SBA_INLINE void sba_mark_invalid(struct ioc *, dma_addr_t, size_t);
- static SBA_INLINE void sba_free_range(struct ioc *, dma_addr_t, size_t);
+diff --git a/include/asm-generic/dma-mapping-common.h b/include/asm-generic/dma-mapping-common.h
+index 940d5ec..afc3eaf 100644
+--- a/include/asm-generic/dma-mapping-common.h
++++ b/include/asm-generic/dma-mapping-common.h
+@@ -51,8 +51,10 @@ static inline int dma_map_sg_attrs(struct device *dev, struct scatterlist *sg,
+ 	int i, ents;
+ 	struct scatterlist *s;
  
--#define sba_sg_address(sg)	sg_virt((sg))
--
- #ifdef FULL_VALID_PDIR
- static u64 prefetch_spill_page;
- #endif
-@@ -397,7 +395,7 @@ sba_dump_sg( struct ioc *ioc, struct scatterlist *startsg, int nents)
- 	while (nents-- > 0) {
- 		printk(KERN_DEBUG " %d : DMA %08lx/%05x CPU %p\n", nents,
- 		       startsg->dma_address, startsg->dma_length,
--		       sba_sg_address(startsg));
-+		       sg_virt(startsg));
- 		startsg = sg_next(startsg);
- 	}
- }
-@@ -409,7 +407,7 @@ sba_check_sg( struct ioc *ioc, struct scatterlist *startsg, int nents)
- 	int the_nents = nents;
- 
- 	while (the_nents-- > 0) {
--		if (sba_sg_address(the_sg) == 0x0UL)
-+		if (sg_virt(the_sg) == 0x0UL)
- 			sba_dump_sg(NULL, startsg, nents);
- 		the_sg = sg_next(the_sg);
- 	}
-@@ -1243,11 +1241,11 @@ sba_fill_pdir(
- 		if (dump_run_sg)
- 			printk(" %2d : %08lx/%05x %p\n",
- 				nents, startsg->dma_address, cnt,
--				sba_sg_address(startsg));
-+				sg_virt(startsg));
- #else
- 		DBG_RUN_SG(" %d : %08lx/%05x %p\n",
- 				nents, startsg->dma_address, cnt,
--				sba_sg_address(startsg));
-+				sg_virt(startsg));
- #endif
- 		/*
- 		** Look for the start of a new DMA stream
-@@ -1267,7 +1265,7 @@ sba_fill_pdir(
- 		** Look for a VCONTIG chunk
- 		*/
- 		if (cnt) {
--			unsigned long vaddr = (unsigned long) sba_sg_address(startsg);
-+			unsigned long vaddr = (unsigned long) sg_virt(startsg);
- 			ASSERT(pdirp);
- 
- 			/* Since multiple Vcontig blocks could make up
-@@ -1335,7 +1333,7 @@ sba_coalesce_chunks(struct ioc *ioc, struct device *dev,
- 	int idx;
- 
- 	while (nents > 0) {
--		unsigned long vaddr = (unsigned long) sba_sg_address(startsg);
-+		unsigned long vaddr = (unsigned long) sg_virt(startsg);
- 
- 		/*
- 		** Prepare for first/next DMA stream
-@@ -1380,7 +1378,7 @@ sba_coalesce_chunks(struct ioc *ioc, struct device *dev,
- 			**
- 			** append the next transaction?
- 			*/
--			vaddr = (unsigned long) sba_sg_address(startsg);
-+			vaddr = (unsigned long) sg_virt(startsg);
- 			if  (vcontig_end == vaddr)
- 			{
- 				vcontig_len += startsg->length;
-@@ -1479,7 +1477,7 @@ static int sba_map_sg_attrs(struct device *dev, struct scatterlist *sglist,
- 	if (likely((ioc->dma_mask & ~to_pci_dev(dev)->dma_mask) == 0)) {
- 		for_each_sg(sglist, sg, nents, filled) {
- 			sg->dma_length = sg->length;
--			sg->dma_address = virt_to_phys(sba_sg_address(sg));
-+			sg->dma_address = virt_to_phys(sg_virt(sg));
- 		}
- 		return filled;
- 	}
-@@ -1487,7 +1485,7 @@ static int sba_map_sg_attrs(struct device *dev, struct scatterlist *sglist,
- 	/* Fast path single entry scatterlists. */
- 	if (nents == 1) {
- 		sglist->dma_length = sglist->length;
--		sglist->dma_address = sba_map_single_attrs(dev, sba_sg_address(sglist), sglist->length, dir, attrs);
-+		sglist->dma_address = sba_map_single_attrs(dev, sg_virt(sglist), sglist->length, dir, attrs);
- 		return 1;
- 	}
- 
-@@ -1563,7 +1561,7 @@ static void sba_unmap_sg_attrs(struct device *dev, struct scatterlist *sglist,
- #endif
- 
- 	DBG_RUN_SG("%s() START %d entries,  %p,%x\n",
--		   __func__, nents, sba_sg_address(sglist), sglist->length);
-+		   __func__, nents, sg_virt(sglist), sglist->length);
- 
- #ifdef ASSERT_PDIR_SANITY
- 	ioc = GET_IOC(dev);
+-	for_each_sg(sg, s, nents, i)
+-		kmemcheck_mark_initialized(sg_virt(s), s->length);
++	for_each_sg(sg, s, nents, i) {
++		if (sg_has_page(s))
++			kmemcheck_mark_initialized(sg_virt(s), s->length);
++	}
+ 	BUG_ON(!valid_dma_direction(dir));
+ 	ents = ops->map_sg(dev, sg, nents, dir, attrs);
+ 	BUG_ON(ents < 0);
 -- 
 1.9.1
