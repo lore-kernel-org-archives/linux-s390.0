@@ -1,102 +1,76 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 15/31] sparc32/iommu: handle page-less SG entries
-Date: Wed, 12 Aug 2015 09:05:34 +0200
-Message-ID: <1439363150-8661-16-git-send-email-hch@lst.de>
+Subject: [PATCH 10/31] powerpc/iommu: handle page-less SG entries
+Date: Wed, 12 Aug 2015 09:05:29 +0200
+Message-ID: <1439363150-8661-11-git-send-email-hch@lst.de>
 In-Reply-To: <1439363150-8661-1-git-send-email-hch@lst.de>
 References: <1439363150-8661-1-git-send-email-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150812070534.Hi9hkQ-i-MCFJ4msMp6rMI6mS7nSD6E5WGgSvmNbHGY@z>
+Message-ID: <20150812070529.9QYmTNPtKi1Ugw_yqciWj-LgQ1AFu8RVCGwiYJfNkd0@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: torvalds@linux-foundation.org, axboe@kernel.dk
 Cc: dan.j.williams@intel.com, vgupta@synopsys.com, hskinnemoen@gmail.com, egtvedt@samfundet.no, realmz6@gmail.com, dhowells@redhat.com, monstr@monstr.eu, x86@kernel.org, dwmw2@infradead.org, alex.williamson@redhat.com, grundler@parisc-linux.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-nvdimm@ml01.01.org, linux-media@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Pass a PFN to iommu_get_one instad of calculating it locall from a
-page structure so that we don't need pages for every address we can
-DMA to or from.
-
-Also further restrict the cache flushing as we now have a non-highmem
-way of not kernel virtual mapped physical addresses.
+For the iommu offset we just need and offset into the page.  Calculate
+that using the physical address instead of using the virtual address
+so that we don't require a virtual mapping.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/sparc/mm/iommu.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ arch/powerpc/kernel/iommu.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/sparc/mm/iommu.c b/arch/sparc/mm/iommu.c
-index 491511d..3ed53d7 100644
---- a/arch/sparc/mm/iommu.c
-+++ b/arch/sparc/mm/iommu.c
-@@ -174,7 +174,7 @@ static void iommu_flush_iotlb(iopte_t *iopte, unsigned int niopte)
- 	}
- }
+diff --git a/arch/powerpc/kernel/iommu.c b/arch/powerpc/kernel/iommu.c
+index a8e3490..0f52e40 100644
+--- a/arch/powerpc/kernel/iommu.c
++++ b/arch/powerpc/kernel/iommu.c
+@@ -457,7 +457,7 @@ int ppc_iommu_map_sg(struct device *dev, struct iommu_table *tbl,
  
--static u32 iommu_get_one(struct device *dev, struct page *page, int npages)
-+static u32 iommu_get_one(struct device *dev, unsigned long pfn, int npages)
- {
- 	struct iommu_struct *iommu = dev->archdata.iommu;
- 	int ioptex;
-@@ -183,7 +183,7 @@ static u32 iommu_get_one(struct device *dev, struct page *page, int npages)
- 	int i;
+ 	max_seg_size = dma_get_max_seg_size(dev);
+ 	for_each_sg(sglist, s, nelems, i) {
+-		unsigned long vaddr, npages, entry, slen;
++		unsigned long paddr, npages, entry, slen;
  
- 	/* page color = pfn of page */
--	ioptex = bit_map_string_get(&iommu->usemap, npages, page_to_pfn(page));
-+	ioptex = bit_map_string_get(&iommu->usemap, npages, pfn);
- 	if (ioptex < 0)
- 		panic("iommu out");
- 	busa0 = iommu->start + (ioptex << PAGE_SHIFT);
-@@ -192,11 +192,11 @@ static u32 iommu_get_one(struct device *dev, struct page *page, int npages)
- 	busa = busa0;
- 	iopte = iopte0;
- 	for (i = 0; i < npages; i++) {
--		iopte_val(*iopte) = MKIOPTE(page_to_pfn(page), IOPERM);
-+		iopte_val(*iopte) = MKIOPTE(pfn, IOPERM);
- 		iommu_invalidate_page(iommu->regs, busa);
- 		busa += PAGE_SIZE;
- 		iopte++;
--		page++;
-+		pfn++;
- 	}
- 
- 	iommu_flush_iotlb(iopte0, npages);
-@@ -214,7 +214,7 @@ static u32 iommu_get_scsi_one(struct device *dev, char *vaddr, unsigned int len)
- 	off = (unsigned long)vaddr & ~PAGE_MASK;
- 	npages = (off + len + PAGE_SIZE-1) >> PAGE_SHIFT;
- 	page = virt_to_page((unsigned long)vaddr & PAGE_MASK);
--	busa = iommu_get_one(dev, page, npages);
-+	busa = iommu_get_one(dev, page_to_pfn(page), npages);
- 	return busa + off;
- }
- 
-@@ -243,7 +243,7 @@ static void iommu_get_scsi_sgl_gflush(struct device *dev, struct scatterlist *sg
- 	while (sz != 0) {
- 		--sz;
- 		n = (sg->length + sg->offset + PAGE_SIZE-1) >> PAGE_SHIFT;
--		sg->dma_address = iommu_get_one(dev, sg_page(sg), n) + sg->offset;
-+		sg->dma_address = iommu_get_one(dev, sg_pfn(sg), n) + sg->offset;
- 		sg->dma_length = sg->length;
- 		sg = sg_next(sg);
- 	}
-@@ -264,7 +264,8 @@ static void iommu_get_scsi_sgl_pflush(struct device *dev, struct scatterlist *sg
- 		 * XXX Is this a good assumption?
- 		 * XXX What if someone else unmaps it here and races us?
- 		 */
--		if ((page = (unsigned long) page_address(sg_page(sg))) != 0) {
-+		if (sg_has_page(sg) &&
-+		    (page = (unsigned long) page_address(sg_page(sg))) != 0) {
- 			for (i = 0; i < n; i++) {
- 				if (page != oldpage) {	/* Already flushed? */
- 					flush_page_for_dma(page);
-@@ -274,7 +275,7 @@ static void iommu_get_scsi_sgl_pflush(struct device *dev, struct scatterlist *sg
- 			}
+ 		slen = s->length;
+ 		/* Sanity check */
+@@ -466,22 +466,22 @@ int ppc_iommu_map_sg(struct device *dev, struct iommu_table *tbl,
+ 			continue;
  		}
+ 		/* Allocate iommu entries for that segment */
+-		vaddr = (unsigned long) sg_virt(s);
+-		npages = iommu_num_pages(vaddr, slen, IOMMU_PAGE_SIZE(tbl));
++		paddr = sg_phys(s);
++		npages = iommu_num_pages(paddr, slen, IOMMU_PAGE_SIZE(tbl));
+ 		align = 0;
+ 		if (tbl->it_page_shift < PAGE_SHIFT && slen >= PAGE_SIZE &&
+-		    (vaddr & ~PAGE_MASK) == 0)
++		    (paddr & ~PAGE_MASK) == 0)
+ 			align = PAGE_SHIFT - tbl->it_page_shift;
+ 		entry = iommu_range_alloc(dev, tbl, npages, &handle,
+ 					  mask >> tbl->it_page_shift, align);
  
--		sg->dma_address = iommu_get_one(dev, sg_page(sg), n) + sg->offset;
-+		sg->dma_address = iommu_get_one(dev, sg_pfn(sg), n) + sg->offset;
- 		sg->dma_length = sg->length;
- 		sg = sg_next(sg);
- 	}
+-		DBG("  - vaddr: %lx, size: %lx\n", vaddr, slen);
++		DBG("  - paddr: %lx, size: %lx\n", paddr, slen);
+ 
+ 		/* Handle failure */
+ 		if (unlikely(entry == DMA_ERROR_CODE)) {
+ 			if (printk_ratelimit())
+ 				dev_info(dev, "iommu_alloc failed, tbl %p "
+-					 "vaddr %lx npages %lu\n", tbl, vaddr,
++					 "paddr %lx npages %lu\n", tbl, paddr,
+ 					 npages);
+ 			goto failure;
+ 		}
+@@ -496,7 +496,7 @@ int ppc_iommu_map_sg(struct device *dev, struct iommu_table *tbl,
+ 
+ 		/* Insert into HW table */
+ 		build_fail = tbl->it_ops->set(tbl, entry, npages,
+-					      vaddr & IOMMU_PAGE_MASK(tbl),
++					      paddr & IOMMU_PAGE_MASK(tbl),
+ 					      direction, attrs);
+ 		if(unlikely(build_fail))
+ 			goto failure;
 -- 
 1.9.1
