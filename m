@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 66/74] s390/time: Migrate to new 'set-state' interface
-Date: Mon, 10 Aug 2015 11:52:23 +0200
-Message-Id: <1439200352-26767-66-git-send-email-daniel.lezcano@linaro.org>
-In-Reply-To: <1439200352-26767-1-git-send-email-daniel.lezcano@linaro.org>
-References: <55C87382.4070309@linaro.org>
- <1439200352-26767-1-git-send-email-daniel.lezcano@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: mingo@kernel.org
-Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, John Stultz <john.stultz@linaro.org>, Christoph Lameter <cl@linux.com>, Peter Zijlstra <peterz@infradead.org>, Xunlei Pang <pang.xunlei@linaro.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 09/31] ia64/pci_dma: handle page-less SG entries
+Date: Wed, 12 Aug 2015 09:05:28 +0200
+Message-ID: <1439363150-8661-10-git-send-email-hch@lst.de>
+References: <1439363150-8661-1-git-send-email-hch@lst.de>
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <1439363150-8661-1-git-send-email-hch@lst.de>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: torvalds@linux-foundation.org, axboe@kernel.dk
+Cc: dan.j.williams@intel.com, vgupta@synopsys.com, hskinnemoen@gmail.com, egtvedt@samfundet.no, realmz6@gmail.com, dhowells@redhat.com, monstr@monstr.eu, x86@kernel.org, dwmw2@infradead.org, alex.williamson@redhat.com, grundler@parisc-linux.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-nvdimm@ml01.01.org, linux-media@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+Use sg_phys() instead of virt_to_phys(sg_virt(sg)) so that we don't
+require a kernel virtual address.
 
-Migrate s390 driver to the new 'set-state' interface provided by
-clockevents core, the earlier 'set-mode' interface is marked obsolete
-now.
-
-This also enables us to implement callbacks for new states of clockevent
-devices, for example: ONESHOT_STOPPED.
-
-We weren't doing anything in the ->set_mode() callback. So, this patch
-doesn't provide any set-state callbacks.
-
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux390@de.ibm.com
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/kernel/time.c | 6 ------
- 1 file changed, 6 deletions(-)
+ arch/ia64/sn/pci/pci_dma.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
-index 9e733d9..0a90d17 100644
---- a/arch/s390/kernel/time.c
-+++ b/arch/s390/kernel/time.c
-@@ -117,11 +117,6 @@ static int s390_next_event(unsigned long delta,
- 	return 0;
- }
+diff --git a/arch/ia64/sn/pci/pci_dma.c b/arch/ia64/sn/pci/pci_dma.c
+index d0853e8..8f713c8 100644
+--- a/arch/ia64/sn/pci/pci_dma.c
++++ b/arch/ia64/sn/pci/pci_dma.c
+@@ -18,9 +18,6 @@
+ #include <asm/sn/pcidev.h>
+ #include <asm/sn/sn_sal.h>
  
--static void s390_set_mode(enum clock_event_mode mode,
--			  struct clock_event_device *evt)
--{
--}
+-#define SG_ENT_VIRT_ADDRESS(sg)	(sg_virt((sg)))
+-#define SG_ENT_PHYS_ADDRESS(SG)	virt_to_phys(SG_ENT_VIRT_ADDRESS(SG))
 -
- /*
-  * Set up lowcore and control register of the current cpu to
-  * enable TOD clock and clock comparator interrupts.
-@@ -145,7 +140,6 @@ void init_cpu_timer(void)
- 	cd->rating		= 400;
- 	cd->cpumask		= cpumask_of(cpu);
- 	cd->set_next_event	= s390_next_event;
--	cd->set_mode		= s390_set_mode;
- 
- 	clockevents_register_device(cd);
- 
+ /**
+  * sn_dma_supported - test a DMA mask
+  * @dev: device to test
+@@ -291,7 +288,7 @@ static int sn_dma_map_sg(struct device *dev, struct scatterlist *sgl,
+ 	 */
+ 	for_each_sg(sgl, sg, nhwentries, i) {
+ 		dma_addr_t dma_addr;
+-		phys_addr = SG_ENT_PHYS_ADDRESS(sg);
++		phys_addr = sg_phys(sg);
+ 		if (dmabarr)
+ 			dma_addr = provider->dma_map_consistent(pdev,
+ 								phys_addr,
 -- 
 1.9.1
