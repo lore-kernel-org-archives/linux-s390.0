@@ -1,12 +1,11 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 04/31] x86/pci-nommu: handle page-less SG entries
-Date: Wed, 12 Aug 2015 09:05:23 +0200
-Message-ID: <1439363150-8661-5-git-send-email-hch@lst.de>
-In-Reply-To: <1439363150-8661-1-git-send-email-hch@lst.de>
+Subject: [PATCH 30/31] intel-iommu: handle page-less SG entries
+Date: Wed, 12 Aug 2015 09:05:49 +0200
+Message-ID: <1439363150-8661-31-git-send-email-hch@lst.de>
 References: <1439363150-8661-1-git-send-email-hch@lst.de>
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <1439363150-8661-1-git-send-email-hch@lst.de>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150812070523.BPlnp38hjCF0CwprigoKekKVlLmyHzWL3BfIIwLZeMo@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: torvalds@linux-foundation.org, axboe@kernel.dk
@@ -17,20 +16,20 @@ Just remove a BUG_ON, the code handles them just fine as-is.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/x86/kernel/pci-nommu.c | 1 -
+ drivers/iommu/intel-iommu.c | 1 -
  1 file changed, 1 deletion(-)
 
-diff --git a/arch/x86/kernel/pci-nommu.c b/arch/x86/kernel/pci-nommu.c
-index da15918..a218059 100644
---- a/arch/x86/kernel/pci-nommu.c
-+++ b/arch/x86/kernel/pci-nommu.c
-@@ -63,7 +63,6 @@ static int nommu_map_sg(struct device *hwdev, struct scatterlist *sg,
- 	WARN_ON(nents == 0 || sg[0].length == 0);
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 3541d65..ae10573 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -3622,7 +3622,6 @@ static int intel_nontranslate_map_sg(struct device *hddev,
+ 	struct scatterlist *sg;
  
- 	for_each_sg(sg, s, nents, i) {
--		BUG_ON(!sg_page(s));
- 		s->dma_address = sg_phys(s);
- 		if (!check_addr("map_sg", hwdev, s->dma_address, s->length))
- 			return 0;
+ 	for_each_sg(sglist, sg, nelems, i) {
+-		BUG_ON(!sg_page(sg));
+ 		sg->dma_address = sg_phys(sg);
+ 		sg->dma_length = sg->length;
+ 	}
 -- 
 1.9.1
