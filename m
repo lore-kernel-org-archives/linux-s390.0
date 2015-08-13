@@ -1,31 +1,38 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 29/31] parisc: handle page-less SG entries
-Date: Thu, 13 Aug 2015 16:31:50 +0200
-Message-ID: <20150813143150.GA17183@lst.de>
-References: <1439363150-8661-1-git-send-email-hch@lst.de> <1439363150-8661-30-git-send-email-hch@lst.de> <CA+55aFxsH9Lde7wqZi555vqfH2uxeQqC9cjeca9L6Wr=XpyzXA@mail.gmail.com>
+Subject: Re: RFC: prepare for struct scatterlist entries without page
+	backing
+Date: Thu, 13 Aug 2015 16:35:28 +0200
+Message-ID: <20150813143528.GC17183@lst.de>
+References: <1439363150-8661-1-git-send-email-hch@lst.de> <55CB3F47.3000902@plexistor.com> <CAGRGNgUKkaPnyvn30DXyNpdiXQzS6J=1+mQ3ick8C8=bhx_RHA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <linux-alpha-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CA+55aFxsH9Lde7wqZi555vqfH2uxeQqC9cjeca9L6Wr=XpyzXA@mail.gmail.com>
-Sender: linux-ia64-owner@vger.kernel.org
+In-Reply-To: <CAGRGNgUKkaPnyvn30DXyNpdiXQzS6J=1+mQ3ick8C8=bhx_RHA@mail.gmail.com>
+Sender: linux-alpha-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Dan Williams <dan.j.williams@intel.com>, Vineet Gupta <vgupta@synopsys.com>, =?iso-8859-1?Q?H=E5vard?= Skinnemoen <hskinnemoen@gmail.com>, Hans-Christian Egtvedt <egtvedt@samfundet.no>, Miao Steven <realmz6@gmail.com>, David Howells <dhowells@redhat.com>, Michal Simek <monstr@monstr.eu>, the arch/x86 maintainers <x86@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Alex Williamson <alex.williamson@redhat.com>, grundler@parisc-linux.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, linux-alpha@vger.kernel.org, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-metag@vger.kernel.org, linux-mips <linux-mips@linux-mips.org>, Parisc List <linux-parisc@vger.kernel.org>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>
+To: Julian Calaby <julian.calaby@gmail.com>
+Cc: Boaz Harrosh <boaz@plexistor.com>, Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@linux-foundation.org>, axboe@kernel.dk, linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-nvdimm@ml01.01.org, David Howells <dhowells@redhat.com>, sparclinux <sparclinux@vger.kernel.org>, Hans-Christian Egtvedt <egtvedt@samfundet.no>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, x86@kernel.org, David Woodhouse <dwmw2@infradead.org>, =?iso-8859-1?Q?H=E5vard?= Skinnemoen <hskinnemoen@gmail.com>, linux-xtensa@linux-xtensa.org, grundler@parisc-linux.org, realmz6@gmail.com, alex.williamson@redhat.com, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, vgupta@synopsys.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-alpha@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Aug 12, 2015 at 09:01:02AM -0700, Linus Torvalds wrote:
-> I'm assuming that anybody who wants to use the page-less
-> scatter-gather lists always does so on memory that isn't actually
-> virtually mapped at all, or only does so on sane architectures that
-> are cache coherent at a physical level, but I'd like that assumption
-> *documented* somewhere.
+On Thu, Aug 13, 2015 at 09:37:37AM +1000, Julian Calaby wrote:
+> I.e. ~90% of this patch set seems to be just mechanically dropping
+> BUG_ON()s and converting open coded stuff to use accessor functions
+> (which should be macros or get inlined, right?) - and the remaining
+> bit is not flushing if we don't have a physical page somewhere.
 
-It's temporarily mapped by kmap-like helpers.  That code isn't in
-this series. The most recent version of it is here:
+Which is was 90%.  By lines changed most actually is the diffs for
+the cache flushing.
 
-https://git.kernel.org/cgit/linux/kernel/git/djbw/nvdimm.git/commit/?h=pfn&id=de8237c99fdb4352be2193f3a7610e902b9bb2f0
+> Would it make sense to split this patch set into a few bits: one to
+> drop all the useless BUG_ON()s, one to convert all the open coded
+> stuff to accessor functions, then another to do the actual page-less
+> sg stuff?
 
-note that it's not doing the cache flushing it would have to do yet, but
-it's also only enabled for x86 at the moment.
+Without the ifs the BUG_ON() actually are useful to assert we
+never feed the sort of physical addresses we can't otherwise support,
+so I don't think that part is doable.
+
+A simple series to make more use of sg_phys and add sg_pfn might
+still be useful, though.
