@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 2/5] dma-mapping: consolidate dma_{alloc,free}_noncoherent
-Date: Thu, 13 Aug 2015 17:04:05 +0200
-Message-Id: <1439478248-15183-3-git-send-email-hch@lst.de>
+Subject: [PATCH 3/5] dma-mapping: cosolidate dma_mapping_error
+Date: Thu, 13 Aug 2015 17:04:06 +0200
+Message-Id: <1439478248-15183-4-git-send-email-hch@lst.de>
 In-Reply-To: <1439478248-15183-1-git-send-email-hch@lst.de>
 References: <1439478248-15183-1-git-send-email-hch@lst.de>
 Return-Path: <BATV+a1229740eb3c8dbf1894+4372+infradead.org+hch@bombadil.srs.infradead.org>
@@ -20,393 +20,391 @@ To: akpm@linux-foundation.org
 Cc: arnd@arndb.de, linux@arm.linux.org.uk, catalin.marinas@arm.com, will.deacon@arm.com, ysato@users.sourceforge.jp, monstr@monstr.eu, jonas@southpole.se, cmetcalf@ezchip.com, gxt@mprc.pku.edu.cn, x86@kernel.org, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Most architectures do not support non-coherent allocations and either
-define dma_{alloc,free}_noncoherent to their coherent versions or stub
-them out.
+Currently there are three valid implementations of dma_mapping_error:
 
-Openrisc uses dma_{alloc,free}_attrs to implement them, and only Mips
-implements them directly.
+ (1) call ->mapping_error
+ (2) check for a hardcoded error code
+ (3) always return 0
 
-This patch moves the Openrisc version to common code, and handles the
-DMA_ATTR_NON_CONSISTENT case in the mips dma_map_ops instance.
-
-Note that actual non-coherent allocations require a dma_cache_sync
-implementation, so if non-coherent allocations didn't work on
-an architecture before this patch they still won't work after it.
+This patch provides a common implementation that calls ->mapping_error
+if present, then checks for DMA_ERROR_CODE if defined or otherwise
+returns 0.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/alpha/include/asm/dma-mapping.h      |  3 ---
- arch/arm/include/asm/dma-mapping.h        | 15 ---------------
- arch/arm64/include/asm/dma-mapping.h      | 14 --------------
- arch/h8300/include/asm/dma-mapping.h      |  3 ---
- arch/hexagon/include/asm/dma-mapping.h    |  3 ---
- arch/ia64/include/asm/dma-mapping.h       |  3 ---
- arch/microblaze/include/asm/dma-mapping.h |  3 ---
- arch/mips/include/asm/dma-mapping.h       |  6 ------
- arch/mips/mm/dma-default.c                | 20 +++++++++++++++-----
- arch/openrisc/include/asm/dma-mapping.h   | 20 --------------------
- arch/powerpc/include/asm/dma-mapping.h    |  3 ---
- arch/s390/include/asm/dma-mapping.h       |  3 ---
- arch/sh/include/asm/dma-mapping.h         |  3 ---
- arch/sparc/include/asm/dma-mapping.h      |  3 ---
- arch/tile/include/asm/dma-mapping.h       |  3 ---
- arch/unicore32/include/asm/dma-mapping.h  |  3 ---
- arch/x86/include/asm/dma-mapping.h        |  3 ---
- include/asm-generic/dma-mapping-common.h  | 18 ++++++++++++++++++
- 18 files changed, 33 insertions(+), 96 deletions(-)
+ arch/alpha/include/asm/dma-mapping.h      |  5 -----
+ arch/arm/include/asm/dma-mapping.h        |  9 ---------
+ arch/arm64/include/asm/dma-mapping.h      |  7 -------
+ arch/h8300/include/asm/dma-mapping.h      |  5 -----
+ arch/hexagon/include/asm/dma-mapping.h    | 11 +----------
+ arch/ia64/include/asm/dma-mapping.h       |  7 -------
+ arch/microblaze/include/asm/dma-mapping.h | 11 -----------
+ arch/mips/include/asm/dma-mapping.h       |  8 --------
+ arch/openrisc/include/asm/dma-mapping.h   |  5 -----
+ arch/powerpc/include/asm/dma-mapping.h    | 17 ++---------------
+ arch/s390/include/asm/dma-mapping.h       | 10 ----------
+ arch/sh/include/asm/dma-mapping.h         | 13 ++-----------
+ arch/sparc/include/asm/dma-mapping.h      |  6 ------
+ arch/tile/include/asm/dma-mapping.h       |  7 -------
+ arch/unicore32/include/asm/dma-mapping.h  | 10 ----------
+ arch/x86/include/asm/dma-mapping.h        | 11 -----------
+ include/asm-generic/dma-mapping-common.h  | 14 ++++++++++++++
+ 17 files changed, 19 insertions(+), 137 deletions(-)
 
 diff --git a/arch/alpha/include/asm/dma-mapping.h b/arch/alpha/include/asm/dma-mapping.h
-index 9fef5bd..0552bf0 100644
+index 0552bf0..80ac3e8 100644
 --- a/arch/alpha/include/asm/dma-mapping.h
 +++ b/arch/alpha/include/asm/dma-mapping.h
-@@ -27,9 +27,6 @@ static inline int dma_set_mask(struct device *dev, u64 mask)
- 	return get_dma_ops(dev)->set_dma_mask(dev, mask);
- }
+@@ -12,11 +12,6 @@ static inline struct dma_map_ops *get_dma_ops(struct device *dev)
  
--#define dma_alloc_noncoherent(d, s, h, f)	dma_alloc_coherent(d, s, h, f)
--#define dma_free_noncoherent(d, s, v, h)	dma_free_coherent(d, s, v, h)
--
- #define dma_cache_sync(dev, va, size, dir)		  ((void)0)
+ #include <asm-generic/dma-mapping-common.h>
  
- #endif	/* _ALPHA_DMA_MAPPING_H */
-diff --git a/arch/arm/include/asm/dma-mapping.h b/arch/arm/include/asm/dma-mapping.h
-index 2ae3424..ab521d5 100644
---- a/arch/arm/include/asm/dma-mapping.h
-+++ b/arch/arm/include/asm/dma-mapping.h
-@@ -175,21 +175,6 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
- 	return dma_addr == DMA_ERROR_CODE;
- }
- 
--/*
-- * Dummy noncoherent implementation.  We don't provide a dma_cache_sync
-- * function so drivers using this API are highlighted with build warnings.
-- */
--static inline void *dma_alloc_noncoherent(struct device *dev, size_t size,
--		dma_addr_t *handle, gfp_t gfp)
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
 -{
--	return NULL;
+-	return get_dma_ops(dev)->mapping_error(dev, dma_addr);
 -}
 -
--static inline void dma_free_noncoherent(struct device *dev, size_t size,
--		void *cpu_addr, dma_addr_t handle)
+ static inline int dma_supported(struct device *dev, u64 mask)
+ {
+ 	return get_dma_ops(dev)->dma_supported(dev, mask);
+diff --git a/arch/arm/include/asm/dma-mapping.h b/arch/arm/include/asm/dma-mapping.h
+index ab521d5..2fa33d7 100644
+--- a/arch/arm/include/asm/dma-mapping.h
++++ b/arch/arm/include/asm/dma-mapping.h
+@@ -166,15 +166,6 @@ static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
+ 
+ static inline void dma_mark_clean(void *addr, size_t size) { }
+ 
+-/*
+- * DMA errors are defined by all-bits-set in the DMA address.
+- */
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
 -{
+-	debug_dma_mapping_error(dev, dma_addr);
+-	return dma_addr == DMA_ERROR_CODE;
 -}
 -
  extern int dma_supported(struct device *dev, u64 mask);
  
  extern int arm_dma_set_mask(struct device *dev, u64 dma_mask);
 diff --git a/arch/arm64/include/asm/dma-mapping.h b/arch/arm64/include/asm/dma-mapping.h
-index 5e11b3f..178e60b 100644
+index 178e60b..f45f444 100644
 --- a/arch/arm64/include/asm/dma-mapping.h
 +++ b/arch/arm64/include/asm/dma-mapping.h
-@@ -118,19 +118,5 @@ static inline void dma_mark_clean(void *addr, size_t size)
- {
+@@ -84,13 +84,6 @@ static inline phys_addr_t dma_to_phys(struct device *dev, dma_addr_t dev_addr)
+ 	return (phys_addr_t)dev_addr;
  }
  
--/*
-- * There is no dma_cache_sync() implementation, so just return NULL here.
-- */
--static inline void *dma_alloc_noncoherent(struct device *dev, size_t size,
--					  dma_addr_t *handle, gfp_t flags)
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t dev_addr)
 -{
--	return NULL;
+-	struct dma_map_ops *ops = get_dma_ops(dev);
+-	debug_dma_mapping_error(dev, dev_addr);
+-	return ops->mapping_error(dev, dev_addr);
 -}
 -
--static inline void dma_free_noncoherent(struct device *dev, size_t size,
--					void *cpu_addr, dma_addr_t handle)
--{
--}
--
- #endif	/* __KERNEL__ */
- #endif	/* __ASM_DMA_MAPPING_H */
+ static inline int dma_supported(struct device *dev, u64 mask)
+ {
+ 	struct dma_map_ops *ops = get_dma_ops(dev);
 diff --git a/arch/h8300/include/asm/dma-mapping.h b/arch/h8300/include/asm/dma-mapping.h
-index 826aa9b..72465ce 100644
+index 72465ce..5eef053 100644
 --- a/arch/h8300/include/asm/dma-mapping.h
 +++ b/arch/h8300/include/asm/dma-mapping.h
-@@ -20,9 +20,6 @@ static inline int dma_set_mask(struct device *dev, u64 mask)
+@@ -20,9 +20,4 @@ static inline int dma_set_mask(struct device *dev, u64 mask)
  	return 0;
  }
  
--#define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)
--#define dma_free_noncoherent(d, s, v, h) dma_free_coherent(d, s, v, h)
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+-{
+-	return 0;
+-}
 -
- static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
- {
- 	return 0;
+ #endif
 diff --git a/arch/hexagon/include/asm/dma-mapping.h b/arch/hexagon/include/asm/dma-mapping.h
-index c20d3ca..58d2d8f 100644
+index 58d2d8f..e661192 100644
 --- a/arch/hexagon/include/asm/dma-mapping.h
 +++ b/arch/hexagon/include/asm/dma-mapping.h
-@@ -34,9 +34,6 @@ extern int bad_dma_address;
+@@ -31,6 +31,7 @@
+ 
+ struct device;
+ extern int bad_dma_address;
++#define DMA_ERROR_CODE bad_dma_address
  
  extern struct dma_map_ops *dma_ops;
  
--#define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)
--#define dma_free_noncoherent(d, s, v, h) dma_free_coherent(d, s, v, h)
--
- static inline struct dma_map_ops *get_dma_ops(struct device *dev)
- {
- 	if (unlikely(dev == NULL))
-diff --git a/arch/ia64/include/asm/dma-mapping.h b/arch/ia64/include/asm/dma-mapping.h
-index d36f83c..a925ff0 100644
---- a/arch/ia64/include/asm/dma-mapping.h
-+++ b/arch/ia64/include/asm/dma-mapping.h
-@@ -23,9 +23,6 @@ extern void machvec_dma_sync_single(struct device *, dma_addr_t, size_t,
- extern void machvec_dma_sync_sg(struct device *, struct scatterlist *, int,
- 				enum dma_data_direction);
- 
--#define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)
--#define dma_free_noncoherent(d, s, v, h) dma_free_coherent(d, s, v, h)
--
- #define get_dma_ops(dev) platform_dma_get_ops(dev)
- 
- #include <asm-generic/dma-mapping-common.h>
-diff --git a/arch/microblaze/include/asm/dma-mapping.h b/arch/microblaze/include/asm/dma-mapping.h
-index 801dbe2..bc81625 100644
---- a/arch/microblaze/include/asm/dma-mapping.h
-+++ b/arch/microblaze/include/asm/dma-mapping.h
-@@ -98,9 +98,6 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
- 	return (dma_addr == DMA_ERROR_CODE);
+@@ -57,14 +58,4 @@ static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
+ 	return addr + size - 1 <= *dev->dma_mask;
  }
  
--#define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)
--#define dma_free_noncoherent(d, s, v, h) dma_free_coherent(d, s, v, h)
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+-{
+-	struct dma_map_ops *dma_ops = get_dma_ops(dev);
+-
+-	if (dma_ops->mapping_error)
+-		return dma_ops->mapping_error(dev, dma_addr);
+-
+-	return (dma_addr == bad_dma_address);
+-}
+-
+ #endif
+diff --git a/arch/ia64/include/asm/dma-mapping.h b/arch/ia64/include/asm/dma-mapping.h
+index a925ff0..27b713d 100644
+--- a/arch/ia64/include/asm/dma-mapping.h
++++ b/arch/ia64/include/asm/dma-mapping.h
+@@ -27,13 +27,6 @@ extern void machvec_dma_sync_sg(struct device *, struct scatterlist *, int,
+ 
+ #include <asm-generic/dma-mapping-common.h>
+ 
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t daddr)
+-{
+-	struct dma_map_ops *ops = platform_dma_get_ops(dev);
+-	debug_dma_mapping_error(dev, daddr);
+-	return ops->mapping_error(dev, daddr);
+-}
+-
+ static inline int dma_supported(struct device *dev, u64 mask)
+ {
+ 	struct dma_map_ops *ops = platform_dma_get_ops(dev);
+diff --git a/arch/microblaze/include/asm/dma-mapping.h b/arch/microblaze/include/asm/dma-mapping.h
+index bc81625..e5b8438 100644
+--- a/arch/microblaze/include/asm/dma-mapping.h
++++ b/arch/microblaze/include/asm/dma-mapping.h
+@@ -87,17 +87,6 @@ static inline void __dma_sync(unsigned long paddr,
+ 	}
+ }
+ 
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+-{
+-	struct dma_map_ops *ops = get_dma_ops(dev);
+-
+-	debug_dma_mapping_error(dev, dma_addr);
+-	if (ops->mapping_error)
+-		return ops->mapping_error(dev, dma_addr);
+-
+-	return (dma_addr == DMA_ERROR_CODE);
+-}
 -
  static inline void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
  		enum dma_data_direction direction)
  {
 diff --git a/arch/mips/include/asm/dma-mapping.h b/arch/mips/include/asm/dma-mapping.h
-index b197595..709b2ba 100644
+index 709b2ba..158bb36 100644
 --- a/arch/mips/include/asm/dma-mapping.h
 +++ b/arch/mips/include/asm/dma-mapping.h
-@@ -64,10 +64,4 @@ dma_set_mask(struct device *dev, u64 mask)
- extern void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
- 	       enum dma_data_direction direction);
+@@ -37,14 +37,6 @@ static inline int dma_supported(struct device *dev, u64 mask)
+ 	return ops->dma_supported(dev, mask);
+ }
  
--void *dma_alloc_noncoherent(struct device *dev, size_t size,
--			   dma_addr_t *dma_handle, gfp_t flag);
+-static inline int dma_mapping_error(struct device *dev, u64 mask)
+-{
+-	struct dma_map_ops *ops = get_dma_ops(dev);
 -
--void dma_free_noncoherent(struct device *dev, size_t size,
--			 void *vaddr, dma_addr_t dma_handle);
+-	debug_dma_mapping_error(dev, mask);
+-	return ops->mapping_error(dev, mask);
+-}
 -
- #endif /* _ASM_DMA_MAPPING_H */
-diff --git a/arch/mips/mm/dma-default.c b/arch/mips/mm/dma-default.c
-index 8cad422..a5ae290 100644
---- a/arch/mips/mm/dma-default.c
-+++ b/arch/mips/mm/dma-default.c
-@@ -112,7 +112,7 @@ static gfp_t massage_gfp_flags(const struct device *dev, gfp_t gfp)
- 	return gfp | dma_flag;
- }
- 
--void *dma_alloc_noncoherent(struct device *dev, size_t size,
-+static void *mips_dma_alloc_noncoherent(struct device *dev, size_t size,
- 	dma_addr_t * dma_handle, gfp_t gfp)
+ static inline int
+ dma_set_mask(struct device *dev, u64 mask)
  {
- 	void *ret;
-@@ -128,7 +128,6 @@ void *dma_alloc_noncoherent(struct device *dev, size_t size,
- 
- 	return ret;
- }
--EXPORT_SYMBOL(dma_alloc_noncoherent);
- 
- static void *mips_dma_alloc_coherent(struct device *dev, size_t size,
- 	dma_addr_t * dma_handle, gfp_t gfp, struct dma_attrs *attrs)
-@@ -137,6 +136,13 @@ static void *mips_dma_alloc_coherent(struct device *dev, size_t size,
- 	struct page *page = NULL;
- 	unsigned int count = PAGE_ALIGN(size) >> PAGE_SHIFT;
- 
-+	/*
-+	 * XXX: seems like the coherent and non-coherent implementations could
-+	 * be consolidated.
-+	 */
-+	if (dma_get_attr(DMA_ATTR_NON_CONSISTENT, attrs))
-+		return mips_dma_alloc_noncoherent(dev, size, dma_handle, gfp);
-+
- 	gfp = massage_gfp_flags(dev, gfp);
- 
- 	if (IS_ENABLED(CONFIG_DMA_CMA) && !(gfp & GFP_ATOMIC))
-@@ -161,13 +167,12 @@ static void *mips_dma_alloc_coherent(struct device *dev, size_t size,
- }
- 
- 
--void dma_free_noncoherent(struct device *dev, size_t size, void *vaddr,
--	dma_addr_t dma_handle)
-+static void mips_dma_free_noncoherent(struct device *dev, size_t size,
-+		void *vaddr, dma_addr_t dma_handle)
- {
- 	plat_unmap_dma_mem(dev, dma_handle, size, DMA_BIDIRECTIONAL);
- 	free_pages((unsigned long) vaddr, get_order(size));
- }
--EXPORT_SYMBOL(dma_free_noncoherent);
- 
- static void mips_dma_free_coherent(struct device *dev, size_t size, void *vaddr,
- 	dma_addr_t dma_handle, struct dma_attrs *attrs)
-@@ -176,6 +181,11 @@ static void mips_dma_free_coherent(struct device *dev, size_t size, void *vaddr,
- 	unsigned int count = PAGE_ALIGN(size) >> PAGE_SHIFT;
- 	struct page *page = NULL;
- 
-+	if (dma_get_attr(DMA_ATTR_NON_CONSISTENT, attrs)) {
-+		mips_dma_free_noncoherent(dev, size, vaddr, dma_handle);
-+		return;
-+	}
-+
- 	plat_unmap_dma_mem(dev, dma_handle, size, DMA_BIDIRECTIONAL);
- 
- 	if (!plat_device_is_coherent(dev) && !hw_coherentio)
 diff --git a/arch/openrisc/include/asm/dma-mapping.h b/arch/openrisc/include/asm/dma-mapping.h
-index a81d6f6..57722528 100644
+index 57722528..7dfe9d5 100644
 --- a/arch/openrisc/include/asm/dma-mapping.h
 +++ b/arch/openrisc/include/asm/dma-mapping.h
-@@ -37,26 +37,6 @@ static inline struct dma_map_ops *get_dma_ops(struct device *dev)
+@@ -43,11 +43,6 @@ static inline int dma_supported(struct device *dev, u64 dma_mask)
+ 	return dma_mask == DMA_BIT_MASK(32);
+ }
  
- #include <asm-generic/dma-mapping-common.h>
- 
--static inline void *dma_alloc_noncoherent(struct device *dev, size_t size,
--					  dma_addr_t *dma_handle, gfp_t gfp)
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
 -{
--	struct dma_attrs attrs;
--
--	dma_set_attr(DMA_ATTR_NON_CONSISTENT, &attrs);
--
--	return dma_alloc_attrs(dev, size, dma_handle, gfp, &attrs);
+-	return 0;
 -}
 -
--static inline void dma_free_noncoherent(struct device *dev, size_t size,
--					 void *cpu_addr, dma_addr_t dma_handle)
--{
--	struct dma_attrs attrs;
--
--	dma_set_attr(DMA_ATTR_NON_CONSISTENT, &attrs);
--
--	dma_free_attrs(dev, size, cpu_addr, dma_handle, &attrs);
--}
--
- static inline int dma_supported(struct device *dev, u64 dma_mask)
+ static inline int dma_set_mask(struct device *dev, u64 dma_mask)
  {
- 	/* Support 32 bit DMA mask exclusively */
+ 	if (!dev->dma_mask || !dma_supported(dev, dma_mask))
 diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
-index 846c630..dec0260 100644
+index dec0260..72d05ab 100644
 --- a/arch/powerpc/include/asm/dma-mapping.h
 +++ b/arch/powerpc/include/asm/dma-mapping.h
-@@ -177,9 +177,6 @@ static inline phys_addr_t dma_to_phys(struct device *dev, dma_addr_t daddr)
- 	return daddr - get_dma_offset(dev);
- }
+@@ -18,7 +18,9 @@
+ #include <asm/io.h>
+ #include <asm/swiotlb.h>
  
--#define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)
--#define dma_free_noncoherent(d, s, v, h) dma_free_coherent(d, s, v, h)
++#ifdef CONFIG_PPC64
+ #define DMA_ERROR_CODE		(~(dma_addr_t)0x0)
++#endif
+ 
+ /* Some dma direct funcs must be visible for use in other dma_ops */
+ extern void *dma_direct_alloc_coherent(struct device *dev, size_t size,
+@@ -137,21 +139,6 @@ extern int dma_set_mask(struct device *dev, u64 dma_mask);
+ extern int __dma_set_mask(struct device *dev, u64 dma_mask);
+ extern u64 __dma_get_required_mask(struct device *dev);
+ 
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+-{
+-	struct dma_map_ops *dma_ops = get_dma_ops(dev);
 -
- #define ARCH_HAS_DMA_MMAP_COHERENT
- 
- static inline void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
+-	debug_dma_mapping_error(dev, dma_addr);
+-	if (dma_ops->mapping_error)
+-		return dma_ops->mapping_error(dev, dma_addr);
+-
+-#ifdef CONFIG_PPC64
+-	return (dma_addr == DMA_ERROR_CODE);
+-#else
+-	return 0;
+-#endif
+-}
+-
+ static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
+ {
+ #ifdef CONFIG_SWIOTLB
 diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
-index c29c9c7..b729efe 100644
+index b729efe..3c29329 100644
 --- a/arch/s390/include/asm/dma-mapping.h
 +++ b/arch/s390/include/asm/dma-mapping.h
-@@ -25,9 +25,6 @@ static inline void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
- {
+@@ -43,14 +43,4 @@ static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
+ 	return addr + size - 1 <= *dev->dma_mask;
  }
  
--#define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)
--#define dma_free_noncoherent(d, s, v, h) dma_free_coherent(d, s, v, h)
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+-{
+-	struct dma_map_ops *dma_ops = get_dma_ops(dev);
 -
+-	debug_dma_mapping_error(dev, dma_addr);
+-	if (dma_ops->mapping_error)
+-		return dma_ops->mapping_error(dev, dma_addr);
+-	return dma_addr == DMA_ERROR_CODE;
+-}
+-
+ #endif /* _ASM_S390_DMA_MAPPING_H */
+diff --git a/arch/sh/include/asm/dma-mapping.h b/arch/sh/include/asm/dma-mapping.h
+index 2c3fa2c..98308c4 100644
+--- a/arch/sh/include/asm/dma-mapping.h
++++ b/arch/sh/include/asm/dma-mapping.h
+@@ -9,6 +9,8 @@ static inline struct dma_map_ops *get_dma_ops(struct device *dev)
+ 	return dma_ops;
+ }
+ 
++#define DMA_ERROR_CODE 0
++
  #include <asm-generic/dma-mapping-common.h>
  
  static inline int dma_supported(struct device *dev, u64 mask)
-diff --git a/arch/sh/include/asm/dma-mapping.h b/arch/sh/include/asm/dma-mapping.h
-index 3c78059..2c3fa2c 100644
---- a/arch/sh/include/asm/dma-mapping.h
-+++ b/arch/sh/include/asm/dma-mapping.h
-@@ -38,9 +38,6 @@ static inline int dma_set_mask(struct device *dev, u64 mask)
+@@ -38,17 +40,6 @@ static inline int dma_set_mask(struct device *dev, u64 mask)
  void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
  		    enum dma_data_direction dir);
  
--#define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)
--#define dma_free_noncoherent(d, s, v, h) dma_free_coherent(d, s, v, h)
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+-{
+-	struct dma_map_ops *ops = get_dma_ops(dev);
 -
- static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
- {
- 	struct dma_map_ops *ops = get_dma_ops(dev);
+-	debug_dma_mapping_error(dev, dma_addr);
+-	if (ops->mapping_error)
+-		return ops->mapping_error(dev, dma_addr);
+-
+-	return dma_addr == 0;
+-}
+-
+ /* arch/sh/mm/consistent.c */
+ extern void *dma_generic_alloc_coherent(struct device *dev, size_t size,
+ 					dma_addr_t *dma_addr, gfp_t flag,
 diff --git a/arch/sparc/include/asm/dma-mapping.h b/arch/sparc/include/asm/dma-mapping.h
-index a8c6784..2564edc 100644
+index 2564edc..5069d13 100644
 --- a/arch/sparc/include/asm/dma-mapping.h
 +++ b/arch/sparc/include/asm/dma-mapping.h
-@@ -9,9 +9,6 @@
+@@ -38,12 +38,6 @@ static inline struct dma_map_ops *get_dma_ops(struct device *dev)
  
- int dma_supported(struct device *dev, u64 mask);
+ #include <asm-generic/dma-mapping-common.h>
  
--#define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)
--#define dma_free_noncoherent(d, s, v, h) dma_free_coherent(d, s, v, h)
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+-{
+-	debug_dma_mapping_error(dev, dma_addr);
+-	return (dma_addr == DMA_ERROR_CODE);
+-}
 -
- static inline void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
- 				  enum dma_data_direction dir)
+ static inline int dma_set_mask(struct device *dev, u64 mask)
  {
+ #ifdef CONFIG_PCI
 diff --git a/arch/tile/include/asm/dma-mapping.h b/arch/tile/include/asm/dma-mapping.h
-index 4aba10e..e982dfa 100644
+index e982dfa..f8f7a05 100644
 --- a/arch/tile/include/asm/dma-mapping.h
 +++ b/arch/tile/include/asm/dma-mapping.h
-@@ -116,9 +116,6 @@ dma_set_mask(struct device *dev, u64 mask)
- 	return 0;
+@@ -75,13 +75,6 @@ static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
  }
  
--#define dma_alloc_noncoherent(d, s, h, f) dma_alloc_attrs(d, s, h, f, NULL)
--#define dma_free_noncoherent(d, s, v, h) dma_free_attrs(d, s, v, h, NULL)
+ static inline int
+-dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+-{
+-	debug_dma_mapping_error(dev, dma_addr);
+-	return get_dma_ops(dev)->mapping_error(dev, dma_addr);
+-}
 -
- /*
-  * dma_alloc_noncoherent() is #defined to return coherent memory,
-  * so there's no need to do any flushing here.
+-static inline int
+ dma_supported(struct device *dev, u64 mask)
+ {
+ 	return get_dma_ops(dev)->dma_supported(dev, mask);
 diff --git a/arch/unicore32/include/asm/dma-mapping.h b/arch/unicore32/include/asm/dma-mapping.h
-index 5294d03..636e942 100644
+index 636e942..175d7e3 100644
 --- a/arch/unicore32/include/asm/dma-mapping.h
 +++ b/arch/unicore32/include/asm/dma-mapping.h
-@@ -80,9 +80,6 @@ static inline int dma_set_mask(struct device *dev, u64 dma_mask)
- 	return 0;
+@@ -38,16 +38,6 @@ static inline int dma_supported(struct device *dev, u64 mask)
+ 	return dma_ops->dma_supported(dev, mask);
  }
  
--#define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)
--#define dma_free_noncoherent(d, s, v, h) dma_free_coherent(d, s, v, h)
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+-{
+-	struct dma_map_ops *dma_ops = get_dma_ops(dev);
 -
- static inline void dma_cache_sync(struct device *dev, void *vaddr,
- 		size_t size, enum dma_data_direction direction)
- {
+-	if (dma_ops->mapping_error)
+-		return dma_ops->mapping_error(dev, dma_addr);
+-
+-	return 0;
+-}
+-
+ #include <asm-generic/dma-mapping-common.h>
+ 
+ static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
 diff --git a/arch/x86/include/asm/dma-mapping.h b/arch/x86/include/asm/dma-mapping.h
-index f9b1b6c..7e47e4d 100644
+index 7e47e4d..bbca62e 100644
 --- a/arch/x86/include/asm/dma-mapping.h
 +++ b/arch/x86/include/asm/dma-mapping.h
-@@ -56,9 +56,6 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
- 	return (dma_addr == DMA_ERROR_CODE);
- }
+@@ -45,17 +45,6 @@ bool arch_dma_alloc_attrs(struct device **dev, gfp_t *gfp);
  
--#define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)
--#define dma_free_noncoherent(d, s, v, h) dma_free_coherent(d, s, v, h)
+ #include <asm-generic/dma-mapping-common.h>
+ 
+-/* Make sure we keep the same behaviour */
+-static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+-{
+-	struct dma_map_ops *ops = get_dma_ops(dev);
+-	debug_dma_mapping_error(dev, dma_addr);
+-	if (ops->mapping_error)
+-		return ops->mapping_error(dev, dma_addr);
+-
+-	return (dma_addr == DMA_ERROR_CODE);
+-}
 -
  extern int dma_supported(struct device *hwdev, u64 mask);
  extern int dma_set_mask(struct device *dev, u64 mask);
  
 diff --git a/include/asm-generic/dma-mapping-common.h b/include/asm-generic/dma-mapping-common.h
-index 56dd9ea..ec321dd 100644
+index ec321dd..cdaa241 100644
 --- a/include/asm-generic/dma-mapping-common.h
 +++ b/include/asm-generic/dma-mapping-common.h
-@@ -295,4 +295,22 @@ static inline void dma_free_coherent(struct device *dev, size_t size,
- 	return dma_free_attrs(dev, size, cpu_addr, dma_handle, NULL);
+@@ -313,4 +313,18 @@ static inline void dma_free_noncoherent(struct device *dev, size_t size,
+ 	dma_free_attrs(dev, size, cpu_addr, dma_handle, &attrs);
  }
  
-+static inline void *dma_alloc_noncoherent(struct device *dev, size_t size,
-+		dma_addr_t *dma_handle, gfp_t gfp)
++static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
 +{
-+	DEFINE_DMA_ATTRS(attrs);
++	debug_dma_mapping_error(dev, dma_addr);
 +
-+	dma_set_attr(DMA_ATTR_NON_CONSISTENT, &attrs);
-+	return dma_alloc_attrs(dev, size, dma_handle, gfp, &attrs);
-+}
++	if (get_dma_ops(dev)->mapping_error)
++		return get_dma_ops(dev)->mapping_error(dev, dma_addr);
 +
-+static inline void dma_free_noncoherent(struct device *dev, size_t size,
-+		void *cpu_addr, dma_addr_t dma_handle)
-+{
-+	DEFINE_DMA_ATTRS(attrs);
-+
-+	dma_set_attr(DMA_ATTR_NON_CONSISTENT, &attrs);
-+	dma_free_attrs(dev, size, cpu_addr, dma_handle, &attrs);
++#ifdef DMA_ERROR_CODE
++	return dma_addr == DMA_ERROR_CODE;
++#else
++	return 0;
++#endif
 +}
 +
  #endif
