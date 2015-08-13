@@ -1,14 +1,14 @@
-Date: Thu, 13 Aug 2015 16:25:05 +0100
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCH 5/5] dma-mapping: consolidate dma_set_mask
-Message-ID: <20150813152505.GR7557@n2100.arm.linux.org.uk>
-References: <1439478248-15183-1-git-send-email-hch@lst.de>
- <1439478248-15183-6-git-send-email-hch@lst.de>
+Date: Thu, 13 Aug 2015 19:55:41 +0200
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 2/5] dma-mapping: consolidate
+        dma_{alloc,free}_noncoherent
+Message-ID: <20150813175541.GA21103@lst.de>
+References: <1439478248-15183-1-git-send-email-hch@lst.de> <1439478248-15183-3-git-send-email-hch@lst.de> <20150813152040.GQ7557@n2100.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1439478248-15183-6-git-send-email-hch@lst.de>
-Return-Path: <linux+linux-mips=linux-mips.org@arm.linux.org.uk>
+In-Reply-To: <20150813152040.GQ7557@n2100.arm.linux.org.uk>
+Return-Path: <hch@lst.de>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 List-help: <mailto:ecartis@linux-mips.org?Subject=help>
@@ -20,32 +20,21 @@ List-post: <mailto:linux-mips@linux-mips.org>
 List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 List-Archive: <https://lore.kernel.org/linux-mips/>
 List-Post: <mailto:linux-mips@vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: akpm@linux-foundation.org, arnd@arndb.de, catalin.marinas@arm.com, will.deacon@arm.com, ysato@users.sourceforge.jp, monstr@monstr.eu, jonas@southpole.se, cmetcalf@ezchip.com, gxt@mprc.pku.edu.cn, x86@kernel.org, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@linux-foundation.org, arnd@arndb.de, catalin.marinas@arm.com, will.deacon@arm.com, ysato@users.sourceforge.jp, monstr@monstr.eu, jonas@southpole.se, cmetcalf@ezchip.com, gxt@mprc.pku.edu.cn, x86@kernel.org, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Aug 13, 2015 at 05:04:08PM +0200, Christoph Hellwig wrote:
-> diff --git a/arch/arm/common/dmabounce.c b/arch/arm/common/dmabounce.c
-> index 1143c4d..260f52a 100644
-> --- a/arch/arm/common/dmabounce.c
-> +++ b/arch/arm/common/dmabounce.c
-> @@ -440,14 +440,6 @@ static void dmabounce_sync_for_device(struct device *dev,
->  	arm_dma_ops.sync_single_for_device(dev, handle, size, dir);
->  }
->  
-> -static int dmabounce_set_mask(struct device *dev, u64 dma_mask)
-> -{
-> -	if (dev->archdata.dmabounce)
-> -		return 0;
-> -
-> -	return arm_dma_ops.set_dma_mask(dev, dma_mask);
+On Thu, Aug 13, 2015 at 04:20:40PM +0100, Russell King - ARM Linux wrote:
+> > -/*
+> > - * Dummy noncoherent implementation.  We don't provide a dma_cache_sync
+> > - * function so drivers using this API are highlighted with build warnings.
+> > - */
+> 
+> I'd like a similar comment to remain after this patch explaining that we
+> don't support non-coherent allocations and that it'll be highlighted by
+> the lack of dma_cache_sync, otherwise I'm sure we'll start to get patches
+> to add the thing.
 
-Are you sure about this?  A user of dmabounce gets to request any mask
-with the original code (even though it was never written back... which
-is a separate bug.)  After this, it seems that this will get limited
-by the dma_supported() check.  As this old code is about bouncing any
-buffer into DMA-able memory, it doesn't care about the DMA mask.
-
--- 
-FTTC broadband for 0.8mile line: currently at 10.5Mbps down 400kbps up
-according to speedtest.net.
+I'll keep a modified version of this comment in the ARM dma-mapping.h
+in addition to an explanation near the new common dma_alloc_noncoherent
+definition, thanks!
