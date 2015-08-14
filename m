@@ -1,8 +1,8 @@
 Return-Path: <sukadev@linux.vnet.ibm.com>
 From: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
-Subject: [PATCH v5 5/8] perf: Invert perf_read_group() loops
-Date: Thu, 13 Aug 2015 23:49:38 -0700
-Message-Id: <1439534981-7937-6-git-send-email-sukadev@linux.vnet.ibm.com>
+Subject: [PATCH v5 7/8] Define PERF_PMU_TXN_READ interface
+Date: Thu, 13 Aug 2015 23:49:40 -0700
+Message-Id: <1439534981-7937-8-git-send-email-sukadev@linux.vnet.ibm.com>
 In-Reply-To: <1439534981-7937-1-git-send-email-sukadev@linux.vnet.ibm.com>
 References: <1439534981-7937-1-git-send-email-sukadev@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -17,136 +17,95 @@ To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Arnal
 Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Peter Zijlstra <peterz@infradead.org>
+Define a new PERF_PMU_TXN_READ interface to read a group of counters
+at once.
 
-In order to enable the use of perf_event_read(.group = true), we need
-to invert the sibling-child loop nesting of perf_read_group().
+        pmu->start_txn()                // Initialize before first event
 
-Currently we iterate the child list for each sibling, this precludes
-using group reads. Flip things around so we iterate each group for
-each child.
+        for each event in group
+                pmu->read(event);       // Queue each event to be read
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+        rc = pmu->commit_txn()          // Read/update all queued counters
+
+Note that we use this interface with all PMUs.  PMUs that implement this
+interface use the ->read() operation to _queue_ the counters to be read
+and use ->commit_txn() to actually read all the queued counters at once.
+
+PMUs that don't implement PERF_PMU_TXN_READ ignore ->start_txn() and
+->commit_txn() and continue to read counters one at a time.
+
+Thanks to input from Peter Zijlstra.
+
 Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
 ---
-Changes to Peter's patch:
-	- Add GFP_KERNEL to kzalloc().
-	- Pass in address of counter to atomic_read().
-	- Return event->size rather than leader->size (perf_read_group())
-	- Keep chkpatch happy.
+Changelog[v4]
+        - [Peter Zijlstra] Add lockdep_assert_held() in perf_event_read_group().
+          Make sure the entire transaction happens on the same CPU.
 ---
- kernel/events/core.c |   85 ++++++++++++++++++++++++++++++++------------------
- 1 file changed, 55 insertions(+), 30 deletions(-)
+ include/linux/perf_event.h |    1 +
+ kernel/events/core.c       |   24 +++++++++++++++++++-----
+ 2 files changed, 20 insertions(+), 5 deletions(-)
 
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index 44bf05f..da307ad 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -169,6 +169,7 @@ struct perf_event;
+ #define PERF_EVENT_TXN 0x1
+ 
+ #define PERF_PMU_TXN_ADD  0x1		/* txn to add/schedule event on PMU */
++#define PERF_PMU_TXN_READ 0x2		/* txn to read event group from PMU */
+ 
+ /**
+  * pmu::capabilities flags
 diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 31ec842..2221ebe 100644
+index e3ce047..fde2f43 100644
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -3795,50 +3795,75 @@ u64 perf_event_read_value(struct perf_event *event, u64 *enabled, u64 *running)
- }
- EXPORT_SYMBOL_GPL(perf_event_read_value);
+@@ -3189,6 +3189,7 @@ static void __perf_event_read(void *info)
+ 	struct perf_event *sub, *event = data->event;
+ 	struct perf_event_context *ctx = event->ctx;
+ 	struct perf_cpu_context *cpuctx = __get_cpu_context(ctx);
++	struct pmu *pmu = event->pmu;
  
--static int perf_read_group(struct perf_event *event,
--				   u64 read_format, char __user *buf)
-+static void __perf_read_group_add(struct perf_event *leader,
-+					u64 read_format, u64 *values)
- {
--	struct perf_event *leader = event->group_leader, *sub;
--	struct perf_event_context *ctx = leader->ctx;
--	int n = 0, size = 0, ret;
--	u64 count, enabled, running;
--	u64 values[5];
-+	struct perf_event *sub;
-+	int n = 1; /* skip @nr */
+ 	/*
+ 	 * If this is a task context, we need to check whether it is
+@@ -3207,18 +3208,31 @@ static void __perf_event_read(void *info)
+ 	}
  
--	lockdep_assert_held(&ctx->mutex);
-+	perf_event_read(leader, true);
-+
-+	/*
-+	 * Since we co-schedule groups, {enabled,running} times of siblings
-+	 * will be identical to those of the leader, so we only publish one
-+	 * set.
-+	 */
-+	if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED) {
-+		values[n++] += leader->total_time_enabled +
-+			atomic64_read(&leader->child_total_time_enabled);
+ 	update_event_times(event);
+-	if (event->state == PERF_EVENT_STATE_ACTIVE)
+-		event->pmu->read(event);
++	if (event->state != PERF_EVENT_STATE_ACTIVE)
++		goto unlock;
+ 
+-	if (!data->group)
++	if (!data->group) {
++		pmu->read(event);
++		data->ret = 0;
+ 		goto unlock;
 +	}
- 
--	count = perf_event_read_value(leader, &enabled, &running);
-+	if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING) {
-+		values[n++] += leader->total_time_running +
-+			atomic64_read(&leader->child_total_time_running);
-+	}
- 
--	values[n++] = 1 + leader->nr_siblings;
--	if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED)
--		values[n++] = enabled;
--	if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING)
--		values[n++] = running;
--	values[n++] = count;
-+	/*
-+	 * Write {count,id} tuples for every sibling.
-+	 */
-+	values[n++] += perf_event_count(leader);
- 	if (read_format & PERF_FORMAT_ID)
- 		values[n++] = primary_event_id(leader);
- 
--	size = n * sizeof(u64);
-+	list_for_each_entry(sub, &leader->sibling_list, group_entry) {
-+		values[n++] += perf_event_count(sub);
-+		if (read_format & PERF_FORMAT_ID)
-+			values[n++] = primary_event_id(sub);
-+	}
-+}
- 
--	if (copy_to_user(buf, values, size))
--		return -EFAULT;
-+static int perf_read_group(struct perf_event *event,
-+				   u64 read_format, char __user *buf)
-+{
-+	struct perf_event *leader = event->group_leader, *child;
-+	struct perf_event_context *ctx = leader->ctx;
-+	int ret = event->read_size;
-+	u64 *values;
- 
--	ret = size;
-+	lockdep_assert_held(&ctx->mutex);
- 
--	list_for_each_entry(sub, &leader->sibling_list, group_entry) {
--		n = 0;
-+	values = kzalloc(event->read_size, GFP_KERNEL);
-+	if (!values)
-+		return -ENOMEM;
- 
--		values[n++] = perf_event_read_value(sub, &enabled, &running);
--		if (read_format & PERF_FORMAT_ID)
--			values[n++] = primary_event_id(sub);
-+	values[0] = 1 + leader->nr_siblings;
 +
-+	/*
-+	 * By locking the child_mutex of the leader we effectively
-+	 * lock the child list of all siblings.. XXX explain how.
-+	 */
-+	mutex_lock(&leader->child_mutex);
- 
--		size = n * sizeof(u64);
-+	__perf_read_group_add(leader, read_format, values);
-+	list_for_each_entry(child, &leader->child_list, child_list)
-+		__perf_read_group_add(child, read_format, values);
- 
--		if (copy_to_user(buf + ret, values, size)) {
--			return -EFAULT;
--		}
-+	mutex_unlock(&leader->child_mutex);
- 
--		ret += size;
--	}
-+	if (copy_to_user(buf, values, event->read_size))
-+		ret = -EFAULT;
++	pmu->start_txn(pmu, PERF_PMU_TXN_READ);
 +
-+	kfree(values);
++	pmu->read(event);
  
- 	return ret;
- }
+ 	list_for_each_entry(sub, &event->sibling_list, group_entry) {
+ 		update_event_times(sub);
+-		if (sub->state == PERF_EVENT_STATE_ACTIVE)
++		if (sub->state == PERF_EVENT_STATE_ACTIVE) {
++			/*
++			 * Use sibling's PMU rather than @event's since
++			 * sibling could be on different (eg: software) PMU.
++			 */
+ 			sub->pmu->read(sub);
++		}
+ 	}
+-	data->ret = 0;
++
++	data->ret = pmu->commit_txn(pmu);
+ 
+ unlock:
+ 	raw_spin_unlock(&ctx->lock);
 -- 
 1.7.9.5
