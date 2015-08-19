@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date: Wed, 26 Aug 2015 21:03:00 +0200
-From: Tillmann Heidsieck <theidsieck@leenox.de>
-Subject: Re: [PATCH] s390/jump_label: Use %*ph to print small buffers
-In-Reply-To: <1440614969-11351-1-git-send-email-kuleshovmail@gmail.com>
-References: <1440614969-11351-1-git-send-email-kuleshovmail@gmail.com>
-Message-ID: <9ca5f3280075e7b94356003e250efe25@mail.leenox.de>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Alexander Kuleshov <kuleshovmail@gmail.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Wed, 19 Aug 2015 07:43:46 +0000
+Subject: Re: linux-4.2-rc7/drivers/s390/block/dcssblk.c: 3 * bad array index ?
+Message-Id: <20150819094346.1150dba4@mschwide>
+In-Reply-To: <DUB128-W11065573F4730A28DBF59A9C670@phx.gbl>
+References: <DUB128-W11065573F4730A28DBF59A9C670@phx.gbl>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Alexander,
+On Wed, 19 Aug 2015 07:30:58 +0000
+David Binderman <dcb314@hotmail.com> wrote:
 
-On 2015-08-26 20:49, Alexander Kuleshov wrote:
-> printk() supports %*ph format specifier for printing a small buffers,
-> let's use it intead of %02x %02x...
+> 1.
+> 
+> [linux-4.2-rc7/drivers/s390/block/dcssblk.c:553]: (style) Array index 'j' is used before limits check.
+> 
+> Source code is
+> 
+> ������� for (j = i; (buf[j] != ':') &&
+> ����������� (buf[j] != '\0') &&
+> ����������� (buf[j] != '\n') &&
+> ����������� j < count; j++) {
+> 
+> Maybe
+> 
+> ������� for (j = i; (j < count) && 
+> ����������� (buf[j] != ':') &&
+> ����������� (buf[j] != '\0') &&
+> ����������� (buf[j] != '\n'); j++) {
+> 
+> 2.
+> 
+> [linux-4.2-rc7/drivers/s390/block/dcssblk.c:726]: (style) Array index 'i' is used before limits check.
+> 
+> ��� for (i = 0; ((*(buf+i)!='\0') && (*(buf+i)!='\n') && i < count); i++) {
+> 
+> 3.
+> 
+> [linux-4.2-rc7/drivers/s390/block/dcssblk.c:909]: (style) Array index 'j' is used before limits check.
+> 
+> ������� for (j = i; (dcssblk_segments[j] != ',')� &&
+> ��������������� (dcssblk_segments[j] != '\0') &&
+> ��������������� (dcssblk_segments[j] != '(')� &&
+> ��������������� (j < DCSSBLK_PARM_LEN); j++)
 
-noble effort ...
+Thanks for the heads-up. This is broken(ish). I'll fix it.
 
->  	pr_emerg("Jump label code mismatch at %pS [%p]\n", ipc, ipc);
-> -	pr_emerg("Found:    %02x %02x %02x %02x %02x %02x\n",
-> +	pr_emerg("Found:    %6ph\n",
->  		 ipc[0], ipc[1], ipc[2], ipc[3], ipc[4], ipc[5]);
-> -	pr_emerg("Expected: %02x %02x %02x %02x %02x %02x\n",
-> +	pr_emerg("Expected: %6ph\n",
->  		 ipe[0], ipe[1], ipe[2], ipe[3], ipe[4], ipe[5]);
-> -	pr_emerg("New:      %02x %02x %02x %02x %02x %02x\n",
-> +	pr_emerg("New:      %6ph\n",
->  		 ipn[0], ipn[1], ipn[2], ipn[3], ipn[4], ipn[5]);
->  	panic("Corrupted kernel text");
->  }
+-- 
+blue skies,
+   Martin.
 
-... but you might want to check our code before submission (e.g. compile 
-it!)
-
-Cheers
-Tillmann
+"Reality continues to ruin my life." - Calvin.
