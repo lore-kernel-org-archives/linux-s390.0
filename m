@@ -1,33 +1,66 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Thu, 13 Aug 2015 16:33:25 +0200
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 31/31] dma-mapping-common: skip kmemleak checks for
-	page-less SG entries
-Message-ID: <20150813143325.GB17183@lst.de>
-References: <1439363150-8661-1-git-send-email-hch@lst.de> <1439363150-8661-32-git-send-email-hch@lst.de> <CA+55aFxfZM81HNfo2ysfhGwrhx6GX-+F--+jLFmMVv+Z0id2rw@mail.gmail.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+55aFxfZM81HNfo2ysfhGwrhx6GX-+F--+jLFmMVv+Z0id2rw@mail.gmail.com>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20150813143325.HOQN7zc11VtTl9vWuatz36JNUhHzEbabgidtIZXJJww@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>, Dan Williams <dan.j.williams@intel.com>, Vineet Gupta <vgupta@synopsys.com>, =?iso-8859-1?Q?H=E5vard?= Skinnemoen <hskinnemoen@gmail.com>, Hans-Christian Egtvedt <egtvedt@samfundet.no>, Miao Steven <realmz6@gmail.com>, David Howells <dhowells@redhat.com>, Michal Simek <monstr@monstr.eu>, the arch/x86 maintainers <x86@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Alex Williamson <alex.williamson@redhat.com>, grundler@parisc-linux.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, linux-alpha@vger.kernel.org, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-metag@vger.kernel.org, linux-mips <linux-mips@linux-mips.org>, Parisc List <linux-parisc@vger.kernel.org>, ppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, "linux-nvdimm@lists.01.org" <linux-nvdimm@ml01.01.org>, Linux Media Mailing List <linux-media@vger.kernel.org>
+In-Reply-To: <1439973050.12322.5.camel@BR9GV9YG.de.ibm.com>
+References: <OF92C6D110.21C79ACA-ONC1257EA6.002BFA53-C1257EA6.002C1CD6@de.ibm.com>
+	<1439973050.12322.5.camel@BR9GV9YG.de.ibm.com>
+Date: Wed, 19 Aug 2015 17:15:36 +0530
+Message-ID: <CAK-LDbLzzsgcHdwVBSjOhsFSkPo6PLV2iTpRSCy-yPiFs9MWTQ@mail.gmail.com>
+Subject: Re: [PATCH] qeth: Convert use of __constant_htons to htons
+From: Vaishali Thakkar <vthakkar1994@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Cc: mschwid2@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.com, linux-s390@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux390@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Aug 12, 2015 at 09:05:15AM -0700, Linus Torvalds wrote:
-> [ Again, I'm responding to one random patch - this pattern was in
-> other patches too.  ]
-> 
-> A question: do we actually expect to mix page-less and pageful SG
-> entries in the same SG list?
-> 
-> How does that happen?
+On Wed, Aug 19, 2015 at 2:00 PM, Ursula Braun <ubraun@linux.vnet.ibm.com> wrote:
+>
+>> From:        Vaishali Thakkar <vthakkar1994@gmail.com>
+>> To:        Ursula Braun <ubraun@linux.vnet.ibm.com>,
+>> Cc:        Ursula Braun1/Germany/IBM@IBMDE, BOEBLINGEN
+>> LINUX390/Germany/IBM@IBMDE, mschwid2@linux.vnet.ibm.com,
+>> heicars2@linux.vnet.ibm.com, linux-s390@vger.kernel.org, Linux Kernel
+>> Mailing List <linux-kernel@vger.kernel.org>
+>> Date:        19/08/2015 07:02
+>> Subject:        Re: [PATCH] qeth: Convert use of __constant_htons to
+>> htons
+>>
+>> ______________________________________________________________________
+>>
+>>
+>>
+>> On Fri, Jun 12, 2015 at 1:12 PM, Ursula Braun
+>> <ubraun@linux.vnet.ibm.com> wrote:
+>> > Thanks Vaishali. I have added your patch to our local kernel git,
+>> and
+>> > will submit it within a following upstream shipment.
+>>
+>> Hi Ursula,
+>>
+>> Can you please tell me when this patch is going to be added in
+>> linux-next? I don't see them in linux-next and they are blocking
+>> removal of these macros.
+>>
+>> Do inform me in case there is any problem with this patch.
+>>
+>> Thank You.
+>>
+> Hi Vaishali,
+>
+> sorry, I have not been aware that you are urgently waiting for my next
+> upstream posting. I shipped your patch a few minutes ago to Dave Miller
+> for inclusion into net-next.
+>
+> Regards, Ursula Braun
+>
+>
 
-Both for DAX and the video buffer case people could do direct I/O
-spanning the boundary between such a VMA and a normal one unless
-we add special code to prevent that.  Right now I don't think it's
-all that useful, but then again it doesn't seem harmful either
-and adding those checks might add up.
+I am just concerned about removing these macros. Because its been long since
+we came to know that they are useless. :)
+
+So, Thank you for sending this patch to Dave Miller for net-next.
+
+-- 
+Vaishali
