@@ -1,79 +1,102 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 6/6] cputime: Introduce
- cputime_to_timespec64()/timespec64_to_cputime()
-Date: Thu, 16 Jul 2015 12:43:58 +0200 (CEST)
-Message-ID: <alpine.DEB.2.11.1507161230400.18576@nanos>
-References: <cover.1436511577.git.baolin.wang@linaro.org> <a1bd8d71caeb4051d0be87aad1baae7ababa4df7.1436511577.git.baolin.wang@linaro.org> <alpine.DEB.2.11.1507151226210.18576@nanos> <CAMz4kuLxBj+82trNVXs9qkuecrKvgdbXuJ3dfvDOCfyJwrDX9Q@mail.gmail.com>
- <alpine.DEB.2.11.1507151345060.18576@nanos> <CAMz4kuKNVACNhwddXMyCqKGpOf_gsoHk=ZFZFuaY=8e4DCRwGw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <CAMz4kuKNVACNhwddXMyCqKGpOf_gsoHk=ZFZFuaY=8e4DCRwGw@mail.gmail.com>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Baolin Wang <baolin.wang@linaro.org>
-Cc: benh@kernel.crashing.org, Arnd Bergmann <arnd@arndb.de>, John Stultz <john.stultz@linaro.org>, peterz@infradead.org, paulus@samba.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux390@de.ibm.com, rth@twiddle.net, riel@redhat.com, cl@linux.com, tj@kernel.org, =?ISO-8859-15?Q?Fr=E9d=E9ric_Weisbecker?= <fweisbec@gmail.com>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+MIME-Version: 1.0
+In-Reply-To: <1434094962.12558.2.camel@BR9GV9YG.de.ibm.com>
+References: <20150610105249.GA3212@vaishali-Ideapad-Z570>
+	<1434094962.12558.2.camel@BR9GV9YG.de.ibm.com>
+Date: Wed, 19 Aug 2015 10:32:24 +0530
+Message-ID: <CAK-LDbL0+p1eGcSjYVta_=miSmeOvo1bb6dJQWpG9iJkCScgDw@mail.gmail.com>
+Subject: Re: [PATCH] qeth: Convert use of __constant_htons to htons
+From: Vaishali Thakkar <vthakkar1994@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Cc: Ursula Braun <ursula.braun@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 16 Jul 2015, Baolin Wang wrote:
-> On 15 July 2015 at 19:55, Thomas Gleixner <tglx@linutronix.de> wrote:
-> > On Wed, 15 Jul 2015, Baolin Wang wrote:
-> >
-> >> On 15 July 2015 at 18:31, Thomas Gleixner <tglx@linutronix.de> wrote:
-> >> > On Wed, 15 Jul 2015, Baolin Wang wrote:
-> >> >
-> >> >> The cputime_to_timespec() and timespec_to_cputime() functions are
-> >> >> not year 2038 safe on 32bit systems due to that the struct timepsec
-> >> >> will overflow in 2038 year.
-> >> >
-> >> > And how is this relevant? cputime is not based on wall clock time at
-> >> > all. So what has 2038 to do with cputime?
-> >> >
-> >> > We want proper explanations WHY we need such a change.
-> >>
-> >> When converting the posix-cpu-timers, it call the
-> >> cputime_to_timespec() function. Thus it need a conversion for this
-> >> function.
-> >
-> > There is no requirement to convert posix-cpu-timers on their own. We
-> > need to adopt the posix cpu timers code because it shares syscalls
-> > with the other posix timers, but that still does not explain why we
-> > need these functions.
-> >
-> 
-> In posix-cpu-timers, it also defined some 'k_clock struct' variables,
-> and we need to convert the callbacks of the 'k_clock struct' which are
-> not year 2038 safe on 32bit systems. Some callbacks which need to
-> convert call the cputime_to_timespec() function, thus we also want to
-> convert the cputime_to_timespec() function to a year 2038 safe
-> function to make all them ready for the year 2038 issue.
+On Fri, Jun 12, 2015 at 1:12 PM, Ursula Braun <ubraun@linux.vnet.ibm.com> wrote:
+> Thanks Vaishali. I have added your patch to our local kernel git, and
+> will submit it within a following upstream shipment.
 
-You are not getting it at all.
+Hi Ursula,
 
-1) We need to change k_clock callbacks due to 2038 issues
+Can you please tell me when this patch is going to be added in
+linux-next? I don't see them in linux-next and they are blocking
+removal of these macros.
 
-2) posix cpu timers implement affected callbacks
+Do inform me in case there is any problem with this patch.
 
-3) posix cpu timers themself and cputime are NOT affected by 2038
+Thank You.
 
-So we have 2 options to change the code in posix cpu timers:
+> Regards, Ursula Braun
+>
+> On Wed, 2015-06-10 at 16:22 +0530, Vaishali Thakkar wrote:
+>> In little endian cases, the macro htons unfolds to __swab16 which
+>> provides special case for constants. In big endian cases,
+>> __constant_htons and htons expand directly to the same expression.
+>> So, replace __constant_htons with htons with the goal of getting
+>> rid of the definition of __constant_htons completely.
+>>
+>> The semantic patch that performs this transformation is as follows:
+>>
+>> @@expression x;@@
+>>
+>> - __constant_htons(x)
+>> + htons(x)
+>>
+>> Signed-off-by: Vaishali Thakkar <vthakkar1994@gmail.com>
+>> ---
+>>  drivers/s390/net/qeth_l2_main.c | 2 +-
+>>  drivers/s390/net/qeth_l3_main.c | 6 +++---
+>>  2 files changed, 4 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+>> index 0ea0869..a124f59 100644
+>> --- a/drivers/s390/net/qeth_l2_main.c
+>> +++ b/drivers/s390/net/qeth_l2_main.c
+>> @@ -272,7 +272,7 @@ static void qeth_l2_fill_header(struct qeth_card *card, struct qeth_hdr *hdr,
+>>       /* VSWITCH relies on the VLAN
+>>        * information to be present in
+>>        * the QDIO header */
+>> -     if (veth->h_vlan_proto == __constant_htons(ETH_P_8021Q)) {
+>> +     if (veth->h_vlan_proto == htons(ETH_P_8021Q)) {
+>>               hdr->hdr.l2.flags[2] |= QETH_LAYER2_FLAG_VLAN;
+>>               hdr->hdr.l2.vlan_id = ntohs(veth->h_vlan_TCI);
+>>       }
+>> diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+>> index 04e42c6..bd6b5a9 100644
+>> --- a/drivers/s390/net/qeth_l3_main.c
+>> +++ b/drivers/s390/net/qeth_l3_main.c
+>> @@ -1887,13 +1887,13 @@ static inline int qeth_l3_rebuild_skb(struct qeth_card *card,
+>>               case QETH_CAST_MULTICAST:
+>>                       switch (prot) {
+>>  #ifdef CONFIG_QETH_IPV6
+>> -                     case __constant_htons(ETH_P_IPV6):
+>> +                     case htons(ETH_P_IPV6):
+>>                               ndisc_mc_map((struct in6_addr *)
+>>                                    skb->data + 24,
+>>                                    tg_addr, card->dev, 0);
+>>                               break;
+>>  #endif
+>> -                     case __constant_htons(ETH_P_IP):
+>> +                     case htons(ETH_P_IP):
+>>                               ip_hdr = (struct iphdr *)skb->data;
+>>                               ip_eth_mc_map(ip_hdr->daddr, tg_addr);
+>>                               break;
+>> @@ -3015,7 +3015,7 @@ static int qeth_l3_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
+>>                       skb_copy_to_linear_data_offset(new_skb, 8,
+>>                               new_skb->data + 12, 4);
+>>                       tag = (u16 *)(new_skb->data + 12);
+>> -                     *tag = __constant_htons(ETH_P_8021Q);
+>> +                     *tag = htons(ETH_P_8021Q);
+>>                       *(tag + 1) = htons(skb_vlan_tag_get(new_skb));
+>>               }
+>>       }
+>
+>
 
-   A) Do the timespec/timespec64 conversion in the posix cpu timer
-      callbacks and leave the cputime functions untouched.
-
-   B) Implement cputime/timespec64 functions to avoid #A
-
-   If you go for #B, you need to provide a reasonable explanation why
-   it is better than #A. And that explanation has absolutely nothing
-   to do with 2038 safety.
-
-Not everything is a 2038 issue, just because the only tool you have is
-a timespec64.
-
-Thanks,
-
-	tglx
 
 
-   
+-- 
+Vaishali
