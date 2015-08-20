@@ -1,57 +1,72 @@
-From: David Laight <David.Laight@ACULAB.COM>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
 Subject: RE: [PATCH net-next 2/3] qeth: Convert use of __constant_htons to
  htons
-Date: Thu, 20 Aug 2015 11:51:19 +0000
-Message-ID: <063D6719AE5E284EB5DD2968C1650D6D1CB8054E@AcuExch.aculab.com>
+Date: Thu, 20 Aug 2015 15:53:42 +0200
+Message-ID: <1440078822.685.11.camel@BR9GV9YG.de.ibm.com>
 References: <1439972454-64347-1-git-send-email-ubraun@linux.vnet.ibm.com>
 	 <1439972454-64347-3-git-send-email-ubraun@linux.vnet.ibm.com>
 	 <063D6719AE5E284EB5DD2968C1650D6D1CB804CD@AcuExch.aculab.com>
- <1440071036.685.7.camel@BR9GV9YG.de.ibm.com>
+	 <1440071036.685.7.camel@BR9GV9YG.de.ibm.com>
+	 <063D6719AE5E284EB5DD2968C1650D6D1CB8054E@AcuExch.aculab.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1440071036.685.7.camel@BR9GV9YG.de.ibm.com>
-Content-Language: en-US
+In-Reply-To: <063D6719AE5E284EB5DD2968C1650D6D1CB8054E@AcuExch.aculab.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: 'Ursula Braun' <ubraun@linux.vnet.ibm.com>
+To: David Laight <David.Laight@ACULAB.COM>
 Cc: "davem@davemloft.net" <davem@davemloft.net>, "schwidefsky@de.ibm.com" <schwidefsky@de.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "ursula.braun@de.ibm.com" <ursula.braun@de.ibm.com>, Vaishali Thakkar <vthakkar1994@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-RnJvbTogVXJzdWxhIEJyYXVuIFttYWlsdG86dWJyYXVuQGxpbnV4LnZuZXQuaWJtLmNvbV0NCj4g
-U2VudDogMjAgQXVndXN0IDIwMTUgMTI6NDQNCj4gT24gVGh1LCAyMDE1LTA4LTIwIGF0IDEwOjQ2
-ICswMDAwLCBEYXZpZCBMYWlnaHQgd3JvdGU6DQo+ID4gRnJvbTogVXJzdWxhIEJyYXVuDQo+ID4g
-PiBTZW50OiAxOSBBdWd1c3QgMjAxNSAwOToyMQ0KPiA+ID4gSW4gbGl0dGxlIGVuZGlhbiBjYXNl
-cywgdGhlIG1hY3JvIGh0b25zIHVuZm9sZHMgdG8gX19zd2FiMTYgd2hpY2gNCj4gPiA+IHByb3Zp
-ZGVzIHNwZWNpYWwgY2FzZSBmb3IgY29uc3RhbnRzLiBJbiBiaWcgZW5kaWFuIGNhc2VzLA0KPiA+
-ID4gX19jb25zdGFudF9odG9ucyBhbmQgaHRvbnMgZXhwYW5kIGRpcmVjdGx5IHRvIHRoZSBzYW1l
-IGV4cHJlc3Npb24uDQo+ID4gPiBTbywgcmVwbGFjZSBfX2NvbnN0YW50X2h0b25zIHdpdGggaHRv
-bnMgd2l0aCB0aGUgZ29hbCBvZiBnZXR0aW5nDQo+ID4gPiByaWQgb2YgdGhlIGRlZmluaXRpb24g
-b2YgX19jb25zdGFudF9odG9ucyBjb21wbGV0ZWx5Lg0KPiA+IC4uLg0KPiA+ID4gZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvczM5MC9uZXQvcWV0aF9sM19tYWluLmMgYi9kcml2ZXJzL3MzOTAvbmV0L3Fl
-dGhfbDNfbWFpbi5jDQo+ID4gPiBpbmRleCA3MGViMmY2Li5lY2ZlNjIyIDEwMDY0NA0KPiA+ID4g
-LS0tIGEvZHJpdmVycy9zMzkwL25ldC9xZXRoX2wzX21haW4uYw0KPiA+ID4gKysrIGIvZHJpdmVy
-cy9zMzkwL25ldC9xZXRoX2wzX21haW4uYw0KPiA+ID4gQEAgLTE4ODcsMTMgKzE4ODcsMTMgQEAg
-c3RhdGljIGlubGluZSBpbnQgcWV0aF9sM19yZWJ1aWxkX3NrYihzdHJ1Y3QgcWV0aF9jYXJkICpj
-YXJkLA0KPiA+ID4gIAkJY2FzZSBRRVRIX0NBU1RfTVVMVElDQVNUOg0KPiA+ID4gIAkJCXN3aXRj
-aCAocHJvdCkgew0KPiA+ID4gICNpZmRlZiBDT05GSUdfUUVUSF9JUFY2DQo+ID4gPiAtCQkJY2Fz
-ZSBfX2NvbnN0YW50X2h0b25zKEVUSF9QX0lQVjYpOg0KPiA+ID4gKwkJCWNhc2UgaHRvbnMoRVRI
-X1BfSVBWNik6DQo+ID4NCj4gPiBJIGRpZG4ndCB0aGluayBodG9ucygpIHdhcyAnY29uc3RhbnQg
-ZW5vdWdoJyB0byBiZSB1c2VkIGFzIGEgY2FzZSBsYWJlbC4NCj4gPg0KPiA+IFVzaW5nIGJ5dGVz
-d2FwcGVkIGNvbnN0YW50cyBpbiBhIGNhc2Ugc3RhdGVtZW50IGNhbiBjaGFuZ2UgaXQgZnJvbSBi
-ZWluZw0KPiA+IGltcGxlbWVudGVkIGFzIGEganVtcCB0YWJsZSB0byBhIGJyYW5jaCB0cmVlLg0K
-PiA+IFRoaXMgbWlnaHQgYmUgbW9yZSBleHBlbnNpdmUgdGhhbiBieXRlc3dhcHBpbmcgdGhlIHZh
-bHVlIChldmVuIG9uIHN5c3RlbXMNCj4gPiB0aGF0IGRvbid0IGhhdmUgY2hlYXAgYnl0ZXN3YXAg
-aW5zdHJ1Y3Rpb25zKS4NCj4gPg0KPiA+IAlEYXZpZA0KPiA+DQo+IEZvciBiaWcgZW5kaWFuIHN5
-c3RlbXMgYm90aCBfX2NvbnN0YW50X2h0b25zKHgpIGFuZCBodG9ucyh4KSBhcmUNCj4gcmVzb2x2
-ZWQgdG8gKChfX2ZvcmNlIF9fYmUxNikoX191MTYpKHgpKS4gVGh1cyBJIGRvIG5vdCBzZWUgYSBy
-ZWFzb24gdG8NCj4gcmVqZWN0IHRoZSBwYXRjaCBwcm9wb3NhbCBmcm9tIFZhaXNoYWxpIFRoYWtr
-YXIuDQoNCkxvb2sgYXQgYSBsaXR0bGUtZW5kaWFuIG9uZSAoZWcgYW1kNjQpLg0KSSB0aGluayB5
-b3UnbGwgZmluZCBhIEMgPzogZXhwcmVzc2lvbiB0aGF0IHVzZXMgX19idWlsdGluX2NvbnN0YW50
-KCkgdG8NCnNlbGVjdCBiZXR3ZWVuIGFuIGV4cHJlc3Npb24gdGhlIGNvbXBpbGVyIGNhbiBldmFs
-dWF0ZSBhbmQgYSBjYWxsIHRvIGFuDQppbmxpbmUgZnVuY3Rpb24gdGhhdCB1c2VzIHNvbWUgYXBw
-cm9wcmlhdGUgYXNtLg0KVGhlIGxhdHRlciBpc24ndCBhIGNvbXBpbGUtdGltZSBjb25zdGFudCBz
-byBjYW4ndCBiZSB1c2VkIGFzIGEgY2FzZQ0KbGFiZWwgb3IgYXMgYW4gaW5pdGlhbGlzZXIuDQoN
-CglEYXZpZA0KDQoNCg==
+On Thu, 2015-08-20 at 11:51 +0000, David Laight wrote:
+> From: Ursula Braun [mailto:ubraun@linux.vnet.ibm.com]
+> > Sent: 20 August 2015 12:44
+> > On Thu, 2015-08-20 at 10:46 +0000, David Laight wrote:
+> > > From: Ursula Braun
+> > > > Sent: 19 August 2015 09:21
+> > > > In little endian cases, the macro htons unfolds to __swab16 which
+> > > > provides special case for constants. In big endian cases,
+> > > > __constant_htons and htons expand directly to the same expression.
+> > > > So, replace __constant_htons with htons with the goal of getting
+> > > > rid of the definition of __constant_htons completely.
+> > > ...
+> > > > diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+> > > > index 70eb2f6..ecfe622 100644
+> > > > --- a/drivers/s390/net/qeth_l3_main.c
+> > > > +++ b/drivers/s390/net/qeth_l3_main.c
+> > > > @@ -1887,13 +1887,13 @@ static inline int qeth_l3_rebuild_skb(struct qeth_card *card,
+> > > >  		case QETH_CAST_MULTICAST:
+> > > >  			switch (prot) {
+> > > >  #ifdef CONFIG_QETH_IPV6
+> > > > -			case __constant_htons(ETH_P_IPV6):
+> > > > +			case htons(ETH_P_IPV6):
+> > >
+> > > I didn't think htons() was 'constant enough' to be used as a case label.
+> > >
+> > > Using byteswapped constants in a case statement can change it from being
+> > > implemented as a jump table to a branch tree.
+> > > This might be more expensive than byteswapping the value (even on systems
+> > > that don't have cheap byteswap instructions).
+> > >
+> > > 	David
+> > >
+> > For big endian systems both __constant_htons(x) and htons(x) are
+> > resolved to ((__force __be16)(__u16)(x)). Thus I do not see a reason to
+> > reject the patch proposal from Vaishali Thakkar.
+> 
+> Look at a little-endian one (eg amd64).
+> I think you'll find a C ?: expression that uses __builtin_constant() to
+> select between an expression the compiler can evaluate and a call to an
+> inline function that uses some appropriate asm.
+> The latter isn't a compile-time constant so can't be used as a case
+> label or as an initialiser.
+> 
+> 	David
+> 
+> 
+qeth is an s390-driver, and s390 is a big-endian architecture. Thus
+arguments valid for little-endian do not apply to qeth-code.
+
+Ursula
