@@ -1,102 +1,160 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <1434094962.12558.2.camel@BR9GV9YG.de.ibm.com>
-References: <20150610105249.GA3212@vaishali-Ideapad-Z570>
-	<1434094962.12558.2.camel@BR9GV9YG.de.ibm.com>
-Date: Wed, 19 Aug 2015 10:32:24 +0530
-Message-ID: <CAK-LDbL0+p1eGcSjYVta_=miSmeOvo1bb6dJQWpG9iJkCScgDw@mail.gmail.com>
-Subject: Re: [PATCH] qeth: Convert use of __constant_htons to htons
-From: Vaishali Thakkar <vthakkar1994@gmail.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH V4 net-next 0/2] net: implement SMC-R solution
+Date: Fri, 21 Aug 2015 13:30:27 +0200
+Message-ID: <1440156629-35691-1-git-send-email-ubraun@linux.vnet.ibm.com>
+References: <20150726.161530.2192841818929026804.davem@davemloft.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Cc: Ursula Braun <ursula.braun@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20150726.161530.2192841818929026804.davem@davemloft.net>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: davem@davemloft.net
+Cc: utz.bacher@de.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ursula.braun@de.ibm.com, ubraun@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Jun 12, 2015 at 1:12 PM, Ursula Braun <ubraun@linux.vnet.ibm.com> wrote:
-> Thanks Vaishali. I have added your patch to our local kernel git, and
-> will submit it within a following upstream shipment.
+=46rom: Ursula Braun <ursula.braun@de.ibm.com>
 
-Hi Ursula,
+Dave,
 
-Can you please tell me when this patch is going to be added in
-linux-next? I don't see them in linux-next and they are blocking
-removal of these macros.
+this is V4 of my SMC-R patches:
+Since you are asking for a solution "100% in our own separate module
+with our own can of worms", we have to give up the transparent detectio=
+n
+whether a communication peer can do SMC-R or not (this has been the
+purpose of the rejected TCP hooks). Instead, we want just the new
+self-contained SMC-R socket family added to the kernel.
+By the way, since August 2015 the SMC-R Informational RFC is no longer
+a draft, but published as RFC7609.
 
-Do inform me in case there is any problem with this patch.
+V4 changes:
+1. Remove tcp patches supporting TCP experimental options
+2. Remove references to tcp_sock syn_smc flag in smc-code, since TCP
+   experimental options are not supported by the Linux-tcp.
+3. clc_wait_msg() simplified
 
-Thank You.
+V3 changes:
+1. Avoid adding of new space for smc-related bits in the tcp structures=
+=2E
+2. Make the smc feature to be nearly zero cost using Static Keys / jump
+   labels
+3. Increase / decrease smc static key in the smc-code
+4. Make sure the next-to-last patch does not break the build
+5. Additional pnet table checking
 
-> Regards, Ursula Braun
->
-> On Wed, 2015-06-10 at 16:22 +0530, Vaishali Thakkar wrote:
->> In little endian cases, the macro htons unfolds to __swab16 which
->> provides special case for constants. In big endian cases,
->> __constant_htons and htons expand directly to the same expression.
->> So, replace __constant_htons with htons with the goal of getting
->> rid of the definition of __constant_htons completely.
->>
->> The semantic patch that performs this transformation is as follows:
->>
->> @@expression x;@@
->>
->> - __constant_htons(x)
->> + htons(x)
->>
->> Signed-off-by: Vaishali Thakkar <vthakkar1994@gmail.com>
->> ---
->>  drivers/s390/net/qeth_l2_main.c | 2 +-
->>  drivers/s390/net/qeth_l3_main.c | 6 +++---
->>  2 files changed, 4 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
->> index 0ea0869..a124f59 100644
->> --- a/drivers/s390/net/qeth_l2_main.c
->> +++ b/drivers/s390/net/qeth_l2_main.c
->> @@ -272,7 +272,7 @@ static void qeth_l2_fill_header(struct qeth_card *card, struct qeth_hdr *hdr,
->>       /* VSWITCH relies on the VLAN
->>        * information to be present in
->>        * the QDIO header */
->> -     if (veth->h_vlan_proto == __constant_htons(ETH_P_8021Q)) {
->> +     if (veth->h_vlan_proto == htons(ETH_P_8021Q)) {
->>               hdr->hdr.l2.flags[2] |= QETH_LAYER2_FLAG_VLAN;
->>               hdr->hdr.l2.vlan_id = ntohs(veth->h_vlan_TCI);
->>       }
->> diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
->> index 04e42c6..bd6b5a9 100644
->> --- a/drivers/s390/net/qeth_l3_main.c
->> +++ b/drivers/s390/net/qeth_l3_main.c
->> @@ -1887,13 +1887,13 @@ static inline int qeth_l3_rebuild_skb(struct qeth_card *card,
->>               case QETH_CAST_MULTICAST:
->>                       switch (prot) {
->>  #ifdef CONFIG_QETH_IPV6
->> -                     case __constant_htons(ETH_P_IPV6):
->> +                     case htons(ETH_P_IPV6):
->>                               ndisc_mc_map((struct in6_addr *)
->>                                    skb->data + 24,
->>                                    tg_addr, card->dev, 0);
->>                               break;
->>  #endif
->> -                     case __constant_htons(ETH_P_IP):
->> +                     case htons(ETH_P_IP):
->>                               ip_hdr = (struct iphdr *)skb->data;
->>                               ip_eth_mc_map(ip_hdr->daddr, tg_addr);
->>                               break;
->> @@ -3015,7 +3015,7 @@ static int qeth_l3_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
->>                       skb_copy_to_linear_data_offset(new_skb, 8,
->>                               new_skb->data + 12, 4);
->>                       tag = (u16 *)(new_skb->data + 12);
->> -                     *tag = __constant_htons(ETH_P_8021Q);
->> +                     *tag = htons(ETH_P_8021Q);
->>                       *(tag + 1) = htons(skb_vlan_tag_get(new_skb));
->>               }
->>       }
->
->
+V2 changes:
+1. activate tcp changes for CONFIG_AFSMC only (as suggested by Eric Dum=
+azet)
+2. add additional hook in net/core/sock.c
+3. fix bitfield endianness problem
 
+Thanks,
+        Ursula
 
+In 2013, IBM introduced an optimized communications solution for the
+IBM zEnterprise EC12 and BC12 (s390 in Linux terminology) that is
+comprised of the IBM 10GbE RoCE Express feature with Shared Memory
+Communications-RDMA (SMC-R) protocol [1].
+SMC-R is designed for the enterprise data center environment and is an =
+open
+protocol as specified in the informational RFC7609 [2]. It has been
+published in August 2015. Another implementation of this protocol is
+available since 2013 with IBM z/OS Version 2 Release 1.=20
 
--- 
-Vaishali
+SMC-R provides a =E2=80=9Csockets over RDMA=E2=80=9D solution that leve=
+rages industry
+standard RDMA over Converged Ethernet (RoCE) technology.
+
+IBM has developed a Linux implementation of the SMC-R standard. A new
+socket protocol family AF_SMC is introduced. A preload library can be u=
+sed
+to enable TCP-based applications to use SMC-R without changes.=20
+
+Key aspects of SMC-R are:=20
+1. Provides optimized performance compared to standard TCP/IP over Ethe=
+rnet
+   within the data center for both request/response (latency) and strea=
+ming
+   workloads (CPU savings) [3].=20
+   Initial benchmarks on Linux on x86 processors have shown latency
+   reduction of up to 52% with a throughput gain of 111% using SMC-R vs=
+ TCP
+   for request/response message patterns (10 concurrent TCP connections
+   with 16KB    messages) and CPU savings of up to 69% for streaming da=
+ta
+   patterns (single TCP connection with 20MB of data in one direction).
+   [1] is currently updated to contain more detailed information on Lin=
+ux
+   and performance.
+2. In order to preserve the traditional network administrative model th=
+e
+   SMC-R protocol ties into the existing IP addresses and uses TCP's
+   handshake to establish connections. This allows existing management
+   tools and security infrastructure to control the creation of SMC
+   connections.
+3. The SMC-R protocol logically bonds multiple RoCE adapters together
+   providing    redundancy with transparent fail-over for improved high
+   availability, increased bandwidth and load balancing across multiple
+   RDMA-capable devices.
+Without the rejected TCP Experimental Options the following aspects are
+restricted; alternate solutions are in discussion.=20
+4. Due to its handshake protocol, SMC-R is compatible with (transparent=
+ to)
+   existing TCP connection load balancers that are commonly used in the
+   enterprise data center environment for multi-tier application worklo=
+ads.
+5. SMC-R's handshake protocol allows for transparent fallback to TCP/IP=
+,
+   should one of the peers not be capable of the protocol.
+
+Additional SMC-R overview and reference materials are available [1]. =20
+
+The SMC-R =E2=80=9Crendezvous" protocol eliminates the need for RDMA-CM=
+ and the
+exchange occurs through an initial TCP connection. Building on a TCP
+connection to establish an SMC-R connection solves many key requirement=
+s.
+The rendezvous process occurs now in 1 phase only:=20
+1. TCP/IP 3-way exchange with TCP experimental options is skipped.
+2. SMC-R 3-way exchange:
+   It is assumed both partners indicate SMC-R capability. Then at the
+   completion of the 3-way TCP handshake the SMC-R layers in each peer =
+take
+   control of the TCP connection and exchange their RDMA credentials. I=
+f
+   this 3-way exchange completes successfully the connection continues =
+using
+   SMC-R. If the exchange is not successful the connections falls back =
+to
+   standard TCP/IP.=20
+
+References:
+[1] SMC-R Overview and Reference Materials:
+    http://www-01.ibm.com/software/network/commserver/SMCR/=20
+[2] SMC-R Informational RFC:
+    https://tools.ietf.org/rfc/rfc7609
+[3] Linux SMC-R Overview and Performance Summary
+    (archs x86 and s390):
+    http://www-01.ibm.com/software/network/commserver/SMCR/=20
+
+The patch series is prepared to apply to net-next and consists of these
+parts:
+1. net:             definitions to establish new socket family
+2. net/smc:         new socket family
+
+In the future, SMC-R will be enhanced to cover:
+- alternate SMC-capability detection
+- IPv6 support
+- Tracing
+- Statistics support
+
+shortlog:
+
+Ursula Braun (2):
+  net: introduce socket family constants
+  smc: introduce socket family AF_SMC
+
+--=20
+2.3.8
