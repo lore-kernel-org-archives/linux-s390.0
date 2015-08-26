@@ -1,7 +1,7 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 26 Aug 2015 14:49:30 +0000
+From: Richard Henderson <rth@twiddle.net>
+Date: Wed, 26 Aug 2015 19:48:35 +0000
 Subject: Re: Ping Re: [PATCH 0/8] math-emu: Update kernel math-emu code from current glibc soft-fp
-Message-Id: <CAMuHMdWz=McFn81URtirXA4eMA4knhCfVVRLisixnxZaA46E-w@mail.gmail.com>
+Message-Id: <55DE1813.7030901@twiddle.net>
 References: <alpine.DEB.2.10.1507021542380.29415@digraph.polyomino.org.uk>
  <alpine.DEB.2.10.1508191433380.11312@digraph.polyomino.org.uk>
  <1440026806.13406.2.camel@ellerman.id.au>
@@ -12,25 +12,63 @@ Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 List-Archive: <https://lore.kernel.org/linux-sh/>
 List-Post: <mailto:linux-sh@vger.kernel.org>
-To: Joseph Myers <joseph@codesourcery.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, alpha <linux-alpha@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>
+To: Joseph Myers <joseph@codesourcery.com>, Michael Ellerman <mpe@ellerman.id.au>
+Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Aug 26, 2015 at 4:44 PM, Joseph Myers <joseph@codesourcery.com> wrote:
+On 08/26/2015 07:44 AM, Joseph Myers wrote:
+> On Thu, 20 Aug 2015, Michael Ellerman wrote:
+>
+>> On Wed, 2015-08-19 at 14:39 +0000, Joseph Myers wrote:
+>>> I'd like to ping this patch series, not having seen any comments on it.
+>>>
+>>> [PATCH 0/8] math-emu: Update kernel math-emu code from current glibc soft-fp
+>>> https://lkml.org/lkml/2015/7/2/394
+>>>
+>>> [PATCH 1/8] math-emu: Move math-emu to math-emu-old
+>>> https://lkml.org/lkml/2015/7/2/395
+>>>
+>>> [PATCH 2/8] math-emu: Import current glibc soft-fp as include/math-emu
+>>> https://lkml.org/lkml/2015/7/2/398
+>>>
+>>> [PATCH 3/8] alpha/math-emu: Move alpha from math-emu-old to math-emu
+>>> https://lkml.org/lkml/2015/7/2/399
+>>>
+>>> [PATCH 4/8] powerpc/math-emu: Move powerpc from math-emu-old to math-emu
+>>> https://lkml.org/lkml/2015/7/2/400
+>>>
+>>> [PATCH 5/8] s390/math-emu: Move s390 from math-emu-old to math-emu
+>>> https://lkml.org/lkml/2015/7/2/401
+>>>
+>>> [PATCH 6/8] sh/math-emu: Move sh from math-emu-old to math-emu
+>>> https://lkml.org/lkml/2015/7/2/402
+>>>
+>>> [PATCH 7/8] sparc/math-emu: Move sparc from math-emu-old to math-emu
+>>> https://lkml.org/lkml/2015/7/2/404
+>>>
+>>> [PATCH 8/8] math-emu: Remove math-emu-old
+>>> https://lkml.org/lkml/2015/7/2/405
+>>>
+>>> As noted in patch 0, the dependencies are as follows: patch 2 depends on
+>>> patch 1, patches 3-7 depend on patches 1 and 2 but are independent of each
+>>> other, patch 8 depends on all the other patches.
+>>
+>> Hi Joseph,
+>>
+>> I have done some testing on powerpc, and it seems good.
+>>
+>> I'm reluctant to proceed with merging them though until we've heard at least
+>> *something* from the other maintainers.
+>
 > Ping again for the other-architecture maintainers (alpha, s390, sh,
 > sparc)....
+>
 
-sh is orphaned, cfr. MAINTAINERS.
+I thought I already gave an
 
-Perhaps the J2/J4 people are interested in maintainership?
+Acked-by: Richard Henderson <rth@twiddle.net>
 
-Gr{oetje,eeting}s,
+for the alpha patches.
 
-                        Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+r~
