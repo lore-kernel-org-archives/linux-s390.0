@@ -1,46 +1,143 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next 2/3] qeth: Convert use of __constant_htons to
- htons
-Date: Thu, 20 Aug 2015 13:56:36 -0700 (PDT)
-Message-ID: <20150820.135636.273361607490862959.davem@davemloft.net>
-References: <1440078822.685.11.camel@BR9GV9YG.de.ibm.com>
-	<20150820.105810.2093197275802835044.davem@davemloft.net>
-	<CAK-LDbKJwjgOSgva-4yUay-wOXqAtS=tn-soE9H5xvMQMV56wA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <CAK-LDbKJwjgOSgva-4yUay-wOXqAtS=tn-soE9H5xvMQMV56wA@mail.gmail.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: vthakkar1994@gmail.com
-Cc: ubraun@linux.vnet.ibm.com, David.Laight@aculab.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com
+From: Eric B Munson <emunson@akamai.com>
+Subject: [PATCH v8 2/6] mm: mlock: Add new mlock system call
+Date: Wed, 26 Aug 2015 14:24:21 -0400
+Message-ID: <1440613465-30393-3-git-send-email-emunson@akamai.com>
+References: <1440613465-30393-1-git-send-email-emunson@akamai.com>
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1440613465-30393-1-git-send-email-emunson@akamai.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-api/>
+List-Post: <mailto:linux-api@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Eric B Munson <emunson@akamai.com>, Michal Hocko <mhocko@suse.cz>, Vlastimil Babka <vbabka@suse.cz>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Catalin Marinas <catalin.marinas@arm.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Guenter Roeck <linux@roeck-us.net>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-cris-kernel@axis.com, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Vaishali Thakkar <vthakkar1994@gmail.com>
-Date: Fri, 21 Aug 2015 00:28:59 +0530
+With the refactored mlock code, introduce a new system call for mlock.
+The new call will allow the user to specify what lock states are being
+added.  mlock2 is trivial at the moment, but a follow on patch will add
+a new mlock state making it useful.
 
-> On Thu, Aug 20, 2015 at 11:28 PM, David Miller <davem@davemloft.net> wrote:
->> From: Ursula Braun <ubraun@linux.vnet.ibm.com>
->> Date: Thu, 20 Aug 2015 15:53:42 +0200
->>
->>> qeth is an s390-driver, and s390 is a big-endian architecture. Thus
->>> arguments valid for little-endian do not apply to qeth-code.
->>
->> You can not throw out generally good tree-wide conventions just because
->> it happens to work on your platform.
->>
->> In fact, I would be really thrilled if some of this code could be compiled
->> on other platforms via COMPILE_TEST or similar, especially the socket code
->> and drivers.
-> 
-> I have test-compiled this patch on little-endian architecture. I used
-> this script for cross compilation:
-> https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/plain/sbin/make.cross
+Signed-off-by: Eric B Munson <emunson@akamai.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Michal Hocko <mhocko@suse.cz>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: adi-buildroot-devel@lists.sourceforge.net
+Cc: linux-cris-kernel@axis.com
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-am33-list@redhat.com
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: linux-api@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-mm@kvack.org
+---
+ arch/x86/entry/syscalls/syscall_32.tbl | 1 +
+ arch/x86/entry/syscalls/syscall_64.tbl | 1 +
+ include/linux/syscalls.h               | 2 ++
+ include/uapi/asm-generic/unistd.h      | 4 +++-
+ kernel/sys_ni.c                        | 1 +
+ mm/mlock.c                             | 8 ++++++++
+ 6 files changed, 16 insertions(+), 1 deletion(-)
 
-If you cross compiled "from" a little endian architecture, that doesn't
-mean anything.
+diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
+index ef8187f..8e06da6 100644
+--- a/arch/x86/entry/syscalls/syscall_32.tbl
++++ b/arch/x86/entry/syscalls/syscall_32.tbl
+@@ -365,3 +365,4 @@
+ 356	i386	memfd_create		sys_memfd_create
+ 357	i386	bpf			sys_bpf
+ 358	i386	execveat		sys_execveat			stub32_execveat
++360	i386	mlock2			sys_mlock2
+diff --git a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
+index 9ef32d5..67601e7 100644
+--- a/arch/x86/entry/syscalls/syscall_64.tbl
++++ b/arch/x86/entry/syscalls/syscall_64.tbl
+@@ -329,6 +329,7 @@
+ 320	common	kexec_file_load		sys_kexec_file_load
+ 321	common	bpf			sys_bpf
+ 322	64	execveat		stub_execveat
++324	common	mlock2			sys_mlock2
+ 
+ #
+ # x32-specific system call numbers start at 512 to avoid cache impact
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index b45c45b..56a3d59 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -884,4 +884,6 @@ asmlinkage long sys_execveat(int dfd, const char __user *filename,
+ 			const char __user *const __user *argv,
+ 			const char __user *const __user *envp, int flags);
+ 
++asmlinkage long sys_mlock2(unsigned long start, size_t len, int flags);
++
+ #endif
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index e016bd9..14a6013 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -709,9 +709,11 @@ __SYSCALL(__NR_memfd_create, sys_memfd_create)
+ __SYSCALL(__NR_bpf, sys_bpf)
+ #define __NR_execveat 281
+ __SC_COMP(__NR_execveat, sys_execveat, compat_sys_execveat)
++#define __NR_mlock2 282
++__SYSCALL(__NR_mlock2, sys_mlock2)
+ 
+ #undef __NR_syscalls
+-#define __NR_syscalls 282
++#define __NR_syscalls 283
+ 
+ /*
+  * All syscalls below here should go away really,
+diff --git a/kernel/sys_ni.c b/kernel/sys_ni.c
+index 7995ef5..4818b71 100644
+--- a/kernel/sys_ni.c
++++ b/kernel/sys_ni.c
+@@ -193,6 +193,7 @@ cond_syscall(sys_mlock);
+ cond_syscall(sys_munlock);
+ cond_syscall(sys_mlockall);
+ cond_syscall(sys_munlockall);
++cond_syscall(sys_mlock2);
+ cond_syscall(sys_mincore);
+ cond_syscall(sys_madvise);
+ cond_syscall(sys_mremap);
+diff --git a/mm/mlock.c b/mm/mlock.c
+index 5692ee5..3094f27 100644
+--- a/mm/mlock.c
++++ b/mm/mlock.c
+@@ -643,6 +643,14 @@ SYSCALL_DEFINE2(mlock, unsigned long, start, size_t, len)
+ 	return do_mlock(start, len, VM_LOCKED);
+ }
+ 
++SYSCALL_DEFINE3(mlock2, unsigned long, start, size_t, len, int, flags)
++{
++	if (flags)
++		return -EINVAL;
++
++	return do_mlock(start, len, VM_LOCKED);
++}
++
+ SYSCALL_DEFINE2(munlock, unsigned long, start, size_t, len)
+ {
+ 	int ret;
+-- 
+1.9.1
 
-What matters is if you compiled this code "targetting" a little-endian
-architecture which currently is not possible.
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
