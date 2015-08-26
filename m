@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1439973050.12322.5.camel@BR9GV9YG.de.ibm.com>
-Subject: Re: [PATCH] qeth: Convert use of __constant_htons to htons
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Wed, 19 Aug 2015 10:30:50 +0200
-In-Reply-To: <OF92C6D110.21C79ACA-ONC1257EA6.002BFA53-C1257EA6.002C1CD6@de.ibm.com>
-References: <OF92C6D110.21C79ACA-ONC1257EA6.002BFA53-C1257EA6.002C1CD6@de.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
+MIME-Version: 1.0
+In-Reply-To: <9ca5f3280075e7b94356003e250efe25@mail.leenox.de>
+References: <1440614969-11351-1-git-send-email-kuleshovmail@gmail.com> <9ca5f3280075e7b94356003e250efe25@mail.leenox.de>
+From: Alexander Kuleshov <kuleshovmail@gmail.com>
+Date: Thu, 27 Aug 2015 01:12:22 +0600
+Message-ID: <CANCZXo4jP1X8kwj2vA3ms+2F5vWG7W7meWY0sJEY+R9dDO9T=A@mail.gmail.com>
+Subject: Re: [PATCH] s390/jump_label: Use %*ph to print small buffers
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Vaishali Thakkar <vthakkar1994@gmail.com>
-Cc: mschwid2@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Linux390@de.ibm.com
+To: Tillmann Heidsieck <theidsieck@leenox.de>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+Hello Tillmann, sorry for noise, will resend.
 
-> From:        Vaishali Thakkar <vthakkar1994@gmail.com> 
-> To:        Ursula Braun <ubraun@linux.vnet.ibm.com>, 
-> Cc:        Ursula Braun1/Germany/IBM@IBMDE, BOEBLINGEN
-> LINUX390/Germany/IBM@IBMDE, mschwid2@linux.vnet.ibm.com,
-> heicars2@linux.vnet.ibm.com, linux-s390@vger.kernel.org, Linux Kernel
-> Mailing List <linux-kernel@vger.kernel.org> 
-> Date:        19/08/2015 07:02 
-> Subject:        Re: [PATCH] qeth: Convert use of __constant_htons to
-> htons 
-> 
-> ______________________________________________________________________
-> 
-> 
-> 
-> On Fri, Jun 12, 2015 at 1:12 PM, Ursula Braun
-> <ubraun@linux.vnet.ibm.com> wrote:
-> > Thanks Vaishali. I have added your patch to our local kernel git,
-> and
-> > will submit it within a following upstream shipment.
-> 
-> Hi Ursula,
-> 
-> Can you please tell me when this patch is going to be added in
-> linux-next? I don't see them in linux-next and they are blocking
-> removal of these macros.
-> 
-> Do inform me in case there is any problem with this patch.
-> 
-> Thank You.
-> 
-Hi Vaishali,
-
-sorry, I have not been aware that you are urgently waiting for my next
-upstream posting. I shipped your patch a few minutes ago to Dave Miller
-for inclusion into net-next.
-
-Regards, Ursula Braun
+2015-08-27 1:03 GMT+06:00 Tillmann Heidsieck <theidsieck@leenox.de>:
+> Hi Alexander,
+>
+> On 2015-08-26 20:49, Alexander Kuleshov wrote:
+>>
+>> printk() supports %*ph format specifier for printing a small buffers,
+>> let's use it intead of %02x %02x...
+>
+>
+> noble effort ...
+>
+>>         pr_emerg("Jump label code mismatch at %pS [%p]\n", ipc, ipc);
+>> -       pr_emerg("Found:    %02x %02x %02x %02x %02x %02x\n",
+>> +       pr_emerg("Found:    %6ph\n",
+>>                  ipc[0], ipc[1], ipc[2], ipc[3], ipc[4], ipc[5]);
+>> -       pr_emerg("Expected: %02x %02x %02x %02x %02x %02x\n",
+>> +       pr_emerg("Expected: %6ph\n",
+>>                  ipe[0], ipe[1], ipe[2], ipe[3], ipe[4], ipe[5]);
+>> -       pr_emerg("New:      %02x %02x %02x %02x %02x %02x\n",
+>> +       pr_emerg("New:      %6ph\n",
+>>                  ipn[0], ipn[1], ipn[2], ipn[3], ipn[4], ipn[5]);
+>>         panic("Corrupted kernel text");
+>>  }
+>
+>
+> ... but you might want to check our code before submission (e.g. compile
+> it!)
+>
+> Cheers
+> Tillmann
