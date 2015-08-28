@@ -1,54 +1,47 @@
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Subject: [RFC PATCH 5/9] s390/s390x: allocate sys_membarrier system call number
-Date: Thu, 27 Aug 2015 13:56:51 -0400
-Message-ID: <1440698215-8355-6-git-send-email-mathieu.desnoyers@efficios.com>
-References: <1440698215-8355-1-git-send-email-mathieu.desnoyers@efficios.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1440698215-8355-1-git-send-email-mathieu.desnoyers@efficios.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-api/>
-List-Post: <mailto:linux-api@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, linux-api@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+From: Michael Ellerman <mpe@ellerman.id.au>
+Date: Fri, 28 Aug 2015 03:38:35 +0000
+Subject: Re: Ping Re: [PATCH 0/8] math-emu: Update kernel math-emu code from current glibc soft-fp
+Message-Id: <1440733115.8076.6.camel@ellerman.id.au>
+References: <alpine.DEB.2.10.1507021542380.29415@digraph.polyomino.org.uk>
+ <alpine.DEB.2.10.1508191433380.11312@digraph.polyomino.org.uk>
+ <1440026806.13406.2.camel@ellerman.id.au>
+ <alpine.DEB.2.10.1508261442440.13146@digraph.polyomino.org.uk>
+ <1440645125.23182.11.camel@ellerman.id.au>
+ <20150827133102.77026410@mschwide>
+In-Reply-To: <20150827133102.77026410@mschwide>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+List-Archive: <https://lore.kernel.org/linux-sh/>
+List-Post: <mailto:linux-sh@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, "David	S.Miller" <davem@davemloft.net>
+Cc: Joseph Myers <joseph@codesourcery.com>, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-[ Untested on this architecture. To try it out: fetch linux-next/akpm,
-  apply this patch, build/run a membarrier-enabled kernel, and do make
-  kselftest. ]
+On Thu, 2015-08-27 at 13:31 +0200, Martin Schwidefsky wrote:
+> On Thu, 27 Aug 2015 13:12:05 +1000
+> Michael Ellerman <mpe@ellerman.id.au> wrote:
+> > On Wed, 2015-08-26 at 14:44 +0000, Joseph Myers wrote:
+> > > On Thu, 20 Aug 2015, Michael Ellerman wrote:
+> > > > I'm reluctant to proceed with merging them though until we've heard at least
+> > > > *something* from the other maintainers.
+> > > 
+> > > Ping again for the other-architecture maintainers (alpha, s390, sh, 
+> > > sparc)....
+> > 
+> > OK I've put this whole series in a branch with the acks we have so far.
+> > 
+> > I'll ask Stephen to put it in linux-next once 4.3-rc1 is out, and I'll ask
+> > Linus to pull it for 4.4
+> > 
+> > I haven't published the branch yet, so if the s390 and sparc maintainers want
+> > to send me acks I'll rebase and add them.
+> 
+> For the s390 parts:
+> Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-CC: Andrew Morton <akpm@linux-foundation.org>
-CC: linux-api@vger.kernel.org
-CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
-CC: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: linux-s390@vger.kernel.org
----
- arch/s390/include/uapi/asm/unistd.h | 3 ++-
- arch/s390/kernel/syscalls.S         | 1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+Thanks.
 
-diff --git a/arch/s390/include/uapi/asm/unistd.h b/arch/s390/include/uapi/asm/unistd.h
-index 59d2bb4..2f1de70 100644
---- a/arch/s390/include/uapi/asm/unistd.h
-+++ b/arch/s390/include/uapi/asm/unistd.h
-@@ -290,7 +290,8 @@
- #define __NR_s390_pci_mmio_write	352
- #define __NR_s390_pci_mmio_read		353
- #define __NR_execveat		354
--#define NR_syscalls 355
-+#define __NR_membarrier		355
-+#define NR_syscalls 356
- 
- /* 
-  * There are some system calls that are not present on 64 bit, some
-diff --git a/arch/s390/kernel/syscalls.S b/arch/s390/kernel/syscalls.S
-index f3f4a13..914c098 100644
---- a/arch/s390/kernel/syscalls.S
-+++ b/arch/s390/kernel/syscalls.S
-@@ -363,3 +363,4 @@ SYSCALL(sys_bpf,compat_sys_bpf)
- SYSCALL(sys_s390_pci_mmio_write,compat_sys_s390_pci_mmio_write)
- SYSCALL(sys_s390_pci_mmio_read,compat_sys_s390_pci_mmio_read)
- SYSCALL(sys_execveat,compat_sys_execveat)
-+SYSCALL(sys_membarrier,sys_membarrier)
--- 
-1.9.1
+So we're just waiting on davem for an ack for arch/sparc :D
+
+cheers
