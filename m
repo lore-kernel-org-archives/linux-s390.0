@@ -1,238 +1,358 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 31 Aug 2015 15:43:20 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for the 4.3 merge window
-Message-ID: <20150831154320.06ca3722@mschwide>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+Subject: [RFC] asm-generic/pci_iomap.h: make custom PCI BAR requirements explicit
+Date: Fri, 28 Aug 2015 17:17:27 -0700
+Message-ID: <1440807447-584-1-git-send-email-mcgrof@do-not-panic.com>
+Return-path: <linux-arch-owner@vger.kernel.org>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: arnd@arndb.de, linux-arch@vger.kernel.org
+Cc: mingo@kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, bp@suse.de, linux@roeck-us.net, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, rostedt@goodmis.org, "Luis R. Rodriguez" <mcgrof@suse.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Linus,
+From: "Luis R. Rodriguez" <mcgrof@suse.com>
 
-please pull from the 'for-linus' branch of
+The S390 architecture requires a custom pci_iomap() implementation
+as the asm-generic implementation assumes there are disjunctions
+between PCI BARs, and on S390 PCI BAR are not disjunctive, S390 requires
+the bar parameter in order to find the corresponding device and create
+the mapping cookie.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git for-linus
+This clash with the asm-generic pci_iomap() implementation is implicit,
+there are no current semantics to make this incompatability explicit.
+Make the S390 PCI BAR non-disjunction incompatibility explicit, and
+also pave the way for alternative incompatibilities to be defined.
 
-to receive the following updates:
+While at it, as with the ioremap*() variants, since we have no clear
+semantics yet well defined provide a solution for them that returns
+NULL. This allows architectures to move forward by defining pci_ioremap*()
+variants without requiring immediate changes to all architectures. Each
+architecture then can implement their own solution as needed and
+when they get to it.
 
-The big one is support for fake NUMA, splitting a really large machine
-in more manageable piece improves performance in some cases, e.g. for
-a KVM host.
+Build tested with allyesconfig on:
 
-The FICON Link Incident handling has been improved, this helps the
-operator to identify degraded or non-operational FICON connections.
+	* S390
+	* x86_64
 
-The save and restore of floating point and vector registers has been
-overhauled to allow the future use of vector registers in the kernel.
+Signed-off-by: Luis R. Rodriguez <mcgrof@suse.com>
+---
 
-A few small enhancement, magic sys-requests for the vt220 console via SCLP,
-some more assembler code has been converted to C, the PCI error handling
-is improved.
+This came up as an idea after noting that S390 has no way to be
+explicit about its requirements, this also means we don't have a
+quick easy way to ensure that other architectures might have a
+conflict as well. This provides an easy way to do that by having
+the architectures define their incompatibilities and allowing those
+then to negate GENERIC_PCI_IOMAP on lib/Kconfig.
 
-And the usual cleanup and bug fixing.
+I think a next cleanup could be the move of the pci_iounmap() out to
+pci_iomap.h to avoid having each arch having to declare it. That's
+a separate atomic change though so should go in separately.
 
-Alexander Kuleshov (1):
-      s390/jump_label: Use %*ph to print small buffers
+I am not sure if this is the best name for this incompatibility, please
+let me know.
 
-Christian Borntraeger (1):
-      KVM: s390: use pid of cpu thread for sampling tagging
+ arch/s390/Kconfig                 |  8 +++++
+ arch/s390/include/asm/io.h        | 11 -------
+ arch/s390/include/asm/pci.h       |  2 --
+ arch/s390/include/asm/pci_iomap.h | 33 +++++++++++++++++++++
+ arch/s390/pci/pci.c               |  2 ++
+ include/asm-generic/io.h          | 12 --------
+ include/asm-generic/iomap.h       | 10 -------
+ include/asm-generic/pci_iomap.h   | 62 +++++++++++++++++++++++++++++++++++----
+ lib/Kconfig                       |  1 +
+ lib/pci_iomap.c                   |  5 ++++
+ 10 files changed, 105 insertions(+), 41 deletions(-)
+ create mode 100644 arch/s390/include/asm/pci_iomap.h
 
-Gerald Schaefer (2):
-      s390/mm: enable gup code for NUMA
-      s390/mm: make arch_add_memory() NUMA aware
-
-Guenter Roeck (1):
-      s390/lib: export __delay
-
-Heiko Carstens (9):
-      s390/smp: add missing __init annotation to __smp_store_cpu_state()
-      s390: remove generic email address from maintainers file
-      s390/syscalls: ignore syscalls reachable via sys_socketcall
-      s390/facilities: remove transactional-execution bits
-      s390: remove unneeded sizeof(void *) comparisons
-      s390/uaccess: remove uaccess_primary kernel parameter
-      s390/hmcdrv: fix interrupt registration
-      s390/zcrypt: use msleep() instead of mdelay()
-      s390/nmi: initialize control register 0 earlier
-
-Hendrik Brueckner (13):
-      s390/kernel: move EX_TABLE macros to linkage.h header file
-      s390/kernel: use test_fp_ctl() to verify the floating-point control word
-      s390/kvm: validate the floating-point control before restoring it
-      s390/kernel: introduce fpu-internal.h with fpu helper functions
-      s390/kernel: dynamically allocate FP register save area
-      s390/vx: add vector instruction support for older binutils versions
-      s390/kernel: lazy restore fpu registers
-      cpufeature: correctly annotate the module init function
-      s390/module: enable generic CPU feature modalias using s390 ELF hwcaps
-      s390/crypto: add cpu feature modaliases for crypto modules
-      s390/kernel: remove save_fpu_regs() parameter and use __LC_CURRENT instead
-      s390/ctrlchar: improve handling of magic sysrequests
-      s390/sclp_vt220: support magic sysrequests
-
-Martin Schwidefsky (12):
-      s390/kvm: fix interrupt race with HANDLE_SIE_INTERCEPT
-      s390/kvm: integrate HANDLE_SIE_INTERCEPT into cleanup_critical
-      s390/kernel: squeeze a few more cycles out of the system call handler
-      s390/nmi: use the normal asynchronous stack for machine checks
-      s390/sclp: convert early sclp console code to C
-      s390/mm: add NUMA balancing primitives
-      s390/vtime: limit MT scaling value updates
-      s390/vdso: emit a GNU hash
-      s390/setup: fix novx parameter
-      s390/mm: simplify page table alloc/free code
-      s390/dcssblk: correct out of bounds array indexes
-      s390/3270: redraw screen on unsolicited device end
-
-Michael Holzheu (5):
-      s390/numa: add emulation support
-      s390/topology: remove topology lock
-      s390/numa: make core to node mapping data dynamic
-      s390/numa: re-add DIE sched_domain_topology_level
-      s390/numa: remove superfluous ARCH_WANT defines
-
-Peter Oberparleiter (3):
-      s390/sclp: Change SCLP console default buffer-full behavior
-      s390/cio: Fix comma
-      s390/cio: Implement proper Link Incident Record handling
-
-Peter Senna Tschudin (2):
-      s390: remove unneeded semicolon
-      s390: remove unneeded variables
-
-Philipp Hachtmann (3):
-      s390/numa: add core infrastructure
-      s390/numa: add topology tree infrastructure
-      s390/numa: enable support in s390 configs
-
-Sebastian Ott (5):
-      s390/pci: inline get_zdev
-      s390/pci: free resources after failed bus allocation
-      s390/pci: handle events for unused functions
-      s390/pci: use pci_rescan_remove_lock
-      s390/pci: move debug messages to debugfs
-
-Stefan Haberland (2):
-      s390/dasd: fix failing path verification
-      s390/dasd: enhance CUIR scope detection
-
- MAINTAINERS                             |   6 -
- arch/s390/Kbuild                        |   1 +
- arch/s390/Kconfig                       |  75 ++++
- arch/s390/Makefile                      |   2 +
- arch/s390/configs/default_defconfig     |   2 +
- arch/s390/configs/gcov_defconfig        |   2 +
- arch/s390/configs/performance_defconfig |   3 +
- arch/s390/crypto/aes_s390.c             |   3 +-
- arch/s390/crypto/des_s390.c             |   3 +-
- arch/s390/crypto/ghash_s390.c           |   3 +-
- arch/s390/crypto/prng.c                 |   4 +-
- arch/s390/crypto/sha1_s390.c            |   3 +-
- arch/s390/crypto/sha256_s390.c          |   3 +-
- arch/s390/crypto/sha512_s390.c          |   3 +-
- arch/s390/include/asm/cpufeature.h      |  29 ++
- arch/s390/include/asm/ctl_reg.h         |   2 +
- arch/s390/include/asm/fpu-internal.h    | 110 ++++++
- arch/s390/include/asm/kvm_host.h        |   6 +-
- arch/s390/include/asm/linkage.h         |  22 ++
- arch/s390/include/asm/mmzone.h          |  16 +
- arch/s390/include/asm/numa.h            |  35 ++
- arch/s390/include/asm/pci.h             |  22 +-
- arch/s390/include/asm/pgtable.h         |  13 +
- arch/s390/include/asm/processor.h       |  36 +-
- arch/s390/include/asm/sclp.h            |   2 +-
- arch/s390/include/asm/switch_to.h       | 135 +------
- arch/s390/include/asm/topology.h        |  39 ++
- arch/s390/include/asm/unistd.h          |  24 +-
- arch/s390/include/asm/vx-insn.h         | 480 +++++++++++++++++++++++++
- arch/s390/include/uapi/asm/unistd.h     |  10 +-
- arch/s390/kernel/Makefile               |  11 +
- arch/s390/kernel/asm-offsets.c          |   3 +
- arch/s390/kernel/compat_signal.c        |  48 +--
- arch/s390/kernel/entry.S                | 614 +++++++++++++++++++++++---------
- arch/s390/kernel/head.S                 |   5 +-
- arch/s390/kernel/jump_label.c           |   9 +-
- arch/s390/kernel/nmi.c                  |  11 +-
- arch/s390/kernel/perf_cpum_sf.c         |   9 +-
- arch/s390/kernel/process.c              |  52 ++-
- arch/s390/kernel/processor.c            |   9 +
- arch/s390/kernel/ptrace.c               | 174 ++++-----
- arch/s390/kernel/s390_ksyms.c           |   3 +
- arch/s390/kernel/sclp.S                 | 355 ------------------
- arch/s390/kernel/sclp.c                 | 160 +++++++++
- arch/s390/kernel/setup.c                |  19 +-
- arch/s390/kernel/signal.c               |  47 +--
- arch/s390/kernel/smp.c                  |   4 +-
- arch/s390/kernel/syscalls.S             |  10 +-
- arch/s390/kernel/topology.c             |  31 +-
- arch/s390/kernel/traps.c                |  34 +-
- arch/s390/kernel/vdso32/Makefile        |   2 +-
- arch/s390/kernel/vdso64/Makefile        |   2 +-
- arch/s390/kernel/vtime.c                |  12 +-
- arch/s390/kvm/kvm-s390.c                | 130 +++++--
- arch/s390/lib/delay.c                   |   1 +
- arch/s390/lib/uaccess.c                 |  15 +-
- arch/s390/mm/fault.c                    |   2 +-
- arch/s390/mm/gup.c                      |  10 +
- arch/s390/mm/init.c                     |  40 +--
- arch/s390/mm/pgtable.c                  | 225 +++++-------
- arch/s390/numa/Makefile                 |   3 +
- arch/s390/numa/mode_emu.c               | 530 +++++++++++++++++++++++++++
- arch/s390/numa/numa.c                   | 184 ++++++++++
- arch/s390/numa/numa_mode.h              |  24 ++
- arch/s390/numa/toptree.c                | 342 ++++++++++++++++++
- arch/s390/numa/toptree.h                |  60 ++++
- arch/s390/pci/pci.c                     |  34 +-
- arch/s390/pci/pci_dma.c                 |   8 +-
- arch/s390/pci/pci_event.c               |  12 +-
- arch/s390/pci/pci_insn.c                |  33 +-
- arch/s390/pci/pci_sysfs.c               |  17 +-
- drivers/s390/block/dasd_alias.c         |   6 +-
- drivers/s390/block/dasd_eckd.c          | 333 ++++++++++++-----
- drivers/s390/block/dasd_eckd.h          |  11 +-
- drivers/s390/block/dasd_int.h           |   1 +
- drivers/s390/block/dcssblk.c            |  14 +-
- drivers/s390/char/con3270.c             |   4 +
- drivers/s390/char/ctrlchar.c            |  16 +-
- drivers/s390/char/ctrlchar.h            |  12 +
- drivers/s390/char/diag_ftp.c            |   4 +-
- drivers/s390/char/monreader.c           |   2 +-
- drivers/s390/char/sclp.c                |   6 +-
- drivers/s390/char/sclp_cmd.c            |  18 +-
- drivers/s390/char/sclp_vt220.c          |  52 ++-
- drivers/s390/char/tty3270.c             |   4 +
- drivers/s390/cio/chsc.c                 | 165 ++++++---
- drivers/s390/cio/device_ops.c           |   2 +-
- drivers/s390/cio/eadm_sch.c             |   3 +-
- drivers/s390/crypto/ap_bus.c            |   2 +-
- drivers/s390/crypto/zcrypt_pcixcc.c     |   2 +-
- drivers/s390/net/qeth_l2_main.c         |   5 +-
- drivers/s390/net/qeth_l3_main.c         |   5 +-
- drivers/s390/scsi/zfcp_fsf.c            |   2 +-
- include/linux/cpufeature.h              |   7 +-
- 94 files changed, 3696 insertions(+), 1368 deletions(-)
- create mode 100644 arch/s390/include/asm/cpufeature.h
- create mode 100644 arch/s390/include/asm/fpu-internal.h
- create mode 100644 arch/s390/include/asm/mmzone.h
- create mode 100644 arch/s390/include/asm/numa.h
- create mode 100644 arch/s390/include/asm/vx-insn.h
- delete mode 100644 arch/s390/kernel/sclp.S
- create mode 100644 arch/s390/kernel/sclp.c
- create mode 100644 arch/s390/numa/Makefile
- create mode 100644 arch/s390/numa/mode_emu.c
- create mode 100644 arch/s390/numa/numa.c
- create mode 100644 arch/s390/numa/numa_mode.h
- create mode 100644 arch/s390/numa/toptree.c
- create mode 100644 arch/s390/numa/toptree.h
-
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 1d57000b1b24..1217b7db4265 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -614,6 +614,14 @@ endif	# PCI
+ config PCI_DOMAINS
+ 	def_bool PCI
+ 
++config ARCH_PCI_NON_DISJUNCTIVE
++	def_bool PCI
++	help
++	  On the S390 architecture PCI BAR spaces are not disjunctive, as such
++	  the PCI bar is required on a series of otherwise asm generic PCI
++	  routines, as such S390 requires itw own implemention for these
++	  routines.
++
+ config HAS_IOMEM
+ 	def_bool PCI
+ 
+diff --git a/arch/s390/include/asm/io.h b/arch/s390/include/asm/io.h
+index 437e9af96688..27443c778367 100644
+--- a/arch/s390/include/asm/io.h
++++ b/arch/s390/include/asm/io.h
+@@ -49,17 +49,6 @@ static inline void ioport_unmap(void __iomem *p)
+ {
+ }
+ 
+-/*
+- * s390 needs a private implementation of pci_iomap since ioremap with its
+- * offset parameter isn't sufficient. That's because BAR spaces are not
+- * disjunctive on s390 so we need the bar parameter of pci_iomap to find
+- * the corresponding device and create the mapping cookie.
+- */
+-#define pci_iomap pci_iomap
+-#define pci_iounmap pci_iounmap
+-#define pci_iomap_wc pci_iomap
+-#define pci_iomap_wc_range pci_iomap_range
+-
+ #define memcpy_fromio(dst, src, count)	zpci_memcpy_fromio(dst, src, count)
+ #define memcpy_toio(dst, src, count)	zpci_memcpy_toio(dst, src, count)
+ #define memset_io(dst, val, count)	zpci_memset_io(dst, val, count)
+diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+index 34d960353a08..51a0a426a6e3 100644
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -18,8 +18,6 @@
+ 
+ #define pcibios_assign_all_busses()	(0)
+ 
+-void __iomem *pci_iomap(struct pci_dev *, int, unsigned long);
+-void pci_iounmap(struct pci_dev *, void __iomem *);
+ int pci_domain_nr(struct pci_bus *);
+ int pci_proc_domain(struct pci_bus *);
+ 
+diff --git a/arch/s390/include/asm/pci_iomap.h b/arch/s390/include/asm/pci_iomap.h
+new file mode 100644
+index 000000000000..b897ff4cac59
+--- /dev/null
++++ b/arch/s390/include/asm/pci_iomap.h
+@@ -0,0 +1,33 @@
++#ifndef _S390_ASM_PCI_IOMAP_H
++#define _S390_ASM_PCI_IOMAP_H
++/*
++ *  S390 version
++ */
++#include <linux/kernel.h>
++#include <asm/page.h>
++#include <asm/pci_io.h>
++
++#ifdef CONFIG_PCI
++
++struct pci_dev;
++
++/*
++ * s390 needs a private implementation of pci_iomap since ioremap with its
++ * offset parameter isn't sufficient. That's because BAR spaces are not
++ * disjunctive on s390 so we need the bar parameter of pci_iomap to find
++ * the corresponding device and create the mapping cookie.
++ */
++
++/* XXX: in the future we'll remove these */
++#define pci_iounmap pci_iounmap
++void pci_iounmap(struct pci_dev *, void __iomem *);
++
++/* Annotate pci_iomap*() variant solutions have been reviewed and vetted */
++#define pci_iomap_wc pci_iomap
++#define pci_iomap_wc_range pci_iomap_range
++
++#include <asm-generic/pci_iomap.h>
++
++#endif /* CONFIG_PCI */
++
++#endif /* _S390_ASM_PCI_IOMAP_H */
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index 7ef12a3ace3a..92dd561bc89f 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -18,6 +18,8 @@
+ #define KMSG_COMPONENT "zpci"
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ 
++#include <asm/pci_iomap.h>
++
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/err.h>
+diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
+index eed3bbe88c8a..1f230d390740 100644
+--- a/include/asm-generic/io.h
++++ b/include/asm-generic/io.h
+@@ -704,18 +704,6 @@ static inline void iowrite32_rep(volatile void __iomem *addr,
+ #include <linux/vmalloc.h>
+ #define __io_virt(x) ((void __force *)(x))
+ 
+-#ifndef CONFIG_GENERIC_IOMAP
+-struct pci_dev;
+-extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
+-
+-#ifndef pci_iounmap
+-#define pci_iounmap pci_iounmap
+-static inline void pci_iounmap(struct pci_dev *dev, void __iomem *p)
+-{
+-}
+-#endif
+-#endif /* CONFIG_GENERIC_IOMAP */
+-
+ /*
+  * Change virtual addresses to physical addresses and vv.
+  * These are pretty trivial
+diff --git a/include/asm-generic/iomap.h b/include/asm-generic/iomap.h
+index d8f8622fa044..af49a46585ad 100644
+--- a/include/asm-generic/iomap.h
++++ b/include/asm-generic/iomap.h
+@@ -70,16 +70,6 @@ extern void ioport_unmap(void __iomem *);
+ #define ioremap_wt ioremap_nocache
+ #endif
+ 
+-#ifdef CONFIG_PCI
+-/* Destroy a virtual mapping cookie for a PCI BAR (memory or IO) */
+-struct pci_dev;
+-extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
+-#elif defined(CONFIG_GENERIC_IOMAP)
+-struct pci_dev;
+-static inline void pci_iounmap(struct pci_dev *dev, void __iomem *addr)
+-{ }
+-#endif
+-
+ #include <asm-generic/pci_iomap.h>
+ 
+ #endif
+diff --git a/include/asm-generic/pci_iomap.h b/include/asm-generic/pci_iomap.h
+index b1e17fcee2d0..9f04547a00a9 100644
+--- a/include/asm-generic/pci_iomap.h
++++ b/include/asm-generic/pci_iomap.h
+@@ -12,16 +12,62 @@
+ #define __ASM_GENERIC_PCI_IOMAP_H
+ 
+ struct pci_dev;
++
+ #ifdef CONFIG_PCI
+-/* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
+-extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
+-extern void __iomem *pci_iomap_wc(struct pci_dev *dev, int bar, unsigned long max);
+ extern void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
+ 				     unsigned long offset,
+ 				     unsigned long maxlen);
++extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
++extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
++
++/**
++ * DOC: pci_iomap(), pci_iomap_range() and pci_iomap*() variants
++ *
++ * pci_iomap() creates a virtual mapping cookie for a PCI BAR (memory or IO).
++ *
++ * If your architecture supports PCI you must either rely on the asm-generic
++ * solution for pci_iomap() and pci_iomap_range() or your architecture must
++ * implement your own solution. You may require your own implementation if
++ * your architecture PCI requirements are outside the norm of other
++ * architectures. If your architecture adheres to the norm your architecture
++ * will select GENERIC_PCI_IOMAP. GENERIC_PCI_IOMAP will negate known
++ * incompatible architecture PCI solutions which require more special
++ * handling.
++ *
++ * There are also pci_iomap*() and pci_iomap_*_range() call variants, if you
++ * have custom PCI requirements you must define the proper implementation
++ * for these otherwise the defaults defined here will return NULL.
++ *
++ * If you selected CONFIG_GENERIC_PCI_IOMAP you can also override default
++ * pci_iomap*() variants by defining them in your architecture pci_iomap.h.
++ */
++#ifdef CONFIG_GENERIC_PCI_IOMAP
+ extern void __iomem *pci_iomap_wc_range(struct pci_dev *dev, int bar,
+ 					unsigned long offset,
+ 					unsigned long maxlen);
++extern void __iomem *pci_iomap_wc(struct pci_dev *dev, int bar, unsigned long max);
++#else /* !CONFIG_GENERIC_PCI_IOMAP */
++
++#ifndef pci_iomap_wc
++#define pci_iomap_wc pci_iomap_wc
++static inline void __iomem *pci_iomap_wc(struct pci_dev *dev, int bar, unsigned long max)
++{
++	return NULL;
++}
++#endif
++
++#ifndef pci_iomap_wc_range
++#define pci_iomap_wc_range pci_iomap_wc_range
++static inline void __iomem *pci_iomap_wc_range(struct pci_dev *dev, int bar,
++					       unsigned long offset,
++					       unsigned long maxlen)
++{
++	return NULL;
++}
++#endif
++
++#endif /* !CONFIG_GENERIC_PCI_IOMAP */
++
+ /* Create a virtual mapping cookie for a port on a given PCI device.
+  * Do not call this directly, it exists to make it easier for architectures
+  * to override */
+@@ -32,7 +78,7 @@ extern void __iomem *__pci_ioport_map(struct pci_dev *dev, unsigned long port,
+ #define __pci_ioport_map(dev, port, nr) ioport_map((port), (nr))
+ #endif
+ 
+-#elif defined(CONFIG_GENERIC_PCI_IOMAP)
++#else /* !CONFIG_PCI */
+ static inline void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max)
+ {
+ 	return NULL;
+@@ -54,6 +100,10 @@ static inline void __iomem *pci_iomap_wc_range(struct pci_dev *dev, int bar,
+ {
+ 	return NULL;
+ }
+-#endif
+ 
+-#endif /* __ASM_GENERIC_IO_H */
++static inline void pci_iounmap(struct pci_dev *dev, void __iomem *p)
++{
++}
++#endif /* !CONFIG_PCI */
++
++#endif /* __ASM_GENERIC_PCI_IOMAP_H */
+diff --git a/lib/Kconfig b/lib/Kconfig
+index 34f99838c20f..1416a41e9ea7 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -41,6 +41,7 @@ config NO_GENERIC_PCI_IOPORT_MAP
+ 
+ config GENERIC_PCI_IOMAP
+ 	bool
++	depends on !ARCH_PCI_NON_DISJUNCTIVE
+ 
+ config GENERIC_IOMAP
+ 	bool
+diff --git a/lib/pci_iomap.c b/lib/pci_iomap.c
+index c10fba461454..2502711c06ed 100644
+--- a/lib/pci_iomap.c
++++ b/lib/pci_iomap.c
+@@ -48,6 +48,7 @@ void __iomem *pci_iomap_range(struct pci_dev *dev,
+ }
+ EXPORT_SYMBOL(pci_iomap_range);
+ 
++#ifndef pci_iomap_wc_range
+ /**
+  * pci_iomap_wc_range - create a virtual WC mapping cookie for a PCI BAR
+  * @dev: PCI device that owns the BAR
+@@ -92,6 +93,7 @@ void __iomem *pci_iomap_wc_range(struct pci_dev *dev,
+ 	return NULL;
+ }
+ EXPORT_SYMBOL_GPL(pci_iomap_wc_range);
++#endif
+ 
+ /**
+  * pci_iomap - create a virtual mapping cookie for a PCI BAR
+@@ -113,6 +115,7 @@ void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
+ }
+ EXPORT_SYMBOL(pci_iomap);
+ 
++#ifndef pci_iomap_wc
+ /**
+  * pci_iomap_wc - create a virtual WC mapping cookie for a PCI BAR
+  * @dev: PCI device that owns the BAR
+@@ -133,4 +136,6 @@ void __iomem *pci_iomap_wc(struct pci_dev *dev, int bar, unsigned long maxlen)
+ 	return pci_iomap_wc_range(dev, bar, 0, maxlen);
+ }
+ EXPORT_SYMBOL_GPL(pci_iomap_wc);
++#endif
++
+ #endif /* CONFIG_PCI */
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+2.4.3
