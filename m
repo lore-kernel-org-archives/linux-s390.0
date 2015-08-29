@@ -1,42 +1,80 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Alexander Kuleshov <kuleshovmail@gmail.com>
-Subject: [PATCH v2] s390/jump_label: Use %*ph to print small buffers
-Date: Thu, 27 Aug 2015 01:17:46 +0600
-Message-Id: <1440616666-15005-1-git-send-email-kuleshovmail@gmail.com>
+From: "Luis R. Rodriguez" <mcgrof@suse.com>
+Subject: Re: [PATCH] S390: add pci_iomap_wc() and pci_iomap_wc_range()
+Date: Sat, 29 Aug 2015 02:14:52 +0200
+Message-ID: <20150829001452.GJ8051@wotan.suse.de>
+References: <1440632050-23648-1-git-send-email-mcgrof@do-not-panic.com>
+ <20150828060605.GF26741@gmail.com>
+ <55E01A43.9080109@roeck-us.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <55E01A43.9080109@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Alexander Kuleshov <kuleshovmail@gmail.com>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Ingo Molnar <mingo@kernel.org>, "Luis R. Rodriguez" <mcgrof@do-not-panic.com>, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, bp@suse.de, plagnioj@jcrosoft.com, tomi.valkeinen@ti.com, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, fengguang.wu@intel.com, akpm@linux-foundation.org, rostedt@goodmis.org, linux-arch@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-printk() supports %*ph format specifier for printing a small buffers,
-let's use it intead of %02x %02x...
+On Fri, Aug 28, 2015 at 01:22:27AM -0700, Guenter Roeck wrote:
+> On 08/27/2015 11:06 PM, Ingo Molnar wrote:
+> >
+> >* Luis R. Rodriguez <mcgrof@do-not-panic.com> wrote:
+> >
+> >>From: "Luis R. Rodriguez" <mcgrof@suse.com>
+> >>
+> >>S390 requires its own implementation of pcio_iomap*() calls
+> >>is because it has its "BAR spaces are not disjunctive on s390
+> >>so we need the bar parameter of pci_iomap to find the corresponding
+> >>device and create the mapping cookie" -- in summary, it has its own
+> >>lookup/lock solution.
+> >>
+> >>It does not include asm-generic/pci_iomap.h
+> >>
+> >>Since it currenty maps ioremap_wc() to ioremap_nocache() and that's
+> >>the architecture default we can easily just map the wc calls to
+> >>the default calls as well.
+> >>
+> >>Cc: Guenter Roeck <linux@roeck-us.net>
+> >>Cc: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>
+> >>Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> >>Cc: linux-fbdev@vger.kernel.org
+> >>Cc: linux-kernel@vger.kernel.org
+> >>Cc: Borislav Petkov <bp@suse.de>
+> >>Cc: Ingo Molnar <mingo@kernel.org>
+> >>Cc: Fengguang Wu <fengguang.wu@intel.com>
+> >>Cc: Andrew Morton <akpm@linux-foundation.org>
+> >>Cc: Steven Rostedt <rostedt@goodmis.org>
+> >>Reported-by: 0 day bot
+> >>Signed-off-by: Luis R. Rodriguez <mcgrof@suse.com>
+> >>---
+> >>
+> >>This broke through some series that went into Ingo's tip tree which
+> >>I added. As such I *think* this should go through Ingo's tip tree.
+> >>Let me know. Up to you guys.
+> >
+> >I fixed the changelog to explain all this.
+> >
+> >Also, is there any other architecture that got broken by:
+> >
+> >    1b3d4200c1e0 PCI: Add pci_iomap_wc() variants
+> >
+> 
+> Should be the only one. There are only two implementations of pci_iomap(),
+> one in s390 code and the generic implementation.
 
-Signed-off-by: Alexander Kuleshov <kuleshovmail@gmail.com>
----
- arch/s390/kernel/jump_label.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+Indeed, sadly there is no semantics well defined to establish this requirement
+so the best we can do is infer:
 
-diff --git a/arch/s390/kernel/jump_label.c b/arch/s390/kernel/jump_label.c
-index a902996..1f615f3 100644
---- a/arch/s390/kernel/jump_label.c
-+++ b/arch/s390/kernel/jump_label.c
-@@ -44,12 +44,9 @@ static void jump_label_bug(struct jump_entry *entry, struct insn *expected,
- 	unsigned char *ipn = (unsigned char *)new;
- 
- 	pr_emerg("Jump label code mismatch at %pS [%p]\n", ipc, ipc);
--	pr_emerg("Found:    %02x %02x %02x %02x %02x %02x\n",
--		 ipc[0], ipc[1], ipc[2], ipc[3], ipc[4], ipc[5]);
--	pr_emerg("Expected: %02x %02x %02x %02x %02x %02x\n",
--		 ipe[0], ipe[1], ipe[2], ipe[3], ipe[4], ipe[5]);
--	pr_emerg("New:      %02x %02x %02x %02x %02x %02x\n",
--		 ipn[0], ipn[1], ipn[2], ipn[3], ipn[4], ipn[5]);
-+	pr_emerg("Found:    %6ph\n", ipc);
-+	pr_emerg("Expected: %6ph\n", ipe);
-+	pr_emerg("New:      %6ph\n", ipn);
- 	panic("Corrupted kernel text");
- }
- 
--- 
-2.5.0
+mcgrof@ergon ~/linux-next (git::20150805-pend-all)$ git grep pci_iomap_range arch/
+arch/s390/include/asm/io.h:#define pci_iomap_wc_range pci_iomap_range
+arch/s390/pci/pci.c:void __iomem *pci_iomap_range(struct pci_dev *pdev,
+arch/s390/pci/pci.c:EXPORT_SYMBOL(pci_iomap_range);
+arch/s390/pci/pci.c:    return pci_iomap_range(dev, bar, 0, maxlen);
+
+To this end a Kconfig option to implicate this might be more well suited for
+future lookups and make other architectures which are incompatible with
+generic pci_iomap clearer. Will post an RFC.
+
+  Luis
