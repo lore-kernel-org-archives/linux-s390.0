@@ -1,37 +1,82 @@
-Return-Path: <sukadev@linux.vnet.ibm.com>
-Date: Tue, 1 Sep 2015 15:11:53 -0700
-From: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
-Subject: Re: [PATCH v5 1/8] perf: Add a flags parameter to pmu txn interfaces
-Message-ID: <20150901221153.GB4158@us.ibm.com>
-References: <1439534981-7937-1-git-send-email-sukadev@linux.vnet.ibm.com>
- <1439534981-7937-2-git-send-email-sukadev@linux.vnet.ibm.com>
- <20150901103859.GP19282@twins.programming.kicks-ass.net>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <55E55904.1070606@de.ibm.com>
+Date: Tue, 01 Sep 2015 09:51:32 +0200
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150901103859.GP19282@twins.programming.kicks-ass.net>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: [PATCH] [s390]: Use .rept directive to store/load fpu registers
+References: <1440769787-8942-1-git-send-email-kuleshovmail@gmail.com>
+In-Reply-To: <1440769787-8942-1-git-send-email-kuleshovmail@gmail.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Alexander Kuleshov <kuleshovmail@gmail.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux390@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Peter Zijlstra [peterz@infradead.org] wrote:
-| 
-| when looking at this (I almost pressed A for apply) it occurred to me
-| that we now keep double state, cpuhw->txn_flags and cpuhw->group_flag
-| are basically the same thing.
-| 
-| Would not something like the below avoid this duplication?
+Am 28.08.2015 um 15:49 schrieb Alexander Kuleshov:
+> We can use .rept directive to simplify/decrease assembly code
+> that makes storing and loading floating point registers in the
+> arch/s390/kernel/swsusp.S.
+> 
+> The resulting code after the patch is the same that before
+> 
+>  2c4:	68 00 d2 00       	ld	%f0,512(%r13)
+>  2c8:	68 10 d2 08       	ld	%f1,520(%r13)
+>  2cc:	68 20 d2 10       	ld	%f2,528(%r13)
+>  2d0:	68 30 d2 18       	ld	%f3,536(%r13)
+>  2d4:	68 40 d2 20       	ld	%f4,544(%r13)
+>  2d8:	68 50 d2 28       	ld	%f5,552(%r13)
+>  2dc:	68 60 d2 30       	ld	%f6,560(%r13)
+>  2e0:	68 70 d2 38       	ld	%f7,568(%r13)
+>  2e4:	68 80 d2 40       	ld	%f8,576(%r13)
+>  2e8:	68 90 d2 48       	ld	%f9,584(%r13)
+>  2ec:	68 a0 d2 50       	ld	%f10,592(%r13)
+>  2f0:	68 b0 d2 58       	ld	%f11,600(%r13)
+>  2f4:	68 c0 d2 60       	ld	%f12,608(%r13)
+>  2f8:	68 d0 d2 68       	ld	%f13,616(%r13)
+>  2fc:	68 e0 d2 70       	ld	%f14,624(%r13)
+>  300:	68 f0 d2 78       	ld	%f15,632(%r13)
+> 
+> Signed-off-by: Alexander Kuleshov <kuleshovmail@gmail.com>
+> ---
+>  arch/s390/kernel/swsusp.S | 49 ++++++++++++++++-------------------------------
+>  1 file changed, 17 insertions(+), 32 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/swsusp.S b/arch/s390/kernel/swsusp.S
+> index ca62946..8011e14 100644
+> --- a/arch/s390/kernel/swsusp.S
+> +++ b/arch/s390/kernel/swsusp.S
+> @@ -48,22 +48,15 @@ ENTRY(swsusp_arch_suspend)
+>  	/* Store registers */
+>  	mvc	0x318(4,%r1),__SF_EMPTY(%r15)	/* move prefix to lowcore */
+>  	stfpc	0x31c(%r1)			/* store fpu control */
+> -	std	0,0x200(%r1)			/* store f0 */
+> -	std	1,0x208(%r1)			/* store f1 */
+> -	std	2,0x210(%r1)			/* store f2 */
+> -	std	3,0x218(%r1)			/* store f3 */
+> -	std	4,0x220(%r1)			/* store f4 */
+> -	std	5,0x228(%r1)			/* store f5 */
+> -	std	6,0x230(%r1)			/* store f6 */
+> -	std	7,0x238(%r1)			/* store f7 */
+> -	std	8,0x240(%r1)			/* store f8 */
+> -	std	9,0x248(%r1)			/* store f9 */
+> -	std	10,0x250(%r1)			/* store f10 */
+> -	std	11,0x258(%r1)			/* store f11 */
+> -	std	12,0x260(%r1)			/* store f12 */
+> -	std	13,0x268(%r1)			/* store f13 */
+> -	std	14,0x270(%r1)			/* store f14 */
+> -	std	15,0x278(%r1)			/* store f15 */
+> +
+> +	/* store f0..f15 floating point registers */
+> +	.set i, 0
+> +	.set f, 0x200
+> +	.rept 16
+> +	std i, f(%r1)
+> +	.set i, (i+1)
+> +	.set f, (f+0x8)
+> +	.endr
 
-Yes, it makes sense to drop the duplication. Will similarly drop the usage
-of PERF_EVENT_TXN from other architectures too and try it out.
-
-Thanks,
-
-Sukadev
+I personally find the existing code easier to read, especially as it matches the
+assembler output and I can directly where the slots are, (e.g. f11 is 0x258)
