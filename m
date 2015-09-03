@@ -1,51 +1,29 @@
-From: "Luis R. Rodriguez" <mcgrof@suse.com>
-Subject: Re: [RFC] asm-generic/pci_iomap.h: make custom PCI BAR requirements
- explicit
-Date: Thu, 3 Sep 2015 03:45:07 +0200
-Message-ID: <20150903014506.GR8051@wotan.suse.de>
+From: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>
+Subject: Re: [RFC] asm-generic/pci_iomap.h: make custom PCI BAR requirements explicit
+Date: Wed, 2 Sep 2015 18:47:29 -0700
+Message-ID: <CAB=NE6VAj8bV1RXRjh=wH=J+MQPDfS2K3RgRSCcjLGHqs1m6uw@mail.gmail.com>
 References: <1440807447-584-1-git-send-email-mcgrof@do-not-panic.com>
- <20150829152505.GA23449@infradead.org>
+ <3544271.GfynADMPqZ@wuerfel> <20150903014415.GQ8051@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-arch-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150829152505.GA23449@infradead.org>
+In-Reply-To: <20150903014415.GQ8051@wotan.suse.de>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>, arnd@arndb.de, linux-arch@vger.kernel.org, mingo@kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, bp@suse.de, linux@roeck-us.net, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, rostedt@goodmis.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>, linux-arch@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, Borislav Petkov <bp@suse.de>, Guenter Roeck <linux@roeck-us.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Steven Rostedt <rostedt@goodmis.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, Aug 29, 2015 at 08:25:05AM -0700, Christoph Hellwig wrote:
-> On Fri, Aug 28, 2015 at 05:17:27PM -0700, Luis R. Rodriguez wrote:
-> > From: "Luis R. Rodriguez" <mcgrof@suse.com>
-> > 
-> > The S390 architecture requires a custom pci_iomap() implementation
-> > as the asm-generic implementation assumes there are disjunctions
-> > between PCI BARs, and on S390 PCI BAR are not disjunctive, S390 requires
-> > the bar parameter in order to find the corresponding device and create
-> > the mapping cookie.
-> > 
-> > This clash with the asm-generic pci_iomap() implementation is implicit,
-> > there are no current semantics to make this incompatability explicit.
-> > Make the S390 PCI BAR non-disjunction incompatibility explicit, and
-> > also pave the way for alternative incompatibilities to be defined.
-> > 
-> > While at it, as with the ioremap*() variants, since we have no clear
-> > semantics yet well defined provide a solution for them that returns
-> > NULL. This allows architectures to move forward by defining pci_ioremap*()
-> > variants without requiring immediate changes to all architectures. Each
-> > architecture then can implement their own solution as needed and
-> > when they get to it.
-> 
-> Now that you have the config symbol available why not move the S390
-> implementation to generic code based on that can kill of
-> asm/pci_iomap.h?  Seems like we're really not dealing with something
-> inherent to the architecture, but two possible implementations based
-> on architecture constraints.
+On Wed, Sep 2, 2015 at 6:44 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
+>> I don't think we really need to spell it out here. s390 PCI is different
+>> from everybody else's in a lot of ways, so a simple 'depends on PCI &&
+>> !S390' for CONFIG_PCI_IOMAP seems simpler and more intuitive.
+>
+> Sure that would work as well.
 
-That would be the other approach to take too, but perhaps that can wait
-until yet another architecture with similar requirement pops up.
+But on second thought it still would leave us reactive to S390, this
+solution would get folks extending this asm-generic stuff to also have
+something in place for S390, even if its just returning NULL.
 
  Luis
