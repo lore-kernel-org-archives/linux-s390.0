@@ -1,12 +1,11 @@
 Return-Path: <mpe@ellerman.id.au>
-Message-ID: <1441361249.3777.3.camel@ellerman.id.au>
-Subject: Re: [[PATCH v6 02/10] perf: Add a flags parameter to pmu txn
- interfaces
+Message-ID: <1441703275.7601.5.camel@ellerman.id.au>
+Subject: Re: [[PATCH v6 09/10] powerpc/perf/hv-24x7: Use PMU_TXN_READ interface
 From: Michael Ellerman <mpe@ellerman.id.au>
-Date: Fri, 04 Sep 2015 20:07:29 +1000
-In-Reply-To: <1441336073-22750-3-git-send-email-sukadev@linux.vnet.ibm.com>
+Date: Tue, 08 Sep 2015 19:07:55 +1000
+In-Reply-To: <1441336073-22750-10-git-send-email-sukadev@linux.vnet.ibm.com>
 References: <1441336073-22750-1-git-send-email-sukadev@linux.vnet.ibm.com>
- <1441336073-22750-3-git-send-email-sukadev@linux.vnet.ibm.com>
+ <1441336073-22750-10-git-send-email-sukadev@linux.vnet.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -22,51 +21,36 @@ Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Arnal
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thu, 2015-09-03 at 20:07 -0700, Sukadev Bhattiprolu wrote:
-> Currently, the PMU interface allows reading only one counter at a time.
-> But some PMUs like the 24x7 counters in Power, support reading several
-> counters at once. To leveage this functionality, extend the transaction
-> interface to support a "transaction type".
+> The 24x7 counters in Powerpc allow monitoring a large number of counters
+> simultaneously. They also allow reading several counters in a single
+> HCALL so we can get a more consistent snapshot of the system.
 > 
-> The first type, PERF_PMU_TXN_ADD, refers to the existing transactions,
-> i.e. used to _schedule_ all the events on the PMU as a group. A second
-> transaction type, PERF_PMU_TXN_READ, will be used in a follow-on patch,
-> by the 24x7 counters to read several counters at once.
+> Use the PMU's transaction interface to monitor and read several event
+> counters at once. The idea is that users can group several 24x7 events
+> into a single group of events. We use the following logic to submit
+> the group of events to the PMU and read the values:
 > 
-> Extend the transaction interfaces to the PMU to accept a 'txn_flags'
-> parameter and use this parameter to ignore any transactions that are
-> not of type PERF_PMU_TXN_ADD.
+> 	pmu->start_txn()		// Initialize before first event
 > 
-> Thanks to Peter Zijlstra for his input.
+> 	for each event in group
+> 		pmu->read(event);	// Queue each event to be read
+> 
+> 	pmu->commit_txn()		// Read/update all queuedcounters
+> 
+> The ->commit_txn() also updates the event counts in the respective
+> perf_event objects.  The perf subsystem can then directly get the
+> event counts from the perf_event and can avoid submitting a new
+> ->read() request to the PMU.
+> 
+> Thanks to input from Peter Zijlstra.
 > 
 > Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
-> 
 > ---
->  arch/powerpc/perf/core-book3s.c  |   30 +++++++++++++++++++++++++++++-
+>  arch/powerpc/perf/hv-24x7.c |  166 ++++++++++++++++++++++++++++++++++++++++++-
 
-These powerpc changes look OK to me.
-
-So for those you can have an:
+This looks fine to me from an arch perspective. I assume the whole series can
+go via tip-something?
 
 Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-
-
-Having said that, we do end up repeating a lot of boiler plate for each arch,
-which is a pity. eg:
-
-> +static void power_pmu_start_txn(struct pmu *pmu, unsigned int txn_flags)
->  {
->  	struct cpu_hw_events *cpuhw = this_cpu_ptr(&cpu_hw_events);
->
-> +	WARN_ON_ONCE(cpuhw->txn_flags);		/* txn already in flight */
-> +
-> +	cpuhw->txn_flags = txn_flags;
-> +	if (txn_flags & ~PERF_PMU_TXN_ADD)
-> +		return;
-> +
-
-And so on.
-
-But I can't think of an easy way to avoid that, so it's not a blocker, but
-maybe someone can think of a nice solution to avoid it?
 
 cheers
