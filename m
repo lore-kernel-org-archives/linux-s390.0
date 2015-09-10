@@ -1,140 +1,65 @@
-From: Eric B Munson <emunson@akamai.com>
-Subject: [PATCH v9 2/6] mm: mlock: Add new mlock system call
-Date: Tue,  8 Sep 2015 09:58:58 -0400
-Message-ID: <1441720742-7803-3-git-send-email-emunson@akamai.com>
-References: <1441720742-7803-1-git-send-email-emunson@akamai.com>
-Return-path: <linux-m68k-owner@vger.kernel.org>
-In-Reply-To: <1441720742-7803-1-git-send-email-emunson@akamai.com>
-Sender: linux-m68k-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-api/>
-List-Post: <mailto:linux-api@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Eric B Munson <emunson@akamai.com>, Michal Hocko <mhocko@suse.cz>, Vlastimil Babka <vbabka@suse.cz>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Catalin Marinas <catalin.marinas@arm.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Guenter Roeck <linux@roeck-us.net>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-cris-kernel@axis.com, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH 1/1] virtio/s390: handle failures of READ_VQ_CONF ccw
+Date: Thu, 10 Sep 2015 16:35:08 +0200
+Message-ID: <1441895708-70657-2-git-send-email-cornelia.huck@de.ibm.com>
+References: <1441895708-70657-1-git-send-email-cornelia.huck@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1441895708-70657-1-git-send-email-cornelia.huck@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: mst@redhat.com
+Cc: borntraeger@de.ibm.com, virtualization@lists.linux-foundation.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Pierre Morel <pmorel@linux.vnet.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-With the refactored mlock code, introduce a new system call for mlock.
-The new call will allow the user to specify what lock states are being
-added.  mlock2 is trivial at the moment, but a follow on patch will add
-a new mlock state making it useful.
+From: Pierre Morel <pmorel@linux.vnet.ibm.com>
 
-Signed-off-by: Eric B Munson <emunson@akamai.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Michal Hocko <mhocko@suse.cz>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: adi-buildroot-devel@lists.sourceforge.net
-Cc: linux-cris-kernel@axis.com
-Cc: linux-ia64@vger.kernel.org
-Cc: linux-m68k@lists.linux-m68k.org
-Cc: linux-am33-list@redhat.com
-Cc: linux-parisc@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-sh@vger.kernel.org
-Cc: sparclinux@vger.kernel.org
-Cc: linux-xtensa@linux-xtensa.org
-Cc: linux-api@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-mm@kvack.org
+In virtio_ccw_read_vq_conf() the return value of ccw_io_helper()
+was not checked.
+If the configuration could not be read properly, we'd wrongly assume a
+queue size of 0.
+
+Let's propagate any I/O error to virtio_ccw_setup_vq() so it may
+properly fail.
+
+Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
-Changes from V8:
-* Update x86[_64] syscall numbers to follow the new userfaultfd syscalls
+ drivers/s390/virtio/virtio_ccw.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
- arch/x86/entry/syscalls/syscall_32.tbl | 1 +
- arch/x86/entry/syscalls/syscall_64.tbl | 1 +
- include/linux/syscalls.h               | 2 ++
- include/uapi/asm-generic/unistd.h      | 4 +++-
- kernel/sys_ni.c                        | 1 +
- mm/mlock.c                             | 8 ++++++++
- 6 files changed, 16 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
-index 477bfa6..41e72a5 100644
---- a/arch/x86/entry/syscalls/syscall_32.tbl
-+++ b/arch/x86/entry/syscalls/syscall_32.tbl
-@@ -381,3 +381,4 @@
- 372	i386	recvmsg			sys_recvmsg			compat_sys_recvmsg
- 373	i386	shutdown		sys_shutdown
- 374	i386	userfaultfd		sys_userfaultfd
-+375	i386	mlock2			sys_mlock2
-diff --git a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
-index 81c4906..2366900 100644
---- a/arch/x86/entry/syscalls/syscall_64.tbl
-+++ b/arch/x86/entry/syscalls/syscall_64.tbl
-@@ -330,6 +330,7 @@
- 321	common	bpf			sys_bpf
- 322	64	execveat		stub_execveat
- 323	common	userfaultfd		sys_userfaultfd
-+324	common	mlock2			sys_mlock2
- 
- #
- # x32-specific system call numbers start at 512 to avoid cache impact
-diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
-index 0800131..890632c 100644
---- a/include/linux/syscalls.h
-+++ b/include/linux/syscalls.h
-@@ -885,4 +885,6 @@ asmlinkage long sys_execveat(int dfd, const char __user *filename,
- 			const char __user *const __user *argv,
- 			const char __user *const __user *envp, int flags);
- 
-+asmlinkage long sys_mlock2(unsigned long start, size_t len, int flags);
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index f8d8fdb..e9fae30 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -400,12 +400,16 @@ static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
+ static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
+ 				   struct ccw1 *ccw, int index)
+ {
++	int ret;
 +
- #endif
-diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
-index e016bd9..14a6013 100644
---- a/include/uapi/asm-generic/unistd.h
-+++ b/include/uapi/asm-generic/unistd.h
-@@ -709,9 +709,11 @@ __SYSCALL(__NR_memfd_create, sys_memfd_create)
- __SYSCALL(__NR_bpf, sys_bpf)
- #define __NR_execveat 281
- __SC_COMP(__NR_execveat, sys_execveat, compat_sys_execveat)
-+#define __NR_mlock2 282
-+__SYSCALL(__NR_mlock2, sys_mlock2)
- 
- #undef __NR_syscalls
--#define __NR_syscalls 282
-+#define __NR_syscalls 283
- 
- /*
-  * All syscalls below here should go away really,
-diff --git a/kernel/sys_ni.c b/kernel/sys_ni.c
-index 03c3875..8de5b26 100644
---- a/kernel/sys_ni.c
-+++ b/kernel/sys_ni.c
-@@ -194,6 +194,7 @@ cond_syscall(sys_mlock);
- cond_syscall(sys_munlock);
- cond_syscall(sys_mlockall);
- cond_syscall(sys_munlockall);
-+cond_syscall(sys_mlock2);
- cond_syscall(sys_mincore);
- cond_syscall(sys_madvise);
- cond_syscall(sys_mremap);
-diff --git a/mm/mlock.c b/mm/mlock.c
-index c32ad8f..a23a533 100644
---- a/mm/mlock.c
-+++ b/mm/mlock.c
-@@ -644,6 +644,14 @@ SYSCALL_DEFINE2(mlock, unsigned long, start, size_t, len)
- 	return do_mlock(start, len, VM_LOCKED);
+ 	vcdev->config_block->index = index;
+ 	ccw->cmd_code = CCW_CMD_READ_VQ_CONF;
+ 	ccw->flags = 0;
+ 	ccw->count = sizeof(struct vq_config_block);
+ 	ccw->cda = (__u32)(unsigned long)(vcdev->config_block);
+-	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_VQ_CONF);
++	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_VQ_CONF);
++	if (ret)
++		return ret;
+ 	return vcdev->config_block->num;
  }
  
-+SYSCALL_DEFINE3(mlock2, unsigned long, start, size_t, len, int, flags)
-+{
-+	if (flags)
-+		return -EINVAL;
-+
-+	return do_mlock(start, len, VM_LOCKED);
-+}
-+
- SYSCALL_DEFINE2(munlock, unsigned long, start, size_t, len)
- {
- 	int ret;
+@@ -503,6 +507,10 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+ 		goto out_err;
+ 	}
+ 	info->num = virtio_ccw_read_vq_conf(vcdev, ccw, i);
++	if (info->num < 0) {
++		err = info->num;
++		goto out_err;
++	}
+ 	size = PAGE_ALIGN(vring_size(info->num, KVM_VIRTIO_CCW_RING_ALIGN));
+ 	info->queue = alloc_pages_exact(size, GFP_KERNEL | __GFP_ZERO);
+ 	if (info->queue == NULL) {
 -- 
-1.9.1
+2.3.8
