@@ -1,53 +1,43 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next 4/5] qeth: add layer 2 RX/TX checksum
- offloading
-Date: Thu, 17 Sep 2015 16:24:07 -0700 (PDT)
-Message-ID: <20150917.162407.2057471103024148470.davem@davemloft.net>
-References: <1442313138-64526-1-git-send-email-ubraun@linux.vnet.ibm.com>
-	<1442313138-64526-5-git-send-email-ubraun@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next V2 1/5] qeth: remove extraneous length from %pM format
+Date: Fri, 18 Sep 2015 16:06:48 +0200
+Message-ID: <1442585212-58347-2-git-send-email-ubraun@linux.vnet.ibm.com>
+References: <1442585212-58347-1-git-send-email-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1442313138-64526-5-git-send-email-ubraun@linux.vnet.ibm.com>
+In-Reply-To: <1442585212-58347-1-git-send-email-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: ubraun@linux.vnet.ibm.com
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com, tmricht@linux.vnet.ibm.com
+To: davem@davemloft.net
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, ursula.braun@de.ibm.com, ubraun@linux.vnet.ibm.com, Eugene Crosser <Eugene.Crosser@ru.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Tue, 15 Sep 2015 12:32:17 +0200
+From: Eugene Crosser <Eugene.Crosser@ru.ibm.com>
 
-> +int qeth_send_setassparms(struct qeth_card *, struct qeth_cmd_buffer *, __u16,
-> +	long,
-> +	int (*reply_cb)(struct qeth_card *, struct qeth_reply *, unsigned long),
-> +	void *);
+Length specifier in the %pM format is not supported (at least, not
+documented). Remove it, and also an extraneous '&' for the array.
 
-Function declarations and definitions that span multiple lines must begin
-the second and subsequent lines precisely at the column right after the
-openning parenthesis of the declaration/definition.
+Signed-off-by: Eugene Crosser <Eugene.Crosser@ru.ibm.com>
+Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
+Suggested-by: Joe Perches <joe@perches.com>
+---
+ drivers/s390/net/qeth_l2_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Indenting those lines just by a plain TAB character is not correct.
-
-> +static int qeth_setassparms_cb(struct qeth_card *card,
-> +			struct qeth_reply *reply, unsigned long data)
-
-Likewise.
-
-> +static struct qeth_cmd_buffer *qeth_get_setassparms_cmd(
-> +	struct qeth_card *card, enum qeth_ipa_funcs ipa_func, __u16 cmd_code,
-> +	__u16 len, enum qeth_prot_versions prot)
-
-Likewise.
-
-> +int qeth_send_setassparms(struct qeth_card *card,
-> +	struct qeth_cmd_buffer *iob, __u16 len, long data,
-> +	int (*reply_cb)(struct qeth_card *, struct qeth_reply *,
-> +		unsigned long),
-> +	void *reply_param)
-
-Likewise.
-
-And so on and so forth.
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index a855669..a4e3652 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -1452,8 +1452,8 @@ static void qeth_bridge_emit_host_event(struct qeth_card *card,
+ 			env[i] = str[i]; i++;
+ 		}
+ 		if (code & IPA_ADDR_CHANGE_CODE_MACADDR) {
+-			snprintf(str[i], sizeof(str[i]), "MAC=%pM6",
+-				&addr_lnid->mac);
++			snprintf(str[i], sizeof(str[i]), "MAC=%pM",
++				 addr_lnid->mac);
+ 			env[i] = str[i]; i++;
+ 		}
+ 		snprintf(str[i], sizeof(str[i]), "NTOK_BUSID=%x.%x.%04x",
+-- 
+2.3.8
