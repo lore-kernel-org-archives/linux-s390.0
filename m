@@ -1,280 +1,175 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Mon, 28 Sep 2015 13:49:28 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [RFC] futex: prevent endless loop on s390x with emulated
- hugepages
-Message-ID: <20150928134928.2214dae2@mschwide>
-In-Reply-To: <1443107148-28625-1-git-send-email-vbabka@suse.cz>
-References: <1443107148-28625-1-git-send-email-vbabka@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: [RFC] futex: prevent endless loop on s390x with emulated hugepages
+Date: Thu, 24 Sep 2015 17:05:48 +0200
+Message-Id: <1443107148-28625-1-git-send-email-vbabka@suse.cz>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Vlastimil Babka <vbabka@suse.cz>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, Yong Sun <yosun@suse.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, Zhang Yi <wetpzy@gmail.com>, Mel Gorman <mgorman@suse.de>, Andrea Arcangeli <aarcange@redhat.com>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Hugh Dickins <hughd@google.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, Yong Sun <yosun@suse.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>, Zhang Yi <wetpzy@gmail.com>, Mel Gorman <mgorman@suse.de>, Andrea Arcangeli <aarcange@redhat.com>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Hugh Dickins <hughd@google.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 24 Sep 2015 17:05:48 +0200
-Vlastimil Babka <vbabka@suse.cz> wrote:
+Yong Sun has reported the LTP futex_wake04 test to hang a s390x with our
+kernel based on 3.12. This is reproducible on upstream 4.1.8 as well. 4.2+
+is OK thanks to removal of emulated hugepages, but we should do something
+about the stable kernels here.
 
-> Yong Sun has reported the LTP futex_wake04 test to hang a s390x with our
-> kernel based on 3.12. This is reproducible on upstream 4.1.8 as well. 4.2+
-> is OK thanks to removal of emulated hugepages, but we should do something
-> about the stable kernels here.
-> 
-> The LTP test is a regression test for commit 13d60f4b6a ("futex: Take
-> hugepages into account when generating futex_key"), but it turns out that it's
-> sufficient to just attempt to wait for a single futex on a tail page of a
-> hugetlbfs page:
+The LTP test is a regression test for commit 13d60f4b6a ("futex: Take
+hugepages into account when generating futex_key"), but it turns out that it's
+sufficient to just attempt to wait for a single futex on a tail page of a
+hugetlbfs page:
 
-The software emulated large pages always have been a bit fragile.
- 
-> The problem is an endless loop in get_futex_key() when
-> CONFIG_TRANSPARENT_HUGEPAGE is enabled and the s390x machine has emulated
-> hugepages. The code tries to serialize against __split_huge_page_splitting(),
-> but __get_user_pages_fast() fails on the hugetlbfs tail page. This happens
-> because pmd_large() is false for emulated hugepages, so the code will proceed
-> into gup_pte_range() and fail page_cache_get_speculative() through failing
-> get_page_unless_zero() as the tail page count is zero. Failing __gup_fast is
-> supposed to be temporary due to a race, so get_futex_key() will try again
-> endlessly.
-> 
-> This attempt for a fix is a bandaid solution and probably incomplete.
-> Hopefully something better will emerge from the discussion. Fully fixing
-> emulated hugepages just for stable backports is unlikely due to them being
-> removed. Also THP refcounting redesign should soon remove the trickery from
-> get_futex_key().
-> 
-> This patch relies on the fact that s390x with emulated hugepages returns false
-> in has_transparent_hugepage(), so we don't need to do the serialization
-> trickery and just use the code for !CONFIG_TRANSPARENT_HUGEPAGE. We just need
-> an extra variable to cache the result of has_transparent_hugepage(), which is
-> __init and potentially expensive on some architectures.
-> 
-> However, __get_user_pages_fast() is still broken. The get_user_pages_fast()
-> wrapper will hide this in the common case. The other user of the __ variant
-> is kvm, which is mentioned as the reason for removal of emulated hugepages.
-> The call of page_cache_get_speculative() looks also broken in this scenario
-> on debug builds because of VM_BUG_ON_PAGE(PageTail(page), page). With
-> CONFIG_TINY_RCU enabled, there's plain atomic_inc(&page->_count) which also
-> probably shouldn't happen for a tail page...
+==== BEGIN REPRODUCER ====
 
-It boils down to __get_user_pages_fast being broken for emulated large pages,
-doesn't it? My preferred fix would be to get __get_user_page_fast to work
-in this case. For 3.12 a patch would look like this (needs more testing
-though):
---
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index bb0c157..5948b7f 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -370,7 +370,7 @@ static inline int is_module_addr(void *addr)
- #define _SEGMENT_ENTRY_EMPTY	(_SEGMENT_ENTRY_INVALID)
+static struct timespec to = {.tv_sec = 1, .tv_nsec = 0};
+
+int main(int argc, char *argv[])
+{
+	void *addr;
+	int hpsz = 1024*1024;
+	int pgsz = 4096;
+	int * futex1;
+
+	addr = mmap(NULL, hpsz, PROT_WRITE | PROT_READ,
+	            MAP_SHARED | MAP_ANONYMOUS | MAP_HUGETLB, -1, 0);
+
+	if (addr == MAP_FAILED) {
+		perror("mmap()");
+		return 1;
+	}
+
+	futex1 = (int *)((char *)addr + pgsz);
+	*futex1 = 0;
+
+	syscall(SYS_futex, futex1, FUTEX_WAIT, *futex1, &to, 0, 0);
+
+	return 0;
+}
+
+==== END REPRODUCER ===
+
+The problem is an endless loop in get_futex_key() when
+CONFIG_TRANSPARENT_HUGEPAGE is enabled and the s390x machine has emulated
+hugepages. The code tries to serialize against __split_huge_page_splitting(),
+but __get_user_pages_fast() fails on the hugetlbfs tail page. This happens
+because pmd_large() is false for emulated hugepages, so the code will proceed
+into gup_pte_range() and fail page_cache_get_speculative() through failing
+get_page_unless_zero() as the tail page count is zero. Failing __gup_fast is
+supposed to be temporary due to a race, so get_futex_key() will try again
+endlessly.
+
+This attempt for a fix is a bandaid solution and probably incomplete.
+Hopefully something better will emerge from the discussion. Fully fixing
+emulated hugepages just for stable backports is unlikely due to them being
+removed. Also THP refcounting redesign should soon remove the trickery from
+get_futex_key().
+
+This patch relies on the fact that s390x with emulated hugepages returns false
+in has_transparent_hugepage(), so we don't need to do the serialization
+trickery and just use the code for !CONFIG_TRANSPARENT_HUGEPAGE. We just need
+an extra variable to cache the result of has_transparent_hugepage(), which is
+__init and potentially expensive on some architectures.
+
+However, __get_user_pages_fast() is still broken. The get_user_pages_fast()
+wrapper will hide this in the common case. The other user of the __ variant
+is kvm, which is mentioned as the reason for removal of emulated hugepages.
+The call of page_cache_get_speculative() looks also broken in this scenario
+on debug builds because of VM_BUG_ON_PAGE(PageTail(page), page). With
+CONFIG_TINY_RCU enabled, there's plain atomic_inc(&page->_count) which also
+probably shouldn't happen for a tail page...
+
+Not-yet-signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Reported-by: Yong Sun <yosun@suse.com>
+Cc: Zhang Yi <wetpzy@gmail.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ include/linux/huge_mm.h |  1 +
+ kernel/futex.c          | 10 ++++++++--
+ mm/huge_memory.c        |  4 ++++
+ 3 files changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
+index f10b20f..5dbaca3 100644
+--- a/include/linux/huge_mm.h
++++ b/include/linux/huge_mm.h
+@@ -92,6 +92,7 @@ extern bool is_vma_temporary_stack(struct vm_area_struct *vma);
+ #define transparent_hugepage_debug_cow() 0
+ #endif /* CONFIG_DEBUG_VM */
  
- #define _SEGMENT_ENTRY_LARGE	0x400	/* STE-format control, large page   */
--#define _SEGMENT_ENTRY_CO	0x100	/* change-recording override   */
-+#define _SEGMENT_ENTRY_SWLARGE	0x100	/* SW large page bit */
- #define _SEGMENT_ENTRY_SPLIT	0x001	/* THP splitting bit */
- #define _SEGMENT_ENTRY_YOUNG	0x002	/* SW segment young bit */
- #define _SEGMENT_ENTRY_NONE	_SEGMENT_ENTRY_YOUNG
-@@ -391,8 +391,8 @@ static inline int is_module_addr(void *addr)
- #define _SEGMENT_ENTRY_SPLIT_BIT 0	/* THP splitting bit number */
++extern bool transparent_hugepage_available;
+ extern unsigned long transparent_hugepage_flags;
+ extern int split_huge_page_to_list(struct page *page, struct list_head *list);
+ static inline int split_huge_page(struct page *page)
+diff --git a/kernel/futex.c b/kernel/futex.c
+index c4a182f..be9cd1c 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -443,6 +443,9 @@ get_futex_key(u32 __user *uaddr, int fshared, union futex_key *key, int rw)
+ 		err = 0;
  
- /* Set of bits not changed in pmd_modify */
--#define _SEGMENT_CHG_MASK	(_SEGMENT_ENTRY_ORIGIN | _SEGMENT_ENTRY_LARGE \
--				 | _SEGMENT_ENTRY_SPLIT | _SEGMENT_ENTRY_CO)
-+#define _SEGMENT_CHG_MASK (_SEGMENT_ENTRY_ORIGIN | _SEGMENT_ENTRY_LARGE \
-+			   | _SEGMENT_ENTRY_SPLIT | _SEGMENT_ENTRY_SWLARGE)
- 
- /* Page status table bits for virtualization */
- #define PGSTE_ACC_BITS	0xf000000000000000UL
-@@ -563,12 +563,25 @@ static inline int pmd_none(pmd_t pmd)
- static inline int pmd_large(pmd_t pmd)
- {
- #ifdef CONFIG_64BIT
--	return (pmd_val(pmd) & _SEGMENT_ENTRY_LARGE) != 0;
-+	return (pmd_val(pmd) &
-+		(_SEGMENT_ENTRY_LARGE | _SEGMENT_ENTRY_SWLARGE)) != 0;
- #else
- 	return 0;
- #endif
- }
- 
-+static inline pmd_t pmd_swlarge_deref(pmd_t pmd)
-+{
-+	unsigned long origin;
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
++	if (!transparent_hugepage_available)
++		goto no_thp;
 +
-+	if (pmd_val(pmd) & _SEGMENT_ENTRY_SWLARGE) {
-+		origin = pmd_val(pmd) & _SEGMENT_ENTRY_ORIGIN;
-+		pmd_val(pmd) &= ~_SEGMENT_ENTRY_ORIGIN;
-+		pmd_val(pmd) |= *(unsigned long *) origin;
-+	}
-+	return pmd;
-+}
+ 	page_head = page;
+ 	if (unlikely(PageTail(page))) {
+ 		put_page(page);
+@@ -470,14 +473,17 @@ get_futex_key(u32 __user *uaddr, int fshared, union futex_key *key, int rw)
+ 			goto again;
+ 		}
+ 	}
+-#else
++	goto lockpage;
++#endif
 +
- static inline int pmd_prot_none(pmd_t pmd)
- {
- 	return (pmd_val(pmd) & _SEGMENT_ENTRY_INVALID) &&
-@@ -578,8 +591,10 @@ static inline int pmd_prot_none(pmd_t pmd)
- static inline int pmd_bad(pmd_t pmd)
- {
- #ifdef CONFIG_64BIT
--	if (pmd_large(pmd))
-+	if (pmd_large(pmd)) {
-+		pmd = pmd_swlarge_deref(pmd);
- 		return (pmd_val(pmd) & ~_SEGMENT_ENTRY_BITS_LARGE) != 0;
-+	}
- #endif
- 	return (pmd_val(pmd) & ~_SEGMENT_ENTRY_BITS) != 0;
- }
-@@ -1495,8 +1510,6 @@ static inline int pmd_trans_splitting(pmd_t pmd)
- static inline void set_pmd_at(struct mm_struct *mm, unsigned long addr,
- 			      pmd_t *pmdp, pmd_t entry)
- {
--	if (!(pmd_val(entry) & _SEGMENT_ENTRY_INVALID) && MACHINE_HAS_EDAT1)
--		pmd_val(entry) |= _SEGMENT_ENTRY_CO;
- 	*pmdp = entry;
- }
++no_thp:
+ 	page_head = compound_head(page);
+ 	if (page != page_head) {
+ 		get_page(page_head);
+ 		put_page(page);
+ 	}
+-#endif
  
-diff --git a/arch/s390/mm/dump_pagetables.c b/arch/s390/mm/dump_pagetables.c
-index 46d517c..e159735 100644
---- a/arch/s390/mm/dump_pagetables.c
-+++ b/arch/s390/mm/dump_pagetables.c
-@@ -129,7 +129,7 @@ static void walk_pte_level(struct seq_file *m, struct pg_state *st,
- }
++lockpage:
+ 	lock_page(page_head);
  
- #ifdef CONFIG_64BIT
--#define _PMD_PROT_MASK (_SEGMENT_ENTRY_PROTECT | _SEGMENT_ENTRY_CO)
-+#define _PMD_PROT_MASK (_SEGMENT_ENTRY_PROTECT)
- #else
- #define _PMD_PROT_MASK 0
- #endif
-@@ -138,7 +138,7 @@ static void walk_pmd_level(struct seq_file *m, struct pg_state *st,
- 			   pud_t *pud, unsigned long addr)
- {
- 	unsigned int prot;
--	pmd_t *pmd;
-+	pmd_t *pmd, pmd_val;
- 	int i;
+ 	/*
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 097c7a4..6aea047 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -36,6 +36,7 @@
+  * Defrag is invoked by khugepaged hugepage allocations and by page faults
+  * for all hugepage allocations.
+  */
++bool transparent_hugepage_available __read_mostly = false;
+ unsigned long transparent_hugepage_flags __read_mostly =
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE_ALWAYS
+ 	(1<<TRANSPARENT_HUGEPAGE_FLAG)|
+@@ -626,10 +627,13 @@ static int __init hugepage_init(void)
+ 	struct kobject *hugepage_kobj;
  
- 	for (i = 0; i < PTRS_PER_PMD && addr < max_addr; i++) {
-@@ -146,7 +146,8 @@ static void walk_pmd_level(struct seq_file *m, struct pg_state *st,
- 		pmd = pmd_offset(pud, addr);
- 		if (!pmd_none(*pmd)) {
- 			if (pmd_large(*pmd)) {
--				prot = pmd_val(*pmd) & _PMD_PROT_MASK;
-+				pmd_val = pmd_swlarge_deref(*pmd);
-+				prot = pmd_val(pmd_val) & _PMD_PROT_MASK;
- 				note_page(m, st, prot, 3);
- 			} else
- 				walk_pte_level(m, st, pmd, addr);
-diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
-index 5d758db..8dd86a5 100644
---- a/arch/s390/mm/gup.c
-+++ b/arch/s390/mm/gup.c
-@@ -48,8 +48,9 @@ static inline int gup_pte_range(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
- 	return 1;
- }
- 
--static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
--		unsigned long end, int write, struct page **pages, int *nr)
-+static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd_orig, pmd_t pmd,
-+		unsigned long addr, unsigned long end,
-+		int write, struct page **pages, int *nr)
- {
- 	unsigned long mask, result;
- 	struct page *head, *page, *tail;
-@@ -78,7 +79,7 @@ static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
- 		return 0;
+ 	if (!has_transparent_hugepage()) {
++		transparent_hugepage_available = false;
+ 		transparent_hugepage_flags = 0;
+ 		return -EINVAL;
  	}
  
--	if (unlikely(pmd_val(pmd) != pmd_val(*pmdp))) {
-+	if (unlikely(pmd_val(pmd_orig) != pmd_val(*pmdp))) {
- 		*nr -= refs;
- 		while (refs--)
- 			put_page(head);
-@@ -103,7 +104,7 @@ static inline int gup_pmd_range(pud_t *pudp, pud_t pud, unsigned long addr,
- 		unsigned long end, int write, struct page **pages, int *nr)
- {
- 	unsigned long next;
--	pmd_t *pmdp, pmd;
-+	pmd_t *pmdp, pmd, pmd_orig;
- 
- 	pmdp = (pmd_t *) pudp;
- #ifdef CONFIG_64BIT
-@@ -112,7 +113,7 @@ static inline int gup_pmd_range(pud_t *pudp, pud_t pud, unsigned long addr,
- 	pmdp += pmd_index(addr);
- #endif
- 	do {
--		pmd = *pmdp;
-+		pmd = pmd_orig = *pmdp;
- 		barrier();
- 		next = pmd_addr_end(addr, end);
- 		/*
-@@ -127,8 +128,9 @@ static inline int gup_pmd_range(pud_t *pudp, pud_t pud, unsigned long addr,
- 		if (pmd_none(pmd) || pmd_trans_splitting(pmd))
- 			return 0;
- 		if (unlikely(pmd_large(pmd))) {
--			if (!gup_huge_pmd(pmdp, pmd, addr, next,
--					  write, pages, nr))
-+			if (!gup_huge_pmd(pmdp, pmd_orig,
-+					  pmd_swlarge_deref(pmd),
-+					  addr, next, write, pages, nr))
- 				return 0;
- 		} else if (!gup_pte_range(pmdp, pmd, addr, next,
- 					  write, pages, nr))
-diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
-index 99a68d5..d4a17d9 100644
---- a/arch/s390/mm/hugetlbpage.c
-+++ b/arch/s390/mm/hugetlbpage.c
-@@ -98,22 +98,18 @@ void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
- 	if (!MACHINE_HAS_HPAGE) {
- 		pmd_val(pmd) &= ~_SEGMENT_ENTRY_ORIGIN;
- 		pmd_val(pmd) |= pte_page(pte)[1].index;
-+		pmd_val(pmd) |= _SEGMENT_ENTRY_SWLARGE;
- 	} else
--		pmd_val(pmd) |= _SEGMENT_ENTRY_LARGE | _SEGMENT_ENTRY_CO;
-+		pmd_val(pmd) |= _SEGMENT_ENTRY_LARGE;
- 	*(pmd_t *) ptep = pmd;
- }
- 
- pte_t huge_ptep_get(pte_t *ptep)
- {
--	unsigned long origin;
- 	pmd_t pmd;
- 
- 	pmd = *(pmd_t *) ptep;
--	if (!MACHINE_HAS_HPAGE && pmd_present(pmd)) {
--		origin = pmd_val(pmd) & _SEGMENT_ENTRY_ORIGIN;
--		pmd_val(pmd) &= ~_SEGMENT_ENTRY_ORIGIN;
--		pmd_val(pmd) |= *(unsigned long *) origin;
--	}
-+	pmd = pmd_swlarge_deref(pmd);
- 	return __pmd_to_pte(pmd);
- }
- 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index bcfb70b..a4f6f2f 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -235,8 +235,7 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node)
- 				if (!new_page)
- 					goto out;
- 				pmd_val(*pm_dir) = __pa(new_page) |
--					_SEGMENT_ENTRY | _SEGMENT_ENTRY_LARGE |
--					_SEGMENT_ENTRY_CO;
-+					_SEGMENT_ENTRY | _SEGMENT_ENTRY_LARGE;
- 				address = (address + PMD_SIZE) & PMD_MASK;
- 				continue;
- 			}
-
++	transparent_hugepage_available = true;
++
+ 	err = hugepage_init_sysfs(&hugepage_kobj);
+ 	if (err)
+ 		goto err_sysfs;
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+2.5.1
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
