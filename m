@@ -1,65 +1,69 @@
-From: LABBE Corentin <clabbe.montjoie@gmail.com>
-Subject: [PATCH v2 4/8] s390: replace zfcp_qdio_sbale_count by sg_nents
-Date: Fri, 18 Sep 2015 14:57:12 +0200
-Message-ID: <1442581036-23789-5-git-send-email-clabbe.montjoie@gmail.com>
-References: <1442581036-23789-1-git-send-email-clabbe.montjoie@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1442581036-23789-1-git-send-email-clabbe.montjoie@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-crypto/>
-List-Post: <mailto:linux-crypto@vger.kernel.org>
-To: herbert@gondor.apana.org.au, davem@davemloft.net, heiko.carstens@de.ibm.com, maier@linux.vnet.ibm.com, schwidefsky@de.ibm.com
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, LABBE Corentin <clabbe.montjoie@gmail.com>, linux-s390@vger.kernel.org
+Return-Path: <dsahern@gmail.com>
+Subject: Re: [PATCH v8 1/4] perf,kvm/{x86,s390}: Remove dependency on
+ uapi/kvm_perf.h
+References: <1443161838-31462-1-git-send-email-hemant@linux.vnet.ibm.com>
+ <87bncm7l6z.fsf@linux.vnet.ibm.com>
+From: David Ahern <dsahern@gmail.com>
+Message-ID: <56094F5D.9090805@gmail.com>
+Date: Mon, 28 Sep 2015 08:31:57 -0600
+MIME-Version: 1.0
+In-Reply-To: <87bncm7l6z.fsf@linux.vnet.ibm.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+List-Archive: <https://lore.kernel.org/linuxppc-dev/>
+To: Alexander Yarygin <yarygin@linux.vnet.ibm.com>, Hemant Kumar <hemant@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, acme@kernel.org, scottwood@freescale.com, sukadev@linux.vnet.ibm.com, naveen.n.rao@linux.vnet.ibm.com, mpe@ellerman.id.au, paulus@samba.org, mingo@redhat.com, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-The zfcp_qdio_sbale_count function do the same work than sg_nents().
-So replace it by sg_nents() for removing duplicate code.
+On 9/28/15 7:00 AM, Alexander Yarygin wrote:
+>> diff --git a/tools/perf/builtin-kvm.c b/tools/perf/builtin-kvm.c
+>> index fc1cffb..ef25fcf 100644
+>> --- a/tools/perf/builtin-kvm.c
+>> +++ b/tools/perf/builtin-kvm.c
+>> @@ -31,20 +31,18 @@
+>>   #include <math.h>
+>>
+>>   #ifdef HAVE_KVM_STAT_SUPPORT
+>> -#include <asm/kvm_perf.h>
+>>   #include "util/kvm-stat.h"
+>>
+>> -void exit_event_get_key(struct perf_evsel *evsel,
+>> -			struct perf_sample *sample,
+>> +void exit_event_get_key(struct perf_evsel *evsel, struct perf_sample *sample,
+>>   			struct event_key *key)
+>>   {
+>>   	key->info = 0;
+>> -	key->key = perf_evsel__intval(evsel, sample, KVM_EXIT_REASON);
+>> +	key->key = perf_evsel__intval(evsel, sample, exit_reason_code);
+>>   }
+>>
+>>   bool kvm_exit_event(struct perf_evsel *evsel)
+>>   {
+>> -	return !strcmp(evsel->name, KVM_EXIT_TRACE);
+>> +	return !strncmp(evsel->name, kvm_events_tp[1], strlen(evsel->name));
+>>   }
+>
+> Hmm, direct access to kvm_events_tp? Maybe add a getter for this or
+> something like extern char *kvm_exit_trace;?
+> /* why strncmp? */
+>
+>>
+>>   bool exit_event_begin(struct perf_evsel *evsel,
+>> @@ -60,7 +58,7 @@ bool exit_event_begin(struct perf_evsel *evsel,
+>>
+>>   bool kvm_entry_event(struct perf_evsel *evsel)
+>>   {
+>> -	return !strcmp(evsel->name, KVM_ENTRY_TRACE);
+>> +	return !strncmp(evsel->name, kvm_events_tp[0], strlen(evsel->name));
+>>   }
+>>
+>>   bool exit_event_end(struct perf_evsel *evsel,
 
-Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
----
- drivers/s390/scsi/zfcp_fsf.c  |  3 +--
- drivers/s390/scsi/zfcp_qdio.h | 15 ---------------
- 2 files changed, 1 insertion(+), 17 deletions(-)
-
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 522a633..edc137a 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -985,8 +985,7 @@ static int zfcp_fsf_setup_ct_els_sbals(struct zfcp_fsf_req *req,
- 		if (zfcp_qdio_sbals_from_sg(qdio, &req->qdio_req, sg_resp))
- 			return -EIO;
- 
--		zfcp_qdio_set_data_div(qdio, &req->qdio_req,
--					zfcp_qdio_sbale_count(sg_req));
-+		zfcp_qdio_set_data_div(qdio, &req->qdio_req, sg_nents(sg_req));
- 		zfcp_qdio_set_sbale_last(qdio, &req->qdio_req);
- 		zfcp_qdio_set_scount(qdio, &req->qdio_req);
- 		return 0;
-diff --git a/drivers/s390/scsi/zfcp_qdio.h b/drivers/s390/scsi/zfcp_qdio.h
-index 497cd37..85cdb82 100644
---- a/drivers/s390/scsi/zfcp_qdio.h
-+++ b/drivers/s390/scsi/zfcp_qdio.h
-@@ -225,21 +225,6 @@ void zfcp_qdio_set_data_div(struct zfcp_qdio *qdio,
- }
- 
- /**
-- * zfcp_qdio_sbale_count - count sbale used
-- * @sg: pointer to struct scatterlist
-- */
--static inline
--unsigned int zfcp_qdio_sbale_count(struct scatterlist *sg)
--{
--	unsigned int count = 0;
--
--	for (; sg; sg = sg_next(sg))
--		count++;
--
--	return count;
--}
--
--/**
-  * zfcp_qdio_real_bytes - count bytes used
-  * @sg: pointer to struct scatterlist
-  */
--- 
-2.4.6
+I agree; don't rely on kvm_events_tp. Define KVM_ENTRY_TRACE and 
+KVM_EXIT_TRACE like x86.
