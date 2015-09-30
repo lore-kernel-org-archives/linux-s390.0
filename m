@@ -1,246 +1,91 @@
-Return-Path: <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v7 1/4] perf,kvm/{x86,s390}: Remove dependency on
- uapi/kvm_perf.h
-References: <1443121381-24553-1-git-send-email-hemant@linux.vnet.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <5608F15D.301@de.ibm.com>
-Date: Mon, 28 Sep 2015 09:50:53 +0200
-MIME-Version: 1.0
-In-Reply-To: <1443121381-24553-1-git-send-email-hemant@linux.vnet.ibm.com>
-Content-Type: text/plain; charset=windows-1252
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Hemant Kumar <hemant@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org, acme@kernel.org, scottwood@freescale.com, sukadev@linux.vnet.ibm.com, naveen.n.rao@linux.vnet.ibm.com, mpe@ellerman.id.au, paulus@samba.org, mingo@redhat.com, Alexander Yarygin <yarygin@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+From: Steffen Maier <maier@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2 4/8] s390: replace zfcp_qdio_sbale_count by sg_nents
+Date: Wed, 30 Sep 2015 15:59:16 +0200
+Message-ID: <560BEAB4.10702@linux.vnet.ibm.com>
+References: <1442581036-23789-1-git-send-email-clabbe.montjoie@gmail.com>
+ <1442581036-23789-5-git-send-email-clabbe.montjoie@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-crypto-owner@vger.kernel.org>
+In-Reply-To: <1442581036-23789-5-git-send-email-clabbe.montjoie@gmail.com>
+Sender: linux-crypto-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-crypto/>
+List-Post: <mailto:linux-crypto@vger.kernel.org>
+To: LABBE Corentin <clabbe.montjoie@gmail.com>, herbert@gondor.apana.org.au, davem@davemloft.net, heiko.carstens@de.ibm.com, schwidefsky@de.ibm.com
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Am 24.09.2015 um 21:02 schrieb Hemant Kumar:
-> Its better to remove the dependency on uapi/kvm_perf.h to allow dynamic
-> discovery of kvm events (if its needed). To do this, some extern
-> variables have been introduced with which we can keep the generic
-> functions generic.
-> 
-> Signed-off-by: Hemant Kumar <hemant@linux.vnet.ibm.com>
+Thanks, looks good.
 
-When touching s390, can you CC the s390 maintainers? We are not powerpc :-)
-Alexander, can you have a look at this series?
+I've added it to my queue for sending zfcp patches upstream next time=20
+(might take a while).
 
-
+On 09/18/2015 02:57 PM, LABBE Corentin wrote:
+> The zfcp_qdio_sbale_count function do the same work than sg_nents().
+> So replace it by sg_nents() for removing duplicate code.
+>
+> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
 > ---
->  tools/perf/arch/s390/util/kvm-stat.c | 10 +++++++-
->  tools/perf/arch/x86/util/kvm-stat.c  | 12 +++++++++-
->  tools/perf/builtin-kvm.c             | 44 ++++++++++++++++++++++--------------
->  tools/perf/util/kvm-stat.h           |  3 +++
->  4 files changed, 50 insertions(+), 19 deletions(-)
-> 
-> diff --git a/tools/perf/arch/s390/util/kvm-stat.c b/tools/perf/arch/s390/util/kvm-stat.c
-> index a5dbc07..c2acb3e 100644
-> --- a/tools/perf/arch/s390/util/kvm-stat.c
-> +++ b/tools/perf/arch/s390/util/kvm-stat.c
-> @@ -10,7 +10,11 @@
->   */
-> 
->  #include "../../util/kvm-stat.h"
-> -#include <asm/kvm_perf.h>
-> +#include <asm/sie.h>
-> +
-> +#define DECODE_STR_LEN 40
-> +#define VCPU_ID "id"
-> +#define KVM_EXIT_REASON "icptcode"
-> 
->  define_exit_reasons_table(sie_exit_reasons, sie_intercept_code);
->  define_exit_reasons_table(sie_icpt_insn_codes, icpt_insn_codes);
-> @@ -83,6 +87,10 @@ const char * const kvm_events_tp[] = {
->  	NULL,
->  };
-> 
-> +const char *vcpu_id_str = VCPU_ID;
-> +const int decode_str_len = DECODE_STR_LEN;
-> +const char *exit_reason_code = KVM_EXIT_REASON;
-> +
->  struct kvm_reg_events_ops kvm_reg_events_ops[] = {
->  	{ .name = "vmexit", .ops = &exit_events },
->  	{ NULL, NULL },
-> diff --git a/tools/perf/arch/x86/util/kvm-stat.c b/tools/perf/arch/x86/util/kvm-stat.c
-> index 14e4e66..2d0d43b5 100644
-> --- a/tools/perf/arch/x86/util/kvm-stat.c
-> +++ b/tools/perf/arch/x86/util/kvm-stat.c
-> @@ -1,5 +1,11 @@
->  #include "../../util/kvm-stat.h"
-> -#include <asm/kvm_perf.h>
-> +#include <asm/svm.h>
-> +#include <asm/vmx.h>
-> +#include <asm/kvm.h>
-> +
-> +#define DECODE_STR_LEN 20
-> +#define VCPU_ID "vcpu_id"
-> +#define KVM_EXIT_REASON "exit_reason"
-> 
->  define_exit_reasons_table(vmx_exit_reasons, VMX_EXIT_REASONS);
->  define_exit_reasons_table(svm_exit_reasons, SVM_EXIT_REASONS);
-> @@ -129,6 +135,10 @@ const char * const kvm_events_tp[] = {
->  	NULL,
->  };
-> 
-> +const char *vcpu_id_str = VCPU_ID;
-> +const int decode_str_len = DECODE_STR_LEN;
-> +const char *exit_reason_code = KVM_EXIT_REASON;
-> +
->  struct kvm_reg_events_ops kvm_reg_events_ops[] = {
->  	{ .name = "vmexit", .ops = &exit_events },
->  	{ .name = "mmio", .ops = &mmio_events },
-> diff --git a/tools/perf/builtin-kvm.c b/tools/perf/builtin-kvm.c
-> index fc1cffb..dbb1b1e 100644
-> --- a/tools/perf/builtin-kvm.c
-> +++ b/tools/perf/builtin-kvm.c
-> @@ -31,20 +31,19 @@
->  #include <math.h>
-> 
->  #ifdef HAVE_KVM_STAT_SUPPORT
-> -#include <asm/kvm_perf.h>
->  #include "util/kvm-stat.h"
-> 
-> -void exit_event_get_key(struct perf_evsel *evsel,
-> -			struct perf_sample *sample,
-> -			struct event_key *key)
-> +void exit_event_get_key(struct perf_evsel *evsel __maybe_unused,
-> +			   struct perf_sample *sample __maybe_unused,
-> +			   struct event_key *key __maybe_unused)
->  {
->  	key->info = 0;
-> -	key->key = perf_evsel__intval(evsel, sample, KVM_EXIT_REASON);
-> +	key->key = perf_evsel__intval(evsel, sample, exit_reason_code);
->  }
-> 
-> -bool kvm_exit_event(struct perf_evsel *evsel)
-> +bool kvm_exit_event(struct perf_evsel *evsel __maybe_unused)
->  {
-> -	return !strcmp(evsel->name, KVM_EXIT_TRACE);
-> +	return !strncmp(evsel->name, kvm_events_tp[1], strlen(evsel->name));
->  }
-> 
->  bool exit_event_begin(struct perf_evsel *evsel,
-> @@ -58,9 +57,9 @@ bool exit_event_begin(struct perf_evsel *evsel,
->  	return false;
->  }
-> 
-> -bool kvm_entry_event(struct perf_evsel *evsel)
-> +bool kvm_entry_event(struct perf_evsel *evsel __maybe_unused)
->  {
-> -	return !strcmp(evsel->name, KVM_ENTRY_TRACE);
-> +	return !strncmp(evsel->name, kvm_events_tp[0], strlen(evsel->name));
->  }
-> 
->  bool exit_event_end(struct perf_evsel *evsel,
-> @@ -71,8 +70,8 @@ bool exit_event_end(struct perf_evsel *evsel,
->  }
-> 
->  static const char *get_exit_reason(struct perf_kvm_stat *kvm,
-> -				   struct exit_reasons_table *tbl,
-> -				   u64 exit_code)
-> +			    struct exit_reasons_table *tbl,
-> +			    u64 exit_code)
->  {
->  	while (tbl->reason != NULL) {
->  		if (tbl->exit_code == exit_code)
-> @@ -92,7 +91,7 @@ void exit_event_decode_key(struct perf_kvm_stat *kvm,
->  	const char *exit_reason = get_exit_reason(kvm, key->exit_reasons,
->  						  key->key);
-> 
-> -	scnprintf(decode, DECODE_STR_LEN, "%s", exit_reason);
-> +	scnprintf(decode, decode_str_len, "%s", exit_reason);
->  }
-> 
->  static bool register_kvm_events_ops(struct perf_kvm_stat *kvm)
-> @@ -358,7 +357,11 @@ static bool handle_end_event(struct perf_kvm_stat *kvm,
->  	time_diff = sample->time - time_begin;
-> 
->  	if (kvm->duration && time_diff > kvm->duration) {
-> -		char decode[DECODE_STR_LEN];
-> +		char *decode = zalloc(decode_str_len);
-> +		if (!decode) {
-> +			pr_err("Not enough memory\n");
-> +			return false;
-> +		}
-> 
->  		kvm->events_ops->decode_key(kvm, &event->key, decode);
->  		if (!skip_event(decode)) {
-> @@ -366,6 +369,7 @@ static bool handle_end_event(struct perf_kvm_stat *kvm,
->  				 sample->time, sample->pid, vcpu_record->vcpu_id,
->  				 decode, time_diff/1000);
->  		}
-> +		free(decode);
->  	}
-> 
->  	return update_kvm_event(event, vcpu, time_diff);
-> @@ -386,7 +390,7 @@ struct vcpu_event_record *per_vcpu_record(struct thread *thread,
->  			return NULL;
->  		}
-> 
-> -		vcpu_record->vcpu_id = perf_evsel__intval(evsel, sample, VCPU_ID);
-> +		vcpu_record->vcpu_id = perf_evsel__intval(evsel, sample, vcpu_id_str);
->  		thread__set_priv(thread, vcpu_record);
->  	}
-> 
-> @@ -575,7 +579,7 @@ static void show_timeofday(void)
-> 
->  static void print_result(struct perf_kvm_stat *kvm)
->  {
-> -	char decode[DECODE_STR_LEN];
-> +	char *decode;
->  	struct kvm_event *event;
->  	int vcpu = kvm->trace_vcpu;
-> 
-> @@ -584,9 +588,14 @@ static void print_result(struct perf_kvm_stat *kvm)
->  		show_timeofday();
->  	}
-> 
-> +	decode = zalloc(decode_str_len);
-> +	if (!decode) {
-> +		pr_err("Not enough memory\n");
-> +		return;
-> +	}
->  	pr_info("\n\n");
->  	print_vcpu_info(kvm);
-> -	pr_info("%*s ", DECODE_STR_LEN, kvm->events_ops->name);
-> +	pr_info("%*s ", decode_str_len, kvm->events_ops->name);
->  	pr_info("%10s ", "Samples");
->  	pr_info("%9s ", "Samples%");
-> 
-> @@ -605,7 +614,7 @@ static void print_result(struct perf_kvm_stat *kvm)
->  		min = get_event_min(event, vcpu);
-> 
->  		kvm->events_ops->decode_key(kvm, &event->key, decode);
-> -		pr_info("%*s ", DECODE_STR_LEN, decode);
-> +		pr_info("%*s ", decode_str_len, decode);
->  		pr_info("%10llu ", (unsigned long long)ecount);
->  		pr_info("%8.2f%% ", (double)ecount / kvm->total_count * 100);
->  		pr_info("%8.2f%% ", (double)etime / kvm->total_time * 100);
-> @@ -615,6 +624,7 @@ static void print_result(struct perf_kvm_stat *kvm)
->  			kvm_event_rel_stddev(vcpu, event));
->  		pr_info("\n");
->  	}
-> +	free(decode);
-> 
->  	pr_info("\nTotal Samples:%" PRIu64 ", Total events handled time:%.2fus.\n\n",
->  		kvm->total_count, kvm->total_time / 1e3);
-> diff --git a/tools/perf/util/kvm-stat.h b/tools/perf/util/kvm-stat.h
-> index ae825d4..59ed51c 100644
-> --- a/tools/perf/util/kvm-stat.h
-> +++ b/tools/perf/util/kvm-stat.h
-> @@ -136,5 +136,8 @@ int cpu_isa_init(struct perf_kvm_stat *kvm, const char *cpuid);
->  extern const char * const kvm_events_tp[];
->  extern struct kvm_reg_events_ops kvm_reg_events_ops[];
->  extern const char * const kvm_skip_events[];
-> +extern const char *vcpu_id_str;
-> +extern const int decode_str_len;
-> +extern const char *exit_reason_code;
-> 
->  #endif /* __PERF_KVM_STAT_H */
-> 
+>   drivers/s390/scsi/zfcp_fsf.c  |  3 +--
+>   drivers/s390/scsi/zfcp_qdio.h | 15 ---------------
+>   2 files changed, 1 insertion(+), 17 deletions(-)
+>
+> diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fs=
+f.c
+> index 522a633..edc137a 100644
+> --- a/drivers/s390/scsi/zfcp_fsf.c
+> +++ b/drivers/s390/scsi/zfcp_fsf.c
+> @@ -985,8 +985,7 @@ static int zfcp_fsf_setup_ct_els_sbals(struct zfc=
+p_fsf_req *req,
+>   		if (zfcp_qdio_sbals_from_sg(qdio, &req->qdio_req, sg_resp))
+>   			return -EIO;
+>
+> -		zfcp_qdio_set_data_div(qdio, &req->qdio_req,
+> -					zfcp_qdio_sbale_count(sg_req));
+> +		zfcp_qdio_set_data_div(qdio, &req->qdio_req, sg_nents(sg_req));
+>   		zfcp_qdio_set_sbale_last(qdio, &req->qdio_req);
+>   		zfcp_qdio_set_scount(qdio, &req->qdio_req);
+>   		return 0;
+> diff --git a/drivers/s390/scsi/zfcp_qdio.h b/drivers/s390/scsi/zfcp_q=
+dio.h
+> index 497cd37..85cdb82 100644
+> --- a/drivers/s390/scsi/zfcp_qdio.h
+> +++ b/drivers/s390/scsi/zfcp_qdio.h
+> @@ -225,21 +225,6 @@ void zfcp_qdio_set_data_div(struct zfcp_qdio *qd=
+io,
+>   }
+>
+>   /**
+> - * zfcp_qdio_sbale_count - count sbale used
+> - * @sg: pointer to struct scatterlist
+> - */
+> -static inline
+> -unsigned int zfcp_qdio_sbale_count(struct scatterlist *sg)
+> -{
+> -	unsigned int count =3D 0;
+> -
+> -	for (; sg; sg =3D sg_next(sg))
+> -		count++;
+> -
+> -	return count;
+> -}
+> -
+> -/**
+>    * zfcp_qdio_real_bytes - count bytes used
+>    * @sg: pointer to struct scatterlist
+>    */
+>
+
+--=20
+Mit freundlichen Gr=FC=DFen / Kind regards
+Steffen Maier
+
+Linux on z Systems Development
+
+IBM Deutschland Research & Development GmbH
+Vorsitzende des Aufsichtsrats: Martina Koederitz
+Geschaeftsfuehrung: Dirk Wittkopp
+Sitz der Gesellschaft: Boeblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
