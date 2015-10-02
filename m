@@ -1,88 +1,78 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/3] alpha: use common noop dma ops
-Date: Fri, 30 Oct 2015 14:20:36 +0100
-Message-ID: <1446211237-111298-3-git-send-email-borntraeger@de.ibm.com>
-References: <1446211237-111298-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1446211237-111298-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Andy Lutomirski <luto@kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, benh@kernel.crashing.org, KVM <kvm@vger.kernel.org>, dwmw2@infradead.org, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, virtualization@lists.linux-foundation.org, Michael Tsirkin <mst@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+From: "Luis R. Rodriguez" <mcgrof@suse.com>
+Subject: Re: [RFC] asm-generic/pci_iomap.h: make custom PCI BAR requirements
+ explicit
+Date: Sat, 3 Oct 2015 01:17:06 +0200
+Message-ID: <20151002231706.GI14464@wotan.suse.de>
+References: <1440807447-584-1-git-send-email-mcgrof@do-not-panic.com>
+ <55E11534.2050508@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <55E11534.2050508@infradead.org>
+Sender: linux-arch-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>, arnd@arndb.de, linux-arch@vger.kernel.org, mingo@kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, bp@suse.de, linux@roeck-us.net, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, rostedt@goodmis.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Some of the alpha pci noop dma ops are identical to the common ones.
-Use them.
+On Fri, Aug 28, 2015 at 07:13:08PM -0700, Randy Dunlap wrote:
+> On 08/28/15 17:17, Luis R. Rodriguez wrote:
+> > 
+> >  arch/s390/Kconfig                 |  8 +++++
+> >  arch/s390/include/asm/io.h        | 11 -------
+> >  arch/s390/include/asm/pci.h       |  2 --
+> >  arch/s390/include/asm/pci_iomap.h | 33 +++++++++++++++++++++
+> >  arch/s390/pci/pci.c               |  2 ++
+> >  include/asm-generic/io.h          | 12 --------
+> >  include/asm-generic/iomap.h       | 10 -------
+> >  include/asm-generic/pci_iomap.h   | 62 +++++++++++++++++++++++++++++++++++----
+> >  lib/Kconfig                       |  1 +
+> >  lib/pci_iomap.c                   |  5 ++++
+> >  10 files changed, 105 insertions(+), 41 deletions(-)
+> >  create mode 100644 arch/s390/include/asm/pci_iomap.h
+> > 
+> > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> > index 1d57000b1b24..1217b7db4265 100644
+> > --- a/arch/s390/Kconfig
+> > +++ b/arch/s390/Kconfig
+> > @@ -614,6 +614,14 @@ endif	# PCI
+> >  config PCI_DOMAINS
+> >  	def_bool PCI
+> >  
+> > +config ARCH_PCI_NON_DISJUNCTIVE
+> > +	def_bool PCI
+> > +	help
+> > +	  On the S390 architecture PCI BAR spaces are not disjunctive, as such
+> 
+> 	are not disjoint?  may be overlapping?
+> 
+> > +	  the PCI bar is required on a series of otherwise asm generic PCI
+> > +	  routines, as such S390 requires itw own implemention for these
+> 
+> 	                                  its own implementation
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/alpha/kernel/pci-noop.c | 46 ++++----------------------------------------
- 1 file changed, 4 insertions(+), 42 deletions(-)
+Thanks, I've re-written this as:
 
-diff --git a/arch/alpha/kernel/pci-noop.c b/arch/alpha/kernel/pci-noop.c
-index 2b1f4a1..8e735b5e 100644
---- a/arch/alpha/kernel/pci-noop.c
-+++ b/arch/alpha/kernel/pci-noop.c
-@@ -123,44 +123,6 @@ static void *alpha_noop_alloc_coherent(struct device *dev, size_t size,
- 	return ret;
- }
+mcgrof@ergon ~/linux-next (git::(no branch, rebasing 20150805-pend-all))$ git diff
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index f4725d1af438..8ba5826ed13b 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -618,10 +618,10 @@ config PCI_DOMAINS
+ config ARCH_PCI_NON_DISJUNCTIVE
+        def_bool PCI
+        help
+-         On the S390 architecture PCI BAR spaces are not disjunctive, as such
+-         the PCI bar is required on a series of otherwise asm generic PCI
+-         routines, as such S390 requires itw own implemention for these
+-         routines.
++         On the S390 architecture PCI BAR spaces may overlap with each other,
++         because of this the PCI bar is required on a series of otherwise asm
++         generic PCI routines and this in turn requires S390 to provide its
++         own implementation for these routines.
  
--static void alpha_noop_free_coherent(struct device *dev, size_t size,
--				     void *cpu_addr, dma_addr_t dma_addr,
--				     struct dma_attrs *attrs)
--{
--	free_pages((unsigned long)cpu_addr, get_order(size));
--}
--
--static dma_addr_t alpha_noop_map_page(struct device *dev, struct page *page,
--				      unsigned long offset, size_t size,
--				      enum dma_data_direction dir,
--				      struct dma_attrs *attrs)
--{
--	return page_to_pa(page) + offset;
--}
--
--static int alpha_noop_map_sg(struct device *dev, struct scatterlist *sgl, int nents,
--			     enum dma_data_direction dir, struct dma_attrs *attrs)
--{
--	int i;
--	struct scatterlist *sg;
--
--	for_each_sg(sgl, sg, nents, i) {
--		void *va;
--
--		BUG_ON(!sg_page(sg));
--		va = sg_virt(sg);
--		sg_dma_address(sg) = (dma_addr_t)virt_to_phys(va);
--		sg_dma_len(sg) = sg->length;
--	}
--
--	return nents;
--}
--
--static int alpha_noop_mapping_error(struct device *dev, dma_addr_t dma_addr)
--{
--	return 0;
--}
--
- static int alpha_noop_supported(struct device *dev, u64 mask)
- {
- 	return mask < 0x00ffffffUL ? 0 : 1;
-@@ -168,10 +130,10 @@ static int alpha_noop_supported(struct device *dev, u64 mask)
- 
- struct dma_map_ops alpha_noop_ops = {
- 	.alloc			= alpha_noop_alloc_coherent,
--	.free			= alpha_noop_free_coherent,
--	.map_page		= alpha_noop_map_page,
--	.map_sg			= alpha_noop_map_sg,
--	.mapping_error		= alpha_noop_mapping_error,
-+	.free			= dma_noop_free_coherent,
-+	.map_page		= dma_noop_map_page,
-+	.map_sg			= dma_noop_map_sg,
-+	.mapping_error		= dma_noop_mapping_error,
- 	.dma_supported		= alpha_noop_supported,
- };
- 
--- 
-2.4.3
+ config HAS_IOMEM
+        def_bool PCI
+> 
