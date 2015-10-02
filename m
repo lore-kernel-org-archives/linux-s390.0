@@ -1,409 +1,123 @@
-From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v3 2/3] virtio_ring: Support DMA APIs
-Date: Tue, 27 Oct 2015 23:38:59 -0700
-Message-ID: <ae1257d636085808ab3b69c39c2f8e9d785a991b.1446014204.git.luto@kernel.org>
-References: <cover.1446014204.git.luto@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1446014204.git.luto@kernel.org>
-In-Reply-To: <cover.1446014204.git.luto@kernel.org>
-References: <cover.1446014204.git.luto@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, benh@kernel.crashing.org, KVM <kvm@vger.kernel.org>, dwmw2@infradead.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: [PATCH v4 0/4] enhance shmem process and swap accounting
+Date: Fri,  2 Oct 2015 15:35:47 +0200
+Message-ID: <1443792951-13944-1-git-send-email-vbabka@suse.cz>
+Return-path: <owner-linux-mm@kvack.org>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-api/>
+List-Post: <mailto:linux-api@vger.kernel.org>
+To: linux-mm@kvack.org, Jerome Marchand <jmarchan@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>
+Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Linux API <linux-api@vger.kernel.org>, Konstantin Khlebnikov <khlebnikov@yandex-team.ru>, Vlastimil Babka <vbabka@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
 
-virtio_ring currently sends the device (usually a hypervisor)
-physical addresses of its I/O buffers.  This is okay when DMA
-addresses and physical addresses are the same thing, but this isn't
-always the case.  For example, this never works on Xen guests, and
-it is likely to fail if a physical "virtio" device ever ends up
-behind an IOMMU or swiotlb.
+Hugh, you commented on the earlier patches from Jerome, can you take a look
+please so we can have this merged? Especially at the changes to shmem.c
+in Patch 2 and if they are indeed safe without extra locking. Thanks!
 
-The immediate use case for me is to enable virtio on Xen guests.
-For that to work, we need vring to support DMA address translation
-as well as a corresponding change to virtio_pci or to another
-driver.
+Changes since v3:
+o Rebase on next-20151002
+o Apply (feedb)acks from Michal Hocko and Konstantin Khlebnikov (Thanks!)
+  - drop CONFIG_SHMEM ifdefs, as it was the 2nd suggestion already
+  - add comments about not taking i_mutex in patch 2
+o Rename VmAnon/VmFile/VmShm to RssAnon/RssFile... to make it hopefully more
+  obvious that it's a breakdown of VmRSS. Naming things sucks.
 
-With this patch, if enabled, virtfs survives kmemleak and
-CONFIG_DMA_API_DEBUG.
+Changes since v2:
+o Rebase on next-20150805.
+o This means that /proc/pid/maps has the proportional swap share (SwapPss:)
+  field as per https://lkml.org/lkml/2015/6/15/274
+  It's not clear what to do with shmem here so it's 0 for now.
+  - swapped out shmem doesn't have swap entries, so we would have to look at who
+    else has the shmem object (partially) mapped
+  - to be more precise we should also check if his range actually includes 
+    the offset in question, which could get rather involved
+  - or is there some easy way I don't see?
+o Konstantin suggested for patch 3/4 that I drop the CONFIG_SHMEM #ifdefs
+  I didn't see the point in going against tinyfication when the work is
+  already done, but I can do that if more people think it's better and it
+  would block the series.
 
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
----
- drivers/virtio/Kconfig           |   2 +-
- drivers/virtio/virtio_ring.c     | 187 +++++++++++++++++++++++++++++++--------
- tools/virtio/linux/dma-mapping.h |  17 ++++
- 3 files changed, 169 insertions(+), 37 deletions(-)
- create mode 100644 tools/virtio/linux/dma-mapping.h
+Changes since v1:
+o In Patch 2, rely on SHMEM_I(inode)->swapped if possible, and fallback to
+  radix tree iterator on partially mapped shmem objects, i.e. decouple shmem
+  swap usage determination from the page walk, for performance reasons.
+  Thanks to Jerome and Konstantin for the tips.
+  The downside is that mm/shmem.c had to be touched.
 
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index cab9f3f63a38..77590320d44c 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -60,7 +60,7 @@ config VIRTIO_INPUT
- 
-  config VIRTIO_MMIO
- 	tristate "Platform bus driver for memory mapped virtio devices"
--	depends on HAS_IOMEM
-+	depends on HAS_IOMEM && HAS_DMA
-  	select VIRTIO
-  	---help---
-  	 This drivers provides support for memory mapped virtio
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 096b857e7b75..6962ea37ade0 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -24,6 +24,7 @@
- #include <linux/module.h>
- #include <linux/hrtimer.h>
- #include <linux/kmemleak.h>
-+#include <linux/dma-mapping.h>
- 
- #ifdef DEBUG
- /* For development, we want to crash whenever the ring is screwed. */
-@@ -54,7 +55,14 @@
- #define END_USE(vq)
- #endif
- 
--struct vring_virtqueue {
-+struct vring_desc_state
-+{
-+	void *data;			/* Data for callback. */
-+	struct vring_desc *indir_desc;	/* Indirect descriptor, if any. */
-+};
-+
-+struct vring_virtqueue
-+{
- 	struct virtqueue vq;
- 
- 	/* Actual memory layout for this queue */
-@@ -92,12 +100,71 @@ struct vring_virtqueue {
- 	ktime_t last_add_time;
- #endif
- 
--	/* Tokens for callbacks. */
--	void *data[];
-+	/* Per-descriptor state. */
-+	struct vring_desc_state desc_state[];
- };
- 
- #define to_vvq(_vq) container_of(_vq, struct vring_virtqueue, vq)
- 
-+/*
-+ * The DMA ops on various arches are rather gnarly right now, and
-+ * making all of the arch DMA ops work on the vring device itself
-+ * is a mess.  For now, we use the parent device for DMA ops.
-+ */
-+struct device *vring_dma_dev(const struct vring_virtqueue *vq)
-+{
-+	return vq->vq.vdev->dev.parent;
-+}
-+
-+/* Map one sg entry. */
-+static dma_addr_t vring_map_one_sg(const struct vring_virtqueue *vq,
-+				   struct scatterlist *sg,
-+				   enum dma_data_direction direction)
-+{
-+	/*
-+	 * We can't use dma_map_sg, because we don't use scatterlists in
-+	 * the way it expects (we don't guarantee that the scatterlist
-+	 * will exist for the lifetime of the mapping).
-+	 */
-+	return dma_map_page(vring_dma_dev(vq),
-+			    sg_page(sg), sg->offset, sg->length,
-+			    direction);
-+}
-+
-+static dma_addr_t vring_map_single(const struct vring_virtqueue *vq,
-+				   void *cpu_addr, size_t size,
-+				   enum dma_data_direction direction)
-+{
-+	return dma_map_single(vring_dma_dev(vq),
-+			      cpu_addr, size, direction);
-+}
-+
-+static void vring_unmap_one(const struct vring_virtqueue *vq,
-+			    struct vring_desc *desc)
-+{
-+	u16 flags = virtio16_to_cpu(vq->vq.vdev, desc->flags);
-+
-+	if (flags & VRING_DESC_F_INDIRECT) {
-+		dma_unmap_single(vring_dma_dev(vq),
-+				 virtio64_to_cpu(vq->vq.vdev, desc->addr),
-+				 virtio32_to_cpu(vq->vq.vdev, desc->len),
-+				 (flags & VRING_DESC_F_WRITE) ?
-+				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
-+	} else {
-+		dma_unmap_page(vring_dma_dev(vq),
-+			       virtio64_to_cpu(vq->vq.vdev, desc->addr),
-+			       virtio32_to_cpu(vq->vq.vdev, desc->len),
-+			       (flags & VRING_DESC_F_WRITE) ?
-+			       DMA_FROM_DEVICE : DMA_TO_DEVICE);
-+	}
-+}
-+
-+static int vring_mapping_error(const struct vring_virtqueue *vq,
-+			       dma_addr_t addr)
-+{
-+	return dma_mapping_error(vring_dma_dev(vq), addr);
-+}
-+
- static struct vring_desc *alloc_indirect(struct virtqueue *_vq,
- 					 unsigned int total_sg, gfp_t gfp)
- {
-@@ -131,7 +198,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 	struct scatterlist *sg;
- 	struct vring_desc *desc;
--	unsigned int i, n, avail, descs_used, uninitialized_var(prev);
-+	unsigned int i, n, avail, descs_used, uninitialized_var(prev), err_idx;
- 	int head;
- 	bool indirect;
- 
-@@ -171,21 +238,15 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 
- 	if (desc) {
- 		/* Use a single buffer which doesn't continue */
--		vq->vring.desc[head].flags = cpu_to_virtio16(_vq->vdev, VRING_DESC_F_INDIRECT);
--		vq->vring.desc[head].addr = cpu_to_virtio64(_vq->vdev, virt_to_phys(desc));
--		/* avoid kmemleak false positive (hidden by virt_to_phys) */
--		kmemleak_ignore(desc);
--		vq->vring.desc[head].len = cpu_to_virtio32(_vq->vdev, total_sg * sizeof(struct vring_desc));
--
-+		indirect = true;
- 		/* Set up rest to use this indirect table. */
- 		i = 0;
- 		descs_used = 1;
--		indirect = true;
- 	} else {
-+		indirect = false;
- 		desc = vq->vring.desc;
- 		i = head;
- 		descs_used = total_sg;
--		indirect = false;
- 	}
- 
- 	if (vq->vq.num_free < descs_used) {
-@@ -200,14 +261,13 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 		return -ENOSPC;
- 	}
- 
--	/* We're about to use some buffers from the free list. */
--	vq->vq.num_free -= descs_used;
--
- 	for (n = 0; n < out_sgs; n++) {
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
- 			desc[i].flags = cpu_to_virtio16(_vq->vdev, VRING_DESC_F_NEXT);
--			desc[i].addr = cpu_to_virtio64(_vq->vdev, sg_phys(sg));
-+			desc[i].addr = cpu_to_virtio64(_vq->vdev, vring_map_one_sg(vq, sg, DMA_TO_DEVICE));
- 			desc[i].len = cpu_to_virtio32(_vq->vdev, sg->length);
-+			if (vring_mapping_error(vq, desc[i].addr))
-+				goto unmap_release;
- 			prev = i;
- 			i = virtio16_to_cpu(_vq->vdev, desc[i].next);
- 		}
-@@ -215,8 +275,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 	for (; n < (out_sgs + in_sgs); n++) {
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
- 			desc[i].flags = cpu_to_virtio16(_vq->vdev, VRING_DESC_F_NEXT | VRING_DESC_F_WRITE);
--			desc[i].addr = cpu_to_virtio64(_vq->vdev, sg_phys(sg));
-+			desc[i].addr = cpu_to_virtio64(_vq->vdev, vring_map_one_sg(vq, sg, DMA_FROM_DEVICE));
- 			desc[i].len = cpu_to_virtio32(_vq->vdev, sg->length);
-+			if (vring_mapping_error(vq, desc[i].addr))
-+				goto unmap_release;
- 			prev = i;
- 			i = virtio16_to_cpu(_vq->vdev, desc[i].next);
- 		}
-@@ -224,14 +286,34 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 	/* Last one doesn't continue. */
- 	desc[prev].flags &= cpu_to_virtio16(_vq->vdev, ~VRING_DESC_F_NEXT);
- 
-+	if (indirect) {
-+		/* Now that the indirect table is filled in, map it. */
-+		dma_addr_t addr = vring_map_single(
-+			vq, desc, total_sg * sizeof(struct vring_desc),
-+			DMA_TO_DEVICE);
-+
-+		if (vring_mapping_error(vq, addr))
-+			goto unmap_release;
-+
-+		vq->vring.desc[head].flags = cpu_to_virtio16(_vq->vdev, VRING_DESC_F_INDIRECT);
-+		vq->vring.desc[head].addr = cpu_to_virtio64(_vq->vdev, addr);
-+
-+		vq->vring.desc[head].len = cpu_to_virtio32(_vq->vdev, total_sg * sizeof(struct vring_desc));
-+	}
-+
-+	/* We're using some buffers from the free list. */
-+	vq->vq.num_free -= descs_used;
-+
- 	/* Update free pointer */
- 	if (indirect)
- 		vq->free_head = virtio16_to_cpu(_vq->vdev, vq->vring.desc[head].next);
- 	else
- 		vq->free_head = i;
- 
--	/* Set token. */
--	vq->data[head] = data;
-+	/* Store token and indirect buffer state. */
-+	vq->desc_state[head].data = data;
-+	if (indirect)
-+		vq->desc_state[head].indir_desc = desc;
- 
- 	/* Put entry in available array (but don't update avail->idx until they
- 	 * do sync). */
-@@ -253,6 +335,24 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 		virtqueue_kick(_vq);
- 
- 	return 0;
-+
-+unmap_release:
-+	err_idx = i;
-+	i = head;
-+
-+	for (n = 0; n < total_sg; n++) {
-+		if (i == err_idx)
-+			break;
-+		vring_unmap_one(vq, &desc[i]);
-+		i = vq->vring.desc[i].next;
-+	}
-+
-+	vq->vq.num_free += total_sg;
-+
-+	if (indirect)
-+		kfree(desc);
-+
-+	return -EIO;
- }
- 
- /**
-@@ -423,27 +523,43 @@ EXPORT_SYMBOL_GPL(virtqueue_kick);
- 
- static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
- {
--	unsigned int i;
-+	unsigned int i, j;
-+	u16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
- 
- 	/* Clear data ptr. */
--	vq->data[head] = NULL;
-+	vq->desc_state[head].data = NULL;
- 
--	/* Put back on free list: find end */
-+	/* Put back on free list: unmap first-level descriptors and find end */
- 	i = head;
- 
--	/* Free the indirect table */
--	if (vq->vring.desc[i].flags & cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_INDIRECT))
--		kfree(phys_to_virt(virtio64_to_cpu(vq->vq.vdev, vq->vring.desc[i].addr)));
--
--	while (vq->vring.desc[i].flags & cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT)) {
-+	while (vq->vring.desc[i].flags & nextflag) {
-+		vring_unmap_one(vq, &vq->vring.desc[i]);
- 		i = virtio16_to_cpu(vq->vq.vdev, vq->vring.desc[i].next);
- 		vq->vq.num_free++;
- 	}
- 
-+	vring_unmap_one(vq, &vq->vring.desc[i]);
- 	vq->vring.desc[i].next = cpu_to_virtio16(vq->vq.vdev, vq->free_head);
- 	vq->free_head = head;
-+
- 	/* Plus final descriptor */
- 	vq->vq.num_free++;
-+
-+	/* Free the indirect table, if any, now that it's unmapped. */
-+	if (vq->desc_state[head].indir_desc) {
-+		struct vring_desc *indir_desc = vq->desc_state[head].indir_desc;
-+		u32 len = vq->vring.desc[head].len;
-+
-+		BUG_ON(!(vq->vring.desc[head].flags &
-+			 cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_INDIRECT)));
-+		BUG_ON(len == 0 || len % sizeof(struct vring_desc));
-+
-+		for (j = 0; j < len / sizeof(struct vring_desc); j++)
-+			vring_unmap_one(vq, &indir_desc[j]);
-+
-+		kfree(vq->desc_state[head].indir_desc);
-+		vq->desc_state[head].indir_desc = NULL;
-+	}
- }
- 
- static inline bool more_used(const struct vring_virtqueue *vq)
-@@ -498,13 +614,13 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
- 		BAD_RING(vq, "id %u out of range\n", i);
- 		return NULL;
- 	}
--	if (unlikely(!vq->data[i])) {
-+	if (unlikely(!vq->desc_state[i].data)) {
- 		BAD_RING(vq, "id %u is not a head!\n", i);
- 		return NULL;
- 	}
- 
- 	/* detach_buf clears data, so grab it now. */
--	ret = vq->data[i];
-+	ret = vq->desc_state[i].data;
- 	detach_buf(vq, i);
- 	vq->last_used_idx++;
- 	/* If we expect an interrupt for the next entry, tell host
-@@ -665,10 +781,10 @@ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
- 	START_USE(vq);
- 
- 	for (i = 0; i < vq->vring.num; i++) {
--		if (!vq->data[i])
-+		if (!vq->desc_state[i].data)
- 			continue;
- 		/* detach_buf clears data, so grab it now. */
--		buf = vq->data[i];
-+		buf = vq->desc_state[i].data;
- 		detach_buf(vq, i);
- 		vq->vring.avail->idx = cpu_to_virtio16(_vq->vdev, virtio16_to_cpu(_vq->vdev, vq->vring.avail->idx) - 1);
- 		END_USE(vq);
-@@ -721,7 +837,8 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 		return NULL;
- 	}
- 
--	vq = kmalloc(sizeof(*vq) + sizeof(void *)*num, GFP_KERNEL);
-+	vq = kmalloc(sizeof(*vq) + num * sizeof(struct vring_desc_state),
-+		     GFP_KERNEL);
- 	if (!vq)
- 		return NULL;
- 
-@@ -751,11 +868,9 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 
- 	/* Put everything in free lists. */
- 	vq->free_head = 0;
--	for (i = 0; i < num-1; i++) {
-+	for (i = 0; i < num-1; i++)
- 		vq->vring.desc[i].next = cpu_to_virtio16(vdev, i + 1);
--		vq->data[i] = NULL;
--	}
--	vq->data[i] = NULL;
-+	memset(vq->desc_state, 0, num * sizeof(struct vring_desc_state));
- 
- 	return &vq->vq;
- }
-diff --git a/tools/virtio/linux/dma-mapping.h b/tools/virtio/linux/dma-mapping.h
-new file mode 100644
-index 000000000000..4f93af89ae16
---- /dev/null
-+++ b/tools/virtio/linux/dma-mapping.h
-@@ -0,0 +1,17 @@
-+#ifndef _LINUX_DMA_MAPPING_H
-+#define _LINUX_DMA_MAPPING_H
-+
-+#ifdef CONFIG_HAS_DMA
-+# error Virtio userspace code does not support CONFIG_HAS_DMA
-+#endif
-+
-+#define PCI_DMA_BUS_IS_PHYS 1
-+
-+enum dma_data_direction {
-+	DMA_BIDIRECTIONAL = 0,
-+	DMA_TO_DEVICE = 1,
-+	DMA_FROM_DEVICE = 2,
-+	DMA_NONE = 3,
-+};
-+
-+#endif
+This series is based on Jerome Marchand's [1] so let me quote the first
+paragraph from there:
+
+There are several shortcomings with the accounting of shared memory
+(sysV shm, shared anonymous mapping, mapping to a tmpfs file). The
+values in /proc/<pid>/status and statm don't allow to distinguish
+between shmem memory and a shared mapping to a regular file, even
+though theirs implication on memory usage are quite different: at
+reclaim, file mapping can be dropped or write back on disk while shmem
+needs a place in swap. As for shmem pages that are swapped-out or in
+swap cache, they aren't accounted at all.
+
+The original motivation for myself is that a customer found (IMHO rightfully)
+confusing that e.g. top output for process swap usage is unreliable with
+respect to swapped out shmem pages, which are not accounted for.
+
+The fundamental difference between private anonymous and shmem pages is that
+the latter has PTE's converted to pte_none, and not swapents. As such, they are
+not accounted to the number of swapents visible e.g. in /proc/pid/status VmSwap
+row. It might be theoretically possible to use swapents when swapping out shmem
+(without extra cost, as one has to change all mappers anyway), and on swap in
+only convert the swapent for the faulting process, leaving swapents in other
+processes until they also fault (so again no extra cost). But I don't know how
+many assumptions this would break, and it would be too disruptive change for a
+relatively small benefit.
+
+Instead, my approach is to document the limitation of VmSwap, and provide means
+to determine the swap usage for shmem areas for those who are interested and
+willing to pay the price, using /proc/pid/smaps. Because outside of ipcs, I
+don't think it's possible to currently to determine the usage at all.  The
+previous patchset [1] did introduce new shmem-specific fields into smaps
+output, and functions to determine the values. I take a simpler approach,
+noting that smaps output already has a "Swap: X kB" line, where currently X ==
+0 always for shmem areas. I think we can just consider this a bug and provide
+the proper value by consulting the radix tree, as e.g. mincore_page() does. In the
+patch changelog I explain why this is also not perfect (and cannot be without
+swapents), but still arguably much better than showing a 0.
+
+The last two patches are adapted from Jerome's patchset and provide a VmRSS
+breakdown to VmAnon, VmFile and VmShm in /proc/pid/status. Hugh noted that
+this is a welcome addition, and I agree that it might help e.g. debugging
+process memory usage at albeit non-zero, but still rather low cost of extra
+per-mm counter and some page flag checks. I updated these patches to 4.0-rc1,
+made them respect !CONFIG_SHMEM so that tiny systems don't pay the cost, and
+optimized the page flag checking somewhat.
+
+[1] http://lwn.net/Articles/611966/
+
+Jerome Marchand (2):
+  mm, shmem: Add shmem resident memory accounting
+  mm, procfs: Display VmAnon, VmFile and VmShm in /proc/pid/status
+
+Vlastimil Babka (2):
+  mm, documentation: clarify /proc/pid/status VmSwap limitations
+  mm, proc: account for shmem swap in /proc/pid/smaps
+
+ Documentation/filesystems/proc.txt | 18 +++++++++--
+ arch/s390/mm/pgtable.c             |  5 +--
+ fs/proc/task_mmu.c                 | 65 ++++++++++++++++++++++++++++++++++++--
+ include/linux/mm.h                 | 18 ++++++++++-
+ include/linux/mm_types.h           |  7 ++--
+ include/linux/shmem_fs.h           |  6 ++++
+ kernel/events/uprobes.c            |  2 +-
+ mm/memory.c                        | 30 ++++++------------
+ mm/oom_kill.c                      |  5 +--
+ mm/rmap.c                          | 12 ++-----
+ mm/shmem.c                         | 61 +++++++++++++++++++++++++++++++++++
+ 11 files changed, 183 insertions(+), 46 deletions(-)
+
 -- 
-2.4.3
+2.5.2
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
