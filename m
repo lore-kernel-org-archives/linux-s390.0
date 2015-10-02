@@ -1,114 +1,59 @@
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: [PATCH v4 4/4] mm, procfs: Display VmAnon, VmFile and VmShm in /proc/pid/status
-Date: Fri,  2 Oct 2015 15:35:51 +0200
-Message-ID: <1443792951-13944-5-git-send-email-vbabka@suse.cz>
+From: Jerome Marchand <jmarchan@redhat.com>
+Subject: Re: [PATCH v4 1/4] mm, documentation: clarify /proc/pid/status VmSwap
+ limitations
+Date: Fri, 2 Oct 2015 16:56:49 +0200
+Message-ID: <560E9B31.6070208@redhat.com>
 References: <1443792951-13944-1-git-send-email-vbabka@suse.cz>
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1443792951-13944-1-git-send-email-vbabka@suse.cz>
-Sender: owner-linux-mm@kvack.org
+ <1443792951-13944-2-git-send-email-vbabka@suse.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="7KP3ftr3XiO8Js2rOWKgRIuJF9CDO4qWg"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1443792951-13944-2-git-send-email-vbabka@suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
-To: linux-mm@kvack.org, Jerome Marchand <jmarchan@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>
-Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Linux API <linux-api@vger.kernel.org>, Konstantin Khlebnikov <khlebnikov@yandex-team.ru>, Vlastimil Babka <vbabka@suse.cz>
+To: Vlastimil Babka <vbabka@suse.cz>, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>
+Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Linux API <linux-api@vger.kernel.org>, Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Jerome Marchand <jmarchan@redhat.com>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--7KP3ftr3XiO8Js2rOWKgRIuJF9CDO4qWg
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
 
-It's currently inconvenient to retrieve MM_ANONPAGES value from status
-and statm files and there is no way to separate MM_FILEPAGES and
-MM_SHMEMPAGES. Add RssAnon, RssFile and RssShm lines in /proc/<pid>/status
-to solve these issues.
+On 10/02/2015 03:35 PM, Vlastimil Babka wrote:
+> The documentation for /proc/pid/status does not mention that the value =
+of
+> VmSwap counts only swapped out anonymous private pages and not shmem. T=
+his is
+> not obvious, so document this limitation.
+>=20
+> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+> Acked-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+> Acked-by: Michal Hocko <mhocko@suse.com>
 
-Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Acked-by: Michal Hocko <mhocko@suse.com>
----
- Documentation/filesystems/proc.txt | 10 +++++++++-
- fs/proc/task_mmu.c                 | 14 ++++++++++++--
- 2 files changed, 21 insertions(+), 3 deletions(-)
+Acked-by: Jerome Marchand <jmarchan@redhat.com>
 
-diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
-index 82d3657..c887a42 100644
---- a/Documentation/filesystems/proc.txt
-+++ b/Documentation/filesystems/proc.txt
-@@ -169,6 +169,9 @@ For example, to get the status information of a process, all you have to do is
-   VmLck:         0 kB
-   VmHWM:       476 kB
-   VmRSS:       476 kB
-+  RssAnon      352 kB
-+  RssFile:     120 kB
-+  RssShm:        4 kB
-   VmData:      156 kB
-   VmStk:        88 kB
-   VmExe:        68 kB
-@@ -231,7 +234,12 @@ Table 1-2: Contents of the status files (as of 4.1)
-  VmSize                      total program size
-  VmLck                       locked memory size
-  VmHWM                       peak resident set size ("high water mark")
-- VmRSS                       size of memory portions
-+ VmRSS                       size of memory portions. It contains the three
-+                             following parts (VmRSS = RssAnon + RssFile + RssShm)
-+ RssAnon                     size of resident anonymous memory
-+ RssFile                     size of resident file mappings
-+ RssShm                      size of resident shmem memory (includes SysV shm,
-+                             mapping of tmpfs and shared anonymous mappings)
-  VmData                      size of data, stack, and text segments
-  VmStk                       size of data, stack, and text segments
-  VmExe                       size of text segment
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 9b9708e..7332afd 100644
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -23,9 +23,13 @@
- 
- void task_mem(struct seq_file *m, struct mm_struct *mm)
- {
--	unsigned long data, text, lib, swap, ptes, pmds;
-+	unsigned long data, text, lib, swap, ptes, pmds, anon, file, shmem;
- 	unsigned long hiwater_vm, total_vm, hiwater_rss, total_rss;
- 
-+	anon = get_mm_counter(mm, MM_ANONPAGES);
-+	file = get_mm_counter(mm, MM_FILEPAGES);
-+	shmem = get_mm_counter(mm, MM_SHMEMPAGES);
-+
- 	/*
- 	 * Note: to minimize their overhead, mm maintains hiwater_vm and
- 	 * hiwater_rss only when about to *lower* total_vm or rss.  Any
-@@ -36,7 +40,7 @@ void task_mem(struct seq_file *m, struct mm_struct *mm)
- 	hiwater_vm = total_vm = mm->total_vm;
- 	if (hiwater_vm < mm->hiwater_vm)
- 		hiwater_vm = mm->hiwater_vm;
--	hiwater_rss = total_rss = get_mm_rss(mm);
-+	hiwater_rss = total_rss = anon + file + shmem;
- 	if (hiwater_rss < mm->hiwater_rss)
- 		hiwater_rss = mm->hiwater_rss;
- 
-@@ -53,6 +57,9 @@ void task_mem(struct seq_file *m, struct mm_struct *mm)
- 		"VmPin:\t%8lu kB\n"
- 		"VmHWM:\t%8lu kB\n"
- 		"VmRSS:\t%8lu kB\n"
-+		"RssAnon:\t%8lu kB\n"
-+		"RssFile:\t%8lu kB\n"
-+		"RssShm:\t%8lu kB\n"
- 		"VmData:\t%8lu kB\n"
- 		"VmStk:\t%8lu kB\n"
- 		"VmExe:\t%8lu kB\n"
-@@ -66,6 +73,9 @@ void task_mem(struct seq_file *m, struct mm_struct *mm)
- 		mm->pinned_vm << (PAGE_SHIFT-10),
- 		hiwater_rss << (PAGE_SHIFT-10),
- 		total_rss << (PAGE_SHIFT-10),
-+		anon << (PAGE_SHIFT-10),
-+		file << (PAGE_SHIFT-10),
-+		shmem << (PAGE_SHIFT-10),
- 		data << (PAGE_SHIFT-10),
- 		mm->stack_vm << (PAGE_SHIFT-10), text, lib,
- 		ptes >> 10,
--- 
-2.5.2
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+
+
+--7KP3ftr3XiO8Js2rOWKgRIuJF9CDO4qWg
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJWDpsxAAoJEHTzHJCtsuoCt/IIAKHif77cU7ZjriV3cY6EfsAA
+32SWUYj0gRvBsEi5Ig4HTG7RRwux95f6U4TQIaqqPWh8jaOx7bx8MyCf5NrMtY9D
+zbI9oSbvvByWx185CIQ/uVavqWErxRJFJhNbkKj3nDo7XfOfN1HmBGOfb+8xLvgp
+G7YjYq9MdDczx4FdiJM6F6/Z+Joz+AMZCQLICs5grjtgGB/9Yd3RSiWQtD1spoeU
+Kbq8MW6Pv0vVSFFQATipyFJZykUKhqrDCqV7WUj+xOdQYi0oIYjNQRzOGuHzJv0c
+zBAayqkmbGHruzIzk3JEOyUSk2h7vVdDl0bez3RNPodKWpvIE5RUIvtpBlpcOxo=
+=HE6n
+-----END PGP SIGNATURE-----
+
+--7KP3ftr3XiO8Js2rOWKgRIuJF9CDO4qWg--
