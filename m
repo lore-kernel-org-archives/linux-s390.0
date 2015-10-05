@@ -1,82 +1,43 @@
 From: "Luis R. Rodriguez" <mcgrof@suse.com>
 Subject: Re: [RFC] asm-generic/pci_iomap.h: make custom PCI BAR requirements
  explicit
-Date: Mon, 5 Oct 2015 18:58:56 +0200
-Message-ID: <20151005165856.GL14464@wotan.suse.de>
+Date: Mon, 5 Oct 2015 19:09:14 +0200
+Message-ID: <20151005170914.GM14464@wotan.suse.de>
 References: <1440807447-584-1-git-send-email-mcgrof@do-not-panic.com>
- <55E11534.2050508@infradead.org>
- <20151002231706.GI14464@wotan.suse.de>
- <56106F5C.5060409@infradead.org>
+ <1866509.8pE0MIz57e@wuerfel>
+ <20151002235346.GJ14464@wotan.suse.de>
+ <8902671.32Mbh7QhE4@wuerfel>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arch-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <56106F5C.5060409@infradead.org>
-Sender: linux-arch-owner@vger.kernel.org
+In-Reply-To: <8902671.32Mbh7QhE4@wuerfel>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>, arnd@arndb.de, linux-arch@vger.kernel.org, mingo@kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, bp@suse.de, linux@roeck-us.net, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, rostedt@goodmis.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "Luis R. Rodriguez" <mcgrof@do-not-panic.com>, linux-arch@vger.kernel.org, mingo@kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, bp@suse.de, linux@roeck-us.net, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, rostedt@goodmis.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, Oct 03, 2015 at 05:14:20PM -0700, Randy Dunlap wrote:
-> On 10/02/15 16:17, Luis R. Rodriguez wrote:
-> > On Fri, Aug 28, 2015 at 07:13:08PM -0700, Randy Dunlap wrote:
-> >> On 08/28/15 17:17, Luis R. Rodriguez wrote:
-> >>>
-> >>>  arch/s390/Kconfig                 |  8 +++++
-> >>>  arch/s390/include/asm/io.h        | 11 -------
-> >>>  arch/s390/include/asm/pci.h       |  2 --
-> >>>  arch/s390/include/asm/pci_iomap.h | 33 +++++++++++++++++++++
-> >>>  arch/s390/pci/pci.c               |  2 ++
-> >>>  include/asm-generic/io.h          | 12 --------
-> >>>  include/asm-generic/iomap.h       | 10 -------
-> >>>  include/asm-generic/pci_iomap.h   | 62 +++++++++++++++++++++++++++++++++++----
-> >>>  lib/Kconfig                       |  1 +
-> >>>  lib/pci_iomap.c                   |  5 ++++
-> >>>  10 files changed, 105 insertions(+), 41 deletions(-)
-> >>>  create mode 100644 arch/s390/include/asm/pci_iomap.h
-> >>>
-> >>> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> >>> index 1d57000b1b24..1217b7db4265 100644
-> >>> --- a/arch/s390/Kconfig
-> >>> +++ b/arch/s390/Kconfig
-> >>> @@ -614,6 +614,14 @@ endif	# PCI
-> >>>  config PCI_DOMAINS
-> >>>  	def_bool PCI
-> >>>  
-> >>> +config ARCH_PCI_NON_DISJUNCTIVE
-> >>> +	def_bool PCI
-> >>> +	help
-> >>> +	  On the S390 architecture PCI BAR spaces are not disjunctive, as such
-> >>
-> >> 	are not disjoint?  may be overlapping?
-> >>
-> >>> +	  the PCI bar is required on a series of otherwise asm generic PCI
-> >>> +	  routines, as such S390 requires itw own implemention for these
-> >>
-> >> 	                                  its own implementation
+On Sun, Oct 04, 2015 at 09:02:04PM +0200, Arnd Bergmann wrote:
+> On Saturday 03 October 2015 01:53:46 Luis R. Rodriguez wrote:
+> > > 
+> > > Hmm, my gut feeling tells me that your approach won't solve the problem
+> > > in general. s390 PCI is just weird in many ways and it will occasionally
+> > > suffer from problems like this (as do other aspects of the s390 architecture
+> > > that are unlike the rest of the world).
+> > > 
+> > > Maybe Martin and Heiko can comment on this, they may have a preference
+> > > from the s390 point of view.
 > > 
-> > Thanks, I've re-written this as:
-> > 
-> > mcgrof@ergon ~/linux-next (git::(no branch, rebasing 20150805-pend-all))$ git diff
-> > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> > index f4725d1af438..8ba5826ed13b 100644
-> > --- a/arch/s390/Kconfig
-> > +++ b/arch/s390/Kconfig
-> > @@ -618,10 +618,10 @@ config PCI_DOMAINS
-> >  config ARCH_PCI_NON_DISJUNCTIVE
-> >         def_bool PCI
-> >         help
-> > -         On the S390 architecture PCI BAR spaces are not disjunctive, as such
-> > -         the PCI bar is required on a series of otherwise asm generic PCI
-> > -         routines, as such S390 requires itw own implemention for these
-> > -         routines.
-> > +         On the S390 architecture PCI BAR spaces may overlap with each other,
+> > Hrm, so S390 is quirky is really odd ways that no other architecture is or
+> > is at least for now not expected to be ?
 > 
-> That "other," should not end with a comma.  Either use a semi-colon or use a
-> period and begin the next sentence with Because.
+> Absolutely correct. It is the only architecture I'm aware of that tries to
+> support PCI that does not use pointer dereferences for MMIO.
 
-Amended, thanks.
+So its not worth it to have a formal semantic via Kconfig for this and are
+happy with the status quo of having to find out through a bot compile test
+any changes in this domain fails?
 
- Luis
+  Luis
