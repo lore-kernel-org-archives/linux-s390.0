@@ -1,61 +1,57 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH v4 4/4] mm, procfs: Display VmAnon, VmFile and VmShm in
- /proc/pid/status
-Date: Fri, 2 Oct 2015 15:37:57 -0700
-Message-ID: <20151002153757.dcbf81604107580ef3ff6e65@linux-foundation.org>
-References: <1443792951-13944-1-git-send-email-vbabka@suse.cz>
-	<1443792951-13944-5-git-send-email-vbabka@suse.cz>
+From: Hugh Dickins <hughd@google.com>
+Subject: Re: [PATCH v4 1/4] mm, documentation: clarify /proc/pid/status VmSwap
+ limitations
+Date: Sun, 4 Oct 2015 18:05:46 -0700 (PDT)
+Message-ID: <alpine.LSU.2.11.1510041756330.15067@eggly.anvils>
+References: <1443792951-13944-1-git-send-email-vbabka@suse.cz> <1443792951-13944-2-git-send-email-vbabka@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <1443792951-13944-5-git-send-email-vbabka@suse.cz>
-Sender: owner-linux-mm@kvack.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1443792951-13944-2-git-send-email-vbabka@suse.cz>
+Sender: linux-doc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
 To: Vlastimil Babka <vbabka@suse.cz>
-Cc: linux-mm@kvack.org, Jerome Marchand <jmarchan@redhat.com>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Linux API <linux-api@vger.kernel.org>, Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Cc: linux-mm@kvack.org, Jerome Marchand <jmarchan@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Linux API <linux-api@vger.kernel.org>, Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri,  2 Oct 2015 15:35:51 +0200 Vlastimil Babka <vbabka@suse.cz> wrote:
+On Fri, 2 Oct 2015, Vlastimil Babka wrote:
 
-> From: Jerome Marchand <jmarchan@redhat.com>
+> The documentation for /proc/pid/status does not mention that the value of
+> VmSwap counts only swapped out anonymous private pages and not shmem. This is
+> not obvious, so document this limitation.
 > 
-> It's currently inconvenient to retrieve MM_ANONPAGES value from status
-> and statm files and there is no way to separate MM_FILEPAGES and
-> MM_SHMEMPAGES. Add RssAnon, RssFile and RssShm lines in /proc/<pid>/status
-> to solve these issues.
+> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+> Acked-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+> Acked-by: Michal Hocko <mhocko@suse.com>
+> ---
+>  Documentation/filesystems/proc.txt | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
+> index a99b208..7ef50cb 100644
+> --- a/Documentation/filesystems/proc.txt
+> +++ b/Documentation/filesystems/proc.txt
+> @@ -239,6 +239,8 @@ Table 1-2: Contents of the status files (as of 4.1)
+>   VmPTE                       size of page table entries
+>   VmPMD                       size of second level page tables
+>   VmSwap                      size of swap usage (the number of referred swapents)
+> +                             by anonymous private data (shmem swap usage is not
+> +                             included)
 
-This changelog is also head-spinning.
+I have difficulty in reading "size of swap usage (the number of referred
+swapents) by anonymous private data (shmem swap usage is not included)".
 
-Why is it talking about MM_ANONPAGES and MM_FILEPAGES in the context of
-procfs files?  Those terms are kernel-internal stuff and are
-meaningless to end users.
+Luckily, VmSwap never was "the number of referred swapents", it's in kB.
+So I suggest                    amount of swap used by anonymous private data
+                                (shmem swap usage is not included)
 
-So can we please start over with the changelogs?
+for which you can assume Acked-by: Hugh Dickins <hughd@google.com>
 
-- What is wrong with the current user interface?
+Hugh
 
-- What changes are we proposing making?
-
-- What new fields are added to the UI?  What is their meaning to users?
-
-- Are any existing UI fields altered?  If so how and why and what
-  impact will that have?
-
-Extra points will be awarded for example procfs output.
-
-This is the important stuff!  Once this is all clearly described,
-understood and reviewed, then we can get into the
-kernel-internal-microdetails like MM_ANONPAGES.
-
-
-(And "What is wrong with the current user interface?" is important. 
-What value does this patchset provide to end users?  Why does anyone
-even want these changes?)
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+>   HugetlbPages                size of hugetlb memory portions
+>   Threads                     number of threads
+>   SigQ                        number of signals queued/max. number for queue
+> -- 
+> 2.5.2
