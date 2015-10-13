@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 09/10] KVM: s390: factor out and fix setting of guest TOD clock
-Date: Tue, 13 Oct 2015 16:06:07 +0200
-Message-ID: <1444745168-21479-10-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 08/10] KVM: s390: switch to get_tod_clock() and fix STP sync races
+Date: Tue, 13 Oct 2015 16:06:06 +0200
+Message-ID: <1444745168-21479-9-git-send-email-borntraeger@de.ibm.com>
 References: <1444745168-21479-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1444745168-21479-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,116 +14,98 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Let's move that whole logic into one function. We now always use unsigned
-values when calculating the epoch (to avoid over/underflow defined).
-Also, we always have to get all VCPUs out of SIE before doing the update
-to avoid running differing VCPUs with different TODs.
+Nobody except early.c makes use of store_tod_clock() to handle the
+cc. So if we would get a cc != 0, we would be in more trouble.
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Let's replace all users with get_tod_clock(). Returning a cc
+on an ioctl sounded strange either way.
+
+We can now also easily move the get_tod_clock() call into the
+preempt_disable() section. This is in fact necessary to make the
+STP sync work as expected. Otherwise the host TOD could change
+and we would end up with a wrong epoch calculation.
+
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 28 +++++++++++++++++-----------
- arch/s390/kvm/kvm-s390.h |  1 +
- arch/s390/kvm/priv.c     | 15 +++------------
- 3 files changed, 21 insertions(+), 23 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 18 ++++--------------
+ arch/s390/kvm/priv.c     |  8 ++------
+ 2 files changed, 6 insertions(+), 20 deletions(-)
 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index a090779..87bd602 100644
+index 0a67c40..a090779 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -521,22 +521,12 @@ static int kvm_s390_set_tod_high(struct kvm *kvm, struct kvm_device_attr *attr)
- 
- static int kvm_s390_set_tod_low(struct kvm *kvm, struct kvm_device_attr *attr)
+@@ -523,19 +523,14 @@ static int kvm_s390_set_tod_low(struct kvm *kvm, struct kvm_device_attr *attr)
  {
--	struct kvm_vcpu *cur_vcpu;
--	unsigned int vcpu_idx;
- 	u64 gtod;
+ 	struct kvm_vcpu *cur_vcpu;
+ 	unsigned int vcpu_idx;
+-	u64 host_tod, gtod;
+-	int r;
++	u64 gtod;
  
  	if (copy_from_user(&gtod, (void __user *)attr->addr, sizeof(gtod)))
  		return -EFAULT;
  
--	mutex_lock(&kvm->lock);
--	preempt_disable();
--	kvm->arch.epoch = gtod - get_tod_clock();
--	kvm_s390_vcpu_block_all(kvm);
--	kvm_for_each_vcpu(vcpu_idx, cur_vcpu, kvm)
--		cur_vcpu->arch.sie_block->epoch = kvm->arch.epoch;
--	kvm_s390_vcpu_unblock_all(kvm);
--	preempt_enable();
--	mutex_unlock(&kvm->lock);
-+	kvm_s390_set_tod_clock(kvm, gtod);
- 	VM_EVENT(kvm, 3, "SET: TOD base: 0x%llx\n", gtod);
- 	return 0;
- }
-@@ -1906,6 +1896,22 @@ retry:
- 	return 0;
- }
+-	r = store_tod_clock(&host_tod);
+-	if (r)
+-		return r;
+-
+ 	mutex_lock(&kvm->lock);
+ 	preempt_disable();
+-	kvm->arch.epoch = gtod - host_tod;
++	kvm->arch.epoch = gtod - get_tod_clock();
+ 	kvm_s390_vcpu_block_all(kvm);
+ 	kvm_for_each_vcpu(vcpu_idx, cur_vcpu, kvm)
+ 		cur_vcpu->arch.sie_block->epoch = kvm->arch.epoch;
+@@ -581,15 +576,10 @@ static int kvm_s390_get_tod_high(struct kvm *kvm, struct kvm_device_attr *attr)
  
-+void kvm_s390_set_tod_clock(struct kvm *kvm, u64 tod)
-+{
-+	struct kvm_vcpu *vcpu;
-+	int i;
-+
-+	mutex_lock(&kvm->lock);
-+	preempt_disable();
-+	kvm->arch.epoch = tod - get_tod_clock();
-+	kvm_s390_vcpu_block_all(kvm);
-+	kvm_for_each_vcpu(i, vcpu, kvm)
-+		vcpu->arch.sie_block->epoch = kvm->arch.epoch;
-+	kvm_s390_vcpu_unblock_all(kvm);
-+	preempt_enable();
-+	mutex_unlock(&kvm->lock);
-+}
-+
- /**
-  * kvm_arch_fault_in_page - fault-in guest page if necessary
-  * @vcpu: The corresponding virtual cpu
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 3a368d2..cc15ea3 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -231,6 +231,7 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu);
+ static int kvm_s390_get_tod_low(struct kvm *kvm, struct kvm_device_attr *attr)
+ {
+-	u64 host_tod, gtod;
+-	int r;
+-
+-	r = store_tod_clock(&host_tod);
+-	if (r)
+-		return r;
++	u64 gtod;
  
- /* implemented in kvm-s390.c */
-+void kvm_s390_set_tod_clock(struct kvm *kvm, u64 tod);
- long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
- int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr);
- int kvm_s390_store_adtl_status_unloaded(struct kvm_vcpu *vcpu,
+ 	preempt_disable();
+-	gtod = host_tod + kvm->arch.epoch;
++	gtod = get_tod_clock() + kvm->arch.epoch;
+ 	preempt_enable();
+ 	if (copy_to_user((void __user *)attr->addr, &gtod, sizeof(gtod)))
+ 		return -EFAULT;
 diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index b253de5..77191b8 100644
+index 4d21dc4..b253de5 100644
 --- a/arch/s390/kvm/priv.c
 +++ b/arch/s390/kvm/priv.c
-@@ -33,11 +33,9 @@
- /* Handle SCK (SET CLOCK) interception */
+@@ -34,7 +34,7 @@
  static int handle_set_clock(struct kvm_vcpu *vcpu)
  {
--	struct kvm_vcpu *cpup;
--	s64 val;
--	int i, rc;
-+	int rc;
+ 	struct kvm_vcpu *cpup;
+-	s64 hostclk, val;
++	s64 val;
+ 	int i, rc;
  	ar_t ar;
--	u64 op2;
-+	u64 op2, val;
- 
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-@@ -50,14 +48,7 @@ static int handle_set_clock(struct kvm_vcpu *vcpu)
+ 	u64 op2;
+@@ -49,15 +49,11 @@ static int handle_set_clock(struct kvm_vcpu *vcpu)
+ 	if (rc)
  		return kvm_s390_inject_prog_cond(vcpu, rc);
  
+-	if (store_tod_clock(&hostclk)) {
+-		kvm_s390_set_psw_cc(vcpu, 3);
+-		return 0;
+-	}
  	VCPU_EVENT(vcpu, 3, "SCK: setting guest TOD to 0x%llx", val);
--
--	mutex_lock(&vcpu->kvm->lock);
--	preempt_disable();
--	val = (val - get_tod_clock()) & ~0x3fUL;
--	kvm_for_each_vcpu(i, cpup, vcpu->kvm)
--		cpup->arch.sie_block->epoch = val;
--	preempt_enable();
--	mutex_unlock(&vcpu->kvm->lock);
-+	kvm_s390_set_tod_clock(vcpu->kvm, val);
+-	val = (val - hostclk) & ~0x3fUL;
  
- 	kvm_s390_set_psw_cc(vcpu, 0);
- 	return 0;
+ 	mutex_lock(&vcpu->kvm->lock);
+ 	preempt_disable();
++	val = (val - get_tod_clock()) & ~0x3fUL;
+ 	kvm_for_each_vcpu(i, cpup, vcpu->kvm)
+ 		cpup->arch.sie_block->epoch = val;
+ 	preempt_enable();
 -- 
 2.4.3
