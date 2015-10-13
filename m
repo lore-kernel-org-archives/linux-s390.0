@@ -1,56 +1,257 @@
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [RFC] asm-generic/pci_iomap.h: make custom PCI BAR requirements
- explicit
-Date: Tue, 6 Oct 2015 13:15:04 +0200
-Message-ID: <20151006131504.4385c598@mschwide>
-References: <1440807447-584-1-git-send-email-mcgrof@do-not-panic.com>
-	<1866509.8pE0MIz57e@wuerfel>
-	<20151002235346.GJ14464@wotan.suse.de>
-	<8902671.32Mbh7QhE4@wuerfel>
-	<20151005170914.GM14464@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Return-Path: <owner-linux-mm@kvack.org>
+Subject: Re: [RFC] futex: prevent endless loop on s390x with emulated
+ hugepages
+References: <1443107148-28625-1-git-send-email-vbabka@suse.cz>
+ <20150928134928.2214dae2@mschwide>
+From: Vlastimil Babka <vbabka@suse.cz>
+Message-ID: <561CEF77.3050309@suse.cz>
+Date: Tue, 13 Oct 2015 13:48:07 +0200
+MIME-Version: 1.0
+In-Reply-To: <20150928134928.2214dae2@mschwide>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20151005170914.GM14464@wotan.suse.de>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: "Luis R. Rodriguez" <mcgrof@suse.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, "Luis R. Rodriguez" <mcgrof@do-not-panic.com>, linux-arch@vger.kernel.org, mingo@kernel.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, bp@suse.de, linux@roeck-us.net, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, rostedt@goodmis.org
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, Yong Sun <yosun@suse.com>, linux390@de.ibm.com, linux-s390@vger.kernel.org, Zhang Yi <wetpzy@gmail.com>, Mel Gorman <mgorman@suse.de>, Andrea Arcangeli <aarcange@redhat.com>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Hugh Dickins <hughd@google.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 5 Oct 2015 19:09:14 +0200
-"Luis R. Rodriguez" <mcgrof@suse.com> wrote:
+On 09/28/2015 01:49 PM, Martin Schwidefsky wrote:
+> On Thu, 24 Sep 2015 17:05:48 +0200
+> Vlastimil Babka <vbabka@suse.cz> wrote:
 
-> On Sun, Oct 04, 2015 at 09:02:04PM +0200, Arnd Bergmann wrote:
-> > On Saturday 03 October 2015 01:53:46 Luis R. Rodriguez wrote:
-> > > > 
-> > > > Hmm, my gut feeling tells me that your approach won't solve the problem
-> > > > in general. s390 PCI is just weird in many ways and it will occasionally
-> > > > suffer from problems like this (as do other aspects of the s390 architecture
-> > > > that are unlike the rest of the world).
-> > > > 
-> > > > Maybe Martin and Heiko can comment on this, they may have a preference
-> > > > from the s390 point of view.
-> > > 
-> > > Hrm, so S390 is quirky is really odd ways that no other architecture is or
-> > > is at least for now not expected to be ?
-> > 
-> > Absolutely correct. It is the only architecture I'm aware of that tries to
-> > support PCI that does not use pointer dereferences for MMIO.
-> 
-> So its not worth it to have a formal semantic via Kconfig for this and are
-> happy with the status quo of having to find out through a bot compile test
-> any changes in this domain fails?
+[...]
 
-For my part I still do not see the value in ARCH_PCI_NON_DISJUNCTIVE.
-The existing GENERIC_PCI_IOMAP already allows an architecture to select
-the generic implementation (or not to select it). To add another Kconfig
-symbol and make GENERIC_PCI_IOMAP depend on it doesn't help.
+>> However, __get_user_pages_fast() is still broken. The get_user_pages_fast()
+>> wrapper will hide this in the common case. The other user of the __ variant
+>> is kvm, which is mentioned as the reason for removal of emulated hugepages.
+>> The call of page_cache_get_speculative() looks also broken in this scenario
+>> on debug builds because of VM_BUG_ON_PAGE(PageTail(page), page). With
+>> CONFIG_TINY_RCU enabled, there's plain atomic_inc(&page->_count) which also
+>> probably shouldn't happen for a tail page...
+>
+> It boils down to __get_user_pages_fast being broken for emulated large pages,
+> doesn't it? My preferred fix would be to get __get_user_page_fast to work
+> in this case.
 
--- 
-blue skies,
-   Martin.
+I agree, but didn't know enough of the architecture to attempt such fix 
+:) Thanks!
 
-"Reality continues to ruin my life." - Calvin.
+> For 3.12 a patch would look like this (needs more testing
+> though):
+
+FWIW it works for me in the particular LTP test, but as you said, it 
+needs more testing and breaking stable would suck.
+
+> --
+> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+> index bb0c157..5948b7f 100644
+> --- a/arch/s390/include/asm/pgtable.h
+> +++ b/arch/s390/include/asm/pgtable.h
+> @@ -370,7 +370,7 @@ static inline int is_module_addr(void *addr)
+>   #define _SEGMENT_ENTRY_EMPTY	(_SEGMENT_ENTRY_INVALID)
+>
+>   #define _SEGMENT_ENTRY_LARGE	0x400	/* STE-format control, large page   */
+> -#define _SEGMENT_ENTRY_CO	0x100	/* change-recording override   */
+> +#define _SEGMENT_ENTRY_SWLARGE	0x100	/* SW large page bit */
+>   #define _SEGMENT_ENTRY_SPLIT	0x001	/* THP splitting bit */
+>   #define _SEGMENT_ENTRY_YOUNG	0x002	/* SW segment young bit */
+>   #define _SEGMENT_ENTRY_NONE	_SEGMENT_ENTRY_YOUNG
+> @@ -391,8 +391,8 @@ static inline int is_module_addr(void *addr)
+>   #define _SEGMENT_ENTRY_SPLIT_BIT 0	/* THP splitting bit number */
+>
+>   /* Set of bits not changed in pmd_modify */
+> -#define _SEGMENT_CHG_MASK	(_SEGMENT_ENTRY_ORIGIN | _SEGMENT_ENTRY_LARGE \
+> -				 | _SEGMENT_ENTRY_SPLIT | _SEGMENT_ENTRY_CO)
+> +#define _SEGMENT_CHG_MASK (_SEGMENT_ENTRY_ORIGIN | _SEGMENT_ENTRY_LARGE \
+> +			   | _SEGMENT_ENTRY_SPLIT | _SEGMENT_ENTRY_SWLARGE)
+>
+>   /* Page status table bits for virtualization */
+>   #define PGSTE_ACC_BITS	0xf000000000000000UL
+> @@ -563,12 +563,25 @@ static inline int pmd_none(pmd_t pmd)
+>   static inline int pmd_large(pmd_t pmd)
+>   {
+>   #ifdef CONFIG_64BIT
+> -	return (pmd_val(pmd) & _SEGMENT_ENTRY_LARGE) != 0;
+> +	return (pmd_val(pmd) &
+> +		(_SEGMENT_ENTRY_LARGE | _SEGMENT_ENTRY_SWLARGE)) != 0;
+>   #else
+>   	return 0;
+>   #endif
+>   }
+>
+> +static inline pmd_t pmd_swlarge_deref(pmd_t pmd)
+> +{
+> +	unsigned long origin;
+> +
+> +	if (pmd_val(pmd) & _SEGMENT_ENTRY_SWLARGE) {
+> +		origin = pmd_val(pmd) & _SEGMENT_ENTRY_ORIGIN;
+> +		pmd_val(pmd) &= ~_SEGMENT_ENTRY_ORIGIN;
+> +		pmd_val(pmd) |= *(unsigned long *) origin;
+> +	}
+> +	return pmd;
+> +}
+> +
+>   static inline int pmd_prot_none(pmd_t pmd)
+>   {
+>   	return (pmd_val(pmd) & _SEGMENT_ENTRY_INVALID) &&
+> @@ -578,8 +591,10 @@ static inline int pmd_prot_none(pmd_t pmd)
+>   static inline int pmd_bad(pmd_t pmd)
+>   {
+>   #ifdef CONFIG_64BIT
+> -	if (pmd_large(pmd))
+> +	if (pmd_large(pmd)) {
+> +		pmd = pmd_swlarge_deref(pmd);
+>   		return (pmd_val(pmd) & ~_SEGMENT_ENTRY_BITS_LARGE) != 0;
+> +	}
+>   #endif
+>   	return (pmd_val(pmd) & ~_SEGMENT_ENTRY_BITS) != 0;
+>   }
+> @@ -1495,8 +1510,6 @@ static inline int pmd_trans_splitting(pmd_t pmd)
+>   static inline void set_pmd_at(struct mm_struct *mm, unsigned long addr,
+>   			      pmd_t *pmdp, pmd_t entry)
+>   {
+> -	if (!(pmd_val(entry) & _SEGMENT_ENTRY_INVALID) && MACHINE_HAS_EDAT1)
+> -		pmd_val(entry) |= _SEGMENT_ENTRY_CO;
+>   	*pmdp = entry;
+>   }
+>
+> diff --git a/arch/s390/mm/dump_pagetables.c b/arch/s390/mm/dump_pagetables.c
+> index 46d517c..e159735 100644
+> --- a/arch/s390/mm/dump_pagetables.c
+> +++ b/arch/s390/mm/dump_pagetables.c
+> @@ -129,7 +129,7 @@ static void walk_pte_level(struct seq_file *m, struct pg_state *st,
+>   }
+>
+>   #ifdef CONFIG_64BIT
+> -#define _PMD_PROT_MASK (_SEGMENT_ENTRY_PROTECT | _SEGMENT_ENTRY_CO)
+> +#define _PMD_PROT_MASK (_SEGMENT_ENTRY_PROTECT)
+>   #else
+>   #define _PMD_PROT_MASK 0
+>   #endif
+> @@ -138,7 +138,7 @@ static void walk_pmd_level(struct seq_file *m, struct pg_state *st,
+>   			   pud_t *pud, unsigned long addr)
+>   {
+>   	unsigned int prot;
+> -	pmd_t *pmd;
+> +	pmd_t *pmd, pmd_val;
+>   	int i;
+>
+>   	for (i = 0; i < PTRS_PER_PMD && addr < max_addr; i++) {
+> @@ -146,7 +146,8 @@ static void walk_pmd_level(struct seq_file *m, struct pg_state *st,
+>   		pmd = pmd_offset(pud, addr);
+>   		if (!pmd_none(*pmd)) {
+>   			if (pmd_large(*pmd)) {
+> -				prot = pmd_val(*pmd) & _PMD_PROT_MASK;
+> +				pmd_val = pmd_swlarge_deref(*pmd);
+> +				prot = pmd_val(pmd_val) & _PMD_PROT_MASK;
+>   				note_page(m, st, prot, 3);
+>   			} else
+>   				walk_pte_level(m, st, pmd, addr);
+> diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
+> index 5d758db..8dd86a5 100644
+> --- a/arch/s390/mm/gup.c
+> +++ b/arch/s390/mm/gup.c
+> @@ -48,8 +48,9 @@ static inline int gup_pte_range(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
+>   	return 1;
+>   }
+>
+> -static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
+> -		unsigned long end, int write, struct page **pages, int *nr)
+> +static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd_orig, pmd_t pmd,
+> +		unsigned long addr, unsigned long end,
+> +		int write, struct page **pages, int *nr)
+>   {
+>   	unsigned long mask, result;
+>   	struct page *head, *page, *tail;
+> @@ -78,7 +79,7 @@ static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
+>   		return 0;
+>   	}
+>
+> -	if (unlikely(pmd_val(pmd) != pmd_val(*pmdp))) {
+> +	if (unlikely(pmd_val(pmd_orig) != pmd_val(*pmdp))) {
+>   		*nr -= refs;
+>   		while (refs--)
+>   			put_page(head);
+> @@ -103,7 +104,7 @@ static inline int gup_pmd_range(pud_t *pudp, pud_t pud, unsigned long addr,
+>   		unsigned long end, int write, struct page **pages, int *nr)
+>   {
+>   	unsigned long next;
+> -	pmd_t *pmdp, pmd;
+> +	pmd_t *pmdp, pmd, pmd_orig;
+>
+>   	pmdp = (pmd_t *) pudp;
+>   #ifdef CONFIG_64BIT
+> @@ -112,7 +113,7 @@ static inline int gup_pmd_range(pud_t *pudp, pud_t pud, unsigned long addr,
+>   	pmdp += pmd_index(addr);
+>   #endif
+>   	do {
+> -		pmd = *pmdp;
+> +		pmd = pmd_orig = *pmdp;
+>   		barrier();
+>   		next = pmd_addr_end(addr, end);
+>   		/*
+> @@ -127,8 +128,9 @@ static inline int gup_pmd_range(pud_t *pudp, pud_t pud, unsigned long addr,
+>   		if (pmd_none(pmd) || pmd_trans_splitting(pmd))
+>   			return 0;
+>   		if (unlikely(pmd_large(pmd))) {
+> -			if (!gup_huge_pmd(pmdp, pmd, addr, next,
+> -					  write, pages, nr))
+> +			if (!gup_huge_pmd(pmdp, pmd_orig,
+> +					  pmd_swlarge_deref(pmd),
+> +					  addr, next, write, pages, nr))
+>   				return 0;
+>   		} else if (!gup_pte_range(pmdp, pmd, addr, next,
+>   					  write, pages, nr))
+> diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
+> index 99a68d5..d4a17d9 100644
+> --- a/arch/s390/mm/hugetlbpage.c
+> +++ b/arch/s390/mm/hugetlbpage.c
+> @@ -98,22 +98,18 @@ void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
+>   	if (!MACHINE_HAS_HPAGE) {
+>   		pmd_val(pmd) &= ~_SEGMENT_ENTRY_ORIGIN;
+>   		pmd_val(pmd) |= pte_page(pte)[1].index;
+> +		pmd_val(pmd) |= _SEGMENT_ENTRY_SWLARGE;
+>   	} else
+> -		pmd_val(pmd) |= _SEGMENT_ENTRY_LARGE | _SEGMENT_ENTRY_CO;
+> +		pmd_val(pmd) |= _SEGMENT_ENTRY_LARGE;
+>   	*(pmd_t *) ptep = pmd;
+>   }
+>
+>   pte_t huge_ptep_get(pte_t *ptep)
+>   {
+> -	unsigned long origin;
+>   	pmd_t pmd;
+>
+>   	pmd = *(pmd_t *) ptep;
+> -	if (!MACHINE_HAS_HPAGE && pmd_present(pmd)) {
+> -		origin = pmd_val(pmd) & _SEGMENT_ENTRY_ORIGIN;
+> -		pmd_val(pmd) &= ~_SEGMENT_ENTRY_ORIGIN;
+> -		pmd_val(pmd) |= *(unsigned long *) origin;
+> -	}
+> +	pmd = pmd_swlarge_deref(pmd);
+>   	return __pmd_to_pte(pmd);
+>   }
+>
+> diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+> index bcfb70b..a4f6f2f 100644
+> --- a/arch/s390/mm/vmem.c
+> +++ b/arch/s390/mm/vmem.c
+> @@ -235,8 +235,7 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node)
+>   				if (!new_page)
+>   					goto out;
+>   				pmd_val(*pm_dir) = __pa(new_page) |
+> -					_SEGMENT_ENTRY | _SEGMENT_ENTRY_LARGE |
+> -					_SEGMENT_ENTRY_CO;
+> +					_SEGMENT_ENTRY | _SEGMENT_ENTRY_LARGE;
+>   				address = (address + PMD_SIZE) & PMD_MASK;
+>   				continue;
+>   			}
+>
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
