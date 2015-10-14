@@ -1,29 +1,35 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH] s390: crypto: replace raw value by their coresponding
- define
-Date: Thu, 15 Oct 2015 21:19:32 +0800
-Message-ID: <20151015131932.GC3981@gondor.apana.org.au>
-References: <1444849860-16334-1-git-send-email-clabbe.montjoie@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: LABBE Corentin <clabbe.montjoie@gmail.com>
+Subject: [PATCH] s390: crypto: replace raw value by their coresponding define
+Date: Wed, 14 Oct 2015 21:11:00 +0200
+Message-ID: <1444849860-16334-1-git-send-email-clabbe.montjoie@gmail.com>
 Return-path: <linux-crypto-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1444849860-16334-1-git-send-email-clabbe.montjoie@gmail.com>
 Sender: linux-crypto-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-crypto/>
 List-Post: <mailto:linux-crypto@vger.kernel.org>
-To: LABBE Corentin <clabbe.montjoie@gmail.com>
-Cc: davem@davemloft.net, heiko.carstens@de.ibm.com, schwidefsky@de.ibm.com, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: davem@davemloft.net, heiko.carstens@de.ibm.com, herbert@gondor.apana.org.au, schwidefsky@de.ibm.com
+Cc: LABBE Corentin <clabbe.montjoie@gmail.com>, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Oct 14, 2015 at 09:11:00PM +0200, LABBE Corentin wrote:
-> SHA_MAX_STATE_SIZE is just the number of u32 word for SHA512.
-> So replace the raw value "16" by their meaning (SHA512_DIGEST_SIZE / 4)
-> 
-> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
+SHA_MAX_STATE_SIZE is just the number of u32 word for SHA512.
+So replace the raw value "16" by their meaning (SHA512_DIGEST_SIZE / 4)
 
-Applied.
+Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
+---
+ arch/s390/crypto/sha.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/s390/crypto/sha.h b/arch/s390/crypto/sha.h
+index f4e9dc7..10f2007 100644
+--- a/arch/s390/crypto/sha.h
++++ b/arch/s390/crypto/sha.h
+@@ -19,7 +19,7 @@
+ #include <crypto/sha.h>
+ 
+ /* must be big enough for the largest SHA variant */
+-#define SHA_MAX_STATE_SIZE	16
++#define SHA_MAX_STATE_SIZE	(SHA512_DIGEST_SIZE / 4)
+ #define SHA_MAX_BLOCK_SIZE      SHA512_BLOCK_SIZE
+ 
+ struct s390_sha_ctx {
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+2.4.9
