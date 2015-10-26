@@ -1,167 +1,117 @@
-From: Hugh Dickins <hughd@google.com>
+From: Jerome Marchand <jmarchan@redhat.com>
 Subject: Re: [PATCH v4 2/4] mm, proc: account for shmem swap in
  /proc/pid/smaps
-Date: Wed, 21 Oct 2015 15:38:49 -0700 (PDT)
-Message-ID: <alpine.LSU.2.11.1510211424010.3905@eggly.anvils>
-References: <1443792951-13944-1-git-send-email-vbabka@suse.cz> <1443792951-13944-3-git-send-email-vbabka@suse.cz> <alpine.LSU.2.11.1510041806040.15067@eggly.anvils> <5627A397.6090305@suse.cz>
+Date: Mon, 26 Oct 2015 12:22:48 +0100
+Message-ID: <562E0D08.4020607@redhat.com>
+References: <1443792951-13944-1-git-send-email-vbabka@suse.cz>
+ <1443792951-13944-3-git-send-email-vbabka@suse.cz>
+ <alpine.LSU.2.11.1510041806040.15067@eggly.anvils> <5627A397.6090305@suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="MPHfUuw6Ai8p3dwKDWqpU6HH7AHH6qmEJ"
 Return-path: <owner-linux-mm@kvack.org>
 In-Reply-To: <5627A397.6090305@suse.cz>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
-To: Vlastimil Babka <vbabka@suse.cz>
-Cc: Hugh Dickins <hughd@google.com>, linux-mm@kvack.org, Jerome Marchand <jmarchan@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Linux API <linux-api@vger.kernel.org>, Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+To: Vlastimil Babka <vbabka@suse.cz>, Hugh Dickins <hughd@google.com>
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Michal Hocko <mhocko@suse.cz>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Cyrill Gorcunov <gorcunov@openvz.org>, Randy Dunlap <rdunlap@infradead.org>, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Linux API <linux-api@vger.kernel.org>, Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 21 Oct 2015, Vlastimil Babka wrote:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--MPHfUuw6Ai8p3dwKDWqpU6HH7AHH6qmEJ
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
+
+On 10/21/2015 04:39 PM, Vlastimil Babka wrote:
 > On 10/05/2015 05:01 AM, Hugh Dickins wrote:
-> > On Fri, 2 Oct 2015, Vlastimil Babka wrote:
-> > 
-> > > Currently, /proc/pid/smaps will always show "Swap: 0 kB" for shmem-backed
-> > > mappings, even if the mapped portion does contain pages that were swapped
-> > > out.
-> > > This is because unlike private anonymous mappings, shmem does not change
-> > > pte
-> > > to swap entry, but pte_none when swapping the page out. In the smaps page
-> > > walk, such page thus looks like it was never faulted in.
-> > > 
-> > > This patch changes smaps_pte_entry() to determine the swap status for
-> > > such
-> > > pte_none entries for shmem mappings, similarly to how mincore_page() does
-> > > it.
-> > > Swapped out pages are thus accounted for.
-> > > 
-> > > The accounting is arguably still not as precise as for private anonymous
-> > > mappings, since now we will count also pages that the process in question
-> > > never
-> > > accessed, but only another process populated them and then let them
-> > > become
-> > > swapped out. I believe it is still less confusing and subtle than not
-> > > showing
-> > > any swap usage by shmem mappings at all. Also, swapped out pages only
-> > > becomee a
-> > > performance issue for future accesses, and we cannot predict those for
-> > > neither
-> > > kind of mapping.
-> > > 
-> > > Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-> > > Acked-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-> > 
-> > Neither Ack nor Nack from me.
-> > 
-> > I don't want to stand in the way of this patch, if you and others
-> > believe that it will help to diagnose problems in the field better
-> > than what's shown at present; but to me it looks dangerously like
-> > replacing no information by wrong information.
-> > 
-> > As you acknowledge in the commit message, if a file of 100 pages
-> > were copied to tmpfs, and 100 tasks map its full extent, but they
-> > all mess around with the first 50 pages and take no interest in
-> > the last 50, then it's quite likely that that last 50 will get
-> > swapped out; then with your patch, 100 tasks are each shown as
-> > using 50 pages of swap, when none of them are actually using any.
-> 
-> Yeah, but isn't it the same with private memory which was swapped out at some
-> point and we don't know if it will be touched or not? The
+>> On Fri, 2 Oct 2015, Vlastimil Babka wrote:
+
+>> As you acknowledge in the commit message, if a file of 100 pages
+>> were copied to tmpfs, and 100 tasks map its full extent, but they
+>> all mess around with the first 50 pages and take no interest in
+>> the last 50, then it's quite likely that that last 50 will get
+>> swapped out; then with your patch, 100 tasks are each shown as
+>> using 50 pages of swap, when none of them are actually using any.
+>=20
+> Yeah, but isn't it the same with private memory which was swapped out a=
+t
+> some point and we don't know if it will be touched or not? The
 > difference is in private case we know the process touched it at least
 > once, but that can also mean nothing for the future (or maybe it just
 > mmapped with MAP_POPULATE and didn't care about half of it).
+>=20
+> That's basically what I was trying to say in the changelog. I interpret=
 
-I see that as quite different myself; but agree that neither way
-predicts the future.  Now, if you can make a patch to predict the future...
-
-FWIW, I do seem to be looking at it more from a point of view of how
-much swap the process is using, whereas you're looking at it more
-from a point of view of what delays would be incurred in accessing.
-
-> 
-> That's basically what I was trying to say in the changelog. I interpret
 > the Swap: value as the amount of swap-in potential, if the process was
-> going to access it, which is what the particular customer also expects (see
-> below). In that case showing zero is IMHO wrong and inconsistent with the
-> anonymous private mappings.
+> going to access it, which is what the particular customer also expects
+> (see below). In that case showing zero is IMHO wrong and inconsistent
+> with the anonymous private mappings.
 
-Yes, your changelog is honest about the difference, I don't dispute that.
-As I said, neither Ack nor Nack from me: I just don't feel in a position
-to judge whether changing the output of smaps to please this customer is
-likely to displease another customer or not.
+I didn't understand the changelog that way an IMHO it's a pretty
+specific interpretation. I've always understood memory accounting as
+being primarily the answer to the question: how much resources a
+process uses? I guess its meaning as been overloaded with corollaries
+that are only true in the most simple non-shared cases, such as yours
+or "how much memory would be freed if this process goes away?", but I
+don't think it should ever be used as a definition.
 
-> 
-> > It is rather as if we didn't bother to record Rss, and just put
-> > Size in there instead: you are (for understandable reasons) treating
-> > the virtual address space as if every page of it had been touched.
-> > 
-> > But I accept that there may well be a class of processes and problems
-> > which would be better served by this fiction than the present: I expect
-> > you have much more experience of helping out in such situations than I.
-> 
-> Well, the customers driving this change would in the best case want to
-> see the shmem swap accounted continuously and e.g. see it immediately in the
-> top output. Fixing (IMHO) the smaps output is the next best thing. The use
-> case here is a application that really doesn't like page faults, and has
-> background thread that checks and prefaults such areas when they are expected
-> to be used soon. So they would like to identify these areas.
+I suppose the reason I didn't understand the changelog the way you
+intended is because I think that sometimes it's correct to blame a
+process for pages it never accessed (and I also believe that
+over-accounting is better that under accounting,  but I must admit
+that it is a quite arbitrary point of view). For instance, what if a
+process has a shared anonymous mapping that includes pages that it
+never accessed, but have been populated by an other process that has
+already exited or munmaped the range? That process is not to blame for
+the appearance of these pages, but it's the only reason why they
+stay.
 
-And I guess I won't be able to sell mlock(2) to you :)
+I'll offer a lollipop to anyone who comes up with a simple consistent
+model on how to account shmem pages for all the possible cases, a
+"Grand Unified Theory of Memory Accounting" so to speak.
 
-Still neither Ack nor Nack from me: while your number is more information
-(or misinformation) than always 0, it's still not clear to me that it will
-give them what they need.
-
-...
-> > 
-> > And for private mappings of tmpfs files?  I expected it to show an
-> > inderminate mixture of the two, but it looks like you treat the private
-> > mapping just like a shared one, and take no notice of the COWed pages
-> > out on swap which would have been reported before.  Oh, no, I think
-> > I misread, and you add the two together?  I agree that's the easiest
-> > thing to do, and therefore perhaps the best; but it doesn't fill me
-> > with conviction that it's the right thing to do.
-> 
-> Thanks for pointing this out, I totally missed this possibility! Well
-> the current patch is certainly not the right thing to do, as it can
-> over-account. The most correct solution would have to be implemented into the
-> page walk and only check into shmem radix tree for individual pages that were
-> not COWed. Michal Hocko suggested I try that, and although it does add some
-> overhead (the complexity is n*log(n) AFAICT), it's not that bad from
-> preliminary checks. Another advantage is that no new shmem code is needed, as
-> we can use the generic find_get_entry(). Unless we want to really limit the
-> extra complexity only to the special private mapping case with non-zero swap
-> usage of the shmem object etc... I'll repost the series with that approach.
-> 
 > Other non-perfect solutions that come to mind:
-> 
+>=20
 > 1) For private mappings, count only the swapents. "Swap:" is no longer
 > showing full swap-in potential though.
 > 2) For private mappings, do not count swapents. Ditto.
 > 3) Provide two separate counters. The user won't know how much they
 > overlap, though.
-> 
-> From these I would be inclined towards 3) as being more universal, although
-> then it's no longer a simple "we're fixing a Swap: 0 value which is wrong",
-> but closer to original Jerome's versions, which IIRC introduced several
-> shmem-specific counters.
-> 
-> Well at least now I do understand why you don't particularly like this
-> approach...
+>=20
+> From these I would be inclined towards 3) as being more universal,
+> although then it's no longer a simple "we're fixing a Swap: 0 value
+> which is wrong", but closer to original Jerome's versions, which IIRC
+> introduced several shmem-specific counters.
 
-Have you considered extending mincore(2) for them?
+You remember correctly. Given all the controversy around shmem
+accounting, maybe it would indeed be better to leave existing
+counters, that are relatively well defined and understood, untouched
+and add specific counters to mess around instead.
 
-It was always intended that more info could be added into its byte array
-later - the man page I'm looking at says "The settings of the other bits
-[than the least significant] in each byte are undefined; these bits are
-reserved for possible later use."
+Thanks,
+Jerome
 
-That way your customers could get a precise picture of the status of
-each page: without ambiguity as to whether it's anon, shmem, file, anon
-swap, shmem swap, whatever; without ambiguity as to where 40kB of 80kB
-lies in the region, the unused half or the vital half etc.
 
-Or forget passing back the info: just offer an madvise(,, MADV_POPULATE)?
+--MPHfUuw6Ai8p3dwKDWqpU6HH7AHH6qmEJ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-Hugh
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJWLg0IAAoJEHTzHJCtsuoC3t4IALLwNYFPiAiS0OO5U8ea70QA
+qbosmcLZ1JjIoPxXCsJ0IZ+4wPUXRW7c0tYVsJ09JUcS6ohUJOyOv2SYVT6rge5h
+/0TXeQaakyvP3CQhrAwKX7a5afnuL/xpGCzNBAp9RaSXbihecY81djMJKnIarvca
+H46bxBnLl2VBWNmUc9/SXaekkY//fgyGY1yvZszk0bqMUjEm1KD0gfA9dTMU0yZR
+vL39NW1u6gYvrH7z825wW+lCcx4a5FROg3zd+Scv2yO6JF9ls4GFsPl112CL2ud0
+6vDSq6i1O8OXWUSakHqjzzmVMtF427neNe3tRrW0TBu2lts3oTT3VV0h7IsU7Hc=
+=ZDhz
+-----END PGP SIGNATURE-----
+
+--MPHfUuw6Ai8p3dwKDWqpU6HH7AHH6qmEJ--
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
