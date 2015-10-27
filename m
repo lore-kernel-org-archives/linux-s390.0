@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/4] alpha: use common noop dma ops
-Date: Tue, 27 Oct 2015 23:48:49 +0100
-Message-ID: <1445986131-239566-3-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 4/4] s390/virtio: use noop dma ops
+Date: Tue, 27 Oct 2015 23:48:51 +0100
+Message-ID: <1445986131-239566-5-git-send-email-borntraeger@de.ibm.com>
 References: <1445986131-239566-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1445986131-239566-1-git-send-email-borntraeger@de.ibm.com>
@@ -12,77 +12,54 @@ To: Andy Lutomirski <luto@kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>,
 Cc: Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, benh@kernel.crashing.org, KVM <kvm@vger.kernel.org>, dwmw2@infradead.org, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Some of the alpha pci noop dma ops are identical to the common ones.
-Use them.
+With all infrastructure in place, lets provide dma_ops for virtio
+devices on s390.
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/alpha/kernel/pci-noop.c | 46 ++++----------------------------------------
- 1 file changed, 4 insertions(+), 42 deletions(-)
+ drivers/s390/virtio/kvm_virtio.c | 2 ++
+ drivers/s390/virtio/virtio_ccw.c | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/arch/alpha/kernel/pci-noop.c b/arch/alpha/kernel/pci-noop.c
-index 2b1f4a1..8e735b5e 100644
---- a/arch/alpha/kernel/pci-noop.c
-+++ b/arch/alpha/kernel/pci-noop.c
-@@ -123,44 +123,6 @@ static void *alpha_noop_alloc_coherent(struct device *dev, size_t size,
- 	return ret;
- }
+diff --git a/drivers/s390/virtio/kvm_virtio.c b/drivers/s390/virtio/kvm_virtio.c
+index 53fb975..05adaa9 100644
+--- a/drivers/s390/virtio/kvm_virtio.c
++++ b/drivers/s390/virtio/kvm_virtio.c
+@@ -13,6 +13,7 @@
+ #include <linux/kernel_stat.h>
+ #include <linux/init.h>
+ #include <linux/bootmem.h>
++#include <linux/dma-mapping.h>
+ #include <linux/err.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_config.h>
+@@ -318,6 +319,7 @@ static void add_kvm_device(struct kvm_device_desc *d, unsigned int offset)
+ 		return;
+ 	}
  
--static void alpha_noop_free_coherent(struct device *dev, size_t size,
--				     void *cpu_addr, dma_addr_t dma_addr,
--				     struct dma_attrs *attrs)
--{
--	free_pages((unsigned long)cpu_addr, get_order(size));
--}
--
--static dma_addr_t alpha_noop_map_page(struct device *dev, struct page *page,
--				      unsigned long offset, size_t size,
--				      enum dma_data_direction dir,
--				      struct dma_attrs *attrs)
--{
--	return page_to_pa(page) + offset;
--}
--
--static int alpha_noop_map_sg(struct device *dev, struct scatterlist *sgl, int nents,
--			     enum dma_data_direction dir, struct dma_attrs *attrs)
--{
--	int i;
--	struct scatterlist *sg;
--
--	for_each_sg(sgl, sg, nents, i) {
--		void *va;
--
--		BUG_ON(!sg_page(sg));
--		va = sg_virt(sg);
--		sg_dma_address(sg) = (dma_addr_t)virt_to_phys(va);
--		sg_dma_len(sg) = sg->length;
--	}
--
--	return nents;
--}
--
--static int alpha_noop_mapping_error(struct device *dev, dma_addr_t dma_addr)
--{
--	return 0;
--}
--
- static int alpha_noop_supported(struct device *dev, u64 mask)
- {
- 	return mask < 0x00ffffffUL ? 0 : 1;
-@@ -168,10 +130,10 @@ static int alpha_noop_supported(struct device *dev, u64 mask)
++	kdev->vdev.dev.archdata.dma_ops = &dma_noop_ops;
+ 	kdev->vdev.dev.parent = kvm_root;
+ 	kdev->vdev.id.device = d->type;
+ 	kdev->vdev.config = &kvm_vq_configspace_ops;
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 1cda784..8fb7a6b 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -13,6 +13,7 @@
+ #include <linux/kernel_stat.h>
+ #include <linux/init.h>
+ #include <linux/bootmem.h>
++#include <linux/dma-mapping.h>
+ #include <linux/err.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_config.h>
+@@ -1093,6 +1094,7 @@ static void virtio_ccw_auto_online(void *data, async_cookie_t cookie)
+ 	struct ccw_device *cdev = data;
+ 	int ret;
  
- struct dma_map_ops alpha_noop_ops = {
- 	.alloc			= alpha_noop_alloc_coherent,
--	.free			= alpha_noop_free_coherent,
--	.map_page		= alpha_noop_map_page,
--	.map_sg			= alpha_noop_map_sg,
--	.mapping_error		= alpha_noop_mapping_error,
-+	.free			= dma_noop_free_coherent,
-+	.map_page		= dma_noop_map_page,
-+	.map_sg			= dma_noop_map_sg,
-+	.mapping_error		= dma_noop_mapping_error,
- 	.dma_supported		= alpha_noop_supported,
- };
- 
++	cdev->dev.archdata.dma_ops = &dma_noop_ops;
+ 	ret = ccw_device_set_online(cdev);
+ 	if (ret)
+ 		dev_warn(&cdev->dev, "Failed to set online: %d\n", ret);
 -- 
 2.4.3
