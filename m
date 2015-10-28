@@ -1,46 +1,48 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 4/4] s390/virtio: use noop dma ops
-Date: Wed, 28 Oct 2015 09:44:09 +0100
-Message-ID: <20151028094409.0538745b.cornelia.huck@de.ibm.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH/RFC 0/4] dma ops and virtio
+Date: Wed, 28 Oct 2015 15:22:16 -0700
+Message-ID: <CALCETrVOsq4+z1HzQ2vthuHB91nt9FJ1a3jiAuOe5Fyb5vGXQA@mail.gmail.com>
 References: <1445986131-239566-1-git-send-email-borntraeger@de.ibm.com>
-	<1445986131-239566-5-git-send-email-borntraeger@de.ibm.com>
-	<20151028004334.GD2805@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20151028004334.GD2805@suse.de>
+In-Reply-To: <1445986131-239566-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Joerg Roedel <jroedel@suse.de>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, benh@kernel.crashing.org, KVM <kvm@vger.kernel.org>, dwmw2@infradead.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Andy Lutomirski <luto@kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, KVM <kvm@vger.kernel.org>, David Woodhouse <dwmw2@infradead.org>, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 28 Oct 2015 09:43:34 +0900
-Joerg Roedel <jroedel@suse.de> wrote:
+On Tue, Oct 27, 2015 at 3:48 PM, Christian Borntraeger
+<borntraeger@de.ibm.com> wrote:
+> This is an RFC to check if I am on the right track.  There
+> are some attempts to unify the dma ops (Christoph) as well
+> as some attempts to make virtio use the dma API (Andy).
+>
+> At todays discussion at the kernel summit, we concluded that
+> we want to use the same code on all platforms, whereever
+> possible, so having a dummy dma_op might be the easiest
+> solution to keep virtio-ccw as similar as possible to
+> virtio-pci. Andy Lutomirski will rework his patchset to
+> unconditionally use the dma ops.  We will also need a
+> compatibility quirk for powerpc to bypass the iommu mappings
+> on older QEMU version (which translates to all versions as
+> of today) and per device, e.g.  via device tree.  Ben
+> Herrenschmidt will look into that.
 
-> On Tue, Oct 27, 2015 at 11:48:51PM +0100, Christian Borntraeger wrote:
-> > @@ -1093,6 +1094,7 @@ static void virtio_ccw_auto_online(void *data, async_cookie_t cookie)
-> >  	struct ccw_device *cdev = data;
-> >  	int ret;
-> >  
-> > +	cdev->dev.archdata.dma_ops = &dma_noop_ops;
-> >  	ret = ccw_device_set_online(cdev);
-> >  	if (ret)
-> >  		dev_warn(&cdev->dev, "Failed to set online: %d\n", ret);
-> 
-> Hmm, drivers usually don't deal with setting the dma_ops for their
-> devices, as they depend on the platform and not so much on the device
-> itself.
-> 
-> Can you do this special-case handling from device independent platform
-> code, where you also setup dma_ops for other devices?
+The combination of these patches plus my series don't link for me
+unless I enable PCI.  Would s390 need to select HAS_DMA from VIRTIO or
+something similar?
 
-Hm, maybe at the bus level?
+Also, is it possible to use QEMU to emulate an s390x?  Even just:
 
-pci devices get s390_dma_ops, ccw devices get the noop dma ops (just a
-bit of dead weight for non-virtio ccw devices, I guess).
+qemu-system-s390x -M s390-ccw-virtio
 
-The old style s390-virtio devices are the odd ones around, but I'd like
-to invest the least time possible there to keep them going.
+exits immediately.  (I build from QEMU git today.)  I don't know what
+options to pass to get -M s390 to do anything useful, and AFAICT it's
+considered deprecated.
+
+Help?
+
+--Andy
