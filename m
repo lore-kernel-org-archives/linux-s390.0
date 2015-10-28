@@ -1,198 +1,184 @@
-From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v3 3/3] virtio_pci: Use the DMA API
-Date: Tue, 27 Oct 2015 23:39:00 -0700
-Message-ID: <08f11115dfc54ca55ef70acf11cc6ffc46f62a5e.1446014204.git.luto@kernel.org>
+From: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
+Date: Wed, 28 Oct 2015 15:53:24 +0900
+Message-ID: <1446015204.3405.186.camel@infradead.org>
 References: <cover.1446014204.git.luto@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============8970494224941022292=="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <cover.1446014204.git.luto@kernel.org>
-In-Reply-To: <cover.1446014204.git.luto@kernel.org>
-References: <cover.1446014204.git.luto@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, benh@kernel.crashing.org, KVM <kvm@vger.kernel.org>, dwmw2@infradead.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>
+To: Andy Lutomirski <luto@kernel.org>, linux-kernel@vger.kernel.org
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, "Michael
+	S. Tsirkin" <mst@redhat.com>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This fixes virtio-pci on platforms and busses that have IOMMUs.  This
-will break the experimental QEMU Q35 IOMMU support until QEMU is
-fixed.  In exchange, it fixes physical virtio hardware as well as
-virtio-pci running under Xen.
 
-We should clean up the virtqueue API to do its own allocation and
-teach virtqueue_get_avail and virtqueue_get_used to return DMA
-addresses directly.
+--===============8970494224941022292==
+Content-Type: multipart/signed; micalg="sha-1"; protocol="application/x-pkcs7-signature";
+	boundary="=-VnBVHoaJ+wMreurU1sdx"
 
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
----
- drivers/virtio/virtio_pci_common.h |  3 ++-
- drivers/virtio/virtio_pci_legacy.c | 19 +++++++++++++++----
- drivers/virtio/virtio_pci_modern.c | 34 ++++++++++++++++++++++++----------
- 3 files changed, 41 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index b976d968e793..cd6196b513ad 100644
---- a/drivers/virtio/virtio_pci_common.h
-+++ b/drivers/virtio/virtio_pci_common.h
-@@ -38,8 +38,9 @@ struct virtio_pci_vq_info {
- 	/* the number of entries in the queue */
- 	int num;
- 
--	/* the virtual address of the ring queue */
-+	/* the ring queue */
- 	void *queue;
-+	dma_addr_t queue_dma_addr;      /* bus address */
- 
- 	/* the list node for the virtqueues list */
- 	struct list_head node;
-diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index 48bc9797e530..b5293e5f2af4 100644
---- a/drivers/virtio/virtio_pci_legacy.c
-+++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -135,12 +135,14 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	info->msix_vector = msix_vec;
- 
- 	size = PAGE_ALIGN(vring_size(num, VIRTIO_PCI_VRING_ALIGN));
--	info->queue = alloc_pages_exact(size, GFP_KERNEL|__GFP_ZERO);
-+	info->queue = dma_zalloc_coherent(&vp_dev->pci_dev->dev, size,
-+					  &info->queue_dma_addr,
-+					  GFP_KERNEL);
- 	if (info->queue == NULL)
- 		return ERR_PTR(-ENOMEM);
- 
- 	/* activate the queue */
--	iowrite32(virt_to_phys(info->queue) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
-+	iowrite32(info->queue_dma_addr >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
- 		  vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
- 
- 	/* create the vring */
-@@ -169,7 +171,8 @@ out_assign:
- 	vring_del_virtqueue(vq);
- out_activate_queue:
- 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
--	free_pages_exact(info->queue, size);
-+	dma_free_coherent(&vp_dev->pci_dev->dev, size,
-+			  info->queue, info->queue_dma_addr);
- 	return ERR_PTR(err);
- }
- 
-@@ -194,7 +197,8 @@ static void del_vq(struct virtio_pci_vq_info *info)
- 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
- 
- 	size = PAGE_ALIGN(vring_size(info->num, VIRTIO_PCI_VRING_ALIGN));
--	free_pages_exact(info->queue, size);
-+	dma_free_coherent(&vp_dev->pci_dev->dev, size,
-+			  info->queue, info->queue_dma_addr);
- }
- 
- static const struct virtio_config_ops virtio_pci_config_ops = {
-@@ -227,6 +231,13 @@ int virtio_pci_legacy_probe(struct virtio_pci_device *vp_dev)
- 		return -ENODEV;
- 	}
- 
-+	rc = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
-+	if (rc)
-+		rc = dma_set_mask_and_coherent(&pci_dev->dev,
-+						DMA_BIT_MASK(32));
-+	if (rc)
-+		dev_warn(&pci_dev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
-+
- 	rc = pci_request_region(pci_dev, 0, "virtio-pci-legacy");
- 	if (rc)
- 		return rc;
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 8e5cf194cc0b..fbe0bd1c4881 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -293,14 +293,16 @@ static size_t vring_pci_size(u16 num)
- 	return PAGE_ALIGN(vring_size(num, SMP_CACHE_BYTES));
- }
- 
--static void *alloc_virtqueue_pages(int *num)
-+static void *alloc_virtqueue_pages(struct virtio_pci_device *vp_dev,
-+				   int *num, dma_addr_t *dma_addr)
- {
- 	void *pages;
- 
- 	/* TODO: allocate each queue chunk individually */
- 	for (; *num && vring_pci_size(*num) > PAGE_SIZE; *num /= 2) {
--		pages = alloc_pages_exact(vring_pci_size(*num),
--					  GFP_KERNEL|__GFP_ZERO|__GFP_NOWARN);
-+		pages = dma_zalloc_coherent(
-+			&vp_dev->pci_dev->dev, vring_pci_size(*num),
-+			dma_addr, GFP_KERNEL|__GFP_NOWARN);
- 		if (pages)
- 			return pages;
- 	}
-@@ -309,7 +311,9 @@ static void *alloc_virtqueue_pages(int *num)
- 		return NULL;
- 
- 	/* Try to get a single page. You are my only hope! */
--	return alloc_pages_exact(vring_pci_size(*num), GFP_KERNEL|__GFP_ZERO);
-+	return dma_zalloc_coherent(
-+		&vp_dev->pci_dev->dev, vring_pci_size(*num),
-+		dma_addr, GFP_KERNEL);
- }
- 
- static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
-@@ -346,7 +350,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 	info->num = num;
- 	info->msix_vector = msix_vec;
- 
--	info->queue = alloc_virtqueue_pages(&info->num);
-+	info->queue = alloc_virtqueue_pages(vp_dev, &info->num,
-+					    &info->queue_dma_addr);
- 	if (info->queue == NULL)
- 		return ERR_PTR(-ENOMEM);
- 
-@@ -361,11 +366,11 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 
- 	/* activate the queue */
- 	vp_iowrite16(num, &cfg->queue_size);
--	vp_iowrite64_twopart(virt_to_phys(info->queue),
-+	vp_iowrite64_twopart(info->queue_dma_addr,
- 			     &cfg->queue_desc_lo, &cfg->queue_desc_hi);
--	vp_iowrite64_twopart(virt_to_phys(virtqueue_get_avail(vq)),
-+	vp_iowrite64_twopart(info->queue_dma_addr + ((char *)virtqueue_get_avail(vq) - (char *)info->queue),
- 			     &cfg->queue_avail_lo, &cfg->queue_avail_hi);
--	vp_iowrite64_twopart(virt_to_phys(virtqueue_get_used(vq)),
-+	vp_iowrite64_twopart(info->queue_dma_addr + ((char *)virtqueue_get_used(vq) - (char *)info->queue),
- 			     &cfg->queue_used_lo, &cfg->queue_used_hi);
- 
- 	if (vp_dev->notify_base) {
-@@ -411,7 +416,8 @@ err_assign_vector:
- err_map_notify:
- 	vring_del_virtqueue(vq);
- err_new_queue:
--	free_pages_exact(info->queue, vring_pci_size(info->num));
-+	dma_free_coherent(&vp_dev->pci_dev->dev, vring_pci_size(info->num),
-+			  info->queue, info->queue_dma_addr);
- 	return ERR_PTR(err);
- }
- 
-@@ -457,7 +463,8 @@ static void del_vq(struct virtio_pci_vq_info *info)
- 
- 	vring_del_virtqueue(vq);
- 
--	free_pages_exact(info->queue, vring_pci_size(info->num));
-+	dma_free_coherent(&vp_dev->pci_dev->dev, vring_pci_size(info->num),
-+			  info->queue, info->queue_dma_addr);
- }
- 
- static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
-@@ -641,6 +648,13 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
- 		return -EINVAL;
- 	}
- 
-+	err = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
-+	if (err)
-+		err = dma_set_mask_and_coherent(&pci_dev->dev,
-+						DMA_BIT_MASK(32));
-+	if (err)
-+		dev_warn(&pci_dev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
-+
- 	/* Device capability is only mandatory for devices that have
- 	 * device-specific configuration.
- 	 */
--- 
-2.4.3
+--=-VnBVHoaJ+wMreurU1sdx
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2015-10-27 at 23:38 -0700, Andy Lutomirski wrote:
+>=20
+> Changes from v2:
+>  - Fix really embarrassing bug.  This version actually works.
+
+So embarrassing you didn't want to tell us what it was? ...
+
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -292,7 +292,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+                        vq, desc, total_sg * sizeof(struct vring_desc),
+                        DMA_TO_DEVICE);
+=20
+-               if (vring_mapping_error(vq, vq->vring.desc[head].addr))
++               if (vring_mapping_error(vq, addr))
+                        goto unmap_release;
+=20
+                vq->vring.desc[head].flags =3D cpu_to_virtio16(_vq->vdev, V=
+RING_DESC_F_INDIRECT);
+
+That wasn't going to be the reason for Christian's failure, was it?
+
+
+--=20
+dwmw2
+
+
+
+--=-VnBVHoaJ+wMreurU1sdx
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIISjjCCBicw
+ggUPoAMCAQICAw3vNzANBgkqhkiG9w0BAQUFADCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0
+YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcx
+ODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENB
+MB4XDTE1MDUwNTA5NDM0MVoXDTE2MDUwNTA5NTMzNlowQjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFk
+ZWFkLm9yZzEiMCAGCSqGSIb3DQEJARYTZHdtdzJAaW5mcmFkZWFkLm9yZzCCASIwDQYJKoZIhvcN
+AQEBBQADggEPADCCAQoCggEBAMkbm9kPbx1j/X4RVyf/pPKSYwelcco69TvnQQbKM8m8xkWjXJI1
+jpJ1jMaGUZGFToINMSZi7lZawUozudWbXSKy1SikENSTJHffsdRAIlsp+hR8vWvjsKUry6sEdqPG
+doa5RY7+N4WRusWZDYW/RRWE6i9EL9qV86CVPYqw22UBOUw4/j/HVGCV6TSB8yE5iEwhk/hUuzRr
+FZm1MJMR7mCS7BCR8Lr5jFY61lWpBiXNXIxLZCvDc26KR5L5tYX43iUVO3fzES1GRVoYnxxk2tmz
+fcsZG5vK+Trc9L8OZJfkYrEHH3+Iw41MQ0w/djVtYr1+HYldx0QmYXAtnhIj+UMCAwEAAaOCAtkw
+ggLVMAkGA1UdEwQCMAAwCwYDVR0PBAQDAgSwMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcD
+BDAdBgNVHQ4EFgQUszC96C3w5/2+d+atSr0IpT26YI4wHwYDVR0jBBgwFoAUU3Ltkpzg2ssBXHx+
+ljVO8tS4UYIwHgYDVR0RBBcwFYETZHdtdzJAaW5mcmFkZWFkLm9yZzCCAUwGA1UdIASCAUMwggE/
+MIIBOwYLKwYBBAGBtTcBAgMwggEqMC4GCCsGAQUFBwIBFiJodHRwOi8vd3d3LnN0YXJ0c3NsLmNv
+bS9wb2xpY3kucGRmMIH3BggrBgEFBQcCAjCB6jAnFiBTdGFydENvbSBDZXJ0aWZpY2F0aW9uIEF1
+dGhvcml0eTADAgEBGoG+VGhpcyBjZXJ0aWZpY2F0ZSB3YXMgaXNzdWVkIGFjY29yZGluZyB0byB0
+aGUgQ2xhc3MgMSBWYWxpZGF0aW9uIHJlcXVpcmVtZW50cyBvZiB0aGUgU3RhcnRDb20gQ0EgcG9s
+aWN5LCByZWxpYW5jZSBvbmx5IGZvciB0aGUgaW50ZW5kZWQgcHVycG9zZSBpbiBjb21wbGlhbmNl
+IG9mIHRoZSByZWx5aW5nIHBhcnR5IG9ibGlnYXRpb25zLjA2BgNVHR8ELzAtMCugKaAnhiVodHRw
+Oi8vY3JsLnN0YXJ0c3NsLmNvbS9jcnR1MS1jcmwuY3JsMIGOBggrBgEFBQcBAQSBgTB/MDkGCCsG
+AQUFBzABhi1odHRwOi8vb2NzcC5zdGFydHNzbC5jb20vc3ViL2NsYXNzMS9jbGllbnQvY2EwQgYI
+KwYBBQUHMAKGNmh0dHA6Ly9haWEuc3RhcnRzc2wuY29tL2NlcnRzL3N1Yi5jbGFzczEuY2xpZW50
+LmNhLmNydDAjBgNVHRIEHDAahhhodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS8wDQYJKoZIhvcNAQEF
+BQADggEBAHMQmxHHodpS85X8HRyxhvfkys7r+taCNOaNU9cxQu/cZ/6k5nS2qGNMzZ6jb7ueY/V7
+7p+4DW/9ZWODDTf4Fz00mh5SSVc20Bz7t+hhxwHd62PZgENh5i76Qq2tw48U8AsYo5damHby1epf
+neZafLpUkLLO7AGBJIiRVTevdvyXQ0qnixOmKMWyvrhSNGuVIKVdeqLP+102Dwf+dpFyw+j1hz28
+jEEKpHa+NR1b2kXuSPi/rMGhexwlJOh4tK8KQ6Ryr0rIN//NSbOgbyYZrzc/ZUWX9V5OA84ChFb2
+vkFl0OcYrttp/rhDBLITwffPxSZeoBh9H7zYzkbCXKL3BUIwggYnMIIFD6ADAgECAgMN7zcwDQYJ
+KoZIhvcNAQEFBQAwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYD
+VQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENv
+bSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQTAeFw0xNTA1MDUwOTQzNDFa
+Fw0xNjA1MDUwOTUzMzZaMEIxHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcxIjAgBgkqhkiG
+9w0BCQEWE2R3bXcyQGluZnJhZGVhZC5vcmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
+AQDJG5vZD28dY/1+EVcn/6TykmMHpXHKOvU750EGyjPJvMZFo1ySNY6SdYzGhlGRhU6CDTEmYu5W
+WsFKM7nVm10istUopBDUkyR337HUQCJbKfoUfL1r47ClK8urBHajxnaGuUWO/jeFkbrFmQ2Fv0UV
+hOovRC/alfOglT2KsNtlATlMOP4/x1Rglek0gfMhOYhMIZP4VLs0axWZtTCTEe5gkuwQkfC6+YxW
+OtZVqQYlzVyMS2Qrw3NuikeS+bWF+N4lFTt38xEtRkVaGJ8cZNrZs33LGRubyvk63PS/DmSX5GKx
+Bx9/iMONTENMP3Y1bWK9fh2JXcdEJmFwLZ4SI/lDAgMBAAGjggLZMIIC1TAJBgNVHRMEAjAAMAsG
+A1UdDwQEAwIEsDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwHQYDVR0OBBYEFLMwvegt
+8Of9vnfmrUq9CKU9umCOMB8GA1UdIwQYMBaAFFNy7ZKc4NrLAVx8fpY1TvLUuFGCMB4GA1UdEQQX
+MBWBE2R3bXcyQGluZnJhZGVhZC5vcmcwggFMBgNVHSAEggFDMIIBPzCCATsGCysGAQQBgbU3AQID
+MIIBKjAuBggrBgEFBQcCARYiaHR0cDovL3d3dy5zdGFydHNzbC5jb20vcG9saWN5LnBkZjCB9wYI
+KwYBBQUHAgIwgeowJxYgU3RhcnRDb20gQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkwAwIBARqBvlRo
+aXMgY2VydGlmaWNhdGUgd2FzIGlzc3VlZCBhY2NvcmRpbmcgdG8gdGhlIENsYXNzIDEgVmFsaWRh
+dGlvbiByZXF1aXJlbWVudHMgb2YgdGhlIFN0YXJ0Q29tIENBIHBvbGljeSwgcmVsaWFuY2Ugb25s
+eSBmb3IgdGhlIGludGVuZGVkIHB1cnBvc2UgaW4gY29tcGxpYW5jZSBvZiB0aGUgcmVseWluZyBw
+YXJ0eSBvYmxpZ2F0aW9ucy4wNgYDVR0fBC8wLTAroCmgJ4YlaHR0cDovL2NybC5zdGFydHNzbC5j
+b20vY3J0dTEtY3JsLmNybDCBjgYIKwYBBQUHAQEEgYEwfzA5BggrBgEFBQcwAYYtaHR0cDovL29j
+c3Auc3RhcnRzc2wuY29tL3N1Yi9jbGFzczEvY2xpZW50L2NhMEIGCCsGAQUFBzAChjZodHRwOi8v
+YWlhLnN0YXJ0c3NsLmNvbS9jZXJ0cy9zdWIuY2xhc3MxLmNsaWVudC5jYS5jcnQwIwYDVR0SBBww
+GoYYaHR0cDovL3d3dy5zdGFydHNzbC5jb20vMA0GCSqGSIb3DQEBBQUAA4IBAQBzEJsRx6HaUvOV
+/B0csYb35MrO6/rWgjTmjVPXMULv3Gf+pOZ0tqhjTM2eo2+7nmP1e+6fuA1v/WVjgw03+Bc9NJoe
+UklXNtAc+7foYccB3etj2YBDYeYu+kKtrcOPFPALGKOXWph28tXqX53mWny6VJCyzuwBgSSIkVU3
+r3b8l0NKp4sTpijFsr64UjRrlSClXXqiz/tdNg8H/naRcsPo9Yc9vIxBCqR2vjUdW9pF7kj4v6zB
+oXscJSToeLSvCkOkcq9KyDf/zUmzoG8mGa83P2VFl/VeTgPOAoRW9r5BZdDnGK7baf64QwSyE8H3
+z8UmXqAYfR+82M5Gwlyi9wVCMIIGNDCCBBygAwIBAgIBHjANBgkqhkiG9w0BAQUFADB9MQswCQYD
+VQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20gTHRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwg
+Q2VydGlmaWNhdGUgU2lnbmluZzEpMCcGA1UEAxMgU3RhcnRDb20gQ2VydGlmaWNhdGlvbiBBdXRo
+b3JpdHkwHhcNMDcxMDI0MjEwMTU1WhcNMTcxMDI0MjEwMTU1WjCBjDELMAkGA1UEBhMCSUwxFjAU
+BgNVBAoTDVN0YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRl
+IFNpZ25pbmcxODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUg
+Q2xpZW50IENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxwmDzM4t2BqxKaQuE6uW
+vooyg4ymiEGWVUet1G8SD+rqvyNH4QrvnEIaFHxOhESip7vMz39ScLpNLbL1QpOlPW/tFIzNHS3q
+d2XRNYG5Sv9RcGE+T4qbLtsjjJbi6sL7Ls/f/X9ftTyhxvxWkf8KW37iKrueKsxw2HqolH7GM6FX
+5UfNAwAu4ZifkpmZzU1slBhyWwaQPEPPZRsWoTb7q8hmgv6Nv3Hg9rmA1/VPBIOQ6SKRkHXG0Hhm
+q1dOFoAFI411+a/9nWm5rcVjGcIWZ2v/43Yksq60jExipA4l5uv9/+Hm33mbgmCszdj/Dthf13tg
+Av2O83hLJ0exTqfrlwIDAQABo4IBrTCCAakwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMC
+AQYwHQYDVR0OBBYEFFNy7ZKc4NrLAVx8fpY1TvLUuFGCMB8GA1UdIwQYMBaAFE4L7xqkQFulF2mH
+MMo0aEPQQa7yMGYGCCsGAQUFBwEBBFowWDAnBggrBgEFBQcwAYYbaHR0cDovL29jc3Auc3RhcnRz
+c2wuY29tL2NhMC0GCCsGAQUFBzAChiFodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS9zZnNjYS5jcnQw
+WwYDVR0fBFQwUjAnoCWgI4YhaHR0cDovL3d3dy5zdGFydHNzbC5jb20vc2ZzY2EuY3JsMCegJaAj
+hiFodHRwOi8vY3JsLnN0YXJ0c3NsLmNvbS9zZnNjYS5jcmwwgYAGA1UdIAR5MHcwdQYLKwYBBAGB
+tTcBAgEwZjAuBggrBgEFBQcCARYiaHR0cDovL3d3dy5zdGFydHNzbC5jb20vcG9saWN5LnBkZjA0
+BggrBgEFBQcCARYoaHR0cDovL3d3dy5zdGFydHNzbC5jb20vaW50ZXJtZWRpYXRlLnBkZjANBgkq
+hkiG9w0BAQUFAAOCAgEACoMIfXirLAZcuGOMXq4cuSN3TaFx2H2GvD5VSy/6rV55BYHbWNaPeQn3
+oBSU8KgQZn/Kck1JxbLpAxVCNtsxeW1R87ifhsYZ0qjdrA9anrW2MAWCtosmAOT4OxK9QPoSjCMx
+M3HbkZCDJgnlE8jMopH21BbyAYr7b5EfGRQJNtgWcvqSXwKHnTutR08+Kkn0KAkXCzeQNLeA5LlY
+UzFyM7kPAp8pIRMQ+seHunmyG642S2+y/qHEdMuGIwpfz3eDF1PdctL04qYK/zu+Qg1Bw0RwgigV
+Zs/0c5HP2/e9DBHh7eSwtzYlk4AUr6yxLlcwSjOfOmKEQ/Q8tzh0IFiNu9IPuTGAPBn4CPxD0+Ru
+8T2wg8/s43R/PT3kd1OEqOJUl7q+h+r6fpvU0Fzxd2tC8Ga6fDEPme+1Nbi+03pVjuZQKbGwKJ66
+gEn06WqaxVZC+J8hh/jR0k9mST1iAZPNYulcNJ8tKmVtjYsv0L1TSm2+NwON58tO+pIVzu3DWwSE
+XSf+qkDavQam+QtEOZxLBXI++aMUEapSn+k3Lxm48ZCYfAWLb/Xj7F5JQMbZvCexglAbYR0kIHqW
+5DnsYSdMD/IplJMojx0NBrxJ3fN9dvX2Y6BIXRsF1du4qESm4/3CKuyUV7p9DW3mPlHTGLvYxnyK
+Qy7VFBkoLINszBrOUeIxggNvMIIDawIBATCBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0
+YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcx
+ODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENB
+AgMN7zcwCQYFKw4DAhoFAKCCAa8wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0B
+CQUxDxcNMTUxMDI4MDY1MzI0WjAjBgkqhkiG9w0BCQQxFgQUlLSKVKhY84172Ax341BE7FsCjx8w
+gaUGCSsGAQQBgjcQBDGBlzCBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0
+ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2BgNVBAMT
+L1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMN7zcwgacG
+CyqGSIb3DQEJEAILMYGXoIGUMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20gTHRk
+LjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUgU2lnbmluZzE4MDYGA1UEAxMv
+U3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0ZSBDbGllbnQgQ0ECAw3vNzANBgkq
+hkiG9w0BAQEFAASCAQB8FQMO07jhwecC+vf5nK05Gw9e7NhGKUj9VFnWTMz8F5TSuioqjYbkaA9f
+hmrosofO1NcMffeRMsKLb7WrTJEKsIeMJc+lSEeMQwyU24zrRzJvtVv4Z/RWFEwY4wXRK5ThUJAh
+zsXAXsEjTaBCOvMEUlnsDrJbw71Mj7IIZdYZwZQPOH4GURNX3Kfmk0YjUOeyA60REri6uoulPbr3
+Ouh8g3yhzIUrPcdRVgbAt31K1zOAmehTc5UsBiDLdga1Eok+BbIE7Wbx4iLw3a6TbrYKC18V8FsP
+/JtWGmUIwXp9PsqTf+cFC+l+UcUQZVry6QIwTKXaRXb6vEpHz9Qxr1P5AAAAAAAA
+
+
+--=-VnBVHoaJ+wMreurU1sdx--
+
+
+--===============8970494224941022292==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8970494224941022292==--
