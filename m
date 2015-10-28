@@ -1,17 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
-Date: Wed, 28 Oct 2015 13:23:11 +0200
-Message-ID: <20151028132115-mutt-send-email-mst@redhat.com>
+Date: Wed, 28 Oct 2015 13:35:22 +0200
+Message-ID: <20151028132331-mutt-send-email-mst@redhat.com>
 References: <cover.1446014204.git.luto@kernel.org>
 	<20151028091208-mutt-send-email-mst@redhat.com>
 	<56307BD1.6010806@de.ibm.com>
-	<1446021413.1856.28.camel@kernel.crashing.org>
+	<1446019787.3405.203.camel@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1446021413.1856.28.camel@kernel.crashing.org>
+In-Reply-To: <1446019787.3405.203.camel@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,24 +23,48 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, dwmw2@infradead.org, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Oct 28, 2015 at 05:36:53PM +0900, Benjamin Herrenschmidt wrote:
-> On Wed, 2015-10-28 at 16:40 +0900, Christian Borntraeger wrote:
-> > We have discussed that at kernel summit. I will try to implement a dummy dma_ops for
-> > s390 that does 1:1 mapping and Ben will look into doing some quirk to handle "old"
-> > code in addition to also make it possible to mark devices as iommu bypass (IIRC,
-> > via device tree, Ben?)
-> 
-> Something like that yes. I'll look into it when I'm back home.
-> 
-> Cheers,
-> Ben.
-
-OK so I guess that means we should prefer a transport-specific
-interface in virtio-pci then.
-
--- 
-MST
+T24gV2VkLCBPY3QgMjgsIDIwMTUgYXQgMDU6MDk6NDdQTSArMDkwMCwgRGF2aWQgV29vZGhvdXNl
+IHdyb3RlOgo+IE9uIFdlZCwgMjAxNS0xMC0yOCBhdCAxNjo0MCArMDkwMCwgQ2hyaXN0aWFuIEJv
+cm50cmFlZ2VyIHdyb3RlOgo+ID4gQW0gMjguMTAuMjAxNSB1bSAxNjoxNyBzY2hyaWViIE1pY2hh
+ZWwgUy4gVHNpcmtpbjoKPiA+ID4gT24gVHVlLCBPY3QgMjcsIDIwMTUgYXQgMTE6Mzg6NTdQTSAt
+MDcwMCwgQW5keSBMdXRvbWlyc2tpIHdyb3RlOgo+ID4gPiA+IFRoaXMgc3dpdGNoZXMgdmlydGlv
+IHRvIHVzZSB0aGUgRE1BIEFQSSB1bmNvbmRpdGlvbmFsbHkuICBJJ20gc3VyZQo+ID4gPiA+IGl0
+IGJyZWFrcyB0aGluZ3MsIGJ1dCBpdCBzZWVtcyB0byB3b3JrIG9uIHg4NiB1c2luZyB2aXJ0aW8t
+cGNpLCB3aXRoCj4gPiA+ID4gYW5kIHdpdGhvdXQgWGVuLCBhbmQgdXNpbmcgYm90aCB0aGUgbW9k
+ZXJuIDEuMCB2YXJpYW50IGFuZCB0aGUKPiA+ID4gPiBsZWdhY3kgdmFyaWFudC4KPiA+ID4gCj4g
+PiA+IEknbSB2ZXJ5IGdsYWQgdG8gc2VlIHdvcmsgb24gdGhpcyBtYWtpbmcgcHJvZ3Jlc3MuCj4g
+PiA+IAo+ID4gPiBJIHN1c3BlY3Qgd2UnbGwgaGF2ZSB0byBmaW5kIGEgd2F5IHRvIG1ha2UgdGhp
+cyBvcHRpb25hbCB0aG91Z2gsIGFuZAo+ID4gPiBrZWVwIGRvaW5nIHRoZSBub24tRE1BIEFQSSB0
+aGluZyB3aXRoIG9sZCBkZXZpY2VzLiAgQW5kIEkndmUgYmVlbgo+ID4gPiBkZWJhdGluZyB3aXRo
+IG15c2VsZiB3aGV0aGVyIGEgcGNpIHNwZWNpZmljIHRoaW5nIG9yIGEgZmVhdHVyZSBiaXQgaXMK
+PiA+ID4gcHJlZmVyYWJsZS4KPiA+ID4gCj4gPiAKPiA+IFdlIGhhdmUgZGlzY3Vzc2VkIHRoYXQg
+YXQga2VybmVsIHN1bW1pdC4gSSB3aWxsIHRyeSB0byBpbXBsZW1lbnQgYSBkdW1teSBkbWFfb3Bz
+IGZvcgo+ID4gczM5MCB0aGF0IGRvZXMgMToxIG1hcHBpbmcgYW5kIEJlbiB3aWxsIGxvb2sgaW50
+byBkb2luZyBzb21lIHF1aXJrIHRvIGhhbmRsZSAib2xkIgo+ID4gY29kZSBpbiBhZGRpdGlvbiB0
+byBhbHNvIG1ha2UgaXQgcG9zc2libGUgdG8gbWFyayBkZXZpY2VzIGFzIGlvbW11IGJ5cGFzcyAo
+SUlSQywKPiA+IHZpYSBkZXZpY2UgdHJlZSwgQmVuPykKPiAKPiBSaWdodC4gWW91IG5ldmVyIGVz
+Y2hldyB0aGUgRE1BIEFQSSBpbiB0aGUgKmRyaXZlciog4oCUIHlvdSBqdXN0IGV4cGVjdAo+IHRo
+ZSBETUEgQVBJIHRvIGRvIHRoZSByaWdodCB0aGluZyBmb3IgZGV2aWNlcyB3aGljaCBkb24ndCBu
+ZWVkCj4gdHJhbnNsYXRpb24gKHdpdGggcGxhdGZvcm1zIHVzaW5nIHBlci1kZXZpY2UgZG1hX29w
+cyBhbmQgZ2VuZXJhbGx5Cj4gZ2V0dGluZyB0aGVpciBhY3QgdG9nZXRoZXIpLgo+IFdlJ3JlIHB1
+c2hpbmcgdGhhdCBvbiB0aGUgcGxhdGZvcm1zIHdoZXJlIGl0J3MgY3VycmVudGx5IGFuIGlzc3Vl
+LAo+IGluY2x1ZGluZyBQb3dlciwgU1BBUkMgYW5kIFMzOTAuCj4gCj4gLS0gCj4gZHdtdzIKPiAK
+PiAKCldlbGwgQVBJcyBhcmUganVzdCB0aGF0IC0gaW50ZXJuYWwga2VybmVsIEFQSXMuCklmIHRo
+ZSBvbmx5IHVzZXIgb2YgYW4gQVBJIGlzIHZpcnRpbywgd2UgY2FuIHN0cmljayB0aGUKY29kZSBp
+biB2aXJ0aW8uaCBqdXN0IGFzIHdlbGwuCkkgdGhpbmsgY29udHJvbGxpbmcgdGhpcyBkeW5hbWlj
+YWxseSBhbmQgbm90IHN0YXRpY2FsbHkKaW4gZS5nLiBkZXZpY2V0cmVlIGlzIGltcG9ydGFudCB0
+aG91Z2guCgpFLmcuIG9uIGludGVsIHg4NiwgdGhlcmUncyBhbiBvcHRpb24gaW9tbXU9cHQgd2hp
+Y2ggZG9lcyB0aGUgMToxCnRoaW5nIGZvciBkZXZpY2VzIHdoZW4gdXNlZCBieSBrZXJuZWwsIGJ1
+dCBlbmFibGVzCnRoZSBpb21tdSBpZiB1c2VkIGJ5IHVzZXJzcGFjZS9WTXMuCgpTb21ldGhpbmcg
+bGlrZSB0aGlzIHdvdWxkIGJlIG5lZWRlZCBmb3Igb3RoZXIgcGxhdGZvcm1zIElNSE8uCgpBbmQg
+Z2l2ZW4gdGhhdAoxLiB2aXJ0aW8gc2VlbXMgdGhlIG9ubHkgdXNlciBzbyBmYXIKMi4gc3VwcG9y
+dGluZyB0aGlzIHBlciBkZXZpY2Ugc2VlbXMgbGlrZSBzb21ldGhpbmcgdGhhdAogICBtaWdodCBi
+ZWNvbWUgdXNlZnVsIGluIHRoZSBmdXR1cmUKbWF5YmUgd2UnZCBiZXR0ZXIgbWFrZSB0aGlzIHBh
+cnQgb2YgdmlydGlvIHRyYW5zcG9ydHMuCgotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
