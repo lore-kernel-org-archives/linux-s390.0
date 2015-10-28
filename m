@@ -1,54 +1,66 @@
-From: Andy Lutomirski <luto@amacapital.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
-Date: Wed, 28 Oct 2015 00:09:54 -0700
-Message-ID: <CALCETrVGggDO94DdAMUsA0KyJnvqLXT4mWcc18VRBft+DsUN4g@mail.gmail.com>
-References: <cover.1446014204.git.luto@kernel.org> <1446015204.3405.186.camel@infradead.org>
+Date: Wed, 28 Oct 2015 09:17:02 +0200
+Message-ID: <20151028091208-mutt-send-email-mst@redhat.com>
+References: <cover.1446014204.git.luto@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1446015204.3405.186.camel@infradead.org>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <cover.1446014204.git.luto@kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, KVM <kvm@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Andy Lutomirski <luto@kernel.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, dwmw2@infradead.org, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Oct 27, 2015 at 11:53 PM, David Woodhouse <dwmw2@infradead.org> wrote:
-> On Tue, 2015-10-27 at 23:38 -0700, Andy Lutomirski wrote:
->>
->> Changes from v2:
->>  - Fix really embarrassing bug.  This version actually works.
->
-> So embarrassing you didn't want to tell us what it was? ...
+On Tue, Oct 27, 2015 at 11:38:57PM -0700, Andy Lutomirski wrote:
+> This switches virtio to use the DMA API unconditionally.  I'm sure
+> it breaks things, but it seems to work on x86 using virtio-pci, with
+> and without Xen, and using both the modern 1.0 variant and the
+> legacy variant.
 
-Shhh, it's a secret!
+I'm very glad to see work on this making progress.
 
-I somehow managed to test-boot a different kernel than I thought I was booting.
+I suspect we'll have to find a way to make this optional though, and
+keep doing the non-DMA API thing with old devices.  And I've been
+debating with myself whether a pci specific thing or a feature bit is
+preferable.
 
->
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -292,7 +292,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
->                         vq, desc, total_sg * sizeof(struct vring_desc),
->                         DMA_TO_DEVICE);
->
-> -               if (vring_mapping_error(vq, vq->vring.desc[head].addr))
-> +               if (vring_mapping_error(vq, addr))
->                         goto unmap_release;
->
->                 vq->vring.desc[head].flags = cpu_to_virtio16(_vq->vdev, VRING_DESC_F_INDIRECT);
->
-> That wasn't going to be the reason for Christian's failure, was it?
->
+Thoughts?
 
-Not obviously, but it's possible.  Now that I'm staring at it, I have
-some more big-endian issues, so there'll be a v4.  I'll also play with
-Michael's thing.  Expect a long delay, though -- my flight's about to
-leave.
-
-The readme notwithstanding, virtme (https://github.com/amluto/virtme)
-actually has s390x support, so I can try to debug when I get home.
-I'm not about to try doing this on a laptop :)
-
---Andy
+> Changes from v2:
+>  - Fix really embarrassing bug.  This version actually works.
+> 
+> Changes from v1:
+>  - Fix an endian conversion error causing a BUG to hit.
+>  - Fix a DMA ordering issue (swiotlb=force works now).
+>  - Minor cleanups.
+> 
+> Andy Lutomirski (3):
+>   virtio_net: Stop doing DMA from the stack
+>   virtio_ring: Support DMA APIs
+>   virtio_pci: Use the DMA API
+> 
+>  drivers/net/virtio_net.c           |  53 +++++++----
+>  drivers/virtio/Kconfig             |   2 +-
+>  drivers/virtio/virtio_pci_common.h |   3 +-
+>  drivers/virtio/virtio_pci_legacy.c |  19 +++-
+>  drivers/virtio/virtio_pci_modern.c |  34 +++++--
+>  drivers/virtio/virtio_ring.c       | 187 ++++++++++++++++++++++++++++++-------
+>  tools/virtio/linux/dma-mapping.h   |  17 ++++
+>  7 files changed, 246 insertions(+), 69 deletions(-)
+>  create mode 100644 tools/virtio/linux/dma-mapping.h
+> 
+> -- 
+> 2.4.3
