@@ -1,15 +1,16 @@
 From: David Woodhouse <dwmw2@infradead.org>
 Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
-Date: Wed, 28 Oct 2015 22:35:27 +0900
-Message-ID: <1446039327.3405.216.camel@infradead.org>
+Date: Wed, 28 Oct 2015 22:37:56 +0900
+Message-ID: <1446039476.3405.217.camel@infradead.org>
 References: <cover.1446014204.git.luto@kernel.org>
 	<20151028091208-mutt-send-email-mst@redhat.com>
-	<56307BD1.6010806@de.ibm.com> <1446019787.3405.203.camel@infradead.org>
-	<20151028132331-mutt-send-email-mst@redhat.com>
+	<56307BD1.6010806@de.ibm.com>
+	<1446021413.1856.28.camel@kernel.crashing.org>
+	<20151028132115-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4328582266845074071=="
+Content-Type: multipart/mixed; boundary="===============3991729801838666164=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20151028132331-mutt-send-email-mst@redhat.com>
+In-Reply-To: <20151028132115-mutt-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,44 +22,48 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
---===============4328582266845074071==
+--===============3991729801838666164==
 Content-Type: multipart/signed; micalg="sha-1"; protocol="application/x-pkcs7-signature";
-	boundary="=-MqYU5QODdNdpWA32ZZbQ"
+	boundary="=-CHN7lNGpH864AilUWwud"
 
 
---=-MqYU5QODdNdpWA32ZZbQ
+--=-CHN7lNGpH864AilUWwud
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2015-10-28 at 13:35 +0200, Michael S. Tsirkin wrote:
-> E.g. on intel x86, there's an option iommu=3Dpt which does the 1:1
-> thing for devices when used by kernel, but enables
-> the iommu if used by userspace/VMs.
+On Wed, 2015-10-28 at 13:23 +0200, Michael S. Tsirkin wrote:
+> On Wed, Oct 28, 2015 at 05:36:53PM +0900, Benjamin Herrenschmidt
+> wrote:
+> > On Wed, 2015-10-28 at 16:40 +0900, Christian Borntraeger wrote:
+> > > We have discussed that at kernel summit. I will try to implement
+> > > a dummy dma_ops for
+> > > s390 that does 1:1 mapping and Ben will look into doing some
+> > > quirk to handle "old"
+> > > code in addition to also make it possible to mark devices as
+> > > iommu bypass (IIRC,
+> > > via device tree, Ben?)
+> >=20
+> > Something like that yes. I'll look into it when I'm back home.
+> >=20
+> > Cheers,
+> > Ben.
+>=20
+> OK so I guess that means we should prefer a transport-specific
+> interface in virtio-pci then.
 
-That's none of your business.
-
-You call the DMA API when you do DMA. That's all there is to it.
-
-If the IOMMU happens to be in passthrough mode, or your device happens
-to not to be routed through an IOMMU today, then I/O virtual address
-you get back from the DMA API will look a *lot* like the physical
-address you asked the DMA to map. You might think there's no IOMMU. We
-couldn't possibly comment.
-
-Use the DMA API. Always. Let the platform worry about whether it
-actually needs to *do* anything or not.
+Why?
 
 --=20
 dwmw2
 
 
 
---=-MqYU5QODdNdpWA32ZZbQ
+--=-CHN7lNGpH864AilUWwud
 Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Disposition: attachment; filename="smime.p7s"
 Content-Transfer-Encoding: base64
@@ -151,24 +156,24 @@ Qy7VFBkoLINszBrOUeIxggNvMIIDawIBATCBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0
 YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcx
 ODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENB
 AgMN7zcwCQYFKw4DAhoFAKCCAa8wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0B
-CQUxDxcNMTUxMDI4MTMzNTI3WjAjBgkqhkiG9w0BCQQxFgQUHcrNQi7ZJ3MuGuSgrDjhNmMcThow
+CQUxDxcNMTUxMDI4MTMzNzU3WjAjBgkqhkiG9w0BCQQxFgQUwqqUz85B/WM+RZRAJO83d0EhWIow
 gaUGCSsGAQQBgjcQBDGBlzCBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0
 ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2BgNVBAMT
 L1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMN7zcwgacG
 CyqGSIb3DQEJEAILMYGXoIGUMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20gTHRk
 LjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUgU2lnbmluZzE4MDYGA1UEAxMv
 U3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0ZSBDbGllbnQgQ0ECAw3vNzANBgkq
-hkiG9w0BAQEFAASCAQDIXK0602AhfdUud4W4mQmVCZWMOXjQIFA6xQqSleX+sy6+iljlZaQWlpZ8
-GdiQWi8AHiehRmoDwLbkMFEgIj97Iv8Wn/D4jlqZafxK5pFnmmhMp03kF0Q6Ipl3Z7d2ceaJGgNA
-IfVnzoMiMNC0iq6JRijp/RLMUrpeUO3AmhWwMtaWgQ5HpQmyARGcx6tCdVlmaQcA7V7NNuskBTtc
-lDL273pmWZMzRhL57IBJ0zub8ErNg+RbU99T7/57zt2IS9Uob+uwYN29afhPRUY9Q4sy+UB9PUcS
-rOyW/YUP1Yu76v0m5ixz65UVlrQWUXGV6Tu/Ko/5sCMpkLKerVRE4qAUAAAAAAAA
+hkiG9w0BAQEFAASCAQBcG6mVKrWwXTXXTyMtyOPlHoT6n6MOMdQOHkkbcjmK07wEFRceGQ1/QLaz
+aovfXYY6FPT0wYrP2bSfjFfaZ5uyGpTkhjAhuiaPoSsrXkZDpOMAH1vAjDT26KETyF6lGBoMUmjM
+n03vzUIvEWutWJSw8fJZah98l5caxsjyH/XHQh+8oDERNTTKoF7Iivx8t1Qe/C//bGWXnXB+2MW+
+PkAipPWZvvej2PeeyxpdcnfuUuXhdfu8lTcN2MvEMV/l7O1rMzBC07vMyDlqd5JOFgcQGCCjwNbh
+xp96rv+SRoeCDKh2rbWlGftAhie+q40UG5cAZSQl/i10lr7s/9e+xYZhAAAAAAAA
 
 
---=-MqYU5QODdNdpWA32ZZbQ--
+--=-CHN7lNGpH864AilUWwud--
 
 
---===============4328582266845074071==
+--===============3991729801838666164==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -178,4 +183,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4328582266845074071==--
+--===============3991729801838666164==--
