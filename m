@@ -1,45 +1,75 @@
-From: Joerg Roedel <jroedel@suse.de>
-Subject: Re: [PATCH 3/3] virtio_pci: Use the DMA API
-Date: Wed, 28 Oct 2015 11:50:47 +0900
-Message-ID: <20151028025047.GF18467@suse.de>
-References: <cover.1445994839.git.luto@kernel.org>
- <b954294d8716e96daf827b85594b0e6cbdd7c321.1445994839.git.luto@kernel.org>
- <20151028021530.GC18467@suse.de>
- <1445998972.3405.174.camel@infradead.org>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH 2/3] virtio_ring: Support DMA APIs
+Date: Tue, 27 Oct 2015 22:09:07 -0700
+Message-ID: <CALCETrVKCnhBX+BxLiHJOrV76fAkXW2-q7caw8Sm622vAP5BOg@mail.gmail.com>
+References: <cover.1445994839.git.luto@kernel.org> <6b42014d04258c706c7c43ae739efb30e32496b9.1445994839.git.luto@kernel.org>
+ <563032AB.7000601@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1445998972.3405.174.camel@infradead.org>
+In-Reply-To: <563032AB.7000601@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>, linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, benh@kernel.crashing.org, KVM <kvm@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Andy Lutomirski <luto@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, KVM <kvm@vger.kernel.org>, David Woodhouse <dwmw2@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Oct 28, 2015 at 11:22:52AM +0900, David Woodhouse wrote:
-> On Wed, 2015-10-28 at 11:15 +0900, Joerg Roedel wrote:
-> > I think a good test for that is to boot a virtio kvm-guest with
-> > swiotlb=force and see if it still works.
-> 
-> That's useful but doesn't cover the cases where dma_wmb() is needed,
-> right? 
-> 
-> We should make sure we're handling descriptors properly as we would for
-> real hardware, and ensuring that addresses etc. are written to the
-> descriptor (and a write barrier occurs) *before* the bit is set which
-> tells the 'hardware' that it owns that descriptor.
+On Tue, Oct 27, 2015 at 7:27 PM, Christian Borntraeger
+<borntraeger@de.ibm.com> wrote:
+> Am 28.10.2015 um 10:17 schrieb Andy Lutomirski:
+> @@ -423,27 +522,42 @@ EXPORT_SYMBOL_GPL(virtqueue_kick);
+>>
+>>  static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+>>  {
+>> -     unsigned int i;
+>> +     unsigned int i, j;
+>> +     u16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
+>>
+>>       /* Clear data ptr. */
+>> -     vq->data[head] = NULL;
+>> +     vq->desc_state[head].data = NULL;
+>>
+>> -     /* Put back on free list: find end */
+>> +     /* Put back on free list: unmap first-level descriptors and find end */
+>>       i = head;
+>>
+>> -     /* Free the indirect table */
+>> -     if (vq->vring.desc[i].flags & cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_INDIRECT))
+>> -             kfree(phys_to_virt(virtio64_to_cpu(vq->vq.vdev, vq->vring.desc[i].addr)));
+>> -
+>> -     while (vq->vring.desc[i].flags & cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT)) {
+>> +     while (vq->vring.desc[i].flags & nextflag) {
+>> +             vring_unmap_one(vq, &vq->vring.desc[i]);
+>>               i = virtio16_to_cpu(vq->vq.vdev, vq->vring.desc[i].next);
+>>               vq->vq.num_free++;
+>>       }
+>>
+>> +     vring_unmap_one(vq, &vq->vring.desc[i]);
+>>       vq->vring.desc[i].next = cpu_to_virtio16(vq->vq.vdev, vq->free_head);
+>>       vq->free_head = head;
+>> +
+>>       /* Plus final descriptor */
+>>       vq->vq.num_free++;
+>> +
+>> +     /* Free the indirect table, if any, now that it's unmapped. */
+>> +     if (vq->desc_state[head].indir_desc) {
+>> +             struct vring_desc *indir_desc = vq->desc_state[head].indir_desc;
+>> +             u32 len = vq->vring.desc[head].len;
+>> +
+>> +             BUG_ON(!(vq->vring.desc[head].flags & VRING_DESC_F_INDIRECT));
+>> +             BUG_ON(len == 0 || len % sizeof(struct vring_desc));
+>> +
+>> +             for (j = 0; j < len / sizeof(struct vring_desc); j++)
+>> +                     vring_unmap_one(vq, &indir_desc[j]);
+>> +
+>> +             kfree(vq->desc_state[head].indir_desc);
+>> +             vq->desc_state[head].indir_desc = NULL;
+>> +     }
+>>  }
+>
+> something seems to be broken with indirect descriptors with that change
 
-Hmm, good question. The virtio code has virtio_rmb/wmb and should
-already call it in the right places.
+You're big endian, right?  I had an endian handling bug, and I'll fix it in v2.
 
-The virtio-barriers default to rmb()/wmb() unless weak_barriers is set,
-in which case it calls dma_rmb()/wmb(), just a compiler barrier on x86.
-
-And weak_barriers is set by the virtio drivers when creating the queue,
-and the drivers should know what they are doing. Saying this, I think
-the virtio-drivers should already get this right.
-
-
-	Joerg
+--Andy
