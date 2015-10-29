@@ -1,10 +1,8 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 3/3] KVM: s390: use simple switch statement as multiplexer
-Date: Thu, 29 Oct 2015 16:08:29 +0100
-Message-ID: <1446131309-176770-4-git-send-email-borntraeger@de.ibm.com>
-References: <1446131309-176770-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 0/3] KVM: s390: Bugfix and cleanups for kvm/next (4.4)
+Date: Thu, 29 Oct 2015 16:08:26 +0100
+Message-ID: <1446131309-176770-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1446131309-176770-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,92 +10,38 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-We currently do some magic shifting (by exploiting that exit codes
-are always a multiple of 4) and a table lookup to jump into the
-exit handlers. This causes some calculations and checks, just to
-do an potentially expensive function call.
+The following changes since commit 60417fcc2b0235dfe3dcd589c56dbe3ea1a64c54:
 
-Changing that to a switch statement gives the compiler the chance
-to inline and dynamically decide between jump tables or inline
-compare and branches. In addition it makes the code more readable.
+  KVM: s390: factor out reading of the guest TOD clock (2015-10-13 15:50:35 +0200)
 
-bloat-o-meter gives me a small reduction in code size:
+are available in the git repository at:
 
-add/remove: 0/7 grow/shrink: 1/1 up/down: 986/-1334 (-348)
-function                                     old     new   delta
-kvm_handle_sie_intercept                      72    1058    +986
-handle_prog                                  704     696      -8
-handle_noop                                   54       -     -54
-handle_partial_execution                      60       -     -60
-intercept_funcs                              120       -    -120
-handle_instruction                           198       -    -198
-handle_validity                              210       -    -210
-handle_stop                                  316       -    -316
-handle_external_interrupt                    368       -    -368
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-20151028
 
-Right now my gcc does conditional branches instead of jump tables.
-The inlining seems to give us enough cycles as some micro-benchmarking
-shows minimal improvements, but still in noise.
+for you to fetch changes up to 46b708ea875f14f5496109df053624199f3aae87:
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
+  KVM: s390: use simple switch statement as multiplexer (2015-10-29 15:59:11 +0100)
+
+----------------------------------------------------------------
+KVM: s390: Bugfix and cleanups
+
+There is one important bug fix for a potential memory corruption
+and/or guest errors for guests with 63 or 64 vCPUs. This fix would
+qualify for 4.3 but is some days too late giving that we are
+about to release 4.3.
+Given that this patch is cc stable >= 3.15 anyway, we can handle
+it via 4.4. merge window.
+
+This pull reuqest also contains two cleanups.
+
+----------------------------------------------------------------
+Christian Borntraeger (2):
+      KVM: s390: drop useless newline in debugging data
+      KVM: s390: use simple switch statement as multiplexer
+
+David Hildenbrand (1):
+      KVM: s390: SCA must not cross page boundaries
+
  arch/s390/kvm/intercept.c | 42 +++++++++++++++++++++---------------------
- 1 file changed, 21 insertions(+), 21 deletions(-)
-
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 7365e8a..b4a5aa1 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -336,28 +336,28 @@ static int handle_partial_execution(struct kvm_vcpu *vcpu)
- 	return -EOPNOTSUPP;
- }
- 
--static const intercept_handler_t intercept_funcs[] = {
--	[0x00 >> 2] = handle_noop,
--	[0x04 >> 2] = handle_instruction,
--	[0x08 >> 2] = handle_prog,
--	[0x10 >> 2] = handle_noop,
--	[0x14 >> 2] = handle_external_interrupt,
--	[0x18 >> 2] = handle_noop,
--	[0x1C >> 2] = kvm_s390_handle_wait,
--	[0x20 >> 2] = handle_validity,
--	[0x28 >> 2] = handle_stop,
--	[0x38 >> 2] = handle_partial_execution,
--};
--
- int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- {
--	intercept_handler_t func;
--	u8 code = vcpu->arch.sie_block->icptcode;
--
--	if (code & 3 || (code >> 2) >= ARRAY_SIZE(intercept_funcs))
-+	switch (vcpu->arch.sie_block->icptcode) {
-+	case 0x00:
-+	case 0x10:
-+	case 0x18:
-+		return handle_noop(vcpu);
-+	case 0x04:
-+		return handle_instruction(vcpu);
-+	case 0x08:
-+		return handle_prog(vcpu);
-+	case 0x14:
-+		return handle_external_interrupt(vcpu);
-+	case 0x1c:
-+		return kvm_s390_handle_wait(vcpu);
-+	case 0x20:
-+		return handle_validity(vcpu);
-+	case 0x28:
-+		return handle_stop(vcpu);
-+	case 0x38:
-+		return handle_partial_execution(vcpu);
-+	default:
- 		return -EOPNOTSUPP;
--	func = intercept_funcs[code >> 2];
--	if (func)
--		return func(vcpu);
--	return -EOPNOTSUPP;
-+	}
- }
--- 
-2.4.3
+ arch/s390/kvm/kvm-s390.c  | 12 +++++++-----
+ 2 files changed, 28 insertions(+), 26 deletions(-)
