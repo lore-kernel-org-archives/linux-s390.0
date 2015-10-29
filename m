@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/3] KVM: s390: SCA must not cross page boundaries
-Date: Thu, 29 Oct 2015 16:08:27 +0100
-Message-ID: <1446131309-176770-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 3/3] KVM: s390: use simple switch statement as multiplexer
+Date: Thu, 29 Oct 2015 16:08:29 +0100
+Message-ID: <1446131309-176770-4-git-send-email-borntraeger@de.ibm.com>
 References: <1446131309-176770-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1446131309-176770-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,56 +9,95 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>, stable@vger.kernel.org, #@tuxmaker.boeblingen.de.ibm.com, v3.15+@tuxmaker.boeblingen.de.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Alexander Graf <agraf@suse.de>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+We currently do some magic shifting (by exploiting that exit codes
+are always a multiple of 4) and a table lookup to jump into the
+exit handlers. This causes some calculations and checks, just to
+do an potentially expensive function call.
 
-We seemed to have missed a few corner cases in commit f6c137ff00a4
-("KVM: s390: randomize sca address").
+Changing that to a switch statement gives the compiler the chance
+to inline and dynamically decide between jump tables or inline
+compare and branches. In addition it makes the code more readable.
 
-The SCA has a maximum size of 2112 bytes. By setting the sca_offset to
-some unlucky numbers, we exceed the page.
+bloat-o-meter gives me a small reduction in code size:
 
-0x7c0 (1984) -> Fits exactly
-0x7d0 (2000) -> 16 bytes out
-0x7e0 (2016) -> 32 bytes out
-0x7f0 (2032) -> 48 bytes out
+add/remove: 0/7 grow/shrink: 1/1 up/down: 986/-1334 (-348)
+function                                     old     new   delta
+kvm_handle_sie_intercept                      72    1058    +986
+handle_prog                                  704     696      -8
+handle_noop                                   54       -     -54
+handle_partial_execution                      60       -     -60
+intercept_funcs                              120       -    -120
+handle_instruction                           198       -    -198
+handle_validity                              210       -    -210
+handle_stop                                  316       -    -316
+handle_external_interrupt                    368       -    -368
 
-One VCPU entry is 32 bytes long.
+Right now my gcc does conditional branches instead of jump tables.
+The inlining seems to give us enough cycles as some micro-benchmarking
+shows minimal improvements, but still in noise.
 
-For the last two cases, we actually write data to the other page.
-1. The address of the VCPU.
-2. Injection/delivery/clearing of SIGP externall calls via SIGP IF.
-
-Especially the 2. happens regularly. So this could produce two problems:
-1. The guest losing/getting external calls.
-2. Random memory overwrites in the host.
-
-So this problem happens on every 127 + 128 created VM with 64 VCPUs.
-
-Cc: stable@vger.kernel.org # v3.15+
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/kvm/intercept.c | 42 +++++++++++++++++++++---------------------
+ 1 file changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 618c854..3559617 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1098,7 +1098,9 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	if (!kvm->arch.sca)
- 		goto out_err;
- 	spin_lock(&kvm_lock);
--	sca_offset = (sca_offset + 16) & 0x7f0;
-+	sca_offset += 16;
-+	if (sca_offset + sizeof(struct sca_block) > PAGE_SIZE)
-+		sca_offset = 0;
- 	kvm->arch.sca = (struct sca_block *) ((char *) kvm->arch.sca + sca_offset);
- 	spin_unlock(&kvm_lock);
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 7365e8a..b4a5aa1 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -336,28 +336,28 @@ static int handle_partial_execution(struct kvm_vcpu *vcpu)
+ 	return -EOPNOTSUPP;
+ }
  
+-static const intercept_handler_t intercept_funcs[] = {
+-	[0x00 >> 2] = handle_noop,
+-	[0x04 >> 2] = handle_instruction,
+-	[0x08 >> 2] = handle_prog,
+-	[0x10 >> 2] = handle_noop,
+-	[0x14 >> 2] = handle_external_interrupt,
+-	[0x18 >> 2] = handle_noop,
+-	[0x1C >> 2] = kvm_s390_handle_wait,
+-	[0x20 >> 2] = handle_validity,
+-	[0x28 >> 2] = handle_stop,
+-	[0x38 >> 2] = handle_partial_execution,
+-};
+-
+ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
+ {
+-	intercept_handler_t func;
+-	u8 code = vcpu->arch.sie_block->icptcode;
+-
+-	if (code & 3 || (code >> 2) >= ARRAY_SIZE(intercept_funcs))
++	switch (vcpu->arch.sie_block->icptcode) {
++	case 0x00:
++	case 0x10:
++	case 0x18:
++		return handle_noop(vcpu);
++	case 0x04:
++		return handle_instruction(vcpu);
++	case 0x08:
++		return handle_prog(vcpu);
++	case 0x14:
++		return handle_external_interrupt(vcpu);
++	case 0x1c:
++		return kvm_s390_handle_wait(vcpu);
++	case 0x20:
++		return handle_validity(vcpu);
++	case 0x28:
++		return handle_stop(vcpu);
++	case 0x38:
++		return handle_partial_execution(vcpu);
++	default:
+ 		return -EOPNOTSUPP;
+-	func = intercept_funcs[code >> 2];
+-	if (func)
+-		return func(vcpu);
+-	return -EOPNOTSUPP;
++	}
+ }
 -- 
 2.4.3
