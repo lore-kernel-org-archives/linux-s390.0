@@ -1,71 +1,51 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Shamir Rabinovitch <shamir.rabinovitch@oracle.com>
 Subject: Re: [PATCH v1 2/2] dma-mapping-common: add DMA attribute -
  DMA_ATTR_IOMMU_BYPASS
-Date: Thu, 29 Oct 2015 10:10:46 +0900
-Message-ID: <1446081046.1856.55.camel@kernel.crashing.org>
+Date: Thu, 29 Oct 2015 09:32:32 +0200
+Message-ID: <20151029073231.GE30785@shamir-ThinkPad-T430>
 References: <1445789224-28032-1-git-send-email-shamir.rabinovitch@oracle.com>
-	 <1445789224-28032-2-git-send-email-shamir.rabinovitch@oracle.com>
-	 <1446013801.3405.183.camel@infradead.org>
-	 <20151028111049.GA30785@shamir-ThinkPad-T430>
-	 <1446039110.3405.212.camel@infradead.org>
-	 <1446078721.1856.49.camel@kernel.crashing.org>
-	 <1446079332.3405.273.camel@infradead.org>
+ <1445789224-28032-2-git-send-email-shamir.rabinovitch@oracle.com>
+ <1446013801.3405.183.camel@infradead.org>
+ <20151028111049.GA30785@shamir-ThinkPad-T430>
+ <1446039110.3405.212.camel@infradead.org>
+ <1446078721.1856.49.camel@kernel.crashing.org>
+ <1446079332.3405.273.camel@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <1446079332.3405.273.camel@infradead.org>
-Sender: linux-doc-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Woodhouse <dwmw2@infradead.org>, Shamir Rabinovitch <shamir.rabinovitch@oracle.com>
-Cc: arnd@arndb.de, corbet@lwn.net, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, KVM <kvm@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, arnd@arndb.de, corbet@lwn.net, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, KVM <kvm@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 2015-10-29 at 09:42 +0900, David Woodhouse wrote:
-> On Thu, 2015-10-29 at 09:32 +0900, Benjamin Herrenschmidt wrote:
-> 
-> > On Power, I generally have 2 IOMMU windows for a device, one at the
-> > bottom is remapped, and is generally used for 32-bit devices and the
-> > one at the top us setup as a bypass 
-> 
-> So in the normal case of decent 64-bit devices (and not in a VM),
-> they'll *already* be using the bypass region and have full access to
-> all of memory, all of the time? And you have no protection against
-> driver and firmware bugs causing stray DMA?
+On Thu, Oct 29, 2015 at 09:42:12AM +0900, David Woodhouse wrote:
 
-Correct, we chose to do that for performance reasons.
-
-> > I don't see how thata ttribute would work for us.
-> 
-> Because you're already doing it anyway without being asked :)
-> 
-> If SPARC and POWER are both doing that, perhaps we should change the
-> default for Intel too?
-> 
 > Aside from the lack of security, the other disadvantage of that is that
 > you have to pin *all* pages of a guest in case DMA happens; you don't
 > get to pin *only* those pages which are referenced by that guest's
 > IOMMU page tables...
 
-Correct, the problem is that the cost of doing map/unmap from a guest
-is really a huge hit on things like network devices.
+We do bypass the IOMMU but not the DMA API and given that before we call 
+the DMA API we pin the page then we do not need to pin all the pages.
+Just the ones we use for the DMA. 
 
-Another problem is that the failure mode isn't great if you don't pin. 
+For me this flag looks orthogonal to the page pinning issue you brought. It
+is just a hint to the DMA API that we want to use simple & fast mapping while
+knowing we loose IOMMU protection for this memory.
 
-IE. You have to pin pages as they get mapped into the iommu by the
-guest, but you don't know in advance how much and you may hit the
-process ulimit on pinned pages half way through.
-
-We tried to address that in various ways but it always ended up horrid.
-
-> Maybe we should at least coordinate IOMMU 'paranoid/fast' modes across
-> architectures, and then the DMA_ATTR_IOMMU_BYPASS flag would have a
-> sane meaning in the paranoid mode (and perhaps we'd want an ultra
-> -paranoid mode where it's not honoured).
-
-Possibly, though ideally that would be a user policy but of course by
-the time you get to userspace it's generally too late.
-
-Cheers,
-Ben.
+For the IB case, setting and tearing DMA mappings for the drivers data buffers
+is expensive. But we could for example consider to map all the HW control objects
+that validate the HW access to the drivers data buffers as IOMMU protected and so
+have IOMMU protection on those critical objects while having fast set-up/tear-down
+of driver data buffers. The HW control objects have stable mapping for the lifetime
+of the system. So the case of using both types of DMA mappings is still valid. 
+ 
+> 
+> -- 
+> dwmw2
+> 
+> 
