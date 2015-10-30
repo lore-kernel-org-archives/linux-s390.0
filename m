@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 3/3] s390/dma: Allow per device dma ops
-Date: Fri, 30 Oct 2015 14:20:37 +0100
-Message-ID: <1446211237-111298-4-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 2/3] alpha: use common noop dma ops
+Date: Fri, 30 Oct 2015 14:20:36 +0100
+Message-ID: <1446211237-111298-3-git-send-email-borntraeger@de.ibm.com>
 References: <1446211237-111298-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1446211237-111298-1-git-send-email-borntraeger@de.ibm.com>
@@ -12,117 +12,77 @@ To: Andy Lutomirski <luto@kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>,
 Cc: Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, benh@kernel.crashing.org, KVM <kvm@vger.kernel.org>, dwmw2@infradead.org, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, virtualization@lists.linux-foundation.org, Michael Tsirkin <mst@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-As virtio-ccw now has dma ops, we can no longer default to the PCI ones.
-Make use of dev_archdata to keep the dma_ops per device. The pci devices
-now use that to override the default, and the default is changed to use
-the noop ops for everything that is not PCI. To compile without PCI
-support we also have to enable the DMA api with virtio.
+Some of the alpha pci noop dma ops are identical to the common ones.
+Use them.
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/Kconfig                   | 3 ++-
- arch/s390/include/asm/device.h      | 6 +++++-
- arch/s390/include/asm/dma-mapping.h | 6 ++++--
- arch/s390/pci/pci.c                 | 1 +
- arch/s390/pci/pci_dma.c             | 4 ++--
- 5 files changed, 14 insertions(+), 6 deletions(-)
+ arch/alpha/kernel/pci-noop.c | 46 ++++----------------------------------------
+ 1 file changed, 4 insertions(+), 42 deletions(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 1d57000..04f0e02 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -113,6 +113,7 @@ config S390
- 	select GENERIC_FIND_FIRST_BIT
- 	select GENERIC_SMP_IDLE_THREAD
- 	select GENERIC_TIME_VSYSCALL
-+	select HAS_DMA
- 	select HAVE_ALIGNED_STRUCT_PAGE if SLUB
- 	select HAVE_ARCH_AUDITSYSCALL
- 	select HAVE_ARCH_EARLY_PFN_TO_NID
-@@ -124,6 +125,7 @@ config S390
- 	select HAVE_CMPXCHG_DOUBLE
- 	select HAVE_CMPXCHG_LOCAL
- 	select HAVE_DEBUG_KMEMLEAK
-+	select HAVE_DMA_ATTRS
- 	select HAVE_DYNAMIC_FTRACE
- 	select HAVE_DYNAMIC_FTRACE_WITH_REGS
- 	select HAVE_FTRACE_MCOUNT_RECORD
-@@ -580,7 +582,6 @@ config QDIO
+diff --git a/arch/alpha/kernel/pci-noop.c b/arch/alpha/kernel/pci-noop.c
+index 2b1f4a1..8e735b5e 100644
+--- a/arch/alpha/kernel/pci-noop.c
++++ b/arch/alpha/kernel/pci-noop.c
+@@ -123,44 +123,6 @@ static void *alpha_noop_alloc_coherent(struct device *dev, size_t size,
+ 	return ret;
+ }
  
- menuconfig PCI
- 	bool "PCI support"
--	select HAVE_DMA_ATTRS
- 	select PCI_MSI
- 	help
- 	  Enable PCI support.
-diff --git a/arch/s390/include/asm/device.h b/arch/s390/include/asm/device.h
-index d8f9872..4a9f35e 100644
---- a/arch/s390/include/asm/device.h
-+++ b/arch/s390/include/asm/device.h
-@@ -3,5 +3,9 @@
-  *
-  * This file is released under the GPLv2
-  */
--#include <asm-generic/device.h>
-+struct dev_archdata {
-+	struct dma_map_ops *dma_ops;
-+};
- 
-+struct pdev_archdata {
-+};
-diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
-index b3fd54d..cb05f5c 100644
---- a/arch/s390/include/asm/dma-mapping.h
-+++ b/arch/s390/include/asm/dma-mapping.h
-@@ -11,11 +11,13 @@
- 
- #define DMA_ERROR_CODE		(~(dma_addr_t) 0x0)
- 
--extern struct dma_map_ops s390_dma_ops;
-+extern struct dma_map_ops s390_pci_dma_ops;
- 
- static inline struct dma_map_ops *get_dma_ops(struct device *dev)
+-static void alpha_noop_free_coherent(struct device *dev, size_t size,
+-				     void *cpu_addr, dma_addr_t dma_addr,
+-				     struct dma_attrs *attrs)
+-{
+-	free_pages((unsigned long)cpu_addr, get_order(size));
+-}
+-
+-static dma_addr_t alpha_noop_map_page(struct device *dev, struct page *page,
+-				      unsigned long offset, size_t size,
+-				      enum dma_data_direction dir,
+-				      struct dma_attrs *attrs)
+-{
+-	return page_to_pa(page) + offset;
+-}
+-
+-static int alpha_noop_map_sg(struct device *dev, struct scatterlist *sgl, int nents,
+-			     enum dma_data_direction dir, struct dma_attrs *attrs)
+-{
+-	int i;
+-	struct scatterlist *sg;
+-
+-	for_each_sg(sgl, sg, nents, i) {
+-		void *va;
+-
+-		BUG_ON(!sg_page(sg));
+-		va = sg_virt(sg);
+-		sg_dma_address(sg) = (dma_addr_t)virt_to_phys(va);
+-		sg_dma_len(sg) = sg->length;
+-	}
+-
+-	return nents;
+-}
+-
+-static int alpha_noop_mapping_error(struct device *dev, dma_addr_t dma_addr)
+-{
+-	return 0;
+-}
+-
+ static int alpha_noop_supported(struct device *dev, u64 mask)
  {
--	return &s390_dma_ops;
-+	if (dev && dev->archdata.dma_ops)
-+		return dev->archdata.dma_ops;
-+	return &dma_noop_ops;
- }
+ 	return mask < 0x00ffffffUL ? 0 : 1;
+@@ -168,10 +130,10 @@ static int alpha_noop_supported(struct device *dev, u64 mask)
  
- static inline void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 7ef12a3..fa41605 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -649,6 +649,7 @@ int pcibios_add_device(struct pci_dev *pdev)
- 
- 	zdev->pdev = pdev;
- 	pdev->dev.groups = zpci_attr_groups;
-+	pdev->dev.archdata.dma_ops = &s390_pci_dma_ops;
- 	zpci_map_resources(pdev);
- 
- 	for (i = 0; i < PCI_BAR_COUNT; i++) {
-diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
-index 37505b8..ea39c3f 100644
---- a/arch/s390/pci/pci_dma.c
-+++ b/arch/s390/pci/pci_dma.c
-@@ -495,7 +495,7 @@ static int __init dma_debug_do_init(void)
- }
- fs_initcall(dma_debug_do_init);
- 
--struct dma_map_ops s390_dma_ops = {
-+struct dma_map_ops s390_pci_dma_ops = {
- 	.alloc		= s390_dma_alloc,
- 	.free		= s390_dma_free,
- 	.map_sg		= s390_dma_map_sg,
-@@ -506,7 +506,7 @@ struct dma_map_ops s390_dma_ops = {
- 	.is_phys	= 0,
- 	/* dma_supported is unconditionally true without a callback */
+ struct dma_map_ops alpha_noop_ops = {
+ 	.alloc			= alpha_noop_alloc_coherent,
+-	.free			= alpha_noop_free_coherent,
+-	.map_page		= alpha_noop_map_page,
+-	.map_sg			= alpha_noop_map_sg,
+-	.mapping_error		= alpha_noop_mapping_error,
++	.free			= dma_noop_free_coherent,
++	.map_page		= dma_noop_map_page,
++	.map_sg			= dma_noop_map_sg,
++	.mapping_error		= dma_noop_mapping_error,
+ 	.dma_supported		= alpha_noop_supported,
  };
--EXPORT_SYMBOL_GPL(s390_dma_ops);
-+EXPORT_SYMBOL_GPL(s390_pci_dma_ops);
  
- static int __init s390_iommu_setup(char *str)
- {
 -- 
 2.4.3
