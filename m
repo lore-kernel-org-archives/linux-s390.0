@@ -1,184 +1,107 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v4 1/6] virtio-net: Stop doing DMA from the stack
-Date: Fri, 30 Oct 2015 14:55:30 +0100
-Message-ID: <563376D2.20502@de.ibm.com>
-References: <cover.1446162273.git.luto@kernel.org>
- <8d6b1fc3b5d3b6f5e8b212ef690691a52fbefaff.1446162273.git.luto@kernel.org>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH v4 2/6] virtio_ring: Support DMA APIs
+Date: Fri, 30 Oct 2015 11:51:29 -0700
+Message-ID: <CALCETrV4Fub=KakqjVd6WY9fVgUwRFPyHZjfBmDv9M6oteibEA@mail.gmail.com>
+References: <cover.1446162273.git.luto@kernel.org> <7c590bf685f5cbc3f01e42bdbc1dbe3ffd83420f.1446162273.git.luto@kernel.org>
+ <20151030130116.52a87922.cornelia.huck@de.ibm.com> <56335CF7.2050101@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <sparclinux-owner@vger.kernel.org>
-In-Reply-To: <8d6b1fc3b5d3b6f5e8b212ef690691a52fbefaff.1446162273.git.luto@kernel.org>
+In-Reply-To: <56335CF7.2050101@de.ibm.com>
 Sender: sparclinux-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Andy Lutomirski <luto@kernel.org>, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org
-Cc: Joerg Roedel <jroedel@suse.de>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, benh@kernel.crashing.org, KVM <kvm@vger.kernel.org>, dwmw2@infradead.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Joerg Roedel <jroedel@suse.de>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, KVM <kvm@vger.kernel.org>, David Woodhouse <dwmw2@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Am 30.10.2015 um 02:09 schrieb Andy Lutomirski:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> 
-> Once virtio starts using the DMA API, we won't be able to safely DMA
-> from the stack.  virtio-net does a couple of config DMA requests
-> from small stack buffers -- switch to using dynamically-allocated
-> memory.
-> 
-> This should have no effect on any performance-critical code paths.
-> 
-> [I wrote the subject and commit message.  mst wrote the code. --luto]
-> 
-> Signed-off-by: Andy Lutomirski <luto@kernel.org>
-> signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+On Fri, Oct 30, 2015 at 5:05 AM, Christian Borntraeger
+<borntraeger@de.ibm.com> wrote:
+> Am 30.10.2015 um 13:01 schrieb Cornelia Huck:
+>> On Thu, 29 Oct 2015 18:09:47 -0700
+>> Andy Lutomirski <luto@kernel.org> wrote:
+>>
+>>> virtio_ring currently sends the device (usually a hypervisor)
+>>> physical addresses of its I/O buffers.  This is okay when DMA
+>>> addresses and physical addresses are the same thing, but this isn't
+>>> always the case.  For example, this never works on Xen guests, and
+>>> it is likely to fail if a physical "virtio" device ever ends up
+>>> behind an IOMMU or swiotlb.
+>>>
+>>> The immediate use case for me is to enable virtio on Xen guests.
+>>> For that to work, we need vring to support DMA address translation
+>>> as well as a corresponding change to virtio_pci or to another
+>>> driver.
+>>>
+>>> With this patch, if enabled, virtfs survives kmemleak and
+>>> CONFIG_DMA_API_DEBUG.
+>>>
+>>> Signed-off-by: Andy Lutomirski <luto@kernel.org>
+>>> ---
+>>>  drivers/virtio/Kconfig           |   2 +-
+>>>  drivers/virtio/virtio_ring.c     | 190 +++++++++++++++++++++++++++++++--------
+>>>  tools/virtio/linux/dma-mapping.h |  17 ++++
+>>>  3 files changed, 172 insertions(+), 37 deletions(-)
+>>>  create mode 100644 tools/virtio/linux/dma-mapping.h
+>>
+>>>  static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+>>>  {
+>>> -    unsigned int i;
+>>> +    unsigned int i, j;
+>>> +    u16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
+>>>
+>>>      /* Clear data ptr. */
+>>> -    vq->data[head] = NULL;
+>>> +    vq->desc_state[head].data = NULL;
+>>>
+>>> -    /* Put back on free list: find end */
+>>> +    /* Put back on free list: unmap first-level descriptors and find end */
+>>>      i = head;
+>>>
+>>> -    /* Free the indirect table */
+>>> -    if (vq->vring.desc[i].flags & cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_INDIRECT))
+>>> -            kfree(phys_to_virt(virtio64_to_cpu(vq->vq.vdev, vq->vring.desc[i].addr)));
+>>> -
+>>> -    while (vq->vring.desc[i].flags & cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT)) {
+>>> +    while (vq->vring.desc[i].flags & nextflag) {
+>>> +            vring_unmap_one(vq, &vq->vring.desc[i]);
+>>>              i = virtio16_to_cpu(vq->vq.vdev, vq->vring.desc[i].next);
+>>>              vq->vq.num_free++;
+>>>      }
+>>>
+>>> +    vring_unmap_one(vq, &vq->vring.desc[i]);
+>>>      vq->vring.desc[i].next = cpu_to_virtio16(vq->vq.vdev, vq->free_head);
+>>>      vq->free_head = head;
+>>> +
+>>>      /* Plus final descriptor */
+>>>      vq->vq.num_free++;
+>>> +
+>>> +    /* Free the indirect table, if any, now that it's unmapped. */
+>>> +    if (vq->desc_state[head].indir_desc) {
+>>> +            struct vring_desc *indir_desc = vq->desc_state[head].indir_desc;
+>>> +            u32 len = vq->vring.desc[head].len;
+>>
+>> This one needs to be virtio32_to_cpu(...) as well.
+>
+> Yes, just did the exact same change
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index f269e1c..f2249df 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -556,7 +556,7 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+>         /* Free the indirect table, if any, now that it's unmapped. */
+>         if (vq->desc_state[head].indir_desc) {
+>                 struct vring_desc *indir_desc = vq->desc_state[head].indir_desc;
+> -               u32 len = vq->vring.desc[head].len;
+> +               u32 len = virtio32_to_cpu(vq->vq.vdev, vq->vring.desc[head].len);
+>
+>                 BUG_ON(!(vq->vring.desc[head].flags &
+>                          cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_INDIRECT)));
+>
+>
+> now it boots.
 
-I still get an error when using multiqueue:
+Thanks!  I applied this to my tree.  I won't send a new version quite
+yet, though, to reduce inbox load.
 
-#  ethtool -L eth0 combined 4
-[   33.534686] virtio_ccw 0.0.000d: DMA-API: device driver maps memory from stack [addr=00000000629e7c06]
-[   33.534704] ------------[ cut here ]------------
-[   33.534705] WARNING: at lib/dma-debug.c:1169
-[   33.534706] Modules linked in: dm_multipath
-[   33.534709] CPU: 1 PID: 1087 Comm: ethtool Not tainted 4.3.0-rc3+ #269
-[   33.534710] task: 00000000616f9978 ti: 00000000629e4000 task.ti: 00000000629e4000
-[   33.534712] Krnl PSW : 0704d00180000000 00000000005869d2 (check_for_stack+0xb2/0x118)
-[   33.534716]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 EA:3
-Krnl GPRS: 000000000000006a 0000000000d60f44 000000000000005a 0000000064ee0870
-[   33.534718]            00000000005869ce 0000000000000000 0000000000000001 00000000629e7c06
-[   33.534719]            0000000000000000 0000000000000c06 0000000000000002 000000006467f800
-[   33.534720]            0000000064673428 00000000629e7c06 00000000005869ce 00000000629e7928
-[   33.534726] Krnl Code: 00000000005869c2: c0200024ad4e	larl	%r2,a1c45e
-           00000000005869c8: c0e5ffe6d6fc	brasl	%r14,2617c0
-          #00000000005869ce: a7f40001		brc	15,5869d0
-          >00000000005869d2: c010003465eb	larl	%r1,c135a8
-           00000000005869d8: e31010000012	lt	%r1,0(%r1)
-           00000000005869de: a784000a		brc	8,5869f2
-           00000000005869e2: e340f0b00004	lg	%r4,176(%r15)
-           00000000005869e8: ebcff0a00004	lmg	%r12,%r15,160(%r15)
-[   33.534736] Call Trace:
-[   33.534737] ([<00000000005869ce>] check_for_stack+0xae/0x118)
-[   33.534738]  [<0000000000586e3c>] debug_dma_map_page+0x114/0x160
-[   33.534740]  [<00000000005a31f8>] vring_map_one_sg.isra.7+0x98/0xc0
-[   33.534742]  [<00000000005a3b72>] virtqueue_add_sgs+0x1e2/0x788
-[   33.534744]  [<0000000000618afc>] virtnet_send_command+0xcc/0x140
-[   33.534745]  [<0000000000618c0c>] virtnet_set_queues+0x9c/0x110
-[   33.534747]  [<0000000000619928>] virtnet_set_channels+0x78/0xe0
-[   33.534748]  [<00000000006f63ea>] ethtool_set_channels+0x62/0x88
-[   33.534750]  [<00000000006f8900>] dev_ethtool+0x10d8/0x1a48
-[   33.534752]  [<000000000070c540>] dev_ioctl+0x190/0x510
-[   33.534754]  [<00000000006cf2da>] sock_do_ioctl+0x7a/0x90
-[   33.534755]  [<00000000006cf840>] sock_ioctl+0x1e8/0x2d0
-[   33.534758]  [<00000000002e6c78>] do_vfs_ioctl+0x3a8/0x508
-[   33.534759]  [<00000000002e6e7c>] SyS_ioctl+0xa4/0xb8
-[   33.534762]  [<00000000008231ec>] system_call+0x244/0x264
-[   33.534763]  [<000003ff922026d2>] 0x3ff922026d2
-[   33.534764] Last Breaking-Event-Address:
-[   33.534765]  [<00000000005869ce>] check_for_stack+0xae/0x118
-[   33.534766] ---[ end trace 2379df65f4decfc4 ]---
-
-
-> ---
->  drivers/net/virtio_net.c | 34 +++++++++++++++++++---------------
->  1 file changed, 19 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index d8838dedb7a4..f94ab786088f 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -140,6 +140,12 @@ struct virtnet_info {
-> 
->  	/* CPU hot plug notifier */
->  	struct notifier_block nb;
-> +
-> +	/* Control VQ buffers: protected by the rtnl lock */
-> +	struct virtio_net_ctrl_hdr ctrl_hdr;
-> +	virtio_net_ctrl_ack ctrl_status;
-> +	u8 ctrl_promisc;
-> +	u8 ctrl_allmulti;
->  };
-> 
->  struct padded_vnet_hdr {
-> @@ -976,31 +982,30 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
->  				 struct scatterlist *out)
->  {
->  	struct scatterlist *sgs[4], hdr, stat;
-> -	struct virtio_net_ctrl_hdr ctrl;
-> -	virtio_net_ctrl_ack status = ~0;
->  	unsigned out_num = 0, tmp;
-> 
->  	/* Caller should know better */
->  	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
-> 
-> -	ctrl.class = class;
-> -	ctrl.cmd = cmd;
-> +	vi->ctrl_status = ~0;
-> +	vi->ctrl_hdr.class = class;
-> +	vi->ctrl_hdr.cmd = cmd;
->  	/* Add header */
-> -	sg_init_one(&hdr, &ctrl, sizeof(ctrl));
-> +	sg_init_one(&hdr, &vi->ctrl_hdr, sizeof(vi->ctrl_hdr));
->  	sgs[out_num++] = &hdr;
-> 
->  	if (out)
->  		sgs[out_num++] = out;
-> 
->  	/* Add return status. */
-> -	sg_init_one(&stat, &status, sizeof(status));
-> +	sg_init_one(&stat, &vi->ctrl_status, sizeof(vi->ctrl_status));
->  	sgs[out_num] = &stat;
-> 
->  	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
->  	virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATOMIC);
-> 
->  	if (unlikely(!virtqueue_kick(vi->cvq)))
-> -		return status == VIRTIO_NET_OK;
-> +		return vi->ctrl_status == VIRTIO_NET_OK;
-> 
->  	/* Spin for a response, the kick causes an ioport write, trapping
->  	 * into the hypervisor, so the request should be handled immediately.
-> @@ -1009,7 +1014,7 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
->  	       !virtqueue_is_broken(vi->cvq))
->  		cpu_relax();
-> 
-> -	return status == VIRTIO_NET_OK;
-> +	return vi->ctrl_status == VIRTIO_NET_OK;
->  }
-> 
->  static int virtnet_set_mac_address(struct net_device *dev, void *p)
-> @@ -1151,7 +1156,6 @@ static void virtnet_set_rx_mode(struct net_device *dev)
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
->  	struct scatterlist sg[2];
-> -	u8 promisc, allmulti;
->  	struct virtio_net_ctrl_mac *mac_data;
->  	struct netdev_hw_addr *ha;
->  	int uc_count;
-> @@ -1163,22 +1167,22 @@ static void virtnet_set_rx_mode(struct net_device *dev)
->  	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
->  		return;
-> 
-> -	promisc = ((dev->flags & IFF_PROMISC) != 0);
-> -	allmulti = ((dev->flags & IFF_ALLMULTI) != 0);
-> +	vi->ctrl_promisc = ((dev->flags & IFF_PROMISC) != 0);
-> +	vi->ctrl_allmulti = ((dev->flags & IFF_ALLMULTI) != 0);
-> 
-> -	sg_init_one(sg, &promisc, sizeof(promisc));
-> +	sg_init_one(sg, &vi->ctrl_promisc, sizeof(vi->ctrl_promisc));
-> 
->  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
->  				  VIRTIO_NET_CTRL_RX_PROMISC, sg))
->  		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
-> -			 promisc ? "en" : "dis");
-> +			 vi->ctrl_promisc ? "en" : "dis");
-> 
-> -	sg_init_one(sg, &allmulti, sizeof(allmulti));
-> +	sg_init_one(sg, &vi->ctrl_allmulti, sizeof(vi->ctrl_allmulti));
-> 
->  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
->  				  VIRTIO_NET_CTRL_RX_ALLMULTI, sg))
->  		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
-> -			 allmulti ? "en" : "dis");
-> +			 vi->ctrl_allmulti ? "en" : "dis");
-> 
->  	uc_count = netdev_uc_count(dev);
->  	mc_count = netdev_mc_count(dev);
-> 
+--Andy
