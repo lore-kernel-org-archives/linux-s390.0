@@ -1,54 +1,80 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH/RFC 0/4] dma ops and virtio
-Date: Fri, 30 Oct 2015 09:25:48 +0100
-Message-ID: <20151030092548.7abd51e1.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 4/4] s390/virtio: use noop dma ops
+Date: Fri, 30 Oct 2015 13:17:46 +0100
+Message-ID: <20151030131746.49f6b129.cornelia.huck@de.ibm.com>
 References: <1445986131-239566-1-git-send-email-borntraeger@de.ibm.com>
-	<CALCETrVOsq4+z1HzQ2vthuHB91nt9FJ1a3jiAuOe5Fyb5vGXQA@mail.gmail.com>
-	<5631629B.2050505@de.ibm.com>
-	<CALCETrWcSKPUBvYQO4UuThtkUo6=c-HKJTpWKbYc5qgX6bth=Q@mail.gmail.com>
+	<1445986131-239566-5-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <CALCETrWcSKPUBvYQO4UuThtkUo6=c-HKJTpWKbYc5qgX6bth=Q@mail.gmail.com>
+In-Reply-To: <1445986131-239566-5-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, KVM <kvm@vger.kernel.org>, David Woodhouse <dwmw2@infradead.org>, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Andy Lutomirski <luto@kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, benh@kernel.crashing.org, KVM <kvm@vger.kernel.org>, dwmw2@infradead.org, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 29 Oct 2015 15:50:38 -0700
-Andy Lutomirski <luto@amacapital.net> wrote:
+On Tue, 27 Oct 2015 23:48:51 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-> Progress!  After getting that sort-of-working, I figured out what was
-> wrong with my earlier command, and I got that working, too.  Now I
-> get:
+> With all infrastructure in place, lets provide dma_ops for virtio
+> devices on s390.
 > 
-> qemu-system-s390x -fsdev
-> local,id=virtfs1,path=/,security_model=none,readonly -device
-> virtio-9p-ccw,fsdev=virtfs1,mount_tag=/dev/root -M s390-ccw-virtio
-> -nodefaults -device sclpconsole,chardev=console -parallel none -net
-> none -echr 1 -serial none -chardev stdio,id=console,signal=off,mux=on
-> -serial chardev:console -mon chardev=console -vga none -display none
-> -kernel arch/s390/boot/bzImage -append
-> 'init=/home/luto/devel/virtme/virtme/guest/virtme-init
-> psmouse.proto=exps "virtme_stty_con=rows 24 cols 150 iutf8"
-> TERM=xterm-256color rootfstype=9p
-> rootflags=ro,version=9p2000.L,trans=virtio,access=any
-> raid=noautodetect debug'
-
-The commandline looks sane AFAICS.
-
-(...)
-
-> vrfy: device 0.0.0000: rc=0 pgroup=0 mpath=0 vpm=80
-> virtio_ccw 0.0.0000: Failed to set online: -5
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  drivers/s390/virtio/kvm_virtio.c | 2 ++
+>  drivers/s390/virtio/virtio_ccw.c | 2 ++
+>  2 files changed, 4 insertions(+)
 > 
-> ^^^ bad news!
+> diff --git a/drivers/s390/virtio/kvm_virtio.c b/drivers/s390/virtio/kvm_virtio.c
+> index 53fb975..05adaa9 100644
+> --- a/drivers/s390/virtio/kvm_virtio.c
+> +++ b/drivers/s390/virtio/kvm_virtio.c
+> @@ -13,6 +13,7 @@
+>  #include <linux/kernel_stat.h>
+>  #include <linux/init.h>
+>  #include <linux/bootmem.h>
+> +#include <linux/dma-mapping.h>
+>  #include <linux/err.h>
+>  #include <linux/virtio.h>
+>  #include <linux/virtio_config.h>
+> @@ -318,6 +319,7 @@ static void add_kvm_device(struct kvm_device_desc *d, unsigned int offset)
+>  		return;
+>  	}
+> 
+> +	kdev->vdev.dev.archdata.dma_ops = &dma_noop_ops;
 
-I'd like to see where in the onlining process this fails. Could you set
-up qemu tracing for css_* and virtio_ccw_* (instructions in
-qemu/docs/tracing.txt)?
+This provides dma_ops for the vdev, while Andy's virtio code looks for
+dma_ops in the vdev's parent (in the ccw and pci cases, the proxy
+device; in this case, it would be our root device).
 
-Which qemu version is this, btw.?
+With
+
+diff --git a/drivers/s390/virtio/kvm_virtio.c b/drivers/s390/virtio/kvm_virtio.c
+index 05adaa9..5f79c52 100644
+--- a/drivers/s390/virtio/kvm_virtio.c
++++ b/drivers/s390/virtio/kvm_virtio.c
+@@ -319,7 +319,6 @@ static void add_kvm_device(struct kvm_device_desc *d, unsigned int offset)
+ 		return;
+ 	}
+ 
+-	kdev->vdev.dev.archdata.dma_ops = &dma_noop_ops;
+ 	kdev->vdev.dev.parent = kvm_root;
+ 	kdev->vdev.id.device = d->type;
+ 	kdev->vdev.config = &kvm_vq_configspace_ops;
+@@ -473,6 +472,7 @@ static int __init kvm_devices_init(void)
+ 		vmem_remove_mapping(total_memory_size, PAGE_SIZE);
+ 		return rc;
+ 	}
++	kvm_root->archdata.dma_ops = &dma_noop_ops;
+ 
+ 	INIT_WORK(&hotplug_work, hotplug_devices);
+ 
+applied (and the endianness fix in the virtio code), I can boot a
+s390-virtio guest as well.
+
+>  	kdev->vdev.dev.parent = kvm_root;
+>  	kdev->vdev.id.device = d->type;
+>  	kdev->vdev.config = &kvm_vq_configspace_ops;
