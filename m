@@ -1,133 +1,52 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH] mm: Loosen MADV_NOHUGEPAGE to enable Qemu postcopy on
- s390
-Date: Thu, 19 Nov 2015 09:22:06 +0100
-Message-ID: <564D86AE.1010305@de.ibm.com>
-References: <1447341516-18076-1-git-send-email-jjherne@linux.vnet.ibm.com>
- <564C7DCA.8010400@suse.cz>
+From: Shamir Rabinovitch <shamir.rabinovitch@oracle.com>
+Subject: Re: [PATCH v1 2/2] dma-mapping-common: add DMA attribute -
+ DMA_ATTR_IOMMU_BYPASS
+Date: Sun, 1 Nov 2015 09:45:34 +0200
+Message-ID: <20151101074534.GC23022@shamir-ThinkPad-T430>
+References: <1445789224-28032-1-git-send-email-shamir.rabinovitch@oracle.com>
+ <1445789224-28032-2-git-send-email-shamir.rabinovitch@oracle.com>
+ <1446013801.3405.183.camel@infradead.org>
+ <20151028111049.GA30785@shamir-ThinkPad-T430>
+ <1446039110.3405.212.camel@infradead.org>
+ <1446078721.1856.49.camel@kernel.crashing.org>
+ <1446079332.3405.273.camel@infradead.org>
+ <1446081046.1856.55.camel@kernel.crashing.org>
+ <CALCETrXrzq1f9sMAbKcmhpEtiyq5FE871=4+YspA=X+RjD7p8Q@mail.gmail.com>
+ <1446158125.4471.5.camel@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <564C7DCA.8010400@suse.cz>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-api/>
-List-Post: <mailto:linux-api@vger.kernel.org>
-To: Vlastimil Babka <vbabka@suse.cz>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, linux-s390@vger.kernel.org
-Cc: linux-mm@kvack.org, akpm@linux-foundation.org, aarcange@redhat.com, linux-api@vger.kernel.org, linux-man@vger.kernel.org, qemu-devel <qemu-devel@nongnu.org>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, Juan Quintela <quintela@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1446158125.4471.5.camel@infradead.org>
+Sender: linux-doc-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Andy Lutomirski <luto@amacapital.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-arch <linux-arch@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Jonathan Corbet <corbet@lwn.net>, KVM <kvm@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 11/18/2015 02:31 PM, Vlastimil Babka wrote:
-> [CC += linux-api@vger.kernel.org]
+On Thu, Oct 29, 2015 at 10:35:25PM +0000, David Woodhouse wrote:
+> > 
+> > Could this be mitigated using pools?  I don't know if the net code
+> > would play along easily.
 > 
-> Since this is a kernel-user-space API change, please CC linux-api@. The kernel
-> source file Documentation/SubmitChecklist notes that all Linux kernel patches
-> that change userspace interfaces should be CCed to linux-api@vger.kernel.org, so
-> that the various parties who are interested in API changes are informed. For
-> further information, see https://www.kernel.org/doc/man-pages/linux-api-ml.html
+> For the receive side, it shouldn't be beyond the wit of man to
+> introduce an API which allocates *and* DMA-maps a skb. Pass it to
+> netif_rx() still mapped, with a destructor that just shoves it back in
+> a pool for re-use.
 > 
-> On 11/12/2015 04:18 PM, Jason J. Herne wrote:
->> MADV_NOHUGEPAGE processing is too restrictive. kvm already disables
->> hugepage but hugepage_madvise() takes the error path when we ask to turn
->> on the MADV_NOHUGEPAGE bit and the bit is already on. This causes Qemu's
->> new postcopy migration feature to fail on s390 because its first action is
->> to madvise the guest address space as NOHUGEPAGE. This patch modifies the
->> code so that the operation succeeds without error now.
->>
->> Signed-off-by: Jason J. Herne <jjherne@linux.vnet.ibm.com>
->> Reviewed-by: Andrea Arcangeli <aarcange@redhat.com>
-> 
-> Looks like the manpage should be fine, as it wasn't very specific wrt these
-> madvise flags. The only thing that potentially applies is:
-> 
-> "EINVAL advice is not a valid."
-> 
-> which itself looks like it needs fixing. Valid what, value? As in completely
-> unknown flags, or flags not valid for the given vma?
-> 
-> Anyway, I agree that it doesn't make sense to fail madvise when the given flag
-> is already set. On the other hand, I don't think the userspace app should fail
-> just because of madvise failing? It should in general be an advice that the
-> kernel is also strictly speaking free to ignore as it shouldn't affect
-> correctnes, just performance. Yeah, there are exceptions today like
-> MADV_DONTNEED, but that shouldn't apply to hugepages?
-> So I think Qemu needs fixing too.
+> Doing it for transmit might be a little more complex, but perhaps still
+> possible.
 
-yes, I agree. David, Juan. I think The postcopy code should not fail if the madvise.
-Can you fix that? 
+Not sure this use case is possible for Infiniband where application hold
+the data buffers and there is no way to force application to re use the 
+buffer as suggested.
 
- Also what happens if the kernel is build
-> without CONFIG_TRANSPARENT_HUGEPAGE? Then madvise also returns EINVAL,
-
-Does it? To me it looks more like we would trigger a kernel bug.
-
-mm/madvise.c:
-        case MADV_HUGEPAGE:
-        case MADV_NOHUGEPAGE:
-                error = hugepage_madvise(vma, &new_flags, behavior);  <-----
-                if (error)
-                        goto out;
-                break;
-        }
-
-
-include/linux/huge_mm.h:
-static inline int hugepage_madvise(struct vm_area_struct *vma,
-                                   unsigned long *vm_flags, int advice)
-{
-        BUG();
-        return 0;
-}
-
-If we just remove the BUG() statement the code would actually be correct
-in simply ignoring an MADVISE it cannot handle. If you agree, I can
-spin a patch.
-
-
-
-
-> how does Qemu handle that?
-
-The normal qemu startup ignores the return value of the madvise. Only the
-recent post migration changes want to disable huge pages for userfaultd.
-And this code checks the return value. And yes, we should change that
-in QEMU.
-
-
-
+This is why I think there will be no easy way to bypass the DMA mapping cost
+for all use cases unless we allow applications to request bypass/pass through
+DMA mapping (implicitly or explicitly).
 
 > 
->> ---
->>  mm/huge_memory.c | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
->> index c29ddeb..62fe06b 100644
->> --- a/mm/huge_memory.c
->> +++ b/mm/huge_memory.c
->> @@ -2009,7 +2009,7 @@ int hugepage_madvise(struct vm_area_struct *vma,
->>  		/*
->>  		 * Be somewhat over-protective like KSM for now!
->>  		 */
->> -		if (*vm_flags & (VM_HUGEPAGE | VM_NO_THP))
->> +		if (*vm_flags & VM_NO_THP)
->>  			return -EINVAL;
->>  		*vm_flags &= ~VM_NOHUGEPAGE;
->>  		*vm_flags |= VM_HUGEPAGE;
->> @@ -2025,7 +2025,7 @@ int hugepage_madvise(struct vm_area_struct *vma,
->>  		/*
->>  		 * Be somewhat over-protective like KSM for now!
->>  		 */
->> -		if (*vm_flags & (VM_NOHUGEPAGE | VM_NO_THP))
->> +		if (*vm_flags & VM_NO_THP)
->>  			return -EINVAL;
->>  		*vm_flags &= ~VM_HUGEPAGE;
->>  		*vm_flags |= VM_NOHUGEPAGE;
->>
+> -- 
+> dwmw2
 > 
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
