@@ -1,80 +1,63 @@
-From: Shamir Rabinovitch <shamir.rabinovitch@oracle.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [PATCH v1 2/2] dma-mapping-common: add DMA attribute -
  DMA_ATTR_IOMMU_BYPASS
-Date: Mon, 2 Nov 2015 19:32:19 +0200
-Message-ID: <20151102173218.GC12484@shamir-ThinkPad-T430>
-References: <1445789224-28032-1-git-send-email-shamir.rabinovitch@oracle.com>
- <1445789224-28032-2-git-send-email-shamir.rabinovitch@oracle.com>
- <1446013801.3405.183.camel@infradead.org>
- <20151028111049.GA30785@shamir-ThinkPad-T430>
- <1446039110.3405.212.camel@infradead.org>
- <1446078721.1856.49.camel@kernel.crashing.org>
- <1446079332.3405.273.camel@infradead.org>
- <20151029073231.GE30785@shamir-ThinkPad-T430>
- <20151102144427.GA2876@suse.de>
+Date: Tue, 03 Nov 2015 07:13:28 +1100
+Message-ID: <1446495208.17404.11.camel@kernel.crashing.org>
+References: <1446039110.3405.212.camel@infradead.org>
+	 <1446078721.1856.49.camel@kernel.crashing.org>
+	 <1446079332.3405.273.camel@infradead.org>
+	 <1446081046.1856.55.camel@kernel.crashing.org>
+	 <CALCETrXrzq1f9sMAbKcmhpEtiyq5FE871=4+YspA=X+RjD7p8Q@mail.gmail.com>
+	 <1446158125.4471.5.camel@infradead.org>
+	 <20151101074534.GC23022@shamir-ThinkPad-T430>
+	 <1446412249.4060.7.camel@kernel.crashing.org>
+	 <20151102072358.GA4642@shamir-ThinkPad-T430>
+	 <1446458434.4060.21.camel@kernel.crashing.org>
+	 <20151102120659.GC4642@shamir-ThinkPad-T430>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20151102144427.GA2876@suse.de>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <20151102120659.GC4642@shamir-ThinkPad-T430>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Joerg Roedel <jroedel@suse.de>
-Cc: David Woodhouse <dwmw2@infradead.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, arnd@arndb.de, corbet@lwn.net, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, KVM <kvm@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+To: Shamir Rabinovitch <shamir.rabinovitch@oracle.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-arch <linux-arch@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Jonathan Corbet <corbet@lwn.net>, KVM <kvm@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Nov 02, 2015 at 03:44:27PM +0100, Joerg Roedel wrote:
+On Mon, 2015-11-02 at 14:07 +0200, Shamir Rabinovitch wrote:
+> On Mon, Nov 02, 2015 at 09:00:34PM +1100, Benjamin Herrenschmidt
+> wrote:
+> > 
+> > Chosing on a per-mapping basis *in the back end* might still make
+> > some
 > 
-> How do you envision this per-mapping by-pass to work? For the DMA-API
-> mappings you have only one device address space. For by-pass to work,
-> you need to map all physical memory of the machine into this space,
-> which leaves the question where you want to put the window for
-> remapping.
-> 
-> You surely have to put it after the physical mappings, but any
-> protection will be gone, as the device can access all physical memory.
+> In my case, choosing mapping based on the hardware that will use this
+> mappings makes more sense. Most hardware are not that performance 
+> sensitive as the Infiniband hardware.
 
-Correct. This issue is one of the concerns here in the previous replies.
-I will take different approach which will not require the IOMMU bypass
-per mapping. Will try to shift to the x86 'iommu=pt' approach.
+ ...
 
-> 
-> So instead of working around the shortcomings of DMA-API
-> implementations, can you present us some numbers and analysis of how bad
-> the performance impact with an IOMMU is and what causes it?
+> The driver know for what hardware it is mapping the memory so it know 
+> if the memory will be used by performance sensitive hardware or not.
 
-We had a bunch of issues around SPARC IOMMU. Not all of them relate to
-performance. The first issue was that on SPARC, currently, we only have 
-limited address space to IOMMU so we had issue to do large DMA mappings
-for Infiniband. Second issue was that we identified high contention on 
-the IOMMU locks even in ETH driver. 
+Then I would argue for naming this differently. Make it an optional
+hint "DMA_ATTR_HIGH_PERF" or something like that. Whether this is
+achieved via using a bypass or other means in the backend not the
+business of the driver.
 
-> 
-> I know that we have lock-contention issues in our IOMMU drivers, which
-> can be fixed. Maybe the performance problems you are seeing can be fixed
-> too, when you give us more details about them.
-> 
+> In your case, what will give the better performance - 1:1 mapping or
+> IOMMU
+> mapping? When you say 'relaxing the protection' you refer to 1:1
+> mapping?
 
-I do not want to put too much information here but you can see some results:
+> Also, how this 1:1 window address the security concerns that other
+> raised
+> by other here?
 
-rds-stress test from sparc t5-2 -> x86:
+It will partially only but it's just an example of another way the
+bakcend could provide some improved performances without a bypass.
 
-with iommu bypass:
----------------------
-sparc->x86 cmdline = -r XXX -s XXX -q 256 -a 8192 -T 10 -d 10 -t 3 -o XXX
-tsks   tx/s   rx/s  tx+rx K/s    mbi K/s    mbo K/s tx us/c   rtt us cpu %
-   3 141278      0 1165565.81       0.00       0.00    8.93   376.60 -1.00  (average)
-
-without iommu bypass:
----------------------
-sparc->x86 cmdline = -r XXX -s XXX -q 256 -a 8192 -T 10 -d 10 -t 3 -o XXX
-tsks   tx/s   rx/s  tx+rx K/s    mbi K/s    mbo K/s tx us/c   rtt us cpu %
-   3  78558      0  648101.41       0.00       0.00   15.05   876.72 -1.00  (average)
-
-+ RDMA tests are totally not working (might be due to failure to DMA map all the memory).
-
-So IOMMU bypass give ~80% performance boost.
-
-> 
-> 	Joerg
+Cheers,
+Ben.
