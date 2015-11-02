@@ -1,71 +1,48 @@
-From: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Subject: Re: [PATCHv2 0/3] dma ops and virtio
-Date: Mon, 2 Nov 2015 16:27:05 +0100 (CET)
-Message-ID: <alpine.LFD.2.11.1511021619541.1672@denkbrett>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 1/3] Provide simple noop dma ops
+Date: Mon, 2 Nov 2015 17:01:47 +0100
+Message-ID: <563788EB.6050405@de.ibm.com>
 References: <1446211237-111298-1-git-send-email-borntraeger@de.ibm.com>
+	<1446211237-111298-2-git-send-email-borntraeger@de.ibm.com>
+	<20151102151644.GC2876@suse.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1446211237-111298-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20151102151644.GC2876@suse.de>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Andy Lutomirski <luto@kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, benh@kernel.crashing.org, KVM <kvm@vger.kernel.org>, dwmw2@infradead.org, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, virtualization@lists.linux-foundation.org, Michael Tsirkin <mst@redhat.com>
+To: Joerg Roedel <jroedel@suse.de>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Michael Tsirkin <mst@redhat.com>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, dwmw2@infradead.org, Christoph Hellwig <hch@lst.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+Am 02.11.2015 um 16:16 schrieb Joerg Roedel:
+> On Fri, Oct 30, 2015 at 02:20:35PM +0100, Christian Borntraeger wrote:
+>> +static void *dma_noop_alloc(struct device *dev, size_t size,
+>> +			    dma_addr_t *dma_handle, gfp_t gfp,
+>> +			    struct dma_attrs *attrs)
+>> +{
+>> +	void *ret;
+>> +
+>> +	ret = (void *)__get_free_pages(gfp, get_order(size));
+>> +	if (ret) {
+>> +		memset(ret, 0, size);
+> 
+> There is no need to zero out the memory here. If the user wants
+> initialized memory it can call dma_zalloc_coherent. Having the memset
+> here means to clear the memory twice in the dma_zalloc_coherent path.
+> 
+> Otherwise it looks good.
 
-On Fri, 30 Oct 2015, Christian Borntraeger wrote:
-
-> here is the 2nd version of providing an DMA API for s390.
-> 
-> There are some attempts to unify the dma ops (Christoph) as well
-> as some attempts to make virtio use the dma API (Andy).
-> 
-> At kernel summit we concluded that we want to use the same code on all
-> platforms, whereever possible, so having a dummy dma_op might be the
-> easiest solution to keep virtio-ccw as similar as possible to
-> virtio-pci.Together with a fixed up patch set from Andy Lutomirski
-> this seems to work.  
-> 
-> We will also need a fixup for powerc and QEMU changes to make virtio
-> work with iommu on power and x86.
-> 
-> TODO:
-> - future add-on patches to also fold in x86 no iommu
-> 	- dma_mask
-> 	- checking?
-> - make compilation of dma-noop dependent on something
-> 
-> v1->v2:
-> - initial testing
-> - always use dma_noop_ops if device has no private dma_ops
-> - get rid of setup in virtio_ccw,kvm_virtio
-> - set CONFIG_HAS_DMA(ATTRS) for virtio (fixes compile for !PCI)
-> - rename s390_dma_ops to s390_pci_dma_ops
-> 
-> Christian Borntraeger (3):
->   Provide simple noop dma ops
->   alpha: use common noop dma ops
->   s390/dma: Allow per device dma ops
-> 
->  arch/alpha/kernel/pci-noop.c        | 46 ++--------------------
->  arch/s390/Kconfig                   |  3 +-
->  arch/s390/include/asm/device.h      |  6 ++-
->  arch/s390/include/asm/dma-mapping.h |  6 ++-
->  arch/s390/pci/pci.c                 |  1 +
->  arch/s390/pci/pci_dma.c             |  4 +-
->  include/linux/dma-mapping.h         |  2 +
->  lib/Makefile                        |  2 +-
->  lib/dma-noop.c                      | 77 +++++++++++++++++++++++++++++++++++++
->  9 files changed, 98 insertions(+), 49 deletions(-)
->  create mode 100644 lib/dma-noop.c
-> 
-> -- 
-
-I agree with these changes in principle. As long as we don't do MMIO
-(writel and friends) on a dummy mapping we're fine.
-
-Regards,
-Sebastian
+Thanks. Will fix.
+In addition I will also make the compilation of dma-noop.o dependent 
+on HAS_DMA.
