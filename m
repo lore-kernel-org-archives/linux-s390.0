@@ -1,36 +1,31 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v1 2/2] dma-mapping-common: add DMA attribute - DMA_ATTR_IOMMU_BYPASS
-Date: Mon, 02 Nov 2015 22:45:54 +0100
-Message-ID: <5270615.Sf6ng964Qt@wuerfel>
-References: <1446039110.3405.212.camel@infradead.org> <20151102120659.GC4642@shamir-ThinkPad-T430> <1446495208.17404.11.camel@kernel.crashing.org>
+From: Shamir Rabinovitch <shamir.rabinovitch@oracle.com>
+Subject: Re: [PATCH v1 2/2] dma-mapping-common: add DMA attribute -
+ DMA_ATTR_IOMMU_BYPASS
+Date: Mon, 2 Nov 2015 23:49:45 +0200
+Message-ID: <20151102214944.GE12484@shamir-ThinkPad-T430>
+References: <1446079332.3405.273.camel@infradead.org>
+ <1446081046.1856.55.camel@kernel.crashing.org>
+ <CALCETrXrzq1f9sMAbKcmhpEtiyq5FE871=4+YspA=X+RjD7p8Q@mail.gmail.com>
+ <1446158125.4471.5.camel@infradead.org>
+ <20151101074534.GC23022@shamir-ThinkPad-T430>
+ <1446412249.4060.7.camel@kernel.crashing.org>
+ <20151102072358.GA4642@shamir-ThinkPad-T430>
+ <1446458434.4060.21.camel@kernel.crashing.org>
+ <20151102120659.GC4642@shamir-ThinkPad-T430>
+ <1446495208.17404.11.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <1446495208.17404.11.camel@kernel.crashing.org>
-Sender: linux-doc-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Shamir Rabinovitch <shamir.rabinovitch@oracle.com>, David Woodhouse <dwmw2@infradead.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-arch <linux-arch@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Jonathan Corbet <corbet@lwn.net>, KVM <kvm@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
+Cc: David Woodhouse <dwmw2@infradead.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-arch <linux-arch@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Jonathan Corbet <corbet@lwn.net>, KVM <kvm@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tuesday 03 November 2015 07:13:28 Benjamin Herrenschmidt wrote:
-> On Mon, 2015-11-02 at 14:07 +0200, Shamir Rabinovitch wrote:
-> > On Mon, Nov 02, 2015 at 09:00:34PM +1100, Benjamin Herrenschmidt
-> > wrote:
-> > > 
-> > > Chosing on a per-mapping basis *in the back end* might still make
-> > > some
-> > 
-> > In my case, choosing mapping based on the hardware that will use this
-> > mappings makes more sense. Most hardware are not that performance 
-> > sensitive as the Infiniband hardware.
-> 
->  ...
-> 
-> > The driver know for what hardware it is mapping the memory so it know 
-> > if the memory will be used by performance sensitive hardware or not.
+On Tue, Nov 03, 2015 at 07:13:28AM +1100, Benjamin Herrenschmidt wrote:
 > 
 > Then I would argue for naming this differently. Make it an optional
 > hint "DMA_ATTR_HIGH_PERF" or something like that. Whether this is
@@ -38,6 +33,33 @@ On Tuesday 03 November 2015 07:13:28 Benjamin Herrenschmidt wrote:
 > business of the driver.
 > 
 
-With a name like that, who wouldn't pass that flag? ;-)
+Correct. This comment was also from internal review :-) Although
+currently there is strong opposition to such new attribute.
 
-	Arnd
+> 
+> It will partially only but it's just an example of another way the
+> bakcend could provide some improved performances without a bypass.
+
+Just curious.. 
+
+In the Infiniband case where user application request the driver to DMA 
+map some random pages they allocated - will your suggestion still
+function? 
+
+I mean can you use this limited 1:1 mapping window to map any page the
+user application choose? How?
+
+At the bypass we just use the physical address of the page (almost as is).
+We use the fact that bypass address space cover the whole memory and so we
+have mapping for any address.
+
+In IOMMU case we use the IOMMU translation tables and so can map 64 bit 
+address to some 32 bit address (or less).
+
+In your case it is not clear to me what can we do with such limited 1:1
+mapping.
+
+> 
+> Cheers,
+> Ben.
+> 
