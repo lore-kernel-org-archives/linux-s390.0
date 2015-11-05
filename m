@@ -1,41 +1,70 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Joerg Roedel <jroedel@suse.de>
 Subject: Re: [PATCH v1 2/2] dma-mapping-common: add DMA attribute -
  DMA_ATTR_IOMMU_BYPASS
-Date: Wed, 04 Nov 2015 06:35:10 +1100
-Message-ID: <1446579310.17404.36.camel@kernel.crashing.org>
-References: <1446039110.3405.212.camel@infradead.org>
-	 <20151102120659.GC4642@shamir-ThinkPad-T430>
-	 <1446495208.17404.11.camel@kernel.crashing.org>
-	 <5270615.Sf6ng964Qt@wuerfel>
-	 <1446505693.17404.20.camel@kernel.crashing.org>
-	 <20151103131134.GA6384@lst.de>
+Date: Thu, 5 Nov 2015 14:42:06 +0100
+Message-ID: <20151105134206.GD2255@suse.de>
+References: <1445789224-28032-1-git-send-email-shamir.rabinovitch@oracle.com>
+ <1445789224-28032-2-git-send-email-shamir.rabinovitch@oracle.com>
+ <1446013801.3405.183.camel@infradead.org>
+ <20151028111049.GA30785@shamir-ThinkPad-T430>
+ <1446039110.3405.212.camel@infradead.org>
+ <1446078721.1856.49.camel@kernel.crashing.org>
+ <1446079332.3405.273.camel@infradead.org>
+ <20151029073231.GE30785@shamir-ThinkPad-T430>
+ <20151102144427.GA2876@suse.de>
+ <20151102173218.GC12484@shamir-ThinkPad-T430>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20151103131134.GA6384@lst.de>
-Sender: kvm-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20151102173218.GC12484@shamir-ThinkPad-T430>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, Shamir Rabinovitch <shamir.rabinovitch@oracle.com>, David Woodhouse <dwmw2@infradead.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-arch <linux-arch@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Jonathan Corbet <corbet@lwn.net>, KVM <kvm@vger.kernel.org>
+To: Shamir Rabinovitch <shamir.rabinovitch@oracle.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, arnd@arndb.de, corbet@lwn.net, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, KVM <kvm@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 2015-11-03 at 14:11 +0100, Christoph Hellwig wrote:
-> > xHCI for example, vs. something like 10G ethernet... but yes I agree it
-> > sucks. I don't like that sort of policy anywhere in drivers. On the
-> > other hand the platform doesn't have much information to make that sort
-> > of decision either.
+On Mon, Nov 02, 2015 at 07:32:19PM +0200, Shamir Rabinovitch wrote:
+> Correct. This issue is one of the concerns here in the previous replies.
+> I will take different approach which will not require the IOMMU bypass
+> per mapping. Will try to shift to the x86 'iommu=pt' approach.
+
+Yeah, it doesn't really make sense to have an extra remappable area when
+the device can access all physical memory anyway.
+
+> We had a bunch of issues around SPARC IOMMU. Not all of them relate to
+> performance. The first issue was that on SPARC, currently, we only have 
+> limited address space to IOMMU so we had issue to do large DMA mappings
+> for Infiniband. Second issue was that we identified high contention on 
+> the IOMMU locks even in ETH driver.
+
+Contended IOMMU locks are not only a problem on SPARC, but on x86 and
+various other IOMMU drivers too. But I have some ideas on how to improve
+the situation there.
+
+> I do not want to put too much information here but you can see some results:
 > 
-> Mabye because it should simply use what's optimal?  E.g. passthrough
-> whenever possible, where arguments against possible are:  dma_mask, vfio
-> requirements, kernel command line option. 
+> rds-stress test from sparc t5-2 -> x86:
+> 
+> with iommu bypass:
+> ---------------------
+> sparc->x86 cmdline = -r XXX -s XXX -q 256 -a 8192 -T 10 -d 10 -t 3 -o XXX
+> tsks   tx/s   rx/s  tx+rx K/s    mbi K/s    mbo K/s tx us/c   rtt us cpu %
+>    3 141278      0 1165565.81       0.00       0.00    8.93   376.60 -1.00  (average)
+> 
+> without iommu bypass:
+> ---------------------
+> sparc->x86 cmdline = -r XXX -s XXX -q 256 -a 8192 -T 10 -d 10 -t 3 -o XXX
+> tsks   tx/s   rx/s  tx+rx K/s    mbi K/s    mbo K/s tx us/c   rtt us cpu %
+>    3  78558      0  648101.41       0.00       0.00   15.05   876.72 -1.00  (average)
+> 
+> + RDMA tests are totally not working (might be due to failure to DMA map all the memory).
+> 
+> So IOMMU bypass give ~80% performance boost.
 
-Right this is what I do today on powerpc with the exception of
-the command line option.
+Interesting. Have you looked more closely on what causes the performance
+degradation? Is it the lock contention or something else?
 
->  This is what a lot of
-> architectures already do, I remember the SGI Origin / Altix code has the
-> same behavior as well.  Those IOMMUs already had the 64 bit passthrough
-> and 32-bit sliding window in addition to the real IOMMU 10 years ago.
-> --
+
+	Joerg
