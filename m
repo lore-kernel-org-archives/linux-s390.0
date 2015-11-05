@@ -1,100 +1,45 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL v4 2/3] alpha/dma: use common noop dma ops
-Date: Thu,  5 Nov 2015 21:08:55 +0100
-Message-ID: <1446754136-125772-3-git-send-email-borntraeger@de.ibm.com>
-References: <1446754136-125772-1-git-send-email-borntraeger@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1446754136-125772-1-git-send-email-borntraeger@de.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Subject: [GIT PULL v4 0/3] dma and virtio prep patches
+Date: Thu,  5 Nov 2015 21:08:53 +0100
+Message-ID: <1446754136-125772-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Andy Lutomirski <luto@kernel.org>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, Michael Tsirkin <mst@redhat.com>, benh@kernel.crashing.org, Sebastian Ott <sebott@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, dwmw2@infradead.org, Christoph Hellwig <hch@lst.de>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, benh@kernel.crashing.org, KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, dwmw2@infradead.org, Joerg Roedel <jroedel@suse.de>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, virtualization@lists.linux-foundation.org, Michael Tsirkin <mst@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Some of the alpha pci noop dma ops are identical to the common ones.
-Use them.
+Andy,
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Joerg Roedel <jroedel@suse.de>
----
- arch/alpha/kernel/pci-noop.c | 46 ++++----------------------------------------
- 1 file changed, 4 insertions(+), 42 deletions(-)
+to make it obvious which version is the latest, here is a branch
 
-diff --git a/arch/alpha/kernel/pci-noop.c b/arch/alpha/kernel/pci-noop.c
-index 2b1f4a1..8e735b5e 100644
---- a/arch/alpha/kernel/pci-noop.c
-+++ b/arch/alpha/kernel/pci-noop.c
-@@ -123,44 +123,6 @@ static void *alpha_noop_alloc_coherent(struct device *dev, size_t size,
- 	return ret;
- }
- 
--static void alpha_noop_free_coherent(struct device *dev, size_t size,
--				     void *cpu_addr, dma_addr_t dma_addr,
--				     struct dma_attrs *attrs)
--{
--	free_pages((unsigned long)cpu_addr, get_order(size));
--}
--
--static dma_addr_t alpha_noop_map_page(struct device *dev, struct page *page,
--				      unsigned long offset, size_t size,
--				      enum dma_data_direction dir,
--				      struct dma_attrs *attrs)
--{
--	return page_to_pa(page) + offset;
--}
--
--static int alpha_noop_map_sg(struct device *dev, struct scatterlist *sgl, int nents,
--			     enum dma_data_direction dir, struct dma_attrs *attrs)
--{
--	int i;
--	struct scatterlist *sg;
--
--	for_each_sg(sgl, sg, nents, i) {
--		void *va;
--
--		BUG_ON(!sg_page(sg));
--		va = sg_virt(sg);
--		sg_dma_address(sg) = (dma_addr_t)virt_to_phys(va);
--		sg_dma_len(sg) = sg->length;
--	}
--
--	return nents;
--}
--
--static int alpha_noop_mapping_error(struct device *dev, dma_addr_t dma_addr)
--{
--	return 0;
--}
--
- static int alpha_noop_supported(struct device *dev, u64 mask)
- {
- 	return mask < 0x00ffffffUL ? 0 : 1;
-@@ -168,10 +130,10 @@ static int alpha_noop_supported(struct device *dev, u64 mask)
- 
- struct dma_map_ops alpha_noop_ops = {
- 	.alloc			= alpha_noop_alloc_coherent,
--	.free			= alpha_noop_free_coherent,
--	.map_page		= alpha_noop_map_page,
--	.map_sg			= alpha_noop_map_sg,
--	.mapping_error		= alpha_noop_mapping_error,
-+	.free			= dma_noop_free_coherent,
-+	.map_page		= dma_noop_map_page,
-+	.map_sg			= dma_noop_map_sg,
-+	.mapping_error		= dma_noop_mapping_error,
- 	.dma_supported		= alpha_noop_supported,
- };
- 
--- 
-2.4.3
+The following changes since commit 6a13feb9c82803e2b815eca72fa7a9f5561d7861:
+
+  Linux 4.3 (2015-11-01 16:05:25 -0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/borntraeger/linux.git  dma
+
+for you to fetch changes up to fc7f9754db6ce0c12281da4055281f731d36bdee:
+
+  s390/dma: Allow per device dma ops (2015-11-05 21:02:40 +0100)
+
+----------------------------------------------------------------
+Christian Borntraeger (3):
+      dma: Provide simple noop dma ops
+      alpha/dma: use common noop dma ops
+      s390/dma: Allow per device dma ops
+
+ arch/alpha/kernel/pci-noop.c        | 46 ++---------------------
+ arch/s390/Kconfig                   |  7 +---
+ arch/s390/include/asm/device.h      |  6 ++-
+ arch/s390/include/asm/dma-mapping.h |  6 ++-
+ arch/s390/pci/pci.c                 |  1 +
+ arch/s390/pci/pci_dma.c             |  4 +-
+ include/linux/dma-mapping.h         |  2 +
+ lib/Makefile                        |  1 +
+ lib/dma-noop.c                      | 75 +++++++++++++++++++++++++++++++++++++
+ 9 files changed, 96 insertions(+), 52 deletions(-)
+ create mode 100644 lib/dma-noop.c
