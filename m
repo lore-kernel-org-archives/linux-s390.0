@@ -1,35 +1,49 @@
 From: David Miller <davem@davemloft.net>
 Subject: Re: [PATCH v1 2/2] dma-mapping-common: add DMA attribute -
  DMA_ATTR_IOMMU_BYPASS
-Date: Thu, 05 Nov 2015 16:08:10 -0500 (EST)
-Message-ID: <20151105.160810.1916907637281203788.davem@davemloft.net>
-References: <1446081046.1856.55.camel@kernel.crashing.org>
-	<CALCETrXrzq1f9sMAbKcmhpEtiyq5FE871=4+YspA=X+RjD7p8Q@mail.gmail.com>
-	<1446158125.4471.5.camel@infradead.org>
+Date: Thu, 05 Nov 2015 16:11:21 -0500 (EST)
+Message-ID: <20151105.161121.188431695871972310.davem@davemloft.net>
+References: <20151102144427.GA2876@suse.de>
+	<20151102173218.GC12484@shamir-ThinkPad-T430>
+	<20151105134206.GD2255@suse.de>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1446158125.4471.5.camel@infradead.org>
+In-Reply-To: <20151105134206.GD2255@suse.de>
 Sender: linux-doc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: dwmw2@infradead.org
-Cc: luto@amacapital.net, benh@kernel.crashing.org, borntraeger@de.ibm.com, linux-arch@vger.kernel.org, pbonzini@redhat.com, shamir.rabinovitch@oracle.com, schwidefsky@de.ibm.com, linux-doc@vger.kernel.org, sebott@linux.vnet.ibm.com, linux-s390@vger.kernel.org, cornelia.huck@de.ibm.com, jroedel@suse.de, corbet@lwn.net, kvm@vger.kernel.org, arnd@arndb.de, hch@lst.de
+To: jroedel@suse.de
+Cc: shamir.rabinovitch@oracle.com, dwmw2@infradead.org, benh@kernel.crashing.org, arnd@arndb.de, corbet@lwn.net, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, luto@kernel.org, borntraeger@de.ibm.com, cornelia.huck@de.ibm.com, sebott@linux.vnet.ibm.com, pbonzini@redhat.com, hch@lst.de, kvm@vger.kernel.org, schwidefsky@de.ibm.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Woodhouse <dwmw2@infradead.org>
-Date: Thu, 29 Oct 2015 22:35:25 +0000
+From: Joerg Roedel <jroedel@suse.de>
+Date: Thu, 5 Nov 2015 14:42:06 +0100
 
-> For the receive side, it shouldn't be beyond the wit of man to
-> introduce an API which allocates *and* DMA-maps a skb. Pass it to
-> netif_rx() still mapped, with a destructor that just shoves it back in
-> a pool for re-use.
+> Contended IOMMU locks are not only a problem on SPARC, but on x86 and
+> various other IOMMU drivers too. But I have some ideas on how to improve
+> the situation there.
 
-For forwarding, the SKB is going to another device to be DMA'd,
-perhaps via another IOMMU.
+And for the record Sowmini fixed a lot of the lock contention:
 
-For local connections, it's going to sit for an unpredictable and
-unbounded amount of time in the socket queue.
+commit ff7d37a502022149655c18035b99a53391be0383
+Author: Sowmini Varadhan <sowmini.varadhan@oracle.com>
+Date:   Thu Apr 9 15:33:30 2015 -0400
 
-We've been through this thought process before, believe me :)
+    Break up monolithic iommu table/lock into finer graularity pools and lock
+    
+    Investigation of multithreaded iperf experiments on an ethernet
+    interface show the iommu->lock as the hottest lock identified by
+    lockstat, with something of the order of  21M contentions out of
+    27M acquisitions, and an average wait time of 26 us for the lock.
+    This is not efficient. A more scalable design is to follow the ppc
+    model, where the iommu_map_table has multiple pools, each stretching
+    over a segment of the map, and with a separate lock for each pool.
+    This model allows for better parallelization of the iommu map search.
+    
+    This patch adds the iommu range alloc/free function infrastructure.
+    
+    Signed-off-by: Sowmini Varadhan <sowmini.varadhan@oracle.com>
+    Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
