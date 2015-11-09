@@ -1,48 +1,60 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [PATCH v4 0/6] virtio core DMA API conversion
-Date: Mon, 9 Nov 2015 13:27:57 +0100
-Message-ID: <5640914D.6070401@redhat.com>
+Date: Tue, 10 Nov 2015 09:58:57 +1100
+Message-ID: <1447109937.31884.42.camel@kernel.crashing.org>
 References: <cover.1446162273.git.luto@kernel.org>
- <20151109133624-mutt-send-email-mst@redhat.com>
+	<20151109133624-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20151109133624-mutt-send-email-mst@redhat.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Andy Lutomirski <luto@kernel.org>
-Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Christoph Hellwig <hch@lst.de>, benh@kernel.crashing.org, KVM <kvm@vger.kernel.org>, dwmw2@infradead.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Andy Lutomirski <luto@kernel.org>, dwmw2@infradead.org
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 09/11/2015 13:15, Michael S. Tsirkin wrote:
-> Well that's not exactly true. I think we would like to make
-> it possible to put virtio devices behind an IOMMU on x86,
-> but if this means existing guests break, then many people won't be able
-> to use this option: having to find out which kernel version your guest
-> is running is a significant burden.
-> 
-> So on the host side, we need to detect guests that
-> don't program the IOMMU and make QEMU ignore it.
-> I think we need to figure out a way to do this
-> before we commit to the guest change.
-
-What is the usecase for putting virtio devices behind an IOMMU, apart from:
-
-1) "because you can"
-
-2) using VFIO within the guest
-
-?  Case 1 can be ignored, and in case 2 the guest will do the right thing.
-
-> Additionally, IOMMU overhead is very high when running within the VM.
-> So for uses such as VFIO, we'd like a way to make something like
-> iommu-pt the default.
-
-That's not something that the kernel cares about.  It's just a
-configuration issue.
-
-Paolo
+U28gLi4uCgpJJ3ZlIGZpbmFsbHkgdHJpZWQgdG8gc29ydCB0aGF0IG91dCBmb3IgcG93ZXJwYyBh
+bmQgSSBjYW4ndCBmaW5kIGEgd2F5CnRvIG1ha2UgdGhhdCB3b3JrIHRoYXQgaXNuJ3QgYSBjb21w
+bGV0ZSBwaWxlIG9mIHN0aW5raW5nIHNoaXQuCgpJJ20gdmVyeSB0ZW1wdGVkIHRvIGdvIGJhY2sg
+dG8gbXkgb3JpZ2luYWwgaWRlYTogdmlydGlvIGl0c2VsZiBzaG91bGQKaW5kaWNhdGUgaXQncyAi
+YnlwYXNzaW5nIGFiaWxpdHkiIHZpYSB0aGUgdmlydGlvIGNvbmZpZyBzcGFjZSBvciBzb21lCm90
+aGVyIGJpdCAobGlrZSB0aGUgUHJvZ0lmIG9mIHRoZSBQQ0kgaGVhZGVyIGV0Yy4uLikuCgpJIGRv
+bid0IHNlZSBob3cgSSBjYW4gbWFrZSBpdCB3b3JrIG90aGVyd2lzZS4KClRoZSBwcm9ibGVtIHdp
+dGggdGhlIHN0YXRlbWVudCAiaXQncyBhIHBsYXRmb3JtIG1hdHRlciIgaXMgdGhhdDoKCsKgIC0g
+SXQncyBub3QgZW50aXJlbHkgY29ycmVjdC4gSXQncyBhY3R1YWxseSBhIGZlYXR1cmUgb2YgYSBz
+cGVjaWZpYwp2aXJ0aW8gaW1wbGVtZW50YXRpb24gKHFlbXUncykgdGhhdCBpdCBieXBhc3NlcyBh
+bGwgdGhlIHBsYXRmb3JtIElPTU1VCmZhY2lsaXRpZXMuCgrCoCAtIFRoZSBwbGF0Zm9ybXMgKG9u
+IHBvd2VycGMgdGhlcmUncyBhdCBsZWFzdCAzIG9yIDQgdGhhdCBoYXZlIHFlbXUKZW11bGF0aW9u
+IGFuZCBzdXBwb3J0IHNvbWUgZm9ybSBvZiBQQ0kpIGRvbid0IGhhdmUgYW4gZXhpc3Rpbmcgd2F5
+IHRvCmNvbnZleSB0aGUgaW5mb3JtYXRpb24gdGhhdCBhIGRldmljZSBieXBhc3NlcyB0aGUgSU9N
+TVUgKGlmIGFueSkuCgrCoCAtIEV2ZW4gaWYgd2UgYWRkIHN1Y2ggYSBtZWNoYW5pc20gKG5ldyBw
+cm9wZXJ0eSBpbiB0aGUgZGV2aWNlLXRyZWUpLAp3ZSBlbmQgdXAgd2l0aCBhIGJpZyB0dXJkOiBC
+ZWNhdXNlIHdlIG5lZWQgdG8gYmUgY29tcGF0aWJsZSB3aXRoIG9sZGVyCnFlbXVzLCB3ZSBlc3Nl
+bnRpYWxseSBuZWVkIGEgcXVpcmsgdGhhdCB3aWxsIG1ha2UgYWxsIHZpcnRpbyBkZXZpY2VzCmFz
+c3VtZSB0aGF0IHByb3BlcnR5IGlzIHByZXNlbnQuIFRoYXQgd2lsbCBvZiBjb3Vyc2UgYnJlYWsg
+d2hlbmV2ZXIgd2UKdHJ5IHRvIHVzZSBhbm90aGVyIGltcGxlbWVudGF0aW9uIG9mIHZpcnRpbyBv
+biBwb3dlcnBjIHdoaWNoIGRvZXNuJ3QKYnlwYXNzIHRoZSBpb21tdS4KCldlIGRvbid0IGhhdmUg
+YSB3YXkgdG8gZGlmZmVyZW5jaWF0ZSBhIHZpcnRpbyBkZXZpY2UgdGhhdCBkb2VzIHRoZQpieXBh
+c3MgZnJvbSBvbmUgdGhhdCBkb2Vzbid0IGFuZCB0aGUgYmFja3dhcmQgY29tcGF0aWJpbGl0eSBy
+ZXF1aXJlbWVudApmb3JjZXMgdXMgdG8gdHJlYXQgYWxsIGV4aXN0aW5nIHZpcnRpbyBkZXZpY2Vz
+IGFzIGRvaW5nIGJ5cGFzcy4KClRoZSBvbmx5IHdheSBvdXQgb2YgdGhpcyB3aGlsZSBrZWVwaW5n
+IHRoZSAicGxhdGZvcm0iIHN0dWZmIHdvdWxkIGJlIHRvCmFsc28gYnVtcCBzb21lIGtpbmQgb2Yg
+dmVyc2lvbiBpbiB0aGUgdmlydGlvIGNvbmZpZyAob3IgUENJIGhlYWRlcikuIEkKaGF2ZSBubyBv
+dGhlciB3YXkgdG8gZGlmZmVyZW5jaWF0ZSBiZXR3ZWVuICJ0aGlzIGlzIGFuIG9sZCBxZW11IHRo
+YXQKZG9lc24ndCBkbyB0aGUgJ2J5cGFzcyBwcm9wZXJ0eScgeWV0IiBmcm9tICJ0aGlzIGlzIGEg
+dmlydGlvIGRldmljZQp0aGF0IGRvZXNuJ3QgYnlwYXNzIi4KCkFueSBiZXR0ZXIgaWRlYSA/CgpD
+aGVlcnMsCkJlbi4KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
