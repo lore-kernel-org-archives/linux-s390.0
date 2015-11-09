@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <1446684640-4112-1-git-send-email-amanieu@gmail.com>
-References: <1446684640-4112-1-git-send-email-amanieu@gmail.com>
-From: Andy Lutomirski <luto@amacapital.net>
-Date: Sat, 7 Nov 2015 21:09:27 -0800
-Message-ID: <CALCETrWKK_REdX7TJO8X7jC=8k=YdgJH_txXpC4Pdzn-tukg5A@mail.gmail.com>
+Date: Mon, 9 Nov 2015 16:12:04 +0100
+From: Oleg Nesterov <oleg@redhat.com>
 Subject: Re: [PATCH v2 00/20] Fix handling of compat_siginfo_t
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <20151109151204.GA10760@redhat.com>
+References: <1446684640-4112-1-git-send-email-amanieu@gmail.com> <CALCETrWKK_REdX7TJO8X7jC=8k=YdgJH_txXpC4Pdzn-tukg5A@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CALCETrWKK_REdX7TJO8X7jC=8k=YdgJH_txXpC4Pdzn-tukg5A@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Amanieu d'Antras <amanieu@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Oleg Nesterov <oleg@redhat.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS Mailing List <linux-mips@linux-mips.org>, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, sparclinux@vger.kernel.org, Linux FS Devel <linux-fsdevel@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, Kenton Varda <kenton@sandstorm.io>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Amanieu d'Antras <amanieu@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS Mailing List <linux-mips@linux-mips.org>, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, sparclinux@vger.kernel.org, Linux FS Devel <linux-fsdevel@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, Kenton Varda <kenton@sandstorm.io>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Nov 4, 2015 at 4:50 PM, Amanieu d'Antras <amanieu@gmail.com> wrote:
-> One issue that isn't resolved in this series is sending signals between a 32-bit
-> process and 64-bit process. Sending a si_int will work correctly, but a si_ptr
-> value will likely get corrupted due to the different layouts of the 32-bit and
-> 64-bit siginfo_t structures.
+On 11/07, Andy Lutomirski wrote:
+>
+> On Wed, Nov 4, 2015 at 4:50 PM, Amanieu d'Antras <amanieu@gmail.com> wrote:
+> > One issue that isn't resolved in this series is sending signals between a 32-bit
+> > process and 64-bit process. Sending a si_int will work correctly, but a si_ptr
+> > value will likely get corrupted due to the different layouts of the 32-bit and
+> > 64-bit siginfo_t structures.
+>
+> This is so screwed up it's not even funny.
 
-This is so screwed up it's not even funny.
+Agreed,
 
-A 64-bit big-endian compat calls rt_sigqueueinfo.  It passes in (among
-other things) a sigval_t.  The kernel can choose to interpret it as a
-pointer (call it p) or an integer (call it i).  Then (unsigned long)p
-= (i<<32) | [something].  If the number was an integer to begin with
-*and* user code zeroed out the mess first, then [something] will be 0.
-Regardless, p != i unless they're both zero.
+> A 64-bit big-endian compat calls rt_sigqueueinfo.  It passes in (among
+> other things) a sigval_t.  The kernel can choose to interpret it
 
-If the result gets delivered to a signalfd, then it's plausible that
-everything could work.  If it gets delivered to a 64-bit siginfo, then
-all is well because it's in exactly the same screwed up state it was
-in when the signal gets sent.
+I always thought that the kernel should not interpret it at all. And indeed,
+copy_siginfo_to_user() does
 
-If, however, it's delivered to a compat task, wtf is the kernel
-supposed to do?  We're effectively supposed to convert a 64-bit
-sigval_t to a 32-bit sigval_t.  On a little-endian architecture, we
-can fudge it because it doesn't really matter whether we consider the
-pointer or the int to be authoritative.  I think that, on big-endian,
-we're screwed.
+	if (from->si_code < 0)
+		return __copy_to_user(to, from, sizeof(siginfo_t))
 
-BTW, x86 has its own set of screwups here.  Somehow cr2 and error_code
-ended up as part of ucontext instead of siginfo, which makes
-absolutely no sense to me and bloats task_struct.
+probably copy_siginfo_to_user32() should do something similar, at least
+it should not truncate ->si_code it it is less than zero.
 
---Andy
+Not sure what signalfd_copyinfo() should do.
+
+But perhaps I was wrong, I failed to find man sigqueueinfo, and man
+sigqueue() documents that it passes sigval_t.
+
+
+> BTW, x86 has its own set of screwups here.  Somehow cr2 and error_code
+> ended up as part of ucontext instead of siginfo, which makes
+> absolutely no sense to me and bloats task_struct.
+
+Yes, and probably ->ip should have been the part of siginfo too. Say,
+if you get SIGBUS you can't trust sc->ip if another signal was dequeued
+before SIGBUS, in this case sc->ip will point to the handler of that
+another signal. That is why we have SYNCHRONOUS_MASK and it helps, but
+still this doesn't look nice.
+
+Oleg.
