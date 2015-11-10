@@ -1,14 +1,15 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Andy Lutomirski <luto@amacapital.net>
 Subject: Re: [PATCH v4 0/6] virtio core DMA API conversion
-Date: Tue, 10 Nov 2015 09:58:57 +1100
-Message-ID: <1447109937.31884.42.camel@kernel.crashing.org>
+Date: Mon, 9 Nov 2015 16:46:20 -0800
+Message-ID: <CALCETrX7Gkw3WrBHff=TpCFHj444E8hHcR6sAqOghQFBo5wp_A@mail.gmail.com>
 References: <cover.1446162273.git.luto@kernel.org>
 	<20151109133624-mutt-send-email-mst@redhat.com>
+	<1447109937.31884.42.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20151109133624-mutt-send-email-mst@redhat.com>
+In-Reply-To: <1447109937.31884.42.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,41 +21,61 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Andy Lutomirski <luto@kernel.org>, dwmw2@infradead.org
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-U28gLi4uCgpJJ3ZlIGZpbmFsbHkgdHJpZWQgdG8gc29ydCB0aGF0IG91dCBmb3IgcG93ZXJwYyBh
-bmQgSSBjYW4ndCBmaW5kIGEgd2F5CnRvIG1ha2UgdGhhdCB3b3JrIHRoYXQgaXNuJ3QgYSBjb21w
-bGV0ZSBwaWxlIG9mIHN0aW5raW5nIHNoaXQuCgpJJ20gdmVyeSB0ZW1wdGVkIHRvIGdvIGJhY2sg
-dG8gbXkgb3JpZ2luYWwgaWRlYTogdmlydGlvIGl0c2VsZiBzaG91bGQKaW5kaWNhdGUgaXQncyAi
-YnlwYXNzaW5nIGFiaWxpdHkiIHZpYSB0aGUgdmlydGlvIGNvbmZpZyBzcGFjZSBvciBzb21lCm90
-aGVyIGJpdCAobGlrZSB0aGUgUHJvZ0lmIG9mIHRoZSBQQ0kgaGVhZGVyIGV0Yy4uLikuCgpJIGRv
-bid0IHNlZSBob3cgSSBjYW4gbWFrZSBpdCB3b3JrIG90aGVyd2lzZS4KClRoZSBwcm9ibGVtIHdp
-dGggdGhlIHN0YXRlbWVudCAiaXQncyBhIHBsYXRmb3JtIG1hdHRlciIgaXMgdGhhdDoKCsKgIC0g
-SXQncyBub3QgZW50aXJlbHkgY29ycmVjdC4gSXQncyBhY3R1YWxseSBhIGZlYXR1cmUgb2YgYSBz
-cGVjaWZpYwp2aXJ0aW8gaW1wbGVtZW50YXRpb24gKHFlbXUncykgdGhhdCBpdCBieXBhc3NlcyBh
-bGwgdGhlIHBsYXRmb3JtIElPTU1VCmZhY2lsaXRpZXMuCgrCoCAtIFRoZSBwbGF0Zm9ybXMgKG9u
-IHBvd2VycGMgdGhlcmUncyBhdCBsZWFzdCAzIG9yIDQgdGhhdCBoYXZlIHFlbXUKZW11bGF0aW9u
-IGFuZCBzdXBwb3J0IHNvbWUgZm9ybSBvZiBQQ0kpIGRvbid0IGhhdmUgYW4gZXhpc3Rpbmcgd2F5
-IHRvCmNvbnZleSB0aGUgaW5mb3JtYXRpb24gdGhhdCBhIGRldmljZSBieXBhc3NlcyB0aGUgSU9N
-TVUgKGlmIGFueSkuCgrCoCAtIEV2ZW4gaWYgd2UgYWRkIHN1Y2ggYSBtZWNoYW5pc20gKG5ldyBw
-cm9wZXJ0eSBpbiB0aGUgZGV2aWNlLXRyZWUpLAp3ZSBlbmQgdXAgd2l0aCBhIGJpZyB0dXJkOiBC
-ZWNhdXNlIHdlIG5lZWQgdG8gYmUgY29tcGF0aWJsZSB3aXRoIG9sZGVyCnFlbXVzLCB3ZSBlc3Nl
-bnRpYWxseSBuZWVkIGEgcXVpcmsgdGhhdCB3aWxsIG1ha2UgYWxsIHZpcnRpbyBkZXZpY2VzCmFz
-c3VtZSB0aGF0IHByb3BlcnR5IGlzIHByZXNlbnQuIFRoYXQgd2lsbCBvZiBjb3Vyc2UgYnJlYWsg
-d2hlbmV2ZXIgd2UKdHJ5IHRvIHVzZSBhbm90aGVyIGltcGxlbWVudGF0aW9uIG9mIHZpcnRpbyBv
-biBwb3dlcnBjIHdoaWNoIGRvZXNuJ3QKYnlwYXNzIHRoZSBpb21tdS4KCldlIGRvbid0IGhhdmUg
-YSB3YXkgdG8gZGlmZmVyZW5jaWF0ZSBhIHZpcnRpbyBkZXZpY2UgdGhhdCBkb2VzIHRoZQpieXBh
-c3MgZnJvbSBvbmUgdGhhdCBkb2Vzbid0IGFuZCB0aGUgYmFja3dhcmQgY29tcGF0aWJpbGl0eSBy
-ZXF1aXJlbWVudApmb3JjZXMgdXMgdG8gdHJlYXQgYWxsIGV4aXN0aW5nIHZpcnRpbyBkZXZpY2Vz
-IGFzIGRvaW5nIGJ5cGFzcy4KClRoZSBvbmx5IHdheSBvdXQgb2YgdGhpcyB3aGlsZSBrZWVwaW5n
-IHRoZSAicGxhdGZvcm0iIHN0dWZmIHdvdWxkIGJlIHRvCmFsc28gYnVtcCBzb21lIGtpbmQgb2Yg
-dmVyc2lvbiBpbiB0aGUgdmlydGlvIGNvbmZpZyAob3IgUENJIGhlYWRlcikuIEkKaGF2ZSBubyBv
-dGhlciB3YXkgdG8gZGlmZmVyZW5jaWF0ZSBiZXR3ZWVuICJ0aGlzIGlzIGFuIG9sZCBxZW11IHRo
-YXQKZG9lc24ndCBkbyB0aGUgJ2J5cGFzcyBwcm9wZXJ0eScgeWV0IiBmcm9tICJ0aGlzIGlzIGEg
-dmlydGlvIGRldmljZQp0aGF0IGRvZXNuJ3QgYnlwYXNzIi4KCkFueSBiZXR0ZXIgaWRlYSA/CgpD
-aGVlcnMsCkJlbi4KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
-YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Mon, Nov 9, 2015 at 2:58 PM, Benjamin Herrenschmidt
+<benh@kernel.crashing.org> wrote:
+> So ...
+>
+> I've finally tried to sort that out for powerpc and I can't find a way
+> to make that work that isn't a complete pile of stinking shit.
+>
+> I'm very tempted to go back to my original idea: virtio itself should
+> indicate it's "bypassing ability" via the virtio config space or some
+> other bit (like the ProgIf of the PCI header etc...).
+>
+> I don't see how I can make it work otherwise.
+>
+> The problem with the statement "it's a platform matter" is that:
+>
+>   - It's not entirely correct. It's actually a feature of a specific
+> virtio implementation (qemu's) that it bypasses all the platform IOMMU
+> facilities.
+>
+>   - The platforms (on powerpc there's at least 3 or 4 that have qemu
+> emulation and support some form of PCI) don't have an existing way to
+> convey the information that a device bypasses the IOMMU (if any).
+>
+>   - Even if we add such a mechanism (new property in the device-tree),
+> we end up with a big turd: Because we need to be compatible with older
+> qemus, we essentially need a quirk that will make all virtio devices
+> assume that property is present. That will of course break whenever we
+> try to use another implementation of virtio on powerpc which doesn't
+> bypass the iommu.
+>
+> We don't have a way to differenciate a virtio device that does the
+> bypass from one that doesn't and the backward compatibility requirement
+> forces us to treat all existing virtio devices as doing bypass.
+
+The problem here is that in some of the problematic cases the virtio
+driver may not even be loaded.  If someone runs an L1 guest with an
+IOMMU-bypassing virtio device and assigns it to L2 using vfio, then
+*boom* L1 crashes.  (Same if, say, DPDK gets used, I think.)
+
+>
+> The only way out of this while keeping the "platform" stuff would be to
+> also bump some kind of version in the virtio config (or PCI header). I
+> have no other way to differenciate between "this is an old qemu that
+> doesn't do the 'bypass property' yet" from "this is a virtio device
+> that doesn't bypass".
+>
+> Any better idea ?
+
+I'd suggest that, in the absence of the new DT binding, we assume that
+any PCI device with the virtio vendor ID is passthrough on powerpc.  I
+can do this in the virtio driver, but if it's in the platform code
+then vfio gets it right too (i.e. fails to load).
+
+--Andy
