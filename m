@@ -1,15 +1,16 @@
-From: Andy Lutomirski <luto@amacapital.net>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [PATCH v4 0/6] virtio core DMA API conversion
-Date: Mon, 9 Nov 2015 16:46:20 -0800
-Message-ID: <CALCETrX7Gkw3WrBHff=TpCFHj444E8hHcR6sAqOghQFBo5wp_A@mail.gmail.com>
+Date: Tue, 10 Nov 2015 13:04:36 +1100
+Message-ID: <1447121076.31884.61.camel@kernel.crashing.org>
 References: <cover.1446162273.git.luto@kernel.org>
 	<20151109133624-mutt-send-email-mst@redhat.com>
 	<1447109937.31884.42.camel@kernel.crashing.org>
+	<CALCETrX7Gkw3WrBHff=TpCFHj444E8hHcR6sAqOghQFBo5wp_A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1447109937.31884.42.camel@kernel.crashing.org>
+In-Reply-To: <CALCETrX7Gkw3WrBHff=TpCFHj444E8hHcR6sAqOghQFBo5wp_A@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,61 +22,69 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andy Lutomirski <luto@amacapital.net>
 Cc: Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Nov 9, 2015 at 2:58 PM, Benjamin Herrenschmidt
-<benh@kernel.crashing.org> wrote:
-> So ...
->
-> I've finally tried to sort that out for powerpc and I can't find a way
-> to make that work that isn't a complete pile of stinking shit.
->
-> I'm very tempted to go back to my original idea: virtio itself should
-> indicate it's "bypassing ability" via the virtio config space or some
-> other bit (like the ProgIf of the PCI header etc...).
->
-> I don't see how I can make it work otherwise.
->
-> The problem with the statement "it's a platform matter" is that:
->
->   - It's not entirely correct. It's actually a feature of a specific
-> virtio implementation (qemu's) that it bypasses all the platform IOMMU
-> facilities.
->
->   - The platforms (on powerpc there's at least 3 or 4 that have qemu
-> emulation and support some form of PCI) don't have an existing way to
-> convey the information that a device bypasses the IOMMU (if any).
->
->   - Even if we add such a mechanism (new property in the device-tree),
-> we end up with a big turd: Because we need to be compatible with older
-> qemus, we essentially need a quirk that will make all virtio devices
-> assume that property is present. That will of course break whenever we
-> try to use another implementation of virtio on powerpc which doesn't
-> bypass the iommu.
->
-> We don't have a way to differenciate a virtio device that does the
-> bypass from one that doesn't and the backward compatibility requirement
-> forces us to treat all existing virtio devices as doing bypass.
-
-The problem here is that in some of the problematic cases the virtio
-driver may not even be loaded.  If someone runs an L1 guest with an
-IOMMU-bypassing virtio device and assigns it to L2 using vfio, then
-*boom* L1 crashes.  (Same if, say, DPDK gets used, I think.)
-
->
-> The only way out of this while keeping the "platform" stuff would be to
-> also bump some kind of version in the virtio config (or PCI header). I
-> have no other way to differenciate between "this is an old qemu that
-> doesn't do the 'bypass property' yet" from "this is a virtio device
-> that doesn't bypass".
->
-> Any better idea ?
-
-I'd suggest that, in the absence of the new DT binding, we assume that
-any PCI device with the virtio vendor ID is passthrough on powerpc.  I
-can do this in the virtio driver, but if it's in the platform code
-then vfio gets it right too (i.e. fails to load).
-
---Andy
+T24gTW9uLCAyMDE1LTExLTA5IGF0IDE2OjQ2IC0wODAwLCBBbmR5IEx1dG9taXJza2kgd3JvdGU6
+Cj4gVGhlIHByb2JsZW0gaGVyZSBpcyB0aGF0IGluIHNvbWUgb2YgdGhlIHByb2JsZW1hdGljIGNh
+c2VzIHRoZSB2aXJ0aW8KPiBkcml2ZXIgbWF5IG5vdCBldmVuIGJlIGxvYWRlZC7CoCBJZiBzb21l
+b25lIHJ1bnMgYW4gTDEgZ3Vlc3Qgd2l0aCBhbgo+IElPTU1VLWJ5cGFzc2luZyB2aXJ0aW8gZGV2
+aWNlIGFuZCBhc3NpZ25zIGl0IHRvIEwyIHVzaW5nIHZmaW8sIHRoZW4KPiAqYm9vbSogTDEgY3Jh
+c2hlcy7CoCAoU2FtZSBpZiwgc2F5LCBEUERLIGdldHMgdXNlZCwgSSB0aGluay4pCj4gCj4gPgo+
+ID4gVGhlIG9ubHkgd2F5IG91dCBvZiB0aGlzIHdoaWxlIGtlZXBpbmcgdGhlICJwbGF0Zm9ybSIg
+c3R1ZmYgd291bGQgYmUgdG8KPiA+IGFsc28gYnVtcCBzb21lIGtpbmQgb2YgdmVyc2lvbiBpbiB0
+aGUgdmlydGlvIGNvbmZpZyAob3IgUENJIGhlYWRlcikuIEkKPiA+IGhhdmUgbm8gb3RoZXIgd2F5
+IHRvIGRpZmZlcmVuY2lhdGUgYmV0d2VlbiAidGhpcyBpcyBhbiBvbGQgcWVtdSB0aGF0Cj4gPiBk
+b2Vzbid0IGRvIHRoZSAnYnlwYXNzIHByb3BlcnR5JyB5ZXQiIGZyb20gInRoaXMgaXMgYSB2aXJ0
+aW8gZGV2aWNlCj4gPiB0aGF0IGRvZXNuJ3QgYnlwYXNzIi4KPiA+Cj4gPiBBbnkgYmV0dGVyIGlk
+ZWEgPwo+IAo+IEknZCBzdWdnZXN0IHRoYXQsIGluIHRoZSBhYnNlbmNlIG9mIHRoZSBuZXcgRFQg
+YmluZGluZywgd2UgYXNzdW1lIHRoYXQKPiBhbnkgUENJIGRldmljZSB3aXRoIHRoZSB2aXJ0aW8g
+dmVuZG9yIElEIGlzIHBhc3N0aHJvdWdoIG9uIHBvd2VycGMuwqAgSQo+IGNhbiBkbyB0aGlzIGlu
+IHRoZSB2aXJ0aW8gZHJpdmVyLCBidXQgaWYgaXQncyBpbiB0aGUgcGxhdGZvcm0gY29kZQo+IHRo
+ZW4gdmZpbyBnZXRzIGl0IHJpZ2h0IHRvbyAoaS5lLiBmYWlscyB0byBsb2FkKS4KClRoZSBwcm9i
+bGVtIGlzIHRoZXJlIGlzbid0ICphKiB2aXJ0aW8gdmVuZG9yIElELiBJdCdzIHRoZSBSZWRIYXQg
+dmVuZG9yCklEIHdoaWNoIHdpbGwgYmUgdXNlZCBieSBtb3JlIHRoYW4ganVzdCB2aXJ0aW8sIHNv
+IHdlIG5lZWQgdG8Kc3BlY2lmaWNhbGx5IGxpc3QgdGhlIGRldmljZXMuCgpBZGRpdGlvbmFsbHks
+IHRoYXQgc3RpbGwgbWVhbnMgdGhhdCBvbmNlIHdlIGhhdmUgYSB2aXJ0aW8gZGV2aWNlIHRoYXQK
+YWN0dWFsbHkgdXNlcyB0aGUgaW9tbXUsIHBvd2VycGMgd2lsbCBub3Qgd29yayBzaW5jZSB0aGUg
+Indvcmthcm91bmQiCmFib3ZlIHdpbGwga2ljayBpbi4KClRoZSAiaW4gYWJzZW5jZSBvZiB0aGUg
+bmV3IERUIGJpbmRpbmciIGRvZXNuJ3QgbWFrZSB0aGF0IG11Y2ggc2Vuc2UuCgpUaG9zZSBwbGF0
+Zm9ybXMgdXNlIGRldmljZS10cmVlcyBkZWZpbmVkIHNpbmNlIHRoZSBkYXduIG9mIGFnZXMgYnkK
+YWN0dWFsIG9wZW4gZmlybXdhcmUgaW1wbGVtZW50YXRpb25zLCB0aGV5IGVpdGhlciBoYXZlIG5v
+IGlvbW11CnJlcHJlc2VudGF0aW9uIGluIHRoZXJlIChNYWNzLCB0aGUgcGxhdGZvcm0gY29kZSBo
+b29rcyBpdCBhbGwgdXApIG9yCmhhdmUgdmFyaW91cyBwcm9wZXJ0aWVzIHJlbGF0ZWQgdG8gdGhl
+IGlvbW11IGJ1dCBubyBjb25jZXB0IG9mICJieXBhc3MiCmluIHRoZXJlLgoKV2UgY2FuICphZGQq
+IGEgbmV3IHByb3BlcnR5IHVuZGVyIHNvbWUgY2lyY3Vtc3RhbmNlcyB0aGF0IGluZGljYXRlcyBh
+CmJ5cGFzcyBvbiBhIHBlci1kZXZpY2UgYmFzaXMsIGhvd2V2ZXIgdGhhdCBkb2Vzbid0IGNvbXBs
+ZXRlbHkgc29sdmUgaXQ6CgrCoCAtIEFzIEkgc2FpZCBhYm92ZSwgd2hhdCBkb2VzIHRoZSBhYnNl
+bmNlIG9mIHRoYXQgcHJvcGVydHkgbWVhbiA/IEFuCm9sZCBxZW11IHRoYXQgZG9lcyBieXBhc3Mg
+b24gYWxsIHZpcnRpbyBvciBhIG5ldyBxZW11IHRyeWluZyB0byB0ZWxsCnlvdSB0aGF0IHRoZSB2
+aXJ0aW8gZGV2aWNlIGFjdHVhbGx5IGRvZXMgdXNlIHRoZSBpb21tdSAob3Igc29tZSBvdGhlcgpl
+bnZpcm9ubWVudCB0aGF0IGlzbid0IHFlbXUpID8KCsKgIC0gT24gdGhpbmdzIGxpa2UgbWFjcywg
+dGhlIGRldmljZS10cmVlIGlzIGdlbmVyYXRlZCBieSBvcGVuYmlvcywgaXQKd291bGQgaGF2ZSB0
+byBoYXZlIHNvbWUgYWRkZWQgbG9naWMgdG8gdHJ5IHRvIGZpZ3VyZSB0aGF0IG91dCwgd2hpY2gK
+bWVhbnMgaXQgbmVlZHMgdG8ga25vdyAqdmlhIGRpZmZlcmVudCBtZWFucyogdGhhdCBzb21lIG9y
+IGFsbCB2aXJ0aW8KZGV2aWNlcyBieXBhc3MgdGhlIGlvbW11LgoKSSB0aHVzIGdvIGJhY2sgdG8g
+bXkgb3JpZ2luYWwgc3RhdGVtZW50LCBpdCdzIGEgTE9UIGVhc2llciB0byBoYW5kbGUgaWYKdGhl
+IGRldmljZSBpdHNlbGYgaXMgc2VsZiBkZXNjcmliaW5nLCBpbmRpY2F0aW5nIHdoZXRoZXIgaXQg
+aXMgc2V0IHRvCmJ5cGFzcyBhIGhvc3QgaW9tbXUgb3Igbm90LiBGb3IgTDEtPkwyLCB3ZWxsLCB0
+aGF0IHdvdWxkbid0IGJlIHRoZQpmaXJzdCB0aW1lIHFlbXUvVkZJTyBwbGF5cyB0cmlja3Mgd2l0
+aCB0aGUgcGFzc2VkIHRocm91Z2ggZGV2aWNlCmNvbmZpZ3VyYXRpb24gc3BhY2UuLi4KCk5vdGUg
+dGhhdCB0aGUgYWJvdmUgY2FuIGJlIHNvbHZlZCB2aWEgc29tZSBraW5kIG9mIGNvbXByb21pc2U6
+IFRoZQpkZXZpY2Ugc2VsZiBkZXNjcmliZXMgdGhlIGFiaWxpdHkgdG8gaG9ub3IgdGhlIGlvbW11
+LCBhbG9uZyB3aXRoIHRoZQpwcm9wZXJ0eSAob3IgQUNQSSB0YWJsZSBlbnRyeSkgdGhhdCBpbmRp
+Y2F0ZXMgd2hldGhlciBvciBub3QgaXQgZG9lcy4KCklFLiBXZSBjb3VsZCB1c2UgdGhlIHJldmlz
+aW9uIG9yIFByb2dJZiBmaWVsZCBvZiB0aGUgY29uZmlnIHNwYWNlIGZvcgpleGFtcGxlLiBPciBz
+b21ldGhpbmcgaW4gdmlydGlvIGNvbmZpZy4gSWYgaXQncyBhbiAib2xkIiBkZXZpY2UsIHdlCmtu
+b3cgaXQgYWx3YXlzIGJ5cGFzcy4gSWYgaXQncyBhIG5ldyBkZXZpY2UsIHdlIGtub3cgaXQgb25s
+eSBieXBhc3NlcwppZiB0aGUgY29ycmVzcG9uZGluZyBwcm9wZXJ0eSBpcyBpbi4gSSBzdGlsbCB3
+b3VsZCBoYXZlIHRvIHNvcnQgb3V0IHRoZQpvcGVuYmlvcyBjYXNlIGZvciBtYWMgYW1vbmcgb3Ro
+ZXJzIGJ1dCBpdCdzIGF0IGxlYXN0IGEgd29ya2FibGUKZGlyZWN0aW9uLgoKQlRXLiBEb24ndCB5
+b3UgaGF2ZSBhIHNpbWlsYXIgcHJvYmxlbSBvbiB4ODYgdGhhdCB0b2RheSBxZW11IGNsYWltcwp0
+aGF0IGV2ZXJ5dGhpbmcgaG9ub3JzIHRoZSBpb21tdSBpbiBBQ1BJID8KClVubGVzcyBzb21lYm9k
+eSBjYW4gY29tZSB1cCB3aXRoIGEgYmV0dGVyIGlkZWEuLi4KCkNoZWVycywKQmVuLgoKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
+bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
+dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
+emF0aW9u
