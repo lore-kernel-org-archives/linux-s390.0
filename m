@@ -1,32 +1,28 @@
-From: Paul Moore <pmoore@redhat.com>
-Date: Wed, 11 Nov 2015 01:05:27 +0000
-Subject: Re: [PATCH] arch: update s390/s390x system call tables
-Message-Id: <1517038.OukBcdHVGW@sifl>
-In-Reply-To: <1447071339-36522-2-git-send-email-heiko.carstens@de.ibm.com>
-References: <1447071339-36522-2-git-send-email-heiko.carstens@de.ibm.com>
+From: Petr Machata <pmachata@gmail.com>
+Date: Wed, 11 Nov 2015 18:21:04 +0000
+Subject: Re: [PATCH] ltrace: update s390 system call tables
+Message-Id: <CAKfwACUm_fLFkOf7ymGhs=xc_XBXUe-jmBGZikpTfZgg7QKMow@mail.gmail.com>
+In-Reply-To: <1446812905-56448-1-git-send-email-heiko.carstens@de.ibm.com>
+References: <1446812905-56448-1-git-send-email-heiko.carstens@de.ibm.com>
 To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Monday, November 09, 2015 01:15:39 PM Heiko Carstens wrote:
-> s390 and s390x gained quite a few new system calls:
-> - numa related system calls
-> - the separated socket system calls
-> - two more s390 specific pci mmio system calls
-> 
-> All architectures got the new membarrier and userfaultfd system calls.
-> 
-> This patch updates the s390 specific system call tables and updates other
-> architectures where needed.
-> 
-> Also remove some extra whitespace from the s390 specific system call tables.
-> 
-> Both 'make check' and './regression -T live' still work for s390 and s390x
-> after this update.
+2015-11-06 13:28 GMT+01:00 Heiko Carstens <heiko.carstens@de.ibm.com>:
+> just a simple patch for ltrace to add update and fix the system call tables
+> on s390. In addition this also slightly improves the script to generate
+> the tables.
 
-Thanks for the patch, I'm still reviewing it so it's not yet merged (got 
-tangled up in some other 4.3 related updates) but I didn't want you to think I 
-was ignoring you.
+Thanks, applied.
 
--- 
-paul moore
-security @ redhat
+There was some trickery with the repository.  It seems Alioth now
+hosts GITs on scm.alioth.debian.org//git/ltrace/ltrace.git, whereas it
+was scm.alioth.debian.org/git/collab-maint/ltrace.git before.  The old
+repo refused my commits, I noticed the change, and pushed to the new
+repo.  But that didn't have updates since early last year, which I
+didn't notice.  So currently your patch is commited all the way back
+among commits from like February 2014.  The newer commits are rebased
+on top of that.  I don't think it makes much difference, we didn't
+have a release in that time period.
+
+Thanks,
+Petr
