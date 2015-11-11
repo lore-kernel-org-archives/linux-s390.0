@@ -1,23 +1,23 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
-Date: Wed, 11 Nov 2015 11:11:14 +0200
-Message-ID: <20151111110744-mutt-send-email-mst@redhat.com>
-References: <20151028132331-mutt-send-email-mst@redhat.com>
-	<1446039327.3405.216.camel@infradead.org>
-	<20151028155105-mutt-send-email-mst@redhat.com>
-	<1446041609.3405.228.camel@infradead.org>
-	<20151028161424-mutt-send-email-mst@redhat.com>
+Date: Wed, 11 Nov 2015 12:05:09 +0200
+Message-ID: <20151111111125-mutt-send-email-mst@redhat.com>
+References: <20151028161424-mutt-send-email-mst@redhat.com>
 	<1446042754.3405.237.camel@infradead.org>
 	<20151028175136-mutt-send-email-mst@redhat.com>
 	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
 	<20151029104301-mutt-send-email-mst@redhat.com>
-	<20151030151612.GB2704@suse.de>
+	<1446135536.3405.279.camel@infradead.org>
+	<20151108120627-mutt-send-email-mst@redhat.com>
+	<20151108114946.GG2255@suse.de>
+	<20151109224720-mutt-send-email-mst@redhat.com>
+	<CALCETrUKnNajtHMGarpxdVEVzbJvDr6bU88j530DVJXWrGW9bQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20151030151612.GB2704@suse.de>
+In-Reply-To: <CALCETrUKnNajtHMGarpxdVEVzbJvDr6bU88j530DVJXWrGW9bQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,55 +29,109 @@ Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Joerg Roedel <jroedel@suse.de>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, Oct 31, 2015 at 12:16:12AM +0900, Joerg Roedel wrote:
-> On Thu, Oct 29, 2015 at 11:01:41AM +0200, Michael S. Tsirkin wrote:
-> > Example: you have a mix of assigned devices and virtio devices. You
-> > don't trust your assigned device vendor not to corrupt your memory so
-> > you want to limit the damage your assigned device can do to your guest,
-> > so you use an IOMMU for that.  Thus existing iommu=pt within guest is out.
-> > 
-> > But you trust your hypervisor (you have no choice anyway),
-> > and you don't want the overhead of tweaking IOMMU
-> > on data path for virtio. Thus iommu=on is out too.
+On Tue, Nov 10, 2015 at 10:54:21AM -0800, Andy Lutomirski wrote:
+> On Nov 10, 2015 7:02 AM, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> >
+> > On Sun, Nov 08, 2015 at 12:49:46PM +0100, Joerg Roedel wrote:
+> > > On Sun, Nov 08, 2015 at 12:37:47PM +0200, Michael S. Tsirkin wrote:
+> > > > I have no problem with that. For example, can we teach
+> > > > the DMA API on intel x86 to use PT for virtio by default?
+> > > > That would allow merging Andy's patches with
+> > > > full compatibility with old guests and hosts.
+> > >
+> > > Well, the only incompatibility comes from an experimental qemu feature,
+> > > more explicitly from a bug in that features implementation. So why
+> > > should we work around that in the kernel? I think it is not too hard to
+> > > fix qemu to generate a correct DMAR table which excludes the virtio
+> > > devices from iommu translation.
+> > >
+> > >
+> > >       Joerg
+> >
+> > It's not that easy - you'd have to dedicate some buses
+> > for iommu bypass, and teach management tools to only put
+> > virtio there - but it's possible.
+> >
+> > This will absolutely address guests that don't need to set up IOMMU for
+> > virtio devices, and virtio that bypasses the IOMMU.
+> >
+> > But the problem is that we do want to *allow* guests
+> > to set up IOMMU for virtio devices.
+> > In that case, these are two other usecases:
+> >
+> > A- monolitic virtio within QEMU:
+> >         iommu only needed for VFIO ->
+> >         guest should always use iommu=pt
+> >         iommu=on works but is just useless overhead.
+> >
+> > B- modular out of process virtio outside QEMU:
+> >         iommu needed for VFIO or kernel driver ->
+> >         guest should use iommu=pt or iommu=on
+> >         depending on security/performance requirements
+> >
+> > Note that there could easily be a mix of these in the same system.
+> >
+> > So for these cases we do need QEMU to specify to guest that IOMMU covers
+> > the virtio devices.  Also, once one does this, the default on linux is
+> > iommu=on and not pt, which works but ATM is very slow.
+> >
+> > This poses three problems:
+> >
+> > 1. How do we address the different needs of A and B?
+> >    One way would be for virtio to pass the information to guest
+> >    using some virtio specific way, and have drivers
+> >    specify what kind of DMA access they want.
+> >
+> > 2. (Kind of a subset of 1) once we do allow IOMMU, how do we make sure most guests
+> >    use the more sensible iommu=pt.
+> >
+> > 3. Once we do allow IOMMU, how can we keep existing guests work in this configuration?
+> >    Creating different hypervisor configurations depending on guest is very nasty.
+> >    Again, one way would be some virtio specific interface.
+> >
+> > I'd rather we figured the answers to this before merging Andy's patches
+> > because I'm concerned that instead of 1 broken configuration
+> > (virtio always bypasses IOMMU) we'll get two bad configurations
+> > (in the second one, virtio uses the slow default with no
+> > gain in security).
+> >
+> > Suggestions wellcome.
 > 
-> IOMMUs on x86 usually come with an ACPI table that describes which
-> IOMMUs are in the system and which devices they translate. So you can
-> easily describe all devices there that are not behind an IOMMU.
+> I think there's still no downside of using my patches, even on x86.
 > 
-> The ACPI table is built by the BIOS, and the platform intialization code
-> sets the device dma_ops accordingly. If the BIOS provides wrong
-> information in the ACPI table this is a platform bug.
+> Old kernels on new QEMU work unless IOMMU is enabled on the host.  I
+> think that's the best we can possibly do.
+> New kernels work at full speed on old QEMU.
 
-It doesn't look like I managed to put the point across.
-My point is that IOMMU is required to do things like
-userspace drivers, what we need is a way to express
-"there is an IOMMU but it is part of device itself, use passthrough
- unless your driver is untrusted".
+Only if IOMMU is disabled, right?
 
-> > I'm not sure what ACPI has to do with it.  It's about a way for guest
-> > users to specify whether they want to bypass an IOMMU for a given
-> > device.
+> New kernels with new QEMU and iommu enabled work slower.  Even newer
+> kernels with default passthrough work at full speed, and there's no
+> obvious downside to the existence of kernels with just my patches.
 > 
-> We have no way yet to request passthrough-mode per-device from the IOMMU
-> drivers, but that can easily be added. But as I see it:
+> --Andy
 > 
-> > By the way, a bunch of code is missing on the QEMU side
-> > to make this useful:
-> > 1. virtio ignores the iommu
-> > 2. vhost user ignores the iommu
-> > 3. dataplane ignores the iommu
-> > 4. vhost-net ignores the iommu
-> > 5. VFIO ignores the iommu
-> 
-> Qemu does not implement IOMMU translation for virtio devices anyway
-> (which is fine), so it just should tell the guest so in the ACPI table
-> built to describe the emulated IOMMU.
-> 
-> 
-> 	Joerg
 
-This is a short term limitation.
+I tried to explain the possible downside. Let me try again.  Imagine
+that guest kernel notifies hypervisor that it wants IOMMU to actually
+work.  This will make old kernel on new QEMU work even with IOMMU
+enabled on host - better than "the best we can do" that you described
+above.  Specifically, QEMU will assume that if it didn't get
+notification, it's an old kernel so it should ignore the IOMMU.
+
+But if we apply your patches this trick won't work.
+
+Without implementing it all, I think the easiest incremental step would
+be to teach linux to make passthrough the default when running as a
+guest on top of QEMU, put your patches on top. If someone specifies
+non passthrough on command line it'll still be broken,
+but not too bad.
+
+
+> >
+> > --
+> > MST
