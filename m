@@ -1,90 +1,113 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 1/2] KVM: Remove unnecessary debugfs dentry references
-Date: Wed, 18 Nov 2015 14:11:46 +0100
-Message-ID: <1447852307-106478-2-git-send-email-borntraeger@de.ibm.com>
-References: <1447852307-106478-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1447852307-106478-1-git-send-email-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+Return-Path: <owner-linux-mm@kvack.org>
+From: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Subject: [PATCH 2/2] s390/mm: allow gmap code to retry on faulting in guest memory
+Date: Thu, 19 Nov 2015 00:49:58 +0100
+Message-Id: <1447890598-56860-3-git-send-email-dingel@linux.vnet.ibm.com>
+In-Reply-To: <1447890598-56860-1-git-send-email-dingel@linux.vnet.ibm.com>
+References: <1447890598-56860-1-git-send-email-dingel@linux.vnet.ibm.com>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: linux-s390@vger.kernel.org, linux-mm@kvack.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Andrea Arcangeli <aarcange@redhat.com>, David Rientjes <rientjes@google.com>, Eric B Munson <emunson@akamai.com>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Mel Gorman <mgorman@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Janosch Frank <frankja@linux.vnet.ibm.com>
+The userfaultfd does need FAULT_FLAG_ALLOW_RETRY to not return
+VM_FAULT_SIGBUS.  So we improve the gmap code to handle one
+VM_FAULT_RETRY.
 
-KVM creates debugfs files to export VM statistics to userland. To be
-able to remove them on kvm exit it tracks the files' dentries.
-
-Since their parent directory is also tracked and since each parent
-direntry knows its children we can easily remove them by using
-debugfs_remove_recursive(kvm_debugfs_dir). Therefore we don't
-need the extra tracking in the kvm_stats_debugfs_item anymore.
-
-Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Reviewed-by: Sascha Silbe <silbe@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 ---
- include/linux/kvm_host.h |  1 -
- virt/kvm/kvm_main.c      | 18 ++++--------------
- 2 files changed, 4 insertions(+), 15 deletions(-)
+ arch/s390/mm/pgtable.c | 28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 7821137..6981bc6 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -1009,7 +1009,6 @@ struct kvm_stats_debugfs_item {
- 	const char *name;
- 	int offset;
- 	enum kvm_stat_kind kind;
--	struct dentry *dentry;
- };
- extern struct kvm_stats_debugfs_item debugfs_entries[];
- extern struct dentry *kvm_debugfs_dir;
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 244c9b4..726bb51 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -3447,10 +3447,9 @@ static int kvm_init_debug(void)
- 		goto out;
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index 54ef3bc..8a0025d 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -577,15 +577,22 @@ int gmap_fault(struct gmap *gmap, unsigned long gaddr,
+ 	       unsigned int fault_flags)
+ {
+ 	unsigned long vmaddr;
+-	int rc;
++	int rc, fault;
  
- 	for (p = debugfs_entries; p->name; ++p) {
--		p->dentry = debugfs_create_file(p->name, 0444, kvm_debugfs_dir,
--						(void *)(long)p->offset,
--						stat_fops[p->kind]);
--		if (p->dentry == NULL)
-+		if (!debugfs_create_file(p->name, 0444, kvm_debugfs_dir,
-+					 (void *)(long)p->offset,
-+					 stat_fops[p->kind]))
- 			goto out_dir;
++	fault_flags |= FAULT_FLAG_ALLOW_RETRY;
++retry:
+ 	down_read(&gmap->mm->mmap_sem);
+ 	vmaddr = __gmap_translate(gmap, gaddr);
+ 	if (IS_ERR_VALUE(vmaddr)) {
+ 		rc = vmaddr;
+ 		goto out_up;
+ 	}
+-	if (fixup_user_fault(current, gmap->mm, vmaddr, fault_flags)) {
++	fault = fixup_user_fault(current, gmap->mm, vmaddr, fault_flags);
++	if (fault & VM_FAULT_RETRY) {
++		fault_flags &= ~FAULT_FLAG_ALLOW_RETRY;
++		fault_flags |= FAULT_FLAG_TRIED;
++		goto retry;
++	} else if (fault) {
+ 		rc = -EFAULT;
+ 		goto out_up;
+ 	}
+@@ -717,10 +724,13 @@ int gmap_ipte_notify(struct gmap *gmap, unsigned long gaddr, unsigned long len)
+ 	spinlock_t *ptl;
+ 	pte_t *ptep, entry;
+ 	pgste_t pgste;
++	int fault, fault_flags;
+ 	int rc = 0;
+ 
++	fault_flags = FAULT_FLAG_WRITE | FAULT_FLAG_ALLOW_RETRY;
+ 	if ((gaddr & ~PAGE_MASK) || (len & ~PAGE_MASK))
+ 		return -EINVAL;
++retry:
+ 	down_read(&gmap->mm->mmap_sem);
+ 	while (len) {
+ 		/* Convert gmap address and connect the page tables */
+@@ -730,7 +740,12 @@ int gmap_ipte_notify(struct gmap *gmap, unsigned long gaddr, unsigned long len)
+ 			break;
+ 		}
+ 		/* Get the page mapped */
+-		if (fixup_user_fault(current, gmap->mm, addr, FAULT_FLAG_WRITE)) {
++		fault = fixup_user_fault(current, gmap->mm, addr, fault_flags);
++		if (fault & VM_FAULT_RETRY) {
++			fault_flags &= ~FAULT_FLAG_ALLOW_RETRY;
++			fault_flags |= FAULT_FLAG_TRIED;
++			goto retry;
++		} else if (fault) {
+ 			rc = -EFAULT;
+ 			break;
+ 		}
+@@ -794,7 +809,9 @@ int set_guest_storage_key(struct mm_struct *mm, unsigned long addr,
+ 	spinlock_t *ptl;
+ 	pgste_t old, new;
+ 	pte_t *ptep;
++	int fault, fault_flags;
+ 
++	fault_flags = FAULT_FLAG_WRITE | FAULT_FLAG_ALLOW_RETRY;
+ 	down_read(&mm->mmap_sem);
+ retry:
+ 	ptep = get_locked_pte(mm, addr, &ptl);
+@@ -805,10 +822,13 @@ retry:
+ 	if (!(pte_val(*ptep) & _PAGE_INVALID) &&
+ 	     (pte_val(*ptep) & _PAGE_PROTECT)) {
+ 		pte_unmap_unlock(ptep, ptl);
+-		if (fixup_user_fault(current, mm, addr, FAULT_FLAG_WRITE)) {
++		fault = fixup_user_fault(current, mm, addr, fault_flags);
++		if (fault && !(fault & VM_FAULT_RETRY)) {
+ 			up_read(&mm->mmap_sem);
+ 			return -EFAULT;
+ 		}
++		fault_flags &= ~FAULT_FLAG_ALLOW_RETRY;
++		fault_flags |= FAULT_FLAG_TRIED;
+ 		goto retry;
  	}
  
-@@ -3462,15 +3461,6 @@ out:
- 	return r;
- }
- 
--static void kvm_exit_debug(void)
--{
--	struct kvm_stats_debugfs_item *p;
--
--	for (p = debugfs_entries; p->name; ++p)
--		debugfs_remove(p->dentry);
--	debugfs_remove(kvm_debugfs_dir);
--}
--
- static int kvm_suspend(void)
- {
- 	if (kvm_usage_count)
-@@ -3628,7 +3618,7 @@ EXPORT_SYMBOL_GPL(kvm_init);
- 
- void kvm_exit(void)
- {
--	kvm_exit_debug();
-+	debugfs_remove_recursive(kvm_debugfs_dir);
- 	misc_deregister(&kvm_dev);
- 	kmem_cache_destroy(kvm_vcpu_cache);
- 	kvm_async_pf_deinit();
 -- 
-2.3.0
+2.3.9
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
