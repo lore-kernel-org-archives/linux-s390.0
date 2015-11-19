@@ -1,98 +1,46 @@
-Return-Path: <owner-linux-mm@kvack.org>
-Date: Thu, 19 Nov 2015 11:50:27 +0100
-From: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Subject: Re: [PATCH 2/2] s390/mm: allow gmap code to retry on faulting in
- guest memory
-Message-ID: <20151119115027.620143d4@BR9TG4T3.de.ibm.com>
-In-Reply-To: <564D8774.8090206@de.ibm.com>
-References: <1447890598-56860-1-git-send-email-dingel@linux.vnet.ibm.com>
-	<1447890598-56860-3-git-send-email-dingel@linux.vnet.ibm.com>
-	<20151119091808.5d84c8ba@mschwide>
-	<564D8774.8090206@de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, "Kirill A.
- Shutemov" <kirill.shutemov@linux.intel.com>, Andrea Arcangeli <aarcange@redhat.com>, David Rientjes <rientjes@google.com>, Eric B Munson <emunson@akamai.com>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Mel Gorman <mgorman@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, "Kirill A.
- Shutemov" <kirill@shutemov.name>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 3/4] KVM: use heuristic for fast VCPU lookup by id
+Date: Thu, 19 Nov 2015 09:37:30 +0100
+Message-ID: <1447922251-54261-4-git-send-email-borntraeger@de.ibm.com>
+References: <1447922251-54261-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1447922251-54261-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>, Alexander Graf <agraf@suse.de>, Paul Mackerras <paulus@samba.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, kvm-ppc@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 19 Nov 2015 09:25:24 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-> On 11/19/2015 09:18 AM, Martin Schwidefsky wrote:
-> > On Thu, 19 Nov 2015 00:49:58 +0100
-> > Dominik Dingel <dingel@linux.vnet.ibm.com> wrote:
-> > 
-> >> The userfaultfd does need FAULT_FLAG_ALLOW_RETRY to not return
-> >> VM_FAULT_SIGBUS.  So we improve the gmap code to handle one
-> >> VM_FAULT_RETRY.
-> >>
-> >> Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-> >> ---
-> >>  arch/s390/mm/pgtable.c | 28 ++++++++++++++++++++++++----
-> >>  1 file changed, 24 insertions(+), 4 deletions(-)
-> >>
-> >> diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-> >> index 54ef3bc..8a0025d 100644
-> >> --- a/arch/s390/mm/pgtable.c
-> >> +++ b/arch/s390/mm/pgtable.c
-> >> @@ -577,15 +577,22 @@ int gmap_fault(struct gmap *gmap, unsigned long gaddr,
-> >>  	       unsigned int fault_flags)
-> >>  {
-> >>  	unsigned long vmaddr;
-> >> -	int rc;
-> >> +	int rc, fault;
-> >>
-> >> +	fault_flags |= FAULT_FLAG_ALLOW_RETRY;
-> >> +retry:
-> >>  	down_read(&gmap->mm->mmap_sem);
-> >>  	vmaddr = __gmap_translate(gmap, gaddr);
-> >>  	if (IS_ERR_VALUE(vmaddr)) {
-> >>  		rc = vmaddr;
-> >>  		goto out_up;
-> >>  	}
-> >> -	if (fixup_user_fault(current, gmap->mm, vmaddr, fault_flags)) {
-> >> +	fault = fixup_user_fault(current, gmap->mm, vmaddr, fault_flags);
-> >> +	if (fault & VM_FAULT_RETRY) {
-> >> +		fault_flags &= ~FAULT_FLAG_ALLOW_RETRY;
-> >> +		fault_flags |= FAULT_FLAG_TRIED;
-> >> +		goto retry;
-> >> +	} else if (fault) {
-> >>  		rc = -EFAULT;
-> >>  		goto out_up;
-> >>  	}
-> > 
-> > Me thinks that you want to add the retry code into fixup_user_fault itself.
-> > You basically have the same code around the three calls to fixup_user_fault.
-> > Yes, it will be a common code patch but I guess that it will be acceptable
-> > given userfaultfd as a reason.
-> 
-> That makes a lot of sense. In an earlier discussion (a followup of Jasons
-> mm: Loosen MADV_NOHUGEPAGE to enable Qemu postcopy on s390) patch.
-> 
-> Andrea suggested the following:
-> 
-> It's probably better to add a fixup_user_fault_unlocked that will work
-> like get_user_pages_unlocked. I.e. leaves the details of the mmap_sem
-> locking internally to the function, and will handle VM_FAULT_RETRY
-> automatically by re-taking the mmap_sem and repeating the
-> fixup_user_fault after updating the FAULT_FLAG_ALLOW_RETRY to
-> FAULT_FLAG_TRIED.
+Usually, VCPU ids match the array index. So let's try a fast
+lookup first before falling back to the slow iteration.
 
-I know, I saw his mail. But within the gmap code we need to take the mmap_sem before calling fixup_user_fault as well as holding it for later on like __gmap_link.
+Suggested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ include/linux/kvm_host.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-We could introduce a new wrapper arround fixup_user_fault, like:
-fixup_user_fault_retry, which would take care of the retry logic, but does not encapsulate the complete mmap_sem logic.
-
-@Kirill would that be acceptable for you as well?
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index b9f345f..7821137 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -465,6 +465,11 @@ static inline struct kvm_vcpu *kvm_lookup_vcpu(struct kvm *kvm, int id)
+ 	struct kvm_vcpu *vcpu;
+ 	int i;
+ 
++	if (id < 0 || id >= KVM_MAX_VCPUS)
++		return NULL;
++	vcpu = kvm_get_vcpu(kvm, id);
++	if (vcpu && vcpu->vcpu_id == id)
++		return vcpu;
+ 	kvm_for_each_vcpu(i, vcpu, kvm)
+ 		if (vcpu->vcpu_id == id)
+ 			return vcpu;
+-- 
+2.3.0
