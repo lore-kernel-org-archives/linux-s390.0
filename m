@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 4/4] KVM: Use common function for VCPU lookup by id
-Date: Thu, 19 Nov 2015 09:37:31 +0100
-Message-ID: <1447922251-54261-5-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH 1/4] KVM: Provide function for VCPU lookup by id
+Date: Thu, 19 Nov 2015 09:37:28 +0100
+Message-ID: <1447922251-54261-2-git-send-email-borntraeger@de.ibm.com>
 References: <1447922251-54261-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1447922251-54261-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,102 +14,38 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Let's reuse the new common function for VPCU lookup by id.
+Let's provide a function to lookup a VCPU by id.
 
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Reviewed-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[split out the new function into a separate patch]
+[split patch from refactoring patch]
 ---
- arch/powerpc/kvm/book3s_hv.c | 10 ++--------
- arch/s390/kvm/diag.c         | 11 +++--------
- virt/kvm/kvm_main.c          | 12 +++++-------
- 3 files changed, 10 insertions(+), 23 deletions(-)
+ include/linux/kvm_host.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 54b45b7..904b3b0 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -308,16 +308,10 @@ static void kvmppc_dump_regs(struct kvm_vcpu *vcpu)
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 5706a21..b9f345f 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -460,6 +460,17 @@ static inline struct kvm_vcpu *kvm_get_vcpu(struct kvm *kvm, int i)
+ 	     (vcpup = kvm_get_vcpu(kvm, idx)) != NULL; \
+ 	     idx++)
  
- static struct kvm_vcpu *kvmppc_find_vcpu(struct kvm *kvm, int id)
- {
--	int r;
--	struct kvm_vcpu *v, *ret = NULL;
-+	struct kvm_vcpu *ret;
- 
- 	mutex_lock(&kvm->lock);
--	kvm_for_each_vcpu(r, v, kvm) {
--		if (v->vcpu_id == id) {
--			ret = v;
--			break;
--		}
--	}
-+	ret = kvm_lookup_vcpu(kvm, id);
- 	mutex_unlock(&kvm->lock);
- 	return ret;
- }
-diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
-index 5fbfb88..aaa7cc0 100644
---- a/arch/s390/kvm/diag.c
-+++ b/arch/s390/kvm/diag.c
-@@ -155,10 +155,8 @@ static int __diag_time_slice_end(struct kvm_vcpu *vcpu)
- 
- static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
- {
--	struct kvm *kvm = vcpu->kvm;
- 	struct kvm_vcpu *tcpu;
- 	int tid;
--	int i;
- 
- 	tid = vcpu->run->s.regs.gprs[(vcpu->arch.sie_block->ipa & 0xf0) >> 4];
- 	vcpu->stat.diagnose_9c++;
-@@ -167,12 +165,9 @@ static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
- 	if (tid == vcpu->vcpu_id)
- 		return 0;
- 
--	kvm_for_each_vcpu(i, tcpu, kvm)
--		if (tcpu->vcpu_id == tid) {
--			kvm_vcpu_yield_to(tcpu);
--			break;
--		}
--
-+	tcpu = kvm_lookup_vcpu(vcpu->kvm, tid);
-+	if (tcpu)
-+		kvm_vcpu_yield_to(tcpu);
- 	return 0;
- }
- 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 484079e..244c9b4 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2257,7 +2257,7 @@ static int create_vcpu_fd(struct kvm_vcpu *vcpu)
- static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
- {
- 	int r;
--	struct kvm_vcpu *vcpu, *v;
++static inline struct kvm_vcpu *kvm_lookup_vcpu(struct kvm *kvm, int id)
++{
 +	struct kvm_vcpu *vcpu;
- 
- 	if (id >= KVM_MAX_VCPUS)
- 		return -EINVAL;
-@@ -2281,12 +2281,10 @@ static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
- 		r = -EINVAL;
- 		goto unlock_vcpu_destroy;
- 	}
--
--	kvm_for_each_vcpu(r, v, kvm)
--		if (v->vcpu_id == id) {
--			r = -EEXIST;
--			goto unlock_vcpu_destroy;
--		}
-+	if (kvm_lookup_vcpu(kvm, id)) {
-+		r = -EEXIST;
-+		goto unlock_vcpu_destroy;
-+	}
- 
- 	BUG_ON(kvm->vcpus[atomic_read(&kvm->online_vcpus)]);
- 
++	int i;
++
++	kvm_for_each_vcpu(i, vcpu, kvm)
++		if (vcpu->vcpu_id == id)
++			return vcpu;
++	return NULL;
++}
++
+ #define kvm_for_each_memslot(memslot, slots)	\
+ 	for (memslot = &slots->memslots[0];	\
+ 	      memslot < slots->memslots + KVM_MEM_SLOTS_NUM && memslot->npages;\
 -- 
 2.3.0
