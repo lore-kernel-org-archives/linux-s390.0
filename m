@@ -1,47 +1,57 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 0/4] Preview: vcpu lookup by id changes
-Date: Thu, 19 Nov 2015 09:37:27 +0100
-Message-ID: <1447922251-54261-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/5] KVM: s390: enable SIMD only when no VCPUs were created
+Date: Thu, 19 Nov 2015 15:09:22 +0100
+Message-ID: <1447942166-66514-2-git-send-email-borntraeger@de.ibm.com>
+References: <1447942166-66514-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1447942166-66514-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, Alexander Graf <agraf@suse.de>, Paul Mackerras <paulus@samba.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, kvm-ppc@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo,
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-some more patches for review before I add them in my next pull request.
-Can you review the common code changes and Ack/Nack?
+We should never allow to enable/disable any facilities for the guest
+when other VCPUs were already created.
 
-Alex, Paul,
-can you review the power changes and Ack/Nack? 
+kvm_arch_vcpu_(load|put) relies on SIMD not changing during runtime.
+If somebody would create and run VCPUs and then decides to enable
+SIMD, undefined behaviour could be possible (e.g. vector save area
+not being set up).
 
-As I want to have patch 2 in 4.4, I splitted up Davids patch into smaller
-chunks. David, can you double check that I did not mess up?
-So I want to send patch 1 and patch 2 for 4.4. Patch 3 and Patch 4
-are for kvm/next (4.5), but need patch 1 as well. 
-So I will probably also add all patches into kvm/next by setting up
-the git branches in a way that during 4.5 merge window kvm/next will
-have my branch that will go via kvm/master as common ancestor.
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: stable@vger.kernel.org # 4.1+
+---
+ arch/s390/kvm/kvm-s390.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-Ok?
-
-Christian
-
-David Hildenbrand (4):
-  KVM: Provide function for VCPU lookup by id
-  KVM: s390: fix wrong lookup of VCPUs by array index
-  KVM: use heuristic for fast VCPU lookup by id
-  KVM: Use common function for VCPU lookup by id
-
- arch/powerpc/kvm/book3s_hv.c | 10 ++--------
- arch/s390/kvm/diag.c         | 11 +++--------
- arch/s390/kvm/sigp.c         |  8 ++------
- include/linux/kvm_host.h     | 16 ++++++++++++++++
- virt/kvm/kvm_main.c          | 12 +++++-------
- 5 files changed, 28 insertions(+), 29 deletions(-)
-
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 8fe2f1c..8465892 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -342,12 +342,16 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
+ 		r = 0;
+ 		break;
+ 	case KVM_CAP_S390_VECTOR_REGISTERS:
+-		if (MACHINE_HAS_VX) {
++		mutex_lock(&kvm->lock);
++		if (atomic_read(&kvm->online_vcpus)) {
++			r = -EBUSY;
++		} else if (MACHINE_HAS_VX) {
+ 			set_kvm_facility(kvm->arch.model.fac->mask, 129);
+ 			set_kvm_facility(kvm->arch.model.fac->list, 129);
+ 			r = 0;
+ 		} else
+ 			r = -EINVAL;
++		mutex_unlock(&kvm->lock);
+ 		VM_EVENT(kvm, 3, "ENABLE: CAP_S390_VECTOR_REGISTERS %s",
+ 			 r ? "(not available)" : "(success)");
+ 		break;
 -- 
 2.3.0
