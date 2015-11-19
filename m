@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 5/5] KVM: s390: fix wrong lookup of VCPUs by array index
-Date: Thu, 19 Nov 2015 15:09:26 +0100
-Message-ID: <1447942166-66514-6-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 3/5] KVM: Provide function for VCPU lookup by id
+Date: Thu, 19 Nov 2015 15:09:24 +0100
+Message-ID: <1447942166-66514-4-git-send-email-borntraeger@de.ibm.com>
 References: <1447942166-66514-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1447942166-66514-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,64 +14,38 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-For now, VCPUs were always created sequentially with incrementing
-VCPU ids. Therefore, the index in the VCPUs array matched the id.
-
-As sequential creation might change with cpu hotplug, let's use
-the correct lookup function to find a VCPU by id, not array index.
-
-Let's also use kvm_lookup_vcpu() for validation of the sending VCPU
-on external call injection.
+Let's provide a function to lookup a VCPU by id.
 
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: stable@vger.kernel.org # db27a7a KVM: Provide function for VCPU lookup by id
+[split patch from refactoring patch]
 ---
- arch/s390/kvm/interrupt.c | 3 +--
- arch/s390/kvm/sigp.c      | 8 ++------
- 2 files changed, 3 insertions(+), 8 deletions(-)
+ include/linux/kvm_host.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 7242c2d..6a75352 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1030,8 +1030,7 @@ static int __inject_extcall(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 				   src_id, 0);
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 5706a21..c923350 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -460,6 +460,17 @@ static inline struct kvm_vcpu *kvm_get_vcpu(struct kvm *kvm, int i)
+ 	     (vcpup = kvm_get_vcpu(kvm, idx)) != NULL; \
+ 	     idx++)
  
- 	/* sending vcpu invalid */
--	if (src_id >= KVM_MAX_VCPUS ||
--	    kvm_get_vcpu(vcpu->kvm, src_id) == NULL)
-+	if (kvm_get_vcpu_by_id(vcpu->kvm, src_id) == NULL)
- 		return -EINVAL;
- 
- 	if (sclp.has_sigpif)
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index da690b6..77c22d6 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -291,12 +291,8 @@ static int handle_sigp_dst(struct kvm_vcpu *vcpu, u8 order_code,
- 			   u16 cpu_addr, u32 parameter, u64 *status_reg)
- {
- 	int rc;
--	struct kvm_vcpu *dst_vcpu;
-+	struct kvm_vcpu *dst_vcpu = kvm_get_vcpu_by_id(vcpu->kvm, cpu_addr);
- 
--	if (cpu_addr >= KVM_MAX_VCPUS)
--		return SIGP_CC_NOT_OPERATIONAL;
--
--	dst_vcpu = kvm_get_vcpu(vcpu->kvm, cpu_addr);
- 	if (!dst_vcpu)
- 		return SIGP_CC_NOT_OPERATIONAL;
- 
-@@ -478,7 +474,7 @@ int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu)
- 	trace_kvm_s390_handle_sigp_pei(vcpu, order_code, cpu_addr);
- 
- 	if (order_code == SIGP_EXTERNAL_CALL) {
--		dest_vcpu = kvm_get_vcpu(vcpu->kvm, cpu_addr);
-+		dest_vcpu = kvm_get_vcpu_by_id(vcpu->kvm, cpu_addr);
- 		BUG_ON(dest_vcpu == NULL);
- 
- 		kvm_s390_vcpu_wakeup(dest_vcpu);
++static inline struct kvm_vcpu *kvm_get_vcpu_by_id(struct kvm *kvm, int id)
++{
++	struct kvm_vcpu *vcpu;
++	int i;
++
++	kvm_for_each_vcpu(i, vcpu, kvm)
++		if (vcpu->vcpu_id == id)
++			return vcpu;
++	return NULL;
++}
++
+ #define kvm_for_each_memslot(memslot, slots)	\
+ 	for (memslot = &slots->memslots[0];	\
+ 	      memslot < slots->memslots + KVM_MEM_SLOTS_NUM && memslot->npages;\
 -- 
 2.3.0
