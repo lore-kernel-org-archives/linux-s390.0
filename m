@@ -1,69 +1,44 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 2/4] KVM: s390: fix wrong lookup of VCPUs by array index
-Date: Thu, 19 Nov 2015 09:52:31 +0100
-Message-ID: <564D8DCF.4090409@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 0/4] Preview: vcpu lookup by id changes
+Date: Thu, 19 Nov 2015 10:38:50 +0100
+Message-ID: <564D98AA.70909@redhat.com>
 References: <1447922251-54261-1-git-send-email-borntraeger@de.ibm.com>
- <1447922251-54261-3-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1447922251-54261-3-git-send-email-borntraeger@de.ibm.com>
+In-Reply-To: <1447922251-54261-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, Alexander Graf <agraf@suse.de>, Paul Mackerras <paulus@samba.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Alexander Graf <agraf@suse.de>, Paul Mackerras <paulus@samba.org>, David Hildenbrand <dahi@linux.vnet.ibm.com>
 Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, kvm-ppc@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Sigh.
-Seems that my mail script got confused by the # after stable. So please
-strip down the cc list.
 
 
-On 11/19/2015 09:37 AM, Christian Borntraeger wrote:
-> From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+On 19/11/2015 09:37, Christian Borntraeger wrote:
 > 
-> For now, VCPUs were always created sequentially with incrementing
-> VCPU ids. Therefore, the index in the VCPUs array matched the id.
+> some more patches for review before I add them in my next pull request.
+> Can you review the common code changes and Ack/Nack?
 > 
-> As sequential creation might change with cpu hotplug, let's use
-> the correct lookup function to find a VCPU by id, not array index.
+> Alex, Paul,
+> can you review the power changes and Ack/Nack? 
 > 
-> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> [split stable/non-stable parts]
-> Cc: stable@vger.kernel.org # c3853a8: KVM: Provide function for VCPU lookup by id
-> ---
->  arch/s390/kvm/sigp.c | 8 ++------
->  1 file changed, 2 insertions(+), 6 deletions(-)
+> As I want to have patch 2 in 4.4, I splitted up Davids patch into smaller
+> chunks. David, can you double check that I did not mess up?
+> So I want to send patch 1 and patch 2 for 4.4. Patch 3 and Patch 4
+> are for kvm/next (4.5), but need patch 1 as well. 
+> So I will probably also add all patches into kvm/next by setting up
+> the git branches in a way that during 4.5 merge window kvm/next will
+> have my branch that will go via kvm/master as common ancestor.
 > 
-> diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-> index da690b6..081dbd0 100644
-> --- a/arch/s390/kvm/sigp.c
-> +++ b/arch/s390/kvm/sigp.c
-> @@ -291,12 +291,8 @@ static int handle_sigp_dst(struct kvm_vcpu *vcpu, u8 order_code,
->  			   u16 cpu_addr, u32 parameter, u64 *status_reg)
->  {
->  	int rc;
-> -	struct kvm_vcpu *dst_vcpu;
-> +	struct kvm_vcpu *dst_vcpu = kvm_lookup_vcpu(vcpu->kvm, cpu_addr);
-> 
-> -	if (cpu_addr >= KVM_MAX_VCPUS)
-> -		return SIGP_CC_NOT_OPERATIONAL;
-> -
-> -	dst_vcpu = kvm_get_vcpu(vcpu->kvm, cpu_addr);
->  	if (!dst_vcpu)
->  		return SIGP_CC_NOT_OPERATIONAL;
-> 
-> @@ -478,7 +474,7 @@ int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu)
->  	trace_kvm_s390_handle_sigp_pei(vcpu, order_code, cpu_addr);
-> 
->  	if (order_code == SIGP_EXTERNAL_CALL) {
-> -		dest_vcpu = kvm_get_vcpu(vcpu->kvm, cpu_addr);
-> +		dest_vcpu = kvm_lookup_vcpu(vcpu->kvm, cpu_addr);
->  		BUG_ON(dest_vcpu == NULL);
-> 
->  		kvm_s390_vcpu_wakeup(dest_vcpu);
-> 
+> Ok?
+
+Patches and plan both look good!
+
+I can apply patch 1 and 2 now to kvm/master.  By the time kvm/next forks
+from Linus's tree (sometime next week, since kvm/queue is already
+largish) they will be in.
+
+Thanks,
