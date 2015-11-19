@@ -1,40 +1,68 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/5] KVM: s390: fix pfmf intercept handler
-Date: Thu, 19 Nov 2015 15:09:23 +0100
-Message-ID: <1447942166-66514-3-git-send-email-borntraeger@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [GIT PULL 0/5] KVM: s390: Fixes for 4.4
+Date: Thu, 19 Nov 2015 18:06:34 +0100
+Message-ID: <564E019A.3000404@redhat.com>
 References: <1447942166-66514-1-git-send-email-borntraeger@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1447942166-66514-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>
 Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-The pfmf intercept handler should check if the EDAT 1 facility
-is installed in the guest, not if it is installed in the host.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/priv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 19/11/2015 15:09, Christian Borntraeger wrote:
+> Paolo,
+> 
+> The following changes since commit 8005c49d9aea74d382f474ce11afbbc7d7130bec:
+> 
+>   Linux 4.4-rc1 (2015-11-15 17:00:27 -0800)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-4.4-1
+> 
+> for you to fetch changes up to 152e9f65d66f0a3891efc3869440becc0e7ff53f:
+> 
+>   KVM: s390: fix wrong lookup of VCPUs by array index (2015-11-19 14:47:43 +0100)
+> 
+> ----------------------------------------------------------------
+> KVM: s390: Fixes for 4.4
+> 
+> 1. disallow changing the SIMD mode when CPUs have been created.
+>    it allowed userspace to corrupt kernel memory
+> 2. Fix vCPU lookup. Until now the vCPU number equals the vCPU id. Some
+>    kernel code places relied on that. This might
+>    a: cause guest failures
+>    b: allow userspace to corrupt kernel memory
+> 3. Fencing of the PFMF instruction should use the guest facilities
+>    and not the host facilities.
+> 
+> ----------------------------------------------------------------
+> David Hildenbrand (4):
+>       KVM: s390: enable SIMD only when no VCPUs were created
+>       KVM: Provide function for VCPU lookup by id
+>       KVM: s390: avoid memory overwrites on emergency signal injection
+>       KVM: s390: fix wrong lookup of VCPUs by array index
+> 
+> Heiko Carstens (1):
+>       KVM: s390: fix pfmf intercept handler
+> 
+>  arch/s390/kvm/interrupt.c |  7 +++++--
+>  arch/s390/kvm/kvm-s390.c  |  6 +++++-
+>  arch/s390/kvm/priv.c      |  2 +-
+>  arch/s390/kvm/sigp.c      |  8 ++------
+>  include/linux/kvm_host.h  | 11 +++++++++++
+>  5 files changed, 24 insertions(+), 10 deletions(-)
+> 
 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 77191b8..d76b51c 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -660,7 +660,7 @@ static int handle_pfmf(struct kvm_vcpu *vcpu)
- 
- 	kvm_s390_get_regs_rre(vcpu, &reg1, &reg2);
- 
--	if (!MACHINE_HAS_PFMF)
-+	if (!test_kvm_facility(vcpu->kvm, 8))
- 		return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
- 
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
--- 
-2.3.0
+Pulled, thanks (for now to kvm/next, since that's what Stephen Rothwell
+tests daily).
+
+Paolo
