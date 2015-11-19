@@ -1,10 +1,8 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 4/5] KVM: s390: avoid memory overwrites on emergency signal injection
-Date: Thu, 19 Nov 2015 15:09:25 +0100
-Message-ID: <1447942166-66514-5-git-send-email-borntraeger@de.ibm.com>
-References: <1447942166-66514-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 0/5] KVM: s390: Fixes for 4.4
+Date: Thu, 19 Nov 2015 15:09:21 +0100
+Message-ID: <1447942166-66514-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1447942166-66514-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,37 +10,45 @@ To: Paolo Bonzini <pbonzini@redhat.com>, David Hildenbrand <dahi@linux.vnet.ibm.
 Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Paolo,
 
-Commit 383d0b050106 ("KVM: s390: handle pending local interrupts via
-bitmap") introduced a possible memory overwrite from user space.
+The following changes since commit 8005c49d9aea74d382f474ce11afbbc7d7130bec:
 
-User space could pass an invalid emergency signal code (sending VCPU)
-and therefore exceed the bitmap. Let's take care of this case and
-check that the id is in the valid range.
+  Linux 4.4-rc1 (2015-11-15 17:00:27 -0800)
 
-Reviewed-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Cc: stable@vger.kernel.org # v3.19+ db27a7a KVM: Provide function for VCPU lookup by id
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/interrupt.c | 4 ++++
- 1 file changed, 4 insertions(+)
+are available in the git repository at:
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 373e323..7242c2d 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1110,6 +1110,10 @@ static int __inject_sigp_emergency(struct kvm_vcpu *vcpu,
- 	trace_kvm_s390_inject_vcpu(vcpu->vcpu_id, KVM_S390_INT_EMERGENCY,
- 				   irq->u.emerg.code, 0);
- 
-+	/* sending vcpu invalid */
-+	if (kvm_get_vcpu_by_id(vcpu->kvm, irq->u.emerg.code) == NULL)
-+		return -EINVAL;
-+
- 	set_bit(irq->u.emerg.code, li->sigp_emerg_pending);
- 	set_bit(IRQ_PEND_EXT_EMERGENCY, &li->pending_irqs);
- 	atomic_or(CPUSTAT_EXT_INT, li->cpuflags);
--- 
-2.3.0
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-4.4-1
+
+for you to fetch changes up to 152e9f65d66f0a3891efc3869440becc0e7ff53f:
+
+  KVM: s390: fix wrong lookup of VCPUs by array index (2015-11-19 14:47:43 +0100)
+
+----------------------------------------------------------------
+KVM: s390: Fixes for 4.4
+
+1. disallow changing the SIMD mode when CPUs have been created.
+   it allowed userspace to corrupt kernel memory
+2. Fix vCPU lookup. Until now the vCPU number equals the vCPU id. Some
+   kernel code places relied on that. This might
+   a: cause guest failures
+   b: allow userspace to corrupt kernel memory
+3. Fencing of the PFMF instruction should use the guest facilities
+   and not the host facilities.
+
+----------------------------------------------------------------
+David Hildenbrand (4):
+      KVM: s390: enable SIMD only when no VCPUs were created
+      KVM: Provide function for VCPU lookup by id
+      KVM: s390: avoid memory overwrites on emergency signal injection
+      KVM: s390: fix wrong lookup of VCPUs by array index
+
+Heiko Carstens (1):
+      KVM: s390: fix pfmf intercept handler
+
+ arch/s390/kvm/interrupt.c |  7 +++++--
+ arch/s390/kvm/kvm-s390.c  |  6 +++++-
+ arch/s390/kvm/priv.c      |  2 +-
+ arch/s390/kvm/sigp.c      |  8 ++------
+ include/linux/kvm_host.h  | 11 +++++++++++
+ 5 files changed, 24 insertions(+), 10 deletions(-)
