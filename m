@@ -1,73 +1,59 @@
 From: David Woodhouse <dwmw2@infradead.org>
 Subject: Re: [PATCH v3 0/3] virtio DMA API core stuff
-Date: Sun, 22 Nov 2015 15:54:21 +0000
-Message-ID: <1448207661.89124.50.camel@infradead.org>
-References: <1446039327.3405.216.camel@infradead.org>
-	<20151028155105-mutt-send-email-mst@redhat.com>
-	<1446041609.3405.228.camel@infradead.org>
-	<20151028161424-mutt-send-email-mst@redhat.com>
-	<1446042754.3405.237.camel@infradead.org>
-	<20151028175136-mutt-send-email-mst@redhat.com>
-	<CALCETrWd7mK5bW2p_dvvjDRnqE31=ueAz5SAYKwY-PD5uZp76A@mail.gmail.com>
-	<20151029104301-mutt-send-email-mst@redhat.com>
-	<1446135536.3405.279.camel@infradead.org>
-	<20151108120627-mutt-send-email-mst@redhat.com>
-	<20151108114946.GG2255@suse.de> <5651BDC0.2040206@gmail.com>
+Date: Sun, 22 Nov 2015 15:58:28 +0000
+Message-ID: <1448207908.89124.54.camel@infradead.org>
+References: <cover.1446014204.git.luto@kernel.org>
+	 <20151119153821-mutt-send-email-mst@redhat.com>
+	 <CALCETrXXsThXpbRMQ_CWTsq7_HiRFaK+dTeDYaz5cSm0QtoW_w@mail.gmail.com>
+	 <1447976286.145626.122.camel@infradead.org>
+	 <20151120085658-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5680479089950645936=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5651BDC0.2040206@gmail.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Content-Type: multipart/signed; micalg="sha-1"; protocol="application/x-pkcs7-signature";
+	boundary="=-baOU5WzwIFiou6EmhhFW"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20151120085658-mutt-send-email-mst@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: marcel@redhat.com, Joerg Roedel <jroedel@suse.de>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM <kvm@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Andy Lutomirski <luto@amacapital.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>, KVM <kvm@vger.kernel.org>, Marcel Apfelbaum <marcel.a@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
---===============5680479089950645936==
-Content-Type: multipart/signed; micalg="sha-1"; protocol="application/x-pkcs7-signature";
-	boundary="=-h0n9eUi5Ew0K9zHzUi66"
-
-
---=-h0n9eUi5Ew0K9zHzUi66
+--=-baOU5WzwIFiou6EmhhFW
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, 2015-11-22 at 15:06 +0200, Marcel Apfelbaum wrote:
+On Fri, 2015-11-20 at 10:21 +0200, Michael S. Tsirkin wrote:
 >=20
->=20
-> I tried to generate a DMAR table that excludes some devices from
-> IOMMU translation, however it does not help.
->=20
-> The reason is, as far as I understand, that Linux kernel does
-> not allow any device being outside an IOMMU scope if the
-> iommu kernel option is activated.
->=20
-> Does anybody know if it is "by design" or is simply an uncommon
-> configuration?
-> (some devices in an IOMMU scope, while others outside *any* IOMMU
-> scope)
+> David, there are two things a hypervisor needs to tell the guest.
+> 1. The actual device is behind an IOMMU. This is what you
+> =C2=A0=C2=A0 are suggesting we use DMAR for.
+> 2. Using IOMMU from kernel (as opposed to from userspace with VFIO)
+> =C2=A0=C2=A0 actually adds security. For exising virtio devices on KVM,
+> =C2=A0=C2=A0 the answer is no. And DMAR has no way to reflect that.
 
-That's a kernel bug in the way it handles per-device DMA operations. Or
-more to the point, in the way it doesn't =E2=80=94 the non-translated devic=
-es
-end up being pointed to the intel_dma_ops despite the fact they
-shouldn't be. I'm working on that...
+Using the IOMMU from the kernel *always* adds security. It protects
+against device driver (and device) bugs which can be made exploitable
+by allowing DMA to anywhere in the system.
 
---=20
+Sure, there are classes of that which are far more interesting, for
+example where you give the whole device to a guest and let it load the
+firmware. But "we trust the hypervisor" and "we trust the hardware" are
+not *so* far apart conceptually.
+
+Hell, with ATS you *still* have to trust the hardware to a large
+extent.
+
+I really think that something like the proposed DMA_ATTR_IOMMU_BYPASS
+should suffice for the "who cares about security; we want performance"
+case.
+
+--=C2=A0
 dwmw2
 
 
---=-h0n9eUi5Ew0K9zHzUi66
+--=-baOU5WzwIFiou6EmhhFW
 Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Disposition: attachment; filename="smime.p7s"
 Content-Transfer-Encoding: base64
@@ -160,31 +146,18 @@ Qy7VFBkoLINszBrOUeIxggNvMIIDawIBATCBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0
 YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcx
 ODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENB
 AgMN7zcwCQYFKw4DAhoFAKCCAa8wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0B
-CQUxDxcNMTUxMTIyMTU1NDIxWjAjBgkqhkiG9w0BCQQxFgQUdyQZ1DF6AcpTfdR0fKxssh+l58kw
+CQUxDxcNMTUxMTIyMTU1ODI4WjAjBgkqhkiG9w0BCQQxFgQUycd3SUJVcZFRrSR1j1BV4/CSHAkw
 gaUGCSsGAQQBgjcQBDGBlzCBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0
 ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2BgNVBAMT
 L1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMN7zcwgacG
 CyqGSIb3DQEJEAILMYGXoIGUMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20gTHRk
 LjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUgU2lnbmluZzE4MDYGA1UEAxMv
 U3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0ZSBDbGllbnQgQ0ECAw3vNzANBgkq
-hkiG9w0BAQEFAASCAQCTEJBlhxI553rYWSn2q/Hmf8Xn91nDP3hdLY31dfuVn1agvhtJiilBV367
-rMjsL0t22UXh0U7LpDNLzyYaPaFsjGZYX1LI7yv21QNW/xmRHFhrpp/FjM2MBCmY6R9FqBSdsJjp
-RiLD4m+Gl+xgiEOU7+nnZqw/sj0wH4zkKTqks9+4ucqYT5GdBR/8EoTtiNvyfa+GJ4FC1MWl0t20
-em0ck0gOjV3hE3e9zwtp0DILZlLXl2sLfcm0npw1umtj459wtTosVJMOBLz6p2sNIcFfqQqWF8P8
-pZPg+Ig+WDyGPQNwmiPqfz6dB6rDVqM2M7Vv/v8XlnKZCJuDfSVaNV9sAAAAAAAA
+hkiG9w0BAQEFAASCAQB2ZVvYUEqKw/Xlk00GtJMSu7X8z3XTbp5kOHwugxggGLlpG0kjSfHxqiAB
+Lu5tU9RTbEv2wi2GTw2wWV/gaJQCQUqrqvBV+TXupSTBGyIqwlvXe2VWH55ScaNi3U0ys9m30Ser
+15jhHtqznwMZKS3L7fQd47akumnr/VZW6o0LMlyVhPeHBnsmZtSY1qotsJ/gN+ZadfcEZEGYbsXj
+W5OZAUFK3KH1BKRcG5aeVZEtydF5BqneQOnMZyOZKtv78QiDckudNNw54HSaokrN1jj4zDGscEPj
+m1S96NKb0K0MpySMbOnqXqkDqgABd71NwbkpxVqxpO5cbroarAU+u2BtAAAAAAAA
 
 
---=-h0n9eUi5Ew0K9zHzUi66--
-
-
---===============5680479089950645936==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5680479089950645936==--
+--=-baOU5WzwIFiou6EmhhFW--
