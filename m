@@ -1,115 +1,65 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [GIT PULL 00/23] KVM: s390 features, kvm_get_vcpu_by_id and stat
- for 4.5
-Date: Wed, 2 Dec 2015 13:50:31 +0100
-Message-ID: <565EE917.4050803@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [GIT PULL 04/23] KVM: s390: rewrite vcpu_post_run and drop out
+ early
+Date: Wed, 2 Dec 2015 14:04:30 +0100
+Message-ID: <565EEC5E.4030601@de.ibm.com>
 References: <1449054384-76374-1-git-send-email-borntraeger@de.ibm.com>
+ <1449054384-76374-5-git-send-email-borntraeger@de.ibm.com>
+ <565EE20D.4010008@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1449054384-76374-1-git-send-email-borntraeger@de.ibm.com>
+In-Reply-To: <565EE20D.4010008@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-
-
-On 02/12/2015 12:06, Christian Borntraeger wrote:
-> Paolo,
+On 12/02/2015 01:20 PM, Paolo Bonzini wrote:
 > 
-> here is the first s390 pull request for 4.5. It also contains the
-> remaining vcpu lookup changes and an improved cleanup of the kvm_stat
-> exit path.
-> I have deferred the kvm_stat per VM patches.
 > 
-> The s390 changes are:
-> - ESCA support (up to 248 CPUs)
-> - detection if KVM works (e.g. for nested virtualization)
-> - cleanups
+> On 02/12/2015 12:06, Christian Borntraeger wrote:
+>> +	memcpy(&vcpu->run->s.regs.gprs[14], &vcpu->arch.sie_block->gg14, 16);
 > 
-> The following changes since commit bb11c6c96544737aede6a2eb92e5c6bc8b46534b:
+> This is preexisting but... boy it's ugly. :)
 > 
->   KVM: x86: MMU: Remove unused parameter parent_pte from kvm_mmu_get_page() (2015-11-26 15:31:36 +0100)
+> Do you gain much over the simpler
 > 
-> are available in the git reposi at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.5-1
-> 
-> for you to fetch changes up to 2f8a43d45d14ad62b105ed99151b453c12df7149:
-> 
->   KVM: s390: remove redudant assigment of error code (2015-11-30 12:47:13 +0100)
-> 
-> ----------------------------------------------------------------
-> KVM: s390 features, kvm_get_vcpu_by_id and stat
-> 
-> Several features for s390
-> 1. ESCA support (up to 248 vCPUs)
-> 2. KVM detection: we  can now detect if we support KVM (e.g. does KVM
->    under KVM work?)
-> 
-> kvm_stat:
-> 1. cleanup
-> 
-> kvm_get_vcpu_by_id:
-> 1. Use kvm_get_vcpu_by_id where appropriate
-> 2. Apply a heuristic to optimize for ID VCPU == No. VCPU
-> 
-> ----------------------------------------------------------------
-> Christian Borntraeger (1):
->       KVM: s390: remove redudant assigment of error code
-> 
-> David Hildenbrand (12):
->       KVM: Use common function for VCPU lookup by id
->       KVM: use heuristic for fast VCPU lookup by id
->       KVM: s390: rewrite vcpu_post_run and drop out early
->       KVM: s390: fast path for sca_ext_call_pending
->       KVM: s390: we always have a SCA
->       KVM: s390: fix SCA related races and double use
->       KVM: s390: always set/clear the SCA sda field
->       KVM: s390: cleanup sca_add_vcpu
->       KVM: s390: don't switch to ESCA for ucontrol
->       s390/sclp: introduce check for SIE
->       s390: show virtualization support in /proc/cpuinfo
->       KVM: s390: don't load kvm without virtualization support
-> 
-> Eugene (jno) Dvurechenski (8):
->       s390/sclp: introduce checks for ESCA and HVS
->       KVM: s390: Generalize access to IPTE controls
->       KVM: s390: Generalize access to SIGP controls
->       KVM: s390: Provide SCA-aware helpers for VCPU add/del
->       KVM: s390: Introduce new structures
->       KVM: s390: Make provisions for ESCA utilization
->       KVM: s390: Introduce switching code
->       KVM: s390: Enable up to 248 VCPUs per VM
-> 
-> Heiko Carstens (1):
->       KVM: s390: remove pointless test_facility(2) check
-> 
-> Janosch Frank (1):
->       KVM: Remove unnecessary debugfs dentry references
-> 
->  arch/powerpc/kvm/book3s_hv.c     |  10 +-
->  arch/s390/include/asm/elf.h      |   7 ++
->  arch/s390/include/asm/kvm_host.h |  49 +++++++-
->  arch/s390/include/asm/sclp.h     |   8 +-
->  arch/s390/kernel/processor.c     |   6 +
->  arch/s390/kernel/setup.c         |   9 ++
->  arch/s390/kvm/diag.c             |  11 +-
->  arch/s390/kvm/gaccess.c          |  38 +++++--
->  arch/s390/kvm/intercept.c        |   7 +-
->  arch/s390/kvm/interrupt.c        | 133 +++++++++++++++++-----
->  arch/s390/kvm/kvm-s390.c         | 237 +++++++++++++++++++++++++++------------
->  arch/s390/kvm/kvm-s390.h         |   7 ++
->  drivers/s390/char/sclp_early.c   |   8 +-
->  include/linux/kvm_host.h         |   6 +-
->  virt/kvm/kvm_main.c              |  30 ++---
->  15 files changed, 407 insertions(+), 159 deletions(-)
+> 	vcpu->run->s.regs.gprs[14] = vcpu->arch.sie_block->gg14;
+> 	vcpu->run->s.regs.gprs[15] = vcpu->arch.sie_block->gg15;
 > 
 
-Pulled, thanks.
+Its just legacy code from the old days.
+There is a difference, but it seems to a missed opportunity from gcc
 
-Paolo
+        vcpu->arch.sie_block->gg14 = vcpu->run->s.regs.gprs[14];
+    839c:       e3 30 f0 b8 00 04       lg      %r3,184(%r15)
+    83a2:       e3 10 32 40 00 04       lg      %r1,576(%r3)
+    83a8:       e3 20 30 80 00 04       lg      %r2,128(%r3)
+    83ae:       e3 20 21 b8 00 04       lg      %r2,440(%r2)
+    83b4:       e3 20 10 a0 00 24       stg     %r2,160(%r1)
+        vcpu->arch.sie_block->gg15 = vcpu->run->s.regs.gprs[15];
+    83ba:       e3 10 32 40 00 04       lg      %r1,576(%r3)
+    83c0:       e3 20 30 80 00 04       lg      %r2,128(%r3)
+    83c6:       e3 20 21 c0 00 04       lg      %r2,448(%r2)
+    83cc:       e3 20 10 a8 00 24       stg     %r2,168(%r1)
+
+gcc seems to reuse and reload %r2 and %r3, maybe register pressure.
+
+
+
+the memcpy gives
+
+    memcpy(&vcpu->arch.sie_block->gg14, &vcpu->run->s.regs.gprs[14], 16);
+    839c:       e3 30 f0 b8 00 04       lg      %r3,184(%r15)
+    83a2:       e3 10 32 40 00 04       lg      %r1,576(%r3)
+    83a8:       e3 20 30 80 00 04       lg      %r2,128(%r3)
+    83ae:       d2 0f 10 a0 21 b8       mvc     160(16,%r1),440(%r2)
+
+I will prepare a patch and do my usual micro benchmark. Unless
+things get much worse I will schedule this for the next pull.
+
+Christian
