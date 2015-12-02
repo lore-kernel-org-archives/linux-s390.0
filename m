@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 19/23] s390/sclp: introduce check for SIE
-Date: Wed,  2 Dec 2015 12:06:20 +0100
-Message-ID: <1449054384-76374-20-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 17/23] KVM: s390: cleanup sca_add_vcpu
+Date: Wed,  2 Dec 2015 12:06:18 +0100
+Message-ID: <1449054384-76374-18-git-send-email-borntraeger@de.ibm.com>
 References: <1449054384-76374-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1449054384-76374-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,53 +14,65 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-This patch adds a way to check if the SIE with zArchitecture support is
-available.
+Now that we already have kvm and the VCPU id set for the VCPU, we can
+convert sda_add_vcpu to look much more like sda_del_vcpu.
 
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/sclp.h   | 6 +++++-
- drivers/s390/char/sclp_early.c | 1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ arch/s390/kvm/kvm-s390.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
-index 8324abb..dea883f 100644
---- a/arch/s390/include/asm/sclp.h
-+++ b/arch/s390/include/asm/sclp.h
-@@ -29,7 +29,10 @@ struct sclp_ipl_info {
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 7e0092b..d9d71bb 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1276,27 +1276,26 @@ static void sca_del_vcpu(struct kvm_vcpu *vcpu)
+ 	read_unlock(&vcpu->kvm->arch.sca_lock);
+ }
  
- struct sclp_core_entry {
- 	u8 core_id;
--	u8 reserved0[2];
-+	u8 reserved0;
-+	u8 : 4;
-+	u8 sief2 : 1;
-+	u8 : 3;
- 	u8 : 3;
- 	u8 siif : 1;
- 	u8 sigpif : 1;
-@@ -55,6 +58,7 @@ struct sclp_info {
- 	unsigned char has_sprp : 1;
- 	unsigned char has_hvs : 1;
- 	unsigned char has_esca : 1;
-+	unsigned char has_sief2 : 1;
- 	unsigned int ibc;
- 	unsigned int mtid;
- 	unsigned int mtid_cp;
-diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
-index ff1e1bb..e0a1f4e 100644
---- a/drivers/s390/char/sclp_early.c
-+++ b/drivers/s390/char/sclp_early.c
-@@ -136,6 +136,7 @@ static void __init sclp_facilities_detect(struct read_info_sccb *sccb)
- 			continue;
- 		sclp.has_siif = cpue->siif;
- 		sclp.has_sigpif = cpue->sigpif;
-+		sclp.has_sief2 = cpue->sief2;
- 		break;
+-static void sca_add_vcpu(struct kvm_vcpu *vcpu, struct kvm *kvm,
+-			unsigned int id)
++static void sca_add_vcpu(struct kvm_vcpu *vcpu)
+ {
+-	read_lock(&kvm->arch.sca_lock);
+-	if (kvm->arch.use_esca) {
+-		struct esca_block *sca = kvm->arch.sca;
++	read_lock(&vcpu->kvm->arch.sca_lock);
++	if (vcpu->kvm->arch.use_esca) {
++		struct esca_block *sca = vcpu->kvm->arch.sca;
+ 
+-		sca->cpu[id].sda = (__u64) vcpu->arch.sie_block;
++		sca->cpu[vcpu->vcpu_id].sda = (__u64) vcpu->arch.sie_block;
+ 		vcpu->arch.sie_block->scaoh = (__u32)(((__u64)sca) >> 32);
+ 		vcpu->arch.sie_block->scaol = (__u32)(__u64)sca & ~0x3fU;
+ 		vcpu->arch.sie_block->ecb2 |= 0x04U;
+-		set_bit_inv(id, (unsigned long *) sca->mcn);
++		set_bit_inv(vcpu->vcpu_id, (unsigned long *) sca->mcn);
+ 	} else {
+-		struct bsca_block *sca = kvm->arch.sca;
++		struct bsca_block *sca = vcpu->kvm->arch.sca;
+ 
+-		sca->cpu[id].sda = (__u64) vcpu->arch.sie_block;
++		sca->cpu[vcpu->vcpu_id].sda = (__u64) vcpu->arch.sie_block;
+ 		vcpu->arch.sie_block->scaoh = (__u32)(((__u64)sca) >> 32);
+ 		vcpu->arch.sie_block->scaol = (__u32)(__u64)sca;
+-		set_bit_inv(id, (unsigned long *) &sca->mcn);
++		set_bit_inv(vcpu->vcpu_id, (unsigned long *) &sca->mcn);
+ 	}
+-	read_unlock(&kvm->arch.sca_lock);
++	read_unlock(&vcpu->kvm->arch.sca_lock);
+ }
+ 
+ /* Basic SCA to Extended SCA data copy routines */
+@@ -1492,7 +1491,7 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
+ 	mutex_unlock(&vcpu->kvm->lock);
+ 	if (!kvm_is_ucontrol(vcpu->kvm)) {
+ 		vcpu->arch.gmap = vcpu->kvm->arch.gmap;
+-		sca_add_vcpu(vcpu, vcpu->kvm, vcpu->vcpu_id);
++		sca_add_vcpu(vcpu);
  	}
  
+ }
 -- 
 2.3.0
