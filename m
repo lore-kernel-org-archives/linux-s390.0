@@ -1,10 +1,8 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 08/23] KVM: s390: Provide SCA-aware helpers for VCPU add/del
-Date: Wed,  2 Dec 2015 12:06:09 +0100
-Message-ID: <1449054384-76374-9-git-send-email-borntraeger@de.ibm.com>
-References: <1449054384-76374-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 00/23] KVM: s390 features, kvm_get_vcpu_by_id and stat for 4.5
+Date: Wed,  2 Dec 2015 12:06:01 +0100
+Message-ID: <1449054384-76374-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1449054384-76374-1-git-send-email-borntraeger@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,100 +10,92 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: "Eugene (jno) Dvurechenski" <jno@linux.vnet.ibm.com>
+Paolo,
 
-This patch provides SCA-aware helpers to create/delete a VCPU.
-This is to prepare for upcoming introduction of Extended SCA support.
+here is the first s390 pull request for 4.5. It also contains the
+remaining vcpu lookup changes and an improved cleanup of the kvm_stat
+exit path.
+I have deferred the kvm_stat per VM patches.
 
-Signed-off-by: Eugene (jno) Dvurechenski <jno@linux.vnet.ibm.com>
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 44 +++++++++++++++++++++++++++++++-------------
- 1 file changed, 31 insertions(+), 13 deletions(-)
+The s390 changes are:
+- ESCA support (up to 248 CPUs)
+- detection if KVM works (e.g. for nested virtualization)
+- cleanups
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 5c36c8e..8ddd488 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -283,6 +283,8 @@ static void kvm_s390_sync_dirty_log(struct kvm *kvm,
- }
- 
- /* Section: vm related */
-+static void sca_del_vcpu(struct kvm_vcpu *vcpu);
-+
- /*
-  * Get (and clear) the dirty memory log for a memory slot.
-  */
-@@ -1189,11 +1191,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
- 	kvm_s390_clear_local_irqs(vcpu);
- 	kvm_clear_async_pf_completion_queue(vcpu);
- 	if (!kvm_is_ucontrol(vcpu->kvm)) {
--		clear_bit(63 - vcpu->vcpu_id,
--			  (unsigned long *) &vcpu->kvm->arch.sca->mcn);
--		if (vcpu->kvm->arch.sca->cpu[vcpu->vcpu_id].sda ==
--		    (__u64) vcpu->arch.sie_block)
--			vcpu->kvm->arch.sca->cpu[vcpu->vcpu_id].sda = 0;
-+		sca_del_vcpu(vcpu);
- 	}
- 	smp_mb();
- 
-@@ -1249,6 +1247,32 @@ static int __kvm_ucontrol_vcpu_init(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
-+static void sca_del_vcpu(struct kvm_vcpu *vcpu)
-+{
-+	struct sca_block *sca = vcpu->kvm->arch.sca;
-+
-+	clear_bit_inv(vcpu->vcpu_id, (unsigned long *) &sca->mcn);
-+	if (sca->cpu[vcpu->vcpu_id].sda == (__u64) vcpu->arch.sie_block)
-+		sca->cpu[vcpu->vcpu_id].sda = 0;
-+}
-+
-+static void sca_add_vcpu(struct kvm_vcpu *vcpu, struct kvm *kvm,
-+			unsigned int id)
-+{
-+	struct sca_block *sca = kvm->arch.sca;
-+
-+	if (!sca->cpu[id].sda)
-+		sca->cpu[id].sda = (__u64) vcpu->arch.sie_block;
-+	vcpu->arch.sie_block->scaoh = (__u32)(((__u64)sca) >> 32);
-+	vcpu->arch.sie_block->scaol = (__u32)(__u64)sca;
-+	set_bit_inv(id, (unsigned long *) &sca->mcn);
-+}
-+
-+static int sca_can_add_vcpu(struct kvm *kvm, unsigned int id)
-+{
-+	return id < KVM_MAX_VCPUS;
-+}
-+
- int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
- {
- 	vcpu->arch.pfault_token = KVM_S390_PFAULT_TOKEN_INVALID;
-@@ -1465,7 +1489,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
- 	struct sie_page *sie_page;
- 	int rc = -EINVAL;
- 
--	if (id >= KVM_MAX_VCPUS)
-+	if (!sca_can_add_vcpu(kvm, id))
- 		goto out;
- 
- 	rc = -ENOMEM;
-@@ -1487,13 +1511,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
- 			WARN_ON_ONCE(1);
- 			goto out_free_cpu;
- 		}
--		if (!kvm->arch.sca->cpu[id].sda)
--			kvm->arch.sca->cpu[id].sda =
--				(__u64) vcpu->arch.sie_block;
--		vcpu->arch.sie_block->scaoh =
--			(__u32)(((__u64)kvm->arch.sca) >> 32);
--		vcpu->arch.sie_block->scaol = (__u32)(__u64)kvm->arch.sca;
--		set_bit(63 - id, (unsigned long *) &kvm->arch.sca->mcn);
-+		sca_add_vcpu(vcpu, kvm, id);
- 	}
- 
- 	spin_lock_init(&vcpu->arch.local_int.lock);
--- 
-2.3.0
+The following changes since commit bb11c6c96544737aede6a2eb92e5c6bc8b46534b:
+
+  KVM: x86: MMU: Remove unused parameter parent_pte from kvm_mmu_get_page() (2015-11-26 15:31:36 +0100)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.5-1
+
+for you to fetch changes up to 2f8a43d45d14ad62b105ed99151b453c12df7149:
+
+  KVM: s390: remove redudant assigment of error code (2015-11-30 12:47:13 +0100)
+
+----------------------------------------------------------------
+KVM: s390 features, kvm_get_vcpu_by_id and stat
+
+Several features for s390
+1. ESCA support (up to 248 vCPUs)
+2. KVM detection: we  can now detect if we support KVM (e.g. does KVM
+   under KVM work?)
+
+kvm_stat:
+1. cleanup
+
+kvm_get_vcpu_by_id:
+1. Use kvm_get_vcpu_by_id where appropriate
+2. Apply a heuristic to optimize for ID VCPU == No. VCPU
+
+----------------------------------------------------------------
+Christian Borntraeger (1):
+      KVM: s390: remove redudant assigment of error code
+
+David Hildenbrand (12):
+      KVM: Use common function for VCPU lookup by id
+      KVM: use heuristic for fast VCPU lookup by id
+      KVM: s390: rewrite vcpu_post_run and drop out early
+      KVM: s390: fast path for sca_ext_call_pending
+      KVM: s390: we always have a SCA
+      KVM: s390: fix SCA related races and double use
+      KVM: s390: always set/clear the SCA sda field
+      KVM: s390: cleanup sca_add_vcpu
+      KVM: s390: don't switch to ESCA for ucontrol
+      s390/sclp: introduce check for SIE
+      s390: show virtualization support in /proc/cpuinfo
+      KVM: s390: don't load kvm without virtualization support
+
+Eugene (jno) Dvurechenski (8):
+      s390/sclp: introduce checks for ESCA and HVS
+      KVM: s390: Generalize access to IPTE controls
+      KVM: s390: Generalize access to SIGP controls
+      KVM: s390: Provide SCA-aware helpers for VCPU add/del
+      KVM: s390: Introduce new structures
+      KVM: s390: Make provisions for ESCA utilization
+      KVM: s390: Introduce switching code
+      KVM: s390: Enable up to 248 VCPUs per VM
+
+Heiko Carstens (1):
+      KVM: s390: remove pointless test_facility(2) check
+
+Janosch Frank (1):
+      KVM: Remove unnecessary debugfs dentry references
+
+ arch/powerpc/kvm/book3s_hv.c     |  10 +-
+ arch/s390/include/asm/elf.h      |   7 ++
+ arch/s390/include/asm/kvm_host.h |  49 +++++++-
+ arch/s390/include/asm/sclp.h     |   8 +-
+ arch/s390/kernel/processor.c     |   6 +
+ arch/s390/kernel/setup.c         |   9 ++
+ arch/s390/kvm/diag.c             |  11 +-
+ arch/s390/kvm/gaccess.c          |  38 +++++--
+ arch/s390/kvm/intercept.c        |   7 +-
+ arch/s390/kvm/interrupt.c        | 133 +++++++++++++++++-----
+ arch/s390/kvm/kvm-s390.c         | 237 +++++++++++++++++++++++++++------------
+ arch/s390/kvm/kvm-s390.h         |   7 ++
+ drivers/s390/char/sclp_early.c   |   8 +-
+ include/linux/kvm_host.h         |   6 +-
+ virt/kvm/kvm_main.c              |  30 ++---
+ 15 files changed, 407 insertions(+), 159 deletions(-)
