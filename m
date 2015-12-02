@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 01/23] KVM: Use common function for VCPU lookup by id
-Date: Wed,  2 Dec 2015 12:06:02 +0100
-Message-ID: <1449054384-76374-2-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 05/23] s390/sclp: introduce checks for ESCA and HVS
+Date: Wed,  2 Dec 2015 12:06:06 +0100
+Message-ID: <1449054384-76374-6-git-send-email-borntraeger@de.ibm.com>
 References: <1449054384-76374-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1449054384-76374-1-git-send-email-borntraeger@de.ibm.com>
@@ -12,104 +12,56 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: David Hildenbrand <dahi@linux.vnet.ibm.com>
+From: "Eugene (jno) Dvurechenski" <jno@linux.vnet.ibm.com>
 
-Let's reuse the new common function for VPCU lookup by id.
+Introduce sclp.has_hvs and sclp.has_esca to provide a way for kvm to check
+whether the extended-SCA and the home-virtual-SCA facilities are available.
 
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Signed-off-by: Eugene (jno) Dvurechenski <jno@linux.vnet.ibm.com>
+Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[split out the new function into a separate patch]
 ---
- arch/powerpc/kvm/book3s_hv.c | 10 ++--------
- arch/s390/kvm/diag.c         | 11 +++--------
- virt/kvm/kvm_main.c          | 12 +++++-------
- 3 files changed, 10 insertions(+), 23 deletions(-)
+ arch/s390/include/asm/sclp.h   | 2 ++
+ drivers/s390/char/sclp_early.c | 7 ++++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 54b45b7..a29da44 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -308,16 +308,10 @@ static void kvmppc_dump_regs(struct kvm_vcpu *vcpu)
- 
- static struct kvm_vcpu *kvmppc_find_vcpu(struct kvm *kvm, int id)
- {
--	int r;
--	struct kvm_vcpu *v, *ret = NULL;
-+	struct kvm_vcpu *ret;
- 
- 	mutex_lock(&kvm->lock);
--	kvm_for_each_vcpu(r, v, kvm) {
--		if (v->vcpu_id == id) {
--			ret = v;
--			break;
--		}
--	}
-+	ret = kvm_get_vcpu_by_id(kvm, id);
- 	mutex_unlock(&kvm->lock);
- 	return ret;
- }
-diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
-index 5fbfb88..05f7de9 100644
---- a/arch/s390/kvm/diag.c
-+++ b/arch/s390/kvm/diag.c
-@@ -155,10 +155,8 @@ static int __diag_time_slice_end(struct kvm_vcpu *vcpu)
- 
- static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
- {
--	struct kvm *kvm = vcpu->kvm;
- 	struct kvm_vcpu *tcpu;
- 	int tid;
--	int i;
- 
- 	tid = vcpu->run->s.regs.gprs[(vcpu->arch.sie_block->ipa & 0xf0) >> 4];
- 	vcpu->stat.diagnose_9c++;
-@@ -167,12 +165,9 @@ static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
- 	if (tid == vcpu->vcpu_id)
- 		return 0;
- 
--	kvm_for_each_vcpu(i, tcpu, kvm)
--		if (tcpu->vcpu_id == tid) {
--			kvm_vcpu_yield_to(tcpu);
--			break;
--		}
--
-+	tcpu = kvm_get_vcpu_by_id(vcpu->kvm, tid);
-+	if (tcpu)
-+		kvm_vcpu_yield_to(tcpu);
- 	return 0;
- }
- 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 73cbb41..9649a42 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2257,7 +2257,7 @@ static int create_vcpu_fd(struct kvm_vcpu *vcpu)
- static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
- {
- 	int r;
--	struct kvm_vcpu *vcpu, *v;
-+	struct kvm_vcpu *vcpu;
- 
- 	if (id >= KVM_MAX_VCPUS)
- 		return -EINVAL;
-@@ -2281,12 +2281,10 @@ static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
- 		r = -EINVAL;
- 		goto unlock_vcpu_destroy;
- 	}
--
--	kvm_for_each_vcpu(r, v, kvm)
--		if (v->vcpu_id == id) {
--			r = -EEXIST;
--			goto unlock_vcpu_destroy;
--		}
-+	if (kvm_get_vcpu_by_id(kvm, id)) {
-+		r = -EEXIST;
-+		goto unlock_vcpu_destroy;
-+	}
- 
- 	BUG_ON(kvm->vcpus[atomic_read(&kvm->online_vcpus)]);
- 
+diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
+index 821dde5..8324abb 100644
+--- a/arch/s390/include/asm/sclp.h
++++ b/arch/s390/include/asm/sclp.h
+@@ -53,6 +53,8 @@ struct sclp_info {
+ 	unsigned char has_sigpif : 1;
+ 	unsigned char has_core_type : 1;
+ 	unsigned char has_sprp : 1;
++	unsigned char has_hvs : 1;
++	unsigned char has_esca : 1;
+ 	unsigned int ibc;
+ 	unsigned int mtid;
+ 	unsigned int mtid_cp;
+diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+index 7bc6df3..ff1e1bb 100644
+--- a/drivers/s390/char/sclp_early.c
++++ b/drivers/s390/char/sclp_early.c
+@@ -43,7 +43,10 @@ struct read_info_sccb {
+ 	u8	_pad_92[100 - 92];	/* 92-99 */
+ 	u32	rnsize2;		/* 100-103 */
+ 	u64	rnmax2;			/* 104-111 */
+-	u8	_pad_112[120 - 112];	/* 112-119 */
++	u8	_pad_112[116 - 112];	/* 112-115 */
++	u8	fac116;			/* 116 */
++	u8	_pad_117[119 - 117];	/* 117-118 */
++	u8	fac119;			/* 119 */
+ 	u16	hcpua;			/* 120-121 */
+ 	u8	_pad_122[4096 - 122];	/* 122-4095 */
+ } __packed __aligned(PAGE_SIZE);
+@@ -108,6 +111,8 @@ static void __init sclp_facilities_detect(struct read_info_sccb *sccb)
+ 	sclp.facilities = sccb->facilities;
+ 	sclp.has_sprp = !!(sccb->fac84 & 0x02);
+ 	sclp.has_core_type = !!(sccb->fac84 & 0x01);
++	sclp.has_esca = !!(sccb->fac116 & 0x08);
++	sclp.has_hvs = !!(sccb->fac119 & 0x80);
+ 	if (sccb->fac85 & 0x02)
+ 		S390_lowcore.machine_flags |= MACHINE_FLAG_ESOP;
+ 	sclp.rnmax = sccb->rnmax ? sccb->rnmax : sccb->rnmax2;
 -- 
 2.3.0
