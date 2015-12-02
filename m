@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 03/23] KVM: Remove unnecessary debugfs dentry references
-Date: Wed,  2 Dec 2015 12:06:04 +0100
-Message-ID: <1449054384-76374-4-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 07/23] KVM: s390: Generalize access to SIGP controls
+Date: Wed,  2 Dec 2015 12:06:08 +0100
+Message-ID: <1449054384-76374-8-git-send-email-borntraeger@de.ibm.com>
 References: <1449054384-76374-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1449054384-76374-1-git-send-email-borntraeger@de.ibm.com>
@@ -12,79 +12,149 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Janosch Frank <frankja@linux.vnet.ibm.com>
+From: "Eugene (jno) Dvurechenski" <jno@linux.vnet.ibm.com>
 
-KVM creates debugfs files to export VM statistics to userland. To be
-able to remove them on kvm exit it tracks the files' dentries.
+This patch generalizes access to the SIGP controls, which is a part of SCA.
+This is to prepare for upcoming introduction of Extended SCA support.
 
-Since their parent directory is also tracked and since each parent
-direntry knows its children we can easily remove them by using
-debugfs_remove_recursive(kvm_debugfs_dir). Therefore we don't
-need the extra tracking in the kvm_stats_debugfs_item anymore.
-
-Signed-off-by: Janosch Frank <frankja@linux.vnet.ibm.com>
-Reviewed-By: Sascha Silbe <silbe@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Eugene (jno) Dvurechenski <jno@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- include/linux/kvm_host.h |  1 -
- virt/kvm/kvm_main.c      | 18 ++++--------------
- 2 files changed, 4 insertions(+), 15 deletions(-)
+ arch/s390/kvm/interrupt.c | 72 +++++++++++++++++++++++++++++------------------
+ 1 file changed, 45 insertions(+), 27 deletions(-)
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index a754fc0..590c46e 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -1016,7 +1016,6 @@ struct kvm_stats_debugfs_item {
- 	const char *name;
- 	int offset;
- 	enum kvm_stat_kind kind;
--	struct dentry *dentry;
- };
- extern struct kvm_stats_debugfs_item debugfs_entries[];
- extern struct dentry *kvm_debugfs_dir;
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 9649a42..be3cef1 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -3447,10 +3447,9 @@ static int kvm_init_debug(void)
- 		goto out;
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 6a75352..2a4718a 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -34,6 +34,45 @@
+ #define PFAULT_DONE 0x0680
+ #define VIRTIO_PARAM 0x0d00
  
- 	for (p = debugfs_entries; p->name; ++p) {
--		p->dentry = debugfs_create_file(p->name, 0444, kvm_debugfs_dir,
--						(void *)(long)p->offset,
--						stat_fops[p->kind]);
--		if (p->dentry == NULL)
-+		if (!debugfs_create_file(p->name, 0444, kvm_debugfs_dir,
-+					 (void *)(long)p->offset,
-+					 stat_fops[p->kind]))
- 			goto out_dir;
- 	}
++/* handle external calls via sigp interpretation facility */
++static int sca_ext_call_pending(struct kvm_vcpu *vcpu, int *src_id)
++{
++	struct sca_block *sca = vcpu->kvm->arch.sca;
++	uint8_t sigp_ctrl = sca->cpu[vcpu->vcpu_id].sigp_ctrl;
++
++	if (src_id)
++		*src_id = sigp_ctrl & SIGP_CTRL_SCN_MASK;
++
++	return sigp_ctrl & SIGP_CTRL_C &&
++		atomic_read(&vcpu->arch.sie_block->cpuflags) &
++			CPUSTAT_ECALL_PEND;
++}
++
++static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
++{
++	struct sca_block *sca = vcpu->kvm->arch.sca;
++	uint8_t *sigp_ctrl = &(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
++	uint8_t new_val = SIGP_CTRL_C | (src_id & SIGP_CTRL_SCN_MASK);
++	uint8_t old_val = *sigp_ctrl & ~SIGP_CTRL_C;
++
++	if (cmpxchg(sigp_ctrl, old_val, new_val) != old_val) {
++		/* another external call is pending */
++		return -EBUSY;
++	}
++	atomic_or(CPUSTAT_ECALL_PEND, &vcpu->arch.sie_block->cpuflags);
++	return 0;
++}
++
++static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
++{
++	struct sca_block *sca = vcpu->kvm->arch.sca;
++	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
++	uint8_t *sigp_ctrl = &(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
++
++	atomic_andnot(CPUSTAT_ECALL_PEND, li->cpuflags);
++	*sigp_ctrl = 0;
++}
++
+ int psw_extint_disabled(struct kvm_vcpu *vcpu)
+ {
+ 	return !(vcpu->arch.sie_block->gpsw.mask & PSW_MASK_EXT);
+@@ -792,13 +831,11 @@ static const deliver_irq_t deliver_irq_funcs[] = {
+ int kvm_s390_ext_call_pending(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+-	uint8_t sigp_ctrl = vcpu->kvm->arch.sca->cpu[vcpu->vcpu_id].sigp_ctrl;
  
-@@ -3462,15 +3461,6 @@ out:
- 	return r;
+ 	if (!sclp.has_sigpif)
+ 		return test_bit(IRQ_PEND_EXT_EXTERNAL, &li->pending_irqs);
+ 
+-	return (sigp_ctrl & SIGP_CTRL_C) &&
+-	       (atomic_read(&vcpu->arch.sie_block->cpuflags) & CPUSTAT_ECALL_PEND);
++	return sca_ext_call_pending(vcpu, NULL);
  }
  
--static void kvm_exit_debug(void)
+ int kvm_s390_vcpu_has_irq(struct kvm_vcpu *vcpu, int exclude_stop)
+@@ -909,9 +946,7 @@ void kvm_s390_clear_local_irqs(struct kvm_vcpu *vcpu)
+ 	memset(&li->irq, 0, sizeof(li->irq));
+ 	spin_unlock(&li->lock);
+ 
+-	/* clear pending external calls set by sigp interpretation facility */
+-	atomic_andnot(CPUSTAT_ECALL_PEND, li->cpuflags);
+-	vcpu->kvm->arch.sca->cpu[vcpu->vcpu_id].sigp_ctrl = 0;
++	sca_clear_ext_call(vcpu);
+ }
+ 
+ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
+@@ -1003,21 +1038,6 @@ static int __inject_pfault_init(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 	return 0;
+ }
+ 
+-static int __inject_extcall_sigpif(struct kvm_vcpu *vcpu, uint16_t src_id)
 -{
--	struct kvm_stats_debugfs_item *p;
+-	unsigned char new_val, old_val;
+-	uint8_t *sigp_ctrl = &vcpu->kvm->arch.sca->cpu[vcpu->vcpu_id].sigp_ctrl;
 -
--	for (p = debugfs_entries; p->name; ++p)
--		debugfs_remove(p->dentry);
--	debugfs_remove(kvm_debugfs_dir);
+-	new_val = SIGP_CTRL_C | (src_id & SIGP_CTRL_SCN_MASK);
+-	old_val = *sigp_ctrl & ~SIGP_CTRL_C;
+-	if (cmpxchg(sigp_ctrl, old_val, new_val) != old_val) {
+-		/* another external call is pending */
+-		return -EBUSY;
+-	}
+-	atomic_or(CPUSTAT_ECALL_PEND, &vcpu->arch.sie_block->cpuflags);
+-	return 0;
 -}
 -
- static int kvm_suspend(void)
+ static int __inject_extcall(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
  {
- 	if (kvm_usage_count)
-@@ -3628,7 +3618,7 @@ EXPORT_SYMBOL_GPL(kvm_init);
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+@@ -1034,7 +1054,7 @@ static int __inject_extcall(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 		return -EINVAL;
  
- void kvm_exit(void)
+ 	if (sclp.has_sigpif)
+-		return __inject_extcall_sigpif(vcpu, src_id);
++		return sca_inject_ext_call(vcpu, src_id);
+ 
+ 	if (test_and_set_bit(IRQ_PEND_EXT_EXTERNAL, &li->pending_irqs))
+ 		return -EBUSY;
+@@ -2203,7 +2223,7 @@ static void store_local_irq(struct kvm_s390_local_interrupt *li,
+ 
+ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
  {
--	kvm_exit_debug();
-+	debugfs_remove_recursive(kvm_debugfs_dir);
- 	misc_deregister(&kvm_dev);
- 	kmem_cache_destroy(kvm_vcpu_cache);
- 	kvm_async_pf_deinit();
+-	uint8_t sigp_ctrl = vcpu->kvm->arch.sca->cpu[vcpu->vcpu_id].sigp_ctrl;
++	int scn;
+ 	unsigned long sigp_emerg_pending[BITS_TO_LONGS(KVM_MAX_VCPUS)];
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 	unsigned long pending_irqs;
+@@ -2243,14 +2263,12 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
+ 		}
+ 	}
+ 
+-	if ((sigp_ctrl & SIGP_CTRL_C) &&
+-	    (atomic_read(&vcpu->arch.sie_block->cpuflags) &
+-	     CPUSTAT_ECALL_PEND)) {
++	if (sca_ext_call_pending(vcpu, &scn)) {
+ 		if (n + sizeof(irq) > len)
+ 			return -ENOBUFS;
+ 		memset(&irq, 0, sizeof(irq));
+ 		irq.type = KVM_S390_INT_EXTERNAL_CALL;
+-		irq.u.extcall.code = sigp_ctrl & SIGP_CTRL_SCN_MASK;
++		irq.u.extcall.code = scn;
+ 		if (copy_to_user(&buf[n], &irq, sizeof(irq)))
+ 			return -EFAULT;
+ 		n += sizeof(irq);
 -- 
 2.3.0
