@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 02/23] KVM: use heuristic for fast VCPU lookup by id
-Date: Wed,  2 Dec 2015 12:06:03 +0100
-Message-ID: <1449054384-76374-3-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 14/23] KVM: s390: we always have a SCA
+Date: Wed,  2 Dec 2015 12:06:15 +0100
+Message-ID: <1449054384-76374-15-git-send-email-borntraeger@de.ibm.com>
 References: <1449054384-76374-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1449054384-76374-1-git-send-email-borntraeger@de.ibm.com>
@@ -14,33 +14,35 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-Usually, VCPU ids match the array index. So let's try a fast
-lookup first before falling back to the slow iteration.
+Having no sca can never happen, even when something goes wrong when
+switching to ESCA. Otherwise we would have a serious bug.
+Let's remove this superfluous check.
 
-Suggested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
 Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- include/linux/kvm_host.h | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/s390/kvm/kvm-s390.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 2911919..a754fc0 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -472,6 +472,11 @@ static inline struct kvm_vcpu *kvm_get_vcpu_by_id(struct kvm *kvm, int id)
- 	struct kvm_vcpu *vcpu;
- 	int i;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 16c19fb..5c58127 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1608,13 +1608,8 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
+ 	vcpu->arch.sie_block->itdba = (unsigned long) &sie_page->itdb;
  
-+	if (id < 0 || id >= KVM_MAX_VCPUS)
-+		return NULL;
-+	vcpu = kvm_get_vcpu(kvm, id);
-+	if (vcpu && vcpu->vcpu_id == id)
-+		return vcpu;
- 	kvm_for_each_vcpu(i, vcpu, kvm)
- 		if (vcpu->vcpu_id == id)
- 			return vcpu;
+ 	vcpu->arch.sie_block->icpua = id;
+-	if (!kvm_is_ucontrol(kvm)) {
+-		if (!kvm->arch.sca) {
+-			WARN_ON_ONCE(1);
+-			goto out_free_cpu;
+-		}
++	if (!kvm_is_ucontrol(kvm))
+ 		sca_add_vcpu(vcpu, kvm, id);
+-	}
+ 
+ 	spin_lock_init(&vcpu->arch.local_int.lock);
+ 	vcpu->arch.local_int.float_int = &kvm->arch.float_int;
 -- 
 2.3.0
