@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 7 Dec 2015 14:54:57 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] qeth: don't rely on signedness of char
-Message-ID: <20151207135457.GC2716@osiris>
-References: <1449351173-6915-1-git-send-email-linux@rasmusvillemoes.dk>
- <1449489755.18521.7.camel@BR9GV9YG.de.ibm.com>
- <20151207134744.GB2716@osiris>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20151207134744.GB2716@osiris>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Subject: [PATCH] qeth: don't rely on signedness of char
+Date: Sat,  5 Dec 2015 22:32:52 +0100
+Message-Id: <1449351173-6915-1-git-send-email-linux@rasmusvillemoes.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Ursula Braun <ubraun@linux.vnet.ibm.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Ursula Braun <ursula.braun@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ursula Braun <ursula.braun@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Dec 07, 2015 at 02:47:44PM +0100, Heiko Carstens wrote:
-> On Mon, Dec 07, 2015 at 01:02:35PM +0100, Ursula Braun wrote:
-> > Rasmus,
-> > 
-> > I do not see a need for your first patch proposal. Our code works fine
-> > in our environment.
-> > 
-> > But I will pickup your second part to remove the explicit setting of the
-> > 0-termination. Thanks!
-> > 
-> > Regards, Ursula
-> 
-> Hi Uschi,
-> 
-> das untenstehende habe ich schon diverse male geschrieben, um zu
-> verhindern, dass "wir" uns mit einfach vermeidbaren Dingen auf externen
-> Mailinglisten unbeliebt machen:
+AFAICT, char is unsigned on s390. Relying on that is a little
+subtle. The problem here is that if char happens to be signed and
+e.g. card->info.mcl_level[2] contains the value -16, the formatted
+output will be "fffffff0", thus overflowing card->info.mcl_level
+(which has size 5). To help future readers, simply do an explicit mask
+so that the value passed to sprintf is in 0-255. If char is indeed
+unsigned, gcc should be able to elide the masking.
 
-Ooops, this was not supposed to go to everybody... ;)
+In any case, the subsequent 0-termination is redundant, since sprintf
+has done that.
+
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+---
+ drivers/s390/net/qeth_core_main.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 31ac53fa5cee..84bc4b862fbb 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -2682,10 +2682,8 @@ void qeth_print_status_message(struct qeth_card *card)
+ 		 * */
+ 		if (!card->info.mcl_level[0]) {
+ 			sprintf(card->info.mcl_level, "%02x%02x",
+-				card->info.mcl_level[2],
+-				card->info.mcl_level[3]);
+-
+-			card->info.mcl_level[QETH_MCL_LENGTH] = 0;
++				card->info.mcl_level[2] & 0xff,
++				card->info.mcl_level[3] & 0xff);
+ 			break;
+ 		}
+ 		/* fallthrough */
+-- 
+2.6.1
