@@ -1,39 +1,54 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH 0/1] virtio/s390: one fix
-Date: Thu,  3 Dec 2015 17:23:59 +0100
-Message-ID: <1449159840-60270-1-git-send-email-cornelia.huck@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: mst@redhat.com
-Cc: borntraeger@de.ibm.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Return-Path: <owner-linux-mm@kvack.org>
+From: Yang Shi <yang.shi@linaro.org>
+Subject: [PATCH v3 5/7] s390: mm/gup: add gup trace points
+Date: Tue,  8 Dec 2015 11:39:53 -0800
+Message-Id: <1449603595-718-6-git-send-email-yang.shi@linaro.org>
+In-Reply-To: <1449603595-718-1-git-send-email-yang.shi@linaro.org>
+References: <1449603595-718-1-git-send-email-yang.shi@linaro.org>
+Sender: owner-linux-mm@kvack.org
+List-Archive: <https://lore.kernel.org/linux-mm/>
+List-Post: <mailto:linux-mm@kvack.org>
+To: akpm@linux-foundation.org, rostedt@goodmis.org, mingo@redhat.com
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linaro-kernel@lists.linaro.org, yang.shi@linaro.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Michael,
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Yang Shi <yang.shi@linaro.org>
+---
+ arch/s390/mm/gup.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-here's one fix for the virtio-ccw driver.
-
-Patch is against master, as your git branches on mst/vhost.git seem
-to be quite old. Is there some branch I can base my own branch on,
-or do you prefer to take patches directly anyway?
-
-Cornelia Huck (1):
-  virtio/s390: handle error values in irb
-
- drivers/s390/virtio/virtio_ccw.c | 62 ++++++++++++++++++++++++----------------
- 1 file changed, 37 insertions(+), 25 deletions(-)
-
+diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
+index 12bbf0e..bbd82bf 100644
+--- a/arch/s390/mm/gup.c
++++ b/arch/s390/mm/gup.c
+@@ -12,6 +12,9 @@
+ #include <linux/rwsem.h>
+ #include <asm/pgtable.h>
+ 
++#define CREATE_TRACE_POINTS
++#include <trace/events/gup.h>
++
+ /*
+  * The performance critical leaf functions are made noinline otherwise gcc
+  * inlines everything into a single function which results in too much
+@@ -188,6 +191,9 @@ int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
+ 	end = start + len;
+ 	if ((end <= start) || (end > TASK_SIZE))
+ 		return 0;
++
++	trace_gup_get_user_pages_fast(start, (unsigned long) nr_pages);
++
+ 	/*
+ 	 * local_irq_save() doesn't prevent pagetable teardown, but does
+ 	 * prevent the pagetables from being freed on s390.
 -- 
-2.3.9
+2.0.2
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
