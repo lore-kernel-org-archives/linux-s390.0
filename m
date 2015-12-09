@@ -1,10 +1,10 @@
 Return-Path: <owner-linux-mm@kvack.org>
 From: Yang Shi <yang.shi@linaro.org>
-Subject: [PATCH v3 5/7] s390: mm/gup: add gup trace points
-Date: Tue,  8 Dec 2015 11:39:53 -0800
-Message-Id: <1449603595-718-6-git-send-email-yang.shi@linaro.org>
-In-Reply-To: <1449603595-718-1-git-send-email-yang.shi@linaro.org>
-References: <1449603595-718-1-git-send-email-yang.shi@linaro.org>
+Subject: [PATCH v4 5/7] s390: mm/gup: add gup trace points
+Date: Wed,  9 Dec 2015 09:29:22 -0800
+Message-Id: <1449682164-9933-6-git-send-email-yang.shi@linaro.org>
+In-Reply-To: <1449682164-9933-1-git-send-email-yang.shi@linaro.org>
+References: <1449682164-9933-1-git-send-email-yang.shi@linaro.org>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
@@ -21,7 +21,7 @@ Signed-off-by: Yang Shi <yang.shi@linaro.org>
  1 file changed, 6 insertions(+)
 
 diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
-index 12bbf0e..bbd82bf 100644
+index 12bbf0e..0ff7e92 100644
 --- a/arch/s390/mm/gup.c
 +++ b/arch/s390/mm/gup.c
 @@ -12,6 +12,9 @@
@@ -39,7 +39,7 @@ index 12bbf0e..bbd82bf 100644
  	if ((end <= start) || (end > TASK_SIZE))
  		return 0;
 +
-+	trace_gup_get_user_pages_fast(start, (unsigned long) nr_pages);
++	trace_gup_get_user_pages_fast(start, nr_pages);
 +
  	/*
  	 * local_irq_save() doesn't prevent pagetable teardown, but does
