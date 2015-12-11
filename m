@@ -1,8 +1,10 @@
 From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net-next 0/8] s390 network patches
-Date: Fri, 11 Dec 2015 12:27:49 +0100
-Message-ID: <1449833277-69012-1-git-send-email-ubraun@linux.vnet.ibm.com>
+Subject: [PATCH net-next 8/8] qeth: get rid of redundant 0-termination
+Date: Fri, 11 Dec 2015 12:27:57 +0100
+Message-ID: <1449833277-69012-9-git-send-email-ubraun@linux.vnet.ibm.com>
+References: <1449833277-69012-1-git-send-email-ubraun@linux.vnet.ibm.com>
 Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1449833277-69012-1-git-send-email-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -10,41 +12,28 @@ To: davem@davemloft.net, mschwid2@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.co
 Cc: ubraunu@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dave,
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-here are some s390 related patches for net-next. Most important is
-the skb_linearize af_iucv patch from Eugene solving traffic problems
-in certain scenarios. The remaining patches are minor improvements.
+0-termination is redundant, since sprintf has done that.
 
-Thanks, Ursula
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Signed-off-by: Ursula Braun <ubraun@linux.vnet.ibm.com>
+---
+ drivers/s390/net/qeth_core_main.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-Eugene Crosser (2):
-  iucv: prevent information leak in iucv_message
-  iucv: call skb_linearize() when needed
-
-Markus Elfring (1):
-  s390-ctcm: Delete unnecessary checks before the function call
-    "channel_remove"
-
-Rasmus Villemoes (1):
-  qeth: get rid of redundant 0-termination
-
-Thomas Richter (1):
-  qeth use common function qeth_get_setassparms_cmd
-
-Ursula Braun (3):
-  MAINTAINERS: switch to alternate IBM mail address
-  qeth: initialize net_device with carrier off
-  qeth: repair SBAL elements calculation
-
- MAINTAINERS                       |  4 ++--
- drivers/s390/net/ctcm_main.c      |  7 ++-----
- drivers/s390/net/qeth_core.h      |  4 ++++
- drivers/s390/net/qeth_core_main.c | 11 +++++------
- drivers/s390/net/qeth_l2_main.c   |  1 +
- drivers/s390/net/qeth_l3_main.c   | 40 ++++++++++-----------------------------
- net/iucv/af_iucv.c                | 22 +++++++++++++++------
- 7 files changed, 40 insertions(+), 49 deletions(-)
-
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index fe1845a..7871537 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -2684,8 +2684,6 @@ void qeth_print_status_message(struct qeth_card *card)
+ 			sprintf(card->info.mcl_level, "%02x%02x",
+ 				card->info.mcl_level[2],
+ 				card->info.mcl_level[3]);
+-
+-			card->info.mcl_level[QETH_MCL_LENGTH] = 0;
+ 			break;
+ 		}
+ 		/* fallthrough */
 -- 
 2.3.9
