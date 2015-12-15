@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 4/4] KVM: s390: consider system MHA for guest storage
-Date: Tue, 15 Dec 2015 20:23:46 +0100
-Message-ID: <1450207426-17222-5-git-send-email-borntraeger@de.ibm.com>
+Subject: [GIT PULL 2/4] KVM: s390: obey kptr_restrict in traces
+Date: Tue, 15 Dec 2015 20:23:44 +0100
+Message-ID: <1450207426-17222-3-git-send-email-borntraeger@de.ibm.com>
 References: <1450207426-17222-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1450207426-17222-1-git-send-email-borntraeger@de.ibm.com>
@@ -9,69 +9,86 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>, Guenther Hutzl <hutzl@linux.vnet.ibm.com>, Dominik Dingel <dingel@linux.vnet.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Kees Cook <keescook@chromium.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Guenther Hutzl <hutzl@linux.vnet.ibm.com>
+The s390dbf and trace events provide a debugfs interface.
+If kptr_restrict is active, we should not expose kernel
+pointers. We can fence the debugfs output by using %pK
+instead of %p.
 
-Verify that the guest maximum storage address is below the MHA (maximum
-host address) value allowed on the host.
-
-Acked-by: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+Cc: Kees Cook <keescook@chromium.org>
 Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Reviewed-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
-Signed-off-by: Guenther Hutzl <hutzl@linux.vnet.ibm.com>
-Signed-off-by: Dominik Dingel <dingel@linux.vnet.ibm.com>
-[adopt to match recent limit,size changes]
-
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c       | 6 +++++-
- drivers/s390/char/sclp_early.c | 8 +++++++-
- 2 files changed, 12 insertions(+), 2 deletions(-)
+ arch/s390/kvm/kvm-s390.c   | 9 +++++----
+ arch/s390/kvm/trace-s390.h | 6 +++---
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 8aa5e55..940e9ff 100644
+index 6dec01d..c14845c 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -1184,7 +1184,11 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 		kvm->arch.gmap = NULL;
- 		kvm->arch.mem_limit = KVM_S390_NO_MEM_LIMIT;
- 	} else {
--		kvm->arch.mem_limit = TASK_MAX_SIZE;
-+		if (sclp.hamax == U64_MAX)
-+			kvm->arch.mem_limit = TASK_MAX_SIZE;
-+		else
-+			kvm->arch.mem_limit = min_t(unsigned long, TASK_MAX_SIZE,
-+						    sclp.hamax + 1);
- 		kvm->arch.gmap = gmap_alloc(current->mm, kvm->arch.mem_limit - 1);
- 		if (!kvm->arch.gmap)
- 			goto out_err;
-diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
-index e0a1f4e..6804354 100644
---- a/drivers/s390/char/sclp_early.c
-+++ b/drivers/s390/char/sclp_early.c
-@@ -40,7 +40,8 @@ struct read_info_sccb {
- 	u8	fac85;			/* 85 */
- 	u8	_pad_86[91 - 86];	/* 86-90 */
- 	u8	flags;			/* 91 */
--	u8	_pad_92[100 - 92];	/* 92-99 */
-+	u8	_pad_92[99 - 92];	/* 92-98 */
-+	u8	hamaxpow;		/* 99 */
- 	u32	rnsize2;		/* 100-103 */
- 	u64	rnmax2;			/* 104-111 */
- 	u8	_pad_112[116 - 112];	/* 112-115 */
-@@ -120,6 +121,11 @@ static void __init sclp_facilities_detect(struct read_info_sccb *sccb)
- 	sclp.rzm <<= 20;
- 	sclp.ibc = sccb->ibc;
+@@ -1185,7 +1185,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 	kvm->arch.epoch = 0;
  
-+	if (sccb->hamaxpow && sccb->hamaxpow < 64)
-+		sclp.hamax = (1UL << sccb->hamaxpow) - 1;
-+	else
-+		sclp.hamax = U64_MAX;
-+
- 	if (!sccb->hcpua) {
- 		if (MACHINE_IS_VM)
- 			sclp.max_cores = 64;
+ 	spin_lock_init(&kvm->arch.start_stop_lock);
+-	KVM_EVENT(3, "vm 0x%p created by pid %u", kvm, current->pid);
++	KVM_EVENT(3, "vm 0x%pK created by pid %u", kvm, current->pid);
+ 
+ 	return 0;
+ out_err:
+@@ -1245,7 +1245,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+ 		gmap_free(kvm->arch.gmap);
+ 	kvm_s390_destroy_adapters(kvm);
+ 	kvm_s390_clear_float_irqs(kvm);
+-	KVM_EVENT(3, "vm 0x%p destroyed", kvm);
++	KVM_EVENT(3, "vm 0x%pK destroyed", kvm);
+ }
+ 
+ /* Section: vcpu related */
+@@ -1349,7 +1349,8 @@ static int sca_switch_to_extended(struct kvm *kvm)
+ 
+ 	free_page((unsigned long)old_sca);
+ 
+-	VM_EVENT(kvm, 2, "Switched to ESCA (%p -> %p)", old_sca, kvm->arch.sca);
++	VM_EVENT(kvm, 2, "Switched to ESCA (0x%pK -> 0x%pK)",
++		 old_sca, kvm->arch.sca);
+ 	return 0;
+ }
+ 
+@@ -1624,7 +1625,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
+ 	rc = kvm_vcpu_init(vcpu, kvm, id);
+ 	if (rc)
+ 		goto out_free_sie_block;
+-	VM_EVENT(kvm, 3, "create cpu %d at %p, sie block at %p", id, vcpu,
++	VM_EVENT(kvm, 3, "create cpu %d at 0x%pK, sie block at 0x%pK", id, vcpu,
+ 		 vcpu->arch.sie_block);
+ 	trace_kvm_s390_create_vcpu(id, vcpu, vcpu->arch.sie_block);
+ 
+diff --git a/arch/s390/kvm/trace-s390.h b/arch/s390/kvm/trace-s390.h
+index cc1d6c6..396485b 100644
+--- a/arch/s390/kvm/trace-s390.h
++++ b/arch/s390/kvm/trace-s390.h
+@@ -55,8 +55,8 @@ TRACE_EVENT(kvm_s390_create_vcpu,
+ 		    __entry->sie_block = sie_block;
+ 		    ),
+ 
+-	    TP_printk("create cpu %d at %p, sie block at %p", __entry->id,
+-		      __entry->vcpu, __entry->sie_block)
++	    TP_printk("create cpu %d at 0x%pK, sie block at 0x%pK",
++		      __entry->id, __entry->vcpu, __entry->sie_block)
+ 	);
+ 
+ TRACE_EVENT(kvm_s390_destroy_vcpu,
+@@ -254,7 +254,7 @@ TRACE_EVENT(kvm_s390_enable_css,
+ 		    __entry->kvm = kvm;
+ 		    ),
+ 
+-	    TP_printk("enabling channel I/O support (kvm @ %p)\n",
++	    TP_printk("enabling channel I/O support (kvm @ %pK)\n",
+ 		      __entry->kvm)
+ 	);
+ 
 -- 
 2.3.0
