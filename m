@@ -1,35 +1,50 @@
-From: Geliang Tang <geliangtang@163.com>
-Subject: [PATCH] virtio/s390: use dev_to_virtio
-Date: Wed, 30 Dec 2015 22:05:25 +0800
-Message-ID: <912bf59bd3a48f2d4d4994681e898dc084fe29d3.1451484163.git.geliangtang@163.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 9.2 \(3112\))
+Subject: Re: Information leak in sco_sock_bind
+From: Marcel Holtmann <marcel@holtmann.org>
+In-Reply-To: <20151215.153926.440589493634712000.davem@davemloft.net>
+Date: Wed, 16 Dec 2015 05:19:28 +0100
+Message-Id: <37984F86-A7B2-4E34-9301-74C9F90BE0A2@holtmann.org>
+References: <CACT4Y+Zi9L5K3JExRLxuLS7FzjnQQth3b9ns-q6QufpyHOXf7Q@mail.gmail.com> <20151215.153926.440589493634712000.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Geliang Tang <geliangtang@163.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-bluetooth/>
+List-Post: <mailto:linux-bluetooth@vger.kernel.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: dvyukov@google.com, "Gustavo F. Padovan" <gustavo@padovan.org>, Johan Hedberg <johan.hedberg@gmail.com>, BlueZ development <linux-bluetooth@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, syzkaller@googlegroups.com, kcc@google.com, glider@google.com, sasha.levin@oracle.com, edumazet@google.com, keescook@google.com, hannes@stressinduktion.org, ursula.braun@de.ibm.com, linux-s390@vger.kernel.org, lauro.venancio@openbossa.org, aloisio.almeida@openbossa.org, Samuel Ortiz <sameo@linux.intel.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Use dev_to_virtio() instead of open-coding it.
+Hi Dave,
 
-Signed-off-by: Geliang Tang <geliangtang@163.com>
----
- drivers/s390/virtio/virtio_ccw.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+>> The following program leads to leak of 6 bytes from kernel stack:
+> 
+> This should fix it:
+> 
+> ====================
+> [PATCH] bluetooth: Validate socket address length in sco_sock_bind().
+> 
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> ---
+> net/bluetooth/sco.c | 3 +++
+> 1 file changed, 3 insertions(+)
+> 
+> diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+> index fe12966..f52bcbf 100644
+> --- a/net/bluetooth/sco.c
+> +++ b/net/bluetooth/sco.c
+> @@ -526,6 +526,9 @@ static int sco_sock_bind(struct socket *sock, struct sockaddr *addr,
+> 	if (!addr || addr->sa_family != AF_BLUETOOTH)
+> 		return -EINVAL;
+> 
+> +	if (addr_len < sizeof(struct sockaddr_sco))
+> +		return -EINVAL;
+> +
+> 	lock_sock(sk);
+> 
+> 	if (sk->sk_state != BT_OPEN) {
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 1b83159..97231e1 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -945,8 +945,7 @@ static struct virtio_config_ops virtio_ccw_config_ops = {
- 
- static void virtio_ccw_release_dev(struct device *_d)
- {
--	struct virtio_device *dev = container_of(_d, struct virtio_device,
--						 dev);
-+	struct virtio_device *dev = dev_to_virtio(_d);
- 	struct virtio_ccw_device *vcdev = to_vc_device(dev);
- 
- 	kfree(vcdev->status);
--- 
-2.5.0
+thanks for the patch, but I think we do the same as we do with all the other Bluetooth socket and copy it into cleared stack variable. I have a patch for that and will ask Johan to send a pull request shortly.
+
+Regards
+
+Marcel
