@@ -1,37 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH] s390/vmur: fix build warning
-Date: Tue, 22 Dec 2015 12:23:51 +0530
-Message-Id: <1450767231-21039-1-git-send-email-sudipm.mukherjee@gmail.com>
+Date: Tue, 22 Dec 2015 06:58:50 +0000
+From: Al Viro <viro@ZenIV.linux.org.uk>
+Subject: Re: [PATCH] s390/vmur: fix build warning
+Message-ID: <20151222065850.GA20997@ZenIV.linux.org.uk>
+References: <1450767231-21039-1-git-send-email-sudipm.mukherjee@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1450767231-21039-1-git-send-email-sudipm.mukherjee@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Al Viro <viro@zeniv.linux.org.uk>
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The helper no_seek_end_llseek() was added but now newpos is not required
-and as a result we are getting build warning of unused variable.
+On Tue, Dec 22, 2015 at 12:23:51PM +0530, Sudip Mukherjee wrote:
+> The helper no_seek_end_llseek() was added but now newpos is not required
+> and as a result we are getting build warning of unused variable.
 
-Fixes: fb1d259e480c ("new helpers: no_seek_end_llseek{,_size}()")
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
----
- drivers/s390/char/vmur.c | 2 --
- 1 file changed, 2 deletions(-)
-
-diff --git a/drivers/s390/char/vmur.c b/drivers/s390/char/vmur.c
-index a532e54..6c30e93a 100644
---- a/drivers/s390/char/vmur.c
-+++ b/drivers/s390/char/vmur.c
-@@ -782,8 +782,6 @@ static int ur_release(struct inode *inode, struct file *file)
- 
- static loff_t ur_llseek(struct file *file, loff_t offset, int whence)
- {
--	loff_t newpos;
--
- 	if ((file->f_flags & O_ACCMODE) != O_RDONLY)
- 		return -ESPIPE; /* seek allowed only for reader */
- 	if (offset % PAGE_SIZE)
--- 
-1.9.1
+Mind if I simply fold that into the commit in question?
