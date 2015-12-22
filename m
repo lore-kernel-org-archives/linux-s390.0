@@ -1,56 +1,41 @@
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH 0/4] add NULL test
-Date: Sun, 20 Dec 2015 12:15:49 +0100
-Message-ID: <1450610153-7746-1-git-send-email-Julia.Lawall@lip6.fr>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH] s390: fix build failure
+Date: Tue, 22 Dec 2015 12:10:01 +0530
+Message-Id: <1450766401-20747-1-git-send-email-sudipm.mukherjee@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-To: linux-s390@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Add NULL tests on various calls to kzalloc and devm_kzalloc.
+s390 defconfig fails with the error:
+ERROR: "phys_to_pfn_t" [drivers/s390/block/dcssblk.ko] undefined!
 
-The semantic match that finds these problems is as follows:
-(http://coccinelle.lip6.fr/)
+We need CONFIG_HAS_IOMEM for phys_to_pfn_t() and for that we need to
+have CONFIG_PCI.
 
-// <smpl>
-@@
-expression x,y;
-identifier fld;
-@@
-
-(
-x = \(vmalloc\|kmalloc\|kzalloc\|kcalloc\|kmem_cache_alloc\|krealloc\|
-        kmemdup\|kstrdup\|
-	devm_kzalloc\|devm_kmalloc\|devm_kcalloc\|devm_kasprintf\|
-	kmalloc_array\)(...,<+... __GFP_NOFAIL ...+>,...);
-|
-* x = \(vmalloc\|kmalloc\|kzalloc\|kcalloc\|kmem_cache_alloc\|krealloc\|
-        kmemdup\|kstrdup\|
-	devm_kzalloc\|devm_kmalloc\|devm_kcalloc\|devm_kasprintf\|
-	kmalloc_array\)(...);
-)
-  ... when != (x) == NULL
-      when != (x) != NULL
-      when != (x) == 0
-      when != (x) != 0
-      when != x = y
-(
-  x->fld
-|
-  *x
-|
-  x[...]
-)
-// </smpl>
-
+Fixes: bfac97e7b361 ("mm, dax, pmem: introduce pfn_t")
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
 ---
 
- drivers/s390/char/con3215.c                 |    2 ++
- drivers/s390/char/raw3270.c                 |    2 ++
- sound/soc/fsl/imx-pcm-dma.c                 |    2 ++
- sound/soc/intel/baytrail/sst-baytrail-pcm.c |    2 ++
- sound/soc/omap/omap-hdmi-audio.c            |    2 ++
- 5 files changed, 10 insertions(+)
+s390 defconfig with next-20151222 is at:
+https://travis-ci.org/sudipm-mukherjee/parport/jobs/98258271
+
+ arch/s390/defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/s390/defconfig b/arch/s390/defconfig
+index 9256b48..e56b6df 100644
+--- a/arch/s390/defconfig
++++ b/arch/s390/defconfig
+@@ -207,3 +207,4 @@ CONFIG_CRC7=m
+ # CONFIG_XZ_DEC_ARMTHUMB is not set
+ # CONFIG_XZ_DEC_SPARC is not set
+ CONFIG_CMM=m
++CONFIG_PCI=y
+-- 
+1.9.1
