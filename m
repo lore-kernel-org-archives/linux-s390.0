@@ -1,72 +1,35 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Thu, 31 Dec 2015 21:10:01 +0200
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 33/34] xenbus: use virt_xxx barriers
-Message-ID: <1451572003-2440-34-git-send-email-mst@redhat.com>
-References: <1451572003-2440-1-git-send-email-mst@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1451572003-2440-1-git-send-email-mst@redhat.com>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20151231191001.nZVWlPOFpp6DI_IvragiERo90FPxeXl7M9ooHIXbsnk@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, David Vrabel <david.vrabel@citrix.com>
+From: Geliang Tang <geliangtang@163.com>
+Subject: [PATCH] virtio/s390: use dev_to_virtio
+Date: Wed, 30 Dec 2015 22:05:25 +0800
+Message-ID: <912bf59bd3a48f2d4d4994681e898dc084fe29d3.1451484163.git.geliangtang@163.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Geliang Tang <geliangtang@163.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-drivers/xen/xenbus/xenbus_comms.c uses
-full memory barriers to communicate with the other side.
+Use dev_to_virtio() instead of open-coding it.
 
-For guests compiled with CONFIG_SMP, smp_wmb and smp_mb
-would be sufficient, so mb() and wmb() here are only needed if
-a non-SMP guest runs on an SMP host.
-
-Switch to virt_xxx barriers which serve this exact purpose.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Geliang Tang <geliangtang@163.com>
 ---
- drivers/xen/xenbus/xenbus_comms.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/s390/virtio/virtio_ccw.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/xen/xenbus/xenbus_comms.c b/drivers/xen/xenbus/xenbus_comms.c
-index fdb0f33..ecdecce 100644
---- a/drivers/xen/xenbus/xenbus_comms.c
-+++ b/drivers/xen/xenbus/xenbus_comms.c
-@@ -123,14 +123,14 @@ int xb_write(const void *data, unsigned len)
- 			avail = len;
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 1b83159..97231e1 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -945,8 +945,7 @@ static struct virtio_config_ops virtio_ccw_config_ops = {
  
- 		/* Must write data /after/ reading the consumer index. */
--		mb();
-+		virt_mb();
+ static void virtio_ccw_release_dev(struct device *_d)
+ {
+-	struct virtio_device *dev = container_of(_d, struct virtio_device,
+-						 dev);
++	struct virtio_device *dev = dev_to_virtio(_d);
+ 	struct virtio_ccw_device *vcdev = to_vc_device(dev);
  
- 		memcpy(dst, data, avail);
- 		data += avail;
- 		len -= avail;
- 
- 		/* Other side must not see new producer until data is there. */
--		wmb();
-+		virt_wmb();
- 		intf->req_prod += avail;
- 
- 		/* Implies mb(): other side will see the updated producer. */
-@@ -180,14 +180,14 @@ int xb_read(void *data, unsigned len)
- 			avail = len;
- 
- 		/* Must read data /after/ reading the producer index. */
--		rmb();
-+		virt_rmb();
- 
- 		memcpy(data, src, avail);
- 		data += avail;
- 		len -= avail;
- 
- 		/* Other side must not see free space until we've copied out */
--		mb();
-+		virt_mb();
- 		intf->rsp_cons += avail;
- 
- 		pr_debug("Finished read of %i bytes (%i to go)\n", avail, len);
+ 	kfree(vcdev->status);
 -- 
-MST
+2.5.0
