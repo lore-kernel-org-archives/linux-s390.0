@@ -1,102 +1,88 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 21/32] mips: define __smp_xxx
-Date: Thu, 31 Dec 2015 21:08:30 +0200
-Message-ID: <1451572003-2440-22-git-send-email-mst@redhat.com>
+Subject: [PATCH v2 32/32] virtio_ring: use virt_store_mb
+Date: Thu, 31 Dec 2015 21:09:54 +0200
+Message-ID: <1451572003-2440-33-git-send-email-mst@redhat.com>
 References: <1451572003-2440-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <xen-devel-bounces@lists.xen.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-ia64-owner@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <1451572003-2440-1-git-send-email-mst@redhat.com>
-List-Unsubscribe: <http://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
-	<mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xen.org>
-List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
-List-Subscribe: <http://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xen.org?subject=subscribe>
-Sender: xen-devel-bounces@lists.xen.org
-Errors-To: xen-devel-bounces@lists.xen.org
+Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, Ralf Baechle <ralf@linux-mips.org>, linuxppc-dev@lists.ozlabs.org, David Miller <davem@davemlof>
+Cc: Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This defines __smp_xxx barriers for mips,
-for use by virtualization.
+We need a full barrier after writing out event index, using
+virt_store_mb there seems better than open-coding.  As usual, we need a
+wrapper to account for strong barriers.
 
-smp_xxx barriers are removed as they are
-defined correctly by asm-generic/barriers.h
-
-Note: the only exception is smp_mb__before_llsc which is mips-specific.
-We define both the __smp_mb__before_llsc variant (for use in
-asm/barriers.h) and smp_mb__before_llsc (for use elsewhere on this
-architecture).
+It's tempting to use this in vhost as well, for that, we'll
+need a variant of smp_store_mb that works on __user pointers.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/mips/include/asm/barrier.h | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ include/linux/virtio_ring.h  | 12 ++++++++++++
+ drivers/virtio/virtio_ring.c | 15 +++++++++------
+ 2 files changed, 21 insertions(+), 6 deletions(-)
 
-diff --git a/arch/mips/include/asm/barrier.h b/arch/mips/include/asm/barrier.h
-index 3eac4b9..d296633 100644
---- a/arch/mips/include/asm/barrier.h
-+++ b/arch/mips/include/asm/barrier.h
-@@ -85,20 +85,20 @@
- #define wmb()		fast_wmb()
- #define rmb()		fast_rmb()
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index f3fa55b..3a74d91 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -45,6 +45,18 @@ static inline void virtio_wmb(bool weak_barriers)
+ 		wmb();
+ }
  
--#if defined(CONFIG_WEAK_ORDERING) && defined(CONFIG_SMP)
-+#if defined(CONFIG_WEAK_ORDERING)
- # ifdef CONFIG_CPU_CAVIUM_OCTEON
--#  define smp_mb()	__sync()
--#  define smp_rmb()	barrier()
--#  define smp_wmb()	__syncw()
-+#  define __smp_mb()	__sync()
-+#  define __smp_rmb()	barrier()
-+#  define __smp_wmb()	__syncw()
- # else
--#  define smp_mb()	__asm__ __volatile__("sync" : : :"memory")
--#  define smp_rmb()	__asm__ __volatile__("sync" : : :"memory")
--#  define smp_wmb()	__asm__ __volatile__("sync" : : :"memory")
-+#  define __smp_mb()	__asm__ __volatile__("sync" : : :"memory")
-+#  define __smp_rmb()	__asm__ __volatile__("sync" : : :"memory")
-+#  define __smp_wmb()	__asm__ __volatile__("sync" : : :"memory")
- # endif
- #else
--#define smp_mb()	barrier()
--#define smp_rmb()	barrier()
--#define smp_wmb()	barrier()
-+#define __smp_mb()	barrier()
-+#define __smp_rmb()	barrier()
-+#define __smp_wmb()	barrier()
- #endif
++static inline void virtio_store_mb(bool weak_barriers,
++				   __virtio16 *p, __virtio16 v)
++{
++	if (weak_barriers)
++		virt_store_mb(*p, v);
++	else
++	{
++		WRITE_ONCE(*p, v);
++		mb();
++	}
++}
++
+ struct virtio_device;
+ struct virtqueue;
  
- #if defined(CONFIG_WEAK_REORDERING_BEYOND_LLSC) && defined(CONFIG_SMP)
-@@ -111,6 +111,7 @@
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index ee663c4..e12e385 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -517,10 +517,10 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 	/* If we expect an interrupt for the next entry, tell host
+ 	 * by writing event index and flush out the write before
+ 	 * the read in the next get_buf call. */
+-	if (!(vq->avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
+-		vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, vq->last_used_idx);
+-		virtio_mb(vq->weak_barriers);
+-	}
++	if (!(vq->avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT))
++		virtio_store_mb(vq->weak_barriers,
++				&vring_used_event(&vq->vring),
++				cpu_to_virtio16(_vq->vdev, vq->last_used_idx));
  
- #ifdef CONFIG_CPU_CAVIUM_OCTEON
- #define smp_mb__before_llsc() smp_wmb()
-+#define __smp_mb__before_llsc() __smp_wmb()
- /* Cause previous writes to become visible on all CPUs as soon as possible */
- #define nudge_writes() __asm__ __volatile__(".set push\n\t"		\
- 					    ".set arch=octeon\n\t"	\
-@@ -118,11 +119,12 @@
- 					    ".set pop" : : : "memory")
- #else
- #define smp_mb__before_llsc() smp_llsc_mb()
-+#define __smp_mb__before_llsc() smp_llsc_mb()
- #define nudge_writes() mb()
- #endif
- 
--#define smp_mb__before_atomic()	smp_mb__before_llsc()
--#define smp_mb__after_atomic()	smp_llsc_mb()
-+#define __smp_mb__before_atomic()	__smp_mb__before_llsc()
-+#define __smp_mb__after_atomic()	smp_llsc_mb()
- 
- #include <asm-generic/barrier.h>
- 
+ #ifdef DEBUG
+ 	vq->last_add_time_valid = false;
+@@ -653,8 +653,11 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
+ 	}
+ 	/* TODO: tune this threshold */
+ 	bufs = (u16)(vq->avail_idx_shadow - vq->last_used_idx) * 3 / 4;
+-	vring_used_event(&vq->vring) = cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs);
+-	virtio_mb(vq->weak_barriers);
++
++	virtio_store_mb(vq->weak_barriers,
++			&vring_used_event(&vq->vring),
++			cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs));
++
+ 	if (unlikely((u16)(virtio16_to_cpu(_vq->vdev, vq->vring.used->idx) - vq->last_used_idx) > bufs)) {
+ 		END_USE(vq);
+ 		return false;
 -- 
 MST
