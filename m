@@ -1,63 +1,77 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Thu, 31 Dec 2015 21:05:58 +0200
+Date: Thu, 31 Dec 2015 21:07:02 +0200
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 02/32] asm-generic: guard smp_store_release/load_acquire
-Message-ID: <1451572003-2440-3-git-send-email-mst@redhat.com>
+Subject: [PATCH v2 10/32] metag: reuse asm-generic/barrier.h
+Message-ID: <1451572003-2440-11-git-send-email-mst@redhat.com>
 References: <1451572003-2440-1-git-send-email-mst@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <1451572003-2440-1-git-send-email-mst@redhat.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20151231190558.c5E7ut7Y59rrUaKEcpy_A01Sj3Je6KODxQGs2jGVSPw@z>
+Message-ID: <20151231190702.Ap7rQPw0mkZrbR--Gwu0lz7yKqfSNOqUuT2fwILM3KA@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org
+Cc: Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, James Hogan <james.hogan@imgtec.com>, Ingo Molnar <mingo@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Andrey Konovalov <andreyknvl@google.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Allow architectures to override smp_store_release
-and smp_load_acquire by guarding the defines
-in asm-generic/barrier.h with ifndef directives.
+On metag dma_rmb, dma_wmb, smp_store_mb, read_barrier_depends,
+smp_read_barrier_depends, smp_store_release and smp_load_acquire  match
+the asm-generic variants exactly. Drop the local definitions and pull in
+asm-generic/barrier.h instead.
 
-This is in preparation to reusing asm-generic/barrier.h
-on architectures which have their own definition
-of these macros.
+This is in preparation to refactoring this code area.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Acked-by: Arnd Bergmann <arnd@arndb.de>
 ---
- include/asm-generic/barrier.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/metag/include/asm/barrier.h | 25 ++-----------------------
+ 1 file changed, 2 insertions(+), 23 deletions(-)
 
-diff --git a/include/asm-generic/barrier.h b/include/asm-generic/barrier.h
-index 0f45f93..987b2e0 100644
---- a/include/asm-generic/barrier.h
-+++ b/include/asm-generic/barrier.h
-@@ -104,13 +104,16 @@
- #define smp_mb__after_atomic()	smp_mb()
+diff --git a/arch/metag/include/asm/barrier.h b/arch/metag/include/asm/barrier.h
+index 172b7e5..b5b778b 100644
+--- a/arch/metag/include/asm/barrier.h
++++ b/arch/metag/include/asm/barrier.h
+@@ -44,9 +44,6 @@ static inline void wr_fence(void)
+ #define rmb()		barrier()
+ #define wmb()		mb()
+ 
+-#define dma_rmb()	rmb()
+-#define dma_wmb()	wmb()
+-
+ #ifndef CONFIG_SMP
+ #define fence()		do { } while (0)
+ #define smp_mb()        barrier()
+@@ -81,27 +78,9 @@ static inline void fence(void)
+ #endif
  #endif
  
-+#ifndef smp_store_release
- #define smp_store_release(p, v)						\
- do {									\
- 	compiletime_assert_atomic_type(*p);				\
- 	smp_mb();							\
- 	WRITE_ONCE(*p, v);						\
- } while (0)
-+#endif
+-#define read_barrier_depends()		do { } while (0)
+-#define smp_read_barrier_depends()	do { } while (0)
+-
+-#define smp_store_mb(var, value) do { WRITE_ONCE(var, value); smp_mb(); } while (0)
+-
+-#define smp_store_release(p, v)						\
+-do {									\
+-	compiletime_assert_atomic_type(*p);				\
+-	smp_mb();							\
+-	WRITE_ONCE(*p, v);						\
+-} while (0)
+-
+-#define smp_load_acquire(p)						\
+-({									\
+-	typeof(*p) ___p1 = READ_ONCE(*p);				\
+-	compiletime_assert_atomic_type(*p);				\
+-	smp_mb();							\
+-	___p1;								\
+-})
+-
+ #define smp_mb__before_atomic()	barrier()
+ #define smp_mb__after_atomic()	barrier()
  
-+#ifndef smp_load_acquire
- #define smp_load_acquire(p)						\
- ({									\
- 	typeof(*p) ___p1 = READ_ONCE(*p);				\
-@@ -118,6 +121,7 @@ do {									\
- 	smp_mb();							\
- 	___p1;								\
- })
-+#endif
- 
- #endif /* !__ASSEMBLY__ */
- #endif /* __ASM_GENERIC_BARRIER_H */
++#include <asm-generic/barrier.h>
++
+ #endif /* _ASM_METAG_BARRIER_H */
 -- 
 MST
