@@ -1,65 +1,102 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Thu, 31 Dec 2015 21:06:13 +0200
+Date: Thu, 31 Dec 2015 21:05:45 +0200
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 04/32] ia64: reuse asm-generic/barrier.h
-Message-ID: <1451572003-2440-5-git-send-email-mst@redhat.com>
+Subject: [PATCH v2 01/32] lcoking/barriers, arch: Use smp barriers in
+ smp_store_release()
+Message-ID: <1451572003-2440-2-git-send-email-mst@redhat.com>
 References: <1451572003-2440-1-git-send-email-mst@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <1451572003-2440-1-git-send-email-mst@redhat.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20151231190613.NNrFs_45qd4uqSccELpVW4zMpmnQUGcpgxH8l0LAIag@z>
+Message-ID: <20151231190545.tS1dh6YQtbXZtjq0xGGwTwQ9RhkuHCBcFiC6Zf9SLNY@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Ingo Molnar <mingo@kernel.org>, Davidlohr Bueso <dave@stgolabs.net>, Andrey Konovalov <andreyknvl@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>, Tony Luck <tony.luck@intel.com>, Ingo Molnar <mingo@kernel.org>, Fenghua Yu <fenghua.yu@intel.com>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrey Konovalov <andreyknvl@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On ia64 smp_rmb, smp_wmb, read_barrier_depends, smp_read_barrier_depends
-and smp_store_mb() match the asm-generic variants exactly. Drop the
-local definitions and pull in asm-generic/barrier.h instead.
+From: Davidlohr Bueso <dave@stgolabs.net>
 
-This is in preparation to refactoring this code area.
+With commit b92b8b35a2e ("locking/arch: Rename set_mb() to smp_store_mb()")
+it was made clear that the context of this call (and thus set_mb)
+is strictly for CPU ordering, as opposed to IO. As such all archs
+should use the smp variant of mb(), respecting the semantics and
+saving a mandatory barrier on UP.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Tony Luck <tony.luck@intel.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <linux-arch@vger.kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: dave@stgolabs.net
+Link: http://lkml.kernel.org/r/1445975631-17047-3-git-send-email-dave@stgolabs.net
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 ---
- arch/ia64/include/asm/barrier.h | 10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ arch/ia64/include/asm/barrier.h    | 2 +-
+ arch/powerpc/include/asm/barrier.h | 2 +-
+ arch/s390/include/asm/barrier.h    | 2 +-
+ include/asm-generic/barrier.h      | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/arch/ia64/include/asm/barrier.h b/arch/ia64/include/asm/barrier.h
-index 209c4b8..2f93348 100644
+index df896a1..209c4b8 100644
 --- a/arch/ia64/include/asm/barrier.h
 +++ b/arch/ia64/include/asm/barrier.h
-@@ -48,12 +48,6 @@
- # define smp_mb()	barrier()
- #endif
- 
--#define smp_rmb()	smp_mb()
--#define smp_wmb()	smp_mb()
--
--#define read_barrier_depends()		do { } while (0)
--#define smp_read_barrier_depends()	do { } while (0)
--
- #define smp_mb__before_atomic()	barrier()
- #define smp_mb__after_atomic()	barrier()
- 
-@@ -77,12 +71,12 @@ do {									\
+@@ -77,7 +77,7 @@ do {									\
  	___p1;								\
  })
  
--#define smp_store_mb(var, value) do { WRITE_ONCE(var, value); smp_mb(); } while (0)
--
+-#define smp_store_mb(var, value)	do { WRITE_ONCE(var, value); mb(); } while (0)
++#define smp_store_mb(var, value) do { WRITE_ONCE(var, value); smp_mb(); } while (0)
+ 
  /*
   * The group barrier in front of the rsm & ssm are necessary to ensure
-  * that none of the previous instructions in the same group are
-  * affected by the rsm/ssm.
-  */
+diff --git a/arch/powerpc/include/asm/barrier.h b/arch/powerpc/include/asm/barrier.h
+index 0eca6ef..a7af5fb 100644
+--- a/arch/powerpc/include/asm/barrier.h
++++ b/arch/powerpc/include/asm/barrier.h
+@@ -34,7 +34,7 @@
+ #define rmb()  __asm__ __volatile__ ("sync" : : : "memory")
+ #define wmb()  __asm__ __volatile__ ("sync" : : : "memory")
  
-+#include <asm-generic/barrier.h>
-+
- #endif /* _ASM_IA64_BARRIER_H */
+-#define smp_store_mb(var, value)	do { WRITE_ONCE(var, value); mb(); } while (0)
++#define smp_store_mb(var, value) do { WRITE_ONCE(var, value); smp_mb(); } while (0)
+ 
+ #ifdef __SUBARCH_HAS_LWSYNC
+ #    define SMPWMB      LWSYNC
+diff --git a/arch/s390/include/asm/barrier.h b/arch/s390/include/asm/barrier.h
+index d68e11e..7ffd0b1 100644
+--- a/arch/s390/include/asm/barrier.h
++++ b/arch/s390/include/asm/barrier.h
+@@ -36,7 +36,7 @@
+ #define smp_mb__before_atomic()		smp_mb()
+ #define smp_mb__after_atomic()		smp_mb()
+ 
+-#define smp_store_mb(var, value)		do { WRITE_ONCE(var, value); mb(); } while (0)
++#define smp_store_mb(var, value)	do { WRITE_ONCE(var, value); smp_mb(); } while (0)
+ 
+ #define smp_store_release(p, v)						\
+ do {									\
+diff --git a/include/asm-generic/barrier.h b/include/asm-generic/barrier.h
+index b42afad..0f45f93 100644
+--- a/include/asm-generic/barrier.h
++++ b/include/asm-generic/barrier.h
+@@ -93,7 +93,7 @@
+ #endif	/* CONFIG_SMP */
+ 
+ #ifndef smp_store_mb
+-#define smp_store_mb(var, value)  do { WRITE_ONCE(var, value); mb(); } while (0)
++#define smp_store_mb(var, value)  do { WRITE_ONCE(var, value); smp_mb(); } while (0)
+ #endif
+ 
+ #ifndef smp_mb__before_atomic
 -- 
 MST
