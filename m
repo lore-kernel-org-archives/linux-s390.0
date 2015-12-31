@@ -1,95 +1,102 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 29/32] Revert "virtio_ring: Update weak barriers to use
- dma_wmb/rmb"
-Date: Thu, 31 Dec 2015 21:09:32 +0200
-Message-ID: <1451572003-2440-30-git-send-email-mst@redhat.com>
+Subject: [PATCH v2 21/32] mips: define __smp_xxx
+Date: Thu, 31 Dec 2015 21:08:30 +0200
+Message-ID: <1451572003-2440-22-git-send-email-mst@redhat.com>
 References: <1451572003-2440-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xen.org>
 Content-Disposition: inline
 In-Reply-To: <1451572003-2440-1-git-send-email-mst@redhat.com>
-Sender: linux-arch-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
+	<mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xen.org>
+List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
+List-Subscribe: <http://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xen.org?subject=subscribe>
+Sender: xen-devel-bounces@lists.xen.org
+Errors-To: xen-devel-bounces@lists.xen.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Alexander Duyck <alexander.duyck@gmail.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, Ralf Baechle <ralf@linux-mips.org>, linuxppc-dev@lists.ozlabs.org, David Miller <davem@davemlof>
 List-ID: <linux-s390.vger.kernel.org>
 
-This reverts commit 9e1a27ea42691429e31f158cce6fc61bc79bb2e9.
+This defines __smp_xxx barriers for mips,
+for use by virtualization.
 
-While that commit optimizes !CONFIG_SMP, it mixes
-up DMA and SMP concepts, making the code hard
-to figure out.
+smp_xxx barriers are removed as they are
+defined correctly by asm-generic/barriers.h
 
-A better way to optimize this is with the new __smp_XXX
-barriers.
+Note: the only exception is smp_mb__before_llsc which is mips-specific.
+We define both the __smp_mb__before_llsc variant (for use in
+asm/barriers.h) and smp_mb__before_llsc (for use elsewhere on this
+architecture).
 
-As a first step, go back to full rmb/wmb barriers
-for !SMP.
-We switch to __smp_XXX barriers in the next patch.
-
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Alexander Duyck <alexander.duyck@gmail.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
 ---
- include/linux/virtio_ring.h | 23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ arch/mips/include/asm/barrier.h | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 8e50888..67e06fe 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -21,20 +21,19 @@
-  * actually quite cheap.
-  */
+diff --git a/arch/mips/include/asm/barrier.h b/arch/mips/include/asm/barrier.h
+index 3eac4b9..d296633 100644
+--- a/arch/mips/include/asm/barrier.h
++++ b/arch/mips/include/asm/barrier.h
+@@ -85,20 +85,20 @@
+ #define wmb()		fast_wmb()
+ #define rmb()		fast_rmb()
  
-+#ifdef CONFIG_SMP
- static inline void virtio_mb(bool weak_barriers)
- {
--#ifdef CONFIG_SMP
- 	if (weak_barriers)
- 		smp_mb();
- 	else
--#endif
- 		mb();
- }
+-#if defined(CONFIG_WEAK_ORDERING) && defined(CONFIG_SMP)
++#if defined(CONFIG_WEAK_ORDERING)
+ # ifdef CONFIG_CPU_CAVIUM_OCTEON
+-#  define smp_mb()	__sync()
+-#  define smp_rmb()	barrier()
+-#  define smp_wmb()	__syncw()
++#  define __smp_mb()	__sync()
++#  define __smp_rmb()	barrier()
++#  define __smp_wmb()	__syncw()
+ # else
+-#  define smp_mb()	__asm__ __volatile__("sync" : : :"memory")
+-#  define smp_rmb()	__asm__ __volatile__("sync" : : :"memory")
+-#  define smp_wmb()	__asm__ __volatile__("sync" : : :"memory")
++#  define __smp_mb()	__asm__ __volatile__("sync" : : :"memory")
++#  define __smp_rmb()	__asm__ __volatile__("sync" : : :"memory")
++#  define __smp_wmb()	__asm__ __volatile__("sync" : : :"memory")
+ # endif
+ #else
+-#define smp_mb()	barrier()
+-#define smp_rmb()	barrier()
+-#define smp_wmb()	barrier()
++#define __smp_mb()	barrier()
++#define __smp_rmb()	barrier()
++#define __smp_wmb()	barrier()
+ #endif
  
- static inline void virtio_rmb(bool weak_barriers)
- {
- 	if (weak_barriers)
--		dma_rmb();
-+		smp_rmb();
- 	else
- 		rmb();
- }
-@@ -42,10 +41,26 @@ static inline void virtio_rmb(bool weak_barriers)
- static inline void virtio_wmb(bool weak_barriers)
- {
- 	if (weak_barriers)
--		dma_wmb();
-+		smp_wmb();
- 	else
- 		wmb();
- }
-+#else
-+static inline void virtio_mb(bool weak_barriers)
-+{
-+	mb();
-+}
-+
-+static inline void virtio_rmb(bool weak_barriers)
-+{
-+	rmb();
-+}
-+
-+static inline void virtio_wmb(bool weak_barriers)
-+{
-+	wmb();
-+}
-+#endif
+ #if defined(CONFIG_WEAK_REORDERING_BEYOND_LLSC) && defined(CONFIG_SMP)
+@@ -111,6 +111,7 @@
  
- struct virtio_device;
- struct virtqueue;
+ #ifdef CONFIG_CPU_CAVIUM_OCTEON
+ #define smp_mb__before_llsc() smp_wmb()
++#define __smp_mb__before_llsc() __smp_wmb()
+ /* Cause previous writes to become visible on all CPUs as soon as possible */
+ #define nudge_writes() __asm__ __volatile__(".set push\n\t"		\
+ 					    ".set arch=octeon\n\t"	\
+@@ -118,11 +119,12 @@
+ 					    ".set pop" : : : "memory")
+ #else
+ #define smp_mb__before_llsc() smp_llsc_mb()
++#define __smp_mb__before_llsc() smp_llsc_mb()
+ #define nudge_writes() mb()
+ #endif
+ 
+-#define smp_mb__before_atomic()	smp_mb__before_llsc()
+-#define smp_mb__after_atomic()	smp_llsc_mb()
++#define __smp_mb__before_atomic()	__smp_mb__before_llsc()
++#define __smp_mb__after_atomic()	smp_llsc_mb()
+ 
+ #include <asm-generic/barrier.h>
+ 
 -- 
 MST
