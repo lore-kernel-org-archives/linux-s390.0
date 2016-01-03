@@ -1,25 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Problems with phys_to_pfn_t in linux-next and s390
-Message-ID: <567B8929.1060207@roeck-us.net>
-Date: Wed, 23 Dec 2015 21:56:57 -0800
+Subject: [PATCH 0/2] 390/qeth: Fine-tuning for qeth_core_set_online()
+References: <566ABCD9.1060404@users.sourceforge.net>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Message-ID: <5688F13A.70601@users.sourceforge.net>
+Date: Sun, 3 Jan 2016 11:00:26 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <566ABCD9.1060404@users.sourceforge.net>
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ursula Braun <ubraun@linux.vnet.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-ID: <linux-s390.vger.kernel.org>
 
-s390:defconfig:
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Sun, 3 Jan 2016 10:56:45 +0100
 
-ERROR: "phys_to_pfn_t" [drivers/s390/block/dcssblk.ko] undefined!
+A few update suggestions were taken into account
+from static source code analysis.
 
-s390 does not set CONFIG_HAS_IOMEM, which is required for phys_to_pfn_t to exist.
+Markus Elfring (2):
+  Delete an unnecessary variable initialisation
+  Refactoring
 
-Introduced with commit e014f77c4b ("mm-dax-pmem-introduce-pfn_t-v3") and
-possibly earlier.
+ drivers/s390/net/qeth_core_main.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Guenter
+-- 
+2.6.3
