@@ -1,80 +1,34 @@
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Mon, 4 Jan 2016 13:36:44 +0200
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/3] checkpatch.pl: add missing memory barriers
-Date: Sun, 10 Jan 2016 13:42:28 +0200
-Message-ID: <20160110134133-mutt-send-email-mst@redhat.com>
-References: <1451907395-15978-1-git-send-email-mst@redhat.com>
-	<1451907395-15978-2-git-send-email-mst@redhat.com>
-	<1451923660.4334.83.camel@perches.com>
-	<20160104224415-mutt-send-email-mst@redhat.com>
-	<1451945750.4334.111.camel@perches.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Subject: [PATCH 0/3] checkpatch: handling of memory barriers
+Message-ID: <1451907395-15978-1-git-send-email-mst@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1451945750.4334.111.camel@perches.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20160104113644.pGQcLX40kS8bCeuOD9hke3pXBGkI1GrqSKM_B5ocV78@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Joe Perches <joe@perches.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Tony Lindgren <tony@atomide.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, "Cc : Andy Whitcroft" <apw@canonical.com>, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew
+To: linux-kernel@vger.kernel.org
+Cc: "Cc : Andy Whitcroft" <apw@canonical.com>, Joe Perches <joe@perches.com>, Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@kernel.org>, Tony Lindgren <tony@atomide.com>, Andrey Konovalov <andreyknvl@google.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jan 04, 2016 at 02:15:50PM -0800, Joe Perches wrote:
-> On Mon, 2016-01-04 at 22:45 +0200, Michael S. Tsirkin wrote:
-> > On Mon, Jan 04, 2016 at 08:07:40AM -0800, Joe Perches wrote:
-> > > On Mon, 2016-01-04 at 13:36 +0200, Michael S. Tsirkin wrote:
-> > > > SMP-only barriers were missing in checkpatch.pl
-> > > > =
+As part of memory barrier cleanup, this patchset
+extends checkpatch to make it easier to stop
+incorrect memory barrier usage.
 
-> > > > Refactor code slightly to make adding more variants easier.
-> > > > =
+This applies on top of my series
+	arch: barrier cleanup + barriers for virt
+and will be included in the next version of the series.
 
-> > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > > ---
-> > > > =A0scripts/checkpatch.pl | 9 ++++++++-
-> > > > =A01 file changed, 8 insertions(+), 1 deletion(-)
-> > > > =
+Michael S. Tsirkin (3):
+  checkpatch.pl: add missing memory barriers
+  checkpatch: check for __smp outside barrier.h
+  checkpatch: add virt barriers
 
-> > > > diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
-> > > > index 2b3c228..0245bbe 100755
-> > > > --- a/scripts/checkpatch.pl
-> > > > +++ b/scripts/checkpatch.pl
-> > > > @@ -5116,7 +5116,14 @@ sub process {
-> > > > =A0			}
-> > > > =A0		}
-> > > > =A0# check for memory barriers without a comment.
-> > > > -		if ($line =3D~ /\b(mb|rmb|wmb|read_barrier_depends|smp_mb|smp_rm=
-b|smp_wmb|smp_read_barrier_depends)\(/) {
-> > > > +
-> > > > +		my @barriers =3D ('mb', 'rmb', 'wmb', 'read_barrier_depends');
-> > > > +		my @smp_barriers =3D ('smp_store_release', 'smp_load_acquire', '=
-smp_store_mb');
-> > > > +
-> > > > +		@smp_barriers =3D (@smp_barriers, map {"smp_" . $_} @barriers);
-> > > =
+ scripts/checkpatch.pl | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
-> > > I think using map, which so far checkpatch doesn't use,
-> > > makes smp_barriers harder to understand and it'd be
-> > > better to enumerate them.
-> > =
-
-> > Okay - I'll rewrite using foreach.
-> > =
-
-> =
-
-> I think using the qr form (like 'our $Attribute' and
-> a bunch of others) is the general style that should
-> be used for checkpatch.
-
-Thanks - that's what I did in the new version (included in
-v3 of the arch cleanup patchset now).
+-- 
+MST
