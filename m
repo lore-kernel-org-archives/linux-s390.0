@@ -1,67 +1,57 @@
-Return-Path: <owner-linux-mm@kvack.org>
-Date: Mon, 4 Jan 2016 18:08:57 +0100
-From: Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v3 0/2] Allow gmap fault to retry
-Message-ID: <20160104170857.GA3702@redhat.com>
-References: <1451906395-80878-1-git-send-email-dingel@linux.vnet.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 1/3] checkpatch.pl: add missing memory barriers
+Date: Mon, 4 Jan 2016 13:36:53 +0200
+Message-ID: <1451907395-15978-2-git-send-email-mst@redhat.com>
+References: <1451907395-15978-1-git-send-email-mst@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1451906395-80878-1-git-send-email-dingel@linux.vnet.ibm.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: Dominik Dingel <dingel@linux.vnet.ibm.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.vnet.ibm.com>, linux-s390@vger.kernel.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, David Rientjes <rientjes@google.com>, Eric B Munson <emunson@akamai.com>, Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>, Mel Gorman <mgorman@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1451907395-15978-1-git-send-email-mst@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Tony Lindgren <tony@atomide.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, "Cc : Andy Whitcroft" <apw@canonical.com>, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jan 04, 2016 at 12:19:53PM +0100, Dominik Dingel wrote:
-> Hello,
-> 
-> sorry for the delay since the last version.
-> 
-> During Jasons work with postcopy migration support for s390 a problem regarding
-> gmap faults was discovered.
-> 
-> The gmap code will call fixup_user_fault which will end up always in
-> handle_mm_fault. Till now we never cared about retries, but as the userfaultfd
-> code kind of relies on it. this needs some fix.
-> 
-> This patchset does not take care of the futex code. I will now look closer at
-> this.
-> 
-> Thanks,
->     Dominik
-> 
-> v2 -> v3:
-> - In case of retrying check vma again
-> - Do the accounting of major/minor faults once
+SMP-only barriers were missing in checkpatch.pl
 
-Reviewed-by: Andrea Arcangeli <aarcange@redhat.com>
+Refactor code slightly to make adding more variants easier.
 
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ scripts/checkpatch.pl | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-> 
-> v1 -> v2:
-> - Instread of passing the VM_FAULT_RETRY from fixup_user_fault we do retries
->   within fixup_user_fault, like get_user_pages_locked do.
-> - gmap code will now take retry if fixup_user_fault drops the lock.
-> 
-> Dominik Dingel (2):
->   mm: bring in additional flag for fixup_user_fault to signal unlock
->   s390/mm: enable fixup_user_fault retrying
-> 
->  arch/s390/mm/pgtable.c | 31 ++++++++++++++++++++++++++++---
->  include/linux/mm.h     |  5 +++--
->  kernel/futex.c         |  2 +-
->  mm/gup.c               | 30 +++++++++++++++++++++++++-----
->  4 files changed, 57 insertions(+), 11 deletions(-)
-> 
-> -- 
-> 2.3.0
-> 
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
+index 2b3c228..0245bbe 100755
+--- a/scripts/checkpatch.pl
++++ b/scripts/checkpatch.pl
+@@ -5116,7 +5116,14 @@ sub process {
+ 			}
+ 		}
+ # check for memory barriers without a comment.
+-		if ($line =~ /\b(mb|rmb|wmb|read_barrier_depends|smp_mb|smp_rmb|smp_wmb|smp_read_barrier_depends)\(/) {
++
++		my @barriers = ('mb', 'rmb', 'wmb', 'read_barrier_depends');
++		my @smp_barriers = ('smp_store_release', 'smp_load_acquire', 'smp_store_mb');
++
++		@smp_barriers = (@smp_barriers, map {"smp_" . $_} @barriers);
++		my $all_barriers = join('|', (@barriers, @smp_barriers));
++
++		if ($line =~ /\b($all_barriers)\(/) {
+ 			if (!ctx_has_comment($first_line, $linenr)) {
+ 				WARN("MEMORY_BARRIER",
+ 				     "memory barrier without comment\n" . $herecurr);
+-- 
+MST
