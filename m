@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 1/3] checkpatch.pl: add missing memory barriers
-Date: Mon, 4 Jan 2016 13:36:53 +0200
-Message-ID: <1451907395-15978-2-git-send-email-mst@redhat.com>
+Subject: [PATCH 2/3] checkpatch: check for __smp outside barrier.h
+Date: Mon, 4 Jan 2016 13:37:00 +0200
+Message-ID: <1451907395-15978-3-git-send-email-mst@redhat.com>
 References: <1451907395-15978-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,34 +24,40 @@ To: linux-kernel@vger.kernel.org
 Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Tony Lindgren <tony@atomide.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, "Cc : Andy Whitcroft" <apw@canonical.com>, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew
 List-ID: <linux-s390.vger.kernel.org>
 
-SMP-only barriers were missing in checkpatch.pl
+Introduction of __smp barriers cleans up a bunch of duplicate code, but
+it gives people an additional handle onto a "new" set of barriers - just
+because they're prefixed with __* unfortunately doesn't stop anyone from
+using it (as happened with other arch stuff before.)
 
-Refactor code slightly to make adding more variants easier.
+Add a checkpatch test so it will trigger a warning.
 
+Reported-by: Russell King <linux@arm.linux.org.uk>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- scripts/checkpatch.pl | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ scripts/checkpatch.pl | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
-index 2b3c228..0245bbe 100755
+index 0245bbe..e3f9ad9 100755
 --- a/scripts/checkpatch.pl
 +++ b/scripts/checkpatch.pl
-@@ -5116,7 +5116,14 @@ sub process {
+@@ -5130,6 +5130,17 @@ sub process {
  			}
  		}
- # check for memory barriers without a comment.
--		if ($line =~ /\b(mb|rmb|wmb|read_barrier_depends|smp_mb|smp_rmb|smp_wmb|smp_read_barrier_depends)\(/) {
+ 
++		my @underscore_smp_barriers = map {"__" . $_} @smp_barriers;
++		my $underscore_all_barriers = join('|', @underscore_smp_barriers);
 +
-+		my @barriers = ('mb', 'rmb', 'wmb', 'read_barrier_depends');
-+		my @smp_barriers = ('smp_store_release', 'smp_load_acquire', 'smp_store_mb');
++		if ($realfile !~ m@^include/asm-generic/@ &&
++		    $realfile !~ m@/barrier\.h$@ &&
++		    $line =~ m/\b($underscore_all_barriers)\(/ &&
++		    $line !~ m/^.\s*\#\s*define\s+($underscore_all_barriers)\(/) {
++			WARN("MEMORY_BARRIER",
++			     "__smp memory barriers shouldn't be used outside barrier.h and asm-generic\n" . $herecurr);
++		}
 +
-+		@smp_barriers = (@smp_barriers, map {"smp_" . $_} @barriers);
-+		my $all_barriers = join('|', (@barriers, @smp_barriers));
-+
-+		if ($line =~ /\b($all_barriers)\(/) {
+ # check for waitqueue_active without a comment.
+ 		if ($line =~ /\bwaitqueue_active\s*\(/) {
  			if (!ctx_has_comment($first_line, $linenr)) {
- 				WARN("MEMORY_BARRIER",
- 				     "memory barrier without comment\n" . $herecurr);
 -- 
 MST
