@@ -1,47 +1,52 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20160128143925.GC775@arm.com>
-References: <1453134965-6125-1-git-send-email-gkulkarni@caviumnetworks.com>
-	<1453134965-6125-4-git-send-email-gkulkarni@caviumnetworks.com>
-	<20160126203603.GC17600@localhost>
-	<20160128143925.GC775@arm.com>
-Date: Thu, 28 Jan 2016 22:42:17 +0530
-Message-ID: <CAFpQJXVhEVw7vSq233wfkOGkTanf-msO+PEcWJ2OVAFUhn7n+w@mail.gmail.com>
-Subject: Re: [PATCH v9 3/6] arm64/arm, numa, dt: adding numa dt binding
- implementation for arm64 platforms.
-From: Ganapatrao Kulkarni <gpkulkarni@gmail.com>
+In-Reply-To: <20160104094223.GA4179@osiris>
+References: <1451651962-4180-1-git-send-email-ard.biesheuvel@linaro.org>
+	<20160104094223.GA4179@osiris>
+Date: Mon, 4 Jan 2016 10:44:01 +0100
+Message-ID: <CAKv+Gu906bHv90mKjBu0dof+-JyRQeA_yPqx123C6CEGw9qLtg@mail.gmail.com>
+Subject: Re: [PATCH] s390: fix normalization bug in exception table sorting
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Content-Type: text/plain; charset=UTF-8
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20160128171217.WhSs_3mLkDOP684CLHs2OaTceUq6NHko_9jsfzuQles@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Will Deacon <will.deacon@arm.com>
-Cc: Bjorn Helgaas <helgaas@kernel.org>, Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-pci@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arch@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Grant Likely <grant.likely@linaro.org>, Leif Lindholm <leif.lindholm@linaro.org>, rfranz@cavium.com, Ard Biesheuvel <ard.biesheuvel@linaro.org>, "msalter@redhat.com" <msalter@redhat.com>, Rob Herring <robh+dt@kernel.org>, Steve Capper <steve.capper@linaro.org>, Hanjun Guo <hanjun.guo@linaro.org>, Al Stone <al.stone@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Marc Zyngier <marc.zyngier@arm.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Bjorn Helgaas <bhelgaas@google.com>, tony.luck@intel.com, fenghua.yu@intel.com, james.hogan@imgtec.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "tglx@linutronix.de" <tglx@linutronix.de>, mingo@redhat.com, hpa@zytor.com, x86@kernel.org, Jon Masters <jonathan@jonmasters.org>, Robert Richter <rrichter@cavium.com>, Prasun Kapoor <Prasun.Kapoor@caviumnetworks.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: schwidefsky@de.ibm.com, linux-s390@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Will,
-
-
-On Thu, Jan 28, 2016 at 8:09 PM, Will Deacon <will.deacon@arm.com> wrote:
-> On Tue, Jan 26, 2016 at 02:36:04PM -0600, Bjorn Helgaas wrote:
->> Subject is "arm64/arm, numa, dt: adding ..."  What is the significance
->> of the "arm" part?  The other patches only mention "arm64".
+On 4 January 2016 at 10:42, Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+> On Fri, Jan 01, 2016 at 01:39:22PM +0100, Ard Biesheuvel wrote:
+>> The normalization pass in the sorting routine of the relative exception
+>> table serves two purposes:
+>> - it ensures that the address fields of the exception table entries are
+>>   fully ordered, so that no ambiguities arise between entries with
+>>   identical instruction offsets (i.e., when two instructions that are
+>>   exactly 8 bytes apart each have an exception table entry associated with
+>>   them)
+>> - it ensures that the offsets of both the instruction and the fixup fields
+>>   of each entry are relative to their final location after sorting.
 >>
->> General comment: the code below has little, if anything, that is
->> actually arm64-specific.  Maybe this is the first DT-based NUMA
->> platform?  I don't see other similar code for other arches, so maybe
->> it's too early to try to generalize it, but we should try to avoid
->> adding duplicates of this code if/when other arches do show up.
+>> Commit eb608fb366de ("s390/exceptions: switch to relative exception table
+>> entries") ported the relative exception table format from x86, but modified
+>> the sorting routine to only normalize the instruction offset field and not
+>> the fixup offset field. The result is that the fixup offset of each entry
+>> will be relative to the original location of the entry before sorting,
+>> likely leading to crashes when those entries are dereferenced.
 >
-> Having it in the core code would allow us to share it with arch/arm/
-> fairly straightforwardly.
-This binding can be used for arm too.
-however at this moment it is the need of arm64 platforms.
-can we please keep this to arm64 as it's too early to try to
-generalize it(as Bjorn suggested)
-I prefer to keep it as it is, otherwise ok.
-Please suggest.
+> Applied, thanks a lot!
 >
-> Will
-thanks
-Ganapat
+> I was wondering why this never was observed on s390 during the last three
+> years.
+>
+> The kernel text extable entries will be sorted during build time and I
+> verified that for the majority of modules the extable entries are already
+> sorted. And even if they are not sorted there isn't any major shuffling.
+> So it looks like we were simply lucky...
+>
+
+Indeed. I guess most modules only have a single .text section so the
+entries are emitted in order.
+
+-- 
+Ard.
