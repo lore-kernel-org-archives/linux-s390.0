@@ -1,66 +1,35 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 17/32] arm: define __smp_xxx
-Date: Sun, 3 Jan 2016 11:12:44 +0200
-Message-ID: <20160103110158-mutt-send-email-mst@redhat.com>
+From: David Vrabel <david.vrabel@citrix.com>
+Subject: Re: [Xen-devel] [PATCH v2 33/34] xenbus: use virt_xxx barriers
+Date: Mon, 4 Jan 2016 11:32:00 +0000
+Message-ID: <568A5830.9000501@citrix.com>
 References: <1451572003-2440-1-git-send-email-mst@redhat.com>
-	<1451572003-2440-18-git-send-email-mst@redhat.com>
-	<20160102112438.GU8644@n2100.arm.linux.org.uk>
+ <1451572003-2440-34-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20160102112438.GU8644@n2100.arm.linux.org.uk>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Return-path: <linux-ia64-owner@vger.kernel.org>
+In-Reply-To: <1451572003-2440-34-git-send-email-mst@redhat.com>
+Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Tony Lindgren <tony@atomide.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, David Vrabel <david.vrabel@citrix.com>, linuxppc-dev@lists.ozlabs.org, David Miller <davem@d>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, Jan 02, 2016 at 11:24:38AM +0000, Russell King - ARM Linux wrote:
-> On Thu, Dec 31, 2015 at 09:07:59PM +0200, Michael S. Tsirkin wrote:
-> > This defines __smp_xxx barriers for arm,
-> > for use by virtualization.
-> > 
-> > smp_xxx barriers are removed as they are
-> > defined correctly by asm-generic/barriers.h
-> > 
-> > This reduces the amount of arch-specific boiler-plate code.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > Acked-by: Arnd Bergmann <arnd@arndb.de>
+On 31/12/15 19:10, Michael S. Tsirkin wrote:
+> drivers/xen/xenbus/xenbus_comms.c uses
+> full memory barriers to communicate with the other side.
 > 
-> In combination with patch 14, this looks like it should result in no
-> change to the resulting code.
+> For guests compiled with CONFIG_SMP, smp_wmb and smp_mb
+> would be sufficient, so mb() and wmb() here are only needed if
+> a non-SMP guest runs on an SMP host.
 > 
-> Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
-> 
-> My only concern is that it gives people an additional handle onto a
-> "new" set of barriers - just because they're prefixed with __*
-> unfortunately doesn't stop anyone from using it (been there with
-> other arch stuff before.)
-> 
-> I wonder whether we should consider making the smp memory barriers
-> inline functions, so these __smp_xxx() variants can be undef'd
-> afterwards, thereby preventing drivers getting their hands on these
-> new macros?
+> Switch to virt_xxx barriers which serve this exact purpose.
 
-That'd be tricky to do cleanly since asm-generic depends on
-ifndef to add generic variants where needed.
+Acked-by: David Vrabel <david.vrabel@citrix.com>
 
-But it would be possible to add a checkpatch test for this.
+If you're feeling particularly keen there's a rmb() consume_one_event()
+in drivers/xen/events/events_fifo.c that can be converted to virt_rmb()
+as well.
 
-
-> -- 
-> RMK's Patch system: http://www.arm.linux.org.uk/developer/patches/
-> FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-> according to speedtest.net.
+David
