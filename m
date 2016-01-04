@@ -1,72 +1,120 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 06/32] s390: reuse asm-generic/barrier.h
-Date: Mon, 4 Jan 2016 22:42:44 +0200
-Message-ID: <20160104224135-mutt-send-email-mst@redhat.com>
+From: James Hogan <james.hogan@imgtec.com>
+Subject: Re: [PATCH v2 10/32] metag: reuse asm-generic/barrier.h
+Date: Mon, 4 Jan 2016 23:24:04 +0000
+Message-ID: <20160104232404.GL17861@jhogan-linux.le.imgtec.org>
 References: <1451572003-2440-1-git-send-email-mst@redhat.com>
- <1451572003-2440-7-git-send-email-mst@redhat.com>
- <20160104132042.GW6344@twins.programming.kicks-ass.net>
- <20160104160339.25101b5d@mschwide>
+ <1451572003-2440-11-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="2OzUYMsT4j3Kc+NU"
 Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160104160339.25101b5d@mschwide>
+In-Reply-To: <1451572003-2440-11-git-send-email-mst@redhat.com>
 Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@kernel.o>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jan 04, 2016 at 04:03:39PM +0100, Martin Schwidefsky wrote:
-> On Mon, 4 Jan 2016 14:20:42 +0100
-> Peter Zijlstra <peterz@infradead.org> wrote:
-> 
-> > On Thu, Dec 31, 2015 at 09:06:30PM +0200, Michael S. Tsirkin wrote:
-> > > On s390 read_barrier_depends, smp_read_barrier_depends
-> > > smp_store_mb(), smp_mb__before_atomic and smp_mb__after_atomic match the
-> > > asm-generic variants exactly. Drop the local definitions and pull in
-> > > asm-generic/barrier.h instead.
-> > > 
-> > > This is in preparation to refactoring this code area.
-> > > 
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > Acked-by: Arnd Bergmann <arnd@arndb.de>
-> > > ---
-> > >  arch/s390/include/asm/barrier.h | 10 ++--------
-> > >  1 file changed, 2 insertions(+), 8 deletions(-)
-> > > 
-> > > diff --git a/arch/s390/include/asm/barrier.h b/arch/s390/include/asm/barrier.h
-> > > index 7ffd0b1..c358c31 100644
-> > > --- a/arch/s390/include/asm/barrier.h
-> > > +++ b/arch/s390/include/asm/barrier.h
-> > > @@ -30,14 +30,6 @@
-> > >  #define smp_rmb()			rmb()
-> > >  #define smp_wmb()			wmb()
-> > >  
-> > > -#define read_barrier_depends()		do { } while (0)
-> > > -#define smp_read_barrier_depends()	do { } while (0)
-> > > -
-> > > -#define smp_mb__before_atomic()		smp_mb()
-> > > -#define smp_mb__after_atomic()		smp_mb()
-> > 
-> > As per:
-> > 
-> >   lkml.kernel.org/r/20150921112252.3c2937e1@mschwide
-> > 
-> > s390 should change this to barrier() instead of smp_mb() and hence
-> > should not use the generic versions.
->  
-> Yes, we wanted to simplify this. Thanks for the reminder, I'll queue
-> a patch.
+--2OzUYMsT4j3Kc+NU
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Could you base on my patchset maybe, to avoid conflicts,
-and I'll merge it?
-Or if it's just replacing these 2 with barrier() I can do this
-myself easily.
+On Thu, Dec 31, 2015 at 09:07:02PM +0200, Michael S. Tsirkin wrote:
+> On metag dma_rmb, dma_wmb, smp_store_mb, read_barrier_depends,
+> smp_read_barrier_depends, smp_store_release and smp_load_acquire  match
+> the asm-generic variants exactly. Drop the local definitions and pull in
+> asm-generic/barrier.h instead.
+>=20
+> This is in preparation to refactoring this code area.
+>=20
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
 
-> -- 
-> blue skies,
->    Martin.
-> 
-> "Reality continues to ruin my life." - Calvin.
+Looks good, and confirmed no text change (once patch 1 is applied that
+is).
+
+Acked-by: James Hogan <james.hogan@imgtec.com>
+
+Thanks
+James
+
+> ---
+>  arch/metag/include/asm/barrier.h | 25 ++-----------------------
+>  1 file changed, 2 insertions(+), 23 deletions(-)
+>=20
+> diff --git a/arch/metag/include/asm/barrier.h b/arch/metag/include/asm/ba=
+rrier.h
+> index 172b7e5..b5b778b 100644
+> --- a/arch/metag/include/asm/barrier.h
+> +++ b/arch/metag/include/asm/barrier.h
+> @@ -44,9 +44,6 @@ static inline void wr_fence(void)
+>  #define rmb()		barrier()
+>  #define wmb()		mb()
+> =20
+> -#define dma_rmb()	rmb()
+> -#define dma_wmb()	wmb()
+> -
+>  #ifndef CONFIG_SMP
+>  #define fence()		do { } while (0)
+>  #define smp_mb()        barrier()
+> @@ -81,27 +78,9 @@ static inline void fence(void)
+>  #endif
+>  #endif
+> =20
+> -#define read_barrier_depends()		do { } while (0)
+> -#define smp_read_barrier_depends()	do { } while (0)
+> -
+> -#define smp_store_mb(var, value) do { WRITE_ONCE(var, value); smp_mb(); =
+} while (0)
+> -
+> -#define smp_store_release(p, v)						\
+> -do {									\
+> -	compiletime_assert_atomic_type(*p);				\
+> -	smp_mb();							\
+> -	WRITE_ONCE(*p, v);						\
+> -} while (0)
+> -
+> -#define smp_load_acquire(p)						\
+> -({									\
+> -	typeof(*p) ___p1 =3D READ_ONCE(*p);				\
+> -	compiletime_assert_atomic_type(*p);				\
+> -	smp_mb();							\
+> -	___p1;								\
+> -})
+> -
+>  #define smp_mb__before_atomic()	barrier()
+>  #define smp_mb__after_atomic()	barrier()
+> =20
+> +#include <asm-generic/barrier.h>
+> +
+>  #endif /* _ASM_METAG_BARRIER_H */
+> --=20
+> MST
+>=20
+
+--2OzUYMsT4j3Kc+NU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJWiv8UAAoJEGwLaZPeOHZ6hSwQAJCVQc5QdNomZOnrxJp5uv9r
+iT+zYpXRNC4k29ENp5iDq29d07OM1zooI0szDvvKi351dsFwfOXrEBIcoKJjLRcm
+VGVtFCCI0IffzBGaMa2u16xywqgCogk+uMnlOmyk2cSM6lx0BdWIb6sL4fzkocfT
+a1sTWJnh45/sQG+VQQUUFokjUM0UFCXOV+77I556Khe9tS5qgZnObEsAIk+lrY/3
+lRo2nd2wbZsybzqlQVKp3nKYbFNUpoCGT/myPpj8A3NQ/FBUOs6LtpZvD0i06CJh
+E01ASo6Cr5SvTyOAYsty+zcZvFGZPB+2i9jyv/7vGDBgdiCwLEX25gXxz9aS8GB6
+2Oa2E/5z/uCltUZyM3y3Yz/K8XwnhORh3PMpZR/b2Ze5MnguCLy2zWrcKWdZhCJ+
+UkNkLe3rcbdLSfCcK6kCSAwHoqj78IeHmBG+96vEwePwsQh7YkAKIoKSMxbx88BU
+gD/yn8y+dc7wSJGYgHM4eBw35H3o7HTB6bPRZsw8/ak1nG8ClOMtWkoLB7a+9wOA
+J5tM/aHE0ixB02QphdN8lkvqMA+U9EKmq6hBHZeiyIxNx/mCAm+6dcGv484Hh2UF
+tvsj4erVkGZa9EJ3KL49xvAJx23RTZcR+a2djcLUlzeLr32UDWh3zuVzSoNc+ZKD
+Cnc7cQMIdlTlucxbu/OU
+=IkXd
+-----END PGP SIGNATURE-----
+
+--2OzUYMsT4j3Kc+NU--
