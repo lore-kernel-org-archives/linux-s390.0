@@ -1,123 +1,71 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 17/32] arm: define __smp_xxx
-Date: Tue, 5 Jan 2016 16:38:54 +0200
-Message-ID: <20160105163429-mutt-send-email-mst@redhat.com>
+Subject: Re: [PATCH v2 22/32] s390: define __smp_xxx
+Date: Tue, 5 Jan 2016 18:04:00 +0200
+Message-ID: <20160105180225-mutt-send-email-mst@redhat.com>
 References: <1451572003-2440-1-git-send-email-mst@redhat.com>
-	<1451572003-2440-18-git-send-email-mst@redhat.com>
-	<20160102112438.GU8644@n2100.arm.linux.org.uk>
-	<20160103110158-mutt-send-email-mst@redhat.com>
-	<20160104133658.GY6344@twins.programming.kicks-ass.net>
-	<20160104135420.GS6373@twins.programming.kicks-ass.net>
-	<20160104135934.GE19062@n2100.arm.linux.org.uk>
+ <1451572003-2440-23-git-send-email-mst@redhat.com>
+ <20160104134525.GA6344@twins.programming.kicks-ass.net>
+ <20160104221323-mutt-send-email-mst@redhat.com>
+ <20160105091319.59ddefc7@mschwide>
+ <20160105105335-mutt-send-email-mst@redhat.com>
+ <568BE3B9.8020901@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160104135934.GE19062@n2100.arm.linux.org.uk>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+In-Reply-To: <568BE3B9.8020901@de.ibm.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Tony Lindgren <tony@atomide.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Andrey Konovalov <andreyknvl@google.com>, adi-buildroot-devel@lists.sourceforge.net, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Cooper <andrew.cooper3@citrix.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Heiko Carstens <heiko.cars>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jan 04, 2016 at 01:59:34PM +0000, Russell King - ARM Linux wrote:
-> On Mon, Jan 04, 2016 at 02:54:20PM +0100, Peter Zijlstra wrote:
-> > On Mon, Jan 04, 2016 at 02:36:58PM +0100, Peter Zijlstra wrote:
-> > > On Sun, Jan 03, 2016 at 11:12:44AM +0200, Michael S. Tsirkin wrote:
-> > > > On Sat, Jan 02, 2016 at 11:24:38AM +0000, Russell King - ARM Linux wrote:
-> > > 
-> > > > > My only concern is that it gives people an additional handle onto a
-> > > > > "new" set of barriers - just because they're prefixed with __*
-> > > > > unfortunately doesn't stop anyone from using it (been there with
-> > > > > other arch stuff before.)
-> > > > > 
-> > > > > I wonder whether we should consider making the smp memory barriers
-> > > > > inline functions, so these __smp_xxx() variants can be undef'd
-> > > > > afterwards, thereby preventing drivers getting their hands on these
-> > > > > new macros?
-> > > > 
-> > > > That'd be tricky to do cleanly since asm-generic depends on
-> > > > ifndef to add generic variants where needed.
-> > > > 
-> > > > But it would be possible to add a checkpatch test for this.
-> > > 
-> > > Wasn't the whole purpose of these things for 'drivers' (namely
-> > > virtio/xen hypervisor interaction) to use these?
+On Tue, Jan 05, 2016 at 04:39:37PM +0100, Christian Borntraeger wrote:
+> On 01/05/2016 10:30 AM, Michael S. Tsirkin wrote:
+> 
 > > 
-> > Ah, I see, you add virt_*mb() stuff later on for that use case.
+> > arch/s390/kernel/vdso.c:        smp_mb();
 > > 
-> > So, assuming everybody does include asm-generic/barrier.h, you could
-> > simply #undef the __smp version at the end of that, once we've generated
-> > all the regular primitives from it, no?
+> > Looking at
+> > 	Author: Christian Borntraeger <borntraeger@de.ibm.com>
+> > 	Date:   Fri Sep 11 16:23:06 2015 +0200
+> > 
+> > 	    s390/vdso: use correct memory barrier
+> > 
+> > 	    By definition smp_wmb only orders writes against writes. (Finish all
+> > 	    previous writes, and do not start any future write). To protect the
+> > 	    vdso init code against early reads on other CPUs, let's use a full
+> > 	    smp_mb at the end of vdso init. As right now smp_wmb is implemented
+> > 	    as full serialization, this needs no stable backport, but this change
+> > 	    will be necessary if we reimplement smp_wmb.
+> > 
+> > ok from hypervisor point of view, but it's also strange:
+> > 1. why isn't this paired with another mb somewhere?
+> >    this seems to violate barrier pairing rules.
+> > 2. how does smp_mb protect against early reads on other CPUs?
+> >    It normally does not: it orders reads from this CPU versus writes
+> >    from same CPU. But init code does not appear to read anything.
+> >    Maybe this is some s390 specific trick?
+> > 
+> > I could not figure out the above commit.
 > 
-> Not so simple - that's why I mentioned using inline functions.
+> It was probably me misreading the code. I change a wmb into a full mb here
+> since I was changing the defintion of wmb to a compiler barrier. I tried to
+> fixup all users of wmb that really pair with other code. I assumed that there
+> must be some reader (as there was a wmb before) but I could not figure out
+> which. So I just played safe here.
 > 
-> The new smp_* _macros_ are:
+> But it probably can be removed.
 > 
-> +#define smp_mb()       __smp_mb()
+> > arch/s390/kvm/kvm-s390.c:       smp_mb();
 > 
-> which means if we simply #undef __smp_mb(), smp_mb() then points at
-> something which is no longer available, and we'll end up with errors
-> saying that __smp_mb() doesn't exist.
+> This can go. If you have a patch, I can carry that via the kvms390 tree,
+> or I will spin a new patch with you as suggested-by.
 > 
-> My suggestion was to change:
-> 
-> #ifndef smp_mb
-> #define smp_mb()	__smp_mb()
-> #endif
-> 
-> to:
-> 
-> #ifndef smp_mb
-> static inline void smp_mb(void)
-> {
-> 	__smp_mb();
-> }
-> #endif
-> 
-> which then means __smp_mb() and friends can be #undef'd afterwards.
+> Christian
 
-Absolutely, I got it.
-The issue is that e.g. tile has:
-#define __smp_mb__after_atomic()        do { } while (0)
+I have both, will post shortly.
 
-and this is cheaper than barrier().
-
-For this reason I left
-#define smp_mb__after_atomic()  __smp_mb__after_atomic()
-in place there.
-
-Now, of course I can do (in asm-generic):
-
-#ifndef smp_mb__after_atomic
-static inline void smp_mb__after_atomic(void)
-{
-...
-}
-#endif
-
-but this seems ugly: architectures do defines, generic
-version does inline.
-
-
-And that is not all: APIs like smp_store_mb can take
-a variety of types as arguments so they pretty much
-must be implemented as macros.
-
-Teaching checkpatch.pl to complain about it seems like the cleanest
-approach.
-
-> -- 
-> RMK's Patch system: http://www.arm.linux.org.uk/developer/patches/
-> FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-> according to speedtest.net.
+-- 
+MST
