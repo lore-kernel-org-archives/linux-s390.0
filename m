@@ -1,33 +1,119 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Subject: Re: [PATCH v2 12/32] x86/um: reuse asm-generic/barrier.h
+Date: Wed, 6 Jan 2016 22:23:51 +0200
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 15/32] powerpc: define __smp_xxx
+Message-ID: <20160106222337-mutt-send-email-mst@redhat.com>
 References: <1451572003-2440-1-git-send-email-mst@redhat.com>
- <1451572003-2440-13-git-send-email-mst@redhat.com>
-From: Richard Weinberger <richard@nod.at>
-Message-ID: <568C4DEA.5070601@nod.at>
-Date: Wed, 6 Jan 2016 00:12:42 +0100
+ <1451572003-2440-16-git-send-email-mst@redhat.com>
+ <20160105013648.GA1256@fixme-laptop.cn.ibm.com>
+ <20160105085117.GA11858@redhat.com>
+ <20160105095341.GA5321@fixme-laptop.cn.ibm.com>
+ <20160105180938-mutt-send-email-mst@redhat.com>
+ <20160106015152.GA14605@fixme-laptop.cn.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <1451572003-2440-13-git-send-email-mst@redhat.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20160106015152.GA14605@fixme-laptop.cn.ibm.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20160105231242.wRzDEwl24zaWlAboJVmiMkQ4U5yrw9bzSR80jkRG5kw@z>
+Message-ID: <20160106202351.odRXGsnF20bPcvmsJGtd8uOGEuIo4yWy6mj6KVQXMd0@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Jeff Dike <jdike@addtoit.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, user-mode-linux-user@lists.sourceforge.net
+To: Boqun Feng <boqun.feng@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Ingo Molnar <mingo@kernel.org>, Davidlohr Bueso <dave@stgolabs.net>, Andrey Konovalov <andreyknvl@google.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Am 31.12.2015 um 20:07 schrieb Michael S. Tsirkin:
-> On x86/um CONFIG_SMP is never defined.  As a result, several macros
-> match the asm-generic variant exactly. Drop the local definitions and
-> pull in asm-generic/barrier.h instead.
+On Wed, Jan 06, 2016 at 09:51:52AM +0800, Boqun Feng wrote:
+> On Tue, Jan 05, 2016 at 06:16:48PM +0200, Michael S. Tsirkin wrote:
+> [snip]
+> > > > > Another thing is that smp_lwsync() may have a third user(other than
+> > > > > smp_load_acquire() and smp_store_release()):
+> > > > > 
+> > > > > http://article.gmane.org/gmane.linux.ports.ppc.embedded/89877
+> > > > > 
+> > > > > I'm OK to change my patch accordingly, but do we really want
+> > > > > smp_lwsync() get involved in this cleanup? If I understand you
+> > > > > correctly, this cleanup focuses on external API like smp_{r,w,}mb(),
+> > > > > while smp_lwsync() is internal to PPC.
+> > > > > 
+> > > > > Regards,
+> > > > > Boqun
+> > > > 
+> > > > I think you missed the leading ___ :)
+> > > > 
+> > > 
+> > > What I mean here was smp_lwsync() was originally internal to PPC, but
+> > > never mind ;-)
+> > > 
+> > > > smp_store_release is external and it needs __smp_lwsync as
+> > > > defined here.
+> > > > 
+> > > > I can duplicate some code and have smp_lwsync *not* call __smp_lwsync
+> > > 
+> > > You mean bringing smp_lwsync() back? because I haven't seen you defining
+> > > in asm-generic/barriers.h in previous patches and you just delete it in
+> > > this patch.
+> > > 
+> > > > but why do this? Still, if you prefer it this way,
+> > > > please let me know.
+> > > > 
+> > > 
+> > > I think deleting smp_lwsync() is fine, though I need to change atomic
+> > > variants patches on PPC because of it ;-/
+> > > 
+> > > Regards,
+> > > Boqun
+> > 
+> > Sorry, I don't understand - why do you have to do anything?
+> > I changed all users of smp_lwsync so they
+> > use __smp_lwsync on SMP and barrier() on !SMP.
+> > 
+> > This is exactly the current behaviour, I also tested that
+> > generated code does not change at all.
+> > 
+> > Is there a patch in your tree that conflicts with this?
+> > 
 > 
-> This is in preparation to refactoring this code area.
+> Because in a patchset which implements atomic relaxed/acquire/release
+> variants on PPC I use smp_lwsync(), this makes it have another user,
+> please see this mail:
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
+> http://article.gmane.org/gmane.linux.ports.ppc.embedded/89877
+> 
+> in definition of PPC's __atomic_op_release().
+> 
+> 
+> But I think removing smp_lwsync() is a good idea and actually I think we
+> can go further to remove __smp_lwsync() and let __smp_load_acquire and
+> __smp_store_release call __lwsync() directly, but that is another thing.
+> 
+> Anyway, I will modify my patch.
+> 
+> Regards,
+> Boqun
 
-Acked-by: Richard Weinberger <richard@nod.at>
 
-Thanks,
-//richard
+Thanks!
+Could you send an ack then please?
+
+> > 
+> > > > > >  	WRITE_ONCE(*p, v);						\
+> > > > > >  } while (0)
+> > > > > >  
+> > > > > > -#define smp_load_acquire(p)						\
+> > > > > > +#define __smp_load_acquire(p)						\
+> > > > > >  ({									\
+> > > > > >  	typeof(*p) ___p1 = READ_ONCE(*p);				\
+> > > > > >  	compiletime_assert_atomic_type(*p);				\
+> > > > > > -	smp_lwsync();							\
+> > > > > > +	__smp_lwsync();							\
+> > > > > >  	___p1;								\
+> > > > > >  })
+> > > > > >  
+> > > > > > -- 
+> > > > > > MST
+> > > > > > 
+> > > > > > --
+> > > > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > > > > the body of a message to majordomo@vger.kernel.org
+> > > > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > > > > Please read the FAQ at  http://www.tux.org/lkml/
