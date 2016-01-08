@@ -1,50 +1,46 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH] kvm/s390: drop unpaired smp_mb
-Date: Thu, 7 Jan 2016 09:25:03 +0100
-Message-ID: <568E20DF.6090402@de.ibm.com>
-References: <1452010811-25486-1-git-send-email-mst@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1452010811-25486-1-git-send-email-mst@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [GIT PULL 0/2] KVM: s390: Feature and fix for 4.5
+Date: Fri,  8 Jan 2016 10:14:36 +0100
+Message-ID: <1452244478-151381-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Gleb Natapov <gleb@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Alexander Graf <agraf@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 01/05/2016 05:20 PM, Michael S. Tsirkin wrote:
-> smp_mb on vcpu destroy isn't paired with anything, violating pairing
-> rules, and seems to be useless.
-> 
-> Drop it.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Paolo,
 
-Applied.
-(I had to fix this up a little to match kvm/next)
+some last changes for kvm/s390 targetted for 4.5
 
-Thanks
+The following changes since commit da3f7ca3e85642627a8db37ba337eb5f424339f1:
 
-> ---
-> 
-> Untested.
-> 
->  arch/s390/kvm/kvm-s390.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 8465892..7305d2c 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -1195,7 +1195,6 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
->  		    (__u64) vcpu->arch.sie_block)
->  			vcpu->kvm->arch.sca->cpu[vcpu->vcpu_id].sda = 0;
->  	}
-> -	smp_mb();
-> 
->  	if (kvm_is_ucontrol(vcpu->kvm))
->  		gmap_free(vcpu->arch.gmap);
-> 
+  Merge tag 'kvm-s390-next-4.5-2' of git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux into HEAD (2015-12-16 18:49:29 +0100)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-4.5-3
+
+for you to fetch changes up to c6e5f166373a20a433c38a34bd16f2b62bd0864c:
+
+  KVM: s390: implement the RI support of guest (2016-01-07 14:48:26 +0100)
+
+----------------------------------------------------------------
+KVM: s390: Feature and fix for 4.5
+
+- allow the runtime instrumentation support inside the guests
+- remove a useless memory barrier
+
+----------------------------------------------------------------
+Fan Zhang (1):
+      KVM: s390: implement the RI support of guest
+
+Michael S. Tsirkin (1):
+      kvm/s390: drop unpaired smp_mb
+
+ arch/s390/include/asm/kvm_host.h |  3 ++-
+ arch/s390/include/uapi/asm/kvm.h |  3 +++
+ arch/s390/kvm/kvm-s390.c         | 23 ++++++++++++++++++++++-
+ include/uapi/linux/kvm.h         |  1 +
+ 4 files changed, 28 insertions(+), 2 deletions(-)
