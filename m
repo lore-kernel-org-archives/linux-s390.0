@@ -1,14 +1,14 @@
 From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH v2 1/3] checkpatch.pl: add missing memory barriers
-Date: Sun, 10 Jan 2016 07:07:05 -0800
-Message-ID: <1452438425.7773.21.camel@perches.com>
+Subject: Re: [PATCH v2 2/3] checkpatch: check for __smp outside barrier.h
+Date: Sun, 10 Jan 2016 07:08:39 -0800
+Message-ID: <1452438519.7773.23.camel@perches.com>
 References: <1452427000-4520-1-git-send-email-mst@redhat.com>
-	 <1452427000-4520-2-git-send-email-mst@redhat.com>
+	 <1452427000-4520-3-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1452427000-4520-2-git-send-email-mst@redhat.com>
+In-Reply-To: <1452427000-4520-3-git-send-email-mst@redhat.com>
 Sender: linux-sh-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
@@ -16,69 +16,38 @@ To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
 Cc: Andy Whitcroft <apw@canonical.com>, Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@kernel.org>, Tony Lindgren <tony@atomide.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, 2016-01-10 at 13:56 +0200, Michael S. Tsirkin wrote:
-> SMP-only barriers were missing in checkpatch.pl
+On Sun, 2016-01-10 at 13:57 +0200, Michael S. Tsirkin wrote:
+> Introduction of __smp barriers cleans up a bunch of duplicate code, b=
+ut
+> it gives people an additional handle onto a "new" set of barriers - j=
+ust
+> because they're prefixed with __* unfortunately doesn't stop anyone f=
+rom
+> using it (as happened with other arch stuff before.)
 >=20
-> Refactor code slightly to make adding more variants easier.
+> Add a checkpatch test so it will trigger a warning.
 []
 > diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
 []
-> @@ -5116,7 +5116,25 @@ sub process {
+> @@ -5141,6 +5141,16 @@ sub process {
 > =A0			}
 > =A0		}
-> =A0# check for memory barriers without a comment.
-> -		if ($line =3D~ /\b(mb|rmb|wmb|read_barrier_depends|smp_mb|smp_rmb|=
-smp_wmb|smp_read_barrier_depends)\(/) {
+> =A0
+> +		my $underscore_smp_barriers =3D qr{__smp_($smp_barriers)}x;
+
+another unnecessary capture group
+
 > +
-> +		my $barriers =3D qr{
-> +			mb|
-> +			rmb|
-> +			wmb|
-> +			read_barrier_depends
-> +		}x;
-> +		my $smp_barriers =3D qr{
-> +			store_release|
-> +			load_acquire|
-> +			store_mb|
-> +			($barriers)
-> +		}x;
-
-If I use a variable called $smp_barriers, I'd expect
-it to actually be the smp_barriers, not to have to
-prefix it with smp_ before using it.
-
-		my $smp_barriers =3D qr{
-			smp_store_release|
-			smp_load_acquire|
-			smp_store_mb|
-			smp_read_barrier_depends
-		}x;
-
-or
-
-		my $smp_barriers =3D qr{
-			smp_(?:store_release|load_acquire|store_mb|read_barrier_depends)
-		}x;
-
-=A0
-> +		my $all_barriers =3D qr{
-> +			$barriers|
-> +			smp_($smp_barriers)
-> +		}x;
-
-And this shouldn't have a capture group.
-
-		my $all_barriers =3D qr{
-			$barriers|
-			$smp_barriers
-		}x;	=09
+> +		if ($realfile !~ m@^include/asm-generic/@ &&
+> +		=A0=A0=A0=A0$realfile !~ m@/barrier\.h$@ &&
+> +		=A0=A0=A0=A0$line =3D~ m/\b($underscore_smp_barriers)\s*\(/ &&
+> +		=A0=A0=A0=A0$line !~ m/^.\s*\#\s*define\s+($underscore_smp_barrier=
+s)\s*\(/) {
+> +			WARN("MEMORY_BARRIER",
+> +			=A0=A0=A0=A0=A0"__smp memory barriers shouldn't be used outside b=
+arrier.h and asm-generic\n" . $herecurr);
+> +		}
 > +
-> +		if ($line =3D~ /\b($all_barriers)\s*\(/) {
-
-This doesn't need the capture group either (?:all_barriers)
-
-> =A0			if (!ctx_has_comment($first_line, $linenr))
-> {
-> =A0				WARN("MEMORY_BARRIER",
-> =A0				=A0=A0=A0=A0=A0"memory barrier without
-> comment\n" . $herecurr);
+> =A0# check for waitqueue_active without a comment.
+> =A0		if ($line =3D~ /\bwaitqueue_active\s*\(/) {
+> =A0			if (!ctx_has_comment($first_line, $linenr)) {
