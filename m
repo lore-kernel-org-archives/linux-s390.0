@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sun, 10 Jan 2016 13:53:26 +0200
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Sun, 10 Jan 2016 21:30:49 +0200
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] s390: more efficient smp barriers
-Message-ID: <1452426771-27112-1-git-send-email-mst@redhat.com>
+Subject: [PATCH v3 2/3] checkpatch: check for __smp outside barrier.h
+Message-ID: <1452454200-8844-3-git-send-email-mst@redhat.com>
+References: <1452454200-8844-1-git-send-email-mst@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
+In-Reply-To: <1452454200-8844-1-git-send-email-mst@redhat.com>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20160110193049.tk5NH0QmlQtad4uhRa_M3hbG8_WDkNCWU79P7XlHe94@z>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: Peter Zijlstra <peterz@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Davidlohr Bueso <dave@stgolabs.net>, Andrey Konovalov <andreyknvl@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+Cc: Andy Whitcroft <apw@canonical.com>, Joe Perches <joe@perches.com>, Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@kernel.org>, Tony Lindgren <tony@atomide.com>, Andrey Konovalov <andreyknvl@google.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>
 List-ID: <linux-s390.vger.kernel.org>
 
-As per: lkml.kernel.org/r/20150921112252.3c2937e1@mschwide
-atomics imply a barrier on s390, so s390 should change
-smp_mb__before_atomic and smp_mb__after_atomic to barrier() instead of
-smp_mb() and hence should not use the generic versions.
+Introduction of __smp barriers cleans up a bunch of duplicate code, but
+it gives people an additional handle onto a "new" set of barriers - just
+because they're prefixed with __* unfortunately doesn't stop anyone from
+using it (as happened with other arch stuff before.)
 
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Suggested-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Add a checkpatch test so it will trigger a warning.
+
+Reported-by: Russell King <linux@arm.linux.org.uk>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
+ scripts/checkpatch.pl | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-This is on top of arch barrier cleanup patchset,
-will be included in v3 of that patchset.
-
- arch/s390/include/asm/barrier.h | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/arch/s390/include/asm/barrier.h b/arch/s390/include/asm/barrier.h
-index 4d26fa4..5c8db3c 100644
---- a/arch/s390/include/asm/barrier.h
-+++ b/arch/s390/include/asm/barrier.h
-@@ -45,6 +45,9 @@ do {									\
- 	___p1;								\
- })
+diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
+index 1c01b7d..15cfca4 100755
+--- a/scripts/checkpatch.pl
++++ b/scripts/checkpatch.pl
+@@ -5143,6 +5143,16 @@ sub process {
+ 			}
+ 		}
  
-+#define __smp_mb__before_atomic()	barrier()
-+#define __smp_mb__after_atomic()	barrier()
++		my $underscore_smp_barriers = qr{__smp_(?:$smp_barrier_stems)}x;
 +
- #include <asm-generic/barrier.h>
- 
- #endif /* __ASM_BARRIER_H */
++		if ($realfile !~ m@^include/asm-generic/@ &&
++		    $realfile !~ m@/barrier\.h$@ &&
++		    $line =~ m/\b(?:$underscore_smp_barriers)\s*\(/ &&
++		    $line !~ m/^.\s*\#\s*define\s+(?:$underscore_smp_barriers)\s*\(/) {
++			WARN("MEMORY_BARRIER",
++			     "__smp memory barriers shouldn't be used outside barrier.h and asm-generic\n" . $herecurr);
++		}
++
+ # check for waitqueue_active without a comment.
+ 		if ($line =~ /\bwaitqueue_active\s*\(/) {
+ 			if (!ctx_has_comment($first_line, $linenr)) {
 -- 
 MST
