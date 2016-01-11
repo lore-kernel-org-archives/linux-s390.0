@@ -1,54 +1,50 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Mon, 11 Jan 2016 13:00:09 +0200
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v4 0/3] checkpatch: handling of memory barriers
-Message-ID: <1452509968-19778-1-git-send-email-mst@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <20160111130334-mutt-send-email-mst@redhat.com>
+References: <1452509968-19778-1-git-send-email-mst@redhat.com> <20160111130334-mutt-send-email-mst@redhat.com>
+From: Julian Calaby <julian.calaby@gmail.com>
+Date: Mon, 11 Jan 2016 22:06:14 +1100
+Message-ID: <CAGRGNgXnxjmvjD8_vT17ZWwK0uCsGNmXq_KdVj9KoT6NRZQvPA@mail.gmail.com>
+Subject: Re: [PATCH v4 0/3] checkpatch: handling of memory barriers
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20160111110009.oMt7qFtU33oNw9sn8pa9bedflgNClts5KcvTXGubABo@z>
+Message-ID: <20160111110614.-paOL_Kr-kVjv7YmC7xsQQaPxqQF3eI-jYRoIyfTVUE@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Andy Whitcroft <apw@canonical.com>, Joe Perches <joe@perches.com>, Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@kernel.org>, Tony Lindgren <tony@atomide.com>, Julian Calaby <julian.calaby@gmail.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Whitcroft <apw@canonical.com>, Joe Perches <joe@perches.com>, Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux <sparclinux@vger.kernel.org>, "Mailing List, Arm" <linux-arm-kernel@lists.infradead.org>, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@kernel.org>, Tony Lindgren <tony@atomide.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>
 List-ID: <linux-s390.vger.kernel.org>
 
-As part of memory barrier cleanup, this patchset
-extends checkpatch to make it easier to stop
-incorrect memory barrier usage.
+Hi Michael,
 
-This replaces the checkpatch patches in my series
-	arch: barrier cleanup + barriers for virt
-and will be included in the pull request including
-the series.
+On Mon, Jan 11, 2016 at 10:04 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Mon, Jan 11, 2016 at 12:59:25PM +0200, Michael S. Tsirkin wrote:
+>> As part of memory barrier cleanup, this patchset
+>> extends checkpatch to make it easier to stop
+>> incorrect memory barrier usage.
+>>
+>> This replaces the checkpatch patches in my series
+>>       arch: barrier cleanup + barriers for virt
+>> and will be included in the pull request including
+>> the series.
+>>
+>> changes from v3:
+>>       rename smp_barrier_stems to barrier_stems
+>>       as suggested by Julian Calaby.
+>
+> In fact it was Joe Perches that suggested it.
+> Sorry about the confusion.
 
-changes from v3:
-	rename smp_barrier_stems to barrier_stems
-	as suggested by Julian Calaby.
-	add (?: ... ) around a variable in regexp,
-	in case we change the value later so that it matters.
-changes from v2:
-	address comments by Joe Perches:
-	use (?: ... ) to avoid unnecessary capture groups
-	rename smp_barriers to smp_barrier_stems for clarity
-	add barriers before/after atomic
-Changes from v1:
-	catch optional\s* before () in barriers
-	rewrite using qr{} instead of map
+I was about to point that out.
 
-Michael S. Tsirkin (3):
-  checkpatch.pl: add missing memory barriers
-  checkpatch: check for __smp outside barrier.h
-  checkpatch: add virt barriers
+FWIW this entire series is:
 
-Michael S. Tsirkin (3):
-  checkpatch.pl: add missing memory barriers
-  checkpatch: check for __smp outside barrier.h
-  checkpatch: add virt barriers
+Acked-by: Julian Calaby <julian.calaby@gmail.com>
 
- scripts/checkpatch.pl | 33 ++++++++++++++++++++++++++++++++-
- 1 file changed, 32 insertions(+), 1 deletion(-)
+Thanks,
 
 -- 
-MST
+Julian Calaby
+
+Email: julian.calaby@gmail.com
+Profile: http://www.google.com/profiles/julian.calaby/
