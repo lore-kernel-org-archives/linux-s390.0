@@ -1,62 +1,52 @@
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: Re: [RFC PATCH v3 6/6] Documentation: livepatch: outline the Elf
- format of a livepatch module
-Date: Tue, 12 Jan 2016 08:45:08 -0600
-Message-ID: <20160112144508.GB310@treble.redhat.com>
-References: <1452281304-28618-1-git-send-email-jeyu@redhat.com>
- <1452281304-28618-7-git-send-email-jeyu@redhat.com>
- <20160112120951.GO731@pathway.suse.cz>
+From: Miroslav Benes <mbenes@suse.cz>
+Subject: Re: [RFC PATCH v3 4/6] livepatch: reuse module loader code to write
+ relocations
+Date: Wed, 13 Jan 2016 10:19:30 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1601131012340.10011@pobox.suse.cz>
+References: <1452281304-28618-1-git-send-email-jeyu@redhat.com> <1452281304-28618-5-git-send-email-jeyu@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160112120951.GO731@pathway.suse.cz>
+In-Reply-To: <1452281304-28618-5-git-send-email-jeyu@redhat.com>
 Sender: linux-doc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
-To: Petr Mladek <pmladek@suse.com>
-Cc: Jessica Yu <jeyu@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, Seth Jennings <sjenning@redhat.com>, Jiri Kosina <jikos@kernel.org>, Vojtech Pavlik <vojtech@suse.com>, Jonathan Corbet <corbet@lwn.net>, Miroslav Benes <mbenes@suse.cz>, linux-api@vger.kernel.org, live-patching@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org
+To: Jessica Yu <jeyu@redhat.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Josh Poimboeuf <jpoimboe@redhat.com>, Seth Jennings <sjenning@redhat.com>, Jiri Kosina <jikos@kernel.org>, Vojtech Pavlik <vojtech@suse.com>, Jonathan Corbet <corbet@lwn.net>, linux-api@vger.kernel.org, live-patching@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jan 12, 2016 at 01:09:51PM +0100, Petr Mladek wrote:
-> Hi Jessica,
-> 
-> first, thanks a lot for writing a documentation. It is really
-> appreciated!
-> 
-> To be honest, I am not sure if it makes sense to give feedback
-> at this stage. It seems that there still will be some changes
-> in the elf format.
-> 
-> On Fri 2016-01-08 14:28:24, Jessica Yu wrote:
-> > Document the special Elf sections and constants livepatch modules use.
-> > 
-> > Signed-off-by: Jessica Yu <jeyu@redhat.com>
-> > ---
-> >  Documentation/livepatch/patch-module-format.txt | 106 ++++++++++++++++++++++++
-> >  1 file changed, 106 insertions(+)
-> >  create mode 100644 Documentation/livepatch/patch-module-format.txt
-> 
-> I would call this symbol-relocation.txt or so. It describes only this
-> part of the patch format.
-> 
-> > 
-> > diff --git a/Documentation/livepatch/patch-module-format.txt b/Documentation/livepatch/patch-module-format.txt
-> > new file mode 100644
-> > index 0000000..d825629
-> > --- /dev/null
-> > +++ b/Documentation/livepatch/patch-module-format.txt
-> > @@ -0,0 +1,106 @@
-> > +---------------------------
-> > +Livepatch module Elf format
-> > +---------------------------
-> 
-> I would start with a description what symbols are relocated and why
-> it needs to be done a special way.
+On Fri, 8 Jan 2016, Jessica Yu wrote:
 
-The cover letter has this information, and a lot of other useful
-background.  It would be good to add all that background to this
-document as an introduction.
+>  static int klp_write_object_relocations(struct module *pmod,
+>  					struct klp_object *obj)
+>  {
+> -	int ret = 0;
+> -	unsigned long val;
+> -	struct klp_reloc *reloc;
+> +	int i, len, ret = 0;
+> +	char *secname;
+> +	const char *objname;
+>  
+>  	if (WARN_ON(!klp_is_object_loaded(obj)))
+>  		return -EINVAL;
+>  
+> -	if (WARN_ON(!obj->relocs))
+> -		return -EINVAL;
+> +	objname = klp_is_module(obj) ? obj->name : "vmlinux";
+>  
+>  	module_disable_ro(pmod);
+> +	/* For each klp rela section for this object */
+> +	for (i = 1; i < pmod->info->hdr->e_shnum; i++) {
+> +		if (!(pmod->info->sechdrs[i].sh_flags & SHF_RELA_LIVEPATCH))
+> +			continue;
 
--- 
-Josh
+One more thing. If the module does not specify it is a live patch module 
+in modinfo (with MODULE_INFO(livepatch, "Y")), but it is a perfect live 
+patch module otherwise (it calls klp_register_patch in its init function), 
+the kernel crashes here. pmod->info is not initialized at all. This should 
+be fixed. Perhaps the easiest would be to call 
+klp_write_object_relocations() in klp_init_object_loaded() only if 
+is_livepatch_module() returns true. Similar to a check for obj->relocs 
+before.
+
+Miroslav
