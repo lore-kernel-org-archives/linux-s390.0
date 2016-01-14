@@ -1,80 +1,67 @@
-From: Jessica Yu <jeyu@redhat.com>
-Subject: Re: module: preserve Elf information for livepatch modules
-Date: Wed, 13 Jan 2016 23:47:19 -0500
-Message-ID: <20160114044718.GC980@packer-debian-8-amd64.digitalocean.com>
-References: <1452281304-28618-1-git-send-email-jeyu@redhat.com>
- <1452281304-28618-3-git-send-email-jeyu@redhat.com>
- <87oacshpqn.fsf@rustcorp.com.au>
+From: Miroslav Benes <mbenes@suse.cz>
+Subject: Re: livepatch: reuse module loader code to write relocations
+Date: Thu, 14 Jan 2016 10:04:11 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1601140958300.7127@pobox.suse.cz>
+References: <1452281304-28618-1-git-send-email-jeyu@redhat.com> <1452281304-28618-5-git-send-email-jeyu@redhat.com> <alpine.LNX.2.00.1601121729480.15984@pobox.suse.cz> <20160114034933.GB980@packer-debian-8-amd64.digitalocean.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <87oacshpqn.fsf@rustcorp.com.au>
+In-Reply-To: <20160114034933.GB980@packer-debian-8-amd64.digitalocean.com>
 Sender: linux-doc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>, Seth Jennings <sjenning@redhat.com>, Jiri Kosina <jikos@kernel.org>, Vojtech Pavlik <vojtech@suse.com>, Jonathan Corbet <corbet@lwn.net>, Miroslav Benes <mbenes@suse.cz>, linux-api@vger.kernel.org, live-patching@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org
+To: Jessica Yu <jeyu@redhat.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Josh Poimboeuf <jpoimboe@redhat.com>, Seth Jennings <sjenning@redhat.com>, Jiri Kosina <jikos@kernel.org>, Vojtech Pavlik <vojtech@suse.com>, Jonathan Corbet <corbet@lwn.net>, linux-api@vger.kernel.org, live-patching@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-+++ Rusty Russell [11/01/16 11:55 +1030]:
->Hi Jessica,
->
->        Nice patch series.  Minor issues below, but they're really
->just nits which can be patched afterwards if you're getting sick of
->rebasing :)
+On Wed, 13 Jan 2016, Jessica Yu wrote:
 
-Thanks Rusty!
+> > Maybe it would be better to use pmod->symtab and pmod->strtab everywhere.
+> > It should be the same, but core_* versions are only helpers used in
+> > load_module and friends. There is even a comment in
+> > include/linux/module.h.
+> > 
+> > 	/*
+> > 	 * We keep the symbol and string tables for kallsyms.
+> > 	 * The core_* fields below are temporary, loader-only (they
+> > 	 * could really be discarded after module init).
+> > 	 */
+> > 
+> > We should respect that.
+> 
+> I admit I'm a bit confused by the comment, I can't seem to find where
+> core_symtab and core_strtab are purportedly discarded after module
+> init (perhaps I'm missing something?). IMO it sounds more like it's
+> describing mod->symtab and mod->strtab instead, because these are in
+> module init memory and are freed later. 
 
->> +#ifdef CONFIG_LIVEPATCH
->> +/*
->> + * copy_module_elf - preserve Elf information about a module
->> + *
->> + * Copy relevant Elf information from the load_info struct.
->> + * Note: not all fields from the original load_info are
->> + * copied into mod->info.
->
->This makes me nervous, to have a struct which is half-initialized.
->
->Better would be to have a separate type for this, eg:
->
->struct livepatch_modinfo {
->        Elf_Ehdr hdr;
->        Elf_Shdr *sechdrs;
->        char *secstrings;
->        /* FIXME: Which of these do you need? */
->        struct {
->        	unsigned int sym, str, mod, vers, info, pcpu;
->        } index;
->};
->
->This also avoids an extra allocation as hdr is no longer a ptr.
+I think it just says that core_* symbols are used as temporary tables 
+during module loading. They are not discarded anywhere but they could be 
+(and maybe they'll be in the future). So it is better not to depend on 
+them.
 
-Sure, sounds good.
+> In any case, my reason for using
+> core_symtab is that the original symbol table (mod->symtab) is marked
+> with INIT_OFFSET_MASK in layout_symtab() (see kernel/module.c), and is
+> therefore in init memory. This memory is freed near the end of
+> do_init_module() with do_free_init(). Since core_symtab is in module core
+> memory, for livepatch modules I simply used core_symtab to hold a
+> full copy of the symbol table instead of the slimmed down version that
+> it was originally intended to hold.
 
->> +	/*
->> +	 * Update symtab's sh_addr to point to a valid
->> +	 * symbol table, as the temporary symtab in module
->> +	 * init memory will be freed
->> +	 */
->> +	mod->info->sechdrs[mod->info->index.sym].sh_addr = (unsigned long)mod->core_symtab;
->
->This comment is a bit misleading: it's actually pointing into the
->temporary module copy, which will be discarded.  The init section is
->slightly different...
+But both mod->symtab and mod->strtab are changed to point to their core_ 
+versions right before do_free_init is called in do_init_module. So they 
+should be the same. My remark was more of an academic question. I believe 
+it is not a functional thing, just the matter of taste. But maybe I am 
+missing something.
 
-Ah, perhaps I'm misunderstanding something..
+> Alternatively, we can tweak layout_symtab() to *not* mark the symtab
+> with INIT_OFFSET_MASK and put it in core memory instead. I think
+> either way will work, but maybe it is cleaner to do it this way
+> instead.
 
-Since copy_module_elf() is called after move_module(), my
-understanding is that all the section sh_addr's should be pointing
-to either module core memory or module init memory (instead of the
-initial temporary copy of the module in info->hdr). Since the symbol
-table section is marked with INIT_OFFSET_MASK, it will reside in
-module init memory (and freed near the end of do_init_module()),
-which is why I am updating the sh_addr here to point to core_symtab
-instead. For livepatch modules, the core_symtab will be a complete
-copy of the symbol table instead of the slimmed down version. Please
-correct me if my understanding is incorrect.
+Yeah, I wouldn't do this. core_* symbols are ok from functional point of 
+view.
 
-Thanks for the patch review,
-Jessica
+Thanks,
+Miroslav
