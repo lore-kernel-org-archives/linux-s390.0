@@ -1,68 +1,110 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Wed, 27 Jan 2016 12:09:32 +0000
-From: "Maciej W. Rozycki" <macro@imgtec.com>
-Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-In-Reply-To: <20160127104032.GB2939@linux-mips.org>
-Message-ID: <alpine.DEB.2.00.1601271126350.5958@tp.orcam.me.uk>
-References: <5696CF08.8080700@imgtec.com> <20160114121449.GC15828@arm.com> <5697F6D2.60409@imgtec.com> <20160114203430.GC3818@linux.vnet.ibm.com> <56980C91.1010403@imgtec.com> <20160114212913.GF3818@linux.vnet.ibm.com> <569814F2.50801@imgtec.com>
- <20160114225510.GJ3818@linux.vnet.ibm.com> <56983054.4070807@imgtec.com> <20160115004753.GN3818@linux.vnet.ibm.com> <20160127104032.GB2939@linux-mips.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH] SCSI-zfcp: Delete unnecessary checks before the function
+ call "mempool_destroy"
+References: <530C5E18.1020800@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251014170.2080@hadrien>
+ <530CD2C4.4050903@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251840450.7035@hadrien>
+ <530CF8FF.8080600@users.sourceforge.net>
+ <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
+ <530DD06F.4090703@users.sourceforge.net>
+ <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
+ <5317A59D.4@users.sourceforge.net> <5649D8DE.1030809@users.sourceforge.net>
+ <20151204175731.GA9185@bblock-ThinkPad-W530>
+From: Steffen Maier <maier@linux.vnet.ibm.com>
+Message-ID: <5697B705.9020700@linux.vnet.ibm.com>
+Date: Thu, 14 Jan 2016 15:56:05 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20160127120932.theotczW4pGlE3LevjSXgmTOGIZudDIfH8HH3TQ70D4@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Matt Redfearn <matt.redfearn@imgtec.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, Will Deacon <will.deacon@arm.com>, Peter Zijlstra <peterz@infradead.org>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, Joe Perches <joe@perches.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@kernel.org>, ddaney.cavm@gmail.com, james.hogan@imgtec.com, Michael Ellerman <mpe@ellerman.id.au>
+In-Reply-To: <20151204175731.GA9185@bblock-ThinkPad-W530>
+Content-Type: text/plain; charset="iso-8859-15"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Benjamin Block <bblock@linux.vnet.ibm.com>, SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 27 Jan 2016, Ralf Baechle wrote:
+Markus, thanks, I queued it for next time I send features upstream.
+Don't hold your breath, fixes will go first.
 
-> > So you need to build a different kernel for some types of MIPS systems?
-> 
-> Yes.  We can't really do without.  Classic MIPS code is not relocatable
-> without the complexity of PIC code as used by ELF DSOs - and their
-> performanc penalty.  Plus we have a number of architecture revisions
-> ovr the decades, big and little endian, 32 and 64 bit as the major
-> stumbling stones.  There however are groups of similar systems that
-> can share kernel binaries.
+Benjamin, thanks for the review.
 
- Matt (cc-ed) has recently posted patches to add support for a relocatable 
-kernel, implemented without the usual overhead of PIC code.  It works by 
-retaining relocations in a fully-linked binary and then simply replaying 
-the work the static linker does when assigning addresses, as the image 
-loaded is copied to its intended destination at an early bootstrap stage.  
-See: 
-<http://www.linux-mips.org/cgi-bin/mesg.cgi?a=linux-mips&i=1449137297-30464-1-git-send-email-matt.redfearn%40imgtec.com> 
-for details.
+Will add an informational comment that this depends on 4e3ca3e033d1=20
+("mm/mempool: allow NULL `pool' pointer in mempool_destroy()").
 
- I think this framework can be reused by carefully choosing instructions 
-used in early bootstrap code, up to the relocation stage, so that it is 
-runnable anywhere (not the same as PIC!) like early ld.so initialisation 
-and then loading the whole attached image starting from an address where 
-RAM does exist on target hardware.
+On 12/04/2015 06:57 PM, Benjamin Block wrote:
+> Hej Markus,
+>
+> On 14:23 Mon 16 Nov     , SF Markus Elfring wrote:
+>> From: Markus Elfring <elfring@users.sourceforge.net>
+>> Date: Mon, 16 Nov 2015 14:19:03 +0100
+>>
+>> The mempool_destroy() function tests whether its argument is NULL
+>> and then returns immediately. Thus the test around the calls is not need=
+ed.
+>>
+>> This issue was detected by using the Coccinelle software.
+>>
+>> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+>> ---
+>>   drivers/s390/scsi/zfcp_aux.c | 21 +++++++--------------
+>>   1 file changed, 7 insertions(+), 14 deletions(-)
+>>
+>> diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
+>> index c00ac46..abc9c93 100644
+>> --- a/drivers/s390/scsi/zfcp_aux.c
+>> +++ b/drivers/s390/scsi/zfcp_aux.c
+>> @@ -248,20 +248,13 @@ static int zfcp_allocate_low_mem_buffers(struct zf=
+cp_adapter *adapter)
+>>
+>>   static void zfcp_free_low_mem_buffers(struct zfcp_adapter *adapter)
+>>   {
+>> -	if (adapter->pool.erp_req)
+>> -		mempool_destroy(adapter->pool.erp_req);
+>> -	if (adapter->pool.scsi_req)
+>> -		mempool_destroy(adapter->pool.scsi_req);
+>> -	if (adapter->pool.scsi_abort)
+>> -		mempool_destroy(adapter->pool.scsi_abort);
+>> -	if (adapter->pool.qtcb_pool)
+>> -		mempool_destroy(adapter->pool.qtcb_pool);
+>> -	if (adapter->pool.status_read_req)
+>> -		mempool_destroy(adapter->pool.status_read_req);
+>> -	if (adapter->pool.sr_data)
+>> -		mempool_destroy(adapter->pool.sr_data);
+>> -	if (adapter->pool.gid_pn)
+>> -		mempool_destroy(adapter->pool.gid_pn);
+>> +	mempool_destroy(adapter->pool.erp_req);
+>> +	mempool_destroy(adapter->pool.scsi_req);
+>> +	mempool_destroy(adapter->pool.scsi_abort);
+>> +	mempool_destroy(adapter->pool.qtcb_pool);
+>> +	mempool_destroy(adapter->pool.status_read_req);
+>> +	mempool_destroy(adapter->pool.sr_data);
+>> +	mempool_destroy(adapter->pool.gid_pn);
+>>   }
+>>
+>>   /**
+>> --
+>> 2.6.2
+>
+> Looks good to me, will have to wait though till Steffen is back around.
+>
+> Reviewed-by: Benjamin Block <bblock@linux.vnet.ibm.com>
+>
+>
+>                                                      Beste Gr=FC=DFe / Be=
+st regards,
+>                                                        - Benjamin Block
+>
 
- Endianness is a different matter, obviously we can't build a single image 
-for both, although for distributions' sake an approach similar to one used 
-with bi-endian firmware (for hardware which has an easy way to switch the 
-endianness, e.g. a physical jumper or a configuration bit stored in flash 
-memory; not to be confused with the reverse user endianness mode) might be 
-feasible, by glueing two kernel images together and then selecting the 
-right one early in bootstrap, perhaps again reusing Matt's framework.  
-I'm not sure if this is worth the effort though, I suspect the usage level 
-of this feature would be minimal.
+--=20
+Mit freundlichen Gr=FC=DFen / Kind regards
+Steffen Maier
 
- All in all I think making a generic MIPS kernel just might be feasible, 
-but with the diversity of options available the effort required would be 
-enormous.  NetBSD for example I believe supports building a kernel that 
-correctly runs on both R3000 (MIPS I, 32-bit) and R4000 (MIPS III, 64-bit) 
-DEC hardware (as did DEC Ultrix, the vendor OS for these systems).  These 
-processors are different enough from each other that you cannot use the 
-same code for cache, memory and exception management in an OS kernel -- 
-backward compatibility is only provided for user software.  That proves 
-the concept, however in a very limited way only, not even covering SMP, 
-and their R4000 kernel does not support 64-bit userland I believe.  They 
-still have completely separate ports for other MIPS hardware, such as for 
-Broadcom SiByte SB-1 (MIPS64r1) processors.
+Linux on z Systems Development
 
-  Maciej
+IBM Deutschland Research & Development GmbH
+Vorsitzende des Aufsichtsrats: Martina Koederitz
+Geschaeftsfuehrung: Dirk Wittkopp
+Sitz der Gesellschaft: Boeblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
