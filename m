@@ -1,42 +1,78 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Thu, 14 Jan 2016 11:24:01 +0200
-Message-ID: <20160114111632-mutt-send-email-mst@redhat.com>
-References: <1452426622-4471-12-git-send-email-mst@redhat.com>
- <56945366.2090504@imgtec.com>
- <20160112092711.GP6344@twins.programming.kicks-ass.net>
- <20160112102555.GV6373@twins.programming.kicks-ass.net>
- <20160112104012.GW6373@twins.programming.kicks-ass.net>
- <20160112114111.GB15737@arm.com>
- <569565DA.2010903@imgtec.com>
- <20160113104516.GE25458@arm.com>
- <5696CF08.8080700@imgtec.com>
+Date: Thu, 14 Jan 2016 08:16:04 -0800
+Message-ID: <20160114161604.GT3818@linux.vnet.ibm.com>
+References: <20160112092711.GP6344@twins.programming.kicks-ass.net>
+	<20160112102555.GV6373@twins.programming.kicks-ass.net>
+	<20160112104012.GW6373@twins.programming.kicks-ass.net>
+	<20160112114111.GB15737@arm.com> <569565DA.2010903@imgtec.com>
+	<20160113104516.GE25458@arm.com> <56969F4B.7070001@imgtec.com>
+	<20160113204844.GV6357@twins.programming.kicks-ass.net>
+	<5696BA6E.4070508@imgtec.com> <20160114120445.GB15828@arm.com>
+Reply-To: paulmck@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5696CF08.8080700@imgtec.com>
-Sender: linux-arch-owner@vger.kernel.org
+In-Reply-To: <20160114120445.GB15828@arm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
-Cc: Will Deacon <will.deacon@arm.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, Joe Perches <joe@perches.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linu
+To: Will Deacon <will.deacon@arm.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jan 13, 2016 at 02:26:16PM -0800, Leonid Yegoshin wrote:
-> And all that is out-of-topic here in my mind. I just want to be sure that
-> this patchset still provides a use of a specific lightweight SYNCs on MIPS
-> vs bold and heavy generalized "SYNC 0" in any case.
+On Thu, Jan 14, 2016 at 12:04:45PM +0000, Will Deacon wrote:
+> On Wed, Jan 13, 2016 at 12:58:22PM -0800, Leonid Yegoshin wrote:
+> > On 01/13/2016 12:48 PM, Peter Zijlstra wrote:
+> > >On Wed, Jan 13, 2016 at 11:02:35AM -0800, Leonid Yegoshin wrote:
+> > >
+> > >>I ask HW team about it but I have a question - has it any relationship with
+> > >>replacing MIPS SYNC with lightweight SYNCs (SYNC_WMB etc)?
+> > >Of course. If you cannot explain the semantics of the primitives you
+> > >introduce, how can we judge the patch.
+> > >
+> > >
+> > You missed a point - it is a question about replacement of SYNC with
+> > lightweight primitives. It is NOT a question about multithread system
+> > behavior without any SYNC. The answer on a latest Will's question lies in
+> > different area.
 > 
-> - Leonid.
+> The reason we (Peter and I) care about this isn't because we enjoy being
+> obstructive. It's because there is a whole load of core (i.e. portable)
+> kernel code that is written to the *kernel* memory model. For example,
+> the scheduler, RCU, mutex implementations, perf, drivers, you name it.
+> 
+> Consequently, it's important that the architecture back-ends implement
+> these portable primitives (e.g. smp_mb()) in a way that satisfies the
+> kernel memory model so that core code doesn't need to worry about the
+> underlying architecture for synchronisation purposes. You could turn
+> around and say "but if MIPS gets it wrong, then that's MIPS's problem",
+> but actually not having a general understanding of the ordering guarantees
+> provided by each architecture makes it very difficult for us to extend
+> the kernel memory model in such a way that it can be implemented
+> efficiently across the board *and* relied upon by core code.
 
-Of course it does. All this patchset does is rename smp_mb/rmb/wmb
-to __smp_mb()/__smp_rmb()/__smp_wmb()
-and then asm-generic does #define smp_mb __smp_mb
-or #define smp_mb barrier depending on CONFIG_SMP.
+What Will said!
 
-Why is that needed? So we can implement
-[PATCH v3 28/41] asm-generic: implement virt_xxx memory barriers
+Yes, you can cut corners within MIPS architecture-specific code,
+but primitives that are used in the core kernel really do need to
+work as expected.
 
--- 
-MST
+							Thanx, Paul
+
+> The virtio patch at the start of the thread doesn't particularly concern
+> me. It's the other patches you linked to that implement acquire/release
+> that have me worried.
+> 
+> Will
+> 
