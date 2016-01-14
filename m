@@ -1,27 +1,24 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Nikolay Borisov <kernel@kyup.com>
 Subject: Re: regression 4.4: deadlock in with cgroup percpu_rwsem
-Date: Thu, 14 Jan 2016 14:38:16 +0100
-Message-ID: <5697A4C8.2020801@de.ibm.com>
+Date: Thu, 14 Jan 2016 16:04:32 +0200
+Message-ID: <5697AAF0.4050802@kyup.com>
 References: <56978452.6010606@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <56978452.6010606@de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: "linux-kernel@vger.kernel.org >> Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, "linux-kernel@vger.kernel.org >> Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Cc: linux-s390 <linux-s390@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, Oleg Nesterov <oleg@redhat.com>, Peter Zijlstra <peterz@infradead.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Tejun Heo <tj@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 01/14/2016 12:19 PM, Christian Borntraeger wrote:
+
+
+On 01/14/2016 01:19 PM, Christian Borntraeger wrote:
 > Folks,
-
-
-FWIW, it _LOOKS_ like it was introduced between 4.4-rc4 and 4.4-rc5
-
-
 > 
 > With 4.4 I can easily bring the system into a hang like situation by
 > putting stress on the cgroup_threadgroup rwsem. (e.g. starting/stopping
@@ -84,6 +81,15 @@ FWIW, it _LOOKS_ like it was introduced between 4.4-rc4 and 4.4-rc5
 > for a completion. Now what happens is, that the write lock
 > holder finally calls flush_work for the lru_add_drain_all
 > work. 
+
+So what's happening is that libvirtd wants to move some processes in the
+cgroup subtree and it to the respective cgroup file. So
+cgroup_threadgroup_rwsem is acquired in __cgroup_procs_write, then as
+part of this process the pages for that process have to be migrated,
+hence the do_migrate_pages. And this call chain boils down to calling
+lru_add_drain_cpu on every cpu.
+
+
 > 
 > As far as I can see, this work is now tries to create a new kthread
 > and waits for that, as the backtrace for the kworker on that cpu has:
@@ -117,6 +123,18 @@ FWIW, it _LOOKS_ like it was introduced between 4.4-rc4 and 4.4-rc5
 > 
 > BANG.kthreadd waits for the lock that libvirtd hold, and libvirtd waits
 > for kthreadd to finish some task
+
+I don't see percpu_down_read being invoked from copy_process. According
+to LXR, this semaphore is used only in __cgroup_procs_write and
+cgroup_update_dfl_csses. And cgroup_update_dfl_csses is invoked when
+cgroup.subtree_control is written to. And I don't see this happening in
+this call chain.
+
+Going from there I'm questioning whether the failure to fork the from
+kthreadd is indeed related to the cgroup semaphore. Can you try and
+inspect the stacks for process 0xfaf031e220 to see if the address of the
+cgroup rwsemaphore can be found there?
+
 > 
 > Reverting 001dac627ff374 ("locking/percpu-rwsem: Make use of the rcu_sync 
 > infrastructure") does not help, so it does not seem to be related to the
