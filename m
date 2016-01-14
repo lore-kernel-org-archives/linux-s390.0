@@ -1,84 +1,62 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [Xen-devel] [PATCH v5 09/10] vring: Use the DMA API on Xen
-Date: Sun, 31 Jan 2016 12:27:39 -0800
-Message-ID: <CALCETrVjocgx3wVcsgJ3-eLTASvS5rtam7SkQVyXGkx8=xVZFQ@mail.gmail.com>
-References: <cover.1454034075.git.luto@kernel.org> <64e979cc139c5e6a9bbfae9f1bc5e6693d91bea9.1454034075.git.luto@kernel.org>
- <56AB4053.4070007@citrix.com> <20160131220601-mutt-send-email-mst@redhat.com>
- <CALCETrU4p5qz_3aq+Xrx7P2m0Ce0yWMczzjngjEp8OzL1yvX6Q@mail.gmail.com> <20160131221600-mutt-send-email-mst@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <sparclinux-owner@vger.kernel.org>
-In-Reply-To: <20160131221600-mutt-send-email-mst@redhat.com>
-Sender: sparclinux-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Vrabel <david.vrabel@citrix.com>, Andy Lutomirski <luto@kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, sparclinux@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Woodhouse <dwmw2@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Thu, 14 Jan 2016 12:04:45 +0000
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
+Message-ID: <20160114120445.GB15828@arm.com>
+References: <56945366.2090504@imgtec.com>
+ <20160112092711.GP6344@twins.programming.kicks-ass.net>
+ <20160112102555.GV6373@twins.programming.kicks-ass.net>
+ <20160112104012.GW6373@twins.programming.kicks-ass.net>
+ <20160112114111.GB15737@arm.com>
+ <569565DA.2010903@imgtec.com>
+ <20160113104516.GE25458@arm.com>
+ <56969F4B.7070001@imgtec.com>
+ <20160113204844.GV6357@twins.programming.kicks-ass.net>
+ <5696BA6E.4070508@imgtec.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5696BA6E.4070508@imgtec.com>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20160114120445.cVdaVFT1PVnqqoy-gi2ulrr8RbbY9RvSgDcDGmSaVJU@z>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, Joe Perches <joe@perches.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, xen-devel@lists.xenproject.org, Ralf Baechle <ralf@linux-mips.org>, Ingo Molnar <mingo@kernel.org>, ddaney.cavm@gmail.com, james.hogan@imgtec.com, Michael Ellerman <mpe@ellerman.id.au>, Paul McKenney <paulmck@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Jan 31, 2016 at 12:18 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Sun, Jan 31, 2016 at 12:13:58PM -0800, Andy Lutomirski wrote:
->> On Sun, Jan 31, 2016 at 12:09 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> > On Fri, Jan 29, 2016 at 10:34:59AM +0000, David Vrabel wrote:
->> >> On 29/01/16 02:31, Andy Lutomirski wrote:
->> >> > Signed-off-by: Andy Lutomirski <luto@kernel.org>
->> >> > ---
->> >> >  drivers/virtio/virtio_ring.c | 12 ++++++++++++
->> >> >  1 file changed, 12 insertions(+)
->> >> >
->> >> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
->> >> > index c169c6444637..305c05cc249a 100644
->> >> > --- a/drivers/virtio/virtio_ring.c
->> >> > +++ b/drivers/virtio/virtio_ring.c
->> >> > @@ -47,6 +47,18 @@
->> >> >
->> >> >  static bool vring_use_dma_api(void)
->> >> >  {
->> >> > +#if defined(CONFIG_X86) && defined(CONFIG_XEN)
->> >> > +   /*
->> >> > +    * In theory, it's possible to have a buggy QEMU-supposed
->> >> > +    * emulated Q35 IOMMU and Xen enabled at the same time.  On
->> >> > +    * such a configuration, virtio has never worked and will
->> >> > +    * not work without an even larger kludge.  Instead, enable
->> >> > +    * the DMA API if we're a Xen guest, which at least allows
->> >> > +    * all of the sensible Xen configurations to work correctly.
->> >> > +    */
->> >> > +   return static_cpu_has(X86_FEATURE_XENPV);
->> >>
->> >> You want:
->> >>
->> >>     if (xen_domain())
->> >>         return true;
->> >>
->> >> Without the #if so we use the DMA API for all types of Xen guest on all
->> >> architectures.
->> >>
->> >> David
->> >
->> > I doubt HVM domains can have virtio devices.
->> >
->>
->> They certainly can under nested virt (L0 provides virtio device, L1 is
->> Xen, and L2 is Linux).  Of course, this won't work given the current
->> QEMU situation unless Xen can pass things through to dom0 without an
->> IOMMU, which seems plausible to me.
->>
->> But yes, xen_domain() sounds right to me.  I just failed to find that
->> function when I wrote this patch.
->>
->> Michael, if you like the rest of the series, I'd be okay if you
->> changed this patch to use xen_domain() when you apply it.  If I send a
->> v2, I'll fix it up.
->>
->> --Andy
->
-> I'd rather you just posted a tested v2 of 9/10 for now as I don't test
-> Xen.  It seems easy but I had more than my share of obvious fixes
-> failing spectacularly.
->
+On Wed, Jan 13, 2016 at 12:58:22PM -0800, Leonid Yegoshin wrote:
+> On 01/13/2016 12:48 PM, Peter Zijlstra wrote:
+> >On Wed, Jan 13, 2016 at 11:02:35AM -0800, Leonid Yegoshin wrote:
+> >
+> >>I ask HW team about it but I have a question - has it any relationship with
+> >>replacing MIPS SYNC with lightweight SYNCs (SYNC_WMB etc)?
+> >Of course. If you cannot explain the semantics of the primitives you
+> >introduce, how can we judge the patch.
+> >
+> >
+> You missed a point - it is a question about replacement of SYNC with
+> lightweight primitives. It is NOT a question about multithread system
+> behavior without any SYNC. The answer on a latest Will's question lies in
+> different area.
 
-In that case, let me test for real.  Can you point me to a git tree
-when you have patches 1-8 staged and I'll spin patch 9 v2 and test it
-with the real context?
+The reason we (Peter and I) care about this isn't because we enjoy being
+obstructive. It's because there is a whole load of core (i.e. portable)
+kernel code that is written to the *kernel* memory model. For example,
+the scheduler, RCU, mutex implementations, perf, drivers, you name it.
 
---Andy
+Consequently, it's important that the architecture back-ends implement
+these portable primitives (e.g. smp_mb()) in a way that satisfies the
+kernel memory model so that core code doesn't need to worry about the
+underlying architecture for synchronisation purposes. You could turn
+around and say "but if MIPS gets it wrong, then that's MIPS's problem",
+but actually not having a general understanding of the ordering guarantees
+provided by each architecture makes it very difficult for us to extend
+the kernel memory model in such a way that it can be implemented
+efficiently across the board *and* relied upon by core code.
+
+The virtio patch at the start of the thread doesn't particularly concern
+me. It's the other patches you linked to that implement acquire/release
+that have me worried.
+
+Will
