@@ -1,39 +1,35 @@
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Subject: [PATCH net 1/1] af_iucv: Validate socket address length in iucv_sock_bind()
-Date: Tue, 19 Jan 2016 10:41:33 +0100
-Message-ID: <1453196493-57590-2-git-send-email-ubraun@linux.vnet.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net 0/1] af_iucv: Validate socket address length in
+ iucv_sock_bind()
+Date: Tue, 19 Jan 2016 14:23:57 -0500 (EST)
+Message-ID: <20160119.142357.829571599757607853.davem@davemloft.net>
 References: <1453196493-57590-1-git-send-email-ubraun@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <1453196493-57590-1-git-send-email-ubraun@linux.vnet.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net, mschwid2@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: ubraunu@linux.vnet.ibm.com
+To: ubraun@linux.vnet.ibm.com
+Cc: mschwid2@linux.vnet.ibm.com, heicars2@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org, ubraunu@linux.vnet.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ursula Braun <ursula.braun@de.ibm.com>
+From: Ursula Braun <ubraun@linux.vnet.ibm.com>
+Date: Tue, 19 Jan 2016 10:41:32 +0100
 
-Signed-off-by: Ursula Braun <ursula.braun@de.ibm.com>
-Reported-by: Dmitry Vyukov <dvyukov@google.com>
-Reviewed-by: Evgeny Cherkashin <Eugene.Crosser@ru.ibm.com>
----
- net/iucv/af_iucv.c | 3 +++
- 1 file changed, 3 insertions(+)
+> this patch fixes a problem reported by Dmitry Vyukov in december. It is built
+> and intended for the next-tree.
 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index ef50a94..fc3598a 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -708,6 +708,9 @@ static int iucv_sock_bind(struct socket *sock, struct sockaddr *addr,
- 	if (!addr || addr->sa_family != AF_IUCV)
- 		return -EINVAL;
- 
-+	if (addr_len < sizeof(struct sockaddr_iucv))
-+		return -EINVAL;
-+
- 	lock_sock(sk);
- 	if (sk->sk_state != IUCV_OPEN) {
- 		err = -EBADFD;
--- 
-2.3.9
+A bug fix is not appropriate for the next tree.
+
+All bug fixes should target 'net'.  You even contacted me privately
+asking me to queue this up for -stable.  Submitting something for
+net-next and wanting a -stable backport is doubly inappropriate.
+
+Things don't go to -stable unless it's in Linus's tree.  'net' is
+for bug fixes, 'net-next' (closed right now) is for new features,
+cleanups, and fixes to code only present in 'net-next'.
+
+Anyways I applied this to 'net' and queued it up for -stable.
