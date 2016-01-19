@@ -1,69 +1,76 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 14/16] input: Redefine INPUT_COMPAT_TEST as
- in_compat_syscall()
-Date: Wed, 27 Jan 2016 13:06:10 -0800
-Message-ID: <20160127210610.GB28687@dtor-ws>
-References: <cover.1453759363.git.luto@kernel.org>
- <64480084bc652d5fa91bf5cd4be979e2f1e4cf11.1453759363.git.luto@kernel.org>
- <CAKdAkRQm6ADz5aCYAFxXcoGZ2zNFwTUXjMzZdNj-D2-YrYQtrg@mail.gmail.com>
- <CALCETrUUNM1Qoqna1e7qmEqNUwo99PJe9fSuXG4fzPdSBLfPuA@mail.gmail.com>
-Mime-Version: 1.0
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Tue, 19 Jan 2016 09:41:50 +0000
+From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: Re: [PATCH v9 5/6] PCI: generic: Make pci-host-generic driver numa
+ aware
+Message-ID: <20160119094150.GA4991@red-moon>
+References: <1453134965-6125-1-git-send-email-gkulkarni@caviumnetworks.com>
+ <1453134965-6125-6-git-send-email-gkulkarni@caviumnetworks.com>
+ <569D23AF.9050503@gmail.com>
+ <CAFpQJXXESn1EA5kotVOH2oLbRUSpOLf6+MeWG1pY_GhUP+4vVQ@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CALCETrUUNM1Qoqna1e7qmEqNUwo99PJe9fSuXG4fzPdSBLfPuA@mail.gmail.com>
+In-Reply-To: <CAFpQJXXESn1EA5kotVOH2oLbRUSpOLf6+MeWG1pY_GhUP+4vVQ@mail.gmail.com>
 Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20160119094150.qVpi82gUO4myF4P7fnZuWOCTN-7jqrmoPeHi0MaCrik@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Al Viro <viro@zeniv.linux.org.uk>, Linus Torvalds <torvalds@linux-foundation.org>, X86 ML <x86@kernel.org>, linux-arch <linux-arch@vger.kernel.org>, David Miller <davem@davemloft.net>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Chris Metcalf <cmetcalf@ezchip.com>, linux-parisc@vger.kernel.org, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, sparclinux@vger.kernel.org
+To: Ganapatrao Kulkarni <gpkulkarni@gmail.com>
+Cc: David Daney <ddaney.cavm@gmail.com>, Will Deacon <Will.Deacon@arm.com>, Bjorn Helgaas <bhelgaas@google.com>, Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-pci@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arch@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Grant Likely <grant.likely@linaro.org>, Leif Lindholm <leif.lindholm@linaro.org>, rfranz@cavium.com, Ard Biesheuvel <ard.biesheuvel@linaro.org>, "msalter@redhat.com" <msalter@redhat.com>, Rob Herring <robh+dt@kernel.org>, Steve Capper <steve.capper@linaro.org>, Hanjun Guo <hanjun.guo@linaro.org>, Al Stone <al.stone@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Marc Zyngier <marc.zyngier@arm.com>, tony.luck@intel.com, fenghua.yu@intel.com, james.hogan@imgtec.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "tglx@linutronix.de" <tglx@linutronix.de>, mingo@redhat.com, hpa@zytor.com, x86@kernel.org, Jon Masters <jonathan@jonmasters.org>, Robert Richter <rrichter@cavium.com>, Prasun Kapoor <Prasun.Kapoor@caviumnetworks.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jan 27, 2016 at 12:29:14PM -0800, Andy Lutomirski wrote:
-> On Wed, Jan 27, 2016 at 11:17 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Andy,
-> >
-> > On Mon, Jan 25, 2016 at 2:24 PM, Andy Lutomirski <luto@kernel.org> wrote:
-> >> The input compat code should work like all other compat code: for
-> >> 32-bit syscalls, use the 32-bit ABI and for 64-bit syscalls, use the
-> >> 64-bit ABI.  We have a helper for that (in_compat_syscall()): just
-> >> use it.
+On Tue, Jan 19, 2016 at 11:28:56AM +0530, Ganapatrao Kulkarni wrote:
+> On Mon, Jan 18, 2016 at 11:11 PM, David Daney <ddaney.cavm@gmail.com> wrote:
+> > On 01/18/2016 08:36 AM, Ganapatrao Kulkarni wrote:
 > >>
-> >> Signed-off-by: Andy Lutomirski <luto@kernel.org>
+> >> update numa_node of device associated with pci bus.
+> >> moved down devm_kzalloc to allocate from node memory.
+> >>
+> >> Signed-off-by: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
 > >> ---
-> >>  drivers/input/input-compat.h | 12 +-----------
-> >>  1 file changed, 1 insertion(+), 11 deletions(-)
+> >>   drivers/pci/host/pci-host-generic.c | 9 ++++++---
+> >>   1 file changed, 6 insertions(+), 3 deletions(-)
 > >>
-> >> diff --git a/drivers/input/input-compat.h b/drivers/input/input-compat.h
-> >> index 148f66fe3205..0f25878d5fa2 100644
-> >> --- a/drivers/input/input-compat.h
-> >> +++ b/drivers/input/input-compat.h
-> >> @@ -17,17 +17,7 @@
+> >> diff --git a/drivers/pci/host/pci-host-generic.c
+> >> b/drivers/pci/host/pci-host-generic.c
+> >> index 5434c90..0e1ce06 100644
+> >> --- a/drivers/pci/host/pci-host-generic.c
+> >> +++ b/drivers/pci/host/pci-host-generic.c
+> >> @@ -215,11 +215,9 @@ static int gen_pci_probe(struct platform_device
+> >> *pdev)
+> >>         const struct of_device_id *of_id;
+> >>         struct device *dev = &pdev->dev;
+> >>         struct device_node *np = dev->of_node;
+> >> -       struct gen_pci *pci = devm_kzalloc(dev, sizeof(*pci), GFP_KERNEL);
+> >> +       struct gen_pci *pci;
+> >>         struct pci_bus *bus, *child;
 > >>
-> >>  #ifdef CONFIG_COMPAT
+> >> -       if (!pci)
+> >> -               return -ENOMEM;
 > >>
-> >> -/* Note to the author of this code: did it ever occur to
-> >> -   you why the ifdefs are needed? Think about it again. -AK */
-> >> -#if defined(CONFIG_X86_64) || defined(CONFIG_TILE)
-> >> -#  define INPUT_COMPAT_TEST is_compat_task()
-> >> -#elif defined(CONFIG_S390)
-> >> -#  define INPUT_COMPAT_TEST test_thread_flag(TIF_31BIT)
-> >> -#elif defined(CONFIG_MIPS)
-> >> -#  define INPUT_COMPAT_TEST test_thread_flag(TIF_32BIT_ADDR)
-> >> -#else
-> >> -#  define INPUT_COMPAT_TEST test_thread_flag(TIF_32BIT)
-> >> -#endif
-> >> +#define INPUT_COMPAT_TEST in_compat_syscall()
+> >>         type = of_get_property(np, "device_type", NULL);
+> >>         if (!type || strcmp(type, "pci")) {
+> >> @@ -230,6 +228,11 @@ static int gen_pci_probe(struct platform_device
+> >> *pdev)
+> >>         of_pci_check_probe_only();
 > >>
+> >>         of_id = of_match_node(gen_pci_of_match, np);
+> >> +       set_dev_node(dev, of_node_to_nid(np));
 > >
 > >
-> > If we now have function that works on all arches I'd prefer if we used
-> > it directly instead of continuing using INPUT_COMPAT_TEST.
-> 
-> I'll write a followup patch for that if you don't beat me to it.
+> > This shouldn't be done in individual platform_drivers, but instead in the
+> > device probing code.
+> >
+> > There is code that does this in drivers/of/platform.c and
+> > drivers/of/device.c  Is that not being called for the pci-host-gweneric
+> > devices?  If not, we should figure out why, and perhaps attempt to fix it
+> > rather than doing it here.
+> is it more appropriate to call of_platform_device_create ?
 
-I promise I wont ;)
+That's already done to create the platform device by OF core when
+populating devices from DT, what David suggested is that you should
+add set_dev_node() to core OF code instead of adding it specifically
+to the PCI host generic code.
 
--- 
-Dmitry
+Lorenzo
