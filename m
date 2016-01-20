@@ -1,7 +1,7 @@
 From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: regression 4.4: deadlock in with cgroup percpu_rwsem
-Date: Wed, 20 Jan 2016 11:47:58 +0100
-Message-ID: <20160120104758.GD6373@twins.programming.kicks-ass.net>
+Date: Wed, 20 Jan 2016 11:53:02 +0100
+Message-ID: <20160120105302.GE6373@twins.programming.kicks-ass.net>
 References: <5698A023.9070703@de.ibm.com>
  <56990C9E.7020801@de.ibm.com>
  <20160118183205.GW6357@twins.programming.kicks-ass.net>
@@ -34,13 +34,8 @@ On Wed, Jan 20, 2016 at 11:30:36AM +0100, Peter Zijlstra wrote:
 > 
 > Urgh,.. lemme stare at that.
 
-TJ, is css_offline guaranteed to be called in hierarchical order? I
-got properly lost in the whole cgroup destroy code. There's endless
-workqueues and rcu callbacks there.
+Christian, can you test with the remove_entity_load_avg() call removed
+from free_fair_sched_group() ?
 
-So the current place in free_fair_sched_group() is far too late to be
-calling remove_entity_load_avg(). But I'm not sure where I should put
-it, it needs to be in a place where we know the group is going to die
-but its parent is guaranteed to still exist.
-
-Would offline be that place?
+It will slightly mess up accounting, but should be non fatal and avoids
+this current issue.
