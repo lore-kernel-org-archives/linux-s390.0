@@ -1,13 +1,12 @@
-Return-Path: <mpe@ellerman.id.au>
-Message-ID: <1453348872.468.6.camel@ellerman.id.au>
-Subject: Re: [PATCH 2/4] powerpc: enable text relative kallsyms for ppc64
-From: Michael Ellerman <mpe@ellerman.id.au>
-Date: Thu, 21 Jan 2016 15:01:12 +1100
-In-Reply-To: <1453280738-18721-3-git-send-email-ard.biesheuvel@linaro.org>
+Return-Path: <rusty@ozlabs.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 0/4] support for text-relative kallsyms table
+In-Reply-To: <1453280738-18721-1-git-send-email-ard.biesheuvel@linaro.org>
 References: <1453280738-18721-1-git-send-email-ard.biesheuvel@linaro.org>
- <1453280738-18721-3-git-send-email-ard.biesheuvel@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Date: Thu, 21 Jan 2016 15:40:53 +1030
+Message-ID: <878u3jy0te.fsf@rustcorp.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -16,73 +15,62 @@ List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, x86@kernel.org, keescook@chromium.org, akpm@linux-foundation.org, mingo@kernel.org, hpa@zytor.com, heiko.carstens@de.ibm.com, benh@kernel.crashing.org, mmarek@suse.cz, rusty@rustcorp.com.au
+To: Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, x86@kernel.org, keescook@chromium.org, akpm@linux-foundation.org, mingo@kernel.org, hpa@zytor.com, heiko.carstens@de.ibm.com, benh@kernel.crashing.org, mpe@ellerman.id.au, mmarek@suse.cz
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2016-01-20 at 10:05 +0100, Ard Biesheuvel wrote:
+Ard Biesheuvel <ard.biesheuvel@linaro.org> writes:
+> This implements text-relative kallsyms address tables. This was developed
+> as part of my series to implement KASLR/CONFIG_RELOCATABLE for arm64, but
+> I think it may be beneficial to other architectures as well, so I am
+> presenting it as a separate series.
 
-> This enables the newly introduced text-relative kallsyms support when
-> building 64-bit targets. This cuts the size of the kallsyms address
-> table in half, and drastically reduces the size of the PIE dynamic
-> relocation section when building with CONFIG_RELOCATABLE=y (by about
-> 3 MB for ppc64_defconfig)
-> 
-> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> ---
-> 
-> Results for ppc64_defconfig:
-> 
-> BEFORE:
-> =======
-> $ size vmlinux
->    text	   data	    bss	    dec	    hex	filename
-> 19827996	2008456	 849612	22686064	15a2970	vmlinux
-> 
-> $ readelf -S .tmp_kallsyms2.o
-> There are 9 section headers, starting at offset 0x4513f8:
-> 
-> Section Headers:
->   [Nr] Name              Type             Address           Offset
->        Size              EntSize          Flags  Link  Info  Align
->   ...
->   [ 4] .rodata           PROGBITS         0000000000000000  00000100
->        00000000001fcf00  0000000000000000   A       0     0     256
->   [ 5] .rela.rodata      RELA             0000000000000000  001fd1d8
->        0000000000254220  0000000000000018   I       7     4     8
->   [ 6] .shstrtab         STRTAB           0000000000000000  001fd000
->        0000000000000039  0000000000000000           0     0     1
->   ...
-> 
-> $ ls -l arch/powerpc/boot/zImage
-> -rwxrwxr-x 2 ard ard 7533160 Jan 20 08:43 arch/powerpc/boot/zImage
-> 
-> AFTER:
-> ======
-> $ size vmlinux
->    text	   data	    bss	    dec	    hex	filename
-> 16979516	2009992	 849612	19839120	12eb890	vmlinux
-> 
-> $ readelf -S .tmp_kallsyms2.o
-> There are 8 section headers, starting at offset 0x199bb0:
-> 
-> Section Headers:
->   [Nr] Name              Type             Address           Offset
->        Size              EntSize          Flags  Link  Info  Align
->   ...
->   [ 4] .rodata           PROGBITS         0000000000000000  00000100
->        0000000000199900  0000000000000000   A       0     0     256
->   [ 5] .shstrtab         STRTAB           0000000000000000  00199a00
->        0000000000000034  0000000000000000           0     0     1
->   ...
-> 
-> $ ls -l arch/powerpc/boot/zImage
-> -rwxrwxr-x 2 ard ard 6985672 Jan 20 08:45 arch/powerpc/boot/zImage
+Nice work!
 
+AFAICT this should work for every arch, as long as they start with _text
+(esp: data and init must be > _text).  In addition, it's not harmful on
+32 bit archs.
 
-Nice space saving, thanks very much.
+IOW, I'd like to turn it on for everyone and discard some code.  But
+it's easier to roll in like you've done first.
 
-I've booted this on a bunch of machines and it seems to be working fine.
+Should we enable it by default for every arch for now, and see what
+happens?
 
-Tested-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+Thanks!
+Rusty.
 
-cheers
+> The idea is that on 64-bit builds, it is rather wasteful to use absolute
+> addressing for kernel symbols since they are all within a couple of MBs
+> of each other. On top of that, the absolute addressing implies that, when
+> the kernel is relocated at runtime, each address in the table needs to be
+> fixed up individually.
+>
+> Since all section-relative addresses are already emitted relative to _text,
+> it is quite straight-forward to record only the offset, and add the absolute
+> address of _text at runtime when referring to the address table.
+>
+> The reduction ranges from around 250 KB uncompressed vmlinux size and 10 KB
+> compressed size (s390) to 3 MB/500 KB for ppc64 (although, in the latter case,
+> the reduction in uncompressed size is primarily __init data)
+>
+> Kees Cook was so kind to test these against x86_64, and confirmed that KASLR
+> still operates as expected.
+>
+> Ard Biesheuvel (4):
+>   kallsyms: add support for relative offsets in kallsyms address table
+>   powerpc: enable text relative kallsyms for ppc64
+>   s390: enable text relative kallsyms for 64-bit targets
+>   x86_64: enable text relative kallsyms for 64-bit targets
+>
+>  arch/powerpc/Kconfig    |  1 +
+>  arch/s390/Kconfig       |  1 +
+>  arch/x86/Kconfig        |  1 +
+>  init/Kconfig            | 14 ++++++++
+>  kernel/kallsyms.c       | 35 +++++++++++++-----
+>  scripts/kallsyms.c      | 38 +++++++++++++++++---
+>  scripts/link-vmlinux.sh |  4 +++
+>  scripts/namespace.pl    |  1 +
+>  8 files changed, 82 insertions(+), 13 deletions(-)
+>
+> -- 
+> 2.5.0
