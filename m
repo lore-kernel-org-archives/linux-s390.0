@@ -1,44 +1,63 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH] Rename is_compat_task to in_compat_syscall
-Date: Tue, 19 Jan 2016 15:15:21 -0800
-Message-ID: <CALCETrV07e2P-wnaoVfc3vD_qUWJWbjwKcREnBicn97mHCQ1Tg@mail.gmail.com>
-References: <79347eb4ec12be34098b36693bcf613eb597cbe9.1453239942.git.luto@kernel.org>
- <20160119215535.GU17997@ZenIV.linux.org.uk> <20160119.171643.1125867148856105860.davem@davemloft.net>
+From: Tejun Heo <tj@kernel.org>
+Subject: [PATCH 2/2] cgroup: make sure a parent css isn't freed before its
+ children
+Date: Thu, 21 Jan 2016 15:32:15 -0500
+Message-ID: <20160121203215.GG5157@mtj.duckdns.org>
+References: <56978452.6010606@de.ibm.com>
+ <20160114195630.GA3520@mtj.duckdns.org>
+ <5698A023.9070703@de.ibm.com>
+ <20160121203111.GF5157@mtj.duckdns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20160119.171643.1125867148856105860.davem@davemloft.net>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, Andrew Lutomirski <luto@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>, X86 ML <x86@kernel.org>, linux-arch <linux-arch@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160121203111.GF5157@mtj.duckdns.org>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, Oleg Nesterov <oleg@redhat.com>, Peter Zijlstra <peterz@infradead.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Li Zefan <lizefan@huawei.com>, Johannes Weiner <hannes@cmpxchg.org>, cgroups@vger.kernel.org, kernel-team@fb.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jan 19, 2016 at 2:16 PM, David Miller <davem@davemloft.net> wrote:
-> From: Al Viro <viro@ZenIV.linux.org.uk>
-> Date: Tue, 19 Jan 2016 21:55:36 +0000
->
->> On Tue, Jan 19, 2016 at 01:47:24PM -0800, Andy Lutomirski wrote:
->>> Essentially all users of is_compat_task in the kernel are trying to
->>> determine whether they are executing in the context of a compat
->>> syscall.  On at least x86_64 and sparc, these are not at all the
->>> same question.
->>>
->>> On x86_64 and sparc, therefore, is_compat_task doesn't return the
->>> overall compat state of the task; it returns true if the task is
->>> currently in a compat syscall.
->>
->> The hell it does.  Andy, TIF_32BIT is *NOT* set on syscall entry; it is
->> set by execve().  And 64bit task (with that bit clear) can bloody well
->> issue 32bit syscalls.  Really.
->
-> Correct.
+There are three subsystem callbacks in css shutdown path -
+css_offline(), css_released() and css_free().  Except for
+css_released(), cgroup core didn't use to guarantee the order of
+invocation.  css_offline() or css_free() could be called on a parent
+css before its children.  This behavior is unexpected and led to
+use-after-free in cpu controller.
 
-See the other thread.  My patch here is garbage, but x86 and sparc
-really do work differently here, and I think that x86's behavior is
-better than sparc's.
+The previous patch updated ordering for css_offline() which fixes the
+cpu controller issue.  While there currently isn't a known bug caused
+by misordering of css_free() invocations, let's fix it too for
+consistency.
 
--- 
-Andy Lutomirski
-AMA Capital Management, LLC
+css_free() ordering can be trivially fixed by moving putting of the
+parent css below css_free() invocation.
+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+---
+ kernel/cgroup.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+--- a/kernel/cgroup.c
++++ b/kernel/cgroup.c
+@@ -4657,14 +4657,15 @@ static void css_free_work_fn(struct work
+ 
+ 	if (ss) {
+ 		/* css free path */
++		struct cgroup_subsys_state *parent = css->parent;
+ 		int id = css->id;
+ 
+-		if (css->parent)
+-			css_put(css->parent);
+-
+ 		ss->css_free(css);
+ 		cgroup_idr_remove(&ss->css_idr, id);
+ 		cgroup_put(cgrp);
++
++		if (parent)
++			css_put(parent);
+ 	} else {
+ 		/* cgroup free path */
+ 		atomic_dec(&cgrp->root->nr_cgrps);
