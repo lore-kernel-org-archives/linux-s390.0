@@ -1,41 +1,57 @@
 From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v2 12/16] efivars: Use in_compat_syscall to check for compat callers
-Date: Mon, 25 Jan 2016 14:24:26 -0800
-Message-ID: <bb33b15489a3da562dcb9c73b333152c0821a3f8.1453759363.git.luto@kernel.org>
+Subject: [PATCH v2 11/16] firewire: Use in_compat_syscall to check ioctl compatness
+Date: Mon, 25 Jan 2016 14:24:25 -0800
+Message-ID: <35556b0fffab7a629e9a4e1115480ee5bfb5263a.1453759363.git.luto@kernel.org>
 References: <cover.1453759363.git.luto@kernel.org>
-Return-path: <linux-arch-owner@vger.kernel.org>
+Return-path: <linux-mips-bounce@linux-mips.org>
 In-Reply-To: <cover.1453759363.git.luto@kernel.org>
 In-Reply-To: <cover.1453759363.git.luto@kernel.org>
 References: <cover.1453759363.git.luto@kernel.org>
-Sender: linux-arch-owner@vger.kernel.org
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Andy Lutomirski <luto@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, Linus Torvalds <torvalds@linux-foundation.org>, x86@kernel.org, linux-arch <linux-arch@vger.kernel.org>, David Miller <davem@davemloft.net>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Chris Metcalf <cmetcalf@ezchip.com>, linux-parisc@vger.kernel.org, linux-mips@linux-mips.org, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-This should make no difference on any architecture, as x86's
-historical is_compat_task behavior really did check whether the
-calling syscall was a compat syscall.  x86's is_compat_task is going
-away, though.
+Firewire was using is_compat_task to check whether it was in a
+compat ioctl or a non-compat ioctl.  Use is_compat_syscall instead
+so it works properly on all architectures.
 
 Signed-off-by: Andy Lutomirski <luto@kernel.org>
 ---
- drivers/firmware/efi/efivars.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firewire/core-cdev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/efi/efivars.c b/drivers/firmware/efi/efivars.c
-index 756eca8c4cf8..21c3b2016b2d 100644
---- a/drivers/firmware/efi/efivars.c
-+++ b/drivers/firmware/efi/efivars.c
-@@ -231,7 +231,7 @@ sanity_check(struct efi_variable *var, efi_char16_t *name, efi_guid_t vendor,
- 
- static inline bool is_compat(void)
+diff --git a/drivers/firewire/core-cdev.c b/drivers/firewire/core-cdev.c
+index 36a7c2d89a01..aee149bdf4c0 100644
+--- a/drivers/firewire/core-cdev.c
++++ b/drivers/firewire/core-cdev.c
+@@ -221,7 +221,7 @@ struct inbound_phy_packet_event {
+ #ifdef CONFIG_COMPAT
+ static void __user *u64_to_uptr(u64 value)
  {
--	if (IS_ENABLED(CONFIG_COMPAT) && is_compat_task())
-+	if (IS_ENABLED(CONFIG_COMPAT) && in_compat_syscall())
- 		return true;
+-	if (is_compat_task())
++	if (in_compat_syscall())
+ 		return compat_ptr(value);
+ 	else
+ 		return (void __user *)(unsigned long)value;
+@@ -229,7 +229,7 @@ static void __user *u64_to_uptr(u64 value)
  
- 	return false;
+ static u64 uptr_to_u64(void __user *ptr)
+ {
+-	if (is_compat_task())
++	if (in_compat_syscall())
+ 		return ptr_to_compat(ptr);
+ 	else
+ 		return (u64)(unsigned long)ptr;
 -- 
 2.5.0
