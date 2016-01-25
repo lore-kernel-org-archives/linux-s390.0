@@ -1,7 +1,7 @@
 From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v2 05/16] ptrace: in PEEK_SIGINFO, check syscall bitness, not task bitness
-Date: Mon, 25 Jan 2016 14:24:19 -0800
-Message-ID: <d1f58b0983fc85bf2440fdb86b186d9f214e03f7.1453759363.git.luto@kernel.org>
+Subject: [PATCH v2 06/16] auditsc: For seccomp events, log syscall compat state using in_compat_syscall
+Date: Mon, 25 Jan 2016 14:24:20 -0800
+Message-ID: <2c5ac9f83ad077d1f66c9e6469eb73274703f6d1.1453759363.git.luto@kernel.org>
 References: <cover.1453759363.git.luto@kernel.org>
 Return-path: <linux-mips-bounce@linux-mips.org>
 In-Reply-To: <cover.1453759363.git.luto@kernel.org>
@@ -22,29 +22,29 @@ To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Andy Lutomirski <luto@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, Linus Torvalds <torvalds@linux-foundation.org>, x86@kernel.org, linux-arch <linux-arch@vger.kernel.org>, David Miller <davem@davemloft.net>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Chris Metcalf <cmetcalf@ezchip.com>, linux-parisc@vger.kernel.org, linux-mips@linux-mips.org, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Users of the 32-bit ptrace() ABI expect the full 32-bit ABI.
-siginfo translation should check ptrace() ABI, not caller task ABI.
-
-This is an ABI change on SPARC.  Let's hope that no one relied on
-the old buggy ABI.
+Except on SPARC, this is what the code always did.  SPARC compat
+seccomp was buggy, although the impact of the bug was limited
+because SPARC 32-bit and 64-bit syscall numbers are the same.
 
 Signed-off-by: Andy Lutomirski <luto@kernel.org>
 ---
- kernel/ptrace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/auditsc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/ptrace.c b/kernel/ptrace.c
-index 2341efe7fe02..c79b91d09e35 100644
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -681,7 +681,7 @@ static int ptrace_peek_siginfo(struct task_struct *child,
- 			break;
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index 195ffaee50b9..7d0e3cf8abe1 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -2412,8 +2412,8 @@ void __audit_seccomp(unsigned long syscall, long signr, int code)
+ 		return;
+ 	audit_log_task(ab);
+ 	audit_log_format(ab, " sig=%ld arch=%x syscall=%ld compat=%d ip=0x%lx code=0x%x",
+-			 signr, syscall_get_arch(), syscall, is_compat_task(),
+-			 KSTK_EIP(current), code);
++			 signr, syscall_get_arch(), syscall,
++			 in_compat_syscall(), KSTK_EIP(current), code);
+ 	audit_log_end(ab);
+ }
  
- #ifdef CONFIG_COMPAT
--		if (unlikely(is_compat_task())) {
-+		if (unlikely(in_compat_syscall())) {
- 			compat_siginfo_t __user *uinfo = compat_ptr(data);
- 
- 			if (copy_siginfo_to_user32(uinfo, &info) ||
 -- 
 2.5.0
