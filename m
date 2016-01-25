@@ -1,57 +1,39 @@
-From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v2 11/16] firewire: Use in_compat_syscall to check ioctl compatness
-Date: Mon, 25 Jan 2016 14:24:25 -0800
-Message-ID: <35556b0fffab7a629e9a4e1115480ee5bfb5263a.1453759363.git.luto@kernel.org>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v2 02/16] sparc/compat: Provide an accurate
+ in_compat_syscall implementation
+Date: Mon, 25 Jan 2016 14:51:08 -0800 (PST)
+Message-ID: <20160125.145108.1332641183366177944.davem@davemloft.net>
 References: <cover.1453759363.git.luto@kernel.org>
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <cover.1453759363.git.luto@kernel.org>
-In-Reply-To: <cover.1453759363.git.luto@kernel.org>
-References: <cover.1453759363.git.luto@kernel.org>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+	<cover.1453759363.git.luto@kernel.org>
+	<e520030f750b29d14486aa1e99c271a0fa18f19e.1453759363.git.luto@kernel.org>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-parisc-owner@vger.kernel.org>
+In-Reply-To: <e520030f750b29d14486aa1e99c271a0fa18f19e.1453759363.git.luto@kernel.org>
+Sender: linux-parisc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, Linus Torvalds <torvalds@linux-foundation.org>, x86@kernel.org, linux-arch <linux-arch@vger.kernel.org>, David Miller <davem@davemloft.net>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Chris Metcalf <cmetcalf@ezchip.com>, linux-parisc@vger.kernel.org, linux-mips@linux-mips.org, sparclinux@vger.kernel.org
+To: luto@kernel.org
+Cc: akpm@linux-foundation.org, viro@zeniv.linux.org.uk, torvalds@linux-foundation.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, cmetcalf@ezchip.com, linux-parisc@vger.kernel.org, linux-mips@linux-mips.org, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Firewire was using is_compat_task to check whether it was in a
-compat ioctl or a non-compat ioctl.  Use is_compat_syscall instead
-so it works properly on all architectures.
+From: Andy Lutomirski <luto@kernel.org>
+Date: Mon, 25 Jan 2016 14:24:16 -0800
 
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
----
- drivers/firewire/core-cdev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> On sparc64 compat-enabled kernels, any task can make 32-bit and
+> 64-bit syscalls.  is_compat_task returns true in 32-bit tasks, which
+> does not necessarily imply that the current syscall is 32-bit.
+> 
+> Provide an in_compat_syscall implementation that checks whether the
+> current syscall is compat.
+> 
+> As far as I know, sparc is the only architecture on which
+> is_compat_task checks the compat status of the task and on which the
+> compat status of a syscall can differ from the compat status of the
+> task.  On x86, is_compat_task checks the syscall type, not the task
+> type.
+> 
+> Signed-off-by: Andy Lutomirski <luto@kernel.org>
 
-diff --git a/drivers/firewire/core-cdev.c b/drivers/firewire/core-cdev.c
-index 36a7c2d89a01..aee149bdf4c0 100644
---- a/drivers/firewire/core-cdev.c
-+++ b/drivers/firewire/core-cdev.c
-@@ -221,7 +221,7 @@ struct inbound_phy_packet_event {
- #ifdef CONFIG_COMPAT
- static void __user *u64_to_uptr(u64 value)
- {
--	if (is_compat_task())
-+	if (in_compat_syscall())
- 		return compat_ptr(value);
- 	else
- 		return (void __user *)(unsigned long)value;
-@@ -229,7 +229,7 @@ static void __user *u64_to_uptr(u64 value)
- 
- static u64 uptr_to_u64(void __user *ptr)
- {
--	if (is_compat_task())
-+	if (in_compat_syscall())
- 		return ptr_to_compat(ptr);
- 	else
- 		return (u64)(unsigned long)ptr;
--- 
-2.5.0
+Acked-by: David S. Miller <davem@davemloft.net>
