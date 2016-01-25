@@ -1,53 +1,51 @@
 From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v2 04/16] seccomp: Check in_compat_syscall, not is_compat_task, in strict mode
-Date: Mon, 25 Jan 2016 14:24:18 -0800
-Message-ID: <9cc3588071d4e31b035e0cf1d09483067df38823.1453759363.git.luto@kernel.org>
+Subject: [PATCH v2 14/16] input: Redefine INPUT_COMPAT_TEST as in_compat_syscall()
+Date: Mon, 25 Jan 2016 14:24:28 -0800
+Message-ID: <64480084bc652d5fa91bf5cd4be979e2f1e4cf11.1453759363.git.luto@kernel.org>
 References: <cover.1453759363.git.luto@kernel.org>
-Return-path: <linux-parisc-owner@vger.kernel.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
 In-Reply-To: <cover.1453759363.git.luto@kernel.org>
 In-Reply-To: <cover.1453759363.git.luto@kernel.org>
 References: <cover.1453759363.git.luto@kernel.org>
-Sender: linux-parisc-owner@vger.kernel.org
+Sender: sparclinux-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Andy Lutomirski <luto@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, Linus Torvalds <torvalds@linux-foundation.org>, x86@kernel.org, linux-arch <linux-arch@vger.kernel.org>, David Miller <davem@davemloft.net>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Chris Metcalf <cmetcalf@ezchip.com>, linux-parisc@vger.kernel.org, linux-mips@linux-mips.org, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Seccomp wants to know the syscall bitness, not the caller task
-bitness, when it selects the syscall whitelist.
-
-As far as I know, this makes no difference on any architecture, so
-it's not a security problem.  (It generates identical code
-everywhere except sparc, and, on sparc, the syscall numbering is the
-same for both ABIs.)
+The input compat code should work like all other compat code: for
+32-bit syscalls, use the 32-bit ABI and for 64-bit syscalls, use the
+64-bit ABI.  We have a helper for that (in_compat_syscall()): just
+use it.
 
 Signed-off-by: Andy Lutomirski <luto@kernel.org>
 ---
- kernel/seccomp.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/input-compat.h | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/kernel/seccomp.c b/kernel/seccomp.c
-index 580ac2d4024f..26858fa43a60 100644
---- a/kernel/seccomp.c
-+++ b/kernel/seccomp.c
-@@ -395,7 +395,7 @@ seccomp_prepare_user_filter(const char __user *user_filter)
- 	struct seccomp_filter *filter = ERR_PTR(-EFAULT);
+diff --git a/drivers/input/input-compat.h b/drivers/input/input-compat.h
+index 148f66fe3205..0f25878d5fa2 100644
+--- a/drivers/input/input-compat.h
++++ b/drivers/input/input-compat.h
+@@ -17,17 +17,7 @@
  
  #ifdef CONFIG_COMPAT
--	if (is_compat_task()) {
-+	if (in_compat_syscall()) {
- 		struct compat_sock_fprog fprog32;
- 		if (copy_from_user(&fprog32, user_filter, sizeof(fprog32)))
- 			goto out;
-@@ -529,7 +529,7 @@ static void __secure_computing_strict(int this_syscall)
- {
- 	int *syscall_whitelist = mode1_syscalls;
- #ifdef CONFIG_COMPAT
--	if (is_compat_task())
-+	if (in_compat_syscall())
- 		syscall_whitelist = mode1_syscalls_32;
- #endif
- 	do {
+ 
+-/* Note to the author of this code: did it ever occur to
+-   you why the ifdefs are needed? Think about it again. -AK */
+-#if defined(CONFIG_X86_64) || defined(CONFIG_TILE)
+-#  define INPUT_COMPAT_TEST is_compat_task()
+-#elif defined(CONFIG_S390)
+-#  define INPUT_COMPAT_TEST test_thread_flag(TIF_31BIT)
+-#elif defined(CONFIG_MIPS)
+-#  define INPUT_COMPAT_TEST test_thread_flag(TIF_32BIT_ADDR)
+-#else
+-#  define INPUT_COMPAT_TEST test_thread_flag(TIF_32BIT)
+-#endif
++#define INPUT_COMPAT_TEST in_compat_syscall()
+ 
+ struct input_event_compat {
+ 	struct compat_timeval time;
 -- 
 2.5.0
