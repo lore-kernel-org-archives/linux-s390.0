@@ -1,100 +1,75 @@
 From: Bjorn Helgaas <helgaas@kernel.org>
-Subject: Re: [PATCH v9 1/6] arm64, numa: adding numa support for arm64
- platforms.
-Date: Tue, 26 Jan 2016 12:52:38 -0600
-Message-ID: <20160126185238.GB17600@localhost>
+Subject: Re: [PATCH v9 5/6] PCI: generic: Make pci-host-generic driver numa
+ aware
+Date: Tue, 26 Jan 2016 14:52:56 -0600
+Message-ID: <20160126205256.GA26268@localhost>
 References: <1453134965-6125-1-git-send-email-gkulkarni@caviumnetworks.com>
- <1453134965-6125-2-git-send-email-gkulkarni@caviumnetworks.com>
+ <1453134965-6125-6-git-send-email-gkulkarni@caviumnetworks.com>
+ <20160126205005.GD17600@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-ia64-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1453134965-6125-2-git-send-email-gkulkarni@caviumnetworks.com>
-Sender: linux-sh-owner@vger.kernel.org
+In-Reply-To: <20160126205005.GD17600@localhost>
+Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
 Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arch@vger.kernel.org, Will.Deacon@arm.com, catalin.marinas@arm.com, grant.likely@linaro.org, leif.lindholm@linaro.org, rfranz@cavium.com, ard.biesheuvel@linaro.org, msalter@redhat.com, robh+dt@kernel.org, steve.capper@linaro.org, hanjun.guo@linaro.org, al.stone@linaro.org, arnd@arndb.de, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, rjw@rjwysocki.net, lenb@kernel.org, marc.zyngier@arm.com, lorenzo.pieralisi@arm.com, bhelgaas@google.com, tony.luck@intel.com, fenghua.yu@intel.com, james.hogan@imgtec.com, benh@kernel.crashing.org, tglx@linutronix.de, mingo@r
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jan 18, 2016 at 10:06:00PM +0530, Ganapatrao Kulkarni wrote:
-> Adding numa support for arm64 based platforms.
-> This patch adds by default the dummy numa node and
-> maps all memory and cpus to node 0.
-> using this patch, numa can be simulated on single node arm64 platforms.
+On Tue, Jan 26, 2016 at 02:50:05PM -0600, Bjorn Helgaas wrote:
+> On Mon, Jan 18, 2016 at 10:06:04PM +0530, Ganapatrao Kulkarni wrote:
+> > update numa_node of device associated with pci bus.
+> > moved down devm_kzalloc to allocate from node memory.
+> > 
+> > Signed-off-by: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
+> > ---
+> >  drivers/pci/host/pci-host-generic.c | 9 ++++++---
+> >  1 file changed, 6 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/drivers/pci/host/pci-host-generic.c b/drivers/pci/host/pci-host-generic.c
+> > index 5434c90..0e1ce06 100644
+> > --- a/drivers/pci/host/pci-host-generic.c
+> > +++ b/drivers/pci/host/pci-host-generic.c
+> > @@ -215,11 +215,9 @@ static int gen_pci_probe(struct platform_device *pdev)
+> >  	const struct of_device_id *of_id;
+> >  	struct device *dev = &pdev->dev;
+> >  	struct device_node *np = dev->of_node;
+> > -	struct gen_pci *pci = devm_kzalloc(dev, sizeof(*pci), GFP_KERNEL);
+> > +	struct gen_pci *pci;
+> >  	struct pci_bus *bus, *child;
+> >  
+> > -	if (!pci)
+> > -		return -ENOMEM;
+> >  
+> >  	type = of_get_property(np, "device_type", NULL);
+> >  	if (!type || strcmp(type, "pci")) {
+> > @@ -230,6 +228,11 @@ static int gen_pci_probe(struct platform_device *pdev)
+> >  	of_pci_check_probe_only();
+> >  
+> >  	of_id = of_match_node(gen_pci_of_match, np);
+> > +	set_dev_node(dev, of_node_to_nid(np));
+> 
+> I like the idea of this patch, but why do we need to call
+> set_dev_node() here in driver code?  Shouldn't that be done by the
+> OF/platform device infrastructure so that all drivers for platform devices
+> get this benefit?
 
-> diff --git a/arch/arm64/include/asm/mmzone.h b/arch/arm64/include/asm/mmzone.h
-> new file mode 100644
-> index 0000000..2cd804d
-> --- /dev/null
-> +++ b/arch/arm64/include/asm/mmzone.h
-> @@ -0,0 +1,18 @@
-> +#ifndef __ASM_MMZONE_H
-> +#define __ASM_MMZONE_H
-> +
-> +#ifdef CONFIG_NUMA
-> +
-> +#include <linux/mmdebug.h>
-> +#include <linux/types.h>
-> +
-> +#include <asm/smp.h>
-> +#include <asm/numa.h>
+Sorry, I'm just a day late and a dollar short.  I see David and Lorenzo
+have already responded about this.
 
-Are all these #includes really necessary?  s390 looks very similar and
-doesn't need the #includes.
-
-> +extern struct pglist_data *node_data[];
-> +
-> +#define NODE_DATA(nid)		(node_data[(nid)])
-> +
-> +#endif /* CONFIG_NUMA */
-> +
-> +#endif /* __ASM_MMZONE_H */
-
-> diff --git a/arch/arm64/include/asm/numa.h b/arch/arm64/include/asm/numa.h
-> new file mode 100644
-> index 0000000..f28f15b0
-> --- /dev/null
-> +++ b/arch/arm64/include/asm/numa.h
-> @@ -0,0 +1,40 @@
-> +#ifndef __ASM_NUMA_H
-> +#define __ASM_NUMA_H
-> +
-> +#include <linux/nodemask.h>
-> +#include <asm/topology.h>
-> +
-> +#ifdef CONFIG_NUMA
-> +
-> +/* currently, arm64 implements flat NUMA topology */
-> +#define parent_node(node)	(node)
-> +
-> +extern int __node_distance(int from, int to);
-
-Below you add some extern function declarations without the "extern"
-keyword.  I don't know what the convention is for arm64 (I omit the
-"extern" for PCI), but it seems like you should at least be
-consistent.
-
-> +#define node_distance(a, b) __node_distance(a, b)
-> +
-> +extern int cpu_to_node_map[NR_CPUS];
-> +extern nodemask_t numa_nodes_parsed __initdata;
-> +
-> +/* Mappings between node number and cpus on that node. */
-> +extern cpumask_var_t node_to_cpumask_map[MAX_NUMNODES];
-> +extern void numa_clear_node(unsigned int cpu);
-> +#ifdef CONFIG_DEBUG_PER_CPU_MAPS
-> +extern const struct cpumask *cpumask_of_node(int node);
-> +#else
-> +/* Returns a pointer to the cpumask of CPUs on Node 'node'. */
-> +static inline const struct cpumask *cpumask_of_node(int node)
-> +{
-> +	return node_to_cpumask_map[node];
-> +}
-> +#endif
-> +
-> +void __init arm64_numa_init(void);
-> +int __init numa_add_memblk(int nodeid, u64 start, u64 end);
-> +void __init numa_set_distance(int from, int to, int distance);
-> +void __init numa_reset_distance(void);
-> +void numa_store_cpu_info(unsigned int cpu);
+> > +	pci = devm_kzalloc(dev, sizeof(*pci), GFP_KERNEL);
+> > +	if (!pci)
+> > +		return -ENOMEM;
+> > +
+> >  	pci->cfg.ops = (struct gen_pci_cfg_bus_ops *)of_id->data;
+> >  	pci->host.dev.parent = dev;
+> >  	INIT_LIST_HEAD(&pci->host.windows);
+> > -- 
+> > 1.8.1.4
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-arch" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
