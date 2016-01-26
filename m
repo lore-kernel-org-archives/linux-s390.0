@@ -1,75 +1,105 @@
 From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Tue, 26 Jan 2016 11:44:10 -0800
-Message-ID: <20160126194410.GQ4503@linux.vnet.ibm.com>
-References: <20160113104516.GE25458@arm.com>
- <56969F4B.7070001@imgtec.com>
- <20160113204844.GV6357@twins.programming.kicks-ass.net>
- <5696BA6E.4070508@imgtec.com>
- <20160114120445.GB15828@arm.com>
- <56980145.5030901@imgtec.com>
- <20160114204827.GE3818@linux.vnet.ibm.com>
- <56981212.7050301@imgtec.com>
- <20160114222046.GH3818@linux.vnet.ibm.com>
- <20160126102402.GE6357@twins.programming.kicks-ass.net>
+Date: Tue, 26 Jan 2016 11:51:04 -0800
+Message-ID: <20160126195104.GR4503@linux.vnet.ibm.com>
+References: <20160114204827.GE3818@linux.vnet.ibm.com>
+	<20160118081929.GA30420@gondor.apana.org.au>
+	<20160118154629.GB3818@linux.vnet.ibm.com>
+	<20160126165207.GB6029@fixme-laptop.cn.ibm.com>
 Reply-To: paulmck@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20160126102402.GE6357@twins.programming.kicks-ass.net>
-Sender: linux-ia64-owner@vger.kernel.org
+In-Reply-To: <20160126165207.GB6029@fixme-laptop.cn.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, Will Deacon <will.deacon@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, Joe Perches <joe@perches.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.ne
+To: Boqun Feng <boqun.feng@gmail.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, mst@redhat.com, peterz@infradead.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, hpa@zytor.com, sparclinux@vger.kernel.org, mingo@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux@arm.linux.org.uk, Herbert Xu <herbert@gondor.apana.org.au>, linux-sh@vger.kernel.org, mpe@ellerman.id.au, x86@kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, xen-devel@lists.xenproject.org, mingo@elte.hu, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, user-mode-linux-devel@lists.sourceforge.net, stefano.stabellini@eu.citrix.com, adi-buildroot-devel@lists.sourceforge.net, Leonid.Yegoshin@imgtec.com, ddaney.cavm@gmail.com, tglx@linutronix.de, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, andrew.cooper3@citrix.com, linux-kernel@vger.kernel.org, ralf@linux-
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jan 26, 2016 at 11:24:02AM +0100, Peter Zijlstra wrote:
-> On Thu, Jan 14, 2016 at 02:20:46PM -0800, Paul E. McKenney wrote:
-> > On Thu, Jan 14, 2016 at 01:24:34PM -0800, Leonid Yegoshin wrote:
-> > > On 01/14/2016 12:48 PM, Paul E. McKenney wrote:
+On Wed, Jan 27, 2016 at 12:52:07AM +0800, Boqun Feng wrote:
+> Hi Paul,
+> 
+> On Mon, Jan 18, 2016 at 07:46:29AM -0800, Paul E. McKenney wrote:
+> > On Mon, Jan 18, 2016 at 04:19:29PM +0800, Herbert Xu wrote:
+> > > Paul E. McKenney <paulmck@linux.vnet.ibm.com> wrote:
 > > > >
-> > > >So SYNC_RMB is intended to implement smp_rmb(), correct?
-> > > Yes.
-> > > >
-> > > >You could use SYNC_ACQUIRE() to implement read_barrier_depends() and
-> > > >smp_read_barrier_depends(), but SYNC_RMB probably does not suffice.
+> > > > You could use SYNC_ACQUIRE() to implement read_barrier_depends() and
+> > > > smp_read_barrier_depends(), but SYNC_RMB probably does not suffice.
+> > > > The reason for this is that smp_read_barrier_depends() must order the
+> > > > pointer load against any subsequent read or write through a dereference
+> > > > of that pointer.  For example:
+> > > > 
+> > > >        p = READ_ONCE(gp);
+> > > >        smp_rmb();
+> > > >        r1 = p->a; /* ordered by smp_rmb(). */
+> > > >        p->b = 42; /* NOT ordered by smp_rmb(), BUG!!! */
+> > > >        r2 = x; /* ordered by smp_rmb(), but doesn't need to be. */
+> > > > 
+> > > > In contrast:
+> > > > 
+> > > >        p = READ_ONCE(gp);
+> > > >        smp_read_barrier_depends();
+> > > >        r1 = p->a; /* ordered by smp_read_barrier_depends(). */
+> > > >        p->b = 42; /* ordered by smp_read_barrier_depends(). */
+> > > >        r2 = x; /* not ordered by smp_read_barrier_depends(), which is OK. */
+> > > > 
+> > > > Again, if your hardware maintains local ordering for address
+> > > > and data dependencies, you can have read_barrier_depends() and
+> > > > smp_read_barrier_depends() be no-ops like they are for most
+> > > > architectures.
+> > > > 
+> > > > Does that help?
 > > > 
-> > > If smp_read_barrier_depends() is used to separate not only two reads
-> > > but read pointer and WRITE basing on that pointer (example below) -
-> > > yes. I just doesn't see any example of this in famous
-> > > Documentation/memory-barriers.txt and had no chance to know what you
-> > > use it in this way too.
+> > > This is crazy! smp_rmb started out being strictly stronger than
+> > > smp_read_barrier_depends, when did this stop being the case?
 > > 
-> > Well, Documentation/memory-barriers.txt was intended as a guide for Linux
-> > kernel hackers, and not for hardware architects.
-> 
-> Yeah, this goes under the header: memory-barriers.txt is _NOT_ a
-> specification (I seem to keep repeating this).
-> 
-> > ------------------------------------------------------------------------
+> > Hello, Herbert!
 > > 
-> > commit 955720966e216b00613fcf60188d507c103f0e80
-> > Author: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-> > Date:   Thu Jan 14 14:17:04 2016 -0800
+> > It is true that most Linux kernel code relies only on the read-read
+> > properties of dependencies, but the read-write properties are useful.
+> > Admittedly relatively rarely, but useful.
 > > 
-> >     documentation: Subsequent writes ordered by rcu_dereference()
-> >     
-> >     The current memory-barriers.txt does not address the possibility of
-> >     a write to a dereferenced pointer.  This should be rare, 
+> > The better comparison for smp_read_barrier_depends(), especially in
+> > its rcu_dereference*() form, is smp_load_acquire().
 > 
-> How are these rare? Isn't:
+> Confused..
 > 
-> 	rcu_read_lock()
-> 	obj = rcu_dereference(ptr);
-> 	if (!atomic_inc_not_zero(&obj->ref))
-> 		obj = NULL;
-> 	rcu_read_unlock();
+> I recall that last time you and Linus came into a conclusion that even
+> on Alpha, a barrier for read->write with data dependency is unnecessary:
 > 
-> a _very_ common thing to do?
+> http://article.gmane.org/gmane.linux.kernel/2077661
+> 
+> And in an earlier mail of that thread, Linus made his point that
+> smp_read_barrier_depends() should only be used to order read->read.
 
-It is, but it provides its own barriers, so does not need to rely on
-dependency ordering.
+Those examples involved read-to-write with conditionals, as in:
+
+	if (READ_ONCE(a))
+		WRITE_ONCE(b, 1);
+
+Without the "if", no ordering is guaranteed on weakly ordered CPUs.
+(The volatile accesses keep ordering within the compiler for once...
+
+> So right now, are we going to extend the semantics of
+> smp_read_barrier_depends()? Can we just make smp_read_barrier_depends()
+> still only work for read->read, and assume all the architectures won't
+> reorder read->write with data dependency, so that the code above having
+> a smp_rmb() also works?
+
+The semantics of smp_read_barrier_depends() has been both read-to-write
+and read-to-read for some time now, this patch just catches the
+documentation up with reality.
 
 							Thanx, Paul
