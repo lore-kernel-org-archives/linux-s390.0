@@ -1,8 +1,10 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH/RFC 0/3] Optimize CONFIG_DEBUG_PAGEALLOC
-Date: Tue, 26 Jan 2016 10:18:22 +0100
-Message-ID: <1453799905-10941-1-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH/RFC 1/3] mm: provide debug_pagealloc_enabled() without CONFIG_DEBUG_PAGEALLOC
+Date: Tue, 26 Jan 2016 10:18:23 +0100
+Message-ID: <1453799905-10941-2-git-send-email-borntraeger@de.ibm.com>
+References: <1453799905-10941-1-git-send-email-borntraeger@de.ibm.com>
 Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1453799905-10941-1-git-send-email-borntraeger@de.ibm.com>
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
@@ -10,26 +12,29 @@ To: linux-kernel@vger.kernel.org
 Cc: akpm@linux-foundation.org, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, x86@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-As CONFIG_DEBUG_PAGEALLOC can be enabled/disabled via kernel
-parameters we can optimize some cases by checking the enablement
-state.
+We can provide debug_pagealloc_enabled() also if CONFIG_DEBUG_PAGEALLOC
+is not set. It will return false in that case.
 
-I have done s390 and x86 as examples. Other architecture can
-provide followup patches later on.
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ include/linux/mm.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-Christian Borntraeger (3):
-  mm: provide debug_pagealloc_enabled() without CONFIG_DEBUG_PAGEALLOC
-  x86: query dynamic DEBUG_PAGEALLOC setting
-  s390: query dynamic DEBUG_PAGEALLOC setting
-
- arch/s390/kernel/dumpstack.c |  4 +++-
- arch/s390/mm/vmem.c          | 10 ++++------
- arch/x86/kernel/dumpstack.c  |  4 +++-
- arch/x86/mm/init.c           |  7 ++++---
- arch/x86/mm/pageattr.c       | 14 ++++----------
- include/linux/mm.h           |  4 ++++
- 6 files changed, 22 insertions(+), 21 deletions(-)
-
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 7783073..fbc5354 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2148,6 +2148,10 @@ kernel_map_pages(struct page *page, int numpages, int enable)
+ extern bool kernel_page_present(struct page *page);
+ #endif /* CONFIG_HIBERNATION */
+ #else
++static inline bool debug_pagealloc_enabled(void)
++{
++	return false;
++}
+ static inline void
+ kernel_map_pages(struct page *page, int numpages, int enable) {}
+ #ifdef CONFIG_HIBERNATION
 -- 
 2.3.0
 
