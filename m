@@ -1,51 +1,59 @@
-From: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Subject: Re: [PATCH/RFC 3/3] s390: query dynamic DEBUG_PAGEALLOC setting
-Date: Thu, 28 Jan 2016 13:25:10 +0900
-Message-ID: <20160128042510.GB14467@js1304-P5Q-DELUXE>
-References: <1453799905-10941-1-git-send-email-borntraeger@de.ibm.com>
- <1453799905-10941-4-git-send-email-borntraeger@de.ibm.com>
- <20160126181903.GB4671@osiris>
- <alpine.DEB.2.10.1601261525580.25141@chino.kir.corp.google.com>
- <20160127001918.GA7089@js1304-P5Q-DELUXE>
- <alpine.DEB.2.10.1601261633520.6121@chino.kir.corp.google.com>
- <20160127005920.GB7089@js1304-P5Q-DELUXE>
- <56A8BB15.9070305@suse.cz>
- <56A8BC6D.9080101@de.ibm.com>
- <56A8C028.7050305@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arch-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <56A8C028.7050305@suse.cz>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Vlastimil Babka <vbabka@suse.cz>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, x86@kernel.org
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/3] KVM: s390: fix guest fprs memory leak
+Date: Tue, 26 Jan 2016 16:17:04 +0100
+Message-ID: <1453821426-94778-2-git-send-email-borntraeger@de.ibm.com>
+References: <1453821426-94778-1-git-send-email-borntraeger@de.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1453821426-94778-1-git-send-email-borntraeger@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cornelia.huck@de.ibm.com>, Jens Freimann <jfrei@linux.vnet.ibm.com>, Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>, David Hildenbrand <dahi@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jan 27, 2016 at 02:03:36PM +0100, Vlastimil Babka wrote:
-> On 01/27/2016 01:47 PM, Christian Borntraeger wrote:
-> > On 01/27/2016 01:41 PM, Vlastimil Babka wrote:
-> >> On 01/27/2016 01:59 AM, Joonsoo Kim wrote:
-> >> 
-> >> I think it might be worth also to convert debug_pagealloc_enabled() to be based
-> >> on static key, like I did for page_owner [1]. That should help make it possible
-> >> to have virtually no overhead when compiling kernel with CONFIG_DEBUG_PAGEALLOC
-> >> without enabling it boot-time. I assume it's one of the goals here?
-> > 
-> > We could do something like that but dump_stack and setup of the initial identity
-> > mapping of the kernel as well as the initial page protection are not hot path
-> > as far as I can tell. Any other places?
-> 
-> Well, mostly kernel_map_pages() which is used in page allocation hotpaths.
+From: David Hildenbrand <dahi@linux.vnet.ibm.com>
 
-We cannot just convert it because setup_arch() is called before
-jump_label_init(). We can do it by introducing _early variant but
-I'm not sure it's worth doing. I think that just make it unlikely
-works well. Recently, I tested a micro benchmark on slab alloc/free
-on CONFIG_SLUB with applying static branch for debug option which
-currently is using unlikely branch and can't find any noticeble
-performance difference.
+fprs is never freed, therefore resulting in a memory leak if
+kvm_vcpu_init() fails or the vcpu is destroyed.
 
-Thanks.
+Fixes: 9977e886cbbc ("s390/kernel: lazy restore fpu registers")
+Cc: stable@vger.kernel.org # v4.3+
+Reported-by: Eric Farman <farman@linux.vnet.ibm.com>
+Signed-off-by: David Hildenbrand <dahi@linux.vnet.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.vnet.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 835d60b..797dbc4 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1244,6 +1244,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
+ 
+ 	if (vcpu->kvm->arch.use_cmma)
+ 		kvm_s390_vcpu_unsetup_cmma(vcpu);
++	kfree(vcpu->arch.guest_fpregs.fprs);
+ 	free_page((unsigned long)(vcpu->arch.sie_block));
+ 
+ 	kvm_vcpu_uninit(vcpu);
+@@ -1661,12 +1662,14 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
+ 
+ 	rc = kvm_vcpu_init(vcpu, kvm, id);
+ 	if (rc)
+-		goto out_free_sie_block;
++		goto out_free_fprs;
+ 	VM_EVENT(kvm, 3, "create cpu %d at 0x%pK, sie block at 0x%pK", id, vcpu,
+ 		 vcpu->arch.sie_block);
+ 	trace_kvm_s390_create_vcpu(id, vcpu, vcpu->arch.sie_block);
+ 
+ 	return vcpu;
++out_free_fprs:
++	kfree(vcpu->arch.guest_fpregs.fprs);
+ out_free_sie_block:
+ 	free_page((unsigned long)(vcpu->arch.sie_block));
+ out_free_cpu:
+-- 
+2.3.0
