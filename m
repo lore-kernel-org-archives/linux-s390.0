@@ -1,138 +1,100 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v9 2/6] Documentation, dt, arm64/arm: dt bindings for
- numa.
-Date: Wed, 20 Jan 2016 08:18:06 -0600
-Message-ID: <20160120141806.GA8434@rob-hp-laptop>
+From: Bjorn Helgaas <helgaas@kernel.org>
+Subject: Re: [PATCH v9 1/6] arm64, numa: adding numa support for arm64
+ platforms.
+Date: Tue, 26 Jan 2016 12:52:38 -0600
+Message-ID: <20160126185238.GB17600@localhost>
 References: <1453134965-6125-1-git-send-email-gkulkarni@caviumnetworks.com>
- <1453134965-6125-3-git-send-email-gkulkarni@caviumnetworks.com>
+ <1453134965-6125-2-git-send-email-gkulkarni@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arch-owner@vger.kernel.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1453134965-6125-3-git-send-email-gkulkarni@caviumnetworks.com>
-Sender: linux-arch-owner@vger.kernel.org
+In-Reply-To: <1453134965-6125-2-git-send-email-gkulkarni@caviumnetworks.com>
+Sender: linux-sh-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
-Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arch@vger.kernel.org, Will.Deacon@arm.com, catalin.marinas@arm.com, grant.likely@linaro.org, leif.lindholm@linaro.org, rfranz@cavium.com, ard.biesheuvel@linaro.org, msalter@redhat.com, steve.capper@linaro.org, hanjun.guo@linaro.org, al.stone@linaro.org, arnd@arndb.de, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, rjw@rjwysocki.net, lenb@kernel.org, marc.zyngier@arm.com, lorenzo.pieralisi@arm.com, bhelgaas@google.com, tony.luck@intel.com, fenghua.yu@intel.com, james.hogan@imgtec.com, benh@kernel.crashing.org, tglx@linutronix.de, mingo@redhat.com, hpa@zytor
+Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arch@vger.kernel.org, Will.Deacon@arm.com, catalin.marinas@arm.com, grant.likely@linaro.org, leif.lindholm@linaro.org, rfranz@cavium.com, ard.biesheuvel@linaro.org, msalter@redhat.com, robh+dt@kernel.org, steve.capper@linaro.org, hanjun.guo@linaro.org, al.stone@linaro.org, arnd@arndb.de, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, rjw@rjwysocki.net, lenb@kernel.org, marc.zyngier@arm.com, lorenzo.pieralisi@arm.com, bhelgaas@google.com, tony.luck@intel.com, fenghua.yu@intel.com, james.hogan@imgtec.com, benh@kernel.crashing.org, tglx@linutronix.de, mingo@r
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jan 18, 2016 at 10:06:01PM +0530, Ganapatrao Kulkarni wrote:
-> DT bindings for numa mapping of memory, cores and IOs.
-> 
-> Reviewed-by: Robert Richter <rrichter@cavium.com>
-> Signed-off-by: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
-> ---
->  Documentation/devicetree/bindings/arm/numa.txt | 272 +++++++++++++++++++++++++
->  1 file changed, 272 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/arm/numa.txt
+On Mon, Jan 18, 2016 at 10:06:00PM +0530, Ganapatrao Kulkarni wrote:
+> Adding numa support for arm64 based platforms.
+> This patch adds by default the dummy numa node and
+> maps all memory and cpus to node 0.
+> using this patch, numa can be simulated on single node arm64 platforms.
 
-This is looks okay to me, but some cosmetic things on the example.
-
-> +==============================================================================
-> +4 - Example dts
-> +==============================================================================
+> diff --git a/arch/arm64/include/asm/mmzone.h b/arch/arm64/include/asm/mmzone.h
+> new file mode 100644
+> index 0000000..2cd804d
+> --- /dev/null
+> +++ b/arch/arm64/include/asm/mmzone.h
+> @@ -0,0 +1,18 @@
+> +#ifndef __ASM_MMZONE_H
+> +#define __ASM_MMZONE_H
 > +
-> +2 sockets system consists of 2 boards connected through ccn bus and
-> +each board having one socket/soc of 8 cpus, memory and pci bus.
+> +#ifdef CONFIG_NUMA
 > +
-> +	memory@00c00000 {
-
-Drop the leading 0s on unit addresses.
-
-> +		device_type = "memory";
-> +		reg = <0x0 0x00c00000 0x0 0x80000000>;
-> +		/* node 0 */
-> +		numa-node-id = <0>;
-> +	};
+> +#include <linux/mmdebug.h>
+> +#include <linux/types.h>
 > +
-> +	memory@10000000000 {
-> +		device_type = "memory";
-> +		reg = <0x100 0x00000000 0x0 0x80000000>;
-> +		/* node 1 */
-> +		numa-node-id = <1>;
-> +	};
+> +#include <asm/smp.h>
+> +#include <asm/numa.h>
+
+Are all these #includes really necessary?  s390 looks very similar and
+doesn't need the #includes.
+
+> +extern struct pglist_data *node_data[];
 > +
-> +	cpus {
-> +		#address-cells = <2>;
-> +		#size-cells = <0>;
+> +#define NODE_DATA(nid)		(node_data[(nid)])
 > +
-> +		cpu@000 {
-
-Same here (leaving one of course).
-
-> +			device_type = "cpu";
-> +			compatible =  "arm,armv8";
-> +			reg = <0x0 0x000>;
-> +			enable-method = "psci";
-> +			/* node 0 */
-> +			numa-node-id = <0>;
-> +		};
-> +		cpu@001 {
-
-and so on...
-
-> +			device_type = "cpu";
-> +			compatible =  "arm,armv8";
-> +			reg = <0x0 0x001>;
-
-Either all leading 0s or none.
-
-> +			reg = <0x0 0x008>;
-> +			enable-method = "psci";
-> +			/* node 1 */
-
-Kind of a pointless comment.
-
-Wouldn't each cluster of cpus for a given numa node be in a different 
-cpu affinity? Certainly not required by the architecture, but the common 
-case at least.
-
-> +			numa-node-id = <1>;
-> +		};
-
-[...]
-
-> +	pcie0: pcie0@0x8480,00000000 {
-
-Drop the 0x and the comma.
-
-> +		compatible = "arm,armv8";
-> +		device_type = "pci";
-> +		bus-range = <0 255>;
-> +		#size-cells = <2>;
-> +		#address-cells = <3>;
-> +		reg = <0x8480 0x00000000 0 0x10000000>;  /* Configuration space */
-> +		ranges = <0x03000000 0x8010 0x00000000 0x8010 0x00000000 0x70 0x00000000>;
-> +		/* node 0 */
-> +		numa-node-id = <0>;
-> +        };
+> +#endif /* CONFIG_NUMA */
 > +
-> +	pcie1: pcie1@0x9480,00000000 {
+> +#endif /* __ASM_MMZONE_H */
 
-ditto
-
-> +		compatible = "arm,armv8";
-> +		device_type = "pci";
-> +		bus-range = <0 255>;
-> +		#size-cells = <2>;
-> +		#address-cells = <3>;
-> +		reg = <0x9480 0x00000000 0 0x10000000>;  /* Configuration space */
-> +		ranges = <0x03000000 0x9010 0x00000000 0x9010 0x00000000 0x70 0x00000000>;
-> +		/* node 1 */
-> +		numa-node-id = <1>;
-> +        };
+> diff --git a/arch/arm64/include/asm/numa.h b/arch/arm64/include/asm/numa.h
+> new file mode 100644
+> index 0000000..f28f15b0
+> --- /dev/null
+> +++ b/arch/arm64/include/asm/numa.h
+> @@ -0,0 +1,40 @@
+> +#ifndef __ASM_NUMA_H
+> +#define __ASM_NUMA_H
 > +
-> +	distance-map {
-> +		compatible = "numa-distance-map-v1";
-> +		distance-matrix = <0 0 10>,
-> +				  <0 1 20>,
-> +				  <1 1 10>;
-> +	};
-> -- 
-> 1.8.1.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +#include <linux/nodemask.h>
+> +#include <asm/topology.h>
+> +
+> +#ifdef CONFIG_NUMA
+> +
+> +/* currently, arm64 implements flat NUMA topology */
+> +#define parent_node(node)	(node)
+> +
+> +extern int __node_distance(int from, int to);
+
+Below you add some extern function declarations without the "extern"
+keyword.  I don't know what the convention is for arm64 (I omit the
+"extern" for PCI), but it seems like you should at least be
+consistent.
+
+> +#define node_distance(a, b) __node_distance(a, b)
+> +
+> +extern int cpu_to_node_map[NR_CPUS];
+> +extern nodemask_t numa_nodes_parsed __initdata;
+> +
+> +/* Mappings between node number and cpus on that node. */
+> +extern cpumask_var_t node_to_cpumask_map[MAX_NUMNODES];
+> +extern void numa_clear_node(unsigned int cpu);
+> +#ifdef CONFIG_DEBUG_PER_CPU_MAPS
+> +extern const struct cpumask *cpumask_of_node(int node);
+> +#else
+> +/* Returns a pointer to the cpumask of CPUs on Node 'node'. */
+> +static inline const struct cpumask *cpumask_of_node(int node)
+> +{
+> +	return node_to_cpumask_map[node];
+> +}
+> +#endif
+> +
+> +void __init arm64_numa_init(void);
+> +int __init numa_add_memblk(int nodeid, u64 start, u64 end);
+> +void __init numa_set_distance(int from, int to, int distance);
+> +void __init numa_reset_distance(void);
+> +void numa_store_cpu_info(unsigned int cpu);
