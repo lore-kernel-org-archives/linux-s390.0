@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH/RFC] mm/debug_pagealloc: enable it by default
-References: <1453463080-84320-1-git-send-email-borntraeger@de.ibm.com>
- <20160125064151.GA22557@js1304-P5Q-DELUXE> <56A5DB21.2090300@de.ibm.com>
- <20160125192210.GA20919@codemonkey.org.uk>
- <20160125193820.GA22444@codemonkey.org.uk>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <56A67CDC.6080906@de.ibm.com>
-Date: Mon, 25 Jan 2016 20:51:56 +0100
-MIME-Version: 1.0
-In-Reply-To: <20160125193820.GA22444@codemonkey.org.uk>
-Content-Type: text/plain; charset=windows-1252
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v2 02/16] sparc/compat: Provide an accurate
+ in_compat_syscall implementation
+Date: Tue, 26 Jan 2016 10:04:28 -0800 (PST)
+Message-ID: <20160126.100428.940114886943875601.davem@davemloft.net>
+References: <20160126062951.GA17107@ravnborg.org>
+	<20160125.225100.1932707129794761764.davem@davemloft.net>
+	<20160126174441.GA18873@ravnborg.org>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Dave Jones <davej@codemonkey.org.uk>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, linux-kernel@vger.kernel.org, peterz@infradead.org, heiko.carstens@de.ibm.com, akpm@linux-foundation.org, linux-s390 <linux-s390@vger.kernel.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
+In-Reply-To: <20160126174441.GA18873@ravnborg.org>
+Sender: sparclinux-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: sam@ravnborg.org
+Cc: luto@kernel.org, akpm@linux-foundation.org, viro@zeniv.linux.org.uk, torvalds@linux-foundation.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, cmetcalf@ezchip.com, linux-parisc@vger.kernel.org, linux-mips@linux-mips.org, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 01/25/2016 08:38 PM, Dave Jones wrote:
->  Content preview:  On Mon, Jan 25, 2016 at 02:22:10PM -0500, Dave Jones wrote:
->     > > A default mode would be ok for me as it makes things obvious. Will send
->     > > a patch. > > The messaging around changing a default like this was really
->     poor. > When we do behaviour changes like this, we typically rename the CONFIG
->     option > to make it obvious that things aren't as they used to be. [...] 
-> 
->  Content analysis details:   (-2.9 points, 5.0 required)
-> 
->   pts rule name              description
->  ---- ---------------------- --------------------------------------------------
->  -1.0 ALL_TRUSTED            Passed through trusted hosts only via SMTP
->  -1.9 BAYES_00               BODY: Bayes spam probability is 0 to 1%
->                              [score: 0.0000]
-> X-ZLA-Header: unknown; 0
-> X-ZLA-DetailInfo: BA=6.00004114; NDR=6.00000001; ZLA=6.00000005; ZF=6.00000009; ZB=6.00000000; ZH=6.00000000; ZP=6.00000000; ZU=6.00000002; UDB=6.00294159; UTC=2016-01-25 19:38:24
-> x-cbid: 16012519-0041-0000-0000-0000074865D5
-> X-IBM-ISS-SpamDetectors: Score=0.40962; FLB=0; FLI=0; BY=0; FL=0; FP=0; FZ=0;
->  HX=0; KW=0; PH=0; RB=0; SC=0.40962; ST=0; TS=0; UL=0; ISC=
-> X-IBM-ISS-DetailInfo:  BY=3.00004831; HX=3.00000240; KW=3.00000007;
->  PH=3.00000004; SC=3.00000137; SDB=6.00650474; UDB=6.00294159; UTC=2016-01-25
->  19:38:24
-> X-TM-AS-MML: disable
-> 
-> On Mon, Jan 25, 2016 at 02:22:10PM -0500, Dave Jones wrote:
-> 
->  >  > A default mode would be ok for me as it makes things obvious. Will send
->  >  > a patch.
->  > 
->  > The messaging around changing a default like this was really poor.
->  > When we do behaviour changes like this, we typically rename the CONFIG option
->  > to make it obvious that things aren't as they used to be.
-> 
-> Looking at this closer, shouldn't the original diff to make this runtime
-> have also changed the x86 implementation details in arch/x86/mm/pageattr.c ?
-> Even when we don't boot with the enable flag, we're doing the "split 2M page into 4Ks"
-> thing.  It looks like a s/debug_pagealloc/debug_pagealloc_enabled()/ might
-> do the right thing maybe ?
+From: Sam Ravnborg <sam@ravnborg.org>
+Date: Tue, 26 Jan 2016 18:44:41 +0100
 
-I have some patches ready, that fix the identity mapping for s390 and x86. sparc
-is hard to do as it allocates the TSB very early. Will send around what I have soon.
+> On Mon, Jan 25, 2016 at 10:51:00PM -0800, David Miller wrote:
+>> From: Sam Ravnborg <sam@ravnborg.org>
+>> Date: Tue, 26 Jan 2016 07:29:51 +0100
+>> 
+>> > Could you please add a comment about where 0x110 comes from.
+>> > I at least failed to track this down.
+>> 
+>> Frankly I'm fine with this.  Someone who understands sparc64 can look
+>> at the trap table around entry 0x110 and see:
+>> 
+>> tl0_resv10e:	BTRAP(0x10e) BTRAP(0x10f)
+>> tl0_linux32:	LINUX_32BIT_SYSCALL_TRAP
+>> tl0_oldlinux64:	LINUX_64BIT_SYSCALL_TRAP
+> 
+> If one realise to look in the trap table in the first place - yes.
+> 
+> Adding a short:
+> 
+> /* Check if this is LINUX_32BIT_SYSCALL_TRAP */
+> Would make wonders to readability.
+
+Fair enough.
