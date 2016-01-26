@@ -1,71 +1,124 @@
 From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Tue, 26 Jan 2016 12:13:39 -0800
-Message-ID: <20160126201339.GW4503@linux.vnet.ibm.com>
-References: <56980C91.1010403@imgtec.com>
-	<20160114212913.GF3818@linux.vnet.ibm.com>
-	<20160115085554.GF3421@worktop> <20160115091348.GA27936@worktop>
-	<20160115174612.GV3818@linux.vnet.ibm.com>
-	<20160115212714.GM3421@worktop>
-	<20160115215853.GC3818@linux.vnet.ibm.com>
-	<20160125164242.GF22927@arm.com>
-	<20160126060322.GJ4503@linux.vnet.ibm.com>
-	<20160126101927.GD6357@twins.programming.kicks-ass.net>
+Date: Tue, 26 Jan 2016 12:10:37 -0800
+Message-ID: <20160126201037.GU4503@linux.vnet.ibm.com>
+References: <20160114204827.GE3818@linux.vnet.ibm.com>
+ <20160118081929.GA30420@gondor.apana.org.au>
+ <20160118154629.GB3818@linux.vnet.ibm.com>
+ <20160126165207.GB6029@fixme-laptop.cn.ibm.com>
+ <20160126172227.GG6357@twins.programming.kicks-ass.net>
+ <CA+55aFzcC6C8imPs5vk4yH1Y2YHjnAdFM9HCkVs04COxuDQH6w@mail.gmail.com>
 Reply-To: paulmck@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160126101927.GD6357@twins.programming.kicks-ass.net>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+In-Reply-To: <CA+55aFzcC6C8imPs5vk4yH1Y2YHjnAdFM9HCkVs04COxuDQH6w@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>, Herbert Xu <herbert@gondor.apana.org.au>, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, linux-mips <linux-mips@linux-mips.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Will Deacon <will.deacon@arm.com>, virtualization <virtualization@lists.linux-foundation.org>, Peter Anvin <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Russell King - ARM Linux <linux@arm.linux.org.uk>, uml-devel <user-mode-linux-devel@lists.sourceforge.net>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, the arch/x86 maintainers <x86@kernel.org>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linu
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jan 26, 2016 at 11:19:27AM +0100, Peter Zijlstra wrote:
-> On Mon, Jan 25, 2016 at 10:03:22PM -0800, Paul E. McKenney wrote:
-> > On Mon, Jan 25, 2016 at 04:42:43PM +0000, Will Deacon wrote:
-> > > On Fri, Jan 15, 2016 at 01:58:53PM -0800, Paul E. McKenney wrote:
-> > > > On Fri, Jan 15, 2016 at 10:27:14PM +0100, Peter Zijlstra wrote:
-> 
-> > > > > Yes, that seems a good start. But yesterday you raised the 'fun' point
-> > > > > of two globally ordered sequences connected by a single local link.
-> > > > 
-> > > > The conclusion that I am slowly coming to is that litmus tests should
-> > > > not be thought of as linear chains, but rather as cycles.  If you think
-> > > > of it as a cycle, then it doesn't matter where the local link is, just
-> > > > how many of them and how they are connected.
-> > > 
-> > > Do you have some examples of this? I'm struggling to make it work in my
-> > > mind, or are you talking specifically in the context of the kernel
-> > > memory model?
-> > 
-> > Now that you mention it, maybe it would be best to keep the transitive
-> > and non-transitive separate for the time being anyway.  Just because it
-> > might be possible to deal with does not necessarily mean that we should
-> > be encouraging it.  ;-)
-> 
-> So isn't smp_mb__after_unlock_lock() exactly such a scenario? And would
-> not someone trying to implement RCsc locks using locally transitive
-> RELEASE/ACQUIRE operations need exactly this stuff?
-> 
-> That is, I am afraid we need to cover the mix of local and global
-> transitive operations at least in overview.
+On Tue, Jan 26, 2016 at 11:44:46AM -0800, Linus Torvalds wrote:
+> On Tue, Jan 26, 2016 at 9:22 AM, Peter Zijlstra <peterz@infradead.org=
+> wrote:
+> >
+> > This is distinct from:
+>=20
+> That may be distinct, but:
+>=20
+> >         struct foo *x =3D READ_ONCE(*ptr);
+> >         smp_read_barrier_depends();
+> >         x->bar =3D 5;
+>=20
+> This case is complete BS. Stop perpetuating it. I already removed a
+> number of bogus cases of it, and I removed the incorrect documentatio=
+n
+> that had this crap.
 
-True, but we haven't gotten to locking yet.  That said, I would argue
-that smp_mb__after_unlock_lock() upgrades locks to transitive, and
-thus would not be an exception to the "no combining transitive and
-non-transitive steps in cycles" rule.
+If I understand your objection correctly, you want the above pattern
+expressed either like this:
+
+	struct foo *x =3D rcu_dereference(*ptr);
+	x->bar =3D 5;
+
+Or like this:
+
+	struct foo *x =3D lockless_dereference(*ptr);
+	x->bar =3D 5;
+
+Or am I missing your point?
+
+> It's called "smp_READ_barrier_depends()" for a reason.
+>=20
+> Alpha is the only one that needs it, and alpha needs it only for
+> dependent READS.
+>=20
+> It's not called smp_read_write_barrier_depends(). It's not called
+> "smp_mb_depends()". It's a weaker form of "smp_rmb()", nothing else.
+>=20
+> So alpha does have an implied dependency chain from a read to a
+> subsequent dependent write, and does not need any extra barriers.
+>=20
+> Alpha does *not* have a dependency chain from a read to a subsequent
+> read, which is why we need that horrible crappy
+> smp_read_barrier_depends(). But it's the only reason.
+>=20
+> This is the alpha reference manual wrt read-to-write dependency:
+>=20
+>   5.6.1.7 Definition of Dependence Constraint
+>=20
+>     The depends relation (DP) is defined as follows. Given u and v
+> issued by processor Pi, where u
+>     is a read or an instruction fetch and v is a write, u precedes v
+> in DP order (written u DP v, that
+>     is, v depends on u) in either of the following situations:
+>=20
+>      =E2=80=A2 u determines the execution of v, the location accessed=
+ by v, or
+> the value written by v.
+>      =E2=80=A2 u determines the execution or address or value of anot=
+her
+> memory access z that precedes
+>=20
+>     v or might precede v (that is, would precede v in some execution
+> path depending
+>     on the value read by u) by processor issue constraint (see Sectio=
+n 5.6.1.3).
+>=20
+> Note that the dependence barrier honors not only control flow, but
+> address and data values too.  This is a different syntax than we use,
+> but 'u' is the READ_ONCE, and 'v' is the write. Any data, address or
+> conditional dependency between the two implies an ordering.
+>=20
+> So no, "smp_read_barrier_depends()" is *ONLY* about two reads, where
+> the second read is data-dependent on the first. Nothing else.
+>=20
+> So if you _ever_ see a "smp_read_barrier_depends()" that isn't about =
+a
+> barrier between two reads, then that is a bug.
+
+And the smp_read_barrier_depends() in both rcu_dereference() and
+in lockless_dereference() is ordering the read-to-read case and the
+underlying hardware is ordering the read-to-write case on weakly ordere=
+d
+hardware.
+
+Or, again, am I missing your point?
 
 							Thanx, Paul
+
+> The above code is crap.  It's exactly as much crap as
+>=20
+>    a =3D READ_ONCE(x);
+>    smp_rmb();
+>    WRITE_ONCE(b, y);
+>=20
+> because a "rmb()" simply doesn't have anything to do with
+> read-vs-subsequent-write ordering.
+>=20
+>                  Linus
+>=20
