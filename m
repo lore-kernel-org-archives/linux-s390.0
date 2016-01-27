@@ -1,14 +1,13 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH v2 1/3] mm: provide debug_pagealloc_enabled() without
- CONFIG_DEBUG_PAGEALLOC
-Date: Wed, 27 Jan 2016 10:15:35 +0100 (CET)
-Message-ID: <alpine.DEB.2.11.1601271015220.3886@nanos>
-References: <1453884618-33852-1-git-send-email-borntraeger@de.ibm.com> <1453884618-33852-2-git-send-email-borntraeger@de.ibm.com>
+Subject: Re: [PATCH v2 2/3] x86: query dynamic DEBUG_PAGEALLOC setting
+Date: Wed, 27 Jan 2016 10:16:01 +0100 (CET)
+Message-ID: <alpine.DEB.2.11.1601271015380.3886@nanos>
+References: <1453884618-33852-1-git-send-email-borntraeger@de.ibm.com> <1453884618-33852-3-git-send-email-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1453884618-33852-2-git-send-email-borntraeger@de.ibm.com>
-Sender: linux-arch-owner@vger.kernel.org
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <1453884618-33852-3-git-send-email-borntraeger@de.ibm.com>
+Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>
@@ -17,10 +16,19 @@ List-ID: <linux-s390.vger.kernel.org>
 
 On Wed, 27 Jan 2016, Christian Borntraeger wrote:
 
-> We can provide debug_pagealloc_enabled() also if CONFIG_DEBUG_PAGEALLOC
-> is not set. It will return false in that case.
+> We can use debug_pagealloc_enabled() to check if we can map
+> the identity mapping with 2MB pages. We can also add the state
+> into the dump_stack output.
+> 
+> The patch does not touch the code for the 1GB pages, which ignored
+> CONFIG_DEBUG_PAGEALLOC. Do we need to fence this as well?
 > 
 > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Acked-by: David Rientjes <rientjes@google.com>
 
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
