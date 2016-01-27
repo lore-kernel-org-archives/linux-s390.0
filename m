@@ -1,11 +1,11 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v2 3/3] s390: query dynamic DEBUG_PAGEALLOC setting
-Date: Wed, 27 Jan 2016 09:50:18 +0100
-Message-ID: <1453884618-33852-4-git-send-email-borntraeger@de.ibm.com>
+Subject: [PATCH v2 2/3] x86: query dynamic DEBUG_PAGEALLOC setting
+Date: Wed, 27 Jan 2016 09:50:17 +0100
+Message-ID: <1453884618-33852-3-git-send-email-borntraeger@de.ibm.com>
 References: <1453884618-33852-1-git-send-email-borntraeger@de.ibm.com>
-Return-path: <owner-linux-mm@kvack.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1453884618-33852-1-git-send-email-borntraeger@de.ibm.com>
-Sender: owner-linux-mm@kvack.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
@@ -13,89 +13,99 @@ Cc: akpm@linux-foundation.org, linux-mm@kvack.org, linux-arch@vger.kernel.org, l
 List-ID: <linux-s390.vger.kernel.org>
 
 We can use debug_pagealloc_enabled() to check if we can map
-the identity mapping with 1MB/2GB pages as well as to print
-the current setting in dump_stack.
+the identity mapping with 2MB pages. We can also add the state
+into the dump_stack output.
+
+The patch does not touch the code for the 1GB pages, which ignored
+CONFIG_DEBUG_PAGEALLOC. Do we need to fence this as well?
 
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kernel/dumpstack.c |  8 ++++----
- arch/s390/mm/vmem.c          | 10 ++++------
- 2 files changed, 8 insertions(+), 10 deletions(-)
+ arch/x86/kernel/dumpstack.c |  5 ++---
+ arch/x86/mm/init.c          |  7 ++++---
+ arch/x86/mm/pageattr.c      | 14 ++++----------
+ 3 files changed, 10 insertions(+), 16 deletions(-)
 
-diff --git a/arch/s390/kernel/dumpstack.c b/arch/s390/kernel/dumpstack.c
-index dc8e204..3f352e9 100644
---- a/arch/s390/kernel/dumpstack.c
-+++ b/arch/s390/kernel/dumpstack.c
-@@ -11,6 +11,7 @@
- #include <linux/export.h>
- #include <linux/kdebug.h>
- #include <linux/ptrace.h>
-+#include <linux/mm.h>
- #include <linux/module.h>
- #include <linux/sched.h>
- #include <asm/processor.h>
-@@ -184,10 +185,9 @@ void die(struct pt_regs *regs, const char *str)
- #endif
+diff --git a/arch/x86/kernel/dumpstack.c b/arch/x86/kernel/dumpstack.c
+index 9c30acf..32e5699 100644
+--- a/arch/x86/kernel/dumpstack.c
++++ b/arch/x86/kernel/dumpstack.c
+@@ -265,9 +265,8 @@ int __die(const char *str, struct pt_regs *regs, long err)
  #ifdef CONFIG_SMP
  	printk("SMP ");
--#endif
+ #endif
 -#ifdef CONFIG_DEBUG_PAGEALLOC
--	printk("DEBUG_PAGEALLOC");
+-	printk("DEBUG_PAGEALLOC ");
 -#endif
-+#endif	
-+if (debug_pagealloc_enabled())
-+		printk("DEBUG_PAGEALLOC");
- 	printk("\n");
- 	notify_die(DIE_OOPS, str, regs, 0, regs->int_code & 0xffff, SIGSEGV);
- 	print_modules();
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index ef7d6c8..d27fccba 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -94,16 +94,15 @@ static int vmem_add_mem(unsigned long start, unsigned long size, int ro)
- 			pgd_populate(&init_mm, pg_dir, pu_dir);
- 		}
- 		pu_dir = pud_offset(pg_dir, address);
--#ifndef CONFIG_DEBUG_PAGEALLOC
- 		if (MACHINE_HAS_EDAT2 && pud_none(*pu_dir) && address &&
--		    !(address & ~PUD_MASK) && (address + PUD_SIZE <= end)) {
-+		    !(address & ~PUD_MASK) && (address + PUD_SIZE <= end) &&
-+		     !debug_pagealloc_enabled()) {
- 			pud_val(*pu_dir) = __pa(address) |
- 				_REGION_ENTRY_TYPE_R3 | _REGION3_ENTRY_LARGE |
- 				(ro ? _REGION_ENTRY_PROTECT : 0);
- 			address += PUD_SIZE;
- 			continue;
- 		}
++	if (debug_pagealloc_enabled())
++		printk("DEBUG_PAGEALLOC ");
+ #ifdef CONFIG_KASAN
+ 	printk("KASAN");
+ #endif
+diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
+index 493f541..39823fd 100644
+--- a/arch/x86/mm/init.c
++++ b/arch/x86/mm/init.c
+@@ -150,13 +150,14 @@ static int page_size_mask;
+ 
+ static void __init probe_page_size_mask(void)
+ {
+-#if !defined(CONFIG_DEBUG_PAGEALLOC) && !defined(CONFIG_KMEMCHECK)
++#if !defined(CONFIG_KMEMCHECK)
+ 	/*
+-	 * For CONFIG_DEBUG_PAGEALLOC, identity mapping will use small pages.
++	 * For CONFIG_KMEMCHECK or pagealloc debugging, identity mapping will
++	 * use small pages.
+ 	 * This will simplify cpa(), which otherwise needs to support splitting
+ 	 * large pages into small in interrupt context, etc.
+ 	 */
+-	if (cpu_has_pse)
++	if (cpu_has_pse && !debug_pagealloc_enabled())
+ 		page_size_mask |= 1 << PG_LEVEL_2M;
+ #endif
+ 
+diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
+index a3137a4..a49c8fd 100644
+--- a/arch/x86/mm/pageattr.c
++++ b/arch/x86/mm/pageattr.c
+@@ -103,12 +103,6 @@ static inline unsigned long highmap_end_pfn(void)
+ 
+ #endif
+ 
+-#ifdef CONFIG_DEBUG_PAGEALLOC
+-# define debug_pagealloc 1
+-#else
+-# define debug_pagealloc 0
 -#endif
- 		if (pud_none(*pu_dir)) {
- 			pm_dir = vmem_pmd_alloc();
- 			if (!pm_dir)
-@@ -111,9 +110,9 @@ static int vmem_add_mem(unsigned long start, unsigned long size, int ro)
- 			pud_populate(&init_mm, pu_dir, pm_dir);
- 		}
- 		pm_dir = pmd_offset(pu_dir, address);
--#ifndef CONFIG_DEBUG_PAGEALLOC
- 		if (MACHINE_HAS_EDAT1 && pmd_none(*pm_dir) && address &&
--		    !(address & ~PMD_MASK) && (address + PMD_SIZE <= end)) {
-+		    !(address & ~PMD_MASK) && (address + PMD_SIZE <= end) &&
-+		    !debug_pagealloc_enabled()) {
- 			pmd_val(*pm_dir) = __pa(address) |
- 				_SEGMENT_ENTRY | _SEGMENT_ENTRY_LARGE |
- 				_SEGMENT_ENTRY_YOUNG |
-@@ -121,7 +120,6 @@ static int vmem_add_mem(unsigned long start, unsigned long size, int ro)
- 			address += PMD_SIZE;
- 			continue;
- 		}
--#endif
- 		if (pmd_none(*pm_dir)) {
- 			pt_dir = vmem_pte_alloc(address);
- 			if (!pt_dir)
+-
+ static inline int
+ within(unsigned long addr, unsigned long start, unsigned long end)
+ {
+@@ -703,10 +697,10 @@ static int split_large_page(struct cpa_data *cpa, pte_t *kpte,
+ {
+ 	struct page *base;
+ 
+-	if (!debug_pagealloc)
++	if (!debug_pagealloc_enabled())
+ 		spin_unlock(&cpa_lock);
+ 	base = alloc_pages(GFP_KERNEL | __GFP_NOTRACK, 0);
+-	if (!debug_pagealloc)
++	if (!debug_pagealloc_enabled())
+ 		spin_lock(&cpa_lock);
+ 	if (!base)
+ 		return -ENOMEM;
+@@ -1326,10 +1320,10 @@ static int __change_page_attr_set_clr(struct cpa_data *cpa, int checkalias)
+ 		if (cpa->flags & (CPA_ARRAY | CPA_PAGES_ARRAY))
+ 			cpa->numpages = 1;
+ 
+-		if (!debug_pagealloc)
++		if (!debug_pagealloc_enabled())
+ 			spin_lock(&cpa_lock);
+ 		ret = __change_page_attr(cpa, checkalias);
+-		if (!debug_pagealloc)
++		if (!debug_pagealloc_enabled())
+ 			spin_unlock(&cpa_lock);
+ 		if (ret)
+ 			return ret;
 -- 
 2.3.0
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
