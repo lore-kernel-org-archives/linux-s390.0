@@ -1,93 +1,49 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH] documentation: Add disclaimer
-Date: Wed, 27 Jan 2016 09:35:46 +0100
-Message-ID: <20160127083546.GJ6357@twins.programming.kicks-ass.net>
-References: <5696BA6E.4070508@imgtec.com> <20160114120445.GB15828@arm.com>
- <56980145.5030901@imgtec.com>
- <20160114204827.GE3818@linux.vnet.ibm.com>
- <56981212.7050301@imgtec.com>
- <20160114222046.GH3818@linux.vnet.ibm.com>
- <20160126102402.GE6357@twins.programming.kicks-ass.net>
- <20160126103200.GI6375@twins.programming.kicks-ass.net>
- <20160126110053.GA21553@arm.com>
- <20160126201143.GV4503@linux.vnet.ibm.com>
+Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
+Date: Wed, 27 Jan 2016 09:39:05 +0100
+Message-ID: <20160127083905.GK6357@twins.programming.kicks-ass.net>
+References: <20160114212913.GF3818@linux.vnet.ibm.com>
+ <20160115085554.GF3421@worktop>
+ <20160115091348.GA27936@worktop>
+ <20160115174612.GV3818@linux.vnet.ibm.com>
+ <20160115212714.GM3421@worktop>
+ <20160115215853.GC3818@linux.vnet.ibm.com>
+ <20160125164242.GF22927@arm.com>
+ <20160126060322.GJ4503@linux.vnet.ibm.com>
+ <20160126101927.GD6357@twins.programming.kicks-ass.net>
+ <20160126201339.GW4503@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160126201143.GV4503@linux.vnet.ibm.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+In-Reply-To: <20160126201339.GW4503@linux.vnet.ibm.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-metag@vger.kernel.orgl
+Cc: Will Deacon <will.deacon@arm.com>, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, Joe Perches <joe@perches.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge.net, adi-buildroot-devel@lists.sourceforge.ne
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jan 26, 2016 at 12:11:43PM -0800, Paul E. McKenney wrote:
-> So Peter, would you like to update your patch to include yourself
-> and Will as authors?
+On Tue, Jan 26, 2016 at 12:13:39PM -0800, Paul E. McKenney wrote:
+> On Tue, Jan 26, 2016 at 11:19:27AM +0100, Peter Zijlstra wrote:
 
-Sure, here goes.
+> > So isn't smp_mb__after_unlock_lock() exactly such a scenario? And would
+> > not someone trying to implement RCsc locks using locally transitive
+> > RELEASE/ACQUIRE operations need exactly this stuff?
+> > 
+> > That is, I am afraid we need to cover the mix of local and global
+> > transitive operations at least in overview.
+> 
+> True, but we haven't gotten to locking yet.
 
----
-Subject: documentation: Add disclaimer
+The mythical smp_mb__after_release_acquire() then ;-)
 
-It appears people are reading this document as a requirements list for
-building hardware. This is not the intent of this document. Nor is it
-particularly suited for this purpose.
+(and yes, I know you're going to say we don't have that)
 
-The primary purpose of this document is our collective attempt to define
-a set of primitives that (hopefully) allow us to write correct code on
-the myriad of SMP platforms Linux supports.
+> That said, I would argue
+> that smp_mb__after_unlock_lock() upgrades locks to transitive, and
+> thus would not be an exception to the "no combining transitive and
+> non-transitive steps in cycles" rule.
 
-Its a definite work in progress as our understanding of these platforms,
-and memory ordering in general, progresses.
-
-Nor does being mentioned in this document mean we think its a
-particularly good idea; the data dependency barrier required by Alpha
-being a prime example. Yes we have it, no you're insane to require it
-when building new hardware.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- Documentation/memory-barriers.txt | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
-
-diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
-index a61be39c7b51..98626125f484 100644
---- a/Documentation/memory-barriers.txt
-+++ b/Documentation/memory-barriers.txt
-@@ -4,8 +4,24 @@
- 
- By: David Howells <dhowells@redhat.com>
-     Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-+    Will Deacon <will.deacon@arm.com>
-+    Peter Zijlstra <peterz@infradead.org>
- 
--Contents:
-+==========
-+DISCLAIMER
-+==========
-+
-+This document is not a specification; it is intentionally (for the sake of
-+brevity) and unintentionally (due to being human) incomplete. This document is
-+meant as a guide to using the various memory barriers provided by Linux, but
-+in case of any doubt (and there are many) please ask.
-+
-+I repeat, this document is not a specification of what Linux expects from
-+hardware.
-+
-+========
-+CONTENTS
-+========
- 
-  (*) Abstract memory access model.
+But But But ;-) It does that exactly by combining. I suspect this is
+(partly) the source of your SC chains with one PC link example.
