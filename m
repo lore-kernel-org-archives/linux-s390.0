@@ -1,71 +1,42 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH 2/3] lib: add "on" and "off" to strtobool
-Date: Thu, 28 Jan 2016 06:17:06 -0800
-Message-ID: <1453990627-19164-3-git-send-email-keescook@chromium.org>
-References: <1453990627-19164-1-git-send-email-keescook@chromium.org>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1453990627-19164-1-git-send-email-keescook@chromium.org>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-cifs/>
-List-Post: <mailto:linux-cifs@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Kees Cook <keescook@chromium.org>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Daniel Borkmann <daniel@iogearbox.net>, Joe Perches <joe@perches.com>, Amitkumar Karwar <akarwar@marvell.com>, Nishant Sarmukadam <nishants@marvell.com>, Kalle Valo <kvalo@codeaurora.org>, Steve French <sfrench@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, linux-cifs@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Jeffrey Merkey <jeffmerkey@gmail.com>
+Subject: [PATCH 08/31] Add debugger entry points for S390
+Date: Thu, 28 Jan 2016 12:46:33 -0700
+Message-Id: <1454010393-28719-1-git-send-email-jeffmerkey@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, linux.mdb@gmail.com, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Several places in the kernel expect to use "on" and "off" for their
-boolean signifiers, so add them to strtobool.
+This patch series adds an export which can be set by system debuggers to
+direct the hard lockup and soft lockup detector to trigger a breakpoint
+exception and enter a debugger if one is active.  It is assumed that if
+someone sets this variable, then an breakpoint handler of some sort will
+be actively loaded or registered via the notify die handler chain.
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
+This addition is extremely useful for debugging hard and soft lockups
+real time and quickly from a console debugger.
+
+Signed-off-by: Jeffrey Merkey <jeffmerkey@gmail.com>
 ---
- lib/string.c | 24 +++++++++++++++++++++---
- 1 file changed, 21 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/kdebug.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/lib/string.c b/lib/string.c
-index 0323c0d5629a..091570708db7 100644
---- a/lib/string.c
-+++ b/lib/string.c
-@@ -635,12 +635,15 @@ EXPORT_SYMBOL(sysfs_streq);
-  * @s: input string
-  * @res: result
-  *
-- * This routine returns 0 iff the first character is one of 'Yy1Nn0'.
-- * Otherwise it will return -EINVAL.  Value pointed to by res is
-- * updated upon finding a match.
-+ * This routine returns 0 iff the first character is one of 'Yy1Nn0', or
-+ * [oO][NnFf] for "on" and "off". Otherwise it will return -EINVAL.  Value
-+ * pointed to by res is updated upon finding a match.
-  */
- int strtobool(const char *s, bool *res)
- {
-+	if (!s)
-+		return -EINVAL;
+diff --git a/arch/s390/include/asm/kdebug.h b/arch/s390/include/asm/kdebug.h
+index 5c1abd4..8e7d6c3 100644
+--- a/arch/s390/include/asm/kdebug.h
++++ b/arch/s390/include/asm/kdebug.h
+@@ -24,4 +24,9 @@ enum die_val {
+ 
+ extern void die(struct pt_regs *, const char *);
+ 
 +
- 	switch (s[0]) {
- 	case 'y':
- 	case 'Y':
-@@ -652,6 +655,21 @@ int strtobool(const char *s, bool *res)
- 	case '0':
- 		*res = false;
- 		break;
-+	case 'o':
-+	case 'O':
-+		switch (s[1]) {
-+		case 'n':
-+		case 'N':
-+			*res = true;
-+			break;
-+		case 'f':
-+		case 'F':
-+			*res = false;
-+			break;
-+		default:
-+			return -EINVAL;
-+		}
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
++static inline void arch_breakpoint(void)
++{
++}
++
+ #endif
 -- 
-2.6.3
+1.8.3.1
