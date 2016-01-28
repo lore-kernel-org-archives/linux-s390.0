@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Reply-To: xlpang@redhat.com
+Date: Thu, 28 Jan 2016 14:29:06 +0800
+From: Minfei Huang <mhuang@redhat.com>
 Subject: Re: [PATCH] kexec: unmap reserved pages for each error-return way
+Message-ID: <20160128062906.GA4170@dhcp-128-25.nay.redhat.com>
 References: <1453895311-11087-1-git-send-email-dsafonov@virtuozzo.com>
-From: Xunlei Pang <xpang@redhat.com>
-Message-ID: <56A98CD6.1000900@redhat.com>
-Date: Thu, 28 Jan 2016 11:36:54 +0800
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <1453895311-11087-1-git-send-email-dsafonov@virtuozzo.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Dmitry Safonov <dsafonov@virtuozzo.com>, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ebiederm@xmission.com, akpm@linux-foundation.org
-Cc: linux-s390@vger.kernel.org, 0x7f454c46@gmail.com, kexec@lists.infradead.org, holzheu@linux.vnet.ibm.com, dyoung@redhat.com
+To: Dmitry Safonov <dsafonov@virtuozzo.com>
+Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, ebiederm@xmission.com, akpm@linux-foundation.org, linux-s390@vger.kernel.org, 0x7f454c46@gmail.com, kexec@lists.infradead.org, holzheu@linux.vnet.ibm.com, dyoung@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 2016/01/27 at 19:48, Dmitry Safonov wrote:
+On 01/27/16 at 02:48pm, Dmitry Safonov wrote:
 > For allocation of kimage failure or kexec_prepare or load segments
 > errors there is no need to keep crashkernel memory mapped.
 > It will affect only s390 as map/unmap hook defined only for it.
 > As on unmap s390 also changes os_info structure let's check return code
 > and add info only on success.
->
-> Signed-off-by: Dmitry Safonov <dsafonov@virtuozzo.com>
-> ---
->  arch/s390/kernel/machine_kexec.c | 39 +++++++++++++++++----------------------
->  include/linux/kexec.h            |  2 +-
->  kernel/kexec.c                   |  4 ++--
->  kernel/kexec_core.c              |  4 ++--
->  4 files changed, 22 insertions(+), 27 deletions(-)
->
-> diff --git a/arch/s390/kernel/machine_kexec.c b/arch/s390/kernel/machine_kexec.c
-> index 2f1b721..60bf374 100644
-> --- a/arch/s390/kernel/machine_kexec.c
-> +++ b/arch/s390/kernel/machine_kexec.c
-> @@ -49,7 +49,7 @@ static int machine_kdump_pm_cb(struct notifier_block *nb, unsigned long action,
->  	case PM_POST_SUSPEND:
->  	case PM_POST_HIBERNATION:
->  		if (crashk_res.start)
-> -			crash_unmap_reserved_pages();
-> +			crash_unmap_reserved_pages(0);
->  		break;
->  	default:
->  		return NOTIFY_DONE;
+
+Hi, Dmitry.
+
+Previously, I sent a patch to fix this issue. You can refer it in
+following link.
+
+http://lists.infradead.org/pipermail/kexec/2015-July/013960.html
+
+And this patch is fixed from kexec.
+
+If crash_map_reserved_pages fails to map reserved memory, is it
+necessary to continue the process on s390? If no, it is better to enter
+the error handle path, then return. Thus there is no need to pass the
+parameter to indicate the error or not.
+
 > @@ -147,39 +147,34 @@ static int kdump_csum_valid(struct kimage *image)
 >  }
 >  
@@ -77,6 +69,10 @@ On 2016/01/27 at 19:48, Dmitry Safonov wrote:
 > -	crash_map_pages(1);
 > +	vmem_add_mapping(crashk_res.start, size);
 >  }
+
+It is fine to cleanup this function. And add the logic into function
+crash_unmap_reserved_pages.
+
 >  
 >  /*
 >   * Unmap crashkernel memory
@@ -98,75 +94,8 @@ On 2016/01/27 at 19:48, Dmitry Safonov wrote:
 > +	else
 > +		os_info_crashkernel_add(0, 0);
 >  }
-
-I think it doesn't hurt doing os_info_crashkernel_add() multiple times which will make
-the code cleaner.
-
 >  
 >  /*
-> diff --git a/include/linux/kexec.h b/include/linux/kexec.h
-> index 2cc643c..ef3bd1e 100644
-> --- a/include/linux/kexec.h
-> +++ b/include/linux/kexec.h
-> @@ -231,7 +231,7 @@ int kexec_should_crash(struct task_struct *);
->  void crash_save_cpu(struct pt_regs *regs, int cpu);
->  void crash_save_vmcoreinfo(void);
->  void crash_map_reserved_pages(void);
-> -void crash_unmap_reserved_pages(void);
-> +void crash_unmap_reserved_pages(int error);
->  void arch_crash_save_vmcoreinfo(void);
->  __printf(1, 2)
->  void vmcoreinfo_append_str(const char *fmt, ...);
-> diff --git a/kernel/kexec.c b/kernel/kexec.c
-> index ee70aef..dfc6c18 100644
-> --- a/kernel/kexec.c
-> +++ b/kernel/kexec.c
-> @@ -204,13 +204,13 @@ SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments,
->  				goto out;
->  		}
->  		kimage_terminate(image);
-> -		if (flags & KEXEC_ON_CRASH)
-> -			crash_unmap_reserved_pages();
->  	}
->  	/* Install the new kernel, and  Uninstall the old */
->  	image = xchg(dest_image, image);
->  
->  out:
-> +	if ((flags & KEXEC_ON_CRASH) && (nr_segments > 0))
-> +		crash_unmap_reserved_pages(result);
->  	mutex_unlock(&kexec_mutex);
->  	kimage_free(image);
 
-Shouldn't we do the similar thing for kexec_file_load()?
-
->  
-> diff --git a/kernel/kexec_core.c b/kernel/kexec_core.c
-> index 8dc6591..cae5d11 100644
-> --- a/kernel/kexec_core.c
-> +++ b/kernel/kexec_core.c
-> @@ -965,7 +965,7 @@ int crash_shrink_memory(unsigned long new_size)
->  	crashk_res.end = end - 1;
->  
->  	insert_resource(&iomem_resource, ram_res);
-> -	crash_unmap_reserved_pages();
-> +	crash_unmap_reserved_pages(0);
-
-If using arch_kexec_unprotect/protect_crashkres(), we don't need this since there's a judge at the entry :-)
-    if (kexec_crash_image) {
-        ret = -ENOENT;
-        goto unlock;
-    }
-
-Regards,
-Xunlei
-
->  
->  unlock:
->  	mutex_unlock(&kexec_mutex);
-> @@ -1555,5 +1555,5 @@ int kernel_kexec(void)
->  void __weak crash_map_reserved_pages(void)
->  {}
->  
-> -void __weak crash_unmap_reserved_pages(void)
-> +void __weak crash_unmap_reserved_pages(int error)
->  {}
+Thanks
+Minfei
