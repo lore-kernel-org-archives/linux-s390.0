@@ -1,82 +1,26 @@
-From: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
-Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Wed, 27 Jan 2016 16:58:39 -0800
-Message-ID: <56A967BF.70200@imgtec.com>
-References: <20160113104516.GE25458@arm.com> <5696CF08.8080700@imgtec.com>
-	<20160114121449.GC15828@arm.com> <5697F6D2.60409@imgtec.com>
-	<20160114203430.GC3818@linux.vnet.ibm.com>
-	<56980C91.1010403@imgtec.com>
-	<20160114212913.GF3818@linux.vnet.ibm.com>
-	<569814F2.50801@imgtec.com>
-	<20160114225510.GJ3818@linux.vnet.ibm.com>
-	<56983054.4070807@imgtec.com>
-	<20160115004753.GN3818@linux.vnet.ibm.com>
-	<56984642.3090106@imgtec.com>
-	<alpine.DEB.2.00.1601271116520.5958@tp.orcam.me.uk>
+From: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH] documentation: Add disclaimer
+Date: Thu, 28 Jan 2016 20:02:14 +0000
+Message-ID: <17497.1454011334@warthog.procyon.org.uk>
+References: <20160127233504.GP4503@linux.vnet.ibm.com> <20160114120445.GB15828@arm.com> <56980145.5030901@imgtec.com> <20160114204827.GE3818@linux.vnet.ibm.com> <56981212.7050301@imgtec.com> <20160114222046.GH3818@linux.vnet.ibm.com> <20160126102402.GE6357@twins.programming.kicks-ass.net> <20160126103200.GI6375@twins.programming.kicks-ass.net> <20160126110053.GA21553@arm.com> <20160126201143.GV4503@linux.vnet.ibm.com> <15882.1453906627@warthog.procyon.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.00.1601271116520.5958@tp.orcam.me.uk>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-ia64-owner@vger.kernel.org>
+In-Reply-To: <20160127233504.GP4503@linux.vnet.ibm.com>
+Content-ID: <17496.1454011334.1@warthog.procyon.org.uk>
+Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: "Maciej W. Rozycki" <macro@imgtec.com>
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, paulmck@linux.vnet.ibm.com, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-me
+To: paulmck@linux.vnet.ibm.com
+Cc: dhowells@redhat.com, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, Joe Perches <joe@perches.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lis
 List-ID: <linux-s390.vger.kernel.org>
 
-On 01/27/2016 03:26 AM, Maciej W. Rozycki wrote:
-> On Fri, 15 Jan 2016, Leonid Yegoshin wrote:
->
->>> So you need to build a different kernel for some types of MIPS systems?
->>> Or do you do boot-time rewriting, like a number of other arches do?
->> I don't know. I would like to have responses. Ralf asked Maciej about old
->> systems and that came nowhere. Even rewrite - don't know what to do with that:
->> no lightweight SYNC or no SYNC at all - yes, it is still possible that SYNC on
->> some systems can be too heavy or even harmful, nobody tested that.
->   I don't recall being asked; mind that I might not get to messages I have
-> not been cc-ed in a timely manner and I may miss some altogether.  With
-> the amount of mailing list traffic that passes by me my scanner may fail
-> to trigger.  Sorry if this causes anybody trouble, but such is life.
->
->   Coincidentally, I have just posted some notes on SYNC in a different
-> thread, see <http://lkml.iu.edu/hypermail/linux/kernel/1601.3/03080.html>.
-> There's a reference to an older message of mine there too.  I hope this
-> answers your questions.
->
->    Maciej
-In http://patchwork.linux-mips.org/patch/10505/the very last mesg 
-exchange is:
+Paul E. McKenney <paulmck@linux.vnet.ibm.com> wrote:
 
-Maciej,
+> Good point!  Would you be willing to add a Signed-off-by so I
+> can take the combined change, assuming Peter and Will are good
+> with it?
 
-do you have an R4000 / R4600 / R5000 / R7000 / SiByte system at hand to
-test this?
-...
-   Ralf
+Sure!
 
-Maciej W. Rozycki- June 5, 2015, 9:18 p.m.
-
-On Fri, 5 Jun 2015, Ralf Baechle wrote:
-
-> do you have an R4000 / R4600 / R5000 / R7000 / SiByte system at hand to
-> test this?
-
-  I should be able to check R4400 (that is virtually the same as R4000)
-next week or so.  As to SiByte -- not before next month I'm afraid.  I
-don't have access to any of the other processors you named.  You may
-want to find a better person if you want to accept this change soon.
-
-   Maciej
-
-... and that stops forever...
-
-- Leonid.
+David
