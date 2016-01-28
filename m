@@ -1,141 +1,164 @@
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+From: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
 Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
-Date: Wed, 27 Jan 2016 15:30:18 -0800
-Message-ID: <20160127233018.GN4503@linux.vnet.ibm.com>
-References: <20160118081929.GA30420@gondor.apana.org.au>
- <20160118154629.GB3818@linux.vnet.ibm.com>
- <20160126165207.GB6029@fixme-laptop.cn.ibm.com>
- <20160126172227.GG6357@twins.programming.kicks-ass.net>
- <CA+55aFzcC6C8imPs5vk4yH1Y2YHjnAdFM9HCkVs04COxuDQH6w@mail.gmail.com>
- <20160126201037.GU4503@linux.vnet.ibm.com>
- <CA+55aFxjb+2rs2wVHtiSCcOzgMrE8H=yDeNcjyujPQudDCtLgw@mail.gmail.com>
- <CA+55aFwxTJd+uibcxtZD3tGnj_n=LMwyAa0s8qyx_OF0OMWQkA@mail.gmail.com>
- <20160126232921.GY4503@linux.vnet.ibm.com>
- <20160127020447.GA1293@fixme-laptop.cn.ibm.com>
-Reply-To: paulmck@linux.vnet.ibm.com
+Date: Wed, 27 Jan 2016 16:48:45 -0800
+Message-ID: <56A9656D.3080707@imgtec.com>
+References: <20160113104516.GE25458@arm.com> <5696CF08.8080700@imgtec.com>
+	<20160114121449.GC15828@arm.com> <5697F6D2.60409@imgtec.com>
+	<20160114203430.GC3818@linux.vnet.ibm.com>
+	<56980C91.1010403@imgtec.com>
+	<20160114212913.GF3818@linux.vnet.ibm.com>
+	<569814F2.50801@imgtec.com>
+	<20160114225510.GJ3818@linux.vnet.ibm.com>
+	<56983054.4070807@imgtec.com>
+	<20160115004753.GN3818@linux.vnet.ibm.com>
+	<56984642.3090106@imgtec.com>
+	<alpine.DEB.2.00.1601271116520.5958@tp.orcam.me.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arch-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160127020447.GA1293@fixme-laptop.cn.ibm.com>
-Sender: linux-arch-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============9087233927382373719=="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <alpine.DEB.2.00.1601271116520.5958@tp.orcam.me.uk>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Boqun Feng <boqun.feng@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, Herbert Xu <herbert@gondor.apana.org.au>, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, linux-mips <linux-mips@linux-mips.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Will Deacon <will.deacon@arm.com>, virtualization <virtualization@lists.linux-foundation.org>, Peter Anvin <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Russell King - ARM Linux <linux@arm.linux.org.uk>, uml-devel <user-mode-linux-devel@lists.sourceforge.net>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, the arch/x86 maintainers <x86@kernel.org>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>linu
+To: "Maciej W. Rozycki" <macro@imgtec.com>
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, user-mode-linux-devel@lists.sourceforge.net, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, paulmck@linux.vnet.ibm.com, linux-xtensa@linux-xtensa.org, james.hogan@imgtec.com, Arnd Bergmann <arnd@arndb.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, adi-buildroot-devel@lists.sourceforge.net, ddaney.cavm@gmail.com, Thomas Gleixner <tglx@linutronix.de>, linux-me
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jan 27, 2016 at 10:04:47AM +0800, Boqun Feng wrote:
-> On Tue, Jan 26, 2016 at 03:29:21PM -0800, Paul E. McKenney wrote:
-> > On Tue, Jan 26, 2016 at 02:33:40PM -0800, Linus Torvalds wrote:
-> > > On Tue, Jan 26, 2016 at 2:15 PM, Linus Torvalds
-> > > <torvalds@linux-foundation.org> wrote:
-> > > >
-> > > > You might as well just write it as
-> > > >
-> > > >     struct foo x = READ_ONCE(*ptr);
-> > > >     x->bar = 5;
-> > > >
-> > > > because that "smp_read_barrier_depends()" does NOTHING wrt the second write.
-> > > 
-> > > Just to clarify: on alpha it adds a memory barrier, but that memory
-> > > barrier is useless.
-> > 
-> > No trailing data-dependent read, so agreed, no smp_read_barrier_depends()
-> > needed.  That said, I believe that we should encourage rcu_dereference*()
-> > or lockless_dereference() instead of READ_ONCE() for documentation
-> > reasons, though.
-> > 
-> > > On non-alpha, it is a no-op, and obviously does nothing simply because
-> > > it generates no code.
-> > > 
-> > > So if anybody believes that the "smp_read_barrier_depends()" does
-> > > something, they are *wrong*.
-> > 
-> > The other problem with smp_read_barrier_depends() is that it is often
-> > a pain figuring out which prior load it is supposed to apply to.
-> > Hence my preference for rcu_dereference*() and lockless_dereference().
-> > 
-> 
-> Because semantically speaking, rcu_derefence*() and
-> lockless_dereference() are CONSUME(i.e. data/address dependent
-> read->read and read->write pairs are ordered), whereas
-> smp_read_barrier_depends() only guarantees read->read pairs with data
-> dependency are ordered, right?
-> 
-> If so, maybe we need to call it out in memory-barriers.txt, for example:
-> 
-> diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
-> index 904ee42..6b262c2 100644
-> --- a/Documentation/memory-barriers.txt
-> +++ b/Documentation/memory-barriers.txt
-> @@ -1703,8 +1703,8 @@ There are some more advanced barrier functions:
->  
->  
->   (*) lockless_dereference();
-> -     This can be thought of as a pointer-fetch wrapper around the
-> -     smp_read_barrier_depends() data-dependency barrier.
-> +     This is a load, and any load or store that has a data dependency on the
-> +     value returned by this load won't be reordered before this load.
+--===============9087233927382373719==
+Content-Type: multipart/alternative;
+	boundary="------------070307010207020903010305"
 
-This is a good start, but more is needed to warn people off of
-smp_read_barrier_depends().  But yes, better explanation would be good.
+--------------070307010207020903010305
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 
-							Thanx, Paul
+On 01/27/2016 03:26 AM, Maciej W. Rozycki wrote:
+> On Fri, 15 Jan 2016, Leonid Yegoshin wrote:
+>
+>>> So you need to build a different kernel for some types of MIPS systems?
+>>> Or do you do boot-time rewriting, like a number of other arches do?
+>> I don't know. I would like to have responses. Ralf asked Maciej about old
+>> systems and that came nowhere. Even rewrite - don't know what to do with that:
+>> no lightweight SYNC or no SYNC at all - yes, it is still possible that SYNC on
+>> some systems can be too heavy or even harmful, nobody tested that.
+>   I don't recall being asked;
+In http://patchwork.linux-mips.org/patch/10505/ the very last mesg 
+exchange is:
 
->       This is also similar to rcu_dereference(), but in cases where
->       object lifetime is handled by some mechanism other than RCU, for
-> 
-> 
-> Regards,
-> Boqun
-> 
-> > > And if anybody sends out an email with that smp_read_barrier_depends()
-> > > in an example, they are actively just confusing other people, which is
-> > > even worse than just being wrong. Which is why I jumped in.
-> > > 
-> > > So stop perpetuating the myth that smp_read_barrier_depends() does
-> > > something here. It does not. It's a bug, and it has become this "mind
-> > > virus" for some people that seem to believe that it does something.
-> > 
-> > It looks like I should add words to memory-barriers.txt de-emphasizing
-> > smp_read_barrier_depends().  I will take a look at that.
-> > 
-> > > I had to remove this crap once from the kernel already, see commit
-> > > 105ff3cbf225 ("atomic: remove all traces of READ_ONCE_CTRL() and
-> > > atomic*_read_ctrl()").
-> > > 
-> > > I don't want to ever see that broken construct again. And I want to
-> > > make sure that everybody is educated about how broken it was. I'm
-> > > extremely unhappy that it came up again.
-> > 
-> > Well, if it makes you feel better, that was control dependencies and this
-> > was data dependencies.  So it was not -exactly- the same.  ;-)
-> > 
-> > (Sorry, couldn't resist...)
-> > 
-> > > If it turns out that some architecture does actually need a barrier
-> > > between a read and a dependent write, then that will mean that
-> > > 
-> > >  (a) we'll have to make up a _new_ barrier, because
-> > > "smp_read_barrier_depends()" is not that barrier. We'll presumably
-> > > then have to make that new barrier part of "rcu_derefence()" and
-> > > friends.
-> > 
-> > Agreed.  We can worry about whether or not we replace the current
-> > smp_read_barrier_depends() with that new barrier when and if such
-> > hardware appears.
-> > 
-> > >  (b) we will have found an architecture with even worse memory
-> > > ordering semantics than alpha, and we'll have to stop castigating
-> > > alpha for being the worst memory ordering ever.
-> > 
-> > ;-) ;-) ;-)
-> > 
-> > > but I sincerely hope that we'll never find that kind of broken architecture.
-> > 
-> > Apparently at least some hardware vendors are reading memory-barriers.txt,
-> > so perhaps the odds of that kind of breakage have reduced.
-> > 
-> > 								Thanx, Paul
-> > 
+Maciej,
+
+do you have an R4000 / R4600 / R5000 / R7000 / SiByte system at hand to
+test this?
+...
+   Ralf
+
+Maciej W. Rozycki 
+<http://patchwork.linux-mips.org/project/linux-mips/list/?submitter=79> 
+- June 5, 2015, 9:18 p.m.
+
+On Fri, 5 Jun 2015, Ralf Baechle wrote:
+
+> do you have an R4000 / R4600 / R5000 / R7000 / SiByte system at hand to
+> test this?
+
+  I should be able to check R4400 (that is virtually the same as R4000)
+next week or so.  As to SiByte -- not before next month I'm afraid.  I
+don't have access to any of the other processors you named.  You may
+want to find a better person if you want to accept this change soon.
+
+   Maciej
+
+... and that stops forever...
+
+- Leonid.
+
+--------------070307010207020903010305
+Content-Type: text/html; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+    <meta content="text/html; charset=windows-1252"
+      http-equiv="Content-Type">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <div class="moz-cite-prefix">On 01/27/2016 03:26 AM, Maciej W.
+      Rozycki wrote:<br>
+    </div>
+    <blockquote
+      cite="mid:alpine.DEB.2.00.1601271116520.5958@tp.orcam.me.uk"
+      type="cite">
+      <pre wrap="">On Fri, 15 Jan 2016, Leonid Yegoshin wrote:
+
+</pre>
+      <blockquote type="cite">
+        <blockquote type="cite">
+          <pre wrap="">So you need to build a different kernel for some types of MIPS systems?
+Or do you do boot-time rewriting, like a number of other arches do?
+</pre>
+        </blockquote>
+        <pre wrap="">
+I don't know. I would like to have responses. Ralf asked Maciej about old
+systems and that came nowhere. Even rewrite - don't know what to do with that:
+no lightweight SYNC or no SYNC at all - yes, it is still possible that SYNC on
+some systems can be too heavy or even harmful, nobody tested that.
+</pre>
+      </blockquote>
+      <pre wrap="">
+ I don't recall being asked; 
+</pre>
+    </blockquote>
+    In <a class="moz-txt-link-freetext" href="http://patchwork.linux-mips.org/patch/10505/">http://patchwork.linux-mips.org/patch/10505/</a> the very last mesg
+    exchange is:<br>
+    <br>
+    <pre class="content">Maciej,
+
+do you have an R4000 / R4600 / R5000 / R7000 / SiByte system at hand to
+test this?
+...
+  Ralf
+</pre>
+    <div class="comment">
+      <div class="meta"><a
+href="http://patchwork.linux-mips.org/project/linux-mips/list/?submitter=79">Maciej
+          W. Rozycki</a> - June 5, 2015, 9:18 p.m.</div>
+      <pre class="content">On Fri, 5 Jun 2015, Ralf Baechle wrote:
+<span class="quote">
+&gt; do you have an R4000 / R4600 / R5000 / R7000 / SiByte system at hand to</span>
+<span class="quote">&gt; test this?</span>
+
+ I should be able to check R4400 (that is virtually the same as R4000) 
+next week or so.  As to SiByte -- not before next month I'm afraid.  I 
+don't have access to any of the other processors you named.  You may 
+want to find a better person if you want to accept this change soon.
+
+  Maciej
+</pre>
+    </div>
+    ... and that stops forever...<br>
+    <br>
+    - Leonid.<br>
+  </body>
+</html>
+
+--------------070307010207020903010305--
+
+--===============9087233927382373719==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============9087233927382373719==--
