@@ -1,76 +1,128 @@
 Return-Path: <owner-linux-mm@kvack.org>
-Date: Mon, 1 Feb 2016 07:52:07 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
 Subject: Re: [linux-next:master 1875/2100] include/linux/jump_label.h:122:2:
  error: implicit declaration of function 'atomic_read'
-Message-ID: <20160201075207.24869290@canb.auug.org.au>
-In-Reply-To: <56AB4C1D.5090801@suse.cz>
 References: <201601291512.vqk4lpvV%fengguang.wu@intel.com>
-	<56AB3EEB.8090808@suse.cz>
-	<20160129215335.1a049964@canb.auug.org.au>
-	<56AB4C1D.5090801@suse.cz>
+From: Vlastimil Babka <vbabka@suse.cz>
+Message-ID: <56AB3EEB.8090808@suse.cz>
+Date: Fri, 29 Jan 2016 11:28:59 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <201601291512.vqk4lpvV%fengguang.wu@intel.com>
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Vlastimil Babka <vbabka@suse.cz>
-Cc: kbuild test robot <fengguang.wu@intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, kbuild-all@01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Peter Zijlstra <peterz@infradead.org>
+To: kbuild test robot <fengguang.wu@intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: kbuild-all@01.org, linux-s390@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, Andrew Morton <akpm@linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Peter Zijlstra <peterz@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Vlastimil,
+On 01/29/2016 08:06 AM, kbuild test robot wrote:
+> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
+> head:   735cfa51151aeae6df04074165aa36b42481df86
+> commit: e8bd33570a656979c09ce66a11ca8864fda8ad0c [1875/2100] mm, printk: introduce new format string for flags-fix
+> config: s390-allyesconfig (attached as .config)
+> reproduce:
+>         wget https://git.kernel.org/cgit/linux/kernel/git/wfg/lkp-tests.git/plain/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         git checkout e8bd33570a656979c09ce66a11ca8864fda8ad0c
+>         # save the attached .config to linux build tree
+>         make.cross ARCH=s390 
+> 
+> All errors (new ones prefixed by >>):
+> 
+>    In file included from include/linux/static_key.h:1:0,
+>                     from include/linux/tracepoint-defs.h:11,
+>                     from include/linux/mmdebug.h:6,
+>                     from arch/s390/include/asm/cmpxchg.h:10,
+>                     from arch/s390/include/asm/atomic.h:19,
+>                     from include/linux/atomic.h:4,
+>                     from include/linux/debug_locks.h:5,
+>                     from include/linux/lockdep.h:23,
+>                     from include/linux/hardirq.h:5,
+>                     from include/linux/kvm_host.h:10,
+>                     from arch/s390/kernel/asm-offsets.c:10:
+>    include/linux/jump_label.h: In function 'static_key_count':
+>>> include/linux/jump_label.h:122:2: error: implicit declaration of function 'atomic_read' [-Werror=implicit-function-declaration]
+>      return atomic_read(&key->enabled);
 
-On Fri, 29 Jan 2016 12:25:17 +0100 Vlastimil Babka <vbabka@suse.cz> wrote:
->
-> Please replace the -fix with this patch. Sorry again.
+Sigh.
+
+I don't get it, there's "#include <linux/atomic.h>" in jump_label.h right before
+it gets used. So, what implicit declaration?
+
+BTW, do you really need to use VM_BUG_ON() and thus include mmdebug.h in
+arch/s390/include/asm/cmpxchg.h ? Is that assertion really related to VM?
+
+>      ^
+>    In file included from include/linux/atomic.h:4:0,
+>                     from include/linux/debug_locks.h:5,
+>                     from include/linux/lockdep.h:23,
+>                     from include/linux/hardirq.h:5,
+>                     from include/linux/kvm_host.h:10,
+>                     from arch/s390/kernel/asm-offsets.c:10:
+>    arch/s390/include/asm/atomic.h: At top level:
+>    arch/s390/include/asm/atomic.h:74:19: error: static declaration of 'atomic_read' follows non-static declaration
+>     static inline int atomic_read(const atomic_t *v)
+>                       ^
+>    In file included from include/linux/static_key.h:1:0,
+>                     from include/linux/tracepoint-defs.h:11,
+>                     from include/linux/mmdebug.h:6,
+>                     from arch/s390/include/asm/cmpxchg.h:10,
+>                     from arch/s390/include/asm/atomic.h:19,
+>                     from include/linux/atomic.h:4,
+>                     from include/linux/debug_locks.h:5,
+>                     from include/linux/lockdep.h:23,
+>                     from include/linux/hardirq.h:5,
+>                     from include/linux/kvm_host.h:10,
+>                     from arch/s390/kernel/asm-offsets.c:10:
+>    include/linux/jump_label.h:122:9: note: previous implicit declaration of 'atomic_read' was here
+>      return atomic_read(&key->enabled);
+>             ^
+>    cc1: some warnings being treated as errors
+>    make[2]: *** [arch/s390/kernel/asm-offsets.s] Error 1
+>    make[2]: Target '__build' not remade because of errors.
+>    make[1]: *** [prepare0] Error 2
+>    make[1]: Target 'prepare' not remade because of errors.
+>    make: *** [sub-make] Error 2
 > 
-> ----8<----
-> From 1e6b1ae6bf55410fb816cf910c4d91533642072b Mon Sep 17 00:00:00 2001
-> From: Vlastimil Babka <vbabka@suse.cz>
-> Date: Fri, 29 Jan 2016 12:18:21 +0100
-> Subject: [PATCH] mm, printk: introduce new format string for flags-fix
+> vim +/atomic_read +122 include/linux/jump_label.h
 > 
-> Due to rebasing mistake, mmdebug.h keeps including tracepoint.h, causing
-> header dependency issues on some arches.
-> Remove the include, and related declarations of flags arrays, which reside
-> in mm/internal.h and lib/vsprintf.c already includes that header.
+> c0ccf6f99 Anton Blanchard 2015-04-09  106  #include <asm/jump_label.h>
+> c0ccf6f99 Anton Blanchard 2015-04-09  107  #endif
+> c0ccf6f99 Anton Blanchard 2015-04-09  108  
+> c0ccf6f99 Anton Blanchard 2015-04-09  109  #ifndef __ASSEMBLY__
+> bf5438fca Jason Baron     2010-09-17  110  
+> bf5438fca Jason Baron     2010-09-17  111  enum jump_label_type {
+> 76b235c6b Peter Zijlstra  2015-07-24  112  	JUMP_LABEL_NOP = 0,
+> 76b235c6b Peter Zijlstra  2015-07-24  113  	JUMP_LABEL_JMP,
+> bf5438fca Jason Baron     2010-09-17  114  };
+> bf5438fca Jason Baron     2010-09-17  115  
+> bf5438fca Jason Baron     2010-09-17  116  struct module;
+> bf5438fca Jason Baron     2010-09-17  117  
+> 851cf6e7d Andrew Jones    2013-08-09  118  #include <linux/atomic.h>
+> ea5e9539a Mel Gorman      2014-06-04  119  
+> ea5e9539a Mel Gorman      2014-06-04  120  static inline int static_key_count(struct static_key *key)
+> ea5e9539a Mel Gorman      2014-06-04  121  {
+> ea5e9539a Mel Gorman      2014-06-04 @122  	return atomic_read(&key->enabled);
+> ea5e9539a Mel Gorman      2014-06-04  123  }
+> ea5e9539a Mel Gorman      2014-06-04  124  
+> bf5438fca Jason Baron     2010-09-17  125  #ifdef HAVE_JUMP_LABEL
+> bf5438fca Jason Baron     2010-09-17  126  
+> a1efb01fe Peter Zijlstra  2015-07-24  127  #define JUMP_TYPE_FALSE	0UL
+> a1efb01fe Peter Zijlstra  2015-07-24  128  #define JUMP_TYPE_TRUE	1UL
+> a1efb01fe Peter Zijlstra  2015-07-24  129  #define JUMP_TYPE_MASK	1UL
+> c5905afb0 Ingo Molnar     2012-02-24  130  
 > 
-> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+> :::::: The code at line 122 was first introduced by commit
+> :::::: ea5e9539abf1258f23e725cb9cb25aa74efa29eb include/linux/jump_label.h: expose the reference count
+> 
+> :::::: TO: Mel Gorman <mgorman@suse.de>
+> :::::: CC: Linus Torvalds <torvalds@linux-foundation.org>
+> 
 > ---
->  include/linux/mmdebug.h | 6 ------
->  1 file changed, 6 deletions(-)
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
 > 
-> diff --git a/include/linux/mmdebug.h b/include/linux/mmdebug.h
-> index 3fb9bc65d61d..de7be78c6f0e 100644
-> --- a/include/linux/mmdebug.h
-> +++ b/include/linux/mmdebug.h
-> @@ -3,17 +3,11 @@
->  
->  #include <linux/bug.h>
->  #include <linux/stringify.h>
-> -#include <linux/types.h>
-> -#include <linux/tracepoint.h>
->  
->  struct page;
->  struct vm_area_struct;
->  struct mm_struct;
->  
-> -extern const struct trace_print_flags pageflag_names[];
-> -extern const struct trace_print_flags vmaflag_names[];
-> -extern const struct trace_print_flags gfpflag_names[];
-> -
->  extern void dump_page(struct page *page, const char *reason);
->  extern void __dump_page(struct page *page, const char *reason);
->  void dump_vma(const struct vm_area_struct *vma);
-> -- 
-> 2.7.0
-
-OK, I have done that from today.
-
--- 
-Cheers,
-Stephen Rothwell
 
 --
 To unsubscribe, send a message with 'unsubscribe linux-mm' in
