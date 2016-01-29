@@ -1,26 +1,29 @@
-From: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH] documentation: Add disclaimer
-Date: Thu, 28 Jan 2016 20:02:14 +0000
-Message-ID: <17497.1454011334@warthog.procyon.org.uk>
-References: <20160127233504.GP4503@linux.vnet.ibm.com> <20160114120445.GB15828@arm.com> <56980145.5030901@imgtec.com> <20160114204827.GE3818@linux.vnet.ibm.com> <56981212.7050301@imgtec.com> <20160114222046.GH3818@linux.vnet.ibm.com> <20160126102402.GE6357@twins.programming.kicks-ass.net> <20160126103200.GI6375@twins.programming.kicks-ass.net> <20160126110053.GA21553@arm.com> <20160126201143.GV4503@linux.vnet.ibm.com> <15882.1453906627@warthog.procyon.org.uk>
+From: "Maciej W. Rozycki" <macro@imgtec.com>
+Subject: Re: [v3,11/41] mips: reuse asm-generic/barrier.h
+Date: Fri, 29 Jan 2016 13:38:59 +0000
+Message-ID: <alpine.DEB.2.00.1601291333130.5958@tp.orcam.me.uk>
+References: <20160113104516.GE25458@arm.com> <5696CF08.8080700@imgtec.com> <20160114121449.GC15828@arm.com> <5697F6D2.60409@imgtec.com> <20160114203430.GC3818@linux.vnet.ibm.com> <56980C91.1010403@imgtec.com> <20160114212913.GF3818@linux.vnet.ibm.com>
+ <569814F2.50801@imgtec.com> <20160114225510.GJ3818@linux.vnet.ibm.com> <56983054.4070807@imgtec.com> <20160115004753.GN3818@linux.vnet.ibm.com> <56984642.3090106@imgtec.com> <alpine.DEB.2.00.1601271116520.5958@tp.orcam.me.uk> <56A9656D.3080707@imgtec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="US-ASCII"
 Return-path: <linux-ia64-owner@vger.kernel.org>
-In-Reply-To: <20160127233504.GP4503@linux.vnet.ibm.com>
-Content-ID: <17496.1454011334.1@warthog.procyon.org.uk>
+In-Reply-To: <56A9656D.3080707@imgtec.com>
 Sender: linux-ia64-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: paulmck@linux.vnet.ibm.com
-Cc: dhowells@redhat.com, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>, Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, Joe Perches <joe@perches.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lis
+To: Leonid Yegoshin <Leonid.Yegoshin@imgtec.com>
+Cc: paulmck@linux.vnet.ibm.com, Will Deacon <will.deacon@arm.com>, Peter Zijlstra <peterz@infradead.org>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, virtualization@lists.linux-foundation.org, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, Joe Perches <joe@perches.com>, David Miller <davem@davemloft.net>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, x86@kernel.org, user-mode-linux-devel@lists.sourceforge
 List-ID: <linux-s390.vger.kernel.org>
 
-Paul E. McKenney <paulmck@linux.vnet.ibm.com> wrote:
+On Thu, 28 Jan 2016, Leonid Yegoshin wrote:
 
-> Good point!  Would you be willing to add a Signed-off-by so I
-> can take the combined change, assuming Peter and Will are good
-> with it?
+> In http://patchwork.linux-mips.org/patch/10505/ the very last mesg exchange
+> is:
+[...]
+> ... and that stops forever...
 
-Sure!
+ Thanks for the reminder -- last June was very hectic, I travelled a lot 
+and I lost the discussion from my radar.  Apologies for that.  I replied 
+in that thread now with my results.  I hope this helps.
 
-David
+  Maciej
