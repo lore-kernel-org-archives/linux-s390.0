@@ -1,106 +1,81 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v5 00/10] virtio DMA API, yet again
-Date: Sun, 31 Jan 2016 22:12:32 +0200
-Message-ID: <20160131201232.GA1643@redhat.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [Xen-devel] [PATCH v5 09/10] vring: Use the DMA API on Xen
+Date: Sun, 31 Jan 2016 12:13:58 -0800
+Message-ID: <CALCETrU4p5qz_3aq+Xrx7P2m0Ce0yWMczzjngjEp8OzL1yvX6Q@mail.gmail.com>
 References: <cover.1454034075.git.luto@kernel.org>
+	<64e979cc139c5e6a9bbfae9f1bc5e6693d91bea9.1454034075.git.luto@kernel.org>
+	<56AB4053.4070007@citrix.com>
+	<20160131220601-mutt-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <sparclinux-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1454034075.git.luto@kernel.org>
-Sender: sparclinux-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20160131220601-mutt-send-email-mst@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Andy Lutomirski <luto@kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, David Woodhouse <dwmw2@infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Joerg Roedel <jroedel@suse.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>, KVM <kvm@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, David Vrabel <david.vrabel@citrix.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, xen-devel@lists.xenproject.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, sparclinux@vger.kernel.org, Joerg Roedel <jroedel@suse.de>, KVM <kvm@vger.kernel.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, David Vrabel <david.vrabel@citrix.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, David Woodhouse <dwmw2@infradead.org>, Christoph Hellwig <hch@lst.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jan 28, 2016 at 06:31:13PM -0800, Andy Lutomirski wrote:
-> This switches virtio to use the DMA API on Xen and if requested by
-> module option.
-> 
-> This fixes virtio on Xen, and it should break anything because it's
-> off by default on everything except Xen PV on x86.
-> 
-> To the Xen people: is this okay?  If it doesn't work on other Xen
-> variants (PVH? HVM?), can you submit follow-up patches to fix it?
-> 
-> To everyone else: we've waffled on this for way too long.  I think
-> we should to get DMA API implementation in with a conservative
-> policy like this rather than waiting until we achieve perfection.
-> I'm tired of carrying these patches around.
+On Sun, Jan 31, 2016 at 12:09 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Fri, Jan 29, 2016 at 10:34:59AM +0000, David Vrabel wrote:
+>> On 29/01/16 02:31, Andy Lutomirski wrote:
+>> > Signed-off-by: Andy Lutomirski <luto@kernel.org>
+>> > ---
+>> >  drivers/virtio/virtio_ring.c | 12 ++++++++++++
+>> >  1 file changed, 12 insertions(+)
+>> >
+>> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>> > index c169c6444637..305c05cc249a 100644
+>> > --- a/drivers/virtio/virtio_ring.c
+>> > +++ b/drivers/virtio/virtio_ring.c
+>> > @@ -47,6 +47,18 @@
+>> >
+>> >  static bool vring_use_dma_api(void)
+>> >  {
+>> > +#if defined(CONFIG_X86) && defined(CONFIG_XEN)
+>> > +   /*
+>> > +    * In theory, it's possible to have a buggy QEMU-supposed
+>> > +    * emulated Q35 IOMMU and Xen enabled at the same time.  On
+>> > +    * such a configuration, virtio has never worked and will
+>> > +    * not work without an even larger kludge.  Instead, enable
+>> > +    * the DMA API if we're a Xen guest, which at least allows
+>> > +    * all of the sensible Xen configurations to work correctly.
+>> > +    */
+>> > +   return static_cpu_has(X86_FEATURE_XENPV);
+>>
+>> You want:
+>>
+>>     if (xen_domain())
+>>         return true;
+>>
+>> Without the #if so we use the DMA API for all types of Xen guest on all
+>> architectures.
+>>
+>> David
+>
+> I doubt HVM domains can have virtio devices.
+>
 
-I agree, thanks for working on this!
+They certainly can under nested virt (L0 provides virtio device, L1 is
+Xen, and L2 is Linux).  Of course, this won't work given the current
+QEMU situation unless Xen can pass things through to dom0 without an
+IOMMU, which seems plausible to me.
 
-> Michael, if these survive review, can you stage these in your tree?
+But yes, xen_domain() sounds right to me.  I just failed to find that
+function when I wrote this patch.
 
-Yes, I'll stage everything except 10/10. I'd rather not maintain a
-module option like this, things work for now and I'm working on a
-clean solution for things like dpdk within guest.
+Michael, if you like the rest of the series, I'd be okay if you
+changed this patch to use xen_domain() when you apply it.  If I send a
+v2, I'll fix it up.
 
-So far I saw some comments on 9/10.
-
-> Can you also take a look at tools/virtio?  I probably broke it, but I
-> couldn't get it to build without these patches either, so I'm stuck.
-
-Will do.
-
-> Changes from v4:
->  - Bake vring_use_dma_api in from the beginning.
->  - Automatically enable only on Xen.
->  - Add module parameter.
->  - Add s390 and alpha DMA API implementations.
->  - Rebase to 4.5-rc1.
-> 
-> Changes from v3:
->  - More big-endian fixes.
->  - Added better virtio-ring APIs that handle allocation and use them in
->    virtio-mmio and virtio-pci.
->  - Switch to Michael's virtio-net patch.
-> 
-> Changes from v2:
->  - Fix vring_mapping_error incorrect argument
-> 
-> Changes from v1:
->  - Fix an endian conversion error causing a BUG to hit.
->  - Fix a DMA ordering issue (swiotlb=force works now).
->  - Minor cleanups.
-> 
-> Andy Lutomirski (7):
->   vring: Introduce vring_use_dma_api()
->   virtio_ring: Support DMA APIs
->   virtio: Add improved queue allocation API
->   virtio_mmio: Use the DMA API if enabled
->   virtio_pci: Use the DMA API if enabled
->   vring: Use the DMA API on Xen
->   vring: Add a module parameter to force-enable the DMA API
-> 
-> Christian Borntraeger (3):
->   dma: Provide simple noop dma ops
->   alpha/dma: use common noop dma ops
->   s390/dma: Allow per device dma ops
-> 
->  arch/alpha/kernel/pci-noop.c        |  46 +---
->  arch/s390/Kconfig                   |   6 +-
->  arch/s390/include/asm/device.h      |   6 +-
->  arch/s390/include/asm/dma-mapping.h |   6 +-
->  arch/s390/pci/pci.c                 |   1 +
->  arch/s390/pci/pci_dma.c             |   4 +-
->  drivers/virtio/Kconfig              |   2 +-
->  drivers/virtio/virtio_mmio.c        |  67 ++----
->  drivers/virtio/virtio_pci_common.h  |   6 -
->  drivers/virtio/virtio_pci_legacy.c  |  42 ++--
->  drivers/virtio/virtio_pci_modern.c  |  61 ++----
->  drivers/virtio/virtio_ring.c        | 412 ++++++++++++++++++++++++++++++------
->  include/linux/dma-mapping.h         |   2 +
->  include/linux/virtio.h              |  23 +-
->  include/linux/virtio_ring.h         |  35 +++
->  lib/Makefile                        |   1 +
->  lib/dma-noop.c                      |  75 +++++++
->  tools/virtio/linux/dma-mapping.h    |  17 ++
->  18 files changed, 568 insertions(+), 244 deletions(-)
->  create mode 100644 lib/dma-noop.c
->  create mode 100644 tools/virtio/linux/dma-mapping.h
-> 
-> -- 
-> 2.5.0
+--Andy
