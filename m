@@ -1,103 +1,61 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: [PATCH 10/11] x86, rwsem: provide __down_write_killable
-Date: Mon, 29 Feb 2016 13:58:24 +0100
-Message-ID: <1456750705-7141-11-git-send-email-mhocko@kernel.org>
-References: <1456750705-7141-1-git-send-email-mhocko@kernel.org>
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1456750705-7141-1-git-send-email-mhocko@kernel.org>
-Sender: linux-arch-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Tony Luck <tony.luck@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, Michal Hocko <mhocko@suse.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 1 Feb 2016 10:00:11 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390:ftrace: add save_stack_trace_regs()
+Message-ID: <20160201090011.GA4166@osiris>
+References: <86d380d172bba0416aef64448b0e1b6a50fad326.1454044645.git.panand@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <86d380d172bba0416aef64448b0e1b6a50fad326.1454044645.git.panand@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Pratyush Anand <panand@redhat.com>
+Cc: schwidefsky@de.ibm.com, rostedt@goodmis.org, linux-s390@vger.kernel.org, Chunyu Hu <chuhu@redhat.com>, open list <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michal Hocko <mhocko@suse.com>
+On Fri, Jan 29, 2016 at 10:50:28AM +0530, Pratyush Anand wrote:
+> Implement save_stack_trace_regs, so that stacktrace of a kprobe events can
+> be obtained.
+> 
+> Without this we see following warning:
+> "save_stack_trace_regs() not implemented yet."
+> when we execute:
+> echo stacktrace > /sys/kernel/debug/tracing/trace_options
+> echo "p kfree" >> /sys/kernel/debug/tracing/kprobe_events
+> echo 1 > /sys/kernel/debug/tracing/events/kprobes/enable
+> 
+> Reported-by: Chunyu Hu <chuhu@redhat.com>
+> Signed-off-by: Pratyush Anand <panand@redhat.com>
+> ---
+>  arch/s390/kernel/stacktrace.c | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+> 
+> diff --git a/arch/s390/kernel/stacktrace.c b/arch/s390/kernel/stacktrace.c
+> index 1785cd82253c..586da400f931 100644
+> --- a/arch/s390/kernel/stacktrace.c
+> +++ b/arch/s390/kernel/stacktrace.c
+> @@ -94,3 +94,16 @@ void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
+>  		trace->entries[trace->nr_entries++] = ULONG_MAX;
+>  }
+>  EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
+> +
+> +void save_stack_trace_regs(struct pt_regs *regs, struct stack_trace *trace)
+> +{
+> +	unsigned long sp, low, high;
+> +
+> +	sp = kernel_stack_pointer(regs);
+> +	low = (unsigned long) task_stack_page(current);
+> +	high = (unsigned long) task_pt_regs(current);
+> +	save_context_stack(trace, sp, low, high, 0);
+> +	if (trace->nr_entries < trace->max_entries)
+> +		trace->entries[trace->nr_entries++] = ULONG_MAX;
+> +}
+> +EXPORT_SYMBOL_GPL(save_stack_trace_regs);
 
-which uses the same fast path as __down_write except it falls back to
-call_rwsem_down_write_failed_killable slow path and return -EINTR if
-killed. To prevent from code duplication extract the skeleton of
-__down_write into a helper macro which just takes the semaphore
-and the slow path function to be called.
-
-Signed-off-by: Michal Hocko <mhocko@suse.com>
----
- arch/x86/include/asm/rwsem.h | 41 ++++++++++++++++++++++++++++-------------
- arch/x86/lib/rwsem.S         |  8 ++++++++
- 2 files changed, 36 insertions(+), 13 deletions(-)
-
-diff --git a/arch/x86/include/asm/rwsem.h b/arch/x86/include/asm/rwsem.h
-index 4a8292a0d6e1..d759c5f70f49 100644
---- a/arch/x86/include/asm/rwsem.h
-+++ b/arch/x86/include/asm/rwsem.h
-@@ -99,21 +99,36 @@ static inline int __down_read_trylock(struct rw_semaphore *sem)
- /*
-  * lock for writing
-  */
-+#define ____down_write(sem, slow_path)			\
-+({							\
-+	long tmp;					\
-+	struct rw_semaphore* ret = sem;			\
-+	asm volatile("# beginning down_write\n\t"	\
-+		     LOCK_PREFIX "  xadd      %1,(%2)\n\t"	\
-+		     /* adds 0xffff0001, returns the old value */ \
-+		     "  test " __ASM_SEL(%w1,%k1) "," __ASM_SEL(%w1,%k1) "\n\t" \
-+		     /* was the active mask 0 before? */\
-+		     "  jz        1f\n"			\
-+		     "  call " slow_path "\n"		\
-+		     "1:\n"				\
-+		     "# ending down_write"		\
-+		     : "+m" (sem->count), "=d" (tmp), "+a" (ret)	\
-+		     : "a" (sem), "1" (RWSEM_ACTIVE_WRITE_BIAS) \
-+		     : "memory", "cc");			\
-+	ret;						\
-+})
-+
- static inline void __down_write(struct rw_semaphore *sem)
- {
--	long tmp;
--	asm volatile("# beginning down_write\n\t"
--		     LOCK_PREFIX "  xadd      %1,(%2)\n\t"
--		     /* adds 0xffff0001, returns the old value */
--		     "  test " __ASM_SEL(%w1,%k1) "," __ASM_SEL(%w1,%k1) "\n\t"
--		     /* was the active mask 0 before? */
--		     "  jz        1f\n"
--		     "  call call_rwsem_down_write_failed\n"
--		     "1:\n"
--		     "# ending down_write"
--		     : "+m" (sem->count), "=d" (tmp)
--		     : "a" (sem), "1" (RWSEM_ACTIVE_WRITE_BIAS)
--		     : "memory", "cc");
-+	____down_write(sem, "call_rwsem_down_write_failed");
-+}
-+
-+static inline int __down_write_killable(struct rw_semaphore *sem)
-+{
-+	if (IS_ERR(____down_write(sem, "call_rwsem_down_write_failed_killable")))
-+		return -EINTR;
-+
-+	return 0;
- }
- 
- /*
-diff --git a/arch/x86/lib/rwsem.S b/arch/x86/lib/rwsem.S
-index be110efa0096..4534a7e912f3 100644
---- a/arch/x86/lib/rwsem.S
-+++ b/arch/x86/lib/rwsem.S
-@@ -106,6 +106,14 @@ ENTRY(call_rwsem_down_write_failed)
- 	ret
- ENDPROC(call_rwsem_down_write_failed)
- 
-+ENTRY(call_rwsem_down_write_failed_killable)
-+	save_common_regs
-+	movq %rax,%rdi
-+	call rwsem_down_write_failed_killable
-+	restore_common_regs
-+	ret
-+ENDPROC(call_rwsem_down_write_failed_killable)
-+
- ENTRY(call_rwsem_wake)
- 	FRAME_BEGIN
- 	/* do nothing if still outstanding active readers */
--- 
-2.7.0
+While playing around with this, I discovered a couple of bugs in our
+stacktrace code. However this patch is also not correct, since it will save
+a stacktrace only if being called in process context, but not for interrupt
+context.
+I will fix this within this patch.
